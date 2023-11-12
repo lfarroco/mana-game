@@ -1,5 +1,5 @@
 
 export type Unit = {
-	id: number,
+	id: string,
 	name: string
 }

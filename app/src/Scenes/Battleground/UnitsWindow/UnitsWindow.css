@@ -12,6 +12,7 @@
 	min-width: 300px;
 	max-height: 400px;
 	width: 30%;
+	color: #fff;
 }
 
 #units-window li {
@@ -39,4 +40,5 @@
 #units-window .details {
 	width: 100%;
 	margin-left: 10px;
+	color: #fff;
 }
