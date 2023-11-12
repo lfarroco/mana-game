@@ -1,18 +1,33 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import './Components/Modal/Modal.css';
-import App from './App';
 import reportWebVitals from './reportWebVitals';
+import {
+  createBrowserRouter,
+  RouterProvider,
+} from "react-router-dom";
+import Title from './Scenes/Title/Title';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Battleground from './Scenes/Battleground/Battleground';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Title />,
+  },
+  {
+    path: "/battleground",
+    element: <Battleground />,
+  },
+]);
 
 root.render(
   <React.StrictMode>
-    <App />
+    <RouterProvider router={router} />
   </React.StrictMode>
 );
 
