@@ -1,6 +1,6 @@
 
 export type Squad = {
-	id: number,
+	id: string,
 	name: string,
 	members: {
 		[y: number]: {
