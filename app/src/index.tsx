@@ -6,9 +6,9 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
-import Title from './Scenes/Title/Title';
+import Title from './UI/Title/Title';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Battleground from './Scenes/Battleground/Battleground';
+import Battleground from './UI/Battleground/Battleground';
 import * as Phaser from "phaser"
 import events from 'events';
 
@@ -75,25 +75,15 @@ function create(this: Phaser.Scene) {
 
   const tiles = map.addTilesetImage('tilesets/pipoya', 'tilesets/pipoya');
 
-  if (!tiles) return;
+  if (!tiles) {
+    console.error("tiles is null")
+    return
+  }
 
-  const layer = map.createLayer(0, tiles, 0, 0);
+  map.createLayer(0, tiles);
+  map.createLayer(1, tiles);
+  map.createLayer(2, tiles);
 
-  var graphics = this.add.graphics();
-
-  graphics.fillStyle(0x00ff00);
-  graphics.fillRect(100, 100, 256, 256);
-
-  graphics.fillGradientStyle(0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 1);
-  graphics.fillRect(350, 300, 256, 256);
-
-  eventEmitter.on("test", () => {
-
-    // change color
-    graphics.fillStyle(0x0000ff);
-    graphics.fillRect(100, 100, 256, 256);
-
-  })
 
 }
 function update() { }
