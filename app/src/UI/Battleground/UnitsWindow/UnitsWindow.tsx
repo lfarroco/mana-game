@@ -4,14 +4,9 @@ import { Unit } from '../../../Models/Unit';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import ListGroup from 'react-bootstrap/ListGroup';
+import { Link } from 'react-router-dom';
 
-function UnitsWindow({
-	onToggle,
-	opened
-}: {
-	onToggle: () => void,
-	opened: boolean
-}) {
+function UnitsWindow() {
 
 	const units: Unit[] = [
 		{ id: "1", name: "weee" },
@@ -33,7 +28,7 @@ function UnitsWindow({
 
 	const selected = units.find(u => u.id === selectedUnit)
 
-	return <Modal show={opened} onHide={onToggle} size={'lg'}>
+	return <Modal show={true} ize={'lg'}>
 		<Modal.Header closeButton>
 			<Modal.Title>Units List</Modal.Title>
 		</Modal.Header>
@@ -45,12 +40,9 @@ function UnitsWindow({
 
 		</Modal.Body>
 		<Modal.Footer>
-			<Button variant="secondary" onClick={onToggle}>
+			<Link to="/battleground" className="btn btn-secondary">
 				Close
-			</Button>
-			<Button variant="primary" onClick={onToggle}>
-				Save Changes
-			</Button>
+			</Link>
 		</Modal.Footer>
 	</Modal>
 

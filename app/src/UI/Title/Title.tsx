@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom"
+
 const Title = () => {
 
 	return (
@@ -10,11 +12,24 @@ const Title = () => {
 
 					<h1> Title </h1>
 
-					<a className="btn btn-primary col-12"
-						href="/battleground"
-					>Start</a>
-					<a className="btn btn-default col-12">Options</a>
-					<a className="btn btn-default col-12">Credits</a>
+					<Link
+						to="/battleground"
+						className="btn btn-primary col-12"
+					>
+						Start
+					</Link>
+					<Link
+						to="/options"
+						className="btn btn-default col-12"
+					>
+						Options
+					</Link>
+					<Link
+						to="/credits"
+						className="btn btn-default col-12"
+					>
+						Credits
+					</Link>
 
 				</div>
 			</div>

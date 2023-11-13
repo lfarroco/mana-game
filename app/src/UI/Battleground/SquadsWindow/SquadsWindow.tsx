@@ -5,13 +5,9 @@ import { Squad } from '../../../Models/Squad';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import ListGroup from 'react-bootstrap/ListGroup';
+import { Link } from 'react-router-dom';
 
-function SquadsWindow({
-	onToggle,
-	opened }: {
-		onToggle: () => void,
-		opened: boolean
-	}) {
+function SquadsWindow() {
 
 	const squads: Squad[] = [
 		{ id: 1, name: "weee", members: {} },
@@ -24,8 +20,7 @@ function SquadsWindow({
 	const selected = squads.find(u => u.id === selectedUnit)
 
 	return <Modal
-		show={opened}
-		onHide={onToggle}
+		show={true}
 		size={"lg"}
 	>
 		<Modal.Header closeButton>
@@ -67,12 +62,9 @@ function SquadsWindow({
 
 		</Modal.Body>
 		<Modal.Footer>
-			<Button variant="secondary" onClick={onToggle}>
+			<Link to="/battleground" className="btn btn-secondary">
 				Close
-			</Button>
-			<Button variant="primary" onClick={onToggle}>
-				Save Changes
-			</Button>
+			</Link>
 		</Modal.Footer>
 
 
