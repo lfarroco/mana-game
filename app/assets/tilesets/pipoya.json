@@ -1,0 +1,15 @@
+{
+  "columns": 24,
+  "image": "pipoya.png",
+  "imageheight": 1852,
+  "imagewidth": 1536,
+  "margin": 0,
+  "name": "pipo",
+  "spacing": 0,
+  "tilecount": 672,
+  "tiledversion": "1.7.2",
+  "tileheight": 64,
+  "tilewidth": 64,
+  "type": "tileset",
+  "version": "1.6"
+}
