@@ -53,13 +53,11 @@ function Battleground(props: BattlegroundProps) {
           </ButtonGroup>
         </div>
       </header>
-      <footer>
-        <div className="card">
-          <div className="content">
-            FOOTER
-          </div>
-
+      <footer className="card block p-2">
+        <div className="content">
+          FOOTER
         </div>
+
       </footer>
 
       <Routes>
