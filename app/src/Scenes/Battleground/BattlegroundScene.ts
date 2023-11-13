@@ -16,6 +16,8 @@ function preload(this: Phaser.Scene) {
 	this.load.image('tilesets/pipoya', 'assets/tilesets/pipoya.png');
 	this.load.tilemapTiledJSON('maps/map1', 'assets/maps/map1/mapdata.json');
 
+	this.load.spritesheet('jobs/wizard', 'assets/jobs/wizard/sprites.png', { frameWidth: 32, frameHeight: 32 });
+
 }
 
 function create(this: Phaser.Scene) {
@@ -33,6 +35,24 @@ function create(this: Phaser.Scene) {
 	map.createLayer(0, tiles);
 	map.createLayer(1, tiles);
 	map.createLayer(2, tiles);
+
+	const units = [
+		{ id: "1", job: "wizard" }
+	]
+
+	// add animations
+
+	this.anims.create({
+		key: 'walk',
+		frames: this.anims.generateFrameNumbers('jobs/wizard', { start: 0, end: 2 }),
+		frameRate: 10,
+		repeat: -1
+	});
+
+	units.forEach(unit => {
+
+		this.add.sprite(100, 100, `jobs/${unit.job}`, 0).play(`walk`)
+	})
 
 
 }
