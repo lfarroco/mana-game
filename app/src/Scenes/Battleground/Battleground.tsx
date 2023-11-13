@@ -5,6 +5,7 @@ import { Action } from '../../Models/Action';
 import { State, initialState } from '../../Models/State';
 import SquadsWindow from './SquadsWindow/SquadsWindow';
 import { Button, ButtonGroup } from 'react-bootstrap';
+import events from 'events'
 
 
 const reducer = (state: State, action: Action): State => {
@@ -21,7 +22,11 @@ const reducer = (state: State, action: Action): State => {
 
 }
 
-function Battleground() {
+type BattlegroundProps = {
+  events: events.EventEmitter
+}
+
+function Battleground(props: BattlegroundProps) {
 
   const [state, dispatch] = useReducer(reducer, initialState)
 
@@ -39,6 +44,7 @@ function Battleground() {
             <Button onClick={
               () => {
                 dispatch({ type: "toggle_units_modal" })
+                props.events.emit("test")
               }
             }>
               Units

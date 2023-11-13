@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objecttypes>
+ <objecttype name="city" color="#e6c100">
+  <property name="force_id" type="string"/>
+  <property name="has_shop" type="bool" default="false"/>
+ </objecttype>
+ <objecttype name="squads" color="#a0a0a4">
+  <property name="force" type="string" default="neutral"/>
+  <property name="unit_1" type="string" default="{ x: 1,  y: 1, name: &quot;&quot;,  class: &quot;warrior&quot;}"/>
+ </objecttype>
+</objecttypes>
