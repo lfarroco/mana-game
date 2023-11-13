@@ -4,7 +4,7 @@ import UnitsWindow from './UnitsWindow/UnitsWindow';
 import { Action } from '../../Models/Action';
 import { State, initialState } from '../../Models/State';
 import SquadsWindow from './SquadsWindow/SquadsWindow';
-import { Button, ButtonGroup } from 'react-bootstrap';
+import { ButtonGroup } from 'react-bootstrap';
 import events from 'events'
 import { Link, Route, Routes } from 'react-router-dom';
 
@@ -30,8 +30,6 @@ type BattlegroundProps = {
 function Battleground(props: BattlegroundProps) {
 
   const [state, dispatch] = useReducer(reducer, initialState)
-
-  const { unitsWindowOpened, squadsWindowOpened } = state
 
   return (
     <>
@@ -67,7 +65,9 @@ function Battleground(props: BattlegroundProps) {
 
       <Routes>
         <Route path="units" element={<UnitsWindow />} />
+        <Route path="units/:unitId" element={<UnitsWindow />} />
         <Route path="squads" element={<SquadsWindow />} />
+        <Route path="squads/:squadId" element={<SquadsWindow />} />
       </Routes>
     </>
   );

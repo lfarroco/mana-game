@@ -1,10 +1,9 @@
-import { useState } from 'react';
 import './UnitsWindow.css';
 import { Unit } from '../../../Models/Unit';
 import Modal from 'react-bootstrap/Modal';
-import Button from 'react-bootstrap/Button';
 import ListGroup from 'react-bootstrap/ListGroup';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
+import { Table } from 'react-bootstrap';
 
 function UnitsWindow() {
 
@@ -23,19 +22,20 @@ function UnitsWindow() {
 		{ id: "13", name: "blaaaa" },
 	]
 
-	const [selectedUnit, setSelectedUnit] = useState("1")
+	const { unitId } = useParams()
 
+	let selectedUnit = unitId || "1"
 
 	const selected = units.find(u => u.id === selectedUnit)
 
-	return <Modal show={true} ize={'lg'}>
+	return <Modal show={true} size={"xl"}>
 		<Modal.Header closeButton>
 			<Modal.Title>Units List</Modal.Title>
 		</Modal.Header>
 		<Modal.Body>
 
 			{
-				unitList(units, selected, selectedUnit, setSelectedUnit)
+				unitList(units, selected, selectedUnit)
 			}
 
 		</Modal.Body>
@@ -51,10 +51,24 @@ function UnitsWindow() {
 
 }
 function selectedDetails(unit: Unit) {
-	return unit.name
+	return <Table striped bordered hover size="sm">
+		<tbody>
+			<tr>
+				<td>id</td>
+				<td>{unit.id}</td>
+			</tr>
+			<tr>
+				<td>name</td>
+				<td>{unit.name}</td>
+			</tr>
+		</tbody>
+	</Table>
 }
 
-const unitList = (units: Unit[], selected: Unit | undefined, selectedUnit: string, setSelectedUnit: (id: string) => void) => <div id="units-window">
+const unitList = (units: Unit[], selected: Unit | undefined, selectedUnit: string) => <div
+
+	className="row"
+>
 	<div className="col col-sm-4">
 
 		<ListGroup
@@ -62,28 +76,31 @@ const unitList = (units: Unit[], selected: Unit | undefined, selectedUnit: strin
 		>
 			{
 				units.map(unit =>
-					<ListGroup.Item
-						action
-						onClick={() => {
-							setSelectedUnit(unit.id)
-						}}
-						key={unit.id}>
-						<span>
+
+					<Link to={`/battleground/units/${unit.id}`}
+
+						key={unit.id}
+					>
+						<ListGroup.Item
+							action
+							active={unit.id === selectedUnit}
+						>
 							{unit.name}
-						</span>
-					</ListGroup.Item>)
+
+						</ListGroup.Item>
+
+					</Link>
+				)
 			}
 		</ListGroup>
 	</div>
 
 	<div className='col col-sm-8'>
-		<div className='details block'>
-			<div className='well'>
-				{
-					selected && selectedDetails(selected)
-				}
+		<div className='card p-2'>
+			{
+				selected && selectedDetails(selected)
+			}
 
-			</div>
 
 		</div>
 	</div>

@@ -1,64 +1,37 @@
-import { useState } from 'react';
 import './SquadsWindow.css';
-import { Unit } from '../../../Models/Unit';
-import { Squad } from '../../../Models/Squad';
 import Modal from 'react-bootstrap/Modal';
-import Button from 'react-bootstrap/Button';
 import ListGroup from 'react-bootstrap/ListGroup';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
+import { Squad } from '../../../Models/Squad';
 
 function SquadsWindow() {
 
 	const squads: Squad[] = [
-		{ id: 1, name: "weee", members: {} },
-		{ id: 2, name: "blaaaa", members: {} },
+		{ id: "1", name: "weeeee", members: {} },
+		{ id: "2", name: "blaaaa", members: {} },
+		{ id: "3", name: "blaaaa", members: {} },
+		{ id: "4", name: "blaaaa", members: {} },
+		{ id: "5", name: "blaaaa", members: {} },
+		{ id: "7", name: "blaaaa", members: {} },
+		{ id: "8", name: "blaaaa", members: {} },
+		{ id: "9", name: "blaaaa", members: {} },
 	]
 
-	const [selectedUnit, setSelectedUnit] = useState(1)
+	const { squadId } = useParams()
 
+	let selectedSquad = squadId || "1"
 
-	const selected = squads.find(u => u.id === selectedUnit)
+	const selected = squads.find(u => u.id === selectedSquad)
 
-	return <Modal
-		show={true}
-		size={"lg"}
-	>
+	return <Modal show={true} size={"xl"}>
 		<Modal.Header closeButton>
-			<Modal.Title>Squad List</Modal.Title>
+			<Modal.Title>Squads List</Modal.Title>
 		</Modal.Header>
 		<Modal.Body>
 
-			<div id="squads-window" className="row">
-				<div className="col col-sm-4">
-
-					<ListGroup activeKey={selectedUnit}>
-						{
-							squads.map(unit =>
-								<ListGroup.Item
-									action
-									onClick={() => {
-										setSelectedUnit(unit.id)
-									}}
-									key={unit.name}
-								>
-									{unit.name}
-								</ListGroup.Item>)
-						}
-					</ListGroup>
-
-				</div>
-
-				<div className='col-sm-8'>
-
-					<div className='details'>
-						{
-							selected && selectedDetails(selected)
-						}
-					</div>
-
-				</div>
-
-			</div>
+			{
+				squadList(squads, selected, selectedSquad)
+			}
 
 		</Modal.Body>
 		<Modal.Footer>
@@ -66,17 +39,55 @@ function SquadsWindow() {
 				Close
 			</Link>
 		</Modal.Footer>
-
-
 	</Modal>
 
 
 
+
 }
-
 function selectedDetails(squad: Squad) {
-
 	return squad.name
 }
+
+const squadList = (squads: Squad[], selected: Squad | undefined, selectedSquad: string) => <div
+	className="row"
+	id="squads-window">
+	<div className="col col-sm-4 p-2">
+
+		<ListGroup
+			activeKey={selectedSquad}
+		>
+			{
+				squads.map(squad =>
+
+					<Link
+						to={`/battleground/squads/${squad.id}`}
+						key={squad.id}
+					>
+						<ListGroup.Item
+							action
+							active={squad.id === selectedSquad}
+						>
+
+							{squad.name}
+						</ListGroup.Item>
+
+					</Link>
+				)
+			}
+		</ListGroup>
+	</div>
+
+	<div className='col col-sm-8'>
+		<div className='card p-2'>
+			{
+				selected && selectedDetails(selected)
+			}
+
+
+		</div>
+	</div>
+</div >
+
 
 export default SquadsWindow;
