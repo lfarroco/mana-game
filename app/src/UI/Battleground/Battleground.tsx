@@ -6,6 +6,7 @@ import { State, initialState } from '../../Models/State';
 import SquadsWindow from './SquadsWindow/SquadsWindow';
 import { Button, ButtonGroup } from 'react-bootstrap';
 import events from 'events'
+import { Link, Route, Routes } from 'react-router-dom';
 
 
 const reducer = (state: State, action: Action): State => {
@@ -40,22 +41,19 @@ function Battleground(props: BattlegroundProps) {
       <header>
         <div className="content">
           <ButtonGroup>
-
-            <Button onClick={
-              () => {
-                dispatch({ type: "toggle_units_modal" })
-                props.events.emit("test")
-              }
-            }>
+            <Link
+              to="units"
+              className="btn btn-secondary col-12"
+            >
               Units
-            </Button>
-            <Button onClick={
-              () => {
-                dispatch({ type: "toggle_squads_modal" })
-              }
-            }>
+            </Link>
+
+            <Link
+              to="squads"
+              className="btn btn-secondary col-12"
+            >
               Squads
-            </Button>
+            </Link>
 
           </ButtonGroup>
         </div>
@@ -67,18 +65,10 @@ function Battleground(props: BattlegroundProps) {
         </div>
       </footer>
 
-      <UnitsWindow
-        opened={unitsWindowOpened}
-        onToggle={
-          () => dispatch({ type: "toggle_units_modal" })
-        }
-      />
-      <SquadsWindow
-        opened={squadsWindowOpened}
-        onToggle={
-          () => dispatch({ type: "toggle_squads_modal" })
-        }
-      />
+      <Routes>
+        <Route path="units" element={<UnitsWindow />} />
+        <Route path="squads" element={<SquadsWindow />} />
+      </Routes>
     </>
   );
 }

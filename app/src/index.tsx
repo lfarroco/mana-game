@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import reportWebVitals from './reportWebVitals';
+//import reportWebVitals from './reportWebVitals';
 import {
   createBrowserRouter,
   RouterProvider,
@@ -11,6 +11,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Battleground from './UI/Battleground/Battleground';
 import * as Phaser from "phaser"
 import events from 'events';
+import BattlegroundScene from './Scenes/Battleground/BattlegroundScene';
 
 const eventEmitter = new events.EventEmitter();
 
@@ -24,9 +25,9 @@ const router = createBrowserRouter([
     element: <Title />,
   },
   {
-    path: "/battleground",
+    path: "/battleground/*",
     element: <Battleground events={eventEmitter} />,
-  },
+  }
 ]);
 
 root.render(
@@ -38,7 +39,7 @@ root.render(
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+//reportWebVitals();
 
 const game = new Phaser.Game({
   // keep fullscreen for now
@@ -48,11 +49,9 @@ const game = new Phaser.Game({
   parent: 'game',
   width: window.innerWidth,
   height: window.innerHeight,
-  scene: {
-    preload: preload,
-    create: create,
-    update: update
-  }
+  scene: [
+    BattlegroundScene
+  ]
 });
 
 //window resize event
@@ -62,28 +61,3 @@ window.addEventListener('resize', () => {
 
 });
 
-function preload(this: Phaser.Scene) {
-
-  this.load.image('tilesets/pipoya', 'assets/tilesets/pipoya.png');
-  this.load.tilemapTiledJSON('maps/map1', 'assets/maps/map1/mapdata.json');
-
-}
-function create(this: Phaser.Scene) {
-  console.log("hello there")
-
-  const map = this.make.tilemap({ key: 'maps/map1' });
-
-  const tiles = map.addTilesetImage('tilesets/pipoya', 'tilesets/pipoya');
-
-  if (!tiles) {
-    console.error("tiles is null")
-    return
-  }
-
-  map.createLayer(0, tiles);
-  map.createLayer(1, tiles);
-  map.createLayer(2, tiles);
-
-
-}
-function update() { }
