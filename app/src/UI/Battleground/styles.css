@@ -4,35 +4,28 @@ body {}
   position: relative;
 }
 
+canvas {
+  margin-top: 0 !important;
+}
+
 header {
   position: fixed;
   top: 0;
   height: 50px;
   width: 100%;
-  background: rgba(0, 0, 0, 0.2);
-  border-bottom: red solid 1px;
-}
-
-main {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  padding: 100px 0;
+  background: rgba(0, 0, 0, 0.3) !important;
 }
 
 footer {
-  border-top: red solid 1px;
-  height: 100px;
+  min-height: 100px;
   position: fixed;
   bottom: 0;
-  width: 100%;
-  background: rgba(0, 0, 0, 0.2)
+  background: rgba(0, 0, 0, 0.3) !important;
 }
 
 .content {
   max-width: 960px;
   margin: 0 auto;
-  border: red solid 1px;
 }
 
 .well {
