@@ -33,10 +33,7 @@ function Battleground(props: BattlegroundProps) {
 
   return (
     <>
-      <main>
-        MAIN
-      </main>
-      <header>
+      <header className="card">
         <div className="content">
           <ButtonGroup>
             <Link
@@ -57,9 +54,11 @@ function Battleground(props: BattlegroundProps) {
         </div>
       </header>
       <footer>
+        <div className="card">
+          <div className="content">
+            FOOTER
+          </div>
 
-        <div className="content">
-          FOOTER
         </div>
       </footer>
 
