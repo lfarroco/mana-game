@@ -9,7 +9,6 @@ import {
 import Title from './UI/Title/Title';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Battleground from './UI/Battleground/Battleground';
-import * as Phaser from "phaser"
 import events from 'events';
 import BattlegroundScene from './Scenes/Battleground/BattlegroundScene';
 
@@ -40,7 +39,6 @@ root.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 //reportWebVitals();
-
 const game = new Phaser.Game({
   // keep fullscreen for now
   type: Phaser.AUTO,
@@ -49,9 +47,16 @@ const game = new Phaser.Game({
   parent: 'game',
   width: window.innerWidth,
   height: window.innerHeight,
+  
   scene: [
     BattlegroundScene
-  ]
+  ],
+  plugins: {
+    scene: [
+      //@ts-ignore
+      { key: "spine.SpinePlugin", plugin: spine.SpinePlugin, mapping: "spine" }
+    ]
+  }
 });
 
 //window resize event
