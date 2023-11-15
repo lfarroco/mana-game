@@ -53,7 +53,7 @@ function Battleground(props: BattlegroundProps) {
           </ButtonGroup>
         </div>
       </header>
-      <footer className="card block p-2">
+      <footer className="block p-2">
         <div className="content">
           FOOTER
         </div>
