@@ -3,6 +3,10 @@ export type Squad = {
 	id: string,
 	name: string,
 	force: string,
+	position: {
+		x: number,
+		y: number
+	},
 	members: {
 		[y: number]: {
 			[x: number]: string
@@ -46,6 +50,7 @@ export const randomSquad = (): Squad => {
 		id: "squad-" + Math.random().toString(36).substring(7),
 		name: "squad-" + Math.random().toString(36).substring(7),
 		force: "force-" + Math.random().toString(36).substring(7),
+		position: { x: 0, y: 0 },
 		members: {}
 	}
 

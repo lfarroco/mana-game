@@ -3,6 +3,7 @@ import { BGState } from "./BGState";
 import * as uuid from "uuid";
 import { Squad, addMembers } from "../../Models/Squad";
 import { randomUnit } from "../../Models/Unit";
+import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH } from "./constants";
 
 //TODO: return new state instead of mutating
 export function importMapObjects(state: BGState, map: Phaser.Tilemaps.Tilemap) {
@@ -14,6 +15,8 @@ export function importMapObjects(state: BGState, map: Phaser.Tilemaps.Tilemap) {
 	type SquadSpec = {
 		ai: string;
 		force: string;
+		x: number,
+		y: number
 		members: MemberSpec[];
 	};
 	type MemberSpec = {
@@ -42,7 +45,9 @@ export function importMapObjects(state: BGState, map: Phaser.Tilemaps.Tilemap) {
 				return {
 					ai,
 					force,
-					members
+					members,
+					x: obj.x,
+					y: obj.y,
 				} as SquadSpec;
 
 			});
@@ -67,6 +72,10 @@ export function importMapObjects(state: BGState, map: Phaser.Tilemaps.Tilemap) {
 				id: uuid.v4(),
 				name: uuid.v4(),
 				force: force.id,
+				position: {
+					x: sqd.x + HALF_TILE_WIDTH,
+					y: sqd.y + HALF_TILE_HEIGHT
+				},
 				members: {}
 			};
 
