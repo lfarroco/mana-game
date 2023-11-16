@@ -1,36 +1,15 @@
-import { useReducer } from 'react';
 import './styles.css';
 import UnitsWindow from './UnitsWindow/UnitsWindow';
-import { Action } from '../../Models/Action';
-import { State, initialState } from '../../Models/State';
 import SquadsWindow from './SquadsWindow/SquadsWindow';
 import { ButtonGroup } from 'react-bootstrap';
 import events from 'events'
 import { Link, Route, Routes } from 'react-router-dom';
 
-
-const reducer = (state: State, action: Action): State => {
-
-  if (action.type === "toggle_units_modal") {
-    return { ...state, unitsWindowOpened: !state.unitsWindowOpened }
-  } else if (action.type === "toggle_squads_modal") {
-
-    return { ...state, squadsWindowOpened: !state.squadsWindowOpened }
-
-  } else {
-    throw new Error(`invalid action ${action}`)
-  }
-
-}
-
 type BattlegroundProps = {
   events: events.EventEmitter
 }
 
-function Battleground(props: BattlegroundProps) {
-
-  const [state, dispatch] = useReducer(reducer, initialState)
-
+const Battleground = (props: BattlegroundProps) => {
   return (
     <>
       <header className="card">

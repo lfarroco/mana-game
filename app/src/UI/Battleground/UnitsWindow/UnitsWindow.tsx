@@ -1,20 +1,18 @@
 import './UnitsWindow.css';
-import { Unit, randomUnit } from '../../../Models/Unit';
+import { Unit } from '../../../Models/Unit';
 import Modal from 'react-bootstrap/Modal';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { Link, useParams } from 'react-router-dom';
 import { Table } from 'react-bootstrap';
+import { getState } from '../../../Scenes/Battleground/BGState';
 
 function UnitsWindow() {
 
-	const units: Unit[] = []
-	for (let i = 0; i < 30; i++) {
-		units.push(randomUnit())
-	}
+	const units = getState().units
 
 	const { unitId } = useParams()
 
-	let selectedUnit = unitId || "1"
+	const selectedUnit = unitId || units[0].id
 
 	const selected = units.find(u => u.id === selectedUnit)
 
@@ -23,11 +21,9 @@ function UnitsWindow() {
 			<Modal.Title>Units List</Modal.Title>
 		</Modal.Header>
 		<Modal.Body>
-
 			{
 				unitList(units, selected, selectedUnit)
 			}
-
 		</Modal.Body>
 		<Modal.Footer>
 			<Link to="/battleground" className="btn btn-secondary">
@@ -35,9 +31,6 @@ function UnitsWindow() {
 			</Link>
 		</Modal.Footer>
 	</Modal>
-
-
-
 
 }
 function selectedDetails(unit: Unit) {

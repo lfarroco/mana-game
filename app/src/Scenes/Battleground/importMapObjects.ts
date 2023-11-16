@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { BGState } from "./BGState";
 import * as uuid from "uuid";
 import { Squad, addMembers } from "../../Models/Squad";
-import { makeUnit, randomUnit } from "../../Models/Unit";
+import { randomUnit } from "../../Models/Unit";
 
 //TODO: return new state instead of mutating
 export function importMapObjects(state: BGState, map: Phaser.Tilemaps.Tilemap) {
@@ -48,7 +48,7 @@ export function importMapObjects(state: BGState, map: Phaser.Tilemaps.Tilemap) {
 			});
 
 			return squad;
-		}).map(sqd => {
+		}).forEach(sqd => {
 			const mForce = state.forces.find(force => force.id === sqd.force);
 
 			if (!mForce) {
