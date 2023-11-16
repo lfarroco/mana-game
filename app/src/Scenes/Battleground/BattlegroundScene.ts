@@ -3,6 +3,7 @@ import { preload } from "./preload";
 import { createMap } from "./Map/createMap";
 import { BGState, initialState } from "./BGState";
 import { importMapObjects } from "./importMapObjects";
+import { makeMapInteractive } from "./Map/makeMapInteractive";
 
 class BattlegroundScene extends Phaser.Scene {
   state: BGState;
@@ -16,9 +17,11 @@ class BattlegroundScene extends Phaser.Scene {
 
   preload = preload;
   create = () => {
-    const map = createMap(this);
+    const {map, layer} = createMap(this);
 
     importMapObjects(this.state, map);
+
+    makeMapInteractive(this, map, layer)
   }
   update = update;
 
