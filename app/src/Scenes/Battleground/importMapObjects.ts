@@ -65,7 +65,7 @@ export function importMapObjects(state: BGState, map: Phaser.Tilemaps.Tilemap) {
 
 			const newSquad: Squad = {
 				id: uuid.v4(),
-				name: "",
+				name: uuid.v4(),
 				force: force.id,
 				members: {}
 			};
