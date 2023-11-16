@@ -1,5 +1,5 @@
 import './UnitsWindow.css';
-import { Unit } from '../../../Models/Unit';
+import { Unit, randomUnit } from '../../../Models/Unit';
 import Modal from 'react-bootstrap/Modal';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { Link, useParams } from 'react-router-dom';
@@ -7,20 +7,10 @@ import { Table } from 'react-bootstrap';
 
 function UnitsWindow() {
 
-	const units: Unit[] = [
-		{ id: "1", name: "weee" },
-		{ id: "2", name: "blaaaa" },
-		{ id: "3", name: "blaaaa" },
-		{ id: "4", name: "blaaaa" },
-		{ id: "5", name: "blaaaa" },
-		{ id: "7", name: "blaaaa" },
-		{ id: "8", name: "blaaaa" },
-		{ id: "9", name: "blaaaa" },
-		{ id: "10", name: "blaaaa" },
-		{ id: "11", name: "blaaaa" },
-		{ id: "12", name: "blaaaa" },
-		{ id: "13", name: "blaaaa" },
-	]
+	const units: Unit[] = []
+	for (let i = 0; i < 30; i++) {
+		units.push(randomUnit())
+	}
 
 	const { unitId } = useParams()
 
