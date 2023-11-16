@@ -2,24 +2,18 @@ import './SquadsWindow.css';
 import Modal from 'react-bootstrap/Modal';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { Link, useParams } from 'react-router-dom';
-import { Squad } from '../../../Models/Squad';
+import { Squad, randomSquad } from '../../../Models/Squad';
 
 function SquadsWindow() {
 
-	const squads: Squad[] = [
-		{ id: "1", name: "weeeee", members: {} },
-		{ id: "2", name: "blaaaa", members: {} },
-		{ id: "3", name: "blaaaa", members: {} },
-		{ id: "4", name: "blaaaa", members: {} },
-		{ id: "5", name: "blaaaa", members: {} },
-		{ id: "7", name: "blaaaa", members: {} },
-		{ id: "8", name: "blaaaa", members: {} },
-		{ id: "9", name: "blaaaa", members: {} },
-	]
+	let squads: Squad[] = []
+	for (let i = 0; i < 30; i++) {
+		squads.push(randomSquad())
+	}
 
 	const { squadId } = useParams()
 
-	let selectedSquad = squadId || "1"
+	let selectedSquad = squadId || squads[0].id
 
 	const selected = squads.find(u => u.id === selectedSquad)
 
