@@ -6,8 +6,8 @@ export const initialState: BGState = {
 	forces: [],
 	squads: [],
 	units: [],
-
 };
+
 export type BGState = {
 	forces: Force[];
 	squads: Squad[];

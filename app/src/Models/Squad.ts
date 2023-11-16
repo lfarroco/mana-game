@@ -10,6 +10,37 @@ export type Squad = {
 	}
 }
 
+export const addMember = (
+	squad: Squad,
+	x: number,
+	y: number,
+	id: string
+): Squad => {
+	return {
+		...squad,
+		members: {
+			...squad.members,
+			[y]: {
+				...squad.members[y],
+				[x]: id
+			}
+		}
+	}
+}
+
+export const addMembers = (
+	squad: Squad,
+	members: {
+		x: number,
+		y: number,
+		id: string
+	}[]
+): Squad => {
+	return members.reduce((squad, member) => {
+		return addMember(squad, member.x, member.y, member.id)
+	}, squad)
+}
+
 export const randomSquad = (): Squad => {
 	const squad: Squad = {
 		id: "squad-" + Math.random().toString(36).substring(7),
