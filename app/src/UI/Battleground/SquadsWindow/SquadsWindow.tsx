@@ -2,14 +2,12 @@ import './SquadsWindow.css';
 import Modal from 'react-bootstrap/Modal';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { Link, useParams } from 'react-router-dom';
-import { Squad, randomSquad } from '../../../Models/Squad';
+import { Squad } from '../../../Models/Squad';
+import { getState } from '../../../Scenes/Battleground/BGState';
 
 function SquadsWindow() {
 
-	let squads: Squad[] = []
-	for (let i = 0; i < 30; i++) {
-		squads.push(randomSquad())
-	}
+	let squads = getState().squads
 
 	const { squadId } = useParams()
 
@@ -22,11 +20,9 @@ function SquadsWindow() {
 			<Modal.Title>Squads List</Modal.Title>
 		</Modal.Header>
 		<Modal.Body>
-
 			{
 				squadList(squads, selected, selectedSquad)
 			}
-
 		</Modal.Body>
 		<Modal.Footer>
 			<Link to="/battleground" className="btn btn-secondary">
@@ -34,11 +30,8 @@ function SquadsWindow() {
 			</Link>
 		</Modal.Footer>
 	</Modal>
-
-
-
-
 }
+
 function selectedDetails(squad: Squad) {
 	return squad.name
 }

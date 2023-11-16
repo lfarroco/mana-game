@@ -13,3 +13,13 @@ export type BGState = {
 	squads: Squad[];
 	units: Unit[]
 };
+
+export const getState = (): BGState => {
+	//@ts-ignore
+	return window.state
+}
+
+export const setState = (state: BGState) => {
+	//@ts-ignore
+	window.state = state
+}
