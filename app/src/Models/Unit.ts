@@ -4,14 +4,18 @@ import { randomJob } from "./Job";
 export type Unit = {
 	id: string,
 	name: string,
-	job: string
+	job: string,
+	squad: string | null,
+	force: string | null
 }
 
 export const makeUnit = (): Unit => {
 	return {
 		id: uuid.v4(),
 		name: "",
-		job: ""
+		job: "",
+		squad: null,
+		force: null
 	}
 }
 
