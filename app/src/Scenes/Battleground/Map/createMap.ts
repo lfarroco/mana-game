@@ -23,5 +23,8 @@ export function createMap(scene: Phaser.Scene) {
 		throw new Error("obstacles layer is null");
 	}
 
+	//@ts-ignore
+	window.layers = { background, obstacles, features };
+
 	return { map, layers: { background, obstacles, features } };
 }
