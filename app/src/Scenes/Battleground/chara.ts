@@ -6,7 +6,7 @@ export function chara(
 	y: number,
 	scene: Phaser.Scene,
 	squad: Squad,
-) {
+): Phaser.Types.Physics.Arcade.ImageWithDynamicBody {
 	const spineboy: Phaser.GameObjects.Image = scene
 		//@ts-ignore
 		.add.spine(x, y, "spine-data", "spine-atlas");
@@ -18,20 +18,15 @@ export function chara(
 	spineboy.animationState.setAnimation(0, "map-idle", true);
 	spineboy.setName("spine-" + squad.id)
 
-	// create a red circle
-	const circle = new Phaser.Geom.Circle(0, 0, 20);
-	const body = scene.add.graphics({ fillStyle: { color: 16711680 } });
-	body.fillCircleShape(circle);
-	body.setAlpha(0.5);
+	const body = scene.physics.add.image(x, y, "")
+	body.setSize(20, 20)
 	body.setPosition(x, y);
 	body.setName("body-" + squad.id)
-	circle.setPosition(x, y)
+	body.setPosition(x, y)
 
 	const follow = () => {
-
-		spineboy.x = circle.x;
-		spineboy.y = circle.y;
-
+		spineboy.x = body.x;
+		spineboy.y = body.y;
 	};
 
 	//todo: iterate on scene state, for each chara, make it follow its circle
@@ -42,4 +37,6 @@ export function chara(
 	spineboy.once("destroy", () => {
 		scene.events.off("update", follow);
 	});
+
+	return body
 }

@@ -5,7 +5,7 @@ import { getState } from "../BGState";
 export function createMapEntities(
 	scene: Phaser.Scene,
 	map: Phaser.Tilemaps.Tilemap
-) {
+): Phaser.Types.Physics.Arcade.ImageWithDynamicBody[] {
 
 	const state = getState()
 	// TODO: import cities into state
@@ -27,7 +27,7 @@ export function createMapEntities(
 		}
 	});
 
-	state.squads.forEach(squad => {
+	return state.squads.map(squad =>
 		chara(squad.position.x, squad.position.y, scene, squad)
-	});
+	);
 }

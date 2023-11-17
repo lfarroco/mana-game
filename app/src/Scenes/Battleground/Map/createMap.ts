@@ -1,6 +1,4 @@
 import Phaser from "phaser";
-import { createMapEntities } from "./createMapEntities";
-
 
 export function createMap(scene: Phaser.Scene) {
 
@@ -12,14 +10,18 @@ export function createMap(scene: Phaser.Scene) {
 		throw new Error("tiles is null");
 	}
 
-	const layer = map.createLayer(0, tiles);
-	if (!layer) {
-		throw new Error("layer is null");
+	const background = map.createLayer("map_background", tiles);
+	if (!background) {
+		throw new Error("background layer is null");
 	}
-	map.createLayer(1, tiles);
-	map.createLayer(2, tiles);
+	const obstacles = map.createLayer("map_obstacles", tiles);
+	if (!obstacles) {
+		throw new Error("obstacles layer is null");
+	}
+	const features = map.createLayer("map_features", tiles);
+	if (!features) {
+		throw new Error("obstacles layer is null");
+	}
 
-	createMapEntities(scene, map);
-
-	return { map, layer };
+	return { map, layers: { background, obstacles, features } };
 }
