@@ -18,13 +18,17 @@ class BattlegroundScene extends Phaser.Scene {
 
   preload = preload;
   create = () => {
-    const { map, layer } = createMap(this);
+    const { map, layers } = createMap(this);
 
     importMapObjects(this.state, map);
 
-    makeMapInteractive(this, map, layer)
+    makeMapInteractive(this, map, layers.background)
 
-    createMapEntities(this, map)
+    const entities = createMapEntities(this, map)
+
+    layers.obstacles.setCollisionBetween(0, 1000);
+    this.physics.add.collider(entities, layers.obstacles);
+
   }
   update = update;
 
