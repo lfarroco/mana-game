@@ -5,9 +5,20 @@ import { BGState, initialState } from "./BGState";
 import { importMapObjects } from "./importMapObjects";
 import { makeMapInteractive } from "./Map/makeMapInteractive";
 import { createMapEntities } from "./Map/createMapEntities";
+import * as Easystar from "easystarjs"
+
+const easystar = new Easystar.js();
+easystar.setAcceptableTiles([0])
 
 class BattlegroundScene extends Phaser.Scene {
   state: BGState;
+  graphics: Phaser.GameObjects.Graphics | null = null;
+  path = { t: 0, vec: new Phaser.Math.Vector2() }
+  points: Phaser.Math.Vector2[] = []
+  curve: Phaser.Curves.Spline | null = null;
+  grid: number[][] = []
+
+
   constructor() {
     super("BattlegroundScene");
     this.state = initialState
@@ -29,8 +40,46 @@ class BattlegroundScene extends Phaser.Scene {
     layers.obstacles.setCollisionBetween(0, 1000);
     this.physics.add.collider(entities, layers.obstacles);
 
+
+    this.grid = layers.obstacles.layer.data.map(row => row.map(tile => tile.index === -1 ? 0 : 1))
+    easystar.setGrid(this.grid);
+
+    //@ts-ignore
+    window.scene = this
   }
   update = update;
+
+  findPath(
+    source: { x: number; y: number; },
+    target: { x: number; y: number; },
+    callback: ((path: { x: number; y: number; }[]) => void)
+  ) {
+
+    easystar.findPath(source.x, source.y, target.x, target.y, callback);
+    easystar.calculate();
+  }
+
+  drawPoints(points: Phaser.Math.Vector2[]) {
+
+    if (!this.graphics) return
+
+    this.graphics.clear();
+    this.graphics.lineStyle(5, 0xff0000, 3);
+    const interval = 20;
+    let time = 0;
+    for (let i = 1; i < points.length; i++) {
+      this.time.addEvent({
+        delay: time,
+        callback: () => {
+
+          if (!this.graphics) return
+          this.graphics.lineBetween(points[i - 1].x, points[i - 1].y, points[i].x, points[i].y);
+        }
+      });
+      time += interval;
+    }
+
+  }
 
 }
 function update() { }
