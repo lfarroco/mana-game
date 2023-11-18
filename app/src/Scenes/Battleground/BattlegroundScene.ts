@@ -10,6 +10,8 @@ import events from "events";
 import { makeSquadsInteractive } from "./Map/makeSquadsInteractive";
 import { createCities } from "./Map/createCities";
 import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
+import { Squad } from "../../Models/Squad";
+import { TILE_HEIGHT, TILE_WIDTH } from "./constants";
 
 const easystar = new Easystar.js();
 easystar.setAcceptableTiles([0])
@@ -98,35 +100,86 @@ export class BattlegroundScene extends Phaser.Scene {
 
   }
 
-  drawLine(start: { x: number, y: number }, end: { x: number, y: number }) {
-    this.findPath(start, end, path => {
-      this.graphics = this.add.graphics();
+  drawLine(path: { x: number, y: number }[]) {
+    this.graphics = this.add.graphics();
 
-      this.path = { t: 0, vec: new Phaser.Math.Vector2() };
+    this.path = { t: 0, vec: new Phaser.Math.Vector2() };
 
-      this.points = [];
+    this.points = [];
 
-      path.forEach(({ x, y }) => {
+    path.forEach(({ x, y }) => {
 
-        const tile = this.layers?.background.getTileAt(x, y);
+      const tile = this.layers?.background.getTileAt(x, y);
 
-        if (!tile) return
+      if (!tile) return
 
-        this.points.push(new Phaser.Math.Vector2(tile.pixelX + tile.width / 2, tile.pixelY + tile.height / 2))
+      this.points.push(new Phaser.Math.Vector2(
+        tile.pixelX + tile.width / 2,
+        tile.pixelY + tile.height / 2
+      ))
 
-      })
-
-      this.curve = new Phaser.Curves.Spline(this.points);
-
-      const points = this.curve.getPoints(this.points.length * 5);
-      this.drawPoints(points)
     })
 
+    this.curve = new Phaser.Curves.Spline(this.points);
+
+    const points = this.curve.getPoints(this.points.length * 5);
+    this.drawPoints(points)
+
+  }
+
+  moveTo(squad: Squad, target: Phaser.Tilemaps.Tile) {
+    const sourceTile = this.layers?.background.getTileAtWorldXY(squad.position.x, squad.position.y);
+    if (!sourceTile) return
+
+    this.findPath(
+      { x: sourceTile.x, y: sourceTile.y },
+      { x: target.x, y: target.y },
+      (path) => {
+        console.log("setting path", path)
+        squad.path = path
+        this.drawLine(path)
+      }
+    )
   }
 
 }
 
-function update() { }
+function update(this: BattlegroundScene) {
+
+  // move squads that have a path
+  this.state.squads.forEach(squad => {
+    if (squad.path.length < 1) return;
+
+    const sprite = this.children.getByName(squad.id) as Phaser.Types.Physics.Arcade.ImageWithDynamicBody
+    const [next] = squad.path
+
+    const nextTile = this.layers?.background.getTileAt(next.x, next.y)
+    if (!nextTile) return
+
+    const distance = Phaser.Math.Distance.BetweenPoints(sprite.getCenter(), { x: nextTile.getCenterX(), y: nextTile.getCenterY() })
+
+    // distance from next
+    // if close enough, remove next from path
+    if (distance < 1) {
+      squad.path.shift()
+
+      const mnext = squad.path[0]
+      if (!mnext) {
+        // no more path, stop moving
+        sprite.body.setVelocity(0)
+      }
+
+      return
+    }
+
+    this.scene.scene.physics.moveTo(sprite, nextTile.getCenterX(), nextTile.getCenterY(), 30)
+
+    squad.position.x = sprite.body.x
+    squad.position.y = sprite.body.y
+  })
+
+
+}
 
 export default BattlegroundScene;
 

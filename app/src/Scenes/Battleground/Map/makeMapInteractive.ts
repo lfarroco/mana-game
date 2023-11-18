@@ -28,16 +28,25 @@ export function makeMapInteractive(
 
 	bgLayer.on("pointerup", (pointer: Phaser.Input.Pointer, x: number, y: number) => {
 
+
 		const tile = bgLayer.getTileAtWorldXY(x, y);
-		if (!tile) return
-		tile.alpha = 0.5;
 
-		if (!scene.selectedEntity) return
+		if (scene.state.selectedEntity?.type === "squad") {
 
-		const sourceTile = bgLayer.getTileAtWorldXY(scene.selectedEntity.x, scene.selectedEntity.y);
-		scene.drawLine(
-			sourceTile,
-			tile
-		)
+			const squad = scene.state.squads.find(squad => squad.id === scene.state.selectedEntity?.id)
+			if (!squad) return
+
+			console.log("moving squad", squad.id, "to", tile.x, tile.y)
+			scene.moveTo(squad, tile)
+		}
+
+		// const tile = bgLayer.getTileAtWorldXY(x, y);
+		// if (!tile) return
+		// tile.alpha = 0.5;
+
+		// if (!scene.selectedEntity) return
+
+		// const sourceTile = bgLayer.getTileAtWorldXY(scene.selectedEntity.x, scene.selectedEntity.y);
+		// scene.drawLine
 	});
 }

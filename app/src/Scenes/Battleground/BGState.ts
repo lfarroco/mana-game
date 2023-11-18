@@ -7,14 +7,16 @@ export const initialState: BGState = {
 	forces: [],
 	squads: [],
 	units: [],
-	cities: []
+	cities: [],
+	selectedEntity: null ,
 };
 
 export type BGState = {
 	forces: Force[];
 	squads: Squad[];
 	units: Unit[];
-	cities: City[]
+	cities: City[];
+	selectedEntity: null | { type: string, id: string } 
 };
 
 export const getState = (): BGState => {
