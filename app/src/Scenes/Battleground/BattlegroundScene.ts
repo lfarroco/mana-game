@@ -11,7 +11,7 @@ import { makeSquadsInteractive } from "./Map/makeSquadsInteractive";
 import { createCities } from "./Map/createCities";
 import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
 import { Squad } from "../../Models/Squad";
-import { TILE_HEIGHT, TILE_WIDTH } from "./constants";
+import moveSquads from "./Map/MoveSquads";
 
 const easystar = new Easystar.js();
 easystar.setAcceptableTiles([0])
@@ -66,7 +66,9 @@ export class BattlegroundScene extends Phaser.Scene {
     //@ts-ignore
     window.scene = this
   }
-  update = update;
+  update() {
+    moveSquads(this)
+  }
 
   findPath(
     source: { x: number; y: number; },
@@ -141,43 +143,6 @@ export class BattlegroundScene extends Phaser.Scene {
       }
     )
   }
-
-}
-
-function update(this: BattlegroundScene) {
-
-  // move squads that have a path
-  this.state.squads.forEach(squad => {
-    if (squad.path.length < 1) return;
-
-    const sprite = this.children.getByName(squad.id) as Phaser.Types.Physics.Arcade.ImageWithDynamicBody
-    const [next] = squad.path
-
-    const nextTile = this.layers?.background.getTileAt(next.x, next.y)
-    if (!nextTile) return
-
-    const distance = Phaser.Math.Distance.BetweenPoints(sprite.getCenter(), { x: nextTile.getCenterX(), y: nextTile.getCenterY() })
-
-    // distance from next
-    // if close enough, remove next from path
-    if (distance < 1) {
-      squad.path.shift()
-
-      const mnext = squad.path[0]
-      if (!mnext) {
-        // no more path, stop moving
-        sprite.body.setVelocity(0)
-      }
-
-      return
-    }
-
-    this.scene.scene.physics.moveTo(sprite, nextTile.getCenterX(), nextTile.getCenterY(), 30)
-
-    squad.position.x = sprite.body.x
-    squad.position.y = sprite.body.y
-  })
-
 
 }
 
