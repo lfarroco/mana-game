@@ -137,7 +137,8 @@ export function importMapObjects(state: BGState, map: Phaser.Tilemaps.Tilemap) {
 					x: sqd.x + HALF_TILE_WIDTH,
 					y: sqd.y + HALF_TILE_HEIGHT
 				},
-				members: {}
+				members: {},
+				path: []
 			};
 
 			const members = sqd.members.map(member => ({ ...member, id: uuid.v4() }));
