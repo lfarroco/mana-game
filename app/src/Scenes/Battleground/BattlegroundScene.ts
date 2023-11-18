@@ -4,14 +4,14 @@ import { createMap } from "./Map/createMap";
 import { BGState, initialState } from "./BGState";
 import { importMapObjects } from "./Map/importMapObjects";
 import { makeMapInteractive } from "./Map/makeMapInteractive";
-import { createMapSquads as createMapSquads } from "./Map/createMapSquads";
+import { createMapSquads } from "./Map/createMapSquads";
 import * as Easystar from "easystarjs"
 import events from "events";
 import { makeSquadsInteractive } from "./Map/makeSquadsInteractive";
 import { createCities } from "./Map/createCities";
 import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
 import { Squad } from "../../Models/Squad";
-import moveSquads from "./Map/MoveSquads";
+import moveSquads from "./Map/moveSquads";
 
 const easystar = new Easystar.js();
 easystar.setAcceptableTiles([0])
@@ -30,7 +30,6 @@ export class BattlegroundScene extends Phaser.Scene {
   } | null = null;
   selectedEntity: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | null = null;
   gameEvents: events;
-
 
   constructor(events: events) {
     super("BattlegroundScene");
@@ -144,6 +143,22 @@ export class BattlegroundScene extends Phaser.Scene {
     )
   }
 
+  repel(
+    spriteA: Phaser.Types.Physics.Arcade.ImageWithDynamicBody,
+    spriteB: Phaser.Types.Physics.Arcade.ImageWithDynamicBody,
+  ) {
+
+    this.scene.scene.physics.moveToObject(spriteB, spriteA);
+    spriteB.body.velocity.x = -spriteB.body.velocity.x;
+    spriteB.body.velocity.y = -spriteB.body.velocity.y;
+
+    this.time.addEvent({
+      delay: 500,
+      callback: () => {
+        spriteB.body.setVelocity(0, 0);
+      }
+    });
+  }
 }
 
 export default BattlegroundScene;
