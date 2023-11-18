@@ -17,6 +17,11 @@ class BattlegroundScene extends Phaser.Scene {
   points: Phaser.Math.Vector2[] = []
   curve: Phaser.Curves.Spline | null = null;
   grid: number[][] = []
+  layers: {
+    background: Phaser.Tilemaps.TilemapLayer;
+    obstacles: Phaser.Tilemaps.TilemapLayer;
+    features: Phaser.Tilemaps.TilemapLayer;
+  } | null = null;
 
 
   constructor() {
@@ -35,6 +40,7 @@ class BattlegroundScene extends Phaser.Scene {
 
     makeMapInteractive(this, map, layers.background)
 
+    this.layers = layers
     const entities = createMapEntities(this, map)
 
     layers.obstacles.setCollisionBetween(0, 1000);
@@ -81,7 +87,34 @@ class BattlegroundScene extends Phaser.Scene {
 
   }
 
+  drawLine(start: { x: number, y: number }, end: { x: number, y: number }) {
+    this.findPath(start, end, path => {
+      this.graphics = this.add.graphics();
+
+      this.path = { t: 0, vec: new Phaser.Math.Vector2() };
+
+      this.points = [];
+
+      path.forEach(({ x, y }) => {
+
+        const tile = this.layers?.background.getTileAt(x, y);
+
+        if (!tile) return
+
+        this.points.push(new Phaser.Math.Vector2(tile.pixelX + tile.width / 2, tile.pixelY + tile.height / 2))
+
+      })
+
+      this.curve = new Phaser.Curves.Spline(this.points);
+
+      const points = this.curve.getPoints(this.points.length * 5);
+      this.drawPoints(points)
+    })
+
+  }
+
 }
+
 function update() { }
 
 export default BattlegroundScene;
