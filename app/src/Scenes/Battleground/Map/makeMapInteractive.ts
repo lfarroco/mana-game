@@ -31,5 +31,13 @@ export function makeMapInteractive(
 		const tile = bgLayer.getTileAtWorldXY(x, y);
 		if (!tile) return
 		tile.alpha = 0.5;
+
+		if (!scene.selectedEntity) return
+
+		const sourceTile = bgLayer.getTileAtWorldXY(scene.selectedEntity.x, scene.selectedEntity.y);
+		scene.drawLine(
+			sourceTile,
+			tile
+		)
 	});
 }

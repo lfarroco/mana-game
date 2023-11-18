@@ -51,7 +51,7 @@ const game = new Phaser.Game({
     default: 'arcade',
   },
   scene: [
-    BattlegroundScene
+    new BattlegroundScene(eventEmitter)
   ],
   plugins: {
     scene: [
