@@ -1,0 +1,10 @@
+#selected-entity {
+	color: #fff;
+	text-shadow: 0px 0px 4px #000;
+}
+
+#selected-entity img {
+	border-width: 4px;
+	border-style: solid;
+	border-image: linear-gradient(to right, darkblue, darkorchid) 1;
+}

@@ -6,6 +6,7 @@ import { importMapObjects } from "./importMapObjects";
 import { makeMapInteractive } from "./Map/makeMapInteractive";
 import { createMapEntities } from "./Map/createMapEntities";
 import * as Easystar from "easystarjs"
+import events from "events";
 
 const easystar = new Easystar.js();
 easystar.setAcceptableTiles([0])
@@ -22,11 +23,14 @@ class BattlegroundScene extends Phaser.Scene {
     obstacles: Phaser.Tilemaps.TilemapLayer;
     features: Phaser.Tilemaps.TilemapLayer;
   } | null = null;
+  selectedEntity: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | null = null;
+  gameEvents: events;
 
 
-  constructor() {
+  constructor(events: events) {
     super("BattlegroundScene");
     this.state = initialState
+    this.gameEvents = events
 
     //@ts-ignore
     window.state = this.state
@@ -43,9 +47,10 @@ class BattlegroundScene extends Phaser.Scene {
     this.layers = layers
     const entities = createMapEntities(this, map)
 
+    makeEntitiesInteractive(this, entities)
+
     layers.obstacles.setCollisionBetween(0, 1000);
     this.physics.add.collider(entities, layers.obstacles);
-
 
     this.grid = layers.obstacles.layer.data.map(row => row.map(tile => tile.index === -1 ? 0 : 1))
     easystar.setGrid(this.grid);
@@ -118,4 +123,25 @@ class BattlegroundScene extends Phaser.Scene {
 function update() { }
 
 export default BattlegroundScene;
+
+function makeEntitiesInteractive(
+  scene: BattlegroundScene,
+  entities: Phaser.Types.Physics.Arcade.ImageWithDynamicBody[]
+) {
+
+  entities.forEach(entity => {
+
+    entity.setInteractive();
+    entity.on("pointerup", (pointer: Phaser.Input.Pointer, x: number, y: number) => {
+
+      scene.gameEvents.emit("ENTITY_SELECTED", { type: "SQUAD", id: entity.name })
+      entity.alpha = 0.5;
+      scene.selectedEntity = entity;
+
+    });
+
+
+  })
+
+}
 
