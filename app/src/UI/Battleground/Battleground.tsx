@@ -6,7 +6,10 @@ import events from 'events'
 import { Link, Route, Routes } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getState } from '../../Scenes/Battleground/BGState';
-import SelectedEntity from './SelectedEntity/SelectedEntity';
+import SelectedSquad from './SelectedEntity/SelectedSquad';
+import { Squad } from '../../Models/Squad';
+import SelectedCity from './SelectedEntity/SelectedCity';
+import { City } from '../../Models/City';
 
 type BattlegroundProps = {
   events: events.EventEmitter
@@ -14,16 +17,20 @@ type BattlegroundProps = {
 
 const Battleground = (props: BattlegroundProps) => {
 
-  const [selectedEntityId, setSelectedEntity] = useState<string | null>(null);
+  const [selectedEntityInfo, setSelectedEntity] = useState<{ type: string, id: string } | null>(null);
   const state = getState()
 
-  const selectedEntity = state.squads.find(squad => squad.id === selectedEntityId)
+  const selectedEntity = selectedEntityInfo && (
+    selectedEntityInfo.type === "squad" ? state.squads.find(squad => squad.id === selectedEntityInfo.id) :
+      (state.cities.find(city => city.id === selectedEntityInfo.id))
+  )
 
   useEffect(() => {
-    props.events.on('ENTITY_SELECTED', (props: { type: string, id: string }) => {
-
-      setSelectedEntity(props.id);
-
+    props.events.on('SQUAD_SELECTED', (id: string) => {
+      setSelectedEntity({ type: "squad", id });
+    })
+    props.events.on('CITY_SELECTED', (id: string) => {
+      setSelectedEntity({ type: "city", id });
     })
   }, []);
 
@@ -52,7 +59,10 @@ const Battleground = (props: BattlegroundProps) => {
       <footer className="block p-2">
         <div className="content">
           {
-            selectedEntity && <SelectedEntity entity={selectedEntity} />
+            selectedEntityInfo?.type === "squad" && <SelectedSquad squad={selectedEntity as Squad} />
+          }
+          {
+            selectedEntityInfo?.type === "city" && <SelectedCity city={selectedEntity as City} />
           }
         </div>
 

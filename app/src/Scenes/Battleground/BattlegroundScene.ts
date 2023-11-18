@@ -2,16 +2,19 @@ import Phaser from "phaser";
 import { preload } from "./preload";
 import { createMap } from "./Map/createMap";
 import { BGState, initialState } from "./BGState";
-import { importMapObjects } from "./importMapObjects";
+import { importMapObjects } from "./Map/importMapObjects";
 import { makeMapInteractive } from "./Map/makeMapInteractive";
-import { createMapEntities } from "./Map/createMapEntities";
+import { createMapSquads as createMapSquads } from "./Map/createMapSquads";
 import * as Easystar from "easystarjs"
 import events from "events";
+import { makeSquadsInteractive } from "./Map/makeSquadsInteractive";
+import { createCities } from "./Map/createCities";
+import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
 
 const easystar = new Easystar.js();
 easystar.setAcceptableTiles([0])
 
-class BattlegroundScene extends Phaser.Scene {
+export class BattlegroundScene extends Phaser.Scene {
   state: BGState;
   graphics: Phaser.GameObjects.Graphics | null = null;
   path = { t: 0, vec: new Phaser.Math.Vector2() }
@@ -45,12 +48,15 @@ class BattlegroundScene extends Phaser.Scene {
     makeMapInteractive(this, map, layers.background)
 
     this.layers = layers
-    const entities = createMapEntities(this, map)
 
-    makeEntitiesInteractive(this, entities)
+    const cities = createCities(this, this.state.cities)
+    const squads = createMapSquads(this, map)
+
+    makeSquadsInteractive(this, squads)
+    makeCitiesInteractive(this, cities)
 
     layers.obstacles.setCollisionBetween(0, 1000);
-    this.physics.add.collider(entities, layers.obstacles);
+    this.physics.add.collider(squads, layers.obstacles);
 
     this.grid = layers.obstacles.layer.data.map(row => row.map(tile => tile.index === -1 ? 0 : 1))
     easystar.setGrid(this.grid);
@@ -124,24 +130,4 @@ function update() { }
 
 export default BattlegroundScene;
 
-function makeEntitiesInteractive(
-  scene: BattlegroundScene,
-  entities: Phaser.Types.Physics.Arcade.ImageWithDynamicBody[]
-) {
-
-  entities.forEach(entity => {
-
-    entity.setInteractive();
-    entity.on("pointerup", (pointer: Phaser.Input.Pointer, x: number, y: number) => {
-
-      scene.gameEvents.emit("ENTITY_SELECTED", { type: "SQUAD", id: entity.name })
-      entity.alpha = 0.5;
-      scene.selectedEntity = entity;
-
-    });
-
-
-  })
-
-}
 
