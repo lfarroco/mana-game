@@ -15,7 +15,11 @@ function SquadsWindow() {
 
 	const selected = squads.find(u => u.id === selectedSquad)
 
-	return <Modal show={true} size={"xl"}>
+	return <Modal
+		show={true}
+		size={"xl"}
+		id="squads-window"
+	>
 		<Modal.Header closeButton>
 			<Modal.Title>Squads List</Modal.Title>
 		</Modal.Header>

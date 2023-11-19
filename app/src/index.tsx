@@ -25,7 +25,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/battleground/*",
-    element: <Battleground events={eventEmitter} />,
+    element: <Battleground events={eventEmitter}  />,
   }
 ]);
 

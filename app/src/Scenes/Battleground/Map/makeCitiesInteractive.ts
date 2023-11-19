@@ -9,6 +9,8 @@ export function makeCitiesInteractive(
 		city.setInteractive();
 		city.on("pointerup", (pointer: Phaser.Input.Pointer, x: number, y: number) => {
 
+			if (pointer.upElement.tagName !== "CANVAS") return;
+
 			scene.gameEvents.emit("CITY_SELECTED", city.name);
 		});
 	});

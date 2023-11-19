@@ -16,7 +16,10 @@ function UnitsWindow() {
 
 	const selected = units.find(u => u.id === selectedUnit)
 
-	return <Modal show={true} size={"xl"}>
+	return <Modal show={true} size={"xl"}
+
+		id="units-window"
+	>
 		<Modal.Header closeButton>
 			<Modal.Title>Units List</Modal.Title>
 		</Modal.Header>
@@ -68,7 +71,14 @@ const unitList = (units: Unit[], selected: Unit | undefined, selectedUnit: strin
 							action
 							active={unit.id === selectedUnit}
 						>
-							{unit.name}
+							<div className="row">
+
+								<img
+									className="portrait col-sm-3"
+									src={`/assets/jobs/${unit.job}/portrait.png`} />
+								{unit.name}
+
+							</div>
 
 						</ListGroup.Item>
 
