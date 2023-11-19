@@ -30,11 +30,22 @@ export class BattlegroundScene extends Phaser.Scene {
   } | null = null;
   selectedEntity: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | null = null;
   gameEvents: events;
+  isPaused = false;
 
   constructor(events: events) {
     super("BattlegroundScene");
     this.state = initialState
     this.gameEvents = events
+
+    events.on("PAUSE", () => {
+      this.isPaused = true
+      this.scene.scene.physics.pause();
+    });
+
+    events.on("RESUME", () => {
+      this.isPaused = false
+      this.scene.scene.physics.resume();
+    });
 
     //@ts-ignore
     window.state = this.state
@@ -66,7 +77,9 @@ export class BattlegroundScene extends Phaser.Scene {
     window.scene = this
   }
   update() {
-    moveSquads(this)
+    if (!this.isPaused) {
+      moveSquads(this)
+    }
   }
 
   findPath(
@@ -136,6 +149,7 @@ export class BattlegroundScene extends Phaser.Scene {
       { x: sourceTile.x, y: sourceTile.y },
       { x: target.x, y: target.y },
       (path) => {
+        if (path.length < 1) return
         console.log("setting path", path)
         squad.path = path
         this.drawLine(path)

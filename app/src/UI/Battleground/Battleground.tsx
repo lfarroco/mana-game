@@ -1,7 +1,7 @@
 import './styles.css';
 import UnitsWindow from './UnitsWindow/UnitsWindow';
 import SquadsWindow from './SquadsWindow/SquadsWindow';
-import { ButtonGroup } from 'react-bootstrap';
+import { Button, ButtonGroup } from 'react-bootstrap';
 import events from 'events'
 import { Link, Route, Routes } from 'react-router-dom';
 import { useEffect, useState } from 'react';
@@ -20,12 +20,15 @@ const Battleground = (props: BattlegroundProps) => {
   const [selectedEntityInfo, setSelectedEntity] = useState<{ type: string, id: string } | null>(null);
   const state = getState()
 
+  const [isPaused, setPaused] = useState(false);
+
   const selectedEntity = selectedEntityInfo && (
     selectedEntityInfo.type === "squad" ? state.squads.find(squad => squad.id === selectedEntityInfo.id) :
       (state.cities.find(city => city.id === selectedEntityInfo.id))
   )
 
   useEffect(() => {
+    console.log("Battleground mounted");
     props.events.on('SQUAD_SELECTED', (id: string) => {
       setSelectedEntity({ type: "squad", id });
     })
@@ -52,6 +55,17 @@ const Battleground = (props: BattlegroundProps) => {
             >
               Squads
             </Link>
+
+            <Button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                isPaused ? props.events.emit('RESUME') : props.events.emit('PAUSE');
+                setPaused(!isPaused);
+              }}
+            >
+              {isPaused ? "Resume" : "Pause"}
+            </Button>
 
           </ButtonGroup>
         </div>
