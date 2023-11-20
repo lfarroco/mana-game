@@ -2,7 +2,7 @@ import './styles.css';
 import UnitsWindow from './UnitsWindow/UnitsWindow';
 import SquadsWindow from './SquadsWindow/SquadsWindow';
 import { Button, ButtonGroup } from 'react-bootstrap';
-import events from 'events'
+import events, { EventEmitterAsyncResource } from 'events'
 import { Link, Route, Routes } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getState } from '../../Scenes/Battleground/BGState';
@@ -17,10 +17,12 @@ type BattlegroundProps = {
 
 const Battleground = (props: BattlegroundProps) => {
 
+  const { events } = props;
   const [selectedEntityInfo, setSelectedEntity] = useState<{ type: string, id: string } | null>(null);
   const state = getState()
 
   const [isPaused, setPaused] = useState(false);
+  const [isSelectingMoveTarget, setIsSelectingMoveTarget] = useState(false);
 
   const selectedEntity = selectedEntityInfo && (
     selectedEntityInfo.type === "squad" ? state.squads.find(squad => squad.id === selectedEntityInfo.id) :
@@ -29,16 +31,23 @@ const Battleground = (props: BattlegroundProps) => {
 
   useEffect(() => {
     console.log("Battleground mounted");
-    props.events.on('SQUAD_SELECTED', (id: string) => {
+    events.on('SQUAD_SELECTED', (id: string) => {
       setSelectedEntity({ type: "squad", id });
     })
-    props.events.on('CITY_SELECTED', (id: string) => {
+    events.on('CITY_SELECTED', (id: string) => {
       setSelectedEntity({ type: "city", id });
     })
+    events.on("SELECTED_SQUAD_MOVE", (id: string) => {
+      setIsSelectingMoveTarget(true);
+    });
+    events.on("MOVE_TARGET_SELECTED", (id: string) => {
+      setIsSelectingMoveTarget(false);
+    });
   }, []);
 
   return (
     <>
+
       <header className="card">
         <div className="content">
           <ButtonGroup>
@@ -73,13 +82,17 @@ const Battleground = (props: BattlegroundProps) => {
       <footer className="block p-2">
         <div className="content">
           {
-            selectedEntityInfo?.type === "squad" && <SelectedSquad squad={selectedEntity as Squad} />
+            selectedEntityInfo?.type === "squad"
+            && <SelectedSquad
+              squad={selectedEntity as Squad}
+              events={events}
+              isSelectingMoveTarget={isSelectingMoveTarget}
+            />
           }
           {
             selectedEntityInfo?.type === "city" && <SelectedCity city={selectedEntity as City} />
           }
         </div>
-
       </footer>
 
       <Routes>
