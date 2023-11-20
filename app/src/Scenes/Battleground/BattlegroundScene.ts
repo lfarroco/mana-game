@@ -31,6 +31,7 @@ export class BattlegroundScene extends Phaser.Scene {
   selectedEntity: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | null = null;
   gameEvents: events;
   isPaused = false;
+  isSelectingSquadMove = false;
 
   constructor(events: events) {
     super("BattlegroundScene");
@@ -45,6 +46,15 @@ export class BattlegroundScene extends Phaser.Scene {
     events.on("RESUME", () => {
       this.isPaused = false
       this.scene.scene.physics.resume();
+    });
+    events.on("SELECT_SQUAD_MOVE", (_squadId: string) => {
+      this.isSelectingSquadMove = true
+    });
+    events.on("SELECTED_SQUAD_MOVE", (_squadId: string, _target: { x: number, y: number }) => {
+      this.isSelectingSquadMove = false
+    });
+    events.on("CANCEL_SELECT_SQUAD_MOVE", (_squadId: string) => {
+      this.isSelectingSquadMove = false
     });
 
     //@ts-ignore

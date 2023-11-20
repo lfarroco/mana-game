@@ -1,7 +1,17 @@
 import { Button } from "react-bootstrap"
 import { Squad } from "../../../Models/Squad"
 import "./styles.css"
-const SelectedSquad = ({ squad }: { squad: Squad }) => {
+import events from "events"
+
+const SelectedSquad = ({
+	squad,
+	events,
+	isSelectingMoveTarget
+}: {
+	squad: Squad,
+	events: events.EventEmitter,
+	isSelectingMoveTarget: boolean
+}) => {
 
 	return <div className="row" id="selected-entity">
 		<div className="col col-2">
@@ -15,12 +25,26 @@ const SelectedSquad = ({ squad }: { squad: Squad }) => {
 			<p>{squad.members.toString()}</p>
 		</div>
 		<div className="col col-4">
-			<Button className="col-12">
+			{!isSelectingMoveTarget && <><Button
+				onClick={() => {
+					events.emit("SELECTED_SQUAD_MOVE", squad.id)
+				}}
+				className="col-12">
 				Move
 			</Button>
-			<Button className="col-12">
-				Details
-			</Button>
+				<Button className="col-12">
+					Details
+				</Button>
+			</>
+			}{
+				isSelectingMoveTarget && <Button
+					onClick={() => {
+						events.emit("CANCEL_SELECT_SQUAD_MOVE", squad.id)
+					}}
+					className="col-12">
+					Cancel
+				</Button>
+			}
 		</div>
 
 	</div>
