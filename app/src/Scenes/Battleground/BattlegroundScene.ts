@@ -6,7 +6,6 @@ import { importMapObjects } from "./Map/importMapObjects";
 import { makeMapInteractive } from "./Map/makeMapInteractive";
 import { createMapSquads } from "./Map/createMapSquads";
 import * as Easystar from "easystarjs"
-import events from "events";
 import { makeSquadsInteractive } from "./Map/makeSquadsInteractive";
 import { createCities } from "./Map/createCities";
 import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
@@ -33,27 +32,15 @@ export class BattlegroundScene extends Phaser.Scene {
   isPaused = false;
   isSelectingSquadMove = false;
 
-  constructor(events: events) {
+  constructor() {
     super("BattlegroundScene");
     this.state = initialState
 
     Signals.listeners([
-      [Signals.index.PAUSE_PHYSICS, () => {
-        this.isPaused = true;
-        this.scene.scene.physics.pause();
-      }],
-      [Signals.index.RESUME_PHYSICS, () => {
-        this.isPaused = false;
-        this.scene.scene.physics.resume();
-      }],
+      [Signals.index.PAUSE_PHYSICS, this.pausePhysics],
+      [Signals.index.RESUME_PHYSICS, this.resumePhysics],
       [Signals.index.SELECT_SQUAD_MOVE_START, () => { this.isSelectingSquadMove = true }],
-      [Signals.index.SELECT_SQUAD_MOVE_DONE, (sqdId, { x, y }) => {
-        const sqd = this.state.squads.find(sqd => sqd.id === sqdId)
-        const tile = this.layers?.background.getTileAt(x, y);
-        if (!sqd || !tile) return
-        this.isSelectingSquadMove = false;
-        this.moveTo(sqd, tile)
-      }],
+      [Signals.index.SELECT_SQUAD_MOVE_DONE, this.moveSquadTo],
       [Signals.index.SELECT_SQUAD_MOVE_CANCEL, () => { this.isSelectingSquadMove = false }],
     ]);
 
@@ -183,6 +170,21 @@ export class BattlegroundScene extends Phaser.Scene {
         spriteB.body.setVelocity(0, 0);
       }
     });
+  }
+  pausePhysics = () => {
+    this.isPaused = true;
+    this.scene.scene.physics.pause();
+  }
+  resumePhysics = () => {
+    this.isPaused = false;
+    this.scene.scene.physics.resume();
+  }
+  moveSquadTo = (sqdId: string, { x, y }: { x: number, y: number }) => {
+    const sqd = this.state.squads.find(sqd => sqd.id === sqdId)
+    const tile = this.layers?.background.getTileAt(x, y);
+    if (!sqd || !tile) return
+    this.isSelectingSquadMove = false;
+    this.moveTo(sqd, tile)
   }
 }
 
