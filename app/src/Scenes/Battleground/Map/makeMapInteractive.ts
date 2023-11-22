@@ -47,12 +47,13 @@ export function makeMapInteractive(
 
 		if (!tile) return;
 
-		if (scene.state.selectedEntity?.type === "squad") {
+		if (scene.isSelectingSquadMove && scene.state.selectedEntity?.type === "squad") {
 
 			const sqd = scene.state.squads.find(squad => squad.id === scene.state.selectedEntity?.id)
 			if (!sqd) return
 
 			console.log("moving squad", sqd.id, "to", tile.x, tile.y)
+			scene.gameEvents.emit("SELECT_SQUAD_MOVE_DONE", sqd.id, { x: tile.x, y: tile.y })
 			scene.moveTo(sqd, tile)
 		}
 	});

@@ -27,7 +27,7 @@ const SelectedSquad = ({
 		<div className="col col-4">
 			{!isSelectingMoveTarget && <><Button
 				onClick={() => {
-					events.emit("SELECTED_SQUAD_MOVE", squad.id)
+					events.emit("SELECT_SQUAD_MOVE_START", squad.id)
 				}}
 				className="col-12">
 				Move
@@ -39,7 +39,7 @@ const SelectedSquad = ({
 			}{
 				isSelectingMoveTarget && <Button
 					onClick={() => {
-						events.emit("CANCEL_SELECT_SQUAD_MOVE", squad.id)
+						events.emit("SELECT_SQUAD_MOVE_CANCEL", squad.id)
 					}}
 					className="col-12">
 					Cancel
