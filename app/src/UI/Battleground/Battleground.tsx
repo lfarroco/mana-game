@@ -10,6 +10,7 @@ import SelectedSquad from './SelectedEntity/SelectedSquad';
 import { Squad } from '../../Models/Squad';
 import SelectedCity from './SelectedEntity/SelectedCity';
 import { City } from '../../Models/City';
+import * as Events from "../../Models/Events"
 
 type BattlegroundProps = {
   events: events.EventEmitter
@@ -37,15 +38,19 @@ const Battleground = (props: BattlegroundProps) => {
     events.on('CITY_SELECTED', (id: string) => {
       setSelectedEntity({ type: "city", id });
     })
-    events.on("SELECT_SQUAD_MOVE_START", (id: string) => {
+
+    Events.listen(events, Events.index.SELECT_SQUAD_MOVE_START, (id: string) => {
       setIsSelectingMoveTarget(true);
     });
-    events.on("SELECT_SQUAD_MOVE_DONE", (id: string) => {
+
+    Events.listen(events, Events.index.SELECT_SQUAD_MOVE_DONE, (id: string) => {
       setIsSelectingMoveTarget(false);
     });
-    events.on("SELECT_SQUAD_MOVE_CANCEL", (id: string) => {
+
+    Events.listen(events, Events.index.SELECT_SQUAD_MOVE_CANCEL, (id: string) => {
       setIsSelectingMoveTarget(false);
     });
+
   }, []);
 
   return (

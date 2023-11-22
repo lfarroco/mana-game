@@ -12,6 +12,7 @@ import { createCities } from "./Map/createCities";
 import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
 import { Squad } from "../../Models/Squad";
 import moveSquads from "./Map/moveSquads";
+import * as Events from "../../Models/Events";
 
 const easystar = new Easystar.js();
 easystar.setAcceptableTiles([0])
@@ -47,15 +48,19 @@ export class BattlegroundScene extends Phaser.Scene {
       this.isPaused = false
       this.scene.scene.physics.resume();
     });
-    events.on("SELECT_SQUAD_MOVE_START", (_squadId: string) => {
+
+    Events.listen(events, Events.index.SELECT_SQUAD_MOVE_START, (_squadId: string) => {
       this.isSelectingSquadMove = true
     });
-    events.on("SELECT_SQUAD_MOVE_DONE", (_squadId: string, _target: { x: number, y: number }) => {
+
+    Events.listen(events, Events.index.SELECT_SQUAD_MOVE_DONE, (_squadId: string, _target: { x: number, y: number }) => {
       this.isSelectingSquadMove = false
     });
-    events.on("SELECT_SQUAD_MOVE_CANCEL", (_squadId: string) => {
+
+    Events.listen(events, Events.index.SELECT_SQUAD_MOVE_CANCEL, (_squadId: string) => {
       this.isSelectingSquadMove = false
     });
+
 
     //@ts-ignore
     window.state = this.state

@@ -2,6 +2,7 @@ import { Button } from "react-bootstrap"
 import { Squad } from "../../../Models/Squad"
 import "./styles.css"
 import events from "events"
+import * as Events from "../../../Models/Events"
 
 const SelectedSquad = ({
 	squad,
@@ -27,7 +28,7 @@ const SelectedSquad = ({
 		<div className="col col-4">
 			{!isSelectingMoveTarget && <><Button
 				onClick={() => {
-					events.emit("SELECT_SQUAD_MOVE_START", squad.id)
+					Events.emit(events, Events.index.SELECT_SQUAD_MOVE_START, squad.id)
 				}}
 				className="col-12">
 				Move
@@ -39,7 +40,7 @@ const SelectedSquad = ({
 			}{
 				isSelectingMoveTarget && <Button
 					onClick={() => {
-						events.emit("SELECT_SQUAD_MOVE_CANCEL", squad.id)
+						Events.emit(events, Events.index.SELECT_SQUAD_MOVE_CANCEL, squad.id)
 					}}
 					className="col-12">
 					Cancel
