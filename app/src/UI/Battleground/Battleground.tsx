@@ -19,9 +19,9 @@ type BattlegroundProps = {
 const Battleground = (props: BattlegroundProps) => {
 
   const { events } = props;
-  const [selectedEntityInfo, setSelectedEntity] = useState<{ type: string, id: string } | null>(null);
   const state = getState()
 
+  const [selectedEntityInfo, setSelectedEntity] = useState<{ type: string, id: string } | null>(null);
   const [isPaused, setPaused] = useState(false);
   const [isSelectingMoveTarget, setIsSelectingMoveTarget] = useState(false);
 
@@ -32,30 +32,22 @@ const Battleground = (props: BattlegroundProps) => {
 
   useEffect(() => {
     console.log("Battleground mounted");
-    events.on('SQUAD_SELECTED', (id: string) => {
-      setSelectedEntity({ type: "squad", id });
-    })
-    events.on('CITY_SELECTED', (id: string) => {
-      setSelectedEntity({ type: "city", id });
-    })
-
-    Events.listen(events, Events.index.SELECT_SQUAD_MOVE_START, (id: string) => {
-      setIsSelectingMoveTarget(true);
-    });
-
-    Events.listen(events, Events.index.SELECT_SQUAD_MOVE_DONE, (id: string) => {
-      setIsSelectingMoveTarget(false);
-    });
-
-    Events.listen(events, Events.index.SELECT_SQUAD_MOVE_CANCEL, (id: string) => {
-      setIsSelectingMoveTarget(false);
-    });
-
+    Events.listeners(
+      events,
+      [
+        [Events.index.PAUSE_PHYSICS, () => { setPaused(true); }],
+        [Events.index.RESUME_PHYSICS, () => { setPaused(false); }],
+        [Events.index.SQUAD_SELECTED, (id: string) => { setSelectedEntity({ type: "squad", id }); }],
+        [Events.index.CITY_SELECTED, (id: string) => { setSelectedEntity({ type: "city", id }); }],
+        [Events.index.SELECT_SQUAD_MOVE_START, (id: string) => { setIsSelectingMoveTarget(true); }],
+        [Events.index.SELECT_SQUAD_MOVE_DONE, (id: string) => { setIsSelectingMoveTarget(false); }],
+        [Events.index.SELECT_SQUAD_MOVE_CANCEL, (id: string) => { setIsSelectingMoveTarget(false); }]
+      ]
+    )
   }, []);
 
   return (
     <>
-
       <header className="card">
         <div className="content">
           <ButtonGroup>
@@ -75,10 +67,11 @@ const Battleground = (props: BattlegroundProps) => {
 
             <Button
               onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                isPaused ? props.events.emit('RESUME') : props.events.emit('PAUSE');
-                setPaused(!isPaused);
+                if (isPaused) {
+                  Events.emit(events, Events.index.RESUME_PHYSICS)
+                } else {
+                  Events.emit(events, Events.index.PAUSE_PHYSICS)
+                }
               }}
             >
               {isPaused ? "Resume" : "Pause"}
