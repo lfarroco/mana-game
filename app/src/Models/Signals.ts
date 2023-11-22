@@ -1,6 +1,6 @@
 import events from 'events'
 
-export type Events = {
+export type Signals = {
 	PAUSE_PHYSICS: {
 		callback: () => void
 	},
@@ -24,7 +24,7 @@ export type Events = {
 	},
 }
 
-export const index: { [key in keyof Events]: keyof Events } = {
+export const index: { [key in keyof Signals]: keyof Signals } = {
 	PAUSE_PHYSICS: "PAUSE_PHYSICS",
 	RESUME_PHYSICS: "RESUME_PHYSICS",
 	SELECT_SQUAD_MOVE_START: "SELECT_SQUAD_MOVE_START",
@@ -34,11 +34,12 @@ export const index: { [key in keyof Events]: keyof Events } = {
 	CITY_SELECTED: "CITY_SELECTED",
 }
 
-export const listen = <T extends keyof Events>(
-	emitter: events,
+export const listen = <T extends keyof Signals>(
 	event: T,
-	callback: Events[T]["callback"],
+	callback: Signals[T]["callback"],
 ): (() => void) => {
+	//@ts-ignore
+	const emitter: events = window.emitter;
 	console.log("listening to", event)
 	emitter.on(event, callback)
 	return () => {
@@ -47,12 +48,15 @@ export const listen = <T extends keyof Events>(
 	}
 }
 
-export const emit = <T extends keyof Events>(
-	emitter: events,
+export const emit = <T extends keyof Signals>(
 	event: T,
-	...args: Parameters<Events[T]["callback"]>
+	...args: Parameters<Signals[T]["callback"]>
 ) => {
-	console.table({ event, args })
+	//@ts-ignore
+	const emitter: events = window.emitter;
+	console.log(
+		event, ...args
+	)
 	emitter.emit(event, ...args)
 }
 
@@ -61,11 +65,10 @@ export const emit = <T extends keyof Events>(
 // 	[ "A", ()=>{ do stuff}],
 // 	[ "B", ()=>{ do stuff}],
 // ])
-export const listeners = <T extends keyof Events>(
-	emitter: events,
-	listeners: [T, Events[T]["callback"]][]
+export const listeners = <T extends keyof Signals>(
+	listeners: [T, Signals[T]["callback"]][]
 ) => {
 	listeners.forEach(([event, callback]) => {
-		listen(emitter, event, callback)
+		listen(event, callback)
 	})
 }

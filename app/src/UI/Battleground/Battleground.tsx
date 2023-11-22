@@ -2,7 +2,7 @@ import './styles.css';
 import UnitsWindow from './UnitsWindow/UnitsWindow';
 import SquadsWindow from './SquadsWindow/SquadsWindow';
 import { Button, ButtonGroup } from 'react-bootstrap';
-import events, { EventEmitterAsyncResource } from 'events'
+import events from 'events'
 import { Link, Route, Routes } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getState } from '../../Scenes/Battleground/BGState';
@@ -10,15 +10,11 @@ import SelectedSquad from './SelectedEntity/SelectedSquad';
 import { Squad } from '../../Models/Squad';
 import SelectedCity from './SelectedEntity/SelectedCity';
 import { City } from '../../Models/City';
-import * as Events from "../../Models/Events"
+import * as Signals from "../../Models/Signals"
 
-type BattlegroundProps = {
-  events: events.EventEmitter
-}
 
-const Battleground = (props: BattlegroundProps) => {
+const Battleground = () => {
 
-  const { events } = props;
   const state = getState()
 
   const [selectedEntityInfo, setSelectedEntity] = useState<{ type: string, id: string } | null>(null);
@@ -32,16 +28,15 @@ const Battleground = (props: BattlegroundProps) => {
 
   useEffect(() => {
     console.log("Battleground mounted");
-    Events.listeners(
-      events,
+    Signals.listeners(
       [
-        [Events.index.PAUSE_PHYSICS, () => { setPaused(true); }],
-        [Events.index.RESUME_PHYSICS, () => { setPaused(false); }],
-        [Events.index.SQUAD_SELECTED, (id: string) => { setSelectedEntity({ type: "squad", id }); }],
-        [Events.index.CITY_SELECTED, (id: string) => { setSelectedEntity({ type: "city", id }); }],
-        [Events.index.SELECT_SQUAD_MOVE_START, (id: string) => { setIsSelectingMoveTarget(true); }],
-        [Events.index.SELECT_SQUAD_MOVE_DONE, (id: string) => { setIsSelectingMoveTarget(false); }],
-        [Events.index.SELECT_SQUAD_MOVE_CANCEL, (id: string) => { setIsSelectingMoveTarget(false); }]
+        [Signals.index.PAUSE_PHYSICS, () => { setPaused(true); }],
+        [Signals.index.RESUME_PHYSICS, () => { setPaused(false); }],
+        [Signals.index.SQUAD_SELECTED, (id: string) => { setSelectedEntity({ type: "squad", id }); }],
+        [Signals.index.CITY_SELECTED, (id: string) => { setSelectedEntity({ type: "city", id }); }],
+        [Signals.index.SELECT_SQUAD_MOVE_START, () => { setIsSelectingMoveTarget(true); }],
+        [Signals.index.SELECT_SQUAD_MOVE_DONE, () => { setIsSelectingMoveTarget(false); }],
+        [Signals.index.SELECT_SQUAD_MOVE_CANCEL, () => { setIsSelectingMoveTarget(false); }]
       ]
     )
   }, []);
@@ -68,9 +63,9 @@ const Battleground = (props: BattlegroundProps) => {
             <Button
               onClick={(e) => {
                 if (isPaused) {
-                  Events.emit(events, Events.index.RESUME_PHYSICS)
+                  Signals.emit(Signals.index.RESUME_PHYSICS)
                 } else {
-                  Events.emit(events, Events.index.PAUSE_PHYSICS)
+                  Signals.emit(Signals.index.PAUSE_PHYSICS)
                 }
               }}
             >
@@ -91,7 +86,6 @@ const Battleground = (props: BattlegroundProps) => {
             selectedEntityInfo?.type === "squad"
             && <SelectedSquad
               squad={selectedEntity as Squad}
-              events={events}
               isSelectingMoveTarget={isSelectingMoveTarget}
             />
           }

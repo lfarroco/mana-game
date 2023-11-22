@@ -12,7 +12,7 @@ import { createCities } from "./Map/createCities";
 import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
 import { Squad } from "../../Models/Squad";
 import moveSquads from "./Map/moveSquads";
-import * as Events from "../../Models/Events";
+import * as Signals from "../../Models/Signals";
 
 const easystar = new Easystar.js();
 easystar.setAcceptableTiles([0])
@@ -30,27 +30,31 @@ export class BattlegroundScene extends Phaser.Scene {
     features: Phaser.Tilemaps.TilemapLayer;
   } | null = null;
   selectedEntity: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | null = null;
-  gameEvents: events;
   isPaused = false;
   isSelectingSquadMove = false;
 
   constructor(events: events) {
     super("BattlegroundScene");
     this.state = initialState
-    this.gameEvents = events
 
-    Events.listeners(events, [
-      [Events.index.PAUSE_PHYSICS, () => {
+    Signals.listeners([
+      [Signals.index.PAUSE_PHYSICS, () => {
         this.isPaused = true;
         this.scene.scene.physics.pause();
       }],
-      [Events.index.RESUME_PHYSICS, () => {
+      [Signals.index.RESUME_PHYSICS, () => {
         this.isPaused = false;
         this.scene.scene.physics.resume();
       }],
-      [Events.index.SELECT_SQUAD_MOVE_START, () => { this.isSelectingSquadMove = true }],
-      [Events.index.SELECT_SQUAD_MOVE_DONE, () => { this.isSelectingSquadMove = false }],
-      [Events.index.SELECT_SQUAD_MOVE_CANCEL, () => { this.isSelectingSquadMove = false }],
+      [Signals.index.SELECT_SQUAD_MOVE_START, () => { this.isSelectingSquadMove = true }],
+      [Signals.index.SELECT_SQUAD_MOVE_DONE, (sqdId, { x, y }) => {
+        const sqd = this.state.squads.find(sqd => sqd.id === sqdId)
+        const tile = this.layers?.background.getTileAt(x, y);
+        if (!sqd || !tile) return
+        this.isSelectingSquadMove = false;
+        this.moveTo(sqd, tile)
+      }],
+      [Signals.index.SELECT_SQUAD_MOVE_CANCEL, () => { this.isSelectingSquadMove = false }],
     ]);
 
 
