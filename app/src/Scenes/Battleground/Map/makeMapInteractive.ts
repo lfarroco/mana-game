@@ -37,7 +37,7 @@ export function makeMapInteractive(
 		scene.cameras.main.scrollY = scene.cameras.main.scrollY + startVector.y - dragY;
 	});
 
-	bgLayer.on("pointerup", (pointer: Phaser.Input.Pointer, x: number, y: number) => {
+	bgLayer.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer, x: number, y: number) => {
 
 		if (pointer.upElement?.tagName !== "CANVAS") return;
 

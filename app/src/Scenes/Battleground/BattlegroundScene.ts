@@ -39,27 +39,19 @@ export class BattlegroundScene extends Phaser.Scene {
     this.state = initialState
     this.gameEvents = events
 
-    events.on("PAUSE", () => {
-      this.isPaused = true
-      this.scene.scene.physics.pause();
-    });
-
-    events.on("RESUME", () => {
-      this.isPaused = false
-      this.scene.scene.physics.resume();
-    });
-
-    Events.listen(events, Events.index.SELECT_SQUAD_MOVE_START, (_squadId: string) => {
-      this.isSelectingSquadMove = true
-    });
-
-    Events.listen(events, Events.index.SELECT_SQUAD_MOVE_DONE, (_squadId: string, _target: { x: number, y: number }) => {
-      this.isSelectingSquadMove = false
-    });
-
-    Events.listen(events, Events.index.SELECT_SQUAD_MOVE_CANCEL, (_squadId: string) => {
-      this.isSelectingSquadMove = false
-    });
+    Events.listeners(events, [
+      [Events.index.PAUSE_PHYSICS, () => {
+        this.isPaused = true;
+        this.scene.scene.physics.pause();
+      }],
+      [Events.index.RESUME_PHYSICS, () => {
+        this.isPaused = false;
+        this.scene.scene.physics.resume();
+      }],
+      [Events.index.SELECT_SQUAD_MOVE_START, () => { this.isSelectingSquadMove = true }],
+      [Events.index.SELECT_SQUAD_MOVE_DONE, () => { this.isSelectingSquadMove = false }],
+      [Events.index.SELECT_SQUAD_MOVE_CANCEL, () => { this.isSelectingSquadMove = false }],
+    ]);
 
 
     //@ts-ignore

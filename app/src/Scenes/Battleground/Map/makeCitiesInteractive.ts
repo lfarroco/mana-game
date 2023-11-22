@@ -7,7 +7,7 @@ export function makeCitiesInteractive(
 ) {
 	cities.forEach(city => {
 		city.setInteractive();
-		city.on("pointerup", (pointer: Phaser.Input.Pointer, x: number, y: number) => {
+		city.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer, x: number, y: number) => {
 
 			if (pointer.upElement.tagName !== "CANVAS") return;
 

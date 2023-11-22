@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { getState } from "../BGState";
+import * as Events from "../../../Models/Events";
 
 export function makeSquadsInteractive(
 	scene: BattlegroundScene,
@@ -12,14 +13,13 @@ export function makeSquadsInteractive(
 	entities.forEach(entity => {
 
 		entity.setInteractive();
-		entity.on("pointerup", (pointer: Phaser.Input.Pointer, x: number, y: number) => {
+		entity.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer, x: number, y: number) => {
 
 			if (pointer.upElement.tagName !== "CANVAS") return;
 
 			state.selectedEntity = { type: "squad", id: entity.name }
 
-			scene.gameEvents.emit("SQUAD_SELECTED", entity.name);
-			scene.selectedEntity = entity;
+			Events.emit(scene.gameEvents, Events.index.SQUAD_SELECTED, entity.name)
 
 		});
 
