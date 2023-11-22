@@ -47,13 +47,13 @@ export class BattlegroundScene extends Phaser.Scene {
       this.isPaused = false
       this.scene.scene.physics.resume();
     });
-    events.on("SELECT_SQUAD_MOVE", (_squadId: string) => {
+    events.on("SELECT_SQUAD_MOVE_START", (_squadId: string) => {
       this.isSelectingSquadMove = true
     });
-    events.on("SELECTED_SQUAD_MOVE", (_squadId: string, _target: { x: number, y: number }) => {
+    events.on("SELECT_SQUAD_MOVE_DONE", (_squadId: string, _target: { x: number, y: number }) => {
       this.isSelectingSquadMove = false
     });
-    events.on("CANCEL_SELECT_SQUAD_MOVE", (_squadId: string) => {
+    events.on("SELECT_SQUAD_MOVE_CANCEL", (_squadId: string) => {
       this.isSelectingSquadMove = false
     });
 

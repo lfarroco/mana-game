@@ -37,10 +37,13 @@ const Battleground = (props: BattlegroundProps) => {
     events.on('CITY_SELECTED', (id: string) => {
       setSelectedEntity({ type: "city", id });
     })
-    events.on("SELECTED_SQUAD_MOVE", (id: string) => {
+    events.on("SELECT_SQUAD_MOVE_START", (id: string) => {
       setIsSelectingMoveTarget(true);
     });
-    events.on("MOVE_TARGET_SELECTED", (id: string) => {
+    events.on("SELECT_SQUAD_MOVE_DONE", (id: string) => {
+      setIsSelectingMoveTarget(false);
+    });
+    events.on("SELECT_SQUAD_MOVE_CANCEL", (id: string) => {
       setIsSelectingMoveTarget(false);
     });
   }, []);
@@ -81,6 +84,11 @@ const Battleground = (props: BattlegroundProps) => {
       </header>
       <footer className="block p-2">
         <div className="content">
+          <div className="row">
+            <div id="tooltip" className="col text-center text-light">
+              {isSelectingMoveTarget && 'Select Target'}
+            </div>
+          </div>
           {
             selectedEntityInfo?.type === "squad"
             && <SelectedSquad
