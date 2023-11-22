@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
+import * as Signals from "../../../Models/Signals";
 
 export function makeCitiesInteractive(
 	scene: BattlegroundScene,
@@ -11,7 +12,7 @@ export function makeCitiesInteractive(
 
 			if (pointer.upElement.tagName !== "CANVAS") return;
 
-			scene.gameEvents.emit("CITY_SELECTED", city.name);
+			Signals.emit(Signals.index.CITY_SELECTED, city.name)
 		});
 	});
 

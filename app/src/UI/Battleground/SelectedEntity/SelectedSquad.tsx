@@ -2,15 +2,13 @@ import { Button } from "react-bootstrap"
 import { Squad } from "../../../Models/Squad"
 import "./styles.css"
 import events from "events"
-import * as Events from "../../../Models/Events"
+import * as Signals from "../../../Models/Signals"
 
 const SelectedSquad = ({
 	squad,
-	events,
 	isSelectingMoveTarget
 }: {
 	squad: Squad,
-	events: events.EventEmitter,
 	isSelectingMoveTarget: boolean
 }) => {
 
@@ -28,7 +26,7 @@ const SelectedSquad = ({
 		<div className="col col-4">
 			{!isSelectingMoveTarget && <><Button
 				onClick={() => {
-					Events.emit(events, Events.index.SELECT_SQUAD_MOVE_START, squad.id)
+					Signals.emit(Signals.index.SELECT_SQUAD_MOVE_START, squad.id)
 				}}
 				className="col-12">
 				Move
@@ -40,7 +38,7 @@ const SelectedSquad = ({
 			}{
 				isSelectingMoveTarget && <Button
 					onClick={() => {
-						Events.emit(events, Events.index.SELECT_SQUAD_MOVE_CANCEL, squad.id)
+						Signals.emit(Signals.index.SELECT_SQUAD_MOVE_CANCEL, squad.id)
 					}}
 					className="col-12">
 					Cancel

@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { getState } from "../BGState";
-import * as Events from "../../../Models/Events";
+import * as Signals from "../../../Models/Signals";
 
 export function makeSquadsInteractive(
 	scene: BattlegroundScene,
@@ -19,7 +19,7 @@ export function makeSquadsInteractive(
 
 			state.selectedEntity = { type: "squad", id: entity.name }
 
-			Events.emit(scene.gameEvents, Events.index.SQUAD_SELECTED, entity.name)
+			Signals.emit(Signals.index.SQUAD_SELECTED, entity.name)
 
 		});
 

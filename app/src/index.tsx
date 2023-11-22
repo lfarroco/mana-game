@@ -14,6 +14,9 @@ import BattlegroundScene from './Scenes/Battleground/BattlegroundScene';
 
 const eventEmitter = new events.EventEmitter();
 
+//@ts-ignore
+window.emitter = eventEmitter;
+
 const root = ReactDOM.createRoot(
   document.getElementById('ui') as HTMLElement
 );
@@ -25,7 +28,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/battleground/*",
-    element: <Battleground events={eventEmitter} />,
+    element: <Battleground />,
   }
 ]);
 

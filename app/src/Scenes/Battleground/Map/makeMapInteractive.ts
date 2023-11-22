@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import BattlegroundScene from "../BattlegroundScene";
+import * as Signals from "../../../Models/Signals";
 
 export function makeMapInteractive(
 	scene: BattlegroundScene,
@@ -49,12 +50,11 @@ export function makeMapInteractive(
 
 		if (scene.isSelectingSquadMove && scene.state.selectedEntity?.type === "squad") {
 
-			const sqd = scene.state.squads.find(squad => squad.id === scene.state.selectedEntity?.id)
-			if (!sqd) return
-
-			console.log("moving squad", sqd.id, "to", tile.x, tile.y)
-			scene.gameEvents.emit("SELECT_SQUAD_MOVE_DONE", sqd.id, { x: tile.x, y: tile.y })
-			scene.moveTo(sqd, tile)
+			Signals.emit(
+				Signals.index.SELECT_SQUAD_MOVE_DONE,
+				scene.state.selectedEntity.id,
+				{ x: tile.x, y: tile.y }
+			)
 		}
 	});
 }
