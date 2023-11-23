@@ -28,7 +28,10 @@ export type Signals = {
 	},
 	DISPATCH_SQUAD: {
 		callback: (squadId: string, cityId: string) => void
-	}
+	},
+	SQUADS_COLLIDED: {
+		callback: (squadId1: string, squadId2: string) => void
+	},
 }
 
 export const index: { [key in keyof Signals]: keyof Signals } = {
@@ -41,6 +44,7 @@ export const index: { [key in keyof Signals]: keyof Signals } = {
 	CITY_SELECTED: "CITY_SELECTED",
 	TOGGLE_DISPATCH_MODAL: "TOGGLE_DISPATCH_MODAL",
 	DISPATCH_SQUAD: "DISPATCH_SQUAD",
+	SQUADS_COLLIDED: "SQUADS_COLLIDED",
 }
 
 export const listen = <T extends keyof Signals>(

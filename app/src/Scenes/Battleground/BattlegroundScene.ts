@@ -12,8 +12,8 @@ import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
 import { Squad } from "../../Models/Squad";
 import moveSquads from "./Map/moveSquads";
 import { WindowVec } from "../../Models/Misc";
-import { chara } from "./chara";
-import { index, listeners } from "../../Models/Signals";
+import { Chara, chara } from "./chara";
+import { emit, index, listeners } from "../../Models/Signals";
 
 const easystar = new Easystar.js();
 easystar.setAcceptableTiles([0])
@@ -25,6 +25,7 @@ export class BattlegroundScene extends Phaser.Scene {
   points: Phaser.Math.Vector2[] = []
   curve: Phaser.Curves.Spline | null = null;
   grid: number[][] = []
+  charas: Chara[] = []
   layers: {
     background: Phaser.Tilemaps.TilemapLayer;
     obstacles: Phaser.Tilemaps.TilemapLayer;
@@ -33,6 +34,8 @@ export class BattlegroundScene extends Phaser.Scene {
   selectedEntity: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | null = null;
   isPaused = false;
   isSelectingSquadMove = false;
+  squadCollider: Phaser.Physics.Arcade.Collider | null = null;
+  layerCollider: Phaser.Physics.Arcade.Collider | null = null;
 
   constructor() {
     super("BattlegroundScene");
@@ -65,13 +68,12 @@ export class BattlegroundScene extends Phaser.Scene {
     this.layers = layers
 
     const cities = createCities(this, this.state.cities)
-    const squads = createMapSquads(this, map)
+    this.charas = createMapSquads(this, map)
 
-    makeSquadsInteractive(this, squads)
+    makeSquadsInteractive(this, this.charas)
     makeCitiesInteractive(this, cities)
 
-    layers.obstacles.setCollisionBetween(0, 1000);
-    this.physics.add.collider(squads, layers.obstacles);
+    this.setupCollisions();
 
     this.grid = layers.obstacles.layer.data.map(row => row.map(tile => tile.index === -1 ? 0 : 1))
     easystar.setGrid(this.grid);
@@ -79,6 +81,28 @@ export class BattlegroundScene extends Phaser.Scene {
     //@ts-ignore
     window.scene = this
   }
+  private setupCollisions() {
+    this.squadCollider?.destroy();
+    const bodiesA = this.charas.filter(c => c.force === "PLAYER").map(({ body }) => body)
+    const bodiesB = this.charas.filter(c => c.force === "CPU").map(({ body }) => body)
+    this.squadCollider = this.physics.add.collider(bodiesA, bodiesB,
+      //@ts-ignore
+      (squadA: Phaser.GameObjects.Image, squadB: Phaser.GameObjects.Image) => {
+        emit(index.SQUADS_COLLIDED, squadA.name, squadB.name);
+      }
+    );
+
+    if (!this.layers?.obstacles) {
+      throw new Error("obstacles layer not found")
+    }
+    this.layerCollider?.destroy();
+    this.layerCollider = this.physics.add.overlap(
+      bodiesA.concat(bodiesB),
+      this.layers.obstacles
+    );
+    this.layers.obstacles.setCollisionBetween(0, 1000);
+  }
+
   update() {
     if (!this.isPaused) {
       moveSquads(this)
@@ -212,6 +236,14 @@ export class BattlegroundScene extends Phaser.Scene {
     squad.dispatched = true;
     squad.position = city.position;
     makeSquadInteractive(sprite, this)
+
+    this.charas.push({
+      id: squad.id,
+      force: squad.force,
+      body: sprite.body,
+    })
+
+    this.setupCollisions();
 
   }
 }
