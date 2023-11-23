@@ -182,8 +182,11 @@ export class BattlegroundScene extends Phaser.Scene {
     this.findPath(
       { x: sourceTile.x, y: sourceTile.y },
       { x: target.x, y: target.y },
-      (path) => {
-        if (path.length < 1) return
+      (path_) => {
+        if (path_.length < 2) return
+
+        const path = path_.slice(1)
+
         console.log("setting path", path)
         squad.path = path
         this.drawLine(path)
