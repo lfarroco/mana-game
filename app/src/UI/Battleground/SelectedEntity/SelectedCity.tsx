@@ -1,4 +1,5 @@
 import { City } from "../../../Models/City"
+import { emit, index } from "../../../Models/Signals"
 import "./styles.css"
 const SelectedCity = ({ city }: { city: City }) => {
 
@@ -12,6 +13,18 @@ const SelectedCity = ({ city }: { city: City }) => {
 
 			<h3>{city.name}</h3>
 			<p>{city.type}</p>
+		</div>
+		<div className="col col-2">
+			<div
+				className="col-12 btn btn-secondary"
+				onClick={
+					() => {
+						emit(index.TOGGLE_DISPATCH_MODAL, true)
+					}
+				}
+			>Dispatch</div>
+			<div className="col-12 btn btn-secondary">Shop</div>
+
 		</div>
 	</div>
 

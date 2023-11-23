@@ -9,7 +9,9 @@ export function createMapSquads(
 
 	const state = getState()
 
-	return state.squads.map(squad =>
-		chara(squad.position.x, squad.position.y, scene, squad)
-	);
+	return state.squads
+		.filter(squad => squad.dispatched)
+		.map(squad =>
+			chara(squad.position.x, squad.position.y, scene, squad)
+		);
 }
