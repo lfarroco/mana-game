@@ -15,13 +15,11 @@ export function makeMapInteractive(
 
 	bgLayer?.setInteractive({ draggable: true });
 
-	let startVector = { x: 0, y: 0 };
 
 	bgLayer.on(Phaser.Input.Events.DRAG_START, (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
 
 		if (pointer.upElement?.tagName !== "CANVAS") return;
 
-		startVector = { x: scene.cameras.main.scrollX, y: scene.cameras.main.scrollY };
 
 	});
 
@@ -33,8 +31,14 @@ export function makeMapInteractive(
 
 		if (pointer.distance < 10) return;
 
-		scene.cameras.main.scrollX = scene.cameras.main.scrollX + startVector.x - dragX;
-		scene.cameras.main.scrollY = scene.cameras.main.scrollY + startVector.y - dragY;
+		scene.cameras.main.scrollX = scene.cameras.main.scrollX - dragX;
+		scene.cameras.main.scrollY = scene.cameras.main.scrollY - dragY;
+	});
+
+	bgLayer.on(Phaser.Input.Events.DRAG_END, (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
+
+		if (pointer.upElement?.tagName !== "CANVAS") return;
+
 	});
 
 	bgLayer.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer, x: number, y: number) => {
