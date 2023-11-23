@@ -11,6 +11,7 @@ import SelectedCity from './SelectedEntity/SelectedCity';
 import { City } from '../../Models/City';
 import * as Signals from "../../Models/Signals"
 import DispatchUnitModal from './DispatchUnitModal/DispachUnitModal';
+import SquadDetailsModal from './SquadDetailsModal/SquadDetailsModal';
 
 
 const Battleground = () => {
@@ -21,6 +22,7 @@ const Battleground = () => {
   const [isPaused, setPaused] = useState(false);
   const [isSelectingMoveTarget, setIsSelectingMoveTarget] = useState(false);
   const [isDispatchModalVisible, setDispatchModalVisible] = useState(false);
+  const [isSquadDetailsModalVisible, setSquadDetailsModalVisible] = useState(false);
 
   const selectedEntity = selectedEntityInfo && (
     selectedEntityInfo.type === "squad" ? state.squads.find(squad => squad.id === selectedEntityInfo.id) :
@@ -38,7 +40,8 @@ const Battleground = () => {
         [Signals.index.SELECT_SQUAD_MOVE_START, () => { setIsSelectingMoveTarget(true); }],
         [Signals.index.SELECT_SQUAD_MOVE_DONE, () => { setIsSelectingMoveTarget(false); }],
         [Signals.index.SELECT_SQUAD_MOVE_CANCEL, () => { setIsSelectingMoveTarget(false); }],
-        [Signals.index.TOGGLE_DISPATCH_MODAL, (value: boolean) => { setDispatchModalVisible(value); }]
+        [Signals.index.TOGGLE_DISPATCH_MODAL, (value: boolean) => { setDispatchModalVisible(value); }],
+        [Signals.index.TOGGLE_SQUAD_DETAILS_MODAL, (value: boolean) => { setSquadDetailsModalVisible(value); }]
       ]
     )
   }, []);
@@ -107,6 +110,13 @@ const Battleground = () => {
         visible={isDispatchModalVisible}
         squads={state.squads}
       />}
+      {
+        selectedEntityInfo?.type === "squad" && <SquadDetailsModal
+          visible={isSquadDetailsModalVisible}
+          id={selectedEntityInfo.id}
+        />
+      }
+
     </>
   );
 }

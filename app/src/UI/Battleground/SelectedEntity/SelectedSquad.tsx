@@ -31,7 +31,13 @@ const SelectedSquad = ({
 				className="col-12">
 				Move
 			</Button>
-				<Button className="col-12">
+				<Button
+					onClick={() => {
+
+						Signals.emit(Signals.index.TOGGLE_SQUAD_DETAILS_MODAL, true)
+
+					}}
+					className="col-12">
 					Details
 				</Button>
 			</>
@@ -46,7 +52,7 @@ const SelectedSquad = ({
 			}
 		</div>
 
-	</div>
+	</div >
 
 }
 
