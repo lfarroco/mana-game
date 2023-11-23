@@ -2,7 +2,6 @@ import './styles.css';
 import UnitsWindow from './UnitsWindow/UnitsWindow';
 import SquadsWindow from './SquadsWindow/SquadsWindow';
 import { Button, ButtonGroup } from 'react-bootstrap';
-import events from 'events'
 import { Link, Route, Routes } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getState } from '../../Scenes/Battleground/BGState';

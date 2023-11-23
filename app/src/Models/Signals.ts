@@ -1,4 +1,5 @@
 import events from 'events'
+import { WindowVec } from './Misc'
 
 export type Signals = {
 	PAUSE_PHYSICS: {
@@ -17,7 +18,7 @@ export type Signals = {
 		callback: (squadId: string) => void
 	},
 	SELECT_SQUAD_MOVE_DONE: {
-		callback: (squadId: string, target: { x: number, y: number }) => void
+		callback: (squadId: string, target: WindowVec) => void
 	},
 	SELECT_SQUAD_MOVE_CANCEL: {
 		callback: (squadId: string) => void

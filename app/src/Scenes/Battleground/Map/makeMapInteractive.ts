@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import BattlegroundScene from "../BattlegroundScene";
 import * as Signals from "../../../Models/Signals";
+import { windowVec } from "../../../Models/Misc";
 
 export function makeMapInteractive(
 	scene: BattlegroundScene,
@@ -15,14 +16,12 @@ export function makeMapInteractive(
 	bgLayer?.setInteractive({ draggable: true });
 
 	let startVector = { x: 0, y: 0 };
-	let startDragTime = 0;
 
 	bgLayer.on(Phaser.Input.Events.DRAG_START, (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
 
 		if (pointer.upElement?.tagName !== "CANVAS") return;
 
 		startVector = { x: scene.cameras.main.scrollX, y: scene.cameras.main.scrollY };
-		startDragTime = Date.now();
 
 	});
 
@@ -49,7 +48,7 @@ export function makeMapInteractive(
 			Signals.emit(
 				Signals.index.SELECT_SQUAD_MOVE_DONE,
 				scene.state.selectedEntity.id,
-				{ x: x, y: y }
+				windowVec(x, y)
 			)
 		}
 	});

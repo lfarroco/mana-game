@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
 import * as Signals from "../../../Models/Signals";
+import { windowVec } from "../../../Models/Misc";
 
 export function makeCitiesInteractive(
 	scene: BattlegroundScene,
@@ -16,7 +17,7 @@ export function makeCitiesInteractive(
 				Signals.emit(
 					Signals.index.SELECT_SQUAD_MOVE_DONE,
 					scene.state.selectedEntity.id,
-					{ x, y }
+					windowVec(city.x, city.y)
 				)
 			} else {
 
