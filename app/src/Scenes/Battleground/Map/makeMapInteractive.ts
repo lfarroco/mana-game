@@ -44,16 +44,12 @@ export function makeMapInteractive(
 
 		if (!scene.isSelectingSquadMove) return
 
-		const tile = bgLayer.getTileAtWorldXY(x, y);
-
-		if (!tile) return;
-
 		if (scene.isSelectingSquadMove && scene.state.selectedEntity?.type === "squad") {
 
 			Signals.emit(
 				Signals.index.SELECT_SQUAD_MOVE_DONE,
 				scene.state.selectedEntity.id,
-				{ x: tile.x, y: tile.y }
+				{ x: x, y: y }
 			)
 		}
 	});

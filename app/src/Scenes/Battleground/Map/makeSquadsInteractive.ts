@@ -17,13 +17,15 @@ export function makeSquadsInteractive(
 
 			if (pointer.upElement.tagName !== "CANVAS") return;
 
-			state.selectedEntity = { type: "squad", id: entity.name }
-
-			Signals.emit(Signals.index.SQUAD_SELECTED, entity.name)
-
+			if (scene.isSelectingSquadMove && state.selectedEntity?.type === "squad") {
+				Signals.emit(
+					Signals.index.SELECT_SQUAD_MOVE_DONE,
+					state.selectedEntity.id,
+					{ x, y }
+				)
+			} else {
+				Signals.emit(Signals.index.SQUAD_SELECTED, entity.name)
+			}
 		});
-
-
 	});
-
 }

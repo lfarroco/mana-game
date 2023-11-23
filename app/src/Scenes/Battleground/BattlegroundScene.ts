@@ -39,6 +39,7 @@ export class BattlegroundScene extends Phaser.Scene {
     Signals.listeners([
       [Signals.index.PAUSE_PHYSICS, this.pausePhysics],
       [Signals.index.RESUME_PHYSICS, this.resumePhysics],
+      [Signals.index.SQUAD_SELECTED, this.selectSquad],
       [Signals.index.SELECT_SQUAD_MOVE_START, () => { this.isSelectingSquadMove = true }],
       [Signals.index.SELECT_SQUAD_MOVE_DONE, this.moveSquadTo],
       [Signals.index.SELECT_SQUAD_MOVE_CANCEL, () => { this.isSelectingSquadMove = false }],
@@ -78,6 +79,10 @@ export class BattlegroundScene extends Phaser.Scene {
     if (!this.isPaused) {
       moveSquads(this)
     }
+  }
+
+  selectSquad = (id: string) => {
+    this.state.selectedEntity = { type: "squad", id }
   }
 
   findPath(

@@ -12,7 +12,16 @@ export function makeCitiesInteractive(
 
 			if (pointer.upElement.tagName !== "CANVAS") return;
 
-			Signals.emit(Signals.index.CITY_SELECTED, city.name)
+			if (scene.isSelectingSquadMove && scene.state.selectedEntity?.type === "squad") {
+				Signals.emit(
+					Signals.index.SELECT_SQUAD_MOVE_DONE,
+					scene.state.selectedEntity.id,
+					{ x, y }
+				)
+			} else {
+
+				Signals.emit(Signals.index.CITY_SELECTED, city.name)
+			}
 		});
 	});
 
