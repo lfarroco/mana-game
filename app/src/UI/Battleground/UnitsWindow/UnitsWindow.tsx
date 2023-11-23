@@ -34,7 +34,7 @@ function UnitsWindow() {
 					{unitList(units, selected, selectedUnit, "PLAYER")}
 				</Tab>
 				<Tab eventKey="cpu" title="Enemy">
-					{unitList(units, selected, selectedUnit, "CPU")}
+					{unitList(units, selected, selectedUnit, "cpu")}
 				</Tab>
 			</Tabs>
 		</Modal.Body>

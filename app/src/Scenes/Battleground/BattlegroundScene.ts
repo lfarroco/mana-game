@@ -84,8 +84,8 @@ export class BattlegroundScene extends Phaser.Scene {
   private setupCollisions() {
     this.squadCollider?.destroy();
     const bodiesA = this.charas.filter(c => c.force === "PLAYER").map(({ body }) => body)
-    const bodiesB = this.charas.filter(c => c.force === "CPU").map(({ body }) => body)
-    this.squadCollider = this.physics.add.collider(bodiesA, bodiesB,
+    const bodiesB = this.charas.filter(c => c.force === "cpu").map(({ body }) => body)
+    this.squadCollider = this.physics.add.overlap(bodiesA, bodiesB,
       //@ts-ignore
       (squadA: Phaser.GameObjects.Image, squadB: Phaser.GameObjects.Image) => {
         emit(index.SQUADS_COLLIDED, squadA.name, squadB.name);
@@ -96,7 +96,7 @@ export class BattlegroundScene extends Phaser.Scene {
       throw new Error("obstacles layer not found")
     }
     this.layerCollider?.destroy();
-    this.layerCollider = this.physics.add.overlap(
+    this.layerCollider = this.physics.add.collider(
       bodiesA.concat(bodiesB),
       this.layers.obstacles
     );
