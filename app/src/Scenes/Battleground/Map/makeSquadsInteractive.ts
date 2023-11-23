@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
-import { getState } from "../BGState";
+import { BGState, getState } from "../BGState";
 import * as Signals from "../../../Models/Signals";
 import { windowVec } from "../../../Models/Misc";
 
@@ -9,24 +9,29 @@ export function makeSquadsInteractive(
 	entities: Phaser.Types.Physics.Arcade.ImageWithDynamicBody[]
 ) {
 
-	const state = getState();
-
 	entities.forEach(entity => {
 
-		entity.setInteractive();
-		entity.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer, x: number, y: number) => {
-
-			if (pointer.upElement.tagName !== "CANVAS") return;
-
-			if (scene.isSelectingSquadMove && state.selectedEntity?.type === "squad") {
-				Signals.emit(
-					Signals.index.SELECT_SQUAD_MOVE_DONE,
-					state.selectedEntity.id,
-					windowVec(entity.x, entity.y)
-				)
-			} else {
-				Signals.emit(Signals.index.SQUAD_SELECTED, entity.name)
-			}
-		});
+		makeSquadInteractive(entity, scene);
 	});
 }
+export function makeSquadInteractive(entity: Phaser.Types.Physics.Arcade.ImageWithDynamicBody, scene: BattlegroundScene) {
+
+	entity.setInteractive();
+	entity.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer, x: number, y: number) => {
+
+		const state = getState();
+
+		if (pointer.upElement.tagName !== "CANVAS") return;
+
+		if (scene.isSelectingSquadMove && state.selectedEntity?.type === "squad") {
+			Signals.emit(
+				Signals.index.SELECT_SQUAD_MOVE_DONE,
+				state.selectedEntity.id,
+				windowVec(entity.x, entity.y)
+			);
+		} else {
+			Signals.emit(Signals.index.SQUAD_SELECTED, entity.name);
+		}
+	});
+}
+

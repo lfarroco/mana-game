@@ -7,9 +7,9 @@ export type Force = {
 	squads: string[];
 };
 
-export const makeForce = {
+export const makeForce = () => ({
 	id: uuid.v4(),
 	name: "",
 	color: "",
 	squads: []
-}
+})
