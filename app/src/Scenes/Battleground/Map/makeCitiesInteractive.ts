@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
-import * as Signals from "../../../Models/Signals";
 import { windowVec } from "../../../Models/Misc";
+import { emit, index } from "../../../Models/Signals";
 
 export function makeCitiesInteractive(
 	scene: BattlegroundScene,
@@ -14,14 +14,13 @@ export function makeCitiesInteractive(
 			if (pointer.upElement.tagName !== "CANVAS") return;
 
 			if (scene.isSelectingSquadMove && scene.state.selectedEntity?.type === "squad") {
-				Signals.emit(
-					Signals.index.SELECT_SQUAD_MOVE_DONE,
+				emit(
+					index.SELECT_SQUAD_MOVE_DONE,
 					scene.state.selectedEntity.id,
 					windowVec(city.x, city.y)
 				)
 			} else {
-
-				Signals.emit(Signals.index.CITY_SELECTED, city.name)
+				emit(index.CITY_SELECTED, city.name)
 			}
 		});
 	});

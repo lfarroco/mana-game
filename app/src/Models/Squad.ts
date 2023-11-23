@@ -4,6 +4,7 @@ export type Squad = {
 	id: string,
 	name: string,
 	force: string,
+	dispatched: boolean,
 	position: {
 		x: number,
 		y: number
@@ -53,7 +54,8 @@ export const randomSquad = (): Squad => {
 		force: "force-" + Math.random().toString(36).substring(7),
 		position: { x: 0, y: 0 },
 		members: {},
-		path: []
+		path: [],
+		dispatched: false
 	}
 
 	for (let i = 0; i < 5; i++) {
