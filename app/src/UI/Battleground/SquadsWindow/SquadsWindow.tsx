@@ -34,7 +34,7 @@ function SquadsWindow() {
 					{squadList(squads, selected, selectedSquad, "PLAYER")}
 				</Tab>
 				<Tab eventKey="cpu" title="Enemy">
-					{squadList(squads, selected, selectedSquad, "CPU")}
+					{squadList(squads, selected, selectedSquad, "cpu")}
 				</Tab>
 			</Tabs>
 
@@ -48,7 +48,9 @@ function SquadsWindow() {
 }
 
 function selectedDetails(squad: Squad) {
-	return squad.name
+	return <pre>
+		{JSON.stringify(squad, null, 2)}
+	</pre>
 }
 
 const squadList = (squads: Squad[], selected: Squad | undefined, selectedSquad: string, force: string) => <div
@@ -72,7 +74,7 @@ const squadList = (squads: Squad[], selected: Squad | undefined, selectedSquad: 
 								action
 								active={squad.id === selectedSquad}
 							>
-								{JSON.stringify(squad)}
+								{squad.name}
 							</ListGroup.Item>
 
 						</Link>
