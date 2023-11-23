@@ -12,7 +12,7 @@ export type Unit = {
 export const makeUnit = (): Unit => {
 	return {
 		id: uuid.v4(),
-		name: "",
+		name: uuid.v4().slice(0, 8),
 		job: "",
 		squad: null,
 		force: null

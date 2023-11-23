@@ -6,14 +6,31 @@ import { useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import { emit, index } from '../../../Models/Signals';
 
+const dispatch = (squad: Squad) => () => {
+
+	const state = getState()
+	if (state.selectedEntity?.type === "city") {
+		emit(index.DISPATCH_SQUAD, squad.id, state.selectedEntity?.id)
+		emit(index.TOGGLE_DISPATCH_MODAL, false)
+	} else {
+		console.error("No selected entity")
+	}
+}
+const onClose = () => {
+	emit(index.TOGGLE_DISPATCH_MODAL, false)
+}
+
 function DispatchUnitModal({ visible, squads }: { visible: boolean, squads: Squad[] }) {
 
-	const [selectedSquad, setSelectedSquad] = useState(squads[0].id)
+	const selectableSquads = squads.filter(s => s.force === "PLAYER")
 
-	const selected = squads.find(u => u.id === selectedSquad)
+	const [selectedSquad, setSelectedSquad] = useState(selectableSquads[0].id)
+
+	const selected = selectableSquads.find(u => u.id === selectedSquad)
 
 	return <Modal
-		show={visible && squads.length > 0}
+		show={visible && selectableSquads.length > 0}
+		onHide={onClose}
 		size={"xl"}
 		id="squads-window"
 	>
@@ -29,7 +46,7 @@ function DispatchUnitModal({ visible, squads }: { visible: boolean, squads: Squa
 						activeKey={selectedSquad}
 					>
 						{visible &&
-							squads.map(squad =>
+							selectableSquads.map(squad =>
 
 								<ListGroup.Item
 									action
@@ -57,10 +74,9 @@ function DispatchUnitModal({ visible, squads }: { visible: boolean, squads: Squa
 			</div >
 		</Modal.Body>
 		<Modal.Footer>
-			<Button className="btn btn-secondary"
-				onClick={() => {
-					emit(index.TOGGLE_DISPATCH_MODAL, false)
-				}}
+			<Button
+				className="btn btn-secondary"
+				onClick={onClose}
 			>
 				Close
 			</Button>
@@ -88,19 +104,7 @@ function selectedDetails(squad: Squad) {
 
 		<button
 			className="btn btn-sm btn-primary"
-			onClick={
-				() => {
-
-					const state = getState()
-					if (state.selectedEntity?.type === "city") {
-						emit(index.DISPATCH_SQUAD, squad.id, state.selectedEntity?.id)
-						emit(index.TOGGLE_DISPATCH_MODAL, false)
-					} else {
-						console.error("No selected entity")
-					}
-				}
-			}
-
+			onClick={dispatch(squad)}
 		>Dispatch</button>
 	</>
 }
