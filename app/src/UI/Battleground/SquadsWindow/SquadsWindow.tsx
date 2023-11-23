@@ -4,6 +4,8 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import { Link, useParams } from 'react-router-dom';
 import { Squad } from '../../../Models/Squad';
 import { getState } from '../../../Scenes/Battleground/BGState';
+import Tab from 'react-bootstrap/Tab';
+import Tabs from 'react-bootstrap/Tabs';
 
 function SquadsWindow() {
 
@@ -24,9 +26,18 @@ function SquadsWindow() {
 			<Modal.Title>Squads List</Modal.Title>
 		</Modal.Header>
 		<Modal.Body>
-			{
-				squadList(squads, selected, selectedSquad)
-			}
+			<Tabs
+				defaultActiveKey="player"
+				className="mb-3"
+			>
+				<Tab eventKey="player" title="Allied">
+					{squadList(squads, selected, selectedSquad, "PLAYER")}
+				</Tab>
+				<Tab eventKey="cpu" title="Enemy">
+					{squadList(squads, selected, selectedSquad, "CPU")}
+				</Tab>
+			</Tabs>
+
 		</Modal.Body>
 		<Modal.Footer>
 			<Link to="/battleground" className="btn btn-secondary">
@@ -40,7 +51,7 @@ function selectedDetails(squad: Squad) {
 	return squad.name
 }
 
-const squadList = (squads: Squad[], selected: Squad | undefined, selectedSquad: string) => <div
+const squadList = (squads: Squad[], selected: Squad | undefined, selectedSquad: string, force: string) => <div
 	className="row"
 	id="squads-window">
 	<div className="col col-sm-4 p-2">
@@ -49,22 +60,23 @@ const squadList = (squads: Squad[], selected: Squad | undefined, selectedSquad: 
 			activeKey={selectedSquad}
 		>
 			{
-				squads.map(squad =>
+				squads
+					.filter(s => s.force === force)
+					.map(squad =>
 
-					<Link
-						to={`/battleground/squads/${squad.id}`}
-						key={squad.id}
-					>
-						<ListGroup.Item
-							action
-							active={squad.id === selectedSquad}
+						<Link
+							to={`/battleground/squads/${squad.id}`}
+							key={squad.id}
 						>
+							<ListGroup.Item
+								action
+								active={squad.id === selectedSquad}
+							>
+								{JSON.stringify(squad)}
+							</ListGroup.Item>
 
-							{squad.name}
-						</ListGroup.Item>
-
-					</Link>
-				)
+						</Link>
+					)
 			}
 		</ListGroup>
 	</div>
@@ -74,8 +86,6 @@ const squadList = (squads: Squad[], selected: Squad | undefined, selectedSquad: 
 			{
 				selected && selectedDetails(selected)
 			}
-
-
 		</div>
 	</div>
 </div >

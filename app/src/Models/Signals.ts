@@ -64,7 +64,7 @@ export const emit = <T extends keyof Signals>(
 	//@ts-ignore
 	const emitter: events = window.emitter;
 	console.log(
-		event, ...args
+		`emit("${event}", ...${JSON.stringify(args)})`
 	)
 	emitter.emit(event, ...args)
 }
@@ -81,3 +81,6 @@ export const listeners = <T extends keyof Signals>(
 		listen(event, callback)
 	})
 }
+
+//@ts-ignore
+window.emit = emit
