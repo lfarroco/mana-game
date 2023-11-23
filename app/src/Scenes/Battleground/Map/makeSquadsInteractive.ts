@@ -3,10 +3,11 @@ import { BattlegroundScene } from "../BattlegroundScene";
 import { BGState, getState } from "../BGState";
 import * as Signals from "../../../Models/Signals";
 import { windowVec } from "../../../Models/Misc";
+import { Chara } from "../chara";
 
 export function makeSquadsInteractive(
 	scene: BattlegroundScene,
-	entities: Phaser.Types.Physics.Arcade.ImageWithDynamicBody[]
+	entities: Chara[]
 ) {
 
 	entities.forEach(entity => {
@@ -14,10 +15,10 @@ export function makeSquadsInteractive(
 		makeSquadInteractive(entity, scene);
 	});
 }
-export function makeSquadInteractive(entity: Phaser.Types.Physics.Arcade.ImageWithDynamicBody, scene: BattlegroundScene) {
+export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
 
-	entity.setInteractive();
-	entity.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer, x: number, y: number) => {
+	chara.body.setInteractive();
+	chara.body.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer, x: number, y: number) => {
 
 		const state = getState();
 
@@ -27,10 +28,10 @@ export function makeSquadInteractive(entity: Phaser.Types.Physics.Arcade.ImageWi
 			Signals.emit(
 				Signals.index.SELECT_SQUAD_MOVE_DONE,
 				state.selectedEntity.id,
-				windowVec(entity.x, entity.y)
+				windowVec(chara.body.x, chara.body.y)
 			);
 		} else {
-			Signals.emit(Signals.index.SQUAD_SELECTED, entity.name);
+			Signals.emit(Signals.index.SQUAD_SELECTED, chara.id);
 		}
 	});
 }

@@ -1,22 +1,28 @@
 import Phaser from "phaser";
 import { Squad } from "../../Models/Squad";
 
+export type Chara = {
+	id: string;
+	force: string;
+	body: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
+}
+
 export function chara(
 	x: number,
 	y: number,
 	scene: Phaser.Scene,
 	squad: Squad,
-): Phaser.Types.Physics.Arcade.ImageWithDynamicBody {
-	const spineboy: Phaser.GameObjects.Image = scene
+) {
+	const spine: Phaser.GameObjects.Image = scene
 		//@ts-ignore
 		.add.spine(x, y, "spine-data", "spine-atlas");
-	spineboy.scale = 0.1;
+	spine.scale = 0.1;
 
 	//@ts-ignore
-	spineboy.skeleton.setSkinByName("archer");
+	spine.skeleton.setSkinByName("archer");
 	//@ts-ignore
-	spineboy.animationState.setAnimation(0, "map-idle", true);
-	spineboy.setName("spine-" + squad.id)
+	spine.animationState.setAnimation(0, "map-idle", true);
+	spine.setName("spine-" + squad.id)
 
 	const body = scene.physics.add.image(x, y, "")
 	body.setSize(20, 20)
@@ -25,8 +31,8 @@ export function chara(
 	body.setPosition(x, y)
 
 	const follow = () => {
-		spineboy.x = body.x;
-		spineboy.y = body.y;
+		spine.x = body.x;
+		spine.y = body.y;
 	};
 
 	//todo: iterate on scene state, for each chara, make it follow its circle
@@ -34,9 +40,14 @@ export function chara(
 	//make spineboy follow circle
 	scene.events.on("update", follow);
 	//destroy listener on element destroy
-	spineboy.once("destroy", () => {
+	spine.once("destroy", () => {
 		scene.events.off("update", follow);
 	});
 
-	return body
+	return {
+		id: squad.id,
+		force: squad.force,
+		body,
+		spineboy: spine,
+	}
 }
