@@ -6,13 +6,14 @@ import { importMapObjects } from "./Map/importMapObjects";
 import { makeMapInteractive } from "./Map/makeMapInteractive";
 import { createMapSquads } from "./Map/createMapSquads";
 import * as Easystar from "easystarjs"
-import { makeSquadsInteractive } from "./Map/makeSquadsInteractive";
+import { makeSquadInteractive, makeSquadsInteractive } from "./Map/makeSquadsInteractive";
 import { createCities } from "./Map/createCities";
 import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
 import { Squad } from "../../Models/Squad";
 import moveSquads from "./Map/moveSquads";
-import * as Signals from "../../Models/Signals";
 import { WindowVec } from "../../Models/Misc";
+import { chara } from "./chara";
+import { index, listeners } from "../../Models/Signals";
 
 const easystar = new Easystar.js();
 easystar.setAcceptableTiles([0])
@@ -37,14 +38,15 @@ export class BattlegroundScene extends Phaser.Scene {
     super("BattlegroundScene");
     this.state = initialState
 
-    Signals.listeners([
-      [Signals.index.PAUSE_PHYSICS, this.pausePhysics],
-      [Signals.index.RESUME_PHYSICS, this.resumePhysics],
-      [Signals.index.SQUAD_SELECTED, this.selectSquad],
-      [Signals.index.CITY_SELECTED, this.selectCity],
-      [Signals.index.SELECT_SQUAD_MOVE_START, () => { this.isSelectingSquadMove = true }],
-      [Signals.index.SELECT_SQUAD_MOVE_DONE, this.moveSquadTo],
-      [Signals.index.SELECT_SQUAD_MOVE_CANCEL, () => { this.isSelectingSquadMove = false }],
+    listeners([
+      [index.PAUSE_PHYSICS, this.pausePhysics],
+      [index.RESUME_PHYSICS, this.resumePhysics],
+      [index.SQUAD_SELECTED, this.selectSquad],
+      [index.CITY_SELECTED, this.selectCity],
+      [index.SELECT_SQUAD_MOVE_START, () => { this.isSelectingSquadMove = true }],
+      [index.SELECT_SQUAD_MOVE_DONE, this.moveSquadTo],
+      [index.SELECT_SQUAD_MOVE_CANCEL, () => { this.isSelectingSquadMove = false }],
+      [index.DISPATCH_SQUAD, this.dispatchSquad],
     ]);
 
 
@@ -195,6 +197,22 @@ export class BattlegroundScene extends Phaser.Scene {
     if (!sqd || !tile) return
     this.isSelectingSquadMove = false;
     this.moveTo(sqd, tile)
+  }
+  dispatchSquad = (sqdId: string, cityId: string) => {
+
+    let squad = this.state.squads.find(sqd => sqd.id === sqdId)
+    const city = this.state.cities.find(c => c.id === cityId)
+
+    if (!squad || !city) {
+      console.error("dispatchSquad: squad or city not found")
+      return
+    }
+
+    const sprite = chara(city.position.x, city.position.y, this, squad)
+    squad.dispatched = true;
+    squad.position = city.position;
+    makeSquadInteractive(sprite, this)
+
   }
 }
 
