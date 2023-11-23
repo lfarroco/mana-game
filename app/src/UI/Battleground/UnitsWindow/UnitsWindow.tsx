@@ -5,6 +5,8 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import { Link, useParams } from 'react-router-dom';
 import { Table } from 'react-bootstrap';
 import { getState } from '../../../Scenes/Battleground/BGState';
+import Tab from 'react-bootstrap/Tab';
+import Tabs from 'react-bootstrap/Tabs';
 
 function UnitsWindow() {
 
@@ -24,9 +26,17 @@ function UnitsWindow() {
 			<Modal.Title>Units List</Modal.Title>
 		</Modal.Header>
 		<Modal.Body>
-			{
-				unitList(units, selected, selectedUnit)
-			}
+			<Tabs
+				defaultActiveKey="player"
+				className="mb-3"
+			>
+				<Tab eventKey="player" title="Allied">
+					{unitList(units, selected, selectedUnit, "PLAYER")}
+				</Tab>
+				<Tab eventKey="cpu" title="Enemy">
+					{unitList(units, selected, selectedUnit, "CPU")}
+				</Tab>
+			</Tabs>
 		</Modal.Body>
 		<Modal.Footer>
 			<Link to="/battleground" className="btn btn-secondary">
@@ -51,8 +61,7 @@ function selectedDetails(unit: Unit) {
 	</Table>
 }
 
-const unitList = (units: Unit[], selected: Unit | undefined, selectedUnit: string) => <div
-
+const unitList = (units: Unit[], selected: Unit | undefined, selectedUnit: string, force: string) => <div
 	className="row"
 >
 	<div className="col col-sm-4">
@@ -61,29 +70,31 @@ const unitList = (units: Unit[], selected: Unit | undefined, selectedUnit: strin
 			activeKey={selectedUnit}
 		>
 			{
-				units.map(unit =>
+				units
+					.filter(u => u.force === force)
+					.map(unit =>
 
-					<Link to={`/battleground/units/${unit.id}`}
+						<Link to={`/battleground/units/${unit.id}`}
 
-						key={unit.id}
-					>
-						<ListGroup.Item
-							action
-							active={unit.id === selectedUnit}
+							key={unit.id}
 						>
-							<div className="row">
+							<ListGroup.Item
+								action
+								active={unit.id === selectedUnit}
+							>
+								<div className="row">
 
-								<img
-									className="portrait col-sm-3"
-									src={`/assets/jobs/${unit.job}/portrait.png`} />
-								{unit.name}
+									<img
+										className="portrait col-sm-3"
+										src={`/assets/jobs/${unit.job}/portrait.png`} />
+									{unit.name}
 
-							</div>
+								</div>
 
-						</ListGroup.Item>
+							</ListGroup.Item>
 
-					</Link>
-				)
+						</Link>
+					)
 			}
 		</ListGroup>
 	</div>
@@ -93,8 +104,6 @@ const unitList = (units: Unit[], selected: Unit | undefined, selectedUnit: strin
 			{
 				selected && selectedDetails(selected)
 			}
-
-
 		</div>
 	</div>
 </div >
