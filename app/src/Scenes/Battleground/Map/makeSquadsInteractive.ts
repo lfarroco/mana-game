@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { getState } from "../BGState";
 import * as Signals from "../../../Models/Signals";
+import { windowVec } from "../../../Models/Misc";
 
 export function makeSquadsInteractive(
 	scene: BattlegroundScene,
@@ -21,7 +22,7 @@ export function makeSquadsInteractive(
 				Signals.emit(
 					Signals.index.SELECT_SQUAD_MOVE_DONE,
 					state.selectedEntity.id,
-					{ x, y }
+					windowVec(entity.x, entity.y)
 				)
 			} else {
 				Signals.emit(Signals.index.SQUAD_SELECTED, entity.name)

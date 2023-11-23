@@ -12,6 +12,7 @@ import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
 import { Squad } from "../../Models/Squad";
 import moveSquads from "./Map/moveSquads";
 import * as Signals from "../../Models/Signals";
+import { WindowVec } from "../../Models/Misc";
 
 const easystar = new Easystar.js();
 easystar.setAcceptableTiles([0])
@@ -184,9 +185,9 @@ export class BattlegroundScene extends Phaser.Scene {
     this.isPaused = false;
     this.scene.scene.physics.resume();
   }
-  moveSquadTo = (sqdId: string, { x, y }: { x: number, y: number }) => {
+  moveSquadTo = (sqdId: string, { x, y }: WindowVec) => {
     const sqd = this.state.squads.find(sqd => sqd.id === sqdId)
-    const tile = this.layers?.background.getTileAt(x, y);
+    const tile = this.layers?.background.getTileAtWorldXY(x, y);
     if (!sqd || !tile) return
     this.isSelectingSquadMove = false;
     this.moveTo(sqd, tile)
