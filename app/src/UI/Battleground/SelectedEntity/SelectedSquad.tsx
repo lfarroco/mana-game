@@ -12,6 +12,8 @@ const SelectedSquad = ({
 	isSelectingMoveTarget: boolean
 }) => {
 
+	const isPlayerControlled = squad.force === "PLAYER"
+
 	return <div className="row" id="selected-entity">
 		<div className="col col-2">
 			<img
@@ -24,13 +26,14 @@ const SelectedSquad = ({
 			<p>{squad.members.toString()}</p>
 		</div>
 		<div className="col col-4">
-			{!isSelectingMoveTarget && <><Button
-				onClick={() => {
-					Signals.emit(Signals.index.SELECT_SQUAD_MOVE_START, squad.id)
-				}}
-				className="col-12">
-				Move
-			</Button>
+			{!isSelectingMoveTarget && <>
+				{isPlayerControlled && <Button
+					onClick={() => {
+						Signals.emit(Signals.index.SELECT_SQUAD_MOVE_START, squad.id)
+					}}
+					className="col-12">
+					Move
+				</Button>}
 				<Button
 					onClick={() => {
 
