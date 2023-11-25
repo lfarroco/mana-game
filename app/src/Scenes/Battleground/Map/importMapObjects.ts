@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { BGState } from "../BGState";
 import * as uuid from "uuid";
-import { Squad, addMembers } from "../../../Models/Squad";
+import { Squad } from "../../../Models/Squad";
 import { randomUnit } from "../../../Models/Unit";
 import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH } from "../constants";
 import { City } from "../../../Models/City";
@@ -16,7 +16,7 @@ type SquadSpec = {
 	force: string;
 	x: number,
 	y: number
-	members: MemberSpec[];
+	members: { id: string, job: string }[];
 };
 type MemberSpec = {
 	x: number;
@@ -96,12 +96,10 @@ export function importMapObjects(state: BGState, map: Phaser.Tilemaps.Tilemap) {
 				const ai: string = obj.properties.find((prop: { name: string; }) => prop.name === "ai")?.value;
 				const force: string = obj.properties.find((prop: { name: string; }) => prop.name === "force")?.value;
 
-				const members: MemberSpec[] = obj.properties
+				const members = obj.properties
 					.filter((prop: TiledProp) => prop.name.startsWith("unit_"))
-					.map((prop: TiledProp) => prop.value.split(","))
-					.map(([x, y, job]: [x: string, y: string, job: string]) => (
-						{ x: parseInt(x), y: parseInt(y), job }
-					));
+					.map((prop: TiledProp) => prop.value)
+					.map((job: string) => ({ id: uuid.v4(), job }))
 
 				return {
 					ai,
@@ -138,25 +136,23 @@ export function importMapObjects(state: BGState, map: Phaser.Tilemaps.Tilemap) {
 					x: sqd.x + HALF_TILE_WIDTH,
 					y: sqd.y + HALF_TILE_HEIGHT
 				},
-				members: {},
+				members: sqd.members.map(spec => spec.id),
 				path: []
 			};
 
-			const members = sqd.members.map(member => ({ ...member, id: uuid.v4() }));
-
-			members.forEach(member => {
-				const newUnit = {
+			const units = sqd.members.map(spec => (
+				{
 					...randomUnit(),
-					id: member.id,
-					job: member.job,
+					id: spec.id,
+					job: spec.job,
 					force: force.id,
 					squad: newSquad.id
 				}
-				state.units.push(newUnit);
-			});
+			))
 
-			state.squads.push(addMembers(newSquad, members));
+			state.squads.push(newSquad);
 			force.squads.push(newSquad.id);
+			state.units.push(...units);
 
 		});
 

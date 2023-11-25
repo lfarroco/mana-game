@@ -3,7 +3,7 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import { Squad } from '../../../Models/Squad';
 import { getState } from '../../../Scenes/Battleground/BGState';
 import { useState } from 'react';
-import { Button, Table } from 'react-bootstrap';
+import { Button, ListGroupItem, Table } from 'react-bootstrap';
 import { emit, index } from '../../../Models/Signals';
 
 
@@ -15,6 +15,12 @@ function SquadDetailsModal({ visible, id }: { visible: boolean, id: string }) {
 
 	const squad = getState().squads.find(s => s.id === id)
 	if (!squad) return null
+
+	const state = getState()
+
+	const members = squad.members
+		.map(id => state.units.find(u => u.id === id))
+		.filter(u => u !== undefined)
 
 	return <Modal
 		show={visible}
@@ -29,11 +35,26 @@ function SquadDetailsModal({ visible, id }: { visible: boolean, id: string }) {
 			<div
 				className="row"
 				id="squads-detail">
-				<div className="col col-sm-12 text-center">
-					<img src="assets/ui/3x3board.png" className='img-fluid' alt="" />
-				</div>
+				<ListGroup>
+					{
 
+						members.map(member =>
+							member && <ListGroupItem
+								action
+								key={member.id}
+							>
+								<img
+									style={{ width: "100px" }}
+									src={`assets/jobs/${member.job}/portrait.png`}
+									alt="job" />
+								<span>
+									{member.name}
+								</span>
 
+							</ListGroupItem>)
+					}
+
+				</ListGroup>
 			</div >
 		</Modal.Body>
 		<Modal.Footer>

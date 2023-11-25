@@ -11,9 +11,7 @@ export const initialState: BGState = {
 			id: "PLAYER",
 			name: "Player",
 			color: "#00ff00",
-			squads: [
-				"s1", "s2"
-			]
+			squads: ["s1", "s2"]
 		}
 	],
 	squads: [
@@ -25,12 +23,8 @@ export const initialState: BGState = {
 			dispatched: false,
 			path: [],
 			position: windowVec(0, 0),
-			members: {
-				1: {
-					1: "u1",
-					2: "u2"
-				}
-			}
+			members: ["u1", "u2"]
+
 		},
 		{
 			id: "s2",
@@ -39,12 +33,7 @@ export const initialState: BGState = {
 			dispatched: false,
 			path: [],
 			position: windowVec(0, 0),
-			members: {
-				1: {
-					1: "u3",
-					2: "u4"
-				}
-			}
+			members: ["u3", "u4"]
 		},
 	],
 	units: [
