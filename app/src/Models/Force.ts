@@ -12,4 +12,7 @@ export const makeForce = () => ({
 	name: "",
 	color: "",
 	squads: []
-})
+});
+export const FORCE_ID_PLAYER = "PLAYER"
+
+export const FORCE_ID_CPU = "CPU"

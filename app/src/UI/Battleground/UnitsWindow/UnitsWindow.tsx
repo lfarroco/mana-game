@@ -7,6 +7,7 @@ import { Table } from 'react-bootstrap';
 import { getState } from '../../../Scenes/Battleground/BGState';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
+import { FORCE_ID_CPU, FORCE_ID_PLAYER } from '../../../Models/Force';
 
 function UnitsWindow() {
 
@@ -31,10 +32,10 @@ function UnitsWindow() {
 				className="mb-3"
 			>
 				<Tab eventKey="player" title="Allied">
-					{unitList(units, selected, selectedUnit, "PLAYER")}
+					{unitList(units, selected, selectedUnit, FORCE_ID_PLAYER)}
 				</Tab>
 				<Tab eventKey="cpu" title="Enemy">
-					{unitList(units, selected, selectedUnit, "cpu")}
+					{unitList(units, selected, selectedUnit, FORCE_ID_CPU)}
 				</Tab>
 			</Tabs>
 		</Modal.Body>
@@ -83,12 +84,12 @@ const unitList = (units: Unit[], selected: Unit | undefined, selectedUnit: strin
 								active={unit.id === selectedUnit}
 							>
 								<div className="row">
-
 									<img
 										className="portrait col-sm-3"
-										src={`/assets/jobs/${unit.job}/portrait.png`} />
+										src={`/assets/jobs/${unit.job}/portrait.png`}
+										alt="job"
+									/>
 									{unit.name}
-
 								</div>
 
 							</ListGroup.Item>

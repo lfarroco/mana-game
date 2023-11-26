@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
-import { BGState, getState } from "../BGState";
+import { getState } from "../BGState";
 import * as Signals from "../../../Models/Signals";
 import { windowVec } from "../../../Models/Misc";
 import { Chara } from "../chara";

@@ -1,8 +1,8 @@
 import { Button } from "react-bootstrap"
 import { Squad } from "../../../Models/Squad"
 import "./styles.css"
-import events from "events"
 import * as Signals from "../../../Models/Signals"
+import { FORCE_ID_PLAYER } from "../../../Models/Force"
 
 const SelectedSquad = ({
 	squad,
@@ -12,7 +12,7 @@ const SelectedSquad = ({
 	isSelectingMoveTarget: boolean
 }) => {
 
-	const isPlayerControlled = squad.force === "PLAYER"
+	const isPlayerControlled = squad.force === FORCE_ID_PLAYER
 
 	return <div className="row" id="selected-entity">
 		<div className="col col-2">

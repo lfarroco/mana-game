@@ -1,5 +1,5 @@
 import { City } from "../../Models/City";
-import { Force, makeForce } from "../../Models/Force";
+import { FORCE_ID_PLAYER, Force, makeForce } from "../../Models/Force";
 import { windowVec } from "../../Models/Misc";
 import { Squad } from "../../Models/Squad";
 import { Unit, makeUnit } from "../../Models/Unit";
@@ -8,7 +8,7 @@ export const initialState: BGState = {
 	forces: [
 		{
 			...makeForce(),
-			id: "PLAYER",
+			id: FORCE_ID_PLAYER,
 			name: "Player",
 			color: "#00ff00",
 			squads: ["s1", "s2"]
@@ -19,7 +19,7 @@ export const initialState: BGState = {
 		{
 			id: "s1",
 			name: "squad-1",
-			force: "PLAYER",
+			force: FORCE_ID_PLAYER,
 			dispatched: false,
 			path: [],
 			position: windowVec(0, 0),
@@ -29,7 +29,7 @@ export const initialState: BGState = {
 		{
 			id: "s2",
 			name: "squad-2",
-			force: "PLAYER",
+			force: FORCE_ID_PLAYER,
 			dispatched: false,
 			path: [],
 			position: windowVec(0, 0),
@@ -37,10 +37,10 @@ export const initialState: BGState = {
 		},
 	],
 	units: [
-		{ ...makeUnit(), id: "u1", squad: "s1", force: "PLAYER", job: "soldier" },
-		{ ...makeUnit(), id: "u2", squad: "s1", force: "PLAYER", job: "soldier" },
-		{ ...makeUnit(), id: "u3", squad: "s2", force: "PLAYER", job: "soldier" },
-		{ ...makeUnit(), id: "u4", squad: "s2", force: "PLAYER", job: "soldier" },
+		{ ...makeUnit(), id: "u1", squad: "s1", force: FORCE_ID_PLAYER, job: "soldier" },
+		{ ...makeUnit(), id: "u2", squad: "s1", force: FORCE_ID_PLAYER, job: "soldier" },
+		{ ...makeUnit(), id: "u3", squad: "s2", force: FORCE_ID_PLAYER, job: "soldier" },
+		{ ...makeUnit(), id: "u4", squad: "s2", force: FORCE_ID_PLAYER, job: "soldier" },
 	],
 	cities: [],
 	selectedEntity: null,

@@ -18,11 +18,6 @@ type SquadSpec = {
 	y: number
 	members: { id: string, job: string }[];
 };
-type MemberSpec = {
-	x: number;
-	y: number;
-	job: string;
-};
 
 type CitySpec = {
 	cityType: string;

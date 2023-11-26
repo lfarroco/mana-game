@@ -5,6 +5,7 @@ import { getState } from '../../../Scenes/Battleground/BGState';
 import { useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import { emit, index } from '../../../Models/Signals';
+import { FORCE_ID_PLAYER } from '../../../Models/Force';
 
 const dispatch = (squad: Squad) => () => {
 
@@ -22,7 +23,7 @@ const onClose = () => {
 
 function DispatchUnitModal({ visible, squads }: { visible: boolean, squads: Squad[] }) {
 
-	const selectableSquads = squads.filter(s => s.force === "PLAYER")
+	const selectableSquads = squads.filter(s => s.force === FORCE_ID_PLAYER)
 
 	const [selectedSquad, setSelectedSquad] = useState(selectableSquads[0].id)
 

@@ -14,6 +14,7 @@ import moveSquads from "./Map/moveSquads";
 import { WindowVec } from "../../Models/Misc";
 import { Chara, chara } from "./chara";
 import { emit, index, listeners } from "../../Models/Signals";
+import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
 
 const easystar = new Easystar.js();
 easystar.setAcceptableTiles([0])
@@ -83,8 +84,8 @@ export class BattlegroundScene extends Phaser.Scene {
   }
   private setupCollisions() {
     this.squadCollider?.destroy();
-    const bodiesA = this.charas.filter(c => c.force === "PLAYER").map(({ body }) => body)
-    const bodiesB = this.charas.filter(c => c.force === "cpu").map(({ body }) => body)
+    const bodiesA = this.charas.filter(c => c.force === FORCE_ID_PLAYER).map(({ body }) => body)
+    const bodiesB = this.charas.filter(c => c.force === FORCE_ID_CPU).map(({ body }) => body)
     this.squadCollider = this.physics.add.overlap(bodiesA, bodiesB,
       //@ts-ignore
       (squadA: Phaser.GameObjects.Image, squadB: Phaser.GameObjects.Image) => {

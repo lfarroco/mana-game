@@ -6,6 +6,7 @@ import { Squad } from '../../../Models/Squad';
 import { getState } from '../../../Scenes/Battleground/BGState';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
+import { FORCE_ID_CPU, FORCE_ID_PLAYER } from '../../../Models/Force';
 
 function SquadsWindow() {
 
@@ -27,14 +28,14 @@ function SquadsWindow() {
 		</Modal.Header>
 		<Modal.Body>
 			<Tabs
-				defaultActiveKey="player"
+				defaultActiveKey={FORCE_ID_PLAYER}
 				className="mb-3"
 			>
-				<Tab eventKey="player" title="Allied">
-					{squadList(squads, selected, selectedSquad, "PLAYER")}
+				<Tab eventKey={FORCE_ID_PLAYER} title="Allied">
+					{squadList(squads, selected, selectedSquad, FORCE_ID_PLAYER)}
 				</Tab>
-				<Tab eventKey="cpu" title="Enemy">
-					{squadList(squads, selected, selectedSquad, "cpu")}
+				<Tab eventKey={FORCE_ID_CPU} title="Enemy">
+					{squadList(squads, selected, selectedSquad, FORCE_ID_CPU)}
 				</Tab>
 			</Tabs>
 
