@@ -1,7 +1,6 @@
 import { City } from "../../Models/City";
 import { FORCE_ID_PLAYER, Force, makeForce } from "../../Models/Force";
-import { windowVec } from "../../Models/Misc";
-import { Squad } from "../../Models/Squad";
+import { Squad, makeSquad } from "../../Models/Squad";
 import { Unit, makeUnit } from "../../Models/Unit";
 
 export const initialState: BGState = {
@@ -17,22 +16,13 @@ export const initialState: BGState = {
 	squads: [
 
 		{
-			id: "s1",
+			...makeSquad("s1", FORCE_ID_PLAYER),
 			name: "squad-1",
-			force: FORCE_ID_PLAYER,
-			dispatched: false,
-			path: [],
-			position: windowVec(0, 0),
-			members: ["u1", "u2"]
-
+			members: ["u1", "u2"],
 		},
 		{
-			id: "s2",
+			...makeSquad("s2", FORCE_ID_PLAYER),
 			name: "squad-2",
-			force: FORCE_ID_PLAYER,
-			dispatched: false,
-			path: [],
-			position: windowVec(0, 0),
 			members: ["u3", "u4"]
 		},
 	],

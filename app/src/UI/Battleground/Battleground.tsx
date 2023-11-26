@@ -12,6 +12,7 @@ import { City } from '../../Models/City';
 import * as Signals from "../../Models/Signals"
 import DispatchUnitModal from './DispatchUnitModal/DispachUnitModal';
 import SquadDetailsModal from './SquadDetailsModal/SquadDetailsModal';
+import { getDispatchableSquads } from '../../Models/Squad';
 
 
 const Battleground = () => {
@@ -45,6 +46,8 @@ const Battleground = () => {
       ]
     )
   }, []);
+
+  const dispatchableSquads = getDispatchableSquads(state)
 
   return (
     <>
@@ -106,9 +109,9 @@ const Battleground = () => {
         <Route path="squads" element={<SquadsWindow />} />
         <Route path="squads/:squadId" element={<SquadsWindow />} />
       </Routes>
-      {state.squads.length > 0 && <DispatchUnitModal
+      {dispatchableSquads.length > 0 && <DispatchUnitModal
         visible={isDispatchModalVisible}
-        squads={state.squads}
+        squads={dispatchableSquads}
       />}
       {
         selectedEntityInfo?.type === "squad" && <SquadDetailsModal
@@ -122,3 +125,5 @@ const Battleground = () => {
 }
 
 export default Battleground;
+
+
