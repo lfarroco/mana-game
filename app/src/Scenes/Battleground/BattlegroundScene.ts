@@ -37,6 +37,7 @@ export class BattlegroundScene extends Phaser.Scene {
   isSelectingSquadMove = false;
   squadCollider: Phaser.Physics.Arcade.Collider | null = null;
   layerCollider: Phaser.Physics.Arcade.Collider | null = null;
+  squadsCanMove: boolean = true;
 
   constructor() {
     super("BattlegroundScene");
@@ -51,11 +52,27 @@ export class BattlegroundScene extends Phaser.Scene {
       [index.SELECT_SQUAD_MOVE_DONE, this.moveSquadTo],
       [index.SELECT_SQUAD_MOVE_CANCEL, () => { this.isSelectingSquadMove = false }],
       [index.DISPATCH_SQUAD, this.dispatchSquad],
+      [index.SQUADS_COLLIDED, this.handleSquadsCollided],
     ]);
 
 
     //@ts-ignore
     window.state = this.state
+  }
+
+  handleSquadsCollided = (squadAId: string, squadBId: string) => {
+
+    this.squadsCanMove = false;
+
+    const squadA = this.charas.find(sqd => sqd.id === squadAId)
+    const squadB = this.charas.find(sqd => sqd.id === squadBId)
+
+    if (!squadA || !squadB) throw new Error("squad not found")
+
+    const winner = squadA.force === FORCE_ID_PLAYER ? squadA : squadB
+    const loser = squadA.force === FORCE_ID_CPU ? squadA : squadB
+
+    this.repel(winner.body, loser.body)
   }
 
   preload = preload;
@@ -105,7 +122,7 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
   update() {
-    if (!this.isPaused) {
+    if (!this.isPaused && this.squadsCanMove) {
       moveSquads(this)
     }
   }
@@ -203,16 +220,18 @@ export class BattlegroundScene extends Phaser.Scene {
     spriteB: Phaser.Types.Physics.Arcade.ImageWithDynamicBody,
   ) {
 
-    this.scene.scene.physics.moveToObject(spriteB, spriteA);
+    this.charas.forEach(chara => chara.body.setVelocity(0, 0))
+
+    this.scene.scene.physics.moveToObject(spriteB, spriteA, 60);
     spriteB.body.velocity.x = -spriteB.body.velocity.x;
     spriteB.body.velocity.y = -spriteB.body.velocity.y;
 
-    this.time.addEvent({
-      delay: 500,
-      callback: () => {
+    this.time.delayedCall(1000,
+      () => {
         spriteB.body.setVelocity(0, 0);
+        this.squadsCanMove = true;
       }
-    });
+    );
   }
   pausePhysics = () => {
     this.isPaused = true;
