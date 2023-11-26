@@ -240,7 +240,7 @@
                         {
                          "name":"force",
                          "type":"string",
-                         "value":"cpu"
+                         "value":"CPU"
                         }, 
                         {
                          "name":"type",
@@ -262,7 +262,7 @@
                         {
                          "name":"force",
                          "type":"string",
-                         "value":"cpu"
+                         "value":"CPU"
                         }, 
                         {
                          "name":"type",
@@ -306,7 +306,7 @@
                         {
                          "name":"force",
                          "type":"string",
-                         "value":"cpu"
+                         "value":"CPU"
                         }, 
                         {
                          "name":"type",
@@ -366,7 +366,7 @@
                         {
                          "name":"force",
                          "type":"string",
-                         "value":"cpu"
+                         "value":"CPU"
                         }, 
                         {
                          "name":"job",
@@ -398,7 +398,7 @@
                         {
                          "name":"force",
                          "type":"string",
-                         "value":"cpu"
+                         "value":"CPU"
                         }, 
                         {
                          "name":"job",
@@ -440,7 +440,7 @@
                         {
                          "name":"force",
                          "type":"string",
-                         "value":"cpu"
+                         "value":"CPU"
                         }, 
                         {
                          "name":"job",
@@ -472,7 +472,7 @@
                         {
                          "name":"force",
                          "type":"string",
-                         "value":"cpu"
+                         "value":"CPU"
                         }, 
                         {
                          "name":"job",
