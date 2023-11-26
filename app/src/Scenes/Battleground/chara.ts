@@ -1,5 +1,6 @@
 import Phaser from "phaser";
-import { Squad } from "../../Models/Squad";
+import { Squad, getMembers } from "../../Models/Squad";
+import { Unit } from "../../Models/Unit";
 
 export type Chara = {
 	id: string;
@@ -8,23 +9,20 @@ export type Chara = {
 }
 
 export function chara(
-	x: number,
-	y: number,
 	scene: Phaser.Scene,
 	squad: Squad,
 ) {
-	const spine: Phaser.GameObjects.Image = scene
-		//@ts-ignore
-		.add.spine(x, y, "spine-data", "spine-atlas");
-	spine.scale = 0.1;
 
-	//@ts-ignore
-	spine.skeleton.setSkinByName("archer");
-	//@ts-ignore
-	spine.animationState.setAnimation(0, "map-idle", true);
-	spine.setName("spine-" + squad.id)
+	const [leader] = getMembers(squad)
 
-	const body = scene.physics.add.image(x, y, "")
+	if (!leader) throw new Error("No leader in squad")
+
+	const spine: Phaser.GameObjects.Image = createSpineBody(scene, leader, squad);
+
+	const body = scene.physics.add.image(
+		squad.position.x,
+		squad.position.y,
+		"")
 	body.setSize(20, 20)
 	body.setName(squad.id)
 
@@ -49,3 +47,17 @@ export function chara(
 		spineboy: spine,
 	}
 }
+function createSpineBody(scene: Phaser.Scene, leader: Unit, squad: Squad) {
+	const spine: Phaser.GameObjects.Image = scene
+		//@ts-ignore
+		.add.spine(squad.position.x, squad.position.y, "spine-data", "spine-atlas");
+	spine.scale = 0.1;
+
+	//@ts-ignore
+	spine.skeleton.setSkinByName(leader.job);
+	//@ts-ignore
+	spine.animationState.setAnimation(0, "map-idle", true);
+	spine.setName("spine-" + squad.id);
+	return spine;
+}
+
