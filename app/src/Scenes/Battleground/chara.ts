@@ -26,9 +26,7 @@ export function chara(
 
 	const body = scene.physics.add.image(x, y, "")
 	body.setSize(20, 20)
-	body.setPosition(x, y);
 	body.setName(squad.id)
-	body.setPosition(x, y)
 
 	const follow = () => {
 		spine.x = body.x;

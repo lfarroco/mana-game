@@ -127,6 +127,7 @@ export function importMapObjects(state: BGState, map: Phaser.Tilemaps.Tilemap) {
 				name: uuid.v4(),
 				force: force.id,
 				dispatched: true,
+				morale: 100,
 				position: {
 					x: sqd.x + HALF_TILE_WIDTH,
 					y: sqd.y + HALF_TILE_HEIGHT

@@ -5,7 +5,6 @@ import { getState } from '../../../Scenes/Battleground/BGState';
 import { useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import { emit, index } from '../../../Models/Signals';
-import { FORCE_ID_PLAYER } from '../../../Models/Force';
 
 const dispatch = (squad: Squad) => () => {
 
@@ -13,6 +12,7 @@ const dispatch = (squad: Squad) => () => {
 	if (state.selectedEntity?.type === "city") {
 		emit(index.DISPATCH_SQUAD, squad.id, state.selectedEntity?.id)
 		emit(index.TOGGLE_DISPATCH_MODAL, false)
+		emit(index.SQUAD_SELECTED, squad.id)
 	} else {
 		console.error("No selected entity")
 	}
@@ -23,14 +23,12 @@ const onClose = () => {
 
 function DispatchUnitModal({ visible, squads }: { visible: boolean, squads: Squad[] }) {
 
-	const selectableSquads = squads.filter(s => s.force === FORCE_ID_PLAYER)
+	const [selectedSquad, setSelectedSquad] = useState(squads[0].id)
 
-	const [selectedSquad, setSelectedSquad] = useState(selectableSquads[0].id)
-
-	const selected = selectableSquads.find(u => u.id === selectedSquad)
+	const selected = squads.find(u => u.id === selectedSquad)
 
 	return <Modal
-		show={visible && selectableSquads.length > 0}
+		show={visible && squads.length > 0}
 		onHide={onClose}
 		size={"xl"}
 		id="squads-window"
@@ -47,7 +45,7 @@ function DispatchUnitModal({ visible, squads }: { visible: boolean, squads: Squa
 						activeKey={selectedSquad}
 					>
 						{visible &&
-							selectableSquads.map(squad =>
+							squads.map(squad =>
 
 								<ListGroup.Item
 									action
@@ -106,7 +104,8 @@ function selectedDetails(squad: Squad) {
 		<button
 			className="btn btn-sm btn-primary"
 			onClick={dispatch(squad)}
-		>Dispatch</button>
+		>
+			Dispatch</button>
 	</>
 }
 

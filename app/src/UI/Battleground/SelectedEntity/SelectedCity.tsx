@@ -1,7 +1,14 @@
+import { Button } from "react-bootstrap"
 import { City } from "../../../Models/City"
 import { emit, index } from "../../../Models/Signals"
+import { getState } from "../../../Scenes/Battleground/BGState"
 import "./styles.css"
+import { getDispatchableSquads } from "../../../Models/Squad"
 const SelectedCity = ({ city }: { city: City }) => {
+
+	const state = getState()
+
+	const dispatchableSquads = getDispatchableSquads(state)
 
 	return <div className="row" id="selected-entity">
 		<div className="col col-2">
@@ -15,15 +22,16 @@ const SelectedCity = ({ city }: { city: City }) => {
 			<p>{city.type}</p>
 		</div>
 		<div className="col col-2">
-			<div
+			<Button
 				className="col-12 btn btn-secondary"
 				onClick={
 					() => {
 						emit(index.TOGGLE_DISPATCH_MODAL, true)
 					}
 				}
-			>Dispatch</div>
-			<div className="col-12 btn btn-secondary">Shop</div>
+				disabled={dispatchableSquads.length < 1}
+			>Dispatch</Button>
+			<Button className="col-12 btn btn-secondary">Shop</Button>
 
 		</div>
 	</div>

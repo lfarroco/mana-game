@@ -177,7 +177,10 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
   moveTo(squad: Squad, target: Phaser.Tilemaps.Tile) {
-    const sourceTile = this.layers?.background.getTileAtWorldXY(squad.position.x, squad.position.y);
+    const sourceTile = this.layers?.background.getTileAtWorldXY(
+      squad.position.x,
+      squad.position.y,
+    );
     if (!sourceTile) return
 
     this.findPath(
@@ -236,17 +239,25 @@ export class BattlegroundScene extends Phaser.Scene {
       return
     }
 
-    const sprite = chara(city.position.x, city.position.y, this, squad)
+    const sprite = chara(
+      city.position.x,
+      city.position.y,
+      this,
+      squad,
+    )
     squad.dispatched = true;
-    squad.position = city.position;
-    makeSquadInteractive(sprite, this)
 
+    squad.position = {
+      x: sprite.body.x,
+      y: sprite.body.y
+    }
     this.charas.push({
       id: squad.id,
       force: squad.force,
       body: sprite.body,
     })
 
+    makeSquadInteractive(sprite, this)
     this.setupCollisions();
 
   }

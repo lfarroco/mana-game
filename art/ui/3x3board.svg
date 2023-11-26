@@ -30,8 +30,8 @@
      inkscape:cy="-382.89337"
      inkscape:window-width="1309"
      inkscape:window-height="927"
-     inkscape:window-x="646"
-     inkscape:window-y="1105"
+     inkscape:window-x="188"
+     inkscape:window-y="25"
      inkscape:window-maximized="0"
      inkscape:current-layer="layer1" /><defs
      id="defs2"><filter
@@ -50,7 +50,10 @@
      id="layer1"><path
        style="mix-blend-mode:normal;fill:#1a1a1a;stroke:none;stroke-width:0.284032px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;filter:url(#filter977)"
        d="m 101.9091,84.246313 -82.13422,55.575807 -0.673231,12.19958 82.470831,50.15376 85.50039,-50.15376 0.67324,-9.14969 -4.03939,-5.42203 z"
-       id="path417" /><image
+       id="path417"
+       inkscape:export-filename="../../app/public/assets/ui/3x3board.png"
+       inkscape:export-xdpi="79"
+       inkscape:export-ydpi="79" /><image
        width="173.83125"
        height="122.50208"
        preserveAspectRatio="none"
