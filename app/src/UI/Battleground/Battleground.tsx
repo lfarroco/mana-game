@@ -54,6 +54,9 @@ const Battleground = () => {
       <header className="card">
         <div className="content">
           <ButtonGroup>
+            <Button>
+              Quests
+            </Button>
             <Link
               to="units"
               className="btn btn-secondary col-12"
@@ -67,6 +70,9 @@ const Battleground = () => {
             >
               Squads
             </Link>
+            <Button>
+              Log
+            </Button>
 
             <Button
               onClick={(e) => {
