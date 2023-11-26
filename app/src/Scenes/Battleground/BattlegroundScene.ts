@@ -69,7 +69,7 @@ export class BattlegroundScene extends Phaser.Scene {
     this.layers = layers
 
     const cities = createCities(this, this.state.cities)
-    this.charas = createMapSquads(this, map)
+    this.charas = createMapSquads(this)
 
     makeSquadsInteractive(this, this.charas)
     makeCitiesInteractive(this, cities)
@@ -238,19 +238,18 @@ export class BattlegroundScene extends Phaser.Scene {
       console.error("dispatchSquad: squad or city not found")
       return
     }
-
-    const sprite = chara(
-      city.position.x,
-      city.position.y,
-      this,
-      squad,
-    )
     squad.dispatched = true;
 
     squad.position = {
-      x: sprite.body.x,
-      y: sprite.body.y
+      x: city.position.x,
+      y: city.position.y
     }
+
+    const sprite = chara(
+      this,
+      squad,
+    )
+
     this.charas.push({
       id: squad.id,
       force: squad.force,
