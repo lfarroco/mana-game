@@ -13,9 +13,9 @@ export const makeUnit = (): Unit => {
 	return {
 		id: uuid.v4(),
 		name: uuid.v4().slice(0, 8),
-		job: "",
+		job: "knight",
 		squad: null,
-		force: null
+		force: "PLAYER"
 	}
 }
 

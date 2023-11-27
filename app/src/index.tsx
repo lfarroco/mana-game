@@ -11,8 +11,15 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Battleground from './UI/Battleground/Battleground';
 import events from 'events';
 import BattlegroundScene from './Scenes/Battleground/BattlegroundScene';
+import SkirmishScene from './Scenes/Skirmish/SkirmishScene';
+import { initialState } from './Scenes/Battleground/BGState';
 
 const eventEmitter = new events.EventEmitter();
+
+const state = initialState
+
+//@ts-ignore
+window.state = state;
 
 //@ts-ignore
 window.emitter = eventEmitter;
@@ -52,7 +59,6 @@ const game = new Phaser.Game({
     default: 'arcade',
   },
   scene: [
-    new BattlegroundScene()
   ],
   plugins: {
     scene: [
@@ -61,6 +67,9 @@ const game = new Phaser.Game({
     ]
   }
 });
+
+game.scene.add('BattlegroundScene', BattlegroundScene, true);
+game.scene.add('SkirmishScene', SkirmishScene, false);
 
 //window resize event
 window.addEventListener('resize', () => {
