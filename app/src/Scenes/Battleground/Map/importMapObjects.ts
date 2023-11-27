@@ -20,6 +20,7 @@ type SquadSpec = {
 };
 
 type CitySpec = {
+	name: string,
 	cityType: string;
 	force: string;
 	x: number,
@@ -40,6 +41,7 @@ export function importMapObjects(state: BGState, map: Phaser.Tilemaps.Tilemap) {
 				const force: string = obj.properties.find((prop: { name: string; }) => prop.name === "force")?.value;
 
 				return {
+					name: obj.name,
 					cityType,
 					force,
 					x: obj.x,
@@ -66,7 +68,7 @@ export function importMapObjects(state: BGState, map: Phaser.Tilemaps.Tilemap) {
 
 			const newCity: City = {
 				id: uuid.v4(),
-				name: uuid.v4(),
+				name: city.name,
 				force: force.id,
 				type: city.cityType,
 				position: {

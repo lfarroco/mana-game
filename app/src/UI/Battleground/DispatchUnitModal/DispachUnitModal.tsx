@@ -1,6 +1,6 @@
 import Modal from 'react-bootstrap/Modal';
 import ListGroup from 'react-bootstrap/ListGroup';
-import { Squad } from '../../../Models/Squad';
+import { Squad, getMembers } from '../../../Models/Squad';
 import { getState } from '../../../Scenes/Battleground/BGState';
 import { useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
@@ -40,14 +40,16 @@ function DispatchUnitModal({ visible, squads }: { visible: boolean, squads: Squa
 			<div
 				className="row"
 				id="squads-window">
-				<div className="col col-sm-4 p-2">
+				<div className="col col-sm-8 p-2">
 					<ListGroup
 						activeKey={selectedSquad}
 					>
 						{visible &&
-							squads.map(squad =>
+							squads.map(squad => {
 
-								<ListGroup.Item
+								const members = getMembers(squad)
+
+								return <ListGroup.Item
 									action
 									key={squad.id}
 									active={squad.id === selectedSquad}
@@ -55,15 +57,22 @@ function DispatchUnitModal({ visible, squads }: { visible: boolean, squads: Squa
 										setSelectedSquad(squad.id)
 									}}
 								>
-									{squad.name}
+									{
+										members.map(member => <img
+											className="img-fluid"
+											style={{ width: "100px" }}
+											src={`assets/jobs/${member.job}/portrait.png`}
+											key={member.id} />)
+									}
 								</ListGroup.Item>
+							}
 
 							)
 						}
 					</ListGroup>
 				</div>
 
-				<div className='col col-sm-8'>
+				<div className='col col-sm-4'>
 					<div className='card p-2'>
 						{
 							selected && selectedDetails(selected)
