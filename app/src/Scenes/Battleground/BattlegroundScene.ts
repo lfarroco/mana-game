@@ -1,7 +1,6 @@
 import Phaser from "phaser";
 import { preload } from "./preload";
 import { createMap } from "./Map/createMap";
-import { BGState, initialState } from "./BGState";
 import { importMapObjects } from "./Map/importMapObjects";
 import { makeMapInteractive } from "./Map/makeMapInteractive";
 import { createMapSquads } from "./Map/createMapSquads";
@@ -15,12 +14,12 @@ import { WindowVec } from "../../Models/Misc";
 import { Chara, chara } from "./chara";
 import { emit, index, listeners } from "../../Models/Signals";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
+import { BGState, getState } from "./BGState";
 
 const easystar = new Easystar.js();
 easystar.setAcceptableTiles([0])
 
 export class BattlegroundScene extends Phaser.Scene {
-  state: BGState;
   graphics: Phaser.GameObjects.Graphics | null = null;
   path = { t: 0, vec: new Phaser.Math.Vector2() }
   points: Phaser.Math.Vector2[] = []
@@ -39,10 +38,10 @@ export class BattlegroundScene extends Phaser.Scene {
   layerCollider: Phaser.Physics.Arcade.Collider | null = null;
   squadsCanMove: boolean = true;
   cursor: Phaser.GameObjects.Image | null = null;
+  state: BGState;
 
   constructor() {
     super("BattlegroundScene");
-    this.state = initialState
 
     listeners([
       [index.PAUSE_PHYSICS, this.pausePhysics],
@@ -56,12 +55,17 @@ export class BattlegroundScene extends Phaser.Scene {
       [index.SQUADS_COLLIDED, this.handleSquadsCollided],
     ]);
 
+    this.state = getState()
+
 
     //@ts-ignore
     window.state = this.state
   }
 
   handleSquadsCollided = (squadAId: string, squadBId: string) => {
+
+    this.scene.stop()
+    this.scene.start("SkirmishScene")
 
     this.squadsCanMove = false;
 
@@ -229,6 +233,8 @@ export class BattlegroundScene extends Phaser.Scene {
     spriteA: Phaser.Types.Physics.Arcade.ImageWithDynamicBody,
     spriteB: Phaser.Types.Physics.Arcade.ImageWithDynamicBody,
   ) {
+
+    this.scene.resume()
 
     this.charas.forEach(chara => chara.body.setVelocity(0, 0))
 

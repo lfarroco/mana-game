@@ -382,6 +382,11 @@
                          "name":"unit_1",
                          "type":"string",
                          "value":"barbarian"
+                        }, 
+                        {
+                         "name":"unit_2",
+                         "type":"string",
+                         "value":"archer"
                         }],
                  "rotation":0,
                  "type":"",
@@ -418,12 +423,12 @@
                         {
                          "name":"unit_2",
                          "type":"string",
-                         "value":"archer"
+                         "value":"barbarian"
                         }, 
                         {
                          "name":"unit_3",
                          "type":"string",
-                         "value":"archer"
+                         "value":"rogue"
                         }],
                  "rotation":0,
                  "type":"",
@@ -456,6 +461,11 @@
                          "name":"unit_1",
                          "type":"string",
                          "value":"knight"
+                        }, 
+                        {
+                         "name":"unit_2",
+                         "type":"string",
+                         "value":"barbarian"
                         }],
                  "rotation":0,
                  "type":"",
@@ -492,7 +502,7 @@
                         {
                          "name":"unit_2",
                          "type":"string",
-                         "value":"rogue"
+                         "value":"knight"
                         }, 
                         {
                          "name":"unit_3",
@@ -512,8 +522,8 @@
          "x":0,
          "y":0
         }],
- "nextlayerid":8,
- "nextobjectid":26,
+ "nextlayerid":10,
+ "nextobjectid":27,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.0",
