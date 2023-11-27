@@ -38,6 +38,7 @@ export class BattlegroundScene extends Phaser.Scene {
   squadCollider: Phaser.Physics.Arcade.Collider | null = null;
   layerCollider: Phaser.Physics.Arcade.Collider | null = null;
   squadsCanMove: boolean = true;
+  cursor: Phaser.GameObjects.Image | null = null;
 
   constructor() {
     super("BattlegroundScene");
@@ -85,6 +86,8 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.layers = layers
 
+    this.cursor = this.add.image(0, 0, "cursor").setScale(0.2).setTint(0x00ff00).setVisible(false)
+
     const cities = createCities(this, this.state.cities)
     this.charas = createMapSquads(this)
 
@@ -125,13 +128,20 @@ export class BattlegroundScene extends Phaser.Scene {
     if (!this.isPaused && this.squadsCanMove) {
       moveSquads(this)
     }
+    if (this.selectedEntity) {
+      this.cursor?.setPosition(this.selectedEntity.x, this.selectedEntity.y).setVisible(true)
+    } else {
+      this.cursor?.setVisible(false)
+    }
   }
 
   selectSquad = (id: string) => {
     this.state.selectedEntity = { type: "squad", id }
+    this.selectedEntity = this.children.getByName(id) as Phaser.Types.Physics.Arcade.ImageWithDynamicBody
   }
   selectCity = (id: string) => {
     this.state.selectedEntity = { type: "city", id }
+    this.selectedEntity = this.children.getByName(id) as Phaser.Types.Physics.Arcade.ImageWithDynamicBody
   }
 
   findPath(

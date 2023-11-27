@@ -6,6 +6,9 @@ export function createCities(
 	cities: City[]
 ): Phaser.GameObjects.Image[] {
 
-	return cities.map(city => scene.add.image(city.position.x, city.position.y, `${city.type}_map`).setName(city.id));
+	return cities.map(city => scene
+		.add
+		.image(city.position.x, city.position.y, `${city.type}_map`)
+		.setName(city.id));
 
 }
