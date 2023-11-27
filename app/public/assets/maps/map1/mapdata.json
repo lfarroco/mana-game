@@ -278,28 +278,6 @@
                 }, 
                 {
                  "height":64,
-                 "id":3,
-                 "name":"Player Fort",
-                 "properties":[
-                        {
-                         "name":"force",
-                         "type":"string",
-                         "value":"PLAYER_FORCE"
-                        }, 
-                        {
-                         "name":"type",
-                         "type":"string",
-                         "value":"castle"
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":64,
-                 "x":576,
-                 "y":704
-                }, 
-                {
-                 "height":64,
                  "id":4,
                  "name":"Wenius",
                  "properties":[
@@ -331,6 +309,11 @@
                          "value":"neutral"
                         }, 
                         {
+                         "name":"on_visit",
+                         "type":"string",
+                         "value":"[\n    {\n        \"type\": \"slide\",\n        \"image\": \"cave_entrance\",\n        \"text\": \"A dark cave looms ahead, but driven by the desire of finding treasure you venture into it!\"\n    },\n    {\n        \"type\": \"slide\",\n        \"image\": \"eyes_in_the_dark\",\n        \"text\": \"This cave is a den of monsters! Let battle be joined!\"\n    },\n    {\n        \"type\": \"encounter\",\n        \"level\": 1,\n        \"squad\": [\n            \"goblin\",\n            \"goblin\",\n            \"goblin\"\n        ],\n        \"rewards\": [\n            {\n                \"type\": \"gold\",\n                \"amount\": 100\n            }\n        ]\n    }\n]"
+                        }, 
+                        {
                          "name":"type",
                          "type":"string",
                          "value":"cave"
@@ -340,6 +323,28 @@
                  "visible":true,
                  "width":64,
                  "x":320,
+                 "y":64
+                }, 
+                {
+                 "height":64,
+                 "id":22,
+                 "name":"Vilhemia",
+                 "properties":[
+                        {
+                         "name":"force",
+                         "type":"string",
+                         "value":"PLAYER"
+                        }, 
+                        {
+                         "name":"type",
+                         "type":"string",
+                         "value":"castle"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":192,
                  "y":64
                 }],
          "opacity":1,
@@ -508,7 +513,7 @@
          "y":0
         }],
  "nextlayerid":8,
- "nextobjectid":22,
+ "nextobjectid":26,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.0",
