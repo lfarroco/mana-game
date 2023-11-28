@@ -3,7 +3,6 @@ import { Squad, getMembers } from "../../../Models/Squad"
 import "./styles.css"
 import * as Signals from "../../../Models/Signals"
 import { FORCE_ID_PLAYER } from "../../../Models/Force"
-import { getState } from "../../../Scenes/Battleground/BGState"
 
 const SelectedSquad = ({
 	squad,
@@ -36,7 +35,7 @@ const SelectedSquad = ({
 			{!isSelectingMoveTarget && <>
 				{isPlayerControlled && <Button
 					onClick={() => {
-						Signals.emit(Signals.index.SELECT_SQUAD_MOVE_START, squad.id)
+						Signals.emit(Signals.events.SELECT_SQUAD_MOVE_START, squad.id)
 					}}
 					className="col-12">
 					Move
@@ -44,7 +43,7 @@ const SelectedSquad = ({
 				<Button
 					onClick={() => {
 
-						Signals.emit(Signals.index.TOGGLE_SQUAD_DETAILS_MODAL, true)
+						Signals.emit(Signals.events.TOGGLE_SQUAD_DETAILS_MODAL, true)
 
 					}}
 					className="col-12">
@@ -54,7 +53,7 @@ const SelectedSquad = ({
 			}{
 				isSelectingMoveTarget && <Button
 					onClick={() => {
-						Signals.emit(Signals.index.SELECT_SQUAD_MOVE_CANCEL, squad.id)
+						Signals.emit(Signals.events.SELECT_SQUAD_MOVE_CANCEL, squad.id)
 					}}
 					className="col-12">
 					Cancel

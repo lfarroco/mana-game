@@ -1,6 +1,6 @@
 import { Button } from "react-bootstrap"
 import { City } from "../../../Models/City"
-import { emit, index } from "../../../Models/Signals"
+import { emit_, events } from "../../../Models/Signals"
 import { getState } from "../../../Scenes/Battleground/BGState"
 import "./styles.css"
 import { getDispatchableSquads } from "../../../Models/Squad"
@@ -24,11 +24,7 @@ const SelectedCity = ({ city }: { city: City }) => {
 		<div className="col col-2">
 			<Button
 				className="col-12 btn btn-secondary"
-				onClick={
-					() => {
-						emit(index.TOGGLE_DISPATCH_MODAL, true)
-					}
-				}
+				onClick={emit_(events.TOGGLE_DISPATCH_MODAL, true)}
 				disabled={dispatchableSquads.length < 1}
 			>Dispatch</Button>
 			<Button className="col-12 btn btn-secondary">Shop</Button>

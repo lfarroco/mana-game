@@ -2,12 +2,10 @@ import Modal from 'react-bootstrap/Modal';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { getState } from '../../../Scenes/Battleground/BGState';
 import { Button, ListGroupItem } from 'react-bootstrap';
-import { emit, index } from '../../../Models/Signals';
+import { emit_, events } from '../../../Models/Signals';
 
 
-const onClose = () => {
-	emit(index.TOGGLE_SQUAD_DETAILS_MODAL, false)
-}
+const onClose = emit_(events.TOGGLE_SQUAD_DETAILS_MODAL, false)
 
 function SquadDetailsModal({ visible, id }: { visible: boolean, id: string }) {
 

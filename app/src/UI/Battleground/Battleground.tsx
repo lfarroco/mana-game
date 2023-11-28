@@ -9,7 +9,7 @@ import SelectedSquad from './SelectedEntity/SelectedSquad';
 import { Squad } from '../../Models/Squad';
 import SelectedCity from './SelectedEntity/SelectedCity';
 import { City } from '../../Models/City';
-import * as Signals from "../../Models/Signals"
+import { listeners, events, emit } from "../../Models/Signals"
 import DispatchUnitModal from './DispatchUnitModal/DispachUnitModal';
 import SquadDetailsModal from './SquadDetailsModal/SquadDetailsModal';
 import { getDispatchableSquads } from '../../Models/Squad';
@@ -32,17 +32,17 @@ const Battleground = () => {
 
   useEffect(() => {
     console.log("Battleground mounted");
-    Signals.listeners(
+    listeners(
       [
-        [Signals.index.PAUSE_PHYSICS, () => { setPaused(true); }],
-        [Signals.index.RESUME_PHYSICS, () => { setPaused(false); }],
-        [Signals.index.SQUAD_SELECTED, (id: string) => { setSelectedEntity({ type: "squad", id }); }],
-        [Signals.index.CITY_SELECTED, (id: string) => { setSelectedEntity({ type: "city", id }); }],
-        [Signals.index.SELECT_SQUAD_MOVE_START, () => { setIsSelectingMoveTarget(true); }],
-        [Signals.index.SELECT_SQUAD_MOVE_DONE, () => { setIsSelectingMoveTarget(false); }],
-        [Signals.index.SELECT_SQUAD_MOVE_CANCEL, () => { setIsSelectingMoveTarget(false); }],
-        [Signals.index.TOGGLE_DISPATCH_MODAL, (value: boolean) => { setDispatchModalVisible(value); }],
-        [Signals.index.TOGGLE_SQUAD_DETAILS_MODAL, (value: boolean) => { setSquadDetailsModalVisible(value); }]
+        [events.PAUSE_PHYSICS, () => { setPaused(true); }],
+        [events.RESUME_PHYSICS, () => { setPaused(false); }],
+        [events.SQUAD_SELECTED, (id: string) => { setSelectedEntity({ type: "squad", id }); }],
+        [events.CITY_SELECTED, (id: string) => { setSelectedEntity({ type: "city", id }); }],
+        [events.SELECT_SQUAD_MOVE_START, () => { setIsSelectingMoveTarget(true); }],
+        [events.SELECT_SQUAD_MOVE_DONE, () => { setIsSelectingMoveTarget(false); }],
+        [events.SELECT_SQUAD_MOVE_CANCEL, () => { setIsSelectingMoveTarget(false); }],
+        [events.TOGGLE_DISPATCH_MODAL, (value: boolean) => { setDispatchModalVisible(value); }],
+        [events.TOGGLE_SQUAD_DETAILS_MODAL, (value: boolean) => { setSquadDetailsModalVisible(value); }]
       ]
     )
   }, []);
@@ -77,9 +77,9 @@ const Battleground = () => {
             <Button
               onClick={(e) => {
                 if (isPaused) {
-                  Signals.emit(Signals.index.RESUME_PHYSICS)
+                  emit(events.RESUME_PHYSICS)
                 } else {
-                  Signals.emit(Signals.index.PAUSE_PHYSICS)
+                  emit(events.PAUSE_PHYSICS)
                 }
               }}
             >
@@ -125,7 +125,6 @@ const Battleground = () => {
           id={selectedEntityInfo.id}
         />
       }
-
     </>
   );
 }

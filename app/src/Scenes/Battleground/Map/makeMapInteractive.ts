@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import BattlegroundScene from "../BattlegroundScene";
-import * as Signals from "../../../Models/Signals";
+import { emit, events } from "../../../Models/Signals";
 import { windowVec } from "../../../Models/Misc";
 
 export function makeMapInteractive(
@@ -49,8 +49,8 @@ export function makeMapInteractive(
 
 		if (scene.isSelectingSquadMove && scene.state.selectedEntity?.type === "squad") {
 
-			Signals.emit(
-				Signals.index.SELECT_SQUAD_MOVE_DONE,
+			emit(
+				events.SELECT_SQUAD_MOVE_DONE,
 				scene.state.selectedEntity.id,
 				windowVec(x, y)
 			)
