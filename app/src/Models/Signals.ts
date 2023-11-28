@@ -1,4 +1,4 @@
-import events from 'events'
+import Events from 'events'
 import { WindowVec } from './Misc'
 
 export type Signals = {
@@ -35,9 +35,12 @@ export type Signals = {
 	SQUADS_COLLIDED: {
 		callback: (squadId1: string, squadId2: string) => void
 	},
+	SKIRMISH_ENDED: {
+		callback: () => void
+	}
 }
 
-export const index: { [key in keyof Signals]: keyof Signals } = {
+export const events: { [key in keyof Signals]: keyof Signals } = {
 	PAUSE_PHYSICS: "PAUSE_PHYSICS",
 	RESUME_PHYSICS: "RESUME_PHYSICS",
 	SELECT_SQUAD_MOVE_START: "SELECT_SQUAD_MOVE_START",
@@ -49,6 +52,7 @@ export const index: { [key in keyof Signals]: keyof Signals } = {
 	DISPATCH_SQUAD: "DISPATCH_SQUAD",
 	SQUADS_COLLIDED: "SQUADS_COLLIDED",
 	TOGGLE_SQUAD_DETAILS_MODAL: "TOGGLE_SQUAD_DETAILS_MODAL",
+	SKIRMISH_ENDED: "SKIRMISH_ENDED",
 }
 
 export const listen = <T extends keyof Signals>(
@@ -56,7 +60,7 @@ export const listen = <T extends keyof Signals>(
 	callback: Signals[T]["callback"],
 ): (() => void) => {
 	//@ts-ignore
-	const emitter: events = window.emitter;
+	const emitter: Events = window.emitter;
 	console.log("listening to", event)
 	emitter.on(event, callback)
 	return () => {
@@ -70,11 +74,18 @@ export const emit = <T extends keyof Signals>(
 	...args: Parameters<Signals[T]["callback"]>
 ) => {
 	//@ts-ignore
-	const emitter: events = window.emitter;
+	const emitter: Events = window.emitter;
 	console.log(
 		`emit("${event}", ...${JSON.stringify(args)})`
 	)
 	emitter.emit(event, ...args)
+}
+
+export const emit_ = <T extends keyof Signals>(
+	event: T,
+	...args: Parameters<Signals[T]["callback"]>
+) => {
+	return () => emit(event, ...args)
 }
 
 // example usage:

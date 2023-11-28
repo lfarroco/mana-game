@@ -4,22 +4,21 @@ import { Squad, getMembers } from '../../../Models/Squad';
 import { getState } from '../../../Scenes/Battleground/BGState';
 import { useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
-import { emit, index } from '../../../Models/Signals';
+import { emit, emit_, events } from '../../../Models/Signals';
 
 const dispatch = (squad: Squad) => () => {
 
 	const state = getState()
 	if (state.selectedEntity?.type === "city") {
-		emit(index.DISPATCH_SQUAD, squad.id, state.selectedEntity?.id)
-		emit(index.TOGGLE_DISPATCH_MODAL, false)
-		emit(index.SQUAD_SELECTED, squad.id)
+		emit(events.DISPATCH_SQUAD, squad.id, state.selectedEntity?.id)
+		emit(events.TOGGLE_DISPATCH_MODAL, false)
+		emit(events.SQUAD_SELECTED, squad.id)
 	} else {
 		console.error("No selected entity")
 	}
 }
-const onClose = () => {
-	emit(index.TOGGLE_DISPATCH_MODAL, false)
-}
+
+const onClose = emit_(events.TOGGLE_DISPATCH_MODAL, false)
 
 function DispatchUnitModal({ visible, squads }: { visible: boolean, squads: Squad[] }) {
 
@@ -60,6 +59,7 @@ function DispatchUnitModal({ visible, squads }: { visible: boolean, squads: Squa
 									{
 										members.map(member => <img
 											className="img-fluid"
+											alt={member.name}
 											style={{ width: "100px" }}
 											src={`assets/jobs/${member.job}/portrait.png`}
 											key={member.id} />)

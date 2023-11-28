@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { listeners, index } from "../../Models/Signals";
+import { emit, events, listeners } from "../../Models/Signals";
 import { preload } from "./preload";
 import { Unit, makeUnit } from "../../Models/Unit";
 
@@ -57,10 +57,13 @@ class SkirmishScene extends Phaser.Scene {
 
 		console.log("SkirmishScene constructor")
 		listeners([
+			[events.SKIRMISH_ENDED, () => {
+				this.scene.stop()
+				this.children.removeAll()
+			}],
 		]);
 
 	}
-
 
 	preload = preload;
 	create = () => {
@@ -163,8 +166,11 @@ class SkirmishScene extends Phaser.Scene {
 					ease: 'Power2',
 					onComplete: () => {
 						combat.turn++
-						if (combat.turn < combat.initiative.length) {
+						//if (combat.turn < combat.initiative.length) {
+						if (combat.turn < 2) {
 							this.turn(combat)
+						} else {
+							emit(events.SKIRMISH_ENDED)
 						}
 					}
 				});

@@ -12,7 +12,7 @@ import { Squad } from "../../Models/Squad";
 import moveSquads from "./Map/moveSquads";
 import { WindowVec } from "../../Models/Misc";
 import { Chara, chara } from "./chara";
-import { emit, index, listeners } from "../../Models/Signals";
+import { emit, events, listeners } from "../../Models/Signals";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
 import { BGState, getState } from "./BGState";
 
@@ -33,7 +33,7 @@ export class BattlegroundScene extends Phaser.Scene {
   } | null = null;
   selectedEntity: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | null = null;
   isPaused = false;
-  isSelectingSquadMove = false;
+  isSelectingSquadMove = false; // TODO: we can move this into the state
   squadCollider: Phaser.Physics.Arcade.Collider | null = null;
   layerCollider: Phaser.Physics.Arcade.Collider | null = null;
   squadsCanMove: boolean = true;
@@ -44,15 +44,16 @@ export class BattlegroundScene extends Phaser.Scene {
     super("BattlegroundScene");
 
     listeners([
-      [index.PAUSE_PHYSICS, this.pausePhysics],
-      [index.RESUME_PHYSICS, this.resumePhysics],
-      [index.SQUAD_SELECTED, this.selectSquad],
-      [index.CITY_SELECTED, this.selectCity],
-      [index.SELECT_SQUAD_MOVE_START, () => { this.isSelectingSquadMove = true }],
-      [index.SELECT_SQUAD_MOVE_DONE, this.moveSquadTo],
-      [index.SELECT_SQUAD_MOVE_CANCEL, () => { this.isSelectingSquadMove = false }],
-      [index.DISPATCH_SQUAD, this.dispatchSquad],
-      [index.SQUADS_COLLIDED, this.handleSquadsCollided],
+      [events.PAUSE_PHYSICS, this.pausePhysics],
+      [events.RESUME_PHYSICS, this.resumePhysics],
+      [events.SQUAD_SELECTED, this.selectSquad],
+      [events.CITY_SELECTED, this.selectCity],
+      [events.SELECT_SQUAD_MOVE_START, () => { this.isSelectingSquadMove = true }],
+      [events.SELECT_SQUAD_MOVE_DONE, this.moveSquadTo],
+      [events.SELECT_SQUAD_MOVE_CANCEL, () => { this.isSelectingSquadMove = false }],
+      [events.DISPATCH_SQUAD, this.dispatchSquad],
+      [events.SQUADS_COLLIDED, this.handleSquadsCollided],
+      [events.SKIRMISH_ENDED, () => { this.scene.start() }]
     ]);
 
     this.state = getState()
@@ -67,21 +68,23 @@ export class BattlegroundScene extends Phaser.Scene {
     this.scene.stop()
     this.scene.start("SkirmishScene")
 
+    this.pausePhysics();
     this.squadsCanMove = false;
 
-    const squadA = this.charas.find(sqd => sqd.id === squadAId)
-    const squadB = this.charas.find(sqd => sqd.id === squadBId)
+    // const squadA = this.charas.find(sqd => sqd.id === squadAId)
+    // const squadB = this.charas.find(sqd => sqd.id === squadBId)
 
-    if (!squadA || !squadB) throw new Error("squad not found")
+    // if (!squadA || !squadB) throw new Error("squad not found")
 
-    const winner = squadA.force === FORCE_ID_PLAYER ? squadA : squadB
-    const loser = squadA.force === FORCE_ID_CPU ? squadA : squadB
+    // const winner = squadA.force === FORCE_ID_PLAYER ? squadA : squadB
+    // const loser = squadA.force === FORCE_ID_CPU ? squadA : squadB
 
-    this.repel(winner.body, loser.body)
+    // this.repel(winner.body, loser.body)
   }
 
   preload = preload;
   create = () => {
+    console.log("BattlegroundScene create")
     const { map, layers } = createMap(this);
 
     importMapObjects(this.state, map);
@@ -113,7 +116,7 @@ export class BattlegroundScene extends Phaser.Scene {
     this.squadCollider = this.physics.add.overlap(bodiesA, bodiesB,
       //@ts-ignore
       (squadA: Phaser.GameObjects.Image, squadB: Phaser.GameObjects.Image) => {
-        emit(index.SQUADS_COLLIDED, squadA.name, squadB.name);
+        emit(events.SQUADS_COLLIDED, squadA.name, squadB.name);
       }
     );
 

@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { getState } from "../BGState";
-import * as Signals from "../../../Models/Signals";
+import { events, emit } from "../../../Models/Signals";
 import { windowVec } from "../../../Models/Misc";
 import { Chara } from "../chara";
 
@@ -25,13 +25,16 @@ export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
 		if (pointer.upElement.tagName !== "CANVAS") return;
 
 		if (scene.isSelectingSquadMove && state.selectedEntity?.type === "squad") {
-			Signals.emit(
-				Signals.index.SELECT_SQUAD_MOVE_DONE,
+			emit(
+				events.SELECT_SQUAD_MOVE_DONE,
 				state.selectedEntity.id,
 				windowVec(chara.body.x, chara.body.y)
 			);
 		} else {
-			Signals.emit(Signals.index.SQUAD_SELECTED, chara.id);
+			emit(
+				events.SQUAD_SELECTED,
+				chara.id
+			);
 		}
 	});
 }
