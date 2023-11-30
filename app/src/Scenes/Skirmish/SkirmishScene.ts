@@ -3,6 +3,7 @@ import { emit, events, listeners } from "../../Models/Signals";
 import { preload } from "./preload";
 import { Unit, makeUnit } from "../../Models/Unit";
 import { SpineGameObject } from "@esotericsoftware/spine-phaser";
+import { getState } from "../Battleground/BGState";
 
 const sqdA = [
 	{
@@ -134,6 +135,7 @@ class SkirmishScene extends Phaser.Scene {
 
 	turn(combat: { turn: number, initiative: { unit: Unit, initiative: number }[], actions: any[] }) {
 
+		const state = getState()
 
 		const currentUnit = combat.initiative[combat.turn].unit
 
@@ -155,7 +157,7 @@ class SkirmishScene extends Phaser.Scene {
 			targets: activeUnitSprite,
 			x: targetUnitSprite.x + (isLeft ? -100 : 100),
 			y: targetUnitSprite.y,
-			duration: 1000,
+			duration: 1000 / state.speed,
 			ease: 'Power2',
 			onComplete: () => {
 
@@ -163,7 +165,7 @@ class SkirmishScene extends Phaser.Scene {
 					targets: activeUnitSprite,
 					x: sourceX,
 					y: sourceY,
-					duration: 1000,
+					duration: 1000 / state.speed,
 					ease: 'Power2',
 					onComplete: () => {
 						combat.turn++

@@ -32,7 +32,7 @@ const moveSquads = (scene: BattlegroundScene) => {
 			return;
 		}
 
-		scene.scene.scene.physics.moveTo(sprite, nextTile.getCenterX(), nextTile.getCenterY(), 30);
+		scene.scene.scene.physics.moveTo(sprite, nextTile.getCenterX(), nextTile.getCenterY(), 30 * scene.state.speed);
 
 		squad.position.x = sprite.body.x;
 		squad.position.y = sprite.body.y;
