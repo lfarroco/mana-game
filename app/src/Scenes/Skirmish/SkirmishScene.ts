@@ -54,11 +54,19 @@ class SkirmishScene extends Phaser.Scene {
 	bg: Phaser.GameObjects.Image | null = null;
 	charas: SpineGameObject[] = [];
 	units: Unit[] = [];
+	squadA: string = "";
+	squadB: string = "";
 	constructor() {
 		super("SkirmishScene");
 
 		console.log("SkirmishScene constructor")
 		listeners([
+			[events.SKIRMISH_STARTED, (squadA: string, squadB: string) => {
+				this.squadA = squadA
+				this.squadB = squadB
+				this.scene.start()
+			}
+			],
 			[events.SKIRMISH_ENDED, () => {
 				this.scene.stop()
 				this.children.removeAll()
@@ -173,7 +181,7 @@ class SkirmishScene extends Phaser.Scene {
 						if (combat.turn < 2) {
 							this.turn(combat)
 						} else {
-							emit(events.SKIRMISH_ENDED)
+							emit(events.SKIRMISH_ENDED, this.squadA, this.squadB)
 						}
 					}
 				});
