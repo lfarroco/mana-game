@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { emit, events, listeners } from "../../Models/Signals";
 import { preload } from "./preload";
 import { Unit, makeUnit } from "../../Models/Unit";
+import { SpineGameObject } from "@esotericsoftware/spine-phaser";
 
 const sqdA = [
 	{
@@ -50,7 +51,7 @@ const sqdB = [
 
 class SkirmishScene extends Phaser.Scene {
 	bg: Phaser.GameObjects.Image | null = null;
-	charas: Phaser.GameObjects.Image[] = [];
+	charas: SpineGameObject[] = [];
 	units: Unit[] = [];
 	constructor() {
 		super("SkirmishScene");
@@ -99,14 +100,14 @@ class SkirmishScene extends Phaser.Scene {
 			const diagonalOffset = isLeft ? 50 : -50
 			const backOffset = 0
 
-			const sprite = createSpineBody(this,
+			const spine = createSpineBody(this,
 				baseX + (spec.pos.x * spacingX) - (spec.pos.y * diagonalOffset) - (!isLeft && spec.pos.x === 1 ? 300 : 0),
 				baseY + (spec.pos.y * spacingY) + (spec.pos.x === 0 ? backOffset : 0),
 				spec.unit).setName(spec.unit.id)
 			const scale = 0.3
-			sprite.setScale(isLeft ? -scale : scale, scale)
+			spine.setScale(isLeft ? -scale : scale, scale)
 
-			return sprite
+			return spine
 		})
 	}
 
@@ -182,8 +183,8 @@ class SkirmishScene extends Phaser.Scene {
 	}
 
 }
-function createSpineBody(scene: Phaser.Scene, x: number, y: number, unit: Unit) {
-	const spine: Phaser.GameObjects.Image = scene
+function createSpineBody(scene: Phaser.Scene, x: number, y: number, unit: Unit): SpineGameObject {
+	const spine: SpineGameObject = scene
 		//@ts-ignore
 		.add.spine(x, y, "spine-data", "spine-atlas");
 	spine.scale = 0.4;

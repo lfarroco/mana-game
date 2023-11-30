@@ -10,8 +10,6 @@ export function preload(this: Phaser.Scene) {
 	this.load.image("cursor", "assets/ui/selected_cursor.png");
 	this.load.tilemapTiledJSON("maps/map1", "assets/maps/map1/mapdata.json");
 
-	//@ts-ignore
 	this.load.spineBinary("spine-data", "assets/spine/_base/skeleton.skel");
-	//@ts-ignore
 	this.load.spineAtlas("spine-atlas", "assets/spine/_base/skeleton.atlas");
 }

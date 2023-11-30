@@ -3,7 +3,7 @@ import { BattlegroundScene } from "../BattlegroundScene";
 import { getState } from "../BGState";
 import { events, emit } from "../../../Models/Signals";
 import { windowVec } from "../../../Models/Misc";
-import { Chara } from "../chara";
+import { Chara } from "../../../Components/chara";
 
 export function makeSquadsInteractive(
 	scene: BattlegroundScene,
@@ -17,8 +17,8 @@ export function makeSquadsInteractive(
 }
 export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
 
-	chara.body.setInteractive();
-	chara.body.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer, x: number, y: number) => {
+	scene.input.enableDebug(chara.clickZone);
+	chara.clickZone.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer, x: number, y: number) => {
 
 		const state = getState();
 

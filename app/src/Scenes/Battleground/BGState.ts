@@ -4,6 +4,7 @@ import { Squad, makeSquad } from "../../Models/Squad";
 import { Unit, makeUnit } from "../../Models/Unit";
 
 export const initialState: BGState = {
+	debug: true,
 	forces: [
 		{
 			...makeForce(),
@@ -37,6 +38,7 @@ export const initialState: BGState = {
 };
 
 export type BGState = {
+	debug: boolean;
 	forces: Force[];
 	squads: Squad[];
 	units: Unit[];
