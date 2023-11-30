@@ -10,8 +10,8 @@ import { createCities } from "./Map/createCities";
 import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
 import { Squad } from "../../Models/Squad";
 import moveSquads from "./Map/moveSquads";
-import { WindowVec } from "../../Models/Misc";
-import { Chara, chara } from "./chara";
+import { WindowVec, windowVec } from "../../Models/Misc";
+import { Chara, createChara } from "../../Components/chara";
 import { emit, events, listeners } from "../../Models/Signals";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
 import { BGState, getState } from "./BGState";
@@ -113,6 +113,8 @@ export class BattlegroundScene extends Phaser.Scene {
     this.squadCollider?.destroy();
     const bodiesA = this.charas.filter(c => c.force === FORCE_ID_PLAYER).map(({ body }) => body)
     const bodiesB = this.charas.filter(c => c.force === FORCE_ID_CPU).map(({ body }) => body)
+
+    //@ts-ignore
     this.squadCollider = this.physics.add.overlap(bodiesA, bodiesB,
       //@ts-ignore
       (squadA: Phaser.GameObjects.Image, squadB: Phaser.GameObjects.Image) => {
@@ -125,6 +127,8 @@ export class BattlegroundScene extends Phaser.Scene {
     }
     this.layerCollider?.destroy();
     this.layerCollider = this.physics.add.collider(
+
+      // @ts-ignore
       bodiesA.concat(bodiesB),
       this.layers.obstacles
     );
@@ -183,32 +187,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
   }
 
-  drawLine(path: { x: number, y: number }[]) {
-    this.graphics = this.add.graphics();
-
-    this.path = { t: 0, vec: new Phaser.Math.Vector2() };
-
-    this.points = [];
-
-    path.forEach(({ x, y }) => {
-
-      const tile = this.layers?.background.getTileAt(x, y);
-
-      if (!tile) return
-
-      this.points.push(new Phaser.Math.Vector2(
-        tile.pixelX + tile.width / 2,
-        tile.pixelY + tile.height / 2
-      ))
-
-    })
-
-    this.curve = new Phaser.Curves.Spline(this.points);
-
-    const points = this.curve.getPoints(this.points.length * 5);
-    this.drawPoints(points)
-
-  }
 
   moveTo(squad: Squad, target: Phaser.Tilemaps.Tile) {
     const sourceTile = this.layers?.background.getTileAtWorldXY(
@@ -227,7 +205,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
         console.log("setting path", path)
         squad.path = path
-        this.drawLine(path)
       }
     )
   }
@@ -278,23 +255,16 @@ export class BattlegroundScene extends Phaser.Scene {
     }
     squad.dispatched = true;
 
-    squad.position = {
-      x: city.position.x,
-      y: city.position.y
-    }
+    squad.position = windowVec(city.position.x, city.position.y)
 
-    const sprite = chara(
+    const chara_ = createChara(
       this,
       squad,
     )
 
-    this.charas.push({
-      id: squad.id,
-      force: squad.force,
-      body: sprite.body,
-    })
+    this.charas.push(chara_)
 
-    makeSquadInteractive(sprite, this)
+    makeSquadInteractive(chara_, this)
     this.setupCollisions();
 
   }

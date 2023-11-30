@@ -6,13 +6,17 @@ const moveSquads = (scene: BattlegroundScene) => {
 	scene.state.squads.forEach(squad => {
 		if (squad.path.length < 1) return;
 
-		const sprite = scene.children.getByName(squad.id) as Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
+		const sprite = scene.charas.find(c => c.id === squad.id)?.body
+		if (!sprite) return;
 		const [next] = squad.path;
 
 		const nextTile = scene.layers?.background.getTileAt(next.x, next.y);
 		if (!nextTile) return;
 
-		const distance = Phaser.Math.Distance.BetweenPoints(sprite.getCenter(), { x: nextTile.getCenterX(), y: nextTile.getCenterY() });
+		const distance = Phaser.Math.Distance.BetweenPoints(
+			sprite.getCenter(),
+			{ x: nextTile.getCenterX(), y: nextTile.getCenterY() },
+		);
 
 		// distance from next
 		// if close enough, remove next from path
