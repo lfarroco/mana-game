@@ -1,7 +1,7 @@
 import { Button } from "react-bootstrap"
 import { City } from "../../../Models/City"
 import { emit_, events } from "../../../Models/Signals"
-import { getState } from "../../../Models/BGState"
+import { getState } from "../../../Models/State"
 import "./styles.css"
 import { getDispatchableSquads } from "../../../Models/Squad"
 const SelectedCity = ({ city }: { city: City }) => {

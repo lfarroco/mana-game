@@ -4,7 +4,7 @@ import Modal from 'react-bootstrap/Modal';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { Link, useParams } from 'react-router-dom';
 import { Table } from 'react-bootstrap';
-import { getState } from '../../../Models/BGState';
+import { getState } from '../../../Models/State';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from '../../../Models/Force';

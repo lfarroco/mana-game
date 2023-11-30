@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { BGState } from "../../../Models/BGState";
+import { State } from "../../../Models/State";
 import * as uuid from "uuid";
 import { Squad } from "../../../Models/Squad";
 import { randomUnit } from "../../../Models/Unit";
@@ -28,7 +28,7 @@ type CitySpec = {
 };
 
 //TODO: return new state instead of mutating
-export function importMapObjects(state: BGState, map: Phaser.Tilemaps.Tilemap) {
+export function importMapObjects(state: State, map: Phaser.Tilemaps.Tilemap) {
 
 	map
 		.objects

@@ -3,7 +3,7 @@ import { FORCE_ID_PLAYER, Force, makeForce } from "./Force";
 import { Squad, makeSquad } from "./Squad";
 import { Unit, makeUnit } from "./Unit";
 
-export const initialState: BGState = {
+export const initialState: State = {
 	debug: true,
 	speed: 4,
 	forces: [
@@ -38,7 +38,7 @@ export const initialState: BGState = {
 	selectedEntity: null,
 };
 
-export type BGState = {
+export type State = {
 	debug: boolean;
 	speed: number;
 	forces: Force[];
@@ -48,12 +48,12 @@ export type BGState = {
 	selectedEntity: null | { type: string, id: string }
 };
 
-export const getState = (): BGState => {
+export const getState = (): State => {
 	//@ts-ignore
 	return window.state
 }
 
-export const setState = (state: BGState) => {
+export const setState = (state: State) => {
 	//@ts-ignore
 	window.state = state
 }
