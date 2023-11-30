@@ -15,6 +15,7 @@ import { Chara, createChara } from "../../Components/chara";
 import { emit, events, listeners } from "../../Models/Signals";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
 import { BGState, getState } from "./BGState";
+import { TILE_HEIGHT } from "./constants";
 
 const easystar = new Easystar.js();
 easystar.setAcceptableTiles([0])
@@ -142,7 +143,7 @@ export class BattlegroundScene extends Phaser.Scene {
       moveSquads(this)
     }
     if (this.selectedEntity) {
-      this.cursor?.setPosition(this.selectedEntity.x, this.selectedEntity.y).setVisible(true)
+      this.cursor?.setPosition(this.selectedEntity.x, this.selectedEntity.y + TILE_HEIGHT / 5).setVisible(true)
     } else {
       this.cursor?.setVisible(false)
     }
@@ -150,7 +151,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
   selectSquad = (id: string) => {
     this.state.selectedEntity = { type: "squad", id }
-    this.selectedEntity = this.children.getByName(id) as Phaser.Types.Physics.Arcade.ImageWithDynamicBody
+    this.selectedEntity = this.charas.find(c => c.id === id)?.body || null
   }
   selectCity = (id: string) => {
     this.state.selectedEntity = { type: "city", id }
