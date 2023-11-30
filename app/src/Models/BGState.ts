@@ -1,7 +1,7 @@
-import { City } from "../../Models/City";
-import { FORCE_ID_PLAYER, Force, makeForce } from "../../Models/Force";
-import { Squad, makeSquad } from "../../Models/Squad";
-import { Unit, makeUnit } from "../../Models/Unit";
+import { City } from "./City";
+import { FORCE_ID_PLAYER, Force, makeForce } from "./Force";
+import { Squad, makeSquad } from "./Squad";
+import { Unit, makeUnit } from "./Unit";
 
 export const initialState: BGState = {
 	debug: true,

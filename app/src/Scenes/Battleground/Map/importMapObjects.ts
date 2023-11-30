@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { BGState } from "../BGState";
+import { BGState } from "../../../Models/BGState";
 import * as uuid from "uuid";
 import { Squad } from "../../../Models/Squad";
 import { randomUnit } from "../../../Models/Unit";

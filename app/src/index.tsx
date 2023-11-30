@@ -12,7 +12,7 @@ import Battleground from './UI/Battleground/Battleground';
 import events from 'events';
 import BattlegroundScene from './Scenes/Battleground/BattlegroundScene';
 import SkirmishScene from './Scenes/Skirmish/SkirmishScene';
-import { initialState } from './Scenes/Battleground/BGState';
+import { initialState } from './Models/BGState';
 
 const eventEmitter = new events.EventEmitter();
 

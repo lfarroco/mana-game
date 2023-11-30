@@ -3,7 +3,7 @@ import Modal from 'react-bootstrap/Modal';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { Link, useParams } from 'react-router-dom';
 import { Squad } from '../../../Models/Squad';
-import { getState } from '../../../Scenes/Battleground/BGState';
+import { getState } from '../../../Models/BGState';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from '../../../Models/Force';

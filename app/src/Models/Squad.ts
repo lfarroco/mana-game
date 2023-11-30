@@ -1,4 +1,4 @@
-import { BGState, getState } from "../Scenes/Battleground/BGState";
+import { BGState, getState } from "./BGState";
 import { FORCE_ID_PLAYER } from "./Force";
 
 export type Squad = {
