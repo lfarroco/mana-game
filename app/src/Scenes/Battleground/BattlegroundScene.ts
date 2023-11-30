@@ -53,7 +53,9 @@ export class BattlegroundScene extends Phaser.Scene {
       [events.SELECT_SQUAD_MOVE_CANCEL, () => { this.isSelectingSquadMove = false }],
       [events.DISPATCH_SQUAD, this.dispatchSquad],
       [events.SQUADS_COLLIDED, this.handleSquadsCollided],
-      [events.SKIRMISH_ENDED, () => { this.scene.start() }]
+      [events.SKIRMISH_ENDED, () => {
+        this.scene.start();
+      }]
     ]);
 
     this.state = getState()
@@ -218,11 +220,11 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.charas.forEach(chara => chara.body.setVelocity(0, 0))
 
-    this.scene.scene.physics.moveToObject(spriteB, spriteA, 60);
+    this.scene.scene.physics.moveToObject(spriteB, spriteA, 60 * this.state.speed);
     spriteB.body.velocity.x = -spriteB.body.velocity.x;
     spriteB.body.velocity.y = -spriteB.body.velocity.y;
 
-    this.time.delayedCall(1000,
+    this.time.delayedCall(1000 / this.state.speed,
       () => {
         spriteB.body.setVelocity(0, 0);
         this.squadsCanMove = true;
