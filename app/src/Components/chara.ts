@@ -23,10 +23,9 @@ export function createChara(
 
 	const spine = createSpineBody(scene, leader, squad);
 
-	const body = scene.add.zone(
-		squad.position.x, squad.position.y,
-		20, 20,
-	)
+	const body = scene.physics.add.image(
+		squad.position.x, squad.position.y, ""
+	).setName(squad.id).setSize(20, 20)
 
 	const clickZone = scene.add.zone(
 		squad.position.x,
@@ -35,7 +34,6 @@ export function createChara(
 	)
 		.setInteractive();
 
-	scene.physics.add.existing(body);
 
 	const follow = () => {
 		spine.x = body.x;

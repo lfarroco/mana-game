@@ -22,9 +22,6 @@ easystar.setAcceptableTiles([0])
 
 export class BattlegroundScene extends Phaser.Scene {
   graphics: Phaser.GameObjects.Graphics | null = null;
-  path = { t: 0, vec: new Phaser.Math.Vector2() }
-  points: Phaser.Math.Vector2[] = []
-  curve: Phaser.Curves.Spline | null = null;
   grid: number[][] = []
   charas: Chara[] = []
   layers: {
@@ -40,6 +37,7 @@ export class BattlegroundScene extends Phaser.Scene {
   squadsCanMove: boolean = true;
   cursor: Phaser.GameObjects.Image | null = null;
   state: State;
+  started = false;
 
   constructor() {
     super("BattlegroundScene");
@@ -54,8 +52,16 @@ export class BattlegroundScene extends Phaser.Scene {
       [events.SELECT_SQUAD_MOVE_CANCEL, () => { this.isSelectingSquadMove = false }],
       [events.DISPATCH_SQUAD, this.dispatchSquad],
       [events.SQUADS_COLLIDED, this.handleSquadsCollided],
-      [events.SKIRMISH_ENDED, () => {
+      [events.SKIRMISH_ENDED, (winner: string, loser: string) => {
         this.scene.start();
+        this.squadsCanMove = false;
+
+        // we need to wait for the scene to start before we can access the charas
+        // might add a transition
+        this.time.delayedCall(200, () => {
+          this.squadsCanMove = true;
+          this.repel(winner, loser);
+        });
       }]
     ]);
 
@@ -68,21 +74,12 @@ export class BattlegroundScene extends Phaser.Scene {
 
   handleSquadsCollided = (squadAId: string, squadBId: string) => {
 
+    if (!this.squadsCanMove) return
+
     this.scene.stop()
-    this.scene.start("SkirmishScene")
 
-    this.pausePhysics();
-    this.squadsCanMove = false;
+    emit(events.SKIRMISH_STARTED, squadAId, squadBId)
 
-    // const squadA = this.charas.find(sqd => sqd.id === squadAId)
-    // const squadB = this.charas.find(sqd => sqd.id === squadBId)
-
-    // if (!squadA || !squadB) throw new Error("squad not found")
-
-    // const winner = squadA.force === FORCE_ID_PLAYER ? squadA : squadB
-    // const loser = squadA.force === FORCE_ID_CPU ? squadA : squadB
-
-    // this.repel(winner.body, loser.body)
   }
 
   preload = preload;
@@ -90,7 +87,8 @@ export class BattlegroundScene extends Phaser.Scene {
     console.log("BattlegroundScene create")
     const { map, layers } = createMap(this);
 
-    importMapObjects(this.state, map);
+    if (!this.started)
+      importMapObjects(this.state, map);
 
     makeMapInteractive(this, map, layers.background)
 
@@ -111,6 +109,8 @@ export class BattlegroundScene extends Phaser.Scene {
 
     //@ts-ignore
     window.scene = this
+
+    this.started = true;
   }
   private setupCollisions() {
     this.squadCollider?.destroy();
@@ -121,7 +121,8 @@ export class BattlegroundScene extends Phaser.Scene {
     this.squadCollider = this.physics.add.overlap(bodiesA, bodiesB,
       //@ts-ignore
       (squadA: Phaser.GameObjects.Image, squadB: Phaser.GameObjects.Image) => {
-        emit(events.SQUADS_COLLIDED, squadA.name, squadB.name);
+        if (this.squadsCanMove)
+          emit(events.SQUADS_COLLIDED, squadA.name, squadB.name);
       }
     );
 
@@ -213,11 +214,15 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
   repel(
-    spriteA: Phaser.Types.Physics.Arcade.ImageWithDynamicBody,
-    spriteB: Phaser.Types.Physics.Arcade.ImageWithDynamicBody,
+    squadAId: string,
+    squadBId: string
   ) {
+    this.squadsCanMove = false;
 
-    this.scene.resume()
+    const spriteA = this.charas.find(c => c.id === squadAId)?.body
+    const spriteB = this.charas.find(c => c.id === squadBId)?.body
+
+    if (!spriteA || !spriteB) throw new Error("sprite not found");
 
     this.charas.forEach(chara => chara.body.setVelocity(0, 0))
 

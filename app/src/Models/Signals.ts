@@ -35,8 +35,11 @@ export type Signals = {
 	SQUADS_COLLIDED: {
 		callback: (squadId1: string, squadId2: string) => void
 	},
+	SKIRMISH_STARTED: {
+		callback: (squadId1: string, squadId2: string) => void
+	},
 	SKIRMISH_ENDED: {
-		callback: () => void
+		callback: (winner: string, loser: string) => void
 	}
 }
 
@@ -52,6 +55,7 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
 	DISPATCH_SQUAD: "DISPATCH_SQUAD",
 	SQUADS_COLLIDED: "SQUADS_COLLIDED",
 	TOGGLE_SQUAD_DETAILS_MODAL: "TOGGLE_SQUAD_DETAILS_MODAL",
+	SKIRMISH_STARTED: "SKIRMISH_STARTED",
 	SKIRMISH_ENDED: "SKIRMISH_ENDED",
 }
 
