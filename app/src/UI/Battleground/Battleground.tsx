@@ -4,7 +4,7 @@ import SquadsWindow from './SquadsWindow/SquadsWindow';
 import { Button, ButtonGroup } from 'react-bootstrap';
 import { Link, Route, Routes } from 'react-router-dom'; // TODO: remove react router
 import { useEffect, useState } from 'react';
-import { getState } from '../../Scenes/Battleground/BGState';
+import { getState } from '../../Models/BGState';
 import SelectedSquad from './SelectedEntity/SelectedSquad';
 import { Squad } from '../../Models/Squad';
 import SelectedCity from './SelectedEntity/SelectedCity';

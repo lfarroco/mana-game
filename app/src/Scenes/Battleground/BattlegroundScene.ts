@@ -14,7 +14,7 @@ import { WindowVec, windowVec } from "../../Models/Misc";
 import { Chara, createChara } from "../../Components/chara";
 import { emit, events, listeners } from "../../Models/Signals";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
-import { BGState, getState } from "./BGState";
+import { BGState, getState } from "../../Models/BGState";
 import { TILE_HEIGHT } from "./constants";
 
 const easystar = new Easystar.js();
