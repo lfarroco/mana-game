@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { Chara, createChara } from "../../../Components/chara";
-import { getState } from "../../../Models/BGState";
+import { getState } from "../../../Models/State";
 
 export function createMapSquads(scene: Phaser.Scene,): Chara[] {
 

@@ -14,7 +14,7 @@ import { WindowVec, windowVec } from "../../Models/Misc";
 import { Chara, createChara } from "../../Components/chara";
 import { emit, events, listeners } from "../../Models/Signals";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
-import { BGState, getState } from "../../Models/BGState";
+import { State, getState } from "../../Models/State";
 import { TILE_HEIGHT } from "./constants";
 
 const easystar = new Easystar.js();
@@ -39,7 +39,7 @@ export class BattlegroundScene extends Phaser.Scene {
   layerCollider: Phaser.Physics.Arcade.Collider | null = null;
   squadsCanMove: boolean = true;
   cursor: Phaser.GameObjects.Image | null = null;
-  state: BGState;
+  state: State;
 
   constructor() {
     super("BattlegroundScene");

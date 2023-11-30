@@ -1,4 +1,4 @@
-import { BGState, getState } from "./BGState";
+import { State, getState } from "./State";
 import { FORCE_ID_PLAYER } from "./Force";
 
 export type Squad = {
@@ -26,7 +26,7 @@ export const makeSquad = (id: string, force: string): Squad => ({
 	path: []
 });
 
-export function getDispatchableSquads(state: BGState) {
+export function getDispatchableSquads(state: State) {
 	return state.squads
 		.filter(squad => !squad.dispatched)
 		.filter(squad => squad.force === FORCE_ID_PLAYER);

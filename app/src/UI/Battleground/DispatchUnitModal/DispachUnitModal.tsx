@@ -1,7 +1,7 @@
 import Modal from 'react-bootstrap/Modal';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { Squad, getMembers } from '../../../Models/Squad';
-import { getState } from '../../../Models/BGState';
+import { getState } from '../../../Models/State';
 import { useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import { emit, emit_, events } from '../../../Models/Signals';

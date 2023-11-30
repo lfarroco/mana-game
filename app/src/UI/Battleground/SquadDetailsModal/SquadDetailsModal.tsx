@@ -1,6 +1,6 @@
 import Modal from 'react-bootstrap/Modal';
 import ListGroup from 'react-bootstrap/ListGroup';
-import { getState } from '../../../Models/BGState';
+import { getState } from '../../../Models/State';
 import { Button, ListGroupItem } from 'react-bootstrap';
 import { emit_, events } from '../../../Models/Signals';
 

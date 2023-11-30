@@ -3,7 +3,7 @@ import { emit, events, listeners } from "../../Models/Signals";
 import { preload } from "./preload";
 import { Unit, makeUnit } from "../../Models/Unit";
 import { SpineGameObject } from "@esotericsoftware/spine-phaser";
-import { getState } from "../../Models/BGState";
+import { getState } from "../../Models/State";
 
 const sqdA = [
 	{
