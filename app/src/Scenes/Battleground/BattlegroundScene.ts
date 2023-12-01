@@ -53,15 +53,8 @@ export class BattlegroundScene extends Phaser.Scene {
       [events.DISPATCH_SQUAD, this.dispatchSquad],
       [events.SQUADS_COLLIDED, this.handleSquadsCollided],
       [events.SKIRMISH_ENDED, (winner: string, loser: string) => {
-        this.scene.start();
-        this.squadsCanMove = false;
-
-        // we need to wait for the scene to start before we can access the charas
-        // might add a transition
-        this.time.delayedCall(200, () => {
-          this.squadsCanMove = true;
-          this.repel(winner, loser);
-        });
+        this.scene.wake();
+        this.repel(winner, loser);
       }]
     ]);
 
@@ -76,7 +69,9 @@ export class BattlegroundScene extends Phaser.Scene {
 
     if (!this.squadsCanMove) return
 
-    this.scene.stop()
+    this.scene.sleep()
+    // this.scene.setActive(false)
+    // this.scene.stop()
 
     emit(events.SKIRMISH_STARTED, squadAId, squadBId)
 
