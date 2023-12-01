@@ -25,7 +25,10 @@ export function createChara(
 
 	const body = scene.physics.add.image(
 		squad.position.x, squad.position.y, ""
-	).setName(squad.id).setSize(20, 20)
+	)
+		.setName(squad.id)
+		.setSize(20, 20)
+		.setVisible(false)
 
 	const clickZone = scene.add.zone(
 		squad.position.x,
