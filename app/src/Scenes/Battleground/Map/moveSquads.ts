@@ -6,15 +6,16 @@ const moveSquads = (scene: BattlegroundScene) => {
 	scene.state.squads.forEach(squad => {
 		if (squad.path.length < 1) return;
 
-		const sprite = scene.charas.find(c => c.id === squad.id)?.body
-		if (!sprite) return;
+
+		const chara = scene.charas.find(c => c.id === squad.id)
+		if (!chara) return;
 		const [next] = squad.path;
 
 		const nextTile = scene.layers?.background.getTileAt(next.x, next.y);
 		if (!nextTile) return;
 
 		const distance = Phaser.Math.Distance.BetweenPoints(
-			sprite.getCenter(),
+			chara.body.getCenter(),
 			{ x: nextTile.getCenterX(), y: nextTile.getCenterY() },
 		);
 
@@ -26,16 +27,21 @@ const moveSquads = (scene: BattlegroundScene) => {
 			const mnext = squad.path[0];
 			if (!mnext) {
 				// no more path, stop moving
-				sprite.body.setVelocity(0);
+				// TODO: emit event
+				chara.body.setVelocity(0);
+				chara.spine.animationState.setAnimation(0, "map-idle", true)
 			}
 
 			return;
 		}
 
-		scene.scene.scene.physics.moveTo(sprite, nextTile.getCenterX(), nextTile.getCenterY(), 30 * scene.state.speed);
+		scene.scene.scene.physics.moveTo(
+			chara.body,
+			nextTile.getCenterX(), nextTile.getCenterY(),
+			30 * scene.state.speed);
 
-		squad.position.x = sprite.body.x;
-		squad.position.y = sprite.body.y;
+		squad.position.x = chara.body.x;
+		squad.position.y = chara.body.y;
 	});
 }
 

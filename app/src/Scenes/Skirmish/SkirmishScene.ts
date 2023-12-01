@@ -117,41 +117,54 @@ class SkirmishScene extends Phaser.Scene {
 
 		const target = combat.units.filter(unit => unit.force !== currentUnit.force)[0]
 
-		console.log(currentUnit, target)
-
 		const isLeft = currentUnit.force === "PLAYER"
 
-		const activeUnitSprite = combat.charas.find(chara => chara.name === currentUnit.id)
-		const targetUnitSprite = combat.charas.find(chara => chara.name === target.id)
+		const activeChara = combat.charas.find(chara => chara.name === currentUnit.id)
+		const targetChara = combat.charas.find(chara => chara.name === target.id)
 
-		if (!activeUnitSprite || !targetUnitSprite) return
+		if (!activeChara || !targetChara) return
 
-		const sourceX = activeUnitSprite.x
-		const sourceY = activeUnitSprite.y
+		const sourceX = activeChara.x
+		const sourceY = activeChara.y
+
+		activeChara.animationState.setAnimation(0, "run", true)
 
 		this.tweens.add({
-			targets: activeUnitSprite,
-			x: targetUnitSprite.x + (isLeft ? -100 : 100),
-			y: targetUnitSprite.y,
+			targets: activeChara,
+			x: targetChara.x + (isLeft ? -100 : 100),
+			y: targetChara.y,
 			duration: 1000 / state.speed,
 			ease: 'Power2',
 			onComplete: () => {
 
-				this.tweens.add({
-					targets: activeUnitSprite,
-					x: sourceX,
-					y: sourceY,
-					duration: 1000 / state.speed,
-					ease: 'Power2',
-					onComplete: () => {
-						combat.turn++
-						//if (combat.turn < combat.initiative.length) {
-						if (combat.turn < 2) {
-							this.turn(combat)
-						} else {
-							emit(events.SKIRMISH_ENDED, combat.squads[0], combat.squads[1])
+				activeChara.animationState.setAnimation(0, "slash", false)
+				this.time.delayedCall(500 / state.speed, () => {
+
+					targetChara.animationState.setAnimation(0, "flinch", false)
+					this.time.delayedCall(500 / state.speed, () => {
+						targetChara.animationState.setAnimation(0, "idle", false)
+					});
+
+					activeChara.animationState.setAnimation(0, "run", false)
+
+					this.tweens.add({
+						targets: activeChara,
+						x: sourceX,
+						y: sourceY,
+						duration: 1000 / state.speed,
+						ease: 'Power2',
+						onComplete: () => {
+							activeChara.animationState.setAnimation(0, "idle", true)
+							combat.turn++
+							//if (combat.turn < combat.initiative.length) {
+							if (combat.turn < 2) {
+								this.turn(combat)
+							} else {
+								emit(events.SKIRMISH_ENDED, combat.squads[0], combat.squads[1])
+							}
 						}
-					}
+					});
+
 				});
 
 			}
