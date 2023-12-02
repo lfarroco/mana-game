@@ -2,45 +2,19 @@ import Events from 'events'
 import { WindowVec } from './Misc'
 
 export type Signals = {
-	PAUSE_PHYSICS: {
-		callback: () => void
-	},
-	RESUME_PHYSICS: {
-		callback: () => void
-	},
-	SQUAD_SELECTED: {
-		callback: (squadId: string) => void
-	},
-	CITY_SELECTED: {
-		callback: (cityId: string) => void
-	},
-	SELECT_SQUAD_MOVE_START: {
-		callback: (squadId: string) => void
-	},
-	SELECT_SQUAD_MOVE_DONE: {
-		callback: (squadId: string, target: WindowVec) => void
-	},
-	SELECT_SQUAD_MOVE_CANCEL: {
-		callback: (squadId: string) => void
-	},
-	TOGGLE_DISPATCH_MODAL: {
-		callback: (value: boolean) => void
-	},
-	TOGGLE_SQUAD_DETAILS_MODAL: {
-		callback: (value: boolean) => void
-	},
-	DISPATCH_SQUAD: {
-		callback: (squadId: string, cityId: string) => void
-	},
-	SQUADS_COLLIDED: {
-		callback: (squadId1: string, squadId2: string) => void
-	},
-	SKIRMISH_STARTED: {
-		callback: (squadId1: string, squadId2: string) => void
-	},
-	SKIRMISH_ENDED: {
-		callback: (winner: string, loser: string) => void
-	}
+	PAUSE_PHYSICS: () => void
+	RESUME_PHYSICS: () => void
+	SQUAD_SELECTED: (squadId: string) => void
+	CITY_SELECTED: (cityId: string) => void
+	SELECT_SQUAD_MOVE_START: (squadId: string) => void
+	SELECT_SQUAD_MOVE_DONE: (squadId: string, target: WindowVec) => void
+	SELECT_SQUAD_MOVE_CANCEL: (squadId: string) => void
+	TOGGLE_DISPATCH_MODAL: (value: boolean) => void
+	TOGGLE_SQUAD_DETAILS_MODAL: (value: boolean) => void
+	DISPATCH_SQUAD: (squadId: string, cityId: string) => void
+	SQUADS_COLLIDED: (squadId1: string, squadId2: string) => void
+	SKIRMISH_STARTED: (squadId1: string, squadId2: string) => void
+	SKIRMISH_ENDED: (winner: string, loser: string) => void
 }
 
 export const events: { [key in keyof Signals]: keyof Signals } = {
@@ -61,7 +35,7 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
 
 export const listen = <T extends keyof Signals>(
 	event: T,
-	callback: Signals[T]["callback"],
+	callback: Signals[T],
 ): (() => void) => {
 	//@ts-ignore
 	const emitter: Events = window.emitter;
@@ -75,7 +49,7 @@ export const listen = <T extends keyof Signals>(
 
 export const emit = <T extends keyof Signals>(
 	event: T,
-	...args: Parameters<Signals[T]["callback"]>
+	...args: Parameters<Signals[T]>
 ) => {
 	//@ts-ignore
 	const emitter: Events = window.emitter;
@@ -87,7 +61,7 @@ export const emit = <T extends keyof Signals>(
 
 export const emit_ = <T extends keyof Signals>(
 	event: T,
-	...args: Parameters<Signals[T]["callback"]>
+	...args: Parameters<Signals[T]>
 ) => {
 	return () => emit(event, ...args)
 }
@@ -98,7 +72,7 @@ export const emit_ = <T extends keyof Signals>(
 // 	[ "B", ()=>{ do stuff}],
 // ])
 export const listeners = <T extends keyof Signals>(
-	listeners: [T, Signals[T]["callback"]][]
+	listeners: [T, Signals[T]][]
 ) => {
 	listeners.forEach(([event, callback]) => {
 		listen(event, callback)
