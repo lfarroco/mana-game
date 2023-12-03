@@ -110,10 +110,7 @@ const Battleground = () => {
       <UnitsWindow />
       <SquadsWindow />
 
-      {dispatchableSquads.length > 0 && <DispatchUnitModal
-        visible={isDispatchModalVisible}
-        squads={dispatchableSquads}
-      />}
+      <DispatchUnitModal />
       {
         selectedEntityInfo?.type === "squad" && <SquadDetailsModal
           visible={isSquadDetailsModalVisible}
