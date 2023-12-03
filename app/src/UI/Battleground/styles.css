@@ -13,14 +13,13 @@ header {
   top: 0;
   height: 50px;
   width: 100%;
-  background: rgba(0, 0, 0, 0.3) !important;
 }
 
 footer {
   min-height: 100px;
   position: fixed;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.3) !important;
+  display: block;
 }
 
 .content {

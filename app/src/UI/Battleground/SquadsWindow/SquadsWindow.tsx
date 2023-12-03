@@ -36,7 +36,6 @@ function SquadsWindow() {
 		<Modal.Body>
 			{isVisible && <Tabs
 				defaultActiveKey={FORCE_ID_PLAYER}
-				className="mb-3"
 			>
 				<Tab eventKey={FORCE_ID_PLAYER} title="Allied">
 					{squadList(squads, selected, selectedSquadId, FORCE_ID_PLAYER, setSelectedSquadId)}
