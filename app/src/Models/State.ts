@@ -3,7 +3,7 @@ import { FORCE_ID_PLAYER, Force, makeForce } from "./Force";
 import { Squad, makeSquad } from "./Squad";
 import { Unit, makeUnit } from "./Unit";
 
-export const initialState: State = {
+export const initialState = (): State => ({
 	debug: true,
 	speed: 4,
 	forces: [
@@ -36,7 +36,7 @@ export const initialState: State = {
 	],
 	cities: [],
 	selectedEntity: null,
-};
+});
 
 export type State = {
 	debug: boolean;

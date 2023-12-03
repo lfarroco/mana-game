@@ -14,7 +14,9 @@ export type Signals = {
 	DISPATCH_SQUAD: (squadId: string, cityId: string) => void
 	SQUADS_COLLIDED: (squadId1: string, squadId2: string) => void
 	SKIRMISH_STARTED: (squadId1: string, squadId2: string) => void
-	SKIRMISH_ENDED: (winner: string, loser: string) => void
+	SKIRMISH_ENDED: (winner: string, loser: string) => void,
+	TOGGLE_UNITS_WINDOW: (value: boolean) => void,
+	TOGGLE_SQUADS_WINDOW: (value: boolean) => void,
 }
 
 export const events: { [key in keyof Signals]: keyof Signals } = {
@@ -31,6 +33,8 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
 	TOGGLE_SQUAD_DETAILS_MODAL: "TOGGLE_SQUAD_DETAILS_MODAL",
 	SKIRMISH_STARTED: "SKIRMISH_STARTED",
 	SKIRMISH_ENDED: "SKIRMISH_ENDED",
+	TOGGLE_UNITS_WINDOW: "TOGGLE_UNITS_WINDOW",
+	TOGGLE_SQUADS_WINDOW: "TOGGLE_SQUADS_WINDOW",
 }
 
 export const listen = <T extends keyof Signals>(

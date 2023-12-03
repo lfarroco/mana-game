@@ -1,25 +1,32 @@
 import './SquadsWindow.css';
 import Modal from 'react-bootstrap/Modal';
 import ListGroup from 'react-bootstrap/ListGroup';
-import { Link, useParams } from 'react-router-dom';
 import { Squad } from '../../../Models/Squad';
 import { getState } from '../../../Models/State';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from '../../../Models/Force';
+import { SetStateAction, useEffect, useState } from 'react';
+import { events, listeners } from '../../../Models/Signals';
+import { Button } from 'react-bootstrap';
 
 function SquadsWindow() {
 
 	let squads = getState().squads
 
-	const { squadId } = useParams()
+	const [isVisible, setVisible] = useState(false);
+	const [selectedSquadId, setSelectedSquadId] = useState(squads[0].id)
+	useEffect(() => {
+		listeners([
+			[events.TOGGLE_SQUADS_WINDOW, (value: boolean) => { setVisible(value); }],
+		])
+	}, []);
 
-	let selectedSquad = squadId || squads[0].id
-
-	const selected = squads.find(u => u.id === selectedSquad)
+	const selected = squads.find(u => u.id === selectedSquadId)
 
 	return <Modal
-		show={true}
+		show={isVisible}
+		onHide={() => { setVisible(false) }}
 		size={"xl"}
 		id="squads-window"
 	>
@@ -27,23 +34,25 @@ function SquadsWindow() {
 			<Modal.Title>Squads List</Modal.Title>
 		</Modal.Header>
 		<Modal.Body>
-			<Tabs
+			{isVisible && <Tabs
 				defaultActiveKey={FORCE_ID_PLAYER}
 				className="mb-3"
 			>
 				<Tab eventKey={FORCE_ID_PLAYER} title="Allied">
-					{squadList(squads, selected, selectedSquad, FORCE_ID_PLAYER)}
+					{squadList(squads, selected, selectedSquadId, FORCE_ID_PLAYER, setSelectedSquadId)}
 				</Tab>
 				<Tab eventKey={FORCE_ID_CPU} title="Enemy">
-					{squadList(squads, selected, selectedSquad, FORCE_ID_CPU)}
+					{squadList(squads, selected, selectedSquadId, FORCE_ID_CPU, setSelectedSquadId)}
 				</Tab>
-			</Tabs>
+			</Tabs>}
 
 		</Modal.Body>
 		<Modal.Footer>
-			<Link to="/battleground" className="btn btn-secondary">
+			<Button
+				onClick={() => { setVisible(false) }}
+				className="btn btn-secondary">
 				Close
-			</Link>
+			</Button>
 		</Modal.Footer>
 	</Modal>
 }
@@ -54,44 +63,49 @@ function selectedDetails(squad: Squad) {
 	</pre>
 }
 
-const squadList = (squads: Squad[], selected: Squad | undefined, selectedSquad: string, force: string) => <div
-	className="row"
-	id="squads-window">
-	<div className="col col-sm-4 p-2">
+const squadList = (
+	squads: Squad[],
+	selected: Squad | undefined, selectedSquad: string, force: string,
+	setSelectedSquad: { (value: SetStateAction<string>): void; (value: SetStateAction<string>): void; (arg0: string): void; }
+) => {
+	return <div
+		className="row"
+		id="squads-window">
+		<div className="col col-sm-4 p-2">
 
-		<ListGroup
-			activeKey={selectedSquad}
-		>
-			{
-				squads
-					.filter(s => s.force === force)
-					.map(squad =>
+			<ListGroup
+				activeKey={selectedSquad}
+			>
+				{
+					squads
+						.filter(s => s.force === force)
+						.map(squad =>
 
-						<Link
-							to={`/battleground/squads/${squad.id}`}
-							key={squad.id}
-						>
 							<ListGroup.Item
 								action
 								active={squad.id === selectedSquad}
+								onClick={
+									() => {
+										setSelectedSquad(squad.id)
+									}
+								}
 							>
 								{squad.name}
 							</ListGroup.Item>
 
-						</Link>
-					)
-			}
-		</ListGroup>
-	</div>
-
-	<div className='col col-sm-8'>
-		<div className='card p-2'>
-			{
-				selected && selectedDetails(selected)
-			}
+						)
+				}
+			</ListGroup>
 		</div>
-	</div>
-</div >
 
+		<div className='col col-sm-8'>
+			<div className='card p-2'>
+				{
+					selected && selectedDetails(selected)
+				}
+			</div>
+		</div>
+	</div >
+}
 
 export default SquadsWindow;
