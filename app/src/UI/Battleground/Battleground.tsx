@@ -2,18 +2,16 @@ import './styles.css';
 import UnitsWindow from './UnitsWindow/UnitsWindow';
 import SquadsWindow from './SquadsWindow/SquadsWindow';
 import { Button, ButtonGroup } from 'react-bootstrap';
-import { Link, Route, Routes } from 'react-router-dom'; // TODO: remove react router
 import { useEffect, useState } from 'react';
 import { getState } from '../../Models/State';
 import SelectedSquad from './SelectedEntity/SelectedSquad';
 import { Squad } from '../../Models/Squad';
 import SelectedCity from './SelectedEntity/SelectedCity';
 import { City } from '../../Models/City';
-import { listeners, events, emit } from "../../Models/Signals"
+import { listeners, events, emit, emit_ } from "../../Models/Signals"
 import DispatchUnitModal from './DispatchUnitModal/DispachUnitModal';
 import SquadDetailsModal from './SquadDetailsModal/SquadDetailsModal';
 import { getDispatchableSquads } from '../../Models/Squad';
-
 
 const Battleground = () => {
 
@@ -42,7 +40,7 @@ const Battleground = () => {
         [events.SELECT_SQUAD_MOVE_DONE, () => { setIsSelectingMoveTarget(false); }],
         [events.SELECT_SQUAD_MOVE_CANCEL, () => { setIsSelectingMoveTarget(false); }],
         [events.TOGGLE_DISPATCH_MODAL, (value: boolean) => { setDispatchModalVisible(value); }],
-        [events.TOGGLE_SQUAD_DETAILS_MODAL, (value: boolean) => { setSquadDetailsModalVisible(value); }]
+        [events.TOGGLE_SQUAD_DETAILS_MODAL, (value: boolean) => { setSquadDetailsModalVisible(value); }],
       ]
     )
   }, []);
@@ -57,19 +55,19 @@ const Battleground = () => {
             <Button>
               Quests
             </Button>
-            <Link
-              to="units"
+            <Button
+              onClick={emit_(events.TOGGLE_UNITS_WINDOW, true)}
               className="btn btn-secondary col-12"
             >
               Units
-            </Link>
+            </Button>
 
-            <Link
-              to="squads"
+            <Button
+              onClick={emit_(events.TOGGLE_SQUADS_WINDOW, true)}
               className="btn btn-secondary col-12"
             >
               Squads
-            </Link>
+            </Button>
             <Button>
               Log
             </Button>
@@ -109,12 +107,9 @@ const Battleground = () => {
         </div>
       </footer>
 
-      <Routes>
-        <Route path="units" element={<UnitsWindow />} />
-        <Route path="units/:unitId" element={<UnitsWindow />} />
-        <Route path="squads" element={<SquadsWindow />} />
-        <Route path="squads/:squadId" element={<SquadsWindow />} />
-      </Routes>
+      <UnitsWindow />
+      <SquadsWindow />
+
       {dispatchableSquads.length > 0 && <DispatchUnitModal
         visible={isDispatchModalVisible}
         squads={dispatchableSquads}

@@ -1,47 +1,19 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-//import reportWebVitals from './reportWebVitals';
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
-import Title from './UI/Title/Title';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import Battleground from './UI/Battleground/Battleground';
 import events from 'events';
 import BattlegroundScene from './Scenes/Battleground/BattlegroundScene';
 import SkirmishScene from './Scenes/Skirmish/SkirmishScene';
-import { initialState } from './Models/State';
+import { State, initialState } from './Models/State';
+import { UI } from './UI/UI';
 
 const eventEmitter = new events.EventEmitter();
 
-const state = initialState
-
-//@ts-ignore
-window.state = state;
-
-//@ts-ignore
-window.emitter = eventEmitter;
-
-const root = ReactDOM.createRoot(
-  document.getElementById('ui') as HTMLElement
-);
-
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Title />,
-  },
-  {
-    path: "/battleground/*",
-    element: <Battleground />,
+declare global {
+  interface Window {
+    state: State
+    emitter: events.EventEmitter
   }
-]);
-
-root.render(
-  <RouterProvider router={router} />
-);
+}
+window.state = initialState();
+window.emitter = eventEmitter;
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
@@ -58,8 +30,6 @@ const game = new Phaser.Game({
   physics: {
     default: 'arcade',
   },
-  scene: [
-  ],
   plugins: {
     scene: [
       //@ts-ignore
@@ -78,3 +48,4 @@ window.addEventListener('resize', () => {
 
 });
 
+UI();

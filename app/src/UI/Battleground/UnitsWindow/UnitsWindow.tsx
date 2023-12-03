@@ -2,47 +2,57 @@ import './UnitsWindow.css';
 import { Unit } from '../../../Models/Unit';
 import Modal from 'react-bootstrap/Modal';
 import ListGroup from 'react-bootstrap/ListGroup';
-import { Link, useParams } from 'react-router-dom';
-import { Table } from 'react-bootstrap';
+import { Button, Table } from 'react-bootstrap';
 import { getState } from '../../../Models/State';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from '../../../Models/Force';
+import { useEffect, useState } from 'react';
+import { emit_, events, listeners } from '../../../Models/Signals';
 
 function UnitsWindow() {
 
 	const units = getState().units
 
-	const { unitId } = useParams()
+	const [isVisible, setIsVisible] = useState(false);
+	const [selectedUnit, setSelectedUnit] = useState(units[0].id)
 
-	const selectedUnit = unitId || units[0].id
+	useEffect(() => {
+		listeners([
+			[events.TOGGLE_UNITS_WINDOW, (value: boolean) => { setIsVisible(value); }],
+		])
+	}, []);
 
 	const selected = units.find(u => u.id === selectedUnit)
 
-	return <Modal show={true} size={"xl"}
-
+	return <Modal
+		show={isVisible}
+		onHide={() => { setIsVisible(false) }}
+		size={"xl"}
 		id="units-window"
 	>
 		<Modal.Header closeButton>
 			<Modal.Title>Units List</Modal.Title>
 		</Modal.Header>
-		<Modal.Body>
+		<Modal.Body>{isVisible &&
 			<Tabs
 				defaultActiveKey="player"
 				className="mb-3"
 			>
 				<Tab eventKey="player" title="Allied">
-					{unitList(units, selected, selectedUnit, FORCE_ID_PLAYER)}
+					{unitList(units, selected, selectedUnit, FORCE_ID_PLAYER, setSelectedUnit)}
 				</Tab>
 				<Tab eventKey="cpu" title="Enemy">
-					{unitList(units, selected, selectedUnit, FORCE_ID_CPU)}
+					{unitList(units, selected, selectedUnit, FORCE_ID_CPU, setSelectedUnit)}
 				</Tab>
-			</Tabs>
+			</Tabs>}
 		</Modal.Body>
 		<Modal.Footer>
-			<Link to="/battleground" className="btn btn-secondary">
+			<Button
+				onClick={() => setIsVisible(false)}
+				className="btn btn-secondary">
 				Close
-			</Link>
+			</Button>
 		</Modal.Footer>
 	</Modal>
 
@@ -62,26 +72,30 @@ function selectedDetails(unit: Unit) {
 	</Table>
 }
 
-const unitList = (units: Unit[], selected: Unit | undefined, selectedUnit: string, force: string) => <div
+const unitList = (
+	units: Unit[],
+	selected: Unit | undefined,
+	selectedUnit: string,
+	force: string,
+	setSelectedUnit: (id: string) => void = () => { }
+) => <div
 	className="row"
 >
-	<div className="col col-sm-4">
+		<div className="col col-sm-4">
 
-		<ListGroup
-			activeKey={selectedUnit}
-		>
-			{
-				units
-					.filter(u => u.force === force)
-					.map(unit =>
+			<ListGroup
+				activeKey={selectedUnit}
+			>
+				{
+					units
+						.filter(u => u.force === force)
+						.map(unit =>
 
-						<Link to={`/battleground/units/${unit.id}`}
-
-							key={unit.id}
-						>
 							<ListGroup.Item
 								action
 								active={unit.id === selectedUnit}
+
+								onClick={() => setSelectedUnit(unit.id)}
 							>
 								<div className="row">
 									<img
@@ -93,21 +107,19 @@ const unitList = (units: Unit[], selected: Unit | undefined, selectedUnit: strin
 								</div>
 
 							</ListGroup.Item>
-
-						</Link>
-					)
-			}
-		</ListGroup>
-	</div>
-
-	<div className='col col-sm-8'>
-		<div className='card p-2'>
-			{
-				selected && selectedDetails(selected)
-			}
+						)
+				}
+			</ListGroup>
 		</div>
-	</div>
-</div >
+
+		<div className='col col-sm-8'>
+			<div className='card p-2'>
+				{
+					selected && selectedDetails(selected)
+				}
+			</div>
+		</div>
+	</div >
 
 
 export default UnitsWindow;
