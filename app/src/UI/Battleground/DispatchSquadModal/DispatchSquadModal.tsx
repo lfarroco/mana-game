@@ -14,7 +14,7 @@ const dispatch = (squad: Squad) => () => {
 		emit(events.TOGGLE_DISPATCH_MODAL, false)
 		emit(events.SQUAD_SELECTED, squad.id)
 	} else {
-		console.error("No selected entity")
+		console.error("No selected city")
 	}
 }
 

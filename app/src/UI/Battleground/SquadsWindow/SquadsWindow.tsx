@@ -1,14 +1,14 @@
 import './SquadsWindow.css';
 import Modal from 'react-bootstrap/Modal';
 import ListGroup from 'react-bootstrap/ListGroup';
-import { Squad } from '../../../Models/Squad';
+import { Squad, getMembers } from '../../../Models/Squad';
 import { getState } from '../../../Models/State';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from '../../../Models/Force';
 import { SetStateAction, useEffect, useState } from 'react';
 import { events, listeners } from '../../../Models/Signals';
-import { Button } from 'react-bootstrap';
+import { Button, Table } from 'react-bootstrap';
 
 function SquadsWindow() {
 
@@ -38,10 +38,10 @@ function SquadsWindow() {
 				defaultActiveKey={FORCE_ID_PLAYER}
 			>
 				<Tab eventKey={FORCE_ID_PLAYER} title="Allied">
-					{squadList(squads, selected, selectedSquadId, FORCE_ID_PLAYER, setSelectedSquadId)}
+					{squadTable(squads, selected, selectedSquadId, FORCE_ID_PLAYER, setSelectedSquadId)}
 				</Tab>
 				<Tab eventKey={FORCE_ID_CPU} title="Enemy">
-					{squadList(squads, selected, selectedSquadId, FORCE_ID_CPU, setSelectedSquadId)}
+					{squadTable(squads, selected, selectedSquadId, FORCE_ID_CPU, setSelectedSquadId)}
 				</Tab>
 			</Tabs>}
 
@@ -62,49 +62,52 @@ function selectedDetails(squad: Squad) {
 	</pre>
 }
 
-const squadList = (
+const squadTable = (
 	squads: Squad[],
 	selected: Squad | undefined, selectedSquad: string, force: string,
 	setSelectedSquad: { (value: SetStateAction<string>): void; (value: SetStateAction<string>): void; (arg0: string): void; }
 ) => {
-	return <div
-		className="row"
-		id="squads-window">
-		<div className="col col-sm-4 p-2">
+	return <Table striped bordered hover size="sm">
+		<thead>
+			<tr>
+				<th>Morale</th>
+				<th>Members</th>
+			</tr>
+		</thead>
+		<tbody>
+			{
+				squads
+					.filter(s => s.force === force)
+					.map(squad => <tr
+						key={squad.id}
+					>
+						<td className="col-1">
+							{squad.morale}</td>
+						<td className="col-11">
+							{
+								getMembers(squad).map(unit =>
+									<img
+										key={`squad-member-${unit.id}`}
+										className={
+											"img-fluid portrait-sm"
+											+ (unit.id === squad.leader ? " leader" : "")
+										}
+										src={`assets/jobs/${unit.job}/portrait.png`}
+										alt={unit.name}
+										onClick={
+											() => {
 
-			<ListGroup
-				activeKey={selectedSquad}
-			>
-				{
-					squads
-						.filter(s => s.force === force)
-						.map(squad =>
+											}
+										}
+									/>
+								)
+							}
+						</td>
+					</tr>)
+			}
+		</tbody>
 
-							<ListGroup.Item
-								action
-								active={squad.id === selectedSquad}
-								onClick={
-									() => {
-										setSelectedSquad(squad.id)
-									}
-								}
-							>
-								{squad.name}
-							</ListGroup.Item>
-
-						)
-				}
-			</ListGroup>
-		</div>
-
-		<div className='col col-sm-8'>
-			<div className='card p-2'>
-				{
-					selected && selectedDetails(selected)
-				}
-			</div>
-		</div>
-	</div >
+	</Table>
 }
 
 export default SquadsWindow;
