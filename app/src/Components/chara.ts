@@ -3,6 +3,7 @@ import { Squad, getMembers } from "../Models/Squad";
 import { Unit } from "../Models/Unit";
 import { SpineGameObject } from "@esotericsoftware/spine-phaser";
 import { TILE_HEIGHT } from "../Scenes/Battleground/constants";
+import "./portrait.css"
 
 export type Chara = {
 	id: string;

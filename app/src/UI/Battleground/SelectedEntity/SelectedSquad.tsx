@@ -24,8 +24,7 @@ const SelectedSquad = ({
 				members.map(unit =>
 					<img
 						key={`squad-member-${unit.id}`}
-						style={{ maxHeight: '100px' }}
-						className="img-fluid"
+						className="img-fluid portrait-sm"
 						src={`assets/jobs/${unit.job}/portrait.png`}
 						alt={unit.name}
 					/>

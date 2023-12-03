@@ -124,10 +124,23 @@ export function importMapObjects(state: State, map: Phaser.Tilemaps.Tilemap) {
 			const force = state.forces.find(force => force.id === sqd.force);
 			if (!force) throw new Error("force is undefined");
 
+			const squadId = uuid.v4();
+
+			const units = sqd.members.map(spec => (
+				{
+					...randomUnit(),
+					id: spec.id,
+					job: spec.job,
+					force: force.id,
+					squad: squadId
+				}
+			))
+
 			const newSquad: Squad = {
-				id: uuid.v4(),
-				name: uuid.v4(),
+				id: squadId,
+				name: uuid.v4().slice(0, 12),
 				force: force.id,
+				leader: units[0].id,
 				dispatched: true,
 				morale: 100,
 				position: {
@@ -137,16 +150,6 @@ export function importMapObjects(state: State, map: Phaser.Tilemaps.Tilemap) {
 				members: sqd.members.map(spec => spec.id),
 				path: []
 			};
-
-			const units = sqd.members.map(spec => (
-				{
-					...randomUnit(),
-					id: spec.id,
-					job: spec.job,
-					force: force.id,
-					squad: newSquad.id
-				}
-			))
 
 			state.squads.push(newSquad);
 			force.squads.push(newSquad.id);

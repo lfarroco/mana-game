@@ -1,0 +1,9 @@
+.portrait-sm {
+	max-height: 80px;
+	border: gray solid 3px;
+	border-radius: 10%;
+}
+
+.portrait-sm.leader {
+	border: #FFD700 solid 3px;
+}

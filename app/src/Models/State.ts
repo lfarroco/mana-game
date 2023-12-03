@@ -20,11 +20,13 @@ export const initialState = (): State => ({
 		{
 			...makeSquad("s1", FORCE_ID_PLAYER),
 			name: "squad-1",
+			leader: "u1",
 			members: ["u1", "u2"],
 		},
 		{
 			...makeSquad("s2", FORCE_ID_PLAYER),
 			name: "squad-2",
+			leader: "u3",
 			members: ["u3", "u4"]
 		},
 	],

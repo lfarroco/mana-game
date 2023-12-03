@@ -4,6 +4,7 @@ import { FORCE_ID_PLAYER } from "./Force";
 export type Squad = {
 	path: { x: number; y: number }[]
 	id: string,
+	leader: string,
 	name: string,
 	force: string,
 	dispatched: boolean,
@@ -19,6 +20,7 @@ export const makeSquad = (id: string, force: string): Squad => ({
 	id,
 	name: "",
 	force,
+	leader: "",
 	dispatched: false,
 	morale: 100,
 	position: { x: 0, y: 0 },
