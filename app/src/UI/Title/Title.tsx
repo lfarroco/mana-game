@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom"
+import { Button } from "react-bootstrap"
 
 const Title = () => {
 
@@ -7,34 +7,28 @@ const Title = () => {
 
 			<div className='row'>
 
-
 				<div className='col col-sm-2 offset-4'>
 
 					<h1> Title </h1>
 
-					<Link
-						to="/battleground"
+					<Button
 						className="btn btn-primary col-12"
 					>
 						Start
-					</Link>
-					<Link
-						to="/options"
+					</Button>
+					<Button
 						className="btn btn-default col-12"
 					>
 						Options
-					</Link>
-					<Link
-						to="/credits"
+					</Button>
+					<Button
 						className="btn btn-default col-12"
 					>
 						Credits
-					</Link>
-
+					</Button>
 				</div>
 			</div>
 		</div>
-
 	)
 }
 
