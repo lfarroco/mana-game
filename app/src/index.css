@@ -1,13 +1,50 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Courier New', Courier, monospace;
+  font-family: 'Philosopher', sans-serif;
+}
+
+header .content,
+footer .content {
+  background: linear-gradient(90deg,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.2) 31%,
+      rgba(0, 0, 0, 0.2) 76%,
+      rgba(0, 0, 0, 0) 100%);
+}
+
+.modal-content {
+  background-color: rgba(0, 0, 0, 0.2);
+  color: #fff;
+  border: #fff;
+  border-style: ridge;
+  border-width: 3px;
+}
+
+.modal-header {
+  border-bottom: #dad3ca solid 2px;
+}
+
+.modal-footer {
+  border-top: #dad3ca solid 2px;
 }
 
 .modal .list-group {
   min-height: 200px;
-  max-height: 250px;
   overflow: scroll;
+}
+
+.modal .btn {
+  background-color: transparent !important;
+  box-shadow: none;
+  color: #fff;
+  border: none !important;
+}
+
+.modal .btn:hover,
+.modal .btn-primary:ho3er {
+  background-color: transparent !important;
+  box-shadow: none !important;
 }
 
 canvas {
@@ -21,4 +58,24 @@ canvas {
 
 #ui {
   position: relative;
+}
+
+/* custom bootstrap theme (fantasy rpg) */
+/* warcraft-3 style button */
+.btn {
+  min-width: 150px;
+  padding: 4px 10px;
+  transition: all 0.5s ease;
+  font-size: 24px;
+  background-color: #00000022 !important;
+  border: none;
+}
+
+.btn:hover {
+  text-shadow: 0 0 20px #fff;
+}
+
+
+.nav-tabs .nav-link {
+  color: #fff;
 }

@@ -37,7 +37,6 @@ function UnitsWindow() {
 		<Modal.Body>{isVisible &&
 			<Tabs
 				defaultActiveKey="player"
-				className="mb-3"
 			>
 				<Tab eventKey="player" title="Allied">
 					{unitList(units, selected, selectedUnit, FORCE_ID_PLAYER, setSelectedUnit)}
@@ -81,43 +80,40 @@ const unitList = (
 ) => <div
 	className="row"
 >
-		<div className="col col-sm-4">
-
-			<ListGroup
-				activeKey={selectedUnit}
-			>
-				{
-					units
-						.filter(u => u.force === force)
-						.map(unit =>
-
-							<ListGroup.Item
-								action
-								active={unit.id === selectedUnit}
-
-								onClick={() => setSelectedUnit(unit.id)}
-							>
-								<div className="row">
-									<img
-										className="portrait col-sm-3"
-										src={`/assets/jobs/${unit.job}/portrait.png`}
-										alt="job"
-									/>
-									{unit.name}
-								</div>
-
-							</ListGroup.Item>
-						)
-				}
-			</ListGroup>
-		</div>
-
-		<div className='col col-sm-8'>
-			<div className='card p-2'>
-				{
-					selected && selectedDetails(selected)
-				}
-			</div>
+		<div className="col col-sm-12">
+			<Table striped bordered hover size="sm">
+				<thead>
+					<tr>
+						<th style={{ width: 60 }} ></th>
+						<th>Name</th>
+						<th>Job</th>
+					</tr>
+				</thead>
+				<tbody>
+					{
+						units
+							.filter(u => u.force === force)
+							.map(unit =>
+								<tr
+									key={unit.id}
+									className={unit.id === selectedUnit ? "selected" : ""}
+									onClick={() => setSelectedUnit(unit.id)}
+								>
+									<td>
+										<img
+											style={{ width: 50 }}
+											className="col-sm-3"
+											src={`/assets/jobs/${unit.job}/portrait.png`}
+											alt="job"
+										/>
+									</td>
+									<td>{unit.name}</td>
+									<td>{unit.job}</td>
+								</tr>
+							)
+					}
+				</tbody>
+			</Table>
 		</div>
 	</div >
 

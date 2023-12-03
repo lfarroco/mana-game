@@ -17,7 +17,8 @@ const SelectedSquad = ({
 	const members = getMembers(squad)
 
 	return <div className="row" id="selected-entity">
-		<div className="col col-10"
+
+		<div className="col col-6"
 		>
 			{
 				members.map(unit =>
@@ -31,13 +32,13 @@ const SelectedSquad = ({
 				)
 			}
 		</div>
-		<div className="col col-2">
+		<div className="col col-4 mt-4">
 			{!isSelectingMoveTarget && <>
 				{isPlayerControlled && <Button
 					onClick={() => {
 						Signals.emit(Signals.events.SELECT_SQUAD_MOVE_START, squad.id)
 					}}
-					className="col-12">
+				>
 					Move
 				</Button>}
 				<Button
@@ -46,7 +47,7 @@ const SelectedSquad = ({
 						Signals.emit(Signals.events.TOGGLE_SQUAD_DETAILS_MODAL, true)
 
 					}}
-					className="col-12">
+				>
 					Details
 				</Button>
 			</>

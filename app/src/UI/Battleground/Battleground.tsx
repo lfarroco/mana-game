@@ -49,8 +49,8 @@ const Battleground = () => {
 
   return (
     <>
-      <header className="card">
-        <div className="content">
+      <header>
+        <div className="content text-center">
           <ButtonGroup>
             <Button>
               Quests
@@ -87,7 +87,7 @@ const Battleground = () => {
           </ButtonGroup>
         </div>
       </header>
-      <footer className="block p-2">
+      <footer className="block">
         <div className="content">
           <div className="row">
             <div id="tooltip" className="col text-center text-light">

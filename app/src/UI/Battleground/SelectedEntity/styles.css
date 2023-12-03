@@ -5,9 +5,9 @@
 
 #selected-entity img {
 	margin-right: 6px;
-	border-width: 3px;
+	border-width: 1px;
 	border-style: solid;
-	outline: #565656 solid 2px;
-	border-radius: 50%;
-	border-color: #857939;
+	border-radius: 10%;
+	border-color: #fff;
+	height: 100px;
 }
