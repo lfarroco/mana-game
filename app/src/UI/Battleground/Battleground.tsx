@@ -9,7 +9,7 @@ import { Squad } from '../../Models/Squad';
 import SelectedCity from './SelectedEntity/SelectedCity';
 import { City } from '../../Models/City';
 import { listeners, events, emit, emit_ } from "../../Models/Signals"
-import DispatchUnitModal from './DispatchUnitModal/DispachUnitModal';
+import DispatchSquadModal from './DispatchSquadModal/DispatchSquadModal';
 import SquadDetailsModal from './SquadDetailsModal/SquadDetailsModal';
 import { getDispatchableSquads } from '../../Models/Squad';
 
@@ -20,8 +20,6 @@ const Battleground = () => {
   const [selectedEntityInfo, setSelectedEntity] = useState<{ type: string, id: string } | null>(null);
   const [isPaused, setPaused] = useState(false);
   const [isSelectingMoveTarget, setIsSelectingMoveTarget] = useState(false);
-  const [isDispatchModalVisible, setDispatchModalVisible] = useState(false);
-  const [isSquadDetailsModalVisible, setSquadDetailsModalVisible] = useState(false);
 
   const selectedEntity = selectedEntityInfo && (
     selectedEntityInfo.type === "squad" ? state.squads.find(squad => squad.id === selectedEntityInfo.id) :
@@ -39,13 +37,9 @@ const Battleground = () => {
         [events.SELECT_SQUAD_MOVE_START, () => { setIsSelectingMoveTarget(true); }],
         [events.SELECT_SQUAD_MOVE_DONE, () => { setIsSelectingMoveTarget(false); }],
         [events.SELECT_SQUAD_MOVE_CANCEL, () => { setIsSelectingMoveTarget(false); }],
-        [events.TOGGLE_DISPATCH_MODAL, (value: boolean) => { setDispatchModalVisible(value); }],
-        [events.TOGGLE_SQUAD_DETAILS_MODAL, (value: boolean) => { setSquadDetailsModalVisible(value); }],
       ]
     )
   }, []);
-
-  const dispatchableSquads = getDispatchableSquads(state)
 
   return (
     <>
@@ -110,13 +104,8 @@ const Battleground = () => {
       <UnitsWindow />
       <SquadsWindow />
 
-      <DispatchUnitModal />
-      {
-        selectedEntityInfo?.type === "squad" && <SquadDetailsModal
-          visible={isSquadDetailsModalVisible}
-          id={selectedEntityInfo.id}
-        />
-      }
+      <DispatchSquadModal />
+      <SquadDetailsModal />
     </>
   );
 }
