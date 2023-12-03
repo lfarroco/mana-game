@@ -12,6 +12,8 @@ export type Chara = {
 	spine: SpineGameObject
 }
 
+export const CHARA_SCALE_X = 0.1;
+
 export function createChara(
 	scene: Phaser.Scene,
 	squad: Squad,
@@ -71,7 +73,7 @@ function createSpineBody(scene: Phaser.Scene, leader: Unit, squad: Squad) {
 
 	const spine: SpineGameObject = scene
 		.add.spine(squad.position.x, squad.position.y, "spine-data", "spine-atlas")
-	spine.scale = 0.1;
+	spine.scale = CHARA_SCALE_X;
 
 	spine.skeleton.setSkinByName(leader.job);
 	spine.animationState.setAnimation(0, "map-idle", true);

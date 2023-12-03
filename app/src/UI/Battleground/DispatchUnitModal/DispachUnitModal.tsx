@@ -2,9 +2,9 @@ import Modal from 'react-bootstrap/Modal';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { Squad, getMembers } from '../../../Models/Squad';
 import { getState } from '../../../Models/State';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
-import { emit, emit_, events } from '../../../Models/Signals';
+import { emit, emit_, events, listeners } from '../../../Models/Signals';
 
 const dispatch = (squad: Squad) => () => {
 
@@ -18,17 +18,24 @@ const dispatch = (squad: Squad) => () => {
 	}
 }
 
-const onClose = emit_(events.TOGGLE_DISPATCH_MODAL, false)
+function DispatchUnitModal() {
 
-function DispatchUnitModal({ visible, squads }: { visible: boolean, squads: Squad[] }) {
+	const squads = getState().squads.filter(s => !s.dispatched)
 
+	const [isVisible, setIsVisible] = useState(false);
 	const [selectedSquad, setSelectedSquad] = useState(squads[0].id)
+
+	useEffect(() => {
+		listeners([
+			[events.TOGGLE_DISPATCH_MODAL, (value: boolean) => { setIsVisible(value); }],
+		])
+	}, []);
 
 	const selected = squads.find(u => u.id === selectedSquad)
 
 	return <Modal
-		show={visible && squads.length > 0}
-		onHide={onClose}
+		show={isVisible && squads.length > 0}
+		onHide={() => { setIsVisible(false) }}
 		size={"xl"}
 		id="squads-window"
 	>
@@ -43,7 +50,7 @@ function DispatchUnitModal({ visible, squads }: { visible: boolean, squads: Squa
 					<ListGroup
 						activeKey={selectedSquad}
 					>
-						{visible &&
+						{isVisible &&
 							squads.map(squad => {
 
 								const members = getMembers(squad)
@@ -73,18 +80,16 @@ function DispatchUnitModal({ visible, squads }: { visible: boolean, squads: Squa
 				</div>
 
 				<div className='col col-sm-4'>
-					<div className='card p-2'>
-						{
-							selected && selectedDetails(selected)
-						}
-					</div>
+					{
+						selected && selectedDetails(selected)
+					}
 				</div>
 			</div >
 		</Modal.Body>
 		<Modal.Footer>
 			<Button
 				className="btn btn-secondary"
-				onClick={onClose}
+				onClick={emit_(events.TOGGLE_DISPATCH_MODAL, false)}
 			>
 				Close
 			</Button>

@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
+import { CHARA_SCALE_X } from "../../../Components/chara";
 
 const moveSquads = (scene: BattlegroundScene) => {
 
@@ -35,10 +36,16 @@ const moveSquads = (scene: BattlegroundScene) => {
 			return;
 		}
 
-		scene.scene.scene.physics.moveTo(
+		scene.physics.moveTo(
 			chara.body,
 			nextTile.getCenterX(), nextTile.getCenterY(),
 			30 * scene.state.speed);
+
+		if (Math.abs(chara.body.body.velocity.y) < 10) {
+			chara.spine.scaleX = (
+				chara.body.body.velocity.x > 0
+			) ? -1 * CHARA_SCALE_X : CHARA_SCALE_X;
+		}
 
 		squad.position.x = chara.body.x;
 		squad.position.y = chara.body.y;
