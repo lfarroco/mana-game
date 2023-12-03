@@ -2,32 +2,37 @@ import Modal from 'react-bootstrap/Modal';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { getState } from '../../../Models/State';
 import { Button, ListGroupItem } from 'react-bootstrap';
-import { emit_, events } from '../../../Models/Signals';
+import { emit_, events, listeners } from '../../../Models/Signals';
+import { useEffect, useState } from 'react';
 
+function SquadDetailsModal() {
 
-const onClose = emit_(events.TOGGLE_SQUAD_DETAILS_MODAL, false)
+	const state = getState();
 
-function SquadDetailsModal({ visible, id }: { visible: boolean, id: string }) {
+	const [isVisible, setIsVisible] = useState(false);
 
-	const squad = getState().squads.find(s => s.id === id)
-	if (!squad) return null
+	const squad = state.squads.find(s => s.id === state.selectedEntity?.id)
 
-	const state = getState()
-
-	const members = squad.members
+	const members = squad?.members
 		.map(id => state.units.find(u => u.id === id))
-		.filter(u => u !== undefined)
+		.filter(u => u !== undefined) || []
+
+	useEffect(() => {
+		listeners([
+			[events.TOGGLE_SQUAD_DETAILS_MODAL, (value: boolean) => { setIsVisible(value); }],
+		])
+	}, [])
 
 	return <Modal
-		show={visible}
-		onHide={onClose}
+		show={isVisible}
+		onHide={() => { setIsVisible(false) }}
 		size={"xl"}
 		id="squads-window"
 	>
 		<Modal.Header closeButton>
 			<Modal.Title>Squad Details</Modal.Title>
 		</Modal.Header>
-		<Modal.Body>
+		<Modal.Body>{isVisible &&
 			<div
 				className="row"
 				id="squads-detail">
@@ -51,12 +56,12 @@ function SquadDetailsModal({ visible, id }: { visible: boolean, id: string }) {
 					}
 
 				</ListGroup>
-			</div >
+			</div >}
 		</Modal.Body>
 		<Modal.Footer>
 			<Button
 				className="btn btn-secondary"
-				onClick={onClose}
+				onClick={emit_(events.TOGGLE_SQUAD_DETAILS_MODAL, false)}
 			>
 				Close
 			</Button>
