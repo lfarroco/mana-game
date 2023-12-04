@@ -27,6 +27,7 @@ const SelectedSquad = ({
 						className="img-fluid portrait-sm"
 						src={`assets/jobs/${unit.job}/portrait.png`}
 						alt={unit.name}
+						onClick={Signals.emit_(Signals.events.SET_UNIT_DETAILS_MODAL, unit.id)}
 					/>
 				)
 			}
