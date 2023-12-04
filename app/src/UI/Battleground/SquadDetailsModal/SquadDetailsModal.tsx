@@ -42,6 +42,7 @@ function SquadDetailsModal() {
 						members.map(member =>
 							member && <ListGroupItem
 								action
+								onClick={emit_(events.SET_UNIT_DETAILS_MODAL, member.id)}
 								key={member.id}
 							>
 								<img
