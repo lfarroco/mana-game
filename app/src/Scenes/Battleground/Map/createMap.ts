@@ -18,6 +18,7 @@ export function createMap(scene: Phaser.Scene) {
 	if (!obstacles) {
 		throw new Error("obstacles layer is null");
 	}
+	obstacles.visible = false;
 	const features = map.createLayer("map_features", tiles);
 	if (!features) {
 		throw new Error("obstacles layer is null");
