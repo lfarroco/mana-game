@@ -7,7 +7,7 @@ import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from '../../../Models/Force';
 import { SetStateAction, useEffect, useState } from 'react';
-import { events, listeners } from '../../../Models/Signals';
+import { emit_, events, listeners } from '../../../Models/Signals';
 import { Button, Table } from 'react-bootstrap';
 
 function SquadsWindow() {
@@ -38,10 +38,10 @@ function SquadsWindow() {
 				defaultActiveKey={FORCE_ID_PLAYER}
 			>
 				<Tab eventKey={FORCE_ID_PLAYER} title="Allied">
-					{squadTable(squads, selected, selectedSquadId, FORCE_ID_PLAYER, setSelectedSquadId)}
+					{squadTable(squads, FORCE_ID_PLAYER)}
 				</Tab>
 				<Tab eventKey={FORCE_ID_CPU} title="Enemy">
-					{squadTable(squads, selected, selectedSquadId, FORCE_ID_CPU, setSelectedSquadId)}
+					{squadTable(squads, FORCE_ID_CPU)}
 				</Tab>
 			</Tabs>}
 
@@ -56,16 +56,9 @@ function SquadsWindow() {
 	</Modal>
 }
 
-function selectedDetails(squad: Squad) {
-	return <pre>
-		{JSON.stringify(squad, null, 2)}
-	</pre>
-}
-
 const squadTable = (
 	squads: Squad[],
-	selected: Squad | undefined, selectedSquad: string, force: string,
-	setSelectedSquad: { (value: SetStateAction<string>): void; (value: SetStateAction<string>): void; (arg0: string): void; }
+	force: string,
 ) => {
 	return <Table striped bordered hover size="sm">
 		<thead>
@@ -82,7 +75,8 @@ const squadTable = (
 						key={squad.id}
 					>
 						<td className="col-1">
-							{squad.morale}</td>
+							{squad.morale}
+						</td>
 						<td className="col-11">
 							{
 								getMembers(squad).map(unit =>
@@ -94,11 +88,7 @@ const squadTable = (
 										}
 										src={`assets/jobs/${unit.job}/portrait.png`}
 										alt={unit.name}
-										onClick={
-											() => {
-
-											}
-										}
+										onClick={emit_(events.SET_UNIT_DETAILS_MODAL, unit.id)}
 									/>
 								)
 							}
