@@ -38,6 +38,8 @@ export class BattlegroundScene extends Phaser.Scene {
   cursor: Phaser.GameObjects.Image | null = null;
   state: State;
   started = false;
+  fogOfWarShape: Phaser.GameObjects.Graphics | null = null;
+  mask: Phaser.Display.Masks.BitmapMask | null = null
 
   constructor() {
     super("BattlegroundScene");
@@ -94,6 +96,8 @@ export class BattlegroundScene extends Phaser.Scene {
     const cities = createCities(this, this.state.cities)
     this.charas = createMapSquads(this)
 
+    this.createFogOfWar();
+
     makeSquadsInteractive(this, this.charas)
     makeCitiesInteractive(this, cities)
 
@@ -107,6 +111,16 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.started = true;
   }
+  private createFogOfWar() {
+    const fogOfWar = this.add.graphics();
+    if (!this.layers?.background) throw new Error("background layer not found")
+    fogOfWar.fillStyle(0x000000, 0.3).fillRect(0, 0, this.layers.background.width, this.layers.background.height);
+    this.fogOfWarShape = this.make.graphics();
+    const mask = new Phaser.Display.Masks.BitmapMask(this, this.fogOfWarShape);
+    mask.invertAlpha = true;
+    fogOfWar.setMask(mask);
+  }
+
   private setupCollisions() {
     this.squadCollider?.destroy();
     const bodiesA = this.charas.filter(c => c.force === FORCE_ID_PLAYER).map(({ body }) => body)
@@ -137,6 +151,10 @@ export class BattlegroundScene extends Phaser.Scene {
   update() {
     if (!this.isPaused && this.squadsCanMove) {
       moveSquads(this)
+      this.fogOfWarShape?.clear()
+      this.charas.filter(c => c.force === FORCE_ID_PLAYER).forEach(c => {
+        this.fogOfWarShape?.fillCircle(c.body.x, c.body.y, 200)
+      })
     }
     if (this.selectedEntity) {
       this.cursor?.setPosition(this.selectedEntity.x, this.selectedEntity.y + TILE_HEIGHT / 5).setVisible(true)
