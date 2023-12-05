@@ -37,7 +37,6 @@ export class BattlegroundScene extends Phaser.Scene {
   squadsCanMove: boolean = true;
   cursor: Phaser.GameObjects.Image | null = null;
   state: State;
-  started = false;
   fogOfWarShape: Phaser.GameObjects.Graphics | null = null;
   mask: Phaser.Display.Masks.BitmapMask | null = null
 
@@ -84,14 +83,17 @@ export class BattlegroundScene extends Phaser.Scene {
     console.log("BattlegroundScene create")
     const { map, layers } = createMap(this);
 
-    if (!this.started)
+    if (!this.layers)
       importMapObjects(this.state, map);
 
     makeMapInteractive(this, map, layers.background)
 
     this.layers = layers
 
-    this.cursor = this.add.image(0, 0, "cursor").setScale(0.2).setTint(0x00ff00).setVisible(false)
+    this.cursor = this.add.image(0, 0, "cursor")
+      .setScale(0.2)
+      .setTint(0x00ff00)
+      .setVisible(false)
 
     const cities = createCities(this, this.state.cities)
     this.charas = createMapSquads(this)
@@ -108,13 +110,11 @@ export class BattlegroundScene extends Phaser.Scene {
 
     //@ts-ignore
     window.scene = this
-
-    this.started = true;
   }
   private createFogOfWar() {
     const fogOfWar = this.add.graphics();
     if (!this.layers?.background) throw new Error("background layer not found")
-    fogOfWar.fillStyle(0x000000, 0.3).fillRect(0, 0, this.layers.background.width, this.layers.background.height);
+    fogOfWar.fillStyle(0x000000, 0.6).fillRect(0, 0, this.layers.background.width, this.layers.background.height);
     this.fogOfWarShape = this.make.graphics();
     const mask = new Phaser.Display.Masks.BitmapMask(this, this.fogOfWarShape);
     mask.invertAlpha = true;
@@ -155,6 +155,39 @@ export class BattlegroundScene extends Phaser.Scene {
       this.charas.filter(c => c.force === FORCE_ID_PLAYER).forEach(c => {
         this.fogOfWarShape?.fillCircle(c.body.x, c.body.y, 200)
       })
+
+      const allied = this.charas.filter(c => c.force === FORCE_ID_PLAYER)
+
+      const enemies = this.charas.filter(c => c.force === FORCE_ID_CPU)
+
+      enemies.forEach(chara => {
+        const distances = this.charas
+          .filter(c => c.force === FORCE_ID_PLAYER)
+          .flatMap((c) => {
+
+            return allied.map(a => {
+              return Phaser.Math.Distance.Between(a.body.x, a.body.y, chara.body.x, chara.body.y)
+            })
+
+          })
+          .sort((a, b) => a - b)
+
+        const [closest] = distances
+
+        if (closest < 250) {
+          chara.spine.active = true;
+          chara.spine.alpha = 1
+
+          //phaser-spine doesn't support alpha yet
+          //const diff = closest - 100
+          //chara.spine.alpha = 1 - (diff / 150)
+        } else {
+          chara.spine.active = false;
+          chara.spine.alpha = 0
+        }
+      })
+
+
     }
     if (this.selectedEntity) {
       this.cursor?.setPosition(this.selectedEntity.x, this.selectedEntity.y + TILE_HEIGHT / 5).setVisible(true)
