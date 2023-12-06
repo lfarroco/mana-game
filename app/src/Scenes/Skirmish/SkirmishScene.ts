@@ -176,13 +176,10 @@ class SkirmishScene extends Phaser.Scene {
 }
 function createSpineBody(scene: Phaser.Scene, x: number, y: number, unit: Unit): SpineGameObject {
 	const spine: SpineGameObject = scene
-		//@ts-ignore
 		.add.spine(x, y, "spine-data", "spine-atlas");
 	spine.scale = 0.4;
 
-	//@ts-ignore
 	spine.skeleton.setSkinByName(unit.job);
-	//@ts-ignore
 	spine.animationState.setAnimation(0, "idle", true);
 	spine.setName(unit.id);
 	return spine;
