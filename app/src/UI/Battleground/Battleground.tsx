@@ -11,7 +11,6 @@ import { City } from '../../Models/City';
 import { listeners, events, emit, emit_ } from "../../Models/Signals"
 import DispatchSquadModal from './DispatchSquadModal/DispatchSquadModal';
 import SquadDetailsModal from './SquadDetailsModal/SquadDetailsModal';
-import { getDispatchableSquads } from '../../Models/Squad';
 import { UnitDetailsModal } from './UnitDetailsModal/UnitsDetailsModal';
 
 const Battleground = () => {

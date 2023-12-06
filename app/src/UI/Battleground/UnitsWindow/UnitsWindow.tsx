@@ -1,7 +1,6 @@
 import './UnitsWindow.css';
 import { Unit } from '../../../Models/Unit';
 import Modal from 'react-bootstrap/Modal';
-import ListGroup from 'react-bootstrap/ListGroup';
 import { Button, Table } from 'react-bootstrap';
 import { getState } from '../../../Models/State';
 import Tab from 'react-bootstrap/Tab';
@@ -23,8 +22,6 @@ function UnitsWindow() {
 		])
 	}, []);
 
-	const selected = units.find(u => u.id === selectedUnit)
-
 	return <Modal
 		show={isVisible}
 		onHide={() => { setIsVisible(false) }}
@@ -39,10 +36,10 @@ function UnitsWindow() {
 				defaultActiveKey="player"
 			>
 				<Tab eventKey="player" title="Allied">
-					{unitList(units, selected, selectedUnit, FORCE_ID_PLAYER, setSelectedUnit)}
+					{unitList(units, selectedUnit, FORCE_ID_PLAYER, setSelectedUnit)}
 				</Tab>
 				<Tab eventKey="cpu" title="Enemy">
-					{unitList(units, selected, selectedUnit, FORCE_ID_CPU, setSelectedUnit)}
+					{unitList(units, selectedUnit, FORCE_ID_CPU, setSelectedUnit)}
 				</Tab>
 			</Tabs>}
 		</Modal.Body>
@@ -56,24 +53,9 @@ function UnitsWindow() {
 	</Modal>
 
 }
-function selectedDetails(unit: Unit) {
-	return <Table striped bordered hover size="sm">
-		<tbody>
-			<tr>
-				<td>id</td>
-				<td>{unit.id}</td>
-			</tr>
-			<tr>
-				<td>name</td>
-				<td>{unit.name}</td>
-			</tr>
-		</tbody>
-	</Table>
-}
 
 const unitList = (
 	units: Unit[],
-	selected: Unit | undefined,
 	selectedUnit: string,
 	force: string,
 	setSelectedUnit: (id: string) => void = () => { }
