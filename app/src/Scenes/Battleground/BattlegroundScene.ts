@@ -38,6 +38,7 @@ export class BattlegroundScene extends Phaser.Scene {
   squadsCanMove: boolean = true;
   cursor: Phaser.GameObjects.Image | null = null;
   state: State;
+  cities: Phaser.GameObjects.Image[] = []
 
   constructor() {
     super("BattlegroundScene");
@@ -94,13 +95,13 @@ export class BattlegroundScene extends Phaser.Scene {
       .setTint(0x00ff00)
       .setVisible(false)
 
-    const cities = createCities(this, this.state.cities)
+    this.cities = createCities(this, this.state.cities)
     this.charas = createMapSquads(this)
 
     createFogOfWar(this);
 
     makeSquadsInteractive(this, this.charas)
-    makeCitiesInteractive(this, cities)
+    makeCitiesInteractive(this, this.cities)
 
     this.setupCollisions();
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Card, Col, Modal, Row, Table } from "react-bootstrap"
+import { Button, Col, Modal, Row, Table } from "react-bootstrap"
 import { events, listeners } from "../../../Models/Signals";
 import { getState } from "../../../Models/State";
 

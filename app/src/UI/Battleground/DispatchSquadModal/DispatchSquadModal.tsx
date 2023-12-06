@@ -1,6 +1,5 @@
 import Modal from 'react-bootstrap/Modal';
-import ListGroup from 'react-bootstrap/ListGroup';
-import { Squad, getDispatchableSquads, getMembers } from '../../../Models/Squad';
+import { Squad, getDispatchableSquads } from '../../../Models/Squad';
 import { getState } from '../../../Models/State';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';

@@ -1,12 +1,11 @@
 import './SquadsWindow.css';
 import Modal from 'react-bootstrap/Modal';
-import ListGroup from 'react-bootstrap/ListGroup';
 import { Squad, getMembers } from '../../../Models/Squad';
 import { getState } from '../../../Models/State';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from '../../../Models/Force';
-import { SetStateAction, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { emit_, events, listeners } from '../../../Models/Signals';
 import { Button, Table } from 'react-bootstrap';
 
@@ -15,14 +14,12 @@ function SquadsWindow() {
 	let squads = getState().squads
 
 	const [isVisible, setVisible] = useState(false);
-	const [selectedSquadId, setSelectedSquadId] = useState(squads[0].id)
+
 	useEffect(() => {
 		listeners([
 			[events.TOGGLE_SQUADS_WINDOW, (value: boolean) => { setVisible(value); }],
 		])
 	}, []);
-
-	const selected = squads.find(u => u.id === selectedSquadId)
 
 	return <Modal
 		show={isVisible}
