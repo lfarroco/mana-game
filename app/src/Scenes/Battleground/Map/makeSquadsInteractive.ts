@@ -17,12 +17,17 @@ export function makeSquadsInteractive(
 }
 export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
 
-	scene.input.enableDebug(chara.clickZone);
+	const state = getState();
+	if (state.debug)
+		scene.input.enableDebug(chara.clickZone);
+
 	chara.clickZone.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer, x: number, y: number) => {
 
 		const state = getState();
 
 		if (pointer.upElement.tagName !== "CANVAS") return;
+
+		if (!chara.spine.active) return;
 
 		if (scene.isSelectingSquadMove && state.selectedEntity?.type === "squad") {
 			emit(
