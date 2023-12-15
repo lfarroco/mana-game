@@ -39,6 +39,7 @@ export class BattlegroundScene extends Phaser.Scene {
   cursor: Phaser.GameObjects.Image | null = null;
   state: State;
   cities: Phaser.GameObjects.Image[] = []
+  tilemap: Phaser.Tilemaps.Tilemap | null = null;
 
   constructor() {
     super("BattlegroundScene");
@@ -85,6 +86,8 @@ export class BattlegroundScene extends Phaser.Scene {
 
     if (!this.layers)
       importMapObjects(this.state, map);
+
+    this.tilemap = map;
 
     makeMapInteractive(this, map, layers.background)
 

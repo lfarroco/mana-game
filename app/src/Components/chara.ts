@@ -13,7 +13,7 @@ export type Chara = {
 	spine: SpineGameObject
 }
 
-export const CHARA_SCALE_X = 0.1;
+export const CHARA_SCALE_X = 1;
 
 export function createChara(
 	scene: Phaser.Scene,
