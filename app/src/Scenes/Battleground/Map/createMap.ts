@@ -14,18 +14,33 @@ export function createMap(scene: Phaser.Scene) {
 	if (!background) {
 		throw new Error("background layer is null");
 	}
+
 	const obstacles = map.createLayer("map_obstacles", tiles);
 	if (!obstacles) {
 		throw new Error("obstacles layer is null");
 	}
 	obstacles.visible = false;
+
 	const features = map.createLayer("map_features", tiles);
 	if (!features) {
 		throw new Error("obstacles layer is null");
 	}
 
-	//@ts-ignore
-	window.layers = { background, obstacles, features };
+	const fow = map.createBlankLayer("map_fow", tiles);
 
-	return { map, layers: { background, obstacles, features } };
+	// populate fow with tiles
+	if (fow) {
+		fow.fill(1, 0, 0, 32, 32, true);
+		console.time("wee")
+		fow.forEachTile(t => {
+			t.tint = 0x000000
+			t.alpha = 0.5
+		})
+		console.timeEnd('wee')
+	}
+
+	//@ts-ignore
+	window.layers = { background, obstacles, features, fow };
+
+	return { map, layers: { background, obstacles, features, fow } };
 }
