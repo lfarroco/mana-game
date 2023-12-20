@@ -2,18 +2,12 @@ import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../Models/Force";
 import { TILE_WIDTH } from "../constants";
+import { Chara } from "../../../Components/chara";
 
+
+const VIEW_RADIUS = 4;
 
 export function createFogOfWar(scene: BattlegroundScene) {
-	// const fogOfWar = scene.add.graphics();
-	// if (!scene.layers?.background) throw new Error("background layer not found");
-	// fogOfWar
-	// 	.fillStyle(0, 0.9)
-	// 	.fillRect(0, 0, scene.layers.background.width, scene.layers.background.height);
-	// const fogOfWarShape = scene.make.graphics();
-	// const mask = new Phaser.Display.Masks.BitmapMask(scene, fogOfWarShape);
-	// mask.invertAlpha = true;
-	// fogOfWar.setMask(mask);
 
 	scene.events.on(Phaser.Scenes.Events.UPDATE, () => {
 		refreshFogOfWar(scene)
@@ -38,58 +32,42 @@ function refreshFogOfWar(scene: BattlegroundScene) {
 	scene.charas
 		.filter(c => c.force === FORCE_ID_PLAYER)
 		.forEach(c => {
-			// clear alpha around chara
-
-			const [x, y] = [Math.floor(c.body.x / TILE_WIDTH), Math.floor(c.body.y / TILE_WIDTH)]
-			const VIEW_RADIUS = 4
-
-			for (let i = -(VIEW_RADIUS); i <= VIEW_RADIUS; i++) {
-				for (let j = - (VIEW_RADIUS); j <= VIEW_RADIUS; j++) {
-
-					//manhattan distance
-					const dist = Math.abs(i) + Math.abs(j)
-
-					if (dist > VIEW_RADIUS) continue
-
-					const tile = fow.data[y + j]?.[x + i]
-					if (tile) tile.alpha = 0
-
-				}
-			}
+			showRadius(c.body.x, c.body.y, fow);
 		})
 
 	// //player-controlled cities
-	// scene.cities.forEach(c => {
-	// 	fogOfWarShape?.fillCircle(c.x, c.y, 200)
-	// })
+	scene.cities.forEach(c => {
+		showRadius(c.x, c.y, fow);
+	});
 
-	// const allied = scene.charas.filter(c => c.force === FORCE_ID_PLAYER)
+	const enemies = scene.charas.filter(c => c.force === FORCE_ID_CPU)
 
-	// const enemies = scene.charas.filter(c => c.force === FORCE_ID_CPU)
+	enemies.forEach(enemy => {
 
-	// enemies.forEach(enemy => {
-	// 	const distances = allied
-	// 		.map((ally) => {
-	// 			return Phaser.Math.Distance.BetweenPoints(ally.body, enemy.body)
-	// 		})
-	// 		.sort((a, b) => a - b)
+		// hide if under fog of war
+		const [x, y] = [Math.floor(enemy.body.x / TILE_WIDTH), Math.floor(enemy.body.y / TILE_WIDTH)];
+		const tile = fow.data[y]?.[x];
+		if (!tile) return
+		enemy.sprite.active = tile.alpha === 0
+		enemy.sprite.visible = tile.alpha === 0
 
-	// 	const closestCity = scene.cities.map(city => {
-	// 		return Phaser.Math.Distance.BetweenPoints(city, enemy.body)
-	// 	}).sort((a, b) => a - b)[0]
+	})
+}
 
-	// 	const [closest] = distances
+function showRadius(worldX: number, worldY: number, fow: Phaser.Tilemaps.LayerData) {
+	const [x, y] = [Math.floor(worldX / TILE_WIDTH), Math.floor(worldY / TILE_WIDTH)];
 
-	// 	if (closest < 250 || closestCity < 250) {
-	// 		enemy.spine.active = true;
-	// 		enemy.spine.alpha = 1
+	for (let i = -(VIEW_RADIUS); i <= VIEW_RADIUS; i++) {
+		for (let j = -(VIEW_RADIUS); j <= VIEW_RADIUS; j++) {
 
-	// 		//phaser-spine doesn't support alpha yet
-	// 		//const diff = closest - 100
-	// 		//chara.spine.alpha = 1 - (diff / 150)
-	// 	} else {
-	// 		enemy.spine.active = false;
-	// 		enemy.spine.alpha = 0
-	// 	}
-	// })
+			//manhattan distance
+			const dist = Math.abs(i) + Math.abs(j);
+
+			if (dist > VIEW_RADIUS) continue;
+
+			const tile = fow.data[y + j]?.[x + i];
+			if (tile) tile.alpha = 0;
+
+		}
+	}
 }

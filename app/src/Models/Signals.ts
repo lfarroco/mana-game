@@ -10,6 +10,7 @@ export type Signals = {
 	SELECT_SQUAD_MOVE_DONE: (squadId: string, target: WindowVec) => void
 	SELECT_SQUAD_MOVE_CANCEL: (squadId: string) => void
 	TOGGLE_DISPATCH_MODAL: (value: boolean) => void
+	TOGGLE_RECRUIT_MODAL: () => void
 	TOGGLE_SQUAD_DETAILS_MODAL: (value: boolean) => void
 	DISPATCH_SQUAD: (squadId: string, cityId: string) => void
 	SQUADS_COLLIDED: (squadId1: string, squadId2: string) => void
@@ -29,6 +30,7 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
 	SQUAD_SELECTED: "SQUAD_SELECTED",
 	CITY_SELECTED: "CITY_SELECTED",
 	TOGGLE_DISPATCH_MODAL: "TOGGLE_DISPATCH_MODAL",
+	TOGGLE_RECRUIT_MODAL: "TOGGLE_RECRUIT_MODAL",
 	DISPATCH_SQUAD: "DISPATCH_SQUAD",
 	SQUADS_COLLIDED: "SQUADS_COLLIDED",
 	TOGGLE_SQUAD_DETAILS_MODAL: "TOGGLE_SQUAD_DETAILS_MODAL",

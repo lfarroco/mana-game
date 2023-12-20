@@ -30,13 +30,10 @@ export function createMap(scene: Phaser.Scene) {
 
 	// populate fow with tiles
 	if (fow) {
-		fow.fill(1, 0, 0, 32, 32, true);
-		console.time("wee")
+		fow.fill(1, 0, 0, fow.width, fow.height, true);
 		fow.forEachTile(t => {
 			t.tint = 0x000000
-			t.alpha = 0.5
 		})
-		console.timeEnd('wee')
 	}
 
 	//@ts-ignore

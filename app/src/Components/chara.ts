@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { Squad, getMembers } from "../Models/Squad";
 import { Unit } from "../Models/Unit";
-import { TILE_HEIGHT } from "../Scenes/Battleground/constants";
+import { TILE_HEIGHT, TILE_WIDTH } from "../Scenes/Battleground/constants";
 import "./portrait.css"
 
 export type Chara = {
@@ -29,13 +29,13 @@ export function createChara(
 		squad.position.x, squad.position.y, ""
 	)
 		.setName(squad.id)
-		.setSize(20, 20)
+		.setSize(TILE_WIDTH, TILE_HEIGHT)
 		.setVisible(false)
 
 	const clickZone = scene.add.zone(
 		squad.position.x,
-		squad.position.y - TILE_HEIGHT / 2,
-		40, 80
+		squad.position.y,
+		TILE_WIDTH, TILE_HEIGHT
 	)
 		.setInteractive();
 
@@ -44,7 +44,7 @@ export function createChara(
 		sprite.x = body.x;
 		sprite.y = body.y;
 		clickZone.x = body.x;
-		clickZone.y = body.y - TILE_HEIGHT / 2;
+		clickZone.y = body.y
 	};
 
 	//todo: iterate on scene state, for each chara, make it follow its circle
@@ -72,8 +72,8 @@ function createSprite(scene: Phaser.Scene, leader: Unit, squad: Squad) {
 		.add.sprite(squad.position.x, squad.position.y, leader.job)
 	sprite.scale = CHARA_SCALE_X;
 
-	sprite.play("map-down", true);
-	sprite.setName("spine-" + squad.id);
+	sprite.play("walk-down", true);
+	sprite.setName("chara-" + squad.id);
 	return sprite;
 }
 
