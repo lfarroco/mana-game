@@ -19,6 +19,7 @@ export type Signals = {
 	TOGGLE_UNITS_WINDOW: (value: boolean) => void,
 	TOGGLE_SQUADS_WINDOW: (value: boolean) => void,
 	SET_UNIT_DETAILS_MODAL: (id: string | null) => void,
+	BATTLEGROUND_TICK: (tick: number) => void,
 }
 
 export const events: { [key in keyof Signals]: keyof Signals } = {
@@ -39,6 +40,7 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
 	TOGGLE_UNITS_WINDOW: "TOGGLE_UNITS_WINDOW",
 	TOGGLE_SQUADS_WINDOW: "TOGGLE_SQUADS_WINDOW",
 	SET_UNIT_DETAILS_MODAL: "SET_UNIT_DETAILS_MODAL",
+	BATTLEGROUND_TICK: "BATTLEGROUND_TICK",
 }
 
 export const listen = <T extends keyof Signals>(

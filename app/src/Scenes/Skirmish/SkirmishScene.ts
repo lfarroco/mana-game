@@ -126,7 +126,7 @@ class SkirmishScene extends Phaser.Scene {
 		const sourceX = activeChara.x
 		const sourceY = activeChara.y
 
-		activeChara.anims.play('walk-right', true)
+		activeChara.anims.play(currentUnit.job + '-walk-right', true)
 
 		this.tweens.add({
 			targets: activeChara,
@@ -136,16 +136,16 @@ class SkirmishScene extends Phaser.Scene {
 			ease: 'Power2',
 			onComplete: () => {
 
-				activeChara.anims.play('walk-left', true)
+				activeChara.anims.play(currentUnit.job + '-walk-left', true)
 				this.time.delayedCall(500 / state.speed, () => {
 
-					activeChara.anims.play('walk-right', true)
+					activeChara.anims.play(currentUnit.job + '-walk-right', true)
 					this.time.delayedCall(500 / state.speed, () => {
 
-						activeChara.anims.play('walk-down', true)
+						activeChara.anims.play(currentUnit.job + '-walk-down', true)
 					});
 
-					activeChara.anims.play('walk-down', true)
+					activeChara.anims.play(currentUnit.job + '-walk-down', true)
 
 					this.tweens.add({
 						targets: activeChara,
@@ -155,7 +155,7 @@ class SkirmishScene extends Phaser.Scene {
 						ease: 'Power2',
 						onComplete: () => {
 
-							activeChara.anims.play('walk-down', true)
+							activeChara.anims.play(currentUnit.job + '-walk-down', true)
 
 							combat.turn++
 							//if (combat.turn < combat.initiative.length) {
@@ -180,7 +180,7 @@ function createSprite(scene: Phaser.Scene, x: number, y: number, unit: Unit) {
 	const sprite = scene
 		.add.sprite(x, y, unit.job)
 
-	sprite.anims.play('walk-down', true)
+	sprite.anims.play(unit.job + '-walk-down', true)
 	sprite.setName(unit.id);
 	return sprite;
 }

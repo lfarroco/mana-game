@@ -72,7 +72,7 @@
          "name":"map_background",
          "opacity":1,
          "type":"tilelayer",
-         "visible":true,
+         "visible":false,
          "width":64,
          "x":0,
          "y":0
@@ -147,7 +147,7 @@
          "name":"map_obstacles",
          "opacity":1,
          "type":"tilelayer",
-         "visible":true,
+         "visible":false,
          "width":64,
          "x":0,
          "y":0
@@ -349,7 +349,7 @@
                 }],
          "opacity":1,
          "type":"objectgroup",
-         "visible":true,
+         "visible":false,
          "x":0,
          "y":0
         }, 
@@ -376,12 +376,12 @@
                         {
                          "name":"job",
                          "type":"string",
-                         "value":"barbarian"
+                         "value":"skeleton"
                         }, 
                         {
                          "name":"unit_1",
                          "type":"string",
-                         "value":"barbarian"
+                         "value":"skeleton"
                         }, 
                         {
                          "name":"unit_2",
@@ -413,12 +413,12 @@
                         {
                          "name":"job",
                          "type":"string",
-                         "value":"archer"
+                         "value":"skeleton"
                         }, 
                         {
                          "name":"unit_1",
                          "type":"string",
-                         "value":"archer"
+                         "value":"skeleton"
                         }, 
                         {
                          "name":"unit_2",
@@ -455,12 +455,12 @@
                         {
                          "name":"job",
                          "type":"string",
-                         "value":"knight"
+                         "value":"skeleton"
                         }, 
                         {
                          "name":"unit_1",
                          "type":"string",
-                         "value":"knight"
+                         "value":"skeleton"
                         }, 
                         {
                          "name":"unit_2",
@@ -492,12 +492,12 @@
                         {
                          "name":"job",
                          "type":"string",
-                         "value":"rogue"
+                         "value":"skeleton"
                         }, 
                         {
                          "name":"unit_1",
                          "type":"string",
-                         "value":"rogue"
+                         "value":"skeleton"
                         }, 
                         {
                          "name":"unit_2",

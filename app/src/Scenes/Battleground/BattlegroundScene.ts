@@ -12,7 +12,7 @@ import { Squad } from "../../Models/Squad";
 import moveSquads from "./Map/moveSquads";
 import { WindowVec, windowVec } from "../../Models/Misc";
 import { Chara, createChara } from "../../Components/chara";
-import { emit, events, listeners } from "../../Models/Signals";
+import { emit, emit_, events, listeners } from "../../Models/Signals";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
 import { State, getState } from "../../Models/State";
 import { TILE_HEIGHT } from "./constants";
@@ -22,6 +22,7 @@ const easystar = new Easystar.js();
 easystar.setAcceptableTiles([0])
 
 export class BattlegroundScene extends Phaser.Scene {
+  tick: number = 0;
   graphics: Phaser.GameObjects.Graphics | null = null;
   grid: number[][] = []
   charas: Chara[] = []
@@ -57,7 +58,13 @@ export class BattlegroundScene extends Phaser.Scene {
       [events.SKIRMISH_ENDED, (winner: string, loser: string) => {
         this.scene.wake();
         this.repel(winner, loser);
-      }]
+      }],
+      [events.BATTLEGROUND_TICK, (tick: number) => {
+        if (!this.isPaused && this.squadsCanMove) {
+          moveSquads(this)
+        }
+      }
+      ]
     ]);
 
     this.state = getState()
@@ -114,6 +121,19 @@ export class BattlegroundScene extends Phaser.Scene {
     this.grid = layers.obstacles.layer.data.map(row => row.map(tile => tile.index === -1 ? 0 : 1))
     easystar.setGrid(this.grid);
 
+    this.time.addEvent({
+      delay: 1000 / this.state.speed,
+      callback: () => {
+
+        if (!this.isPaused) {
+          this.tick++
+          emit(events.BATTLEGROUND_TICK, this.tick)
+        }
+
+      },
+      loop: true
+    });
+
     //@ts-ignore
     window.scene = this
   }
@@ -146,9 +166,7 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
   update() {
-    if (!this.isPaused && this.squadsCanMove) {
-      moveSquads(this)
-    }
+
     if (this.selectedEntity) {
       this.cursor?.setPosition(this.selectedEntity.x, this.selectedEntity.y + TILE_HEIGHT / 5).setVisible(true)
     } else {
@@ -199,7 +217,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
 
   moveTo(squad: Squad, target: Phaser.Tilemaps.Tile) {
-    const sourceTile = this.layers?.background.getTileAtWorldXY(
+    const sourceTile = this.layers?.background.getTileAt(
       squad.position.x,
       squad.position.y,
     );
@@ -215,7 +233,11 @@ export class BattlegroundScene extends Phaser.Scene {
 
         console.log("setting path", path)
         squad.path = path
-        this.charas.find(c => c.id === squad.id)?.sprite.anims.play('walk-down', true)
+        const chara = this.charas.find(c => c.id === squad.id);
+
+        if (chara) {
+          chara.sprite.anims.play(chara.job + '-walk-down', true)
+        }
       }
     )
   }
@@ -270,7 +292,9 @@ export class BattlegroundScene extends Phaser.Scene {
     }
     squad.dispatched = true;
 
-    squad.position = windowVec(city.position.x, city.position.y)
+    const tile = this.layers?.background.getTileAtWorldXY(city.position.x, city.position.y);
+    if (!tile) return
+    squad.position = { x: tile.x, y: tile.y }
 
     const chara_ = createChara(
       this,
