@@ -4,7 +4,6 @@ import BattlegroundScene from './Scenes/Battleground/BattlegroundScene';
 import SkirmishScene from './Scenes/Skirmish/SkirmishScene';
 import { State, initialState } from './Models/State';
 import { UI } from './UI/UI';
-import { SpinePlugin } from "@esotericsoftware/spine-phaser";
 
 const eventEmitter = new events.EventEmitter();
 
@@ -31,11 +30,6 @@ const game = new Phaser.Game({
   height: window.innerHeight,
   physics: {
     default: 'arcade',
-  },
-  plugins: {
-    scene: [
-      { key: "spine.SpinePlugin", plugin: SpinePlugin, mapping: "spine" }
-    ]
   }
 });
 

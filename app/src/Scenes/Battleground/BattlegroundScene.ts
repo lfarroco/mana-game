@@ -212,7 +212,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
         console.log("setting path", path)
         squad.path = path
-        this.charas.find(c => c.id === squad.id)?.spine.animationState.setAnimation(0, "map-march", true)
+        this.charas.find(c => c.id === squad.id)?.sprite.anims.play('map-down', true)
       }
     )
   }

@@ -27,7 +27,7 @@ export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
 
 		if (pointer.upElement.tagName !== "CANVAS") return;
 
-		if (!chara.spine.active) return;
+		if (!chara.sprite.active) return;
 
 		if (scene.isSelectingSquadMove && state.selectedEntity?.type === "squad") {
 			emit(

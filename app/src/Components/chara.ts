@@ -1,7 +1,6 @@
 import Phaser from "phaser";
 import { Squad, getMembers } from "../Models/Squad";
 import { Unit } from "../Models/Unit";
-import { SpineGameObject } from "@esotericsoftware/spine-phaser";
 import { TILE_HEIGHT } from "../Scenes/Battleground/constants";
 import "./portrait.css"
 
@@ -10,10 +9,10 @@ export type Chara = {
 	force: string;
 	body: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
 	clickZone: Phaser.GameObjects.Zone;
-	spine: SpineGameObject
+	sprite: Phaser.GameObjects.Sprite
 }
 
-export const CHARA_SCALE_X = 1;
+export const CHARA_SCALE_X = 2;
 
 export function createChara(
 	scene: Phaser.Scene,
@@ -24,7 +23,7 @@ export function createChara(
 
 	if (!leader) throw new Error("No leader in squad")
 
-	const spine = createSpineBody(scene, leader, squad);
+	const sprite = createSprite(scene, leader, squad);
 
 	const body = scene.physics.add.image(
 		squad.position.x, squad.position.y, ""
@@ -42,8 +41,8 @@ export function createChara(
 
 
 	const follow = () => {
-		spine.x = body.x;
-		spine.y = body.y;
+		sprite.x = body.x;
+		sprite.y = body.y;
 		clickZone.x = body.x;
 		clickZone.y = body.y - TILE_HEIGHT / 2;
 	};
@@ -53,7 +52,7 @@ export function createChara(
 	//make spineboy follow circle
 	scene.events.on("update", follow);
 	//destroy listener on element destroy
-	spine.once("destroy", () => {
+	sprite.once("destroy", () => {
 		scene.events.off("update", follow);
 	});
 
@@ -64,21 +63,17 @@ export function createChara(
 		//@ts-ignore
 		body,
 		clickZone,
-		spine,
+		sprite: sprite,
 	}
 }
-function createSpineBody(scene: Phaser.Scene, leader: Unit, squad: Squad) {
+function createSprite(scene: Phaser.Scene, leader: Unit, squad: Squad) {
 
-	// todo: check docs: https://photonstorm.github.io/phaser3-docs/SpineGameObject.html
-	//If your Spine Game Object has black outlines around the different parts of the texture when it renders then you have exported the files from Spine with pre-multiplied alpha enabled, but have forgotten to set that flag when loading the Spine data. Please see the loader docs for more details.
+	const sprite = scene
+		.add.sprite(squad.position.x, squad.position.y, leader.job)
+	sprite.scale = CHARA_SCALE_X;
 
-	const spine: SpineGameObject = scene
-		.add.spine(squad.position.x, squad.position.y, "spine-data", "spine-atlas")
-	spine.scale = CHARA_SCALE_X;
-
-	spine.skeleton.setSkinByName(leader.job);
-	spine.animationState.setAnimation(0, "map-idle", true);
-	spine.setName("spine-" + squad.id);
-	return spine;
+	sprite.play("map-down", true);
+	sprite.setName("spine-" + squad.id);
+	return sprite;
 }
 
