@@ -16,20 +16,23 @@ const SelectedCity = ({ city }: { city: City }) => {
 				className="img-fluid"
 				src={`assets/cities/${city.type}.png`} alt={city.name} />
 		</div>
-		<div className="col col-8">
+		<div className="col col-4">
 
 			<h3>{city.name}</h3>
 			<p>{city.type}</p>
 		</div>
-		<div className="col col-2">
-			<Button
-				className="col-12 btn btn-secondary"
-				onClick={emit_(events.TOGGLE_DISPATCH_MODAL, true)}
-				disabled={dispatchableSquads.length < 1}
-			>Dispatch</Button>
-			<Button className="col-12 btn btn-secondary">Shop</Button>
+		<Button
+			className="col col-2 btn btn-secondary"
+			onClick={emit_(events.TOGGLE_DISPATCH_MODAL, true)}
+			disabled={dispatchableSquads.length < 1}
+		>Dispatch</Button>
+		<Button
+			className="col col-2 btn btn-secondary"
+			onClick={emit_(events.TOGGLE_DISPATCH_MODAL, true)}
+			disabled={dispatchableSquads.length < 1}
+		>Recruit</Button>
+		<Button className="col col-2 btn btn-secondary">Shop</Button>
 
-		</div>
 	</div>
 
 }

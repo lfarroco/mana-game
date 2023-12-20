@@ -65,6 +65,9 @@ export class BattlegroundScene extends Phaser.Scene {
 
     //@ts-ignore
     window.state = this.state
+
+    //@ts-ignore
+    window.bg = this
   }
 
   handleSquadsCollided = (squadAId: string, squadBId: string) => {
@@ -212,7 +215,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
         console.log("setting path", path)
         squad.path = path
-        this.charas.find(c => c.id === squad.id)?.sprite.anims.play('map-down', true)
+        this.charas.find(c => c.id === squad.id)?.sprite.anims.play('walk-down', true)
       }
     )
   }

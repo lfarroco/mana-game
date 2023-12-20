@@ -30,7 +30,6 @@ const moveSquads = (scene: BattlegroundScene) => {
 				// no more path, stop moving
 				// TODO: emit event
 				chara.body.setVelocity(0);
-				chara.sprite.play("map-down", true)
 			}
 
 			return;
@@ -41,11 +40,27 @@ const moveSquads = (scene: BattlegroundScene) => {
 			nextTile.getCenterX(), nextTile.getCenterY(),
 			30 * scene.state.speed);
 
-		if (Math.abs(chara.body.body.velocity.y) < 10) {
-			chara.sprite.scaleX = (
-				chara.body.body.velocity.x > 0
-			) ? -1 * CHARA_SCALE_X : CHARA_SCALE_X;
+		// check animation based on direction
+		const currentTile = scene.layers?.background.getTileAtWorldXY(
+			chara.body.x,
+			chara.body.y,
+		);
+
+		if (!currentTile) return
+
+		const dx = nextTile.x - currentTile.x;
+		const dy = nextTile.y - currentTile.y;
+
+		if (dx === 1) {
+			chara.sprite.play("walk-right", true)
+		} else if (dx === -1) {
+			chara.sprite.play("walk-left", true)
+		} else if (dy === 1) {
+			chara.sprite.play("walk-down", true)
+		} else if (dy === -1) {
+			chara.sprite.play("walk-up", true)
 		}
+
 
 		squad.position.x = chara.body.x;
 		squad.position.y = chara.body.y;
