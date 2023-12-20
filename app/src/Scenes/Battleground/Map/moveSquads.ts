@@ -30,7 +30,7 @@ const moveSquads = (scene: BattlegroundScene) => {
 				// no more path, stop moving
 				// TODO: emit event
 				chara.body.setVelocity(0);
-				chara.spine.animationState.setAnimation(0, "map-idle", true)
+				chara.sprite.play("map-down", true)
 			}
 
 			return;
@@ -42,7 +42,7 @@ const moveSquads = (scene: BattlegroundScene) => {
 			30 * scene.state.speed);
 
 		if (Math.abs(chara.body.body.velocity.y) < 10) {
-			chara.spine.scaleX = (
+			chara.sprite.scaleX = (
 				chara.body.body.velocity.x > 0
 			) ? -1 * CHARA_SCALE_X : CHARA_SCALE_X;
 		}

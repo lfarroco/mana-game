@@ -10,6 +10,49 @@ export function preload(this: Phaser.Scene) {
 	this.load.image("cursor", "assets/ui/selected_cursor.png");
 	this.load.tilemapTiledJSON("maps/map1", "assets/maps/map1/mapdata.json");
 
-	this.load.spineBinary("spine-data", "assets/spine/_base/skeleton.skel");
-	this.load.spineAtlas("spine-atlas", "assets/spine/_base/skeleton.atlas");
+	[
+		'archer',
+		'barbarian',
+		'cleric',
+		'goblin-archer',
+		'goblin-knight',
+		'goblin-tribesman',
+		'knight',
+		'rogue',
+		'skeleton',
+		'soldier',
+		'witch',
+		'wizard',
+		'zombie'
+	].forEach(job => {
+		this.load.spritesheet(job, `assets/jobs/${job}/sprites.png`, {
+			frameWidth: 32,
+			frameHeight: 32,
+		});
+	})
+	//create animations
+	this.anims.create({
+		key: "walk-down",
+		frames: this.anims.generateFrameNumbers("archer", { start: 0, end: 3 }),
+		frameRate: 4,
+		repeat: -1,
+	});
+	this.anims.create({
+		key: "walk-left",
+		frames: this.anims.generateFrameNumbers("archer", { start: 4, end: 7 }),
+		frameRate: 4,
+		repeat: -1,
+	});
+	this.anims.create({
+		key: "walk-right",
+		frames: this.anims.generateFrameNumbers("archer", { start: 8, end: 11 }),
+		frameRate: 4,
+		repeat: -1,
+	});
+	this.anims.create({
+		key: "walk-up",
+		frames: this.anims.generateFrameNumbers("archer", { start: 12, end: 15 }),
+		frameRate: 4,
+		repeat: -1,
+	});
 }

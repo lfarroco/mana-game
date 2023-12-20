@@ -2,7 +2,6 @@ import Phaser from "phaser";
 import { emit, events, listeners } from "../../Models/Signals";
 import { preload } from "./preload";
 import { Unit } from "../../Models/Unit";
-import { SpineGameObject } from "@esotericsoftware/spine-phaser";
 import { getState } from "../../Models/State";
 import { Squad, getMembers } from "../../Models/Squad";
 
@@ -58,7 +57,7 @@ class SkirmishScene extends Phaser.Scene {
 			const spacingY = 50
 			const diagonalOffset = isLeft ? 50 : -50
 
-			const spine = createSpineBody(this,
+			const spine = createSprite(this,
 				baseX - (index * diagonalOffset),
 				baseY + (index * spacingY),
 				unit,
@@ -106,7 +105,7 @@ class SkirmishScene extends Phaser.Scene {
 	}
 
 	turn(combat: {
-		charas: SpineGameObject[],
+		charas: Phaser.GameObjects.Sprite[],
 		squads: string[],
 		units: Unit[], turn: number, initiative: { unit: Unit, initiative: number }[], actions: any[]
 	}) {
@@ -127,7 +126,7 @@ class SkirmishScene extends Phaser.Scene {
 		const sourceX = activeChara.x
 		const sourceY = activeChara.y
 
-		activeChara.animationState.setAnimation(0, "run", true)
+		activeChara.anims.play('map-right', true)
 
 		this.tweens.add({
 			targets: activeChara,
@@ -137,15 +136,16 @@ class SkirmishScene extends Phaser.Scene {
 			ease: 'Power2',
 			onComplete: () => {
 
-				activeChara.animationState.setAnimation(0, "slash", false)
+				activeChara.anims.play('map-left', true)
 				this.time.delayedCall(500 / state.speed, () => {
 
-					targetChara.animationState.setAnimation(0, "flinch", false)
+					activeChara.anims.play('map-right', true)
 					this.time.delayedCall(500 / state.speed, () => {
-						targetChara.animationState.setAnimation(0, "idle", false)
+
+						activeChara.anims.play('map-down', true)
 					});
 
-					activeChara.animationState.setAnimation(0, "run", false)
+					activeChara.anims.play('map-down', true)
 
 					this.tweens.add({
 						targets: activeChara,
@@ -154,7 +154,9 @@ class SkirmishScene extends Phaser.Scene {
 						duration: 1000 / state.speed,
 						ease: 'Power2',
 						onComplete: () => {
-							activeChara.animationState.setAnimation(0, "idle", true)
+
+							activeChara.anims.play('map-down', true)
+
 							combat.turn++
 							//if (combat.turn < combat.initiative.length) {
 							if (combat.turn < 2) {
@@ -174,15 +176,13 @@ class SkirmishScene extends Phaser.Scene {
 	}
 
 }
-function createSpineBody(scene: Phaser.Scene, x: number, y: number, unit: Unit): SpineGameObject {
-	const spine: SpineGameObject = scene
-		.add.spine(x, y, "spine-data", "spine-atlas");
-	spine.scale = 0.4;
+function createSprite(scene: Phaser.Scene, x: number, y: number, unit: Unit) {
+	const sprite = scene
+		.add.sprite(x, y, unit.job)
 
-	spine.skeleton.setSkinByName(unit.job);
-	spine.animationState.setAnimation(0, "idle", true);
-	spine.setName(unit.id);
-	return spine;
+	sprite.anims.play('map-down', true)
+	sprite.setName(unit.id);
+	return sprite;
 }
 
 export default SkirmishScene;
