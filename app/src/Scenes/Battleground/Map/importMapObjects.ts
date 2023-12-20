@@ -3,7 +3,7 @@ import { State } from "../../../Models/State";
 import * as uuid from "uuid";
 import { Squad } from "../../../Models/Squad";
 import { randomUnit } from "../../../Models/Unit";
-import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH } from "../constants";
+import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../constants";
 import { City } from "../../../Models/City";
 
 type TiledProp = {
@@ -144,8 +144,8 @@ export function importMapObjects(state: State, map: Phaser.Tilemaps.Tilemap) {
 				dispatched: true,
 				morale: 100,
 				position: {
-					x: sqd.x + HALF_TILE_WIDTH,
-					y: sqd.y + HALF_TILE_HEIGHT
+					x: Math.floor(sqd.x / TILE_WIDTH),
+					y: Math.floor(sqd.y / TILE_HEIGHT)
 				},
 				members: sqd.members.map(spec => spec.id),
 				path: []

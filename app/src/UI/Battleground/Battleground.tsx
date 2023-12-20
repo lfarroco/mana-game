@@ -20,6 +20,7 @@ const Battleground = () => {
   const [selectedEntityInfo, setSelectedEntity] = useState<{ type: string, id: string } | null>(null);
   const [isPaused, setPaused] = useState(false);
   const [isSelectingMoveTarget, setIsSelectingMoveTarget] = useState(false);
+  const [tick, setTick] = useState(0);
 
   const selectedEntity = selectedEntityInfo && (
     selectedEntityInfo.type === "squad" ? state.squads.find(squad => squad.id === selectedEntityInfo.id) :
@@ -37,6 +38,7 @@ const Battleground = () => {
         [events.SELECT_SQUAD_MOVE_START, () => { setIsSelectingMoveTarget(true); }],
         [events.SELECT_SQUAD_MOVE_DONE, () => { setIsSelectingMoveTarget(false); }],
         [events.SELECT_SQUAD_MOVE_CANCEL, () => { setIsSelectingMoveTarget(false); }],
+        [events.BATTLEGROUND_TICK, (tick: number) => { setTick(tick); }]
       ]
     )
   }, []);
@@ -76,6 +78,9 @@ const Battleground = () => {
               }}
             >
               {isPaused ? "Resume" : "Pause"}
+            </Button>
+            <Button>
+              {tick}
             </Button>
 
           </ButtonGroup>

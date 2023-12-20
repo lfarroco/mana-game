@@ -1,12 +1,14 @@
 import Phaser from "phaser";
 import { Squad, getMembers } from "../Models/Squad";
 import { Unit } from "../Models/Unit";
-import { TILE_HEIGHT, TILE_WIDTH } from "../Scenes/Battleground/constants";
+import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../Scenes/Battleground/constants";
 import "./portrait.css"
+import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
 
 export type Chara = {
 	id: string;
 	force: string;
+	job: string;
 	body: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
 	clickZone: Phaser.GameObjects.Zone;
 	sprite: Phaser.GameObjects.Sprite
@@ -15,7 +17,7 @@ export type Chara = {
 export const CHARA_SCALE_X = 2;
 
 export function createChara(
-	scene: Phaser.Scene,
+	scene: BattlegroundScene,
 	squad: Squad,
 ): Chara {
 
@@ -23,18 +25,21 @@ export function createChara(
 
 	if (!leader) throw new Error("No leader in squad")
 
+	const tile = scene.layers?.background.getTileAt(squad.position.x, squad.position.y);
+	if (!tile) throw new Error("tile not found")
+
 	const sprite = createSprite(scene, leader, squad);
 
 	const body = scene.physics.add.image(
-		squad.position.x, squad.position.y, ""
+		tile.getCenterX(), tile.getCenterY(), ""
 	)
 		.setName(squad.id)
 		.setSize(TILE_WIDTH, TILE_HEIGHT)
 		.setVisible(false)
 
 	const clickZone = scene.add.zone(
-		squad.position.x,
-		squad.position.y,
+		squad.position.x * TILE_WIDTH,
+		squad.position.y * TILE_HEIGHT,
 		TILE_WIDTH, TILE_HEIGHT
 	)
 		.setInteractive();
@@ -59,6 +64,7 @@ export function createChara(
 	return {
 		id: squad.id,
 		force: squad.force,
+		job: leader.job,
 		// phaser doesn't have a working type of a non-visible body, so we lie here
 		//@ts-ignore
 		body,
@@ -66,13 +72,19 @@ export function createChara(
 		sprite: sprite,
 	}
 }
-function createSprite(scene: Phaser.Scene, leader: Unit, squad: Squad) {
+function createSprite(scene: BattlegroundScene, leader: Unit, squad: Squad) {
 
+
+	console.log(">>>", leader.job)
 	const sprite = scene
-		.add.sprite(squad.position.x, squad.position.y, leader.job)
-	sprite.scale = CHARA_SCALE_X;
+		.add.sprite(0, 0,
+			leader.job
+		)
+		.setScale(
+			CHARA_SCALE_X
+		)
 
-	sprite.play("walk-down", true);
+	sprite.play(leader.job + "-walk-down", true);
 	sprite.setName("chara-" + squad.id);
 	return sprite;
 }

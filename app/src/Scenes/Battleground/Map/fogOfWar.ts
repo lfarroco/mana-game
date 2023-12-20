@@ -2,17 +2,23 @@ import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../Models/Force";
 import { TILE_WIDTH } from "../constants";
-import { Chara } from "../../../Components/chara";
+import { listeners, events } from "../../../Models/Signals";
 
 
 const VIEW_RADIUS = 4;
 
 export function createFogOfWar(scene: BattlegroundScene) {
 
-	scene.events.on(Phaser.Scenes.Events.UPDATE, () => {
-		refreshFogOfWar(scene)
-	})
+	listeners([
+		[
+			// TODO: replace with "squads finished moving"
+			events.BATTLEGROUND_TICK, () => {
 
+				refreshFogOfWar(scene)
+			}
+		]
+
+	])
 }
 
 function refreshFogOfWar(scene: BattlegroundScene) {
