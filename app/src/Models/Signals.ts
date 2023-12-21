@@ -13,7 +13,6 @@ export type Signals = {
 	TOGGLE_RECRUIT_MODAL: () => void
 	TOGGLE_SQUAD_DETAILS_MODAL: (value: boolean) => void
 	DISPATCH_SQUAD: (squadId: string, cityId: string) => void
-	SQUADS_COLLIDED: (squadId1: string, squadId2: string) => void
 	SKIRMISH_STARTED: (squadId1: string, squadId2: string) => void
 	SKIRMISH_ENDED: (winner: string, loser: string) => void,
 	TOGGLE_UNITS_WINDOW: (value: boolean) => void,
@@ -33,7 +32,6 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
 	TOGGLE_DISPATCH_MODAL: "TOGGLE_DISPATCH_MODAL",
 	TOGGLE_RECRUIT_MODAL: "TOGGLE_RECRUIT_MODAL",
 	DISPATCH_SQUAD: "DISPATCH_SQUAD",
-	SQUADS_COLLIDED: "SQUADS_COLLIDED",
 	TOGGLE_SQUAD_DETAILS_MODAL: "TOGGLE_SQUAD_DETAILS_MODAL",
 	SKIRMISH_STARTED: "SKIRMISH_STARTED",
 	SKIRMISH_ENDED: "SKIRMISH_ENDED",

@@ -28,9 +28,6 @@ const game = new Phaser.Game({
   parent: 'game',
   width: window.innerWidth,
   height: window.innerHeight,
-  physics: {
-    default: 'arcade',
-  }
 });
 
 game.scene.add('BattlegroundScene', BattlegroundScene, true);

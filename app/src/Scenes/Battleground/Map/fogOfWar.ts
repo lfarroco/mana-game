@@ -38,7 +38,7 @@ function refreshFogOfWar(scene: BattlegroundScene) {
 	scene.charas
 		.filter(c => c.force === FORCE_ID_PLAYER)
 		.forEach(c => {
-			showRadius(c.body.x, c.body.y, fow);
+			showRadius(c.sprite.x, c.sprite.y, fow);
 		})
 
 	// //player-controlled cities
@@ -51,7 +51,7 @@ function refreshFogOfWar(scene: BattlegroundScene) {
 	enemies.forEach(enemy => {
 
 		// hide if under fog of war
-		const [x, y] = [Math.floor(enemy.body.x / TILE_WIDTH), Math.floor(enemy.body.y / TILE_WIDTH)];
+		const [x, y] = [Math.floor(enemy.sprite.x / TILE_WIDTH), Math.floor(enemy.sprite.y / TILE_WIDTH)];
 		const tile = fow.data[y]?.[x];
 		if (!tile) return
 		enemy.sprite.active = tile.alpha === 0
