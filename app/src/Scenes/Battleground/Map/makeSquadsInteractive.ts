@@ -33,7 +33,7 @@ export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
 			emit(
 				events.SELECT_SQUAD_MOVE_DONE,
 				state.selectedEntity.id,
-				windowVec(chara.body.x, chara.body.y)
+				windowVec(chara.sprite.x, chara.sprite.y)
 			);
 		} else {
 			emit(

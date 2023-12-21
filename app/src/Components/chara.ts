@@ -9,7 +9,6 @@ export type Chara = {
 	id: string;
 	force: string;
 	job: string;
-	body: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
 	clickZone: Phaser.GameObjects.Zone;
 	sprite: Phaser.GameObjects.Sprite,
 	emote: Phaser.GameObjects.Sprite | null
@@ -32,13 +31,6 @@ export function createChara(
 
 	const sprite = createSprite(scene, leader, squad);
 
-	const body = scene.physics.add.image(
-		tile.getCenterX(), tile.getCenterY(), ""
-	)
-		.setName(squad.id)
-		.setSize(TILE_WIDTH, TILE_HEIGHT)
-		.setVisible(false)
-
 	const clickZone = scene.add.zone(
 		squad.position.x * TILE_WIDTH,
 		squad.position.y * TILE_HEIGHT,
@@ -48,10 +40,8 @@ export function createChara(
 
 
 	const follow = () => {
-		sprite.x = body.x;
-		sprite.y = body.y;
-		clickZone.x = body.x;
-		clickZone.y = body.y
+		clickZone.x = sprite.x;
+		clickZone.y = sprite.y
 	};
 
 	//todo: iterate on scene state, for each chara, make it follow its circle
@@ -68,8 +58,6 @@ export function createChara(
 		force: squad.force,
 		job: leader.job,
 		// phaser doesn't have a working type of a non-visible body, so we lie here
-		//@ts-ignore
-		body,
 		clickZone,
 		sprite,
 		emote: null,
@@ -82,7 +70,10 @@ export function createChara(
 function createSprite(scene: BattlegroundScene, leader: Unit, squad: Squad) {
 
 	const sprite = scene
-		.add.sprite(0, 0,
+		.add.sprite(
+
+			squad.position.x * TILE_WIDTH + HALF_TILE_WIDTH,
+			squad.position.y * TILE_HEIGHT + HALF_TILE_HEIGHT,
 			leader.job
 		)
 		.setScale(

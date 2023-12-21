@@ -35,7 +35,7 @@ const moveSquads = (scene: BattlegroundScene) => {
 		if (walked < TURNS_TO_MOVE) return
 
 		scene.tweens.add({
-			targets: chara.body,
+			targets: chara.sprite,
 			x: nextTile.getCenterX(),
 			y: nextTile.getCenterY(),
 			duration: 500 / scene.state.speed, // TODO: divide by constant for tick
