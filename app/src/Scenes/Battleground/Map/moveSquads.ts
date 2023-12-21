@@ -1,6 +1,4 @@
-import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
-import { CHARA_SCALE_X } from "../../../Components/chara";
 
 const moveSquads = (scene: BattlegroundScene) => {
 
@@ -10,8 +8,6 @@ const moveSquads = (scene: BattlegroundScene) => {
 		const chara = scene.charas.find(c => c.id === squad.id)
 		if (!chara) return;
 		const [next] = squad.path;
-
-		const currentTile = squad.position
 
 		const nextTile = scene.layers?.background.getTileAt(next.x, next.y);
 		if (!nextTile) return;
@@ -27,8 +23,8 @@ const moveSquads = (scene: BattlegroundScene) => {
 
 		squad.path.shift();
 
-		const dx = nextTile.x - currentTile.x;
-		const dy = nextTile.y - currentTile.y;
+		const dx = nextTile.x - squad.position.x;
+		const dy = nextTile.y - squad.position.y;
 
 		if (dx === 1) {
 			chara.sprite.play(chara.job + "-walk-right", true)

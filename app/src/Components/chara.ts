@@ -11,7 +11,8 @@ export type Chara = {
 	job: string;
 	body: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
 	clickZone: Phaser.GameObjects.Zone;
-	sprite: Phaser.GameObjects.Sprite
+	sprite: Phaser.GameObjects.Sprite,
+	emote: Phaser.GameObjects.Sprite | null
 }
 
 export const CHARA_SCALE_X = 2;
@@ -69,13 +70,13 @@ export function createChara(
 		//@ts-ignore
 		body,
 		clickZone,
-		sprite: sprite,
+		sprite,
+		emote: null
 	}
 }
+
 function createSprite(scene: BattlegroundScene, leader: Unit, squad: Squad) {
 
-
-	console.log(">>>", leader.job)
 	const sprite = scene
 		.add.sprite(0, 0,
 			leader.job
@@ -89,3 +90,13 @@ function createSprite(scene: BattlegroundScene, leader: Unit, squad: Squad) {
 	return sprite;
 }
 
+export function createEmote(chara: Chara, key: string) {
+	if (chara.emote) chara.emote.destroy()
+	const emote = chara.sprite.scene.add.sprite(
+		chara.sprite.x,
+		chara.sprite.y - HALF_TILE_HEIGHT,
+		key).setScale(2)
+	emote.anims.play(key)
+	chara.emote = emote
+	return chara
+}
