@@ -16,6 +16,24 @@ const jobs = [
 	'zombie'
 ]
 
+const emotes = [
+	'combat-emote',
+	'arrow-bottom-emote',
+	'arrow-left-emote',
+	'arrow-right-emote',
+	'arrow-top-emote',
+	'exclamation-emote',
+	'question-emote',
+	'sing-emote',
+	'skull-emote',
+	'sleep-emote',
+	'sparkle-emote',
+	'surprise-emote',
+	'surprise2-emote',
+	'sweat-emote',
+	'v-hand-emote',
+]
+
 export function preload(this: Phaser.Scene) {
 	["castle", "cave", "fort", "town"].forEach(city => {
 		this.load.image(city, `assets/cities/${city}.png`);
@@ -35,6 +53,19 @@ export function preload(this: Phaser.Scene) {
 				frameHeight: 32,
 			}
 		);
+	})
+
+	emotes.forEach(emote => {
+
+		this.load.spritesheet(
+			emote,
+			`assets/emotes/${emote}.png`,
+			{
+				frameWidth: 32,
+				frameHeight: 32,
+			}
+		);
+
 	})
 
 	//once all assets are loaded, create animations
@@ -69,6 +100,14 @@ export function preload(this: Phaser.Scene) {
 
 		})
 
+		emotes.forEach(emote => {
+			this.anims.create({
+				key: emote,
+				frames: this.anims.generateFrameNumbers(emote, { start: 0, end: 2 }),
+				frameRate: 3,
+				repeat: -1,
+			});
+		});
 	});
 
 }
