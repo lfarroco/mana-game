@@ -13,6 +13,7 @@ export type Chara = {
 	clickZone: Phaser.GameObjects.Zone;
 	sprite: Phaser.GameObjects.Sprite,
 	emote: Phaser.GameObjects.Sprite | null
+	emoteOverlay: Phaser.GameObjects.Sprite | null
 }
 
 export const CHARA_SCALE_X = 2;
@@ -62,7 +63,7 @@ export function createChara(
 		scene.events.off("update", follow);
 	});
 
-	return {
+	const chara = {
 		id: squad.id,
 		force: squad.force,
 		job: leader.job,
@@ -71,8 +72,11 @@ export function createChara(
 		body,
 		clickZone,
 		sprite,
-		emote: null
+		emote: null,
+		emoteOverlay: null
 	}
+
+	return chara
 }
 
 function createSprite(scene: BattlegroundScene, leader: Unit, squad: Squad) {
@@ -91,12 +95,38 @@ function createSprite(scene: BattlegroundScene, leader: Unit, squad: Squad) {
 }
 
 export function createEmote(chara: Chara, key: string) {
-	if (chara.emote) chara.emote.destroy()
+	removeEmote(chara)
 	const emote = chara.sprite.scene.add.sprite(
 		chara.sprite.x,
 		chara.sprite.y - HALF_TILE_HEIGHT,
 		key).setScale(2)
 	emote.anims.play(key)
 	chara.emote = emote
+
+
+	const overlay = chara.sprite.scene.add.sprite(
+		chara.sprite.x,
+		chara.sprite.y - HALF_TILE_HEIGHT,
+		key).setScale(2)
+	overlay.anims.play(key)
+	overlay.setCrop(0, 0, 0, 0)
+	overlay.setTint(0x00ff00)
+	chara.emoteOverlay = overlay
+	// follow chara
+	chara.sprite.scene.events.on("update", () => {
+		emote.x = chara.sprite.x
+		emote.y = chara.sprite.y - HALF_TILE_HEIGHT
+		overlay.x = chara.sprite.x
+		overlay.y = chara.sprite.y - HALF_TILE_HEIGHT
+	})
+
+	return chara
+}
+
+export function removeEmote(chara: Chara) {
+	if (chara.emote) chara.emote.destroy()
+	chara.emote = null
+	if (chara.emoteOverlay) chara.emoteOverlay.destroy()
+	chara.emoteOverlay = null
 	return chara
 }

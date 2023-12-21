@@ -9,7 +9,7 @@ import { makeSquadInteractive, makeSquadsInteractive } from "./Map/makeSquadsInt
 import { createCities } from "./Map/createCities";
 import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
 import { Squad } from "../../Models/Squad";
-import moveSquads from "./Map/moveSquads";
+import moveSquads, { faceDirection, getDirection } from "./Map/moveSquads";
 import { WindowVec, windowVec } from "../../Models/Misc";
 import { Chara, createChara } from "../../Components/chara";
 import { emit, emit_, events, listeners } from "../../Models/Signals";
@@ -236,7 +236,8 @@ export class BattlegroundScene extends Phaser.Scene {
         const chara = this.charas.find(c => c.id === squad.id);
 
         if (chara) {
-          chara.sprite.anims.play(chara.job + '-walk-down', true)
+          const direction = getDirection(path[0], squad.position)
+          faceDirection(direction, chara)
         }
       }
     )
