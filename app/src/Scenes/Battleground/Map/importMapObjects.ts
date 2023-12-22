@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { State } from "../../../Models/State";
 import * as uuid from "uuid";
-import { Squad } from "../../../Models/Squad";
+import { Squad, makeSquad } from "../../../Models/Squad";
 import { randomUnit } from "../../../Models/Unit";
 import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../constants";
 import { City } from "../../../Models/City";
@@ -137,18 +137,15 @@ export function importMapObjects(state: State, map: Phaser.Tilemaps.Tilemap) {
 			))
 
 			const newSquad: Squad = {
-				id: squadId,
+				...makeSquad(squadId, force.id),
 				name: uuid.v4().slice(0, 12),
-				force: force.id,
 				leader: units[0].id,
 				dispatched: true,
-				morale: 100,
 				position: {
 					x: Math.floor(sqd.x / TILE_WIDTH),
 					y: Math.floor(sqd.y / TILE_HEIGHT)
 				},
 				members: sqd.members.map(spec => spec.id),
-				path: []
 			};
 
 			state.squads.push(newSquad);

@@ -16,6 +16,20 @@ const SelectedSquad = ({
 
 	const members = getMembers(squad)
 
+	const getStatus = () => {
+		if (squad.engaged)
+			return "Engaged"
+
+		if (squad.path.length > 0)
+			return "Moving"
+
+		if (squad.isRetreating)
+			return "Retreating"
+
+		return "Idle"
+	}
+	const status = getStatus()
+
 	return <div className="row" id="selected-entity">
 
 		<div className="col col-6"
@@ -30,6 +44,11 @@ const SelectedSquad = ({
 						onClick={Signals.emit_(Signals.events.SET_UNIT_DETAILS_MODAL, unit.id)}
 					/>
 				)
+			}
+		</div>
+		<div className="col-2">
+			{
+				status
 			}
 		</div>
 		<div className="col col-4 mt-4">

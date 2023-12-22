@@ -17,6 +17,7 @@ import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
 import { State, getState } from "../../Models/State";
 import { TILE_HEIGHT } from "./constants";
 import { createFogOfWar } from "./Map/fogOfWar";
+import * as EngagementSystem from "../../Systems/Engagement/Engagement";
 
 const easystar = new Easystar.js();
 easystar.setAcceptableTiles([0])
@@ -65,6 +66,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.state = getState()
 
+    EngagementSystem.init(this.state)
 
     //@ts-ignore
     window.state = this.state

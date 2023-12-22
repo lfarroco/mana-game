@@ -13,7 +13,9 @@ export type Squad = {
 		x: number,
 		y: number
 	},
-	members: string[]
+	members: string[],
+	engaged: boolean,
+	isRetreating: boolean
 }
 
 export const makeSquad = (id: string, force: string): Squad => ({
@@ -25,7 +27,9 @@ export const makeSquad = (id: string, force: string): Squad => ({
 	morale: 100,
 	position: { x: 0, y: 0 },
 	members: [],
-	path: []
+	path: [],
+	engaged: false,
+	isRetreating: false
 });
 
 export function getDispatchableSquads(state: State) {
