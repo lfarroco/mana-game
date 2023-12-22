@@ -20,3 +20,4 @@ export const boardVec = (x: number, y: number): BoardVec => ({
 	tag: "_boardvec",
 	x, y
 })
+export const toBoardVec = ({ x, y }: { x: number, y: number }): BoardVec => boardVec(x, y)

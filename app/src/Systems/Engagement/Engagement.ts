@@ -1,26 +1,26 @@
-import { BoardVec } from "../../Models/Misc";
+import { Direction, getDirection } from "../../Models/Direction";
+import { BoardVec, boardVec } from "../../Models/Misc";
 import { listeners, events } from "../../Models/Signals";
 import { State } from "../../Models/State";
+import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
+import { HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 
-type Engagement = {
+export type Engagement = {
 	startTick: number;
-	members: { id: string, cell: { x: number, y: number } }[]
+	members: { id: string, force: string, cell: { x: number, y: number } }[]
+	attackingCell: BoardVec,
+	sprite: Phaser.GameObjects.Sprite
 }
 
-export function init(state: State) {
-
-	let engagements: Engagement[] = []
+export function init(scene: BattlegroundScene, state: State) {
 
 	listeners([
-		[events.ENGAGEMENT_START, engagementStartHandler(state, engagements)]
+		[events.ENGAGEMENT_START, engagementStartHandler(scene, state)]
 	])
-
-	//@ts-ignore
-	window.engagements = engagements;
 
 }
 
-const engagementStartHandler = (state: State, engagements: Engagement[]) => (squadId: string, targetCell: BoardVec) => {
+const engagementStartHandler = (scene: BattlegroundScene, state: State) => (squadId: string, targetCell: BoardVec) => {
 
 	const squad = state.squads.find(squad => squad.id === squadId);
 
@@ -28,7 +28,7 @@ const engagementStartHandler = (state: State, engagements: Engagement[]) => (squ
 		throw new Error(`Squad ${squadId} not found`)
 	}
 
-	const isAlreadyEngaged = engagements.some(engagement => engagement.members.some(member => member.id === squadId));
+	const isAlreadyEngaged = state.engagements.some(engagement => engagement.members.some(member => member.id === squadId));
 
 	if (isAlreadyEngaged) {
 		console.warn(`Squad ${squadId} is already engaged`)
@@ -48,19 +48,47 @@ const engagementStartHandler = (state: State, engagements: Engagement[]) => (squ
 
 	const members = [{
 		id: squad.id,
-		cell: squad.position
-	}].concat(targetCellEnemies.map(squad => ({
-		id: squad.id,
-		cell: squad.position
+		cell: squad.position,
+		force: squad.force
+	}].concat(targetCellEnemies.map(sqd => ({
+		id: sqd.id,
+		force: sqd.force,
+		cell: sqd.position
 	})))
+
+	const direction = getDirection( targetCell, squad.position,)
+
+	const emotePosition = getEmotePosition(targetCell, direction)
+	// create sprite between cells
+	const sprite = scene.add.sprite(
+		emotePosition.x,
+		emotePosition.y,
+		"combat-emote"
+	)
+		.setScale(2)
+		.play("combat-emote")
 
 	const engagement: Engagement = {
 		startTick: state.tick,
-		members
+		attackingCell: boardVec(squad.position.x, squad.position.y),
+		members,
+		sprite
 	}
 
 	squad.engaged = true
 	targetCellEnemies.forEach(squad => squad.engaged = true)
-	engagements.push(engagement);
+	state.engagements.push(engagement);
 
+}
+const getEmotePosition = (tile: { x: number, y: number }, direction: Direction) => {
+	switch (direction) {
+		case "up":
+			return { x: tile.x * TILE_WIDTH + HALF_TILE_WIDTH, y: (tile.y + 1) * TILE_HEIGHT }
+		case "down":
+			return { x: tile.x * TILE_WIDTH + HALF_TILE_WIDTH, y: (tile.y) * TILE_HEIGHT }
+		case "left":
+			return { x: (tile.x + 1) * TILE_WIDTH, y: (tile.y) * TILE_HEIGHT }
+		case "right":
+			return { x: (tile.x) * TILE_WIDTH - HALF_TILE_WIDTH, y: (tile.y) * TILE_HEIGHT }
+	}
 }

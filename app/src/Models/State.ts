@@ -1,3 +1,4 @@
+import { Engagement } from "../Systems/Engagement/Engagement";
 import { City } from "./City";
 import { FORCE_ID_PLAYER, Force, makeForce } from "./Force";
 import { Squad, makeSquad } from "./Squad";
@@ -39,6 +40,7 @@ export const initialState = (): State => ({
 	],
 	cities: [],
 	selectedEntity: null,
+	engagements: []
 });
 
 export type State = {
@@ -49,7 +51,8 @@ export type State = {
 	squads: Squad[];
 	units: Unit[];
 	cities: City[];
-	selectedEntity: null | { type: string, id: string }
+	selectedEntity: null | { type: string, id: string };
+	engagements: Engagement[]
 };
 
 export const getState = (): State => {

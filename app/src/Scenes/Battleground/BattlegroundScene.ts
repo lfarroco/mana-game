@@ -9,15 +9,17 @@ import { makeSquadInteractive, makeSquadsInteractive } from "./Map/makeSquadsInt
 import { createCities } from "./Map/createCities";
 import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
 import { Squad } from "../../Models/Squad";
-import moveSquads, { faceDirection, getDirection } from "./Map/moveSquads";
-import { WindowVec, windowVec } from "../../Models/Misc";
+import moveSquads from "./Map/moveSquads";
+import { faceDirection } from "../../Models/Direction";
+import { getDirection } from "../../Models/Direction";
+import { WindowVec, boardVec, toBoardVec } from "../../Models/Misc";
 import { Chara, createChara } from "../../Components/chara";
-import { emit, emit_, events, listeners } from "../../Models/Signals";
-import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
+import { emit, events, listeners } from "../../Models/Signals";
 import { State, getState } from "../../Models/State";
 import { TILE_HEIGHT } from "./constants";
 import { createFogOfWar } from "./Map/fogOfWar";
 import * as EngagementSystem from "../../Systems/Engagement/Engagement";
+import * as CombatSystem from "../../Systems/Combat/Combat";
 
 const easystar = new Easystar.js();
 easystar.setAcceptableTiles([0])
@@ -60,13 +62,25 @@ export class BattlegroundScene extends Phaser.Scene {
         if (!this.isPaused && this.squadsCanMove) {
           moveSquads(this)
         }
-      }
+      },
+      ], [
+        events.UPDATE_SQUAD_MORALE, (squadId: string, morale: number) => {
+          const squad = this.state.squads.find(sqd => sqd.id === squadId)
+          if (!squad) {
+            console.warn("squad not found", squadId)
+            return
+          }
+          squad.morale = morale
+        }
       ]
-    ]);
+
+    ]
+    );
 
     this.state = getState()
 
-    EngagementSystem.init(this.state)
+    EngagementSystem.init(this, this.state)
+    CombatSystem.init(this.state)
 
     //@ts-ignore
     window.state = this.state
@@ -194,7 +208,7 @@ export class BattlegroundScene extends Phaser.Scene {
         const chara = this.charas.find(c => c.id === squad.id);
 
         if (chara) {
-          const direction = getDirection(path[0], squad.position)
+          const direction = getDirection(toBoardVec(path[0]), squad.position)
           faceDirection(direction, chara)
         }
       }
@@ -229,7 +243,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     const tile = this.layers?.background.getTileAtWorldXY(city.position.x, city.position.y);
     if (!tile) return
-    squad.position = { x: tile.x, y: tile.y }
+    squad.position = toBoardVec(tile)
 
     const chara_ = createChara(
       this,
