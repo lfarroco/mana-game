@@ -6,6 +6,7 @@ import { Unit, makeUnit } from "./Unit";
 export const initialState = (): State => ({
 	debug: true,
 	speed: 4,
+	tick: 0,
 	forces: [
 		{
 			...makeForce(),
@@ -43,6 +44,7 @@ export const initialState = (): State => ({
 export type State = {
 	debug: boolean;
 	speed: number;
+	tick: number; // TODO: remove tick from scene
 	forces: Force[];
 	squads: Squad[];
 	units: Unit[];

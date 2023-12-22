@@ -1,5 +1,5 @@
 import Events from 'events'
-import { WindowVec } from './Misc'
+import { BoardVec, WindowVec } from './Misc'
 
 export type Signals = {
 	PAUSE_PHYSICS: () => void
@@ -19,6 +19,8 @@ export type Signals = {
 	TOGGLE_SQUADS_WINDOW: (value: boolean) => void,
 	SET_UNIT_DETAILS_MODAL: (id: string | null) => void,
 	BATTLEGROUND_TICK: (tick: number) => void,
+	// TODO: have a parent level for the system
+	ENGAGEMENT_START: (squad: string, targetCell: BoardVec) => any,
 }
 
 export const events: { [key in keyof Signals]: keyof Signals } = {
@@ -39,6 +41,7 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
 	TOGGLE_SQUADS_WINDOW: "TOGGLE_SQUADS_WINDOW",
 	SET_UNIT_DETAILS_MODAL: "SET_UNIT_DETAILS_MODAL",
 	BATTLEGROUND_TICK: "BATTLEGROUND_TICK",
+	ENGAGEMENT_START: "ENGAGEMENT_START",
 }
 
 export const listen = <T extends keyof Signals>(
@@ -75,7 +78,7 @@ export const emit_ = <T extends keyof Signals>(
 }
 
 // example usage:
-// listeners(emitter,[
+// listeners([
 // 	[ "A", ()=>{ do stuff}],
 // 	[ "B", ()=>{ do stuff}],
 // ])
