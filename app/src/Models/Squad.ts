@@ -1,5 +1,6 @@
 import { State, getState } from "./State";
 import { FORCE_ID_PLAYER } from "./Force";
+import { BoardVec, boardVec } from "./Misc";
 
 export type Squad = {
 	path: { x: number; y: number }[]
@@ -9,10 +10,7 @@ export type Squad = {
 	force: string,
 	dispatched: boolean,
 	morale: number,
-	position: {
-		x: number,
-		y: number
-	},
+	position: BoardVec,
 	members: string[],
 	engaged: boolean,
 	isRetreating: boolean
@@ -25,7 +23,7 @@ export const makeSquad = (id: string, force: string): Squad => ({
 	leader: "",
 	dispatched: false,
 	morale: 100,
-	position: { x: 0, y: 0 },
+	position: boardVec(0, 0),
 	members: [],
 	path: [],
 	engaged: false,

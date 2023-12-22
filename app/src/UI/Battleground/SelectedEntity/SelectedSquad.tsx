@@ -47,9 +47,18 @@ const SelectedSquad = ({
 			}
 		</div>
 		<div className="col-2">
-			{
-				status
-			}
+			<div>
+				Status:
+				{
+					status
+				}
+			</div>
+			<div>
+				Morale:
+				{
+					squad.morale
+				}
+			</div>
 		</div>
 		<div className="col col-4 mt-4">
 			{!isSelectingMoveTarget && <>
