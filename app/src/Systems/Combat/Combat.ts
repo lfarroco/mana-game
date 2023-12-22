@@ -30,7 +30,36 @@ export function processCombat(state: State) {
 				squad.engaged = false
 				if (!isAtacking) {
 					squad.isRetreating = true
-					// TODO: retreat to
+					// find a path to a neighboring friendly cell, if any
+					const closestCell = state.squads
+						.filter(sqd => sqd.force === squad.force)
+						.map(sqd => sqd.position)
+						.filter(pos => {
+							const distance = Math.abs(pos.x - squad.position.x) + Math.abs(pos.y - squad.position.y)
+							return distance === 1
+						})
+
+					if (closestCell.length > 0) {
+						squad.path = closestCell
+					} else {
+						// pick empty random cell
+						const emptyCells = [
+							[0, 1],
+							[0, -1],
+							[1, 0],
+							[-1, 0],
+						].filter(([x, y]) => {
+							const cell = state.squads.find(sqd => sqd.position.x === squad.position.x + x && sqd.position.y === squad.position.y + y)
+							return !cell
+						})
+						if (emptyCells.length > 0) {
+							const [x, y] = emptyCells[Math.floor(Math.random() * emptyCells.length)]
+							squad.path = [{ x: squad.position.x + x, y: squad.position.y + y }]
+						} else {
+							// nowhere to retreat
+							// TODO: destroy squad
+						}
+					}
 				} else {
 					squad.path = []
 				}
