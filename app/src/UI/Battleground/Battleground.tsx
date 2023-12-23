@@ -86,13 +86,15 @@ const Battleground = () => {
           </ButtonGroup>
         </div>
       </header>
+      <div className="content" id="tooltip">
+        <div className="row">
+          <div id="tooltip" className="col text-center">
+            {isSelectingMoveTarget && 'Select Target'}
+          </div>
+        </div>
+      </div>
       <footer className="block">
         <div className="content">
-          <div className="row">
-            <div id="tooltip" className="col text-center text-light">
-              {isSelectingMoveTarget && 'Select Target'}
-            </div>
-          </div>
           {
             selectedEntityInfo?.type === "squad"
             && <SelectedSquad

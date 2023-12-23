@@ -15,6 +15,14 @@ header {
   width: 100%;
 }
 
+#tooltip {
+  position: fixed;
+  bottom: 150px;
+  color: gold;
+  text-shadow: 1px 1px 1px black;
+  font-size: 20px;
+}
+
 footer {
   min-height: 100px;
   position: fixed;
