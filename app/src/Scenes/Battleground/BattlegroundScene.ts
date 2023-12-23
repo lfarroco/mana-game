@@ -12,7 +12,7 @@ import { Squad } from "../../Models/Squad";
 import moveSquads from "./Map/moveSquads";
 import { faceDirection } from "../../Models/Direction";
 import { getDirection } from "../../Models/Direction";
-import { WindowVec, boardVec, toBoardVec } from "../../Models/Misc";
+import { WindowVec, toBoardVec } from "../../Models/Misc";
 import { Chara, createChara } from "../../Components/chara";
 import { emit, events, listeners } from "../../Models/Signals";
 import { State, getState } from "../../Models/State";
@@ -20,6 +20,7 @@ import { TILE_HEIGHT } from "./constants";
 import { createFogOfWar } from "./Map/fogOfWar";
 import * as EngagementSystem from "../../Systems/Engagement/Engagement";
 import * as CombatSystem from "../../Systems/Combat/Combat";
+import * as ControlsSystem from "../../Systems/Controls/Controls";
 
 const easystar = new Easystar.js();
 easystar.setAcceptableTiles([0])
@@ -93,6 +94,8 @@ export class BattlegroundScene extends Phaser.Scene {
   create = () => {
     console.log("BattlegroundScene create")
     const { map, layers } = createMap(this);
+
+    ControlsSystem.init(this)
 
     if (!this.layers)
       importMapObjects(this.state, map);
@@ -217,11 +220,9 @@ export class BattlegroundScene extends Phaser.Scene {
 
   pausePhysics = () => {
     this.isPaused = true;
-    this.scene.scene.physics.pause();
   }
   resumePhysics = () => {
     this.isPaused = false;
-    this.scene.scene.physics.resume();
   }
   moveSquadTo = (sqdId: string, { x, y }: WindowVec) => {
     const sqd = this.state.squads.find(sqd => sqd.id === sqdId)
