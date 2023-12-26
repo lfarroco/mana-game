@@ -17,11 +17,8 @@ export function makeSquadsInteractive(
 }
 export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
 
-	const state = getState();
-	if (state.debug)
-		scene.input.enableDebug(chara.clickZone);
-
-	chara.clickZone.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer, x: number, y: number) => {
+	chara.sprite.setInteractive();
+	chara.sprite.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer, x: number, y: number) => {
 
 		const state = getState();
 

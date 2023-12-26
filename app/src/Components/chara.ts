@@ -9,10 +9,9 @@ export type Chara = {
 	id: string;
 	force: string;
 	job: string;
-	clickZone: Phaser.GameObjects.Zone;
 	sprite: Phaser.GameObjects.Sprite,
-	emote: Phaser.GameObjects.Sprite | null
-	emoteOverlay: Phaser.GameObjects.Sprite | null
+	emote: Phaser.GameObjects.Sprite | null,
+	emoteOverlay: Phaser.GameObjects.Sprite | null,
 }
 
 export const CHARA_SCALE_X = 2;
@@ -31,17 +30,31 @@ export function createChara(
 
 	const sprite = createSprite(scene, leader, squad);
 
-	const clickZone = scene.add.zone(
-		squad.position.x * TILE_WIDTH,
-		squad.position.y * TILE_HEIGHT,
-		TILE_WIDTH, TILE_HEIGHT
-	)
-		.setInteractive();
+	//morale bar
+	const morale = scene.add.graphics();
+	morale.fillStyle(0x00ff00, 1);
+	morale.fillRect(
+		0,
+		0,
+		TILE_WIDTH,
+		6
+	);
 
+	//stamina bar
+	const stamina = scene.add.graphics();
+	stamina.fillStyle(0xffff00, 1);
+	stamina.fillRect(
+		0,
+		0,
+		TILE_WIDTH,
+		6
+	);
 
 	const follow = () => {
-		clickZone.x = sprite.x;
-		clickZone.y = sprite.y
+		morale.x = sprite.x - HALF_TILE_WIDTH
+		morale.y = sprite.y + HALF_TILE_HEIGHT + 6
+		stamina.x = sprite.x - HALF_TILE_WIDTH
+		stamina.y = sprite.y + HALF_TILE_HEIGHT
 	};
 
 	//todo: iterate on scene state, for each chara, make it follow its circle
@@ -58,7 +71,6 @@ export function createChara(
 		force: squad.force,
 		job: leader.job,
 		// phaser doesn't have a working type of a non-visible body, so we lie here
-		clickZone,
 		sprite,
 		emote: null,
 		emoteOverlay: null
