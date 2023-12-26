@@ -22,6 +22,7 @@ export type Signals = {
 	// TODO: have a parent level for the system
 	ENGAGEMENT_START: (squad: string, targetCell: BoardVec) => any,
 	UPDATE_SQUAD_MORALE: (squadId: string, morale: number) => any,
+	UPDATE_SQUAD_STAMINA: (squadId: string, morale: number) => any,
 }
 
 export const events: { [key in keyof Signals]: keyof Signals } = {
@@ -44,6 +45,7 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
 	BATTLEGROUND_TICK: "BATTLEGROUND_TICK",
 	ENGAGEMENT_START: "ENGAGEMENT_START",
 	UPDATE_SQUAD_MORALE: "UPDATE_SQUAD_MORALE",
+	UPDATE_SQUAD_STAMINA: "UPDATE_SQUAD_STAMINA",
 }
 
 export const listen = <T extends keyof Signals>(

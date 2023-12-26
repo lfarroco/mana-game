@@ -4,6 +4,7 @@ import { Unit } from "../Models/Unit";
 import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../Scenes/Battleground/constants";
 import "./portrait.css"
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
+import { events, listeners } from "../Models/Signals";
 
 export type Chara = {
 	id: string;
@@ -12,6 +13,8 @@ export type Chara = {
 	sprite: Phaser.GameObjects.Sprite,
 	emote: Phaser.GameObjects.Sprite | null,
 	emoteOverlay: Phaser.GameObjects.Sprite | null,
+	moraleBar: Phaser.GameObjects.Graphics | null,
+	staminaBar: Phaser.GameObjects.Graphics | null,
 }
 
 export const CHARA_SCALE_X = 2;
@@ -31,9 +34,17 @@ export function createChara(
 	const sprite = createSprite(scene, leader, squad);
 
 	//morale bar
-	const morale = scene.add.graphics();
-	morale.fillStyle(0x00ff00, 1);
-	morale.fillRect(
+	const moraleBackground = scene.add.graphics();
+	moraleBackground.fillStyle(0x000000, 1);
+	moraleBackground.fillRect(
+		0,
+		0,
+		TILE_WIDTH,
+		6
+	);
+	const moraleBar = scene.add.graphics();
+	moraleBar.fillStyle(0x00ff00, 1);
+	moraleBar.fillRect(
 		0,
 		0,
 		TILE_WIDTH,
@@ -41,9 +52,18 @@ export function createChara(
 	);
 
 	//stamina bar
-	const stamina = scene.add.graphics();
-	stamina.fillStyle(0xffff00, 1);
-	stamina.fillRect(
+
+	const staminaBackground = scene.add.graphics();
+	staminaBackground.fillStyle(0x000000, 1);
+	staminaBackground.fillRect(
+		0,
+		0,
+		TILE_WIDTH,
+		6
+	);
+	const staminaBar = scene.add.graphics();
+	staminaBar.fillStyle(0xffff00, 1);
+	staminaBar.fillRect(
 		0,
 		0,
 		TILE_WIDTH,
@@ -51,10 +71,14 @@ export function createChara(
 	);
 
 	const follow = () => {
-		morale.x = sprite.x - HALF_TILE_WIDTH
-		morale.y = sprite.y + HALF_TILE_HEIGHT + 6
-		stamina.x = sprite.x - HALF_TILE_WIDTH
-		stamina.y = sprite.y + HALF_TILE_HEIGHT
+		moraleBar.x = sprite.x - HALF_TILE_WIDTH
+		moraleBar.y = sprite.y + HALF_TILE_HEIGHT + 6
+		moraleBackground.x = sprite.x - HALF_TILE_WIDTH
+		moraleBackground.y = sprite.y + HALF_TILE_HEIGHT + 6
+		staminaBar.x = sprite.x - HALF_TILE_WIDTH
+		staminaBar.y = sprite.y + HALF_TILE_HEIGHT
+		staminaBackground.x = sprite.x - HALF_TILE_WIDTH
+		staminaBackground.y = sprite.y + HALF_TILE_HEIGHT
 	};
 
 	//todo: iterate on scene state, for each chara, make it follow its circle
@@ -66,6 +90,37 @@ export function createChara(
 		scene.events.off("update", follow);
 	});
 
+	listeners([
+		[events.UPDATE_SQUAD_MORALE, (id: string, morale: number) => {
+
+			if (id !== squad.id) return
+
+			moraleBar.clear()
+			moraleBar.fillStyle(0x00ff00, 1);
+			moraleBar.fillRect(
+				0,
+				0,
+				TILE_WIDTH * morale / 100,
+				6
+			);
+
+		}],
+		[events.UPDATE_SQUAD_STAMINA, (id: string, stamina: number) => {
+
+			if (id !== squad.id) return
+
+			staminaBar.clear()
+			staminaBar.fillStyle(0xffff00, 1);
+			staminaBar.fillRect(
+				0,
+				0,
+				TILE_WIDTH * stamina / 100,
+				6
+			);
+
+		}]
+	])
+
 	const chara = {
 		id: squad.id,
 		force: squad.force,
@@ -73,7 +128,9 @@ export function createChara(
 		// phaser doesn't have a working type of a non-visible body, so we lie here
 		sprite,
 		emote: null,
-		emoteOverlay: null
+		emoteOverlay: null,
+		moraleBar,
+		staminaBar
 	}
 
 	return chara
