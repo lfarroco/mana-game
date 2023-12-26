@@ -60,6 +60,8 @@ const moveSquads = (scene: BattlegroundScene) => {
 
 			if (walked < TURNS_TO_MOVE) return
 
+			squad.isRetreating = false
+
 			scene.tweens.add({
 				targets: chara.sprite,
 				x: nextTile.getCenterX(),
