@@ -21,6 +21,7 @@ import { createFogOfWar } from "./Map/fogOfWar";
 import * as EngagementSystem from "../../Systems/Engagement/Engagement";
 import * as CombatSystem from "../../Systems/Combat/Combat";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
+import * as MoraleRegen from "../../Systems/MoraleRegen/MoraleRegen";
 
 const easystar = new Easystar.js();
 easystar.setAcceptableTiles([0])
@@ -73,6 +74,15 @@ export class BattlegroundScene extends Phaser.Scene {
           }
           squad.morale = morale
         }
+      ], [
+        events.UPDATE_SQUAD_STAMINA, (squadId: string, stamina: number) => {
+          const squad = this.state.squads.find(sqd => sqd.id === squadId)
+          if (!squad) {
+            console.warn("squad not found", squadId)
+            return
+          }
+          squad.stamina = stamina
+        }
       ]
 
     ]
@@ -82,6 +92,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     EngagementSystem.init(this, this.state)
     CombatSystem.init(this.state)
+    MoraleRegen.init(this)
 
     //@ts-ignore
     window.state = this.state
