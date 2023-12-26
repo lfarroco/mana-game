@@ -18,6 +18,9 @@ export type Chara = {
 }
 
 export const CHARA_SCALE_X = 2;
+export const BAR_WIDTH = TILE_WIDTH;
+export const BAR_HEIGHT = 6;
+export const BORDER_WIDTH = 1;
 
 export function createChara(
 	scene: BattlegroundScene,
@@ -39,16 +42,16 @@ export function createChara(
 	moraleBackground.fillRect(
 		0,
 		0,
-		TILE_WIDTH,
-		6
+		BAR_WIDTH,
+		BAR_HEIGHT
 	);
 	const moraleBar = scene.add.graphics();
 	moraleBar.fillStyle(0x00ff00, 1);
 	moraleBar.fillRect(
 		0,
 		0,
-		TILE_WIDTH,
-		6
+		BAR_WIDTH - BORDER_WIDTH * 2,
+		BAR_HEIGHT - BORDER_WIDTH * 2
 	);
 
 	//stamina bar
@@ -58,27 +61,27 @@ export function createChara(
 	staminaBackground.fillRect(
 		0,
 		0,
-		TILE_WIDTH,
-		6
+		BAR_WIDTH,
+		BAR_HEIGHT
 	);
 	const staminaBar = scene.add.graphics();
 	staminaBar.fillStyle(0xffff00, 1);
 	staminaBar.fillRect(
 		0,
 		0,
-		TILE_WIDTH,
-		6
+		BAR_WIDTH - BORDER_WIDTH * 2,
+		BAR_HEIGHT - BORDER_WIDTH * 2
 	);
 
 	const follow = () => {
-		moraleBar.x = sprite.x - HALF_TILE_WIDTH
-		moraleBar.y = sprite.y + HALF_TILE_HEIGHT + 6
-		moraleBackground.x = sprite.x - HALF_TILE_WIDTH
-		moraleBackground.y = sprite.y + HALF_TILE_HEIGHT + 6
-		staminaBar.x = sprite.x - HALF_TILE_WIDTH
-		staminaBar.y = sprite.y + HALF_TILE_HEIGHT
-		staminaBackground.x = sprite.x - HALF_TILE_WIDTH
-		staminaBackground.y = sprite.y + HALF_TILE_HEIGHT
+		moraleBackground.x = sprite.x - HALF_TILE_WIDTH;
+		moraleBackground.y = sprite.y + HALF_TILE_HEIGHT;
+		moraleBar.x = moraleBackground.x + BORDER_WIDTH;
+		moraleBar.y = moraleBackground.y + BORDER_WIDTH;
+		staminaBackground.x = moraleBackground.x;
+		staminaBackground.y = moraleBackground.y + BAR_HEIGHT;
+		staminaBar.x = moraleBar.x;
+		staminaBar.y = moraleBar.y + BAR_HEIGHT;
 	};
 
 	//todo: iterate on scene state, for each chara, make it follow its circle
