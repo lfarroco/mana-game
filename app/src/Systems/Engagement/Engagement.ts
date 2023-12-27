@@ -31,7 +31,10 @@ const engagementStartHandler = (scene: BattlegroundScene, state: State) => (squa
 		throw new Error(`Squad ${squadId} not found`)
 	}
 
-	const isAlreadyEngaged = state.engagements.some(engagement => engagement.members.some(member => member.id === squadId));
+	const isAlreadyEngaged = state.engagements.some(engagement =>
+		!engagement.finished &&
+		engagement.members.some(member => member.id === squadId)
+	);
 
 	if (isAlreadyEngaged) {
 		console.warn(`Squad ${squadId} is already engaged`)
