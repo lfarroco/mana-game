@@ -1,14 +1,14 @@
-import Phaser from "phaser";
 import { Chara, createChara } from "../../../Components/chara";
 import { getState } from "../../../Models/State";
 import BattlegroundScene from "../BattlegroundScene";
+import { SQUAD_STATUS } from "../../../Models/Squad";
 
 export function createMapSquads(scene: BattlegroundScene): Chara[] {
 
 	const state = getState()
 
 	return state.squads
-		.filter(squad => squad.dispatched)
+		.filter(squad => squad.status === SQUAD_STATUS.IDLE)
 		.map(squad =>
 			createChara(scene, squad)
 		);

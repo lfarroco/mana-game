@@ -2,18 +2,17 @@ import { removeEmote } from "../../../Components/chara";
 import { boardVec, toBoardVec } from "../../../Models/Misc";
 import { emit, events } from "../../../Models/Signals";
 import { BattlegroundScene } from "../BattlegroundScene";
-import { getDirection } from "../../../Models/Direction";
+import { DIRECTIONS, getDirection } from "../../../Models/Direction";
 import { faceDirection } from "../../../Models/Direction";
+import { SQUAD_STATUS } from "../../../Models/Squad";
 
 const TURNS_TO_MOVE = 3;
 const moveSquads = (scene: BattlegroundScene) => {
 
 	scene.state.squads
-		.filter(s => !s.engaged)
+		.filter(s => s.status === SQUAD_STATUS.IDLE || s.status === SQUAD_STATUS.MOVING || s.status === SQUAD_STATUS.RETREATING)
 		.filter(s => s.path.length > 0)
 		.forEach(squad => {
-
-			console.log("will move", squad.id)
 
 			const chara = scene.charas.find(c => c.id === squad.id)
 			if (!chara) return;
@@ -25,10 +24,10 @@ const moveSquads = (scene: BattlegroundScene) => {
 			const direction = getDirection(toBoardVec(next), squad.position)
 
 			const maybeEnemy = scene.state.squads
+				.filter(sqd => sqd.force !== squad.force)
+				.filter(sqd => sqd.status !== SQUAD_STATUS.RETREATING)
 				.filter(sqd =>
-					sqd.force !== squad.force
-					&& !sqd.isRetreating
-					&& sqd.position.x === nextTile.x
+					sqd.position.x === nextTile.x
 					&& sqd.position.y === nextTile.y
 				)
 
@@ -36,9 +35,9 @@ const moveSquads = (scene: BattlegroundScene) => {
 
 				emit(events.ENGAGEMENT_START, squad.id, boardVec(nextTile.x, nextTile.y))
 
-				squad.engaged = true;
+				squad.status = SQUAD_STATUS.ENGAGED
 				maybeEnemy.forEach(enemy => {
-					enemy.engaged = true;
+					enemy.status = SQUAD_STATUS.ENGAGED
 				})
 				return;
 			}
@@ -46,21 +45,26 @@ const moveSquads = (scene: BattlegroundScene) => {
 			const walked = chara.sprite.getData("walk") || 0
 
 			chara.sprite.setData("walk", walked + 1);
+			if (chara.emote) {
+				chara.emote.setVisible(true)
+			}
+			if (chara.emoteOverlay) {
+				chara.emoteOverlay.setVisible(true)
+			}
 			// reveal the emote as the walked count progresses
 			// acoording to position
-			if (direction === "right") {
+			if (direction === DIRECTIONS.right) {
 				chara.emoteOverlay?.setCrop(0, 0, 32 * (walked / TURNS_TO_MOVE), 32)
-			} else if (direction === "left") {
+			} else if (direction === DIRECTIONS.left) {
+				console.log(walked, TURNS_TO_MOVE)
 				chara.emoteOverlay?.setCrop(32 * (1 - (walked / TURNS_TO_MOVE)), 0, 32, 32)
-			} else if (direction === "down") {
+			} else if (direction === DIRECTIONS.down) {
 				chara.emoteOverlay?.setCrop(0, 0, 32, 32 * (walked / TURNS_TO_MOVE))
-			} else if (direction === "up") {
+			} else if (direction === DIRECTIONS.up) {
 				chara.emoteOverlay?.setCrop(0, 32 * (1 - (walked / TURNS_TO_MOVE)), 32, 32)
 			}
 
 			if (walked < TURNS_TO_MOVE) return
-
-			squad.isRetreating = false
 
 			scene.tweens.add({
 				targets: chara.sprite,
@@ -76,7 +80,8 @@ const moveSquads = (scene: BattlegroundScene) => {
 
 						const nextDirection = getDirection(toBoardVec(next), squad.position)
 
-						faceDirection(nextDirection, chara);
+						if (nextDirection !== direction)
+							faceDirection(nextDirection, chara);
 
 					} else {
 						removeEmote(chara)
@@ -88,6 +93,11 @@ const moveSquads = (scene: BattlegroundScene) => {
 
 			squad.position.x = nextTile.x
 			squad.position.y = nextTile.y
+
+			chara.direction = direction
+
+			if (squad.status === SQUAD_STATUS.MOVING || squad.status === SQUAD_STATUS.RETREATING)
+				squad.status = SQUAD_STATUS.IDLE
 
 			chara.sprite.setData("walk", 0)
 

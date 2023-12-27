@@ -3,12 +3,12 @@ import { City } from "../../../Models/City"
 import { emit_, events } from "../../../Models/Signals"
 import { getState } from "../../../Models/State"
 import "./styles.css"
-import { getDispatchableSquads } from "../../../Models/Squad"
+import { getPlayerDispatchableSquads } from "../../../Models/Squad"
 const SelectedCity = ({ city }: { city: City }) => {
 
 	const state = getState()
 
-	const dispatchableSquads = getDispatchableSquads(state)
+	const dispatchableSquads = getPlayerDispatchableSquads(state)
 
 	return <div className="row" id="selected-entity">
 		<div className="col col-2">
