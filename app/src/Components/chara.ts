@@ -18,10 +18,12 @@ export type Chara = {
 	moraleBarBackground: Phaser.GameObjects.Graphics | null,
 	staminaBar: Phaser.GameObjects.Graphics | null,
 	staminaBarBackground: Phaser.GameObjects.Graphics | null,
-	direction: Direction
+	direction: Direction,
+	group: Phaser.GameObjects.Group | null
 }
 
-export const CHARA_SCALE_X = 2;
+export const CHARA_SCALE = 1.5;
+export const EMOTE_SCALE = 1.5;
 export const BAR_WIDTH = TILE_WIDTH;
 export const BAR_HEIGHT = 6;
 export const BORDER_WIDTH = 1;
@@ -128,11 +130,12 @@ export function createChara(
 		}]
 	])
 
-	const chara = {
+	const group = scene.add.group([sprite, moraleBackground, moraleBar, staminaBackground, staminaBar])
+
+	const chara: Chara = {
 		id: squad.id,
 		force: squad.force,
 		job: leader.job,
-		// phaser doesn't have a working type of a non-visible body, so we lie here
 		sprite,
 		emote: null,
 		emoteOverlay: null,
@@ -140,7 +143,8 @@ export function createChara(
 		moraleBarBackground: moraleBackground,
 		staminaBar,
 		staminaBarBackground: staminaBackground,
-		direction: DIRECTIONS.down
+		direction: DIRECTIONS.down,
+		group
 	}
 
 	return chara
@@ -156,7 +160,7 @@ function createSprite(scene: BattlegroundScene, leader: Unit, squad: Squad) {
 			leader.job
 		)
 		.setScale(
-			CHARA_SCALE_X
+			CHARA_SCALE
 		)
 
 	sprite.play(leader.job + "-walk-down", true);
@@ -169,7 +173,7 @@ export function createEmote(chara: Chara, key: string) {
 	const emote = chara.sprite.scene.add.sprite(
 		chara.sprite.x,
 		chara.sprite.y - HALF_TILE_HEIGHT,
-		key).setScale(2)
+		key).setScale(EMOTE_SCALE)
 	emote.anims.play(key)
 	chara.emote = emote
 
@@ -177,7 +181,7 @@ export function createEmote(chara: Chara, key: string) {
 	const overlay = chara.sprite.scene.add.sprite(
 		chara.sprite.x,
 		chara.sprite.y - HALF_TILE_HEIGHT,
-		key).setScale(2)
+		key).setScale(EMOTE_SCALE)
 	overlay.anims.play(key)
 	overlay.setCrop(0, 0, 0, 0)
 	overlay.setTint(0x00ff00)
