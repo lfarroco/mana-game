@@ -22,6 +22,7 @@ import * as EngagementSystem from "../../Systems/Engagement/Engagement";
 import * as CombatSystem from "../../Systems/Combat/Combat";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
 import * as MoraleRegen from "../../Systems/MoraleRegen/MoraleRegen";
+import * as StaminaRegen from "../../Systems/StaminaRegen/StaminaRegen";
 import { squadDestroyed } from "./Events/SquadDestroyed";
 
 const easystar = new Easystar.js();
@@ -98,7 +99,9 @@ export class BattlegroundScene extends Phaser.Scene {
     EngagementSystem.init(this, this.state)
     CombatSystem.init(this.state)
     MoraleRegen.init(this)
+    StaminaRegen.init(this)
     squadDestroyed(this)
+
 
     //@ts-ignore
     window.state = this.state
@@ -259,7 +262,7 @@ export class BattlegroundScene extends Phaser.Scene {
     }
     squad.status = SQUAD_STATUS.IDLE
 
-    const tile = this.layers?.background.getTileAtWorldXY(city.position.x, city.position.y);
+    const tile = this.layers?.background.getTileAtWorldXY(city.screenPosition.x, city.screenPosition.y);
     if (!tile) return
     squad.position = asBoardVec(tile)
 

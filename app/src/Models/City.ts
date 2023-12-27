@@ -1,11 +1,13 @@
 import * as uuid from "uuid";
+import { BoardVec, boardVec } from "./Misc";
 
 export type City = {
 	id: string,
 	name: string,
 	type: string,
 	force: string | null,
-	position: { x: number, y: number }
+	screenPosition: { x: number, y: number }
+	boardPosition: BoardVec
 }
 
 export const makeCity = (): City => {
@@ -14,7 +16,8 @@ export const makeCity = (): City => {
 		name: "",
 		type: "town",
 		force: null,
-		position: { x: 0, y: 0 }
+		screenPosition: { x: 0, y: 0 },
+		boardPosition: boardVec(0, 0)
 	}
 }
 

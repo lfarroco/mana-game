@@ -8,7 +8,7 @@ export function createCities(
 
 	return cities.map(city => scene
 		.add
-		.image(city.position.x, city.position.y, `${city.type}_map`)
+		.image(city.screenPosition.x, city.screenPosition.y, `${city.type}_map`)
 		.setName(city.id));
 
 }
