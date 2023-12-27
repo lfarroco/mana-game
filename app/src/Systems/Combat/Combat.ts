@@ -1,4 +1,5 @@
 import { removeEmote } from "../../Components/chara";
+import { faceDirection, getDirection } from "../../Models/Direction";
 import { FORCE_ID_PLAYER } from "../../Models/Force";
 import { listeners, events, emit } from "../../Models/Signals";
 import { SQUAD_STATUS, Squad } from "../../Models/Squad";
@@ -85,7 +86,7 @@ function removeEngagementMember(engagement: Engagement, member: { id: string; fo
 function tryRetreating(squad: Squad, state: State) {
 	squad.status = SQUAD_STATUS.RETREATING;
 	// find a path to a neighboring friendly cell, if any
-	const closestCell = state.squads
+	const closestAlliedCell = state.squads
 		.filter(sqd => sqd.force === squad.force)
 		.map(sqd => sqd.position)
 		.filter(pos => {
@@ -93,8 +94,8 @@ function tryRetreating(squad: Squad, state: State) {
 			return distance === 1;
 		});
 
-	if (closestCell.length > 0) {
-		squad.path = closestCell;
+	if (closestAlliedCell.length > 0) {
+		squad.path = closestAlliedCell;
 	} else {
 		// pick empty random cell
 		const emptyCells = [

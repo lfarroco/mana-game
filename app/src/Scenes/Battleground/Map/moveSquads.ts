@@ -1,5 +1,5 @@
 import { removeEmote } from "../../../Components/chara";
-import { boardVec, toBoardVec } from "../../../Models/Misc";
+import { boardVec, asBoardVec } from "../../../Models/Misc";
 import { emit, events } from "../../../Models/Signals";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { DIRECTIONS, getDirection } from "../../../Models/Direction";
@@ -21,7 +21,9 @@ const moveSquads = (scene: BattlegroundScene) => {
 			const nextTile = scene.layers?.background.getTileAt(next.x, next.y);
 			if (!nextTile) return;
 
-			const direction = getDirection(toBoardVec(next), squad.position)
+			const direction = getDirection(asBoardVec(next), squad.position)
+
+			faceDirection(direction, chara);
 
 			const maybeEnemy = scene.state.squads
 				.filter(sqd => sqd.force !== squad.force)
@@ -78,10 +80,9 @@ const moveSquads = (scene: BattlegroundScene) => {
 					const next = squad.path[0];
 					if (next) {
 
-						const nextDirection = getDirection(toBoardVec(next), squad.position)
+						const nextDirection = getDirection(asBoardVec(next), squad.position)
 
-						if (nextDirection !== direction)
-							faceDirection(nextDirection, chara);
+						faceDirection(nextDirection, chara);
 
 					} else {
 						removeEmote(chara)

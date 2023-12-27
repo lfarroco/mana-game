@@ -12,7 +12,7 @@ import { SQUAD_STATUS, Squad } from "../../Models/Squad";
 import moveSquads from "./Map/moveSquads";
 import { faceDirection } from "../../Models/Direction";
 import { getDirection } from "../../Models/Direction";
-import { WindowVec, toBoardVec } from "../../Models/Misc";
+import { BoardVec, WindowVec, asBoardVec } from "../../Models/Misc";
 import { Chara, createChara } from "../../Components/chara";
 import { emit, events, listeners } from "../../Models/Signals";
 import { State, getState } from "../../Models/State";
@@ -202,7 +202,7 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
 
-  moveTo(squad: Squad, target: Phaser.Tilemaps.Tile) {
+  moveTo(squad: Squad, target: BoardVec) {
     const sourceTile = this.layers?.background.getTileAt(
       squad.position.x,
       squad.position.y,
@@ -222,7 +222,7 @@ export class BattlegroundScene extends Phaser.Scene {
         const chara = this.charas.find(c => c.id === squad.id);
 
         if (chara) {
-          const direction = getDirection(toBoardVec(path[0]), squad.position)
+          const direction = getDirection(asBoardVec(path[0]), squad.position)
           faceDirection(direction, chara)
         }
       }
@@ -240,7 +240,7 @@ export class BattlegroundScene extends Phaser.Scene {
     const tile = this.layers?.background.getTileAtWorldXY(x, y);
     if (!sqd || !tile) return
     this.isSelectingSquadMove = false;
-    this.moveTo(sqd, tile)
+    this.moveTo(sqd, asBoardVec(tile))
   }
   dispatchSquad = (sqdId: string, cityId: string) => {
 
@@ -255,7 +255,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     const tile = this.layers?.background.getTileAtWorldXY(city.position.x, city.position.y);
     if (!tile) return
-    squad.position = toBoardVec(tile)
+    squad.position = asBoardVec(tile)
 
     const chara_ = createChara(
       this,
