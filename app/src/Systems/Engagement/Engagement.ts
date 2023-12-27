@@ -1,11 +1,14 @@
 import { Direction, getDirection } from "../../Models/Direction";
 import { BoardVec, boardVec } from "../../Models/Misc";
 import { listeners, events } from "../../Models/Signals";
+import { SQUAD_STATUS } from "../../Models/Squad";
 import { State } from "../../Models/State";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
+import { removeEmote } from "../../Components/chara";
 
 export type Engagement = {
+	finished: boolean;
 	startTick: number;
 	members: { id: string, force: string, cell: { x: number, y: number } }[]
 	attackingCell: BoardVec,
@@ -56,7 +59,7 @@ const engagementStartHandler = (scene: BattlegroundScene, state: State) => (squa
 		cell: sqd.position
 	})))
 
-	const direction = getDirection( targetCell, squad.position,)
+	const direction = getDirection(targetCell, squad.position,)
 
 	const emotePosition = getEmotePosition(targetCell, direction)
 	// create sprite between cells
@@ -70,14 +73,20 @@ const engagementStartHandler = (scene: BattlegroundScene, state: State) => (squa
 
 	const engagement: Engagement = {
 		startTick: state.tick,
+		finished: false,
 		attackingCell: boardVec(squad.position.x, squad.position.y),
 		members,
 		sprite
 	}
 
-	squad.engaged = true
-	targetCellEnemies.forEach(squad => squad.engaged = true)
+	targetCellEnemies.forEach(squad => squad.status = SQUAD_STATUS.ENGAGED)
 	state.engagements.push(engagement);
+
+	members.forEach(member => {
+		const chara = scene.charas.find(c => c.id === member.id)
+		if (!chara) return;
+		removeEmote(chara)
+	})
 
 }
 const getEmotePosition = (tile: { x: number, y: number }, direction: Direction) => {

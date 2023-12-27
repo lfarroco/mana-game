@@ -5,6 +5,7 @@ import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../S
 import "./portrait.css"
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
 import { events, listeners } from "../Models/Signals";
+import { DIRECTIONS, Direction } from "../Models/Direction";
 
 export type Chara = {
 	id: string;
@@ -15,6 +16,7 @@ export type Chara = {
 	emoteOverlay: Phaser.GameObjects.Sprite | null,
 	moraleBar: Phaser.GameObjects.Graphics | null,
 	staminaBar: Phaser.GameObjects.Graphics | null,
+	direction: Direction
 }
 
 export const CHARA_SCALE_X = 2;
@@ -133,7 +135,8 @@ export function createChara(
 		emote: null,
 		emoteOverlay: null,
 		moraleBar,
-		staminaBar
+		staminaBar,
+		direction: DIRECTIONS.down
 	}
 
 	return chara
@@ -187,9 +190,9 @@ export function createEmote(chara: Chara, key: string) {
 }
 
 export function removeEmote(chara: Chara) {
-	if (chara.emote) chara.emote.destroy()
-	chara.emote = null
-	if (chara.emoteOverlay) chara.emoteOverlay.destroy()
-	chara.emoteOverlay = null
+	if (chara.emote)
+		chara.emote.visible = false
+	if (chara.emoteOverlay)
+		chara.emoteOverlay.visible = false
 	return chara
 }

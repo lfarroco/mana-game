@@ -1,4 +1,5 @@
 import { emit, events, listeners } from "../../Models/Signals";
+import { SQUAD_STATUS } from "../../Models/Squad";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 
 const MORALE_REGEN_RATE = 3;
@@ -9,9 +10,7 @@ export function init(scene: BattlegroundScene) {
 		[events.BATTLEGROUND_TICK, () => {
 
 			const squads = scene.state.squads
-				.filter(squad => squad.dispatched)
-				.filter(squad => !squad.engaged)
-				.filter(squad => !squad.isRetreating)
+				.filter(squad => squad.status === SQUAD_STATUS.IDLE)
 				.filter(squad => squad.morale < 100)
 
 			squads.forEach(squad => {

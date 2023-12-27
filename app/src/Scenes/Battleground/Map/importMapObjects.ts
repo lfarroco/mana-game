@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { State } from "../../../Models/State";
 import * as uuid from "uuid";
-import { Squad, makeSquad } from "../../../Models/Squad";
+import { SQUAD_STATUS, Squad, makeSquad } from "../../../Models/Squad";
 import { randomUnit } from "../../../Models/Unit";
 import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../constants";
 import { City } from "../../../Models/City";
@@ -141,12 +141,12 @@ export function importMapObjects(state: State, map: Phaser.Tilemaps.Tilemap) {
 				...makeSquad(squadId, force.id),
 				name: uuid.v4().slice(0, 12),
 				leader: units[0].id,
-				dispatched: true,
 				position: boardVec(
 					Math.floor(sqd.x / TILE_WIDTH),
 					Math.floor(sqd.y / TILE_HEIGHT)
 				),
 				members: sqd.members.map(spec => spec.id),
+				status: SQUAD_STATUS.IDLE
 			};
 
 			state.squads.push(newSquad);

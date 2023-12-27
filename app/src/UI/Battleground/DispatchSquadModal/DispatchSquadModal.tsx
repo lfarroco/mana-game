@@ -1,5 +1,5 @@
 import Modal from 'react-bootstrap/Modal';
-import { Squad, getDispatchableSquads } from '../../../Models/Squad';
+import { Squad, getPlayerDispatchableSquads } from '../../../Models/Squad';
 import { getState } from '../../../Models/State';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
@@ -22,7 +22,7 @@ function DispatchSquadModal() {
 	const state = getState()
 
 	const [isVisible, setIsVisible] = useState(false);
-	const dispatchableSquads = getDispatchableSquads(state)
+	const dispatchableSquads = getPlayerDispatchableSquads(state)
 
 	useEffect(() => {
 		listeners([

@@ -8,7 +8,7 @@ import * as Easystar from "easystarjs"
 import { makeSquadInteractive, makeSquadsInteractive } from "./Map/makeSquadsInteractive";
 import { createCities } from "./Map/createCities";
 import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
-import { Squad } from "../../Models/Squad";
+import { SQUAD_STATUS, Squad } from "../../Models/Squad";
 import moveSquads from "./Map/moveSquads";
 import { faceDirection } from "../../Models/Direction";
 import { getDirection } from "../../Models/Direction";
@@ -251,7 +251,7 @@ export class BattlegroundScene extends Phaser.Scene {
       console.error("dispatchSquad: squad or city not found")
       return
     }
-    squad.dispatched = true;
+    squad.status = SQUAD_STATUS.IDLE
 
     const tile = this.layers?.background.getTileAtWorldXY(city.position.x, city.position.y);
     if (!tile) return

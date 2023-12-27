@@ -1,5 +1,5 @@
 import { Button } from "react-bootstrap"
-import { Squad, getMembers } from "../../../Models/Squad"
+import { SQUAD_STATUS, Squad, getMembers } from "../../../Models/Squad"
 import "./styles.css"
 import * as Signals from "../../../Models/Signals"
 import { FORCE_ID_PLAYER } from "../../../Models/Force"
@@ -17,16 +17,19 @@ const SelectedSquad = ({
 	const members = getMembers(squad)
 
 	const getStatus = () => {
-		if (squad.engaged)
+		if (squad.status === SQUAD_STATUS.ENGAGED)
 			return "Engaged"
 
-		if (squad.path.length > 0)
+		if (squad.status === SQUAD_STATUS.MOVING)
 			return "Moving"
 
-		if (squad.isRetreating)
+		if (squad.status === SQUAD_STATUS.RETREATING)
 			return "Retreating"
 
-		return "Idle"
+		if (squad.status === SQUAD_STATUS.IDLE)
+			return "Idle"
+		else
+			return "Unknown"
 	}
 	const status = getStatus()
 
@@ -57,6 +60,12 @@ const SelectedSquad = ({
 				Morale:
 				{
 					squad.morale
+				}
+			</div>
+			<div>
+				Stamina:
+				{
+					squad.stamina
 				}
 			</div>
 		</div>
