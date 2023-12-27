@@ -22,6 +22,7 @@ import * as EngagementSystem from "../../Systems/Engagement/Engagement";
 import * as CombatSystem from "../../Systems/Combat/Combat";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
 import * as MoraleRegen from "../../Systems/MoraleRegen/MoraleRegen";
+import { squadDestroyed } from "./Events/SquadDestroyed";
 
 const easystar = new Easystar.js();
 easystar.setAcceptableTiles([0])
@@ -82,6 +83,10 @@ export class BattlegroundScene extends Phaser.Scene {
             return
           }
           squad.stamina = stamina
+
+          if (squad.stamina <= 0) {
+            emit(events.SQUAD_DESTROYED, squadId)
+          }
         }
       ]
 
@@ -93,6 +98,7 @@ export class BattlegroundScene extends Phaser.Scene {
     EngagementSystem.init(this, this.state)
     CombatSystem.init(this.state)
     MoraleRegen.init(this)
+    squadDestroyed(this)
 
     //@ts-ignore
     window.state = this.state
