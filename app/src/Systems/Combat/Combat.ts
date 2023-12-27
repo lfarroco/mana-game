@@ -46,7 +46,7 @@ export function processCombat(state: State) {
 				emit(events.UPDATE_SQUAD_MORALE, squad.id, newMorale)
 			}
 
-			const newStamina = squad.stamina - (randmD6Roll / 2.5);
+			const newStamina = squad.stamina - (randmD6Roll / 2);
 
 			if (newStamina <= 0) {
 				emit(events.UPDATE_SQUAD_STAMINA, squad.id, 0)
