@@ -72,10 +72,15 @@ export function importMapObjects(state: State, map: Phaser.Tilemaps.Tilemap) {
 				name: city.name,
 				force: force.id,
 				type: city.cityType,
-				position: {
+				screenPosition: {
 					x: city.x + HALF_TILE_WIDTH,
 					y: city.y + HALF_TILE_HEIGHT
-				}
+				},
+				boardPosition: boardVec(
+					Math.floor(city.x / TILE_WIDTH),
+					Math.floor(city.y / TILE_HEIGHT)
+				)
+
 			};
 
 			state.cities.push(newCity);
