@@ -24,15 +24,7 @@ export function squadDestroyed(scene: BattlegroundScene) {
 				duration: 1000,
 				ease: 'Power2',
 				onComplete: () => {
-					chara?.sprite.destroy()
-					chara?.emote?.destroy()
-					chara?.emoteOverlay?.destroy()
-					chara?.moraleBar?.destroy()
-					chara?.moraleBarBackground?.destroy()
-					chara?.staminaBar?.destroy()
-					chara?.staminaBarBackground?.destroy()
-
-
+					chara.group?.destroy(true, true)
 				}
 			})
 			const emote = scene.add.sprite(
@@ -43,7 +35,6 @@ export function squadDestroyed(scene: BattlegroundScene) {
 			scene.time.delayedCall(1000, () => {
 				emote.destroy()
 			});
-
 
 		}]
 	])
