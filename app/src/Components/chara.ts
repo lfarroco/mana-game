@@ -15,7 +15,9 @@ export type Chara = {
 	emote: Phaser.GameObjects.Sprite | null,
 	emoteOverlay: Phaser.GameObjects.Sprite | null,
 	moraleBar: Phaser.GameObjects.Graphics | null,
+	moraleBarBackground: Phaser.GameObjects.Graphics | null,
 	staminaBar: Phaser.GameObjects.Graphics | null,
+	staminaBarBackground: Phaser.GameObjects.Graphics | null,
 	direction: Direction
 }
 
@@ -135,7 +137,9 @@ export function createChara(
 		emote: null,
 		emoteOverlay: null,
 		moraleBar,
+		moraleBarBackground: moraleBackground,
 		staminaBar,
+		staminaBarBackground: staminaBackground,
 		direction: DIRECTIONS.down
 	}
 
@@ -191,8 +195,8 @@ export function createEmote(chara: Chara, key: string) {
 
 export function removeEmote(chara: Chara) {
 	if (chara.emote)
-		chara.emote.visible = false
+		chara.emote.destroy()
 	if (chara.emoteOverlay)
-		chara.emoteOverlay.visible = false
+		chara.emoteOverlay.destroy()
 	return chara
 }

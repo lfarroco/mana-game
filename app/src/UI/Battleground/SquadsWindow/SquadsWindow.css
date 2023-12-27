@@ -1,8 +1,6 @@
 #squads-window {}
 
-#squads-window .list-group {
-	min-height: 500px;
-}
+#squads-window .list-group {}
 
 #squads-window li.selected {}
 

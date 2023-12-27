@@ -14,11 +14,36 @@ export function squadDestroyed(scene: BattlegroundScene) {
 			squad.status = SQUAD_STATUS.DESTROYED
 			squad.position = boardVec(-1, -1)
 
-			const sprite = scene.children.getByName(`chara-${id}`)
+			const chara = scene.charas.find(chara => chara.id === id)
 
-			if (!sprite) throw new Error("sprite not found")
+			if (!chara) throw new Error("chara not found")
 
-			sprite.destroy()
+			scene.tweens.add({
+				targets: chara.sprite,
+				alpha: 0,
+				duration: 1000,
+				ease: 'Power2',
+				onComplete: () => {
+					chara?.sprite.destroy()
+					chara?.emote?.destroy()
+					chara?.emoteOverlay?.destroy()
+					chara?.moraleBar?.destroy()
+					chara?.moraleBarBackground?.destroy()
+					chara?.staminaBar?.destroy()
+					chara?.staminaBarBackground?.destroy()
+
+
+				}
+			})
+			const emote = scene.add.sprite(
+				chara?.sprite?.x || 0,
+				chara?.sprite?.y || 0,
+				"skull-emote"
+			).play("skull-emote").setScale(2);
+			scene.time.delayedCall(1000, () => {
+				emote.destroy()
+			});
+
 
 		}]
 	])
