@@ -1,4 +1,4 @@
-import { Direction, getDirection } from "../../Models/Direction";
+import { DIRECTIONS, Direction, getDirection } from "../../Models/Direction";
 import { BoardVec, boardVec } from "../../Models/Misc";
 import { listeners, events } from "../../Models/Signals";
 import { SQUAD_STATUS } from "../../Models/Squad";
@@ -94,13 +94,14 @@ const engagementStartHandler = (scene: BattlegroundScene, state: State) => (squa
 }
 const getEmotePosition = (tile: { x: number, y: number }, direction: Direction) => {
 	switch (direction) {
-		case "up":
+		case DIRECTIONS.up:
 			return { x: tile.x * TILE_WIDTH + HALF_TILE_WIDTH, y: (tile.y + 1) * TILE_HEIGHT }
-		case "down":
+		case DIRECTIONS.down:
 			return { x: tile.x * TILE_WIDTH + HALF_TILE_WIDTH, y: (tile.y) * TILE_HEIGHT }
-		case "left":
+		case DIRECTIONS.left:
 			return { x: (tile.x + 1) * TILE_WIDTH, y: (tile.y) * TILE_HEIGHT }
-		case "right":
+		case DIRECTIONS.right:
 			return { x: (tile.x) * TILE_WIDTH - HALF_TILE_WIDTH, y: (tile.y) * TILE_HEIGHT }
 	}
+	throw new Error(`Invalid direction ${direction}`)
 }
