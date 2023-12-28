@@ -12,6 +12,7 @@ import { listeners, events, emit, emit_ } from "../../Models/Signals"
 import DispatchSquadModal from './DispatchSquadModal/DispatchSquadModal';
 import SquadDetailsModal from './SquadDetailsModal/SquadDetailsModal';
 import { UnitDetailsModal } from './UnitDetailsModal/UnitsDetailsModal';
+import VictoryModal from './VictoryModal/VictoryModal';
 
 const Battleground = () => {
 
@@ -115,6 +116,7 @@ const Battleground = () => {
       <SquadDetailsModal />
 
       <UnitDetailsModal />
+      <VictoryModal />
     </>
   );
 }

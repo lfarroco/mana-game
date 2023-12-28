@@ -23,7 +23,9 @@ import * as CombatSystem from "../../Systems/Combat/Combat";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
 import * as MoraleRegen from "../../Systems/MoraleRegen/MoraleRegen";
 import * as StaminaRegen from "../../Systems/StaminaRegen/StaminaRegen";
+import * as VictorySystem from "../../Systems/Victory/Victory";
 import { squadDestroyed } from "./Events/SquadDestroyed";
+import { City } from "../../Models/City";
 
 const easystar = new Easystar.js();
 easystar.setAcceptableTiles([0])
@@ -44,7 +46,7 @@ export class BattlegroundScene extends Phaser.Scene {
   squadsCanMove: boolean = true;
   cursor: Phaser.GameObjects.Image | null = null;
   state: State;
-  cities: Phaser.GameObjects.Image[] = []
+  cities: { city: City, sprite: Phaser.GameObjects.Image }[] = []
   tilemap: Phaser.Tilemaps.Tilemap | null = null;
 
   constructor() {
@@ -101,6 +103,7 @@ export class BattlegroundScene extends Phaser.Scene {
     MoraleRegen.init(this)
     StaminaRegen.init(this)
     squadDestroyed(this)
+    VictorySystem.init(this)
 
 
     //@ts-ignore
@@ -137,7 +140,7 @@ export class BattlegroundScene extends Phaser.Scene {
     createFogOfWar(this);
 
     makeSquadsInteractive(this, this.charas)
-    makeCitiesInteractive(this, this.cities)
+    makeCitiesInteractive(this, this.cities.map(c => c.sprite))
 
     this.grid = layers.obstacles.layer.data.map(row => row.map(tile => tile.index === -1 ? 0 : 1))
     easystar.setGrid(this.grid);
