@@ -81,18 +81,16 @@ export function createChara(
 
 	const follow = () => {
 		moraleBackground.x = sprite.x - HALF_TILE_WIDTH;
-		moraleBackground.y = sprite.y + HALF_TILE_HEIGHT;
+		moraleBackground.y = sprite.y + HALF_TILE_HEIGHT - BAR_HEIGHT * 2;
 		moraleBar.x = moraleBackground.x + BORDER_WIDTH;
-		moraleBar.y = moraleBackground.y + BORDER_WIDTH;
+		moraleBar.y = moraleBackground.y + BORDER_WIDTH
 		staminaBackground.x = moraleBackground.x;
-		staminaBackground.y = moraleBackground.y + BAR_HEIGHT;
+		staminaBackground.y = moraleBackground.y + BAR_HEIGHT
 		staminaBar.x = moraleBar.x;
-		staminaBar.y = moraleBar.y + BAR_HEIGHT;
+		staminaBar.y = moraleBar.y + BAR_HEIGHT
 	};
 
-	//todo: iterate on scene state, for each chara, make it follow its circle
-
-	//make spineboy follow circle
+	//make bars follow sprite
 	scene.events.on("update", follow);
 	//destroy listener on element destroy
 	sprite.once("destroy", () => {
