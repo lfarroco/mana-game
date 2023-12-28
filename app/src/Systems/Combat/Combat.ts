@@ -1,5 +1,3 @@
-import { removeEmote } from "../../Components/chara";
-import { faceDirection, getDirection } from "../../Models/Direction";
 import { FORCE_ID_PLAYER } from "../../Models/Force";
 import { listeners, events, emit } from "../../Models/Signals";
 import { SQUAD_STATUS, Squad } from "../../Models/Squad";
@@ -104,6 +102,9 @@ function tryRetreating(squad: Squad, state: State) {
 			[1, 0],
 			[-1, 0],
 		].filter(([x, y]) => {
+			if (squad.position.x + x < 0 || squad.position.x + x >= 128) return false;
+			if (squad.position.y + y < 0 || squad.position.y + y >= 128) return false;
+
 			const cell = state.squads.find(sqd => sqd.position.x === squad.position.x + x && sqd.position.y === squad.position.y + y);
 			return !cell;
 		});
@@ -111,8 +112,7 @@ function tryRetreating(squad: Squad, state: State) {
 			const [x, y] = emptyCells[Math.floor(Math.random() * emptyCells.length)];
 			squad.path = [{ x: squad.position.x + x, y: squad.position.y + y }];
 		} else {
-			// nowhere to retreat
-			// TODO: destroy squad
+			emit(events.SQUAD_DESTROYED, squad.id)
 		}
 	}
 }
