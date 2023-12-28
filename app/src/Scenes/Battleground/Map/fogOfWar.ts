@@ -41,9 +41,9 @@ function refreshFogOfWar(scene: BattlegroundScene) {
 			showRadius(c.sprite.x, c.sprite.y, fow);
 		})
 
-	// //player-controlled cities
-	scene.cities.forEach(c => {
-		showRadius(c.x, c.y, fow);
+	//player-controlled cities
+	scene.cities.filter(c => c.city.force === FORCE_ID_PLAYER).forEach(c => {
+		showRadius(c.sprite.x, c.sprite.y, fow);
 	});
 
 	const enemies = scene.charas.filter(c => c.force === FORCE_ID_CPU)
