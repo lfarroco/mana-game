@@ -43,6 +43,8 @@ export function createFogOfWar(scene: BattlegroundScene) {
 // it is actually slower to use a for loop instead of forEach (takes 0.9ms)
 function refreshFogOfWar(scene: BattlegroundScene, fow: Phaser.Tilemaps.TilemapLayer) {
 
+	// tried to use fow.culledTiles, but the tiles
+	// are not set back to hidden
 	fow.forEachTile(tile => {
 		tile.tint = 0x000000
 		tile.alpha = 0.6

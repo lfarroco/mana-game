@@ -58,7 +58,6 @@ const moveSquads = (scene: BattlegroundScene) => {
 			if (direction === DIRECTIONS.right) {
 				chara.emoteOverlay?.setCrop(0, 0, 32 * (walked / TURNS_TO_MOVE), 32)
 			} else if (direction === DIRECTIONS.left) {
-				console.log(walked, TURNS_TO_MOVE)
 				chara.emoteOverlay?.setCrop(32 * (1 - (walked / TURNS_TO_MOVE)), 0, 32, 32)
 			} else if (direction === DIRECTIONS.down) {
 				chara.emoteOverlay?.setCrop(0, 0, 32, 32 * (walked / TURNS_TO_MOVE))
