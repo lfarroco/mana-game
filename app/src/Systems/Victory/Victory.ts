@@ -1,5 +1,4 @@
 import { emit, events, listeners } from "../../Models/Signals";
-import { SQUAD_STATUS } from "../../Models/Squad";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 
 
