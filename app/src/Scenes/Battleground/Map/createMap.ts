@@ -26,18 +26,8 @@ export function createMap(scene: Phaser.Scene) {
 		throw new Error("obstacles layer is null");
 	}
 
-	const fow = map.createBlankLayer("map_fow", tiles);
-
-	// populate fow with tiles
-	if (fow) {
-		fow.fill(1, 0, 0, fow.width, fow.height, true);
-		fow.forEachTile(t => {
-			t.tint = 0x000000
-		})
-	}
-
 	//@ts-ignore
-	window.layers = { background, obstacles, features, fow };
+	window.layers = { background, obstacles, features };
 
-	return { map, layers: { background, obstacles, features, fow } };
+	return { map, layers: { background, obstacles, features } };
 }
