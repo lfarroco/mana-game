@@ -157,6 +157,10 @@ export function importMapObjects(state: State, map: Phaser.Tilemaps.Tilemap) {
 			state.squads.push(newSquad);
 			force.squads.push(newSquad.id);
 			state.units.push(...units);
+			state.map = {
+				width: map.width,
+				height: map.height
+			}
 
 		});
 

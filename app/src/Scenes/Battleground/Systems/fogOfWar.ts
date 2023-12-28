@@ -7,7 +7,7 @@ import { SQUAD_STATUS } from "../../../Models/Squad";
 
 const VIEW_RADIUS = 4;
 
-export function createFogOfWar(scene: BattlegroundScene) {
+export function init(scene: BattlegroundScene) {
 
 	const fowTilemap = scene.make.tilemap({ key: "maps/map1" });
 
