@@ -17,7 +17,7 @@ import { Chara, createChara } from "../../Components/chara";
 import { emit, events, listeners } from "../../Models/Signals";
 import { State, getState } from "../../Models/State";
 import { TILE_HEIGHT } from "./constants";
-import { createFogOfWar } from "./Map/fogOfWar";
+import * as fogOfWar from "./Systems/fogOfWar";
 import * as EngagementSystem from "../../Systems/Engagement/Engagement";
 import * as CombatSystem from "../../Systems/Combat/Combat";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
@@ -137,7 +137,7 @@ export class BattlegroundScene extends Phaser.Scene {
     this.cities = createCities(this, this.state.cities)
     this.charas = createMapSquads(this)
 
-    createFogOfWar(this);
+    fogOfWar.init(this);
 
     makeSquadsInteractive(this, this.charas)
     makeCitiesInteractive(this, this.cities.map(c => c.sprite))

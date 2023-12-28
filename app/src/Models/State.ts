@@ -40,7 +40,11 @@ export const initialState = (): State => ({
 	],
 	cities: [],
 	selectedEntity: null,
-	engagements: []
+	engagements: [],
+	map: {
+		width: 0,
+		height: 0
+	}
 });
 
 export type State = {
@@ -52,7 +56,11 @@ export type State = {
 	units: Unit[];
 	cities: City[];
 	selectedEntity: null | { type: string, id: string };
-	engagements: Engagement[]
+	engagements: Engagement[],
+	map: {
+		width: number;
+		height: number;
+	}
 };
 
 export const getState = (): State => {

@@ -102,8 +102,8 @@ function tryRetreating(squad: Squad, state: State) {
 			[1, 0],
 			[-1, 0],
 		].filter(([x, y]) => {
-			if (squad.position.x + x < 0 || squad.position.x + x >= 128) return false;
-			if (squad.position.y + y < 0 || squad.position.y + y >= 128) return false;
+			if (squad.position.x + x < 0 || squad.position.x + x >= state.map.width) return false;
+			if (squad.position.y + y < 0 || squad.position.y + y >= state.map.height) return false;
 
 			const cell = state.squads.find(sqd => sqd.position.x === squad.position.x + x && sqd.position.y === squad.position.y + y);
 			return !cell;
