@@ -13,7 +13,7 @@ import moveSquads from "./Map/moveSquads";
 import { faceDirection } from "../../Models/Direction";
 import { getDirection } from "../../Models/Direction";
 import { BoardVec, WindowVec, asBoardVec } from "../../Models/Misc";
-import { Chara, createChara } from "../../Components/chara";
+import { Chara, createChara, removeEmote } from "../../Components/chara";
 import { emit, events, listeners } from "../../Models/Signals";
 import { State, getState } from "../../Models/State";
 import { TILE_HEIGHT } from "./constants";
@@ -227,12 +227,26 @@ export class BattlegroundScene extends Phaser.Scene {
       { x: sourceTile.x, y: sourceTile.y },
       { x: target.x, y: target.y },
       (path_) => {
-        if (path_.length < 2) return
+
+        if (path_.length < 2) {
+
+          squad.path = []
+
+          // in case of choosing own cell
+          if (squad.position.x === target.x && squad.position.y === target.y) {
+            const chara = this.charas.find(c => c.id === squad.id);
+            if (chara) removeEmote(chara)
+          }
+
+          return
+
+        }
 
         const path = path_.slice(1)
 
         console.log("setting path", path)
         squad.path = path
+        squad.status = SQUAD_STATUS.MOVING
         const chara = this.charas.find(c => c.id === squad.id);
 
         if (chara) {
