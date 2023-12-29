@@ -26,6 +26,7 @@ import * as StaminaRegen from "../../Systems/StaminaRegen/StaminaRegen";
 import * as VictorySystem from "../../Systems/Victory/Victory";
 import { squadDestroyed } from "./Events/SquadDestroyed";
 import { City } from "../../Models/City";
+import * as CityCaptureSystem from "./Systems/cityCapture";
 
 const easystar = new Easystar.js();
 easystar.setAcceptableTiles([0])
@@ -138,6 +139,7 @@ export class BattlegroundScene extends Phaser.Scene {
     this.charas = createMapSquads(this)
 
     fogOfWar.init(this);
+    CityCaptureSystem.init(this)
 
     makeSquadsInteractive(this, this.charas)
     makeCitiesInteractive(this, this.cities.map(c => c.sprite))

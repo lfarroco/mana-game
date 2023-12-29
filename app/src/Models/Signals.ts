@@ -25,6 +25,7 @@ export type Signals = {
 	UPDATE_SQUAD_STAMINA: (squadId: string, morale: number) => any,
 	SQUAD_DESTROYED: (squadId: string) => any,
 	FORCE_VICTORY: (force: string) => void,
+	CAPTURE_CITY: (squadId: string, cityId: string) => void,
 }
 
 export const events: { [key in keyof Signals]: keyof Signals } = {
@@ -50,6 +51,7 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
 	UPDATE_SQUAD_STAMINA: "UPDATE_SQUAD_STAMINA",
 	SQUAD_DESTROYED: "SQUAD_DESTROYED",
 	FORCE_VICTORY: "FORCE_VICTORY",
+	CAPTURE_CITY: "CAPTURE_CITY",
 }
 
 export const listen = <T extends keyof Signals>(
