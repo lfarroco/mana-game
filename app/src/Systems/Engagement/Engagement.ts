@@ -1,18 +1,22 @@
 import { DIRECTIONS, Direction, getDirection } from "../../Models/Direction";
 import { BoardVec, boardVec } from "../../Models/Misc";
-import { listeners, events } from "../../Models/Signals";
+import { listeners, events, emit_ } from "../../Models/Signals";
 import { SQUAD_STATUS } from "../../Models/Squad";
 import { State } from "../../Models/State";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 import { removeEmote } from "../../Components/chara";
+import * as uuid from "uuid"
 
 export type Engagement = {
+	id: string,
 	finished: boolean;
 	startTick: number;
-	members: { id: string, force: string, cell: { x: number, y: number } }[]
-	attackingCell: BoardVec,
-	sprite: Phaser.GameObjects.Sprite
+	endTick: number;
+	attacker: string;
+	defender: string;
+	sprite: Phaser.GameObjects.Sprite,
+	log: string[]
 }
 
 export function init(scene: BattlegroundScene, state: State) {
@@ -33,7 +37,7 @@ const engagementStartHandler = (scene: BattlegroundScene, state: State) => (squa
 
 	const isAlreadyEngaged = state.engagements.some(engagement =>
 		!engagement.finished &&
-		engagement.members.some(member => member.id === squadId)
+		(engagement.attacker === squadId || engagement.defender === squadId)
 	);
 
 	if (isAlreadyEngaged) {
@@ -52,16 +56,6 @@ const engagementStartHandler = (scene: BattlegroundScene, state: State) => (squa
 		throw new Error(`No squads at ${targetCell.x},${targetCell.y}`)
 	}
 
-	const members = [{
-		id: squad.id,
-		cell: squad.position,
-		force: squad.force
-	}].concat(targetCellEnemies.map(sqd => ({
-		id: sqd.id,
-		force: sqd.force,
-		cell: sqd.position
-	})))
-
 	const direction = getDirection(targetCell, squad.position,)
 
 	const emotePosition = getEmotePosition(targetCell, direction)
@@ -71,22 +65,31 @@ const engagementStartHandler = (scene: BattlegroundScene, state: State) => (squa
 		emotePosition.y,
 		"combat-emote"
 	)
-		.setScale(2)
+		.setScale(1)
 		.play("combat-emote")
 
+	const attacker = squadId;
+	const defender = targetCellEnemies[0].id;
+
 	const engagement: Engagement = {
+		id: uuid.v4(),
 		startTick: state.tick,
+		attacker,
+		defender,
+		endTick: Infinity,
 		finished: false,
-		attackingCell: boardVec(squad.position.x, squad.position.y),
-		members,
-		sprite
+		sprite,
+		log: []
 	}
+
+	sprite.setInteractive()
+	sprite.on("pointerdown", emit_(events.TOGGLE_ENGAGEMENT_WINDOW, true, engagement.id))
 
 	targetCellEnemies.forEach(squad => squad.status = SQUAD_STATUS.ENGAGED)
 	state.engagements.push(engagement);
 
-	members.forEach(member => {
-		const chara = scene.charas.find(c => c.id === member.id)
+	[attacker, defender].forEach(member => {
+		const chara = scene.charas.find(c => c.id === member)
 		if (!chara) return;
 		removeEmote(chara)
 	})

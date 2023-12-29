@@ -13,6 +13,7 @@ import DispatchSquadModal from './DispatchSquadModal/DispatchSquadModal';
 import SquadDetailsModal from './SquadDetailsModal/SquadDetailsModal';
 import { UnitDetailsModal } from './UnitDetailsModal/UnitsDetailsModal';
 import VictoryModal from './VictoryModal/VictoryModal';
+import EngagementModal from './EngagementModal/EngagementModal';
 
 const Battleground = () => {
 
@@ -58,7 +59,12 @@ const Battleground = () => {
             >
               Units
             </Button>
-
+            <Button
+              onClick={emit_(events.TOGGLE_ENGAGEMENT_WINDOW, true, "")}
+              className="btn btn-secondary col-12"
+            >
+              Engagements
+            </Button>
             <Button
               onClick={emit_(events.TOGGLE_SQUADS_WINDOW, true)}
               className="btn btn-secondary col-12"
@@ -117,6 +123,7 @@ const Battleground = () => {
 
       <UnitDetailsModal />
       <VictoryModal />
+      <EngagementModal />
     </>
   );
 }

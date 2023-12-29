@@ -17,10 +17,11 @@ export type Signals = {
 	SKIRMISH_ENDED: (winner: string, loser: string) => void,
 	TOGGLE_UNITS_WINDOW: (value: boolean) => void,
 	TOGGLE_SQUADS_WINDOW: (value: boolean) => void,
+	TOGGLE_ENGAGEMENT_WINDOW: (value: boolean, id: string) => void,
 	SET_UNIT_DETAILS_MODAL: (id: string | null) => void,
 	BATTLEGROUND_TICK: (tick: number) => void,
 	// TODO: have a parent level for the system
-	ENGAGEMENT_START: (squad: string, targetCell: BoardVec) => any,
+	ENGAGEMENT_START: (attacker: string, targetCell: BoardVec) => any,
 	UPDATE_SQUAD_MORALE: (squadId: string, morale: number) => any,
 	UPDATE_SQUAD_STAMINA: (squadId: string, morale: number) => any,
 	SQUAD_DESTROYED: (squadId: string) => any,
@@ -52,6 +53,7 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
 	SQUAD_DESTROYED: "SQUAD_DESTROYED",
 	FORCE_VICTORY: "FORCE_VICTORY",
 	CAPTURE_CITY: "CAPTURE_CITY",
+	TOGGLE_ENGAGEMENT_WINDOW: "TOGGLE_ENGAGEMENT_WINDOW",
 }
 
 export const listen = <T extends keyof Signals>(
