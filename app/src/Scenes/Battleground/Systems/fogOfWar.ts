@@ -4,6 +4,7 @@ import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../Models/Force";
 import { listeners, events } from "../../../Models/Signals";
 import { TILE_WIDTH } from "../constants";
 import { SQUAD_STATUS } from "../../../Models/Squad";
+import { BoardVec } from "../../../Models/Misc";
 
 const VIEW_RADIUS = 4;
 
@@ -50,14 +51,15 @@ function refreshFogOfWar(scene: BattlegroundScene, fow: Phaser.Tilemaps.TilemapL
 		tile.alpha = 0.6
 	});
 
-	scene.charas
-		.filter(c => c.force === FORCE_ID_PLAYER)
-		.forEach(c => showRadius(c.sprite.x, c.sprite.y, fow));
+	scene.state.squads
+		.filter(s => s.force === FORCE_ID_PLAYER)
+		.filter(s => s.status !== SQUAD_STATUS.DESTROYED && s.status !== SQUAD_STATUS.NON_DISPATCHED)
+		.forEach(s => showRadius(s.position, fow));
 
 	//player-controlled cities
-	scene.cities
-		.filter(c => c.city.force === FORCE_ID_PLAYER)
-		.forEach(c => showRadius(c.sprite.x, c.sprite.y, fow));
+	scene.state.cities
+		.filter(c => c.force === FORCE_ID_PLAYER)
+		.forEach(c => showRadius(c.boardPosition, fow));
 
 	scene.state.squads
 		.filter(s => s.force === FORCE_ID_CPU)
@@ -83,9 +85,8 @@ function refreshFogOfWar(scene: BattlegroundScene, fow: Phaser.Tilemaps.TilemapL
 		})
 }
 
-function showRadius(worldX: number, worldY: number, fow: Phaser.Tilemaps.TilemapLayer) {
+function showRadius({ x, y }: BoardVec, fow: Phaser.Tilemaps.TilemapLayer) {
 
-	const [x, y] = [Math.floor(worldX / TILE_WIDTH), Math.floor(worldY / TILE_WIDTH)];
 
 	for (let i = -(VIEW_RADIUS); i <= VIEW_RADIUS; i++) {
 		for (let j = -(VIEW_RADIUS); j <= VIEW_RADIUS; j++) {

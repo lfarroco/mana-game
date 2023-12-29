@@ -33,7 +33,7 @@ const moveSquads = (scene: BattlegroundScene) => {
 					&& sqd.position.y === nextTile.y
 				)
 
-			if (maybeEnemy.length > 0) {
+			if (maybeEnemy.length > 0 && squad.status !== SQUAD_STATUS.RETREATING) {
 
 				emit(events.ENGAGEMENT_START, squad.id, boardVec(nextTile.x, nextTile.y))
 
@@ -67,6 +67,15 @@ const moveSquads = (scene: BattlegroundScene) => {
 
 			if (walked < TURNS_TO_MOVE) return
 
+			// perform the move
+
+			// check if there's a city here
+			const maybeCity = scene.state.cities.find(c => c.boardPosition.x === nextTile.x && c.boardPosition.y === nextTile.y)
+
+			if (maybeCity && maybeCity.force !== squad.force) {
+				emit(events.CAPTURE_CITY, maybeCity.id, squad.force)
+			}
+
 			scene.tweens.add({
 				targets: chara.sprite,
 				x: nextTile.getCenterX(),
@@ -75,6 +84,8 @@ const moveSquads = (scene: BattlegroundScene) => {
 				yoyo: false,
 				ease: "Sine.easeInOut",
 				onComplete: () => {
+					// only non impactful actions can be performed here
+					// as the callback can mess up with the turn system
 
 					const next = squad.path[0];
 					if (next) {
@@ -96,8 +107,12 @@ const moveSquads = (scene: BattlegroundScene) => {
 
 			chara.direction = direction
 
-			if (squad.status === SQUAD_STATUS.MOVING || squad.status === SQUAD_STATUS.RETREATING)
+			if (squad.status === SQUAD_STATUS.MOVING || squad.status === SQUAD_STATUS.RETREATING) {
 				squad.status = SQUAD_STATUS.IDLE
+				if (squad.status === SQUAD_STATUS.RETREATING && maybeEnemy.length > 0) {
+					emit(events.SQUAD_DESTROYED, squad.id)
+				}
+			}
 
 			chara.sprite.setData("walk", 0)
 
