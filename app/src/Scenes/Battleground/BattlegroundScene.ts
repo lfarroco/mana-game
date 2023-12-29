@@ -131,7 +131,7 @@ export class BattlegroundScene extends Phaser.Scene {
     this.layers = layers
 
     this.cursor = this.add.image(0, 0, "cursor")
-      .setScale(0.2)
+      .setScale(1)
       .setTint(0x00ff00)
       .setVisible(false)
 
@@ -152,7 +152,8 @@ export class BattlegroundScene extends Phaser.Scene {
       callback: () => {
 
         if (!this.isPaused) {
-          this.tick++
+          this.tick++ // todo: use only state.tick
+          this.state.tick++;
           emit(events.BATTLEGROUND_TICK, this.tick)
         }
 

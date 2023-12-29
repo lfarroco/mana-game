@@ -33,7 +33,7 @@ const moveSquads = (scene: BattlegroundScene) => {
 					&& sqd.position.y === nextTile.y
 				)
 
-			if (maybeEnemy.length > 0 && squad.status !== SQUAD_STATUS.RETREATING) {
+			if (maybeEnemy.length > 0) {
 
 				emit(events.ENGAGEMENT_START, squad.id, boardVec(nextTile.x, nextTile.y))
 

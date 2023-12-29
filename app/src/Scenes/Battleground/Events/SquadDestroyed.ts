@@ -31,7 +31,9 @@ export function squadDestroyed(scene: BattlegroundScene) {
 				chara?.sprite?.x || 0,
 				chara?.sprite?.y || 0,
 				"skull-emote"
-			).play("skull-emote").setScale(2);
+			)
+				.play("skull-emote")
+				.setScale(1);
 			scene.time.delayedCall(1000, () => {
 				emote.destroy()
 			});

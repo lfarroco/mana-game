@@ -22,8 +22,8 @@ export type Chara = {
 	group: Phaser.GameObjects.Group | null
 }
 
-export const CHARA_SCALE = 1.5;
-export const EMOTE_SCALE = 1.5;
+export const CHARA_SCALE = 1;
+export const EMOTE_SCALE = 1;
 export const BAR_WIDTH = TILE_WIDTH;
 export const BAR_HEIGHT = 6;
 export const BORDER_WIDTH = 1;
@@ -156,9 +156,6 @@ function createSprite(scene: BattlegroundScene, leader: Unit, squad: Squad) {
 			squad.position.x * TILE_WIDTH + HALF_TILE_WIDTH,
 			squad.position.y * TILE_HEIGHT + HALF_TILE_HEIGHT,
 			leader.job
-		)
-		.setScale(
-			CHARA_SCALE
 		)
 
 	sprite.play(leader.job + "-walk-down", true);
