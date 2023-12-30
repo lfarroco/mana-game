@@ -8,7 +8,7 @@ import * as Easystar from "easystarjs"
 import { makeSquadInteractive, makeSquadsInteractive } from "./Map/makeSquadsInteractive";
 import { createCities } from "./Map/createCities";
 import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
-import { SQUAD_STATUS, Squad } from "../../Models/Squad";
+import { SQUAD_STATUS, Squad, SquadStatus } from "../../Models/Squad";
 import moveSquads from "./Map/moveSquads";
 import { faceDirection } from "../../Models/Direction";
 import { getDirection } from "../../Models/Direction";
@@ -91,6 +91,37 @@ export class BattlegroundScene extends Phaser.Scene {
           if (squad.stamina <= 0) {
             emit(events.SQUAD_DESTROYED, squadId)
           }
+        }
+      ],
+      [
+        events.UPDATE_SQUAD_STATUS, (squadId: string, status: Squad["status"]) => {
+
+          const squad = this.state.squads.find(sqd => sqd.id === squadId)
+          if (!squad) {
+            console.warn("squad not found", squadId)
+            return
+          }
+          squad.status = status
+
+        }
+
+      ],
+      [
+        events.FINISH_ENGAGEMENT, (id: string) => {
+          const engagement = this.state.engagements.find(e => e.id === id)
+          if (!engagement) return
+          engagement.finished = true
+          engagement.sprite?.destroy()
+        }
+      ],
+      [
+        events.UPDATE_SQUAD_PATH, (squadId: string, path: BoardVec[]) => {
+          const squad = this.state.squads.find(sqd => sqd.id === squadId)
+          if (!squad) {
+            console.warn("squad not found", squadId)
+            return
+          }
+          squad.path = path
         }
       ]
 

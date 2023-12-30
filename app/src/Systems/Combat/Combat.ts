@@ -1,89 +1,89 @@
 import { FORCE_ID_PLAYER } from "../../Models/Force";
-import { listeners, events, emit } from "../../Models/Signals";
+import { boardVec } from "../../Models/Misc";
+import { listeners, events, Signals, emit, Operation } from "../../Models/Signals";
 import { SQUAD_STATUS, Squad } from "../../Models/Squad";
 import { State } from "../../Models/State";
+import { moraleDamage } from "./moraleDamage";
+import { staminaDamage } from "./staminaDamage";
 
 export function init(state: State) {
 
 	listeners([
-		[events.BATTLEGROUND_TICK, () => { processCombat(state); }]
+		[events.BATTLEGROUND_TICK, () => {
+			const events = processCombat(state);
+
+			events.forEach(([event, ...args]) => {
+				emit(event, ...args)
+			});
+		}]
 	])
 
 }
 
+
 export function processCombat(state: State) {
-	state.engagements.forEach(engagement => {
 
-		if (engagement.finished) return
+	const operations: Operation[] = [];
 
-		const attacker = state.squads.find(s => s.id === engagement.attacker);
-		const defender = state.squads.find(s => s.id === engagement.defender);
+	state.engagements
+		.filter(e => !e.finished)
+		.forEach(engagement => {
 
-		if (!attacker || !defender) {
-			throw new Error(`Squad ${engagement.attacker} or ${engagement.defender} not found`)
-		}
+			const attacker = state.squads.find(s => s.id === engagement.attacker);
+			const defender = state.squads.find(s => s.id === engagement.defender);
 
-		[attacker, defender].forEach(squad => {
-
-			const randmD6Roll = Math.floor(Math.random() * 6) + 1 + (squad.force === FORCE_ID_PLAYER ? 0 : 10)
-
-			const newStamina = squad.stamina - (randmD6Roll / 2);
-
-			if (newStamina <= 0) {
-				emit(events.UPDATE_SQUAD_STAMINA, squad.id, 0)
-				engagement.finished = true;
-			} else {
-				emit(events.UPDATE_SQUAD_STAMINA, squad.id, newStamina)
+			if (!attacker || !defender) {
+				throw new Error(`Squad ${engagement.attacker} or ${engagement.defender} not found`)
 			}
 
-			const newMorale = squad.morale - (randmD6Roll);
+			const staminaResult = staminaDamage(attacker, defender, operations);
 
-			if (newMorale <= 0) {
-				emit(events.UPDATE_SQUAD_MORALE, squad.id, 0)
+			const moraleResult = moraleDamage(attacker, defender, operations);
 
-				if (squad.id === attacker.id && newStamina > 0) {
-					console.log(`${squad.id} failed attack`)
-					squad.status = SQUAD_STATUS.IDLE;
-					squad.path = [];
-					engagement.log = [...engagement.log, `${squad.name} failed attack`]
-				} else if (newStamina > 0) {
-					console.log(`${squad.id} retreated`)
-					engagement.log = [...engagement.log, `${squad.name} retreated`]
-					tryRetreating(squad, state);
+			if ([
+				staminaResult.newAttackerStamina,
+				staminaResult.newDefenderStamina,
+				moraleResult.newAttackerMorale,
+				moraleResult.newDefenderMorale
+			].some(n => n <= 0)) {
+				operations.push([events.FINISH_ENGAGEMENT, engagement.id])
+
+				// successfull attack
+				if (moraleResult.newAttackerMorale > 0 && staminaResult.newAttackerStamina > 0) {
+					operations.push([events.UPDATE_SQUAD_STATUS, attacker.id, SQUAD_STATUS.MOVING])
 				}
 
-				engagement.finished = true;
-			} else {
+				// failed attack
+				if (moraleResult.newAttackerMorale <= 0 && staminaResult.newAttackerStamina > 0) {
+					operations.push([events.UPDATE_SQUAD_STATUS, attacker.id, SQUAD_STATUS.IDLE]);
+					operations.push([events.UPDATE_SQUAD_PATH, attacker.id, []]);
+				}
 
-				emit(events.UPDATE_SQUAD_MORALE, squad.id, newMorale)
+				// successfull defense
+				if (moraleResult.newDefenderMorale > 0 && staminaResult.newDefenderStamina > 0) {
+					operations.push([events.UPDATE_SQUAD_STATUS, defender.id, SQUAD_STATUS.IDLE])
+				}
+
+				// failed defense
+				if (moraleResult.newDefenderMorale <= 0 && staminaResult.newDefenderStamina > 0) {
+					if (moraleResult.newAttackerMorale > 0 && staminaResult.newAttackerStamina > 0) {
+						tryRetreating(defender, state, operations);
+					} else {
+						// both attacker and defender failed
+						operations.push([events.UPDATE_SQUAD_STATUS, defender.id, SQUAD_STATUS.IDLE]);
+						operations.push([events.UPDATE_SQUAD_PATH, defender.id, []]);
+					}
+				}
+
 			}
 
-
-			engagement.log = [...engagement.log, `tick: ${state.tick} | ${squad.name} morale: ${newMorale}, stamina: ${newStamina}`]
 		})
 
-		if (engagement.finished) {
-			[attacker, defender]
-				.filter(s => s.status !== SQUAD_STATUS.DESTROYED && s.status !== SQUAD_STATUS.RETREATING)
-				.forEach(squad => {
-
-					console.log(">>>", squad.id, squad.status)
-
-					if (squad.path.length > 0) {
-						squad.status = SQUAD_STATUS.MOVING
-					} else {
-						squad.status = SQUAD_STATUS.IDLE
-					}
-				})
-
-			engagement.sprite.destroy()
-		}
-	})
-
+	return operations;
 }
 
-function tryRetreating(squad: Squad, state: State) {
-	squad.status = SQUAD_STATUS.RETREATING;
+function tryRetreating(squad: Squad, state: State, operations: Operation[]) {
+	operations.push([events.UPDATE_SQUAD_STATUS, squad.id, SQUAD_STATUS.RETREATING])
 	// find a path to a neighboring friendly cell, if any
 	const closestAlliedCell = state.squads
 		.filter(sqd => sqd.force === squad.force)
@@ -94,7 +94,7 @@ function tryRetreating(squad: Squad, state: State) {
 		});
 
 	if (closestAlliedCell.length > 0) {
-		squad.path = closestAlliedCell;
+		operations.push([events.UPDATE_SQUAD_PATH, squad.id, closestAlliedCell])
 	} else {
 		// pick empty random cell
 		const emptyCells = [
@@ -111,9 +111,11 @@ function tryRetreating(squad: Squad, state: State) {
 		});
 		if (emptyCells.length > 0) {
 			const [x, y] = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-			squad.path = [{ x: squad.position.x + x, y: squad.position.y + y }];
+			operations.push([events.UPDATE_SQUAD_PATH, squad.id, [
+				boardVec(squad.position.x + x, squad.position.y + y)
+			]])
 		} else {
-			emit(events.SQUAD_DESTROYED, squad.id)
+			operations.push([events.SQUAD_DESTROYED, squad.id])
 		}
 	}
 }

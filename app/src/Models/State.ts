@@ -77,8 +77,8 @@ export const initialState = (): State => ({
 	selectedEntity: null,
 	engagements: [],
 	map: {
-		width: 0,
-		height: 0
+		width: 128,
+		height: 128
 	}
 });
 
