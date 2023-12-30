@@ -1,5 +1,6 @@
 import Events from 'events'
 import { BoardVec, WindowVec } from './Misc'
+import { SquadStatus } from './Squad'
 
 export type Signals = {
 	PAUSE_PHYSICS: () => void
@@ -24,10 +25,15 @@ export type Signals = {
 	ENGAGEMENT_START: (attacker: string, targetCell: BoardVec) => any,
 	UPDATE_SQUAD_MORALE: (squadId: string, morale: number) => any,
 	UPDATE_SQUAD_STAMINA: (squadId: string, morale: number) => any,
+	UPDATE_SQUAD_STATUS: (squadId: string, status: SquadStatus) => any,
+	UPDATE_SQUAD_PATH: (squadId: string, path: BoardVec[]) => any,
 	SQUAD_DESTROYED: (squadId: string) => any,
 	FORCE_VICTORY: (force: string) => void,
 	CAPTURE_CITY: (squadId: string, cityId: string) => void,
+	FINISH_ENGAGEMENT: (id: string) => void,
 }
+
+export type Operation = [keyof Signals, ...Parameters<Signals[keyof Signals]>]
 
 export const events: { [key in keyof Signals]: keyof Signals } = {
 	PAUSE_PHYSICS: "PAUSE_PHYSICS",
@@ -50,10 +56,13 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
 	ENGAGEMENT_START: "ENGAGEMENT_START",
 	UPDATE_SQUAD_MORALE: "UPDATE_SQUAD_MORALE",
 	UPDATE_SQUAD_STAMINA: "UPDATE_SQUAD_STAMINA",
+	UPDATE_SQUAD_STATUS: "UPDATE_SQUAD_STATUS",
+	UPDATE_SQUAD_PATH: "UPDATE_SQUAD_PATH",
 	SQUAD_DESTROYED: "SQUAD_DESTROYED",
 	FORCE_VICTORY: "FORCE_VICTORY",
 	CAPTURE_CITY: "CAPTURE_CITY",
 	TOGGLE_ENGAGEMENT_WINDOW: "TOGGLE_ENGAGEMENT_WINDOW",
+	FINISH_ENGAGEMENT: "FINISH_ENGAGEMENT",
 }
 
 export const listen = <T extends keyof Signals>(

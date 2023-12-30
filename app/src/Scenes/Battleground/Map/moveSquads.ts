@@ -10,7 +10,7 @@ const TURNS_TO_MOVE = 3;
 const moveSquads = (scene: BattlegroundScene) => {
 
 	scene.state.squads
-		.filter(s => s.status === SQUAD_STATUS.IDLE || s.status === SQUAD_STATUS.MOVING || s.status === SQUAD_STATUS.RETREATING)
+		.filter(s => s.status === SQUAD_STATUS.MOVING || s.status === SQUAD_STATUS.RETREATING)
 		.filter(s => s.path.length > 0)
 		.forEach(squad => {
 
