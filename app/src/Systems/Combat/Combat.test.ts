@@ -19,7 +19,7 @@ const testState: State = {
 
 
 describe('Combat', () => {
-	describe('process turn', () => {
+	describe('process damage', () => {
 		it('no squad is destroyed', () => {
 			const response = Combat.processCombat(testState)
 
@@ -158,5 +158,13 @@ describe('Combat', () => {
 		});
 
 
+
 	});
+
+	describe("retreating", () => {
+		it.todo("should destroy a routed squad if surrounded by enemies");
+		it.todo("should retreat a routed squad if an empty cell is available");
+		it.todo("should retreat a routed squad into a friendly cell if available");
+		it.todo("moving into a cell with an retreating enemy unit triggers no combat");
+	})
 });
