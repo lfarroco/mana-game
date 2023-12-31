@@ -18,6 +18,11 @@ export function squadDestroyed(scene: BattlegroundScene) {
 
 			if (!chara) throw new Error("chara not found")
 
+			chara.moraleBarBackground?.destroy()
+			chara.moraleBar?.destroy()
+			chara.staminaBarBackground?.destroy()
+			chara.staminaBar?.destroy()
+
 			scene.tweens.add({
 				targets: chara.sprite,
 				alpha: 0,
