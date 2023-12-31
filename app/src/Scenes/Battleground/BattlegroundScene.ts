@@ -44,7 +44,6 @@ export class BattlegroundScene extends Phaser.Scene {
   selectedEntity: Phaser.GameObjects.Sprite | null = null;
   isPaused = false;
   isSelectingSquadMove = false; // TODO: we can move this into the state
-  squadsCanMove: boolean = true;
   cursor: Phaser.GameObjects.Image | null = null;
   state: State;
   cities: { city: City, sprite: Phaser.GameObjects.Image }[] = []
@@ -54,8 +53,8 @@ export class BattlegroundScene extends Phaser.Scene {
     super("BattlegroundScene");
 
     listeners([
-      [events.PAUSE_PHYSICS, this.pausePhysics],
-      [events.RESUME_PHYSICS, this.resumePhysics],
+      [events.PAUSE_PHYSICS, this.pauseGame],
+      [events.RESUME_PHYSICS, this.resumeGame],
       [events.SQUAD_SELECTED, this.selectSquad],
       [events.CITY_SELECTED, this.selectCity],
       [events.SELECT_SQUAD_MOVE_START, () => { this.isSelectingSquadMove = true }],
@@ -66,7 +65,7 @@ export class BattlegroundScene extends Phaser.Scene {
         this.scene.wake();
       }],
       [events.BATTLEGROUND_TICK, (tick: number) => {
-        if (!this.isPaused && this.squadsCanMove) {
+        if (!this.isPaused) {
           moveSquads(this)
         }
       },
@@ -105,14 +104,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
         }
 
-      ],
-      [
-        events.FINISH_ENGAGEMENT, (id: string) => {
-          const engagement = this.state.engagements.find(e => e.id === id)
-          if (!engagement) return
-          engagement.finished = true
-          engagement.sprite?.destroy()
-        }
       ],
       [
         events.UPDATE_SQUAD_PATH, (squadId: string, path: BoardVec[]) => {
@@ -247,7 +238,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
   }
 
-
   moveTo(squad: Squad, target: BoardVec) {
     const sourceTile = this.layers?.background.getTileAt(
       squad.position.x,
@@ -289,10 +279,10 @@ export class BattlegroundScene extends Phaser.Scene {
     )
   }
 
-  pausePhysics = () => {
+  pauseGame = () => {
     this.isPaused = true;
   }
-  resumePhysics = () => {
+  resumeGame = () => {
     this.isPaused = false;
   }
   moveSquadTo = (sqdId: string, { x, y }: WindowVec) => {
