@@ -107,14 +107,14 @@ const moveSquads = (scene: BattlegroundScene) => {
 
 			chara.direction = direction
 
-			if (squad.status === SQUAD_STATUS.MOVING || squad.status === SQUAD_STATUS.RETREATING) {
-				squad.status = SQUAD_STATUS.IDLE
-				if (squad.status === SQUAD_STATUS.RETREATING && maybeEnemy.length > 0) {
-					emit(events.SQUAD_DESTROYED, squad.id)
+			chara.sprite.setData("walk", 0)
+
+			if (squad.path.length === 0) {
+				if (squad.status === SQUAD_STATUS.MOVING || squad.status === SQUAD_STATUS.RETREATING) {
+					emit(events.UPDATE_SQUAD_STATUS, squad.id, SQUAD_STATUS.IDLE)
 				}
 			}
 
-			chara.sprite.setData("walk", 0)
 
 		});
 }
