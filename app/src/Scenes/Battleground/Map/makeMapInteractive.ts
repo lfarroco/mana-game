@@ -43,12 +43,12 @@ export function makeMapInteractive(
 
 	bgLayer.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer, x: number, y: number) => {
 
+
 		if (pointer.upElement?.tagName !== "CANVAS") return;
 
-		if (!scene.isSelectingSquadMove) return
-
-		if (scene.isSelectingSquadMove && scene.state.selectedEntity?.type === "squad") {
-
+		if (scene.state.selectedEntity?.type === "squad" &&
+			(pointer.rightButtonReleased() || scene.isSelectingSquadMove)
+		) {
 			emit(
 				events.SELECT_SQUAD_MOVE_DONE,
 				scene.state.selectedEntity.id,

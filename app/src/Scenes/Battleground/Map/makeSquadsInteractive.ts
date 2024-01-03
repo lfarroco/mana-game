@@ -26,7 +26,10 @@ export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
 
 		if (!chara.sprite.active) return;
 
-		if (scene.isSelectingSquadMove && state.selectedEntity?.type === "squad") {
+
+		if (state.selectedEntity?.type === "squad" &&
+			(scene.isSelectingSquadMove || pointer.rightButtonReleased())
+		) {
 			emit(
 				events.SELECT_SQUAD_MOVE_DONE,
 				state.selectedEntity.id,

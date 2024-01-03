@@ -9,11 +9,14 @@ export function makeCitiesInteractive(
 ) {
 	cities.forEach(city => {
 		city.setInteractive();
-		city.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer, x: number, y: number) => {
-
+		city.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer, _x: number, _y: number) => {
 			if (pointer.upElement.tagName !== "CANVAS") return;
 
-			if (scene.isSelectingSquadMove && scene.state.selectedEntity?.type === "squad") {
+
+			if (
+				scene.state.selectedEntity?.type === "squad" &&
+				(scene.isSelectingSquadMove || pointer.rightButtonReleased())
+			) {
 				emit(
 					events.SELECT_SQUAD_MOVE_DONE,
 					scene.state.selectedEntity.id,

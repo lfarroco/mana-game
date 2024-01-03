@@ -183,6 +183,10 @@ export class BattlegroundScene extends Phaser.Scene {
       loop: true
     });
 
+    if (this.input.mouse) {
+      this.input.mouse.disableContextMenu();
+    }
+
     //@ts-ignore
     window.scene = this
   }
