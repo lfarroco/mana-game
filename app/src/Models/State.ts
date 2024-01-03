@@ -26,7 +26,7 @@ export const initialState = (): State => ({
 			leader: "u1",
 			members: ["u1", "u2"],
 			status: SQUAD_STATUS.IDLE,
-			position: boardVec(1, 1)
+			position: boardVec(2, 2)
 		},
 		{
 			...makeSquad("s2", FORCE_ID_PLAYER),
@@ -34,23 +34,16 @@ export const initialState = (): State => ({
 			leader: "u3",
 			members: ["u3", "u4"],
 			status: SQUAD_STATUS.IDLE,
-			position: boardVec(1, 1)
+			position: boardVec(3, 1)
 		},
-		{
-			...makeSquad("s3", FORCE_ID_PLAYER),
-			name: "squad-3",
-			leader: "u30",
-			members: ["u30", "u31"],
-			status: SQUAD_STATUS.IDLE,
-			position: boardVec(2, 0)
-		},
+
 		{
 			...makeSquad("s4", FORCE_ID_PLAYER),
 			name: "squad-4",
 			leader: "u40",
 			members: ["u40", "u41"],
 			status: SQUAD_STATUS.IDLE,
-			position: boardVec(3, 1)
+			position: boardVec(4, 2)
 		},
 		{
 			...makeSquad("s5", FORCE_ID_PLAYER),
@@ -58,7 +51,7 @@ export const initialState = (): State => ({
 			leader: "u50",
 			members: ["u50", "u51"],
 			status: SQUAD_STATUS.IDLE,
-			position: boardVec(2, 2)
+			position: boardVec(3, 3)
 		},
 	],
 	units: [

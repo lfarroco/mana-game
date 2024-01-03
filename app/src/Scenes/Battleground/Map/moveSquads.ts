@@ -37,10 +37,6 @@ const moveSquads = (scene: BattlegroundScene) => {
 
 				emit(events.ENGAGEMENT_START, squad.id, boardVec(nextTile.x, nextTile.y))
 
-				squad.status = SQUAD_STATUS.ENGAGED
-				maybeEnemy.forEach(enemy => {
-					enemy.status = SQUAD_STATUS.ENGAGED
-				})
 				return;
 			}
 
