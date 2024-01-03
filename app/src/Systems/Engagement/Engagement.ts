@@ -1,6 +1,6 @@
 import { DIRECTIONS, Direction, getDirection } from "../../Models/Direction";
 import { BoardVec, boardVec } from "../../Models/Misc";
-import { listeners, events, emit_ } from "../../Models/Signals";
+import { listeners, events, emit_, emit } from "../../Models/Signals";
 import { SQUAD_STATUS } from "../../Models/Squad";
 import { State } from "../../Models/State";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
@@ -70,7 +70,8 @@ const engagementStartHandler = (scene: BattlegroundScene, state: State) => (squa
 		.play("combat-emote")
 
 	const attacker = squadId;
-	const defender = targetCellEnemies[0].id;
+	// defender is the one with the most morale
+	const defender = targetCellEnemies.sort((a, b) => b.morale - a.morale)[0].id;
 
 	const engagement: Engagement = {
 		id: uuid.v4(),
@@ -86,13 +87,13 @@ const engagementStartHandler = (scene: BattlegroundScene, state: State) => (squa
 	sprite.setInteractive()
 	sprite.on("pointerdown", emit_(events.TOGGLE_ENGAGEMENT_WINDOW, true, engagement.id))
 
-	targetCellEnemies.forEach(squad => squad.status = SQUAD_STATUS.ENGAGED)
 	state.engagements.push(engagement);
 
 	[attacker, defender].forEach(member => {
 		const chara = scene.charas.find(c => c.id === member)
 		if (!chara) return;
 		removeEmote(chara)
+		emit(events.UPDATE_SQUAD_STATUS, member, SQUAD_STATUS.ENGAGED)
 	})
 
 }

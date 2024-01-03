@@ -12,7 +12,7 @@ import { SQUAD_STATUS, Squad, SquadStatus } from "../../Models/Squad";
 import moveSquads from "./Map/moveSquads";
 import { faceDirection } from "../../Models/Direction";
 import { getDirection } from "../../Models/Direction";
-import { BoardVec, WindowVec, asBoardVec } from "../../Models/Misc";
+import { BoardVec, WindowVec, asBoardVec, boardVec } from "../../Models/Misc";
 import { Chara, createChara, removeEmote } from "../../Components/chara";
 import { emit, events, listeners } from "../../Models/Signals";
 import { State, getState } from "../../Models/State";
@@ -211,12 +211,12 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
   findPath(
-    source: { x: number; y: number; },
-    target: { x: number; y: number; },
-    callback: ((path: { x: number; y: number; }[]) => void)
+    source: BoardVec,
+    target: BoardVec,
+    callback: ((path: BoardVec[]) => void)
   ) {
 
-    easystar.findPath(source.x, source.y, target.x, target.y, callback);
+    easystar.findPath(source.x, source.y, target.x, target.y, path => callback(path.map(asBoardVec)));
     easystar.calculate();
   }
 
@@ -250,8 +250,8 @@ export class BattlegroundScene extends Phaser.Scene {
     if (!sourceTile) return
 
     this.findPath(
-      { x: sourceTile.x, y: sourceTile.y },
-      { x: target.x, y: target.y },
+      asBoardVec(sourceTile),
+      asBoardVec(target),
       (path_) => {
 
         if (path_.length < 2) {
@@ -271,8 +271,8 @@ export class BattlegroundScene extends Phaser.Scene {
         const path = path_.slice(1)
 
         console.log("setting path", path)
-        squad.path = path
-        squad.status = SQUAD_STATUS.MOVING
+        emit(events.UPDATE_SQUAD_PATH, squad.id, path)
+        emit(events.UPDATE_SQUAD_STATUS, squad.id, SQUAD_STATUS.MOVING)
         const chara = this.charas.find(c => c.id === squad.id);
 
         if (chara) {
@@ -305,7 +305,7 @@ export class BattlegroundScene extends Phaser.Scene {
       console.error("dispatchSquad: squad or city not found")
       return
     }
-    squad.status = SQUAD_STATUS.IDLE
+    emit(events.UPDATE_SQUAD_STATUS, squad.id, SQUAD_STATUS.IDLE)
 
     const tile = this.layers?.background.getTileAtWorldXY(city.screenPosition.x, city.screenPosition.y);
     if (!tile) return

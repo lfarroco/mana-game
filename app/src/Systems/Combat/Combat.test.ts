@@ -229,4 +229,8 @@ describe('Combat', () => {
 		it.todo("should retreat a routed squad into a friendly cell if available");
 		it.todo("moving into a cell with an retreating enemy unit triggers no combat");
 	})
+
+	describe("engagement start", () => {
+		it.todo("if two enemies are in a target cell, start with the one with the most morale");
+	})
 });
