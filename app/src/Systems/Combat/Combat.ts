@@ -1,6 +1,5 @@
-import { FORCE_ID_PLAYER } from "../../Models/Force";
 import { boardVec } from "../../Models/Misc";
-import { listeners, events, Signals, emit, Operation } from "../../Models/Signals";
+import { listeners, events, emit, Operation } from "../../Models/Signals";
 import { SQUAD_STATUS, Squad } from "../../Models/Squad";
 import { State } from "../../Models/State";
 import { moraleDamage } from "./moraleDamage";

@@ -14,7 +14,7 @@ export const SQUAD_STATUS: Record<SquadStatus, SquadStatus> = {
 }
 
 export type Squad = {
-	path: { x: number; y: number }[]
+	path: BoardVec[]
 	id: string,
 	leader: string,
 	name: string,
