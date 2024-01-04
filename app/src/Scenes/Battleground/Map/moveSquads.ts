@@ -1,5 +1,5 @@
 import { removeEmote } from "../../../Components/chara";
-import { boardVec, asBoardVec } from "../../../Models/Misc";
+import { boardVec, asBoardVec, isSameBoardVec } from "../../../Models/Misc";
 import { emit, events } from "../../../Models/Signals";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { DIRECTIONS, getDirection } from "../../../Models/Direction";
@@ -28,10 +28,7 @@ const moveSquads = (scene: BattlegroundScene) => {
 			const maybeEnemy = scene.state.squads
 				.filter(sqd => sqd.force !== squad.force)
 				.filter(sqd => sqd.status !== SQUAD_STATUS.RETREATING)
-				.filter(sqd =>
-					sqd.position.x === nextTile.x
-					&& sqd.position.y === nextTile.y
-				)
+				.filter(sqd => isSameBoardVec(sqd.position, asBoardVec(nextTile)))
 
 			if (maybeEnemy.length > 0) {
 
@@ -96,21 +93,22 @@ const moveSquads = (scene: BattlegroundScene) => {
 				}
 			})
 
-			squad.path.shift();
+			emit(events.SQUAD_LEAVES_CELL, squad.id, squad.position)
 
-			squad.position.x = nextTile.x
-			squad.position.y = nextTile.y
+			const [, ...path] = squad.path
+			emit(events.UPDATE_SQUAD_PATH, squad.id, path)
+			emit(events.UPDATE_SQUAD_POSITION, squad.id, asBoardVec(nextTile))
+			emit(events.SQUAD_MOVED_INTO_CELL, squad.id, asBoardVec(nextTile))
 
 			chara.direction = direction
 
 			chara.sprite.setData("walk", 0)
 
-			if (squad.path.length === 0) {
+			if (path.length === 0) {
 				if (squad.status === SQUAD_STATUS.MOVING || squad.status === SQUAD_STATUS.RETREATING) {
 					emit(events.UPDATE_SQUAD_STATUS, squad.id, SQUAD_STATUS.IDLE)
 				}
 			}
-
 
 		});
 }

@@ -8,11 +8,11 @@ import * as Easystar from "easystarjs"
 import { makeSquadInteractive, makeSquadsInteractive } from "./Map/makeSquadsInteractive";
 import { createCities } from "./Map/createCities";
 import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
-import { SQUAD_STATUS, Squad, SquadStatus } from "../../Models/Squad";
+import { SQUAD_STATUS, Squad } from "../../Models/Squad";
 import moveSquads from "./Map/moveSquads";
 import { faceDirection } from "../../Models/Direction";
 import { getDirection } from "../../Models/Direction";
-import { BoardVec, WindowVec, asBoardVec, boardVec } from "../../Models/Misc";
+import { BoardVec, WindowVec, asBoardVec } from "../../Models/Misc";
 import { Chara, createChara, removeEmote } from "../../Components/chara";
 import { emit, events, listeners } from "../../Models/Signals";
 import { State, getState } from "../../Models/State";
@@ -113,6 +113,16 @@ export class BattlegroundScene extends Phaser.Scene {
             return
           }
           squad.path = path
+        }
+      ],
+      [
+        events.UPDATE_SQUAD_POSITION, (squadId: string, vec: BoardVec) => {
+          const squad = this.state.squads.find(sqd => sqd.id === squadId)
+          if (!squad) {
+            console.warn("squad not found", squadId)
+            return
+          }
+          squad.position = vec
         }
       ]
 

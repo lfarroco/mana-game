@@ -27,10 +27,15 @@ export type Signals = {
 	UPDATE_SQUAD_STAMINA: (squadId: string, morale: number) => any,
 	UPDATE_SQUAD_STATUS: (squadId: string, status: SquadStatus) => any,
 	UPDATE_SQUAD_PATH: (squadId: string, path: BoardVec[]) => any,
+	UPDATE_SQUAD_POSITION: (squadId: string, vec: BoardVec) => any,
 	SQUAD_DESTROYED: (squadId: string) => any,
 	FORCE_VICTORY: (force: string) => void,
 	CAPTURE_CITY: (squadId: string, cityId: string) => void,
 	FINISH_ENGAGEMENT: (id: string) => void,
+	SQUAD_WALKS_TOWARDS_CELL: (squadId: string, vec: BoardVec) => void,
+	SQUAD_LEAVES_CELL: (squadId: string, vec: BoardVec) => void,
+	SQUAD_MOVED_INTO_CELL: (squadId: string, vec: BoardVec) => void,
+	UPDATE_SQUAD_COUNTER: (count: number, vec: BoardVec) => void, // TODO: not implemented yet
 }
 
 export type Operation = [keyof Signals, ...Parameters<Signals[keyof Signals]>]
@@ -58,11 +63,16 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
 	UPDATE_SQUAD_STAMINA: "UPDATE_SQUAD_STAMINA",
 	UPDATE_SQUAD_STATUS: "UPDATE_SQUAD_STATUS",
 	UPDATE_SQUAD_PATH: "UPDATE_SQUAD_PATH",
+	UPDATE_SQUAD_POSITION: "UPDATE_SQUAD_POSITION",
 	SQUAD_DESTROYED: "SQUAD_DESTROYED",
 	FORCE_VICTORY: "FORCE_VICTORY",
 	CAPTURE_CITY: "CAPTURE_CITY",
 	TOGGLE_ENGAGEMENT_WINDOW: "TOGGLE_ENGAGEMENT_WINDOW",
 	FINISH_ENGAGEMENT: "FINISH_ENGAGEMENT",
+	SQUAD_WALKS_TOWARDS_CELL: "SQUAD_WALKS_TOWARDS_CELL",
+	SQUAD_LEAVES_CELL: "SQUAD_LEAVES_CELL",
+	SQUAD_MOVED_INTO_CELL: "SQUAD_MOVED_INTO_CELL",
+	UPDATE_SQUAD_COUNTER: "UPDATE_SQUAD_COUNTER",
 }
 
 export const listen = <T extends keyof Signals>(

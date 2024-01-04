@@ -1,5 +1,5 @@
 import { DIRECTIONS, Direction, getDirection } from "../../Models/Direction";
-import { BoardVec, boardVec } from "../../Models/Misc";
+import { BoardVec } from "../../Models/Misc";
 import { listeners, events, emit_, emit } from "../../Models/Signals";
 import { SQUAD_STATUS } from "../../Models/Squad";
 import { State } from "../../Models/State";
