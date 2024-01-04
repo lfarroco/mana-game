@@ -26,6 +26,7 @@ const game = new Phaser.Game({
   mode: Phaser.Scale.FIT,
   autoCenter: Phaser.Scale.CENTER_BOTH,
   parent: 'game',
+  pixelArt: true,
   width: window.innerWidth,
   height: window.innerHeight,
 });
