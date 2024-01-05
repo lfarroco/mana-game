@@ -1,5 +1,5 @@
-import { BoardVec, boardVec } from '../../Models/Misc';
-import { SQUAD_STATUS } from '../../Models/Squad';
+import { boardVec } from '../../Models/Misc';
+import { makeSquad } from '../../Models/Squad';
 import { makeUnit } from '../../Models/Unit';
 import { State, initialState } from '../../Models/State';
 import * as Combat from './Combat';
@@ -8,14 +8,10 @@ import { Operation } from '../../Models/Signals';
 const alliedSquad1 = initialState().squads[0];
 
 const enemySquad1 = {
-	id: "enemy1",
-	name: "test squad",
-	force: "ENEMY",
+	...makeSquad("enemy1", "ENEMY"),
 	stamina: 100,
 	morale: 100,
 	position: boardVec(3, 1),
-	status: SQUAD_STATUS.IDLE,
-	path: [],
 	leader: "enemy_unit1",
 	members: ["enemy_unit1"]
 }
