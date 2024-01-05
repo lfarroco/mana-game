@@ -93,7 +93,7 @@ const engagementStartHandler = (scene: BattlegroundScene, state: State) => (squa
 		const chara = scene.charas.find(c => c.id === member)
 		if (!chara) return;
 		removeEmote(chara)
-		emit(events.UPDATE_SQUAD_STATUS, member, SQUAD_STATUS.ENGAGED)
+		emit(events.UPDATE_SQUAD, member, { status: SQUAD_STATUS.ENGAGED })
 	})
 
 }
@@ -110,7 +110,7 @@ const getEmotePosition = (tile: { x: number, y: number }, direction: Direction) 
 	}
 	throw new Error(`Invalid direction ${direction}`)
 }
-function engagementFinishHandler(state: State): (() => void) | (() => void) | ((squadId: string) => void) | ((cityId: string) => void) | ((squadId: string) => void) | ((squadId: string, target: import("/Users/leonardofarroco/dev/mana-game/app/src/Models/Misc").WindowVec) => void) | ((squadId: string) => void) | ((value: boolean) => void) | (() => void) | ((value: boolean) => void) | ((squadId: string, cityId: string) => void) | ((squadId1: string, squadId2: string) => void) | ((winner: string, loser: string) => void) | ((value: boolean) => void) | ((value: boolean) => void) | ((value: boolean, id: string) => void) | ((id: string | null) => void) | ((tick: number) => void) | ((attacker: string, targetCell: BoardVec) => any) | ((squadId: string, morale: number) => any) | ((squadId: string, morale: number) => any) | ((squadId: string, status: import("/Users/leonardofarroco/dev/mana-game/app/src/Models/Squad").SquadStatus) => any) | ((squadId: string, path: BoardVec[]) => any) | ((squadId: string) => any) | ((force: string) => void) | ((squadId: string, cityId: string) => void) | ((id: string) => void) {
+function engagementFinishHandler(state: State): ((id: string) => void) {
 	return (id: string) => {
 		const engagement = state.engagements.find(e => e.id === id);
 		if (!engagement) return;

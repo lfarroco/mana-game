@@ -72,15 +72,18 @@ export const initialState = (): State => ({
 	map: {
 		width: 128,
 		height: 128
-	}
+	},
+	grid: []
 });
 
+// make it an ioref https://gcanti.github.io/fp-ts/modules/IORef.ts.html#ioref-overview
 export type State = {
 	debug: boolean;
 	speed: number;
 	tick: number; // TODO: remove tick from scene
 	forces: Force[];
 	squads: Squad[];
+	grid: number[][];
 	units: Unit[];
 	cities: City[];
 	selectedEntity: null | { type: string, id: string };
@@ -99,4 +102,30 @@ export const getState = (): State => {
 export const setState = (state: State) => {
 	//@ts-ignore
 	window.state = state
+}
+
+export const addForce = (s: State) => (force: Force) => {
+	s.forces.push(force)
+}
+
+export const addSquad = (s: State) => (squad: Squad) => {
+	s.squads.push(squad)
+}
+
+export const addUnit = (s: State) => (unit: Unit) => {
+	s.units.push(unit)
+}
+
+export const addCity = (s: State) => (city: City) => {
+	s.cities.push(city)
+}
+
+export const addEngagement = (s: State) => (engagement: Engagement) => {
+	s.engagements.push(engagement)
+}
+
+export const updateSquad = (s: State) => (id: string) => (sqd: Partial<Squad>) => {
+	const squad = s.squads.find(sqd => sqd.id === id)
+	if (!squad) throw new Error("squad not found")
+	Object.assign(squad, sqd)
 }

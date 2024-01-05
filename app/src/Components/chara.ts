@@ -97,10 +97,16 @@ export function createChara(
 		scene.events.off("update", follow);
 	});
 
+	// this leaks, as the listener is never removed
+	// move this to morale/stamina bar systems
 	listeners([
-		[events.UPDATE_SQUAD_MORALE, (id: string, morale: number) => {
+		[events.UPDATE_SQUAD, (id: string, arg: any) => {
 
 			if (id !== squad.id) return
+
+			if (!arg.morale) return
+
+			const { morale } = arg
 
 			moraleBar.clear()
 			moraleBar.fillStyle(0x00ff00, 1);
@@ -112,9 +118,13 @@ export function createChara(
 			);
 
 		}],
-		[events.UPDATE_SQUAD_STAMINA, (id: string, stamina: number) => {
+		[events.UPDATE_SQUAD, (id: string, arg: any) => {
 
 			if (id !== squad.id) return
+
+			if (!arg.stamina) return
+
+			const { stamina } = arg
 
 			staminaBar.clear()
 			staminaBar.fillStyle(0xffff00, 1);
@@ -124,6 +134,15 @@ export function createChara(
 				TILE_WIDTH * stamina / 100,
 				6
 			);
+		}],
+		[events.SQUAD_DESTROYED, (id: string) => {
+
+			if (id !== squad.id) return
+
+			moraleBar.destroy()
+			moraleBackground.destroy()
+			staminaBar.destroy()
+			staminaBackground.destroy()
 
 		}]
 	])

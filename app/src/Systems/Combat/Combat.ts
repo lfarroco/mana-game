@@ -1,9 +1,10 @@
 import { boardVec } from "../../Models/Misc";
-import { listeners, events, emit, Operation } from "../../Models/Signals";
+import { listeners, events, emit, Operation, operations } from "../../Models/Signals";
 import { SQUAD_STATUS, Squad } from "../../Models/Squad";
 import { State } from "../../Models/State";
 import { moraleDamage } from "./moraleDamage";
 import { staminaDamage } from "./staminaDamage";
+import { Engagement } from "../Engagement/Engagement";
 
 export function init(state: State) {
 
@@ -20,13 +21,11 @@ export function init(state: State) {
 }
 
 
-export function processCombat(state: State) {
+export function processCombat(state: State): Operation[] {
 
-	const operations: Operation[] = [];
-
-	state.engagements
+	return state.engagements
 		.filter(e => !e.finished)
-		.forEach(engagement => {
+		.reduce((ops, engagement) => {
 
 			const attacker = state.squads.find(s => s.id === engagement.attacker);
 			const defender = state.squads.find(s => s.id === engagement.defender);
@@ -35,56 +34,82 @@ export function processCombat(state: State) {
 				throw new Error(`Squad ${engagement.attacker} or ${engagement.defender} not found`)
 			}
 
-			const staminaResult = staminaDamage(attacker, defender, operations);
+			const staminaResult = staminaDamage(attacker, defender);
 
-			const moraleResult = moraleDamage(attacker, defender, operations);
+			const moraleResult = moraleDamage(attacker, defender);
 
-			if ([
-				staminaResult.newAttackerStamina,
-				staminaResult.newDefenderStamina,
-				moraleResult.newAttackerMorale,
-				moraleResult.newDefenderMorale
-			].some(n => n <= 0)) {
-				operations.push([events.FINISH_ENGAGEMENT, engagement.id])
+			return ops
+				.concat(staminaResult.operations)
+				.concat(moraleResult.operations)
+				.concat(
+					compareResults(staminaResult, moraleResult, engagement, attacker, defender, state)
+				)
 
-				// successfull attack
-				if (moraleResult.newAttackerMorale > 0 && staminaResult.newAttackerStamina > 0) {
-					operations.push([events.UPDATE_SQUAD_STATUS, attacker.id, SQUAD_STATUS.MOVING])
-				}
-
-				// failed attack
-				if (moraleResult.newAttackerMorale <= 0 && staminaResult.newAttackerStamina > 0) {
-					operations.push([events.UPDATE_SQUAD_STATUS, attacker.id, SQUAD_STATUS.IDLE]);
-					operations.push([events.UPDATE_SQUAD_PATH, attacker.id, []]);
-				}
-
-				// successfull defense
-				if (moraleResult.newDefenderMorale > 0 && staminaResult.newDefenderStamina > 0) {
-					operations.push([events.UPDATE_SQUAD_STATUS, defender.id, SQUAD_STATUS.IDLE])
-				}
-
-				// failed defense
-				if (moraleResult.newDefenderMorale <= 0 && staminaResult.newDefenderStamina > 0) {
-					if (moraleResult.newAttackerMorale > 0 && staminaResult.newAttackerStamina > 0) {
-						tryRetreating(defender, state, operations);
-					} else {
-						// both attacker and defender failed
-						operations.push([events.UPDATE_SQUAD_STATUS, defender.id, SQUAD_STATUS.IDLE]);
-						operations.push([events.UPDATE_SQUAD_PATH, defender.id, []]);
-					}
-				}
-
-			}
-
-		})
-
-	return operations;
+		}, [] as Operation[])
 }
 
-function tryRetreating(squad: Squad, state: State, operations: Operation[]) {
-	operations.push([events.UPDATE_SQUAD_STATUS, squad.id, SQUAD_STATUS.RETREATING])
-	// find a path to a neighboring friendly cell, if any
-	const closestAlliedCell = state.squads
+function compareResults(
+	staminaResult: { operations: Operation[]; attackerDamage: number; defenderDamage: number; newAttackerStamina: number; newDefenderStamina: number; },
+	moraleResult: { operations: Operation[]; attackerDamage: number; defenderDamage: number; newAttackerMorale: number; newDefenderMorale: number; },
+	engagement: Engagement,
+	attacker: Squad,
+	defender: Squad,
+	state: State): Operation[] {
+	if ([
+		staminaResult.newAttackerStamina,
+		staminaResult.newDefenderStamina,
+		moraleResult.newAttackerMorale,
+		moraleResult.newDefenderMorale
+	].some(n => n <= 0)) {
+
+		const combatFinished = [operations.FINISH_ENGAGEMENT(engagement.id)]
+
+		const successfullAttack =
+			moraleResult.newAttackerMorale > 0 && staminaResult.newAttackerStamina > 0 ?
+				[operations.UPDATE_SQUAD(attacker.id, { status: SQUAD_STATUS.MOVING })] :
+				[]
+
+		const failedAttack =
+			moraleResult.newAttackerMorale <= 0 && staminaResult.newAttackerStamina > 0 ?
+				[
+					operations.UPDATE_SQUAD(attacker.id, { status: SQUAD_STATUS.IDLE }),
+					operations.UPDATE_SQUAD(attacker.id, { path: [] })
+				] :
+				[]
+
+		const successfullDefense =
+			moraleResult.newDefenderMorale > 0 && staminaResult.newDefenderStamina > 0 ?
+				[operations.UPDATE_SQUAD(defender.id, { status: SQUAD_STATUS.IDLE })] :
+				[]
+
+		const failedDefense = moraleResult.newDefenderMorale <= 0 && staminaResult.newDefenderStamina > 0 ?
+			moraleResult.newAttackerMorale > 0 && staminaResult.newAttackerStamina > 0 ?
+				tryRetreating(defender, state) :
+				[
+					operations.UPDATE_SQUAD(defender.id, { status: SQUAD_STATUS.IDLE }),
+					operations.UPDATE_SQUAD(defender.id, { path: [] }),
+				]
+			: []
+
+		return combatFinished
+			.concat(successfullAttack)
+			.concat(failedAttack)
+			.concat(successfullDefense)
+			.concat(failedDefense)
+
+	} else {
+		return []
+	}
+}
+
+function tryRetreating(squad: Squad, state: State) {
+
+	const retreat: Operation = operations.UPDATE_SQUAD(
+		squad.id,
+		{ status: SQUAD_STATUS.RETREATING }
+	)
+
+	const pathToNeighborAlly = state.squads
 		.filter(sqd => sqd.force === squad.force)
 		.map(sqd => sqd.position)
 		.filter(pos => {
@@ -92,29 +117,32 @@ function tryRetreating(squad: Squad, state: State, operations: Operation[]) {
 			return distance === 1;
 		});
 
-	if (closestAlliedCell.length > 0) {
-		operations.push([events.UPDATE_SQUAD_PATH, squad.id, closestAlliedCell])
-	} else {
-		// pick empty random cell
-		const emptyCells = [
-			[0, 1],
-			[0, -1],
-			[1, 0],
-			[-1, 0],
-		].filter(([x, y]) => {
-			if (squad.position.x + x < 0 || squad.position.x + x >= state.map.width) return false;
-			if (squad.position.y + y < 0 || squad.position.y + y >= state.map.height) return false;
+	const movement = pathToNeighborAlly.length > 0 ?
+		operations.UPDATE_SQUAD(squad.id, { path: pathToNeighborAlly }) :
+		getRandomEmptyCell(squad, state);
 
-			const cell = state.squads.find(sqd => sqd.position.x === squad.position.x + x && sqd.position.y === squad.position.y + y);
-			return !cell;
-		});
-		if (emptyCells.length > 0) {
-			const [x, y] = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-			operations.push([events.UPDATE_SQUAD_PATH, squad.id, [
-				boardVec(squad.position.x + x, squad.position.y + y)
-			]])
-		} else {
-			operations.push([events.SQUAD_DESTROYED, squad.id])
-		}
+	return [retreat, movement];
+}
+
+function getRandomEmptyCell(squad: Squad, state: State): Operation {
+	const emptyCells = [
+		[0, 1],
+		[0, -1],
+		[1, 0],
+		[-1, 0],
+	].filter(([x, y]) => {
+		if (squad.position.x + x < 0 || squad.position.x + x >= state.map.width) return false;
+		if (squad.position.y + y < 0 || squad.position.y + y >= state.map.height) return false;
+
+		const cell = state.squads.find(sqd => sqd.position.x === squad.position.x + x && sqd.position.y === squad.position.y + y);
+		return !cell;
+	});
+
+	if (emptyCells.length > 0) {
+		const [x, y] = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+		return operations.UPDATE_SQUAD(squad.id, { path: [boardVec(squad.position.x + x, squad.position.y + y)] })
+	} else {
+		return operations.SQUAD_DESTROYED(squad.id)
 	}
 }
+
