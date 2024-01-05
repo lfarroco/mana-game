@@ -1,4 +1,3 @@
-import { boardVec } from '../../Models/Misc';
 import { makeSquad } from '../../Models/Squad';
 import { makeUnit } from '../../Models/Unit';
 import { State, initialState } from '../../Models/State';
@@ -9,9 +8,6 @@ const alliedSquad1 = initialState().squads[0];
 
 const enemySquad1 = {
 	...makeSquad("enemy1", "ENEMY"),
-	stamina: 100,
-	morale: 100,
-	position: boardVec(3, 1),
 	leader: "enemy_unit1",
 	members: ["enemy_unit1"]
 }
