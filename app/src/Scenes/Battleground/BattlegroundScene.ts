@@ -27,9 +27,8 @@ import * as VictorySystem from "../../Systems/Victory/Victory";
 import { squadDestroyed } from "./Events/SquadDestroyed";
 import { City } from "../../Models/City";
 import * as CityCaptureSystem from "./Systems/cityCapture";
+import * as Pathfinding from "./Systems/Pathfinding";
 
-const easystar = new Easystar.js();
-easystar.setAcceptableTiles([0])
 
 export class BattlegroundScene extends Phaser.Scene {
   tick: number = 0;
@@ -124,6 +123,41 @@ export class BattlegroundScene extends Phaser.Scene {
           }
           squad.position = vec
         }
+      ],
+      [events.PATH_FOUND, (key: string, path_: BoardVec[]) => {
+
+        const squad = this.state.squads.find(sqd => sqd.id === key)
+        if (!squad) {
+          console.warn("squad not found", key)
+          return
+        }
+
+        if (path_.length < 2) {
+
+          squad.path = []
+
+          // in case of choosing own cell
+          if (squad.position.x === path_[0].x && squad.position.y === path_[0].y) {
+            const chara = this.charas.find(c => c.id === squad.id);
+            if (chara) removeEmote(chara)
+          }
+
+          return
+
+        }
+
+        const path = path_.slice(1)
+
+        console.log("setting path", path)
+        emit(events.UPDATE_SQUAD_PATH, squad.id, path)
+        emit(events.UPDATE_SQUAD_STATUS, squad.id, SQUAD_STATUS.MOVING)
+        const chara = this.charas.find(c => c.id === squad.id);
+
+        if (chara) {
+          const direction = getDirection(asBoardVec(path[0]), squad.position)
+          faceDirection(direction, chara)
+        }
+      }
       ]
 
     ]
@@ -131,6 +165,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.state = getState()
 
+    Pathfinding.init()
     EngagementSystem.init(this, this.state)
     CombatSystem.init(this.state)
     MoraleRegen.init(this)
@@ -177,7 +212,7 @@ export class BattlegroundScene extends Phaser.Scene {
     makeCitiesInteractive(this, this.cities.map(c => c.sprite))
 
     this.grid = layers.obstacles.layer.data.map(row => row.map(tile => tile.index === -1 ? 0 : 1))
-    easystar.setGrid(this.grid);
+    emit(events.SET_GRID, this.grid)
 
     this.time.addEvent({
       delay: 1000 / this.state.speed,
@@ -220,16 +255,6 @@ export class BattlegroundScene extends Phaser.Scene {
     this.selectedEntity = this.children.getByName(id) as Phaser.GameObjects.Sprite
   }
 
-  findPath(
-    source: BoardVec,
-    target: BoardVec,
-    callback: ((path: BoardVec[]) => void)
-  ) {
-
-    easystar.findPath(source.x, source.y, target.x, target.y, path => callback(path.map(asBoardVec)));
-    easystar.calculate();
-  }
-
   drawPoints(points: Phaser.Math.Vector2[]) {
 
     if (!this.graphics) return
@@ -259,38 +284,8 @@ export class BattlegroundScene extends Phaser.Scene {
     );
     if (!sourceTile) return
 
-    this.findPath(
-      asBoardVec(sourceTile),
-      asBoardVec(target),
-      (path_) => {
+    emit(events.LOOKUP_PATH, squad.id, asBoardVec(sourceTile), target)
 
-        if (path_.length < 2) {
-
-          squad.path = []
-
-          // in case of choosing own cell
-          if (squad.position.x === target.x && squad.position.y === target.y) {
-            const chara = this.charas.find(c => c.id === squad.id);
-            if (chara) removeEmote(chara)
-          }
-
-          return
-
-        }
-
-        const path = path_.slice(1)
-
-        console.log("setting path", path)
-        emit(events.UPDATE_SQUAD_PATH, squad.id, path)
-        emit(events.UPDATE_SQUAD_STATUS, squad.id, SQUAD_STATUS.MOVING)
-        const chara = this.charas.find(c => c.id === squad.id);
-
-        if (chara) {
-          const direction = getDirection(asBoardVec(path[0]), squad.position)
-          faceDirection(direction, chara)
-        }
-      }
-    )
   }
 
   pauseGame = () => {

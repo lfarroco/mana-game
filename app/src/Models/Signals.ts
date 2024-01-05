@@ -36,6 +36,9 @@ export type Signals = {
 	SQUAD_LEAVES_CELL: (squadId: string, vec: BoardVec) => void,
 	SQUAD_MOVED_INTO_CELL: (squadId: string, vec: BoardVec) => void,
 	UPDATE_SQUAD_COUNTER: (count: number, vec: BoardVec) => void, // TODO: not implemented yet
+	SET_GRID: (grid: number[][]) => void,
+	LOOKUP_PATH: (key: string, source: BoardVec, target: BoardVec) => void,
+	PATH_FOUND: (key: string, path: BoardVec[]) => void,
 }
 
 export type Operation = [keyof Signals, ...Parameters<Signals[keyof Signals]>]
@@ -73,6 +76,9 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
 	SQUAD_LEAVES_CELL: "SQUAD_LEAVES_CELL",
 	SQUAD_MOVED_INTO_CELL: "SQUAD_MOVED_INTO_CELL",
 	UPDATE_SQUAD_COUNTER: "UPDATE_SQUAD_COUNTER",
+	SET_GRID: "SET_GRID",
+	LOOKUP_PATH: "LOOKUP_PATH",
+	PATH_FOUND: "PATH_FOUND",
 }
 
 export const listen = <T extends keyof Signals>(
