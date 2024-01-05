@@ -17,7 +17,7 @@ import { Chara, createChara, removeEmote } from "../../Components/chara";
 import { emit, events, listeners } from "../../Models/Signals";
 import { State, getState } from "../../Models/State";
 import { TILE_HEIGHT } from "./constants";
-import * as fogOfWar from "./Systems/fogOfWar";
+import * as FogOfWarSystem from "./Systems/fogOfWar";
 import * as EngagementSystem from "../../Systems/Engagement/Engagement";
 import * as CombatSystem from "../../Systems/Combat/Combat";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
@@ -31,7 +31,6 @@ import * as Pathfinding from "./Systems/Pathfinding";
 
 
 export class BattlegroundScene extends Phaser.Scene {
-  tick: number = 0;
   graphics: Phaser.GameObjects.Graphics | null = null;
   grid: number[][] = []
   charas: Chara[] = []
@@ -165,7 +164,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.state = getState()
 
-    Pathfinding.init()
     EngagementSystem.init(this, this.state)
     CombatSystem.init(this.state)
     MoraleRegen.init(this)
@@ -205,23 +203,22 @@ export class BattlegroundScene extends Phaser.Scene {
     this.cities = createCities(this, this.state.cities)
     this.charas = createMapSquads(this)
 
-    fogOfWar.init(this);
+    FogOfWarSystem.init(this);
     CityCaptureSystem.init(this)
 
     makeSquadsInteractive(this, this.charas)
     makeCitiesInteractive(this, this.cities.map(c => c.sprite))
 
     this.grid = layers.obstacles.layer.data.map(row => row.map(tile => tile.index === -1 ? 0 : 1))
-    emit(events.SET_GRID, this.grid)
+    Pathfinding.init(this.grid)
 
     this.time.addEvent({
       delay: 1000 / this.state.speed,
       callback: () => {
 
         if (!this.isPaused) {
-          this.tick++ // todo: use only state.tick
           this.state.tick++;
-          emit(events.BATTLEGROUND_TICK, this.tick)
+          emit(events.BATTLEGROUND_TICK, this.state.tick)
         }
 
       },
@@ -244,6 +241,7 @@ export class BattlegroundScene extends Phaser.Scene {
     } else {
       this.cursor?.setVisible(false)
     }
+
   }
 
   selectSquad = (id: string) => {
@@ -253,28 +251,6 @@ export class BattlegroundScene extends Phaser.Scene {
   selectCity = (id: string) => {
     this.state.selectedEntity = { type: "city", id }
     this.selectedEntity = this.children.getByName(id) as Phaser.GameObjects.Sprite
-  }
-
-  drawPoints(points: Phaser.Math.Vector2[]) {
-
-    if (!this.graphics) return
-
-    this.graphics.clear();
-    this.graphics.lineStyle(5, 0xff0000, 3);
-    const interval = 20;
-    let time = 0;
-    for (let i = 1; i < points.length; i++) {
-      this.time.addEvent({
-        delay: time,
-        callback: () => {
-
-          if (!this.graphics) return
-          this.graphics.lineBetween(points[i - 1].x, points[i - 1].y, points[i].x, points[i].y);
-        }
-      });
-      time += interval;
-    }
-
   }
 
   moveTo(squad: Squad, target: BoardVec) {
