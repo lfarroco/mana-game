@@ -3,6 +3,7 @@ import { makeUnit } from '../../Models/Unit';
 import { State, initialState } from '../../Models/State';
 import * as Combat from './Combat';
 import { Operation } from '../../Models/Signals';
+import { makeForce } from '../../Models/Force';
 
 const alliedSquad1 = initialState().squads[0];
 
@@ -12,15 +13,15 @@ const enemySquad1 = {
 	members: ["enemy_unit1"]
 }
 
+
 const testState: State = {
 	...initialState(),
 	forces: [
 		...initialState().forces,
 		{
+			...makeForce(),
 			id: "ENEMY",
-			name: "test force",
-			squads: ["enemy1", "enemy2"],
-			color: "0x000000"
+			squads: ["enemy1"],
 		}
 	],
 	squads: [
@@ -32,14 +33,12 @@ const testState: State = {
 		{
 			...makeUnit(),
 			id: "enemy_unit1",
-			name: "test unit",
 			force: "ENEMY",
 			squad: "enemy1",
 		},
 		{
 			...makeUnit(),
 			id: "enemy_unit2",
-			name: "test unit",
 			force: "ENEMY",
 			squad: "enemy2",
 		}
