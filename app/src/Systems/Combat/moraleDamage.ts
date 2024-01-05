@@ -2,7 +2,7 @@ import { events, Operation } from "../../Models/Signals";
 import { Squad } from "../../Models/Squad";
 import { diceRoll } from "../../Utils/diceRoll";
 
-export function moraleDamage(attacker: Squad, defender: Squad, operations: Operation[]) {
+export function moraleDamage(attacker: Squad, defender: Squad) {
 
 	const attackerDamage = diceRoll(20);
 	const defenderDamage = diceRoll(6);
@@ -10,19 +10,32 @@ export function moraleDamage(attacker: Squad, defender: Squad, operations: Opera
 	const newAttackerMorale = attacker.morale - defenderDamage;
 	const newDefenderMorale = defender.morale - attackerDamage;
 
-	if (newAttackerMorale <= 0) {
-		operations.push([events.UPDATE_SQUAD_MORALE, attacker.id, 0]);
-	} else {
-		operations.push([events.UPDATE_SQUAD_MORALE, attacker.id, newAttackerMorale]);
+	const calcAttackerMorale = (): Operation => {
+		if (newAttackerMorale <= 0) {
+			return [events.UPDATE_SQUAD, attacker.id, { morale: 0 }]
+		} else {
+			return [events.UPDATE_SQUAD, attacker.id, { morale: newAttackerMorale }]
+		}
+	}
+	const calcDefenderMorale = (): Operation => {
+
+		if (newDefenderMorale <= 0) {
+			return [events.UPDATE_SQUAD, defender.id, { morale: 0 }]
+		} else {
+			return [events.UPDATE_SQUAD, defender.id, { morale: newDefenderMorale }]
+		}
 	}
 
-	if (newDefenderMorale <= 0) {
-		operations.push([events.UPDATE_SQUAD_MORALE, defender.id, 0]);
-	} else {
-		operations.push([events.UPDATE_SQUAD_MORALE, defender.id, newDefenderMorale]);
-	}
+	const operations = (
+		[] as Operation[]
+	).concat(
+		[calcAttackerMorale()]
+	).concat(
+		[calcDefenderMorale()]
+	)
 
 	return {
+		operations,
 		attackerDamage,
 		defenderDamage,
 		newAttackerMorale,

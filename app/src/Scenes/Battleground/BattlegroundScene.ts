@@ -4,7 +4,6 @@ import { createMap } from "./Map/createMap";
 import { importMapObjects } from "./Map/importMapObjects";
 import { makeMapInteractive } from "./Map/makeMapInteractive";
 import { createMapSquads } from "./Map/createMapSquads";
-import * as Easystar from "easystarjs"
 import { makeSquadInteractive, makeSquadsInteractive } from "./Map/makeSquadsInteractive";
 import { createCities } from "./Map/createCities";
 import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
@@ -15,7 +14,7 @@ import { getDirection } from "../../Models/Direction";
 import { BoardVec, WindowVec, asBoardVec } from "../../Models/Misc";
 import { Chara, createChara, removeEmote } from "../../Components/chara";
 import { emit, events, listeners } from "../../Models/Signals";
-import { State, getState } from "../../Models/State";
+import { State, getState, updateSquad } from "../../Models/State";
 import { TILE_HEIGHT } from "./constants";
 import * as FogOfWarSystem from "./Systems/fogOfWar";
 import * as EngagementSystem from "../../Systems/Engagement/Engagement";
@@ -68,22 +67,14 @@ export class BattlegroundScene extends Phaser.Scene {
         }
       },
       ], [
-        events.UPDATE_SQUAD_MORALE, (squadId: string, morale: number) => {
+        events.UPDATE_SQUAD, (squadId: string, arg: Partial<Squad>) => {
+          if (!arg.stamina) return
+
           const squad = this.state.squads.find(sqd => sqd.id === squadId)
           if (!squad) {
             console.warn("squad not found", squadId)
             return
           }
-          squad.morale = morale
-        }
-      ], [
-        events.UPDATE_SQUAD_STAMINA, (squadId: string, stamina: number) => {
-          const squad = this.state.squads.find(sqd => sqd.id === squadId)
-          if (!squad) {
-            console.warn("squad not found", squadId)
-            return
-          }
-          squad.stamina = stamina
 
           if (squad.stamina <= 0) {
             emit(events.SQUAD_DESTROYED, squadId)
@@ -91,36 +82,10 @@ export class BattlegroundScene extends Phaser.Scene {
         }
       ],
       [
-        events.UPDATE_SQUAD_STATUS, (squadId: string, status: Squad["status"]) => {
+        events.UPDATE_SQUAD, (squadId: string, sqd: Partial<Squad>) => {
 
-          const squad = this.state.squads.find(sqd => sqd.id === squadId)
-          if (!squad) {
-            console.warn("squad not found", squadId)
-            return
-          }
-          squad.status = status
+          updateSquad(this.state)(squadId)(sqd)
 
-        }
-
-      ],
-      [
-        events.UPDATE_SQUAD_PATH, (squadId: string, path: BoardVec[]) => {
-          const squad = this.state.squads.find(sqd => sqd.id === squadId)
-          if (!squad) {
-            console.warn("squad not found", squadId)
-            return
-          }
-          squad.path = path
-        }
-      ],
-      [
-        events.UPDATE_SQUAD_POSITION, (squadId: string, vec: BoardVec) => {
-          const squad = this.state.squads.find(sqd => sqd.id === squadId)
-          if (!squad) {
-            console.warn("squad not found", squadId)
-            return
-          }
-          squad.position = vec
         }
       ],
       [events.PATH_FOUND, (key: string, path_: BoardVec[]) => {
@@ -147,9 +112,9 @@ export class BattlegroundScene extends Phaser.Scene {
 
         const path = path_.slice(1)
 
-        console.log("setting path", path)
-        emit(events.UPDATE_SQUAD_PATH, squad.id, path)
-        emit(events.UPDATE_SQUAD_STATUS, squad.id, SQUAD_STATUS.MOVING)
+        emit(events.UPDATE_SQUAD, squad.id, { path })
+        emit(events.UPDATE_SQUAD, squad.id, { status: SQUAD_STATUS.MOVING })
+
         const chara = this.charas.find(c => c.id === squad.id);
 
         if (chara) {
@@ -166,8 +131,8 @@ export class BattlegroundScene extends Phaser.Scene {
 
     EngagementSystem.init(this, this.state)
     CombatSystem.init(this.state)
-    MoraleRegen.init(this)
-    StaminaRegen.init(this)
+    MoraleRegen.init(this.state)
+    StaminaRegen.init(this.state)
     squadDestroyed(this)
     VictorySystem.init(this)
 
@@ -286,11 +251,12 @@ export class BattlegroundScene extends Phaser.Scene {
       console.error("dispatchSquad: squad or city not found")
       return
     }
-    emit(events.UPDATE_SQUAD_STATUS, squad.id, SQUAD_STATUS.IDLE)
 
     const tile = this.layers?.background.getTileAtWorldXY(city.screenPosition.x, city.screenPosition.y);
     if (!tile) return
-    squad.position = asBoardVec(tile)
+
+    emit(events.UPDATE_SQUAD, sqdId, { status: SQUAD_STATUS.IDLE, })
+    emit(events.UPDATE_SQUAD, sqdId, { position: asBoardVec(tile) })
 
     const chara_ = createChara(
       this,

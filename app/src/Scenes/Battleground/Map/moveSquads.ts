@@ -96,8 +96,8 @@ const moveSquads = (scene: BattlegroundScene) => {
 			emit(events.SQUAD_LEAVES_CELL, squad.id, squad.position)
 
 			const [, ...path] = squad.path
-			emit(events.UPDATE_SQUAD_PATH, squad.id, path)
-			emit(events.UPDATE_SQUAD_POSITION, squad.id, asBoardVec(nextTile))
+			emit(events.UPDATE_SQUAD, squad.id, { path })
+			emit(events.UPDATE_SQUAD, squad.id, { position: asBoardVec(nextTile) })
 			emit(events.SQUAD_MOVED_INTO_CELL, squad.id, asBoardVec(nextTile))
 
 			chara.direction = direction
@@ -106,7 +106,9 @@ const moveSquads = (scene: BattlegroundScene) => {
 
 			if (path.length === 0) {
 				if (squad.status === SQUAD_STATUS.MOVING || squad.status === SQUAD_STATUS.RETREATING) {
-					emit(events.UPDATE_SQUAD_STATUS, squad.id, SQUAD_STATUS.IDLE)
+					emit(events.UPDATE_SQUAD, squad.id, {
+						status: SQUAD_STATUS.IDLE
+					})
 				}
 			}
 

@@ -1,8 +1,8 @@
-import { events, Operation } from "../../Models/Signals";
+import { Operation, operations } from "../../Models/Signals";
 import { Squad } from "../../Models/Squad";
 import { diceRoll } from "../../Utils/diceRoll";
 
-export function staminaDamage(attacker: Squad, defender: Squad, operations: Operation[]) {
+export function staminaDamage(attacker: Squad, defender: Squad) {
 
 	const attackerDamage = diceRoll(6);
 	const defenderDamage = diceRoll(6);
@@ -10,19 +10,18 @@ export function staminaDamage(attacker: Squad, defender: Squad, operations: Oper
 	const newAttackerStamina = attacker.stamina - Math.ceil((defenderDamage));
 	const newDefenderStamina = defender.stamina - Math.ceil((attackerDamage));
 
-	if (newAttackerStamina <= 0) {
-		operations.push([events.UPDATE_SQUAD_STAMINA, attacker.id, 0]);
-	} else {
-		operations.push([events.UPDATE_SQUAD_STAMINA, attacker.id, newAttackerStamina]);
-	}
-
-	if (newDefenderStamina <= 0) {
-		operations.push([events.UPDATE_SQUAD_STAMINA, defender.id, 0]);
-	} else {
-		operations.push([events.UPDATE_SQUAD_STAMINA, defender.id, newDefenderStamina]);
-	}
+	const ops = ([] as Operation[]).concat(
+		newAttackerStamina <= 0 ?
+			[operations.UPDATE_SQUAD(attacker.id, { stamina: 0 })] :
+			[operations.UPDATE_SQUAD(attacker.id, { stamina: newAttackerStamina })]
+	).concat(
+		newDefenderStamina <= 0 ?
+			[operations.UPDATE_SQUAD(defender.id, { stamina: 0 })] :
+			[operations.UPDATE_SQUAD(defender.id, { stamina: newDefenderStamina })]
+	)
 
 	return {
+		operations: ops,
 		attackerDamage,
 		defenderDamage,
 		newAttackerStamina,
