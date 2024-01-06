@@ -3,31 +3,21 @@ import UnitsWindow from './UnitsWindow/UnitsWindow';
 import SquadsWindow from './SquadsWindow/SquadsWindow';
 import { Button, ButtonGroup } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
-import { getState } from '../../Models/State';
-import SelectedSquad from './SelectedEntity/SelectedSquad';
-import { Squad } from '../../Models/Squad';
-import SelectedCity from './SelectedEntity/SelectedCity';
-import { City } from '../../Models/City';
 import { listeners, events, emit, emit_ } from "../../Models/Signals"
 import DispatchSquadModal from './DispatchSquadModal/DispatchSquadModal';
 import SquadDetailsModal from './SquadDetailsModal/SquadDetailsModal';
 import { UnitDetailsModal } from './UnitDetailsModal/UnitsDetailsModal';
 import VictoryModal from './VictoryModal/VictoryModal';
 import EngagementModal from './EngagementModal/EngagementModal';
+import SelectionHUD from './SelectionHUD';
 
 const Battleground = () => {
 
-  const state = getState()
-
-  const [selectedEntityInfo, setSelectedEntity] = useState<{ type: string, id: string } | null>(null);
+  // move these into the SelectionHUD
   const [isPaused, setPaused] = useState(false);
   const [isSelectingMoveTarget, setIsSelectingMoveTarget] = useState(false);
   const [tick, setTick] = useState(0);
 
-  const selectedEntity = selectedEntityInfo && (
-    selectedEntityInfo.type === "squad" ? state.squads.find(squad => squad.id === selectedEntityInfo.id) :
-      (state.cities.find(city => city.id === selectedEntityInfo.id))
-  )
 
   useEffect(() => {
     console.log("Battleground mounted");
@@ -35,8 +25,6 @@ const Battleground = () => {
       [
         [events.PAUSE_PHYSICS, () => { setPaused(true); }],
         [events.RESUME_PHYSICS, () => { setPaused(false); }],
-        [events.SQUAD_SELECTED, (id: string) => { setSelectedEntity({ type: "squad", id }); }],
-        [events.CITY_SELECTED, (id: string) => { setSelectedEntity({ type: "city", id }); }],
         [events.SELECT_SQUAD_MOVE_START, () => { setIsSelectingMoveTarget(true); }],
         [events.SELECT_SQUAD_MOVE_DONE, () => { setIsSelectingMoveTarget(false); }],
         [events.SELECT_SQUAD_MOVE_CANCEL, () => { setIsSelectingMoveTarget(false); }],
@@ -102,16 +90,9 @@ const Battleground = () => {
       </div>
       <footer className="block">
         <div className="content">
-          {
-            selectedEntityInfo?.type === "squad"
-            && <SelectedSquad
-              squad={selectedEntity as Squad}
-              isSelectingMoveTarget={isSelectingMoveTarget}
-            />
-          }
-          {
-            selectedEntityInfo?.type === "city" && <SelectedCity city={selectedEntity as City} />
-          }
+          <SelectionHUD
+            isSelectingMoveTarget={isSelectingMoveTarget}
+          />
         </div>
       </footer>
 
@@ -127,6 +108,8 @@ const Battleground = () => {
     </>
   );
 }
+
+
 
 export default Battleground;
 

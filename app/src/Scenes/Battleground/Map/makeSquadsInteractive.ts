@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { getState } from "../../../Models/State";
 import { events, emit } from "../../../Models/Signals";
-import { windowVec } from "../../../Models/Misc";
+import { isSameBoardVec, windowVec } from "../../../Models/Misc";
 import { Chara } from "../../../Components/chara";
 
 export function makeSquadsInteractive(
@@ -36,10 +36,29 @@ export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
 				windowVec(chara.sprite.x, chara.sprite.y)
 			);
 		} else {
-			emit(
-				events.SQUAD_SELECTED,
-				chara.id
-			);
+
+			// check if another squad is in the same cell
+
+			const squad = state.squads.find(squad => squad.id === chara.id);
+
+			if (!squad) throw new Error(`Squad ${chara.id} not found`)
+
+			const squads = state.squads
+				.filter(s => s.force === squad.force)
+				.filter(s => isSameBoardVec(s.position, squad.position));
+
+			if (squads.length > 1) {
+
+				emit(
+					events.MULTIPLE_SQUADS_SELECTED,
+					squads.map(s => s.id)
+				);
+
+			} else
+				emit(
+					events.SQUAD_SELECTED,
+					chara.id
+				);
 		}
 	});
 }
