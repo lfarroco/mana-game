@@ -3,6 +3,7 @@ import { getState } from "../../Models/State"
 import SelectedCity from "./SelectedEntity/SelectedCity"
 import SelectedSquad from "./SelectedEntity/SelectedSquad"
 import { events, listeners } from "../../Models/Signals";
+import MultipleSelection from "./MultipleSelection";
 
 export default function SelectionHUD({
 	isSelectingMoveTarget,
@@ -38,10 +39,10 @@ export default function SelectionHUD({
 	}, []);
 
 
-	// if (selectedSquads.length > 0)
-	//   return <MultipleSelection
-	//     entities={selectedSquads.map(id => state.squads.find(squad => squad.id === id))}
-	//   />
+	if (selectedSquads.length > 0)
+		return <MultipleSelection
+			ids={selectedSquads}
+		/>
 
 	if (selectedEntityType === "squad") {
 		const squad = state.squads.find(squad => squad.id === selectedEntityId)
