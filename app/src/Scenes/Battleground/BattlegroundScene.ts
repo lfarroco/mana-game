@@ -11,7 +11,7 @@ import { SQUAD_STATUS, Squad } from "../../Models/Squad";
 import moveSquads from "./Map/moveSquads";
 import { faceDirection } from "../../Models/Direction";
 import { getDirection } from "../../Models/Direction";
-import { BoardVec, WindowVec, asBoardVec } from "../../Models/Misc";
+import { BoardVec, WindowVec, asBoardVec, boardVec } from "../../Models/Misc";
 import { Chara, createChara, removeEmote } from "../../Components/chara";
 import { emit, events, listeners } from "../../Models/Signals";
 import { State, getState, updateSquad } from "../../Models/State";
@@ -218,29 +218,22 @@ export class BattlegroundScene extends Phaser.Scene {
     this.selectedEntity = this.children.getByName(id) as Phaser.GameObjects.Sprite
   }
 
-  moveTo(squad: Squad, target: BoardVec) {
-    const sourceTile = this.layers?.background.getTileAt(
-      squad.position.x,
-      squad.position.y,
-    );
-    if (!sourceTile) return
-
-    emit(events.LOOKUP_PATH, squad.id, asBoardVec(sourceTile), target)
-
-  }
-
   pauseGame = () => {
     this.isPaused = true;
   }
   resumeGame = () => {
     this.isPaused = false;
   }
-  moveSquadTo = (sqdId: string, { x, y }: WindowVec) => {
-    const sqd = this.state.squads.find(sqd => sqd.id === sqdId)
-    const tile = this.layers?.background.getTileAtWorldXY(x, y);
-    if (!sqd || !tile) return
+  moveSquadTo = (sqdId: string, { x, y }: BoardVec) => {
+    const squad = this.state.squads.find(sqd => sqd.id === sqdId)
+    const tile = this.layers?.background.getTileAt(x, y);
+    if (!squad || !tile) return
+
     this.isSelectingSquadMove = false;
-    this.moveTo(sqd, asBoardVec(tile))
+
+    emit(events.LOOKUP_PATH, squad.id, squad.position, boardVec(x, y))
+
+
   }
   dispatchSquad = (sqdId: string, cityId: string) => {
 

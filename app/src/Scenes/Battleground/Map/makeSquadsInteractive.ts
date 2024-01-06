@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { getState } from "../../../Models/State";
 import { events, emit } from "../../../Models/Signals";
-import { isSameBoardVec, windowVec } from "../../../Models/Misc";
+import { asBoardVec, isSameBoardVec, windowVec } from "../../../Models/Misc";
 import { Chara } from "../../../Components/chara";
 
 export function makeSquadsInteractive(
@@ -26,14 +26,15 @@ export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
 
 		if (!chara.sprite.active) return;
 
-
 		if (state.selectedEntity?.type === "squad" &&
 			(scene.isSelectingSquadMove || pointer.rightButtonReleased())
 		) {
+			const tile = scene.layers?.background.getTileAtWorldXY(chara.sprite.x, chara.sprite.y);
+			if (!tile) return
 			emit(
 				events.SELECT_SQUAD_MOVE_DONE,
 				state.selectedEntity.id,
-				windowVec(chara.sprite.x, chara.sprite.y)
+				asBoardVec(tile)
 			);
 		} else {
 

@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import BattlegroundScene from "../BattlegroundScene";
 import { emit, events } from "../../../Models/Signals";
-import { windowVec } from "../../../Models/Misc";
+import { asBoardVec, windowVec } from "../../../Models/Misc";
 
 export function makeMapInteractive(
 	scene: BattlegroundScene,
@@ -49,10 +49,13 @@ export function makeMapInteractive(
 		if (scene.state.selectedEntity?.type === "squad" &&
 			(pointer.rightButtonReleased() || scene.isSelectingSquadMove)
 		) {
+
+			const tile = bgLayer.getTileAtWorldXY(x, y);
+
 			emit(
 				events.SELECT_SQUAD_MOVE_DONE,
 				scene.state.selectedEntity.id,
-				windowVec(x, y)
+				asBoardVec(tile)
 			)
 		}
 	});
