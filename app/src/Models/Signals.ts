@@ -8,6 +8,7 @@ export type Signals = {
 	PAUSE_PHYSICS: () => void
 	RESUME_PHYSICS: () => void
 	SQUAD_SELECTED: (squadId: string) => void
+	MULTIPLE_SQUADS_SELECTED: (squadIds: string[]) => void
 	CITY_SELECTED: (cityId: string) => void
 	SELECT_SQUAD_MOVE_START: (squadId: string) => void
 	SELECT_SQUAD_MOVE_DONE: (squadId: string, target: WindowVec) => void
@@ -52,6 +53,7 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
 	SELECT_SQUAD_MOVE_DONE: "SELECT_SQUAD_MOVE_DONE",
 	SELECT_SQUAD_MOVE_CANCEL: "SELECT_SQUAD_MOVE_CANCEL",
 	SQUAD_SELECTED: "SQUAD_SELECTED",
+	MULTIPLE_SQUADS_SELECTED: "MULTIPLE_SQUADS_SELECTED",
 	CITY_SELECTED: "CITY_SELECTED",
 	TOGGLE_DISPATCH_MODAL: "TOGGLE_DISPATCH_MODAL",
 	TOGGLE_RECRUIT_MODAL: "TOGGLE_RECRUIT_MODAL",
@@ -131,6 +133,7 @@ export const operations: { [key in keyof Signals]: (...args: Parameters<Signals[
 	SELECT_SQUAD_MOVE_DONE: (sqdId: string, target: WindowVec) => [events.SELECT_SQUAD_MOVE_DONE, sqdId, target],
 	SELECT_SQUAD_MOVE_CANCEL: (sqdId: string) => [events.SELECT_SQUAD_MOVE_CANCEL, sqdId],
 	SQUAD_SELECTED: (squadId: string) => [events.SQUAD_SELECTED, squadId],
+	MULTIPLE_SQUADS_SELECTED: (squadIds: string[]) => [events.MULTIPLE_SQUADS_SELECTED, squadIds],
 	CITY_SELECTED: (cityId: string) => [events.CITY_SELECTED, cityId],
 	TOGGLE_DISPATCH_MODAL: (value: boolean) => [events.TOGGLE_DISPATCH_MODAL, value],
 	TOGGLE_RECRUIT_MODAL: () => [events.TOGGLE_RECRUIT_MODAL],
