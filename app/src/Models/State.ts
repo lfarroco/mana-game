@@ -8,6 +8,7 @@ import { Unit, makeUnit } from "./Unit";
 export const initialState = (): State => ({
 	debug: true,
 	speed: 4,
+	winner: null,
 	tick: 0,
 	forces: [
 		{
@@ -84,6 +85,7 @@ export const initialState = (): State => ({
 export type State = {
 	debug: boolean;
 	speed: number;
+	winner: null | string;
 	ai: {
 		attackers: string[];
 		defenders: string[];

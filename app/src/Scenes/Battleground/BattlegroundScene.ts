@@ -92,15 +92,17 @@ export class BattlegroundScene extends Phaser.Scene {
           return
         }
 
-        if (path_.length < 2) {
 
-          squad.path = []
+        // in case of choosing own cell
+        if (path_.length === 0) {
 
-          // in case of choosing own cell
-          if (squad.position.x === path_[0].x && squad.position.y === path_[0].y) {
-            const chara = this.charas.find(c => c.id === squad.id);
-            if (chara) removeEmote(chara)
+          emit(events.UPDATE_SQUAD, squad.id, { path: [] })
+          if (squad.status === SQUAD_STATUS.MOVING) {
+            emit(events.UPDATE_SQUAD, squad.id, { status: SQUAD_STATUS.IDLE })
           }
+
+          const chara = this.charas.find(c => c.id === squad.id);
+          if (chara) removeEmote(chara)
 
           return
 
@@ -177,6 +179,12 @@ export class BattlegroundScene extends Phaser.Scene {
     this.time.addEvent({
       delay: TURN_DURATION / this.state.speed,
       callback: () => {
+
+        if (this.state.winner && !this.scene.isPaused()) {
+          this.scene.pause()
+          this.time.removeAllEvents()
+          return
+        }
 
         if (!this.isPaused) {
           this.state.tick++;

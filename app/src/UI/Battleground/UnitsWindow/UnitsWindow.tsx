@@ -63,7 +63,7 @@ const unitList = (
 	className="row"
 >
 		<div className="col col-sm-12">
-			<Table striped bordered hover size="sm">
+			<Table striped bordered hover size="sm" style={{ fontSize: 10 }}>
 				<thead>
 					<tr>
 						<th style={{ width: 60 }} ></th>

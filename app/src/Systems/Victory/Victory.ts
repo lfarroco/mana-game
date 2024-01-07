@@ -1,7 +1,6 @@
 import { emit, events, listeners } from "../../Models/Signals";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 
-
 export function init(scene: BattlegroundScene) {
 
 	listeners([
@@ -18,8 +17,9 @@ function checkIfAllCastlesAreCaptured(scene: BattlegroundScene) {
 
 	if (sameForce) {
 		const winner = castles[0].force
-		scene.scene.pause()
-		//scene.scene.sleep()
+
+		scene.state.winner = winner
+
 		emit(events.FORCE_VICTORY, winner)
 	}
 
