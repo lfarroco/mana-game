@@ -70,15 +70,9 @@ export class BattlegroundScene extends Phaser.Scene {
       },
       ], [
         events.UPDATE_SQUAD, (squadId: string, arg: Partial<Squad>) => {
-          if (!arg.stamina) return
 
-          const squad = this.state.squads.find(sqd => sqd.id === squadId)
-          if (!squad) {
-            console.warn("squad not found", squadId)
-            return
-          }
 
-          if (squad.stamina <= 0) {
+          if (arg.stamina === 0) {
             emit(events.SQUAD_DESTROYED, squadId)
           }
         }
