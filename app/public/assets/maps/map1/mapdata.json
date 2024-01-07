@@ -478,6 +478,117 @@
                  "width":64,
                  "x":128,
                  "y":512
+                }, 
+                {
+                 "height":64,
+                 "id":29,
+                 "name":"Ebil",
+                 "properties":[
+                        {
+                         "name":"ai",
+                         "type":"string",
+                         "value":"attacker"
+                        }, 
+                        {
+                         "name":"force",
+                         "type":"string",
+                         "value":"CPU"
+                        }, 
+                        {
+                         "name":"job",
+                         "type":"string",
+                         "value":"skeleton"
+                        }, 
+                        {
+                         "name":"unit_1",
+                         "type":"string",
+                         "value":"skeleton"
+                        }, 
+                        {
+                         "name":"unit_2",
+                         "type":"string",
+                         "value":"barbarian"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":384,
+                 "y":320
+                }, 
+                {
+                 "height":64,
+                 "id":30,
+                 "name":"Deffi",
+                 "properties":[
+                        {
+                         "name":"ai",
+                         "type":"string",
+                         "value":"defender"
+                        }, 
+                        {
+                         "name":"force",
+                         "type":"string",
+                         "value":"CPU"
+                        }, 
+                        {
+                         "name":"job",
+                         "type":"string",
+                         "value":"skeleton"
+                        }, 
+                        {
+                         "name":"unit_1",
+                         "type":"string",
+                         "value":"skeleton"
+                        }, 
+                        {
+                         "name":"unit_2",
+                         "type":"string",
+                         "value":"barbarian"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":0,
+                 "y":320
+                }, 
+                {
+                 "height":64,
+                 "id":31,
+                 "name":"Deffix",
+                 "properties":[
+                        {
+                         "name":"ai",
+                         "type":"string",
+                         "value":"defender"
+                        }, 
+                        {
+                         "name":"force",
+                         "type":"string",
+                         "value":"CPU"
+                        }, 
+                        {
+                         "name":"job",
+                         "type":"string",
+                         "value":"skeleton"
+                        }, 
+                        {
+                         "name":"unit_1",
+                         "type":"string",
+                         "value":"skeleton"
+                        }, 
+                        {
+                         "name":"unit_2",
+                         "type":"string",
+                         "value":"barbarian"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":256,
+                 "y":256
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -486,7 +597,7 @@
          "y":0
         }],
  "nextlayerid":10,
- "nextobjectid":29,
+ "nextobjectid":32,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.0",

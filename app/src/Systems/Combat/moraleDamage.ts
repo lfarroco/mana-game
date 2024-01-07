@@ -4,8 +4,8 @@ import { diceRoll } from "../../Utils/diceRoll";
 
 export function moraleDamage(attacker: Squad, defender: Squad) {
 
-	const attackerDamage = diceRoll(20);
-	const defenderDamage = diceRoll(6);
+	const attackerDamage = diceRoll(8);
+	const defenderDamage = diceRoll(12);
 
 	const newAttackerMorale = attacker.morale - defenderDamage;
 	const newDefenderMorale = defender.morale - attackerDamage;

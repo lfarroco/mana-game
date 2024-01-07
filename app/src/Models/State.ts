@@ -75,7 +75,8 @@ export const initialState = (): State => ({
 	},
 	grid: [],
 	ai: {
-		attackers: []
+		attackers: [],
+		defenders: []
 	}
 });
 
@@ -85,6 +86,7 @@ export type State = {
 	speed: number;
 	ai: {
 		attackers: string[];
+		defenders: string[];
 	};
 	tick: number; // TODO: remove tick from scene
 	forces: Force[];
