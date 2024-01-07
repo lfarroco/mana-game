@@ -152,6 +152,8 @@ export function importMapObjects(state: State, map: Phaser.Tilemaps.Tilemap) {
 
 			if (sqdSpec.ai === "attacker") {
 				state.ai.attackers.push(newSquad.id)
+			} else if (sqdSpec.ai === "defender") {
+				state.ai.defenders.push(newSquad.id)
 			}
 
 			state.squads.push(newSquad);

@@ -4,8 +4,8 @@ import { diceRoll } from "../../Utils/diceRoll";
 
 export function staminaDamage(attacker: Squad, defender: Squad) {
 
-	const attackerDamage = diceRoll(6);
-	const defenderDamage = diceRoll(6);
+	const attackerDamage = diceRoll(3);
+	const defenderDamage = diceRoll(3);
 
 	const newAttackerStamina = attacker.stamina - Math.ceil((defenderDamage));
 	const newDefenderStamina = defender.stamina - Math.ceil((attackerDamage));

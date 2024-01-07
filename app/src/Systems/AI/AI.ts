@@ -1,18 +1,21 @@
 import { FORCE_ID_CPU } from "../../Models/Force";
+import { isSameBoardVec } from "../../Models/Misc";
 import { emit, events, listeners } from "../../Models/Signals";
 import { SQUAD_STATUS, Squad } from "../../Models/Squad";
 import { getState } from "../../Models/State";
+import { distanceBetween } from "../../Utils/vec";
 
 
 export function init() {
 
 	listeners([
-		[events.BATTLEGROUND_TICK, processTick]
+		[events.BATTLEGROUND_TICK, processAttackerActions],
+		[events.BATTLEGROUND_TICK, processDefenderActions]
 	])
 
 }
 
-function processTick() {
+function processAttackerActions() {
 
 	const state = getState();
 
@@ -22,7 +25,27 @@ function processTick() {
 	)
 		.forEach(sqd => {
 
-			if (sqd.status === SQUAD_STATUS.IDLE) {
+			//find closest city
+			const closestCity = state.cities
+				.filter(city => city.force === FORCE_ID_CPU)
+				.sort((a, b) => {
+					const distA = distanceBetween(a.boardPosition)(sqd.position);
+					const distB = distanceBetween(b.boardPosition)(sqd.position);
+					return distA - distB;
+				})[0];
+
+
+			if (!closestCity) {
+				console.error("no closest city found");
+				return;
+			}
+
+			if (sqd.status === SQUAD_STATUS.IDLE && sqd.morale >= 50 && sqd.stamina >= 80) {
+
+				// is currently at a city? if so, wait to recharge all stamina
+				if (isSameBoardVec(closestCity.boardPosition, sqd.position) && sqd.stamina < 100) {
+					return;
+				}
 				// find a path
 				// enemy castle
 				const target = state.cities.find(city => city.force !== FORCE_ID_CPU && city.type === "castle");
@@ -31,10 +54,54 @@ function processTick() {
 					return;
 				}
 				emit(events.SELECT_SQUAD_MOVE_DONE, sqd.id, target.boardPosition)
+				return;
 			}
 
+			if (sqd.status === SQUAD_STATUS.IDLE && sqd.stamina < 80) {
+
+
+				//is in an allied city?
+				if (isSameBoardVec(closestCity.boardPosition, sqd.position)) {
+					return;
+				}
+				emit(events.SELECT_SQUAD_MOVE_DONE, sqd.id, closestCity.boardPosition)
+			}
 
 		})
 
 
+}
+function processDefenderActions() {
+
+	const state = getState();
+
+	(state.ai.defenders
+		.map(id => state.squads.find(squad => squad.id === id))
+		.filter(squad => squad) as Squad[]
+	)
+		.forEach(sqd => {
+			//find closest city
+			const closestCity = state.cities
+				.filter(city => city.force === FORCE_ID_CPU)
+				.sort((a, b) => {
+					const distA = distanceBetween(a.boardPosition)(sqd.position);
+					const distB = distanceBetween(b.boardPosition)(sqd.position);
+					return distA - distB;
+				})[0];
+
+			if (!closestCity) {
+				console.error("no closest city found");
+				return;
+			}
+
+			if (isSameBoardVec(closestCity.boardPosition, sqd.position)) {
+				return;
+			}
+
+			if (sqd.status === SQUAD_STATUS.IDLE && sqd.morale > 30) {
+				emit(events.SELECT_SQUAD_MOVE_DONE, sqd.id, closestCity.boardPosition)
+				return;
+			}
+
+		});
 }
