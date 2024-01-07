@@ -25,7 +25,7 @@ import * as VictorySystem from "../../Systems/Victory/Victory";
 import { squadDestroyed } from "./Events/SquadDestroyed";
 import { City } from "../../Models/City";
 import * as CityCaptureSystem from "./Systems/cityCapture";
-import * as FogOfWarSystem from "./Systems/FogOfWar_";
+import * as FogOfWarSystem from "./Systems/FogOfWar";
 import * as Pathfinding from "./Systems/Pathfinding";
 import * as AISystem from "../../Systems/AI/AI";
 import { TURN_DURATION } from "../../config";
