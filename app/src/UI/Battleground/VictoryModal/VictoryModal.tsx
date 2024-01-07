@@ -18,24 +18,30 @@ function VictoryModal() {
 		])
 	}, []);
 
-	const message = playerWon ? "You won!" : "You lost!";
+	const message = playerWon ? "Victory!" : "Defeat!";
 
 	return <Modal
 		show={isVisible}
 		onHide={() => { setIsVisible(false) }}
 		size={"xl"}
 		id="units-window"
+		centered
+		className="text-center"
 	>
-		<Modal.Header closeButton>
-			<Modal.Title>Game Over</Modal.Title>
-		</Modal.Header>
-		<Modal.Body>{isVisible && message}
+		<Modal.Body>
+			{isVisible && message}
+
 		</Modal.Body>
 		<Modal.Footer>
 			<Button
 				onClick={() => setIsVisible(false)}
-				className="btn btn-secondary">
-				Close
+				className="btn col-12">
+				Continue
+			</Button>
+			<Button
+				onClick={() => setIsVisible(false)}
+				className="btn col-12">
+				Quit
 			</Button>
 		</Modal.Footer>
 	</Modal>

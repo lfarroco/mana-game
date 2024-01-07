@@ -73,13 +73,19 @@ export const initialState = (): State => ({
 		width: 128,
 		height: 128
 	},
-	grid: []
+	grid: [],
+	ai: {
+		attackers: []
+	}
 });
 
 // make it an ioref https://gcanti.github.io/fp-ts/modules/IORef.ts.html#ioref-overview
 export type State = {
 	debug: boolean;
 	speed: number;
+	ai: {
+		attackers: string[];
+	};
 	tick: number; // TODO: remove tick from scene
 	forces: Force[];
 	squads: Squad[];

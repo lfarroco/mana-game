@@ -11,7 +11,7 @@ import { SQUAD_STATUS, Squad } from "../../Models/Squad";
 import moveSquads from "./Map/moveSquads";
 import { faceDirection } from "../../Models/Direction";
 import { getDirection } from "../../Models/Direction";
-import { BoardVec, WindowVec, asBoardVec, boardVec } from "../../Models/Misc";
+import { BoardVec, asBoardVec, boardVec } from "../../Models/Misc";
 import { Chara, createChara, removeEmote } from "../../Components/chara";
 import { emit, events, listeners } from "../../Models/Signals";
 import { State, getState, updateSquad } from "../../Models/State";
@@ -27,6 +27,8 @@ import { squadDestroyed } from "./Events/SquadDestroyed";
 import { City } from "../../Models/City";
 import * as CityCaptureSystem from "./Systems/cityCapture";
 import * as Pathfinding from "./Systems/Pathfinding";
+import * as AISystem from "../../Systems/AI/AI";
+import { TURN_DURATION } from "../../config";
 
 
 export class BattlegroundScene extends Phaser.Scene {
@@ -135,6 +137,7 @@ export class BattlegroundScene extends Phaser.Scene {
     StaminaRegen.init(this.state)
     squadDestroyed(this)
     VictorySystem.init(this)
+    AISystem.init()
 
 
     //@ts-ignore
@@ -178,7 +181,7 @@ export class BattlegroundScene extends Phaser.Scene {
     Pathfinding.init(this.grid)
 
     this.time.addEvent({
-      delay: 1000 / this.state.speed,
+      delay: TURN_DURATION / this.state.speed,
       callback: () => {
 
         if (!this.isPaused) {
