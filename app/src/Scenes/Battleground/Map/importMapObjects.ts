@@ -13,7 +13,7 @@ type TiledProp = {
 	value: string;
 };
 type SquadSpec = {
-	ai: string;
+	ai: string | null;
 	force: string;
 	x: number,
 	y: number
@@ -92,13 +92,11 @@ export function importMapObjects(state: State, map: Phaser.Tilemaps.Tilemap) {
 	map
 		.objects
 		.filter((objectLayer) => objectLayer.name === "enemies")
-		.flatMap(objectLayer => {
+		.flatMap(objectLayer =>
+			objectLayer.objects.map((obj) => {
 
-			const squad = objectLayer.objects.map((obj) => {
-
-				const ai: string = obj.properties.find((prop: { name: string; }) => prop.name === "ai")?.value;
+				const ai = obj.properties.find((prop: { name: string; }) => prop.name === "ai")?.value;
 				const force: string = obj.properties.find((prop: { name: string; }) => prop.name === "force")?.value;
-
 				const members = obj.properties
 					.filter((prop: TiledProp) => prop.name.startsWith("unit_"))
 					.map((prop: TiledProp) => prop.value)
@@ -112,27 +110,25 @@ export function importMapObjects(state: State, map: Phaser.Tilemaps.Tilemap) {
 					y: obj.y,
 				} as SquadSpec;
 
-			});
-
-			return squad;
-		}).forEach(sqd => {
-			const mForce = state.forces.find(force => force.id === sqd.force);
+			})
+		).forEach(sqdSpec => {
+			const mForce = state.forces.find(force => force.id === sqdSpec.force);
 
 			if (!mForce) {
 				state.forces.push({
-					id: sqd.force,
+					id: sqdSpec.force,
 					name: "",
 					color: "red",
 					squads: []
 				});
 			}
 
-			const force = state.forces.find(force => force.id === sqd.force);
+			const force = state.forces.find(force => force.id === sqdSpec.force);
 			if (!force) throw new Error("force is undefined");
 
 			const squadId = uuid.v4();
 
-			const units = sqd.members.map(spec => (
+			const units = sqdSpec.members.map(spec => (
 				{
 					...randomUnit(),
 					id: spec.id,
@@ -147,12 +143,16 @@ export function importMapObjects(state: State, map: Phaser.Tilemaps.Tilemap) {
 				name: uuid.v4().slice(0, 12),
 				leader: units[0].id,
 				position: boardVec(
-					Math.floor(sqd.x / TILE_WIDTH),
-					Math.floor(sqd.y / TILE_HEIGHT)
+					Math.floor(sqdSpec.x / TILE_WIDTH),
+					Math.floor(sqdSpec.y / TILE_HEIGHT)
 				),
-				members: sqd.members.map(spec => spec.id),
+				members: sqdSpec.members.map(spec => spec.id),
 				status: SQUAD_STATUS.IDLE
 			};
+
+			if (sqdSpec.ai === "attacker") {
+				state.ai.attackers.push(newSquad.id)
+			}
 
 			state.squads.push(newSquad);
 			force.squads.push(newSquad.id);

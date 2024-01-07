@@ -5,6 +5,7 @@ import { BattlegroundScene } from "../BattlegroundScene";
 import { DIRECTIONS, getDirection } from "../../../Models/Direction";
 import { faceDirection } from "../../../Models/Direction";
 import { SQUAD_STATUS } from "../../../Models/Squad";
+import { TURN_DURATION } from "../../../config";
 
 const TURNS_TO_MOVE = 3;
 const moveSquads = (scene: BattlegroundScene) => {
@@ -73,7 +74,7 @@ const moveSquads = (scene: BattlegroundScene) => {
 				targets: chara.sprite,
 				x: nextTile.getCenterX(),
 				y: nextTile.getCenterY(),
-				duration: 500 / scene.state.speed, // TODO: divide by constant for tick
+				duration: TURN_DURATION / (2 * scene.state.speed),
 				yoyo: false,
 				ease: "Sine.easeInOut",
 				onComplete: () => {
