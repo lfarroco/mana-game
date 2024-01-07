@@ -94,40 +94,40 @@ function engagementList(state: State, engagements: Engagement[]) {
 		</thead>
 		<tbody>
 			{
-				engagements.map(engagement => {
+				engagements
+					.sort((a, b) => b.startTick - a.startTick)
+					.map(engagement => {
+						const attacker = state.squads.find(squad => squad.id === engagement.attacker)
+						const defender = state.squads.find(squad => squad.id === engagement.defender)
 
+						if (!attacker || !defender) return null
 
-					const attacker = state.squads.find(squad => squad.id === engagement.attacker)
-					const defender = state.squads.find(squad => squad.id === engagement.defender)
+						return <tr key={engagement.id}>
+							<td>
+								<img
+									className={
+										"img-fluid portrait-sm"
+									}
+									src={`assets/jobs/${state.units.find(u => u.id === attacker.leader)?.job}/portrait.png`}
+									alt={attacker.name}
+									onClick={emit_(events.TOGGLE_SQUAD_DETAILS_MODAL, attacker.id)}
+								/>
+							</td>
+							<td>
+								<img
+									className={
+										"img-fluid portrait-sm"
+									}
+									src={`assets/jobs/${state.units.find(u => u.id === defender.leader)?.job}/portrait.png`}
+									alt={defender.name}
+									onClick={emit_(events.TOGGLE_SQUAD_DETAILS_MODAL, defender.id)}
+								/>
 
-					if (!attacker || !defender) return null
-
-					return <tr key={engagement.id}>
-						<td>
-							<img
-								className={
-									"img-fluid portrait-sm"
-								}
-								src={`assets/jobs/${state.units.find(u => u.id === attacker.leader)?.job}/portrait.png`}
-								alt={attacker.name}
-								onClick={emit_(events.TOGGLE_SQUAD_DETAILS_MODAL, attacker.id)}
-							/>
-						</td>
-						<td>
-							<img
-								className={
-									"img-fluid portrait-sm"
-								}
-								src={`assets/jobs/${state.units.find(u => u.id === defender.leader)?.job}/portrait.png`}
-								alt={defender.name}
-								onClick={emit_(events.TOGGLE_SQUAD_DETAILS_MODAL, defender.id)}
-							/>
-
-						</td>
-						<td>{engagement.startTick}</td>
-						<td><Button>Log</Button></td>
-					</tr>
-				})
+							</td>
+							<td>{engagement.startTick}</td>
+							<td><Button>Log</Button></td>
+						</tr>
+					})
 			}
 		</tbody>
 	</Table>
