@@ -1,6 +1,6 @@
 import * as Phaser from 'phaser';
 import events from 'events';
-import BattlegroundScene from './Scenes/Battleground/BattlegroundScene';
+import BattlegroundScene from "./Scenes/Battleground/BattlegroundScene";
 import SkirmishScene from './Scenes/Skirmish/SkirmishScene';
 import { State, initialState } from './Models/State';
 import { UI } from './UI/UI';
