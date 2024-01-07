@@ -2,7 +2,6 @@ import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../Models/Force";
 import { listeners, events } from "../../../Models/Signals";
-import { TILE_WIDTH } from "../constants";
 import { SQUAD_STATUS } from "../../../Models/Squad";
 import { BoardVec } from "../../../Models/Misc";
 
@@ -75,13 +74,7 @@ function refreshFogOfWar(scene: BattlegroundScene, fow: Phaser.Tilemaps.TilemapL
 
 			const visible = tile.alpha === 0;
 
-			chara.sprite.setActive(visible)
-			chara.sprite.setVisible(visible)
-			chara.moraleBarBackground?.setVisible(visible)
-			chara.moraleBar?.setVisible(visible)
-			chara.staminaBarBackground?.setVisible(visible)
-			chara.staminaBar?.setVisible(visible)
-
+			chara.group?.setVisible(visible)
 		})
 }
 

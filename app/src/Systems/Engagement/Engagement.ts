@@ -1,5 +1,5 @@
 import { DIRECTIONS, Direction, getDirection } from "../../Models/Direction";
-import { BoardVec } from "../../Models/Misc";
+import { BoardVec, isSameBoardVec } from "../../Models/Misc";
 import { listeners, events, emit_, emit } from "../../Models/Signals";
 import { SQUAD_STATUS } from "../../Models/Squad";
 import { State } from "../../Models/State";
@@ -28,36 +28,36 @@ export function init(scene: BattlegroundScene, state: State) {
 
 }
 
-const engagementStartHandler = (scene: BattlegroundScene, state: State) => (squadId: string, targetCell: BoardVec) => {
+const engagementStartHandler = (scene: BattlegroundScene, state: State) => (attackerId: string, targetCell: BoardVec) => {
 
-	const squad = state.squads.find(squad => squad.id === squadId);
+	const attacker = state.squads.find(squad => squad.id === attackerId);
 
-	if (!squad) {
-		throw new Error(`Squad ${squadId} not found`)
+	if (!attacker) {
+		throw new Error(`Squad ${attackerId} not found`)
 	}
 
 	const isAlreadyEngaged = state.engagements.some(engagement =>
 		!engagement.finished &&
-		(engagement.attacker === squadId || engagement.defender === squadId)
+		(engagement.attacker === attackerId || engagement.defender === attackerId)
 	);
 
 	if (isAlreadyEngaged) {
-		console.warn(`Squad ${squadId} is already engaged`)
+		console.warn(`Squad ${attackerId} is already engaged`)
 		return
 	}
 
 	const targetCellEnemies = state.squads
 		.filter(sqd =>
-			sqd.force !== squad.force &&
-			sqd.position.x === targetCell.x && sqd.position.y === targetCell.y
+			sqd.force !== attacker.force &&
+			isSameBoardVec(sqd.position, targetCell) &&
+			sqd.status !== SQUAD_STATUS.RETREATING
 		);
-
 
 	if (targetCellEnemies.length === 0) {
 		throw new Error(`No squads at ${targetCell.x},${targetCell.y}`)
 	}
 
-	const direction = getDirection(targetCell, squad.position,)
+	const direction = getDirection(targetCell, attacker.position,)
 
 	const emotePosition = getEmotePosition(targetCell, direction)
 	// create sprite between cells
@@ -69,15 +69,17 @@ const engagementStartHandler = (scene: BattlegroundScene, state: State) => (squa
 		.setScale(1)
 		.play("combat-emote")
 
-	const attacker = squadId;
-	// defender is the one with the most morale
-	const defender = targetCellEnemies.sort((a, b) => b.morale - a.morale)[0].id;
+	const nonEngaged = targetCellEnemies.filter(sqd => sqd.status !== SQUAD_STATUS.ENGAGED)
+
+	const defender = nonEngaged.length > 0 ?
+		nonEngaged.sort((a, b) => b.morale - a.morale)[0] :
+		targetCellEnemies.sort((a, b) => b.morale - a.morale)[0]
 
 	const engagement: Engagement = {
 		id: uuid.v4(),
 		startTick: state.tick,
-		attacker,
-		defender,
+		attacker: attacker.id,
+		defender: defender.id,
 		endTick: Infinity,
 		finished: false,
 		sprite,
@@ -90,13 +92,15 @@ const engagementStartHandler = (scene: BattlegroundScene, state: State) => (squa
 	state.engagements.push(engagement);
 
 	[attacker, defender].forEach(member => {
-		const chara = scene.charas.find(c => c.id === member)
+		const chara = scene.charas.find(c => c.id === member.id)
 		if (!chara) return;
 		removeEmote(chara)
-		emit(events.UPDATE_SQUAD, member, { status: SQUAD_STATUS.ENGAGED })
+		if (member.status !== SQUAD_STATUS.ENGAGED) {
+			emit(events.UPDATE_SQUAD, member.id, { status: SQUAD_STATUS.ENGAGED })
+		}
 	})
-
 }
+
 const getEmotePosition = (tile: { x: number, y: number }, direction: Direction) => {
 	switch (direction) {
 		case DIRECTIONS.up:
