@@ -19,6 +19,8 @@ function processAttackerActions() {
 
 	const state = getState();
 
+	if (state.winner) return
+
 	(state.ai.attackers
 		.map(id => state.squads.find(squad => squad.id === id))
 		.filter(squad => squad) as Squad[]
@@ -74,6 +76,8 @@ function processAttackerActions() {
 function processDefenderActions() {
 
 	const state = getState();
+
+	if (state.winner) return
 
 	(state.ai.defenders
 		.map(id => state.squads.find(squad => squad.id === id))
