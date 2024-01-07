@@ -3,7 +3,6 @@ import { emit_, events, listeners } from '../../../Models/Signals';
 import Modal from 'react-bootstrap/Modal';
 import { Button, Tab, Table, Tabs } from 'react-bootstrap';
 import { State, getState } from '../../../Models/State';
-import { isSameBoardVec } from '../../../Models/Misc';
 import { Engagement } from '../../../Systems/Engagement/Engagement';
 
 function EngagementModal() {
