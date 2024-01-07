@@ -1,6 +1,6 @@
 .portrait-sm {
-	max-height: 80px;
-	border: gray solid 3px;
+	max-height: 40px;
+	border: gray solid 1px;
 	border-radius: 10%;
 }
 

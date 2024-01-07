@@ -1,2 +1,2 @@
 
-export const TURN_DURATION = 250;
+export const TURN_DURATION = 1000;
