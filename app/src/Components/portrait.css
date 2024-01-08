@@ -1,14 +1,13 @@
-.portrait-sm {
-	max-height: 40px;
+.portrait {
+	max-height: 80px;
 	border: gray solid 1px;
 	border-radius: 10%;
 }
 
-.portrait-sm.leader {
-	border: #FFD700 solid 3px;
+.portrait-sm {
+	max-height: 40px;
 }
 
 .portrait-lg {
-	border: gray solid 3px;
-	border-radius: 5%;
+	max-height: 100px;
 }

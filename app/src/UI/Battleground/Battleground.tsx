@@ -4,7 +4,6 @@ import { Button, ButtonGroup } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import { listeners, events, emit, emit_ } from "../../Models/Signals"
 import DispatchSquadModal from './DispatchSquadModal/DispatchSquadModal';
-import SquadDetailsModal from './SquadDetailsModal/SquadDetailsModal';
 import VictoryModal from './VictoryModal/VictoryModal';
 import EngagementModal from './EngagementModal/EngagementModal';
 import SelectionHUD from './SelectionHUD';
@@ -91,7 +90,6 @@ const Battleground = () => {
       <SquadsWindow />
 
       <DispatchSquadModal />
-      <SquadDetailsModal />
 
       <VictoryModal />
       <EngagementModal />

@@ -1,5 +1,4 @@
 import { makeSquad } from '../../Models/Squad';
-import { makeUnit } from '../../Models/Unit';
 import { State, initialState } from '../../Models/State';
 import * as Combat from './Combat';
 import { Operation } from '../../Models/Signals';
