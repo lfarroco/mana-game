@@ -11,17 +11,16 @@ function SquadDetailsModal() {
 
 	const [isVisible, setIsVisible] = useState(false);
 
+	// TODO: use a listener to update the selected entity
 	const squad = state.squads.find(s => s.id === state.selectedEntity?.id)
-
-	const members = squad?.members
-		.map(id => state.units.find(u => u.id === id))
-		.filter(u => u !== undefined) || []
 
 	useEffect(() => {
 		listeners([
 			[events.TOGGLE_SQUAD_DETAILS_MODAL, (value: boolean) => { setIsVisible(value); }],
 		])
 	}, [])
+
+	if (!squad) return null;
 
 	return <Modal
 		show={isVisible}
@@ -37,24 +36,20 @@ function SquadDetailsModal() {
 				className="row"
 				id="squads-detail">
 				<ListGroup>
-					{
 
-						members.map(member =>
-							member && <ListGroupItem
-								action
-								onClick={emit_(events.SET_UNIT_DETAILS_MODAL, member.id)}
-								key={member.id}
-							>
-								<img
-									style={{ width: "100px" }}
-									src={`assets/jobs/${member.job}/portrait.png`}
-									alt="job" />
-								<span>
-									{member.name}
-								</span>
+					<ListGroupItem
+						action
+						key={squad.id}
+					>
+						<img
+							style={{ width: "100px" }}
+							src={`assets/jobs/${squad.job}/portrait.png`}
+							alt="job" />
+						<span>
+							{squad.name}
+						</span>
 
-							</ListGroupItem>)
-					}
+					</ListGroupItem>)
 
 				</ListGroup>
 			</div >}

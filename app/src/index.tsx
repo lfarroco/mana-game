@@ -1,7 +1,6 @@
 import * as Phaser from 'phaser';
 import events from 'events';
 import BattlegroundScene from "./Scenes/Battleground/BattlegroundScene";
-import SkirmishScene from './Scenes/Skirmish/SkirmishScene';
 import { State, initialState } from './Models/State';
 import { UI } from './UI/UI';
 
@@ -32,7 +31,6 @@ const game = new Phaser.Game({
 });
 
 game.scene.add('BattlegroundScene', BattlegroundScene, true);
-game.scene.add('SkirmishScene', SkirmishScene, false);
 
 //window resize event
 window.addEventListener('resize', () => {

@@ -19,10 +19,8 @@ export type Signals = {
 	DISPATCH_SQUAD: (squadId: string, cityId: string) => void
 	SKIRMISH_STARTED: (squadId1: string, squadId2: string) => void
 	SKIRMISH_ENDED: (winner: string, loser: string) => void,
-	TOGGLE_UNITS_WINDOW: (value: boolean) => void,
 	TOGGLE_SQUADS_WINDOW: (value: boolean) => void,
 	TOGGLE_ENGAGEMENT_WINDOW: (value: boolean, id: string) => void,
-	SET_UNIT_DETAILS_MODAL: (id: string | null) => void,
 	BATTLEGROUND_TICK: (tick: number) => void,
 	// TODO: have a parent level for the system
 	ENGAGEMENT_START: (attacker: string, targetCell: BoardVec) => any,
@@ -61,9 +59,7 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
 	TOGGLE_SQUAD_DETAILS_MODAL: "TOGGLE_SQUAD_DETAILS_MODAL",
 	SKIRMISH_STARTED: "SKIRMISH_STARTED",
 	SKIRMISH_ENDED: "SKIRMISH_ENDED",
-	TOGGLE_UNITS_WINDOW: "TOGGLE_UNITS_WINDOW",
 	TOGGLE_SQUADS_WINDOW: "TOGGLE_SQUADS_WINDOW",
-	SET_UNIT_DETAILS_MODAL: "SET_UNIT_DETAILS_MODAL",
 	BATTLEGROUND_TICK: "BATTLEGROUND_TICK",
 	ENGAGEMENT_START: "ENGAGEMENT_START",
 	UPDATE_SQUAD: "UPDATE_SQUAD",
@@ -141,9 +137,7 @@ export const operations: { [key in keyof Signals]: (...args: Parameters<Signals[
 	TOGGLE_SQUAD_DETAILS_MODAL: (value: boolean) => [events.TOGGLE_SQUAD_DETAILS_MODAL, value],
 	SKIRMISH_STARTED: (squadId1: string, squadId2: string) => [events.SKIRMISH_STARTED, squadId1, squadId2],
 	SKIRMISH_ENDED: (winner: string, loser: string) => [events.SKIRMISH_ENDED, winner, loser],
-	TOGGLE_UNITS_WINDOW: (value: boolean) => [events.TOGGLE_UNITS_WINDOW, value],
 	TOGGLE_SQUADS_WINDOW: (value: boolean) => [events.TOGGLE_SQUADS_WINDOW, value],
-	SET_UNIT_DETAILS_MODAL: (id: string | null) => [events.SET_UNIT_DETAILS_MODAL, id],
 	BATTLEGROUND_TICK: (tick: number) => [events.BATTLEGROUND_TICK, tick],
 	ENGAGEMENT_START: (attacker: string, targetCell: BoardVec) => [events.ENGAGEMENT_START, attacker, targetCell],
 	UPDATE_SQUAD: (squadId: string, sqd: Partial<Squad>) => {
