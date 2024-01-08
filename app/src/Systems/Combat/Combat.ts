@@ -6,6 +6,7 @@ import { moraleDamage } from "./moraleDamage";
 import { staminaDamage } from "./staminaDamage";
 import { Engagement } from "../Engagement/Engagement";
 
+//todo: combat == engagement
 export function init(state: State) {
 
 	listeners([
@@ -27,8 +28,8 @@ export function processCombat(state: State): Operation[] {
 		.filter(e => !e.finished)
 		.reduce((ops, engagement) => {
 
-			const attacker = state.squads.find(s => s.id === engagement.attacker);
-			const defender = state.squads.find(s => s.id === engagement.defender);
+			const attacker = state.squads.find(s => s.id === engagement.attacker.id);
+			const defender = state.squads.find(s => s.id === engagement.defender.id);
 
 			if (!attacker || !defender) {
 				throw new Error(`Squad ${engagement.attacker} or ${engagement.defender} not found`)
