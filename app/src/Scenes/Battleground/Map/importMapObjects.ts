@@ -2,7 +2,6 @@ import Phaser from "phaser";
 import { State } from "../../../Models/State";
 import * as uuid from "uuid";
 import { SQUAD_STATUS, Squad, makeSquad } from "../../../Models/Squad";
-import { randomUnit } from "../../../Models/Unit";
 import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../constants";
 import { City } from "../../../Models/City";
 import { boardVec } from "../../../Models/Misc";
@@ -15,9 +14,9 @@ type TiledProp = {
 type SquadSpec = {
 	ai: string | null;
 	force: string;
+	job: string,
 	x: number,
 	y: number
-	members: { id: string, job: string }[];
 };
 
 type CitySpec = {
@@ -38,8 +37,11 @@ export function importMapObjects(state: State, map: Phaser.Tilemaps.Tilemap) {
 
 			const cities = objectLayer.objects.map((obj) => {
 
-				const cityType: string = obj.properties.find((prop: { name: string; }) => prop.name === "type")?.value;
-				const force: string = obj.properties.find((prop: { name: string; }) => prop.name === "force")?.value;
+				const cityType = (obj.properties as TiledProp[]).find((prop: { name: string; }) => prop.name === "type")?.value;
+				const force = (obj.properties as TiledProp[]).find((prop: { name: string; }) => prop.name === "force")?.value;
+
+				if (!cityType) throw new Error("cityType is undefined")
+				if (!force) throw new Error("force is undefined")
 
 				return {
 					name: obj.name,
@@ -96,16 +98,14 @@ export function importMapObjects(state: State, map: Phaser.Tilemaps.Tilemap) {
 			objectLayer.objects.map((obj) => {
 
 				const ai = obj.properties.find((prop: { name: string; }) => prop.name === "ai")?.value;
+
+				const job = obj.properties.find((prop: { name: string; }) => prop.name === "job")?.value;
 				const force: string = obj.properties.find((prop: { name: string; }) => prop.name === "force")?.value;
-				const members = obj.properties
-					.filter((prop: TiledProp) => prop.name.startsWith("unit_"))
-					.map((prop: TiledProp) => prop.value)
-					.map((job: string) => ({ id: uuid.v4(), job }))
 
 				return {
 					ai,
 					force,
-					members,
+					job,
 					x: obj.x,
 					y: obj.y,
 				} as SquadSpec;
@@ -128,25 +128,15 @@ export function importMapObjects(state: State, map: Phaser.Tilemaps.Tilemap) {
 
 			const squadId = uuid.v4();
 
-			const units = sqdSpec.members.map(spec => (
-				{
-					...randomUnit(),
-					id: spec.id,
-					job: spec.job,
-					force: force.id,
-					squad: squadId
-				}
-			))
 
 			const newSquad: Squad = {
 				...makeSquad(squadId, force.id),
 				name: uuid.v4().slice(0, 12),
-				leader: units[0].id,
 				position: boardVec(
 					Math.floor(sqdSpec.x / TILE_WIDTH),
 					Math.floor(sqdSpec.y / TILE_HEIGHT)
 				),
-				members: sqdSpec.members.map(spec => spec.id),
+				job: sqdSpec.job,
 				status: SQUAD_STATUS.IDLE
 			};
 
@@ -158,7 +148,6 @@ export function importMapObjects(state: State, map: Phaser.Tilemaps.Tilemap) {
 
 			state.squads.push(newSquad);
 			force.squads.push(newSquad.id);
-			state.units.push(...units);
 			state.map = {
 				width: map.width,
 				height: map.height

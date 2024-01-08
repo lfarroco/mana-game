@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { Squad, getMembers } from "../Models/Squad";
+import { Squad } from "../Models/Squad";
 import { Unit } from "../Models/Unit";
 import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../Scenes/Battleground/constants";
 import "./portrait.css"
@@ -33,14 +33,12 @@ export function createChara(
 	squad: Squad,
 ): Chara {
 
-	const [leader] = getMembers(squad)
 
-	if (!leader) throw new Error("No leader in squad")
 
 	const tile = scene.layers?.background.getTileAt(squad.position.x, squad.position.y);
 	if (!tile) throw new Error("tile not found")
 
-	const sprite = createSprite(scene, leader, squad);
+	const sprite = createSprite(scene, squad);
 
 	//morale bar
 	const moraleBackground = scene.add.graphics();
@@ -152,7 +150,7 @@ export function createChara(
 	const chara: Chara = {
 		id: squad.id,
 		force: squad.force,
-		job: leader.job,
+		job: squad.job,
 		sprite,
 		emote: null,
 		emoteOverlay: null,
@@ -167,17 +165,17 @@ export function createChara(
 	return chara
 }
 
-function createSprite(scene: BattlegroundScene, leader: Unit, squad: Squad) {
+function createSprite(scene: BattlegroundScene, squad: Squad) {
 
 	const sprite = scene
 		.add.sprite(
 
 			squad.position.x * TILE_WIDTH + HALF_TILE_WIDTH,
 			squad.position.y * TILE_HEIGHT + HALF_TILE_HEIGHT,
-			leader.job
+			squad.job
 		)
 
-	sprite.play(leader.job + "-walk-down", true);
+	sprite.play(squad.job + "-walk-down", true);
 	sprite.setName("chara-" + squad.id);
 	return sprite;
 }

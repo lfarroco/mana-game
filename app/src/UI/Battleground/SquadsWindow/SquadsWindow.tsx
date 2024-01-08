@@ -1,12 +1,12 @@
 import './SquadsWindow.css';
 import Modal from 'react-bootstrap/Modal';
-import { Squad, getMembers } from '../../../Models/Squad';
+import { Squad } from '../../../Models/Squad';
 import { getState } from '../../../Models/State';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from '../../../Models/Force';
 import { useEffect, useState } from 'react';
-import { emit_, events, listeners } from '../../../Models/Signals';
+import { events, listeners } from '../../../Models/Signals';
 import { Button, Table } from 'react-bootstrap';
 
 function SquadsWindow() {
@@ -75,20 +75,14 @@ const squadTable = (
 							{squad.morale}
 						</td>
 						<td className="col-11">
-							{
-								getMembers(squad).map(unit =>
-									<img
-										key={`squad-member-${unit.id}`}
-										className={
-											"img-fluid portrait-sm"
-											+ (unit.id === squad.leader ? " leader" : "")
-										}
-										src={`assets/jobs/${unit.job}/portrait.png`}
-										alt={unit.name}
-										onClick={emit_(events.SET_UNIT_DETAILS_MODAL, unit.id)}
-									/>
-								)
-							}
+							<img
+								key={`squad-${squad.id}`}
+								className={
+									"img-fluid portrait-sm"
+								}
+								src={`assets/jobs/${squad.job}/portrait.png`}
+								alt={squad.name}
+							/>
 						</td>
 					</tr>)
 			}

@@ -28,21 +28,6 @@ const testState: State = {
 		...initialState().squads,
 		enemySquad1,
 	],
-	units: [
-		...initialState().units,
-		{
-			...makeUnit(),
-			id: "enemy_unit1",
-			force: "ENEMY",
-			squad: "enemy1",
-		},
-		{
-			...makeUnit(),
-			id: "enemy_unit2",
-			force: "ENEMY",
-			squad: "enemy2",
-		}
-	],
 	engagements: [
 		{
 			id: "1",

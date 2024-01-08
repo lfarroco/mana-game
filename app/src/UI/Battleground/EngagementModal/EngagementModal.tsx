@@ -107,7 +107,7 @@ function engagementList(state: State, engagements: Engagement[]) {
 									className={
 										"img-fluid portrait-sm"
 									}
-									src={`assets/jobs/${state.units.find(u => u.id === attacker.leader)?.job}/portrait.png`}
+									src={`assets/jobs/${attacker.job}/portrait.png`}
 									alt={attacker.name}
 									onClick={emit_(events.TOGGLE_SQUAD_DETAILS_MODAL, attacker.id)}
 								/>
@@ -117,7 +117,7 @@ function engagementList(state: State, engagements: Engagement[]) {
 									className={
 										"img-fluid portrait-sm"
 									}
-									src={`assets/jobs/${state.units.find(u => u.id === defender.leader)?.job}/portrait.png`}
+									src={`assets/jobs/${attacker.job}/portrait.png`}
 									alt={defender.name}
 									onClick={emit_(events.TOGGLE_SQUAD_DETAILS_MODAL, defender.id)}
 								/>

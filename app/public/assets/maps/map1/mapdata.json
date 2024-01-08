@@ -303,16 +303,6 @@
                          "name":"job",
                          "type":"string",
                          "value":"skeleton"
-                        }, 
-                        {
-                         "name":"unit_1",
-                         "type":"string",
-                         "value":"skeleton"
-                        }, 
-                        {
-                         "name":"unit_2",
-                         "type":"string",
-                         "value":"archer"
                         }],
                  "rotation":0,
                  "type":"",
@@ -340,21 +330,6 @@
                          "name":"job",
                          "type":"string",
                          "value":"skeleton"
-                        }, 
-                        {
-                         "name":"unit_1",
-                         "type":"string",
-                         "value":"skeleton"
-                        }, 
-                        {
-                         "name":"unit_2",
-                         "type":"string",
-                         "value":"barbarian"
-                        }, 
-                        {
-                         "name":"unit_3",
-                         "type":"string",
-                         "value":"rogue"
                         }],
                  "rotation":0,
                  "type":"",
@@ -382,16 +357,6 @@
                          "name":"job",
                          "type":"string",
                          "value":"skeleton"
-                        }, 
-                        {
-                         "name":"unit_1",
-                         "type":"string",
-                         "value":"skeleton"
-                        }, 
-                        {
-                         "name":"unit_2",
-                         "type":"string",
-                         "value":"barbarian"
                         }],
                  "rotation":0,
                  "type":"",
@@ -419,21 +384,6 @@
                          "name":"job",
                          "type":"string",
                          "value":"skeleton"
-                        }, 
-                        {
-                         "name":"unit_1",
-                         "type":"string",
-                         "value":"skeleton"
-                        }, 
-                        {
-                         "name":"unit_2",
-                         "type":"string",
-                         "value":"knight"
-                        }, 
-                        {
-                         "name":"unit_3",
-                         "type":"string",
-                         "value":"rogue"
                         }],
                  "rotation":0,
                  "type":"",
@@ -461,16 +411,6 @@
                          "name":"job",
                          "type":"string",
                          "value":"skeleton"
-                        }, 
-                        {
-                         "name":"unit_1",
-                         "type":"string",
-                         "value":"skeleton"
-                        }, 
-                        {
-                         "name":"unit_2",
-                         "type":"string",
-                         "value":"barbarian"
                         }],
                  "rotation":0,
                  "type":"",
@@ -498,16 +438,6 @@
                          "name":"job",
                          "type":"string",
                          "value":"skeleton"
-                        }, 
-                        {
-                         "name":"unit_1",
-                         "type":"string",
-                         "value":"skeleton"
-                        }, 
-                        {
-                         "name":"unit_2",
-                         "type":"string",
-                         "value":"barbarian"
                         }],
                  "rotation":0,
                  "type":"",
@@ -535,16 +465,6 @@
                          "name":"job",
                          "type":"string",
                          "value":"skeleton"
-                        }, 
-                        {
-                         "name":"unit_1",
-                         "type":"string",
-                         "value":"skeleton"
-                        }, 
-                        {
-                         "name":"unit_2",
-                         "type":"string",
-                         "value":"barbarian"
                         }],
                  "rotation":0,
                  "type":"",
@@ -572,16 +492,6 @@
                          "name":"job",
                          "type":"string",
                          "value":"skeleton"
-                        }, 
-                        {
-                         "name":"unit_1",
-                         "type":"string",
-                         "value":"skeleton"
-                        }, 
-                        {
-                         "name":"unit_2",
-                         "type":"string",
-                         "value":"barbarian"
                         }],
                  "rotation":0,
                  "type":"",

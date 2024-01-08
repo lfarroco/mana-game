@@ -1,14 +1,8 @@
 import { Button } from "react-bootstrap"
 import { City } from "../../../Models/City"
 import { emit_, events } from "../../../Models/Signals"
-import { getState } from "../../../Models/State"
 import "./styles.css"
-import { getPlayerDispatchableSquads } from "../../../Models/Squad"
 const SelectedCity = ({ city }: { city: City }) => {
-
-	const state = getState()
-
-	const dispatchableSquads = getPlayerDispatchableSquads(state)
 
 	return <div className="row" id="selected-entity">
 		<div className="col col-2">
@@ -24,12 +18,7 @@ const SelectedCity = ({ city }: { city: City }) => {
 		<Button
 			className="col col-2 btn btn-secondary"
 			onClick={emit_(events.TOGGLE_DISPATCH_MODAL, true)}
-			disabled={dispatchableSquads.length < 1}
-		>Dispatch</Button>
-		<Button
-			className="col col-2 btn btn-secondary"
-			onClick={emit_(events.TOGGLE_DISPATCH_MODAL, true)}
-			disabled={dispatchableSquads.length < 1}
+			disabled={true}
 		>Recruit</Button>
 		<Button className="col col-2 btn btn-secondary">Shop</Button>
 

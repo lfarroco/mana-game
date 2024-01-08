@@ -18,6 +18,8 @@ function checkIfAllCastlesAreCaptured(scene: BattlegroundScene) {
 	if (sameForce) {
 		const winner = castles[0].force
 
+		if (!winner) throw new Error("winner is undefined")
+
 		scene.state.winner = winner
 
 		emit(events.FORCE_VICTORY, winner)

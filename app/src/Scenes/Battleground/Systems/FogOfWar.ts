@@ -52,7 +52,7 @@ function refreshFogOfWar(scene: BattlegroundScene, fow: Phaser.Tilemaps.TilemapL
 
 	scene.state.squads
 		.filter(s => s.force === FORCE_ID_PLAYER)
-		.filter(s => s.status !== SQUAD_STATUS.DESTROYED && s.status !== SQUAD_STATUS.NON_DISPATCHED)
+		.filter(s => s.status !== SQUAD_STATUS.DESTROYED)
 		.forEach(s => showRadius(s.position, fow));
 
 	//player-controlled cities
@@ -62,7 +62,7 @@ function refreshFogOfWar(scene: BattlegroundScene, fow: Phaser.Tilemaps.TilemapL
 
 	scene.state.squads
 		.filter(s => s.force === FORCE_ID_CPU)
-		.filter(s => s.status !== SQUAD_STATUS.DESTROYED && s.status !== SQUAD_STATUS.NON_DISPATCHED)
+		.filter(s => s.status !== SQUAD_STATUS.DESTROYED)
 		.forEach(enemy => {
 
 			const chara = scene.charas.find(c => c.id === enemy.id)
