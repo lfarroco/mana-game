@@ -96,26 +96,6 @@ export const UnitDetailsModal = () => {
 
 					</Col>
 				</Row>
-				<hr />
-				<Row>
-					<Col xs={3}>
-						<img className="figure-img img-fluid rounded me-2" src="assets/icons/sword.jpeg" alt="sword" />
-						Sword of Derp
-					</Col>
-					<Col xs={3}>
-						<img className="figure-img img-fluid rounded me-2" src="assets/icons/sword.jpeg" alt="sword" />
-						Sword of Derp
-					</Col>
-					<Col xs={3}>
-						<img className="figure-img img-fluid rounded me-2" src="assets/icons/sword.jpeg" alt="sword" />
-						Sword of Derp
-					</Col>
-					<Col xs={3}>
-						<img className="figure-img img-fluid rounded me-2" src="assets/icons/sword.jpeg" alt="sword" />
-						Sword of Derp
-					</Col>
-
-				</Row>
 			</>
 			)
 		}
