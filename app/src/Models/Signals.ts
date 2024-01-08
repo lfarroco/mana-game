@@ -34,6 +34,7 @@ export type Signals = {
 	UPDATE_SQUAD_COUNTER: (count: number, vec: BoardVec) => void, // TODO: not implemented yet
 	LOOKUP_PATH: (key: string, source: BoardVec, target: BoardVec) => void,
 	PATH_FOUND: (key: string, path: BoardVec[]) => void,
+	UPDATE_UNIT_COUNTER: (count: number, vec: BoardVec) => void,
 }
 
 export type Operation = [keyof Signals, ...Parameters<Signals[keyof Signals]>]
@@ -72,6 +73,7 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
 	UPDATE_SQUAD_COUNTER: "UPDATE_SQUAD_COUNTER",
 	LOOKUP_PATH: "LOOKUP_PATH",
 	PATH_FOUND: "PATH_FOUND",
+	UPDATE_UNIT_COUNTER: "UPDATE_UNIT_COUNTER",
 }
 
 export const listen = <T extends keyof Signals>(
@@ -155,6 +157,7 @@ export const operations: { [key in keyof Signals]: (...args: Parameters<Signals[
 	UPDATE_SQUAD_COUNTER: (count: number, vec: BoardVec) => [events.UPDATE_SQUAD_COUNTER, count, vec],
 	LOOKUP_PATH: (key: string, source: BoardVec, target: BoardVec) => [events.LOOKUP_PATH, key, source, target],
 	PATH_FOUND: (key: string, path: BoardVec[]) => [events.PATH_FOUND, key, path],
+	UPDATE_UNIT_COUNTER: (count: number, vec: BoardVec) => [events.UPDATE_UNIT_COUNTER, count, vec],
 }
 
 //@ts-ignore

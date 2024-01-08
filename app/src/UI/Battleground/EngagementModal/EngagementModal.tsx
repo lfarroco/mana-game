@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { emit_, events, listeners } from '../../../Models/Signals';
+import * as Signals from '../../../Models/Signals';
 import Modal from 'react-bootstrap/Modal';
 import { Button, Offcanvas, Tab, Table, Tabs } from 'react-bootstrap';
 import { State, getState } from '../../../Models/State';
@@ -12,8 +12,8 @@ function EngagementModal() {
 
 
 	useEffect(() => {
-		listeners([
-			[events.TOGGLE_ENGAGEMENT_WINDOW, (isVisible: boolean, id: string) => {
+		Signals.listeners([
+			[Signals.events.TOGGLE_ENGAGEMENT_WINDOW, (isVisible: boolean, id: string) => {
 				setIsVisible(isVisible);
 				setEngagementId(id)
 			}]
