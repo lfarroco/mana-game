@@ -208,6 +208,11 @@ export function createEmote(chara: Chara, key: string) {
 		overlay.y = chara.sprite.y - HALF_TILE_HEIGHT
 	})
 
+	emote.setVisible(false)
+	overlay.setVisible(false)
+	chara.group?.add(emote)
+	chara.group?.add(overlay)
+
 	return chara
 }
 
