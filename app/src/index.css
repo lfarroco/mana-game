@@ -25,3 +25,8 @@ canvas {
 #ui {
   position: relative;
 }
+
+/* bootstrap overwrites */
+.btn-sm {
+  font-size: 10px;
+}

@@ -14,7 +14,6 @@ function UnitsWindow() {
 	const units = getState().units
 
 	const [isVisible, setIsVisible] = useState(false);
-	const [selectedUnit, setSelectedUnit] = useState(units[0].id)
 
 	useEffect(() => {
 		listeners([
@@ -36,10 +35,10 @@ function UnitsWindow() {
 				defaultActiveKey="player"
 			>
 				<Tab eventKey="player" title="Allied">
-					{unitList(units, selectedUnit, FORCE_ID_PLAYER, setSelectedUnit)}
+					{unitList(units, FORCE_ID_PLAYER)}
 				</Tab>
 				<Tab eventKey="cpu" title="Enemy">
-					{unitList(units, selectedUnit, FORCE_ID_CPU, setSelectedUnit)}
+					{unitList(units, FORCE_ID_CPU)}
 				</Tab>
 			</Tabs>}
 		</Modal.Body>
@@ -56,9 +55,7 @@ function UnitsWindow() {
 
 const unitList = (
 	units: Unit[],
-	selectedUnit: string,
 	force: string,
-	setSelectedUnit: (id: string) => void = () => { }
 ) => <div
 	className="row"
 >
@@ -87,15 +84,10 @@ const unitList = (
 							.map(unit =>
 								<tr
 									key={unit.id}
-									className={unit.id === selectedUnit ? "selected" : ""}
-									onClick={() => setSelectedUnit(unit.id)}
 								>
-									<td
-
-									>
+									<td>
 										<img
-											style={{ width: 50 }}
-											className="col-sm-3"
+											className="portrait-sm"
 											src={`/assets/jobs/${unit.job}/portrait.png`}
 											alt="job"
 										/>
