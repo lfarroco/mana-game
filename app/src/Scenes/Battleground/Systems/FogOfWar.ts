@@ -39,7 +39,7 @@ export function init(scene: BattlegroundScene) {
 	])
 }
 
-// takes around 0.2~3 ms to run and can be optimized
+// takes around 0.2~3 ms to run in a 64x64 board and can be optimized
 // it is actually slower to use a for loop instead of forEach (takes 0.9ms)
 function refreshFogOfWar(scene: BattlegroundScene, fow: Phaser.Tilemaps.TilemapLayer) {
 
