@@ -13,8 +13,14 @@ export type Engagement = {
 	finished: boolean;
 	startTick: number;
 	endTick: number;
-	attacker: string;
-	defender: string;
+	attacker: {
+		id: string;
+		buffs: string[];
+	};
+	defender: {
+		id: string;
+		buffs: string[];
+	};
 	sprite: Phaser.GameObjects.Sprite,
 	log: string[]
 }
@@ -38,7 +44,7 @@ const engagementStartHandler = (scene: BattlegroundScene, state: State) => (atta
 
 	const isAlreadyEngaged = state.engagements.some(engagement =>
 		!engagement.finished &&
-		(engagement.attacker === attackerId || engagement.defender === attackerId)
+		(engagement.attacker.id === attackerId || engagement.defender.id === attackerId)
 	);
 
 	if (isAlreadyEngaged) {
@@ -75,11 +81,36 @@ const engagementStartHandler = (scene: BattlegroundScene, state: State) => (atta
 		nonEngaged.sort((a, b) => b.morale - a.morale)[0] :
 		targetCellEnemies.sort((a, b) => b.morale - a.morale)[0]
 
+
+	const defenderTileType = state.cities.find(city => isSameBoardVec(city.boardPosition, targetCell))?.type
+	const isFortified = defenderTileType === "castle" || defenderTileType === "fort"
+	const fortifiedBuff = isFortified ? ["fortified"] : []
+
+	const defenderEngagements = state.engagements.filter(engagement =>
+		engagement.defender.id === defender.id || engagement.attacker.id === defender.id
+	)
+	const isFlanked = defenderEngagements.length > 0
+	const flankedBuff = isFlanked ? ["flanked"] : []
+
+	const attackerEngagements = state.engagements.filter(engagement =>
+		engagement.defender.id === attacker.id || engagement.attacker.id === attacker.id
+	)
+	const isSurrounded = attackerEngagements.length > 0
+	const attackerFlankedBuff = isSurrounded ? ["flanked"] : []
+
+
 	const engagement: Engagement = {
 		id: uuid.v4(),
 		startTick: state.tick,
-		attacker: attacker.id,
-		defender: defender.id,
+		attacker:
+		{
+			id: attacker.id,
+			buffs: ([] as string[]).concat(attackerFlankedBuff)
+		},
+		defender: {
+			id: defender.id,
+			buffs: ([] as string[]).concat(fortifiedBuff).concat(flankedBuff)
+		},
 		endTick: Infinity,
 		finished: false,
 		sprite,

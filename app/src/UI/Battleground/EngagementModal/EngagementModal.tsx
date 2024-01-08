@@ -96,8 +96,8 @@ function engagementList(state: State, engagements: Engagement[]) {
 				engagements
 					.sort((a, b) => b.startTick - a.startTick)
 					.map(engagement => {
-						const attacker = state.squads.find(squad => squad.id === engagement.attacker)
-						const defender = state.squads.find(squad => squad.id === engagement.defender)
+						const attacker = state.squads.find(squad => squad.id === engagement.attacker.id)
+						const defender = state.squads.find(squad => squad.id === engagement.defender.id)
 
 						if (!attacker || !defender) return null
 

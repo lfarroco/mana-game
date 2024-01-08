@@ -49,8 +49,14 @@ const testState: State = {
 			startTick: 0,
 			endTick: Infinity,
 			sprite: (null as any),
-			attacker: "s1",
-			defender: "enemy1",
+			attacker: {
+				id: "s1",
+				buffs: []
+			},
+			defender: {
+				id: "enemy1",
+				buffs: [],
+			},
 			log: [],
 			finished: false
 		}
