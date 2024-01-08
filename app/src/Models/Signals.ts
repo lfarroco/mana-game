@@ -1,5 +1,5 @@
 import Events from 'events'
-import { BoardVec, WindowVec } from './Misc'
+import { BoardVec } from './Misc'
 import { Squad } from './Squad'
 import * as IORef from "fp-ts/lib/IORef";
 import * as IO from "fp-ts/lib/IO";
