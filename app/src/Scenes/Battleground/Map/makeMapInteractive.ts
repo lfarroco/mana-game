@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import BattlegroundScene from "../BattlegroundScene";
 import { emit, events } from "../../../Models/Signals";
-import { asBoardVec, windowVec } from "../../../Models/Misc";
+import { asBoardVec } from "../../../Models/Misc";
 
 export function makeMapInteractive(
 	scene: BattlegroundScene,
