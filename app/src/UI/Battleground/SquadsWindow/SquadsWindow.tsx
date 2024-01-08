@@ -7,7 +7,7 @@ import Tabs from 'react-bootstrap/Tabs';
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from '../../../Models/Force';
 import { useEffect, useState } from 'react';
 import { events, listeners } from '../../../Models/Signals';
-import { Button, Offcanvas, Table } from 'react-bootstrap';
+import { Offcanvas, Table } from 'react-bootstrap';
 
 function SquadsWindow() {
 

@@ -15,7 +15,7 @@ import { BoardVec, asBoardVec, boardVec } from "../../Models/Misc";
 import { Chara, createChara, removeEmote } from "../../Components/chara";
 import { emit, events, listeners } from "../../Models/Signals";
 import { State, getState, updateSquad } from "../../Models/State";
-import { TILE_HEIGHT } from "./constants";
+import { TILE_HEIGHT, TILE_WIDTH } from "./constants";
 import * as EngagementSystem from "../../Systems/Engagement/Engagement";
 import * as CombatSystem from "../../Systems/Combat/Combat";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
@@ -47,6 +47,7 @@ export class BattlegroundScene extends Phaser.Scene {
   state: State;
   cities: { city: City, sprite: Phaser.GameObjects.Image }[] = []
   tilemap: Phaser.Tilemaps.Tilemap | null = null;
+  counters: Phaser.GameObjects.Text[] = [];
 
   constructor() {
     super("BattlegroundScene");
@@ -120,6 +121,16 @@ export class BattlegroundScene extends Phaser.Scene {
           faceDirection(direction, chara)
         }
       }
+      ], [
+        events.UPDATE_UNIT_COUNTER, (count: number, vec: BoardVec) => {
+          this.updateUnitCounter(count, vec)
+        }
+      ], [
+        events.BATTLEGROUND_TICK, () => {
+          const orphanCounters = this.counters.filter(c => !this.state.squads.find(s => s.position.x === c.x / TILE_HEIGHT && s.position.y === c.y / TILE_HEIGHT))
+          orphanCounters.forEach(c => c.destroy())
+          this.counters = this.counters.filter(c => !orphanCounters.includes(c))
+        }
       ]
 
     ]
@@ -141,6 +152,40 @@ export class BattlegroundScene extends Phaser.Scene {
 
     //@ts-ignore
     window.bg = this
+  }
+  updateUnitCounter(count: number, vec: BoardVec) {
+
+    const tile = this.layers?.background.getTileAt(vec.x, vec.y)
+
+    if (!tile) return
+
+    const name = `${vec.x},${vec.y}`
+
+    const text = this.counters.find(c => c.name === name) || null
+
+    if (!text) {
+
+      const x = vec.x * TILE_WIDTH
+      const y = vec.y * TILE_HEIGHT
+      const newText = this.add.text(
+        x,
+        y,
+        count.toString())
+
+      newText.setPadding(TILE_WIDTH / 2, TILE_HEIGHT)
+
+
+      newText.setName(name)
+      this.counters.push(newText)
+      this.children.bringToTop(newText)
+      return
+    }
+
+    if (text.text === count.toString()) return
+    text.setText(count.toString())
+
+
+
   }
 
   preload = preload;

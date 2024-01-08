@@ -3,6 +3,7 @@ import events from 'events';
 import BattlegroundScene from "./Scenes/Battleground/BattlegroundScene";
 import { State, initialState } from './Models/State';
 import { UI } from './UI/UI';
+import * as UnitCounter from './Scenes/Battleground/Systems/UnitCounter';
 
 const eventEmitter = new events.EventEmitter();
 
@@ -12,7 +13,8 @@ declare global {
     emitter: events.EventEmitter
   }
 }
-window.state = initialState();
+const state = initialState();
+window.state = state
 window.emitter = eventEmitter;
 
 // If you want to start measuring performance in your app, pass a function
@@ -40,3 +42,5 @@ window.addEventListener('resize', () => {
 });
 
 UI();
+
+UnitCounter.init(state)
