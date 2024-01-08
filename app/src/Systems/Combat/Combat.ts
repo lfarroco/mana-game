@@ -79,7 +79,11 @@ function compareResults(
 
 		const successfullDefense =
 			moraleResult.newDefenderMorale > 0 && staminaResult.newDefenderStamina > 0 ?
-				[operations.UPDATE_SQUAD(defender.id, { status: SQUAD_STATUS.IDLE })] :
+				[operations.UPDATE_SQUAD(defender.id, {
+					status: defender.path.length > 0 ?
+						SQUAD_STATUS.MOVING :
+						SQUAD_STATUS.IDLE
+				})] :
 				[]
 
 		const failedDefense = moraleResult.newDefenderMorale <= 0 && staminaResult.newDefenderStamina > 0 ?
