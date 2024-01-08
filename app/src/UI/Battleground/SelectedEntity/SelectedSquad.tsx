@@ -37,7 +37,7 @@ const SelectedSquad = ({
 		>
 			<img
 				key={`squad-member-${squad.id}`}
-				className="img-fluid portrait-sm"
+				className="img-fluid portrait"
 				src={`assets/jobs/${squad.job}/portrait.png`}
 				alt={squad.name}
 			/>
@@ -71,15 +71,6 @@ const SelectedSquad = ({
 				>
 					Move
 				</Button>}
-				<Button
-					onClick={() => {
-
-						Signals.emit(Signals.events.TOGGLE_SQUAD_DETAILS_MODAL, true)
-
-					}}
-				>
-					Details
-				</Button>
 			</>
 			}{
 				isSelectingMoveTarget && <Button

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { emit_, events, listeners } from '../../../Models/Signals';
 import Modal from 'react-bootstrap/Modal';
-import { Button, Tab, Table, Tabs } from 'react-bootstrap';
+import { Button, Offcanvas, Tab, Table, Tabs } from 'react-bootstrap';
 import { State, getState } from '../../../Models/State';
 import { Engagement } from '../../../Systems/Engagement/Engagement';
 
@@ -21,25 +21,20 @@ function EngagementModal() {
 		])
 	}, []);
 
-	return <Modal
+	return <Offcanvas
 		show={isVisible}
 		onHide={() => { setIsVisible(false) }}
 		size={"xl"}
 		id="units-window"
+		backdrop={false}
 	>
-		<Modal.Header closeButton>
+		<Offcanvas.Header closeButton>
 			<Modal.Title>Engagements</Modal.Title>
-		</Modal.Header>
-		<Modal.Body>{isVisible && renderContent(engagementId)}
-		</Modal.Body>
-		<Modal.Footer>
-			<Button
-				onClick={emit_(events.TOGGLE_ENGAGEMENT_WINDOW, false, "")}
-				className="btn btn-secondary">
-				Close
-			</Button>
-		</Modal.Footer>
-	</Modal>
+		</Offcanvas.Header>
+		<Offcanvas.Body>{isVisible && renderContent(engagementId)}
+		</Offcanvas.Body>
+
+	</Offcanvas>
 
 }
 
@@ -105,21 +100,19 @@ function engagementList(state: State, engagements: Engagement[]) {
 							<td>
 								<img
 									className={
-										"img-fluid portrait-sm"
+										"img-fluid portrait portrait-sm"
 									}
 									src={`assets/jobs/${attacker.job}/portrait.png`}
 									alt={attacker.name}
-									onClick={emit_(events.TOGGLE_SQUAD_DETAILS_MODAL, attacker.id)}
 								/>
 							</td>
 							<td>
 								<img
 									className={
-										"img-fluid portrait-sm"
+										"img-fluid portrait portrait-sm"
 									}
-									src={`assets/jobs/${attacker.job}/portrait.png`}
+									src={`assets/jobs/${defender.job}/portrait.png`}
 									alt={defender.name}
-									onClick={emit_(events.TOGGLE_SQUAD_DETAILS_MODAL, defender.id)}
 								/>
 
 							</td>

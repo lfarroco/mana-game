@@ -7,7 +7,7 @@ import Tabs from 'react-bootstrap/Tabs';
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from '../../../Models/Force';
 import { useEffect, useState } from 'react';
 import { events, listeners } from '../../../Models/Signals';
-import { Button, Table } from 'react-bootstrap';
+import { Button, Offcanvas, Table } from 'react-bootstrap';
 
 function SquadsWindow() {
 
@@ -21,16 +21,17 @@ function SquadsWindow() {
 		])
 	}, []);
 
-	return <Modal
+	return <Offcanvas
 		show={isVisible}
 		onHide={() => { setVisible(false) }}
 		size={"xl"}
 		id="squads-window"
+		backdrop={false}
 	>
-		<Modal.Header closeButton>
+		<Offcanvas.Header closeButton>
 			<Modal.Title>Squads List</Modal.Title>
-		</Modal.Header>
-		<Modal.Body>
+		</Offcanvas.Header>
+		<Offcanvas.Body>
 			{isVisible && <Tabs
 				defaultActiveKey={FORCE_ID_PLAYER}
 			>
@@ -42,15 +43,8 @@ function SquadsWindow() {
 				</Tab>
 			</Tabs>}
 
-		</Modal.Body>
-		<Modal.Footer>
-			<Button
-				onClick={() => { setVisible(false) }}
-				className="btn btn-secondary">
-				Close
-			</Button>
-		</Modal.Footer>
-	</Modal>
+		</Offcanvas.Body>
+	</Offcanvas>
 }
 
 const squadTable = (
@@ -78,7 +72,7 @@ const squadTable = (
 							<img
 								key={`squad-${squad.id}`}
 								className={
-									"img-fluid portrait-sm"
+									"img-fluid portrait portrait-sm"
 								}
 								src={`assets/jobs/${squad.job}/portrait.png`}
 								alt={squad.name}
