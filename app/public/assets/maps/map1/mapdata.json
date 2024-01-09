@@ -499,6 +499,60 @@
                  "width":64,
                  "x":256,
                  "y":256
+                }, 
+                {
+                 "height":64,
+                 "id":32,
+                 "name":"grouped1",
+                 "properties":[
+                        {
+                         "name":"ai",
+                         "type":"string",
+                         "value":"passive"
+                        }, 
+                        {
+                         "name":"force",
+                         "type":"string",
+                         "value":"CPU"
+                        }, 
+                        {
+                         "name":"job",
+                         "type":"string",
+                         "value":"skeleton"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":320,
+                 "y":512
+                }, 
+                {
+                 "height":64,
+                 "id":33,
+                 "name":"grouped2",
+                 "properties":[
+                        {
+                         "name":"ai",
+                         "type":"string",
+                         "value":"passive"
+                        }, 
+                        {
+                         "name":"force",
+                         "type":"string",
+                         "value":"CPU"
+                        }, 
+                        {
+                         "name":"job",
+                         "type":"string",
+                         "value":"skeleton"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":320,
+                 "y":512
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -507,7 +561,7 @@
          "y":0
         }],
  "nextlayerid":10,
- "nextobjectid":32,
+ "nextobjectid":34,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.0",
