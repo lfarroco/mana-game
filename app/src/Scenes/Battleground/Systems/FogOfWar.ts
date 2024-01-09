@@ -76,6 +76,16 @@ function refreshFogOfWar(scene: BattlegroundScene, fow: Phaser.Tilemaps.TilemapL
 
 			chara.group?.setVisible(visible)
 		})
+
+	scene.counters.forEach(c => {
+
+		const tile = fow.getTileAtWorldXY(c.parentContainer.x, c.parentContainer.y)
+		if (!tile) throw new Error("tile is null")
+
+		const visible = tile.alpha === 0;
+
+		c.parentContainer.setVisible(visible)
+	});
 }
 
 function showRadius({ x, y }: BoardVec, fow: Phaser.Tilemaps.TilemapLayer) {
