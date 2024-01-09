@@ -16,14 +16,21 @@ export type Squad = {
 	name: string,
 	job: string,
 	force: string,
+	position: BoardVec,
+	status: SquadStatus,
+
+	// stats
 	morale: number,
 	maxMorale: number,
 	stamina: number,
 	maxStamina: number,
 	attack: number,
 	defense: number,
-	position: BoardVec,
-	status: SquadStatus,
+	mgkAttack: number,
+	mgkDefense: number,
+	accuracy: number,
+	evasion: number,
+
 }
 
 export const makeSquad = (id: string, force: string): Squad => ({
@@ -31,13 +38,18 @@ export const makeSquad = (id: string, force: string): Squad => ({
 	name: "",
 	job: "knight",
 	force,
+	position: boardVec(0, 0),
+	path: [],
+	status: SQUAD_STATUS.IDLE,
+
 	morale: 100,
 	maxMorale: 100,
 	stamina: 100,
 	maxStamina: 100,
 	attack: 10,
-	defense: 5,
-	position: boardVec(0, 0),
-	path: [],
-	status: SQUAD_STATUS.IDLE,
+	defense: 10,
+	mgkAttack: 10,
+	mgkDefense: 10,
+	accuracy: 10,
+	evasion: 10,
 });
