@@ -127,8 +127,9 @@ export class BattlegroundScene extends Phaser.Scene {
         }
       ], [
         events.BATTLEGROUND_TICK, () => {
-          const orphanCounters = this.counters.filter(c => !this.state.squads.find(s => s.position.x === c.x / TILE_HEIGHT && s.position.y === c.y / TILE_HEIGHT))
-          orphanCounters.forEach(c => c.destroy())
+          const orphanCounters = this.counters.filter(c =>
+            !this.state.squads.find(s => c.name === `${s.position.x},${s.position.y}`))
+          orphanCounters.forEach(c => c.parentContainer.destroy())
           this.counters = this.counters.filter(c => !orphanCounters.includes(c))
         }
       ]
@@ -165,16 +166,20 @@ export class BattlegroundScene extends Phaser.Scene {
 
     if (!text) {
 
-      const x = vec.x * TILE_WIDTH
-      const y = vec.y * TILE_HEIGHT
+      if (count === 1) return
+
+      const x = vec.x * TILE_WIDTH + 4
+      const y = vec.y * TILE_HEIGHT + TILE_HEIGHT / 2 + 4
+
+      const container = this.add.container(x, y)
+      // rect
+      const bg = this.add.rectangle(6, 6, TILE_WIDTH / 3, TILE_HEIGHT / 3, 0x2200aa)
       const newText = this.add.text(
-        x,
-        y,
+        0,
+        0,
         count.toString())
 
-      newText.setPadding(TILE_WIDTH / 2, TILE_HEIGHT)
-
-
+      container.add([bg, newText])
       newText.setName(name)
       this.counters.push(newText)
       this.children.bringToTop(newText)
@@ -182,7 +187,13 @@ export class BattlegroundScene extends Phaser.Scene {
     }
 
     if (text.text === count.toString()) return
-    text.setText(count.toString())
+
+    if (count === 1) {
+
+      text.parentContainer.destroy()
+      this.counters = this.counters.filter(c => c.name !== name)
+    }
+    else text.setText(count.toString())
 
 
 
