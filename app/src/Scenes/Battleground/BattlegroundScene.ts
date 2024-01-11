@@ -69,17 +69,13 @@ export class BattlegroundScene extends Phaser.Scene {
           moveSquads(this)
         }
       },
-      ], [
-        events.UPDATE_SQUAD, (squadId: string, arg: Partial<Squad>) => {
-
-
-          if (arg.stamina === 0) {
-            emit(events.SQUAD_DESTROYED, squadId)
-          }
-        }
       ],
       [
         events.UPDATE_SQUAD, (squadId: string, sqd: Partial<Squad>) => {
+
+          if (sqd.stamina === 0) {
+            emit(events.SQUAD_DESTROYED, squadId)
+          }
 
           updateSquad(this.state)(squadId)(sqd)
 
