@@ -40,7 +40,7 @@ export function makeMapInteractive(
 	});
 
 	let rectVecStart: BoardVec | null = null;
-	let selectionRect = scene.add.rectangle(0, 0, 0, 0, 0x00ff00, 0.5).setOrigin(0, 0)
+	let selectionRect: Phaser.GameObjects.Graphics = scene.add.graphics()
 
 	bgLayer.on(Phaser.Input.Events.DRAG_START, (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
 
@@ -67,27 +67,36 @@ export function makeMapInteractive(
 
 		if (!selectionRect) return;
 
-		const rectWidth = pointer.x - rectVecStart.x
 
-		const rectHeight = pointer.y - rectVecStart.y
+		console.log(dragX, dragY)
+		const rectWidth = dragX
 
-		selectionRect.setPosition(
+		const rectHeight = dragY
+
+		selectionRect.clear()
+		selectionRect.lineStyle(2, 0x00ff00, 1);
+
+		selectionRect.strokeRect(
 			rectVecStart.x,
-			rectVecStart.y
-		);
-
-		selectionRect.setSize(
+			rectVecStart.y,
 			rectWidth,
 			rectHeight
-		);
+		)
 
-		scene.charas.forEach(chara => {
-			// is inside selection rect
-			if (selectionRect?.getBounds().contains(chara.sprite.x, chara.sprite.y)) {
-				chara.sprite.setTint(0x00ff00)
-			}
-			else chara.sprite.setTint(0xffffff);
-		});
+		scene.charas.forEach(c => c.sprite.setTint(0xffffff))
+		scene.charas
+			.filter(chara => rectVecStart &&
+				chara.sprite.x > rectVecStart?.x &&
+				chara.sprite.y > rectVecStart?.y &&
+				chara.sprite.x < pointer?.x &&
+				chara.sprite.y < pointer?.y
+			)
+			.forEach(chara => {
+				if (chara.force === FORCE_ID_PLAYER)
+					chara.sprite.setTint(0x00ff00)
+				else
+					chara.sprite.setTint(0xff0000)
+			});
 
 	});
 
@@ -96,23 +105,22 @@ export function makeMapInteractive(
 		if (pointer.upElement?.tagName !== "CANVAS") return;
 
 
+		scene.charas.forEach(c => c.sprite.setTint(0xffffff))
+
 		// charas inside selection
 		const charas = scene.charas.filter(c => c.force === FORCE_ID_PLAYER).filter(chara => {
-			return selectionRect?.getBounds().contains(chara.sprite.x, chara.sprite.y);
-		});
+			if (!rectVecStart) return false
+			return chara.sprite.x > rectVecStart?.x &&
+				chara.sprite.y > rectVecStart?.y &&
+				chara.sprite.x < pointer.x &&
+				chara.sprite.y < pointer.y
 
-		charas.forEach(c => c.sprite.setTint(0xffffff))
-
-		charas.forEach(chara => {
-			chara.sprite.setTint(0xff0000);
 		});
 
 		emit(events.MULTIPLE_SQUADS_SELECTED, charas.map(c => c.id))
 
 		rectVecStart = null
-
-		selectionRect.setPosition(0, 0).setSize(0, 0);
-
+		selectionRect.clear()
 
 	});
 
