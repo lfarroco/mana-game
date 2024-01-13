@@ -1,4 +1,4 @@
-import { Chara, createEmote } from "../Components/chara";
+import { Chara, createEmote } from "../Components/Chara";
 import { BoardVec } from "./Misc";
 
 export type Direction = "up" | "down" | "left" | "right";

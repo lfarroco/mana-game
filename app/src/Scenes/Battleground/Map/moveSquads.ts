@@ -1,4 +1,4 @@
-import { removeEmote } from "../../../Components/chara";
+import { removeEmote } from "../../../Components/Chara";
 import { boardVec, asBoardVec, isSameBoardVec } from "../../../Models/Misc";
 import { emit, events } from "../../../Models/Signals";
 import { BattlegroundScene } from "../BattlegroundScene";
