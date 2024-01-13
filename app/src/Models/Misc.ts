@@ -1,28 +1,17 @@
 
-export type WindowVec = {
-	tag: "_windowvec",
+export type Vec2 = {
+	tag: "_vec2",
 	x: number,
 	y: number,
 }
 
-export type BoardVec = {
-	tag: "_boardvec",
-	x: number,
-	y: number,
-}
-
-export const windowVec = (x: number, y: number): WindowVec => ({
-	tag: "_windowvec",
+export const vec2 = (x: number, y: number): Vec2 => ({
+	tag: "_vec2",
 	x, y
 })
+export const asVec2 = ({ x, y }: { x: number, y: number }): Vec2 => vec2(x, y)
 
-export const boardVec = (x: number, y: number): BoardVec => ({
-	tag: "_boardvec",
-	x, y
-})
-export const asBoardVec = ({ x, y }: { x: number, y: number }): BoardVec => boardVec(x, y)
+export const eqVec2 = (v1: Vec2, v2: Vec2) => v1.x === v2.x && v1.y === v2.y
 
-export const isSameBoardVec = (v1: BoardVec, v2: BoardVec) => v1.x === v2.x && v1.y === v2.y
-
-// curried version of isSameBoardVec
-export const isSameBoardVec_ = (v1: BoardVec) => (v2: BoardVec) => isSameBoardVec(v1, v2)
+// curried version of eqVec
+export const eqVec2_ = (v1: Vec2) => (v2: Vec2) => eqVec2(v1, v2)

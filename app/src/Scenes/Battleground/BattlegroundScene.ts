@@ -11,7 +11,7 @@ import { SQUAD_STATUS, Squad } from "../../Models/Squad";
 import moveSquads from "./Map/moveSquads";
 import { faceDirection } from "../../Models/Direction";
 import { getDirection } from "../../Models/Direction";
-import { BoardVec, asBoardVec, boardVec } from "../../Models/Misc";
+import { Vec2, asVec2, vec2 } from "../../Models/Misc";
 import { Chara, createChara, removeEmote } from "../../Components/Chara";
 import { emit, events, listeners } from "../../Models/Signals";
 import { State, getState, updateSquad } from "../../Models/State";
@@ -81,7 +81,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
         }
       ],
-      [events.PATH_FOUND, (key: string, path_: BoardVec[]) => {
+      [events.PATH_FOUND, (key: string, path_: Vec2[]) => {
 
         const squad = this.state.squads.find(sqd => sqd.id === key)
         if (!squad) {
@@ -113,12 +113,12 @@ export class BattlegroundScene extends Phaser.Scene {
         const chara = this.charas.find(c => c.id === squad.id);
 
         if (chara) {
-          const direction = getDirection(asBoardVec(path[0]), squad.position)
+          const direction = getDirection(asVec2(path[0]), squad.position)
           faceDirection(direction, chara)
         }
       }
       ], [
-        events.UPDATE_UNIT_COUNTER, (count: number, vec: BoardVec) => {
+        events.UPDATE_UNIT_COUNTER, (count: number, vec: Vec2) => {
           this.updateUnitCounter(count, vec)
         }
       ], [
@@ -150,7 +150,7 @@ export class BattlegroundScene extends Phaser.Scene {
     //@ts-ignore
     window.bg = this
   }
-  updateUnitCounter(count: number, vec: BoardVec) {
+  updateUnitCounter(count: number, vec: Vec2) {
 
     const tile = this.layers?.background.getTileAt(vec.x, vec.y)
 
@@ -268,14 +268,14 @@ export class BattlegroundScene extends Phaser.Scene {
   resumeGame = () => {
     this.isPaused = false;
   }
-  moveSquadTo = (sqdId: string, { x, y }: BoardVec) => {
+  moveSquadTo = (sqdId: string, { x, y }: Vec2) => {
     const squad = this.state.squads.find(sqd => sqd.id === sqdId)
     const tile = this.layers?.background.getTileAt(x, y);
     if (!squad || !tile) return
 
     this.isSelectingSquadMove = false;
 
-    emit(events.LOOKUP_PATH, squad.id, squad.position, boardVec(x, y))
+    emit(events.LOOKUP_PATH, squad.id, squad.position, vec2(x, y))
 
 
   }
@@ -293,7 +293,7 @@ export class BattlegroundScene extends Phaser.Scene {
     if (!tile) return
 
     emit(events.UPDATE_SQUAD, sqdId, { status: SQUAD_STATUS.IDLE, })
-    emit(events.UPDATE_SQUAD, sqdId, { position: asBoardVec(tile) })
+    emit(events.UPDATE_SQUAD, sqdId, { position: asVec2(tile) })
 
     const chara_ = createChara(
       this,

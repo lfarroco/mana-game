@@ -1,4 +1,4 @@
-import { boardVec } from "../../../Models/Misc";
+import { vec2 } from "../../../Models/Misc";
 import { emit, events, listeners } from "../../../Models/Signals";
 import { SQUAD_STATUS } from "../../../Models/Squad";
 import BattlegroundScene from "../BattlegroundScene";
@@ -12,7 +12,7 @@ export function squadDestroyed(scene: BattlegroundScene) {
 			if (!squad) throw new Error("squad not found")
 
 
-			emit(events.UPDATE_SQUAD, id, { position: boardVec(-1, -1) })
+			emit(events.UPDATE_SQUAD, id, { position: vec2(-1, -1) })
 			emit(events.UPDATE_SQUAD, id, { status: SQUAD_STATUS.DESTROYED })
 
 			const chara = scene.charas.find(chara => chara.id === id)

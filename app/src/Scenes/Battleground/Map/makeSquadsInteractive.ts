@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { getState } from "../../../Models/State";
 import { events, emit } from "../../../Models/Signals";
-import { asBoardVec, isSameBoardVec } from "../../../Models/Misc";
+import { asVec2, eqVec2 } from "../../../Models/Misc";
 import { Chara } from "../../../Components/Chara";
 
 export function makeSquadsInteractive(
@@ -34,7 +34,7 @@ export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
 			emit(
 				events.SELECT_SQUAD_MOVE_DONE,
 				state.selectedEntity.id,
-				asBoardVec(tile)
+				asVec2(tile)
 			);
 		} else {
 
@@ -46,7 +46,7 @@ export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
 
 			const squads = state.squads
 				.filter(s => s.force === squad.force)
-				.filter(s => isSameBoardVec(s.position, squad.position));
+				.filter(s => eqVec2(s.position, squad.position));
 
 			if (squads.length > 1) {
 

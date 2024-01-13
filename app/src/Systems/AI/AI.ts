@@ -1,5 +1,5 @@
 import { FORCE_ID_CPU } from "../../Models/Force";
-import { isSameBoardVec } from "../../Models/Misc";
+import { eqVec2 } from "../../Models/Misc";
 import { emit, events, listeners } from "../../Models/Signals";
 import { SQUAD_STATUS, Squad } from "../../Models/Squad";
 import { getState } from "../../Models/State";
@@ -45,7 +45,7 @@ function processAttackerActions() {
 			if (sqd.status === SQUAD_STATUS.IDLE && sqd.morale >= 50 && sqd.stamina >= 80) {
 
 				// is currently at a city? if so, wait to recharge all stamina
-				if (isSameBoardVec(closestCity.boardPosition, sqd.position) && sqd.stamina < 100) {
+				if (eqVec2(closestCity.boardPosition, sqd.position) && sqd.stamina < 100) {
 					return;
 				}
 				// find a path
@@ -63,7 +63,7 @@ function processAttackerActions() {
 
 
 				//is in an allied city?
-				if (isSameBoardVec(closestCity.boardPosition, sqd.position)) {
+				if (eqVec2(closestCity.boardPosition, sqd.position)) {
 					return;
 				}
 				emit(events.SELECT_SQUAD_MOVE_DONE, sqd.id, closestCity.boardPosition)
@@ -98,7 +98,7 @@ function processDefenderActions() {
 				return;
 			}
 
-			if (isSameBoardVec(closestCity.boardPosition, sqd.position)) {
+			if (eqVec2(closestCity.boardPosition, sqd.position)) {
 				return;
 			}
 

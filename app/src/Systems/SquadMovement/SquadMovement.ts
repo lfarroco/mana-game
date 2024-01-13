@@ -1,4 +1,4 @@
-import { BoardVec } from "../../Models/Misc";
+import { Vec2 } from "../../Models/Misc";
 import { listeners, events, emit } from "../../Models/Signals";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import moveSquads from "../../Scenes/Battleground/Map/moveSquads";
@@ -19,10 +19,10 @@ export function init(scene: BattlegroundScene) {
 		[events.DISPATCH_SQUAD, (squadId: string, _cityId: string) => {
 			squadMovementIndex[squadId] = 0;
 		}],
-		[events.SQUAD_WALKS_TOWARDS_CELL, (squadId: string, vec: BoardVec) => {
+		[events.SQUAD_WALKS_TOWARDS_CELL, (squadId: string, vec: Vec2) => {
 			squadMovementIndex[squadId]++;
 		}],
-		[events.SQUAD_MOVED_INTO_CELL, (squadId: string, vec: BoardVec) => {
+		[events.SQUAD_MOVED_INTO_CELL, (squadId: string, vec: Vec2) => {
 			squadMovementIndex[squadId] = 0;
 		}
 		]

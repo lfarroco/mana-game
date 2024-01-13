@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
-import { asBoardVec } from "../../../Models/Misc";
+import { asVec2 } from "../../../Models/Misc";
 import { emit, events } from "../../../Models/Signals";
 
 export function makeCitiesInteractive(
@@ -24,7 +24,7 @@ export function makeCitiesInteractive(
 				emit(
 					events.SELECT_SQUAD_MOVE_DONE,
 					scene.state.selectedEntity.id,
-					asBoardVec(tile)
+					asVec2(tile)
 				)
 			} else {
 				emit(events.CITY_SELECTED, city.name)

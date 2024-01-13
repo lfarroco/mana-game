@@ -1,5 +1,5 @@
 import * as Easystar from "easystarjs"
-import { BoardVec, asBoardVec } from "../../../Models/Misc";
+import { Vec2, asVec2 } from "../../../Models/Misc";
 import { emit, events, listeners } from "../../../Models/Signals";
 
 
@@ -12,11 +12,11 @@ export function init(grid: number[][]) {
 	easystar.setGrid(grid);
 
 	listeners([
-		[events.LOOKUP_PATH, (key: string, source: BoardVec, target: BoardVec) => {
+		[events.LOOKUP_PATH, (key: string, source: Vec2, target: Vec2) => {
 
 			easystar.findPath(source.x, source.y, target.x, target.y, path => {
 
-				const path_ = path.map(asBoardVec);
+				const path_ = path.map(asVec2);
 				emit(events.PATH_FOUND, key, path_);
 
 			});

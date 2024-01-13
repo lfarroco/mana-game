@@ -1,4 +1,4 @@
-import { boardVec } from "../../../Models/Misc";
+import { vec2 } from "../../../Models/Misc";
 import * as Signals from "../../../Models/Signals";
 import { State } from "../../../Models/State";
 
@@ -35,7 +35,7 @@ function updateCounters(state: State): Signals.Operation[] {
 
 			const [x, y] = pos.split(",").map(x => parseInt(x))
 
-			return Signals.operations.UPDATE_UNIT_COUNTER(count, boardVec(x, y))
+			return Signals.operations.UPDATE_UNIT_COUNTER(count, vec2(x, y))
 		});
 
 }

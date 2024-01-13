@@ -1,4 +1,4 @@
-import { BoardVec, isSameBoardVec } from "../../Models/Misc";
+import { Vec2, eqVec2 } from "../../Models/Misc";
 import { emit, events, listeners } from "../../Models/Signals";
 import { State } from "../../Models/State";
 
@@ -7,7 +7,7 @@ import { State } from "../../Models/State";
 export function init(state: State) {
 
 	listeners([
-		[events.SQUAD_MOVED_INTO_CELL, (squadId: string, vec: BoardVec) => {
+		[events.SQUAD_MOVED_INTO_CELL, (squadId: string, vec: Vec2) => {
 
 			const squad = state.squads.find(sqd => sqd.id === squadId)
 
@@ -15,16 +15,16 @@ export function init(state: State) {
 
 			const squadsInCell = state.squads
 				.filter(sqd => sqd.force === squad.force)
-				.filter(s => isSameBoardVec(squad.position, s.position))
+				.filter(s => eqVec2(squad.position, s.position))
 
 			emit(events.UPDATE_SQUAD_COUNTER, squadsInCell.length, vec)
 
 		}],
-		[events.SQUAD_LEAVES_CELL, (squadId: string, vec: BoardVec) => {
+		[events.SQUAD_LEAVES_CELL, (squadId: string, vec: Vec2) => {
 
 			const squadsInCell = state.squads
 				.filter(sqd => sqd.force === state.squads.find(sqd => sqd.id === squadId)?.force)
-				.filter(s => isSameBoardVec(vec, s.position))
+				.filter(s => eqVec2(vec, s.position))
 
 			emit(events.UPDATE_SQUAD_COUNTER, squadsInCell.length, vec)
 

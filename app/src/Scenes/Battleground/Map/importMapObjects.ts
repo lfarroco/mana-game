@@ -4,7 +4,7 @@ import * as uuid from "uuid";
 import { SQUAD_STATUS, Squad, makeSquad } from "../../../Models/Squad";
 import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../constants";
 import { City } from "../../../Models/City";
-import { boardVec } from "../../../Models/Misc";
+import { vec2 } from "../../../Models/Misc";
 
 type TiledProp = {
 	name: string;
@@ -78,7 +78,7 @@ export function importMapObjects(state: State, map: Phaser.Tilemaps.Tilemap) {
 					x: city.x + HALF_TILE_WIDTH,
 					y: city.y + HALF_TILE_HEIGHT
 				},
-				boardPosition: boardVec(
+				boardPosition: vec2(
 					Math.floor(city.x / TILE_WIDTH),
 					Math.floor(city.y / TILE_HEIGHT)
 				)
@@ -132,7 +132,7 @@ export function importMapObjects(state: State, map: Phaser.Tilemaps.Tilemap) {
 			const newSquad: Squad = {
 				...makeSquad(squadId, force.id),
 				name: uuid.v4().slice(0, 12),
-				position: boardVec(
+				position: vec2(
 					Math.floor(sqdSpec.x / TILE_WIDTH),
 					Math.floor(sqdSpec.y / TILE_HEIGHT)
 				),

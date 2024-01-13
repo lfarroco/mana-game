@@ -3,7 +3,7 @@ import { BattlegroundScene } from "../BattlegroundScene";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../Models/Force";
 import { listeners, events } from "../../../Models/Signals";
 import { SQUAD_STATUS } from "../../../Models/Squad";
-import { BoardVec } from "../../../Models/Misc";
+import { Vec2 } from "../../../Models/Misc";
 
 const VIEW_RADIUS = 4;
 
@@ -88,7 +88,7 @@ function refreshFogOfWar(scene: BattlegroundScene, fow: Phaser.Tilemaps.TilemapL
 	});
 }
 
-function showRadius({ x, y }: BoardVec, fow: Phaser.Tilemaps.TilemapLayer) {
+function showRadius({ x, y }: Vec2, fow: Phaser.Tilemaps.TilemapLayer) {
 
 
 	for (let i = -(VIEW_RADIUS); i <= VIEW_RADIUS; i++) {
