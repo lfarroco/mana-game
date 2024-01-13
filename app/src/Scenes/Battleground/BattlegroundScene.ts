@@ -26,6 +26,7 @@ import { squadDestroyed } from "./Events/SquadDestroyed";
 import { City } from "../../Models/City";
 import * as CityCaptureSystem from "./Systems/cityCapture";
 import * as FogOfWarSystem from "./Systems/FogOfWar";
+import * as CursorSystem from "./Systems/Cursor";
 import * as Pathfinding from "./Systems/Pathfinding";
 import * as AISystem from "../../Systems/AI/AI";
 import { TURN_DURATION } from "../../config";
@@ -43,7 +44,6 @@ export class BattlegroundScene extends Phaser.Scene {
   selectedEntity: Phaser.GameObjects.Sprite | null = null;
   isPaused = false;
   isSelectingSquadMove = false; // TODO: we can move this into the state
-  cursor: Phaser.GameObjects.Image | null = null;
   state: State;
   cities: { city: City, sprite: Phaser.GameObjects.Image }[] = []
   tilemap: Phaser.Tilemaps.Tilemap | null = null;
@@ -211,16 +211,14 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.layers = layers
 
-    this.cursor = this.add.image(0, 0, "cursor")
-      .setScale(1)
-      .setTint(0x00ff00)
-      .setVisible(false)
+
 
     this.cities = createCities(this, this.state.cities)
     this.charas = createMapSquads(this)
 
     FogOfWarSystem.init(this);
-    CityCaptureSystem.init(this)
+    CityCaptureSystem.init(this);
+    CursorSystem.init(this);
 
     makeSquadsInteractive(this, this.charas)
     makeCitiesInteractive(this, this.cities.map(c => c.sprite))
@@ -253,17 +251,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     //@ts-ignore
     window.scene = this
-  }
-
-  update() {
-
-    // TODO: make cursor independent of this scene
-    if (this.selectedEntity) {
-      this.cursor?.setPosition(this.selectedEntity.x, this.selectedEntity.y + TILE_HEIGHT / 5).setVisible(true)
-    } else {
-      this.cursor?.setVisible(false)
-    }
-
   }
 
   selectSquad = (id: string) => {
