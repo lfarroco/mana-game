@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import BattlegroundScene from "../BattlegroundScene";
 import { emit, events } from "../../../Models/Signals";
-import { BoardVec, asBoardVec, boardVec } from "../../../Models/Misc";
+import { asBoardVec } from "../../../Models/Misc";
 import { FORCE_ID_PLAYER } from "../../../Models/Force";
 
 export function makeMapInteractive(
@@ -39,22 +39,7 @@ export function makeMapInteractive(
 		scene.cameras.main.scrollY = scene.cameras.main.scrollY - dragY;
 	});
 
-	let rectVecStart: BoardVec | null = null;
 	let selectionRect: Phaser.GameObjects.Graphics = scene.add.graphics()
-
-	bgLayer.on(Phaser.Input.Events.DRAG_START, (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
-
-		if (pointer.upElement?.tagName !== "CANVAS") return;
-
-		// is left mouse button
-		if (pointer.buttons !== 1) return;
-
-		rectVecStart = boardVec(dragX, dragY);
-
-		console.log("drag start", rectVecStart)
-
-
-	});
 
 	bgLayer.on(Phaser.Input.Events.DRAG, (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
 
@@ -63,33 +48,23 @@ export function makeMapInteractive(
 		// is left mouse button
 		if (pointer.buttons !== 1) return;
 
-		if (!rectVecStart) return;
-
 		if (!selectionRect) return;
 
-
-		console.log(dragX, dragY)
-		const rectWidth = dragX
-
-		const rectHeight = dragY
+		if (pointer.distance < 10) return;
 
 		selectionRect.clear()
 		selectionRect.lineStyle(2, 0x00ff00, 1);
 
 		selectionRect.strokeRect(
-			rectVecStart.x,
-			rectVecStart.y,
-			rectWidth,
-			rectHeight
+			pointer.downX,
+			pointer.downY,
+			dragX,
+			dragY
 		)
 
 		scene.charas.forEach(c => c.sprite.setTint(0xffffff))
 		scene.charas
-			.filter(chara => rectVecStart &&
-				chara.sprite.x > rectVecStart?.x &&
-				chara.sprite.y > rectVecStart?.y &&
-				chara.sprite.x < pointer?.x &&
-				chara.sprite.y < pointer?.y
+			.filter(chara => isInside(pointer.downX, pointer.downY, dragX, dragY, chara.sprite.x, chara.sprite.y)
 			)
 			.forEach(chara => {
 				if (chara.force === FORCE_ID_PLAYER)
@@ -104,22 +79,23 @@ export function makeMapInteractive(
 
 		if (pointer.upElement?.tagName !== "CANVAS") return;
 
-
 		scene.charas.forEach(c => c.sprite.setTint(0xffffff))
 
+		const dx = dragX - pointer.downX
+		const dy = dragY - pointer.downY
+
 		// charas inside selection
-		const charas = scene.charas.filter(c => c.force === FORCE_ID_PLAYER).filter(chara => {
-			if (!rectVecStart) return false
-			return chara.sprite.x > rectVecStart?.x &&
-				chara.sprite.y > rectVecStart?.y &&
-				chara.sprite.x < pointer.x &&
-				chara.sprite.y < pointer.y
+		const charas = scene.charas.filter(chara =>
+			isInside(pointer.downX, pointer.downY, dx, dy, chara.sprite.x, chara.sprite.y)
+		);
 
-		});
+		if (charas.length === 1) {
+			emit(events.SQUAD_SELECTED, charas[0].id)
+		} else if (charas.length > 0) {
+			emit(events.MULTIPLE_SQUADS_SELECTED, charas.map(c => c.id))
+		}
 
-		emit(events.MULTIPLE_SQUADS_SELECTED, charas.map(c => c.id))
 
-		rectVecStart = null
 		selectionRect.clear()
 
 	});
@@ -143,3 +119,17 @@ export function makeMapInteractive(
 		}
 	});
 }
+function isInside(x: number, y: number, w: number, h: number, px: number, py: number): boolean {
+
+	// sometimes width and height can be negative
+	// we need our rect to always be positive so that the collision may work
+
+	return new Phaser.Geom.Rectangle(
+		w < 0 ? x + w : x,
+		h < 0 ? y + h : y,
+		Math.abs(w),
+		Math.abs(h)
+	).contains(px, py)
+
+}
+
