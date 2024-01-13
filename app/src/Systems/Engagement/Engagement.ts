@@ -1,5 +1,5 @@
 import { DIRECTIONS, Direction, getDirection } from "../../Models/Direction";
-import { Vec2, eqVec2 } from "../../Models/Misc";
+import { Vec2, eqVec2 } from "../../Models/Geometry";
 import { listeners, events, emit_, emit } from "../../Models/Signals";
 import { SQUAD_STATUS } from "../../Models/Squad";
 import { State } from "../../Models/State";

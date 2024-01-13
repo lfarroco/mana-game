@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { getState } from "../../../Models/State";
 import { events, emit } from "../../../Models/Signals";
-import { asVec2, eqVec2 } from "../../../Models/Misc";
+import { asVec2, eqVec2 } from "../../../Models/Geometry";
 import { Chara } from "../../../Components/Chara";
 
 export function makeSquadsInteractive(

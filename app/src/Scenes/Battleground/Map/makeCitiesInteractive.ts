@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
-import { asVec2 } from "../../../Models/Misc";
+import { asVec2 } from "../../../Models/Geometry";
 import { emit, events } from "../../../Models/Signals";
 
 export function makeCitiesInteractive(

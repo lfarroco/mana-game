@@ -1,4 +1,4 @@
-import { Vec2, vec2 } from "./Misc";
+import { Vec2, vec2 } from "./Geometry";
 
 export type SquadStatus = "MOVING" | "ENGAGED" | "RETREATING" | "DESTROYED" | "IDLE"
 

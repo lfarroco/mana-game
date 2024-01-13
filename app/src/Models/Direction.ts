@@ -1,5 +1,5 @@
 import { Chara, createEmote } from "../Components/Chara";
-import { Vec2 } from "./Misc";
+import { Vec2 } from "./Geometry";
 
 export type Direction = "up" | "down" | "left" | "right";
 

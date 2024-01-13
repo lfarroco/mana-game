@@ -1,5 +1,5 @@
 import { removeEmote } from "../../../Components/Chara";
-import { vec2, asVec2, eqVec2 } from "../../../Models/Misc";
+import { vec2, asVec2, eqVec2 } from "../../../Models/Geometry";
 import { emit, events } from "../../../Models/Signals";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { DIRECTIONS, getDirection } from "../../../Models/Direction";

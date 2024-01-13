@@ -4,7 +4,7 @@ import * as uuid from "uuid";
 import { SQUAD_STATUS, Squad, makeSquad } from "../../../Models/Squad";
 import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../constants";
 import { City } from "../../../Models/City";
-import { vec2 } from "../../../Models/Misc";
+import { vec2 } from "../../../Models/Geometry";
 
 type TiledProp = {
 	name: string;

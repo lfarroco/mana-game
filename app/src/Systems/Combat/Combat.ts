@@ -1,4 +1,4 @@
-import { vec2 } from "../../Models/Misc";
+import { vec2 } from "../../Models/Geometry";
 import { listeners, events, emit, Operation, operations } from "../../Models/Signals";
 import { SQUAD_STATUS, Squad } from "../../Models/Squad";
 import { State } from "../../Models/State";

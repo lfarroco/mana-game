@@ -3,7 +3,7 @@ import { BattlegroundScene } from "../BattlegroundScene";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../Models/Force";
 import { listeners, events } from "../../../Models/Signals";
 import { SQUAD_STATUS } from "../../../Models/Squad";
-import { Vec2 } from "../../../Models/Misc";
+import { Vec2 } from "../../../Models/Geometry";
 
 const VIEW_RADIUS = 4;
 
