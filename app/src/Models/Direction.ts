@@ -1,5 +1,5 @@
 import { Chara, createEmote } from "../Components/Chara";
-import { BoardVec } from "./Misc";
+import { Vec2 } from "./Misc";
 
 export type Direction = "up" | "down" | "left" | "right";
 
@@ -11,7 +11,7 @@ export const DIRECTIONS: Record<Direction, Direction> = {
 }
 
 // TODO: invert params
-export function getDirection(nextTile: BoardVec, current: BoardVec): Direction {
+export function getDirection(nextTile: Vec2, current: Vec2): Direction {
 	const dx = nextTile.x - current.x;
 	const dy = nextTile.y - current.y;
 

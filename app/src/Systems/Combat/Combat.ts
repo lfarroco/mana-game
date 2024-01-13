@@ -1,4 +1,4 @@
-import { boardVec } from "../../Models/Misc";
+import { vec2 } from "../../Models/Misc";
 import { listeners, events, emit, Operation, operations } from "../../Models/Signals";
 import { SQUAD_STATUS, Squad } from "../../Models/Squad";
 import { State } from "../../Models/State";
@@ -145,7 +145,7 @@ function getRandomEmptyCell(squad: Squad, state: State): Operation {
 
 	if (emptyCells.length > 0) {
 		const [x, y] = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-		return operations.UPDATE_SQUAD(squad.id, { path: [boardVec(squad.position.x + x, squad.position.y + y)] })
+		return operations.UPDATE_SQUAD(squad.id, { path: [vec2(squad.position.x + x, squad.position.y + y)] })
 	} else {
 		return operations.SQUAD_DESTROYED(squad.id)
 	}

@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import BattlegroundScene from "../BattlegroundScene";
 import { emit, events } from "../../../Models/Signals";
-import { asBoardVec } from "../../../Models/Misc";
+import { asVec2, vec2 } from "../../../Models/Misc";
 import { FORCE_ID_PLAYER } from "../../../Models/Force";
 
 export function makeMapInteractive(
@@ -16,15 +16,22 @@ export function makeMapInteractive(
 
 	bgLayer?.setInteractive({ draggable: true });
 
+	let startDrag = vec2(0, 0)
+	let startScroll = vec2(0, 0)
 
-	bgLayer.on(Phaser.Input.Events.DRAG_START, (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
+	bgLayer.on(Phaser.Input.Events.POINTER_DOWN, (pointer: Phaser.Input.Pointer) => {
 
 		if (pointer.upElement?.tagName !== "CANVAS") return;
 
+		// is middle mouse button
+		if (pointer.buttons !== 4) return;
+
+		startDrag = vec2(pointer.x, pointer.y)
+		startScroll = vec2(scene.cameras.main.scrollX, scene.cameras.main.scrollY)
 
 	});
 
-	bgLayer.on(Phaser.Input.Events.DRAG, (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
+	bgLayer.on(Phaser.Input.Events.POINTER_MOVE, (pointer: Phaser.Input.Pointer) => {
 
 		if (pointer.upElement?.tagName !== "CANVAS") return;
 
@@ -33,10 +40,14 @@ export function makeMapInteractive(
 
 		if (pointer.downTime < 100) return;
 
-		if (pointer.distance < 10) return;
+		const dx = startDrag.x - pointer.x
+		const dy = startDrag.y - pointer.y
+		const delta = Math.abs(dx + dy)
 
-		scene.cameras.main.scrollX = scene.cameras.main.scrollX - dragX;
-		scene.cameras.main.scrollY = scene.cameras.main.scrollY - dragY;
+		if (delta < 10) return;
+
+		scene.cameras.main.scrollX = startScroll.x + dx;
+		scene.cameras.main.scrollY = startScroll.y + dy;
 	});
 
 	let selectionRect: Phaser.GameObjects.Graphics = scene.add.graphics()
@@ -114,7 +125,7 @@ export function makeMapInteractive(
 			emit(
 				events.SELECT_SQUAD_MOVE_DONE,
 				scene.state.selectedEntity.id,
-				asBoardVec(tile)
+				asVec2(tile)
 			)
 		}
 	});

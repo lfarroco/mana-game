@@ -1,5 +1,5 @@
 import Events from 'events'
-import { BoardVec } from './Misc'
+import { Vec2 } from './Misc'
 import { Squad } from './Squad'
 import * as IORef from "fp-ts/lib/IORef";
 import * as IO from "fp-ts/lib/IO";
@@ -11,7 +11,7 @@ export type Signals = {
 	MULTIPLE_SQUADS_SELECTED: (squadIds: string[]) => void
 	CITY_SELECTED: (cityId: string) => void
 	SELECT_SQUAD_MOVE_START: (squadId: string) => void
-	SELECT_SQUAD_MOVE_DONE: (squadId: string, target: BoardVec) => void
+	SELECT_SQUAD_MOVE_DONE: (squadId: string, target: Vec2) => void
 	SELECT_SQUAD_MOVE_CANCEL: (squadId: string) => void
 	TOGGLE_DISPATCH_MODAL: (value: boolean) => void
 	TOGGLE_RECRUIT_MODAL: () => void
@@ -22,19 +22,19 @@ export type Signals = {
 	TOGGLE_ENGAGEMENT_WINDOW: (value: boolean, id: string) => void,
 	BATTLEGROUND_TICK: (tick: number) => void,
 	// TODO: have a parent level for the system
-	ENGAGEMENT_START: (attacker: string, targetCell: BoardVec) => any,
+	ENGAGEMENT_START: (attacker: string, targetCell: Vec2) => any,
 	UPDATE_SQUAD: (squadId: string, sqd: Partial<Squad>) => any,
 	SQUAD_DESTROYED: (squadId: string) => any,
 	FORCE_VICTORY: (force: string) => void,
 	CAPTURE_CITY: (squadId: string, cityId: string) => void,
 	FINISH_ENGAGEMENT: (id: string) => void,
-	SQUAD_WALKS_TOWARDS_CELL: (squadId: string, vec: BoardVec) => void,
-	SQUAD_LEAVES_CELL: (squadId: string, vec: BoardVec) => void,
-	SQUAD_MOVED_INTO_CELL: (squadId: string, vec: BoardVec) => void,
-	UPDATE_SQUAD_COUNTER: (count: number, vec: BoardVec) => void, // TODO: not implemented yet
-	LOOKUP_PATH: (key: string, source: BoardVec, target: BoardVec) => void,
-	PATH_FOUND: (key: string, path: BoardVec[]) => void,
-	UPDATE_UNIT_COUNTER: (count: number, vec: BoardVec) => void,
+	SQUAD_WALKS_TOWARDS_CELL: (squadId: string, vec: Vec2) => void,
+	SQUAD_LEAVES_CELL: (squadId: string, vec: Vec2) => void,
+	SQUAD_MOVED_INTO_CELL: (squadId: string, vec: Vec2) => void,
+	UPDATE_SQUAD_COUNTER: (count: number, vec: Vec2) => void, // TODO: not implemented yet
+	LOOKUP_PATH: (key: string, source: Vec2, target: Vec2) => void,
+	PATH_FOUND: (key: string, path: Vec2[]) => void,
+	UPDATE_UNIT_COUNTER: (count: number, vec: Vec2) => void,
 }
 
 export type Operation = [keyof Signals, ...Parameters<Signals[keyof Signals]>]
@@ -126,7 +126,7 @@ export const operations: { [key in keyof Signals]: (...args: Parameters<Signals[
 	PAUSE_PHYSICS: () => [events.PAUSE_PHYSICS],
 	RESUME_PHYSICS: () => [events.RESUME_PHYSICS],
 	SELECT_SQUAD_MOVE_START: (sqdId: string) => [events.SELECT_SQUAD_MOVE_START, sqdId],
-	SELECT_SQUAD_MOVE_DONE: (sqdId: string, target: BoardVec) => [events.SELECT_SQUAD_MOVE_DONE, sqdId, target],
+	SELECT_SQUAD_MOVE_DONE: (sqdId: string, target: Vec2) => [events.SELECT_SQUAD_MOVE_DONE, sqdId, target],
 	SELECT_SQUAD_MOVE_CANCEL: (sqdId: string) => [events.SELECT_SQUAD_MOVE_CANCEL, sqdId],
 	SQUAD_SELECTED: (squadId: string) => [events.SQUAD_SELECTED, squadId],
 	MULTIPLE_SQUADS_SELECTED: (squadIds: string[]) => [events.MULTIPLE_SQUADS_SELECTED, squadIds],
@@ -138,7 +138,7 @@ export const operations: { [key in keyof Signals]: (...args: Parameters<Signals[
 	SKIRMISH_ENDED: (winner: string, loser: string) => [events.SKIRMISH_ENDED, winner, loser],
 	TOGGLE_SQUADS_WINDOW: (value: boolean) => [events.TOGGLE_SQUADS_WINDOW, value],
 	BATTLEGROUND_TICK: (tick: number) => [events.BATTLEGROUND_TICK, tick],
-	ENGAGEMENT_START: (attacker: string, targetCell: BoardVec) => [events.ENGAGEMENT_START, attacker, targetCell],
+	ENGAGEMENT_START: (attacker: string, targetCell: Vec2) => [events.ENGAGEMENT_START, attacker, targetCell],
 	UPDATE_SQUAD: (squadId: string, sqd: Partial<Squad>) => {
 
 		if (Object.keys(sqd).length !== 1) throw new Error("UPDATE_SQUAD only accepts one key to be updated")
@@ -151,13 +151,13 @@ export const operations: { [key in keyof Signals]: (...args: Parameters<Signals[
 	CAPTURE_CITY: (squadId: string, cityId: string) => [events.CAPTURE_CITY, squadId, cityId],
 	TOGGLE_ENGAGEMENT_WINDOW: (value: boolean, id: string) => [events.TOGGLE_ENGAGEMENT_WINDOW, value, id],
 	FINISH_ENGAGEMENT: (id: string) => [events.FINISH_ENGAGEMENT, id],
-	SQUAD_WALKS_TOWARDS_CELL: (squadId: string, vec: BoardVec) => [events.SQUAD_WALKS_TOWARDS_CELL, squadId, vec],
-	SQUAD_LEAVES_CELL: (squadId: string, vec: BoardVec) => [events.SQUAD_LEAVES_CELL, squadId, vec],
-	SQUAD_MOVED_INTO_CELL: (squadId: string, vec: BoardVec) => [events.SQUAD_MOVED_INTO_CELL, squadId, vec],
-	UPDATE_SQUAD_COUNTER: (count: number, vec: BoardVec) => [events.UPDATE_SQUAD_COUNTER, count, vec],
-	LOOKUP_PATH: (key: string, source: BoardVec, target: BoardVec) => [events.LOOKUP_PATH, key, source, target],
-	PATH_FOUND: (key: string, path: BoardVec[]) => [events.PATH_FOUND, key, path],
-	UPDATE_UNIT_COUNTER: (count: number, vec: BoardVec) => [events.UPDATE_UNIT_COUNTER, count, vec],
+	SQUAD_WALKS_TOWARDS_CELL: (squadId: string, vec: Vec2) => [events.SQUAD_WALKS_TOWARDS_CELL, squadId, vec],
+	SQUAD_LEAVES_CELL: (squadId: string, vec: Vec2) => [events.SQUAD_LEAVES_CELL, squadId, vec],
+	SQUAD_MOVED_INTO_CELL: (squadId: string, vec: Vec2) => [events.SQUAD_MOVED_INTO_CELL, squadId, vec],
+	UPDATE_SQUAD_COUNTER: (count: number, vec: Vec2) => [events.UPDATE_SQUAD_COUNTER, count, vec],
+	LOOKUP_PATH: (key: string, source: Vec2, target: Vec2) => [events.LOOKUP_PATH, key, source, target],
+	PATH_FOUND: (key: string, path: Vec2[]) => [events.PATH_FOUND, key, path],
+	UPDATE_UNIT_COUNTER: (count: number, vec: Vec2) => [events.UPDATE_UNIT_COUNTER, count, vec],
 }
 
 //@ts-ignore

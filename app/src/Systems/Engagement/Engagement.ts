@@ -1,5 +1,5 @@
 import { DIRECTIONS, Direction, getDirection } from "../../Models/Direction";
-import { BoardVec, isSameBoardVec } from "../../Models/Misc";
+import { Vec2, eqVec2 } from "../../Models/Misc";
 import { listeners, events, emit_, emit } from "../../Models/Signals";
 import { SQUAD_STATUS } from "../../Models/Squad";
 import { State } from "../../Models/State";
@@ -34,7 +34,7 @@ export function init(scene: BattlegroundScene, state: State) {
 
 }
 
-const engagementStartHandler = (scene: BattlegroundScene, state: State) => (attackerId: string, targetCell: BoardVec) => {
+const engagementStartHandler = (scene: BattlegroundScene, state: State) => (attackerId: string, targetCell: Vec2) => {
 
 	const attacker = state.squads.find(squad => squad.id === attackerId);
 
@@ -55,7 +55,7 @@ const engagementStartHandler = (scene: BattlegroundScene, state: State) => (atta
 	const targetCellEnemies = state.squads
 		.filter(sqd =>
 			sqd.force !== attacker.force &&
-			isSameBoardVec(sqd.position, targetCell) &&
+			eqVec2(sqd.position, targetCell) &&
 			sqd.status !== SQUAD_STATUS.RETREATING
 		);
 
@@ -82,7 +82,7 @@ const engagementStartHandler = (scene: BattlegroundScene, state: State) => (atta
 		targetCellEnemies.sort((a, b) => b.morale - a.morale)[0]
 
 
-	const defenderTileType = state.cities.find(city => isSameBoardVec(city.boardPosition, targetCell))?.type
+	const defenderTileType = state.cities.find(city => eqVec2(city.boardPosition, targetCell))?.type
 	const isFortified = defenderTileType === "castle" || defenderTileType === "fort"
 	const fortifiedBuff = isFortified ? ["fortified"] : []
 

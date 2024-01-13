@@ -1,7 +1,7 @@
 import { Engagement } from "../Systems/Engagement/Engagement";
 import { City } from "./City";
 import { FORCE_ID_PLAYER, Force, makeForce } from "./Force";
-import { boardVec } from "./Misc";
+import { vec2 } from "./Misc";
 import { SQUAD_STATUS, Squad, makeSquad } from "./Squad";
 
 export const initialState = (): State => ({
@@ -23,25 +23,25 @@ export const initialState = (): State => ({
 			...makeSquad("s1", FORCE_ID_PLAYER),
 			name: "squad-1",
 			status: SQUAD_STATUS.IDLE,
-			position: boardVec(2, 2)
+			position: vec2(2, 2)
 		},
 		{
 			...makeSquad("s2", FORCE_ID_PLAYER),
 			name: "squad-2",
 			status: SQUAD_STATUS.IDLE,
-			position: boardVec(3, 1)
+			position: vec2(3, 1)
 		},
 		{
 			...makeSquad("s4", FORCE_ID_PLAYER),
 			name: "squad-4",
 			status: SQUAD_STATUS.IDLE,
-			position: boardVec(4, 2)
+			position: vec2(4, 2)
 		},
 		{
 			...makeSquad("s5", FORCE_ID_PLAYER),
 			name: "squad-5",
 			status: SQUAD_STATUS.IDLE,
-			position: boardVec(3, 3)
+			position: vec2(3, 3)
 		},
 	],
 	cities: [],

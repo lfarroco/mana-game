@@ -1,4 +1,4 @@
-import { BoardVec, boardVec } from "./Misc";
+import { Vec2, vec2 } from "./Misc";
 
 export type SquadStatus = "MOVING" | "ENGAGED" | "RETREATING" | "DESTROYED" | "IDLE"
 
@@ -11,12 +11,12 @@ export const SQUAD_STATUS: Record<SquadStatus, SquadStatus> = {
 }
 
 export type Squad = {
-	path: BoardVec[]
+	path: Vec2[]
 	id: string,
 	name: string,
 	job: string,
 	force: string,
-	position: BoardVec,
+	position: Vec2,
 	status: SquadStatus,
 
 	// stats
@@ -38,7 +38,7 @@ export const makeSquad = (id: string, force: string): Squad => ({
 	name: "",
 	job: "knight",
 	force,
-	position: boardVec(0, 0),
+	position: vec2(0, 0),
 	path: [],
 	status: SQUAD_STATUS.IDLE,
 
