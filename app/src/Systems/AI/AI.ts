@@ -1,5 +1,5 @@
 import { FORCE_ID_CPU } from "../../Models/Force";
-import { eqVec2 } from "../../Models/Misc";
+import { eqVec2 } from "../../Models/Geometry";
 import { emit, events, listeners } from "../../Models/Signals";
 import { SQUAD_STATUS, Squad } from "../../Models/Squad";
 import { getState } from "../../Models/State";

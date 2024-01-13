@@ -1,4 +1,4 @@
-import { vec2 } from "../../../Models/Misc";
+import { vec2 } from "../../../Models/Geometry";
 import * as Signals from "../../../Models/Signals";
 import { State } from "../../../Models/State";
 

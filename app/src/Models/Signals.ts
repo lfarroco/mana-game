@@ -1,5 +1,5 @@
 import Events from 'events'
-import { Vec2 } from './Misc'
+import { Vec2 } from './Geometry'
 import { Squad } from './Squad'
 import * as IORef from "fp-ts/lib/IORef";
 import * as IO from "fp-ts/lib/IO";

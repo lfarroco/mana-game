@@ -1,4 +1,4 @@
-import { Vec2 } from "../../Models/Misc";
+import { Vec2 } from "../../Models/Geometry";
 import { listeners, events, emit } from "../../Models/Signals";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import moveSquads from "../../Scenes/Battleground/Map/moveSquads";

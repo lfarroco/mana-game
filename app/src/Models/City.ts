@@ -1,5 +1,5 @@
 import * as uuid from "uuid";
-import { Vec2, vec2 } from "./Misc";
+import { Vec2, vec2 } from "./Geometry";
 
 export type City = {
 	id: string,

@@ -1,4 +1,4 @@
-import { eqVec2 } from "../../Models/Misc";
+import { eqVec2 } from "../../Models/Geometry";
 import { emit, events, listeners } from "../../Models/Signals";
 import { SQUAD_STATUS } from "../../Models/Squad";
 import { State } from "../../Models/State";

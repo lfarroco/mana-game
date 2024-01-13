@@ -1,5 +1,5 @@
 import * as Easystar from "easystarjs"
-import { Vec2, asVec2 } from "../../../Models/Misc";
+import { Vec2, asVec2 } from "../../../Models/Geometry";
 import { emit, events, listeners } from "../../../Models/Signals";
 
 

@@ -1,4 +1,4 @@
-import { Vec2, eqVec2 } from "../../Models/Misc";
+import { Vec2, eqVec2 } from "../../Models/Geometry";
 import { emit, events, listeners } from "../../Models/Signals";
 import { State } from "../../Models/State";
 

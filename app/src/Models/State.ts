@@ -1,7 +1,7 @@
 import { Engagement } from "../Systems/Engagement/Engagement";
 import { City } from "./City";
 import { FORCE_ID_PLAYER, Force, makeForce } from "./Force";
-import { vec2 } from "./Misc";
+import { vec2 } from "./Geometry";
 import { SQUAD_STATUS, Squad, makeSquad } from "./Squad";
 
 export const initialState = (): State => ({
