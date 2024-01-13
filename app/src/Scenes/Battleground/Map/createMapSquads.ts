@@ -1,4 +1,4 @@
-import { Chara, createChara } from "../../../Components/chara";
+import { Chara, createChara } from "../../../Components/Chara";
 import { getState } from "../../../Models/State";
 import BattlegroundScene from "../BattlegroundScene";
 import { SQUAD_STATUS } from "../../../Models/Squad";

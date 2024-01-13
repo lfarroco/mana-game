@@ -5,7 +5,7 @@ import { SQUAD_STATUS } from "../../Models/Squad";
 import { State } from "../../Models/State";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
-import { removeEmote } from "../../Components/chara";
+import { removeEmote } from "../../Components/Chara";
 import * as uuid from "uuid"
 
 export type Engagement = {

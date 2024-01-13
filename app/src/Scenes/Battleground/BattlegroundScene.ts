@@ -12,7 +12,7 @@ import moveSquads from "./Map/moveSquads";
 import { faceDirection } from "../../Models/Direction";
 import { getDirection } from "../../Models/Direction";
 import { BoardVec, asBoardVec, boardVec } from "../../Models/Misc";
-import { Chara, createChara, removeEmote } from "../../Components/chara";
+import { Chara, createChara, removeEmote } from "../../Components/Chara";
 import { emit, events, listeners } from "../../Models/Signals";
 import { State, getState, updateSquad } from "../../Models/State";
 import { TILE_HEIGHT, TILE_WIDTH } from "./constants";
