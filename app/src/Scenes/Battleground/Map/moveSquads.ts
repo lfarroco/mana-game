@@ -10,30 +10,14 @@ import { TURN_DURATION } from "../../../config";
 const TURNS_TO_MOVE = 3;
 const moveSquads = (scene: BattlegroundScene) => {
 
+	checkAgrooRange(scene);
+
 	checkCombat(scene)
 
 	scene.state.squads
 		.filter(s => s.status === SQUAD_STATUS.MOVING)
 		.filter(s => s.path.length > 0)
 		.forEach(squad => {
-
-			const enemiesNearby = getEnemiesNearby(scene, squad)
-
-			if (enemiesNearby.length > 0) {
-				// face enemy
-
-				const enemy = enemiesNearby[0]
-				const direction = getDirection(squad.position, enemy.position)
-
-				const enemyChara = scene.charas.find(c => c.id === squad.id)
-				if (!enemyChara) return;
-				faceDirection(direction, enemyChara);
-
-				emit(events.UPDATE_SQUAD, squad.id, {
-					status: SQUAD_STATUS.ATTACKING
-				})
-				return;
-			}
 
 			const chara = scene.charas.find(c => c.id === squad.id)
 			if (!chara) return;
@@ -134,6 +118,22 @@ const moveSquads = (scene: BattlegroundScene) => {
 		});
 }
 
+function checkAgrooRange(scene: BattlegroundScene) {
+	scene.state.squads
+		.filter(s => s.status === SQUAD_STATUS.MOVING)
+		.filter(s => s.path.length > 0)
+		.forEach(squad => {
+
+			const enemiesNearby = getEnemiesNearby(scene, squad);
+
+			if (enemiesNearby.length > 0) {
+				emit(events.UPDATE_SQUAD, squad.id, {
+					status: SQUAD_STATUS.ATTACKING
+				});
+			}
+		});
+}
+
 function getEnemiesNearby(scene: BattlegroundScene, squad: Squad) {
 	return scene.state.squads.filter(sqd => sqd.force !== squad.force).filter(
 		sqd => eqVec2(sqd.position, vec2(
@@ -166,8 +166,17 @@ function checkCombat(scene: BattlegroundScene) {
 			if (enemiesNearby.length > 0) {
 
 				const enemy = enemiesNearby[0]
+
+				const chara = scene.charas.find(c => c.id === squad.id)
+				if (!chara) return;
+
+				const eChara = scene.charas.find(c => c.id === squad.id)
+				if (!eChara) return;
+				faceDirection(getDirection(squad.position, enemy.position), eChara)
+
+				chara.emote?.setVisible(true)
+				chara.emote?.setTint(0xff0000)
 				attack(squad, enemy);
-				return;
 			} else if (squad.path.length === 0) {
 				emit(events.UPDATE_SQUAD, squad.id, {
 					status: SQUAD_STATUS.IDLE
