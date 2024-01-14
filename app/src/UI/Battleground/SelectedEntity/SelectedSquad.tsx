@@ -21,9 +21,6 @@ const SelectedSquad = ({
 		if (squad.status === SQUAD_STATUS.MOVING)
 			return "Moving"
 
-		if (squad.status === SQUAD_STATUS.RETREATING)
-			return "Retreating"
-
 		if (squad.status === SQUAD_STATUS.IDLE)
 			return "Idle"
 		else

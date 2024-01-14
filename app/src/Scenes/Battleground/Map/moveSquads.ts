@@ -4,14 +4,16 @@ import { emit, events } from "../../../Models/Signals";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { DIRECTIONS, getDirection } from "../../../Models/Direction";
 import { faceDirection } from "../../../Models/Direction";
-import { SQUAD_STATUS } from "../../../Models/Squad";
+import { SQUAD_STATUS, Squad } from "../../../Models/Squad";
 import { TURN_DURATION } from "../../../config";
 
 const TURNS_TO_MOVE = 3;
 const moveSquads = (scene: BattlegroundScene) => {
 
+	checkCombat(scene)
+
 	scene.state.squads
-		.filter(s => s.status === SQUAD_STATUS.MOVING || s.status === SQUAD_STATUS.RETREATING)
+		.filter(s => s.status === SQUAD_STATUS.MOVING)
 		.filter(s => s.path.length > 0)
 		.forEach(squad => {
 
@@ -26,17 +28,7 @@ const moveSquads = (scene: BattlegroundScene) => {
 
 			faceDirection(direction, chara);
 
-			const maybeEnemy = scene.state.squads
-				.filter(sqd => sqd.force !== squad.force)
-				.filter(sqd => sqd.status !== SQUAD_STATUS.RETREATING)
-				.filter(sqd => eqVec2(sqd.position, asVec2(nextTile)))
 
-			if (maybeEnemy.length > 0) {
-
-				emit(events.ENGAGEMENT_START, squad.id, vec2(nextTile.x, nextTile.y))
-
-				return;
-			}
 
 			const walked = chara.sprite.getData("walk") || 0
 
@@ -82,7 +74,7 @@ const moveSquads = (scene: BattlegroundScene) => {
 					// as the callback can mess up with the turn system
 
 					const next = squad.path[0];
-					if (next) {
+					if (next && squad.path.length > 1) {
 
 						const nextDirection = getDirection(asVec2(next), squad.position)
 
@@ -105,8 +97,18 @@ const moveSquads = (scene: BattlegroundScene) => {
 
 			chara.sprite.setData("walk", 0)
 
+			const maybeEnemy = scene.state.squads
+				.filter(sqd => sqd.force !== squad.force)
+				.filter(sqd => eqVec2(sqd.position, asVec2(nextTile)))
+
+			if (maybeEnemy.length > 0) {
+
+
+				return;
+			}
+
 			if (path.length === 0) {
-				if (squad.status === SQUAD_STATUS.MOVING || squad.status === SQUAD_STATUS.RETREATING) {
+				if (squad.status === SQUAD_STATUS.MOVING) {
 					emit(events.UPDATE_SQUAD, squad.id, {
 						status: SQUAD_STATUS.IDLE
 					})
@@ -114,6 +116,10 @@ const moveSquads = (scene: BattlegroundScene) => {
 			}
 
 		});
+}
+
+function checkCombat(scene: BattlegroundScene) {
+
 }
 
 export default moveSquads
