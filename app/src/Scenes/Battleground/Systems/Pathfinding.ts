@@ -1,20 +1,37 @@
 import * as Easystar from "easystarjs"
 import { Vec2, asVec2 } from "../../../Models/Geometry";
 import { emit, events, listeners } from "../../../Models/Signals";
+import { getState } from "../../../Models/State";
 
 
 export function init(grid: number[][]) {
 
-	const easystar = new Easystar.js();
-
-	easystar.setAcceptableTiles([0]);
-
-	easystar.setGrid(grid);
 
 	listeners([
 		[events.LOOKUP_PATH, (key: string, source: Vec2, target: Vec2) => {
 
+			const easystar = new Easystar.js();
+			easystar.setAcceptableTiles([0]);
+			easystar.setGrid(grid);
+
+			const state = getState()
+
+			const otherSquads = state.squads.filter(s => s.id !== key)
+
+			// make tile with othersquads unwalkable
+
+			otherSquads.forEach(squad => {
+				//this doesn't work
+				//easystar.setTileCost(squad.position.x, squad.position.y, 99)
+
+				//this works
+				easystar.avoidAdditionalPoint(squad.position.x, squad.position.y)
+			})
+
+
 			easystar.findPath(source.x, source.y, target.x, target.y, path => {
+
+				if (!path) return;
 
 				const path_ = path.map(asVec2);
 				emit(events.PATH_FOUND, key, path_);

@@ -88,7 +88,6 @@ export class BattlegroundScene extends Phaser.Scene {
           return
         }
 
-
         // in case of choosing own cell
         if (path_.length === 0) {
 
@@ -97,24 +96,19 @@ export class BattlegroundScene extends Phaser.Scene {
             emit(events.UPDATE_SQUAD, squad.id, { status: SQUAD_STATUS.IDLE })
           }
 
-          const chara = this.charas.find(c => c.id === squad.id);
-          if (chara) removeEmote(chara)
+          // const chara = this.charas.find(c => c.id === squad.id);
+          // if (chara) removeEmote(chara)
 
           return
 
+        } else {
+
+          const path = path_.slice(1)
+          emit(events.UPDATE_SQUAD, squad.id, { path })
+          emit(events.UPDATE_SQUAD, squad.id, { status: SQUAD_STATUS.MOVING })
+
         }
 
-        const path = path_.slice(1)
-
-        emit(events.UPDATE_SQUAD, squad.id, { path })
-        emit(events.UPDATE_SQUAD, squad.id, { status: SQUAD_STATUS.MOVING })
-
-        const chara = this.charas.find(c => c.id === squad.id);
-
-        if (chara) {
-          const direction = getDirection(squad.position, path[0])
-          faceDirection(direction, chara)
-        }
       }
       ], [
         events.BATTLEGROUND_TICK, () => {
