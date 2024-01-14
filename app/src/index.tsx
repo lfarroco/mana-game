@@ -3,7 +3,6 @@ import events from 'events';
 import BattlegroundScene from "./Scenes/Battleground/BattlegroundScene";
 import { State, initialState } from './Models/State';
 import { UI } from './UI/UI';
-import * as UnitCounter from './Scenes/Battleground/Systems/UnitCounter';
 
 const eventEmitter = new events.EventEmitter();
 
@@ -42,5 +41,3 @@ window.addEventListener('resize', () => {
 });
 
 UI();
-
-UnitCounter.init(state)

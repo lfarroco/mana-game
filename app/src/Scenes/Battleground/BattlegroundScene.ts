@@ -16,7 +16,6 @@ import { Chara, createChara, removeEmote } from "../../Components/Chara";
 import { emit, events, listeners } from "../../Models/Signals";
 import { State, getState, updateSquad } from "../../Models/State";
 import { TILE_HEIGHT, TILE_WIDTH } from "./constants";
-import * as EngagementSystem from "../../Systems/Engagement/Engagement";
 import * as CombatSystem from "../../Systems/Combat/Combat";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
 import * as MoraleRegen from "../../Systems/MoraleRegen/MoraleRegen";
@@ -53,8 +52,8 @@ export class BattlegroundScene extends Phaser.Scene {
     super("BattlegroundScene");
 
     listeners([
-      [events.PAUSE_PHYSICS, this.pauseGame],
-      [events.RESUME_PHYSICS, this.resumeGame],
+      [events.PAUSE_GAME, this.pauseGame],
+      [events.RESUME_GAME, this.resumeGame],
       [events.SQUAD_SELECTED, this.selectSquad],
       [events.CITY_SELECTED, this.selectCity],
       [events.SELECT_SQUAD_MOVE_START, () => { this.isSelectingSquadMove = true }],
@@ -113,14 +112,10 @@ export class BattlegroundScene extends Phaser.Scene {
         const chara = this.charas.find(c => c.id === squad.id);
 
         if (chara) {
-          const direction = getDirection(asVec2(path[0]), squad.position)
+          const direction = getDirection(squad.position, path[0])
           faceDirection(direction, chara)
         }
       }
-      ], [
-        events.UPDATE_UNIT_COUNTER, (count: number, vec: Vec2) => {
-          this.updateUnitCounter(count, vec)
-        }
       ], [
         events.BATTLEGROUND_TICK, () => {
           const orphanCounters = this.counters.filter(c =>
@@ -135,7 +130,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.state = getState()
 
-    EngagementSystem.init(this, this.state)
     CombatSystem.init(this.state)
     MoraleRegen.init(this.state)
     StaminaRegen.init(this.state)

@@ -15,7 +15,7 @@ const SelectedSquad = ({
 	const isPlayerControlled = squad.force === FORCE_ID_PLAYER
 
 	const getStatus = () => {
-		if (squad.status === SQUAD_STATUS.ENGAGED)
+		if (squad.status === SQUAD_STATUS.ATTACKING)
 			return "Engaged"
 
 		if (squad.status === SQUAD_STATUS.MOVING)

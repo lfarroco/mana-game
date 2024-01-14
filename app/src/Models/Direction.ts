@@ -11,9 +11,9 @@ export const DIRECTIONS: Record<Direction, Direction> = {
 }
 
 // TODO: invert params
-export function getDirection(nextTile: Vec2, current: Vec2): Direction {
-	const dx = nextTile.x - current.x;
-	const dy = nextTile.y - current.y;
+export function getDirection(source: Vec2, target: Vec2): Direction {
+	const dx = target.x - source.x;
+	const dy = target.y - source.y;
 
 	if (dx === 1) return DIRECTIONS.right;
 	if (dx === -1) return DIRECTIONS.left;

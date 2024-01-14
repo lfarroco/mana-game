@@ -26,24 +26,6 @@ const testState: State = {
 	squads: [
 		...initialState().squads,
 		enemySquad1,
-	],
-	engagements: [
-		{
-			id: "1",
-			startTick: 0,
-			endTick: Infinity,
-			sprite: (null as any),
-			attacker: {
-				id: "s1",
-				buffs: []
-			},
-			defender: {
-				id: "enemy1",
-				buffs: [],
-			},
-			log: [],
-			finished: false
-		}
 	]
 };
 

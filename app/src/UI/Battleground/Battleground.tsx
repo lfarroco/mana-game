@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import { listeners, events, emit, emit_ } from "../../Models/Signals"
 import DispatchSquadModal from './DispatchSquadModal/DispatchSquadModal';
 import VictoryModal from './VictoryModal/VictoryModal';
-import EngagementModal from './EngagementModal/EngagementModal';
 import SelectionHUD from './SelectionHUD';
 
 const Battleground = () => {
@@ -20,8 +19,8 @@ const Battleground = () => {
     console.log("Battleground mounted");
     listeners(
       [
-        [events.PAUSE_PHYSICS, () => { setPaused(true); }],
-        [events.RESUME_PHYSICS, () => { setPaused(false); }],
+        [events.PAUSE_GAME, () => { setPaused(true); }],
+        [events.RESUME_GAME, () => { setPaused(false); }],
         [events.SELECT_SQUAD_MOVE_START, () => { setIsSelectingMoveTarget(true); }],
         [events.SELECT_SQUAD_MOVE_DONE, () => { setIsSelectingMoveTarget(false); }],
         [events.SELECT_SQUAD_MOVE_CANCEL, () => { setIsSelectingMoveTarget(false); }],
@@ -39,12 +38,6 @@ const Battleground = () => {
               Quests
             </Button>
             <Button
-              onClick={emit_(events.TOGGLE_ENGAGEMENT_WINDOW, true, "")}
-              className="btn btn-secondary col-12"
-            >
-              Engagements
-            </Button>
-            <Button
               onClick={emit_(events.TOGGLE_SQUADS_WINDOW, true)}
               className="btn btn-secondary col-12"
             >
@@ -57,9 +50,9 @@ const Battleground = () => {
             <Button
               onClick={(e) => {
                 if (isPaused) {
-                  emit(events.RESUME_PHYSICS)
+                  emit(events.RESUME_GAME)
                 } else {
-                  emit(events.PAUSE_PHYSICS)
+                  emit(events.PAUSE_GAME)
                 }
               }}
             >
@@ -92,7 +85,6 @@ const Battleground = () => {
       <DispatchSquadModal />
 
       <VictoryModal />
-      <EngagementModal />
     </>
   );
 }

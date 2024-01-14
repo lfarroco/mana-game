@@ -17,6 +17,24 @@ const moveSquads = (scene: BattlegroundScene) => {
 		.filter(s => s.path.length > 0)
 		.forEach(squad => {
 
+			const enemiesNearby = getEnemiesNearby(scene, squad)
+
+			if (enemiesNearby.length > 0) {
+				// face enemy
+
+				const enemy = enemiesNearby[0]
+				const direction = getDirection(squad.position, enemy.position)
+
+				const enemyChara = scene.charas.find(c => c.id === squad.id)
+				if (!enemyChara) return;
+				faceDirection(direction, enemyChara);
+
+				emit(events.UPDATE_SQUAD, squad.id, {
+					status: SQUAD_STATUS.ATTACKING
+				})
+				return;
+			}
+
 			const chara = scene.charas.find(c => c.id === squad.id)
 			if (!chara) return;
 			const [next] = squad.path;
@@ -24,11 +42,9 @@ const moveSquads = (scene: BattlegroundScene) => {
 			const nextTile = scene.layers?.background.getTileAt(next.x, next.y);
 			if (!nextTile) return;
 
-			const direction = getDirection(asVec2(next), squad.position)
+			const direction = getDirection(squad.position, next)
 
 			faceDirection(direction, chara);
-
-
 
 			const walked = chara.sprite.getData("walk") || 0
 
@@ -76,7 +92,7 @@ const moveSquads = (scene: BattlegroundScene) => {
 					const next = squad.path[0];
 					if (next && squad.path.length > 1) {
 
-						const nextDirection = getDirection(asVec2(next), squad.position)
+						const nextDirection = getDirection(squad.position, next)
 
 						faceDirection(nextDirection, chara);
 
@@ -118,10 +134,61 @@ const moveSquads = (scene: BattlegroundScene) => {
 		});
 }
 
-function checkCombat(scene: BattlegroundScene) {
+function getEnemiesNearby(scene: BattlegroundScene, squad: Squad) {
+	return scene.state.squads.filter(sqd => sqd.force !== squad.force).filter(
+		sqd => eqVec2(sqd.position, vec2(
+			squad.position.x + 1,
+			squad.position.y
+		)) ||
+			eqVec2(sqd.position, vec2(
+				squad.position.x - 1,
+				squad.position.y
+			)) ||
+			eqVec2(sqd.position, vec2(
+				squad.position.x,
+				squad.position.y + 1
+			)) ||
+			eqVec2(sqd.position, vec2(
+				squad.position.x,
+				squad.position.y - 1
+			)
+			));
+}
 
+function checkCombat(scene: BattlegroundScene) {
+	scene.state.squads
+		.filter(s => s.status === SQUAD_STATUS.ATTACKING)
+		.filter(s => s.path.length > 0)
+		.forEach(squad => {
+
+			const enemiesNearby = getEnemiesNearby(scene, squad)
+
+			if (enemiesNearby.length > 0) {
+
+				const enemy = enemiesNearby[0]
+				attack(squad, enemy);
+				return;
+			} else if (squad.path.length === 0) {
+				emit(events.UPDATE_SQUAD, squad.id, {
+					status: SQUAD_STATUS.IDLE
+				})
+			} else {
+				emit(events.UPDATE_SQUAD, squad.id, {
+					status: SQUAD_STATUS.MOVING
+				})
+			}
+		});
 }
 
 export default moveSquads
 
+
+function attack(squad: Squad, enemy: Squad) {
+	emit(events.ATTACK, squad.id, enemy.id);
+	const newStamina = enemy.stamina - 9 < 0 ? 0 : enemy.stamina - 9;
+	emit(events.UPDATE_SQUAD, enemy.id, { stamina: newStamina });
+	if (newStamina === 0) {
+		emit(events.SQUAD_DESTROYED, enemy.id);
+	}
+}
 
