@@ -1,4 +1,3 @@
-import { Engagement } from "../Systems/Engagement/Engagement";
 import { City } from "./City";
 import { FORCE_ID_PLAYER, Force, makeForce } from "./Force";
 import { vec2 } from "./Geometry";
@@ -46,7 +45,6 @@ export const initialState = (): State => ({
 	],
 	cities: [],
 	selectedEntity: null,
-	engagements: [],
 	map: {
 		width: 128,
 		height: 128
@@ -73,7 +71,6 @@ export type State = {
 	grid: number[][];
 	cities: City[];
 	selectedEntity: null | { type: string, id: string };
-	engagements: Engagement[],
 	map: {
 		width: number;
 		height: number;
@@ -102,9 +99,7 @@ export const addCity = (s: State) => (city: City) => {
 	s.cities.push(city)
 }
 
-export const addEngagement = (s: State) => (engagement: Engagement) => {
-	s.engagements.push(engagement)
-}
+
 
 export const updateSquad = (s: State) => (id: string) => (sqd: Partial<Squad>) => {
 	const squad = s.squads.find(sqd => sqd.id === id)

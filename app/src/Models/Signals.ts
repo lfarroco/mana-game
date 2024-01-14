@@ -5,8 +5,8 @@ import * as IORef from "fp-ts/lib/IORef";
 import * as IO from "fp-ts/lib/IO";
 
 export type Signals = {
-	PAUSE_PHYSICS: () => void
-	RESUME_PHYSICS: () => void
+	PAUSE_GAME: () => void
+	RESUME_GAME: () => void
 	SQUAD_SELECTED: (squadId: string) => void
 	MULTIPLE_SQUADS_SELECTED: (squadIds: string[]) => void
 	CITY_SELECTED: (cityId: string) => void
@@ -19,22 +19,19 @@ export type Signals = {
 	SKIRMISH_STARTED: (squadId1: string, squadId2: string) => void
 	SKIRMISH_ENDED: (winner: string, loser: string) => void,
 	TOGGLE_SQUADS_WINDOW: (value: boolean) => void,
-	TOGGLE_ENGAGEMENT_WINDOW: (value: boolean, id: string) => void,
 	BATTLEGROUND_TICK: (tick: number) => void,
 	// TODO: have a parent level for the system
-	ENGAGEMENT_START: (attacker: string, targetCell: Vec2) => any,
+	ATTACK: (attacker: string, defender: string) => any,
 	UPDATE_SQUAD: (squadId: string, sqd: Partial<Squad>) => any,
 	SQUAD_DESTROYED: (squadId: string) => any,
 	FORCE_VICTORY: (force: string) => void,
 	CAPTURE_CITY: (squadId: string, cityId: string) => void,
-	FINISH_ENGAGEMENT: (id: string) => void,
 	SQUAD_WALKS_TOWARDS_CELL: (squadId: string, vec: Vec2) => void,
 	SQUAD_LEAVES_CELL: (squadId: string, vec: Vec2) => void,
 	SQUAD_MOVED_INTO_CELL: (squadId: string, vec: Vec2) => void,
 	UPDATE_SQUAD_COUNTER: (count: number, vec: Vec2) => void, // TODO: not implemented yet
 	LOOKUP_PATH: (key: string, source: Vec2, target: Vec2) => void,
 	PATH_FOUND: (key: string, path: Vec2[]) => void,
-	UPDATE_UNIT_COUNTER: (count: number, vec: Vec2) => void,
 }
 
 export type Operation = [keyof Signals, ...Parameters<Signals[keyof Signals]>]
@@ -45,8 +42,8 @@ export const adddOperation = (operations: IO.IO<IORef.IORef<Operation[]>>, op: O
 )()
 
 export const events: { [key in keyof Signals]: keyof Signals } = {
-	PAUSE_PHYSICS: "PAUSE_PHYSICS",
-	RESUME_PHYSICS: "RESUME_PHYSICS",
+	PAUSE_GAME: "PAUSE_GAME",
+	RESUME_GAME: "RESUME_GAME",
 	SELECT_SQUAD_MOVE_START: "SELECT_SQUAD_MOVE_START",
 	SELECT_SQUAD_MOVE_DONE: "SELECT_SQUAD_MOVE_DONE",
 	SELECT_SQUAD_MOVE_CANCEL: "SELECT_SQUAD_MOVE_CANCEL",
@@ -60,20 +57,17 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
 	SKIRMISH_ENDED: "SKIRMISH_ENDED",
 	TOGGLE_SQUADS_WINDOW: "TOGGLE_SQUADS_WINDOW",
 	BATTLEGROUND_TICK: "BATTLEGROUND_TICK",
-	ENGAGEMENT_START: "ENGAGEMENT_START",
+	ATTACK: "ATTACK",
 	UPDATE_SQUAD: "UPDATE_SQUAD",
 	SQUAD_DESTROYED: "SQUAD_DESTROYED",
 	FORCE_VICTORY: "FORCE_VICTORY",
 	CAPTURE_CITY: "CAPTURE_CITY",
-	TOGGLE_ENGAGEMENT_WINDOW: "TOGGLE_ENGAGEMENT_WINDOW",
-	FINISH_ENGAGEMENT: "FINISH_ENGAGEMENT",
 	SQUAD_WALKS_TOWARDS_CELL: "SQUAD_WALKS_TOWARDS_CELL",
 	SQUAD_LEAVES_CELL: "SQUAD_LEAVES_CELL",
 	SQUAD_MOVED_INTO_CELL: "SQUAD_MOVED_INTO_CELL",
 	UPDATE_SQUAD_COUNTER: "UPDATE_SQUAD_COUNTER",
 	LOOKUP_PATH: "LOOKUP_PATH",
 	PATH_FOUND: "PATH_FOUND",
-	UPDATE_UNIT_COUNTER: "UPDATE_UNIT_COUNTER",
 }
 
 export const listen = <T extends keyof Signals>(
@@ -123,8 +117,8 @@ export const listeners = <T extends keyof Signals>(
 }
 
 export const operations: { [key in keyof Signals]: (...args: Parameters<Signals[key]>) => Operation } = {
-	PAUSE_PHYSICS: () => [events.PAUSE_PHYSICS],
-	RESUME_PHYSICS: () => [events.RESUME_PHYSICS],
+	PAUSE_GAME: () => [events.PAUSE_GAME],
+	RESUME_GAME: () => [events.RESUME_GAME],
 	SELECT_SQUAD_MOVE_START: (sqdId: string) => [events.SELECT_SQUAD_MOVE_START, sqdId],
 	SELECT_SQUAD_MOVE_DONE: (sqdId: string, target: Vec2) => [events.SELECT_SQUAD_MOVE_DONE, sqdId, target],
 	SELECT_SQUAD_MOVE_CANCEL: (sqdId: string) => [events.SELECT_SQUAD_MOVE_CANCEL, sqdId],
@@ -138,7 +132,7 @@ export const operations: { [key in keyof Signals]: (...args: Parameters<Signals[
 	SKIRMISH_ENDED: (winner: string, loser: string) => [events.SKIRMISH_ENDED, winner, loser],
 	TOGGLE_SQUADS_WINDOW: (value: boolean) => [events.TOGGLE_SQUADS_WINDOW, value],
 	BATTLEGROUND_TICK: (tick: number) => [events.BATTLEGROUND_TICK, tick],
-	ENGAGEMENT_START: (attacker: string, targetCell: Vec2) => [events.ENGAGEMENT_START, attacker, targetCell],
+	ATTACK: (attacker: string, defender: string) => [events.ATTACK, attacker, defender],
 	UPDATE_SQUAD: (squadId: string, sqd: Partial<Squad>) => {
 
 		if (Object.keys(sqd).length !== 1) throw new Error("UPDATE_SQUAD only accepts one key to be updated")
@@ -149,15 +143,12 @@ export const operations: { [key in keyof Signals]: (...args: Parameters<Signals[
 	SQUAD_DESTROYED: (squadId: string) => [events.SQUAD_DESTROYED, squadId],
 	FORCE_VICTORY: (force: string) => [events.FORCE_VICTORY, force],
 	CAPTURE_CITY: (squadId: string, cityId: string) => [events.CAPTURE_CITY, squadId, cityId],
-	TOGGLE_ENGAGEMENT_WINDOW: (value: boolean, id: string) => [events.TOGGLE_ENGAGEMENT_WINDOW, value, id],
-	FINISH_ENGAGEMENT: (id: string) => [events.FINISH_ENGAGEMENT, id],
 	SQUAD_WALKS_TOWARDS_CELL: (squadId: string, vec: Vec2) => [events.SQUAD_WALKS_TOWARDS_CELL, squadId, vec],
 	SQUAD_LEAVES_CELL: (squadId: string, vec: Vec2) => [events.SQUAD_LEAVES_CELL, squadId, vec],
 	SQUAD_MOVED_INTO_CELL: (squadId: string, vec: Vec2) => [events.SQUAD_MOVED_INTO_CELL, squadId, vec],
 	UPDATE_SQUAD_COUNTER: (count: number, vec: Vec2) => [events.UPDATE_SQUAD_COUNTER, count, vec],
 	LOOKUP_PATH: (key: string, source: Vec2, target: Vec2) => [events.LOOKUP_PATH, key, source, target],
 	PATH_FOUND: (key: string, path: Vec2[]) => [events.PATH_FOUND, key, path],
-	UPDATE_UNIT_COUNTER: (count: number, vec: Vec2) => [events.UPDATE_UNIT_COUNTER, count, vec],
 }
 
 //@ts-ignore

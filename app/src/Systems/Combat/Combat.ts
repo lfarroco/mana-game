@@ -4,7 +4,6 @@ import { SQUAD_STATUS, Squad } from "../../Models/Squad";
 import { State } from "../../Models/State";
 import { moraleDamage } from "./moraleDamage";
 import { staminaDamage } from "./staminaDamage";
-import { Engagement } from "../Engagement/Engagement";
 
 //todo: combat == engagement
 export function init(state: State) {
