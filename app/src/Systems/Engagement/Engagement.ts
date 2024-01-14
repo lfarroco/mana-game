@@ -55,8 +55,7 @@ const engagementStartHandler = (scene: BattlegroundScene, state: State) => (atta
 	const targetCellEnemies = state.squads
 		.filter(sqd =>
 			sqd.force !== attacker.force &&
-			eqVec2(sqd.position, targetCell) &&
-			sqd.status !== SQUAD_STATUS.RETREATING
+			eqVec2(sqd.position, targetCell) 
 		);
 
 	if (targetCellEnemies.length === 0) {
