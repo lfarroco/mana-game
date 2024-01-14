@@ -10,56 +10,73 @@ import { TURN_DURATION } from "../../../config";
 const TURNS_TO_MOVE = 3;
 const moveSquads = (scene: BattlegroundScene) => {
 
-	checkAgrooRange(scene);
+	checkEnemiesInRange(scene);
 
 	checkCombat(scene)
 
+	moveStep(scene);
+
+	checkDestroyed(scene);
+
+	checkIdle(scene);
+
+	updatePath(scene)
+
+	cleanupEmotes(scene);
+
+}
+
+function moveStep(scene: BattlegroundScene) {
 	scene.state.squads
 		.filter(s => s.status === SQUAD_STATUS.MOVING)
 		.filter(s => s.path.length > 0)
 		.forEach(squad => {
 
-			const chara = scene.charas.find(c => c.id === squad.id)
+			const chara = scene.charas.find(c => c.id === squad.id);
 			if (!chara) return;
 			const [next] = squad.path;
+
+			const nextHasAlly = scene.state.squads
+				.filter(s => s.force === squad.force)
+				.filter(s => eqVec2(s.position, next))
+				.length > 0;
+
+			if (nextHasAlly) {
+				removeEmote(chara);
+				return;
+			}
 
 			const nextTile = scene.layers?.background.getTileAt(next.x, next.y);
 			if (!nextTile) return;
 
-			const direction = getDirection(squad.position, next)
+			const direction = getDirection(squad.position, next);
+
+			const walked = chara.sprite.getData("walk") || 0;
 
 			faceDirection(direction, chara);
 
-			const walked = chara.sprite.getData("walk") || 0
-
 			chara.sprite.setData("walk", walked + 1);
-			if (chara.emote) {
-				chara.emote.setVisible(true)
-			}
-			if (chara.emoteOverlay) {
-				chara.emoteOverlay.setVisible(true)
-			}
+
 			// reveal the emote as the walked count progresses
 			// acoording to position
 			if (direction === DIRECTIONS.right) {
-				chara.emoteOverlay?.setCrop(0, 0, 32 * (walked / TURNS_TO_MOVE), 32)
+				chara.emoteOverlay?.setCrop(0, 0, 32 * (walked / TURNS_TO_MOVE), 32);
 			} else if (direction === DIRECTIONS.left) {
-				chara.emoteOverlay?.setCrop(32 * (1 - (walked / TURNS_TO_MOVE)), 0, 32, 32)
+				chara.emoteOverlay?.setCrop(32 * (1 - (walked / TURNS_TO_MOVE)), 0, 32, 32);
 			} else if (direction === DIRECTIONS.down) {
-				chara.emoteOverlay?.setCrop(0, 0, 32, 32 * (walked / TURNS_TO_MOVE))
+				chara.emoteOverlay?.setCrop(0, 0, 32, 32 * (walked / TURNS_TO_MOVE));
 			} else if (direction === DIRECTIONS.up) {
-				chara.emoteOverlay?.setCrop(0, 32 * (1 - (walked / TURNS_TO_MOVE)), 32, 32)
+				chara.emoteOverlay?.setCrop(0, 32 * (1 - (walked / TURNS_TO_MOVE)), 32, 32);
 			}
 
-			if (walked < TURNS_TO_MOVE) return
+			if (walked < TURNS_TO_MOVE) return;
 
 			// perform the move
-
 			// check if there's a city here
-			const maybeCity = scene.state.cities.find(c => c.boardPosition.x === nextTile.x && c.boardPosition.y === nextTile.y)
+			const maybeCity = scene.state.cities.find(c => c.boardPosition.x === nextTile.x && c.boardPosition.y === nextTile.y);
 
 			if (maybeCity && maybeCity.force !== squad.force) {
-				emit(events.CAPTURE_CITY, maybeCity.id, squad.force)
+				emit(events.CAPTURE_CITY, maybeCity.id, squad.force);
 			}
 
 			scene.tweens.add({
@@ -72,56 +89,42 @@ const moveSquads = (scene: BattlegroundScene) => {
 				onComplete: () => {
 					// only non impactful actions can be performed here
 					// as the callback can mess up with the turn system
-
 					const next = squad.path[0];
 					if (next && squad.path.length > 1) {
 
-						const nextDirection = getDirection(squad.position, next)
+						const nextDirection = getDirection(squad.position, next);
 
 						faceDirection(nextDirection, chara);
 
 					} else {
-						removeEmote(chara)
+						removeEmote(chara);
 					}
 				}
-			})
+			});
 
-			emit(events.SQUAD_LEAVES_CELL, squad.id, squad.position)
+			emit(events.SQUAD_LEAVES_CELL, squad.id, squad.position);
 
-			const [, ...path] = squad.path
-			emit(events.UPDATE_SQUAD, squad.id, { path })
-			emit(events.UPDATE_SQUAD, squad.id, { position: asVec2(nextTile) })
-			emit(events.SQUAD_MOVED_INTO_CELL, squad.id, asVec2(nextTile))
+			const [, ...path] = squad.path;
+			emit(events.UPDATE_SQUAD, squad.id, { path });
+			emit(events.UPDATE_SQUAD, squad.id, { position: asVec2(nextTile) });
+			emit(events.SQUAD_MOVED_INTO_CELL, squad.id, asVec2(nextTile));
 
-			chara.direction = direction
+			chara.direction = direction;
 
-			chara.sprite.setData("walk", 0)
-
-			const maybeEnemy = scene.state.squads
-				.filter(sqd => sqd.force !== squad.force)
-				.filter(sqd => eqVec2(sqd.position, asVec2(nextTile)))
-
-			if (maybeEnemy.length > 0) {
-
-
-				return;
-			}
+			chara.sprite.setData("walk", 0);
 
 			if (path.length === 0) {
-				if (squad.status === SQUAD_STATUS.MOVING) {
-					emit(events.UPDATE_SQUAD, squad.id, {
-						status: SQUAD_STATUS.IDLE
-					})
-				}
+				emit(events.UPDATE_SQUAD, squad.id, {
+					status: SQUAD_STATUS.IDLE
+				});
 			}
 
 		});
 }
 
-function checkAgrooRange(scene: BattlegroundScene) {
+function checkEnemiesInRange(scene: BattlegroundScene) {
 	scene.state.squads
-		.filter(s => s.status === SQUAD_STATUS.MOVING)
-		.filter(s => s.path.length > 0)
+		.filter(s => s.status === SQUAD_STATUS.MOVING || s.status === SQUAD_STATUS.IDLE)
 		.forEach(squad => {
 
 			const enemiesNearby = getEnemiesNearby(scene, squad);
@@ -129,6 +132,14 @@ function checkAgrooRange(scene: BattlegroundScene) {
 			if (enemiesNearby.length > 0) {
 				emit(events.UPDATE_SQUAD, squad.id, {
 					status: SQUAD_STATUS.ATTACKING
+				});
+			} else if (squad.path.length === 0 && squad.stamina > 0 && squad.status === SQUAD_STATUS.MOVING) {
+				emit(events.UPDATE_SQUAD, squad.id, {
+					status: SQUAD_STATUS.IDLE
+				});
+			} else if (squad.stamina > 0 && squad.path.length > 0 && squad.status === SQUAD_STATUS.IDLE) {
+				emit(events.UPDATE_SQUAD, squad.id, {
+					status: SQUAD_STATUS.MOVING
 				});
 			}
 		});
@@ -158,7 +169,6 @@ function getEnemiesNearby(scene: BattlegroundScene, squad: Squad) {
 function checkCombat(scene: BattlegroundScene) {
 	scene.state.squads
 		.filter(s => s.status === SQUAD_STATUS.ATTACKING)
-		.filter(s => s.path.length > 0)
 		.forEach(squad => {
 
 			const enemiesNearby = getEnemiesNearby(scene, squad)
@@ -176,12 +186,13 @@ function checkCombat(scene: BattlegroundScene) {
 
 				chara.emote?.setVisible(true)
 				chara.emote?.setTint(0xff0000)
+				chara.emote?.play(chara.emote?.texture.key, true)
 				attack(squad, enemy);
-			} else if (squad.path.length === 0) {
+			} else if (squad.path.length === 0 && squad.stamina > 0) {
 				emit(events.UPDATE_SQUAD, squad.id, {
 					status: SQUAD_STATUS.IDLE
 				})
-			} else {
+			} else if (squad.stamina > 0) {
 				emit(events.UPDATE_SQUAD, squad.id, {
 					status: SQUAD_STATUS.MOVING
 				})
@@ -196,8 +207,56 @@ function attack(squad: Squad, enemy: Squad) {
 	emit(events.ATTACK, squad.id, enemy.id);
 	const newStamina = enemy.stamina - 9 < 0 ? 0 : enemy.stamina - 9;
 	emit(events.UPDATE_SQUAD, enemy.id, { stamina: newStamina });
-	if (newStamina === 0) {
-		emit(events.SQUAD_DESTROYED, enemy.id);
-	}
 }
 
+function checkDestroyed(scene: BattlegroundScene) {
+
+	scene.state.squads
+		.filter(s => s.status !== SQUAD_STATUS.DESTROYED)
+		.forEach(squad => {
+
+			if (squad.stamina === 0) {
+				emit(events.SQUAD_DESTROYED, squad.id);
+			}
+
+		});
+}
+
+function checkIdle(scene: BattlegroundScene) {
+
+	scene.state.squads
+		.filter(s => s.status === SQUAD_STATUS.IDLE)
+		.forEach(squad => {
+
+			const chara = scene.charas.find(c => c.id === squad.id)
+
+			chara?.emote?.setVisible(false)
+			chara?.emoteOverlay?.setVisible(false)
+
+		});
+}
+
+function updatePath(scene: BattlegroundScene) {
+
+	scene.state.squads
+		.filter(s => s.status === SQUAD_STATUS.MOVING)
+		.forEach(squad => {
+			emit(events.LOOKUP_PATH, squad.id, squad.position, squad.path[squad.path.length - 1]);
+		});
+
+}
+
+function cleanupEmotes(scene: BattlegroundScene) {
+
+	scene.state.squads
+		.filter(s => s.status === SQUAD_STATUS.IDLE)
+		.forEach(squad => {
+
+			const chara = scene.charas.find(c => c.id === squad.id)
+			if (!chara) return;
+
+			chara.emote?.destroy()
+
+		});
+
+}
