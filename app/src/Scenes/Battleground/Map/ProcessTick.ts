@@ -128,7 +128,7 @@ function moveStep(scene: BattlegroundScene) {
 
 function checkEnemiesInRange(scene: BattlegroundScene) {
 	scene.state.squads
-		.filter(s => s.status === SQUAD_STATUS.MOVING || s.status === SQUAD_STATUS.IDLE)
+		.filter(s => s.status === SQUAD_STATUS.ATTACK_MOVE || s.status === SQUAD_STATUS.IDLE)
 		.forEach(squad => {
 
 			const enemiesNearby = getEnemiesNearby(scene, squad);

@@ -1,9 +1,10 @@
 import { Vec2, vec2 } from "./Geometry";
 
-export type SquadStatus = "MOVING" | "ATTACKING" | "DESTROYED" | "IDLE"
+export type SquadStatus = "MOVING" | "ATTACK_MOVE" | "ATTACKING" | "DESTROYED" | "IDLE"
 
 export const SQUAD_STATUS: Record<SquadStatus, SquadStatus> = {
 	MOVING: "MOVING",
+	ATTACK_MOVE: "ATTACK_MOVE",
 	ATTACKING: "ATTACKING",
 	DESTROYED: "DESTROYED",
 	IDLE: "IDLE"
