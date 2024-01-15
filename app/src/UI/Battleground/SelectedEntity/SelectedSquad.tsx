@@ -47,12 +47,6 @@ const SelectedSquad = ({
 				}
 			</div>
 			<div>
-				Morale:
-				{
-					squad.morale
-				}
-			</div>
-			<div>
 				Stamina:
 				{
 					squad.stamina

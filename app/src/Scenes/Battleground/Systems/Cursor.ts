@@ -1,4 +1,4 @@
-import { Chara } from "../../../Components/Chara";
+import { Chara } from "../../../Components/MapChara";
 import { FORCE_ID_PLAYER } from "../../../Models/Force";
 import { events, listeners } from "../../../Models/Signals";
 import BattlegroundScene from "../BattlegroundScene";

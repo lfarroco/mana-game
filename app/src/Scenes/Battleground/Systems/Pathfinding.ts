@@ -1,5 +1,5 @@
 import * as Easystar from "easystarjs"
-import { Vec2, asVec2 } from "../../../Models/Geometry";
+import { Vec2, asVec2, eqVec2 } from "../../../Models/Geometry";
 import { emit, events, listeners } from "../../../Models/Signals";
 import { getState } from "../../../Models/State";
 
@@ -21,10 +21,9 @@ export function init(grid: number[][]) {
 			// make tile with othersquads unwalkable
 
 			otherSquads.forEach(squad => {
-				//this doesn't work
-				//easystar.setTileCost(squad.position.x, squad.position.y, 99)
 
-				//this works
+				//except for target
+				if (eqVec2(squad.position, target)) return;
 				easystar.avoidAdditionalPoint(squad.position.x, squad.position.y)
 			})
 

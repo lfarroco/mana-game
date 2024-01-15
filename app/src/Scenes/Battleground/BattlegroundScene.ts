@@ -8,17 +8,13 @@ import { makeSquadInteractive, makeSquadsInteractive } from "./Map/makeSquadsInt
 import { createCities } from "./Map/createCities";
 import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
 import { SQUAD_STATUS, Squad } from "../../Models/Squad";
-import moveSquads from "./Map/moveSquads";
-import { faceDirection } from "../../Models/Direction";
-import { getDirection } from "../../Models/Direction";
+import processTick from "./Map/ProcessTick";
 import { Vec2, asVec2, vec2 } from "../../Models/Geometry";
-import { Chara, createChara, removeEmote } from "../../Components/Chara";
+import { Chara, createChara } from "../../Components/MapChara";
 import { emit, events, listeners } from "../../Models/Signals";
 import { State, getState, updateSquad } from "../../Models/State";
 import { TILE_HEIGHT, TILE_WIDTH } from "./constants";
-import * as CombatSystem from "../../Systems/Combat/Combat";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
-import * as MoraleRegen from "../../Systems/MoraleRegen/MoraleRegen";
 import * as StaminaRegen from "../../Systems/StaminaRegen/StaminaRegen";
 import * as VictorySystem from "../../Systems/Victory/Victory";
 import { squadDestroyed } from "./Events/SquadDestroyed";
@@ -29,7 +25,6 @@ import * as CursorSystem from "./Systems/Cursor";
 import * as Pathfinding from "./Systems/Pathfinding";
 import * as AISystem from "../../Systems/AI/AI";
 import { TURN_DURATION } from "../../config";
-
 
 export class BattlegroundScene extends Phaser.Scene {
   graphics: Phaser.GameObjects.Graphics | null = null;
@@ -65,7 +60,7 @@ export class BattlegroundScene extends Phaser.Scene {
       }],
       [events.BATTLEGROUND_TICK, (tick: number) => {
         if (!this.isPaused) {
-          moveSquads(this)
+          processTick(this)
         }
       },
       ],
@@ -96,19 +91,13 @@ export class BattlegroundScene extends Phaser.Scene {
             emit(events.UPDATE_SQUAD, squad.id, { status: SQUAD_STATUS.IDLE })
           }
 
-          // const chara = this.charas.find(c => c.id === squad.id);
-          // if (chara) removeEmote(chara)
-
           return
 
         } else {
 
           const path = path_.slice(1)
           emit(events.UPDATE_SQUAD, squad.id, { path })
-          emit(events.UPDATE_SQUAD, squad.id, { status: SQUAD_STATUS.MOVING })
-
         }
-
       }
       ], [
         events.BATTLEGROUND_TICK, () => {
@@ -124,8 +113,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.state = getState()
 
-    CombatSystem.init(this.state)
-    MoraleRegen.init(this.state)
     StaminaRegen.init(this.state)
     squadDestroyed(this)
     VictorySystem.init(this)

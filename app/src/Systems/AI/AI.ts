@@ -42,7 +42,7 @@ function processAttackerActions() {
 				return;
 			}
 
-			if (sqd.status === SQUAD_STATUS.IDLE && sqd.morale >= 50 && sqd.stamina >= 80) {
+			if (sqd.status === SQUAD_STATUS.IDLE && sqd.stamina >= 80) {
 
 				// is currently at a city? if so, wait to recharge all stamina
 				if (eqVec2(closestCity.boardPosition, sqd.position) && sqd.stamina < 100) {
@@ -102,7 +102,7 @@ function processDefenderActions() {
 				return;
 			}
 
-			if (sqd.status === SQUAD_STATUS.IDLE && sqd.morale > 30) {
+			if (sqd.status === SQUAD_STATUS.IDLE) {
 				emit(events.SELECT_SQUAD_MOVE_DONE, sqd.id, closestCity.boardPosition)
 				return;
 			}
