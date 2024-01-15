@@ -183,8 +183,10 @@ function checkCombat(scene: BattlegroundScene) {
 
 				faceDirection(getDirection(squad.position, enemy.position), enemyChara)
 
+				createEmote(chara, "combat-emote")
+
+				//chara.emote?.setTint(0xff0000)
 				chara.emote?.setVisible(true)
-				chara.emote?.setTint(0xff0000)
 
 				attack(squad, enemy);
 
