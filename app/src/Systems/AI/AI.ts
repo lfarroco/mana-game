@@ -3,7 +3,7 @@ import { eqVec2 } from "../../Models/Geometry";
 import { emit, events, listeners } from "../../Models/Signals";
 import { SQUAD_STATUS, Squad } from "../../Models/Squad";
 import { getState } from "../../Models/State";
-import { distanceBetween } from "../../Utils/vec";
+import { distanceBetween } from "../../Models/Geometry";
 
 
 export function init() {
@@ -43,6 +43,7 @@ function processAttackerActions() {
 			}
 
 			if (sqd.status === SQUAD_STATUS.IDLE && sqd.stamina >= 80) {
+				console.log("AI: attacking", sqd.id, closestCity.boardPosition)
 
 				// is currently at a city? if so, wait to recharge all stamina
 				if (eqVec2(closestCity.boardPosition, sqd.position) && sqd.stamina < 100) {
@@ -60,6 +61,8 @@ function processAttackerActions() {
 			}
 
 			if (sqd.status === SQUAD_STATUS.IDLE && sqd.stamina < 80) {
+
+				console.log("AI: moving", sqd.id, closestCity.boardPosition)
 
 
 				//is in an allied city?
@@ -85,13 +88,13 @@ function processDefenderActions() {
 	)
 		.forEach(sqd => {
 			//find closest city
-			const closestCity = state.cities
+			const [closestCity] = state.cities
 				.filter(city => city.force === FORCE_ID_CPU)
 				.sort((a, b) => {
 					const distA = distanceBetween(a.boardPosition)(sqd.position);
 					const distB = distanceBetween(b.boardPosition)(sqd.position);
 					return distA - distB;
-				})[0];
+				});
 
 			if (!closestCity) {
 				console.error("no closest city found");
@@ -103,6 +106,7 @@ function processDefenderActions() {
 			}
 
 			if (sqd.status === SQUAD_STATUS.IDLE) {
+				console.log("AI: moving", sqd.id, closestCity.boardPosition)
 				emit(events.SELECT_SQUAD_MOVE_DONE, sqd.id, closestCity.boardPosition)
 				return;
 			}

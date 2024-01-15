@@ -1,5 +1,10 @@
 
 
-- damage in combat
 - target picking in combat
-- propagate combat results to map screen
+
+- TODO: deselect destroyed units (may lead to movement issued bugs)
+- TODO: adjust rect select for camera scroll
+- TODO: issue move order during combat
+- TODO: refactor and organize code
+- TODO: tests
+- TODO: display ranged attacks (dotted red line?)
