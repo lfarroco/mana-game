@@ -41,15 +41,19 @@ export function init(scene: BattlegroundScene) {
 			selectSquad(scene, squadId, cursors, eventListeners)
 
 		}],
-		[
-			events.MULTIPLE_SQUADS_SELECTED, (squadIds: string[]) => {
+		[events.MULTIPLE_SQUADS_SELECTED, (squadIds: string[]) => {
 
-				clearCursors(cursors, eventListeners, scene);
+			clearCursors(cursors, eventListeners, scene);
 
-				squadIds.forEach(squadId => selectSquad(scene, squadId, cursors, eventListeners))
+			squadIds.forEach(squadId => selectSquad(scene, squadId, cursors, eventListeners))
 
-			}
-		]
+		}],
+		[events.SQUAD_DESTROYED, (squadId: string) => {
+
+			const cursor = cursors[squadId]
+			if (!cursor) return
+			cursor.destroy()
+		}]
 	])
 
 }
