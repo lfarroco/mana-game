@@ -154,24 +154,21 @@ function checkEnemiesInRange(scene: BattlegroundScene) {
 }
 
 function getEnemiesNearby(scene: BattlegroundScene, squad: Squad) {
-	return scene.state.squads.filter(sqd => sqd.force !== squad.force).filter(
-		sqd => eqVec2(sqd.position, vec2(
-			squad.position.x + 1,
-			squad.position.y
-		)) ||
-			eqVec2(sqd.position, vec2(
-				squad.position.x - 1,
-				squad.position.y
-			)) ||
-			eqVec2(sqd.position, vec2(
-				squad.position.x,
-				squad.position.y + 1
-			)) ||
-			eqVec2(sqd.position, vec2(
-				squad.position.x,
-				squad.position.y - 1
-			)
-			));
+	return scene.state.squads
+		.filter(sqd => sqd.force !== squad.force)
+		.filter(sqd => sqd.status !== SQUAD_STATUS.DESTROYED)
+		.filter(
+			sqd =>
+				[
+					[1, 0],
+					[-1, 0],
+					[0, 1],
+					[0, -1],
+				].some(([x, y]) => eqVec2(sqd.position, vec2(
+					squad.position.x + x,
+					squad.position.y + y
+				))))
+
 }
 
 function checkCombat(scene: BattlegroundScene) {
