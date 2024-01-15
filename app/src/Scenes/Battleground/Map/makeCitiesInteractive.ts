@@ -12,8 +12,6 @@ export function makeCitiesInteractive(
 		city.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer, _x: number, _y: number) => {
 			if (pointer.upElement.tagName !== "CANVAS") return;
 
-
-
 			if (
 				scene.state.selectedEntity?.type === "squad" &&
 				(scene.isSelectingSquadMove || pointer.rightButtonReleased())

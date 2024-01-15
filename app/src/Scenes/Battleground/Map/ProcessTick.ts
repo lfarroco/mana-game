@@ -36,12 +36,11 @@ function moveStep(scene: BattlegroundScene) {
 			if (!chara) return;
 			const [next] = squad.path;
 
-			const nextHasAlly = scene.state.squads
-				.filter(s => s.force === squad.force)
+			const nextIsOccupied = scene.state.squads
 				.filter(s => eqVec2(s.position, next))
 				.length > 0;
 
-			if (nextHasAlly) {
+			if (nextIsOccupied) {
 				removeEmote(chara);
 				return;
 			}
@@ -128,12 +127,17 @@ function moveStep(scene: BattlegroundScene) {
 
 function checkEnemiesInRange(scene: BattlegroundScene) {
 	scene.state.squads
-		.filter(s => s.status === SQUAD_STATUS.ATTACK_MOVE || s.status === SQUAD_STATUS.IDLE)
+		.filter(s => s.status === SQUAD_STATUS.ATTACK_MOVE || s.status === SQUAD_STATUS.IDLE || s.status === SQUAD_STATUS.MOVING)
 		.forEach(squad => {
 
 			const enemiesNearby = getEnemiesNearby(scene, squad);
 
-			if (enemiesNearby.length > 0) {
+			if (
+				(enemiesNearby.length > 0 && squad.status !== SQUAD_STATUS.MOVING) ||
+				// force moving, but target is occupied
+				(enemiesNearby.length > 0 && squad.path.length === 1 && squad.status === SQUAD_STATUS.MOVING)
+
+			) {
 				emit(events.UPDATE_SQUAD, squad.id, {
 					status: SQUAD_STATUS.ATTACKING
 				});
