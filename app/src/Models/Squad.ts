@@ -19,8 +19,6 @@ export type Squad = {
 	status: SquadStatus,
 
 	// stats
-	morale: number,
-	maxMorale: number,
 	stamina: number,
 	maxStamina: number,
 	attack: number,
@@ -41,8 +39,6 @@ export const makeSquad = (id: string, force: string): Squad => ({
 	path: [],
 	status: SQUAD_STATUS.IDLE,
 
-	morale: 100,
-	maxMorale: 100,
 	stamina: 100,
 	maxStamina: 100,
 	attack: 10,

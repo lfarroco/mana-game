@@ -54,7 +54,6 @@ const squadTable = (
 	return <Table striped bordered hover size="sm">
 		<thead>
 			<tr>
-				<th>Morale</th>
 				<th>Members</th>
 			</tr>
 		</thead>
@@ -65,10 +64,8 @@ const squadTable = (
 					.map(squad => <tr
 						key={squad.id}
 					>
-						<td className="col-1">
-							{squad.morale}
-						</td>
-						<td className="col-11">
+
+						<td className="col-12">
 							<img
 								key={`squad-${squad.id}`}
 								className={

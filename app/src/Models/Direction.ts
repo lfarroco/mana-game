@@ -1,4 +1,4 @@
-import { Chara, createEmote } from "../Components/Chara";
+import { Chara, createEmote } from "../Components/MapChara";
 import { Vec2 } from "./Geometry";
 
 export type Direction = "up" | "down" | "left" | "right";
@@ -28,7 +28,6 @@ export function faceDirection(direction: Direction, chara: Chara) {
 		createEmote(chara, "arrow-right-emote");
 		chara.sprite.play(chara.job + "-walk-right", true);
 	} else if (direction === DIRECTIONS.left) {
-
 		createEmote(chara, "arrow-left-emote");
 		chara.sprite.play(chara.job + "-walk-left", true);
 	} else if (direction === DIRECTIONS.down) {
@@ -39,4 +38,3 @@ export function faceDirection(direction: Direction, chara: Chara) {
 		chara.sprite.play(chara.job + "-walk-up", true);
 	}
 }
-

@@ -1,4 +1,4 @@
-import { removeEmote } from "../../../Components/Chara";
+import { createEmote, removeEmote } from "../../../Components/MapChara";
 import { vec2, asVec2, eqVec2 } from "../../../Models/Geometry";
 import { emit, events } from "../../../Models/Signals";
 import { BattlegroundScene } from "../BattlegroundScene";
@@ -53,7 +53,11 @@ function moveStep(scene: BattlegroundScene) {
 
 			const walked = chara.sprite.getData("walk") || 0;
 
+
 			faceDirection(direction, chara);
+
+			chara.emote?.setVisible(true)
+			chara.emoteOverlay?.setVisible(true)
 
 			chara.sprite.setData("walk", walked + 1);
 
