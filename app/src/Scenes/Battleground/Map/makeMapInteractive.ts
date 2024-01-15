@@ -3,6 +3,7 @@ import BattlegroundScene from "../BattlegroundScene";
 import { emit, events } from "../../../Models/Signals";
 import { asVec2, vec2 } from "../../../Models/Geometry";
 import { FORCE_ID_PLAYER } from "../../../Models/Force";
+import { SQUAD_STATUS } from "../../../Models/Squad";
 
 export function makeMapInteractive(
 	scene: BattlegroundScene,
@@ -96,9 +97,13 @@ export function makeMapInteractive(
 		const dy = dragY - pointer.downY
 
 		// charas inside selection
-		const charas = scene.charas.filter(chara =>
-			isInside(pointer.downX, pointer.downY, dx, dy, chara.sprite.x, chara.sprite.y)
-		);
+		const charas = scene.charas
+			.filter(c =>
+				scene.state.squads.find(s => s.id === c.id)?.status !== SQUAD_STATUS.DESTROYED
+			)
+			.filter(chara =>
+				isInside(pointer.downX, pointer.downY, dx, dy, chara.sprite.x, chara.sprite.y)
+			);
 
 		if (charas.length === 1) {
 			emit(events.SQUAD_SELECTED, charas[0].id)

@@ -1,4 +1,4 @@
-import { createEmote, removeEmote } from "../../../Components/MapChara";
+import { removeEmote } from "../../../Components/MapChara";
 import { vec2, asVec2, eqVec2 } from "../../../Models/Geometry";
 import { emit, events } from "../../../Models/Signals";
 import { BattlegroundScene } from "../BattlegroundScene";
@@ -53,11 +53,11 @@ function moveStep(scene: BattlegroundScene) {
 
 			const walked = chara.sprite.getData("walk") || 0;
 
-
-			faceDirection(direction, chara);
-
-			chara.emote?.setVisible(true)
-			chara.emoteOverlay?.setVisible(true)
+			if (walked === 0) {
+				faceDirection(direction, chara);
+				chara.emote?.setVisible(true)
+				chara.emoteOverlay?.setVisible(true)
+			}
 
 			chara.sprite.setData("walk", walked + 1);
 
@@ -184,14 +184,16 @@ function checkCombat(scene: BattlegroundScene) {
 				const chara = scene.charas.find(c => c.id === squad.id)
 				if (!chara) return;
 
-				const eChara = scene.charas.find(c => c.id === squad.id)
-				if (!eChara) return;
-				faceDirection(getDirection(squad.position, enemy.position), eChara)
+				const enemyChara = scene.charas.find(c => c.id === squad.id)
+				if (!enemyChara) return;
+
+				faceDirection(getDirection(squad.position, enemy.position), enemyChara)
 
 				chara.emote?.setVisible(true)
 				chara.emote?.setTint(0xff0000)
-				chara.emote?.play(chara.emote?.texture.key, true)
+
 				attack(squad, enemy);
+
 			} else if (squad.path.length === 0 && squad.stamina > 0) {
 				emit(events.UPDATE_SQUAD, squad.id, {
 					status: SQUAD_STATUS.IDLE
