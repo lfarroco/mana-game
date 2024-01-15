@@ -1,4 +1,4 @@
-import { removeEmote } from "../../../Components/MapChara";
+import { createEmote, removeEmote } from "../../../Components/MapChara";
 import { vec2, asVec2, eqVec2 } from "../../../Models/Geometry";
 import { emit, events } from "../../../Models/Signals";
 import { BattlegroundScene } from "../BattlegroundScene";
@@ -9,6 +9,8 @@ import { TURN_DURATION } from "../../../config";
 
 const TURNS_TO_MOVE = 3;
 const moveSquads = (scene: BattlegroundScene) => {
+
+	// apply user-defined status changes before starting (eg. moving)
 
 	checkEnemiesInRange(scene);
 
@@ -29,7 +31,6 @@ const moveSquads = (scene: BattlegroundScene) => {
 function moveStep(scene: BattlegroundScene) {
 	scene.state.squads
 		.filter(s => s.status === SQUAD_STATUS.MOVING)
-		.filter(s => s.path.length > 0)
 		.forEach(squad => {
 
 			const chara = scene.charas.find(c => c.id === squad.id);
@@ -42,6 +43,11 @@ function moveStep(scene: BattlegroundScene) {
 
 			if (nextIsOccupied) {
 				removeEmote(chara);
+
+				emit(events.UPDATE_SQUAD, squad.id, {
+					status: SQUAD_STATUS.ATTACKING
+				});
+
 				return;
 			}
 
@@ -127,27 +133,14 @@ function moveStep(scene: BattlegroundScene) {
 
 function checkEnemiesInRange(scene: BattlegroundScene) {
 	scene.state.squads
-		.filter(s => s.status === SQUAD_STATUS.ATTACK_MOVE || s.status === SQUAD_STATUS.IDLE || s.status === SQUAD_STATUS.MOVING)
+		.filter(s => s.status === SQUAD_STATUS.IDLE)
 		.forEach(squad => {
 
 			const enemiesNearby = getEnemiesNearby(scene, squad);
 
-			if (
-				(enemiesNearby.length > 0 && squad.status !== SQUAD_STATUS.MOVING) ||
-				// force moving, but target is occupied
-				(enemiesNearby.length > 0 && squad.path.length === 1 && squad.status === SQUAD_STATUS.MOVING)
-
-			) {
+			if (enemiesNearby.length > 0) {
 				emit(events.UPDATE_SQUAD, squad.id, {
 					status: SQUAD_STATUS.ATTACKING
-				});
-			} else if (squad.path.length === 0 && squad.stamina > 0 && squad.status === SQUAD_STATUS.MOVING) {
-				emit(events.UPDATE_SQUAD, squad.id, {
-					status: SQUAD_STATUS.IDLE
-				});
-			} else if (squad.stamina > 0 && squad.path.length > 0 && squad.status === SQUAD_STATUS.IDLE) {
-				emit(events.UPDATE_SQUAD, squad.id, {
-					status: SQUAD_STATUS.MOVING
 				});
 			}
 		});
@@ -195,11 +188,11 @@ function checkCombat(scene: BattlegroundScene) {
 
 				attack(squad, enemy);
 
-			} else if (squad.path.length === 0 && squad.stamina > 0) {
+			} else if (squad.path.length === 0) {
 				emit(events.UPDATE_SQUAD, squad.id, {
 					status: SQUAD_STATUS.IDLE
 				})
-			} else if (squad.stamina > 0) {
+			} else {
 				emit(events.UPDATE_SQUAD, squad.id, {
 					status: SQUAD_STATUS.MOVING
 				})
@@ -237,8 +230,10 @@ function checkIdle(scene: BattlegroundScene) {
 
 			const chara = scene.charas.find(c => c.id === squad.id)
 
-			chara?.emote?.setVisible(false)
-			chara?.emoteOverlay?.setVisible(false)
+			if (chara?.emote?.visible) {
+				chara?.emote?.setVisible(false)
+				chara?.emoteOverlay?.setVisible(false)
+			}
 
 		});
 }
