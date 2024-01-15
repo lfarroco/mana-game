@@ -13,6 +13,7 @@ export function init(grid: number[][]) {
 			const easystar = new Easystar.js();
 			easystar.setAcceptableTiles([0]);
 			easystar.setGrid(grid);
+			easystar.enableSync();
 
 			const state = getState()
 
@@ -26,7 +27,6 @@ export function init(grid: number[][]) {
 				if (eqVec2(squad.position, target)) return;
 				easystar.avoidAdditionalPoint(squad.position.x, squad.position.y)
 			})
-
 
 			easystar.findPath(source.x, source.y, target.x, target.y, path => {
 
