@@ -115,7 +115,6 @@ function moveStep(scene: BattlegroundScene): Operation[] {
 
 			const [, ...path] = squad.path;
 
-			chara.direction = direction;
 			chara.sprite.setData("walk", 0);
 
 			return [
@@ -184,8 +183,6 @@ function checkCombat(scene: BattlegroundScene) {
 				faceDirection(getDirection(squad.position, enemy.position), enemyChara)
 
 				createEmote(chara, "combat-emote")
-
-				//chara.emote?.setTint(0xff0000)
 				chara.emote?.setVisible(true)
 
 				attack(squad, enemy);
