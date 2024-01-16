@@ -6,7 +6,6 @@ import { getState } from "../../../Models/State";
 
 export function init(grid: number[][]) {
 
-
 	listeners([
 		[events.LOOKUP_PATH, (key: string, source: Vec2, target: Vec2) => {
 

@@ -251,7 +251,6 @@ export class BattlegroundScene extends Phaser.Scene {
     this.isSelectingSquadMove = false;
 
     emit(events.LOOKUP_PATH, squad.id, squad.position, vec2(x, y))
-    emit(events.UPDATE_SQUAD, squad.id, { status: SQUAD_STATUS.MOVING })
 
   }
   dispatchSquad = (sqdId: string, cityId: string) => {
