@@ -10,3 +10,4 @@
 - TODO: display ranged attacks (dotted red line?)
 - TODO: if the target changed, reset move counter
 - BUG: two units can occupy the same tile if move order is issued during the same turn
+- TODO: allow unit to move into friendly-occupied cell if the unit is also moving

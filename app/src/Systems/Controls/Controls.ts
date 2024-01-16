@@ -9,4 +9,8 @@ export function init(scene: BattlegroundScene) {
 		else
 			emit(events.PAUSE_GAME)
 	});
+
+	if (scene.input.mouse) {
+		scene.input.mouse.disableContextMenu();
+	}
 }
