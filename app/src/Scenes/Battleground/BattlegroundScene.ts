@@ -28,7 +28,6 @@ import { TURN_DURATION } from "../../config";
 
 export class BattlegroundScene extends Phaser.Scene {
   graphics: Phaser.GameObjects.Graphics | null = null;
-  grid: number[][] = []
   charas: Chara[] = []
   layers: {
     background: Phaser.Tilemaps.TilemapLayer;
@@ -60,20 +59,17 @@ export class BattlegroundScene extends Phaser.Scene {
         }
       },
       ],
-      [
-        events.UPDATE_SQUAD, (squadId: string, sqd: Partial<Squad>) => {
+      [events.UPDATE_SQUAD, (squadId: string, sqd: Partial<Squad>) => {
 
-          if (sqd.stamina === 0) {
-            emit(events.SQUAD_DESTROYED, squadId)
-          }
-
-          updateSquad(this.state)(squadId)(sqd)
-
+        if (sqd.stamina === 0) {
+          emit(events.SQUAD_DESTROYED, squadId)
         }
-      ]
 
-    ]
-    );
+        updateSquad(this.state)(squadId)(sqd)
+
+      }
+      ]
+    ]);
 
     this.state = getState()
 
@@ -95,31 +91,23 @@ export class BattlegroundScene extends Phaser.Scene {
     console.log("BattlegroundScene create")
     const { map, layers } = createMap(this);
 
-    ControlsSystem.init(this)
-
-    if (!this.layers)
-      importMapObjects(this.state, map);
-
-    this.tilemap = map;
-
-    makeMapInteractive(this, map, layers.background)
+    importMapObjects(this.state, map);
 
     this.layers = layers
-
-
-
+    this.tilemap = map;
     this.cities = createCities(this, this.state.cities)
     this.charas = createMapSquads(this)
 
+    ControlsSystem.init(this)
+    makeMapInteractive(this, map, layers.background)
     FogOfWarSystem.init(this);
     CityCaptureSystem.init(this);
     CursorSystem.init(this);
-
     makeSquadsInteractive(this, this.charas)
     makeCitiesInteractive(this, this.cities.map(c => c.sprite))
 
-    this.grid = layers.obstacles.layer.data.map(row => row.map(tile => tile.index === -1 ? 0 : 1))
-    Pathfinding.init(this.grid)
+    const grid = layers.obstacles.layer.data.map(row => row.map(tile => tile.index === -1 ? 0 : 1))
+    Pathfinding.init(grid)
 
     this.time.addEvent({
       delay: TURN_DURATION / this.state.speed,
@@ -139,10 +127,6 @@ export class BattlegroundScene extends Phaser.Scene {
       },
       loop: true
     });
-
-    if (this.input.mouse) {
-      this.input.mouse.disableContextMenu();
-    }
 
     //@ts-ignore
     window.scene = this
@@ -175,7 +159,7 @@ export class BattlegroundScene extends Phaser.Scene {
   }
   dispatchSquad = (sqdId: string, cityId: string) => {
 
-    let squad = this.state.squads.find(sqd => sqd.id === sqdId)
+    const squad = this.state.squads.find(sqd => sqd.id === sqdId)
     const city = this.state.cities.find(c => c.id === cityId)
 
     if (!squad || !city) {
