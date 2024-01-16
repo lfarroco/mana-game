@@ -8,3 +8,4 @@
 - TODO: refactor and organize code
 - TODO: tests
 - TODO: display ranged attacks (dotted red line?)
+- TODO: if the target changed, reset move counter
