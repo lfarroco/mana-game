@@ -14,8 +14,6 @@ export type Signals = {
 	TOGGLE_DISPATCH_MODAL: (value: boolean) => void
 	TOGGLE_RECRUIT_MODAL: () => void
 	DISPATCH_SQUAD: (squadId: string, cityId: string) => void
-	SKIRMISH_STARTED: (squadId1: string, squadId2: string) => void
-	SKIRMISH_ENDED: (winner: string, loser: string) => void,
 	TOGGLE_SQUADS_WINDOW: (value: boolean) => void,
 	BATTLEGROUND_TICK: (tick: number) => void,
 	// TODO: have a parent level for the system
@@ -30,6 +28,8 @@ export type Signals = {
 	UPDATE_SQUAD_COUNTER: (count: number, vec: Vec2) => void, // TODO: not implemented yet
 	LOOKUP_PATH: (key: string, source: Vec2, target: Vec2) => void,
 	PATH_FOUND: (key: string, path: Vec2[]) => void,
+	CREATE_EMOTE: (id: string, key: string) => void,
+	REMOVE_EMOTE: (squadId: string) => void,
 }
 
 export type Operation = [keyof Signals, ...Parameters<Signals[keyof Signals]>]
@@ -46,8 +46,6 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
 	TOGGLE_DISPATCH_MODAL: "TOGGLE_DISPATCH_MODAL",
 	TOGGLE_RECRUIT_MODAL: "TOGGLE_RECRUIT_MODAL",
 	DISPATCH_SQUAD: "DISPATCH_SQUAD",
-	SKIRMISH_STARTED: "SKIRMISH_STARTED",
-	SKIRMISH_ENDED: "SKIRMISH_ENDED",
 	TOGGLE_SQUADS_WINDOW: "TOGGLE_SQUADS_WINDOW",
 	BATTLEGROUND_TICK: "BATTLEGROUND_TICK",
 	ATTACK: "ATTACK",
@@ -61,6 +59,8 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
 	UPDATE_SQUAD_COUNTER: "UPDATE_SQUAD_COUNTER",
 	LOOKUP_PATH: "LOOKUP_PATH",
 	PATH_FOUND: "PATH_FOUND",
+	CREATE_EMOTE: "CREATE_EMOTE",
+	REMOVE_EMOTE: "REMOVE_EMOTE",
 }
 
 export const listen = <T extends keyof Signals>(
@@ -128,8 +128,6 @@ export const operations: { [key in keyof Signals]: (...args: Parameters<Signals[
 	TOGGLE_DISPATCH_MODAL: (value: boolean) => [events.TOGGLE_DISPATCH_MODAL, value],
 	TOGGLE_RECRUIT_MODAL: () => [events.TOGGLE_RECRUIT_MODAL],
 	DISPATCH_SQUAD: (squadId: string, cityId: string) => [events.DISPATCH_SQUAD, squadId, cityId],
-	SKIRMISH_STARTED: (squadId1: string, squadId2: string) => [events.SKIRMISH_STARTED, squadId1, squadId2],
-	SKIRMISH_ENDED: (winner: string, loser: string) => [events.SKIRMISH_ENDED, winner, loser],
 	TOGGLE_SQUADS_WINDOW: (value: boolean) => [events.TOGGLE_SQUADS_WINDOW, value],
 	BATTLEGROUND_TICK: (tick: number) => [events.BATTLEGROUND_TICK, tick],
 	ATTACK: (attacker: string, defender: string) => [events.ATTACK, attacker, defender],
@@ -149,6 +147,8 @@ export const operations: { [key in keyof Signals]: (...args: Parameters<Signals[
 	UPDATE_SQUAD_COUNTER: (count: number, vec: Vec2) => [events.UPDATE_SQUAD_COUNTER, count, vec],
 	LOOKUP_PATH: (key: string, source: Vec2, target: Vec2) => [events.LOOKUP_PATH, key, source, target],
 	PATH_FOUND: (key: string, path: Vec2[]) => [events.PATH_FOUND, key, path],
+	CREATE_EMOTE: (id: string, key: string) => [events.CREATE_EMOTE, id, key],
+	REMOVE_EMOTE: (squadId: string) => [events.REMOVE_EMOTE, squadId],
 }
 
 //@ts-ignore

@@ -2,6 +2,7 @@ import * as Easystar from "easystarjs"
 import { Vec2, asVec2, eqVec2 } from "../../../Models/Geometry";
 import { emit, events, listeners } from "../../../Models/Signals";
 import { getState } from "../../../Models/State";
+import { SQUAD_STATUS } from "../../../Models/Squad";
 
 
 export function init(grid: number[][]) {
@@ -36,6 +37,30 @@ export function init(grid: number[][]) {
 
 			});
 			easystar.calculate();
-		}]
+		}],
+		[events.PATH_FOUND, (key: string, path_: Vec2[]) => {
+
+			const state = getState()
+
+			const squad = state.squads.find(sqd => sqd.id === key)
+			if (!squad) throw new Error("squad not found")
+
+			// in case of choosing own cell
+			if (path_.length === 0) {
+
+				emit(events.UPDATE_SQUAD, squad.id, { path: [] })
+				if (squad.status === SQUAD_STATUS.MOVING) {
+					emit(events.UPDATE_SQUAD, squad.id, { status: SQUAD_STATUS.IDLE })
+				}
+
+				return
+
+			} else {
+
+				const path = path_.slice(1)
+				emit(events.UPDATE_SQUAD, squad.id, { path })
+			}
+		}
+		]
 	])
 }
