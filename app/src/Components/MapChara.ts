@@ -4,7 +4,6 @@ import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../S
 import "./portrait.css"
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
 import { events, listeners } from "../Models/Signals";
-import { DIRECTIONS, Direction } from "../Models/Direction";
 
 export type Chara = {
 	id: string;
@@ -15,7 +14,6 @@ export type Chara = {
 	emoteOverlay: Phaser.GameObjects.Sprite | null,
 	staminaBar: Phaser.GameObjects.Graphics | null,
 	staminaBarBackground: Phaser.GameObjects.Graphics | null,
-	direction: Direction,
 	group: Phaser.GameObjects.Group | null
 }
 
@@ -110,7 +108,6 @@ export function createChara(
 		emoteOverlay: null,
 		staminaBar,
 		staminaBarBackground: staminaBackground,
-		direction: DIRECTIONS.down,
 		group
 	}
 
