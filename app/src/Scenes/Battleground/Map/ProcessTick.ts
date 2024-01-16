@@ -1,4 +1,3 @@
-import { createEmote, removeEmote } from "../../../Components/MapChara";
 import { vec2, asVec2, eqVec2 } from "../../../Models/Geometry";
 import { Operation, emit, sequence, events, operations } from "../../../Models/Signals";
 import { BattlegroundScene } from "../BattlegroundScene";
@@ -9,9 +8,11 @@ import { TURN_DURATION } from "../../../config";
 import { foldMap } from "../../../Models/Signals";
 
 const TURNS_TO_MOVE = 3;
-const moveSquads = (scene: BattlegroundScene) => {
+const processTick = (scene: BattlegroundScene) => {
 
 	// apply user-defined status changes before starting (eg. moving)
+
+	// idea: each system should have their operations performed in a tick
 
 	sequence(checkEnemiesInRange(scene))
 
@@ -26,6 +27,8 @@ const moveSquads = (scene: BattlegroundScene) => {
 	updatePath(scene)
 
 	cleanupEmotes(scene);
+
+	// TODO: face direction
 
 }
 
@@ -45,11 +48,10 @@ function moveStep(scene: BattlegroundScene): Operation[] {
 				.length > 0;
 
 			if (nextIsOccupied) {
-				removeEmote(chara);
-
-				return [operations.UPDATE_SQUAD(squad.id, {
-					status: SQUAD_STATUS.ATTACKING
-				})];
+				return [
+					operations.UPDATE_SQUAD(squad.id, { status: SQUAD_STATUS.ATTACKING }),
+					operations.REMOVE_EMOTE(squad.id), // necessary? should replace with attacking emote
+				];
 			}
 
 			const nextTile = scene.layers?.background.getTileAt(next.x, next.y);
@@ -60,13 +62,12 @@ function moveStep(scene: BattlegroundScene): Operation[] {
 
 			const walked = chara.sprite.getData("walk") || 0;
 
-			if (walked === 0) {
-				faceDirection(direction, chara);
-				chara.emote?.setVisible(true)
-				chara.emoteOverlay?.setVisible(true)
-			}
-
 			chara.sprite.setData("walk", walked + 1);
+
+			if (walked === 0) {
+				// this will not be necessary if we have a direction check each tick
+				faceDirection(direction, chara);
+			}
 
 			// reveal the emote as the walked count progresses
 			// acoording to position
@@ -108,7 +109,7 @@ function moveStep(scene: BattlegroundScene): Operation[] {
 						faceDirection(nextDirection, chara);
 
 					} else {
-						removeEmote(chara);
+						emit(events.REMOVE_EMOTE, squad.id)
 					}
 				}
 			});
@@ -182,12 +183,11 @@ function checkCombat(scene: BattlegroundScene) {
 
 				faceDirection(getDirection(squad.position, enemy.position), enemyChara)
 
-				createEmote(chara, "combat-emote")
-				chara.emote?.setVisible(true)
-
 				attack(squad, enemy);
 
-				return []
+				return [
+					operations.CREATE_EMOTE(squad.id, "combat-emote"),
+				]
 
 			} else if (squad.path.length === 0) {
 				return [operations.UPDATE_SQUAD(squad.id, {
@@ -202,7 +202,7 @@ function checkCombat(scene: BattlegroundScene) {
 
 }
 
-export default moveSquads
+export default processTick
 
 
 function attack(squad: Squad, enemy: Squad) {

@@ -1,7 +1,6 @@
 import { Vec2 } from "../../Models/Geometry";
-import { listeners, events, emit } from "../../Models/Signals";
+import { listeners, events } from "../../Models/Signals";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
-import moveSquads from "../../Scenes/Battleground/Map/ProcessTick";
 
 // we have a standalone system, that contains its own logic and state
 // - system
@@ -15,7 +14,6 @@ export function init(scene: BattlegroundScene) {
 	let squadMovementIndex: { [id: string]: number } = {}
 
 	listeners([
-		[events.BATTLEGROUND_TICK, () => moveSquads(scene)],
 		[events.DISPATCH_SQUAD, (squadId: string, _cityId: string) => {
 			squadMovementIndex[squadId] = 0;
 		}],

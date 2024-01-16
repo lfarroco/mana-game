@@ -13,7 +13,6 @@ import { Vec2, asVec2, vec2 } from "../../Models/Geometry";
 import { Chara, createChara } from "../../Components/MapChara";
 import { emit, events, listeners } from "../../Models/Signals";
 import { State, getState, updateSquad } from "../../Models/State";
-import { TILE_HEIGHT, TILE_WIDTH } from "./constants";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
 import * as StaminaRegen from "../../Systems/StaminaRegen/StaminaRegen";
 import * as VictorySystem from "../../Systems/Victory/Victory";
@@ -24,6 +23,7 @@ import * as FogOfWarSystem from "./Systems/FogOfWar";
 import * as CursorSystem from "./Systems/Cursor";
 import * as Pathfinding from "./Systems/Pathfinding";
 import * as AISystem from "../../Systems/AI/AI";
+import * as EmoteSystem from "./Systems/Emote";
 import { TURN_DURATION } from "../../config";
 
 export class BattlegroundScene extends Phaser.Scene {
@@ -41,7 +41,6 @@ export class BattlegroundScene extends Phaser.Scene {
   state: State;
   cities: { city: City, sprite: Phaser.GameObjects.Image }[] = []
   tilemap: Phaser.Tilemaps.Tilemap | null = null;
-  counters: Phaser.GameObjects.Text[] = [];
 
   constructor() {
     super("BattlegroundScene");
@@ -55,9 +54,6 @@ export class BattlegroundScene extends Phaser.Scene {
       [events.SELECT_SQUAD_MOVE_DONE, this.moveSquadTo],
       [events.SELECT_SQUAD_MOVE_CANCEL, () => { this.isSelectingSquadMove = false }],
       [events.DISPATCH_SQUAD, this.dispatchSquad],
-      [events.SKIRMISH_ENDED, (winner: string, loser: string) => {
-        this.scene.wake();
-      }],
       [events.BATTLEGROUND_TICK, (tick: number) => {
         if (!this.isPaused) {
           processTick(this)
@@ -74,38 +70,6 @@ export class BattlegroundScene extends Phaser.Scene {
           updateSquad(this.state)(squadId)(sqd)
 
         }
-      ],
-      [events.PATH_FOUND, (key: string, path_: Vec2[]) => {
-
-        const squad = this.state.squads.find(sqd => sqd.id === key)
-        if (!squad) {
-          console.warn("squad not found", key)
-          return
-        }
-
-        // in case of choosing own cell
-        if (path_.length === 0) {
-
-          emit(events.UPDATE_SQUAD, squad.id, { path: [] })
-          if (squad.status === SQUAD_STATUS.MOVING) {
-            emit(events.UPDATE_SQUAD, squad.id, { status: SQUAD_STATUS.IDLE })
-          }
-
-          return
-
-        } else {
-
-          const path = path_.slice(1)
-          emit(events.UPDATE_SQUAD, squad.id, { path })
-        }
-      }
-      ], [
-        events.BATTLEGROUND_TICK, () => {
-          const orphanCounters = this.counters.filter(c =>
-            !this.state.squads.find(s => c.name === `${s.position.x},${s.position.y}`))
-          orphanCounters.forEach(c => c.parentContainer.destroy())
-          this.counters = this.counters.filter(c => !orphanCounters.includes(c))
-        }
       ]
 
     ]
@@ -117,57 +81,13 @@ export class BattlegroundScene extends Phaser.Scene {
     squadDestroyed(this)
     VictorySystem.init(this)
     AISystem.init()
-
+    EmoteSystem.init(this)
 
     //@ts-ignore
     window.state = this.state
 
     //@ts-ignore
     window.bg = this
-  }
-  updateUnitCounter(count: number, vec: Vec2) {
-
-    const tile = this.layers?.background.getTileAt(vec.x, vec.y)
-
-    if (!tile) return
-
-    const name = `${vec.x},${vec.y}`
-
-    const text = this.counters.find(c => c.name === name) || null
-
-    if (!text) {
-
-      if (count === 1) return
-
-      const x = vec.x * TILE_WIDTH + 4
-      const y = vec.y * TILE_HEIGHT + TILE_HEIGHT / 2 + 4
-
-      const container = this.add.container(x, y)
-      // rect
-      const bg = this.add.rectangle(6, 6, TILE_WIDTH / 3, TILE_HEIGHT / 3, 0x2200aa)
-      const newText = this.add.text(
-        0,
-        0,
-        count.toString())
-
-      container.add([bg, newText])
-      newText.setName(name)
-      this.counters.push(newText)
-      this.children.bringToTop(newText)
-      return
-    }
-
-    if (text.text === count.toString()) return
-
-    if (count === 1) {
-
-      text.parentContainer.destroy()
-      this.counters = this.counters.filter(c => c.name !== name)
-    }
-    else text.setText(count.toString())
-
-
-
   }
 
   preload = preload;
