@@ -1,8 +1,6 @@
 import Events from 'events'
 import { Vec2 } from './Geometry'
 import { Squad } from './Squad'
-import * as IORef from "fp-ts/lib/IORef";
-import * as IO from "fp-ts/lib/IO";
 
 export type Signals = {
 	PAUSE_GAME: () => void
@@ -35,11 +33,6 @@ export type Signals = {
 }
 
 export type Operation = [keyof Signals, ...Parameters<Signals[keyof Signals]>]
-
-export const adddOperation = (operations: IO.IO<IORef.IORef<Operation[]>>, op: Operation) => IO.flatMap(
-	operations,
-	ref => ref.modify(ops => [...ops, op])
-)()
 
 export const events: { [key in keyof Signals]: keyof Signals } = {
 	PAUSE_GAME: "PAUSE_GAME",
@@ -103,6 +96,13 @@ export const emit_ = <T extends keyof Signals>(
 	return () => emit(event, ...args)
 }
 
+export const sequence = (operations: Operation[]) => {
+	operations.forEach(([event, ...args]) => {
+		emit(event, ...args)
+	})
+}
+
+
 // example usage:
 // listeners([
 // 	[ "A", ()=>{ do stuff}],
@@ -153,3 +153,13 @@ export const operations: { [key in keyof Signals]: (...args: Parameters<Signals[
 
 //@ts-ignore
 window.emit = emit
+
+export function foldMap<A>(data: A[], fn: (a: A) => Operation[]): Operation[] {
+	return data.reduce((ops, item) => {
+
+		const res = fn(item);
+
+		return ops.concat(res);
+
+	}, [] as Operation[]);
+}
