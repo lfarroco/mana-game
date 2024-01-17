@@ -1,6 +1,6 @@
 import { Chara } from "../Components/MapChara";
 import { Vec2 } from "./Geometry";
-import { emit } from "./Signals";
+import { Operation, operations } from "./Signals";
 
 export type Direction = "up" | "down" | "left" | "right";
 
@@ -24,19 +24,31 @@ export function getDirection(source: Vec2, target: Vec2): Direction {
 }
 
 // TODO: split facing from the arrow emote
-export function faceDirection(direction: Direction, chara: Chara) {
+export function faceDirection(direction: Direction, chara: Chara): Operation[] {
 
 	if (direction === DIRECTIONS.right) {
-		emit("CREATE_EMOTE", chara.id, "arrow-right-emote");
-		chara.sprite.play(chara.job + "-walk-right", true);
+		return [
+			operations.CREATE_EMOTE(chara.id, "arrow-right-emote"),
+			operations.FACE_DIRECTION(chara.id, "right")
+		]
 	} else if (direction === DIRECTIONS.left) {
-		emit("CREATE_EMOTE", chara.id, "arrow-left-emote");
-		chara.sprite.play(chara.job + "-walk-left", true);
+
+		return [
+			operations.CREATE_EMOTE(chara.id, "arrow-left-emote"),
+			operations.FACE_DIRECTION(chara.id, "left")
+
+		]
+
 	} else if (direction === DIRECTIONS.down) {
-		emit("CREATE_EMOTE", chara.id, "arrow-bottom-emote")
-		chara.sprite.play(chara.job + "-walk-down", true);
+		return [
+			operations.CREATE_EMOTE(chara.id, "arrow-bottom-emote"),
+			operations.FACE_DIRECTION(chara.id, "down")
+		]
 	} else if (direction === DIRECTIONS.up) {
-		emit("CREATE_EMOTE", chara.id, "arrow-top-emote")
-		chara.sprite.play(chara.job + "-walk-up", true);
+		return [
+			operations.CREATE_EMOTE(chara.id, "arrow-top-emote"),
+			operations.FACE_DIRECTION(chara.id, "up")
+		]
 	}
+	return []
 }

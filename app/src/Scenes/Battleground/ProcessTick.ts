@@ -6,7 +6,6 @@ import { faceDirection } from "../../Models/Direction";
 import { SQUAD_STATUS, Squad } from "../../Models/Squad";
 import { TURN_DURATION } from "../../config";
 import { foldMap } from "../../Models/Signals";
-import { fold } from "fp-ts/lib/Tree";
 
 const TURNS_TO_MOVE = 3;
 const processTick = (scene: BattlegroundScene) => {
@@ -15,9 +14,12 @@ const processTick = (scene: BattlegroundScene) => {
 
 	// idea: each system should have their operations performed in a tick
 
+	console.time("tick")
 	sequence(checkEnemiesInRange(scene))
 
 	sequence(checkCombat(scene))
+
+	sequence(startMoving(scene))
 
 	sequence(moveStep(scene));
 
@@ -31,11 +33,13 @@ const processTick = (scene: BattlegroundScene) => {
 
 	// TODO: face direction
 
+	console.timeEnd("tick")
 }
 
 function moveStep(scene: BattlegroundScene): Operation[] {
 	return foldMap(
-		scene.state.squads.filter(s => s.status === SQUAD_STATUS.MOVING),
+		scene.state.squads
+			.filter(s => s.status === SQUAD_STATUS.MOVING),
 		squad => {
 
 			const chara = scene.charas.find(c => c.id === squad.id);
@@ -73,10 +77,10 @@ function moveStep(scene: BattlegroundScene): Operation[] {
 
 			chara.sprite.setData("walk", walked + 1);
 
-			if (walked === 0) {
+			const directionOps = walked === 0 ?
 				// this will not be necessary if we have a direction check each tick
-				faceDirection(direction, chara);
-			}
+				faceDirection(direction, chara)
+				: [];
 
 			// reveal the emote as the walked count progresses
 			// acoording to position
@@ -90,7 +94,7 @@ function moveStep(scene: BattlegroundScene): Operation[] {
 				chara.emoteOverlay?.setCrop(0, 32 * (1 - (walked / TURNS_TO_MOVE)), 32, 32);
 			}
 
-			if (walked < TURNS_TO_MOVE) return [];
+			if (walked < TURNS_TO_MOVE) return [...directionOps];
 
 			// perform the move
 			// check if there's a city here
@@ -115,7 +119,7 @@ function moveStep(scene: BattlegroundScene): Operation[] {
 
 						const nextDirection = getDirection(squad.position, next);
 
-						faceDirection(nextDirection, chara);
+						sequence(faceDirection(nextDirection, chara))
 
 					} else {
 						emit(events.REMOVE_EMOTE, squad.id)
@@ -128,6 +132,7 @@ function moveStep(scene: BattlegroundScene): Operation[] {
 			chara.sprite.setData("walk", 0);
 
 			return [
+				...directionOps,
 				operations.SQUAD_LEAVES_CELL(squad.id, squad.position),
 				operations.UPDATE_SQUAD(squad.id, { path }),
 				operations.UPDATE_SQUAD(squad.id, { position: asVec2(nextTile) }),
@@ -149,8 +154,7 @@ function checkEnemiesInRange(scene: BattlegroundScene): Operation[] {
 					status: SQUAD_STATUS.ATTACKING
 				})]
 			} else {
-
-				return [operations.UPDATE_SQUAD(squad.id, { status: SQUAD_STATUS.ATTACKING })]
+				return []
 			}
 		})
 }
@@ -190,11 +194,12 @@ function checkCombat(scene: BattlegroundScene) {
 				const enemyChara = scene.charas.find(c => c.id === squad.id)
 				if (!enemyChara) return [];
 
-				faceDirection(getDirection(squad.position, enemy.position), enemyChara)
+				const directionOps = faceDirection(getDirection(squad.position, enemy.position), enemyChara)
 
 				attack(squad, enemy);
 
 				return [
+					...directionOps,
 					operations.CREATE_EMOTE(squad.id, "combat-emote"),
 				]
 
@@ -258,10 +263,25 @@ function updatePath(scene: BattlegroundScene) {
 
 }
 
+// this is just a crutch - the ideal is to call the removal when appropriate
 function cleanupEmotes(scene: BattlegroundScene) {
 
 	return foldMap(
-		scene.state.squads.filter(s => s.status === SQUAD_STATUS.IDLE),
-		squad => [operations.REMOVE_EMOTE(squad.id)]
+		scene.state.squads
+			.filter(s => s.status === SQUAD_STATUS.IDLE)
+			.filter(s => scene.charas.find(c => c.id === s.id)?.emote?.visible)
+		,
+		squad =>
+			[operations.REMOVE_EMOTE(squad.id)]
+	)
+}
+
+function startMoving(scene: BattlegroundScene) {
+	return foldMap(
+		scene.state.squads
+			.filter(s => s.status === SQUAD_STATUS.IDLE)
+			.filter(s => s.path.length > 0),
+		squad =>
+			[operations.UPDATE_SQUAD(squad.id, { status: SQUAD_STATUS.MOVING })]
 	)
 }
