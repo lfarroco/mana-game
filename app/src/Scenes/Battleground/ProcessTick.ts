@@ -1,11 +1,11 @@
-import { vec2, asVec2, eqVec2 } from "../../../Models/Geometry";
-import { Operation, emit, sequence, events, operations } from "../../../Models/Signals";
-import { BattlegroundScene } from "../BattlegroundScene";
-import { DIRECTIONS, getDirection } from "../../../Models/Direction";
-import { faceDirection } from "../../../Models/Direction";
-import { SQUAD_STATUS, Squad } from "../../../Models/Squad";
-import { TURN_DURATION } from "../../../config";
-import { foldMap } from "../../../Models/Signals";
+import { vec2, asVec2, eqVec2 } from "../../Models/Geometry";
+import { Operation, emit, sequence, events, operations } from "../../Models/Signals";
+import { BattlegroundScene } from "./BattlegroundScene";
+import { DIRECTIONS, getDirection } from "../../Models/Direction";
+import { faceDirection } from "../../Models/Direction";
+import { SQUAD_STATUS, Squad } from "../../Models/Squad";
+import { TURN_DURATION } from "../../config";
+import { foldMap } from "../../Models/Signals";
 
 const TURNS_TO_MOVE = 3;
 const processTick = (scene: BattlegroundScene) => {
