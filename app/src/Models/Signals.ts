@@ -86,9 +86,9 @@ export const emit = <T extends keyof Signals>(
 ) => {
 	//@ts-ignore
 	const emitter: Events = window.emitter;
-	// console.log(
-	// 	`emit("${event}", ...${JSON.stringify(args)})`
-	// )
+	console.log(
+		`emit("${event}", ...${JSON.stringify(args)})`
+	)
 	emitter.emit(event, ...args)
 }
 
