@@ -43,15 +43,23 @@ function moveStep(scene: BattlegroundScene): Operation[] {
 
 			const [next] = squad.path;
 
-			const nextIsOccupied = scene.state.squads
+			const [occupant] = scene.state.squads
+				.filter(s => s.status !== SQUAD_STATUS.DESTROYED)
 				.filter(s => eqVec2(s.position, next))
-				.length > 0;
 
-			if (nextIsOccupied) {
-				return [
-					operations.UPDATE_SQUAD(squad.id, { status: SQUAD_STATUS.ATTACKING }),
-					operations.REMOVE_EMOTE(squad.id), // necessary? should replace with attacking emote
-				];
+			if (occupant) {
+
+				if (occupant.force === squad.force) {
+					if (occupant.status === SQUAD_STATUS.IDLE) {
+						return [
+							operations.UPDATE_SQUAD(squad.id, { status: SQUAD_STATUS.IDLE }),
+						];
+					}
+				} else {
+					return [
+						operations.UPDATE_SQUAD(squad.id, { status: SQUAD_STATUS.ATTACKING }),
+					];
+				}
 			}
 
 			const nextTile = scene.layers?.background.getTileAt(next.x, next.y);
