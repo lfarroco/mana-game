@@ -8,7 +8,7 @@ import { makeSquadInteractive, makeSquadsInteractive } from "./Map/makeSquadsInt
 import { createCities } from "./Map/createCities";
 import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
 import { SQUAD_STATUS, Squad } from "../../Models/Squad";
-import processTick from "./Map/ProcessTick";
+import processTick from "./ProcessTick";
 import { Vec2, asVec2, vec2 } from "../../Models/Geometry";
 import { Chara, createChara } from "../../Components/MapChara";
 import { emit, events, listeners } from "../../Models/Signals";
