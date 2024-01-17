@@ -6,6 +6,7 @@ import { faceDirection } from "../../Models/Direction";
 import { SQUAD_STATUS, Squad } from "../../Models/Squad";
 import { TURN_DURATION } from "../../config";
 import { foldMap } from "../../Models/Signals";
+import { fold } from "fp-ts/lib/Tree";
 
 const TURNS_TO_MOVE = 3;
 const processTick = (scene: BattlegroundScene) => {
@@ -20,13 +21,13 @@ const processTick = (scene: BattlegroundScene) => {
 
 	sequence(moveStep(scene));
 
-	checkDestroyed(scene);
+	sequence(checkDestroyed(scene))
 
-	checkIdle(scene);
+	sequence(checkIdle(scene))
 
-	updatePath(scene)
+	sequence(updatePath(scene))
 
-	cleanupEmotes(scene);
+	sequence(cleanupEmotes(scene))
 
 	// TODO: face direction
 
@@ -220,55 +221,47 @@ function attack(squad: Squad, enemy: Squad) {
 }
 
 function checkDestroyed(scene: BattlegroundScene) {
-
-	scene.state.squads
-		.filter(s => s.status !== SQUAD_STATUS.DESTROYED)
-		.forEach(squad => {
-
+	return foldMap(
+		scene.state.squads.filter(s => s.status !== SQUAD_STATUS.DESTROYED),
+		squad => {
 			if (squad.stamina === 0) {
-				emit(events.SQUAD_DESTROYED, squad.id);
+				return [operations.SQUAD_DESTROYED(squad.id)]
 			}
+			return []
 
-		});
+		})
 }
 
 function checkIdle(scene: BattlegroundScene) {
 
-	scene.state.squads
-		.filter(s => s.status === SQUAD_STATUS.IDLE)
-		.forEach(squad => {
+	return foldMap(
+		scene.state.squads.filter(s => s.status === SQUAD_STATUS.IDLE),
+		squad => {
 
 			const chara = scene.charas.find(c => c.id === squad.id)
 
 			if (chara?.emote?.visible) {
-				chara?.emote?.setVisible(false)
-				chara?.emoteOverlay?.setVisible(false)
+				return [operations.REMOVE_EMOTE(squad.id)]
 			}
 
-		});
+			return []
+		})
 }
 
 function updatePath(scene: BattlegroundScene) {
 
-	scene.state.squads
-		.filter(s => s.status === SQUAD_STATUS.MOVING)
-		.forEach(squad => {
-			emit(events.LOOKUP_PATH, squad.id, squad.position, squad.path[squad.path.length - 1]);
-		});
+	return foldMap(
+		scene.state.squads.filter(s => s.status === SQUAD_STATUS.MOVING),
+		squad =>
+			[operations.LOOKUP_PATH(squad.id, squad.position, squad.path[squad.path.length - 1])]
+	)
 
 }
 
 function cleanupEmotes(scene: BattlegroundScene) {
 
-	scene.state.squads
-		.filter(s => s.status === SQUAD_STATUS.IDLE)
-		.forEach(squad => {
-
-			const chara = scene.charas.find(c => c.id === squad.id)
-			if (!chara) return;
-
-			chara.emote?.destroy()
-
-		});
-
+	return foldMap(
+		scene.state.squads.filter(s => s.status === SQUAD_STATUS.IDLE),
+		squad => [operations.REMOVE_EMOTE(squad.id)]
+	)
 }
