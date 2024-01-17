@@ -24,6 +24,8 @@ import * as CursorSystem from "./Systems/Cursor";
 import * as Pathfinding from "./Systems/Pathfinding";
 import * as AISystem from "../../Systems/AI/AI";
 import * as EmoteSystem from "./Systems/Emote";
+import * as CharaFaceDirection from "../../Systems/Chara/FaceDirection";
+
 import { TURN_DURATION } from "../../config";
 
 export class BattlegroundScene extends Phaser.Scene {
@@ -103,6 +105,7 @@ export class BattlegroundScene extends Phaser.Scene {
     FogOfWarSystem.init(this);
     CityCaptureSystem.init(this);
     CursorSystem.init(this);
+    CharaFaceDirection.init(this)
     makeSquadsInteractive(this, this.charas)
     makeCitiesInteractive(this, this.cities.map(c => c.sprite))
 

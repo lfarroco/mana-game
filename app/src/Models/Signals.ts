@@ -1,6 +1,7 @@
 import Events from 'events'
 import { Vec2 } from './Geometry'
 import { Squad } from './Squad'
+import { Direction } from './Direction'
 
 export type Signals = {
 	PAUSE_GAME: () => void
@@ -30,6 +31,7 @@ export type Signals = {
 	PATH_FOUND: (key: string, path: Vec2[]) => void,
 	CREATE_EMOTE: (id: string, key: string) => void,
 	REMOVE_EMOTE: (squadId: string) => void,
+	FACE_DIRECTION: (squadId: string, direction: Direction) => void,
 }
 
 export type Operation = [keyof Signals, ...Parameters<Signals[keyof Signals]>]
@@ -61,6 +63,7 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
 	PATH_FOUND: "PATH_FOUND",
 	CREATE_EMOTE: "CREATE_EMOTE",
 	REMOVE_EMOTE: "REMOVE_EMOTE",
+	FACE_DIRECTION: "FACE_DIRECTION",
 }
 
 export const listen = <T extends keyof Signals>(
@@ -83,9 +86,9 @@ export const emit = <T extends keyof Signals>(
 ) => {
 	//@ts-ignore
 	const emitter: Events = window.emitter;
-	console.log(
-		`emit("${event}", ...${JSON.stringify(args)})`
-	)
+	// console.log(
+	// 	`emit("${event}", ...${JSON.stringify(args)})`
+	// )
 	emitter.emit(event, ...args)
 }
 
@@ -149,6 +152,7 @@ export const operations: { [key in keyof Signals]: (...args: Parameters<Signals[
 	PATH_FOUND: (key: string, path: Vec2[]) => [events.PATH_FOUND, key, path],
 	CREATE_EMOTE: (id: string, key: string) => [events.CREATE_EMOTE, id, key],
 	REMOVE_EMOTE: (squadId: string) => [events.REMOVE_EMOTE, squadId],
+	FACE_DIRECTION: (squadId: string, direction: Direction) => [events.FACE_DIRECTION, squadId, direction],
 }
 
 //@ts-ignore
