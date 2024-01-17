@@ -2,19 +2,19 @@ import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { getState } from "../../../Models/State";
 import { events, emit } from "../../../Models/Signals";
-import { asVec2, eqVec2 } from "../../../Models/Geometry";
+import { asVec2 } from "../../../Models/Geometry";
 import { Chara } from "../../../Components/MapChara";
 
 export function makeSquadsInteractive(
 	scene: BattlegroundScene,
 	entities: Chara[]
 ) {
-
 	entities.forEach(entity => {
 
 		makeSquadInteractive(entity, scene);
 	});
 }
+
 export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
 
 	chara.sprite.setInteractive();
@@ -38,28 +38,10 @@ export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
 			);
 		} else {
 
-			// check if another squad is in the same cell
-
-			const squad = state.squads.find(squad => squad.id === chara.id);
-
-			if (!squad) throw new Error(`Squad ${chara.id} not found`)
-
-			const squads = state.squads
-				.filter(s => s.force === squad.force)
-				.filter(s => eqVec2(s.position, squad.position));
-
-			if (squads.length > 1) {
-
-				emit(
-					events.MULTIPLE_SQUADS_SELECTED,
-					squads.map(s => s.id)
-				);
-
-			} else
-				emit(
-					events.SQUAD_SELECTED,
-					chara.id
-				);
+			emit(
+				events.SQUAD_SELECTED,
+				chara.id
+			);
 		}
 	});
 }

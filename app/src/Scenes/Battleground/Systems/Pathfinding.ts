@@ -17,7 +17,13 @@ export function init(grid: number[][]) {
 
 			const state = getState()
 
-			const otherSquads = state.squads.filter(s => s.id !== key)
+			const squad = state.squads.find(sqd => sqd.id === key)
+			if(!squad) throw new Error("squad not found")
+
+			const otherSquads = state.squads
+			.filter(s=>s.status !== SQUAD_STATUS.DESTROYED)
+			.filter(s=> s.force !== squad.force || s.status !== SQUAD_STATUS.MOVING)
+			.filter(s => s.id !== squad.id)
 
 			// make tile with othersquads unwalkable
 
