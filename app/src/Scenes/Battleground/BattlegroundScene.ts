@@ -3,14 +3,13 @@ import { preload } from "./preload";
 import { createMap } from "./Map/createMap";
 import { importMapObjects } from "./Map/importMapObjects";
 import { makeMapInteractive } from "./Map/makeMapInteractive";
-import { createMapSquads } from "./Map/createMapSquads";
-import { makeSquadInteractive, makeSquadsInteractive } from "./Map/makeSquadsInteractive";
+import { makeSquadsInteractive } from "./Map/makeSquadsInteractive";
 import { createCities } from "./Map/createCities";
 import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
-import { SQUAD_STATUS, Squad } from "../../Models/Squad";
+import { Squad } from "../../Models/Squad";
 import processTick from "./ProcessTick";
-import { Vec2, asVec2, vec2 } from "../../Models/Geometry";
-import { Chara, createChara } from "../../Components/MapChara";
+import { Vec2, vec2 } from "../../Models/Geometry";
+import { Chara } from "../../Components/MapChara";
 import { emit, events, listeners } from "../../Models/Signals";
 import { State, getState, updateSquad } from "../../Models/State";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
@@ -25,6 +24,7 @@ import * as Pathfinding from "./Systems/Pathfinding";
 import * as AISystem from "../../Systems/AI/AI";
 import * as EmoteSystem from "./Systems/Emote";
 import * as CharaFaceDirection from "../../Systems/Chara/FaceDirection";
+import * as CharaDispatch from "../../Systems/Chara/Dispatch";
 
 import { TURN_DURATION } from "../../config";
 
@@ -54,7 +54,6 @@ export class BattlegroundScene extends Phaser.Scene {
       [events.SELECT_SQUAD_MOVE_START, () => { this.isSelectingSquadMove = true }],
       [events.SELECT_SQUAD_MOVE_DONE, this.moveSquadTo],
       [events.SELECT_SQUAD_MOVE_CANCEL, () => { this.isSelectingSquadMove = false }],
-      [events.DISPATCH_SQUAD, this.dispatchSquad],
       [events.BATTLEGROUND_TICK, (tick: number) => {
         if (!this.isPaused) {
           processTick(this)
@@ -95,10 +94,12 @@ export class BattlegroundScene extends Phaser.Scene {
 
     importMapObjects(this.state, map);
 
+    CharaDispatch.init(this)
+
     this.layers = layers
     this.tilemap = map;
     this.cities = createCities(this, this.state.cities)
-    this.charas = createMapSquads(this)
+    this.createMapSquads()
 
     ControlsSystem.init(this)
     makeMapInteractive(this, map, layers.background)
@@ -135,6 +136,13 @@ export class BattlegroundScene extends Phaser.Scene {
     window.scene = this
   }
 
+  createMapSquads() {
+    this.state.squads
+      .forEach(squad =>
+        emit(events.DISPATCH_SQUAD, squad.id)
+      );
+  }
+
   selectSquad = (id: string) => {
     this.state.selectedEntity = { type: "squad", id }
     this.selectedEntity = this.charas.find(c => c.id === id)?.sprite || null
@@ -160,32 +168,7 @@ export class BattlegroundScene extends Phaser.Scene {
     emit(events.LOOKUP_PATH, squad.id, squad.position, vec2(x, y))
 
   }
-  dispatchSquad = (sqdId: string, cityId: string) => {
 
-    const squad = this.state.squads.find(sqd => sqd.id === sqdId)
-    const city = this.state.cities.find(c => c.id === cityId)
-
-    if (!squad || !city) {
-      console.error("dispatchSquad: squad or city not found")
-      return
-    }
-
-    const tile = this.layers?.background.getTileAtWorldXY(city.screenPosition.x, city.screenPosition.y);
-    if (!tile) return
-
-    emit(events.UPDATE_SQUAD, sqdId, { status: SQUAD_STATUS.IDLE, })
-    emit(events.UPDATE_SQUAD, sqdId, { position: asVec2(tile) })
-
-    const chara_ = createChara(
-      this,
-      squad,
-    )
-
-    this.charas.push(chara_)
-
-    makeSquadInteractive(chara_, this)
-
-  }
 }
 
 export default BattlegroundScene;

@@ -14,7 +14,7 @@ export type Signals = {
 	SELECT_SQUAD_MOVE_CANCEL: (squadId: string) => void
 	TOGGLE_DISPATCH_MODAL: (value: boolean) => void
 	TOGGLE_RECRUIT_MODAL: () => void
-	DISPATCH_SQUAD: (squadId: string, cityId: string) => void
+	DISPATCH_SQUAD: (squadId: string) => void
 	TOGGLE_SQUADS_WINDOW: (value: boolean) => void,
 	BATTLEGROUND_TICK: (tick: number) => void,
 	// TODO: have a parent level for the system
@@ -130,7 +130,7 @@ export const operations: { [key in keyof Signals]: (...args: Parameters<Signals[
 	CITY_SELECTED: (cityId: string) => [events.CITY_SELECTED, cityId],
 	TOGGLE_DISPATCH_MODAL: (value: boolean) => [events.TOGGLE_DISPATCH_MODAL, value],
 	TOGGLE_RECRUIT_MODAL: () => [events.TOGGLE_RECRUIT_MODAL],
-	DISPATCH_SQUAD: (squadId: string, cityId: string) => [events.DISPATCH_SQUAD, squadId, cityId],
+	DISPATCH_SQUAD: (squadId: string) => [events.DISPATCH_SQUAD, squadId],
 	TOGGLE_SQUADS_WINDOW: (value: boolean) => [events.TOGGLE_SQUADS_WINDOW, value],
 	BATTLEGROUND_TICK: (tick: number) => [events.BATTLEGROUND_TICK, tick],
 	ATTACK: (attacker: string, defender: string) => [events.ATTACK, attacker, defender],
