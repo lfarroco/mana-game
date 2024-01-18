@@ -22,7 +22,7 @@ import * as FogOfWarSystem from "./Systems/FogOfWar";
 import * as CursorSystem from "./Systems/Cursor";
 import * as Pathfinding from "./Systems/Pathfinding";
 import * as AISystem from "../../Systems/AI/AI";
-import * as EmoteSystem from "./Systems/Emote";
+import * as EmoteSystem from "../../Systems/Chara/Emote";
 import * as CharaFaceDirection from "../../Systems/Chara/FaceDirection";
 import * as CharaDispatch from "../../Systems/Chara/Dispatch";
 
