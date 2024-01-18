@@ -1,6 +1,4 @@
-import { Chara } from "../Components/MapChara";
 import { Vec2 } from "./Geometry";
-import { Operation, operations } from "./Signals";
 
 export type Direction = "up" | "down" | "left" | "right";
 
