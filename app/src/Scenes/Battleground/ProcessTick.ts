@@ -14,7 +14,6 @@ const processTick = (scene: BattlegroundScene) => {
 
 	// idea: each system should have their operations performed in a tick
 
-	console.time("tick")
 	sequence(checkEnemiesInRange(scene))
 
 	sequence(checkCombat(scene))
@@ -32,8 +31,6 @@ const processTick = (scene: BattlegroundScene) => {
 	sequence(cleanupEmotes(scene))
 
 	// TODO: face direction
-
-	console.timeEnd("tick")
 }
 
 function moveStep(scene: BattlegroundScene): Operation[] {
