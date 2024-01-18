@@ -11,10 +11,11 @@ export type Chara = {
 	job: string;
 	sprite: Phaser.GameObjects.Sprite,
 	emote: Phaser.GameObjects.Sprite | null,
-	emoteOverlay: Phaser.GameObjects.Sprite | null,
 	staminaBar: Phaser.GameObjects.Graphics | null,
 	staminaBarBackground: Phaser.GameObjects.Graphics | null,
-	group: Phaser.GameObjects.Group | null
+	group: Phaser.GameObjects.Group | null,
+	movementArrow: Phaser.GameObjects.Sprite | null,
+	movementArrowOverlay: Phaser.GameObjects.Sprite | null
 }
 
 export const CHARA_SCALE = 1;
@@ -105,10 +106,11 @@ export function createChara(
 		job: squad.job,
 		sprite,
 		emote: null,
-		emoteOverlay: null,
 		staminaBar,
 		staminaBarBackground: staminaBackground,
-		group
+		group,
+		movementArrow: null,
+		movementArrowOverlay: null
 	}
 
 	return chara

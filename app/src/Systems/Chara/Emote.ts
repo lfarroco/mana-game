@@ -37,20 +37,9 @@ export function createEmote(chara: Chara, key: string) {
 	emote.anims.play(key);
 	chara.emote = emote;
 
-	const overlay = chara.sprite.scene.add.sprite(
-		chara.sprite.x,
-		chara.sprite.y - HALF_TILE_HEIGHT,
-		key).setScale(EMOTE_SCALE);
-	overlay.anims.play(key);
-	overlay.setCrop(0, 0, 0, 0);
-	overlay.setTint(65280);
-	chara.emoteOverlay = overlay;
-
 	const follow = () => {
 		emote.x = chara.sprite.x;
 		emote.y = chara.sprite.y - HALF_TILE_HEIGHT;
-		overlay.x = chara.sprite.x;
-		overlay.y = chara.sprite.y - HALF_TILE_HEIGHT;
 	}
 	chara.sprite.scene.events.on("update", follow);
 	chara.sprite.once("destroy", () => {
@@ -58,7 +47,6 @@ export function createEmote(chara: Chara, key: string) {
 	});
 
 	chara.group?.add(emote);
-	chara.group?.add(overlay);
 
 	return chara;
 }
@@ -66,7 +54,5 @@ export function createEmote(chara: Chara, key: string) {
 export function removeEmote(chara: Chara) {
 	if (chara.emote)
 		chara.emote.destroy();
-	if (chara.emoteOverlay)
-		chara.emoteOverlay.destroy();
 	return chara;
 }
