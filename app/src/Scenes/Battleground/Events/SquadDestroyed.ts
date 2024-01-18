@@ -1,4 +1,3 @@
-import { vec2 } from "../../../Models/Geometry";
 import { emit, events, listeners } from "../../../Models/Signals";
 import { SQUAD_STATUS } from "../../../Models/Squad";
 import BattlegroundScene from "../BattlegroundScene";
@@ -20,7 +19,7 @@ export function squadDestroyed(scene: BattlegroundScene) {
 			scene.tweens.add({
 				targets: chara.sprite,
 				alpha: 0,
-				duration: 1000,
+				duration: 1000 / scene.state.speed,
 				ease: 'Power2',
 				onComplete: () => {
 					chara.group?.destroy(true, true)
@@ -35,12 +34,11 @@ export function squadDestroyed(scene: BattlegroundScene) {
 				.play("skull-emote")
 				.setScale(1);
 
-			scene.time.delayedCall(1000, () => {
+			scene.time.delayedCall(1000 / scene.state.speed, () => {
 				emote.destroy()
 			});
 
 			chara.emote?.setVisible(false)
-			chara.emoteOverlay?.setVisible(false)
 
 		}]
 	])

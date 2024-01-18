@@ -23,7 +23,7 @@ export type Signals = {
 	SQUAD_DESTROYED: (squadId: string) => any,
 	FORCE_VICTORY: (force: string) => void,
 	CAPTURE_CITY: (squadId: string, cityId: string) => void,
-	SQUAD_WALKS_TOWARDS_CELL: (squadId: string, vec: Vec2) => void,
+	SQUAD_WALKS_TOWARDS_CELL: (squadId: string, vec: Vec2, walked: number, total: number) => void,
 	SQUAD_LEAVES_CELL: (squadId: string, vec: Vec2) => void,
 	SQUAD_MOVED_INTO_CELL: (squadId: string, vec: Vec2) => void,
 	UPDATE_SQUAD_COUNTER: (count: number, vec: Vec2) => void, // TODO: not implemented yet
@@ -32,6 +32,7 @@ export type Signals = {
 	CREATE_EMOTE: (id: string, key: string) => void,
 	REMOVE_EMOTE: (squadId: string) => void,
 	FACE_DIRECTION: (squadId: string, direction: Direction) => void,
+	SQUAD_FINISHED_MOVE_ANIM: (squadId: string) => void,
 }
 
 export type Operation = [keyof Signals, ...Parameters<Signals[keyof Signals]>]
@@ -64,6 +65,7 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
 	CREATE_EMOTE: "CREATE_EMOTE",
 	REMOVE_EMOTE: "REMOVE_EMOTE",
 	FACE_DIRECTION: "FACE_DIRECTION",
+	SQUAD_FINISHED_MOVE_ANIM: "SQUAD_FINISHED_MOVE_ANIM",
 }
 
 export const listen = <T extends keyof Signals>(
@@ -144,7 +146,7 @@ export const operations: { [key in keyof Signals]: (...args: Parameters<Signals[
 	SQUAD_DESTROYED: (squadId: string) => [events.SQUAD_DESTROYED, squadId],
 	FORCE_VICTORY: (force: string) => [events.FORCE_VICTORY, force],
 	CAPTURE_CITY: (squadId: string, cityId: string) => [events.CAPTURE_CITY, squadId, cityId],
-	SQUAD_WALKS_TOWARDS_CELL: (squadId: string, vec: Vec2) => [events.SQUAD_WALKS_TOWARDS_CELL, squadId, vec],
+	SQUAD_WALKS_TOWARDS_CELL: (squadId: string, vec: Vec2, walked: number, total: number) => [events.SQUAD_WALKS_TOWARDS_CELL, squadId, vec, walked, total],
 	SQUAD_LEAVES_CELL: (squadId: string, vec: Vec2) => [events.SQUAD_LEAVES_CELL, squadId, vec],
 	SQUAD_MOVED_INTO_CELL: (squadId: string, vec: Vec2) => [events.SQUAD_MOVED_INTO_CELL, squadId, vec],
 	UPDATE_SQUAD_COUNTER: (count: number, vec: Vec2) => [events.UPDATE_SQUAD_COUNTER, count, vec],
@@ -153,6 +155,7 @@ export const operations: { [key in keyof Signals]: (...args: Parameters<Signals[
 	CREATE_EMOTE: (id: string, key: string) => [events.CREATE_EMOTE, id, key],
 	REMOVE_EMOTE: (squadId: string) => [events.REMOVE_EMOTE, squadId],
 	FACE_DIRECTION: (squadId: string, direction: Direction) => [events.FACE_DIRECTION, squadId, direction],
+	SQUAD_FINISHED_MOVE_ANIM: (squadId: string) => [events.SQUAD_FINISHED_MOVE_ANIM, squadId],
 }
 
 //@ts-ignore

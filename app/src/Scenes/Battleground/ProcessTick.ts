@@ -1,8 +1,7 @@
 import { vec2, asVec2, eqVec2 } from "../../Models/Geometry";
 import { Operation, emit, sequence, events, operations } from "../../Models/Signals";
 import { BattlegroundScene } from "./BattlegroundScene";
-import { DIRECTIONS, getDirection } from "../../Models/Direction";
-import { faceDirection } from "../../Models/Direction";
+import { getDirection } from "../../Models/Direction";
 import { SQUAD_STATUS, Squad } from "../../Models/Squad";
 import { TURN_DURATION } from "../../config";
 import { foldMap } from "../../Models/Signals";
@@ -72,33 +71,23 @@ function moveStep(scene: BattlegroundScene): Operation[] {
 
 			const directionOps = squad.movementIndex === 0 ?
 				// this will not be necessary if we have a direction check each tick
-				faceDirection(direction, chara)
-				: [];
+				[operations.FACE_DIRECTION(squad.id, direction)] :
+				[];
 
-			// reveal the emote as the walked count progresses
-			// acoording to position
-			if (direction === DIRECTIONS.right) {
-				chara.emoteOverlay?.setCrop(0, 0, 32 * (squad.movementIndex / TURNS_TO_MOVE), 32);
-			} else if (direction === DIRECTIONS.left) {
-				chara.emoteOverlay?.setCrop(32 * (1 - (squad.movementIndex / TURNS_TO_MOVE)), 0, 32, 32);
-			} else if (direction === DIRECTIONS.down) {
-				chara.emoteOverlay?.setCrop(0, 0, 32, 32 * (squad.movementIndex / TURNS_TO_MOVE));
-			} else if (direction === DIRECTIONS.up) {
-				chara.emoteOverlay?.setCrop(0, 32 * (1 - (squad.movementIndex / TURNS_TO_MOVE)), 32, 32);
-			}
 
 			if (squad.movementIndex < TURNS_TO_MOVE) return [
-				operations.SQUAD_WALKS_TOWARDS_CELL(squad.id, next),
+				operations.SQUAD_WALKS_TOWARDS_CELL(squad.id, next, squad.movementIndex, TURNS_TO_MOVE),
 				...directionOps
 			];
 
 			// perform the move
 			// check if there's a city here
+			// TODO: move this into "SQUAD_MOVED_INTO_CELL" event
 			const maybeCity = scene.state.cities.find(c => c.boardPosition.x === nextTile.x && c.boardPosition.y === nextTile.y);
 
-			if (maybeCity && maybeCity.force !== squad.force) {
-				return [operations.CAPTURE_CITY(maybeCity.id, squad.force)];
-			}
+			const maybeCaptureOp = maybeCity && maybeCity.force !== squad.force ?
+				[operations.CAPTURE_CITY(maybeCity.id, squad.force)] :
+				[]
 
 			scene.tweens.add({
 				targets: chara.sprite,
@@ -108,18 +97,7 @@ function moveStep(scene: BattlegroundScene): Operation[] {
 				yoyo: false,
 				ease: "Sine.easeInOut",
 				onComplete: () => {
-					// only non impactful actions can be performed here
-					// as the callback can mess up with the turn system
-					const next = squad.path[0];
-					if (next && squad.path.length > 1) {
-
-						const nextDirection = getDirection(squad.position, next);
-
-						sequence(faceDirection(nextDirection, chara))
-
-					} else {
-						emit(events.REMOVE_EMOTE, squad.id)
-					}
+					emit(events.SQUAD_FINISHED_MOVE_ANIM, squad.id)
 				}
 			});
 
@@ -127,10 +105,12 @@ function moveStep(scene: BattlegroundScene): Operation[] {
 
 			return [
 				...directionOps,
+				operations.SQUAD_WALKS_TOWARDS_CELL(squad.id, next, squad.movementIndex, TURNS_TO_MOVE),
 				operations.SQUAD_LEAVES_CELL(squad.id, squad.position),
 				operations.UPDATE_SQUAD(squad.id, { path }),
 				operations.UPDATE_SQUAD(squad.id, { position: asVec2(nextTile) }),
 				operations.SQUAD_MOVED_INTO_CELL(squad.id, asVec2(nextTile)),
+				...maybeCaptureOp,
 			].concat(
 				// alternative: new event SQUAD_FINISHED_MOVING
 				path.length === 0 ? [operations.UPDATE_SQUAD(squad.id, { status: SQUAD_STATUS.IDLE })] : []
@@ -189,12 +169,9 @@ function checkCombat(scene: BattlegroundScene) {
 				const enemyChara = scene.charas.find(c => c.id === squad.id)
 				if (!enemyChara) return [];
 
-				const directionOps = faceDirection(getDirection(squad.position, enemy.position), enemyChara)
-
 				attack(squad, enemy);
 
 				return [
-					...directionOps,
 					operations.CREATE_EMOTE(squad.id, "combat-emote"),
 				]
 
@@ -271,6 +248,8 @@ function cleanupEmotes(scene: BattlegroundScene) {
 	)
 }
 
+// - checks for squads that are idle and have a path
+// - sets their status to MOVING
 function startMoving(scene: BattlegroundScene) {
 	return foldMap(
 		scene.state.squads
