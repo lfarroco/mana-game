@@ -73,11 +73,7 @@ function moveStep(scene: BattlegroundScene): Operation[] {
 
 			const direction = getDirection(squad.position, next);
 
-			const walked = chara.sprite.getData("walk") || 0;
-
-			chara.sprite.setData("walk", walked + 1);
-
-			const directionOps = walked === 0 ?
+			const directionOps = squad.movementIndex === 0 ?
 				// this will not be necessary if we have a direction check each tick
 				faceDirection(direction, chara)
 				: [];
@@ -85,16 +81,19 @@ function moveStep(scene: BattlegroundScene): Operation[] {
 			// reveal the emote as the walked count progresses
 			// acoording to position
 			if (direction === DIRECTIONS.right) {
-				chara.emoteOverlay?.setCrop(0, 0, 32 * (walked / TURNS_TO_MOVE), 32);
+				chara.emoteOverlay?.setCrop(0, 0, 32 * (squad.movementIndex / TURNS_TO_MOVE), 32);
 			} else if (direction === DIRECTIONS.left) {
-				chara.emoteOverlay?.setCrop(32 * (1 - (walked / TURNS_TO_MOVE)), 0, 32, 32);
+				chara.emoteOverlay?.setCrop(32 * (1 - (squad.movementIndex / TURNS_TO_MOVE)), 0, 32, 32);
 			} else if (direction === DIRECTIONS.down) {
-				chara.emoteOverlay?.setCrop(0, 0, 32, 32 * (walked / TURNS_TO_MOVE));
+				chara.emoteOverlay?.setCrop(0, 0, 32, 32 * (squad.movementIndex / TURNS_TO_MOVE));
 			} else if (direction === DIRECTIONS.up) {
-				chara.emoteOverlay?.setCrop(0, 32 * (1 - (walked / TURNS_TO_MOVE)), 32, 32);
+				chara.emoteOverlay?.setCrop(0, 32 * (1 - (squad.movementIndex / TURNS_TO_MOVE)), 32, 32);
 			}
 
-			if (walked < TURNS_TO_MOVE) return [...directionOps];
+			if (squad.movementIndex < TURNS_TO_MOVE) return [
+				operations.SQUAD_WALKS_TOWARDS_CELL(squad.id, next),
+				...directionOps
+			];
 
 			// perform the move
 			// check if there's a city here
@@ -129,8 +128,6 @@ function moveStep(scene: BattlegroundScene): Operation[] {
 
 			const [, ...path] = squad.path;
 
-			chara.sprite.setData("walk", 0);
-
 			return [
 				...directionOps,
 				operations.SQUAD_LEAVES_CELL(squad.id, squad.position),
@@ -138,6 +135,7 @@ function moveStep(scene: BattlegroundScene): Operation[] {
 				operations.UPDATE_SQUAD(squad.id, { position: asVec2(nextTile) }),
 				operations.SQUAD_MOVED_INTO_CELL(squad.id, asVec2(nextTile)),
 			].concat(
+				// alternative: new event SQUAD_FINISHED_MOVING
 				path.length === 0 ? [operations.UPDATE_SQUAD(squad.id, { status: SQUAD_STATUS.IDLE })] : []
 			)
 		})

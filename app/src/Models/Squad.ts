@@ -17,6 +17,7 @@ export type Squad = {
 	force: string,
 	position: Vec2,
 	status: SquadStatus,
+	movementIndex: number;
 
 	// stats
 	stamina: number,
@@ -38,6 +39,7 @@ export const makeSquad = (id: string, force: string): Squad => ({
 	position: vec2(0, 0),
 	path: [],
 	status: SQUAD_STATUS.IDLE,
+	movementIndex: 0,
 
 	stamina: 100,
 	maxStamina: 100,
