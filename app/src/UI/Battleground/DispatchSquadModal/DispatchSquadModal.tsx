@@ -9,7 +9,7 @@ const dispatch = (squad: Squad) => () => {
 
 	const state = getState()
 	if (state.selectedEntity?.type === "city") {
-		emit(events.DISPATCH_SQUAD, squad.id, state.selectedEntity?.id)
+		emit(events.DISPATCH_SQUAD, squad.id)
 		emit(events.TOGGLE_DISPATCH_MODAL, false)
 		emit(events.SQUAD_SELECTED, squad.id)
 	} else {

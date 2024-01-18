@@ -1,0 +1,28 @@
+import { createChara } from "../../Components/MapChara";
+import { events, listeners } from "../../Models/Signals";
+import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
+import { makeSquadInteractive } from "../../Scenes/Battleground/Map/makeSquadsInteractive";
+
+
+
+export function init(scene: BattlegroundScene) {
+
+	listeners([
+		[events.DISPATCH_SQUAD, (squadId: string) => {
+
+			const squad = scene.state.squads.find(sqd => sqd.id === squadId)
+
+			if (!squad) throw new Error("dispatchSquad: squad not found")
+
+			const chara = createChara(
+				scene,
+				squad,
+			)
+
+			scene.charas.push(chara)
+
+			makeSquadInteractive(chara, scene)
+		}]
+	])
+
+}

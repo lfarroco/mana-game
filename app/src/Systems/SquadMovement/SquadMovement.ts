@@ -14,7 +14,7 @@ export function init(scene: BattlegroundScene) {
 	let squadMovementIndex: { [id: string]: number } = {}
 
 	listeners([
-		[events.DISPATCH_SQUAD, (squadId: string, _cityId: string) => {
+		[events.DISPATCH_SQUAD, (squadId: string) => {
 			squadMovementIndex[squadId] = 0;
 		}],
 		[events.SQUAD_WALKS_TOWARDS_CELL, (squadId: string, vec: Vec2) => {
@@ -22,8 +22,7 @@ export function init(scene: BattlegroundScene) {
 		}],
 		[events.SQUAD_MOVED_INTO_CELL, (squadId: string, vec: Vec2) => {
 			squadMovementIndex[squadId] = 0;
-		}
-		]
+		}],
 	])
 
 }
