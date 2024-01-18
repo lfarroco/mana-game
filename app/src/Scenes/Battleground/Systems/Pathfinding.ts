@@ -3,6 +3,7 @@ import { Vec2, asVec2, eqVec2 } from "../../../Models/Geometry";
 import { emit, events, listeners } from "../../../Models/Signals";
 import { getState } from "../../../Models/State";
 import { SQUAD_STATUS } from "../../../Models/Squad";
+import { getDirection } from "../../../Models/Direction";
 
 
 export function init(grid: number[][]) {
@@ -18,12 +19,12 @@ export function init(grid: number[][]) {
 			const state = getState()
 
 			const squad = state.squads.find(sqd => sqd.id === key)
-			if(!squad) throw new Error("squad not found")
+			if (!squad) throw new Error("squad not found")
 
 			const otherSquads = state.squads
-			.filter(s=>s.status !== SQUAD_STATUS.DESTROYED)
-			.filter(s=> s.force !== squad.force || s.status !== SQUAD_STATUS.MOVING)
-			.filter(s => s.id !== squad.id)
+				.filter(s => s.status !== SQUAD_STATUS.DESTROYED)
+				.filter(s => s.force !== squad.force || s.status !== SQUAD_STATUS.MOVING)
+				.filter(s => s.id !== squad.id)
 
 			// make tile with othersquads unwalkable
 
@@ -65,6 +66,8 @@ export function init(grid: number[][]) {
 
 				const path = path_.slice(1)
 				emit(events.UPDATE_SQUAD, squad.id, { path })
+				const direction = getDirection(squad.position, path[0])
+				emit(events.FACE_DIRECTION, squad.id, direction)
 			}
 		}
 		]
