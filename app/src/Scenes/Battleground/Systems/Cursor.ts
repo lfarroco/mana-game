@@ -34,14 +34,7 @@ export function init(scene: BattlegroundScene) {
 	let eventListeners: { [id: string]: (squadId: string) => void } = {}
 
 	listeners([
-		[events.SQUAD_SELECTED, (squadId: string) => {
-
-			clearCursors(cursors, eventListeners, scene);
-
-			selectSquad(scene, squadId, cursors, eventListeners)
-
-		}],
-		[events.MULTIPLE_SQUADS_SELECTED, (squadIds: string[]) => {
+		[events.UNITS_SELECTED, (squadIds: string[]) => {
 
 			clearCursors(cursors, eventListeners, scene);
 

@@ -17,6 +17,7 @@ export const initialState = (): State => ({
 			squads: ["s1", "s2"]
 		}
 	],
+	selectedUnits: [],
 	squads: [
 		{
 			...makeSquad("s1", FORCE_ID_PLAYER),
@@ -44,7 +45,6 @@ export const initialState = (): State => ({
 		},
 	],
 	cities: [],
-	selectedEntity: null,
 	map: {
 		width: 128,
 		height: 128
@@ -68,9 +68,9 @@ export type State = {
 	tick: number; // TODO: remove tick from scene
 	forces: Force[];
 	squads: Squad[];
+	selectedUnits: string[],
 	grid: number[][];
 	cities: City[];
-	selectedEntity: null | { type: string, id: string };
 	map: {
 		width: number;
 		height: number;

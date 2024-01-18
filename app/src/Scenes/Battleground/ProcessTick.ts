@@ -51,7 +51,7 @@ function moveStep(scene: BattlegroundScene): Operation[] {
 			if (occupant) {
 
 				if (occupant.force === squad.force) {
-					if (occupant.status === SQUAD_STATUS.IDLE) {
+					if (occupant.status === SQUAD_STATUS.IDLE || occupant.status === SQUAD_STATUS.ATTACKING) {
 						return [
 							operations.UPDATE_SQUAD(squad.id, { status: SQUAD_STATUS.IDLE }),
 							operations.UPDATE_SQUAD(squad.id, { path: [] }),

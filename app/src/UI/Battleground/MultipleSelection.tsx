@@ -24,7 +24,7 @@ export default function MultipleSelection({
 						className="img-fluid portrait-sm"
 						src={`assets/jobs/${squad.job}/portrait.png`}
 						alt={squad.name}
-						onClick={emit_(events.SQUAD_SELECTED, squad.id)}
+						onClick={emit_(events.UNITS_SELECTED, squad.id)}
 					/>
 				)
 			}

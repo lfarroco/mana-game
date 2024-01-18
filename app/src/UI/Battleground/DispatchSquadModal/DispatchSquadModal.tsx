@@ -7,14 +7,15 @@ import { emit, emit_, events, listeners } from '../../../Models/Signals';
 
 const dispatch = (squad: Squad) => () => {
 
-	const state = getState()
-	if (state.selectedEntity?.type === "city") {
-		emit(events.DISPATCH_SQUAD, squad.id)
-		emit(events.TOGGLE_DISPATCH_MODAL, false)
-		emit(events.SQUAD_SELECTED, squad.id)
-	} else {
-		console.error("No selected city")
-	}
+	//const state = getState()
+	throw new Error("Not implemented")
+	// if (state.selectedEntity?.type === "city") {
+	// 	emit(events.DISPATCH_SQUAD, squad.id)
+	// 	emit(events.TOGGLE_DISPATCH_MODAL, false)
+	// 	emit(events.UNITS_SELECTED, squad.id)
+	// } else {
+	// 	console.error("No selected city")
+	// }
 }
 
 function DispatchSquadModal() {
