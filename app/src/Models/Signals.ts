@@ -6,11 +6,10 @@ import { Direction } from './Direction'
 export type Signals = {
 	PAUSE_GAME: () => void
 	RESUME_GAME: () => void
-	SQUAD_SELECTED: (squadId: string) => void
-	MULTIPLE_SQUADS_SELECTED: (squadIds: string[]) => void
+	UNITS_SELECTED: (squadId: string[]) => void
 	CITY_SELECTED: (cityId: string) => void
 	SELECT_SQUAD_MOVE_START: (squadId: string) => void
-	SELECT_SQUAD_MOVE_DONE: (squadId: string, target: Vec2) => void
+	SELECT_SQUAD_MOVE_DONE: (squadIds: string[], target: Vec2) => void
 	SELECT_SQUAD_MOVE_CANCEL: (squadId: string) => void
 	TOGGLE_DISPATCH_MODAL: (value: boolean) => void
 	TOGGLE_RECRUIT_MODAL: () => void
@@ -43,8 +42,7 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
 	SELECT_SQUAD_MOVE_START: "SELECT_SQUAD_MOVE_START",
 	SELECT_SQUAD_MOVE_DONE: "SELECT_SQUAD_MOVE_DONE",
 	SELECT_SQUAD_MOVE_CANCEL: "SELECT_SQUAD_MOVE_CANCEL",
-	SQUAD_SELECTED: "SQUAD_SELECTED",
-	MULTIPLE_SQUADS_SELECTED: "MULTIPLE_SQUADS_SELECTED",
+	UNITS_SELECTED: "UNITS_SELECTED",
 	CITY_SELECTED: "CITY_SELECTED",
 	TOGGLE_DISPATCH_MODAL: "TOGGLE_DISPATCH_MODAL",
 	TOGGLE_RECRUIT_MODAL: "TOGGLE_RECRUIT_MODAL",
@@ -125,10 +123,9 @@ export const operations: { [key in keyof Signals]: (...args: Parameters<Signals[
 	PAUSE_GAME: () => [events.PAUSE_GAME],
 	RESUME_GAME: () => [events.RESUME_GAME],
 	SELECT_SQUAD_MOVE_START: (sqdId: string) => [events.SELECT_SQUAD_MOVE_START, sqdId],
-	SELECT_SQUAD_MOVE_DONE: (sqdId: string, target: Vec2) => [events.SELECT_SQUAD_MOVE_DONE, sqdId, target],
+	SELECT_SQUAD_MOVE_DONE: (sqdIds: string[], target: Vec2) => [events.SELECT_SQUAD_MOVE_DONE, sqdIds, target],
 	SELECT_SQUAD_MOVE_CANCEL: (sqdId: string) => [events.SELECT_SQUAD_MOVE_CANCEL, sqdId],
-	SQUAD_SELECTED: (squadId: string) => [events.SQUAD_SELECTED, squadId],
-	MULTIPLE_SQUADS_SELECTED: (squadIds: string[]) => [events.MULTIPLE_SQUADS_SELECTED, squadIds],
+	UNITS_SELECTED: (ids: string[]) => [events.UNITS_SELECTED, ids],
 	CITY_SELECTED: (cityId: string) => [events.CITY_SELECTED, cityId],
 	TOGGLE_DISPATCH_MODAL: (value: boolean) => [events.TOGGLE_DISPATCH_MODAL, value],
 	TOGGLE_RECRUIT_MODAL: () => [events.TOGGLE_RECRUIT_MODAL],

@@ -26,21 +26,24 @@ export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
 
 		if (!chara.sprite.active) return;
 
-		if (state.selectedEntity?.type === "squad" &&
+		if (state.selectedUnits.length > 0 &&
 			(scene.isSelectingSquadMove || pointer.rightButtonReleased())
 		) {
 			const tile = scene.layers?.background.getTileAtWorldXY(chara.sprite.x, chara.sprite.y);
 			if (!tile) return
-			emit(
-				events.SELECT_SQUAD_MOVE_DONE,
-				state.selectedEntity.id,
-				asVec2(tile)
-			);
+
+			state.selectedUnits.forEach(sqdId => {
+				emit(
+					events.SELECT_SQUAD_MOVE_DONE,
+					sqdId,
+					asVec2(tile)
+				)
+			})
 		} else {
 
 			emit(
-				events.SQUAD_SELECTED,
-				chara.id
+				events.UNITS_SELECTED,
+				[chara.id]
 			);
 		}
 	});

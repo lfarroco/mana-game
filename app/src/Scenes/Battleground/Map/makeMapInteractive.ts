@@ -119,12 +119,7 @@ export function makeMapInteractive(
 				)
 			);
 
-		if (charas.length === 1) {
-			emit(events.SQUAD_SELECTED, charas[0].id)
-		} else if (charas.length > 0) {
-			emit(events.MULTIPLE_SQUADS_SELECTED, charas.map(c => c.id))
-		}
-
+		emit(events.UNITS_SELECTED, charas.map(c => c.id))
 
 		selectionRect.clear()
 
@@ -132,20 +127,22 @@ export function makeMapInteractive(
 
 	bgLayer.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer, x: number, y: number) => {
 
-
 		if (pointer.upElement?.tagName !== "CANVAS") return;
 
-		if (scene.state.selectedEntity?.type === "squad" &&
+		if (scene.state.selectedUnits.length > 0 &&
 			(pointer.rightButtonReleased() || scene.isSelectingSquadMove)
 		) {
 
 			const tile = bgLayer.getTileAtWorldXY(x, y);
 
-			emit(
-				events.SELECT_SQUAD_MOVE_DONE,
-				scene.state.selectedEntity.id,
-				asVec2(tile)
-			)
+			scene.state.selectedUnits.forEach(sqdId => {
+
+				emit(
+					events.SELECT_SQUAD_MOVE_DONE,
+					sqdId,
+					asVec2(tile)
+				)
+			})
 		}
 	});
 }

@@ -27,6 +27,7 @@ import * as CharaMovement from "../../Systems/Chara/SquadMovement";
 import * as CharaFaceDirection from "../../Systems/Chara/FaceDirection";
 import * as CharaDispatch from "../../Systems/Chara/Dispatch";
 import * as MovemenArrows from "../../Systems/Chara/MovementArrow";
+import * as EntitySelection from "./Systems/EntitySelection";
 
 import { TURN_DURATION } from "../../config";
 
@@ -38,7 +39,6 @@ export class BattlegroundScene extends Phaser.Scene {
     obstacles: Phaser.Tilemaps.TilemapLayer;
     features: Phaser.Tilemaps.TilemapLayer;
   } | null = null;
-  selectedEntity: Phaser.GameObjects.Sprite | null = null;
   isPaused = false;
   isSelectingSquadMove = false; // TODO: we can move this into the state
   state: State;
@@ -51,10 +51,10 @@ export class BattlegroundScene extends Phaser.Scene {
     listeners([
       [events.PAUSE_GAME, this.pauseGame],
       [events.RESUME_GAME, this.resumeGame],
-      [events.SQUAD_SELECTED, this.selectSquad],
-      [events.CITY_SELECTED, this.selectCity],
+      //[events.UNITS_SELECTED, this.selectSquads],
+      //[events.CITY_SELECTED, this.selectCity],
       [events.SELECT_SQUAD_MOVE_START, () => { this.isSelectingSquadMove = true }],
-      [events.SELECT_SQUAD_MOVE_DONE, this.moveSquadTo],
+      [events.SELECT_SQUAD_MOVE_DONE, this.moveUnitsTo],
       [events.SELECT_SQUAD_MOVE_CANCEL, () => { this.isSelectingSquadMove = false }],
       [events.BATTLEGROUND_TICK, (tick: number) => {
         if (!this.isPaused) {
@@ -113,6 +113,7 @@ export class BattlegroundScene extends Phaser.Scene {
     makeSquadsInteractive(this, this.charas)
     makeCitiesInteractive(this, this.cities.map(c => c.sprite))
     MovemenArrows.init(this);
+    EntitySelection.init(this)
 
     const grid = layers.obstacles.layer.data.map(row => row.map(tile => tile.index === -1 ? 0 : 1))
     Pathfinding.init(grid)
@@ -147,14 +148,10 @@ export class BattlegroundScene extends Phaser.Scene {
       );
   }
 
-  selectSquad = (id: string) => {
-    this.state.selectedEntity = { type: "squad", id }
-    this.selectedEntity = this.charas.find(c => c.id === id)?.sprite || null
-  }
-  selectCity = (id: string) => {
-    this.state.selectedEntity = { type: "city", id }
-    this.selectedEntity = this.children.getByName(id) as Phaser.GameObjects.Sprite
-  }
+  // selectCity = (id: string) => {
+  //   this.state.selectedEntity = { type: "city", id }
+  //   this.selectedUnits = this.children.getByName(id) as Phaser.GameObjects.Sprite
+  // }
 
   pauseGame = () => {
     this.isPaused = true;
@@ -162,14 +159,15 @@ export class BattlegroundScene extends Phaser.Scene {
   resumeGame = () => {
     this.isPaused = false;
   }
-  moveSquadTo = (sqdId: string, { x, y }: Vec2) => {
-    const squad = this.state.squads.find(sqd => sqd.id === sqdId)
-    const tile = this.layers?.background.getTileAt(x, y);
-    if (!squad || !tile) return
+  moveUnitsTo = (sqdIds: string[], { x, y }: Vec2) => {
+
+    const units = this.state.squads.filter(sqd => sqdIds.includes(sqd.id))
 
     this.isSelectingSquadMove = false;
 
-    emit(events.LOOKUP_PATH, squad.id, squad.position, vec2(x, y))
+    units.forEach(squad => {
+      emit(events.LOOKUP_PATH, squad.id, squad.position, vec2(x, y))
+    })
 
   }
 
