@@ -68,15 +68,22 @@ export function makeMapInteractive(
 		selectionRect.lineStyle(2, 0x00ff00, 1);
 
 		selectionRect.strokeRect(
-			pointer.downX,
-			pointer.downY,
+			pointer.downX + scene.cameras.main.scrollX,
+			pointer.downY + scene.cameras.main.scrollY,
 			dragX,
 			dragY
 		)
 
 		scene.charas.forEach(c => c.sprite.setTint(0xffffff))
 		scene.charas
-			.filter(chara => isInside(pointer.downX, pointer.downY, dragX, dragY, chara.sprite.x, chara.sprite.y)
+			.filter(chara => isInside(
+				pointer.downX + scene.cameras.main.scrollX,
+				pointer.downY + scene.cameras.main.scrollY,
+				dragX,
+				dragY,
+				chara.sprite.x,
+				chara.sprite.y
+			)
 			)
 			.forEach(chara => {
 				if (chara.force === FORCE_ID_PLAYER)
@@ -93,8 +100,8 @@ export function makeMapInteractive(
 
 		scene.charas.forEach(c => c.sprite.setTint(0xffffff))
 
-		const dx = dragX - pointer.downX
-		const dy = dragY - pointer.downY
+		const dx = dragX - pointer.downX + scene.cameras.main.scrollX
+		const dy = dragY - pointer.downY + scene.cameras.main.scrollY
 
 		// charas inside selection
 		const charas = scene.charas
@@ -102,7 +109,14 @@ export function makeMapInteractive(
 				scene.state.squads.find(s => s.id === c.id)?.status !== SQUAD_STATUS.DESTROYED
 			)
 			.filter(chara =>
-				isInside(pointer.downX, pointer.downY, dx, dy, chara.sprite.x, chara.sprite.y)
+				isInside(
+					pointer.downX + scene.cameras.main.scrollX,
+					pointer.downY + scene.cameras.main.scrollY,
+					dx,
+					dy,
+					chara.sprite.x,
+					chara.sprite.y,
+				)
 			);
 
 		if (charas.length === 1) {
