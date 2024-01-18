@@ -54,6 +54,8 @@ function moveStep(scene: BattlegroundScene): Operation[] {
 					if (occupant.status === SQUAD_STATUS.IDLE) {
 						return [
 							operations.UPDATE_SQUAD(squad.id, { status: SQUAD_STATUS.IDLE }),
+							operations.UPDATE_SQUAD(squad.id, { path: [] }),
+							operations.SQUAD_FINISHED_MOVE_ANIM(squad.id),
 						];
 					}
 				} else {
