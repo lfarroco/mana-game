@@ -23,6 +23,7 @@ import * as CursorSystem from "./Systems/Cursor";
 import * as Pathfinding from "./Systems/Pathfinding";
 import * as AISystem from "../../Systems/AI/AI";
 import * as EmoteSystem from "../../Systems/Chara/Emote";
+import * as CharaMovement from "../../Systems/Chara/SquadMovement";
 import * as CharaFaceDirection from "../../Systems/Chara/FaceDirection";
 import * as CharaDispatch from "../../Systems/Chara/Dispatch";
 
@@ -95,6 +96,7 @@ export class BattlegroundScene extends Phaser.Scene {
     importMapObjects(this.state, map);
 
     CharaDispatch.init(this)
+    CharaMovement.init(this.state)
 
     this.layers = layers
     this.tilemap = map;
