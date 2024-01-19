@@ -5,6 +5,7 @@ import {
   sequence,
   events,
   operations,
+  traverse_,
 } from "../../Models/Signals";
 import { BattlegroundScene } from "./BattlegroundScene";
 import { getDirection } from "../../Models/Direction";
@@ -24,7 +25,7 @@ const processTick = (scene: BattlegroundScene) => {
 
   sequence(startMoving(scene));
 
-  sequence(moveStep(scene));
+  moveStep(scene);
 
   sequence(checkDestroyed(scene));
 
@@ -37,8 +38,9 @@ const processTick = (scene: BattlegroundScene) => {
   // TODO: face direction
 };
 
-function moveStep(scene: BattlegroundScene): Operation[] {
-  return foldMap(
+
+function moveStep(scene: BattlegroundScene){
+  return traverse_(
     scene.state.squads.filter((s) => s.status === SQUAD_STATUS.MOVING),
     (squad) => {
       const chara = scene.charas.find((c) => c.id === squad.id);
@@ -47,17 +49,32 @@ function moveStep(scene: BattlegroundScene): Operation[] {
 
       const [next] = squad.path;
 
+      const nextTile = scene.layers?.background.getTileAt(next.x, next.y);
+
+      if (!nextTile) throw new Error("no next tile found");
+
+      const direction = getDirection(squad.position, next);
+
+      // TODO: move this into a separate system (SQUAD_WALKS_TOWARDS_CELL)
+      const directionOps =
+        squad.movementIndex === 0
+          ? // this will not be necessary if we have a direction check each tick
+            [operations.FACE_DIRECTION(squad.id, direction)]
+          : [];
+
       const [occupant] = scene.state.squads
         .filter((s) => s.status !== SQUAD_STATUS.DESTROYED)
         .filter((s) => eqVec2(s.position, next));
 
       if (occupant) {
+        console.log("occupant", occupant);
         if (occupant.force === squad.force) {
           if (
             occupant.status === SQUAD_STATUS.IDLE ||
             occupant.status === SQUAD_STATUS.ATTACKING
           ) {
             return [
+              ...directionOps,
               operations.UPDATE_SQUAD(squad.id, { status: SQUAD_STATUS.IDLE }),
               operations.UPDATE_SQUAD(squad.id, { path: [] }),
               operations.SQUAD_FINISHED_MOVE_ANIM(squad.id),
@@ -65,6 +82,7 @@ function moveStep(scene: BattlegroundScene): Operation[] {
           }
         } else {
           return [
+            ...directionOps,
             operations.UPDATE_SQUAD(squad.id, {
               status: SQUAD_STATUS.ATTACKING,
             }),
@@ -72,19 +90,7 @@ function moveStep(scene: BattlegroundScene): Operation[] {
         }
       }
 
-      const nextTile = scene.layers?.background.getTileAt(next.x, next.y);
-
-      if (!nextTile) throw new Error("no next tile found");
-
-      const direction = getDirection(squad.position, next);
-
-      const directionOps =
-        squad.movementIndex === 0
-          ? // this will not be necessary if we have a direction check each tick
-            [operations.FACE_DIRECTION(squad.id, direction)]
-          : [];
-
-      if (squad.movementIndex < TURNS_TO_MOVE)
+      if (squad.movementIndex < TURNS_TO_MOVE || occupant) {
         return [
           operations.SQUAD_WALKS_TOWARDS_CELL(
             squad.id,
@@ -94,6 +100,7 @@ function moveStep(scene: BattlegroundScene): Operation[] {
           ),
           ...directionOps,
         ];
+      }
 
       // perform the move
       // check if there's a city here
@@ -285,4 +292,3 @@ function startMoving(scene: BattlegroundScene) {
     ]
   );
 }
-
