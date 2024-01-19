@@ -1,5 +1,5 @@
 import { emit, events, listeners } from "../../../Models/Signals";
-import { SQUAD_STATUS } from "../../../Models/Squad";
+import { UNIT_STATUS } from "../../../Models/Squad";
 import BattlegroundScene from "../BattlegroundScene";
 
 export function squadDestroyed(scene: BattlegroundScene) {
@@ -7,7 +7,7 @@ export function squadDestroyed(scene: BattlegroundScene) {
 	listeners([
 		[events.SQUAD_DESTROYED, (id: string) => {
 
-			emit(events.UPDATE_SQUAD, id, { status: SQUAD_STATUS.DESTROYED })
+			emit(events.UPDATE_SQUAD, id, { status: UNIT_STATUS.DESTROYED })
 
 			const chara = scene.getChara(id)
 

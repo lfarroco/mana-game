@@ -154,6 +154,8 @@ export class BattlegroundScene extends Phaser.Scene {
 
     //@ts-ignore
     window.scene = this;
+
+    this.cameras.main.setZoom(2)
   };
 
   getChara = (id: string) => {
@@ -174,7 +176,7 @@ export class BattlegroundScene extends Phaser.Scene {
     return city;
   }
 
-  getTileAt = (vec : Vec2) => {
+  getTileAt = (vec: Vec2) => {
     const tile = this.layers?.background.getTileAt(vec.x, vec.y);
     if (!tile) throw new Error("no next tile found");
     return tile;

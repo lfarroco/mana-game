@@ -9,7 +9,7 @@ import {
 } from "../../Models/Signals";
 import { BattlegroundScene } from "./BattlegroundScene";
 import { getDirection } from "../../Models/Direction";
-import { SQUAD_STATUS, Unit } from "../../Models/Squad";
+import { UNIT_STATUS, Unit } from "../../Models/Squad";
 import { TURN_DURATION } from "../../config";
 import { foldMap } from "../../Models/Signals";
 
@@ -41,7 +41,7 @@ const processTick = (scene: BattlegroundScene) => {
 function moveStep(scene: BattlegroundScene) {
   return traverse_(
     scene.state.squads
-      .filter((s) => s.status === SQUAD_STATUS.MOVING)
+      .filter((s) => s.status === UNIT_STATUS.MOVING)
       .sort((a, b) => a.agility - b.agility),
     (squad) => {
       const chara = scene.getChara(squad.id);
@@ -60,19 +60,19 @@ function moveStep(scene: BattlegroundScene) {
           : [];
 
       const [occupant] = scene.state.squads
-        .filter((s) => s.status !== SQUAD_STATUS.DESTROYED)
+        .filter((s) => s.status !== UNIT_STATUS.DESTROYED)
         .filter((s) => eqVec2(s.position, next));
 
       if (occupant) {
         console.log("occupant", occupant);
         if (occupant.force === squad.force) {
           if (
-            occupant.status === SQUAD_STATUS.IDLE ||
-            occupant.status === SQUAD_STATUS.ATTACKING
+            occupant.status === UNIT_STATUS.IDLE ||
+            occupant.status === UNIT_STATUS.ATTACKING
           ) {
             return [
               ...directionOps,
-              operations.UPDATE_SQUAD(squad.id, { status: SQUAD_STATUS.IDLE }),
+              operations.UPDATE_SQUAD(squad.id, { status: UNIT_STATUS.IDLE }),
               operations.UPDATE_SQUAD(squad.id, { path: [] }),
               operations.SQUAD_FINISHED_MOVE_ANIM(squad.id),
             ];
@@ -81,7 +81,7 @@ function moveStep(scene: BattlegroundScene) {
           return [
             ...directionOps,
             operations.UPDATE_SQUAD(squad.id, {
-              status: SQUAD_STATUS.ATTACKING,
+              status: UNIT_STATUS.ATTACKING,
             }),
           ];
         }
@@ -141,7 +141,7 @@ function moveStep(scene: BattlegroundScene) {
       ].concat(
         // alternative: new event SQUAD_FINISHED_MOVING
         path.length === 0
-          ? [operations.UPDATE_SQUAD(squad.id, { status: SQUAD_STATUS.IDLE })]
+          ? [operations.UPDATE_SQUAD(squad.id, { status: UNIT_STATUS.IDLE })]
           : []
       );
     }
@@ -150,14 +150,14 @@ function moveStep(scene: BattlegroundScene) {
 
 function checkEnemiesInRange(scene: BattlegroundScene): Operation[] {
   return foldMap(
-    scene.state.squads.filter((s) => s.status === SQUAD_STATUS.IDLE),
+    scene.state.squads.filter((s) => s.status === UNIT_STATUS.IDLE),
     (squad) => {
       const enemiesNearby = getEnemiesNearby(scene, squad);
 
       if (enemiesNearby.length > 0) {
         return [
           operations.UPDATE_SQUAD(squad.id, {
-            status: SQUAD_STATUS.ATTACKING,
+            status: UNIT_STATUS.ATTACKING,
           }),
         ];
       } else {
@@ -170,7 +170,7 @@ function checkEnemiesInRange(scene: BattlegroundScene): Operation[] {
 function getEnemiesNearby(scene: BattlegroundScene, squad: Unit) {
   return scene.state.squads
     .filter((sqd) => sqd.force !== squad.force)
-    .filter((sqd) => sqd.status !== SQUAD_STATUS.DESTROYED)
+    .filter((sqd) => sqd.status !== UNIT_STATUS.DESTROYED)
     .filter((sqd) =>
       [
         [1, 0],
@@ -185,7 +185,7 @@ function getEnemiesNearby(scene: BattlegroundScene, squad: Unit) {
 
 function checkCombat(scene: BattlegroundScene) {
   return foldMap(
-    scene.state.squads.filter((s) => s.status === SQUAD_STATUS.ATTACKING),
+    scene.state.squads.filter((s) => s.status === UNIT_STATUS.ATTACKING),
     (squad) => {
       const enemiesNearby = getEnemiesNearby(scene, squad);
 
@@ -198,13 +198,13 @@ function checkCombat(scene: BattlegroundScene) {
       } else if (squad.path.length === 0) {
         return [
           operations.UPDATE_SQUAD(squad.id, {
-            status: SQUAD_STATUS.IDLE,
+            status: UNIT_STATUS.IDLE,
           }),
         ];
       } else {
         return [
           operations.UPDATE_SQUAD(squad.id, {
-            status: SQUAD_STATUS.MOVING,
+            status: UNIT_STATUS.MOVING,
           }),
         ];
       }
@@ -222,7 +222,7 @@ function attack(squad: Unit, enemy: Unit) {
 
 function checkDestroyed(scene: BattlegroundScene) {
   return foldMap(
-    scene.state.squads.filter((s) => s.status !== SQUAD_STATUS.DESTROYED),
+    scene.state.squads.filter((s) => s.status !== UNIT_STATUS.DESTROYED),
     (squad) => {
       if (squad.hp === 0) {
         return [operations.SQUAD_DESTROYED(squad.id)];
@@ -234,7 +234,7 @@ function checkDestroyed(scene: BattlegroundScene) {
 
 function checkIdle(scene: BattlegroundScene) {
   return foldMap(
-    scene.state.squads.filter((s) => s.status === SQUAD_STATUS.IDLE),
+    scene.state.squads.filter((s) => s.status === UNIT_STATUS.IDLE),
     (squad) => {
       const chara = scene.getChara(squad.id);
 
@@ -249,7 +249,7 @@ function checkIdle(scene: BattlegroundScene) {
 
 function updatePath(scene: BattlegroundScene) {
   return foldMap(
-    scene.state.squads.filter((s) => s.status === SQUAD_STATUS.MOVING),
+    scene.state.squads.filter((s) => s.status === UNIT_STATUS.MOVING),
     (squad) => [
       operations.LOOKUP_PATH(
         squad.id,
@@ -264,7 +264,7 @@ function updatePath(scene: BattlegroundScene) {
 function cleanupEmotes(scene: BattlegroundScene) {
   return foldMap(
     scene.state.squads
-      .filter((s) => s.status === SQUAD_STATUS.IDLE)
+      .filter((s) => s.status === UNIT_STATUS.IDLE)
       .filter((s) => scene.getChara(s.id).emote?.visible),
     (squad) => [operations.REMOVE_EMOTE(squad.id)]
   );
@@ -275,10 +275,10 @@ function cleanupEmotes(scene: BattlegroundScene) {
 function startMoving(scene: BattlegroundScene) {
   return foldMap(
     scene.state.squads
-      .filter((s) => s.status === SQUAD_STATUS.IDLE)
+      .filter((s) => s.status === UNIT_STATUS.IDLE)
       .filter((s) => s.path.length > 0),
     (squad) => [
-      operations.UPDATE_SQUAD(squad.id, { status: SQUAD_STATUS.MOVING }),
+      operations.UPDATE_SQUAD(squad.id, { status: UNIT_STATUS.MOVING }),
     ]
   );
 }

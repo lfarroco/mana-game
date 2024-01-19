@@ -3,7 +3,7 @@ import BattlegroundScene from "../BattlegroundScene";
 import { emit, events } from "../../../Models/Signals";
 import { asVec2, vec2 } from "../../../Models/Geometry";
 import { FORCE_ID_PLAYER } from "../../../Models/Force";
-import { SQUAD_STATUS } from "../../../Models/Squad";
+import { UNIT_STATUS } from "../../../Models/Squad";
 
 export function makeMapInteractive(
   scene: BattlegroundScene,
@@ -114,7 +114,7 @@ export function makeMapInteractive(
 
       // charas inside selection
       const charas = scene.charas
-        .filter((c) => scene.getSquad(c.id).status !== SQUAD_STATUS.DESTROYED)
+        .filter((c) => scene.getSquad(c.id).status !== UNIT_STATUS.DESTROYED)
         .filter((chara) =>
           isInside(
             pointer.downX + scene.cameras.main.scrollX,

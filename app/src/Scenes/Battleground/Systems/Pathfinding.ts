@@ -2,7 +2,7 @@ import * as Easystar from "easystarjs";
 import { Vec2, asVec2, eqVec2 } from "../../../Models/Geometry";
 import { emit, events, listeners } from "../../../Models/Signals";
 import { getState } from "../../../Models/State";
-import { SQUAD_STATUS } from "../../../Models/Squad";
+import { UNIT_STATUS } from "../../../Models/Squad";
 import { getDirection } from "../../../Models/Direction";
 
 export function init(grid: number[][]) {
@@ -21,9 +21,9 @@ export function init(grid: number[][]) {
         if (!squad) throw new Error("squad not found");
 
         const otherSquads = state.squads
-          .filter((s) => s.status !== SQUAD_STATUS.DESTROYED)
+          .filter((s) => s.status !== UNIT_STATUS.DESTROYED)
           .filter(
-            (s) => s.force !== squad.force || s.status !== SQUAD_STATUS.MOVING
+            (s) => s.force !== squad.force || s.status !== UNIT_STATUS.MOVING
           )
           .filter((s) => s.id !== squad.id);
 
@@ -63,8 +63,8 @@ export function init(grid: number[][]) {
         // in case of choosing own cell
         if (path.length === 0) {
           emit(events.UPDATE_SQUAD, squad.id, { path: [] });
-          if (squad.status === SQUAD_STATUS.MOVING) {
-            emit(events.UPDATE_SQUAD, squad.id, { status: SQUAD_STATUS.IDLE });
+          if (squad.status === UNIT_STATUS.MOVING) {
+            emit(events.UPDATE_SQUAD, squad.id, { status: UNIT_STATUS.IDLE });
           }
 
           return;
