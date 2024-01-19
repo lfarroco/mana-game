@@ -1,7 +1,8 @@
 import { Chara } from "../../Components/MapChara";
 import { Direction, getDirection } from "../../Models/Direction";
-import { Vec2 } from "../../Models/Geometry";
+import { eqVec2, Vec2 } from "../../Models/Geometry";
 import { events, listeners } from "../../Models/Signals";
+import { Squad } from "../../Models/Squad";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 
 export function init(scene: BattlegroundScene) {
@@ -46,6 +47,18 @@ export function init(scene: BattlegroundScene) {
         const target = scene.getSquad(targetId);
 
         const direction = getDirection(squad.position, target.position);
+
+        faceDirection(direction, chara);
+      },
+    ],
+    [
+      events.CHANGE_DIRECTION,
+      (squadId: string, vec: Vec2) => {
+        const squad = scene.getSquad(squadId);
+
+        const chara = scene.getChara(squadId);
+
+        const direction = getDirection(squad.position, vec);
 
         faceDirection(direction, chara);
       },

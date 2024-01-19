@@ -5,102 +5,91 @@ import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { Chara, EMOTE_SCALE } from "../../Components/MapChara";
 import { HALF_TILE_HEIGHT } from "../../Scenes/Battleground/constants";
 
-
 export function init(scene: BattlegroundScene) {
+  listeners([
+    [
+      events.SQUAD_WALKS_TOWARDS_CELL,
+      (squadId: string, next: Vec2, walked: number, total: number) => {
+        const squad = scene.getSquad(squadId);
 
-	listeners([
-		// TODO: also handle arrow creation and hiding 
-		[events.SQUAD_WALKS_TOWARDS_CELL, (squadId: string, next: Vec2, walked: number, total: number) => {
+        const direction = getDirection(squad.position, next);
 
-			const squad = scene.getSquad(squadId)
+        const chara = scene.getChara(squadId);
 
-			const direction = getDirection(squad.position, next)
+        const percentage = walked / total;
 
-			const chara = scene.charas.find(s => s.id === squadId);
+        if (walked === 0) createArrow(direction, chara);
 
-			if (!chara) throw new Error(`Squad with id ${squadId} not found`);
+        if (direction === DIRECTIONS.right) {
+          chara.movementArrowOverlay?.setCrop(0, 0, 32 * percentage, 32);
+        } else if (direction === DIRECTIONS.left) {
+          chara.movementArrowOverlay?.setCrop(32 * (1 - percentage), 0, 32, 32);
+        } else if (direction === DIRECTIONS.down) {
+          chara.movementArrowOverlay?.setCrop(0, 0, 32, 32 * percentage);
+        } else if (direction === DIRECTIONS.up) {
+          chara.movementArrowOverlay?.setCrop(0, 32 * (1 - percentage), 32, 32);
+        }
+      },
+    ],
+    [
+      events.SQUAD_FINISHED_MOVE_ANIM,
+      (squadId: string) => {
+        const squad = scene.getSquad(squadId);
 
-			const percentage = walked / total
+        const chara = scene.getChara(squadId);
 
-			if (walked === 0)
-				createArrow(direction, chara)
+        const [next] = squad.path;
 
-			if (direction === DIRECTIONS.right) {
-				chara.movementArrowOverlay?.setCrop(0, 0, 32 * percentage, 32);
-			} else if (direction === DIRECTIONS.left) {
-				chara.movementArrowOverlay?.setCrop(32 * (1 - percentage), 0, 32, 32);
-			} else if (direction === DIRECTIONS.down) {
-				chara.movementArrowOverlay?.setCrop(0, 0, 32, 32 * percentage);
-			} else if (direction === DIRECTIONS.up) {
-				chara.movementArrowOverlay?.setCrop(0, 32 * (1 - percentage), 32, 32);
-			}
-
-		}],
-		[
-			events.SQUAD_FINISHED_MOVE_ANIM, (squadId: string) => {
-
-				const squad = scene.getSquad(squadId)
-
-				const chara = scene.getChara(squadId);
-
-				const [next] = squad.path;
-
-				if (!next)
-					removeSprites(chara)
-			}
-		]
-	])
-
+        if (!next) removeSprites(chara);
+      },
+    ],
+  ]);
 }
 export function createArrow(direction: Direction, chara: Chara) {
+  removeSprites(chara);
 
-	removeSprites(chara);
-
-	if (direction === DIRECTIONS.right) {
-		createSprites(chara, "arrow-right-emote")
-	} else if (direction === DIRECTIONS.left) {
-		createSprites(chara, "arrow-left-emote")
-	} else if (direction === DIRECTIONS.down) {
-		createSprites(chara, "arrow-bottom-emote")
-	} else if (direction === DIRECTIONS.up) {
-		createSprites(chara, "arrow-top-emote")
-	}
+  if (direction === DIRECTIONS.right) {
+    createSprites(chara, "arrow-right-emote");
+  } else if (direction === DIRECTIONS.left) {
+    createSprites(chara, "arrow-left-emote");
+  } else if (direction === DIRECTIONS.down) {
+    createSprites(chara, "arrow-bottom-emote");
+  } else if (direction === DIRECTIONS.up) {
+    createSprites(chara, "arrow-top-emote");
+  }
 }
 
 function createSprites(chara: Chara, key: string) {
-	const emote = chara.sprite.scene.add.sprite(
-		chara.sprite.x,
-		chara.sprite.y - HALF_TILE_HEIGHT,
-		key).setScale(EMOTE_SCALE);
-	emote.anims.play(key);
-	chara.movementArrow = emote;
+  const emote = chara.sprite.scene.add
+    .sprite(chara.sprite.x, chara.sprite.y - HALF_TILE_HEIGHT, key)
+    .setScale(EMOTE_SCALE);
+  emote.anims.play(key);
+  chara.movementArrow = emote;
 
-	const overlay = chara.sprite.scene.add.sprite(
-		chara.sprite.x,
-		chara.sprite.y - HALF_TILE_HEIGHT,
-		key).setScale(EMOTE_SCALE);
-	overlay.anims.play(key);
-	overlay.setCrop(0, 0, 0, 0);
-	overlay.setTint(65280);
-	chara.movementArrowOverlay = overlay;
+  const overlay = chara.sprite.scene.add
+    .sprite(chara.sprite.x, chara.sprite.y - HALF_TILE_HEIGHT, key)
+    .setScale(EMOTE_SCALE);
+  overlay.anims.play(key);
+  overlay.setCrop(0, 0, 0, 0);
+  overlay.setTint(65280);
+  chara.movementArrowOverlay = overlay;
 
-	const follow = () => {
-		emote.x = chara.sprite.x;
-		emote.y = chara.sprite.y - HALF_TILE_HEIGHT;
-		overlay.x = chara.sprite.x;
-		overlay.y = chara.sprite.y - HALF_TILE_HEIGHT;
-	}
-	chara.sprite.scene.events.on("update", follow);
-	chara.sprite.once("destroy", () => {
-		chara.sprite.scene.events.off("update", follow);
-	});
+  const follow = () => {
+    emote.x = chara.sprite.x;
+    emote.y = chara.sprite.y - HALF_TILE_HEIGHT;
+    overlay.x = chara.sprite.x;
+    overlay.y = chara.sprite.y - HALF_TILE_HEIGHT;
+  };
+  chara.sprite.scene.events.on("update", follow);
+  chara.sprite.once("destroy", () => {
+    chara.sprite.scene.events.off("update", follow);
+  });
 
-	chara.group?.add(emote);
-	chara.group?.add(overlay);
-
+  chara.group?.add(emote);
+  chara.group?.add(overlay);
 }
 
 export function removeSprites(chara: Chara) {
-	chara.movementArrow?.destroy();
-	chara.movementArrowOverlay?.destroy();
+  chara.movementArrow?.destroy();
+  chara.movementArrowOverlay?.destroy();
 }

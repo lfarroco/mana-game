@@ -1,6 +1,6 @@
-import { Vec2 } from "../../Models/Geometry";
+import { eqVec2, Vec2 } from "../../Models/Geometry";
 import { listeners, events } from "../../Models/Signals";
-import { State } from "../../Models/State";
+import { getSquad, State } from "../../Models/State";
 
 // we have a standalone system, that contains its own logic and state
 // - system
@@ -10,29 +10,49 @@ import { State } from "../../Models/State";
 // using events we can send and receive data between the system and the phaser scene and the ui
 
 export function init(state: State) {
+  listeners([
+    [
+      events.DISPATCH_SQUAD,
+      (squadId: string) => {
+        const squad = getSquad(state)(squadId);
 
-	listeners([
-		[events.DISPATCH_SQUAD, (squadId: string) => {
+        squad.movementIndex = 0;
+      },
+    ],
+    [
+      events.SQUAD_WALKS_TOWARDS_CELL,
+      (squadId: string, vec: Vec2) => {
+        const squad = getSquad(state)(squadId);
 
-			const squad = state.squads.find(sqd => sqd.id === squadId)
-			if (!squad) throw new Error("dispatchSquad: squad not found")
+        squad.movementIndex++;
+      },
+    ],
+    [
+      events.SQUAD_MOVED_INTO_CELL,
+      (squadId: string, vec: Vec2) => {
+        const squad = getSquad(state)(squadId);
 
-			squad.movementIndex = 0
-		}],
-		[events.SQUAD_WALKS_TOWARDS_CELL, (squadId: string, vec: Vec2) => {
+        squad.movementIndex = 0;
+      },
+    ],
+    [
+      events.SELECT_SQUAD_MOVE_DONE,
+      (squadId: string, target: Vec2) => {
+        const squad = getSquad(state)(squadId);
 
-			const squad = state.squads.find(sqd => sqd.id === squadId)
-			if (!squad) throw new Error("dispatchSquad: squad not found")
+        if (eqVec2(squad.position, target)) return;
 
-			squad.movementIndex++;
-		}],
-		[events.SQUAD_MOVED_INTO_CELL, (squadId: string, vec: Vec2) => {
+        squad.movementIndex = 0;
+      },
+    ],
+    [
+      events.CHANGE_DIRECTION,
+      (squadId: string, _vec: Vec2) => {
+        const squad = getSquad(state)(squadId);
 
-			const squad = state.squads.find(sqd => sqd.id === squadId)
-			if (!squad) throw new Error("dispatchSquad: squad not found")
-
-			squad.movementIndex = 0;
-		}],
-	])
-
+        squad.movementIndex = 0;
+      },
+    ],
+  ]);
 }
+
