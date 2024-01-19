@@ -38,13 +38,12 @@ export function init(grid: number[][]) {
         easystar.findPath(source.x, source.y, target.x, target.y, (path) => {
           if (!path) return;
 
-          const path_ = path.map(asVec2);
+          const path_ = path.map(asVec2).slice(1)
 
           if (
             squad.path.length > 0 &&
             path_.length > 0 &&
-            !eqVec2(squad.path[0], path_[0]) &&
-            !eqVec2(squad.position, path_[0])
+            !eqVec2(squad.path[0], path_[0])
           ) {
             emit(events.CHANGE_DIRECTION, key, path_[0]);
           }
@@ -55,14 +54,14 @@ export function init(grid: number[][]) {
     ],
     [
       events.PATH_FOUND,
-      (key: string, path_: Vec2[]) => {
+      (key: string, path: Vec2[]) => {
         const state = getState();
 
         const squad = state.squads.find((sqd) => sqd.id === key);
         if (!squad) throw new Error("squad not found");
 
         // in case of choosing own cell
-        if (path_.length === 0) {
+        if (path.length === 0) {
           emit(events.UPDATE_SQUAD, squad.id, { path: [] });
           if (squad.status === SQUAD_STATUS.MOVING) {
             emit(events.UPDATE_SQUAD, squad.id, { status: SQUAD_STATUS.IDLE });
@@ -70,7 +69,6 @@ export function init(grid: number[][]) {
 
           return;
         } else {
-          const path = path_.slice(1);
           emit(events.UPDATE_SQUAD, squad.id, { path });
           const direction = getDirection(squad.position, path[0]);
           emit(events.FACE_DIRECTION, squad.id, direction);
