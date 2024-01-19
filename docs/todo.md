@@ -13,3 +13,4 @@
 - TODO: shift-pathing (hold shift to queue up pathing)  
 - TODO: have passive units have a agroo range (think wc3)
 - TODO: the camera zoom messes with selection and drag
+- TODO: ping move location on order issued
