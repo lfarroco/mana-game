@@ -155,7 +155,6 @@ export class BattlegroundScene extends Phaser.Scene {
     //@ts-ignore
     window.scene = this;
 
-    this.cameras.main.setZoom(2)
   };
 
   getChara = (id: string) => {
