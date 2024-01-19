@@ -14,3 +14,13 @@
 - TODO: have passive units have a agroo range (think wc3)
 - TODO: the camera zoom messes with selection and drag
 - TODO: ping move location on order issued
+- TODO: shift-click to select
+- TODO: shift-click in portrait to deselect
+- TODO: adjust area select to prioritize allied units
+- TODO: display select cursor in cities
+- TODO: disable selection under the fow
+- TODO: scroll by placing cursor at the edge of the screen
+
+--- post v1:
+- controller support
+- modding support

@@ -33,7 +33,6 @@ const game = new Phaser.Game({
 
 game.scene.add('BattlegroundScene', BattlegroundScene, true);
 
-//window resize event
 window.addEventListener('resize', () => {
 
   game.scale.resize(window.innerWidth, window.innerHeight);
