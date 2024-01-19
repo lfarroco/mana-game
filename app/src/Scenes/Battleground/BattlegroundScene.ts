@@ -156,6 +156,30 @@ export class BattlegroundScene extends Phaser.Scene {
     window.scene = this;
   };
 
+  getChara = (id: string) => {
+    const chara = this.charas.find((chara) => chara.id === id);
+    if (!chara) throw new Error(`chara ${id} not found`);
+    return chara;
+  };
+
+  getSquad = (id: string) => {
+    const squad = this.state.squads.find((squad) => squad.id === id);
+    if (!squad) throw new Error(`squad ${id} not found`);
+    return squad;
+  };
+
+  getCity = (id: string) => {
+    const city = this.cities.find((city) => city.city.id === id);
+    if (!city) throw new Error(`city ${id} not found`);
+    return city;
+  }
+
+  getTileAt = (vec : Vec2) => {
+    const tile = this.layers?.background.getTileAt(vec.x, vec.y);
+    if (!tile) throw new Error("no next tile found");
+    return tile;
+  };
+
   createMapSquads() {
     this.state.squads.forEach((squad) => emit(events.DISPATCH_SQUAD, squad.id));
   }

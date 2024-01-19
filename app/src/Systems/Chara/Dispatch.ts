@@ -10,9 +10,7 @@ export function init(scene: BattlegroundScene) {
 	listeners([
 		[events.DISPATCH_SQUAD, (squadId: string) => {
 
-			const squad = scene.state.squads.find(sqd => sqd.id === squadId)
-
-			if (!squad) throw new Error("dispatchSquad: squad not found")
+			const squad = scene.getSquad( squadId)
 
 			const chara = createChara(
 				scene,
