@@ -1,6 +1,6 @@
 import { eqVec2 } from "../../Models/Geometry";
 import { emit, events, listeners } from "../../Models/Signals";
-import { SQUAD_STATUS } from "../../Models/Squad";
+import { UNIT_STATUS } from "../../Models/Squad";
 import { State } from "../../Models/State";
 
 const STAMINA_REGEN_RATE = 3;
@@ -11,7 +11,7 @@ export function init(state: State) {
 		[events.BATTLEGROUND_TICK, () => {
 
 			state.squads
-				.filter(squad => squad.status === SQUAD_STATUS.IDLE)
+				.filter(squad => squad.status === UNIT_STATUS.IDLE)
 				.filter(squad => squad.hp < squad.maxHp)
 				.filter(squad => state.cities.some(
 					city => eqVec2(city.boardPosition, squad.position)

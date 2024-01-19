@@ -1,7 +1,7 @@
 import { FORCE_ID_CPU } from "../../Models/Force";
 import { eqVec2 } from "../../Models/Geometry";
 import { emit, events, listeners } from "../../Models/Signals";
-import { SQUAD_STATUS, Unit } from "../../Models/Squad";
+import { UNIT_STATUS, Unit } from "../../Models/Squad";
 import { getState } from "../../Models/State";
 import { distanceBetween } from "../../Models/Geometry";
 
@@ -42,7 +42,7 @@ function processAttackerActions() {
 				return;
 			}
 
-			if (sqd.status === SQUAD_STATUS.IDLE && sqd.hp >= 80) {
+			if (sqd.status === UNIT_STATUS.IDLE && sqd.hp >= 80) {
 				console.log("AI: attacking", sqd.id, closestCity.boardPosition)
 
 				// is currently at a city? if so, wait to recharge all stamina
@@ -60,7 +60,7 @@ function processAttackerActions() {
 				return;
 			}
 
-			if (sqd.status === SQUAD_STATUS.IDLE && sqd.hp < 80) {
+			if (sqd.status === UNIT_STATUS.IDLE && sqd.hp < 80) {
 
 				console.log("AI: moving", sqd.id, closestCity.boardPosition)
 
@@ -105,7 +105,7 @@ function processDefenderActions() {
 				return;
 			}
 
-			if (sqd.status === SQUAD_STATUS.IDLE) {
+			if (sqd.status === UNIT_STATUS.IDLE) {
 				console.log("AI: moving", sqd.id, closestCity.boardPosition)
 				emit(events.SELECT_SQUAD_MOVE_DONE, sqd.id, closestCity.boardPosition)
 				return;

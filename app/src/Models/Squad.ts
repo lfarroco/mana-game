@@ -1,14 +1,20 @@
 import { Vec2, vec2 } from "./Geometry";
 import { getJob } from "./Job";
 
-export type SquadStatus = "MOVING" | "ATTACKING" | "DESTROYED" | "IDLE";
+export type UnitStatus = "MOVING" | "ATTACKING" | "DESTROYED" | "IDLE";
 
-export const SQUAD_STATUS: Record<SquadStatus, SquadStatus> = {
+export const UNIT_STATUS: Record<UnitStatus, UnitStatus> = {
   MOVING: "MOVING",
   ATTACKING: "ATTACKING",
   DESTROYED: "DESTROYED",
   IDLE: "IDLE",
 };
+
+type Order =
+  { type: "move_to", target: Vec2 } |
+  { type: "attack_move", target: Vec2 } |
+  { type: "attack_unit", target: string } |
+  { type: "idle" }
 
 export type Unit = {
   path: Vec2[];
@@ -17,10 +23,10 @@ export type Unit = {
   job: string;
   force: string;
   position: Vec2;
-  status: SquadStatus;
+  status: UnitStatus;
   movementIndex: number;
+  order: Order;
 
-  // stats
   hp: number;
   maxHp: number;
   attack: number;
@@ -41,7 +47,8 @@ export const makeUnit = (id: string, force: string, job: string): Unit => {
     force,
     position: vec2(0, 0),
     path: [],
-    status: SQUAD_STATUS.IDLE,
+    order: { type: "idle" },
+    status: UNIT_STATUS.IDLE,
     movementIndex: 0,
     ...job_.stats,
     maxHp: job_.stats.hp,

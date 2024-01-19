@@ -1,5 +1,5 @@
 import { Button } from "react-bootstrap"
-import { SQUAD_STATUS, Unit } from "../../../Models/Squad"
+import { UNIT_STATUS, Unit } from "../../../Models/Squad"
 import "./styles.css"
 import * as Signals from "../../../Models/Signals"
 import { FORCE_ID_PLAYER } from "../../../Models/Force"
@@ -15,13 +15,13 @@ const SelectedSquad = ({
 	const isPlayerControlled = squad.force === FORCE_ID_PLAYER
 
 	const getStatus = () => {
-		if (squad.status === SQUAD_STATUS.ATTACKING)
+		if (squad.status === UNIT_STATUS.ATTACKING)
 			return "Engaged"
 
-		if (squad.status === SQUAD_STATUS.MOVING)
+		if (squad.status === UNIT_STATUS.MOVING)
 			return "Moving"
 
-		if (squad.status === SQUAD_STATUS.IDLE)
+		if (squad.status === UNIT_STATUS.IDLE)
 			return "Idle"
 		else
 			return "Unknown"

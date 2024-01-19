@@ -9,7 +9,6 @@ import SelectionHUD from './SelectionHUD';
 
 const Battleground = () => {
 
-  // move these into the SelectionHUD
   const [isPaused, setPaused] = useState(false);
   const [isSelectingMoveTarget, setIsSelectingMoveTarget] = useState(false);
   const [tick, setTick] = useState(0);
@@ -34,19 +33,12 @@ const Battleground = () => {
       <header>
         <div className="content text-center">
           <ButtonGroup>
-            <Button>
-              Quests
-            </Button>
             <Button
               onClick={emit_(events.TOGGLE_SQUADS_WINDOW, true)}
               className="btn btn-secondary col-12"
             >
               Squads
             </Button>
-            <Button>
-              Log
-            </Button>
-
             <Button
               onClick={(e) => {
                 if (isPaused) {
@@ -61,7 +53,6 @@ const Battleground = () => {
             <Button>
               {tick}
             </Button>
-
           </ButtonGroup>
         </div>
       </header>

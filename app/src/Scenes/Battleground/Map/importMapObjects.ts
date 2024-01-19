@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { State } from "../../../Models/State";
 import * as uuid from "uuid";
-import { SQUAD_STATUS, Unit, makeUnit } from "../../../Models/Squad";
+import { UNIT_STATUS, Unit, makeUnit } from "../../../Models/Squad";
 import {
   HALF_TILE_HEIGHT,
   HALF_TILE_WIDTH,
