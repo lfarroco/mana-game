@@ -1,6 +1,6 @@
 import './SquadsWindow.css';
 import Modal from 'react-bootstrap/Modal';
-import { Squad } from '../../../Models/Squad';
+import { Unit } from '../../../Models/Squad';
 import { getState } from '../../../Models/State';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
@@ -48,7 +48,7 @@ function SquadsWindow() {
 }
 
 const squadTable = (
-	squads: Squad[],
+	squads: Unit[],
 	force: string,
 ) => {
 	return <Table striped bordered hover size="sm">

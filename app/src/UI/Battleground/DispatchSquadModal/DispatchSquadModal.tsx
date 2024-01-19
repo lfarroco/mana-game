@@ -1,11 +1,11 @@
 import Modal from 'react-bootstrap/Modal';
-import { Squad } from '../../../Models/Squad';
+import { Unit } from '../../../Models/Squad';
 import { getState } from '../../../Models/State';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import { emit, emit_, events, listeners } from '../../../Models/Signals';
 
-const dispatch = (squad: Squad) => () => {
+const dispatch = (squad: Unit) => () => {
 
 	//const state = getState()
 	throw new Error("Not implemented")

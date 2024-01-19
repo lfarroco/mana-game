@@ -12,17 +12,17 @@ export function init(state: State) {
 
 			state.squads
 				.filter(squad => squad.status === SQUAD_STATUS.IDLE)
-				.filter(squad => squad.stamina < 100)
+				.filter(squad => squad.hp < squad.maxHp)
 				.filter(squad => state.cities.some(
 					city => eqVec2(city.boardPosition, squad.position)
 				))
 				.forEach(squad => {
-					const newStamina = squad.stamina + STAMINA_REGEN_RATE;
+					const newHP = squad.hp + STAMINA_REGEN_RATE;
 
-					if (newStamina >= 100) {
-						emit(events.UPDATE_SQUAD, squad.id, { stamina: 100 })
+					if (newHP >= squad.maxHp) {
+						emit(events.UPDATE_SQUAD, squad.id, { hp: squad.maxHp })
 					} else {
-						emit(events.UPDATE_SQUAD, squad.id, { stamina: newStamina })
+						emit(events.UPDATE_SQUAD, squad.id, { hp: newHP })
 					}
 				});
 

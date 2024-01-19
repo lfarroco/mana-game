@@ -1,7 +1,7 @@
 import { FORCE_ID_CPU } from "../../Models/Force";
 import { eqVec2 } from "../../Models/Geometry";
 import { emit, events, listeners } from "../../Models/Signals";
-import { SQUAD_STATUS, Squad } from "../../Models/Squad";
+import { SQUAD_STATUS, Unit } from "../../Models/Squad";
 import { getState } from "../../Models/State";
 import { distanceBetween } from "../../Models/Geometry";
 
@@ -23,7 +23,7 @@ function processAttackerActions() {
 
 	(state.ai.attackers
 		.map(id => state.squads.find(squad => squad.id === id))
-		.filter(squad => squad) as Squad[]
+		.filter(squad => squad) as Unit[]
 	)
 		.forEach(sqd => {
 
@@ -42,11 +42,11 @@ function processAttackerActions() {
 				return;
 			}
 
-			if (sqd.status === SQUAD_STATUS.IDLE && sqd.stamina >= 80) {
+			if (sqd.status === SQUAD_STATUS.IDLE && sqd.hp >= 80) {
 				console.log("AI: attacking", sqd.id, closestCity.boardPosition)
 
 				// is currently at a city? if so, wait to recharge all stamina
-				if (eqVec2(closestCity.boardPosition, sqd.position) && sqd.stamina < 100) {
+				if (eqVec2(closestCity.boardPosition, sqd.position) && sqd.hp < 100) {
 					return;
 				}
 				// find a path
@@ -60,7 +60,7 @@ function processAttackerActions() {
 				return;
 			}
 
-			if (sqd.status === SQUAD_STATUS.IDLE && sqd.stamina < 80) {
+			if (sqd.status === SQUAD_STATUS.IDLE && sqd.hp < 80) {
 
 				console.log("AI: moving", sqd.id, closestCity.boardPosition)
 
@@ -84,7 +84,7 @@ function processDefenderActions() {
 
 	(state.ai.defenders
 		.map(id => state.squads.find(squad => squad.id === id))
-		.filter(squad => squad) as Squad[]
+		.filter(squad => squad) as Unit[]
 	)
 		.forEach(sqd => {
 			//find closest city

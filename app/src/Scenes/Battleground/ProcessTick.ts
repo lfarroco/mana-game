@@ -9,7 +9,7 @@ import {
 } from "../../Models/Signals";
 import { BattlegroundScene } from "./BattlegroundScene";
 import { getDirection } from "../../Models/Direction";
-import { SQUAD_STATUS, Squad } from "../../Models/Squad";
+import { SQUAD_STATUS, Unit } from "../../Models/Squad";
 import { TURN_DURATION } from "../../config";
 import { foldMap } from "../../Models/Signals";
 
@@ -167,7 +167,7 @@ function checkEnemiesInRange(scene: BattlegroundScene): Operation[] {
   );
 }
 
-function getEnemiesNearby(scene: BattlegroundScene, squad: Squad) {
+function getEnemiesNearby(scene: BattlegroundScene, squad: Unit) {
   return scene.state.squads
     .filter((sqd) => sqd.force !== squad.force)
     .filter((sqd) => sqd.status !== SQUAD_STATUS.DESTROYED)
@@ -214,17 +214,17 @@ function checkCombat(scene: BattlegroundScene) {
 
 export default processTick;
 
-function attack(squad: Squad, enemy: Squad) {
+function attack(squad: Unit, enemy: Unit) {
   emit(events.ATTACK, squad.id, enemy.id);
-  const newStamina = enemy.stamina - 9 < 0 ? 0 : enemy.stamina - 9;
-  emit(events.UPDATE_SQUAD, enemy.id, { stamina: newStamina });
+  const newStamina = enemy.hp - 9 < 0 ? 0 : enemy.hp - 9;
+  emit(events.UPDATE_SQUAD, enemy.id, { hp: newStamina });
 }
 
 function checkDestroyed(scene: BattlegroundScene) {
   return foldMap(
     scene.state.squads.filter((s) => s.status !== SQUAD_STATUS.DESTROYED),
     (squad) => {
-      if (squad.stamina === 0) {
+      if (squad.hp === 0) {
         return [operations.SQUAD_DESTROYED(squad.id)];
       }
       return [];

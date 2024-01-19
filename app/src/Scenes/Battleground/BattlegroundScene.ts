@@ -6,7 +6,7 @@ import { makeMapInteractive } from "./Map/makeMapInteractive";
 import { makeSquadsInteractive } from "./Map/makeSquadsInteractive";
 import { createCities } from "./Map/createCities";
 import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
-import { Squad } from "../../Models/Squad";
+import { Unit } from "../../Models/Squad";
 import processTick from "./ProcessTick";
 import { Vec2, vec2 } from "../../Models/Geometry";
 import { Chara } from "../../Components/MapChara";
@@ -76,8 +76,8 @@ export class BattlegroundScene extends Phaser.Scene {
       ],
       [
         events.UPDATE_SQUAD,
-        (squadId: string, sqd: Partial<Squad>) => {
-          if (sqd.stamina === 0) {
+        (squadId: string, sqd: Partial<Unit>) => {
+          if (sqd.hp === 0) {
             emit(events.SQUAD_DESTROYED, squadId);
           }
 
