@@ -7,14 +7,9 @@ export function squadDestroyed(scene: BattlegroundScene) {
 	listeners([
 		[events.SQUAD_DESTROYED, (id: string) => {
 
-			const squad = scene.state.squads.find(sqd => sqd.id === id)
-			if (!squad) throw new Error("squad not found")
-
 			emit(events.UPDATE_SQUAD, id, { status: SQUAD_STATUS.DESTROYED })
 
-			const chara = scene.charas.find(chara => chara.id === id)
-
-			if (!chara) throw new Error("chara not found")
+			const chara = scene.getChara(id)
 
 			scene.tweens.add({
 				targets: chara.sprite,

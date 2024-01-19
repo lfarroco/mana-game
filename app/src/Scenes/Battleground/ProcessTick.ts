@@ -38,20 +38,17 @@ const processTick = (scene: BattlegroundScene) => {
   // TODO: face direction
 };
 
-
-function moveStep(scene: BattlegroundScene){
+function moveStep(scene: BattlegroundScene) {
   return traverse_(
-    scene.state.squads.filter((s) => s.status === SQUAD_STATUS.MOVING),
+    scene.state.squads
+      .filter((s) => s.status === SQUAD_STATUS.MOVING)
+      .sort((a, b) => a.agility - b.agility),
     (squad) => {
-      const chara = scene.charas.find((c) => c.id === squad.id);
-
-      if (!chara) throw new Error("no chara found");
+      const chara = scene.getChara(squad.id);
 
       const [next] = squad.path;
 
-      const nextTile = scene.layers?.background.getTileAt(next.x, next.y);
-
-      if (!nextTile) throw new Error("no next tile found");
+      const nextTile = scene.getTileAt(next);
 
       const direction = getDirection(squad.position, next);
 
@@ -106,8 +103,7 @@ function moveStep(scene: BattlegroundScene){
       // check if there's a city here
       // TODO: move this into "SQUAD_MOVED_INTO_CELL" event
       const maybeCity = scene.state.cities.find(
-        (c) =>
-          c.boardPosition.x === nextTile.x && c.boardPosition.y === nextTile.y
+        (c) => eqVec2(c.boardPosition, asVec2(nextTile)) && c.force !== squad.force
       );
 
       const maybeCaptureOp =
@@ -196,12 +192,6 @@ function checkCombat(scene: BattlegroundScene) {
       if (enemiesNearby.length > 0) {
         const enemy = enemiesNearby[0];
 
-        const chara = scene.charas.find((c) => c.id === squad.id);
-        if (!chara) return [];
-
-        const enemyChara = scene.charas.find((c) => c.id === squad.id);
-        if (!enemyChara) return [];
-
         attack(squad, enemy);
 
         return [operations.CREATE_EMOTE(squad.id, "combat-emote")];
@@ -246,7 +236,7 @@ function checkIdle(scene: BattlegroundScene) {
   return foldMap(
     scene.state.squads.filter((s) => s.status === SQUAD_STATUS.IDLE),
     (squad) => {
-      const chara = scene.charas.find((c) => c.id === squad.id);
+      const chara = scene.getChara(squad.id);
 
       if (chara?.emote?.visible) {
         return [operations.REMOVE_EMOTE(squad.id)];
@@ -275,7 +265,7 @@ function cleanupEmotes(scene: BattlegroundScene) {
   return foldMap(
     scene.state.squads
       .filter((s) => s.status === SQUAD_STATUS.IDLE)
-      .filter((s) => scene.charas.find((c) => c.id === s.id)?.emote?.visible),
+      .filter((s) => scene.getChara(s.id).emote?.visible),
     (squad) => [operations.REMOVE_EMOTE(squad.id)]
   );
 }

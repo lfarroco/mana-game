@@ -27,7 +27,7 @@ export type Squad = {
 	mgkAttack: number,
 	mgkDefense: number,
 	accuracy: number,
-	evasion: number,
+	agility: number,
 
 }
 
@@ -48,5 +48,5 @@ export const makeSquad = (id: string, force: string): Squad => ({
 	mgkAttack: 10,
 	mgkDefense: 10,
 	accuracy: 10,
-	evasion: 10,
+	agility: 10,
 });

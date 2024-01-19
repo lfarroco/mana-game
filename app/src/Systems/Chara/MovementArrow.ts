@@ -12,8 +12,7 @@ export function init(scene: BattlegroundScene) {
 		// TODO: also handle arrow creation and hiding 
 		[events.SQUAD_WALKS_TOWARDS_CELL, (squadId: string, next: Vec2, walked: number, total: number) => {
 
-			const squad = scene.state.squads.find(s => s.id === squadId)
-			if (!squad) throw new Error(`Squad with id ${squadId} not found`)
+			const squad = scene.getSquad(squadId)
 
 			const direction = getDirection(squad.position, next)
 
@@ -40,11 +39,9 @@ export function init(scene: BattlegroundScene) {
 		[
 			events.SQUAD_FINISHED_MOVE_ANIM, (squadId: string) => {
 
-				const squad = scene.state.squads.find(s => s.id === squadId)
-				if (!squad) throw new Error(`Squad with id ${squadId} not found`)
+				const squad = scene.getSquad(squadId)
 
-				const chara = scene.charas.find(c => c.id === squadId);
-				if (!chara) throw new Error(`Chara with id ${squadId} not found`)
+				const chara = scene.getChara(squadId);
 
 				const [next] = squad.path;
 

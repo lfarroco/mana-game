@@ -65,14 +65,9 @@ function selectSquad(
 
 	const getOrCreateCursor = getOrCreateCursor_(cursors)
 
-	const squad = scene.state.squads.find(sqd => sqd.id === squadId)
-	if (!squad) {
-		console.warn("squad not found", squadId)
-		return
-	}
+	const squad = scene.getSquad(squadId)
 
-	const chara = scene.charas.find(c => c.id === squadId)
-	if (!chara) throw new Error("chara not found")
+	const chara = scene.getChara(squadId)
 
 	const cursor = getOrCreateCursor(chara)
 

@@ -114,11 +114,7 @@ export function makeMapInteractive(
 
       // charas inside selection
       const charas = scene.charas
-        .filter(
-          (c) =>
-            scene.state.squads.find((s) => s.id === c.id)?.status !==
-            SQUAD_STATUS.DESTROYED
-        )
+        .filter((c) => scene.getSquad(c.id).status !== SQUAD_STATUS.DESTROYED)
         .filter((chara) =>
           isInside(
             pointer.downX + scene.cameras.main.scrollX,
