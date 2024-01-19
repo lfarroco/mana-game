@@ -109,3 +109,14 @@ export const updateSquad = (s: State) => (id: string) => (
   Object.assign(squad, sqd);
 };
 
+export const getSquad = (s: State) => (id: string): Squad => {
+  const squad = s.squads.find((sqd) => sqd.id === id);
+  if (!squad) throw new Error("squad not found");
+  return squad;
+}
+
+export const getCity = (s: State) => (id: string): City => {
+  const city = s.cities.find((city) => city.id === id);
+  if (!city) throw new Error("city not found");
+  return city;
+}

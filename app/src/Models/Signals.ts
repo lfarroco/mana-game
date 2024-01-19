@@ -33,6 +33,7 @@ export type Signals = {
   UPDATE_SQUAD_COUNTER: (count: number, vec: Vec2) => void; // TODO: not implemented yet
   LOOKUP_PATH: (key: string, source: Vec2, target: Vec2) => void;
   PATH_FOUND: (key: string, path: Vec2[]) => void;
+  CHANGE_DIRECTION: (key: string, vec: Vec2) => void;
   CREATE_EMOTE: (id: string, key: string) => void;
   REMOVE_EMOTE: (squadId: string) => void;
   FACE_DIRECTION: (squadId: string, direction: Direction) => void;
@@ -55,6 +56,7 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
   TOGGLE_SQUADS_WINDOW: "TOGGLE_SQUADS_WINDOW",
   BATTLEGROUND_TICK: "BATTLEGROUND_TICK",
   ATTACK: "ATTACK",
+  CHANGE_DIRECTION: "CHANGE_DIRECTION",
   UPDATE_SQUAD: "UPDATE_SQUAD",
   SQUAD_DESTROYED: "SQUAD_DESTROYED",
   FORCE_VICTORY: "FORCE_VICTORY",
@@ -207,6 +209,11 @@ export const operations: {
   SQUAD_FINISHED_MOVE_ANIM: (squadId: string) => [
     events.SQUAD_FINISHED_MOVE_ANIM,
     squadId,
+  ],
+  CHANGE_DIRECTION: (key: string, vec: Vec2) => [
+    events.CHANGE_DIRECTION,
+    key,
+    vec,
   ],
 };
 
