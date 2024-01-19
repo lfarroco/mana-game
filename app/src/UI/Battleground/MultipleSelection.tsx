@@ -27,7 +27,7 @@ export default function MultipleSelection({
         {cities_.map((city) => (
           <img
             key={`squad-member-${city.id}`}
-            className="img-fluid portrait-sm"
+            className="img-fluid portrait"
             src={`assets/cities/${city.type}.png`}
             alt={city.name}
             onClick={() => {
@@ -39,7 +39,7 @@ export default function MultipleSelection({
         {squads.map((squad) => (
           <img
             key={`squad-member-${squad.id}`}
-            className="img-fluid portrait-sm"
+            className="img-fluid portrait"
             src={`assets/jobs/${squad.job}/portrait.png`}
             alt={squad.name}
             onClick={() => {
