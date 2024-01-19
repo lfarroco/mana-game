@@ -1,4 +1,4 @@
-import { emit_, events } from "../../Models/Signals";
+import { emit, emit_, events } from "../../Models/Signals";
 import { Squad } from "../../Models/Squad";
 import { getState } from "../../Models/State";
 
@@ -30,7 +30,10 @@ export default function MultipleSelection({
             className="img-fluid portrait-sm"
             src={`assets/cities/${city.type}.png`}
             alt={city.name}
-            onClick={emit_(events.CITIES_SELECTED, [city.id])}
+            onClick={() => {
+              emit(events.CITIES_SELECTED, [city.id]);
+              emit(events.UNITS_SELECTED, []);
+            }}
           />
         ))}
         {squads.map((squad) => (
@@ -39,7 +42,10 @@ export default function MultipleSelection({
             className="img-fluid portrait-sm"
             src={`assets/jobs/${squad.job}/portrait.png`}
             alt={squad.name}
-            onClick={emit_(events.UNITS_SELECTED, squad.id)}
+            onClick={() => {
+              emit(events.UNITS_SELECTED, [squad.id]);
+              emit(events.CITIES_SELECTED, []);
+            }}
           />
         ))}
       </div>
