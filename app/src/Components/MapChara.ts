@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { Squad } from "../Models/Squad";
+import { Unit } from "../Models/Squad";
 import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../Scenes/Battleground/constants";
 import "./portrait.css"
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
@@ -26,7 +26,7 @@ export const BORDER_WIDTH = 1;
 
 export function createChara(
 	scene: BattlegroundScene,
-	squad: Squad,
+	squad: Unit,
 ): Chara {
 
 	const tile = scene.layers?.background.getTileAt(squad.position.x, squad.position.y);
@@ -75,16 +75,16 @@ export function createChara(
 
 			if (id !== squad.id) return
 
-			if (!arg.stamina) return
+			if (!arg.hp) return
 
-			const { stamina } = arg
+			const { hp } = arg
 
 			staminaBar.clear()
 			staminaBar.fillStyle(0xffff00, 1);
 			staminaBar.fillRect(
 				0,
 				0,
-				BAR_WIDTH * stamina / 100,
+				BAR_WIDTH * hp / squad.maxHp - BORDER_WIDTH * 2,
 				BAR_HEIGHT - BORDER_WIDTH * 2
 			);
 		}],
@@ -116,11 +116,10 @@ export function createChara(
 	return chara
 }
 
-function createSprite(scene: BattlegroundScene, squad: Squad) {
+function createSprite(scene: BattlegroundScene, squad: Unit) {
 
 	const sprite = scene
 		.add.sprite(
-
 			squad.position.x * TILE_WIDTH + HALF_TILE_WIDTH,
 			squad.position.y * TILE_HEIGHT + HALF_TILE_HEIGHT,
 			squad.job

@@ -1,5 +1,5 @@
 import { Button } from "react-bootstrap"
-import { SQUAD_STATUS, Squad } from "../../../Models/Squad"
+import { SQUAD_STATUS, Unit } from "../../../Models/Squad"
 import "./styles.css"
 import * as Signals from "../../../Models/Signals"
 import { FORCE_ID_PLAYER } from "../../../Models/Force"
@@ -8,7 +8,7 @@ const SelectedSquad = ({
 	squad,
 	isSelectingMoveTarget
 }: {
-	squad: Squad,
+	squad: Unit,
 	isSelectingMoveTarget: boolean
 }) => {
 
@@ -49,7 +49,7 @@ const SelectedSquad = ({
 			<div>
 				Stamina:
 				{
-					squad.stamina
+					squad.hp
 				}
 			</div>
 		</div>

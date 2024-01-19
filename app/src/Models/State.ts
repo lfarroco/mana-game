@@ -1,7 +1,7 @@
 import { City } from "./City";
 import { FORCE_ID_PLAYER, Force, makeForce } from "./Force";
 import { vec2 } from "./Geometry";
-import { SQUAD_STATUS, Squad, makeSquad } from "./Squad";
+import { SQUAD_STATUS, Unit, makeUnit } from "./Squad";
 
 export const initialState = (): State => ({
   debug: true,
@@ -21,27 +21,19 @@ export const initialState = (): State => ({
   selectedCities: [],
   squads: [
     {
-      ...makeSquad("s1", FORCE_ID_PLAYER),
-      name: "squad-1",
-      status: SQUAD_STATUS.IDLE,
+      ...makeUnit("s1", FORCE_ID_PLAYER, "soldier"),
       position: vec2(2, 2),
     },
     {
-      ...makeSquad("s2", FORCE_ID_PLAYER),
-      name: "squad-2",
-      status: SQUAD_STATUS.IDLE,
+      ...makeUnit("s2", FORCE_ID_PLAYER, "wizard"),
       position: vec2(3, 1),
     },
     {
-      ...makeSquad("s4", FORCE_ID_PLAYER),
-      name: "squad-4",
-      status: SQUAD_STATUS.IDLE,
+      ...makeUnit("s4", FORCE_ID_PLAYER,"archer"),
       position: vec2(4, 2),
     },
     {
-      ...makeSquad("s5", FORCE_ID_PLAYER),
-      name: "squad-5",
-      status: SQUAD_STATUS.IDLE,
+      ...makeUnit("s5", FORCE_ID_PLAYER,"barbarian"),
       position: vec2(3, 3),
     },
   ],
@@ -68,7 +60,7 @@ export type State = {
   };
   tick: number; // TODO: remove tick from scene
   forces: Force[];
-  squads: Squad[];
+  squads: Unit[];
   selectedUnits: string[];
   selectedCities: string[];
   grid: number[][];
@@ -93,7 +85,7 @@ export const addForce = (s: State) => (force: Force) => {
   s.forces.push(force);
 };
 
-export const addSquad = (s: State) => (squad: Squad) => {
+export const addSquad = (s: State) => (squad: Unit) => {
   s.squads.push(squad);
 };
 
@@ -102,14 +94,14 @@ export const addCity = (s: State) => (city: City) => {
 };
 
 export const updateSquad = (s: State) => (id: string) => (
-  sqd: Partial<Squad>
+  sqd: Partial<Unit>
 ) => {
   const squad = s.squads.find((sqd) => sqd.id === id);
   if (!squad) throw new Error("squad not found");
   Object.assign(squad, sqd);
 };
 
-export const getSquad = (s: State) => (id: string): Squad => {
+export const getSquad = (s: State) => (id: string): Unit => {
   const squad = s.squads.find((sqd) => sqd.id === id);
   if (!squad) throw new Error("squad not found");
   return squad;

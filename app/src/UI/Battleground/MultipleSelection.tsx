@@ -1,5 +1,5 @@
 import { emit, emit_, events } from "../../Models/Signals";
-import { Squad } from "../../Models/Squad";
+import { Unit } from "../../Models/Squad";
 import { getState } from "../../Models/State";
 
 export default function MultipleSelection({
@@ -13,7 +13,7 @@ export default function MultipleSelection({
 
   const squads = units
     .map((id) => state.squads.find((squad) => squad.id === id))
-    .filter((squad) => !!squad) as Squad[];
+    .filter((squad) => !!squad) as Unit[];
 
   const cities_ = cities.map((id) => {
     const c = state.cities.find((city) => city.id === id);

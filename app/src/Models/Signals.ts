@@ -1,6 +1,6 @@
 import Events from "events";
 import { Vec2 } from "./Geometry";
-import { Squad } from "./Squad";
+import { Unit } from "./Squad";
 import { Direction } from "./Direction";
 
 export type Signals = {
@@ -18,7 +18,7 @@ export type Signals = {
   BATTLEGROUND_TICK: (tick: number) => void;
   // TODO: have a parent level for the system
   ATTACK: (attacker: string, defender: string) => any;
-  UPDATE_SQUAD: (squadId: string, sqd: Partial<Squad>) => any;
+  UPDATE_SQUAD: (squadId: string, sqd: Partial<Unit>) => any;
   SQUAD_DESTROYED: (squadId: string) => any;
   FORCE_VICTORY: (force: string) => void;
   CAPTURE_CITY: (squadId: string, cityId: string) => void;
@@ -159,7 +159,7 @@ export const operations: {
     attacker,
     defender,
   ],
-  UPDATE_SQUAD: (squadId: string, sqd: Partial<Squad>) => [
+  UPDATE_SQUAD: (squadId: string, sqd: Partial<Unit>) => [
     events.UPDATE_SQUAD,
     squadId,
     sqd,

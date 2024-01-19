@@ -7,7 +7,7 @@ const SelectedCity = ({ city }: { city: City }) => {
 	return <div className="row" id="selected-entity">
 		<div className="col col-2">
 			<img
-				className="img-fluid"
+				className="portrait img-fluid"
 				src={`assets/cities/${city.type}.png`} alt={city.name} />
 		</div>
 		<div className="col col-4">
@@ -18,7 +18,6 @@ const SelectedCity = ({ city }: { city: City }) => {
 		<Button
 			className="col col-2 btn btn-secondary"
 			onClick={emit_(events.TOGGLE_DISPATCH_MODAL, true)}
-			disabled={true}
 		>Recruit</Button>
 		<Button className="col col-2 btn btn-secondary">Shop</Button>
 
