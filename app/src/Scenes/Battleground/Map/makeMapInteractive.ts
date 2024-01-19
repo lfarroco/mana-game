@@ -130,10 +130,27 @@ export function makeMapInteractive(
           )
         );
 
+      const cities = scene.cities.filter((city) =>
+        isInside(
+          pointer.downX + scene.cameras.main.scrollX,
+          pointer.downY + scene.cameras.main.scrollY,
+          dx,
+          dy,
+          city.sprite.x,
+          city.sprite.y
+        )
+      );
+
       if (charas.length > 0)
         emit(
           events.UNITS_SELECTED,
           charas.map((c) => c.id)
+        );
+
+      if (cities.length > 0)
+        emit(
+          events.CITIES_SELECTED,
+          cities.map((c) => c.city.id)
         );
 
       selectionRect.clear();
