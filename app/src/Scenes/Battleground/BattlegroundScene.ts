@@ -26,7 +26,7 @@ import * as EmoteSystem from "../../Systems/Chara/Emote";
 import * as CharaMovement from "../../Systems/Chara/SquadMovement";
 import * as CharaFaceDirection from "../../Systems/Chara/FaceDirection";
 import * as CharaDispatch from "../../Systems/Chara/Dispatch";
-import * as MovemenArrows from "../../Systems/Chara/MovementArrow";
+import * as MovementArrows from "../../Systems/Chara/MovementArrow";
 import * as EntitySelection from "./Systems/EntitySelection";
 
 import { TURN_DURATION } from "../../config";
@@ -127,7 +127,7 @@ export class BattlegroundScene extends Phaser.Scene {
       this,
       this.cities.map((c) => c.sprite)
     );
-    MovemenArrows.init(this);
+    MovementArrows.init(this);
     EntitySelection.init(this);
 
     const grid = layers.obstacles.layer.data.map((row) =>

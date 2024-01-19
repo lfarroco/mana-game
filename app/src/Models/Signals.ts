@@ -7,7 +7,7 @@ export type Signals = {
 	PAUSE_GAME: () => void
 	RESUME_GAME: () => void
 	UNITS_SELECTED: (squadId: string[]) => void
-	CITY_SELECTED: (cityId: string) => void
+	CITIES_SELECTED: (ids: string[]) => void
 	SELECT_SQUAD_MOVE_START: (squadId: string) => void
 	SELECT_SQUAD_MOVE_DONE: (squadIds: string[], target: Vec2) => void
 	SELECT_SQUAD_MOVE_CANCEL: (squadId: string) => void
@@ -43,7 +43,7 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
 	SELECT_SQUAD_MOVE_DONE: "SELECT_SQUAD_MOVE_DONE",
 	SELECT_SQUAD_MOVE_CANCEL: "SELECT_SQUAD_MOVE_CANCEL",
 	UNITS_SELECTED: "UNITS_SELECTED",
-	CITY_SELECTED: "CITY_SELECTED",
+	CITIES_SELECTED: "CITIES_SELECTED",
 	TOGGLE_DISPATCH_MODAL: "TOGGLE_DISPATCH_MODAL",
 	TOGGLE_RECRUIT_MODAL: "TOGGLE_RECRUIT_MODAL",
 	DISPATCH_SQUAD: "DISPATCH_SQUAD",
@@ -126,20 +126,14 @@ export const operations: { [key in keyof Signals]: (...args: Parameters<Signals[
 	SELECT_SQUAD_MOVE_DONE: (sqdIds: string[], target: Vec2) => [events.SELECT_SQUAD_MOVE_DONE, sqdIds, target],
 	SELECT_SQUAD_MOVE_CANCEL: (sqdId: string) => [events.SELECT_SQUAD_MOVE_CANCEL, sqdId],
 	UNITS_SELECTED: (ids: string[]) => [events.UNITS_SELECTED, ids],
-	CITY_SELECTED: (cityId: string) => [events.CITY_SELECTED, cityId],
+	CITIES_SELECTED: (ids: string[]) => [events.CITIES_SELECTED, ids],
 	TOGGLE_DISPATCH_MODAL: (value: boolean) => [events.TOGGLE_DISPATCH_MODAL, value],
 	TOGGLE_RECRUIT_MODAL: () => [events.TOGGLE_RECRUIT_MODAL],
 	DISPATCH_SQUAD: (squadId: string) => [events.DISPATCH_SQUAD, squadId],
 	TOGGLE_SQUADS_WINDOW: (value: boolean) => [events.TOGGLE_SQUADS_WINDOW, value],
 	BATTLEGROUND_TICK: (tick: number) => [events.BATTLEGROUND_TICK, tick],
 	ATTACK: (attacker: string, defender: string) => [events.ATTACK, attacker, defender],
-	UPDATE_SQUAD: (squadId: string, sqd: Partial<Squad>) => {
-
-		if (Object.keys(sqd).length !== 1) throw new Error("UPDATE_SQUAD only accepts one key to be updated")
-
-		return [events.UPDATE_SQUAD, squadId, sqd]
-
-	},
+	UPDATE_SQUAD: (squadId: string, sqd: Partial<Squad>) => [events.UPDATE_SQUAD, squadId, sqd],
 	SQUAD_DESTROYED: (squadId: string) => [events.SQUAD_DESTROYED, squadId],
 	FORCE_VICTORY: (force: string) => [events.FORCE_VICTORY, force],
 	CAPTURE_CITY: (squadId: string, cityId: string) => [events.CAPTURE_CITY, squadId, cityId],
