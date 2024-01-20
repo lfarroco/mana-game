@@ -1,7 +1,7 @@
 import Phaser from "phaser";
-import { State } from "../../../Models/State";
+import { getState } from "../../../Models/State";
 import * as uuid from "uuid";
-import { UNIT_STATUS, Unit, makeUnit } from "../../../Models/Squad";
+import { Unit, makeUnit } from "../../../Models/Squad";
 import {
   HALF_TILE_HEIGHT,
   HALF_TILE_WIDTH,
@@ -33,7 +33,8 @@ type CitySpec = {
 };
 
 //TODO: return new state instead of mutating
-export function importMapObjects(state: State, map: Phaser.Tilemaps.Tilemap) {
+export function importMapObjects(map: Phaser.Tilemaps.Tilemap) {
+  const state = getState();
   map.objects
     .filter((objectLayer) => objectLayer.name === "cities")
     .flatMap((objectLayer) => {

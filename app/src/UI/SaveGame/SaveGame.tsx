@@ -1,18 +1,20 @@
 import { useEffect, useState } from "react";
-import { ListGroup, Modal } from "react-bootstrap";
+import { Form, ListGroup, Modal } from "react-bootstrap";
 import { emit, emit_, events, listeners } from "../../Models/Signals";
 import { getSavedGamesIndex } from "../../Models/SavedGame";
+import { getState } from "../../Models/State";
 
-export default function LoadGame() {
+export default function SaveGame() {
 
 	const [show, setShow] = useState(false);
 	const [savedGames, setSavedGames] = useState(["game1", "game2", "game3"]);
 	const [selectedGame, setSelectedGame] = useState("");
+	const [name, setName] = useState("");
 
 	useEffect(() => {
 		listeners([
 			[
-				events.TOGGLE_LOAD_GAME_MODAL,
+				events.TOGGLE_SAVE_GAME_MODAL,
 				(value: boolean) => {
 					setShow(value);
 				},
@@ -29,12 +31,25 @@ export default function LoadGame() {
 	return (
 		<Modal
 			show={show}
-			onHide={emit_(events.TOGGLE_LOAD_GAME_MODAL, false)}
+			onHide={emit_(events.TOGGLE_SAVE_GAME_MODAL, false)}
 		>
 			<Modal.Header closeButton>
-				<Modal.Title>Load Game</Modal.Title>
+				<Modal.Title>Save Game</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
+				<Form>
+					<Form.Group>
+						<Form.Label>Save Game</Form.Label>
+						<Form.Control
+							type="text"
+							placeholder="Enter name"
+							value={name}
+							onChange={(e) => {
+								setName(e.target.value);
+							}}
+						/>
+					</Form.Group>
+				</Form>
 				<ListGroup>
 					{
 						savedGames.map((save, index) => {
@@ -57,15 +72,15 @@ export default function LoadGame() {
 			<Modal.Footer>
 				<button
 					className="btn btn-primary"
-					disabled={selectedGame === ""}
+					disabled={name === ""}
 					onClick={() => {
-						emit(events.TOGGLE_LOAD_GAME_MODAL, false);
-						emit(events.LOAD_GAME, selectedGame);
+						emit(events.TOGGLE_SAVE_GAME_MODAL, false);
+						emit(events.SAVE_GAME, getState().gameData, name);
 					}}
 				>
-					Load Game
+					Save Game
 				</button>
-				<button className="btn btn-primary" onClick={emit_(events.TOGGLE_LOAD_GAME_MODAL, false)}>
+				<button className="btn btn-primary" onClick={emit_(events.TOGGLE_SAVE_GAME_MODAL, false)}>
 					Close
 				</button>
 			</Modal.Footer>

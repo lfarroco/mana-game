@@ -4,6 +4,7 @@ import { emit, events } from "../../../Models/Signals";
 import { asVec2, vec2 } from "../../../Models/Geometry";
 import { FORCE_ID_PLAYER } from "../../../Models/Force";
 import { UNIT_STATUS } from "../../../Models/Squad";
+import { getState } from "../../../Models/State";
 
 export function makeMapInteractive(
   scene: BattlegroundScene,
@@ -156,15 +157,17 @@ export function makeMapInteractive(
   bgLayer.on(
     Phaser.Input.Events.POINTER_UP,
     (pointer: Phaser.Input.Pointer, x: number, y: number) => {
+
+      const state = getState()
       if (pointer.upElement?.tagName !== "CANVAS") return;
 
       if (
-        scene.state.gameData.selectedUnits.length > 0 &&
+        state.gameData.selectedUnits.length > 0 &&
         (pointer.rightButtonReleased() || scene.isSelectingSquadMove)
       ) {
         const tile = bgLayer.getTileAtWorldXY(x, y);
 
-        scene.state.gameData.selectedUnits.forEach((sqdId) => {
+        state.gameData.selectedUnits.forEach((sqdId) => {
           emit(events.SELECT_SQUAD_MOVE_DONE, sqdId, asVec2(tile));
         });
       }

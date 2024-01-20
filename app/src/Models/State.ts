@@ -65,25 +65,26 @@ export type State = {
     music: boolean;
   };
   savedGames: string[];
-  gameData: {
-    winner: null | string;
-    ai: {
-      attackers: string[];
-      defenders: string[];
-    };
-    tick: number; // TODO: remove tick from scene
-    forces: Force[];
-    squads: Unit[];
-    selectedUnits: string[];
-    selectedCities: string[];
-    grid: number[][];
-    cities: City[];
-    map: {
-      width: number;
-      height: number;
-    };
-  }
+  gameData: GameData
 };
+export type GameData = {
+  winner: null | string;
+  ai: {
+    attackers: string[];
+    defenders: string[];
+  };
+  tick: number; // TODO: remove tick from scene
+  forces: Force[];
+  squads: Unit[];
+  selectedUnits: string[];
+  selectedCities: string[];
+  grid: number[][];
+  cities: City[];
+  map: {
+    width: number;
+    height: number;
+  };
+}
 
 export const getState = (): State => {
   //@ts-ignore

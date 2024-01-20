@@ -6,12 +6,12 @@ import { makeMapInteractive } from "./Map/makeMapInteractive";
 import { makeSquadsInteractive } from "./Map/makeSquadsInteractive";
 import { createCities } from "./Map/createCities";
 import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
-import { Unit } from "../../Models/Squad";
+import { UNIT_STATUS, Unit } from "../../Models/Squad";
 import processTick from "./ProcessTick";
 import { Vec2, vec2 } from "../../Models/Geometry";
 import { Chara } from "../../Components/MapChara";
 import { emit, events, listeners } from "../../Models/Signals";
-import { State, getState, updateSquad } from "../../Models/State";
+import { GameData, getState, setState, updateSquad } from "../../Models/State";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
 import * as StaminaRegen from "../../Systems/StaminaRegen/StaminaRegen";
 import * as VictorySystem from "../../Systems/Victory/Victory";
@@ -41,7 +41,6 @@ export class BattlegroundScene extends Phaser.Scene {
   } | null = null;
   isPaused = false;
   isSelectingSquadMove = false; // TODO: we can move this into the state
-  state: State;
   cities: { city: City; sprite: Phaser.GameObjects.Image }[] = [];
   tilemap: Phaser.Tilemaps.Tilemap | null = null;
 
@@ -77,43 +76,49 @@ export class BattlegroundScene extends Phaser.Scene {
       [
         events.UPDATE_SQUAD,
         (squadId: string, sqd: Partial<Unit>) => {
+          const state = getState();
+
           if (sqd.hp === 0) {
             emit(events.SQUAD_DESTROYED, squadId);
           }
 
-          updateSquad(this.state)(squadId)(sqd);
+          updateSquad(state)(squadId)(sqd);
         },
       ],
     ]);
 
-    this.state = getState();
 
-    StaminaRegen.init(this.state);
     squadDestroyed(this);
     VictorySystem.init(this);
     AISystem.init();
     EmoteSystem.init(this);
 
     //@ts-ignore
-    window.state = this.state;
-
-    //@ts-ignore
     window.bg = this;
   }
 
   preload = preload;
-  create = () => {
+  create = (gameData: GameData | null) => {
+
+    let state = getState();
+    if (gameData) {
+      console.log("BattlegroundScene create with gameData: ", gameData)
+      state.gameData = gameData
+      setState(state)
+    }
+
     console.log("BattlegroundScene create");
     const { map, layers } = createMap(this);
 
-    importMapObjects(this.state, map);
+    if (!gameData)
+      importMapObjects(map);
 
     CharaDispatch.init(this);
-    CharaMovement.init(this.state);
+    CharaMovement.init(state);
 
     this.layers = layers;
     this.tilemap = map;
-    this.cities = createCities(this, this.state.gameData.cities);
+    this.cities = createCities(this, state.gameData.cities);
     this.createMapSquads();
 
     ControlsSystem.init(this);
@@ -128,7 +133,9 @@ export class BattlegroundScene extends Phaser.Scene {
       this.cities.map((c) => c.sprite)
     );
     MovementArrows.init(this);
-    EntitySelection.init(this);
+    EntitySelection.init(state);
+
+    StaminaRegen.init(state);
 
     const grid = layers.obstacles.layer.data.map((row) =>
       row.map((tile) => (tile.index === -1 ? 0 : 1))
@@ -136,17 +143,17 @@ export class BattlegroundScene extends Phaser.Scene {
     Pathfinding.init(grid);
 
     this.time.addEvent({
-      delay: TURN_DURATION / this.state.speed,
+      delay: TURN_DURATION / state.speed,
       callback: () => {
-        if (this.state.gameData.winner && !this.scene.isPaused()) {
+        if (state.gameData.winner && !this.scene.isPaused()) {
           this.scene.pause();
           this.time.removeAllEvents();
           return;
         }
 
         if (!this.isPaused) {
-          this.state.gameData.tick++;
-          emit(events.BATTLEGROUND_TICK, this.state.gameData.tick);
+          state.gameData.tick++;
+          emit(events.BATTLEGROUND_TICK, state.gameData.tick);
         }
       },
       loop: true,
@@ -164,7 +171,7 @@ export class BattlegroundScene extends Phaser.Scene {
   };
 
   getSquad = (id: string) => {
-    const squad = this.state.gameData.squads.find((squad) => squad.id === id);
+    const squad = getState().gameData.squads.find((squad) => squad.id === id);
     if (!squad) throw new Error(`squad ${id} not found`);
     return squad;
   };
@@ -182,7 +189,9 @@ export class BattlegroundScene extends Phaser.Scene {
   };
 
   createMapSquads() {
-    this.state.gameData.squads.forEach((squad) => emit(events.DISPATCH_SQUAD, squad.id));
+    getState().gameData.squads
+      .filter((squad) => squad.status !== UNIT_STATUS.DESTROYED)
+      .forEach((squad) => emit(events.DISPATCH_SQUAD, squad.id));
   }
 
   // selectCity = (id: string) => {
@@ -197,7 +206,7 @@ export class BattlegroundScene extends Phaser.Scene {
     this.isPaused = false;
   };
   moveUnitsTo = (sqdIds: string[], { x, y }: Vec2) => {
-    const units = this.state.gameData.squads.filter((sqd) => sqdIds.includes(sqd.id));
+    const units = getState().gameData.squads.filter((sqd) => sqdIds.includes(sqd.id));
 
     this.isSelectingSquadMove = false;
 

@@ -2,6 +2,7 @@ import Events from "events";
 import { Vec2 } from "./Geometry";
 import { Unit } from "./Squad";
 import { Direction } from "./Direction";
+import { GameData } from "./State";
 
 export type Signals = {
   SET_ROUTE: (route: string) => void;
@@ -10,7 +11,7 @@ export type Signals = {
   RESUME_GAME: () => void;
   PLAY_MUSIC: () => void;
   STOP_MUSIC: () => void;
-  SAVE_GAME: () => void;
+  SAVE_GAME: (gameData: GameData, name: string) => void;
   LOAD_GAME: (key: string) => void;
   UNITS_SELECTED: (squadId: string[]) => void;
   CITIES_SELECTED: (ids: string[]) => void;
@@ -20,6 +21,7 @@ export type Signals = {
   TOGGLE_DISPATCH_MODAL: (value: boolean) => void;
   TOGGLE_OPTIONS_MODAL: (value: boolean) => void;
   TOGGLE_LOAD_GAME_MODAL: (value: boolean) => void;
+  TOGGLE_SAVE_GAME_MODAL: (value: boolean) => void;
   TOGGLE_RECRUIT_MODAL: () => void;
   DISPATCH_SQUAD: (squadId: string) => void;
   TOGGLE_SQUADS_WINDOW: (value: boolean) => void;
@@ -67,6 +69,7 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
   TOGGLE_DISPATCH_MODAL: "TOGGLE_DISPATCH_MODAL",
   TOGGLE_OPTIONS_MODAL: "TOGGLE_OPTIONS_MODAL",
   TOGGLE_LOAD_GAME_MODAL: "TOGGLE_LOAD_GAME_MODAL",
+  TOGGLE_SAVE_GAME_MODAL: "TOGGLE_SAVE_GAME_MODAL",
   TOGGLE_RECRUIT_MODAL: "TOGGLE_RECRUIT_MODAL",
   DISPATCH_SQUAD: "DISPATCH_SQUAD",
   TOGGLE_SQUADS_WINDOW: "TOGGLE_SQUADS_WINDOW",
@@ -175,6 +178,10 @@ export const operations: {
   ],
   TOGGLE_LOAD_GAME_MODAL: (value: boolean) => [
     events.TOGGLE_LOAD_GAME_MODAL,
+    value,
+  ],
+  TOGGLE_SAVE_GAME_MODAL: (value: boolean) => [
+    events.TOGGLE_SAVE_GAME_MODAL,
     value,
   ],
   TOGGLE_RECRUIT_MODAL: () => [events.TOGGLE_RECRUIT_MODAL],
