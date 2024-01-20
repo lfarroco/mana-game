@@ -6,6 +6,7 @@ import { listeners, events, emit, emit_ } from "../../Models/Signals";
 import DispatchSquadModal from "./DispatchSquadModal/DispatchSquadModal";
 import VictoryModal from "./VictoryModal/VictoryModal";
 import SelectionHUD from "./SelectionHUD";
+import SaveGame from "../SaveGame/SaveGame";
 
 const Battleground = () => {
   const [isPaused, setPaused] = useState(false);
@@ -66,6 +67,18 @@ const Battleground = () => {
               Squads
             </Button>
             <Button
+              onClick={emit_(events.TOGGLE_SAVE_GAME_MODAL, true)}
+              className="btn btn-secondary col-12"
+            >
+              Save
+            </Button>
+            <Button
+              onClick={emit_(events.TOGGLE_LOAD_GAME_MODAL, true)}
+              className="btn btn-secondary col-12"
+            >
+              Load
+            </Button>
+            <Button
               onClick={(e) => {
                 if (isPaused) {
                   emit(events.RESUME_GAME);
@@ -98,6 +111,8 @@ const Battleground = () => {
       <DispatchSquadModal />
 
       <VictoryModal />
+
+      <SaveGame />
     </>
   );
 };

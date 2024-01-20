@@ -7,6 +7,7 @@ import { events as events_ } from './Models/Signals';
 import { listeners } from './Models/Signals';
 import ReactDOM from "react-dom/client";
 import Core from "./Scenes/Battleground/Core/Core";
+import * as SaveGame from "./Systems/SaveGame/SaveGame";
 
 const eventEmitter = new events.EventEmitter();
 
@@ -43,6 +44,7 @@ window.addEventListener("resize", () => {
   game.scale.resize(window.innerWidth, window.innerHeight);
 });
 
+
 const root = ReactDOM.createRoot(document.getElementById("ui") as HTMLElement);
 
 root.render(<UI />);
@@ -54,3 +56,5 @@ listeners([
     }
   ],
 ])
+
+SaveGame.init(game);

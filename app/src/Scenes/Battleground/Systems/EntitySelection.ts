@@ -1,18 +1,18 @@
 import { events, listeners } from "../../../Models/Signals";
-import BattlegroundScene from "../BattlegroundScene";
+import { State } from "../../../Models/State";
 
-export function init(scene: BattlegroundScene) {
+export function init(state: State) {
   listeners([
     [
       events.UNITS_SELECTED,
       (ids: string[]) => {
-        scene.state.gameData.selectedUnits = ids;
+        state.gameData.selectedUnits = ids;
       },
     ],
     [
       events.CITIES_SELECTED,
       (ids: string[]) => {
-        scene.state.gameData.selectedCities = ids;
+        state.gameData.selectedCities = ids;
       },
     ],
   ]);

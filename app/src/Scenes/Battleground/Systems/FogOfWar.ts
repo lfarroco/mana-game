@@ -4,6 +4,7 @@ import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../Models/Force";
 import { listeners, events } from "../../../Models/Signals";
 import { UNIT_STATUS } from "../../../Models/Squad";
 import { Vec2 } from "../../../Models/Geometry";
+import { getState } from "../../../Models/State";
 
 const VIEW_RADIUS = 4;
 
@@ -46,6 +47,7 @@ function refreshFogOfWar(
   scene: BattlegroundScene,
   fow: Phaser.Tilemaps.TilemapLayer
 ) {
+  const state = getState()
   // tried to use fow.culledTiles, but the tiles
   // are not set back to hidden
   fow.forEachTile((tile) => {
@@ -53,17 +55,17 @@ function refreshFogOfWar(
     tile.alpha = 0.6;
   });
 
-  scene.state.gameData.squads
+  state.gameData.squads
     .filter((s) => s.force === FORCE_ID_PLAYER)
     .filter((s) => s.status !== UNIT_STATUS.DESTROYED)
     .forEach((s) => showRadius(s.position, fow));
 
   //player-controlled cities
-  scene.state.gameData.cities
+  state.gameData.cities
     .filter((c) => c.force === FORCE_ID_PLAYER)
     .forEach((c) => showRadius(c.boardPosition, fow));
 
-  scene.state.gameData.squads
+  state.gameData.squads
     .filter((s) => s.force === FORCE_ID_CPU)
     .filter((s) => s.status !== UNIT_STATUS.DESTROYED)
     .forEach((enemy) => {

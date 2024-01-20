@@ -21,12 +21,13 @@
 - TODO: disable selection under the fow
 - TODO: scroll by placing cursor at the edge of the screen
 - TODO: when issuing move order into cell with enemy, combat emote is still displayed when moving
-- TODO: main screen
+- OK: main screen
 - TODO: map list
 - TODO: save / load
-- TODO: options (sound, music)
+- OK: options (sound, music)
 - TODO: have event for "turn end", so that victory conditions can be checked after all animations are complete
 - TODO: sound: if a battle is active, play combat sounds
+- TODO: save local settings (sound, music)
 
 --- post v1:
 - controller support

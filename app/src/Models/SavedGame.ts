@@ -1,9 +1,16 @@
-import { State } from "./State";
+import { GameData } from "./State";
 
-type SavedGame = {
+export type SavedGame = {
 	name: string;
-	state: State;
+	state: GameData;
 	savedAt: number;
+}
+export const makeSavedGame = (name: string, state: GameData): SavedGame => {
+	return {
+		name,
+		state,
+		savedAt: Date.now()
+	}
 }
 
 type SavedGamesIndex = string[]

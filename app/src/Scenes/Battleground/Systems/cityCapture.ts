@@ -1,12 +1,15 @@
 import { FORCE_ID_PLAYER } from "../../../Models/Force";
 import { events, listeners } from "../../../Models/Signals";
+import { getState } from "../../../Models/State";
 import BattlegroundScene from "../BattlegroundScene";
 
 export function init(scene: BattlegroundScene) {
 	listeners([
 		[events.CAPTURE_CITY, (cityId: string, forceId: string) => {
 
-			const city = scene.state.gameData.cities.find(c => c.id === cityId)
+			const state = getState()
+
+			const city = state.gameData.cities.find(c => c.id === cityId)
 			if (!city) throw new Error("city not found")
 
 			city.force = forceId;
