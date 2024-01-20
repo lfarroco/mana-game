@@ -19,16 +19,16 @@ function processAttackerActions() {
 
 	const state = getState();
 
-	if (state.winner) return
+	if (state.gameData.winner) return
 
-	(state.ai.attackers
-		.map(id => state.squads.find(squad => squad.id === id))
+	(state.gameData.ai.attackers
+		.map(id => state.gameData.squads.find(squad => squad.id === id))
 		.filter(squad => squad) as Unit[]
 	)
 		.forEach(sqd => {
 
 			//find closest city
-			const closestCity = state.cities
+			const closestCity = state.gameData.cities
 				.filter(city => city.force === FORCE_ID_CPU)
 				.sort((a, b) => {
 					const distA = distanceBetween(a.boardPosition)(sqd.position);
@@ -51,7 +51,7 @@ function processAttackerActions() {
 				}
 				// find a path
 				// enemy castle
-				const target = state.cities.find(city => city.force !== FORCE_ID_CPU && city.type === "castle");
+				const target = state.gameData.cities.find(city => city.force !== FORCE_ID_CPU && city.type === "castle");
 				if (!target) {
 					console.error("no target");
 					return;
@@ -80,15 +80,15 @@ function processDefenderActions() {
 
 	const state = getState();
 
-	if (state.winner) return
+	if (state.gameData.winner) return
 
-	(state.ai.defenders
-		.map(id => state.squads.find(squad => squad.id === id))
+	(state.gameData.ai.defenders
+		.map(id => state.gameData.squads.find(squad => squad.id === id))
 		.filter(squad => squad) as Unit[]
 	)
 		.forEach(sqd => {
 			//find closest city
-			const [closestCity] = state.cities
+			const [closestCity] = state.gameData.cities
 				.filter(city => city.force === FORCE_ID_CPU)
 				.sort((a, b) => {
 					const distA = distanceBetween(a.boardPosition)(sqd.position);

@@ -53,17 +53,17 @@ function refreshFogOfWar(
     tile.alpha = 0.6;
   });
 
-  scene.state.squads
+  scene.state.gameData.squads
     .filter((s) => s.force === FORCE_ID_PLAYER)
     .filter((s) => s.status !== UNIT_STATUS.DESTROYED)
     .forEach((s) => showRadius(s.position, fow));
 
   //player-controlled cities
-  scene.state.cities
+  scene.state.gameData.cities
     .filter((c) => c.force === FORCE_ID_PLAYER)
     .forEach((c) => showRadius(c.boardPosition, fow));
 
-  scene.state.squads
+  scene.state.gameData.squads
     .filter((s) => s.force === FORCE_ID_CPU)
     .filter((s) => s.status !== UNIT_STATUS.DESTROYED)
     .forEach((enemy) => {

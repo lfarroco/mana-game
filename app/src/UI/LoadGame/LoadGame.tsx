@@ -32,7 +32,7 @@ export default function LoadGame() {
 			onHide={emit_(events.TOGGLE_LOAD_GAME_MODAL, false)}
 		>
 			<Modal.Header closeButton>
-				<Modal.Title>Options</Modal.Title>
+				<Modal.Title>Load Game</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
 				<ListGroup>

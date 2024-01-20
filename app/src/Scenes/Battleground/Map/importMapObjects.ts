@@ -60,10 +60,10 @@ export function importMapObjects(state: State, map: Phaser.Tilemaps.Tilemap) {
       return cities;
     })
     .forEach((city) => {
-      const mForce = state.forces.find((force) => force.id === city.force);
+      const mForce = state.gameData.forces.find((force) => force.id === city.force);
 
       if (!mForce) {
-        state.forces.push({
+        state.gameData.forces.push({
           id: city.force,
           name: "",
           color: "red",
@@ -71,7 +71,7 @@ export function importMapObjects(state: State, map: Phaser.Tilemaps.Tilemap) {
         });
       }
 
-      const force = state.forces.find((force) => force.id === city.force);
+      const force = state.gameData.forces.find((force) => force.id === city.force);
       if (!force) throw new Error("force is undefined");
 
       const newCity: City = {
@@ -89,7 +89,7 @@ export function importMapObjects(state: State, map: Phaser.Tilemaps.Tilemap) {
         ),
       };
 
-      state.cities.push(newCity);
+      state.gameData.cities.push(newCity);
     });
 
   map.objects
@@ -117,10 +117,10 @@ export function importMapObjects(state: State, map: Phaser.Tilemaps.Tilemap) {
       })
     )
     .forEach((sqdSpec) => {
-      const mForce = state.forces.find((force) => force.id === sqdSpec.force);
+      const mForce = state.gameData.forces.find((force) => force.id === sqdSpec.force);
 
       if (!mForce) {
-        state.forces.push({
+        state.gameData.forces.push({
           id: sqdSpec.force,
           name: "",
           color: "red",
@@ -128,7 +128,7 @@ export function importMapObjects(state: State, map: Phaser.Tilemaps.Tilemap) {
         });
       }
 
-      const force = state.forces.find((force) => force.id === sqdSpec.force);
+      const force = state.gameData.forces.find((force) => force.id === sqdSpec.force);
       if (!force) throw new Error("force is undefined");
 
       const squadId = uuid.v4();
@@ -139,14 +139,14 @@ export function importMapObjects(state: State, map: Phaser.Tilemaps.Tilemap) {
       };
 
       if (sqdSpec.ai === "attacker") {
-        state.ai.attackers.push(newSquad.id);
+        state.gameData.ai.attackers.push(newSquad.id);
       } else if (sqdSpec.ai === "defender") {
-        state.ai.defenders.push(newSquad.id);
+        state.gameData.ai.defenders.push(newSquad.id);
       }
 
-      state.squads.push(newSquad);
+      state.gameData.squads.push(newSquad);
       force.squads.push(newSquad.id);
-      state.map = {
+      state.gameData.map = {
         width: map.width,
         height: map.height,
       };

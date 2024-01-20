@@ -6,7 +6,7 @@ export function init(scene: BattlegroundScene) {
 	listeners([
 		[events.CAPTURE_CITY, (cityId: string, forceId: string) => {
 
-			const city = scene.state.cities.find(c => c.id === cityId)
+			const city = scene.state.gameData.cities.find(c => c.id === cityId)
 			if (!city) throw new Error("city not found")
 
 			city.force = forceId;

@@ -113,7 +113,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.layers = layers;
     this.tilemap = map;
-    this.cities = createCities(this, this.state.cities);
+    this.cities = createCities(this, this.state.gameData.cities);
     this.createMapSquads();
 
     ControlsSystem.init(this);
@@ -138,15 +138,15 @@ export class BattlegroundScene extends Phaser.Scene {
     this.time.addEvent({
       delay: TURN_DURATION / this.state.speed,
       callback: () => {
-        if (this.state.winner && !this.scene.isPaused()) {
+        if (this.state.gameData.winner && !this.scene.isPaused()) {
           this.scene.pause();
           this.time.removeAllEvents();
           return;
         }
 
         if (!this.isPaused) {
-          this.state.tick++;
-          emit(events.BATTLEGROUND_TICK, this.state.tick);
+          this.state.gameData.tick++;
+          emit(events.BATTLEGROUND_TICK, this.state.gameData.tick);
         }
       },
       loop: true,
@@ -164,7 +164,7 @@ export class BattlegroundScene extends Phaser.Scene {
   };
 
   getSquad = (id: string) => {
-    const squad = this.state.squads.find((squad) => squad.id === id);
+    const squad = this.state.gameData.squads.find((squad) => squad.id === id);
     if (!squad) throw new Error(`squad ${id} not found`);
     return squad;
   };
@@ -182,7 +182,7 @@ export class BattlegroundScene extends Phaser.Scene {
   };
 
   createMapSquads() {
-    this.state.squads.forEach((squad) => emit(events.DISPATCH_SQUAD, squad.id));
+    this.state.gameData.squads.forEach((squad) => emit(events.DISPATCH_SQUAD, squad.id));
   }
 
   // selectCity = (id: string) => {
@@ -197,7 +197,7 @@ export class BattlegroundScene extends Phaser.Scene {
     this.isPaused = false;
   };
   moveUnitsTo = (sqdIds: string[], { x, y }: Vec2) => {
-    const units = this.state.squads.filter((sqd) => sqdIds.includes(sqd.id));
+    const units = this.state.gameData.squads.filter((sqd) => sqdIds.includes(sqd.id));
 
     this.isSelectingSquadMove = false;
 

@@ -24,7 +24,7 @@ function DispatchSquadModal() {
 
 	const [isVisible, setIsVisible] = useState(false);
 	// TODO: use unit templates
-	const dispatchableSquads = state.squads
+	const dispatchableSquads = state.gameData.squads
 
 	useEffect(() => {
 		listeners([

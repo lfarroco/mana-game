@@ -36,7 +36,7 @@ export default function SelectionHUD({
   if (selectedSquads.length + selectedCities.length > 1)
     return <MultipleSelection units={selectedSquads} cities={selectedCities} />;
   else if (selectedSquads.length === 1) {
-    const squad = state.squads.find((squad) => squad.id === selectedSquads[0]);
+    const squad = state.gameData.squads.find((squad) => squad.id === selectedSquads[0]);
     if (!squad) throw new Error("Squad not found");
     return (
       <SelectedSquad
@@ -45,7 +45,7 @@ export default function SelectionHUD({
       />
     );
   } else if (selectedCities.length === 1) {
-    const city = state.cities.find((city) => city.id === selectedCities[0]);
+    const city = state.gameData.cities.find((city) => city.id === selectedCities[0]);
     if (!city) throw new Error("City not found");
     return <SelectedCity city={city} />;
   }

@@ -6,13 +6,13 @@ export function init(scene: BattlegroundScene) {
     [
       events.UNITS_SELECTED,
       (ids: string[]) => {
-        scene.state.selectedUnits = ids;
+        scene.state.gameData.selectedUnits = ids;
       },
     ],
     [
       events.CITIES_SELECTED,
       (ids: string[]) => {
-        scene.state.selectedCities = ids;
+        scene.state.gameData.selectedCities = ids;
       },
     ],
   ]);

@@ -11,7 +11,7 @@ import { Offcanvas, Table } from 'react-bootstrap';
 
 function SquadsWindow() {
 
-	let squads = getState().squads
+	let squads = getState().gameData.squads
 
 	const [isVisible, setVisible] = useState(false);
 
