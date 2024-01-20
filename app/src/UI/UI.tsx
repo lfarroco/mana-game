@@ -1,15 +1,29 @@
-import ReactDOM from 'react-dom/client';
-
-import 'bootstrap/dist/css/bootstrap.min.css';
-import '../index.css';
-import Battleground from './Battleground/Battleground';
+import "bootstrap/dist/css/bootstrap.min.css";
+import "../index.css";
+import Battleground from "./Battleground/Battleground";
+import { useState } from "react";
+import { listeners, events, emit } from "../Models/Signals";
+import Title from "./Title/Title";
 
 export const UI = () => {
-	const root = ReactDOM.createRoot(
-		document.getElementById('ui') as HTMLElement
-	);
+  const [route, setRoute] = useState("menu");
 
-	root.render(
-		<Battleground />
-	);
-}
+  listeners([
+    [
+      events.SET_ROUTE,
+      (route: string) => {
+        setRoute(route);
+      },
+    ],
+  ]);
+
+  return (
+    <>
+      {route === "menu" && <Title />}
+      {route === "battleground" && <Battleground />}
+    </>
+  );
+};
+
+
+
