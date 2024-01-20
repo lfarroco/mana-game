@@ -5,6 +5,7 @@ import { useState } from "react";
 import { listeners, events } from "../Models/Signals";
 import Title from "./Title/Title";
 import Options from "./Options/Options";
+import LoadGame from "./LoadGame/LoadGame";
 
 export const UI = () => {
   const [route, setRoute] = useState("menu");
@@ -23,6 +24,7 @@ export const UI = () => {
       {route === "menu" && <Title />}
       {route === "battleground" && <Battleground />}
       <Options />
+      <LoadGame />
     </>
   );
 };

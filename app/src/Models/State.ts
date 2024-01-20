@@ -51,17 +51,19 @@ export const initialState = (): State => ({
     attackers: [],
     defenders: [],
   },
+  savedGames: []
 });
 
 // make it an ioref https://gcanti.github.io/fp-ts/modules/IORef.ts.html#ioref-overview
 export type State = {
   debug: boolean;
   speed: number;
-  winner: null | string;
   options: {
     sound: boolean;
     music: boolean;
   };
+  savedGames: string[];
+  winner: null | string;
   ai: {
     attackers: string[];
     defenders: string[];

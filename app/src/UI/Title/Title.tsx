@@ -47,7 +47,7 @@ export default function Title() {
           >
             Start Game
           </button>
-          <button className="btn btn-primary col-12 mb-2" onClick={() => { }}>
+          <button className="btn btn-primary col-12 mb-2" onClick={emit_(events.TOGGLE_LOAD_GAME_MODAL, true)}>
             Load Game
           </button>
           <button className="btn btn-primary col-12 mb-2" onClick={emit_(events.TOGGLE_OPTIONS_MODAL, true)}>

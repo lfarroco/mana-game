@@ -17,6 +17,7 @@ export type Signals = {
   SELECT_SQUAD_MOVE_CANCEL: (squadId: string) => void;
   TOGGLE_DISPATCH_MODAL: (value: boolean) => void;
   TOGGLE_OPTIONS_MODAL: (value: boolean) => void;
+  TOGGLE_LOAD_GAME_MODAL: (value: boolean) => void;
   TOGGLE_RECRUIT_MODAL: () => void;
   DISPATCH_SQUAD: (squadId: string) => void;
   TOGGLE_SQUADS_WINDOW: (value: boolean) => void;
@@ -61,6 +62,7 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
   CITIES_SELECTED: "CITIES_SELECTED",
   TOGGLE_DISPATCH_MODAL: "TOGGLE_DISPATCH_MODAL",
   TOGGLE_OPTIONS_MODAL: "TOGGLE_OPTIONS_MODAL",
+  TOGGLE_LOAD_GAME_MODAL: "TOGGLE_LOAD_GAME_MODAL",
   TOGGLE_RECRUIT_MODAL: "TOGGLE_RECRUIT_MODAL",
   DISPATCH_SQUAD: "DISPATCH_SQUAD",
   TOGGLE_SQUADS_WINDOW: "TOGGLE_SQUADS_WINDOW",
@@ -163,6 +165,10 @@ export const operations: {
   ],
   TOGGLE_OPTIONS_MODAL: (value: boolean) => [
     events.TOGGLE_OPTIONS_MODAL,
+    value,
+  ],
+  TOGGLE_LOAD_GAME_MODAL: (value: boolean) => [
+    events.TOGGLE_LOAD_GAME_MODAL,
     value,
   ],
   TOGGLE_RECRUIT_MODAL: () => [events.TOGGLE_RECRUIT_MODAL],
