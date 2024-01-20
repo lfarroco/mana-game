@@ -17,10 +17,10 @@ export function init(grid: number[][]) {
 
         const state = getState();
 
-        const squad = state.squads.find((sqd) => sqd.id === key);
+        const squad = state.gameData.squads.find((sqd) => sqd.id === key);
         if (!squad) throw new Error("squad not found");
 
-        const otherSquads = state.squads
+        const otherSquads = state.gameData.squads
           .filter((s) => s.status !== UNIT_STATUS.DESTROYED)
           .filter(
             (s) => s.force !== squad.force || s.status !== UNIT_STATUS.MOVING
@@ -57,7 +57,7 @@ export function init(grid: number[][]) {
       (key: string, path: Vec2[]) => {
         const state = getState();
 
-        const squad = state.squads.find((sqd) => sqd.id === key);
+        const squad = state.gameData.squads.find((sqd) => sqd.id === key);
         if (!squad) throw new Error("squad not found");
 
         // in case of choosing own cell

@@ -12,11 +12,11 @@ export default function MultipleSelection({
   const state = getState();
 
   const squads = units
-    .map((id) => state.squads.find((squad) => squad.id === id))
+    .map((id) => state.gameData.squads.find((squad) => squad.id === id))
     .filter((squad) => !!squad) as Unit[];
 
   const cities_ = cities.map((id) => {
-    const c = state.cities.find((city) => city.id === id);
+    const c = state.gameData.cities.find((city) => city.id === id);
     if (!c) throw new Error("City not found");
     return c;
   });

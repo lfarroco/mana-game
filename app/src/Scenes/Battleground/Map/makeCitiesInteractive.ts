@@ -16,7 +16,7 @@ export function makeCitiesInteractive(
 
         if (
           scene.isSelectingSquadMove ||
-          (scene.state.selectedUnits.length > 0 &&
+          (scene.state.gameData.selectedUnits.length > 0 &&
             pointer.rightButtonReleased())
         ) {
           const tile = scene.layers?.background.getTileAtWorldXY(
@@ -25,7 +25,7 @@ export function makeCitiesInteractive(
           );
           if (!tile) return;
 
-          scene.state.selectedUnits.forEach((unit) => {
+          scene.state.gameData.selectedUnits.forEach((unit) => {
             emit(events.SELECT_SQUAD_MOVE_DONE, unit, asVec2(tile));
           });
         } else {

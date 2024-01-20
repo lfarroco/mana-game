@@ -159,12 +159,12 @@ export function makeMapInteractive(
       if (pointer.upElement?.tagName !== "CANVAS") return;
 
       if (
-        scene.state.selectedUnits.length > 0 &&
+        scene.state.gameData.selectedUnits.length > 0 &&
         (pointer.rightButtonReleased() || scene.isSelectingSquadMove)
       ) {
         const tile = bgLayer.getTileAtWorldXY(x, y);
 
-        scene.state.selectedUnits.forEach((sqdId) => {
+        scene.state.gameData.selectedUnits.forEach((sqdId) => {
           emit(events.SELECT_SQUAD_MOVE_DONE, sqdId, asVec2(tile));
         });
       }

@@ -10,10 +10,10 @@ export function init(state: State) {
 	listeners([
 		[events.BATTLEGROUND_TICK, () => {
 
-			state.squads
+			state.gameData.squads
 				.filter(squad => squad.status === UNIT_STATUS.IDLE)
 				.filter(squad => squad.hp < squad.maxHp)
-				.filter(squad => state.cities.some(
+				.filter(squad => state.gameData.cities.some(
 					city => eqVec2(city.boardPosition, squad.position)
 				))
 				.forEach(squad => {
