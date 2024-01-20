@@ -59,6 +59,8 @@ export default function LoadGame() {
 					className="btn btn-primary"
 					disabled={selectedGame === ""}
 					onClick={() => {
+						emit_(events.TOGGLE_LOAD_GAME_MODAL, false);
+						emit_(events.LOAD_GAME, selectedGame);
 					}}
 				>
 					Load Game

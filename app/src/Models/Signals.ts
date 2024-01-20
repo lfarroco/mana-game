@@ -10,6 +10,8 @@ export type Signals = {
   RESUME_GAME: () => void;
   PLAY_MUSIC: () => void;
   STOP_MUSIC: () => void;
+  SAVE_GAME: () => void;
+  LOAD_GAME: (key: string) => void;
   UNITS_SELECTED: (squadId: string[]) => void;
   CITIES_SELECTED: (ids: string[]) => void;
   SELECT_SQUAD_MOVE_START: (squadId: string) => void;
@@ -55,6 +57,8 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
   RESUME_GAME: "RESUME_GAME",
   PLAY_MUSIC: "PLAY_MUSIC",
   STOP_MUSIC: "STOP_MUSIC",
+  SAVE_GAME: "SAVE_GAME",
+  LOAD_GAME: "LOAD_GAME",
   SELECT_SQUAD_MOVE_START: "SELECT_SQUAD_MOVE_START",
   SELECT_SQUAD_MOVE_DONE: "SELECT_SQUAD_MOVE_DONE",
   SELECT_SQUAD_MOVE_CANCEL: "SELECT_SQUAD_MOVE_CANCEL",
@@ -144,6 +148,8 @@ export const operations: {
   RESUME_GAME: () => [events.RESUME_GAME],
   PLAY_MUSIC: () => [events.PLAY_MUSIC],
   STOP_MUSIC: () => [events.STOP_MUSIC],
+  SAVE_GAME: () => [events.SAVE_GAME],
+  LOAD_GAME: (key: string) => [events.LOAD_GAME, key],
   SELECT_SQUAD_MOVE_START: (sqdId: string) => [
     events.SELECT_SQUAD_MOVE_START,
     sqdId,
