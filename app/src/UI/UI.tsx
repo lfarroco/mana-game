@@ -2,8 +2,9 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "../index.css";
 import Battleground from "./Battleground/Battleground";
 import { useState } from "react";
-import { listeners, events, emit } from "../Models/Signals";
+import { listeners, events } from "../Models/Signals";
 import Title from "./Title/Title";
+import Options from "./Options/Options";
 
 export const UI = () => {
   const [route, setRoute] = useState("menu");
@@ -21,6 +22,7 @@ export const UI = () => {
     <>
       {route === "menu" && <Title />}
       {route === "battleground" && <Battleground />}
+      <Options />
     </>
   );
 };
