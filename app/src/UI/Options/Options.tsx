@@ -1,18 +1,26 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Form, Modal } from "react-bootstrap";
 import { emit_, events, listeners } from "../../Models/Signals";
+import { getState } from "../../Models/State";
 
 export default function Options() {
-  const [show, setShow] = useState(false);
 
-  listeners([
-    [
-      events.TOGGLE_OPTIONS_MODAL,
-      (value: boolean) => {
-        setShow(value);
-      },
-    ],
-  ]);
+  const [show, setShow] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [musicEnabled, setMusicEnabled] = useState(true);
+
+  const state = getState();
+
+  useEffect(() => {
+    listeners([
+      [
+        events.TOGGLE_OPTIONS_MODAL,
+        (value: boolean) => {
+          setShow(value);
+        },
+      ],
+    ]);
+  }, []);
 
   return (
     <Modal
@@ -29,12 +37,21 @@ export default function Options() {
             id="toggle-sound"
             type="switch"
             label="Sound"
+            onChange={() => {
+              state.options.sound = !state.options.sound;
+              setSoundEnabled(!soundEnabled);
+            }}
+            checked={soundEnabled}
           />
           <Form.Check
             id="toggle-music"
             type="switch"
             label="Music"
-            disabled
+            onChange={() => {
+              state.options.music = !state.options.music;
+              setMusicEnabled(!musicEnabled);
+            }}
+            checked={musicEnabled}
           />
         </Form>
       </Modal.Body>

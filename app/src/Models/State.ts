@@ -1,13 +1,17 @@
 import { City } from "./City";
 import { FORCE_ID_PLAYER, Force, makeForce } from "./Force";
 import { vec2 } from "./Geometry";
-import { UNIT_STATUS, Unit, makeUnit } from "./Squad";
+import { Unit, makeUnit } from "./Squad";
 
 export const initialState = (): State => ({
   debug: true,
   speed: 4,
   winner: null,
   tick: 0,
+  options: {
+    sound: true,
+    music: true,
+  },
   forces: [
     {
       ...makeForce(),
@@ -29,11 +33,11 @@ export const initialState = (): State => ({
       position: vec2(3, 1),
     },
     {
-      ...makeUnit("s4", FORCE_ID_PLAYER,"archer"),
+      ...makeUnit("s4", FORCE_ID_PLAYER, "archer"),
       position: vec2(4, 2),
     },
     {
-      ...makeUnit("s5", FORCE_ID_PLAYER,"barbarian"),
+      ...makeUnit("s5", FORCE_ID_PLAYER, "barbarian"),
       position: vec2(3, 3),
     },
   ],
@@ -54,6 +58,10 @@ export type State = {
   debug: boolean;
   speed: number;
   winner: null | string;
+  options: {
+    sound: boolean;
+    music: boolean;
+  };
   ai: {
     attackers: string[];
     defenders: string[];
