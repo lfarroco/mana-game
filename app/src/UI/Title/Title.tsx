@@ -1,7 +1,13 @@
+import { useState } from "react";
 import { events, emit, emit_ } from "../../Models/Signals";
+import Credits from "../Credits/Credits";
+
 
 export default function Title() {
-  return (
+
+  const [creditsVisible, setCreditsVisible] = useState(false);
+
+  return (<>
     <div
       className="container-fluid pt-5"
       style={{ minHeight: "100vh", position: "relative" }}
@@ -41,17 +47,20 @@ export default function Title() {
           >
             Start Game
           </button>
-          <button className="btn btn-primary col-12 mb-2" onClick={() => {}}>
+          <button className="btn btn-primary col-12 mb-2" onClick={() => { }}>
             Load Game
           </button>
           <button className="btn btn-primary col-12 mb-2" onClick={emit_(events.TOGGLE_OPTIONS_MODAL, true)}>
             Options
           </button>
-          <button className="btn btn-primary col-12 mb-2" onClick={() => {}}>
+          <button className="btn btn-primary col-12 mb-2" onClick={() => setCreditsVisible(true)}>
             Credits
           </button>
         </div>
       </div>
-    </div>
+    </div >
+
+    <Credits visible={creditsVisible} onHide={() => setCreditsVisible(false)} />
+  </>
   );
 }
