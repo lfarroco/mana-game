@@ -3,9 +3,10 @@ import events from "events";
 import BattlegroundScene from "./Scenes/Battleground/BattlegroundScene";
 import { State, initialState } from "./Models/State";
 import { UI } from "./UI/UI";
-import {events as events_} from './Models/Signals';
-import {listeners} from './Models/Signals';
+import { events as events_ } from './Models/Signals';
+import { listeners } from './Models/Signals';
 import ReactDOM from "react-dom/client";
+import Core from "./Scenes/Battleground/Core/Core";
 
 const eventEmitter = new events.EventEmitter();
 
@@ -34,6 +35,8 @@ const game = new Phaser.Game({
   height: window.innerHeight,
 });
 
+
+game.scene.add("CoreScene", Core, true);
 game.scene.add("BattlegroundScene", BattlegroundScene, false);
 
 window.addEventListener("resize", () => {

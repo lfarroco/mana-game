@@ -25,10 +25,11 @@ export default function Credits({ visible, onHide }: { visible: boolean, onHide:
 					<br />
 
 					<em>== Special Thanks ==</em>
-					<div>???</div>
+					<div>My daughter, Laura</div>
+					<div>My wife, Ercilia</div>
 					<br />
 
-					<em>Open Source Libraries</em>
+					<em>== Open Source Libraries ==</em>
 					<div>Phaser</div>
 					<div>React</div>
 					<div>Bootstrap</div>

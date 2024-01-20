@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Form, Modal } from "react-bootstrap";
-import { emit_, events, listeners } from "../../Models/Signals";
+import { emit, emit_, events, listeners } from "../../Models/Signals";
 import { getState } from "../../Models/State";
 
 export default function Options() {
@@ -50,6 +50,10 @@ export default function Options() {
             onChange={() => {
               state.options.music = !state.options.music;
               setMusicEnabled(!musicEnabled);
+              if (state.options.music)
+                emit(events.PLAY_MUSIC)
+              else
+                emit(events.STOP_MUSIC)
             }}
             checked={musicEnabled}
           />
