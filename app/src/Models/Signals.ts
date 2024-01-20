@@ -4,6 +4,8 @@ import { Unit } from "./Squad";
 import { Direction } from "./Direction";
 
 export type Signals = {
+  SET_ROUTE: (route: string) => void;
+  START_GAME: () => void;
   PAUSE_GAME: () => void;
   RESUME_GAME: () => void;
   UNITS_SELECTED: (squadId: string[]) => void;
@@ -43,6 +45,8 @@ export type Signals = {
 export type Operation = [keyof Signals, ...Parameters<Signals[keyof Signals]>];
 
 export const events: { [key in keyof Signals]: keyof Signals } = {
+  SET_ROUTE: "SET_ROUTE",
+  START_GAME: "START_GAME",
   PAUSE_GAME: "PAUSE_GAME",
   RESUME_GAME: "RESUME_GAME",
   SELECT_SQUAD_MOVE_START: "SELECT_SQUAD_MOVE_START",
@@ -126,6 +130,8 @@ export const listeners = <T extends keyof Signals>(
 export const operations: {
   [key in keyof Signals]: (...args: Parameters<Signals[key]>) => Operation;
 } = {
+  SET_ROUTE: (route: string) => [events.SET_ROUTE, route],
+  START_GAME: () => [events.START_GAME],
   PAUSE_GAME: () => [events.PAUSE_GAME],
   RESUME_GAME: () => [events.RESUME_GAME],
   SELECT_SQUAD_MOVE_START: (sqdId: string) => [
