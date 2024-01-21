@@ -13,6 +13,7 @@ export type Signals = {
   STOP_MUSIC: () => void;
   SAVE_GAME: (gameData: GameData, name: string) => void;
   LOAD_GAME: (key: string) => void;
+  BATTLEGROUND_STARTED: () => void;
   UNITS_SELECTED: (squadId: string[]) => void;
   CITIES_SELECTED: (ids: string[]) => void;
   SELECT_SQUAD_MOVE_START: (squadId: string) => void;
@@ -61,6 +62,7 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
   STOP_MUSIC: "STOP_MUSIC",
   SAVE_GAME: "SAVE_GAME",
   LOAD_GAME: "LOAD_GAME",
+  BATTLEGROUND_STARTED: "BATTLEGROUND_STARTED",
   SELECT_SQUAD_MOVE_START: "SELECT_SQUAD_MOVE_START",
   SELECT_SQUAD_MOVE_DONE: "SELECT_SQUAD_MOVE_DONE",
   SELECT_SQUAD_MOVE_CANCEL: "SELECT_SQUAD_MOVE_CANCEL",
@@ -190,6 +192,7 @@ export const operations: {
     events.TOGGLE_SQUADS_WINDOW,
     value,
   ],
+  BATTLEGROUND_STARTED: () => [events.BATTLEGROUND_STARTED],
   BATTLEGROUND_TICK: (tick: number) => [events.BATTLEGROUND_TICK, tick],
   ATTACK: (attacker: string, defender: string) => [
     events.ATTACK,

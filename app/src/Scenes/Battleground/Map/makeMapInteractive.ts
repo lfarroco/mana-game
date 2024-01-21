@@ -5,6 +5,7 @@ import { asVec2, vec2 } from "../../../Models/Geometry";
 import { FORCE_ID_PLAYER } from "../../../Models/Force";
 import { UNIT_STATUS } from "../../../Models/Squad";
 import { getState } from "../../../Models/State";
+import { isInside } from "../../../Models/Geometry";
 
 export function makeMapInteractive(
   scene: BattlegroundScene,
@@ -173,22 +174,4 @@ export function makeMapInteractive(
       }
     }
   );
-}
-function isInside(
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  px: number,
-  py: number
-): boolean {
-  // sometimes width and height can be negative
-  // we need our rect to always be positive so that the collision may work
-
-  return new Phaser.Geom.Rectangle(
-    w < 0 ? x + w : x,
-    h < 0 ? y + h : y,
-    Math.abs(w),
-    Math.abs(h)
-  ).contains(px, py);
 }

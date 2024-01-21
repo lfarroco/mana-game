@@ -11,25 +11,26 @@ import processTick from "./ProcessTick";
 import { Vec2, vec2 } from "../../Models/Geometry";
 import { Chara } from "../../Components/MapChara";
 import { emit, events, listeners } from "../../Models/Signals";
-import { GameData, getState, setState, updateSquad } from "../../Models/State";
+import { GameData, State, getState, setState, updateSquad } from "../../Models/State";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
 import * as StaminaRegen from "../../Systems/StaminaRegen/StaminaRegen";
 import * as VictorySystem from "../../Systems/Victory/Victory";
 import { squadDestroyed } from "./Events/SquadDestroyed";
 import { City } from "../../Models/City";
 import * as CityCaptureSystem from "./Systems/cityCapture";
-import * as FogOfWarSystem from "./Systems/FogOfWar";
+import * as FogOfWarSystem from "./Systems/FogOfWar/FogOfWar";
 import * as CursorSystem from "./Systems/Cursor";
 import * as Pathfinding from "./Systems/Pathfinding";
 import * as AISystem from "../../Systems/AI/AI";
 import * as EmoteSystem from "../../Systems/Chara/Emote";
-import * as CharaMovement from "../../Systems/Chara/SquadMovement";
 import * as CharaFaceDirection from "../../Systems/Chara/FaceDirection";
-import * as CharaDispatch from "../../Systems/Chara/Dispatch";
 import * as MovementArrows from "../../Systems/Chara/MovementArrow";
 import * as EntitySelection from "./Systems/EntitySelection";
+import * as CharaDispatch from "../../Systems/Chara/Dispatch";
+import * as CharaMovement from "../../Systems/Chara/SquadMovement";
 
 import { TURN_DURATION } from "../../config";
+import { createFowLayer } from "./Systems/FogOfWar/createFowLayer";
 
 export class BattlegroundScene extends Phaser.Scene {
   graphics: Phaser.GameObjects.Graphics | null = null;
@@ -39,18 +40,43 @@ export class BattlegroundScene extends Phaser.Scene {
     obstacles: Phaser.Tilemaps.TilemapLayer;
     features: Phaser.Tilemaps.TilemapLayer;
   } | null = null;
-  isPaused = false;
+  isPaused = true;
   isSelectingSquadMove = false; // TODO: we can move this into the state
   cities: { city: City; sprite: Phaser.GameObjects.Image }[] = [];
   tilemap: Phaser.Tilemaps.Tilemap | null = null;
+  fow: Phaser.Tilemaps.TilemapLayer | null = null;
+  grid: (0 | 1)[][] = []
+
+  cleanup() {
+    this.charas.forEach(chara => {
+      chara.group?.destroy(true, true)
+      chara.sprite?.destroy()
+    })
+    this.charas = []
+    this.cities.forEach(city => {
+      city.sprite.destroy()
+    })
+    this.cities = []
+    this.layers?.background.destroy()
+    this.layers?.obstacles.destroy()
+    this.layers?.features.destroy()
+    this.layers = null
+    this.tilemap?.destroy()
+    this.tilemap = null
+    this.graphics?.destroy();
+    this.isPaused = true;
+    this.isSelectingSquadMove = false;
+    this.time.removeAllEvents();
+  }
 
   constructor() {
     super("BattlegroundScene");
 
+    const state = getState();
+
     listeners([
       [events.PAUSE_GAME, this.pauseGame],
       [events.RESUME_GAME, this.resumeGame],
-      //[events.UNITS_SELECTED, this.selectSquads],
       //[events.CITY_SELECTED, this.selectCity],
       [
         events.SELECT_SQUAD_MOVE_START,
@@ -67,10 +93,8 @@ export class BattlegroundScene extends Phaser.Scene {
       ],
       [
         events.BATTLEGROUND_TICK,
-        (tick: number) => {
-          if (!this.isPaused) {
-            processTick(this);
-          }
+        () => {
+          processTick(this);
         },
       ],
       [
@@ -88,80 +112,73 @@ export class BattlegroundScene extends Phaser.Scene {
     ]);
 
 
-    squadDestroyed(this);
-    VictorySystem.init(this);
-    AISystem.init();
+    /**
+     * Global listeners can be created here because they are only created once
+     */
+    squadDestroyed(this, state);
+    VictorySystem.init(state);
+    AISystem.init(state);
     EmoteSystem.init(this);
+    FogOfWarSystem.init(this, state);
+    CityCaptureSystem.init(this);
+    CursorSystem.init(this);
+    CharaFaceDirection.init(this);
+    Pathfinding.init(this);
+    StaminaRegen.init(state);
+    MovementArrows.init(this);
+    EntitySelection.init(state);
+    CharaDispatch.init();
+    CharaMovement.init(state);
 
     //@ts-ignore
     window.bg = this;
   }
 
   preload = preload;
-  create = (gameData: GameData | null) => {
-
-    let state = getState();
-    if (gameData) {
-      console.log("BattlegroundScene create with gameData: ", gameData)
-      state.gameData = gameData
-      setState(state)
-    }
+  create = (gameData: GameData) => {
+    /**
+     * It is important to NOT create new global listeners here
+     */
 
     console.log("BattlegroundScene create");
+    let state = getState();
     const { map, layers } = createMap(this);
-
-    if (!gameData)
+    if (gameData.squads.length > 0) {
+      console.log("BattlegroundScene create with gameData: ", gameData)
+      //@ts-ignore
+      state.gameData = gameData
+      setState(state)
+    } else {
       importMapObjects(map);
-
-    CharaDispatch.init(this);
-    CharaMovement.init(state);
+    }
 
     this.layers = layers;
     this.tilemap = map;
     this.cities = createCities(this, state.gameData.cities);
     this.createMapSquads();
 
-    ControlsSystem.init(this);
     makeMapInteractive(this, map, layers.background);
-    FogOfWarSystem.init(this);
-    CityCaptureSystem.init(this);
-    CursorSystem.init(this);
-    CharaFaceDirection.init(this);
     makeSquadsInteractive(this, this.charas);
     makeCitiesInteractive(
       this,
       this.cities.map((c) => c.sprite)
     );
-    MovementArrows.init(this);
-    EntitySelection.init(state);
 
-    StaminaRegen.init(state);
+    this.fow = createFowLayer(this)
 
-    const grid = layers.obstacles.layer.data.map((row) =>
+    this.grid = layers.obstacles.layer.data.map((row) =>
       row.map((tile) => (tile.index === -1 ? 0 : 1))
     );
-    Pathfinding.init(grid);
 
-    this.time.addEvent({
-      delay: TURN_DURATION / state.speed,
-      callback: () => {
-        if (state.gameData.winner && !this.scene.isPaused()) {
-          this.scene.pause();
-          this.time.removeAllEvents();
-          return;
-        }
+    ControlsSystem.init(this);
 
-        if (!this.isPaused) {
-          state.gameData.tick++;
-          emit(events.BATTLEGROUND_TICK, state.gameData.tick);
-        }
-      },
-      loop: true,
-    });
+    this.startTicks(state);
 
     //@ts-ignore
     window.scene = this;
 
+    emit(events.BATTLEGROUND_STARTED);
+    console.log("BattlegroundScene create done");
   };
 
   getChara = (id: string) => {
@@ -187,6 +204,25 @@ export class BattlegroundScene extends Phaser.Scene {
     if (!tile) throw new Error("no next tile found");
     return tile;
   };
+
+  private startTicks(state: State) {
+    this.time.addEvent({
+      delay: TURN_DURATION / state.speed,
+      callback: () => {
+        if (state.gameData.winner && !this.scene.isPaused()) {
+          this.scene.pause();
+          this.time.removeAllEvents();
+          return;
+        }
+
+        if (!this.isPaused) {
+          state.gameData.tick++;
+          emit(events.BATTLEGROUND_TICK, state.gameData.tick);
+        }
+      },
+      loop: true,
+    });
+  }
 
   createMapSquads() {
     getState().gameData.squads
@@ -214,6 +250,12 @@ export class BattlegroundScene extends Phaser.Scene {
       emit(events.LOOKUP_PATH, squad.id, squad.position, vec2(x, y));
     });
   };
+}
+
+export function getScene(): BattlegroundScene {
+  //@ts-ignore
+  const scene = window.bg;
+  return scene;
 }
 
 export default BattlegroundScene;

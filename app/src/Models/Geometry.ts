@@ -1,3 +1,4 @@
+import Phaser from "phaser"
 
 export type Vec2 = {
 	tag: "_vec2",
@@ -22,4 +23,21 @@ export const distanceBetween = (a: Vec2) => (b: Vec2) => {
 		Math.pow(a.y - b.y, 2)
 	);
 };
+export function isInside(
+	x: number,
+	y: number,
+	w: number,
+	h: number,
+	px: number,
+	py: number
+): boolean {
+	// sometimes width and height can be negative
+	// we need our rect to always be positive so that the collision may work
+	return new Phaser.Geom.Rectangle(
+		w < 0 ? x + w : x,
+		h < 0 ? y + h : y,
+		Math.abs(w),
+		Math.abs(h)
+	).contains(px, py);
+}
 

@@ -2,22 +2,20 @@ import { FORCE_ID_CPU } from "../../Models/Force";
 import { eqVec2 } from "../../Models/Geometry";
 import { emit, events, listeners } from "../../Models/Signals";
 import { UNIT_STATUS, Unit } from "../../Models/Squad";
-import { getState } from "../../Models/State";
+import { State } from "../../Models/State";
 import { distanceBetween } from "../../Models/Geometry";
 
 
-export function init() {
+export function init(state: State) {
 
 	listeners([
-		[events.BATTLEGROUND_TICK, processAttackerActions],
-		[events.BATTLEGROUND_TICK, processDefenderActions]
+		[events.BATTLEGROUND_TICK, () => processAttackerActions(state)],
+		[events.BATTLEGROUND_TICK, () => processDefenderActions(state)]
 	])
 
 }
 
-function processAttackerActions() {
-
-	const state = getState();
+function processAttackerActions(state: State) {
 
 	if (state.gameData.winner) return
 
@@ -76,9 +74,7 @@ function processAttackerActions() {
 
 
 }
-function processDefenderActions() {
-
-	const state = getState();
+function processDefenderActions(state: State) {
 
 	if (state.gameData.winner) return
 

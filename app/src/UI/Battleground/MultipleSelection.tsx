@@ -1,4 +1,4 @@
-import { emit, emit_, events } from "../../Models/Signals";
+import { emit, events } from "../../Models/Signals";
 import { Unit } from "../../Models/Squad";
 import { getState } from "../../Models/State";
 

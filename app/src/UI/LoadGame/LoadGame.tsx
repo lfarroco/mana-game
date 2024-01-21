@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react";
 import { ListGroup, Modal } from "react-bootstrap";
 import { emit, emit_, events, listeners } from "../../Models/Signals";
-import { getSavedGamesIndex } from "../../Models/SavedGame";
+import { SavedGamesIndex, getSavedGamesIndex } from "../../Models/SavedGame";
 
 export default function LoadGame() {
 
 	const [show, setShow] = useState(false);
-	const [savedGames, setSavedGames] = useState(["game1", "game2", "game3"]);
+	const [savedGames, setSavedGames] = useState([] as SavedGamesIndex);
 	const [selectedGame, setSelectedGame] = useState("");
+
+	const fetchSavedGames = () => {
+		const saves = getSavedGamesIndex();
+		setSavedGames(saves);
+	}
 
 	useEffect(() => {
 		listeners([
@@ -15,14 +20,15 @@ export default function LoadGame() {
 				events.TOGGLE_LOAD_GAME_MODAL,
 				(value: boolean) => {
 					setShow(value);
+
+					if (value) {
+						fetchSavedGames();
+					}
 				},
 			],
 		]);
 
-		const savedGames = getSavedGamesIndex();
-		if (savedGames.length > 0) {
-			setSavedGames(savedGames);
-		}
+		fetchSavedGames();
 
 	}, []);
 
@@ -71,4 +77,5 @@ export default function LoadGame() {
 			</Modal.Footer>
 		</Modal>
 	);
+
 }

@@ -9,16 +9,14 @@ export function init(scene: BattlegroundScene) {
 	listeners([
 		[events.CREATE_EMOTE, (id: string, key: string) => {
 
-			const chara = scene.charas.find(c => c.id === id)
-			if (!chara) throw new Error("chara not found")
+			const chara = scene.getChara(id)
 
 			createEmote(chara, key)
 
 		}],
 		[events.REMOVE_EMOTE, (id: string) => {
 
-			const chara = scene.charas.find(c => c.id === id)
-			if (!chara) throw new Error("chara not found")
+			const chara = scene.getChara(id)
 
 			removeEmote(chara)
 

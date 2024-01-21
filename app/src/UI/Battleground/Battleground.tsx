@@ -9,7 +9,7 @@ import SelectionHUD from "./SelectionHUD";
 import SaveGame from "../SaveGame/SaveGame";
 
 const Battleground = () => {
-  const [isPaused, setPaused] = useState(false);
+  const [isPaused, setPaused] = useState(true);
   const [isSelectingMoveTarget, setIsSelectingMoveTarget] = useState(false);
   const [tick, setTick] = useState(0);
 

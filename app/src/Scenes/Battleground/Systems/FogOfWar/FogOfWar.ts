@@ -1,41 +1,25 @@
 import Phaser from "phaser";
-import { BattlegroundScene } from "../BattlegroundScene";
-import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../Models/Force";
-import { listeners, events } from "../../../Models/Signals";
-import { UNIT_STATUS } from "../../../Models/Squad";
-import { Vec2 } from "../../../Models/Geometry";
-import { getState } from "../../../Models/State";
+import { BattlegroundScene } from "../../BattlegroundScene";
+import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../../Models/Force";
+import { listeners, events } from "../../../../Models/Signals";
+import { UNIT_STATUS } from "../../../../Models/Squad";
+import { Vec2 } from "../../../../Models/Geometry";
+import { State } from "../../../../Models/State";
 
 const VIEW_RADIUS = 4;
 
-export function init(scene: BattlegroundScene) {
-  const fowTilemap = scene.make.tilemap({ key: "maps/map1" });
-
-  const tiles = fowTilemap.addTilesetImage(
-    "tilesets/pipoya",
-    "tilesets/pipoya"
-  );
-
-  if (!tiles) throw new Error("tile is null");
-
-  const fow = fowTilemap.createBlankLayer("map_fow", tiles);
-
-  if (!fow) throw new Error("fow is null");
-
-  // populate fow with tiles
-  if (fow) {
-    fow.fill(1, 0, 0, fow.width, fow.height, true);
-    fow.forEachTile((t) => {
-      t.tint = 0x000000;
-    });
-  }
-
+export function init(scene: BattlegroundScene, state: State) {
   listeners([
+    [
+      events.BATTLEGROUND_STARTED, () => {
+        refreshFogOfWar(scene, state);
+      }
+    ],
     [
       // TODO: replace with "squads finished moving"
       events.BATTLEGROUND_TICK,
       () => {
-        refreshFogOfWar(scene, fow);
+        refreshFogOfWar(scene, state);
       },
     ],
   ]);
@@ -43,11 +27,11 @@ export function init(scene: BattlegroundScene) {
 
 // takes around 0.2~3 ms to run in a 64x64 board and can be optimized
 // it is actually slower to use a for loop instead of forEach (takes 0.9ms)
-function refreshFogOfWar(
-  scene: BattlegroundScene,
-  fow: Phaser.Tilemaps.TilemapLayer
-) {
-  const state = getState()
+function refreshFogOfWar(scene: BattlegroundScene, state: State) {
+
+  const { fow } = scene;
+  if (!fow) throw new Error("fow is null");
+
   // tried to use fow.culledTiles, but the tiles
   // are not set back to hidden
   fow.forEachTile((tile) => {

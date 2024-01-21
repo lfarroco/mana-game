@@ -7,9 +7,9 @@ import { Chara } from "../../../Components/MapChara";
 
 export function makeSquadsInteractive(
   scene: BattlegroundScene,
-  entities: Chara[]
+  charas: Chara[]
 ) {
-  entities.forEach((entity) => {
+  charas.forEach((entity) => {
     makeSquadInteractive(entity, scene);
   });
 }

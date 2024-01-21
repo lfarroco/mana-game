@@ -1,14 +1,12 @@
 import { emit, events, listeners } from "../../../Models/Signals";
 import { UNIT_STATUS } from "../../../Models/Squad";
-import { getState } from "../../../Models/State";
+import { State } from "../../../Models/State";
 import BattlegroundScene from "../BattlegroundScene";
 
-export function squadDestroyed(scene: BattlegroundScene) {
+export function squadDestroyed(scene: BattlegroundScene, state: State) {
 
 	listeners([
 		[events.SQUAD_DESTROYED, (id: string) => {
-
-			const state = getState()
 
 			emit(events.UPDATE_SQUAD, id, { status: UNIT_STATUS.DESTROYED })
 
