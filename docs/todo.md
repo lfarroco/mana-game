@@ -1,5 +1,3 @@
-
-
 - TODO: target picking in combat
 - TODO: deselect destroyed units (may lead to movement issued bugs)
 - OK: adjust rect select for camera scroll
@@ -12,7 +10,6 @@
 - TODO: show unit path when selected
 - TODO: shift-pathing (hold shift to queue up pathing)  
 - TODO: have passive units have a agroo range (think wc3)
-- TODO: the camera zoom messes with selection and drag
 - TODO: ping move location on order issued
 - TODO: shift-click to select
 - TODO: shift-click in portrait to deselect
@@ -23,7 +20,7 @@
 - TODO: when issuing move order into cell with enemy, combat emote is still displayed when moving
 - OK: main screen
 - TODO: map list
-- TODO: save / load
+- OK: save / load
 - OK: options (sound, music)
 - TODO: have event for "turn end", so that victory conditions can be checked after all animations are complete
 - TODO: sound: if a battle is active, play combat sounds
@@ -31,7 +28,9 @@
 - TODO: on game load, create combat and movement emotes
 - TODO: on game load, create hp bars with correct values
 - TODO: stop creating listeners for every unit
-
+- DECISION: follow advance wars model (cities for money, recruit at specific city type (tavern))
 --- post v1:
 - controller support
 - modding support
+- change zoom
+- - TODO: the camera zoom messes with selection and drag
