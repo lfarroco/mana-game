@@ -28,6 +28,9 @@
 - TODO: have event for "turn end", so that victory conditions can be checked after all animations are complete
 - TODO: sound: if a battle is active, play combat sounds
 - TODO: save local settings (sound, music)
+- TODO: on game load, create combat and movement emotes
+- TODO: on game load, create hp bars with correct values
+- TODO: stop creating listeners for every unit
 
 --- post v1:
 - controller support

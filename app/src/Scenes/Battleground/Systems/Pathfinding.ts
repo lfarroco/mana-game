@@ -4,15 +4,16 @@ import { emit, events, listeners } from "../../../Models/Signals";
 import { getState } from "../../../Models/State";
 import { UNIT_STATUS } from "../../../Models/Squad";
 import { getDirection } from "../../../Models/Direction";
+import BattlegroundScene from "../BattlegroundScene";
 
-export function init(grid: number[][]) {
+export function init(scene:BattlegroundScene) {
   listeners([
     [
       events.LOOKUP_PATH,
       (key: string, source: Vec2, target: Vec2) => {
         const easystar = new Easystar.js();
         easystar.setAcceptableTiles([0]);
-        easystar.setGrid(grid);
+        easystar.setGrid(scene.grid);
         easystar.enableSync();
 
         const state = getState();

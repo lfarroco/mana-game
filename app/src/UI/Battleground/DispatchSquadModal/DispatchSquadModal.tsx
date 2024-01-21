@@ -3,7 +3,7 @@ import { Unit } from '../../../Models/Squad';
 import { getState } from '../../../Models/State';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
-import { emit, emit_, events, listeners } from '../../../Models/Signals';
+import { emit_, events, listeners } from '../../../Models/Signals';
 
 const dispatch = (squad: Unit) => () => {
 

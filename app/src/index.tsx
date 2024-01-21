@@ -52,7 +52,7 @@ root.render(<UI />);
 listeners([
   [
     events_.START_GAME, () => {
-      game.scene.start("BattlegroundScene");
+      game.scene.start("BattlegroundScene", { squads: [] });
     }
   ],
 ])

@@ -13,7 +13,7 @@ export const makeSavedGame = (name: string, state: GameData): SavedGame => {
 	}
 }
 
-type SavedGamesIndex = string[]
+export type SavedGamesIndex = string[]
 
 export function getSavedGamesIndex(): SavedGamesIndex {
 	const savedGames = localStorage.getItem('savedGames')
