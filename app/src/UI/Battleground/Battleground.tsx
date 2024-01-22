@@ -77,7 +77,7 @@ const Battleground = () => {
               onClick={emit_(events.TOGGLE_SQUADS_WINDOW, true)}
               className="btn btn-secondary col-12"
             >
-              Squads
+              Units
             </Button>
             <Button
               onClick={emit_(events.TOGGLE_SAVE_GAME_MODAL, true)}
