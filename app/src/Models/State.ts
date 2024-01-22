@@ -119,16 +119,13 @@ export const listenToStateEvents = () => {
 
       const state = getState();
 
-      // TODO: this can be removed once adding to the state is separated from rendering existing (map-embedded) entities
-      if (state.gameData.squads.find(s => s.id === unitId)) {
-        console.log(`unit ${unitId} already exists`)
-        return
-      }
 
       const unit = makeUnit(unitId, forceId, jobId, position)
 
       state.gameData.forces.find(f => f.id === forceId)?.squads.push(unit.id)
-      state.gameData.squads.push(unit)
+      state.gameData.squads.push(unit);
+
+      emit(events.UNIT_CREATED, unit.id);
 
     }],
 
