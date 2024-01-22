@@ -3,13 +3,13 @@ import { preload } from "./preload";
 import { createMap } from "./Map/createMap";
 import { importMapObjects } from "./Map/importMapObjects";
 import { makeMapInteractive } from "./Map/makeMapInteractive";
-import { makeSquadsInteractive } from "./Map/makeSquadsInteractive";
+import { makeSquadInteractive, makeSquadsInteractive } from "./Map/makeSquadsInteractive";
 import { createCities } from "./Map/createCities";
 import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
-import { UNIT_STATUS } from "../../Models/Unit";
+import { UNIT_STATUS, Unit } from "../../Models/Unit";
 import processTick from "./ProcessTick";
 import { Vec2, vec2 } from "../../Models/Geometry";
-import { Chara } from "../../Components/MapChara";
+import { Chara, createChara } from "../../Components/MapChara";
 import { emit, events, listeners } from "../../Models/Signals";
 import { GameData, State, getState, setState } from "../../Models/State";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
@@ -26,7 +26,6 @@ import * as EmoteSystem from "../../Systems/Chara/Emote";
 import * as CharaFaceDirection from "../../Systems/Chara/FaceDirection";
 import * as MovementArrows from "../../Systems/Chara/MovementArrow";
 import * as EntitySelection from "./Systems/EntitySelection";
-import * as CharaDispatch from "../../Systems/Chara/Recruit";
 import * as CharaMovement from "../../Systems/Chara/SquadMovement";
 
 import { TURN_DURATION } from "../../config";
@@ -97,6 +96,15 @@ export class BattlegroundScene extends Phaser.Scene {
           processTick(this);
         },
       ],
+      [
+        events.UNIT_CREATED,
+        (unitId: string) => {
+          const unit = this.getSquad(unitId)
+
+          this.renderUnit(unit)
+
+        }
+      ]
     ]);
 
 
@@ -115,7 +123,6 @@ export class BattlegroundScene extends Phaser.Scene {
     StaminaRegen.init(state);
     MovementArrows.init(this);
     EntitySelection.init(state);
-    CharaDispatch.init();
     CharaMovement.init(state);
 
     //@ts-ignore
@@ -214,8 +221,22 @@ export class BattlegroundScene extends Phaser.Scene {
 
   createMapSquads() {
     getState().gameData.squads
-      .filter((squad) => squad.status !== UNIT_STATUS.DESTROYED)
-      .forEach((squad) => emit(events.RECRUIT_UNIT, squad.id, squad.force, squad.job, squad.position));
+      .filter((unit) => unit.status !== UNIT_STATUS.DESTROYED)
+      .forEach((unit) => this.renderUnit(unit));
+  }
+
+  renderUnit(unit: Unit) {
+    const chara = createChara(
+      this,
+      unit,
+    )
+
+    this.charas.push(chara)
+
+    makeSquadInteractive(chara, this)
+
+    // const chara = new Chara(this, squad);
+    // this.charas.push(chara);
   }
 
   // selectCity = (id: string) => {

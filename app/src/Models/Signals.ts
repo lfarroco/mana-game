@@ -26,6 +26,7 @@ export type Signals = {
   TOGGLE_SAVE_GAME_MODAL: (value: boolean) => void;
   TOGGLE_RECRUIT_MODAL: () => void;
   RECRUIT_UNIT: (unitId: string, forceId: string, jobId: string, location: Vec2) => void;
+  UNIT_CREATED: (unitId: string) => void;
   TOGGLE_SQUADS_WINDOW: (value: boolean) => void;
   BATTLEGROUND_TICK: (tick: number) => void;
   UPDATE_FORCE: (force: Partial<Force>) => void;
@@ -77,6 +78,7 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
   TOGGLE_SAVE_GAME_MODAL: "TOGGLE_SAVE_GAME_MODAL",
   TOGGLE_RECRUIT_MODAL: "TOGGLE_RECRUIT_MODAL",
   RECRUIT_UNIT: "RECRUIT_UNIT",
+  UNIT_CREATED: "UNIT_CREATED",
   TOGGLE_SQUADS_WINDOW: "TOGGLE_SQUADS_WINDOW",
   BATTLEGROUND_TICK: "BATTLEGROUND_TICK",
   ATTACK: "ATTACK",
@@ -192,6 +194,7 @@ export const operations: {
   ],
   TOGGLE_RECRUIT_MODAL: () => [events.TOGGLE_RECRUIT_MODAL],
   RECRUIT_UNIT: (unitId: string, forceId: string, jobId: string, location: Vec2) => [events.RECRUIT_UNIT, unitId, forceId, jobId, location],
+  UNIT_CREATED: (unitId: string) => [events.UNIT_CREATED, unitId],
   TOGGLE_SQUADS_WINDOW: (value: boolean) => [
     events.TOGGLE_SQUADS_WINDOW,
     value,
