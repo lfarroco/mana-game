@@ -29,8 +29,10 @@
 - TODO: on game load, create hp bars with correct values
 - TODO: stop creating listeners for every unit
 - DECISION: follow advance wars model (cities for money, recruit at specific city type (tavern))
+- TODO: when evaluating a path, ignore units under the fow
 --- post v1:
 - controller support
 - modding support
 - change zoom
-- - TODO: the camera zoom messes with selection and drag
+- - the camera zoom currently messes with selection and drag
+- new city types (fort, cavern)

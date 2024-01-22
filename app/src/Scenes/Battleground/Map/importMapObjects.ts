@@ -10,6 +10,7 @@ import {
 } from "../constants";
 import { City } from "../../../Models/City";
 import { Vec2, vec2 } from "../../../Models/Geometry";
+import {makeForce} from "../../../Models/Force";
 
 type TiledProp = {
   name: string;
@@ -65,10 +66,9 @@ export function importMapObjects(map: Phaser.Tilemaps.Tilemap) {
 
       if (!mForce) {
         state.gameData.forces.push({
+          ... makeForce(),
           id: city.force,
-          name: "",
           color: "red",
-          squads: [],
         });
       }
 
@@ -122,10 +122,9 @@ export function importMapObjects(map: Phaser.Tilemaps.Tilemap) {
 
       if (!mForce) {
         state.gameData.forces.push({
+          ...makeForce(),
           id: sqdSpec.force,
-          name: "",
           color: "red",
-          squads: [],
         });
       }
 
