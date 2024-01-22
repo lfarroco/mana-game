@@ -35,7 +35,7 @@ const emotes = [
 ]
 
 export function preload(this: Phaser.Scene) {
-	["castle", "cave", "fort", "town"].forEach(city => {
+	["castle", "cave", "fort", "town", "tavern"].forEach(city => {
 		this.load.image(city, `assets/cities/${city}.png`);
 		this.load.image(`${city}_map`, `assets/cities/${city}_map.png`);
 
