@@ -149,7 +149,7 @@
                         {
                          "name":"type",
                          "type":"string",
-                         "value":"fort"
+                         "value":"town"
                         }],
                  "rotation":0,
                  "type":"",
@@ -171,7 +171,7 @@
                         {
                          "name":"type",
                          "type":"string",
-                         "value":"castle"
+                         "value":"town"
                         }],
                  "rotation":0,
                  "type":"",
@@ -205,7 +205,7 @@
                 {
                  "height":64,
                  "id":20,
-                 "name":"Dark Cave",
+                 "name":"Verkil",
                  "properties":[
                         {
                          "name":"force",
@@ -213,14 +213,9 @@
                          "value":"neutral"
                         }, 
                         {
-                         "name":"on_visit",
-                         "type":"string",
-                         "value":"[\n    {\n        \"type\": \"slide\",\n        \"image\": \"cave_entrance\",\n        \"text\": \"A dark cave looms ahead, but driven by the desire of finding treasure you venture into it!\"\n    },\n    {\n        \"type\": \"slide\",\n        \"image\": \"eyes_in_the_dark\",\n        \"text\": \"This cave is a den of monsters! Let battle be joined!\"\n    },\n    {\n        \"type\": \"encounter\",\n        \"level\": 1,\n        \"squad\": [\n            \"goblin\",\n            \"goblin\",\n            \"goblin\"\n        ],\n        \"rewards\": [\n            {\n                \"type\": \"gold\",\n                \"amount\": 100\n            }\n        ]\n    }\n]"
-                        }, 
-                        {
                          "name":"type",
                          "type":"string",
-                         "value":"cave"
+                         "value":"town"
                         }],
                  "rotation":0,
                  "type":"",
@@ -270,8 +265,8 @@
                  "type":"",
                  "visible":true,
                  "width":64,
-                 "x":128,
-                 "y":512
+                 "x":192,
+                 "y":640
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -502,7 +497,7 @@
                 }],
          "opacity":1,
          "type":"objectgroup",
-         "visible":false,
+         "visible":true,
          "x":0,
          "y":0
         }],
