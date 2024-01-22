@@ -1,5 +1,5 @@
 import { emit, events } from "../../Models/Signals";
-import { Unit } from "../../Models/Squad";
+import { Unit } from "../../Models/Unit";
 import { getState } from "../../Models/State";
 
 export default function MultipleSelection({

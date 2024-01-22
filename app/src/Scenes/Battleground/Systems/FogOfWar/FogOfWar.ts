@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { BattlegroundScene } from "../../BattlegroundScene";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../../Models/Force";
 import { listeners, events } from "../../../../Models/Signals";
-import { UNIT_STATUS } from "../../../../Models/Squad";
+import { UNIT_STATUS } from "../../../../Models/Unit";
 import { Vec2 } from "../../../../Models/Geometry";
 import { State } from "../../../../Models/State";
 

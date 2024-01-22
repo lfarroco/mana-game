@@ -1,8 +1,7 @@
 import { City } from "./City";
-import { FORCE_ID_PLAYER, Force, makeForce } from "./Force";
-import { vec2 } from "./Geometry";
+import { Force } from "./Force";
 import { emit, events, listeners } from "./Signals";
-import { Unit, makeUnit } from "./Squad";
+import { Unit } from "./Unit";
 
 export const initialState = (): State => ({
   debug: true,
@@ -15,35 +14,10 @@ export const initialState = (): State => ({
   gameData: {
     winner: null,
     tick: 0,
-    forces: [
-      {
-        ...makeForce(),
-        id: FORCE_ID_PLAYER,
-        name: "Player",
-        color: "#00ff00",
-        squads: ["s1", "s2"],
-      },
-    ],
+    forces: [],
     selectedUnits: [],
     selectedCities: [],
-    squads: [
-      {
-        ...makeUnit("s1", FORCE_ID_PLAYER, "soldier"),
-        position: vec2(2, 2),
-      },
-      {
-        ...makeUnit("s2", FORCE_ID_PLAYER, "wizard"),
-        position: vec2(3, 1),
-      },
-      {
-        ...makeUnit("s4", FORCE_ID_PLAYER, "archer"),
-        position: vec2(4, 2),
-      },
-      {
-        ...makeUnit("s5", FORCE_ID_PLAYER, "barbarian"),
-        position: vec2(3, 3),
-      },
-    ],
+    squads: [],
     cities: [],
     map: {
       width: 128,

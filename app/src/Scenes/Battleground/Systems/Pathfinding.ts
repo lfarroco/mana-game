@@ -2,11 +2,11 @@ import * as Easystar from "easystarjs";
 import { Vec2, asVec2, eqVec2 } from "../../../Models/Geometry";
 import { emit, events, listeners } from "../../../Models/Signals";
 import { getState } from "../../../Models/State";
-import { UNIT_STATUS } from "../../../Models/Squad";
+import { UNIT_STATUS } from "../../../Models/Unit";
 import { getDirection } from "../../../Models/Direction";
 import BattlegroundScene from "../BattlegroundScene";
 
-export function init(scene:BattlegroundScene) {
+export function init(scene: BattlegroundScene) {
   listeners([
     [
       events.LOOKUP_PATH,

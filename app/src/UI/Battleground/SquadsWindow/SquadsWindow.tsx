@@ -1,6 +1,6 @@
 import './SquadsWindow.css';
 import Modal from 'react-bootstrap/Modal';
-import { Unit } from '../../../Models/Squad';
+import { Unit } from '../../../Models/Unit';
 import { getState } from '../../../Models/State';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';

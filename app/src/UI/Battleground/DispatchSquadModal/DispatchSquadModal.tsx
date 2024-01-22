@@ -1,5 +1,5 @@
 import Modal from 'react-bootstrap/Modal';
-import { Unit } from '../../../Models/Squad';
+import { Unit } from '../../../Models/Unit';
 import { getState } from '../../../Models/State';
 import { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';

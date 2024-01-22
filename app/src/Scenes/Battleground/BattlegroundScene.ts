@@ -6,7 +6,7 @@ import { makeMapInteractive } from "./Map/makeMapInteractive";
 import { makeSquadsInteractive } from "./Map/makeSquadsInteractive";
 import { createCities } from "./Map/createCities";
 import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
-import { UNIT_STATUS, Unit } from "../../Models/Squad";
+import { UNIT_STATUS, Unit } from "../../Models/Unit";
 import processTick from "./ProcessTick";
 import { Vec2, vec2 } from "../../Models/Geometry";
 import { Chara } from "../../Components/MapChara";
