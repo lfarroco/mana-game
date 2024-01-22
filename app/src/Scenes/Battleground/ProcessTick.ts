@@ -9,7 +9,7 @@ import {
 } from "../../Models/Signals";
 import { BattlegroundScene } from "./BattlegroundScene";
 import { getDirection } from "../../Models/Direction";
-import { UNIT_STATUS, Unit } from "../../Models/Squad";
+import { UNIT_STATUS, Unit } from "../../Models/Unit";
 import { TURN_DURATION } from "../../config";
 import { foldMap } from "../../Models/Signals";
 import { State, getState } from "../../Models/State";

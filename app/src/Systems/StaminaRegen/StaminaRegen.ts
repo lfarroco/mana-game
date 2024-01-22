@@ -1,6 +1,6 @@
 import { eqVec2 } from "../../Models/Geometry";
 import { emit, events, listeners } from "../../Models/Signals";
-import { UNIT_STATUS } from "../../Models/Squad";
+import { UNIT_STATUS } from "../../Models/Unit";
 import { State } from "../../Models/State";
 
 const STAMINA_REGEN_RATE = 3;

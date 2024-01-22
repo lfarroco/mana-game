@@ -3,7 +3,7 @@ import BattlegroundScene from "../BattlegroundScene";
 import { emit, events } from "../../../Models/Signals";
 import { asVec2, vec2 } from "../../../Models/Geometry";
 import { FORCE_ID_PLAYER } from "../../../Models/Force";
-import { UNIT_STATUS } from "../../../Models/Squad";
+import { UNIT_STATUS } from "../../../Models/Unit";
 import { getState } from "../../../Models/State";
 import { isInside } from "../../../Models/Geometry";
 

@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { getState } from "../../../Models/State";
 import * as uuid from "uuid";
-import { Unit, makeUnit } from "../../../Models/Squad";
+import { Unit, makeUnit } from "../../../Models/Unit";
 import {
   HALF_TILE_HEIGHT,
   HALF_TILE_WIDTH,
@@ -10,15 +10,15 @@ import {
 } from "../constants";
 import { City } from "../../../Models/City";
 import { Vec2, vec2 } from "../../../Models/Geometry";
-import {makeForce} from "../../../Models/Force";
+import { makeForce } from "../../../Models/Force";
 
 type TiledProp = {
   name: string;
   type: string;
   value: string;
 };
-type SquadSpec = {
-  ai: string | null;
+type UnitSpec = {
+  ai: string | null; // TOOD: ai should be per force
   force: string;
   job: string;
   x: number;
@@ -66,7 +66,7 @@ export function importMapObjects(map: Phaser.Tilemaps.Tilemap) {
 
       if (!mForce) {
         state.gameData.forces.push({
-          ... makeForce(),
+          ...makeForce(),
           id: city.force,
           color: "red",
         });
@@ -114,7 +114,7 @@ export function importMapObjects(map: Phaser.Tilemaps.Tilemap) {
           job,
           x: obj.x,
           y: obj.y,
-        } as SquadSpec;
+        } as UnitSpec;
       })
     )
     .forEach((sqdSpec) => {
@@ -131,28 +131,28 @@ export function importMapObjects(map: Phaser.Tilemaps.Tilemap) {
       const force = state.gameData.forces.find((force) => force.id === sqdSpec.force);
       if (!force) throw new Error("force is undefined");
 
-      const squadId = uuid.v4();
+      const unitId = uuid.v4();
 
-      const newSquad: Unit = {
-        ...makeUnit(squadId, force.id, sqdSpec.job),
+      const newUnit: Unit = {
+        ...makeUnit(unitId, force.id, sqdSpec.job),
         position: boardToWindowVec(sqdSpec),
       };
 
       if (sqdSpec.ai === "attacker") {
-        state.gameData.ai.attackers.push(newSquad.id);
+        state.gameData.ai.attackers.push(newUnit.id);
       } else if (sqdSpec.ai === "defender") {
-        state.gameData.ai.defenders.push(newSquad.id);
+        state.gameData.ai.defenders.push(newUnit.id);
       }
 
-      state.gameData.squads.push(newSquad);
-      force.squads.push(newSquad.id);
+      state.gameData.squads.push(newUnit);
+      force.squads.push(newUnit.id);
       state.gameData.map = {
         width: map.width,
         height: map.height,
       };
     });
 }
-function boardToWindowVec(sqdSpec: SquadSpec): Vec2 {
+function boardToWindowVec(sqdSpec: UnitSpec): Vec2 {
   return vec2(
     Math.floor(sqdSpec.x / TILE_WIDTH),
     Math.floor(sqdSpec.y / TILE_HEIGHT)

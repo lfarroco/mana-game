@@ -494,6 +494,87 @@
                  "width":64,
                  "x":256,
                  "y":256
+                }, 
+                {
+                 "height":64,
+                 "id":34,
+                 "name":"player_unit_1",
+                 "properties":[
+                        {
+                         "name":"ai",
+                         "type":"string",
+                         "value":"passive"
+                        }, 
+                        {
+                         "name":"force",
+                         "type":"string",
+                         "value":"PLAYER"
+                        }, 
+                        {
+                         "name":"job",
+                         "type":"string",
+                         "value":"barbarian"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":128,
+                 "y":128
+                }, 
+                {
+                 "height":64,
+                 "id":35,
+                 "name":"player_unit_2",
+                 "properties":[
+                        {
+                         "name":"ai",
+                         "type":"string",
+                         "value":"passive"
+                        }, 
+                        {
+                         "name":"force",
+                         "type":"string",
+                         "value":"PLAYER"
+                        }, 
+                        {
+                         "name":"job",
+                         "type":"string",
+                         "value":"barbarian"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":128,
+                 "y":256
+                }, 
+                {
+                 "height":64,
+                 "id":36,
+                 "name":"player_unit_3",
+                 "properties":[
+                        {
+                         "name":"ai",
+                         "type":"string",
+                         "value":"attacker"
+                        }, 
+                        {
+                         "name":"force",
+                         "type":"string",
+                         "value":"PLAYER"
+                        }, 
+                        {
+                         "name":"job",
+                         "type":"string",
+                         "value":"barbarian"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":320,
+                 "y":256
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -502,7 +583,7 @@
          "y":0
         }],
  "nextlayerid":10,
- "nextobjectid":34,
+ "nextobjectid":37,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.0",
