@@ -21,10 +21,9 @@ const state = initialState();
 window.state = state;
 window.emitter = eventEmitter;
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-//reportWebVitals();
+// create this listener first so that state changes are processed first
+listenToStateEvents();
+
 const game = new Phaser.Game({
   // keep fullscreen for now
   type: Phaser.AUTO,
@@ -44,7 +43,6 @@ window.addEventListener("resize", () => {
   game.scale.resize(window.innerWidth, window.innerHeight);
 });
 
-
 const root = ReactDOM.createRoot(document.getElementById("ui") as HTMLElement);
 
 root.render(<UI />);
@@ -58,4 +56,3 @@ listeners([
 ])
 
 SaveGame.init(game);
-listenToStateEvents();

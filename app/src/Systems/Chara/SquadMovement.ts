@@ -12,7 +12,7 @@ import { getSquad, State } from "../../Models/State";
 export function init(state: State) {
   listeners([
     [
-      events.DISPATCH_SQUAD,
+      events.RECRUIT_UNIT,
       (squadId: string) => {
         const squad = getSquad(state)(squadId);
 

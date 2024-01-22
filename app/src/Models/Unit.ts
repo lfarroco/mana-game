@@ -1,4 +1,4 @@
-import { Vec2, vec2 } from "./Geometry";
+import { Vec2 } from "./Geometry";
 import { getJob } from "./Job";
 
 export type UnitStatus = "MOVING" | "ATTACKING" | "DESTROYED" | "IDLE";
@@ -37,7 +37,7 @@ export type Unit = {
   agility: number;
 };
 
-export const makeUnit = (id: string, force: string, job: string): Unit => {
+export const makeUnit = (id: string, force: string, job: string, position: Vec2): Unit => {
 
   const job_ = getJob(job);
   return {
@@ -45,7 +45,7 @@ export const makeUnit = (id: string, force: string, job: string): Unit => {
     name: job_.name,
     job,
     force,
-    position: vec2(0, 0),
+    position,
     path: [],
     order: { type: "idle" },
     status: UNIT_STATUS.IDLE,

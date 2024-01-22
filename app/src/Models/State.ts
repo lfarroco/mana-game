@@ -1,7 +1,8 @@
 import { City } from "./City";
 import { Force } from "./Force";
+import { Vec2 } from "./Geometry";
 import { emit, events, listeners } from "./Signals";
-import { Unit } from "./Unit";
+import { Unit, makeUnit } from "./Unit";
 
 export const initialState = (): State => ({
   debug: true,
@@ -113,6 +114,24 @@ export const updateForce = (state: State) => (
 
 export const listenToStateEvents = () => {
   listeners([
+
+    [events.RECRUIT_UNIT, (unitId: string, forceId: string, jobId: string, position: Vec2) => {
+
+      const state = getState();
+
+      // TODO: this can be removed once adding to the state is separated from rendering existing (map-embedded) entities
+      if (state.gameData.squads.find(s => s.id === unitId)) {
+        console.log(`unit ${unitId} already exists`)
+        return
+      }
+
+      const unit = makeUnit(unitId, forceId, jobId, position)
+
+      state.gameData.forces.find(f => f.id === forceId)?.squads.push(unit.id)
+      state.gameData.squads.push(unit)
+
+    }],
+
     [events.UPDATE_SQUAD, (id: string, sqd: Partial<Unit>) => {
       const state = getState();
 

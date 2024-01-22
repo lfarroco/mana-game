@@ -3,7 +3,7 @@ import SquadsWindow from "./SquadsWindow/SquadsWindow";
 import { Button, ButtonGroup } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import { listeners, events, emit, emit_ } from "../../Models/Signals";
-import DispatchSquadModal from "./DispatchSquadModal/DispatchSquadModal";
+import DispatchSquadModal from "./RecruitUnitModal/RecruitUnitModal";
 import VictoryModal from "./VictoryModal/VictoryModal";
 import SelectionHUD from "./SelectionHUD";
 import SaveGame from "../SaveGame/SaveGame";

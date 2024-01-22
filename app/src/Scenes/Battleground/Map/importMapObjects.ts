@@ -133,10 +133,7 @@ export function importMapObjects(map: Phaser.Tilemaps.Tilemap) {
 
       const unitId = uuid.v4();
 
-      const newUnit: Unit = {
-        ...makeUnit(unitId, force.id, sqdSpec.job),
-        position: boardToWindowVec(sqdSpec),
-      };
+      const newUnit: Unit = makeUnit(unitId, force.id, sqdSpec.job, boardToWindowVec(sqdSpec))
 
       if (sqdSpec.ai === "attacker") {
         state.gameData.ai.attackers.push(newUnit.id);
