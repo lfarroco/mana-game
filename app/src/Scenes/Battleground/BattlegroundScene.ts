@@ -97,18 +97,6 @@ export class BattlegroundScene extends Phaser.Scene {
           processTick(this);
         },
       ],
-      [
-        events.UPDATE_SQUAD,
-        (squadId: string, sqd: Partial<Unit>) => {
-          const state = getState();
-
-          if (sqd.hp === 0) {
-            emit(events.SQUAD_DESTROYED, squadId);
-          }
-
-          updateSquad(state)(squadId)(sqd);
-        },
-      ],
     ]);
 
 
