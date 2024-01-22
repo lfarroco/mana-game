@@ -3,6 +3,7 @@ import { Vec2 } from "./Geometry";
 import { Unit } from "./Squad";
 import { Direction } from "./Direction";
 import { GameData } from "./State";
+import { Force } from "./Force";
 
 export type Signals = {
   SET_ROUTE: (route: string) => void;
@@ -27,6 +28,7 @@ export type Signals = {
   DISPATCH_SQUAD: (squadId: string) => void;
   TOGGLE_SQUADS_WINDOW: (value: boolean) => void;
   BATTLEGROUND_TICK: (tick: number) => void;
+  UPDATE_FORCE: (force: Partial<Force>) => void;
   // TODO: have a parent level for the system
   ATTACK: (attacker: string, defender: string) => any;
   UPDATE_SQUAD: (squadId: string, sqd: Partial<Unit>) => any;
@@ -62,6 +64,7 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
   STOP_MUSIC: "STOP_MUSIC",
   SAVE_GAME: "SAVE_GAME",
   LOAD_GAME: "LOAD_GAME",
+  UPDATE_FORCE: "UPDATE_FORCE",
   BATTLEGROUND_STARTED: "BATTLEGROUND_STARTED",
   SELECT_SQUAD_MOVE_START: "SELECT_SQUAD_MOVE_START",
   SELECT_SQUAD_MOVE_DONE: "SELECT_SQUAD_MOVE_DONE",
@@ -153,6 +156,7 @@ export const operations: {
   RESUME_GAME: () => [events.RESUME_GAME],
   PLAY_MUSIC: () => [events.PLAY_MUSIC],
   STOP_MUSIC: () => [events.STOP_MUSIC],
+  UPDATE_FORCE: (force: Partial<Force>) => [events.UPDATE_FORCE, force],
   SAVE_GAME: () => [events.SAVE_GAME],
   LOAD_GAME: (key: string) => [events.LOAD_GAME, key],
   SELECT_SQUAD_MOVE_START: (sqdId: string) => [

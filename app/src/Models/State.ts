@@ -1,6 +1,7 @@
 import { City } from "./City";
 import { FORCE_ID_PLAYER, Force, makeForce } from "./Force";
 import { vec2 } from "./Geometry";
+import { emit, events, listeners } from "./Signals";
 import { Unit, makeUnit } from "./Squad";
 
 export const initialState = (): State => ({
@@ -126,4 +127,29 @@ export const getCity = (state: State) => (id: string): City => {
   const city = state.gameData.cities.find((city) => city.id === id);
   if (!city) throw new Error("city not found");
   return city;
+}
+
+export const updateForce = (state: State) => (
+  force: Partial<Force>
+) => {
+  const f = state.gameData.forces.find((f) => f.id === force.id);
+  if (!f) throw new Error("force not found");
+  Object.assign(f, force);
+}
+
+export const listenToStateEvents = () => {
+  listeners([
+    [events.UPDATE_SQUAD, (id: string, sqd: Partial<Unit>) => {
+      const state = getState();
+
+      if (sqd.hp === 0 && sqd.id) {
+        emit(events.SQUAD_DESTROYED, sqd.id);
+      }
+      updateSquad(state)(id)(sqd);
+    }],
+    [events.UPDATE_FORCE, (force: Partial<Force>) => {
+      const state = getState();
+      updateForce(state)(force);
+    }]
+  ])
 }

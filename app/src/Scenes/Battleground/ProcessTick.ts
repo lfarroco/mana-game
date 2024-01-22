@@ -38,6 +38,10 @@ const processTick = (scene: BattlegroundScene) => {
 
   sequence(cleanupEmotes(scene));
 
+  state.gameData.forces.forEach(force => {
+    emit(events.UPDATE_FORCE, { id: force.id, gold: force.gold + 100 })
+  })
+
   // TODO: face direction
 };
 

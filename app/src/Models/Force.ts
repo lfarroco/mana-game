@@ -5,7 +5,7 @@ export type Force = {
 	name: string;
 	color: string;
 	squads: string[];
-    gold: number;
+	gold: number;
 };
 
 export const makeForce = () => ({
@@ -13,7 +13,7 @@ export const makeForce = () => ({
 	name: "",
 	color: "",
 	squads: [],
-    gold: 0,
+	gold: 0,
 });
 export const FORCE_ID_PLAYER = "PLAYER"
 

@@ -7,11 +7,16 @@ import DispatchSquadModal from "./DispatchSquadModal/DispatchSquadModal";
 import VictoryModal from "./VictoryModal/VictoryModal";
 import SelectionHUD from "./SelectionHUD";
 import SaveGame from "../SaveGame/SaveGame";
+import { getState } from "../../Models/State";
+import { FORCE_ID_PLAYER, Force } from "../../Models/Force";
 
 const Battleground = () => {
+
+  const state = getState()
   const [isPaused, setPaused] = useState(true);
   const [isSelectingMoveTarget, setIsSelectingMoveTarget] = useState(false);
-  const [tick, setTick] = useState(0);
+  const [tick, setTick] = useState(state.gameData.tick);
+  const [gold, setGold] = useState(state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)?.gold || 0);
 
   useEffect(() => {
     console.log("Battleground mounted");
@@ -52,6 +57,14 @@ const Battleground = () => {
           setTick(tick);
         },
       ],
+      [
+        events.UPDATE_FORCE,
+        (force: Partial<Force>) => {
+          if (force.id === FORCE_ID_PLAYER) {
+            setGold(force.gold || 0)
+          }
+        },
+      ],
     ]);
   }, []);
 
@@ -89,7 +102,8 @@ const Battleground = () => {
             >
               {isPaused ? "Resume" : "Pause"}
             </Button>
-            <Button>{tick}</Button>
+            <div className="col-2">Turn: {tick}</div>
+            <div className="col-2">Gold: {gold}</div>
           </ButtonGroup>
         </div>
       </header>

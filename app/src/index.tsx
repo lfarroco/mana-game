@@ -1,7 +1,7 @@
 import * as Phaser from "phaser";
 import events from "events";
 import BattlegroundScene from "./Scenes/Battleground/BattlegroundScene";
-import { State, initialState } from "./Models/State";
+import { State, initialState, listenToStateEvents } from "./Models/State";
 import { UI } from "./UI/UI";
 import { events as events_ } from './Models/Signals';
 import { listeners } from './Models/Signals';
@@ -58,3 +58,4 @@ listeners([
 ])
 
 SaveGame.init(game);
+listenToStateEvents();
