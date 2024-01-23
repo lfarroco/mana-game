@@ -4,8 +4,8 @@ export function createFowLayer(scene: BattlegroundScene) {
 	const fowTilemap = scene.make.tilemap({ key: "maps/map1" });
 
 	const tiles = fowTilemap.addTilesetImage(
-		"tilesets/pipoya",
-		"tilesets/pipoya"
+		"tilesets/tileset",
+		"tilesets/tileset"
 	);
 
 	if (!tiles) throw new Error("tile is null");
