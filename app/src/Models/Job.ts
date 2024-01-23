@@ -1,6 +1,8 @@
 export type Job = {
   id: string;
   name: string;
+  gold: number;
+  attackType: "melee" | "ranged";
   stats: {
     hp: number;
     attack: number;
@@ -12,13 +14,14 @@ export type Job = {
   };
 };
 
-export const jobs = [
+export const jobs: Job[] = [
   {
     id: "archer",
     name: "Archer",
+    gold: 100,
+    attackType: "ranged",
     stats: {
       hp: 260,
-      maxHp: 260,
       attack: 17,
       defense: 0,
       mgkAttack: 0,
@@ -30,9 +33,10 @@ export const jobs = [
   {
     id: "barbarian",
     name: "Barbarian",
+    gold: 100,
+    attackType: "melee",
     stats: {
       hp: 480,
-      maxHp: 480,
       attack: 11,
       defense: 4,
       mgkAttack: 0,
@@ -44,9 +48,10 @@ export const jobs = [
   {
     id: "cleric",
     name: "Cleric",
+    gold: 100,
+    attackType: "melee",
     stats: {
       hp: 280,
-      maxHp: 280,
       attack: 0,
       defense: 2,
       mgkAttack: 13,
@@ -58,9 +63,10 @@ export const jobs = [
   {
     id: "soldier",
     name: "soldier",
+    gold: 100,
+    attackType: "melee",
     stats: {
       hp: 400,
-      maxHp: 400,
       attack: 10,
       defense: 10,
       mgkAttack: 0,
@@ -72,9 +78,10 @@ export const jobs = [
   {
     id: "wizard",
     name: "Wizard",
+    gold: 100,
+    attackType: "ranged",
     stats: {
       hp: 200,
-      maxHp: 200,
       attack: 0,
       defense: 0,
       mgkAttack: 20,
@@ -86,9 +93,10 @@ export const jobs = [
   {
     id: "skeleton",
     name: "Skeleton",
+    gold: 0,
+    attackType: "melee",
     stats: {
       hp: 100,
-      maxHp: 100,
       attack: 10,
       defense: 0,
       mgkAttack: 0,
