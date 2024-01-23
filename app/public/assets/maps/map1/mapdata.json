@@ -377,11 +377,11 @@
         {
          "columns":32,
          "firstgid":1,
-         "image":"..\/..\/tilesets\/pipoya.png",
+         "image":"..\/..\/tilesets\/tileset.png",
          "imageheight":1152,
          "imagewidth":2048,
          "margin":0,
-         "name":"tilesets\/pipoya",
+         "name":"tilesets\/tileset",
          "spacing":0,
          "tilecount":576,
          "tileheight":64,

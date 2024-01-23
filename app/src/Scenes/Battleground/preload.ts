@@ -40,7 +40,7 @@ export function preload(this: Phaser.Scene) {
 		this.load.image(`${city}_map`, `assets/cities/${city}_map.png`);
 
 	});
-	this.load.image("tilesets/pipoya", "assets/tilesets/pipoya.png");
+	this.load.image("tilesets/tileset", "assets/tilesets/tileset.png");
 	this.load.image("cursor", "assets/ui/selected_cursor.png");
 	this.load.tilemapTiledJSON("maps/map1", "assets/maps/map1/mapdata.json");
 

@@ -4,7 +4,7 @@ export function createMap(scene: Phaser.Scene) {
 
 	const map = scene.make.tilemap({ key: "maps/map1" });
 
-	const tiles = map.addTilesetImage("tilesets/pipoya", "tilesets/pipoya");
+	const tiles = map.addTilesetImage("tilesets/tileset", "tilesets/tileset");
 
 	if (!tiles) {
 		throw new Error("tiles is null");
