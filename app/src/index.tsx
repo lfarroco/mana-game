@@ -48,6 +48,7 @@ root.render(<UI />);
 listeners([
   [
     events_.START_GAME, () => {
+      // TODO: pass empty gamedata
       game.scene.start("BattlegroundScene", { squads: [] });
     }
   ],
