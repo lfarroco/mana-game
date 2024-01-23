@@ -2,6 +2,7 @@ import { Button } from "react-bootstrap"
 import { City } from "../../../Models/City"
 import { emit_, events } from "../../../Models/Signals"
 import "./styles.css"
+import { FORCE_ID_PLAYER } from "../../../Models/Force"
 const SelectedCity = ({ city }: { city: City }) => {
 
 	return <div className="row" id="selected-entity">
@@ -18,7 +19,7 @@ const SelectedCity = ({ city }: { city: City }) => {
 		</div>
 
 		<div className="col col-4 pt-3">
-			{city.type === "tavern" &&
+			{city.type === "tavern" && city.force === FORCE_ID_PLAYER &&
 				<Button
 					className="btn btn-secondary"
 					onClick={emit_(events.TOGGLE_DISPATCH_MODAL, true)}
