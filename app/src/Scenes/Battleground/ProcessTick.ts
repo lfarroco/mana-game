@@ -1,4 +1,4 @@
-import { vec2, asVec2, eqVec2 } from "../../Models/Geometry";
+import { vec2, asVec2, eqVec2, distanceBetween } from "../../Models/Geometry";
 import {
   Operation,
   emit,
@@ -13,6 +13,7 @@ import { UNIT_STATUS, Unit } from "../../Models/Unit";
 import { TURN_DURATION } from "../../config";
 import { foldMap } from "../../Models/Signals";
 import { State, getState } from "../../Models/State";
+import { getJob } from "../../Models/Job";
 
 const TURNS_TO_MOVE = 3;
 const processTick = (scene: BattlegroundScene) => {
@@ -159,7 +160,7 @@ function checkEnemiesInRange(scene: BattlegroundScene): Operation[] {
   return foldMap(
     getState().gameData.squads.filter((s) => s.status === UNIT_STATUS.IDLE),
     (squad) => {
-      const enemiesNearby = getEnemiesNearby(scene, squad);
+      const enemiesNearby = getEnemiesNearby(squad);
 
       if (enemiesNearby.length > 0) {
         return [
@@ -174,27 +175,28 @@ function checkEnemiesInRange(scene: BattlegroundScene): Operation[] {
   );
 }
 
-function getEnemiesNearby(scene: BattlegroundScene, squad: Unit) {
+function getEnemiesNearby(squad: Unit) {
+
+  const job = getJob(squad.job)
+  const range = job.attackType === "melee" ? 1 : 3
+
   return getState().gameData.squads
     .filter((sqd) => sqd.force !== squad.force)
     .filter((sqd) => sqd.status !== UNIT_STATUS.DESTROYED)
-    .filter((sqd) =>
-      [
-        [1, 0],
-        [-1, 0],
-        [0, 1],
-        [0, -1],
-      ].some(([x, y]) =>
-        eqVec2(sqd.position, vec2(squad.position.x + x, squad.position.y + y))
-      )
-    );
+    .filter((sqd) => {
+
+      const distance = distanceBetween(sqd.position)(squad.position)
+
+      return distance <= range
+
+    });
 }
 
 function checkCombat(scene: BattlegroundScene) {
   return foldMap(
     getState().gameData.squads.filter((s) => s.status === UNIT_STATUS.ATTACKING),
     (squad) => {
-      const enemiesNearby = getEnemiesNearby(scene, squad);
+      const enemiesNearby = getEnemiesNearby(squad);
 
       if (enemiesNearby.length > 0) {
         const enemy = enemiesNearby[0];

@@ -31,8 +31,8 @@ export const jobs: Job[] = [
     },
   },
   {
-    id: "barbarian",
-    name: "Barbarian",
+    id: "monk",
+    name: "Monk",
     gold: 100,
     attackType: "melee",
     stats: {
@@ -93,7 +93,7 @@ export const jobs: Job[] = [
   {
     id: "skeleton",
     name: "Skeleton",
-    gold: 0,
+    gold: 50,
     attackType: "melee",
     stats: {
       hp: 100,

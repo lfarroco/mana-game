@@ -12,6 +12,7 @@ MVP Outstanding issues:
 - TODO: on game load, create hp bars with correct values
 - TODO: stop creating listeners for every unit
 - TODO: when evaluating a path, ignore units under the fow
+- TODO: select cell to attack
 
 MVP Issues: 
 
@@ -43,3 +44,4 @@ post MVP:
 - change zoom
 - - the camera zoom currently messes with selection and drag
 - new city types (fort, cavern)
+- remove hardcoded player force checkes

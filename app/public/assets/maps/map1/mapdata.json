@@ -91,7 +91,7 @@
                 {
                  "height":64,
                  "id":1,
-                 "name":"Derptown",
+                 "name":"player_town1",
                  "properties":[
                         {
                          "name":"force",
@@ -107,18 +107,18 @@
                  "type":"",
                  "visible":true,
                  "width":64,
-                 "x":64,
-                 "y":320
+                 "x":128,
+                 "y":192
                 }, 
                 {
                  "height":64,
                  "id":2,
-                 "name":"Enemy Fort",
+                 "name":"player_tavern1",
                  "properties":[
                         {
                          "name":"force",
                          "type":"string",
-                         "value":"CPU"
+                         "value":"PLAYER"
                         }, 
                         {
                          "name":"type",
@@ -129,13 +129,13 @@
                  "type":"",
                  "visible":true,
                  "width":64,
-                 "x":256,
-                 "y":320
+                 "x":192,
+                 "y":128
                 }, 
                 {
                  "height":64,
                  "id":4,
-                 "name":"Wenius",
+                 "name":"CPU_town1",
                  "properties":[
                         {
                          "name":"force",
@@ -152,12 +152,12 @@
                  "visible":true,
                  "width":64,
                  "x":768,
-                 "y":320
+                 "y":704
                 }, 
                 {
                  "height":64,
                  "id":20,
-                 "name":"Verkil",
+                 "name":"neutral_town1",
                  "properties":[
                         {
                          "name":"force",
@@ -179,7 +179,7 @@
                 {
                  "height":64,
                  "id":22,
-                 "name":"Vilhemia",
+                 "name":"player_castle",
                  "properties":[
                         {
                          "name":"force",
@@ -201,7 +201,7 @@
                 {
                  "height":64,
                  "id":27,
-                 "name":"Derpland",
+                 "name":"CPU_castle",
                  "properties":[
                         {
                          "name":"force",
@@ -217,7 +217,29 @@
                  "type":"",
                  "visible":true,
                  "width":64,
-                 "x":192,
+                 "x":832,
+                 "y":704
+                }, 
+                {
+                 "height":64,
+                 "id":37,
+                 "name":"CPU_tavern",
+                 "properties":[
+                        {
+                         "name":"force",
+                         "type":"string",
+                         "value":"CPU"
+                        }, 
+                        {
+                         "name":"type",
+                         "type":"string",
+                         "value":"tavern"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":768,
                  "y":640
                 }],
          "opacity":1,
@@ -233,202 +255,13 @@
          "objects":[
                 {
                  "height":64,
-                 "id":11,
-                 "name":"e8",
-                 "properties":[
-                        {
-                         "name":"ai",
-                         "type":"string",
-                         "value":"passive"
-                        }, 
-                        {
-                         "name":"force",
-                         "type":"string",
-                         "value":"CPU"
-                        }, 
-                        {
-                         "name":"job",
-                         "type":"string",
-                         "value":"skeleton"
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":64,
-                 "x":320,
-                 "y":128
-                }, 
-                {
-                 "height":64,
-                 "id":15,
-                 "name":"e7",
-                 "properties":[
-                        {
-                         "name":"ai",
-                         "type":"string",
-                         "value":"passive"
-                        }, 
-                        {
-                         "name":"force",
-                         "type":"string",
-                         "value":"CPU"
-                        }, 
-                        {
-                         "name":"job",
-                         "type":"string",
-                         "value":"skeleton"
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":64,
-                 "x":192,
-                 "y":128
-                }, 
-                {
-                 "height":64,
-                 "id":16,
-                 "name":"e6",
-                 "properties":[
-                        {
-                         "name":"ai",
-                         "type":"string",
-                         "value":"passive"
-                        }, 
-                        {
-                         "name":"force",
-                         "type":"string",
-                         "value":"CPU"
-                        }, 
-                        {
-                         "name":"job",
-                         "type":"string",
-                         "value":"skeleton"
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":64,
-                 "x":704,
-                 "y":448
-                }, 
-                {
-                 "height":64,
-                 "id":21,
-                 "name":"e5",
-                 "properties":[
-                        {
-                         "name":"ai",
-                         "type":"string",
-                         "value":"passive"
-                        }, 
-                        {
-                         "name":"force",
-                         "type":"string",
-                         "value":"CPU"
-                        }, 
-                        {
-                         "name":"job",
-                         "type":"string",
-                         "value":"skeleton"
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":64,
-                 "x":64,
-                 "y":128
-                }, 
-                {
-                 "height":64,
-                 "id":28,
-                 "name":"e4",
-                 "properties":[
-                        {
-                         "name":"ai",
-                         "type":"string",
-                         "value":"attacker"
-                        }, 
-                        {
-                         "name":"force",
-                         "type":"string",
-                         "value":"CPU"
-                        }, 
-                        {
-                         "name":"job",
-                         "type":"string",
-                         "value":"skeleton"
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":64,
-                 "x":128,
-                 "y":512
-                }, 
-                {
-                 "height":64,
-                 "id":29,
-                 "name":"e3",
-                 "properties":[
-                        {
-                         "name":"ai",
-                         "type":"string",
-                         "value":"attacker"
-                        }, 
-                        {
-                         "name":"force",
-                         "type":"string",
-                         "value":"CPU"
-                        }, 
-                        {
-                         "name":"job",
-                         "type":"string",
-                         "value":"skeleton"
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":64,
-                 "x":704,
-                 "y":256
-                }, 
-                {
-                 "height":64,
-                 "id":30,
-                 "name":"e2",
-                 "properties":[
-                        {
-                         "name":"ai",
-                         "type":"string",
-                         "value":"defender"
-                        }, 
-                        {
-                         "name":"force",
-                         "type":"string",
-                         "value":"CPU"
-                        }, 
-                        {
-                         "name":"job",
-                         "type":"string",
-                         "value":"skeleton"
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":64,
-                 "x":0,
-                 "y":320
-                }, 
-                {
-                 "height":64,
                  "id":31,
                  "name":"e1",
                  "properties":[
                         {
                          "name":"ai",
                          "type":"string",
-                         "value":"defender"
+                         "value":"passive"
                         }, 
                         {
                          "name":"force",
@@ -445,7 +278,7 @@
                  "visible":true,
                  "width":64,
                  "x":256,
-                 "y":256
+                 "y":320
                 }, 
                 {
                  "height":64,
@@ -465,7 +298,7 @@
                         {
                          "name":"job",
                          "type":"string",
-                         "value":"barbarian"
+                         "value":"monk"
                         }],
                  "rotation":0,
                  "type":"",
@@ -492,7 +325,7 @@
                         {
                          "name":"job",
                          "type":"string",
-                         "value":"barbarian"
+                         "value":"monk"
                         }],
                  "rotation":0,
                  "type":"",
@@ -519,7 +352,7 @@
                         {
                          "name":"job",
                          "type":"string",
-                         "value":"barbarian"
+                         "value":"monk"
                         }],
                  "rotation":0,
                  "type":"",
@@ -535,7 +368,7 @@
          "y":0
         }],
  "nextlayerid":10,
- "nextobjectid":37,
+ "nextobjectid":38,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.0",
