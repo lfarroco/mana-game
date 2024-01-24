@@ -39,7 +39,7 @@ export default function Title() {
 
         <img
           src="assets/logo.jpeg"
-          style={{ width: 400 }}
+          style={{ width: '80%' }}
           alt="Mana Battle"
         />
         <button
