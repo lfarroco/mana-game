@@ -55,22 +55,24 @@ const SelectedSquad = ({
 		</div>
 		<div className="col col-4 mt-4">
 			{!isSelectingMoveTarget && <>
-				{isPlayerControlled && <Button
+				{isPlayerControlled && <button
+					className="button"
 					onClick={() => {
 						Signals.emit(Signals.events.SELECT_SQUAD_MOVE_START, squad.id)
 					}}
 				>
 					Move
-				</Button>}
+				</button>}
 			</>
 			}{
-				isSelectingMoveTarget && <Button
+				isSelectingMoveTarget && <button
+					className="button"
 					onClick={() => {
 						Signals.emit(Signals.events.SELECT_SQUAD_MOVE_CANCEL, squad.id)
 					}}
-					className="col-12">
+				>
 					Cancel
-				</Button>
+				</button>
 			}
 		</div>
 

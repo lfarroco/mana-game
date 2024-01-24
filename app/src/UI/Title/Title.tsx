@@ -1,65 +1,69 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { events, emit, emit_ } from "../../Models/Signals";
 import Credits from "../Credits/Credits";
+import { use } from "matter";
 
 
 export default function Title() {
 
   const [creditsVisible, setCreditsVisible] = useState(false);
 
+  const images = [
+    'https://th.bing.com/th/id/OIG.A3lHv9S3n9szNXt7NOHh?w=1024&h=1024&rs=1&pid=ImgDetMain',
+    'https://th.bing.com/th/id/OIG.894Gtcol5LM5Pcf9LaMj'
+  ]
+
   return (<>
     <div
-      className="container-fluid pt-5"
-      style={{ minHeight: "100vh", position: "relative" }}
-    >
-      <img
-        src="assets/bgs/castle.jpeg"
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          opacity: 0.5,
-        }}
-        alt="Mana Battle"
-      />
-      <div
-        className="row"
-        style={{ minHeight: "100vh", zIndex: 1, position: "relative" }}
-      >
-        <div
-          style={{
-            color: "white",
-          }}
-          className="col-sm-12 text-center mb-5"
-        >
-          <h1>Mana Battle</h1>
-        </div>
+      className="container-fluid text-center"
 
-        <div className="col-sm-2 offset-sm-5 text-center">
-          <button
-            className="btn btn-primary col-12 mb-2"
-            onClick={() => {
-              emit(events.SET_ROUTE, "battleground");
-              emit(events.START_GAME);
-            }}
-          >
-            Start Game
-          </button>
-          <button className="btn btn-primary col-12 mb-2" onClick={emit_(events.TOGGLE_LOAD_GAME_MODAL, true)}>
-            Load Game
-          </button>
-          <button className="btn btn-primary col-12 mb-2" onClick={emit_(events.TOGGLE_OPTIONS_MODAL, true)}>
-            Options
-          </button>
-          <button className="btn btn-primary col-12 mb-2" onClick={() => setCreditsVisible(true)}>
-            Credits
-          </button>
-        </div>
+      style={{
+        background: `url(${images[0]})`,
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "100% auto",
+        backgroundPosition: "center bottom",
+        minHeight: "100vh",
+      }}
+    >
+      <div className="col-4 float-end"
+
+        style={{
+          display: "flex",
+          minHeight: "100vh",
+          background: "#010b22",
+          flexDirection: "column",
+          alignItems: "center",
+          borderLeft: "4px double #ccc",
+        }}
+      >
+
+        <img
+          src="assets/logo.jpeg"
+          style={{ width: 400 }}
+          alt="Mana Battle"
+        />
+        <button
+          className="button mb-2"
+          onClick={() => {
+            emit(events.SET_ROUTE, "battleground");
+            emit(events.START_GAME);
+          }}
+        >
+          Start Game
+        </button>
+        <button className="button mb-2" onClick={emit_(events.TOGGLE_LOAD_GAME_MODAL, true)}>
+          Load Game
+        </button>
+        <button className="button mb-2" onClick={emit_(events.TOGGLE_OPTIONS_MODAL, true)}>
+          Options
+        </button>
+        <button className="button mb-2" onClick={() => setCreditsVisible(true)}>
+          Credits
+        </button>
+
+
       </div>
     </div >
-
     <Credits visible={creditsVisible} onHide={() => setCreditsVisible(false)} />
   </>
   );

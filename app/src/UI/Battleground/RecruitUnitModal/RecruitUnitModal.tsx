@@ -82,18 +82,18 @@ function DispatchSquadModal() {
 			}
 		</Modal.Body>
 		<Modal.Footer>
-			<Button
-				className="btn btn-secondary"
+			<button
+				className="button"
 				onClick={emit_(events.TOGGLE_DISPATCH_MODAL, false)}
 			>
 				Close
-			</Button>
-			<Button
-				className="btn btn-primary"
+			</button>
+			<button
+				className="button"
 				onClick={recruit(state, selectedJob)}
 			>
 				Recruit
-			</Button>
+			</button>
 		</Modal.Footer>
 	</Modal>
 }

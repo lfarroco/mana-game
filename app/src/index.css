@@ -30,3 +30,14 @@ canvas {
 .btn-sm {
   font-size: 10px;
 }
+
+button {
+  background-image: url('../public/assets/ui/button.png');
+  background-size: 100% 100%;
+  background-color: transparent;
+  border: none;
+  width: 120px;
+  height: 40px;
+  color: #00c2ff;
+  text-shadow: #fff 0 0 20px;
+}

@@ -62,7 +62,7 @@ export default function LoadGame() {
 
 			<Modal.Footer>
 				<button
-					className="btn btn-primary"
+					className="button"
 					disabled={selectedGame === ""}
 					onClick={() => {
 						emit(events.TOGGLE_LOAD_GAME_MODAL, false);
@@ -71,7 +71,7 @@ export default function LoadGame() {
 				>
 					Load Game
 				</button>
-				<button className="btn btn-primary" onClick={emit_(events.TOGGLE_LOAD_GAME_MODAL, false)}>
+				<button className="button" onClick={emit_(events.TOGGLE_LOAD_GAME_MODAL, false)}>
 					Close
 				</button>
 			</Modal.Footer>

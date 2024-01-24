@@ -33,16 +33,16 @@ function VictoryModal() {
 
 		</Modal.Body>
 		<Modal.Footer>
-			<Button
+			<button
 				onClick={() => setIsVisible(false)}
-				className="btn col-12">
+			>
 				Continue
-			</Button>
-			<Button
+			</button>
+			<button
 				onClick={() => setIsVisible(false)}
-				className="btn col-12">
+			>
 				Quit
-			</Button>
+			</button>
 		</Modal.Footer>
 	</Modal>
 

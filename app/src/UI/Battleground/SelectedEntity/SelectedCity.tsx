@@ -20,10 +20,10 @@ const SelectedCity = ({ city }: { city: City }) => {
 
 		<div className="col col-4 pt-3">
 			{city.type === "tavern" && city.force === FORCE_ID_PLAYER &&
-				<Button
-					className="btn btn-secondary"
+				<button
+					className="button"
 					onClick={emit_(events.TOGGLE_DISPATCH_MODAL, true)}
-				>Recruit</Button>
+				>Recruit</button>
 			}
 		</div>
 
