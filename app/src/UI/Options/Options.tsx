@@ -61,7 +61,7 @@ export default function Options() {
       </Modal.Body>
 
       <Modal.Footer>
-        <button className="btn btn-primary" onClick={emit_(events.TOGGLE_OPTIONS_MODAL, false)}>
+        <button className="button" onClick={emit_(events.TOGGLE_OPTIONS_MODAL, false)}>
           Close
         </button>
       </Modal.Footer>

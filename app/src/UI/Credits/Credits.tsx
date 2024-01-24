@@ -39,7 +39,7 @@ export default function Credits({ visible, onHide }: { visible: boolean, onHide:
 			</Modal.Body>
 
 			<Modal.Footer>
-				<button className="btn btn-primary" onClick={onHide}>
+				<button className="button" onClick={onHide}>
 					Close
 				</button>
 			</Modal.Footer>

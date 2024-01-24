@@ -71,7 +71,7 @@ export default function SaveGame() {
 
 			<Modal.Footer>
 				<button
-					className="btn btn-primary"
+					className="button"
 					disabled={name === ""}
 					onClick={() => {
 						emit(events.TOGGLE_SAVE_GAME_MODAL, false);
@@ -80,7 +80,7 @@ export default function SaveGame() {
 				>
 					Save Game
 				</button>
-				<button className="btn btn-primary" onClick={emit_(events.TOGGLE_SAVE_GAME_MODAL, false)}>
+				<button className="button" onClick={emit_(events.TOGGLE_SAVE_GAME_MODAL, false)}>
 					Close
 				</button>
 			</Modal.Footer>

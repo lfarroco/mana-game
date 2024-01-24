@@ -72,39 +72,38 @@ const Battleground = () => {
     <>
       <header>
         <div className="content text-center">
-          <ButtonGroup>
-            <Button
-              onClick={emit_(events.TOGGLE_SQUADS_WINDOW, true)}
-              className="btn btn-secondary col-12"
-            >
-              Units
-            </Button>
-            <Button
-              onClick={emit_(events.TOGGLE_SAVE_GAME_MODAL, true)}
-              className="btn btn-secondary col-12"
-            >
-              Save
-            </Button>
-            <Button
-              onClick={emit_(events.TOGGLE_LOAD_GAME_MODAL, true)}
-              className="btn btn-secondary col-12"
-            >
-              Load
-            </Button>
-            <Button
-              onClick={(e) => {
-                if (isPaused) {
-                  emit(events.RESUME_GAME);
-                } else {
-                  emit(events.PAUSE_GAME);
-                }
-              }}
-            >
-              {isPaused ? "Resume" : "Pause"}
-            </Button>
-            <div className="col-2">Turn: {tick}</div>
-            <div className="col-2">Gold: {gold}</div>
-          </ButtonGroup>
+          <button
+            onClick={emit_(events.TOGGLE_SQUADS_WINDOW, true)}
+            className="button"
+          >
+            Units
+          </button>
+          <button
+            onClick={emit_(events.TOGGLE_SAVE_GAME_MODAL, true)}
+            className="button"
+          >
+            Save
+          </button>
+          <button
+            onClick={emit_(events.TOGGLE_LOAD_GAME_MODAL, true)}
+            className="button"
+          >
+            Load
+          </button>
+          <button
+            className="button"
+            onClick={(e) => {
+              if (isPaused) {
+                emit(events.RESUME_GAME);
+              } else {
+                emit(events.PAUSE_GAME);
+              }
+            }}
+          >
+            {isPaused ? "Resume" : "Pause"}
+          </button>
+          <button className="button col-2">Turn: {tick}</button>
+          <button className="button col-2">Gold: {gold}</button>
         </div>
       </header>
       <div className="content" id="tooltip">
