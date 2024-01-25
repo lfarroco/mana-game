@@ -1,4 +1,4 @@
-import { vec2, asVec2, eqVec2, distanceBetween } from "../../Models/Geometry";
+import { vec2, asVec2, eqVec2 } from "../../Models/Geometry";
 import {
   Operation,
   emit,
@@ -9,11 +9,11 @@ import {
 } from "../../Models/Signals";
 import { BattlegroundScene } from "./BattlegroundScene";
 import { getDirection } from "../../Models/Direction";
-import { UNIT_STATUS, Unit } from "../../Models/Unit";
+import { UNIT_STATUS, Unit, UnitStatus } from "../../Models/Unit";
 import { TURN_DURATION } from "../../config";
 import { foldMap } from "../../Models/Signals";
 import { State, getState } from "../../Models/State";
-import { getJob } from "../../Models/Job";
+import { getEnemiesNearby } from "./getEnemiesNearby";
 
 const TURNS_TO_MOVE = 3;
 const processTick = (scene: BattlegroundScene) => {
@@ -70,30 +70,6 @@ function moveStep(scene: BattlegroundScene) {
       const [occupant] = getState().gameData.squads
         .filter((s) => s.status !== UNIT_STATUS.DESTROYED)
         .filter((s) => eqVec2(s.position, next));
-
-      if (occupant) {
-        console.log("occupant", occupant);
-        if (occupant.force === squad.force) {
-          if (
-            occupant.status === UNIT_STATUS.IDLE ||
-            occupant.status === UNIT_STATUS.ATTACKING
-          ) {
-            return [
-              ...directionOps,
-              operations.UPDATE_SQUAD(squad.id, { status: UNIT_STATUS.IDLE }),
-              operations.UPDATE_SQUAD(squad.id, { path: [] }),
-              operations.SQUAD_FINISHED_MOVE_ANIM(squad.id),
-            ];
-          }
-        } else {
-          return [
-            ...directionOps,
-            operations.UPDATE_SQUAD(squad.id, {
-              status: UNIT_STATUS.ATTACKING,
-            }),
-          ];
-        }
-      }
 
       if (squad.movementIndex < TURNS_TO_MOVE || occupant) {
         return [
@@ -162,10 +138,14 @@ function checkEnemiesInRange(scene: BattlegroundScene): Operation[] {
     (squad) => {
       const enemiesNearby = getEnemiesNearby(squad);
 
+
       if (enemiesNearby.length > 0) {
         return [
           operations.UPDATE_SQUAD(squad.id, {
-            status: UNIT_STATUS.ATTACKING,
+            status: {
+              ...UNIT_STATUS.ATTACKING,
+              target: enemiesNearby[0].id,
+            } as UnitStatus
           }),
         ];
       } else {
@@ -175,26 +155,10 @@ function checkEnemiesInRange(scene: BattlegroundScene): Operation[] {
   );
 }
 
-function getEnemiesNearby(squad: Unit) {
-
-  const job = getJob(squad.job)
-  const range = job.attackType === "melee" ? 1 : 3
-
-  return getState().gameData.squads
-    .filter((sqd) => sqd.force !== squad.force)
-    .filter((sqd) => sqd.status !== UNIT_STATUS.DESTROYED)
-    .filter((sqd) => {
-
-      const distance = distanceBetween(sqd.position)(squad.position)
-
-      return distance <= range
-
-    });
-}
-
 function checkCombat(scene: BattlegroundScene) {
   return foldMap(
-    getState().gameData.squads.filter((s) => s.status === UNIT_STATUS.ATTACKING),
+    getState().gameData.squads
+      .filter((s) => s.status.type === UNIT_STATUS.ATTACKING.type),
     (squad) => {
       const enemiesNearby = getEnemiesNearby(squad);
 

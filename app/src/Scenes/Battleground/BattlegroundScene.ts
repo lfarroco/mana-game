@@ -27,6 +27,7 @@ import * as CharaFaceDirection from "../../Systems/Chara/FaceDirection";
 import * as MovementArrows from "../../Systems/Chara/MovementArrow";
 import * as EntitySelection from "./Systems/EntitySelection";
 import * as CharaMovement from "../../Systems/Chara/SquadMovement";
+import * as RangedAttackDisplay from "./Systems/RangedAttackDisplay";
 
 import { TURN_DURATION } from "../../config";
 import { createFowLayer } from "./Systems/FogOfWar/createFowLayer";
@@ -124,6 +125,7 @@ export class BattlegroundScene extends Phaser.Scene {
     MovementArrows.init(this);
     EntitySelection.init(state);
     CharaMovement.init(state);
+    RangedAttackDisplay.init(this);
 
     //@ts-ignore
     window.bg = this;

@@ -20,7 +20,7 @@ export default function Title() {
       style={{
         background: `url(${images[0]})`,
         backgroundRepeat: "no-repeat",
-        backgroundSize: "100% auto",
+        backgroundSize: "auto 100%",
         backgroundPosition: "center bottom",
         minHeight: "100vh",
       }}

@@ -38,7 +38,7 @@ export function init(scene: BattlegroundScene) {
       },
     ],
     [
-      events.ATTACK,
+      events.ATTACK_STARTED,
       (squadId: string, targetId: string) => {
         const squad = scene.getSquad(squadId);
 
