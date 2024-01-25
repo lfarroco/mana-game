@@ -2,7 +2,7 @@ import { City } from "./City";
 import { Force } from "./Force";
 import { Vec2 } from "./Geometry";
 import { emit, events, listeners } from "./Signals";
-import { Unit, makeUnit } from "./Unit";
+import { UNIT_STATUS, Unit, UnitStatus, makeUnit } from "./Unit";
 
 export const initialState = (): State => ({
   debug: true,
@@ -132,9 +132,20 @@ export const listenToStateEvents = () => {
     [events.UPDATE_SQUAD, (id: string, sqd: Partial<Unit>) => {
       const state = getState();
 
+      const currentUnit = state.gameData.squads.find((s) => s.id === id)
+
+      if (!currentUnit) throw new Error(`unit ${id} not found`)
+
       if (sqd.hp === 0 && sqd.id) {
-        emit(events.SQUAD_DESTROYED, sqd.id);
+        emit(events.SQUAD_DESTROYED, id);
       }
+
+      // status changes
+      if (sqd.status && sqd.status.type === UNIT_STATUS.ATTACKING.type && sqd.status !== currentUnit.status) {
+        const attackingStatus = sqd.status as UnitStatus & { type: "ATTACKING" };
+        emit(events.ATTACK_STARTED, id, attackingStatus.target);
+      }
+
       updateSquad(state)(id)(sqd);
     }],
     [events.UPDATE_FORCE, (force: Partial<Force>) => {

@@ -2,7 +2,7 @@ import Events from "events";
 import { Vec2 } from "./Geometry";
 import { Unit } from "./Unit";
 import { Direction } from "./Direction";
-import { GameData } from "./State";
+import { GameData, getState } from "./State";
 import { Force } from "./Force";
 
 export type Signals = {
@@ -16,6 +16,7 @@ export type Signals = {
   LOAD_GAME: (key: string) => void;
   BATTLEGROUND_STARTED: () => void;
   UNITS_SELECTED: (squadId: string[]) => void;
+  UNITS_DESELECTED: (squadId: string[]) => void;
   CITIES_SELECTED: (ids: string[]) => void;
   SELECT_SQUAD_MOVE_START: (squadId: string) => void;
   SELECT_SQUAD_MOVE_DONE: (squadIds: string[], target: Vec2) => void;
@@ -31,6 +32,7 @@ export type Signals = {
   BATTLEGROUND_TICK: (tick: number) => void;
   UPDATE_FORCE: (force: Partial<Force>) => void;
   // TODO: have a parent level for the system
+  ATTACK_STARTED: (squadId: string, target: string) => any;
   ATTACK: (attacker: string, defender: string) => any;
   UPDATE_SQUAD: (squadId: string, sqd: Partial<Unit>) => any;
   SQUAD_DESTROYED: (squadId: string) => any;
@@ -71,6 +73,7 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
   SELECT_SQUAD_MOVE_DONE: "SELECT_SQUAD_MOVE_DONE",
   SELECT_SQUAD_MOVE_CANCEL: "SELECT_SQUAD_MOVE_CANCEL",
   UNITS_SELECTED: "UNITS_SELECTED",
+  UNITS_DESELECTED: "UNITS_DESELECTED",
   CITIES_SELECTED: "CITIES_SELECTED",
   TOGGLE_DISPATCH_MODAL: "TOGGLE_DISPATCH_MODAL",
   TOGGLE_OPTIONS_MODAL: "TOGGLE_OPTIONS_MODAL",
@@ -81,6 +84,7 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
   UNIT_CREATED: "UNIT_CREATED",
   TOGGLE_SQUADS_WINDOW: "TOGGLE_SQUADS_WINDOW",
   BATTLEGROUND_TICK: "BATTLEGROUND_TICK",
+  ATTACK_STARTED: "ATTACK_STARTED",
   ATTACK: "ATTACK",
   CHANGE_DIRECTION: "CHANGE_DIRECTION",
   UPDATE_SQUAD: "UPDATE_SQUAD",
@@ -175,6 +179,7 @@ export const operations: {
     sqdId,
   ],
   UNITS_SELECTED: (ids: string[]) => [events.UNITS_SELECTED, ids],
+  UNITS_DESELECTED: (ids: string[]) => [events.UNITS_DESELECTED, ids],
   CITIES_SELECTED: (ids: string[]) => [events.CITIES_SELECTED, ids],
   TOGGLE_DISPATCH_MODAL: (value: boolean) => [
     events.TOGGLE_DISPATCH_MODAL,
@@ -201,6 +206,7 @@ export const operations: {
   ],
   BATTLEGROUND_STARTED: () => [events.BATTLEGROUND_STARTED],
   BATTLEGROUND_TICK: (tick: number) => [events.BATTLEGROUND_TICK, tick],
+  ATTACK_STARTED: (squadId: string, target: string) => [events.ATTACK_STARTED, squadId, target],
   ATTACK: (attacker: string, defender: string) => [
     events.ATTACK,
     attacker,

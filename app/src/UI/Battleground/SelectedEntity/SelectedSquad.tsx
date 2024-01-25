@@ -15,13 +15,13 @@ const SelectedSquad = ({
 	const isPlayerControlled = squad.force === FORCE_ID_PLAYER
 
 	const getStatus = () => {
-		if (squad.status === UNIT_STATUS.ATTACKING)
+		if (squad.status.type === UNIT_STATUS.ATTACKING.type)
 			return "Engaged"
 
-		if (squad.status === UNIT_STATUS.MOVING)
+		if (squad.status.type === UNIT_STATUS.MOVING.type)
 			return "Moving"
 
-		if (squad.status === UNIT_STATUS.IDLE)
+		if (squad.status.type === UNIT_STATUS.IDLE.type)
 			return "Idle"
 		else
 			return "Unknown"

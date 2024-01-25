@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { asVec2 } from "../../../Models/Geometry";
-import { emit, events } from "../../../Models/Signals";
+import { emit, events, operations } from "../../../Models/Signals";
 import { getState } from "../../../Models/State";
 
 export function makeCitiesInteractive(
@@ -33,6 +33,7 @@ export function makeCitiesInteractive(
           });
         } else {
           emit(events.CITIES_SELECTED, [city.name]);
+
           emit(events.UNITS_SELECTED, []);
         }
       }
