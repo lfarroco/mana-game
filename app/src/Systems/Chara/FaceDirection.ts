@@ -1,8 +1,7 @@
 import { Chara } from "../../Components/MapChara";
 import { Direction, getDirection } from "../../Models/Direction";
-import { eqVec2, Vec2 } from "../../Models/Geometry";
+import { Vec2 } from "../../Models/Geometry";
 import { events, listeners } from "../../Models/Signals";
-import { Unit } from "../../Models/Unit";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 
 export function init(scene: BattlegroundScene) {

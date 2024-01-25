@@ -1,17 +1,14 @@
 import { getJob } from "../../../Models/Job";
 import { events, listeners } from "../../../Models/Signals";
 import { getState } from "../../../Models/State";
-import { UNIT_STATUS, Unit, UnitStatus } from "../../../Models/Unit";
+import { UNIT_STATUS, Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../BattlegroundScene";
-import { getEnemiesNearby } from "../getEnemiesNearby";
 
 
 export function init(scene: BattlegroundScene) {
 
 	let displayIndex: { [key: string]: Phaser.GameObjects.Graphics } = {}
 
-	//@ts-ignore
-	window.dd = displayIndex
 	listeners([
 		[events.UNITS_SELECTED, (ids: string[]) => {
 
@@ -54,7 +51,8 @@ export function init(scene: BattlegroundScene) {
 				const line = displayIndex[id]
 
 				if (line) {
-					line.clear()
+					line.destroy()
+					delete displayIndex[id]
 				}
 
 			})
@@ -69,12 +67,14 @@ function drawLine(scene: BattlegroundScene, squad: Unit, targetId: string) {
 	const target = scene.getChara(targetId)
 
 	const graphics = scene.add.graphics()
+	//TODO:  if we animate the line, we can make it look like a projectile
 	graphics.lineStyle(4, 0xff0000, 0.8)
 	graphics.beginPath()
 	graphics.moveTo(source.sprite.x, source.sprite.y)
 	graphics.lineTo(target.sprite.x, target.sprite.y)
 	graphics.closePath()
 	graphics.strokePath()
+
 
 	return graphics
 

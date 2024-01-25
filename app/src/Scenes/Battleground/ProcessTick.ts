@@ -1,4 +1,4 @@
-import { vec2, asVec2, eqVec2 } from "../../Models/Geometry";
+import { asVec2, eqVec2 } from "../../Models/Geometry";
 import {
   Operation,
   emit,

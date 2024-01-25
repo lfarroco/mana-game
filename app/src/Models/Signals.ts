@@ -2,7 +2,7 @@ import Events from "events";
 import { Vec2 } from "./Geometry";
 import { Unit } from "./Unit";
 import { Direction } from "./Direction";
-import { GameData, getState } from "./State";
+import { GameData } from "./State";
 import { Force } from "./Force";
 
 export type Signals = {
