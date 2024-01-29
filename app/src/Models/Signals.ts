@@ -14,6 +14,7 @@ export type Signals = {
   STOP_MUSIC: () => void;
   SAVE_GAME: (gameData: GameData, name: string) => void;
   LOAD_GAME: (key: string) => void;
+  DELETE_GAME: (key: string) => void;
   BATTLEGROUND_STARTED: () => void;
   UNITS_SELECTED: (squadId: string[]) => void;
   UNITS_DESELECTED: (squadId: string[]) => void;
@@ -67,6 +68,7 @@ export const events: { [key in keyof Signals]: keyof Signals } = {
   STOP_MUSIC: "STOP_MUSIC",
   SAVE_GAME: "SAVE_GAME",
   LOAD_GAME: "LOAD_GAME",
+  DELETE_GAME: "DELETE_GAME",
   UPDATE_FORCE: "UPDATE_FORCE",
   BATTLEGROUND_STARTED: "BATTLEGROUND_STARTED",
   SELECT_SQUAD_MOVE_START: "SELECT_SQUAD_MOVE_START",
@@ -165,6 +167,7 @@ export const operations: {
   UPDATE_FORCE: (force: Partial<Force>) => [events.UPDATE_FORCE, force],
   SAVE_GAME: () => [events.SAVE_GAME],
   LOAD_GAME: (key: string) => [events.LOAD_GAME, key],
+  DELETE_GAME: (key: string) => [events.DELETE_GAME, key],
   SELECT_SQUAD_MOVE_START: (sqdId: string) => [
     events.SELECT_SQUAD_MOVE_START,
     sqdId,

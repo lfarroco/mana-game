@@ -50,14 +50,19 @@ export default function LoadGame() {
 								}}
 								active={selectedGame === save}
 								key={index}>
-								{save}
+								<span>{save}</span>
+								<button
+
+									onClick={() => {
+										emit(events.DELETE_GAME, save);
+										fetchSavedGames();
+									}}
+									className="float-end">Delete</button>
 							</ListGroup.Item>
 
 						})
 					}
 				</ListGroup>
-
-
 			</Modal.Body>
 
 			<Modal.Footer>

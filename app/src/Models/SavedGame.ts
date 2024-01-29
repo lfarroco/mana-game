@@ -53,4 +53,6 @@ export function deleteGame(name: string) {
 
 	localStorage.setItem('savedGames', JSON.stringify(newSavedGames))
 	localStorage.removeItem(name)
+
+	return newSavedGames
 }
