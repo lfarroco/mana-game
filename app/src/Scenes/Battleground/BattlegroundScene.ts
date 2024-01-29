@@ -130,7 +130,7 @@ export class BattlegroundScene extends Phaser.Scene {
     MovementArrows.init(this);
     EntitySelection.init(state);
     CharaMovement.init(state);
-    RangedAttackDisplay.init(this);
+    RangedAttackDisplay.init(this, state);
     CharaSquadMovedIntoCell.init(this, state);
 
     //@ts-ignore
