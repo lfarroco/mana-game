@@ -8,7 +8,7 @@ export function squadDestroyed(scene: BattlegroundScene, state: State) {
 	listeners([
 		[events.SQUAD_DESTROYED, (id: string) => {
 
-			emit(events.UPDATE_SQUAD, id, { status: UNIT_STATUS.DESTROYED })
+			emit(events.UPDATE_SQUAD, id, { status: UNIT_STATUS.DESTROYED() })
 
 			const chara = scene.getChara(id)
 

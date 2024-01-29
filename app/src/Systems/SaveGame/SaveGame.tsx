@@ -1,9 +1,9 @@
 import { loadGame, makeSavedGame, saveGame } from "../../Models/SavedGame";
 import { emit, events, listeners } from "../../Models/Signals";
-import { GameData } from "../../Models/State";
+import { GameData, State } from "../../Models/State";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 
-export function init(game: Phaser.Game) {
+export function init(state: State, game: Phaser.Game) {
 
 	listeners([
 
@@ -19,6 +19,9 @@ export function init(game: Phaser.Game) {
 
 			const save = loadGame(name)
 			if (save) {
+
+				state.gameData = save.state
+
 				emit(events.SET_ROUTE, "battleground");
 				// check if the scene is already running
 				if (game.scene.isActive("BattlegroundScene")) {
@@ -26,10 +29,10 @@ export function init(game: Phaser.Game) {
 					const scene = game.scene.getScene("BattlegroundScene") as BattlegroundScene
 
 					scene.cleanup()
-					scene.create(save.state)
+					scene.create(state)
 
 				} else {
-					game.scene.start("BattlegroundScene", save.state);
+					game.scene.start("BattlegroundScene", state);
 				}
 			}
 		}]

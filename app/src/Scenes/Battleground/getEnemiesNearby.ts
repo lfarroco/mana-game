@@ -1,5 +1,5 @@
 import { distanceBetween } from "../../Models/Geometry";
-import { UNIT_STATUS, Unit } from "../../Models/Unit";
+import { UNIT_STATUS_KEYS, Unit } from "../../Models/Unit";
 import { getState } from "../../Models/State";
 import { getJob } from "../../Models/Job";
 
@@ -9,7 +9,7 @@ export function getEnemiesNearby(squad: Unit) {
 
 	return getState().gameData.squads
 		.filter((sqd) => sqd.force !== squad.force)
-		.filter((sqd) => sqd.status !== UNIT_STATUS.DESTROYED)
+		.filter((sqd) => sqd.status.type !== UNIT_STATUS_KEYS.DESTROYED)
 		.filter((sqd) => {
 
 			const distance = distanceBetween(sqd.position)(squad.position);

@@ -2,7 +2,7 @@ import * as Easystar from "easystarjs";
 import { Vec2, asVec2, eqVec2 } from "../../../Models/Geometry";
 import { emit, events, listeners } from "../../../Models/Signals";
 import { getState } from "../../../Models/State";
-import { UNIT_STATUS } from "../../../Models/Unit";
+import { UNIT_STATUS_KEYS, UNIT_STATUS } from "../../../Models/Unit";
 import { getDirection } from "../../../Models/Direction";
 import BattlegroundScene from "../BattlegroundScene";
 
@@ -22,9 +22,9 @@ export function init(scene: BattlegroundScene) {
         if (!squad) throw new Error("squad not found");
 
         const otherSquads = state.gameData.squads
-          .filter((s) => s.status !== UNIT_STATUS.DESTROYED)
+          .filter((s) => s.status.type !== UNIT_STATUS_KEYS.DESTROYED)
           .filter(
-            (s) => s.force !== squad.force || s.status !== UNIT_STATUS.MOVING
+            (s) => s.force !== squad.force || s.status.type !== UNIT_STATUS_KEYS.MOVING
           )
           .filter((s) => s.id !== squad.id);
 
@@ -64,8 +64,8 @@ export function init(scene: BattlegroundScene) {
         // in case of choosing own cell
         if (path.length === 0) {
           emit(events.UPDATE_SQUAD, squad.id, { path: [] });
-          if (squad.status === UNIT_STATUS.MOVING) {
-            emit(events.UPDATE_SQUAD, squad.id, { status: UNIT_STATUS.IDLE });
+          if (squad.status.type === UNIT_STATUS_KEYS.MOVING) {
+            emit(events.UPDATE_SQUAD, squad.id, { status: UNIT_STATUS.IDLE() });
           }
 
           return;
