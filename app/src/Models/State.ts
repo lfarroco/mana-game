@@ -50,11 +50,11 @@ export type GameData = {
     attackers: string[];
     defenders: string[];
   };
-  tick: number; // TODO: remove tick from scene
+  tick: number;
   forces: Force[];
   squads: Unit[];
-  selectedUnits: string[];
-  selectedCities: string[];
+  selectedUnits: string[]; // TODO: remove from state, this is a UI thing. Idea: make a UI state
+  selectedCities: string[]; // TODO: remove from state, this is a UI thing
   grid: number[][];
   cities: City[];
   map: {

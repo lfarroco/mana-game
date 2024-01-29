@@ -29,7 +29,7 @@ const processTick = (scene: BattlegroundScene) => {
 
   sequence(startMoving(state));
 
-  moveStep(scene);
+  moveStep(scene, state);
 
   sequence(checkDestroyed(scene));
 
@@ -43,10 +43,9 @@ const processTick = (scene: BattlegroundScene) => {
     emit(events.UPDATE_FORCE, { id: force.id, gold: force.gold + 100 })
   })
 
-  // TODO: face direction
 };
 
-function moveStep(scene: BattlegroundScene) {
+function moveStep(scene: BattlegroundScene, state: State) {
   return traverse_(
     getState().gameData.squads
       .filter((s) => s.status.type === UNIT_STATUS_KEYS.MOVING)
@@ -67,7 +66,7 @@ function moveStep(scene: BattlegroundScene) {
           [operations.FACE_DIRECTION(squad.id, direction)]
           : [];
 
-      const [occupant] = getState().gameData.squads
+      const [occupant] = state.gameData.squads
         .filter((s) => s.status.type !== UNIT_STATUS_KEYS.DESTROYED)
         .filter((s) => eqVec2(s.position, next));
 

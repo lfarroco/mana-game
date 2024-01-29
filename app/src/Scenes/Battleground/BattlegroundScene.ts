@@ -15,7 +15,7 @@ import { State, getState } from "../../Models/State";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
 import * as StaminaRegen from "../../Systems/StaminaRegen/StaminaRegen";
 import * as VictorySystem from "../../Systems/Victory/Victory";
-import { squadDestroyed } from "./Events/SquadDestroyed";
+import { squadDestroyed } from "./Events/SQUAD_DESTROYED";
 import { City } from "../../Models/City";
 import * as CityCaptureSystem from "./Systems/cityCapture";
 import * as FogOfWarSystem from "./Systems/FogOfWar/FogOfWar";
@@ -41,7 +41,7 @@ export class BattlegroundScene extends Phaser.Scene {
     features: Phaser.Tilemaps.TilemapLayer;
   } | null = null;
   isPaused = true;
-  isSelectingSquadMove = false; // TODO: we can move this into the state
+  isSelectingSquadMove = false;
   cities: { city: City; sprite: Phaser.GameObjects.Image }[] = [];
   tilemap: Phaser.Tilemaps.Tilemap | null = null;
   fow: Phaser.Tilemaps.TilemapLayer | null = null;
