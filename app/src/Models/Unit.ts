@@ -21,6 +21,12 @@ export const UNIT_STATUS_LABELS: { [key: string]: string } = {
   IDLE: "Idle",
 };
 
+// TODO: use this helpers instead of the type guards
+export const isAttacking = (status: UnitStatus): status is { type: "ATTACKING", target: string } => status.type === UNIT_STATUS_KEYS.ATTACKING;
+export const isMoving = (status: UnitStatus): status is { type: "MOVING", target: Vec2 } => status.type === UNIT_STATUS_KEYS.MOVING;
+export const isDestroyed = (status: UnitStatus): status is { type: "DESTROYED" } => status.type === UNIT_STATUS_KEYS.DESTROYED;
+export const isIdle = (status: UnitStatus): status is { type: "IDLE" } => status.type === UNIT_STATUS_KEYS.IDLE;
+
 export const MOVING = (target: Vec2): UnitStatus => ({ type: UNIT_STATUS_KEYS.MOVING, target } as UnitStatus);
 export const ATTACKING = (target: string): UnitStatus => ({ type: UNIT_STATUS_KEYS.ATTACKING, target } as UnitStatus);
 export const DESTROYED = (): UnitStatus => ({ type: UNIT_STATUS_KEYS.DESTROYED } as UnitStatus);
