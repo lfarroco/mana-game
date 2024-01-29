@@ -28,6 +28,7 @@ import * as MovementArrows from "../../Systems/Chara/MovementArrow";
 import * as EntitySelection from "./Systems/EntitySelection";
 import * as CharaMovement from "../../Systems/Chara/SquadMovement";
 import * as RangedAttackDisplay from "./Systems/RangedAttackDisplay";
+import * as CharaSquadMovedIntoCell from "../../Systems/Chara/Events/SQUAD_MOVED_INTO_CELL";
 
 import { TURN_DURATION } from "../../config";
 import { createFowLayer } from "./Systems/FogOfWar/createFowLayer";
@@ -67,6 +68,9 @@ export class BattlegroundScene extends Phaser.Scene {
     this.isPaused = true;
     this.isSelectingSquadMove = false;
     this.time.removeAllEvents();
+    this.fow?.destroy()
+    this.fow = null
+    this.grid = []
   }
 
   constructor() {
@@ -127,6 +131,7 @@ export class BattlegroundScene extends Phaser.Scene {
     EntitySelection.init(state);
     CharaMovement.init(state);
     RangedAttackDisplay.init(this);
+    CharaSquadMovedIntoCell.init(this, state);
 
     //@ts-ignore
     window.bg = this;
@@ -251,6 +256,12 @@ export class BattlegroundScene extends Phaser.Scene {
     units.forEach((squad) => {
       emit(events.LOOKUP_PATH, squad.id, squad.position, vec2(x, y));
     });
+  };
+
+  errors = {
+    noTileAt: ({ x, y }: Vec2) => `no tile at ${x}, ${y}`,
+    squadNotFound: (id: string) => `squad ${id} not found`,
+    cityNotFound: (id: string) => `city ${id} not found`,
   };
 }
 
