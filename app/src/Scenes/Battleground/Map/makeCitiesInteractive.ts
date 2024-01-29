@@ -22,11 +22,7 @@ export function makeCitiesInteractive(
           (state.gameData.selectedUnits.length > 0 &&
             pointer.rightButtonReleased())
         ) {
-          const tile = scene.layers?.background.getTileAtWorldXY(
-            city.x,
-            city.y
-          );
-          if (!tile) return;
+          const tile = scene.getTileAtWorldXY(asVec2(city));
 
           state.gameData.selectedUnits.forEach((unit) => {
             emit(events.SELECT_SQUAD_MOVE_DONE, unit, asVec2(tile));

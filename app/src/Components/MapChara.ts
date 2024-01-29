@@ -29,9 +29,6 @@ export function createChara(
 	squad: Unit,
 ): Chara {
 
-	const tile = scene.layers?.background.getTileAt(squad.position.x, squad.position.y);
-	if (!tile) throw new Error(scene.errors.noTileAt(squad.position))
-
 	const sprite = createSprite(scene, squad);
 
 	//stamina bar

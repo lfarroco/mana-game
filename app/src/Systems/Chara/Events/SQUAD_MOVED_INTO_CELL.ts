@@ -12,9 +12,7 @@ export function init(scene: BattlegroundScene, state: State) {
 
 			const chara = scene.getChara(squadId);
 
-			const nextTile = scene.layers?.background.getTileAt(cell.x, cell.y);
-
-			if (!nextTile) throw new Error(scene.errors.noTileAt(cell));
+			const nextTile = scene.getTileAt(cell);
 
 			scene.tweens.add({
 				targets: chara.sprite,

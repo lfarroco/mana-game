@@ -29,11 +29,7 @@ export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
         state.gameData.selectedUnits.length > 0 &&
         (scene.isSelectingSquadMove || pointer.rightButtonReleased())
       ) {
-        const tile = scene.layers?.background.getTileAtWorldXY(
-          chara.sprite.x,
-          chara.sprite.y
-        );
-        if (!tile) return;
+        const tile = scene.getTileAtWorldXY(asVec2(chara.sprite));
 
         state.gameData.selectedUnits.forEach((sqdId) => {
           emit(events.SELECT_SQUAD_MOVE_DONE, sqdId, asVec2(tile));
