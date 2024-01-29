@@ -5,11 +5,11 @@ import { emit, events, listeners } from "./Signals";
 import { UNIT_STATUS, Unit, UnitStatus, makeUnit } from "./Unit";
 
 export const initialState = (): State => ({
-  debug: true,
-  speed: 4,
   options: {
     sound: true,
     music: true,
+    debug: true,
+    speed: 4,
   },
   savedGames: [],
   gameData: {
@@ -34,15 +34,16 @@ export const initialState = (): State => ({
 
 // make it an ioref https://gcanti.github.io/fp-ts/modules/IORef.ts.html#ioref-overview
 export type State = {
-  debug: boolean;
-  speed: number;
   options: {
     sound: boolean;
     music: boolean;
+    debug: boolean;
+    speed: number;
   };
   savedGames: string[];
   gameData: GameData
 };
+
 export type GameData = {
   winner: null | string;
   ai: {

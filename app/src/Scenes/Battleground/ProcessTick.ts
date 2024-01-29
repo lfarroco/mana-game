@@ -99,7 +99,7 @@ function moveStep(scene: BattlegroundScene) {
         targets: chara.sprite,
         x: nextTile.getCenterX(),
         y: nextTile.getCenterY(),
-        duration: TURN_DURATION / (2 * getState().speed),
+        duration: TURN_DURATION / (2 * getState().options.speed),
         yoyo: false,
         ease: "Sine.easeInOut",
         onComplete: () => {
