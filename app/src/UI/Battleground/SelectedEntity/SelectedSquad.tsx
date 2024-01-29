@@ -1,4 +1,4 @@
-import { UNIT_STATUS, Unit } from "../../../Models/Unit"
+import { UNIT_STATUS_KEYS, Unit } from "../../../Models/Unit"
 import "./styles.css"
 import * as Signals from "../../../Models/Signals"
 import { FORCE_ID_PLAYER } from "../../../Models/Force"
@@ -14,13 +14,13 @@ const SelectedSquad = ({
 	const isPlayerControlled = squad.force === FORCE_ID_PLAYER
 
 	const getStatus = () => {
-		if (squad.status.type === UNIT_STATUS.ATTACKING.type)
+		if (squad.status.type === UNIT_STATUS_KEYS.ATTACKING)
 			return "Engaged"
 
-		if (squad.status.type === UNIT_STATUS.MOVING.type)
+		if (squad.status.type === UNIT_STATUS_KEYS.MOVING)
 			return "Moving"
 
-		if (squad.status.type === UNIT_STATUS.IDLE.type)
+		if (squad.status.type === UNIT_STATUS_KEYS.IDLE)
 			return "Idle"
 		else
 			return "Unknown"

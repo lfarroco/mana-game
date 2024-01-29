@@ -2,7 +2,7 @@ import { City } from "./City";
 import { Force } from "./Force";
 import { Vec2 } from "./Geometry";
 import { emit, events, listeners } from "./Signals";
-import { UNIT_STATUS, Unit, UnitStatus, makeUnit } from "./Unit";
+import { UNIT_STATUS_KEYS, Unit, UnitStatus, makeUnit } from "./Unit";
 
 export const initialState = (): State => ({
   options: {
@@ -142,7 +142,8 @@ export const listenToStateEvents = () => {
       }
 
       // status changes
-      if (sqd.status && sqd.status.type === UNIT_STATUS.ATTACKING.type && sqd.status !== currentUnit.status) {
+      if (sqd.status && sqd.status.type === UNIT_STATUS_KEYS.ATTACKING
+        && sqd.status.type !== currentUnit.status.type) {
         const attackingStatus = sqd.status as UnitStatus & { type: "ATTACKING" };
         emit(events.ATTACK_STARTED, id, attackingStatus.target);
       }

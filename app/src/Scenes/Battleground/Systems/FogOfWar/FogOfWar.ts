@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { BattlegroundScene } from "../../BattlegroundScene";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../../Models/Force";
 import { listeners, events } from "../../../../Models/Signals";
-import { UNIT_STATUS } from "../../../../Models/Unit";
+import { UNIT_STATUS_KEYS } from "../../../../Models/Unit";
 import { Vec2 } from "../../../../Models/Geometry";
 import { State } from "../../../../Models/State";
 
@@ -41,7 +41,7 @@ function refreshFogOfWar(scene: BattlegroundScene, state: State) {
 
   state.gameData.squads
     .filter((s) => s.force === FORCE_ID_PLAYER)
-    .filter((s) => s.status !== UNIT_STATUS.DESTROYED)
+    .filter((s) => s.status.type !== UNIT_STATUS_KEYS.DESTROYED)
     .forEach((s) => showRadius(s.position, fow));
 
   //player-controlled cities
@@ -51,7 +51,7 @@ function refreshFogOfWar(scene: BattlegroundScene, state: State) {
 
   state.gameData.squads
     .filter((s) => s.force === FORCE_ID_CPU)
-    .filter((s) => s.status !== UNIT_STATUS.DESTROYED)
+    .filter((s) => s.status.type !== UNIT_STATUS_KEYS.DESTROYED)
     .forEach((enemy) => {
       const chara = scene.getChara(enemy.id);
 

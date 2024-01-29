@@ -1,7 +1,7 @@
 import { getJob } from "../../../Models/Job";
 import { events, listeners } from "../../../Models/Signals";
 import { getState } from "../../../Models/State";
-import { UNIT_STATUS, Unit } from "../../../Models/Unit";
+import { UNIT_STATUS_KEYS, Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../BattlegroundScene";
 
 
@@ -15,7 +15,7 @@ export function init(scene: BattlegroundScene) {
 			ids.forEach(squadId => {
 
 				const squad = scene.getSquad(squadId)
-				if (squad.status.type !== UNIT_STATUS.ATTACKING.type) return
+				if (squad.status.type !== UNIT_STATUS_KEYS.ATTACKING) return
 
 				const job = getJob(squad.job)
 				if (job.attackType !== "ranged") return

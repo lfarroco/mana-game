@@ -27,13 +27,12 @@ export function initGame(state: State, emitter: Events) {
 	listeners([
 		[
 			events_.START_NEW_GAME, () => {
-				// TODO: pass empty gamedata
-				game.scene.start("BattlegroundScene", { ...state.gameData });
+				game.scene.start("BattlegroundScene", state);
 			}
 		],
 	]);
 
-	SaveGame.init(game);
+	SaveGame.init(state, game);
 
 	return game;
 }

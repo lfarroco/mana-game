@@ -9,7 +9,7 @@ import {
 } from "../../Models/Signals";
 import { BattlegroundScene } from "./BattlegroundScene";
 import { getDirection } from "../../Models/Direction";
-import { UNIT_STATUS, Unit, UnitStatus } from "../../Models/Unit";
+import { UNIT_STATUS_KEYS, UNIT_STATUS, Unit } from "../../Models/Unit";
 import { TURN_DURATION } from "../../config";
 import { foldMap } from "../../Models/Signals";
 import { State, getState } from "../../Models/State";
@@ -49,7 +49,7 @@ const processTick = (scene: BattlegroundScene) => {
 function moveStep(scene: BattlegroundScene) {
   return traverse_(
     getState().gameData.squads
-      .filter((s) => s.status === UNIT_STATUS.MOVING)
+      .filter((s) => s.status.type === UNIT_STATUS_KEYS.MOVING)
       .sort((a, b) => a.agility - b.agility),
     (squad) => {
       const chara = scene.getChara(squad.id);
@@ -68,7 +68,7 @@ function moveStep(scene: BattlegroundScene) {
           : [];
 
       const [occupant] = getState().gameData.squads
-        .filter((s) => s.status !== UNIT_STATUS.DESTROYED)
+        .filter((s) => s.status.type !== UNIT_STATUS_KEYS.DESTROYED)
         .filter((s) => eqVec2(s.position, next));
 
       if (squad.movementIndex < TURNS_TO_MOVE || occupant) {
@@ -125,7 +125,7 @@ function moveStep(scene: BattlegroundScene) {
       ].concat(
         // alternative: new event SQUAD_FINISHED_MOVING
         path.length === 0
-          ? [operations.UPDATE_SQUAD(squad.id, { status: UNIT_STATUS.IDLE })]
+          ? [operations.UPDATE_SQUAD(squad.id, { status: UNIT_STATUS.IDLE() })]
           : []
       );
     }
@@ -134,7 +134,7 @@ function moveStep(scene: BattlegroundScene) {
 
 function checkEnemiesInRange(scene: BattlegroundScene): Operation[] {
   return foldMap(
-    getState().gameData.squads.filter((s) => s.status === UNIT_STATUS.IDLE),
+    getState().gameData.squads.filter((s) => s.status.type === UNIT_STATUS_KEYS.IDLE),
     (squad) => {
       const enemiesNearby = getEnemiesNearby(squad);
 
@@ -142,10 +142,7 @@ function checkEnemiesInRange(scene: BattlegroundScene): Operation[] {
       if (enemiesNearby.length > 0) {
         return [
           operations.UPDATE_SQUAD(squad.id, {
-            status: {
-              ...UNIT_STATUS.ATTACKING,
-              target: enemiesNearby[0].id,
-            } as UnitStatus
+            status: UNIT_STATUS.ATTACKING(enemiesNearby[0].id),
           }),
         ];
       } else {
@@ -158,8 +155,9 @@ function checkEnemiesInRange(scene: BattlegroundScene): Operation[] {
 function checkCombat(scene: BattlegroundScene) {
   return foldMap(
     getState().gameData.squads
-      .filter((s) => s.status.type === UNIT_STATUS.ATTACKING.type),
+      .filter((s) => s.status.type === UNIT_STATUS_KEYS.ATTACKING),
     (squad) => {
+      // TODO: this is no longer needed, as the status has the target id
       const enemiesNearby = getEnemiesNearby(squad);
 
       if (enemiesNearby.length > 0) {
@@ -171,13 +169,13 @@ function checkCombat(scene: BattlegroundScene) {
       } else if (squad.path.length === 0) {
         return [
           operations.UPDATE_SQUAD(squad.id, {
-            status: UNIT_STATUS.IDLE,
+            status: UNIT_STATUS.IDLE(),
           }),
         ];
       } else {
         return [
           operations.UPDATE_SQUAD(squad.id, {
-            status: UNIT_STATUS.MOVING,
+            status: UNIT_STATUS.MOVING(squad.path[squad.path.length - 1]),
           }),
         ];
       }
@@ -195,7 +193,7 @@ function attack(squad: Unit, enemy: Unit) {
 
 function checkDestroyed(scene: BattlegroundScene) {
   return foldMap(
-    getState().gameData.squads.filter((s) => s.status !== UNIT_STATUS.DESTROYED),
+    getState().gameData.squads.filter((s) => s.status.type !== UNIT_STATUS_KEYS.DESTROYED),
     (squad) => {
       if (squad.hp === 0) {
         return [operations.SQUAD_DESTROYED(squad.id)];
@@ -207,7 +205,7 @@ function checkDestroyed(scene: BattlegroundScene) {
 
 function checkIdle(scene: BattlegroundScene) {
   return foldMap(
-    getState().gameData.squads.filter((s) => s.status === UNIT_STATUS.IDLE),
+    getState().gameData.squads.filter((s) => s.status.type === UNIT_STATUS_KEYS.IDLE),
     (squad) => {
       const chara = scene.getChara(squad.id);
 
@@ -222,7 +220,7 @@ function checkIdle(scene: BattlegroundScene) {
 
 function updatePath(scene: BattlegroundScene) {
   return foldMap(
-    getState().gameData.squads.filter((s) => s.status === UNIT_STATUS.MOVING),
+    getState().gameData.squads.filter((s) => s.status.type === UNIT_STATUS_KEYS.MOVING),
     (squad) => [
       operations.LOOKUP_PATH(
         squad.id,
@@ -238,7 +236,7 @@ function cleanupEmotes(scene: BattlegroundScene) {
   const state = getState()
   return foldMap(
     state.gameData.squads
-      .filter((s) => s.status === UNIT_STATUS.IDLE)
+      .filter((s) => s.status.type === UNIT_STATUS_KEYS.IDLE)
       .filter((s) => scene.getChara(s.id).emote?.visible),
     (squad) => [operations.REMOVE_EMOTE(squad.id)]
   );
@@ -249,10 +247,13 @@ function cleanupEmotes(scene: BattlegroundScene) {
 function startMoving(state: State) {
   return foldMap(
     state.gameData.squads
-      .filter((s) => s.status === UNIT_STATUS.IDLE)
+      .filter((s) => s.status.type === UNIT_STATUS_KEYS.IDLE)
       .filter((s) => s.path.length > 0),
     (squad) => [
-      operations.UPDATE_SQUAD(squad.id, { status: UNIT_STATUS.MOVING }),
+      operations.UPDATE_SQUAD(
+        squad.id,
+        { status: UNIT_STATUS.MOVING(squad.path[squad.path.length - 1]) }
+      ),
     ]
   );
 }

@@ -6,12 +6,12 @@ import { makeMapInteractive } from "./Map/makeMapInteractive";
 import { makeSquadInteractive, makeSquadsInteractive } from "./Map/makeSquadsInteractive";
 import { createCities } from "./Map/createCities";
 import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
-import { UNIT_STATUS, Unit } from "../../Models/Unit";
+import { UNIT_STATUS_KEYS, Unit } from "../../Models/Unit";
 import processTick from "./ProcessTick";
 import { Vec2, vec2 } from "../../Models/Geometry";
 import { Chara, createChara } from "../../Components/MapChara";
 import { emit, events, listeners } from "../../Models/Signals";
-import { GameData, State, getState, setState } from "../../Models/State";
+import { State, getState } from "../../Models/State";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
 import * as StaminaRegen from "../../Systems/StaminaRegen/StaminaRegen";
 import * as VictorySystem from "../../Systems/Victory/Victory";
@@ -112,6 +112,7 @@ export class BattlegroundScene extends Phaser.Scene {
     /**
      * Global listeners can be created here because they are only created once
      */
+    // TODO: separate scene-related listeners from state listeners
     squadDestroyed(this, state);
     VictorySystem.init(state);
     AISystem.init(state);
@@ -132,19 +133,16 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
   preload = preload;
-  create = (gameData: GameData) => {
+  create = (state: State) => {
     /**
      * It is important to NOT create new global listeners here
+     * TODO: add test to confirm that global listeners are not created here
      */
 
     console.log("BattlegroundScene create");
-    let state = getState();
     const { map, layers } = createMap(this);
-    if (gameData.squads.length > 0) {
-      console.log("BattlegroundScene create with gameData: ", gameData)
-      //@ts-ignore
-      state.gameData = gameData
-      setState(state)
+    if (state.gameData.squads.length > 0) {
+      console.log("BattlegroundScene create with gameData: ", state.gameData)
     } else {
       importMapObjects(map);
     }
@@ -223,7 +221,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
   createMapSquads() {
     getState().gameData.squads
-      .filter((unit) => unit.status !== UNIT_STATUS.DESTROYED)
+      .filter((unit) => unit.status.type !== UNIT_STATUS_KEYS.DESTROYED)
       .forEach((unit) => this.renderUnit(unit));
   }
 
@@ -237,14 +235,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     makeSquadInteractive(chara, this)
 
-    // const chara = new Chara(this, squad);
-    // this.charas.push(chara);
   }
-
-  // selectCity = (id: string) => {
-  //   this.state.selectedEntity = { type: "city", id }
-  //   this.selectedUnits = this.children.getByName(id) as Phaser.GameObjects.Sprite
-  // }
 
   pauseGame = () => {
     this.isPaused = true;
@@ -261,12 +252,6 @@ export class BattlegroundScene extends Phaser.Scene {
       emit(events.LOOKUP_PATH, squad.id, squad.position, vec2(x, y));
     });
   };
-}
-
-export function getScene(): BattlegroundScene {
-  //@ts-ignore
-  const scene = window.bg;
-  return scene;
 }
 
 export default BattlegroundScene;
