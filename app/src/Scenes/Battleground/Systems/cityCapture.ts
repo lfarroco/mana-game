@@ -1,6 +1,6 @@
 import { FORCE_ID_PLAYER } from "../../../Models/Force";
 import { events, listeners } from "../../../Models/Signals";
-import { getState } from "../../../Models/State";
+import { getCity, getState } from "../../../Models/State";
 import BattlegroundScene from "../BattlegroundScene";
 
 export function init(scene: BattlegroundScene) {
@@ -9,13 +9,11 @@ export function init(scene: BattlegroundScene) {
 
 			const state = getState()
 
-			const city = state.gameData.cities.find(c => c.id === cityId)
-			if (!city) throw new Error("city not found")
+			const city = getCity(state)(cityId)
 
 			city.force = forceId;
 
-			const citySprite = scene.cities.find(c => c.city.id === cityId)
-			if (!citySprite) throw new Error("city sprite not found")
+			const citySprite = scene.getCity(cityId)
 
 			if (forceId === FORCE_ID_PLAYER) {
 				citySprite.sprite.setTint(0x00ff00)

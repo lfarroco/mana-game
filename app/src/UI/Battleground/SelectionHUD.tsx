@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getState } from "../../Models/State";
+import { getCity, getSquad, getState } from "../../Models/State";
 import SelectedCity from "./SelectedEntity/SelectedCity";
 import SelectedSquad from "./SelectedEntity/SelectedSquad";
 import { events, listeners } from "../../Models/Signals";
@@ -36,8 +36,7 @@ export default function SelectionHUD({
   if (selectedSquads.length + selectedCities.length > 1)
     return <MultipleSelection units={selectedSquads} cities={selectedCities} />;
   else if (selectedSquads.length === 1) {
-    const squad = state.gameData.squads.find((squad) => squad.id === selectedSquads[0]);
-    if (!squad) throw new Error("Squad not found");
+    const squad = getSquad(state)(selectedSquads[0]);
     return (
       <SelectedSquad
         squad={squad}
@@ -45,8 +44,7 @@ export default function SelectionHUD({
       />
     );
   } else if (selectedCities.length === 1) {
-    const city = state.gameData.cities.find((city) => city.id === selectedCities[0]);
-    if (!city) throw new Error("City not found");
+    const city = getCity(state)(selectedCities[0]);
     return <SelectedCity city={city} />;
   }
 

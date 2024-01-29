@@ -1,6 +1,6 @@
 import { Vec2, eqVec2 } from "../../Models/Geometry";
 import { emit, events, listeners } from "../../Models/Signals";
-import { State } from "../../Models/State";
+import { State, getSquad } from "../../Models/State";
 
 // TODO: future feature
 
@@ -9,9 +9,7 @@ export function init(state: State) {
 	listeners([
 		[events.SQUAD_MOVED_INTO_CELL, (squadId: string, vec: Vec2) => {
 
-			const squad = state.gameData.squads.find(sqd => sqd.id === squadId)
-
-			if (!squad) throw new Error("squad not found")
+			const squad = getSquad(state)(squadId)
 
 			const squadsInCell = state.gameData.squads
 				.filter(sqd => sqd.force === squad.force)

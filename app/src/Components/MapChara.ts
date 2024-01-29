@@ -30,7 +30,7 @@ export function createChara(
 ): Chara {
 
 	const tile = scene.layers?.background.getTileAt(squad.position.x, squad.position.y);
-	if (!tile) throw new Error("tile not found")
+	if (!tile) throw new Error(scene.errors.noTileAt(squad.position))
 
 	const sprite = createSprite(scene, squad);
 

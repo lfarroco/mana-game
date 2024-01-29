@@ -11,7 +11,7 @@ import processTick from "./ProcessTick";
 import { Vec2, vec2 } from "../../Models/Geometry";
 import { Chara, createChara } from "../../Components/MapChara";
 import { emit, events, listeners } from "../../Models/Signals";
-import { State, getState } from "../../Models/State";
+import { State, getCity, getSquad, getState } from "../../Models/State";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
 import * as StaminaRegen from "../../Systems/StaminaRegen/StaminaRegen";
 import * as VictorySystem from "../../Systems/Victory/Victory";
@@ -43,7 +43,7 @@ export class BattlegroundScene extends Phaser.Scene {
   } | null = null;
   isPaused = true;
   isSelectingSquadMove = false;
-  cities: { city: City; sprite: Phaser.GameObjects.Image }[] = [];
+  cities: { city: City; sprite: Phaser.GameObjects.Image }[] = []; // TODO: data duplication, this should be just a list of sprites
   tilemap: Phaser.Tilemaps.Tilemap | null = null;
   fow: Phaser.Tilemaps.TilemapLayer | null = null;
   grid: (0 | 1)[][] = []
@@ -183,25 +183,23 @@ export class BattlegroundScene extends Phaser.Scene {
 
   getChara = (id: string) => {
     const chara = this.charas.find((chara) => chara.id === id);
-    if (!chara) throw new Error(`chara ${id} not found`);
+    if (!chara) throw new Error(this.errors.charaNotFound(id));
     return chara;
   };
 
   getSquad = (id: string) => {
-    const squad = getState().gameData.squads.find((squad) => squad.id === id);
-    if (!squad) throw new Error(`squad ${id} not found`);
-    return squad;
+    return getSquad(getState())(id)
   };
 
   getCity = (id: string) => {
     const city = this.cities.find((city) => city.city.id === id);
-    if (!city) throw new Error(`city ${id} not found`);
+    if (!city) throw new Error(this.errors.cityNotFound(id));
     return city;
   }
 
   getTileAt = (vec: Vec2) => {
     const tile = this.layers?.background.getTileAt(vec.x, vec.y);
-    if (!tile) throw new Error("no next tile found");
+    if (!tile) throw new Error(this.errors.noTileAt(vec));
     return tile;
   };
 
@@ -262,6 +260,9 @@ export class BattlegroundScene extends Phaser.Scene {
     noTileAt: ({ x, y }: Vec2) => `no tile at ${x}, ${y}`,
     squadNotFound: (id: string) => `squad ${id} not found`,
     cityNotFound: (id: string) => `city ${id} not found`,
+    charaNotFound: (id: string) => `chara ${id} not found`,
+    errorCreatingTileset: (tilesetName: string) => `error creating tileset ${tilesetName}`,
+    errorCreatingTilemapLayer: (layerName: string) => `error creating tilemap layer ${layerName}`,
   };
 }
 

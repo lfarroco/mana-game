@@ -57,7 +57,7 @@ function refreshFogOfWar(scene: BattlegroundScene, state: State) {
 
       // hide if under fog of war
       const tile = fow.getTileAt(enemy.position.x, enemy.position.y);
-      if (!tile) throw new Error("tile is null");
+      if (!tile) throw new Error(scene.errors.noTileAt(enemy.position));
 
       const visible = tile.alpha === 0;
 

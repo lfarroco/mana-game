@@ -1,7 +1,7 @@
 import * as Easystar from "easystarjs";
 import { Vec2, asVec2, eqVec2 } from "../../../Models/Geometry";
 import { emit, events, listeners } from "../../../Models/Signals";
-import { getState } from "../../../Models/State";
+import { getSquad, getState } from "../../../Models/State";
 import { UNIT_STATUS_KEYS, UNIT_STATUS } from "../../../Models/Unit";
 import { getDirection } from "../../../Models/Direction";
 import BattlegroundScene from "../BattlegroundScene";
@@ -10,7 +10,7 @@ export function init(scene: BattlegroundScene) {
   listeners([
     [
       events.LOOKUP_PATH,
-      (key: string, source: Vec2, target: Vec2) => {
+      (squadId: string, source: Vec2, target: Vec2) => {
         const easystar = new Easystar.js();
         easystar.setAcceptableTiles([0]);
         easystar.setGrid(scene.grid);
@@ -18,8 +18,7 @@ export function init(scene: BattlegroundScene) {
 
         const state = getState();
 
-        const squad = state.gameData.squads.find((sqd) => sqd.id === key);
-        if (!squad) throw new Error("squad not found");
+        const squad = getSquad(state)(squadId)
 
         const otherSquads = state.gameData.squads
           .filter((s) => s.status.type !== UNIT_STATUS_KEYS.DESTROYED)
@@ -46,20 +45,19 @@ export function init(scene: BattlegroundScene) {
             path_.length > 0 &&
             !eqVec2(squad.path[0], path_[0])
           ) {
-            emit(events.CHANGE_DIRECTION, key, path_[0]);
+            emit(events.CHANGE_DIRECTION, squadId, path_[0]);
           }
-          emit(events.PATH_FOUND, key, path_);
+          emit(events.PATH_FOUND, squadId, path_);
         });
         easystar.calculate();
       },
     ],
     [
       events.PATH_FOUND,
-      (key: string, path: Vec2[]) => {
+      (squadId: string, path: Vec2[]) => {
         const state = getState();
 
-        const squad = state.gameData.squads.find((sqd) => sqd.id === key);
-        if (!squad) throw new Error("squad not found");
+        const squad = getSquad(state)(squadId)
 
         // in case of choosing own cell
         if (path.length === 0) {
