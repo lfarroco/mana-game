@@ -1,13 +1,21 @@
+import { Vec2 } from "../../../Models/Geometry";
 import { getJob } from "../../../Models/Job";
 import { events, listeners } from "../../../Models/Signals";
 import { State, getState } from "../../../Models/State";
 import { Unit, isAttacking } from "../../../Models/Unit";
+import { TURN_DURATION } from "../../../config";
 import BattlegroundScene from "../BattlegroundScene";
 
 
 export function init(scene: BattlegroundScene, state: State) {
 
-	let displayIndex: { [key: string]: Phaser.GameObjects.Graphics } = {}
+	let displayIndex: {
+		[key: string]:
+		{
+			targetId: string,
+			graphic: Phaser.GameObjects.Graphics,
+		}
+	} = {}
 
 	listeners([
 		[events.UNITS_SELECTED, (ids: string[]) => {
@@ -18,27 +26,33 @@ export function init(scene: BattlegroundScene, state: State) {
 					const job = getJob(squad.job);
 					if (job.attackType !== "ranged") return;
 
-					const line = drawLine(scene, squad, squad.status.target);
-					displayIndex[squadId] = line;
+					const line = drawLine(scene, squad, squad.status.target, state.options.speed);
+					displayIndex[squadId] = {
+						targetId: squad.status.target,
+						graphic: line
+					}
 				}
 			});
 
-		}], [
-			events.ATTACK_STARTED, (attacker: string, target: string) => {
+		}],
+		[events.ATTACK_STARTED, (attacker: string, target: string) => {
 
-				const state = getState()
+			const state = getState()
 
-				if (!state.gameData.selectedUnits.includes(attacker)) return
+			if (!state.gameData.selectedUnits.includes(attacker)) return
 
-				const squad = scene.getSquad(attacker)
+			const squad = scene.getSquad(attacker)
 
-				const job = getJob(squad.job)
-				if (job.attackType !== "ranged") return
+			const job = getJob(squad.job)
+			if (job.attackType !== "ranged") return
 
-				const line = drawLine(scene, squad, target)
+			const line = drawLine(scene, squad, target, state.options.speed)
 
-				displayIndex[attacker] = line
+			displayIndex[attacker] = {
+				targetId: target,
+				graphic: line
 			}
+		}
 		],
 		[events.UNITS_DESELECTED, (ids: string[]) => {
 
@@ -47,7 +61,7 @@ export function init(scene: BattlegroundScene, state: State) {
 				const line = displayIndex[id]
 
 				if (line) {
-					line.destroy()
+					line.graphic.destroy()
 					delete displayIndex[id]
 				}
 
@@ -58,53 +72,76 @@ export function init(scene: BattlegroundScene, state: State) {
 			const line = displayIndex[id]
 
 			if (line) {
-				line.destroy()
+				line.graphic.destroy()
 				delete displayIndex[id]
 			}
 
 		}],
-		[
-			events.SQUAD_DESTROYED, (id: string) => {
+		[events.SQUAD_DESTROYED, (id: string) => {
 
-				// is it the target of someone?
+			// TODO: this could be a problem if the attacker changes its status before the target is destroyed
 
-				// TODO: this could be a problem if the attacker changes its status before the target is destroyed
+			Object.entries(displayIndex).forEach(([key, value]) => {
 
-				state.gameData.squads.forEach(squad => {
+				if (value.targetId === id) {
+					value.graphic.destroy()
+					delete displayIndex[key]
+				}
+			})
+		}],
+		[events.SQUAD_LEAVES_CELL, (squadId: string, vec: Vec2) => {
 
-					if (isAttacking(squad.status) && squad.status.target === id) {
+			Object.entries(displayIndex).forEach(([key, value]) => {
 
-						const line = displayIndex[squad.id]
+				if (value.targetId === squadId) {
+					value.graphic.destroy()
+					delete displayIndex[key]
+				}
+				// TODO: check if new cell is in range
 
-						if (line) {
-							line.destroy()
-							delete displayIndex[squad.id]
-						}
+			});
 
-					}
-
-				})
-
-			}
-		]
+		}]
 	])
 
 }
 
-function drawLine(scene: BattlegroundScene, squad: Unit, targetId: string) {
+function drawLine(scene: BattlegroundScene, squad: Unit, targetId: string, speed: number) {
 
 	const source = scene.getChara(squad.id)
 	const target = scene.getChara(targetId)
 
 	const graphics = scene.add.graphics()
-	//TODO:  if we animate the line, we can make it look like a projectile
-	graphics.lineStyle(4, 0xff0000, 0.8)
-	graphics.beginPath()
-	graphics.moveTo(source.sprite.x, source.sprite.y)
-	graphics.lineTo(target.sprite.x, target.sprite.y)
-	graphics.closePath()
-	graphics.strokePath()
 
+	const distance = Phaser.Math.Distance.Between(source.sprite.x, source.sprite.y, target.sprite.x, target.sprite.y)
+
+	const points = Phaser.Geom.Line.BresenhamPoints(
+		new Phaser.Geom.Line(source.sprite.x, source.sprite.y, target.sprite.x, target.sprite.y),
+		// number of steps varies with distance
+		Math.ceil(distance / 10)
+	)
+
+	graphics.lineStyle(1, 0x00ff00, 1)
+
+	points.forEach((point, i) => {
+
+		scene.time.addEvent({
+			delay: 20 * i,
+			callback: () => {
+
+				if (graphics.active && point.x && point.y) {
+
+					graphics.lineStyle(4, 0xff0000, 0.8)
+					graphics.beginPath()
+					graphics.moveTo(source.sprite.x, source.sprite.y)
+					graphics.lineTo(point.x, point.y)
+					graphics.closePath()
+					graphics.strokePath()
+
+				}
+			}
+		})
+	})
 
 	return graphics
 
