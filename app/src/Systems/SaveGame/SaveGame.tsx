@@ -1,4 +1,4 @@
-import { loadGame, makeSavedGame, saveGame } from "../../Models/SavedGame";
+import { deleteGame, loadGame, makeSavedGame, saveGame } from "../../Models/SavedGame";
 import { emit, events, listeners } from "../../Models/Signals";
 import { GameData, State } from "../../Models/State";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
@@ -35,7 +35,15 @@ export function init(state: State, game: Phaser.Game) {
 					game.scene.start("BattlegroundScene", state);
 				}
 			}
-		}]
+		}], [
+			events.DELETE_GAME, (name: string) => {
+
+				const saveGames = deleteGame(name)
+
+				state.savedGames = saveGames
+
+			}
+		]
 
 	])
 
