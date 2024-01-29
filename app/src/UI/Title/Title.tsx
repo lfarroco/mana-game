@@ -44,7 +44,7 @@ export default function Title() {
           className="button mb-2"
           onClick={() => {
             emit(events.SET_ROUTE, "battleground");
-            emit(events.START_GAME);
+            emit(events.START_NEW_GAME);
           }}
         >
           Start Game

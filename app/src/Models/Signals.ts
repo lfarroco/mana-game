@@ -7,7 +7,7 @@ import { Force } from "./Force";
 
 export type Signals = {
   SET_ROUTE: (route: string) => void;
-  START_GAME: () => void;
+  START_NEW_GAME: () => void;
   PAUSE_GAME: () => void;
   RESUME_GAME: () => void;
   PLAY_MUSIC: () => void;
@@ -60,7 +60,7 @@ export type Operation = [keyof Signals, ...Parameters<Signals[keyof Signals]>];
 
 export const events: { [key in keyof Signals]: keyof Signals } = {
   SET_ROUTE: "SET_ROUTE",
-  START_GAME: "START_GAME",
+  START_NEW_GAME: "START_NEW_GAME",
   PAUSE_GAME: "PAUSE_GAME",
   RESUME_GAME: "RESUME_GAME",
   PLAY_MUSIC: "PLAY_MUSIC",
@@ -157,7 +157,7 @@ export const operations: {
   [key in keyof Signals]: (...args: Parameters<Signals[key]>) => Operation;
 } = {
   SET_ROUTE: (route: string) => [events.SET_ROUTE, route],
-  START_GAME: () => [events.START_GAME],
+  START_NEW_GAME: () => [events.START_NEW_GAME],
   PAUSE_GAME: () => [events.PAUSE_GAME],
   RESUME_GAME: () => [events.RESUME_GAME],
   PLAY_MUSIC: () => [events.PLAY_MUSIC],
