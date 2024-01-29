@@ -1,7 +1,7 @@
 import { getJob } from "../../../Models/Job";
 import { events, listeners } from "../../../Models/Signals";
 import { State, getState } from "../../../Models/State";
-import { UNIT_STATUS_KEYS, Unit } from "../../../Models/Unit";
+import { Unit, isAttacking } from "../../../Models/Unit";
 import BattlegroundScene from "../BattlegroundScene";
 
 
@@ -14,16 +14,12 @@ export function init(scene: BattlegroundScene, state: State) {
 
 			ids.forEach(squadId => {
 				const squad = scene.getSquad(squadId);
-				if (squad.status.type === UNIT_STATUS_KEYS.ATTACKING) {
+				if (isAttacking(squad.status)) {
 					const job = getJob(squad.job);
 					if (job.attackType !== "ranged") return;
 
-					//@ts-ignore
-					const target = squad.status.target
-					if (target) {
-						const line = drawLine(scene, squad, target);
-						displayIndex[squadId] = line;
-					}
+					const line = drawLine(scene, squad, squad.status.target);
+					displayIndex[squadId] = line;
 				}
 			});
 
@@ -72,10 +68,11 @@ export function init(scene: BattlegroundScene, state: State) {
 
 				// is it the target of someone?
 
+				// TODO: this could be a problem if the attacker changes its status before the target is destroyed
+
 				state.gameData.squads.forEach(squad => {
 
-					// @ts-ignore
-					if (squad.status.target === id) {
+					if (isAttacking(squad.status) && squad.status.target === id) {
 
 						const line = displayIndex[squad.id]
 
