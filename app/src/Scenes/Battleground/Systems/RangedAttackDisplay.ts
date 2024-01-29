@@ -1,11 +1,11 @@
 import { getJob } from "../../../Models/Job";
 import { events, listeners } from "../../../Models/Signals";
-import { getState } from "../../../Models/State";
+import { State, getState } from "../../../Models/State";
 import { UNIT_STATUS_KEYS, Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../BattlegroundScene";
 
 
-export function init(scene: BattlegroundScene) {
+export function init(scene: BattlegroundScene, state: State) {
 
 	let displayIndex: { [key: string]: Phaser.GameObjects.Graphics } = {}
 
@@ -71,8 +71,6 @@ export function init(scene: BattlegroundScene) {
 			events.SQUAD_DESTROYED, (id: string) => {
 
 				// is it the target of someone?
-
-				const state = getState()
 
 				state.gameData.squads.forEach(squad => {
 
