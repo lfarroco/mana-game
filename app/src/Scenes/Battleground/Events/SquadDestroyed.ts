@@ -15,7 +15,7 @@ export function squadDestroyed(scene: BattlegroundScene, state: State) {
 			scene.tweens.add({
 				targets: chara.sprite,
 				alpha: 0,
-				duration: 1000 / state.speed,
+				duration: 1000 / state.options.speed,
 				ease: 'Power2',
 				onComplete: () => {
 					chara.group?.destroy(true, true)
@@ -30,7 +30,7 @@ export function squadDestroyed(scene: BattlegroundScene, state: State) {
 				.play("skull-emote")
 				.setScale(1);
 
-			scene.time.delayedCall(1000 / state.speed, () => {
+			scene.time.delayedCall(1000 / state.options.speed, () => {
 				emote.destroy()
 			});
 

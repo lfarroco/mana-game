@@ -204,7 +204,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
   private startTicks(state: State) {
     this.time.addEvent({
-      delay: TURN_DURATION / state.speed,
+      delay: TURN_DURATION / state.options.speed,
       callback: () => {
         if (state.gameData.winner && !this.scene.isPaused()) {
           this.scene.pause();
