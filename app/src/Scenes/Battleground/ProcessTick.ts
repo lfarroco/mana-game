@@ -94,18 +94,6 @@ function moveStep(scene: BattlegroundScene, state: State) {
           ? [operations.CAPTURE_CITY(maybeCity.id, squad.force)]
           : [];
 
-      scene.tweens.add({
-        targets: chara.sprite,
-        x: nextTile.getCenterX(),
-        y: nextTile.getCenterY(),
-        duration: TURN_DURATION / (2 * getState().options.speed),
-        yoyo: false,
-        ease: "Sine.easeInOut",
-        onComplete: () => {
-          emit(events.SQUAD_FINISHED_MOVE_ANIM, squad.id);
-        },
-      });
-
       const [, ...path] = squad.path;
 
       return [
