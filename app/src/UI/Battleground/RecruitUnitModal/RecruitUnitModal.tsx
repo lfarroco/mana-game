@@ -1,7 +1,7 @@
 import Modal from 'react-bootstrap/Modal';
-import { State, getState } from '../../../Models/State';
+import { State, getCity, getState } from '../../../Models/State';
 import { useEffect, useState } from 'react';
-import { Button, ListGroup } from 'react-bootstrap';
+import { ListGroup } from 'react-bootstrap';
 import { emit, emit_, events, listeners } from '../../../Models/Signals';
 import { Job, jobs } from '../../../Models/Job';
 import * as uuid from 'uuid';
@@ -10,9 +10,9 @@ const recruit = (state: State, job: Job) => () => {
 
 	const [cityId] = state.gameData.selectedCities
 
-	const city = state.gameData.cities.find(c => c.id === cityId)
+	if (!cityId) throw new Error("No city selected")
 
-	if (!city) throw new Error("No city selected")
+	const city = getCity(state)(cityId)
 
 	if (!city.force) throw new Error("City has no force");
 

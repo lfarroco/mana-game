@@ -1,6 +1,6 @@
 import { emit, events } from "../../Models/Signals";
 import { Unit } from "../../Models/Unit";
-import { getState } from "../../Models/State";
+import { getCity, getState } from "../../Models/State";
 
 export default function MultipleSelection({
   units,
@@ -15,11 +15,7 @@ export default function MultipleSelection({
     .map((id) => state.gameData.squads.find((squad) => squad.id === id))
     .filter((squad) => !!squad) as Unit[];
 
-  const cities_ = cities.map((id) => {
-    const c = state.gameData.cities.find((city) => city.id === id);
-    if (!c) throw new Error("City not found");
-    return c;
-  });
+  const cities_ = cities.map((id) => getCity(state)(id));
 
   return (
     <div className="row" id="selected-entity">

@@ -8,11 +8,12 @@ export function createFowLayer(scene: BattlegroundScene) {
 		"tilesets/tileset"
 	);
 
-	if (!tiles) throw new Error("tile is null");
+
+	if (!tiles) throw new Error(scene.errors.errorCreatingTileset('tilesets/tileset'));
 
 	const fow = fowTilemap.createBlankLayer("map_fow", tiles);
 
-	if (!fow) throw new Error("fow is null");
+	if (!fow) throw new Error(scene.errors.errorCreatingTilemapLayer("map_fow"));
 
 	// populate fow with tiles
 	if (fow) {
