@@ -13,18 +13,18 @@ export function init(scene: BattlegroundScene) {
 		[events.UNITS_SELECTED, (ids: string[]) => {
 
 			ids.forEach(squadId => {
+				const squad = scene.getSquad(squadId);
+				if (squad.status.type === UNIT_STATUS_KEYS.ATTACKING) {
+					const job = getJob(squad.job);
+					if (job.attackType !== "ranged") return;
 
-				const squad = scene.getSquad(squadId)
-				if (squad.status.type !== UNIT_STATUS_KEYS.ATTACKING) return
-
-				const job = getJob(squad.job)
-				if (job.attackType !== "ranged") return
-
-				const line = drawLine(scene, squad,
 					//@ts-ignore
-					squad.status.target
-				)
-				displayIndex[squadId] = line
+					const target = squad.status.target
+					if (target) {
+						const line = drawLine(scene, squad, target);
+						displayIndex[squadId] = line;
+					}
+				}
 			});
 
 		}], [
@@ -56,7 +56,42 @@ export function init(scene: BattlegroundScene) {
 				}
 
 			})
-		}]
+		}],
+		[events.SQUAD_DESTROYED, (id: string) => {
+
+			const line = displayIndex[id]
+
+			if (line) {
+				line.destroy()
+				delete displayIndex[id]
+			}
+
+		}],
+		[
+			events.SQUAD_DESTROYED, (id: string) => {
+
+				// is it the target of someone?
+
+				const state = getState()
+
+				state.gameData.squads.forEach(squad => {
+
+					// @ts-ignore
+					if (squad.status.target === id) {
+
+						const line = displayIndex[squad.id]
+
+						if (line) {
+							line.destroy()
+							delete displayIndex[squad.id]
+						}
+
+					}
+
+				})
+
+			}
+		]
 	])
 
 }
