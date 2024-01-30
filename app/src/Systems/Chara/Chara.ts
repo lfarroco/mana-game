@@ -1,9 +1,9 @@
 import Phaser from "phaser";
-import { Unit } from "../Models/Unit";
-import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../Scenes/Battleground/constants";
+import { Unit } from "../../Models/Unit";
+import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 import "./portrait.css"
-import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
-import { signals, listeners } from "../Models/Signals";
+import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
+import { signals, listeners } from "../../Models/Signals";
 
 export type Chara = {
 	id: string;

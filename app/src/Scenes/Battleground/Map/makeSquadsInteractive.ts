@@ -3,7 +3,7 @@ import { BattlegroundScene } from "../BattlegroundScene";
 import { getState } from "../../../Models/State";
 import { signals, emit } from "../../../Models/Signals";
 import { asVec2 } from "../../../Models/Geometry";
-import { Chara } from "../../../Components/MapChara";
+import { Chara } from "../../../Systems/Chara/Chara";
 
 export function makeSquadsInteractive(
   scene: BattlegroundScene,

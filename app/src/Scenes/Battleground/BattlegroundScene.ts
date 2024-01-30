@@ -9,7 +9,7 @@ import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
 import { UNIT_STATUS_KEYS, Unit } from "../../Models/Unit";
 import processTick from "./ProcessTick";
 import { Vec2, vec2 } from "../../Models/Geometry";
-import { Chara, createChara } from "../../Components/MapChara";
+import { Chara, createChara } from "../../Systems/Chara/Chara";
 import { emit, signals, listeners } from "../../Models/Signals";
 import { State, getSquad, getState } from "../../Models/State";
 import * as ControlsSystem from "../../Systems/Controls/Controls";

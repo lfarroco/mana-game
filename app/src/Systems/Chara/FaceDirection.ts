@@ -1,4 +1,4 @@
-import { Chara } from "../../Components/MapChara";
+import { Chara } from "./Chara";
 import { Direction, getDirection } from "../../Models/Direction";
 import { Vec2 } from "../../Models/Geometry";
 import { signals, listeners } from "../../Models/Signals";
