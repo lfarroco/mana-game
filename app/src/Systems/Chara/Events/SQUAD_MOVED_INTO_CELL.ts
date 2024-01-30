@@ -22,9 +22,7 @@ export function init(scene: BattlegroundScene, state: State) {
 				yoyo: false,
 				ease: "Sine.easeInOut",
 				onComplete: () => {
-
-					const squad = getSquad(state)(squadId)
-					emit(events.SQUAD_FINISHED_MOVE_ANIM, squadId, squad.position);
+					emit(events.SQUAD_FINISHED_MOVE_ANIM, squadId, cell);
 				},
 			});
 		}]
