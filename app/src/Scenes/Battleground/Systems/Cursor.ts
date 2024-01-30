@@ -5,9 +5,10 @@ import BattlegroundScene from "../BattlegroundScene";
 import { TILE_HEIGHT } from "../constants";
 
 
+// index of cursors for cities and charas
 type ImageIndex = { [id: string]: Phaser.GameObjects.Image }
 
-const getOrCreateCursor_ = (
+const getOrCreateCursorForChara_ = (
 	cursors: ImageIndex,
 ) => (chara: Chara) => {
 
@@ -36,9 +37,9 @@ export function init(scene: BattlegroundScene) {
 	listeners([
 		[signals.UNITS_SELECTED, (squadIds: string[]) => {
 
-			clearCursors(cursors, eventListeners, scene);
-
-			squadIds.forEach(squadId => selectSquad(scene, squadId, cursors, eventListeners))
+			squadIds.forEach(squadId =>
+				selectSquad(scene, squadId, cursors, eventListeners)
+			)
 
 		}],
 		[signals.SQUAD_DESTROYED, (squadId: string) => {
@@ -46,14 +47,56 @@ export function init(scene: BattlegroundScene) {
 			const cursor = cursors[squadId]
 			if (!cursor) return
 			cursor.destroy()
+			delete cursors[squadId]
+
+			const listener = eventListeners[squadId];
+			scene.events.off("update", listener)
+			delete eventListeners[squadId]
+
+		}],
+		[signals.UNITS_DESELECTED, (squadIds: string[]) => {
+
+			squadIds.forEach(id =>
+				cleanCursor(cursors, eventListeners, scene, id)
+			)
+
+		}],
+		[signals.CITIES_SELECTED, (cityIds: string[]) => {
+
+			cityIds.forEach(cityId => {
+
+				const city = scene.getCity(cityId)
+
+				const cursor = scene.add.image(city.sprite.x, city.sprite.y, 'cursor')
+					.setTint(0x00ff00)
+					.setVisible(true)
+
+				scene.children.moveBelow(cursor, city.sprite)
+
+				cursors[cityId] = cursor
+
+			})
+		}],
+		[signals.CITIES_DESELECTED, (cityIds: string[]) => {
+
+			cityIds.forEach(cityId => {
+				cursors[cityId].destroy()
+				delete cursors[cityId]
+			})
+
 		}]
 	])
 
 }
 
-function clearCursors(cursors: ImageIndex, eventListeners: { [id: string]: (squadId: string) => void; }, scene: BattlegroundScene) {
-	Object.values(cursors).forEach(cursor => cursor.setVisible(false));
-	Object.values(eventListeners).forEach(listener => scene.events.off("update", listener));
+function cleanCursor(
+	cursors: ImageIndex,
+	eventListeners: { [id: string]: (squadId: string) => void; }, scene: BattlegroundScene,
+	id: string
+) {
+	cursors[id].setVisible(false)
+	const listener = eventListeners[id];
+	scene.events.off("update", listener)
 }
 
 function selectSquad(
@@ -63,9 +106,8 @@ function selectSquad(
 	eventListeners: { [id: string]: (squadId: string) => void; },
 ) {
 
-	const getOrCreateCursor = getOrCreateCursor_(cursors)
+	const getOrCreateCursor = getOrCreateCursorForChara_(cursors)
 
-	const squad = scene.getSquad(squadId)
 
 	const chara = scene.getChara(squadId)
 

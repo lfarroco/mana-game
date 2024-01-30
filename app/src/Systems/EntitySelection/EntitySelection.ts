@@ -18,15 +18,13 @@ export function init(state: State) {
     [
       signals.CITIES_SELECTED,
       (ids: string[]) => {
-        state.gameData.selectedCities = ids;
-      },
-    ],
-    [
-      signals.UNITS_DESELECTED,
-      (ids: string[]) => {
-        state.gameData.selectedUnits = state.gameData.selectedUnits.filter(
+
+        const deselected = state.gameData.selectedCities.filter(
           (id) => !ids.includes(id)
         );
+        state.gameData.selectedCities = ids;
+        if (deselected.length > 0)
+          emit(signals.CITIES_DESELECTED, deselected);
       },
     ],
     [

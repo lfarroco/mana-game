@@ -19,6 +19,7 @@ export type Signals = {
   UNITS_SELECTED: (squadId: string[]) => void;
   UNITS_DESELECTED: (squadId: string[]) => void;
   CITIES_SELECTED: (ids: string[]) => void;
+  CITIES_DESELECTED: (ids: string[]) => void;
   SELECT_SQUAD_MOVE_START: (squadId: string) => void;
   SELECT_SQUAD_MOVE_DONE: (squadIds: string[], target: Vec2) => void;
   SELECT_SQUAD_MOVE_CANCEL: (squadId: string) => void;
@@ -81,6 +82,7 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   UNITS_SELECTED: "UNITS_SELECTED",
   UNITS_DESELECTED: "UNITS_DESELECTED",
   CITIES_SELECTED: "CITIES_SELECTED",
+  CITIES_DESELECTED: "CITIES_DESELECTED",
   TOGGLE_DISPATCH_MODAL: "TOGGLE_DISPATCH_MODAL",
   TOGGLE_OPTIONS_MODAL: "TOGGLE_OPTIONS_MODAL",
   TOGGLE_LOAD_GAME_MODAL: "TOGGLE_LOAD_GAME_MODAL",
@@ -190,6 +192,7 @@ export const operations: {
   UNITS_SELECTED: (ids: string[]) => [signals.UNITS_SELECTED, ids],
   UNITS_DESELECTED: (ids: string[]) => [signals.UNITS_DESELECTED, ids],
   CITIES_SELECTED: (ids: string[]) => [signals.CITIES_SELECTED, ids],
+  CITIES_DESELECTED: (ids: string[]) => [signals.CITIES_DESELECTED, ids],
   TOGGLE_DISPATCH_MODAL: (value: boolean) => [
     signals.TOGGLE_DISPATCH_MODAL,
     value,
