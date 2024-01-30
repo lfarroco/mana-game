@@ -27,8 +27,12 @@ export type Signals = {
   TOGGLE_LOAD_GAME_MODAL: (value: boolean) => void;
   TOGGLE_SAVE_GAME_MODAL: (value: boolean) => void;
   TOGGLE_RECRUIT_MODAL: () => void;
+  // When a unit is added to a force
   RECRUIT_UNIT: (forceId: string, jobId: string, location: Vec2) => void;
+  // When a unit is finished being added to a force
   UNIT_CREATED: (unitId: string) => void;
+  // When a chara is created in the map
+  CHARA_CREATED: (charaId: string) => void;
   TOGGLE_SQUADS_WINDOW: (value: boolean) => void;
   BATTLEGROUND_TICK: (tick: number) => void;
   UPDATE_FORCE: (force: Partial<Force>) => void;
@@ -84,6 +88,7 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   TOGGLE_RECRUIT_MODAL: "TOGGLE_RECRUIT_MODAL",
   RECRUIT_UNIT: "RECRUIT_UNIT",
   UNIT_CREATED: "UNIT_CREATED",
+  CHARA_CREATED: "CHARA_CREATED",
   TOGGLE_SQUADS_WINDOW: "TOGGLE_SQUADS_WINDOW",
   BATTLEGROUND_TICK: "BATTLEGROUND_TICK",
   ATTACK_STARTED: "ATTACK_STARTED",
@@ -204,6 +209,7 @@ export const operations: {
   TOGGLE_RECRUIT_MODAL: () => [signals.TOGGLE_RECRUIT_MODAL],
   RECRUIT_UNIT: (forceId: string, jobId: string, location: Vec2) => [signals.RECRUIT_UNIT, forceId, jobId, location],
   UNIT_CREATED: (unitId: string) => [signals.UNIT_CREATED, unitId],
+  CHARA_CREATED: (charaId: string) => [signals.CHARA_CREATED, charaId],
   TOGGLE_SQUADS_WINDOW: (value: boolean) => [
     signals.TOGGLE_SQUADS_WINDOW,
     value,

@@ -243,6 +243,8 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.charas.push(chara)
 
+    emit(signals.CHARA_CREATED, unit.id)
+
     makeSquadInteractive(chara, this)
 
   }
