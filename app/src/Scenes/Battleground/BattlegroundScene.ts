@@ -82,7 +82,6 @@ export class BattlegroundScene extends Phaser.Scene {
     listeners([
       [signals.PAUSE_GAME, this.pauseGame],
       [signals.RESUME_GAME, this.resumeGame],
-      //[events.CITY_SELECTED, this.selectCity],
       [
         signals.SELECT_SQUAD_MOVE_START,
         () => {
