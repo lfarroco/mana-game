@@ -147,6 +147,7 @@ export const sequence = (operations: Operation[]) => {
 // 	[ "A", ()=>{ do stuff}],
 // 	[ "B", ()=>{ do stuff}],
 // ])
+// TODO: the listener can inject the state in every callback
 export const listeners = <T extends keyof Signals>(
   listeners: [T, Signals[T]][]
 ) => {

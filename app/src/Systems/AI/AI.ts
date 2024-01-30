@@ -1,111 +1,55 @@
+import { v4 } from "uuid";
 import { FORCE_ID_CPU } from "../../Models/Force";
 import { eqVec2 } from "../../Models/Geometry";
-import { emit, signals, listeners } from "../../Models/Signals";
-import { UNIT_STATUS_KEYS, Unit } from "../../Models/Unit";
+import { signals, listeners, emit } from "../../Models/Signals";
 import { State } from "../../Models/State";
-import { distanceBetween } from "../../Models/Geometry";
-
+import { makeUnit } from "../../Models/Unit";
+import * as attackActions from "./processAttackerActions";
+import * as defenderActions from "./processDefenderActions";
 
 export function init(state: State) {
-
-	listeners([
-		[signals.BATTLEGROUND_TICK, () => processAttackerActions(state)],
-		[signals.BATTLEGROUND_TICK, () => processDefenderActions(state)]
-	])
-
+  listeners([
+    [
+      signals.BATTLEGROUND_TICK,
+      () => attackActions.processAttackerActions(state),
+    ],
+    [
+      signals.BATTLEGROUND_TICK,
+      () => defenderActions.processDefenderActions(state),
+    ],
+    [signals.BATTLEGROUND_TICK, () => recruit(state)],
+  ]);
 }
 
-function processAttackerActions(state: State) {
+function recruit(state: State) {
+  const cpuForce = state.gameData.forces.find((f) => f.id === FORCE_ID_CPU);
+  if (!cpuForce) throw new Error("cpu force not found");
 
-	if (state.gameData.winner) return
+  const aiOwnedTaverns = state.gameData.cities.filter(
+    (city) => city.force === FORCE_ID_CPU && city.type === "tavern"
+  );
 
-	(state.gameData.ai.attackers
-		.map(id => state.gameData.squads.find(squad => squad.id === id))
-		.filter(squad => squad) as Unit[]
-	)
-		.forEach(sqd => {
+  const unblockedTaverns = aiOwnedTaverns.filter(
+    (tavern) =>
+      !state.gameData.squads.some((squad) =>
+        eqVec2(squad.position, tavern.boardPosition)
+      )
+  );
 
-			//find closest city
-			const closestCity = state.gameData.cities
-				.filter(city => city.force === FORCE_ID_CPU)
-				.sort((a, b) => {
-					const distA = distanceBetween(a.boardPosition)(sqd.position);
-					const distB = distanceBetween(b.boardPosition)(sqd.position);
-					return distA - distB;
-				})[0];
+  unblockedTaverns.forEach((tavern) => {
+    if (cpuForce.gold < 100) return;
 
+    const id = v4();
+    emit(
+      signals.RECRUIT_UNIT,
+      id,
+      FORCE_ID_CPU,
+      "skeleton",
+      tavern.boardPosition
+    );
 
-			if (!closestCity) {
-				console.error("no closest city found");
-				return;
-			}
+    cpuForce.gold -= 100;
 
-			if (sqd.status.type === UNIT_STATUS_KEYS.IDLE && sqd.hp >= 80) {
-				console.log("AI: attacking", sqd.id, closestCity.boardPosition)
-
-				// is currently at a city? if so, wait to recharge all stamina
-				if (eqVec2(closestCity.boardPosition, sqd.position) && sqd.hp < 100) {
-					return;
-				}
-				// find a path
-				// enemy castle
-				const target = state.gameData.cities.find(city => city.force !== FORCE_ID_CPU && city.type === "castle");
-				if (!target) {
-					console.error("no target");
-					return;
-				}
-				emit(signals.SELECT_SQUAD_MOVE_DONE, sqd.id, target.boardPosition)
-				return;
-			}
-
-			if (sqd.status.type === UNIT_STATUS_KEYS.IDLE && sqd.hp < 80) {
-
-				console.log("AI: moving", sqd.id, closestCity.boardPosition)
-
-
-				//is in an allied city?
-				if (eqVec2(closestCity.boardPosition, sqd.position)) {
-					return;
-				}
-				emit(signals.SELECT_SQUAD_MOVE_DONE, sqd.id, closestCity.boardPosition)
-			}
-
-		})
-
-
-}
-function processDefenderActions(state: State) {
-
-	if (state.gameData.winner) return
-
-	(state.gameData.ai.defenders
-		.map(id => state.gameData.squads.find(squad => squad.id === id))
-		.filter(squad => squad) as Unit[]
-	)
-		.forEach(sqd => {
-			//find closest city
-			const [closestCity] = state.gameData.cities
-				.filter(city => city.force === FORCE_ID_CPU)
-				.sort((a, b) => {
-					const distA = distanceBetween(a.boardPosition)(sqd.position);
-					const distB = distanceBetween(b.boardPosition)(sqd.position);
-					return distA - distB;
-				});
-
-			if (!closestCity) {
-				console.error("no closest city found");
-				return;
-			}
-
-			if (eqVec2(closestCity.boardPosition, sqd.position)) {
-				return;
-			}
-
-			if (sqd.status.type === UNIT_STATUS_KEYS.IDLE) {
-				console.log("AI: moving", sqd.id, closestCity.boardPosition)
-				emit(signals.SELECT_SQUAD_MOVE_DONE, sqd.id, closestCity.boardPosition)
-				return;
-			}
-
-		});
+    state.gameData.ai.attackers.push(id);
+  });
 }
