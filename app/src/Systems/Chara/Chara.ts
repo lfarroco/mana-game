@@ -3,7 +3,7 @@ import { Unit } from "../../Models/Unit";
 import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 import "./portrait.css"
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
-import { signals, listeners } from "../../Models/Signals";
+import { BAR_HEIGHT, BAR_WIDTH, BORDER_WIDTH } from "./StaminaBar";
 
 export type Chara = {
 	id: string;
@@ -20,9 +20,6 @@ export type Chara = {
 
 export const CHARA_SCALE = 1;
 export const EMOTE_SCALE = 1;
-export const BAR_WIDTH = TILE_WIDTH / 2;
-export const BAR_HEIGHT = 6;
-export const BORDER_WIDTH = 1;
 
 export function createChara(
 	scene: BattlegroundScene,
@@ -63,37 +60,6 @@ export function createChara(
 	sprite.once("destroy", () => {
 		scene.events.off("update", follow);
 	});
-
-	// this leaks, as the listener is never removed
-	// move this to morale/stamina bar systems
-	listeners([
-
-		[signals.UPDATE_SQUAD, (id: string, arg: any) => {
-
-			if (id !== squad.id) return
-
-			if (!arg.hp) return
-
-			const { hp } = arg
-
-			staminaBar.clear()
-			staminaBar.fillStyle(0xffff00, 1);
-			staminaBar.fillRect(
-				0,
-				0,
-				BAR_WIDTH * hp / squad.maxHp - BORDER_WIDTH * 2,
-				BAR_HEIGHT - BORDER_WIDTH * 2
-			);
-		}],
-		[signals.SQUAD_DESTROYED, (id: string) => {
-
-			if (id !== squad.id) return
-
-			staminaBar.destroy()
-			staminaBackground.destroy()
-
-		}]
-	])
 
 	const group = scene.add.group([sprite, staminaBackground, staminaBar])
 

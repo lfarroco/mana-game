@@ -23,6 +23,7 @@ import * as CursorSystem from "./Systems/Cursor";
 import * as Pathfinding from "./Systems/Pathfinding";
 import * as AISystem from "../../Systems/AI/AI";
 import * as EmoteSystem from "../../Systems/Chara/Emote";
+import * as StaminaBarSystem from "../../Systems/Chara/StaminaBar";
 import * as CharaFaceDirection from "../../Systems/Chara/FaceDirection";
 import * as MovementArrows from "../../Systems/Chara/MovementArrow";
 import * as EntitySelection from "./Systems/EntitySelection";
@@ -132,6 +133,7 @@ export class BattlegroundScene extends Phaser.Scene {
     CharaMovement.init(state);
     RangedAttackDisplay.init(this, state);
     CharaSquadMovedIntoCell.init(this, state);
+    StaminaBarSystem.init(state, this)
 
     //@ts-ignore
     window.bg = this;
