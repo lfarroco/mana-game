@@ -3,7 +3,7 @@ import { emit, signals, listeners } from "../../Models/Signals";
 import { GameData, State } from "../../Models/State";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 
-export function init(state: State, game: Phaser.Game) {
+export function SaveGameSystem_init(state: State, game: Phaser.Game) {
 
 	listeners([
 

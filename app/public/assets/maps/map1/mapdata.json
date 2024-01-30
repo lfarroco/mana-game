@@ -90,28 +90,6 @@
          "objects":[
                 {
                  "height":64,
-                 "id":1,
-                 "name":"player_town1",
-                 "properties":[
-                        {
-                         "name":"force",
-                         "type":"string",
-                         "value":"CPU"
-                        }, 
-                        {
-                         "name":"type",
-                         "type":"string",
-                         "value":"town"
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":64,
-                 "x":128,
-                 "y":192
-                }, 
-                {
-                 "height":64,
                  "id":2,
                  "name":"player_tavern1",
                  "properties":[

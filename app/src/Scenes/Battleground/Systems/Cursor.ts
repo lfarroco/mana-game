@@ -94,7 +94,9 @@ function cleanCursor(
 	eventListeners: { [id: string]: (squadId: string) => void; }, scene: BattlegroundScene,
 	id: string
 ) {
-	cursors[id].setVisible(false)
+	const cursor = cursors[id]
+	cursor.setVisible(false)
+
 	const listener = eventListeners[id];
 	scene.events.off("update", listener)
 }

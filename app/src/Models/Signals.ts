@@ -116,12 +116,9 @@ export const listen = <T extends keyof Signals>(
   event: T,
   callback: Signals[T]
 ): (() => void) => {
-  //@ts-ignore
   const emitter: Events = window.emitter;
-  console.log("listening to", event);
   emitter.on(event, callback);
   return () => {
-    console.log("removing listener from", event);
     emitter.off(event, callback);
   };
 };
@@ -130,7 +127,6 @@ export const emit = <T extends keyof Signals>(
   event: T,
   ...args: Parameters<Signals[T]>
 ) => {
-  //@ts-ignore
   const emitter: Events = window.emitter;
   console.log(`emit("${event}", ...${JSON.stringify(args)})`);
   emitter.emit(event, ...args);
