@@ -6,6 +6,7 @@ import { FORCE_ID_PLAYER } from "../../../Models/Force";
 import { UNIT_STATUS_KEYS } from "../../../Models/Unit";
 import { getState } from "../../../Models/State";
 import { isInside } from "../../../Models/Geometry";
+import { pingAt } from "./Ping";
 
 export function makeMapInteractive(
   scene: BattlegroundScene,
@@ -185,7 +186,15 @@ export function makeMapInteractive(
         state.gameData.selectedUnits.forEach((sqdId) => {
           emit(signals.SELECT_SQUAD_MOVE_DONE, sqdId, asVec2(tile));
         });
+
+        // ping at location
+
+        pingAt(scene, x, y);
+
+
       }
     }
   );
 }
+
+
