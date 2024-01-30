@@ -20,13 +20,15 @@ export function init(scene: BattlegroundScene) {
     [
       signals.SQUAD_WALKS_TOWARDS_CELL,
       (squadId: string, next: Vec2, walked: number, total: number) => {
-        const squad = scene.getSquad(squadId);
-
-        const { overlay } = spriteIndex[squadId]
-
-        const direction = getDirection(squad.position, next);
 
         const chara = scene.getChara(squadId);
+        const squad = scene.getSquad(squadId);
+        const direction = getDirection(squad.position, next);
+        if (!spriteIndex[squadId]) {
+          createArrow(direction, chara, spriteIndex);
+        }
+
+        const { overlay } = spriteIndex[squadId]
 
         const percentage = walked / total;
 
@@ -57,7 +59,9 @@ export function init(scene: BattlegroundScene) {
   ]);
 }
 export function createArrow(direction: Direction, chara: Chara, index: SpriteIndex) {
-  removeSprites(index, chara.id)
+
+  if (index[chara.id])
+    removeSprites(index, chara.id)
 
   if (direction === DIRECTIONS.right) {
     createSprites(chara, index, "arrow-right-emote")
@@ -72,15 +76,11 @@ export function createArrow(direction: Direction, chara: Chara, index: SpriteInd
 
 function createSprites(chara: Chara, index: SpriteIndex, key: string) {
 
-  const indexEntry = index[chara.id]
-
-  const emote = chara.sprite.scene.add
+  const arrow = chara.sprite.scene.add
     .sprite(chara.sprite.x, chara.sprite.y - HALF_TILE_HEIGHT, key)
     .setScale(EMOTE_SCALE);
-  emote.anims.play(key);
 
-  indexEntry.arrow = emote;
-
+  arrow.anims.play(key);
 
   const overlay = chara.sprite.scene.add
     .sprite(chara.sprite.x, chara.sprite.y - HALF_TILE_HEIGHT, key)
@@ -88,12 +88,11 @@ function createSprites(chara: Chara, index: SpriteIndex, key: string) {
   overlay.anims.play(key);
   overlay.setCrop(0, 0, 0, 0);
   overlay.setTint(65280);
-
-  indexEntry.overlay = overlay;
+  overlay.anims.play(key)
 
   const follow = () => {
-    emote.x = chara.sprite.x;
-    emote.y = chara.sprite.y - HALF_TILE_HEIGHT;
+    arrow.x = chara.sprite.x;
+    arrow.y = chara.sprite.y - HALF_TILE_HEIGHT;
     overlay.x = chara.sprite.x;
     overlay.y = chara.sprite.y - HALF_TILE_HEIGHT;
   };
@@ -102,8 +101,10 @@ function createSprites(chara: Chara, index: SpriteIndex, key: string) {
     chara.sprite.scene.events.off("update", follow);
   });
 
-  chara.group?.add(emote);
+  chara.group?.add(arrow);
   chara.group?.add(overlay);
+
+  index[chara.id] = { arrow, overlay }
 }
 
 export function removeSprites(spriteIndex: SpriteIndex, squadId: string) {
