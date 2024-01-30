@@ -35,7 +35,6 @@ export default function SelectionHUD({
         (ids: string[]) => {
           setSelectedSquads((prev) => prev.filter((id) => !ids.includes(id)));
         },
-
       ]
     ]);
   }, []);

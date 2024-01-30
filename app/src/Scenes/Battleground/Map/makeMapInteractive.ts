@@ -139,17 +139,42 @@ export function makeMapInteractive(
         )
       );
 
-      if (charas.length > 0)
+      const alliedCharas = charas.filter((c) => c.force === FORCE_ID_PLAYER);
+      const enemyCharas = charas.filter((c) => c.force !== FORCE_ID_PLAYER);
+
+      if ((enemyCharas.length > 0 || cities.length > 0) && alliedCharas.length > 0) {
+
+        const deselectedUnits = getState().gameData.selectedUnits.filter(
+          (id) => !alliedCharas.map((c) => c.id).includes(id)
+        );
+
+        emit(signals.UNITS_DESELECTED, deselectedUnits);
+        emit(signals.CITIES_SELECTED, []);
+
+        emit(
+          signals.UNITS_SELECTED,
+          alliedCharas.map((c) => c.id)
+        );
+
+
+      } else {
+
+        const deselectedUnits = getState().gameData.selectedUnits.filter(
+          (id) => !charas.map((c) => c.id).includes(id)
+        );
+        if (deselectedUnits.length > 0)
+          emit(signals.UNITS_DESELECTED, deselectedUnits);
+
         emit(
           signals.UNITS_SELECTED,
           charas.map((c) => c.id)
         );
 
-      if (cities.length > 0)
         emit(
           signals.CITIES_SELECTED,
           cities.map((c) => c.city.id)
         );
+      }
 
       selectionRect.clear();
     }
