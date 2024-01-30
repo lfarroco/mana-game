@@ -1,5 +1,5 @@
 import { eqVec2, Vec2 } from "../../Models/Geometry";
-import { listeners, events } from "../../Models/Signals";
+import { listeners, signals } from "../../Models/Signals";
 import { getSquad, State } from "../../Models/State";
 
 // we have a standalone system, that contains its own logic and state
@@ -12,7 +12,7 @@ import { getSquad, State } from "../../Models/State";
 export function init(state: State) {
   listeners([
     [
-      events.RECRUIT_UNIT,
+      signals.RECRUIT_UNIT,
       (squadId: string) => {
         const squad = getSquad(state)(squadId);
 
@@ -20,7 +20,7 @@ export function init(state: State) {
       },
     ],
     [
-      events.SQUAD_WALKS_TOWARDS_CELL,
+      signals.SQUAD_WALKS_TOWARDS_CELL,
       (squadId: string, vec: Vec2) => {
         const squad = getSquad(state)(squadId);
 
@@ -28,7 +28,7 @@ export function init(state: State) {
       },
     ],
     [
-      events.SQUAD_MOVED_INTO_CELL,
+      signals.SQUAD_MOVED_INTO_CELL,
       (squadId: string, vec: Vec2) => {
         const squad = getSquad(state)(squadId);
 
@@ -36,7 +36,7 @@ export function init(state: State) {
       },
     ],
     [
-      events.SELECT_SQUAD_MOVE_DONE,
+      signals.SELECT_SQUAD_MOVE_DONE,
       (squadId: string, target: Vec2) => {
         const squad = getSquad(state)(squadId);
 
@@ -46,7 +46,7 @@ export function init(state: State) {
       },
     ],
     [
-      events.CHANGE_DIRECTION,
+      signals.CHANGE_DIRECTION,
       (squadId: string, _vec: Vec2) => {
         const squad = getSquad(state)(squadId);
 

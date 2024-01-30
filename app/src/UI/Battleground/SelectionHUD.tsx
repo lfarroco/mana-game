@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { getCity, getSquad, getState } from "../../Models/State";
 import SelectedCity from "./SelectedEntity/SelectedCity";
 import SelectedSquad from "./SelectedEntity/SelectedSquad";
-import { events, listeners } from "../../Models/Signals";
+import { signals, listeners } from "../../Models/Signals";
 import MultipleSelection from "./MultipleSelection";
 
 export default function SelectionHUD({
@@ -19,13 +19,13 @@ export default function SelectionHUD({
   useEffect(() => {
     listeners([
       [
-        events.UNITS_SELECTED,
+        signals.UNITS_SELECTED,
         (ids: string[]) => {
           setSelectedSquads(ids);
         },
       ],
       [
-        events.CITIES_SELECTED,
+        signals.CITIES_SELECTED,
         (ids: string[]) => {
           setSelectedCities(ids);
         },

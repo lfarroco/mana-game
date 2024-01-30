@@ -1,4 +1,4 @@
-import { emit, events, listeners } from "../../../Models/Signals";
+import { emit, signals, listeners } from "../../../Models/Signals";
 import { UNIT_STATUS } from "../../../Models/Unit";
 import { State } from "../../../Models/State";
 import BattlegroundScene from "../BattlegroundScene";
@@ -6,9 +6,9 @@ import BattlegroundScene from "../BattlegroundScene";
 export function squadDestroyed(scene: BattlegroundScene, state: State) {
 
 	listeners([
-		[events.SQUAD_DESTROYED, (id: string) => {
+		[signals.SQUAD_DESTROYED, (id: string) => {
 
-			emit(events.UPDATE_SQUAD, id, { status: UNIT_STATUS.DESTROYED() })
+			emit(signals.UPDATE_SQUAD, id, { status: UNIT_STATUS.DESTROYED() })
 
 			const chara = scene.getChara(id)
 

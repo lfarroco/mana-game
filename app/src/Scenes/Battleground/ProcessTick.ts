@@ -3,7 +3,7 @@ import {
   Operation,
   emit,
   sequence,
-  events,
+  signals,
   operations,
   traverse_,
 } from "../../Models/Signals";
@@ -40,7 +40,7 @@ const processTick = (scene: BattlegroundScene) => {
   sequence(cleanupEmotes(scene));
 
   state.gameData.forces.forEach(force => {
-    emit(events.UPDATE_FORCE, { id: force.id, gold: force.gold + 100 })
+    emit(signals.UPDATE_FORCE, { id: force.id, gold: force.gold + 100 })
   })
 
 };
@@ -186,9 +186,9 @@ export default processTick;
 
 function attack(squad: Unit, enemy: Unit) {
   const damage = 0.1
-  emit(events.ATTACK, squad.id, enemy.id);
+  emit(signals.ATTACK, squad.id, enemy.id);
   const newStamina = enemy.hp - damage < 0 ? 0 : enemy.hp - damage;
-  emit(events.UPDATE_SQUAD, enemy.id, { hp: newStamina });
+  emit(signals.UPDATE_SQUAD, enemy.id, { hp: newStamina });
 }
 
 function checkDestroyed(scene: BattlegroundScene) {

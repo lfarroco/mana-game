@@ -1,5 +1,5 @@
 import { Chara, EMOTE_SCALE } from "../../Components/MapChara";
-import { events, listeners } from "../../Models/Signals";
+import { signals, listeners } from "../../Models/Signals";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { HALF_TILE_HEIGHT } from "../../Scenes/Battleground/constants";
 
@@ -7,14 +7,14 @@ import { HALF_TILE_HEIGHT } from "../../Scenes/Battleground/constants";
 export function init(scene: BattlegroundScene) {
 
 	listeners([
-		[events.CREATE_EMOTE, (id: string, key: string) => {
+		[signals.CREATE_EMOTE, (id: string, key: string) => {
 
 			const chara = scene.getChara(id)
 
 			createEmote(chara, key)
 
 		}],
-		[events.REMOVE_EMOTE, (id: string) => {
+		[signals.REMOVE_EMOTE, (id: string) => {
 
 			const chara = scene.getChara(id)
 

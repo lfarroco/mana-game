@@ -1,21 +1,21 @@
-import { emit, events, listeners } from "../../../Models/Signals";
+import { emit, signals, listeners } from "../../../Models/Signals";
 import { State } from "../../../Models/State";
 
 export function init(state: State) {
 
   listeners([
     [
-      events.UNITS_SELECTED,
+      signals.UNITS_SELECTED,
       (ids: string[]) => {
 
         const deselectedUnits = state.gameData.selectedUnits.filter((id) => !ids.includes(id));
-        if (deselectedUnits.length > 0) emit(events.UNITS_DESELECTED, deselectedUnits);
+        if (deselectedUnits.length > 0) emit(signals.UNITS_DESELECTED, deselectedUnits);
 
         state.gameData.selectedUnits = ids;
       },
     ],
     [
-      events.CITIES_SELECTED,
+      signals.CITIES_SELECTED,
       (ids: string[]) => {
         state.gameData.selectedCities = ids;
       },

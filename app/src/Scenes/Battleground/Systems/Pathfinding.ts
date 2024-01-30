@@ -1,6 +1,6 @@
 import * as Easystar from "easystarjs";
 import { Vec2, asVec2, eqVec2 } from "../../../Models/Geometry";
-import { emit, events, listeners } from "../../../Models/Signals";
+import { emit, signals, listeners } from "../../../Models/Signals";
 import { getSquad, getState } from "../../../Models/State";
 import { UNIT_STATUS_KEYS, UNIT_STATUS } from "../../../Models/Unit";
 import { getDirection } from "../../../Models/Direction";
@@ -9,7 +9,7 @@ import BattlegroundScene from "../BattlegroundScene";
 export function init(scene: BattlegroundScene) {
   listeners([
     [
-      events.LOOKUP_PATH,
+      signals.LOOKUP_PATH,
       (squadId: string, source: Vec2, target: Vec2) => {
         const easystar = new Easystar.js();
         easystar.setAcceptableTiles([0]);
@@ -45,15 +45,15 @@ export function init(scene: BattlegroundScene) {
             path_.length > 0 &&
             !eqVec2(squad.path[0], path_[0])
           ) {
-            emit(events.CHANGE_DIRECTION, squadId, path_[0]);
+            emit(signals.CHANGE_DIRECTION, squadId, path_[0]);
           }
-          emit(events.PATH_FOUND, squadId, path_);
+          emit(signals.PATH_FOUND, squadId, path_);
         });
         easystar.calculate();
       },
     ],
     [
-      events.PATH_FOUND,
+      signals.PATH_FOUND,
       (squadId: string, path: Vec2[]) => {
         const state = getState();
 
@@ -61,16 +61,16 @@ export function init(scene: BattlegroundScene) {
 
         // in case of choosing own cell
         if (path.length === 0) {
-          emit(events.UPDATE_SQUAD, squad.id, { path: [] });
+          emit(signals.UPDATE_SQUAD, squad.id, { path: [] });
           if (squad.status.type === UNIT_STATUS_KEYS.MOVING) {
-            emit(events.UPDATE_SQUAD, squad.id, { status: UNIT_STATUS.IDLE() });
+            emit(signals.UPDATE_SQUAD, squad.id, { status: UNIT_STATUS.IDLE() });
           }
 
           return;
         } else {
-          emit(events.UPDATE_SQUAD, squad.id, { path });
+          emit(signals.UPDATE_SQUAD, squad.id, { path });
           const direction = getDirection(squad.position, path[0]);
-          emit(events.FACE_DIRECTION, squad.id, direction);
+          emit(signals.FACE_DIRECTION, squad.id, direction);
         }
       },
     ],

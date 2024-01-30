@@ -1,11 +1,11 @@
 import { FORCE_ID_PLAYER } from "../../../Models/Force";
-import { events, listeners } from "../../../Models/Signals";
+import { signals, listeners } from "../../../Models/Signals";
 import { getCity, getState } from "../../../Models/State";
 import BattlegroundScene from "../BattlegroundScene";
 
 export function init(scene: BattlegroundScene) {
 	listeners([
-		[events.CAPTURE_CITY, (cityId: string, forceId: string) => {
+		[signals.CAPTURE_CITY, (cityId: string, forceId: string) => {
 
 			const state = getState()
 

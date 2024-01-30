@@ -1,5 +1,5 @@
 import { deleteGame, loadGame, makeSavedGame, saveGame } from "../../Models/SavedGame";
-import { emit, events, listeners } from "../../Models/Signals";
+import { emit, signals, listeners } from "../../Models/Signals";
 import { GameData, State } from "../../Models/State";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 
@@ -7,7 +7,7 @@ export function init(state: State, game: Phaser.Game) {
 
 	listeners([
 
-		[events.SAVE_GAME, (gameData: GameData, name: string) => {
+		[signals.SAVE_GAME, (gameData: GameData, name: string) => {
 
 			const save = makeSavedGame(name, gameData)
 
@@ -15,14 +15,14 @@ export function init(state: State, game: Phaser.Game) {
 
 		}],
 
-		[events.LOAD_GAME, (name: string) => {
+		[signals.LOAD_GAME, (name: string) => {
 
 			const save = loadGame(name)
 			if (save) {
 
 				state.gameData = save.state
 
-				emit(events.SET_ROUTE, "battleground");
+				emit(signals.SET_ROUTE, "battleground");
 				// check if the scene is already running
 				if (game.scene.isActive("BattlegroundScene")) {
 
@@ -36,7 +36,7 @@ export function init(state: State, game: Phaser.Game) {
 				}
 			}
 		}], [
-			events.DELETE_GAME, (name: string) => {
+			signals.DELETE_GAME, (name: string) => {
 
 				const saveGames = deleteGame(name)
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Form, ListGroup, Modal } from "react-bootstrap";
-import { emit, emit_, events, listeners } from "../../Models/Signals";
+import { emit, emit_, signals, listeners } from "../../Models/Signals";
 import { getSavedGamesIndex } from "../../Models/SavedGame";
 import { getState } from "../../Models/State";
 
@@ -14,7 +14,7 @@ export default function SaveGame() {
 	useEffect(() => {
 		listeners([
 			[
-				events.TOGGLE_SAVE_GAME_MODAL,
+				signals.TOGGLE_SAVE_GAME_MODAL,
 				(value: boolean) => {
 					setShow(value);
 				},
@@ -31,7 +31,7 @@ export default function SaveGame() {
 	return (
 		<Modal
 			show={show}
-			onHide={emit_(events.TOGGLE_SAVE_GAME_MODAL, false)}
+			onHide={emit_(signals.TOGGLE_SAVE_GAME_MODAL, false)}
 		>
 			<Modal.Header closeButton>
 				<Modal.Title>Save Game</Modal.Title>
@@ -74,13 +74,13 @@ export default function SaveGame() {
 					className="button"
 					disabled={name === ""}
 					onClick={() => {
-						emit(events.TOGGLE_SAVE_GAME_MODAL, false);
-						emit(events.SAVE_GAME, getState().gameData, name);
+						emit(signals.TOGGLE_SAVE_GAME_MODAL, false);
+						emit(signals.SAVE_GAME, getState().gameData, name);
 					}}
 				>
 					Save Game
 				</button>
-				<button className="button" onClick={emit_(events.TOGGLE_SAVE_GAME_MODAL, false)}>
+				<button className="button" onClick={emit_(signals.TOGGLE_SAVE_GAME_MODAL, false)}>
 					Close
 				</button>
 			</Modal.Footer>

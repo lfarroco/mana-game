@@ -2,7 +2,7 @@ import "./styles.css";
 import SquadsWindow from "./SquadsWindow/SquadsWindow";
 import { Button, ButtonGroup } from "react-bootstrap";
 import { useEffect, useState } from "react";
-import { listeners, events, emit, emit_ } from "../../Models/Signals";
+import { listeners, signals, emit, emit_ } from "../../Models/Signals";
 import DispatchSquadModal from "./RecruitUnitModal/RecruitUnitModal";
 import VictoryModal from "./VictoryModal/VictoryModal";
 import SelectionHUD from "./SelectionHUD";
@@ -22,43 +22,43 @@ const Battleground = () => {
     console.log("Battleground mounted");
     listeners([
       [
-        events.PAUSE_GAME,
+        signals.PAUSE_GAME,
         () => {
           setPaused(true);
         },
       ],
       [
-        events.RESUME_GAME,
+        signals.RESUME_GAME,
         () => {
           setPaused(false);
         },
       ],
       [
-        events.SELECT_SQUAD_MOVE_START,
+        signals.SELECT_SQUAD_MOVE_START,
         () => {
           setIsSelectingMoveTarget(true);
         },
       ],
       [
-        events.SELECT_SQUAD_MOVE_DONE,
+        signals.SELECT_SQUAD_MOVE_DONE,
         () => {
           setIsSelectingMoveTarget(false);
         },
       ],
       [
-        events.SELECT_SQUAD_MOVE_CANCEL,
+        signals.SELECT_SQUAD_MOVE_CANCEL,
         () => {
           setIsSelectingMoveTarget(false);
         },
       ],
       [
-        events.BATTLEGROUND_TICK,
+        signals.BATTLEGROUND_TICK,
         (tick: number) => {
           setTick(tick);
         },
       ],
       [
-        events.UPDATE_FORCE,
+        signals.UPDATE_FORCE,
         (force: Partial<Force>) => {
           if (force.id === FORCE_ID_PLAYER) {
             setGold(force.gold || 0)
@@ -73,19 +73,19 @@ const Battleground = () => {
       <header>
         <div className="content text-center">
           <button
-            onClick={emit_(events.TOGGLE_SQUADS_WINDOW, true)}
+            onClick={emit_(signals.TOGGLE_SQUADS_WINDOW, true)}
             className="button"
           >
             Units
           </button>
           <button
-            onClick={emit_(events.TOGGLE_SAVE_GAME_MODAL, true)}
+            onClick={emit_(signals.TOGGLE_SAVE_GAME_MODAL, true)}
             className="button"
           >
             Save
           </button>
           <button
-            onClick={emit_(events.TOGGLE_LOAD_GAME_MODAL, true)}
+            onClick={emit_(signals.TOGGLE_LOAD_GAME_MODAL, true)}
             className="button"
           >
             Load
@@ -94,9 +94,9 @@ const Battleground = () => {
             className="button"
             onClick={(e) => {
               if (isPaused) {
-                emit(events.RESUME_GAME);
+                emit(signals.RESUME_GAME);
               } else {
-                emit(events.PAUSE_GAME);
+                emit(signals.PAUSE_GAME);
               }
             }}
           >

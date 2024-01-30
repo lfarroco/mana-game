@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { getState } from "../../../Models/State";
-import { events, emit } from "../../../Models/Signals";
+import { signals, emit } from "../../../Models/Signals";
 import { asVec2 } from "../../../Models/Geometry";
 import { Chara } from "../../../Components/MapChara";
 
@@ -32,11 +32,11 @@ export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
         const tile = scene.getTileAtWorldXY(asVec2(chara.sprite));
 
         state.gameData.selectedUnits.forEach((sqdId) => {
-          emit(events.SELECT_SQUAD_MOVE_DONE, sqdId, asVec2(tile));
+          emit(signals.SELECT_SQUAD_MOVE_DONE, sqdId, asVec2(tile));
         });
       } else {
-        emit(events.UNITS_SELECTED, [chara.id]);
-        emit(events.CITIES_SELECTED, []);
+        emit(signals.UNITS_SELECTED, [chara.id]);
+        emit(signals.CITIES_SELECTED, []);
       }
     }
   );

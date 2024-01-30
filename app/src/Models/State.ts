@@ -1,7 +1,7 @@
 import { City } from "./City";
 import { Force } from "./Force";
 import { Vec2 } from "./Geometry";
-import { emit, events, listeners } from "./Signals";
+import { emit, signals, listeners } from "./Signals";
 import { UNIT_STATUS_KEYS, Unit, UnitStatus, makeUnit } from "./Unit";
 
 export const initialState = (): State => ({
@@ -116,7 +116,7 @@ export const updateForce = (state: State) => (
 export const listenToStateEvents = () => {
   listeners([
 
-    [events.RECRUIT_UNIT, (unitId: string, forceId: string, jobId: string, position: Vec2) => {
+    [signals.RECRUIT_UNIT, (unitId: string, forceId: string, jobId: string, position: Vec2) => {
 
       const state = getState();
 
@@ -126,11 +126,11 @@ export const listenToStateEvents = () => {
       state.gameData.forces.find(f => f.id === forceId)?.squads.push(unit.id)
       state.gameData.squads.push(unit);
 
-      emit(events.UNIT_CREATED, unit.id);
+      emit(signals.UNIT_CREATED, unit.id);
 
     }],
 
-    [events.UPDATE_SQUAD, (id: string, sqd: Partial<Unit>) => {
+    [signals.UPDATE_SQUAD, (id: string, sqd: Partial<Unit>) => {
       const state = getState();
 
       const currentUnit = state.gameData.squads.find((s) => s.id === id)
@@ -138,19 +138,19 @@ export const listenToStateEvents = () => {
       if (!currentUnit) throw new Error(`unit ${id} not found`)
 
       if (sqd.hp === 0 && sqd.id) {
-        emit(events.SQUAD_DESTROYED, id);
+        emit(signals.SQUAD_DESTROYED, id);
       }
 
       // status changes
       if (sqd.status && sqd.status.type === UNIT_STATUS_KEYS.ATTACKING
         && sqd.status.type !== currentUnit.status.type) {
         const attackingStatus = sqd.status as UnitStatus & { type: "ATTACKING" };
-        emit(events.ATTACK_STARTED, id, attackingStatus.target);
+        emit(signals.ATTACK_STARTED, id, attackingStatus.target);
       }
 
       updateSquad(state)(id)(sqd);
     }],
-    [events.UPDATE_FORCE, (force: Partial<Force>) => {
+    [signals.UPDATE_FORCE, (force: Partial<Force>) => {
       const state = getState();
       updateForce(state)(force);
     }]

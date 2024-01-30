@@ -1,4 +1,4 @@
-import { events, listeners } from "../../Models/Signals";
+import { signals, listeners } from "../../Models/Signals";
 import { getState } from "../../Models/State";
 
 // over-complicated phaser type :shrug:
@@ -13,8 +13,8 @@ export default class Core extends Phaser.Scene {
 		super('CoreScene');
 
 		listeners([
-			[events.PLAY_MUSIC, () => { this.music?.play() }],
-			[events.STOP_MUSIC, () => { this.music?.stop() }],
+			[signals.PLAY_MUSIC, () => { this.music?.play() }],
+			[signals.STOP_MUSIC, () => { this.music?.stop() }],
 		])
 	}
 

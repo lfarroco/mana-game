@@ -3,7 +3,7 @@ import { Unit } from "../Models/Unit";
 import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../Scenes/Battleground/constants";
 import "./portrait.css"
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
-import { events, listeners } from "../Models/Signals";
+import { signals, listeners } from "../Models/Signals";
 
 export type Chara = {
 	id: string;
@@ -68,7 +68,7 @@ export function createChara(
 	// move this to morale/stamina bar systems
 	listeners([
 
-		[events.UPDATE_SQUAD, (id: string, arg: any) => {
+		[signals.UPDATE_SQUAD, (id: string, arg: any) => {
 
 			if (id !== squad.id) return
 
@@ -85,7 +85,7 @@ export function createChara(
 				BAR_HEIGHT - BORDER_WIDTH * 2
 			);
 		}],
-		[events.SQUAD_DESTROYED, (id: string) => {
+		[signals.SQUAD_DESTROYED, (id: string) => {
 
 			if (id !== squad.id) return
 

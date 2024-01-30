@@ -57,7 +57,7 @@ const SelectedSquad = ({
 				{isPlayerControlled && <button
 					className="button"
 					onClick={() => {
-						Signals.emit(Signals.events.SELECT_SQUAD_MOVE_START, squad.id)
+						Signals.emit(Signals.signals.SELECT_SQUAD_MOVE_START, squad.id)
 					}}
 				>
 					Move
@@ -67,7 +67,7 @@ const SelectedSquad = ({
 				isSelectingMoveTarget && <button
 					className="button"
 					onClick={() => {
-						Signals.emit(Signals.events.SELECT_SQUAD_MOVE_CANCEL, squad.id)
+						Signals.emit(Signals.signals.SELECT_SQUAD_MOVE_CANCEL, squad.id)
 					}}
 				>
 					Cancel

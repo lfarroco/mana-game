@@ -10,7 +10,7 @@ import { UNIT_STATUS_KEYS, Unit } from "../../Models/Unit";
 import processTick from "./ProcessTick";
 import { Vec2, vec2 } from "../../Models/Geometry";
 import { Chara, createChara } from "../../Components/MapChara";
-import { emit, events, listeners } from "../../Models/Signals";
+import { emit, signals, listeners } from "../../Models/Signals";
 import { State, getCity, getSquad, getState } from "../../Models/State";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
 import * as StaminaRegen from "../../Systems/StaminaRegen/StaminaRegen";
@@ -79,30 +79,30 @@ export class BattlegroundScene extends Phaser.Scene {
     const state = getState();
 
     listeners([
-      [events.PAUSE_GAME, this.pauseGame],
-      [events.RESUME_GAME, this.resumeGame],
+      [signals.PAUSE_GAME, this.pauseGame],
+      [signals.RESUME_GAME, this.resumeGame],
       //[events.CITY_SELECTED, this.selectCity],
       [
-        events.SELECT_SQUAD_MOVE_START,
+        signals.SELECT_SQUAD_MOVE_START,
         () => {
           this.isSelectingSquadMove = true;
         },
       ],
-      [events.SELECT_SQUAD_MOVE_DONE, this.moveUnitsTo],
+      [signals.SELECT_SQUAD_MOVE_DONE, this.moveUnitsTo],
       [
-        events.SELECT_SQUAD_MOVE_CANCEL,
+        signals.SELECT_SQUAD_MOVE_CANCEL,
         () => {
           this.isSelectingSquadMove = false;
         },
       ],
       [
-        events.BATTLEGROUND_TICK,
+        signals.BATTLEGROUND_TICK,
         () => {
           processTick(this);
         },
       ],
       [
-        events.UNIT_CREATED,
+        signals.UNIT_CREATED,
         (unitId: string) => {
           const unit = this.getSquad(unitId)
 
@@ -177,7 +177,7 @@ export class BattlegroundScene extends Phaser.Scene {
     //@ts-ignore
     window.scene = this;
 
-    emit(events.BATTLEGROUND_STARTED);
+    emit(signals.BATTLEGROUND_STARTED);
     console.log("BattlegroundScene create done");
   };
 
@@ -220,7 +220,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
         if (!this.isPaused) {
           state.gameData.tick++;
-          emit(events.BATTLEGROUND_TICK, state.gameData.tick);
+          emit(signals.BATTLEGROUND_TICK, state.gameData.tick);
         }
       },
       loop: true,
@@ -257,7 +257,7 @@ export class BattlegroundScene extends Phaser.Scene {
     this.isSelectingSquadMove = false;
 
     units.forEach((squad) => {
-      emit(events.LOOKUP_PATH, squad.id, squad.position, vec2(x, y));
+      emit(signals.LOOKUP_PATH, squad.id, squad.position, vec2(x, y));
     });
   };
 
