@@ -1,6 +1,5 @@
 import { listeners, signals } from "../../Models/Signals"
 import { State, getSquad } from "../../Models/State"
-import { Unit } from "../../Models/Unit";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene"
 import { HALF_TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 
