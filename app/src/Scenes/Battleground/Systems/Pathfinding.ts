@@ -2,7 +2,7 @@ import * as Easystar from "easystarjs";
 import { Vec2, asVec2, eqVec2 } from "../../../Models/Geometry";
 import { emit, signals, listeners } from "../../../Models/Signals";
 import { getSquad, getState } from "../../../Models/State";
-import { UNIT_STATUS_KEYS, UNIT_STATUS } from "../../../Models/Unit";
+import { UNIT_STATUS_KEYS, UNIT_STATUS, isAttacking } from "../../../Models/Unit";
 import { getDirection } from "../../../Models/Direction";
 import BattlegroundScene from "../BattlegroundScene";
 
@@ -71,6 +71,15 @@ export function init(scene: BattlegroundScene) {
           emit(signals.UPDATE_SQUAD, squad.id, { path });
           const direction = getDirection(squad.position, path[0]);
           emit(signals.FACE_DIRECTION, squad.id, direction);
+
+          if(isAttacking(squad.status)) { //TODO: is there an event to exit combat?
+            emit(signals.REMOVE_EMOTE, squad.id, "combat-emote")
+          }
+
+          emit(signals.UPDATE_SQUAD, squad.id, {
+            status: UNIT_STATUS.MOVING(path[path.length - 1]),
+          });
+
         }
       },
     ],
