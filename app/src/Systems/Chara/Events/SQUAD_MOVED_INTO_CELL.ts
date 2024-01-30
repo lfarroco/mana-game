@@ -1,6 +1,6 @@
 import { Vec2 } from '../../../Models/Geometry';
 import { emit, events, listeners } from '../../../Models/Signals';
-import { State } from '../../../Models/State';
+import { State, getSquad } from '../../../Models/State';
 import BattlegroundScene from '../../../Scenes/Battleground/BattlegroundScene';
 import { TURN_DURATION } from '../../../config';
 
@@ -22,7 +22,9 @@ export function init(scene: BattlegroundScene, state: State) {
 				yoyo: false,
 				ease: "Sine.easeInOut",
 				onComplete: () => {
-					emit(events.SQUAD_FINISHED_MOVE_ANIM, squadId);
+
+					const squad = getSquad(state)(squadId)
+					emit(events.SQUAD_FINISHED_MOVE_ANIM, squadId, squad.position);
 				},
 			});
 		}]

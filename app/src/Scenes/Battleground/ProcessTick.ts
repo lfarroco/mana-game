@@ -1,4 +1,4 @@
-import { asVec2, eqVec2 } from "../../Models/Geometry";
+import { asVec2, distanceBetween, eqVec2 } from "../../Models/Geometry";
 import {
   Operation,
   emit,
@@ -9,11 +9,11 @@ import {
 } from "../../Models/Signals";
 import { BattlegroundScene } from "./BattlegroundScene";
 import { getDirection } from "../../Models/Direction";
-import { UNIT_STATUS_KEYS, UNIT_STATUS, Unit } from "../../Models/Unit";
-import { TURN_DURATION } from "../../config";
+import { UNIT_STATUS_KEYS, UNIT_STATUS, Unit, isAttacking, isDestroyed } from "../../Models/Unit";
 import { foldMap } from "../../Models/Signals";
-import { State, getState } from "../../Models/State";
+import { State, getSquad, getState } from "../../Models/State";
 import { getEnemiesNearby } from "./getEnemiesNearby";
+import { getJob } from "../../Models/Job";
 
 const TURNS_TO_MOVE = 3;
 const processTick = (scene: BattlegroundScene) => {
@@ -25,7 +25,7 @@ const processTick = (scene: BattlegroundScene) => {
 
   sequence(checkEnemiesInRange(scene));
 
-  sequence(checkCombat(scene));
+  sequence(checkCombat(state));
 
   sequence(startMoving(state));
 
@@ -51,7 +51,6 @@ function moveStep(scene: BattlegroundScene, state: State) {
       .filter((s) => s.status.type === UNIT_STATUS_KEYS.MOVING)
       .sort((a, b) => a.agility - b.agility),
     (squad) => {
-      const chara = scene.getChara(squad.id);
 
       const [next] = squad.path;
 
@@ -139,42 +138,56 @@ function checkEnemiesInRange(scene: BattlegroundScene): Operation[] {
   );
 }
 
-function checkCombat(scene: BattlegroundScene) {
+function checkCombat(state: State) {
   return foldMap(
-    getState().gameData.squads
-      .filter((s) => s.status.type === UNIT_STATUS_KEYS.ATTACKING),
+    state.gameData.squads
+      .filter(s => isAttacking(s.status)),
     (squad) => {
-      // TODO: this is no longer needed, as the status has the target id
-      const enemiesNearby = getEnemiesNearby(squad);
 
-      if (enemiesNearby.length > 0) {
-        const enemy = enemiesNearby[0];
+      if (!isAttacking(squad.status)) return []
 
-        attack(squad, enemy);
+      const job = getJob(squad.job)
+      const { target } = squad.status
 
-        return [operations.CREATE_EMOTE(squad.id, "combat-emote")];
-      } else if (squad.path.length === 0) {
-        return [
-          operations.UPDATE_SQUAD(squad.id, {
-            status: UNIT_STATUS.IDLE(),
-          }),
-        ];
-      } else {
-        return [
-          operations.UPDATE_SQUAD(squad.id, {
+      const enemy = getSquad(state)(target)
+
+      const resume = () => {
+
+        if (squad.path.length < 1) {
+          return [
+            operations.UPDATE_SQUAD(squad.id, {
+              status: UNIT_STATUS.IDLE(),
+            })]
+        } else {
+          return [operations.UPDATE_SQUAD(squad.id, {
             status: UNIT_STATUS.MOVING(squad.path[squad.path.length - 1]),
-          }),
-        ];
+          })]
+        }
       }
+      const distance = distanceBetween(squad.position)(enemy.position)
+
+      if (isDestroyed(enemy.status)) {
+        return resume();
+      } else if (job.attackType === "ranged" && distance > 3) {
+        return resume();
+      } else if (job.attackType === "melee" && distance > 1) {
+        return resume();
+      }
+
+      attack(squad, enemy);
+
+      return [operations.CREATE_EMOTE(squad.id, "combat-emote")];
     }
+
   );
 }
 
 export default processTick;
 
 function attack(squad: Unit, enemy: Unit) {
+  const damage = 0.1
   emit(events.ATTACK, squad.id, enemy.id);
-  const newStamina = enemy.hp - 9 < 0 ? 0 : enemy.hp - 9;
+  const newStamina = enemy.hp - damage < 0 ? 0 : enemy.hp - damage;
   emit(events.UPDATE_SQUAD, enemy.id, { hp: newStamina });
 }
 

@@ -1,9 +1,8 @@
-import { Vec2 } from "../../../Models/Geometry";
+import { Vec2, distanceBetween } from "../../../Models/Geometry";
 import { getJob } from "../../../Models/Job";
 import { events, listeners } from "../../../Models/Signals";
 import { State, getState } from "../../../Models/State";
 import { Unit, isAttacking } from "../../../Models/Unit";
-import { TURN_DURATION } from "../../../config";
 import BattlegroundScene from "../BattlegroundScene";
 
 
@@ -101,11 +100,41 @@ export function init(scene: BattlegroundScene, state: State) {
 
 			});
 
-		}]
+		}],
+		[events.SQUAD_FINISHED_MOVE_ANIM, (squadId: string, vec: Vec2) => {
+
+			// check if someone is attacking it
+
+			state.gameData.squads.forEach(squad => {
+
+				if (isAttacking(squad.status)
+					&& squad.status.target === squadId
+					&& state.gameData.selectedUnits.includes(squad.id)
+				) {
+
+
+					const job = getJob(squad.job)
+
+					if (job.attackType !== "ranged") return
+
+					const distance = distanceBetween(squad.position)(vec)
+
+					if (distance > 3) return
+
+					const line = drawLine(scene, scene.getSquad(squad.id), squadId, state.options.speed)
+
+					displayIndex[squad.id] = {
+						targetId: squadId,
+						graphic: line
+					}
+
+				}
+
+			});
+
+		}],
 	])
-
 }
-
 function drawLine(scene: BattlegroundScene, squad: Unit, targetId: string, speed: number) {
 
 	const source = scene.getChara(squad.id)

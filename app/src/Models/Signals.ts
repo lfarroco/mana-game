@@ -54,7 +54,7 @@ export type Signals = {
   CREATE_EMOTE: (id: string, key: string) => void;
   REMOVE_EMOTE: (squadId: string) => void;
   FACE_DIRECTION: (squadId: string, direction: Direction) => void;
-  SQUAD_FINISHED_MOVE_ANIM: (squadId: string) => void;
+  SQUAD_FINISHED_MOVE_ANIM: (squadId: string, vec: Vec2) => void;
 };
 
 export type Operation = [keyof Signals, ...Parameters<Signals[keyof Signals]>];
@@ -262,9 +262,10 @@ export const operations: {
     squadId,
     direction,
   ],
-  SQUAD_FINISHED_MOVE_ANIM: (squadId: string) => [
+  SQUAD_FINISHED_MOVE_ANIM: (squadId: string, vec: Vec2) => [
     events.SQUAD_FINISHED_MOVE_ANIM,
     squadId,
+    vec
   ],
   CHANGE_DIRECTION: (key: string, vec: Vec2) => [
     events.CHANGE_DIRECTION,
