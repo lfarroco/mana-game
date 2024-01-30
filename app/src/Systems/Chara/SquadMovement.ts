@@ -12,7 +12,7 @@ import { getSquad, State } from "../../Models/State";
 export function init(state: State) {
   listeners([
     [
-      signals.RECRUIT_UNIT,
+      signals.UNIT_CREATED,
       (squadId: string) => {
         const squad = getSquad(state)(squadId);
 
@@ -21,7 +21,7 @@ export function init(state: State) {
     ],
     [
       signals.SQUAD_WALKS_TOWARDS_CELL,
-      (squadId: string, vec: Vec2) => {
+      (squadId: string, _vec: Vec2) => {
         const squad = getSquad(state)(squadId);
 
         squad.movementIndex++;
@@ -29,7 +29,7 @@ export function init(state: State) {
     ],
     [
       signals.SQUAD_MOVED_INTO_CELL,
-      (squadId: string, vec: Vec2) => {
+      (squadId: string, _vec: Vec2) => {
         const squad = getSquad(state)(squadId);
 
         squad.movementIndex = 0;
