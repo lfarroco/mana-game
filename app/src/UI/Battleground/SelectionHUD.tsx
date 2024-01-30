@@ -30,6 +30,13 @@ export default function SelectionHUD({
           setSelectedCities(ids);
         },
       ],
+      [
+        signals.UNITS_DESELECTED,
+        (ids: string[]) => {
+          setSelectedSquads((prev) => prev.filter((id) => !ids.includes(id)));
+        },
+
+      ]
     ]);
   }, []);
 

@@ -1,6 +1,5 @@
 import "./styles.css";
 import SquadsWindow from "./SquadsWindow/SquadsWindow";
-import { Button, ButtonGroup } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import { listeners, signals, emit, emit_ } from "../../Models/Signals";
 import DispatchSquadModal from "./RecruitUnitModal/RecruitUnitModal";
