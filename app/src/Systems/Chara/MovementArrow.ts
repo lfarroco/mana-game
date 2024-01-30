@@ -5,12 +5,24 @@ import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { Chara, EMOTE_SCALE } from "./Chara";
 import { HALF_TILE_HEIGHT } from "../../Scenes/Battleground/constants";
 
+type SpriteIndex = {
+  [id: string]: {
+    arrow: Phaser.GameObjects.Sprite,
+    overlay: Phaser.GameObjects.Sprite
+  }
+}
+
 export function init(scene: BattlegroundScene) {
+
+  let spriteIndex: SpriteIndex = {}
+
   listeners([
     [
       signals.SQUAD_WALKS_TOWARDS_CELL,
       (squadId: string, next: Vec2, walked: number, total: number) => {
         const squad = scene.getSquad(squadId);
+
+        const { overlay } = spriteIndex[squadId]
 
         const direction = getDirection(squad.position, next);
 
@@ -18,16 +30,16 @@ export function init(scene: BattlegroundScene) {
 
         const percentage = walked / total;
 
-        if (walked === 0) createArrow(direction, chara);
+        if (walked === 0) createArrow(direction, chara, spriteIndex);
 
         if (direction === DIRECTIONS.right) {
-          chara.movementArrowOverlay?.setCrop(0, 0, 32 * percentage, 32);
+          overlay.setCrop(0, 0, 32 * percentage, 32);
         } else if (direction === DIRECTIONS.left) {
-          chara.movementArrowOverlay?.setCrop(32 * (1 - percentage), 0, 32, 32);
+          overlay.setCrop(32 * (1 - percentage), 0, 32, 32);
         } else if (direction === DIRECTIONS.down) {
-          chara.movementArrowOverlay?.setCrop(0, 0, 32, 32 * percentage);
+          overlay.setCrop(0, 0, 32, 32 * percentage);
         } else if (direction === DIRECTIONS.up) {
-          chara.movementArrowOverlay?.setCrop(0, 32 * (1 - percentage), 32, 32);
+          overlay.setCrop(0, 32 * (1 - percentage), 32, 32);
         }
       },
     ],
@@ -36,35 +48,39 @@ export function init(scene: BattlegroundScene) {
       (squadId: string) => {
         const squad = scene.getSquad(squadId);
 
-        const chara = scene.getChara(squadId);
-
         const [next] = squad.path;
 
-        if (!next) removeSprites(chara);
+
+        if (!next) removeSprites(spriteIndex, squadId);
       },
     ],
   ]);
 }
-export function createArrow(direction: Direction, chara: Chara) {
-  removeSprites(chara);
+export function createArrow(direction: Direction, chara: Chara, index: SpriteIndex) {
+  removeSprites(index, chara.id)
 
   if (direction === DIRECTIONS.right) {
-    createSprites(chara, "arrow-right-emote");
+    createSprites(chara, index, "arrow-right-emote")
   } else if (direction === DIRECTIONS.left) {
-    createSprites(chara, "arrow-left-emote");
+    createSprites(chara, index, "arrow-left-emote");
   } else if (direction === DIRECTIONS.down) {
-    createSprites(chara, "arrow-bottom-emote");
+    createSprites(chara, index, "arrow-bottom-emote");
   } else if (direction === DIRECTIONS.up) {
-    createSprites(chara, "arrow-top-emote");
+    createSprites(chara, index, "arrow-top-emote");
   }
 }
 
-function createSprites(chara: Chara, key: string) {
+function createSprites(chara: Chara, index: SpriteIndex, key: string) {
+
+  const indexEntry = index[chara.id]
+
   const emote = chara.sprite.scene.add
     .sprite(chara.sprite.x, chara.sprite.y - HALF_TILE_HEIGHT, key)
     .setScale(EMOTE_SCALE);
   emote.anims.play(key);
-  chara.movementArrow = emote;
+
+  indexEntry.arrow = emote;
+
 
   const overlay = chara.sprite.scene.add
     .sprite(chara.sprite.x, chara.sprite.y - HALF_TILE_HEIGHT, key)
@@ -72,7 +88,8 @@ function createSprites(chara: Chara, key: string) {
   overlay.anims.play(key);
   overlay.setCrop(0, 0, 0, 0);
   overlay.setTint(65280);
-  chara.movementArrowOverlay = overlay;
+
+  indexEntry.overlay = overlay;
 
   const follow = () => {
     emote.x = chara.sprite.x;
@@ -89,7 +106,10 @@ function createSprites(chara: Chara, key: string) {
   chara.group?.add(overlay);
 }
 
-export function removeSprites(chara: Chara) {
-  chara.movementArrow?.destroy();
-  chara.movementArrowOverlay?.destroy();
+export function removeSprites(spriteIndex: SpriteIndex, squadId: string) {
+  const sprites = spriteIndex[squadId]
+  sprites.arrow.destroy();
+  sprites.overlay.destroy();
+
+  delete spriteIndex[squadId]
 }
