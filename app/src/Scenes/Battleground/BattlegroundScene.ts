@@ -33,6 +33,7 @@ import * as CharaSquadMovedIntoCell from "../../Systems/Chara/Events/SQUAD_MOVED
 
 import { TURN_DURATION } from "../../config";
 import { createFowLayer } from "./Systems/FogOfWar/createFowLayer";
+import { DestinationDisplaySystem_init } from "./Systems/DestinationDisplay";
 
 export class BattlegroundScene extends Phaser.Scene {
   graphics: Phaser.GameObjects.Graphics | null = null;
@@ -132,7 +133,8 @@ export class BattlegroundScene extends Phaser.Scene {
     CharaMovement.init(state);
     RangedAttackDisplay.init(this, state);
     CharaSquadMovedIntoCell.init(this, state);
-    StaminaBarSystem.init(state, this)
+    StaminaBarSystem.init(state, this);
+    DestinationDisplaySystem_init(state, this);
 
     //@ts-ignore
     window.bg = this;

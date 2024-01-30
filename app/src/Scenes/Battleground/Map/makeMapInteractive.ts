@@ -191,10 +191,7 @@ export function makeMapInteractive(
 
         pingAt(scene, x, y);
 
-
       }
     }
   );
 }
-
-
