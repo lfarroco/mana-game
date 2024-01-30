@@ -9,7 +9,13 @@ import {
 } from "../../Models/Signals";
 import { BattlegroundScene } from "./BattlegroundScene";
 import { getDirection } from "../../Models/Direction";
-import { UNIT_STATUS_KEYS, UNIT_STATUS, Unit, isAttacking, isDestroyed } from "../../Models/Unit";
+import {
+  UNIT_STATUS_KEYS,
+  UNIT_STATUS,
+  Unit,
+  isAttacking,
+  isDestroyed,
+} from "../../Models/Unit";
 import { foldMap } from "../../Models/Signals";
 import { State, getSquad, getState } from "../../Models/State";
 import { getEnemiesNearby } from "./getEnemiesNearby";
@@ -31,7 +37,7 @@ const processTick = (scene: BattlegroundScene) => {
 
   moveStep(scene, state);
 
-  sequence(checkDestroyed(scene));
+  sequence(checkDestroyed());
 
   sequence(checkIdle(scene));
 
@@ -39,19 +45,17 @@ const processTick = (scene: BattlegroundScene) => {
 
   sequence(cleanupEmotes(scene));
 
-  state.gameData.forces.forEach(force => {
-    emit(signals.UPDATE_FORCE, { id: force.id, gold: force.gold + 100 })
-  })
-
+  state.gameData.forces.forEach((force) => {
+    emit(signals.UPDATE_FORCE, { id: force.id, gold: force.gold + 100 });
+  });
 };
 
 function moveStep(scene: BattlegroundScene, state: State) {
   return traverse_(
-    getState().gameData.squads
-      .filter((s) => s.status.type === UNIT_STATUS_KEYS.MOVING)
+    getState()
+      .gameData.squads.filter((s) => s.status.type === UNIT_STATUS_KEYS.MOVING)
       .sort((a, b) => a.agility - b.agility),
     (squad) => {
-
       const [next] = squad.path;
 
       const nextTile = scene.getTileAt(next);
@@ -62,7 +66,7 @@ function moveStep(scene: BattlegroundScene, state: State) {
       const directionOps =
         squad.movementIndex === 0
           ? // this will not be necessary if we have a direction check each tick
-          [operations.FACE_DIRECTION(squad.id, direction)]
+            [operations.FACE_DIRECTION(squad.id, direction)]
           : [];
 
       const [occupant] = state.gameData.squads
@@ -85,7 +89,8 @@ function moveStep(scene: BattlegroundScene, state: State) {
       // check if there's a city here
       // TODO: move this into "SQUAD_MOVED_INTO_CELL" event
       const maybeCity = getState().gameData.cities.find(
-        (c) => eqVec2(c.boardPosition, asVec2(nextTile)) && c.force !== squad.force
+        (c) =>
+          eqVec2(c.boardPosition, asVec2(nextTile)) && c.force !== squad.force
       );
 
       const maybeCaptureOp =
@@ -120,10 +125,11 @@ function moveStep(scene: BattlegroundScene, state: State) {
 
 function checkEnemiesInRange(scene: BattlegroundScene): Operation[] {
   return foldMap(
-    getState().gameData.squads.filter((s) => s.status.type === UNIT_STATUS_KEYS.IDLE),
+    getState().gameData.squads.filter(
+      (s) => s.status.type === UNIT_STATUS_KEYS.IDLE
+    ),
     (squad) => {
       const enemiesNearby = getEnemiesNearby(squad);
-
 
       if (enemiesNearby.length > 0) {
         return [
@@ -140,31 +146,31 @@ function checkEnemiesInRange(scene: BattlegroundScene): Operation[] {
 
 function checkCombat(state: State) {
   return foldMap(
-    state.gameData.squads
-      .filter(s => isAttacking(s.status)),
+    state.gameData.squads.filter((s) => isAttacking(s.status)),
     (squad) => {
+      if (!isAttacking(squad.status)) return [];
 
-      if (!isAttacking(squad.status)) return []
+      const job = getJob(squad.job);
+      const { target } = squad.status;
 
-      const job = getJob(squad.job)
-      const { target } = squad.status
-
-      const enemy = getSquad(state)(target)
+      const enemy = getSquad(state)(target);
 
       const resume = () => {
-
         if (squad.path.length < 1) {
           return [
             operations.UPDATE_SQUAD(squad.id, {
               status: UNIT_STATUS.IDLE(),
-            })]
+            }),
+          ];
         } else {
-          return [operations.UPDATE_SQUAD(squad.id, {
-            status: UNIT_STATUS.MOVING(squad.path[squad.path.length - 1]),
-          })]
+          return [
+            operations.UPDATE_SQUAD(squad.id, {
+              status: UNIT_STATUS.MOVING(squad.path[squad.path.length - 1]),
+            }),
+          ];
         }
-      }
-      const distance = distanceBetween(squad.position)(enemy.position)
+      };
+      const distance = distanceBetween(squad.position)(enemy.position);
 
       if (isDestroyed(enemy.status)) {
         return resume();
@@ -174,26 +180,23 @@ function checkCombat(state: State) {
         return resume();
       }
 
-      attack(squad, enemy);
+      const damage = 10;
+      emit(signals.ATTACK, squad.id, enemy.id);
+      const newStamina = enemy.hp - damage < 0 ? 0 : enemy.hp - damage;
+      emit(signals.UPDATE_SQUAD, enemy.id, { hp: newStamina });
 
       return [operations.CREATE_EMOTE(squad.id, "combat-emote")];
     }
-
   );
 }
 
 export default processTick;
 
-function attack(squad: Unit, enemy: Unit) {
-  const damage = 0.1
-  emit(signals.ATTACK, squad.id, enemy.id);
-  const newStamina = enemy.hp - damage < 0 ? 0 : enemy.hp - damage;
-  emit(signals.UPDATE_SQUAD, enemy.id, { hp: newStamina });
-}
-
-function checkDestroyed(scene: BattlegroundScene) {
+function checkDestroyed() {
   return foldMap(
-    getState().gameData.squads.filter((s) => s.status.type !== UNIT_STATUS_KEYS.DESTROYED),
+    getState().gameData.squads.filter(
+      (s) => s.status.type !== UNIT_STATUS_KEYS.DESTROYED
+    ),
     (squad) => {
       if (squad.hp === 0) {
         return [operations.SQUAD_DESTROYED(squad.id)];
@@ -205,7 +208,9 @@ function checkDestroyed(scene: BattlegroundScene) {
 
 function checkIdle(scene: BattlegroundScene) {
   return foldMap(
-    getState().gameData.squads.filter((s) => s.status.type === UNIT_STATUS_KEYS.IDLE),
+    getState().gameData.squads.filter(
+      (s) => s.status.type === UNIT_STATUS_KEYS.IDLE
+    ),
     (squad) => {
       const chara = scene.getChara(squad.id);
 
@@ -220,7 +225,9 @@ function checkIdle(scene: BattlegroundScene) {
 
 function updatePath(scene: BattlegroundScene) {
   return foldMap(
-    getState().gameData.squads.filter((s) => s.status.type === UNIT_STATUS_KEYS.MOVING),
+    getState().gameData.squads.filter(
+      (s) => s.status.type === UNIT_STATUS_KEYS.MOVING
+    ),
     (squad) => [
       operations.LOOKUP_PATH(
         squad.id,
@@ -233,7 +240,7 @@ function updatePath(scene: BattlegroundScene) {
 
 // this is just a crutch - the ideal is to call the removal when appropriate
 function cleanupEmotes(scene: BattlegroundScene) {
-  const state = getState()
+  const state = getState();
   return foldMap(
     state.gameData.squads
       .filter((s) => s.status.type === UNIT_STATUS_KEYS.IDLE)
@@ -250,10 +257,9 @@ function startMoving(state: State) {
       .filter((s) => s.status.type === UNIT_STATUS_KEYS.IDLE)
       .filter((s) => s.path.length > 0),
     (squad) => [
-      operations.UPDATE_SQUAD(
-        squad.id,
-        { status: UNIT_STATUS.MOVING(squad.path[squad.path.length - 1]) }
-      ),
+      operations.UPDATE_SQUAD(squad.id, {
+        status: UNIT_STATUS.MOVING(squad.path[squad.path.length - 1]),
+      }),
     ]
   );
 }

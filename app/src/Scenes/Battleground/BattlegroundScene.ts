@@ -11,7 +11,7 @@ import processTick from "./ProcessTick";
 import { Vec2, vec2 } from "../../Models/Geometry";
 import { Chara, createChara } from "../../Components/MapChara";
 import { emit, signals, listeners } from "../../Models/Signals";
-import { State, getCity, getSquad, getState } from "../../Models/State";
+import { State, getSquad, getState } from "../../Models/State";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
 import * as StaminaRegen from "../../Systems/StaminaRegen/StaminaRegen";
 import * as VictorySystem from "../../Systems/Victory/Victory";
