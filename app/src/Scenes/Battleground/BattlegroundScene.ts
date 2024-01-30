@@ -26,7 +26,7 @@ import * as EmoteSystem from "../../Systems/Chara/Emote";
 import * as StaminaBarSystem from "../../Systems/Chara/StaminaBar";
 import * as CharaFaceDirection from "../../Systems/Chara/FaceDirection";
 import * as MovementArrows from "../../Systems/Chara/MovementArrow";
-import * as EntitySelection from "./Systems/EntitySelection";
+import * as EntitySelection from "../../Systems/EntitySelection/EntitySelection";
 import * as CharaMovement from "../../Systems/Chara/SquadMovement";
 import * as RangedAttackDisplay from "./Systems/RangedAttackDisplay";
 import * as CharaSquadMovedIntoCell from "../../Systems/Chara/Events/SQUAD_MOVED_INTO_CELL";
