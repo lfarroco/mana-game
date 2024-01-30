@@ -144,11 +144,6 @@ export function makeMapInteractive(
 
       if ((enemyCharas.length > 0 || cities.length > 0) && alliedCharas.length > 0) {
 
-        const deselectedUnits = getState().gameData.selectedUnits.filter(
-          (id) => !alliedCharas.map((c) => c.id).includes(id)
-        );
-
-        emit(signals.UNITS_DESELECTED, deselectedUnits);
         emit(signals.CITIES_SELECTED, []);
 
         emit(
@@ -158,12 +153,6 @@ export function makeMapInteractive(
 
 
       } else {
-
-        const deselectedUnits = getState().gameData.selectedUnits.filter(
-          (id) => !charas.map((c) => c.id).includes(id)
-        );
-        if (deselectedUnits.length > 0)
-          emit(signals.UNITS_DESELECTED, deselectedUnits);
 
         emit(
           signals.UNITS_SELECTED,
