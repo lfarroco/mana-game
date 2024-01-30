@@ -12,7 +12,6 @@ import { getDirection } from "../../Models/Direction";
 import {
   UNIT_STATUS_KEYS,
   UNIT_STATUS,
-  Unit,
   isAttacking,
   isDestroyed,
 } from "../../Models/Unit";
