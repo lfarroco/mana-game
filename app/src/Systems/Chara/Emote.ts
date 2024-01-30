@@ -1,4 +1,4 @@
-import { Chara, EMOTE_SCALE } from "../../Components/MapChara";
+import { Chara, EMOTE_SCALE } from "./Chara";
 import { signals, listeners } from "../../Models/Signals";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { HALF_TILE_HEIGHT } from "../../Scenes/Battleground/constants";

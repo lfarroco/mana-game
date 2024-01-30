@@ -2,7 +2,7 @@ import { DIRECTIONS, Direction, getDirection } from "../../Models/Direction";
 import { Vec2 } from "../../Models/Geometry";
 import { signals, listeners } from "../../Models/Signals";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
-import { Chara, EMOTE_SCALE } from "../../Components/MapChara";
+import { Chara, EMOTE_SCALE } from "./Chara";
 import { HALF_TILE_HEIGHT } from "../../Scenes/Battleground/constants";
 
 export function init(scene: BattlegroundScene) {
