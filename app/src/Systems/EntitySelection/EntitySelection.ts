@@ -30,7 +30,10 @@ export function init(state: State) {
     [
       signals.SQUAD_DESTROYED,
       (id: string) => {
-        emit(signals.UNITS_DESELECTED, [id]);
+
+        const isSelected = state.gameData.selectedUnits.includes(id);
+        if (isSelected)
+          emit(signals.UNITS_DESELECTED, [id]);
       },
     ],
   ]);
