@@ -3,6 +3,7 @@ import { BattlegroundScene } from "../BattlegroundScene";
 import { asVec2 } from "../../../Models/Geometry";
 import { emit, signals } from "../../../Models/Signals";
 import { getState } from "../../../Models/State";
+import { pingAt } from "./Ping";
 
 export function makeCitiesInteractive(
   scene: BattlegroundScene,
@@ -27,6 +28,9 @@ export function makeCitiesInteractive(
           state.gameData.selectedUnits.forEach((unit) => {
             emit(signals.SELECT_SQUAD_MOVE_DONE, unit, asVec2(tile));
           });
+
+          pingAt(scene, city.x, city.y);
+
         } else {
           emit(signals.CITIES_SELECTED, [city.name]);
 

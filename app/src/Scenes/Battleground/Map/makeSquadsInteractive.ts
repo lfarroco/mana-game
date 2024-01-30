@@ -4,6 +4,7 @@ import { getState } from "../../../Models/State";
 import { signals, emit } from "../../../Models/Signals";
 import { asVec2 } from "../../../Models/Geometry";
 import { Chara } from "../../../Systems/Chara/Chara";
+import { pingAt } from "./Ping";
 
 export function makeSquadsInteractive(
   scene: BattlegroundScene,
@@ -34,6 +35,8 @@ export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
         state.gameData.selectedUnits.forEach((sqdId) => {
           emit(signals.SELECT_SQUAD_MOVE_DONE, sqdId, asVec2(tile));
         });
+        pingAt(scene, chara.sprite.x, chara.sprite.y);
+
       } else {
         emit(signals.UNITS_SELECTED, [chara.id]);
         emit(signals.CITIES_SELECTED, []);
