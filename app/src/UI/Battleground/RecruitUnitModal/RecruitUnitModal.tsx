@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { ListGroup } from 'react-bootstrap';
 import { emit, emit_, signals, listeners } from '../../../Models/Signals';
 import { Job, jobs } from '../../../Models/Job';
-import * as uuid from 'uuid';
 
 const recruit = (state: State, job: Job) => () => {
 
@@ -16,13 +15,8 @@ const recruit = (state: State, job: Job) => () => {
 
 	if (!city.force) throw new Error("City has no force");
 
-	// TODO: ui should not generate unit id
-	const unitId = uuid.v4();
-
-	emit(signals.RECRUIT_UNIT, unitId, city.force, job.id, city.boardPosition)
+	emit(signals.RECRUIT_UNIT, city.force, job.id, city.boardPosition)
 	emit(signals.TOGGLE_DISPATCH_MODAL, false)
-	emit(signals.CITIES_SELECTED, [])
-	emit(signals.UNITS_SELECTED, [unitId])
 
 }
 

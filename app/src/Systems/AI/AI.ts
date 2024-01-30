@@ -1,9 +1,7 @@
-import { v4 } from "uuid";
 import { FORCE_ID_CPU } from "../../Models/Force";
 import { eqVec2 } from "../../Models/Geometry";
 import { signals, listeners, emit } from "../../Models/Signals";
 import { State } from "../../Models/State";
-import { makeUnit } from "../../Models/Unit";
 import * as attackActions from "./processAttackerActions";
 import * as defenderActions from "./processDefenderActions";
 
@@ -39,10 +37,8 @@ function recruit(state: State) {
   unblockedTaverns.forEach((tavern) => {
     if (cpuForce.gold < 100) return;
 
-    const id = v4();
     emit(
       signals.RECRUIT_UNIT,
-      id,
       FORCE_ID_CPU,
       "skeleton",
       tavern.boardPosition
@@ -50,6 +46,5 @@ function recruit(state: State) {
 
     cpuForce.gold -= 100;
 
-    state.gameData.ai.attackers.push(id);
   });
 }

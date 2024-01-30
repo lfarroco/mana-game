@@ -1,3 +1,4 @@
+import * as uuid from "uuid";
 import { City } from "./City";
 import { Force } from "./Force";
 import { Vec2 } from "./Geometry";
@@ -117,10 +118,11 @@ export const updateForce = (state: State) => (
 export const listenToStateEvents = () => {
   listeners([
 
-    [signals.RECRUIT_UNIT, (unitId: string, forceId: string, jobId: string, position: Vec2) => {
+    [signals.RECRUIT_UNIT, (forceId: string, jobId: string, position: Vec2) => {
 
       const state = getState();
 
+      const unitId = uuid.v4();
 
       const unit = makeUnit(unitId, forceId, jobId, position)
 
