@@ -27,7 +27,7 @@ export type Signals = {
   TOGGLE_LOAD_GAME_MODAL: (value: boolean) => void;
   TOGGLE_SAVE_GAME_MODAL: (value: boolean) => void;
   TOGGLE_RECRUIT_MODAL: () => void;
-  RECRUIT_UNIT: (unitId: string, forceId: string, jobId: string, location: Vec2) => void;
+  RECRUIT_UNIT: (forceId: string, jobId: string, location: Vec2) => void;
   UNIT_CREATED: (unitId: string) => void;
   TOGGLE_SQUADS_WINDOW: (value: boolean) => void;
   BATTLEGROUND_TICK: (tick: number) => void;
@@ -202,7 +202,7 @@ export const operations: {
     value,
   ],
   TOGGLE_RECRUIT_MODAL: () => [signals.TOGGLE_RECRUIT_MODAL],
-  RECRUIT_UNIT: (unitId: string, forceId: string, jobId: string, location: Vec2) => [signals.RECRUIT_UNIT, unitId, forceId, jobId, location],
+  RECRUIT_UNIT: (forceId: string, jobId: string, location: Vec2) => [signals.RECRUIT_UNIT, forceId, jobId, location],
   UNIT_CREATED: (unitId: string) => [signals.UNIT_CREATED, unitId],
   TOGGLE_SQUADS_WINDOW: (value: boolean) => [
     signals.TOGGLE_SQUADS_WINDOW,
