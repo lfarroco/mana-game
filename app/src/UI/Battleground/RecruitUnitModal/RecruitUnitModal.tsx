@@ -2,7 +2,7 @@ import Modal from 'react-bootstrap/Modal';
 import { State, getCity, getState } from '../../../Models/State';
 import { useEffect, useState } from 'react';
 import { ListGroup } from 'react-bootstrap';
-import { emit, emit_, events, listeners } from '../../../Models/Signals';
+import { emit, emit_, signals, listeners } from '../../../Models/Signals';
 import { Job, jobs } from '../../../Models/Job';
 import * as uuid from 'uuid';
 
@@ -19,10 +19,10 @@ const recruit = (state: State, job: Job) => () => {
 	// TODO: ui should not generate unit id
 	const unitId = uuid.v4();
 
-	emit(events.RECRUIT_UNIT, unitId, city.force, job.id, city.boardPosition)
-	emit(events.TOGGLE_DISPATCH_MODAL, false)
-	emit(events.CITIES_SELECTED, [])
-	emit(events.UNITS_SELECTED, [unitId])
+	emit(signals.RECRUIT_UNIT, unitId, city.force, job.id, city.boardPosition)
+	emit(signals.TOGGLE_DISPATCH_MODAL, false)
+	emit(signals.CITIES_SELECTED, [])
+	emit(signals.UNITS_SELECTED, [unitId])
 
 }
 
@@ -35,7 +35,7 @@ function DispatchSquadModal() {
 
 	useEffect(() => {
 		listeners([
-			[events.TOGGLE_DISPATCH_MODAL, (value: boolean) => { setIsVisible(value); }],
+			[signals.TOGGLE_DISPATCH_MODAL, (value: boolean) => { setIsVisible(value); }],
 		])
 	}, []);
 
@@ -84,7 +84,7 @@ function DispatchSquadModal() {
 		<Modal.Footer>
 			<button
 				className="button"
-				onClick={emit_(events.TOGGLE_DISPATCH_MODAL, false)}
+				onClick={emit_(signals.TOGGLE_DISPATCH_MODAL, false)}
 			>
 				Close
 			</button>

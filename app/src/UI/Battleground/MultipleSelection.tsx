@@ -1,4 +1,4 @@
-import { emit, events } from "../../Models/Signals";
+import { emit, signals } from "../../Models/Signals";
 import { Unit } from "../../Models/Unit";
 import { getCity, getState } from "../../Models/State";
 
@@ -27,8 +27,8 @@ export default function MultipleSelection({
             src={`assets/cities/${city.type}.png`}
             alt={city.name}
             onClick={() => {
-              emit(events.CITIES_SELECTED, [city.id]);
-              emit(events.UNITS_SELECTED, []);
+              emit(signals.CITIES_SELECTED, [city.id]);
+              emit(signals.UNITS_SELECTED, []);
             }}
           />
         ))}
@@ -39,8 +39,8 @@ export default function MultipleSelection({
             src={`assets/jobs/${squad.job}/portrait.png`}
             alt={squad.name}
             onClick={() => {
-              emit(events.UNITS_SELECTED, [squad.id]);
-              emit(events.CITIES_SELECTED, []);
+              emit(signals.UNITS_SELECTED, [squad.id]);
+              emit(signals.CITIES_SELECTED, []);
             }}
           />
         ))}

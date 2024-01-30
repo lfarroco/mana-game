@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import BattlegroundScene from "../BattlegroundScene";
-import { emit, events } from "../../../Models/Signals";
+import { emit, signals } from "../../../Models/Signals";
 import { asVec2, vec2 } from "../../../Models/Geometry";
 import { FORCE_ID_PLAYER } from "../../../Models/Force";
 import { UNIT_STATUS_KEYS } from "../../../Models/Unit";
@@ -141,13 +141,13 @@ export function makeMapInteractive(
 
       if (charas.length > 0)
         emit(
-          events.UNITS_SELECTED,
+          signals.UNITS_SELECTED,
           charas.map((c) => c.id)
         );
 
       if (cities.length > 0)
         emit(
-          events.CITIES_SELECTED,
+          signals.CITIES_SELECTED,
           cities.map((c) => c.city.id)
         );
 
@@ -169,7 +169,7 @@ export function makeMapInteractive(
         const tile = bgLayer.getTileAtWorldXY(x, y);
 
         state.gameData.selectedUnits.forEach((sqdId) => {
-          emit(events.SELECT_SQUAD_MOVE_DONE, sqdId, asVec2(tile));
+          emit(signals.SELECT_SQUAD_MOVE_DONE, sqdId, asVec2(tile));
         });
       }
     }

@@ -1,5 +1,5 @@
 import { eqVec2 } from "../../Models/Geometry";
-import { emit, events, listeners } from "../../Models/Signals";
+import { emit, signals, listeners } from "../../Models/Signals";
 import { UNIT_STATUS_KEYS } from "../../Models/Unit";
 import { State } from "../../Models/State";
 
@@ -8,7 +8,7 @@ const STAMINA_REGEN_RATE = 3;
 export function init(state: State) {
 
 	listeners([
-		[events.BATTLEGROUND_TICK, () => {
+		[signals.BATTLEGROUND_TICK, () => {
 
 			state.gameData.squads
 				.filter(squad => squad.status.type === UNIT_STATUS_KEYS.IDLE)
@@ -20,9 +20,9 @@ export function init(state: State) {
 					const newHP = squad.hp + STAMINA_REGEN_RATE;
 
 					if (newHP >= squad.maxHp) {
-						emit(events.UPDATE_SQUAD, squad.id, { hp: squad.maxHp })
+						emit(signals.UPDATE_SQUAD, squad.id, { hp: squad.maxHp })
 					} else {
-						emit(events.UPDATE_SQUAD, squad.id, { hp: newHP })
+						emit(signals.UPDATE_SQUAD, squad.id, { hp: newHP })
 					}
 				});
 

@@ -1,13 +1,13 @@
 import { Chara } from "../../Components/MapChara";
 import { Direction, getDirection } from "../../Models/Direction";
 import { Vec2 } from "../../Models/Geometry";
-import { events, listeners } from "../../Models/Signals";
+import { signals, listeners } from "../../Models/Signals";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 
 export function init(scene: BattlegroundScene) {
   listeners([
     [
-      events.SQUAD_WALKS_TOWARDS_CELL,
+      signals.SQUAD_WALKS_TOWARDS_CELL,
       (squadId: string, next: Vec2, walked: number, _total: number) => {
         if (walked > 0) return;
 
@@ -21,7 +21,7 @@ export function init(scene: BattlegroundScene) {
       },
     ],
     [
-      events.SQUAD_FINISHED_MOVE_ANIM,
+      signals.SQUAD_FINISHED_MOVE_ANIM,
       (squadId: string) => {
         const squad = scene.getSquad(squadId);
 
@@ -37,7 +37,7 @@ export function init(scene: BattlegroundScene) {
       },
     ],
     [
-      events.ATTACK_STARTED,
+      signals.ATTACK_STARTED,
       (squadId: string, targetId: string) => {
         const squad = scene.getSquad(squadId);
 
@@ -51,7 +51,7 @@ export function init(scene: BattlegroundScene) {
       },
     ],
     [
-      events.CHANGE_DIRECTION,
+      signals.CHANGE_DIRECTION,
       (squadId: string, vec: Vec2) => {
         const squad = scene.getSquad(squadId);
 

@@ -1,6 +1,6 @@
 import { Button } from "react-bootstrap"
 import { City } from "../../../Models/City"
-import { emit_, events } from "../../../Models/Signals"
+import { emit_, signals } from "../../../Models/Signals"
 import "./styles.css"
 import { FORCE_ID_PLAYER } from "../../../Models/Force"
 const SelectedCity = ({ city }: { city: City }) => {
@@ -22,7 +22,7 @@ const SelectedCity = ({ city }: { city: City }) => {
 			{city.type === "tavern" && city.force === FORCE_ID_PLAYER &&
 				<button
 					className="button"
-					onClick={emit_(events.TOGGLE_DISPATCH_MODAL, true)}
+					onClick={emit_(signals.TOGGLE_DISPATCH_MODAL, true)}
 				>Recruit</button>
 			}
 		</div>

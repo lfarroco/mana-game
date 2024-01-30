@@ -1,6 +1,6 @@
 import { FORCE_ID_CPU } from "../../Models/Force";
 import { eqVec2 } from "../../Models/Geometry";
-import { emit, events, listeners } from "../../Models/Signals";
+import { emit, signals, listeners } from "../../Models/Signals";
 import { UNIT_STATUS_KEYS, Unit } from "../../Models/Unit";
 import { State } from "../../Models/State";
 import { distanceBetween } from "../../Models/Geometry";
@@ -9,8 +9,8 @@ import { distanceBetween } from "../../Models/Geometry";
 export function init(state: State) {
 
 	listeners([
-		[events.BATTLEGROUND_TICK, () => processAttackerActions(state)],
-		[events.BATTLEGROUND_TICK, () => processDefenderActions(state)]
+		[signals.BATTLEGROUND_TICK, () => processAttackerActions(state)],
+		[signals.BATTLEGROUND_TICK, () => processDefenderActions(state)]
 	])
 
 }
@@ -54,7 +54,7 @@ function processAttackerActions(state: State) {
 					console.error("no target");
 					return;
 				}
-				emit(events.SELECT_SQUAD_MOVE_DONE, sqd.id, target.boardPosition)
+				emit(signals.SELECT_SQUAD_MOVE_DONE, sqd.id, target.boardPosition)
 				return;
 			}
 
@@ -67,7 +67,7 @@ function processAttackerActions(state: State) {
 				if (eqVec2(closestCity.boardPosition, sqd.position)) {
 					return;
 				}
-				emit(events.SELECT_SQUAD_MOVE_DONE, sqd.id, closestCity.boardPosition)
+				emit(signals.SELECT_SQUAD_MOVE_DONE, sqd.id, closestCity.boardPosition)
 			}
 
 		})
@@ -103,7 +103,7 @@ function processDefenderActions(state: State) {
 
 			if (sqd.status.type === UNIT_STATUS_KEYS.IDLE) {
 				console.log("AI: moving", sqd.id, closestCity.boardPosition)
-				emit(events.SELECT_SQUAD_MOVE_DONE, sqd.id, closestCity.boardPosition)
+				emit(signals.SELECT_SQUAD_MOVE_DONE, sqd.id, closestCity.boardPosition)
 				return;
 			}
 

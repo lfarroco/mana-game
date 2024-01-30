@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Form, Modal } from "react-bootstrap";
-import { emit, emit_, events, listeners } from "../../Models/Signals";
+import { emit, emit_, signals, listeners } from "../../Models/Signals";
 import { getState } from "../../Models/State";
 
 export default function Options() {
@@ -14,7 +14,7 @@ export default function Options() {
   useEffect(() => {
     listeners([
       [
-        events.TOGGLE_OPTIONS_MODAL,
+        signals.TOGGLE_OPTIONS_MODAL,
         (value: boolean) => {
           setShow(value);
         },
@@ -25,7 +25,7 @@ export default function Options() {
   return (
     <Modal
       show={show}
-      onHide={emit_(events.TOGGLE_OPTIONS_MODAL, false)}
+      onHide={emit_(signals.TOGGLE_OPTIONS_MODAL, false)}
     >
       <Modal.Header closeButton>
         <Modal.Title>Options</Modal.Title>
@@ -51,9 +51,9 @@ export default function Options() {
               state.options.music = !state.options.music;
               setMusicEnabled(!musicEnabled);
               if (state.options.music)
-                emit(events.PLAY_MUSIC)
+                emit(signals.PLAY_MUSIC)
               else
-                emit(events.STOP_MUSIC)
+                emit(signals.STOP_MUSIC)
             }}
             checked={musicEnabled}
           />
@@ -61,7 +61,7 @@ export default function Options() {
       </Modal.Body>
 
       <Modal.Footer>
-        <button className="button" onClick={emit_(events.TOGGLE_OPTIONS_MODAL, false)}>
+        <button className="button" onClick={emit_(signals.TOGGLE_OPTIONS_MODAL, false)}>
           Close
         </button>
       </Modal.Footer>

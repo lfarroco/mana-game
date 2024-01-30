@@ -1,10 +1,10 @@
-import { emit, events, listeners } from "../../Models/Signals";
+import { emit, signals, listeners } from "../../Models/Signals";
 import { State } from "../../Models/State";
 
 export function init(state: State) {
 
 	listeners([
-		[events.BATTLEGROUND_TICK, () => checkIfAllCastlesAreCaptured(state)]
+		[signals.BATTLEGROUND_TICK, () => checkIfAllCastlesAreCaptured(state)]
 	])
 
 }
@@ -22,7 +22,7 @@ function checkIfAllCastlesAreCaptured(state: State) {
 
 		state.gameData.winner = winner
 
-		emit(events.FORCE_VICTORY, winner)
+		emit(signals.FORCE_VICTORY, winner)
 	}
 
 }

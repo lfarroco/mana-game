@@ -1,6 +1,6 @@
 import { Chara } from "../../../Components/MapChara";
 import { FORCE_ID_PLAYER } from "../../../Models/Force";
-import { events, listeners } from "../../../Models/Signals";
+import { signals, listeners } from "../../../Models/Signals";
 import BattlegroundScene from "../BattlegroundScene";
 import { TILE_HEIGHT } from "../constants";
 
@@ -34,14 +34,14 @@ export function init(scene: BattlegroundScene) {
 	let eventListeners: { [id: string]: (squadId: string) => void } = {}
 
 	listeners([
-		[events.UNITS_SELECTED, (squadIds: string[]) => {
+		[signals.UNITS_SELECTED, (squadIds: string[]) => {
 
 			clearCursors(cursors, eventListeners, scene);
 
 			squadIds.forEach(squadId => selectSquad(scene, squadId, cursors, eventListeners))
 
 		}],
-		[events.SQUAD_DESTROYED, (squadId: string) => {
+		[signals.SQUAD_DESTROYED, (squadId: string) => {
 
 			const cursor = cursors[squadId]
 			if (!cursor) return

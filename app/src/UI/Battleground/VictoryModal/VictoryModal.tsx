@@ -1,6 +1,6 @@
 import { FORCE_ID_PLAYER } from '../../../Models/Force';
 import { useEffect, useState } from 'react';
-import { events, listeners } from '../../../Models/Signals';
+import { signals, listeners } from '../../../Models/Signals';
 import Modal from 'react-bootstrap/Modal';
 import { Button } from 'react-bootstrap';
 
@@ -11,7 +11,7 @@ function VictoryModal() {
 
 	useEffect(() => {
 		listeners([
-			[events.FORCE_VICTORY, (force: string) => {
+			[signals.FORCE_VICTORY, (force: string) => {
 				setIsVisible(true);
 				setPlayerWon(force === FORCE_ID_PLAYER);
 			}],

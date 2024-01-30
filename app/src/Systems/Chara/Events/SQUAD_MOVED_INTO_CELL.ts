@@ -1,14 +1,13 @@
 import { Vec2 } from '../../../Models/Geometry';
-import { emit, events, listeners } from '../../../Models/Signals';
-import { State, getSquad } from '../../../Models/State';
+import { emit, signals, listeners } from '../../../Models/Signals';
+import { State } from '../../../Models/State';
 import BattlegroundScene from '../../../Scenes/Battleground/BattlegroundScene';
 import { TURN_DURATION } from '../../../config';
-
 
 export function init(scene: BattlegroundScene, state: State) {
 
 	listeners([
-		[events.SQUAD_MOVED_INTO_CELL, (squadId: string, cell: Vec2) => {
+		[signals.SQUAD_MOVED_INTO_CELL, (squadId: string, cell: Vec2) => {
 
 			const chara = scene.getChara(squadId);
 
@@ -22,7 +21,7 @@ export function init(scene: BattlegroundScene, state: State) {
 				yoyo: false,
 				ease: "Sine.easeInOut",
 				onComplete: () => {
-					emit(events.SQUAD_FINISHED_MOVE_ANIM, squadId, cell);
+					emit(signals.SQUAD_FINISHED_MOVE_ANIM, squadId, cell);
 				},
 			});
 		}]

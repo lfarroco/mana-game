@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ListGroup, Modal } from "react-bootstrap";
-import { emit, emit_, events, listeners } from "../../Models/Signals";
+import { emit, emit_, signals, listeners } from "../../Models/Signals";
 import { SavedGamesIndex, getSavedGamesIndex } from "../../Models/SavedGame";
 
 export default function LoadGame() {
@@ -17,7 +17,7 @@ export default function LoadGame() {
 	useEffect(() => {
 		listeners([
 			[
-				events.TOGGLE_LOAD_GAME_MODAL,
+				signals.TOGGLE_LOAD_GAME_MODAL,
 				(value: boolean) => {
 					setShow(value);
 
@@ -35,7 +35,7 @@ export default function LoadGame() {
 	return (
 		<Modal
 			show={show}
-			onHide={emit_(events.TOGGLE_LOAD_GAME_MODAL, false)}
+			onHide={emit_(signals.TOGGLE_LOAD_GAME_MODAL, false)}
 		>
 			<Modal.Header closeButton>
 				<Modal.Title>Load Game</Modal.Title>
@@ -54,7 +54,7 @@ export default function LoadGame() {
 								<button
 
 									onClick={() => {
-										emit(events.DELETE_GAME, save);
+										emit(signals.DELETE_GAME, save);
 										fetchSavedGames();
 									}}
 									className="float-end">Delete</button>
@@ -70,13 +70,13 @@ export default function LoadGame() {
 					className="button"
 					disabled={selectedGame === ""}
 					onClick={() => {
-						emit(events.TOGGLE_LOAD_GAME_MODAL, false);
-						emit(events.LOAD_GAME, selectedGame);
+						emit(signals.TOGGLE_LOAD_GAME_MODAL, false);
+						emit(signals.LOAD_GAME, selectedGame);
 					}}
 				>
 					Load Game
 				</button>
-				<button className="button" onClick={emit_(events.TOGGLE_LOAD_GAME_MODAL, false)}>
+				<button className="button" onClick={emit_(signals.TOGGLE_LOAD_GAME_MODAL, false)}>
 					Close
 				</button>
 			</Modal.Footer>

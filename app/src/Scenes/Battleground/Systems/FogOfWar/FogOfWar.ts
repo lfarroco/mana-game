@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { BattlegroundScene } from "../../BattlegroundScene";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../../Models/Force";
-import { listeners, events } from "../../../../Models/Signals";
+import { listeners, signals } from "../../../../Models/Signals";
 import { UNIT_STATUS_KEYS } from "../../../../Models/Unit";
 import { Vec2 } from "../../../../Models/Geometry";
 import { State } from "../../../../Models/State";
@@ -11,13 +11,13 @@ const VIEW_RADIUS = 4;
 export function init(scene: BattlegroundScene, state: State) {
   listeners([
     [
-      events.BATTLEGROUND_STARTED, () => {
+      signals.BATTLEGROUND_STARTED, () => {
         refreshFogOfWar(scene, state);
       }
     ],
     [
       // TODO: replace with "squads finished moving"
-      events.BATTLEGROUND_TICK,
+      signals.BATTLEGROUND_TICK,
       () => {
         refreshFogOfWar(scene, state);
       },

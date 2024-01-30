@@ -1,6 +1,6 @@
 import { DIRECTIONS, Direction, getDirection } from "../../Models/Direction";
 import { Vec2 } from "../../Models/Geometry";
-import { events, listeners } from "../../Models/Signals";
+import { signals, listeners } from "../../Models/Signals";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { Chara, EMOTE_SCALE } from "../../Components/MapChara";
 import { HALF_TILE_HEIGHT } from "../../Scenes/Battleground/constants";
@@ -8,7 +8,7 @@ import { HALF_TILE_HEIGHT } from "../../Scenes/Battleground/constants";
 export function init(scene: BattlegroundScene) {
   listeners([
     [
-      events.SQUAD_WALKS_TOWARDS_CELL,
+      signals.SQUAD_WALKS_TOWARDS_CELL,
       (squadId: string, next: Vec2, walked: number, total: number) => {
         const squad = scene.getSquad(squadId);
 
@@ -32,7 +32,7 @@ export function init(scene: BattlegroundScene) {
       },
     ],
     [
-      events.SQUAD_FINISHED_MOVE_ANIM,
+      signals.SQUAD_FINISHED_MOVE_ANIM,
       (squadId: string) => {
         const squad = scene.getSquad(squadId);
 

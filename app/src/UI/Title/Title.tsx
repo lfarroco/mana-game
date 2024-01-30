@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { events, emit, emit_ } from "../../Models/Signals";
+import { signals, emit, emit_ } from "../../Models/Signals";
 import Credits from "../Credits/Credits";
 
 export default function Title() {
@@ -43,16 +43,16 @@ export default function Title() {
         <button
           className="button mb-2"
           onClick={() => {
-            emit(events.SET_ROUTE, "battleground");
-            emit(events.START_NEW_GAME);
+            emit(signals.SET_ROUTE, "battleground");
+            emit(signals.START_NEW_GAME);
           }}
         >
           Start Game
         </button>
-        <button className="button mb-2" onClick={emit_(events.TOGGLE_LOAD_GAME_MODAL, true)}>
+        <button className="button mb-2" onClick={emit_(signals.TOGGLE_LOAD_GAME_MODAL, true)}>
           Load Game
         </button>
-        <button className="button mb-2" onClick={emit_(events.TOGGLE_OPTIONS_MODAL, true)}>
+        <button className="button mb-2" onClick={emit_(signals.TOGGLE_OPTIONS_MODAL, true)}>
           Options
         </button>
         <button className="button mb-2" onClick={() => setCreditsVisible(true)}>

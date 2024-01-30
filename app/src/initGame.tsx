@@ -1,6 +1,6 @@
 import * as Phaser from "phaser";
 import BattlegroundScene from "./Scenes/Battleground/BattlegroundScene";
-import { events as events_ } from './Models/Signals';
+import { signals as events_ } from './Models/Signals';
 import { listeners } from './Models/Signals';
 import Core from "./Scenes/Core/Core";
 import * as SaveGame from "./Systems/SaveGame/SaveGame";

@@ -1,6 +1,6 @@
 import { Vec2, distanceBetween } from "../../../Models/Geometry";
 import { getJob } from "../../../Models/Job";
-import { events, listeners } from "../../../Models/Signals";
+import { signals, listeners } from "../../../Models/Signals";
 import { State, getState } from "../../../Models/State";
 import { Unit, isAttacking } from "../../../Models/Unit";
 import BattlegroundScene from "../BattlegroundScene";
@@ -17,7 +17,7 @@ export function init(scene: BattlegroundScene, state: State) {
 	} = {}
 
 	listeners([
-		[events.UNITS_SELECTED, (ids: string[]) => {
+		[signals.UNITS_SELECTED, (ids: string[]) => {
 
 			ids.forEach(squadId => {
 				const squad = scene.getSquad(squadId);
@@ -34,7 +34,7 @@ export function init(scene: BattlegroundScene, state: State) {
 			});
 
 		}],
-		[events.ATTACK_STARTED, (attacker: string, target: string) => {
+		[signals.ATTACK_STARTED, (attacker: string, target: string) => {
 
 			const state = getState()
 
@@ -53,7 +53,7 @@ export function init(scene: BattlegroundScene, state: State) {
 			}
 		}
 		],
-		[events.UNITS_DESELECTED, (ids: string[]) => {
+		[signals.UNITS_DESELECTED, (ids: string[]) => {
 
 			ids.forEach(id => {
 
@@ -66,7 +66,7 @@ export function init(scene: BattlegroundScene, state: State) {
 
 			})
 		}],
-		[events.SQUAD_DESTROYED, (id: string) => {
+		[signals.SQUAD_DESTROYED, (id: string) => {
 
 			const line = displayIndex[id]
 
@@ -76,7 +76,7 @@ export function init(scene: BattlegroundScene, state: State) {
 			}
 
 		}],
-		[events.SQUAD_DESTROYED, (id: string) => {
+		[signals.SQUAD_DESTROYED, (id: string) => {
 
 			// TODO: this could be a problem if the attacker changes its status before the target is destroyed
 
@@ -88,7 +88,7 @@ export function init(scene: BattlegroundScene, state: State) {
 				}
 			})
 		}],
-		[events.SQUAD_LEAVES_CELL, (squadId: string, vec: Vec2) => {
+		[signals.SQUAD_LEAVES_CELL, (squadId: string, vec: Vec2) => {
 
 			Object.entries(displayIndex).forEach(([key, value]) => {
 
@@ -101,7 +101,7 @@ export function init(scene: BattlegroundScene, state: State) {
 			});
 
 		}],
-		[events.SQUAD_FINISHED_MOVE_ANIM, (squadId: string, vec: Vec2) => {
+		[signals.SQUAD_FINISHED_MOVE_ANIM, (squadId: string, vec: Vec2) => {
 
 			// check if someone is attacking it
 
