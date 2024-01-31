@@ -18,3 +18,6 @@ https://opengameart.org/content/rpg-sound-pack
 gold_coin
 ui_toggle (metal-small1)
 swing
+
+https://opengameart.org/content/punches-hits-swords-and-squishes
+sword1,2,3
