@@ -53,6 +53,9 @@ export function preload(this: Phaser.Scene) {
 		"assets/audio/march.mp3",
 		"assets/audio/march.ogg",
 	]);
+	this.load.audio("audio/sword1", "assets/audio/sword1.wav")
+	this.load.audio("audio/sword2", "assets/audio/sword2.wav")
+	this.load.audio("audio/sword3", "assets/audio/sword3.wav")
 
 	jobs.forEach(job => {
 		this.load.spritesheet(

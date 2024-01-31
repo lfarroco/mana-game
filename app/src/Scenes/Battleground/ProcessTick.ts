@@ -8,12 +8,12 @@ import {
   traverse_,
 } from "../../Models/Signals";
 import { BattlegroundScene } from "./BattlegroundScene";
-import { getDirection } from "../../Models/Direction";
 import {
   UNIT_STATUS_KEYS,
   UNIT_STATUS,
   isAttacking,
   isDestroyed,
+  isMoving,
 } from "../../Models/Unit";
 import { foldMap } from "../../Models/Signals";
 import { State, getSquad, getState } from "../../Models/State";
@@ -52,7 +52,7 @@ const processTick = (scene: BattlegroundScene) => {
 function moveStep(scene: BattlegroundScene, state: State) {
   return traverse_(
     getState()
-      .gameData.squads.filter((s) => s.status.type === UNIT_STATUS_KEYS.MOVING)
+      .gameData.squads.filter(s => isMoving(s.status))
       .sort((a, b) => a.agility - b.agility),
     (squad) => {
       const [next] = squad.path;
@@ -60,7 +60,7 @@ function moveStep(scene: BattlegroundScene, state: State) {
       const nextTile = scene.getTileAt(next);
 
       const [occupant] = state.gameData.squads
-        .filter((s) => s.status.type !== UNIT_STATUS_KEYS.DESTROYED)
+        .filter((s) => !isDestroyed(s.status))
         .filter((s) => eqVec2(s.position, next));
 
       if (squad.movementIndex < TURNS_TO_MOVE || occupant) {
@@ -146,12 +146,14 @@ function checkCombat(state: State) {
       const resume = () => {
         if (squad.path.length < 1) {
           return [
+            operations.COMBAT_FINISHED(squad.id),
             operations.UPDATE_SQUAD(squad.id, {
               status: UNIT_STATUS.IDLE(),
             }),
           ];
         } else {
           return [
+            operations.COMBAT_FINISHED(squad.id),
             operations.UPDATE_SQUAD(squad.id, {
               status: UNIT_STATUS.MOVING(squad.path[squad.path.length - 1]),
             }),
@@ -186,10 +188,10 @@ function checkDestroyed() {
       (s) => s.status.type !== UNIT_STATUS_KEYS.DESTROYED
     ),
     (squad) => {
-      if (squad.hp === 0) {
-        return [operations.SQUAD_DESTROYED(squad.id)];
-      }
-      return [];
+      return [
+        ...squad.hp === 0 ? [operations.SQUAD_DESTROYED(squad.id)] : [],
+        ...isAttacking(squad.status) && squad.hp === 0 ? [operations.COMBAT_FINISHED(squad.id)] : []
+      ]
     }
   );
 }
@@ -208,21 +210,6 @@ function checkIdle(scene: BattlegroundScene) {
 
       return [];
     }
-  );
-}
-
-function updatePath(scene: BattlegroundScene) {
-  return foldMap(
-    getState().gameData.squads.filter(
-      (s) => s.status.type === UNIT_STATUS_KEYS.MOVING
-    ),
-    (squad) => [
-      operations.LOOKUP_PATH(
-        squad.id,
-        squad.position,
-        squad.path[squad.path.length - 1]
-      ),
-    ]
   );
 }
 
