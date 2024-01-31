@@ -89,6 +89,7 @@ export function init(scene: BattlegroundScene) {
 
 }
 
+//FIXME - there's a bug here when clicking someone after loading a game
 function cleanCursor(
 	cursors: ImageIndex,
 	eventListeners: { [id: string]: (squadId: string) => void; }, scene: BattlegroundScene,
