@@ -16,7 +16,9 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 
 			if (!scene.layers?.background) return
 
-			if (index[key]) return
+			if (index[key]) {
+				cleanup(index)(key);
+			}
 
 			const graphics = displayPath(
 				state,
