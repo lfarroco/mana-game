@@ -164,7 +164,7 @@ export class BattlegroundScene extends Phaser.Scene {
     makeSquadsInteractive(this, this.charas);
     makeCitiesInteractive(
       this,
-      this.cities.map((c) => c.sprite)
+      this.cities
     );
 
     this.fow = createFowLayer(this)

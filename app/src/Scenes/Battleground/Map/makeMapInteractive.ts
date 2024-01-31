@@ -4,7 +4,7 @@ import { emit, signals } from "../../../Models/Signals";
 import { asVec2, vec2 } from "../../../Models/Geometry";
 import { FORCE_ID_PLAYER } from "../../../Models/Force";
 import { UNIT_STATUS_KEYS } from "../../../Models/Unit";
-import { getState } from "../../../Models/State";
+import { getSquad, getState } from "../../../Models/State";
 import { isInside } from "../../../Models/Geometry";
 import { pingAt } from "./Ping";
 
@@ -13,6 +13,8 @@ export function makeMapInteractive(
   map: Phaser.Tilemaps.Tilemap,
   bgLayer: Phaser.Tilemaps.TilemapLayer
 ) {
+
+  const state = getState()
   console.log("adding map listeners");
   //set camera bounds to the world
   scene.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
@@ -118,6 +120,7 @@ export function makeMapInteractive(
       // charas inside selection
       const charas = scene.charas
         .filter((c) => scene.getSquad(c.id).status.type !== UNIT_STATUS_KEYS.DESTROYED)
+        .filter(c => scene.isTileVisible(getSquad(state)(c.id).position))
         .filter((chara) =>
           isInside(
             pointer.downX + scene.cameras.main.scrollX,
@@ -127,7 +130,7 @@ export function makeMapInteractive(
             chara.sprite.x,
             chara.sprite.y
           )
-        );
+        )
 
       const cities = scene.cities.filter((city) =>
         isInside(
