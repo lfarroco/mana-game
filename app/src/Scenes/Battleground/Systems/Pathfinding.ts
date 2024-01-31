@@ -25,7 +25,8 @@ export function init(scene: BattlegroundScene) {
           .filter(
             (s) => s.force !== squad.force || s.status.type !== UNIT_STATUS_KEYS.MOVING
           )
-          .filter((s) => s.id !== squad.id);
+          .filter((s) => s.id !== squad.id)
+          .filter(s => scene.isTileVisible(s.position))
 
         // make tile with othersquads unwalkable
 
@@ -72,7 +73,7 @@ export function init(scene: BattlegroundScene) {
           const direction = getDirection(squad.position, path[0]);
           emit(signals.FACE_DIRECTION, squad.id, direction);
 
-          if(isAttacking(squad.status)) { //TODO: is there an event to exit combat?
+          if (isAttacking(squad.status)) { //TODO: is there an event to exit combat?
             emit(signals.REMOVE_EMOTE, squad.id, "combat-emote")
           }
 
