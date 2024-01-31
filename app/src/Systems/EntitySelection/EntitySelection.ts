@@ -9,10 +9,11 @@ export function init(state: State) {
         const deselectedUnits = state.gameData.selectedUnits.filter(
           (id) => !ids.includes(id)
         );
-        if (deselectedUnits.length > 0)
-          emit(signals.UNITS_DESELECTED, deselectedUnits);
 
         state.gameData.selectedUnits = ids;
+
+        if (deselectedUnits.length > 0)
+          emit(signals.UNITS_DESELECTED, deselectedUnits);
       },
     ],
     [
@@ -32,9 +33,18 @@ export function init(state: State) {
       (id: string) => {
 
         const isSelected = state.gameData.selectedUnits.includes(id);
-        if (isSelected)
-          emit(signals.UNITS_DESELECTED, [id]);
+        if (!isSelected) return;
+
+        emit(signals.UNITS_DESELECTED, [id]);
       },
     ],
+    [
+      signals.UNITS_DESELECTED,
+      (ids: string[]) => {
+        state.gameData.selectedUnits = state.gameData.selectedUnits.filter(
+          (id) => !ids.includes(id)
+        );
+      },
+    ]
   ]);
 }

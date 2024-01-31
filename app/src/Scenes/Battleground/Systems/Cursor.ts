@@ -42,22 +42,16 @@ export function init(scene: BattlegroundScene) {
 			)
 
 		}],
-		[signals.SQUAD_DESTROYED, (squadId: string) => {
-
-			cleanCursor(cursors, eventListeners, scene, squadId)
-
-			cursors[squadId].destroy()
-			delete cursors[squadId]
-			delete eventListeners[squadId]
-
-		}],
 		[signals.UNITS_DESELECTED, (squadIds: string[]) => {
 
 			squadIds.forEach(id => {
-				if (cursors[id])
-					cleanCursor(cursors, eventListeners, scene, id)
-			}
-			)
+				cleanCursor(cursors, eventListeners, scene, id)
+
+				cursors[id].destroy()
+
+				delete cursors[id]
+				delete eventListeners[id]
+			})
 
 		}],
 		[signals.CITIES_SELECTED, (cityIds: string[]) => {
