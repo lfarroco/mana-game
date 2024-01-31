@@ -2,7 +2,7 @@ import * as Easystar from "easystarjs";
 import { Vec2, asVec2, eqVec2 } from "../../../Models/Geometry";
 import { emit, signals, listeners } from "../../../Models/Signals";
 import { getSquad, getState } from "../../../Models/State";
-import { UNIT_STATUS_KEYS, UNIT_STATUS, isAttacking } from "../../../Models/Unit";
+import { UNIT_STATUS_KEYS, UNIT_STATUS, isAttacking, isMoving } from "../../../Models/Unit";
 import { getDirection } from "../../../Models/Direction";
 import BattlegroundScene from "../BattlegroundScene";
 
@@ -63,7 +63,7 @@ export function init(scene: BattlegroundScene) {
         // in case of choosing own cell
         if (path.length === 0) {
           emit(signals.UPDATE_SQUAD, squad.id, { path: [] });
-          if (squad.status.type === UNIT_STATUS_KEYS.MOVING) {
+          if (isMoving(squad.status)) {
             emit(signals.UPDATE_SQUAD, squad.id, { status: UNIT_STATUS.IDLE() });
           }
 
@@ -75,6 +75,7 @@ export function init(scene: BattlegroundScene) {
 
           if (isAttacking(squad.status)) { //TODO: is there an event to exit combat?
             emit(signals.REMOVE_EMOTE, squad.id, "combat-emote")
+            emit(signals.COMBAT_FINISHED, squad.id);
           }
 
           emit(signals.UPDATE_SQUAD, squad.id, {
