@@ -62,6 +62,14 @@ export function init(scene: BattlegroundScene) {
         faceDirection(direction, chara);
       },
     ],
+    [
+      signals.FACE_DIRECTION,
+      (squadId: string, direction: Direction) => {
+        const chara = scene.getChara(squadId);
+
+        faceDirection(direction, chara);
+      },
+    ]
   ]);
 }
 

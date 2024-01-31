@@ -4,6 +4,8 @@ import { signals, listeners } from "../../Models/Signals";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { Chara, EMOTE_SCALE } from "./Chara";
 import { HALF_TILE_HEIGHT } from "../../Scenes/Battleground/constants";
+import { State, getSquad } from "../../Models/State";
+import { isMoving } from "../../Models/Unit";
 
 type SpriteIndex = {
   [id: string]: {
@@ -12,7 +14,7 @@ type SpriteIndex = {
   }
 }
 
-export function init(scene: BattlegroundScene) {
+export function init(state: State, scene: BattlegroundScene) {
 
   let spriteIndex: SpriteIndex = {}
 
@@ -24,25 +26,7 @@ export function init(scene: BattlegroundScene) {
         const chara = scene.getChara(squadId);
         const squad = scene.getSquad(squadId);
         const direction = getDirection(squad.position, next);
-        if (!spriteIndex[squadId]) {
-          createArrow(direction, chara, spriteIndex);
-        }
-
-        const { overlay } = spriteIndex[squadId]
-
-        const percentage = walked / total;
-
-        if (walked === 0) createArrow(direction, chara, spriteIndex);
-
-        if (direction === DIRECTIONS.right) {
-          overlay.setCrop(0, 0, 32 * percentage, 32);
-        } else if (direction === DIRECTIONS.left) {
-          overlay.setCrop(32 * (1 - percentage), 0, 32, 32);
-        } else if (direction === DIRECTIONS.down) {
-          overlay.setCrop(0, 0, 32, 32 * percentage);
-        } else if (direction === DIRECTIONS.up) {
-          overlay.setCrop(0, 32 * (1 - percentage), 32, 32);
-        }
+        updateProgressArrow(spriteIndex, squadId, direction, chara, walked, total);
       },
     ],
     [
@@ -56,8 +40,54 @@ export function init(scene: BattlegroundScene) {
         if (!next) removeSprites(spriteIndex, squadId);
       },
     ],
+    [
+      signals.BATTLEGROUND_STARTED,
+      () => {
+        scene.charas.forEach(chara => {
+
+          const squad = getSquad(state)(chara.id);
+
+          if (!isMoving(squad.status)) return;
+
+          const direction = getDirection(squad.position, squad.path[0]);
+
+          updateProgressArrow(spriteIndex, chara.id, direction, chara, squad.movementIndex, 5)
+
+        });
+
+      }
+    ]
   ]);
 }
+function updateProgressArrow(
+  spriteIndex: SpriteIndex,
+  squadId: string,
+  direction: Direction,
+  chara: Chara,
+  walked: number,
+  total: number,
+) {
+  if (!spriteIndex[squadId]) {
+    createArrow(direction, chara, spriteIndex);
+  }
+
+  const { overlay } = spriteIndex[squadId];
+
+  const percentage = walked / total;
+
+  if (walked === 0) createArrow(direction, chara, spriteIndex);
+
+  if (direction === DIRECTIONS.right) {
+    overlay.setCrop(0, 0, 32 * percentage, 32);
+  } else if (direction === DIRECTIONS.left) {
+    overlay.setCrop(32 * (1 - percentage), 0, 32, 32);
+  } else if (direction === DIRECTIONS.down) {
+    overlay.setCrop(0, 0, 32, 32 * percentage);
+  } else if (direction === DIRECTIONS.up) {
+    overlay.setCrop(0, 32 * (1 - percentage), 32, 32);
+  }
+}
+
 export function createArrow(direction: Direction, chara: Chara, index: SpriteIndex) {
 
   if (index[chara.id])
