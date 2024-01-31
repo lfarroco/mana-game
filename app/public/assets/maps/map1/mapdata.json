@@ -90,28 +90,6 @@
          "objects":[
                 {
                  "height":64,
-                 "id":2,
-                 "name":"player_tavern1",
-                 "properties":[
-                        {
-                         "name":"force",
-                         "type":"string",
-                         "value":"PLAYER"
-                        }, 
-                        {
-                         "name":"type",
-                         "type":"string",
-                         "value":"tavern"
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":64,
-                 "x":192,
-                 "y":128
-                }, 
-                {
-                 "height":64,
                  "id":4,
                  "name":"CPU_town1",
                  "properties":[
@@ -151,8 +129,8 @@
                  "type":"",
                  "visible":true,
                  "width":64,
-                 "x":384,
-                 "y":128
+                 "x":256,
+                 "y":192
                 }, 
                 {
                  "height":64,
@@ -219,6 +197,28 @@
                  "width":64,
                  "x":768,
                  "y":640
+                }, 
+                {
+                 "height":64,
+                 "id":38,
+                 "name":"player_tavern1",
+                 "properties":[
+                        {
+                         "name":"force",
+                         "type":"string",
+                         "value":"PLAYER"
+                        }, 
+                        {
+                         "name":"type",
+                         "type":"string",
+                         "value":"tavern"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":64,
+                 "y":192
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -255,8 +255,8 @@
                  "type":"",
                  "visible":true,
                  "width":64,
-                 "x":256,
-                 "y":192
+                 "x":640,
+                 "y":256
                 }, 
                 {
                  "height":64,
@@ -346,7 +346,7 @@
          "y":0
         }],
  "nextlayerid":10,
- "nextobjectid":38,
+ "nextobjectid":39,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.0",

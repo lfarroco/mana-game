@@ -22,6 +22,7 @@ export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
     (pointer: Phaser.Input.Pointer, x: number, y: number) => {
       const state = getState();
 
+
       if (pointer.upElement.tagName !== "CANVAS") return;
 
       if (!chara.sprite.active) return;
