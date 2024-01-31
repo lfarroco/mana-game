@@ -40,7 +40,7 @@ const processTick = (scene: BattlegroundScene) => {
 
   sequence(checkIdle(scene));
 
-  sequence(updatePath(scene));
+  //sequence(updatePath(scene));
 
   sequence(cleanupEmotes(scene));
 

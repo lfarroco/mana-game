@@ -86,7 +86,16 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 
 			index[key] = graphics
 
-		}]
+		}],
+		[
+			signals.ATTACK_STARTED,
+			(key: string) => {
+
+				if (!scene.layers?.background) return
+
+				cleanup(index)(key);
+			}
+		]
 	])
 
 }

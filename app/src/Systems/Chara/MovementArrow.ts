@@ -56,6 +56,16 @@ export function init(state: State, scene: BattlegroundScene) {
         });
 
       }
+    ],
+    [
+      signals.ATTACK_STARTED,
+      (squadId: string, _targetId: string) => {
+
+        if (!spriteIndex[squadId]) return
+
+        removeSprites(spriteIndex, squadId);
+
+      },
     ]
   ]);
 }
