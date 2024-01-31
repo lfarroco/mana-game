@@ -6,7 +6,7 @@ import { makeMapInteractive } from "./Map/makeMapInteractive";
 import { makeSquadInteractive, makeSquadsInteractive } from "./Map/makeSquadsInteractive";
 import { createCities } from "./Map/createCities";
 import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
-import { UNIT_STATUS_KEYS, Unit } from "../../Models/Unit";
+import { UNIT_STATUS_KEYS, Unit, isAttacking } from "../../Models/Unit";
 import processTick from "./ProcessTick";
 import { Vec2, vec2 } from "../../Models/Geometry";
 import { Chara, createChara } from "../../Systems/Chara/Chara";
@@ -22,7 +22,7 @@ import * as FogOfWarSystem from "./Systems/FogOfWar/FogOfWar";
 import * as CursorSystem from "./Systems/Cursor";
 import * as Pathfinding from "./Systems/Pathfinding";
 import * as AISystem from "../../Systems/AI/AI";
-import * as EmoteSystem from "../../Systems/Chara/Emote";
+import { EmoteSystem_init } from "../../Systems/Chara/Emote";
 import * as StaminaBarSystem from "../../Systems/Chara/StaminaBar";
 import * as CharaFaceDirection from "../../Systems/Chara/FaceDirection";
 import * as MovementArrows from "../../Systems/Chara/MovementArrow";
@@ -34,6 +34,7 @@ import * as CharaSquadMovedIntoCell from "../../Systems/Chara/Events/SQUAD_MOVED
 import { TURN_DURATION } from "../../config";
 import { createFowLayer } from "./Systems/FogOfWar/createFowLayer";
 import { DestinationDisplaySystem_init } from "./Systems/DestinationDisplay";
+import { getDirection } from "../../Models/Direction";
 
 export class BattlegroundScene extends Phaser.Scene {
   graphics: Phaser.GameObjects.Graphics | null = null;
@@ -121,14 +122,14 @@ export class BattlegroundScene extends Phaser.Scene {
     squadDestroyed(this, state);
     VictorySystem.init(state);
     AISystem.init(state);
-    EmoteSystem.init(this);
+    EmoteSystem_init(state, this);
     FogOfWarSystem.init(this, state);
     CityCaptureSystem.init(this);
     CursorSystem.init(this);
     CharaFaceDirection.init(this);
     Pathfinding.init(this);
     StaminaRegen.init(state);
-    MovementArrows.init(this);
+    MovementArrows.init(state, this);
     EntitySelection.init(state);
     CharaMovement.init(state);
     RangedAttackDisplay.init(this, state);
@@ -175,6 +176,9 @@ export class BattlegroundScene extends Phaser.Scene {
 
     ControlsSystem.init(this);
 
+
+    this.createEmotes()
+
     this.startTicks(state);
 
     //@ts-ignore
@@ -183,6 +187,10 @@ export class BattlegroundScene extends Phaser.Scene {
     emit(signals.BATTLEGROUND_STARTED);
     console.log("BattlegroundScene create done");
   };
+
+  createEmotes() {
+
+  }
 
   getChara = (id: string) => {
     const chara = this.charas.find((chara) => chara.id === id);

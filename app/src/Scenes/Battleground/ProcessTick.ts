@@ -59,15 +59,6 @@ function moveStep(scene: BattlegroundScene, state: State) {
 
       const nextTile = scene.getTileAt(next);
 
-      const direction = getDirection(squad.position, next);
-
-      // TODO: move this into a separate system (SQUAD_WALKS_TOWARDS_CELL)
-      const directionOps =
-        squad.movementIndex === 0
-          ? // this will not be necessary if we have a direction check each tick
-            [operations.FACE_DIRECTION(squad.id, direction)]
-          : [];
-
       const [occupant] = state.gameData.squads
         .filter((s) => s.status.type !== UNIT_STATUS_KEYS.DESTROYED)
         .filter((s) => eqVec2(s.position, next));
@@ -80,7 +71,6 @@ function moveStep(scene: BattlegroundScene, state: State) {
             squad.movementIndex,
             TURNS_TO_MOVE
           ),
-          ...directionOps,
         ];
       }
 
@@ -100,7 +90,6 @@ function moveStep(scene: BattlegroundScene, state: State) {
       const [, ...path] = squad.path;
 
       return [
-        ...directionOps,
         operations.SQUAD_WALKS_TOWARDS_CELL(
           squad.id,
           next,
