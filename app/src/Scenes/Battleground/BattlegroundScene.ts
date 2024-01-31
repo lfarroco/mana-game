@@ -210,6 +210,15 @@ export class BattlegroundScene extends Phaser.Scene {
     if (!tile) throw new Error(this.errors.noTileAt(vec));
     return tile;
   };
+  isTileVisible = (vec: Vec2) => {
+    const { fow } = this;
+
+    if (!fow) throw new Error("fow is null");
+
+    const tile = fow.getTileAt(vec.x, vec.y);
+
+    return tile.alpha === 0;
+  }
 
   private startTicks(state: State) {
     this.time.addEvent({
