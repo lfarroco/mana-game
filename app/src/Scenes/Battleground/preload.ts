@@ -44,6 +44,16 @@ export function preload(this: Phaser.Scene) {
 	this.load.image("cursor", "assets/ui/selected_cursor.png");
 	this.load.tilemapTiledJSON("maps/map1", "assets/maps/map1/mapdata.json");
 
+	this.load.audio('theme', [
+		'assets/audio/main_theme.mp3',
+		'assets/audio/main_theme.ogg',
+		//'jshaw_a_dream_of_first_flight',
+	]);
+	this.load.audio("audio/march", [
+		"assets/audio/march.mp3",
+		"assets/audio/march.ogg",
+	]);
+
 	jobs.forEach(job => {
 		this.load.spritesheet(
 			job,
