@@ -59,7 +59,7 @@ export type Signals = {
   CHANGE_DIRECTION: (key: string, vec: Vec2) => void;
   CREATE_EMOTE: (id: string, key: string) => void;
   REMOVE_EMOTE: (squadId: string) => void;
-  FACE_DIRECTION: (squadId: string, direction: Direction) => void;
+  FACE_DIRECTION: (squadId: string, direction: Direction) => void; // TODO: change to vec2
   SQUAD_FINISHED_MOVE_ANIM: (squadId: string, vec: Vec2) => void;
 };
 
