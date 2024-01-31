@@ -6,9 +6,14 @@ export type SavedGame = {
 	savedAt: number;
 }
 export const makeSavedGame = (name: string, state: GameData): SavedGame => {
+	const cleanedState: GameData = {
+		...state,
+		selectedUnits: [],
+		selectedCities: []
+	}
 	return {
 		name,
-		state,
+		state: cleanedState,
 		savedAt: Date.now()
 	}
 }
