@@ -40,6 +40,7 @@ export type Signals = {
   // TODO: have a parent level for the system
   ATTACK_STARTED: (squadId: string, target: string) => any;
   ATTACK: (attacker: string, defender: string) => any;
+  COMBAT_FINISHED: (unitId: string) => any;
   UPDATE_SQUAD: (squadId: string, sqd: Partial<Unit>) => any;
   SQUAD_DESTROYED: (squadId: string) => any;
   FORCE_VICTORY: (force: string) => void;
@@ -95,6 +96,7 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   BATTLEGROUND_TICK: "BATTLEGROUND_TICK",
   ATTACK_STARTED: "ATTACK_STARTED",
   ATTACK: "ATTACK",
+  COMBAT_FINISHED: "COMBAT_FINISHED",
   CHANGE_DIRECTION: "CHANGE_DIRECTION",
   UPDATE_SQUAD: "UPDATE_SQUAD",
   SQUAD_DESTROYED: "SQUAD_DESTROYED",
@@ -221,6 +223,7 @@ export const operations: {
     attacker,
     defender,
   ],
+  COMBAT_FINISHED: (unitId: string) => [signals.COMBAT_FINISHED, unitId],
   UPDATE_SQUAD: (squadId: string, sqd: Partial<Unit>) => [
     signals.UPDATE_SQUAD,
     squadId,
