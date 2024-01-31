@@ -44,20 +44,19 @@ export function init(scene: BattlegroundScene) {
 		}],
 		[signals.SQUAD_DESTROYED, (squadId: string) => {
 
-			const cursor = cursors[squadId]
-			if (!cursor) return
-			cursor.destroy()
-			delete cursors[squadId]
+			cleanCursor(cursors, eventListeners, scene, squadId)
 
-			const listener = eventListeners[squadId];
-			scene.events.off("update", listener)
+			cursors[squadId].destroy()
+			delete cursors[squadId]
 			delete eventListeners[squadId]
 
 		}],
 		[signals.UNITS_DESELECTED, (squadIds: string[]) => {
 
-			squadIds.forEach(id =>
-				cleanCursor(cursors, eventListeners, scene, id)
+			squadIds.forEach(id => {
+				if (cursors[id])
+					cleanCursor(cursors, eventListeners, scene, id)
+			}
 			)
 
 		}],
