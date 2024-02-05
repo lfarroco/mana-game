@@ -9,6 +9,7 @@ export type Chara = {
 	force: string;
 	job: string;
 	sprite: Phaser.GameObjects.Sprite,
+	attackSprite: Phaser.GameObjects.Sprite,
 	emote: Phaser.GameObjects.Sprite | null,
 	group: Phaser.GameObjects.Group | null,
 }
@@ -28,16 +29,30 @@ export function createChara(
 			squad.job
 		).setName("chara-" + squad.id);// TODO: is this being used?
 
+	const attackSprite = scene.add.sprite(
+		squad.position.x * TILE_WIDTH + HALF_TILE_WIDTH,
+		squad.position.y * TILE_HEIGHT + HALF_TILE_HEIGHT,
+		squad.job + "-attack").setAlpha(0)
+
+	const follow = () => {
+		attackSprite.x = sprite.x
+		attackSprite.y = sprite.y
+	}
+
+	scene.events.on("update", follow)
+
+
 	// TODO: move to animation system
 	sprite.play(squad.job + "-walk-down", true);
 
-	const group = scene.add.group([sprite]) // TODO: is this being used?
+	const group = scene.add.group([sprite, attackSprite]) // TODO: is this being used?
 
 	const chara: Chara = {
 		id: squad.id,
 		force: squad.force,
 		job: squad.job,
 		sprite,
+		attackSprite,
 		emote: null,
 		group,
 	}

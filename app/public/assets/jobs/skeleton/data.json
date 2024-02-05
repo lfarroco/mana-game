@@ -1,0 +1,38 @@
+{
+	"bodyTypeName": "male",
+	"url": "https://sanderfrenken.github.io/Universal-LPC-Spritesheet-Character-Generator/#?body=Skeleton_skeleton&head=Skeleton_skeleton&weapon=Dagger_dagger",
+	"spritesheets": "https://sanderfrenken.github.io/Universal-LPC-Spritesheet-Character-Generator/spritesheets/",
+	"version": 1,
+	"datetime": "2/5/2024, 8:33:15 AM",
+	"credits": "Authors: bluecarrot16, Johannes Sj?lund (wulax), Stephen Challener (Redshrike), Johannes Sjölund (wulax), Matthew Krohn (makrohn)\n\n- body/bodies/skeleton/universal/skeleton.png: by bluecarrot16, Johannes Sj?lund (wulax), Stephen Challener (Redshrike). License(s): CC-BY-SA 3.0, GPL 3.0. \n    - https://opengameart.org/content/liberated-pixel-cup-lpc-base-assets-sprites-map-tiles\n    - https://opengameart.org/content/lpc-medieval-fantasy-character-sprites\n    - https://opengameart.org/content/lpc-skeleton\n    - https://opengameart.org/content/lpc-character-bases\n\n- head/heads/skeleton/universal/skeleton.png: by bluecarrot16, Johannes Sj?lund (wulax), Stephen Challener (Redshrike). License(s): OGA-BY 3.0, CC-BY-SA 3.0, GPL 3.0. \n    - https://opengameart.org/content/liberated-pixel-cup-lpc-base-assets-sprites-map-tiles\n    - https://opengameart.org/content/lpc-medieval-fantasy-character-sprites\n    - https://opengameart.org/content/lpc-skeleton\n    - https://opengameart.org/content/lpc-character-bases\n\n- weapon/sword/dagger/dagger.png: by bluecarrot16, Johannes Sjölund (wulax), Matthew Krohn (makrohn). License(s): CC-BY-SA 3.0, GPL 3.0. \n    - https://opengameart.org/content/lpc-medieval-fantasy-character-sprites\n    - https://opengameart.org/content/lpc-extended-weapon-animations\n\n- weapon/sword/dagger/behind/dagger.png: by bluecarrot16, Johannes Sjölund (wulax), Matthew Krohn (makrohn). License(s): CC-BY-SA 3.0, GPL 3.0. \n    - https://opengameart.org/content/lpc-medieval-fantasy-character-sprites\n    - https://opengameart.org/content/lpc-extended-weapon-animations",
+	"layers": [
+		{
+			"fileName": "weapon/sword/dagger/behind/dagger.png",
+			"zPos": 9,
+			"parentName": "weapon",
+			"name": "Dagger",
+			"variant": "dagger"
+		},
+		{
+			"fileName": "body/bodies/skeleton/universal/skeleton.png",
+			"zPos": 10,
+			"parentName": "body",
+			"name": "Skeleton",
+			"variant": "skeleton"
+		},
+		{
+			"fileName": "head/heads/skeleton/universal/skeleton.png",
+			"zPos": 100,
+			"parentName": "head",
+			"name": "Skeleton",
+			"variant": "skeleton"
+		},
+		{
+			"fileName": "weapon/sword/dagger/dagger.png",
+			"zPos": 140,
+			"parentName": "weapon",
+			"name": "Dagger",
+			"variant": "dagger"
+		}
+	]
+}
