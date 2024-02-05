@@ -44,7 +44,7 @@ export function init(state: State, scene: BattlegroundScene) {
 
 			const follow = () => {
 				bg.x = chara.sprite.x - BAR_WIDTH / 2;
-				bg.y = chara.sprite.y + HALF_TILE_HEIGHT - BAR_HEIGHT * 2;
+				bg.y = chara.sprite.y + HALF_TILE_HEIGHT
 				bar.x = bg.x + BORDER_WIDTH;
 				bar.y = bg.y + BORDER_WIDTH
 			};

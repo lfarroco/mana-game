@@ -13,7 +13,20 @@ export function EmoteSystem_init(state: State, scene: BattlegroundScene) {
 	listeners([
 		[signals.CREATE_EMOTE, (id: string, key: string) => {
 
+			const squad = getSquad(state)(id)
 			const chara = scene.getChara(id)
+
+			if (!isAttacking(squad.status) || chara.emote) return;
+			// change sprite
+
+			chara.sprite.setAlpha(0)
+			chara.attackSprite.setAlpha(1)
+
+			const target = getSquad(state)(squad.status.target)
+
+			const direction = getDirection(squad.position, target.position)
+
+			chara.attackSprite.anims.play(`${squad.job}-slash-${direction}`)
 
 			createEmote(chara, key)
 

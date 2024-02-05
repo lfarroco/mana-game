@@ -276,7 +276,7 @@
                         {
                          "name":"job",
                          "type":"string",
-                         "value":"monk"
+                         "value":"soldier"
                         }],
                  "rotation":0,
                  "type":"",
@@ -303,7 +303,7 @@
                         {
                          "name":"job",
                          "type":"string",
-                         "value":"monk"
+                         "value":"soldier"
                         }],
                  "rotation":0,
                  "type":"",
@@ -330,7 +330,7 @@
                         {
                          "name":"job",
                          "type":"string",
-                         "value":"monk"
+                         "value":"soldier"
                         }],
                  "rotation":0,
                  "type":"",

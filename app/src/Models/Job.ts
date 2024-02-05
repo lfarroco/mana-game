@@ -12,6 +12,8 @@ export type Job = {
     accuracy: number;
     agility: number;
   };
+  // TODO:
+  //animations: string[]
 };
 
 export const jobs: Job[] = [
