@@ -18,10 +18,10 @@ const jobs = [
 
 const emotes = [
 	'combat-emote',
-	'arrow-bottom-emote',
+	'arrow-bottom-emote', // TODO: rename to arrow-down to match the DIRECTIONS const
 	'arrow-left-emote',
 	'arrow-right-emote',
-	'arrow-top-emote',
+	'arrow-top-emote',// TODO: rename to arrow-up to match the DIRECTIONS const
 	'exclamation-emote',
 	'question-emote',
 	'sing-emote',
