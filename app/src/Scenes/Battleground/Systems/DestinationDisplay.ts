@@ -141,6 +141,8 @@ function displayPath(
 
 	const path = [squad.position, ...squad.path]
 
+	if (path.length === 1) return { graphics, arrowTip }
+
 	path.forEach(({ x, y }) => {
 
 		const tile = layer.getTileAt(x, y);
@@ -195,8 +197,6 @@ function displayPath(
 	const border = scene.add.graphics();
 	border.lineStyle(2, color, 1);
 	border.strokeRect(tile.pixelX, tile.pixelY, tile.width, tile.height);
-	// flashborder
-
 
 	scene.tweens.add({
 		targets: border,

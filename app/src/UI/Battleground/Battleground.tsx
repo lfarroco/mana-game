@@ -7,6 +7,7 @@ import SelectionHUD from "./SelectionHUD";
 import SaveGame from "../SaveGame/SaveGame";
 import { getState } from "../../Models/State";
 import { FORCE_ID_PLAYER, Force } from "../../Models/Force";
+import { Button, Col, Row } from "react-bootstrap";
 
 const Battleground = () => {
 
@@ -70,32 +71,43 @@ const Battleground = () => {
     <>
       <header>
         <div className="content text-center">
-          <button
-            onClick={emit_(signals.TOGGLE_SAVE_GAME_MODAL, true)}
-            className="button"
-          >
-            Save
-          </button>
-          <button
-            onClick={emit_(signals.TOGGLE_LOAD_GAME_MODAL, true)}
-            className="button"
-          >
-            Load
-          </button>
-          <button
-            className="button"
-            onClick={(e) => {
-              if (isPaused) {
-                emit(signals.RESUME_GAME);
-              } else {
-                emit(signals.PAUSE_GAME);
-              }
-            }}
-          >
-            {isPaused ? "Resume" : "Pause"}
-          </button>
-          <button className="button col-2">Turn: {tick}</button>
-          <button className="button col-2">Gold: {gold}</button>
+          <Row>
+
+            <Col>
+              <Button
+                onClick={emit_(signals.TOGGLE_SAVE_GAME_MODAL, true)}
+                size="sm"
+                style={{ padding: '0 10px' }}
+              >
+                Menu
+              </Button>
+              <Button
+                size="sm"
+                style={{ marginLeft: "10px", padding: '0 10px' }}
+
+                onClick={(e) => {
+                  if (isPaused) {
+                    emit(signals.RESUME_GAME);
+                  } else {
+                    emit(signals.PAUSE_GAME);
+                  }
+                }}
+              >
+                {isPaused ? "Resume" : "Pause"}
+              </Button>
+            </Col>
+
+
+
+            <Col style={{ color: '#fff', fontSize: '10px', paddingTop: 5 }}>
+              <Row>
+
+                <Col>Turn: {tick}</Col>
+                <Col >Gold: 💰  {gold}</Col>
+
+              </Row>
+            </Col>
+          </Row>
         </div>
       </header>
       <div className="content" id="tooltip">
