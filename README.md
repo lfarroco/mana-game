@@ -1,4 +1,7 @@
 
+Mission:
+Build a mix of advance wars and hoi4
+
 The code is separated in three main blocks:
 
 - logic: a collection of systems

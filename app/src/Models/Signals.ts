@@ -34,7 +34,6 @@ export type Signals = {
   UNIT_CREATED: (unitId: string) => void;
   // When a chara is created in the map
   CHARA_CREATED: (charaId: string) => void;
-  TOGGLE_SQUADS_WINDOW: (value: boolean) => void;
   BATTLEGROUND_TICK: (tick: number) => void;
   UPDATE_FORCE: (force: Partial<Force>) => void;
   // TODO: have a parent level for the system
@@ -92,7 +91,6 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   RECRUIT_UNIT: "RECRUIT_UNIT",
   UNIT_CREATED: "UNIT_CREATED",
   CHARA_CREATED: "CHARA_CREATED",
-  TOGGLE_SQUADS_WINDOW: "TOGGLE_SQUADS_WINDOW",
   BATTLEGROUND_TICK: "BATTLEGROUND_TICK",
   ATTACK_STARTED: "ATTACK_STARTED",
   ATTACK: "ATTACK",
@@ -211,10 +209,6 @@ export const operations: {
   RECRUIT_UNIT: (forceId: string, jobId: string, location: Vec2) => [signals.RECRUIT_UNIT, forceId, jobId, location],
   UNIT_CREATED: (unitId: string) => [signals.UNIT_CREATED, unitId],
   CHARA_CREATED: (charaId: string) => [signals.CHARA_CREATED, charaId],
-  TOGGLE_SQUADS_WINDOW: (value: boolean) => [
-    signals.TOGGLE_SQUADS_WINDOW,
-    value,
-  ],
   BATTLEGROUND_STARTED: () => [signals.BATTLEGROUND_STARTED],
   BATTLEGROUND_TICK: (tick: number) => [signals.BATTLEGROUND_TICK, tick],
   ATTACK_STARTED: (squadId: string, target: string) => [signals.ATTACK_STARTED, squadId, target],
