@@ -202,12 +202,10 @@ function displayPath(
 		targets: border,
 		alpha: 0,
 		duration: 100,
-		repeat: 3,
+		repeat: 1,
 		yoyo: true,
 		onComplete: () => border.destroy()
-	})
-
-
+	});
 
 	return { graphics, arrowTip }
 

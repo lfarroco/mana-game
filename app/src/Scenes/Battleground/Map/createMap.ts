@@ -26,5 +26,9 @@ export function createMap(scene: BattlegroundScene) {
 		throw new Error(scene.errors.errorCreatingTilemapLayer("map_features"))
 	}
 
+	scene.add.grid(0, 0, map.widthInPixels, map.heightInPixels, 64, 64)
+		.setOrigin(0, 0)
+		.setOutlineStyle(0x000000).setAlpha(0.2);
+
 	return { map, layers: { background, obstacles, features } };
 }
