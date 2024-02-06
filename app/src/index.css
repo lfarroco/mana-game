@@ -6,11 +6,13 @@ body {
 
 header .content,
 footer .content {
-  background: linear-gradient(90deg,
+  background: #000;
+  /*background: linear-gradient(90deg,
       rgba(0, 0, 0, 0) 0%,
       rgba(0, 0, 0, 0.2) 31%,
       rgba(0, 0, 0, 0.2) 76%,
       rgba(0, 0, 0, 0) 100%);
+      */
 }
 
 canvas {
@@ -32,7 +34,7 @@ canvas {
 }
 
 button {
-  background-image: url('../public/assets/ui/button.png');
+  /* background-image: url('../public/assets/ui/button.png');
   background-size: 100% 100%;
   background-color: transparent;
   border: none;
@@ -40,4 +42,5 @@ button {
   height: 40px;
   color: #00c2ff;
   text-shadow: #fff 0 0 20px;
+  */
 }
