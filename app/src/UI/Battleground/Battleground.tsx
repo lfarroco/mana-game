@@ -1,5 +1,4 @@
 import "./styles.css";
-import SquadsWindow from "./SquadsWindow/SquadsWindow";
 import { useEffect, useState } from "react";
 import { listeners, signals, emit, emit_ } from "../../Models/Signals";
 import DispatchSquadModal from "./RecruitUnitModal/RecruitUnitModal";
@@ -72,12 +71,6 @@ const Battleground = () => {
       <header>
         <div className="content text-center">
           <button
-            onClick={emit_(signals.TOGGLE_SQUADS_WINDOW, true)}
-            className="button"
-          >
-            Units
-          </button>
-          <button
             onClick={emit_(signals.TOGGLE_SAVE_GAME_MODAL, true)}
             className="button"
           >
@@ -117,8 +110,6 @@ const Battleground = () => {
           <SelectionHUD isSelectingMoveTarget={isSelectingMoveTarget} />
         </div>
       </footer>
-
-      <SquadsWindow />
 
       <DispatchSquadModal />
 
