@@ -1,13 +1,20 @@
-import { Vec2 } from "../../../Models/Geometry";
+import { DIRECTIONS, getDirection } from "../../../Models/Direction";
+import { FORCE_ID_PLAYER } from "../../../Models/Force";
+import { Vec2, asVec2 } from "../../../Models/Geometry";
 import { listeners, signals } from "../../../Models/Signals";
 import { State, getSquad } from "../../../Models/State";
 import BattlegroundScene from "../BattlegroundScene";
 
 
+type PathDisplay = {
+	graphics: Phaser.GameObjects.Graphics,
+	arrowTip: Phaser.GameObjects.Image
+}
+
 
 export function DestinationDisplaySystem_init(state: State, scene: BattlegroundScene) {
 
-	let index: { [key: string]: Phaser.GameObjects.Graphics } = {}
+	let index: { [key: string]: PathDisplay } = {}
 
 	listeners([
 		[signals.PATH_FOUND, (key: string, path: Vec2[]) => {
@@ -102,12 +109,13 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 
 }
 
-function cleanup(index: { [key: string]: Phaser.GameObjects.Graphics; }): (key: string) => void {
+function cleanup(index: { [key: string]: PathDisplay }): (key: string) => void {
 	return key => {
 
 		if (!index[key]) return;
 
-		index[key].destroy();
+		index[key].graphics.destroy();
+		index[key].arrowTip.destroy();
 
 		delete index[key];
 	};
@@ -123,9 +131,13 @@ function displayPath(
 
 	const squad = getSquad(state)(squadId)
 
+	const color = squad.force === FORCE_ID_PLAYER ? 0x0000ff : 0xff0000;
+
 	const graphics = scene.add.graphics();
+	const arrowTip = scene.add.image(0, 0, "arrow-left-emote").setTint(color).setScale(0.5)
 
 	let points = [] as Phaser.Math.Vector2[]
+
 
 	const path = [squad.position, ...squad.path]
 
@@ -142,25 +154,61 @@ function displayPath(
 
 	curve.draw(graphics);
 
-	const pointsOnCurve = curve.getPoints(points.length * 4);
+	const pointsOnCurve = curve.getPoints(points.length * 5);
 
 	graphics.clear();
-	graphics.lineStyle(5, 0xff0000, 3);
+	graphics.lineStyle(5, color, 3);
+	// total animation should last 1 sec
 	const interval = 10;
 	let time = 0;
-	for (let i = 1; i < pointsOnCurve.length; i++) {
+	pointsOnCurve.forEach((current, i) => {
 		scene.time.addEvent({
 			delay: animate ? time : 0,
 			callback: () => {
-				const current = pointsOnCurve[i];
 				const next = pointsOnCurve[i + 1];
-				if (!next) return;
+				if (!next || !graphics.active || !arrowTip.active) return;
 				graphics.lineBetween(current.x, current.y, next.x, next.y)
+
+				const direction = getDirection(asVec2(current), asVec2(next))
+
+				if (direction === DIRECTIONS.up) {
+					arrowTip.setTexture("arrow-top-emote") // TODO: rename emote texture to "up"
+				} else if (direction === DIRECTIONS.down) {
+					arrowTip.setTexture("arrow-bottom-emote")
+				} else if (direction === DIRECTIONS.left) {
+					arrowTip.setTexture("arrow-left-emote")
+				}
+				else if (direction === DIRECTIONS.right) {
+					arrowTip.setTexture("arrow-right-emote")
+				}
+
+				arrowTip.setPosition(next.x, next.y)
 			}
 		});
 		time += interval;
-	}
+	});
 
-	return graphics
+	const last = asVec2(points[points.length - 1])
+	const tile = scene.getTileAtWorldXY(last)
+
+	// create rect over last tile
+	const border = scene.add.graphics();
+	border.lineStyle(2, color, 1);
+	border.strokeRect(tile.pixelX, tile.pixelY, tile.width, tile.height);
+	// flashborder
+
+
+	scene.tweens.add({
+		targets: border,
+		alpha: 0,
+		duration: 100,
+		repeat: 3,
+		yoyo: true,
+		onComplete: () => border.destroy()
+	})
+
+
+
+	return { graphics, arrowTip }
 
 }

@@ -59,6 +59,19 @@ export default function Title() {
           Credits
         </button>
 
+        <div className="social-links">
+
+          <a href="https://www.facebook.com/Mana-Battle-104680298548768" target="_blank" rel="noreferrer">
+            <img src="assets/facebook.png" alt="Facebook" />
+          </a>
+          <a href="https://www.instagram.com/mana_battle/" target="_blank" rel="noreferrer">
+            <img src="assets/instagram.png" alt="Instagram" />
+          </a>
+          <a href="https://twitter.com/manabattle_en" target="_blank" rel="noreferrer">
+            <img src="assets/twitter.png" alt="Twitter" />
+          </a>
+
+        </div>
 
       </div>
     </div >
