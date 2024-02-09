@@ -2,6 +2,7 @@ import { emit, signals } from "../../Models/Signals";
 import { Unit } from "../../Models/Unit";
 import { getCity, getState } from "../../Models/State";
 import { Row } from "react-bootstrap";
+import { hpColor, hpColorRgba } from "../../Utils/hpColor";
 
 export default function MultipleSelection({
   units,
@@ -70,19 +71,11 @@ const HpBar = ({ hp, maxHp }: { hp: number, maxHp: number }) => {
       <div style={{
         width: `${(hp / maxHp) * 100}%`,
         height: "100%",
-        backgroundColor: hpBarColor(hp, maxHp),
+        backgroundColor: hpColorRgba(hp, maxHp),
         position: "absolute",
         borderRadius: 2
       }}></div>
     </div>
   )
 }
-// goes from green (100) to yellow (50) to red (0), in a gradient
-const hpBarColor = (hp: number, maxHp: number) => {
-  const ratio = hp / maxHp;
-  if (ratio > 0.5) {
-    return `rgb(${255 - ratio * 510}, 255, 0)`;
-  } else {
-    return `rgb(255, ${ratio * 510}, 0)`;
-  }
-}
+

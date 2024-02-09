@@ -2,6 +2,7 @@ import { listeners, signals } from "../../Models/Signals"
 import { State, getSquad } from "../../Models/State"
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene"
 import { HALF_TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
+import { hpColor } from "../../Utils/hpColor";
 
 export const CHARA_SCALE = 1;
 export const EMOTE_SCALE = 1;
@@ -34,7 +35,8 @@ export function init(state: State, scene: BattlegroundScene) {
 				BAR_HEIGHT
 			);
 			const bar = scene.add.graphics();
-			bar.fillStyle(0xffff00, 1);
+			const color = hpColor(squad.hp, squad.maxHp)
+			bar.fillStyle(Number(color), 1);
 			bar.fillRect(
 				0,
 				0,
@@ -75,7 +77,8 @@ export function init(state: State, scene: BattlegroundScene) {
 			const { bar } = barIndex[id]
 
 			bar.clear()
-			bar.fillStyle(0xffff00, 1);
+			const color = hpColor(hp, squad.maxHp)
+			bar.fillStyle(Number(color), 1);
 			bar.fillRect(
 				0,
 				0,
