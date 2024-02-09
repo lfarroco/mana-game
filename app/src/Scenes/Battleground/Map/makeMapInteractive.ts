@@ -146,9 +146,7 @@ export function makeMapInteractive(
       const alliedCharas = charas.filter((c) => c.force === FORCE_ID_PLAYER);
       const enemyCharas = charas.filter((c) => c.force !== FORCE_ID_PLAYER);
 
-      if ((enemyCharas.length > 0 || cities.length > 0) && alliedCharas.length > 0) {
-
-        emit(signals.CITIES_SELECTED, []);
+      if (enemyCharas.length > 0 && alliedCharas.length > 0) {
 
         emit(
           signals.UNITS_SELECTED,
@@ -163,10 +161,6 @@ export function makeMapInteractive(
           charas.map((c) => c.id)
         );
 
-        emit(
-          signals.CITIES_SELECTED,
-          cities.map((c) => c.city.id)
-        );
       }
 
       selectionRect.clear();

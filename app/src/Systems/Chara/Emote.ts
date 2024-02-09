@@ -22,7 +22,7 @@ export function EmoteSystem_init(state: State, scene: BattlegroundScene) {
 
 			const chara = scene.getChara(id)
 
-			removeEmote(chara, "_")
+			removeEmote(chara)
 
 		}],
 		[signals.BATTLEGROUND_STARTED, () => {
@@ -44,7 +44,7 @@ export function createEmote(chara: Chara, key: string) {
 
 	if (chara.emote && chara.emote.name === key) return chara;
 
-	removeEmote(chara, key);
+	removeEmote(chara);
 	const emote = chara.sprite.scene.add.sprite(
 		chara.sprite.x,
 		chara.sprite.y,
@@ -67,8 +67,8 @@ export function createEmote(chara: Chara, key: string) {
 	return chara;
 }
 
-export function removeEmote(chara: Chara, key: string) {
-	if (chara.emote && chara.emote.name !== key)
+export function removeEmote(chara: Chara) {
+	if (chara.emote)
 		chara.emote.destroy();
 	return chara;
 }

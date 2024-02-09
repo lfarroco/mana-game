@@ -1,8 +1,8 @@
 import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
-import { getState } from "../../../Models/State";
+import { getSquad, getState } from "../../../Models/State";
 import { signals, emit } from "../../../Models/Signals";
-import { asVec2 } from "../../../Models/Geometry";
+import { asVec2, eqVec2 } from "../../../Models/Geometry";
 import { Chara } from "../../../Systems/Chara/Chara";
 import { pingAt } from "./Ping";
 
@@ -40,7 +40,18 @@ export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
 
       } else {
         emit(signals.UNITS_SELECTED, [chara.id]);
-        emit(signals.CITIES_SELECTED, []);
+        // is city at tile?
+        const squad = getSquad(state)(chara.id);
+        const city = state.gameData.cities.find(
+          (c) => eqVec2(c.boardPosition, squad.position)
+        );
+        if (city) {
+          emit(signals.CITY_SELECTED, city.id);
+        } else if (state.gameData.selectedCity) {
+          emit(signals.CITY_DESELECTED, state.gameData.selectedCity);
+
+        }
+
       }
     }
   );

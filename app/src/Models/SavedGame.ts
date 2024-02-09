@@ -9,7 +9,7 @@ export const makeSavedGame = (name: string, state: GameData): SavedGame => {
 	const cleanedState: GameData = {
 		...state,
 		selectedUnits: [],
-		selectedCities: []
+		selectedCity: null
 	}
 	return {
 		name,

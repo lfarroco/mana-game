@@ -54,28 +54,25 @@ export function init(scene: BattlegroundScene) {
 			})
 
 		}],
-		[signals.CITIES_SELECTED, (cityIds: string[]) => {
+		[signals.CITY_SELECTED, (cityId: string | null) => {
 
-			cityIds.forEach(cityId => {
+			if (!cityId) return
 
-				const city = scene.getCity(cityId)
+			const city = scene.getCity(cityId)
 
-				const cursor = scene.add.image(city.sprite.x, city.sprite.y, 'cursor')
-					.setTint(0x00ff00)
-					.setVisible(true)
+			const cursor = scene.add.image(city.sprite.x, city.sprite.y, 'cursor')
+				.setTint(0x00ff00)
+				.setVisible(true)
 
-				scene.children.moveBelow(cursor, city.sprite)
+			scene.children.moveBelow(cursor, city.sprite)
 
-				cursors[cityId] = cursor
+			cursors[cityId] = cursor
 
-			})
 		}],
-		[signals.CITIES_DESELECTED, (cityIds: string[]) => {
+		[signals.CITY_DESELECTED, (cityId: string) => {
 
-			cityIds.forEach(cityId => {
-				cursors[cityId].destroy()
-				delete cursors[cityId]
-			})
+			cursors[cityId].destroy()
+			delete cursors[cityId]
 
 		}]
 	])
