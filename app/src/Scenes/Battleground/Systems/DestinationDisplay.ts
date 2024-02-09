@@ -131,7 +131,8 @@ function displayPath(
 
 	const squad = getSquad(state)(squadId)
 
-	const color = squad.force === FORCE_ID_PLAYER ? 0x0000ff : 0xff0000;
+	// orange
+	const color = 0x000;
 
 	const graphics = scene.add.graphics();
 	const arrowTip = scene.add.image(0, 0, "arrow-left-emote").setTint(color).setScale(0.5)
@@ -141,7 +142,7 @@ function displayPath(
 
 	const path = [squad.position, ...squad.path]
 
-	if (path.length === 1) return { graphics, arrowTip }
+	if (path.length < 2) return { graphics, arrowTip }
 
 	path.forEach(({ x, y }) => {
 
@@ -150,6 +151,13 @@ function displayPath(
 		points.push(new Phaser.Math.Vector2(tile.pixelX + tile.width / 2, tile.pixelY + tile.height / 2))
 
 	})
+
+	// replace the two first points with the point between them (eg: [ (1,1), (3,3) ] -> [(2,2)]
+	const newPoint = new Phaser.Math.Vector2(points[0].x + (points[1].x - points[0].x) / 2, points[0].y + (points[1].y - points[0].y) / 2)
+
+	// replace points 0 and 1 with the new point
+
+	points = [newPoint, ...points.slice(1)]
 
 
 	let curve = new Phaser.Curves.Spline(points);
