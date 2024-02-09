@@ -22,7 +22,7 @@ export function EmoteSystem_init(state: State, scene: BattlegroundScene) {
 
 			const chara = scene.getChara(id)
 
-			removeEmote(chara)
+			removeEmote(chara, "_")
 
 		}],
 		[signals.BATTLEGROUND_STARTED, () => {
@@ -41,17 +41,21 @@ export function EmoteSystem_init(state: State, scene: BattlegroundScene) {
 
 // todo: decouple emote from overlay
 export function createEmote(chara: Chara, key: string) {
-	removeEmote(chara);
+
+	if (chara.emote && chara.emote.name === key) return chara;
+
+	removeEmote(chara, key);
 	const emote = chara.sprite.scene.add.sprite(
 		chara.sprite.x,
-		chara.sprite.y - HALF_TILE_HEIGHT,
+		chara.sprite.y,
 		key).setScale(EMOTE_SCALE);
+	emote.setName(key)
 	emote.anims.play(key);
 	chara.emote = emote;
 
 	const follow = () => {
 		emote.x = chara.sprite.x;
-		emote.y = chara.sprite.y - HALF_TILE_HEIGHT;
+		emote.y = chara.sprite.y - HALF_TILE_HEIGHT / 2;
 	}
 	chara.sprite.scene.events.on("update", follow);
 	chara.sprite.once("destroy", () => {
@@ -63,8 +67,8 @@ export function createEmote(chara: Chara, key: string) {
 	return chara;
 }
 
-export function removeEmote(chara: Chara) {
-	if (chara.emote)
+export function removeEmote(chara: Chara, key: string) {
+	if (chara.emote && chara.emote.name !== key)
 		chara.emote.destroy();
 	return chara;
 }

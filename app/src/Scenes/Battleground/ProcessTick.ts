@@ -170,7 +170,8 @@ function checkCombat(state: State) {
         return resume();
       }
 
-      const damage = 10;
+
+      const damage = job.attackPower + job.dices * 3;
       emit(signals.ATTACK, squad.id, enemy.id);
       const newStamina = enemy.hp - damage < 0 ? 0 : enemy.hp - damage;
       emit(signals.UPDATE_SQUAD, enemy.id, { hp: newStamina });
