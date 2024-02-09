@@ -3,6 +3,7 @@ import { Unit } from "../../Models/Unit";
 import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 import "./portrait.css"
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
+import { FORCE_ID_CPU } from "../../Models/Force";
 
 export type Chara = {
 	id: string;
@@ -30,6 +31,10 @@ export function createChara(
 
 	// TODO: move to animation system
 	sprite.play(squad.job + "-walk-down", true);
+
+	// TODO: use force color, or specific sprites
+	if (squad.force === FORCE_ID_CPU)
+		sprite.setTint(0xff9999)
 
 	const group = scene.add.group([sprite]) // TODO: is this being used?
 

@@ -9,7 +9,6 @@ const jobs = [
 	'goblin-tribesman',
 	'knight',
 	'rogue',
-	'skeleton',
 	'soldier',
 	'witch',
 	'wizard',

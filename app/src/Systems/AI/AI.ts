@@ -40,7 +40,7 @@ function recruit(state: State) {
     emit(
       signals.RECRUIT_UNIT,
       FORCE_ID_CPU,
-      "skeleton",
+      "soldier",
       tavern.boardPosition
     );
 

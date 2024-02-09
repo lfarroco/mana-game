@@ -1,7 +1,7 @@
 import Modal from 'react-bootstrap/Modal';
 import { State, getCity, getState } from '../../../Models/State';
 import { useEffect, useState } from 'react';
-import { ListGroup } from 'react-bootstrap';
+import { Button, ListGroup } from 'react-bootstrap';
 import { emit, emit_, signals, listeners } from '../../../Models/Signals';
 import { Job, jobs } from '../../../Models/Job';
 
@@ -38,6 +38,7 @@ function DispatchSquadModal() {
 		onHide={() => { setIsVisible(false) }}
 		size={"xl"}
 		id="squads-window"
+		data-bs-theme="dark"
 	>
 		<Modal.Header closeButton>
 			<Modal.Title>Recruit Unit</Modal.Title>
@@ -76,18 +77,21 @@ function DispatchSquadModal() {
 			}
 		</Modal.Body>
 		<Modal.Footer>
-			<button
+			<Button
+				variant="secondary"
 				className="button"
 				onClick={emit_(signals.TOGGLE_DISPATCH_MODAL, false)}
 			>
 				Close
-			</button>
-			<button
+			</Button>
+			<Button
+
+				variant="dark"
 				className="button"
 				onClick={recruit(state, selectedJob)}
 			>
 				Recruit
-			</button>
+			</Button>
 		</Modal.Footer>
 	</Modal>
 }
