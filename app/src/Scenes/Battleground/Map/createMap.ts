@@ -30,5 +30,30 @@ export function createMap(scene: BattlegroundScene) {
 		.setOrigin(0, 0)
 		.setOutlineStyle(0x000000).setAlpha(0.2);
 
+	// create outline over tile being hovered
+	const hoverOutline = scene.add.graphics();
+	// orange
+	const color = 0xffa500;
+	hoverOutline.lineStyle(2, color, 1);
+	hoverOutline.strokeRect(0, 0, 64, 64);
+	hoverOutline.visible = false;
+
+	// have outline follow cursor
+	scene.input.on("pointermove", (pointer: Phaser.Input.Pointer) => {
+		const tile = background.getTileAtWorldXY(
+			pointer.x + scene.cameras.main.scrollX,
+			pointer.y + scene.cameras.main.scrollY
+		);
+		if (tile) {
+			hoverOutline.x = tile.pixelX;
+			hoverOutline.y = tile.pixelY;
+			hoverOutline.visible = true;
+		} else {
+			hoverOutline.visible = false;
+		}
+	});
+
+
+
 	return { map, layers: { background, obstacles, features } };
 }

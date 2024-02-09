@@ -75,6 +75,7 @@ const Battleground = () => {
 
             <Col>
               <Button
+                variant="dark"
                 onClick={emit_(signals.TOGGLE_SAVE_GAME_MODAL, true)}
                 size="sm"
                 style={{ padding: '0 10px' }}
@@ -82,6 +83,7 @@ const Battleground = () => {
                 Menu
               </Button>
               <Button
+                variant="dark"
                 size="sm"
                 style={{ marginLeft: "10px", padding: '0 10px' }}
 
@@ -119,9 +121,10 @@ const Battleground = () => {
       </div>
       <footer className="block">
         <div className="content">
-          <SelectionHUD isSelectingMoveTarget={isSelectingMoveTarget} />
         </div>
       </footer>
+
+      <SelectionHUD isSelectingMoveTarget={isSelectingMoveTarget} />
 
       <DispatchSquadModal />
 

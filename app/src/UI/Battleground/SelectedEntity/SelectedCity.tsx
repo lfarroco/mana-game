@@ -1,31 +1,46 @@
-import { Button } from "react-bootstrap"
+import { Button, Row } from "react-bootstrap"
 import { City } from "../../../Models/City"
 import { emit_, signals } from "../../../Models/Signals"
 import "./styles.css"
 import { FORCE_ID_PLAYER } from "../../../Models/Force"
 const SelectedCity = ({ city }: { city: City }) => {
 
-	return <div className="row" id="selected-entity">
-		<div className="col col-2">
-			<img
-				className="portrait img-fluid"
-				src={`assets/cities/${city.type}.png`} alt={city.name} />
-		</div>
-		<div className="col col-4">
+	return <div id="selected-entity"
 
-			<h3>{city.name}</h3>
-			<p>{city.type}</p>
+		style={{
+			position: 'fixed',
+			bottom: 0,
+			left: 0,
+			backgroundColor: "rgba(0,0,0,0.5)",
+			padding: "5px",
+			width: "300px",
+			fontSize: 10,
+		}}>
+		<Row>
 
-		</div>
+			<div className="col col-4">
+				<img
+					className="portrait img-fluid"
+					src={`assets/cities/${city.type}.png`} alt={city.name} />
+			</div>
+			<div className="col col-4">
 
-		<div className="col col-4 pt-3">
-			{city.type === "tavern" && city.force === FORCE_ID_PLAYER &&
-				<button
-					className="button"
-					onClick={emit_(signals.TOGGLE_DISPATCH_MODAL, true)}
-				>Recruit</button>
-			}
-		</div>
+				<div>{city.name}</div>
+				<div>{city.type}</div>
+
+			</div>
+
+			<div className="col col-4 pt-3">
+				{city.type === "tavern" && city.force === FORCE_ID_PLAYER &&
+					<Button
+						variant="dark"
+						className="button"
+						onClick={emit_(signals.TOGGLE_DISPATCH_MODAL, true)}
+					>Recruit</Button>
+				}
+			</div>
+
+		</Row>
 
 	</div>
 
