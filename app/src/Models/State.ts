@@ -18,7 +18,7 @@ export const initialState = (): State => ({
     tick: 0,
     forces: [],
     selectedUnits: [],
-    selectedCities: [],
+    selectedCity: null,
     squads: [],
     cities: [],
     map: {
@@ -56,7 +56,7 @@ export type GameData = {
   squads: Unit[];
   // TODO: use a set for this
   selectedUnits: string[]; // TODO: remove from state, this is a UI thing. Idea: make a UI state
-  selectedCities: string[]; // TODO: remove from state, this is a UI thing
+  selectedCity: string | null;
   grid: number[][];
   cities: City[];
   map: {

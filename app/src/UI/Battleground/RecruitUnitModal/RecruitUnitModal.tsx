@@ -7,7 +7,7 @@ import { Job, jobs } from '../../../Models/Job';
 
 const recruit = (state: State, job: Job) => () => {
 
-	const [cityId] = state.gameData.selectedCities
+	const cityId = state.gameData.selectedCity
 
 	if (!cityId) throw new Error("No city selected")
 

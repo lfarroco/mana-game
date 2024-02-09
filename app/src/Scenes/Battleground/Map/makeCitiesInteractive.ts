@@ -36,9 +36,12 @@ export function makeCitiesInteractive(
           pingAt(scene, city.sprite.x, city.sprite.y);
 
         } else {
-          emit(signals.CITIES_SELECTED, [city.city.id]);
+          emit(signals.CITY_SELECTED, city.city.id);
 
-          emit(signals.UNITS_SELECTED, []);
+          if (state.gameData.selectedUnits.length > 1) {
+            emit(signals.UNITS_SELECTED, []);
+          }
+
         }
       }
     );

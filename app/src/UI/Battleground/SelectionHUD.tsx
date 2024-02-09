@@ -12,7 +12,7 @@ export default function SelectionHUD({
 }) {
   const [selectedSquads, setSelectedSquads] = useState<string[]>([]);
 
-  const [selectedCities, setSelectedCities] = useState<string[]>([]);
+  const [selectedCity, setSelectedCity] = useState<string | null>(null);
 
   const state = getState();
 
@@ -25,9 +25,9 @@ export default function SelectionHUD({
         },
       ],
       [
-        signals.CITIES_SELECTED,
-        (ids: string[]) => {
-          setSelectedCities(ids);
+        signals.CITY_SELECTED,
+        (id: string) => {
+          setSelectedCity(id);
         },
       ],
       [
@@ -35,24 +35,23 @@ export default function SelectionHUD({
         (ids: string[]) => {
           setSelectedSquads((prev) => prev.filter((id) => !ids.includes(id)));
         },
+      ], [
+        signals.CITY_DESELECTED,
+        (id: string) => {
+          setSelectedCity(null);
+        },
       ]
     ]);
   }, []);
-
-  if (selectedSquads.length + selectedCities.length > 1)
-    return <MultipleSelection units={selectedSquads} cities={selectedCities} />;
-  else if (selectedSquads.length === 1) {
-    const squad = getSquad(state)(selectedSquads[0]);
-    return (
+  return <>
+    {selectedSquads.length > 1 && <MultipleSelection units={selectedSquads} />}
+    {selectedSquads.length === 1 &&
       <SelectedSquad
-        squad={squad}
+        squad={getSquad(state)(selectedSquads[0])}
         isSelectingMoveTarget={isSelectingMoveTarget}
-      />
-    );
-  } else if (selectedCities.length === 1) {
-    const city = getCity(state)(selectedCities[0]);
-    return <SelectedCity city={city} />;
-  }
-
-  return null;
+      />}
+    {selectedCity &&
+      <SelectedCity city={getCity(state)(selectedCity)} />
+    }
+  </>
 }

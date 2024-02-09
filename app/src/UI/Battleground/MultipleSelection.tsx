@@ -1,23 +1,19 @@
 import { emit, signals } from "../../Models/Signals";
 import { Unit } from "../../Models/Unit";
-import { getCity, getState } from "../../Models/State";
+import { getState } from "../../Models/State";
 import { Row } from "react-bootstrap";
-import { hpColor, hpColorRgba } from "../../Utils/hpColor";
+import { hpColorRgba } from "../../Utils/hpColor";
 
 export default function MultipleSelection({
   units,
-  cities,
 }: {
   units: string[];
-  cities: string[];
 }) {
   const state = getState();
 
   const squads = units
     .map((id) => state.gameData.squads.find((squad) => squad.id === id))
     .filter((squad) => !!squad) as Unit[];
-
-  const cities_ = cities.map((id) => getCity(state)(id));
 
   return (
     <div id="selected-entity"
@@ -45,7 +41,6 @@ export default function MultipleSelection({
                 style={{ width: 50, height: 50 }}
                 onClick={() => {
                   emit(signals.UNITS_SELECTED, [squad.id]);
-                  emit(signals.CITIES_SELECTED, []);
                 }}
               /></div>
               <HpBar hp={squad.hp} maxHp={squad.maxHp} />

@@ -17,15 +17,21 @@ export function init(state: State) {
       },
     ],
     [
-      signals.CITIES_SELECTED,
-      (ids: string[]) => {
+      signals.CITY_SELECTED,
+      (id: string) => {
 
-        const deselected = state.gameData.selectedCities.filter(
-          (id) => !ids.includes(id)
-        );
-        state.gameData.selectedCities = ids;
-        if (deselected.length > 0)
-          emit(signals.CITIES_DESELECTED, deselected);
+        const deselected = id && id !== state.gameData.selectedCity ? state.gameData.selectedCity : null;
+
+        if (deselected)
+          emit(signals.CITY_DESELECTED, deselected);
+
+        state.gameData.selectedCity = id;
+      },
+    ],
+    [
+      signals.CITY_DESELECTED,
+      (id: string) => {
+        state.gameData.selectedCity = null;
       },
     ],
     [
