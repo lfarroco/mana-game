@@ -11,10 +11,11 @@ const SelectedCity = ({ city }: { city: City }) => {
 			position: 'fixed',
 			bottom: 0,
 			left: 0,
-			backgroundColor: "rgba(0,0,0,0.5)",
+			backgroundColor: "rgba(0,0,0)",
 			padding: "5px",
 			width: "300px",
 			fontSize: 10,
+			borderTopRightRadius: 5
 		}}>
 		<Row>
 
