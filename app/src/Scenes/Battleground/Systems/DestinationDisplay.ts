@@ -7,8 +7,10 @@ import BattlegroundScene from "../BattlegroundScene";
 
 
 type PathDisplay = {
-	graphics: Phaser.GameObjects.Graphics,
-	arrowTip: Phaser.GameObjects.Image
+	graphics: Phaser.GameObjects.Graphics;
+	arrowTip: Phaser.GameObjects.Image;
+	shadow: Phaser.GameObjects.Graphics;
+	shadowArrowTip: Phaser.GameObjects.Image;
 }
 
 
@@ -116,6 +118,8 @@ function cleanup(index: { [key: string]: PathDisplay }): (key: string) => void {
 
 		index[key].graphics.destroy();
 		index[key].arrowTip.destroy();
+		index[key].shadow.destroy();
+		index[key].shadowArrowTip.destroy();
 
 		delete index[key];
 	};
@@ -135,14 +139,17 @@ function displayPath(
 	const color = 0x000;
 
 	const graphics = scene.add.graphics();
-	const arrowTip = scene.add.image(0, 0, "arrow-left-emote").setTint(color).setScale(0.5)
+	const shadow = scene.add.graphics();
+	const arrowTip = scene.add.image(0, 0, "arrow-left-emote").setTint(0x000).setScale(0.8)
+	const shadowArrowTip = scene.add.image(0, 0, "arrow-left-emote").setTint(0xff0000).setScale(0.8)
 
+	scene.children.moveBelow(arrowTip, shadow)
 	let points = [] as Phaser.Math.Vector2[]
 
 
 	const path = [squad.position, ...squad.path]
 
-	if (path.length < 2) return { graphics, arrowTip }
+	if (path.length < 2) return { graphics, arrowTip, shadow, shadowArrowTip }
 
 	path.forEach(({ x, y }) => {
 
@@ -160,39 +167,51 @@ function displayPath(
 	points = [newPoint, ...points.slice(1)]
 
 
-	let curve = new Phaser.Curves.Spline(points);
-
+	const curve = new Phaser.Curves.Spline(points);
 	curve.draw(graphics);
+
+	curve.draw(shadow);
 
 	const pointsOnCurve = curve.getPoints(points.length * 5);
 
+	shadow.clear();
+	shadow.lineStyle(5, 0xff0000, 3);
+
 	graphics.clear();
 	graphics.lineStyle(5, color, 3);
+
 	// total animation should last 1 sec
-	const interval = 10;
+	const interval = 500 / (points.length * 5);
 	let time = 0;
 	pointsOnCurve.forEach((current, i) => {
 		scene.time.addEvent({
 			delay: animate ? time : 0,
 			callback: () => {
 				const next = pointsOnCurve[i + 1];
-				if (!next || !graphics.active || !arrowTip.active) return;
+				if (!next || !graphics.active) return;
+
+				shadow.lineBetween(current.x + 2, current.y + 2, next.x + 2, next.y + 2);
 				graphics.lineBetween(current.x, current.y, next.x, next.y)
 
 				const direction = getDirection(asVec2(current), asVec2(next))
 
 				if (direction === DIRECTIONS.up) {
 					arrowTip.setTexture("arrow-top-emote") // TODO: rename emote texture to "up"
+					shadowArrowTip.setTexture("arrow-top-emote")
 				} else if (direction === DIRECTIONS.down) {
 					arrowTip.setTexture("arrow-bottom-emote")
+					shadowArrowTip.setTexture("arrow-bottom-emote")
 				} else if (direction === DIRECTIONS.left) {
 					arrowTip.setTexture("arrow-left-emote")
+					shadowArrowTip.setTexture("arrow-left-emote")
 				}
 				else if (direction === DIRECTIONS.right) {
 					arrowTip.setTexture("arrow-right-emote")
+					shadowArrowTip.setTexture("arrow-right-emote")
 				}
 
 				arrowTip.setPosition(next.x, next.y)
+				shadowArrowTip.setPosition(next.x + 2, next.y + 2)
 			}
 		});
 		time += interval;
@@ -215,6 +234,6 @@ function displayPath(
 		onComplete: () => border.destroy()
 	});
 
-	return { graphics, arrowTip }
+	return { graphics, arrowTip, shadow, shadowArrowTip }
 
 }
