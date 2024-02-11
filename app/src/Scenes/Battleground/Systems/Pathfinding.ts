@@ -2,7 +2,7 @@ import * as Easystar from "easystarjs";
 import { Vec2, asVec2, eqVec2 } from "../../../Models/Geometry";
 import { emit, signals, listeners } from "../../../Models/Signals";
 import { getSquad, getState } from "../../../Models/State";
-import { UNIT_STATUS_KEYS, UNIT_STATUS, isAttacking, isMoving } from "../../../Models/Unit";
+import { UNIT_STATUS, isAttacking, isMoving } from "../../../Models/Unit";
 import { getDirection } from "../../../Models/Direction";
 import BattlegroundScene from "../BattlegroundScene";
 
@@ -20,21 +20,19 @@ export function init(scene: BattlegroundScene) {
 
         const squad = getSquad(state)(squadId)
 
-        const otherSquads = state.gameData.squads
-          .filter((s) => s.status.type !== UNIT_STATUS_KEYS.DESTROYED)
-          .filter(
-            (s) => s.force !== squad.force || s.status.type !== UNIT_STATUS_KEYS.MOVING
-          )
-          .filter((s) => s.id !== squad.id)
-          .filter(s => scene.isTileVisible(s.position))
+        // experimenting with avoiding other squads
+        // const otherSquads = state.gameData.squads
+        //   .filter((s) => s.status.type !== UNIT_STATUS_KEYS.DESTROYED)
+        //   .filter(s => scene.isTileVisible(s.position))
+        //   .filter((s) => s.force === squad.force)
+        //   //.filter(s => s.status.type !== UNIT_STATUS_KEYS.MOVING)
+        //   .filter((s) => s.id !== squad.id)
 
-        // make tile with othersquads unwalkable
-
-        otherSquads.forEach((squad) => {
-          //except for target
-          if (eqVec2(squad.position, target)) return;
-          easystar.avoidAdditionalPoint(squad.position.x, squad.position.y);
-        });
+        // otherSquads.forEach((squad) => {
+        //   // //except for target
+        //   // if (eqVec2(squad.position, target)) return;
+        //   // easystar.avoidAdditionalPoint(squad.position.x, squad.position.y);
+        // });
 
         easystar.findPath(source.x, source.y, target.x, target.y, (path) => {
           if (!path) return;
@@ -74,7 +72,7 @@ export function init(scene: BattlegroundScene) {
           emit(signals.FACE_DIRECTION, squad.id, direction);
 
           if (isAttacking(squad.status)) { //TODO: is there an event to exit combat?
-            emit(signals.REMOVE_EMOTE, squad.id, "combat-emote")
+            //emit(signals.REMOVE_EMOTE, squad.id, "combat-emote")
             emit(signals.COMBAT_FINISHED, squad.id);
           }
 

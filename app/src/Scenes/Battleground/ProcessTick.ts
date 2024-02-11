@@ -63,7 +63,16 @@ function moveStep(scene: BattlegroundScene, state: State) {
         .filter((s) => !isDestroyed(s.status))
         .filter((s) => eqVec2(s.position, next));
 
-      if (squad.movementIndex < TURNS_TO_MOVE || occupant) {
+      // if there's an enemy in the next tile, begin attack
+      if (occupant && occupant.force !== squad.force) {
+        return [
+          operations.UPDATE_SQUAD(squad.id, {
+            status: UNIT_STATUS.ATTACKING(occupant.id),
+          }),
+        ];
+      }
+
+      if (squad.movementIndex < TURNS_TO_MOVE) {
         return [
           operations.SQUAD_WALKS_TOWARDS_CELL(
             squad.id,
