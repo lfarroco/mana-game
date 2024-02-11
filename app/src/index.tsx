@@ -7,8 +7,8 @@ const eventEmitter = new events.EventEmitter();
 
 declare global {
   interface Window {
-    state: State;
-    emitter: events.EventEmitter;
+    state: State; // TODO: this is bad
+    emitter: events.EventEmitter; // TOOD: this is bad as well
   }
 }
 
