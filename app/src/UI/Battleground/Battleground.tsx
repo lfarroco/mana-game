@@ -73,7 +73,9 @@ const Battleground = () => {
         <div className="content text-center">
           <Row>
 
-            <Col>
+            <Col
+              xs={2}
+            >
               <Button
                 variant="dark"
                 onClick={emit_(signals.TOGGLE_SAVE_GAME_MODAL, true)}
@@ -82,6 +84,10 @@ const Battleground = () => {
               >
                 Menu
               </Button>
+            </Col>
+            <Col
+              xs={2}
+            >
               <Button
                 variant="dark"
                 size="sm"
@@ -98,8 +104,6 @@ const Battleground = () => {
                 {isPaused ? "Resume" : "Pause"}
               </Button>
             </Col>
-
-
 
             <Col style={{ color: '#fff', fontSize: '10px', paddingTop: 5 }}>
               <Row>
