@@ -5,7 +5,11 @@ import { FORCE_ID_PLAYER } from "../../../Models/Force"
 import { Button, Col, Row } from "react-bootstrap"
 import { getJob } from "../../../Models/Job"
 
-const unitOrdersButtonStyle: any = {
+const BUTTON_STYLE = {
+	width: 48,
+	height: 48,
+	fontSize: 10,
+	padding: 0
 }
 
 const SelectedSquad = ({
@@ -36,11 +40,12 @@ const SelectedSquad = ({
 
 	return <div id="selected-entity"
 		style={{
-			width: 300,
+			width: 360,
 			position: 'fixed',
 			bottom: 0,
 			right: 0,
-			backgroundColor: "#020403",
+			//backgroundColor: "#020403",
+			background: "rgba(2, 4, 3, 0.3)",
 			padding: "5px",
 			borderTopLeftRadius: 5
 		}}
@@ -97,59 +102,32 @@ const SelectedSquad = ({
 				}}
 			>
 				<Row >
-					<Col>
-						{!isSelectingMoveTarget && <>
-							{isPlayerControlled && <><Button
+					{!isSelectingMoveTarget && isPlayerControlled && unitOrders(squad)}
 
-								size="sm"
-								variant="dark"
-								onClick={() => {
-									Signals.emit(Signals.signals.SELECT_SQUAD_MOVE_START, squad.id)
+					{
+						isSelectingMoveTarget && <Button
+							style={BUTTON_STYLE}
+							variant="dark"
+							className="button"
+							onClick={() => {
+								Signals.emit(Signals.signals.SELECT_SQUAD_MOVE_CANCEL, squad.id)
+							}}
+						>
+							<img
+
+								style={{
+									width: 16,
+									height: 16,
+
 								}}
-							>
-								Move
-							</Button>
-								<Button
+								src="assets/ui/icon-cancel.png" alt="Cancel" />
+							<div>
 
-									size="sm"
-									variant="dark"
-									style={unitOrdersButtonStyle}
-									onClick={() => {
-									}}
-								>
-									Attack
-								</Button>
-								<Button
-
-									size="sm"
-									variant="dark"
-									onClick={() => {
-									}}
-									style={unitOrdersButtonStyle}
-								>
-									Defend
-								</Button>
-
-							</>
-							}
-						</>
-						}
-
-
-						{
-							isSelectingMoveTarget && <Button
-								variant="dark"
-								className="button"
-								size="sm"
-								onClick={() => {
-									Signals.emit(Signals.signals.SELECT_SQUAD_MOVE_CANCEL, squad.id)
-								}}
-							>
 								Cancel
-							</Button>
-						}
+							</div>
+						</Button>
+					}
 
-					</Col>
 
 				</Row>
 			</div>
@@ -161,3 +139,54 @@ const SelectedSquad = ({
 }
 
 export default SelectedSquad
+
+
+function unitOrders(squad: Unit) {
+	return <>
+		<Col xs={6}
+
+			className="gx-0"
+		>
+			<Button
+				style={BUTTON_STYLE}
+				variant="dark"
+				onClick={() => {
+					Signals.emit(Signals.signals.SELECT_SQUAD_MOVE_START, squad.id)
+				}}
+			>
+				<img src="assets/ui/icon-move.png" alt="Move"
+					style={{
+						width: 16,
+						height: 16,
+					}} />
+				<div>
+
+					Move
+				</div>
+			</Button>
+		</Col >
+		<Col xs={6}
+			className="gx-0"
+		>
+			<Button
+
+				style={BUTTON_STYLE}
+				variant="dark"
+				onClick={() => {
+				}}
+			>
+				<img src="assets/ui/icon-attack.png" alt="Attack"
+					style={{
+						width: 16,
+						height: 16,
+					}} />
+				<div>
+
+					Attack
+				</div>
+			</Button>
+
+		</Col>
+	</>
+}
+

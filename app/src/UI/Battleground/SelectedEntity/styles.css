@@ -4,7 +4,7 @@
 	height: 110px;
 }
 
-#selected-entity img {
+#selected-entity img.portrait {
 	margin-right: 6px;
 	border-width: 1px;
 	border-style: solid;
