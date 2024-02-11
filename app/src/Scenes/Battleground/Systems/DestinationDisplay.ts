@@ -180,8 +180,7 @@ function displayPath(
 	graphics.clear();
 	graphics.lineStyle(5, color, 3);
 
-	// total animation should last 1 sec
-	const interval = 500 / (points.length * 5);
+	const interval = 250 / (points.length * 5);
 	let time = 0;
 	pointsOnCurve.forEach((current, i) => {
 		scene.time.addEvent({
