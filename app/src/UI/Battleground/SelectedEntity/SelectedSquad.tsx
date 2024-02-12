@@ -9,7 +9,10 @@ const BUTTON_STYLE = {
 	width: 48,
 	height: 48,
 	fontSize: 10,
-	padding: 0
+	padding: 0,
+	margin: 0,
+	borderRadius: 0,
+	border: 'none'
 }
 
 const SelectedSquad = ({
@@ -38,7 +41,12 @@ const SelectedSquad = ({
 
 	const job = getJob(squad.job)
 
+	const actionsGrid = !isSelectingMoveTarget && isPlayerControlled ? UnitActions(squad)
+		: isSelectingMoveTarget ? selectTargetActions(squad)
+			: <ButtonGrid actions={[]} />
+
 	return <div id="selected-entity"
+		className="container"
 		style={{
 			width: 360,
 			position: 'fixed',
@@ -55,7 +63,7 @@ const SelectedSquad = ({
 		<Row>
 
 
-			<div className="col col-4 mt-2"
+			<div className="col col-3 mt-2"
 				style={{
 					borderRight: "1px solid white",
 					textAlign: "center",
@@ -83,7 +91,7 @@ const SelectedSquad = ({
 				</div>
 
 			</div>
-			<div className="col-4 align-self-center"
+			<div className="col-3 align-self-center"
 
 				style={{ fontSize: 10 }}
 			>
@@ -93,43 +101,14 @@ const SelectedSquad = ({
 				<div> <span className="attr">Range:</span> {job.attackType} </div>
 
 			</div>
-			<div className="col col-4"
+			<div className="col col-6"
 
 				style={{
 					borderLeft: "1px solid white",
-					paddingLeft: "20px",
-					paddingTop: "10px"
+					padding: "5px 0 0 5px",
 				}}
 			>
-				<Row >
-					{!isSelectingMoveTarget && isPlayerControlled && unitOrders(squad)}
-
-					{
-						isSelectingMoveTarget && <Button
-							style={BUTTON_STYLE}
-							variant="dark"
-							className="button"
-							onClick={() => {
-								Signals.emit(Signals.signals.SELECT_SQUAD_MOVE_CANCEL, squad.id)
-							}}
-						>
-							<img
-
-								style={{
-									width: 16,
-									height: 16,
-
-								}}
-								src="assets/ui/icon-cancel.png" alt="Cancel" />
-							<div>
-
-								Cancel
-							</div>
-						</Button>
-					}
-
-
-				</Row>
+				{actionsGrid}
 			</div>
 
 		</Row>
@@ -141,52 +120,74 @@ const SelectedSquad = ({
 export default SelectedSquad
 
 
-function unitOrders(squad: Unit) {
-	return <>
-		<Col xs={6}
-
-			className="gx-0"
-		>
-			<Button
-				style={BUTTON_STYLE}
-				variant="dark"
-				onClick={() => {
-					Signals.emit(Signals.signals.SELECT_SQUAD_MOVE_START, squad.id)
-				}}
-			>
-				<img src="assets/ui/icon-move.png" alt="Move"
-					style={{
-						width: 16,
-						height: 16,
-					}} />
-				<div>
-
-					Move
-				</div>
-			</Button>
-		</Col >
-		<Col xs={6}
-			className="gx-0"
-		>
-			<Button
-
-				style={BUTTON_STYLE}
-				variant="dark"
-				onClick={() => {
-				}}
-			>
-				<img src="assets/ui/icon-attack.png" alt="Attack"
-					style={{
-						width: 16,
-						height: 16,
-					}} />
-				<div>
-
-					Attack
-				</div>
-			</Button>
-
-		</Col>
-	</>
+function selectTargetActions(squad: Unit) {
+	return <ButtonGrid actions={[
+		{
+			label: "Cancel",
+			icon: "icon-cancel",
+			onClick: () => {
+				Signals.emit(Signals.signals.SELECT_SQUAD_MOVE_CANCEL, squad.id)
+			}
+		}
+	]}
+	/>
 }
 
+function UnitActions(squad: Unit) {
+
+	return <ButtonGrid
+		actions={[
+			{
+				icon: "icon-move",
+				label: "Move",
+				onClick: () => {
+					Signals.emit(Signals.signals.SELECT_SQUAD_MOVE_START, squad.id)
+				}
+			},
+			{
+				icon: "icon-attack",
+				label: "Attack",
+				onClick: () => {
+					console.log("Attack")
+				}
+			},
+
+		]} />
+}
+
+
+function ButtonGrid(props: { actions: { icon: string, label: string, onClick: () => void }[] }) {
+
+	const { actions } = props
+
+	const maybeButton = (index: number) => {
+		const action = actions[index]
+		if (action) {
+			return <Button
+				style={BUTTON_STYLE}
+				variant="dark"
+				onClick={action.onClick}
+			>
+				<img src={`assets/ui/${action.icon}.png`} alt="Move"
+					style={{
+						width: 16,
+						height: 16,
+					}} />
+				<div>
+					{action.label}
+				</div>
+			</Button>
+		} else {
+			return null
+		}
+	}
+	const indices = Array.from({ length: 6 }, (v, k) => k)
+	return <> {
+		indices.map(index => {
+			return <div className="grid-cell">
+				{maybeButton(index)}
+			</div>
+		})
+	} </>
+
+}
