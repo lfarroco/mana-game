@@ -1,7 +1,7 @@
 #selected-entity {
 	color: #fff;
 	text-shadow: 0px 0px 4px #000;
-	height: 110px;
+	height: 120px;
 }
 
 #selected-entity img.portrait {
@@ -10,5 +10,12 @@
 	border-style: solid;
 	border-radius: 10%;
 	border-color: #fff;
-	height: 80px;
+}
+
+.grid-cell {
+	border: #979797 outset 2px;
+	float: left;
+	margin: 1px;
+	width: 52px;
+	height: 52px;
 }
