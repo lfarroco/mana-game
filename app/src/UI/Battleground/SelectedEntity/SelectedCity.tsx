@@ -11,7 +11,7 @@ const SelectedCity = ({ city }: { city: City }) => {
 			position: 'fixed',
 			bottom: 0,
 			left: 0,
-			backgroundColor: "rgba(0,0,0)",
+			backgroundColor: "rgba(2, 4, 3, 0.3)",
 			padding: "5px",
 			width: "300px",
 			fontSize: 10,
