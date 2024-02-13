@@ -18,9 +18,11 @@ const BUTTON_STYLE = {
 
 const SelectedSquad = ({
 	squad,
-	isSelectingMoveTarget
+	isSelectingMoveTarget,
+	isSelectingAttackTarget
 }: {
 	squad: Unit,
+	isSelectingAttackTarget: boolean,
 	isSelectingMoveTarget: boolean
 }) => {
 
@@ -42,9 +44,10 @@ const SelectedSquad = ({
 
 	const job = getJob(squad.job)
 
-	const actionsGrid = !isSelectingMoveTarget && isPlayerControlled ? UnitActions(squad)
-		: isSelectingMoveTarget ? selectTargetActions(squad)
-			: <ButtonGrid actions={[]} />
+	const actionsGrid = !isPlayerControlled ? <ButtonGrid actions={[]} />
+		: isSelectingAttackTarget ? selectAttackTargetActions(squad)
+			: isSelectingMoveTarget ? selectMoveTargetActions(squad)
+				: UnitActions(squad)
 
 	return <div id="selected-entity"
 		className="container"
@@ -120,8 +123,20 @@ const SelectedSquad = ({
 
 export default SelectedSquad
 
+function selectAttackTargetActions(squad: Unit) {
+	return <ButtonGrid actions={[
+		{
+			label: "Cancel",
+			icon: "icon-cancel",
+			onClick: () => {
+				Signals.emit(Signals.signals.SELECT_ATTACK_TARGET_CANCEL, squad.id)
+			}
+		}
+	]}
+	/>
+}
 
-function selectTargetActions(squad: Unit) {
+function selectMoveTargetActions(squad: Unit) {
 	return <ButtonGrid actions={[
 		{
 			label: "Cancel",
@@ -149,7 +164,8 @@ function UnitActions(squad: Unit) {
 				icon: "icon-attack",
 				label: "Attack",
 				onClick: () => {
-					console.log("Attack")
+
+					Signals.emit(Signals.signals.SELECT_ATTACK_TARGET_START, squad.id)
 				}
 			},
 			{
@@ -173,7 +189,6 @@ function ButtonGrid(props: { actions: { icon: string, label: string, onClick: ()
 		const action = actions[index]
 		if (action) {
 			return <ManaButton
-				key={index}
 				style={BUTTON_STYLE}
 				onClick={action.onClick}
 				icon={action.icon}
@@ -187,7 +202,7 @@ function ButtonGrid(props: { actions: { icon: string, label: string, onClick: ()
 	const indices = Array.from({ length: 6 }, (v, k) => k)
 	return <> {
 		indices.map(index => {
-			return <div className="grid-cell">
+			return <div className="grid-cell" key={index}>
 				{maybeButton(index)}
 			</div>
 		})

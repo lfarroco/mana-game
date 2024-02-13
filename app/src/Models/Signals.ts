@@ -24,6 +24,9 @@ export type Signals = {
   SELECT_SQUAD_MOVE_START: (squadId: string) => void;
   SELECT_SQUAD_MOVE_DONE: (squadIds: string[], target: Vec2) => void;
   SELECT_SQUAD_MOVE_CANCEL: (squadId: string) => void;
+  SELECT_ATTACK_TARGET_START: (squadId: string) => void;
+  SELECT_ATTACK_TARGET_DONE: (squadId: string, targetId: string) => void;
+  SELECT_ATTACK_TARGET_CANCEL: (squadId: string) => void;
   TOGGLE_DISPATCH_MODAL: (value: boolean) => void;
   TOGGLE_OPTIONS_MODAL: (value: boolean) => void;
   TOGGLE_LOAD_GAME_MODAL: (value: boolean) => void;
@@ -112,6 +115,9 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   FACE_DIRECTION: "FACE_DIRECTION",
   SQUAD_FINISHED_MOVE_ANIM: "SQUAD_FINISHED_MOVE_ANIM",
   UNIT_MOVE_STOP: "UNIT_MOVE_STOP",
+  SELECT_ATTACK_TARGET_START: "SELECT_ATTACK_TARGET_START",
+  SELECT_ATTACK_TARGET_DONE: "SELECT_ATTACK_TARGET_DONE",
+  SELECT_ATTACK_TARGET_CANCEL: "SELECT_ATTACK_TARGET_CANCEL",
 };
 
 export const listen = <T extends keyof Signals>(
@@ -278,6 +284,19 @@ export const operations: {
     vec,
   ],
   UNIT_MOVE_STOP: (squadId: string) => [signals.UNIT_MOVE_STOP, squadId],
+  SELECT_ATTACK_TARGET_START: (squadId: string) => [
+    signals.SELECT_ATTACK_TARGET_START,
+    squadId,
+  ],
+  SELECT_ATTACK_TARGET_DONE: (squadId: string, targetId: string) => [
+    signals.SELECT_ATTACK_TARGET_DONE,
+    squadId,
+    targetId,
+  ],
+  SELECT_ATTACK_TARGET_CANCEL: (squadId: string) => [
+    signals.SELECT_ATTACK_TARGET_CANCEL,
+    squadId,
+  ],
 };
 
 //@ts-ignore
