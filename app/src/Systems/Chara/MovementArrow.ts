@@ -66,7 +66,21 @@ export function init(state: State, scene: BattlegroundScene) {
         removeSprites(spriteIndex, squadId);
 
       },
+    ],
+    [
+      signals.PATH_FOUND, (squadId: string, path: Vec2[]) => {
+
+        const [target] = path;
+
+        const chara = scene.getChara(squadId);
+        const squad = scene.getSquad(squadId);
+        const direction = getDirection(squad.position, target);
+        createArrow(direction, chara, spriteIndex);
+
+
+      }
     ]
+
   ]);
 }
 function updateProgressArrow(
