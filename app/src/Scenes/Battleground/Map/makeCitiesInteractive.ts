@@ -2,9 +2,10 @@ import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { asVec2, eqVec2 } from "../../../Models/Geometry";
 import { emit, signals } from "../../../Models/Signals";
-import { getState } from "../../../Models/State";
+import { getSquad, getState } from "../../../Models/State";
 import { pingAt } from "./Ping";
 import { City } from "../../../Models/City";
+import { FORCE_ID_CPU } from "../../../Models/Force";
 
 export function makeCitiesInteractive(
   scene: BattlegroundScene,
@@ -29,7 +30,17 @@ export function makeCitiesInteractive(
         ) {
           const tile = scene.getTileAtWorldXY(asVec2(city.sprite));
 
-          state.gameData.selectedUnits.forEach((unit) => {
+          const hasEnemy = state.gameData.selectedUnits.some((id) => getSquad(state)(id).force === FORCE_ID_CPU);
+
+          if (hasEnemy) return
+
+          state.gameData.selectedUnits.filter(unitId => {
+
+            const unit = getSquad(state)(unitId);
+
+            return !eqVec2(unit.position, asVec2(city.city.boardPosition))
+
+          }).forEach((unit) => {
             emit(signals.SELECT_SQUAD_MOVE_DONE, unit, asVec2(tile));
           });
 
