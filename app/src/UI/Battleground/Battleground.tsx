@@ -8,6 +8,7 @@ import SaveGame from "../SaveGame/SaveGame";
 import { getState } from "../../Models/State";
 import { FORCE_ID_PLAYER, Force } from "../../Models/Force";
 import { Button, Col, Row } from "react-bootstrap";
+import ManaButton from "../Components/Button";
 
 const Battleground = () => {
 
@@ -76,33 +77,28 @@ const Battleground = () => {
             <Col
               xs={2}
             >
-              <Button
-                variant="dark"
+              <ManaButton
                 onClick={emit_(signals.TOGGLE_SAVE_GAME_MODAL, true)}
-                size="sm"
+                css="btn-sm"
                 style={{ padding: '0 10px' }}
-              >
-                Menu
-              </Button>
+                label="Menu"
+              />
             </Col>
             <Col
               xs={2}
             >
-              <Button
-                variant="dark"
-                size="sm"
+              <ManaButton
+                css="sm"
                 style={{ marginLeft: "10px", padding: '0 10px' }}
-
-                onClick={(e) => {
+                onClick={() => {
                   if (isPaused) {
                     emit(signals.RESUME_GAME);
                   } else {
                     emit(signals.PAUSE_GAME);
                   }
                 }}
-              >
-                {isPaused ? "Resume" : "Pause"}
-              </Button>
+                label={isPaused ? "Resume" : "Pause"}
+              />
             </Col>
 
             <Col style={{ color: '#fff', fontSize: '10px', paddingTop: 5 }}>

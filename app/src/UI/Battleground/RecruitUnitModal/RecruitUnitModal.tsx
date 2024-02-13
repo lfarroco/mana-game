@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Button, ListGroup } from 'react-bootstrap';
 import { emit, emit_, signals, listeners } from '../../../Models/Signals';
 import { Job, jobs } from '../../../Models/Job';
+import ManaButton from '../../Components/Button';
 
 const recruit = (state: State, job: Job) => () => {
 
@@ -77,21 +78,15 @@ function DispatchSquadModal() {
 			}
 		</Modal.Body>
 		<Modal.Footer>
-			<Button
-				variant="secondary"
-				className="button"
+			<ManaButton
+				css="btn-secondary"
 				onClick={emit_(signals.TOGGLE_DISPATCH_MODAL, false)}
-			>
-				Close
-			</Button>
-			<Button
-
-				variant="dark"
-				className="button"
+				label="Close"
+			/>
+			<ManaButton
 				onClick={recruit(state, selectedJob)}
-			>
-				Recruit
-			</Button>
+				label="Recruit"
+			/>
 		</Modal.Footer>
 	</Modal>
 }
