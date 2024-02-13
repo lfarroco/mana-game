@@ -47,6 +47,7 @@ export class BattlegroundScene extends Phaser.Scene {
   } | null = null;
   isPaused = true;
   isSelectingSquadMove = false;
+  isSelectingAttackTarget = false;
   cities: { city: City; sprite: Phaser.GameObjects.Image }[] = []; // TODO: data duplication, this should be just a list of sprites
   tilemap: Phaser.Tilemaps.Tilemap | null = null;
   fow: Phaser.Tilemaps.TilemapLayer | null = null;
@@ -85,41 +86,36 @@ export class BattlegroundScene extends Phaser.Scene {
     listeners([
       [signals.PAUSE_GAME, this.pauseGame],
       [signals.RESUME_GAME, this.resumeGame],
-      [
-        signals.SELECT_SQUAD_MOVE_START,
-        () => {
-          this.isSelectingSquadMove = true;
-        },
-      ],
+      [signals.SELECT_SQUAD_MOVE_START, () => {
+        this.isSelectingSquadMove = true;
+      }],
       [signals.SELECT_SQUAD_MOVE_DONE, this.moveUnitsTo],
-      [
-        signals.SELECT_SQUAD_MOVE_CANCEL,
-        () => {
-          this.isSelectingSquadMove = false;
-        },
-      ],
-      [
-        signals.BATTLEGROUND_TICK,
-        () => {
-          processTick(this);
-        },
-      ],
-      [
-        signals.UNIT_CREATED,
-        (unitId: string) => {
-          const unit = this.getSquad(unitId)
+      [signals.SELECT_SQUAD_MOVE_CANCEL, () => {
+        this.isSelectingSquadMove = false;
+      }],
+      [signals.SELECT_ATTACK_TARGET_START, () => {
+        this.isSelectingAttackTarget = true;
+      }],
+      [signals.SELECT_ATTACK_TARGET_DONE, () => {
+        this.isSelectingAttackTarget = false;
+      }],
+      [signals.SELECT_ATTACK_TARGET_CANCEL, () => {
+        this.isSelectingAttackTarget = false;
+      }],
+      [signals.BATTLEGROUND_TICK, () => {
+        processTick(this);
+      }],
+      [signals.UNIT_CREATED, (unitId: string) => {
+        const unit = this.getSquad(unitId)
 
-          this.renderUnit(unit)
+        this.renderUnit(unit)
 
-        }
-      ],
-      [signals.UNITS_SELECTED,
-      () => {
+      }],
+      [signals.UNITS_SELECTED, () => {
         const pop = this.sound.add('ui/button_click')
         pop.setVolume(0.3)
         pop.play()
-      }
-      ]
+      }]
     ]);
 
 
