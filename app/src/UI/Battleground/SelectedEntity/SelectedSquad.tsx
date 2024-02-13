@@ -2,7 +2,7 @@ import { UNIT_STATUS_KEYS, Unit } from "../../../Models/Unit"
 import "./styles.css"
 import * as Signals from "../../../Models/Signals"
 import { FORCE_ID_PLAYER } from "../../../Models/Force"
-import { Button, Col, Row } from "react-bootstrap"
+import { Button, Row } from "react-bootstrap"
 import { getJob } from "../../../Models/Job"
 
 const BUTTON_STYLE = {
@@ -164,6 +164,7 @@ function ButtonGrid(props: { actions: { icon: string, label: string, onClick: ()
 		const action = actions[index]
 		if (action) {
 			return <Button
+				key={index}
 				style={BUTTON_STYLE}
 				variant="dark"
 				onClick={action.onClick}

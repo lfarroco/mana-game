@@ -6,14 +6,7 @@ import { asVec2, eqVec2 } from "../../../Models/Geometry";
 import { Chara } from "../../../Systems/Chara/Chara";
 import { pingAt } from "./Ping";
 
-export function makeSquadsInteractive(
-  scene: BattlegroundScene,
-  charas: Chara[]
-) {
-  charas.forEach((entity) => {
-    makeSquadInteractive(entity, scene);
-  });
-}
+
 
 export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
   chara.sprite.setInteractive();
@@ -39,17 +32,16 @@ export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
         pingAt(scene, chara.sprite.x, chara.sprite.y);
 
       } else {
-        emit(signals.UNITS_SELECTED, [chara.id]);
+
+        if (state.gameData.selectedUnits[0] !== chara.id)
+          emit(signals.UNITS_SELECTED, [chara.id]);
         // is city at tile?
         const squad = getSquad(state)(chara.id);
         const city = state.gameData.cities.find(
           (c) => eqVec2(c.boardPosition, squad.position)
         );
-        if (city) {
+        if (city && state.gameData.selectedCity !== city.id) {
           emit(signals.CITY_SELECTED, city.id);
-        } else if (state.gameData.selectedCity) {
-          emit(signals.CITY_DESELECTED, state.gameData.selectedCity);
-
         }
 
       }

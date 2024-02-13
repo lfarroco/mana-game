@@ -15,6 +15,13 @@ State is managed by the logic block, and the other blocks listen to the events e
 User interactions emit events that are listened by the logic block, which updates the state and emits events that are listened by the other blocks.
 
 
+## Guidelines
+
+Avoid firing events that just restate the current state of the game.
+Example: if a unit is selected, and the user clicks on the same unit, the UNIT_SELECTED event should not be fired.
+The reasoning is that the event might provoke the creation of new objects, and the destruction of old ones, which is not necessary in this case.
+
+
 ## Assets credits
 
 https://opengameart.org/content/rpg-sound-pack

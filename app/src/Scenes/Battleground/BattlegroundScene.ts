@@ -3,10 +3,10 @@ import { preload } from "./preload";
 import { createMap } from "./Map/createMap";
 import { importMapObjects } from "./Map/importMapObjects";
 import { makeMapInteractive } from "./Map/makeMapInteractive";
-import { makeSquadInteractive, makeSquadsInteractive } from "./Map/makeSquadsInteractive";
+import { makeSquadInteractive, } from "./Map/makeSquadsInteractive";
 import { createCities } from "./Map/createCities";
 import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
-import { UNIT_STATUS_KEYS, Unit, isAttacking } from "../../Models/Unit";
+import { UNIT_STATUS_KEYS, Unit, } from "../../Models/Unit";
 import processTick from "./ProcessTick";
 import { Vec2, vec2 } from "../../Models/Geometry";
 import { Chara, createChara } from "../../Systems/Chara/Chara";
@@ -137,7 +137,7 @@ export class BattlegroundScene extends Phaser.Scene {
     CharaSquadMovedIntoCell.init(this, state);
     StaminaBarSystem.init(state, this);
     DestinationDisplaySystem_init(state, this);
-    BattlegroundAudioSystem_init(state,this);
+    BattlegroundAudioSystem_init(state, this);
 
     //@ts-ignore
     window.bg = this;
@@ -164,7 +164,7 @@ export class BattlegroundScene extends Phaser.Scene {
     this.createMapSquads();
 
     makeMapInteractive(this, map, layers.background);
-    makeSquadsInteractive(this, this.charas);
+    //makeSquadsInteractive(this, this.charas);
     makeCitiesInteractive(
       this,
       this.cities
