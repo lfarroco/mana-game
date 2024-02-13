@@ -3,6 +3,7 @@ import { City } from "../../../Models/City"
 import { emit_, signals } from "../../../Models/Signals"
 import "./styles.css"
 import { FORCE_ID_PLAYER } from "../../../Models/Force"
+import ManaButton from "../../Components/Button"
 const SelectedCity = ({ city }: { city: City }) => {
 
 	return <div id="selected-entity"
@@ -33,12 +34,10 @@ const SelectedCity = ({ city }: { city: City }) => {
 				<div>{city.name}</div>
 				<div>{city.type}</div>
 				{city.type === "tavern" && city.force === FORCE_ID_PLAYER &&
-					<Button
-						variant="dark"
-						className="button"
-						size="sm"
+					<ManaButton
+						css="btn-sm"
 						onClick={emit_(signals.TOGGLE_DISPATCH_MODAL, true)}
-					>Recruit</Button>
+						label="Recruit" />
 				}
 
 			</div>
