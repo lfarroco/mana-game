@@ -4,6 +4,7 @@ import * as Signals from "../../../Models/Signals"
 import { FORCE_ID_PLAYER } from "../../../Models/Force"
 import { Button, Row } from "react-bootstrap"
 import { getJob } from "../../../Models/Job"
+import ManaButton from "../../Components/Button"
 
 const BUTTON_STYLE = {
 	width: 48,
@@ -171,21 +172,14 @@ function ButtonGrid(props: { actions: { icon: string, label: string, onClick: ()
 	const maybeButton = (index: number) => {
 		const action = actions[index]
 		if (action) {
-			return <Button
+			return <ManaButton
 				key={index}
 				style={BUTTON_STYLE}
-				variant="dark"
 				onClick={action.onClick}
-			>
-				<img src={`assets/ui/${action.icon}.png`} alt="Move"
-					style={{
-						width: 16,
-						height: 16,
-					}} />
-				<div>
-					{action.label}
-				</div>
-			</Button>
+				icon={action.icon}
+				label={action.label}
+			/>
+
 		} else {
 			return null
 		}
