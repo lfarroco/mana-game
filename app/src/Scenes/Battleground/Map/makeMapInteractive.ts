@@ -6,7 +6,7 @@ import { FORCE_ID_PLAYER } from "../../../Models/Force";
 import { UNIT_STATUS_KEYS } from "../../../Models/Unit";
 import { getSquad, getState } from "../../../Models/State";
 import { isInside } from "../../../Models/Geometry";
-import { pingAt } from "./Ping";
+import { pingAt as pingAtLocation } from "./Ping";
 
 export function makeMapInteractive(
   scene: BattlegroundScene,
@@ -171,24 +171,30 @@ export function makeMapInteractive(
     Phaser.Input.Events.POINTER_UP,
     (pointer: Phaser.Input.Pointer, x: number, y: number) => {
 
-      const state = getState()
       if (pointer.upElement?.tagName !== "CANVAS") return;
 
-      if (
-        state.gameData.selectedUnits.length > 0 &&
-        (pointer.rightButtonReleased() || scene.isSelectingSquadMove)
-      ) {
-        const tile = bgLayer.getTileAtWorldXY(x, y);
+      const state = getState()
 
-        state.gameData.selectedUnits.forEach((sqdId) => {
+      const isEnemySelected = state.gameData.selectedUnits.some((id) => {
+        const squad = getSquad(state)(id);
+        return squad.force !== FORCE_ID_PLAYER;
+      });
+      if (isEnemySelected) return;
+
+      if (state.gameData.selectedUnits.length < 1) return
+
+      if (!pointer.rightButtonReleased() && !scene.isSelectingSquadMove) return
+
+      const tile = bgLayer.getTileAtWorldXY(x, y);
+
+      state.gameData
+        .selectedUnits
+        .forEach((sqdId) => {
           emit(signals.SELECT_SQUAD_MOVE_DONE, sqdId, asVec2(tile));
         });
 
-        // ping at location
+      pingAtLocation(scene, x, y);
 
-        pingAt(scene, x, y);
-
-      }
     }
   );
 }
