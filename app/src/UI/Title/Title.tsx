@@ -2,6 +2,7 @@ import { useState } from "react";
 import { signals, emit, emit_ } from "../../Models/Signals";
 import Credits from "../Credits/Credits";
 import { Button } from "react-bootstrap";
+import ManaButton from "../Components/Button";
 
 export default function Title() {
 
@@ -41,41 +42,42 @@ export default function Title() {
           style={{ width: '80%' }}
           alt="Mana Battle"
         />
-        <Button
-          className="mb-2"
-          variant="dark"
+        <ManaButton
+          css="mb-2"
           onClick={() => {
-            emit(signals.SET_ROUTE, "battleground");
-            emit(signals.START_NEW_GAME);
+            setTimeout(() => {
+              emit(signals.SET_ROUTE, "battleground");
+              emit(signals.START_NEW_GAME);
+            }, 200);
           }}
-        >
-          Start Game
-        </Button>
-        <Button
-
-          variant="dark"
-          className="mb-2"
-          onClick={emit_(signals.TOGGLE_LOAD_GAME_MODAL, true)}>
-          Load Game
-        </Button>
-        <Button
-
-          variant="dark"
-          className="mb-2" onClick={emit_(signals.TOGGLE_OPTIONS_MODAL, true)}>
-          Options
-        </Button>
-        <Button
-
-          variant="dark"
-          className="mb-2" onClick={() => setCreditsVisible(true)}>
-          Credits
-        </Button>
+          label="Start Game"
+        />
+        <ManaButton
+          css="mb-2"
+          onClick={emit_(signals.TOGGLE_LOAD_GAME_MODAL, true)}
+          label="Load Game"
+        />
+        <ManaButton
+          css="mb-2"
+          onClick={emit_(signals.TOGGLE_OPTIONS_MODAL, true)}
+          label="Options"
+        />
+        <ManaButton
+          css="mb-2"
+          onClick={() => setCreditsVisible(true)}
+          label="Credits"
+        />
 
         {/* TODO: add social links */}
 
       </div>
     </div >
     <Credits visible={creditsVisible} onHide={() => setCreditsVisible(false)} />
+    <audio
+      src="assets/audio/button_click.ogg"
+      id="audio"
+      preload="auto"
+    />
   </>
   );
 }
