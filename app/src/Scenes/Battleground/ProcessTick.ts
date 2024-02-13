@@ -84,6 +84,13 @@ function moveStep(scene: BattlegroundScene, state: State) {
       }
 
       // perform the move
+
+
+      // if there's an ally there, wait
+
+      if (occupant && occupant.force === squad.force)
+        return []
+
       // check if there's a city here
       // TODO: move this into "SQUAD_MOVED_INTO_CELL" event
       const maybeCity = getState().gameData.cities.find(
