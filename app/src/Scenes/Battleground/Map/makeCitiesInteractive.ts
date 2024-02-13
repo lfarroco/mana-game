@@ -32,7 +32,12 @@ export function makeCitiesInteractive(
 
           const hasEnemy = state.gameData.selectedUnits.some((id) => getSquad(state)(id).force === FORCE_ID_CPU);
 
-          if (hasEnemy) return
+          if (hasEnemy) {
+
+            scene.sound.play("ui/error");
+
+            return
+          }
 
           state.gameData.selectedUnits.filter(unitId => {
 

@@ -31,7 +31,10 @@ export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
           (id) => getSquad(state)(id).force === FORCE_ID_CPU
         );
 
-        if (hasEnemy) return
+        if (hasEnemy) {
+          scene.sound.play("ui/error");
+          return
+        }
 
         state.gameData.selectedUnits.forEach((sqdId) => {
           const squad = getSquad(state)(sqdId);
