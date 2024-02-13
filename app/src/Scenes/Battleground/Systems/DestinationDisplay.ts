@@ -4,6 +4,10 @@ import { listeners, signals } from "../../../Models/Signals";
 import { State, getSquad } from "../../../Models/State";
 import BattlegroundScene from "../BattlegroundScene";
 
+const LINE_COLOR = 0xff0000;
+const LINE_WIDTH = 4;
+const SHADOW_WIDTH = 4;
+const SHADOW_COLOR = 0x000;
 
 type PathDisplay = {
 	graphics: Phaser.GameObjects.Graphics;
@@ -11,7 +15,6 @@ type PathDisplay = {
 	shadow: Phaser.GameObjects.Graphics;
 	shadowArrowTip: Phaser.GameObjects.Image;
 }
-
 
 export function DestinationDisplaySystem_init(state: State, scene: BattlegroundScene) {
 
@@ -124,6 +127,7 @@ function cleanup(index: { [key: string]: PathDisplay }): (key: string) => void {
 	};
 }
 
+
 function displayPath(
 	state: State,
 	scene: BattlegroundScene,
@@ -134,20 +138,18 @@ function displayPath(
 
 	const squad = getSquad(state)(squadId)
 
-	// orange
-	const color = 0x000;
 
-	const graphics = scene.add.graphics();
-	const shadow = scene.add.graphics();
-	const arrowTip = scene.add.image(0, 0, "arrow-left-emote").setTint(0x000).setScale(0.8)
-	const shadowArrowTip = scene.add.image(0, 0, "arrow-left-emote").setTint(0xff0000).setScale(0.8)
+	const shadowGraphics = scene.add.graphics();
+	const lineGraphics = scene.add.graphics();
+	const arrowTip = scene.add.image(0, 0, "arrow-left-emote").setTint(0x000).setScale(0.5)
+	const shadowArrowTip = scene.add.image(0, 0, "arrow-left-emote").setTint(0xff0000).setScale(0.5)
 
-	scene.children.moveBelow(arrowTip, shadow)
+	scene.children.moveBelow(arrowTip, lineGraphics)
 	let points = [] as Phaser.Math.Vector2[]
 
 	const path = [squad.position, ...squad.path]
 
-	if (path.length < 2) return { graphics, arrowTip, shadow, shadowArrowTip }
+	if (path.length < 2) return { graphics: shadowGraphics, arrowTip, shadow: lineGraphics, shadowArrowTip }
 
 	path.forEach(({ x, y }) => {
 
@@ -166,17 +168,17 @@ function displayPath(
 
 
 	const curve = new Phaser.Curves.Spline(points);
-	curve.draw(graphics);
+	curve.draw(shadowGraphics);
 
-	curve.draw(shadow);
+	curve.draw(lineGraphics);
 
 	const pointsOnCurve = curve.getPoints(points.length * 5);
 
-	shadow.clear();
-	shadow.lineStyle(5, 0xff0000, 3);
+	lineGraphics.clear();
+	lineGraphics.lineStyle(LINE_WIDTH, LINE_COLOR, 3);
 
-	graphics.clear();
-	graphics.lineStyle(5, color, 3);
+	shadowGraphics.clear();
+	shadowGraphics.lineStyle(SHADOW_WIDTH, SHADOW_COLOR, 3);
 
 	const interval = 250 / (points.length * 5);
 	let time = 0;
@@ -185,10 +187,10 @@ function displayPath(
 			delay: animate ? time : 0,
 			callback: () => {
 				const next = pointsOnCurve[i + 1];
-				if (!next || !graphics.active) return;
+				if (!next || !shadowGraphics.active) return;
 
-				shadow.lineBetween(current.x + 2, current.y + 2, next.x + 2, next.y + 2);
-				graphics.lineBetween(current.x, current.y, next.x, next.y)
+				lineGraphics.lineBetween(current.x + 2, current.y + 2, next.x + 2, next.y + 2);
+				shadowGraphics.lineBetween(current.x, current.y, next.x, next.y)
 
 				const direction = getDirection(asVec2(current), asVec2(next))
 
@@ -219,7 +221,7 @@ function displayPath(
 
 	// create rect over last tile
 	const border = scene.add.graphics();
-	border.lineStyle(2, color, 1);
+	border.lineStyle(2, SHADOW_COLOR, 1);
 	border.strokeRect(tile.pixelX, tile.pixelY, tile.width, tile.height);
 
 	scene.tweens.add({
@@ -231,6 +233,6 @@ function displayPath(
 		onComplete: () => border.destroy()
 	});
 
-	return { graphics, arrowTip, shadow, shadowArrowTip }
+	return { graphics: shadowGraphics, arrowTip, shadow: lineGraphics, shadowArrowTip }
 
 }
