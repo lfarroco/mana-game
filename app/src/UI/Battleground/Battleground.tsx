@@ -15,56 +15,48 @@ const Battleground = () => {
   const state = getState()
   const [isPaused, setPaused] = useState(true);
   const [isSelectingMoveTarget, setIsSelectingMoveTarget] = useState(false);
+  const [isSelectingAttackTarget, setIsSelectingAttackTarget] = useState(false);
   const [tick, setTick] = useState(state.gameData.tick);
   const [gold, setGold] = useState(state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)?.gold || 0);
 
   useEffect(() => {
     console.log("Battleground mounted");
     listeners([
-      [
-        signals.PAUSE_GAME,
-        () => {
-          setPaused(true);
-        },
-      ],
-      [
-        signals.RESUME_GAME,
-        () => {
-          setPaused(false);
-        },
-      ],
-      [
-        signals.SELECT_SQUAD_MOVE_START,
-        () => {
-          setIsSelectingMoveTarget(true);
-        },
-      ],
-      [
-        signals.SELECT_SQUAD_MOVE_DONE,
-        () => {
-          setIsSelectingMoveTarget(false);
-        },
-      ],
-      [
-        signals.SELECT_SQUAD_MOVE_CANCEL,
-        () => {
-          setIsSelectingMoveTarget(false);
-        },
-      ],
-      [
-        signals.BATTLEGROUND_TICK,
-        (tick: number) => {
-          setTick(tick);
-        },
-      ],
-      [
-        signals.UPDATE_FORCE,
-        (force: Partial<Force>) => {
-          if (force.id === FORCE_ID_PLAYER) {
-            setGold(force.gold || 0)
-          }
-        },
-      ],
+      [signals.PAUSE_GAME, () => {
+        setPaused(true);
+      }],
+      [signals.RESUME_GAME, () => {
+        setPaused(false);
+      }],
+      [signals.SELECT_SQUAD_MOVE_START, () => {
+        setIsSelectingMoveTarget(true);
+      }],
+      [signals.SELECT_ATTACK_TARGET_START, () => {
+        setIsSelectingAttackTarget(true);
+      }],
+      [signals.SELECT_ATTACK_TARGET_DONE, () => {
+
+        setIsSelectingAttackTarget(false);
+
+      }],
+      [signals.SELECT_ATTACK_TARGET_CANCEL, () => {
+
+        setIsSelectingAttackTarget(false);
+
+      }],
+      [signals.SELECT_SQUAD_MOVE_DONE, () => {
+        setIsSelectingMoveTarget(false);
+      }],
+      [signals.SELECT_SQUAD_MOVE_CANCEL, () => {
+        setIsSelectingMoveTarget(false);
+      }],
+      [signals.BATTLEGROUND_TICK, (tick: number) => {
+        setTick(tick);
+      }],
+      [signals.UPDATE_FORCE, (force: Partial<Force>) => {
+        if (force.id !== FORCE_ID_PLAYER) return
+        setGold(force.gold || 0)
+      }],
     ]);
   }, []);
 
@@ -115,7 +107,9 @@ const Battleground = () => {
       <div className="content" id="tooltip">
         <div className="row">
           <div id="tooltip" className="col text-center">
-            {isSelectingMoveTarget && "Select Target"}
+            {isSelectingMoveTarget ? "Select Target" :
+              isSelectingAttackTarget ? "Select Attack Target" :
+                null}
           </div>
         </div>
       </div>
@@ -124,7 +118,10 @@ const Battleground = () => {
         </div>
       </footer>
 
-      <SelectionHUD isSelectingMoveTarget={isSelectingMoveTarget} />
+      <SelectionHUD
+        isSelectingMoveTarget={isSelectingMoveTarget}
+        isSelectingAttackTarget={isSelectingAttackTarget}
+      />
 
       <DispatchSquadModal />
 
