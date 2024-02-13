@@ -112,6 +112,13 @@ export class BattlegroundScene extends Phaser.Scene {
           this.renderUnit(unit)
 
         }
+      ],
+      [signals.UNITS_SELECTED,
+      () => {
+        const pop = this.sound.add('ui/button_click')
+        pop.setVolume(0.3)
+        pop.play()
+      }
       ]
     ]);
 
