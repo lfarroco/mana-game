@@ -147,7 +147,7 @@ function displayPath(
 
 	const path = [squad.position, ...squad.path]
 
-	if (path.length < 3) return { graphics, arrowTip, shadow, shadowArrowTip }
+	if (path.length < 2) return { graphics, arrowTip, shadow, shadowArrowTip }
 
 	path.forEach(({ x, y }) => {
 
