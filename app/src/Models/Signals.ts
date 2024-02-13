@@ -20,6 +20,7 @@ export type Signals = {
   UNITS_DESELECTED: (squadId: string[]) => void;
   CITY_SELECTED: (id: string) => void;
   CITY_DESELECTED: (ids: string) => void;
+  UNIT_MOVE_STOP: (squadId: string) => void;
   SELECT_SQUAD_MOVE_START: (squadId: string) => void;
   SELECT_SQUAD_MOVE_DONE: (squadIds: string[], target: Vec2) => void;
   SELECT_SQUAD_MOVE_CANCEL: (squadId: string) => void;
@@ -110,6 +111,7 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   REMOVE_EMOTE: "REMOVE_EMOTE",
   FACE_DIRECTION: "FACE_DIRECTION",
   SQUAD_FINISHED_MOVE_ANIM: "SQUAD_FINISHED_MOVE_ANIM",
+  UNIT_MOVE_STOP: "UNIT_MOVE_STOP",
 };
 
 export const listen = <T extends keyof Signals>(
@@ -275,6 +277,7 @@ export const operations: {
     key,
     vec,
   ],
+  UNIT_MOVE_STOP: (squadId: string) => [signals.UNIT_MOVE_STOP, squadId],
 };
 
 //@ts-ignore

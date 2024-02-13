@@ -155,7 +155,8 @@ function UnitActions(squad: Unit) {
 				icon: "icon-stop",
 				label: "Stop",
 				onClick: () => {
-					console.log("Stop")
+
+					Signals.emit(Signals.signals.UNIT_MOVE_STOP, squad.id)
 				}
 			},
 

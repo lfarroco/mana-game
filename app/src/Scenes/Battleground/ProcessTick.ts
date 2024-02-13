@@ -14,7 +14,6 @@ import {
   isAttacking,
   isDestroyed,
   isMoving,
-  isIdle,
 } from "../../Models/Unit";
 import { foldMap } from "../../Models/Signals";
 import { State, getSquad, getState } from "../../Models/State";

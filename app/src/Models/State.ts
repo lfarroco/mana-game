@@ -3,7 +3,7 @@ import { City } from "./City";
 import { Force } from "./Force";
 import { Vec2 } from "./Geometry";
 import { emit, signals, listeners } from "./Signals";
-import { UNIT_STATUS_KEYS, Unit, UnitStatus, isAttacking, makeUnit } from "./Unit";
+import { UNIT_STATUS, Unit, UnitStatus, isAttacking, makeUnit } from "./Unit";
 
 export const initialState = (): State => ({
   options: {
@@ -115,12 +115,10 @@ export const updateForce = (state: State) => (
   Object.assign(f, force);
 }
 
-export const listenToStateEvents = () => {
+export const listenToStateEvents = (state: State) => {
   listeners([
 
     [signals.RECRUIT_UNIT, (forceId: string, jobId: string, position: Vec2) => {
-
-      const state = getState();
 
       const unitId = uuid.v4();
 
@@ -134,7 +132,6 @@ export const listenToStateEvents = () => {
     }],
 
     [signals.UPDATE_SQUAD, (id: string, sqd: Partial<Unit>) => {
-      const state = getState();
 
       const currentUnit = state.gameData.squads.find((s) => s.id === id)
 
@@ -151,12 +148,16 @@ export const listenToStateEvents = () => {
         emit(signals.ATTACK_STARTED, id, attackingStatus.target);
       }
 
-
       updateSquad(state)(id)(sqd);
     }],
     [signals.UPDATE_FORCE, (force: Partial<Force>) => {
-      const state = getState();
       updateForce(state)(force);
-    }]
+    }],
+    [
+      signals.UNIT_MOVE_STOP, (squadId: string) => {
+        updateSquad(state)(squadId)({ status: UNIT_STATUS.IDLE() });
+        updateSquad(state)(squadId)({ path: [] });
+      }
+    ]
   ])
 }

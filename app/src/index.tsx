@@ -17,7 +17,7 @@ window.state = state;
 window.emitter = eventEmitter;
 
 // create this listener first so that state changes are processed first
-listenToStateEvents();
+listenToStateEvents(state);
 
 initGame(state, eventEmitter);
 

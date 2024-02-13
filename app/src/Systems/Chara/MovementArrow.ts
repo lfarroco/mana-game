@@ -79,7 +79,13 @@ export function init(state: State, scene: BattlegroundScene) {
 
 
       }
-    ]
+    ],
+    [signals.UNIT_MOVE_STOP, (squadId: string) => {
+
+      if (!spriteIndex[squadId]) return
+
+      removeSprites(spriteIndex, squadId);
+    }]
 
   ]);
 }
@@ -163,6 +169,8 @@ function createSprites(chara: Chara, index: SpriteIndex, key: string) {
 
 export function removeSprites(spriteIndex: SpriteIndex, squadId: string) {
   const sprites = spriteIndex[squadId]
+
+  if (!sprites) return
   sprites.arrow.destroy();
   sprites.overlay.destroy();
 
