@@ -127,7 +127,7 @@ function createSprites(chara: Chara, index: SpriteIndex, key: string) {
     .setScale(EMOTE_SCALE);
   overlay.anims.play(key);
   overlay.setCrop(0, 0, 0, 0);
-  overlay.setTint(65280);
+  overlay.setTint(0xff0000);
   overlay.anims.play(key)
 
   const follow = () => {

@@ -151,6 +151,13 @@ function UnitActions(squad: Unit) {
 					console.log("Attack")
 				}
 			},
+			{
+				icon: "icon-stop",
+				label: "Stop",
+				onClick: () => {
+					console.log("Stop")
+				}
+			},
 
 		]} />
 }

@@ -14,6 +14,7 @@ import {
   isAttacking,
   isDestroyed,
   isMoving,
+  isIdle,
 } from "../../Models/Unit";
 import { foldMap } from "../../Models/Signals";
 import { State, getSquad, getState } from "../../Models/State";
@@ -51,7 +52,7 @@ const processTick = (scene: BattlegroundScene) => {
 
 function moveStep(scene: BattlegroundScene, state: State) {
   return traverse_(
-    getState()
+    state
       .gameData.squads.filter(s => isMoving(s.status))
       .sort((a, b) => a.agility - b.agility),
     (squad) => {
@@ -65,6 +66,7 @@ function moveStep(scene: BattlegroundScene, state: State) {
 
       // if there's an enemy in the next tile, begin attack
       if (occupant && occupant.force !== squad.force) {
+        // how to start an attack? by changing the status directly or by emitting an specific event?
         return [
           operations.UPDATE_SQUAD(squad.id, {
             status: UNIT_STATUS.ATTACKING(occupant.id),
@@ -82,9 +84,6 @@ function moveStep(scene: BattlegroundScene, state: State) {
           ),
         ];
       }
-
-      // perform the move
-
 
       // if there's an ally there, wait
 
