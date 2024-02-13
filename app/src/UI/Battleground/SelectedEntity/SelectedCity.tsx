@@ -13,38 +13,38 @@ const SelectedCity = ({ city }: { city: City }) => {
 			left: 0,
 			backgroundColor: "rgba(2, 4, 3, 0.3)",
 			padding: "5px",
-			width: "300px",
+			width: "150px",
 			fontSize: 10,
-			borderTopRightRadius: 5
+			borderTopRightRadius: 5,
+			height: 80
 		}}>
 		<Row>
 
-			<div className="col col-4">
+			<div className="col co-6">
 				<img
 					className="portrait img-fluid"
+					style={{
+						width: 48
+					}}
 					src={`assets/cities/${city.type}.png`} alt={city.name} />
 			</div>
-			<div className="col col-4">
+			<div className="col col-6">
 
 				<div>{city.name}</div>
 				<div>{city.type}</div>
-
-			</div>
-
-			<div className="col col-4 pt-3">
 				{city.type === "tavern" && city.force === FORCE_ID_PLAYER &&
 					<Button
 						variant="dark"
 						className="button"
+						size="sm"
 						onClick={emit_(signals.TOGGLE_DISPATCH_MODAL, true)}
 					>Recruit</Button>
 				}
+
 			</div>
 
 		</Row>
-
 	</div>
-
 }
 
 export default SelectedCity

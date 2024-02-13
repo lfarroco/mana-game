@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { asVec2 } from "../../../Models/Geometry";
 import { emit, signals } from "../../../Models/Signals";
-import { getCity, getState } from "../../../Models/State";
+import { getState } from "../../../Models/State";
 import { pingAt } from "./Ping";
 import { City } from "../../../Models/City";
 
@@ -36,9 +36,10 @@ export function makeCitiesInteractive(
           pingAt(scene, city.sprite.x, city.sprite.y);
 
         } else {
+          if (state.gameData.selectedCity === city.city.id) return
           emit(signals.CITY_SELECTED, city.city.id);
 
-          if (state.gameData.selectedUnits.length > 1) {
+          if (state.gameData.selectedUnits.length > 0) {
             emit(signals.UNITS_SELECTED, []);
           }
 
