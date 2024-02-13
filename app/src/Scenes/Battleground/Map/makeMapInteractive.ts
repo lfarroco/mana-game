@@ -179,7 +179,10 @@ export function makeMapInteractive(
         const squad = getSquad(state)(id);
         return squad.force !== FORCE_ID_PLAYER;
       });
-      if (isEnemySelected) return;
+      if (isEnemySelected) {
+        scene.sound.play("ui/error");
+        return;
+      };
 
       if (state.gameData.selectedUnits.length < 1) return
 
