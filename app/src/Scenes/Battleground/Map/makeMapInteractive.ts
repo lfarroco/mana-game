@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import BattlegroundScene from "../BattlegroundScene";
 import { emit, signals } from "../../../Models/Signals";
-import { asVec2, vec2 } from "../../../Models/Geometry";
+import { asVec2, eqVec2, vec2 } from "../../../Models/Geometry";
 import { FORCE_ID_PLAYER } from "../../../Models/Force";
 import { UNIT_STATUS_KEYS } from "../../../Models/Unit";
 import { getSquad, getState } from "../../../Models/State";
@@ -189,6 +189,10 @@ export function makeMapInteractive(
 
       state.gameData
         .selectedUnits
+        .filter(unitId => {
+          const unit = getSquad(state)(unitId);
+          return !eqVec2(unit.position, asVec2(tile))
+        })
         .forEach((sqdId) => {
           emit(signals.SELECT_SQUAD_MOVE_DONE, sqdId, asVec2(tile));
         });

@@ -5,6 +5,7 @@ import { signals, emit } from "../../../Models/Signals";
 import { asVec2, eqVec2 } from "../../../Models/Geometry";
 import { Chara } from "../../../Systems/Chara/Chara";
 import { pingAt } from "./Ping";
+import { FORCE_ID_CPU } from "../../../Models/Force";
 
 
 
@@ -26,7 +27,15 @@ export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
       ) {
         const tile = scene.getTileAtWorldXY(asVec2(chara.sprite));
 
+        const hasEnemy = state.gameData.selectedUnits.some(
+          (id) => getSquad(state)(id).force === FORCE_ID_CPU
+        );
+
+        if (hasEnemy) return
+
         state.gameData.selectedUnits.forEach((sqdId) => {
+          const squad = getSquad(state)(sqdId);
+          if (eqVec2(squad.position, asVec2(tile))) return;
           emit(signals.SELECT_SQUAD_MOVE_DONE, sqdId, asVec2(tile));
         });
         pingAt(scene, chara.sprite.x, chara.sprite.y);

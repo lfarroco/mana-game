@@ -31,3 +31,7 @@ swing
 
 https://opengameart.org/content/punches-hits-swords-and-squishes
 sword1,2,3
+
+https://www.kenney.nl/assets/interface-sounds
+button_click.ogg
+error.ogg
