@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
-import { asVec2 } from "../../../Models/Geometry";
+import { asVec2, eqVec2 } from "../../../Models/Geometry";
 import { emit, signals } from "../../../Models/Signals";
 import { getState } from "../../../Models/State";
 import { pingAt } from "./Ping";
@@ -43,6 +43,17 @@ export function makeCitiesInteractive(
             emit(signals.UNITS_SELECTED, []);
           }
 
+        }
+
+        // is there a unit in the city?
+        if (state.gameData.selectedUnits.length === 0) {
+          const squad = state.gameData.squads.find(
+            (s) => eqVec2(s.position, city.city.boardPosition)
+          );
+
+          if (squad) {
+            emit(signals.UNITS_SELECTED, [squad.id]);
+          }
         }
       }
     );
