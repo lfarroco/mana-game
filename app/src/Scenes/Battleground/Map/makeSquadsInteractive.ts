@@ -33,8 +33,10 @@ export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
 
       } else {
 
-        if (state.gameData.selectedUnits[0] !== chara.id)
-          emit(signals.UNITS_SELECTED, [chara.id]);
+        if (state.gameData.selectedUnits.length === 1 && state.gameData.selectedUnits[0] === chara.id) {
+          return
+        }
+        emit(signals.UNITS_SELECTED, [chara.id]);
         // is city at tile?
         const squad = getSquad(state)(chara.id);
         const city = state.gameData.cities.find(

@@ -1,5 +1,4 @@
 import { DIRECTIONS, getDirection } from "../../../Models/Direction";
-import { FORCE_ID_PLAYER } from "../../../Models/Force";
 import { Vec2, asVec2 } from "../../../Models/Geometry";
 import { listeners, signals } from "../../../Models/Signals";
 import { State, getSquad } from "../../../Models/State";
@@ -146,10 +145,9 @@ function displayPath(
 	scene.children.moveBelow(arrowTip, shadow)
 	let points = [] as Phaser.Math.Vector2[]
 
-
 	const path = [squad.position, ...squad.path]
 
-	if (path.length < 2) return { graphics, arrowTip, shadow, shadowArrowTip }
+	if (path.length < 3) return { graphics, arrowTip, shadow, shadowArrowTip }
 
 	path.forEach(({ x, y }) => {
 
