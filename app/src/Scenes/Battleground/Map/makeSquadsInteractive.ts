@@ -2,10 +2,13 @@ import Phaser from "phaser";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { getSquad, getState } from "../../../Models/State";
 import { signals, emit } from "../../../Models/Signals";
-import { asVec2, eqVec2 } from "../../../Models/Geometry";
+import { asVec2, distanceBetween, eqVec2 } from "../../../Models/Geometry";
 import { Chara } from "../../../Systems/Chara/Chara";
 import { pingAt } from "./Ping";
 import { FORCE_ID_CPU } from "../../../Models/Force";
+import { getJob } from "../../../Models/Job";
+import { UNIT_STATUS } from "../../../Models/Unit";
+import { getDirection } from "../../../Models/Direction";
 
 
 
@@ -16,15 +19,40 @@ export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
     (pointer: Phaser.Input.Pointer, x: number, y: number) => {
       const state = getState();
 
+      const squad = getSquad(state)(chara.id);
 
       if (pointer.upElement.tagName !== "CANVAS") return;
 
       if (!chara.sprite.active) return;
 
-      if (
-        state.gameData.selectedUnits.length > 0 &&
-        (scene.isSelectingSquadMove || pointer.rightButtonReleased())
-      ) {
+      if (scene.isSelectingAttackTarget) {
+        if (squad.force === FORCE_ID_CPU) {
+
+          const source = getSquad(state)(state.gameData.selectedUnits[0])
+          const job = getJob(source.job)
+
+          const distance = distanceBetween((source.position))(squad.position)
+
+          if (distance > job.attackRange) {
+            scene.sound.play("ui/error");
+          } else {
+
+            const direction = getDirection(source.position, squad.position)
+            emit(signals.SELECT_ATTACK_TARGET_DONE)
+            emit(signals.UPDATE_SQUAD, source.id, { status: UNIT_STATUS.ATTACKING(squad.id) })
+            emit(signals.FACE_DIRECTION, source.id, direction)
+
+          }
+
+          return
+        }
+
+      }
+
+      if (scene.isSelectingSquadMove || pointer.rightButtonReleased()) {
+
+        if (state.gameData.selectedUnits.length < 1) return
+
         const tile = scene.getTileAtWorldXY(asVec2(chara.sprite));
 
         const hasEnemy = state.gameData.selectedUnits.some(
