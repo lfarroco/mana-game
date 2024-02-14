@@ -19,11 +19,13 @@ const BUTTON_STYLE = {
 const SelectedSquad = ({
 	squad,
 	isSelectingMoveTarget,
-	isSelectingAttackTarget
+	isSelectingAttackTarget,
+	isSelectingSkillTarget,
 }: {
 	squad: Unit,
 	isSelectingAttackTarget: boolean,
-	isSelectingMoveTarget: boolean
+	isSelectingMoveTarget: boolean,
+	isSelectingSkillTarget: boolean
 }) => {
 
 	const isPlayerControlled = squad.force === FORCE_ID_PLAYER
@@ -47,7 +49,8 @@ const SelectedSquad = ({
 	const actionsGrid = !isPlayerControlled ? <ButtonGrid actions={[]} />
 		: isSelectingAttackTarget ? selectAttackTargetActions(squad)
 			: isSelectingMoveTarget ? selectMoveTargetActions(squad)
-				: UnitActions(squad)
+				: isSelectingSkillTarget ? selectSkillTargetActions(squad)
+					: UnitActions(squad)
 
 	return <div id="selected-entity"
 		className="container"
@@ -135,6 +138,18 @@ function selectAttackTargetActions(squad: Unit) {
 	]}
 	/>
 }
+function selectSkillTargetActions(squad: Unit) {
+	return <ButtonGrid actions={[
+		{
+			label: "Cancel",
+			icon: "icon-cancel",
+			onClick: () => {
+				Signals.emit(Signals.signals.SELECT_SKILL_TARGET_CANCEL, squad.id)
+			}
+		}
+	]}
+	/>
+}
 
 function selectMoveTargetActions(squad: Unit) {
 	return <ButtonGrid actions={[
@@ -157,7 +172,7 @@ function UnitActions(squad: Unit) {
 			icon: `icon-${skill}`,
 			label: skill,
 			onClick: () => {
-				Signals.emit(Signals.signals.SELECT_ATTACK_TARGET_START, squad.id)
+				Signals.emit(Signals.signals.SELECT_SKILL_TARGET_START, squad.id, skill)
 			}
 		}
 	});

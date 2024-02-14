@@ -7,10 +7,12 @@ import MultipleSelection from "./MultipleSelection";
 
 export default function SelectionHUD({
   isSelectingMoveTarget,
-  isSelectingAttackTarget
+  isSelectingAttackTarget,
+  isSelectingSkillTarget
 }: {
   isSelectingMoveTarget: boolean;
   isSelectingAttackTarget: boolean;
+  isSelectingSkillTarget: boolean;
 }) {
   const [selectedSquads, setSelectedSquads] = useState<string[]>([]);
 
@@ -52,6 +54,7 @@ export default function SelectionHUD({
         squad={getSquad(state)(selectedSquads[0])}
         isSelectingMoveTarget={isSelectingMoveTarget}
         isSelectingAttackTarget={isSelectingAttackTarget}
+        isSelectingSkillTarget={isSelectingSkillTarget}
       />}
     {selectedCity &&
       <SelectedCity city={getCity(state)(selectedCity)} />

@@ -47,6 +47,7 @@ export class BattlegroundScene extends Phaser.Scene {
   isPaused = true;
   isSelectingSquadMove = false;
   isSelectingAttackTarget = false;
+  isSelectingSkillTarget = false;
   cities: { city: City; sprite: Phaser.GameObjects.Image }[] = []; // TODO: data duplication, this should be just a list of sprites
   tilemap: Phaser.Tilemaps.Tilemap | null = null;
   fow: Phaser.Tilemaps.TilemapLayer | null = null;
@@ -100,6 +101,15 @@ export class BattlegroundScene extends Phaser.Scene {
       }],
       [signals.SELECT_ATTACK_TARGET_CANCEL, () => {
         this.isSelectingAttackTarget = false;
+      }],
+      [signals.SELECT_SKILL_TARGET_START, () => {
+        this.isSelectingSkillTarget = true;
+      }],
+      [signals.SELECT_SKILL_TARGET_DONE, () => {
+        this.isSelectingSkillTarget = false;
+      }],
+      [signals.SELECT_SKILL_TARGET_CANCEL, () => {
+        this.isSelectingSkillTarget = false;
       }],
       [signals.BATTLEGROUND_TICK, () => {
         processTick(this);

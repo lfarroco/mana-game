@@ -49,6 +49,14 @@ export function makeSquadInteractive(chara: Chara, scene: BattlegroundScene) {
 
       }
 
+      if (scene.isSelectingSkillTarget) {
+
+        emit(signals.SELECT_SKILL_TARGET_DONE, chara.id)
+        //emit(signals.UPDATE_SQUAD, state.gameData.selectedUnits[0], { status: UNIT_STATUS.CASTING(chara.id, state.gameData.) })
+        return;
+
+      }
+
       if (scene.isSelectingSquadMove || pointer.rightButtonReleased()) {
 
         if (state.gameData.selectedUnits.length < 1) return
