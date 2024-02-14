@@ -16,6 +16,7 @@ const Battleground = () => {
   const [isPaused, setPaused] = useState(true);
   const [isSelectingMoveTarget, setIsSelectingMoveTarget] = useState(false);
   const [isSelectingAttackTarget, setIsSelectingAttackTarget] = useState(false);
+  const [isSelectingSkillTarget, setIsSelectingSkillTarget] = useState(false);
   const [tick, setTick] = useState(state.gameData.tick);
   const [gold, setGold] = useState(state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)?.gold || 0);
 
@@ -40,9 +41,16 @@ const Battleground = () => {
 
       }],
       [signals.SELECT_ATTACK_TARGET_CANCEL, () => {
-
         setIsSelectingAttackTarget(false);
-
+      }],
+      [signals.SELECT_SKILL_TARGET_START, () => {
+        setIsSelectingSkillTarget(true);
+      }],
+      [signals.SELECT_SKILL_TARGET_DONE, () => {
+        setIsSelectingSkillTarget(false);
+      }],
+      [signals.SELECT_SKILL_TARGET_CANCEL, () => {
+        setIsSelectingSkillTarget(false);
       }],
       [signals.SELECT_SQUAD_MOVE_DONE, () => {
         setIsSelectingMoveTarget(false);
@@ -109,7 +117,8 @@ const Battleground = () => {
           <div id="tooltip" className="col text-center">
             {isSelectingMoveTarget ? "Select Target" :
               isSelectingAttackTarget ? "Select Attack Target" :
-                null}
+                isSelectingSkillTarget ? "Select Skill Target" :
+                  null}
           </div>
         </div>
       </div>
@@ -121,6 +130,7 @@ const Battleground = () => {
       <SelectionHUD
         isSelectingMoveTarget={isSelectingMoveTarget}
         isSelectingAttackTarget={isSelectingAttackTarget}
+        isSelectingSkillTarget={isSelectingSkillTarget}
       />
 
       <DispatchSquadModal />

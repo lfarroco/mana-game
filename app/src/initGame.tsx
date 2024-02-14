@@ -12,11 +12,11 @@ export function initGame(state: State, emitter: Events) {
 
 	const game = new Phaser.Game({
 		type: Phaser.AUTO,
-		mode: Phaser.Scale.FIT,
-		autoCenter: Phaser.Scale.CENTER_BOTH,
+		//mode: Phaser.Scale.FIT,
+		//autoCenter: Phaser.Scale.CENTER_BOTH,
 		parent: "game",
-		width: window.innerWidth,
-		height: window.innerHeight,
+		width: 1280,
+		height: 720,
 		scene: [Core, BattlegroundScene]
 	});
 
