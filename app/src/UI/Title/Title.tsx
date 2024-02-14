@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { signals, emit, emit_ } from "../../Models/Signals";
 import Credits from "../Credits/Credits";
-import { Button } from "react-bootstrap";
 import ManaButton from "../Components/Button";
 
 export default function Title() {
@@ -9,8 +8,8 @@ export default function Title() {
   const [creditsVisible, setCreditsVisible] = useState(false);
 
   const images = [
-    'https://th.bing.com/th/id/OIG.A3lHv9S3n9szNXt7NOHh?w=1024&h=1024&rs=1&pid=ImgDetMain',
-    'https://th.bing.com/th/id/OIG.894Gtcol5LM5Pcf9LaMj'
+    'assets/bgs/bg1.jpeg',
+    'assets/bgs/bg2.jpeg',
   ]
 
   return (<>

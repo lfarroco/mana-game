@@ -21,8 +21,11 @@ const ManaButton = (
 					width: 16,
 					height: 16,
 				}} /> : null
-		}
-		{label}
+		}<div>
+
+			{label}
+
+		</div>
 	</Button>
 }
 
