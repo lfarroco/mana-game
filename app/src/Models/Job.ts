@@ -15,6 +15,7 @@ export type Job = {
     accuracy: number;
     agility: number;
   };
+  skills: string[]
 };
 
 export const jobs: Job[] = [
@@ -35,6 +36,7 @@ export const jobs: Job[] = [
       accuracy: 10,
       agility: 10,
     },
+    skills: []
   },
   {
     id: "monk",
@@ -53,6 +55,7 @@ export const jobs: Job[] = [
       accuracy: 8,
       agility: 6,
     },
+    skills: []
   },
   {
     id: "cleric",
@@ -71,6 +74,7 @@ export const jobs: Job[] = [
       accuracy: 0,
       agility: 4,
     },
+    skills: ["heal"]
   },
   {
     id: "soldier",
@@ -89,6 +93,7 @@ export const jobs: Job[] = [
       accuracy: 10,
       agility: 8,
     },
+    skills: []
   },
   {
     id: "wizard",
@@ -107,6 +112,7 @@ export const jobs: Job[] = [
       accuracy: 0,
       agility: 4,
     },
+    skills: ["fireball"]
   },
 ];
 

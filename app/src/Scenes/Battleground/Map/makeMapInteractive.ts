@@ -132,17 +132,6 @@ export function makeMapInteractive(
           )
         )
 
-      const cities = scene.cities.filter((city) =>
-        isInside(
-          pointer.downX + scene.cameras.main.scrollX,
-          pointer.downY + scene.cameras.main.scrollY,
-          dx,
-          dy,
-          city.sprite.x,
-          city.sprite.y
-        )
-      );
-
       const alliedCharas = charas.filter((c) => c.force === FORCE_ID_PLAYER);
       const enemyCharas = charas.filter((c) => c.force !== FORCE_ID_PLAYER);
 

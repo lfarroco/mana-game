@@ -7,7 +7,7 @@ import SelectionHUD from "./SelectionHUD";
 import SaveGame from "../SaveGame/SaveGame";
 import { getState } from "../../Models/State";
 import { FORCE_ID_PLAYER, Force } from "../../Models/Force";
-import { Button, Col, Row } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 import ManaButton from "../Components/Button";
 
 const Battleground = () => {
@@ -80,7 +80,7 @@ const Battleground = () => {
               xs={2}
             >
               <ManaButton
-                css="sm"
+                css="btn-sm"
                 style={{ marginLeft: "10px", padding: '0 10px' }}
                 onClick={() => {
                   if (isPaused) {

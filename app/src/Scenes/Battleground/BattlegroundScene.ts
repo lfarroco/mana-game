@@ -34,7 +34,6 @@ import * as CharaSquadMovedIntoCell from "../../Systems/Chara/Events/SQUAD_MOVED
 import { TURN_DURATION } from "../../config";
 import { createFowLayer } from "./Systems/FogOfWar/createFowLayer";
 import { DestinationDisplaySystem_init } from "./Systems/DestinationDisplay";
-import { getDirection } from "../../Models/Direction";
 import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 
 export class BattlegroundScene extends Phaser.Scene {

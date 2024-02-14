@@ -2,7 +2,7 @@ import { UNIT_STATUS_KEYS, Unit } from "../../../Models/Unit"
 import "./styles.css"
 import * as Signals from "../../../Models/Signals"
 import { FORCE_ID_PLAYER } from "../../../Models/Force"
-import { Button, Row } from "react-bootstrap"
+import { Row } from "react-bootstrap"
 import { getJob } from "../../../Models/Job"
 import ManaButton from "../../Components/Button"
 
@@ -102,7 +102,7 @@ const SelectedSquad = ({
 				<div> <span className="attr">Status: </span> {status} </div>
 				<div> <span className="attr">Attack:</span> {job.attackPower + job.dices} - {job.attackPower + job.dices * 3} </div>
 				<div> <span className="attr">Defense:</span> 2 </div>
-				<div> <span className="attr">Range:</span> {job.attackType} </div>
+				<div> <span className="attr">Range:</span> {job.attackType === "melee" ? "Melee" : `Ranged (${job.attackRange})`} </div>
 
 			</div>
 			<div className="col col-6"
@@ -151,6 +151,17 @@ function selectMoveTargetActions(squad: Unit) {
 
 function UnitActions(squad: Unit) {
 
+	const job = getJob(squad.job)
+	const skills = job.skills.map(skill => {
+		return {
+			icon: `icon-${skill}`,
+			label: skill,
+			onClick: () => {
+				Signals.emit(Signals.signals.SELECT_ATTACK_TARGET_START, squad.id)
+			}
+		}
+	});
+
 	return <ButtonGrid
 		actions={[
 			{
@@ -176,6 +187,7 @@ function UnitActions(squad: Unit) {
 					Signals.emit(Signals.signals.UNIT_MOVE_STOP, squad.id)
 				}
 			},
+			...skills
 
 		]} />
 }
