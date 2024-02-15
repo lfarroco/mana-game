@@ -14,6 +14,7 @@ import {
   isAttacking,
   isDestroyed,
   isMoving,
+  isCasting,
 } from "../../Models/Unit";
 import { foldMap } from "../../Models/Signals";
 import { State, getUnit, getState } from "../../Models/State";
@@ -148,9 +149,32 @@ function checkEnemiesInRange(scene: BattlegroundScene): Operation[] {
 
 function checkCombat(state: State) {
   return foldMap(
-    state.gameData.units.filter((s) => isAttacking(s.status)),
+    state.gameData.units.filter((s) => isAttacking(s.status) || isCasting(s.status)),
     (unit) => {
-      if (!isAttacking(unit.status)) return [];
+      if (!isAttacking(unit.status) && !isCasting(unit.status)) return [];
+
+      if (isCasting(unit.status)) {
+        const { target } = unit.status;
+        const ally = getUnit(state)(target);
+
+        const distance = distanceBetween(unit.position)(ally.position);
+
+        const newHp = ally.hp + 5 > ally.maxHp ? ally.maxHp : ally.hp + 5;
+        if (distance > 1 || isDestroyed(ally.status) || ally.force !== unit.force || ally.hp === ally.maxHp) {
+          return [
+            operations.UPDATE_UNIT(unit.id, {
+              status: UNIT_STATUS.IDLE(),
+            }),
+            operations.REMOVE_EMOTE(unit.id),
+          ];
+        }
+
+        return [
+          operations.UPDATE_UNIT(ally.id, {
+            hp: newHp,
+          })
+        ];
+      }
 
       const job = getJob(unit.job);
       const { target } = unit.status;

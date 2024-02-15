@@ -35,10 +35,12 @@ const SelectedSquad = ({
 			return "Engaged"
 
 		if (unit.status.type === UNIT_STATUS_KEYS.MOVING)
-			return "Moving"
+			return `Moving ${unit.movementIndex + 1}/5`
 
 		if (unit.status.type === UNIT_STATUS_KEYS.IDLE)
 			return "Idle"
+		if (unit.status.type === UNIT_STATUS_KEYS.CASTING)
+			return "Casting"
 		else
 			return "Unknown"
 	}

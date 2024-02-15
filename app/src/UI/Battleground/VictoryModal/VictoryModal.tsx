@@ -2,7 +2,7 @@ import { FORCE_ID_PLAYER } from '../../../Models/Force';
 import { useEffect, useState } from 'react';
 import { signals, listeners } from '../../../Models/Signals';
 import Modal from 'react-bootstrap/Modal';
-import { Button } from 'react-bootstrap';
+import ManaButton from '../../Components/Button';
 
 function VictoryModal() {
 
@@ -33,16 +33,15 @@ function VictoryModal() {
 
 		</Modal.Body>
 		<Modal.Footer>
-			<button
+			<ManaButton
 				onClick={() => setIsVisible(false)}
-			>
-				Continue
-			</button>
-			<button
+				label='Continue'
+			/>
+			<ManaButton
 				onClick={() => setIsVisible(false)}
-			>
-				Quit
-			</button>
+				label='Quit'
+
+			/>
 		</Modal.Footer>
 	</Modal>
 

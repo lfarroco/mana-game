@@ -29,6 +29,7 @@ const emotes = [
 	'sparkle-emote',
 	'surprise-emote',
 	'surprise2-emote',
+	'magic-emote',
 	'sweat-emote',
 	'v-hand-emote',
 ]
