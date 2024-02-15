@@ -65,7 +65,7 @@ export function makeCitiesInteractive(
         // is there a unit in the city?
         if (state.gameData.selectedUnits.length === 0) {
           const squad = state.gameData
-            .squads
+            .units
             .filter(s => !isDestroyed(s.status))
             .find(
               (s) => eqVec2(s.position, city.city.boardPosition)

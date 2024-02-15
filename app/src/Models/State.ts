@@ -19,7 +19,7 @@ export const initialState = (): State => ({
     forces: [],
     selectedUnits: [],
     selectedCity: null,
-    squads: [],
+    units: [],
     cities: [],
     map: {
       width: 128,
@@ -53,7 +53,7 @@ export type GameData = {
   };
   tick: number;
   forces: Force[];
-  squads: Unit[];
+  units: Unit[];
   // TODO: use a set for this
   selectedUnits: string[]; // TODO: remove from state, this is a UI thing. Idea: make a UI state
   selectedCity: string | null;
@@ -80,7 +80,7 @@ export const addForce = (state: State) => (force: Force) => {
 };
 
 export const addSquad = (state: State) => (squad: Unit) => {
-  state.gameData.squads.push(squad);
+  state.gameData.units.push(squad);
 };
 
 export const addCity = (state: State) => (city: City) => {
@@ -90,13 +90,13 @@ export const addCity = (state: State) => (city: City) => {
 export const updateSquad = (state: State) => (id: string) => (
   sqd: Partial<Unit>
 ) => {
-  const squad = state.gameData.squads.find((sqd) => sqd.id === id);
+  const squad = state.gameData.units.find((sqd) => sqd.id === id);
   if (!squad) throw new Error("squad not found");
   Object.assign(squad, sqd);
 };
 
 export const getSquad = (state: State) => (id: string): Unit => {
-  const squad = state.gameData.squads.find((sqd) => sqd.id === id);
+  const squad = state.gameData.units.find((sqd) => sqd.id === id);
   if (!squad) throw new Error("squad not found");
   return squad;
 }
@@ -124,8 +124,8 @@ export const listenToStateEvents = (state: State) => {
 
       const unit = makeUnit(unitId, forceId, jobId, position)
 
-      state.gameData.forces.find(f => f.id === forceId)?.squads.push(unit.id)
-      state.gameData.squads.push(unit);
+      state.gameData.forces.find(f => f.id === forceId)?.units.push(unit.id)
+      state.gameData.units.push(unit);
 
       emit(signals.UNIT_CREATED, unit.id);
 
@@ -133,7 +133,7 @@ export const listenToStateEvents = (state: State) => {
 
     [signals.UPDATE_SQUAD, (id: string, sqd: Partial<Unit>) => {
 
-      const currentUnit = state.gameData.squads.find((s) => s.id === id)
+      const currentUnit = state.gameData.units.find((s) => s.id === id)
 
       if (!currentUnit) throw new Error(`unit ${id} not found`)
 

@@ -39,7 +39,7 @@ function refreshFogOfWar(scene: BattlegroundScene, state: State) {
     tile.alpha = 0.6;
   });
 
-  state.gameData.squads
+  state.gameData.units
     .filter((s) => s.force === FORCE_ID_PLAYER)
     .filter((s) => s.status.type !== UNIT_STATUS_KEYS.DESTROYED)
     .forEach((s) => showRadius(s.position, fow));
@@ -49,7 +49,7 @@ function refreshFogOfWar(scene: BattlegroundScene, state: State) {
     .filter((c) => c.force === FORCE_ID_PLAYER)
     .forEach((c) => showRadius(c.boardPosition, fow));
 
-  state.gameData.squads
+  state.gameData.units
     .filter((s) => s.force === FORCE_ID_CPU)
     .filter((s) => s.status.type !== UNIT_STATUS_KEYS.DESTROYED)
     .forEach((enemy) => {

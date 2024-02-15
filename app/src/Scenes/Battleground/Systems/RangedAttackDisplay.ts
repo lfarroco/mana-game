@@ -105,7 +105,7 @@ export function init(scene: BattlegroundScene, state: State) {
 
 			// check if someone is attacking it
 
-			state.gameData.squads.forEach(squad => {
+			state.gameData.units.forEach(squad => {
 
 				if (isAttacking(squad.status)
 					&& squad.status.target === squadId

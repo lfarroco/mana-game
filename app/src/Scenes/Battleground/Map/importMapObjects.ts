@@ -141,8 +141,8 @@ export function importMapObjects(map: Phaser.Tilemaps.Tilemap) {
         state.gameData.ai.defenders.push(newUnit.id);
       }
 
-      state.gameData.squads.push(newUnit);
-      force.squads.push(newUnit.id);
+      state.gameData.units.push(newUnit);
+      force.units.push(newUnit.id);
       state.gameData.map = {
         width: map.width,
         height: map.height,

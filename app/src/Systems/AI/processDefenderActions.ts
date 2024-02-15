@@ -1,9 +1,9 @@
-import {FORCE_ID_CPU} from "../../Models/Force";
-import {eqVec2} from "../../Models/Geometry";
-import {emit, signals} from "../../Models/Signals";
-import {UNIT_STATUS_KEYS, Unit} from "../../Models/Unit";
-import {State} from "../../Models/State";
-import {distanceBetween} from "../../Models/Geometry";
+import { FORCE_ID_CPU } from "../../Models/Force";
+import { eqVec2 } from "../../Models/Geometry";
+import { emit, signals } from "../../Models/Signals";
+import { UNIT_STATUS_KEYS, Unit } from "../../Models/Unit";
+import { State } from "../../Models/State";
+import { distanceBetween } from "../../Models/Geometry";
 
 export function processDefenderActions(state: State) {
 
@@ -11,7 +11,7 @@ export function processDefenderActions(state: State) {
     return;
 
   (state.gameData.ai.defenders
-    .map(id => state.gameData.squads.find(squad => squad.id === id))
+    .map(id => state.gameData.units.find(squad => squad.id === id))
     .filter(squad => squad) as Unit[]
   )
     .forEach(sqd => {

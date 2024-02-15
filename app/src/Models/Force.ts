@@ -4,15 +4,15 @@ export type Force = {
 	id: string;
 	name: string;
 	color: string;
-	squads: string[];
+	units: string[];
 	gold: number;
 };
 
-export const makeForce = () => ({
+export const makeForce = (): Force => ({
 	id: uuid.v4(),
 	name: "",
 	color: "",
-	squads: [],
+	units: [],
 	gold: 0,
 });
 export const FORCE_ID_PLAYER = "PLAYER"

@@ -29,7 +29,7 @@ function recruit(state: State) {
 
   const unblockedTaverns = aiOwnedTaverns.filter(
     (tavern) =>
-      !state.gameData.squads.some((squad) =>
+      !state.gameData.units.some((squad) =>
         eqVec2(squad.position, tavern.boardPosition)
       )
   );

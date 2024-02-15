@@ -7,7 +7,7 @@ export function getEnemiesNearby(squad: Unit) {
 	const job = getJob(squad.job);
 	const range = job.attackType === "melee" ? 1 : 3;
 
-	return getState().gameData.squads
+	return getState().gameData.units
 		.filter((sqd) => sqd.force !== squad.force)
 		.filter((sqd) => sqd.status.type !== UNIT_STATUS_KEYS.DESTROYED)
 		.filter((sqd) => {
