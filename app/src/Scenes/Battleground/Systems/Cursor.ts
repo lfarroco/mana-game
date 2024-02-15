@@ -3,6 +3,7 @@ import { FORCE_ID_PLAYER } from "../../../Models/Force";
 import { signals, listeners } from "../../../Models/Signals";
 import BattlegroundScene from "../BattlegroundScene";
 import { TILE_HEIGHT } from "../constants";
+import { State } from "../../../Models/State";
 
 
 // index of cursors for cities and charas
@@ -28,7 +29,7 @@ const getOrCreateCursorForChara_ = (
 	return cursor
 }
 
-export function init(scene: BattlegroundScene) {
+export function init(state: State, scene: BattlegroundScene) {
 
 	let cursors: ImageIndex = {}
 
@@ -69,10 +70,14 @@ export function init(scene: BattlegroundScene) {
 			cursors[cityId] = cursor
 
 		}],
-		[signals.CITY_DESELECTED, (cityId: string) => {
+		[signals.CITY_DESELECTED, () => {
 
-			cursors[cityId].destroy()
-			delete cursors[cityId]
+			const id = state.gameData.selectedCity
+
+			if (!id) return
+
+			cursors[id].destroy()
+			delete cursors[id]
 
 		}]
 	])
