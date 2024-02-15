@@ -21,9 +21,10 @@ export function initGame(state: State, emitter: Events) {
 	});
 
 
-	window.addEventListener("resize", () => {
-		game.scale.resize(window.innerWidth, window.innerHeight);
-	});
+	// enable this if using Phaser.Scale.FIT
+	// window.addEventListener("resize", () => {
+	// 	game.scale.resize(window.innerWidth, window.innerHeight);
+	// });
 
 	listeners([
 		[

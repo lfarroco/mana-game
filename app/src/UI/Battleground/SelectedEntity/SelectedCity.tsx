@@ -9,8 +9,8 @@ const SelectedCity = ({ city }: { city: City }) => {
 	return <div id="selected-entity"
 
 		style={{
-			position: 'fixed',
-			bottom: 0,
+			position: 'absolute',
+			top: 640,
 			left: 0,
 			backgroundColor: "rgba(2, 4, 3, 0.3)",
 			padding: "5px",

@@ -7,9 +7,9 @@ import { getJob } from "../../../Models/Job"
 import ManaButton from "../../Components/Button"
 
 const BUTTON_STYLE = {
-	width: 48,
-	height: 48,
-	fontSize: 10,
+	width: 64,
+	height: 64,
+	fontSize: 12,
 	padding: 0,
 	margin: 0,
 	borderRadius: 0,
@@ -52,29 +52,15 @@ const SelectedSquad = ({
 				: isSelectingSkillTarget ? selectSkillTargetActions(squad)
 					: UnitActions(squad)
 
-	return <div id="selected-entity"
+	return <div
+		id="selected-squad"
 		className="container"
-		style={{
-			width: 360,
-			position: 'fixed',
-			bottom: 0,
-			right: 0,
-			//backgroundColor: "#020403",
-			background: "rgba(2, 4, 3, 0.3)",
-			padding: "5px",
-			borderTopLeftRadius: 5
-		}}
-
 	>
-
 		<Row>
-
-
 			<div className="col col-3 mt-2"
 				style={{
 					borderRight: "1px solid white",
 					textAlign: "center",
-					fontSize: 10
 				}}
 			>
 
@@ -85,23 +71,14 @@ const SelectedSquad = ({
 					alt={squad.name}
 				/>
 				<div
-
 					style={{
 						color: "#13ec13",
 					}}
 				>
-					{
-						squad.hp
-					} / {
-						squad.maxHp
-					}
+					{squad.hp} / {squad.maxHp}
 				</div>
-
 			</div>
-			<div className="col-3 align-self-center"
-
-				style={{ fontSize: 10 }}
-			>
+			<div className="col-3 align-self-center" >
 				<div> <span className="attr">Status: </span> {status} </div>
 				<div> <span className="attr">Attack:</span> {job.attackPower + job.dices} - {job.attackPower + job.dices * 3} </div>
 				<div> <span className="attr">Defense:</span> 2 </div>

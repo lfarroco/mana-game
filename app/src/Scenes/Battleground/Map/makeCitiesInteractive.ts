@@ -6,6 +6,7 @@ import { getSquad, getState } from "../../../Models/State";
 import { pingAt } from "./Ping";
 import { City } from "../../../Models/City";
 import { FORCE_ID_CPU } from "../../../Models/Force";
+import { isDestroyed } from "../../../Models/Unit";
 
 export function makeCitiesInteractive(
   scene: BattlegroundScene,
@@ -63,9 +64,12 @@ export function makeCitiesInteractive(
 
         // is there a unit in the city?
         if (state.gameData.selectedUnits.length === 0) {
-          const squad = state.gameData.squads.find(
-            (s) => eqVec2(s.position, city.city.boardPosition)
-          );
+          const squad = state.gameData
+            .squads
+            .filter(s => !isDestroyed(s.status))
+            .find(
+              (s) => eqVec2(s.position, city.city.boardPosition)
+            );
 
           if (squad) {
             emit(signals.UNITS_SELECTED, [squad.id]);
