@@ -30,7 +30,7 @@ export default class Core extends Phaser.Scene {
 
 		this.music = this.sound.add('theme');
 
-		this.music.setVolume(0.2);
+		this.music.setVolume(0.05);
 
 		const state = getState();
 

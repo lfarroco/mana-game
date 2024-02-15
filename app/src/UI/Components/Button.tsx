@@ -1,5 +1,6 @@
 import { CSSProperties } from "react";
 import { Button } from "react-bootstrap";
+import { getState } from "../../Models/State";
 
 const ManaButton = (
 	props: { icon: string, css: string, label: string, style: CSSProperties | undefined, onClick: () => void }
@@ -11,7 +12,9 @@ const ManaButton = (
 		className={css}
 		variant="dark"
 		onClick={() => {
+			const state = getState()
 			const audio = new Audio("assets/audio/button_click.ogg");
+			audio.volume = state.options.soundVolume;
 			audio.play();
 			onClick();
 		}}>

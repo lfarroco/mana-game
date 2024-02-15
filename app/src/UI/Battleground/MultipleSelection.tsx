@@ -16,18 +16,8 @@ export default function MultipleSelection({
     .filter((unit) => !!unit) as Unit[];
 
   return (
-    <div id="selected-entity"
-
-      style={{
-        position: 'fixed',
-        bottom: 0,
-        right: 0,
-        backgroundColor: "rgba(0,0,0,0.5)",
-        padding: "5px",
-        width: "300px",
-        fontSize: 10,
-
-      }}
+    <div
+      id="multiple-selection"
     >
       <Row>
         <div className="col">

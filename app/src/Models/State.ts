@@ -8,7 +8,9 @@ import { UNIT_STATUS, Unit, UnitStatus, isAttacking, makeUnit } from "./Unit";
 export const initialState = (): State => ({
   options: {
     sound: true,
+    soundVolume: 0.1,
     music: true,
+    musicVolume: 0.1,
     debug: true,
     speed: 4,
   },
@@ -37,7 +39,9 @@ export const initialState = (): State => ({
 export type State = {
   options: {
     sound: boolean;
+    soundVolume: number;
     music: boolean;
+    musicVolume: number;
     debug: boolean;
     speed: number;
   };
