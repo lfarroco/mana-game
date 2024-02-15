@@ -9,6 +9,7 @@ export function BattlegroundAudioSystem_init(state: State, scene: BattlegroundSc
 	listeners([
 		[signals.SELECT_UNIT_MOVE_DONE, () => {
 
+			scene.sound.setVolume(0.3)
 			scene.sound.play('audio/march')
 
 		}],

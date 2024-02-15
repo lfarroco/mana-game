@@ -21,11 +21,11 @@
 }
 
 #selected-unit {
-	width: 480px;
-	height: 160px;
+	width: 460px;
+	height: 150px;
 	position: absolute;
-	top: 565px;
-	left: 520px;
+	top: 571px;
+	left: 565px;
 	background: rgba(2, 4, 3, 0.3);
 	padding: 5px;
 	border-top-left-radius: 5px;

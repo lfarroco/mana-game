@@ -3,10 +3,11 @@ import BattlegroundScene from "../BattlegroundScene";
 import { emit, signals } from "../../../Models/Signals";
 import { asVec2, eqVec2, vec2 } from "../../../Models/Geometry";
 import { FORCE_ID_PLAYER } from "../../../Models/Force";
-import { UNIT_STATUS_KEYS } from "../../../Models/Unit";
+import { UNIT_STATUS, UNIT_STATUS_KEYS } from "../../../Models/Unit";
 import { getUnit, getState, State } from "../../../Models/State";
 import { isInside } from "../../../Models/Geometry";
 import { pingAt as pingAtLocation } from "./Ping";
+import { getDirection } from "../../../Models/Direction";
 
 export function makeMapInteractive(
   scene: BattlegroundScene,
@@ -165,6 +166,21 @@ export function makeMapInteractive(
 
       const tile = bgLayer.getTileAtWorldXY(x, y);
 
+      if (scene.isSelectingAttackTarget) {
+
+        checkAttackTargetInCell(state, tile);
+
+        return
+
+      }
+
+      if (scene.isSelectingSkillTarget) {
+        // const unit = getUnit(state)(scene.selectedUnit);
+        // const skill = scene.selectedSkill;
+        // emit(signals.SELECT_SKILL_TARGET_DONE, unit.id, skill, asVec2(tile));
+        return;
+      }
+
       if (pointer.rightButtonReleased() || scene.isSelectingSquadMove) {
 
         issueMoveOrder(state, tile, scene, x, y);
@@ -175,17 +191,7 @@ export function makeMapInteractive(
 
       if (!scene.isSelectingSquadMove && !pointer.rightButtonReleased()) {
 
-        const unit = state.gameData.units.find((unit) => eqVec2(unit.position, asVec2(tile)))
-
-        if (unit)
-          emit(signals.UNITS_SELECTED, [unit.id]);
-
-        const city = state.gameData.cities.find((city) => eqVec2(city.boardPosition, asVec2(tile)))
-
-        if (city)
-          emit(signals.CITY_SELECTED, city.id);
-        else
-          emit(signals.CITY_DESELECTED);
+        selectEntitiesInTile(state, tile);
 
         return
       }
@@ -193,6 +199,34 @@ export function makeMapInteractive(
 
     }
   );
+}
+
+function checkAttackTargetInCell(state: State, tile: Phaser.Tilemaps.Tile) {
+  const enemy = state.gameData.units
+    .find((unit) => eqVec2(unit.position, asVec2(tile)) && unit.force !== FORCE_ID_PLAYER);
+
+  if (!enemy) return
+
+  const direction = getDirection(getUnit(state)(state.gameData.selectedUnits[0]).position, enemy.position);
+
+  emit(signals.SELECT_ATTACK_TARGET_DONE, enemy.id);
+  emit(signals.UPDATE_UNIT, state.gameData.selectedUnits[0], { status: UNIT_STATUS.ATTACKING(enemy.id) });
+  emit(signals.FACE_DIRECTION, state.gameData.selectedUnits[0], direction)
+}
+
+function selectEntitiesInTile(state: State, tile: Phaser.Tilemaps.Tile) {
+  const unit = state.gameData.units.find((unit) => eqVec2(unit.position, asVec2(tile)));
+
+  if (unit)
+    emit(signals.UNITS_SELECTED, [unit.id]);
+
+  const city = state.gameData.cities.find((city) => eqVec2(city.boardPosition, asVec2(tile)));
+
+  if (city)
+    emit(signals.CITY_SELECTED, city.id);
+
+  else
+    emit(signals.CITY_DESELECTED);
 }
 
 function issueMoveOrder(state: State, tile: Phaser.Tilemaps.Tile, scene: BattlegroundScene, x: number, y: number) {
