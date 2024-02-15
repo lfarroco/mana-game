@@ -120,7 +120,6 @@ export class BattlegroundScene extends Phaser.Scene {
       }],
       [signals.UNITS_SELECTED, () => {
         const pop = this.sound.add('ui/button_click')
-        pop.setVolume(0.3)
         pop.play()
       }]
     ]);
@@ -159,6 +158,8 @@ export class BattlegroundScene extends Phaser.Scene {
      * It is important to NOT create new global listeners here
      * TODO: add test to confirm that global listeners are not created here
      */
+
+    this.sound.setVolume(0.05)
 
     console.log("BattlegroundScene create");
     const { map, layers } = createMap(this);

@@ -3,7 +3,7 @@ import BattlegroundScene from "../BattlegroundScene";
 import { emit, signals } from "../../../Models/Signals";
 import { asVec2, eqVec2, vec2 } from "../../../Models/Geometry";
 import { FORCE_ID_PLAYER } from "../../../Models/Force";
-import { UNIT_STATUS, UNIT_STATUS_KEYS } from "../../../Models/Unit";
+import { UNIT_STATUS, UNIT_STATUS_KEYS, isDestroyed } from "../../../Models/Unit";
 import { getUnit, getState, State } from "../../../Models/State";
 import { isInside } from "../../../Models/Geometry";
 import { pingAt as pingAtLocation } from "./Ping";
@@ -238,7 +238,9 @@ function checkAttackTargetInCell(state: State, tile: Phaser.Tilemaps.Tile) {
 }
 
 function selectEntitiesInTile(state: State, tile: Phaser.Tilemaps.Tile) {
-  const unit = state.gameData.units.find((unit) => eqVec2(unit.position, asVec2(tile)));
+  const unit = state.gameData.units
+    .filter(unit => !isDestroyed(unit.status))
+    .find((unit) => eqVec2(unit.position, asVec2(tile)));
 
   if (unit)
     emit(signals.UNITS_SELECTED, [unit.id]);

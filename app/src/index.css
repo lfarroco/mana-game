@@ -53,3 +53,15 @@ canvas {
 .modal-header {
   color: #ddd180;
 }
+
+#multiple-selection {
+  top: 620px;
+  left: 340px;
+  height: 100px;
+  position: absolute;
+  width: 300px;
+  background: rgba(0, 0, 0, 0.3);
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  padding: 5px;
+}
