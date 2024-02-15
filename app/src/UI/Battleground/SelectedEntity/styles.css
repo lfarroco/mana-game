@@ -15,7 +15,19 @@
 .grid-cell {
 	border: #979797 outset 2px;
 	float: left;
-	margin: 1px;
-	width: 52px;
-	height: 52px;
+	width: 70px;
+	height: 70px;
+	padding: 1px;
+}
+
+#selected-squad {
+	width: 480px;
+	height: 160px;
+	position: absolute;
+	top: 565px;
+	left: 520px;
+	background: rgba(2, 4, 3, 0.3);
+	padding: 5px;
+	border-top-left-radius: 5px;
+	color: white;
 }

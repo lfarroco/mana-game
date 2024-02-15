@@ -9,9 +9,9 @@ canvas {
 }
 
 header {
-  position: fixed;
+  position: absolute;
   top: 0;
-  width: 100%;
+  width: 1280px;
   background: rgba(0, 0, 0, 0.5);
 }
 
