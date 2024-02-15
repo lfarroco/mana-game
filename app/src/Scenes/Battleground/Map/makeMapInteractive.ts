@@ -23,9 +23,9 @@ export function makeMapInteractive(
 
   let startDrag = vec2(0, 0);
   let startScroll = vec2(0, 0);
+  let selectionRect: Phaser.GameObjects.Graphics = scene.add.graphics();
 
-  bgLayer.on(
-    Phaser.Input.Events.POINTER_DOWN,
+  bgLayer.on(Phaser.Input.Events.POINTER_DOWN,
     (pointer: Phaser.Input.Pointer) => {
       if (pointer.upElement?.tagName !== "CANVAS") return;
 
@@ -40,8 +40,7 @@ export function makeMapInteractive(
     }
   );
 
-  bgLayer.on(
-    Phaser.Input.Events.POINTER_MOVE,
+  bgLayer.on(Phaser.Input.Events.POINTER_MOVE,
     (pointer: Phaser.Input.Pointer) => {
       if (pointer.upElement?.tagName !== "CANVAS") return;
 
@@ -61,10 +60,7 @@ export function makeMapInteractive(
     }
   );
 
-  let selectionRect: Phaser.GameObjects.Graphics = scene.add.graphics();
-
-  bgLayer.on(
-    Phaser.Input.Events.DRAG,
+  bgLayer.on(Phaser.Input.Events.DRAG,
     (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
       if (pointer.upElement?.tagName !== "CANVAS") return;
 
@@ -104,8 +100,7 @@ export function makeMapInteractive(
     }
   );
 
-  bgLayer.on(
-    Phaser.Input.Events.DRAG_END,
+  bgLayer.on(Phaser.Input.Events.DRAG_END,
     (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
       if (pointer.upElement?.tagName !== "CANVAS") return;
 
@@ -137,18 +132,20 @@ export function makeMapInteractive(
 
       if (enemyCharas.length > 0 && alliedCharas.length > 0) {
 
-        emit(
-          signals.UNITS_SELECTED,
-          alliedCharas.map((c) => c.id)
-        );
-
+        const ids = alliedCharas.map((c) => c.id)
+        if (ids.length > 0)
+          emit(
+            signals.UNITS_SELECTED, ids
+          );
 
       } else {
 
-        emit(
-          signals.UNITS_SELECTED,
-          charas.map((c) => c.id)
-        );
+        const ids = charas.map((c) => c.id)
+
+        if (ids.length > 0)
+          emit(
+            signals.UNITS_SELECTED, ids
+          );
 
       }
 
@@ -156,13 +153,32 @@ export function makeMapInteractive(
     }
   );
 
-  bgLayer.on(
-    Phaser.Input.Events.POINTER_UP,
+  bgLayer.on(Phaser.Input.Events.POINTER_UP,
     (pointer: Phaser.Input.Pointer, x: number, y: number) => {
 
       if (pointer.upElement?.tagName !== "CANVAS") return;
 
-      const state = getState()
+      // releasing the pointer after a drag also triggers a click event
+      if (pointer.getDistance() > 10) return
+
+      const state = getState();
+
+      const tile = bgLayer.getTileAtWorldXY(x, y);
+
+
+      if (state.gameData.selectedUnits.length < 1) {
+
+        // is a unit in the tile?
+
+        const squad = state.gameData.units.find((squad) => eqVec2(squad.position, asVec2(tile)))
+
+        console.log("squad", squad);
+
+        return
+      }
+
+
+      if (!pointer.rightButtonReleased() && !scene.isSelectingSquadMove) return
 
       const isEnemySelected = state.gameData.selectedUnits.some((id) => {
         const squad = getSquad(state)(id);
@@ -173,11 +189,6 @@ export function makeMapInteractive(
         return;
       };
 
-      if (state.gameData.selectedUnits.length < 1) return
-
-      if (!pointer.rightButtonReleased() && !scene.isSelectingSquadMove) return
-
-      const tile = bgLayer.getTileAtWorldXY(x, y);
 
       state.gameData
         .selectedUnits

@@ -52,14 +52,14 @@ const processTick = (scene: BattlegroundScene) => {
 function moveStep(scene: BattlegroundScene, state: State) {
   return traverse_(
     state
-      .gameData.squads.filter(s => isMoving(s.status))
+      .gameData.units.filter(s => isMoving(s.status))
       .sort((a, b) => a.agility - b.agility),
     (squad) => {
       const [next] = squad.path;
 
       const nextTile = scene.getTileAt(next);
 
-      const [occupant] = state.gameData.squads
+      const [occupant] = state.gameData.units
         .filter((s) => !isDestroyed(s.status))
         .filter((s) => eqVec2(s.position, next));
 
@@ -127,7 +127,7 @@ function moveStep(scene: BattlegroundScene, state: State) {
 
 function checkEnemiesInRange(scene: BattlegroundScene): Operation[] {
   return foldMap(
-    getState().gameData.squads.filter(
+    getState().gameData.units.filter(
       (s) => s.status.type === UNIT_STATUS_KEYS.IDLE
     ),
     (squad) => {
@@ -148,7 +148,7 @@ function checkEnemiesInRange(scene: BattlegroundScene): Operation[] {
 
 function checkCombat(state: State) {
   return foldMap(
-    state.gameData.squads.filter((s) => isAttacking(s.status)),
+    state.gameData.units.filter((s) => isAttacking(s.status)),
     (squad) => {
       if (!isAttacking(squad.status)) return [];
 
@@ -199,7 +199,7 @@ export default processTick;
 
 function checkDestroyed() {
   return foldMap(
-    getState().gameData.squads.filter(
+    getState().gameData.units.filter(
       (s) => s.status.type !== UNIT_STATUS_KEYS.DESTROYED
     ),
     (squad) => {
@@ -213,7 +213,7 @@ function checkDestroyed() {
 
 function checkIdle(scene: BattlegroundScene) {
   return foldMap(
-    getState().gameData.squads.filter(
+    getState().gameData.units.filter(
       (s) => s.status.type === UNIT_STATUS_KEYS.IDLE
     ),
     (squad) => {
@@ -232,7 +232,7 @@ function checkIdle(scene: BattlegroundScene) {
 function cleanupEmotes(scene: BattlegroundScene) {
   const state = getState();
   return foldMap(
-    state.gameData.squads
+    state.gameData.units
       .filter((s) => s.status.type === UNIT_STATUS_KEYS.IDLE)
       .filter((s) => scene.getChara(s.id).emote?.visible),
     (squad) => [operations.REMOVE_EMOTE(squad.id)]
@@ -243,7 +243,7 @@ function cleanupEmotes(scene: BattlegroundScene) {
 // - sets their status to MOVING
 function startMoving(state: State) {
   return foldMap(
-    state.gameData.squads
+    state.gameData.units
       .filter((s) => s.status.type === UNIT_STATUS_KEYS.IDLE)
       .filter((s) => s.path.length > 0),
     (squad) => [

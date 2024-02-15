@@ -10,7 +10,7 @@ export function init(state: State) {
 	listeners([
 		[signals.BATTLEGROUND_TICK, () => {
 
-			state.gameData.squads
+			state.gameData.units
 				.filter(squad => squad.status.type === UNIT_STATUS_KEYS.IDLE)
 				.filter(squad => squad.hp < squad.maxHp)
 				.filter(squad => state.gameData.cities.some(

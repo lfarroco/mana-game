@@ -11,7 +11,7 @@ export function init(state: State) {
 
 			const squad = getSquad(state)(squadId)
 
-			const squadsInCell = state.gameData.squads
+			const squadsInCell = state.gameData.units
 				.filter(sqd => sqd.force === squad.force)
 				.filter(s => eqVec2(squad.position, s.position))
 
@@ -20,8 +20,8 @@ export function init(state: State) {
 		}],
 		[signals.SQUAD_LEAVES_CELL, (squadId: string, vec: Vec2) => {
 
-			const squadsInCell = state.gameData.squads
-				.filter(sqd => sqd.force === state.gameData.squads.find(sqd => sqd.id === squadId)?.force)
+			const squadsInCell = state.gameData.units
+				.filter(sqd => sqd.force === state.gameData.units.find(sqd => sqd.id === squadId)?.force)
 				.filter(s => eqVec2(vec, s.position))
 
 			emit(signals.UPDATE_SQUAD_COUNTER, squadsInCell.length, vec)

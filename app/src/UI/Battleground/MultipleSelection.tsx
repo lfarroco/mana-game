@@ -12,7 +12,7 @@ export default function MultipleSelection({
   const state = getState();
 
   const squads = units
-    .map((id) => state.gameData.squads.find((squad) => squad.id === id))
+    .map((id) => state.gameData.units.find((squad) => squad.id === id))
     .filter((squad) => !!squad) as Unit[];
 
   return (

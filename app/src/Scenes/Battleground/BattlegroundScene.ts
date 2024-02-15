@@ -164,7 +164,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     console.log("BattlegroundScene create");
     const { map, layers } = createMap(this);
-    if (state.gameData.squads.length > 0) {
+    if (state.gameData.units.length > 0) {
       console.log("BattlegroundScene create with gameData: ", state.gameData)
     } else {
       importMapObjects(map);
@@ -177,10 +177,10 @@ export class BattlegroundScene extends Phaser.Scene {
 
     makeMapInteractive(this, map, layers.background);
     //makeSquadsInteractive(this, this.charas);
-    makeCitiesInteractive(
-      this,
-      this.cities
-    );
+    // makeCitiesInteractive(
+    //   this,
+    //   this.cities
+    // );
 
     this.fow = createFowLayer(this)
 
@@ -262,7 +262,7 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
   createMapSquads() {
-    getState().gameData.squads
+    getState().gameData.units
       .filter((unit) => unit.status.type !== UNIT_STATUS_KEYS.DESTROYED)
       .forEach((unit) => this.renderUnit(unit));
   }
@@ -277,7 +277,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     emit(signals.CHARA_CREATED, unit.id)
 
-    makeSquadInteractive(chara, this)
+    //makeSquadInteractive(chara, this)
 
   }
 
@@ -288,7 +288,7 @@ export class BattlegroundScene extends Phaser.Scene {
     this.isPaused = false;
   };
   moveUnitsTo = (sqdIds: string[], { x, y }: Vec2) => {
-    const units = getState().gameData.squads.filter((sqd) => sqdIds.includes(sqd.id));
+    const units = getState().gameData.units.filter((sqd) => sqdIds.includes(sqd.id));
 
     this.isSelectingSquadMove = false;
 
