@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getCity, getSquad, getState } from "../../Models/State";
+import { getCity, getUnit, getState } from "../../Models/State";
 import SelectedCity from "./SelectedEntity/SelectedCity";
 import SelectedSquad from "./SelectedEntity/SelectedSquad";
 import { signals, listeners } from "../../Models/Signals";
@@ -51,7 +51,7 @@ export default function SelectionHUD({
     {selectedSquads.length > 1 && <MultipleSelection units={selectedSquads} />}
     {selectedSquads.length === 1 &&
       <SelectedSquad
-        squad={getSquad(state)(selectedSquads[0])}
+        unit={getUnit(state)(selectedSquads[0])}
         isSelectingMoveTarget={isSelectingMoveTarget}
         isSelectingAttackTarget={isSelectingAttackTarget}
         isSelectingSkillTarget={isSelectingSkillTarget}

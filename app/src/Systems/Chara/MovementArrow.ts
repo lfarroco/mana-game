@@ -4,7 +4,7 @@ import { signals, listeners } from "../../Models/Signals";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { Chara, EMOTE_SCALE } from "./Chara";
 import { HALF_TILE_HEIGHT } from "../../Scenes/Battleground/constants";
-import { State, getSquad } from "../../Models/State";
+import { State, getUnit } from "../../Models/State";
 import { isMoving } from "../../Models/Unit";
 
 type SpriteIndex = {
@@ -20,24 +20,24 @@ export function init(state: State, scene: BattlegroundScene) {
 
   listeners([
     [
-      signals.SQUAD_WALKS_TOWARDS_CELL,
-      (squadId: string, next: Vec2, walked: number, total: number) => {
+      signals.UNIT_WALKS_TOWARDS_CELL,
+      (unitId: string, next: Vec2, walked: number, total: number) => {
 
-        const chara = scene.getChara(squadId);
-        const squad = scene.getSquad(squadId);
-        const direction = getDirection(squad.position, next);
-        updateProgressArrow(spriteIndex, squadId, direction, chara, walked, total);
+        const chara = scene.getChara(unitId);
+        const unit = scene.getSquad(unitId);
+        const direction = getDirection(unit.position, next);
+        updateProgressArrow(spriteIndex, unitId, direction, chara, walked, total);
       },
     ],
     [
-      signals.SQUAD_FINISHED_MOVE_ANIM,
-      (squadId: string) => {
-        const squad = scene.getSquad(squadId);
+      signals.UNIT_FINISHED_MOVE_ANIM,
+      (unitId: string) => {
+        const unit = scene.getSquad(unitId);
 
-        const [next] = squad.path;
+        const [next] = unit.path;
 
 
-        if (!next) removeSprites(spriteIndex, squadId);
+        if (!next) removeSprites(spriteIndex, unitId);
       },
     ],
     [
@@ -45,13 +45,13 @@ export function init(state: State, scene: BattlegroundScene) {
       () => {
         scene.charas.forEach(chara => {
 
-          const squad = getSquad(state)(chara.id);
+          const unit = getUnit(state)(chara.id);
 
-          if (!isMoving(squad.status)) return;
+          if (!isMoving(unit.status)) return;
 
-          const direction = getDirection(squad.position, squad.path[0]);
+          const direction = getDirection(unit.position, unit.path[0]);
 
-          updateProgressArrow(spriteIndex, chara.id, direction, chara, squad.movementIndex, 5)
+          updateProgressArrow(spriteIndex, chara.id, direction, chara, unit.movementIndex, 5)
 
         });
 
@@ -59,49 +59,49 @@ export function init(state: State, scene: BattlegroundScene) {
     ],
     [
       signals.ATTACK_STARTED,
-      (squadId: string, _targetId: string) => {
+      (unitId: string, _targetId: string) => {
 
-        if (!spriteIndex[squadId]) return
+        if (!spriteIndex[unitId]) return
 
-        removeSprites(spriteIndex, squadId);
+        removeSprites(spriteIndex, unitId);
 
       },
     ],
     [
-      signals.PATH_FOUND, (squadId: string, path: Vec2[]) => {
+      signals.PATH_FOUND, (unitId: string, path: Vec2[]) => {
 
         const [target] = path;
 
-        const chara = scene.getChara(squadId);
-        const squad = scene.getSquad(squadId);
-        const direction = getDirection(squad.position, target);
+        const chara = scene.getChara(unitId);
+        const unit = scene.getSquad(unitId);
+        const direction = getDirection(unit.position, target);
         createArrow(direction, chara, spriteIndex);
 
 
       }
     ],
-    [signals.UNIT_MOVE_STOP, (squadId: string) => {
+    [signals.UNIT_MOVE_STOP, (unitId: string) => {
 
-      if (!spriteIndex[squadId]) return
+      if (!spriteIndex[unitId]) return
 
-      removeSprites(spriteIndex, squadId);
+      removeSprites(spriteIndex, unitId);
     }]
 
   ]);
 }
 function updateProgressArrow(
   spriteIndex: SpriteIndex,
-  squadId: string,
+  unitId: string,
   direction: Direction,
   chara: Chara,
   walked: number,
   total: number,
 ) {
-  if (!spriteIndex[squadId]) {
+  if (!spriteIndex[unitId]) {
     createArrow(direction, chara, spriteIndex);
   }
 
-  const { overlay } = spriteIndex[squadId];
+  const { overlay } = spriteIndex[unitId];
 
   const percentage = walked / total;
 
@@ -167,12 +167,12 @@ function createSprites(chara: Chara, index: SpriteIndex, key: string) {
   index[chara.id] = { arrow, overlay }
 }
 
-export function removeSprites(spriteIndex: SpriteIndex, squadId: string) {
-  const sprites = spriteIndex[squadId]
+export function removeSprites(spriteIndex: SpriteIndex, unitId: string) {
+  const sprites = spriteIndex[unitId]
 
   if (!sprites) return
   sprites.arrow.destroy();
   sprites.overlay.destroy();
 
-  delete spriteIndex[squadId]
+  delete spriteIndex[unitId]
 }

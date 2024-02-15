@@ -19,29 +19,29 @@ export const EMOTE_SCALE = 1;
 
 export function createChara(
 	scene: BattlegroundScene,
-	squad: Unit,
+	unit: Unit,
 ): Chara {
 
 	const sprite = scene
 		.add.sprite(
-			squad.position.x * TILE_WIDTH + HALF_TILE_WIDTH,
-			squad.position.y * TILE_HEIGHT + HALF_TILE_HEIGHT,
-			squad.job
-		).setName("chara-" + squad.id);// TODO: is this being used?
+			unit.position.x * TILE_WIDTH + HALF_TILE_WIDTH,
+			unit.position.y * TILE_HEIGHT + HALF_TILE_HEIGHT,
+			unit.job
+		).setName("chara-" + unit.id);// TODO: is this being used?
 
 	// TODO: move to animation system
-	sprite.play(squad.job + "-walk-down", true);
+	sprite.play(unit.job + "-walk-down", true);
 
 	// TODO: use force color, or specific sprites
-	if (squad.force === FORCE_ID_CPU)
+	if (unit.force === FORCE_ID_CPU)
 		sprite.setTint(0xff9999)
 
 	const group = scene.add.group([sprite]) // TODO: is this being used?
 
 	const chara: Chara = {
-		id: squad.id,
-		force: squad.force,
-		job: squad.job,
+		id: unit.id,
+		force: unit.force,
+		job: unit.job,
 		sprite,
 		emote: null,
 		group,

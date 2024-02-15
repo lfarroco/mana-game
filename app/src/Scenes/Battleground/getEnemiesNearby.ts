@@ -3,16 +3,16 @@ import { UNIT_STATUS_KEYS, Unit } from "../../Models/Unit";
 import { getState } from "../../Models/State";
 import { getJob } from "../../Models/Job";
 
-export function getEnemiesNearby(squad: Unit) {
-	const job = getJob(squad.job);
+export function getEnemiesNearby(unit: Unit) {
+	const job = getJob(unit.job);
 	const range = job.attackType === "melee" ? 1 : 3;
 
 	return getState().gameData.units
-		.filter((sqd) => sqd.force !== squad.force)
-		.filter((sqd) => sqd.status.type !== UNIT_STATUS_KEYS.DESTROYED)
-		.filter((sqd) => {
+		.filter((u) => u.force !== unit.force)
+		.filter((u) => u.status.type !== UNIT_STATUS_KEYS.DESTROYED)
+		.filter((u) => {
 
-			const distance = distanceBetween(sqd.position)(squad.position);
+			const distance = distanceBetween(u.position)(unit.position);
 
 			return distance <= range;
 

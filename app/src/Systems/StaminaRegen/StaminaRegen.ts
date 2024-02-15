@@ -11,18 +11,18 @@ export function init(state: State) {
 		[signals.BATTLEGROUND_TICK, () => {
 
 			state.gameData.units
-				.filter(squad => squad.status.type === UNIT_STATUS_KEYS.IDLE)
-				.filter(squad => squad.hp < squad.maxHp)
-				.filter(squad => state.gameData.cities.some(
-					city => eqVec2(city.boardPosition, squad.position)
+				.filter(unit => unit.status.type === UNIT_STATUS_KEYS.IDLE)
+				.filter(unit => unit.hp < unit.maxHp)
+				.filter(unit => state.gameData.cities.some(
+					city => eqVec2(city.boardPosition, unit.position)
 				))
-				.forEach(squad => {
-					const newHP = squad.hp + STAMINA_REGEN_RATE;
+				.forEach(unit => {
+					const newHP = unit.hp + STAMINA_REGEN_RATE;
 
-					if (newHP >= squad.maxHp) {
-						emit(signals.UPDATE_SQUAD, squad.id, { hp: squad.maxHp })
+					if (newHP >= unit.maxHp) {
+						emit(signals.UPDATE_UNIT, unit.id, { hp: unit.maxHp })
 					} else {
-						emit(signals.UPDATE_SQUAD, squad.id, { hp: newHP })
+						emit(signals.UPDATE_UNIT, unit.id, { hp: newHP })
 					}
 				});
 

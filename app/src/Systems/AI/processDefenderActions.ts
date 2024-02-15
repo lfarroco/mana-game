@@ -11,16 +11,16 @@ export function processDefenderActions(state: State) {
     return;
 
   (state.gameData.ai.defenders
-    .map(id => state.gameData.units.find(squad => squad.id === id))
-    .filter(squad => squad) as Unit[]
+    .map(id => state.gameData.units.find(unit => unit.id === id))
+    .filter(unit => unit) as Unit[]
   )
-    .forEach(sqd => {
+    .forEach(u => {
       //find closest city
       const [closestCity] = state.gameData.cities
         .filter(city => city.force === FORCE_ID_CPU)
         .sort((a, b) => {
-          const distA = distanceBetween(a.boardPosition)(sqd.position);
-          const distB = distanceBetween(b.boardPosition)(sqd.position);
+          const distA = distanceBetween(a.boardPosition)(u.position);
+          const distB = distanceBetween(b.boardPosition)(u.position);
           return distA - distB;
         });
 
@@ -29,13 +29,13 @@ export function processDefenderActions(state: State) {
         return;
       }
 
-      if (eqVec2(closestCity.boardPosition, sqd.position)) {
+      if (eqVec2(closestCity.boardPosition, u.position)) {
         return;
       }
 
-      if (sqd.status.type === UNIT_STATUS_KEYS.IDLE) {
-        console.log("AI: moving", sqd.id, closestCity.boardPosition);
-        emit(signals.SELECT_SQUAD_MOVE_DONE, sqd.id, closestCity.boardPosition);
+      if (u.status.type === UNIT_STATUS_KEYS.IDLE) {
+        console.log("AI: moving", u.id, closestCity.boardPosition);
+        emit(signals.SELECT_UNIT_MOVE_DONE, u.id, closestCity.boardPosition);
         return;
       }
 

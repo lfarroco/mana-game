@@ -1,6 +1,6 @@
 import { eqVec2, Vec2 } from "../../Models/Geometry";
 import { listeners, signals } from "../../Models/Signals";
-import { getSquad, State } from "../../Models/State";
+import { getUnit, State } from "../../Models/State";
 
 // we have a standalone system, that contains its own logic and state
 // - system
@@ -13,44 +13,44 @@ export function init(state: State) {
   listeners([
     [
       signals.UNIT_CREATED,
-      (squadId: string) => {
-        const squad = getSquad(state)(squadId);
+      (unitId: string) => {
+        const unit = getUnit(state)(unitId);
 
-        squad.movementIndex = 0;
+        unit.movementIndex = 0;
       },
     ],
     [
-      signals.SQUAD_WALKS_TOWARDS_CELL,
-      (squadId: string, _vec: Vec2) => {
-        const squad = getSquad(state)(squadId);
+      signals.UNIT_WALKS_TOWARDS_CELL,
+      (unitId: string, _vec: Vec2) => {
+        const unit = getUnit(state)(unitId);
 
-        squad.movementIndex++;
+        unit.movementIndex++;
       },
     ],
     [
-      signals.SQUAD_MOVED_INTO_CELL,
-      (squadId: string, _vec: Vec2) => {
-        const squad = getSquad(state)(squadId);
+      signals.UNIT_MOVED_INTO_CELL,
+      (unitId: string, _vec: Vec2) => {
+        const unit = getUnit(state)(unitId);
 
-        squad.movementIndex = 0;
+        unit.movementIndex = 0;
       },
     ],
     [
-      signals.SELECT_SQUAD_MOVE_DONE,
-      (squadId: string, target: Vec2) => {
-        const squad = getSquad(state)(squadId);
+      signals.SELECT_UNIT_MOVE_DONE,
+      (unitId: string, target: Vec2) => {
+        const unit = getUnit(state)(unitId);
 
-        if (eqVec2(squad.position, target)) return;
+        if (eqVec2(unit.position, target)) return;
 
-        squad.movementIndex = 0;
+        unit.movementIndex = 0;
       },
     ],
     [
       signals.CHANGE_DIRECTION,
-      (squadId: string, _vec: Vec2) => {
-        const squad = getSquad(state)(squadId);
+      (unitId: string, _vec: Vec2) => {
+        const unit = getUnit(state)(unitId);
 
-        squad.movementIndex = 0;
+        unit.movementIndex = 0;
       },
     ],
   ]);
