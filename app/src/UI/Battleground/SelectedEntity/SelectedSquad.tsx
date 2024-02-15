@@ -89,7 +89,6 @@ const SelectedSquad = ({
 
 				style={{
 					borderLeft: "1px solid white",
-					padding: "5px 0 0 5px",
 				}}
 			>
 				{actionsGrid}
