@@ -1,30 +1,30 @@
 import { Vec2, eqVec2 } from "../../Models/Geometry";
 import { emit, signals, listeners } from "../../Models/Signals";
-import { State, getSquad } from "../../Models/State";
+import { State, getUnit } from "../../Models/State";
 
 // TODO: future feature
 
 export function init(state: State) {
 
 	listeners([
-		[signals.SQUAD_MOVED_INTO_CELL, (squadId: string, vec: Vec2) => {
+		[signals.UNIT_MOVED_INTO_CELL, (unitId: string, vec: Vec2) => {
 
-			const squad = getSquad(state)(squadId)
+			const unit = getUnit(state)(unitId)
 
 			const squadsInCell = state.gameData.units
-				.filter(sqd => sqd.force === squad.force)
-				.filter(s => eqVec2(squad.position, s.position))
+				.filter(u => u.force === unit.force)
+				.filter(s => eqVec2(unit.position, s.position))
 
-			emit(signals.UPDATE_SQUAD_COUNTER, squadsInCell.length, vec)
+			emit(signals.UPDATE_UNIT_COUNTER, squadsInCell.length, vec)
 
 		}],
-		[signals.SQUAD_LEAVES_CELL, (squadId: string, vec: Vec2) => {
+		[signals.UNIT_LEAVES_CELL, (unitId: string, vec: Vec2) => {
 
 			const squadsInCell = state.gameData.units
-				.filter(sqd => sqd.force === state.gameData.units.find(sqd => sqd.id === squadId)?.force)
+				.filter(u => u.force === state.gameData.units.find(u => u.id === unitId)?.force)
 				.filter(s => eqVec2(vec, s.position))
 
-			emit(signals.UPDATE_SQUAD_COUNTER, squadsInCell.length, vec)
+			emit(signals.UPDATE_UNIT_COUNTER, squadsInCell.length, vec)
 
 		}
 		]

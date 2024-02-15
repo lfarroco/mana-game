@@ -12,8 +12,8 @@ export default function MultipleSelection({
   const state = getState();
 
   const squads = units
-    .map((id) => state.gameData.units.find((squad) => squad.id === id))
-    .filter((squad) => !!squad) as Unit[];
+    .map((id) => state.gameData.units.find((unit) => unit.id === id))
+    .filter((unit) => !!unit) as Unit[];
 
   return (
     <div id="selected-entity"
@@ -31,19 +31,19 @@ export default function MultipleSelection({
     >
       <Row>
         <div className="col">
-          {squads.map((squad) => (
+          {squads.map((unit) => (
             <div style={{ display: "inline-block" }}>
               <div><img
-                key={`squad-member-${squad.id}`}
+                key={`unit-member-${unit.id}`}
                 className="img-fluid portrait"
-                src={`assets/jobs/${squad.job}/portrait.png`}
-                alt={squad.name}
+                src={`assets/jobs/${unit.job}/portrait.png`}
+                alt={unit.name}
                 style={{ width: 50, height: 50 }}
                 onClick={() => {
-                  emit(signals.UNITS_SELECTED, [squad.id]);
+                  emit(signals.UNITS_SELECTED, [unit.id]);
                 }}
               /></div>
-              <HpBar hp={squad.hp} maxHp={squad.maxHp} />
+              <HpBar hp={unit.hp} maxHp={unit.maxHp} />
 
             </div>
           ))}

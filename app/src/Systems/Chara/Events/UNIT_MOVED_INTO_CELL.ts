@@ -7,9 +7,9 @@ import { TURN_DURATION } from '../../../config';
 export function init(scene: BattlegroundScene, state: State) {
 
 	listeners([
-		[signals.SQUAD_MOVED_INTO_CELL, (squadId: string, cell: Vec2) => {
+		[signals.UNIT_MOVED_INTO_CELL, (unitId: string, cell: Vec2) => {
 
-			const chara = scene.getChara(squadId);
+			const chara = scene.getChara(unitId);
 
 			const nextTile = scene.getTileAt(cell);
 
@@ -21,7 +21,7 @@ export function init(scene: BattlegroundScene, state: State) {
 				yoyo: false,
 				ease: "Sine.easeInOut",
 				onComplete: () => {
-					emit(signals.SQUAD_FINISHED_MOVE_ANIM, squadId, cell);
+					emit(signals.UNIT_FINISHED_MOVE_ANIM, unitId, cell);
 				},
 			});
 		}]

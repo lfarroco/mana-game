@@ -4,7 +4,7 @@ import { emit, signals } from "../../../Models/Signals";
 import { asVec2, eqVec2, vec2 } from "../../../Models/Geometry";
 import { FORCE_ID_PLAYER } from "../../../Models/Force";
 import { UNIT_STATUS_KEYS } from "../../../Models/Unit";
-import { getSquad, getState } from "../../../Models/State";
+import { getUnit, getState } from "../../../Models/State";
 import { isInside } from "../../../Models/Geometry";
 import { pingAt as pingAtLocation } from "./Ping";
 
@@ -115,7 +115,7 @@ export function makeMapInteractive(
       // charas inside selection
       const charas = scene.charas
         .filter((c) => scene.getSquad(c.id).status.type !== UNIT_STATUS_KEYS.DESTROYED)
-        .filter(c => scene.isTileVisible(getSquad(state)(c.id).position))
+        .filter(c => scene.isTileVisible(getUnit(state)(c.id).position))
         .filter((chara) =>
           isInside(
             pointer.downX + scene.cameras.main.scrollX,
@@ -170,9 +170,9 @@ export function makeMapInteractive(
 
         // is a unit in the tile?
 
-        const squad = state.gameData.units.find((squad) => eqVec2(squad.position, asVec2(tile)))
+        const unit = state.gameData.units.find((unit) => eqVec2(unit.position, asVec2(tile)))
 
-        console.log("squad", squad);
+        console.log("unit", unit);
 
         return
       }
@@ -181,8 +181,8 @@ export function makeMapInteractive(
       if (!pointer.rightButtonReleased() && !scene.isSelectingSquadMove) return
 
       const isEnemySelected = state.gameData.selectedUnits.some((id) => {
-        const squad = getSquad(state)(id);
-        return squad.force !== FORCE_ID_PLAYER;
+        const unit = getUnit(state)(id);
+        return unit.force !== FORCE_ID_PLAYER;
       });
       if (isEnemySelected) {
         scene.sound.play("ui/error");
@@ -193,11 +193,11 @@ export function makeMapInteractive(
       state.gameData
         .selectedUnits
         .filter(unitId => {
-          const unit = getSquad(state)(unitId);
+          const unit = getUnit(state)(unitId);
           return !eqVec2(unit.position, asVec2(tile))
         })
-        .forEach((sqdId) => {
-          emit(signals.SELECT_SQUAD_MOVE_DONE, sqdId, asVec2(tile));
+        .forEach((unitId) => {
+          emit(signals.SELECT_UNIT_MOVE_DONE, unitId, asVec2(tile));
         });
 
       pingAtLocation(scene, x, y);

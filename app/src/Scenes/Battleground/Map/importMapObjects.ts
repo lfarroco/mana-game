@@ -117,27 +117,27 @@ export function importMapObjects(map: Phaser.Tilemaps.Tilemap) {
         } as UnitSpec;
       })
     )
-    .forEach((sqdSpec) => {
-      const mForce = state.gameData.forces.find((force) => force.id === sqdSpec.force);
+    .forEach((unitSpec) => {
+      const mForce = state.gameData.forces.find((force) => force.id === unitSpec.force);
 
       if (!mForce) {
         state.gameData.forces.push({
           ...makeForce(),
-          id: sqdSpec.force,
+          id: unitSpec.force,
           color: "red",
         });
       }
 
-      const force = state.gameData.forces.find((force) => force.id === sqdSpec.force);
+      const force = state.gameData.forces.find((force) => force.id === unitSpec.force);
       if (!force) throw new Error("force is undefined");
 
       const unitId = uuid.v4();
 
-      const newUnit: Unit = makeUnit(unitId, force.id, sqdSpec.job, boardToWindowVec(sqdSpec))
+      const newUnit: Unit = makeUnit(unitId, force.id, unitSpec.job, boardToWindowVec(unitSpec))
 
-      if (sqdSpec.ai === "attacker") {
+      if (unitSpec.ai === "attacker") {
         state.gameData.ai.attackers.push(newUnit.id);
-      } else if (sqdSpec.ai === "defender") {
+      } else if (unitSpec.ai === "defender") {
         state.gameData.ai.defenders.push(newUnit.id);
       }
 
@@ -149,9 +149,9 @@ export function importMapObjects(map: Phaser.Tilemaps.Tilemap) {
       };
     });
 }
-function boardToWindowVec(sqdSpec: UnitSpec): Vec2 {
+function boardToWindowVec(unitSpec: UnitSpec): Vec2 {
   return vec2(
-    Math.floor(sqdSpec.x / TILE_WIDTH),
-    Math.floor(sqdSpec.y / TILE_HEIGHT)
+    Math.floor(unitSpec.x / TILE_WIDTH),
+    Math.floor(unitSpec.y / TILE_HEIGHT)
   );
 }

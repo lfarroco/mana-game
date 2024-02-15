@@ -2,7 +2,7 @@ import { Chara, EMOTE_SCALE } from "./Chara";
 import { signals, listeners, emit } from "../../Models/Signals";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { HALF_TILE_HEIGHT } from "../../Scenes/Battleground/constants";
-import { State, getSquad } from "../../Models/State";
+import { State, getUnit } from "../../Models/State";
 import { isAttacking } from "../../Models/Unit";
 import { getDirection } from "../../Models/Direction";
 
@@ -27,9 +27,9 @@ export function EmoteSystem_init(state: State, scene: BattlegroundScene) {
 		}],
 		[signals.BATTLEGROUND_STARTED, () => {
 			scene.charas.forEach(chara => {
-				const unit = getSquad(state)(chara.id)
+				const unit = getUnit(state)(chara.id)
 				if (isAttacking(unit.status)) {
-					const target = getSquad(state)(unit.status.target)
+					const target = getUnit(state)(unit.status.target)
 					const direction = getDirection(unit.position, target.position)
 					emit(signals.FACE_DIRECTION, chara.id, direction)
 					emit(signals.CREATE_EMOTE, chara.id, "combat-emote")

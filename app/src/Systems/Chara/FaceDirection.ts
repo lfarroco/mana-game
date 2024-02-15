@@ -7,30 +7,30 @@ import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 export function init(scene: BattlegroundScene) {
   listeners([
     [
-      signals.SQUAD_WALKS_TOWARDS_CELL,
-      (squadId: string, next: Vec2, walked: number, _total: number) => {
+      signals.UNIT_WALKS_TOWARDS_CELL,
+      (unitId: string, next: Vec2, walked: number, _total: number) => {
         if (walked > 0) return;
 
-        const squad = scene.getSquad(squadId);
+        const unit = scene.getSquad(unitId);
 
-        const chara = scene.getChara(squadId);
+        const chara = scene.getChara(unitId);
 
-        const direction = getDirection(squad.position, next);
+        const direction = getDirection(unit.position, next);
 
         faceDirection(direction, chara);
       },
     ],
     [
-      signals.SQUAD_FINISHED_MOVE_ANIM,
-      (squadId: string) => {
-        const squad = scene.getSquad(squadId);
+      signals.UNIT_FINISHED_MOVE_ANIM,
+      (unitId: string) => {
+        const unit = scene.getSquad(unitId);
 
-        const chara = scene.getChara(squadId);
+        const chara = scene.getChara(unitId);
 
-        const next = squad.path[0];
+        const next = unit.path[0];
 
-        if (next && squad.path.length > 1) {
-          const nextDirection = getDirection(squad.position, next);
+        if (next && unit.path.length > 1) {
+          const nextDirection = getDirection(unit.position, next);
 
           faceDirection(nextDirection, chara);
         }
@@ -38,34 +38,34 @@ export function init(scene: BattlegroundScene) {
     ],
     [
       signals.ATTACK_STARTED,
-      (squadId: string, targetId: string) => {
-        const squad = scene.getSquad(squadId);
+      (unitId: string, targetId: string) => {
+        const unit = scene.getSquad(unitId);
 
-        const chara = scene.getChara(squadId);
+        const chara = scene.getChara(unitId);
 
         const target = scene.getSquad(targetId);
 
-        const direction = getDirection(squad.position, target.position);
+        const direction = getDirection(unit.position, target.position);
 
         faceDirection(direction, chara);
       },
     ],
     [
       signals.CHANGE_DIRECTION,
-      (squadId: string, vec: Vec2) => {
-        const squad = scene.getSquad(squadId);
+      (unitId: string, vec: Vec2) => {
+        const unit = scene.getSquad(unitId);
 
-        const chara = scene.getChara(squadId);
+        const chara = scene.getChara(unitId);
 
-        const direction = getDirection(squad.position, vec);
+        const direction = getDirection(unit.position, vec);
 
         faceDirection(direction, chara);
       },
     ],
     [
       signals.FACE_DIRECTION,
-      (squadId: string, direction: Direction) => {
-        const chara = scene.getChara(squadId);
+      (unitId: string, direction: Direction) => {
+        const chara = scene.getChara(unitId);
 
         faceDirection(direction, chara);
       },

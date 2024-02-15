@@ -29,7 +29,7 @@ const Battleground = () => {
       [signals.RESUME_GAME, () => {
         setPaused(false);
       }],
-      [signals.SELECT_SQUAD_MOVE_START, () => {
+      [signals.SELECT_UNIT_MOVE_START, () => {
         setIsSelectingMoveTarget(true);
       }],
       [signals.SELECT_ATTACK_TARGET_START, () => {
@@ -52,10 +52,10 @@ const Battleground = () => {
       [signals.SELECT_SKILL_TARGET_CANCEL, () => {
         setIsSelectingSkillTarget(false);
       }],
-      [signals.SELECT_SQUAD_MOVE_DONE, () => {
+      [signals.SELECT_UNIT_MOVE_DONE, () => {
         setIsSelectingMoveTarget(false);
       }],
-      [signals.SELECT_SQUAD_MOVE_CANCEL, () => {
+      [signals.SELECT_UNIT_MOVE_CANCEL, () => {
         setIsSelectingMoveTarget(false);
       }],
       [signals.BATTLEGROUND_TICK, (tick: number) => {

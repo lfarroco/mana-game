@@ -1,5 +1,5 @@
 import { listeners, signals } from "../../Models/Signals"
-import { State, getSquad } from "../../Models/State"
+import { State, getUnit } from "../../Models/State"
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene"
 import { HALF_TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 import { hpColor } from "../../Utils/hpColor";
@@ -24,7 +24,7 @@ export function init(state: State, scene: BattlegroundScene) {
 
 			const chara = scene.getChara(id)
 
-			const squad = getSquad(state)(id)
+			const unit = getUnit(state)(id)
 
 			const bg = scene.add.graphics();
 			bg.fillStyle(0x000000, 1);
@@ -35,12 +35,12 @@ export function init(state: State, scene: BattlegroundScene) {
 				BAR_HEIGHT
 			);
 			const bar = scene.add.graphics();
-			const color = hpColor(squad.hp, squad.maxHp)
+			const color = hpColor(unit.hp, unit.maxHp)
 			bar.fillStyle(Number(color), 1);
 			bar.fillRect(
 				0,
 				0,
-				calculateBarWidth(squad.hp, squad.maxHp),
+				calculateBarWidth(unit.hp, unit.maxHp),
 				BAR_HEIGHT - BORDER_WIDTH * 2
 			);
 
@@ -66,27 +66,27 @@ export function init(state: State, scene: BattlegroundScene) {
 			}
 
 		}],
-		[signals.UPDATE_SQUAD, (id: string, arg: any) => {
+		[signals.UPDATE_UNIT, (id: string, arg: any) => {
 			const { hp } = arg
 
 			// check if hp is defined (it may be 0)
 			if (hp === undefined) return
 
-			const squad = getSquad(state)(id)
+			const unit = getUnit(state)(id)
 
 			const { bar } = barIndex[id]
 
 			bar.clear()
-			const color = hpColor(hp, squad.maxHp)
+			const color = hpColor(hp, unit.maxHp)
 			bar.fillStyle(Number(color), 1);
 			bar.fillRect(
 				0,
 				0,
-				calculateBarWidth(hp, squad.maxHp),
+				calculateBarWidth(hp, unit.maxHp),
 				BAR_HEIGHT - BORDER_WIDTH * 2
 			);
 		}],
-		[signals.SQUAD_DESTROYED, (id: string) => {
+		[signals.UNIT_DESTROYED, (id: string) => {
 
 			const { bar, bg } = barIndex[id]
 

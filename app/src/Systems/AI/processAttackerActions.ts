@@ -11,17 +11,17 @@ export function processAttackerActions(state: State) {
     return;
 
   (state.gameData.ai.attackers
-    .map(id => state.gameData.units.find(squad => squad.id === id))
-    .filter(squad => squad) as Unit[]
+    .map(id => state.gameData.units.find(unit => unit.id === id))
+    .filter(unit => unit) as Unit[]
   )
-    .forEach(sqd => {
+    .forEach(u => {
 
       //find closest city
       const closestCity = state.gameData.cities
         .filter(city => city.force === FORCE_ID_CPU)
         .sort((a, b) => {
-          const distA = distanceBetween(a.boardPosition)(sqd.position);
-          const distB = distanceBetween(b.boardPosition)(sqd.position);
+          const distA = distanceBetween(a.boardPosition)(u.position);
+          const distB = distanceBetween(b.boardPosition)(u.position);
           return distA - distB;
         })[0];
 
@@ -31,11 +31,11 @@ export function processAttackerActions(state: State) {
         return;
       }
 
-      if (sqd.status.type === UNIT_STATUS_KEYS.IDLE && sqd.hp >= 80) {
-        console.log("AI: attacking", sqd.id, closestCity.boardPosition);
+      if (u.status.type === UNIT_STATUS_KEYS.IDLE && u.hp >= 80) {
+        console.log("AI: attacking", u.id, closestCity.boardPosition);
 
         // is currently at a city? if so, wait to recharge all stamina
-        if (eqVec2(closestCity.boardPosition, sqd.position) && sqd.hp < 100) {
+        if (eqVec2(closestCity.boardPosition, u.position) && u.hp < 100) {
           return;
         }
         // find a path
@@ -45,20 +45,20 @@ export function processAttackerActions(state: State) {
           console.error("no target");
           return;
         }
-        emit(signals.SELECT_SQUAD_MOVE_DONE, sqd.id, target.boardPosition);
+        emit(signals.SELECT_UNIT_MOVE_DONE, u.id, target.boardPosition);
         return;
       }
 
-      if (sqd.status.type === UNIT_STATUS_KEYS.IDLE && sqd.hp < 80) {
+      if (u.status.type === UNIT_STATUS_KEYS.IDLE && u.hp < 80) {
 
-        console.log("AI: moving", sqd.id, closestCity.boardPosition);
+        console.log("AI: moving", u.id, closestCity.boardPosition);
 
 
         //is in an allied city?
-        if (eqVec2(closestCity.boardPosition, sqd.position)) {
+        if (eqVec2(closestCity.boardPosition, u.position)) {
           return;
         }
-        emit(signals.SELECT_SQUAD_MOVE_DONE, sqd.id, closestCity.boardPosition);
+        emit(signals.SELECT_UNIT_MOVE_DONE, u.id, closestCity.boardPosition);
       }
 
     });

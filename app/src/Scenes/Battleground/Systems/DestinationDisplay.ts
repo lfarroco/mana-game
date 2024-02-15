@@ -1,7 +1,7 @@
 import { DIRECTIONS, getDirection } from "../../../Models/Direction";
 import { Vec2, asVec2 } from "../../../Models/Geometry";
 import { listeners, signals } from "../../../Models/Signals";
-import { State, getSquad } from "../../../Models/State";
+import { State, getUnit } from "../../../Models/State";
 import BattlegroundScene from "../BattlegroundScene";
 
 const LINE_COLOR = 0xff0000;
@@ -60,9 +60,9 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 
 					if (!scene.layers?.background) return
 
-					const squad = getSquad(state)(key)
+					const unit = getUnit(state)(key)
 
-					if (squad.path.length === 0) return
+					if (unit.path.length === 0) return
 
 					const graphics = displayPath(
 						state,
@@ -77,7 +77,7 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 				})
 
 		}],
-		[signals.SQUAD_MOVED_INTO_CELL, (key: string, cell: Vec2) => {
+		[signals.UNIT_MOVED_INTO_CELL, (key: string, cell: Vec2) => {
 
 			if (!scene.layers?.background) return
 
@@ -85,9 +85,9 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 
 			cleanup(index)(key);
 
-			const squad = getSquad(state)(key)
+			const unit = getUnit(state)(key)
 
-			if (squad.path.length === 0) return
+			if (unit.path.length === 0) return
 
 			const graphics = displayPath(
 				state,
@@ -135,11 +135,11 @@ function displayPath(
 	state: State,
 	scene: BattlegroundScene,
 	layer: Phaser.Tilemaps.TilemapLayer,
-	squadId: string,
+	unitId: string,
 	animate: boolean
 ) {
 
-	const squad = getSquad(state)(squadId)
+	const unit = getUnit(state)(unitId)
 
 
 	const shadowGraphics = scene.add.graphics();
@@ -150,7 +150,7 @@ function displayPath(
 	scene.children.moveBelow(arrowTip, lineGraphics)
 	let points = [] as Phaser.Math.Vector2[]
 
-	const path = [squad.position, ...squad.path]
+	const path = [unit.position, ...unit.path]
 
 	if (path.length < 2) return { graphics: shadowGraphics, arrowTip, shadow: lineGraphics, shadowArrowTip }
 

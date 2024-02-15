@@ -16,20 +16,20 @@ export type Signals = {
   LOAD_GAME: (key: string) => void;
   DELETE_GAME: (key: string) => void;
   BATTLEGROUND_STARTED: () => void;
-  UNITS_SELECTED: (squadId: string[]) => void;
-  UNITS_DESELECTED: (squadId: string[]) => void;
+  UNITS_SELECTED: (unitId: string[]) => void;
+  UNITS_DESELECTED: (unitId: string[]) => void;
   CITY_SELECTED: (id: string) => void;
   CITY_DESELECTED: (ids: string) => void;
-  UNIT_MOVE_STOP: (squadId: string) => void;
-  SELECT_SQUAD_MOVE_START: (squadId: string) => void;
-  SELECT_SQUAD_MOVE_DONE: (squadIds: string[], target: Vec2) => void;
-  SELECT_SQUAD_MOVE_CANCEL: (squadId: string) => void;
-  SELECT_ATTACK_TARGET_START: (squadId: string) => void;
-  SELECT_ATTACK_TARGET_DONE: (squadId: string, targetId: string) => void;
-  SELECT_ATTACK_TARGET_CANCEL: (squadId: string) => void;
-  SELECT_SKILL_TARGET_START: (squadId: string, skill: string) => void;
-  SELECT_SKILL_TARGET_DONE: (squadId: string, targetId: string, skill: string) => void;
-  SELECT_SKILL_TARGET_CANCEL: (squadId: string) => void;
+  UNIT_MOVE_STOP: (unitId: string) => void;
+  SELECT_UNIT_MOVE_START: (unitId: string) => void;
+  SELECT_UNIT_MOVE_DONE: (unitIds: string[], target: Vec2) => void;
+  SELECT_UNIT_MOVE_CANCEL: (unitId: string) => void;
+  SELECT_ATTACK_TARGET_START: (unitId: string) => void;
+  SELECT_ATTACK_TARGET_DONE: (unitId: string, targetId: string) => void;
+  SELECT_ATTACK_TARGET_CANCEL: (unitId: string) => void;
+  SELECT_SKILL_TARGET_START: (unitId: string, skill: string) => void;
+  SELECT_SKILL_TARGET_DONE: (unitId: string, targetId: string, skill: string) => void;
+  SELECT_SKILL_TARGET_CANCEL: (unitId: string) => void;
   TOGGLE_DISPATCH_MODAL: (value: boolean) => void;
   TOGGLE_OPTIONS_MODAL: (value: boolean) => void;
   TOGGLE_LOAD_GAME_MODAL: (value: boolean) => void;
@@ -44,29 +44,29 @@ export type Signals = {
   BATTLEGROUND_TICK: (tick: number) => void;
   UPDATE_FORCE: (force: Partial<Force>) => void;
   // TODO: have a parent level for the system
-  ATTACK_STARTED: (squadId: string, target: string) => any;
+  ATTACK_STARTED: (unitId: string, target: string) => any;
   ATTACK: (attacker: string, defender: string) => any;
   COMBAT_FINISHED: (unitId: string) => any;
-  UPDATE_SQUAD: (squadId: string, sqd: Partial<Unit>) => any;
-  SQUAD_DESTROYED: (squadId: string) => any;
+  UPDATE_UNIT: (unitId: string, u: Partial<Unit>) => any;
+  UNIT_DESTROYED: (unitId: string) => any;
   FORCE_VICTORY: (force: string) => void;
-  CAPTURE_CITY: (squadId: string, cityId: string) => void;
-  SQUAD_WALKS_TOWARDS_CELL: (
-    squadId: string,
+  CAPTURE_CITY: (unitId: string, cityId: string) => void;
+  UNIT_WALKS_TOWARDS_CELL: (
+    unitId: string,
     vec: Vec2,
     walked: number,
     total: number
   ) => void;
-  SQUAD_LEAVES_CELL: (squadId: string, vec: Vec2) => void;
-  SQUAD_MOVED_INTO_CELL: (squadId: string, vec: Vec2) => void;
-  UPDATE_SQUAD_COUNTER: (count: number, vec: Vec2) => void; // TODO: not implemented yet
+  UNIT_LEAVES_CELL: (unitId: string, vec: Vec2) => void;
+  UNIT_MOVED_INTO_CELL: (unitId: string, vec: Vec2) => void;
+  UPDATE_UNIT_COUNTER: (count: number, vec: Vec2) => void; // TODO: not implemented yet
   LOOKUP_PATH: (key: string, source: Vec2, target: Vec2) => void;
   PATH_FOUND: (key: string, path: Vec2[]) => void;
   CHANGE_DIRECTION: (key: string, vec: Vec2) => void;
   CREATE_EMOTE: (id: string, key: string) => void;
-  REMOVE_EMOTE: (squadId: string) => void;
-  FACE_DIRECTION: (squadId: string, direction: Direction) => void; // TODO: change to vec2
-  SQUAD_FINISHED_MOVE_ANIM: (squadId: string, vec: Vec2) => void;
+  REMOVE_EMOTE: (unitId: string) => void;
+  FACE_DIRECTION: (unitId: string, direction: Direction) => void; // TODO: change to vec2
+  UNIT_FINISHED_MOVE_ANIM: (unitId: string, vec: Vec2) => void;
 };
 
 export type Operation = [keyof Signals, ...Parameters<Signals[keyof Signals]>];
@@ -83,9 +83,9 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   DELETE_GAME: "DELETE_GAME",
   UPDATE_FORCE: "UPDATE_FORCE",
   BATTLEGROUND_STARTED: "BATTLEGROUND_STARTED",
-  SELECT_SQUAD_MOVE_START: "SELECT_SQUAD_MOVE_START",
-  SELECT_SQUAD_MOVE_DONE: "SELECT_SQUAD_MOVE_DONE",
-  SELECT_SQUAD_MOVE_CANCEL: "SELECT_SQUAD_MOVE_CANCEL",
+  SELECT_UNIT_MOVE_START: "SELECT_UNIT_MOVE_START",
+  SELECT_UNIT_MOVE_DONE: "SELECT_UNIT_MOVE_DONE",
+  SELECT_UNIT_MOVE_CANCEL: "SELECT_UNIT_MOVE_CANCEL",
   UNITS_SELECTED: "UNITS_SELECTED",
   UNITS_DESELECTED: "UNITS_DESELECTED",
   CITY_SELECTED: "CITY_SELECTED",
@@ -103,20 +103,20 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   ATTACK: "ATTACK",
   COMBAT_FINISHED: "COMBAT_FINISHED",
   CHANGE_DIRECTION: "CHANGE_DIRECTION",
-  UPDATE_SQUAD: "UPDATE_SQUAD",
-  SQUAD_DESTROYED: "SQUAD_DESTROYED",
+  UPDATE_UNIT: "UPDATE_UNIT",
+  UNIT_DESTROYED: "UNIT_DESTROYED",
   FORCE_VICTORY: "FORCE_VICTORY",
   CAPTURE_CITY: "CAPTURE_CITY",
-  SQUAD_WALKS_TOWARDS_CELL: "SQUAD_WALKS_TOWARDS_CELL",
-  SQUAD_LEAVES_CELL: "SQUAD_LEAVES_CELL",
-  SQUAD_MOVED_INTO_CELL: "SQUAD_MOVED_INTO_CELL",
-  UPDATE_SQUAD_COUNTER: "UPDATE_SQUAD_COUNTER",
+  UNIT_WALKS_TOWARDS_CELL: "UNIT_WALKS_TOWARDS_CELL",
+  UNIT_LEAVES_CELL: "UNIT_LEAVES_CELL",
+  UNIT_MOVED_INTO_CELL: "UNIT_MOVED_INTO_CELL",
+  UPDATE_UNIT_COUNTER: "UPDATE_UNIT_COUNTER",
   LOOKUP_PATH: "LOOKUP_PATH",
   PATH_FOUND: "PATH_FOUND",
   CREATE_EMOTE: "CREATE_EMOTE",
   REMOVE_EMOTE: "REMOVE_EMOTE",
   FACE_DIRECTION: "FACE_DIRECTION",
-  SQUAD_FINISHED_MOVE_ANIM: "SQUAD_FINISHED_MOVE_ANIM",
+  UNIT_FINISHED_MOVE_ANIM: "UNIT_FINISHED_MOVE_ANIM",
   UNIT_MOVE_STOP: "UNIT_MOVE_STOP",
   SELECT_ATTACK_TARGET_START: "SELECT_ATTACK_TARGET_START",
   SELECT_ATTACK_TARGET_DONE: "SELECT_ATTACK_TARGET_DONE",
@@ -186,18 +186,18 @@ export const operations: {
   SAVE_GAME: () => [signals.SAVE_GAME],
   LOAD_GAME: (key: string) => [signals.LOAD_GAME, key],
   DELETE_GAME: (key: string) => [signals.DELETE_GAME, key],
-  SELECT_SQUAD_MOVE_START: (sqdId: string) => [
-    signals.SELECT_SQUAD_MOVE_START,
-    sqdId,
+  SELECT_UNIT_MOVE_START: (unitId: string) => [
+    signals.SELECT_UNIT_MOVE_START,
+    unitId,
   ],
-  SELECT_SQUAD_MOVE_DONE: (sqdIds: string[], target: Vec2) => [
-    signals.SELECT_SQUAD_MOVE_DONE,
-    sqdIds,
+  SELECT_UNIT_MOVE_DONE: (unitIds: string[], target: Vec2) => [
+    signals.SELECT_UNIT_MOVE_DONE,
+    unitIds,
     target,
   ],
-  SELECT_SQUAD_MOVE_CANCEL: (sqdId: string) => [
-    signals.SELECT_SQUAD_MOVE_CANCEL,
-    sqdId,
+  SELECT_UNIT_MOVE_CANCEL: (unitId: string) => [
+    signals.SELECT_UNIT_MOVE_CANCEL,
+    unitId,
   ],
   UNITS_SELECTED: (ids: string[]) => [signals.UNITS_SELECTED, ids],
   UNITS_DESELECTED: (ids: string[]) => [signals.UNITS_DESELECTED, ids],
@@ -225,43 +225,43 @@ export const operations: {
   CHARA_CREATED: (charaId: string) => [signals.CHARA_CREATED, charaId],
   BATTLEGROUND_STARTED: () => [signals.BATTLEGROUND_STARTED],
   BATTLEGROUND_TICK: (tick: number) => [signals.BATTLEGROUND_TICK, tick],
-  ATTACK_STARTED: (squadId: string, target: string) => [signals.ATTACK_STARTED, squadId, target],
+  ATTACK_STARTED: (unitId: string, target: string) => [signals.ATTACK_STARTED, unitId, target],
   ATTACK: (attacker: string, defender: string) => [
     signals.ATTACK,
     attacker,
     defender,
   ],
   COMBAT_FINISHED: (unitId: string) => [signals.COMBAT_FINISHED, unitId],
-  UPDATE_SQUAD: (squadId: string, sqd: Partial<Unit>) => [
-    signals.UPDATE_SQUAD,
-    squadId,
-    sqd,
+  UPDATE_UNIT: (unitId: string, u: Partial<Unit>) => [
+    signals.UPDATE_UNIT,
+    unitId,
+    u,
   ],
-  SQUAD_DESTROYED: (squadId: string) => [signals.SQUAD_DESTROYED, squadId],
+  UNIT_DESTROYED: (unitId: string) => [signals.UNIT_DESTROYED, unitId],
   FORCE_VICTORY: (force: string) => [signals.FORCE_VICTORY, force],
-  CAPTURE_CITY: (squadId: string, cityId: string) => [
+  CAPTURE_CITY: (unitId: string, cityId: string) => [
     signals.CAPTURE_CITY,
-    squadId,
+    unitId,
     cityId,
   ],
-  SQUAD_WALKS_TOWARDS_CELL: (
-    squadId: string,
+  UNIT_WALKS_TOWARDS_CELL: (
+    unitId: string,
     vec: Vec2,
     walked: number,
     total: number
-  ) => [signals.SQUAD_WALKS_TOWARDS_CELL, squadId, vec, walked, total],
-  SQUAD_LEAVES_CELL: (squadId: string, vec: Vec2) => [
-    signals.SQUAD_LEAVES_CELL,
-    squadId,
+  ) => [signals.UNIT_WALKS_TOWARDS_CELL, unitId, vec, walked, total],
+  UNIT_LEAVES_CELL: (unitId: string, vec: Vec2) => [
+    signals.UNIT_LEAVES_CELL,
+    unitId,
     vec,
   ],
-  SQUAD_MOVED_INTO_CELL: (squadId: string, vec: Vec2) => [
-    signals.SQUAD_MOVED_INTO_CELL,
-    squadId,
+  UNIT_MOVED_INTO_CELL: (unitId: string, vec: Vec2) => [
+    signals.UNIT_MOVED_INTO_CELL,
+    unitId,
     vec,
   ],
-  UPDATE_SQUAD_COUNTER: (count: number, vec: Vec2) => [
-    signals.UPDATE_SQUAD_COUNTER,
+  UPDATE_UNIT_COUNTER: (count: number, vec: Vec2) => [
+    signals.UPDATE_UNIT_COUNTER,
     count,
     vec,
   ],
@@ -273,15 +273,15 @@ export const operations: {
   ],
   PATH_FOUND: (key: string, path: Vec2[]) => [signals.PATH_FOUND, key, path],
   CREATE_EMOTE: (id: string, key: string) => [signals.CREATE_EMOTE, id, key],
-  REMOVE_EMOTE: (squadId: string) => [signals.REMOVE_EMOTE, squadId],
-  FACE_DIRECTION: (squadId: string, direction: Direction) => [
+  REMOVE_EMOTE: (unitId: string) => [signals.REMOVE_EMOTE, unitId],
+  FACE_DIRECTION: (unitId: string, direction: Direction) => [
     signals.FACE_DIRECTION,
-    squadId,
+    unitId,
     direction,
   ],
-  SQUAD_FINISHED_MOVE_ANIM: (squadId: string, vec: Vec2) => [
-    signals.SQUAD_FINISHED_MOVE_ANIM,
-    squadId,
+  UNIT_FINISHED_MOVE_ANIM: (unitId: string, vec: Vec2) => [
+    signals.UNIT_FINISHED_MOVE_ANIM,
+    unitId,
     vec
   ],
   CHANGE_DIRECTION: (key: string, vec: Vec2) => [
@@ -289,34 +289,34 @@ export const operations: {
     key,
     vec,
   ],
-  UNIT_MOVE_STOP: (squadId: string) => [signals.UNIT_MOVE_STOP, squadId],
-  SELECT_ATTACK_TARGET_START: (squadId: string) => [
+  UNIT_MOVE_STOP: (unitId: string) => [signals.UNIT_MOVE_STOP, unitId],
+  SELECT_ATTACK_TARGET_START: (unitId: string) => [
     signals.SELECT_ATTACK_TARGET_START,
-    squadId,
+    unitId,
   ],
-  SELECT_ATTACK_TARGET_DONE: (squadId: string, targetId: string) => [
+  SELECT_ATTACK_TARGET_DONE: (unitId: string, targetId: string) => [
     signals.SELECT_ATTACK_TARGET_DONE,
-    squadId,
+    unitId,
     targetId,
   ],
-  SELECT_ATTACK_TARGET_CANCEL: (squadId: string) => [
+  SELECT_ATTACK_TARGET_CANCEL: (unitId: string) => [
     signals.SELECT_ATTACK_TARGET_CANCEL,
-    squadId,
+    unitId,
   ],
-  SELECT_SKILL_TARGET_START: (squadId: string, skill: string) => [
+  SELECT_SKILL_TARGET_START: (unitId: string, skill: string) => [
     signals.SELECT_SKILL_TARGET_START,
-    squadId,
+    unitId,
     skill,
   ],
-  SELECT_SKILL_TARGET_DONE: (squadId: string, targetId: string, skill: string) => [
+  SELECT_SKILL_TARGET_DONE: (unitId: string, targetId: string, skill: string) => [
     signals.SELECT_SKILL_TARGET_DONE,
-    squadId,
+    unitId,
     targetId,
     skill,
   ],
-  SELECT_SKILL_TARGET_CANCEL: (squadId: string) => [
+  SELECT_SKILL_TARGET_CANCEL: (unitId: string) => [
     signals.SELECT_SKILL_TARGET_CANCEL,
-    squadId,
+    unitId,
   ],
 };
 

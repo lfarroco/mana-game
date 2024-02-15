@@ -79,26 +79,26 @@ export const addForce = (state: State) => (force: Force) => {
   state.gameData.forces.push(force);
 };
 
-export const addSquad = (state: State) => (squad: Unit) => {
-  state.gameData.units.push(squad);
+export const addUnit = (state: State) => (unit: Unit) => {
+  state.gameData.units.push(unit);
 };
 
 export const addCity = (state: State) => (city: City) => {
   state.gameData.cities.push(city);
 };
 
-export const updateSquad = (state: State) => (id: string) => (
-  sqd: Partial<Unit>
+export const updateUnit = (state: State) => (id: string) => (
+  u: Partial<Unit>
 ) => {
-  const squad = state.gameData.units.find((sqd) => sqd.id === id);
-  if (!squad) throw new Error("squad not found");
-  Object.assign(squad, sqd);
+  const unit = state.gameData.units.find((u) => u.id === id);
+  if (!unit) throw new Error("unit not found");
+  Object.assign(unit, u);
 };
 
-export const getSquad = (state: State) => (id: string): Unit => {
-  const squad = state.gameData.units.find((sqd) => sqd.id === id);
-  if (!squad) throw new Error("squad not found");
-  return squad;
+export const getUnit = (state: State) => (id: string): Unit => {
+  const unit = state.gameData.units.find((u) => u.id === id);
+  if (!unit) throw new Error("unit not found");
+  return unit;
 }
 
 export const getCity = (state: State) => (id: string): City => {
@@ -131,32 +131,32 @@ export const listenToStateEvents = (state: State) => {
 
     }],
 
-    [signals.UPDATE_SQUAD, (id: string, sqd: Partial<Unit>) => {
+    [signals.UPDATE_UNIT, (id: string, u: Partial<Unit>) => {
 
       const currentUnit = state.gameData.units.find((s) => s.id === id)
 
       if (!currentUnit) throw new Error(`unit ${id} not found`)
 
-      if (sqd.hp === 0 && sqd.id) {
-        emit(signals.SQUAD_DESTROYED, id);
+      if (u.hp === 0 && u.id) {
+        emit(signals.UNIT_DESTROYED, id);
       }
 
       // status changes
-      if (sqd.status && isAttacking(sqd.status)
-        && sqd.status.type !== currentUnit.status.type) {
-        const attackingStatus = sqd.status as UnitStatus & { type: "ATTACKING" };
+      if (u.status && isAttacking(u.status)
+        && u.status.type !== currentUnit.status.type) {
+        const attackingStatus = u.status as UnitStatus & { type: "ATTACKING" };
         emit(signals.ATTACK_STARTED, id, attackingStatus.target);
       }
 
-      updateSquad(state)(id)(sqd);
+      updateUnit(state)(id)(u);
     }],
     [signals.UPDATE_FORCE, (force: Partial<Force>) => {
       updateForce(state)(force);
     }],
     [
-      signals.UNIT_MOVE_STOP, (squadId: string) => {
-        updateSquad(state)(squadId)({ status: UNIT_STATUS.IDLE() });
-        updateSquad(state)(squadId)({ path: [] });
+      signals.UNIT_MOVE_STOP, (unitId: string) => {
+        updateUnit(state)(unitId)({ status: UNIT_STATUS.IDLE() });
+        updateUnit(state)(unitId)({ path: [] });
       }
     ]
   ])

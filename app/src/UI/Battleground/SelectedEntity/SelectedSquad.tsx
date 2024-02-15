@@ -17,43 +17,43 @@ const BUTTON_STYLE = {
 }
 
 const SelectedSquad = ({
-	squad,
+	unit,
 	isSelectingMoveTarget,
 	isSelectingAttackTarget,
 	isSelectingSkillTarget,
 }: {
-	squad: Unit,
+	unit: Unit,
 	isSelectingAttackTarget: boolean,
 	isSelectingMoveTarget: boolean,
 	isSelectingSkillTarget: boolean
 }) => {
 
-	const isPlayerControlled = squad.force === FORCE_ID_PLAYER
+	const isPlayerControlled = unit.force === FORCE_ID_PLAYER
 
 	const getStatus = () => {
-		if (squad.status.type === UNIT_STATUS_KEYS.ATTACKING)
+		if (unit.status.type === UNIT_STATUS_KEYS.ATTACKING)
 			return "Engaged"
 
-		if (squad.status.type === UNIT_STATUS_KEYS.MOVING)
+		if (unit.status.type === UNIT_STATUS_KEYS.MOVING)
 			return "Moving"
 
-		if (squad.status.type === UNIT_STATUS_KEYS.IDLE)
+		if (unit.status.type === UNIT_STATUS_KEYS.IDLE)
 			return "Idle"
 		else
 			return "Unknown"
 	}
 	const status = getStatus()
 
-	const job = getJob(squad.job)
+	const job = getJob(unit.job)
 
 	const actionsGrid = !isPlayerControlled ? <ButtonGrid actions={[]} />
-		: isSelectingAttackTarget ? selectAttackTargetActions(squad)
-			: isSelectingMoveTarget ? selectMoveTargetActions(squad)
-				: isSelectingSkillTarget ? selectSkillTargetActions(squad)
-					: UnitActions(squad)
+		: isSelectingAttackTarget ? selectAttackTargetActions(unit)
+			: isSelectingMoveTarget ? selectMoveTargetActions(unit)
+				: isSelectingSkillTarget ? selectSkillTargetActions(unit)
+					: UnitActions(unit)
 
 	return <div
-		id="selected-squad"
+		id="selected-unit"
 		className="container"
 	>
 		<Row>
@@ -65,17 +65,17 @@ const SelectedSquad = ({
 			>
 
 				<img
-					key={`squad-member-${squad.id}`}
+					key={`unit-member-${unit.id}`}
 					className="img-fluid portrait"
-					src={`assets/jobs/${squad.job}/portrait.png`}
-					alt={squad.name}
+					src={`assets/jobs/${unit.job}/portrait.png`}
+					alt={unit.name}
 				/>
 				<div
 					style={{
 						color: "#13ec13",
 					}}
 				>
-					{squad.hp} / {squad.maxHp}
+					{unit.hp} / {unit.maxHp}
 				</div>
 			</div>
 			<div className="col-3 align-self-center" >
@@ -103,53 +103,53 @@ const SelectedSquad = ({
 
 export default SelectedSquad
 
-function selectAttackTargetActions(squad: Unit) {
+function selectAttackTargetActions(unit: Unit) {
 	return <ButtonGrid actions={[
 		{
 			label: "Cancel",
 			icon: "icon-cancel",
 			onClick: () => {
-				Signals.emit(Signals.signals.SELECT_ATTACK_TARGET_CANCEL, squad.id)
+				Signals.emit(Signals.signals.SELECT_ATTACK_TARGET_CANCEL, unit.id)
 			}
 		}
 	]}
 	/>
 }
-function selectSkillTargetActions(squad: Unit) {
+function selectSkillTargetActions(unit: Unit) {
 	return <ButtonGrid actions={[
 		{
 			label: "Cancel",
 			icon: "icon-cancel",
 			onClick: () => {
-				Signals.emit(Signals.signals.SELECT_SKILL_TARGET_CANCEL, squad.id)
-			}
-		}
-	]}
-	/>
-}
-
-function selectMoveTargetActions(squad: Unit) {
-	return <ButtonGrid actions={[
-		{
-			label: "Cancel",
-			icon: "icon-cancel",
-			onClick: () => {
-				Signals.emit(Signals.signals.SELECT_SQUAD_MOVE_CANCEL, squad.id)
+				Signals.emit(Signals.signals.SELECT_SKILL_TARGET_CANCEL, unit.id)
 			}
 		}
 	]}
 	/>
 }
 
-function UnitActions(squad: Unit) {
+function selectMoveTargetActions(unit: Unit) {
+	return <ButtonGrid actions={[
+		{
+			label: "Cancel",
+			icon: "icon-cancel",
+			onClick: () => {
+				Signals.emit(Signals.signals.SELECT_UNIT_MOVE_CANCEL, unit.id)
+			}
+		}
+	]}
+	/>
+}
 
-	const job = getJob(squad.job)
+function UnitActions(unit: Unit) {
+
+	const job = getJob(unit.job)
 	const skills = job.skills.map(skill => {
 		return {
 			icon: `icon-${skill}`,
 			label: skill,
 			onClick: () => {
-				Signals.emit(Signals.signals.SELECT_SKILL_TARGET_START, squad.id, skill)
+				Signals.emit(Signals.signals.SELECT_SKILL_TARGET_START, unit.id, skill)
 			}
 		}
 	});
@@ -160,7 +160,7 @@ function UnitActions(squad: Unit) {
 				icon: "icon-move",
 				label: "Move",
 				onClick: () => {
-					Signals.emit(Signals.signals.SELECT_SQUAD_MOVE_START, squad.id)
+					Signals.emit(Signals.signals.SELECT_UNIT_MOVE_START, unit.id)
 				}
 			},
 			{
@@ -168,7 +168,7 @@ function UnitActions(squad: Unit) {
 				label: "Attack",
 				onClick: () => {
 
-					Signals.emit(Signals.signals.SELECT_ATTACK_TARGET_START, squad.id)
+					Signals.emit(Signals.signals.SELECT_ATTACK_TARGET_START, unit.id)
 				}
 			},
 			{
@@ -176,7 +176,7 @@ function UnitActions(squad: Unit) {
 				label: "Stop",
 				onClick: () => {
 
-					Signals.emit(Signals.signals.UNIT_MOVE_STOP, squad.id)
+					Signals.emit(Signals.signals.UNIT_MOVE_STOP, unit.id)
 				}
 			},
 			...skills

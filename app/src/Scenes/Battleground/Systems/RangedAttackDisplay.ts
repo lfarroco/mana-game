@@ -19,15 +19,15 @@ export function init(scene: BattlegroundScene, state: State) {
 	listeners([
 		[signals.UNITS_SELECTED, (ids: string[]) => {
 
-			ids.forEach(squadId => {
-				const squad = scene.getSquad(squadId);
-				if (isAttacking(squad.status)) {
-					const job = getJob(squad.job);
+			ids.forEach(unitId => {
+				const unit = scene.getSquad(unitId);
+				if (isAttacking(unit.status)) {
+					const job = getJob(unit.job);
 					if (job.attackType !== "ranged") return;
 
-					const line = drawLine(scene, squad, squad.status.target, state.options.speed);
-					displayIndex[squadId] = {
-						targetId: squad.status.target,
+					const line = drawLine(scene, unit, unit.status.target, state.options.speed);
+					displayIndex[unitId] = {
+						targetId: unit.status.target,
 						graphic: line
 					}
 				}
@@ -40,12 +40,12 @@ export function init(scene: BattlegroundScene, state: State) {
 
 			if (!state.gameData.selectedUnits.includes(attacker)) return
 
-			const squad = scene.getSquad(attacker)
+			const unit = scene.getSquad(attacker)
 
-			const job = getJob(squad.job)
+			const job = getJob(unit.job)
 			if (job.attackType !== "ranged") return
 
-			const line = drawLine(scene, squad, target, state.options.speed)
+			const line = drawLine(scene, unit, target, state.options.speed)
 
 			displayIndex[attacker] = {
 				targetId: target,
@@ -66,7 +66,7 @@ export function init(scene: BattlegroundScene, state: State) {
 
 			})
 		}],
-		[signals.SQUAD_DESTROYED, (id: string) => {
+		[signals.UNIT_DESTROYED, (id: string) => {
 
 			const line = displayIndex[id]
 
@@ -76,7 +76,7 @@ export function init(scene: BattlegroundScene, state: State) {
 			}
 
 		}],
-		[signals.SQUAD_DESTROYED, (id: string) => {
+		[signals.UNIT_DESTROYED, (id: string) => {
 
 			// TODO: this could be a problem if the attacker changes its status before the target is destroyed
 
@@ -88,11 +88,11 @@ export function init(scene: BattlegroundScene, state: State) {
 				}
 			})
 		}],
-		[signals.SQUAD_LEAVES_CELL, (squadId: string, vec: Vec2) => {
+		[signals.UNIT_LEAVES_CELL, (unitId: string, vec: Vec2) => {
 
 			Object.entries(displayIndex).forEach(([key, value]) => {
 
-				if (value.targetId === squadId) {
+				if (value.targetId === unitId) {
 					value.graphic.destroy()
 					delete displayIndex[key]
 				}
@@ -101,30 +101,30 @@ export function init(scene: BattlegroundScene, state: State) {
 			});
 
 		}],
-		[signals.SQUAD_FINISHED_MOVE_ANIM, (squadId: string, vec: Vec2) => {
+		[signals.UNIT_FINISHED_MOVE_ANIM, (unitId: string, vec: Vec2) => {
 
 			// check if someone is attacking it
 
-			state.gameData.units.forEach(squad => {
+			state.gameData.units.forEach(unit => {
 
-				if (isAttacking(squad.status)
-					&& squad.status.target === squadId
-					&& state.gameData.selectedUnits.includes(squad.id)
+				if (isAttacking(unit.status)
+					&& unit.status.target === unitId
+					&& state.gameData.selectedUnits.includes(unit.id)
 				) {
 
 
-					const job = getJob(squad.job)
+					const job = getJob(unit.job)
 
 					if (job.attackType !== "ranged") return
 
-					const distance = distanceBetween(squad.position)(vec)
+					const distance = distanceBetween(unit.position)(vec)
 
 					if (distance > 3) return
 
-					const line = drawLine(scene, scene.getSquad(squad.id), squadId, state.options.speed)
+					const line = drawLine(scene, scene.getSquad(unit.id), unitId, state.options.speed)
 
-					displayIndex[squad.id] = {
-						targetId: squadId,
+					displayIndex[unit.id] = {
+						targetId: unitId,
 						graphic: line
 					}
 
@@ -135,9 +135,9 @@ export function init(scene: BattlegroundScene, state: State) {
 		}],
 	])
 }
-function drawLine(scene: BattlegroundScene, squad: Unit, targetId: string, speed: number) {
+function drawLine(scene: BattlegroundScene, unit: Unit, targetId: string, speed: number) {
 
-	const source = scene.getChara(squad.id)
+	const source = scene.getChara(unit.id)
 	const target = scene.getChara(targetId)
 
 	const graphics = scene.add.graphics()

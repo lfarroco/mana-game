@@ -32,19 +32,19 @@ export function init(scene: BattlegroundScene) {
 
 	let cursors: ImageIndex = {}
 
-	let eventListeners: { [id: string]: (squadId: string) => void } = {}
+	let eventListeners: { [id: string]: (unitId: string) => void } = {}
 
 	listeners([
-		[signals.UNITS_SELECTED, (squadIds: string[]) => {
+		[signals.UNITS_SELECTED, (unitIds: string[]) => {
 
-			squadIds.forEach(squadId =>
-				selectSquad(scene, squadId, cursors, eventListeners)
+			unitIds.forEach(unitId =>
+				selectSquad(scene, unitId, cursors, eventListeners)
 			)
 
 		}],
-		[signals.UNITS_DESELECTED, (squadIds: string[]) => {
+		[signals.UNITS_DESELECTED, (unitIds: string[]) => {
 
-			squadIds.forEach(id => {
+			unitIds.forEach(id => {
 				cleanCursor(cursors, eventListeners, scene, id)
 
 				cursors[id].destroy()
@@ -82,7 +82,7 @@ export function init(scene: BattlegroundScene) {
 //FIXME - there's a bug here when clicking someone after loading a game
 function cleanCursor(
 	cursors: ImageIndex,
-	eventListeners: { [id: string]: (squadId: string) => void; }, scene: BattlegroundScene,
+	eventListeners: { [id: string]: (unitId: string) => void; }, scene: BattlegroundScene,
 	id: string
 ) {
 	const cursor = cursors[id]
@@ -94,15 +94,15 @@ function cleanCursor(
 
 function selectSquad(
 	scene: BattlegroundScene,
-	squadId: string,
+	unitId: string,
 	cursors: ImageIndex,
-	eventListeners: { [id: string]: (squadId: string) => void; },
+	eventListeners: { [id: string]: (unitId: string) => void; },
 ) {
 
 	const getOrCreateCursor = getOrCreateCursorForChara_(cursors)
 
 
-	const chara = scene.getChara(squadId)
+	const chara = scene.getChara(unitId)
 
 	const cursor = getOrCreateCursor(chara)
 
@@ -121,7 +121,7 @@ function selectSquad(
 function setListener(
 	event: () => void,
 	chara: Chara,
-	eventListeners: { [id: string]: (squadId: string) => void; },
+	eventListeners: { [id: string]: (unitId: string) => void; },
 ) {
 
 	chara.sprite.scene.events.on("update", event);

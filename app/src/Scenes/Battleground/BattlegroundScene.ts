@@ -3,19 +3,17 @@ import { preload } from "./preload";
 import { createMap } from "./Map/createMap";
 import { importMapObjects } from "./Map/importMapObjects";
 import { makeMapInteractive } from "./Map/makeMapInteractive";
-import { makeSquadInteractive, } from "./Map/makeSquadsInteractive";
 import { createCities } from "./Map/createCities";
-import { makeCitiesInteractive } from "./Map/makeCitiesInteractive";
 import { UNIT_STATUS_KEYS, Unit, } from "../../Models/Unit";
 import processTick from "./ProcessTick";
 import { Vec2, vec2 } from "../../Models/Geometry";
 import { Chara, createChara } from "../../Systems/Chara/Chara";
 import { emit, signals, listeners } from "../../Models/Signals";
-import { State, getSquad, getState } from "../../Models/State";
+import { State, getUnit, getState } from "../../Models/State";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
 import * as StaminaRegen from "../../Systems/StaminaRegen/StaminaRegen";
 import * as VictorySystem from "../../Systems/Victory/Victory";
-import { squadDestroyed } from "./Events/SQUAD_DESTROYED";
+import { unitDestroyed } from "./Events/UNIT_DESTROYED";
 import { City } from "../../Models/City";
 import * as CityCaptureSystem from "./Systems/cityCapture";
 import * as FogOfWarSystem from "./Systems/FogOfWar/FogOfWar";
@@ -29,7 +27,7 @@ import * as MovementArrows from "../../Systems/Chara/MovementArrow";
 import * as EntitySelection from "../../Systems/EntitySelection/EntitySelection";
 import * as CharaMovement from "../../Systems/Chara/SquadMovement";
 import * as RangedAttackDisplay from "./Systems/RangedAttackDisplay";
-import * as CharaSquadMovedIntoCell from "../../Systems/Chara/Events/SQUAD_MOVED_INTO_CELL";
+import * as CharaSquadMovedIntoCell from "../../Systems/Chara/Events/UNIT_MOVED_INTO_CELL";
 
 import { TURN_DURATION } from "../../config";
 import { createFowLayer } from "./Systems/FogOfWar/createFowLayer";
@@ -86,11 +84,11 @@ export class BattlegroundScene extends Phaser.Scene {
     listeners([
       [signals.PAUSE_GAME, this.pauseGame],
       [signals.RESUME_GAME, this.resumeGame],
-      [signals.SELECT_SQUAD_MOVE_START, () => {
+      [signals.SELECT_UNIT_MOVE_START, () => {
         this.isSelectingSquadMove = true;
       }],
-      [signals.SELECT_SQUAD_MOVE_DONE, this.moveUnitsTo],
-      [signals.SELECT_SQUAD_MOVE_CANCEL, () => {
+      [signals.SELECT_UNIT_MOVE_DONE, this.moveUnitsTo],
+      [signals.SELECT_UNIT_MOVE_CANCEL, () => {
         this.isSelectingSquadMove = false;
       }],
       [signals.SELECT_ATTACK_TARGET_START, () => {
@@ -132,7 +130,7 @@ export class BattlegroundScene extends Phaser.Scene {
      * Global listeners can be created here because they are only created once
      */
     // TODO: separate scene-related listeners from state listeners
-    squadDestroyed(this, state);
+    unitDestroyed(this, state);
     VictorySystem.init(state);
     AISystem.init(state);
     EmoteSystem_init(state, this);
@@ -213,7 +211,7 @@ export class BattlegroundScene extends Phaser.Scene {
   };
 
   getSquad = (id: string) => {
-    return getSquad(getState())(id)
+    return getUnit(getState())(id)
   };
 
   getCity = (id: string) => {
@@ -287,19 +285,19 @@ export class BattlegroundScene extends Phaser.Scene {
   resumeGame = () => {
     this.isPaused = false;
   };
-  moveUnitsTo = (sqdIds: string[], { x, y }: Vec2) => {
-    const units = getState().gameData.units.filter((sqd) => sqdIds.includes(sqd.id));
+  moveUnitsTo = (unitIds: string[], { x, y }: Vec2) => {
+    const units = getState().gameData.units.filter((u) => unitIds.includes(u.id));
 
     this.isSelectingSquadMove = false;
 
-    units.forEach((squad) => {
-      emit(signals.LOOKUP_PATH, squad.id, squad.position, vec2(x, y));
+    units.forEach((unit) => {
+      emit(signals.LOOKUP_PATH, unit.id, unit.position, vec2(x, y));
     });
   };
 
   errors = {
     noTileAt: ({ x, y }: Vec2) => `no tile at ${x}, ${y}`,
-    squadNotFound: (id: string) => `squad ${id} not found`,
+    squadNotFound: (id: string) => `unit ${id} not found`,
     cityNotFound: (id: string) => `city ${id} not found`,
     charaNotFound: (id: string) => `chara ${id} not found`,
     errorCreatingTileset: (tilesetName: string) => `error creating tileset ${tilesetName}`,
