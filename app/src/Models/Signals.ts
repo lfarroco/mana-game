@@ -19,7 +19,7 @@ export type Signals = {
   UNITS_SELECTED: (unitId: string[]) => void;
   UNITS_DESELECTED: (unitId: string[]) => void;
   CITY_SELECTED: (id: string) => void;
-  CITY_DESELECTED: (ids: string) => void;
+  CITY_DESELECTED: () => void;
   UNIT_MOVE_STOP: (unitId: string) => void;
   SELECT_UNIT_MOVE_START: (unitId: string) => void;
   SELECT_UNIT_MOVE_DONE: (unitIds: string[], target: Vec2) => void;
@@ -202,7 +202,7 @@ export const operations: {
   UNITS_SELECTED: (ids: string[]) => [signals.UNITS_SELECTED, ids],
   UNITS_DESELECTED: (ids: string[]) => [signals.UNITS_DESELECTED, ids],
   CITY_SELECTED: (ids: string) => [signals.CITY_SELECTED, ids],
-  CITY_DESELECTED: (id: string) => [signals.CITY_DESELECTED, id],
+  CITY_DESELECTED: () => [signals.CITY_DESELECTED],
   TOGGLE_DISPATCH_MODAL: (value: boolean) => [
     signals.TOGGLE_DISPATCH_MODAL,
     value,

@@ -4,7 +4,7 @@ import { emit, signals } from "../../../Models/Signals";
 import { asVec2, eqVec2, vec2 } from "../../../Models/Geometry";
 import { FORCE_ID_PLAYER } from "../../../Models/Force";
 import { UNIT_STATUS_KEYS } from "../../../Models/Unit";
-import { getUnit, getState } from "../../../Models/State";
+import { getUnit, getState, State } from "../../../Models/State";
 import { isInside } from "../../../Models/Geometry";
 import { pingAt as pingAtLocation } from "./Ping";
 
@@ -158,50 +158,65 @@ export function makeMapInteractive(
 
       if (pointer.upElement?.tagName !== "CANVAS") return;
 
-      // releasing the pointer after a drag also triggers a click event
-      if (pointer.getDistance() > 10) return
+      // releasing the pointer after a drag also triggers a pointer up event, so we check the distance
+      if (pointer.distance > 10) return
 
       const state = getState();
 
       const tile = bgLayer.getTileAtWorldXY(x, y);
 
+      if (pointer.rightButtonReleased() || scene.isSelectingSquadMove) {
 
-      if (state.gameData.selectedUnits.length < 1) {
+        issueMoveOrder(state, tile, scene, x, y);
 
-        // is a unit in the tile?
+        return
+
+      }
+
+      if (!scene.isSelectingSquadMove && !pointer.rightButtonReleased()) {
 
         const unit = state.gameData.units.find((unit) => eqVec2(unit.position, asVec2(tile)))
 
-        console.log("unit", unit);
+        if (unit)
+          emit(signals.UNITS_SELECTED, [unit.id]);
+
+        const city = state.gameData.cities.find((city) => eqVec2(city.boardPosition, asVec2(tile)))
+
+        if (city)
+          emit(signals.CITY_SELECTED, city.id);
+        else
+          emit(signals.CITY_DESELECTED);
 
         return
       }
 
 
-      if (!pointer.rightButtonReleased() && !scene.isSelectingSquadMove) return
-
-      const isEnemySelected = state.gameData.selectedUnits.some((id) => {
-        const unit = getUnit(state)(id);
-        return unit.force !== FORCE_ID_PLAYER;
-      });
-      if (isEnemySelected) {
-        scene.sound.play("ui/error");
-        return;
-      };
-
-
-      state.gameData
-        .selectedUnits
-        .filter(unitId => {
-          const unit = getUnit(state)(unitId);
-          return !eqVec2(unit.position, asVec2(tile))
-        })
-        .forEach((unitId) => {
-          emit(signals.SELECT_UNIT_MOVE_DONE, unitId, asVec2(tile));
-        });
-
-      pingAtLocation(scene, x, y);
-
     }
   );
+}
+
+function issueMoveOrder(state: State, tile: Phaser.Tilemaps.Tile, scene: BattlegroundScene, x: number, y: number) {
+
+  const isEnemySelected = state.gameData.selectedUnits.some((id) => {
+    const unit = getUnit(state)(id);
+    return unit.force !== FORCE_ID_PLAYER;
+  });
+  if (isEnemySelected) {
+    scene.sound.play("ui/error");
+    return;
+  };
+
+
+  state.gameData
+    .selectedUnits
+    .filter(unitId => {
+      const unit = getUnit(state)(unitId);
+      return !eqVec2(unit.position, asVec2(tile))
+    })
+    .forEach((unitId) => {
+      emit(signals.SELECT_UNIT_MOVE_DONE, unitId, asVec2(tile));
+    });
+
+  pingAtLocation(scene, x, y);
+
 }
