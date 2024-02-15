@@ -16,11 +16,13 @@ header {
 }
 
 #tooltip {
-  position: fixed;
-  bottom: 150px;
+  position: absolute;
+  top: 265px;
   color: gold;
   text-shadow: 1px 1px 1px black;
   font-size: 14px;
+  left: 224px;
+  width: 150px;
 }
 
 footer {

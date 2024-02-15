@@ -175,9 +175,7 @@ export function makeMapInteractive(
       }
 
       if (scene.isSelectingSkillTarget) {
-        // const unit = getUnit(state)(scene.selectedUnit);
-        // const skill = scene.selectedSkill;
-        // emit(signals.SELECT_SKILL_TARGET_DONE, unit.id, skill, asVec2(tile));
+        useSkill(state, scene, tile);
         return;
       }
 
@@ -201,17 +199,42 @@ export function makeMapInteractive(
   );
 }
 
+function useSkill(state: State, scene: BattlegroundScene, tile: Phaser.Tilemaps.Tile) {
+  const unit = getUnit(state)(state.gameData.selectedUnits[0]);
+  const skill = "heal";
+
+  // todo: use "skill targets" to check if the skill can be used in a tile or unit
+  const allyInTile = state.gameData.units.find((unit) => eqVec2(unit.position, asVec2(tile)) && unit.force === FORCE_ID_PLAYER);
+
+  if (!allyInTile) return // todo: error sound
+
+  // todo: use "skill requirements" to check if the skill can be used
+  if (allyInTile.hp === allyInTile.maxHp) return // todo: error sound
+
+  // todo: use "skill range" to check if the skill can be used
+
+  const direction = getDirection(unit.position, allyInTile.position);
+
+  emit(signals.SELECT_SKILL_TARGET_DONE, unit.id, skill, asVec2(tile));
+  emit(signals.FACE_DIRECTION, unit.id, direction);
+  emit(signals.UPDATE_UNIT, unit.id, { status: UNIT_STATUS.CASTING(allyInTile.id, skill) });
+  emit(signals.CREATE_EMOTE, unit.id, "magic-emote");
+
+}
+
 function checkAttackTargetInCell(state: State, tile: Phaser.Tilemaps.Tile) {
   const enemy = state.gameData.units
     .find((unit) => eqVec2(unit.position, asVec2(tile)) && unit.force !== FORCE_ID_PLAYER);
 
   if (!enemy) return
 
-  const direction = getDirection(getUnit(state)(state.gameData.selectedUnits[0]).position, enemy.position);
+  const unit = getUnit(state)(state.gameData.selectedUnits[0])
+
+  const direction = getDirection(unit.position, enemy.position);
 
   emit(signals.SELECT_ATTACK_TARGET_DONE, enemy.id);
-  emit(signals.UPDATE_UNIT, state.gameData.selectedUnits[0], { status: UNIT_STATUS.ATTACKING(enemy.id) });
-  emit(signals.FACE_DIRECTION, state.gameData.selectedUnits[0], direction)
+  emit(signals.UPDATE_UNIT, unit.id, { status: UNIT_STATUS.ATTACKING(enemy.id) });
+  emit(signals.FACE_DIRECTION, unit.id, direction)
 }
 
 function selectEntitiesInTile(state: State, tile: Phaser.Tilemaps.Tile) {
