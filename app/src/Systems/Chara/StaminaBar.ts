@@ -5,7 +5,6 @@ import { HALF_TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constant
 import { hpColor } from "../../Utils/hpColor";
 
 export const CHARA_SCALE = 1;
-export const EMOTE_SCALE = 1;
 export const BAR_WIDTH = TILE_WIDTH / 2;
 export const BAR_HEIGHT = 6;
 export const BORDER_WIDTH = 1;

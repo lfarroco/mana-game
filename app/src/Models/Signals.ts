@@ -63,8 +63,8 @@ export type Signals = {
   LOOKUP_PATH: (key: string, source: Vec2, target: Vec2) => void;
   PATH_FOUND: (key: string, path: Vec2[]) => void;
   CHANGE_DIRECTION: (key: string, vec: Vec2) => void;
-  CREATE_EMOTE: (id: string, key: string) => void;
-  REMOVE_EMOTE: (unitId: string) => void;
+  DISPLAY_EMOTE: (id: string, key: string) => void;
+  HIDE_EMOTE: (unitId: string) => void;
   FACE_DIRECTION: (unitId: string, direction: Direction) => void; // TODO: change to vec2
   UNIT_FINISHED_MOVE_ANIM: (unitId: string, vec: Vec2) => void;
 };
@@ -113,8 +113,8 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   UPDATE_UNIT_COUNTER: "UPDATE_UNIT_COUNTER",
   LOOKUP_PATH: "LOOKUP_PATH",
   PATH_FOUND: "PATH_FOUND",
-  CREATE_EMOTE: "CREATE_EMOTE",
-  REMOVE_EMOTE: "REMOVE_EMOTE",
+  DISPLAY_EMOTE: "DISPLAY_EMOTE",
+  HIDE_EMOTE: "HIDE_EMOTE",
   FACE_DIRECTION: "FACE_DIRECTION",
   UNIT_FINISHED_MOVE_ANIM: "UNIT_FINISHED_MOVE_ANIM",
   UNIT_MOVE_STOP: "UNIT_MOVE_STOP",
@@ -272,8 +272,8 @@ export const operations: {
     target,
   ],
   PATH_FOUND: (key: string, path: Vec2[]) => [signals.PATH_FOUND, key, path],
-  CREATE_EMOTE: (id: string, key: string) => [signals.CREATE_EMOTE, id, key],
-  REMOVE_EMOTE: (unitId: string) => [signals.REMOVE_EMOTE, unitId],
+  DISPLAY_EMOTE: (id: string, key: string) => [signals.DISPLAY_EMOTE, id, key],
+  HIDE_EMOTE: (unitId: string) => [signals.HIDE_EMOTE, unitId],
   FACE_DIRECTION: (unitId: string, direction: Direction) => [
     signals.FACE_DIRECTION,
     unitId,

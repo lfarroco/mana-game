@@ -2,10 +2,11 @@ import { DIRECTIONS, Direction, getDirection } from "../../Models/Direction";
 import { Vec2 } from "../../Models/Geometry";
 import { signals, listeners } from "../../Models/Signals";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
-import { Chara, EMOTE_SCALE } from "./Chara";
+import { Chara } from "./Chara";
 import { HALF_TILE_HEIGHT } from "../../Scenes/Battleground/constants";
 import { State, getUnit } from "../../Models/State";
 import { isMoving } from "../../Models/Unit";
+import { EMOTE_SCALE } from "./Emote";
 
 type SpriteIndex = {
   [id: string]: {

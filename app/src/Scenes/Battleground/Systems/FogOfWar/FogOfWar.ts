@@ -8,6 +8,8 @@ import { State } from "../../../../Models/State";
 
 const VIEW_RADIUS = 4;
 
+// TODO: create events for when a unit moves in or out the fow
+
 export function init(scene: BattlegroundScene, state: State) {
   listeners([
     [
@@ -61,7 +63,7 @@ function refreshFogOfWar(scene: BattlegroundScene, state: State) {
 
       const visible = tile.alpha === 0;
 
-      chara.group?.setVisible(visible);
+      chara.sprite.setVisible(visible);
     });
 }
 
