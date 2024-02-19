@@ -10,12 +10,10 @@ export type Chara = {
 	force: string;
 	job: string;
 	sprite: Phaser.GameObjects.Sprite,
-	emote: Phaser.GameObjects.Sprite | null,
 	group: Phaser.GameObjects.Group | null,
 }
 
 export const CHARA_SCALE = 1;
-export const EMOTE_SCALE = 1;
 
 export function createChara(
 	scene: BattlegroundScene,
@@ -35,6 +33,8 @@ export function createChara(
 	// TODO: use force color, or specific sprites
 	if (unit.force === FORCE_ID_CPU)
 		sprite.setTint(0xff9999)
+	else
+		sprite.setTint(0x9999ff)
 
 	const group = scene.add.group([sprite]) // TODO: is this being used?
 
@@ -43,7 +43,6 @@ export function createChara(
 		force: unit.force,
 		job: unit.job,
 		sprite,
-		emote: null,
 		group,
 	}
 

@@ -33,9 +33,6 @@ export function unitDestroyed(scene: BattlegroundScene, state: State) {
 			scene.time.delayedCall(1000 / state.options.speed, () => {
 				emote.destroy()
 			});
-
-			chara.emote?.setVisible(false)
-
 		}]
 	])
 

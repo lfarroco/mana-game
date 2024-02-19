@@ -218,7 +218,7 @@ function useSkill(state: State, scene: BattlegroundScene, tile: Phaser.Tilemaps.
   emit(signals.SELECT_SKILL_TARGET_DONE, unit.id, skill, asVec2(tile));
   emit(signals.FACE_DIRECTION, unit.id, direction);
   emit(signals.UPDATE_UNIT, unit.id, { status: UNIT_STATUS.CASTING(allyInTile.id, skill) });
-  emit(signals.CREATE_EMOTE, unit.id, "magic-emote");
+  emit(signals.DISPLAY_EMOTE, unit.id, "magic-emote");
 
 }
 

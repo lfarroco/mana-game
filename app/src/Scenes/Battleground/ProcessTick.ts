@@ -39,14 +39,10 @@ const processTick = (scene: BattlegroundScene) => {
 
   sequence(checkDestroyed());
 
-  sequence(checkIdle(scene));
-
   //sequence(updatePath(scene));
 
-  sequence(cleanupEmotes(scene));
-
   state.gameData.forces.forEach((force) => {
-    emit(signals.UPDATE_FORCE, { id: force.id, gold: force.gold + 100 });
+    //emit(signals.UPDATE_FORCE, { id: force.id, gold: force.gold + 100 });
   });
 };
 
@@ -165,7 +161,7 @@ function checkCombat(state: State) {
             operations.UPDATE_UNIT(unit.id, {
               status: UNIT_STATUS.IDLE(),
             }),
-            operations.REMOVE_EMOTE(unit.id),
+            operations.HIDE_EMOTE(unit.id),
           ];
         }
 
@@ -214,7 +210,7 @@ function checkCombat(state: State) {
       const newStamina = enemy.hp - damage < 0 ? 0 : enemy.hp - damage;
       emit(signals.UPDATE_UNIT, enemy.id, { hp: newStamina });
 
-      return [operations.CREATE_EMOTE(unit.id, "combat-emote")];
+      return [];
     }
   );
 }
@@ -232,34 +228,6 @@ function checkDestroyed() {
         ...isAttacking(unit.status) && unit.hp === 0 ? [operations.COMBAT_FINISHED(unit.id)] : []
       ]
     }
-  );
-}
-
-function checkIdle(scene: BattlegroundScene) {
-  return foldMap(
-    getState().gameData.units.filter(
-      (s) => s.status.type === UNIT_STATUS_KEYS.IDLE
-    ),
-    (unit) => {
-      const chara = scene.getChara(unit.id);
-
-      if (chara?.emote?.visible) {
-        return [operations.REMOVE_EMOTE(unit.id)];
-      }
-
-      return [];
-    }
-  );
-}
-
-// this is just a crutch - the ideal is to call the removal when appropriate
-function cleanupEmotes(scene: BattlegroundScene) {
-  const state = getState();
-  return foldMap(
-    state.gameData.units
-      .filter((s) => s.status.type === UNIT_STATUS_KEYS.IDLE)
-      .filter((s) => scene.getChara(s.id).emote?.visible),
-    (unit) => [operations.REMOVE_EMOTE(unit.id)]
   );
 }
 
