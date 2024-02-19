@@ -365,6 +365,33 @@
                  "width":64,
                  "x":384,
                  "y":192
+                }, 
+                {
+                 "height":64,
+                 "id":40,
+                 "name":"e3",
+                 "properties":[
+                        {
+                         "name":"ai",
+                         "type":"string",
+                         "value":"passive"
+                        }, 
+                        {
+                         "name":"force",
+                         "type":"string",
+                         "value":"CPU"
+                        }, 
+                        {
+                         "name":"job",
+                         "type":"string",
+                         "value":"archer"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":128,
+                 "y":448
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -373,7 +400,7 @@
          "y":0
         }],
  "nextlayerid":10,
- "nextobjectid":40,
+ "nextobjectid":41,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.0",

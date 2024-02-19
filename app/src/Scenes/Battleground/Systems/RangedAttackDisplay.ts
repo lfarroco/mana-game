@@ -29,46 +29,59 @@ export function init(scene: BattlegroundScene, state: State) {
 		],
 		[signals.UNIT_DESTROYED, (id: string) => {
 
-			// TODO: this could be a problem if the attacker changes its status before the target is destroyed
+			cleanUpMyLine(displayIndex, id);
 
-			cleanUp(displayIndex, id);
+			cleanupLinesAttackingMe(id, displayIndex);
 
 		}],
-		[signals.UNIT_LEAVES_CELL, (unitId: string, vec: Vec2) => {
+		[signals.UNIT_LEAVES_CELL, (unitId: string, _vec: Vec2) => {
 
-
-			cleanUp(displayIndex, unitId);
+			cleanupLinesAttackingMe(unitId, displayIndex);
 
 		}],
 		[signals.UNIT_FINISHED_MOVE_ANIM, (unitId: string, vec: Vec2) => {
 
 			// check if someone is attacking it
 
-			state.gameData.units.forEach(unit => {
-
-				if (isAttacking(unit.status)
-					&& unit.status.target === unitId
-				) {
-
-					renderLine(scene, state, displayIndex, unit.id, unitId);
-
-				}
-
-			});
+			renderLinesAttackingMe(state, unitId, scene, displayIndex);
 
 		}],
 		[signals.SELECT_UNIT_MOVE_DONE, (unitId: string) => {
 
-			cleanUp(displayIndex, unitId);
+			cleanUpMyLine(displayIndex, unitId);
 		}]
 	])
 }
+function renderLinesAttackingMe(state: State, unitId: string, scene: BattlegroundScene, displayIndex: DisplayIndex) {
+	state.gameData.units.forEach(unit => {
+
+		if (isAttacking(unit.status)
+			&& unit.status.target === unitId) {
+
+			renderLine(scene, state, displayIndex, unit.id, unitId);
+
+		}
+
+	});
+}
+
+function cleanupLinesAttackingMe(unitId: string, displayIndex: DisplayIndex) {
+
+	Object.keys(displayIndex).forEach(key => {
+
+		const value = displayIndex[key];
+		if (value.targetId === unitId) {
+			cleanUpMyLine(displayIndex, key);
+		}
+	});
+
+}
+
 function renderLine(scene: BattlegroundScene, state: State, displayIndex: DisplayIndex, attacker: string, target: string) {
 	const unit = scene.getSquad(attacker)
 
 	const job = getJob(unit.job)
 	if (job.attackType !== "ranged") return
-
 
 	const { graphics, arrowTip, tween } = drawLine(scene, unit, target, state.options.speed);
 
@@ -80,23 +93,16 @@ function renderLine(scene: BattlegroundScene, state: State, displayIndex: Displa
 	};
 }
 
-function cleanUp(
-
-	displayIndex: {
-		[key: string]: {
-			targetId: string; graphic: Phaser.GameObjects.Graphics;
-			arrowTip: Phaser.GameObjects.Image;
-			tween: Phaser.Tweens.Tween;
-		};
-	},
-	key: string) {
+function cleanUpMyLine(
+	displayIndex: DisplayIndex,
+	key: string,
+) {
 
 	const value = displayIndex[key];
 	if (!value) return;
 	value.graphic.destroy();
 	value.arrowTip.destroy();
 	value.tween.stop()
-	//value.tween.destroy()
 	delete displayIndex[key];
 }
 
