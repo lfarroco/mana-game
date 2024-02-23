@@ -12,14 +12,17 @@ const VIEW_RADIUS = 4;
 
 export function init(scene: BattlegroundScene, state: State) {
 
-  const { fow } = scene;
-  if (!fow) throw new Error("fow is null");
-
   listeners([
     [signals.BATTLEGROUND_STARTED, () => {
+
+      const { fow } = scene;
+      if (!fow) throw new Error("fow is null");
       refreshFogOfWar(scene, fow, state);
     }],
     [signals.BATTLEGROUND_TICK, () => {
+
+      const { fow } = scene;
+      if (!fow) throw new Error("fow is null");
       refreshFogOfWar(scene, fow, state);
     },],
   ]);
