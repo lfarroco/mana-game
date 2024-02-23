@@ -12,9 +12,9 @@ export function initGame(state: State, emitter: Events) {
 
 	const game = new Phaser.Game({
 		type: Phaser.AUTO,
-		//mode: Phaser.Scale.FIT,
+		mode: Phaser.Scale.CENTER_BOTH,
 		//autoCenter: Phaser.Scale.CENTER_BOTH,
-		parent: "game",
+		parent: "game-container",
 		width: 1280,
 		height: 720,
 		scene: [Core, BattlegroundScene]
@@ -29,6 +29,7 @@ export function initGame(state: State, emitter: Events) {
 	listeners([
 		[
 			events_.START_NEW_GAME, () => {
+				console.log("START_NEW_GAME");
 				game.scene.start("BattlegroundScene", state);
 			}
 		],

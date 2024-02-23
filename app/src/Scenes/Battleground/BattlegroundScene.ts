@@ -78,6 +78,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
   constructor() {
     super("BattlegroundScene");
+    console.log("BattlegroundScene constructor")
 
     const state = getState();
 
@@ -158,6 +159,7 @@ export class BattlegroundScene extends Phaser.Scene {
      * It is important to NOT create new global listeners here
      * TODO: add test to confirm that global listeners are not created here
      */
+
 
     this.sound.setVolume(0.05)
 

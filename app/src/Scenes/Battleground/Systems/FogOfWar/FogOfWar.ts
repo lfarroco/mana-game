@@ -15,19 +15,13 @@ export function init(scene: BattlegroundScene, state: State) {
   const { fow } = scene;
   if (!fow) throw new Error("fow is null");
 
-
   listeners([
-    [
-      signals.BATTLEGROUND_STARTED, () => {
-        refreshFogOfWar(scene, fow, state);
-      }
-    ],
-    [
-      signals.BATTLEGROUND_TICK,
-      () => {
-        refreshFogOfWar(scene, fow, state);
-      },
-    ],
+    [signals.BATTLEGROUND_STARTED, () => {
+      refreshFogOfWar(scene, fow, state);
+    }],
+    [signals.BATTLEGROUND_TICK, () => {
+      refreshFogOfWar(scene, fow, state);
+    },],
   ]);
 }
 

@@ -21,7 +21,6 @@ const Battleground = () => {
   const [gold, setGold] = useState(state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)?.gold || 0);
 
   useEffect(() => {
-    console.log("Battleground mounted");
     listeners([
       [signals.PAUSE_GAME, () => {
         setPaused(true);
