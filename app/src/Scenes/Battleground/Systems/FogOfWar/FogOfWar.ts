@@ -11,17 +11,21 @@ const VIEW_RADIUS = 4;
 // TODO: create events for when a unit moves in or out the fow
 
 export function init(scene: BattlegroundScene, state: State) {
+
+  const { fow } = scene;
+  if (!fow) throw new Error("fow is null");
+
+
   listeners([
     [
       signals.BATTLEGROUND_STARTED, () => {
-        refreshFogOfWar(scene, state);
+        refreshFogOfWar(scene, fow, state);
       }
     ],
     [
-      // TODO: replace with "squads finished moving"
       signals.BATTLEGROUND_TICK,
       () => {
-        refreshFogOfWar(scene, state);
+        refreshFogOfWar(scene, fow, state);
       },
     ],
   ]);
@@ -29,10 +33,11 @@ export function init(scene: BattlegroundScene, state: State) {
 
 // takes around 0.2~3 ms to run in a 64x64 board and can be optimized
 // it is actually slower to use a for loop instead of forEach (takes 0.9ms)
-function refreshFogOfWar(scene: BattlegroundScene, state: State) {
-
-  const { fow } = scene;
-  if (!fow) throw new Error("fow is null");
+function refreshFogOfWar(
+  scene: BattlegroundScene,
+  fow: Phaser.Tilemaps.TilemapLayer,
+  state: State,
+) {
 
   // tried to use fow.culledTiles, but the tiles
   // are not set back to hidden
