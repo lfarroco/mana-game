@@ -11,7 +11,7 @@ canvas {
   padding: 0;
 }
 
-#game {
+#game-container {
   position: absolute;
   width: 1280px;
   height: 720px;
