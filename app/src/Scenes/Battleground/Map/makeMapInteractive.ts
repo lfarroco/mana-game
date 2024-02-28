@@ -242,16 +242,18 @@ function selectEntitiesInTile(state: State, tile: Phaser.Tilemaps.Tile) {
     .filter(unit => !isDestroyed(unit.status))
     .find((unit) => eqVec2(unit.position, asVec2(tile)));
 
-  if (unit)
+  if (unit) {
     emit(signals.UNITS_SELECTED, [unit.id]);
+    emit(signals.CITY_SELECTED, null);
+  } else {
 
-  const city = state.gameData.cities.find((city) => eqVec2(city.boardPosition, asVec2(tile)));
+    const city = state.gameData.cities.find((city) => eqVec2(city.boardPosition, asVec2(tile)));
 
-  if (city)
-    emit(signals.CITY_SELECTED, city.id);
-
-  else
-    emit(signals.CITY_DESELECTED);
+    if (city) {
+      emit(signals.CITY_SELECTED, city.id);
+      emit(signals.UNITS_SELECTED, []);
+    }
+  }
 }
 
 function issueMoveOrder(state: State, tile: Phaser.Tilemaps.Tile, scene: BattlegroundScene, x: number, y: number) {
