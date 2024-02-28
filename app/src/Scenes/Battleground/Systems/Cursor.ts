@@ -57,7 +57,18 @@ export function init(state: State, scene: BattlegroundScene) {
 		}],
 		[signals.CITY_SELECTED, (cityId: string | null) => {
 
-			if (!cityId) return
+			if (cityId === null) {
+
+				state.gameData.cities.forEach(city => {
+					const cursor = cursors[city.id]
+					if (!cursor) return
+					cursors[city.id].destroy()
+					delete cursors[city.id]
+				});
+
+				return
+
+			}
 
 			const city = scene.getCity(cityId)
 
