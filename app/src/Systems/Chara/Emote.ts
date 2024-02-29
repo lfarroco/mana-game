@@ -32,6 +32,7 @@ export function EmoteSystem_init(state: State, scene: BattlegroundScene) {
 			if (!emote) throw new Error(`No emote for ${chara.id}`)
 			if (emote.texture.key === key && emote.visible) return
 			emote.setTexture(key)
+			emote.anims.play(key)
 			emote.visible = true
 
 		}],
