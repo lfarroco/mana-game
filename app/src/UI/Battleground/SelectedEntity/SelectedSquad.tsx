@@ -55,7 +55,7 @@ const SelectedSquad = ({
 					: UnitActions(unit)
 
 	return <div
-		id="selected-unit"
+		id="selected-entity"
 		className="container"
 	>
 		<Row>
@@ -87,12 +87,7 @@ const SelectedSquad = ({
 				<div> <span className="attr">Range:</span> {job.attackRange === 1 ? "Melee" : `Ranged (${job.attackRange})`} </div>
 
 			</div>
-			<div className="col col-6"
-
-				style={{
-					borderLeft: "1px solid white",
-				}}
-			>
+			<div className="col col-6" >
 				{actionsGrid}
 			</div>
 
@@ -196,7 +191,7 @@ function ButtonGrid(props: { actions: { icon: string, label: string, onClick: ()
 			return <ManaButton
 				style={BUTTON_STYLE}
 				onClick={action.onClick}
-				icon={action.icon}
+				icon={`assets/ui/${action.icon}.png`}
 				label={action.label}
 			/>
 

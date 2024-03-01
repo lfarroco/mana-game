@@ -3,10 +3,19 @@ import { Button } from "react-bootstrap";
 import { getState } from "../../Models/State";
 
 const ManaButton = (
-	props: { icon: string, css: string, label: string, style: CSSProperties | undefined, onClick: () => void }
+	props: {
+		icon: string,
+		css: string,
+		label: string,
+		style: CSSProperties | undefined,
+		onClick: () => void,
+		iconSize: number | undefined
+	}
 ) => {
 
-	const { icon, css, label, style, onClick } = props
+	const { icon, css, label, style, onClick, iconSize } = props
+
+
 	return <Button
 		style={style}
 		className={css}
@@ -19,10 +28,10 @@ const ManaButton = (
 			onClick();
 		}}>
 		{icon !== "" ?
-			<img src={`assets/ui/${icon}.png`} alt={label}
+			<img src={icon} alt={label}
 				style={{
-					width: 16,
-					height: 16,
+					width: iconSize,
+					height: iconSize,
 				}} /> : null
 		}<div>
 
@@ -38,7 +47,8 @@ ManaButton.defaultProps = {
 	label: "",
 	style: undefined,
 	onClick: () => { },
-	icon: ""
+	icon: "",
+	iconSize: 16
 }
 
 export default ManaButton
