@@ -1,49 +1,136 @@
-import { Row } from "react-bootstrap"
-import { City } from "../../../Models/City"
-import { emit_, signals } from "../../../Models/Signals"
+import { UNIT_STATUS_KEYS, Unit } from "../../../Models/Unit"
 import "./styles.css"
+import * as Signals from "../../../Models/Signals"
 import { FORCE_ID_PLAYER } from "../../../Models/Force"
+import { Row } from "react-bootstrap"
+import { getJob } from "../../../Models/Job"
 import ManaButton from "../../Components/Button"
-const SelectedCity = ({ city }: { city: City }) => {
+import { City } from "../../../Models/City"
 
-	return <div id="selected-entity"
+const BUTTON_STYLE = {
+	width: 64,
+	height: 64,
+	fontSize: 12,
+	padding: 0,
+	margin: 0,
+	borderRadius: 0,
+	border: 'none'
+}
 
-		style={{
-			position: 'absolute',
-			top: 640,
-			left: 0,
-			backgroundColor: "rgba(2, 4, 3, 0.3)",
-			padding: "5px",
-			width: "150px",
-			fontSize: 10,
-			borderTopRightRadius: 5,
-			height: 80
-		}}>
-		<Row>
+const SelectedCity = ({
+	city,
+}: {
+	city: City,
+}) => {
 
-			<div className="col co-6">
-				<img
-					className="portrait img-fluid"
-					style={{
-						width: 48
-					}}
-					src={`assets/cities/${city.type}.png`} alt={city.name} />
-			</div>
-			<div className="col col-6">
 
-				<div>{city.name}</div>
-				<div>{city.type}</div>
-				{city.type === "tavern" && city.force === FORCE_ID_PLAYER &&
-					<ManaButton
-						css="btn-sm"
-						onClick={emit_(signals.TOGGLE_DISPATCH_MODAL, true)}
-						label="Recruit" />
+	const actionsGrid = <ButtonGrid actions={
+
+		[
+			{
+				icon: "assets/jobs/archer/portrait.png",
+				onClick: () => {
 				}
+			},
+			{
+				icon: "assets/jobs/soldier/portrait.png",
+				onClick: () => {
+				}
+			},
+			{
+				icon: "assets/jobs/cleric/portrait.png",
+				onClick: () => {
+				}
+			},
+			{
+				icon: "assets/jobs/monk/portrait.png",
+				onClick: () => {
+				}
+			},
+			{
+				icon: "assets/jobs/skeleton/portrait.png",
+				onClick: () => {
+				}
+			},
+			{
+				icon: "assets/jobs/rogue/portrait.png",
+				onClick: () => {
+				}
+			},
 
+		]
+
+	} />
+
+
+	return <div
+		id="selected-entity"
+		className="container"
+	>
+		<Row>
+			<div className="col col-3 mt-2"
+				style={{
+					textAlign: "center",
+				}}
+			>
+
+				<img
+					className="img-fluid portrait"
+					src={`assets/cities/${city.type}.png`}
+					alt={city.type}
+				/>
+				<div
+					style={{
+						color: "#13ec13",
+					}}
+				>{
+						city.type
+					}
+				</div>
+
+			</div>
+			<div className="col col-6" >
+				{actionsGrid}
 			</div>
 
 		</Row>
-	</div>
+
+	</div >
+
 }
 
 export default SelectedCity
+
+
+
+
+
+
+function ButtonGrid(props: { actions: { icon: string, onClick: () => void }[] }) {
+
+	const { actions } = props
+
+	const maybeButton = (index: number) => {
+		const action = actions[index]
+		if (action) {
+			return <ManaButton
+				style={BUTTON_STYLE}
+				onClick={action.onClick}
+				icon={action.icon}
+				iconSize={64}
+			/>
+
+		} else {
+			return null
+		}
+	}
+	const indices = Array.from({ length: 6 }, (v, k) => k)
+	return <> {
+		indices.map(index => {
+			return <div className="grid-cell" key={index}>
+				{maybeButton(index)}
+			</div>
+		})
+	} </>
+
+}
