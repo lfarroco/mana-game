@@ -41,7 +41,7 @@ export function init(scene: BattlegroundScene, state: State) {
 		}],
 		[signals.UNIT_FINISHED_MOVE_ANIM, (unitId: string, vec: Vec2) => {
 
-			// check if someone is attacking it
+			// check if someone is attacking me
 
 			renderLinesAttackingMe(state, unitId, scene, displayIndex);
 
@@ -53,10 +53,27 @@ export function init(scene: BattlegroundScene, state: State) {
 	])
 }
 function renderLinesAttackingMe(state: State, unitId: string, scene: BattlegroundScene, displayIndex: DisplayIndex) {
+
+	const me = state.gameData.units.find(u => u.id === unitId)
+
+	if (!me) return
+
 	state.gameData.units.forEach(unit => {
 
 		if (isAttacking(unit.status)
 			&& unit.status.target === unitId) {
+
+			const attackerJob = getJob(unit.job)
+
+			const distance = Phaser.Math.Distance.Between(
+				unit.position.x,
+				unit.position.y,
+				me.position.x,
+				me.position.y)
+
+			if (distance > attackerJob.attackRange) {
+				return;
+			}
 
 			renderLine(scene, state, displayIndex, unit.id, unitId);
 
@@ -81,7 +98,7 @@ function renderLine(scene: BattlegroundScene, state: State, displayIndex: Displa
 	const unit = scene.getSquad(attacker)
 
 	const job = getJob(unit.job)
-	if (job.attackType !== "ranged") return
+	if (job.attackRange === 1) return
 
 	const { graphics, arrowTip, tween } = drawLine(scene, unit, target, state.options.speed);
 
