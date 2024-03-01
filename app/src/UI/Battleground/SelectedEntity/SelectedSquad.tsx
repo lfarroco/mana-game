@@ -84,7 +84,7 @@ const SelectedSquad = ({
 				<div> <span className="attr">Status: </span> {status} </div>
 				<div> <span className="attr">Attack:</span> {job.attackPower + job.dices} - {job.attackPower + job.dices * 3} </div>
 				<div> <span className="attr">Defense:</span> 2 </div>
-				<div> <span className="attr">Range:</span> {job.attackType === "melee" ? "Melee" : `Ranged (${job.attackRange})`} </div>
+				<div> <span className="attr">Range:</span> {job.attackRange === 1 ? "Melee" : `Ranged (${job.attackRange})`} </div>
 
 			</div>
 			<div className="col col-6"

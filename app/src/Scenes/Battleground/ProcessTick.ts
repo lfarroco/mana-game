@@ -198,12 +198,9 @@ function checkCombat(state: State) {
 
       if (isDestroyed(enemy.status)) {
         return resume();
-      } else if (job.attackType === "ranged" && distance > 3) {
-        return resume();
-      } else if (job.attackType === "melee" && distance > 1) {
+      } else if (distance > job.attackRange) {
         return resume();
       }
-
 
       const damage = job.attackPower + job.dices * 3;
       emit(signals.ATTACK, unit.id, enemy.id);

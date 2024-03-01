@@ -5,7 +5,6 @@ import { getJob } from "../../Models/Job";
 
 export function getEnemiesNearby(unit: Unit) {
 	const job = getJob(unit.job);
-	const range = job.attackType === "melee" ? 1 : 3;
 
 	return getState().gameData.units
 		.filter((u) => u.force !== unit.force)
@@ -14,7 +13,7 @@ export function getEnemiesNearby(unit: Unit) {
 
 			const distance = distanceBetween(u.position)(unit.position);
 
-			return distance <= range;
+			return distance <= job.attackRange;
 
 		});
 }
