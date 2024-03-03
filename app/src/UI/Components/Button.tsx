@@ -9,11 +9,17 @@ const ManaButton = (
 		label: string,
 		style: CSSProperties | undefined,
 		onClick: () => void,
-		iconSize: number | undefined
+		tooltipTitle?: string,
+		tooltipContent?: string
+
 	}
 ) => {
 
-	const { icon, css, label, style, onClick, iconSize } = props
+	const { icon, css, label, style, onClick,
+		tooltipTitle,
+		tooltipContent
+
+	} = props
 
 
 	return <Button
@@ -30,14 +36,25 @@ const ManaButton = (
 		{icon !== "" ?
 			<img src={icon} alt={label}
 				style={{
-					width: iconSize,
-					height: iconSize,
+					width: '100%',
+					height: '100%',
 				}} /> : null
 		}<div>
-
 			{label}
 
 		</div>
+		{tooltipTitle || tooltipContent ?
+			(<div
+				className="btn-tooltip"
+
+			>
+				<div>{tooltipTitle}</div>
+				<div> {tooltipContent} </div>
+
+			</div>) : null
+
+		}
+
 	</Button>
 }
 
@@ -48,7 +65,8 @@ ManaButton.defaultProps = {
 	style: undefined,
 	onClick: () => { },
 	icon: "",
-	iconSize: 16
+	tooltipTitle: "",
+	tooltipContent: ""
 }
 
 export default ManaButton

@@ -1,9 +1,5 @@
-import { UNIT_STATUS_KEYS, Unit } from "../../../Models/Unit"
 import "./styles.css"
-import * as Signals from "../../../Models/Signals"
-import { FORCE_ID_PLAYER } from "../../../Models/Force"
 import { Row } from "react-bootstrap"
-import { getJob } from "../../../Models/Job"
 import ManaButton from "../../Components/Button"
 import { City } from "../../../Models/City"
 
@@ -117,7 +113,6 @@ function ButtonGrid(props: { actions: { icon: string, onClick: () => void }[] })
 				style={BUTTON_STYLE}
 				onClick={action.onClick}
 				icon={action.icon}
-				iconSize={64}
 			/>
 
 		} else {
