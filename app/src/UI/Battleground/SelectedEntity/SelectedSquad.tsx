@@ -5,6 +5,7 @@ import { FORCE_ID_PLAYER } from "../../../Models/Force"
 import { Row } from "react-bootstrap"
 import { getJob } from "../../../Models/Job"
 import ManaButton from "../../Components/Button"
+import { getSkill } from "../../../Models/Skill"
 
 const BUTTON_STYLE = {
 	width: 64,
@@ -58,6 +59,7 @@ const SelectedSquad = ({
 		id="selected-entity"
 		className="container"
 	>
+
 		<Row>
 			<div className="col col-3 mt-2"
 				style={{
@@ -102,8 +104,9 @@ export default SelectedSquad
 function selectAttackTargetActions(unit: Unit) {
 	return <ButtonGrid actions={[
 		{
-			label: "Cancel",
 			icon: "icon-cancel",
+			tooltipTitle: "Cancel",
+			tooltipContent: "Cancel attacking",
 			onClick: () => {
 				Signals.emit(Signals.signals.SELECT_ATTACK_TARGET_CANCEL, unit.id)
 			}
@@ -114,8 +117,9 @@ function selectAttackTargetActions(unit: Unit) {
 function selectSkillTargetActions(unit: Unit) {
 	return <ButtonGrid actions={[
 		{
-			label: "Cancel",
 			icon: "icon-cancel",
+			tooltipTitle: "Cancel",
+			tooltipContent: "Cancel using this skill",
 			onClick: () => {
 				Signals.emit(Signals.signals.SELECT_SKILL_TARGET_CANCEL, unit.id)
 			}
@@ -127,8 +131,9 @@ function selectSkillTargetActions(unit: Unit) {
 function selectMoveTargetActions(unit: Unit) {
 	return <ButtonGrid actions={[
 		{
-			label: "Cancel",
 			icon: "icon-cancel",
+			tooltipTitle: "Cancel",
+			tooltipContent: "Cancel moving",
 			onClick: () => {
 				Signals.emit(Signals.signals.SELECT_UNIT_MOVE_CANCEL, unit.id)
 			}
@@ -140,12 +145,15 @@ function selectMoveTargetActions(unit: Unit) {
 function UnitActions(unit: Unit) {
 
 	const job = getJob(unit.job)
-	const skills = job.skills.map(skill => {
+	const skills = job.skills.map(skillId => {
+
+		const skill = getSkill(skillId)
 		return {
-			icon: `icon-${skill}`,
-			label: skill,
+			icon: `icon-${skillId}`,
+			tooltipTitle: skill.name,
+			tooltipContent: skill.tooltip,
 			onClick: () => {
-				Signals.emit(Signals.signals.SELECT_SKILL_TARGET_START, unit.id, skill)
+				Signals.emit(Signals.signals.SELECT_SKILL_TARGET_START, unit.id, skillId)
 			}
 		}
 	});
@@ -154,14 +162,16 @@ function UnitActions(unit: Unit) {
 		actions={[
 			{
 				icon: "icon-move",
-				label: "Move",
+				tooltipTitle: "Move",
+				tooltipContent: "Move to a different location. Will ignore enemies in the way.",
 				onClick: () => {
 					Signals.emit(Signals.signals.SELECT_UNIT_MOVE_START, unit.id)
 				}
 			},
 			{
 				icon: "icon-attack",
-				label: "Attack",
+				tooltipTitle: "Attack",
+				tooltipContent: "Attack an enemy unit in your range.",
 				onClick: () => {
 
 					Signals.emit(Signals.signals.SELECT_ATTACK_TARGET_START, unit.id)
@@ -169,7 +179,8 @@ function UnitActions(unit: Unit) {
 			},
 			{
 				icon: "icon-stop",
-				label: "Stop",
+				tooltipTitle: "Stop",
+				tooltipContent: "Stop the unit from moving or attacking.",
 				onClick: () => {
 
 					Signals.emit(Signals.signals.UNIT_MOVE_STOP, unit.id)
@@ -181,7 +192,15 @@ function UnitActions(unit: Unit) {
 }
 
 
-function ButtonGrid(props: { actions: { icon: string, label: string, onClick: () => void }[] }) {
+function ButtonGrid(props: {
+	actions: {
+		icon: string,
+
+		tooltipTitle: string,
+		tooltipContent: string,
+		onClick: () => void
+	}[]
+}) {
 
 	const { actions } = props
 
@@ -192,7 +211,8 @@ function ButtonGrid(props: { actions: { icon: string, label: string, onClick: ()
 				style={BUTTON_STYLE}
 				onClick={action.onClick}
 				icon={`assets/ui/${action.icon}.png`}
-				label={action.label}
+				tooltipTitle={action.tooltipTitle}
+				tooltipContent={action.tooltipContent}
 			/>
 
 		} else {

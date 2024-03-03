@@ -100,15 +100,11 @@ export const updateUnit = (state: State) => (id: string) => (
 };
 
 export const getUnit = (state: State) => (id: string): Unit => {
-  const unit = state.gameData.units.find((u) => u.id === id);
-  if (!unit) throw new Error("unit not found");
-  return unit;
+  return state.gameData.units.find((u) => u.id === id)!;
 }
 
 export const getCity = (state: State) => (id: string): City => {
-  const city = state.gameData.cities.find((city) => city.id === id);
-  if (!city) throw new Error("city not found");
-  return city;
+  return state.gameData.cities.find((city) => city.id === id)!;
 }
 
 export const updateForce = (state: State) => (

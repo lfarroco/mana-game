@@ -8,6 +8,7 @@ import { getUnit, getState, State } from "../../../Models/State";
 import { isInside } from "../../../Models/Geometry";
 import { pingAt as pingAtLocation } from "./Ping";
 import { getDirection } from "../../../Models/Direction";
+import { getSkill } from "../../../Models/Skill";
 
 export function makeMapInteractive(
   scene: BattlegroundScene,
@@ -174,8 +175,8 @@ export function makeMapInteractive(
 
       }
 
-      if (scene.isSelectingSkillTarget) {
-        useSkill(state, scene, tile);
+      if (scene.selectedSkillId) {
+        useSkill(state, scene, tile, scene.selectedSkillId);
         return;
       }
 
@@ -194,32 +195,40 @@ export function makeMapInteractive(
         return
       }
 
-
     }
   );
 }
 
-function useSkill(state: State, scene: BattlegroundScene, tile: Phaser.Tilemaps.Tile) {
+function useSkill(state: State, scene: BattlegroundScene, tile: Phaser.Tilemaps.Tile, skillId: string) {
   const unit = getUnit(state)(state.gameData.selectedUnits[0]);
-  const skill = "heal";
+  const skill = getSkill(skillId);
 
-  // todo: use "skill targets" to check if the skill can be used in a tile or unit
-  const allyInTile = state.gameData.units.find((unit) => eqVec2(unit.position, asVec2(tile)) && unit.force === FORCE_ID_PLAYER);
+  if (skill.targets === "ally") {
 
-  if (!allyInTile) return // todo: error sound
+    // todo: use "skill targets" to check if the skill can be used in a tile or unit
+    const allyInTile = state.gameData.units.find((unit) => eqVec2(unit.position, asVec2(tile)) && unit.force === FORCE_ID_PLAYER);
 
-  // todo: use "skill requirements" to check if the skill can be used
-  if (allyInTile.hp === allyInTile.maxHp) return // todo: error sound
+    if (!allyInTile) return // todo: error sound
 
-  // todo: use "skill range" to check if the skill can be used
+    // todo: use "skill requirements" to check if the skill can be used
+    if (allyInTile.hp === allyInTile.maxHp) return // todo: error sound
 
-  const direction = getDirection(unit.position, allyInTile.position);
+    // todo: use "skill range" to check if the skill can be used
 
-  emit(signals.SELECT_SKILL_TARGET_DONE, unit.id, skill, asVec2(tile));
-  emit(signals.FACE_DIRECTION, unit.id, direction);
-  emit(signals.UPDATE_UNIT, unit.id, { status: UNIT_STATUS.CASTING(allyInTile.id, skill) });
-  emit(signals.DISPLAY_EMOTE, unit.id, "magic-emote");
+    const distance = Phaser.Math.Distance.Between(unit.position.x, unit.position.y, allyInTile.position.x, allyInTile.position.y);
 
+    if (distance > skill.range) return // todo: error sound
+
+    const direction = getDirection(unit.position, allyInTile.position);
+
+    emit(signals.SELECT_SKILL_TARGET_DONE, unit.id, skill.id, asVec2(tile));
+    emit(signals.FACE_DIRECTION, unit.id, direction);
+    emit(signals.UPDATE_UNIT, unit.id, { status: UNIT_STATUS.CASTING(allyInTile.id, skill.id) });
+    emit(signals.DISPLAY_EMOTE, unit.id, "magic-emote");
+
+  } else if (skill.targets === "enemy") {
+    console.log("not implemented yet", skillId)
+  }
 }
 
 function checkAttackTargetInCell(state: State, tile: Phaser.Tilemaps.Tile) {
