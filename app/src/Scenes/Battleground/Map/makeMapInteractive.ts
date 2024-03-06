@@ -199,7 +199,12 @@ export function makeMapInteractive(
   );
 }
 
-function useSkill(state: State, scene: BattlegroundScene, tile: Phaser.Tilemaps.Tile, skillId: string) {
+function useSkill(
+  state: State,
+  scene: BattlegroundScene,
+  tile: Phaser.Tilemaps.Tile,
+  skillId: string,
+) {
   const unit = getUnit(state)(state.gameData.selectedUnits[0]);
   const skill = getSkill(skillId);
 
