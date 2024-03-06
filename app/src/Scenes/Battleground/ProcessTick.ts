@@ -15,11 +15,13 @@ import {
   isDestroyed,
   isMoving,
   isCasting,
+  Unit,
 } from "../../Models/Unit";
 import { foldMap } from "../../Models/Signals";
 import { State, getUnit, getState } from "../../Models/State";
 import { getEnemiesNearby } from "./getEnemiesNearby";
 import { getJob } from "../../Models/Job";
+import { getSkill } from "../../Models/Skill";
 
 const TURNS_TO_MOVE = 3;
 const processTick = (scene: BattlegroundScene) => {
@@ -143,6 +145,58 @@ function checkEnemiesInRange(scene: BattlegroundScene): Operation[] {
   );
 }
 
+function processSkill(
+  caster: Unit,
+  state: State,
+  skillId: string,
+  targetId: string,
+) {
+
+  const exitCombatOp = [
+    operations.UPDATE_UNIT(caster.id, {
+      status: UNIT_STATUS.IDLE(),
+    }),
+    operations.HIDE_EMOTE(caster.id),
+    // TOOD: hide skill effect
+  ];
+
+  const skill = getSkill(skillId);
+
+  const targetUnit = skill.targets === "ally" ?
+    state.gameData.units.find((unit) => unit.id === targetId && unit.force === caster.force) :
+    state.gameData.units.find((unit) => unit.id === targetId && unit.force !== caster.force);
+
+  if (!targetUnit) {
+    console.error("Invalid target for skill", skillId, targetId);
+    return exitCombatOp
+  }
+
+  if (isDestroyed(targetUnit.status)) {
+    return exitCombatOp
+  }
+
+  const distance = distanceBetween(caster.position)(targetUnit.position);
+
+  if (distance > skill.range) {
+    return exitCombatOp
+  }
+
+  const modifier = skill.harmful ? -1 : 1;
+
+  const newHp = targetUnit.hp + skill.power * modifier;
+
+  const hp = newHp < 0 ? 0 : newHp > targetUnit.maxHp ? targetUnit.maxHp : newHp;
+
+  return [
+    operations.UPDATE_UNIT(targetUnit.id, {
+      hp,
+    }),
+    ...(hp === 0 && skill.harmful ? exitCombatOp : []),
+    ...(hp === targetUnit.maxHp && !skill.harmful ? exitCombatOp : []),
+  ];
+
+}
+
 function checkCombat(state: State) {
   return foldMap(
     state.gameData.units.filter((s) => isAttacking(s.status) || isCasting(s.status)),
@@ -150,34 +204,17 @@ function checkCombat(state: State) {
       if (!isAttacking(unit.status) && !isCasting(unit.status)) return [];
 
       if (isCasting(unit.status)) {
-        const { target } = unit.status;
-        const ally = getUnit(state)(target);
-
-        const distance = distanceBetween(unit.position)(ally.position);
-
-        const newHp = ally.hp + 5 > ally.maxHp ? ally.maxHp : ally.hp + 5;
-        if (distance > 1 || isDestroyed(ally.status) || ally.force !== unit.force || ally.hp === ally.maxHp) {
-          return [
-            operations.UPDATE_UNIT(unit.id, {
-              status: UNIT_STATUS.IDLE(),
-            }),
-            operations.HIDE_EMOTE(unit.id),
-          ];
-        }
-
-        return [
-          operations.UPDATE_UNIT(ally.id, {
-            hp: newHp,
-          })
-        ];
+        const { skill, target } = unit.status;
+        return processSkill(unit, state, skill, target);
       }
+      // TODO: make attacks be evaluated in the same way as skills
 
       const job = getJob(unit.job);
       const { target } = unit.status;
 
       const enemy = getUnit(state)(target);
 
-      const resume = () => {
+      const exitCombat = () => {
         if (unit.path.length < 1) {
           return [
             operations.COMBAT_FINISHED(unit.id),
@@ -197,9 +234,9 @@ function checkCombat(state: State) {
       const distance = distanceBetween(unit.position)(enemy.position);
 
       if (isDestroyed(enemy.status)) {
-        return resume();
+        return exitCombat();
       } else if (distance > job.attackRange) {
-        return resume();
+        return exitCombat();
       }
 
       const damage = job.attackPower + job.dices * 3;
