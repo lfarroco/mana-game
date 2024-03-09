@@ -9,6 +9,9 @@ export type Skill = {
 	harmful: boolean;
 	areaOfEffect: number;
 	tooltip: string;
+	emote: string | null;
+	targetEffect: string | null;
+	projectile: string | null;
 };
 
 export const skills: Skill[] = [
@@ -21,7 +24,10 @@ export const skills: Skill[] = [
 		mana: 5,
 		harmful: false,
 		areaOfEffect: 1,
-		tooltip: "Heals an ally unit for 5 HP each turn"
+		tooltip: "Heals an ally unit for 5 HP each turn",
+		emote: "magic-emote",
+		targetEffect: "heal-effect",
+		projectile: null,
 	},
 	{
 		id: "fireball",
@@ -32,7 +38,10 @@ export const skills: Skill[] = [
 		mana: 10,
 		harmful: true,
 		areaOfEffect: 1,
-		tooltip: "Deals 10 damage to an enemy unit"
+		tooltip: "Deals 10 damage to an enemy unit",
+		emote: "magic-emote",
+		targetEffect: "fireball-effect",
+		projectile: "fireball-projectile",
 	},
 	{
 		id: "lightning",
@@ -43,7 +52,10 @@ export const skills: Skill[] = [
 		mana: 15,
 		harmful: true,
 		areaOfEffect: 1,
-		tooltip: "Deals 15 damage to an enemy unit"
+		tooltip: "Deals 15 damage to an enemy unit",
+		emote: "magic-emote",
+		targetEffect: "lightning-effect",
+		projectile: "lightning-projectile",
 	},
 	{
 		id: "freeze",
@@ -54,7 +66,10 @@ export const skills: Skill[] = [
 		mana: 20,
 		harmful: true,
 		areaOfEffect: 1,
-		tooltip: "Freezes an enemy unit for 1 turn"
+		tooltip: "Freezes an enemy unit for 1 turn",
+		emote: "magic-emote",
+		targetEffect: "freeze-effect",
+		projectile: null,
 	},
 	{
 		id: "poison",
@@ -65,7 +80,10 @@ export const skills: Skill[] = [
 		mana: 5,
 		harmful: true,
 		areaOfEffect: 1,
-		tooltip: "Poisons an enemy unit for 5 damage each turn"
+		tooltip: "Poisons an enemy unit for 5 damage each turn",
+		emote: "magic-emote",
+		targetEffect: "poison-effect",
+		projectile: null,
 	},
 	{
 		id: "teleport",
@@ -76,7 +94,10 @@ export const skills: Skill[] = [
 		mana: 20,
 		harmful: false,
 		areaOfEffect: 1,
-		tooltip: "Teleports the caster to a different location"
+		tooltip: "Teleports the caster to a different location",
+		emote: null,
+		targetEffect: "teleport-effect",
+		projectile: null,
 	},
 
 ]
