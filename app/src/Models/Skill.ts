@@ -26,7 +26,7 @@ export const skills: Skill[] = [
 		areaOfEffect: 1,
 		tooltip: "Heals an ally unit for 5 HP each turn",
 		emote: "magic-emote",
-		targetEffect: "heal-effect",
+		targetEffect: "cethiel_light",
 		projectile: null,
 	},
 	{

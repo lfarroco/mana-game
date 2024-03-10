@@ -15,6 +15,8 @@ const jobs = [
 	'zombie'
 ]
 
+const fxs = ['cethiel_light'];
+
 const emotes = [
 	'combat-emote',
 	'arrow-bottom-emote', // TODO: rename to arrow-down to match the DIRECTIONS const
@@ -82,6 +84,17 @@ export function preload(this: Phaser.Scene) {
 			}
 		);
 
+	});
+
+	fxs.forEach(fx => {
+		this.load.spritesheet(
+			fx,
+			`assets/fx/${fx}.png`,
+			{
+				frameWidth: 64,
+				frameHeight: 64,
+			}
+		);
 	})
 
 	//once all assets are loaded, create animations
@@ -124,6 +137,17 @@ export function preload(this: Phaser.Scene) {
 				repeat: -1,
 			});
 		});
+
+		fxs.forEach(fx => {
+			this.anims.create({
+				key: fx,
+				frames: this.anims.generateFrameNumbers(fx, { start: 0, end: 4 }),
+				frameRate: 5,
+				repeat: -1,
+			});
+		});
 	});
 
 }
+
+
