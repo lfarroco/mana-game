@@ -9,6 +9,7 @@ import { isInside } from "../../../Models/Geometry";
 import { pingAt as pingAtLocation } from "./Ping";
 import { getDirection } from "../../../Models/Direction";
 import { getSkill } from "../../../Models/Skill";
+import { TURN_DURATION } from "../../../config";
 
 export function makeMapInteractive(
   scene: BattlegroundScene,
@@ -229,8 +230,7 @@ function useSkill(
     emit(signals.SELECT_SKILL_TARGET_DONE, unit.id, skill.id, asVec2(tile));
     emit(signals.FACE_DIRECTION, unit.id, direction);
     emit(signals.UPDATE_UNIT, unit.id, { status: UNIT_STATUS.CASTING(allyInTile.id, skill.id) });
-    if (skill.emote)
-      emit(signals.DISPLAY_EMOTE, unit.id, skill.emote);
+
 
   } else if (skill.targets === "enemy") {
     console.log("not implemented yet", skillId)

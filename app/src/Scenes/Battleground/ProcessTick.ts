@@ -22,6 +22,7 @@ import { State, getUnit, getState } from "../../Models/State";
 import { getEnemiesNearby } from "./getEnemiesNearby";
 import { getJob } from "../../Models/Job";
 import { getSkill } from "../../Models/Skill";
+import { TURN_DURATION } from "../../config";
 
 const TURNS_TO_MOVE = 3;
 const processTick = (scene: BattlegroundScene) => {
@@ -33,7 +34,7 @@ const processTick = (scene: BattlegroundScene) => {
 
   sequence(checkEnemiesInRange(scene));
 
-  sequence(checkCombat(state));
+  sequence(checkCombat(scene, state));
 
   sequence(startMoving(state));
 
@@ -146,6 +147,7 @@ function checkEnemiesInRange(scene: BattlegroundScene): Operation[] {
 }
 
 function processSkill(
+  scene: BattlegroundScene,
   caster: Unit,
   state: State,
   skillId: string,
@@ -181,6 +183,22 @@ function processSkill(
     return exitCombatOp
   }
 
+  if (skill.emote)
+    emit(signals.DISPLAY_EMOTE, caster.id, skill.emote);
+
+  if (skill.targetEffect) {
+    const sprite = scene.add.sprite(
+      targetUnit.position.x * 64 + 32,
+      targetUnit.position.y * 64 + 32,
+      skill.targetEffect,
+    );
+    sprite.setAlpha(0.5);
+    sprite.setOrigin(0.5, 0.5);
+    sprite.anims.play(skill.targetEffect, true);
+    scene.time.delayedCall(TURN_DURATION / 2, () => sprite.destroy());
+  }
+
+
   const modifier = skill.harmful ? -1 : 1;
 
   const newHp = targetUnit.hp + skill.power * modifier;
@@ -197,7 +215,7 @@ function processSkill(
 
 }
 
-function checkCombat(state: State) {
+function checkCombat(scene: BattlegroundScene, state: State) {
   return foldMap(
     state.gameData.units.filter((s) => isAttacking(s.status) || isCasting(s.status)),
     (unit) => {
@@ -205,7 +223,7 @@ function checkCombat(state: State) {
 
       if (isCasting(unit.status)) {
         const { skill, target } = unit.status;
-        return processSkill(unit, state, skill, target);
+        return processSkill(scene, unit, state, skill, target);
       }
       // TODO: make attacks be evaluated in the same way as skills
 
