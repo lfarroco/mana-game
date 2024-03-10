@@ -21,12 +21,13 @@ const ManaButton = (
 
 	} = props
 
-
 	return <Button
 		style={style}
 		className={css}
 		variant="dark"
-		onClick={() => {
+		onClick={(e) => {
+
+			e.currentTarget.blur()
 			const state = getState()
 			const audio = new Audio("assets/audio/button_click.ogg");
 			audio.volume = state.options.soundVolume;
