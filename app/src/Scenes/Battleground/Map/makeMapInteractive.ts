@@ -9,7 +9,6 @@ import { isInside } from "../../../Models/Geometry";
 import { pingAt as pingAtLocation } from "./Ping";
 import { getDirection } from "../../../Models/Direction";
 import { getSkill } from "../../../Models/Skill";
-import { TURN_DURATION } from "../../../config";
 
 export function makeMapInteractive(
   scene: BattlegroundScene,
