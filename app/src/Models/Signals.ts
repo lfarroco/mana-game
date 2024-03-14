@@ -58,7 +58,7 @@ export type Signals = {
     total: number
   ) => void;
   UNIT_LEAVES_CELL: (unitId: string, vec: Vec2) => void;
-  UNIT_MOVED_INTO_CELL: (unitId: string, vec: Vec2) => void;
+  UNIT_MOVED_INTO_CELL: (unitId: string, vec: Vec2, prevCell: Vec2) => void;
   UPDATE_UNIT_COUNTER: (count: number, vec: Vec2) => void; // TODO: not implemented yet
   LOOKUP_PATH: (key: string, source: Vec2, target: Vec2) => void;
   PATH_FOUND: (key: string, path: Vec2[]) => void;
@@ -66,7 +66,7 @@ export type Signals = {
   DISPLAY_EMOTE: (id: string, key: string) => void;
   HIDE_EMOTE: (unitId: string) => void;
   FACE_DIRECTION: (unitId: string, direction: Direction) => void; // TODO: change to vec2
-  UNIT_FINISHED_MOVE_ANIM: (unitId: string, vec: Vec2) => void;
+  UNIT_FINISHED_MOVE_ANIM: (unitId: string, vec: Vec2, direction: Direction) => void;
 };
 
 export type Operation = [keyof Signals, ...Parameters<Signals[keyof Signals]>];
@@ -255,10 +255,11 @@ export const operations: {
     unitId,
     vec,
   ],
-  UNIT_MOVED_INTO_CELL: (unitId: string, vec: Vec2) => [
+  UNIT_MOVED_INTO_CELL: (unitId: string, vec: Vec2, prevCell: Vec2) => [
     signals.UNIT_MOVED_INTO_CELL,
     unitId,
     vec,
+    prevCell
   ],
   UPDATE_UNIT_COUNTER: (count: number, vec: Vec2) => [
     signals.UPDATE_UNIT_COUNTER,
@@ -279,10 +280,11 @@ export const operations: {
     unitId,
     direction,
   ],
-  UNIT_FINISHED_MOVE_ANIM: (unitId: string, vec: Vec2) => [
+  UNIT_FINISHED_MOVE_ANIM: (unitId: string, vec: Vec2, direction: Direction) => [
     signals.UNIT_FINISHED_MOVE_ANIM,
     unitId,
-    vec
+    vec,
+    direction
   ],
   CHANGE_DIRECTION: (key: string, vec: Vec2) => [
     signals.CHANGE_DIRECTION,

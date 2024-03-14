@@ -101,6 +101,14 @@ export function preload(this: Phaser.Scene) {
 	this.load.on("complete", () => {
 		jobs.forEach(job => {
 			//create animations
+
+			this.anims.create({
+				key: job + "-idle-down",
+				frames: this.anims.generateFrameNumbers(job, { start: 0, end: 0 }),
+				frameRate: 0,
+				repeat: -1,
+			})
+
 			this.anims.create({
 				key: job + "-walk-down",
 				frames: this.anims.generateFrameNumbers(job, { start: 0, end: 2 }),
@@ -108,11 +116,23 @@ export function preload(this: Phaser.Scene) {
 				repeat: -1,
 			});
 			this.anims.create({
+				key: job + "-idle-left",
+				frames: this.anims.generateFrameNumbers(job, { start: 3, end: 3 }),
+				frameRate: 0,
+				repeat: -1,
+			})
+			this.anims.create({
 				key: job + "-walk-left",
 				frames: this.anims.generateFrameNumbers(job, { start: 3, end: 5 }),
 				frameRate: 3,
 				repeat: -1,
 			});
+			this.anims.create({
+				key: job + "-idle-right",
+				frames: this.anims.generateFrameNumbers(job, { start: 6, end: 6 }),
+				frameRate: 0,
+				repeat: -1,
+			})
 			this.anims.create({
 				key: job + "-walk-right",
 				frames: this.anims.generateFrameNumbers(job, { start: 6, end: 8 }),
@@ -120,13 +140,17 @@ export function preload(this: Phaser.Scene) {
 				repeat: -1,
 			});
 			this.anims.create({
+				key: job + "-idle-up",
+				frames: this.anims.generateFrameNumbers(job, { start: 9, end: 9 }),
+				frameRate: 0,
+				repeat: -1,
+			})
+			this.anims.create({
 				key: job + "-walk-up",
 				frames: this.anims.generateFrameNumbers(job, { start: 9, end: 11 }),
 				frameRate: 3,
 				repeat: -1,
 			});
-
-
 		})
 
 		emotes.forEach(emote => {
