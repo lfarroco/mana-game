@@ -1,5 +1,5 @@
 import { Chara } from "./Chara";
-import { Direction, getDirection } from "../../Models/Direction";
+import { DIRECTIONS, Direction, getDirection } from "../../Models/Direction";
 import { Vec2 } from "../../Models/Geometry";
 import { signals, listeners } from "../../Models/Signals";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
@@ -17,12 +17,12 @@ export function init(scene: BattlegroundScene) {
 
         const direction = getDirection(unit.position, next);
 
-        faceDirection(direction, chara);
+        walkToDirection(direction, chara);
       },
     ],
     [
       signals.UNIT_FINISHED_MOVE_ANIM,
-      (unitId: string) => {
+      (unitId: string, _cell: Vec2, direction: Direction) => {
         const unit = scene.getSquad(unitId);
 
         const chara = scene.getChara(unitId);
@@ -32,7 +32,9 @@ export function init(scene: BattlegroundScene) {
         if (next && unit.path.length > 1) {
           const nextDirection = getDirection(unit.position, next);
 
-          faceDirection(nextDirection, chara);
+          walkToDirection(nextDirection, chara);
+        } else {
+          idleToDirection(direction, chara);
         }
       },
     ],
@@ -47,7 +49,7 @@ export function init(scene: BattlegroundScene) {
 
         const direction = getDirection(unit.position, target.position);
 
-        faceDirection(direction, chara);
+        walkToDirection(direction, chara);
       },
     ],
     [
@@ -59,7 +61,7 @@ export function init(scene: BattlegroundScene) {
 
         const direction = getDirection(unit.position, vec);
 
-        faceDirection(direction, chara);
+        walkToDirection(direction, chara);
       },
     ],
     [
@@ -67,14 +69,16 @@ export function init(scene: BattlegroundScene) {
       (unitId: string, direction: Direction) => {
         const chara = scene.getChara(unitId);
 
-        faceDirection(direction, chara);
+        idleToDirection(direction, chara);
       },
     ]
   ]);
 }
 
-// TODO: split facing from the arrow emote
-function faceDirection(direction: Direction, chara: Chara) {
+function walkToDirection(direction: Direction, chara: Chara) {
   chara.sprite.play(chara.job + "-walk-" + direction, true);
+}
+function idleToDirection(direction: Direction, chara: Chara) {
+  chara.sprite.play(chara.job + "-idle-" + direction, true);
 }
 

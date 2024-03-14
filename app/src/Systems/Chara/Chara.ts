@@ -28,7 +28,7 @@ export function createChara(
 		).setName("chara-" + unit.id);// TODO: is this being used?
 
 	// TODO: move to animation system
-	sprite.play(unit.job + "-walk-down", true);
+	sprite.play(unit.job + "-idle-down", true);
 
 	// TODO: use force color, or specific sprites
 	if (unit.force === FORCE_ID_CPU)

@@ -113,7 +113,7 @@ function moveStep(scene: BattlegroundScene, state: State) {
         operations.UNIT_LEAVES_CELL(unit.id, unit.position),
         operations.UPDATE_UNIT(unit.id, { path }),
         operations.UPDATE_UNIT(unit.id, { position: asVec2(nextTile) }),
-        operations.UNIT_MOVED_INTO_CELL(unit.id, asVec2(nextTile)),
+        operations.UNIT_MOVED_INTO_CELL(unit.id, asVec2(nextTile), unit.position),
         ...maybeCaptureOp,
       ].concat(
         // alternative: new event UNIT_FINISHED_MOVING
