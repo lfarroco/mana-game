@@ -32,17 +32,14 @@ const processTick = (scene: BattlegroundScene) => {
 
   const state = getState();
 
+  // combat phase
   sequence(checkEnemiesInRange(scene));
-
   sequence(checkCombat(scene, state));
-
-  sequence(startMoving(state));
-
-  moveStep(scene, state);
-
   sequence(checkDestroyed());
 
-  //sequence(updatePath(scene));
+  // move phase
+  sequence(startMoving(state));
+  moveStep(scene, state);
 
   state.gameData.forces.forEach((force) => {
     //emit(signals.UPDATE_FORCE, { id: force.id, gold: force.gold + 100 });

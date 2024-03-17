@@ -13,3 +13,8 @@ The log is a way to show the player what happened in the past:
  - what items were dropped
  - what items were crafted
  - etc 
+
+
+- unit perks:
+  - concentration: if not being attacked, the unit deals more damage
+  - evasion: the unit has a higher chance to dodge attacks
