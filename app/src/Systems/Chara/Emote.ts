@@ -41,20 +41,6 @@ export function EmoteSystem_init(state: State, scene: BattlegroundScene) {
 			hideEmote(emoteIndex, id)
 
 		}],
-		[signals.BATTLEGROUND_STARTED, () => {
-			scene.charas.forEach(chara => {
-				const unit = getUnit(state)(chara.id)
-				if (isAttacking(unit.status)) {
-					const target = getUnit(state)(unit.status.target)
-					const direction = getDirection(unit.position, target.position)
-					emit(signals.FACE_DIRECTION, chara.id, direction)
-					emit(signals.DISPLAY_EMOTE, chara.id, "combat-emote")
-				}
-			})
-		}],
-		[signals.ATTACK_STARTED, (attacker: string, target: string) => {
-			emit(signals.DISPLAY_EMOTE, attacker, "combat-emote")
-		}],
 		[signals.COMBAT_FINISHED, (id: string) => {
 			emit(signals.HIDE_EMOTE, id)
 		}]
