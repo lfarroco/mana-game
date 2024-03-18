@@ -2,6 +2,7 @@ import "./styles.css"
 import { Row } from "react-bootstrap"
 import ManaButton from "../../Components/Button"
 import { City } from "../../../Models/City"
+import { emit, signals } from "../../../Models/Signals"
 
 const BUTTON_STYLE = {
 	width: 64,
@@ -25,32 +26,53 @@ const SelectedCity = ({
 		[
 			{
 				icon: "assets/jobs/archer/portrait.png",
+				text: "Recruit Archer",
 				onClick: () => {
-				}
+
+					if (!city.force) return
+					emit(signals.RECRUIT_UNIT, city.force, "archer", city.boardPosition)
+
+				},
+
 			},
 			{
 				icon: "assets/jobs/soldier/portrait.png",
+				text: "Recruit Soldier",
 				onClick: () => {
+					if (!city.force) return
+					emit(signals.RECRUIT_UNIT, city.force, "soldier", city.boardPosition)
 				}
 			},
 			{
 				icon: "assets/jobs/cleric/portrait.png",
+				text: "Recruit Cleric",
 				onClick: () => {
+					if (!city.force) return
+					emit(signals.RECRUIT_UNIT, city.force, "cleric", city.boardPosition)
 				}
 			},
 			{
 				icon: "assets/jobs/monk/portrait.png",
+				text: "Recruit Monk",
 				onClick: () => {
+					if (!city.force) return
+					emit(signals.RECRUIT_UNIT, city.force, "monk", city.boardPosition)
 				}
 			},
 			{
 				icon: "assets/jobs/skeleton/portrait.png",
+				text: "Recruit Skeleton",
 				onClick: () => {
+					if (!city.force) return
+					emit(signals.RECRUIT_UNIT, city.force, "skeleton", city.boardPosition)
 				}
 			},
 			{
 				icon: "assets/jobs/rogue/portrait.png",
+				text: "Recruit Rogue",
 				onClick: () => {
+					if (!city.force) return
+					emit(signals.RECRUIT_UNIT, city.force, "rogue", city.boardPosition)
 				}
 			},
 
@@ -102,7 +124,14 @@ export default SelectedCity
 
 
 
-function ButtonGrid(props: { actions: { icon: string, onClick: () => void }[] }) {
+function ButtonGrid(props: {
+	actions: {
+
+		icon: string,
+		text: string,
+		onClick: () => void,
+	}[]
+}) {
 
 	const { actions } = props
 
@@ -110,6 +139,7 @@ function ButtonGrid(props: { actions: { icon: string, onClick: () => void }[] })
 		const action = actions[index]
 		if (action) {
 			return <ManaButton
+				tooltipContent={action.text}
 				style={BUTTON_STYLE}
 				onClick={action.onClick}
 				icon={action.icon}
