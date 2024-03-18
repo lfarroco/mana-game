@@ -100,6 +100,13 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 			index[key] = graphics
 
 		}],
+		[signals.SELECT_SKILL_TARGET_DONE, (key: string) => {
+
+			if (!scene.layers?.background) return
+
+			cleanup(index)(key);
+
+		}],
 		[signals.ATTACK_STARTED, (key: string) => {
 
 			if (!scene.layers?.background) return
