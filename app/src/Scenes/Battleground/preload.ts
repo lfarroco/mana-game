@@ -18,6 +18,8 @@ const jobs = [
 const fxs = ['cethiel_light'];
 
 const emotes = [
+	'moving-emote',
+	'defend-emote',
 	'combat-emote',
 	'arrow-bottom-emote', // TODO: rename to arrow-down to match the DIRECTIONS const
 	'arrow-left-emote',
