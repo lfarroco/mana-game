@@ -106,8 +106,8 @@ export function preload(this: Phaser.Scene) {
 
 			this.anims.create({
 				key: job + "-idle-down",
-				frames: this.anims.generateFrameNumbers(job, { start: 0, end: 0 }),
-				frameRate: 0,
+				frames: this.anims.generateFrameNumbers(job, { start: 0, end: 2 }),
+				frameRate: 3,
 				repeat: -1,
 			})
 
@@ -119,8 +119,8 @@ export function preload(this: Phaser.Scene) {
 			});
 			this.anims.create({
 				key: job + "-idle-left",
-				frames: this.anims.generateFrameNumbers(job, { start: 3, end: 3 }),
-				frameRate: 0,
+				frames: this.anims.generateFrameNumbers(job, { start: 3, end: 5 }),
+				frameRate: 3,
 				repeat: -1,
 			})
 			this.anims.create({
@@ -131,8 +131,8 @@ export function preload(this: Phaser.Scene) {
 			});
 			this.anims.create({
 				key: job + "-idle-right",
-				frames: this.anims.generateFrameNumbers(job, { start: 6, end: 6 }),
-				frameRate: 0,
+				frames: this.anims.generateFrameNumbers(job, { start: 6, end: 8 }),
+				frameRate: 3,
 				repeat: -1,
 			})
 			this.anims.create({
@@ -143,8 +143,8 @@ export function preload(this: Phaser.Scene) {
 			});
 			this.anims.create({
 				key: job + "-idle-up",
-				frames: this.anims.generateFrameNumbers(job, { start: 9, end: 9 }),
-				frameRate: 0,
+				frames: this.anims.generateFrameNumbers(job, { start: 9, end: 11 }),
+				frameRate: 3,
 				repeat: -1,
 			})
 			this.anims.create({
