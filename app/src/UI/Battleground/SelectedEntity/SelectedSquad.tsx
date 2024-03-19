@@ -6,10 +6,11 @@ import { Row } from "react-bootstrap"
 import { getJob } from "../../../Models/Job"
 import ManaButton from "../../Components/Button"
 import { getSkill } from "../../../Models/Skill"
+import { useState } from "react"
 
 const BUTTON_STYLE = {
-	width: 64,
-	height: 64,
+	width: '100%',
+	height: '100%',
 	fontSize: 12,
 	padding: 0,
 	margin: 0,
@@ -109,7 +110,8 @@ function selectAttackTargetActions(unit: Unit) {
 			tooltipContent: "Cancel attacking",
 			onClick: () => {
 				Signals.emit(Signals.signals.SELECT_ATTACK_TARGET_CANCEL, unit.id)
-			}
+			},
+			active: false
 		}
 	]}
 	/>
@@ -122,8 +124,10 @@ function selectSkillTargetActions(unit: Unit) {
 			tooltipContent: "Cancel using this skill",
 			onClick: () => {
 				Signals.emit(Signals.signals.SELECT_SKILL_TARGET_CANCEL, unit.id)
-			}
-		}
+			},
+			active: false
+		},
+
 	]}
 	/>
 }
@@ -136,7 +140,10 @@ function selectMoveTargetActions(unit: Unit) {
 			tooltipContent: "Cancel moving",
 			onClick: () => {
 				Signals.emit(Signals.signals.SELECT_UNIT_MOVE_CANCEL, unit.id)
-			}
+
+			},
+			active: false
+
 		}
 	]}
 	/>
@@ -149,6 +156,7 @@ function UnitActions(unit: Unit) {
 
 		const skill = getSkill(skillId)
 		return {
+			id: skillId,
 			icon: `icon-${skillId}`,
 			tooltipTitle: skill.name,
 			tooltipContent: skill.tooltip,
@@ -166,7 +174,8 @@ function UnitActions(unit: Unit) {
 				tooltipContent: "Move to a different location. Will ignore enemies in the way.",
 				onClick: () => {
 					Signals.emit(Signals.signals.SELECT_UNIT_MOVE_START, unit.id)
-				}
+				},
+				active: unit.status.type === UNIT_STATUS_KEYS.MOVING
 			},
 			{
 				icon: "icon-attack",
@@ -175,7 +184,8 @@ function UnitActions(unit: Unit) {
 				onClick: () => {
 
 					Signals.emit(Signals.signals.SELECT_ATTACK_TARGET_START, unit.id)
-				}
+				},
+				active: unit.status.type === UNIT_STATUS_KEYS.ATTACKING
 			},
 			{
 				icon: "icon-stop",
@@ -184,9 +194,14 @@ function UnitActions(unit: Unit) {
 				onClick: () => {
 
 					Signals.emit(Signals.signals.UNIT_MOVE_STOP, unit.id)
-				}
+				},
+				active: unit.status.type === UNIT_STATUS_KEYS.IDLE
 			},
-			...skills
+			...(skills.map(s => ({
+				...s, active:
+					unit.status.type === UNIT_STATUS_KEYS.CASTING
+					&& 'skill' in unit.status && unit.status.skill === s.id
+			})))
 
 		]} />
 }
@@ -195,14 +210,15 @@ function UnitActions(unit: Unit) {
 function ButtonGrid(props: {
 	actions: {
 		icon: string,
-
 		tooltipTitle: string,
 		tooltipContent: string,
+		active: boolean,
 		onClick: () => void
 	}[]
 }) {
 
 	const { actions } = props
+
 
 	const maybeButton = (index: number) => {
 		const action = actions[index]
@@ -214,7 +230,6 @@ function ButtonGrid(props: {
 				tooltipTitle={action.tooltipTitle}
 				tooltipContent={action.tooltipContent}
 			/>
-
 		} else {
 			return null
 		}
@@ -222,7 +237,10 @@ function ButtonGrid(props: {
 	const indices = Array.from({ length: 6 }, (v, k) => k)
 	return <> {
 		indices.map(index => {
-			return <div className="grid-cell" key={index}>
+
+			return <div className={"grid-cell" + (actions[index]?.active ? " active" : "")}
+				key={index}
+			>
 				{maybeButton(index)}
 			</div>
 		})

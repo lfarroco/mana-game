@@ -22,3 +22,7 @@ listenToStateEvents(state);
 initGame(state, eventEmitter);
 
 initUI();
+
+document.addEventListener('contextmenu', (e) => {
+  e.preventDefault();
+});

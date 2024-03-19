@@ -13,7 +13,7 @@
 }
 
 .grid-cell {
-	border: #979797 outset 2px;
+	border: solid 4px #000;
 	float: left;
 	width: 70px;
 	height: 70px;
@@ -30,4 +30,26 @@
 	padding: 5px;
 	border-top-left-radius: 5px;
 	color: white;
+}
+
+@keyframes activeBtn {
+	0% {
+		opacity: 1;
+		transform: scale(1);
+	}
+
+	50% {
+		opacity: 0.8;
+		transform: scale(1.05);
+	}
+
+	100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+.grid-cell.active {
+	border: 4px solid gold;
+	animation: activeBtn 1s infinite;
 }
