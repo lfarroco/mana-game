@@ -23,6 +23,7 @@ import { getEnemiesNearby } from "./getEnemiesNearby";
 import { getJob } from "../../Models/Job";
 import { getSkill } from "../../Models/Skill";
 import { TURN_DURATION } from "../../config";
+import { renderEmotes } from "../../Systems/Chara/Emote";
 
 const TURNS_TO_MOVE = 3;
 const processTick = (scene: BattlegroundScene) => {
@@ -45,23 +46,7 @@ const processTick = (scene: BattlegroundScene) => {
     //emit(signals.UPDATE_FORCE, { id: force.id, gold: force.gold + 100 });
   });
 
-  // update emotes 
-  state.gameData.units.forEach((unit) => {
-    if (unit.status.type === UNIT_STATUS_KEYS.IDLE) {
-      emit(signals.DISPLAY_EMOTE, unit.id, "defend-emote");
-    } else if (unit.status.type === UNIT_STATUS_KEYS.MOVING) {
-      emit(signals.DISPLAY_EMOTE, unit.id, "moving-emote");
-    } else if (unit.status.type === UNIT_STATUS_KEYS.ATTACKING) {
-      emit(signals.DISPLAY_EMOTE, unit.id, "combat-emote");
-    } else if (unit.status.type === UNIT_STATUS_KEYS.CASTING) {
-      if ("skill" in unit.status) {
-        const skill = getSkill(unit.status.skill);
-        if (skill.emote) {
-          emit(signals.DISPLAY_EMOTE, unit.id, skill.emote);
-        }
-      }
-    }
-  });
+  renderEmotes(state);
 };
 
 function moveStep(scene: BattlegroundScene, state: State) {
