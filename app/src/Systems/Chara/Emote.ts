@@ -6,7 +6,6 @@ import { State } from "../../Models/State";
 import { UNIT_STATUS_KEYS } from "../../Models/Unit";
 import { getSkill } from "../../Models/Skill";
 
-
 export const EMOTE_SCALE = 1
 
 type EmoteIndex = {
@@ -46,7 +45,7 @@ export function EmoteSystem_init(state: State, scene: BattlegroundScene) {
 		}],
 		[
 			signals.BATTLEGROUND_STARTED, () => {
-				renderEmotes(state)
+				renderEmotesForStatus(state)
 			}
 		]
 
@@ -87,10 +86,10 @@ export function hideEmote(index: EmoteIndex, id: string) {
 
 	emote.visible = false
 }
-export function renderEmotes(state: State) {
+export function renderEmotesForStatus(state: State) {
 	state.gameData.units.forEach((unit) => {
 		if (unit.status.type === UNIT_STATUS_KEYS.IDLE) {
-			emit(signals.DISPLAY_EMOTE, unit.id, "defend-emote");
+			emit(signals.HIDE_EMOTE, unit.id);
 		} else if (unit.status.type === UNIT_STATUS_KEYS.MOVING) {
 			emit(signals.DISPLAY_EMOTE, unit.id, "moving-emote");
 		} else if (unit.status.type === UNIT_STATUS_KEYS.ATTACKING) {

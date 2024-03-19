@@ -23,7 +23,7 @@ import { getEnemiesNearby } from "./getEnemiesNearby";
 import { getJob } from "../../Models/Job";
 import { getSkill } from "../../Models/Skill";
 import { TURN_DURATION } from "../../config";
-import { renderEmotes } from "../../Systems/Chara/Emote";
+import { renderEmotesForStatus } from "../../Systems/Chara/Emote";
 
 const TURNS_TO_MOVE = 3;
 const processTick = (scene: BattlegroundScene) => {
@@ -46,7 +46,7 @@ const processTick = (scene: BattlegroundScene) => {
     //emit(signals.UPDATE_FORCE, { id: force.id, gold: force.gold + 100 });
   });
 
-  renderEmotes(state);
+  renderEmotesForStatus(state);
 };
 
 function moveStep(scene: BattlegroundScene, state: State) {
