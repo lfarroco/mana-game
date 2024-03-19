@@ -2,9 +2,8 @@ import { Chara } from "./Chara";
 import { signals, listeners, emit } from "../../Models/Signals";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { HALF_TILE_HEIGHT } from "../../Scenes/Battleground/constants";
-import { State, getUnit } from "../../Models/State";
-import { UNIT_STATUS_KEYS, isAttacking } from "../../Models/Unit";
-import { getDirection } from "../../Models/Direction";
+import { State } from "../../Models/State";
+import { UNIT_STATUS_KEYS } from "../../Models/Unit";
 import { getSkill } from "../../Models/Skill";
 
 
