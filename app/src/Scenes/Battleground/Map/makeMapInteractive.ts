@@ -232,7 +232,24 @@ function useSkill(
 
 
   } else if (skill.targets === "enemy") {
-    console.log("not implemented yet", skillId)
+    // todo: use "skill targets" to check if the skill can be used in a tile or unit
+    const enemy = state.gameData.units.find((unit) => eqVec2(unit.position, asVec2(tile)) && unit.force !== FORCE_ID_PLAYER);
+
+    if (!enemy) {
+      console.log("no enemy in tile")
+      return
+    } // todo: error sound
+
+    const distance = Phaser.Math.Distance.Between(unit.position.x, unit.position.y, enemy.position.x, enemy.position.y);
+
+    if (distance > skill.range) return // todo: error sound
+
+    const direction = getDirection(unit.position, enemy.position);
+
+    emit(signals.SELECT_SKILL_TARGET_DONE, unit.id, skill.id, asVec2(tile));
+    emit(signals.FACE_DIRECTION, unit.id, direction);
+    emit(signals.UPDATE_UNIT, unit.id, { status: UNIT_STATUS.CASTING(enemy.id, skill.id) });
+
   }
 }
 

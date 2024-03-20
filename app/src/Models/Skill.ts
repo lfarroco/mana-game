@@ -40,8 +40,8 @@ export const skills: Skill[] = [
 		areaOfEffect: 1,
 		tooltip: "Deals 10 damage to an enemy unit",
 		emote: "magic-emote",
-		targetEffect: "fireball-effect",
-		projectile: "fireball-projectile",
+		targetEffect: "cethiel_light",
+		projectile: null,
 	},
 	{
 		id: "lightning",

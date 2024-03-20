@@ -68,11 +68,11 @@ const SelectedCity = ({
 				}
 			},
 			{
-				icon: "assets/jobs/rogue/portrait.png",
-				text: "Recruit Rogue",
+				icon: "assets/jobs/wizard/portrait.png",
+				text: "Recruit Wizard",
 				onClick: () => {
 					if (!city.force) return
-					emit(signals.RECRUIT_UNIT, city.force, "rogue", city.boardPosition)
+					emit(signals.RECRUIT_UNIT, city.force, "wizard", city.boardPosition)
 				}
 			},
 
