@@ -224,8 +224,7 @@ function ButtonGrid(props: {
 	}[]
 }) {
 
-	const { actions } = props
-
+	const { actions } = props;
 
 	const maybeButton = (index: number) => {
 		const action = actions[index]
@@ -246,7 +245,10 @@ function ButtonGrid(props: {
 	return <> {
 		indices.map(index => {
 
-			return <div className={"grid-cell" + (actions[index]?.active ? " active" : "")}
+			return <div
+
+				id={`grid-cell-${index}`}
+				className={"grid-cell" + (actions[index]?.active ? " active" : "")}
 				key={index}
 			>
 				{maybeButton(index)}
