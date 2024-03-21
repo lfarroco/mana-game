@@ -45,3 +45,9 @@ post MVP:
 - - the camera zoom currently messes with selection and drag
 - new city types (fort, cavern)
 - remove hardcoded player force checkes
+
+
+IDEA:
+- have all effects refresh each turn (if the game is paused, replay the effects in a loop)
+- that includes the target indicators
+- this simplifies the code, as it avoids needing to check if a target is still valid: just clear the effects and display them for what is needed

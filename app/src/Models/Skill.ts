@@ -12,6 +12,7 @@ export type Skill = {
 	emote: string | null;
 	targetEffect: string | null;
 	projectile: string | null;
+	cooldown?: number;
 };
 
 export const skills: Skill[] = [
@@ -34,7 +35,7 @@ export const skills: Skill[] = [
 		name: "Fireball",
 		range: 5,
 		targets: "enemy",
-		power: 10,
+		power: 100,
 		mana: 10,
 		harmful: true,
 		areaOfEffect: 1,
@@ -42,6 +43,7 @@ export const skills: Skill[] = [
 		emote: "magic-emote",
 		targetEffect: "cethiel_light",
 		projectile: null,
+		cooldown: 10,
 	},
 	{
 		id: "lightning",
