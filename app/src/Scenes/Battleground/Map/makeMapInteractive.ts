@@ -208,6 +208,13 @@ function useSkill(
   const unit = getUnit(state)(state.gameData.selectedUnits[0]);
   const skill = getSkill(skillId);
 
+  if (unit.cooldowns[skill.id] && unit.cooldowns[skill.id] > 0) return // todo: error sound
+  if (skill.cooldown)
+    unit.cooldowns = {
+      ...unit.cooldowns,
+      [skill.id]: skill.cooldown
+    }
+
   if (skill.targets === "ally") {
 
     // todo: use "skill targets" to check if the skill can be used in a tile or unit
@@ -251,6 +258,7 @@ function useSkill(
     emit(signals.UPDATE_UNIT, unit.id, { status: UNIT_STATUS.CASTING(enemy.id, skill.id) });
 
   }
+
 }
 
 function checkAttackTargetInCell(state: State, tile: Phaser.Tilemaps.Tile) {

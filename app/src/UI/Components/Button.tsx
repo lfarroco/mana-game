@@ -10,24 +10,28 @@ const ManaButton = (
 		style: CSSProperties | undefined,
 		onClick: () => void,
 		tooltipTitle?: string,
-		tooltipContent?: string
-
+		tooltipContent?: string,
+		enabled?: boolean
 	}
 ) => {
 
 	const { icon, css, label, style, onClick,
 		tooltipTitle,
-		tooltipContent
-
+		tooltipContent,
+		enabled
 	} = props
+
 
 	return <Button
 		style={style}
 		className={css}
 		variant="dark"
+		disabled={!enabled}
 		onClick={(e) => {
 
 			e.currentTarget.blur()
+
+			if (!enabled) return
 			const state = getState()
 			const audio = new Audio("assets/audio/button_click.ogg");
 			audio.volume = state.options.soundVolume;
@@ -39,6 +43,7 @@ const ManaButton = (
 				style={{
 					width: '100%',
 					height: '100%',
+					opacity: enabled ? 1 : 0.5
 				}} /> : null
 		}<div>
 			{label}
@@ -67,7 +72,8 @@ ManaButton.defaultProps = {
 	onClick: () => { },
 	icon: "",
 	tooltipTitle: "",
-	tooltipContent: ""
+	tooltipContent: "",
+	enabled: true
 }
 
 export default ManaButton

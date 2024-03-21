@@ -6,7 +6,6 @@ import { Row } from "react-bootstrap"
 import { getJob } from "../../../Models/Job"
 import ManaButton from "../../Components/Button"
 import { getSkill } from "../../../Models/Skill"
-import { useState } from "react"
 
 const BUTTON_STYLE = {
 	width: '100%',
@@ -111,7 +110,8 @@ function selectAttackTargetActions(unit: Unit) {
 			onClick: () => {
 				Signals.emit(Signals.signals.SELECT_ATTACK_TARGET_CANCEL, unit.id)
 			},
-			active: false
+			active: false,
+			enabled: true
 		}
 	]}
 	/>
@@ -125,7 +125,8 @@ function selectSkillTargetActions(unit: Unit) {
 			onClick: () => {
 				Signals.emit(Signals.signals.SELECT_SKILL_TARGET_CANCEL, unit.id)
 			},
-			active: false
+			active: false,
+			enabled: true
 		},
 
 	]}
@@ -142,7 +143,8 @@ function selectMoveTargetActions(unit: Unit) {
 				Signals.emit(Signals.signals.SELECT_UNIT_MOVE_CANCEL, unit.id)
 
 			},
-			active: false
+			active: false,
+			enabled: true
 
 		}
 	]}
@@ -162,7 +164,8 @@ function UnitActions(unit: Unit) {
 			tooltipContent: skill.tooltip,
 			onClick: () => {
 				Signals.emit(Signals.signals.SELECT_SKILL_TARGET_START, unit.id, skillId)
-			}
+			},
+			enabled: !unit.cooldowns[skillId]
 		}
 	});
 
@@ -175,7 +178,8 @@ function UnitActions(unit: Unit) {
 				onClick: () => {
 					Signals.emit(Signals.signals.SELECT_UNIT_MOVE_START, unit.id)
 				},
-				active: unit.status.type === UNIT_STATUS_KEYS.MOVING
+				active: unit.status.type === UNIT_STATUS_KEYS.MOVING,
+				enabled: true
 			},
 			{
 				icon: "icon-attack",
@@ -185,7 +189,8 @@ function UnitActions(unit: Unit) {
 
 					Signals.emit(Signals.signals.SELECT_ATTACK_TARGET_START, unit.id)
 				},
-				active: unit.status.type === UNIT_STATUS_KEYS.ATTACKING
+				active: unit.status.type === UNIT_STATUS_KEYS.ATTACKING,
+				enabled: true
 			},
 			{
 				icon: "icon-stop",
@@ -195,7 +200,8 @@ function UnitActions(unit: Unit) {
 
 					Signals.emit(Signals.signals.UNIT_MOVE_STOP, unit.id)
 				},
-				active: unit.status.type === UNIT_STATUS_KEYS.IDLE
+				active: unit.status.type === UNIT_STATUS_KEYS.IDLE,
+				enabled: true
 			},
 			...(skills.map(s => ({
 				...s, active:
@@ -213,7 +219,8 @@ function ButtonGrid(props: {
 		tooltipTitle: string,
 		tooltipContent: string,
 		active: boolean,
-		onClick: () => void
+		onClick: () => void,
+		enabled: boolean
 	}[]
 }) {
 
@@ -229,6 +236,7 @@ function ButtonGrid(props: {
 				icon={`assets/ui/${action.icon}.png`}
 				tooltipTitle={action.tooltipTitle}
 				tooltipContent={action.tooltipContent}
+				enabled={action.enabled}
 			/>
 		} else {
 			return null

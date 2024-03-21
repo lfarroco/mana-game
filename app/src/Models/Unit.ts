@@ -54,6 +54,7 @@ export type Unit = {
   position: Vec2;
   status: UnitStatus;
   movementIndex: number;
+  cooldowns: { [key: string]: number };
 
   hp: number;
   maxHp: number;
@@ -79,5 +80,6 @@ export const makeUnit = (id: string, force: string, job: string, position: Vec2)
     movementIndex: 0,
     ...job_.stats,
     maxHp: job_.stats.hp,
+    cooldowns: {}
   };
 };
