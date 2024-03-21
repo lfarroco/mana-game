@@ -10,6 +10,39 @@ export function init(scene: BattlegroundScene) {
 			emit(signals.PAUSE_GAME)
 	});
 
+	scene.input.keyboard?.on("keydown-ESC", () => {
+
+
+	});
+
+	scene.input.keyboard?.on("keydown-A", () => {
+		//@ts-ignore
+		document.querySelector('#grid-cell-0 button')?.click()
+
+	});
+	scene.input.keyboard?.on("keydown-S", () => {
+		//@ts-ignore
+		document.querySelector('#grid-cell-1 button')?.click()
+	});
+	scene.input.keyboard?.on("keydown-D", () => {
+		//@ts-ignore
+		document.querySelector('#grid-cell-2 button')?.click()
+	});
+	scene.input.keyboard?.on("keydown-Z", () => {
+		//@ts-ignore
+		document.querySelector('#grid-cell-3 button')?.click()
+	});
+
+	scene.input.keyboard?.on("keydown-X", () => {
+		//@ts-ignore
+		document.querySelector('#grid-cell-4 button')?.click()
+	});
+
+	scene.input.keyboard?.on("keydown-C", () => {
+		//@ts-ignore
+		document.querySelector('#grid-cell-5 button')?.click()
+	});
+
 	if (scene.input.mouse) {
 		scene.input.mouse.disableContextMenu();
 	}
