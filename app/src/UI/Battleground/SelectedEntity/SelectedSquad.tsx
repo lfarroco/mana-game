@@ -162,10 +162,10 @@ function UnitActions(unit: Unit) {
 			icon: `icon-${skillId}`,
 			tooltipTitle: skill.name,
 			tooltipContent: skill.tooltip,
+			enabled: true,
 			onClick: () => {
 				Signals.emit(Signals.signals.SELECT_SKILL_TARGET_START, unit.id, skillId)
 			},
-			enabled: !unit.cooldowns[skillId]
 		}
 	});
 
