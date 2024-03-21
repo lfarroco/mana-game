@@ -33,8 +33,6 @@ const processTick = (scene: BattlegroundScene) => {
 
   const state = getState();
 
-  updateCooldowns(state);
-
   // combat phase
   sequence(checkEnemiesInRange(scene));
   sequence(checkCombat(scene, state));
@@ -51,23 +49,7 @@ const processTick = (scene: BattlegroundScene) => {
   renderEmotesForStatus(state);
 };
 
-function updateCooldowns(state: State) {
-  state.gameData.units
-    .filter((s) => !isDestroyed(s.status))
-    .forEach(
-      (unit) => {
 
-        // reduce cooldowns by 1
-        Object.entries(unit.cooldowns).forEach(([skillId, value]) => {
-          const newCooldown = value - 1;
-          if (newCooldown === 0) {
-            delete unit.cooldowns[skillId];
-          } else {
-            unit.cooldowns[skillId] = newCooldown;
-          }
-        })
-      });
-}
 
 function moveStep(scene: BattlegroundScene, state: State) {
   return traverse_(
@@ -230,7 +212,6 @@ function processSkill(
     }),
     ...(hp === 0 && skill.harmful ? exitCombatOp : []),
     ...(hp === targetUnit.maxHp && !skill.harmful ? exitCombatOp : []),
-    ... (skill.cooldown ? [operations.UPDATE_UNIT(caster.id, { status: UNIT_STATUS.IDLE() })] : []),
   ];
 
 }
