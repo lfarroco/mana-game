@@ -13,12 +13,13 @@ export type Skill = {
 	targetEffect: string | null;
 	projectile: string | null;
 };
+// idea: have property "effects" that is an array of strings, each string is the name of some special effect
 
 export const skills: Skill[] = [
 	{
 		id: "heal",
 		name: "Heal",
-		range: 3,
+		range: 2,
 		targets: "ally",
 		power: 5,
 		mana: 5,
