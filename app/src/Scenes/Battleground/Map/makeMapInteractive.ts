@@ -95,10 +95,7 @@ export function makeMapInteractive(
             chara.sprite.y
           )
         )
-        .forEach((chara) => {
-          if (chara.force === FORCE_ID_PLAYER) chara.sprite.setTint(0x00ff00);
-          else chara.sprite.setTint(0xff0000);
-        });
+
     }
   );
 
