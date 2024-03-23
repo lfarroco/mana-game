@@ -16,8 +16,8 @@ export type Signals = {
   LOAD_GAME: (key: string) => void;
   DELETE_GAME: (key: string) => void;
   BATTLEGROUND_STARTED: () => void;
-  UNITS_SELECTED: (unitId: string[]) => void;
-  UNITS_DESELECTED: (unitId: string[]) => void;
+  UNIT_SELECTED: (unitId: string) => void;
+  UNIT_DESELECTED: (unitId: string) => void;
   CITY_SELECTED: (id: string | null) => void;
   CITY_DESELECTED: () => void;
   UNIT_MOVE_STOP: (unitId: string) => void;
@@ -86,8 +86,8 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   SELECT_UNIT_MOVE_START: "SELECT_UNIT_MOVE_START",
   SELECT_UNIT_MOVE_DONE: "SELECT_UNIT_MOVE_DONE",
   SELECT_UNIT_MOVE_CANCEL: "SELECT_UNIT_MOVE_CANCEL",
-  UNITS_SELECTED: "UNITS_SELECTED",
-  UNITS_DESELECTED: "UNITS_DESELECTED",
+  UNIT_SELECTED: "UNIT_SELECTED",
+  UNIT_DESELECTED: "UNIT_DESELECTED",
   CITY_SELECTED: "CITY_SELECTED",
   CITY_DESELECTED: "CITY_DESELECTED",
   TOGGLE_DISPATCH_MODAL: "TOGGLE_DISPATCH_MODAL",
@@ -199,8 +199,8 @@ export const operations: {
     signals.SELECT_UNIT_MOVE_CANCEL,
     unitId,
   ],
-  UNITS_SELECTED: (ids: string[]) => [signals.UNITS_SELECTED, ids],
-  UNITS_DESELECTED: (ids: string[]) => [signals.UNITS_DESELECTED, ids],
+  UNIT_SELECTED: (id: string) => [signals.UNIT_SELECTED, id],
+  UNIT_DESELECTED: (id: string) => [signals.UNIT_DESELECTED, id],
   CITY_SELECTED: (ids: string | null) => [signals.CITY_SELECTED, ids],
   CITY_DESELECTED: () => [signals.CITY_DESELECTED],
   TOGGLE_DISPATCH_MODAL: (value: boolean) => [

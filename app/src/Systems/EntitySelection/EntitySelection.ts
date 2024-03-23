@@ -4,26 +4,30 @@ import { State } from "../../Models/State";
 export function init(state: State) {
   listeners([
     [
-      signals.UNITS_SELECTED,
-      (ids: string[]) => {
-        const deselectedUnits = state.gameData.selectedUnits.filter(
-          (id) => !ids.includes(id)
-        );
+      signals.UNIT_SELECTED,
+      (id: string) => {
 
-        state.gameData.selectedUnits = ids;
+        const currentSelectedUnit = state.gameData.selectedUnit;
 
-        if (deselectedUnits.length > 0)
-          emit(signals.UNITS_DESELECTED, deselectedUnits);
+        if (currentSelectedUnit === id) return;
+
+        if (currentSelectedUnit)
+          emit(signals.UNIT_DESELECTED, currentSelectedUnit);
+
+        state.gameData.selectedUnit = id;
+
       },
     ],
     [
       signals.CITY_SELECTED,
       (id: string) => {
 
-        const deselected = id && id !== state.gameData.selectedCity ? state.gameData.selectedCity : null;
+        const currentSelectedCity = state.gameData.selectedCity;
 
-        if (deselected)
-          emit(signals.CITY_DESELECTED, deselected);
+        if (currentSelectedCity === id) return;
+
+        if (currentSelectedCity)
+          emit(signals.CITY_DESELECTED, currentSelectedCity);
 
         state.gameData.selectedCity = id;
       },
@@ -38,18 +42,16 @@ export function init(state: State) {
       signals.UNIT_DESTROYED,
       (id: string) => {
 
-        const isSelected = state.gameData.selectedUnits.includes(id);
+        const isSelected = state.gameData.selectedUnit === id;
         if (!isSelected) return;
 
-        emit(signals.UNITS_DESELECTED, [id]);
+        emit(signals.UNIT_DESELECTED, id);
       },
     ],
     [
-      signals.UNITS_DESELECTED,
-      (ids: string[]) => {
-        state.gameData.selectedUnits = state.gameData.selectedUnits.filter(
-          (id) => !ids.includes(id)
-        );
+      signals.UNIT_DESELECTED,
+      (_id: string) => {
+        state.gameData.selectedUnit = null;
       },
     ]
   ]);

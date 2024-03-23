@@ -23,7 +23,7 @@ const getOrCreateCursorForChara_ = (
 				0x00ff00 : 0xff0000
 		)
 		.setVisible(false)
-        .setScale(0.8);
+		.setScale(0.8);
 
 	chara.sprite.scene.children.moveBelow(cursor, chara.sprite)
 
@@ -35,50 +35,44 @@ const getOrCreateCursorForChara_ = (
 export function init(state: State, scene: BattlegroundScene) {
 
 	let cursors: ImageIndex = {}
+	let tweens: TweenIndex = {}
 
 	let eventListeners: { [id: string]: (unitId: string) => void } = {}
 
 	listeners([
 		[signals.CHARA_CREATED, (unitId: string) => {
 
-          const chara = scene.getChara(unitId)
-
-            renderCursor(scene, unitId, cursors, eventListeners)
+			renderCursor(scene, unitId, cursors, eventListeners)
 
 		}],
-      [signals.UNITS_SELECTED, (unitIds: string[]) => {
+		[signals.UNIT_SELECTED, (id: string) => {
 
-        unitIds.forEach(id => {
+			const cursor = cursors[id]
 
-          const cursor = cursors[id]
+			if (!cursor) return
 
-          if (!cursor) return
+			const tween = scene.tweens.add({
+				targets: cursor,
+				alpha: 0.1,
+				duration: 200,
+				yoyo: true,
+				repeat: -1
+			});
 
-          const tween = scene.tweens.add({
-            targets: cursor,
-            alpha: 0.1,
-            duration: 200,
-            yoyo: true,
-            repeat: -1
-          });
+			tweens[id] = tween
+		}],
+		[signals.UNIT_DESELECTED, (id: string) => {
 
+			const cursor = cursors[id]
 
-        });
+			if (!cursor) return
 
-      }],
-		[signals.UNITS_DESELECTED, (unitIds: string[]) => {
+			scene.tweens.killTweensOf(cursor)
 
-			unitIds.forEach(id => {
+			cursor.setAlpha(1);
 
-              const cursor = cursors[id]
-
-              if (!cursor) return
-
-              scene.tweens.killTweensOf(cursor)
-
-              cursor.setAlpha(1);
-
-			})
+			tweens[id].destroy()
+			delete tweens[id]
 
 		}],
 		[signals.CITY_SELECTED, (cityId: string | null) => {
@@ -99,22 +93,22 @@ export function init(state: State, scene: BattlegroundScene) {
 			const city = scene.getCity(cityId)
 
 			const cursor = scene.add.image(
-              city.sprite.x, 
-              city.sprite.y + TILE_HEIGHT / 4,
-              'cursor',
-            )
+				city.sprite.x,
+				city.sprite.y + TILE_HEIGHT / 4,
+				'cursor',
+			)
 				.setTint(0x00ff00)
 				.setVisible(true)
 
 			scene.children.moveBelow(cursor, city.sprite)
 
-            scene.tweens.add({
-              targets: cursor,
-              alpha: 0.1,
-              duration: 200,
-              yoyo: true,
-              repeat: -1
-            });
+			scene.tweens.add({
+				targets: cursor,
+				alpha: 0.1,
+				duration: 200,
+				yoyo: true,
+				repeat: -1
+			});
 
 			cursors[cityId] = cursor
 
@@ -127,6 +121,11 @@ export function init(state: State, scene: BattlegroundScene) {
 
 			cursors[id].destroy()
 			delete cursors[id]
+
+		}],
+		[signals.UNIT_DESTROYED, (id: string) => {
+
+			cleanCursor(cursors, eventListeners, scene, id)
 
 		}]
 	])

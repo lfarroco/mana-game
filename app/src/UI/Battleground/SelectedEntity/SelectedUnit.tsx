@@ -17,7 +17,7 @@ const BUTTON_STYLE = {
 	border: 'none'
 }
 
-const SelectedSquad = ({
+const SelectedUnit = ({
 	unit,
 	isSelectingMoveTarget,
 	isSelectingAttackTarget,
@@ -99,7 +99,7 @@ const SelectedSquad = ({
 
 }
 
-export default SelectedSquad
+export default SelectedUnit
 
 function selectAttackTargetActions(unit: Unit) {
 	return <ButtonGrid actions={[

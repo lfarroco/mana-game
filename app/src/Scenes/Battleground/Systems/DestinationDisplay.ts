@@ -21,9 +21,9 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 	let index: { [key: string]: PathDisplay } = {}
 
 	listeners([
-		[signals.PATH_FOUND, (key: string, path: Vec2[]) => {
+		[signals.PATH_FOUND, (key: string, _path: Vec2[]) => {
 
-			if (!state.gameData.selectedUnits.includes(key)) return
+			if (state.gameData.selectedUnit !== key) return
 
 			if (!scene.layers?.background) return
 
@@ -42,39 +42,36 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 			index[key] = graphics
 
 		}],
-		[signals.UNITS_DESELECTED, (ids: string[]) => {
+		[signals.UNIT_DESELECTED, (id: string) => {
 
 			if (!scene.layers?.background) return
 
-			ids.forEach(cleanup(index))
+			cleanup(index)(id)
 
 		}],
-		[signals.UNITS_SELECTED, (ids: string[]) => {
+		[signals.UNIT_SELECTED, (key: string) => {
 
 			if (!scene.layers?.background) return
 
-			ids
-				.forEach(key => {
 
-					cleanup(index)(key);
+			cleanup(index)(key);
 
-					if (!scene.layers?.background) return
+			if (!scene.layers?.background) return
 
-					const unit = getUnit(state)(key)
+			const unit = getUnit(state)(key)
 
-					if (unit.path.length === 0) return
+			if (unit.path.length === 0) return
 
-					const graphics = displayPath(
-						state,
-						scene,
-						scene.layers.background,
-						key,
-						true
-					)
+			const graphics = displayPath(
+				state,
+				scene,
+				scene.layers.background,
+				key,
+				true
+			)
 
-					index[key] = graphics
+			index[key] = graphics
 
-				})
 
 		}],
 		[signals.UNIT_MOVED_INTO_CELL, (key: string, cell: Vec2) => {
