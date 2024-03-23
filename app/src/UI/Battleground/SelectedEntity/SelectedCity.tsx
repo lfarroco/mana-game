@@ -20,7 +20,6 @@ const SelectedCity = ({
 	city: City,
 }) => {
 
-
 	const actionsGrid = <ButtonGrid actions={
 
 		[
@@ -33,7 +32,6 @@ const SelectedCity = ({
 					emit(signals.RECRUIT_UNIT, city.force, "archer", city.boardPosition)
 
 				},
-
 			},
 			{
 				icon: "assets/jobs/soldier/portrait.png",
@@ -57,14 +55,6 @@ const SelectedCity = ({
 				onClick: () => {
 					if (!city.force) return
 					emit(signals.RECRUIT_UNIT, city.force, "monk", city.boardPosition)
-				}
-			},
-			{
-				icon: "assets/jobs/skeleton/portrait.png",
-				text: "Recruit Skeleton",
-				onClick: () => {
-					if (!city.force) return
-					emit(signals.RECRUIT_UNIT, city.force, "skeleton", city.boardPosition)
 				}
 			},
 			{
