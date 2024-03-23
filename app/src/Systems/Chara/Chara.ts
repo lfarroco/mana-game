@@ -30,12 +30,6 @@ export function createChara(
 	// TODO: move to animation system
 	sprite.play(unit.job + "-idle-down", true);
 
-	// TODO: use force color, or specific sprites
-	if (unit.force === FORCE_ID_CPU)
-		sprite.setTint(0xff9999)
-	else
-		sprite.setTint(0x9999ff)
-
 	const group = scene.add.group([sprite]) // TODO: is this being used?
 
 	const chara: Chara = {
