@@ -213,11 +213,6 @@ function issueMoveOrder(
     return;
   };
 
-  if (eqVec2(unit.position, asVec2(tile))) {
-    // TODO: handle self move
-    return;
-  }
-
   emit(signals.SELECT_UNIT_MOVE_DONE, unit.id, asVec2(tile));
 
   pingAtLocation(scene, x, y);
