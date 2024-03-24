@@ -2,7 +2,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Grenze', sans-serif;
-  background-color: #eaeaea;
+  background-color: rgb(1, 11, 34);
   overflow: hidden;
   text-align: center;
 }
@@ -12,25 +12,11 @@ canvas {
   padding: 0;
 }
 
-#game-wrapper {
-  position: relative;
-  margin: 0 auto;
-  width: 1280px;
-  height: 720px;
-  overflow: hidden;
-}
-
-#game-container {
+#ui {
   position: absolute;
-  width: 1280px;
-  height: 720px;
   top: 0;
   left: 0;
-  border: white solid 2px;
-}
-
-#ui {
-  position: fixed;
+  width: 100%;
 }
 
 .btn-sm {

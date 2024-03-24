@@ -19,9 +19,9 @@ window.emitter = eventEmitter;
 // create this listener first so that state changes are processed first
 listenToStateEvents(state);
 
+initUI();
 initGame(state, eventEmitter);
 
-initUI();
 
 document.addEventListener('contextmenu', (e) => {
   e.preventDefault();

@@ -1,17 +1,10 @@
-body {}
-
 #root {
   position: relative;
 }
 
-canvas {
-  margin-top: 0 !important;
-}
-
 header {
-  position: absolute;
   top: 0;
-  width: 1280px;
+  width: 100%;
   background: rgba(0, 0, 0, 0.5);
 }
 
