@@ -43,8 +43,8 @@ export function makeMapInteractive(
     (pointer: Phaser.Input.Pointer) => {
       if (pointer.upElement?.tagName !== "CANVAS") return;
 
-      // // is middle mouse button
-      // if (pointer.buttons !== 4) return;
+      if (!pointer.isDown) return
+      // if (pointer.buttons !== 4) return; // middle-mouse only
 
       if (pointer.downTime < 100) return;
 
