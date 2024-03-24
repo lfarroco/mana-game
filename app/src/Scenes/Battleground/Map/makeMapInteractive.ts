@@ -184,14 +184,12 @@ function selectEntityInTile(state: State, tile: Phaser.Tilemaps.Tile) {
 
   if (unit) {
     emit(signals.UNIT_SELECTED, unit.id);
-    emit(signals.CITY_SELECTED, null);
   } else {
 
     const city = state.gameData.cities.find((city) => eqVec2(city.boardPosition, asVec2(tile)));
 
     if (city) {
       emit(signals.CITY_SELECTED, city.id);
-      emit(signals.UNIT_SELECTED, null);
     }
   }
 }

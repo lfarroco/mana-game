@@ -53,7 +53,6 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 
 			if (!scene.layers?.background) return
 
-
 			cleanup(index)(key);
 
 			if (!scene.layers?.background) return
