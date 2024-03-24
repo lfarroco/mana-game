@@ -21,7 +21,7 @@ export const skills: Skill[] = [
 		name: "Heal",
 		range: 2,
 		targets: "ally",
-		power: 5,
+		power: 20,
 		mana: 5,
 		harmful: false,
 		areaOfEffect: 1,

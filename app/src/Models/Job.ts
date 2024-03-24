@@ -7,6 +7,7 @@ export type Job = {
   dices: number;
   stats: {
     hp: number;
+    mana: number;
     attack: number;
     defense: number;
     mgkAttack: number;
@@ -27,6 +28,7 @@ export const jobs: Job[] = [
     dices: 1,
     stats: {
       hp: 260,
+      mana: 100,
       attack: 17,
       defense: 0,
       mgkAttack: 0,
@@ -45,6 +47,7 @@ export const jobs: Job[] = [
     dices: 3,
     stats: {
       hp: 480,
+      mana: 100,
       attack: 11,
       defense: 4,
       mgkAttack: 0,
@@ -63,6 +66,7 @@ export const jobs: Job[] = [
     dices: 1,
     stats: {
       hp: 280,
+      mana: 100,
       attack: 0,
       defense: 2,
       mgkAttack: 13,
@@ -81,6 +85,7 @@ export const jobs: Job[] = [
     dices: 2,
     stats: {
       hp: 400,
+      mana: 0,
       attack: 10,
       defense: 10,
       mgkAttack: 0,
@@ -99,6 +104,7 @@ export const jobs: Job[] = [
     dices: 1,
     stats: {
       hp: 200,
+      mana: 100,
       attack: 0,
       defense: 0,
       mgkAttack: 20,
