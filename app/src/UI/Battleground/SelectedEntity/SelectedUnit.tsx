@@ -2,20 +2,9 @@ import { UNIT_STATUS_KEYS, Unit } from "../../../Models/Unit"
 import "./styles.css"
 import * as Signals from "../../../Models/Signals"
 import { FORCE_ID_PLAYER } from "../../../Models/Force"
-import { Row } from "react-bootstrap"
 import { getJob } from "../../../Models/Job"
-import ManaButton from "../../Components/Button"
 import { getSkill } from "../../../Models/Skill"
-
-const BUTTON_STYLE = {
-	width: '100%',
-	height: '100%',
-	fontSize: 12,
-	padding: 0,
-	margin: 0,
-	borderRadius: 0,
-	border: 'none'
-}
+import SelectedEntity from "./SelectedEntity"
 
 const SelectedUnit = ({
 	unit,
@@ -49,60 +38,35 @@ const SelectedUnit = ({
 
 	const job = getJob(unit.job)
 
-	const actionsGrid = !isPlayerControlled ? <ButtonGrid actions={[]} />
+	const actionsGrid = !isPlayerControlled ? []
 		: isSelectingAttackTarget ? selectAttackTargetActions(unit)
 			: isSelectingMoveTarget ? selectMoveTargetActions(unit)
 				: isSelectingSkillTarget ? selectSkillTargetActions(unit)
 					: UnitActions(unit)
 
-	return <div
-		id="selected-entity"
-		className="container"
-	>
+	return <SelectedEntity
 
-		<Row>
-			<div className="col col-3 mt-2"
-				style={{
-					borderRight: "1px solid white",
-					textAlign: "center",
-				}}
-			>
+		portraitSrc={`assets/jobs/${unit.job}/portrait.png`}
+		portraitAlt={unit.name}
+		hp={unit.hp}
+		maxHp={unit.maxHp}
+		actions={actionsGrid}
+		description={<>
 
-				<img
-					key={`unit-member-${unit.id}`}
-					className="img-fluid portrait"
-					src={`assets/jobs/${unit.job}/portrait.png`}
-					alt={unit.name}
-				/>
-				<div
-					style={{
-						color: "#13ec13",
-					}}
-				>
-					{unit.hp} / {unit.maxHp}
-				</div>
-			</div>
-			<div className="col-3 align-self-center" >
-				<div> <span className="attr">Status: </span> {status} </div>
-				<div> <span className="attr">Attack:</span> {job.attackPower + job.dices} - {job.attackPower + job.dices * 3} </div>
-				<div> <span className="attr">Defense:</span> 2 </div>
-				<div> <span className="attr">Range:</span> {job.attackRange === 1 ? "Melee" : `Ranged (${job.attackRange})`} </div>
-
-			</div>
-			<div className="col col-6" >
-				{actionsGrid}
-			</div>
-
-		</Row>
-
-	</div >
+			<div> <span className="attr">Status: </span> {status} </div>
+			<div> <span className="attr">Attack:</span> {job.attackPower + job.dices} - {job.attackPower + job.dices * 3} </div>
+			<div> <span className="attr">Defense:</span> 2 </div>
+			<div> <span className="attr">Range:</span> {job.attackRange === 1 ? "Melee" : `Ranged (${job.attackRange})`} </div>
+		</>
+		}
+	/>
 
 }
 
 export default SelectedUnit
 
 function selectAttackTargetActions(unit: Unit) {
-	return <ButtonGrid actions={[
+	return [
 		{
 			icon: "icon-cancel",
 			tooltipTitle: "Cancel",
@@ -113,11 +77,10 @@ function selectAttackTargetActions(unit: Unit) {
 			active: false,
 			enabled: true
 		}
-	]}
-	/>
+	]
 }
 function selectSkillTargetActions(unit: Unit) {
-	return <ButtonGrid actions={[
+	return [
 		{
 			icon: "icon-cancel",
 			tooltipTitle: "Cancel",
@@ -129,12 +92,11 @@ function selectSkillTargetActions(unit: Unit) {
 			enabled: true
 		},
 
-	]}
-	/>
+	]
 }
 
 function selectMoveTargetActions(unit: Unit) {
-	return <ButtonGrid actions={[
+	return [
 		{
 			icon: "icon-cancel",
 			tooltipTitle: "Cancel",
@@ -147,8 +109,7 @@ function selectMoveTargetActions(unit: Unit) {
 			enabled: true
 
 		}
-	]}
-	/>
+	]
 }
 
 function UnitActions(unit: Unit) {
@@ -169,91 +130,44 @@ function UnitActions(unit: Unit) {
 		}
 	});
 
-	return <ButtonGrid
-		actions={[
-			{
-				icon: "icon-move",
-				tooltipTitle: "Move",
-				tooltipContent: "Move to a different location. Will ignore enemies in the way.",
-				onClick: () => {
-					Signals.emit(Signals.signals.SELECT_UNIT_MOVE_START, unit.id)
-				},
-				active: unit.status.type === UNIT_STATUS_KEYS.MOVING,
-				enabled: true
+	return [
+		{
+			icon: "icon-move",
+			tooltipTitle: "Move",
+			tooltipContent: "Move to a different location. Will ignore enemies in the way.",
+			onClick: () => {
+				Signals.emit(Signals.signals.SELECT_UNIT_MOVE_START, unit.id)
 			},
-			{
-				icon: "icon-attack",
-				tooltipTitle: "Attack",
-				tooltipContent: "Attack an enemy unit in your range.",
-				onClick: () => {
+			active: unit.status.type === UNIT_STATUS_KEYS.MOVING,
+			enabled: true
+		},
+		{
+			icon: "icon-attack",
+			tooltipTitle: "Attack",
+			tooltipContent: "Attack an enemy unit in your range.",
+			onClick: () => {
 
-					Signals.emit(Signals.signals.SELECT_ATTACK_TARGET_START, unit.id)
-				},
-				active: unit.status.type === UNIT_STATUS_KEYS.ATTACKING,
-				enabled: true
+				Signals.emit(Signals.signals.SELECT_ATTACK_TARGET_START, unit.id)
 			},
-			{
-				icon: "icon-stop",
-				tooltipTitle: "Stop",
-				tooltipContent: "Stop the unit from moving or attacking.",
-				onClick: () => {
+			active: unit.status.type === UNIT_STATUS_KEYS.ATTACKING,
+			enabled: true
+		},
+		{
+			icon: "icon-stop",
+			tooltipTitle: "Stop",
+			tooltipContent: "Stop the unit from moving or attacking.",
+			onClick: () => {
 
-					Signals.emit(Signals.signals.UNIT_MOVE_STOP, unit.id)
-				},
-				active: unit.status.type === UNIT_STATUS_KEYS.IDLE,
-				enabled: true
+				Signals.emit(Signals.signals.UNIT_MOVE_STOP, unit.id)
 			},
-			...(skills.map(s => ({
-				...s, active:
-					unit.status.type === UNIT_STATUS_KEYS.CASTING
-					&& 'skill' in unit.status && unit.status.skill === s.id
-			})))
+			active: unit.status.type === UNIT_STATUS_KEYS.IDLE,
+			enabled: true
+		},
+		...(skills.map(s => ({
+			...s, active:
+				unit.status.type === UNIT_STATUS_KEYS.CASTING
+				&& 'skill' in unit.status && unit.status.skill === s.id
+		})))
 
-		]} />
-}
-
-
-function ButtonGrid(props: {
-	actions: {
-		icon: string,
-		tooltipTitle: string,
-		tooltipContent: string,
-		active: boolean,
-		onClick: () => void,
-		enabled: boolean
-	}[]
-}) {
-
-	const { actions } = props;
-
-	const maybeButton = (index: number) => {
-		const action = actions[index]
-		if (action) {
-			return <ManaButton
-				style={BUTTON_STYLE}
-				onClick={action.onClick}
-				icon={`assets/ui/${action.icon}.png`}
-				tooltipTitle={action.tooltipTitle}
-				tooltipContent={action.tooltipContent}
-				enabled={action.enabled}
-			/>
-		} else {
-			return null
-		}
-	}
-	const indices = Array.from({ length: 6 }, (v, k) => k)
-	return <> {
-		indices.map(index => {
-
-			return <div
-
-				id={`grid-cell-${index}`}
-				className={"grid-cell" + (actions[index]?.active ? " active" : "")}
-				key={index}
-			>
-				{maybeButton(index)}
-			</div>
-		})
-	} </>
-
+	]
 }
