@@ -40,6 +40,8 @@ const processTick = (scene: BattlegroundScene) => {
   // here we check if the total is less than 0 and change the status to 'destroyed'
   sequence(checkDestroyed());
 
+  sequence(checkBoundedNumbers());
+
   // move phase
   sequence(startMoving(state));
   moveStep(scene, state);
@@ -277,6 +279,19 @@ function checkDestroyed() {
       return [
         ...(unit.hp <= 0 ? [operations.UNIT_DESTROYED(unit.id)] : []),
         ...(isAttacking(unit.status) && unit.hp <= 0 ? [operations.COMBAT_FINISHED(unit.id)] : [])
+      ]
+    }
+  );
+}
+
+function checkBoundedNumbers() {
+  return foldMap(
+    getState().gameData.units.filter(
+      (s) => s.status.type !== UNIT_STATUS_KEYS.DESTROYED
+    ),
+    (unit) => {
+      return [
+        ...(unit.hp > unit.maxHp ? [operations.UPDATE_UNIT(unit.id, { hp: unit.maxHp })] : []),
       ]
     }
   );
