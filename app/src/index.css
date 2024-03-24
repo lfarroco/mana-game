@@ -34,17 +34,16 @@ canvas {
 
 .btn .btn-tooltip {
   display: none;
-  position: absolute;
-  top: -100px;
-  left: -250px;
+  position: fixed;
   background-color: rgba(0, 0, 0, 0.5);
   color: white;
-  padding: 10px;
   border: 1px solid rgb(255, 215, 0);
   border-radius: 5px;
-  width: 300px;
   text-align: left;
-  z-index: 3333;
+  bottom: 151px;
+  width: 330px;
+  right: 20px;
+  padding: 2px 5px;
 }
 
 .btn:hover .btn-tooltip {
