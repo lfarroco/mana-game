@@ -11,6 +11,32 @@ const BUTTON_STYLE = {
 	borderRadius: 0,
 	border: 'none'
 }
+type ButtonGridAction = {
+	icon: string,
+	tooltipTitle: string,
+	tooltipContent: string,
+	active: boolean,
+	onClick: () => void,
+	enabled: boolean
+}
+
+export const makeButtonGridAction = (
+	icon: string,
+	tooltipTitle: string,
+	tooltipContent: string,
+	active: boolean,
+	onClick: () => void,
+	enabled: boolean,
+): ButtonGridAction => {
+	return {
+		icon,
+		tooltipTitle,
+		tooltipContent,
+		active,
+		onClick,
+		enabled
+	}
+}
 
 const SelectedEntity = ({
 	portraitSrc
@@ -25,14 +51,7 @@ const SelectedEntity = ({
 	hp: number,
 	maxHp: number,
 	description: JSX.Element,
-	actions: {
-		icon: string,
-		tooltipTitle: string,
-		tooltipContent: string,
-		active: boolean,
-		onClick: () => void,
-		enabled: boolean
-	}[]
+	actions: ButtonGridAction[]
 }) => {
 
 	return <div
@@ -98,7 +117,7 @@ function ButtonGrid(props: {
 			return <ManaButton
 				style={BUTTON_STYLE}
 				onClick={action.onClick}
-				icon={`assets/ui/${action.icon}.png`}
+				icon={action.icon}
 				tooltipTitle={action.tooltipTitle}
 				tooltipContent={action.tooltipContent}
 				enabled={action.enabled}

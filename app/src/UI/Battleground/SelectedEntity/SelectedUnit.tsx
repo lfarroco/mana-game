@@ -68,7 +68,7 @@ export default SelectedUnit
 function selectAttackTargetActions(unit: Unit) {
 	return [
 		{
-			icon: "icon-cancel",
+			icon: "assets/ui/icon-cancel.png",
 			tooltipTitle: "Cancel",
 			tooltipContent: "Cancel attacking",
 			onClick: () => {
@@ -82,7 +82,7 @@ function selectAttackTargetActions(unit: Unit) {
 function selectSkillTargetActions(unit: Unit) {
 	return [
 		{
-			icon: "icon-cancel",
+			icon: "assets/ui/icon-cancel.png",
 			tooltipTitle: "Cancel",
 			tooltipContent: "Cancel using this skill",
 			onClick: () => {
@@ -98,7 +98,7 @@ function selectSkillTargetActions(unit: Unit) {
 function selectMoveTargetActions(unit: Unit) {
 	return [
 		{
-			icon: "icon-cancel",
+			icon: "assets/ui/icon-cancel.png",
 			tooltipTitle: "Cancel",
 			tooltipContent: "Cancel moving",
 			onClick: () => {
@@ -120,7 +120,7 @@ function UnitActions(unit: Unit) {
 		const skill = getSkill(skillId)
 		return {
 			id: skillId,
-			icon: `icon-${skillId}`,
+			icon: `assets/ui/icon-${skillId}.png`,
 			tooltipTitle: skill.name,
 			tooltipContent: skill.tooltip,
 			enabled: true,
@@ -132,7 +132,7 @@ function UnitActions(unit: Unit) {
 
 	return [
 		{
-			icon: "icon-move",
+			icon: "assets/ui/icon-move.png",
 			tooltipTitle: "Move",
 			tooltipContent: "Move to a different location. Will ignore enemies in the way.",
 			onClick: () => {
@@ -142,7 +142,7 @@ function UnitActions(unit: Unit) {
 			enabled: true
 		},
 		{
-			icon: "icon-attack",
+			icon: "assets/ui/icon-attack.png",
 			tooltipTitle: "Attack",
 			tooltipContent: "Attack an enemy unit in your range.",
 			onClick: () => {
@@ -153,7 +153,7 @@ function UnitActions(unit: Unit) {
 			enabled: true
 		},
 		{
-			icon: "icon-stop",
+			icon: "assets/ui/icon-stop.png",
 			tooltipTitle: "Stop",
 			tooltipContent: "Stop the unit from moving or attacking.",
 			onClick: () => {
