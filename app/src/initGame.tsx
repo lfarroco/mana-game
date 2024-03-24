@@ -12,19 +12,17 @@ export function initGame(state: State, emitter: Events) {
 
 	const game = new Phaser.Game({
 		type: Phaser.AUTO,
-		mode: Phaser.Scale.CENTER_BOTH,
-		//autoCenter: Phaser.Scale.CENTER_BOTH,
+		mode: Phaser.Scale.FIT,
+		width: window.innerWidth,
+		height: window.innerHeight,
 		parent: "game-container",
-		width: 1280,
-		height: 720,
 		scene: [Core, BattlegroundScene]
 	});
 
 
-	// enable this if using Phaser.Scale.FIT
-	// window.addEventListener("resize", () => {
-	// 	game.scale.resize(window.innerWidth, window.innerHeight);
-	// });
+	window.addEventListener("resize", () => {
+		game.scale.resize(window.innerWidth, window.innerHeight);
+	});
 
 	listeners([
 		[

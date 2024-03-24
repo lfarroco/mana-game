@@ -7,40 +7,23 @@ export default function Title() {
 
   const [creditsVisible, setCreditsVisible] = useState(false);
 
-  const images = [
-    'assets/bgs/bg1.jpeg',
-    'assets/bgs/bg2.jpeg',
-  ]
-
   return (<>
     <div
       className="container-fluid text-center"
       style={{
-        width: 1280,
-        height: 720,
+        position: 'absolute',
+        background: "#010b22",
       }}
-
     >
       <div className="row">
 
-        <div
-          style={{
-            background: `url(${images[0]})`,
-            backgroundRepeat: "no-repeat",
-            backgroundSize: "100% auto",
-          }}
-
-          className="col-8">
-        </div>
+        <div className="col-4"></div>
         <div className="col-4"
-
           style={{
             display: "flex",
             minHeight: "100vh",
-            background: "#010b22",
             flexDirection: "column",
             alignItems: "center",
-            borderLeft: "4px double #ccc",
           }}
         >
 
@@ -79,6 +62,8 @@ export default function Title() {
 
 
         </div>
+
+        <div className="col-4"></div>
       </div>
     </div >
     <Credits visible={creditsVisible} onHide={() => setCreditsVisible(false)} />

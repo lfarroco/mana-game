@@ -28,8 +28,8 @@ export function makeMapInteractive(
     (pointer: Phaser.Input.Pointer) => {
       if (pointer.upElement?.tagName !== "CANVAS") return;
 
-      // is middle mouse button
-      if (pointer.buttons !== 4) return;
+      // // is middle mouse button
+      // if (pointer.buttons !== 4) return;
 
       startDrag = vec2(pointer.x, pointer.y);
       startScroll = vec2(
@@ -43,8 +43,8 @@ export function makeMapInteractive(
     (pointer: Phaser.Input.Pointer) => {
       if (pointer.upElement?.tagName !== "CANVAS") return;
 
-      // is middle mouse button
-      if (pointer.buttons !== 4) return;
+      // // is middle mouse button
+      // if (pointer.buttons !== 4) return;
 
       if (pointer.downTime < 100) return;
 
@@ -65,7 +65,7 @@ export function makeMapInteractive(
       if (pointer.upElement?.tagName !== "CANVAS") return;
 
       // releasing the pointer after a drag also triggers a pointer up event, so we check the distance
-      if (pointer.distance > 10) return
+      if (pointer.getDistance() > 10) return
 
       const state = getState();
 
