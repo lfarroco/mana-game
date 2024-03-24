@@ -39,12 +39,15 @@ const ManaButton = (
 			onClick();
 		}}>
 		{icon !== "" ?
-			<img src={icon} alt={label}
+			<img
+				src={icon}
+				alt={label}
 				style={{
 					width: '100%',
 					height: '100%',
 					opacity: enabled ? 1 : 0.5
-				}} /> : null
+				}}
+			/> : null
 		}<div>
 			{label}
 

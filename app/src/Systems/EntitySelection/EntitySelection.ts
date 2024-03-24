@@ -14,6 +14,9 @@ export function init(state: State) {
         if (currentSelectedUnit)
           emit(signals.UNIT_DESELECTED, currentSelectedUnit);
 
+        if (state.gameData.selectedCity)
+          emit(signals.CITY_DESELECTED, state.gameData.selectedCity);
+
         state.gameData.selectedUnit = id;
 
       },
@@ -28,6 +31,8 @@ export function init(state: State) {
 
         if (currentSelectedCity)
           emit(signals.CITY_DESELECTED, currentSelectedCity);
+        if (state.gameData.selectedUnit)
+          emit(signals.UNIT_DESELECTED, state.gameData.selectedUnit);
 
         state.gameData.selectedCity = id;
       },
