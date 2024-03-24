@@ -36,6 +36,8 @@ const processTick = (scene: BattlegroundScene) => {
   // combat phase
   sequence(checkEnemiesInRange(scene));
   sequence(checkCombat(scene, state));
+  // damage and heals are accumulated in the previous step
+  // here we check if the total is less than 0 and change the status to 'destroyed'
   sequence(checkDestroyed());
 
   // move phase
@@ -156,11 +158,11 @@ function processSkill(
   targetId: string,
 ) {
 
-  const exitCombatOp = [
-    operations.UPDATE_UNIT(caster.id, {
+  const exitCombatOp = (id: string) => [
+    operations.UPDATE_UNIT(id, {
       status: UNIT_STATUS.IDLE(),
     }),
-    operations.HIDE_EMOTE(caster.id),
+    operations.HIDE_EMOTE(id),
     // TOOD: hide skill effect
   ];
 
@@ -172,17 +174,17 @@ function processSkill(
 
   if (!targetUnit) {
     console.error("Invalid target for skill", skillId, targetId);
-    return exitCombatOp
+    return exitCombatOp(caster.id)
   }
 
   if (isDestroyed(targetUnit.status)) {
-    return exitCombatOp
+    return exitCombatOp(caster.id)
   }
 
   const distance = distanceBetween(caster.position)(targetUnit.position);
 
   if (distance > skill.range) {
-    return exitCombatOp
+    return exitCombatOp(caster.id)
   }
 
   // if (skill.emote)
@@ -204,14 +206,10 @@ function processSkill(
 
   const newHp = targetUnit.hp + skill.power * modifier;
 
-  const hp = newHp < 0 ? 0 : newHp > targetUnit.maxHp ? targetUnit.maxHp : newHp;
-
   return [
     operations.UPDATE_UNIT(targetUnit.id, {
-      hp,
-    }),
-    ...(hp === 0 && skill.harmful ? exitCombatOp : []),
-    ...(hp === targetUnit.maxHp && !skill.harmful ? exitCombatOp : []),
+      hp: newHp,
+    })
   ];
 
 }
@@ -260,8 +258,8 @@ function checkCombat(scene: BattlegroundScene, state: State) {
 
       const damage = job.attackPower + job.dices * 3;
       emit(signals.ATTACK, unit.id, enemy.id);
-      const newStamina = enemy.hp - damage < 0 ? 0 : enemy.hp - damage;
-      emit(signals.UPDATE_UNIT, enemy.id, { hp: newStamina });
+      const newHp = enemy.hp - damage;
+      emit(signals.UPDATE_UNIT, enemy.id, { hp: newHp });
 
       return [];
     }
@@ -277,8 +275,8 @@ function checkDestroyed() {
     ),
     (unit) => {
       return [
-        ...unit.hp === 0 ? [operations.UNIT_DESTROYED(unit.id)] : [],
-        ...isAttacking(unit.status) && unit.hp === 0 ? [operations.COMBAT_FINISHED(unit.id)] : []
+        ...(unit.hp <= 0 ? [operations.UNIT_DESTROYED(unit.id)] : []),
+        ...(isAttacking(unit.status) && unit.hp <= 0 ? [operations.COMBAT_FINISHED(unit.id)] : [])
       ]
     }
   );
