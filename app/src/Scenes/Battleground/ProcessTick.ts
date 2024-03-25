@@ -41,6 +41,7 @@ const processTick = (scene: BattlegroundScene) => {
   sequence(checkDestroyed());
 
   sequence(checkBoundedNumbers());
+  sequence(cleanupPhase(state));
 
   // move phase
   sequence(startMoving(state));
@@ -306,6 +307,34 @@ function checkBoundedNumbers() {
         ... (unit.hp < 0 ? [operations.UPDATE_UNIT(unit.id, { hp: 0 })] : []),
 
       ]
+    }
+  );
+}
+function cleanupPhase(state: State) {
+  return foldMap(
+    state.gameData.units.filter(
+      (s) => s.status.type !== UNIT_STATUS_KEYS.DESTROYED
+    ),
+    (unit) => {
+
+      const isCasting = unit.status.type === UNIT_STATUS_KEYS.CASTING;
+      if (isCasting && 'skill' in unit.status) {
+        const skill = getSkill(unit.status.skill);
+
+        const target = getUnit(state)(unit.status.target);
+
+        if (!skill.harmful && target.hp === target.maxHp) {
+          return [
+            operations.UPDATE_UNIT(unit.id, {
+              status: UNIT_STATUS.IDLE(),
+            }),
+          ];
+        }
+
+      }
+
+      return []
+
     }
   );
 }
