@@ -18,6 +18,7 @@
 - Units with less than 0 mana are set to 0.
 - Units whose target died are set to idle.
 - Units casting whose target died are set to idle.
+- Units casting healing skills in a full health target are set to idle.
 
 # Movement Phase
 

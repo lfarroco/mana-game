@@ -84,7 +84,7 @@ const SelectedEntity = ({
 				>
 					{hp} / {maxHp}
 				</div>}
-				{maxMana && <div
+				{maxMana > 0 && <div
 					style={{
 						color: "rgb(63 196 254)",
 					}}
