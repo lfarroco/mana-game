@@ -160,7 +160,7 @@ function processSkill(
   targetId: string,
 ) {
 
-  const exitCombatOp = (id: string) => [
+  const stopCasting = (id: string) => [
     operations.UPDATE_UNIT(id, {
       status: UNIT_STATUS.IDLE(),
     }),
@@ -176,17 +176,21 @@ function processSkill(
 
   if (!targetUnit) {
     console.error("Invalid target for skill", skillId, targetId);
-    return exitCombatOp(caster.id)
+    return stopCasting(caster.id)
   }
 
   if (isDestroyed(targetUnit.status)) {
-    return exitCombatOp(caster.id)
+    return stopCasting(caster.id)
   }
 
   const distance = distanceBetween(caster.position)(targetUnit.position);
 
   if (distance > skill.range) {
-    return exitCombatOp(caster.id)
+    return stopCasting(caster.id)
+  }
+
+  if (skill.mana && caster.mana < skill.mana) {
+    return stopCasting(caster.id)
   }
 
   // if (skill.emote)
@@ -212,7 +216,13 @@ function processSkill(
     operations.UPDATE_UNIT(targetUnit.id, {
       hp: newHp,
     })
-  ];
+  ].concat(
+    (skill.mana > 0 ? [
+      operations.UPDATE_UNIT(caster.id, {
+        mana: caster.mana - skill.mana,
+      })
+    ] : [])
+  )
 
 }
 
@@ -292,6 +302,9 @@ function checkBoundedNumbers() {
     (unit) => {
       return [
         ...(unit.hp > unit.maxHp ? [operations.UPDATE_UNIT(unit.id, { hp: unit.maxHp })] : []),
+        ... (unit.mana > unit.maxMana ? [operations.UPDATE_UNIT(unit.id, { mana: unit.maxMana })] : []),
+        ... (unit.hp < 0 ? [operations.UPDATE_UNIT(unit.id, { hp: 0 })] : []),
+
       ]
     }
   );

@@ -1,46 +1,44 @@
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Battle System
 
-## Available Scripts
+## Phases
 
-In the project directory, you can run:
+# Combat Phase
 
-### `npm start`
+- Units with not enough mana to cast their selected skill are set to idle.
+- Units whose target is out of range are set to idle.
+- Idle units check for any enemies in range. If found, they acquire it as a target.
+- Units in combat roll damage and apply it to their target.
+- Units casting skills apply the skill effects to their target.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+# Cleanup Phase
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+- Units with over 100% health or mana are set to 100%.
+- Units that have 0 or less health are removed from the battlefield.
+- Units with less than 0 mana are set to 0.
+- Units whose target died are set to idle.
+- Units casting whose target died are set to idle.
 
-### `npm test`
+# Movement Phase
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Idle units with a target path change status to moving.
+- Moving units move to their destination. If the destination is blocked:
+  - By an enemy: The unit change status to attacking.
+  - By an ally: The unit walks towards the target.
+- Units that arrived at their destination change status to idle.
 
-### `npm run build`
+# Recovery Phase
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- Units recover health and mana based on their recovery rate.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+# End Phase
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- The battle ends when all units of one side are dead.
 
-### `npm run eject`
+## Unit States
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+- Idle: The unit is not doing anything.
+- Moving: The unit is moving to a target destination.
+- Attacking: The unit is attacking a target.
+- Casting: The unit is casting a skill.
+- Dead: The unit is dead.

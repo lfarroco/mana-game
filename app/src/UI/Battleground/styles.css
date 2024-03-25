@@ -9,12 +9,12 @@ header {
 }
 
 #tooltip {
-  position: absolute;
-  top: 265px;
+  position: fixed;
+  bottom: 150px;
   color: gold;
   text-shadow: 1px 1px 1px black;
   font-size: 14px;
-  left: 224px;
+  right: 223px;
   width: 150px;
 }
 
