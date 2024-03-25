@@ -14,12 +14,12 @@ export function init(state: State) {
 				.filter(unit => unit.status.type === UNIT_STATUS_KEYS.IDLE)
 				.filter(unit => unit.mana < unit.maxMana)
 				.forEach(unit => {
-					const newMana = unit.hp + MANA_REGEN_RATE;
+					const newMana = unit.mana + MANA_REGEN_RATE;
 
 					if (newMana >= unit.maxMana) {
 						emit(signals.UPDATE_UNIT, unit.id, { mana: unit.maxMana })
 					} else {
-						emit(signals.UPDATE_UNIT, unit.id, { hp: newMana })
+						emit(signals.UPDATE_UNIT, unit.id, { mana: newMana })
 					}
 				});
 
