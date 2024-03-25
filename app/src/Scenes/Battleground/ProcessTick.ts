@@ -303,8 +303,8 @@ function checkBoundedNumbers() {
     (unit) => {
       return [
         ...(unit.hp > unit.maxHp ? [operations.UPDATE_UNIT(unit.id, { hp: unit.maxHp })] : []),
-        ... (unit.mana > unit.maxMana ? [operations.UPDATE_UNIT(unit.id, { mana: unit.maxMana })] : []),
-        ... (unit.hp < 0 ? [operations.UPDATE_UNIT(unit.id, { hp: 0 })] : []),
+        ...(unit.mana > unit.maxMana ? [operations.UPDATE_UNIT(unit.id, { mana: unit.maxMana })] : []),
+        ...(unit.hp < 0 ? [operations.UPDATE_UNIT(unit.id, { hp: 0 })] : []),
 
       ]
     }

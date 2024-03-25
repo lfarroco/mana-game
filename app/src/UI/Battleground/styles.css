@@ -24,6 +24,33 @@ footer {
   display: block;
 }
 
+#pause-btn {
+  position: fixed;
+  bottom: 10px;
+  right: 15px;
+  width: 80px;
+}
+
+#pause-btn img {
+  width: 100%;
+}
+
+#pause-btn div {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  color: white;
+  text-shadow: 0 0 4px #000000;
+  font-size: 18px;
+  display: block;
+  top: 23px;
+
+}
+
+#pause-btn:hover {
+  cursor: pointer;
+}
+
 .content {
   max-width: 960px;
   margin: 0 auto;
