@@ -11,7 +11,7 @@
 	height: 150px;
 	position: fixed;
 	bottom: 0;
-	right: 0;
+	left: 0;
 	background: rgba(2, 4, 3, 0.3);
 	padding: 5px;
 	border-top-left-radius: 5px;
