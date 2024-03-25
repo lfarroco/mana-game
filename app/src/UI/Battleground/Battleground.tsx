@@ -72,7 +72,14 @@ const Battleground = () => {
       <header>
         <div className="content text-center">
           <Row>
+            <Col style={{ color: '#fff', fontSize: '10px', paddingTop: 5 }}>
+              <Row>
 
+                <Col>Turn: {tick}</Col>
+                <Col >Gold: 💰  {gold}</Col>
+
+              </Row>
+            </Col>
             <Col
               xs={2}
             >
@@ -82,31 +89,6 @@ const Battleground = () => {
                 style={{ padding: '0 10px' }}
                 label="Menu"
               />
-            </Col>
-            <Col
-              xs={2}
-            >
-              <ManaButton
-                css="btn-sm"
-                style={{ marginLeft: "10px", padding: '0 10px' }}
-                onClick={() => {
-                  if (isPaused) {
-                    emit(signals.RESUME_GAME);
-                  } else {
-                    emit(signals.PAUSE_GAME);
-                  }
-                }}
-                label={isPaused ? "Resume" : "Pause"}
-              />
-            </Col>
-
-            <Col style={{ color: '#fff', fontSize: '10px', paddingTop: 5 }}>
-              <Row>
-
-                <Col>Turn: {tick}</Col>
-                <Col >Gold: 💰  {gold}</Col>
-
-              </Row>
             </Col>
           </Row>
         </div>
@@ -123,6 +105,24 @@ const Battleground = () => {
       </div>
       <footer className="block">
         <div className="content">
+          < div id="pause-btn"
+            onClick={() => {
+              if (isPaused) {
+                emit(signals.RESUME_GAME);
+              } else {
+                emit(signals.PAUSE_GAME);
+              }
+            }}
+          >
+            <img
+              alt="Pause"
+              src="assets/ui/round_btn.png"
+            />
+            <div>
+              {isPaused ? "Resume" : "Pause"}
+            </div>
+
+          </div>
         </div>
       </footer>
 

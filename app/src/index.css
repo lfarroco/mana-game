@@ -46,9 +46,11 @@ canvas {
   padding: 2px 5px;
 }
 
+/*
 .btn:hover .btn-tooltip {
   display: block;
 }
+*/
 
 .btn-sm {
   width: 100%;
