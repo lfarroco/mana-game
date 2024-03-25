@@ -12,6 +12,7 @@ import { emit, signals, listeners } from "../../Models/Signals";
 import { State, getUnit, getState } from "../../Models/State";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
 import * as StaminaRegen from "../../Systems/StaminaRegen/StaminaRegen";
+import * as ManaRegen from "../../Systems/ManaRegen/ManaRegen";
 import * as VictorySystem from "../../Systems/Victory/Victory";
 import { unitDestroyed } from "./Events/UNIT_DESTROYED";
 import { City } from "../../Models/City";
@@ -140,6 +141,7 @@ export class BattlegroundScene extends Phaser.Scene {
     CharaFaceDirection.init(this);
     Pathfinding.init(this);
     StaminaRegen.init(state);
+    ManaRegen.init(state);
     EntitySelection.init(state);
     CharaMovement.init(state);
     RangedAttackDisplay.init(this, state);

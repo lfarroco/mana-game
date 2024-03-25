@@ -7,6 +7,7 @@ export const CHARA_SCALE = 1;
 export const BAR_WIDTH = TILE_WIDTH / 2;
 export const BAR_HEIGHT = 6;
 export const BORDER_WIDTH = 1;
+const COLOR = 0x40c4ff
 
 export function init(state: State, scene: BattlegroundScene) {
 
@@ -35,7 +36,7 @@ export function init(state: State, scene: BattlegroundScene) {
 				BAR_HEIGHT
 			);
 			const bar = scene.add.graphics();
-			bar.fillStyle(0x0000ff, 1);
+			bar.fillStyle(COLOR, 1);
 			bar.fillRect(
 				0,
 				0,
@@ -76,7 +77,7 @@ export function init(state: State, scene: BattlegroundScene) {
 			const { bar } = barIndex[id]
 
 			bar.clear()
-			bar.fillStyle(0x0000ff, 1);
+			bar.fillStyle(COLOR, 1);
 			bar.fillRect(
 				0,
 				0,

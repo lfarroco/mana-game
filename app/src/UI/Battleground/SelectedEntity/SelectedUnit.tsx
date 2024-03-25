@@ -50,6 +50,8 @@ const SelectedUnit = ({
 		portraitAlt={unit.name}
 		hp={unit.hp}
 		maxHp={unit.maxHp}
+		mana={unit.mana}
+		maxMana={unit.maxMana}
 		actions={actionsGrid}
 		description={<>
 
