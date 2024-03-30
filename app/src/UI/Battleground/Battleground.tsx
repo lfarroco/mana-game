@@ -1,6 +1,6 @@
 import "./styles.css";
 import { useEffect, useState } from "react";
-import { listeners, signals, emit, emit_ } from "../../Models/Signals";
+import { listeners, signals, emit_ } from "../../Models/Signals";
 import DispatchSquadModal from "./RecruitUnitModal/RecruitUnitModal";
 import VictoryModal from "./VictoryModal/VictoryModal";
 import SelectionHUD from "./SelectionHUD";
@@ -13,7 +13,6 @@ import ManaButton from "../Components/Button";
 const Battleground = () => {
 
   const state = getState()
-  const [isPaused, setPaused] = useState(true);
   const [isSelectingMoveTarget, setIsSelectingMoveTarget] = useState(false);
   const [isSelectingAttackTarget, setIsSelectingAttackTarget] = useState(false);
   const [isSelectingSkillTarget, setIsSelectingSkillTarget] = useState(false);
@@ -22,12 +21,6 @@ const Battleground = () => {
 
   useEffect(() => {
     listeners([
-      [signals.PAUSE_GAME, () => {
-        setPaused(true);
-      }],
-      [signals.RESUME_GAME, () => {
-        setPaused(false);
-      }],
       [signals.SELECT_UNIT_MOVE_START, () => {
         setIsSelectingMoveTarget(true);
       }],
@@ -105,24 +98,6 @@ const Battleground = () => {
       </div>
       <footer className="block">
         <div className="content">
-          < div id="pause-btn"
-            onClick={() => {
-              if (isPaused) {
-                emit(signals.RESUME_GAME);
-              } else {
-                emit(signals.PAUSE_GAME);
-              }
-            }}
-          >
-            <img
-              alt="Pause"
-              src="assets/ui/round_btn.png"
-            />
-            <div>
-              {isPaused ? "Resume" : "Pause"}
-            </div>
-
-          </div>
         </div>
       </footer>
 

@@ -43,7 +43,7 @@ export class BattlegroundScene extends Phaser.Scene {
     obstacles: Phaser.Tilemaps.TilemapLayer;
     features: Phaser.Tilemaps.TilemapLayer;
   } | null = null;
-  isPaused = true;
+  isPaused = false;
   isSelectingSquadMove = false;
   isSelectingAttackTarget = false;
   selectedSkillId = "";
@@ -69,7 +69,7 @@ export class BattlegroundScene extends Phaser.Scene {
     this.tilemap?.destroy()
     this.tilemap = null
     this.graphics?.destroy();
-    this.isPaused = true;
+    this.isPaused = false;
     this.isSelectingSquadMove = false;
     this.time.removeAllEvents();
     this.fow?.destroy()
@@ -84,8 +84,6 @@ export class BattlegroundScene extends Phaser.Scene {
     const state = getState();
 
     listeners([
-      [signals.PAUSE_GAME, this.pauseGame],
-      [signals.RESUME_GAME, this.resumeGame],
       [signals.SELECT_UNIT_MOVE_START, () => {
         this.isSelectingSquadMove = true;
       }],
