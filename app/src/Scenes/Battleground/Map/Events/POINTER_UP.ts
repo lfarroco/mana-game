@@ -2,20 +2,21 @@ import Phaser from "phaser";
 import BattlegroundScene from "../../BattlegroundScene";
 import { getState } from "../../../../Models/State";
 import { checkAttackTargetInCell, issueSkillCommand, issueMoveOrder, selectEntityInTile } from "../makeMapInteractive";
+import { Unit } from "../../../../Models/Unit";
+import { asVec2 } from "../../../../Models/Geometry";
 
 export function onPointerUp(
 	bgLayer: Phaser.Tilemaps.TilemapLayer,
 	scene: BattlegroundScene,
+	unitPointerDown: { unit: Unit | null }
 ) {
 	bgLayer.on(Phaser.Input.Events.POINTER_UP,
-		(pointer: Phaser.Input.Pointer, x: number, y: number) => {
+		(pointer: Phaser.Input.Pointer) => {
 
-			// releasing the pointer after a drag also triggers a pointer up event, so we check the distance
-			if (pointer.getDistance() > 10) return;
 
 			const state = getState();
 
-			const tile = bgLayer.getTileAtWorldXY(x, y);
+			const tile = bgLayer.getTileAtWorldXY(pointer.x, pointer.y);
 
 			if (scene.isSelectingAttackTarget) {
 
@@ -30,9 +31,13 @@ export function onPointerUp(
 				return;
 			}
 
-			if (pointer.rightButtonReleased() || scene.isSelectingSquadMove) {
+			if (unitPointerDown.unit) {
 
-				issueMoveOrder(state, tile, scene, x, y);
+				issueMoveOrder(state,
+					unitPointerDown.unit.id,
+					tile, scene, pointer.x, pointer.y);
+
+				unitPointerDown.unit = null;
 
 				return;
 
@@ -40,7 +45,7 @@ export function onPointerUp(
 
 			if (!scene.isSelectingSquadMove && !pointer.rightButtonReleased()) {
 
-				selectEntityInTile(state, tile);
+				selectEntityInTile(state, asVec2(tile));
 
 				return;
 			}

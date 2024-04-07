@@ -23,8 +23,6 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 	listeners([
 		[signals.PATH_FOUND, (key: string, _path: Vec2[]) => {
 
-			if (state.gameData.selectedUnit !== key) return
-
 			if (!scene.layers?.background) return
 
 			if (index[key]) {
