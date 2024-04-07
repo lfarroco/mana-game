@@ -1,9 +1,9 @@
 import Phaser from "phaser";
 import BattlegroundScene from "../BattlegroundScene";
 import { emit, signals } from "../../../Models/Signals";
-import { asVec2, eqVec2, vec2 } from "../../../Models/Geometry";
+import { Vec2, asVec2, eqVec2, vec2 } from "../../../Models/Geometry";
 import { FORCE_ID_PLAYER } from "../../../Models/Force";
-import { UNIT_STATUS, isDestroyed } from "../../../Models/Unit";
+import { UNIT_STATUS, Unit, isDestroyed } from "../../../Models/Unit";
 import { getUnit, State } from "../../../Models/State";
 import { pingAt as pingAtLocation } from "./Ping";
 import { getDirection } from "../../../Models/Direction";
@@ -26,12 +26,13 @@ export function makeMapInteractive(
 
   let startDrag = vec2(0, 0);
   let startScroll = vec2(0, 0);
+  let pointerDownUnit: { unit: Unit | null } = { unit: null };
 
-  onPointerDown(bgLayer, startDrag, startScroll, scene);
+  onPointerDown(bgLayer, startDrag, startScroll, scene, pointerDownUnit);
 
-  onPointerMove(bgLayer, startDrag, startScroll, scene);
+  onPointerMove(bgLayer, startDrag, startScroll, scene, pointerDownUnit);
 
-  onPointerUp(bgLayer, scene);
+  onPointerUp(bgLayer, scene, pointerDownUnit);
 }
 
 export function issueSkillCommand(
@@ -108,16 +109,16 @@ export function checkAttackTargetInCell(state: State, tile: Phaser.Tilemaps.Tile
   emit(signals.FACE_DIRECTION, unit.id, direction)
 }
 
-export function selectEntityInTile(state: State, tile: Phaser.Tilemaps.Tile) {
+export function selectEntityInTile(state: State, tile: Vec2) {
   const unit = state.gameData.units
     .filter(unit => !isDestroyed(unit.status))
-    .find((unit) => eqVec2(unit.position, asVec2(tile)));
+    .find((unit) => eqVec2(unit.position, (tile)));
 
   if (unit) {
     emit(signals.UNIT_SELECTED, unit.id);
   } else {
 
-    const city = state.gameData.cities.find((city) => eqVec2(city.boardPosition, asVec2(tile)));
+    const city = state.gameData.cities.find((city) => eqVec2(city.boardPosition, (tile)));
 
     if (city) {
       emit(signals.CITY_SELECTED, city.id);
@@ -125,17 +126,17 @@ export function selectEntityInTile(state: State, tile: Phaser.Tilemaps.Tile) {
   }
 }
 
+// TODO: refactor to accept unit id
 export function issueMoveOrder(
   state: State,
+  unitId: string,
   tile: Phaser.Tilemaps.Tile,
   scene: BattlegroundScene,
   x: number,
   y: number,
 ) {
 
-  if (!state.gameData.selectedUnit) return
-
-  const unit = getUnit(state)(state.gameData.selectedUnit);
+  const unit = getUnit(state)(unitId);
   const isEnemy = unit.force !== FORCE_ID_PLAYER;
   if (isEnemy) {
     scene.sound.play("ui/error");
