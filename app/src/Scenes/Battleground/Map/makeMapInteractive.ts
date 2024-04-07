@@ -4,10 +4,13 @@ import { emit, signals } from "../../../Models/Signals";
 import { asVec2, eqVec2, vec2 } from "../../../Models/Geometry";
 import { FORCE_ID_PLAYER } from "../../../Models/Force";
 import { UNIT_STATUS, isDestroyed } from "../../../Models/Unit";
-import { getUnit, getState, State } from "../../../Models/State";
+import { getUnit, State } from "../../../Models/State";
 import { pingAt as pingAtLocation } from "./Ping";
 import { getDirection } from "../../../Models/Direction";
 import { getSkill } from "../../../Models/Skill";
+import { onPointerMove } from "./Events/POINTER_MOVE";
+import { onPointerUp } from "./Events/POINTER_UP";
+import { onPointerDown } from "./Events/POINTER_DOWN";
 
 export function makeMapInteractive(
   scene: BattlegroundScene,
@@ -24,86 +27,14 @@ export function makeMapInteractive(
   let startDrag = vec2(0, 0);
   let startScroll = vec2(0, 0);
 
-  bgLayer.on(Phaser.Input.Events.POINTER_DOWN,
-    (pointer: Phaser.Input.Pointer) => {
-      if (pointer.upElement?.tagName !== "CANVAS") return;
+  onPointerDown(bgLayer, startDrag, startScroll, scene);
 
-      // // is middle mouse button
-      // if (pointer.buttons !== 4) return;
+  onPointerMove(bgLayer, startDrag, startScroll, scene);
 
-      startDrag = vec2(pointer.x, pointer.y);
-      startScroll = vec2(
-        scene.cameras.main.scrollX,
-        scene.cameras.main.scrollY
-      );
-    }
-  );
-
-  bgLayer.on(Phaser.Input.Events.POINTER_MOVE,
-    (pointer: Phaser.Input.Pointer) => {
-      if (pointer.upElement?.tagName !== "CANVAS") return;
-
-      if (!pointer.isDown) return
-      // if (pointer.buttons !== 4) return; // middle-mouse only
-
-      if (pointer.downTime < 100) return;
-
-      const dx = startDrag.x - pointer.x;
-      const dy = startDrag.y - pointer.y;
-      const delta = Math.abs(dx + dy);
-
-      if (delta < 10) return;
-
-      scene.cameras.main.scrollX = startScroll.x + dx;
-      scene.cameras.main.scrollY = startScroll.y + dy;
-    }
-  );
-
-  bgLayer.on(Phaser.Input.Events.POINTER_UP,
-    (pointer: Phaser.Input.Pointer, x: number, y: number) => {
-
-      if (pointer.upElement?.tagName !== "CANVAS") return;
-
-      // releasing the pointer after a drag also triggers a pointer up event, so we check the distance
-      if (pointer.getDistance() > 10) return
-
-      const state = getState();
-
-      const tile = bgLayer.getTileAtWorldXY(x, y);
-
-      if (scene.isSelectingAttackTarget) {
-
-        checkAttackTargetInCell(state, tile);
-
-        return
-
-      }
-
-      if (scene.selectedSkillId) {
-        useSkill(state, scene, tile, scene.selectedSkillId);
-        return;
-      }
-
-      if (pointer.rightButtonReleased() || scene.isSelectingSquadMove) {
-
-        issueMoveOrder(state, tile, scene, x, y);
-
-        return
-
-      }
-
-      if (!scene.isSelectingSquadMove && !pointer.rightButtonReleased()) {
-
-        selectEntityInTile(state, tile);
-
-        return
-      }
-
-    }
-  );
+  onPointerUp(bgLayer, scene);
 }
 
-function useSkill(
+export function issueSkillCommand(
   state: State,
   scene: BattlegroundScene,
   tile: Phaser.Tilemaps.Tile,
@@ -160,7 +91,7 @@ function useSkill(
 
 }
 
-function checkAttackTargetInCell(state: State, tile: Phaser.Tilemaps.Tile) {
+export function checkAttackTargetInCell(state: State, tile: Phaser.Tilemaps.Tile) {
   const enemy = state.gameData.units
     .find((unit) => eqVec2(unit.position, asVec2(tile)) && unit.force !== FORCE_ID_PLAYER);
 
@@ -177,7 +108,7 @@ function checkAttackTargetInCell(state: State, tile: Phaser.Tilemaps.Tile) {
   emit(signals.FACE_DIRECTION, unit.id, direction)
 }
 
-function selectEntityInTile(state: State, tile: Phaser.Tilemaps.Tile) {
+export function selectEntityInTile(state: State, tile: Phaser.Tilemaps.Tile) {
   const unit = state.gameData.units
     .filter(unit => !isDestroyed(unit.status))
     .find((unit) => eqVec2(unit.position, asVec2(tile)));
@@ -194,7 +125,7 @@ function selectEntityInTile(state: State, tile: Phaser.Tilemaps.Tile) {
   }
 }
 
-function issueMoveOrder(
+export function issueMoveOrder(
   state: State,
   tile: Phaser.Tilemaps.Tile,
   scene: BattlegroundScene,
