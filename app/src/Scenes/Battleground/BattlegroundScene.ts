@@ -2,7 +2,6 @@ import Phaser from "phaser";
 import { preload } from "./preload";
 import { createMap } from "./Map/createMap";
 import { importMapObjects } from "./Map/importMapObjects";
-import { makeMapInteractive } from "./Map/makeMapInteractive";
 import { createCities } from "./Map/createCities";
 import { UNIT_STATUS_KEYS, Unit, } from "../../Models/Unit";
 import processTick from "./ProcessTick";
@@ -34,6 +33,7 @@ import { TURN_DURATION } from "../../config";
 import { createFowLayer } from "./Systems/FogOfWar/createFowLayer";
 import { DestinationDisplaySystem_init } from "./Systems/DestinationDisplay";
 import { BattlegroundAudioSystem_init } from "./Systems/Audio";
+import { makeMapInteractive } from "./Map/makeMapInteractive";
 
 export class BattlegroundScene extends Phaser.Scene {
   graphics: Phaser.GameObjects.Graphics | null = null;
