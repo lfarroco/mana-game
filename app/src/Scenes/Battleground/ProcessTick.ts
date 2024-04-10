@@ -24,6 +24,7 @@ import { getJob } from "../../Models/Job";
 import { getSkill } from "../../Models/Skill";
 import { TURN_DURATION } from "../../config";
 import { renderEmotesForStatus } from "../../Systems/Chara/Emote";
+import { getAllieNearby } from "./getAlliesNearby";
 
 const TURNS_TO_MOVE = 3;
 const processTick = (scene: BattlegroundScene) => {
@@ -34,6 +35,7 @@ const processTick = (scene: BattlegroundScene) => {
   const state = getState();
 
   // combat phase
+  sequence(checkAlliesToSupport(scene, state));
   sequence(checkEnemiesInRange(scene));
   sequence(checkCombat(scene, state));
   // damage and heals are accumulated in the previous step
@@ -146,6 +148,46 @@ function checkEnemiesInRange(scene: BattlegroundScene): Operation[] {
             status: UNIT_STATUS.ATTACKING(enemiesNearby[0].id),
           }),
         ];
+      } else {
+        return [];
+      }
+    }
+  );
+}
+
+function checkAlliesToSupport(scene: BattlegroundScene, state: State): Operation[] {
+  return foldMap(
+    getState().gameData.units.filter(
+      (s) => s.status.type === UNIT_STATUS_KEYS.IDLE
+    ).filter(unit => {
+      const job = getJob(unit.job);
+      const skill = getSkill(job.skill);
+      return skill && !skill.harmful
+    }),
+    (unit) => {
+      const alliesNearby = getAllieNearby(unit);
+
+      if (alliesNearby.length > 0) {
+
+        const hurtAllies = alliesNearby.filter((a) => a.hp < a.maxHp);
+        // pick the one with lower hp percentage
+
+        if (hurtAllies.length === 0) {
+          return [];
+        }
+
+        const target = hurtAllies
+          .map(ally => [ally, ally.hp / ally.maxHp] as [Unit, number]).sort((a, b) => a[1] - b[1])[0][0];
+
+        const job = getJob(unit.job);
+        const skill = getSkill(job.skill);
+
+        return [
+          operations.UPDATE_UNIT(unit.id, {
+            status: UNIT_STATUS.CASTING(target.id, skill.id),
+          }),
+        ];
+
       } else {
         return [];
       }

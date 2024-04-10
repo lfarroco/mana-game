@@ -117,7 +117,7 @@ function selectMoveTargetActions(unit: Unit) {
 function UnitActions(unit: Unit) {
 
 	const job = getJob(unit.job)
-	const skills = job.skills.map(skillId => {
+	const skills = [job.skill].map(skillId => {
 
 		const skill = getSkill(skillId)
 		return {
