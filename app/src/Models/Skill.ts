@@ -17,6 +17,20 @@ export type Skill = {
 
 export const skills: Skill[] = [
 	{
+		id: "attack",
+		name: "Attack",
+		range: 1,
+		targets: "enemy",
+		power: 20,
+		mana: 0,
+		harmful: true,
+		areaOfEffect: 1,
+		tooltip: "Attack with a sword",
+		emote: "magic-emote",
+		targetEffect: "cethiel_light",
+		projectile: null,
+	},
+	{
 		id: "heal",
 		name: "Heal",
 		range: 2,
