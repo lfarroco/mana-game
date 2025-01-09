@@ -4,6 +4,7 @@ import { Vec2, eqVec2, vec2 } from "../../../../Models/Geometry";
 import BattlegroundScene from "../../BattlegroundScene";
 import { getState } from "../../../../Models/State";
 import { Unit } from "../../../../Models/Unit";
+import { emit, signals } from "../../../../Models/Signals";
 
 
 export function onPointerDown(
@@ -28,6 +29,7 @@ export function onPointerDown(
 			if (maybeUnit) {
 				console.log("unit found!!!")
 				pointerDownUnit.unit = maybeUnit;
+				emit(signals.UNIT_SELECTED, maybeUnit.id);
 			}
 
 			startScroll = vec2(

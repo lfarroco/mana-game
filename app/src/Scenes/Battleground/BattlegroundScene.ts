@@ -278,8 +278,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     emit(signals.CHARA_CREATED, unit.id)
 
-    //makeSquadInteractive(chara, this)
-
   }
 
   pauseGame = () => {
