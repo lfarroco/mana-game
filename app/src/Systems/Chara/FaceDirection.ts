@@ -1,5 +1,5 @@
 import { Chara } from "./Chara";
-import { DIRECTIONS, Direction, getDirection } from "../../Models/Direction";
+import { Direction, getDirection } from "../../Models/Direction";
 import { Vec2 } from "../../Models/Geometry";
 import { signals, listeners } from "../../Models/Signals";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
@@ -78,6 +78,7 @@ export function init(scene: BattlegroundScene) {
 function walkToDirection(direction: Direction, chara: Chara) {
   chara.sprite.play(chara.job + "-walk-" + direction, true);
 }
+
 function idleToDirection(direction: Direction, chara: Chara) {
   chara.sprite.play(chara.job + "-idle-" + direction, true);
 }

@@ -1,7 +1,7 @@
 import { getDirection } from '../../../Models/Direction';
-import { Vec2, asVec2 } from '../../../Models/Geometry';
+import { Vec2 } from '../../../Models/Geometry';
 import { emit, signals, listeners } from '../../../Models/Signals';
-import { State, getUnit } from '../../../Models/State';
+import { State } from '../../../Models/State';
 import BattlegroundScene from '../../../Scenes/Battleground/BattlegroundScene';
 import { TURN_DURATION } from '../../../config';
 

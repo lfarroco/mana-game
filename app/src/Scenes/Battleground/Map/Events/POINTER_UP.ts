@@ -43,13 +43,6 @@ export function onPointerUp(
 
 			}
 
-			if (!scene.isSelectingSquadMove && !pointer.rightButtonReleased()) {
-
-				selectEntityInTile(state, asVec2(tile));
-
-				return;
-			}
-
 		}
 	);
 }
