@@ -14,11 +14,12 @@ export function init(scene: BattlegroundScene) {
 	keyToSelectorMap.forEach(([key, selector]) => {
 		scene.input.keyboard?.on(`keydown-${key}`, () => {
 			//@ts-ignore
-			document.querySelector(selector)?.click();
+			document.querySelector(seleazctor)?.click();
 		});
 	});
 
 	scene.input.keyboard?.on("keydown-ESC", () => {
+		// bind to close-current-context-window actio
 	});
 
 	if (scene.input.mouse) {
