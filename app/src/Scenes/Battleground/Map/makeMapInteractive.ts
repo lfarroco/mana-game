@@ -24,15 +24,14 @@ export function makeMapInteractive(
 
   bgLayer?.setInteractive({ draggable: true });
 
-  let startDrag = vec2(-1, -1);
   let startScroll = vec2(0, 0);
   let pointerDownUnit: { unit: Unit | null } = { unit: null };
 
-  onPointerDown(bgLayer, startDrag, startScroll, scene, pointerDownUnit);
+  onPointerDown(bgLayer, startScroll, scene, pointerDownUnit);
 
-  onPointerMove(bgLayer, startDrag, startScroll, scene, pointerDownUnit);
+  onPointerMove(bgLayer, startScroll, scene, pointerDownUnit);
 
-  onPointerUp(bgLayer, startDrag, scene, pointerDownUnit);
+  onPointerUp(bgLayer, scene, pointerDownUnit);
 }
 
 export function issueSkillCommand(
