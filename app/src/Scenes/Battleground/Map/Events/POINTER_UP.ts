@@ -1,18 +1,21 @@
 import Phaser from "phaser";
 import BattlegroundScene from "../../BattlegroundScene";
 import { getState } from "../../../../Models/State";
-import { checkAttackTargetInCell, issueSkillCommand, issueMoveOrder, selectEntityInTile } from "../makeMapInteractive";
+import { checkAttackTargetInCell, issueSkillCommand, issueMoveOrder } from "../makeMapInteractive";
 import { Unit } from "../../../../Models/Unit";
-import { asVec2 } from "../../../../Models/Geometry";
+import { Vec2 } from "../../../../Models/Geometry";
 
 export function onPointerUp(
 	bgLayer: Phaser.Tilemaps.TilemapLayer,
+	startDrag: Vec2,
 	scene: BattlegroundScene,
 	unitPointerDown: { unit: Unit | null }
 ) {
 	bgLayer.on(Phaser.Input.Events.POINTER_UP,
 		(pointer: Phaser.Input.Pointer) => {
 
+			startDrag.x = -1;
+			startDrag.y = -1;
 
 			const state = getState();
 
