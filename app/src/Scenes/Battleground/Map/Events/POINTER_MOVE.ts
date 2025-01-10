@@ -6,7 +6,6 @@ import { listen, signals } from "../../../../Models/Signals";
 
 export function onPointerMove(
 	bgLayer: Phaser.Tilemaps.TilemapLayer,
-	startDrag: Vec2,
 	startScroll: Vec2,
 	scene: BattlegroundScene,
 	pointerDownUnit: { unit: Unit | null }
@@ -19,16 +18,11 @@ export function onPointerMove(
 
 			if (!pointer.isDown) return;
 			if (pointer.downTime < 100) return;
-			if (startDrag.x < 0 || startDrag.y < 0) {
-				startDrag.x = pointer.x;
-				startDrag.y = pointer.y;
-			}
 
-			const dx = startDrag.x - pointer.x;
-			const dy = startDrag.y - pointer.y;
-			const delta = Math.abs(dx + dy);
+			const dx = pointer.downX - pointer.x;
+			const dy = pointer.downY - pointer.y;
 
-			if (delta < 10) return;
+			if ((Math.abs(dx) + Math.abs(dy)) < 10) return;
 
 			if (pointerDownUnit.unit) {
 				// selecting unit destination, draw line to current position
@@ -44,10 +38,13 @@ export function onPointerMove(
 				lineGraphics.closePath();
 				lineGraphics.strokePath();
 
-			}
+			} else {
 
-			scene.cameras.main.scrollX = startScroll.x + dx;
-			scene.cameras.main.scrollY = startScroll.y + dy;
+				// dragging the camera is only allowed if the pointer was not pressed over a unit
+
+				scene.cameras.main.scrollX = startScroll.x + dx;
+				scene.cameras.main.scrollY = startScroll.y + dy;
+			}
 		}
 	);
 

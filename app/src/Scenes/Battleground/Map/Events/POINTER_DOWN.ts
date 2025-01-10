@@ -8,7 +8,6 @@ import { Unit } from "../../../../Models/Unit";
 
 export function onPointerDown(
 	bgLayer: Phaser.Tilemaps.TilemapLayer,
-	startDrag: Vec2,
 	startScroll: Vec2,
 	scene: BattlegroundScene,
 	pointerDownUnit: { unit: Unit | null }
@@ -17,7 +16,6 @@ export function onPointerDown(
 
 	bgLayer.on(Phaser.Input.Events.POINTER_DOWN,
 		(pointer: Phaser.Input.Pointer) => {
-			startDrag = vec2(pointer.x, pointer.y);
 
 			const position = bgLayer.getTileAtWorldXY(pointer.x, pointer.y);
 
