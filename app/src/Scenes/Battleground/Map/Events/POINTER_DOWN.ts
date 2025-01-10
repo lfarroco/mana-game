@@ -4,7 +4,6 @@ import { Vec2, eqVec2, vec2 } from "../../../../Models/Geometry";
 import BattlegroundScene from "../../BattlegroundScene";
 import { getState } from "../../../../Models/State";
 import { Unit } from "../../../../Models/Unit";
-import { emit, signals } from "../../../../Models/Signals";
 
 
 export function onPointerDown(
@@ -22,20 +21,14 @@ export function onPointerDown(
 
 			const position = bgLayer.getTileAtWorldXY(pointer.x, pointer.y);
 
-			console.log("pos::: ", position.x, position.y)
 			const maybeUnit = state.gameData.units.find((unit) => eqVec2(unit.position, vec2(position.x, position.y)));
 
-			console.log(maybeUnit)
 			if (maybeUnit) {
-				console.log("unit found!!!")
 				pointerDownUnit.unit = maybeUnit;
-				emit(signals.UNIT_SELECTED, maybeUnit.id);
 			}
 
-			startScroll = vec2(
-				scene.cameras.main.scrollX,
-				scene.cameras.main.scrollY
-			);
+			startScroll.x = scene.cameras.main.scrollX
+			startScroll.y = scene.cameras.main.scrollY
 		}
 	);
 }

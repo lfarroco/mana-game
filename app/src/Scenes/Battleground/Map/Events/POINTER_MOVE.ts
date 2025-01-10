@@ -12,7 +12,6 @@ export function onPointerMove(
 	pointerDownUnit: { unit: Unit | null }
 ) {
 
-
 	let lineGraphics = scene.add.graphics();
 
 	bgLayer.on(Phaser.Input.Events.POINTER_MOVE,
@@ -20,6 +19,10 @@ export function onPointerMove(
 
 			if (!pointer.isDown) return;
 			if (pointer.downTime < 100) return;
+			if (startDrag.x < 0 || startDrag.y < 0) {
+				startDrag.x = pointer.x;
+				startDrag.y = pointer.y;
+			}
 
 			const dx = startDrag.x - pointer.x;
 			const dy = startDrag.y - pointer.y;
