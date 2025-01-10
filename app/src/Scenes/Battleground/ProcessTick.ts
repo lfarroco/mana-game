@@ -207,7 +207,8 @@ function processSkill(
     operations.UPDATE_UNIT(id, {
       status: UNIT_STATUS.IDLE(),
     }),
-    operations.HIDE_EMOTE(id),
+    // Hiding emotes should be the reaction of other actions
+    //operations.HIDE_EMOTE(id),
     // TOOD: hide skill effect
   ];
 
