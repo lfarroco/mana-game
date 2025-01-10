@@ -11,6 +11,7 @@ import { getSkill } from "../../../Models/Skill";
 import { onPointerMove } from "./Events/POINTER_MOVE";
 import { onPointerUp } from "./Events/POINTER_UP";
 import { onPointerDown } from "./Events/POINTER_DOWN";
+import { City } from "../../../Models/City";
 
 export function makeMapInteractive(
   scene: BattlegroundScene,
@@ -108,21 +109,22 @@ export function checkAttackTargetInCell(state: State, tile: Phaser.Tilemaps.Tile
   emit(signals.FACE_DIRECTION, unit.id, direction)
 }
 
-export function selectEntityInTile(state: State, tile: Vec2) {
+export function selectEntityInTile(state: State, tile: Vec2): [Unit | undefined, City | undefined] {
   const unit = state.gameData.units
     .filter(unit => !isDestroyed(unit.status))
     .find((unit) => eqVec2(unit.position, (tile)));
 
+  const city = state.gameData.cities.find((city) => eqVec2(city.boardPosition, (tile)));
+
   if (unit) {
     emit(signals.UNIT_SELECTED, unit.id);
   } else {
-
-    const city = state.gameData.cities.find((city) => eqVec2(city.boardPosition, (tile)));
-
     if (city) {
       emit(signals.CITY_SELECTED, city.id);
     }
   }
+
+  return [unit, city]
 }
 
 // TODO: refactor to accept unit id

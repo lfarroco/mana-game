@@ -1,9 +1,10 @@
 import Phaser from "phaser";
 
-import { Vec2, eqVec2, vec2 } from "../../../../Models/Geometry";
+import { Vec2, asVec2, } from "../../../../Models/Geometry";
 import BattlegroundScene from "../../BattlegroundScene";
 import { getState } from "../../../../Models/State";
 import { Unit } from "../../../../Models/Unit";
+import { selectEntityInTile } from "../makeMapInteractive";
 
 
 export function onPointerDown(
@@ -17,12 +18,12 @@ export function onPointerDown(
 	bgLayer.on(Phaser.Input.Events.POINTER_DOWN,
 		(pointer: Phaser.Input.Pointer) => {
 
-			const position = bgLayer.getTileAtWorldXY(pointer.x, pointer.y);
+			const tile = bgLayer.getTileAtWorldXY(pointer.x, pointer.y);
 
-			const maybeUnit = state.gameData.units.find((unit) => eqVec2(unit.position, vec2(position.x, position.y)));
+			const [unit] = selectEntityInTile(state, asVec2(tile))
 
-			if (maybeUnit) {
-				pointerDownUnit.unit = maybeUnit;
+			if (unit) {
+				pointerDownUnit.unit = unit;
 			}
 
 			startScroll.x = scene.cameras.main.scrollX
