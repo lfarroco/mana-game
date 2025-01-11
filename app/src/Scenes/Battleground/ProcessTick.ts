@@ -1,7 +1,8 @@
-import { asVec2, eqVec2 } from "../../Models/Geometry";
-import { emit, operations, signals, traverse_, } from "../../Models/Signals";
+import { Vec2 } from "../../Models/Geometry";
+import { emit, signals, } from "../../Models/Signals";
 import { BattlegroundScene } from "./BattlegroundScene";
 import { State, getState } from "../../Models/State";
+import { Unit } from "../../Models/Unit";
 
 const processTick = async (scene: BattlegroundScene) => {
   // apply user-defined status changes before starting (eg. moving)
@@ -27,18 +28,41 @@ function moveStep(scene: BattlegroundScene, state: State) {
 
   const unitsToMove = state.gameData.units.filter(s => s.path.length > 0);
 
-  unitsToMove.forEach((unit) => {
-
+  const movements: [Unit, Vec2][] = unitsToMove.map((unit) => {
     const [next] = unit.path;
-
-    emit(signals.UNIT_MOVED_INTO_CELL, unit.id, next);
-
-    unit.path = unit.path.slice(1);
-
+    return [unit, next];
   });
+
+  perform(scene, movements)
 
 }
 
+function perform(scene: BattlegroundScene, movements: [Unit, Vec2][]) {
+
+  if (movements.length === 0) {
+    // todo: emit end of move phase
+    return;
+  }
+
+  const [[unit, cell]] = movements;
+
+  emit(signals.MOVE_UNIT_INTO_CELL, unit.id, cell);
+
+  unit.path = unit.path.slice(1);
+
+  scene.time.addEvent({
+    delay: 1000,
+    callback: () => {
+      const remaining = movements.slice(1);
+      if (remaining.length > 0) {
+        perform(scene, remaining);
+      } else {
+        //todo: emit end of move phase
+      }
+    }
+  });
+
+}
 
 
 export default processTick;
