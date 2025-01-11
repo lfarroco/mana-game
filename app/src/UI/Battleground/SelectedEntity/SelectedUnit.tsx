@@ -1,10 +1,10 @@
-import { UNIT_STATUS_KEYS, Unit } from "../../../Models/Unit"
+import { Unit } from "../../../Models/Unit"
 import "./styles.css"
 import * as Signals from "../../../Models/Signals"
 import { FORCE_ID_PLAYER } from "../../../Models/Force"
 import { getJob } from "../../../Models/Job"
 import { getSkill } from "../../../Models/Skill"
-import SelectedEntity from "./SelectedEntity"
+import SelectedEntity, { ButtonGridAction } from "./SelectedEntity"
 
 const SelectedUnit = ({
 	unit,
@@ -21,18 +21,7 @@ const SelectedUnit = ({
 	const isPlayerControlled = unit.force === FORCE_ID_PLAYER
 
 	const getStatus = () => {
-		if (unit.status.type === UNIT_STATUS_KEYS.ATTACKING)
-			return "Engaged"
-
-		if (unit.status.type === UNIT_STATUS_KEYS.MOVING)
-			return `Moving ${unit.movementIndex + 1}/5`
-
-		if (unit.status.type === UNIT_STATUS_KEYS.IDLE)
-			return "Idle"
-		if (unit.status.type === UNIT_STATUS_KEYS.CASTING)
-			return "Casting"
-		else
-			return "Unknown"
+		return "Unknown"
 	}
 	const status = getStatus()
 
@@ -114,7 +103,8 @@ function selectMoveTargetActions(unit: Unit) {
 	]
 }
 
-function UnitActions(unit: Unit) {
+
+function UnitActions(unit: Unit): ButtonGridAction[] {
 
 	const job = getJob(unit.job)
 	const skills = [job.skill].map(skillId => {
@@ -125,6 +115,7 @@ function UnitActions(unit: Unit) {
 			icon: `assets/ui/icon-${skillId}.png`,
 			tooltipTitle: skill.name,
 			tooltipContent: skill.tooltip,
+			active: true,
 			enabled: true,
 			onClick: () => {
 				Signals.emit(Signals.signals.SELECT_SKILL_TARGET_START, unit.id, skillId)
@@ -140,18 +131,18 @@ function UnitActions(unit: Unit) {
 			onClick: () => {
 				Signals.emit(Signals.signals.SELECT_UNIT_MOVE_START, unit.id)
 			},
-			active: unit.status.type === UNIT_STATUS_KEYS.MOVING,
+			active: unit.path.length > 0,
 			enabled: true
 		},
 		{
 			icon: "assets/ui/icon-attack.png",
 			tooltipTitle: "Attack",
 			tooltipContent: "Attack an enemy unit in your range.",
+			active: true,
 			onClick: () => {
 
 				Signals.emit(Signals.signals.SELECT_ATTACK_TARGET_START, unit.id)
 			},
-			active: unit.status.type === UNIT_STATUS_KEYS.ATTACKING,
 			enabled: true
 		},
 		{
@@ -162,14 +153,10 @@ function UnitActions(unit: Unit) {
 
 				Signals.emit(Signals.signals.UNIT_MOVE_STOP, unit.id)
 			},
-			active: unit.status.type === UNIT_STATUS_KEYS.IDLE,
+			active: unit.path.length > 0,
 			enabled: true
 		},
-		...(skills.map(s => ({
-			...s, active:
-				unit.status.type === UNIT_STATUS_KEYS.CASTING
-				&& 'skill' in unit.status && unit.status.skill === s.id
-		})))
+		...skills
 
 	]
 }

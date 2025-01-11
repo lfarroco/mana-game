@@ -3,7 +3,7 @@ import BattlegroundScene from "../BattlegroundScene";
 import { emit, signals } from "../../../Models/Signals";
 import { Vec2, asVec2, eqVec2, vec2 } from "../../../Models/Geometry";
 import { FORCE_ID_PLAYER } from "../../../Models/Force";
-import { UNIT_STATUS, Unit, isDestroyed } from "../../../Models/Unit";
+import { Unit } from "../../../Models/Unit";
 import { getUnit, State } from "../../../Models/State";
 import { pingAt as pingAtLocation } from "./Ping";
 import { getDirection } from "../../../Models/Direction";
@@ -66,7 +66,6 @@ export function issueSkillCommand(
 
     emit(signals.SELECT_SKILL_TARGET_DONE, unit.id, skill.id, asVec2(tile));
     emit(signals.FACE_DIRECTION, unit.id, direction);
-    emit(signals.UPDATE_UNIT, unit.id, { status: UNIT_STATUS.CASTING(allyInTile.id, skill.id) });
 
 
   } else if (skill.targets === "enemy") {
@@ -86,7 +85,6 @@ export function issueSkillCommand(
 
     emit(signals.SELECT_SKILL_TARGET_DONE, unit.id, skill.id, asVec2(tile));
     emit(signals.FACE_DIRECTION, unit.id, direction);
-    emit(signals.UPDATE_UNIT, unit.id, { status: UNIT_STATUS.CASTING(enemy.id, skill.id) });
 
   }
 
@@ -105,13 +103,11 @@ export function checkAttackTargetInCell(state: State, tile: Phaser.Tilemaps.Tile
   const direction = getDirection(unit.position, enemy.position);
 
   emit(signals.SELECT_ATTACK_TARGET_DONE, enemy.id);
-  emit(signals.UPDATE_UNIT, unit.id, { status: UNIT_STATUS.ATTACKING(enemy.id) });
   emit(signals.FACE_DIRECTION, unit.id, direction)
 }
 
 export function selectEntityInTile(state: State, tile: Vec2): [Unit | undefined, City | undefined] {
   const unit = state.gameData.units
-    .filter(unit => !isDestroyed(unit.status))
     .find((unit) => eqVec2(unit.position, (tile)));
 
   const city = state.gameData.cities.find((city) => eqVec2(city.boardPosition, (tile)));

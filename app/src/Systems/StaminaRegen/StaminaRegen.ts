@@ -1,6 +1,5 @@
 import { eqVec2 } from "../../Models/Geometry";
 import { emit, signals, listeners } from "../../Models/Signals";
-import { UNIT_STATUS_KEYS } from "../../Models/Unit";
 import { State } from "../../Models/State";
 
 const STAMINA_REGEN_RATE = 3;
@@ -11,7 +10,6 @@ export function init(state: State) {
 		[signals.BATTLEGROUND_TICK, () => {
 
 			state.gameData.units
-				.filter(unit => unit.status.type === UNIT_STATUS_KEYS.IDLE)
 				.filter(unit => unit.hp < unit.maxHp)
 				.filter(unit => state.gameData.cities.some(
 					city => eqVec2(city.boardPosition, unit.position)

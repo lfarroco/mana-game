@@ -1,7 +1,7 @@
 import { FORCE_ID_CPU } from "../../Models/Force";
 import { eqVec2 } from "../../Models/Geometry";
 import { emit, signals } from "../../Models/Signals";
-import { UNIT_STATUS_KEYS, Unit } from "../../Models/Unit";
+import { Unit } from "../../Models/Unit";
 import { State } from "../../Models/State";
 import { distanceBetween } from "../../Models/Geometry";
 
@@ -31,7 +31,7 @@ export function processAttackerActions(state: State) {
         return;
       }
 
-      if (u.status.type === UNIT_STATUS_KEYS.IDLE && u.hp >= 80) {
+      if (u.path.length < 1 && u.hp >= 80) {
         console.log("AI: attacking", u.id, closestCity.boardPosition);
 
         // is currently at a city? if so, wait to recharge all stamina
@@ -49,7 +49,7 @@ export function processAttackerActions(state: State) {
         return;
       }
 
-      if (u.status.type === UNIT_STATUS_KEYS.IDLE && u.hp < 80) {
+      if (u.hp < 80) {
 
         console.log("AI: moving", u.id, closestCity.boardPosition);
 

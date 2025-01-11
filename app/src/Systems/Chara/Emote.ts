@@ -3,8 +3,6 @@ import { signals, listeners, emit } from "../../Models/Signals";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { HALF_TILE_HEIGHT } from "../../Scenes/Battleground/constants";
 import { State } from "../../Models/State";
-import { UNIT_STATUS_KEYS } from "../../Models/Unit";
-import { getSkill } from "../../Models/Skill";
 
 export const EMOTE_SCALE = 1
 
@@ -43,12 +41,6 @@ export function EmoteSystem_init(state: State, scene: BattlegroundScene) {
 		[signals.COMBAT_FINISHED, (id: string) => {
 			emit(signals.HIDE_EMOTE, id)
 		}],
-		[
-			signals.BATTLEGROUND_STARTED, () => {
-				renderEmotesForStatus(state)
-			}
-		]
-
 	])
 }
 
@@ -85,22 +77,4 @@ export function hideEmote(index: EmoteIndex, id: string) {
 	if (!emote) return
 
 	emote.visible = false
-}
-export function renderEmotesForStatus(state: State) {
-	state.gameData.units.forEach((unit) => {
-		if (unit.status.type === UNIT_STATUS_KEYS.IDLE) {
-			emit(signals.HIDE_EMOTE, unit.id);
-		} else if (unit.status.type === UNIT_STATUS_KEYS.MOVING) {
-			emit(signals.DISPLAY_EMOTE, unit.id, "moving-emote");
-		} else if (unit.status.type === UNIT_STATUS_KEYS.ATTACKING) {
-			emit(signals.DISPLAY_EMOTE, unit.id, "combat-emote");
-		} else if (unit.status.type === UNIT_STATUS_KEYS.CASTING) {
-			if ("skill" in unit.status) {
-				const skill = getSkill(unit.status.skill);
-				if (skill.emote) {
-					emit(signals.DISPLAY_EMOTE, unit.id, skill.emote);
-				}
-			}
-		}
-	});
 }

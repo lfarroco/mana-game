@@ -11,7 +11,7 @@ const BUTTON_STYLE = {
 	borderRadius: 0,
 	border: 'none'
 }
-type ButtonGridAction = {
+export type ButtonGridAction = {
 	icon: string,
 	tooltipTitle: string,
 	tooltipContent: string,
