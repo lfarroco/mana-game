@@ -76,10 +76,10 @@ export function init(scene: BattlegroundScene) {
 }
 
 function walkToDirection(direction: Direction, chara: Chara) {
-  chara.sprite.play(chara.job + "-walk-" + direction, true);
+  //chara.sprite.play(chara.job + "-walk-" + direction, true);
 }
 
 function idleToDirection(direction: Direction, chara: Chara) {
-  chara.sprite.play(chara.job + "-idle-" + direction, true);
+  //chara.sprite.play(chara.job + "-idle-" + direction, true);
 }
 
