@@ -18,7 +18,7 @@ export function onPointerDown(
 	bgLayer.on(Phaser.Input.Events.POINTER_DOWN,
 		(pointer: Phaser.Input.Pointer) => {
 
-			const tile = bgLayer.getTileAtWorldXY(pointer.x, pointer.y);
+			const tile = bgLayer.getTileAtWorldXY(pointer.worldX, pointer.worldY);
 
 			const [unit] = selectEntityInTile(state, asVec2(tile))
 

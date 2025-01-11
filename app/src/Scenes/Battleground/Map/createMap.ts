@@ -41,8 +41,8 @@ export function createMap(scene: BattlegroundScene) {
 	// have outline follow cursor
 	scene.input.on("pointermove", (pointer: Phaser.Input.Pointer) => {
 		const tile = background.getTileAtWorldXY(
-			pointer.x + scene.cameras.main.scrollX,
-			pointer.y + scene.cameras.main.scrollY
+			pointer.worldX,
+			pointer.worldY
 		);
 		if (tile) {
 			hoverOutline.x = tile.pixelX;
