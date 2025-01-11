@@ -9,11 +9,9 @@ import SelectedEntity, { ButtonGridAction } from "./SelectedEntity"
 const SelectedUnit = ({
 	unit,
 	isSelectingMoveTarget,
-	isSelectingAttackTarget,
 	isSelectingSkillTarget,
 }: {
 	unit: Unit,
-	isSelectingAttackTarget: boolean,
 	isSelectingMoveTarget: boolean,
 	isSelectingSkillTarget: boolean
 }) => {
@@ -28,10 +26,9 @@ const SelectedUnit = ({
 	const job = getJob(unit.job)
 
 	const actionsGrid = !isPlayerControlled ? []
-		: isSelectingAttackTarget ? selectAttackTargetActions(unit)
-			: isSelectingMoveTarget ? selectMoveTargetActions(unit)
-				: isSelectingSkillTarget ? selectSkillTargetActions(unit)
-					: UnitActions(unit)
+		: isSelectingMoveTarget ? selectMoveTargetActions(unit)
+			: isSelectingSkillTarget ? selectSkillTargetActions(unit)
+				: UnitActions(unit)
 
 	return <SelectedEntity
 
@@ -56,20 +53,6 @@ const SelectedUnit = ({
 
 export default SelectedUnit
 
-function selectAttackTargetActions(unit: Unit) {
-	return [
-		{
-			icon: "assets/ui/icon-cancel.png",
-			tooltipTitle: "Cancel",
-			tooltipContent: "Cancel attacking",
-			onClick: () => {
-				Signals.emit(Signals.signals.SELECT_ATTACK_TARGET_CANCEL, unit.id)
-			},
-			active: false,
-			enabled: true
-		}
-	]
-}
 function selectSkillTargetActions(unit: Unit) {
 	return [
 		{
@@ -132,17 +115,6 @@ function UnitActions(unit: Unit): ButtonGridAction[] {
 				Signals.emit(Signals.signals.SELECT_UNIT_MOVE_START, unit.id)
 			},
 			active: unit.path.length > 0,
-			enabled: true
-		},
-		{
-			icon: "assets/ui/icon-attack.png",
-			tooltipTitle: "Attack",
-			tooltipContent: "Attack an enemy unit in your range.",
-			active: true,
-			onClick: () => {
-
-				Signals.emit(Signals.signals.SELECT_ATTACK_TARGET_START, unit.id)
-			},
 			enabled: true
 		},
 		{

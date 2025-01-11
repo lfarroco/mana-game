@@ -62,11 +62,7 @@ export function issueSkillCommand(
 
     if (distance > skill.range) return // todo: error sound
 
-    const direction = getDirection(unit.position, allyInTile.position);
-
     emit(signals.SELECT_SKILL_TARGET_DONE, unit.id, skill.id, asVec2(tile));
-    emit(signals.FACE_DIRECTION, unit.id, direction);
-
 
   } else if (skill.targets === "enemy") {
     // todo: use "skill targets" to check if the skill can be used in a tile or unit
@@ -81,29 +77,10 @@ export function issueSkillCommand(
 
     if (distance > skill.range) return // todo: error sound
 
-    const direction = getDirection(unit.position, enemy.position);
-
     emit(signals.SELECT_SKILL_TARGET_DONE, unit.id, skill.id, asVec2(tile));
-    emit(signals.FACE_DIRECTION, unit.id, direction);
 
   }
 
-}
-
-export function checkAttackTargetInCell(state: State, tile: Phaser.Tilemaps.Tile) {
-  const enemy = state.gameData.units
-    .find((unit) => eqVec2(unit.position, asVec2(tile)) && unit.force !== FORCE_ID_PLAYER);
-
-  if (!enemy) return
-
-  if (!state.gameData.selectedUnit) return;
-
-  const unit = getUnit(state)(state.gameData.selectedUnit)
-
-  const direction = getDirection(unit.position, enemy.position);
-
-  emit(signals.SELECT_ATTACK_TARGET_DONE, enemy.id);
-  emit(signals.FACE_DIRECTION, unit.id, direction)
 }
 
 export function selectEntityInTile(state: State, tile: Vec2): [Unit | undefined, City | undefined] {

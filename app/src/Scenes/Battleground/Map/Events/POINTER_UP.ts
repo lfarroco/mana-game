@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import BattlegroundScene from "../../BattlegroundScene";
 import { getState } from "../../../../Models/State";
-import { checkAttackTargetInCell, issueSkillCommand, issueMoveOrder } from "../makeMapInteractive";
+import { issueSkillCommand, issueMoveOrder } from "../makeMapInteractive";
 import { Unit } from "../../../../Models/Unit";
 
 export function onPointerUp(
@@ -17,14 +17,6 @@ export function onPointerUp(
 			const tile = bgLayer.getTileAtWorldXY(pointer.worldX, pointer.worldY);
 
 			console.log("clicked on tile", tile);
-
-			if (scene.isSelectingAttackTarget) {
-
-				checkAttackTargetInCell(state, tile);
-
-				return;
-
-			}
 
 			if (scene.selectedSkillId) {
 				issueSkillCommand(state, scene, tile, scene.selectedSkillId);
