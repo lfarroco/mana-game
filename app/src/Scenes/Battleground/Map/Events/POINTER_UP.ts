@@ -29,7 +29,7 @@ export function onPointerUp(
 				return;
 			}
 
-			if (unitPointerDown.unit) {
+			if (unitPointerDown.unit && pointer.downTime > 100 && pointer.getDistance() > 10) {
 
 				issueMoveOrder(state,
 					unitPointerDown.unit.id,
