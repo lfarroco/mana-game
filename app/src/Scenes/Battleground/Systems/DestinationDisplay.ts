@@ -57,7 +57,7 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 
 			const unit = getUnit(state)(key)
 
-			if (unit.path.length === 0) return
+			if (unit.order.type !== "move") return
 
 			const graphics = displayPath(
 				state,
@@ -81,7 +81,7 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 
 			const unit = getUnit(state)(key)
 
-			if (unit.path.length === 0) return
+			if (unit.order.type !== "move") return // todo: is this possible?
 
 			const graphics = displayPath(
 				state,
@@ -158,7 +158,9 @@ function displayPath(
 	scene.children.moveBelow(arrowTip, lineGraphics)
 	let points = [] as Phaser.Math.Vector2[]
 
-	const path = [unit.position, ...unit.path]
+	const _path = unit.order.type === "move" ? unit.order.path : []
+
+	const path = [unit.position, ..._path]
 
 	if (path.length < 2) return { graphics: shadowGraphics, arrowTip, shadow: lineGraphics, shadowArrowTip }
 
@@ -168,7 +170,7 @@ function displayPath(
 
 		points.push(new Phaser.Math.Vector2(tile.pixelX + tile.width / 2, tile.pixelY + tile.height / 2))
 
-	})
+	});
 
 	// replace the two first points with the point between them (eg: [ (1,1), (3,3) ] -> [(2,2)]
 	const newPoint = new Phaser.Math.Vector2(points[0].x + (points[1].x - points[0].x) / 2, points[0].y + (points[1].y - points[0].y) / 2)
