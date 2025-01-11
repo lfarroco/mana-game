@@ -8,7 +8,7 @@ export type Chara = {
 	id: string;
 	force: string;
 	job: string;
-	sprite: Phaser.GameObjects.Sprite,
+	sprite: Phaser.GameObjects.Image,
 	group: Phaser.GameObjects.Group | null,
 }
 
@@ -20,14 +20,16 @@ export function createChara(
 ): Chara {
 
 	const sprite = scene
-		.add.sprite(
+		.add.image(
 			unit.position.x * TILE_WIDTH + HALF_TILE_WIDTH,
 			unit.position.y * TILE_HEIGHT + HALF_TILE_HEIGHT,
 			unit.job
 		).setName("chara-" + unit.id);// TODO: is this being used?
 
+	sprite.setDisplaySize(64, 64)
+
 	// TODO: move to animation system
-	sprite.play(unit.job + "-idle-down", true);
+	//sprite.play(unit.job + "-idle-down", true);
 
 	const group = scene.add.group([sprite]) // TODO: is this being used?
 

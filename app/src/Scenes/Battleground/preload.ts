@@ -4,15 +4,7 @@ const jobs = [
 	'archer',
 	'monk',
 	'cleric',
-	'goblin-archer',
-	'goblin-knight',
-	'goblin-tribesman',
-	'knight',
-	'rogue',
 	'soldier',
-	'witch',
-	'wizard',
-	'zombie'
 ]
 
 const fxs = ['cethiel_light'];
@@ -48,6 +40,9 @@ export function preload(this: Phaser.Scene) {
 	this.load.image("cursor", "assets/ui/selected_cursor.png");
 	this.load.tilemapTiledJSON("maps/map1", "assets/maps/map1/mapdata.json");
 
+
+	this.load.image("samurai", "assets/charas/samurai.png");
+
 	this.load.audio('theme', [
 		'assets/audio/main_theme.mp3',
 		'assets/audio/main_theme.ogg',
@@ -65,13 +60,9 @@ export function preload(this: Phaser.Scene) {
 	this.load.audio("ui/error", "assets/audio/error.ogg")
 
 	jobs.forEach(job => {
-		this.load.spritesheet(
+		this.load.image(
 			job,
-			`assets/jobs/${job}/sprites.png`,
-			{
-				frameWidth: 32,
-				frameHeight: 32,
-			}
+			`assets/charas/${job}.png`,
 		);
 	})
 
