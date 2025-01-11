@@ -28,6 +28,8 @@ export function onPointerDown(
 
 			startScroll.x = scene.cameras.main.scrollX
 			startScroll.y = scene.cameras.main.scrollY
+
+			console.log("SET startScroll", startScroll);
 		}
 	);
 }

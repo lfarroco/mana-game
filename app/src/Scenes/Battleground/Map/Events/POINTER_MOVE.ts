@@ -19,14 +19,14 @@ export function onPointerMove(
 
 			if (!pointer.isDown) return;
 			if (pointer.downTime < 100) return;
-			if (pointerDownUnit.unit?.force !== FORCE_ID_PLAYER) return
 
 			const dx = pointer.downX - pointer.x;
 			const dy = pointer.downY - pointer.y;
 
 			if ((Math.abs(dx) + Math.abs(dy)) < 10) return;
 
-			if (pointerDownUnit.unit) {
+			if (pointerDownUnit.unit && pointerDownUnit.unit.force === FORCE_ID_PLAYER) {
+
 				// selecting unit destination, draw line to current position
 				const chara = scene.charas.find(chara => chara.id === pointerDownUnit.unit?.id);
 
