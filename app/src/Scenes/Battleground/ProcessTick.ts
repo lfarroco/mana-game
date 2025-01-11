@@ -26,10 +26,10 @@ const processTick = async (scene: BattlegroundScene) => {
 
 function moveStep(scene: BattlegroundScene, state: State) {
 
-  const unitsToMove = state.gameData.units.filter(s => s.path.length > 0);
+  const unitsToMove = state.gameData.units.filter(s => s.order.type === "move");
 
   const movements: [Unit, Vec2][] = unitsToMove.map((unit) => {
-    const [next] = unit.path;
+    const [next] = unit.order.type === "move" ? unit.order.path : [];
     return [unit, next];
   });
 
@@ -48,8 +48,18 @@ function perform(scene: BattlegroundScene, movements: [Unit, Vec2][]) {
 
   emit(signals.MOVE_UNIT_INTO_CELL, unit.id, cell);
 
+  const remaining = unit.order.type === "move" ? unit.order.path.slice(1) : []
   unit.position = cell;
-  unit.path = unit.path.slice(1);
+
+  if (remaining.length === 0) {
+    unit.order = {
+      type: "none"
+    }
+  } else
+    unit.order = {
+      type: "move",
+      path: remaining
+    }
 
   scene.time.addEvent({
     delay: 1000,

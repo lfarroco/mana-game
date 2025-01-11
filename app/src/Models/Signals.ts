@@ -52,7 +52,6 @@ export type Signals = {
   MOVE_UNIT_INTO_CELL: (unitId: string, vec: Vec2) => void;
   LOOKUP_PATH: (key: string, source: Vec2, target: Vec2) => void;
   PATH_FOUND: (key: string, path: Vec2[]) => void;
-  CHANGE_DIRECTION: (key: string, vec: Vec2) => void;
   DISPLAY_EMOTE: (id: string, key: string) => void;
   HIDE_EMOTE: (unitId: string) => void;
   UNIT_FINISHED_MOVE_ANIM: (unitId: string, vec: Vec2, direction: Direction) => void;
@@ -91,7 +90,6 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   ATTACK_STARTED: "ATTACK_STARTED",
   ATTACK: "ATTACK",
   COMBAT_FINISHED: "COMBAT_FINISHED",
-  CHANGE_DIRECTION: "CHANGE_DIRECTION",
   UPDATE_UNIT: "UPDATE_UNIT",
   UNIT_DESTROYED: "UNIT_DESTROYED",
   FORCE_VICTORY: "FORCE_VICTORY",
@@ -252,11 +250,7 @@ export const operations: {
     vec,
     direction
   ],
-  CHANGE_DIRECTION: (key: string, vec: Vec2) => [
-    signals.CHANGE_DIRECTION,
-    key,
-    vec,
-  ],
+
   UNIT_MOVE_STOP: (unitId: string) => [signals.UNIT_MOVE_STOP, unitId],
   SELECT_SKILL_TARGET_START: (unitId: string, skill: string) => [
     signals.SELECT_SKILL_TARGET_START,

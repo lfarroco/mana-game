@@ -31,7 +31,7 @@ export function processAttackerActions(state: State) {
         return;
       }
 
-      if (u.path.length < 1 && u.hp >= 80) {
+      if (u.order.type === "move" && u.hp >= 80) {
         console.log("AI: attacking", u.id, closestCity.boardPosition);
 
         // is currently at a city? if so, wait to recharge all stamina

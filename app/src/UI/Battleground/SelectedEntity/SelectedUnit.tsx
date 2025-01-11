@@ -18,10 +18,7 @@ const SelectedUnit = ({
 
 	const isPlayerControlled = unit.force === FORCE_ID_PLAYER
 
-	const getStatus = () => {
-		return "Unknown"
-	}
-	const status = getStatus()
+	const order = JSON.stringify(unit.order)
 
 	const job = getJob(unit.job)
 
@@ -41,7 +38,7 @@ const SelectedUnit = ({
 		actions={actionsGrid}
 		description={<>
 
-			<div> <span className="attr">Status: </span> {status} </div>
+			<div> <span className="attr">Status: </span> {order} </div>
 			<div> <span className="attr">Attack:</span> {job.attackPower + job.dices} - {job.attackPower + job.dices * 3} </div>
 			<div> <span className="attr">Defense:</span> 2 </div>
 			<div> <span className="attr">Range:</span> {job.attackRange === 1 ? "Melee" : `Ranged (${job.attackRange})`} </div>
@@ -114,7 +111,7 @@ function UnitActions(unit: Unit): ButtonGridAction[] {
 			onClick: () => {
 				Signals.emit(Signals.signals.SELECT_UNIT_MOVE_START, unit.id)
 			},
-			active: unit.path.length > 0,
+			active: unit.order.type === "none",
 			enabled: true
 		},
 		{
@@ -125,7 +122,7 @@ function UnitActions(unit: Unit): ButtonGridAction[] {
 
 				Signals.emit(Signals.signals.UNIT_MOVE_STOP, unit.id)
 			},
-			active: unit.path.length > 0,
+			active: unit.order.type === "move",
 			enabled: true
 		},
 		...skills

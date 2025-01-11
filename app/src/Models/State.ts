@@ -147,7 +147,7 @@ export const listenToStateEvents = (state: State) => {
     }],
     [
       signals.UNIT_MOVE_STOP, (unitId: string) => {
-        updateUnit(state)(unitId)({ path: [] });
+        updateUnit(state)(unitId)({ order: { type: "none" } });
       }
     ]
   ])
