@@ -40,9 +40,6 @@ export function preload(this: Phaser.Scene) {
 	this.load.image("cursor", "assets/ui/selected_cursor.png");
 	this.load.tilemapTiledJSON("maps/map1", "assets/maps/map1/mapdata.json");
 
-
-	this.load.image("samurai", "assets/charas/samurai.png");
-
 	this.load.audio('theme', [
 		'assets/audio/main_theme.mp3',
 		'assets/audio/main_theme.ogg',

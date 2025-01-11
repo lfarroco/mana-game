@@ -123,7 +123,6 @@ export function selectEntityInTile(state: State, tile: Vec2): [Unit | undefined,
   return [unit, city]
 }
 
-// TODO: refactor to accept unit id
 export function issueMoveOrder(
   state: State,
   unitId: string,

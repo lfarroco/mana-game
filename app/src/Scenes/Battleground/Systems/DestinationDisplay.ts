@@ -112,7 +112,14 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 			if (!scene.layers?.background) return
 
 			cleanup(index)(key);
-		}]
+		}],
+		[signals.BATTLEGROUND_TICK, () => {
+
+			if (!scene.layers?.background) return
+
+			Object.keys(index).forEach(cleanup(index))
+
+		}],
 	])
 
 }

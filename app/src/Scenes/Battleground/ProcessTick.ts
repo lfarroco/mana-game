@@ -48,6 +48,7 @@ function perform(scene: BattlegroundScene, movements: [Unit, Vec2][]) {
 
   emit(signals.MOVE_UNIT_INTO_CELL, unit.id, cell);
 
+  unit.position = cell;
   unit.path = unit.path.slice(1);
 
   scene.time.addEvent({
