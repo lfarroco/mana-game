@@ -1,4 +1,3 @@
-import { getDirection } from '../../../Models/Direction';
 import { Vec2 } from '../../../Models/Geometry';
 import { emit, signals, listeners } from '../../../Models/Signals';
 import { State } from '../../../Models/State';
@@ -14,7 +13,6 @@ export function init(scene: BattlegroundScene, state: State) {
 
 			const nextTile = scene.getTileAt(cell);
 
-			const direction = getDirection(prevCell, cell);
 
 			scene.tweens.add({
 				targets: chara.sprite,
@@ -24,7 +22,7 @@ export function init(scene: BattlegroundScene, state: State) {
 				yoyo: false,
 				ease: "Sine.easeInOut",
 				onComplete: () => {
-					emit(signals.UNIT_FINISHED_MOVE_ANIM, unitId, cell, direction);
+					emit(signals.UNIT_FINISHED_MOVE_ANIM, unitId, cell,);
 				},
 			});
 		}]
