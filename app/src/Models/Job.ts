@@ -114,6 +114,25 @@ export const jobs: Job[] = [
     },
     skill: "fireball"
   },
+  {
+    id: "orc",
+    name: "Orc",
+    gold: 100,
+    attackRange: 1,
+    attackPower: 10,
+    dices: 2,
+    stats: {
+      hp: 400,
+      mana: 0,
+      attack: 10,
+      defense: 10,
+      mgkAttack: 0,
+      mgkDefense: 0,
+      accuracy: 10,
+      agility: 8,
+    },
+    skill: "attack"
+  },
 ];
 
 export const getJob = (id: string): Job => {

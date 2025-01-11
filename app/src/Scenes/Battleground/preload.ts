@@ -5,6 +5,7 @@ const jobs = [
 	'monk',
 	'cleric',
 	'soldier',
+	'orc',
 ]
 
 const fxs = ['cethiel_light'];

@@ -3,6 +3,7 @@ import BattlegroundScene from "../../BattlegroundScene";
 import { Vec2 } from "../../../../Models/Geometry";
 import { Unit } from "../../../../Models/Unit";
 import { listen, signals } from "../../../../Models/Signals";
+import { FORCE_ID_PLAYER } from "../../../../Models/Force";
 
 export function onPointerMove(
 	bgLayer: Phaser.Tilemaps.TilemapLayer,
@@ -18,6 +19,7 @@ export function onPointerMove(
 
 			if (!pointer.isDown) return;
 			if (pointer.downTime < 100) return;
+			if (pointerDownUnit.unit?.force !== FORCE_ID_PLAYER) return
 
 			const dx = pointer.downX - pointer.x;
 			const dy = pointer.downY - pointer.y;
