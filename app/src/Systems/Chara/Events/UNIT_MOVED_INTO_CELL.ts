@@ -7,12 +7,11 @@ import { TURN_DURATION } from '../../../config';
 export function init(scene: BattlegroundScene, state: State) {
 
 	listeners([
-		[signals.UNIT_MOVED_INTO_CELL, (unitId: string, cell: Vec2, prevCell: Vec2) => {
+		[signals.MOVE_UNIT_INTO_CELL, (unitId: string, cell: Vec2) => {
 
 			const chara = scene.getChara(unitId);
 
 			const nextTile = scene.getTileAt(cell);
-
 
 			scene.tweens.add({
 				targets: chara.sprite,

@@ -52,8 +52,7 @@ export type Signals = {
   FORCE_VICTORY: (force: string) => void;
   CAPTURE_CITY: (unitId: string, cityId: string) => void;
   UNIT_LEAVES_CELL: (unitId: string, vec: Vec2) => void;
-  UNIT_MOVED_INTO_CELL: (unitId: string, vec: Vec2, prevCell: Vec2) => void;
-  UPDATE_UNIT_COUNTER: (count: number, vec: Vec2) => void; // TODO: not implemented yet
+  MOVE_UNIT_INTO_CELL: (unitId: string, vec: Vec2) => void;
   LOOKUP_PATH: (key: string, source: Vec2, target: Vec2) => void;
   PATH_FOUND: (key: string, path: Vec2[]) => void;
   CHANGE_DIRECTION: (key: string, vec: Vec2) => void;
@@ -102,8 +101,7 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   FORCE_VICTORY: "FORCE_VICTORY",
   CAPTURE_CITY: "CAPTURE_CITY",
   UNIT_LEAVES_CELL: "UNIT_LEAVES_CELL",
-  UNIT_MOVED_INTO_CELL: "UNIT_MOVED_INTO_CELL",
-  UPDATE_UNIT_COUNTER: "UPDATE_UNIT_COUNTER",
+  MOVE_UNIT_INTO_CELL: "MOVE_UNIT_INTO_CELL",
   LOOKUP_PATH: "LOOKUP_PATH",
   PATH_FOUND: "PATH_FOUND",
   DISPLAY_EMOTE: "DISPLAY_EMOTE",
@@ -242,15 +240,9 @@ export const operations: {
     unitId,
     vec,
   ],
-  UNIT_MOVED_INTO_CELL: (unitId: string, vec: Vec2, prevCell: Vec2) => [
-    signals.UNIT_MOVED_INTO_CELL,
+  MOVE_UNIT_INTO_CELL: (unitId: string, vec: Vec2) => [
+    signals.MOVE_UNIT_INTO_CELL,
     unitId,
-    vec,
-    prevCell
-  ],
-  UPDATE_UNIT_COUNTER: (count: number, vec: Vec2) => [
-    signals.UPDATE_UNIT_COUNTER,
-    count,
     vec,
   ],
   LOOKUP_PATH: (key: string, source: Vec2, target: Vec2) => [
