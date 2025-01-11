@@ -1,6 +1,6 @@
 import "./styles.css";
 import { useEffect, useState } from "react";
-import { listeners, signals, emit_ } from "../../Models/Signals";
+import { listeners, signals, emit_, emit } from "../../Models/Signals";
 import DispatchSquadModal from "./RecruitUnitModal/RecruitUnitModal";
 import VictoryModal from "./VictoryModal/VictoryModal";
 import SelectionHUD from "./SelectionHUD";
@@ -96,6 +96,17 @@ const Battleground = () => {
           </div>
         </div>
       </div>
+
+      <button className="btn btn-primary" id="next-turn"
+
+        onClick={
+
+          () => {
+            emit(signals.BATTLEGROUND_TICK, state.gameData.tick);
+          }
+
+        }
+      >Next Turn</button>
       <footer className="block">
         <div className="content">
         </div>
@@ -112,6 +123,7 @@ const Battleground = () => {
       <VictoryModal />
 
       <SaveGame />
+
     </>
   );
 };

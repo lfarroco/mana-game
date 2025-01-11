@@ -194,7 +194,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.createEmotes()
 
-    this.startTicks(state);
 
     //@ts-ignore
     window.scene = this;
@@ -254,7 +253,6 @@ export class BattlegroundScene extends Phaser.Scene {
         }
 
         if (!this.isPaused) {
-          state.gameData.tick++;
           emit(signals.BATTLEGROUND_TICK, state.gameData.tick);
         }
       },

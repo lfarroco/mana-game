@@ -65,3 +65,9 @@ footer {
 .block {
   width: 100%;
 }
+
+#next-turn {
+  position: fixed;
+  right: 100px;
+  bottom: 100px;
+}
