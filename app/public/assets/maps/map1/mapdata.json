@@ -249,7 +249,7 @@
                         {
                          "name":"job",
                          "type":"string",
-                         "value":"soldier"
+                         "value":"orc"
                         }],
                  "rotation":0,
                  "type":"",
@@ -357,7 +357,7 @@
                         {
                          "name":"job",
                          "type":"string",
-                         "value":"soldier"
+                         "value":"orc"
                         }],
                  "rotation":0,
                  "type":"",
@@ -384,7 +384,7 @@
                         {
                          "name":"job",
                          "type":"string",
-                         "value":"archer"
+                         "value":"orc"
                         }],
                  "rotation":0,
                  "type":"",
@@ -403,7 +403,7 @@
  "nextobjectid":41,
  "orientation":"orthogonal",
  "renderorder":"right-down",
- "tiledversion":"1.10.0",
+ "tiledversion":"1.11.0",
  "tileheight":64,
  "tilesets":[
         {
