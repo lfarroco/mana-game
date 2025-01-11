@@ -54,6 +54,8 @@ const processTick = (scene: BattlegroundScene) => {
   });
 
   renderEmotesForStatus(state);
+
+  state.gameData.tick++;
 };
 
 
