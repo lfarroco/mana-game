@@ -24,9 +24,6 @@ export type Signals = {
   SELECT_UNIT_MOVE_START: (unitId: string) => void;
   SELECT_UNIT_MOVE_DONE: (unitIds: string[], target: Vec2) => void;
   SELECT_UNIT_MOVE_CANCEL: (unitId: string) => void;
-  SELECT_ATTACK_TARGET_START: (unitId: string) => void;
-  SELECT_ATTACK_TARGET_DONE: (unitId: string, targetId: string) => void;
-  SELECT_ATTACK_TARGET_CANCEL: (unitId: string) => void;
   SELECT_SKILL_TARGET_START: (unitId: string, skill: string) => void;
   SELECT_SKILL_TARGET_DONE: (unitId: string, targetId: string, skill: string) => void;
   SELECT_SKILL_TARGET_CANCEL: (unitId: string) => void;
@@ -58,7 +55,6 @@ export type Signals = {
   CHANGE_DIRECTION: (key: string, vec: Vec2) => void;
   DISPLAY_EMOTE: (id: string, key: string) => void;
   HIDE_EMOTE: (unitId: string) => void;
-  FACE_DIRECTION: (unitId: string, direction: Direction) => void; // TODO: change to vec2
   UNIT_FINISHED_MOVE_ANIM: (unitId: string, vec: Vec2, direction: Direction) => void;
 };
 
@@ -106,12 +102,8 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   PATH_FOUND: "PATH_FOUND",
   DISPLAY_EMOTE: "DISPLAY_EMOTE",
   HIDE_EMOTE: "HIDE_EMOTE",
-  FACE_DIRECTION: "FACE_DIRECTION",
   UNIT_FINISHED_MOVE_ANIM: "UNIT_FINISHED_MOVE_ANIM",
   UNIT_MOVE_STOP: "UNIT_MOVE_STOP",
-  SELECT_ATTACK_TARGET_START: "SELECT_ATTACK_TARGET_START",
-  SELECT_ATTACK_TARGET_DONE: "SELECT_ATTACK_TARGET_DONE",
-  SELECT_ATTACK_TARGET_CANCEL: "SELECT_ATTACK_TARGET_CANCEL",
   SELECT_SKILL_TARGET_START: "SELECT_SKILL_TARGET_START",
   SELECT_SKILL_TARGET_DONE: "SELECT_SKILL_TARGET_DONE",
   SELECT_SKILL_TARGET_CANCEL: "SELECT_SKILL_TARGET_CANCEL",
@@ -254,11 +246,6 @@ export const operations: {
   PATH_FOUND: (key: string, path: Vec2[]) => [signals.PATH_FOUND, key, path],
   DISPLAY_EMOTE: (id: string, key: string) => [signals.DISPLAY_EMOTE, id, key],
   HIDE_EMOTE: (unitId: string) => [signals.HIDE_EMOTE, unitId],
-  FACE_DIRECTION: (unitId: string, direction: Direction) => [
-    signals.FACE_DIRECTION,
-    unitId,
-    direction,
-  ],
   UNIT_FINISHED_MOVE_ANIM: (unitId: string, vec: Vec2, direction: Direction) => [
     signals.UNIT_FINISHED_MOVE_ANIM,
     unitId,
@@ -271,19 +258,6 @@ export const operations: {
     vec,
   ],
   UNIT_MOVE_STOP: (unitId: string) => [signals.UNIT_MOVE_STOP, unitId],
-  SELECT_ATTACK_TARGET_START: (unitId: string) => [
-    signals.SELECT_ATTACK_TARGET_START,
-    unitId,
-  ],
-  SELECT_ATTACK_TARGET_DONE: (unitId: string, targetId: string) => [
-    signals.SELECT_ATTACK_TARGET_DONE,
-    unitId,
-    targetId,
-  ],
-  SELECT_ATTACK_TARGET_CANCEL: (unitId: string) => [
-    signals.SELECT_ATTACK_TARGET_CANCEL,
-    unitId,
-  ],
   SELECT_SKILL_TARGET_START: (unitId: string, skill: string) => [
     signals.SELECT_SKILL_TARGET_START,
     unitId,

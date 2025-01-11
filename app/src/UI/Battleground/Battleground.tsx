@@ -14,7 +14,6 @@ const Battleground = () => {
 
   const state = getState()
   const [isSelectingMoveTarget, setIsSelectingMoveTarget] = useState(false);
-  const [isSelectingAttackTarget, setIsSelectingAttackTarget] = useState(false);
   const [isSelectingSkillTarget, setIsSelectingSkillTarget] = useState(false);
   const [tick, setTick] = useState(state.gameData.tick);
   const [gold, setGold] = useState(state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)?.gold || 0);
@@ -23,17 +22,6 @@ const Battleground = () => {
     listeners([
       [signals.SELECT_UNIT_MOVE_START, () => {
         setIsSelectingMoveTarget(true);
-      }],
-      [signals.SELECT_ATTACK_TARGET_START, () => {
-        setIsSelectingAttackTarget(true);
-      }],
-      [signals.SELECT_ATTACK_TARGET_DONE, () => {
-
-        setIsSelectingAttackTarget(false);
-
-      }],
-      [signals.SELECT_ATTACK_TARGET_CANCEL, () => {
-        setIsSelectingAttackTarget(false);
       }],
       [signals.SELECT_SKILL_TARGET_START, () => {
         setIsSelectingSkillTarget(true);
@@ -90,9 +78,8 @@ const Battleground = () => {
         <div className="row">
           <div id="tooltip" className="col text-center">
             {isSelectingMoveTarget ? "Select Target" :
-              isSelectingAttackTarget ? "Select Attack Target" :
-                isSelectingSkillTarget ? "Select Skill Target" :
-                  null}
+              isSelectingSkillTarget ? "Select Skill Target" :
+                null}
           </div>
         </div>
       </div>
@@ -114,7 +101,6 @@ const Battleground = () => {
 
       <SelectionHUD
         isSelectingMoveTarget={isSelectingMoveTarget}
-        isSelectingAttackTarget={isSelectingAttackTarget}
         isSelectingSkillTarget={isSelectingSkillTarget}
       />
 

@@ -6,11 +6,9 @@ import { signals, listeners } from "../../Models/Signals";
 
 export default function SelectionHUD({
   isSelectingMoveTarget,
-  isSelectingAttackTarget,
   isSelectingSkillTarget
 }: {
   isSelectingMoveTarget: boolean;
-  isSelectingAttackTarget: boolean;
   isSelectingSkillTarget: boolean;
 }) {
   const [selectedUnit, setSelectedUnit] = useState<string | null>(null);
@@ -40,7 +38,6 @@ export default function SelectionHUD({
       <SelectedUnit
         unit={getUnit(state)(selectedUnit)}
         isSelectingMoveTarget={isSelectingMoveTarget}
-        isSelectingAttackTarget={isSelectingAttackTarget}
         isSelectingSkillTarget={isSelectingSkillTarget}
       />}
     {selectedCity &&

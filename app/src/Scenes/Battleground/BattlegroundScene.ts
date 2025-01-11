@@ -89,15 +89,6 @@ export class BattlegroundScene extends Phaser.Scene {
       [signals.SELECT_UNIT_MOVE_CANCEL, () => {
         this.isSelectingSquadMove = false;
       }],
-      [signals.SELECT_ATTACK_TARGET_START, () => {
-        this.isSelectingAttackTarget = true;
-      }],
-      [signals.SELECT_ATTACK_TARGET_DONE, () => {
-        this.isSelectingAttackTarget = false;
-      }],
-      [signals.SELECT_ATTACK_TARGET_CANCEL, () => {
-        this.isSelectingAttackTarget = false;
-      }],
       [signals.SELECT_SKILL_TARGET_START, (_unitId: string, skillId: string) => {
         this.selectedSkillId = skillId;
       }],
