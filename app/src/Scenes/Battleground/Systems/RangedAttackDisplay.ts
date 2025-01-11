@@ -1,9 +1,9 @@
 import { getDirection } from "../../../Models/Direction";
-import { Vec2, asVec2 } from "../../../Models/Geometry";
+import { asVec2 } from "../../../Models/Geometry";
 import { getJob } from "../../../Models/Job";
 import { signals, listeners } from "../../../Models/Signals";
 import { State } from "../../../Models/State";
-import { Unit, isAttacking } from "../../../Models/Unit";
+import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../BattlegroundScene";
 import { HALF_TILE_HEIGHT } from "../constants";
 
@@ -27,72 +27,14 @@ export function init(scene: BattlegroundScene, state: State) {
 			renderLine(scene, state, displayIndex, attacker, target);
 		}
 		],
-		[signals.UNIT_DESTROYED, (id: string) => {
-
-			cleanUpMyLine(displayIndex, id);
-
-			cleanupLinesAttackingMe(id, displayIndex);
-
-		}],
-		[signals.UNIT_LEAVES_CELL, (unitId: string, _vec: Vec2) => {
-
-			cleanupLinesAttackingMe(unitId, displayIndex);
-
-		}],
-		[signals.UNIT_FINISHED_MOVE_ANIM, (unitId: string, vec: Vec2) => {
-
-			// check if someone is attacking me
-
-			renderLinesAttackingMe(state, unitId, scene, displayIndex);
-
-		}],
 		[signals.SELECT_UNIT_MOVE_DONE, (unitId: string) => {
 
 			cleanUpMyLine(displayIndex, unitId);
 		}]
 	])
 }
-function renderLinesAttackingMe(state: State, unitId: string, scene: BattlegroundScene, displayIndex: DisplayIndex) {
 
-	const me = state.gameData.units.find(u => u.id === unitId)
 
-	if (!me) return
-
-	state.gameData.units.forEach(unit => {
-
-		if (isAttacking(unit.status)
-			&& unit.status.target === unitId) {
-
-			const attackerJob = getJob(unit.job)
-
-			const distance = Phaser.Math.Distance.Between(
-				unit.position.x,
-				unit.position.y,
-				me.position.x,
-				me.position.y)
-
-			if (distance > attackerJob.attackRange) {
-				return;
-			}
-
-			renderLine(scene, state, displayIndex, unit.id, unitId);
-
-		}
-
-	});
-}
-
-function cleanupLinesAttackingMe(unitId: string, displayIndex: DisplayIndex) {
-
-	Object.keys(displayIndex).forEach(key => {
-
-		const value = displayIndex[key];
-		if (value.targetId === unitId) {
-			cleanUpMyLine(displayIndex, key);
-		}
-	});
-
-}
 
 function renderLine(scene: BattlegroundScene, state: State, displayIndex: DisplayIndex, attacker: string, target: string) {
 	const unit = scene.getSquad(attacker)

@@ -51,12 +51,6 @@ export type Signals = {
   UNIT_DESTROYED: (unitId: string) => any;
   FORCE_VICTORY: (force: string) => void;
   CAPTURE_CITY: (unitId: string, cityId: string) => void;
-  UNIT_WALKS_TOWARDS_CELL: (
-    unitId: string,
-    vec: Vec2,
-    walked: number,
-    total: number
-  ) => void;
   UNIT_LEAVES_CELL: (unitId: string, vec: Vec2) => void;
   UNIT_MOVED_INTO_CELL: (unitId: string, vec: Vec2, prevCell: Vec2) => void;
   UPDATE_UNIT_COUNTER: (count: number, vec: Vec2) => void; // TODO: not implemented yet
@@ -107,7 +101,6 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   UNIT_DESTROYED: "UNIT_DESTROYED",
   FORCE_VICTORY: "FORCE_VICTORY",
   CAPTURE_CITY: "CAPTURE_CITY",
-  UNIT_WALKS_TOWARDS_CELL: "UNIT_WALKS_TOWARDS_CELL",
   UNIT_LEAVES_CELL: "UNIT_LEAVES_CELL",
   UNIT_MOVED_INTO_CELL: "UNIT_MOVED_INTO_CELL",
   UPDATE_UNIT_COUNTER: "UPDATE_UNIT_COUNTER",
@@ -244,12 +237,6 @@ export const operations: {
     unitId,
     cityId,
   ],
-  UNIT_WALKS_TOWARDS_CELL: (
-    unitId: string,
-    vec: Vec2,
-    walked: number,
-    total: number
-  ) => [signals.UNIT_WALKS_TOWARDS_CELL, unitId, vec, walked, total],
   UNIT_LEAVES_CELL: (unitId: string, vec: Vec2) => [
     signals.UNIT_LEAVES_CELL,
     unitId,

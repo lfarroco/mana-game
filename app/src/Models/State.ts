@@ -3,7 +3,7 @@ import { City } from "./City";
 import { Force } from "./Force";
 import { Vec2 } from "./Geometry";
 import { emit, signals, listeners } from "./Signals";
-import { UNIT_STATUS, Unit, UnitStatus, isAttacking, makeUnit } from "./Unit";
+import { Unit, makeUnit } from "./Unit";
 
 export const initialState = (): State => ({
   options: {
@@ -140,13 +140,6 @@ export const listenToStateEvents = (state: State) => {
         emit(signals.UNIT_DESTROYED, id);
       }
 
-      // status changes
-      if (u.status && isAttacking(u.status)
-        && u.status.type !== currentUnit.status.type) {
-        const attackingStatus = u.status as UnitStatus & { type: "ATTACKING" };
-        emit(signals.ATTACK_STARTED, id, attackingStatus.target);
-      }
-
       updateUnit(state)(id)(u);
     }],
     [signals.UPDATE_FORCE, (force: Partial<Force>) => {
@@ -154,7 +147,6 @@ export const listenToStateEvents = (state: State) => {
     }],
     [
       signals.UNIT_MOVE_STOP, (unitId: string) => {
-        updateUnit(state)(unitId)({ status: UNIT_STATUS.IDLE() });
         updateUnit(state)(unitId)({ path: [] });
       }
     ]

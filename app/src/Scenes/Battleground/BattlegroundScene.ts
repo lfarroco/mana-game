@@ -3,7 +3,7 @@ import { preload } from "./preload";
 import { createMap } from "./Map/createMap";
 import { importMapObjects } from "./Map/importMapObjects";
 import { createCities } from "./Map/createCities";
-import { UNIT_STATUS_KEYS, Unit, } from "../../Models/Unit";
+import { Unit } from "../../Models/Unit";
 import processTick from "./ProcessTick";
 import { Vec2, vec2 } from "../../Models/Geometry";
 import { Chara, createChara } from "../../Systems/Chara/Chara";
@@ -23,9 +23,7 @@ import * as AISystem from "../../Systems/AI/AI";
 import { EmoteSystem_init } from "../../Systems/Chara/Emote";
 import * as StaminaBarSystem from "../../Systems/Chara/StaminaBar";
 import * as ManaBarSystem from "../../Systems/Chara/ManaBar";
-import * as CharaFaceDirection from "../../Systems/Chara/FaceDirection";
 import * as EntitySelection from "../../Systems/EntitySelection/EntitySelection";
-import * as CharaMovement from "../../Systems/Chara/SquadMovement";
 import * as RangedAttackDisplay from "./Systems/RangedAttackDisplay";
 import * as CharaSquadMovedIntoCell from "../../Systems/Chara/Events/UNIT_MOVED_INTO_CELL";
 
@@ -136,12 +134,10 @@ export class BattlegroundScene extends Phaser.Scene {
     FogOfWarSystem.init(this, state);
     CityCaptureSystem.init(this);
     CursorSystem.init(state, this);
-    CharaFaceDirection.init(this);
     Pathfinding.init(this);
     StaminaRegen.init(state);
     ManaRegen.init(state);
     EntitySelection.init(state);
-    CharaMovement.init(state);
     RangedAttackDisplay.init(this, state);
     CharaSquadMovedIntoCell.init(this, state);
     StaminaBarSystem.init(state, this);
@@ -262,7 +258,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
   createMapSquads() {
     getState().gameData.units
-      .filter((unit) => unit.status.type !== UNIT_STATUS_KEYS.DESTROYED)
       .forEach((unit) => this.renderUnit(unit));
   }
 
