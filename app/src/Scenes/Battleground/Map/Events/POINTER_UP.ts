@@ -14,7 +14,9 @@ export function onPointerUp(
 
 			const state = getState();
 
-			const tile = bgLayer.getTileAtWorldXY(pointer.x, pointer.y);
+			const tile = bgLayer.getTileAtWorldXY(pointer.worldX, pointer.worldY);
+
+			console.log("clicked on tile", tile);
 
 			if (scene.isSelectingAttackTarget) {
 
@@ -33,7 +35,7 @@ export function onPointerUp(
 
 				issueMoveOrder(state,
 					unitPointerDown.unit.id,
-					tile, scene, pointer.x, pointer.y);
+					tile, scene, pointer.worldX, pointer.worldY);
 
 				unitPointerDown.unit = null;
 
