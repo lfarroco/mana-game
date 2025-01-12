@@ -18,12 +18,19 @@ export function onPointerUp(
 
 			console.log("clicked on tile", tile);
 
+			const isDrag = pointer.downTime > 100 && pointer.getDistance() > 10
+			console.log("isDrag", isDrag);
+
 			if (scene.selectedSkillId) {
+				console.log("issuing skill command", scene.selectedSkillId);
 				issueSkillCommand(state, scene, tile, scene.selectedSkillId);
 				return;
 			}
 
-			if (unitPointerDown.unit && pointer.downTime > 100 && pointer.getDistance() > 10) {
+			if (
+				unitPointerDown.unit && (isDrag || scene.isSelectingSquadMove)
+			) {
+				console.log("issuing move order", unitPointerDown.unit.id);
 
 				issueMoveOrder(state,
 					unitPointerDown.unit.id,
