@@ -24,7 +24,6 @@ import { EmoteSystem_init } from "../../Systems/Chara/Emote";
 import * as StaminaBarSystem from "../../Systems/Chara/StaminaBar";
 import * as ManaBarSystem from "../../Systems/Chara/ManaBar";
 import * as EntitySelection from "../../Systems/EntitySelection/EntitySelection";
-import * as RangedAttackDisplay from "./Systems/RangedAttackDisplay";
 import * as CharaSquadMovedIntoCell from "../../Systems/Chara/Events/UNIT_MOVED_INTO_CELL";
 
 import { TURN_DURATION } from "../../config";
@@ -145,7 +144,6 @@ export class BattlegroundScene extends Phaser.Scene {
     StaminaRegen.init(state);
     ManaRegen.init(state);
     EntitySelection.init(state);
-    RangedAttackDisplay.init(this, state);
     CharaSquadMovedIntoCell.init(this, state);
     StaminaBarSystem.init(state, this);
     ManaBarSystem.init(state, this);

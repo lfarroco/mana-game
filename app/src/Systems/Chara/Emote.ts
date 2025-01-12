@@ -38,9 +38,6 @@ export function EmoteSystem_init(state: State, scene: BattlegroundScene) {
 			hideEmote(emoteIndex, id)
 
 		}],
-		[signals.COMBAT_FINISHED, (id: string) => {
-			emit(signals.HIDE_EMOTE, id)
-		}],
 	])
 }
 

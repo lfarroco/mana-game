@@ -101,12 +101,6 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 			cleanup(index)(key);
 
 		}],
-		[signals.ATTACK_STARTED, (key: string) => {
-
-			if (!scene.layers?.background) return
-
-			cleanup(index)(key);
-		}],
 		[signals.UNIT_MOVE_STOP, (key: string) => {
 
 			if (!scene.layers?.background) return

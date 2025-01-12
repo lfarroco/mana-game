@@ -7,25 +7,35 @@ import { Force } from "./Force";
 export type Signals = {
   SET_ROUTE: (route: string) => void;
   START_NEW_GAME: () => void;
+
   PAUSE_GAME: () => void;
   RESUME_GAME: () => void;
+
   PLAY_MUSIC: () => void;
   STOP_MUSIC: () => void;
+
   SAVE_GAME: (gameData: GameData, name: string) => void;
   LOAD_GAME: (key: string) => void;
   DELETE_GAME: (key: string) => void;
+
   BATTLEGROUND_STARTED: () => void;
+
   UNIT_SELECTED: (unitId: string) => void;
   UNIT_DESELECTED: (unitId: string) => void;
+
   CITY_SELECTED: (id: string | null) => void;
   CITY_DESELECTED: () => void;
+
   UNIT_MOVE_STOP: (unitId: string) => void;
+
   SELECT_UNIT_MOVE_START: (unitId: string) => void;
   SELECT_UNIT_MOVE_DONE: (unitIds: string[], target: Vec2) => void;
   SELECT_UNIT_MOVE_CANCEL: (unitId: string) => void;
+
   SELECT_SKILL_TARGET_START: (unitId: string, skill: string) => void;
   SELECT_SKILL_TARGET_DONE: (tile: Vec2) => void;
   SELECT_SKILL_TARGET_CANCEL: () => void;
+
   TOGGLE_DISPATCH_MODAL: (value: boolean) => void;
   TOGGLE_OPTIONS_MODAL: (value: boolean) => void;
   TOGGLE_LOAD_GAME_MODAL: (value: boolean) => void;
@@ -39,18 +49,17 @@ export type Signals = {
   CHARA_CREATED: (charaId: string) => void;
   BATTLEGROUND_TICK: (tick: number) => void;
   UPDATE_FORCE: (force: Partial<Force>) => void;
+
   // TODO: have a parent level for the system
-  ATTACK_STARTED: (unitId: string, target: string) => any;
-  ATTACK: (attacker: string, defender: string) => any;
-  COMBAT_FINISHED: (unitId: string) => any;
   UPDATE_UNIT: (unitId: string, u: Partial<Unit>) => any;
   UNIT_DESTROYED: (unitId: string) => any;
   FORCE_VICTORY: (force: string) => void;
   CAPTURE_CITY: (unitId: string, cityId: string) => void;
-  UNIT_LEAVES_CELL: (unitId: string, vec: Vec2) => void;
   MOVE_UNIT_INTO_CELL: (unitId: string, vec: Vec2) => void;
+
   LOOKUP_PATH: (key: string, source: Vec2, target: Vec2) => void;
   PATH_FOUND: (key: string, path: Vec2[]) => void;
+
   DISPLAY_EMOTE: (id: string, key: string) => void;
   HIDE_EMOTE: (unitId: string) => void;
 };
@@ -85,14 +94,10 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   UNIT_CREATED: "UNIT_CREATED",
   CHARA_CREATED: "CHARA_CREATED",
   BATTLEGROUND_TICK: "BATTLEGROUND_TICK",
-  ATTACK_STARTED: "ATTACK_STARTED",
-  ATTACK: "ATTACK",
-  COMBAT_FINISHED: "COMBAT_FINISHED",
   UPDATE_UNIT: "UPDATE_UNIT",
   UNIT_DESTROYED: "UNIT_DESTROYED",
   FORCE_VICTORY: "FORCE_VICTORY",
   CAPTURE_CITY: "CAPTURE_CITY",
-  UNIT_LEAVES_CELL: "UNIT_LEAVES_CELL",
   MOVE_UNIT_INTO_CELL: "MOVE_UNIT_INTO_CELL",
   LOOKUP_PATH: "LOOKUP_PATH",
   PATH_FOUND: "PATH_FOUND",
@@ -203,13 +208,6 @@ export const operations: {
   CHARA_CREATED: (charaId: string) => [signals.CHARA_CREATED, charaId],
   BATTLEGROUND_STARTED: () => [signals.BATTLEGROUND_STARTED],
   BATTLEGROUND_TICK: (tick: number) => [signals.BATTLEGROUND_TICK, tick],
-  ATTACK_STARTED: (unitId: string, target: string) => [signals.ATTACK_STARTED, unitId, target],
-  ATTACK: (attacker: string, defender: string) => [
-    signals.ATTACK,
-    attacker,
-    defender,
-  ],
-  COMBAT_FINISHED: (unitId: string) => [signals.COMBAT_FINISHED, unitId],
   UPDATE_UNIT: (unitId: string, u: Partial<Unit>) => [
     signals.UPDATE_UNIT,
     unitId,
@@ -221,11 +219,6 @@ export const operations: {
     signals.CAPTURE_CITY,
     unitId,
     cityId,
-  ],
-  UNIT_LEAVES_CELL: (unitId: string, vec: Vec2) => [
-    signals.UNIT_LEAVES_CELL,
-    unitId,
-    vec,
   ],
   MOVE_UNIT_INTO_CELL: (unitId: string, vec: Vec2) => [
     signals.MOVE_UNIT_INTO_CELL,
