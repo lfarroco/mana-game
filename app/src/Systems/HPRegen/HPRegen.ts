@@ -2,7 +2,7 @@ import { eqVec2 } from "../../Models/Geometry";
 import { emit, signals, listeners } from "../../Models/Signals";
 import { State } from "../../Models/State";
 
-const STAMINA_REGEN_RATE = 3;
+const HP_REGEN_RATE = 3;
 
 export function init(state: State) {
 
@@ -15,7 +15,7 @@ export function init(state: State) {
 					city => eqVec2(city.boardPosition, unit.position)
 				))
 				.forEach(unit => {
-					const newHP = unit.hp + STAMINA_REGEN_RATE;
+					const newHP = unit.hp + HP_REGEN_RATE;
 
 					if (newHP >= unit.maxHp) {
 						emit(signals.UPDATE_UNIT, unit.id, { hp: unit.maxHp })
