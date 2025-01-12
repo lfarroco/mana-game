@@ -3,6 +3,8 @@ import { emit, signals, } from "../../Models/Signals";
 import { BattlegroundScene } from "./BattlegroundScene";
 import { State, getState } from "../../Models/State";
 import { Unit } from "../../Models/Unit";
+import { Chara } from "../../Systems/Chara/Chara";
+import { delay, tween, tweenSequence } from "../../Utils/animation";
 
 const processTick = async (scene: BattlegroundScene) => {
   const state = getState();
@@ -77,88 +79,142 @@ async function moveStep(scene: BattlegroundScene, state: State) {
 
 async function combatStep(scene: BattlegroundScene, state: State) {
 
-  const units = state.gameData.units.filter(u => u.order.type === "skill");
+  const skills = state.gameData.units
+    .filter(u => u.order.type === "skill")
+    .map(unit => {
 
-  const skills = units.map(unit => {
-    if (unit.order.type !== "skill") return () => Promise.resolve()
-    const skill = unit.order.skill;
-    const target = unit.order.target;
+      // TODO: maybe create type "unit with skill" to avoid this redundant check
+      if (unit.order.type !== "skill") throw new Error("unit order is not skill")
 
-    return () => {
-      return new Promise<null>(resolve => {
-        scene.time.addEvent({
-          delay: 1000,
-          callback: () => {
+      const skill = unit.order.skill;
+      const target = unit.order.target;
+      const activeChara = scene.getCharaAt(unit.position)
 
-            const targetChara = scene.getCharaAt(target)
+      const targetChara = scene.getCharaAt(target)
 
-            if (!targetChara) {
-              console.log("no unit at tile")
-              resolve(null)
-              return;
-            }
+      if (!activeChara || !targetChara) {
+        throw new Error(
+          "no active or target unit\n" +
+          JSON.stringify({ activeChara, targetChara }, null, 2)
+        )
+      }
 
-            const damageBg = scene.add.image(
-              0, 0, "damage_display").setOrigin(0.5, 0.5);
+      const container = createDamageDisplay(scene, targetChara);
 
-            const damage = scene.add.text(
-              0, 0, "10", {
-              fontSize: "96px",
-              color: "#ff0000",
-              stroke: "#000000",
-              strokeThickness: 2,
-              align: "center",
-              fontStyle: "bold",
-              shadow: {
-                offsetX: 2,
-                offsetY: 2,
-                color: "#000",
-                blur: 0,
-                stroke: false,
-                fill: true,
-              }
-            }).setOrigin(0.5, 0.5);
+      return () => {
+        return new Promise<void>(async (resolve) => {
 
-            const container = scene.add.container(
-              targetChara.sprite.x, targetChara.sprite.y, [damageBg, damage]
-            )
+          console.log("using skill", skill, "on", target)
 
-            scene.tweens.add({
-              targets: container,
-              scale: { from: 0, to: 0.35 },
-              duration: 300,
-              ease: "Bounce.easeOut",
-              repeat: 0,
-              yoyo: false,
-              onComplete: () => {
-                scene.tweens.add({
-                  targets: container,
-                  alpha: { from: 1, to: 0 },
-                  duration: 700,
-                  ease: "Linear",
-                  repeat: 0,
-                  yoyo: false,
-                  onComplete: () => {
-                    container.destroy(true);
-                  }
-                });
-              }
-            });
+          // make the unit move backwards, then forwards to attack
+          bashCardAnimation(scene, activeChara, targetChara);
 
-            console.log("damageDisplay", damageBg)
+          await delay(scene, 500);
 
-            console.log("using skill", skill, "on", target)
-            unit.order = {
-              type: "none"
-            }
-            resolve(null);
+          await tween(scene, {
+            targets: container,
+            scale: 0.35,
+            duration: 300,
+            ease: "Bounce.easeOut",
+          });
+
+          await tween(scene, {
+            targets: container,
+            alpha: 0,
+            duration: 700,
+          });
+
+          container.destroy(true);
+
+          unit.order = {
+            type: "none"
           }
+
+          resolve();
         });
-      });
-    }
-  })
+      }
+    });
 
   await runPromisesInOrder(skills)
+
+}
+
+function createDamageDisplay(scene: BattlegroundScene, targetChara: Chara) {
+  const damageBg = scene.add.image(
+    0, 0,
+    "damage_display",
+  )
+    .setOrigin(0.5, 0.5);
+
+  const damage = scene.add.text(
+    0, 0,
+    "10",
+    {
+      fontSize: "96px",
+      color: "#ff0000",
+      stroke: "#000000",
+      strokeThickness: 2,
+      align: "center",
+      fontStyle: "bold",
+      shadow: {
+        offsetX: 2,
+        offsetY: 2,
+        color: "#000",
+        blur: 0,
+        stroke: false,
+        fill: true,
+      }
+    })
+    .setOrigin(0.5, 0.5)
+
+  const container = scene.add.container(
+    targetChara.sprite.x, targetChara.sprite.y, [damageBg, damage]
+  ).setScale(0);
+
+  return container;
+}
+
+async function bashCardAnimation(
+  scene: BattlegroundScene,
+  activeChara: Chara,
+  targetChara: Chara,
+) {
+
+  const backMovementDuration = 300;
+  // The actual "strike" happens at the end of the forward movement
+  const forwardMovementDuration = 200;
+
+  const returnMovementDuration = 300;
+
+  const backDistance = 32;
+  const forwardDistance = backDistance;
+
+  const directionVector = Phaser.Math.Angle.BetweenPoints(
+    activeChara.sprite,
+    targetChara.sprite
+  );
+  const { x, y } = activeChara.sprite;
+
+  await tweenSequence(scene,
+    [{
+      targets: activeChara.sprite,
+      x: x - Math.cos(directionVector) * backDistance,
+      y: y - Math.sin(directionVector) * backDistance,
+      duration: backMovementDuration,
+    },
+    {
+      targets: activeChara.sprite,
+      x: x + Math.cos(directionVector) * forwardDistance,
+      y: y + Math.sin(directionVector) * forwardDistance,
+      duration: forwardMovementDuration,
+    },
+    {
+      targets: activeChara.sprite,
+      x,
+      y,
+      duration: returnMovementDuration,
+    }
+    ]);
 
 }
 
