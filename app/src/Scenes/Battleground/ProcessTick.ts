@@ -80,6 +80,7 @@ async function combatStep(scene: BattlegroundScene, state: State) {
       if (unit.order.type !== "skill") throw new Error("unit order is not skill")
 
       const skill = unit.order.skill;
+      console.log("casting skill", skill);
       const target = unit.order.target;
       const activeChara = scene.getCharaAt(unit.position)
 
@@ -94,37 +95,32 @@ async function combatStep(scene: BattlegroundScene, state: State) {
 
       const container = createDamageDisplay(scene, targetChara);
 
-      return () => {
-        return new Promise<void>(async (resolve) => {
+      return async () => {
+        // make the unit move backwards, then forwards to attack
+        bashCardAnimation(scene, activeChara, targetChara);
 
-          console.log("using skill", skill, "on", target)
+        await delay(scene, 500);
 
-          // make the unit move backwards, then forwards to attack
-          bashCardAnimation(scene, activeChara, targetChara);
-
-          await delay(scene, 500);
-
-          await tween(scene, {
-            targets: container,
-            scale: 0.35,
-            duration: 300,
-            ease: "Bounce.easeOut",
-          });
-
-          await tween(scene, {
-            targets: container,
-            alpha: 0,
-            duration: 700,
-          });
-
-          container.destroy(true);
-
-          unit.order = {
-            type: "none"
-          }
-
-          resolve();
+        await tween(scene, {
+          targets: container,
+          scale: 0.35,
+          duration: 300,
+          ease: "Bounce.easeOut",
         });
+
+        await tween(scene, {
+          targets: container,
+          alpha: 0,
+          duration: 700,
+        });
+
+        container.destroy(true);
+
+        unit.order = {
+          type: "none"
+        }
+        // TODO: update target unit
+
       }
     });
 
