@@ -17,45 +17,35 @@ const processTick = async (scene: BattlegroundScene) => {
 };
 
 
-const performMovement = (scene: BattlegroundScene, movements: [Unit, Vec2][]) => async () => {
+const performMovement = (
+  scene: BattlegroundScene
+) => (
+  { unit, path }: { unit: Unit, path: Vec2[] },
+) => async () => {
 
-  return new Promise<null>(resolve => {
-    if (movements.length === 0) {
-      resolve(null);
+  const [next] = path;
+
+  emit(signals.MOVE_UNIT_INTO_CELL, unit.id, next);
+
+  await delay(scene, 500);
+
+  unit.position = next;
+
+  const remaining = path.slice(1);
+
+  if (remaining.length > 0) {
+    unit.order = {
+      type: "move",
+      path: remaining
     }
-
-    const [[unit, cell]] = movements;
-
-    emit(signals.MOVE_UNIT_INTO_CELL, unit.id, cell);
-
-    const remaining = unit.order.type === "move" ? unit.order.path.slice(1) : []
-    unit.position = cell;
-
-    if (remaining.length === 0) {
-      unit.order = {
-        type: "none"
-      }
-    } else
-      unit.order = {
-        type: "move",
-        path: remaining
-      }
-
-    scene.time.addEvent({
-      delay: 1000,
-      callback: () => {
-        const remaining = movements.slice(1);
-        if (remaining.length > 0) {
-          return performMovement(scene, remaining);
-        } else {
-          resolve(null);
-        }
-      }
-    });
-
-  })
+  } else {
+    unit.order = {
+      type: "none"
+    }
+  }
 
 }
+
 
 async function runPromisesInOrder(promiseFunctions: (() => Promise<any>)[]) {
   for (const func of promiseFunctions) {
@@ -66,14 +56,17 @@ async function runPromisesInOrder(promiseFunctions: (() => Promise<any>)[]) {
 
 async function moveStep(scene: BattlegroundScene, state: State) {
 
-  const unitsToMove = state.gameData.units.filter(s => s.order.type === "move");
+  const unitsToMove = state.gameData.units
+    .map(unit => {
+      if (unit.order.type === "move")
+        return { unit, path: unit.order.path }
+      else
+        return { unit, path: [] }
+    })
+    .filter(u => u.unit.order.type === "move")
+    .map(performMovement(scene));
 
-  const movements = unitsToMove.map((unit) => {
-    const [next] = unit.order.type === "move" ? unit.order.path : [null];
-    return [unit, next] as [Unit, Vec2];
-  }).map(movements => performMovement(scene, [movements]));
-
-  await runPromisesInOrder(movements)
+  await runPromisesInOrder(unitsToMove);
 
 }
 
