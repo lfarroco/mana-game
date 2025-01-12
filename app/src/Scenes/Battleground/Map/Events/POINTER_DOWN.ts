@@ -20,10 +20,12 @@ export function onPointerDown(
 
 			const tile = bgLayer.getTileAtWorldXY(pointer.worldX, pointer.worldY);
 
-			const [unit] = selectEntityInTile(state, asVec2(tile))
+			if (!scene.casterId) {
+				const [unit] = selectEntityInTile(state, asVec2(tile))
 
-			if (unit) {
-				pointerDownUnit.unit = unit;
+				if (unit) {
+					pointerDownUnit.unit = unit;
+				}
 			}
 
 			startScroll.x = scene.cameras.main.scrollX

@@ -25,8 +25,8 @@ export type Signals = {
   SELECT_UNIT_MOVE_DONE: (unitIds: string[], target: Vec2) => void;
   SELECT_UNIT_MOVE_CANCEL: (unitId: string) => void;
   SELECT_SKILL_TARGET_START: (unitId: string, skill: string) => void;
-  SELECT_SKILL_TARGET_DONE: (unitId: string, targetId: string, skill: string) => void;
-  SELECT_SKILL_TARGET_CANCEL: (unitId: string) => void;
+  SELECT_SKILL_TARGET_DONE: (tile: Vec2) => void;
+  SELECT_SKILL_TARGET_CANCEL: () => void;
   TOGGLE_DISPATCH_MODAL: (value: boolean) => void;
   TOGGLE_OPTIONS_MODAL: (value: boolean) => void;
   TOGGLE_LOAD_GAME_MODAL: (value: boolean) => void;
@@ -257,15 +257,12 @@ export const operations: {
     unitId,
     skill,
   ],
-  SELECT_SKILL_TARGET_DONE: (unitId: string, targetId: string, skill: string) => [
+  SELECT_SKILL_TARGET_DONE: (tile: Vec2) => [
     signals.SELECT_SKILL_TARGET_DONE,
-    unitId,
-    targetId,
-    skill,
+    tile
   ],
-  SELECT_SKILL_TARGET_CANCEL: (unitId: string) => [
+  SELECT_SKILL_TARGET_CANCEL: () => [
     signals.SELECT_SKILL_TARGET_CANCEL,
-    unitId,
   ],
 };
 

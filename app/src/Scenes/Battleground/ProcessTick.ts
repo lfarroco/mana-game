@@ -5,78 +5,105 @@ import { State, getState } from "../../Models/State";
 import { Unit } from "../../Models/Unit";
 
 const processTick = async (scene: BattlegroundScene) => {
-  // apply user-defined status changes before starting (eg. moving)
-
   const state = getState();
 
-  // combat phase
-
-  // move phase
   await moveStep(scene, state);
 
-  state.gameData.forces.forEach((force) => {
-    //emit(signals.UPDATE_FORCE, { id: force.id, gold: force.gold + 100 });
-  });
-
+  await combatStep(scene, state);
 
   state.gameData.tick++;
 };
 
 
+const performMovement = (scene: BattlegroundScene, movements: [Unit, Vec2][]) => async () => {
 
-function moveStep(scene: BattlegroundScene, state: State) {
+  return new Promise<null>(resolve => {
+    if (movements.length === 0) {
+      resolve(null);
+    }
 
-  const unitsToMove = state.gameData.units.filter(s => s.order.type === "move");
+    const [[unit, cell]] = movements;
 
-  const movements: [Unit, Vec2][] = unitsToMove.map((unit) => {
-    const [next] = unit.order.type === "move" ? unit.order.path : [];
-    return [unit, next];
-  });
+    emit(signals.MOVE_UNIT_INTO_CELL, unit.id, cell);
 
-  perform(scene, movements)
+    const remaining = unit.order.type === "move" ? unit.order.path.slice(1) : []
+    unit.position = cell;
+
+    if (remaining.length === 0) {
+      unit.order = {
+        type: "none"
+      }
+    } else
+      unit.order = {
+        type: "move",
+        path: remaining
+      }
+
+    scene.time.addEvent({
+      delay: 1000,
+      callback: () => {
+        const remaining = movements.slice(1);
+        if (remaining.length > 0) {
+          return performMovement(scene, remaining);
+        } else {
+          resolve(null);
+        }
+      }
+    });
+
+  })
 
 }
 
-function perform(scene: BattlegroundScene, movements: [Unit, Vec2][]) {
-
-  if (movements.length === 0) {
-    // todo: emit end of move phase
-    return;
+async function runPromisesInOrder(promiseFunctions: (() => Promise<any>)[]) {
+  for (const func of promiseFunctions) {
+    await func();
   }
+  return promiseFunctions
+}
 
-  const [[unit, cell]] = movements;
+async function moveStep(scene: BattlegroundScene, state: State) {
 
-  emit(signals.MOVE_UNIT_INTO_CELL, unit.id, cell);
+  const unitsToMove = state.gameData.units.filter(s => s.order.type === "move");
 
-  const remaining = unit.order.type === "move" ? unit.order.path.slice(1) : []
-  unit.position = cell;
+  const movements = unitsToMove.map((unit) => {
+    const [next] = unit.order.type === "move" ? unit.order.path : [null];
+    return [unit, next] as [Unit, Vec2];
+  }).map(movements => performMovement(scene, [movements]));
 
-  if (remaining.length === 0) {
-    unit.order = {
-      type: "none"
+  await runPromisesInOrder(movements)
+
+}
+
+async function combatStep(scene: BattlegroundScene, state: State) {
+
+  const units = state.gameData.units.filter(u => u.order.type === "skill");
+
+  const skills = units.map(unit => {
+    if (unit.order.type !== "skill") return () => Promise.resolve()
+    const skill = unit.order.skill;
+    const target = unit.order.target;
+
+    return () => {
+      return new Promise<null>(resolve => {
+        scene.time.addEvent({
+          delay: 1000,
+          callback: () => {
+
+            console.log("using skill", skill, "on", target)
+            unit.order = {
+              type: "none"
+            }
+            resolve(null);
+          }
+        });
+      });
     }
-  } else
-    unit.order = {
-      type: "move",
-      path: remaining
-    }
+  })
 
-  scene.time.addEvent({
-    delay: 1000,
-    callback: () => {
-      const remaining = movements.slice(1);
-      if (remaining.length > 0) {
-        perform(scene, remaining);
-      } else {
-        //todo: emit end of move phase
-      }
-    }
-  });
+  await runPromisesInOrder(skills)
 
 }
 
 
 export default processTick;
-
-
-
