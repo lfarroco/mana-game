@@ -1,7 +1,6 @@
 import Events from "events";
 import { Vec2 } from "./Geometry";
 import { Unit } from "./Unit";
-import { Direction } from "./Direction";
 import { GameData } from "./State";
 import { Force } from "./Force";
 
@@ -54,7 +53,6 @@ export type Signals = {
   PATH_FOUND: (key: string, path: Vec2[]) => void;
   DISPLAY_EMOTE: (id: string, key: string) => void;
   HIDE_EMOTE: (unitId: string) => void;
-  UNIT_FINISHED_MOVE_ANIM: (unitId: string, vec: Vec2, direction: Direction) => void;
 };
 
 export type Operation = [keyof Signals, ...Parameters<Signals[keyof Signals]>];
@@ -100,7 +98,6 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   PATH_FOUND: "PATH_FOUND",
   DISPLAY_EMOTE: "DISPLAY_EMOTE",
   HIDE_EMOTE: "HIDE_EMOTE",
-  UNIT_FINISHED_MOVE_ANIM: "UNIT_FINISHED_MOVE_ANIM",
   UNIT_MOVE_STOP: "UNIT_MOVE_STOP",
   SELECT_SKILL_TARGET_START: "SELECT_SKILL_TARGET_START",
   SELECT_SKILL_TARGET_DONE: "SELECT_SKILL_TARGET_DONE",
@@ -244,12 +241,6 @@ export const operations: {
   PATH_FOUND: (key: string, path: Vec2[]) => [signals.PATH_FOUND, key, path],
   DISPLAY_EMOTE: (id: string, key: string) => [signals.DISPLAY_EMOTE, id, key],
   HIDE_EMOTE: (unitId: string) => [signals.HIDE_EMOTE, unitId],
-  UNIT_FINISHED_MOVE_ANIM: (unitId: string, vec: Vec2, direction: Direction) => [
-    signals.UNIT_FINISHED_MOVE_ANIM,
-    unitId,
-    vec,
-    direction
-  ],
 
   UNIT_MOVE_STOP: (unitId: string) => [signals.UNIT_MOVE_STOP, unitId],
   SELECT_SKILL_TARGET_START: (unitId: string, skill: string) => [
