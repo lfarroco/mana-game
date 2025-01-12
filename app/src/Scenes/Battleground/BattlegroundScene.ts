@@ -5,7 +5,7 @@ import { importMapObjects } from "./Map/importMapObjects";
 import { createCities } from "./Map/createCities";
 import { Unit } from "../../Models/Unit";
 import processTick from "./ProcessTick";
-import { Vec2, vec2 } from "../../Models/Geometry";
+import { eqVec2, Vec2, vec2 } from "../../Models/Geometry";
 import { Chara, createChara } from "../../Systems/Chara/Chara";
 import { emit, signals, listeners } from "../../Models/Signals";
 import { State, getUnit, getState } from "../../Models/State";
@@ -304,6 +304,10 @@ export class BattlegroundScene extends Phaser.Scene {
     errorCreatingTileset: (tilesetName: string) => `error creating tileset ${tilesetName}`,
     errorCreatingTilemapLayer: (layerName: string) => `error creating tilemap layer ${layerName}`,
   };
+
+  getCharaAt = (vec: Vec2) => {
+    return this.charas.find((chara) => eqVec2(chara.unit.position, vec));
+  }
 }
 
 export default BattlegroundScene;

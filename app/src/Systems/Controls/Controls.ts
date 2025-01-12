@@ -1,3 +1,4 @@
+import { emit, signals } from "../../Models/Signals";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 
 export function init(scene: BattlegroundScene) {
@@ -14,12 +15,17 @@ export function init(scene: BattlegroundScene) {
 	keyToSelectorMap.forEach(([key, selector]) => {
 		scene.input.keyboard?.on(`keydown-${key}`, () => {
 			//@ts-ignore
-			document.querySelector(seleazctor)?.click();
+			document.querySelector(selector)?.click();
 		});
 	});
 
 	scene.input.keyboard?.on("keydown-ESC", () => {
 		// bind to close-current-context-window actio
+	});
+
+	//bind space to end turn
+	scene.input.keyboard?.on("keydown-SPACE", () => {
+		emit(signals.BATTLEGROUND_TICK)
 	});
 
 	if (scene.input.mouse) {

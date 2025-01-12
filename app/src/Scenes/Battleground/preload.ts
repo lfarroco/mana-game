@@ -39,6 +39,7 @@ export function preload(this: Phaser.Scene) {
 	});
 	this.load.image("tilesets/tileset", "assets/tilesets/tileset.png");
 	this.load.image("cursor", "assets/ui/selected_cursor.png");
+	this.load.image("damage_display", "assets/ui/damage_display.png");
 	this.load.tilemapTiledJSON("maps/map1", "assets/maps/map1/mapdata.json");
 
 	this.load.audio('theme', [
