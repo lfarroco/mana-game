@@ -136,11 +136,24 @@ export const listenToStateEvents = (state: State) => {
 
       if (!currentUnit) throw new Error(`unit ${id} not found`)
 
-      if (u.hp === 0 && u.id) {
+      updateUnit(state)(id)(u);
+    }],
+    [signals.DAMAGE_UNIT, (id: string, damage: number) => {
+
+      const unit = state.gameData.units.find((u) => u.id === id);
+
+      if (!unit) throw new Error(`unit ${id} not found`)
+
+      const newHp = unit.hp - damage;
+
+      if (newHp <= 0) {
+        emit(signals.UPDATE_UNIT, id, { hp: 0 });
         emit(signals.UNIT_DESTROYED, id);
+      } else {
+
+        emit(signals.UPDATE_UNIT, id, { hp: newHp });
       }
 
-      updateUnit(state)(id)(u);
     }],
     [signals.UPDATE_FORCE, (force: Partial<Force>) => {
       updateForce(state)(force);
