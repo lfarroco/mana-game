@@ -68,7 +68,7 @@ export function init(state: State, scene: BattlegroundScene) {
 		[signals.UPDATE_UNIT, (id: string, arg: any) => {
 			const { hp } = arg
 
-			// check if hp is defined (it may be 0)
+			// check if argument exists
 			if (hp === undefined) return
 
 			const unit = getUnit(state)(id)

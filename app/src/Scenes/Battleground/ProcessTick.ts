@@ -108,6 +108,12 @@ async function combatStep(scene: BattlegroundScene, state: State) {
           ease: "Bounce.easeOut",
         });
 
+        emit(
+          signals.DAMAGE_UNIT,
+          targetChara.unit.id,
+          100
+        );
+
         await tween(scene, {
           targets: container,
           alpha: 0,
@@ -118,7 +124,7 @@ async function combatStep(scene: BattlegroundScene, state: State) {
 
         unit.order = {
           type: "none"
-        }
+        };
         // TODO: update target unit
 
       }
