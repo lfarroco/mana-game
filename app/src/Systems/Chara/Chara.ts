@@ -10,6 +10,7 @@ export type Chara = {
 	job: string;
 	sprite: Phaser.GameObjects.Image,
 	group: Phaser.GameObjects.Group | null,
+	unit: Unit,
 }
 
 export const CHARA_SCALE = 1;
@@ -39,6 +40,7 @@ export function createChara(
 		job: unit.job,
 		sprite,
 		group,
+		unit
 	}
 
 	return chara

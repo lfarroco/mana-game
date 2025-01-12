@@ -90,6 +90,63 @@ async function combatStep(scene: BattlegroundScene, state: State) {
           delay: 1000,
           callback: () => {
 
+            const targetChara = scene.getCharaAt(target)
+
+            if (!targetChara) {
+              console.log("no unit at tile")
+              resolve(null)
+              return;
+            }
+
+            const damageBg = scene.add.image(
+              0, 0, "damage_display").setOrigin(0.5, 0.5);
+
+            const damage = scene.add.text(
+              0, 0, "10", {
+              fontSize: "96px",
+              color: "#ff0000",
+              stroke: "#000000",
+              strokeThickness: 2,
+              align: "center",
+              fontStyle: "bold",
+              shadow: {
+                offsetX: 2,
+                offsetY: 2,
+                color: "#000",
+                blur: 0,
+                stroke: false,
+                fill: true,
+              }
+            }).setOrigin(0.5, 0.5);
+
+            const container = scene.add.container(
+              targetChara.sprite.x, targetChara.sprite.y, [damageBg, damage]
+            )
+
+            scene.tweens.add({
+              targets: container,
+              scale: { from: 0, to: 0.35 },
+              duration: 300,
+              ease: "Bounce.easeOut",
+              repeat: 0,
+              yoyo: false,
+              onComplete: () => {
+                scene.tweens.add({
+                  targets: container,
+                  alpha: { from: 1, to: 0 },
+                  duration: 700,
+                  ease: "Linear",
+                  repeat: 0,
+                  yoyo: false,
+                  onComplete: () => {
+                    container.destroy(true);
+                  }
+                });
+              }
+            });
+
+            console.log("damageDisplay", damageBg)
+
             console.log("using skill", skill, "on", target)
             unit.order = {
               type: "none"
