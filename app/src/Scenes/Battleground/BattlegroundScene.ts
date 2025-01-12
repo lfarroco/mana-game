@@ -44,11 +44,14 @@ export class BattlegroundScene extends Phaser.Scene {
   isPaused = false;
   isSelectingSquadMove = false;
   isSelectingAttackTarget = false;
-  selectedSkillId = "";
   cities: { city: City; sprite: Phaser.GameObjects.Image }[] = []; // TODO: data duplication, this should be just a list of sprites
   tilemap: Phaser.Tilemaps.Tilemap | null = null;
   fow: Phaser.Tilemaps.TilemapLayer | null = null;
   grid: (0 | 1)[][] = []
+
+  // skill state - TODO: move this into the skill system
+  selectedSkillId: string | null = null;
+  casterId: string | null = null;
 
   cleanup() {
     this.charas.forEach(chara => {
@@ -88,15 +91,28 @@ export class BattlegroundScene extends Phaser.Scene {
       [signals.SELECT_UNIT_MOVE_DONE, this.moveUnitsTo],
       [signals.SELECT_UNIT_MOVE_CANCEL, () => {
         this.isSelectingSquadMove = false;
+        this.casterId = null;
       }],
-      [signals.SELECT_SKILL_TARGET_START, (_unitId: string, skillId: string) => {
+      [signals.SELECT_SKILL_TARGET_START, (unitId: string, skillId: string) => {
+        this.casterId = unitId;
         this.selectedSkillId = skillId;
       }],
-      [signals.SELECT_SKILL_TARGET_DONE, () => {
-        this.selectedSkillId = "";
+      [signals.SELECT_SKILL_TARGET_DONE, (tile: Vec2) => {
+        if (!this.casterId || !this.selectedSkillId) return;
+        const unit = this.getSquad(this.casterId)
+        unit.order = {
+          type: "skill",
+          skill: this.selectedSkillId,
+          target: tile
+        }
+        this.casterId = null;
+        this.selectedSkillId = null;
+
       }],
       [signals.SELECT_SKILL_TARGET_CANCEL, () => {
-        this.selectedSkillId = "";
+        // TOOD: move this into the skill system
+        this.selectedSkillId = null;
+        this.casterId = null;
       }],
       [signals.BATTLEGROUND_TICK, () => {
         processTick(this);
