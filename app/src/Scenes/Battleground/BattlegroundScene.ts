@@ -24,8 +24,7 @@ import { EmoteSystem_init } from "../../Systems/Chara/Emote";
 import * as HPBarSystem from "../../Systems/Chara/HPBar";
 import * as ManaBarSystem from "../../Systems/Chara/ManaBar";
 import * as EntitySelection from "../../Systems/EntitySelection/EntitySelection";
-import * as CharaSquadMovedIntoCell from "../../Systems/Chara/Events/UNIT_MOVED_INTO_CELL";
-import * as MakeUnitIdle from "../../Systems/Chara/Events/MAKE_UNIT_IDLE";
+import * as CharaSystem from "../../Systems/Chara/Events";
 
 import { TURN_DURATION } from "../../config";
 import { createFowLayer } from "./Systems/FogOfWar/createFowLayer";
@@ -147,8 +146,7 @@ export class BattlegroundScene extends Phaser.Scene {
     StaminaRegen.init(state);
     ManaRegen.init(state);
     EntitySelection.init(state);
-    CharaSquadMovedIntoCell.init(this, state);
-    MakeUnitIdle.init(this, state);
+    CharaSystem.init(this, state);
     HPBarSystem.init(state, this);
     ManaBarSystem.init(state, this);
     DestinationDisplaySystem_init(state, this);
