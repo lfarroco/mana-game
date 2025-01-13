@@ -39,6 +39,7 @@ const performMovement = (
       path: remaining
     }
   } else {
+    emit(signals.MOVEMENT_FINISHED, unit.id, next);
     unit.order = {
       type: "none"
     }
@@ -133,6 +134,7 @@ async function combatStep(scene: BattlegroundScene, state: State) {
               c.unit.order = {
                 type: "none"
               }
+              emit(signals.HIDE_EMOTE, c.unit.id);
             }
 
           })

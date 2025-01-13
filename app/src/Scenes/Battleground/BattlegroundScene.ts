@@ -104,6 +104,9 @@ export class BattlegroundScene extends Phaser.Scene {
           skill: this.selectedSkillId,
           target: tile
         }
+
+        emit(signals.DISPLAY_EMOTE, unit.id, "combat-emote")
+
         this.casterId = null;
         this.selectedSkillId = null;
 
@@ -291,6 +294,9 @@ export class BattlegroundScene extends Phaser.Scene {
 
     units.forEach((unit) => {
       emit(signals.LOOKUP_PATH, unit.id, unit.position, vec2(x, y));
+
+      emit(signals.DISPLAY_EMOTE, unit.id, "moving-emote");
+
     });
   };
 

@@ -147,10 +147,8 @@ export const listenToStateEvents = (state: State) => {
       const newHp = unit.hp - damage;
 
       if (newHp <= 0) {
-        emit(signals.UPDATE_UNIT, id, { hp: 0 });
         emit(signals.UNIT_DESTROYED, id);
       } else {
-
         emit(signals.UPDATE_UNIT, id, { hp: newHp });
       }
 
