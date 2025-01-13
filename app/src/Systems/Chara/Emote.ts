@@ -39,11 +39,10 @@ export function EmoteSystem_init(state: State, scene: BattlegroundScene) {
 			hideEmote(emoteIndex, id)
 
 		}],
-		[
-			signals.MOVEMENT_FINISHED, (id: string, _cell: Vec2) => {
-				hideEmote(emoteIndex, id)
-			}
-		]
+		[signals.MOVEMENT_FINISHED,
+		(id: string, _cell: Vec2) => {
+			hideEmote(emoteIndex, id)
+		}]
 
 	])
 }

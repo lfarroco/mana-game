@@ -50,6 +50,8 @@ export type Signals = {
   BATTLEGROUND_TICK: (tick: number) => void;
   UPDATE_FORCE: (force: Partial<Force>) => void;
 
+  MAKE_UNIT_IDLE: (unitId: string) => void;
+
   // TODO: have a parent level for the system
   UPDATE_UNIT: (unitId: string, u: Partial<Unit>) => any;
   DAMAGE_UNIT: (unitId: string, damage: number) => any;
@@ -83,6 +85,7 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   SELECT_UNIT_MOVE_START: "SELECT_UNIT_MOVE_START",
   SELECT_UNIT_MOVE_DONE: "SELECT_UNIT_MOVE_DONE",
   SELECT_UNIT_MOVE_CANCEL: "SELECT_UNIT_MOVE_CANCEL",
+  MAKE_UNIT_IDLE: "MAKE_UNIT_IDLE",
   UNIT_SELECTED: "UNIT_SELECTED",
   UNIT_DESELECTED: "UNIT_DESELECTED",
   CITY_SELECTED: "CITY_SELECTED",
@@ -158,110 +161,6 @@ export const listeners = <T extends keyof Signals>(
   listeners.forEach(([event, callback]) => {
     listen(event, callback);
   });
-};
-
-export const operations: {
-  [key in keyof Signals]: (...args: Parameters<Signals[key]>) => Operation;
-} = {
-  SET_ROUTE: (route: string) => [signals.SET_ROUTE, route],
-  START_NEW_GAME: () => [signals.START_NEW_GAME],
-  PAUSE_GAME: () => [signals.PAUSE_GAME],
-  RESUME_GAME: () => [signals.RESUME_GAME],
-  PLAY_MUSIC: () => [signals.PLAY_MUSIC],
-  STOP_MUSIC: () => [signals.STOP_MUSIC],
-  UPDATE_FORCE: (force: Partial<Force>) => [signals.UPDATE_FORCE, force],
-  SAVE_GAME: () => [signals.SAVE_GAME],
-  LOAD_GAME: (key: string) => [signals.LOAD_GAME, key],
-  DELETE_GAME: (key: string) => [signals.DELETE_GAME, key],
-  SELECT_UNIT_MOVE_START: (unitId: string) => [
-    signals.SELECT_UNIT_MOVE_START,
-    unitId,
-  ],
-  SELECT_UNIT_MOVE_DONE: (unitIds: string[], target: Vec2) => [
-    signals.SELECT_UNIT_MOVE_DONE,
-    unitIds,
-    target,
-  ],
-  SELECT_UNIT_MOVE_CANCEL: (unitId: string) => [
-    signals.SELECT_UNIT_MOVE_CANCEL,
-    unitId,
-  ],
-  UNIT_SELECTED: (id: string) => [signals.UNIT_SELECTED, id],
-  UNIT_DESELECTED: (id: string) => [signals.UNIT_DESELECTED, id],
-  CITY_SELECTED: (ids: string | null) => [signals.CITY_SELECTED, ids],
-  CITY_DESELECTED: () => [signals.CITY_DESELECTED],
-  TOGGLE_DISPATCH_MODAL: (value: boolean) => [
-    signals.TOGGLE_DISPATCH_MODAL,
-    value,
-  ],
-  TOGGLE_OPTIONS_MODAL: (value: boolean) => [
-    signals.TOGGLE_OPTIONS_MODAL,
-    value,
-  ],
-  TOGGLE_LOAD_GAME_MODAL: (value: boolean) => [
-    signals.TOGGLE_LOAD_GAME_MODAL,
-    value,
-  ],
-  TOGGLE_SAVE_GAME_MODAL: (value: boolean) => [
-    signals.TOGGLE_SAVE_GAME_MODAL,
-    value,
-  ],
-  TOGGLE_RECRUIT_MODAL: () => [signals.TOGGLE_RECRUIT_MODAL],
-  RECRUIT_UNIT: (forceId: string, jobId: string, location: Vec2) => [signals.RECRUIT_UNIT, forceId, jobId, location],
-  UNIT_CREATED: (unitId: string) => [signals.UNIT_CREATED, unitId],
-  CHARA_CREATED: (charaId: string) => [signals.CHARA_CREATED, charaId],
-  BATTLEGROUND_STARTED: () => [signals.BATTLEGROUND_STARTED],
-  BATTLEGROUND_TICK: (tick: number) => [signals.BATTLEGROUND_TICK, tick],
-  UPDATE_UNIT: (unitId: string, u: Partial<Unit>) => [
-    signals.UPDATE_UNIT,
-    unitId,
-    u,
-  ],
-  DAMAGE_UNIT: (unitId: string, damage: number) => [
-    signals.DAMAGE_UNIT,
-    unitId,
-    damage,
-  ],
-  UNIT_DESTROYED: (unitId: string) => [signals.UNIT_DESTROYED, unitId],
-  FORCE_VICTORY: (force: string) => [signals.FORCE_VICTORY, force],
-  CAPTURE_CITY: (unitId: string, cityId: string) => [
-    signals.CAPTURE_CITY,
-    unitId,
-    cityId,
-  ],
-  MOVE_UNIT_INTO_CELL: (unitId: string, vec: Vec2) => [
-    signals.MOVE_UNIT_INTO_CELL,
-    unitId,
-    vec,
-  ],
-  MOVEMENT_FINISHED: (unitId: string, vec: Vec2) => [
-    signals.MOVEMENT_FINISHED,
-    unitId,
-    vec,
-  ],
-  LOOKUP_PATH: (key: string, source: Vec2, target: Vec2) => [
-    signals.LOOKUP_PATH,
-    key,
-    source,
-    target,
-  ],
-  PATH_FOUND: (key: string, path: Vec2[]) => [signals.PATH_FOUND, key, path],
-  DISPLAY_EMOTE: (id: string, key: string) => [signals.DISPLAY_EMOTE, id, key],
-  HIDE_EMOTE: (unitId: string) => [signals.HIDE_EMOTE, unitId],
-
-  UNIT_MOVE_STOP: (unitId: string) => [signals.UNIT_MOVE_STOP, unitId],
-  SELECT_SKILL_TARGET_START: (unitId: string, skill: string) => [
-    signals.SELECT_SKILL_TARGET_START,
-    unitId,
-    skill,
-  ],
-  SELECT_SKILL_TARGET_DONE: (tile: Vec2) => [
-    signals.SELECT_SKILL_TARGET_DONE,
-    tile
-  ],
-  SELECT_SKILL_TARGET_CANCEL: () => [
-    signals.SELECT_SKILL_TARGET_CANCEL,
-  ],
 };
 
 //@ts-ignore
