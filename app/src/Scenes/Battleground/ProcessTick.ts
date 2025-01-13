@@ -6,9 +6,12 @@ import { Unit } from "../../Models/Unit";
 import { Chara } from "../../Systems/Chara/Chara";
 import { delay, tween, tweenSequence } from "../../Utils/animation";
 
+let moved: string[] = [];
+
 const processTick = async (scene: BattlegroundScene) => {
   const state = getState();
 
+  moved = []
   console.log("start movement phase")
   await moveStep(scene, state);
   console.log("ended movement phase")
@@ -27,7 +30,47 @@ const performMovement = (
   { unit, path }: { unit: Unit, path: Vec2[] },
 ) => async () => {
 
+  moved.push(unit.id);
   const [next] = path;
+
+  // validate path.
+  // 1 - is the path occupied by a unit? if so, stop the unit
+
+  const chara = scene.getCharaAt(next);
+
+  if (chara) {
+
+    // 2 - is the unit an ally? if so, movement may continue if the ally is moving (unless it finishes on the same cell)
+
+    console.log("has ally moved?", chara.unit.id, moved.includes(chara.unit.id));
+    if (chara.unit.force === unit.force) {
+      if (chara.unit.order.type !== "move") {
+
+        console.log("unit is blocked because ally is not moving", chara.unit.job);
+
+        emit(signals.MAKE_UNIT_IDLE, unit.id);
+        return;
+      }
+
+      if (moved.includes(chara.unit.id)) {
+        console.log("unit is blocked because ally has already moved", chara.unit.job);
+        emit(signals.MAKE_UNIT_IDLE, unit.id);
+        return;
+      }
+      // 3 - is the ally moving to an occupied cell? if so, stop the unit
+
+      const [nextAllyStep] = chara.unit.order.path;
+      const charaAtNextAllyStep = scene.getCharaAt(nextAllyStep);
+
+      if (charaAtNextAllyStep && (charaAtNextAllyStep.unit.id !== unit.id)) {
+        console.log("unit is blocked because ally will try moving into an occupied cell", chara.unit.job);
+        emit(signals.MAKE_UNIT_IDLE, unit.id);
+        return;
+      }
+
+    }
+
+  }
 
   emit(signals.MOVE_UNIT_INTO_CELL, unit.id, next);
 
@@ -58,6 +101,7 @@ async function runPromisesInOrder(promiseFunctions: (() => Promise<any>)[]) {
   }
   return promiseFunctions
 }
+
 
 async function moveStep(scene: BattlegroundScene, state: State) {
 
