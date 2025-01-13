@@ -25,6 +25,7 @@ import * as HPBarSystem from "../../Systems/Chara/HPBar";
 import * as ManaBarSystem from "../../Systems/Chara/ManaBar";
 import * as EntitySelection from "../../Systems/EntitySelection/EntitySelection";
 import * as CharaSquadMovedIntoCell from "../../Systems/Chara/Events/UNIT_MOVED_INTO_CELL";
+import * as MakeUnitIdle from "../../Systems/Chara/Events/MAKE_UNIT_IDLE";
 
 import { TURN_DURATION } from "../../config";
 import { createFowLayer } from "./Systems/FogOfWar/createFowLayer";
@@ -90,7 +91,6 @@ export class BattlegroundScene extends Phaser.Scene {
       [signals.SELECT_UNIT_MOVE_DONE, this.moveUnitsTo],
       [signals.SELECT_UNIT_MOVE_CANCEL, () => {
         this.isSelectingSquadMove = false;
-        this.casterId = null;
       }],
       [signals.SELECT_SKILL_TARGET_START, (unitId: string, skillId: string) => {
         this.casterId = unitId;
@@ -148,6 +148,7 @@ export class BattlegroundScene extends Phaser.Scene {
     ManaRegen.init(state);
     EntitySelection.init(state);
     CharaSquadMovedIntoCell.init(this, state);
+    MakeUnitIdle.init(this, state);
     HPBarSystem.init(state, this);
     ManaBarSystem.init(state, this);
     DestinationDisplaySystem_init(state, this);
@@ -293,9 +294,10 @@ export class BattlegroundScene extends Phaser.Scene {
     this.isSelectingSquadMove = false;
 
     units.forEach((unit) => {
-      emit(signals.LOOKUP_PATH, unit.id, unit.position, vec2(x, y));
 
       emit(signals.DISPLAY_EMOTE, unit.id, "moving-emote");
+
+      emit(signals.LOOKUP_PATH, unit.id, unit.position, vec2(x, y));
 
     });
   };

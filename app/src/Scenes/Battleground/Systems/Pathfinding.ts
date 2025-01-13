@@ -1,5 +1,5 @@
 import * as Easystar from "easystarjs";
-import { Vec2, asVec2, } from "../../../Models/Geometry";
+import { Vec2, asVec2, eqVec2, } from "../../../Models/Geometry";
 import { emit, signals, listeners } from "../../../Models/Signals";
 import { getUnit, getState } from "../../../Models/State";
 import BattlegroundScene from "../BattlegroundScene";
@@ -32,12 +32,19 @@ export function init(scene: BattlegroundScene) {
 
         const unit = getUnit(state)(unitId)
 
-        emit(signals.UPDATE_UNIT, unit.id, {
-          order: {
-            type: "move",
-            path,
-          }
-        });
+        // is own cell?
+        if (path.length === 0) {
+          emit(signals.MOVEMENT_FINISHED, unit.id);
+          return;
+        } else {
+
+          emit(signals.UPDATE_UNIT, unit.id, {
+            order: {
+              type: "move",
+              path,
+            }
+          });
+        }
       },
     ],
   ]);

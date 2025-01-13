@@ -20,6 +20,12 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 
 	let index: { [key: string]: PathDisplay } = {}
 
+	const destroy = (key: string) => {
+		if (!scene.layers?.background) return
+
+		cleanup(index)(key);
+	}
+
 	listeners([
 		[signals.PATH_FOUND, (key: string, _path: Vec2[]) => {
 
@@ -40,18 +46,10 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 			index[key] = graphics
 
 		}],
-		[signals.UNIT_DESELECTED, (id: string) => {
-
-			if (!scene.layers?.background) return
-
-			cleanup(index)(id)
-
-		}],
+		[signals.UNIT_DESELECTED, destroy],
 		[signals.UNIT_SELECTED, (key: string) => {
 
-			if (!scene.layers?.background) return
-
-			cleanup(index)(key);
+			destroy(key);
 
 			if (!scene.layers?.background) return
 
@@ -77,7 +75,7 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 
 			if (!index[key]) return
 
-			cleanup(index)(key);
+			destroy(key);
 
 			const unit = getUnit(state)(key)
 
@@ -94,13 +92,7 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 			index[key] = graphics
 
 		}],
-		[signals.SELECT_SKILL_TARGET_DONE, (key: string) => {
-
-			if (!scene.layers?.background) return
-
-			cleanup(index)(key);
-
-		}],
+		[signals.SELECT_SKILL_TARGET_DONE, destroy],
 		[signals.UNIT_MOVE_STOP, (key: string) => {
 
 			if (!scene.layers?.background) return
@@ -114,6 +106,7 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 			Object.keys(index).forEach(cleanup(index))
 
 		}],
+		[signals.MAKE_UNIT_IDLE, destroy]
 	])
 
 }
