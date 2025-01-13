@@ -6,12 +6,9 @@ import { Unit } from "../../Models/Unit";
 import { Chara } from "../../Systems/Chara/Chara";
 import { delay, tween, tweenSequence } from "../../Utils/animation";
 
-let moved: string[] = [];
-
 const processTick = async (scene: BattlegroundScene) => {
   const state = getState();
 
-  moved = []
   console.log("start movement phase")
   await moveStep(scene, state);
   console.log("ended movement phase")
@@ -25,7 +22,8 @@ const processTick = async (scene: BattlegroundScene) => {
 
 
 const performMovement = (
-  scene: BattlegroundScene
+  scene: BattlegroundScene,
+  moved: string[]
 ) => (
   { unit, path }: { unit: Unit, path: Vec2[] },
 ) => async () => {
@@ -105,6 +103,8 @@ async function runPromisesInOrder(promiseFunctions: (() => Promise<any>)[]) {
 
 async function moveStep(scene: BattlegroundScene, state: State) {
 
+  let moved: string[] = [];
+
   const unitsToMove = state.gameData.units
     .map(unit => {
       if (unit.order.type === "move")
@@ -113,7 +113,7 @@ async function moveStep(scene: BattlegroundScene, state: State) {
         return { unit, path: [] }
     })
     .filter(u => u.unit.order.type === "move")
-    .map(performMovement(scene));
+    .map(performMovement(scene, moved));
 
   await runPromisesInOrder(unitsToMove);
 
