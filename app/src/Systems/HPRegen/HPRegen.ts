@@ -11,6 +11,7 @@ export function init(state: State) {
 
 			state.gameData.units
 				.filter(unit => unit.hp < unit.maxHp)
+				.filter(unit => unit.hp > 0)
 				.filter(unit => state.gameData.cities.some(
 					city => eqVec2(city.boardPosition, unit.position)
 				))

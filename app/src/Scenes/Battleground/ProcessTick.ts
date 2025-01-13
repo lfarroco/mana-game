@@ -1,4 +1,4 @@
-import { Vec2 } from "../../Models/Geometry";
+import { eqVec2, Vec2 } from "../../Models/Geometry";
 import { emit, signals, } from "../../Models/Signals";
 import { BattlegroundScene } from "./BattlegroundScene";
 import { State, getState } from "../../Models/State";
@@ -122,10 +122,21 @@ async function combatStep(scene: BattlegroundScene, state: State) {
 
         container.destroy(true);
 
-        unit.order = {
-          type: "none"
-        };
-        // TODO: update target unit
+        const targetStillAlive = targetChara.unit.hp > 0;
+
+        if (!targetStillAlive) {
+
+          // TODO: move this to unit destroyed event
+          scene.charas.forEach(c => {
+            if (c.unit.order.type === "skill" && eqVec2(c.unit.order.target, target)) {
+
+              c.unit.order = {
+                type: "none"
+              }
+            }
+
+          })
+        }
 
       }
     });
