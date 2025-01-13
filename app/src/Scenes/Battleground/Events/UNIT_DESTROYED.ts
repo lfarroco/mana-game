@@ -9,6 +9,8 @@ export function unitDestroyed(scene: BattlegroundScene, state: State) {
 
 			const chara = scene.getChara(id)
 
+			chara.unit.hp = 0;
+
 			scene.tweens.add({
 				targets: chara.sprite,
 				alpha: 0,

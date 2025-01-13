@@ -92,7 +92,6 @@ export function init(state: State, scene: BattlegroundScene) {
 
 			const { bar, bg } = graphics
 
-
 			bar.destroy()
 			bg.destroy()
 

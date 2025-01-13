@@ -3,6 +3,7 @@ import { signals, listeners, emit } from "../../Models/Signals";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { HALF_TILE_HEIGHT } from "../../Scenes/Battleground/constants";
 import { State } from "../../Models/State";
+import { Vec2 } from "../../Models/Geometry";
 
 export const EMOTE_SCALE = 1
 
@@ -38,6 +39,12 @@ export function EmoteSystem_init(state: State, scene: BattlegroundScene) {
 			hideEmote(emoteIndex, id)
 
 		}],
+		[
+			signals.MOVEMENT_FINISHED, (id: string, _cell: Vec2) => {
+				hideEmote(emoteIndex, id)
+			}
+		]
+
 	])
 }
 

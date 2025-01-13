@@ -36,6 +36,7 @@ export function onPointerUp(
 					unitPointerDown.unit.id,
 					tile, scene, pointer.worldX, pointer.worldY);
 
+				// TODO: every state change needs to be done through signals
 				unitPointerDown.unit = null;
 
 				return;

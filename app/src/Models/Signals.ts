@@ -57,6 +57,7 @@ export type Signals = {
   FORCE_VICTORY: (force: string) => void;
   CAPTURE_CITY: (unitId: string, cityId: string) => void;
   MOVE_UNIT_INTO_CELL: (unitId: string, vec: Vec2) => void;
+  MOVEMENT_FINISHED: (unitId: string, vec: Vec2) => void;
 
   LOOKUP_PATH: (key: string, source: Vec2, target: Vec2) => void;
   PATH_FOUND: (key: string, path: Vec2[]) => void;
@@ -101,6 +102,7 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   FORCE_VICTORY: "FORCE_VICTORY",
   CAPTURE_CITY: "CAPTURE_CITY",
   MOVE_UNIT_INTO_CELL: "MOVE_UNIT_INTO_CELL",
+  MOVEMENT_FINISHED: "MOVEMENT_FINISHED",
   LOOKUP_PATH: "LOOKUP_PATH",
   PATH_FOUND: "PATH_FOUND",
   DISPLAY_EMOTE: "DISPLAY_EMOTE",
@@ -229,6 +231,11 @@ export const operations: {
   ],
   MOVE_UNIT_INTO_CELL: (unitId: string, vec: Vec2) => [
     signals.MOVE_UNIT_INTO_CELL,
+    unitId,
+    vec,
+  ],
+  MOVEMENT_FINISHED: (unitId: string, vec: Vec2) => [
+    signals.MOVEMENT_FINISHED,
     unitId,
     vec,
   ],
