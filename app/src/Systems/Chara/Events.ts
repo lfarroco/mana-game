@@ -1,0 +1,58 @@
+import { TURN_DURATION } from "../../config";
+import { eqVec2, Vec2 } from "../../Models/Geometry";
+import { emit, listeners, signals } from "../../Models/Signals";
+import { State } from "../../Models/State";
+import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
+import { tween } from "../../Utils/animation";
+
+export function init(scene: BattlegroundScene, state: State) {
+
+	listeners([
+		[signals.MOVE_UNIT_INTO_CELL, async (unitId: string, cell: Vec2) => {
+
+			const chara = scene.getChara(unitId);
+
+			const nextTile = scene.getTileAt(cell);
+
+			await tween(scene, {
+				targets: chara.sprite,
+				x: nextTile.getCenterX(),
+				y: nextTile.getCenterY(),
+				duration: TURN_DURATION / (2 * state.options.speed),
+				ease: "Sine.easeInOut",
+			})
+		}],
+		[signals.MAKE_UNIT_IDLE, async (unitId: string) => {
+
+			const chara = scene.getChara(unitId);
+
+			if (!chara.unit?.order) throw new Error("Unit order is missing");
+
+			chara.unit.order = {
+				type: "none"
+			}
+			emit(signals.HIDE_EMOTE, chara.unit.id);
+		}],
+		// how other units react to an unit being destroyed
+		[signals.UNIT_DESTROYED, async (unitId: string) => {
+
+			const chara = scene.getChara(unitId);
+
+			if (!chara.unit) throw new Error("Unit is missing");
+
+			// TODO: move this to unit destroyed event
+			scene.charas.forEach(c => {
+				if (c.unit.id === unitId) return;
+				if (c.unit.order.type === "skill" && eqVec2(c.unit.order.target, chara.unit.position)) {
+
+					c.unit.order = {
+						type: "none"
+					}
+					emit(signals.HIDE_EMOTE, c.unit.id);
+				}
+
+			})
+
+		}]
+	])
+}

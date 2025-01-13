@@ -1,4 +1,4 @@
-import { eqVec2, Vec2 } from "../../Models/Geometry";
+import { Vec2 } from "../../Models/Geometry";
 import { emit, signals, } from "../../Models/Signals";
 import { BattlegroundScene } from "./BattlegroundScene";
 import { State, getState } from "../../Models/State";
@@ -9,9 +9,13 @@ import { delay, tween, tweenSequence } from "../../Utils/animation";
 const processTick = async (scene: BattlegroundScene) => {
   const state = getState();
 
+  console.log("start movement phase")
   await moveStep(scene, state);
+  console.log("ended movement phase")
 
+  console.log("start combat phase")
   await combatStep(scene, state);
+  console.log("ended combat phase")
 
   state.gameData.tick++;
 };
@@ -81,7 +85,7 @@ async function combatStep(scene: BattlegroundScene, state: State) {
       if (unit.order.type !== "skill") throw new Error("unit order is not skill")
 
       const skill = unit.order.skill;
-      console.log("casting skill", skill);
+      console.log("casting skill", unit.id, skill);
       const target = unit.order.target;
       const activeChara = scene.getCharaAt(unit.position)
 
@@ -97,6 +101,18 @@ async function combatStep(scene: BattlegroundScene, state: State) {
       const container = createDamageDisplay(scene, targetChara);
 
       return async () => {
+
+        // is target still alive?
+        if (targetChara.unit.hp <= 0) {
+          console.log("target is dead", targetChara.unit.id);
+          emit(signals.MAKE_UNIT_IDLE, unit.id);
+          emit(signals.DISPLAY_EMOTE, unit.id, "question-emote");
+          await delay(scene, 1000);
+          emit(signals.HIDE_EMOTE, unit.id);
+          return;
+        }
+
+
         // make the unit move backwards, then forwards to attack
         bashCardAnimation(scene, activeChara, targetChara);
 
@@ -108,6 +124,8 @@ async function combatStep(scene: BattlegroundScene, state: State) {
           duration: 300,
           ease: "Bounce.easeOut",
         });
+
+        console.log("will attack", targetChara.unit.id, targetChara.unit.hp);
 
         emit(
           signals.DAMAGE_UNIT,
@@ -122,24 +140,6 @@ async function combatStep(scene: BattlegroundScene, state: State) {
         });
 
         container.destroy(true);
-
-        const targetStillAlive = targetChara.unit.hp > 0;
-
-        if (!targetStillAlive) {
-
-          // TODO: move this to unit destroyed event
-          scene.charas.forEach(c => {
-            if (c.unit.order.type === "skill" && eqVec2(c.unit.order.target, target)) {
-
-              c.unit.order = {
-                type: "none"
-              }
-              emit(signals.HIDE_EMOTE, c.unit.id);
-            }
-
-          })
-        }
-
       }
     });
 

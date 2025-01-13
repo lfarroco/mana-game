@@ -144,12 +144,14 @@ export const listenToStateEvents = (state: State) => {
 
       if (!unit) throw new Error(`unit ${id} not found`)
 
-      const newHp = unit.hp - damage;
+      const nextHp = unit.hp - damage;
 
-      if (newHp <= 0) {
+      const hasDied = nextHp <= 0;
+
+      emit(signals.UPDATE_UNIT, id, { hp: hasDied ? 0 : nextHp });
+
+      if (hasDied) {
         emit(signals.UNIT_DESTROYED, id);
-      } else {
-        emit(signals.UPDATE_UNIT, id, { hp: newHp });
       }
 
     }],
