@@ -14,6 +14,17 @@ export function init(scene: BattlegroundScene) {
         easystar.setGrid(scene.grid);
         easystar.enableSync();
 
+        // mark cells with enemy units as unwalkable
+        const state = getState();
+        const units = state.gameData.units;
+        const unit = getUnit(state)(unitId);
+        const enemyUnits = units.filter((u) => u.force !== unit.force);
+
+        enemyUnits.forEach((enemyUnit) => {
+          const { x, y } = enemyUnit.position;
+          easystar.avoidAdditionalPoint(x, y);
+        });
+
         easystar.findPath(source.x, source.y, target.x, target.y, (path) => {
           if (!path) return;
 
