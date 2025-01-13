@@ -23,6 +23,7 @@ const processTick = async (scene: BattlegroundScene) => {
 
 const performMovement = (
   scene: BattlegroundScene,
+  state: State,
   moved: string[]
 ) => (
   { unit, path }: { unit: Unit, path: Vec2[] },
@@ -72,7 +73,7 @@ const performMovement = (
 
   emit(signals.MOVE_UNIT_INTO_CELL, unit.id, next);
 
-  await delay(scene, 500);
+  await delay(scene, 500 / state.options.speed);
 
   unit.position = next;
 
@@ -113,7 +114,7 @@ async function moveStep(scene: BattlegroundScene, state: State) {
         return { unit, path: [] }
     })
     .filter(u => u.unit.order.type === "move")
-    .map(performMovement(scene, moved));
+    .map(performMovement(scene, state, moved));
 
   await runPromisesInOrder(unitsToMove);
 
@@ -151,21 +152,21 @@ async function combatStep(scene: BattlegroundScene, state: State) {
           console.log("target is dead", targetChara.unit.id);
           emit(signals.MAKE_UNIT_IDLE, unit.id);
           emit(signals.DISPLAY_EMOTE, unit.id, "question-emote");
-          await delay(scene, 1000);
+          await delay(scene, 1000 / state.options.speed);
           emit(signals.HIDE_EMOTE, unit.id);
           return;
         }
 
 
         // make the unit move backwards, then forwards to attack
-        bashCardAnimation(scene, activeChara, targetChara);
+        bashCardAnimation(scene, state, activeChara, targetChara);
 
-        await delay(scene, 500);
+        await delay(scene, 500 / state.options.speed);
 
         await tween(scene, {
           targets: container,
           scale: 0.35,
-          duration: 300,
+          duration: 300 / state.options.speed,
           ease: "Bounce.easeOut",
         });
 
@@ -180,7 +181,7 @@ async function combatStep(scene: BattlegroundScene, state: State) {
         await tween(scene, {
           targets: container,
           alpha: 0,
-          duration: 700,
+          duration: 700 / state.options.speed,
         });
 
         container.destroy(true);
@@ -228,15 +229,16 @@ function createDamageDisplay(scene: BattlegroundScene, targetChara: Chara) {
 
 async function bashCardAnimation(
   scene: BattlegroundScene,
+  state: State,
   activeChara: Chara,
   targetChara: Chara,
 ) {
 
-  const backMovementDuration = 300;
+  const backMovementDuration = 300 / state.options.speed;
   // The actual "strike" happens at the end of the forward movement
-  const forwardMovementDuration = 200;
+  const forwardMovementDuration = 200 / state.options.speed;
 
-  const returnMovementDuration = 300;
+  const returnMovementDuration = 300 / state.options.speed;
 
   const backDistance = 32;
   const forwardDistance = backDistance;
