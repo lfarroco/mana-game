@@ -20,10 +20,12 @@ export function init(scene: BattlegroundScene) {
         const unit = getUnit(state)(unitId);
         const enemyUnits = units.filter((u) => u.force !== unit.force);
 
-        enemyUnits.forEach((enemyUnit) => {
-          const { x, y } = enemyUnit.position;
-          easystar.avoidAdditionalPoint(x, y);
-        });
+        enemyUnits
+          .filter(u => u.hp > 0)
+          .forEach((enemyUnit) => {
+            const { x, y } = enemyUnit.position;
+            easystar.avoidAdditionalPoint(x, y);
+          });
 
         easystar.findPath(source.x, source.y, target.x, target.y, (path) => {
           if (!path) return;
