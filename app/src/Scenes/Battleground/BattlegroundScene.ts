@@ -291,11 +291,11 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.isSelectingSquadMove = false;
 
-    units.forEach((unit) => {
+    units.forEach(async (unit) => {
 
       emit(signals.DISPLAY_EMOTE, unit.id, "moving-emote");
 
-      emit(signals.LOOKUP_PATH, unit.id, unit.position, vec2(x, y));
+      await Pathfinding.lookupPath(this, unit.id, unit.position, vec2(x, y));
 
     });
   };

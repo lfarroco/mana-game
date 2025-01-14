@@ -5,9 +5,43 @@ import { State, getState } from "../../Models/State";
 import { Unit } from "../../Models/Unit";
 import { Chara } from "../../Systems/Chara/Chara";
 import { delay, tween, tweenSequence } from "../../Utils/animation";
+import { FORCE_ID_CPU } from "../../Models/Force";
+import { lookupPath } from "./Systems/Pathfinding";
 
 const processTick = async (scene: BattlegroundScene) => {
   const state = getState();
+
+  console.log("set AI actions");
+
+  state.gameData.units.filter(u => u.force === FORCE_ID_CPU)
+    .forEach(async (unit) => {
+
+      const [closestPlayerUnit] = state.gameData.units
+        .filter(u => u.force !== FORCE_ID_CPU)
+        .filter(u => u.hp > 0)
+        .sort((a, b) => {
+          const aDist = Phaser.Math.Distance.BetweenPoints(a.position, unit.position);
+          const bDist = Phaser.Math.Distance.BetweenPoints(b.position, unit.position);
+          return aDist - bDist;
+        });
+
+      const distance = Phaser.Math.Distance.BetweenPoints(unit.position, closestPlayerUnit.position);
+
+      console.log(">>>", distance)
+      if (distance === 1) {
+        unit.order = {
+          type: "skill",
+          skill: "attack",
+          target: closestPlayerUnit.position
+        }
+      } else {
+        await lookupPath(scene, unit.id, unit.position, closestPlayerUnit.position);
+      }
+
+
+    });
+
+  await delay(scene, 1000 / state.options.speed);
 
   console.log("start movement phase")
   await moveStep(scene, state);

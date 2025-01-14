@@ -61,7 +61,6 @@ export type Signals = {
   MOVE_UNIT_INTO_CELL: (unitId: string, vec: Vec2) => void;
   MOVEMENT_FINISHED: (unitId: string, vec: Vec2) => void;
 
-  LOOKUP_PATH: (key: string, source: Vec2, target: Vec2) => void;
   PATH_FOUND: (key: string, path: Vec2[]) => void;
 
   DISPLAY_EMOTE: (id: string, key: string) => void;
@@ -106,7 +105,6 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   CAPTURE_CITY: "CAPTURE_CITY",
   MOVE_UNIT_INTO_CELL: "MOVE_UNIT_INTO_CELL",
   MOVEMENT_FINISHED: "MOVEMENT_FINISHED",
-  LOOKUP_PATH: "LOOKUP_PATH",
   PATH_FOUND: "PATH_FOUND",
   DISPLAY_EMOTE: "DISPLAY_EMOTE",
   HIDE_EMOTE: "HIDE_EMOTE",
