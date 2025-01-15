@@ -13,29 +13,40 @@ const processTick = async (scene: BattlegroundScene) => {
 
   console.log("set AI actions");
 
-  state.gameData.units.filter(u => u.force === FORCE_ID_CPU)
+  // units without orders (player or AI), can attack close enemies
+  state.gameData.units
+    .filter(u => u.hp > 0)
     .forEach(async (unit) => {
 
-      const [closestPlayerUnit] = state.gameData.units
-        .filter(u => u.force !== FORCE_ID_CPU)
+      // units that already have an order can skip this step
+      if (unit.order.type === "skill") return;
+
+      const [closestEnemy] = state.gameData.units
         .filter(u => u.hp > 0)
+        .filter(u => u.force !== unit.force)
         .sort((a, b) => {
           const aDist = Phaser.Math.Distance.BetweenPoints(a.position, unit.position);
           const bDist = Phaser.Math.Distance.BetweenPoints(b.position, unit.position);
           return aDist - bDist;
         });
 
-      const distance = Phaser.Math.Distance.BetweenPoints(unit.position, closestPlayerUnit.position);
+      if (!closestEnemy) {
+        console.log("no enemies to attack");
+        return;
+      };
+
+      const distance = Phaser.Math.Distance.BetweenPoints(unit.position, closestEnemy.position);
 
       console.log(">>>", distance)
       if (distance === 1) {
         unit.order = {
           type: "skill",
           skill: "attack",
-          target: closestPlayerUnit.position
+          target: closestEnemy.position
         }
       } else {
-        await lookupPath(scene, unit.id, unit.position, closestPlayerUnit.position);
+        if (unit.force !== FORCE_ID_CPU) return
+        await lookupPath(scene, unit.id, unit.position, closestEnemy.position);
       }
 
 
@@ -157,11 +168,16 @@ async function moveStep(scene: BattlegroundScene, state: State) {
 async function combatStep(scene: BattlegroundScene, state: State) {
 
   const skills = state.gameData.units
+    .filter(u => u.hp > 0)
     .filter(u => u.order.type === "skill")
     .map(unit => {
 
       // TODO: maybe create type "unit with skill" to avoid this redundant check
       if (unit.order.type !== "skill") throw new Error("unit order is not skill")
+
+      if (unit.hp <= 0) return async () => {
+        console.log("unit has died, so skipping skill", unit.job);
+      };
 
       const skill = unit.order.skill;
       console.log("casting skill", unit.id, skill);

@@ -41,17 +41,19 @@ export function init(scene: BattlegroundScene, state: State) {
 			if (!chara.unit) throw new Error("Unit is missing");
 
 			// TODO: move this to unit destroyed event
-			scene.charas.forEach(c => {
-				if (c.unit.id === unitId) return;
-				if (c.unit.order.type === "skill" && eqVec2(c.unit.order.target, chara.unit.position)) {
+			scene.charas
+				.filter(c => c.unit.hp > 0)
+				.forEach(c => {
+					if (c.unit.id === unitId) return;
+					if (c.unit.order.type === "skill" && eqVec2(c.unit.order.target, chara.unit.position)) {
 
-					c.unit.order = {
-						type: "none"
+						c.unit.order = {
+							type: "none"
+						}
+						emit(signals.HIDE_EMOTE, c.unit.id);
 					}
-					emit(signals.HIDE_EMOTE, c.unit.id);
-				}
 
-			})
+				})
 
 		}]
 	])

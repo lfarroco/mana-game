@@ -28,7 +28,9 @@ export function onPointerMove(
 			if (pointerDownUnit.unit && pointerDownUnit.unit.force === FORCE_ID_PLAYER) {
 
 				// selecting unit destination, draw line to current position
-				const chara = scene.charas.find(chara => chara.id === pointerDownUnit.unit?.id);
+				const chara = scene.charas
+					.filter(c => c.unit.hp > 0)
+					.find(chara => chara.id === pointerDownUnit.unit?.id);
 
 				if (!chara) return;
 
