@@ -310,7 +310,9 @@ export class BattlegroundScene extends Phaser.Scene {
   };
 
   getCharaAt = (vec: Vec2) => {
-    return this.charas.find((chara) => eqVec2(chara.unit.position, vec));
+    return this.charas
+      .filter(chara => chara.unit.hp > 0)
+      .find((chara) => eqVec2(chara.unit.position, vec));
   }
 }
 
