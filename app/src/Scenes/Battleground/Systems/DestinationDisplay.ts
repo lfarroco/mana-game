@@ -1,4 +1,5 @@
 import { DIRECTIONS, getDirection } from "../../../Models/Direction";
+import { FORCE_ID_PLAYER } from "../../../Models/Force";
 import { Vec2, asVec2 } from "../../../Models/Geometry";
 import { listeners, signals } from "../../../Models/Signals";
 import { State, getUnit } from "../../../Models/State";
@@ -30,6 +31,10 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 		[signals.PATH_FOUND, (key: string, _path: Vec2[]) => {
 
 			if (!scene.layers?.background) return
+
+			const unit = getUnit(state)(key)
+
+			if (unit.force !== FORCE_ID_PLAYER) return;
 
 			if (index[key]) {
 				cleanup(index)(key);
