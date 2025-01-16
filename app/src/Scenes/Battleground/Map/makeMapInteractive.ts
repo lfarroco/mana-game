@@ -84,6 +84,7 @@ export function issueSkillCommand(
 
 export function selectEntityInTile(state: State, tile: Vec2): [Unit | undefined, City | undefined] {
   const unit = state.gameData.units
+    .filter(u => u.hp > 0)
     .find((unit) => eqVec2(unit.position, (tile)));
 
   const city = state.gameData.cities.find((city) => eqVec2(city.boardPosition, (tile)));
