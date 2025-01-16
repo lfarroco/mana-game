@@ -121,7 +121,16 @@ function checkAgroo(
   return async (unit) => {
 
     // units that already have an order can skip this step
-    if (unit.order.type === "skill") return;
+    if (unit.order.type === "skill") {
+      const maybeTarget = scene.getCharaAt(unit.order.target);
+      if (maybeTarget && maybeTarget.unit.hp > 0) {
+        console.log("target unit still alive and in position, continuing", unit.job);
+        return;
+      } else {
+        console.log("unit has died or moved, looking for new target", unit.job)
+      }
+
+    }
 
     const [closestEnemy] = state.gameData.units
       .filter(u => u.hp > 0)
@@ -141,6 +150,15 @@ function checkAgroo(
 
     console.log(">>>", distance);
     if (distance === 1) {
+      if (unit.order.type === "move") {
+
+        const maybeBlocker = scene.getCharaAt(unit.order.path[0]);
+        if (!maybeBlocker) {
+          console.log("unit can attack but is moving and is not blocked", unit.job)
+          return;
+        }
+
+      }
       unit.order = {
         type: "skill",
         skill: "attack",
