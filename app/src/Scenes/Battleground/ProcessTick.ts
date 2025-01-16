@@ -16,41 +16,7 @@ const processTick = async (scene: BattlegroundScene) => {
   // units without orders (player or AI), can attack close enemies
   state.gameData.units
     .filter(u => u.hp > 0)
-    .forEach(async (unit) => {
-
-      // units that already have an order can skip this step
-      if (unit.order.type === "skill") return;
-
-      const [closestEnemy] = state.gameData.units
-        .filter(u => u.hp > 0)
-        .filter(u => u.force !== unit.force)
-        .sort((a, b) => {
-          const aDist = Phaser.Math.Distance.BetweenPoints(a.position, unit.position);
-          const bDist = Phaser.Math.Distance.BetweenPoints(b.position, unit.position);
-          return aDist - bDist;
-        });
-
-      if (!closestEnemy) {
-        console.log("no enemies to attack");
-        return;
-      };
-
-      const distance = Phaser.Math.Distance.BetweenPoints(unit.position, closestEnemy.position);
-
-      console.log(">>>", distance)
-      if (distance === 1) {
-        unit.order = {
-          type: "skill",
-          skill: "attack",
-          target: closestEnemy.position
-        }
-      } else {
-        if (unit.force !== FORCE_ID_CPU) return
-        await lookupPath(scene, unit.id, unit.position, closestEnemy.position);
-      }
-
-
-    });
+    .forEach(checkAgroo(state, scene));
 
   await delay(scene, 1000 / state.options.speed);
 
@@ -112,6 +78,15 @@ const performMovement = (
         return;
       }
 
+    } else {
+      // agroo
+      console.log("unit is blocked because enemy is on the way", chara.unit.job);
+      unit.order = {
+        target: chara.unit.position,
+        type: "skill",
+        skill: "attack",
+      }
+      return;
     }
 
   }
@@ -138,6 +113,46 @@ const performMovement = (
 
 }
 
+
+function checkAgroo(
+  state: State,
+  scene: BattlegroundScene,
+): (unit: Unit) => void {
+  return async (unit) => {
+
+    // units that already have an order can skip this step
+    if (unit.order.type === "skill") return;
+
+    const [closestEnemy] = state.gameData.units
+      .filter(u => u.hp > 0)
+      .filter(u => u.force !== unit.force)
+      .sort((a, b) => {
+        const aDist = Phaser.Math.Distance.BetweenPoints(a.position, unit.position);
+        const bDist = Phaser.Math.Distance.BetweenPoints(b.position, unit.position);
+        return aDist - bDist;
+      });
+
+    if (!closestEnemy) {
+      console.log("no enemies to attack");
+      return;
+    };
+
+    const distance = Phaser.Math.Distance.BetweenPoints(unit.position, closestEnemy.position);
+
+    console.log(">>>", distance);
+    if (distance === 1) {
+      unit.order = {
+        type: "skill",
+        skill: "attack",
+        target: closestEnemy.position
+      };
+    } else {
+      if (unit.force !== FORCE_ID_CPU) return;
+      await lookupPath(scene, unit.id, unit.position, closestEnemy.position);
+    }
+
+  };
+}
 
 async function runPromisesInOrder(promiseFunctions: (() => Promise<any>)[]) {
   for (const func of promiseFunctions) {
@@ -169,33 +184,34 @@ async function combatStep(scene: BattlegroundScene, state: State) {
 
   const skills = state.gameData.units
     .filter(u => u.hp > 0)
-    .filter(u => u.order.type === "skill")
     .map(unit => {
 
-      // TODO: maybe create type "unit with skill" to avoid this redundant check
-      if (unit.order.type !== "skill") throw new Error("unit order is not skill")
-
-      if (unit.hp <= 0) return async () => {
-        console.log("unit has died, so skipping skill", unit.job);
-      };
-
-      const skill = unit.order.skill;
-      console.log("casting skill", unit.id, skill);
-      const target = unit.order.target;
-      const activeChara = scene.getCharaAt(unit.position)
-
-      const targetChara = scene.getCharaAt(target)
-
-      if (!activeChara || !targetChara) {
-        throw new Error(
-          "no active or target unit\n" +
-          JSON.stringify({ activeChara, targetChara }, null, 2)
-        )
-      }
-
-      const container = createDamageDisplay(scene, targetChara);
-
       return async () => {
+        await checkAgroo(state, scene)(unit);
+        // TODO: maybe create type "unit with skill" to avoid this redundant check
+        if (unit.order.type !== "skill") return async () => {
+          console.log("unit has no skill order, so skipping", unit.job);
+        }
+
+        if (unit.hp <= 0) return async () => {
+          console.log("unit has died, so skipping skill", unit.job);
+        };
+
+        const skill = unit.order.skill;
+        console.log("casting skill", unit.id, skill);
+        const target = unit.order.target;
+        const activeChara = scene.getCharaAt(unit.position)
+
+        const targetChara = scene.getCharaAt(target)
+
+        if (!activeChara || !targetChara) {
+          throw new Error(
+            "no active or target unit\n" +
+            JSON.stringify({ activeChara, targetChara }, null, 2)
+          )
+        }
+
+        const container = createDamageDisplay(scene, targetChara);
 
         // is target still alive?
         if (targetChara.unit.hp <= 0) {
