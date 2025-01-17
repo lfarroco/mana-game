@@ -9,6 +9,9 @@ import { FORCE_ID_CPU } from "../../Models/Force";
 import { lookupPath } from "./Systems/Pathfinding";
 
 const processTick = async (scene: BattlegroundScene) => {
+
+  emit(signals.TURN_START)
+
   const state = getState();
 
   console.log("set AI actions");
@@ -29,6 +32,7 @@ const processTick = async (scene: BattlegroundScene) => {
   console.log("ended combat phase")
 
   state.gameData.tick++;
+  emit(signals.TURN_END)
 };
 
 
@@ -39,6 +43,7 @@ const performMovement = (
 ) => (
   { unit, path }: { unit: Unit, path: Vec2[] },
 ) => async () => {
+
 
   moved.push(unit.id);
   const [next] = path;
