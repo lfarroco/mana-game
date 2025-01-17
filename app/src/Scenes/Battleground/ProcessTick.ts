@@ -13,9 +13,9 @@ const processTick = async (scene: BattlegroundScene) => {
 
   console.log("set AI actions");
 
-  // units without orders (player or AI), can attack close enemies
   state.gameData.units
     .filter(u => u.hp > 0)
+    .filter(u => u.force === FORCE_ID_CPU)
     .forEach(checkAgroo(state, scene));
 
   await delay(scene, 1000 / state.options.speed);
@@ -81,11 +81,14 @@ const performMovement = (
     } else {
       // agroo
       console.log("unit is blocked because enemy is on the way", chara.unit.job);
+      emit(signals.HIDE_EMOTE, unit.id);
       unit.order = {
         target: chara.unit.position,
         type: "skill",
         skill: "attack",
       }
+
+      emit(signals.DISPLAY_EMOTE, unit.id, "combat-emote");
       return;
     }
 
@@ -164,6 +167,7 @@ function checkAgroo(
         skill: "attack",
         target: closestEnemy.position
       };
+      emit(signals.DISPLAY_EMOTE, unit.id, "combat-emote");
     } else {
       if (unit.force !== FORCE_ID_CPU) return;
       await lookupPath(scene, unit.id, unit.position, closestEnemy.position);
