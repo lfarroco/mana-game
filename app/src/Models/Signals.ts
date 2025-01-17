@@ -8,6 +8,9 @@ export type Signals = {
   SET_ROUTE: (route: string) => void;
   START_NEW_GAME: () => void;
 
+  TURN_START: () => void;
+  TURN_END: () => void;
+
   PAUSE_GAME: () => void;
   RESUME_GAME: () => void;
 
@@ -74,6 +77,8 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   START_NEW_GAME: "START_NEW_GAME",
   PAUSE_GAME: "PAUSE_GAME",
   RESUME_GAME: "RESUME_GAME",
+  TURN_START: "TURN_START",
+  TURN_END: "TURN_END",
   PLAY_MUSIC: "PLAY_MUSIC",
   STOP_MUSIC: "STOP_MUSIC",
   SAVE_GAME: "SAVE_GAME",

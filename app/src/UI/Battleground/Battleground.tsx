@@ -17,6 +17,7 @@ const Battleground = () => {
   const [isSelectingSkillTarget, setIsSelectingSkillTarget] = useState(false);
   const [tick, setTick] = useState(state.gameData.tick);
   const [gold, setGold] = useState(state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)?.gold || 0);
+  const [nextTurnEnabled, setNextTurnEnabled] = useState(true);
 
   useEffect(() => {
     listeners([
@@ -45,6 +46,12 @@ const Battleground = () => {
         if (force.id !== FORCE_ID_PLAYER) return
         setGold(force.gold || 0)
       }],
+      [signals.TURN_START, () => {
+        setNextTurnEnabled(false);
+      }],
+      [signals.TURN_END, () => {
+        setNextTurnEnabled(true);
+      }]
     ]);
   }, []);
 
@@ -84,8 +91,10 @@ const Battleground = () => {
         </div>
       </div>
 
-      <button className="btn btn-primary" id="next-turn"
-
+      <button
+        className="btn btn-primary"
+        id="next-turn"
+        disabled={!nextTurnEnabled}
         onClick={
 
           () => {
