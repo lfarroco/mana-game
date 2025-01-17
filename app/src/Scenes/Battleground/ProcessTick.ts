@@ -126,7 +126,7 @@ function checkAgroo(
     // units that already have an order can skip this step
     if (unit.order.type === "skill") {
       const maybeTarget = scene.getCharaAt(unit.order.target);
-      if (maybeTarget && maybeTarget.unit.hp > 0) {
+      if (maybeTarget) {
         console.log("target unit still alive and in position, continuing", unit.job);
         return;
       } else {
@@ -209,10 +209,12 @@ async function combatStep(scene: BattlegroundScene, state: State) {
     .map(unit => {
 
       return async () => {
+        console.log("=== combat step :: ", unit.job, "====")
         await checkAgroo(state, scene)(unit);
         // TODO: maybe create type "unit with skill" to avoid this redundant check
         if (unit.order.type !== "skill") return async () => {
           console.log("unit has no skill order, so skipping", unit.job);
+          return;
         }
 
         if (unit.hp <= 0) return async () => {
@@ -226,11 +228,15 @@ async function combatStep(scene: BattlegroundScene, state: State) {
 
         const targetChara = scene.getCharaAt(target)
 
-        if (!activeChara || !targetChara) {
+        if (!activeChara) {
           throw new Error(
-            "no active or target unit\n" +
-            JSON.stringify({ activeChara, targetChara }, null, 2)
+            "no active unit\n" +
+            JSON.stringify({ activeChara }, null, 2)
           )
+        }
+
+        if (!targetChara) {
+          throw new Error("no target unit\n")
         }
 
         const container = createDamageDisplay(scene, targetChara);
@@ -329,7 +335,7 @@ async function bashCardAnimation(
   const returnMovementDuration = 300 / state.options.speed;
 
   const backDistance = 32;
-  const forwardDistance = backDistance;
+  const forwardDistance = backDistance * 2;
 
   const directionVector = Phaser.Math.Angle.BetweenPoints(
     activeChara.sprite,
