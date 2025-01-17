@@ -51,3 +51,6 @@ IDEA:
 - have all effects refresh each turn (if the game is paused, replay the effects in a loop)
 - that includes the target indicators
 - this simplifies the code, as it avoids needing to check if a target is still valid: just clear the effects and display them for what is needed
+
+
+- add "1st", "2nd" ... indicators over unti
