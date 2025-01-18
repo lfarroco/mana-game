@@ -69,7 +69,7 @@ export const jobs: Job[] = [
     attackRange: 1,
     dices: 1,
     stats: {
-      hp: 280,
+      hp: 980,
       mana: 100,
       attack: 0,
       defense: 2,

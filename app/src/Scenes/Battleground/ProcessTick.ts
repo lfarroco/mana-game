@@ -7,6 +7,7 @@ import { delay, tween, tweenSequence } from "../../Utils/animation";
 import { FORCE_ID_CPU } from "../../Models/Force";
 import { lookupPath } from "./Systems/Pathfinding";
 import { getJob } from "../../Models/Job";
+import { Vec2 } from "../../Models/Geometry";
 
 const processTick = async (scene: BattlegroundScene) => {
 
@@ -46,7 +47,7 @@ const performMovement = (
   const job = getJob(unit.job);
   let remainingSteps = job.moveRange * 1;
 
-  while (remainingSteps > 0 && unit.order.type === "move") {
+  while (remainingSteps > 0 && unit.order.type === "move" && unit.hp > 0) {
     console.log(unit.job, ":: remaining steps", remainingSteps);
     await step(scene, state, unit);
     console.log(unit.job, ":: walked!");
@@ -92,6 +93,34 @@ async function step(scene: BattlegroundScene, state: State, unit: Unit) {
 
       emit(signals.DISPLAY_EMOTE, unit.id, "combat-emote");
       return;
+    }
+
+  }
+
+
+  // check if attack of opportunity is triggered
+
+  const closeEnemies = state.gameData.units
+    .filter(u => u.hp > 0)
+    .filter(u => u.force !== unit.force)
+    .map(u => {
+      const distance = Phaser.Math.Distance.BetweenPoints(u.position, unit.position);
+      return { unit: u, distance }
+    })
+    .filter(u => u.distance === 1);
+
+  if (closeEnemies.length > 0) {
+    console.log(unit.job, ":: triggered attack of opportunity by ", closeEnemies.map(u => u.unit.job));
+
+    for (const enemy of closeEnemies) {
+      console.log(enemy.unit.job, ":: attacking because of attack of opportunity -> ", unit.job);
+      await cast(scene, state, enemy.unit, "attack", unit.position);
+      if (unit.hp <= 0) {
+        console.log(unit.job, ":: unit has been killed by attack of opportunity, skipping movement phase");
+        return;
+      } else {
+        console.log(unit.job, ":: unit has survived attack of opportunity, continuing movement phase");
+      }
     }
 
   }
@@ -205,6 +234,8 @@ async function combatStep(scene: BattlegroundScene, state: State) {
 
       return async () => {
         console.log("=== combat step :: ", unit.job, "====")
+
+        if (unit.hp <= 0) return;
         await checkAgroo(state, scene)(unit);
         // TODO: maybe create type "unit with skill" to avoid this redundant check
         if (unit.order.type !== "skill") return async () => {
@@ -216,69 +247,79 @@ async function combatStep(scene: BattlegroundScene, state: State) {
           console.log("unit has died, so skipping skill", unit.job);
         };
 
-        const skill = unit.order.skill;
-        console.log("casting skill", unit.id, skill);
-        const target = unit.order.target;
-        const activeChara = scene.getCharaAt(unit.position)
+        await cast(scene, state, unit, unit.order.skill, unit.order.target);
 
-        const targetChara = scene.getCharaAt(target)
-
-        if (!activeChara) {
-          throw new Error(
-            "no active unit\n" +
-            JSON.stringify({ activeChara }, null, 2)
-          )
-        }
-
-        if (!targetChara) {
-          throw new Error("no target unit\n")
-        }
-
-        const container = createDamageDisplay(scene, targetChara);
-
-        // is target still alive?
-        if (targetChara.unit.hp <= 0) {
-          console.log("target is dead", targetChara.unit.id);
-          emit(signals.MAKE_UNIT_IDLE, unit.id);
-          emit(signals.DISPLAY_EMOTE, unit.id, "question-emote");
-          await delay(scene, 1000 / state.options.speed);
-          emit(signals.HIDE_EMOTE, unit.id);
-          return;
-        }
-
-
-        // make the unit move backwards, then forwards to attack
-        bashCardAnimation(scene, state, activeChara, targetChara);
-
-        await delay(scene, 500 / state.options.speed);
-
-        await tween(scene, {
-          targets: container,
-          scale: 0.35,
-          duration: 300 / state.options.speed,
-          ease: "Bounce.easeOut",
-        });
-
-        console.log("will attack", targetChara.unit.id, targetChara.unit.hp);
-
-        emit(
-          signals.DAMAGE_UNIT,
-          targetChara.unit.id,
-          100
-        );
-
-        await tween(scene, {
-          targets: container,
-          alpha: 0,
-          duration: 700 / state.options.speed,
-        });
-
-        container.destroy(true);
       }
     });
 
   await runPromisesInOrder(skills)
 
+}
+
+async function cast(
+  scene: BattlegroundScene,
+  state: State,
+  unit: Unit,
+  skill: string,
+  target: Vec2,
+) {
+
+  console.log(unit.job, " :: casting skill -> ", skill);
+  const activeChara = scene.getCharaAt(unit.position)
+
+  const targetChara = scene.getCharaAt(target)
+
+  if (!activeChara) {
+    throw new Error(
+      "no active unit\n" +
+      JSON.stringify({ activeChara }, null, 2)
+    )
+  }
+
+  if (!targetChara) {
+    throw new Error("no target unit\n")
+  }
+
+  const container = createDamageDisplay(scene, targetChara);
+
+  // is target still alive?
+  if (targetChara.unit.hp <= 0) {
+    console.log("target is dead", targetChara.unit.id);
+    emit(signals.MAKE_UNIT_IDLE, unit.id);
+    emit(signals.DISPLAY_EMOTE, unit.id, "question-emote");
+    await delay(scene, 1000 / state.options.speed);
+    emit(signals.HIDE_EMOTE, unit.id);
+    return;
+  }
+
+
+  // make the unit move backwards, then forwards to attack
+  bashCardAnimation(scene, state, activeChara, targetChara);
+
+  await delay(scene, 500 / state.options.speed);
+
+  await tween(scene, {
+    targets: container,
+    scale: 0.35,
+    duration: 300 / state.options.speed,
+    ease: "Bounce.easeOut",
+  });
+
+  console.log("will attack", targetChara.unit.id, targetChara.unit.hp);
+
+  emit(
+    signals.DAMAGE_UNIT,
+    targetChara.unit.id,
+    100
+  );
+
+  await tween(scene, {
+    targets: container,
+    alpha: 0,
+    duration: 700 / state.options.speed,
+  });
+
+  container.destroy(true);
 }
 
 function createDamageDisplay(scene: BattlegroundScene, targetChara: Chara) {
