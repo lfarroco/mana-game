@@ -2,6 +2,7 @@ export type Job = {
   id: string;
   name: string;
   gold: number;
+  moveRange: number;
   attackRange: number;
   attackPower: number;
   dices: number;
@@ -23,6 +24,7 @@ export const jobs: Job[] = [
     id: "archer",
     name: "Archer",
     gold: 100,
+    moveRange: 3,
     attackRange: 2,
     attackPower: 10,
     dices: 1,
@@ -41,6 +43,7 @@ export const jobs: Job[] = [
   {
     id: "monk",
     name: "Monk",
+    moveRange: 3,
     gold: 100,
     attackPower: 5,
     attackRange: 1,
@@ -60,6 +63,7 @@ export const jobs: Job[] = [
   {
     id: "cleric",
     name: "Cleric",
+    moveRange: 3,
     gold: 100,
     attackPower: 15,
     attackRange: 1,
@@ -79,6 +83,7 @@ export const jobs: Job[] = [
   {
     id: "soldier",
     name: "Soldier",
+    moveRange: 3,
     gold: 100,
     attackRange: 1,
     attackPower: 10,
@@ -98,6 +103,7 @@ export const jobs: Job[] = [
   {
     id: "wizard",
     name: "Wizard",
+    moveRange: 2,
     gold: 100,
     attackPower: 20,
     attackRange: 3,
@@ -117,6 +123,7 @@ export const jobs: Job[] = [
   {
     id: "orc",
     name: "Orc",
+    moveRange: 3,
     gold: 100,
     attackRange: 1,
     attackPower: 10,
