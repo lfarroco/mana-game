@@ -1,4 +1,3 @@
-import { Vec2 } from "../../Models/Geometry";
 import { emit, signals, } from "../../Models/Signals";
 import { BattlegroundScene } from "./BattlegroundScene";
 import { State, getState } from "../../Models/State";
@@ -7,6 +6,7 @@ import { Chara } from "../../Systems/Chara/Chara";
 import { delay, tween, tweenSequence } from "../../Utils/animation";
 import { FORCE_ID_CPU } from "../../Models/Force";
 import { lookupPath } from "./Systems/Pathfinding";
+import { getJob } from "../../Models/Job";
 
 const processTick = async (scene: BattlegroundScene) => {
 
@@ -39,53 +39,50 @@ const processTick = async (scene: BattlegroundScene) => {
 const performMovement = (
   scene: BattlegroundScene,
   state: State,
-  moved: string[]
 ) => (
-  { unit, path }: { unit: Unit, path: Vec2[] },
+  unit: Unit,
 ) => async () => {
 
+  const job = getJob(unit.job);
+  let remainingSteps = job.moveRange * 1;
 
-  moved.push(unit.id);
-  const [next] = path;
+  while (remainingSteps > 0 && unit.order.type === "move") {
+    console.log(unit.job, ":: remaining steps", remainingSteps);
+    await step(scene, state, unit);
+    console.log(unit.job, ":: walked!");
+    remainingSteps--;
+  }
 
-  // validate path.
-  // 1 - is the path occupied by a unit? if so, stop the unit
+}
+
+async function step(scene: BattlegroundScene, state: State, unit: Unit) {
+
+  if (unit.order.type !== "move") {
+    console.warn("invalid state :: unit has no move order", unit.id);
+    return;
+  }
+  const [next] = unit.order.path;
+
+  if (!next) {
+    console.warn("invalid state :: no next cell to move to", unit.id);
+    return;
+  }
 
   const chara = scene.getCharaAt(next);
 
   if (chara) {
 
-    // 2 - is the unit an ally? if so, movement may continue if the ally is moving (unless it finishes on the same cell)
+    // is the unit an ally? if so, stop. otherwise, attack
 
-    console.log("has ally moved?", chara.unit.id, moved.includes(chara.unit.id));
     if (chara.unit.force === unit.force) {
-      if (chara.unit.order.type !== "move") {
 
-        console.log("unit is blocked because ally is not moving", chara.unit.job);
+      console.log(unit.job, " :: blocked by ally -> ", chara.unit.job);
 
-        emit(signals.MAKE_UNIT_IDLE, unit.id);
-        return;
-      }
-
-      if (moved.includes(chara.unit.id)) {
-        console.log("unit is blocked because ally has already moved", chara.unit.job);
-        emit(signals.MAKE_UNIT_IDLE, unit.id);
-        return;
-      }
-      // 3 - is the ally moving to an occupied cell? if so, stop the unit
-
-      const [nextAllyStep] = chara.unit.order.path;
-      const charaAtNextAllyStep = scene.getCharaAt(nextAllyStep);
-
-      if (charaAtNextAllyStep && (charaAtNextAllyStep.unit.id !== unit.id)) {
-        console.log("unit is blocked because ally will try moving into an occupied cell", chara.unit.job);
-        emit(signals.MAKE_UNIT_IDLE, unit.id);
-        return;
-      }
-
+      emit(signals.MAKE_UNIT_IDLE, unit.id);
+      return;
     } else {
       // agroo
-      console.log("unit is blocked because enemy is on the way", chara.unit.job);
+      console.log(unit.job, " :: blocked because enemy is on the way -> ", chara.unit.job);
       emit(signals.HIDE_EMOTE, unit.id);
       unit.order = {
         target: chara.unit.position,
@@ -105,7 +102,7 @@ const performMovement = (
 
   unit.position = next;
 
-  const remaining = path.slice(1);
+  const remaining = unit.order.path.slice(1);
 
   if (remaining.length > 0) {
     unit.order = {
@@ -191,17 +188,10 @@ async function runPromisesInOrder(promiseFunctions: (() => Promise<any>)[]) {
 
 async function moveStep(scene: BattlegroundScene, state: State) {
 
-  let moved: string[] = [];
-
   const unitsToMove = state.gameData.units
-    .map(unit => {
-      if (unit.order.type === "move")
-        return { unit, path: unit.order.path }
-      else
-        return { unit, path: [] }
-    })
-    .filter(u => u.unit.order.type === "move")
-    .map(performMovement(scene, state, moved));
+    .filter(u => u.hp > 0)
+    .filter(u => u.order.type === "move")
+    .map(performMovement(scene, state));
 
   await runPromisesInOrder(unitsToMove);
 
