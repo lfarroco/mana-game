@@ -114,7 +114,48 @@ async function step(scene: BattlegroundScene, state: State, unit: Unit) {
 
     for (const enemy of closeEnemies) {
       console.log(enemy.unit.job, ":: attacking because of attack of opportunity -> ", unit.job);
+
+      const enemyChara = scene.getChara(enemy.unit.id);
+
+      const text = scene.add.text(enemyChara.sprite.x, enemyChara.sprite.y, "Attack of Opportunity!", {
+        fontSize: "12px",
+        color: "#ffffff",
+        stroke: "#000000",
+        strokeThickness: 2,
+        align: "center",
+        fontStyle: "bold",
+        shadow: {
+          offsetX: 2,
+          offsetY: 2,
+          color: "#000",
+          blur: 0,
+          stroke: false,
+          fill: true,
+        }
+      });
+      text.setOrigin(0.5, 0.5);
+      text.setAlpha(0);
+      scene.add.tween({
+        targets: text,
+        alpha: 1,
+        y: enemyChara.sprite.y - 24,
+        duration: 500 / state.options.speed,
+        ease: "Bounce.easeOut",
+        onComplete: () => {
+          scene.add.tween({
+            targets: text,
+            alpha: 0,
+            duration: 500 / state.options.speed,
+            ease: "Bounce.easeOut",
+            onComplete: () => {
+              text.destroy();
+            }
+          })
+        }
+      })
+
       await cast(scene, state, enemy.unit, "attack", unit.position);
+      emit(signals.HIDE_EMOTE, enemy.unit.id);
       if (unit.hp <= 0) {
         console.log(unit.job, ":: unit has been killed by attack of opportunity, skipping movement phase");
         return;
