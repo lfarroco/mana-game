@@ -30,7 +30,7 @@ export function onPointerUp(
 				console.log("issuing skill command", scene.selectedSkillId);
 				issueSkillCommand(state, scene, tile, scene.selectedSkillId);
 				return;
-			} else if (unitPointerDown.unit && (isDrag || scene.isSelectingSquadMove)) {
+			} else if (unitPointerDown.unit && (isDrag)) {
 
 				if (eqVec2(unitPointerDown.unit.position, asVec2(tile))) {
 

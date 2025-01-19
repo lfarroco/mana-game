@@ -14,19 +14,12 @@ export function init(scene: BattlegroundScene) {
 
         const unit = getUnit(state)(unitId)
 
-        // is own cell?
-        if (path.length === 0) {
-          emit(signals.MOVEMENT_FINISHED, unit.id);
-          return;
-        } else {
-
-          emit(signals.UPDATE_UNIT, unit.id, {
-            order: {
-              type: "move",
-              path,
-            }
-          });
-        }
+        emit(signals.UPDATE_UNIT, unit.id, {
+          order: {
+            type: "move",
+            path,
+          }
+        });
       },
     ],
   ]);
