@@ -1,9 +1,10 @@
 import Phaser from "phaser";
 import BattlegroundScene from "../../BattlegroundScene";
-import { Vec2 } from "../../../../Models/Geometry";
+import { asVec2, eqVec2_, vec2, Vec2 } from "../../../../Models/Geometry";
 import { Unit } from "../../../../Models/Unit";
-import { listen, signals } from "../../../../Models/Signals";
+import { emit, signals } from "../../../../Models/Signals";
 import { FORCE_ID_PLAYER } from "../../../../Models/Force";
+import { getJob } from "../../../../Models/Job";
 
 export function onPointerMove(
 	bgLayer: Phaser.Tilemaps.TilemapLayer,
@@ -11,8 +12,6 @@ export function onPointerMove(
 	scene: BattlegroundScene,
 	pointerDownUnit: { unit: Unit | null }
 ) {
-
-	let lineGraphics = scene.add.graphics();
 
 	bgLayer.on(Phaser.Input.Events.POINTER_MOVE,
 		(pointer: Phaser.Input.Pointer) => {
@@ -27,20 +26,47 @@ export function onPointerMove(
 
 			if (pointerDownUnit.unit && pointerDownUnit.unit.force === FORCE_ID_PLAYER) {
 
-				// selecting unit destination, draw line to current position
-				const chara = scene.charas
-					.filter(c => c.unit.hp > 0)
-					.find(chara => chara.id === pointerDownUnit.unit?.id);
+				// cell manhattan distance to the pointer
+				const tile = scene.getTileAtWorldXY(vec2(
+					pointer.x + scene.cameras.main.scrollX, pointer.y + scene.cameras.main.scrollY));
 
-				if (!chara) return;
+				const distance = Phaser.Math.Distance.Snake(
+					tile.x, tile.y,
+					pointerDownUnit.unit.position.x, pointerDownUnit.unit.position.y,
+				)
 
-				lineGraphics.clear();
-				lineGraphics.lineStyle(2, 0xff0000);
-				lineGraphics.beginPath();
-				lineGraphics.moveTo(chara.sprite.x, chara.sprite.y);
-				lineGraphics.lineTo(pointer.x + scene.cameras.main.scrollX, pointer.y + scene.cameras.main.scrollY);
-				lineGraphics.closePath();
-				lineGraphics.strokePath();
+				const moveRange = getJob(pointerDownUnit.unit.job).moveRange
+
+				if (distance > moveRange) return;
+
+				const vec = asVec2(tile);
+				const path = pointerDownUnit.unit.order.type === "move" ? pointerDownUnit.unit.order.path : [];
+
+				if (distance < 1 && path.length > 0) {
+					emit(signals.PATH_FOUND, pointerDownUnit.unit.id, []);
+					return;
+				} else if (distance < 1) {
+					return
+				}
+
+				if (!path.some(eqVec2_(vec))) {
+
+					if (path.length === moveRange) return
+					const newPath = path.concat([vec]);
+					emit(signals.PATH_FOUND, pointerDownUnit.unit.id, newPath);
+
+				} else {
+
+					const idx = path.findIndex(eqVec2_(vec))
+					// if it is the last index, do nothing
+					// remove cells after the current cell
+
+					if (idx === path.length - 1) {
+						return
+					}
+					const slicedPath = path.slice(0, idx + 1);
+					emit(signals.PATH_FOUND, pointerDownUnit.unit.id, slicedPath);
+				}
 
 			} else {
 
@@ -51,11 +77,5 @@ export function onPointerMove(
 			}
 		}
 	);
-
-	listen(signals.SELECT_UNIT_MOVE_DONE, () => {
-
-		lineGraphics.clear();
-
-	})
 
 }

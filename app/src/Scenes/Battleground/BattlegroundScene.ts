@@ -295,8 +295,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
       emit(signals.DISPLAY_EMOTE, unit.id, "moving-emote");
 
-      await Pathfinding.lookupPath(this, unit.id, unit.position, vec2(x, y));
-
     });
   };
 
