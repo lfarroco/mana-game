@@ -1,14 +1,17 @@
 import { vec2, Vec2 } from "../../../Models/Geometry";
 import BattlegroundScene from "../BattlegroundScene";
 
+let tweens: Phaser.Tweens.Tween[] = [];
+
 export function highlightCells(scene: BattlegroundScene, cell: Vec2, range: number) {
 
 	const tile = scene.getTileAt(cell);
 
 	if (!tile) return;
 
+	clearCellHighlights(scene);
+
 	// get tiles within manhattan distance
-	let tilesInRange: Phaser.Tilemaps.Tile[] = [];
 	for (let i = -range; i <= range; i++) {
 		for (let j = -range; j <= range; j++) {
 			const distance = Math.abs(i) + Math.abs(j);
@@ -20,20 +23,29 @@ export function highlightCells(scene: BattlegroundScene, cell: Vec2, range: numb
 				if (vec.x < 0 || vec.y < 0) continue;
 				const tile = scene.getTileAt(vec);
 				if (tile) {
-					tilesInRange.push(tile);
+					const tween = scene.tweens.add({
+						targets: tile,
+						alpha: 0.8,
+						duration: 500,
+						yoyo: true,
+						repeat: -1,
+					});
+					tweens.push(tween);
 				}
 			}
 
 		}
 	}
 
-	tilesInRange?.forEach((tile) => {
-		scene.tweens.add({
-			targets: tile,
-			alpha: 0.8,
-			duration: 500,
-			yoyo: true,
-			repeat: 2,
-		});
+}
+
+export function clearCellHighlights(scene: BattlegroundScene) {
+	tweens.forEach((tween) => {
+
+		// Phaser is not typed correctly here
+		(tween.targets[0] as any).alpha = 1;
+		scene.tweens.remove(tween);
 	});
+
+	tweens = [];
 }

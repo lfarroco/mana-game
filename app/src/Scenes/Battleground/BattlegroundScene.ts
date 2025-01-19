@@ -31,6 +31,7 @@ import { createFowLayer } from "./Systems/FogOfWar/createFowLayer";
 import { DestinationDisplaySystem_init } from "./Systems/DestinationDisplay";
 import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import { makeMapInteractive } from "./Map/makeMapInteractive";
+import { clearCellHighlights } from "./Map/highlightCells";
 
 export class BattlegroundScene extends Phaser.Scene {
   graphics: Phaser.GameObjects.Graphics | null = null;
@@ -290,6 +291,8 @@ export class BattlegroundScene extends Phaser.Scene {
     const units = getState().gameData.units.filter((u) => unitIds.includes(u.id));
 
     this.isSelectingSquadMove = false;
+
+    clearCellHighlights(this);
 
     units.forEach(async (unit) => {
 
