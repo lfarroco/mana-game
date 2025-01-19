@@ -5,6 +5,7 @@ import { Unit } from "../../../../Models/Unit";
 import { emit, signals } from "../../../../Models/Signals";
 import { FORCE_ID_PLAYER } from "../../../../Models/Force";
 import { getJob } from "../../../../Models/Job";
+import { highlightCells } from "../highlightCells";
 
 export function onPointerMove(
 	bgLayer: Phaser.Tilemaps.TilemapLayer,
@@ -39,8 +40,11 @@ export function onPointerMove(
 
 				if (distance > moveRange) return;
 
+
 				const vec = asVec2(tile);
 				const path = pointerDownUnit.unit.order.type === "move" ? pointerDownUnit.unit.order.path : [];
+
+				highlightCells(scene, vec, moveRange - path.length)
 
 				if (distance < 1 && path.length > 0) {
 					emit(signals.PATH_FOUND, pointerDownUnit.unit.id, []);
