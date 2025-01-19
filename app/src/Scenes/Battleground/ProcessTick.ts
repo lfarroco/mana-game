@@ -188,6 +188,37 @@ async function step(scene: BattlegroundScene, state: State, unit: Unit) {
 
 }
 
+function checkHeals(
+  state: State,
+  scene: BattlegroundScene,
+): (unit: Unit) => void {
+  return async (unit) => {
+
+    const allies = state.gameData.units.filter(u => u.hp > 0).filter(u => u.force === unit.force);
+
+    const closeAllies = allies.filter((a) => {
+      const distance = Phaser.Math.Distance.Snake(a.position.x, a.position.y, unit.position.x, unit.position.y);
+      return distance <= 3;
+    });
+
+    const mostHurt = closeAllies
+      .filter(u => u.hp < u.maxHp)
+      .sort((a, b) => a.hp - b.hp);
+
+    if (mostHurt.length === 0) return;
+
+    const target = mostHurt[0];
+
+    unit.order = {
+      type: "skill",
+      skill: "heal",
+      target: target.position,
+    }
+
+  }
+}
+
+
 
 function checkAgroo(
   state: State,
@@ -276,8 +307,15 @@ async function combatStep(scene: BattlegroundScene, state: State) {
       return async () => {
         console.log("=== combat step :: ", unit.job, "====")
 
+
         if (unit.hp <= 0) return;
-        await checkAgroo(state, scene)(unit);
+
+        if ([
+          "monk", "soldier", "orc"
+        ].includes(unit.job)) await checkAgroo(state, scene)(unit);
+        else
+          await checkHeals(state, scene)(unit);
+
         // TODO: maybe create type "unit with skill" to avoid this redundant check
         if (unit.order.type !== "skill") return async () => {
           console.log("unit has no skill order, so skipping", unit.job);
@@ -333,34 +371,74 @@ async function cast(
     return;
   }
 
+  if (skill === "attack") {
 
-  // make the unit move backwards, then forwards to attack
-  bashCardAnimation(scene, state, activeChara, targetChara);
+    // make the unit move backwards, then forwards to attack
+    bashCardAnimation(scene, state, activeChara, targetChara);
 
-  await delay(scene, 500 / state.options.speed);
+    await delay(scene, 500 / state.options.speed);
 
-  await tween(scene, {
-    targets: container,
-    scale: 0.35,
-    duration: 300 / state.options.speed,
-    ease: "Bounce.easeOut",
-  });
+    await tween(scene, {
+      targets: container,
+      scale: 0.35,
+      duration: 300 / state.options.speed,
+      ease: "Bounce.easeOut",
+    });
 
-  console.log("will attack", targetChara.unit.id, targetChara.unit.hp);
+    console.log("will attack", targetChara.unit.id, targetChara.unit.hp);
 
-  emit(
-    signals.DAMAGE_UNIT,
-    targetChara.unit.id,
-    100
-  );
+    emit(
+      signals.DAMAGE_UNIT,
+      targetChara.unit.id,
+      30
+    );
 
-  await tween(scene, {
-    targets: container,
-    alpha: 0,
-    duration: 700 / state.options.speed,
-  });
+    await tween(scene, {
+      targets: container,
+      alpha: 0,
+      duration: 700 / state.options.speed,
+    });
 
-  container.destroy(true);
+    container.destroy(true);
+  }
+
+  if (skill === "heal") {
+
+    console.log("will heal", unit.job, targetChara.unit.job);
+
+    emit(signals.DISPLAY_EMOTE, unit.id, "sparkle-emote");
+
+    emit(signals.HEAL_UNIT, targetChara.unit.id, 50);
+
+    const text = scene.add.text(targetChara.sprite.x, targetChara.sprite.y, "Healed!", {
+      fontSize: "12px",
+      color: "#ffffff",
+      stroke: "#000000",
+      strokeThickness: 2,
+      align: "center",
+      fontStyle: "bold",
+      shadow: {
+        offsetX: 2,
+        offsetY: 2,
+        color: "#000",
+        blur: 0,
+        stroke: false,
+        fill: true,
+      }
+    });
+
+    await tween(scene, {
+      targets: text,
+      alpha: 1,
+      y: targetChara.sprite.y - 24,
+      duration: 500 / state.options.speed,
+      ease: "Bounce.easeOut",
+    });
+
+    text.destroy();
+
+
+  }
 }
 
 function createDamageDisplay(scene: BattlegroundScene, targetChara: Chara) {
