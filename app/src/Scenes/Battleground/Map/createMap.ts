@@ -1,4 +1,7 @@
+import { getJob } from "../../../Models/Job";
+import { listeners, signals } from "../../../Models/Signals";
 import BattlegroundScene from "../BattlegroundScene";
+import { highlightCells } from "./highlightCells";
 
 export function createMap(scene: BattlegroundScene) {
 
@@ -52,6 +55,20 @@ export function createMap(scene: BattlegroundScene) {
 			hoverOutline.visible = false;
 		}
 	});
+
+	listeners([
+		[
+			signals.UNIT_SELECTED, (unitId: string) => {
+
+				const unit = scene.charas.find(chara => chara.id === unitId);
+				if (!unit) return;
+				const job = getJob(unit.job)
+
+				highlightCells(scene, unit?.unit.position, job.moveRange)
+
+			}
+		]
+	]);
 
 
 
