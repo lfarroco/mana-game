@@ -91,12 +91,10 @@ async function step(scene: BattlegroundScene, state: State, unit: Unit) {
         skill: "attack",
       }
 
-      emit(signals.DISPLAY_EMOTE, unit.id, "combat-emote");
       return;
     }
 
   }
-
 
   // check if attack of opportunity is triggered
 
@@ -115,44 +113,7 @@ async function step(scene: BattlegroundScene, state: State, unit: Unit) {
     for (const enemy of closeEnemies) {
       console.log(enemy.unit.job, ":: attacking because of attack of opportunity -> ", unit.job);
 
-      const enemyChara = scene.getChara(enemy.unit.id);
-
-      const text = scene.add.text(enemyChara.sprite.x, enemyChara.sprite.y, "Attack of Opportunity!", {
-        fontSize: "12px",
-        color: "#ffffff",
-        stroke: "#000000",
-        strokeThickness: 2,
-        align: "center",
-        fontStyle: "bold",
-        shadow: {
-          offsetX: 2,
-          offsetY: 2,
-          color: "#000",
-          blur: 0,
-          stroke: false,
-          fill: true,
-        }
-      });
-      text.setOrigin(0.5, 0.5);
-      text.setAlpha(0);
-      scene.add.tween({
-        targets: text,
-        alpha: 1,
-        y: enemyChara.sprite.y - 24,
-        duration: 500 / state.options.speed,
-        ease: "Bounce.easeOut",
-        onComplete: () => {
-          scene.add.tween({
-            targets: text,
-            alpha: 0,
-            duration: 500 / state.options.speed,
-            ease: "Bounce.easeOut",
-            onComplete: () => {
-              text.destroy();
-            }
-          })
-        }
-      })
+      popText(scene, "Attack of Opportunity!", enemy.unit.id);
 
       await cast(scene, state, enemy.unit, "attack", unit.position);
       emit(signals.HIDE_EMOTE, enemy.unit.id);
@@ -270,7 +231,6 @@ function checkAgroo(
         skill: "attack",
         target: closestEnemy.position
       };
-      emit(signals.DISPLAY_EMOTE, unit.id, "combat-emote");
     } else {
       if (unit.force !== FORCE_ID_CPU) return;
       await lookupPath(scene, unit.id, unit.position, closestEnemy.position);
@@ -373,6 +333,7 @@ async function cast(
 
   if (skill === "attack") {
 
+    popText(scene, "Attack!", unit.id);
     // make the unit move backwards, then forwards to attack
     bashCardAnimation(scene, state, activeChara, targetChara);
 
@@ -406,39 +367,45 @@ async function cast(
 
     console.log("will heal", unit.job, targetChara.unit.job);
 
-    emit(signals.DISPLAY_EMOTE, unit.id, "sparkle-emote");
-
     emit(signals.HEAL_UNIT, targetChara.unit.id, 50);
 
-    const text = scene.add.text(targetChara.sprite.x, targetChara.sprite.y, "Healed!", {
-      fontSize: "12px",
-      color: "#ffffff",
-      stroke: "#000000",
-      strokeThickness: 2,
-      align: "center",
-      fontStyle: "bold",
-      shadow: {
-        offsetX: 2,
-        offsetY: 2,
-        color: "#000",
-        blur: 0,
-        stroke: false,
-        fill: true,
-      }
-    });
-
-    await tween(scene, {
-      targets: text,
-      alpha: 1,
-      y: targetChara.sprite.y - 24,
-      duration: 500 / state.options.speed,
-      ease: "Bounce.easeOut",
-    });
-
-    text.destroy();
-
+    await Promise.all([
+      popText(scene, "Healing...", unit.id),
+      popText(scene, "Healed!", targetChara.unit.id)
+    ])
 
   }
+}
+
+async function popText(scene: BattlegroundScene, text: string, targetId: string) {
+
+  const chara = scene.getChara(targetId);
+  const popText = scene.add.text(chara.sprite.x, chara.sprite.y, text, {
+    fontSize: "24px",
+    color: "#ffffff",
+    stroke: "#000000",
+    strokeThickness: 2,
+    align: "center",
+    fontStyle: "bold",
+    shadow: {
+      offsetX: 2,
+      offsetY: 2,
+      color: "#000",
+      blur: 0,
+      stroke: false,
+      fill: true,
+    }
+  }).setOrigin(0.5, 0.5);
+
+  await tween(scene, {
+    targets: popText,
+    alpha: 0,
+    y: chara.sprite.y - 24,
+    duration: 2000 / scene.state.options.speed,
+    ease: "Expo.easeOut",
+  });
+
+  popText.destroy();
 }
 
 function createDamageDisplay(scene: BattlegroundScene, targetChara: Chara) {
