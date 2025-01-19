@@ -50,6 +50,8 @@ export function onPointerUp(
 
 				return;
 
+			} else {
+				unitPointerDown.unit = null;
 			}
 
 		}
