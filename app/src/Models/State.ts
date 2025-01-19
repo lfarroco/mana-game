@@ -155,6 +155,18 @@ export const listenToStateEvents = (state: State) => {
       }
 
     }],
+    [signals.HEAL_UNIT, (id: string, amount: number) => {
+
+      const unit = state.gameData.units.find((u) => u.id === id);
+
+      if (!unit) throw new Error(`unit ${id} not found`)
+
+      const nextHp = unit.hp + amount;
+
+      emit(signals.UPDATE_UNIT, id, { hp: nextHp > unit.maxHp ? unit.maxHp : nextHp });
+
+
+    }],
     [signals.UPDATE_FORCE, (force: Partial<Force>) => {
       updateForce(state)(force);
     }],
