@@ -48,6 +48,7 @@ export class BattlegroundScene extends Phaser.Scene {
   tilemap: Phaser.Tilemaps.Tilemap | null = null;
   fow: Phaser.Tilemaps.TilemapLayer | null = null;
   grid: (0 | 1)[][] = []
+  state: State;
 
   // skill state - TODO: move this into the skill system
   selectedSkillId: string | null = null;
@@ -83,6 +84,7 @@ export class BattlegroundScene extends Phaser.Scene {
     console.log("BattlegroundScene constructor")
 
     const state = getState();
+    this.state = state;
 
     listeners([
       [signals.SELECT_UNIT_MOVE_START, () => {
@@ -104,8 +106,6 @@ export class BattlegroundScene extends Phaser.Scene {
           skill: this.selectedSkillId,
           target: tile
         }
-
-        emit(signals.DISPLAY_EMOTE, unit.id, "combat-emote")
 
         this.casterId = null;
         this.selectedSkillId = null;
