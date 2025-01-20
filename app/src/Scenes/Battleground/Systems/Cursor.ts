@@ -4,6 +4,7 @@ import { signals, listeners } from "../../../Models/Signals";
 import BattlegroundScene from "../BattlegroundScene";
 import { TILE_HEIGHT } from "../constants";
 import { State } from "../../../Models/State";
+import { Vec2 } from "../../../Models/Geometry";
 
 
 // index of cursors for cities and charas
@@ -41,6 +42,10 @@ export function init(state: State, scene: BattlegroundScene) {
 
 	listeners([
 		[signals.CHARA_CREATED, (unitId: string) => {
+
+			if (!scene.fow) return;
+
+			if (!isOutsideFoW(scene, scene.getChara(unitId).unit.position)) return
 
 			renderCursor(scene, unitId, cursors, eventListeners)
 
@@ -127,9 +132,22 @@ export function init(state: State, scene: BattlegroundScene) {
 
 			cleanCursor(cursors, eventListeners, scene, id)
 
-		}]
+		}],
+		[signals.MOVE_UNIT_INTO_CELL_FINISH, (unitId: string, cell: Vec2) => {
+
+			if (isOutsideFoW(scene, cell)) return
+
+			if (!cursors[unitId]) return
+			cleanCursor(cursors, eventListeners, scene, unitId)
+
+		}
+		]
 	])
 
+}
+
+function isOutsideFoW(scene: BattlegroundScene, cell: Vec2) {
+	return scene.fow!.getTileAt(cell.x, cell.y).alpha === 0;
 }
 
 //FIXME - there's a bug here when clicking someone after loading a game

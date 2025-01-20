@@ -140,14 +140,14 @@ export class BattlegroundScene extends Phaser.Scene {
     VictorySystem.init(state);
     AISystem.init(state);
     EmoteSystem_init(state, this);
-    FogOfWarSystem.init(this, state);
     CityCaptureSystem.init(this);
-    CursorSystem.init(state, this);
     Pathfinding.init(this);
     StaminaRegen.init(state);
     ManaRegen.init(state);
     EntitySelection.init(state);
     CharaSystem.init(this, state);
+    FogOfWarSystem.init(this, state);
+    CursorSystem.init(state, this);
     HPBarSystem.init(state, this);
     ManaBarSystem.init(state, this);
     DestinationDisplaySystem_init(state, this);
