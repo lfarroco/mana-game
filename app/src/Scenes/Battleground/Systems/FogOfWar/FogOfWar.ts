@@ -23,7 +23,15 @@ export function init(scene: BattlegroundScene, state: State) {
       const { fow } = scene;
       if (!fow) throw new Error("fow is null");
       refreshFogOfWar(scene, fow, state);
-    },],
+    }],
+    [signals.MOVE_UNIT_INTO_CELL_FINISH, (unitId: string, position: Vec2) => {
+
+      const isVisible = scene.fow!.getTileAt(position.x, position.y).alpha === 0;
+
+      const chara = scene.getChara(unitId);
+      chara.sprite.setVisible(isVisible);
+
+    }]
   ]);
 }
 

@@ -127,7 +127,7 @@ async function step(scene: BattlegroundScene, state: State, unit: Unit) {
 
   }
 
-  emit(signals.MOVE_UNIT_INTO_CELL, unit.id, next);
+  emit(signals.MOVE_UNIT_INTO_CELL_START, unit.id, next);
 
   await delay(scene, 500 / state.options.speed);
 

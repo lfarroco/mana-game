@@ -62,7 +62,8 @@ export type Signals = {
   UNIT_DESTROYED: (unitId: string) => any;
   FORCE_VICTORY: (force: string) => void;
   CAPTURE_CITY: (unitId: string, cityId: string) => void;
-  MOVE_UNIT_INTO_CELL: (unitId: string, vec: Vec2) => void;
+  MOVE_UNIT_INTO_CELL_START: (unitId: string, vec: Vec2) => void;
+  MOVE_UNIT_INTO_CELL_FINISH: (unitId: string, vec: Vec2) => void;
   MOVEMENT_FINISHED: (unitId: string, vec: Vec2) => void;
 
   PATH_FOUND: (key: string, path: Vec2[]) => void;
@@ -110,7 +111,8 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   UNIT_DESTROYED: "UNIT_DESTROYED",
   FORCE_VICTORY: "FORCE_VICTORY",
   CAPTURE_CITY: "CAPTURE_CITY",
-  MOVE_UNIT_INTO_CELL: "MOVE_UNIT_INTO_CELL",
+  MOVE_UNIT_INTO_CELL_START: "MOVE_UNIT_INTO_CELL_START",
+  MOVE_UNIT_INTO_CELL_FINISH: "MOVE_UNIT_INTO_CELL_FINISH",
   MOVEMENT_FINISHED: "MOVEMENT_FINISHED",
   PATH_FOUND: "PATH_FOUND",
   DISPLAY_EMOTE: "DISPLAY_EMOTE",

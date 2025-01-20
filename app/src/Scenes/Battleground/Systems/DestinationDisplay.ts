@@ -74,7 +74,7 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 
 
 		}],
-		[signals.MOVE_UNIT_INTO_CELL, (key: string) => {
+		[signals.MOVE_UNIT_INTO_CELL_START, (key: string) => {
 
 			if (!scene.layers?.background) return
 

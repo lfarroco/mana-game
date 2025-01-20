@@ -8,7 +8,7 @@ import { tween } from "../../Utils/animation";
 export function init(scene: BattlegroundScene, state: State) {
 
 	listeners([
-		[signals.MOVE_UNIT_INTO_CELL, async (unitId: string, cell: Vec2) => {
+		[signals.MOVE_UNIT_INTO_CELL_START, async (unitId: string, cell: Vec2) => {
 
 			const chara = scene.getChara(unitId);
 
@@ -21,6 +21,8 @@ export function init(scene: BattlegroundScene, state: State) {
 				duration: TURN_DURATION / (2 * state.options.speed),
 				ease: "Sine.easeInOut",
 			})
+
+			emit(signals.MOVE_UNIT_INTO_CELL_FINISH, unitId, cell);
 		}],
 		[signals.MAKE_UNIT_IDLE, async (unitId: string) => {
 
