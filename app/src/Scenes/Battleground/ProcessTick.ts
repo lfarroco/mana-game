@@ -337,7 +337,7 @@ async function cast(
     throw new Error("no target unit\n")
   }
 
-  panTo(scene, asVec2(targetChara.sprite));
+  panTo(scene, asVec2(activeChara.sprite));
 
   //@ts-ignore
   scene.children.bringToTop(activeChara.group);
