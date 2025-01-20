@@ -5,7 +5,7 @@ import { Unit } from "../../Models/Unit";
 import { Chara } from "../../Systems/Chara/Chara";
 import { delay, tween, tweenSequence } from "../../Utils/animation";
 import { FORCE_ID_CPU } from "../../Models/Force";
-import { lookupPath } from "./Systems/Pathfinding";
+import { lookupAIPAth } from "./Systems/Pathfinding";
 import { getJob } from "../../Models/Job";
 import { Vec2 } from "../../Models/Geometry";
 
@@ -113,7 +113,7 @@ async function step(scene: BattlegroundScene, state: State, unit: Unit) {
     for (const enemy of closeEnemies) {
       console.log(enemy.unit.job, ":: attacking because of attack of opportunity -> ", unit.job);
 
-      popText(scene, "Attack of Opportunity!", enemy.unit.id);
+      await popText(scene, "Attack of Opportunity!", enemy.unit.id);
 
       await cast(scene, state, enemy.unit, "attack", unit.position);
       emit(signals.HIDE_EMOTE, enemy.unit.id);
@@ -191,6 +191,7 @@ function checkAgroo(
     if (unit.order.type === "skill") {
       const maybeTarget = scene.getCharaAt(unit.order.target);
       if (maybeTarget) {
+        // TODO: what if someone else got in the position? need to update system
         console.log("target unit still alive and in position, continuing", unit.job);
         return;
       } else {
@@ -215,7 +216,6 @@ function checkAgroo(
 
     const distance = Phaser.Math.Distance.BetweenPoints(unit.position, closestEnemy.position);
 
-    console.log(">>>", distance);
     if (distance === 1) {
       if (unit.order.type === "move") {
 
@@ -233,7 +233,10 @@ function checkAgroo(
       };
     } else {
       if (unit.force !== FORCE_ID_CPU) return;
-      await lookupPath(scene, unit.id, unit.position, closestEnemy.position);
+      const path = await lookupAIPAth(scene, unit.id, unit.position, closestEnemy.position);
+      if (path.length > 0) {
+        emit(signals.PATH_FOUND, unit.id, path);
+      }
     }
 
   };
@@ -333,7 +336,7 @@ async function cast(
 
   if (skill === "attack") {
 
-    popText(scene, "Attack!", unit.id);
+    await popText(scene, "Attack!", unit.id);
     // make the unit move backwards, then forwards to attack
     bashCardAnimation(scene, state, activeChara, targetChara);
 
@@ -369,10 +372,8 @@ async function cast(
 
     emit(signals.HEAL_UNIT, targetChara.unit.id, 50);
 
-    await Promise.all([
-      popText(scene, "Healing...", unit.id),
-      popText(scene, "Healed!", targetChara.unit.id)
-    ])
+    await popText(scene, "Healing...", unit.id)
+    await popText(scene, "Healed!", targetChara.unit.id)
 
   }
 }
