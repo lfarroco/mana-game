@@ -29,7 +29,7 @@ export const jobs: Job[] = [
     attackPower: 10,
     dices: 1,
     stats: {
-      hp: 260,
+      hp: 360,
       mana: 100,
       attack: 17,
       defense: 0,
@@ -63,13 +63,13 @@ export const jobs: Job[] = [
   {
     id: "cleric",
     name: "Cleric",
-    moveRange: 3,
+    moveRange: 2,
     gold: 100,
     attackPower: 15,
     attackRange: 1,
     dices: 1,
     stats: {
-      hp: 980,
+      hp: 180,
       mana: 100,
       attack: 0,
       defense: 2,
@@ -129,7 +129,7 @@ export const jobs: Job[] = [
     attackPower: 10,
     dices: 2,
     stats: {
-      hp: 400,
+      hp: 60,
       mana: 0,
       attack: 10,
       defense: 10,

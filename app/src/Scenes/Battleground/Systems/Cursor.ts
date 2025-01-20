@@ -157,6 +157,7 @@ function cleanCursor(
 	id: string
 ) {
 	const cursor = cursors[id]
+	if (!cursor) return
 	cursor.setVisible(false)
 
 	const listener = eventListeners[id];

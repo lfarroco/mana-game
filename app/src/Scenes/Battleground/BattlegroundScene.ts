@@ -155,6 +155,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     //@ts-ignore
     window.bg = this;
+
   }
 
   preload = preload;
@@ -202,8 +203,10 @@ export class BattlegroundScene extends Phaser.Scene {
     //@ts-ignore
     window.scene = this;
 
+    this.cameras.main.setZoom(1.5)
     emit(signals.BATTLEGROUND_STARTED);
     console.log("BattlegroundScene create done");
+
   };
 
   createEmotes() {
