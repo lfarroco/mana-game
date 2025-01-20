@@ -7,7 +7,7 @@ import { delay, tween, tweenSequence } from "../../Utils/animation";
 import { FORCE_ID_CPU } from "../../Models/Force";
 import { lookupAIPAth } from "./Systems/Pathfinding";
 import { getJob } from "../../Models/Job";
-import { Vec2 } from "../../Models/Geometry";
+import { asVec2, Vec2 } from "../../Models/Geometry";
 
 const processTick = async (scene: BattlegroundScene) => {
 
@@ -68,6 +68,10 @@ async function step(scene: BattlegroundScene, state: State, unit: Unit) {
     console.warn("invalid state :: no next cell to move to", unit.id);
     return;
   }
+
+  const unitChara = scene.getChara(unit.id);
+
+  await panTo(scene, asVec2(unitChara.sprite));
 
   const chara = scene.getCharaAt(next);
 
@@ -154,6 +158,9 @@ function checkHeals(
   scene: BattlegroundScene,
 ): (unit: Unit) => void {
   return async (unit) => {
+
+    // TODO: make units have a "path", and "order" have a unit/cell target
+    if (unit.order.type === "move") return;
 
     const allies = state.gameData.units.filter(u => u.hp > 0).filter(u => u.force === unit.force);
 
@@ -289,6 +296,13 @@ async function combatStep(scene: BattlegroundScene, state: State) {
           console.log("unit has died, so skipping skill", unit.job);
         };
 
+        const target = scene.getCharaAt(unit.order.target);
+
+        if (!target) {
+          console.log("target is no longer at cell, so skipping skill", unit.job);
+          return;
+        }
+
         await cast(scene, state, unit, unit.order.skill, unit.order.target);
 
       }
@@ -309,6 +323,7 @@ async function cast(
   console.log(unit.job, " :: casting skill -> ", skill);
   const activeChara = scene.getCharaAt(unit.position)
 
+
   const targetChara = scene.getCharaAt(target)
 
   if (!activeChara) {
@@ -321,6 +336,11 @@ async function cast(
   if (!targetChara) {
     throw new Error("no target unit\n")
   }
+
+  panTo(scene, asVec2(targetChara.sprite));
+
+  //@ts-ignore
+  scene.children.bringToTop(activeChara.group);
 
   const container = createDamageDisplay(scene, targetChara);
 
@@ -368,12 +388,31 @@ async function cast(
 
   if (skill === "heal") {
 
-    console.log("will heal", unit.job, targetChara.unit.job);
+    console.log("will heal", unit.job, "->", targetChara.unit.job);
+
+    await popText(scene, "Heal", unit.id)
+
+    const sprite = scene.add.sprite(targetChara.sprite.x, targetChara.sprite.y, "pipo-light-pillar").play("pipo-light-pillar");
+    sprite.setScale(0.5).setOrigin(0.5, 0.5).setAlpha(0)
+    tween(scene, {
+      targets: sprite,
+      alpha: 0.5,
+      duration: 500 / state.options.speed,
+    })
+
+    popText(scene, "Healed (50)", targetChara.unit.id)
 
     emit(signals.HEAL_UNIT, targetChara.unit.id, 50);
 
-    await popText(scene, "Healing...", unit.id)
-    await popText(scene, "Healed!", targetChara.unit.id)
+    await delay(scene, 500 / state.options.speed);
+
+    await tween(scene, {
+      targets: sprite,
+      alpha: 0,
+      duration: 500 / state.options.speed,
+    })
+
+    sprite.destroy();
 
   }
 }
@@ -489,5 +528,12 @@ async function bashCardAnimation(
 
 }
 
+async function panTo(scene: BattlegroundScene, vec: Vec2) {
+  const state = getState();
+
+  scene.cameras.main.pan(vec.x, vec.y, 500 / state.options.speed, "Linear", true);
+
+  await delay(scene, 500 / state.options.speed);
+}
 
 export default processTick;

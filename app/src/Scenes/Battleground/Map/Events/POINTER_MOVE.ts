@@ -29,7 +29,9 @@ export function onPointerMove(
 
 				// cell manhattan distance to the pointer
 				const tile = scene.getTileAtWorldXY(vec2(
-					pointer.x + scene.cameras.main.scrollX, pointer.y + scene.cameras.main.scrollY));
+					pointer.worldX,
+					pointer.worldY
+				))
 
 				const distance = Phaser.Math.Distance.Snake(
 					tile.x, tile.y,
@@ -37,9 +39,6 @@ export function onPointerMove(
 				)
 
 				const moveRange = getJob(pointerDownUnit.unit.job).moveRange
-
-				if (distance > moveRange) return;
-
 
 				const vec = asVec2(tile);
 				const path = pointerDownUnit.unit.order.type === "move" ? pointerDownUnit.unit.order.path : [];
@@ -55,7 +54,6 @@ export function onPointerMove(
 
 				if (!path.some(eqVec2_(vec))) {
 
-					if (path.length === moveRange) return
 					const newPath = path.concat([vec]);
 					emit(signals.PATH_FOUND, pointerDownUnit.unit.id, newPath);
 

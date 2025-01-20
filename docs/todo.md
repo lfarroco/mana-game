@@ -63,3 +63,7 @@ IDEA:
 - add "1st", "2nd" ... indicators over units
 
 - idea: dungeon craweler or advance wars/fire emblem style?
+
+- AI enemies are blocked by their allies
+- work on proper tile highlight
+- hide enemies and cursors under the fog of war

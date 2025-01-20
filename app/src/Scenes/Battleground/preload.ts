@@ -78,16 +78,22 @@ export function preload(this: Phaser.Scene) {
 
 	});
 
-	fxs.forEach(fx => {
-		this.load.spritesheet(
-			fx,
-			`assets/fx/${fx}.png`,
-			{
-				frameWidth: 64,
-				frameHeight: 64,
-			}
-		);
-	})
+	this.load.spritesheet(
+		"cethiel-light",
+		`assets/fx/cethiel-light.png`,
+		{
+			frameWidth: 64,
+			frameHeight: 64,
+		}
+	);
+	this.load.spritesheet(
+		"pipo-light-pillar",
+		`assets/fx/pipo-light-pillar.png`,
+		{
+			frameWidth: 192,
+			frameHeight: 192,
+		}
+	);
 
 	//once all assets are loaded, create animations
 	this.load.on("complete", () => {
@@ -101,13 +107,18 @@ export function preload(this: Phaser.Scene) {
 			});
 		});
 
-		fxs.forEach(fx => {
-			this.anims.create({
-				key: fx,
-				frames: this.anims.generateFrameNumbers(fx, { start: 0, end: 4 }),
-				frameRate: 5,
-				repeat: -1,
-			});
+
+		this.anims.create({
+			key: "cethiel-light",
+			frames: this.anims.generateFrameNumbers("cethiel-light", { start: 0, end: 4 }),
+			frameRate: 5,
+			repeat: -1,
+		});
+		this.anims.create({
+			key: "pipo-light-pillar",
+			frames: this.anims.generateFrameNumbers("pipo-light-pillar", { start: 0, end: 9 }),
+			frameRate: 10,
+			repeat: -1,
 		});
 	});
 
