@@ -32,6 +32,7 @@ import { DestinationDisplaySystem_init } from "./Systems/DestinationDisplay";
 import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import { makeMapInteractive } from "./Map/makeMapInteractive";
 import { clearCellHighlights } from "./Map/highlightCells";
+import { FORCE_ID_PLAYER } from "../../Models/Force";
 
 export class BattlegroundScene extends Phaser.Scene {
   graphics: Phaser.GameObjects.Graphics | null = null;
@@ -209,6 +210,10 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.cameras.main.setZoom(1.5)
     emit(signals.BATTLEGROUND_STARTED);
+
+    const chara = this.charas.filter(c => c.force === FORCE_ID_PLAYER)[0]
+    this.cameras.main.pan(chara.sprite.x, chara.sprite.y, 500, 'Sine.easeInOut', true);
+
     console.log("BattlegroundScene create done");
 
   };

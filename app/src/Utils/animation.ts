@@ -8,6 +8,9 @@ export async function tween(
 		scene.add.tween({
 			...attributes,
 			onComplete: () => {
+				if (attributes.onComplete) {
+					attributes.onComplete();
+				}
 				resolve();
 			}
 		});

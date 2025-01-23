@@ -133,6 +133,10 @@ async function step(scene: BattlegroundScene, state: State, unit: Unit) {
 
   emit(signals.MOVE_UNIT_INTO_CELL_START, unit.id, next);
 
+  const audio = scene.sound.add("audio/chip-lay-3")
+  audio.volume = state.options.soundVolume;
+  audio.play();
+
   await delay(scene, 500 / state.options.speed);
 
   unit.position = next;
@@ -397,6 +401,10 @@ async function cast(
 
     await popText(scene, "Heal", unit.id)
 
+    const audio = scene.sound.add("audio/curemagic");
+    audio.volume = state.options.soundVolume;
+    audio.play();
+
     const sprite = scene.add.sprite(targetChara.sprite.x, targetChara.sprite.y, "pipo-light-pillar").play("pipo-light-pillar");
     sprite.setScale(0.5).setOrigin(0.5, 0.5).setAlpha(0)
     tween(scene, {
@@ -527,6 +535,11 @@ async function bashCardAnimation(
       x: x + Math.cos(directionVector) * forwardDistance,
       y: y + Math.sin(directionVector) * forwardDistance,
       duration: forwardMovementDuration,
+      onComplete: () => {
+        const audio = scene.sound.add("audio/punch1");
+        audio.volume = state.options.soundVolume;
+        audio.play();
+      }
     },
     {
       targets: activeChara.sprite,

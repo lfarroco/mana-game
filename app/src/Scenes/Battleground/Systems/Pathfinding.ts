@@ -47,6 +47,7 @@ export async function lookupAIPAth(
     const state = getState();
     state.gameData
       .units
+      .filter(u => u.hp > 0)
       .filter(u => u.force === FORCE_ID_CPU)
       .forEach(unit => {
         const { x, y } = unit.position;

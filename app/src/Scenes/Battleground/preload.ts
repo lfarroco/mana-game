@@ -55,6 +55,12 @@ export function preload(this: Phaser.Scene) {
 	this.load.audio("audio/sword2", "assets/audio/sword2.wav")
 	this.load.audio("audio/sword3", "assets/audio/sword3.wav")
 
+	this.load.audio("audio/curemagic", "assets/audio/oga-cure-magic1.wav")
+
+	this.load.audio("audio/punch1", "assets/audio/punch1.ogg")
+
+	this.load.audio("audio/chip-lay-3", "assets/audio/chip-lay-3.ogg")
+
 	this.load.audio("ui/button_click", "assets/audio/button_click.ogg")
 	this.load.audio("ui/error", "assets/audio/error.ogg")
 
