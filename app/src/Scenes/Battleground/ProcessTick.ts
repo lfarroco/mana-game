@@ -224,7 +224,7 @@ function checkAgroo(
     const distance = Phaser.Math.Distance.BetweenPoints(unit.position, closestEnemy.position);
 
     if (distance === 1) {
-      if (unit.order.type === "move") {
+      if (unit.order.type === "move" && unit.order.path.length > 0) {
 
         const maybeBlocker = scene.getCharaAt(unit.order.path[0]);
         if (!maybeBlocker) {

@@ -97,10 +97,6 @@ const SelectedEntity = ({
 					description
 				}
 			</div>
-			<div className="col col-6" >
-				<ButtonGrid actions={actions} />
-			</div>
-
 		</Row>
 
 	</div >
