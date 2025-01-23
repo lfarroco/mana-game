@@ -150,7 +150,7 @@ function displayPath(
 	scene.children.moveBelow(arrowTip, lineGraphics)
 	let points = [] as Phaser.Math.Vector2[]
 
-	const _path = unit.order.type === "move" ? unit.order.path : []
+	const _path = unit.order.type === "move" ? unit.path : []
 
 	const path = [unit.position, ..._path]
 

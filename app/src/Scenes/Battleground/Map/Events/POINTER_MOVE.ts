@@ -41,7 +41,7 @@ export function onPointerMove(
 				const moveRange = getJob(pointerDownUnit.unit.job).moveRange
 
 				const vec = asVec2(tile);
-				const path = pointerDownUnit.unit.order.type === "move" ? pointerDownUnit.unit.order.path : [];
+				const path = pointerDownUnit.unit.order.type === "move" ? pointerDownUnit.unit.path : [];
 
 				highlightCells(scene, vec, moveRange - path.length)
 

@@ -5,12 +5,12 @@ type UnitOrder = {
   type: "none"
 } | {
   type: "move";
-  path: Vec2[];
+  cell: Vec2;
 } |
 {
-  type: "skill";
+  type: "skill-on-unit";
   skill: string;
-  target: Vec2;
+  target: string;
 };
 
 export type Unit = {
@@ -20,6 +20,7 @@ export type Unit = {
   job: string;
   force: string;
   position: Vec2;
+  path: Vec2[];
 
   hp: number;
   maxHp: number;
@@ -42,6 +43,7 @@ export const makeUnit = (id: string, force: string, job: string, position: Vec2)
     id,
     name: job_.name,
     order: { type: "none" },
+    path: [],
     job,
     force,
     position,

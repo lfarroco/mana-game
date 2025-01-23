@@ -67,3 +67,5 @@ IDEA:
 - AI enemies are blocked by their allies
 - work on proper tile highlight
 - hide enemies and cursors under the fog of war
+
+- use "next turn" button as "next unit" button as well

@@ -1,6 +1,6 @@
 import { emit, signals, } from "../../Models/Signals";
 import { BattlegroundScene } from "./BattlegroundScene";
-import { State, getState } from "../../Models/State";
+import { State, getState, getUnit } from "../../Models/State";
 import { Unit } from "../../Models/Unit";
 import { Chara } from "../../Systems/Chara/Chara";
 import { delay, tween, tweenSequence } from "../../Utils/animation";
@@ -62,7 +62,7 @@ async function step(scene: BattlegroundScene, state: State, unit: Unit) {
     console.warn("invalid state :: unit has no move order", unit.id);
     return;
   }
-  const [next] = unit.order.path;
+  const [next] = unit.path;
 
   if (!next) {
     console.warn("invalid state :: no next cell to move to", unit.id);
@@ -90,8 +90,8 @@ async function step(scene: BattlegroundScene, state: State, unit: Unit) {
       console.log(unit.job, " :: blocked because enemy is on the way -> ", chara.unit.job);
       emit(signals.HIDE_EMOTE, unit.id);
       unit.order = {
-        target: chara.unit.position,
-        type: "skill",
+        target: chara.unit.id,
+        type: "skill-on-unit",
         skill: "attack",
       }
 
@@ -119,7 +119,7 @@ async function step(scene: BattlegroundScene, state: State, unit: Unit) {
 
       await popText(scene, "Attack of Opportunity!", enemy.unit.id);
 
-      await cast(scene, state, enemy.unit, "attack", unit.position);
+      await cast(scene, state, enemy.unit, "attack", unit.id);
       emit(signals.HIDE_EMOTE, enemy.unit.id);
       if (unit.hp <= 0) {
         console.log(unit.job, ":: unit has been killed by attack of opportunity, skipping movement phase");
@@ -137,12 +137,13 @@ async function step(scene: BattlegroundScene, state: State, unit: Unit) {
 
   unit.position = next;
 
-  const remaining = unit.order.path.slice(1);
+  const remaining = unit.path.slice(1);
 
   if (remaining.length > 0) {
+    unit.path = remaining;
     unit.order = {
       type: "move",
-      path: remaining
+      cell: remaining[remaining.length - 1]
     }
   } else {
     emit(signals.MOVEMENT_FINISHED, unit.id, next);
@@ -178,9 +179,9 @@ function checkHeals(
     const target = mostHurt[0];
 
     unit.order = {
-      type: "skill",
+      type: "skill-on-unit",
       skill: "heal",
-      target: target.position,
+      target: target.id,
     }
 
   }
@@ -195,12 +196,26 @@ function checkAgroo(
   return async (unit) => {
 
     // units that already have an order can skip this step
-    if (unit.order.type === "skill") {
-      const maybeTarget = scene.getCharaAt(unit.order.target);
-      if (maybeTarget) {
-        // TODO: what if someone else got in the position? need to update system
-        console.log("target unit still alive and in position, continuing", unit.job);
-        return;
+    if (unit.order.type === "skill-on-unit") {
+      const maybeTarget = scene.getChara(unit.order.target);
+      if (maybeTarget && maybeTarget.unit.hp > 0) {
+
+        const distance = Phaser.Math.Distance.BetweenPoints(unit.position, maybeTarget.unit.position);
+
+        if (distance === 1) {
+          console.log("target is alive and in range, skipping agroo", unit.job);
+          return;
+        } else {
+          console.log(unit.job, ": target is alive but out of range, will chase target");
+          const path = await lookupAIPAth(scene, unit.id, unit.position, maybeTarget.unit.position);
+          if (path.length > 0) {
+            emit(signals.PATH_FOUND, unit.id, path);
+            return;
+          } else {
+            console.warn("path not found, will wait for next turn", unit.job);
+            return;
+          }
+        }
       } else {
         console.log("unit has died or moved, looking for new target", unit.job)
       }
@@ -224,9 +239,9 @@ function checkAgroo(
     const distance = Phaser.Math.Distance.BetweenPoints(unit.position, closestEnemy.position);
 
     if (distance === 1) {
-      if (unit.order.type === "move" && unit.order.path.length > 0) {
+      if (unit.order.type === "move" && unit.path.length > 0) {
 
-        const maybeBlocker = scene.getCharaAt(unit.order.path[0]);
+        const maybeBlocker = scene.getCharaAt(unit.path[0]);
         if (!maybeBlocker) {
           console.log("unit can attack but is moving and is not blocked", unit.job)
           return;
@@ -234,9 +249,9 @@ function checkAgroo(
 
       }
       unit.order = {
-        type: "skill",
+        type: "skill-on-unit",
         skill: "attack",
-        target: closestEnemy.position
+        target: closestEnemy.id
       };
     } else {
       if (unit.force !== FORCE_ID_CPU) return;
@@ -277,9 +292,9 @@ async function combatStep(scene: BattlegroundScene, state: State) {
       return async () => {
         console.log("=== combat step :: ", unit.job, "====")
 
-
         if (unit.hp <= 0) return;
 
+        // TODO: use skill range to determine if unit can attack on melee
         if ([
           "monk", "soldier", "orc"
         ].includes(unit.job)) await checkAgroo(state, scene)(unit);
@@ -287,7 +302,7 @@ async function combatStep(scene: BattlegroundScene, state: State) {
           await checkHeals(state, scene)(unit);
 
         // TODO: maybe create type "unit with skill" to avoid this redundant check
-        if (unit.order.type !== "skill") return async () => {
+        if (unit.order.type !== "skill-on-unit") return async () => {
           console.log("unit has no skill order, so skipping", unit.job);
           return;
         }
@@ -295,13 +310,6 @@ async function combatStep(scene: BattlegroundScene, state: State) {
         if (unit.hp <= 0) return async () => {
           console.log("unit has died, so skipping skill", unit.job);
         };
-
-        const target = scene.getCharaAt(unit.order.target);
-
-        if (!target) {
-          console.log("target is no longer at cell, so skipping skill", unit.job);
-          return;
-        }
 
         await cast(scene, state, unit, unit.order.skill, unit.order.target);
 
@@ -317,14 +325,15 @@ async function cast(
   state: State,
   unit: Unit,
   skill: string,
-  target: Vec2,
+  targetId: string,
 ) {
 
   console.log(unit.job, " :: casting skill -> ", skill);
   const activeChara = scene.getCharaAt(unit.position)
 
+  const targetUnit = getUnit(state)(targetId);
 
-  const targetChara = scene.getCharaAt(target)
+  const targetChara = scene.getChara(targetId);
 
   if (!activeChara) {
     throw new Error(
@@ -333,20 +342,16 @@ async function cast(
     )
   }
 
-  if (!targetChara) {
-    throw new Error("no target unit\n")
-  }
-
   panTo(scene, asVec2(activeChara.sprite));
 
   //@ts-ignore
   scene.children.bringToTop(activeChara.group);
 
-  const container = createDamageDisplay(scene, targetChara);
+  const container = createDamageDisplay(scene, targetUnit);
 
   // is target still alive?
-  if (targetChara.unit.hp <= 0) {
-    console.log("target is dead", targetChara.unit.id);
+  if (targetUnit.hp <= 0) {
+    console.log("target is dead", targetUnit.id);
     emit(signals.MAKE_UNIT_IDLE, unit.id);
     emit(signals.DISPLAY_EMOTE, unit.id, "question-emote");
     await delay(scene, 1000 / state.options.speed);
@@ -358,7 +363,7 @@ async function cast(
 
     await popText(scene, "Attack!", unit.id);
     // make the unit move backwards, then forwards to attack
-    bashCardAnimation(scene, state, activeChara, targetChara);
+    bashCardAnimation(scene, state, activeChara, targetUnit);
 
     await delay(scene, 500 / state.options.speed);
 
@@ -369,11 +374,11 @@ async function cast(
       ease: "Bounce.easeOut",
     });
 
-    console.log("will attack", targetChara.unit.id, targetChara.unit.hp);
+    console.log("will attack", targetUnit.job, targetUnit.hp);
 
     emit(
       signals.DAMAGE_UNIT,
-      targetChara.unit.id,
+      targetUnit.id,
       30
     );
 
@@ -388,7 +393,7 @@ async function cast(
 
   if (skill === "heal") {
 
-    console.log("will heal", unit.job, "->", targetChara.unit.job);
+    console.log("will heal", unit.job, "->", targetUnit.job);
 
     await popText(scene, "Heal", unit.id)
 
@@ -400,9 +405,9 @@ async function cast(
       duration: 500 / state.options.speed,
     })
 
-    popText(scene, "Healed (50)", targetChara.unit.id)
+    popText(scene, "Healed (50)", targetUnit.id)
 
-    emit(signals.HEAL_UNIT, targetChara.unit.id, 50);
+    emit(signals.HEAL_UNIT, targetUnit.id, 50); // TODO: use skill's stats
 
     await delay(scene, 500 / state.options.speed);
 
@@ -448,7 +453,10 @@ async function popText(scene: BattlegroundScene, text: string, targetId: string)
   popText.destroy();
 }
 
-function createDamageDisplay(scene: BattlegroundScene, targetChara: Chara) {
+function createDamageDisplay(scene: BattlegroundScene, targetUnit: Unit) {
+
+  const targetChara = scene.getChara(targetUnit.id);
+
   const damageBg = scene.add.image(
     0, 0,
     "damage_display",
@@ -487,8 +495,10 @@ async function bashCardAnimation(
   scene: BattlegroundScene,
   state: State,
   activeChara: Chara,
-  targetChara: Chara,
+  targetUnit: Unit,
 ) {
+
+  const targetChara = scene.getChara(targetUnit.id);
 
   const backMovementDuration = 300 / state.options.speed;
   // The actual "strike" happens at the end of the forward movement
