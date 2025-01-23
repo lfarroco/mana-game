@@ -100,11 +100,15 @@ export class BattlegroundScene extends Phaser.Scene {
       }],
       [signals.SELECT_SKILL_TARGET_DONE, (tile: Vec2) => {
         if (!this.casterId || !this.selectedSkillId) return;
+        const chara = this.getCharaAt(tile);
+        if (!chara) {
+          throw new Error("No chara at tile")
+        }
         const unit = this.getSquad(this.casterId)
         unit.order = {
-          type: "skill",
+          type: "skill-on-unit",
           skill: this.selectedSkillId,
-          target: tile
+          target: chara?.unit.id
         }
 
         this.casterId = null;
@@ -314,9 +318,11 @@ export class BattlegroundScene extends Phaser.Scene {
   };
 
   getCharaAt = (vec: Vec2) => {
-    return this.charas
+    const chara = this.charas
       .filter(chara => chara.unit.hp > 0)
       .find((chara) => eqVec2(chara.unit.position, vec));
+
+    return chara
   }
 }
 

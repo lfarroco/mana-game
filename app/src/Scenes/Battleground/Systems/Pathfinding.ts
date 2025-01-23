@@ -4,9 +4,8 @@ import { emit, signals, listeners } from "../../../Models/Signals";
 import { getUnit, getState } from "../../../Models/State";
 import BattlegroundScene from "../BattlegroundScene";
 import { FORCE_ID_CPU } from "../../../Models/Force";
-import { wait } from "@testing-library/user-event/dist/utils";
 
-export function init(scene: BattlegroundScene) {
+export function init(_scene: BattlegroundScene) {
   listeners([
     [
       signals.PATH_FOUND,
@@ -17,9 +16,10 @@ export function init(scene: BattlegroundScene) {
         const unit = getUnit(state)(unitId)
 
         emit(signals.UPDATE_UNIT, unit.id, {
+          path: path,
           order: {
             type: "move",
-            path,
+            cell: path[path.length - 1]
           }
         });
       },

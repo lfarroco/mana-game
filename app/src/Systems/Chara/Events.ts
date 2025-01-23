@@ -47,7 +47,7 @@ export function init(scene: BattlegroundScene, state: State) {
 				.filter(c => c.unit.hp > 0)
 				.forEach(c => {
 					if (c.unit.id === unitId) return;
-					if (c.unit.order.type === "skill" && eqVec2(c.unit.order.target, chara.unit.position)) {
+					if (c.unit.order.type === "skill-on-unit" && c.unit.order.target === unitId) {
 
 						c.unit.order = {
 							type: "none"
@@ -55,8 +55,7 @@ export function init(scene: BattlegroundScene, state: State) {
 						emit(signals.HIDE_EMOTE, c.unit.id);
 					}
 
-				})
-
+				});
 		}]
 	])
 }
