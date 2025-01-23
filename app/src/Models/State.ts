@@ -8,9 +8,9 @@ import { Unit, makeUnit } from "./Unit";
 export const initialState = (): State => ({
   options: {
     sound: true,
-    soundVolume: 0.1,
+    soundVolume: 0.4,
     music: true,
-    musicVolume: 0.1,
+    musicVolume: 0.2,
     debug: true,
     speed: 4,
   },
