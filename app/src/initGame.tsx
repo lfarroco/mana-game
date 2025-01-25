@@ -7,6 +7,7 @@ import * as SaveGame from "./Systems/SaveGame/SaveGame";
 import { State } from "./Models/State";
 import Events from 'events'
 import { CityCaptureSystem_init } from "./Systems/City/CityCapture";
+import { AuraPipeline } from "./Shaders/aura";
 
 export function initGame(state: State, emitter: Events) {
 
@@ -15,8 +16,13 @@ export function initGame(state: State, emitter: Events) {
 		mode: Phaser.Scale.FIT,
 		width: window.innerWidth,
 		height: window.innerHeight,
+
 		parent: "game-container",
-		scene: [Core, BattlegroundScene]
+		scene: [Core, BattlegroundScene],
+		pipeline: {
+			//@ts-ignore
+			aurapipeline: AuraPipeline
+		}
 	});
 
 
