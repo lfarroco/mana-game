@@ -34,6 +34,8 @@ const processTick = async (scene: BattlegroundScene) => {
 
   state.gameData.tick++;
   emit(signals.TURN_END)
+
+  scene.displayOrderEmotes();
 };
 
 
@@ -154,6 +156,7 @@ async function step(scene: BattlegroundScene, state: State, unit: Unit) {
     unit.order = {
       type: "none"
     }
+    emit(signals.DISPLAY_EMOTE, unit.id, "question-emote");
   }
 
 }

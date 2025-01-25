@@ -1,6 +1,6 @@
 import BattlegroundScene from "../BattlegroundScene";
 
-export function pingAt(scene: BattlegroundScene, x: number, y: number) {
+export function pingAtLocation(scene: BattlegroundScene, x: number, y: number) {
 	const ping = scene.add.image(x, y, "cursor").setScale(0.5);
 
 	scene.tweens.add({
