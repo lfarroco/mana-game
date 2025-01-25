@@ -133,7 +133,23 @@ export class BattlegroundScene extends Phaser.Scene {
       [signals.UNIT_SELECTED, () => {
         const pop = this.sound.add('ui/button_click')
         pop.play()
-      }]
+      }],
+      [
+        signals.NEXT_IDLE_UNIT, () => {
+          const [idle] = this.charas.filter(c => c.unit.force === FORCE_ID_PLAYER)
+            .filter(c => c.unit.order.type === "none")
+          if (!idle) {
+            return
+          }
+          this.cameras.main.pan(
+            idle.sprite.x,
+            idle.sprite.y,
+            500 / state.options.speed,
+            'Sine.easeInOut',
+          )
+        }
+      ]
+
     ]);
 
 
