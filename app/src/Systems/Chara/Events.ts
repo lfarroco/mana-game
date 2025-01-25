@@ -34,7 +34,9 @@ export function init(scene: BattlegroundScene, state: State) {
 			chara.unit.order = {
 				type: "none"
 			}
-			emit(signals.DISPLAY_EMOTE, unitId, "question-emote");
+			if (chara.unit.force === FORCE_ID_PLAYER) {
+				emit(signals.DISPLAY_EMOTE, unitId, "question-emote");
+			}
 		}],
 		// how other units react to an unit being destroyed
 		[signals.UNIT_DESTROYED, async (unitId: string) => {

@@ -36,7 +36,7 @@ export function onPointerUp(
 			} else if (unitPointerDown.unit && (isDrag)) {
 
 				if (unitPointerDown.unit.force !== FORCE_ID_PLAYER) {
-					console.log("select enemy unit, stop ", unitPointerDown.unit.job);
+					console.log("select enemy unit, stop pointer up events ", unitPointerDown.unit.job);
 					return;
 				}
 

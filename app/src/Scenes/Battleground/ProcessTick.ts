@@ -4,18 +4,24 @@ import { State, getState, getUnit } from "../../Models/State";
 import { Unit } from "../../Models/Unit";
 import { Chara } from "../../Systems/Chara/Chara";
 import { delay, tween, tweenSequence } from "../../Utils/animation";
-import { FORCE_ID_CPU } from "../../Models/Force";
+import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
 import { lookupAIPAth } from "./Systems/Pathfinding";
 import { getJob } from "../../Models/Job";
 import { asVec2, Vec2 } from "../../Models/Geometry";
 
 const processTick = async (scene: BattlegroundScene) => {
 
+
   emit(signals.TURN_START)
 
   const state = getState();
 
   console.log("set AI actions");
+
+  // hide emotes
+  state.gameData.units.forEach(u => {
+    emit(signals.HIDE_EMOTE, u.id);
+  });
 
   state.gameData.units
     .filter(u => u.hp > 0)
@@ -156,7 +162,9 @@ async function step(scene: BattlegroundScene, state: State, unit: Unit) {
     unit.order = {
       type: "none"
     }
-    emit(signals.DISPLAY_EMOTE, unit.id, "question-emote");
+    if (unit.force === FORCE_ID_PLAYER) {
+      emit(signals.DISPLAY_EMOTE, unit.id, "question-emote");
+    }
   }
 
 }
@@ -360,7 +368,9 @@ async function cast(
   if (targetUnit.hp <= 0) {
     console.log("target is dead", targetUnit.id);
     emit(signals.MAKE_UNIT_IDLE, unit.id);
-    emit(signals.DISPLAY_EMOTE, unit.id, "question-emote");
+    if (unit.force === FORCE_ID_PLAYER) {
+      emit(signals.DISPLAY_EMOTE, unit.id, "question-emote");
+    }
     await delay(scene, 1000 / state.options.speed);
     emit(signals.HIDE_EMOTE, unit.id);
     return;
