@@ -69,5 +69,11 @@ footer {
 #next-turn {
   position: fixed;
   right: 20px;
+  bottom: 120px;
+}
+
+#next-idle {
+  position: fixed;
+  right: 20px;
   bottom: 20px;
 }

@@ -51,7 +51,7 @@ const Battleground = () => {
       }],
       [signals.TURN_END, () => {
         setNextTurnEnabled(true);
-      }]
+      }],
     ]);
   }, []);
 
@@ -96,13 +96,21 @@ const Battleground = () => {
         id="next-turn"
         disabled={!nextTurnEnabled}
         onClick={
-
-          () => {
-            emit(signals.BATTLEGROUND_TICK, state.gameData.tick);
-          }
+          emit_(signals.BATTLEGROUND_TICK, state.gameData.tick)
 
         }
-      >Next Turn</button>
+      >Next Turn</button >
+      <button
+        className="btn btn-secondary"
+        id="next-idle"
+        disabled={!nextTurnEnabled}
+        onClick={
+          emit_(signals.NEXT_IDLE_UNIT)
+        }
+      > Next Unit</button >
+
+
+
       <footer className="block">
         <div className="content">
         </div>

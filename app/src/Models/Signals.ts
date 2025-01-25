@@ -4,6 +4,10 @@ import { Unit } from "./Unit";
 import { GameData } from "./State";
 import { Force } from "./Force";
 
+let events: any[] = [];
+//@ts-ignore
+window.events = events;
+
 export type Signals = {
   SET_ROUTE: (route: string) => void;
   START_NEW_GAME: () => void;
@@ -51,6 +55,8 @@ export type Signals = {
   // When a chara is created in the map
   CHARA_CREATED: (charaId: string) => void;
   BATTLEGROUND_TICK: (tick: number) => void;
+
+  NEXT_IDLE_UNIT: () => void;
   UPDATE_FORCE: (force: Partial<Force>) => void;
 
   MAKE_UNIT_IDLE: (unitId: string) => void;
@@ -105,6 +111,8 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   UNIT_CREATED: "UNIT_CREATED",
   CHARA_CREATED: "CHARA_CREATED",
   BATTLEGROUND_TICK: "BATTLEGROUND_TICK",
+
+  NEXT_IDLE_UNIT: "NEXT_IDLE_UNIT",
   UPDATE_UNIT: "UPDATE_UNIT",
   DAMAGE_UNIT: "DAMAGE_UNIT",
   HEAL_UNIT: "HEAL_UNIT",
@@ -141,6 +149,7 @@ export const emit = <T extends keyof Signals>(
   const emitter: Events = window.emitter;
   console.log(`emit("${event}", ...${JSON.stringify(args)})`);
   emitter.emit(event, ...args);
+  events.push([event, ...args]);
 };
 
 export const emit_ = <T extends keyof Signals>(
