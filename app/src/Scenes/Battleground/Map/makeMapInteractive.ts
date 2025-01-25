@@ -5,7 +5,7 @@ import { Vec2, asVec2, eqVec2, vec2 } from "../../../Models/Geometry";
 import { FORCE_ID_PLAYER } from "../../../Models/Force";
 import { Unit } from "../../../Models/Unit";
 import { getUnit, State } from "../../../Models/State";
-import { pingAt as pingAtLocation } from "./Ping";
+import { pingAtLocation } from "./Ping";
 import { getSkill } from "../../../Models/Skill";
 import { onPointerMove } from "./Events/POINTER_MOVE";
 import { onPointerUp } from "./Events/POINTER_UP";
@@ -98,26 +98,4 @@ export function selectEntityInTile(state: State, tile: Vec2): [Unit | undefined,
   }
 
   return [unit, city]
-}
-
-export function issueMoveOrder(
-  state: State,
-  unitId: string,
-  tile: Phaser.Tilemaps.Tile,
-  scene: BattlegroundScene,
-  x: number,
-  y: number,
-) {
-
-  const unit = getUnit(state)(unitId);
-  const isEnemy = unit.force !== FORCE_ID_PLAYER;
-  if (isEnemy) {
-    scene.sound.play("ui/error");
-    return;
-  };
-
-  emit(signals.SELECT_UNIT_MOVE_DONE, unit.id, asVec2(tile));
-
-  pingAtLocation(scene, x, y);
-
 }

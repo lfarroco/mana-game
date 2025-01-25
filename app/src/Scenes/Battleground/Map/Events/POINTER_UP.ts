@@ -1,10 +1,12 @@
 import Phaser from "phaser";
 import BattlegroundScene from "../../BattlegroundScene";
 import { getState } from "../../../../Models/State";
-import { issueSkillCommand, issueMoveOrder } from "../makeMapInteractive";
+import { issueSkillCommand } from "../makeMapInteractive";
 import { Unit } from "../../../../Models/Unit";
 import { asVec2, eqVec2 } from "../../../../Models/Geometry";
 import { emit, signals } from "../../../../Models/Signals";
+import { pingAtLocation } from "../Ping";
+import { FORCE_ID_PLAYER } from "../../../../Models/Force";
 
 export function onPointerUp(
 	bgLayer: Phaser.Tilemaps.TilemapLayer,
@@ -29,21 +31,27 @@ export function onPointerUp(
 			if (scene.selectedSkillId) {
 				console.log("issuing skill command", scene.selectedSkillId);
 				issueSkillCommand(state, scene, tile, scene.selectedSkillId);
+				emit(signals.DISPLAY_EMOTE, scene.selectedSkillId, "combat-emote");
 				return;
 			} else if (unitPointerDown.unit && (isDrag)) {
+
+				if (unitPointerDown.unit.force !== FORCE_ID_PLAYER) {
+					console.log("select enemy unit, stop ", unitPointerDown.unit.job);
+					return;
+				}
 
 				if (eqVec2(unitPointerDown.unit.position, asVec2(tile))) {
 
 					console.log("select own cell, go idle", unitPointerDown.unit.id);
 					emit(signals.MAKE_UNIT_IDLE, unitPointerDown.unit.id);
+					emit(signals.DISPLAY_EMOTE, unitPointerDown.unit.id, "question-emote");
 					return;
 				}
 
 				console.log("issuing move order", unitPointerDown.unit.id);
 
-				issueMoveOrder(state,
-					unitPointerDown.unit.id,
-					tile, scene, pointer.worldX, pointer.worldY);
+				emit(signals.SELECT_UNIT_MOVE_DONE, unitPointerDown.unit.id, asVec2(tile));
+				pingAtLocation(scene, tile.x, tile.y);
 
 				// TODO: every state change needs to be done through signals
 				unitPointerDown.unit = null;

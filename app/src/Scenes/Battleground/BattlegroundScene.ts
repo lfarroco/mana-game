@@ -214,9 +214,27 @@ export class BattlegroundScene extends Phaser.Scene {
     const chara = this.charas.filter(c => c.force === FORCE_ID_PLAYER)[0]
     this.cameras.main.pan(chara.sprite.x, chara.sprite.y, 500, 'Sine.easeInOut', true);
 
+    this.displayOrderEmotes();
+
     console.log("BattlegroundScene create done");
 
   };
+
+  displayOrderEmotes() {
+    this.charas
+      .filter(c => c.unit.force === FORCE_ID_PLAYER)
+      .forEach(c => {
+
+        if (c.unit.order.type === "none") {
+          emit(signals.DISPLAY_EMOTE, c.unit.id, "question-emote");
+        } else if (c.unit.order.type === "move") {
+          emit(signals.DISPLAY_EMOTE, c.unit.id, "moving-emote");
+        } else if (c.unit.order.type === "skill-on-unit") {
+          emit(signals.DISPLAY_EMOTE, c.unit.id, "combat-emote");
+        }
+      });
+  }
+
 
   createEmotes() {
 

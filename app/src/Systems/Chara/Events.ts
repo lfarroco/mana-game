@@ -1,4 +1,5 @@
 import { TURN_DURATION } from "../../config";
+import { FORCE_ID_PLAYER } from "../../Models/Force";
 import { eqVec2, Vec2 } from "../../Models/Geometry";
 import { emit, listeners, signals } from "../../Models/Signals";
 import { State } from "../../Models/State";
@@ -33,7 +34,7 @@ export function init(scene: BattlegroundScene, state: State) {
 			chara.unit.order = {
 				type: "none"
 			}
-			emit(signals.HIDE_EMOTE, chara.unit.id);
+			emit(signals.DISPLAY_EMOTE, unitId, "question-emote");
 		}],
 		// how other units react to an unit being destroyed
 		[signals.UNIT_DESTROYED, async (unitId: string) => {
@@ -54,7 +55,6 @@ export function init(scene: BattlegroundScene, state: State) {
 						}
 						emit(signals.HIDE_EMOTE, c.unit.id);
 					}
-
 				});
 		}]
 	])
