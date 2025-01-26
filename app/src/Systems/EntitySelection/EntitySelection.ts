@@ -58,6 +58,15 @@ export function init(state: State) {
       (_id: string) => {
         state.gameData.selectedUnit = null;
       },
+    ],
+    [
+      signals.BATTLEGROUND_TICK,
+      () => {
+        if (state.gameData.selectedUnit)
+          emit(signals.UNIT_DESELECTED, state.gameData.selectedUnit);
+        if (state.gameData.selectedCity)
+          emit(signals.CITY_DESELECTED, state.gameData.selectedCity);
+      }
     ]
   ]);
 }

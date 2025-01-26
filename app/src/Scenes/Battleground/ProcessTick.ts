@@ -8,7 +8,7 @@ import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
 import { lookupAIPAth } from "./Systems/Pathfinding";
 import { getJob } from "../../Models/Job";
 import { asVec2, Vec2 } from "../../Models/Geometry";
-import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "./constants";
+import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, } from "./constants";
 import { getSkill } from "../../Models/Skill";
 
 const processTick = async (scene: BattlegroundScene) => {
