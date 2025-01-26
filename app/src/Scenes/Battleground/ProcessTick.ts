@@ -17,6 +17,8 @@ const processTick = async (scene: BattlegroundScene) => {
 
   const state = getState();
 
+  state.inputDisabled = true;
+
   console.log("set AI actions");
 
   // hide emotes
@@ -43,6 +45,8 @@ const processTick = async (scene: BattlegroundScene) => {
   emit(signals.TURN_END)
 
   scene.displayOrderEmotes();
+
+  state.inputDisabled = false;
 };
 
 

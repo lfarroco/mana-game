@@ -6,6 +6,7 @@ import { emit, signals } from "../../../../Models/Signals";
 import { FORCE_ID_PLAYER } from "../../../../Models/Force";
 import { getJob } from "../../../../Models/Job";
 import { highlightCells } from "../highlightCells";
+import { getState } from "../../../../Models/State";
 
 export function onPointerMove(
 	bgLayer: Phaser.Tilemaps.TilemapLayer,
@@ -14,8 +15,15 @@ export function onPointerMove(
 	pointerDownUnit: { unit: Unit | null }
 ) {
 
+	const state = getState();
+
 	bgLayer.on(Phaser.Input.Events.POINTER_MOVE,
 		(pointer: Phaser.Input.Pointer) => {
+
+
+			if (state.inputDisabled) {
+				return
+			}
 
 			if (!pointer.isDown) return;
 			if (pointer.downTime < 100) return;
