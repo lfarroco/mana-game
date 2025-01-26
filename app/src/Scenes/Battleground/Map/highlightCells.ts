@@ -1,4 +1,5 @@
 import { vec2, Vec2 } from "../../../Models/Geometry";
+import { listeners, signals } from "../../../Models/Signals";
 import BattlegroundScene from "../BattlegroundScene";
 
 let tweens: Phaser.Tweens.Tween[] = [];
@@ -48,4 +49,12 @@ export function clearCellHighlights(scene: BattlegroundScene) {
 	});
 
 	tweens = [];
+}
+
+export function init(scene: BattlegroundScene) {
+	listeners([
+		[signals.BATTLEGROUND_TICK, () => {
+			clearCellHighlights(scene);
+		}]
+	]);
 }

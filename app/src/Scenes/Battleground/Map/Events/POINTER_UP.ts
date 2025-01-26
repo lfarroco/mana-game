@@ -18,6 +18,10 @@ export function onPointerUp(
 
 			const state = getState();
 
+			if (state.inputDisabled) {
+				return;
+			}
+
 			const tile = bgLayer.getTileAtWorldXY(pointer.worldX, pointer.worldY);
 
 			console.log("clicked tile", tile);

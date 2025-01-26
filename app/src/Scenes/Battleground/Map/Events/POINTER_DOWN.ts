@@ -18,6 +18,10 @@ export function onPointerDown(
 	bgLayer.on(Phaser.Input.Events.POINTER_DOWN,
 		(pointer: Phaser.Input.Pointer) => {
 
+			if (state.inputDisabled) {
+				return;
+			}
+
 			const tile = bgLayer.getTileAtWorldXY(pointer.worldX, pointer.worldY);
 
 			if (!scene.casterId) {

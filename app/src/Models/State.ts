@@ -14,6 +14,7 @@ export const initialState = (): State => ({
     debug: true,
     speed: 4,
   },
+  inputDisabled: false,
   savedGames: [],
   gameData: {
     winner: null,
@@ -46,7 +47,8 @@ export type State = {
     speed: number;
   };
   savedGames: string[];
-  gameData: GameData
+  gameData: GameData;
+  inputDisabled: boolean;
 };
 
 export type GameData = {
