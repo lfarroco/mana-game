@@ -61,7 +61,7 @@ export function createEmote(index: EmoteIndex, chara: Chara) {
 
 	const follow = () => {
 		sprite.x = chara.sprite.x;
-		sprite.y = chara.sprite.y - HALF_TILE_HEIGHT / 2;
+		sprite.y = chara.sprite.y - HALF_TILE_HEIGHT;
 	}
 	chara.sprite.scene.events.on("update", follow);
 	chara.sprite.once("destroy", () => {
