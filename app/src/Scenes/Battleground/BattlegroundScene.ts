@@ -217,11 +217,10 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.createEmotes()
 
-
     //@ts-ignore
     window.scene = this;
 
-    this.cameras.main.setZoom(1.5)
+    //this.cameras.main.setZoom(1.5)
     emit(signals.BATTLEGROUND_STARTED);
 
     const chara = this.charas.filter(c => c.force === FORCE_ID_PLAYER)[0]
@@ -232,46 +231,42 @@ export class BattlegroundScene extends Phaser.Scene {
     aura.setDisplaySize(300, 300);
     aura.setOrigin(0.5, 0.5)
 
-
-    console.log(this.cameras.main.width, this.cameras.main.height)
-
     const auraPipeline = (this.renderer as Phaser.Renderer.WebGL.WebGLRenderer)
       .pipelines.add('auraPipeline', new AuraPipeline(this.game)) as AuraPipeline
-    auraPipeline.setResolution(200, 200);
+    auraPipeline.setResolution(100, 100);
     aura.setPipeline('auraPipeline');
     this.children.moveBelow(aura, chara.sprite)
 
-    this.add.circle(aura.x, aura.y, 5, 0xff0000).setScrollFactor(0);
 
     this.time.addEvent({
       delay: 16,
       loop: true,
       callback: () => {
-
         const camera = this.cameras.main;
-
         aura.x = chara.sprite.x;
         aura.y = chara.sprite.y;
 
-        const cx = camera.worldView.x + camera.centerX;
-        const cy = camera.worldView.y + camera.centerY;
+        // feature created with this conversation
+        // https://chatgpt.com/share/67959591-f0f8-8004-83e8-3e1e55d1965b
 
-        const dx = cx - aura.x;
-        const dy = cy - aura.y;
+        const cx = camera.worldView.x + camera.centerX / camera.zoom;
+        const cy = camera.worldView.y + camera.centerY / camera.zoom;
+
+        const dx = (cx - aura.x);
+        const dy = (cy - aura.y);
 
         // get the distance from the center of the camera to the center of the sprite
         auraPipeline.setCenter(
-          camera.centerX - dx,
-          camera.centerY + dy
+          (camera.centerX - dx * camera.zoom),
+          // screen space has y inverted
+          (camera.centerY + dy * camera.zoom)
         );
 
-
         auraPipeline.updateTime(this.time.now / 100);
+        auraPipeline.setResolution(100 * camera.zoom, 100 * camera.zoom);
 
       }
     });
-
-
 
     this.displayOrderEmotes();
 
