@@ -26,7 +26,7 @@ float noise(vec2 p) {
 }
 
 void main() {
-    vec2 uv = (gl_FragCoord.xy - center) / resolution.y;
+    vec2 uv = (gl_FragCoord.xy - center) / resolution.xy; // Divide by both resolution.x and resolution.y
     float dist = length(uv);
 
     // Wiggly smoke using noise

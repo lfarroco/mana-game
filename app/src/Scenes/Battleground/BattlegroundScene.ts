@@ -204,11 +204,7 @@ export class BattlegroundScene extends Phaser.Scene {
     this.createMapSquads();
 
     makeMapInteractive(this, map, layers.background);
-    //makeSquadsInteractive(this, this.charas);
-    // makeCitiesInteractive(
-    //   this,
-    //   this.cities
-    // );
+
 
     this.fow = createFowLayer(this)
 
@@ -225,7 +221,7 @@ export class BattlegroundScene extends Phaser.Scene {
     //@ts-ignore
     window.scene = this;
 
-    //this.cameras.main.setZoom(1.5)
+    this.cameras.main.setZoom(1.5)
     emit(signals.BATTLEGROUND_STARTED);
 
     const chara = this.charas.filter(c => c.force === FORCE_ID_PLAYER)[0]
@@ -233,7 +229,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     const aura = this.add.image(0, 0, "");
 
-    aura.setDisplaySize(200, 200);
+    aura.setDisplaySize(300, 300);
     aura.setOrigin(0.5, 0.5)
 
 
@@ -241,14 +237,11 @@ export class BattlegroundScene extends Phaser.Scene {
 
     const auraPipeline = (this.renderer as Phaser.Renderer.WebGL.WebGLRenderer)
       .pipelines.add('auraPipeline', new AuraPipeline(this.game)) as AuraPipeline
-    auraPipeline.setResolution(100, 100);
-    //auraPipeline.setResolution(400, 300);
+    auraPipeline.setResolution(200, 200);
     aura.setPipeline('auraPipeline');
-    //auraPipeline.setCenter(400, 300);
     this.children.moveBelow(aura, chara.sprite)
 
-    auraPipeline.setCenter(400, 400);
-
+    this.add.circle(aura.x, aura.y, 5, 0xff0000).setScrollFactor(0);
 
     this.time.addEvent({
       delay: 16,
@@ -257,25 +250,21 @@ export class BattlegroundScene extends Phaser.Scene {
 
         const camera = this.cameras.main;
 
-        // sx and sy are scroll x and y, limited by the world bounds
-        const sx = camera.scrollX < 0 ? 0 : camera.scrollX;
-        const sy = camera.scrollY < 0 ? 0 : camera.scrollY;
-
-        console.log(this.tilemap?.widthInPixels, sx)
-
-        // Convert the unit's world position to screen space
-        const screenX = (chara.sprite.x - sx) * camera.zoom;
-        const screenY = (chara.sprite.y - sy) * camera.zoom;
-
         aura.x = chara.sprite.x;
         aura.y = chara.sprite.y;
 
+        const cx = camera.worldView.x + camera.centerX;
+        const cy = camera.worldView.y + camera.centerY;
 
-        auraPipeline.setCenter(screenX, sy + 250);
+        const dx = cx - aura.x;
+        const dy = cy - aura.y;
 
-        //console.log("screenX", screenX, "screenY", screenY)
+        // get the distance from the center of the camera to the center of the sprite
+        auraPipeline.setCenter(
+          camera.centerX - dx,
+          camera.centerY + dy
+        );
 
-        // Update the shader's center to match the sprite's screen position
 
         auraPipeline.updateTime(this.time.now / 100);
 
