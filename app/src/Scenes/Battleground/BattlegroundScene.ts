@@ -220,7 +220,7 @@ export class BattlegroundScene extends Phaser.Scene {
     //@ts-ignore
     window.scene = this;
 
-    //this.cameras.main.setZoom(1.5)
+    this.cameras.main.setZoom(1.5)
     emit(signals.BATTLEGROUND_STARTED);
 
     const chara = this.charas.filter(c => c.force === FORCE_ID_PLAYER)[0]
