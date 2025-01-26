@@ -387,6 +387,8 @@ async function cast(
 
     //await delay(scene, 500 / state.options.speed);
 
+    popText(scene, skill.name, activeChara.unit.id);
+
     await slashAnimation(scene, activeChara, targetChara, skill.power);
 
     // await delay(scene, 2000);
@@ -456,7 +458,6 @@ async function slashAnimation(
   damage: number,
 ) {
 
-  popText(scene, "Slash!", activeChara.unit.id);
 
   const state = getState();
   const slash = scene.add
