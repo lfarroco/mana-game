@@ -60,6 +60,8 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 
 			const unit = getUnit(state)(key)
 
+			if (unit.force !== FORCE_ID_PLAYER) return;
+
 			if (unit.order.type !== "move") return
 
 			const graphics = displayPath(
