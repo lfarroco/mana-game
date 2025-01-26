@@ -8,9 +8,10 @@ import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
 import { lookupAIPAth } from "./Systems/Pathfinding";
 import { getJob } from "../../Models/Job";
 import { asVec2, Vec2 } from "../../Models/Geometry";
+import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "./constants";
+import { getSkill } from "../../Models/Skill";
 
 const processTick = async (scene: BattlegroundScene) => {
-
 
   emit(signals.TURN_START)
 
@@ -339,11 +340,11 @@ async function cast(
   scene: BattlegroundScene,
   state: State,
   unit: Unit,
-  skill: string,
+  skillId: string,
   targetId: string,
 ) {
 
-  console.log(unit.job, " :: casting skill -> ", skill);
+  console.log(unit.job, " :: casting skill -> ", skillId);
   const activeChara = scene.getCharaAt(unit.position)
 
   const targetUnit = getUnit(state)(targetId);
@@ -357,12 +358,14 @@ async function cast(
     )
   }
 
+  const skill = getSkill(skillId)
+
   panTo(scene, asVec2(activeChara.sprite));
 
   //@ts-ignore
   scene.children.bringToTop(activeChara.group);
 
-  const container = createDamageDisplay(scene, targetUnit);
+  //const damageDisplay = createDamageDisplay(scene, targetUnit);
 
   // is target still alive?
   if (targetUnit.hp <= 0) {
@@ -376,39 +379,42 @@ async function cast(
     return;
   }
 
-  if (skill === "attack") {
+  if (skillId === "attack") {
 
     await popText(scene, "Attack!", unit.id);
     // make the unit move backwards, then forwards to attack
     bashCardAnimation(scene, state, activeChara, targetUnit);
 
-    await delay(scene, 500 / state.options.speed);
+    //await delay(scene, 500 / state.options.speed);
 
-    await tween(scene, {
-      targets: container,
-      scale: 0.35,
-      duration: 300 / state.options.speed,
-      ease: "Bounce.easeOut",
-    });
+    await slashAnimation(scene, activeChara, targetChara, skill.power);
+
+    // await delay(scene, 2000);
+
+    // await tween(scene, {
+    //   targets: damageDisplay,
+    //   scale: 0.35,
+    //   duration: 300 / state.options.speed,
+    //   ease: "Bounce.easeOut",
+    // });
 
     console.log("will attack", targetUnit.job, targetUnit.hp);
 
     emit(
       signals.DAMAGE_UNIT,
       targetUnit.id,
-      30
+      skill.power,
     );
 
-    await tween(scene, {
-      targets: container,
-      alpha: 0,
-      duration: 700 / state.options.speed,
-    });
+    // await tween(scene, {
+    //   targets: slash,
+    //   alpha: 0,
+    //   duration: 700 / state.options.speed,
+    // });
 
-    container.destroy(true);
   }
 
-  if (skill === "heal") {
+  if (skillId === "heal") {
 
     console.log("will heal", unit.job, "->", targetUnit.job);
 
@@ -441,6 +447,57 @@ async function cast(
     sprite.destroy();
 
   }
+}
+
+async function slashAnimation(
+  scene: BattlegroundScene,
+  activeChara: Chara,
+  targetChara: Chara,
+  damage: number,
+) {
+
+  popText(scene, "Slash!", activeChara.unit.id);
+
+  const state = getState();
+  const slash = scene.add
+    .sprite(0, 0, "cethiel-slash")
+    .play("cethiel-slash")
+    .setScale(0.7);
+
+  slash.x = targetChara.sprite.x + HALF_TILE_WIDTH;
+  slash.y = targetChara.sprite.y - HALF_TILE_HEIGHT;
+
+  const audio = scene.sound.add("audio/sword2");
+  audio.volume = state.options.soundVolume * 2;
+  audio.play();
+
+  scene.time.addEvent({
+    delay: 250 / state.options.speed,
+    callback: () => {
+      popText(scene, damage.toString(), targetChara.unit.id);
+
+      // make target unit flash
+      tween(scene, {
+        targets: targetChara.sprite,
+        alpha: 0.5,
+        duration: 100 / state.options.speed,
+        yoyo: true,
+        repeat: 4,
+      });
+
+    }
+  })
+
+  await tween(scene, {
+    targets: slash,
+    x: targetChara.sprite.x,
+    y: targetChara.sprite.y,
+    duration: 500 / state.options.speed,
+    onComplete: () => {
+      slash.destroy();
+    }
+  });
+
 }
 
 async function popText(scene: BattlegroundScene, text: string, targetId: string) {
@@ -549,9 +606,9 @@ async function bashCardAnimation(
       y: y + Math.sin(directionVector) * forwardDistance,
       duration: forwardMovementDuration,
       onComplete: () => {
-        const audio = scene.sound.add("audio/punch1");
-        audio.volume = state.options.soundVolume;
-        audio.play();
+        // const audio = scene.sound.add("audio/punch1");
+        // audio.volume = state.options.soundVolume;
+        // audio.play();
       }
     },
     {
