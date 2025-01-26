@@ -37,3 +37,5 @@ https://opengameart.org/content/punch-slap-n-kick punch1.ogg
 
 https://opengameart.org/content/54-casino-sound-effects-cards-dice-chips
 chip-lay-3.ogg
+
+https://opengameart.org/content/weapon-slash-effect sword-slash.png

@@ -8,8 +8,6 @@ const jobs = [
 	'orc',
 ]
 
-const fxs = ['cethiel_light'];
-
 const emotes = [
 	'moving-emote',
 	'defend-emote',
@@ -93,6 +91,14 @@ export function preload(this: Phaser.Scene) {
 		}
 	);
 	this.load.spritesheet(
+		"cethiel-slash",
+		`assets/fx/cethiel-slash.png`,
+		{
+			frameWidth: 150,
+			frameHeight: 150,
+		}
+	);
+	this.load.spritesheet(
 		"pipo-light-pillar",
 		`assets/fx/pipo-light-pillar.png`,
 		{
@@ -119,6 +125,12 @@ export function preload(this: Phaser.Scene) {
 			frames: this.anims.generateFrameNumbers("cethiel-light", { start: 0, end: 4 }),
 			frameRate: 5,
 			repeat: -1,
+		});
+		this.anims.create({
+			key: "cethiel-slash",
+			frames: this.anims.generateFrameNumbers("cethiel-slash", { start: 0, end: 5 }),
+			frameRate: 12,
+			repeat: 0,
 		});
 		this.anims.create({
 			key: "pipo-light-pillar",

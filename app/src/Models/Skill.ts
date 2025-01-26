@@ -27,7 +27,7 @@ export const skills: Skill[] = [
 		areaOfEffect: 1,
 		tooltip: "Attack with a sword",
 		emote: "magic-emote",
-		targetEffect: "cethiel_light",
+		targetEffect: "cethiel-slash",
 		projectile: null,
 	},
 	{
