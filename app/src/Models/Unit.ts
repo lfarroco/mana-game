@@ -34,6 +34,7 @@ export type Unit = {
   mgkDefense: number;
   accuracy: number;
   agility: number;
+  log: string[];
 };
 
 export const makeUnit = (id: string, force: string, job: string, position: Vec2): Unit => {
@@ -50,5 +51,11 @@ export const makeUnit = (id: string, force: string, job: string, position: Vec2)
     ...job_.stats,
     maxHp: job_.stats.hp,
     maxMana: job_.stats.mana,
+    log: [],
   };
 };
+
+export const unitLog = (unit: Unit, log: string) => {
+  unit.log = [log, ...unit.log];
+  console.log(unit.id, log);
+}
