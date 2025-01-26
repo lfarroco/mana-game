@@ -226,25 +226,32 @@ export class BattlegroundScene extends Phaser.Scene {
     const chara = this.charas.filter(c => c.force === FORCE_ID_PLAYER)[0]
     this.cameras.main.pan(chara.sprite.x, chara.sprite.y, 500, 'Sine.easeInOut', true);
 
-    const aura = this.add.image(0, 0, "");
+    this.createShader(chara)
 
-    aura.setDisplaySize(300, 300);
-    aura.setOrigin(0.5, 0.5)
+    this.displayOrderEmotes();
+
+    console.log("BattlegroundScene create done");
+
+  };
+
+  createShader = (chara: Chara) => {
+    const shader = this.add.image(0, 0, "");
+
+    shader.setDisplaySize(200, 200);
+    shader.setOrigin(0.5, 0.5);
 
     const auraPipeline = (this.renderer as Phaser.Renderer.WebGL.WebGLRenderer)
       .pipelines.add('auraPipeline', new AuraPipeline(this.game)) as AuraPipeline
-    auraPipeline.setResolution(100, 100);
-    aura.setPipeline('auraPipeline');
-    this.children.moveBelow(aura, chara.sprite)
-
+    shader.setPipeline('auraPipeline');
+    this.children.moveBelow(shader, chara.sprite)
 
     this.time.addEvent({
       delay: 16,
       loop: true,
       callback: () => {
         const camera = this.cameras.main;
-        aura.x = chara.sprite.x;
-        aura.y = chara.sprite.y;
+        shader.x = chara.sprite.x;
+        shader.y = chara.sprite.y;
 
         // feature created with this conversation
         // https://chatgpt.com/share/67959591-f0f8-8004-83e8-3e1e55d1965b
@@ -252,8 +259,8 @@ export class BattlegroundScene extends Phaser.Scene {
         const cx = camera.worldView.x + camera.centerX / camera.zoom;
         const cy = camera.worldView.y + camera.centerY / camera.zoom;
 
-        const dx = (cx - aura.x);
-        const dy = (cy - aura.y);
+        const dx = (cx - shader.x);
+        const dy = (cy - shader.y);
 
         // get the distance from the center of the camera to the center of the sprite
         auraPipeline.setCenter(
@@ -263,16 +270,14 @@ export class BattlegroundScene extends Phaser.Scene {
         );
 
         auraPipeline.updateTime(this.time.now / 100);
-        auraPipeline.setResolution(100 * camera.zoom, 100 * camera.zoom);
+        auraPipeline.setResolution(64 * camera.zoom, 120 * camera.zoom);
 
       }
     });
 
-    this.displayOrderEmotes();
+    return auraPipeline
 
-    console.log("BattlegroundScene create done");
-
-  };
+  }
 
   displayOrderEmotes() {
     this.charas
