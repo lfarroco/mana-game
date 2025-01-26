@@ -38,7 +38,7 @@ export const jobs: Job[] = [
       accuracy: 10,
       agility: 10,
     },
-    skill: "attack"
+    skill: "slash"
   },
   {
     id: "monk",
@@ -58,7 +58,7 @@ export const jobs: Job[] = [
       accuracy: 8,
       agility: 6,
     },
-    skill: "attack"
+    skill: "slash"
   },
   {
     id: "cleric",
@@ -98,7 +98,7 @@ export const jobs: Job[] = [
       accuracy: 10,
       agility: 8,
     },
-    skill: "attack"
+    skill: "slash"
   },
   {
     id: "wizard",
@@ -138,7 +138,7 @@ export const jobs: Job[] = [
       accuracy: 10,
       agility: 8,
     },
-    skill: "attack"
+    skill: "slash"
   },
 ];
 
