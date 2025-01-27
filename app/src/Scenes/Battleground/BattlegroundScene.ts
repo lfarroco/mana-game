@@ -228,7 +228,7 @@ export class BattlegroundScene extends Phaser.Scene {
     const chara = this.charas.filter(c => c.force === FORCE_ID_PLAYER)[0]
     this.cameras.main.pan(chara.sprite.x, chara.sprite.y, 500, 'Sine.easeInOut', true);
 
-    this.createShader(chara)
+    //this.createShader(chara)
 
     this.displayOrderEmotes();
 
