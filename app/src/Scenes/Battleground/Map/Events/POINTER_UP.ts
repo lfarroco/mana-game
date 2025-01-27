@@ -34,8 +34,16 @@ export function onPointerUp(
 
 			if (scene.selectedSkillId) {
 				console.log("issuing skill command", scene.selectedSkillId);
-				issueSkillCommand(state, scene, tile, scene.selectedSkillId);
-				emit(signals.DISPLAY_EMOTE, scene.selectedSkillId, "combat-emote");
+				const casted = issueSkillCommand(scene,
+					state.gameData.selectedUnit!,
+					tile,
+					scene.selectedSkillId,
+				);
+
+				if (casted) {
+					pingAtLocation(scene, tile.x, tile.y);
+					emit(signals.DISPLAY_EMOTE, state.gameData.selectedUnit!, "magic-emote");
+				}
 				return;
 			} else if (unitPointerDown.unit && (isDrag)) {
 
