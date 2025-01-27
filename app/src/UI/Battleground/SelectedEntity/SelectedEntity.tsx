@@ -92,12 +92,14 @@ const SelectedEntity = ({
 					{mana} / {maxMana}
 				</div>}
 			</div>
-			<div className="col-3 align-self-center" >
-				{
-					description
-				}
+			<div className="col col-3 mt-2">
+				{description}
+			</div>
+			<div className="col col-6 mt-2">
+				<ButtonGrid actions={actions} />
 			</div>
 		</Row>
+
 
 	</div >
 

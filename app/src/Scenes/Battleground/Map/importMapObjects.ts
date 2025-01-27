@@ -76,7 +76,7 @@ export function importMapObjects(map: Phaser.Tilemaps.Tilemap) {
       if (!force) throw new Error("force is undefined");
 
       const newCity: City = {
-        id: uuid.v4(),
+        id: city.name + "-" + uuid.v4().slice(0, 5),
         name: city.name,
         force: force.id,
         type: city.cityType,
@@ -134,6 +134,8 @@ export function importMapObjects(map: Phaser.Tilemaps.Tilemap) {
       const unitId = uuid.v4();
 
       const newUnit: Unit = makeUnit(unitId, force.id, unitSpec.job, boardToWindowVec(unitSpec))
+
+      newUnit.id = newUnit.name + "-" + uuid.v4().slice(0, 5);
 
       if (unitSpec.ai === "attacker") {
         state.gameData.ai.attackers.push(newUnit.id);

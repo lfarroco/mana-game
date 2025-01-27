@@ -35,14 +35,15 @@ export function makeMapInteractive(
 }
 
 export function issueSkillCommand(
-  state: State,
   scene: BattlegroundScene,
+  unitId: string,
   tile: Phaser.Tilemaps.Tile,
   skillId: string,
 ) {
 
-  if (!state.gameData.selectedUnit) return;
-  const unit = getUnit(state)(state.gameData.selectedUnit);
+  const { state } = scene;
+
+  const unit = getUnit(scene.state)(unitId);
   const skill = getSkill(skillId);
 
   if (skill.targets === "ally") {
@@ -53,13 +54,13 @@ export function issueSkillCommand(
     if (!allyInTile) return // todo: error sound
 
     // todo: use "skill requirements" to check if the skill can be used
-    if (allyInTile.hp === allyInTile.maxHp) return // todo: error sound
+    if (allyInTile.hp === allyInTile.maxHp) return false; // todo: error sound
 
     // todo: use "skill range" to check if the skill can be used
 
     const distance = Phaser.Math.Distance.Between(unit.position.x, unit.position.y, allyInTile.position.x, allyInTile.position.y);
 
-    if (distance > skill.range) return // todo: error sound
+    if (distance > skill.range) return false;// todo: error sound
 
     emit(signals.SELECT_SKILL_TARGET_DONE, asVec2(tile));
 
