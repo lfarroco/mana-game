@@ -58,9 +58,9 @@ export function issueSkillCommand(
 
     // todo: use "skill range" to check if the skill can be used
 
-    const distance = Phaser.Math.Distance.Between(unit.position.x, unit.position.y, allyInTile.position.x, allyInTile.position.y);
+    // const distance = Phaser.Math.Distance.Between(unit.position.x, unit.position.y, allyInTile.position.x, allyInTile.position.y);
 
-    if (distance > skill.range) return false;// todo: error sound
+    // if (distance > skill.range) return false;// todo: error sound
 
     emit(signals.SELECT_SKILL_TARGET_DONE, asVec2(tile));
 
@@ -73,9 +73,9 @@ export function issueSkillCommand(
       return
     } // todo: error sound
 
-    const distance = Phaser.Math.Distance.Between(unit.position.x, unit.position.y, enemy.position.x, enemy.position.y);
+    // const distance = Phaser.Math.Distance.Between(unit.position.x, unit.position.y, enemy.position.x, enemy.position.y);
 
-    if (distance > skill.range) return // todo: error sound
+    // if (distance > skill.range) return // todo: error sound
 
     emit(signals.SELECT_SKILL_TARGET_DONE, asVec2(tile));
 

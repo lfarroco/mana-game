@@ -30,7 +30,8 @@ export function init(scene: BattlegroundScene) {
 	scene.input.keyboard?.on("keydown-SPACE", () => {
 
 		if (state.inputDisabled) { return; }
-		emit(signals.BATTLEGROUND_TICK)
+		//@ts-ignore
+		document.querySelector("#next-turn")?.click();
 	});
 
 	if (scene.input.mouse) {
