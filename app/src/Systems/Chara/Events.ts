@@ -16,7 +16,7 @@ export function init(scene: BattlegroundScene, state: State) {
 			const nextTile = scene.getTileAt(cell);
 
 			await tween(scene, {
-				targets: chara.sprite,
+				targets: chara.container,
 				x: nextTile.getCenterX(),
 				y: nextTile.getCenterY(),
 				duration: TURN_DURATION / (2 * state.options.speed),
