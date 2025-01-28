@@ -5,13 +5,12 @@ import { importMapObjects } from "./Map/importMapObjects";
 import { createCities } from "./Map/createCities";
 import { Unit } from "../../Models/Unit";
 import processTick from "./ProcessTick";
-import { eqVec2, Vec2, vec2 } from "../../Models/Geometry";
+import { eqVec2, Vec2 } from "../../Models/Geometry";
 import { Chara, createChara } from "../../Systems/Chara/Chara";
 import { emit, signals, listeners } from "../../Models/Signals";
 import { State, getUnit, getState } from "../../Models/State";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
 import * as StaminaRegen from "../../Systems/HPRegen/HPRegen";
-import * as ManaRegen from "../../Systems/ManaRegen/ManaRegen";
 import * as VictorySystem from "../../Systems/Victory/Victory";
 import { unitDestroyed } from "./Events/UNIT_DESTROYED";
 import { City } from "../../Models/City";
@@ -22,7 +21,6 @@ import * as Pathfinding from "./Systems/Pathfinding";
 import * as AISystem from "../../Systems/AI/AI";
 import { EmoteSystem_init } from "../../Systems/Chara/Emote";
 import * as HPBarSystem from "../../Systems/Chara/HPBar";
-import * as ManaBarSystem from "../../Systems/Chara/ManaBar";
 import * as EntitySelection from "../../Systems/EntitySelection/EntitySelection";
 import * as CharaSystem from "../../Systems/Chara/Events";
 import * as HightlightCellsSystem from "./Map/highlightCells";
@@ -59,8 +57,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
   cleanup() {
     this.charas.forEach(chara => {
-      chara.group?.destroy(true, true)
-      chara.sprite?.destroy()
+      chara.container.destroy(true)
     })
     this.charas = []
     this.cities.forEach(city => {
@@ -144,8 +141,8 @@ export class BattlegroundScene extends Phaser.Scene {
             return
           }
           this.cameras.main.pan(
-            idle.sprite.x,
-            idle.sprite.y,
+            idle.container.x,
+            idle.container.y,
             500 / state.options.speed,
             'Sine.easeInOut',
           )
@@ -166,13 +163,11 @@ export class BattlegroundScene extends Phaser.Scene {
     CityCaptureSystem.init(this);
     Pathfinding.init(this);
     StaminaRegen.init(state);
-    ManaRegen.init(state);
     EntitySelection.init(state);
     CharaSystem.init(this, state);
     FogOfWarSystem.init(this, state);
     CursorSystem.init(state, this);
     HPBarSystem.init(state, this);
-    ManaBarSystem.init(state, this);
     DestinationDisplaySystem_init(state, this);
     BattlegroundAudioSystem_init(state, this);
     HightlightCellsSystem.init(this);
@@ -226,7 +221,9 @@ export class BattlegroundScene extends Phaser.Scene {
     emit(signals.BATTLEGROUND_STARTED);
 
     const chara = this.charas.filter(c => c.force === FORCE_ID_PLAYER)[0]
-    this.cameras.main.pan(chara.sprite.x, chara.sprite.y, 500, 'Sine.easeInOut', true);
+    this.cameras.main.pan(
+      chara.container.x, chara.container.y,
+      500, 'Sine.easeInOut', true);
 
     //this.createShader(chara)
 
@@ -252,8 +249,8 @@ export class BattlegroundScene extends Phaser.Scene {
       loop: true,
       callback: () => {
         const camera = this.cameras.main;
-        shader.x = chara.sprite.x;
-        shader.y = chara.sprite.y;
+        shader.x = chara.container.x;
+        shader.y = chara.container.y;
 
         // feature created with this conversation
         // https://chatgpt.com/share/67959591-f0f8-8004-83e8-3e1e55d1965b
@@ -407,6 +404,11 @@ export class BattlegroundScene extends Phaser.Scene {
       .find((chara) => eqVec2(chara.unit.position, vec));
 
     return chara
+  }
+  playFx(key: string) {
+    const audio = this.sound.add(key)
+    audio.volume = this.state.options.soundVolume;
+    audio.play();
   }
 }
 

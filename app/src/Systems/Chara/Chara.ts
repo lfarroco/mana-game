@@ -4,17 +4,15 @@ import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../.
 import "./portrait.css"
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { listeners, signals } from "../../Models/Signals";
-import { tween } from "../../Utils/animation";
-import { FORCE_ID_PLAYER } from "../../Models/Force";
 
 export type Chara = {
 	id: string;
 	force: string;
 	job: string;
 	sprite: Phaser.GameObjects.Image,
-	group: Phaser.GameObjects.Group | null,
 	shadow: Phaser.GameObjects.Image,
 	unit: Unit,
+	container: Phaser.GameObjects.Container
 }
 
 const spriteSize = 64;
@@ -27,18 +25,21 @@ export function createChara(
 	unit: Unit,
 ): Chara {
 
+	const container = scene.add.container(
+		unit.position.x * TILE_WIDTH + HALF_TILE_WIDTH,
+		unit.position.y * TILE_HEIGHT + HALF_TILE_HEIGHT
+	)
+
 	const sprite = scene
 		.add.image(
-			unit.position.x * TILE_WIDTH + HALF_TILE_WIDTH,
-			unit.position.y * TILE_HEIGHT + HALF_TILE_HEIGHT,
+			0, 0,
 			unit.job
 		).setName("chara-" + unit.id);// TODO: is this being used?
 
 	sprite.setDisplaySize(spriteSize, spriteSize)
 
 	const shadow = scene.add.image(
-		unit.position.x * TILE_WIDTH + HALF_TILE_WIDTH,
-		unit.position.y * TILE_HEIGHT + HALF_TILE_HEIGHT,
+		0, 0,
 		unit.job
 	).setName("shadow-" + unit.id).setTint(0x000000).setAlpha(1).setDisplaySize(shadowSize, shadowSize);
 	shadow.visible = false;
@@ -48,14 +49,14 @@ export function createChara(
 	// TODO: move to animation system
 	//sprite.play(unit.job + "-idle-down", true);
 
-	const group = scene.add.group([sprite, shadow]) // TODO: is this being used?
+	container.add([shadow, sprite])
 
 	const chara: Chara = {
 		id: unit.id,
 		force: unit.force,
 		job: unit.job,
 		sprite,
-		group,
+		container,
 		shadow,
 		unit
 	}
@@ -65,8 +66,8 @@ export function createChara(
 			if (unitId !== chara.id) return;
 			shadow.visible = true;
 			scene.cameras.main.pan(
-				sprite.x,
-				sprite.y,
+				container.x,
+				container.y,
 				300,
 				"Linear",
 				true

@@ -25,9 +25,6 @@ export type Unit = {
   hp: number;
   maxHp: number;
 
-  mana: number;
-  maxMana: number;
-
   attack: number;
   defense: number;
   mgkAttack: number;
@@ -50,7 +47,6 @@ export const makeUnit = (id: string, force: string, job: string, position: Vec2)
     position,
     ...job_.stats,
     maxHp: job_.stats.hp,
-    maxMana: job_.stats.mana,
     log: [],
   };
 };

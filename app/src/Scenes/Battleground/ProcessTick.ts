@@ -84,26 +84,26 @@ async function step(scene: BattlegroundScene, state: State, unit: Unit) {
 
   const unitChara = scene.getChara(unit.id);
 
-  await panTo(scene, asVec2(unitChara.sprite));
+  await panTo(scene, asVec2(unitChara.container));
 
-  const chara = scene.getCharaAt(next);
+  const blocker = scene.getCharaAt(next);
 
-  if (chara) {
+  if (blocker) {
 
     // is the unit an ally? if so, stop. otherwise, attack
 
-    if (chara.unit.force === unit.force) {
+    if (blocker.unit.force === unit.force) {
 
-      unitLog(unit, `blocked by ally -> ${chara.unit.id}`);
+      unitLog(unit, `blocked by ally -> ${blocker.unit.id}`);
 
       emit(signals.MAKE_UNIT_IDLE, unit.id);
       return;
     } else {
       // agroo
-      unitLog(unit, `blocked by enemy -> ${chara.unit.id}`);
+      unitLog(unit, `blocked by enemy -> ${blocker.unit.id}`);
       emit(signals.HIDE_EMOTE, unit.id);
       unit.order = {
-        target: chara.unit.id,
+        target: blocker.unit.id,
         type: "skill-on-unit",
         skill: "slash",
       }
@@ -146,9 +146,7 @@ async function step(scene: BattlegroundScene, state: State, unit: Unit) {
 
   emit(signals.MOVE_UNIT_INTO_CELL_START, unit.id, next);
 
-  const audio = scene.sound.add("audio/chip-lay-3")
-  audio.volume = state.options.soundVolume;
-  audio.play();
+  scene.playFx("audio/chip-lay-3")
 
   await delay(scene, 500 / state.options.speed);
 
@@ -356,7 +354,7 @@ async function cast(
 
   const skill = getSkill(skillId)
 
-  panTo(scene, asVec2(activeChara.sprite));
+  panTo(scene, asVec2(activeChara.container));
 
   //@ts-ignore
   scene.children.bringToTop(activeChara.group);
@@ -419,8 +417,7 @@ async function cast(
     audio.play();
 
     const sprite = scene.add.sprite(
-      targetChara.sprite.x,
-      targetChara.sprite.y,
+      targetChara.container.x, targetChara.container.y,
       "pipo-light-pillar",
     ).play("pipo-light-pillar")
       .setScale(0.5)
@@ -464,8 +461,8 @@ async function slashAnimation(
     .play("cethiel-slash")
     .setScale(0.7);
 
-  slash.x = targetChara.sprite.x + HALF_TILE_WIDTH;
-  slash.y = targetChara.sprite.y - HALF_TILE_HEIGHT;
+  slash.x = targetChara.container.x + HALF_TILE_WIDTH;
+  slash.y = targetChara.container.y - HALF_TILE_HEIGHT;
 
   const audio = scene.sound.add("audio/sword2");
   audio.volume = state.options.soundVolume * 2;
@@ -478,7 +475,7 @@ async function slashAnimation(
 
       // make target unit flash
       tween(scene, {
-        targets: targetChara.sprite,
+        targets: targetChara.container,
         alpha: 0.5,
         duration: 100 / state.options.speed,
         yoyo: true,
@@ -490,8 +487,8 @@ async function slashAnimation(
 
   await tween(scene, {
     targets: slash,
-    x: targetChara.sprite.x,
-    y: targetChara.sprite.y,
+    x: targetChara.container.x,
+    y: targetChara.container.y,
     duration: 500 / state.options.speed,
     onComplete: () => {
       slash.destroy();
@@ -504,7 +501,7 @@ async function slashAnimation(
 async function popText(scene: BattlegroundScene, text: string, targetId: string) {
 
   const chara = scene.getChara(targetId);
-  const popText = scene.add.text(chara.sprite.x, chara.sprite.y, text, {
+  const popText = scene.add.text(chara.container.x, chara.container.y, text, {
     fontSize: "24px",
     color: "#ffffff",
     stroke: "#000000",
@@ -524,7 +521,7 @@ async function popText(scene: BattlegroundScene, text: string, targetId: string)
   await tween(scene, {
     targets: popText,
     alpha: 0,
-    y: chara.sprite.y - 24,
+    y: chara.container.y - 24,
     duration: 2000 / scene.state.options.speed,
     ease: "Expo.easeOut",
   });
@@ -564,7 +561,7 @@ function createDamageDisplay(scene: BattlegroundScene, targetUnit: Unit) {
     .setOrigin(0.5, 0.5)
 
   const container = scene.add.container(
-    targetChara.sprite.x, targetChara.sprite.y, [damageBg, damage]
+    targetChara.container.x, targetChara.container.y, [damageBg, damage]
   ).setScale(0);
 
   return container;
@@ -589,20 +586,20 @@ async function bashCardAnimation(
   const forwardDistance = backDistance * 2;
 
   const directionVector = Phaser.Math.Angle.BetweenPoints(
-    activeChara.sprite,
-    targetChara.sprite
+    activeChara.container,
+    targetChara.container
   );
-  const { x, y } = activeChara.sprite;
+  const { x, y } = activeChara.container;
 
   await tweenSequence(scene,
     [{
-      targets: activeChara.sprite,
+      targets: activeChara.container,
       x: x - Math.cos(directionVector) * backDistance,
       y: y - Math.sin(directionVector) * backDistance,
       duration: backMovementDuration,
     },
     {
-      targets: activeChara.sprite,
+      targets: activeChara.container,
       x: x + Math.cos(directionVector) * forwardDistance,
       y: y + Math.sin(directionVector) * forwardDistance,
       duration: forwardMovementDuration,
@@ -613,7 +610,7 @@ async function bashCardAnimation(
       }
     },
     {
-      targets: activeChara.sprite,
+      targets: activeChara.container,
       x,
       y,
       duration: returnMovementDuration,

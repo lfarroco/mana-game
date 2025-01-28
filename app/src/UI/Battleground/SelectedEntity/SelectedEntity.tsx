@@ -43,8 +43,6 @@ const SelectedEntity = ({
 	, portraitAlt,
 	hp,
 	maxHp,
-	mana,
-	maxMana,
 	description,
 	actions,
 }: {
@@ -52,8 +50,6 @@ const SelectedEntity = ({
 	portraitAlt: string,
 	hp: number,
 	maxHp: number,
-	mana: number,
-	maxMana: number,
 	description: JSX.Element,
 	actions: ButtonGridAction[]
 }) => {
@@ -84,13 +80,7 @@ const SelectedEntity = ({
 				>
 					{hp} / {maxHp}
 				</div>}
-				{maxMana > 0 && <div
-					style={{
-						color: "rgb(63 196 254)",
-					}}
-				>
-					{mana} / {maxMana}
-				</div>}
+
 			</div>
 			<div className="col col-3 mt-2">
 				{description}

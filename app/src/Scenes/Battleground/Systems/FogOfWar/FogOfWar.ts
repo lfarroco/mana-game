@@ -29,7 +29,7 @@ export function init(scene: BattlegroundScene, state: State) {
       const isUnderFog = scene.fow!.getTileAt(position.x, position.y).alpha === 0;
 
       const chara = scene.getChara(unitId);
-      chara.sprite.setVisible(isUnderFog);
+      chara.container.setVisible(isUnderFog);
 
     }]
   ]);
@@ -70,7 +70,7 @@ function refreshFogOfWar(
 
       const visible = tile.alpha === 0;
 
-      chara.sprite.setVisible(visible);
+      chara.container.setVisible(visible);
     });
 }
 

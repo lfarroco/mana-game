@@ -1,5 +1,7 @@
+import { vec2, Vec2 } from "../../Models/Geometry";
 import { listeners, signals } from "../../Models/Signals"
 import { State, getUnit } from "../../Models/State"
+import { Unit } from "../../Models/Unit";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene"
 import { HALF_TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 import { hpColor } from "../../Utils/hpColor";
@@ -13,6 +15,7 @@ export function init(state: State, scene: BattlegroundScene) {
 
 	let barIndex: {
 		[id: string]: {
+			xy: Vec2,
 			bar: Phaser.GameObjects.Graphics,
 			bg: Phaser.GameObjects.Graphics
 		}
@@ -25,41 +28,22 @@ export function init(state: State, scene: BattlegroundScene) {
 
 			const unit = getUnit(state)(id)
 
+			const x = -BAR_WIDTH / 2;
+			const y = HALF_TILE_HEIGHT - BAR_HEIGHT * 2
+
 			const bg = scene.add.graphics();
 			bg.fillStyle(0x000000, 1);
 			bg.fillRect(
-				0,
-				0,
-				BAR_WIDTH,
-				BAR_HEIGHT
+				x - BORDER_WIDTH, y - BORDER_WIDTH,
+				BAR_WIDTH, BAR_HEIGHT
 			);
 			const bar = scene.add.graphics();
-			const color = hpColor(unit.hp, unit.maxHp)
-			bar.fillStyle(Number(color), 1);
-			bar.fillRect(
-				0,
-				0,
-				calculateBarWidth(unit.hp, unit.maxHp),
-				BAR_HEIGHT - BORDER_WIDTH * 2
-			);
+			drawBar(unit.hp, unit, bar, vec2(x, y));
 
-			const follow = () => {
-				bg.x = chara.sprite.x - BAR_WIDTH / 2;
-				bg.y = chara.sprite.y + HALF_TILE_HEIGHT - BAR_HEIGHT * 2;
-				bar.x = bg.x + BORDER_WIDTH;
-				bar.y = bg.y + BORDER_WIDTH
-			};
-
-			//make bars follow sprite
-			scene.events.on("update", follow);
-			//destroy listener on element destroy
-			chara.sprite.once("destroy", () => {
-				scene.events.off("update", follow);
-			});
-
-			chara.group?.addMultiple([bg, bar])
+			chara.container.add([bg, bar])
 
 			barIndex[id] = {
+				xy: vec2(x, y),
 				bar,
 				bg
 			}
@@ -73,30 +57,33 @@ export function init(state: State, scene: BattlegroundScene) {
 
 			const unit = getUnit(state)(id)
 
-			const { bar } = barIndex[id]
+			const { bar, xy } = barIndex[id]
 
 			bar.clear()
-			const color = hpColor(hp, unit.maxHp)
-			bar.fillStyle(Number(color), 1);
-			bar.fillRect(
-				0,
-				0,
-				calculateBarWidth(hp, unit.maxHp),
-				BAR_HEIGHT - BORDER_WIDTH * 2
-			);
+
+			drawBar(hp, unit, bar, xy);
 		}],
 		[signals.UNIT_DESTROYED, (id: string) => {
 
-			const { bar, bg } = barIndex[id]
+			const { bar } = barIndex[id]
 
-			bar.destroy()
-			bg.destroy()
+			bar.parentContainer.destroy(true);
 
 			delete barIndex[id]
 
 		}]
 	])
 
+}
+
+function drawBar(hp: any, unit: Unit, bar: Phaser.GameObjects.Graphics, xy: Vec2) {
+	const color = hpColor(hp, unit.maxHp);
+	bar.fillStyle(Number(color), 1);
+	bar.fillRect(
+		xy.x, xy.y,
+		calculateBarWidth(hp, unit.maxHp),
+		BAR_HEIGHT - BORDER_WIDTH * 2
+	);
 }
 
 function calculateBarWidth(hp: any, maxHp: number): number {

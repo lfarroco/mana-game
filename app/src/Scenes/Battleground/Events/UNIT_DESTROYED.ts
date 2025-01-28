@@ -10,12 +10,12 @@ export function unitDestroyed(scene: BattlegroundScene, state: State) {
 			const chara = scene.getChara(id)
 
 			scene.tweens.add({
-				targets: chara.sprite,
+				targets: chara.container,
 				alpha: 0,
 				duration: 1000 / state.options.speed,
 				ease: 'Power2',
 				onComplete: () => {
-					chara.group?.destroy(true, true)
+					chara.container.destroy(true)
 				}
 			});
 

@@ -5,7 +5,6 @@ export type Skill = {
 	range: number;
 	targets: "enemy" | "ally" | "unit" | "tile"
 	power: number;
-	mana: number;
 	harmful: boolean;
 	areaOfEffect: number;
 	tooltip: string;
@@ -23,7 +22,6 @@ export const skills: Skill[] = [
 		range: 1,
 		targets: "enemy",
 		power: 20,
-		mana: 0,
 		harmful: true,
 		areaOfEffect: 1,
 		tooltip: "Attack with a sword",
@@ -38,7 +36,6 @@ export const skills: Skill[] = [
 		range: 2,
 		targets: "ally",
 		power: 20,
-		mana: 5,
 		harmful: false,
 		areaOfEffect: 1,
 		tooltip: "Heals an ally unit for 5 HP each turn",
@@ -53,7 +50,6 @@ export const skills: Skill[] = [
 		range: 5,
 		targets: "enemy",
 		power: 100,
-		mana: 10,
 		harmful: true,
 		areaOfEffect: 1,
 		tooltip: "Deals 10 damage to an enemy unit",

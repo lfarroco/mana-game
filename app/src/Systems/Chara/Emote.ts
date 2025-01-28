@@ -50,25 +50,17 @@ export function EmoteSystem_init(state: State, scene: BattlegroundScene) {
 // todo: decouple emote from overlay
 export function createEmote(index: EmoteIndex, chara: Chara) {
 
-	const sprite = chara.sprite.scene.add.sprite(
-		chara.sprite.x,
-		chara.sprite.y,
+	const { scene } = chara.sprite
+
+	const sprite = scene.add.sprite(
+		0, -HALF_TILE_HEIGHT,
 		"combat-emote",
 	).setScale(EMOTE_SCALE);
 	sprite.anims.play("combat-emote");
 	index[chara.id] = sprite;
 	sprite.visible = false;
 
-	const follow = () => {
-		sprite.x = chara.sprite.x;
-		sprite.y = chara.sprite.y - HALF_TILE_HEIGHT;
-	}
-	chara.sprite.scene.events.on("update", follow);
-	chara.sprite.once("destroy", () => {
-		chara.sprite.scene.events.off("update", follow);
-	});
-
-	chara.group?.add(sprite);
+	chara.container.add(sprite);
 
 	return chara;
 }

@@ -16,9 +16,11 @@ const getOrCreateCursorForChara_ = (
 	cursors: ImageIndex,
 ) => (chara: Chara) => {
 
+	const { scene } = chara.sprite
+
 	if (cursors[chara.id]) return cursors[chara.id]
 
-	const cursor = chara.sprite.scene.add.image(0, 0, 'cursor')
+	const cursor = scene.add.image(0, 0, 'cursor')
 		.setTint(
 			chara.force === FORCE_ID_PLAYER ?
 				0x00ff00 : 0xff0000
@@ -26,7 +28,7 @@ const getOrCreateCursorForChara_ = (
 		.setVisible(false)
 		.setScale(0.8);
 
-	chara.sprite.scene.children.moveBelow(cursor, chara.sprite)
+	scene.children.moveBelow(cursor, chara.sprite)
 
 	cursors[chara.id] = cursor
 
@@ -181,8 +183,8 @@ function renderCursor(
 
 	setListener(
 		() => {
-			cursor.x = chara.sprite.x;
-			cursor.y = chara.sprite.y + TILE_HEIGHT / 4;
+			cursor.x = chara.container.x;
+			cursor.y = chara.container.y + TILE_HEIGHT / 4;
 		},
 		chara,
 		eventListeners,
