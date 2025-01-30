@@ -5,11 +5,13 @@ import { getState } from "../../Models/State";
 
 export default function Options() {
 
+  const state = getState();
+
   const [show, setShow] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [musicEnabled, setMusicEnabled] = useState(true);
+  const [gameSpeed, setGameSpeed] = useState(state.options.speed);
 
-  const state = getState();
 
   useEffect(() => {
     listeners([
@@ -56,6 +58,20 @@ export default function Options() {
                 emit(signals.STOP_MUSIC)
             }}
             checked={musicEnabled}
+          />
+          <Form.Label>Game speed: {gameSpeed}</Form.Label>
+
+          <Form.Range // game speed
+            id="game-speed"
+            min={1}
+            max={8}
+            step={1}
+            value={state.options.speed}
+            onChange={(e) => {
+              const speed = parseInt(e.target.value);
+              state.options.speed = speed;
+              setGameSpeed(speed)
+            }}
           />
         </Form>
       </Modal.Body>
