@@ -65,13 +65,6 @@ export function createChara(
 
 			if (unitId !== chara.id) return;
 			shadow.visible = true;
-			scene.cameras.main.pan(
-				container.x,
-				container.y,
-				300,
-				"Linear",
-				true
-			)
 
 		}],
 		[
@@ -79,7 +72,8 @@ export function createChara(
 				if (unitId !== chara.id) return;
 				shadow.visible = false;
 			}
-		]
+		],
+
 	])
 
 	return chara

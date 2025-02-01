@@ -34,9 +34,10 @@ export function init(scene: BattlegroundScene) {
 		document.querySelector("#next-turn")?.click();
 	});
 
-	if (scene.input.mouse) {
+	// enable this only for prod build
+	// if (scene.input.mouse) {
 
-		if (state.inputDisabled) { return; }
-		scene.input.mouse.disableContextMenu();
-	}
+	// 	if (state.inputDisabled) { return; }
+	// 	scene.input.mouse.disableContextMenu();
+	// }
 }

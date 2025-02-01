@@ -5,7 +5,6 @@ import { Vec2, asVec2, eqVec2, vec2 } from "../../../Models/Geometry";
 import { FORCE_ID_PLAYER } from "../../../Models/Force";
 import { Unit } from "../../../Models/Unit";
 import { getUnit, State } from "../../../Models/State";
-import { pingAtLocation } from "./Ping";
 import { getSkill } from "../../../Models/Skill";
 import { onPointerMove } from "./Events/POINTER_MOVE";
 import { onPointerUp } from "./Events/POINTER_UP";
@@ -83,20 +82,4 @@ export function issueSkillCommand(
 
 }
 
-export function selectEntityInTile(state: State, tile: Vec2): [Unit | undefined, City | undefined] {
-  const unit = state.gameData.units
-    .filter(u => u.hp > 0)
-    .find((unit) => eqVec2(unit.position, (tile)));
 
-  const city = state.gameData.cities.find((city) => eqVec2(city.boardPosition, (tile)));
-
-  if (unit) {
-    emit(signals.UNIT_SELECTED, unit.id);
-  } else {
-    if (city) {
-      emit(signals.CITY_SELECTED, city.id);
-    }
-  }
-
-  return [unit, city]
-}
