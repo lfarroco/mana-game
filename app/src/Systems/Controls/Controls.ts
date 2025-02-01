@@ -1,4 +1,3 @@
-import { emit, signals } from "../../Models/Signals";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 
 export function init(scene: BattlegroundScene) {
@@ -6,12 +5,9 @@ export function init(scene: BattlegroundScene) {
 	const { state } = scene;
 
 	const keyToSelectorMap = [
-		["A", "#grid-cell-0 button"],
-		["S", "#grid-cell-1 button"],
-		["D", "#grid-cell-2 button"],
-		["Z", "#grid-cell-3 button"],
-		["X", "#grid-cell-4 button"],
-		["C", "#grid-cell-5 button"],
+		["Z", "#grid-cell-0 button"],
+		["X", "#grid-cell-1 button"],
+		["C", "#grid-cell-2 button"],
 	]
 
 	keyToSelectorMap.forEach(([key, selector]) => {

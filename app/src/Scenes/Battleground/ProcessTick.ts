@@ -464,7 +464,7 @@ async function slashAnimation(
   const slash = scene.add
     .sprite(0, 0, "cethiel-slash")
     .play("cethiel-slash")
-    .setScale(0.7);
+    .setScale(1.5);
 
   slash.x = targetChara.container.x + HALF_TILE_WIDTH;
   slash.y = targetChara.container.y - HALF_TILE_HEIGHT;

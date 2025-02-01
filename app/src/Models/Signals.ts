@@ -33,7 +33,7 @@ export type Signals = {
   CITY_SELECTED: (id: string | null) => void;
   CITY_DESELECTED: () => void;
 
-  UNIT_MOVE_STOP: (unitId: string) => void;
+  UNIT_ORDER_STOP: (unitId: string) => void;
 
   SELECT_UNIT_MOVE_START: (unitId: string) => void;
   SELECT_UNIT_MOVE_DONE: (unitIds: string[], target: Vec2) => void;
@@ -125,7 +125,7 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   PATH_FOUND: "PATH_FOUND",
   DISPLAY_EMOTE: "DISPLAY_EMOTE",
   HIDE_EMOTE: "HIDE_EMOTE",
-  UNIT_MOVE_STOP: "UNIT_MOVE_STOP",
+  UNIT_ORDER_STOP: "UNIT_ORDER_STOP",
   SELECT_SKILL_TARGET_START: "SELECT_SKILL_TARGET_START",
   SELECT_SKILL_TARGET_DONE: "SELECT_SKILL_TARGET_DONE",
   SELECT_SKILL_TARGET_CANCEL: "SELECT_SKILL_TARGET_CANCEL",

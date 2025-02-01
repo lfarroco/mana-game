@@ -173,7 +173,7 @@ export const listenToStateEvents = (state: State) => {
       updateForce(state)(force);
     }],
     [
-      signals.UNIT_MOVE_STOP, (unitId: string) => {
+      signals.UNIT_ORDER_STOP, (unitId: string) => {
         updateUnit(state)(unitId)({ order: { type: "none" } });
       }
     ]
