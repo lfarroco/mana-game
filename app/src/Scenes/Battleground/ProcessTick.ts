@@ -2,14 +2,16 @@ import { emit, signals, } from "../../Models/Signals";
 import { BattlegroundScene } from "./BattlegroundScene";
 import { State, getState, getUnit } from "../../Models/State";
 import { Unit, unitLog } from "../../Models/Unit";
-import { Chara } from "../../Systems/Chara/Chara";
-import { delay, tween, tweenSequence } from "../../Utils/animation";
+import { delay, tween } from "../../Utils/animation";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
 import { lookupAIPAth } from "./Systems/Pathfinding";
 import { getJob } from "../../Models/Job";
 import { asVec2, Vec2 } from "../../Models/Geometry";
-import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, } from "./constants";
 import { getSkill } from "../../Models/Skill";
+import { bashPieceAnimation } from "../../Systems/Chara/Animations/bashPieceAnimation";
+import { popText } from "../../Systems/Chara/Animations/popText";
+import { slashAnimation } from "../../Systems/Chara/Animations/slashAnimation";
+import { runPromisesInOrder } from "../../utils";
 
 const processTick = async (scene: BattlegroundScene) => {
 
@@ -286,14 +288,6 @@ function checkAgroo(
   };
 }
 
-async function runPromisesInOrder(promiseFunctions: (() => Promise<any>)[]) {
-  for (const func of promiseFunctions) {
-    await func();
-  }
-  return promiseFunctions
-}
-
-
 async function moveStep(scene: BattlegroundScene, state: State) {
 
   const unitsToMove = state.gameData.units
@@ -384,22 +378,9 @@ async function cast(
 
   if (skill.id === "slash") {
 
-    // make the unit move backwards, then forwards to attack
-    bashCardAnimation(scene, state, activeChara, targetUnit);
-
-    //await delay(scene, 500 / state.options.speed);
+    bashPieceAnimation(scene, state, activeChara, targetUnit);
 
     await slashAnimation(scene, activeChara, targetChara, skill.power);
-
-    // await delay(scene, 2000);
-
-    // await tween(scene, {
-    //   targets: damageDisplay,
-    //   scale: 0.35,
-    //   duration: 300 / state.options.speed,
-    //   ease: "Bounce.easeOut",
-    // });
-
 
     emit(
       signals.DAMAGE_UNIT,
@@ -407,19 +388,11 @@ async function cast(
       skill.power,
     );
 
-    // await tween(scene, {
-    //   targets: slash,
-    //   alpha: 0,
-    //   duration: 700 / state.options.speed,
-    // });
-
   }
 
   if (skillId === "heal") {
 
-    const audio = scene.sound.add("audio/curemagic");
-    audio.volume = state.options.soundVolume;
-    audio.play();
+    scene.playFx("audio/curemagic")
 
     const sprite = scene.add.sprite(
       targetChara.container.x, targetChara.container.y,
@@ -435,9 +408,7 @@ async function cast(
       duration: 500 / state.options.speed,
     })
 
-    popText(scene, "50", targetUnit.id)
-
-    emit(signals.HEAL_UNIT, targetUnit.id, 50); // TODO: use skill's stats
+    popText(scene, skill.power.toString(), targetUnit.id)
 
     await delay(scene, 500 / state.options.speed);
 
@@ -449,187 +420,17 @@ async function cast(
 
     sprite.destroy();
 
+    emit(signals.HEAL_UNIT, targetUnit.id, 50); // TODO: use skill's stats
+
   }
 }
 
-async function slashAnimation(
-  scene: BattlegroundScene,
-  activeChara: Chara,
-  targetChara: Chara,
-  damage: number,
-) {
-
-
-  const state = getState();
-  const slash = scene.add
-    .sprite(0, 0, "cethiel-slash")
-    .play("cethiel-slash")
-    .setScale(1.5);
-
-  slash.x = targetChara.container.x + HALF_TILE_WIDTH;
-  slash.y = targetChara.container.y - HALF_TILE_HEIGHT;
-
-  const audio = scene.sound.add("audio/sword2");
-  audio.volume = state.options.soundVolume * 2;
-  audio.play();
-
-  scene.time.addEvent({
-    delay: 250 / state.options.speed,
-    callback: () => {
-      popText(scene, damage.toString(), targetChara.unit.id);
-
-      // make target unit flash
-      tween(scene, {
-        targets: targetChara.container,
-        alpha: 0.5,
-        duration: 100 / state.options.speed,
-        yoyo: true,
-        repeat: 4,
-      });
-
-    }
-  })
-
-  await tween(scene, {
-    targets: slash,
-    x: targetChara.container.x,
-    y: targetChara.container.y,
-    duration: 500 / state.options.speed,
-    onComplete: () => {
-      slash.destroy();
-    }
-  });
-
-}
-
-// TODO: add color option (heals: green, damage: yellow, etc)
-async function popText(scene: BattlegroundScene, text: string, targetId: string) {
-
-  const chara = scene.getChara(targetId);
-  const popText = scene.add.text(chara.container.x, chara.container.y, text, {
-    fontSize: "24px",
-    color: "#ffffff",
-    stroke: "#000000",
-    strokeThickness: 2,
-    align: "center",
-    fontStyle: "bold",
-    shadow: {
-      offsetX: 2,
-      offsetY: 2,
-      color: "#000",
-      blur: 0,
-      stroke: false,
-      fill: true,
-    }
-  }).setOrigin(0.5, 0.5);
-
-  await tween(scene, {
-    targets: popText,
-    alpha: 0,
-    y: chara.container.y - 24,
-    duration: 2000 / scene.state.options.speed,
-    ease: "Expo.easeOut",
-  });
-
-  popText.destroy();
-}
-
-function createDamageDisplay(scene: BattlegroundScene, targetUnit: Unit) {
-
-  const targetChara = scene.getChara(targetUnit.id);
-
-  const damageBg = scene.add.image(
-    0, 0,
-    "damage_display",
-  )
-    .setOrigin(0.5, 0.5);
-
-  const damage = scene.add.text(
-    0, 0,
-    "10",
-    {
-      fontSize: "96px",
-      color: "#ff0000",
-      stroke: "#000000",
-      strokeThickness: 2,
-      align: "center",
-      fontStyle: "bold",
-      shadow: {
-        offsetX: 2,
-        offsetY: 2,
-        color: "#000",
-        blur: 0,
-        stroke: false,
-        fill: true,
-      }
-    })
-    .setOrigin(0.5, 0.5)
-
-  const container = scene.add.container(
-    targetChara.container.x, targetChara.container.y, [damageBg, damage]
-  ).setScale(0);
-
-  return container;
-}
-
-async function bashCardAnimation(
-  scene: BattlegroundScene,
-  state: State,
-  activeChara: Chara,
-  targetUnit: Unit,
-) {
-
-  const targetChara = scene.getChara(targetUnit.id);
-
-  const backMovementDuration = 300 / state.options.speed;
-  // The actual "strike" happens at the end of the forward movement
-  const forwardMovementDuration = 200 / state.options.speed;
-
-  const returnMovementDuration = 300 / state.options.speed;
-
-  const backDistance = 32;
-  const forwardDistance = backDistance * 2;
-
-  const directionVector = Phaser.Math.Angle.BetweenPoints(
-    activeChara.container,
-    targetChara.container
-  );
-  const { x, y } = activeChara.container;
-
-  await tweenSequence(scene,
-    [{
-      targets: activeChara.container,
-      x: x - Math.cos(directionVector) * backDistance,
-      y: y - Math.sin(directionVector) * backDistance,
-      duration: backMovementDuration,
-    },
-    {
-      targets: activeChara.container,
-      x: x + Math.cos(directionVector) * forwardDistance,
-      y: y + Math.sin(directionVector) * forwardDistance,
-      duration: forwardMovementDuration,
-      onComplete: () => {
-        // const audio = scene.sound.add("audio/punch1");
-        // audio.volume = state.options.soundVolume;
-        // audio.play();
-      }
-    },
-    {
-      targets: activeChara.container,
-      x,
-      y,
-      duration: returnMovementDuration,
-    }
-    ]);
-
-}
-
 async function panTo(scene: BattlegroundScene, vec: Vec2) {
-  const state = getState();
+  const speed = getState().options.speed
 
-  scene.cameras.main.pan(vec.x, vec.y, 500 / state.options.speed, "Linear", true);
+  scene.cameras.main.pan(vec.x, vec.y, 500 / speed, "Expo.easeOut", false);
 
-  await delay(scene, 500 / state.options.speed);
+  await delay(scene, 500 / speed);
 }
 
 export default processTick;
