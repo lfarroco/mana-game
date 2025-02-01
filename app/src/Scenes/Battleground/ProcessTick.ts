@@ -64,6 +64,8 @@ const performMovement = (
   if (unit.order.type !== "move") return;
 
   const path = await lookupAIPAth(scene, unit.id, unit.position, unit.order.cell);
+
+  emit(signals.PATH_FOUND, unit.id, path);
   unit.path = path;
   let remainingSteps = job.moveRange * 1;
 
@@ -73,6 +75,8 @@ const performMovement = (
     unitLog(unit, "finished whalking");
     remainingSteps--;
   }
+
+  emit(signals.MOVEMENT_FINISHED, unit.id, unit.position);
 
 }
 
