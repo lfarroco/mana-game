@@ -41,42 +41,14 @@ export function onPointerMove(
 					pointer.worldY
 				))
 
-				const distance = Phaser.Math.Distance.Snake(
-					tile.x, tile.y,
-					pointerDownUnit.unit.position.x, pointerDownUnit.unit.position.y,
-				)
-
 				const moveRange = getJob(pointerDownUnit.unit.job).moveRange
 
 				const vec = asVec2(tile);
-				const path = pointerDownUnit.unit.order.type === "move" ? pointerDownUnit.unit.path : [];
 
-				highlightCells(scene, vec, moveRange - path.length)
+				highlightCells(scene, vec, moveRange)
 
-				if (distance < 1 && path.length > 0) {
-					emit(signals.PATH_FOUND, pointerDownUnit.unit.id, []);
-					return;
-				} else if (distance < 1) {
-					return
-				}
+				emit(signals.DESTINATION_GOAL_TO, pointerDownUnit.unit.id, vec)
 
-				if (!path.some(eqVec2_(vec))) {
-
-					const newPath = path.concat([vec]);
-					emit(signals.PATH_FOUND, pointerDownUnit.unit.id, newPath);
-
-				} else {
-
-					const idx = path.findIndex(eqVec2_(vec))
-					// if it is the last index, do nothing
-					// remove cells after the current cell
-
-					if (idx === path.length - 1) {
-						return
-					}
-					const slicedPath = path.slice(0, idx + 1);
-					emit(signals.PATH_FOUND, pointerDownUnit.unit.id, slicedPath);
-				}
 
 			} else {
 
