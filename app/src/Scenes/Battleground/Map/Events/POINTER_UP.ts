@@ -78,7 +78,7 @@ export function onPointerUp(
 
 				console.log("issuing move order", unitPointerDown.unit.id);
 
-				emit(signals.SELECT_UNIT_MOVE_DONE, unitPointerDown.unit.id, asVec2(tile));
+				emit(signals.SELECT_UNIT_MOVE_DONE, [unitPointerDown.unit.id], asVec2(tile));
 				pingAtLocation(scene, tile.x, tile.y);
 
 				// TODO: every state change needs to be done through signals

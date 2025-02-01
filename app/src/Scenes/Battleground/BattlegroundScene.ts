@@ -33,6 +33,7 @@ import { makeMapInteractive } from "./Map/makeMapInteractive";
 import { clearCellHighlights } from "./Map/highlightCells";
 import { FORCE_ID_PLAYER } from "../../Models/Force";
 import { AuraPipeline } from "../../Shaders/aura";
+import { DestinationGoal_init } from "./Systems/DestinationGoal";
 
 export class BattlegroundScene extends Phaser.Scene {
   graphics: Phaser.GameObjects.Graphics | null = null;
@@ -177,6 +178,7 @@ export class BattlegroundScene extends Phaser.Scene {
     DestinationDisplaySystem_init(state, this);
     BattlegroundAudioSystem_init(state, this);
     HightlightCellsSystem.init(this);
+    DestinationGoal_init(this);
 
     //@ts-ignore
     window.bg = this;
