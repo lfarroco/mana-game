@@ -52,54 +52,6 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 
 		}],
 		[signals.UNIT_DESELECTED, destroy],
-		[signals.UNIT_SELECTED, (key: string) => {
-
-			destroy(key);
-
-			if (!scene.layers?.background) return
-
-			const unit = getUnit(state)(key)
-
-			if (unit.force !== FORCE_ID_PLAYER) return;
-
-			if (unit.order.type !== "move") return
-
-			const graphics = displayPath(
-				state,
-				scene,
-				scene.layers.background,
-				key,
-				true
-			)
-
-			index[key] = graphics
-
-
-		}],
-		[signals.MOVE_UNIT_INTO_CELL_START, (key: string) => {
-
-			if (!scene.layers?.background) return
-
-			if (!index[key]) return
-
-			destroy(key);
-
-			const unit = getUnit(state)(key)
-
-			if (unit.order.type !== "move") return // todo: is this possible?
-
-			const graphics = displayPath(
-				state,
-				scene,
-				scene.layers.background,
-				key,
-				false
-			)
-
-			index[key] = graphics
-
-		}],
-		[signals.SELECT_SKILL_TARGET_DONE, destroy],
 		[signals.UNIT_ORDER_STOP, (key: string) => {
 
 			if (!scene.layers?.background) return
@@ -113,7 +65,8 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 			Object.keys(index).forEach(cleanup(index))
 
 		}],
-		[signals.MAKE_UNIT_IDLE, destroy]
+		[signals.MAKE_UNIT_IDLE, destroy],
+		[signals.MOVEMENT_FINISHED, destroy],
 	])
 
 }
