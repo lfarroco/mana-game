@@ -323,8 +323,10 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
   getTileAt = (vec: Vec2) => {
-    const tile = this.layers?.background.getTileAt(vec.x, vec.y);
-    if (!tile) throw new Error(this.errors.noTileAt(vec));
+    const tile = this.layers?.background.getTileAt(vec.x, vec.y, true);
+    if (!tile) {
+      throw new Error(this.errors.noTileAt(vec));
+    }
     return tile;
   };
   getTileAtWorldXY = (vec: Vec2) => {

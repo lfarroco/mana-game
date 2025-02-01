@@ -235,14 +235,14 @@ function checkAgroo(
           return;
         } else {
           unitLog(unit, "target is alive but out of range, will chase target");
-          const path = await lookupAIPAth(scene, unit.id, unit.position, maybeTarget.unit.position);
-          if (path.length > 0) {
-            emit(signals.PATH_FOUND, unit.id, path);
-            return;
-          } else {
-            unitLog(unit, "path not found, will wait for next turn");
-            return;
-          }
+          // const path = await lookupAIPAth(scene, unit.id, unit.position, maybeTarget.unit.position);
+          // if (path.length > 0) {
+          //   emit(signals.PATH_FOUND, unit.id, path);
+          //   return;
+          // } else {
+          //   unitLog(unit, "path not found, will wait for next turn");
+          //   return;
+          // }
         }
       } else {
         unitLog(unit, "unit has died or moved, looking for new target")

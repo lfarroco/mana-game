@@ -8,6 +8,9 @@ export function highlightCells(scene: BattlegroundScene, cell: Vec2, range: numb
 
 	const tile = scene.getTileAt(cell);
 
+	const layer = scene.layers?.background.layer
+	if (!layer) return;
+
 	if (!tile) return;
 
 	clearCellHighlights(scene);
@@ -21,7 +24,7 @@ export function highlightCells(scene: BattlegroundScene, cell: Vec2, range: numb
 					cell.x + i,
 					cell.y + j
 				);
-				if (vec.x < 0 || vec.y < 0) continue;
+				if (vec.x < 0 || vec.y < 0 || vec.x >= layer.width || vec.y >= layer.height) return;
 				const tile = scene.getTileAt(vec);
 				if (tile) {
 					const tween = scene.tweens.add({
