@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import BattlegroundScene from "../../BattlegroundScene";
-import { getState } from "../../../../Models/State";
+import { getState, getUnit } from "../../../../Models/State";
 import { issueSkillCommand } from "../makeMapInteractive";
 import { Unit } from "../../../../Models/Unit";
 import { asVec2, eqVec2 } from "../../../../Models/Geometry";
@@ -31,6 +31,22 @@ export function onPointerUp(
 			console.log("distance", pointer.getDistance());
 			console.log("downtime", pointer.downTime);
 			console.log("isDrag?", isDrag);
+
+
+			if (scene.isSelectingSquadMove && state.gameData.selectedUnit) {
+
+				const maybeSelectedUnit = getUnit(state)(state.gameData.selectedUnit);
+
+				if (!maybeSelectedUnit) return;
+
+				maybeSelectedUnit.order = {
+					type: "move",
+					cell: asVec2(tile),
+				}
+				emit(signals.SELECT_UNIT_MOVE_DONE, [maybeSelectedUnit.id], asVec2(tile));
+				console.log("squad move: ", tile);
+				return;
+			}
 
 			if (scene.selectedSkillId) {
 				console.log("issuing skill command", scene.selectedSkillId);

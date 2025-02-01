@@ -58,6 +58,11 @@ const performMovement = (
 ) => async () => {
 
   const job = getJob(unit.job);
+
+  if (unit.order.type !== "move") return;
+
+  const path = await lookupAIPAth(scene, unit.id, unit.position, unit.order.cell);
+  unit.path = path;
   let remainingSteps = job.moveRange * 1;
 
   while (remainingSteps > 0 && unit.order.type === "move" && unit.hp > 0) {

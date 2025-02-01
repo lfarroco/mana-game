@@ -1,15 +1,14 @@
 import Phaser from "phaser";
 import BattlegroundScene from "../BattlegroundScene";
 import { emit, signals } from "../../../Models/Signals";
-import { Vec2, asVec2, eqVec2, vec2 } from "../../../Models/Geometry";
+import { asVec2, eqVec2, vec2 } from "../../../Models/Geometry";
 import { FORCE_ID_PLAYER } from "../../../Models/Force";
 import { Unit } from "../../../Models/Unit";
-import { getUnit, State } from "../../../Models/State";
+import { getUnit } from "../../../Models/State";
 import { getSkill } from "../../../Models/Skill";
 import { onPointerMove } from "./Events/POINTER_MOVE";
 import { onPointerUp } from "./Events/POINTER_UP";
 import { onPointerDown } from "./Events/POINTER_DOWN";
-import { City } from "../../../Models/City";
 
 export function makeMapInteractive(
   scene: BattlegroundScene,
