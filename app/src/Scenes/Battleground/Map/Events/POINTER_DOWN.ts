@@ -1,10 +1,11 @@
 import Phaser from "phaser";
 
-import { Vec2, asVec2, } from "../../../../Models/Geometry";
+import { Vec2, asVec2, eqVec2, } from "../../../../Models/Geometry";
 import BattlegroundScene from "../../BattlegroundScene";
-import { getState } from "../../../../Models/State";
+import { getState, State } from "../../../../Models/State";
 import { Unit } from "../../../../Models/Unit";
-import { selectEntityInTile } from "../makeMapInteractive";
+import { City } from "../../../../Models/City";
+import { emit, signals } from "../../../../Models/Signals";
 
 
 export function onPointerDown(
@@ -38,4 +39,22 @@ export function onPointerDown(
 			console.log("SET startScroll", startScroll);
 		}
 	);
+}
+
+export function selectEntityInTile(state: State, tile: Vec2): [Unit | undefined, City | undefined] {
+	const unit = state.gameData.units
+		.filter(u => u.hp > 0)
+		.find((unit) => eqVec2(unit.position, (tile)));
+
+	const city = state.gameData.cities.find((city) => eqVec2(city.boardPosition, (tile)));
+
+	if (unit) {
+		emit(signals.UNIT_SELECTED, unit.id);
+	} else {
+		if (city) {
+			emit(signals.CITY_SELECTED, city.id);
+		}
+	}
+
+	return [unit, city]
 }
