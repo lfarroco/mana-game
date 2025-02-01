@@ -1,9 +1,8 @@
 import * as Easystar from "easystarjs";
-import { Vec2, asVec2, } from "../../../Models/Geometry";
+import { Vec2, asVec2, eqVec2, } from "../../../Models/Geometry";
 import { emit, signals, listeners } from "../../../Models/Signals";
 import { getUnit, getState } from "../../../Models/State";
 import BattlegroundScene from "../BattlegroundScene";
-import { FORCE_ID_CPU } from "../../../Models/Force";
 
 export function init(_scene: BattlegroundScene) {
   listeners([
@@ -45,12 +44,16 @@ export async function lookupAIPAth(
 
     // set tiles with units as blocked
     const state = getState();
+
+    const activeUnit = getUnit(state)(unitId)
     state.gameData
       .units
       .filter(u => u.hp > 0)
-      .filter(u => u.force === FORCE_ID_CPU)
+      .filter(u => u.force === activeUnit.force) // avoid allied units
       .forEach(unit => {
         const { x, y } = unit.position;
+        if (eqVec2(target, unit.position)) return // target cell is not blocked
+
         easystar.avoidAdditionalPoint(x, y);
       });
 
@@ -59,7 +62,6 @@ export async function lookupAIPAth(
         resolve([]);
         return;
       }
-
 
       const path_ = path.map(asVec2).slice(1)
 

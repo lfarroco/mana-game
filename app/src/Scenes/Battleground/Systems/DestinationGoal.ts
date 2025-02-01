@@ -91,7 +91,7 @@ function draw(
 		repeat: -1,
 		ease: 'Linear'
 	})
-	scene.children.moveBelow(lineGraphics, chara.container)
+	scene.children.moveBelow(container, chara.container)
 
 	container.add([lineGraphics, rect])
 	index[unitId] = {
