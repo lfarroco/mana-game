@@ -1,11 +1,16 @@
-import { Vec2, asVec2 } from "../../../Models/Geometry";
+import { Vec2, asVec2, eqVec2, vec2 } from "../../../Models/Geometry";
 import { listeners, signals } from "../../../Models/Signals";
 import BattlegroundScene from "../BattlegroundScene";
 
 const LINE_COLOR = 0xff0000;
 const LINE_WIDTH = 4;
 
-type Index = { [key: string]: Phaser.GameObjects.Container }
+type Index = {
+	[key: string]: {
+		pos: Vec2,
+		container: Phaser.GameObjects.Container
+	}
+}
 
 export function DestinationGoal_init(scene: BattlegroundScene) {
 
@@ -13,11 +18,22 @@ export function DestinationGoal_init(scene: BattlegroundScene) {
 
 	listeners([
 		[signals.SELECT_UNIT_MOVE_DONE, (unitIds: string[], target: Vec2) => {
-			unitIds.forEach(id => draw(scene, index, id))
+			unitIds.forEach(id => draw(scene, index, id, target))
 		}],
 		[signals.BATTLEGROUND_TICK, () => {
 			Object.keys(index).forEach(cleanup(index))
-		}]
+		}],
+		[signals.DESTINATION_GOAL_TO, (unitId: string, target: Vec2) => {
+			const maybeVec = index[unitId]?.pos || vec2(-1, -1);
+
+			if (eqVec2(maybeVec, target)) {
+				console.log("no need to draw", maybeVec)
+				return;
+			};
+
+			draw(scene, index, unitId, target)
+		}
+		]
 	])
 
 }
@@ -26,7 +42,7 @@ const cleanup = (index: Index) => (key: string) => {
 
 	if (!index[key]) return;
 
-	index[key].destroy(true);
+	index[key].container.destroy(true);
 
 	delete index[key];
 }
@@ -36,18 +52,16 @@ function draw(
 	scene: BattlegroundScene,
 	index: Index,
 	unitId: string,
+	target: Vec2
 ) {
 	cleanup(index)(unitId);
 
 	const chara = scene.getChara(unitId);
 
-	if (chara.unit.order.type !== "move") return;
-
 	const container = scene.add.container(0, 0)
 
 	const source = scene.getTileAt(asVec2(chara.unit.position))
-
-	const target = scene.getTileAt(asVec2(chara.unit.order.cell))
+	const targetTile = scene.getTileAt(target)
 
 	const lineGraphics = scene.add.graphics();
 	lineGraphics.lineStyle(LINE_WIDTH, LINE_COLOR);
@@ -55,13 +69,13 @@ function draw(
 	lineGraphics.lineBetween(
 		source.getCenterX(),
 		source.getCenterY(),
-		target.getCenterX(),
-		target.getCenterY()
+		targetTile.getCenterX(),
+		targetTile.getCenterY()
 	);
 
 	const rect = scene.add.rectangle(
-		target.getCenterX(),
-		target.getCenterY(),
+		targetTile.getCenterX(),
+		targetTile.getCenterY(),
 		32,
 		32,
 		0xff0000
@@ -80,6 +94,9 @@ function draw(
 	scene.children.moveBelow(lineGraphics, chara.container)
 
 	container.add([lineGraphics, rect])
-	index[unitId] = container;
+	index[unitId] = {
+		pos: target,
+		container
+	}
 
 }

@@ -61,6 +61,8 @@ export type Signals = {
 
   MAKE_UNIT_IDLE: (unitId: string) => void;
 
+  DESTINATION_GOAL_TO: (unitId: string, target: Vec2) => void;
+
   // TODO: have a parent level for the system
   UPDATE_UNIT: (unitId: string, u: Partial<Unit>) => any;
   DAMAGE_UNIT: (unitId: string, damage: number) => any;
@@ -112,6 +114,7 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   CHARA_CREATED: "CHARA_CREATED",
   BATTLEGROUND_TICK: "BATTLEGROUND_TICK",
 
+  DESTINATION_GOAL_TO: "DESTINATION_GOAL_TO",
   NEXT_IDLE_UNIT: "NEXT_IDLE_UNIT",
   UPDATE_UNIT: "UPDATE_UNIT",
   DAMAGE_UNIT: "DAMAGE_UNIT",
