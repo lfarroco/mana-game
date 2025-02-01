@@ -18,7 +18,6 @@ const SelectedUnit = ({
 
 	const isPlayerControlled = unit.force === FORCE_ID_PLAYER
 
-	const order = JSON.stringify(unit.order)
 
 	const job = getJob(unit.job)
 
@@ -35,11 +34,8 @@ const SelectedUnit = ({
 		maxHp={unit.maxHp}
 		actions={actionsGrid}
 		description={<>
-
-			<div> <span className="attr">Status: </span> {order} </div>
-			<div> <span className="attr">Attack:</span> {job.attackPower + job.dices} - {job.attackPower + job.dices * 3} </div>
-			<div> <span className="attr">Defense:</span> 2 </div>
-			<div> <span className="attr">Range:</span> {job.attackRange === 1 ? "Melee" : `Ranged (${job.attackRange})`} </div>
+			<div> <span className="attr"></span> {job.name} </div>
+			<div> <span className="attr">Order: </span> {unit.order.type} </div>
 		</>
 		}
 	/>
@@ -57,7 +53,7 @@ function selectSkillTargetActions(unit: Unit) {
 			onClick: () => {
 				Signals.emit(Signals.signals.SELECT_SKILL_TARGET_CANCEL, unit.id)
 			},
-			active: false,
+			active: unit.order.type === "skill-on-unit",
 			enabled: true
 		},
 
@@ -93,7 +89,7 @@ function UnitActions(unit: Unit): ButtonGridAction[] {
 			icon: `assets/ui/icon-${skillId}.png`,
 			tooltipTitle: skill.name,
 			tooltipContent: skill.tooltip,
-			active: true,
+			active: unit.order.type === "skill-on-unit",
 			enabled: true,
 			onClick: () => {
 				Signals.emit(Signals.signals.SELECT_SKILL_TARGET_START, unit.id, skillId)
@@ -109,7 +105,7 @@ function UnitActions(unit: Unit): ButtonGridAction[] {
 			onClick: () => {
 				Signals.emit(Signals.signals.SELECT_UNIT_MOVE_START, unit.id)
 			},
-			active: unit.order.type === "none",
+			active: unit.order.type === "move",
 			enabled: true
 		},
 		{
@@ -117,11 +113,10 @@ function UnitActions(unit: Unit): ButtonGridAction[] {
 			tooltipTitle: "Stop",
 			tooltipContent: "Stop the unit from moving or attacking.",
 			onClick: () => {
-
-				Signals.emit(Signals.signals.UNIT_MOVE_STOP, unit.id)
+				Signals.emit(Signals.signals.UNIT_ORDER_STOP, unit.id)
 			},
-			active: unit.order.type === "move",
-			enabled: true
+			active: unit.order.type === "none",
+			enabled: unit.order.type !== "none"
 		},
 		...skills
 

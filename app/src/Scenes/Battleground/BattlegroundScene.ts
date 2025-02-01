@@ -147,6 +147,12 @@ export class BattlegroundScene extends Phaser.Scene {
             'Sine.easeInOut',
           )
         }
+      ],
+      [
+        signals.UNIT_ORDER_STOP, (unitId: string) => {
+          const chara = this.getChara(unitId)
+          emit(signals.DISPLAY_EMOTE, unitId, "question-emote");
+        }
       ]
 
     ]);

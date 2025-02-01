@@ -100,7 +100,7 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 
 		}],
 		[signals.SELECT_SKILL_TARGET_DONE, destroy],
-		[signals.UNIT_MOVE_STOP, (key: string) => {
+		[signals.UNIT_ORDER_STOP, (key: string) => {
 
 			if (!scene.layers?.background) return
 

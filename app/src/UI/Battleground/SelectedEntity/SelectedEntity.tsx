@@ -125,7 +125,7 @@ function ButtonGrid(props: {
 			return null
 		}
 	}
-	const indices = Array.from({ length: 6 }, (v, k) => k)
+	const indices = Array.from({ length: 3 }, (v, k) => k)
 	return <> {
 		indices.map(index => {
 
