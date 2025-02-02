@@ -32,12 +32,20 @@ export function DestinationGoal_init(scene: BattlegroundScene) {
 			};
 
 			draw(scene, index, unitId, target)
-		}
-		],
-		// create event for unit drag pointer move
-		// [
-		// 	signals.POINTER_MO
-		// ]
+		}],
+		[signals.SELECT_SKILL_TARGET_START, (unitId: string) => {
+			cleanup(index)(unitId)
+		}],
+		[signals.SELECT_SKILL_TARGET_CANCEL, (unitId: string) => {
+
+			const chara = scene.getChara(unitId);
+
+			if (chara.unit.order.type !== "move") return;
+
+			draw(scene, index, unitId, asVec2(chara.unit.order.cell))
+
+		}]
+		// IDEA: create event for unit drag pointer move
 	])
 
 }
