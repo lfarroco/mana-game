@@ -148,6 +148,8 @@ async function step(scene: BattlegroundScene, state: State, unit: Unit) {
     for (const enemy of closeEnemies) {
       unitLog(enemy.unit, `attacking because of attack of opportunity -> ${unit.job}`);
 
+      emit(signals.DISPLAY_EMOTE, enemy.unit.id, "exclamation-emote");
+
       await popText(scene, "Attack of Opportunity!", enemy.unit.id);
 
       await cast(scene, state, enemy.unit, "slash", unit.id);
