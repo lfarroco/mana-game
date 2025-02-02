@@ -41,3 +41,8 @@ export function isInside(
 	).contains(px, py);
 }
 
+// distance = ∣dx∣+∣dy∣
+// https://chatgpt.com/share/67a000a1-a468-8004-9460-a71fece5dba7
+export const manhattanDistance = (a: Vec2) => (b: Vec2) => {
+	return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+}
