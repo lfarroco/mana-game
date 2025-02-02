@@ -1,11 +1,9 @@
 import Phaser from "phaser";
 import BattlegroundScene from "../../BattlegroundScene";
-import { asVec2, eqVec2_, vec2, Vec2 } from "../../../../Models/Geometry";
+import { asVec2, vec2, Vec2 } from "../../../../Models/Geometry";
 import { Unit } from "../../../../Models/Unit";
 import { emit, signals } from "../../../../Models/Signals";
 import { FORCE_ID_PLAYER } from "../../../../Models/Force";
-import { getJob } from "../../../../Models/Job";
-import { highlightCells } from "../highlightCells";
 import { getState } from "../../../../Models/State";
 
 export function onPointerMove(
@@ -20,11 +18,7 @@ export function onPointerMove(
 	bgLayer.on(Phaser.Input.Events.POINTER_MOVE,
 		(pointer: Phaser.Input.Pointer) => {
 
-
-			if (state.inputDisabled) {
-				return
-			}
-
+			if (state.inputDisabled) return
 			if (!pointer.isDown) return;
 			if (pointer.downTime < 100) return;
 
@@ -35,20 +29,14 @@ export function onPointerMove(
 
 			if (pointerDownUnit.unit && pointerDownUnit.unit.force === FORCE_ID_PLAYER) {
 
-				// cell manhattan distance to the pointer
 				const tile = scene.getTileAtWorldXY(vec2(
 					pointer.worldX,
 					pointer.worldY
 				))
 
-				const moveRange = getJob(pointerDownUnit.unit.job).moveRange
-
 				const vec = asVec2(tile);
 
-				highlightCells(scene, vec, moveRange)
-
 				emit(signals.DESTINATION_GOAL_TO, pointerDownUnit.unit.id, vec)
-
 
 			} else {
 
