@@ -99,18 +99,8 @@ export class BattlegroundScene extends Phaser.Scene {
         this.casterId = unitId;
         this.selectedSkillId = skillId;
       }],
-      [signals.SELECT_SKILL_TARGET_DONE, (tile: Vec2) => {
-        if (!this.casterId || !this.selectedSkillId) return;
-        const chara = this.getCharaAt(tile);
-        if (!chara) {
-          throw new Error("No chara at tile")
-        }
-        const unit = this.getSquad(this.casterId)
-        unit.order = {
-          type: "skill-on-unit",
-          skill: this.selectedSkillId,
-          target: chara?.unit.id
-        }
+      [signals.SELECT_SKILL_TARGET_DONE, (casterId: string, skillId: string, tile: Vec2, targetId: string | null) => {
+
 
         this.casterId = null;
         this.selectedSkillId = null;
@@ -155,7 +145,6 @@ export class BattlegroundScene extends Phaser.Scene {
       ],
       [
         signals.UNIT_ORDER_STOP, (unitId: string) => {
-          const chara = this.getChara(unitId)
           emit(signals.DISPLAY_EMOTE, unitId, "question-emote");
         }
       ]
