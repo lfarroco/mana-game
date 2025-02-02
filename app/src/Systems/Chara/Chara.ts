@@ -5,6 +5,8 @@ import "./portrait.css"
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { emit, listeners, signals } from "../../Models/Signals";
 import { Vec2 } from "../../Models/Geometry";
+import { getSkill } from "../../Models/Skill";
+import { FORCE_ID_PLAYER } from "../../Models/Force";
 
 export type Chara = {
 	id: string;
@@ -74,7 +76,6 @@ export function createChara(
 			if (unitId !== chara.id) return;
 			shadow.visible = false;
 
-			emit(signals.STOP_HIGHLIGHT_UNIT, chara.id);
 			cancelTargetHighlight(chara);
 
 		}],
@@ -132,9 +133,15 @@ function highlightTarget(chara: Chara) {
 
 	if (unit.order.type !== "skill-on-unit") return
 
+	if (unit.force !== FORCE_ID_PLAYER) return;
+
 	const target = (chara.sprite.scene as BattlegroundScene).getChara(unit.order.target);
 
-	emit(signals.HIGHLIGHT_UNIT, target.id, 0xff0000);
+	const skill = getSkill(unit.order.skill)
+
+	const color = skill.harmful ? 0xff0000 : 0x00ff00;
+
+	emit(signals.HIGHLIGHT_UNIT, target.id, color);
 }
 
 function cancelTargetHighlight(chara: Chara) {
