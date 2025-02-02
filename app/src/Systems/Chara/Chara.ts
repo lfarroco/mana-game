@@ -15,7 +15,8 @@ export type Chara = {
 	sprite: Phaser.GameObjects.Image,
 	shadow: Phaser.GameObjects.Image,
 	unit: Unit,
-	container: Phaser.GameObjects.Container
+	container: Phaser.GameObjects.Container,
+	hightlightTween: Phaser.Tweens.Tween | null,
 }
 
 const spriteSize = 64;
@@ -61,7 +62,8 @@ export function createChara(
 		sprite,
 		container,
 		shadow,
-		unit
+		unit,
+		hightlightTween: null,
 	}
 	listeners([
 		[signals.UNIT_SELECTED, (unitId: string) => {
@@ -69,7 +71,8 @@ export function createChara(
 			if (unitId !== chara.id) return;
 			shadow.visible = true;
 
-			highlightTarget(chara);
+			if (chara.unit.order.type === "skill-on-unit")
+				highlightTarget(chara, chara.unit.order.skill, chara.unit.order.target);
 
 		}],
 		[signals.UNIT_DESELECTED, (unitId: string) => {
@@ -79,30 +82,36 @@ export function createChara(
 			cancelTargetHighlight(chara);
 
 		}],
-		[signals.SELECT_SKILL_TARGET_DONE, (tile: Vec2, unitId: string | null) => {
+		[signals.SELECT_SKILL_TARGET_DONE, (casterId: string, skillId: string, tile: Vec2, targetId: string | null) => {
 
-			if (unitId !== chara.id) return;
+			if (casterId !== chara.id) return;
 
-			const color = unit.force === "player" ? 0x00ff00 : 0xff0000;
+			cancelTargetHighlight(chara);
 
-			scene.add.tween({
-				targets: sprite,
-				alpha: 0,
-				tint: color,
-				duration: 100 / scene.state.options.speed,
-				ease: "Linear",
-				repeat: 3,
-				yoyo: true,
-				onComplete: () => {
-					emit(signals.HIGHLIGHT_UNIT, chara.id, color)
+			if (targetId) {
+				highlightTarget(chara, skillId, targetId)
+
+				unit.order = {
+					type: "skill-on-unit",
+					skill: skillId,
+					target: targetId
 				}
-			})
+			}
+
 		}],
 		[signals.HIGHLIGHT_UNIT, (unitId: string, color: number) => {
 
 			if (unitId !== chara.id) return;
 
 			sprite.setTint(color);
+			chara.hightlightTween = scene.add.tween({
+				targets: sprite,
+				alpha: 0.7,
+				duration: 400 / scene.state.options.speed,
+				ease: "Linear",
+				repeat: -1,
+				yoyo: true,
+			});
 
 		}],
 		[signals.STOP_HIGHLIGHT_UNIT, (unitId: string) => {
@@ -110,6 +119,8 @@ export function createChara(
 			if (unitId !== chara.id) return;
 
 			sprite.clearTint();
+			chara.hightlightTween?.destroy();
+			chara.hightlightTween = null;
 
 		}],
 		[signals.SELECT_UNIT_MOVE_DONE, (unitIds: string[], target: Vec2) => {
@@ -127,17 +138,15 @@ export function createChara(
 	return chara
 }
 
-function highlightTarget(chara: Chara) {
+function highlightTarget(chara: Chara, skillId: string, targetId: string) {
 
 	const unit = chara.unit;
 
-	if (unit.order.type !== "skill-on-unit") return
-
 	if (unit.force !== FORCE_ID_PLAYER) return;
 
-	const target = (chara.sprite.scene as BattlegroundScene).getChara(unit.order.target);
+	const target = (chara.sprite.scene as BattlegroundScene).getChara(targetId);
 
-	const skill = getSkill(unit.order.skill)
+	const skill = getSkill(skillId)
 
 	const color = skill.harmful ? 0xff0000 : 0x00ff00;
 
@@ -146,11 +155,8 @@ function highlightTarget(chara: Chara) {
 
 function cancelTargetHighlight(chara: Chara) {
 
-	const unit = chara.unit;
+	if (chara.unit.order.type !== "skill-on-unit") return;
 
-	if (unit.order.type !== "skill-on-unit") return
-
-	const target = (chara.sprite.scene as BattlegroundScene).getChara(unit.order.target);
-
-	emit(signals.STOP_HIGHLIGHT_UNIT, target.id);
+	const target = chara.unit.order.target;
+	emit(signals.STOP_HIGHLIGHT_UNIT, target);
 }
