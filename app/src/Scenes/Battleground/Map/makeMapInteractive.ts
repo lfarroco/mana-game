@@ -60,7 +60,7 @@ export function issueSkillCommand(
 
     // if (distance > skill.range) return false;// todo: error sound
 
-    emit(signals.SELECT_SKILL_TARGET_DONE, asVec2(tile));
+    emit(signals.SELECT_SKILL_TARGET_DONE, asVec2(tile), allyInTile.id);
 
   } else if (skill.targets === "enemy") {
     // todo: use "skill targets" to check if the skill can be used in a tile or unit
@@ -75,7 +75,7 @@ export function issueSkillCommand(
 
     // if (distance > skill.range) return // todo: error sound
 
-    emit(signals.SELECT_SKILL_TARGET_DONE, asVec2(tile));
+    emit(signals.SELECT_SKILL_TARGET_DONE, asVec2(tile), enemy.id);
 
   }
 
