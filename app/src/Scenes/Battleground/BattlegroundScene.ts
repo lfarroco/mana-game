@@ -136,17 +136,21 @@ export class BattlegroundScene extends Phaser.Scene {
       }],
       [
         signals.NEXT_IDLE_UNIT, () => {
-          const [idle] = this.charas.filter(c => c.unit.force === FORCE_ID_PLAYER)
-            .filter(c => c.unit.order.type === "none")
+          const [idle] = this.charas
+            .filter(c => c.unit.hp > 0) // TOOD: clean up dead units, or use getter
+            .filter(c => c.unit.force === FORCE_ID_PLAYER)
+            .filter(c => c.unit.order.type === "none");
+
           if (!idle) {
             return
           }
+          emit(signals.UNIT_SELECTED, idle.id)
           this.cameras.main.pan(
             idle.container.x,
             idle.container.y,
             500 / state.options.speed,
             'Sine.easeInOut',
-          )
+          );
         }
       ],
       [
