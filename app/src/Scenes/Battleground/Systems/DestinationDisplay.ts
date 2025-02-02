@@ -10,12 +10,7 @@ const LINE_WIDTH = 4;
 const SHADOW_WIDTH = 4;
 const SHADOW_COLOR = 0x000;
 
-type PathDisplay = {
-	graphics: Phaser.GameObjects.Graphics;
-	arrowTip: Phaser.GameObjects.Image;
-	shadow: Phaser.GameObjects.Graphics;
-	shadowArrowTip: Phaser.GameObjects.Image;
-}
+type PathDisplay = Phaser.GameObjects.Container;
 
 export function DestinationDisplaySystem_init(state: State, scene: BattlegroundScene) {
 
@@ -40,15 +35,14 @@ export function DestinationDisplaySystem_init(state: State, scene: BattlegroundS
 				cleanup(index)(key);
 			}
 
-			const graphics = displayPath(
-				state,
+			const pathDisplay = displayPath(
 				scene,
 				scene.layers.background,
 				key,
 				true
 			)
 
-			index[key] = graphics
+			index[key] = pathDisplay
 
 		}],
 		[signals.UNIT_DESELECTED, destroy],
@@ -76,10 +70,7 @@ function cleanup(index: { [key: string]: PathDisplay }): (key: string) => void {
 
 		if (!index[key]) return;
 
-		index[key].graphics.destroy();
-		index[key].arrowTip.destroy();
-		index[key].shadow.destroy();
-		index[key].shadowArrowTip.destroy();
+		index[key].destroy(true);
 
 		delete index[key];
 	};
@@ -87,29 +78,32 @@ function cleanup(index: { [key: string]: PathDisplay }): (key: string) => void {
 
 
 function displayPath(
-	state: State,
 	scene: BattlegroundScene,
 	layer: Phaser.Tilemaps.TilemapLayer,
 	unitId: string,
 	animate: boolean
 ) {
 
-	const unit = getUnit(state)(unitId)
+	const container = scene.add.container(0, 0)
 
+	const unit = getUnit(scene.state)(unitId)
 
 	const shadowGraphics = scene.add.graphics();
 	const lineGraphics = scene.add.graphics();
 	const arrowTip = scene.add.image(0, 0, "arrow-left-emote").setTint(0x000).setScale(0.5)
 	const shadowArrowTip = scene.add.image(0, 0, "arrow-left-emote").setTint(0xff0000).setScale(0.5)
 
-	scene.children.moveBelow(arrowTip, lineGraphics)
+	const chara = scene.getChara(unitId);
+	container.add([shadowGraphics, lineGraphics, arrowTip, shadowArrowTip])
+	scene.children.moveBelow(container, chara.container)
+
 	let points = [] as Phaser.Math.Vector2[]
 
 	const _path = unit.order.type === "move" ? unit.path : []
 
 	const path = [unit.position, ..._path]
 
-	if (path.length < 2) return { graphics: shadowGraphics, arrowTip, shadow: lineGraphics, shadowArrowTip }
+	if (path.length < 2) return container
 
 	path.forEach(({ x, y }) => {
 
@@ -193,6 +187,6 @@ function displayPath(
 		onComplete: () => border.destroy()
 	});
 
-	return { graphics: shadowGraphics, arrowTip, shadow: lineGraphics, shadowArrowTip }
+	return container
 
 }
