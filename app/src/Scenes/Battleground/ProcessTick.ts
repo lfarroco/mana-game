@@ -12,10 +12,13 @@ import { bashPieceAnimation } from "../../Systems/Chara/Animations/bashPieceAnim
 import { popText } from "../../Systems/Chara/Animations/popText";
 import { slashAnimation } from "../../Systems/Chara/Animations/slashAnimation";
 import { runPromisesInOrder } from "../../utils";
+import { vignette } from "./Animations/vignette";
 
 const processTick = async (scene: BattlegroundScene) => {
 
   emit(signals.TURN_START)
+
+  await vignette(scene, "Move Phase");
 
   const state = getState();
 
@@ -39,6 +42,8 @@ const processTick = async (scene: BattlegroundScene) => {
   await moveStep(scene, state);
   console.log("ended movement phase")
 
+  await vignette(scene, "Combat Phase");
+
   console.log("start combat phase")
   await combatStep(scene, state);
   console.log("ended combat phase")
@@ -49,6 +54,8 @@ const processTick = async (scene: BattlegroundScene) => {
   scene.displayOrderEmotes();
 
   state.inputDisabled = false;
+
+  await vignette(scene, "End of turn");
 };
 
 
