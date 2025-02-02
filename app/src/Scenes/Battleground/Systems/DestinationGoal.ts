@@ -33,7 +33,11 @@ export function DestinationGoal_init(scene: BattlegroundScene) {
 
 			draw(scene, index, unitId, target)
 		}
-		]
+		],
+		// create event for unit drag pointer move
+		// [
+		// 	signals.POINTER_MO
+		// ]
 	])
 
 }
