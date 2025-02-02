@@ -77,15 +77,15 @@ function draw(
 		targetTile.getCenterY()
 	);
 
-	const rect = scene.add.rectangle(
+	const circle = scene.add.ellipse(
 		targetTile.getCenterX(),
 		targetTile.getCenterY(),
-		32,
-		32,
+		16,
+		16,
 		0xff0000
 	)
 
-	rect.setOrigin(0.5, 0.5)
+	circle.setOrigin(0.5, 0.5)
 
 	scene.tweens.add({
 		targets: container,
@@ -97,7 +97,7 @@ function draw(
 	})
 	scene.children.moveBelow(container, chara.container)
 
-	container.add([lineGraphics, rect])
+	container.add([lineGraphics, circle])
 	index[unitId] = {
 		pos: target,
 		container
