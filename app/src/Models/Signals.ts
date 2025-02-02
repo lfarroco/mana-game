@@ -40,8 +40,11 @@ export type Signals = {
   SELECT_UNIT_MOVE_CANCEL: (unitId: string) => void;
 
   SELECT_SKILL_TARGET_START: (unitId: string, skill: string) => void;
-  SELECT_SKILL_TARGET_DONE: (tile: Vec2) => void;
+  SELECT_SKILL_TARGET_DONE: (tile: Vec2, unitId: string | null) => void;
   SELECT_SKILL_TARGET_CANCEL: () => void;
+
+  HIGHLIGHT_UNIT: (unitId: string, color: number) => void;
+  STOP_HIGHLIGHT_UNIT: (unitId: string) => void;
 
   TOGGLE_DISPATCH_MODAL: (value: boolean) => void;
   TOGGLE_OPTIONS_MODAL: (value: boolean) => void;
@@ -113,6 +116,9 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   UNIT_CREATED: "UNIT_CREATED",
   CHARA_CREATED: "CHARA_CREATED",
   BATTLEGROUND_TICK: "BATTLEGROUND_TICK",
+
+  HIGHLIGHT_UNIT: "HIGHLIGHT_UNIT",
+  STOP_HIGHLIGHT_UNIT: "STOP_HIGHLIGHT_UNIT",
 
   DESTINATION_GOAL_TO: "DESTINATION_GOAL_TO",
   NEXT_IDLE_UNIT: "NEXT_IDLE_UNIT",
