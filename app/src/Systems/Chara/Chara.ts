@@ -38,14 +38,16 @@ export function createChara(
 		.add.image(
 			0, 0,
 			unit.job
-		).setName("chara-" + unit.id);// TODO: is this being used?
+		)
 
 	sprite.setDisplaySize(spriteSize, spriteSize)
 
 	const shadow = scene.add.image(
 		0, 0,
-		unit.job
-	).setName("shadow-" + unit.id).setTint(0x000000).setAlpha(1).setDisplaySize(shadowSize, shadowSize);
+		unit.job)
+		.setTint(0x000000)
+		.setAlpha(1)
+		.setDisplaySize(shadowSize, shadowSize);
 	shadow.visible = false;
 
 	scene.children.moveBelow(shadow, sprite);
