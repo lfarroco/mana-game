@@ -19,6 +19,12 @@ export function onPointerUp(
 			const state = getState();
 
 			if (state.inputDisabled) {
+				console.log("input disabled, exit POINTER_UP event");
+				return;
+			}
+
+			if (pointer.downElement !== scene.game.canvas) {
+				console.log("down element is not canvas, exit POINTER_UP event");
 				return;
 			}
 
