@@ -6,7 +6,7 @@ import { createCities } from "./Map/createCities";
 import { Unit } from "../../Models/Unit";
 import processTick from "./ProcessTick";
 import { eqVec2, Vec2 } from "../../Models/Geometry";
-import { Chara, createChara } from "../../Systems/Chara/Chara";
+import { Chara, CharaSystem_init, createChara } from "../../Systems/Chara/Chara";
 import { emit, signals, listeners } from "../../Models/Signals";
 import { State, getUnit, getState } from "../../Models/State";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
@@ -172,6 +172,7 @@ export class BattlegroundScene extends Phaser.Scene {
     BattlegroundAudioSystem_init(state, this);
     HightlightCellsSystem.init(this);
     DestinationGoal_init(this);
+    CharaSystem_init(this);
 
     //@ts-ignore
     window.bg = this;
