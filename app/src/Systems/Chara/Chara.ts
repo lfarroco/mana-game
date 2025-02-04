@@ -67,75 +67,7 @@ export function createChara(
 		unit,
 		hightlightTween: null,
 	}
-	listeners([
-		[signals.UNIT_SELECTED, (unitId: string) => {
 
-			if (unitId !== chara.id) return;
-			shadow.visible = true;
-
-			if (chara.unit.order.type === "skill-on-unit")
-				highlightTarget(chara, chara.unit.order.skill, chara.unit.order.target);
-
-		}],
-		[signals.UNIT_DESELECTED, (unitId: string) => {
-			if (unitId !== chara.id) return;
-			shadow.visible = false;
-
-			cancelTargetHighlight(chara);
-
-		}],
-		[signals.SELECT_SKILL_TARGET_DONE, (casterId: string, skillId: string, tile: Vec2, targetId: string | null) => {
-
-			if (casterId !== chara.id) return;
-
-			cancelTargetHighlight(chara);
-
-			if (targetId) {
-				highlightTarget(chara, skillId, targetId)
-
-				unit.order = {
-					type: "skill-on-unit",
-					skill: skillId,
-					target: targetId
-				}
-			}
-
-		}],
-		[signals.HIGHLIGHT_UNIT, (unitId: string, color: number) => {
-
-			if (unitId !== chara.id) return;
-
-			sprite.setTint(color);
-			chara.hightlightTween = scene.add.tween({
-				targets: sprite,
-				alpha: 0.7,
-				duration: 400 / scene.state.options.speed,
-				ease: "Linear",
-				repeat: -1,
-				yoyo: true,
-			});
-
-		}],
-		[signals.STOP_HIGHLIGHT_UNIT, (unitId: string) => {
-
-			if (unitId !== chara.id) return;
-
-			sprite.clearTint();
-			chara.hightlightTween?.destroy();
-			chara.hightlightTween = null;
-
-		}],
-		[signals.SELECT_UNIT_MOVE_DONE, (unitIds: string[], target: Vec2) => {
-
-			unitIds.forEach((unitId) => {
-				const chara = scene.getChara(unitId);
-
-				cancelTargetHighlight(chara);
-			});
-
-		}],
-
-	])
 
 	return chara
 }
@@ -161,4 +93,80 @@ function cancelTargetHighlight(chara: Chara) {
 
 	const target = chara.unit.order.target;
 	emit(signals.STOP_HIGHLIGHT_UNIT, target);
+}
+
+export function CharaSystem_init(scene: BattlegroundScene) {
+	listeners([
+		[signals.UNIT_SELECTED, (unitId: string) => {
+
+			const chara = scene.getChara(unitId);
+
+			chara.shadow.visible = true;
+
+			if (chara.unit.order.type === "skill-on-unit")
+				highlightTarget(chara, chara.unit.order.skill, chara.unit.order.target);
+
+		}],
+		[signals.UNIT_DESELECTED, (unitId: string) => {
+
+			const chara = scene.getChara(unitId);
+
+			chara.shadow.visible = false;
+
+			cancelTargetHighlight(chara);
+
+		}],
+		[signals.SELECT_SKILL_TARGET_DONE, (casterId: string, skillId: string, tile: Vec2, targetId: string | null) => {
+
+			const chara = scene.getChara(casterId);
+
+			cancelTargetHighlight(chara);
+
+			if (targetId) {
+				highlightTarget(chara, skillId, targetId)
+
+				chara.unit.order = {
+					type: "skill-on-unit",
+					skill: skillId,
+					target: targetId
+				}
+			}
+
+		}],
+		[signals.HIGHLIGHT_UNIT, (unitId: string, color: number) => {
+
+			const chara = scene.getChara(unitId);
+
+			chara.sprite.setTint(color);
+			chara.hightlightTween = scene.add.tween({
+				targets: chara.sprite,
+				alpha: 0.7,
+				duration: 400 / scene.state.options.speed,
+				ease: "Linear",
+				repeat: -1,
+				yoyo: true,
+			});
+
+		}],
+		[signals.STOP_HIGHLIGHT_UNIT, (unitId: string) => {
+
+			const chara = scene.getChara(unitId);
+
+			chara.sprite.clearTint();
+			chara.hightlightTween?.destroy();
+			chara.hightlightTween = null;
+
+		}],
+		[signals.SELECT_UNIT_MOVE_DONE, (unitIds: string[], target: Vec2) => {
+
+			unitIds.forEach((unitId) => {
+				const chara = scene.getChara(unitId);
+
+				cancelTargetHighlight(chara);
+			});
+
+		}],
+
+	])
+
 }
