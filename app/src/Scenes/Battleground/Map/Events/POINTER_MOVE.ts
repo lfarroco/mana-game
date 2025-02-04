@@ -22,6 +22,11 @@ export function onPointerMove(
 			if (!pointer.isDown) return;
 			if (pointer.downTime < 100) return;
 
+			if (pointer.downElement !== scene.game.canvas) {
+				console.log("down element is not canvas, exit POINTER_MOVE event");
+				return;
+			}
+
 			const dx = pointer.downX - pointer.x;
 			const dy = pointer.downY - pointer.y;
 

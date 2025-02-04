@@ -23,6 +23,11 @@ export function onPointerDown(
 				return;
 			}
 
+			if (pointer.downElement !== scene.game.canvas) {
+				console.log("down element is not canvas, exit POINTER_DOWN event");
+				return;
+			}
+
 			const tile = bgLayer.getTileAtWorldXY(pointer.worldX, pointer.worldY);
 
 			if (!scene.casterId) {
