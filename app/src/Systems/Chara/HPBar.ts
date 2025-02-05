@@ -40,6 +40,8 @@ export function init(state: State, scene: BattlegroundScene) {
 			const bar = scene.add.graphics();
 			drawBar(unit.hp, unit, bar, vec2(x, y));
 
+			bg.setDepth(1000000);
+			bar.setDepth(1000001);
 			chara.container.add([bg, bar])
 
 			barIndex[id] = {

@@ -104,28 +104,16 @@ const Battleground = () => {
         </div>
       </div>
 
-      {
-        nextIdleEnabled ?
-          <button
-            className="btn btn-secondary"
-            id="next-turn"
-            onClick={
-              emit_(signals.NEXT_IDLE_UNIT)
-            }
-          > Next Unit</button > :
-          <button
-            className="btn btn-primary"
-            id="next-turn"
-            disabled={!nextTurnEnabled}
-            onClick={
-              emit_(signals.BATTLEGROUND_TICK, state.gameData.tick)
 
-            }
-          >Next Turn</button >
+      <button
+        className="btn btn-primary"
+        id="next-turn"
+        disabled={!nextTurnEnabled}
+        onClick={
+          emit_(signals.BATTLEGROUND_TICK, state.gameData.tick)
 
-      }
-
-
+        }
+      >Next Turn</button >
 
       <footer className="block">
         <div className="content">

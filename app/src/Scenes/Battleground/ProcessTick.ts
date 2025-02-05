@@ -18,13 +18,11 @@ const processTick = async (scene: BattlegroundScene) => {
 
   emit(signals.TURN_START)
 
-  await vignette(scene, "Move Phase");
+  await vignette(scene, "Fight it out!");
 
   const state = getState();
 
   state.inputDisabled = true;
-
-  console.log("set AI actions");
 
   // hide emotes
   state.gameData.units.forEach(u => {
@@ -38,22 +36,25 @@ const processTick = async (scene: BattlegroundScene) => {
 
   await delay(scene, 1000 / state.options.speed);
 
-  console.log("start movement phase")
-  await moveStep(scene, state);
-  console.log("ended movement phase")
-
-  await vignette(scene, "Combat Phase");
-
-  console.log("start combat phase")
-  await combatStep(scene, state);
-  console.log("ended combat phase")
+  await unitActions(scene, state);
 
   state.gameData.tick++;
   emit(signals.TURN_END)
 
-  scene.displayOrderEmotes();
+  //scene.displayOrderEmotes();
 
   state.inputDisabled = false;
+
+  const playerUnits = state.gameData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_PLAYER);
+  const cpuUnits = state.gameData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_CPU);
+
+  if (cpuUnits.length === 0) {
+    emit(signals.COMBAT_FINISHED, FORCE_ID_PLAYER);
+  } else if (playerUnits.length === 0) {
+    emit(signals.COMBAT_FINISHED, FORCE_ID_CPU);
+  } else {
+    processTick(scene);
+  }
 
   await vignette(scene, "End of turn");
 };
@@ -84,6 +85,8 @@ const performMovement = (
   }
 
   emit(signals.MOVEMENT_FINISHED, unit.id, unit.position);
+
+  await combatStep(scene, unit)
 
 }
 
@@ -301,7 +304,7 @@ function checkAgroo(
   };
 }
 
-async function moveStep(scene: BattlegroundScene, state: State) {
+async function unitActions(scene: BattlegroundScene, state: State) {
 
   const unitsToMove = state.gameData.units
     .filter(u => u.hp > 0)
@@ -312,40 +315,30 @@ async function moveStep(scene: BattlegroundScene, state: State) {
 
 }
 
-async function combatStep(scene: BattlegroundScene, state: State) {
+const combatStep = async (scene: BattlegroundScene, unit: Unit) => {
+  unitLog(unit, "start combat step")
 
-  const skills = state.gameData.units
-    .filter(u => u.hp > 0)
-    .map(unit => {
+  if (unit.hp <= 0) {
+    unitLog(unit, "unit is dead: skipping combat step");
+    return;
+  }
 
-      return async () => {
-        unitLog(unit, "start combat step")
+  // TODO: use skill range to determine if unit can attack on melee
+  if (["monk", "soldier", "orc"].includes(unit.job))
+    await checkAgroo(scene.state, scene)(unit);
+  else
+    await checkHeals(scene.state, scene)(unit);
 
-        if (unit.hp <= 0) {
-          unitLog(unit, "unit is dead: skipping combat step");
-          return;
-        }
+  // TODO: maybe create type "unit with skill" to avoid this redundant check
+  if (unit.order.type !== "skill-on-unit") return async () => {
+    unitLog(unit, "skill order: skip combat step");
+    return;
+  }
 
-        // TODO: use skill range to determine if unit can attack on melee
-        if (["monk", "soldier", "orc"].includes(unit.job))
-          await checkAgroo(state, scene)(unit);
-        else
-          await checkHeals(state, scene)(unit);
-
-        // TODO: maybe create type "unit with skill" to avoid this redundant check
-        if (unit.order.type !== "skill-on-unit") return async () => {
-          unitLog(unit, "skill order: skip combat step");
-          return;
-        }
-
-        await cast(scene, state, unit, unit.order.skill, unit.order.target);
-
-      }
-    });
-
-  await runPromisesInOrder(skills)
+  await cast(scene, scene.state, unit, unit.order.skill, unit.order.target);
 
 }
+
 
 async function cast(
   scene: BattlegroundScene,

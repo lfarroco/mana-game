@@ -15,6 +15,8 @@ export type Signals = {
   TURN_START: () => void;
   TURN_END: () => void;
 
+  COMBAT_FINISHED: () => void;
+
   PAUSE_GAME: () => void;
   RESUME_GAME: () => void;
 
@@ -92,6 +94,7 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   RESUME_GAME: "RESUME_GAME",
   TURN_START: "TURN_START",
   TURN_END: "TURN_END",
+  COMBAT_FINISHED: "COMBAT_FINISHED",
   PLAY_MUSIC: "PLAY_MUSIC",
   STOP_MUSIC: "STOP_MUSIC",
   SAVE_GAME: "SAVE_GAME",
