@@ -368,9 +368,6 @@ async function cast(
 
   panTo(scene, asVec2(activeChara.container));
 
-  //@ts-ignore
-  scene.children.bringToTop(activeChara.group);
-
   //const damageDisplay = createDamageDisplay(scene, targetUnit);
 
   // is target still alive?

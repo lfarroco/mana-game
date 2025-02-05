@@ -34,6 +34,8 @@ export function createChara(
 		unit.position.y * TILE_HEIGHT + HALF_TILE_HEIGHT
 	)
 
+	container.setDepth(unit.position.y);
+
 	const sprite = scene
 		.add.image(
 			0, 0,
@@ -67,7 +69,6 @@ export function createChara(
 		unit,
 		hightlightTween: null,
 	}
-
 
 	return chara
 }
@@ -163,6 +164,8 @@ export function CharaSystem_init(scene: BattlegroundScene) {
 				const chara = scene.getChara(unitId);
 
 				cancelTargetHighlight(chara);
+
+				chara.container.setDepth(target.y);
 			});
 
 		}],

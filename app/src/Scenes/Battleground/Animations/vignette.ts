@@ -7,8 +7,10 @@ export async function vignette(scene: BattlegroundScene, text: string) {
 	const rect = scene.add.rectangle(
 		0, scene.scale.height / 2,
 		scene.scale.width, 100,
-		0x000000
-	).setOrigin(0, 0).setAlpha(0).setScrollFactor(0);
+		0x000000)
+		.setOrigin(0, 0)
+		.setAlpha(0)
+		.setScrollFactor(0);
 
 	const textObj = scene.add.text(
 		-300, scene.scale.height / 2 + 50,
