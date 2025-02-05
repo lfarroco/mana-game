@@ -98,6 +98,12 @@ function cancelTargetHighlight(chara: Chara) {
 
 export function CharaSystem_init(scene: BattlegroundScene) {
 	listeners([
+		[signals.BATTLEGROUND_TICK, () => {
+			scene.charas.forEach((chara) => {
+				cancelTargetHighlight(chara);
+				chara.sprite.alpha = 1;
+			})
+		}],
 		[signals.UNIT_SELECTED, (unitId: string) => {
 
 			const chara = scene.getChara(unitId);
