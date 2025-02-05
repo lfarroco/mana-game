@@ -101,7 +101,6 @@ export class BattlegroundScene extends Phaser.Scene {
       }],
       [signals.SELECT_SKILL_TARGET_DONE, (casterId: string, skillId: string, tile: Vec2, targetId: string | null) => {
 
-
         this.casterId = null;
         this.selectedSkillId = null;
 
@@ -213,9 +212,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     ControlsSystem.init(this);
 
-
-    this.createEmotes()
-
     //@ts-ignore
     window.scene = this;
 
@@ -295,11 +291,6 @@ export class BattlegroundScene extends Phaser.Scene {
       });
   }
 
-
-  createEmotes() {
-
-  }
-
   getChara = (id: string) => {
     const chara = this.charas.find((chara) => chara.id === id);
     if (!chara) throw new Error(this.errors.charaNotFound(id));
@@ -336,24 +327,6 @@ export class BattlegroundScene extends Phaser.Scene {
     const tile = fow.getTileAt(vec.x, vec.y);
 
     return tile.alpha === 0;
-  }
-
-  private startTicks(state: State) {
-    this.time.addEvent({
-      delay: TURN_DURATION / state.options.speed,
-      callback: () => {
-        if (state.gameData.winner && !this.scene.isPaused()) {
-          this.scene.pause();
-          this.time.removeAllEvents();
-          return;
-        }
-
-        if (!this.isPaused) {
-          emit(signals.BATTLEGROUND_TICK, state.gameData.tick);
-        }
-      },
-      loop: true,
-    });
   }
 
   createMapSquads() {
