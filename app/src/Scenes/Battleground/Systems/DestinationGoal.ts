@@ -23,6 +23,9 @@ export function DestinationGoal_init(scene: BattlegroundScene) {
 		[signals.BATTLEGROUND_TICK, () => {
 			Object.keys(index).forEach(cleanup(index))
 		}],
+		[signals.MOVEMENT_FINISHED, (unitId: string) => {
+			cleanup(index)(unitId)
+		}],
 		[signals.DESTINATION_GOAL_TO, (unitId: string, target: Vec2) => {
 			const maybeVec = index[unitId]?.pos || vec2(-1, -1);
 
