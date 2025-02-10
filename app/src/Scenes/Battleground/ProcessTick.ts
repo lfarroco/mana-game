@@ -31,7 +31,6 @@ const processTick = async (scene: BattlegroundScene) => {
 
   state.gameData.units
     .filter(u => u.hp > 0)
-    .filter(u => u.force === FORCE_ID_CPU)
     .forEach(checkAgroo(state, scene));
 
   await delay(scene, 1000 / state.options.speed);
@@ -50,13 +49,17 @@ const processTick = async (scene: BattlegroundScene) => {
 
   if (cpuUnits.length === 0) {
     emit(signals.COMBAT_FINISHED, FORCE_ID_PLAYER);
+    await vignette(scene, "Victory!");
   } else if (playerUnits.length === 0) {
+
     emit(signals.COMBAT_FINISHED, FORCE_ID_CPU);
+    await vignette(scene, "Game Over");
   } else {
-    processTick(scene);
+
+    await vignette(scene, "End of turn");
+    await processTick(scene);
   }
 
-  await vignette(scene, "End of turn");
 };
 
 
