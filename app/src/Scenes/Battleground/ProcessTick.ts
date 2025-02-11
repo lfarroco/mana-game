@@ -29,10 +29,6 @@ const processTick = async (scene: BattlegroundScene) => {
     emit(signals.HIDE_EMOTE, u.id);
   });
 
-  state.gameData.units
-    .filter(u => u.hp > 0)
-    .forEach(checkAgroo(state, scene));
-
   await delay(scene, 1000 / state.options.speed);
 
   await unitActions(scene, state);
@@ -46,6 +42,8 @@ const processTick = async (scene: BattlegroundScene) => {
 
   const playerUnits = state.gameData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_PLAYER);
   const cpuUnits = state.gameData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_CPU);
+
+  console.log(playerUnits.length, cpuUnits.length);
 
   if (cpuUnits.length === 0) {
     emit(signals.COMBAT_FINISHED, FORCE_ID_PLAYER);
@@ -70,9 +68,15 @@ const performMovement = (
   unit: Unit,
 ) => async () => {
 
+  await checkAgroo(state, scene)(unit)
+
   const job = getJob(unit.job);
 
-  if (unit.order.type !== "move") return;
+  if (unit.order.type !== "move") {
+
+    await combatStep(scene, unit)
+    return;
+  }
 
   const path = await lookupAIPAth(scene, unit.id, unit.position, unit.order.cell);
 
@@ -89,7 +93,6 @@ const performMovement = (
 
   emit(signals.MOVEMENT_FINISHED, unit.id, unit.position);
 
-  await combatStep(scene, unit)
 
 }
 
@@ -311,7 +314,6 @@ async function unitActions(scene: BattlegroundScene, state: State) {
 
   const unitsToMove = state.gameData.units
     .filter(u => u.hp > 0)
-    .filter(u => u.order.type === "move")
     .map(performMovement(scene, state));
 
   await runPromisesInOrder(unitsToMove);
