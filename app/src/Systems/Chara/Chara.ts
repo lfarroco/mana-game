@@ -3,10 +3,7 @@ import { Unit } from "../../Models/Unit";
 import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 import "./portrait.css"
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
-import { emit, listeners, signals } from "../../Models/Signals";
-import { Vec2 } from "../../Models/Geometry";
-import { getSkill } from "../../Models/Skill";
-import { FORCE_ID_PLAYER } from "../../Models/Force";
+import { listeners, signals } from "../../Models/Signals";
 
 export type Chara = {
 	id: string;
@@ -73,34 +70,10 @@ export function createChara(
 	return chara
 }
 
-function highlightTarget(chara: Chara, skillId: string, targetId: string) {
-
-	const unit = chara.unit;
-
-	if (unit.force !== FORCE_ID_PLAYER) return;
-
-	const target = (chara.sprite.scene as BattlegroundScene).getChara(targetId);
-
-	const skill = getSkill(skillId)
-
-	const color = skill.harmful ? 0xff0000 : 0x00ff00;
-
-	emit(signals.HIGHLIGHT_UNIT, target.id, color);
-}
-
-function cancelTargetHighlight(chara: Chara) {
-
-	if (chara.unit.order.type !== "skill-on-unit") return;
-
-	const target = chara.unit.order.target;
-	emit(signals.STOP_HIGHLIGHT_UNIT, target);
-}
-
 export function CharaSystem_init(scene: BattlegroundScene) {
 	listeners([
 		[signals.BATTLEGROUND_TICK, () => {
 			scene.charas.forEach((chara) => {
-				cancelTargetHighlight(chara);
 				chara.sprite.alpha = 1;
 			})
 		}],
@@ -110,34 +83,12 @@ export function CharaSystem_init(scene: BattlegroundScene) {
 
 			chara.shadow.visible = true;
 
-			if (chara.unit.order.type === "skill-on-unit")
-				highlightTarget(chara, chara.unit.order.skill, chara.unit.order.target);
-
 		}],
 		[signals.UNIT_DESELECTED, (unitId: string) => {
 
 			const chara = scene.getChara(unitId);
 
 			chara.shadow.visible = false;
-
-			cancelTargetHighlight(chara);
-
-		}],
-		[signals.SELECT_SKILL_TARGET_DONE, (casterId: string, skillId: string, tile: Vec2, targetId: string | null) => {
-
-			const chara = scene.getChara(casterId);
-
-			cancelTargetHighlight(chara);
-
-			if (targetId) {
-				highlightTarget(chara, skillId, targetId)
-
-				chara.unit.order = {
-					type: "skill-on-unit",
-					skill: skillId,
-					target: targetId
-				}
-			}
 
 		}],
 		[signals.HIGHLIGHT_UNIT, (unitId: string, color: number) => {
@@ -162,17 +113,6 @@ export function CharaSystem_init(scene: BattlegroundScene) {
 			chara.sprite.clearTint();
 			chara.hightlightTween?.destroy();
 			chara.hightlightTween = null;
-
-		}],
-		[signals.SELECT_UNIT_MOVE_DONE, (unitIds: string[], target: Vec2) => {
-
-			unitIds.forEach((unitId) => {
-				const chara = scene.getChara(unitId);
-
-				cancelTargetHighlight(chara);
-
-				chara.container.setDepth(target.y);
-			});
 
 		}],
 

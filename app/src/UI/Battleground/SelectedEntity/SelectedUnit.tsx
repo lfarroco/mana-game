@@ -1,6 +1,5 @@
 import { Unit } from "../../../Models/Unit"
 import "./styles.css"
-import * as Signals from "../../../Models/Signals"
 import { FORCE_ID_PLAYER } from "../../../Models/Force"
 import { getJob } from "../../../Models/Job"
 import { getSkill } from "../../../Models/Skill"
@@ -16,15 +15,9 @@ const SelectedUnit = ({
 	isSelectingSkillTarget: boolean
 }) => {
 
-	const isPlayerControlled = unit.force === FORCE_ID_PLAYER
-
-
 	const job = getJob(unit.job)
 
-	const actionsGrid = !isPlayerControlled ? []
-		: isSelectingMoveTarget ? selectMoveTargetActions(unit)
-			: isSelectingSkillTarget ? selectSkillTargetActions(unit)
-				: UnitActions(unit)
+	const actionsGrid = UnitActions(unit)
 
 	return <SelectedEntity
 
@@ -35,7 +28,6 @@ const SelectedUnit = ({
 		actions={actionsGrid}
 		description={<>
 			<div> <span className="attr"></span> {job.name} </div>
-			<div> <span className="attr">Order: </span> {unit.order.type} </div>
 		</>
 		}
 	/>
@@ -44,38 +36,7 @@ const SelectedUnit = ({
 
 export default SelectedUnit
 
-function selectSkillTargetActions(unit: Unit) {
-	return [
-		{
-			icon: "assets/ui/icon-cancel.png",
-			tooltipTitle: "Cancel",
-			tooltipContent: "Cancel using this skill",
-			onClick: () => {
-				Signals.emit(Signals.signals.SELECT_SKILL_TARGET_CANCEL, unit.id)
-			},
-			active: unit.order.type === "skill-on-unit",
-			enabled: true
-		},
 
-	]
-}
-
-function selectMoveTargetActions(unit: Unit) {
-	return [
-		{
-			icon: "assets/ui/icon-cancel.png",
-			tooltipTitle: "Cancel",
-			tooltipContent: "Cancel moving",
-			onClick: () => {
-				Signals.emit(Signals.signals.SELECT_UNIT_MOVE_CANCEL, unit.id)
-
-			},
-			active: false,
-			enabled: true
-
-		}
-	]
-}
 
 
 function UnitActions(unit: Unit): ButtonGridAction[] {
@@ -89,35 +50,15 @@ function UnitActions(unit: Unit): ButtonGridAction[] {
 			icon: `assets/ui/icon-${skillId}.png`,
 			tooltipTitle: skill.name,
 			tooltipContent: skill.tooltip,
-			active: unit.order.type === "skill-on-unit",
+			active: true,
 			enabled: true,
 			onClick: () => {
-				Signals.emit(Signals.signals.SELECT_SKILL_TARGET_START, unit.id, skillId)
+				console.log("clicked", skillId)
 			},
 		}
 	});
 
 	return [
-		{
-			icon: "assets/ui/icon-move.png",
-			tooltipTitle: "Move",
-			tooltipContent: "Move to a different location. Will ignore enemies in the way.",
-			onClick: () => {
-				Signals.emit(Signals.signals.SELECT_UNIT_MOVE_START, unit.id)
-			},
-			active: unit.order.type === "move",
-			enabled: true
-		},
-		{
-			icon: "assets/ui/icon-stop.png",
-			tooltipTitle: "Stop",
-			tooltipContent: "Stop the unit from moving or attacking.",
-			onClick: () => {
-				Signals.emit(Signals.signals.UNIT_ORDER_STOP, unit.id)
-			},
-			active: unit.order.type === "none",
-			enabled: unit.order.type !== "none"
-		},
 		...skills
 
 	]

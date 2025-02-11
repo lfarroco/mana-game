@@ -5,7 +5,7 @@ import DispatchSquadModal from "./RecruitUnitModal/RecruitUnitModal";
 import VictoryModal from "./VictoryModal/VictoryModal";
 import SelectionHUD from "./SelectionHUD";
 import SaveGame from "../SaveGame/SaveGame";
-import { getState, State } from "../../Models/State";
+import { getState, } from "../../Models/State";
 import { FORCE_ID_PLAYER, Force } from "../../Models/Force";
 import { Col, Row } from "react-bootstrap";
 import ManaButton from "../Components/Button";
@@ -18,28 +18,9 @@ const Battleground = () => {
   const [tick, setTick] = useState(state.gameData.tick);
   const [gold, setGold] = useState(state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)?.gold || 0);
   const [nextTurnEnabled, setNextTurnEnabled] = useState(true);
-  const [nextIdleEnabled, setNextIdleEnabled] = useState(true);
 
   useEffect(() => {
     listeners([
-      [signals.SELECT_UNIT_MOVE_START, () => {
-        setIsSelectingMoveTarget(true);
-      }],
-      [signals.SELECT_SKILL_TARGET_START, () => {
-        setIsSelectingSkillTarget(true);
-      }],
-      [signals.SELECT_SKILL_TARGET_DONE, () => {
-        setIsSelectingSkillTarget(false);
-      }],
-      [signals.SELECT_SKILL_TARGET_CANCEL, () => {
-        setIsSelectingSkillTarget(false);
-      }],
-      [signals.SELECT_UNIT_MOVE_DONE, () => {
-        setIsSelectingMoveTarget(false);
-      }],
-      [signals.SELECT_UNIT_MOVE_CANCEL, () => {
-        setIsSelectingMoveTarget(false);
-      }],
       [signals.BATTLEGROUND_TICK, (tick: number) => {
         setTick(tick);
       }],
@@ -53,18 +34,6 @@ const Battleground = () => {
       [signals.TURN_END, () => {
         setNextTurnEnabled(true);
       }],
-      [signals.BATTLEGROUND_TICK, (tick: number) => {
-        checkIdle(state, setNextIdleEnabled);
-      }],
-      [signals.TURN_END, () => {
-        checkIdle(state, setNextIdleEnabled);
-      }],
-      [signals.SELECT_UNIT_MOVE_DONE, () => {
-        checkIdle(state, setNextIdleEnabled);
-      }],
-      [signals.SELECT_SKILL_TARGET_DONE, () => {
-        checkIdle(state, setNextIdleEnabled);
-      }]
     ]);
   }, [state, state.gameData.units]);
 
@@ -136,15 +105,4 @@ const Battleground = () => {
 };
 
 export default Battleground;
-function checkIdle(state: State, setNextIdleEnabled: (enabled: boolean) => void) {
-  const idle = state.gameData.units
-    .filter(u => u.force === FORCE_ID_PLAYER && u.hp > 0 && u.order.type === "none");
-
-  console.log("IDLE ::: ", idle);
-  if (idle.length > 0) {
-    setNextIdleEnabled(true);
-  } else {
-    setNextIdleEnabled(false);
-  }
-}
 

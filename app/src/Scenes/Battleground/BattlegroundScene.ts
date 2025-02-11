@@ -17,7 +17,6 @@ import { City } from "../../Models/City";
 import * as CityCaptureSystem from "./Systems/cityCapture";
 import * as FogOfWarSystem from "./Systems/FogOfWar/FogOfWar";
 import * as CursorSystem from "./Systems/Cursor";
-import * as Pathfinding from "./Systems/Pathfinding";
 import * as AISystem from "../../Systems/AI/AI";
 import { EmoteSystem_init } from "../../Systems/Chara/Emote";
 import * as HPBarSystem from "../../Systems/Chara/HPBar";
@@ -26,13 +25,11 @@ import * as CharaSystem from "../../Systems/Chara/Events";
 import * as HightlightCellsSystem from "./Map/highlightCells";
 
 import { createFowLayer } from "./Systems/FogOfWar/createFowLayer";
-import { DestinationDisplaySystem_init } from "./Systems/DestinationDisplay";
 import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import { makeMapInteractive } from "./Map/makeMapInteractive";
 import { clearCellHighlights } from "./Map/highlightCells";
 import { FORCE_ID_PLAYER } from "../../Models/Force";
 import { AuraPipeline } from "../../Shaders/aura";
-import { DestinationGoal_init } from "./Systems/DestinationGoal";
 
 export class BattlegroundScene extends Phaser.Scene {
   graphics: Phaser.GameObjects.Graphics | null = null;
@@ -43,17 +40,11 @@ export class BattlegroundScene extends Phaser.Scene {
     features: Phaser.Tilemaps.TilemapLayer;
   } | null = null;
   isPaused = false;
-  isSelectingSquadMove = false;
-  isSelectingAttackTarget = false;
   cities: { city: City; sprite: Phaser.GameObjects.Image }[] = []; // TODO: data duplication, this should be just a list of sprites
   tilemap: Phaser.Tilemaps.Tilemap | null = null;
   fow: Phaser.Tilemaps.TilemapLayer | null = null;
   grid: (0 | 1)[][] = []
   state: State;
-
-  // skill state - TODO: move this into the skill system
-  selectedSkillId: string | null = null;
-  casterId: string | null = null;
 
   cleanup() {
     this.charas.forEach(chara => {
@@ -72,7 +63,6 @@ export class BattlegroundScene extends Phaser.Scene {
     this.tilemap = null
     this.graphics?.destroy();
     this.isPaused = false;
-    this.isSelectingSquadMove = false;
     this.time.removeAllEvents();
     this.fow?.destroy()
     this.fow = null
@@ -87,28 +77,6 @@ export class BattlegroundScene extends Phaser.Scene {
     this.state = state;
 
     listeners([
-      [signals.SELECT_UNIT_MOVE_START, () => {
-        this.isSelectingSquadMove = true;
-      }],
-      [signals.SELECT_UNIT_MOVE_DONE, this.moveUnitsTo],
-      [signals.SELECT_UNIT_MOVE_CANCEL, () => {
-        this.isSelectingSquadMove = false;
-      }],
-      [signals.SELECT_SKILL_TARGET_START, (unitId: string, skillId: string) => {
-        this.casterId = unitId;
-        this.selectedSkillId = skillId;
-      }],
-      [signals.SELECT_SKILL_TARGET_DONE, (casterId: string, skillId: string, tile: Vec2, targetId: string | null) => {
-
-        this.casterId = null;
-        this.selectedSkillId = null;
-
-      }],
-      [signals.SELECT_SKILL_TARGET_CANCEL, () => {
-        // TOOD: move this into the skill system
-        this.selectedSkillId = null;
-        this.casterId = null;
-      }],
       [signals.BATTLEGROUND_TICK, () => {
         processTick(this);
       }],
@@ -122,30 +90,6 @@ export class BattlegroundScene extends Phaser.Scene {
         const pop = this.sound.add('ui/button_click')
         pop.play()
       }],
-      [
-        signals.NEXT_IDLE_UNIT, () => {
-          const [idle] = this.charas
-            .filter(c => c.unit.hp > 0) // TOOD: clean up dead units, or use getter
-            .filter(c => c.unit.force === FORCE_ID_PLAYER)
-            .filter(c => c.unit.order.type === "none");
-
-          if (!idle) {
-            return
-          }
-          emit(signals.UNIT_SELECTED, idle.id)
-          this.cameras.main.pan(
-            idle.container.x,
-            idle.container.y,
-            500 / state.options.speed,
-            'Sine.easeInOut',
-          );
-        }
-      ],
-      [
-        signals.UNIT_ORDER_STOP, (unitId: string) => {
-          emit(signals.DISPLAY_EMOTE, unitId, "question-emote");
-        }
-      ]
 
     ]);
 
@@ -159,17 +103,14 @@ export class BattlegroundScene extends Phaser.Scene {
     AISystem.init(state);
     EmoteSystem_init(state, this);
     CityCaptureSystem.init(this);
-    Pathfinding.init(this);
     StaminaRegen.init(state);
     EntitySelection.init(state);
     CharaSystem.init(this, state);
     FogOfWarSystem.init(this, state);
     CursorSystem.init(state, this);
     HPBarSystem.init(state, this);
-    DestinationDisplaySystem_init(state, this);
     BattlegroundAudioSystem_init(state, this);
     HightlightCellsSystem.init(this);
-    DestinationGoal_init(this);
     CharaSystem_init(this);
 
     //@ts-ignore
@@ -224,8 +165,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     //this.createShader(chara)
 
-    this.displayOrderEmotes();
-
     console.log("BattlegroundScene create done");
 
   };
@@ -273,21 +212,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     return auraPipeline
 
-  }
-
-  displayOrderEmotes() {
-    this.charas
-      .filter(c => c.unit.force === FORCE_ID_PLAYER)
-      .forEach(c => {
-
-        if (c.unit.order.type === "none") {
-          emit(signals.DISPLAY_EMOTE, c.unit.id, "question-emote");
-        } else if (c.unit.order.type === "move") {
-          emit(signals.DISPLAY_EMOTE, c.unit.id, "moving-emote");
-        } else if (c.unit.order.type === "skill-on-unit") {
-          emit(signals.DISPLAY_EMOTE, c.unit.id, "combat-emote");
-        }
-      });
   }
 
   getChara = (id: string) => {
@@ -353,8 +277,6 @@ export class BattlegroundScene extends Phaser.Scene {
   };
   moveUnitsTo = (unitIds: string[], { x, y }: Vec2) => {
     const units = getState().gameData.units.filter((u) => unitIds.includes(u.id));
-
-    this.isSelectingSquadMove = false;
 
     clearCellHighlights(this);
 

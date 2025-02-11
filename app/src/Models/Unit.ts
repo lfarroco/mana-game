@@ -1,26 +1,12 @@
 import { Vec2 } from "./Geometry";
 import { getJob } from "./Job";
 
-type UnitOrder = {
-  type: "none"
-} | {
-  type: "move";
-  cell: Vec2;
-} |
-{
-  type: "skill-on-unit";
-  skill: string;
-  target: string;
-};
-
 export type Unit = {
-  order: UnitOrder;
   id: string;
   name: string;
   job: string;
   force: string;
   position: Vec2;
-  path: Vec2[];
 
   hp: number;
   maxHp: number;
@@ -40,8 +26,6 @@ export const makeUnit = (id: string, force: string, job: string, position: Vec2)
   return {
     id,
     name: job_.name,
-    order: { type: "none" },
-    path: [],
     job,
     force,
     position,
