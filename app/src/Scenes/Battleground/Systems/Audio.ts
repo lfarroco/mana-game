@@ -7,10 +7,10 @@ export function BattlegroundAudioSystem_init(state: State, scene: BattlegroundSc
 
 	// let tracks: { [key: string]: Phaser.Time.TimerEvent } = {}
 	listeners([
-		[signals.SELECT_UNIT_MOVE_DONE, () => {
+		// [signals.SELECT_UNIT_MOVE_DONE, () => {
 
-			scene.sound.play('audio/march')
+		// 	scene.sound.play('audio/march')
 
-		}],
+		// }],
 	])
 }

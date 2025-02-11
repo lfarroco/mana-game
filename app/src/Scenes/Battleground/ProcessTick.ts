@@ -5,7 +5,7 @@ import { Unit, unitLog } from "../../Models/Unit";
 import { delay, tween } from "../../Utils/animation";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
 import { lookupAIPAth } from "./Systems/Pathfinding";
-import { getJob } from "../../Models/Job";
+import { getJob, Job } from "../../Models/Job";
 import { asVec2, Vec2 } from "../../Models/Geometry";
 import { getSkill } from "../../Models/Skill";
 import { bashPieceAnimation } from "../../Systems/Chara/Animations/bashPieceAnimation";
@@ -18,8 +18,6 @@ const processTick = async (scene: BattlegroundScene) => {
 
   emit(signals.TURN_START)
 
-  await vignette(scene, "Fight it out!");
-
   const state = getState();
 
   state.inputDisabled = true;
@@ -31,7 +29,11 @@ const processTick = async (scene: BattlegroundScene) => {
 
   await delay(scene, 1000 / state.options.speed);
 
-  await unitActions(scene, state);
+  const unitsToAct = state.gameData.units
+    .filter(u => u.hp > 0)
+    .map(performAction(scene, state));
+
+  await runPromisesInOrder(unitsToAct);
 
   state.gameData.tick++;
   emit(signals.TURN_END)
@@ -54,124 +56,49 @@ const processTick = async (scene: BattlegroundScene) => {
     await vignette(scene, "Game Over");
   } else {
 
-    await vignette(scene, "End of turn");
     await processTick(scene);
   }
 
 };
 
 
-const performMovement = (
+const performAction = (
   scene: BattlegroundScene,
   state: State,
 ) => (
   unit: Unit,
 ) => async () => {
 
-  await checkAgroo(state, scene)(unit)
-
-  const job = getJob(unit.job);
-
-  if (unit.order.type !== "move") {
-
-    await combatStep(scene, unit)
-    return;
+  if (["monk", "soldier", "orc"].includes(unit.job)) {
+    await moveToMeleeTarget(state, scene)(unit)
+    await melee(scene, unit)
   }
-
-  const path = await lookupAIPAth(scene, unit.id, unit.position, unit.order.cell);
-
-  emit(signals.PATH_FOUND, unit.id, path);
-  unit.path = path;
-  let remainingSteps = job.moveRange * 1;
-
-  while (remainingSteps > 0 && unit.order.type === "move" && unit.hp > 0) {
-    unitLog(unit, `remaining steps: ${remainingSteps}`);
-    await step(scene, state, unit);
-    unitLog(unit, "finished whalking");
-    remainingSteps--;
-  }
-
-  emit(signals.MOVEMENT_FINISHED, unit.id, unit.position);
-
+  else
+    await checkHeals(scene.state, scene)(unit);
+  //  await combatStep(scene, unit)
 
 }
 
-async function step(scene: BattlegroundScene, state: State, unit: Unit) {
+async function walk(scene: BattlegroundScene, unit: Unit, path: Vec2[]) {
 
-  if (unit.order.type !== "move") {
-    unitLog(unit, "no move order, skipping step");
-    return;
-  }
-  const [next] = unit.path;
+  const job = getJob(unit.job);
+  let walked = 0;
 
-  if (!next) {
-    unitLog(unit, "invalid state :: no next cell to move to");
-    return;
+  while (walked < job.moveRange && path[walked]) {
+    console.log(">> walked ", walked, "/", job.moveRange, "/", path.length - 1)
+    await step(scene, scene.state, unit, path[walked]);
+    console.log(">> walked a step")
+    unitLog(unit, "finished whalking");
+    walked++;
   }
+
+}
+
+async function step(scene: BattlegroundScene, state: State, unit: Unit, next: Vec2) {
 
   const unitChara = scene.getChara(unit.id);
 
   await panTo(scene, asVec2(unitChara.container));
-
-  const blocker = scene.getCharaAt(next);
-
-  if (blocker) {
-
-    // is the unit an ally? if so, stop. otherwise, attack
-
-    if (blocker.unit.force === unit.force) {
-
-      unitLog(unit, `blocked by ally -> ${blocker.unit.id}`);
-
-      emit(signals.MAKE_UNIT_IDLE, unit.id);
-      return;
-    } else {
-      // agroo
-      unitLog(unit, `blocked by enemy -> ${blocker.unit.id}`);
-      emit(signals.HIDE_EMOTE, unit.id);
-      unit.order = {
-        target: blocker.unit.id,
-        type: "skill-on-unit",
-        skill: "slash",
-      }
-
-      return;
-    }
-
-  }
-
-  // check if attack of opportunity is triggered
-
-  const closeEnemies = state.gameData.units
-    .filter(u => u.hp > 0)
-    .filter(u => u.force !== unit.force)
-    .map(u => {
-      const distance = Phaser.Math.Distance.BetweenPoints(u.position, unit.position);
-      return { unit: u, distance }
-    })
-    .filter(u => u.distance === 1);
-
-  if (closeEnemies.length > 0) {
-    unitLog(unit, `triggered attack of opportunity by ${closeEnemies.map(u => u.unit.id)}`);
-
-    for (const enemy of closeEnemies) {
-      unitLog(enemy.unit, `attacking because of attack of opportunity -> ${unit.job}`);
-
-      emit(signals.DISPLAY_EMOTE, enemy.unit.id, "exclamation-emote");
-
-      await popText(scene, "Attack of Opportunity!", enemy.unit.id);
-
-      await cast(scene, state, enemy.unit, "slash", unit.id);
-      emit(signals.HIDE_EMOTE, enemy.unit.id);
-      if (unit.hp <= 0) {
-        unitLog(unit, "killed by attack of opportunity, skipping movement phase");
-        return;
-      } else {
-        unitLog(unit, "survived attack(s) of opportunity, continuing movement phase");
-      }
-    }
-
-  }
 
   emit(signals.MOVE_UNIT_INTO_CELL_START, unit.id, next);
 
@@ -181,24 +108,6 @@ async function step(scene: BattlegroundScene, state: State, unit: Unit) {
 
   unit.position = next;
 
-  const remaining = unit.path.slice(1);
-
-  if (remaining.length > 0) {
-    unit.path = remaining;
-    unit.order = {
-      type: "move",
-      cell: remaining[remaining.length - 1]
-    }
-  } else {
-    emit(signals.MOVEMENT_FINISHED, unit.id, next);
-    unit.order = {
-      type: "none"
-    }
-    if (unit.force === FORCE_ID_PLAYER) {
-      emit(signals.DISPLAY_EMOTE, unit.id, "question-emote");
-    }
-  }
-
 }
 
 // TODO: check if unit can heal while moving
@@ -207,8 +116,6 @@ function checkHeals(
   scene: BattlegroundScene,
 ): (unit: Unit) => void {
   return async (unit) => {
-
-    if (unit.order.type === "move") return;
 
     const allies = state.gameData.units.filter(u => u.hp > 0).filter(u => u.force === unit.force);
 
@@ -223,59 +130,17 @@ function checkHeals(
 
     if (mostHurt.length === 0) return;
 
-    const target = mostHurt[0];
-
-    unit.order = {
-      type: "skill-on-unit",
-      skill: "heal",
-      target: target.id,
-    }
 
   }
 }
 
-
-function checkAgroo(
+function moveToMeleeTarget(
   state: State,
   scene: BattlegroundScene,
 ): (unit: Unit) => void {
   return async (unit) => {
 
-    // units that already has an order can skip this step (if target is still alive)
-    if (unit.order.type === "skill-on-unit") {
-      const maybeTarget = scene.getChara(unit.order.target);
-      if (maybeTarget && maybeTarget.unit.hp > 0) {
-
-        const distance = Phaser.Math.Distance.BetweenPoints(unit.position, maybeTarget.unit.position);
-
-        if (distance === 1) {
-          unitLog(unit, 'target is alive and in range, skipping agroo check')
-          return;
-        } else {
-          unitLog(unit, "target is alive but out of range, will chase target");
-          // const path = await lookupAIPAth(scene, unit.id, unit.position, maybeTarget.unit.position);
-          // if (path.length > 0) {
-          //   emit(signals.PATH_FOUND, unit.id, path);
-          //   return;
-          // } else {
-          //   unitLog(unit, "path not found, will wait for next turn");
-          //   return;
-          // }
-        }
-      } else {
-        unitLog(unit, "unit has died or moved, looking for new target")
-      }
-
-    }
-
-    const [closestEnemy] = state.gameData.units
-      .filter(u => u.hp > 0)
-      .filter(u => u.force !== unit.force)
-      .sort((a, b) => {
-        const aDist = Phaser.Math.Distance.BetweenPoints(a.position, unit.position);
-        const bDist = Phaser.Math.Distance.BetweenPoints(b.position, unit.position);
-        return aDist - bDist;
-      });
+    const [closestEnemy] = getCloseEnemies(state, unit);
 
     if (!closestEnemy) {
       unitLog(unit, "no enemies to attack");
@@ -284,85 +149,49 @@ function checkAgroo(
 
     const distance = Phaser.Math.Distance.BetweenPoints(unit.position, closestEnemy.position);
 
-    if (distance === 1) {
-      if (unit.order.type === "move" && unit.path.length > 0) {
+    console.log(">> distance to target: ", distance)
+    if (distance < 1) return
 
-        const maybeBlocker = scene.getCharaAt(unit.path[0]);
-        if (!maybeBlocker) {
-          unitLog(unit, "unit can attack but is moving and is not blocked")
-          return;
-        }
+    const path = await lookupAIPAth(scene, unit.id, unit.position, closestEnemy.position);
 
-      }
-      unit.order = {
-        type: "skill-on-unit",
-        skill: "slash",
-        target: closestEnemy.id
-      };
-    } else {
-      if (unit.force !== FORCE_ID_CPU) return;
-      const path = await lookupAIPAth(scene, unit.id, unit.position, closestEnemy.position);
-      if (path.length > 0) {
-        emit(signals.PATH_FOUND, unit.id, path);
-      }
-    }
+    console.log(">> path to target: ", path)
+    // remove last cell
+    const path_ = path.slice(0, path.length - 1);
+
+    await walk(scene, unit, path_);
 
   };
 }
 
-async function unitActions(scene: BattlegroundScene, state: State) {
-
-  const unitsToMove = state.gameData.units
+function getCloseEnemies(state: State, unit: Unit): Unit[] {
+  return state.gameData.units
     .filter(u => u.hp > 0)
-    .map(performMovement(scene, state));
-
-  await runPromisesInOrder(unitsToMove);
-
+    .filter(u => u.force !== unit.force)
+    .sort((a, b) => {
+      const aDist = Phaser.Math.Distance.BetweenPoints(a.position, unit.position);
+      const bDist = Phaser.Math.Distance.BetweenPoints(b.position, unit.position);
+      return aDist - bDist;
+    });
 }
 
-const combatStep = async (scene: BattlegroundScene, unit: Unit) => {
-  unitLog(unit, "start combat step")
-
-  if (unit.hp <= 0) {
-    unitLog(unit, "unit is dead: skipping combat step");
-    return;
-  }
-
-  // TODO: use skill range to determine if unit can attack on melee
-  if (["monk", "soldier", "orc"].includes(unit.job))
-    await checkAgroo(scene.state, scene)(unit);
-  else
-    await checkHeals(scene.state, scene)(unit);
-
-  // TODO: maybe create type "unit with skill" to avoid this redundant check
-  if (unit.order.type !== "skill-on-unit") return async () => {
-    unitLog(unit, "skill order: skip combat step");
-    return;
-  }
-
-  await cast(scene, scene.state, unit, unit.order.skill, unit.order.target);
-
-}
-
-
-async function cast(
+async function melee(
   scene: BattlegroundScene,
-  state: State,
   unit: Unit,
-  skillId: string,
-  targetId: string,
 ) {
 
-  unitLog(unit, `casting skill ${skillId} on ${targetId}`);
-  const activeChara = scene.getCharaAt(unit.position)
+  const activeChara = scene.getChara(unit.id)
 
-  const targetUnit = getUnit(state)(targetId);
+  const [closestEnemy] = getCloseEnemies(getState(), unit);
 
-  const targetChara = scene.getChara(targetId);
+  const targetUnit = getUnit(scene.state)(closestEnemy.id);
+
+  const targetChara = scene.getChara(targetUnit.id);
 
   if (!activeChara) { throw new Error("no active unit\n" + unit.id) }
 
-  const skill = getSkill(skillId)
+  const job = getJob(unit.job);
+
+  const skill = getSkill(job.skill)
 
   panTo(scene, asVec2(activeChara.container));
 
@@ -371,11 +200,10 @@ async function cast(
   // is target still alive?
   if (targetUnit.hp <= 0) {
     unitLog(unit, "target is dead, skipping cast");
-    emit(signals.MAKE_UNIT_IDLE, unit.id);
     if (unit.force === FORCE_ID_PLAYER) {
       emit(signals.DISPLAY_EMOTE, unit.id, "question-emote");
     }
-    await delay(scene, 1000 / state.options.speed);
+    await delay(scene, 1000 / scene.state.options.speed);
     emit(signals.HIDE_EMOTE, unit.id);
     return;
   }
@@ -386,7 +214,7 @@ async function cast(
 
   if (skill.id === "slash") {
 
-    bashPieceAnimation(scene, state, activeChara, targetUnit);
+    bashPieceAnimation(scene, scene.state, activeChara, targetUnit);
 
     await slashAnimation(scene, activeChara, targetChara, skill.power);
 
@@ -398,7 +226,7 @@ async function cast(
 
   }
 
-  if (skillId === "heal") {
+  if (job.skill === "heal") {
 
     scene.playFx("audio/curemagic")
 
@@ -413,17 +241,17 @@ async function cast(
     tween(scene, {
       targets: sprite,
       alpha: 0.5,
-      duration: 500 / state.options.speed,
+      duration: 500 / scene.state.options.speed,
     })
 
     popText(scene, skill.power.toString(), targetUnit.id)
 
-    await delay(scene, 500 / state.options.speed);
+    await delay(scene, 500 / scene.state.options.speed);
 
     await tween(scene, {
       targets: sprite,
       alpha: 0,
-      duration: 500 / state.options.speed,
+      duration: 500 / scene.state.options.speed,
     })
 
     sprite.destroy();

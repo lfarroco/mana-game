@@ -172,10 +172,5 @@ export const listenToStateEvents = (state: State) => {
     [signals.UPDATE_FORCE, (force: Partial<Force>) => {
       updateForce(state)(force);
     }],
-    [
-      signals.UNIT_ORDER_STOP, (unitId: string) => {
-        updateUnit(state)(unitId)({ order: { type: "none" } });
-      }
-    ]
   ])
 }

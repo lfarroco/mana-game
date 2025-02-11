@@ -35,16 +35,6 @@ export type Signals = {
   CITY_SELECTED: (id: string | null) => void;
   CITY_DESELECTED: () => void;
 
-  UNIT_ORDER_STOP: (unitId: string) => void;
-
-  SELECT_UNIT_MOVE_START: (unitId: string) => void;
-  SELECT_UNIT_MOVE_DONE: (unitIds: string[], target: Vec2) => void;
-  SELECT_UNIT_MOVE_CANCEL: (unitId: string) => void;
-
-  SELECT_SKILL_TARGET_START: (unitId: string, skill: string) => void;
-  SELECT_SKILL_TARGET_DONE: (casterId: string, skillId: string, tile: Vec2, targetId: string | null) => void;
-  SELECT_SKILL_TARGET_CANCEL: (unitId: string) => void;
-
   HIGHLIGHT_UNIT: (unitId: string, color: number) => void;
   STOP_HIGHLIGHT_UNIT: (unitId: string) => void;
 
@@ -61,10 +51,7 @@ export type Signals = {
   CHARA_CREATED: (charaId: string) => void;
   BATTLEGROUND_TICK: (tick: number) => void;
 
-  NEXT_IDLE_UNIT: () => void;
   UPDATE_FORCE: (force: Partial<Force>) => void;
-
-  MAKE_UNIT_IDLE: (unitId: string) => void;
 
   DESTINATION_GOAL_TO: (unitId: string, target: Vec2) => void;
 
@@ -102,10 +89,6 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   DELETE_GAME: "DELETE_GAME",
   UPDATE_FORCE: "UPDATE_FORCE",
   BATTLEGROUND_STARTED: "BATTLEGROUND_STARTED",
-  SELECT_UNIT_MOVE_START: "SELECT_UNIT_MOVE_START",
-  SELECT_UNIT_MOVE_DONE: "SELECT_UNIT_MOVE_DONE",
-  SELECT_UNIT_MOVE_CANCEL: "SELECT_UNIT_MOVE_CANCEL",
-  MAKE_UNIT_IDLE: "MAKE_UNIT_IDLE",
   UNIT_SELECTED: "UNIT_SELECTED",
   UNIT_DESELECTED: "UNIT_DESELECTED",
   CITY_SELECTED: "CITY_SELECTED",
@@ -124,7 +107,6 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   STOP_HIGHLIGHT_UNIT: "STOP_HIGHLIGHT_UNIT",
 
   DESTINATION_GOAL_TO: "DESTINATION_GOAL_TO",
-  NEXT_IDLE_UNIT: "NEXT_IDLE_UNIT",
   UPDATE_UNIT: "UPDATE_UNIT",
   DAMAGE_UNIT: "DAMAGE_UNIT",
   HEAL_UNIT: "HEAL_UNIT",
@@ -137,10 +119,6 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   PATH_FOUND: "PATH_FOUND",
   DISPLAY_EMOTE: "DISPLAY_EMOTE",
   HIDE_EMOTE: "HIDE_EMOTE",
-  UNIT_ORDER_STOP: "UNIT_ORDER_STOP",
-  SELECT_SKILL_TARGET_START: "SELECT_SKILL_TARGET_START",
-  SELECT_SKILL_TARGET_DONE: "SELECT_SKILL_TARGET_DONE",
-  SELECT_SKILL_TARGET_CANCEL: "SELECT_SKILL_TARGET_CANCEL",
 };
 
 export const listen = <T extends keyof Signals>(

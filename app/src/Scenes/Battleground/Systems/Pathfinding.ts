@@ -4,28 +4,6 @@ import { emit, signals, listeners } from "../../../Models/Signals";
 import { getUnit, getState } from "../../../Models/State";
 import BattlegroundScene from "../BattlegroundScene";
 
-export function init(_scene: BattlegroundScene) {
-  listeners([
-    [
-      signals.PATH_FOUND,
-      (unitId: string, path: Vec2[]) => {
-        // TODO: move this to chara system?
-        const state = getState();
-
-        const unit = getUnit(state)(unitId)
-
-        emit(signals.UPDATE_UNIT, unit.id, {
-          path: path,
-          order: {
-            type: "move",
-            cell: path[path.length - 1]
-          }
-        });
-      },
-    ],
-  ]);
-}
-
 /**
  * Function used by the AI to find a path to a target
  * Avoids allied units
@@ -56,6 +34,8 @@ export async function lookupAIPAth(
 
         easystar.avoidAdditionalPoint(x, y);
       });
+
+    easystar.disableDiagonals();
 
     easystar.findPath(source.x, source.y, target.x, target.y, (path) => {
       if (!path) {

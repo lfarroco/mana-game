@@ -76,28 +76,6 @@ export function init(scene: BattlegroundScene) {
 			highlightCells(scene, unit.position, job.moveRange)
 
 		}],
-		[signals.SELECT_SKILL_TARGET_START, (unitId: string, skillId: string) => {
 
-			const unit = getUnit(scene.state)(unitId);
-			const skill = getSkill(skillId);
-
-			highlightCells(scene, unit.position, skill.range);
-		}],
-
-		[signals.SELECT_SKILL_TARGET_CANCEL, () => {
-			clearCellHighlights(scene);
-		}],
-		[signals.SELECT_SKILL_TARGET_DONE, () => {
-			clearCellHighlights(scene);
-		}],
-		[signals.SELECT_UNIT_MOVE_START, (unitId: string) => {
-			const unit = getUnit(scene.state)(unitId);
-			const job = getJob(unit.job);
-
-			highlightCells(scene, unit.position, job.moveRange);
-		}],
-		[signals.SELECT_UNIT_MOVE_CANCEL, () => {
-			clearCellHighlights(scene);
-		}],
 	]);
 }
