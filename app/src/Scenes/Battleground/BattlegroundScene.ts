@@ -21,7 +21,6 @@ import * as AISystem from "../../Systems/AI/AI";
 import { EmoteSystem_init } from "../../Systems/Chara/Emote";
 import * as HPBarSystem from "../../Systems/Chara/HPBar";
 import * as EntitySelection from "../../Systems/EntitySelection/EntitySelection";
-import * as CharaSystem from "../../Systems/Chara/Events";
 import * as HightlightCellsSystem from "./Map/highlightCells";
 
 import { createFowLayer } from "./Systems/FogOfWar/createFowLayer";
@@ -105,7 +104,6 @@ export class BattlegroundScene extends Phaser.Scene {
     CityCaptureSystem.init(this);
     StaminaRegen.init(state);
     EntitySelection.init(state);
-    CharaSystem.init(this, state);
     FogOfWarSystem.init(this, state);
     CursorSystem.init(state, this);
     HPBarSystem.init(state, this);

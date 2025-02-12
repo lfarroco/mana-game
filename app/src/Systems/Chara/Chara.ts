@@ -3,7 +3,10 @@ import { Unit } from "../../Models/Unit";
 import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 import "./portrait.css"
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
-import { listeners, signals } from "../../Models/Signals";
+import { emit, listeners, signals } from "../../Models/Signals";
+import { Vec2 } from "../../Models/Geometry";
+import { tween } from "../../Utils/animation";
+import { TURN_DURATION } from "../../config";
 
 export type Chara = {
 	id: string;
@@ -114,6 +117,41 @@ export function CharaSystem_init(scene: BattlegroundScene) {
 			chara.hightlightTween?.destroy();
 			chara.hightlightTween = null;
 
+		}],
+
+		[signals.MOVE_UNIT_INTO_CELL_START, async (unitId: string, cell: Vec2) => {
+			// get the angle of the move
+			const chara = scene.getChara(unitId);
+			const angle = Phaser.Math.Angle.Between(
+				chara.unit.position.x,
+				chara.unit.position.y,
+				cell.x,
+				cell.y
+			)
+			console.log("... ", angle);
+			// if moving left, flip the sprite
+
+			if (angle > -Math.PI / 4 && angle < Math.PI / 4) {
+				chara.sprite.setFlipX(false);
+			} else {
+				chara.sprite.setFlipX(true);
+			}
+		}],
+		[signals.MOVE_UNIT_INTO_CELL_START, async (unitId: string, cell: Vec2) => {
+
+			const chara = scene.getChara(unitId);
+
+			const nextTile = scene.getTileAt(cell);
+
+			await tween(scene, {
+				targets: chara.container,
+				x: nextTile.getCenterX(),
+				y: nextTile.getCenterY(),
+				duration: TURN_DURATION / (2 * scene.state.options.speed),
+				ease: "Sine.easeInOut",
+			})
+
+			emit(signals.MOVE_UNIT_INTO_CELL_FINISH, unitId, cell);
 		}],
 
 	])
