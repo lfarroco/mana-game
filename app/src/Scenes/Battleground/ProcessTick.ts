@@ -29,11 +29,10 @@ const processTick = async (scene: BattlegroundScene) => {
 
   await delay(scene, 1000 / state.options.speed);
 
-  const unitsToAct = state.gameData.units
-    .filter(u => u.hp > 0)
+  const unitActions = getActiveUnits(state)
     .map(performAction(scene, state));
 
-  await runPromisesInOrder(unitsToAct);
+  await runPromisesInOrder(unitActions);
 
   state.gameData.tick++;
   emit(signals.TURN_END)
@@ -73,9 +72,9 @@ const performAction = (
     const target = await moveToMeleeTarget(state, scene)(unit)
     await melee(scene, unit, target)
   }
-  else
-    await checkHeals(scene.state, scene)(unit);
-  //  await combatStep(scene, unit)
+  else if (unit.job === "cleric") {
+    const target = await checkHeals(scene.state, scene)(unit);
+  }
 
 }
 
@@ -111,28 +110,45 @@ async function step(scene: BattlegroundScene, state: State, unit: Unit, next: Ve
 }
 
 // TODO: check if unit can heal while moving
-function checkHeals(
+const checkHeals = (
   state: State,
   scene: BattlegroundScene,
-): (unit: Unit) => void {
-  return async (unit) => {
+) => async (unit: Unit) => {
 
-    const allies = state.gameData.units.filter(u => u.hp > 0).filter(u => u.force === unit.force);
+  const hurtAllies = getActiveUnits(state)
+    .filter(u => u.force === unit.force)
+    .filter(u => u.hp < u.maxHp)
+    .sort((a, b) => a.hp - b.hp);
 
-    const closeAllies = allies.filter((a) => {
-      const distance = Phaser.Math.Distance.Snake(a.position.x, a.position.y, unit.position.x, unit.position.y);
-      return distance <= 3;
-    });
+  const [hurtAndClose] = hurtAllies
+    .filter((a) => distanceBetween(a.position)(unit.position) <= 3)
 
-    const mostHurt = closeAllies
-      .filter(u => u.hp < u.maxHp)
-      .sort((a, b) => a.hp - b.hp);
+  if (hurtAndClose) {
+    await heal(scene, unit, hurtAndClose);
+    return;
+  }
 
-    if (mostHurt.length === 0) return;
+  const [closerHurt] = hurtAllies.sort((a, b) => sortByDistanceTo(unit.position)(a.position)(b.position));
 
+  if (closerHurt) {
+    const path = await lookupAIPAth(scene, unit.id, unit.position, closerHurt.position);
+
+    //remove 3 last tiles from the path
+    const path_ = path.slice(0, path.length - 3);
+
+    await walk(scene, unit, path_);
+
+    if (path_.length < 1) {
+      await heal(scene, unit, closerHurt);
+    }
 
   }
-}
+
+};
+
+// TODO: refactor to "move to range", and have allied/enemy as parameter
+// 0 -> melee
+// 1/3 -> ranged
 
 const moveToMeleeTarget = (
   state: State,
@@ -204,6 +220,36 @@ async function melee(
     );
 
   }
+
+}
+
+async function heal(
+  scene: BattlegroundScene,
+  unit: Unit,
+  target: Unit,
+) {
+
+  const activeChara = scene.getChara(unit.id)
+
+  const targetUnit = getUnit(scene.state)(target.id);
+
+  const targetChara = scene.getChara(targetUnit.id);
+
+  if (!activeChara) { throw new Error("no active unit\n" + unit.id) }
+
+  const job = getJob(unit.job);
+
+  const skill = getSkill(job.skill)
+
+  panTo(scene, asVec2(activeChara.container));
+
+  if (targetUnit.hp <= 0) {
+    throw new Error("target is dead")
+  }
+
+  unitLog(unit, `will cast ${skill.name} on ${targetUnit.id}`);
+
+  await popText(scene, skill.name, unit.id)
 
   if (job.skill === "heal") {
 
