@@ -1,12 +1,12 @@
 import { emit, signals, } from "../../Models/Signals";
 import { BattlegroundScene } from "./BattlegroundScene";
-import { State, getState, getUnit } from "../../Models/State";
+import { State, getActiveUnits, getState, getUnit } from "../../Models/State";
 import { Unit, unitLog } from "../../Models/Unit";
 import { delay, tween } from "../../Utils/animation";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
 import { lookupAIPAth } from "./Systems/Pathfinding";
 import { getJob } from "../../Models/Job";
-import { asVec2, Vec2 } from "../../Models/Geometry";
+import { asVec2, distanceBetween, sortByDistanceTo, Vec2 } from "../../Models/Geometry";
 import { getSkill } from "../../Models/Skill";
 import { bashPieceAnimation } from "../../Systems/Chara/Animations/bashPieceAnimation";
 import { popText } from "../../Systems/Chara/Animations/popText";
@@ -145,7 +145,7 @@ const moveToMeleeTarget = (
     throw new Error("no enemies found");
   };
 
-  const distance = Phaser.Math.Distance.BetweenPoints(unit.position, closestEnemy.position);
+  const distance = distanceBetween(unit.position)(closestEnemy.position);
 
   if (distance < 1) return closestEnemy
 
@@ -158,14 +158,9 @@ const moveToMeleeTarget = (
 }
 
 function getCloseEnemies(state: State, unit: Unit): Unit[] {
-  return state.gameData.units
-    .filter(u => u.hp > 0)
+  return getActiveUnits(state)
     .filter(u => u.force !== unit.force)
-    .sort((a, b) => {
-      const aDist = Phaser.Math.Distance.BetweenPoints(a.position, unit.position);
-      const bDist = Phaser.Math.Distance.BetweenPoints(b.position, unit.position);
-      return aDist - bDist;
-    });
+    .sort((a, b) => sortByDistanceTo(unit.position)(a.position)(b.position));
 }
 
 async function melee(
