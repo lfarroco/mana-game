@@ -1,6 +1,5 @@
 import * as Easystar from "easystarjs";
 import { Vec2, asVec2, eqVec2, } from "../../../Models/Geometry";
-import { emit, signals, listeners } from "../../../Models/Signals";
 import { getUnit, getState } from "../../../Models/State";
 import BattlegroundScene from "../BattlegroundScene";
 
@@ -13,6 +12,7 @@ export async function lookupAIPAth(
   unitId: string,
   source: Vec2,
   target: Vec2,
+  range: number = 0
 ) {
 
   return new Promise<Vec2[]>(async (resolve, reject) => {
@@ -46,7 +46,12 @@ export async function lookupAIPAth(
       //remove the first and last tiles from the path
       const path_ = path.slice(1, path.length - 1).map(asVec2);
 
-      resolve(path_)
+      if (range > 0 && path_.length > range) {
+        resolve(path_.slice(0, range));
+      } else {
+        resolve(path_)
+      }
+
     });
 
     easystar.calculate();

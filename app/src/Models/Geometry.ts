@@ -18,7 +18,7 @@ export const eqVec2 = (v1: Vec2, v2: Vec2) => v1.x === v2.x && v1.y === v2.y
 export const eqVec2_ = (v1: Vec2) => (v2: Vec2) => eqVec2(v1, v2)
 
 export const distanceBetween = (a: Vec2) => (b: Vec2) => {
-	return Phaser.Math.Distance.BetweenPoints(a, b);
+	return Phaser.Math.Distance.Snake(a.x, a.y, b.x, b.y);
 };
 export const sortByDistanceTo = (target: Vec2) => (a: Vec2) => (b: Vec2) => {
 	const d1 = distanceBetween(a)(target);
