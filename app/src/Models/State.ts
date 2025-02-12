@@ -104,6 +104,10 @@ export const getUnit = (state: State) => (id: string): Unit => {
   return state.gameData.units.find((u) => u.id === id)!;
 }
 
+
+export const getActiveUnits = (state: State): Unit[] => state.gameData.units
+  .filter(u => u.hp > 0)
+
 export const getCity = (state: State) => (id: string): City => {
   return state.gameData.cities.find((city) => city.id === id)!;
 }
