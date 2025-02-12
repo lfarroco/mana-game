@@ -5,7 +5,7 @@ import { Unit, unitLog } from "../../Models/Unit";
 import { delay, tween } from "../../Utils/animation";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
 import { lookupAIPAth } from "./Systems/Pathfinding";
-import { getJob, Job } from "../../Models/Job";
+import { getJob } from "../../Models/Job";
 import { asVec2, Vec2 } from "../../Models/Geometry";
 import { getSkill } from "../../Models/Skill";
 import { bashPieceAnimation } from "../../Systems/Chara/Animations/bashPieceAnimation";
@@ -70,8 +70,8 @@ const performAction = (
 ) => async () => {
 
   if (["monk", "soldier", "orc"].includes(unit.job)) {
-    await moveToMeleeTarget(state, scene)(unit)
-    await melee(scene, unit)
+    const target = await moveToMeleeTarget(state, scene)(unit)
+    await melee(scene, unit, target)
   }
   else
     await checkHeals(scene.state, scene)(unit);
@@ -134,33 +134,27 @@ function checkHeals(
   }
 }
 
-function moveToMeleeTarget(
+const moveToMeleeTarget = (
   state: State,
   scene: BattlegroundScene,
-): (unit: Unit) => void {
-  return async (unit) => {
+) => async (unit: Unit): Promise<Unit> => {
 
-    const [closestEnemy] = getCloseEnemies(state, unit);
+  const [closestEnemy] = getCloseEnemies(state, unit);
 
-    if (!closestEnemy) {
-      unitLog(unit, "no enemies to attack");
-      return;
-    };
-
-    const distance = Phaser.Math.Distance.BetweenPoints(unit.position, closestEnemy.position);
-
-    console.log(">> distance to target: ", distance)
-    if (distance < 1) return
-
-    const path = await lookupAIPAth(scene, unit.id, unit.position, closestEnemy.position);
-
-    console.log(">> path to target: ", path)
-    // remove last cell
-    const path_ = path.slice(0, path.length - 1);
-
-    await walk(scene, unit, path_);
-
+  if (!closestEnemy) {
+    throw new Error("no enemies found");
   };
+
+  const distance = Phaser.Math.Distance.BetweenPoints(unit.position, closestEnemy.position);
+
+  if (distance < 1) return closestEnemy
+
+  const path = await lookupAIPAth(scene, unit.id, unit.position, closestEnemy.position);
+
+  await walk(scene, unit, path);
+
+  return closestEnemy;
+
 }
 
 function getCloseEnemies(state: State, unit: Unit): Unit[] {
@@ -177,13 +171,12 @@ function getCloseEnemies(state: State, unit: Unit): Unit[] {
 async function melee(
   scene: BattlegroundScene,
   unit: Unit,
+  target: Unit,
 ) {
 
   const activeChara = scene.getChara(unit.id)
 
-  const [closestEnemy] = getCloseEnemies(getState(), unit);
-
-  const targetUnit = getUnit(scene.state)(closestEnemy.id);
+  const targetUnit = getUnit(scene.state)(target.id);
 
   const targetChara = scene.getChara(targetUnit.id);
 
@@ -195,17 +188,8 @@ async function melee(
 
   panTo(scene, asVec2(activeChara.container));
 
-  //const damageDisplay = createDamageDisplay(scene, targetUnit);
-
-  // is target still alive?
   if (targetUnit.hp <= 0) {
-    unitLog(unit, "target is dead, skipping cast");
-    if (unit.force === FORCE_ID_PLAYER) {
-      emit(signals.DISPLAY_EMOTE, unit.id, "question-emote");
-    }
-    await delay(scene, 1000 / scene.state.options.speed);
-    emit(signals.HIDE_EMOTE, unit.id);
-    return;
+    throw new Error("target is dead")
   }
 
   unitLog(unit, `will cast ${skill.name} on ${targetUnit.id}`);

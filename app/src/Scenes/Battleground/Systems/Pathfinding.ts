@@ -43,8 +43,8 @@ export async function lookupAIPAth(
         return;
       }
 
-      const path_ = path.map(asVec2).slice(1)
-
+      //remove the first and last tiles from the path
+      const path_ = path.slice(1, path.length - 1).map(asVec2);
 
       resolve(path_)
     });
