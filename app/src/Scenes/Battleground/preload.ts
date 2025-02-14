@@ -67,6 +67,10 @@ export function preload(this: Phaser.Scene) {
 			job,
 			`assets/charas/${job}.png`,
 		);
+		this.load.image(
+			`${job}/portrait`,
+			`assets/jobs/${job}/portrait.png`,
+		)
 	})
 
 	emotes.forEach(emote => {

@@ -16,7 +16,7 @@ export function initGame(state: State, emitter: Events) {
 		mode: Phaser.Scale.FIT,
 		width: window.innerWidth,
 		height: window.innerHeight,
-
+		pixelArt: false,
 		parent: "game-container",
 		scene: [Core, BattlegroundScene],
 		pipeline: {
