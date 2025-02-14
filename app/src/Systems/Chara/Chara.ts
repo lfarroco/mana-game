@@ -7,20 +7,19 @@ import { emit, listeners, signals } from "../../Models/Signals";
 import { Vec2 } from "../../Models/Geometry";
 import { tween } from "../../Utils/animation";
 import { TURN_DURATION } from "../../config";
+import { FORCE_ID_PLAYER } from "../../Models/Force";
 
 export type Chara = {
 	id: string;
 	force: string;
 	job: string;
 	sprite: Phaser.GameObjects.Image,
-	shadow: Phaser.GameObjects.Image,
 	unit: Unit,
 	container: Phaser.GameObjects.Container,
 	hightlightTween: Phaser.Tweens.Tween | null,
 }
 
-const spriteSize = 64;
-const shadowSize = 74;
+const spriteSize = TILE_WIDTH - 4;
 
 export const CHARA_SCALE = 1;
 
@@ -36,28 +35,27 @@ export function createChara(
 
 	container.setDepth(unit.position.y);
 
+	const borderColor = unit.force === FORCE_ID_PLAYER ? 0x1818d1 : 0xfa0f0f;
+
+	const border = scene.add.rectangle(
+		0, 0,
+		spriteSize + 4, spriteSize + 4,
+		borderColor, 1)
+	border.setOrigin(0.5, 0.5)
+
 	const sprite = scene
 		.add.image(
 			0, 0,
-			unit.job
+			unit.job + "/portrait"
 		)
 
 	sprite.setDisplaySize(spriteSize, spriteSize)
 
-	const shadow = scene.add.image(
-		0, 0,
-		unit.job)
-		.setTint(0x000000)
-		.setAlpha(1)
-		.setDisplaySize(shadowSize, shadowSize);
-	shadow.visible = false;
-
-	scene.children.moveBelow(shadow, sprite);
 
 	// TODO: move to animation system
 	//sprite.play(unit.job + "-idle-down", true);
 
-	container.add([shadow, sprite])
+	container.add([border, sprite])
 
 	const chara: Chara = {
 		id: unit.id,
@@ -65,7 +63,6 @@ export function createChara(
 		job: unit.job,
 		sprite,
 		container,
-		shadow,
 		unit,
 		hightlightTween: null,
 	}
@@ -79,20 +76,6 @@ export function CharaSystem_init(scene: BattlegroundScene) {
 			scene.charas.forEach((chara) => {
 				chara.sprite.alpha = 1;
 			})
-		}],
-		[signals.UNIT_SELECTED, (unitId: string) => {
-
-			const chara = scene.getChara(unitId);
-
-			chara.shadow.visible = true;
-
-		}],
-		[signals.UNIT_DESELECTED, (unitId: string) => {
-
-			const chara = scene.getChara(unitId);
-
-			chara.shadow.visible = false;
-
 		}],
 		[signals.HIGHLIGHT_UNIT, (unitId: string, color: number) => {
 
@@ -117,25 +100,6 @@ export function CharaSystem_init(scene: BattlegroundScene) {
 			chara.hightlightTween?.destroy();
 			chara.hightlightTween = null;
 
-		}],
-
-		[signals.MOVE_UNIT_INTO_CELL_START, async (unitId: string, cell: Vec2) => {
-			// get the angle of the move
-			const chara = scene.getChara(unitId);
-			const angle = Phaser.Math.Angle.Between(
-				chara.unit.position.x,
-				chara.unit.position.y,
-				cell.x,
-				cell.y
-			)
-			console.log("... ", angle);
-			// if moving left, flip the sprite
-
-			if (angle > -Math.PI / 4 && angle < Math.PI / 4) {
-				chara.sprite.setFlipX(false);
-			} else {
-				chara.sprite.setFlipX(true);
-			}
 		}],
 		[signals.MOVE_UNIT_INTO_CELL_START, async (unitId: string, cell: Vec2) => {
 

@@ -7,7 +7,7 @@ import { HALF_TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constant
 import { hpColor } from "../../Utils/hpColor";
 
 export const CHARA_SCALE = 1;
-export const BAR_WIDTH = TILE_WIDTH / 2;
+export const BAR_WIDTH = TILE_WIDTH - 10;
 export const BAR_HEIGHT = 6;
 export const BORDER_WIDTH = 1;
 
@@ -29,7 +29,7 @@ export function init(state: State, scene: BattlegroundScene) {
 			const unit = getUnit(state)(id)
 
 			const x = -BAR_WIDTH / 2;
-			const y = HALF_TILE_HEIGHT - BAR_HEIGHT * 2
+			const y = HALF_TILE_HEIGHT - 10;
 
 			const bg = scene.add.graphics();
 			bg.fillStyle(0x000000, 1);

@@ -73,7 +73,7 @@ const performAction = (
     await melee(scene, unit, target)
   }
   else if (unit.job === "cleric") {
-    const target = await checkHeals(scene.state, scene)(unit);
+    await checkHeals(scene.state, scene)(unit);
   }
 
 }
@@ -103,7 +103,7 @@ async function step(scene: BattlegroundScene, state: State, unit: Unit, next: Ve
 
   scene.playFx("audio/chip-lay-3")
 
-  await delay(scene, 500 / state.options.speed);
+  await delay(scene, 200 / state.options.speed);
 
   unit.position = next;
 
