@@ -16,7 +16,9 @@ export async function slashAnimation(
 	const slash = scene.add
 		.sprite(0, 0, "cethiel-slash")
 		.play("cethiel-slash")
-		.setScale(1.5);
+		.setScale(1.5)
+		.setDepth(10000);
+
 
 	slash.x = targetChara.container.x + HALF_TILE_WIDTH;
 	slash.y = targetChara.container.y - HALF_TILE_HEIGHT;
@@ -42,8 +44,8 @@ export async function slashAnimation(
 
 	await tween(scene, {
 		targets: slash,
-		x: targetChara.container.x,
-		y: targetChara.container.y,
+		x: targetChara.container.x - HALF_TILE_WIDTH / 2,
+		y: targetChara.container.y + HALF_TILE_HEIGHT / 2,
 		duration: 500 / state.options.speed,
 		onComplete: () => {
 			slash.destroy();

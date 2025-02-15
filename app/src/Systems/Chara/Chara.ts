@@ -33,8 +33,6 @@ export function createChara(
 		unit.position.y * TILE_HEIGHT + HALF_TILE_HEIGHT
 	)
 
-	container.setDepth(unit.position.y);
-
 	const borderColor = unit.force === FORCE_ID_PLAYER ? 0x1818d1 : 0xfa0f0f;
 
 	const border = scene.add.rectangle(
