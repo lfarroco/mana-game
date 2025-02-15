@@ -1,16 +1,13 @@
-import { State } from "../../../Models/State";
-import { Unit } from "../../../Models/Unit";
 import { Chara } from "../Chara";
 import { tweenSequence } from "../../../Utils/animation";
-import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 
 export async function bashPieceAnimation(
-	scene: BattlegroundScene,
-	state: State,
 	activeChara: Chara,
-	targetUnit: Unit) {
+	targetChara: Chara,
+) {
 
-	const targetChara = scene.getChara(targetUnit.id);
+	const { scene } = activeChara;
+	const { state } = scene;
 
 	const backMovementDuration = 300 / state.options.speed;
 	// The actual "strike" happens at the end of the forward movement

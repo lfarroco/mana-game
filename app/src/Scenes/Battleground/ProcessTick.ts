@@ -69,8 +69,9 @@ const performAction = (
 ) => async () => {
 
   if (["monk", "soldier", "orc"].includes(unit.job)) {
-    const target = await moveToMeleeTarget(state, scene)(unit)
-    await melee(scene, unit, target)
+
+    const target = await moveToMeleeTarget(scene)(unit)
+    await slash(scene, unit, target)
   }
   else if (unit.job === "cleric") {
     await checkHeals(scene.state, scene)(unit);
@@ -83,29 +84,23 @@ async function walk(scene: BattlegroundScene, unit: Unit, path: Vec2[]) {
   const job = getJob(unit.job);
   let walked = 0;
 
+  const unitChara = scene.getChara(unit.id);
+
   while (walked < job.moveRange && path[walked]) {
-    console.log(">> walked ", walked, "/", job.moveRange, "/", path.length - 1)
-    await step(scene, scene.state, unit, path[walked]);
-    console.log(">> walked a step")
+    const next = path[walked];
+
+    await panTo(scene, asVec2(unitChara.container));
+
+    emit(signals.MOVE_UNIT_INTO_CELL_START, unit.id, next);
+
+    scene.playFx("audio/chip-lay-3")
+
+    await delay(scene, 200 / scene.state.options.speed);
+
+    unit.position = next;
     unitLog(unit, "finished whalking");
     walked++;
   }
-
-}
-
-async function step(scene: BattlegroundScene, state: State, unit: Unit, next: Vec2) {
-
-  const unitChara = scene.getChara(unit.id);
-
-  await panTo(scene, asVec2(unitChara.container));
-
-  emit(signals.MOVE_UNIT_INTO_CELL_START, unit.id, next);
-
-  scene.playFx("audio/chip-lay-3")
-
-  await delay(scene, 200 / state.options.speed);
-
-  unit.position = next;
 
 }
 
@@ -151,9 +146,9 @@ const checkHeals = (
 // 1/3 -> ranged
 
 const moveToMeleeTarget = (
-  state: State,
   scene: BattlegroundScene,
 ) => async (unit: Unit): Promise<Unit> => {
+  const { state } = scene;
 
   const [closestEnemy] = getCloseEnemies(state, unit);
 
@@ -179,11 +174,13 @@ function getCloseEnemies(state: State, unit: Unit): Unit[] {
     .sort((a, b) => sortByDistanceTo(unit.position)(a.position)(b.position));
 }
 
-async function melee(
+async function slash(
   scene: BattlegroundScene,
   unit: Unit,
   target: Unit,
 ) {
+
+  await popText(scene, "Slash", unit.id)
 
   const activeChara = scene.getChara(unit.id)
 
@@ -193,35 +190,26 @@ async function melee(
 
   if (!activeChara) { throw new Error("no active unit\n" + unit.id) }
 
-  const job = getJob(unit.job);
-
-  const skill = getSkill(job.skill)
-
   panTo(scene, asVec2(activeChara.container));
 
   if (targetUnit.hp <= 0) {
     throw new Error("target is dead")
   }
 
-  unitLog(unit, `will cast ${skill.name} on ${targetUnit.id}`);
+  unitLog(unit, `will cast slash on ${targetUnit.id}`);
 
-  await popText(scene, skill.name, unit.id)
+  bashPieceAnimation(activeChara, targetChara);
 
-  if (skill.id === "slash") {
+  await slashAnimation(scene, activeChara, targetChara, 10);
 
-    bashPieceAnimation(scene, scene.state, activeChara, targetUnit);
-
-    await slashAnimation(scene, activeChara, targetChara, skill.power);
-
-    emit(
-      signals.DAMAGE_UNIT,
-      targetUnit.id,
-      skill.power,
-    );
-
-  }
+  emit(
+    signals.DAMAGE_UNIT,
+    targetChara.id,
+    10
+  );
 
 }
+
 
 async function heal(
   scene: BattlegroundScene,
