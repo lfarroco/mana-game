@@ -14,6 +14,7 @@ export type Chara = {
 	force: string;
 	job: string;
 	sprite: Phaser.GameObjects.Image,
+	scene: BattlegroundScene,
 	unit: Unit,
 	container: Phaser.GameObjects.Container,
 	hightlightTween: Phaser.Tweens.Tween | null,
@@ -59,6 +60,7 @@ export function createChara(
 		id: unit.id,
 		force: unit.force,
 		job: unit.job,
+		scene,
 		sprite,
 		container,
 		unit,
