@@ -26,7 +26,7 @@ export async function popText(scene: BattlegroundScene, text: string, targetId: 
 		targets: popText,
 		alpha: 0,
 		y: chara.container.y - 24,
-		duration: 2000 / scene.state.options.speed,
+		duration: 500 / scene.state.options.speed,
 		ease: "Expo.easeOut",
 	});
 

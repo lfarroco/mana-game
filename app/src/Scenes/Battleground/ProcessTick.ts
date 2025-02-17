@@ -104,7 +104,6 @@ async function walk(scene: BattlegroundScene, unit: Unit, path: Vec2[]) {
 
 }
 
-// TODO: check if unit can heal while moving
 const checkHeals = (
   state: State,
   scene: BattlegroundScene,
@@ -116,7 +115,7 @@ const checkHeals = (
     .sort((a, b) => a.hp - b.hp);
 
   const [hurtAndClose] = hurtAllies
-    .filter((a) => distanceBetween(a.position)(unit.position) <= 13)
+    .filter((a) => distanceBetween(a.position)(unit.position) <= 3)
 
   if (hurtAndClose) {
     await heal(scene, unit, hurtAndClose);
@@ -309,8 +308,6 @@ async function heal(
       targetChara.container.x, targetChara.container.y,
       128, 128)
       .setOrigin(0.5, 0.5);
-
-
 
     popText(scene, skill.power.toString(), targetUnit.id)
 
