@@ -1,9 +1,7 @@
 import Phaser from "phaser";
 import BattlegroundScene from "../../BattlegroundScene";
-import { asVec2, vec2, Vec2 } from "../../../../Models/Geometry";
+import { Vec2 } from "../../../../Models/Geometry";
 import { Unit } from "../../../../Models/Unit";
-import { emit, signals } from "../../../../Models/Signals";
-import { FORCE_ID_PLAYER } from "../../../../Models/Force";
 import { getState } from "../../../../Models/State";
 
 export function onPointerMove(
@@ -18,8 +16,9 @@ export function onPointerMove(
 	bgLayer.on(Phaser.Input.Events.POINTER_MOVE,
 		(pointer: Phaser.Input.Pointer) => {
 
-			if (state.inputDisabled) return
+			if (!state.options.scrollEnabled) return;
 			if (!pointer.isDown) return;
+			if (state.inputDisabled) return
 			if (pointer.downTime < 100) return;
 
 			if (pointer.downElement !== scene.game.canvas) {
@@ -32,24 +31,10 @@ export function onPointerMove(
 
 			if ((Math.abs(dx) + Math.abs(dy)) < 10) return;
 
-			if (pointerDownUnit.unit && pointerDownUnit.unit.force === FORCE_ID_PLAYER) {
+			// dragging the camera is only allowed if the pointer was not pressed over a unit
 
-				const tile = scene.getTileAtWorldXY(vec2(
-					pointer.worldX,
-					pointer.worldY
-				))
-
-				const vec = asVec2(tile);
-
-				emit(signals.DESTINATION_GOAL_TO, pointerDownUnit.unit.id, vec)
-
-			} else {
-
-				// dragging the camera is only allowed if the pointer was not pressed over a unit
-
-				scene.cameras.main.scrollX = startScroll.x + dx;
-				scene.cameras.main.scrollY = startScroll.y + dy;
-			}
+			scene.cameras.main.scrollX = startScroll.x + dx;
+			scene.cameras.main.scrollY = startScroll.y + dy;
 		}
 	);
 

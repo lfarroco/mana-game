@@ -13,6 +13,8 @@ export const initialState = (): State => ({
     musicVolume: 0.2,
     debug: true,
     speed: 4,
+    scrollEnabled: false,
+    fogOfWarEnabled: false,
   },
   inputDisabled: false,
   savedGames: [],
@@ -45,6 +47,8 @@ export type State = {
     musicVolume: number;
     debug: boolean;
     speed: number;
+    scrollEnabled: boolean;
+    fogOfWarEnabled: boolean;
   };
   savedGames: string[];
   gameData: GameData;
