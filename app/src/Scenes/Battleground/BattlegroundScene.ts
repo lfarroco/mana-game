@@ -163,9 +163,6 @@ export class BattlegroundScene extends Phaser.Scene {
       chara.container.x, chara.container.y,
       500, 'Sine.easeInOut', true);
 
-    //this.createShader(chara)
-
-
 
   };
   createShader = (chara: Chara) => {
