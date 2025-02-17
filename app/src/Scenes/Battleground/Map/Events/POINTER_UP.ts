@@ -23,21 +23,7 @@ export function onPointerUp(
 				return;
 			}
 
-			const tile = bgLayer.getTileAtWorldXY(pointer.worldX, pointer.worldY);
-
-			console.log("clicked tile", tile);
-
-			const isDrag = pointer.downTime > 100 && pointer.getDistance() > 10
-
-			console.log("distance", pointer.getDistance());
-			console.log("downtime", pointer.downTime);
-			console.log("isDrag?", isDrag);
-
-			if (unitPointerDown.unit && isDrag) {
-
-			} else {
-				unitPointerDown.unit = null;
-			}
+			unitPointerDown.unit = null;
 
 		}
 	);

@@ -106,7 +106,8 @@ export class BattlegroundScene extends Phaser.Scene {
     CityCaptureSystem.init(this);
     StaminaRegen.init(state);
     EntitySelection.init(state);
-    FogOfWarSystem.init(this, state);
+    if (state.options.fogOfWarEnabled)
+      FogOfWarSystem.init(this, state);
     CursorSystem.init(state, this);
     HPBarSystem.init(state, this);
     BattlegroundAudioSystem_init(state, this);
@@ -144,7 +145,8 @@ export class BattlegroundScene extends Phaser.Scene {
     makeMapInteractive(this, map, layers.background);
 
 
-    this.fow = createFowLayer(this)
+    if (state.options.fogOfWarEnabled)
+      this.fow = createFowLayer(this)
 
     this.grid = layers.obstacles.layer.data.map((row) =>
       row.map((tile) => (tile.index === -1 ? 0 : 1))

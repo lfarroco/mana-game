@@ -321,6 +321,9 @@ async function heal(
 }
 
 async function panTo(scene: BattlegroundScene, vec: Vec2) {
+
+  if (!scene.state.options.scrollEnabled) return;
+
   const speed = getState().options.speed
 
   scene.cameras.main.pan(vec.x, vec.y, 500 / speed, "Expo.easeOut", false);

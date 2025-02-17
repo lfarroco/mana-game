@@ -36,10 +36,13 @@ export function onPointerDown(
 				pointerDownUnit.unit = unit;
 			}
 
-			startScroll.x = scene.cameras.main.scrollX
-			startScroll.y = scene.cameras.main.scrollY
+			if (state.options.scrollEnabled) {
 
-			console.log("SET startScroll", startScroll);
+				startScroll.x = scene.cameras.main.scrollX
+				startScroll.y = scene.cameras.main.scrollY
+
+				console.log("SET startScroll", startScroll);
+			}
 		}
 	);
 }

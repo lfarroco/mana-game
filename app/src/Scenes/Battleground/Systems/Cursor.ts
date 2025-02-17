@@ -149,7 +149,12 @@ export function init(state: State, scene: BattlegroundScene) {
 }
 
 function isOutsideFoW(scene: BattlegroundScene, cell: Vec2) {
-	return scene.fow!.getTileAt(cell.x, cell.y).alpha === 0;
+
+	const fow = scene.fow
+
+	if (!fow) return true;
+
+	return fow.getTileAt(cell.x, cell.y).alpha === 0;
 }
 
 //FIXME - there's a bug here when clicking someone after loading a game
