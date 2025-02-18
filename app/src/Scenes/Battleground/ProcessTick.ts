@@ -1,19 +1,17 @@
 import { emit, signals, } from "../../Models/Signals";
 import { BattlegroundScene } from "./BattlegroundScene";
-import { State, getActiveUnits, getState, getUnit } from "../../Models/State";
+import { State, getActiveUnits, getState } from "../../Models/State";
 import { Unit, unitLog } from "../../Models/Unit";
-import { delay, tween } from "../../Utils/animation";
+import { delay } from "../../Utils/animation";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
 import { lookupAIPAth } from "./Systems/Pathfinding";
 import { getJob } from "../../Models/Job";
 import { asVec2, distanceBetween, sortByDistanceTo, Vec2 } from "../../Models/Geometry";
-import { getSkill } from "../../Models/Skill";
-import { bashPieceAnimation } from "../../Systems/Chara/Animations/bashPieceAnimation";
-import { popText } from "../../Systems/Chara/Animations/popText";
-import { slashAnimation } from "../../Systems/Chara/Animations/slashAnimation";
 import { runPromisesInOrder as sequenceAsync } from "../../utils";
 import { vignette } from "./Animations/vignette";
 import { shoot } from "../../Systems/Chara/Skills/shoot";
+import { healing } from "../../Systems/Chara/Skills/healing";
+import { slash } from "../../Systems/Chara/Skills/slash";
 
 const processTick = async (scene: BattlegroundScene) => {
 
@@ -72,45 +70,11 @@ const performAction = (
       await slash(scene, unit, mtarget)
   }
   else if (unit.job === "cleric") {
-    await checkHeals(scene)(unit);
+    await healing(scene)(unit);
   }
   else if (unit.job === "archer") {
     await shoot(scene)(unit);
   }
-
-}
-
-export async function shootAt(scene: BattlegroundScene, unit: Unit, target: Unit) {
-
-  const unitChara = scene.getChara(unit.id);
-  const targetChara = scene.getChara(target.id);
-
-  popText(scene, "Shoot", unit.id);
-
-  const arrow = scene.add.image(unitChara.container.x, unitChara.container.y, "arrow")
-
-  arrow.setScale(0.2);
-
-  const angle = Phaser.Math.Angle.Between(
-    unitChara.container.x, unitChara.container.y,
-    targetChara.container.x, targetChara.container.y
-  );
-  arrow.setRotation(angle);
-
-  await tween({
-    targets: [arrow],
-    x: targetChara.container.x,
-    y: targetChara.container.y,
-    duration: 500 / scene.state.options.speed,
-  })
-
-  popText(scene, "22", target.id);
-  arrow.destroy();
-  emit(
-    signals.DAMAGE_UNIT,
-    targetChara.id,
-    22
-  );
 
 }
 
@@ -138,40 +102,6 @@ export async function walk(scene: BattlegroundScene, unit: Unit, path: Vec2[]) {
   }
 
 }
-
-const checkHeals = (
-  scene: BattlegroundScene,
-) => async (unit: Unit) => {
-
-  const allies = getUnitsByProximity(scene.state, unit, false);
-  const hurtAllies = allies
-    .sort((a, b) => a.hp - b.hp);
-
-  const [hurtAndClose] = hurtAllies
-    .filter((a) => distanceBetween(a.position)(unit.position) <= 3)
-
-  if (hurtAndClose) {
-    await heal(scene, unit, hurtAndClose);
-    return;
-  }
-
-  const [closerHurt] = hurtAllies.sort((a, b) => sortByDistanceTo(unit.position)(a.position)(b.position));
-
-  if (closerHurt) {
-    const path = await lookupAIPAth(scene, unit.id, unit.position, closerHurt.position);
-
-    //remove 3 last tiles from the path
-    const path_ = path.slice(0, path.length - 3);
-
-    await walk(scene, unit, path_);
-
-    if (path_.length < 1) {
-      await heal(scene, unit, closerHurt);
-    }
-
-  }
-
-};
 
 // TODO: refactor to "move to range", and have allied/enemy as parameter
 // 0 -> melee
@@ -210,154 +140,7 @@ export function getUnitsByProximity(state: State, unit: Unit, enemy: boolean): U
     .sort((a, b) => sortByDistanceTo(unit.position)(a.position)(b.position));
 }
 
-async function slash(
-  scene: BattlegroundScene,
-  unit: Unit,
-  target: Unit,
-) {
-
-  await popText(scene, "Slash", unit.id)
-
-  const activeChara = scene.getChara(unit.id)
-
-  const targetUnit = getUnit(scene.state)(target.id);
-
-  const targetChara = scene.getChara(targetUnit.id);
-
-  if (!activeChara) { throw new Error("no active unit\n" + unit.id) }
-
-  panTo(scene, asVec2(activeChara.container));
-
-  if (targetUnit.hp <= 0) {
-    throw new Error("target is dead")
-  }
-
-  unitLog(unit, `will cast slash on ${targetUnit.id}`);
-
-  bashPieceAnimation(activeChara, targetChara);
-
-  await slashAnimation(scene, activeChara, targetChara, 10);
-
-  emit(
-    signals.DAMAGE_UNIT,
-    targetChara.id,
-    10
-  );
-
-}
-
-
-async function heal(
-  scene: BattlegroundScene,
-  unit: Unit,
-  target: Unit,
-) {
-
-  const activeChara = scene.getChara(unit.id)
-
-  const targetUnit = getUnit(scene.state)(target.id);
-
-  const targetChara = scene.getChara(targetUnit.id);
-
-  if (!activeChara) { throw new Error("no active unit\n" + unit.id) }
-
-  const job = getJob(unit.job);
-
-  const skill = getSkill(job.skill)
-
-  panTo(scene, asVec2(activeChara.container));
-
-  if (targetUnit.hp <= 0) {
-    throw new Error("target is dead")
-  }
-
-  unitLog(unit, `will cast ${skill.name} on ${targetUnit.id}`);
-
-  await popText(scene, skill.name, unit.id)
-
-  if (job.skill === "heal") {
-
-    scene.playFx("audio/curemagic")
-
-    const effectShader = new Phaser.Display.BaseShader('healingShader', `
-      precision mediump float;
-      
-      uniform float time; // provided by Phaser
-      uniform vec2 resolution; // provided by Phaser
-      varying vec2 fragCoord; // provided by Phaser
-      
-      const int numPillars = 40;
-      
-      float random(float x) {
-          return fract(sin(x * 12.9898) * 43758.5453);
-      }
-      
-      void main() {
-          // Normalize UV coordinates to [0.0, 1.0]
-          vec2 uv = fragCoord.xy / resolution;
-      
-          // Center UV coordinates around (0.5, 0.5)
-          uv -= 0.5;
-      
-          // Maintain aspect ratio
-          uv.x *= resolution.x / resolution.y;
-      
-          float color = 0.0;
-      
-          // Define pillar bounds in normalized coordinates
-          const float min_x = -0.404;  // Adjusted for centered positioning
-          const float max_x = 0.372;
-          const float min_y = -0.215;
-          const float max_y = 0.191;
-      
-          for (int i = 0; i <= numPillars; i++) {
-              float seed = float(i);
-              float pillarX = min_x + random(seed) * (max_x - min_x);
-              float pillarY = min_y + random(seed * 2.0) * (max_y - min_y);
-              
-              float distance = length(vec2((uv.x - pillarX) * 1.6, (uv.y - pillarY) * 0.3));
-      
-              float pillarWidth = 0.1 * abs(sin(seed / 40.0)); // Adjust width for normalized coords
-              
-              // Soft edges using smoothstep
-              float pillar = smoothstep(pillarWidth, 0.0, distance);
-              
-              // Make the pillars fade in and out randomly
-              float timeOffset = seed;
-              float fade = sin(time * 10.0 + timeOffset) * 0.5 + 0.5;
-              
-              // Accumulate color (intensity) for the pillar
-              color += pillar * fade;
-          }
-      
-          // Only make the pillar visible where there's a non-zero color
-          float alpha = max(color, 0.0);
-      
-          // Apply a slight glow effect
-          color = pow(color, 1.5);
-      
-          // Set final fragment color: RGB glow (green) and transparency based on alpha
-          gl_FragColor = vec4(vec3(0, color, 0), alpha);	 
-          }
-               `);
-
-    const shader = scene.add.shader(effectShader,
-      targetChara.container.x, targetChara.container.y,
-      128, 128)
-      .setOrigin(0.5, 0.5);
-
-    popText(scene, skill.power.toString(), targetUnit.id)
-
-    await delay(scene, 500 / scene.state.options.speed);
-
-    shader.destroy();
-
-    emit(signals.HEAL_UNIT, targetUnit.id, 50); // TODO: use skill's stats
-
-  }
-}
-
-async function panTo(scene: BattlegroundScene, vec: Vec2) {
+export async function panTo(scene: BattlegroundScene, vec: Vec2) {
 
   if (!scene.state.options.scrollEnabled) return;
 
