@@ -41,6 +41,8 @@ export function preload(this: Phaser.Scene) {
 	this.load.image("damage_display", "assets/ui/damage_display.png");
 	this.load.tilemapTiledJSON("maps/map1", "assets/maps/map1/mapdata.json");
 
+	this.load.image('arrow', 'assets/equips/arrow.png');
+
 	this.load.audio('theme', [
 		'assets/audio/main_theme.mp3',
 		'assets/audio/main_theme.ogg',

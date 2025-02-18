@@ -12,7 +12,7 @@ export async function lookupAIPAth(
   unitId: string,
   source: Vec2,
   target: Vec2,
-  range: number = 0
+  moveRange: number = 0
 ) {
 
   return new Promise<Vec2[]>(async (resolve, reject) => {
@@ -46,8 +46,9 @@ export async function lookupAIPAth(
       //remove the first and last tiles from the path
       const path_ = path.slice(1, path.length - 1).map(asVec2);
 
-      if (range > 0 && path_.length > range) {
-        resolve(path_.slice(0, range));
+      if (moveRange > 0 && path_.length > moveRange) {
+        const difference = path_.length - moveRange;
+        resolve(path_.slice(0, difference));
       } else {
         resolve(path_)
       }

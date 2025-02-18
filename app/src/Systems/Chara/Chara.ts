@@ -107,8 +107,8 @@ export function CharaSystem_init(scene: BattlegroundScene) {
 
 			const nextTile = scene.getTileAt(cell);
 
-			await tween(scene, {
-				targets: chara.container,
+			await tween({
+				targets: [chara.container],
 				x: nextTile.getCenterX(),
 				y: nextTile.getCenterY(),
 				duration: TURN_DURATION / (2 * scene.state.options.speed),

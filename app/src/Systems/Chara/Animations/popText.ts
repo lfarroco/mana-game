@@ -22,8 +22,8 @@ export async function popText(scene: BattlegroundScene, text: string, targetId: 
 		}
 	}).setOrigin(0.5, 0.5);
 
-	await tween(scene, {
-		targets: popText,
+	await tween({
+		targets: [popText],
 		alpha: 0,
 		y: chara.container.y - 24,
 		duration: 500 / scene.state.options.speed,

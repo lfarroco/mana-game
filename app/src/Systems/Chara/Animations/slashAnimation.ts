@@ -41,8 +41,8 @@ export async function slashAnimation(
 
 	popText(scene, damage.toString(), targetChara.unit.id);
 
-	tween(scene, {
-		targets: targetChara.container,
+	tween({
+		targets: [targetChara.container],
 		alpha: 0.5,
 		duration: 100 / speed,
 		yoyo: true,

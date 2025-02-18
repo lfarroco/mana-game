@@ -1,8 +1,9 @@
 
 export async function tween(
-	scene: Phaser.Scene,
 	attributes: any,
 ) {
+
+	const { scene } = attributes.targets[0];
 
 	return new Promise<void>((resolve, _reject) => {
 		scene.add.tween({
@@ -19,11 +20,10 @@ export async function tween(
 }
 
 export async function tweenSequence(
-	scene: Phaser.Scene,
 	tweens: any[],
 ) {
 	for (let i = 0; i < tweens.length; i++) {
-		await tween(scene, tweens[i]);
+		await tween(tweens[i]);
 	}
 }
 
