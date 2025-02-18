@@ -27,9 +27,7 @@ import { createFowLayer } from "./Systems/FogOfWar/createFowLayer";
 import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import { makeMapInteractive } from "./Map/makeMapInteractive";
 import { clearCellHighlights } from "./Map/highlightCells";
-import { FORCE_ID_PLAYER } from "../../Models/Force";
 import { AuraPipeline } from "../../Shaders/aura";
-import { HealingShaderPipeline } from "../../Shaders/healing";
 
 export class BattlegroundScene extends Phaser.Scene {
   graphics: Phaser.GameObjects.Graphics | null = null;
@@ -45,7 +43,6 @@ export class BattlegroundScene extends Phaser.Scene {
   fow: Phaser.Tilemaps.TilemapLayer | null = null;
   grid: (0 | 1)[][] = []
   state: State;
-  healingShader: HealingShaderPipeline | null = null;
 
   cleanup() {
     this.charas.forEach(chara => {

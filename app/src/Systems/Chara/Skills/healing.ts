@@ -11,10 +11,20 @@ export const healing = (
 
 	const allies = getUnitsByProximity(scene.state, unit, false);
 	const hurtAllies = allies
-		.sort((a, b) => a.hp - b.hp);
+		.filter(u => u.hp < u.maxHp)
+		.map(unit => {
+			const percentage = unit.hp / unit.maxHp;
+			return {
+				unit,
+				percentage
+			}
+		})
+		.sort((a, b) => b.percentage - a.percentage)
+		.map(({ unit }) => unit);
 
 	const [hurtAndClose] = hurtAllies
 		.filter((a) => distanceBetween(a.position)(unit.position) <= 3);
+
 
 	if (hurtAndClose) {
 		await healAnimation(scene, unit, hurtAndClose);

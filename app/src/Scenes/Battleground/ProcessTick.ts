@@ -137,6 +137,7 @@ const moveToMeleeTarget = (
 export function getUnitsByProximity(state: State, unit: Unit, enemy: boolean): Unit[] {
   return getActiveUnits(state)
     .filter(u => enemy ? u.force !== unit.force : u.force === unit.force)
+    .filter(u => u.id !== unit.id)
     .sort((a, b) => sortByDistanceTo(unit.position)(a.position)(b.position));
 }
 
