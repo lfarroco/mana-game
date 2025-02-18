@@ -8,7 +8,6 @@ import { State } from "./Models/State";
 import Events from 'events'
 import { CityCaptureSystem_init } from "./Systems/City/CityCapture";
 import { AuraPipeline } from "./Shaders/aura";
-import { HealingShaderPipeline } from "./Shaders/healing";
 
 export function initGame(state: State, emitter: Events) {
 
@@ -23,7 +22,6 @@ export function initGame(state: State, emitter: Events) {
 		pipeline: {
 			//@ts-ignore
 			aurapipeline: AuraPipeline,
-			healingpipeline: HealingShaderPipeline,
 		}
 	});
 
