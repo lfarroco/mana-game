@@ -21,14 +21,14 @@ export async function vignette(scene: BattlegroundScene, text: string) {
 		}
 	).setOrigin(0.5, 0.5).setScrollFactor(0);
 
-	tween(scene, {
-		targets: textObj,
+	tween({
+		targets: [textObj],
 		x: scene.scale.width / 2,
 		duration: 250,
 		ease: "Expo.easeOut",
 		onComplete: () => {
-			tween(scene, {
-				targets: textObj,
+			tween({
+				targets: [textObj],
 				ease: "Expo.easeIn",
 				x: scene.scale.width + 300,
 				delay: 500 / scene.state.options.speed,
@@ -40,8 +40,8 @@ export async function vignette(scene: BattlegroundScene, text: string) {
 		}
 	});
 
-	await tween(scene, {
-		targets: rect,
+	await tween({
+		targets: [rect],
 		alpha: 0.5,
 		duration: 1000 / scene.state.options.speed,
 		yoyo: true,

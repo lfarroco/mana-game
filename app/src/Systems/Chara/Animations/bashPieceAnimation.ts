@@ -24,15 +24,15 @@ export async function bashPieceAnimation(
 	);
 	const { x, y } = activeChara.container;
 
-	await tweenSequence(scene,
+	await tweenSequence(
 		[{
-			targets: activeChara.container,
+			targets: [activeChara.container],
 			x: x - Math.cos(directionVector) * backDistance,
 			y: y - Math.sin(directionVector) * backDistance,
 			duration: backMovementDuration,
 		},
 		{
-			targets: activeChara.container,
+			targets: [activeChara.container],
 			x: x + Math.cos(directionVector) * forwardDistance,
 			y: y + Math.sin(directionVector) * forwardDistance,
 			duration: forwardMovementDuration,
@@ -43,9 +43,8 @@ export async function bashPieceAnimation(
 			}
 		},
 		{
-			targets: activeChara.container,
-			x,
-			y,
+			targets: [activeChara.container],
+			x, y,
 			duration: returnMovementDuration,
 		}
 		]);

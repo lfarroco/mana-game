@@ -24,7 +24,7 @@ export const jobs: Job[] = [
     name: "Archer",
     gold: 100,
     moveRange: 3,
-    attackRange: 2,
+    attackRange: 4,
     attackPower: 10,
     dices: 1,
     stats: {
@@ -36,7 +36,7 @@ export const jobs: Job[] = [
       accuracy: 10,
       agility: 10,
     },
-    skill: "slash"
+    skill: "shoot"
   },
   {
     id: "monk",

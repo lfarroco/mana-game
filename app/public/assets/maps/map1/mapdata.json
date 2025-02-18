@@ -426,6 +426,34 @@
                  "width":0,
                  "x":158.333333333334,
                  "y":504
+                }, 
+                {
+                 "height":0,
+                 "id":61,
+                 "name":"archer",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"ai",
+                         "type":"string",
+                         "value":"passive"
+                        }, 
+                        {
+                         "name":"force",
+                         "type":"string",
+                         "value":"PLAYER"
+                        }, 
+                        {
+                         "name":"job",
+                         "type":"string",
+                         "value":"archer"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":286,
+                 "y":497
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -434,7 +462,7 @@
          "y":0
         }],
  "nextlayerid":10,
- "nextobjectid":61,
+ "nextobjectid":62,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.0",

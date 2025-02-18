@@ -11,7 +11,7 @@ import { getSkill } from "../../Models/Skill";
 import { bashPieceAnimation } from "../../Systems/Chara/Animations/bashPieceAnimation";
 import { popText } from "../../Systems/Chara/Animations/popText";
 import { slashAnimation } from "../../Systems/Chara/Animations/slashAnimation";
-import { runPromisesInOrder } from "../../utils";
+import { runPromisesInOrder as sequenceAsync } from "../../utils";
 import { vignette } from "./Animations/vignette";
 
 const processTick = async (scene: BattlegroundScene) => {
@@ -32,12 +32,10 @@ const processTick = async (scene: BattlegroundScene) => {
   const unitActions = getActiveUnits(state)
     .map(performAction(scene));
 
-  await runPromisesInOrder(unitActions);
+  await sequenceAsync(unitActions);
 
   state.gameData.tick++;
   emit(signals.TURN_END)
-
-  //scene.displayOrderEmotes();
 
   state.inputDisabled = false;
 
@@ -76,6 +74,90 @@ const performAction = (
   else if (unit.job === "cleric") {
     await checkHeals(scene.state, scene)(unit);
   }
+  else if (unit.job === "archer") {
+    await shoot(scene)(unit);
+  }
+
+}
+
+function shoot(scene: BattlegroundScene) {
+
+  return async (unit: Unit) => {
+
+    const job = getJob(unit.job);
+
+    const attackRange = getSkill(job.skill).range;
+
+    const { state } = scene;
+
+    const [closestEnemy] = getCloseEnemies(state, unit);
+
+    if (!closestEnemy) {
+      return;
+    };
+
+    const distance = distanceBetween(unit.position)(closestEnemy.position);
+
+    if (distance <= attackRange) {
+
+      await shootAt(scene, unit, closestEnemy);
+
+    } else {
+
+      const pathTo = await lookupAIPAth(scene, unit.id, unit.position, closestEnemy.position, job.moveRange);
+
+      const difference = distance - (attackRange + job.moveRange);
+
+      if (difference < 0) {
+        const path_ = pathTo.slice(0, pathTo.length + difference);
+        // TODO: add per-step distance check to interrupt the walking
+        await walk(scene, unit, path_);
+      } else {
+        await walk(scene, unit, pathTo);
+      }
+
+      if (distanceBetween(unit.position)(closestEnemy.position) <= attackRange) {
+        await shootAt(scene, unit, closestEnemy);
+
+      }
+
+    }
+
+  }
+
+}
+
+async function shootAt(scene: BattlegroundScene, unit: Unit, target: Unit) {
+
+  const unitChara = scene.getChara(unit.id);
+  const targetChara = scene.getChara(target.id);
+
+  popText(scene, "Shoot", unit.id);
+
+  const arrow = scene.add.image(unitChara.container.x, unitChara.container.y, "arrow")
+
+  arrow.setScale(0.2);
+
+  const angle = Phaser.Math.Angle.Between(
+    unitChara.container.x, unitChara.container.y,
+    targetChara.container.x, targetChara.container.y
+  );
+  arrow.setRotation(angle);
+
+  await tween({
+    targets: [arrow],
+    x: targetChara.container.x,
+    y: targetChara.container.y,
+    duration: 500 / scene.state.options.speed,
+  })
+
+  popText(scene, "22", target.id);
+  arrow.destroy();
+  emit(
+    signals.DAMAGE_UNIT,
+    targetChara.id,
+    22
+  );
 
 }
 
@@ -152,7 +234,7 @@ const moveToMeleeTarget = (
   const [closestEnemy] = getCloseEnemies(state, unit);
 
   if (!closestEnemy) {
-    throw new Error("no enemies found");
+    return null;
   };
 
   const distance = distanceBetween(unit.position)(closestEnemy.position);
