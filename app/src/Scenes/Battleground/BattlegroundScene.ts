@@ -160,12 +160,6 @@ export class BattlegroundScene extends Phaser.Scene {
     //this.cameras.main.setZoom(1.5)
     emit(signals.BATTLEGROUND_STARTED);
 
-    const chara = this.charas.filter(c => c.force === FORCE_ID_PLAYER)[0]
-    this.cameras.main.pan(
-      chara.container.x, chara.container.y,
-      500, 'Sine.easeInOut', true);
-
-
   };
   createShader = (chara: Chara) => {
     const shader = this.add.image(0, 0, "");
