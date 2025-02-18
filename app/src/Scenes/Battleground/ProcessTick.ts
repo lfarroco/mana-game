@@ -30,7 +30,7 @@ const processTick = async (scene: BattlegroundScene) => {
   await delay(scene, 1000 / state.options.speed);
 
   const unitActions = getActiveUnits(state)
-    .map(performAction(scene, state));
+    .map(performAction(scene));
 
   await runPromisesInOrder(unitActions);
 
@@ -63,15 +63,15 @@ const processTick = async (scene: BattlegroundScene) => {
 
 const performAction = (
   scene: BattlegroundScene,
-  state: State,
 ) => (
   unit: Unit,
 ) => async () => {
 
   if (["monk", "soldier", "orc"].includes(unit.job)) {
 
-    const target = await moveToMeleeTarget(scene)(unit)
-    await slash(scene, unit, target)
+    const mtarget = await moveToMeleeTarget(scene)(unit)
+    if (mtarget)
+      await slash(scene, unit, mtarget)
   }
   else if (unit.job === "cleric") {
     await checkHeals(scene.state, scene)(unit);
@@ -146,7 +146,7 @@ const checkHeals = (
 
 const moveToMeleeTarget = (
   scene: BattlegroundScene,
-) => async (unit: Unit): Promise<Unit> => {
+) => async (unit: Unit): Promise<Unit | null> => {
   const { state } = scene;
 
   const [closestEnemy] = getCloseEnemies(state, unit);
@@ -162,6 +162,10 @@ const moveToMeleeTarget = (
   const path = await lookupAIPAth(scene, unit.id, unit.position, closestEnemy.position);
 
   await walk(scene, unit, path);
+
+  if (distanceBetween(unit.position)(closestEnemy.position) > 1) {
+    return null
+  }
 
   return closestEnemy;
 
