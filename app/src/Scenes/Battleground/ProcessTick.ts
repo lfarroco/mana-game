@@ -13,6 +13,7 @@ import { popText } from "../../Systems/Chara/Animations/popText";
 import { slashAnimation } from "../../Systems/Chara/Animations/slashAnimation";
 import { runPromisesInOrder as sequenceAsync } from "../../utils";
 import { vignette } from "./Animations/vignette";
+import { shoot } from "../../Systems/Chara/Skills/shoot";
 
 const processTick = async (scene: BattlegroundScene) => {
 
@@ -66,13 +67,12 @@ const performAction = (
 ) => async () => {
 
   if (["monk", "soldier", "orc"].includes(unit.job)) {
-
     const mtarget = await moveToMeleeTarget(scene)(unit)
     if (mtarget)
       await slash(scene, unit, mtarget)
   }
   else if (unit.job === "cleric") {
-    await checkHeals(scene.state, scene)(unit);
+    await checkHeals(scene)(unit);
   }
   else if (unit.job === "archer") {
     await shoot(scene)(unit);
@@ -80,53 +80,7 @@ const performAction = (
 
 }
 
-function shoot(scene: BattlegroundScene) {
-
-  return async (unit: Unit) => {
-
-    const job = getJob(unit.job);
-
-    const attackRange = getSkill(job.skill).range;
-
-    const { state } = scene;
-
-    const [closestEnemy] = getCloseEnemies(state, unit);
-
-    if (!closestEnemy) {
-      return;
-    };
-
-    const distance = distanceBetween(unit.position)(closestEnemy.position);
-
-    if (distance <= attackRange) {
-
-      await shootAt(scene, unit, closestEnemy);
-      return;
-
-    }
-
-    const pathTo = await lookupAIPAth(scene, unit.id, unit.position, closestEnemy.position, job.moveRange);
-
-    const rangeDifference = distance - (attackRange + job.moveRange);
-
-    if (rangeDifference < 0) {
-      const path_ = pathTo.slice(0, pathTo.length + rangeDifference);
-      // TODO: add per-step distance check to interrupt the walking
-      await walk(scene, unit, path_);
-    } else {
-      await walk(scene, unit, pathTo);
-    }
-
-    if (distanceBetween(unit.position)(closestEnemy.position) <= attackRange) {
-      await shootAt(scene, unit, closestEnemy);
-
-    }
-
-  }
-
-}
-
-async function shootAt(scene: BattlegroundScene, unit: Unit, target: Unit) {
+export async function shootAt(scene: BattlegroundScene, unit: Unit, target: Unit) {
 
   const unitChara = scene.getChara(unit.id);
   const targetChara = scene.getChara(target.id);
@@ -160,7 +114,7 @@ async function shootAt(scene: BattlegroundScene, unit: Unit, target: Unit) {
 
 }
 
-async function walk(scene: BattlegroundScene, unit: Unit, path: Vec2[]) {
+export async function walk(scene: BattlegroundScene, unit: Unit, path: Vec2[]) {
 
   const job = getJob(unit.job);
   let walked = 0;
@@ -186,13 +140,11 @@ async function walk(scene: BattlegroundScene, unit: Unit, path: Vec2[]) {
 }
 
 const checkHeals = (
-  state: State,
   scene: BattlegroundScene,
 ) => async (unit: Unit) => {
 
-  const hurtAllies = getActiveUnits(state)
-    .filter(u => u.force === unit.force)
-    .filter(u => u.hp < u.maxHp)
+  const allies = getUnitsByProximity(scene.state, unit, false);
+  const hurtAllies = allies
     .sort((a, b) => a.hp - b.hp);
 
   const [hurtAndClose] = hurtAllies
@@ -230,7 +182,7 @@ const moveToMeleeTarget = (
 ) => async (unit: Unit): Promise<Unit | null> => {
   const { state } = scene;
 
-  const [closestEnemy] = getCloseEnemies(state, unit);
+  const [closestEnemy] = getUnitsByProximity(state, unit, true);
 
   if (!closestEnemy) {
     return null;
@@ -252,9 +204,9 @@ const moveToMeleeTarget = (
 
 }
 
-function getCloseEnemies(state: State, unit: Unit): Unit[] {
+export function getUnitsByProximity(state: State, unit: Unit, enemy: boolean): Unit[] {
   return getActiveUnits(state)
-    .filter(u => u.force !== unit.force)
+    .filter(u => enemy ? u.force !== unit.force : u.force === unit.force)
     .sort((a, b) => sortByDistanceTo(unit.position)(a.position)(b.position));
 }
 
