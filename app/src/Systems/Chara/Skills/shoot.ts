@@ -3,7 +3,8 @@ import { getJob } from "../../../Models/Job";
 import { getSkill } from "../../../Models/Skill";
 import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
-import { getUnitsByProximity, shootAt, walk } from "../../../Scenes/Battleground/ProcessTick";
+import { getUnitsByProximity, walk } from "../../../Scenes/Battleground/ProcessTick";
+import { shootAnimation } from "../Animations/shootAnimation";
 import { lookupAIPAth } from "../../../Scenes/Battleground/Systems/Pathfinding";
 
 export function shoot(scene: BattlegroundScene) {
@@ -26,7 +27,7 @@ export function shoot(scene: BattlegroundScene) {
 
 		if (distance <= attackRange) {
 
-			await shootAt(scene, unit, closestEnemy);
+			await shootAnimation(scene, unit, closestEnemy);
 			return;
 
 		}
@@ -44,7 +45,7 @@ export function shoot(scene: BattlegroundScene) {
 		}
 
 		if (distanceBetween(unit.position)(closestEnemy.position) <= attackRange) {
-			await shootAt(scene, unit, closestEnemy);
+			await shootAnimation(scene, unit, closestEnemy);
 		}
 
 	};
