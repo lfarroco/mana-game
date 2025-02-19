@@ -1,5 +1,5 @@
 import Modal from 'react-bootstrap/Modal';
-import { State, getCity, getState } from '../../../Models/State';
+import { State, getState } from '../../../Models/State';
 import { useEffect, useState } from 'react';
 import { ListGroup } from 'react-bootstrap';
 import { emit, emit_, signals, listeners } from '../../../Models/Signals';
@@ -8,15 +8,8 @@ import ManaButton from '../../Components/Button';
 
 const recruit = (state: State, job: Job) => () => {
 
-	const cityId = state.gameData.selectedCity
 
-	if (!cityId) throw new Error("No city selected")
-
-	const city = getCity(state)(cityId)
-
-	if (!city.force) throw new Error("City has no force");
-
-	emit(signals.RECRUIT_UNIT, city.force, job.id, city.boardPosition)
+	//emit(signals.RECRUIT_UNIT, city.force, job.id, city.boardPosition)
 	emit(signals.TOGGLE_DISPATCH_MODAL, false)
 
 }

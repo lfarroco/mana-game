@@ -82,54 +82,6 @@ export function init(state: State, scene: BattlegroundScene) {
 			delete tweens[id]
 
 		}],
-		[signals.CITY_SELECTED, (cityId: string | null) => {
-
-			if (cityId === null) {
-
-				state.gameData.cities.forEach(city => {
-					const cursor = cursors[city.id]
-					if (!cursor) return
-					cursors[city.id].destroy()
-					delete cursors[city.id]
-				});
-
-				return
-
-			}
-
-			const city = scene.getCity(cityId)
-
-			const cursor = scene.add.image(
-				city.sprite.x,
-				city.sprite.y + TILE_HEIGHT / 4,
-				'cursor',
-			)
-				.setTint(0x00ff00)
-				.setVisible(true)
-
-			scene.children.moveBelow(cursor, city.sprite)
-
-			scene.tweens.add({
-				targets: cursor,
-				alpha: 0.1,
-				duration: 200,
-				yoyo: true,
-				repeat: -1
-			});
-
-			cursors[cityId] = cursor
-
-		}],
-		[signals.CITY_DESELECTED, () => {
-
-			const id = state.gameData.selectedCity
-
-			if (!id) return
-
-			cursors[id].destroy()
-			delete cursors[id]
-
-		}],
 		[signals.UNIT_DESTROYED, (id: string) => {
 
 			cleanCursor(cursors, eventListeners, scene, id)

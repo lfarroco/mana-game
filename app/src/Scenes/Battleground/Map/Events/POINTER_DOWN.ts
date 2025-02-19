@@ -4,7 +4,6 @@ import { Vec2, asVec2, eqVec2, } from "../../../../Models/Geometry";
 import BattlegroundScene from "../../BattlegroundScene";
 import { getState, State } from "../../../../Models/State";
 import { Unit } from "../../../../Models/Unit";
-import { City } from "../../../../Models/City";
 import { emit, signals } from "../../../../Models/Signals";
 
 
@@ -30,7 +29,7 @@ export function onPointerDown(
 
 			const tile = bgLayer.getTileAtWorldXY(pointer.worldX, pointer.worldY);
 
-			const [unit] = selectEntityInTile(state, asVec2(tile))
+			const unit = selectEntityInTile(state, asVec2(tile))
 
 			if (unit) {
 				pointerDownUnit.unit = unit;
@@ -47,20 +46,15 @@ export function onPointerDown(
 	);
 }
 
-export function selectEntityInTile(state: State, tile: Vec2): [Unit | undefined, City | undefined] {
+export function selectEntityInTile(state: State, tile: Vec2): Unit | undefined {
 	const unit = state.gameData.units
 		.filter(u => u.hp > 0)
 		.find((unit) => eqVec2(unit.position, (tile)));
 
-	const city = state.gameData.cities.find((city) => eqVec2(city.boardPosition, (tile)));
 
 	if (unit) {
 		emit(signals.UNIT_SELECTED, unit.id);
-	} else {
-		if (city) {
-			emit(signals.CITY_SELECTED, city.id);
-		}
 	}
 
-	return [unit, city]
+	return unit
 }

@@ -1,5 +1,4 @@
 import * as uuid from "uuid";
-import { City } from "./City";
 import { Force } from "./Force";
 import { Vec2 } from "./Geometry";
 import { emit, signals, listeners } from "./Signals";
@@ -23,9 +22,7 @@ export const initialState = (): State => ({
     tick: 0,
     forces: [],
     selectedUnit: null,
-    selectedCity: null,
     units: [],
-    cities: [],
     map: {
       width: 128,
       height: 128,
@@ -65,9 +62,7 @@ export type GameData = {
   forces: Force[];
   units: Unit[];
   selectedUnit: string | null; // TODO: remove from state, this is a UI thing. Idea: make a UI state that is not saved
-  selectedCity: string | null;
   grid: number[][];
-  cities: City[];
   map: {
     width: number;
     height: number;
@@ -92,9 +87,6 @@ export const addUnit = (state: State) => (unit: Unit) => {
   state.gameData.units.push(unit);
 };
 
-export const addCity = (state: State) => (city: City) => {
-  state.gameData.cities.push(city);
-};
 
 export const updateUnit = (state: State) => (id: string) => (
   u: Partial<Unit>
@@ -112,9 +104,6 @@ export const getUnit = (state: State) => (id: string): Unit => {
 export const getActiveUnits = (state: State): Unit[] => state.gameData.units
   .filter(u => u.hp > 0)
 
-export const getCity = (state: State) => (id: string): City => {
-  return state.gameData.cities.find((city) => city.id === id)!;
-}
 
 export const updateForce = (state: State) => (
   force: Partial<Force>

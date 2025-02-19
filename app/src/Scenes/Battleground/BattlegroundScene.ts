@@ -2,7 +2,6 @@ import Phaser from "phaser";
 import { preload } from "./preload";
 import { createMap } from "./Map/createMap";
 import { importMapObjects } from "./Map/importMapObjects";
-import { createCities } from "./Map/createCities";
 import { Unit } from "../../Models/Unit";
 import processTick from "./ProcessTick";
 import { eqVec2, Vec2 } from "../../Models/Geometry";
@@ -10,11 +9,7 @@ import { Chara, CharaSystem_init, createChara } from "../../Systems/Chara/Chara"
 import { emit, signals, listeners } from "../../Models/Signals";
 import { State, getUnit, getState } from "../../Models/State";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
-import * as StaminaRegen from "../../Systems/HPRegen/HPRegen";
-import * as VictorySystem from "../../Systems/Victory/Victory";
 import { unitDestroyed } from "./Events/UNIT_DESTROYED";
-import { City } from "../../Models/City";
-import * as CityCaptureSystem from "./Systems/cityCapture";
 import * as FogOfWarSystem from "./Systems/FogOfWar/FogOfWar";
 import * as CursorSystem from "./Systems/Cursor";
 import * as AISystem from "../../Systems/AI/AI";
@@ -38,7 +33,6 @@ export class BattlegroundScene extends Phaser.Scene {
     features: Phaser.Tilemaps.TilemapLayer;
   } | null = null;
   isPaused = false;
-  cities: { city: City; sprite: Phaser.GameObjects.Image }[] = []; // TODO: data duplication, this should be just a list of sprites
   tilemap: Phaser.Tilemaps.Tilemap | null = null;
   fow: Phaser.Tilemaps.TilemapLayer | null = null;
   grid: (0 | 1)[][] = []
@@ -49,10 +43,6 @@ export class BattlegroundScene extends Phaser.Scene {
       chara.container.destroy(true)
     })
     this.charas = []
-    this.cities.forEach(city => {
-      city.sprite.destroy()
-    })
-    this.cities = []
     this.layers?.background.destroy()
     this.layers?.obstacles.destroy()
     this.layers?.features.destroy()
@@ -97,11 +87,8 @@ export class BattlegroundScene extends Phaser.Scene {
      */
     // TODO: separate scene-related listeners from state listeners
     unitDestroyed(this, state);
-    VictorySystem.init(state);
     AISystem.init(state);
     EmoteSystem_init(state, this);
-    CityCaptureSystem.init(this);
-    StaminaRegen.init(state);
     EntitySelection.init(state);
     if (state.options.fogOfWarEnabled)
       FogOfWarSystem.init(this, state);
@@ -136,7 +123,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.layers = layers;
     this.tilemap = map;
-    this.cities = createCities(this, state.gameData.cities);
     this.createMapSquads();
 
     makeMapInteractive(this, map, layers.background);
@@ -212,12 +198,6 @@ export class BattlegroundScene extends Phaser.Scene {
   getSquad = (id: string) => {
     return getUnit(getState())(id)
   };
-
-  getCity = (id: string) => {
-    const city = this.cities.find((city) => city.city.id === id);
-    if (!city) throw new Error(this.errors.cityNotFound(id));
-    return city;
-  }
 
   getTileAt = (vec: Vec2) => {
     const tile = this.layers?.background.getTileAt(vec.x, vec.y, true);

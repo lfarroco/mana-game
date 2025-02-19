@@ -6,7 +6,6 @@ import Core from "./Scenes/Core/Core";
 import * as SaveGame from "./Systems/SaveGame/SaveGame";
 import { State } from "./Models/State";
 import Events from 'events'
-import { CityCaptureSystem_init } from "./Systems/City/CityCapture";
 import { AuraPipeline } from "./Shaders/aura";
 
 export function initGame(state: State, emitter: Events) {
@@ -40,7 +39,6 @@ export function initGame(state: State, emitter: Events) {
 	]);
 
 	SaveGame.SaveGameSystem_init(state, game);
-	CityCaptureSystem_init(state);
 
 	return game;
 }
