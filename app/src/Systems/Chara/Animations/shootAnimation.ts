@@ -4,7 +4,6 @@ import { popText } from "./popText";
 import { tween } from "../../../Utils/animation";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 
-
 export async function shootAnimation(scene: BattlegroundScene, unit: Unit, target: Unit) {
 
 	const unitChara = scene.getChara(unit.id);

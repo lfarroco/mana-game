@@ -78,7 +78,7 @@ const performAction = (
 
 }
 
-export async function walk(scene: BattlegroundScene, unit: Unit, path: Vec2[]) {
+export async function walk(scene: BattlegroundScene, unit: Unit, path: Vec2[], interrupt: null | ((vec: Vec2) => boolean)) {
 
   const job = getJob(unit.job);
   let walked = 0;
@@ -98,6 +98,8 @@ export async function walk(scene: BattlegroundScene, unit: Unit, path: Vec2[]) {
 
     unit.position = next;
     unitLog(unit, "finished whalking");
+
+    if (interrupt && interrupt(next)) break;
     walked++;
   }
 
@@ -124,7 +126,7 @@ const moveToMeleeTarget = (
 
   const path = await lookupAIPAth(scene, unit.id, unit.position, closestEnemy.position);
 
-  await walk(scene, unit, path);
+  await walk(scene, unit, path, null);
 
   if (distanceBetween(unit.position)(closestEnemy.position) > 1) {
     return null
