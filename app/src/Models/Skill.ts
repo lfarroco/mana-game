@@ -47,7 +47,7 @@ export const skills: Skill[] = [
 	{
 		id: "shoot",
 		name: "Shoot",
-		range: 3,
+		range: 4,
 		targets: "enemy",
 		power: 20,
 		harmful: true,

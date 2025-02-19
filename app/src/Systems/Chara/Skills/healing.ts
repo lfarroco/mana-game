@@ -39,7 +39,7 @@ export const healing = (
 		//remove 3 last tiles from the path
 		const path_ = path.slice(0, path.length - 3);
 
-		await walk(scene, unit, path_);
+		await walk(scene, unit, path_, null);
 
 		if (path_.length < 1) {
 			await healAnimation(scene, unit, closerHurt);
