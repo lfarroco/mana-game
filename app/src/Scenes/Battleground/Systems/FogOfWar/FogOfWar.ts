@@ -55,9 +55,9 @@ function refreshFogOfWar(
     .forEach((s) => showRadius(s.position, fow));
 
   //player-controlled cities
-  state.gameData.cities
-    .filter((c) => c.force === FORCE_ID_PLAYER)
-    .forEach((c) => showRadius(c.boardPosition, fow));
+  // state.gameData.cities
+  //   .filter((c) => c.force === FORCE_ID_PLAYER)
+  //   .forEach((c) => showRadius(c.boardPosition, fow));
 
   state.gameData.units
     .filter((s) => s.force === FORCE_ID_CPU)

@@ -32,9 +32,6 @@ export type Signals = {
   UNIT_SELECTED: (unitId: string) => void;
   UNIT_DESELECTED: (unitId: string) => void;
 
-  CITY_SELECTED: (id: string | null) => void;
-  CITY_DESELECTED: () => void;
-
   HIGHLIGHT_UNIT: (unitId: string, color: number) => void;
   STOP_HIGHLIGHT_UNIT: (unitId: string) => void;
 
@@ -91,8 +88,6 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   BATTLEGROUND_STARTED: "BATTLEGROUND_STARTED",
   UNIT_SELECTED: "UNIT_SELECTED",
   UNIT_DESELECTED: "UNIT_DESELECTED",
-  CITY_SELECTED: "CITY_SELECTED",
-  CITY_DESELECTED: "CITY_DESELECTED",
   TOGGLE_DISPATCH_MODAL: "TOGGLE_DISPATCH_MODAL",
   TOGGLE_OPTIONS_MODAL: "TOGGLE_OPTIONS_MODAL",
   TOGGLE_LOAD_GAME_MODAL: "TOGGLE_LOAD_GAME_MODAL",
