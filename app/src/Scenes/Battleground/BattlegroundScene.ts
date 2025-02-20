@@ -2,9 +2,9 @@ import Phaser from "phaser";
 import { preload } from "./preload";
 import { createMap } from "./Map/createMap";
 import { importMapObjects } from "./Map/importMapObjects";
-import { Unit } from "../../Models/Unit";
+import { makeUnit, Unit } from "../../Models/Unit";
 import processTick from "./ProcessTick";
-import { eqVec2, Vec2 } from "../../Models/Geometry";
+import { asVec2, eqVec2, Vec2 } from "../../Models/Geometry";
 import { Chara, CharaSystem_init, createChara } from "../../Systems/Chara/Chara";
 import { emit, signals, listeners } from "../../Models/Signals";
 import { State, getUnit, getState } from "../../Models/State";
@@ -23,6 +23,8 @@ import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import { makeMapInteractive } from "./Map/makeMapInteractive";
 import { clearCellHighlights } from "./Map/highlightCells";
 import { AuraPipeline } from "../../Shaders/aura";
+import { getJob, jobs } from "../../Models/Job";
+import { FORCE_ID_PLAYER } from "../../Models/Force";
 
 export class BattlegroundScene extends Phaser.Scene {
   graphics: Phaser.GameObjects.Graphics | null = null;
@@ -37,6 +39,10 @@ export class BattlegroundScene extends Phaser.Scene {
   fow: Phaser.Tilemaps.TilemapLayer | null = null;
   grid: (0 | 1)[][] = []
   state: State;
+  store: Unit[] = [];
+  bench: Unit[] = [];
+  storeContainer: Phaser.GameObjects.Container | null = null;
+  benchContainer: Phaser.GameObjects.Container | null = null;
 
   cleanup() {
     this.charas.forEach(chara => {
@@ -55,6 +61,7 @@ export class BattlegroundScene extends Phaser.Scene {
     this.fow?.destroy()
     this.fow = null
     this.grid = []
+    this.bench = [];
   }
 
   constructor() {
@@ -143,7 +150,93 @@ export class BattlegroundScene extends Phaser.Scene {
     //this.cameras.main.setZoom(1.5)
     emit(signals.BATTLEGROUND_STARTED);
 
+    this.store = jobs.map((job) => makeUnit(
+      Math.random().toString(),
+      FORCE_ID_PLAYER,
+      job.id,
+      asVec2({ x: 0, y: 0 })
+    )).slice(0, 3);
+
+    this.renderStore();
+
+    this.renderBench();
+
   };
+  renderStore() {
+
+    if (this.storeContainer) this.storeContainer.destroy(true);
+
+    this.storeContainer = this.add.container(0, 0);
+
+    // black rect
+    const bg = this.add.graphics();
+    bg.fillStyle(0x000000, 0.8);
+    bg.fillRect(0, 0, 800, 300);
+
+    this.storeContainer.add(bg);
+
+    this.store.forEach((unit, i) => {
+      const job = getJob(unit.job)
+      const x = 50 + i * 100
+      const y = 150
+      const sprite = this.add.image(x, y, job.id + "/portrait")
+        .setOrigin(0.5, 0.5)
+      this.storeContainer?.add(sprite)
+      sprite.setDisplaySize(64, 64)
+      sprite.setInteractive()
+      sprite.on('pointerdown', () => {
+        console.log("clicked", job)
+        //emit(signals.CREATE_UNIT, job)
+
+        this.store = this.store.filter((u) => u.id !== unit.id)
+        this.bench.push(
+          makeUnit(
+            Math.random().toString(),
+            FORCE_ID_PLAYER,
+            job.id,
+            asVec2({ x: 0, y: 0 })
+          ))
+        this.renderBench();
+        this.renderStore();
+      });
+      const name = this.add.text(x - 25, y + 50, job.name, { color: "white", align: "center" })
+
+      this.storeContainer?.add(name)
+    }
+    );
+
+  }
+
+  renderBench() {
+
+    if (this.benchContainer) this.benchContainer.destroy(true);
+
+    this.benchContainer = this.add.container(0, 0);
+
+    const bg = this.add.graphics();
+    bg.fillStyle(0x000000, 0.8);
+    bg.fillRect(0, 500, 800, 200);
+
+    this.benchContainer.add(bg);
+
+    this.bench.forEach((unit, i) => {
+      const x = 50 + i * 100
+      const y = 550
+      const sprite = this.add.image(x, y, unit.job + "/portrait")
+        .setOrigin(0.5, 0.5)
+      this.benchContainer?.add(sprite)
+      sprite.setDisplaySize(64, 64)
+      sprite.setInteractive()
+      sprite.on('pointerdown', () => {
+        console.log("clicked", unit)
+      });
+      const name = this.add.text(x - 25, y + 50, unit.name, { color: "white", align: "center" })
+      this.benchContainer?.add(name)
+    });
+
+  }
+
+
   createShader = (chara: Chara) => {
     const shader = this.add.image(0, 0, "");
 
