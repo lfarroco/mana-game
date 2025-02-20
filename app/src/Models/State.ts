@@ -28,10 +28,7 @@ export const initialState = (): State => ({
       height: 128,
     },
     grid: [],
-    ai: {
-      attackers: [],
-      defenders: [],
-    },
+
   }
 });
 
@@ -54,10 +51,6 @@ export type State = {
 
 export type GameData = {
   winner: null | string;
-  ai: {
-    attackers: string[];
-    defenders: string[];
-  };
   tick: number;
   forces: Force[];
   units: Unit[];

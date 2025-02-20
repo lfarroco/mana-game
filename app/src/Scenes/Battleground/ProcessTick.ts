@@ -21,11 +21,6 @@ const processTick = async (scene: BattlegroundScene) => {
 
   state.inputDisabled = true;
 
-  // hide emotes
-  state.gameData.units.forEach(u => {
-    emit(signals.HIDE_EMOTE, u.id);
-  });
-
   await delay(scene, 1000 / state.options.speed);
 
   const unitActions = getActiveUnits(state)
