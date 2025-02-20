@@ -67,12 +67,6 @@ export function importMapObjects(map: Phaser.Tilemaps.Tilemap) {
 
       newUnit.id = newUnit.name + "-" + uuid.v4().slice(0, 5);
 
-      if (unitSpec.ai === "attacker") {
-        state.gameData.ai.attackers.push(newUnit.id);
-      } else if (unitSpec.ai === "defender") {
-        state.gameData.ai.defenders.push(newUnit.id);
-      }
-
       state.gameData.units.push(newUnit);
       force.units.push(newUnit.id);
       state.gameData.map = {

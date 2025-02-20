@@ -74,6 +74,8 @@ export class BattlegroundScene extends Phaser.Scene {
     listeners([
       [signals.BATTLEGROUND_TICK, () => {
         processTick(this);
+        this.benchContainer?.destroy();
+        this.storeContainer?.destroy();
       }],
       [signals.UNIT_CREATED, (unitId: string) => {
         const unit = this.getSquad(unitId)
@@ -85,7 +87,6 @@ export class BattlegroundScene extends Phaser.Scene {
         const pop = this.sound.add('ui/button_click')
         pop.play()
       }],
-
     ]);
 
 
@@ -226,13 +227,43 @@ export class BattlegroundScene extends Phaser.Scene {
         .setOrigin(0.5, 0.5)
       this.benchContainer?.add(sprite)
       sprite.setDisplaySize(64, 64)
-      sprite.setInteractive()
+      sprite.setInteractive({ draggable: true })
       sprite.on('pointerdown', () => {
         console.log("clicked", unit)
       });
+
+
       const name = this.add.text(x - 25, y + 50, unit.name, { color: "white", align: "center" })
       this.benchContainer?.add(name)
+
+      const dragHandler = (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
+
+        sprite.x = dragX;
+        sprite.y = dragY;
+
+      }
+      const dragEndHandler = (pointer: Phaser.Input.Pointer) => {
+
+        const tile = this.getTileAtWorldXY(asVec2(sprite));
+        console.log("dropped on tile", tile)
+
+        emit(signals.RECRUIT_UNIT, FORCE_ID_PLAYER, unit.job, asVec2(tile))
+
+        sprite.destroy();
+
+        this.input.off('drag', dragHandler);
+        this.input.off('dragend', dragEndHandler);
+        this.bench = this.bench.filter((u) => u.id !== unit.id)
+        this.renderBench();
+      }
+      sprite.on('drag', dragHandler);
+      sprite.on('dragend', dragEndHandler);
     });
+
+
+
+
+    //emit(signals.UNIT_CREATED, unit.id);
 
   }
 
