@@ -16,7 +16,6 @@ export function onPointerMove(
 	bgLayer.on(Phaser.Input.Events.POINTER_MOVE,
 		(pointer: Phaser.Input.Pointer) => {
 
-			if (!state.options.scrollEnabled) return;
 			if (!pointer.isDown) return;
 			if (state.inputDisabled) return
 			if (pointer.downTime < 100) return;
@@ -25,6 +24,17 @@ export function onPointerMove(
 				console.log("down element is not canvas, exit POINTER_MOVE event");
 				return;
 			}
+
+			if (pointerDownUnit.unit) {
+				const chara = scene.getChara(pointerDownUnit.unit.id);
+
+				chara.container.x = pointer.x;
+				chara.container.y = pointer.y;
+				return;
+			}
+
+
+			if (!state.options.scrollEnabled) return;
 
 			const dx = pointer.downX - pointer.x;
 			const dy = pointer.downY - pointer.y;
