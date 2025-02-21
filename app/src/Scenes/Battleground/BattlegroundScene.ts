@@ -23,8 +23,10 @@ import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import { makeMapInteractive } from "./Map/makeMapInteractive";
 import { clearCellHighlights } from "./Map/highlightCells";
 import { AuraPipeline } from "../../Shaders/aura";
-import { getJob, jobs } from "../../Models/Job";
+import { jobs } from "../../Models/Job";
 import { FORCE_ID_PLAYER } from "../../Models/Force";
+import { updateBench } from "./Bench";
+import { updateStore } from "./Store";
 
 export class BattlegroundScene extends Phaser.Scene {
   graphics: Phaser.GameObjects.Graphics | null = null;
@@ -164,106 +166,12 @@ export class BattlegroundScene extends Phaser.Scene {
 
   };
   renderStore() {
-
-    if (this.storeContainer) this.storeContainer.destroy(true);
-
-    this.storeContainer = this.add.container(0, 0);
-
-    // black rect
-    const bg = this.add.graphics();
-    bg.fillStyle(0x000000, 0.8);
-    bg.fillRect(0, 0, 800, 300);
-
-    this.storeContainer.add(bg);
-
-    this.store.forEach((unit, i) => {
-      const job = getJob(unit.job)
-      const x = 50 + i * 100
-      const y = 150
-      const sprite = this.add.image(x, y, job.id + "/portrait")
-        .setOrigin(0.5, 0.5)
-      this.storeContainer?.add(sprite)
-      sprite.setDisplaySize(64, 64)
-      sprite.setInteractive()
-      sprite.on('pointerdown', () => {
-        console.log("clicked", job)
-        //emit(signals.CREATE_UNIT, job)
-
-        this.store = this.store.filter((u) => u.id !== unit.id)
-        this.bench.push(
-          makeUnit(
-            Math.random().toString(),
-            FORCE_ID_PLAYER,
-            job.id,
-            asVec2({ x: 0, y: 0 })
-          ))
-        this.renderBench();
-        this.renderStore();
-      });
-      const name = this.add.text(x - 25, y + 50, job.name, { color: "white", align: "center" })
-
-      this.storeContainer?.add(name)
-    }
-    );
-
+    updateStore(this);
   }
 
   renderBench() {
 
-    if (this.benchContainer) this.benchContainer.destroy(true);
-
-    this.benchContainer = this.add.container(0, 0);
-
-    const bg = this.add.graphics();
-    bg.fillStyle(0x000000, 0.8);
-    bg.fillRect(0, 500, 800, 200);
-
-    this.benchContainer.add(bg);
-
-    this.bench.forEach((unit, i) => {
-      const x = 50 + i * 100
-      const y = 550
-      const sprite = this.add.image(x, y, unit.job + "/portrait")
-        .setOrigin(0.5, 0.5)
-      this.benchContainer?.add(sprite)
-      sprite.setDisplaySize(64, 64)
-      sprite.setInteractive({ draggable: true })
-      sprite.on('pointerdown', () => {
-        console.log("clicked", unit)
-      });
-
-
-      const name = this.add.text(x - 25, y + 50, unit.name, { color: "white", align: "center" })
-      this.benchContainer?.add(name)
-
-      const dragHandler = (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
-
-        sprite.x = dragX;
-        sprite.y = dragY;
-
-      }
-      const dragEndHandler = (pointer: Phaser.Input.Pointer) => {
-
-        const tile = this.getTileAtWorldXY(asVec2(sprite));
-        console.log("dropped on tile", tile)
-
-        emit(signals.RECRUIT_UNIT, FORCE_ID_PLAYER, unit.job, asVec2(tile))
-
-        sprite.destroy();
-
-        this.input.off('drag', dragHandler);
-        this.input.off('dragend', dragEndHandler);
-        this.bench = this.bench.filter((u) => u.id !== unit.id)
-        this.renderBench();
-      }
-      sprite.on('drag', dragHandler);
-      sprite.on('dragend', dragEndHandler);
-    });
-
-
-
-
-    //emit(signals.UNIT_CREATED, unit.id);
+    updateBench(this);
 
   }
 
@@ -404,3 +312,5 @@ export class BattlegroundScene extends Phaser.Scene {
 }
 
 export default BattlegroundScene;
+
+
