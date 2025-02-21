@@ -45,6 +45,7 @@ export class BattlegroundScene extends Phaser.Scene {
   bench: Unit[] = [];
   storeContainer: Phaser.GameObjects.Container | null = null;
   benchContainer: Phaser.GameObjects.Container | null = null;
+  unitPool: Unit[] = [];
 
   cleanup() {
     this.charas.forEach(chara => {
@@ -153,18 +154,36 @@ export class BattlegroundScene extends Phaser.Scene {
     //this.cameras.main.setZoom(1.5)
     emit(signals.BATTLEGROUND_STARTED);
 
-    this.store = jobs.map((job) => makeUnit(
-      Math.random().toString(),
-      FORCE_ID_PLAYER,
-      job.id,
-      asVec2({ x: 0, y: 0 })
-    )).slice(0, 3);
+    this.unitPool = new Array(30).fill(null).map(() => {
+      return makeUnit(
+        Math.random().toString(),
+        FORCE_ID_PLAYER,
+        jobs[Math.floor(Math.random() * jobs.length)].id,
+        asVec2({ x: 0, y: 0 })
+      );
+    });
+
+    this.populateStore();
 
     this.renderStore();
 
     this.renderBench();
 
   };
+
+  populateStore() {
+    // place units from the store back into the pool
+    this.unitPool = this.unitPool.concat(this.store);
+
+    this.store = [];
+
+    for (let i = 0; i < 5; i++) {
+      const randomIndex = Math.floor(Math.random() * this.unitPool.length);
+      const unit = this.unitPool.splice(randomIndex, 1)[0];
+
+      this.store.push(unit);
+    }
+  }
   renderStore() {
     updateStore(this);
   }

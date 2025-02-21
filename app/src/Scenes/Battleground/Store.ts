@@ -22,6 +22,16 @@ export function updateStore(scene: BattlegroundScene) {
 
 	scene.storeContainer.add(bg);
 
+	const refreshIcon = scene.add.image(width - 50, height - 50, "refresh")
+		.setOrigin(0.5, 0.5)
+		.setInteractive()
+		.on('pointerdown', () => {
+			scene.populateStore();
+			scene.renderStore();
+		});
+
+	scene.storeContainer.add(refreshIcon);
+
 	scene.store.forEach(renderUnit(scene));
 }
 
