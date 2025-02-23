@@ -49,16 +49,46 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 
 	scene.storeContainer?.add(sprite);
 
+	// enable sprite for collision
+	scene.physics.add.existing(sprite, false)
+
+
 	sprite.setDisplaySize(64, 64);
-	sprite.setInteractive();
-	sprite.on('pointerdown', handleClick(scene, unit));
+	sprite.setInteractive({ draggable: true });
+	sprite.on('pointerup', handleClick(scene, unit));
+	sprite.on('drag', (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
+		sprite.x = dragX;
+		sprite.y = dragY;
+	});
+	sprite.on('dragend', (pointer: Phaser.Input.Pointer) => {
+
+		console.log("dragend", pointer.x, pointer.y);
+		// check if sprite collides with bench slots
+
+		scene.benchContainer?.list.forEach(u => {
+			if (u.type === "Rectangle") {
+				scene.physics.overlap(sprite, u, (sprite, rect) => {
+
+					scene.store = scene.store.filter((u) => u.id !== unit.id);
+					scene.bench.push(unit);
+					scene.renderBench();
+					sprite.destroy();
+				});
+
+			}
+		});
+
+	});
 
 	const name = scene.add.text(x - 25, y + 50, job.name, { color: "white", align: "center" });
 
 	scene.storeContainer?.add(name);
 }
 
-const handleClick = (scene: BattlegroundScene, unit: Unit) => () => {
+const handleClick = (scene: BattlegroundScene, unit: Unit) => (pointer: Phaser.Input.Pointer) => {
+
+	// check if it was a drag, if so, ignore
+	if (pointer.getDistance() > 10) return;
 
 	const job = getJob(unit.job);
 

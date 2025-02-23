@@ -20,6 +20,21 @@ export const updateBench = (scene: BattlegroundScene) => {
 
 	scene.benchContainer.add(bg);
 
+	// draw bench rect slots
+
+	for (let i = 0; i < 5; i++) {
+		const x = 50 + i * 100;
+		const y = 50;
+		const rect = scene.add.rectangle(x, y, 64, 64, 0x00ffff, 0.5);
+		scene.benchContainer.add(rect);
+		// enable body for collision
+		scene.physics.add.existing(rect, true);
+		//@ts-ignore
+		rect.body.position = new Phaser.Math.Vector2(
+			scene.benchContainer.x + x - 32,
+			scene.benchContainer.y + y - 32);
+	}
+
 	scene.bench.forEach((unit, i) => {
 		const x = 50 + i * 100;
 		const y = 50;
