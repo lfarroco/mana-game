@@ -13,7 +13,7 @@ export const makeForce = (): Force => ({
 	name: "",
 	color: "",
 	units: [],
-	gold: 5,
+	gold: 12,
 });
 export const FORCE_ID_PLAYER = "PLAYER"
 
