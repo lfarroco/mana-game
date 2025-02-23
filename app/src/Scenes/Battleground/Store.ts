@@ -60,6 +60,7 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 		x, y,
 		job.id + "/portrait")
 		.setOrigin(0.5, 0.5)
+		.setDisplaySize(64, 64)
 		.setAlpha(force.gold >= 1 ? 1 : 0.5);
 
 	scene.storeContainer?.add(sprite);
@@ -67,14 +68,14 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 	const name = scene.add.text(x - 25, y + 50, job.name, { color: "white", align: "center" });
 	scene.storeContainer?.add(name);
 
-	if (force.gold < 1) return;
+
+	if (force.gold < 1 || scene.bench.length >= 5) return;
 
 	sprite.setInteractive({ draggable: true });
 
 	// enable sprite for collision
 	scene.physics.add.existing(sprite, false)
 
-	sprite.setDisplaySize(64, 64);
 	sprite.on('pointerup', handleClick(scene, unit));
 	sprite.on('drag', (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
 		sprite.x = dragX;

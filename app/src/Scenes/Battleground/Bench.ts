@@ -69,6 +69,7 @@ export const updateBench = (scene: BattlegroundScene) => {
 			scene.input.off('dragend', dragEndHandler);
 			scene.bench = scene.bench.filter((u) => u.id !== unit.id);
 			scene.renderBench();
+			scene.renderStore();
 		};
 		sprite.on('drag', dragHandler);
 		sprite.on('dragend', dragEndHandler);
