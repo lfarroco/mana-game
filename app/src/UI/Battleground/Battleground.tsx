@@ -1,6 +1,6 @@
 import "./styles.css";
 import { useEffect, useState } from "react";
-import { listeners, signals, emit_, emit } from "../../Models/Signals";
+import { listeners, signals, emit_, } from "../../Models/Signals";
 import DispatchSquadModal from "./RecruitUnitModal/RecruitUnitModal";
 import VictoryModal from "./VictoryModal/VictoryModal";
 import SelectionHUD from "./SelectionHUD";
@@ -13,8 +13,8 @@ import ManaButton from "../Components/Button";
 const Battleground = () => {
 
   const state = getState()
-  const [isSelectingMoveTarget, setIsSelectingMoveTarget] = useState(false);
-  const [isSelectingSkillTarget, setIsSelectingSkillTarget] = useState(false);
+  const [isSelectingMoveTarget] = useState(false);
+  const [isSelectingSkillTarget] = useState(false);
   const [tick, setTick] = useState(state.gameData.tick);
   const [gold, setGold] = useState(state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)?.gold || 0);
   const [nextTurnEnabled, setNextTurnEnabled] = useState(true);
@@ -82,7 +82,7 @@ const Battleground = () => {
           emit_(signals.BATTLEGROUND_TICK, state.gameData.tick)
 
         }
-      >Next Turn</button >
+      >Start Battle</button >
 
       <footer className="block">
         <div className="content">

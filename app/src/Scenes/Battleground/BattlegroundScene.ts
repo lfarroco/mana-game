@@ -1,7 +1,6 @@
 import Phaser from "phaser";
 import { preload } from "./preload";
 import { createMap } from "./Map/createMap";
-import { importMapObjects } from "./Map/importMapObjects";
 import { makeUnit, Unit } from "../../Models/Unit";
 import processTick from "./ProcessTick";
 import { asVec2, eqVec2, Vec2 } from "../../Models/Geometry";
@@ -126,18 +125,12 @@ export class BattlegroundScene extends Phaser.Scene {
 
     console.log("BattlegroundScene create");
     const { map, layers } = createMap(this);
-    if (state.gameData.units.length > 0) {
-      console.log("BattlegroundScene create with gameData: ", state.gameData)
-    } else {
-      importMapObjects(map);
-    }
 
     this.layers = layers;
     this.tilemap = map;
     this.createMapSquads();
 
     makeMapInteractive(this, map, layers.background);
-
 
     if (state.options.fogOfWarEnabled)
       this.fow = createFowLayer(this)

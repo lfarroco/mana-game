@@ -1,5 +1,5 @@
 import * as uuid from "uuid";
-import { Force } from "./Force";
+import { cpuForce, Force, playerForce } from "./Force";
 import { Vec2 } from "./Geometry";
 import { emit, signals, listeners } from "./Signals";
 import { Unit, makeUnit } from "./Unit";
@@ -20,15 +20,13 @@ export const initialState = (): State => ({
   gameData: {
     winner: null,
     tick: 0,
-    forces: [],
+    forces: [
+      playerForce,
+      cpuForce
+    ],
     selectedUnit: null,
     units: [],
-    map: {
-      width: 128,
-      height: 128,
-    },
     grid: [],
-
   }
 });
 
@@ -56,10 +54,6 @@ export type GameData = {
   units: Unit[];
   selectedUnit: string | null; // TODO: remove from state, this is a UI thing. Idea: make a UI state that is not saved
   grid: number[][];
-  map: {
-    width: number;
-    height: number;
-  };
 }
 
 export const getState = (): State => {
