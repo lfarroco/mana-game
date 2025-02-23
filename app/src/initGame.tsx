@@ -21,6 +21,12 @@ export function initGame(state: State, emitter: Events) {
 		pipeline: {
 			//@ts-ignore
 			aurapipeline: AuraPipeline,
+		},
+		physics: {
+			default: 'arcade',
+			arcade: {
+				debug: true,
+			}
 		}
 	});
 
