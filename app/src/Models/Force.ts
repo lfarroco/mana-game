@@ -1,4 +1,3 @@
-import * as uuid from "uuid"
 
 export type Force = {
 	id: string;
@@ -8,8 +7,8 @@ export type Force = {
 	gold: number;
 };
 
-export const makeForce = (): Force => ({
-	id: uuid.v4(),
+export const makeForce = (id: string): Force => ({
+	id,
 	name: "",
 	color: "",
 	units: [],
@@ -18,3 +17,6 @@ export const makeForce = (): Force => ({
 export const FORCE_ID_PLAYER = "PLAYER"
 
 export const FORCE_ID_CPU = "CPU"
+
+export const playerForce = makeForce(FORCE_ID_PLAYER)
+export const cpuForce = makeForce(FORCE_ID_CPU)
