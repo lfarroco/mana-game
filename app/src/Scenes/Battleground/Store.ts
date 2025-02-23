@@ -13,6 +13,9 @@ export function updateStore(scene: BattlegroundScene) {
 	const x = 0;
 	const y = 0;
 
+	const force = scene.state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
+	const gold = force.gold;
+
 	scene.storeContainer = scene.add.container(x, y);
 
 	// black rect
@@ -22,10 +25,14 @@ export function updateStore(scene: BattlegroundScene) {
 
 	scene.storeContainer.add(bg);
 
-	const refreshIcon = scene.add.image(width - 50, height - 50, "refresh")
+	const refreshIcon = scene.add.text(width - 50, height - 50, "🔄")
 		.setOrigin(0.5, 0.5)
+		.setScale(2)
 		.setInteractive()
+		.setAlpha(gold > 2 ? 1 : 0.5)
 		.on('pointerdown', () => {
+			if (gold < 2) return;
+			force.gold -= 2;
 			scene.populateStore();
 			scene.renderStore();
 		});
@@ -33,9 +40,16 @@ export function updateStore(scene: BattlegroundScene) {
 	scene.storeContainer.add(refreshIcon);
 
 	scene.store.forEach(renderUnit(scene));
+
+
+	const goldText = scene.add.text(width - 100, 50, `Gold: ${gold}`, { color: "white" });
+
+	scene.storeContainer.add(goldText);
 }
 
 const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
+
+	const force = scene.state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
 
 	const job = getJob(unit.job);
 
@@ -45,16 +59,22 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 	const sprite = scene.add.image(
 		x, y,
 		job.id + "/portrait")
-		.setOrigin(0.5, 0.5);
+		.setOrigin(0.5, 0.5)
+		.setAlpha(force.gold >= 1 ? 1 : 0.5);
 
 	scene.storeContainer?.add(sprite);
+
+	const name = scene.add.text(x - 25, y + 50, job.name, { color: "white", align: "center" });
+	scene.storeContainer?.add(name);
+
+	if (force.gold < 1) return;
+
+	sprite.setInteractive({ draggable: true });
 
 	// enable sprite for collision
 	scene.physics.add.existing(sprite, false)
 
-
 	sprite.setDisplaySize(64, 64);
-	sprite.setInteractive({ draggable: true });
 	sprite.on('pointerup', handleClick(scene, unit));
 	sprite.on('drag', (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
 		sprite.x = dragX;
@@ -69,10 +89,13 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 			if (u.type === "Rectangle") {
 				scene.physics.overlap(sprite, u, (sprite, rect) => {
 
+					force.gold -= 1;
+
 					scene.store = scene.store.filter((u) => u.id !== unit.id);
 					scene.bench.push(unit);
+
 					scene.renderBench();
-					sprite.destroy();
+					scene.renderStore();
 				});
 
 			}
@@ -80,15 +103,19 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 
 	});
 
-	const name = scene.add.text(x - 25, y + 50, job.name, { color: "white", align: "center" });
-
-	scene.storeContainer?.add(name);
 }
 
-const handleClick = (scene: BattlegroundScene, unit: Unit) => (pointer: Phaser.Input.Pointer) => {
+const handleClick = (
+	scene: BattlegroundScene,
+	unit: Unit,
+) => (pointer: Phaser.Input.Pointer) => {
+
+	const force = scene.state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
 
 	// check if it was a drag, if so, ignore
 	if (pointer.getDistance() > 10) return;
+
+	force.gold -= 1;
 
 	const job = getJob(unit.job);
 
