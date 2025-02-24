@@ -109,7 +109,6 @@ export const listenToStateEvents = (state: State) => {
 
       const unit = makeUnit(unitId, forceId, jobId, position)
 
-      state.gameData.forces.find(f => f.id === forceId)?.units.push(unit.id)
       state.gameData.units.push(unit);
 
       emit(signals.UNIT_CREATED, unit.id);
