@@ -7,6 +7,7 @@ export type Unit = {
   job: string;
   force: string;
   position: Vec2;
+  initialPosition: Vec2;
 
   hp: number;
   maxHp: number;
@@ -29,6 +30,7 @@ export const makeUnit = (id: string, force: string, job: string, position: Vec2)
     job,
     force,
     position,
+    initialPosition: position,
     ...job_.stats,
     maxHp: job_.stats.hp,
     log: [],
