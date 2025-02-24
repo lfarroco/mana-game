@@ -29,6 +29,7 @@ export function createChara(
 	unit: Unit,
 ): Chara {
 
+	console.log(">>> render at ::: ", unit.position)
 	const container = scene.add.container(
 		unit.position.x * TILE_WIDTH + HALF_TILE_WIDTH,
 		unit.position.y * TILE_HEIGHT + HALF_TILE_HEIGHT
@@ -40,7 +41,7 @@ export function createChara(
 		0, 0,
 		spriteSize + 4, spriteSize + 4,
 		borderColor, 1)
-	border.setOrigin(0.5, 0.5)
+		.setOrigin(0.5, 0.5)
 
 	const sprite = scene
 		.add.image(
