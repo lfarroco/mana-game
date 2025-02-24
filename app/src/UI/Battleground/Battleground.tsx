@@ -1,6 +1,6 @@
 import "./styles.css";
 import { useEffect, useState } from "react";
-import { listeners, signals, emit_, } from "../../Models/Signals";
+import { listeners, signals, emit_, emit, } from "../../Models/Signals";
 import DispatchSquadModal from "./RecruitUnitModal/RecruitUnitModal";
 import VictoryModal from "./VictoryModal/VictoryModal";
 import SelectionHUD from "./SelectionHUD";
@@ -79,8 +79,9 @@ const Battleground = () => {
         id="next-turn"
         disabled={!nextTurnEnabled}
         onClick={
-          emit_(signals.BATTLEGROUND_TICK, state.gameData.tick)
-
+          () => {
+            emit(signals.BATTLE_START, state.gameData.tick)
+          }
         }
       >Start Battle</button >
 
