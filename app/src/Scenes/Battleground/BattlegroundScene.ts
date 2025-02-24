@@ -99,6 +99,10 @@ export class BattlegroundScene extends Phaser.Scene {
 
         this.state.gameData.units = this.state.gameData.units.concat(enemies)
 
+        this.state.gameData.units = this.state.gameData.units.map(u => {
+          return { ...u, initialPosition: u.position }
+        })
+
         enemies.forEach((unit) => this.renderUnit(unit))
 
         await delay(this, 200)
