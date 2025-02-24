@@ -39,12 +39,18 @@ const processTick = async (scene: BattlegroundScene) => {
   console.log(playerUnits.length, cpuUnits.length);
 
   if (cpuUnits.length === 0) {
-    emit(signals.COMBAT_FINISHED, FORCE_ID_PLAYER);
     await vignette(scene, "Victory!");
+
+    await delay(scene, 1000 / state.options.speed);
+
+    emit(signals.COMBAT_FINISHED, FORCE_ID_PLAYER);
   } else if (playerUnits.length === 0) {
 
+    await vignette(scene, "Defeat!");
+
+    await delay(scene, 1000 / state.options.speed);
+
     emit(signals.COMBAT_FINISHED, FORCE_ID_CPU);
-    await vignette(scene, "Game Over");
   } else {
 
     await processTick(scene);

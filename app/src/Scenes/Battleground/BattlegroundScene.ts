@@ -92,15 +92,15 @@ export class BattlegroundScene extends Phaser.Scene {
       }],
       [signals.BATTLE_START, async () => {
 
-        const enemies = [(makeUnit(Math.random().toString(), FORCE_ID_CPU, "orc", vec2(1, 1))),
-        (makeUnit(Math.random().toString(), FORCE_ID_CPU, "orc", vec2(2, 1))),
-        (makeUnit(Math.random().toString(), FORCE_ID_CPU, "orc", vec2(3, 1))),
-        (makeUnit(Math.random().toString(), FORCE_ID_CPU, "orc", vec2(4, 1))),]
+        const enemies = [
+          makeUnit(Math.random().toString(), FORCE_ID_CPU, "orc", vec2(1, 1)),
+          makeUnit(Math.random().toString(), FORCE_ID_CPU, "orc", vec2(2, 1)),
+        ]
 
         this.state.gameData.units = this.state.gameData.units.concat(enemies)
 
         this.state.gameData.units = this.state.gameData.units.map(u => {
-          return { ...u, initialPosition: u.position }
+          return { ...u, initialPosition: vec2(u.position.x, u.position.y) }
         })
 
         enemies.forEach((unit) => this.renderUnit(unit))
@@ -109,8 +109,29 @@ export class BattlegroundScene extends Phaser.Scene {
 
         emit(signals.BATTLEGROUND_TICK)
 
-      }]
+      }],
+      [signals.COMBAT_FINISHED, () => {
+        // clear the scene
+        // and reposition the units
 
+        this.charas.forEach(chara => chara.container.destroy())
+        this.state.gameData.units = this.state.gameData.units.filter(u => u.force === FORCE_ID_PLAYER);
+        this.charas = []
+        this.state.gameData.units = this.state.gameData.units.map(u => {
+          return makeUnit(
+            u.id,
+            u.force,
+            u.job,
+            u.initialPosition
+          )
+        });
+        this.state.gameData.tick = 0;
+        this.state.gameData.units.forEach(u =>
+          this.renderUnit(u)
+        );
+        this.renderStore();
+        this.renderBench();
+      }]
     ]);
 
     /**
