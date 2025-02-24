@@ -29,6 +29,8 @@ export type Signals = {
 
   BATTLEGROUND_STARTED: () => void;
 
+  BATTLE_START: (unitId: string) => void;
+
   UNIT_SELECTED: (unitId: string) => void;
   UNIT_DESELECTED: (unitId: string) => void;
 
@@ -86,6 +88,7 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   DELETE_GAME: "DELETE_GAME",
   UPDATE_FORCE: "UPDATE_FORCE",
   BATTLEGROUND_STARTED: "BATTLEGROUND_STARTED",
+  BATTLE_START: "BATTLE_START",
   UNIT_SELECTED: "UNIT_SELECTED",
   UNIT_DESELECTED: "UNIT_DESELECTED",
   TOGGLE_DISPATCH_MODAL: "TOGGLE_DISPATCH_MODAL",

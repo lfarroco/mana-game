@@ -3,7 +3,7 @@ import { preload } from "./preload";
 import { createMap } from "./Map/createMap";
 import { makeUnit, Unit } from "../../Models/Unit";
 import processTick from "./ProcessTick";
-import { asVec2, eqVec2, Vec2 } from "../../Models/Geometry";
+import { asVec2, eqVec2, vec2, Vec2 } from "../../Models/Geometry";
 import { Chara, CharaSystem_init, createChara } from "../../Systems/Chara/Chara";
 import { emit, signals, listeners } from "../../Models/Signals";
 import { State, getUnit, getState } from "../../Models/State";
@@ -23,9 +23,10 @@ import { makeMapInteractive } from "./Map/makeMapInteractive";
 import { clearCellHighlights } from "./Map/highlightCells";
 import { AuraPipeline } from "../../Shaders/aura";
 import { jobs } from "../../Models/Job";
-import { FORCE_ID_PLAYER } from "../../Models/Force";
+import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
 import { updateBench } from "./Bench";
 import { updateStore } from "./Store";
+import { delay } from "../../Utils/animation";
 
 export class BattlegroundScene extends Phaser.Scene {
   graphics: Phaser.GameObjects.Graphics | null = null;
@@ -89,8 +90,24 @@ export class BattlegroundScene extends Phaser.Scene {
         const pop = this.sound.add('ui/button_click')
         pop.play()
       }],
-    ]);
+      [signals.BATTLE_START, async () => {
 
+        const enemies = [(makeUnit(Math.random().toString(), FORCE_ID_CPU, "orc", vec2(1, 1))),
+        (makeUnit(Math.random().toString(), FORCE_ID_CPU, "orc", vec2(2, 1))),
+        (makeUnit(Math.random().toString(), FORCE_ID_CPU, "orc", vec2(3, 1))),
+        (makeUnit(Math.random().toString(), FORCE_ID_CPU, "orc", vec2(4, 1))),]
+
+        this.state.gameData.units = this.state.gameData.units.concat(enemies)
+
+        enemies.forEach((unit) => this.renderUnit(unit))
+
+        await delay(this, 200)
+
+        emit(signals.BATTLEGROUND_TICK)
+
+      }]
+
+    ]);
 
     /**
      * Global listeners can be created here because they are only created once

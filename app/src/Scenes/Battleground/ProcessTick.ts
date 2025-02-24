@@ -59,6 +59,8 @@ const performAction = (
   unit: Unit,
 ) => async () => {
 
+  if (unit.hp <= 0) return;
+
   if (["monk", "soldier", "orc"].includes(unit.job)) {
     const mtarget = await moveToMeleeTarget(scene)(unit)
     if (mtarget)
