@@ -46,7 +46,7 @@ export class BattlegroundScene extends Phaser.Scene {
   storeContainer: Phaser.GameObjects.Container | null = null;
   benchContainer: Phaser.GameObjects.Container | null = null;
   unitPool: Unit[] = [];
-  dropZone: Phaser.GameObjects.Graphics | null = null;
+  dropZone: Phaser.GameObjects.Zone | null = null;
 
   cleanup() {
     this.charas.forEach(chara => {
@@ -319,17 +319,26 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
   createDropZone() {
-    this.dropZone = this.add.graphics();
-    this.dropZone.fillStyle(0x00ff00, 0.2);
-    this.dropZone.fillRect(64, 64 * 6, 64 * 10, 64 * 4);
-    this.dropZone.setInteractive(
-      new Phaser.Geom.Rectangle(100, 400, 500, 200),
-      Phaser.Geom.Rectangle.Contains
-    );
-    this.dropZone.setName("board");
+    const zone = this.add.zone(64 * 6, 64 * 6, 64 * 10, 64 * 4)
+    // this.dropZone.fillStyle(0x00ff00, 0.2);
+    // this.dropZone.fillRect();
 
-    if (this.dropZone.input)
-      this.dropZone.input.dropZone = true;
+    zone.setName("board");
+
+    zone.setRectangleDropZone(64 * 10, 64 * 4);
+
+    if (!zone.input) throw new Error("dropZone.input is null");
+
+    //this.dropZone.input.dropZone = true;
+
+    const graphics = this.add.graphics();
+    graphics.lineStyle(2, 0xffff00);
+    graphics.strokeRect(
+      zone.x - zone.input.hitArea.width / 2,
+      zone.y - zone.input.hitArea.height / 2, zone.input.hitArea.width, zone.input.hitArea.height);
+
+    this.dropZone = zone;
+
 
   }
 

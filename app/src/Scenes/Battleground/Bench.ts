@@ -52,7 +52,6 @@ export const updateBench = (scene: BattlegroundScene) => {
 
 		sprite.on('dragstart', () => {
 			console.log("dragstart", unit, scene.benchContainer)
-			scene.displayDropZone()
 
 			scene.children.bringToTop(scene.benchContainer!);
 		});
