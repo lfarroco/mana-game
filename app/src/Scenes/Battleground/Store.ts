@@ -10,7 +10,7 @@ export function updateStore(scene: BattlegroundScene) {
 	if (scene.storeContainer) scene.storeContainer.destroy(true);
 
 	const width = scene.cameras.main.width;
-	const height = 300;
+	const height = 200;
 	const x = 0;
 	const y = 0;
 
@@ -54,7 +54,7 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 	const job = getJob(unit.job);
 
 	const x = 50 + i * 100;
-	const y = 150;
+	const y = 100;
 
 	const sprite = scene.add.image(
 		x, y,
@@ -70,17 +70,15 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 
 	sprite.setInteractive({ draggable: true });
 
-	sprite.on('pointerup', handleClick(scene, unit));
-
 	if (force.gold < 1 || scene.bench.length >= 5) return;
 
 	sprite.on('dragstart', (pointer: Phaser.Input.Pointer) => {
 
 		if (!scene.storeContainer) throw new Error("store container not found");
 
-		scene.createDropZone();
+		scene.displayDropZone();
 
-		scene.storeContainer.bringToTop(sprite);
+		scene.children.bringToTop(scene.storeContainer);
 
 	});
 
@@ -91,6 +89,7 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 
 	sprite.on('drop', (pointer: Phaser.Input.Pointer, zone: Phaser.GameObjects.Graphics) => {
 
+		console.log("dropped on zone", zone.name);
 		if (zone.name.startsWith("bench-slot")) {
 
 			force.gold -= 1;
@@ -113,11 +112,16 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 	});
 
 	sprite.on('dragend', (pointer: Phaser.Input.Pointer) => {
+		console.log("dragend");
+
+		if (pointer.getDistance() < 10) {
+			console.log("low pointer distance: click");
+			handleClick(scene, unit)(pointer);
+		}
 		// dragend happens after drop
 		scene.renderStore();
 		scene.renderBench();
 
-		scene.dropZone?.destroy();
 	});
 }
 
@@ -128,8 +132,7 @@ const handleClick = (
 
 	const force = scene.state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
 
-	// check if it was a drag, if so, ignore
-	if (pointer.getDistance() > 10) return;
+	console.log("click on store unit", unit);
 
 	force.gold -= 1;
 
@@ -143,6 +146,4 @@ const handleClick = (
 			job.id,
 			asVec2({ x: 0, y: 0 })
 		));
-	scene.renderBench();
-	scene.renderStore();
 }
