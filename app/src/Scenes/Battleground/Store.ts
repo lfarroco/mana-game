@@ -84,6 +84,11 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 
 	});
 
+	sprite.on('drag', (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
+		sprite.x = dragX;
+		sprite.y = dragY;
+	});
+
 	sprite.on('drop', (pointer: Phaser.Input.Pointer, zone: Phaser.GameObjects.Graphics) => {
 
 		if (zone.name.startsWith("bench-slot")) {
@@ -107,13 +112,8 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 
 	});
 
-	sprite.on('drag', (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
-		sprite.x = dragX;
-		sprite.y = dragY;
-	});
-
 	sprite.on('dragend', (pointer: Phaser.Input.Pointer) => {
-
+		// dragend happens after drop
 		scene.renderStore();
 		scene.renderBench();
 

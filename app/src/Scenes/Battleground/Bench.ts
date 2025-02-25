@@ -50,29 +50,20 @@ export const updateBench = (scene: BattlegroundScene) => {
 		const name = scene.add.text(x - 25, y + 50, unit.name, { color: "white", align: "center" });
 		scene.benchContainer?.add(name);
 
-		const dragHandler = (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
-
-			sprite.x = dragX;
-			sprite.y = dragY;
-
-		};
-		const dragEndHandler = (pointer: Phaser.Input.Pointer) => {
-
-			scene.renderBench();
-			scene.renderStore();
-
-			scene.dropZone?.destroy();
-		};
-
 		sprite.on('dragstart', () => {
 			console.log("dragstart", unit, scene.benchContainer)
 			scene.createDropZone()
 
 			scene.benchContainer?.bringToTop(sprite);
 		});
+		sprite.on('drag', (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
+
+			sprite.x = dragX;
+			sprite.y = dragY;
+
+		});
 
 		sprite.on('drop', (pointer: Phaser.Input.Pointer, zone: Phaser.GameObjects.Graphics) => {
-
 			if (zone.name === "board") {
 				const coords = scene.getTileAtWorldXY(vec2(pointer.worldX, pointer.worldY));
 				console.log("dropped on tile from bench", coords);
@@ -82,12 +73,16 @@ export const updateBench = (scene: BattlegroundScene) => {
 
 				emit(signals.RECRUIT_UNIT, FORCE_ID_PLAYER, unit.job, asVec2(coords));
 			}
-
+		});
+		sprite.on('dragend', (pointer: Phaser.Input.Pointer) => {
+			// dragend happens after drop
+			scene.renderBench();
+			scene.renderStore();
+			scene.dropZone?.destroy();
 		});
 
 
-		sprite.on('drag', dragHandler);
-		sprite.on('dragend', dragEndHandler);
+
 
 	});
 }
