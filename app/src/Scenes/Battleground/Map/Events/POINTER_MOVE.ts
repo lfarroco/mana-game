@@ -1,14 +1,12 @@
 import Phaser from "phaser";
 import BattlegroundScene from "../../BattlegroundScene";
 import { Vec2 } from "../../../../Models/Geometry";
-import { Unit } from "../../../../Models/Unit";
 import { getState } from "../../../../Models/State";
 
 export function onPointerMove(
 	bgLayer: Phaser.Tilemaps.TilemapLayer,
 	startScroll: Vec2,
 	scene: BattlegroundScene,
-	pointerDownUnit: { unit: Unit | null }
 ) {
 
 	const state = getState();
@@ -24,15 +22,6 @@ export function onPointerMove(
 				console.log("down element is not canvas, exit POINTER_MOVE event");
 				return;
 			}
-
-			if (pointerDownUnit.unit) {
-				const chara = scene.getChara(pointerDownUnit.unit.id);
-
-				chara.container.x = pointer.x;
-				chara.container.y = pointer.y;
-				return;
-			}
-
 
 			if (!state.options.scrollEnabled) return;
 

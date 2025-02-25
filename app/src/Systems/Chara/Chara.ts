@@ -4,7 +4,7 @@ import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../.
 import "./portrait.css"
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { emit, listeners, signals } from "../../Models/Signals";
-import { Vec2 } from "../../Models/Geometry";
+import { eqVec2, vec2, Vec2 } from "../../Models/Geometry";
 import { tween } from "../../Utils/animation";
 import { TURN_DURATION } from "../../config";
 import { FORCE_ID_PLAYER } from "../../Models/Force";
@@ -67,7 +67,56 @@ export function createChara(
 		hightlightTween: null,
 	}
 
+	makeCharaInteractive(chara);
+
 	return chara
+}
+export const makeCharaInteractive = (chara: Chara) => {
+
+	const { scene } = chara;
+
+	chara.sprite.setInteractive({ draggable: true });
+
+	chara.sprite.on('drag', (pointer: Phaser.Input.Pointer) => {
+		chara.container.x = pointer.x;
+		chara.container.y = pointer.y;
+	});
+
+	chara.sprite.on('dragend', (pointer: Phaser.Input.Pointer) => {
+
+		const tile = scene.getTileAtWorldXY(vec2(pointer.worldX, pointer.worldY));
+
+		const position = vec2(tile.x, tile.y)
+
+		const maybeOccupier = scene.state.gameData.units.find(u => eqVec2(u.position, position));
+
+		if (maybeOccupier) {
+			const occupierChara = scene.getChara(maybeOccupier.id);
+
+			maybeOccupier.position = chara.unit.position;
+
+			tween({
+				targets: [occupierChara.container],
+				duration: 500,
+				ease: 'Power2',
+				x: maybeOccupier.position.x * TILE_WIDTH + HALF_TILE_WIDTH,
+				y: maybeOccupier.position.y * TILE_HEIGHT + HALF_TILE_HEIGHT,
+			})
+		}
+
+		chara.unit.position = position;
+
+		tween({
+			targets: [chara.container],
+			duration: 500,
+			ease: 'Power2',
+			x: position.x * TILE_WIDTH + HALF_TILE_WIDTH,
+			y: position.y * TILE_HEIGHT + HALF_TILE_HEIGHT,
+		})
+
+	})
+
+
 }
 
 export function CharaSystem_init(scene: BattlegroundScene) {
