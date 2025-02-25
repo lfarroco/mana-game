@@ -7,6 +7,7 @@ import { BattlegroundScene } from "./BattlegroundScene";
 export const updateBench = (scene: BattlegroundScene) => {
 	if (scene.benchContainer) scene.benchContainer.destroy(true);
 
+	const force = scene.state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
 	const width = scene.cameras.main.width;
 	const height = 200;
 	const x = 0;
@@ -26,13 +27,12 @@ export const updateBench = (scene: BattlegroundScene) => {
 		const x = 50 + i * 100;
 		const y = 50;
 		const rect = scene.add.rectangle(x, y, 64, 64, 0x00ffff, 0.5);
+		rect.setInteractive();
+		if (rect.input)
+			rect.input.dropZone = true;
+		rect.setName("bench-slot-" + i);
+
 		scene.benchContainer.add(rect);
-		// enable body for collision
-		scene.physics.add.existing(rect, true);
-		//@ts-ignore
-		rect.body.position = new Phaser.Math.Vector2(
-			scene.benchContainer.x + x - 32,
-			scene.benchContainer.y + y - 32);
 	}
 
 	scene.bench.forEach((unit, i) => {
@@ -58,19 +58,34 @@ export const updateBench = (scene: BattlegroundScene) => {
 		};
 		const dragEndHandler = (pointer: Phaser.Input.Pointer) => {
 
-			const tile = scene.getTileAtWorldXY(vec2(pointer.worldX, pointer.worldY));
-			console.log("dropped on tile", tile);
-
-			emit(signals.RECRUIT_UNIT, FORCE_ID_PLAYER, unit.job, asVec2(tile));
-
-			sprite.destroy();
-
-			scene.input.off('drag', dragHandler);
-			scene.input.off('dragend', dragEndHandler);
-			scene.bench = scene.bench.filter((u) => u.id !== unit.id);
 			scene.renderBench();
 			scene.renderStore();
+
+			scene.dropZone?.destroy();
 		};
+
+		sprite.on('dragstart', () => {
+			console.log("dragstart", unit, scene.benchContainer)
+			scene.createDropZone()
+
+			scene.benchContainer?.bringToTop(sprite);
+		});
+
+		sprite.on('drop', (pointer: Phaser.Input.Pointer, zone: Phaser.GameObjects.Graphics) => {
+
+			if (zone.name === "board") {
+				const coords = scene.getTileAtWorldXY(vec2(pointer.worldX, pointer.worldY));
+				console.log("dropped on tile from bench", coords);
+
+				force.gold -= 1;
+				scene.bench = scene.bench.filter((u) => u.id !== unit.id);
+
+				emit(signals.RECRUIT_UNIT, FORCE_ID_PLAYER, unit.job, asVec2(coords));
+			}
+
+		});
+
+
 		sprite.on('drag', dragHandler);
 		sprite.on('dragend', dragEndHandler);
 
