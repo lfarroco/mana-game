@@ -29,7 +29,6 @@ export function createChara(
 	unit: Unit,
 ): Chara {
 
-	console.log(">>> render at ::: ", unit.position)
 	const container = scene.add.container(
 		unit.position.x * TILE_WIDTH + HALF_TILE_WIDTH,
 		unit.position.y * TILE_HEIGHT + HALF_TILE_HEIGHT
