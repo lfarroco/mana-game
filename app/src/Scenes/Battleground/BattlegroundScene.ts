@@ -21,7 +21,6 @@ import { createFowLayer } from "./Systems/FogOfWar/createFowLayer";
 import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import { makeMapInteractive } from "./Map/makeMapInteractive";
 import { clearCellHighlights } from "./Map/highlightCells";
-import { AuraPipeline } from "../../Shaders/aura";
 import { jobs } from "../../Models/Job";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
 import { updateBench } from "./Bench";
@@ -236,52 +235,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
   }
 
-
-  createShader = (chara: Chara) => {
-    const shader = this.add.image(0, 0, "");
-
-    shader.setDisplaySize(200, 200);
-    shader.setOrigin(0.5, 0.5);
-
-    const auraPipeline = (this.renderer as Phaser.Renderer.WebGL.WebGLRenderer)
-      .pipelines.add('auraPipeline', new AuraPipeline(this.game)) as AuraPipeline
-    shader.setPipeline('auraPipeline');
-    this.children.moveBelow(shader, chara.sprite)
-
-    this.time.addEvent({
-      delay: 16,
-      loop: true,
-      callback: () => {
-        const camera = this.cameras.main;
-        shader.x = chara.container.x;
-        shader.y = chara.container.y;
-
-        // feature created with this conversation
-        // https://chatgpt.com/share/67959591-f0f8-8004-83e8-3e1e55d1965b
-
-        const cx = camera.worldView.x + camera.centerX / camera.zoom;
-        const cy = camera.worldView.y + camera.centerY / camera.zoom;
-
-        const dx = (cx - shader.x);
-        const dy = (cy - shader.y);
-
-        // get the distance from the center of the camera to the center of the sprite
-        auraPipeline.setCenter(
-          (camera.centerX - dx * camera.zoom),
-          // screen space has y inverted
-          (camera.centerY + dy * camera.zoom)
-        );
-
-        auraPipeline.updateTime(this.time.now / 100);
-        auraPipeline.setResolution(64 * camera.zoom, 120 * camera.zoom);
-
-      }
-    });
-
-    return auraPipeline
-
-  }
-
   getChara = (id: string) => {
     const chara = this.charas.find((chara) => chara.id === id);
     if (!chara) throw new Error(this.errors.charaNotFound(id));
@@ -312,11 +265,6 @@ export class BattlegroundScene extends Phaser.Scene {
     const tile = fow.getTileAt(vec.x, vec.y);
 
     return tile.alpha === 0;
-  }
-
-  createMapSquads() {
-    getState().gameData.units
-      .forEach((unit) => this.renderUnit(unit));
   }
 
   renderUnit(unit: Unit) {

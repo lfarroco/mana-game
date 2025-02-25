@@ -6,7 +6,6 @@ import Core from "./Scenes/Core/Core";
 import * as SaveGame from "./Systems/SaveGame/SaveGame";
 import { State } from "./Models/State";
 import Events from 'events'
-import { AuraPipeline } from "./Shaders/aura";
 
 export function initGame(state: State, emitter: Events) {
 
@@ -18,10 +17,6 @@ export function initGame(state: State, emitter: Events) {
 		pixelArt: false,
 		parent: "game-container",
 		scene: [Core, BattlegroundScene],
-		pipeline: {
-			//@ts-ignore
-			aurapipeline: AuraPipeline,
-		},
 		physics: {
 			default: 'arcade',
 			arcade: {
