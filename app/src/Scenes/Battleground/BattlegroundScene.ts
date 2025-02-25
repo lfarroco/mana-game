@@ -94,6 +94,8 @@ export class BattlegroundScene extends Phaser.Scene {
       }],
       [signals.BATTLE_START, async () => {
 
+        this.hideDropZone();
+
         const enemies = [
           makeUnit(Math.random().toString(), FORCE_ID_CPU, "orc", vec2(1, 1)),
           makeUnit(Math.random().toString(), FORCE_ID_CPU, "orc", vec2(2, 1)),
@@ -115,6 +117,8 @@ export class BattlegroundScene extends Phaser.Scene {
       [signals.COMBAT_FINISHED, () => {
         // clear the scene
         // and reposition the units
+
+        this.displayDropZone();
 
         this.charas.forEach(chara => chara.container.destroy())
         this.state.gameData.units = this.state.gameData.units.filter(u => u.force === FORCE_ID_PLAYER);
@@ -172,7 +176,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.layers = layers;
     this.tilemap = map;
-    this.createMapSquads();
 
     makeMapInteractive(this, map, layers.background);
 
@@ -182,6 +185,8 @@ export class BattlegroundScene extends Phaser.Scene {
     this.grid = layers.obstacles.layer.data.map((row) =>
       row.map((tile) => (tile.index === -1 ? 0 : 1))
     );
+
+    this.createDropZone();
 
     ControlsSystem.init(this);
 
@@ -367,8 +372,8 @@ export class BattlegroundScene extends Phaser.Scene {
 
   createDropZone() {
     this.dropZone = this.add.graphics();
-    this.dropZone.fillStyle(0x00ff00, 0.3);
-    this.dropZone.fillRect(64, 64 * 5, 64 * 10, 64 * 4);
+    this.dropZone.fillStyle(0x00ff00, 0.2);
+    this.dropZone.fillRect(64, 64 * 6, 64 * 10, 64 * 4);
     this.dropZone.setInteractive(
       new Phaser.Geom.Rectangle(100, 400, 500, 200),
       Phaser.Geom.Rectangle.Contains
@@ -377,6 +382,19 @@ export class BattlegroundScene extends Phaser.Scene {
 
     if (this.dropZone.input)
       this.dropZone.input.dropZone = true;
+
+  }
+
+  displayDropZone() {
+
+    this.dropZone?.setVisible(true);
+
+  }
+
+  hideDropZone() {
+
+    this.dropZone?.setVisible(false);
+
   }
 
 }

@@ -52,9 +52,9 @@ export const updateBench = (scene: BattlegroundScene) => {
 
 		sprite.on('dragstart', () => {
 			console.log("dragstart", unit, scene.benchContainer)
-			scene.createDropZone()
+			scene.displayDropZone()
 
-			scene.benchContainer?.bringToTop(sprite);
+			scene.children.bringToTop(scene.benchContainer!);
 		});
 		sprite.on('drag', (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
 
@@ -78,7 +78,6 @@ export const updateBench = (scene: BattlegroundScene) => {
 			// dragend happens after drop
 			scene.renderBench();
 			scene.renderStore();
-			scene.dropZone?.destroy();
 		});
 
 
