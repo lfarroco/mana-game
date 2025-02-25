@@ -76,7 +76,6 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 
 		if (!scene.storeContainer) throw new Error("store container not found");
 
-		scene.displayDropZone();
 
 		scene.children.bringToTop(scene.storeContainer);
 

@@ -82,7 +82,10 @@ export const makeCharaInteractive = (chara: Chara) => {
 		chara.container.y = pointer.y;
 	});
 
-	chara.sprite.on('dragend', (pointer: Phaser.Input.Pointer) => {
+	chara.sprite.on('drop', (
+		pointer: Phaser.Input.Pointer,
+		zone: Phaser.GameObjects.GameObject,
+	) => {
 
 		const tile = scene.getTileAtWorldXY(vec2(pointer.worldX, pointer.worldY));
 
@@ -113,6 +116,23 @@ export const makeCharaInteractive = (chara: Chara) => {
 			x: position.x * TILE_WIDTH + HALF_TILE_WIDTH,
 			y: position.y * TILE_HEIGHT + HALF_TILE_HEIGHT,
 		})
+
+	});
+
+	chara.sprite.on('dragend', (pointer: Phaser.Input.Pointer) => {
+
+		// check if the drag ended inside or outside scene.dropZone
+
+		if (!scene.dropZone?.getBounds().contains(pointer.x, pointer.y)) {
+			tween({
+				targets: [chara.container],
+				duration: 500,
+				ease: 'Power2',
+				x: chara.unit.position.x * TILE_WIDTH + HALF_TILE_WIDTH,
+				y: chara.unit.position.y * TILE_HEIGHT + HALF_TILE_HEIGHT,
+			})
+		}
+
 
 	})
 
