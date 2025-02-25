@@ -1,13 +1,10 @@
 import Phaser from "phaser";
 import BattlegroundScene from "../BattlegroundScene";
-import { emit, signals } from "../../../Models/Signals";
 import { asVec2, eqVec2, vec2 } from "../../../Models/Geometry";
 import { FORCE_ID_PLAYER } from "../../../Models/Force";
-import { Unit } from "../../../Models/Unit";
 import { getUnit } from "../../../Models/State";
 import { getSkill } from "../../../Models/Skill";
 import { onPointerMove } from "./Events/POINTER_MOVE";
-import { onPointerUp } from "./Events/POINTER_UP";
 import { onPointerDown } from "./Events/POINTER_DOWN";
 
 export function makeMapInteractive(
@@ -23,13 +20,11 @@ export function makeMapInteractive(
   bgLayer?.setInteractive({ draggable: true });
 
   let startScroll = vec2(0, 0);
-  let pointerDownUnit: { unit: Unit | null } = { unit: null };
 
-  onPointerDown(bgLayer, startScroll, scene, pointerDownUnit);
+  onPointerDown(bgLayer, startScroll, scene);
 
-  onPointerMove(bgLayer, startScroll, scene, pointerDownUnit);
+  onPointerMove(bgLayer, startScroll, scene);
 
-  onPointerUp(bgLayer, scene, pointerDownUnit);
 }
 
 export function issueSkillCommand(
