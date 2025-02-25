@@ -21,8 +21,6 @@ const processTick = async (scene: BattlegroundScene) => {
 
   state.inputDisabled = true;
 
-  await delay(scene, 1000 / state.options.speed);
-
   const unitActions = getActiveUnits(state)
     .map(performAction(scene));
 

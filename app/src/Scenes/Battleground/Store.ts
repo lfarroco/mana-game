@@ -1,6 +1,7 @@
 import { FORCE_ID_PLAYER } from "../../Models/Force";
-import { asVec2 } from "../../Models/Geometry";
+import { asVec2, vec2 } from "../../Models/Geometry";
 import { getJob } from "../../Models/Job";
+import { emit, signals } from "../../Models/Signals";
 import { makeUnit, Unit } from "../../Models/Unit";
 import { BattlegroundScene } from "./BattlegroundScene";
 
@@ -41,7 +42,6 @@ export function updateStore(scene: BattlegroundScene) {
 
 	scene.store.forEach(renderUnit(scene));
 
-
 	const goldText = scene.add.text(width - 100, 50, `Gold: ${gold}`, { color: "white" });
 
 	scene.storeContainer.add(goldText);
@@ -68,42 +68,57 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 	const name = scene.add.text(x - 25, y + 50, job.name, { color: "white", align: "center" });
 	scene.storeContainer?.add(name);
 
+	sprite.setInteractive({ draggable: true });
+
+	sprite.on('pointerup', handleClick(scene, unit));
 
 	if (force.gold < 1 || scene.bench.length >= 5) return;
 
-	sprite.setInteractive({ draggable: true });
+	sprite.on('dragstart', (pointer: Phaser.Input.Pointer) => {
 
-	// enable sprite for collision
-	scene.physics.add.existing(sprite, false)
+		if (!scene.storeContainer) throw new Error("store container not found");
 
-	sprite.on('pointerup', handleClick(scene, unit));
+		scene.createDropZone();
+
+		scene.storeContainer.bringToTop(sprite);
+
+	});
+
+	sprite.on('drop', (pointer: Phaser.Input.Pointer, zone: Phaser.GameObjects.Graphics) => {
+
+		if (zone.name.startsWith("bench-slot")) {
+
+			force.gold -= 1;
+
+			scene.store = scene.store.filter((u) => u.id !== unit.id);
+			scene.bench.push(unit);
+
+		}
+
+		if (zone.name === "board") {
+			const coords = scene.getTileAtWorldXY(vec2(pointer.worldX, pointer.worldY));
+			console.log("dropped on tile", coords);
+
+			force.gold -= 1;
+			scene.store = scene.store.filter((u) => u.id !== unit.id);
+
+			emit(signals.RECRUIT_UNIT, FORCE_ID_PLAYER, unit.job, asVec2(coords));
+		}
+
+	});
+
 	sprite.on('drag', (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
 		sprite.x = dragX;
 		sprite.y = dragY;
 	});
+
 	sprite.on('dragend', (pointer: Phaser.Input.Pointer) => {
 
-		console.log("dragend", pointer.x, pointer.y);
-		// check if sprite collides with bench slots
+		scene.renderStore();
+		scene.renderBench();
 
-		scene.benchContainer?.list.forEach(u => {
-			if (u.type === "Rectangle") {
-				scene.physics.overlap(sprite, u, (sprite, rect) => {
-
-					force.gold -= 1;
-
-					scene.store = scene.store.filter((u) => u.id !== unit.id);
-					scene.bench.push(unit);
-
-					scene.renderBench();
-					scene.renderStore();
-				});
-
-			}
-		});
-
+		scene.dropZone?.destroy();
 	});
-
 }
 
 const handleClick = (

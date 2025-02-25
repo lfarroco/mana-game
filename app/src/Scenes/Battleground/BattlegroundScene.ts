@@ -29,6 +29,7 @@ import { updateStore } from "./Store";
 import { delay } from "../../Utils/animation";
 
 export class BattlegroundScene extends Phaser.Scene {
+
   graphics: Phaser.GameObjects.Graphics | null = null;
   charas: Chara[] = [];
   layers: {
@@ -46,6 +47,7 @@ export class BattlegroundScene extends Phaser.Scene {
   storeContainer: Phaser.GameObjects.Container | null = null;
   benchContainer: Phaser.GameObjects.Container | null = null;
   unitPool: Unit[] = [];
+  dropZone: Phaser.GameObjects.Graphics | null = null;
 
   cleanup() {
     this.charas.forEach(chara => {
@@ -336,9 +338,7 @@ export class BattlegroundScene extends Phaser.Scene {
     clearCellHighlights(this);
 
     units.forEach(async (unit) => {
-
       emit(signals.DISPLAY_EMOTE, unit.id, "moving-emote");
-
     });
   };
 
@@ -358,11 +358,27 @@ export class BattlegroundScene extends Phaser.Scene {
 
     return chara
   }
+
   playFx(key: string) {
     const audio = this.sound.add(key)
     audio.volume = this.state.options.soundVolume;
     audio.play();
   }
+
+  createDropZone() {
+    this.dropZone = this.add.graphics();
+    this.dropZone.fillStyle(0x00ff00, 0.3);
+    this.dropZone.fillRect(64, 64 * 5, 64 * 10, 64 * 4);
+    this.dropZone.setInteractive(
+      new Phaser.Geom.Rectangle(100, 400, 500, 200),
+      Phaser.Geom.Rectangle.Contains
+    );
+    this.dropZone.setName("board");
+
+    if (this.dropZone.input)
+      this.dropZone.input.dropZone = true;
+  }
+
 }
 
 export default BattlegroundScene;
