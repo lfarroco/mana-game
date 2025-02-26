@@ -6,14 +6,15 @@ import Core from "./Scenes/Core/Core";
 import * as SaveGame from "./Systems/SaveGame/SaveGame";
 import { State } from "./Models/State";
 import Events from 'events'
+import { SCREEN_HEIGHT, SCREEN_WIDTH } from "./Scenes/Battleground/constants";
 
 export function initGame(state: State, emitter: Events) {
 
 	const game = new Phaser.Game({
 		type: Phaser.AUTO,
-		mode: Phaser.Scale.FIT,
-		width: window.innerWidth,
-		height: window.innerHeight,
+		mode: Phaser.Scale.CENTER_BOTH,
+		width: SCREEN_WIDTH,
+		height: SCREEN_HEIGHT,
 		pixelArt: false,
 		parent: "game-container",
 		scene: [Core, BattlegroundScene],
