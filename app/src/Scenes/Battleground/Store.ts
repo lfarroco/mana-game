@@ -53,19 +53,19 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 
 	const job = getJob(unit.job);
 
-	const x = 50 + i * 100;
+	const x = 150 + i * 200;
 	const y = 100;
 
 	const sprite = scene.add.image(
 		x, y,
 		job.id + "/portrait")
 		.setOrigin(0.5, 0.5)
-		.setDisplaySize(64, 64)
+		.setDisplaySize(96, 96)
 		.setAlpha(force.gold >= 1 ? 1 : 0.5);
 
 	scene.storeContainer?.add(sprite);
 
-	const name = scene.add.text(x - 25, y + 50, job.name, { color: "white", align: "center" });
+	const name = scene.add.text(x - 25, y + 60, job.name, { color: "white", align: "center" });
 	scene.storeContainer?.add(name);
 
 	sprite.setInteractive({ draggable: true });
