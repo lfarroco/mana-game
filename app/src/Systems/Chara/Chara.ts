@@ -87,19 +87,6 @@ export const makeCharaInteractive = (chara: Chara) => {
 		zone: Phaser.GameObjects.GameObject,
 	) => {
 
-		if (zone.name.startsWith("bench-slot-")) {
-
-			scene.state.gameData.units = scene.state.gameData.units.filter(u => u.id !== chara.unit.id);
-			scene.bench.push(chara.unit);
-
-			chara.container.destroy();
-			scene.charas = scene.charas.filter(c => c.id !== chara.id);
-
-			scene.renderBench();
-			return;
-
-		}
-
 		const tile = scene.getTileAtWorldXY(vec2(pointer.worldX, pointer.worldY));
 
 		const position = vec2(tile.x, tile.y)
