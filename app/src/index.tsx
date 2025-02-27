@@ -20,7 +20,7 @@ window.emitter = eventEmitter;
 listenToStateEvents(state);
 
 initUI();
-initGame(state, eventEmitter);
+initGame(state);
 
 
 // document.addEventListener('contextmenu', (e) => {

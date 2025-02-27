@@ -23,8 +23,8 @@ export const updateBench = (scene: BattlegroundScene) => {
 
 	// draw bench rect slots
 
-	for (let i = 0; i < 5; i++) {
-		const x = 50 + i * 100;
+	for (let i = 0; i < 8; i++) {
+		const x = 250 + i * 100;
 		const y = 50;
 		const rect = scene.add.rectangle(x, y, 64, 64, 0x00ffff, 0.5);
 		rect.setInteractive();

@@ -5,13 +5,12 @@ import { listeners } from './Models/Signals';
 import Core from "./Scenes/Core/Core";
 import * as SaveGame from "./Systems/SaveGame/SaveGame";
 import { State } from "./Models/State";
-import Events from 'events'
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "./Scenes/Battleground/constants";
 
-export function initGame(state: State, emitter: Events) {
+export function initGame(state: State) {
 
 	const game = new Phaser.Game({
-		type: Phaser.AUTO,
+		type: Phaser.WEBGL,
 		mode: Phaser.Scale.CENTER_BOTH,
 		width: SCREEN_WIDTH,
 		height: SCREEN_HEIGHT,
@@ -27,9 +26,9 @@ export function initGame(state: State, emitter: Events) {
 	});
 
 
-	window.addEventListener("resize", () => {
-		game.scale.resize(window.innerWidth, window.innerHeight);
-	});
+	// window.addEventListener("resize", () => {
+	// 	game.scale.resize(window.innerWidth, window.innerHeight);
+	// });
 
 	listeners([
 		[

@@ -39,30 +39,6 @@ const Battleground = () => {
 
   return (
     <>
-      <header>
-        <div className="content text-center">
-          <Row>
-            <Col style={{ color: '#fff', fontSize: '10px', paddingTop: 5 }}>
-              <Row>
-
-                <Col>Turn: {tick}</Col>
-                <Col >Gold: 💰  {gold}</Col>
-
-              </Row>
-            </Col>
-            <Col
-              xs={2}
-            >
-              <ManaButton
-                onClick={emit_(signals.TOGGLE_SAVE_GAME_MODAL, true)}
-                css="btn-sm"
-                style={{ padding: '0 10px' }}
-                label="Menu"
-              />
-            </Col>
-          </Row>
-        </div>
-      </header>
       <div className="content" id="tooltip">
         <div className="row">
           <div id="tooltip" className="col text-center">
