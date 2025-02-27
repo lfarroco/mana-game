@@ -21,10 +21,8 @@ import { createFowLayer } from "./Systems/FogOfWar/createFowLayer";
 import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import { makeMapInteractive } from "./Map/makeMapInteractive";
 import { clearCellHighlights } from "./Map/highlightCells";
-import { jobs } from "../../Models/Job";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
-import { updateBench } from "./Bench";
-import { updateStore } from "./Store";
+import * as StoreSystem from "./Store";
 import { delay } from "../../Utils/animation";
 
 export class BattlegroundScene extends Phaser.Scene {
@@ -41,11 +39,6 @@ export class BattlegroundScene extends Phaser.Scene {
   fow: Phaser.Tilemaps.TilemapLayer | null = null;
   grid: (0 | 1)[][] = []
   state: State;
-  store: Unit[] = [];
-  bench: Unit[] = [];
-  storeContainer: Phaser.GameObjects.Container | null = null;
-  benchContainer: Phaser.GameObjects.Container | null = null;
-  unitPool: Unit[] = [];
   dropZone: Phaser.GameObjects.Zone | null = null;
 
   cleanup() {
@@ -65,7 +58,6 @@ export class BattlegroundScene extends Phaser.Scene {
     this.fow?.destroy()
     this.fow = null
     this.grid = []
-    this.bench = [];
   }
 
   constructor() {
@@ -78,8 +70,6 @@ export class BattlegroundScene extends Phaser.Scene {
     listeners([
       [signals.BATTLEGROUND_TICK, () => {
         processTick(this);
-        this.benchContainer?.destroy();
-        this.storeContainer?.destroy();
       }],
       [signals.UNIT_CREATED, (unitId: string) => {
         const unit = this.getSquad(unitId)
@@ -135,7 +125,6 @@ export class BattlegroundScene extends Phaser.Scene {
           this.renderUnit(u)
         );
         this.renderStore();
-        this.renderBench();
       }]
     ]);
 
@@ -154,6 +143,7 @@ export class BattlegroundScene extends Phaser.Scene {
     BattlegroundAudioSystem_init(state, this);
     HightlightCellsSystem.init(this);
     CharaSystem_init(this);
+    StoreSystem.init(this);
 
     //@ts-ignore
     window.bg = this;
@@ -195,44 +185,18 @@ export class BattlegroundScene extends Phaser.Scene {
     //this.cameras.main.setZoom(1.5)
     emit(signals.BATTLEGROUND_STARTED);
 
-    this.unitPool = new Array(30).fill(null).map(() => {
-      return makeUnit(
-        Math.random().toString(),
-        FORCE_ID_PLAYER,
-        jobs[Math.floor(Math.random() * jobs.length)].id,
-        asVec2({ x: 0, y: 0 })
-      );
-    });
-
     this.populateStore();
 
+    // todo: check if necessary
     this.renderStore();
-
-    this.renderBench();
 
   };
 
   populateStore() {
-    // place units from the store back into the pool
-    this.unitPool = this.unitPool.concat(this.store);
 
-    this.store = [];
-
-    for (let i = 0; i < 5; i++) {
-      const randomIndex = Math.floor(Math.random() * this.unitPool.length);
-      const unit = this.unitPool.splice(randomIndex, 1)[0];
-
-      this.store.push(unit);
-    }
   }
   renderStore() {
-    updateStore(this);
-  }
-
-  renderBench() {
-
-    updateBench(this);
-
+    StoreSystem.updateStore(this);
   }
 
   getChara = (id: string) => {
