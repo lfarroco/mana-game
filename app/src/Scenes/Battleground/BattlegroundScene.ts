@@ -332,6 +332,47 @@ export class BattlegroundScene extends Phaser.Scene {
 
   }
 
+  displayError(err: string) {
+
+    this.playFx('ui/error');
+
+    const text = this.add.text(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 100, err, {
+      fontSize: "48px",
+      color: "#fff",
+      align: "center",
+      shadow: {
+        offsetX: 2,
+        offsetY: 2,
+        color: "#000",
+        blur: 2,
+        stroke: true,
+        fill: true
+      }
+    });
+
+    text.setOrigin(0.5)
+    this.tweens.add({
+      targets: text,
+      scaleX: 1.05,
+      scaleY: 1.05,
+      duration: 200,
+      yoyo: true,
+      repeat: 0,
+      onComplete: async () => {
+        await delay(this, 1000);
+        this.tweens.add({
+          targets: text,
+          alpha: 0,
+          duration: 500,
+          onComplete: () => {
+            text.destroy();
+          }
+        })
+      }
+    })
+
+  }
+
 }
 
 export default BattlegroundScene;

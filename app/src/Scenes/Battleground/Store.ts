@@ -95,12 +95,16 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 		console.log("dropped on zone", zone.name);
 
 		if (zone.name === "board") {
+
+			if (scene.state.gameData.units.filter(u => u.force === FORCE_ID_PLAYER).length >= force.maxUnits) {
+				scene.displayError("Max units reached");
+				return;
+			}
+
 			const coords = scene.getTileAtWorldXY(vec2(pointer.worldX, pointer.worldY));
 			console.log("dropped on tile", coords);
 
 			force.gold -= 1;
-
-
 			emit(signals.RECRUIT_UNIT, FORCE_ID_PLAYER, unit.job, asVec2(coords));
 
 			scene.updateMaxUnitsDisplay();
