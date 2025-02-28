@@ -42,6 +42,7 @@ export class BattlegroundScene extends Phaser.Scene {
   dropZone: Phaser.GameObjects.Zone | null = null;
   maxUnitsDisplay: Phaser.GameObjects.Text | null = null;
   ui: Phaser.GameObjects.Container | null = null;
+  dropZoneDisplay: Phaser.GameObjects.Graphics | null = null;
 
   cleanup() {
     this.charas.forEach(chara => {
@@ -332,21 +333,26 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
   createDropZone() {
-    const zone = this.add.zone(64 * 6, 64 * 6, 64 * 10, 64 * 4)
+    const x = 64 * 8;
+    const y = 64 * 8;
+    const w = 64 * 10;
+    const h = 64 * 4;
+    const zone = this.add.zone(x, y, w, h)
 
     zone.setName("board");
 
-    zone.setRectangleDropZone(64 * 10, 64 * 4);
+    zone.setRectangleDropZone(w, h);
 
     if (!zone.input) throw new Error("dropZone.input is null");
 
     //this.dropZone.input.dropZone = true;
 
-    const graphics = this.add.graphics();
-    graphics.lineStyle(2, 0xffff00);
-    graphics.strokeRect(
-      zone.x - zone.input.hitArea.width / 2,
-      zone.y - zone.input.hitArea.height / 2, zone.input.hitArea.width, zone.input.hitArea.height);
+    this.dropZoneDisplay = this.add.graphics();
+    this.dropZoneDisplay.lineStyle(2, 0xffff00);
+    this.dropZoneDisplay.strokeRect(
+      x - w / 2, y - h / 2,
+      w, h
+    );
 
     this.dropZone = zone;
 
@@ -356,13 +362,13 @@ export class BattlegroundScene extends Phaser.Scene {
 
   displayDropZone() {
 
-    this.dropZone?.setVisible(true);
+    this.dropZoneDisplay?.setVisible(true);
 
   }
 
   hideDropZone() {
 
-    this.dropZone?.setVisible(false);
+    this.dropZoneDisplay?.setVisible(false);
 
   }
 
