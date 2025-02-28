@@ -18,13 +18,11 @@ export const initialState = (): State => ({
   inputDisabled: false,
   savedGames: [],
   gameData: {
-    winner: null,
     tick: 0,
     forces: [
       playerForce,
       cpuForce
     ],
-    selectedUnit: null,
     units: [],
     grid: [],
   }
@@ -48,11 +46,9 @@ export type State = {
 };
 
 export type GameData = {
-  winner: null | string;
   tick: number;
   forces: Force[];
   units: Unit[];
-  selectedUnit: string | null; // TODO: remove from state, this is a UI thing. Idea: make a UI state that is not saved
   grid: number[][];
 }
 

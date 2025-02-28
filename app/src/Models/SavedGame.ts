@@ -8,7 +8,6 @@ export type SavedGame = {
 export const makeSavedGame = (name: string, state: GameData): SavedGame => {
 	const cleanedState: GameData = {
 		...state,
-		selectedUnit: null,
 	}
 	return {
 		name,
