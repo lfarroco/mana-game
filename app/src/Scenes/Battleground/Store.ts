@@ -17,6 +17,7 @@ export function init(scene: BattlegroundScene) {
 		'soldier',
 		'archer',
 		'acolyte',
+		'apprentice',
 	].map(job => makeUnit(Math.random().toString(), FORCE_ID_PLAYER, job, asVec2({ x: 0, y: 0 })));
 
 

@@ -15,6 +15,9 @@ import { slash } from "../../Systems/Chara/Skills/slash";
 
 const processTick = async (scene: BattlegroundScene) => {
 
+
+  const playerForce = getState().gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
+
   emit(signals.TURN_START)
 
   const state = getState();
@@ -39,10 +42,16 @@ const processTick = async (scene: BattlegroundScene) => {
   if (cpuUnits.length === 0) {
     await vignette(scene, "Victory!");
 
+    playerForce.gold += 2;
+
     await delay(scene, 1000 / state.options.speed);
 
     emit(signals.COMBAT_FINISHED, FORCE_ID_PLAYER);
   } else if (playerUnits.length === 0) {
+
+    playerForce.gold += 1;
+
+    playerForce.hp = Math.max(0, playerForce.hp - cpuUnits.length);
 
     await vignette(scene, "Defeat!");
 

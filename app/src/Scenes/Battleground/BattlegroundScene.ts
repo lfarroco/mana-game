@@ -113,7 +113,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
         this.displayDropZone();
 
-        this.showUI();
+        this.updateUI();
 
         this.charas.forEach(chara => chara.container.destroy())
         this.state.gameData.units = this.state.gameData.units.filter(u => u.force === FORCE_ID_PLAYER);
@@ -156,12 +156,8 @@ export class BattlegroundScene extends Phaser.Scene {
 
   }
 
-  showUI() {
-    this.ui?.setVisible(true);
-  }
-
   hideUI() {
-    this.ui?.setVisible(false);
+    this.ui?.destroy(false);
   }
 
   preload = preload;
