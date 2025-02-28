@@ -77,17 +77,24 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 
 	sprite.setInteractive({ draggable: true });
 
+	sprite.on('pointerdown', () => {
+		if (force.gold > 0) return
+
+		scene.displayError("Not enough gold");
+
+	})
+
 	if (force.gold < 1) return;
+
 
 	sprite.on('dragstart', (pointer: Phaser.Input.Pointer) => {
 
-		if (!container) throw new Error("store container not found");
-
-		scene.children.bringToTop(container);
+		scene.children.bringToTop(container!);
 
 	});
 
 	sprite.on('drag', (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
+
 		sprite.x = dragX;
 		sprite.y = dragY;
 	});
@@ -115,7 +122,6 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 	});
 
 	sprite.on('dragend', (pointer: Phaser.Input.Pointer) => {
-		console.log("dragend");
 
 		if (pointer.getDistance() < 10) {
 			console.log("low pointer distance: click");
