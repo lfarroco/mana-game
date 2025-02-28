@@ -1,0 +1,45 @@
+import { distanceBetween, Vec2 } from "../../../Models/Geometry";
+import { getJob } from "../../../Models/Job";
+import { getSkill } from "../../../Models/Skill";
+import { Unit } from "../../../Models/Unit";
+import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
+import { getUnitsByProximity, walk } from "../../../Scenes/Battleground/ProcessTick";
+import { lookupAIPAth } from "../../../Scenes/Battleground/Systems/Pathfinding";
+import { fireballAnimation } from "../Animations/fireballAnimation";
+
+export function fireball(scene: BattlegroundScene) {
+
+	return async (unit: Unit) => {
+
+		const job = getJob(unit.job);
+
+		const attackRange = getSkill(job.skill).range;
+
+		const { state } = scene;
+
+		const [closestEnemy] = getUnitsByProximity(state, unit, true);
+
+		if (!closestEnemy) {
+			console.warn("No enemy found");
+			return;
+		};
+
+		const distance = distanceBetween(unit.position)(closestEnemy.position);
+
+		if (distance > attackRange) {
+
+			const pathTo = await lookupAIPAth(scene, unit.id, unit.position, closestEnemy.position, job.moveRange);
+
+			await walk(scene, unit, pathTo, (position: Vec2) => {
+				const distance = distanceBetween(position)(closestEnemy.position);
+				return distance <= attackRange;
+			});
+
+		}
+
+		if (distanceBetween(unit.position)(closestEnemy.position) <= attackRange) {
+			await fireballAnimation(scene, unit, closestEnemy);
+		}
+
+	};
+}
