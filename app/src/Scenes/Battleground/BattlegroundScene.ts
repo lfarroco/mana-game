@@ -24,6 +24,7 @@ import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
 import * as StoreSystem from "./Store";
 import { delay } from "../../Utils/animation";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "./constants";
+import { getJob } from "../../Models/Job";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -127,6 +128,7 @@ export class BattlegroundScene extends Phaser.Scene {
         );
         this.renderStore();
       }]
+
     ]);
 
     /**
@@ -149,6 +151,8 @@ export class BattlegroundScene extends Phaser.Scene {
     window.bg = this;
 
   }
+
+
 
   preload = preload;
   create = (state: State) => {

@@ -4,10 +4,12 @@ import { getJob } from "../../Models/Job";
 import { emit, listeners, signals } from "../../Models/Signals";
 import { makeUnit, Unit } from "../../Models/Unit";
 import { BattlegroundScene } from "./BattlegroundScene";
+import { SCREEN_WIDTH } from "./constants";
 
 let units: Unit[] = [];
 
 let container: Phaser.GameObjects.Container | null = null;
+let jobDetails: Phaser.GameObjects.Container | null = null;
 
 export function init(scene: BattlegroundScene) {
 
@@ -130,14 +132,42 @@ const handleClick = (
 	unit: Unit,
 ) => (pointer: Phaser.Input.Pointer) => {
 
-	//const force = scene.state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
+	jobDetails?.destroy(true);
 
-	console.log("click on store unit", unit);
+	const width = 250;
+	const height = 300;
+	const x = SCREEN_WIDTH - width;
+	const y = 200;
 
-	// force.gold -= 1;
+	jobDetails = scene.add.container(x, y);
 
-	// const job = getJob(unit.job);
+	const job = getJob(unit.job)
 
-	// select unit (not recruit)
+	const bg = scene.add.graphics();
+	bg.fillStyle(0x000077, 0.8);
+	bg.fillRect(0, 0, width, height);
+
+	const btn = scene.add.text(10, 200, "Recruit", { color: "white" });
+
+	jobDetails.add([
+		bg,
+		scene.add.text(10, 10, job.name, { color: "white" }),
+		scene.add.text(10, 30, `HP: ${job.stats.hp}`, { color: "white" }),
+		scene.add.text(10, 50, `Attack: ${job.stats.attack}`, { color: "white" }),
+		scene.add.text(10, 70, `Defense: ${job.stats.defense}`, { color: "white" }),
+		scene.add.text(10, 130, `Accuracy: ${job.stats.accuracy}`, { color: "white" }),
+		scene.add.text(10, 150, `Agility: ${job.stats.agility}`, { color: "white" }),
+		scene.add.text(10, 170, `Skill: ${job.skill}`, { color: "white" }),
+		btn
+	]);
+
+	btn.setInteractive();
+	btn.on('pointerdown', () => {
+		console.log("recruit unit", unit);
+		// TODO: find empty tile
+		emit(signals.RECRUIT_UNIT, FORCE_ID_PLAYER, unit.job, asVec2({ x: 5, y: 5 }));
+		scene.renderStore();
+		jobDetails?.destroy(true);
+	});
 
 }
