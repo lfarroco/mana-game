@@ -3,22 +3,22 @@
  "infinite":false,
  "layers":[
         {
-         "data":[39, 40, 289, 264, 38, 39, 39, 39, 40, 206, 334, 239, 240, 38, 39, 39,
-            39, 40, 229, 6, 134, 39, 39, 39, 40, 238, 239, 239, 240, 38, 39, 39,
-            39, 40, 229, 70, 102, 39, 39, 39, 40, 297, 271, 271, 272, 38, 39, 39,
-            39, 40, 257, 226, 38, 39, 39, 39, 40, 329, 208, 197, 2, 164, 39, 39,
-            39, 133, 8, 229, 38, 39, 39, 39, 40, 238, 240, 321, 200, 70, 102, 39,
-            39, 101, 72, 229, 38, 39, 39, 39, 40, 238, 240, 230, 325, 200, 38, 39,
-            39, 40, 225, 258, 38, 39, 39, 39, 40, 297, 272, 230, 231, 232, 38, 39,
-            39, 40, 229, 6, 134, 39, 39, 39, 40, 269, 198, 326, 293, 264, 38, 39,
-            39, 40, 229, 70, 102, 39, 39, 39, 40, 198, 326, 231, 232, 2, 164, 39,
-            39, 40, 321, 200, 38, 39, 39, 39, 40, 230, 231, 293, 357, 200, 38, 39,
-            39, 40, 230, 232, 38, 39, 39, 101, 72, 262, 263, 357, 326, 232, 38, 39,
-            39, 40, 230, 232, 38, 39, 39, 133, 7, 7, 8, 262, 263, 264, 38, 39,
-            39, 40, 262, 264, 38, 39, 39, 39, 39, 39, 133, 7, 7, 7, 134, 39,
-            39, 133, 7, 7, 134, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39,
-            39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 101, 71, 71,
-            39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 101, 71, 72, 14, 15],
+         "data":[240, 129, 161, 134, 40, 262, 294, 231, 232, 70, 71, 102, 39, 39, 39, 39,
+            240, 38, 39, 101, 72, 25, 230, 231, 232, 25, 25, 38, 39, 39, 39, 39,
+            240, 38, 101, 72, 25, 25, 230, 231, 232, 25, 25, 38, 39, 39, 39, 39,
+            240, 38, 40, 25, 25, 25, 262, 294, 232, 25, 25, 70, 71, 102, 39, 39,
+            240, 38, 40, 25, 25, 25, 25, 230, 232, 25, 25, 25, 25, 70, 102, 39,
+            240, 70, 165, 8, 25, 25, 25, 230, 232, 25, 25, 25, 25, 25, 38, 39,
+            333, 208, 38, 40, 25, 25, 198, 326, 325, 200, 25, 25, 25, 25, 38, 39,
+            239, 240, 38, 40, 25, 25, 262, 294, 231, 232, 25, 25, 25, 25, 38, 39,
+            301, 272, 38, 133, 8, 25, 25, 230, 231, 232, 25, 25, 25, 25, 97, 71,
+            240, 6, 134, 39, 40, 25, 25, 262, 294, 232, 25, 25, 25, 25, 37, 206,
+            240, 38, 39, 101, 72, 25, 25, 25, 230, 232, 25, 25, 25, 25, 37, 238,
+            240, 38, 39, 40, 25, 25, 25, 25, 230, 325, 200, 25, 25, 25, 37, 238,
+            240, 38, 101, 72, 25, 25, 25, 25, 230, 231, 232, 25, 25, 25, 37, 238,
+            240, 38, 40, 25, 25, 25, 25, 25, 230, 231, 232, 25, 25, 25, 69, 238,
+            240, 38, 133, 8, 25, 25, 25, 25, 262, 294, 325, 200, 25, 25, 25, 238,
+            240, 38, 39, 133, 8, 25, 25, 25, 25, 230, 231, 232, 25, 25, 25, 238],
          "height":16,
          "id":1,
          "name":"map_background",
@@ -30,14 +30,14 @@
          "y":0
         }, 
         {
-         "data":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 60, 60, 60, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 60, 60, 60, 60, 60, 60, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 60, 60, 60, 60, 60, 60, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 60, 60, 60, 60, 0, 0, 0, 0, 0,
+         "data":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 60, 60, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 60, 60, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 60, 60, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 60, 60, 60, 60, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 60, 60, 60, 60, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 60, 60, 60, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -51,7 +51,7 @@
          "name":"map_obstacles",
          "opacity":1,
          "type":"tilelayer",
-         "visible":false,
+         "visible":true,
          "width":16,
          "x":0,
          "y":0
@@ -78,386 +78,8 @@
          "name":"map_features",
          "opacity":1,
          "type":"tilelayer",
-         "visible":true,
+         "visible":false,
          "width":16,
-         "x":0,
-         "y":0
-        }, 
-        {
-         "draworder":"topdown",
-         "id":5,
-         "name":"cities",
-         "objects":[
-                {
-                 "height":64,
-                 "id":4,
-                 "name":"CPU_town1",
-                 "properties":[
-                        {
-                         "name":"force",
-                         "type":"string",
-                         "value":"CPU"
-                        }, 
-                        {
-                         "name":"type",
-                         "type":"string",
-                         "value":"town"
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":64,
-                 "x":899,
-                 "y":538
-                }, 
-                {
-                 "height":64,
-                 "id":20,
-                 "name":"neutral_town1",
-                 "properties":[
-                        {
-                         "name":"force",
-                         "type":"string",
-                         "value":"neutral"
-                        }, 
-                        {
-                         "name":"type",
-                         "type":"string",
-                         "value":"town"
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":64,
-                 "x":786.666666666667,
-                 "y":334
-                }, 
-                {
-                 "height":64,
-                 "id":22,
-                 "name":"player_castle",
-                 "properties":[
-                        {
-                         "name":"force",
-                         "type":"string",
-                         "value":"PLAYER"
-                        }, 
-                        {
-                         "name":"type",
-                         "type":"string",
-                         "value":"castle"
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":64,
-                 "x":865.666666666667,
-                 "y":188.666666666667
-                }, 
-                {
-                 "height":64,
-                 "id":27,
-                 "name":"CPU_castle",
-                 "properties":[
-                        {
-                         "name":"force",
-                         "type":"string",
-                         "value":"CPU"
-                        }, 
-                        {
-                         "name":"type",
-                         "type":"string",
-                         "value":"castle"
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":64,
-                 "x":832,
-                 "y":704
-                }, 
-                {
-                 "height":64,
-                 "id":37,
-                 "name":"CPU_tavern",
-                 "properties":[
-                        {
-                         "name":"force",
-                         "type":"string",
-                         "value":"CPU"
-                        }, 
-                        {
-                         "name":"type",
-                         "type":"string",
-                         "value":"tavern"
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":64,
-                 "x":835,
-                 "y":423
-                }, 
-                {
-                 "height":64,
-                 "id":38,
-                 "name":"player_tavern1",
-                 "properties":[
-                        {
-                         "name":"force",
-                         "type":"string",
-                         "value":"PLAYER"
-                        }, 
-                        {
-                         "name":"type",
-                         "type":"string",
-                         "value":"tavern"
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":64,
-                 "x":732,
-                 "y":205.666666666667
-                }],
-         "opacity":1,
-         "type":"objectgroup",
-         "visible":true,
-         "x":0,
-         "y":0
-        }, 
-        {
-         "draworder":"topdown",
-         "id":6,
-         "name":"enemies",
-         "objects":[
-                {
-                 "height":0,
-                 "id":48,
-                 "name":"orc",
-                 "point":true,
-                 "properties":[
-                        {
-                         "name":"ai",
-                         "type":"string",
-                         "value":"passive"
-                        }, 
-                        {
-                         "name":"force",
-                         "type":"string",
-                         "value":"CPU"
-                        }, 
-                        {
-                         "name":"job",
-                         "type":"string",
-                         "value":"orc"
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":225.666666666667,
-                 "y":44.333333333333
-                }, 
-                {
-                 "height":0,
-                 "id":54,
-                 "name":"orc",
-                 "point":true,
-                 "properties":[
-                        {
-                         "name":"ai",
-                         "type":"string",
-                         "value":"passive"
-                        }, 
-                        {
-                         "name":"force",
-                         "type":"string",
-                         "value":"CPU"
-                        }, 
-                        {
-                         "name":"job",
-                         "type":"string",
-                         "value":"orc"
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":165.333333333333,
-                 "y":51
-                }, 
-                {
-                 "height":0,
-                 "id":55,
-                 "name":"orc",
-                 "point":true,
-                 "properties":[
-                        {
-                         "name":"ai",
-                         "type":"string",
-                         "value":"passive"
-                        }, 
-                        {
-                         "name":"force",
-                         "type":"string",
-                         "value":"CPU"
-                        }, 
-                        {
-                         "name":"job",
-                         "type":"string",
-                         "value":"orc"
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":92.333333333333,
-                 "y":48.333333333333
-                }, 
-                {
-                 "height":0,
-                 "id":57,
-                 "name":"orc",
-                 "point":true,
-                 "properties":[
-                        {
-                         "name":"ai",
-                         "type":"string",
-                         "value":"passive"
-                        }, 
-                        {
-                         "name":"force",
-                         "type":"string",
-                         "value":"CPU"
-                        }, 
-                        {
-                         "name":"job",
-                         "type":"string",
-                         "value":"orc"
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":287.333333333333,
-                 "y":49.333333333333
-                }, 
-                {
-                 "height":0,
-                 "id":58,
-                 "name":"monk",
-                 "point":true,
-                 "properties":[
-                        {
-                         "name":"ai",
-                         "type":"string",
-                         "value":"passive"
-                        }, 
-                        {
-                         "name":"force",
-                         "type":"string",
-                         "value":"PLAYER"
-                        }, 
-                        {
-                         "name":"job",
-                         "type":"string",
-                         "value":"monk"
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":93.333333333333,
-                 "y":502.666666666667
-                }, 
-                {
-                 "height":0,
-                 "id":59,
-                 "name":"soldier",
-                 "point":true,
-                 "properties":[
-                        {
-                         "name":"ai",
-                         "type":"string",
-                         "value":"passive"
-                        }, 
-                        {
-                         "name":"force",
-                         "type":"string",
-                         "value":"PLAYER"
-                        }, 
-                        {
-                         "name":"job",
-                         "type":"string",
-                         "value":"soldier"
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":221,
-                 "y":493.333333333333
-                }, 
-                {
-                 "height":0,
-                 "id":60,
-                 "name":"cleric",
-                 "point":true,
-                 "properties":[
-                        {
-                         "name":"ai",
-                         "type":"string",
-                         "value":"passive"
-                        }, 
-                        {
-                         "name":"force",
-                         "type":"string",
-                         "value":"PLAYER"
-                        }, 
-                        {
-                         "name":"job",
-                         "type":"string",
-                         "value":"cleric"
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":158.333333333334,
-                 "y":504
-                }, 
-                {
-                 "height":0,
-                 "id":61,
-                 "name":"archer",
-                 "point":true,
-                 "properties":[
-                        {
-                         "name":"ai",
-                         "type":"string",
-                         "value":"passive"
-                        }, 
-                        {
-                         "name":"force",
-                         "type":"string",
-                         "value":"PLAYER"
-                        }, 
-                        {
-                         "name":"job",
-                         "type":"string",
-                         "value":"archer"
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":286,
-                 "y":497
-                }],
-         "opacity":1,
-         "type":"objectgroup",
-         "visible":true,
          "x":0,
          "y":0
         }],
