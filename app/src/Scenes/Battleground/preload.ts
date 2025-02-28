@@ -5,7 +5,7 @@ const jobs = [
 	'acolyte',
 	'apprentice',
 	'soldier',
-	'orc',
+	'blob',
 ]
 
 const emotes = [

@@ -19,6 +19,7 @@ export const initialState = (): State => ({
   savedGames: [],
   gameData: {
     tick: 0,
+    wave: 1,
     forces: [
       playerForce,
       cpuForce
@@ -47,6 +48,7 @@ export type State = {
 
 export type GameData = {
   tick: number;
+  wave: number;
   forces: Force[];
   units: Unit[];
   grid: number[][];
