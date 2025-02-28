@@ -13,11 +13,12 @@ let jobDetails: Phaser.GameObjects.Container | null = null;
 
 export function init(scene: BattlegroundScene) {
 
-	units = units.concat([
-		makeUnit(Math.random().toString(), FORCE_ID_PLAYER, "soldier", asVec2({ x: 0, y: 0 })),
-		makeUnit(Math.random().toString(), FORCE_ID_PLAYER, "archer", asVec2({ x: 0, y: 0 })),
-		makeUnit(Math.random().toString(), FORCE_ID_PLAYER, "cleric", asVec2({ x: 0, y: 0 })),
-	])
+	units = [
+		'soldier',
+		'archer',
+		'acolyte',
+	].map(job => makeUnit(Math.random().toString(), FORCE_ID_PLAYER, job, asVec2({ x: 0, y: 0 })));
+
 
 	listeners([
 		[signals.BATTLE_START, async () => {
@@ -86,12 +87,8 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 
 	if (force.gold < 1) return;
 
-
-	sprite.on('dragstart', (pointer: Phaser.Input.Pointer) => {
-
-		scene.children.bringToTop(container!);
-
-	});
+	//sprite.on('dragstart', (pointer: Phaser.Input.Pointer) => {
+	//  });
 
 	sprite.on('drag', (pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
 
@@ -116,7 +113,7 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 			force.gold -= 1;
 			emit(signals.RECRUIT_UNIT, FORCE_ID_PLAYER, unit.job, asVec2(coords));
 
-			scene.updateMaxUnitsDisplay();
+			scene.updateUI();
 		}
 
 	});

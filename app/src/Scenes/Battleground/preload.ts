@@ -2,8 +2,7 @@ import Phaser from "phaser";
 
 const jobs = [
 	'archer',
-	'monk',
-	'cleric',
+	'acolyte',
 	'soldier',
 	'orc',
 ]

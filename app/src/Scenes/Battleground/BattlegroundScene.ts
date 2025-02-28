@@ -198,11 +198,8 @@ export class BattlegroundScene extends Phaser.Scene {
     //this.cameras.main.setZoom(1.5)
     emit(signals.BATTLEGROUND_STARTED);
 
-    this.populateStore();
-
     // todo: check if necessary
     this.renderStore();
-
 
     this.updateUI()
   };
@@ -210,6 +207,8 @@ export class BattlegroundScene extends Phaser.Scene {
   updateUI() {
 
     const force = this.state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
+
+    this.ui?.destroy(true);
 
     this.ui = this.add.container(0, 0);
 
@@ -226,19 +225,25 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.ui.add(startBattleBtn);
 
-    const playerHP = this.add.text(SCREEN_WIDTH - 200, 150, "HP: " + force.hp, {
+    const playerHP = this.add.text(SCREEN_WIDTH - 200, 450, "HP: " + force.hp, {
       fontSize: "24px",
       color: "white"
     });
 
     this.ui.add(playerHP);
 
+    const maxUnits = this.add.text(
+      SCREEN_WIDTH - 200, SCREEN_HEIGHT - 100,
+      this.state.gameData.units.filter(u => u.force === FORCE_ID_PLAYER).length + "/" + force.maxUnits
+      , {
+        fontSize: "48px",
+        color: "white"
+      });
+
+    this.ui.add(maxUnits);
 
   }
 
-  populateStore() {
-
-  }
   renderStore() {
     StoreSystem.updateStore(this);
   }
@@ -345,23 +350,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.dropZone = zone;
 
-    this.updateMaxUnitsDisplay();
-
-
-  }
-
-  updateMaxUnitsDisplay() {
-
-
-    const force = this.state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
-    this.maxUnitsDisplay?.destroy();
-    this.maxUnitsDisplay = this.add.text(
-      SCREEN_WIDTH - 200, SCREEN_HEIGHT - 100,
-      this.state.gameData.units.filter(u => u.force === FORCE_ID_PLAYER).length + "/" + force.maxUnits
-      , {
-        fontSize: "48px",
-        color: "white"
-      });
+    this.updateUI();
 
   }
 
@@ -374,7 +363,6 @@ export class BattlegroundScene extends Phaser.Scene {
   hideDropZone() {
 
     this.dropZone?.setVisible(false);
-    this.maxUnitsDisplay?.destroy();
 
   }
 
