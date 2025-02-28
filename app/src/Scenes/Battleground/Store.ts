@@ -100,7 +100,10 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 
 			force.gold -= 1;
 
+
 			emit(signals.RECRUIT_UNIT, FORCE_ID_PLAYER, unit.job, asVec2(coords));
+
+			scene.updateMaxUnitsDisplay();
 		}
 
 	});

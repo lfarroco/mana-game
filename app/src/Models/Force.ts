@@ -3,6 +3,7 @@ export type Force = {
 	id: string;
 	name: string;
 	color: string;
+	maxUnits: number;
 	gold: number;
 };
 
@@ -10,7 +11,9 @@ export const makeForce = (id: string): Force => ({
 	id,
 	name: "",
 	color: "",
-	gold: 12,
+	gold: 5,
+	maxUnits: 3,
+
 });
 export const FORCE_ID_PLAYER = "PLAYER"
 

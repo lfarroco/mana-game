@@ -3,7 +3,7 @@ import { preload } from "./preload";
 import { createMap } from "./Map/createMap";
 import { makeUnit, Unit } from "../../Models/Unit";
 import processTick from "./ProcessTick";
-import { asVec2, eqVec2, vec2, Vec2 } from "../../Models/Geometry";
+import { eqVec2, vec2, Vec2 } from "../../Models/Geometry";
 import { Chara, CharaSystem_init, createChara } from "../../Systems/Chara/Chara";
 import { emit, signals, listeners } from "../../Models/Signals";
 import { State, getUnit, getState } from "../../Models/State";
@@ -14,7 +14,6 @@ import * as CursorSystem from "./Systems/Cursor";
 import * as AISystem from "../../Systems/AI/AI";
 import { EmoteSystem_init } from "../../Systems/Chara/Emote";
 import * as HPBarSystem from "../../Systems/Chara/HPBar";
-import * as EntitySelection from "../../Systems/EntitySelection/EntitySelection";
 import * as HightlightCellsSystem from "./Map/highlightCells";
 
 import { createFowLayer } from "./Systems/FogOfWar/createFowLayer";
@@ -24,6 +23,7 @@ import { clearCellHighlights } from "./Map/highlightCells";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
 import * as StoreSystem from "./Store";
 import { delay } from "../../Utils/animation";
+import { SCREEN_HEIGHT, SCREEN_WIDTH } from "./constants";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -40,6 +40,7 @@ export class BattlegroundScene extends Phaser.Scene {
   grid: (0 | 1)[][] = []
   state: State;
   dropZone: Phaser.GameObjects.Zone | null = null;
+  maxUnitsDisplay: Phaser.GameObjects.Text | null = null;
 
   cleanup() {
     this.charas.forEach(chara => {
@@ -135,7 +136,6 @@ export class BattlegroundScene extends Phaser.Scene {
     unitDestroyed(this, state);
     AISystem.init(state);
     EmoteSystem_init(state, this);
-    EntitySelection.init(state);
     if (state.options.fogOfWarEnabled)
       FogOfWarSystem.init(this, state);
     CursorSystem.init(state, this);
@@ -284,8 +284,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
   createDropZone() {
     const zone = this.add.zone(64 * 6, 64 * 6, 64 * 10, 64 * 4)
-    // this.dropZone.fillStyle(0x00ff00, 0.2);
-    // this.dropZone.fillRect();
 
     zone.setName("board");
 
@@ -303,6 +301,21 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.dropZone = zone;
 
+    this.updateMaxUnitsDisplay();
+
+
+  }
+
+  updateMaxUnitsDisplay() {
+
+    this.maxUnitsDisplay?.destroy();
+    this.maxUnitsDisplay = this.add.text(
+      SCREEN_WIDTH - 200, SCREEN_HEIGHT - 100,
+      this.state.gameData.units.filter(u => u.force === FORCE_ID_PLAYER).length + "/3"
+      , {
+        fontSize: "48px",
+        color: "white"
+      });
 
   }
 
@@ -315,6 +328,7 @@ export class BattlegroundScene extends Phaser.Scene {
   hideDropZone() {
 
     this.dropZone?.setVisible(false);
+    this.maxUnitsDisplay?.destroy();
 
   }
 
