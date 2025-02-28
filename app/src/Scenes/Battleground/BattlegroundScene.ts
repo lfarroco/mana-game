@@ -20,10 +20,11 @@ import { createFowLayer } from "./Systems/FogOfWar/createFowLayer";
 import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import { makeMapInteractive } from "./Map/makeMapInteractive";
 import { clearCellHighlights } from "./Map/highlightCells";
-import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
+import { FORCE_ID_PLAYER } from "../../Models/Force";
 import * as StoreSystem from "./Store";
 import { delay } from "../../Utils/animation";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "./constants";
+import { waves } from "./enemyWaves";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -89,10 +90,7 @@ export class BattlegroundScene extends Phaser.Scene {
         this.hideDropZone();
         this.hideUI();
 
-        const enemies = [
-          makeUnit(Math.random().toString(), FORCE_ID_CPU, "orc", vec2(1, 1)),
-          makeUnit(Math.random().toString(), FORCE_ID_CPU, "orc", vec2(2, 1)),
-        ]
+        const enemies = waves[this.state.gameData.wave]
 
         this.state.gameData.units = this.state.gameData.units.concat(enemies)
 
@@ -110,6 +108,8 @@ export class BattlegroundScene extends Phaser.Scene {
       [signals.COMBAT_FINISHED, () => {
         // clear the scene
         // and reposition the units
+
+        this.state.gameData.wave++;
 
         this.displayDropZone();
 

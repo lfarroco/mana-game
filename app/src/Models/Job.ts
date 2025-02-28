@@ -11,8 +11,6 @@ export type Job = {
     hp: number;
     attack: number;
     defense: number;
-    mgkAttack: number;
-    mgkDefense: number;
     accuracy: number;
     agility: number;
   };
@@ -32,8 +30,6 @@ export const jobs: Job[] = [
       hp: 100,
       attack: 50,
       defense: 0,
-      mgkAttack: 0,
-      mgkDefense: 0,
       accuracy: 10,
       agility: 16,
     },
@@ -55,8 +51,6 @@ export const jobs: Job[] = [
       hp: 80,
       attack: 30,
       defense: 2,
-      mgkAttack: 13,
-      mgkDefense: 20,
       accuracy: 0,
       agility: 12,
     },
@@ -75,11 +69,9 @@ export const jobs: Job[] = [
     attackRange: 3,
     dices: 1,
     stats: {
-      hp: 200,
-      attack: 0,
+      hp: 80,
+      attack: 30,
       defense: 0,
-      mgkAttack: 20,
-      mgkDefense: 20,
       accuracy: 0,
       agility: 4,
     },
@@ -101,8 +93,6 @@ export const jobs: Job[] = [
       hp: 150,
       attack: 40,
       defense: 20,
-      mgkAttack: 0,
-      mgkDefense: 0,
       accuracy: 10,
       agility: 8,
     },
@@ -124,8 +114,6 @@ export const jobs: Job[] = [
       hp: 200,
       attack: 30,
       defense: 0,
-      mgkAttack: 20,
-      mgkDefense: 20,
       accuracy: 0,
       agility: 4,
     },
@@ -136,8 +124,8 @@ export const jobs: Job[] = [
     ]
   },
   {
-    id: "orc",
-    name: "Orc",
+    id: "blob",
+    name: "Green Blob",
     moveRange: 3,
     gold: 100,
     attackRange: 1,
@@ -147,8 +135,6 @@ export const jobs: Job[] = [
       hp: 60,
       attack: 20,
       defense: 10,
-      mgkAttack: 0,
-      mgkDefense: 0,
       accuracy: 10,
       agility: 10,
     },

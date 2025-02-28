@@ -14,8 +14,6 @@ export type Unit = {
 
   attack: number;
   defense: number;
-  mgkAttack: number;
-  mgkDefense: number;
   accuracy: number;
   agility: number;
   log: string[];
