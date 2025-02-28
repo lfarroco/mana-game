@@ -28,12 +28,12 @@ export async function shootAnimation(scene: BattlegroundScene, unit: Unit, targe
 		duration: 500 / scene.state.options.speed,
 	});
 
-	popText(scene, "22", target.id);
+	popText(scene, unit.attack.toString(), target.id);
 	arrow.destroy();
 	emit(
 		signals.DAMAGE_UNIT,
 		targetChara.id,
-		22
+		unit.attack
 	);
 
 }

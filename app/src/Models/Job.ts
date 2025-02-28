@@ -26,16 +26,16 @@ export const jobs: Job[] = [
     gold: 100,
     moveRange: 3,
     attackRange: 4,
-    attackPower: 10,
+    attackPower: 40,
     dices: 1,
     stats: {
-      hp: 360,
-      attack: 17,
+      hp: 100,
+      attack: 50,
       defense: 0,
       mgkAttack: 0,
       mgkDefense: 0,
       accuracy: 10,
-      agility: 10,
+      agility: 16,
     },
     skill: "shoot",
     upgrades: [
@@ -52,18 +52,41 @@ export const jobs: Job[] = [
     attackRange: 1,
     dices: 1,
     stats: {
-      hp: 180,
-      attack: 0,
+      hp: 80,
+      attack: 30,
       defense: 2,
       mgkAttack: 13,
       mgkDefense: 20,
       accuracy: 0,
-      agility: 4,
+      agility: 12,
     },
     skill: "heal",
     upgrades: [
       "priest",
       "plaguedoctor"
+    ]
+  },
+  {
+    id: "apprentice",
+    name: "Apprentice",
+    moveRange: 2,
+    gold: 100,
+    attackPower: 20,
+    attackRange: 3,
+    dices: 1,
+    stats: {
+      hp: 200,
+      attack: 0,
+      defense: 0,
+      mgkAttack: 20,
+      mgkDefense: 20,
+      accuracy: 0,
+      agility: 4,
+    },
+    skill: "fireball",
+    upgrades: [
+      "elementalist",
+      "arcanist"
     ]
   },
   {
@@ -75,9 +98,9 @@ export const jobs: Job[] = [
     attackPower: 10,
     dices: 2,
     stats: {
-      hp: 400,
-      attack: 10,
-      defense: 10,
+      hp: 150,
+      attack: 40,
+      defense: 20,
       mgkAttack: 0,
       mgkDefense: 0,
       accuracy: 10,
@@ -122,12 +145,12 @@ export const jobs: Job[] = [
     dices: 2,
     stats: {
       hp: 60,
-      attack: 10,
+      attack: 20,
       defense: 10,
       mgkAttack: 0,
       mgkDefense: 0,
       accuracy: 10,
-      agility: 8,
+      agility: 10,
     },
     skill: "slash",
     upgrades: []
