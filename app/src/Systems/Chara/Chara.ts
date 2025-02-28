@@ -234,7 +234,7 @@ function displayUnitInfo(chara: Chara) {
 
 	unitInfoContainer.add(closeBtn);
 
-	const updgradeBtn = scene.add.text(10, 130, "Upgrade", { color: "white" })
+	const updgradeBtn = scene.add.text(10, 130, "Promote", { color: "white" })
 		.setInteractive()
 		.on("pointerdown", () => {
 			upgradeWindow(unitInfoContainer!, chara)
@@ -272,7 +272,7 @@ function upgradeWindow(
 		"Job1", { color: "white" })
 		.setInteractive()
 		.on("pointerdown", () => {
-			console.log("upgrade to job1");
+			console.log("Promote to job1");
 		});
 
 	const job2 = scene.add.text(
@@ -281,7 +281,7 @@ function upgradeWindow(
 		"Job2", { color: "white" })
 		.setInteractive()
 		.on("pointerdown", () => {
-			console.log("upgrade to job2");
+			console.log("Promote to job2");
 		});
 
 	const cancelBtn = scene.add.text(
