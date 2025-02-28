@@ -24,6 +24,8 @@ const spriteSize = TILE_WIDTH - 4;
 
 export const CHARA_SCALE = 1;
 
+let unitInfoContainer: Phaser.GameObjects.Container | null = null;
+
 export function createChara(
 	scene: BattlegroundScene,
 	unit: Unit,
@@ -121,6 +123,14 @@ export const makeCharaInteractive = (chara: Chara) => {
 
 	chara.sprite.on('dragend', (pointer: Phaser.Input.Pointer) => {
 
+		// check if it was a click or drag
+		if (pointer.getDistance() < 10) {
+
+			displayUnitInfo(chara);
+
+			return;
+		}
+
 		// check if the drag ended inside or outside scene.dropZone
 
 		if (!scene.dropZone?.getBounds().contains(pointer.x, pointer.y)) {
@@ -188,5 +198,40 @@ export function CharaSystem_init(scene: BattlegroundScene) {
 		}],
 
 	])
+
+}
+
+// create a rect with the unit's portrait and stats
+// to the right of the sprite
+function displayUnitInfo(chara: Chara) {
+
+	unitInfoContainer?.destroy();
+
+	const { scene, unit } = chara;
+
+	const width = 200;
+	const height = 200;
+	const x = chara.container.x + TILE_WIDTH;
+	const y = chara.container.y - TILE_HEIGHT;
+
+	const bg = scene.add.graphics();
+	bg.fillStyle(0x000000, 0.8);
+	bg.fillRect(0, 0, width, height);
+
+	const name = scene.add.text(10, 10, unit.job, { color: "white" });
+	const hp = scene.add.text(10, 50, `HP: ${unit.hp}`, { color: "white" });
+	const atk = scene.add.text(10, 90, `ATK: ${unit.attack}`, { color: "white" });
+
+	unitInfoContainer = scene.add.container(x, y);
+	unitInfoContainer.add([bg, name, hp, atk]);
+
+	const closeBtn = scene.add.text(width - 20, 10, "X", { color: "white" })
+		.setInteractive()
+		.on("pointerdown", () => {
+			unitInfoContainer?.destroy();
+		}
+		);
+
+	unitInfoContainer.add(closeBtn);
 
 }
