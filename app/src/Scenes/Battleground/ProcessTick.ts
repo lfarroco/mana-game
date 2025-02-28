@@ -65,15 +65,17 @@ const performAction = (
 
   if (unit.hp <= 0) return;
 
-  if (["monk", "soldier", "orc"].includes(unit.job)) {
+  const job = getJob(unit.job)
+
+  if (job.skill === "slash") {
     const mtarget = await moveToMeleeTarget(scene)(unit)
     if (mtarget)
       await slash(scene, unit, mtarget)
   }
-  else if (unit.job === "cleric") {
+  else if (job.skill === "heal") {
     await healing(scene)(unit);
   }
-  else if (unit.job === "archer") {
+  else if (job.skill === "shoot") {
     await shoot(scene)(unit);
   }
 

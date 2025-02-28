@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { Unit } from "../../Models/Unit";
-import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
+import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 import "./portrait.css"
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { emit, listeners, signals } from "../../Models/Signals";
@@ -233,5 +233,68 @@ function displayUnitInfo(chara: Chara) {
 		);
 
 	unitInfoContainer.add(closeBtn);
+
+	const updgradeBtn = scene.add.text(10, 130, "Upgrade", { color: "white" })
+		.setInteractive()
+		.on("pointerdown", () => {
+			upgradeWindow(unitInfoContainer!, chara)
+		});
+
+	unitInfoContainer.add(updgradeBtn);
+
+}
+
+function upgradeWindow(
+	parent: Phaser.GameObjects.Container,
+	chara: Chara,
+) {
+	// display two rects with two job options 
+
+	const { scene, unit } = chara;
+
+	const width = SCREEN_WIDTH;
+	const height = SCREEN_HEIGHT;
+	const x = parent.x + width;
+	const y = parent.y;
+
+
+	const bg = scene.add.graphics();
+	bg.fillStyle(0x000000, 0.3);
+	bg.fillRect(0, 0, width, height);
+	bg.setInteractive(
+		new Phaser.Geom.Rectangle(0, 0, width, height),
+		Phaser.Geom.Rectangle.Contains
+	)
+
+	const job1 = scene.add.text(
+		SCREEN_WIDTH / 2 - 100
+		, SCREEN_HEIGHT / 2,
+		"Job1", { color: "white" })
+		.setInteractive()
+		.on("pointerdown", () => {
+			console.log("upgrade to job1");
+		});
+
+	const job2 = scene.add.text(
+		SCREEN_WIDTH / 2 + 100
+		, SCREEN_HEIGHT / 2,
+		"Job2", { color: "white" })
+		.setInteractive()
+		.on("pointerdown", () => {
+			console.log("upgrade to job2");
+		});
+
+	const cancelBtn = scene.add.text(
+		SCREEN_WIDTH / 2
+		, SCREEN_HEIGHT / 2 + 50,
+		"Cancel", { color: "white" })
+		.setInteractive()
+		.on("pointerdown", () => {
+			bg.destroy();
+			job1.destroy();
+			job2.destroy();
+			cancelBtn.destroy();
+		});
+
 
 }

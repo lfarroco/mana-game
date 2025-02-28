@@ -6,6 +6,7 @@ export type Job = {
   attackRange: number;
   attackPower: number;
   dices: number;
+  upgrades: string[];
   stats: {
     hp: number;
     attack: number;
@@ -36,30 +37,15 @@ export const jobs: Job[] = [
       accuracy: 10,
       agility: 10,
     },
-    skill: "shoot"
+    skill: "shoot",
+    upgrades: [
+      "hunter",
+      "sniper"
+    ]
   },
   {
-    id: "monk",
-    name: "Monk",
-    moveRange: 3,
-    gold: 100,
-    attackPower: 5,
-    attackRange: 1,
-    dices: 3,
-    stats: {
-      hp: 480,
-      attack: 11,
-      defense: 4,
-      mgkAttack: 0,
-      mgkDefense: 0,
-      accuracy: 8,
-      agility: 6,
-    },
-    skill: "slash"
-  },
-  {
-    id: "cleric",
-    name: "Cleric",
+    id: "acolyte",
+    name: "Acolyte",
     moveRange: 2,
     gold: 100,
     attackPower: 15,
@@ -74,7 +60,11 @@ export const jobs: Job[] = [
       accuracy: 0,
       agility: 4,
     },
-    skill: "heal"
+    skill: "heal",
+    upgrades: [
+      "priest",
+      "plaguedoctor"
+    ]
   },
   {
     id: "soldier",
@@ -93,11 +83,15 @@ export const jobs: Job[] = [
       accuracy: 10,
       agility: 8,
     },
-    skill: "slash"
+    skill: "slash",
+    upgrades: [
+      "knight",
+      "berserker"
+    ]
   },
   {
-    id: "wizard",
-    name: "Wizard",
+    id: "apprentice",
+    name: "Apprentice",
     moveRange: 2,
     gold: 100,
     attackPower: 20,
@@ -112,7 +106,11 @@ export const jobs: Job[] = [
       accuracy: 0,
       agility: 4,
     },
-    skill: "fireball"
+    skill: "fireball",
+    upgrades: [
+      "elementalist",
+      "arcanist"
+    ]
   },
   {
     id: "orc",
@@ -131,7 +129,8 @@ export const jobs: Job[] = [
       accuracy: 10,
       agility: 8,
     },
-    skill: "slash"
+    skill: "slash",
+    upgrades: []
   },
 ];
 
