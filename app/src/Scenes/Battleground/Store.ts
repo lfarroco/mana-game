@@ -62,7 +62,7 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 
 	const job = getJob(unit.job);
 
-	const x = 350 + i * 200;
+	const x = 100 + i * 120;
 	const y = 100;
 
 	const sprite = scene.add.image(
