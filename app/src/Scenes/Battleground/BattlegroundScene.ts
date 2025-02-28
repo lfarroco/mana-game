@@ -24,7 +24,6 @@ import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
 import * as StoreSystem from "./Store";
 import { delay } from "../../Utils/animation";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "./constants";
-import { getJob } from "../../Models/Job";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -42,6 +41,7 @@ export class BattlegroundScene extends Phaser.Scene {
   state: State;
   dropZone: Phaser.GameObjects.Zone | null = null;
   maxUnitsDisplay: Phaser.GameObjects.Text | null = null;
+  ui: Phaser.GameObjects.Container | null = null;
 
   cleanup() {
     this.charas.forEach(chara => {
@@ -86,6 +86,7 @@ export class BattlegroundScene extends Phaser.Scene {
       [signals.BATTLE_START, async () => {
 
         this.hideDropZone();
+        this.hideUI();
 
         const enemies = [
           makeUnit(Math.random().toString(), FORCE_ID_CPU, "orc", vec2(1, 1)),
@@ -110,6 +111,8 @@ export class BattlegroundScene extends Phaser.Scene {
         // and reposition the units
 
         this.displayDropZone();
+
+        this.showUI();
 
         this.charas.forEach(chara => chara.container.destroy())
         this.state.gameData.units = this.state.gameData.units.filter(u => u.force === FORCE_ID_PLAYER);
@@ -152,7 +155,13 @@ export class BattlegroundScene extends Phaser.Scene {
 
   }
 
+  showUI() {
+    this.ui?.setVisible(true);
+  }
 
+  hideUI() {
+    this.ui?.setVisible(false);
+  }
 
   preload = preload;
   create = (state: State) => {
@@ -193,6 +202,21 @@ export class BattlegroundScene extends Phaser.Scene {
 
     // todo: check if necessary
     this.renderStore();
+
+    this.ui = this.add.container(0, 0);
+
+    const startBattleBtn = this.add.text(SCREEN_WIDTH - 200, SCREEN_HEIGHT - 200, "Start Battle", {
+      fontSize: "24px",
+      color: "white"
+    });
+
+    startBattleBtn.setInteractive();
+
+    startBattleBtn.on("pointerdown", () => {
+      emit(signals.BATTLE_START, state.gameData.tick);
+    });
+
+    this.ui.add(startBattleBtn);
 
   };
 
