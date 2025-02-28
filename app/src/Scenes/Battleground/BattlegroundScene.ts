@@ -203,6 +203,14 @@ export class BattlegroundScene extends Phaser.Scene {
     // todo: check if necessary
     this.renderStore();
 
+
+    this.updateUI()
+  };
+
+  updateUI() {
+
+    const force = this.state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
+
     this.ui = this.add.container(0, 0);
 
     const startBattleBtn = this.add.text(SCREEN_WIDTH - 200, SCREEN_HEIGHT - 200, "Start Battle", {
@@ -213,12 +221,20 @@ export class BattlegroundScene extends Phaser.Scene {
     startBattleBtn.setInteractive();
 
     startBattleBtn.on("pointerdown", () => {
-      emit(signals.BATTLE_START, state.gameData.tick);
+      emit(signals.BATTLE_START, this.state.gameData.tick);
     });
 
     this.ui.add(startBattleBtn);
 
-  };
+    const playerHP = this.add.text(SCREEN_WIDTH - 200, 150, "HP: " + force.hp, {
+      fontSize: "24px",
+      color: "white"
+    });
+
+    this.ui.add(playerHP);
+
+
+  }
 
   populateStore() {
 

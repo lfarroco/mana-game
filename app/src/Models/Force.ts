@@ -5,6 +5,7 @@ export type Force = {
 	color: string;
 	maxUnits: number;
 	gold: number;
+	hp: number;
 };
 
 export const makeForce = (id: string): Force => ({
@@ -12,9 +13,10 @@ export const makeForce = (id: string): Force => ({
 	name: "",
 	color: "",
 	gold: 3,
-	maxUnits: 2,
-
+	maxUnits: 6,
+	hp: 50,
 });
+
 export const FORCE_ID_PLAYER = "PLAYER"
 
 export const FORCE_ID_CPU = "CPU"
