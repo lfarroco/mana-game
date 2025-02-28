@@ -36,7 +36,6 @@ export async function slashAnimation(
 		maxAliveParticles: 5,
 		scale: { min: 0.5, max: 1, },
 		stopAfter: 5
-		//blendMode: 'ADD',
 	});
 
 	popText(scene, damage.toString(), targetChara.unit.id);

@@ -12,6 +12,7 @@ import { vignette } from "./Animations/vignette";
 import { shoot } from "../../Systems/Chara/Skills/shoot";
 import { healing } from "../../Systems/Chara/Skills/healing";
 import { slash } from "../../Systems/Chara/Skills/slash";
+import { fireball } from "../../Systems/Chara/Skills/fireball";
 
 const processTick = async (scene: BattlegroundScene) => {
 
@@ -86,6 +87,8 @@ const performAction = (
   }
   else if (job.skill === "shoot") {
     await shoot(scene)(unit);
+  } else if (job.skill === "fireball") {
+    await fireball(scene)(unit);
   }
 
 }
