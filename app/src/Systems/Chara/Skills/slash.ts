@@ -38,7 +38,7 @@ export async function slash(
 	emit(
 		signals.DAMAGE_UNIT,
 		targetChara.id,
-		10
+		unit.attack
 	);
 
 }
