@@ -11,8 +11,8 @@ export const makeForce = (id: string): Force => ({
 	id,
 	name: "",
 	color: "",
-	gold: 5,
-	maxUnits: 3,
+	gold: 3,
+	maxUnits: 2,
 
 });
 export const FORCE_ID_PLAYER = "PLAYER"

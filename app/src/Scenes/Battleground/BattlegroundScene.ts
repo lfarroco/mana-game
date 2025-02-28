@@ -336,10 +336,12 @@ export class BattlegroundScene extends Phaser.Scene {
 
   updateMaxUnitsDisplay() {
 
+
+    const force = this.state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
     this.maxUnitsDisplay?.destroy();
     this.maxUnitsDisplay = this.add.text(
       SCREEN_WIDTH - 200, SCREEN_HEIGHT - 100,
-      this.state.gameData.units.filter(u => u.force === FORCE_ID_PLAYER).length + "/3"
+      this.state.gameData.units.filter(u => u.force === FORCE_ID_PLAYER).length + "/" + force.maxUnits
       , {
         fontSize: "48px",
         color: "white"
