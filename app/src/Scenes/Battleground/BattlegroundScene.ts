@@ -90,15 +90,9 @@ export class BattlegroundScene extends Phaser.Scene {
         this.hideDropZone();
         this.hideUI();
 
-        const enemies = waves[this.state.gameData.wave]
-
-        this.state.gameData.units = this.state.gameData.units.concat(enemies)
-
         this.state.gameData.units = this.state.gameData.units.map(u => {
           return { ...u, initialPosition: vec2(u.position.x, u.position.y) }
         })
-
-        enemies.forEach((unit) => this.renderUnit(unit))
 
         await delay(this, 200)
 
@@ -109,7 +103,6 @@ export class BattlegroundScene extends Phaser.Scene {
         // clear the scene
         // and reposition the units
 
-        this.state.gameData.wave++;
 
         this.displayDropZone();
 
@@ -130,7 +123,12 @@ export class BattlegroundScene extends Phaser.Scene {
         this.state.gameData.units.forEach(u =>
           this.renderUnit(u)
         );
+
+        this.state.gameData.wave++;
+
+        this.createWave();
         this.renderStore();
+
       }]
 
     ]);
@@ -195,11 +193,26 @@ export class BattlegroundScene extends Phaser.Scene {
     //this.cameras.main.setZoom(1.5)
     emit(signals.BATTLEGROUND_STARTED);
 
+
+    this.updateUI();
+
+    this.createWave();
+
     // todo: check if necessary
     this.renderStore();
-
-    this.updateUI()
   };
+
+  createWave() {
+    const enemies = waves[this.state.gameData.wave]
+
+    this.state.gameData.units = this.state.gameData.units.concat(enemies)
+
+    this.state.gameData.units = this.state.gameData.units.map(u => {
+      return { ...u, initialPosition: vec2(u.position.x, u.position.y) }
+    })
+
+    enemies.forEach((unit) => this.renderUnit(unit))
+  }
 
   updateUI() {
 

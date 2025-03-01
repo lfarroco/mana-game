@@ -14,6 +14,8 @@ export const asVec2 = ({ x, y }: { x: number, y: number }): Vec2 => vec2(x, y)
 
 export const eqVec2 = (v1: Vec2, v2: Vec2) => v1.x === v2.x && v1.y === v2.y
 
+export const sumVec2 = (v1: Vec2) => (v2: Vec2): Vec2 => vec2(v1.x + v2.x, v1.y + v2.y)
+
 // curried version of eqVec2
 export const eqVec2_ = (v1: Vec2) => (v2: Vec2) => eqVec2(v1, v2)
 

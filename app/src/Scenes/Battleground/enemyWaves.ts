@@ -1,5 +1,5 @@
 import { FORCE_ID_CPU } from "../../Models/Force";
-import { vec2 } from "../../Models/Geometry";
+import { sumVec2, vec2 } from "../../Models/Geometry";
 import { makeUnit, Unit } from "../../Models/Unit";
 
 const enemy = (job: string, x: number, y: number) => makeUnit(
@@ -8,24 +8,30 @@ const enemy = (job: string, x: number, y: number) => makeUnit(
 	job,
 	vec2(
 		x + 6,
-		y + 2
+		y + 4
 	))
 
-export const waves: { [idx: number]: Unit[] } = {
-	1: [
-		enemy("blob", 1, 2),
-		enemy("blob", 2, 2),
-		enemy("blob", 3, 2),
-		enemy("blob", 4, 2),
-		enemy("blob", 5, 2),
+const shift = (x: number, y: number) => (u: Unit) => ({ ...u, position: sumVec2(u.position)(vec2(x, y)) })
 
-		enemy("blob", 4, 1),
-		enemy("blob", 5, 1),
-	],
-	2: [
-		enemy("blob", 1, 1),
-		enemy("blob", 2, 1),
-		enemy("blob", 4, 1),
-		enemy("blob", 5, 1)
-	]
+export const waves: { [idx: number]: Unit[] } = {
+	1: cluster("blob", 2).map(shift(0, -1)),
+	2: cluster("blob", 3),
+	3: cluster("blob", 4),
+	4: cluster("blob", 5),
+	5: cluster("blob", 6),
+}
+
+function cluster(job: string, size: number) {
+	return new Array(
+		size * size
+	).fill(0).map((_, i) => {
+
+		// this placement logic is just:
+		// this will place the enemies in a 5x5 grid
+
+		const x = i % size;
+		const y = Math.floor(i / size) - Math.floor(size / 2);
+
+		return enemy(job, x, y);
+	})
 }
