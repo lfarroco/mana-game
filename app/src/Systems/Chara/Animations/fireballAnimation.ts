@@ -16,19 +16,30 @@ export async function fireballAnimation(scene: BattlegroundScene, unit: Unit, ta
 		targetChara.container.x, targetChara.container.y
 	);
 
+
 	const particles = scene.add.particles(
 		unitChara.container.x,
 		unitChara.container.y,
 		'light',
 		{
-			speed: { min: 50, max: 150 },
-			angle: { min: angle - 30, max: angle + 30 },
-			//red, orange, yellow
-			tint: [0xff0000, 0xffa500, 0xffff00],
+			// make particles move in the direction of the angle, using the speed
+			speedX:
+			{
+				min: -Math.cos(angle) * 200,
+				max: -Math.cos(angle) * 400
+			},
+			speedY: {
+				min: -Math.sin(angle) * 200,
+				max: -Math.sin(angle) * 400
+			},
+			angle: { min: angle - 60, max: angle + 60 },
+			//purple tones
+			tint: [0x8a2be2, 0x9400d3, 0x9932cc, 0xba55d3, 0xda70d6, 0xdda0dd, 0xee82ee, 0xff00ff],
 			lifespan: 400,
 			alpha: { start: 1, end: 0 },
 			scale: { start: 1, end: 0 },
-			//blendMode: 'ADD'
+			//blendMode: 'ADD',
+
 		}
 
 	)
@@ -37,7 +48,7 @@ export async function fireballAnimation(scene: BattlegroundScene, unit: Unit, ta
 		targets: [particles],
 		x: targetChara.container.x,
 		y: targetChara.container.y,
-		duration: 500 / scene.state.options.speed,
+		duration: 2500 / scene.state.options.speed,
 	});
 
 	popText(scene, unit.attack.toString(), target.id);
