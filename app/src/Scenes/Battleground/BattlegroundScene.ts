@@ -235,18 +235,25 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.ui.add(startBattleBtn);
 
-    const playerHP = this.add.text(SCREEN_WIDTH - 200, 450, "HP: " + force.hp, {
+    const playerHP = this.add.text(SCREEN_WIDTH - 200, 350, "HP: " + force.hp, {
       fontSize: "24px",
       color: "white"
     });
 
     this.ui.add(playerHP);
 
+    const wave = this.add.text(SCREEN_WIDTH - 200, 400, "Wave: " + this.state.gameData.wave, {
+      fontSize: "24px",
+      color: "white"
+    });
+
+    this.ui.add(wave);
+
     const maxUnits = this.add.text(
-      SCREEN_WIDTH - 200, SCREEN_HEIGHT - 100,
+      SCREEN_WIDTH - 350, SCREEN_HEIGHT - 50,
       this.state.gameData.units.filter(u => u.force === FORCE_ID_PLAYER).length + "/" + force.maxUnits
       , {
-        fontSize: "48px",
+        fontSize: "36px",
         color: "white"
       });
 
