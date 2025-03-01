@@ -126,7 +126,7 @@ export const jobs: Job[] = [
   {
     id: "blob",
     name: "Green Blob",
-    moveRange: 3,
+    moveRange: 1,
     gold: 100,
     attackRange: 1,
     attackPower: 10,
