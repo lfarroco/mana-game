@@ -1,6 +1,5 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../index.css";
-import Battleground from "./Battleground/Battleground";
 import { useState } from "react";
 import { listeners, signals } from "../Models/Signals";
 import Title from "./Title/Title";
@@ -22,7 +21,6 @@ export const UI = () => {
   return (
     <>
       {route === "menu" && <Title />}
-      {route === "battleground" && <Battleground />}
       <Options />
       <LoadGame />
     </>

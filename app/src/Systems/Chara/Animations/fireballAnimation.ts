@@ -16,7 +16,6 @@ export async function fireballAnimation(scene: BattlegroundScene, unit: Unit, ta
 		targetChara.container.x, targetChara.container.y
 	);
 
-
 	const particles = scene.add.particles(
 		unitChara.container.x,
 		unitChara.container.y,
@@ -48,7 +47,7 @@ export async function fireballAnimation(scene: BattlegroundScene, unit: Unit, ta
 		targets: [particles],
 		x: targetChara.container.x,
 		y: targetChara.container.y,
-		duration: 2500 / scene.state.options.speed,
+		duration: 500 / scene.state.options.speed,
 	});
 
 	popText(scene, unit.attack.toString(), target.id);

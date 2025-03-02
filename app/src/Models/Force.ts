@@ -12,7 +12,7 @@ export const makeForce = (id: string): Force => ({
 	id,
 	name: "",
 	color: "",
-	gold: 3,
+	gold: 10,
 	maxUnits: 6,
 	hp: 50,
 });
