@@ -17,8 +17,6 @@ export const waves: { [idx: number]: Unit[] } = {
 	1: cluster("blob", 2).map(shift(0, -1)),
 	2: cluster("blob", 3),
 	3: cluster("blob", 4),
-	4: cluster("blob", 5),
-	5: cluster("blob", 6),
 }
 
 function cluster(job: string, size: number) {

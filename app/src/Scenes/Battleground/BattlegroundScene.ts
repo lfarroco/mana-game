@@ -25,6 +25,7 @@ import * as StoreSystem from "./Store";
 import { delay } from "../../Utils/animation";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "./constants";
 import { waves } from "./enemyWaves";
+import { vignette } from "./Animations/vignette";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -99,7 +100,7 @@ export class BattlegroundScene extends Phaser.Scene {
         emit(signals.BATTLEGROUND_TICK)
 
       }],
-      [signals.COMBAT_FINISHED, () => {
+      [signals.COMBAT_FINISHED, async () => {
         // clear the scene
         // and reposition the units
 
@@ -125,6 +126,15 @@ export class BattlegroundScene extends Phaser.Scene {
         );
 
         this.state.gameData.wave++;
+
+        const isGameOver = this.state.gameData.wave > Object.keys(waves).length;
+
+        if (isGameOver) {
+          await vignette(this, "Victory! Thanks for Playing!");
+          //this.scene.start("MainMenuScene");
+          return;
+
+        }
 
         this.createWave();
         this.renderStore();
