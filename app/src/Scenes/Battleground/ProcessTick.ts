@@ -13,6 +13,7 @@ import { shoot } from "../../Systems/Chara/Skills/shoot";
 import { healing } from "../../Systems/Chara/Skills/healing";
 import { slash } from "../../Systems/Chara/Skills/slash";
 import { fireball } from "../../Systems/Chara/Skills/fireball";
+import { GOLD_PER_WAVE } from "./constants";
 
 const processTick = async (scene: BattlegroundScene) => {
 
@@ -43,14 +44,14 @@ const processTick = async (scene: BattlegroundScene) => {
   if (cpuUnits.length === 0) {
     await vignette(scene, "Victory!");
 
-    playerForce.gold += 2;
+    playerForce.gold += GOLD_PER_WAVE;
 
     await delay(scene, 1000 / state.options.speed);
 
     emit(signals.COMBAT_FINISHED, FORCE_ID_PLAYER);
   } else if (playerUnits.length === 0) {
 
-    playerForce.gold += 1;
+    playerForce.gold += GOLD_PER_WAVE;
 
     playerForce.hp = Math.max(0, playerForce.hp - cpuUnits.length);
 

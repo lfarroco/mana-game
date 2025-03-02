@@ -4,12 +4,11 @@ import { getJob } from "../../Models/Job";
 import { emit, listeners, signals } from "../../Models/Signals";
 import { makeUnit, Unit } from "../../Models/Unit";
 import { BattlegroundScene } from "./BattlegroundScene";
-import { SCREEN_WIDTH } from "./constants";
+import { RECRUIT_UNIT_PRICE, SCREEN_WIDTH } from "./constants";
 
 let units: Unit[] = [];
 
 let container: Phaser.GameObjects.Container | null = null;
-let jobDetails: Phaser.GameObjects.Container | null = null;
 
 export function init(scene: BattlegroundScene) {
 
@@ -70,7 +69,7 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 		job.id + "/portrait")
 		.setOrigin(0.5, 0.5)
 		.setDisplaySize(96, 96)
-		.setAlpha(force.gold >= 1 ? 1 : 0.5);
+		.setAlpha(force.gold >= RECRUIT_UNIT_PRICE ? 1 : 0.5);
 
 	container?.add(sprite);
 
@@ -86,7 +85,7 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 
 	})
 
-	if (force.gold < 1) return;
+	if (force.gold < RECRUIT_UNIT_PRICE) return;
 
 	//sprite.on('dragstart', (pointer: Phaser.Input.Pointer) => {
 	//  });
@@ -111,7 +110,7 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 			const coords = scene.getTileAtWorldXY(vec2(pointer.worldX, pointer.worldY));
 			console.log("dropped on tile", coords);
 
-			force.gold -= 1;
+			force.gold -= RECRUIT_UNIT_PRICE;
 			emit(signals.RECRUIT_UNIT, FORCE_ID_PLAYER, unit.job, asVec2(coords));
 
 			scene.updateUI();
