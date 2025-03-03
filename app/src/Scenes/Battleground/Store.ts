@@ -4,7 +4,7 @@ import { getJob } from "../../Models/Job";
 import { emit, listeners, signals } from "../../Models/Signals";
 import { makeUnit, Unit } from "../../Models/Unit";
 import { BattlegroundScene } from "./BattlegroundScene";
-import { RECRUIT_UNIT_PRICE, SCREEN_WIDTH } from "./constants";
+import { RECRUIT_UNIT_PRICE, } from "./constants";
 
 let units: Unit[] = [];
 
@@ -17,8 +17,8 @@ export function init(scene: BattlegroundScene) {
 		'archer',
 		'acolyte',
 		'apprentice',
+		'thief'
 	].map(job => makeUnit(Math.random().toString(), FORCE_ID_PLAYER, job, asVec2({ x: 0, y: 0 })));
-
 
 	listeners([
 		[signals.BATTLE_START, async () => {
