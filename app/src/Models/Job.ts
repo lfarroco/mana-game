@@ -55,8 +55,8 @@ Focus: Sustain, hybrid damage/support.`,
     },
     skill: "heal",
     upgrades: [
-      "priest",
-      "plaguedoctor"
+      "cleric",
+      "monk"
     ]
   },
   {
@@ -104,8 +104,7 @@ Focus: Frontline tanking, crowd control.`,
   {
     id: "thief",
     name: "Thief",
-    description: `Stealth DPS | Ambush enemies from behind for critical strikes.
-Focus: Priority target removal, evasion.`,
+    description: `A slippery opportunist who thrives on evasion and punishing enemy mistakes.`,
     moveRange: 2,
     attackPower: 20,
     attackRange: 3,
@@ -119,7 +118,7 @@ Focus: Priority target removal, evasion.`,
     skill: "slash",
     upgrades: [
       "ninja",
-      "swashbuckler"
+      "rogue"
     ]
   },
   {
@@ -286,6 +285,43 @@ Focus: Self-sustain, distraction.`,
     skill: "heal",
     upgrades: []
   },
+  {
+    id: "rogue",
+    name: "Rogue",
+    description: `Assassin | Stealth and critical strikes to eliminate high-priority targets.
+Focus: Priority target removal, evasion.`,
+    moveRange: 3,
+    attackPower: 7,
+    attackRange: 1,
+    stats: {
+      hp: 16,
+      attack: 7,
+      defense: 0,
+      accuracy: 0,
+      agility: 16,
+    },
+    skill: "slash",
+    upgrades: []
+  },
+  {
+    id: "ninja",
+    name: "Ninja",
+    description: `Stealthy Assassin | Slip past enemy lines and strike from the shadows.
+Focus: Priority target removal, evasion.`,
+    moveRange: 3,
+    attackPower: 6,
+    attackRange: 1,
+    stats: {
+      hp: 14,
+      attack: 6,
+      defense: 0,
+      accuracy: 0,
+      agility: 22,
+    },
+    skill: "slash",
+    upgrades: []
+  }
+
 
 
 ];

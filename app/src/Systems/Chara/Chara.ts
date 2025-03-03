@@ -4,7 +4,7 @@ import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, PROMOTE_UNIT_PRICE, SCREEN_HEIGHT, S
 import "./portrait.css"
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { emit, listeners, signals } from "../../Models/Signals";
-import { eqVec2, vec2, Vec2 } from "../../Models/Geometry";
+import { asVec2, eqVec2, vec2, Vec2 } from "../../Models/Geometry";
 import { tween } from "../../Utils/animation";
 import { TURN_DURATION } from "../../config";
 import { FORCE_ID_PLAYER } from "../../Models/Force";
@@ -92,6 +92,8 @@ export const makeCharaInteractive = (chara: Chara) => {
 
 		const tile = scene.getTileAtWorldXY(vec2(pointer.worldX, pointer.worldY));
 
+		const charaUnit = scene.state.gameData.units.find(u => u.id === chara.id)!;
+
 		const position = vec2(tile.x, tile.y)
 
 		const maybeOccupier = scene.state.gameData.units.find(u => eqVec2(u.position, position));
@@ -99,7 +101,8 @@ export const makeCharaInteractive = (chara: Chara) => {
 		if (maybeOccupier) {
 			const occupierChara = scene.getChara(maybeOccupier.id);
 
-			maybeOccupier.position = chara.unit.position;
+			console.log("position for occupier", asVec2(charaUnit.position));
+			maybeOccupier.position = asVec2(charaUnit.position);
 
 			tween({
 				targets: [occupierChara.container],
@@ -110,7 +113,8 @@ export const makeCharaInteractive = (chara: Chara) => {
 			})
 		}
 
-		chara.unit.position = position;
+		console.log("position for dropped:: ", position);
+		charaUnit.position = position;
 
 		tween({
 			targets: [chara.container],
