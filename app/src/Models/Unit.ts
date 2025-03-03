@@ -1,4 +1,4 @@
-import { Vec2 } from "./Geometry";
+import { asVec2, Vec2 } from "./Geometry";
 import { getJob } from "./Job";
 
 export type Unit = {
@@ -27,7 +27,7 @@ export const makeUnit = (id: string, force: string, job: string, position: Vec2)
     name: job_.name,
     job,
     force,
-    position,
+    position: asVec2(position),
     initialPosition: position,
     ...job_.stats,
     maxHp: job_.stats.hp,

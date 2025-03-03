@@ -9,6 +9,8 @@ const jobs = [
 	'knight',
 	'berserker',
 	'soldier',
+	'monk',
+	'cleric',
 	'thief',
 	'blob',
 ]
@@ -81,7 +83,10 @@ export function preload(this: Phaser.Scene) {
 		)
 	});
 
-	['arcanist', 'elementalist', 'knight', 'berserker', 'sniper', 'hunter'].forEach(job => {
+	['arcanist', 'elementalist', 'knight', 'berserker', 'sniper', 'hunter',
+		'monk', 'cleric'
+
+	].forEach(job => {
 		this.load.image(
 			`${job}/full`,
 			`assets/jobs/${job}/full.jpeg`,
