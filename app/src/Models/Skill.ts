@@ -3,6 +3,7 @@ export type Skill = {
 	id: string;
 	name: string;
 	range: number;
+	cooldown: number;
 	targets: "enemy" | "ally" | "unit" | "tile"
 	power: number;
 	harmful: boolean;
@@ -19,6 +20,7 @@ export const skills: Skill[] = [
 	{
 		id: "slash",
 		name: "Slash",
+		cooldown: 0,
 		range: 1,
 		targets: "enemy",
 		power: 20,
@@ -33,6 +35,7 @@ export const skills: Skill[] = [
 	{
 		id: "heal",
 		name: "Heal",
+		cooldown: 2,
 		range: 2,
 		targets: "ally",
 		power: 20,
@@ -47,6 +50,7 @@ export const skills: Skill[] = [
 	{
 		id: "shoot",
 		name: "Shoot",
+		cooldown: 0,
 		range: 4,
 		targets: "enemy",
 		power: 20,
@@ -61,6 +65,7 @@ export const skills: Skill[] = [
 	{
 		id: "fireball",
 		name: "Fireball",
+		cooldown: 3,
 		range: 5,
 		targets: "enemy",
 		power: 100,

@@ -12,6 +12,8 @@ export type Unit = {
   hp: number;
   maxHp: number;
 
+  cooldowns: { [key: string]: number };
+
   attack: number;
   defense: number;
   accuracy: number;
@@ -27,6 +29,7 @@ export const makeUnit = (id: string, force: string, job: string, position: Vec2)
     name: job_.name,
     job,
     force,
+    cooldowns: {},
     position: asVec2(position),
     initialPosition: position,
     ...job_.stats,
