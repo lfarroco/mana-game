@@ -143,7 +143,7 @@ Focus: Frontline tanking, crowd control.`,
     attackProjectile: null,
     attackPower: 10,
     stats: {
-      hp: 60,
+      hp: 30,
       attack: 20,
       defense: 10,
       accuracy: 10,

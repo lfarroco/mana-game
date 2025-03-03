@@ -14,6 +14,7 @@ import { healing } from "../../Systems/Chara/Skills/healing";
 import { slash } from "../../Systems/Chara/Skills/slash";
 import { fireball } from "../../Systems/Chara/Skills/fireball";
 import { GOLD_PER_WAVE } from "./constants";
+import { getSkill } from "../../Models/Skill";
 
 const processTick = async (scene: BattlegroundScene) => {
 
@@ -76,7 +77,22 @@ const performAction = (
 
   if (unit.hp <= 0) return;
 
-  const job = getJob(unit.job)
+  const job = getJob(unit.job);
+
+  const cooldown = unit.cooldowns[job.skill];
+
+  if (!cooldown){
+    // use skill
+
+    const skill = getSkill(job.skill);
+
+
+    unit.cooldowns[job.skill] = skill.cooldown;
+
+  }
+
+  // 1 check if a skill can be used
+  // 2 otherwise, use default attack
 
   if (job.skill === "slash") {
     const mtarget = await moveToMeleeTarget(scene)(unit)
