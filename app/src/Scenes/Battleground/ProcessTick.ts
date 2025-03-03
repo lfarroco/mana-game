@@ -4,9 +4,8 @@ import { State, getActiveUnits, getState } from "../../Models/State";
 import { Unit, unitLog } from "../../Models/Unit";
 import { delay } from "../../Utils/animation";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
-import { lookupAIPAth } from "./Systems/Pathfinding";
 import { getJob } from "../../Models/Job";
-import { asVec2, snakeDistanceBetween, sortBySnakeDistance, Vec2 } from "../../Models/Geometry";
+import { asVec2, sortBySnakeDistance, Vec2 } from "../../Models/Geometry";
 import { runPromisesInOrder as sequenceAsync } from "../../utils";
 import { vignette } from "./Animations/vignette";
 import { shoot } from "../../Systems/Chara/Skills/shoot";
@@ -28,9 +27,6 @@ const processTick = async (scene: BattlegroundScene) => {
     .map(performAction(scene));
 
   await sequenceAsync(unitActions);
-
-  state.gameData.tick++;
-  emit(signals.TURN_END)
 
   state.inputDisabled = false;
 
@@ -59,6 +55,9 @@ const processTick = async (scene: BattlegroundScene) => {
     emit(signals.WAVE_FINISHED, FORCE_ID_CPU);
 
   } else {
+
+    state.gameData.tick++;
+    emit(signals.TURN_END)
     await processTick(scene);
   }
 
@@ -79,18 +78,20 @@ const performAction = (
 
   await panTo(scene, asVec2(activeChara.container));
 
-  if (job.skill === "slash") {
+  //const cooldowns = activeChara.unit.cooldowns[job.]
+
+  if (job.baseAttack === "slash") {
 
     const mtarget = await approach(activeChara, 1, true);
     if (mtarget)
       await slash(scene, unit, mtarget)
   }
-  else if (job.skill === "heal") {
+  else if (job.baseAttack === "heal") {
     await healing(scene)(unit);
   }
-  else if (job.skill === "shoot") {
+  else if (job.baseAttack === "shoot") {
     await shoot(scene)(unit);
-  } else if (job.skill === "fireball") {
+  } else if (job.baseAttack === "fireball") {
     await fireball(scene)(unit);
   }
 

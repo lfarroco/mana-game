@@ -24,7 +24,7 @@ export async function healAnimation(
 
     const job = getJob(unit.job);
 
-    const skill = getSkill(job.skill);
+    const skill = getSkill(job.baseAttack);
 
 
     if (targetUnit.hp <= 0) {
@@ -35,7 +35,7 @@ export async function healAnimation(
 
     await popText(scene, skill.name, unit.id);
 
-    if (job.skill === "heal") {
+    if (job.baseAttack === "heal") {
 
         scene.playFx("audio/curemagic");
 
