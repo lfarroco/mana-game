@@ -8,7 +8,8 @@ export async function slashAnimation(
 	scene: BattlegroundScene,
 	activeChara: Chara,
 	targetChara: Chara,
-	damage: number) {
+	damage: number,
+) {
 
 	const state = getState();
 	const { speed } = state.options;

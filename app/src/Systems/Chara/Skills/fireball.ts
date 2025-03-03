@@ -1,4 +1,4 @@
-import { distanceBetween, Vec2 } from "../../../Models/Geometry";
+import { snakeDistanceBetween, Vec2 } from "../../../Models/Geometry";
 import { getJob } from "../../../Models/Job";
 import { getSkill } from "../../../Models/Skill";
 import { Unit } from "../../../Models/Unit";
@@ -24,20 +24,20 @@ export function fireball(scene: BattlegroundScene) {
 			return;
 		};
 
-		const distance = distanceBetween(unit.position)(closestEnemy.position);
+		const distance = snakeDistanceBetween(unit.position)(closestEnemy.position);
 
 		if (distance > attackRange) {
 
 			const pathTo = await lookupAIPAth(scene, unit.id, unit.position, closestEnemy.position, job.moveRange);
 
 			await walk(scene, unit, pathTo, (position: Vec2) => {
-				const distance = distanceBetween(position)(closestEnemy.position);
+				const distance = snakeDistanceBetween(position)(closestEnemy.position);
 				return distance <= attackRange;
 			});
 
 		}
 
-		if (distanceBetween(unit.position)(closestEnemy.position) <= attackRange) {
+		if (snakeDistanceBetween(unit.position)(closestEnemy.position) <= attackRange) {
 			await fireballAnimation(scene, unit, closestEnemy);
 		}
 

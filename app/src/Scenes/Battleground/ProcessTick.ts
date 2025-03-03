@@ -6,7 +6,7 @@ import { delay } from "../../Utils/animation";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
 import { lookupAIPAth } from "./Systems/Pathfinding";
 import { getJob } from "../../Models/Job";
-import { asVec2, distanceBetween, sortByDistanceTo, Vec2 } from "../../Models/Geometry";
+import { asVec2, snakeDistanceBetween, sortBySnakeDistance, Vec2 } from "../../Models/Geometry";
 import { runPromisesInOrder as sequenceAsync } from "../../utils";
 import { vignette } from "./Animations/vignette";
 import { shoot } from "../../Systems/Chara/Skills/shoot";
@@ -16,9 +16,6 @@ import { fireball } from "../../Systems/Chara/Skills/fireball";
 import { GOLD_PER_WAVE } from "./constants";
 
 const processTick = async (scene: BattlegroundScene) => {
-
-
-  const playerForce = scene.playerForce;
 
   emit(signals.TURN_START)
 
@@ -42,7 +39,7 @@ const processTick = async (scene: BattlegroundScene) => {
   if (cpuUnits.length === 0) {
     await vignette(scene, "Victory!");
 
-    playerForce.gold += GOLD_PER_WAVE;
+    scene.playerForce.gold += GOLD_PER_WAVE;
 
     await delay(scene, 1000 / state.options.speed);
 
@@ -50,9 +47,9 @@ const processTick = async (scene: BattlegroundScene) => {
 
   } else if (playerUnits.length === 0) {
 
-    playerForce.gold += GOLD_PER_WAVE;
+    scene.playerForce.gold += GOLD_PER_WAVE;
 
-    playerForce.hp = Math.max(0, playerForce.hp - cpuUnits.length);
+    scene.playerForce.hp = Math.max(0, scene.playerForce.hp - cpuUnits.length);
 
     await vignette(scene, "Defeat!");
 
@@ -61,7 +58,6 @@ const processTick = async (scene: BattlegroundScene) => {
     emit(signals.WAVE_FINISHED, FORCE_ID_CPU);
 
   } else {
-
     await processTick(scene);
   }
 
@@ -85,6 +81,8 @@ const performAction = (
   await panTo(scene, asVec2(activeChara.container));
 
   if (job.skill === "slash") {
+
+    //const mtarget = await approach(activeChara, 1, true);
     const mtarget = await moveToMeleeTarget(scene)(unit)
     if (mtarget)
       await slash(scene, unit, mtarget)
@@ -142,7 +140,7 @@ const moveToMeleeTarget = (
     return null;
   };
 
-  const distance = distanceBetween(unit.position)(closestEnemy.position);
+  const distance = snakeDistanceBetween(unit.position)(closestEnemy.position);
 
   if (distance < 1) return closestEnemy
 
@@ -150,7 +148,7 @@ const moveToMeleeTarget = (
 
   await walk(scene, unit, path, null);
 
-  if (distanceBetween(unit.position)(closestEnemy.position) > 1) {
+  if (snakeDistanceBetween(unit.position)(closestEnemy.position) > 1) {
     return null
   }
 
@@ -162,7 +160,7 @@ export function getUnitsByProximity(state: State, unit: Unit, enemy: boolean): U
   return getActiveUnits(state)
     .filter(u => enemy ? u.force !== unit.force : u.force === unit.force)
     .filter(u => u.id !== unit.id)
-    .sort((a, b) => sortByDistanceTo(unit.position)(a.position)(b.position));
+    .sort((a, b) => sortBySnakeDistance(unit.position)(a.position)(b.position));
 }
 
 export async function panTo(scene: BattlegroundScene, vec: Vec2) {

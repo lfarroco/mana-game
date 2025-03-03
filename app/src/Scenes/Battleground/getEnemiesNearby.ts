@@ -1,4 +1,4 @@
-import { distanceBetween } from "../../Models/Geometry";
+import { snakeDistanceBetween } from "../../Models/Geometry";
 import { Unit } from "../../Models/Unit";
 import { getState } from "../../Models/State";
 import { getJob } from "../../Models/Job";
@@ -12,7 +12,7 @@ export function getEnemiesNearby(unit: Unit) {
 		.filter((u) => u.force !== unit.force)
 		.filter((u) => {
 
-			const distance = distanceBetween(u.position)(unit.position);
+			const distance = snakeDistanceBetween(u.position)(unit.position);
 
 			return distance <= skill.range;
 
