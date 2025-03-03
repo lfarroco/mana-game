@@ -1,9 +1,9 @@
 import { snakeDistanceBetween, Vec2 } from "../../Models/Geometry";
 import { getJob } from "../../Models/Job";
 import { Unit } from "../../Models/Unit";
+import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { getUnitsByProximity, walk } from "../../Scenes/Battleground/ProcessTick";
 import { lookupAIPAth } from "../../Scenes/Battleground/Systems/Pathfinding";
-import { Chara } from "./Chara";
 
 /*
 Approach the closest enemy
@@ -12,23 +12,22 @@ either reaches it or runs out of movement range
 Returns the unit if it is within the specified range
 */
 export async function approach(
-	chara: Chara,
+	scene: BattlegroundScene,
+	unit: Unit,
 	range: number = 1,
 	enemy: boolean = true
 ): Promise<Unit | null> {
 
-	const { scene } = chara;
+	const chara = scene.getChara(unit.id);
 	const { state } = chara.scene;
-	const { unit } = chara;
 
 	const job = getJob(unit.job);
 
 	const [closestUnit] = getUnitsByProximity(state, unit, enemy);
 
 	if (!closestUnit) {
-		console.warn("No unit found");
 		return null;
-	};
+	}
 
 	const distance = snakeDistanceBetween(unit.position)(closestUnit.position);
 
@@ -38,10 +37,13 @@ export async function approach(
 
 	await walk(scene, unit, pathTo, (position: Vec2) => {
 		const distance = snakeDistanceBetween(position)(closestUnit.position);
+		console.log("walking to enemy", distance)
 		return distance <= range;
 	});
 
 	const finalDistance = snakeDistanceBetween(unit.position)(closestUnit.position);
+
+	console.log("final range", finalDistance)
 
 	if (finalDistance <= range)
 		return closestUnit;
