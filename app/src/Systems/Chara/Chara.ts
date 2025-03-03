@@ -266,8 +266,6 @@ function upgradeWindow(
 
 	const width = SCREEN_WIDTH;
 	const height = SCREEN_HEIGHT;
-	const x = parent.x + width;
-	const y = parent.y;
 
 	const job = getJob(unit.job)
 
@@ -343,17 +341,15 @@ function upgradeWindow(
 		const title = scene.add.text(
 			x
 			, pic.y + 220,
-			jobUpgrade.name, { color: "white", fontSize: "48px", align: "center" })
+			jobUpgrade.name, { color: "white", fontSize: "36px", align: "center" })
 			.setOrigin(0.5);
 
 
 		const description = scene.add.text(
-			x
-			, pic.y + 300,
-			jobUpgrade.name, { color: "white", fontSize: "24px", align: "center" })
-			.setOrigin(0.5)
-			.setText(`Lorem ipsum dolor sit amet,
-consectetur adipiscing elit`)
+			x - 200
+			, pic.y + 250,
+			jobUpgrade.name, { color: "white", fontSize: "18px", align: "left" })
+			.setText(jobUpgrade.description)
 
 		container.add([pic, title, description]);
 
@@ -363,7 +359,7 @@ consectetur adipiscing elit`)
 	const cancelBtn = scene.add.text(
 		SCREEN_WIDTH / 2 - 140
 		, SCREEN_HEIGHT / 2 + 300,
-		"Cancel", { color: "white", fontSize: "36px" })
+		"Cancel", { color: "white", fontSize: "24px" })
 		.setInteractive()
 		.on("pointerdown", () => {
 			container.destroy();
