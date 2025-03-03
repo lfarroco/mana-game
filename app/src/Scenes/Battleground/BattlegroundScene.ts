@@ -133,8 +133,12 @@ export class BattlegroundScene extends Phaser.Scene {
 
         if (isGameOver) {
           await vignette(this, "Victory! Thanks for Playing!");
-          //this.scene.start("MainMenuScene");
-          return;
+
+          this.charas.forEach(chara => chara.container.destroy())
+          this.charas = []
+          this.state.gameData.units = []
+          this.state.gameData.wave = 1;
+
 
         }
 
