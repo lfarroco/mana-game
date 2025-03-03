@@ -1,11 +1,9 @@
 export type Job = {
   id: string;
   name: string;
-  gold: number;
   moveRange: number;
   attackRange: number;
   attackPower: number;
-  dices: number;
   upgrades: string[];
   stats: {
     hp: number;
@@ -21,11 +19,9 @@ export const jobs: Job[] = [
   {
     id: "archer",
     name: "Archer",
-    gold: 100,
     moveRange: 3,
     attackRange: 4,
     attackPower: 40,
-    dices: 1,
     stats: {
       hp: 100,
       attack: 50,
@@ -43,10 +39,8 @@ export const jobs: Job[] = [
     id: "acolyte",
     name: "Acolyte",
     moveRange: 2,
-    gold: 100,
     attackPower: 15,
     attackRange: 1,
-    dices: 1,
     stats: {
       hp: 80,
       attack: 30,
@@ -64,10 +58,8 @@ export const jobs: Job[] = [
     id: "apprentice",
     name: "Apprentice",
     moveRange: 2,
-    gold: 100,
     attackPower: 20,
     attackRange: 3,
-    dices: 1,
     stats: {
       hp: 80,
       attack: 30,
@@ -85,10 +77,8 @@ export const jobs: Job[] = [
     id: "soldier",
     name: "Soldier",
     moveRange: 3,
-    gold: 100,
     attackRange: 1,
     attackPower: 10,
-    dices: 2,
     stats: {
       hp: 150,
       attack: 40,
@@ -106,10 +96,8 @@ export const jobs: Job[] = [
     id: "apprentice",
     name: "Apprentice",
     moveRange: 2,
-    gold: 100,
     attackPower: 20,
     attackRange: 3,
-    dices: 1,
     stats: {
       hp: 200,
       attack: 30,
@@ -127,10 +115,8 @@ export const jobs: Job[] = [
     id: "blob",
     name: "Green Blob",
     moveRange: 1,
-    gold: 100,
     attackRange: 1,
     attackPower: 10,
-    dices: 2,
     stats: {
       hp: 60,
       attack: 20,
@@ -141,6 +127,40 @@ export const jobs: Job[] = [
     skill: "slash",
     upgrades: []
   },
+
+  {
+    id: "elementalist",
+    name: "Elementalist",
+    moveRange: 2,
+    attackPower: 4,
+    attackRange: 3,
+    stats: {
+      hp: 12,
+      attack: 4,
+      defense: 1,
+      accuracy: 0,
+      agility: 10,
+    },
+    skill: "fireball",
+    upgrades: []
+  },
+  {
+    id: "arcanist",
+    name: "Arcanist",
+    moveRange: 2,
+    attackPower: 2,
+    attackRange: 3,
+    stats: {
+      hp: 10,
+      attack: 2,
+      defense: 0,
+      accuracy: 0,
+      agility: 14,
+    },
+    skill: "fireball",
+    upgrades: []
+  }
+
 ];
 
 export const getJob = (id: string): Job => {

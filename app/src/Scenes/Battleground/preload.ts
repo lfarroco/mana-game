@@ -74,7 +74,14 @@ export function preload(this: Phaser.Scene) {
 			`${job}/portrait`,
 			`assets/jobs/${job}/portrait.png`,
 		)
-	})
+	});
+
+	['arcanist', 'elementalist'].forEach(job => {
+		this.load.image(
+			`${job}/full`,
+			`assets/jobs/${job}/full.jpeg`,
+		)
+	});
 
 	emotes.forEach(emote => {
 
