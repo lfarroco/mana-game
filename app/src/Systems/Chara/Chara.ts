@@ -8,6 +8,7 @@ import { eqVec2, vec2, Vec2 } from "../../Models/Geometry";
 import { tween } from "../../Utils/animation";
 import { TURN_DURATION } from "../../config";
 import { FORCE_ID_PLAYER } from "../../Models/Force";
+import { getJob } from "../../Models/Job";
 
 export type Chara = {
 	id: string;
@@ -210,22 +211,17 @@ function displayUnitInfo(chara: Chara) {
 	const { scene, unit } = chara;
 
 	const width = 200;
-	const height = 200;
+	const height = 50;
 	const x = chara.container.x + TILE_WIDTH;
 	const y = chara.container.y - TILE_HEIGHT;
 
 	const bg = scene.add.graphics();
-	bg.fillStyle(0x000000, 0.8);
-	bg.fillRect(0, 0, width, height);
 
-	const name = scene.add.text(10, 10, unit.job, { color: "white" });
-	const hp = scene.add.text(10, 50, `HP: ${unit.hp}`, { color: "white" });
-	const atk = scene.add.text(10, 90, `ATK: ${unit.attack}`, { color: "white" });
 
 	unitInfoContainer = scene.add.container(x, y);
-	unitInfoContainer.add([bg, name, hp, atk]);
+	unitInfoContainer.add([bg]);
 
-	const closeBtn = scene.add.text(width - 20, 10, "X", { color: "white" })
+	const closeBtn = scene.add.text(120, 10, "X", { color: "white" })
 		.setInteractive()
 		.on("pointerdown", () => {
 			unitInfoContainer?.destroy();
@@ -234,11 +230,14 @@ function displayUnitInfo(chara: Chara) {
 
 	unitInfoContainer.add(closeBtn);
 
-	const updgradeBtn = scene.add.text(10, 130, "Promote", { color: "white" })
+	const updgradeBtn = scene.add.text(10, 10, "Promote", { color: "white" })
 		.setInteractive()
 		.on("pointerdown", () => {
 			upgradeWindow(unitInfoContainer!, chara)
 		});
+
+	bg.fillStyle(0x000000, 0.8);
+	bg.fillRect(0, 0, updgradeBtn.width + 100, height);
 
 	unitInfoContainer.add(updgradeBtn);
 
@@ -257,44 +256,86 @@ function upgradeWindow(
 	const x = parent.x + width;
 	const y = parent.y;
 
+	const job = getJob(unit.job)
+
+	const container = scene.add.container(0, 0);
+
 
 	const bg = scene.add.graphics();
-	bg.fillStyle(0x000000, 0.3);
+	bg.fillStyle(0x000000, 0.6);
 	bg.fillRect(0, 0, width, height);
 	bg.setInteractive(
 		new Phaser.Geom.Rectangle(0, 0, width, height),
 		Phaser.Geom.Rectangle.Contains
 	)
+	container.add(bg);
 
-	const job1 = scene.add.text(
-		SCREEN_WIDTH / 2 - 100
-		, SCREEN_HEIGHT / 2,
-		"Job1", { color: "white" })
-		.setInteractive()
-		.on("pointerdown", () => {
-			console.log("Promote to job1");
-		});
+	job.upgrades.forEach((jobId, i) => {
 
-	const job2 = scene.add.text(
-		SCREEN_WIDTH / 2 + 100
-		, SCREEN_HEIGHT / 2,
-		"Job2", { color: "white" })
-		.setInteractive()
-		.on("pointerdown", () => {
-			console.log("Promote to job2");
-		});
+		const jobUpgrade = getJob(jobId);
+
+		const x = i * 500 + 300;
+
+		const pic = scene.add.image(
+			x,
+			300,
+			jobId + "/full"
+		).setDisplaySize(400, 400)
+			.setInteractive()
+			.on("pointerdown", () => {
+				console.log("Promote to job1");
+			});
+		pic.on("pointerover", () => {
+			tween({
+				targets: [pic],
+				duration: 200,
+				displayWidth: 420,
+				displayHeight: 420,
+			})
+		})
+			.on("pointerout", () => {
+				tween({
+					targets: [pic],
+					duration: 200,
+					displayWidth: 400,
+					displayHeight: 400,
+				})
+			})
+			.setInteractive()
+			.on("pointerdown", () => {
+				console.log("Promote to job1");
+			});
+
+		const title = scene.add.text(
+			x
+			, pic.y + 220,
+			jobUpgrade.name, { color: "white", fontSize: "48px", align: "center" })
+			.setOrigin(0.5);
+
+
+		const description = scene.add.text(
+			x
+			, pic.y + 300,
+			jobUpgrade.name, { color: "white", fontSize: "24px", align: "center" })
+			.setOrigin(0.5)
+			.setText(`Lorem ipsum dolor sit amet,
+consectetur adipiscing elit`)
+
+		container.add([pic, title, description]);
+
+	});
+
 
 	const cancelBtn = scene.add.text(
-		SCREEN_WIDTH / 2
-		, SCREEN_HEIGHT / 2 + 50,
-		"Cancel", { color: "white" })
+		SCREEN_WIDTH / 2 - 140
+		, SCREEN_HEIGHT / 2 + 300,
+		"Cancel", { color: "white", fontSize: "36px" })
 		.setInteractive()
 		.on("pointerdown", () => {
-			bg.destroy();
-			job1.destroy();
-			job2.destroy();
-			cancelBtn.destroy();
+			container.destroy();
+
 		});
 
+	container.add([bg, cancelBtn]);
 
 }
