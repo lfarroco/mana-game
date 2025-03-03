@@ -39,8 +39,6 @@ const processTick = async (scene: BattlegroundScene) => {
   const playerUnits = state.gameData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_PLAYER);
   const cpuUnits = state.gameData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_CPU);
 
-  console.log(playerUnits.length, cpuUnits.length);
-
   if (cpuUnits.length === 0) {
     await vignette(scene, "Victory!");
 
@@ -48,7 +46,8 @@ const processTick = async (scene: BattlegroundScene) => {
 
     await delay(scene, 1000 / state.options.speed);
 
-    emit(signals.COMBAT_FINISHED, FORCE_ID_PLAYER);
+    emit(signals.WAVE_FINISHED, FORCE_ID_PLAYER);
+
   } else if (playerUnits.length === 0) {
 
     playerForce.gold += GOLD_PER_WAVE;
@@ -59,7 +58,8 @@ const processTick = async (scene: BattlegroundScene) => {
 
     await delay(scene, 1000 / state.options.speed);
 
-    emit(signals.COMBAT_FINISHED, FORCE_ID_CPU);
+    emit(signals.WAVE_FINISHED, FORCE_ID_CPU);
+
   } else {
 
     await processTick(scene);

@@ -88,7 +88,7 @@ export class BattlegroundScene extends Phaser.Scene {
         const pop = this.sound.add('ui/button_click')
         pop.play()
       }],
-      [signals.BATTLE_START, async () => {
+      [signals.WAVE_START, async () => {
 
         this.hideDropZone();
         this.hideUI();
@@ -102,7 +102,7 @@ export class BattlegroundScene extends Phaser.Scene {
         emit(signals.BATTLEGROUND_TICK)
 
       }],
-      [signals.COMBAT_FINISHED, async () => {
+      [signals.WAVE_FINISHED, async () => {
         // clear the scene
         // and reposition the units
 
@@ -209,7 +209,6 @@ export class BattlegroundScene extends Phaser.Scene {
     //this.cameras.main.setZoom(1.5)
     emit(signals.BATTLEGROUND_STARTED);
 
-
     this.updateUI();
 
     this.createWave();
@@ -254,7 +253,7 @@ export class BattlegroundScene extends Phaser.Scene {
     startBattleBtn.setInteractive();
 
     startBattleBtn.on("pointerdown", () => {
-      emit(signals.BATTLE_START, this.state.gameData.tick);
+      emit(signals.WAVE_START, this.state.gameData.tick);
     });
 
     this.ui.add(startBattleBtn);
