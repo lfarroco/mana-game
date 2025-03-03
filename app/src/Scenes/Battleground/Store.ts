@@ -21,7 +21,7 @@ export function init(scene: BattlegroundScene) {
 	].map(job => makeUnit(Math.random().toString(), FORCE_ID_PLAYER, job, asVec2({ x: 0, y: 0 })));
 
 	listeners([
-		[signals.BATTLE_START, async () => {
+		[signals.WAVE_START, async () => {
 			container?.destroy(true);
 		}]
 	])

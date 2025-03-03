@@ -15,7 +15,7 @@ export type Signals = {
   TURN_START: () => void;
   TURN_END: () => void;
 
-  COMBAT_FINISHED: () => void;
+  WAVE_FINISHED: () => void;
 
   PAUSE_GAME: () => void;
   RESUME_GAME: () => void;
@@ -29,7 +29,7 @@ export type Signals = {
 
   BATTLEGROUND_STARTED: () => void;
 
-  BATTLE_START: (unitId: string) => void;
+  WAVE_START: (unitId: string) => void;
 
   UNIT_SELECTED: (unitId: string) => void;
   UNIT_DESELECTED: (unitId: string) => void;
@@ -60,12 +60,9 @@ export type Signals = {
   HEAL_UNIT: (unitId: string, amount: number) => any;
   UNIT_DESTROYED: (unitId: string) => any;
   FORCE_VICTORY: (force: string) => void;
-  CAPTURE_CITY: (unitId: string, cityId: string) => void;
   MOVE_UNIT_INTO_CELL_START: (unitId: string, vec: Vec2) => void;
   MOVE_UNIT_INTO_CELL_FINISH: (unitId: string, vec: Vec2) => void;
   MOVEMENT_FINISHED: (unitId: string, vec: Vec2) => void;
-
-  PATH_FOUND: (key: string, path: Vec2[]) => void;
 
   DISPLAY_EMOTE: (id: string, key: string) => void;
   HIDE_EMOTE: (unitId: string) => void;
@@ -80,7 +77,6 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   RESUME_GAME: "RESUME_GAME",
   TURN_START: "TURN_START",
   TURN_END: "TURN_END",
-  COMBAT_FINISHED: "COMBAT_FINISHED",
   PLAY_MUSIC: "PLAY_MUSIC",
   STOP_MUSIC: "STOP_MUSIC",
   SAVE_GAME: "SAVE_GAME",
@@ -88,7 +84,8 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   DELETE_GAME: "DELETE_GAME",
   UPDATE_FORCE: "UPDATE_FORCE",
   BATTLEGROUND_STARTED: "BATTLEGROUND_STARTED",
-  BATTLE_START: "BATTLE_START",
+  WAVE_START: "WAVE_START",
+  WAVE_FINISHED: "WAVE_FINISHED",
   UNIT_SELECTED: "UNIT_SELECTED",
   UNIT_DESELECTED: "UNIT_DESELECTED",
   TOGGLE_DISPATCH_MODAL: "TOGGLE_DISPATCH_MODAL",
@@ -110,11 +107,9 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   HEAL_UNIT: "HEAL_UNIT",
   UNIT_DESTROYED: "UNIT_DESTROYED",
   FORCE_VICTORY: "FORCE_VICTORY",
-  CAPTURE_CITY: "CAPTURE_CITY",
   MOVE_UNIT_INTO_CELL_START: "MOVE_UNIT_INTO_CELL_START",
   MOVE_UNIT_INTO_CELL_FINISH: "MOVE_UNIT_INTO_CELL_FINISH",
   MOVEMENT_FINISHED: "MOVEMENT_FINISHED",
-  PATH_FOUND: "PATH_FOUND",
   DISPLAY_EMOTE: "DISPLAY_EMOTE",
   HIDE_EMOTE: "HIDE_EMOTE",
 };
