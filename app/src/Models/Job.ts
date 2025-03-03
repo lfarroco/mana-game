@@ -3,10 +3,6 @@ export type Job = {
   name: string;
   description: string;
   moveRange: number;
-  attackRange: number;
-  attackProjectile: string | null;
-  attackHitFx: string;
-  attackPower: number;
   upgrades: string[];
   stats: {
     hp: number;
@@ -25,10 +21,6 @@ export const jobs: Job[] = [
     description: `Ranged DPS | Pick off enemies from a distance with high accuracy.
 Focus: Backline damage, kiting.`,
     moveRange: 3,
-    attackRange: 4,
-    attackHitFx: "bash",
-    attackProjectile: "arrow",
-    attackPower: 40,
     stats: {
       hp: 100,
       attack: 50,
@@ -48,10 +40,6 @@ Focus: Backline damage, kiting.`,
     description: `Healing Support | Restore health to allies with your attacks.
 Focus: Sustain, hybrid damage/support.`,
     moveRange: 2,
-    attackPower: 15,
-    attackHitFx: "heal",
-    attackProjectile: null,
-    attackRange: 3,
     stats: {
       hp: 80,
       attack: 30,
@@ -71,10 +59,6 @@ Focus: Sustain, hybrid damage/support.`,
     description: `AoE Mage | Unleash devastating firestorms that burn enemies over time.
 Focus: AoE damage, crowd control.`,
     moveRange: 2,
-    attackPower: 20,
-    attackHitFx: "fireball",
-    attackProjectile: "fireball",
-    attackRange: 3,
     stats: {
       hp: 80,
       attack: 30,
@@ -94,10 +78,6 @@ Focus: AoE damage, crowd control.`,
     description: `Melee Tank | Absorb damage and protect allies with high defense.
 Focus: Frontline tanking, crowd control.`,
     moveRange: 3,
-    attackRange: 1,
-    attackHitFx: "bash",
-    attackProjectile: null,
-    attackPower: 10,
     stats: {
       hp: 250,
       attack: 10,
@@ -116,10 +96,6 @@ Focus: Frontline tanking, crowd control.`,
     name: "Thief",
     description: `A slippery opportunist who thrives on evasion and punishing enemy mistakes.`,
     moveRange: 2,
-    attackPower: 20,
-    attackRange: 3,
-    attackHitFx: "slash",
-    attackProjectile: null,
     stats: {
       hp: 200,
       attack: 30,
@@ -138,10 +114,6 @@ Focus: Frontline tanking, crowd control.`,
     name: "Green Blob",
     description: `Blob | Blob.`,
     moveRange: 1,
-    attackRange: 1,
-    attackHitFx: "bash",
-    attackProjectile: null,
-    attackPower: 10,
     stats: {
       hp: 30,
       attack: 20,
@@ -160,10 +132,6 @@ Focus: Frontline tanking, crowd control.`,
 Unleash devastating firestorms
 that burn enemies over time.  `,
     moveRange: 2,
-    attackPower: 4,
-    attackHitFx: "fireball",
-    attackProjectile: "fireball",
-    attackRange: 3,
     stats: {
       hp: 12,
       attack: 4,
@@ -181,10 +149,6 @@ that burn enemies over time.  `,
 Bolster allies with arcane barriers
 at the start of battle. `,
     moveRange: 2,
-    attackPower: 2,
-    attackHitFx: "fireball",
-    attackProjectile: "fireball",
-    attackRange: 3,
     stats: {
       hp: 10,
       attack: 2,
@@ -201,10 +165,6 @@ at the start of battle. `,
     description: `Defensive Tank | Force enemies to target you while protecting allies.
 Focus: Taunt, damage mitigation.`,
     moveRange: 2,
-    attackHitFx: "bash",
-    attackProjectile: null,
-    attackPower: 5,
-    attackRange: 1,
     stats: {
       hp: 350,
       attack: 30,
@@ -221,10 +181,6 @@ Focus: Taunt, damage mitigation.`,
     description: `Rage-fueled DPS | Trade defense for relentless, self-sustaining offense.
 Focus: High-risk damage, lifesteal.`,
     moveRange: 3,
-    attackPower: 8,
-    attackHitFx: "bash",
-    attackProjectile: null,
-    attackRange: 1,
     stats: {
       hp: 300,
       attack: 50,
@@ -241,10 +197,6 @@ Focus: High-risk damage, lifesteal.`,
     description: `Execution Specialist | Eliminate weakened foes with guaranteed critical strikes.
 Focus: Priority target removal, backline damage.`,
     moveRange: 3,
-    attackPower: 7,
-    attackHitFx: "bash",
-    attackProjectile: "arrow",
-    attackRange: 4,
     stats: {
       hp: 12,
       attack: 7,
@@ -261,10 +213,6 @@ Focus: Priority target removal, backline damage.`,
     description: `Crowd Control Trapper | Lock down enemies with roots after each kill.
 Focus: Area denial, disruption.`,
     moveRange: 3,
-    attackPower: 6,
-    attackRange: 4,
-    attackHitFx: "bash",
-    attackProjectile: "arrow",
     stats: {
       hp: 14,
       attack: 6,
@@ -281,10 +229,6 @@ Focus: Area denial, disruption.`,
     description: `Combat Healer | Convert your attacks into healing for the most injured ally.
 Focus: Sustain, hybrid damage/support.`,
     moveRange: 2,
-    attackPower: 3,
-    attackHitFx: "heal",
-    attackProjectile: null,
-    attackRange: 1,
     stats: {
       hp: 14,
       attack: 3,
@@ -301,10 +245,6 @@ Focus: Sustain, hybrid damage/support.`,
     description: `Evasive Support | Dodge attacks and heal yourself while baiting enemy focus.
 Focus: Self-sustain, distraction.`,
     moveRange: 2,
-    attackPower: 4,
-    attackHitFx: "bash",
-    attackProjectile: null,
-    attackRange: 1,
     stats: {
       hp: 18,
       attack: 4,
@@ -321,10 +261,6 @@ Focus: Self-sustain, distraction.`,
     description: `Assassin | Stealth and critical strikes to eliminate high-priority targets.
 Focus: Priority target removal, evasion.`,
     moveRange: 3,
-    attackPower: 7,
-    attackHitFx: "slash",
-    attackProjectile: null,
-    attackRange: 1,
     stats: {
       hp: 16,
       attack: 7,
@@ -341,10 +277,6 @@ Focus: Priority target removal, evasion.`,
     description: `Stealthy Assassin | Slip past enemy lines and strike from the shadows.
 Focus: Priority target removal, evasion.`,
     moveRange: 3,
-    attackPower: 6,
-    attackHitFx: "slash",
-    attackProjectile: null,
-    attackRange: 1,
     stats: {
       hp: 14,
       attack: 6,
