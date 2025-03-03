@@ -36,8 +36,7 @@ export function updateStore(scene: BattlegroundScene) {
 	const x = 0;
 	const y = 0;
 
-	const force = scene.state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
-	const gold = force.gold;
+	const force = scene.playerForce
 
 	container = scene.add.container(x, y);
 
@@ -50,14 +49,11 @@ export function updateStore(scene: BattlegroundScene) {
 
 	units.forEach(renderUnit(scene));
 
-	const goldText = scene.add.text(width - 100, 50, `Gold: ${gold}`, { color: "white" });
-
-	container.add(goldText);
 }
 
 const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 
-	const force = scene.state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
+	const force = scene.playerForce;
 
 	const job = getJob(unit.job);
 

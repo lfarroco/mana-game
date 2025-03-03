@@ -18,7 +18,7 @@ import { GOLD_PER_WAVE } from "./constants";
 const processTick = async (scene: BattlegroundScene) => {
 
 
-  const playerForce = getState().gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
+  const playerForce = scene.playerForce;
 
   emit(signals.TURN_START)
 

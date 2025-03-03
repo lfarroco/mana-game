@@ -1,6 +1,6 @@
 import Phaser from "phaser";
-import { Unit } from "../../Models/Unit";
-import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
+import { makeUnit, Unit } from "../../Models/Unit";
+import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, PROMOTE_UNIT_PRICE, SCREEN_HEIGHT, SCREEN_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 import "./portrait.css"
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { emit, listeners, signals } from "../../Models/Signals";
@@ -210,18 +210,37 @@ function displayUnitInfo(chara: Chara) {
 
 	const { scene, unit } = chara;
 
-	const width = 200;
+	const job = getJob(unit.job);
+
+	if (job.upgrades.length === 0) return;
+
 	const height = 50;
 	const x = chara.container.x + TILE_WIDTH;
 	const y = chara.container.y - TILE_HEIGHT;
 
 	const bg = scene.add.graphics();
 
-
 	unitInfoContainer = scene.add.container(x, y);
 	unitInfoContainer.add([bg]);
 
-	const closeBtn = scene.add.text(120, 10, "X", { color: "white" })
+	const updgradeBtn = scene.add.text(10, 10,
+		`Promote (${PROMOTE_UNIT_PRICE} gold) `,
+		{ color: "white" })
+		.setInteractive()
+		.on("pointerdown", () => {
+
+			upgradeWindow(unitInfoContainer!, chara)
+		});
+
+	const force = scene.playerForce;
+
+	if (force.gold < PROMOTE_UNIT_PRICE) {
+		updgradeBtn.setTint(0x666666);
+		updgradeBtn.removeInteractive();
+	}
+
+	const closeBtn = scene.add.text(
+		updgradeBtn.width + 10, 10, "X", { color: "white" })
 		.setInteractive()
 		.on("pointerdown", () => {
 			unitInfoContainer?.destroy();
@@ -229,12 +248,6 @@ function displayUnitInfo(chara: Chara) {
 		);
 
 	unitInfoContainer.add(closeBtn);
-
-	const updgradeBtn = scene.add.text(10, 10, "Promote", { color: "white" })
-		.setInteractive()
-		.on("pointerdown", () => {
-			upgradeWindow(unitInfoContainer!, chara)
-		});
 
 	bg.fillStyle(0x000000, 0.8);
 	bg.fillRect(0, 0, updgradeBtn.width + 100, height);
@@ -303,7 +316,28 @@ function upgradeWindow(
 			})
 			.setInteractive()
 			.on("pointerdown", () => {
-				console.log("Promote to job1");
+
+				chara.container.destroy();
+
+				scene.charas = scene.charas.filter(c => c.id !== chara.id);
+
+				unit.job = jobId;
+				unit.hp = jobUpgrade.stats.hp;
+				unit.maxHp = jobUpgrade.stats.hp;
+				unit.attack = jobUpgrade.stats.attack;
+				unit.defense = jobUpgrade.stats.defense;
+				unit.accuracy = jobUpgrade.stats.accuracy;
+				unit.agility = jobUpgrade.stats.agility;
+
+				scene.playerForce.gold -= PROMOTE_UNIT_PRICE;
+
+				console.log("gold :: ", scene.playerForce.gold);
+
+				scene.renderUnit(unit);
+				container.destroy();
+				parent.destroy();
+				scene.updateUI();
+
 			});
 
 		const title = scene.add.text(
