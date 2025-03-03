@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { makeUnit, Unit } from "../../Models/Unit";
+import { Unit } from "../../Models/Unit";
 import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, PROMOTE_UNIT_PRICE, SCREEN_HEIGHT, SCREEN_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 import "./portrait.css"
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
@@ -52,7 +52,6 @@ export function createChara(
 		)
 
 	sprite.setDisplaySize(spriteSize, spriteSize)
-
 
 	// TODO: move to animation system
 	//sprite.play(unit.job + "-idle-down", true);

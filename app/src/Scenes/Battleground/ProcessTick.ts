@@ -14,6 +14,7 @@ import { healing } from "../../Systems/Chara/Skills/healing";
 import { slash } from "../../Systems/Chara/Skills/slash";
 import { fireball } from "../../Systems/Chara/Skills/fireball";
 import { GOLD_PER_WAVE } from "./constants";
+import { approach } from "../../Systems/Chara/approach";
 
 const processTick = async (scene: BattlegroundScene) => {
 
@@ -82,8 +83,8 @@ const performAction = (
 
   if (job.skill === "slash") {
 
-    //const mtarget = await approach(activeChara, 1, true);
-    const mtarget = await moveToMeleeTarget(scene)(unit)
+    const mtarget = await approach(scene, unit, 1, true);
+    //const mtarget = await moveToMeleeTarget(scene)(unit)
     if (mtarget)
       await slash(scene, unit, mtarget)
   }
@@ -138,11 +139,13 @@ const moveToMeleeTarget = (
 
   if (!closestEnemy) {
     return null;
-  };
+  }
 
   const distance = snakeDistanceBetween(unit.position)(closestEnemy.position);
 
-  if (distance < 1) return closestEnemy
+  console.log("melee range ::", distance)
+
+  if (distance <= 1) return closestEnemy
 
   const path = await lookupAIPAth(scene, unit.id, unit.position, closestEnemy.position);
 
