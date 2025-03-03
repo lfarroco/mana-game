@@ -6,7 +6,7 @@ import { getSkill } from "../../Models/Skill";
 
 export function getAllieNearby(unit: Unit) {
 	const job = getJob(unit.job);
-	const skill = getSkill(job.skill);
+	const skill = getSkill(job.baseAttack);
 
 	return getState().gameData.units
 		.filter((u) => u.force === unit.force)

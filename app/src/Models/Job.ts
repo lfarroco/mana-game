@@ -11,7 +11,7 @@ export type Job = {
     accuracy: number;
     agility: number;
   };
-  skill: string
+  baseAttack: string
 };
 
 export const jobs: Job[] = [
@@ -28,7 +28,7 @@ Focus: Backline damage, kiting.`,
       accuracy: 10,
       agility: 16,
     },
-    skill: "shoot",
+    baseAttack: "shoot",
     upgrades: [
       "hunter",
       "sniper"
@@ -47,7 +47,7 @@ Focus: Sustain, hybrid damage/support.`,
       accuracy: 0,
       agility: 12,
     },
-    skill: "heal",
+    baseAttack: "heal",
     upgrades: [
       "cleric",
       "monk"
@@ -66,7 +66,7 @@ Focus: AoE damage, crowd control.`,
       accuracy: 0,
       agility: 4,
     },
-    skill: "fireball",
+    baseAttack: "fireball",
     upgrades: [
       "elementalist",
       "arcanist"
@@ -85,7 +85,7 @@ Focus: Frontline tanking, crowd control.`,
       accuracy: 10,
       agility: 8,
     },
-    skill: "slash",
+    baseAttack: "slash",
     upgrades: [
       "knight",
       "berserker"
@@ -103,7 +103,7 @@ Focus: Frontline tanking, crowd control.`,
       accuracy: 0,
       agility: 4,
     },
-    skill: "slash",
+    baseAttack: "slash",
     upgrades: [
       "ninja",
       "rogue"
@@ -121,7 +121,7 @@ Focus: Frontline tanking, crowd control.`,
       accuracy: 10,
       agility: 10,
     },
-    skill: "slash",
+    baseAttack: "slash",
     upgrades: []
   },
 
@@ -139,7 +139,7 @@ that burn enemies over time.  `,
       accuracy: 0,
       agility: 10,
     },
-    skill: "fireball",
+    baseAttack: "fireball",
     upgrades: []
   },
   {
@@ -156,7 +156,7 @@ at the start of battle. `,
       accuracy: 0,
       agility: 14,
     },
-    skill: "fireball",
+    baseAttack: "fireball",
     upgrades: []
   },
   {
@@ -172,7 +172,7 @@ Focus: Taunt, damage mitigation.`,
       accuracy: 0,
       agility: 6,
     },
-    skill: "slash",
+    baseAttack: "slash",
     upgrades: []
   },
   {
@@ -188,7 +188,7 @@ Focus: High-risk damage, lifesteal.`,
       accuracy: 0,
       agility: 10,
     },
-    skill: "slash",
+    baseAttack: "slash",
     upgrades: []
   },
   {
@@ -204,7 +204,7 @@ Focus: Priority target removal, backline damage.`,
       accuracy: 0,
       agility: 18,
     },
-    skill: "shoot",
+    baseAttack: "shoot",
     upgrades: []
   },
   {
@@ -220,7 +220,7 @@ Focus: Area denial, disruption.`,
       accuracy: 0,
       agility: 14,
     },
-    skill: "shoot",
+    baseAttack: "shoot",
     upgrades: []
   },
   {
@@ -236,7 +236,7 @@ Focus: Sustain, hybrid damage/support.`,
       accuracy: 0,
       agility: 12,
     },
-    skill: "heal",
+    baseAttack: "heal",
     upgrades: []
   },
   {
@@ -252,7 +252,7 @@ Focus: Self-sustain, distraction.`,
       accuracy: 0,
       agility: 10,
     },
-    skill: "heal",
+    baseAttack: "heal",
     upgrades: []
   },
   {
@@ -268,7 +268,7 @@ Focus: Priority target removal, evasion.`,
       accuracy: 0,
       agility: 16,
     },
-    skill: "slash",
+    baseAttack: "slash",
     upgrades: []
   },
   {
@@ -284,7 +284,7 @@ Focus: Priority target removal, evasion.`,
       accuracy: 0,
       agility: 22,
     },
-    skill: "slash",
+    baseAttack: "slash",
     upgrades: []
   }
 

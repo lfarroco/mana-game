@@ -13,7 +13,7 @@ export function fireball(scene: BattlegroundScene) {
 
 		const job = getJob(unit.job);
 
-		const attackRange = getSkill(job.skill).range;
+		const attackRange = getSkill(job.baseAttack).range;
 
 		const { state } = scene;
 
