@@ -1,4 +1,3 @@
-import { asVec2 } from "../../../Models/Geometry";
 import { getJob } from "../../../Models/Job";
 import { emit, signals } from "../../../Models/Signals";
 import { getSkill } from "../../../Models/Skill";
@@ -7,7 +6,6 @@ import { Unit, unitLog } from "../../../Models/Unit";
 import { popText } from "./popText";
 import { delay } from "../../../Utils/animation";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
-import { panTo } from "../../../Scenes/Battleground/ProcessTick";
 
 
 export async function healAnimation(
@@ -28,7 +26,6 @@ export async function healAnimation(
 
     const skill = getSkill(job.skill);
 
-    panTo(scene, asVec2(activeChara.container));
 
     if (targetUnit.hp <= 0) {
         throw new Error("target is dead");
