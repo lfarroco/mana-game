@@ -11,7 +11,11 @@ const enemy = (job: string, x: number, y: number) => makeUnit(
 		y + 4
 	))
 
-const shift = (x: number, y: number) => (u: Unit) => ({ ...u, position: sumVec2(u.position)(vec2(x, y)) })
+const shift = (x: number, y: number) => (u: Unit) => {
+
+	u.position = sumVec2(u.position)(vec2(x, y));
+	return u
+}
 
 export const waves: { [idx: number]: Unit[] } = {
 	1: cluster("blob", 2).map(shift(0, -1)),

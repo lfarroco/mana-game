@@ -94,10 +94,11 @@ export class BattlegroundScene extends Phaser.Scene {
         this.hideUI();
 
         this.state.gameData.units = this.state.gameData.units.map(u => {
-          return { ...u, initialPosition: vec2(u.position.x, u.position.y) }
+          u.initialPosition = vec2(u.position.x, u.position.y)
+          return u;
         })
 
-        await delay(this, 200)
+        await delay(this, 200 / this.state.options.speed);
 
         emit(signals.BATTLEGROUND_TICK)
 
@@ -181,7 +182,6 @@ export class BattlegroundScene extends Phaser.Scene {
      * TODO: add test to confirm that global listeners are not created here
      */
 
-
     this.sound.setVolume(0.05)
 
     console.log("BattlegroundScene create");
@@ -215,6 +215,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     // todo: check if necessary
     this.renderStore();
+
   };
 
   createWave() {
@@ -223,7 +224,8 @@ export class BattlegroundScene extends Phaser.Scene {
     this.state.gameData.units = this.state.gameData.units.concat(enemies)
 
     this.state.gameData.units = this.state.gameData.units.map(u => {
-      return { ...u, initialPosition: vec2(u.position.x, u.position.y) }
+      u.initialPosition = vec2(u.position.x, u.position.y)
+      return u;
     })
 
     enemies.forEach((unit) => this.renderUnit(unit))

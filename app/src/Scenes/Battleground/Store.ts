@@ -36,8 +36,6 @@ export function updateStore(scene: BattlegroundScene) {
 	const x = 0;
 	const y = 0;
 
-	const force = scene.playerForce
-
 	container = scene.add.container(x, y);
 
 	// black rect
