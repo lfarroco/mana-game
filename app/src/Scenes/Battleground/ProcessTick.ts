@@ -75,16 +75,13 @@ const performAction = (
 
   const job = getJob(unit.job);
 
-  //const cooldown = unit.cooldowns[job.skill];
-
   const activeChara = scene.getChara(unit.id);
 
   await panTo(scene, asVec2(activeChara.container));
 
   if (job.skill === "slash") {
 
-    const mtarget = await approach(scene, unit, 1, true);
-    //const mtarget = await moveToMeleeTarget(scene)(unit)
+    const mtarget = await approach(activeChara, 1, true);
     if (mtarget)
       await slash(scene, unit, mtarget)
   }
@@ -126,38 +123,6 @@ export async function walk(scene: BattlegroundScene, unit: Unit, path: Vec2[], i
 
 }
 
-// TODO: refactor to "move to range", and have allied/enemy as parameter
-// 0 -> melee
-// 1/3 -> ranged
-
-const moveToMeleeTarget = (
-  scene: BattlegroundScene,
-) => async (unit: Unit): Promise<Unit | null> => {
-  const { state } = scene;
-
-  const [closestEnemy] = getUnitsByProximity(state, unit, true);
-
-  if (!closestEnemy) {
-    return null;
-  }
-
-  const distance = snakeDistanceBetween(unit.position)(closestEnemy.position);
-
-  console.log("melee range ::", distance)
-
-  if (distance <= 1) return closestEnemy
-
-  const path = await lookupAIPAth(scene, unit.id, unit.position, closestEnemy.position);
-
-  await walk(scene, unit, path, null);
-
-  if (snakeDistanceBetween(unit.position)(closestEnemy.position) > 1) {
-    return null
-  }
-
-  return closestEnemy;
-
-}
 
 export function getUnitsByProximity(state: State, unit: Unit, enemy: boolean): Unit[] {
   return getActiveUnits(state)
