@@ -102,8 +102,8 @@ Focus: Frontline tanking, crowd control.`,
     ]
   },
   {
-    id: "rogue",
-    name: "Rogue",
+    id: "thief",
+    name: "Thief",
     description: `Stealth DPS | Ambush enemies from behind for critical strikes.
 Focus: Priority target removal, evasion.`,
     moveRange: 2,
