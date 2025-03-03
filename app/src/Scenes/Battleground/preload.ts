@@ -4,6 +4,8 @@ const jobs = [
 	'archer',
 	'acolyte',
 	'apprentice',
+	'arcanist',
+	'elementalist',
 	'soldier',
 	'blob',
 ]

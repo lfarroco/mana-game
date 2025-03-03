@@ -20,7 +20,7 @@ import { createFowLayer } from "./Systems/FogOfWar/createFowLayer";
 import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import { makeMapInteractive } from "./Map/makeMapInteractive";
 import { clearCellHighlights } from "./Map/highlightCells";
-import { FORCE_ID_PLAYER } from "../../Models/Force";
+import { Force, FORCE_ID_PLAYER } from "../../Models/Force";
 import * as StoreSystem from "./Store";
 import { delay } from "../../Utils/animation";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "./constants";
@@ -45,6 +45,7 @@ export class BattlegroundScene extends Phaser.Scene {
   maxUnitsDisplay: Phaser.GameObjects.Text | null = null;
   ui: Phaser.GameObjects.Container | null = null;
   dropZoneDisplay: Phaser.GameObjects.Graphics | null = null;
+  playerForce: Force;
 
   cleanup() {
     this.charas.forEach(chara => {
@@ -71,6 +72,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     const state = getState();
     this.state = state;
+    this.playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
 
     listeners([
       [signals.BATTLEGROUND_TICK, () => {
@@ -226,11 +228,19 @@ export class BattlegroundScene extends Phaser.Scene {
 
   updateUI() {
 
-    const force = this.state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
-
     this.ui?.destroy(true);
 
+    const force = this.playerForce
+
     this.ui = this.add.container(0, 0);
+
+    const gold = this.add.text(
+      SCREEN_WIDTH - 200, 250, "Gold: " + force.gold, {
+      fontSize: "24px",
+      color: "white"
+    });
+
+    this.ui.add(gold);
 
     const startBattleBtn = this.add.text(SCREEN_WIDTH - 200, SCREEN_HEIGHT - 200, "Start Battle", {
       fontSize: "24px",
