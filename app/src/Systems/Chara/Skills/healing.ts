@@ -1,4 +1,4 @@
-import { distanceBetween, sortByDistanceTo } from "../../../Models/Geometry";
+import { snakeDistanceBetween, sortBySnakeDistance } from "../../../Models/Geometry";
 import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { getUnitsByProximity, walk } from "../../../Scenes/Battleground/ProcessTick";
@@ -23,7 +23,7 @@ export const healing = (
 		.map(({ unit }) => unit);
 
 	const [hurtAndClose] = hurtAllies
-		.filter((a) => distanceBetween(a.position)(unit.position) <= 3);
+		.filter((a) => snakeDistanceBetween(a.position)(unit.position) <= 3);
 
 
 	if (hurtAndClose) {
@@ -31,7 +31,7 @@ export const healing = (
 		return;
 	}
 
-	const [closerHurt] = hurtAllies.sort((a, b) => sortByDistanceTo(unit.position)(a.position)(b.position));
+	const [closerHurt] = hurtAllies.sort((a, b) => sortBySnakeDistance(unit.position)(a.position)(b.position));
 
 	if (closerHurt) {
 		const path = await lookupAIPAth(scene, unit.id, unit.position, closerHurt.position);
