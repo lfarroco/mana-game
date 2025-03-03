@@ -11,7 +11,8 @@ export type Job = {
     accuracy: number;
     agility: number;
   };
-  baseAttack: string
+  baseAttack: string;
+  skills: string[];
 };
 
 export const jobs: Job[] = [
@@ -29,6 +30,7 @@ Focus: Backline damage, kiting.`,
       agility: 16,
     },
     baseAttack: "shoot",
+    skills: [],
     upgrades: [
       "hunter",
       "sniper"
@@ -48,6 +50,7 @@ Focus: Sustain, hybrid damage/support.`,
       agility: 12,
     },
     baseAttack: "heal",
+    skills: [],
     upgrades: [
       "cleric",
       "monk"
@@ -70,7 +73,8 @@ Focus: AoE damage, crowd control.`,
     upgrades: [
       "elementalist",
       "arcanist"
-    ]
+    ],
+    skills: [],
   },
   {
     id: "soldier",
@@ -90,6 +94,7 @@ Focus: Frontline tanking, crowd control.`,
       "knight",
       "berserker"
     ]
+    , skills: [],
   },
   {
     id: "thief",
@@ -108,6 +113,7 @@ Focus: Frontline tanking, crowd control.`,
       "ninja",
       "rogue"
     ]
+    , skills: [],
   },
   {
     id: "blob",
@@ -123,6 +129,7 @@ Focus: Frontline tanking, crowd control.`,
     },
     baseAttack: "slash",
     upgrades: []
+    , skills: [],
   },
 
   {
@@ -141,6 +148,7 @@ that burn enemies over time.  `,
     },
     baseAttack: "fireball",
     upgrades: []
+    , skills: [],
   },
   {
     id: "arcanist",
@@ -158,6 +166,7 @@ at the start of battle. `,
     },
     baseAttack: "fireball",
     upgrades: []
+    , skills: [],
   },
   {
     id: "knight",
@@ -174,6 +183,7 @@ Focus: Taunt, damage mitigation.`,
     },
     baseAttack: "slash",
     upgrades: []
+    , skills: [],
   },
   {
     id: "berserker",
@@ -190,6 +200,7 @@ Focus: High-risk damage, lifesteal.`,
     },
     baseAttack: "slash",
     upgrades: []
+    , skills: [],
   },
   {
     id: "sniper",
@@ -206,6 +217,7 @@ Focus: Priority target removal, backline damage.`,
     },
     baseAttack: "shoot",
     upgrades: []
+    , skills: [],
   },
   {
     id: "hunter",
@@ -222,6 +234,7 @@ Focus: Area denial, disruption.`,
     },
     baseAttack: "shoot",
     upgrades: []
+    , skills: [],
   },
   {
     id: "cleric",
@@ -238,6 +251,7 @@ Focus: Sustain, hybrid damage/support.`,
     },
     baseAttack: "heal",
     upgrades: []
+    , skills: [],
   },
   {
     id: "monk",
@@ -254,6 +268,7 @@ Focus: Self-sustain, distraction.`,
     },
     baseAttack: "heal",
     upgrades: []
+    , skills: [],
   },
   {
     id: "rogue",
@@ -270,6 +285,7 @@ Focus: Priority target removal, evasion.`,
     },
     baseAttack: "slash",
     upgrades: []
+    , skills: [],
   },
   {
     id: "ninja",
@@ -286,6 +302,7 @@ Focus: Priority target removal, evasion.`,
     },
     baseAttack: "slash",
     upgrades: []
+    , skills: [],
   }
 
 
