@@ -23,14 +23,12 @@ export async function lookupAIPAth(
     // set tiles with units as blocked
     const state = getState();
 
-    const activeUnit = getUnit(state)(unitId)
     state.gameData
       .units
       .filter(u => u.hp > 0)
-      .filter(u => u.force === activeUnit.force) // avoid allied units
       .forEach(unit => {
         const { x, y } = unit.position;
-        if (eqVec2(target, unit.position)) return // target cell is not blocked
+        if (eqVec2(target, unit.position)) return // target cell is never blocked
 
         easystar.avoidAdditionalPoint(x, y);
       });
