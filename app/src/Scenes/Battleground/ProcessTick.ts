@@ -109,7 +109,9 @@ const performAction = (
       if (mtarget) {
         await specialAnimation(activeChara);
         await shieldBash(scene, activeChara.unit, mtarget);
-        scene.createParticle(mtarget.id, "stun")
+        if (mtarget.hp > 0) {
+          scene.createParticle(mtarget.id, "stun")
+        }
       }
     } else if (skillId === "summon_blob") {
       unit.cooldowns[skillId] = skill.cooldown
