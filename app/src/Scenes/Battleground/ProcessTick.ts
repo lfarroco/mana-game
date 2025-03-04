@@ -17,7 +17,7 @@ import { approach } from "../../Systems/Chara/approach";
 import { getSkill } from "../../Models/Skill";
 import { shieldBash } from "../../Systems/Chara/Skills/shieldBash";
 import { specialAnimation } from "../../Systems/Chara/Animations/specialAnimation";
-import { shootAnimation } from "../../Systems/Chara/Animations/shootAnimation";
+import { multishot } from "../../Systems/Chara/Skills/multishot";
 
 const processTick = async (scene: BattlegroundScene) => {
 
@@ -122,15 +122,7 @@ const performAction = (
 
     } else if (skillId === "multishot") {
 
-      const enemyUnits = getUnitsByProximity(getState(), unit, true);
-
-      const targets = enemyUnits.slice(0, 4);
-
-      await specialAnimation(activeChara);
-
-      await sequenceAsync(targets.map(target => async () => {
-        await shootAnimation(scene, unit, target);
-      }));
+      await multishot(unit, activeChara, scene);
 
     }
 
