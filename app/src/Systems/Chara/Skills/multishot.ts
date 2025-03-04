@@ -2,7 +2,6 @@ import { getState } from "../../../Models/State";
 import { Unit } from "../../../Models/Unit";
 import { popText } from "../Animations/popText";
 import { shootAnimation } from "../Animations/shootAnimation";
-import { specialAnimation } from "../Animations/specialAnimation";
 import { Chara } from "../Chara";
 import { runPromisesInOrder as sequenceAsync } from "../../../utils";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
@@ -12,8 +11,6 @@ export async function multishot(unit: Unit, activeChara: Chara, scene: Battlegro
 	const enemyUnits = getUnitsByProximity(getState(), unit, true);
 
 	const targets = enemyUnits.slice(0, 4);
-
-	await specialAnimation(activeChara);
 
 	popText(scene, "Multishot", activeChara.id);
 
