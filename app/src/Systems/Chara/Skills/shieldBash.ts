@@ -1,32 +1,33 @@
 import { emit, signals } from "../../../Models/Signals";
-import { getUnit } from "../../../Models/State";
 import { Unit, unitLog } from "../../../Models/Unit";
 import { bashPieceAnimation } from "../Animations/bashPieceAnimation";
 import { popText } from "../Animations/popText";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import * as animation from "../Animations/shieldBash"
+import { approach } from "../approach";
+import { specialAnimation } from "../Animations/specialAnimation";
 
 export async function shieldBash(
 	scene: BattlegroundScene,
 	unit: Unit,
-	target: Unit,
 ) {
-
-	await popText(scene, "Shield Bash", unit.id);
-
 	const activeChara = scene.getChara(unit.id);
-
-	const targetUnit = getUnit(scene.state)(target.id);
-
-	const targetChara = scene.getChara(targetUnit.id);
 
 	if (!activeChara) { throw new Error("no active unit\n" + unit.id); }
 
-	if (targetUnit.hp <= 0) {
-		throw new Error("target is dead");
+	const mtarget = await approach(activeChara, 1, true);
+
+	if (!mtarget) return false;
+
+	const targetChara = scene.getChara(mtarget.id);
+
+	await specialAnimation(activeChara);
+	if (mtarget.hp > 0) {
 	}
 
-	unitLog(unit, `will cast shield bash on ${targetUnit.id}`);
+	await popText(scene, "Shield Bash", unit.id);
+
+	unitLog(unit, `will cast shield bash on ${mtarget.id}`);
 
 	bashPieceAnimation(activeChara, targetChara);
 
@@ -38,11 +39,17 @@ export async function shieldBash(
 		unit.attack
 	);
 
-	emit(
-		signals.ADD_STATUS,
-		targetChara.id,
-		"stun",
-		1
-	);
+	if (targetChara.unit.hp > 0) {
+
+		scene.createParticle(mtarget.id, "stun")
+		emit(
+			signals.ADD_STATUS,
+			targetChara.id,
+			"stun",
+			1
+		);
+	}
+
+	return true;
 
 }
