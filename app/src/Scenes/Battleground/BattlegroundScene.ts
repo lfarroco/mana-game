@@ -20,7 +20,7 @@ import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import { makeMapInteractive } from "./Map/makeMapInteractive";
 import { Force, FORCE_ID_PLAYER } from "../../Models/Force";
 import * as StoreSystem from "./Store";
-import { delay } from "../../Utils/animation";
+import { delay, tween } from "../../Utils/animation";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "./constants";
 import { waves } from "./enemyWaves";
 import { vignette } from "./Animations/vignette";
@@ -174,7 +174,7 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
   preload = preload;
-  create = (state: State) => {
+  create = async (state: State) => {
     /**
      * It is important to NOT create new global listeners here
      * TODO: add test to confirm that global listeners are not created here
@@ -213,8 +213,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     // todo: check if necessary
     this.renderStore();
-
-
 
   };
 
@@ -342,15 +340,32 @@ export class BattlegroundScene extends Phaser.Scene {
     return tile.alpha === 0;
   }
 
-  renderUnit(unit: Unit) {
+  async renderUnit(unit: Unit) {
+
+
+    const vec = vec2(unit.position.x * 64 + 32,
+      unit.position.y * 64 + 32)
+
+    summonEffect(this, vec);
+
     const chara = createChara(
       this,
       unit,
     )
 
+    chara.container.setAlpha(0);
+
     this.charas.push(chara)
 
     emit(signals.CHARA_CREATED, unit.id)
+
+    tween({
+      targets: [chara.container],
+      alpha: 1,
+      duration: 500,
+      ease: 'Power2',
+    })
+
 
   }
 
@@ -469,4 +484,34 @@ export class BattlegroundScene extends Phaser.Scene {
 
 export default BattlegroundScene;
 
+async function summonEffect(scene: Phaser.Scene, { x, y }: Vec2) {
 
+  const lifespan = 300;
+
+  const summonEffect = scene.add.particles(x, y, 'light-pillar', {
+    lifespan,
+    scale: { start: 0.05, end: 0.1 },
+    alpha: { start: 1, end: 0 },
+    speed: { min: 100, max: 200 },
+    quantity: 4,
+    frequency: lifespan / 10, // Emit all at once
+    rotate: { min: 0, max: 360 }, // Random rotation for variety
+    blendMode: 'ADD',
+    emitZone: {
+      type: 'edge',
+      source: new Phaser.Geom.Circle(0, 0, 10),
+      quantity: 8,
+      yoyo: false
+    }
+  });
+
+
+  await delay(scene, lifespan);
+
+  summonEffect.stop();
+
+  await delay(scene, lifespan);
+
+  summonEffect.destroy();
+
+}
