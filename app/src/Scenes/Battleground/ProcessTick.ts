@@ -94,49 +94,45 @@ const performAction = (
 
   if (unit.statuses.stun >= 0) return;
 
-  if (availableSkills.length > 0) {
+  const [skillId] = availableSkills;
 
-    const skillId = availableSkills[0];
+  const skill = getSkill(skillId)
 
-    const skill = getSkill(skillId)
+  if (skillId === "shieldbash") {
 
-    if (skillId === "shieldbash") {
-
-      const casted = await shieldBash(scene, activeChara.unit);
-      if (casted) {
-        unit.cooldowns[skillId] = skill.cooldown
-      }
-
-    } else if (skillId === "summon_blob") {
-
-      await specialAnimation(activeChara);
-
-      await summon(unit, scene);
-
+    const casted = await shieldBash(scene, activeChara.unit);
+    if (casted) {
       unit.cooldowns[skillId] = skill.cooldown
-
-    } else if (skillId === "multishot") {
-
-      await specialAnimation(activeChara);
-
-      await multishot(unit, activeChara, scene);
-
-      unit.cooldowns[skillId] = skill.cooldown
-
     }
 
-  } else if (job.baseAttack === "slash") {
+  } else if (skillId === "summon_blob") {
+
+    await specialAnimation(activeChara);
+
+    await summon(unit, scene);
+
+    unit.cooldowns[skillId] = skill.cooldown
+
+  } else if (skillId === "multishot") {
+
+    await specialAnimation(activeChara);
+
+    await multishot(unit, activeChara, scene);
+
+    unit.cooldowns[skillId] = skill.cooldown
+
+  } else if (skillId === "slash") {
 
     const mtarget = await approach(activeChara, 1, true);
     if (mtarget)
       await slash(scene, unit, mtarget)
   }
-  else if (job.baseAttack === "heal") {
+  else if (skillId === "heal") {
     await healing(scene)(unit);
   }
-  else if (job.baseAttack === "shoot") {
+  else if (skillId === "shoot") {
     await shoot(scene)(unit);
-  } else if (job.baseAttack === "fireball") {
+  } else if (skillId === "fireball") {
     await fireball(scene)(unit);
   }
 

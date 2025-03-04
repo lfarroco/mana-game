@@ -30,7 +30,7 @@ Focus: Backline damage, kiting.`,
       agility: 16,
     },
     baseAttack: "shoot",
-    skills: ["multishot"],
+    skills: ["multishot", "shoot"],
     upgrades: [
       "hunter",
       "sniper"
@@ -50,7 +50,7 @@ Focus: Sustain, hybrid damage/support.`,
       agility: 12,
     },
     baseAttack: "heal",
-    skills: [],
+    skills: ["heal"],
     upgrades: [
       "cleric",
       "monk"
@@ -74,7 +74,7 @@ Focus: AoE damage, crowd control.`,
       "elementalist",
       "arcanist"
     ],
-    skills: [],
+    skills: ["fireball"],
   },
   {
     id: "soldier",
@@ -94,7 +94,7 @@ Focus: Frontline tanking, crowd control.`,
       "knight",
       "berserker"
     ]
-    , skills: ["shieldbash"],
+    , skills: ["shieldbash", "slash"],
   },
   {
     id: "thief",
@@ -113,7 +113,7 @@ Focus: Frontline tanking, crowd control.`,
       "ninja",
       "rogue"
     ]
-    , skills: [],
+    , skills: ["slash"],
   },
   {
     id: "blob",
@@ -129,7 +129,7 @@ Focus: Frontline tanking, crowd control.`,
     },
     baseAttack: "slash",
     upgrades: []
-    , skills: [],
+    , skills: ["slash"],
   },
   {
     id: "blob_king",
@@ -145,7 +145,7 @@ Focus: Frontline tanking, crowd control.`,
     },
     baseAttack: "slash",
     upgrades: []
-    , skills: ["summon_blob"],
+    , skills: ["summon_blob", "slash"],
   },
   {
     id: "elementalist",
@@ -163,7 +163,7 @@ that burn enemies over time.  `,
     },
     baseAttack: "fireball",
     upgrades: []
-    , skills: [],
+    , skills: ["fireball"],
   },
   {
     id: "arcanist",
@@ -181,7 +181,7 @@ at the start of battle. `,
     },
     baseAttack: "fireball",
     upgrades: []
-    , skills: [],
+    , skills: ["fireball"],
   },
   {
     id: "knight",
@@ -198,7 +198,7 @@ Focus: Taunt, damage mitigation.`,
     },
     baseAttack: "slash",
     upgrades: []
-    , skills: [],
+    , skills: ["slash"],
   },
   {
     id: "berserker",
@@ -215,7 +215,7 @@ Focus: High-risk damage, lifesteal.`,
     },
     baseAttack: "slash",
     upgrades: []
-    , skills: [],
+    , skills: ["slash"],
   },
   {
     id: "sniper",
@@ -232,7 +232,7 @@ Focus: Priority target removal, backline damage.`,
     },
     baseAttack: "shoot",
     upgrades: []
-    , skills: [],
+    , skills: ["shoot"],
   },
   {
     id: "hunter",
@@ -249,7 +249,7 @@ Focus: Area denial, disruption.`,
     },
     baseAttack: "shoot",
     upgrades: []
-    , skills: [],
+    , skills: ["shoot"],
   },
   {
     id: "cleric",
@@ -266,7 +266,7 @@ Focus: Sustain, hybrid damage/support.`,
     },
     baseAttack: "heal",
     upgrades: []
-    , skills: [],
+    , skills: ["heal"],
   },
   {
     id: "monk",
@@ -283,7 +283,7 @@ Focus: Self-sustain, distraction.`,
     },
     baseAttack: "heal",
     upgrades: []
-    , skills: [],
+    , skills: ["heal"],
   },
   {
     id: "rogue",
@@ -300,7 +300,7 @@ Focus: Priority target removal, evasion.`,
     },
     baseAttack: "slash",
     upgrades: []
-    , skills: [],
+    , skills: ["rogue"],
   },
   {
     id: "ninja",
@@ -317,7 +317,7 @@ Focus: Priority target removal, evasion.`,
     },
     baseAttack: "slash",
     upgrades: []
-    , skills: [],
+    , skills: ["ninja"],
   }
 ];
 
