@@ -25,17 +25,17 @@ export async function slashAnimation(
 
 	const particles = scene.add.particles(
 		targetChara.container.x, targetChara.container.y,
-		'light', {
-		speed: 100 * speed,
+		'white-dot', {
+		speed: 200 * speed,
 		lifespan: 600 / speed,
 		angle: {
-			min: Phaser.Math.RadToDeg(angle) - 30,
-			max: Phaser.Math.RadToDeg(angle) + 30
+			min: Phaser.Math.RadToDeg(angle) - 40,
+			max: Phaser.Math.RadToDeg(angle) + 40
 		},
 		gravityY: 0,
 		alpha: { start: 1, end: 0, ease: 'sine.out' },
 		maxAliveParticles: 5,
-		scale: { min: 0.5, max: 1, },
+		scale: { min: 0.5, max: 2, },
 		stopAfter: 5
 	});
 

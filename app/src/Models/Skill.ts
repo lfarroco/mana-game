@@ -77,7 +77,25 @@ export const skills: Skill[] = [
 		projectile: null,
 		targetingLogic: "closest-enemy",
 	},
+	{
+		id: "shieldbash",
+		name: "Shield Bash",
+		cooldown: 3,
+		range: 1,
+		targets: "enemy",
+		power: 20,
+		harmful: true,
+		areaOfEffect: 1,
+		tooltip: "Deals damage and stuns the enemy for 1 turn",
+		emote: "magic-emote",
+		targetEffect: "cethiel_light",
+		projectile: null,
+		targetingLogic: "closest-enemy",
+	},
 ]
+
+// ideas for skills:
+//- fire pillar
 
 export const getSkill = (id: string): Skill => {
 

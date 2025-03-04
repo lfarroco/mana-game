@@ -94,7 +94,7 @@ Focus: Frontline tanking, crowd control.`,
       "knight",
       "berserker"
     ]
-    , skills: [],
+    , skills: ["shieldbash"],
   },
   {
     id: "thief",

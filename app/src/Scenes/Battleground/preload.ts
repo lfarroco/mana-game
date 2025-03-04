@@ -45,6 +45,7 @@ export function preload(this: Phaser.Scene) {
 	this.load.image("tilesets/tileset", "assets/tilesets/tileset.png");
 	this.load.image("cursor", "assets/ui/selected_cursor.png");
 	this.load.image("light", "assets/fx/light.png");
+	this.load.image("white-dot", "assets/fx/white-dot.png");
 	this.load.image("damage_display", "assets/ui/damage_display.png");
 	this.load.tilemapTiledJSON("maps/map1", "assets/maps/map1/mapdata.json");
 
@@ -62,6 +63,10 @@ export function preload(this: Phaser.Scene) {
 	this.load.audio("audio/sword1", "assets/audio/sword1.wav")
 	this.load.audio("audio/sword2", "assets/audio/sword2.wav")
 	this.load.audio("audio/sword3", "assets/audio/sword3.wav")
+
+	this.load.audio("audio/shining", "assets/audio/shining-anime-sound-effect-240582.mp3")
+
+	this.load.audio("audio/laser", "assets/audio/zapsplat_cartoon_anime_laser_blip_noisy_92477.mp3")
 
 	this.load.audio("audio/curemagic", "assets/audio/oga-cure-magic1.wav")
 
@@ -84,7 +89,7 @@ export function preload(this: Phaser.Scene) {
 	});
 
 	['arcanist', 'elementalist', 'knight', 'berserker', 'sniper', 'hunter',
-		'monk', 'cleric'
+		'monk', 'cleric', 'soldier'
 
 	].forEach(job => {
 		this.load.image(

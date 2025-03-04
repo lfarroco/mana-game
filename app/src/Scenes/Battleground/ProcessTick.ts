@@ -4,7 +4,7 @@ import { State, getActiveUnits, getState } from "../../Models/State";
 import { Unit, unitLog } from "../../Models/Unit";
 import { delay } from "../../Utils/animation";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
-import { getJob } from "../../Models/Job";
+import { getJob, Job } from "../../Models/Job";
 import { asVec2, sortBySnakeDistance, Vec2 } from "../../Models/Geometry";
 import { runPromisesInOrder as sequenceAsync } from "../../utils";
 import { vignette } from "./Animations/vignette";
@@ -14,6 +14,9 @@ import { slash } from "../../Systems/Chara/Skills/slash";
 import { fireball } from "../../Systems/Chara/Skills/fireball";
 import { GOLD_PER_WAVE } from "./constants";
 import { approach } from "../../Systems/Chara/approach";
+import { getSkill } from "../../Models/Skill";
+import { shieldBash } from "../../Systems/Chara/Skills/shieldBash";
+import { specialAnimation } from "../../Systems/Chara/Animations/specialAnimation";
 
 const processTick = async (scene: BattlegroundScene) => {
 
@@ -78,9 +81,36 @@ const performAction = (
 
   await panTo(scene, asVec2(activeChara.container));
 
-  //const cooldowns = activeChara.unit.cooldowns[job.]
+  const availableSkills = job.skills.filter(skillId => {
+    const cooldown = unit.cooldowns[skillId]
 
-  if (job.baseAttack === "slash") {
+    return cooldown === 0
+  });
+
+  // decrease cooldowns
+  job.skills.forEach(skillId => {
+    unit.cooldowns[skillId] = Math.max(0, unit.cooldowns[skillId] - 1);
+  });
+
+  if (availableSkills.length > 0) {
+
+    const skillId = availableSkills[0];
+
+    const skill = getSkill(skillId)
+
+    if (skillId === "shieldbash") {
+
+      unit.cooldowns[skillId] = skill.cooldown
+
+      const mtarget = await approach(activeChara, 1, true);
+
+      if (mtarget) {
+        await specialAnimation(activeChara);
+        await shieldBash(scene, activeChara.unit, mtarget);
+      }
+    }
+
+  } else if (job.baseAttack === "slash") {
 
     const mtarget = await approach(activeChara, 1, true);
     if (mtarget)
@@ -97,7 +127,12 @@ const performAction = (
 
 }
 
-export async function walk(scene: BattlegroundScene, unit: Unit, path: Vec2[], interrupt: null | ((vec: Vec2) => boolean)) {
+export async function walk(
+  scene: BattlegroundScene,
+  unit: Unit,
+  path: Vec2[],
+  interrupt: null | ((vec: Vec2) => boolean),
+) {
 
   const job = getJob(unit.job);
   let walked = 0;

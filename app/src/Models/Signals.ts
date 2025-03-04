@@ -57,6 +57,8 @@ export type Signals = {
   // TODO: have a parent level for the system
   UPDATE_UNIT: (unitId: string, u: Partial<Unit>) => any;
   DAMAGE_UNIT: (unitId: string, damage: number) => any;
+  ADD_STATUS: (unitId: string, status: string, duration: number) => any;
+  END_STATUS: (unitId: string, status: string) => any;
   HEAL_UNIT: (unitId: string, amount: number) => any;
   UNIT_DESTROYED: (unitId: string) => any;
   FORCE_VICTORY: (force: string) => void;
@@ -104,6 +106,8 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   DESTINATION_GOAL_TO: "DESTINATION_GOAL_TO",
   UPDATE_UNIT: "UPDATE_UNIT",
   DAMAGE_UNIT: "DAMAGE_UNIT",
+  ADD_STATUS: "ADD_STATUS",
+  END_STATUS: "END_STATUS",
   HEAL_UNIT: "HEAL_UNIT",
   UNIT_DESTROYED: "UNIT_DESTROYED",
   FORCE_VICTORY: "FORCE_VICTORY",
