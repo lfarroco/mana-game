@@ -200,6 +200,13 @@ export function CharaSystem_init(scene: BattlegroundScene) {
 
 			emit(signals.MOVE_UNIT_INTO_CELL_FINISH, unitId, cell);
 		}],
+		[signals.END_STATUS, (unitId: string, status: string) => {
+
+			const chara = scene.getChara(unitId);
+
+			chara.container.getByName("status-" + status)?.destroy();
+
+		}]
 
 	])
 
