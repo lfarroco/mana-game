@@ -92,6 +92,8 @@ const performAction = (
     unit.cooldowns[skillId] = Math.max(0, unit.cooldowns[skillId] - 1);
   });
 
+  if (unit.statuses.stun >= 0) return;
+
   if (availableSkills.length > 0) {
 
     const skillId = availableSkills[0];
@@ -107,6 +109,7 @@ const performAction = (
       if (mtarget) {
         await specialAnimation(activeChara);
         await shieldBash(scene, activeChara.unit, mtarget);
+        scene.createParticle(mtarget.id, "stun")
       }
     }
 
