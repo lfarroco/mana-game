@@ -6,13 +6,7 @@ export type Skill = {
 	cooldown: number;
 	targets: "enemy" | "ally" | "unit" | "tile"
 	power: number;
-	harmful: boolean;
-	areaOfEffect: number;
 	tooltip: string;
-	emote: string | null;
-	targetEffect: string | null;
-	projectile: string | null;
-	targetingLogic: "closest-enemy" | "most-hurted-ally";
 };
 // idea: have property "effects" that is an array of strings, each string is the name of some special effect
 
@@ -24,13 +18,7 @@ export const skills: Skill[] = [
 		range: 1,
 		targets: "enemy",
 		power: 20,
-		harmful: true,
-		areaOfEffect: 1,
 		tooltip: "Attack with a sword",
-		emote: "magic-emote",
-		targetEffect: "cethiel-slash",
-		projectile: null,
-		targetingLogic: "closest-enemy",
 	},
 	{
 		id: "heal",
@@ -39,13 +27,7 @@ export const skills: Skill[] = [
 		range: 2,
 		targets: "ally",
 		power: 20,
-		harmful: false,
-		areaOfEffect: 1,
 		tooltip: "Heals an ally unit for 5 HP each turn",
-		emote: "magic-emote",
-		targetEffect: "cethiel_light",
-		projectile: null,
-		targetingLogic: "most-hurted-ally",
 	},
 	{
 		id: "shoot",
@@ -54,13 +36,7 @@ export const skills: Skill[] = [
 		range: 4,
 		targets: "enemy",
 		power: 20,
-		harmful: true,
-		areaOfEffect: 1,
 		tooltip: "Shoots an arrow",
-		emote: "magic-emote",
-		targetEffect: "cethiel-slash",
-		projectile: "arrow",
-		targetingLogic: "closest-enemy",
 	},
 	{
 		id: "fireball",
@@ -69,13 +45,7 @@ export const skills: Skill[] = [
 		range: 5,
 		targets: "enemy",
 		power: 100,
-		harmful: true,
-		areaOfEffect: 1,
 		tooltip: "Deals 10 damage to an enemy unit",
-		emote: "magic-emote",
-		targetEffect: "cethiel_light",
-		projectile: null,
-		targetingLogic: "closest-enemy",
 	},
 	{
 		id: "shieldbash",
@@ -84,13 +54,7 @@ export const skills: Skill[] = [
 		range: 1,
 		targets: "enemy",
 		power: 20,
-		harmful: true,
-		areaOfEffect: 1,
 		tooltip: "Deals damage and stuns the enemy for 1 turn",
-		emote: "magic-emote",
-		targetEffect: "cethiel_light",
-		projectile: null,
-		targetingLogic: "closest-enemy",
 	},
 	{
 		id: "summon_blob",
@@ -99,13 +63,16 @@ export const skills: Skill[] = [
 		range: 1,
 		targets: "tile",
 		power: 20,
-		harmful: false,
-		areaOfEffect: 1,
 		tooltip: "Summons 4 blobs",
-		emote: "magic-emote",
-		targetEffect: "cethiel_light",
-		projectile: null,
-		targetingLogic: "closest-enemy",
+	},
+	{
+		id: "multishot",
+		name: "Multishot",
+		cooldown: 4,
+		range: 5,
+		targets: "enemy",
+		power: 20,
+		tooltip: "Shoots 4 arrows",
 	}
 ]
 

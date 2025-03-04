@@ -30,7 +30,7 @@ Focus: Backline damage, kiting.`,
       agility: 16,
     },
     baseAttack: "shoot",
-    skills: [],
+    skills: ["multishot"],
     upgrades: [
       "hunter",
       "sniper"

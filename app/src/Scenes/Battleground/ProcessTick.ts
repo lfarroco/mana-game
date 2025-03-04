@@ -17,6 +17,7 @@ import { approach } from "../../Systems/Chara/approach";
 import { getSkill } from "../../Models/Skill";
 import { shieldBash } from "../../Systems/Chara/Skills/shieldBash";
 import { specialAnimation } from "../../Systems/Chara/Animations/specialAnimation";
+import { shootAnimation } from "../../Systems/Chara/Animations/shootAnimation";
 
 const processTick = async (scene: BattlegroundScene) => {
 
@@ -100,9 +101,9 @@ const performAction = (
 
     const skill = getSkill(skillId)
 
-    if (skillId === "shieldbash") {
+    unit.cooldowns[skillId] = skill.cooldown
 
-      unit.cooldowns[skillId] = skill.cooldown
+    if (skillId === "shieldbash") {
 
       const mtarget = await approach(activeChara, 1, true);
 
@@ -114,42 +115,22 @@ const performAction = (
         }
       }
     } else if (skillId === "summon_blob") {
-      unit.cooldowns[skillId] = skill.cooldown
 
       await specialAnimation(activeChara);
 
-      let emptySlots = [] as Vec2[];
+      summon(unit, scene);
 
-      // pick 4 empty slots close to the unit
-      let i = 1;
-      while (emptySlots.length < 4 && i < 5) {
-        const slots = [
-          vec2(unit.position.x + i, unit.position.y),
-          vec2(unit.position.x - i, unit.position.y),
-          vec2(unit.position.x, unit.position.y + i),
-          vec2(unit.position.x, unit.position.y - i),
-        ];
+    } else if (skillId === "multishot") {
 
-        emptySlots = emptySlots.concat(
-          slots.filter(slot => {
-            const unitAtSlot = scene.state.gameData.units
-              .filter(u => u.hp > 0)
-              .find(u => eqVec2(u.position, slot));
-            return !unitAtSlot;
-          })
-        );
+      const enemyUnits = getUnitsByProximity(getState(), unit, true);
 
-        i++;
-      }
+      const targets = enemyUnits.slice(0, 4);
 
-      emptySlots = emptySlots.slice(0, 4);
+      await specialAnimation(activeChara);
 
-      // create a blob in each slot
-      emptySlots.forEach(slot => {
-        const blob = makeUnit(Math.random().toString(), FORCE_ID_CPU, "blob", slot);
-        scene.state.gameData.units.push(blob);
-        scene.renderUnit(blob);
-      });
+      await sequenceAsync(targets.map(target => async () => {
+        await shootAnimation(scene, unit, target);
+      }));
 
     }
 
@@ -168,6 +149,41 @@ const performAction = (
     await fireball(scene)(unit);
   }
 
+}
+
+function summon(unit: Unit, scene: BattlegroundScene) {
+  let emptySlots = [] as Vec2[];
+
+  // pick 4 empty slots close to the unit
+  let i = 1;
+  while (emptySlots.length < 4 && i < 5) {
+    const slots = [
+      vec2(unit.position.x + i, unit.position.y),
+      vec2(unit.position.x - i, unit.position.y),
+      vec2(unit.position.x, unit.position.y + i),
+      vec2(unit.position.x, unit.position.y - i),
+    ];
+
+    emptySlots = emptySlots.concat(
+      slots.filter(slot => {
+        const unitAtSlot = scene.state.gameData.units
+          .filter(u => u.hp > 0)
+          .find(u => eqVec2(u.position, slot));
+        return !unitAtSlot;
+      })
+    );
+
+    i++;
+  }
+
+  emptySlots = emptySlots.slice(0, 4);
+
+  // create a blob in each slot
+  emptySlots.forEach(slot => {
+    const blob = makeUnit(Math.random().toString(), FORCE_ID_CPU, "blob", slot);
+    scene.state.gameData.units.push(blob);
+    scene.renderUnit(blob);
+  });
 }
 
 export async function walk(

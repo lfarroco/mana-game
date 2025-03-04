@@ -90,7 +90,7 @@ export function preload(this: Phaser.Scene) {
 	});
 
 	['arcanist', 'elementalist', 'knight', 'berserker', 'sniper', 'hunter',
-		'monk', 'cleric', 'soldier', 'blob_king'
+		'monk', 'cleric', 'soldier', 'blob_king', 'archer'
 
 	].forEach(job => {
 		this.load.image(
