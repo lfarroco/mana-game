@@ -160,12 +160,12 @@ export const listenToStateEvents = (state: State) => {
       unit.statuses[status] = duration;
 
     }],
-    [signals.BATTLEGROUND_TICK, (tick: number) => {
+    [signals.TURN_START, (tick: number) => {
 
       state.gameData.units.forEach((u) => {
         Object.keys(u.statuses).forEach((status) => {
           u.statuses[status] -= 1;
-          if (u.statuses[status] <= 0) {
+          if (u.statuses[status] < 0) {
             emit(signals.END_STATUS, u.id, status);
             delete u.statuses[status];
           }

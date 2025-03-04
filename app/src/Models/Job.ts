@@ -131,7 +131,6 @@ Focus: Frontline tanking, crowd control.`,
     upgrades: []
     , skills: [],
   },
-
   {
     id: "elementalist",
     name: "Elementalist",
