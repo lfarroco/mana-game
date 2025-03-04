@@ -43,7 +43,6 @@ export class BattlegroundScene extends Phaser.Scene {
   ui: Phaser.GameObjects.Container | null = null;
   dropZoneDisplay: Phaser.GameObjects.Graphics | null = null;
   playerForce: Force;
-  particles: { [id: string]: Phaser.GameObjects.Particles.ParticleEmitter } = {};
 
   cleanup() {
     this.charas.forEach(chara => {
@@ -145,20 +144,8 @@ export class BattlegroundScene extends Phaser.Scene {
         this.renderStore();
 
       }],
-      [signals.END_STATUS, (id: string, status: string) => {
 
-        if (this.particles[`${id}-${status}`]) {
-          this.destroyParticle(id, status)
-        }
 
-      }],
-      [signals.UNIT_DESTROYED, (id: string) => {
-        Object.keys(this.particles).forEach((key) => {
-          if (key.startsWith(id + "-")) {
-            this.destroyParticle(id, key.split('-')[1])
-          }
-        });
-      }]
 
     ]);
 
@@ -234,9 +221,14 @@ export class BattlegroundScene extends Phaser.Scene {
   createParticle(id: string, status: string) {
 
     const chara = this.getChara(id);
+
+    const alreadyExists = chara.container.getByName("status-" + status);
+    if (alreadyExists) {
+      alreadyExists.destroy();
+    }
+
     const particles = this.add.particles(
-      chara.container.x,
-      chara.container.y,
+      0, 0,
       'white-dot',
       {
         speed: 10,
@@ -251,14 +243,9 @@ export class BattlegroundScene extends Phaser.Scene {
           quantity: 10,
           yoyo: false
         }
-      });
+      }).setName("status-" + status);
+    chara.container.add(particles);
 
-    this.particles[`${id}-${status}`] = particles;
-  }
-
-  destroyParticle(id: string, status: string) {
-    this.particles[`${id}-${status}`].destroy();
-    delete this.particles[`${id}-${status}`];
   }
 
   createWave() {

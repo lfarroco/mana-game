@@ -202,7 +202,6 @@ export async function walk(
 
 }
 
-
 export function getUnitsByProximity(state: State, unit: Unit, enemy: boolean): Unit[] {
   return getActiveUnits(state)
     .filter(u => enemy ? u.force !== unit.force : u.force === unit.force)
