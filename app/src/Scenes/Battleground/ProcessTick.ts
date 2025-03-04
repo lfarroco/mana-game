@@ -67,7 +67,6 @@ const processTick = async (scene: BattlegroundScene) => {
 
 };
 
-
 const performAction = (
   scene: BattlegroundScene,
 ) => (
@@ -121,6 +120,8 @@ const performAction = (
       summon(unit, scene);
 
     } else if (skillId === "multishot") {
+
+      await specialAnimation(activeChara);
 
       await multishot(unit, activeChara, scene);
 
