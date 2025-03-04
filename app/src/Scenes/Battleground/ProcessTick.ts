@@ -100,30 +100,28 @@ const performAction = (
 
     const skill = getSkill(skillId)
 
-    unit.cooldowns[skillId] = skill.cooldown
-
     if (skillId === "shieldbash") {
 
-      const mtarget = await approach(activeChara, 1, true);
-
-      if (mtarget) {
-        await specialAnimation(activeChara);
-        await shieldBash(scene, activeChara.unit, mtarget);
-        if (mtarget.hp > 0) {
-          scene.createParticle(mtarget.id, "stun")
-        }
+      const casted = await shieldBash(scene, activeChara.unit);
+      if (casted) {
+        unit.cooldowns[skillId] = skill.cooldown
       }
+
     } else if (skillId === "summon_blob") {
 
       await specialAnimation(activeChara);
 
-      summon(unit, scene);
+      await summon(unit, scene);
+
+      unit.cooldowns[skillId] = skill.cooldown
 
     } else if (skillId === "multishot") {
 
       await specialAnimation(activeChara);
 
       await multishot(unit, activeChara, scene);
+
+      unit.cooldowns[skillId] = skill.cooldown
 
     }
 
@@ -144,7 +142,7 @@ const performAction = (
 
 }
 
-function summon(unit: Unit, scene: BattlegroundScene) {
+async function summon(unit: Unit, scene: BattlegroundScene) {
   let emptySlots = [] as Vec2[];
 
   // pick 4 empty slots close to the unit
