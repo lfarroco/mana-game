@@ -13,6 +13,7 @@ const jobs = [
 	'cleric',
 	'thief',
 	'blob',
+	'blob_king'
 ]
 
 const emotes = [
@@ -89,7 +90,7 @@ export function preload(this: Phaser.Scene) {
 	});
 
 	['arcanist', 'elementalist', 'knight', 'berserker', 'sniper', 'hunter',
-		'monk', 'cleric', 'soldier'
+		'monk', 'cleric', 'soldier', 'blob_king'
 
 	].forEach(job => {
 		this.load.image(

@@ -17,11 +17,7 @@ const shift = (x: number, y: number) => (u: Unit) => {
 	return u
 }
 
-export const waves: { [idx: number]: Unit[] } = {
-	1: cluster("blob", 2).map(shift(0, -1)),
-	2: cluster("blob", 3),
-	3: cluster("blob", 4),
-}
+const row = (job: string, size: number) => new Array(size).fill(0).map((_, i) => enemy(job, i, 0))
 
 function cluster(job: string, size: number) {
 	return new Array(
@@ -36,4 +32,12 @@ function cluster(job: string, size: number) {
 
 		return enemy(job, x, y);
 	})
+}
+
+const blobKing = () => [makeUnit(Math.random().toString(), FORCE_ID_CPU, "blob_king", vec2(8, 2))]
+
+export const waves: { [idx: number]: Unit[] } = {
+	1: row("blob", 4).map(shift(0, -1)).concat(blobKing()),
+	2: cluster("blob", 3).concat(blobKing()),
+	3: cluster("blob", 4),
 }

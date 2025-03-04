@@ -100,7 +100,7 @@ Focus: Frontline tanking, crowd control.`,
     id: "thief",
     name: "Thief",
     description: `A slippery opportunist who thrives on evasion and punishing enemy mistakes.`,
-    moveRange: 2,
+    moveRange: 4,
     stats: {
       hp: 200,
       attack: 30,
@@ -130,6 +130,22 @@ Focus: Frontline tanking, crowd control.`,
     baseAttack: "slash",
     upgrades: []
     , skills: [],
+  },
+  {
+    id: "blob_king",
+    name: "Blob King",
+    description: `Blob King | Blob King.`,
+    moveRange: 1,
+    stats: {
+      hp: 500,
+      attack: 30,
+      defense: 20,
+      accuracy: 10,
+      agility: 10,
+    },
+    baseAttack: "slash",
+    upgrades: []
+    , skills: ["summon_blob"],
   },
   {
     id: "elementalist",
