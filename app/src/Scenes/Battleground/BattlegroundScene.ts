@@ -12,14 +12,12 @@ import { unitDestroyed } from "./Events/UNIT_DESTROYED";
 import * as FogOfWarSystem from "./Systems/FogOfWar/FogOfWar";
 import * as CursorSystem from "./Systems/Cursor";
 import * as AISystem from "../../Systems/AI/AI";
-import { EmoteSystem_init } from "../../Systems/Chara/Emote";
 import * as HPBarSystem from "../../Systems/Chara/HPBar";
 import * as HightlightCellsSystem from "./Map/highlightCells";
 
 import { createFowLayer } from "./Systems/FogOfWar/createFowLayer";
 import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import { makeMapInteractive } from "./Map/makeMapInteractive";
-import { clearCellHighlights } from "./Map/highlightCells";
 import { Force, FORCE_ID_PLAYER } from "../../Models/Force";
 import * as StoreSystem from "./Store";
 import { delay } from "../../Utils/animation";
@@ -156,7 +154,6 @@ export class BattlegroundScene extends Phaser.Scene {
     // TODO: separate scene-related listeners from state listeners
     unitDestroyed(this, state);
     AISystem.init(state);
-    EmoteSystem_init(state, this);
     if (state.options.fogOfWarEnabled)
       FogOfWarSystem.init(this, state);
     CursorSystem.init(state, this);
@@ -339,15 +336,6 @@ export class BattlegroundScene extends Phaser.Scene {
   };
   resumeGame = () => {
     this.isPaused = false;
-  };
-  moveUnitsTo = (unitIds: string[], { x, y }: Vec2) => {
-    const units = getState().gameData.units.filter((u) => unitIds.includes(u.id));
-
-    clearCellHighlights(this);
-
-    units.forEach(async (unit) => {
-      emit(signals.DISPLAY_EMOTE, unit.id, "moving-emote");
-    });
   };
 
   errors = {

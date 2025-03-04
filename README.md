@@ -39,3 +39,9 @@ https://opengameart.org/content/54-casino-sound-effects-cards-dice-chips
 chip-lay-3.ogg
 
 https://opengameart.org/content/weapon-slash-effect sword-slash.png
+
+https://pixabay.com/sound-effects/shining-anime-sound-effect-240582/
+shining-anime-sound-effect-240582
+
+https://www.zapsplat.com/music/anime-noisy-laser-blip/
+zapsplat_cartoon_anime_laser_blip_noisy_92477

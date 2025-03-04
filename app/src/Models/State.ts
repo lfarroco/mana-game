@@ -153,5 +153,25 @@ export const listenToStateEvents = (state: State) => {
     [signals.UPDATE_FORCE, (force: Partial<Force>) => {
       updateForce(state)(force);
     }],
+    [signals.ADD_STATUS, (id: string, status: string, duration: number) => {
+
+      const unit = state.gameData.units.find((u) => u.id === id)!;
+
+      unit.statuses[status] = duration;
+
+    }],
+    [signals.BATTLEGROUND_TICK, (tick: number) => {
+
+      state.gameData.units.forEach((u) => {
+        Object.keys(u.statuses).forEach((status) => {
+          u.statuses[status] -= 1;
+          if (u.statuses[status] <= 0) {
+            emit(signals.END_STATUS, u.id, status);
+            delete u.statuses[status];
+          }
+        });
+      });
+    }],
+
   ])
 }
