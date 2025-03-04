@@ -40,7 +40,6 @@ export class BattlegroundScene extends Phaser.Scene {
   grid: (0 | 1)[][] = []
   state: State;
   dropZone: Phaser.GameObjects.Zone | null = null;
-  maxUnitsDisplay: Phaser.GameObjects.Text | null = null;
   ui: Phaser.GameObjects.Container | null = null;
   dropZoneDisplay: Phaser.GameObjects.Graphics | null = null;
   playerForce: Force;
@@ -152,6 +151,13 @@ export class BattlegroundScene extends Phaser.Scene {
           this.destroyParticle(id, status)
         }
 
+      }],
+      [signals.UNIT_DESTROYED, (id: string) => {
+        Object.keys(this.particles).forEach((key) => {
+          if (key.startsWith(id + "-")) {
+            this.destroyParticle(id, key.split('-')[1])
+          }
+        });
       }]
 
     ]);
@@ -310,16 +316,6 @@ export class BattlegroundScene extends Phaser.Scene {
     });
 
     this.ui.add(wave);
-
-    const maxUnits = this.add.text(
-      SCREEN_WIDTH - 350, SCREEN_HEIGHT - 50,
-      this.state.gameData.units.filter(u => u.force === FORCE_ID_PLAYER).length + "/" + force.maxUnits
-      , {
-        fontSize: "36px",
-        color: "white"
-      });
-
-    this.ui.add(maxUnits);
 
   }
 

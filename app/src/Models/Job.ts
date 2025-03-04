@@ -303,9 +303,6 @@ Focus: Priority target removal, evasion.`,
     upgrades: []
     , skills: [],
   }
-
-
-
 ];
 
 export const getJob = (id: string): Job => {
