@@ -92,6 +92,21 @@ export const skills: Skill[] = [
 		projectile: null,
 		targetingLogic: "closest-enemy",
 	},
+	{
+		id: "summon_blob",
+		name: "Summon Blobs",
+		cooldown: 3,
+		range: 1,
+		targets: "tile",
+		power: 20,
+		harmful: false,
+		areaOfEffect: 1,
+		tooltip: "Summons 4 blobs",
+		emote: "magic-emote",
+		targetEffect: "cethiel_light",
+		projectile: null,
+		targetingLogic: "closest-enemy",
+	}
 ]
 
 // ideas for skills:
