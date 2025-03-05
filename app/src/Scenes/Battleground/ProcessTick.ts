@@ -6,7 +6,7 @@ import { delay } from "../../Utils/animation";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
 import { getJob } from "../../Models/Job";
 import { asVec2, eqVec2, sortBySnakeDistance, vec2, Vec2 } from "../../Models/Geometry";
-import { runPromisesInOrder as sequenceAsync } from "../../utils";
+import { runPromisesInOrder, runPromisesInOrder as sequenceAsync } from "../../utils";
 import { vignette } from "./Animations/vignette";
 import { shoot } from "../../Systems/Chara/Skills/shoot";
 import { healing } from "../../Systems/Chara/Skills/healing";
@@ -166,11 +166,15 @@ async function summon(unit: Unit, scene: BattlegroundScene) {
   emptySlots = emptySlots.slice(0, 4);
 
   // create a blob in each slot
-  emptySlots.forEach(slot => {
+  const actions = emptySlots.map(slot => async () => {
     const blob = makeUnit(Math.random().toString(), FORCE_ID_CPU, "blob", slot);
     scene.state.gameData.units.push(blob);
     scene.renderUnit(blob);
+    await delay(scene, 500 / scene.state.options.speed);
   });
+
+  await runPromisesInOrder(actions);
+
 }
 
 export async function walk(

@@ -211,7 +211,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.createWave();
 
-    // todo: check if necessary
     this.renderStore();
 
   };
@@ -515,3 +514,6 @@ async function summonEffect(scene: Phaser.Scene, { x, y }: Vec2) {
   summonEffect.destroy();
 
 }
+
+
+
