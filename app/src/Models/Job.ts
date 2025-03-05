@@ -50,7 +50,7 @@ Focus: Sustain, hybrid damage/support.`,
       agility: 12,
     },
     baseAttack: "heal",
-    skills: ["heal"],
+    skills: ["heal", "shoot"],
     upgrades: [
       "cleric",
       "monk"
