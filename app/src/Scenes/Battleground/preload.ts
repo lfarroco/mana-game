@@ -46,6 +46,7 @@ export function preload(this: Phaser.Scene) {
 	this.load.image("tilesets/tileset", "assets/tilesets/tileset.png");
 	this.load.image("cursor", "assets/ui/selected_cursor.png");
 	this.load.image("light", "assets/fx/light.png");
+	this.load.image("beam", "assets/fx/beam.png");
 	this.load.image("white-dot", "assets/fx/white-dot.png");
 	this.load.image("light-pillar", "assets/fx/light-pillar.png");
 	this.load.image("damage_display", "assets/ui/damage_display.png");
