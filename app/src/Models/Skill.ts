@@ -24,7 +24,7 @@ export const skills: Skill[] = [
 		id: "heal",
 		name: "Heal",
 		cooldown: 2,
-		range: 2,
+		range: 5,
 		targets: "ally",
 		power: 20,
 		tooltip: "Heals an ally unit for 5 HP each turn",

@@ -1,6 +1,6 @@
 import * as Easystar from "easystarjs";
 import { Vec2, asVec2, eqVec2, } from "../../../Models/Geometry";
-import { getUnit, getState } from "../../../Models/State";
+import { getState } from "../../../Models/State";
 import BattlegroundScene from "../BattlegroundScene";
 
 /**
