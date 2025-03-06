@@ -18,6 +18,7 @@ import { getSkill } from "../../Models/Skill";
 import { shieldBash } from "../../Systems/Chara/Skills/shieldBash";
 import { specialAnimation } from "../../Systems/Chara/Animations/specialAnimation";
 import { multishot } from "../../Systems/Chara/Skills/multishot";
+import { healingWave } from "../../Systems/Chara/Skills/healingWave";
 
 const processTick = async (scene: BattlegroundScene) => {
 
@@ -118,6 +119,14 @@ const performAction = (
     await specialAnimation(activeChara);
 
     await multishot(unit, activeChara, scene);
+
+    unit.cooldowns[skillId] = skill.cooldown
+
+  } else if (skillId === "healingwave") {
+
+    await specialAnimation(activeChara);
+
+    await healingWave(scene, unit);
 
     unit.cooldowns[skillId] = skill.cooldown
 
