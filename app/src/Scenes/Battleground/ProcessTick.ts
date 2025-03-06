@@ -8,18 +8,8 @@ import { getJob } from "../../Models/Job";
 import { asVec2, sortBySnakeDistance, Vec2 } from "../../Models/Geometry";
 import { runPromisesInOrder as sequenceAsync } from "../../utils";
 import { vignette } from "./Animations/vignette";
-import { shoot } from "../../Systems/Chara/Skills/shoot";
-import { healing } from "../../Systems/Chara/Skills/healing";
-import { slash } from "../../Systems/Chara/Skills/slash";
-import { fireball } from "../../Systems/Chara/Skills/fireball";
 import { GOLD_PER_WAVE } from "./constants";
-import { approach } from "../../Systems/Chara/approach";
-import { getSkill } from "../../Models/Skill";
-import { shieldBash } from "../../Systems/Chara/Skills/shieldBash";
-import { specialAnimation } from "../../Systems/Chara/Animations/specialAnimation";
-import { multishot } from "../../Systems/Chara/Skills/multishot";
-import { healingWave } from "../../Systems/Chara/Skills/healingWave";
-import { summon } from "../../Systems/Chara/Skills/summon";
+import { performAction } from "./performAction";
 
 const processTick = async (scene: BattlegroundScene) => {
 
@@ -68,85 +58,6 @@ const processTick = async (scene: BattlegroundScene) => {
   }
 
 };
-
-const performAction = (
-  scene: BattlegroundScene,
-) => (
-  unit: Unit,
-) => async () => {
-
-  if (unit.hp <= 0) return;
-
-  const job = getJob(unit.job);
-
-  const activeChara = scene.getChara(unit.id);
-
-  await panTo(scene, asVec2(activeChara.container));
-
-  const availableSkills = job.skills.filter(skillId => {
-    const cooldown = unit.cooldowns[skillId]
-
-    return cooldown === 0
-  });
-
-  // decrease cooldowns
-  job.skills.forEach(skillId => {
-    unit.cooldowns[skillId] = Math.max(0, unit.cooldowns[skillId] - 1);
-  });
-
-  if (unit.statuses.stun >= 0) return;
-
-  const [skillId] = availableSkills;
-
-  const skill = getSkill(skillId)
-
-  if (skillId === "shieldbash") {
-
-    const casted = await shieldBash(scene, activeChara.unit);
-    if (casted) {
-      unit.cooldowns[skillId] = skill.cooldown
-    }
-
-  } else if (skillId === "summon_blob") {
-
-    await specialAnimation(activeChara);
-
-    await summon(unit, scene);
-
-    unit.cooldowns[skillId] = skill.cooldown
-
-  } else if (skillId === "multishot") {
-
-    await specialAnimation(activeChara);
-
-    await multishot(unit, activeChara, scene);
-
-    unit.cooldowns[skillId] = skill.cooldown
-
-  } else if (skillId === "healingwave") {
-
-    await specialAnimation(activeChara);
-
-    await healingWave(scene, unit);
-
-    unit.cooldowns[skillId] = skill.cooldown
-
-  } else if (skillId === "slash") {
-
-    const mtarget = await approach(activeChara, 1, true);
-    if (mtarget)
-      await slash(scene, unit, mtarget)
-  }
-  else if (skillId === "heal") {
-    await healing(scene)(unit);
-  }
-  else if (skillId === "shoot") {
-    await shoot(scene)(unit);
-  } else if (skillId === "fireball") {
-    await fireball(scene)(unit);
-  }
-
-}
 
 export async function walk(
   scene: BattlegroundScene,
