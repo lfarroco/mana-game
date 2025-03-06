@@ -1,12 +1,12 @@
 import { emit, signals, } from "../../Models/Signals";
 import { BattlegroundScene } from "./BattlegroundScene";
 import { State, getActiveUnits, getState } from "../../Models/State";
-import { makeUnit, Unit, unitLog } from "../../Models/Unit";
+import { Unit, unitLog } from "../../Models/Unit";
 import { delay } from "../../Utils/animation";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
 import { getJob } from "../../Models/Job";
-import { asVec2, eqVec2, sortBySnakeDistance, vec2, Vec2 } from "../../Models/Geometry";
-import { runPromisesInOrder, runPromisesInOrder as sequenceAsync } from "../../utils";
+import { asVec2, sortBySnakeDistance, Vec2 } from "../../Models/Geometry";
+import { runPromisesInOrder as sequenceAsync } from "../../utils";
 import { vignette } from "./Animations/vignette";
 import { shoot } from "../../Systems/Chara/Skills/shoot";
 import { healing } from "../../Systems/Chara/Skills/healing";
@@ -19,6 +19,7 @@ import { shieldBash } from "../../Systems/Chara/Skills/shieldBash";
 import { specialAnimation } from "../../Systems/Chara/Animations/specialAnimation";
 import { multishot } from "../../Systems/Chara/Skills/multishot";
 import { healingWave } from "../../Systems/Chara/Skills/healingWave";
+import { summon } from "../../Systems/Chara/Skills/summon";
 
 const processTick = async (scene: BattlegroundScene) => {
 
@@ -144,45 +145,6 @@ const performAction = (
   } else if (skillId === "fireball") {
     await fireball(scene)(unit);
   }
-
-}
-
-async function summon(unit: Unit, scene: BattlegroundScene) {
-  let emptySlots = [] as Vec2[];
-
-  // pick 4 empty slots close to the unit
-  let i = 1;
-  while (emptySlots.length < 4 && i < 5) {
-    const slots = [
-      vec2(unit.position.x + i, unit.position.y),
-      vec2(unit.position.x - i, unit.position.y),
-      vec2(unit.position.x, unit.position.y + i),
-      vec2(unit.position.x, unit.position.y - i),
-    ];
-
-    emptySlots = emptySlots.concat(
-      slots.filter(slot => {
-        const unitAtSlot = scene.state.gameData.units
-          .filter(u => u.hp > 0)
-          .find(u => eqVec2(u.position, slot));
-        return !unitAtSlot;
-      })
-    );
-
-    i++;
-  }
-
-  emptySlots = emptySlots.slice(0, 4);
-
-  // create a blob in each slot
-  const actions = emptySlots.map(slot => async () => {
-    const blob = makeUnit(Math.random().toString(), FORCE_ID_CPU, "blob", slot);
-    scene.state.gameData.units.push(blob);
-    scene.renderUnit(blob);
-    await delay(scene, 500 / scene.state.options.speed);
-  });
-
-  await runPromisesInOrder(actions);
 
 }
 
