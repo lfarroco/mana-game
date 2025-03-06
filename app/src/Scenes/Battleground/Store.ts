@@ -32,9 +32,9 @@ export function updateStore(scene: BattlegroundScene) {
 	if (container) container.destroy(true);
 
 	const width = scene.cameras.main.width;
-	const height = 200;
+	const height = 150;
 	const x = 0;
-	const y = 0;
+	const y = scene.cameras.main.height - height;
 
 	container = scene.add.container(x, y);
 
@@ -56,7 +56,7 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 	const job = getJob(unit.job);
 
 	const x = 100 + i * 120;
-	const y = 100;
+	const y = 60;
 
 	const sprite = scene.add.image(
 		x, y,
