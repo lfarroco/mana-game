@@ -1,7 +1,8 @@
 import { snakeDistanceBetween, sortBySnakeDistance } from "../../../Models/Geometry";
 import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
-import { getUnitsByProximity, walk } from "../../../Scenes/Battleground/ProcessTick";
+import { walk } from "../../../Scenes/Battleground/ProcessTick";
+import { getUnitsByProximity } from "../../../Models/State";
 import { healAnimation } from "../Animations/healAnimation";
 import { lookupAIPAth } from "../../../Scenes/Battleground/Systems/Pathfinding";
 

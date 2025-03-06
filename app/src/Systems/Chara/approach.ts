@@ -1,7 +1,8 @@
 import { snakeDistanceBetween, Vec2 } from "../../Models/Geometry";
 import { getJob } from "../../Models/Job";
 import { Unit } from "../../Models/Unit";
-import { getUnitsByProximity, walk } from "../../Scenes/Battleground/ProcessTick";
+import { walk } from "../../Scenes/Battleground/ProcessTick";
+import { getUnitsByProximity } from "../../Models/State";
 import { lookupAIPAth } from "../../Scenes/Battleground/Systems/Pathfinding";
 import { Chara } from "./Chara";
 

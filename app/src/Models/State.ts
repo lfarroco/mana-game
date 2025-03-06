@@ -1,6 +1,6 @@
 import * as uuid from "uuid";
 import { cpuForce, Force, playerForce } from "./Force";
-import { Vec2 } from "./Geometry";
+import { sortBySnakeDistance, Vec2 } from "./Geometry";
 import { emit, signals, listeners } from "./Signals";
 import { Unit, makeUnit } from "./Unit";
 
@@ -175,3 +175,11 @@ export const listenToStateEvents = (state: State) => {
 
   ])
 }
+
+export function getUnitsByProximity(state: State, unit: Unit, enemy: boolean): Unit[] {
+  return getActiveUnits(state)
+    .filter(u => enemy ? u.force !== unit.force : u.force === unit.force)
+    .filter(u => u.id !== unit.id)
+    .sort((a, b) => sortBySnakeDistance(unit.position)(a.position)(b.position));
+}
+

@@ -3,7 +3,8 @@ import { getJob } from "../../../Models/Job";
 import { getSkill } from "../../../Models/Skill";
 import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
-import { getUnitsByProximity, walk } from "../../../Scenes/Battleground/ProcessTick";
+import { walk } from "../../../Scenes/Battleground/ProcessTick";
+import { getUnitsByProximity } from "../../../Models/State";
 import { lookupAIPAth } from "../../../Scenes/Battleground/Systems/Pathfinding";
 import { fireballAnimation } from "../Animations/fireballAnimation";
 
