@@ -24,6 +24,7 @@ import { delay, tween } from "../../Utils/animation";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "./constants";
 import { waves } from "./enemyWaves";
 import { vignette } from "./Animations/vignette";
+import * as hw from "../../Systems/Chara/Skills/healingWave";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -212,6 +213,13 @@ export class BattlegroundScene extends Phaser.Scene {
     this.createWave();
 
     this.renderStore();
+
+    hw.animation(this, [
+      vec2(300, 400),
+      vec2(500, 400),
+      vec2(700, 500),
+      vec2(800, 200),
+    ]);
 
   };
 
