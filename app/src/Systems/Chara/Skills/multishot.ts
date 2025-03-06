@@ -5,7 +5,7 @@ import { shootAnimation } from "../Animations/shootAnimation";
 import { Chara } from "../Chara";
 import { runPromisesInOrder as sequenceAsync } from "../../../utils";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
-import { getUnitsByProximity } from "../../../Scenes/Battleground/ProcessTick";
+import { getUnitsByProximity } from "../../../Models/State";
 
 export async function multishot(unit: Unit, activeChara: Chara, scene: BattlegroundScene) {
 	const enemyUnits = getUnitsByProximity(getState(), unit, true);

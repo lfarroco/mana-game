@@ -1,11 +1,11 @@
 import { emit, signals, } from "../../Models/Signals";
 import { BattlegroundScene } from "./BattlegroundScene";
-import { State, getActiveUnits, getState } from "../../Models/State";
+import { getActiveUnits, getState } from "../../Models/State";
 import { Unit, unitLog } from "../../Models/Unit";
 import { delay } from "../../Utils/animation";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
 import { getJob } from "../../Models/Job";
-import { asVec2, sortBySnakeDistance, Vec2 } from "../../Models/Geometry";
+import { asVec2, Vec2 } from "../../Models/Geometry";
 import { runPromisesInOrder as sequenceAsync } from "../../utils";
 import { vignette } from "./Animations/vignette";
 import { GOLD_PER_WAVE } from "./constants";
@@ -89,13 +89,6 @@ export async function walk(
     walked++;
   }
 
-}
-
-export function getUnitsByProximity(state: State, unit: Unit, enemy: boolean): Unit[] {
-  return getActiveUnits(state)
-    .filter(u => enemy ? u.force !== unit.force : u.force === unit.force)
-    .filter(u => u.id !== unit.id)
-    .sort((a, b) => sortBySnakeDistance(unit.position)(a.position)(b.position));
 }
 
 export async function panTo(scene: BattlegroundScene, vec: Vec2) {
