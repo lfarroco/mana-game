@@ -3,12 +3,12 @@ import { popText } from "./popText";
 import { Chara } from "../Chara";
 import { delay, tween } from "../../../Utils/animation";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
+import { emit, signals } from "../../../Models/Signals";
 
 export async function slashAnimation(
 	scene: BattlegroundScene,
 	activeChara: Chara,
 	targetChara: Chara,
-	damage: number,
 ) {
 
 	const state = getState();
@@ -17,6 +17,14 @@ export async function slashAnimation(
 	scene.playFx("audio/sword2");
 
 	await delay(scene, 300 / speed);
+
+	const dodges = targetChara.unit.statuses["next-dodge"] > 0;
+
+	if (dodges) {
+		popText(scene, "Dodge", targetChara.unit.id);
+		delete targetChara.unit.statuses["next-dodge"];
+		return;
+	}
 
 	const angle = Phaser.Math.Angle.BetweenPoints(
 		activeChara.container,
@@ -39,7 +47,7 @@ export async function slashAnimation(
 		stopAfter: 5
 	});
 
-	popText(scene, damage.toString(), targetChara.unit.id);
+	popText(scene, activeChara.unit.attack.toString(), targetChara.unit.id);
 
 	tween({
 		targets: [targetChara.container],
@@ -48,6 +56,12 @@ export async function slashAnimation(
 		yoyo: true,
 		repeat: 4,
 	});
+
+	emit(
+		signals.DAMAGE_UNIT,
+		targetChara.id,
+		activeChara.unit.attack
+	);
 
 	await delay(scene, 600 / speed);
 

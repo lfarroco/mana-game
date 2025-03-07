@@ -30,12 +30,7 @@ export async function slash(
 
 	bashPieceAnimation(activeChara, targetChara);
 
-	await slashAnimation(scene, activeChara, targetChara, unit.attack);
+	await slashAnimation(scene, activeChara, targetChara);
 
-	emit(
-		signals.DAMAGE_UNIT,
-		targetChara.id,
-		unit.attack
-	);
 
 }
