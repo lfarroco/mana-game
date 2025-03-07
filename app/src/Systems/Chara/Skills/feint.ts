@@ -20,18 +20,8 @@ export async function feint(
 
 	summonEffect(scene, asVec2(activeChara.container));
 
-	emit(
-		signals.ADD_STATUS,
-		activeChara.id,
-		"next-critical",
-		1
-	);
+	emit(signals.ADD_STATUS, activeChara.id, "next-critical", 2);
 
-	emit(
-		signals.ADD_STATUS,
-		activeChara.id,
-		"next-dodge",
-		1
-	);
+	emit(signals.ADD_STATUS, activeChara.id, "next-dodge", 2);
 
 }

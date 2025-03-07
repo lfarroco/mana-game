@@ -11,6 +11,8 @@ export async function slashAnimation(
 	targetChara: Chara,
 ) {
 
+	let fxs = [] as Phaser.GameObjects.GameObject[];
+
 	const state = getState();
 	const { speed } = state.options;
 
@@ -47,7 +49,57 @@ export async function slashAnimation(
 		stopAfter: 5
 	});
 
-	popText(scene, activeChara.unit.attack.toString(), targetChara.unit.id);
+	const isCritical = activeChara.unit.statuses["next-critical"] > 0;
+
+	const damage = isCritical ? activeChara.unit.attack * 2 : activeChara.unit.attack;
+
+	if (isCritical) {
+		const critBg = scene.add.image(
+			targetChara.container.x, targetChara.container.y,
+			'damage_display'
+		);
+		critBg.setScale(0);
+
+
+		const dmg = scene.add.text(
+			targetChara.container.x, targetChara.container.y,
+			`${damage}`,
+			{
+				fontSize: '96px',
+				color: '#000000',
+				stroke: '#000000',
+				strokeThickness: 4,
+				align: 'center',
+				fontStyle: 'bold',
+			}
+		)
+		dmg.setOrigin(0.5);
+		dmg.setScale(0);
+
+		tween({
+			targets: [critBg, dmg],
+			scale: 0.4,
+			duration: 500 / speed,
+			//elastic
+			ease: 'Bounce.easeOut',
+			onComplete: () => {
+				tween({
+					targets: [critBg, dmg],
+					alpha: 0,
+					duration: 500 / speed,
+				})
+			}
+		});
+
+		activeChara.unit.statuses["next-critical"] = 0;
+
+		fxs.push(critBg, dmg);
+
+
+	} else {
+
+		popText(scene, damage.toString(), targetChara.unit.id);
+	}
 
 	tween({
 		targets: [targetChara.container],
@@ -60,11 +112,13 @@ export async function slashAnimation(
 	emit(
 		signals.DAMAGE_UNIT,
 		targetChara.id,
-		activeChara.unit.attack
+		damage
 	);
 
-	await delay(scene, 600 / speed);
+	await delay(scene, 1000 / speed);
 
 	particles.destroy();
+
+	fxs.forEach(fx => fx.destroy());
 
 }
