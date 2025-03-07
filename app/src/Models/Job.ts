@@ -113,7 +113,7 @@ Focus: Frontline tanking, crowd control.`,
       "ninja",
       "rogue"
     ]
-    , skills: ["slash"],
+    , skills: ["feint", "slash"],
   },
   {
     id: "blob",

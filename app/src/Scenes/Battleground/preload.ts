@@ -91,10 +91,7 @@ export function preload(this: Phaser.Scene) {
 		)
 	});
 
-	['arcanist', 'elementalist', 'knight', 'berserker', 'sniper', 'hunter',
-		'monk', 'cleric', 'soldier', 'blob_king', 'archer'
-
-	].forEach(job => {
+	jobs.forEach(job => {
 		this.load.image(
 			`${job}/full`,
 			`assets/jobs/${job}/full.jpeg`,

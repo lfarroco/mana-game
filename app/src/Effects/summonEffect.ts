@@ -1,0 +1,35 @@
+import Phaser from "phaser";
+import { Vec2 } from "../Models/Geometry";
+import { delay } from "../Utils/animation";
+
+export async function summonEffect(scene: Phaser.Scene, { x, y }: Vec2) {
+
+	const lifespan = 300;
+
+	const summonEffect = scene.add.particles(x, y, 'light-pillar', {
+		lifespan,
+		scale: { start: 0.05, end: 0.1 },
+		alpha: { start: 1, end: 0 },
+		speed: { min: 100, max: 200 },
+		quantity: 4,
+		frequency: lifespan / 10, // Emit all at once
+		rotate: { min: 0, max: 360 }, // Random rotation for variety
+		blendMode: 'ADD',
+		emitZone: {
+			type: 'edge',
+			source: new Phaser.Geom.Circle(0, 0, 10),
+			quantity: 8,
+			yoyo: false
+		}
+	});
+
+
+	await delay(scene, lifespan);
+
+	summonEffect.stop();
+
+	await delay(scene, lifespan);
+
+	summonEffect.destroy();
+
+}

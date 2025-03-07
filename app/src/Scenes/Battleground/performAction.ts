@@ -4,6 +4,7 @@ import { getSkill } from "../../Models/Skill";
 import { Unit } from "../../Models/Unit";
 import { specialAnimation } from "../../Systems/Chara/Animations/specialAnimation";
 import { approach } from "../../Systems/Chara/approach";
+import { feint } from "../../Systems/Chara/Skills/feint";
 import { fireball } from "../../Systems/Chara/Skills/fireball";
 import { healing } from "../../Systems/Chara/Skills/healing";
 import { healingWave } from "../../Systems/Chara/Skills/healingWave";
@@ -77,7 +78,14 @@ export const performAction = (
 
 		unit.cooldowns[skillId] = skill.cooldown;
 
-	} else if (skillId === "slash") {
+	} else if (skillId === "feint") {
+		await specialAnimation(activeChara);
+
+		await feint(scene, unit);
+		unit.cooldowns[skillId] = skill.cooldown;
+	}
+
+	if (skillId === "slash") {
 
 		const mtarget = await approach(activeChara, 1, true);
 		if (mtarget)

@@ -72,7 +72,15 @@ export const skills: Skill[] = [
 		cooldown: 3,
 		range: 5,
 		power: 20,
-		tooltip: "Heals 3 ally units for 50 HP",
+		tooltip: "Heals 4 allied units for 50 HP",
+	},
+	{
+		id: "feint",
+		name: "Feint",
+		cooldown: 2,
+		range: 1,
+		power: 20,
+		tooltip: "Dodges the next attack and deals a critical",
 	}
 ]
 
