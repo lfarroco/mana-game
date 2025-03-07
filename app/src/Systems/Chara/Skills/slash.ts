@@ -1,4 +1,3 @@
-import { emit, signals } from "../../../Models/Signals";
 import { getUnit } from "../../../Models/State";
 import { Unit, unitLog } from "../../../Models/Unit";
 import { bashPieceAnimation } from "../Animations/bashPieceAnimation";
@@ -20,8 +19,6 @@ export async function slash(
 
 	const targetChara = scene.getChara(targetUnit.id);
 
-	if (!activeChara) { throw new Error("no active unit\n" + unit.id); }
-
 	if (targetUnit.hp <= 0) {
 		throw new Error("target is dead");
 	}
@@ -31,6 +28,5 @@ export async function slash(
 	bashPieceAnimation(activeChara, targetChara);
 
 	await slashAnimation(scene, activeChara, targetChara);
-
 
 }
