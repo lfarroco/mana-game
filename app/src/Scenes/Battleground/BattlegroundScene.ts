@@ -24,7 +24,7 @@ import { delay, tween } from "../../Utils/animation";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "./constants";
 import { waves } from "./enemyWaves";
 import { vignette } from "./Animations/vignette";
-import * as hw from "../../Systems/Chara/Skills/healingWave";
+import { summonEffect } from "../../Effects/summonEffect";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -146,8 +146,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
       }],
 
-
-
     ]);
 
     /**
@@ -213,13 +211,6 @@ export class BattlegroundScene extends Phaser.Scene {
     this.createWave();
 
     this.renderStore();
-
-    hw.animation(this, [
-      vec2(300, 400),
-      vec2(500, 400),
-      vec2(700, 500),
-      vec2(800, 200),
-    ]);
 
   };
 
@@ -490,38 +481,5 @@ export class BattlegroundScene extends Phaser.Scene {
 }
 
 export default BattlegroundScene;
-
-async function summonEffect(scene: Phaser.Scene, { x, y }: Vec2) {
-
-  const lifespan = 300;
-
-  const summonEffect = scene.add.particles(x, y, 'light-pillar', {
-    lifespan,
-    scale: { start: 0.05, end: 0.1 },
-    alpha: { start: 1, end: 0 },
-    speed: { min: 100, max: 200 },
-    quantity: 4,
-    frequency: lifespan / 10, // Emit all at once
-    rotate: { min: 0, max: 360 }, // Random rotation for variety
-    blendMode: 'ADD',
-    emitZone: {
-      type: 'edge',
-      source: new Phaser.Geom.Circle(0, 0, 10),
-      quantity: 8,
-      yoyo: false
-    }
-  });
-
-
-  await delay(scene, lifespan);
-
-  summonEffect.stop();
-
-  await delay(scene, lifespan);
-
-  summonEffect.destroy();
-
-}
-
 
 

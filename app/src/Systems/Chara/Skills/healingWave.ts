@@ -5,6 +5,7 @@ import { Unit } from "../../../Models/Unit";
 import { getUnitsByProximity } from "../../../Models/State";
 import { emit, signals } from "../../../Models/Signals";
 import { BattlegroundScene } from "../../../Scenes/Battleground/BattlegroundScene";
+import { EnergyBeam } from "../../../Effects/EnergyBeam";
 
 // TODO: make this the acolyte's skill
 
@@ -39,22 +40,81 @@ export async function healingWave(scene: BattlegroundScene, unit: Unit) {
 
 
 export async function animation(scene: BattlegroundScene, targets: Vec2[]) {
-	const duration = 300;
-	const lifespan = 1000;
+	const lifespan = 1000 / scene.state.options.speed;
 
-	const keypoints = targets.flatMap(target => [target.x, target.y]);
+	const waves = targets.reduce((acc, target, i) => {
 
-	const curve = new Phaser.Curves.Spline(keypoints);
+		const next = targets[i + 1];
+		if (!next) return acc;
 
-	const path = new Phaser.Curves.Path().add(curve);
+		const beam = new EnergyBeam(scene, {
+			start: target,
+			end: next,
+			segments: 8,
+			amplitude: 15,
+			frequency: 1,
+			thickness: 10,
+			color: 0xFFD700,
+			speed: 0.1
+		})
+		const beam2 = new EnergyBeam(scene, {
+			start: target,
+			end: next,
+			segments: 8,
+			amplitude: 15,
+			frequency: 1,
+			thickness: 5,
+			color: 0xFFD700,
+			speed: 0.1
+		})
+		beam.phase = 1.2;
 
-	const follower = scene.add.follower(path, targets[0].x, targets[0].y, '');
-	follower.setVisible(false);
+		beam.setAlpha(0);
 
-	const particles = scene.add.particles(0, 0,
+		beam2.setAlpha(0);
+
+		scene.tweens.add({
+			targets: [beam, beam2],
+			alpha: 0.5,
+			duration: lifespan / 2,
+			ease: Phaser.Math.Easing.Quadratic.Out,
+			onComplete: () => {
+				scene.tweens.add({
+					targets: [beam, beam2],
+					alpha: 0,
+					duration: lifespan / 2,
+					ease: Phaser.Math.Easing.Quadratic.In,
+				})
+			}
+		})
+
+		return acc.concat([beam, beam2])
+
+	}, [] as EnergyBeam[]);
+
+	const update = () => {
+		waves.forEach(wave => wave.updateBeam());
+	}
+
+
+	scene.events.on(Phaser.Scenes.Events.UPDATE, update);
+
+	const ps = targets.map(t => particles(scene, t, lifespan));
+
+	await (delay(scene, lifespan));
+
+	scene.events.off(Phaser.Scenes.Events.UPDATE, update);
+
+	waves.forEach(wave => wave.destroy());
+	ps.forEach(p => p.stop());
+
+}
+function particles(scene: BattlegroundScene, { x, y }: Vec2, lifespan: number) {
+
+	return scene.add.particles(x, y,
 		'white-dot',
 		{
-			speed: 50,
+			speed: 50 * scene.state.options.speed,
 			//light green to golden tones
 			tint: [0x00ff00, 0x32cd32, 0x3cb371, 0x2e8b57, 0x228b22, 0x556b2f, 0x6b8e23, 0x8b4513, 0xcd853f, 0xdaa520, 0xffd700],
 			lifespan: lifespan,
@@ -63,30 +123,8 @@ export async function animation(scene: BattlegroundScene, targets: Vec2[]) {
 			radial: true,
 			blendMode: 'ADD',
 			quantity: 5,
-			frequency: 0,
+			frequency: 100,
+			stopAfter: (lifespan / 2)
 		});
-
-	particles.stop();
-
-	particles.startFollow(follower);
-
-	follower.startFollow({
-		rotateToPath: true,
-		duration,
-		positionOnPath: true,
-		ease: 'Linear',
-	});
-
-	await delay(scene, 100);
-	particles.start();
-
-	await (delay(scene, duration));
-
-	particles.stop();
-
-	await (delay(scene, lifespan));
-
-	particles.destroy();
-	follower.destroy();
 
 }
