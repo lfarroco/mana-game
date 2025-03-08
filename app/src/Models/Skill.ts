@@ -36,7 +36,7 @@ export const skills: Skill[] = [
 	{
 		id: "fireball",
 		name: "Fireball",
-		cooldown: 3,
+		cooldown: 0,
 		range: 5,
 		power: 100,
 		tooltip: "Deals 10 damage to an enemy unit",
