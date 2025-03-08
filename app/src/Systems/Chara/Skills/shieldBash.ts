@@ -29,7 +29,7 @@ export async function shieldBash(
 
 	unitLog(unit, `will cast shield bash on ${mtarget.id}`);
 
-	bashPieceAnimation(activeChara, targetChara);
+	bashPieceAnimation(activeChara, targetChara.container);
 
 	await animation.shieldBash(activeChara, targetChara)
 

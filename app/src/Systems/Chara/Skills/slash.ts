@@ -29,7 +29,7 @@ export async function slash(
 
 	unitLog(unit, `will cast slash on ${targetUnit.id}`);
 
-	bashPieceAnimation(activeChara, targetChara);
+	bashPieceAnimation(activeChara, targetChara.container);
 
 	scene.playFx("audio/sword2");
 
