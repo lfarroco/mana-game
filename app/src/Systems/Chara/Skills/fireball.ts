@@ -5,7 +5,7 @@ import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { walk } from "../../../Scenes/Battleground/ProcessTick";
 import { getUnitsByProximity } from "../../../Models/State";
-import { lookupAIPAth } from "../../../Scenes/Battleground/Systems/Pathfinding";
+import { lookupAIPAth as lookupPath } from "../../../Scenes/Battleground/Systems/Pathfinding";
 import { popText } from "../Animations/popText";
 import { tween } from "../../../Utils/animation";
 import { emit, signals } from "../../../Models/Signals";
@@ -18,7 +18,7 @@ export const fireball = (
 
 	const job = getJob(unit.job);
 
-	const attackRange = getSkill('fireball').range;
+	const skill = getSkill('fireball');
 
 	const [target] = getUnitsByProximity(state, unit, true);
 
@@ -27,24 +27,24 @@ export const fireball = (
 		return;
 	};
 
-	const distance = () => snakeDistanceBetween(unit.position)(target.position)
+	const unitChara = scene.getChara(unit.id);
+	const targetChara = scene.getChara(target.id);
 
-	if (distance() > attackRange) {
+	const isInRange = () => snakeDistanceBetween(unit.position)(target.position) <= skill.range;
 
-		const pathTo = await lookupAIPAth(scene, unit.id, unit.position, target.position, job.moveRange);
+	if (!isInRange()) {
+
+		const pathTo = await lookupPath(scene, unit.id, unit.position, target.position, job.moveRange);
 
 		await walk(scene, unit, pathTo, (_position: Vec2) => {
-			return distance() <= attackRange;
+			return isInRange()
 		});
 
 	}
 
-	if (distance() > attackRange) return;
+	if (!isInRange()) return;
 
-	const unitChara = scene.getChara(unit.id);
-	const targetChara = scene.getChara(target.id);
-
-	popText(scene, "Fireball", unit.id);
+	popText(scene, skill.name, unit.id);
 
 	const angle = Phaser.Math.Angle.Between(
 		unitChara.container.x, unitChara.container.y,
@@ -76,11 +76,13 @@ export const fireball = (
 		}
 	)
 
+	const projectileSpeed = 200 / scene.state.options.speed;
+
 	await tween({
 		targets: [particles],
 		x: targetChara.container.x,
 		y: targetChara.container.y,
-		duration: 500 / scene.state.options.speed,
+		duration: snakeDistanceBetween(unit.position)(target.position) * projectileSpeed,
 	});
 
 	popText(scene, unit.attack.toString(), target.id);
