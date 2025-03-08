@@ -8,8 +8,6 @@ import { BattlegroundScene } from "../../../Scenes/Battleground/BattlegroundScen
 import { EnergyBeam } from "../../../Effects/EnergyBeam";
 import { healingHitEffect } from "../../../Effects/healingHitEffect";
 
-// TODO: make this the acolyte's skill
-
 export async function healingWave(scene: BattlegroundScene, unit: Unit) {
 
 	const allies = getUnitsByProximity(scene.state, unit, false);
