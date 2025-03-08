@@ -19,9 +19,9 @@ export const sumVec2 = (v1: Vec2) => (v2: Vec2): Vec2 => vec2(v1.x + v2.x, v1.y 
 // curried version of eqVec2
 export const eqVec2_ = (v1: Vec2) => (v2: Vec2) => eqVec2(v1, v2)
 
-export const snakeDistanceBetween = (a: Vec2) => (b: Vec2) => {
-	return Phaser.Math.Distance.Snake(a.x, a.y, b.x, b.y);
-};
+export const snakeDistanceBetween = (a: { x: number, y: number }) => (b: { x: number, y: number }) =>
+	Phaser.Math.Distance.Snake(a.x, a.y, b.x, b.y);
+
 export const sortBySnakeDistance = (target: Vec2) => (a: Vec2) => (b: Vec2) => {
 	const d1 = snakeDistanceBetween(a)(target);
 	const d2 = snakeDistanceBetween(b)(target);
