@@ -27,20 +27,19 @@ export const fireball = (
 		return;
 	};
 
-	const distance = snakeDistanceBetween(unit.position)(target.position);
+	const distance = () => snakeDistanceBetween(unit.position)(target.position)
 
-	if (distance > attackRange) {
+	if (distance() > attackRange) {
 
 		const pathTo = await lookupAIPAth(scene, unit.id, unit.position, target.position, job.moveRange);
 
-		await walk(scene, unit, pathTo, (position: Vec2) => {
-			const distance = snakeDistanceBetween(position)(target.position);
-			return distance <= attackRange;
+		await walk(scene, unit, pathTo, (_position: Vec2) => {
+			return distance() <= attackRange;
 		});
 
 	}
 
-	if (snakeDistanceBetween(unit.position)(target.position) > attackRange) return;
+	if (distance() > attackRange) return;
 
 	const unitChara = scene.getChara(unit.id);
 	const targetChara = scene.getChara(target.id);
@@ -74,9 +73,7 @@ export const fireball = (
 			alpha: { start: 1, end: 0 },
 			scale: { start: 1, end: 0 },
 			blendMode: 'ADD',
-
 		}
-
 	)
 
 	await tween({
