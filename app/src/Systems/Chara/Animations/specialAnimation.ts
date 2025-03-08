@@ -21,6 +21,7 @@ export async function specialAnimation(activeChara: Chara) {
 		ease: "Power2",
 		duration: 1000 / scene.state.options.speed,
 	});
+
 	await tween({
 		targets: [pic],
 		displayWidth: 350,

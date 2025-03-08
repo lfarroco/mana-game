@@ -1,8 +1,7 @@
-import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
 import { tween } from "../Utils/animation";
 
 export async function criticalDamageDisplay(
-	scene: BattlegroundScene,
+	scene: Phaser.Scene,
 	{ x, y }: { x: number; y: number; },
 	damage: number,
 	speed: number) {
