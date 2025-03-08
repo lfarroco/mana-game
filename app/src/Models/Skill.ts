@@ -7,7 +7,6 @@ export type Skill = {
 	power: number;
 	tooltip: string;
 };
-// idea: have property "effects" that is an array of strings, each string is the name of some special effect
 
 export const skills: Skill[] = [
 	{
