@@ -1,8 +1,10 @@
 import Phaser from "phaser";
-import { Vec2 } from "../Models/Geometry";
 import { delay } from "../Utils/animation";
 
-export async function summonEffect(scene: Phaser.Scene, { x, y }: Vec2) {
+export async function summonEffect(
+	scene: Phaser.Scene,
+	{ x, y }: { x: number, y: number },
+) {
 
 	const lifespan = 300;
 

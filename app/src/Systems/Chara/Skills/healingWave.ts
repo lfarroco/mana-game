@@ -6,6 +6,7 @@ import { getUnitsByProximity } from "../../../Models/State";
 import { emit, signals } from "../../../Models/Signals";
 import { BattlegroundScene } from "../../../Scenes/Battleground/BattlegroundScene";
 import { EnergyBeam } from "../../../Effects/EnergyBeam";
+import { healingHitEffect } from "../../../Effects/healingHitEffect";
 
 // TODO: make this the acolyte's skill
 
@@ -39,7 +40,7 @@ export async function healingWave(scene: BattlegroundScene, unit: Unit) {
 }
 
 
-export async function animation(scene: BattlegroundScene, targets: Vec2[]) {
+async function animation(scene: BattlegroundScene, targets: Vec2[]) {
 	const lifespan = 1000 / scene.state.options.speed;
 
 	const waves = targets.reduce((acc, target, i) => {
@@ -96,10 +97,9 @@ export async function animation(scene: BattlegroundScene, targets: Vec2[]) {
 		waves.forEach(wave => wave.updateBeam());
 	}
 
-
 	scene.events.on(Phaser.Scenes.Events.UPDATE, update);
 
-	const ps = targets.map(t => particles(scene, t, lifespan));
+	const ps = targets.map(t => healingHitEffect(scene, t, lifespan, scene.state.options.speed));
 
 	await (delay(scene, lifespan));
 
@@ -107,24 +107,5 @@ export async function animation(scene: BattlegroundScene, targets: Vec2[]) {
 
 	waves.forEach(wave => wave.destroy());
 	ps.forEach(p => p.stop());
-
-}
-function particles(scene: BattlegroundScene, { x, y }: Vec2, lifespan: number) {
-
-	return scene.add.particles(x, y,
-		'white-dot',
-		{
-			speed: 50 * scene.state.options.speed,
-			//light green to golden tones
-			tint: [0x00ff00, 0x32cd32, 0x3cb371, 0x2e8b57, 0x228b22, 0x556b2f, 0x6b8e23, 0x8b4513, 0xcd853f, 0xdaa520, 0xffd700],
-			lifespan: lifespan,
-			alpha: { start: 1, end: 0 },
-			scale: { start: 1, end: 0 },
-			radial: true,
-			blendMode: 'ADD',
-			quantity: 5,
-			frequency: 100,
-			stopAfter: (lifespan / 2)
-		});
 
 }
