@@ -7,8 +7,8 @@ import { walk } from "../../../Scenes/Battleground/ProcessTick";
 import { getUnitsByProximity } from "../../../Models/State";
 import { lookupAIPAth as lookupPath } from "../../../Scenes/Battleground/Systems/Pathfinding";
 import { popText } from "../Animations/popText";
-import { tween } from "../../../Utils/animation";
 import { emit, signals } from "../../../Models/Signals";
+import { fireballEffect } from "../../../Effects/fireballEffect";
 
 export const fireball = (
 	scene: BattlegroundScene
@@ -46,52 +46,11 @@ export const fireball = (
 
 	popText(scene, skill.name, unit.id);
 
-	const angle = Phaser.Math.Angle.Between(
-		unitChara.container.x, unitChara.container.y,
-		targetChara.container.x, targetChara.container.y
-	);
+	await fireballEffect(scene, state.options.speed, unitChara.container, targetChara.container);
 
-	const particles = scene.add.particles(
-		unitChara.container.x,
-		unitChara.container.y,
-		'light',
-		{
-			// make particles move in the direction of the angle, using the speed
-			speedX:
-			{
-				min: -Math.cos(angle) * 200,
-				max: -Math.cos(angle) * 400
-			},
-			speedY: {
-				min: -Math.sin(angle) * 200,
-				max: -Math.sin(angle) * 400
-			},
-			angle: { min: angle - 60, max: angle + 60 },
-			//red, yellow and orage tones
-			tint: [0xff0000, 0xffff00, 0xffa500],
-			lifespan: 400,
-			alpha: { start: 1, end: 0 },
-			scale: { start: 1, end: 0 },
-			blendMode: 'ADD',
-		}
-	)
-
-	const projectileSpeed = 200 / scene.state.options.speed;
-
-	await tween({
-		targets: [particles],
-		x: targetChara.container.x,
-		y: targetChara.container.y,
-		duration: snakeDistanceBetween(unit.position)(target.position) * projectileSpeed,
-	});
-
-	popText(scene, unit.attack.toString(), target.id);
-	particles.destroy();
-
-	emit(
-		signals.DAMAGE_UNIT,
-		targetChara.id,
-		unit.attack
-	);
+	popText(scene, unitChara.unit.attack.toString(), targetChara.unit.id);
+	emit(signals.DAMAGE_UNIT, targetChara.id, unitChara.unit.attack);
 
 }
+
+
