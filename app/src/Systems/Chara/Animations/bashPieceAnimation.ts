@@ -3,7 +3,7 @@ import { tweenSequence } from "../../../Utils/animation";
 
 export async function bashPieceAnimation(
 	activeChara: Chara,
-	targetChara: Chara,
+	target: { x: number, y: number },
 ) {
 
 	const { scene } = activeChara;
@@ -20,7 +20,7 @@ export async function bashPieceAnimation(
 
 	const directionVector = Phaser.Math.Angle.BetweenPoints(
 		activeChara.container,
-		targetChara.container
+		target
 	);
 	const { x, y } = activeChara.container;
 
