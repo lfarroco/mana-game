@@ -80,6 +80,13 @@ export const skills: Skill[] = [
 		range: 1,
 		power: 20,
 		tooltip: "Dodges the next attack and deals a critical",
+	}, {
+		id: "light-orb",
+		name: "Light Orb",
+		cooldown: 0,
+		range: 5,
+		power: 20,
+		tooltip: "Deals 10 damage to an enemy unit and heals 5 HP to close allies",
 	}
 ]
 

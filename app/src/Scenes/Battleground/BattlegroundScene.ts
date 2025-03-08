@@ -213,10 +213,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.renderStore();
 
-    const orb = new GlowingOrb(this, 100, 100, { x: 200, y: 300 }, 1000)
-
-    console.log(orb)
-
   };
 
   createParticle(id: string, status: string) {
