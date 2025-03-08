@@ -22,6 +22,9 @@ export const lightOrb = (
 
 	const skill = getSkill('light-orb');
 
+	const damage = skill.power;
+	const heal = skill.power * 2;
+
 	const [target] = getUnitsByProximity(state, unit, true);
 
 	if (!target) {
@@ -60,19 +63,21 @@ export const lightOrb = (
 		unitChara.container.x,
 		unitChara.container.y,
 		targetChara.container,
-		500 / state.options.speed
+		1000 / state.options.speed
 	).setScale(0.5);
 
-	await delay(scene, 500 / state.options.speed);
+	await delay(scene, 1000 / state.options.speed);
 
 	// TODO: display pop text on damage using listener
-	emit(signals.DAMAGE_UNIT, targetChara.id, unitChara.unit.attack);
+	emit(signals.DAMAGE_UNIT, targetChara.id, damage);
 
-	popText(scene, unitChara.unit.attack.toString(), targetChara.unit.id);
+	popText(scene, damage.toString(), targetChara.unit.id);
 
 	allies.forEach(ally => {
-		emit(signals.HEAL_UNIT, ally.id, unit.attack);
+
 		const chara = scene.getChara(ally.id);
+
+		emit(signals.HEAL_UNIT, ally.id, heal);
 
 		const effect = healingHitEffect(
 			scene,
@@ -80,7 +85,8 @@ export const lightOrb = (
 			1000 / state.options.speed,
 			scene.state.options.speed,
 		);
-		popText(scene, unit.attack.toString(), ally.id);
+		popText(scene, heal.toString(), ally.id);
+		// TODO: maybe make the effect destroy itself
 		scene.time.addEvent({
 			delay: 1000 / state.options.speed,
 			callback: () => effect.destroy()
