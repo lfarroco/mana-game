@@ -40,15 +40,17 @@ export const fireball = (
 			return isInRange()
 		});
 
-	}
+		if (!isInRange()) return;
 
-	if (!isInRange()) return;
+	}
 
 	popText(scene, skill.name, unit.id);
 
 	await fireballEffect(scene, state.options.speed, unitChara.container, targetChara.container);
 
 	popText(scene, unitChara.unit.attack.toString(), targetChara.unit.id);
+
+	// TOOD: display pop text on damage using listener
 	emit(signals.DAMAGE_UNIT, targetChara.id, unitChara.unit.attack);
 
 }
