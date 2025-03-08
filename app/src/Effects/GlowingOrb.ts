@@ -8,6 +8,7 @@ export class GlowingOrb extends Phaser.GameObjects.Container {
 	) {
 		super(scene, x, y);
 		scene.add.existing(this);
+		this.create();
 	}
 
 	create() {
@@ -53,7 +54,7 @@ export class GlowingOrb extends Phaser.GameObjects.Container {
 
 		// Movement tween
 		this.scene.tweens.add({
-			targets: orb,
+			targets: this,
 			x: this.target.x,
 			y: this.target.y,
 			duration: this.duration,

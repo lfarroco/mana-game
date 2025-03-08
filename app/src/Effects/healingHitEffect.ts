@@ -1,7 +1,11 @@
 import Phaser from "phaser";
-import { Vec2 } from "../Models/Geometry";
 
-export function healingHitEffect(scene: Phaser.Scene, { x, y }: Vec2, lifespan: number, speed: number) {
+export function healingHitEffect(
+	scene: Phaser.Scene,
+	{ x, y }: { x: number, y: number },
+	lifespan: number,
+	speed: number,
+) {
 
 	return scene.add.particles(x, y,
 		'white-dot',

@@ -8,6 +8,7 @@ import { feint } from "../../Systems/Chara/Skills/feint";
 import { fireball } from "../../Systems/Chara/Skills/fireball";
 import { healing } from "../../Systems/Chara/Skills/healing";
 import { healingWave } from "../../Systems/Chara/Skills/healingWave";
+import { lightOrb } from "../../Systems/Chara/Skills/lightOrb";
 import { multishot } from "../../Systems/Chara/Skills/multishot";
 import { shieldBash } from "../../Systems/Chara/Skills/shieldBash";
 import { shoot } from "../../Systems/Chara/Skills/shoot";
@@ -98,6 +99,8 @@ export const performAction = (
 		await shoot(scene)(unit);
 	} else if (skillId === "fireball") {
 		await fireball(scene)(unit);
+	} else if (skillId === "light-orb") {
+		await lightOrb(scene)(unit);
 	}
 
 };
