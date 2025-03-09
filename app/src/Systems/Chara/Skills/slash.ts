@@ -83,4 +83,6 @@ export async function slash(
 		damage
 	);
 
+	await delay(scene, 300 / speed);
+
 }
