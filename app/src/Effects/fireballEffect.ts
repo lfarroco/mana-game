@@ -36,9 +36,7 @@ export async function fireballEffect(
 		vec2(64, -64),
 
 	]
-		//.map(v => fireball(target, sumVec2(asVec2(target))(v), scene, speed, lifespan / 3, 200))
 		.map(v => impactEffect(scene, sumVec2(asVec2(target))(v), speed, lifespan / 3))
-	//.map(p => p.setAlpha(0.5));
 
 	scene.time.addEvent({
 		delay: lifespan * 2,

@@ -13,7 +13,8 @@ const jobs = [
 	'cleric',
 	'thief',
 	'blob',
-	'blob_king'
+	'blob_king',
+	'red_blob'
 ]
 
 const emotes = [

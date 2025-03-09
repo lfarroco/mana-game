@@ -115,6 +115,15 @@ export class DebugScene extends Phaser.Scene {
 					},
 					repeat: -1
 				})
+			} else if (effect === "explodeeffect") {
+				this.time.addEvent({
+					delay: 2500,
+					callback: () => {
+						effects.explodeEffect(this, 1, { x: 100, y: 100 });
+						effects.explodeEffect(this, 1, { x: 400, y: 400 });
+					},
+					repeat: -1
+				})
 			}
 		}
 	}

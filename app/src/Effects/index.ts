@@ -6,3 +6,4 @@ export * from './healingHitEffect';
 export * from './impactEffect';
 export * from './summonEffect';
 export * from './arcaneMissile';
+export * from './explodeEffect';

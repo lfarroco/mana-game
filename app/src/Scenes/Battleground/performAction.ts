@@ -5,6 +5,7 @@ import { Unit } from "../../Models/Unit";
 import { specialAnimation } from "../../Systems/Chara/Animations/specialAnimation";
 import { approach } from "../../Systems/Chara/approach";
 import { arcaneMissiles } from "../../Systems/Chara/Skills/arcaneMissiles";
+import { explode } from "../../Systems/Chara/Skills/explode";
 import { feint } from "../../Systems/Chara/Skills/feint";
 import { fireball } from "../../Systems/Chara/Skills/fireball";
 import { healing } from "../../Systems/Chara/Skills/healing";
@@ -108,6 +109,8 @@ export const performAction = (
 		await lightOrb(scene)(unit);
 	} else if (skillId === "arcane-missiles") {
 		await arcaneMissiles(scene)(unit);
+	} else if (skillId === "explode") {
+		await explode(scene)(unit);
 	}
 
 };
