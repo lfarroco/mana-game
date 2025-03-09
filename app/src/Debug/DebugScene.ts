@@ -1,4 +1,3 @@
-
 import * as effects from "../Effects"
 
 export class DebugScene extends Phaser.Scene {

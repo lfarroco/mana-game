@@ -25,7 +25,6 @@ import { SCREEN_HEIGHT, SCREEN_WIDTH } from "./constants";
 import { waves } from "./enemyWaves";
 import { vignette } from "./Animations/vignette";
 import { summonEffect } from "../../Effects/summonEffect";
-import { GlowingOrb } from "../../Effects/GlowingOrb";
 
 export class BattlegroundScene extends Phaser.Scene {
 
