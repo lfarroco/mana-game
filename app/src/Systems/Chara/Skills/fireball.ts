@@ -1,4 +1,3 @@
-import { getJob } from "../../../Models/Job";
 import { getSkill } from "../../../Models/Skill";
 import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";

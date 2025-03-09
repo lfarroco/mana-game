@@ -95,7 +95,6 @@ export const performAction = (
 	}
 
 	if (skillId === "slash") {
-
 		const mtarget = await approach(activeChara, 1, true);
 		if (mtarget)
 			await slash(scene, unit, mtarget);
