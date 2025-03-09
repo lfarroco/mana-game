@@ -6,6 +6,7 @@ import Core from "./Scenes/Core/Core";
 import * as SaveGame from "./Systems/SaveGame/SaveGame";
 import { State } from "./Models/State";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "./Scenes/Battleground/constants";
+import { DebugScene } from "./Debug/DebugScene";
 
 export function initGame(state: State) {
 
@@ -16,7 +17,7 @@ export function initGame(state: State) {
 		height: SCREEN_HEIGHT,
 		pixelArt: false,
 		parent: "game-container",
-		scene: [Core, BattlegroundScene],
+		scene: [Core, DebugScene, BattlegroundScene],
 		physics: {
 			default: 'arcade',
 			arcade: {
@@ -24,7 +25,6 @@ export function initGame(state: State) {
 			}
 		}
 	});
-
 
 	// window.addEventListener("resize", () => {
 	// 	game.scale.resize(window.innerWidth, window.innerHeight);
@@ -40,6 +40,13 @@ export function initGame(state: State) {
 	]);
 
 	SaveGame.SaveGameSystem_init(state, game);
+
+	// get query params, check for DEBUG param
+	const urlParams = new URLSearchParams(window.location.search);
+	const debug = urlParams.get('DEBUG');
+	if (debug) {
+		game.scene.start("DebugScene");
+	}
 
 	return game;
 }

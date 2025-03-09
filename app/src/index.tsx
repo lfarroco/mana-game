@@ -1,7 +1,6 @@
 import events from "events";
 import { State, initialState, listenToStateEvents } from "./Models/State";
 import { initGame } from "./initGame";
-import { initUI } from "./initUI";
 
 const eventEmitter = new events.EventEmitter();
 
@@ -19,6 +18,5 @@ window.emitter = eventEmitter;
 // create this listener first so that state changes are processed first
 listenToStateEvents(state);
 
-initUI();
 initGame(state);
 
