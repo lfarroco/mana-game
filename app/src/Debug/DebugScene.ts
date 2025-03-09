@@ -37,7 +37,7 @@ export class DebugScene extends Phaser.Scene {
 					repeat: -1
 				});
 
-			} else if (effect === "criticalDamageDisplay") {
+			} else if (effect === "criticaldamagedisplay") {
 				this.time.addEvent({
 					delay: 1200,
 					callback: () => {
@@ -45,7 +45,7 @@ export class DebugScene extends Phaser.Scene {
 					},
 					repeat: -1
 				});
-			} else if (effect === "EnergyBeam") {
+			} else if (effect === "energybeam") {
 				const beam = new effects.EnergyBeam(this, {
 					start: { x: 100, y: 100 },
 					end: { x: 400, y: 100 },
@@ -68,14 +68,12 @@ export class DebugScene extends Phaser.Scene {
 					beam.updateBeam();
 					beam2.updateBeam();
 				});
-			} else if (effect === "fireballEffect") {
+			} else if (effect === "fireballeffect") {
 				this.time.addEvent({
 					delay: 1200,
 					callback: () => {
 						effects.fireballEffect(this, 1, { x: 100, y: 100 }, { x: 400, y: 100 });
-
 						effects.fireballEffect(this, 1, { x: 200, y: 200 }, { x: 400, y: 400 });
-
 					},
 					repeat: -1
 				})

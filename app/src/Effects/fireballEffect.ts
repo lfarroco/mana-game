@@ -1,4 +1,5 @@
-import { tween } from "../Utils/animation";
+import { asVec2, sumVec2, vec2 } from "../Models/Geometry";
+import { delay, tween } from "../Utils/animation";
 
 export async function fireballEffect(
 	scene: Phaser.Scene,
@@ -7,15 +8,70 @@ export async function fireballEffect(
 	target: { x: number; y: number; },
 ) {
 
-	const angle = Phaser.Math.Angle.BetweenPoints(source, target);
-
 	const travelDuration = 500 / speed;
 	const lifespan = 400 / speed;
 
+	const particles = fireball(source, target, scene, speed, lifespan, travelDuration);
+	particles.setScale(1.2)
+
+	await delay(scene, travelDuration);
+
+	const impact = impactEffect(scene, target, speed, lifespan);
+
+	scene.time.addEvent({
+		delay: lifespan,
+		callback: () => {
+			impact.stop();
+		}
+	});
+
+	[
+		vec2(0, -64),
+		vec2(0, 64),
+		vec2(64, 0),
+		vec2(-64, 0),
+		vec2(64, 64),
+		vec2(-64, -64),
+		vec2(-64, 64),
+		vec2(64, -64),
+
+	]
+		//.map(v => fireball(target, sumVec2(asVec2(target))(v), scene, speed, lifespan / 3, 200))
+		.map(v => impactEffect(scene, sumVec2(asVec2(target))(v), speed, lifespan / 3))
+	//.map(p => p.setAlpha(0.5));
+
+	scene.time.addEvent({
+		delay: lifespan * 2,
+		callback: () => {
+			particles.destroy();
+			impact.destroy();
+		}
+	});
+}
+function impactEffect(scene: Phaser.Scene, target: { x: number; y: number; }, speed: number, lifespan: number) {
+	return scene.add.particles(
+		target.x,
+		target.y,
+		'white-dot',
+		{
+			speed: 300 * speed,
+			tint: [0xff0000, 0xffff00, 0xffa500],
+			lifespan: lifespan,
+			alpha: { start: 0.5, end: 0 },
+			scale: { start: 2, end: 4 },
+			blendMode: 'ADD',
+			frequency: 5,
+			stopAfter: 15
+		}
+	);
+}
+
+function fireball(source: { x: number; y: number; }, target: { x: number; y: number; }, scene: Phaser.Scene, speed: number, lifespan: number, travelDuration: number) {
+	const angle = Phaser.Math.Angle.BetweenPoints(source, target);
 	const particles = scene.add.particles(
 		source.x,
 		source.y,
-		'light',
+		'white-dot',
 		{
 			// make particles move in the direction of the angle, using the speed
 			speedX: {
@@ -30,25 +86,21 @@ export async function fireballEffect(
 			tint: [0xff0000, 0xffff00, 0xffa500],
 			lifespan,
 			alpha: { start: 1, end: 0 },
-			scale: { start: 2, end: 0 },
+			scale: { start: 4, end: 0 },
 			blendMode: 'ADD',
 			radial: true,
+			stopAfter: travelDuration
 		}
 	);
 
-	await tween({
+	tween({
 		targets: [particles],
 		x: target.x,
 		y: target.y,
 		duration: travelDuration,
+		onComplete: () => particles.stop()
 	});
 
-	particles.stop();
-
-	scene.time.addEvent({
-		delay: lifespan,
-		callback: () => {
-			particles.destroy();
-		}
-	});
+	return particles;
 }
+

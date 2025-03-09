@@ -38,8 +38,8 @@ export const skills: Skill[] = [
 		name: "Fireball",
 		cooldown: 3,
 		range: 5,
-		power: 100,
-		tooltip: "Deals 10 damage to an enemy unit",
+		power: 80,
+		tooltip: "Deals 80 damage to the target and 40 damage enemies around it",
 	},
 	{
 		id: "shieldbash",
@@ -66,11 +66,11 @@ export const skills: Skill[] = [
 		tooltip: "Shoots 4 arrows",
 	},
 	{
-		id: "healingwave",
+		id: "healing-wave",
 		name: "Healing Wave",
 		cooldown: 3,
 		range: 5,
-		power: 20,
+		power: 50,
 		tooltip: "Heals 4 allied units for 50 HP",
 	},
 	{
@@ -92,8 +92,8 @@ export const skills: Skill[] = [
 		name: "Arcane Missiles",
 		cooldown: 0,
 		range: 5,
-		power: 20,
-		tooltip: "Deals 20 damage 3 random enemy targets",
+		power: 10,
+		tooltip: "Deals 10 damage to 3 random enemy targets",
 	}
 ]
 

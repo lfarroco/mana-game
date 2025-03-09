@@ -50,7 +50,7 @@ Focus: Sustain, hybrid damage/support.`,
       agility: 12,
     },
     baseAttack: "heal",
-    skills: ["healingwave", "light-orb"],
+    skills: ["healing-wave", "light-orb"],
     upgrades: [
       "cleric",
       "monk"
@@ -74,7 +74,7 @@ Focus: AoE damage, crowd control.`,
       "elementalist",
       "arcanist"
     ],
-    skills: ["arcane-missiles", "fireball"],
+    skills: ["fireball", "arcane-missiles"],
   },
   {
     id: "soldier",

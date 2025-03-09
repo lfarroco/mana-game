@@ -7,10 +7,18 @@ import { emit, signals } from "../../../Models/Signals";
 import { BattlegroundScene } from "../../../Scenes/Battleground/BattlegroundScene";
 import { EnergyBeam } from "../../../Effects/EnergyBeam";
 import { healingHitEffect } from "../../../Effects/healingHitEffect";
+import { getSkill } from "../../../Models/Skill";
+import { approach } from "../approach";
 
 export async function healingWave(scene: BattlegroundScene, unit: Unit) {
 
-	const allies = getUnitsByProximity(scene.state, unit, false);
+	const skill = getSkill('healing-wave');
+
+	const target = await approach(scene.getChara(unit.id), skill.range, false);
+
+	if (!target) return;
+
+	const allies = getUnitsByProximity(scene.state, unit, false, 5);
 
 	const hurtAllies = allies
 		.filter(u => u.hp < u.maxHp)
@@ -28,7 +36,7 @@ export async function healingWave(scene: BattlegroundScene, unit: Unit) {
 	const top3 = hurtAllies.slice(0, 3);
 
 	top3.forEach(ally => {
-		emit(signals.HEAL_UNIT, ally.id, 50);
+		emit(signals.HEAL_UNIT, ally.id, skill.power);
 	});
 
 	const charas = [scene.getChara(unit.id)].concat(top3.map(u => scene.getChara(u.id)))

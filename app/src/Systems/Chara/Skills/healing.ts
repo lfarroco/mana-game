@@ -10,7 +10,7 @@ export const healing = (
 	scene: BattlegroundScene
 ) => async (unit: Unit) => {
 
-	const allies = getUnitsByProximity(scene.state, unit, false);
+	const allies = getUnitsByProximity(scene.state, unit, false, 5);
 	const hurtAllies = allies
 		.filter(u => u.hp < u.maxHp)
 		.map(unit => {

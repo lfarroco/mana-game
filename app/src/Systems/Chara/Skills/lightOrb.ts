@@ -25,7 +25,7 @@ export const lightOrb = (
 	const damage = skill.power;
 	const heal = skill.power * 2;
 
-	const [target] = getUnitsByProximity(state, unit, true);
+	const [target] = getUnitsByProximity(state, unit, true, skill.range);
 
 	if (!target) {
 		console.warn("No enemy found");
