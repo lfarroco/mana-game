@@ -8,7 +8,6 @@ export class DebugScene extends Phaser.Scene {
 	}
 
 	preload() {
-		this.load.image("tilesets/tileset", "assets/tilesets/tileset.png");
 		this.load.image("cursor", "assets/ui/selected_cursor.png");
 		this.load.image("light", "assets/fx/light.png");
 		this.load.image("beam", "assets/fx/beam.png");
@@ -31,7 +30,7 @@ export class DebugScene extends Phaser.Scene {
 						effects.criticalDamageDisplay(this, { x: 200, y: 200 }, 33, 1);
 					},
 					repeat: -1
-				})
+				});
 			} else if (effect === "EnergyBeam") {
 				const beam = new effects.EnergyBeam(this, {
 					start: { x: 100, y: 100 },
