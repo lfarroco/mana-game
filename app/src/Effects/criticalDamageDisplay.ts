@@ -4,13 +4,13 @@ export async function criticalDamageDisplay(
 	scene: Phaser.Scene,
 	{ x, y }: { x: number; y: number; },
 	damage: number,
-	speed: number) {
+	speed: number,
+) {
 	const critBg = scene.add.image(
 		x, y,
 		'damage_display'
 	);
 	critBg.setScale(0);
-
 
 	const dmg = scene.add.text(
 		x, y,
