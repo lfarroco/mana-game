@@ -1,6 +1,5 @@
 import * as Phaser from "phaser";
 import BattlegroundScene from "./Scenes/Battleground/BattlegroundScene";
-import { signals as events_ } from './Models/Signals';
 import { listeners } from './Models/Signals';
 import Core from "./Scenes/Core/Core";
 import * as SaveGame from "./Systems/SaveGame/SaveGame";
@@ -30,14 +29,7 @@ export function initGame(state: State) {
 	// 	game.scale.resize(window.innerWidth, window.innerHeight);
 	// });
 
-	listeners([
-		[
-			events_.START_NEW_GAME, () => {
-				console.log("START_NEW_GAME");
-				game.scene.start("BattlegroundScene", state);
-			}
-		],
-	]);
+	listeners([]);
 
 	SaveGame.SaveGameSystem_init(state, game);
 
@@ -46,6 +38,9 @@ export function initGame(state: State) {
 	const debug = urlParams.get('DEBUG');
 	if (debug) {
 		game.scene.start("DebugScene");
+	} else {
+		console.log("START_NEW_GAME");
+		game.scene.start("BattlegroundScene", state);
 	}
 
 	return game;
