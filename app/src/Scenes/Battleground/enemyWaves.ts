@@ -38,8 +38,9 @@ const blobKing = () => [makeUnit(Math.random().toString(), FORCE_ID_CPU, "blob_k
 
 export const waves: { [idx: number]: Unit[] } = {
 	1: row("blob", 6),
-	2: cluster("blob", 3).concat(blobKing()),
-	3: [
+	2: row("blob", 10),
+	3: cluster("blob", 5).concat([enemy("red_blob", -1, 0)]),
+	4: [
 		enemy("soldier", 0, 2),
 		enemy("thief", 1, 2),
 	].concat(row("blob", 4)),

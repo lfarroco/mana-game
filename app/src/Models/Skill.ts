@@ -87,13 +87,22 @@ export const skills: Skill[] = [
 		range: 5,
 		power: 10,
 		tooltip: "Deals 10 damage to an enemy unit and heals 5 HP to close allies",
-	}, {
+	},
+	{
 		id: "arcane-missiles",
 		name: "Arcane Missiles",
 		cooldown: 0,
 		range: 5,
 		power: 10,
 		tooltip: "Deals 10 damage to 3 random enemy targets",
+	},
+	{
+		id: "explode",
+		name: "Explode",
+		cooldown: 0,
+		range: 1,
+		power: 100,
+		tooltip: "Caster explodes and deals 100 damage around it",
 	}
 ]
 
