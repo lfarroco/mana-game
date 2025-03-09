@@ -8,7 +8,7 @@ const enemy = (job: string, x: number, y: number) => makeUnit(
 	job,
 	vec2(
 		x + 6,
-		y + 4
+		y + 2
 	))
 
 const shift = (x: number, y: number) => (u: Unit) => {
@@ -34,10 +34,14 @@ function cluster(job: string, size: number) {
 	})
 }
 
-const blobKing = () => [makeUnit(Math.random().toString(), FORCE_ID_CPU, "blob_king", vec2(8, 2))]
+const blobKing = () => [makeUnit(Math.random().toString(), FORCE_ID_CPU, "blob_king", vec2(8, 1))]
 
 export const waves: { [idx: number]: Unit[] } = {
-	1: row("blob", 4).map(shift(0, -1)).concat(blobKing()),
+	1: row("blob", 6),
 	2: cluster("blob", 3).concat(blobKing()),
-	3: cluster("blob", 4),
+	3: [
+		enemy("soldier", 0, 2),
+		enemy("thief", 1, 2),
+	].concat(row("blob", 4)),
+
 }
