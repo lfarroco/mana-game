@@ -8,7 +8,7 @@ import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { getUnitsByProximity } from "../../../Models/State";
 
 export async function multishot(unit: Unit, activeChara: Chara, scene: BattlegroundScene) {
-	const enemyUnits = getUnitsByProximity(getState(), unit, true);
+	const enemyUnits = getUnitsByProximity(getState(), unit, true, 5);
 
 	const targets = enemyUnits.slice(0, 4);
 

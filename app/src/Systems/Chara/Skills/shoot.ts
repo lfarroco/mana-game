@@ -18,7 +18,7 @@ export function shoot(scene: BattlegroundScene) {
 
 		const { state } = scene;
 
-		const [closestEnemy] = getUnitsByProximity(state, unit, true);
+		const [closestEnemy] = getUnitsByProximity(state, unit, true, attackRange);
 
 		if (!closestEnemy) {
 			console.warn("No enemy found");

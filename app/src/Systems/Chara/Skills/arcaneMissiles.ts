@@ -7,18 +7,20 @@ import { popText } from "../Animations/popText";
 import { emit, signals } from "../../../Models/Signals";
 import * as animation from "../../../Effects/arcaneMissile";
 import { delay } from "../../../Utils/animation";
+import { approach } from "../approach";
 
 export const arcaneMissiles = (
 	scene: BattlegroundScene
 ) => async (unit: Unit) => {
 
 	const { state } = scene;
-
-	const job = getJob(unit.job);
-
 	const skill = getSkill('arcane-missiles');
 
-	const targets = getUnitsByProximity(state, unit, true);
+	const closest = await approach(scene.getChara(unit.id), skill.range, true);
+
+	if (!closest) return;
+
+	const targets = getUnitsByProximity(state, unit, true, skill.range);
 
 	if (targets.length === 0) {
 		console.warn("No enemy found");

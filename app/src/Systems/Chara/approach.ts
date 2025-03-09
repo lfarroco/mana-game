@@ -23,7 +23,7 @@ export async function approach(
 
 	const job = getJob(unit.job);
 
-	const [closestUnit] = getUnitsByProximity(state, unit, enemy);
+	const [closestUnit] = getUnitsByProximity(state, unit, enemy, Infinity);
 
 	if (!closestUnit) {
 		return null;

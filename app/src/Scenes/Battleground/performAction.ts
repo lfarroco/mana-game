@@ -49,6 +49,8 @@ export const performAction = (
 
 	const skill = getSkill(skillId);
 
+	// TODO: try to cast special, otherwise, basic attack
+
 	if (skillId === "shieldbash") {
 
 		const casted = await shieldBash(scene, activeChara.unit);
@@ -72,7 +74,7 @@ export const performAction = (
 
 		unit.cooldowns[skillId] = skill.cooldown;
 
-	} else if (skillId === "healingwave") {
+	} else if (skillId === "healing-wave") {
 
 		await specialAnimation(activeChara);
 
@@ -84,6 +86,11 @@ export const performAction = (
 		await specialAnimation(activeChara);
 
 		await feint(scene, unit);
+		unit.cooldowns[skillId] = skill.cooldown;
+	} else if (skillId === "fireball") {
+		await specialAnimation(activeChara);
+
+		await fireball(scene)(unit);
 		unit.cooldowns[skillId] = skill.cooldown;
 	}
 
@@ -98,8 +105,6 @@ export const performAction = (
 	}
 	else if (skillId === "shoot") {
 		await shoot(scene)(unit);
-	} else if (skillId === "fireball") {
-		await fireball(scene)(unit);
 	} else if (skillId === "light-orb") {
 		await lightOrb(scene)(unit);
 	} else if (skillId === "arcane-missiles") {
