@@ -23,7 +23,21 @@ export class DebugScene extends Phaser.Scene {
 
 		if (effect) {
 
-			if (effect === "criticalDamageDisplay") {
+			if (effect === "arcanemissile") {
+
+				this.time.addEvent({
+					delay: 1500,
+					callback: () => {
+						effects.arcaneMissle(this, { x: 200, y: 500 }, { x: 800, y: 200 }, 1);
+						effects.arcaneMissle(this, { x: 200, y: 500 }, { x: 800, y: 200 }, 1);
+						effects.arcaneMissle(this, { x: 200, y: 500 }, { x: 800, y: 200 }, 1);
+						effects.arcaneMissle(this, { x: 200, y: 500 }, { x: 800, y: 200 }, 1);
+						effects.arcaneMissle(this, { x: 200, y: 500 }, { x: 800, y: 200 }, 1);
+					},
+					repeat: -1
+				});
+
+			} else if (effect === "criticalDamageDisplay") {
 				this.time.addEvent({
 					delay: 1200,
 					callback: () => {
