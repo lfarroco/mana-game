@@ -79,18 +79,13 @@ export const lightOrb = (
 
 		emit(signals.HEAL_UNIT, ally.id, heal);
 
-		const effect = healingHitEffect(
+		healingHitEffect(
 			scene,
 			chara.container,
 			1000 / state.options.speed,
 			scene.state.options.speed,
 		);
 		popText(scene, heal.toString(), ally.id);
-		// TODO: maybe make the effect destroy itself
-		scene.time.addEvent({
-			delay: 1000 / state.options.speed,
-			callback: () => effect.destroy()
-		})
 	});
 
 	await delay(scene, 1000 / state.options.speed);
