@@ -97,13 +97,12 @@ async function animation(scene: BattlegroundScene, targets: Vec2[]) {
 
 	scene.events.on(Phaser.Scenes.Events.UPDATE, update);
 
-	const ps = targets.map(t => healingHitEffect(scene, t, lifespan, scene.state.options.speed));
+	targets.forEach(t => healingHitEffect(scene, t, lifespan, scene.state.options.speed));
 
 	await (delay(scene, lifespan));
 
 	scene.events.off(Phaser.Scenes.Events.UPDATE, update);
 
 	waves.forEach(wave => wave.destroy());
-	ps.forEach(p => p.stop());
 
 }

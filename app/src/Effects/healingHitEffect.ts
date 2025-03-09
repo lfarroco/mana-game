@@ -1,13 +1,14 @@
 import Phaser from "phaser";
+import { delay } from "../Utils/animation";
 
-export function healingHitEffect(
+export async function healingHitEffect(
 	scene: Phaser.Scene,
 	{ x, y }: { x: number, y: number },
 	lifespan: number,
 	speed: number,
-) {
+): Promise<void> {
 
-	return scene.add.particles(x, y,
+	const particles = scene.add.particles(x, y,
 		'white-dot',
 		{
 			speed: 50 * speed,
@@ -22,5 +23,9 @@ export function healingHitEffect(
 			frequency: 100,
 			stopAfter: (lifespan / 2)
 		});
+
+	await delay(scene, lifespan + lifespan / 2);
+
+	particles.destroy();
 
 }
