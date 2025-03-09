@@ -14,7 +14,7 @@ export async function arcaneMissle(
 		start: source,
 		end: target,
 		thickness: 1,
-		amplitude: (200 * Math.random() + 30) * positiveOrNegative,
+		amplitude: (100 * Math.random() + 30) * positiveOrNegative,
 		frequency: Math.floor(Math.random() * 3 + 1),
 		segments: 20,
 		color: 0x00FFFF,
@@ -29,11 +29,11 @@ export async function arcaneMissle(
 		'white-dot',
 		{
 			speed: 100 * speed,
-			// purple to blue tones
-			tint: [0x800080, 0x0000FF],
-			lifespan: 300 / speed,
+			// dark purple to blue tones
+			tint: [0xFF00FF, 0x0000FF],
+			lifespan: 200 / speed,
 			alpha: { start: 1, end: 0 },
-			scale: { start: 3, end: 0 },
+			scale: { start: 2, end: 0 },
 			blendMode: 'ADD',
 			radial: true,
 		}

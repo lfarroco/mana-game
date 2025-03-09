@@ -74,7 +74,7 @@ Focus: AoE damage, crowd control.`,
       "elementalist",
       "arcanist"
     ],
-    skills: ["fireball"],
+    skills: ["arcane-missiles", "fireball"],
   },
   {
     id: "soldier",
