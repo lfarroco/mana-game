@@ -69,12 +69,12 @@ export async function walk(
   const job = getJob(unit.job);
   let walked = 0;
 
-  const unitChara = scene.getChara(unit.id);
+  const activeChara = scene.getChara(unit.id);
 
   while (walked < job.moveRange && path[walked]) {
     const next = path[walked];
 
-    await panTo(scene, asVec2(unitChara.container));
+    await panTo(scene, asVec2(activeChara.container));
 
     emit(signals.MOVE_UNIT_INTO_CELL_START, unit.id, next);
 

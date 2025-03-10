@@ -27,7 +27,7 @@ export const arcaneMissiles = (
 		return;
 	};
 
-	const unitChara = scene.getChara(unit.id);
+	const activeChara = scene.getChara(unit.id);
 
 	//pick 3 random indexes (can be repeated)
 	const targetIndexes = Array.from({ length: 3 }, () => Math.floor(Math.random() * targets.length));
@@ -40,9 +40,9 @@ export const arcaneMissiles = (
 
 		const targetChara = scene.getChara(target.id);
 
-		await animation.arcaneMissle(scene, unitChara.container, targetChara.container, state.options.speed);
+		await animation.arcaneMissle(scene, activeChara.container, targetChara.container, state.options.speed);
 
-		popText(scene, unitChara.unit.attack.toString(), targetChara.unit.id);
+		popText(scene, activeChara.unit.attack.toString(), targetChara.unit.id);
 
 		if (targetChara.unit.hp <= 0) return;
 

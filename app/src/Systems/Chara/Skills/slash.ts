@@ -13,7 +13,6 @@ export async function slash(
 	unit: Unit,
 	target: Unit,
 ) {
-
 	const state = scene.state;
 	const { speed } = state.options
 
@@ -40,7 +39,7 @@ export async function slash(
 	const dodges = targetChara.unit.statuses["next-dodge"] > 0;
 
 	if (dodges) {
-		popText(scene, "Dodge", targetChara.unit.id);
+		await popText(scene, "Dodge", targetChara.unit.id);
 		delete targetChara.unit.statuses["next-dodge"];
 		return;
 	}

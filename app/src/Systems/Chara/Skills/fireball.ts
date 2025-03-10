@@ -14,9 +14,9 @@ export const fireball = (
 	const { state } = scene;
 
 	const skill = getSkill('fireball');
-	const unitChara = scene.getChara(unit.id);
+	const activeChara = scene.getChara(unit.id);
 
-	const target = await approach(unitChara, skill.range, true);
+	const target = await approach(activeChara, skill.range, true);
 
 	if (!target) return;
 
@@ -24,7 +24,7 @@ export const fireball = (
 
 	popText(scene, skill.name, unit.id);
 
-	await fireballEffect(scene, state.options.speed, unitChara.container, targetChara.container);
+	await fireballEffect(scene, state.options.speed, activeChara.container, targetChara.container);
 
 	// pick enemies in the cell and around the cell
 	const targets = getUnitsByProximity(state, target, false, 2)
