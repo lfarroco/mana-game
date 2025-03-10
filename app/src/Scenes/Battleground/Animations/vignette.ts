@@ -1,5 +1,6 @@
 import { tween } from "../../../Utils/animation";
 import BattlegroundScene from "../BattlegroundScene";
+import { defaultTextConfig } from "../constants";
 
 // display a text in the center of the screen, with a fading gradient rect behind it
 export async function vignette(scene: BattlegroundScene, text: string) {
@@ -15,10 +16,7 @@ export async function vignette(scene: BattlegroundScene, text: string) {
 	const textObj = scene.add.text(
 		-300, scene.scale.height / 2 + 50,
 		text,
-		{
-			fontSize: "36px",
-			color: "#ffffff",
-		}
+		defaultTextConfig
 	).setOrigin(0.5, 0.5).setScrollFactor(0);
 
 	tween({
