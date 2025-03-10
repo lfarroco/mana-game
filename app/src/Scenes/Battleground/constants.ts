@@ -11,3 +11,10 @@ export const HALF_TILE_HEIGHT = TILE_HEIGHT / 2;
 export const RECRUIT_UNIT_PRICE = 3;
 export const PROMOTE_UNIT_PRICE = 5;
 export const GOLD_PER_WAVE = 5;
+export const defaultTextConfig = {
+	fontSize: "24px",
+	color: "white",
+	fontFamily: "'Luckiest Guy', cursive",
+	stroke: "black",
+	strokeThickness: 4,
+};

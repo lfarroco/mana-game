@@ -21,7 +21,7 @@ import { makeMapInteractive } from "./Map/makeMapInteractive";
 import { Force, FORCE_ID_PLAYER } from "../../Models/Force";
 import * as StoreSystem from "./Store";
 import { delay, tween } from "../../Utils/animation";
-import { SCREEN_HEIGHT, SCREEN_WIDTH } from "./constants";
+import { defaultTextConfig, SCREEN_HEIGHT, SCREEN_WIDTH } from "./constants";
 import { waves } from "./enemyWaves";
 import { vignette } from "./Animations/vignette";
 import { summonEffect } from "../../Effects/summonEffect";
@@ -266,17 +266,11 @@ export class BattlegroundScene extends Phaser.Scene {
     this.ui = this.add.container(0, 0);
 
     const gold = this.add.text(
-      SCREEN_WIDTH - 200, 250, "Gold: " + force.gold, {
-      fontSize: "24px",
-      color: "white"
-    });
+      SCREEN_WIDTH - 200, 250, "Gold: " + force.gold, defaultTextConfig);
 
     this.ui.add(gold);
 
-    const startBattleBtn = this.add.text(SCREEN_WIDTH - 200, SCREEN_HEIGHT - 200, "Start Battle", {
-      fontSize: "24px",
-      color: "white"
-    });
+    const startBattleBtn = this.add.text(SCREEN_WIDTH - 200, SCREEN_HEIGHT - 200, "Start Battle", defaultTextConfig);
 
     startBattleBtn.setInteractive();
 
@@ -286,17 +280,11 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.ui.add(startBattleBtn);
 
-    const playerHP = this.add.text(SCREEN_WIDTH - 200, 350, "HP: " + force.hp, {
-      fontSize: "24px",
-      color: "white"
-    });
+    const playerHP = this.add.text(SCREEN_WIDTH - 200, 350, "HP: " + force.hp, defaultTextConfig);
 
     this.ui.add(playerHP);
 
-    const wave = this.add.text(SCREEN_WIDTH - 200, 400, "Wave: " + this.state.gameData.wave, {
-      fontSize: "24px",
-      color: "white"
-    });
+    const wave = this.add.text(SCREEN_WIDTH - 200, 400, "Wave: " + this.state.gameData.wave, defaultTextConfig);
 
     this.ui.add(wave);
 
@@ -441,19 +429,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.playFx('ui/error');
 
-    const text = this.add.text(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 100, err, {
-      fontSize: "48px",
-      color: "#fff",
-      align: "center",
-      shadow: {
-        offsetX: 2,
-        offsetY: 2,
-        color: "#000",
-        blur: 2,
-        stroke: true,
-        fill: true
-      }
-    });
+    const text = this.add.text(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 100, err, defaultTextConfig);
 
     text.setOrigin(0.5)
     this.tweens.add({

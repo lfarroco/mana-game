@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { Unit } from "../../Models/Unit";
-import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, PROMOTE_UNIT_PRICE, SCREEN_HEIGHT, SCREEN_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
+import { defaultTextConfig, HALF_TILE_HEIGHT, HALF_TILE_WIDTH, PROMOTE_UNIT_PRICE, SCREEN_HEIGHT, SCREEN_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 import "./portrait.css"
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { emit, listeners, signals } from "../../Models/Signals";
@@ -9,6 +9,7 @@ import { tween } from "../../Utils/animation";
 import { TURN_DURATION } from "../../config";
 import { FORCE_ID_PLAYER } from "../../Models/Force";
 import { getJob } from "../../Models/Job";
+import { getSkill } from "../../Models/Skill";
 
 export type Chara = {
 	id: string;
@@ -222,20 +223,35 @@ function displayUnitInfo(chara: Chara) {
 
 	const job = getJob(unit.job);
 
-	if (job.upgrades.length === 0) return;
+	const x = 0;
+	const y = 100;
+	const width = 300;
+	const height = 500;
 
-	const height = 50;
-	const x = chara.container.x + TILE_WIDTH;
-	const y = chara.container.y - TILE_HEIGHT;
-
+	// bg is a round rect with a beige gradient fill
 	const bg = scene.add.graphics();
+	bg.fillGradientStyle(0xc1a272, 0xc1a272, 0x8b6d45, 0x8b6d45, 1);
+	bg.fillRect(0, 0, width, height);
+
+
+
+
+
 
 	unitInfoContainer = scene.add.container(x, y);
 	unitInfoContainer.add([bg]);
 
-	const updgradeBtn = scene.add.text(10, 10,
+	unitInfoContainer.add([
+		scene.add.text(10, 10, job.name, defaultTextConfig),
+		scene.add.image(20, 50, job.id + "/full").setDisplaySize(200, 200).setOrigin(0),
+		...job.skills.reverse().map(getSkill).map(
+			(sk, i) => scene.add.text(10, 300 + i * 50, sk.name, defaultTextConfig))
+	]
+	)
+
+	const updgradeBtn = scene.add.text(10, 410,
 		`Promote (${PROMOTE_UNIT_PRICE} gold) `,
-		{ color: "white" })
+		defaultTextConfig)
 		.setInteractive()
 		.on("pointerdown", () => {
 
@@ -250,7 +266,7 @@ function displayUnitInfo(chara: Chara) {
 	}
 
 	const closeBtn = scene.add.text(
-		updgradeBtn.width + 10, 10, "X", { color: "white" })
+		width - 80, 10, "X", defaultTextConfig)
 		.setInteractive()
 		.on("pointerdown", () => {
 			unitInfoContainer?.destroy();
@@ -259,8 +275,6 @@ function displayUnitInfo(chara: Chara) {
 
 	unitInfoContainer.add(closeBtn);
 
-	bg.fillStyle(0x000000, 0.8);
-	bg.fillRect(0, 0, updgradeBtn.width + 100, height);
 
 	unitInfoContainer.add(updgradeBtn);
 
@@ -351,14 +365,14 @@ function upgradeWindow(
 		const title = scene.add.text(
 			x
 			, pic.y + 220,
-			jobUpgrade.name, { color: "white", fontSize: "36px", align: "center" })
+			jobUpgrade.name, defaultTextConfig)
 			.setOrigin(0.5);
 
 
 		const description = scene.add.text(
 			x - 200
 			, pic.y + 250,
-			jobUpgrade.name, { color: "white", fontSize: "18px", align: "left" })
+			jobUpgrade.name, defaultTextConfig)
 			.setText(jobUpgrade.description)
 
 		container.add([pic, title, description]);
@@ -369,7 +383,7 @@ function upgradeWindow(
 	const cancelBtn = scene.add.text(
 		SCREEN_WIDTH / 2 - 140
 		, SCREEN_HEIGHT / 2 + 300,
-		"Cancel", { color: "white", fontSize: "24px" })
+		"Cancel", defaultTextConfig)
 		.setInteractive()
 		.on("pointerdown", () => {
 			container.destroy();

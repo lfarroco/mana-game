@@ -4,7 +4,7 @@ import { getJob } from "../../Models/Job";
 import { emit, listeners, signals } from "../../Models/Signals";
 import { makeUnit, Unit } from "../../Models/Unit";
 import { BattlegroundScene } from "./BattlegroundScene";
-import { RECRUIT_UNIT_PRICE, } from "./constants";
+import { defaultTextConfig, RECRUIT_UNIT_PRICE, } from "./constants";
 
 let units: Unit[] = [];
 
@@ -67,7 +67,7 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 
 	container?.add(sprite);
 
-	const name = scene.add.text(x - 25, y + 60, job.name, { color: "white", align: "center" });
+	const name = scene.add.text(x - 25, y + 60, job.name, defaultTextConfig);
 	container?.add(name);
 
 	sprite.setInteractive({ draggable: true });

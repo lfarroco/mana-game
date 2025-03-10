@@ -1,7 +1,7 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Grenze', sans-serif;
+  font-family: 'Luckiest Guy', sans-serif;
   background-color: rgb(1, 11, 34);
   overflow: hidden;
   text-align: center;
@@ -10,74 +10,4 @@ body {
 canvas {
   margin: 0;
   padding: 0;
-}
-
-#ui {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-}
-
-.btn-sm {
-  font-size: 10px;
-}
-
-.attr {
-  color: #ddd180;
-}
-
-.btn {
-  border: 1px solid #8c7b08;
-  position: relative;
-}
-
-.btn .btn-tooltip {
-  display: none;
-  position: fixed;
-  background-color: rgba(0, 0, 0, 0.5);
-  color: white;
-  border: 1px solid rgb(255, 215, 0);
-  border-radius: 5px;
-  text-align: left;
-  bottom: 151px;
-  width: 330px;
-  left: 20px;
-  padding: 2px 5px;
-}
-
-/*
-.btn:hover .btn-tooltip {
-  display: block;
-}
-*/
-
-.btn-sm {
-  width: 100%;
-  height: 20px;
-  font-size: 10px;
-  text-align: center;
-  padding: 0;
-  margin-bottom: 3;
-}
-
-.modal-content {
-  background-color: #212529;
-  color: #fff;
-}
-
-.modal-header {
-  color: #ddd180;
-}
-
-#multiple-selection {
-  top: 620px;
-  left: 340px;
-  height: 100px;
-  position: absolute;
-  width: 300px;
-  background: rgba(0, 0, 0, 0.3);
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
-  padding: 5px;
 }
