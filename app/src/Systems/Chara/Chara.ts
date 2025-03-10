@@ -1,7 +1,6 @@
 import Phaser from "phaser";
 import { Unit } from "../../Models/Unit";
-import { defaultTextConfig, HALF_TILE_HEIGHT, HALF_TILE_WIDTH, PROMOTE_UNIT_PRICE, SCREEN_HEIGHT, SCREEN_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
-import "./portrait.css"
+import * as bgConstants from "../../Scenes/Battleground/constants";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { emit, listeners, signals } from "../../Models/Signals";
 import { asVec2, eqVec2, vec2, Vec2 } from "../../Models/Geometry";
@@ -22,7 +21,7 @@ export type Chara = {
 	hightlightTween: Phaser.Tweens.Tween | null,
 }
 
-const spriteSize = TILE_WIDTH - 4;
+const spriteSize = bgConstants.TILE_WIDTH - 4;
 
 export const CHARA_SCALE = 1;
 
@@ -34,8 +33,8 @@ export function createChara(
 ): Chara {
 
 	const container = scene.add.container(
-		unit.position.x * TILE_WIDTH + HALF_TILE_WIDTH,
-		unit.position.y * TILE_HEIGHT + HALF_TILE_HEIGHT
+		unit.position.x * bgConstants.TILE_WIDTH + bgConstants.HALF_TILE_WIDTH,
+		unit.position.y * bgConstants.TILE_HEIGHT + bgConstants.HALF_TILE_HEIGHT
 	)
 
 	const borderColor = unit.force === FORCE_ID_PLAYER ? 0x1818d1 : 0xfa0f0f;
@@ -108,8 +107,8 @@ export const makeCharaInteractive = (chara: Chara) => {
 				targets: [occupierChara.container],
 				duration: 500,
 				ease: 'Power2',
-				x: maybeOccupier.position.x * TILE_WIDTH + HALF_TILE_WIDTH,
-				y: maybeOccupier.position.y * TILE_HEIGHT + HALF_TILE_HEIGHT,
+				x: maybeOccupier.position.x * bgConstants.TILE_WIDTH + bgConstants.HALF_TILE_WIDTH,
+				y: maybeOccupier.position.y * bgConstants.TILE_HEIGHT + bgConstants.HALF_TILE_HEIGHT,
 			})
 		}
 
@@ -120,8 +119,8 @@ export const makeCharaInteractive = (chara: Chara) => {
 			targets: [chara.container],
 			duration: 500,
 			ease: 'Power2',
-			x: position.x * TILE_WIDTH + HALF_TILE_WIDTH,
-			y: position.y * TILE_HEIGHT + HALF_TILE_HEIGHT,
+			x: position.x * bgConstants.TILE_WIDTH + bgConstants.HALF_TILE_WIDTH,
+			y: position.y * bgConstants.TILE_HEIGHT + bgConstants.HALF_TILE_HEIGHT,
 		})
 
 	});
@@ -143,8 +142,8 @@ export const makeCharaInteractive = (chara: Chara) => {
 				targets: [chara.container],
 				duration: 500,
 				ease: 'Power2',
-				x: chara.unit.position.x * TILE_WIDTH + HALF_TILE_WIDTH,
-				y: chara.unit.position.y * TILE_HEIGHT + HALF_TILE_HEIGHT,
+				x: chara.unit.position.x * bgConstants.TILE_WIDTH + bgConstants.HALF_TILE_WIDTH,
+				y: chara.unit.position.y * bgConstants.TILE_HEIGHT + bgConstants.HALF_TILE_HEIGHT,
 			})
 		}
 
@@ -242,16 +241,16 @@ function displayUnitInfo(chara: Chara) {
 	unitInfoContainer.add([bg]);
 
 	unitInfoContainer.add([
-		scene.add.text(10, 10, job.name, defaultTextConfig),
+		scene.add.text(10, 10, job.name, bgConstants.defaultTextConfig),
 		scene.add.image(20, 50, job.id + "/full").setDisplaySize(200, 200).setOrigin(0),
 		...job.skills.reverse().map(getSkill).map(
-			(sk, i) => scene.add.text(10, 300 + i * 50, sk.name, defaultTextConfig))
+			(sk, i) => scene.add.text(10, 300 + i * 50, sk.name, bgConstants.defaultTextConfig))
 	]
 	)
 
 	const updgradeBtn = scene.add.text(10, 410,
-		`Promote (${PROMOTE_UNIT_PRICE} gold) `,
-		defaultTextConfig)
+		`Promote (${bgConstants.PROMOTE_UNIT_PRICE} gold) `,
+		bgConstants.defaultTextConfig)
 		.setInteractive()
 		.on("pointerdown", () => {
 
@@ -260,13 +259,13 @@ function displayUnitInfo(chara: Chara) {
 
 	const force = scene.playerForce;
 
-	if (force.gold < PROMOTE_UNIT_PRICE) {
+	if (force.gold < bgConstants.PROMOTE_UNIT_PRICE) {
 		updgradeBtn.setTint(0x666666);
 		updgradeBtn.removeInteractive();
 	}
 
 	const closeBtn = scene.add.text(
-		width - 80, 10, "X", defaultTextConfig)
+		width - 80, 10, "X", bgConstants.defaultTextConfig)
 		.setInteractive()
 		.on("pointerdown", () => {
 			unitInfoContainer?.destroy();
@@ -288,8 +287,8 @@ function upgradeWindow(
 
 	const { scene, unit } = chara;
 
-	const width = SCREEN_WIDTH;
-	const height = SCREEN_HEIGHT;
+	const width = bgConstants.SCREEN_WIDTH;
+	const height = bgConstants.SCREEN_HEIGHT;
 
 	const job = getJob(unit.job)
 
@@ -351,7 +350,7 @@ function upgradeWindow(
 				unit.accuracy = jobUpgrade.stats.accuracy;
 				unit.agility = jobUpgrade.stats.agility;
 
-				scene.playerForce.gold -= PROMOTE_UNIT_PRICE;
+				scene.playerForce.gold -= bgConstants.PROMOTE_UNIT_PRICE;
 
 				console.log("gold :: ", scene.playerForce.gold);
 
@@ -365,14 +364,14 @@ function upgradeWindow(
 		const title = scene.add.text(
 			x
 			, pic.y + 220,
-			jobUpgrade.name, defaultTextConfig)
+			jobUpgrade.name, bgConstants.defaultTextConfig)
 			.setOrigin(0.5);
 
 
 		const description = scene.add.text(
 			x - 200
 			, pic.y + 250,
-			jobUpgrade.name, defaultTextConfig)
+			jobUpgrade.name, bgConstants.defaultTextConfig)
 			.setText(jobUpgrade.description)
 
 		container.add([pic, title, description]);
@@ -381,9 +380,9 @@ function upgradeWindow(
 
 
 	const cancelBtn = scene.add.text(
-		SCREEN_WIDTH / 2 - 140
-		, SCREEN_HEIGHT / 2 + 300,
-		"Cancel", defaultTextConfig)
+		bgConstants.SCREEN_WIDTH / 2 - 140
+		, bgConstants.SCREEN_HEIGHT / 2 + 300,
+		"Cancel", bgConstants.defaultTextConfig)
 		.setInteractive()
 		.on("pointerdown", () => {
 			container.destroy();

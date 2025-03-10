@@ -67,7 +67,7 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 
 	container?.add(sprite);
 
-	const name = scene.add.text(x - 25, y + 60, job.name, defaultTextConfig);
+	const name = scene.add.text(x, y + 60, job.name, defaultTextConfig).setOrigin(0.5, 0.5);
 	container?.add(name);
 
 	sprite.setInteractive({ draggable: true });

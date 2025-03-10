@@ -15,15 +15,15 @@ export const explode = (
 	const { state } = scene;
 
 	const skill = getSkill('explode');
-	const unitChara = scene.getChara(unit.id);
+	const activeChara = scene.getChara(unit.id);
 
-	const target = await approach(unitChara, skill.range, true);
+	const target = await approach(activeChara, skill.range, true);
 
 	if (!target) return;
 
 	popText(scene, skill.name, unit.id);
 
-	await explodeEffect(scene, state.options.speed, unitChara.container);
+	await explodeEffect(scene, state.options.speed, activeChara.container);
 
 	// pick enemies in the cell and around the caster
 	const enemies = getUnitsByProximity(state, unit, true, 2)

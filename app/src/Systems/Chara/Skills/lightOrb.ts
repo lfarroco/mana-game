@@ -1,16 +1,13 @@
-import { snakeDistanceBetween, Vec2 } from "../../../Models/Geometry";
-import { getJob } from "../../../Models/Job";
 import { getSkill } from "../../../Models/Skill";
 import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
-import { walk } from "../../../Scenes/Battleground/ProcessTick";
 import { getUnitsByProximity } from "../../../Models/State";
-import { lookupAIPAth as lookupPath } from "../../../Scenes/Battleground/Systems/Pathfinding";
 import { popText } from "../Animations/popText";
 import { emit, signals } from "../../../Models/Signals";
 import { GlowingOrb } from "../../../Effects/GlowingOrb";
 import { delay } from "../../../Utils/animation";
 import { healingHitEffect } from "../../../Effects/healingHitEffect";
+import { approach } from "../approach";
 
 export const lightOrb = (
 	scene: BattlegroundScene
@@ -18,50 +15,26 @@ export const lightOrb = (
 
 	const { state } = scene;
 
-	const job = getJob(unit.job);
-
 	const skill = getSkill('light-orb');
 
 	const damage = skill.power;
 	const heal = skill.power * 2;
 
-	const [target] = getUnitsByProximity(state, unit, true, skill.range);
+	const target = await approach(scene.getChara(unit.id), skill.range, true);
 
-	if (!target) {
-		console.warn("No enemy found");
-		return;
-	};
+	if (!target) return;
 
-	const unitChara = scene.getChara(unit.id);
+	const activeChara = scene.getChara(unit.id);
 	const targetChara = scene.getChara(target.id);
 
-	const isInRange = () => snakeDistanceBetween(unit.position)(target.position) <= skill.range;
-
-	if (!isInRange()) {
-
-		const pathTo = await lookupPath(scene, unit.id, unit.position, target.position, job.moveRange);
-
-		await walk(scene, unit, pathTo, (_position: Vec2) => {
-			return isInRange()
-		});
-
-		if (!isInRange()) return;
-
-	}
-
-	popText(scene, skill.name, unit.id);
+	await popText(scene, skill.name, unit.id);
 
 	// get allies surrounding target
-	const allies = state.gameData.units.filter(u => {
-
-		const distance = snakeDistanceBetween(target.position)(u.position)
-		return distance <= 1
-			&& u.force === unit.force
-	});
+	const allies = getUnitsByProximity(state, target, false, 1).filter(u => u.hp < u.maxHp);
 
 	const orb = new GlowingOrb(scene,
-		unitChara.container.x,
-		unitChara.container.y,
+		activeChara.container.x,
+		activeChara.container.y,
 		targetChara.container,
 		1000 / state.options.speed
 	).setScale(0.5);

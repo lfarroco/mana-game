@@ -15,9 +15,9 @@ export async function popText(scene: BattlegroundScene, text: string, targetId: 
 	await tween({
 		targets: [popText],
 		alpha: 0,
-		y: chara.container.y - 24,
+		y: chara.container.y - 48,
 		duration: 1000 / scene.state.options.speed,
-		ease: "Expo.easeOut",
+		ease: "Linear"
 	});
 
 	popText.destroy();

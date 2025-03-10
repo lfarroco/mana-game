@@ -14,7 +14,7 @@ export const GOLD_PER_WAVE = 5;
 export const defaultTextConfig = {
 	fontSize: "24px",
 	color: "white",
-	fontFamily: "'Luckiest Guy', cursive",
+	fontFamily: "'Macondo', cursive",
 	stroke: "black",
 	strokeThickness: 4,
 };

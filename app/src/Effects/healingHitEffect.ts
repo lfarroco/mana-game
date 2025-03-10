@@ -21,10 +21,13 @@ export async function healingHitEffect(
 			blendMode: 'ADD',
 			quantity: 5,
 			frequency: 100,
-			stopAfter: (lifespan / 2)
 		});
 
-	await delay(scene, lifespan + lifespan / 2);
+	await delay(scene, lifespan / 2);
+
+	particles.stop();
+
+	await delay(scene, lifespan);
 
 	particles.destroy();
 
