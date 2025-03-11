@@ -334,6 +334,22 @@ Focus: Priority target removal, evasion.`,
     baseAttack: "slash",
     upgrades: []
     , skills: ["ninja"],
+  },
+  {
+    id: "shadow-ghost",
+    name: "Shadow Ghost",
+    description: `Stealthy Assassin`,
+    moveRange: 4,
+    stats: {
+      hp: 140,
+      attack: 40,
+      defense: 0,
+      accuracy: 0,
+      agility: 22,
+    },
+    baseAttack: "slash",
+    upgrades: []
+    , skills: ["shadowstep", "slash"],
   }
 ];
 

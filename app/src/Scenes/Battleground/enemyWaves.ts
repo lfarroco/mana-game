@@ -37,7 +37,7 @@ function cluster(job: string, size: number) {
 const blobKing = () => [makeUnit(Math.random().toString(), FORCE_ID_CPU, "blob_king", vec2(8, 1))]
 
 export const waves: { [idx: number]: Unit[] } = {
-	1: row("blob", 6),
+	1: row("blob", 6).concat([enemy("shadow-ghost", 0, -2)]),
 	2: row("blob", 10),
 	3: cluster("blob", 5).concat([enemy("red_blob", -1, 0)]),
 	4: [
