@@ -14,7 +14,9 @@ const jobs = [
 	'thief',
 	'blob',
 	'blob_king',
-	'red_blob'
+	'red_blob',
+	'shadow-ghost',
+
 ]
 
 const emotes = [
@@ -82,10 +84,6 @@ export function preload(this: Phaser.Scene) {
 	this.load.audio("ui/error", "assets/audio/error.ogg")
 
 	jobs.forEach(job => {
-		// this.load.image(
-		// 	job,
-		// 	`assets/charas/${job}.png`,
-		// );
 		this.load.image(
 			`${job}/portrait`,
 			`assets/jobs/${job}/portrait.png`,

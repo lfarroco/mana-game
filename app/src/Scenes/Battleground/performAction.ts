@@ -16,8 +16,10 @@ import { shieldBash } from "../../Systems/Chara/Skills/shieldBash";
 import { shoot } from "../../Systems/Chara/Skills/shoot";
 import { slash } from "../../Systems/Chara/Skills/slash";
 import { summon } from "../../Systems/Chara/Skills/summon";
+import { delay } from "../../Utils/animation";
 import BattlegroundScene from "./BattlegroundScene";
 import { panTo } from "./ProcessTick";
+import { shadowStep } from "../../Systems/Chara/Skills/shadowStep";
 
 export const performAction = (
 	scene: BattlegroundScene
@@ -46,7 +48,7 @@ export const performAction = (
 
 	if (unit.statuses.stun >= 0) return;
 
-	const [skillId] = availableSkills;
+	let [skillId] = availableSkills;
 
 	const skill = getSkill(skillId);
 
@@ -93,6 +95,10 @@ export const performAction = (
 
 		await fireball(scene)(unit);
 		unit.cooldowns[skillId] = skill.cooldown;
+	} else if (skillId === "shadowstep") {
+
+		skillId = await shadowStep(scene, unit, activeChara, skill);
+
 	}
 
 	if (skillId === "slash") {

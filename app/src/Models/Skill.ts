@@ -103,6 +103,14 @@ export const skills: Skill[] = [
 		range: 1,
 		power: 100,
 		tooltip: "Caster explodes and deals 100 damage around it",
+	},
+	{
+		id: "shadowstep",
+		name: "Shadowstep",
+		cooldown: 0,
+		range: 5,
+		power: 0,
+		tooltip: "Teleports to the furthest enemy",
 	}
 ]
 
