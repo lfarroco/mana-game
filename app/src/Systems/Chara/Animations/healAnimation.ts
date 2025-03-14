@@ -1,12 +1,10 @@
-import { getJob } from "../../../Models/Job";
 import { emit, signals } from "../../../Models/Signals";
-import { getSkill } from "../../../Models/Skill";
+import { getSkill, HEAL } from "../../../Models/Skill";
 import { getUnit } from "../../../Models/State";
 import { Unit, unitLog } from "../../../Models/Unit";
 import { popText } from "./popText";
 import { delay } from "../../../Utils/animation";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
-
 
 export async function healAnimation(
     scene: BattlegroundScene,
@@ -22,10 +20,7 @@ export async function healAnimation(
 
     if (!activeChara) { throw new Error("no active unit\n" + unit.id); }
 
-    const job = getJob(unit.job);
-
-    const skill = getSkill(job.baseAttack);
-
+    const skill = getSkill(HEAL);
 
     if (targetUnit.hp <= 0) {
         throw new Error("target is dead");
@@ -35,11 +30,9 @@ export async function healAnimation(
 
     await popText(scene, skill.name, unit.id);
 
-    if (job.baseAttack === "heal") {
+    scene.playFx("audio/curemagic");
 
-        scene.playFx("audio/curemagic");
-
-        const effectShader = new Phaser.Display.BaseShader('healingShader', `
+    const effectShader = new Phaser.Display.BaseShader('healingShader', `
       precision mediump float;
       
       uniform float time; // provided by Phaser
@@ -101,18 +94,17 @@ export async function healAnimation(
           }
                `);
 
-        const shader = scene.add.shader(effectShader,
-            targetChara.container.x, targetChara.container.y,
-            128, 128)
-            .setOrigin(0.5, 0.5);
+    const shader = scene.add.shader(effectShader,
+        targetChara.container.x, targetChara.container.y,
+        128, 128)
+        .setOrigin(0.5, 0.5);
 
-        popText(scene, skill.power.toString(), targetUnit.id);
+    popText(scene, skill.power.toString(), targetUnit.id);
 
-        await delay(scene, 500 / scene.state.options.speed);
+    await delay(scene, 500 / scene.state.options.speed);
 
-        shader.destroy();
+    shader.destroy();
 
-        emit(signals.HEAL_UNIT, targetUnit.id, 50); // TODO: use skill's stats
+    emit(signals.HEAL_UNIT, targetUnit.id, 50); // TODO: use skill's stats
 
-    }
 }

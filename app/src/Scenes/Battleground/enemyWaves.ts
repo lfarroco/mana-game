@@ -11,6 +11,10 @@ const enemy = (job: string, x: number, y: number) => makeUnit(
 		y + 2
 	))
 
+const FRONTLINE = 2;
+const MIDDLE = 1;
+const BACKLINE = 0;
+
 const shift = (x: number, y: number) => (u: Unit) => {
 
 	u.position = sumVec2(u.position)(vec2(x, y));
@@ -37,7 +41,7 @@ function cluster(job: string, size: number) {
 const blobKing = () => [makeUnit(Math.random().toString(), FORCE_ID_CPU, "blob_king", vec2(8, 1))]
 
 export const waves: { [idx: number]: Unit[] } = {
-	1: row("blob", 6).concat([enemy("shadow-ghost", 0, -2)]),
+	1: row("blob", 6).map(shift(-2, 3)).concat([enemy("shadow-ghost", 0, 0)]),
 	2: row("blob", 10),
 	3: cluster("blob", 5).concat([enemy("red_blob", -1, 0)]),
 	4: [

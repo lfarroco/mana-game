@@ -1,4 +1,4 @@
-import { getSkill } from "../../../Models/Skill";
+import { EXPLODE, getSkill } from "../../../Models/Skill";
 import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { getUnitsByProximity } from "../../../Models/State";
@@ -14,7 +14,7 @@ export const explode = (
 
 	const { state } = scene;
 
-	const skill = getSkill('explode');
+	const skill = getSkill(EXPLODE);
 	const activeChara = scene.getChara(unit.id);
 
 	const target = await approach(activeChara, skill.range, true);

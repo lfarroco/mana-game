@@ -7,12 +7,12 @@ import { emit, signals } from "../../../Models/Signals";
 import { BattlegroundScene } from "../../../Scenes/Battleground/BattlegroundScene";
 import { EnergyBeam } from "../../../Effects/EnergyBeam";
 import { healingHitEffect } from "../../../Effects/healingHitEffect";
-import { getSkill } from "../../../Models/Skill";
+import { getSkill, HEALING_WAVE } from "../../../Models/Skill";
 import { approach } from "../approach";
 
 export async function healingWave(scene: BattlegroundScene, unit: Unit) {
 
-	const skill = getSkill('healing-wave');
+	const skill = getSkill(HEALING_WAVE);
 
 	const target = await approach(scene.getChara(unit.id), skill.range, false);
 

@@ -1,6 +1,6 @@
 import { asVec2 } from "../../Models/Geometry";
 import { getJob } from "../../Models/Job";
-import { getSkill } from "../../Models/Skill";
+import { FEINT, FIREBALL, getSkill, HEAL, HEALING_WAVE, MULTISHOT, SHADOWSTEP, SHIELDBASH, SUMMON_BLOB } from "../../Models/Skill";
 import { Unit } from "../../Models/Unit";
 import { specialAnimation } from "../../Systems/Chara/Animations/specialAnimation";
 import { approach } from "../../Systems/Chara/approach";
@@ -58,14 +58,14 @@ export const performAction = (
 
 	// TODO: try to cast special, otherwise, basic attack
 
-	if (skillId === "shieldbash") {
+	if (skillId === SHIELDBASH) {
 
 		const casted = await shieldBash(scene, activeChara.unit);
 		if (casted) {
 			unit.cooldowns[skillId] = skill.cooldown;
 		}
 
-	} else if (skillId === "summon_blob") {
+	} else if (skillId === SUMMON_BLOB) {
 
 		await specialAnimation(activeChara);
 
@@ -73,7 +73,7 @@ export const performAction = (
 
 		unit.cooldowns[skillId] = skill.cooldown;
 
-	} else if (skillId === "multishot") {
+	} else if (skillId === MULTISHOT) {
 
 		await specialAnimation(activeChara);
 
@@ -81,7 +81,7 @@ export const performAction = (
 
 		unit.cooldowns[skillId] = skill.cooldown;
 
-	} else if (skillId === "healing-wave") {
+	} else if (skillId === HEALING_WAVE) {
 
 		await specialAnimation(activeChara);
 
@@ -89,19 +89,25 @@ export const performAction = (
 
 		unit.cooldowns[skillId] = skill.cooldown;
 
-	} else if (skillId === "feint") {
+	} else if (skillId === FEINT) {
 		await specialAnimation(activeChara);
 
 		await feint(scene, unit);
 		unit.cooldowns[skillId] = skill.cooldown;
-	} else if (skillId === "fireball") {
+
+	} else if (skillId === FIREBALL) {
 		await specialAnimation(activeChara);
 
 		await fireball(scene)(unit);
 		unit.cooldowns[skillId] = skill.cooldown;
-	} else if (skillId === "shadowstep") {
 
-		skillId = await shadowStep(scene, unit, activeChara, skill);
+	} else if (skillId === SHADOWSTEP) {
+
+		const casted = await shadowStep(scene, unit, activeChara, skill);
+
+		if (!casted) {
+			skillId = availableSkills[1];
+		}
 
 	}
 
@@ -110,7 +116,7 @@ export const performAction = (
 		if (mtarget)
 			await slash(scene, unit, mtarget);
 	}
-	else if (skillId === "heal") {
+	else if (skillId === HEAL) {
 		await healing(scene)(unit);
 	}
 	else if (skillId === "shoot") {
