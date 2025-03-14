@@ -343,12 +343,12 @@ function upgradeWindow(
 				scene.charas = scene.charas.filter(c => c.id !== chara.id);
 
 				unit.job = jobId;
-				unit.hp = jobUpgrade.stats.hp;
-				unit.maxHp = jobUpgrade.stats.hp;
-				unit.attack = jobUpgrade.stats.attack;
-				unit.defense = jobUpgrade.stats.defense;
-				unit.accuracy = jobUpgrade.stats.accuracy;
-				unit.agility = jobUpgrade.stats.agility;
+				unit.hp = jobUpgrade.hp;
+				unit.maxHp = jobUpgrade.hp;
+				unit.attack = jobUpgrade.attack;
+				unit.defense = jobUpgrade.defense;
+				unit.accuracy = jobUpgrade.accuracy;
+				unit.agility = jobUpgrade.agility;
 
 				scene.playerForce.gold -= bgConstants.PROMOTE_UNIT_PRICE;
 

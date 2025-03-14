@@ -27,14 +27,13 @@ export const makeUnit = (id: string, force: string, job: string, position: Vec2)
 
   const job_ = getJob(job);
   return {
+    ...job_,
     id,
-    name: job_.name,
     job,
     force,
     position: asVec2(position),
     initialPosition: position,
-    ...job_.stats,
-    maxHp: job_.stats.hp,
+    maxHp: job_.hp,
     log: [],
     cooldowns: job_.skills.reduce((acc, skillId) => {
       const skill = getSkill(skillId)
