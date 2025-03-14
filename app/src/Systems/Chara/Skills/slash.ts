@@ -13,6 +13,7 @@ export async function slash(
 	unit: Unit,
 	target: Unit,
 ) {
+	console.log("[skill] :: slash :: start", unit.job);
 	const state = scene.state;
 	const { speed } = state.options
 
@@ -84,4 +85,5 @@ export async function slash(
 
 	await delay(scene, 300 / speed);
 
+	console.log("[skill] :: slash :: end", unit.job);
 }

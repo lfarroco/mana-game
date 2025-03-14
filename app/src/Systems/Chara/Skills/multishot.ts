@@ -3,18 +3,42 @@ import { Unit } from "../../../Models/Unit";
 import { popText } from "../Animations/popText";
 import { shootAnimation } from "../Animations/shootAnimation";
 import { Chara } from "../Chara";
-import { runPromisesInOrder as sequenceAsync } from "../../../utils";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { getUnitsByProximity } from "../../../Models/State";
+import { delay } from "../../../Utils/animation";
+import { approach } from "../approach";
+import { getSkill } from "../../../Models/Skill";
 
-export async function multishot(unit: Unit, activeChara: Chara, scene: BattlegroundScene) {
+export async function multishot(
+	unit: Unit,
+	activeChara: Chara,
+	scene: BattlegroundScene,
+) {
+	console.log("[skill] :: multishot :: start");
+
+	const skill = getSkill('multishot');
 	const enemyUnits = getUnitsByProximity(getState(), unit, true, 5);
 
 	const targets = enemyUnits.slice(0, 4);
 
+	const chara = scene.getChara(unit.id);
+	const target = await approach(chara, skill.range, true)
+
+	if (!target) {
+		console.log("no target found");
+		return;
+	}
+
 	popText(scene, "Multishot", activeChara.id);
 
-	await sequenceAsync(targets.map(target => async () => {
-		await shootAnimation(scene, unit, target);
-	}));
+	targets.forEach(async (target, i) => {
+
+		await delay(scene, (i * 200) / scene.state.options.speed);
+		shootAnimation(scene, unit, target);
+	});
+
+	await delay(scene, 450 + ((targets.length * 200) / scene.state.options.speed));
+
+	console.log("[skill] :: multishot :: end");
+
 }

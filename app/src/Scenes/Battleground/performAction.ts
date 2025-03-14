@@ -16,7 +16,6 @@ import { shieldBash } from "../../Systems/Chara/Skills/shieldBash";
 import { shoot } from "../../Systems/Chara/Skills/shoot";
 import { slash } from "../../Systems/Chara/Skills/slash";
 import { summon } from "../../Systems/Chara/Skills/summon";
-import { delay } from "../../Utils/animation";
 import BattlegroundScene from "./BattlegroundScene";
 import { panTo } from "./ProcessTick";
 import { shadowStep } from "../../Systems/Chara/Skills/shadowStep";
@@ -27,7 +26,12 @@ export const performAction = (
 	unit: Unit
 ) => async () => {
 
-	if (unit.hp <= 0) return;
+	console.log("[action] :: ", unit.job, ":: start", unit.id)
+
+	if (unit.hp <= 0) {
+		console.log("unit is dead. skipping turn");
+		return;
+	}
 
 	const job = getJob(unit.job);
 
@@ -118,5 +122,7 @@ export const performAction = (
 	} else if (skillId === "explode") {
 		await explode(scene)(unit);
 	}
+
+	console.log("[action] :: ", unit.job, ":: end")
 
 };
