@@ -15,61 +15,59 @@ export async function shadowStep(
 	skill: Skill) {
 	const enemies = getUnitsByProximity(scene.state, unit, true, 2);
 
-	if (enemies.length > 0) {
-		return "slash";
-	} else {
+	console.log(";:", enemies)
 
-		await specialAnimation(activeChara);
-		await (async () => {
+	if (enemies.length > 0)
+		return false;
 
-			const [target] = getUnitsByProximity(scene.state, unit, true, Infinity).reverse();
+	await specialAnimation(activeChara);
 
-			if (target) {
-				//get cell behind target
-				let cell = null;
-				let x = 0;
-				let y = 0;
-				let counter = 0;
+	const [target] = getUnitsByProximity(scene.state, unit, true, Infinity).reverse();
 
-				while (!cell) {
+	if (target) {
+		//get cell behind target
+		let cell = null;
+		let x = 0;
+		let y = 0;
+		let counter = 0;
 
-					if (counter > 10) {
-						break;
-					}
-					counter++;
+		while (!cell) {
 
-					x = target.position.x + Math.floor(Math.random() * 3) - 1;
-					y = target.position.y + Math.floor(Math.random() * 3) - 1;
+			if (counter > 10) {
+				break;
+			}
+			counter++;
 
-					const occupier = scene.state.gameData.units.find(u => u.position.x === x && u.position.y === y);
+			x = target.position.x + Math.floor(Math.random() * 3) - 1;
+			y = target.position.y + Math.floor(Math.random() * 3) - 1;
 
-					if (!occupier) {
-						cell = { x, y };
-					}
+			const occupier = scene.state.gameData.units.find(u => u.position.x === x && u.position.y === y);
 
-
-				}
-
-				if (cell) {
-					unit.position = asVec2(cell);
-					activeChara.container.visible = false;
-					await summonEffect(scene, activeChara.container);
-					await tween({
-						targets: [activeChara.container],
-						x: cell.x * 64 + 32,
-						y: cell.y * 64 + 32,
-						duration: 100 / scene.state.options.speed
-					});
-					activeChara.container.visible = true;
-
-					await summonEffect(scene, activeChara.container);
-				}
-
-
+			if (!occupier) {
+				cell = { x, y };
 			}
 
-		})();
-		unit.cooldowns[skill.id] = skill.cooldown;
+		}
+
+		if (cell) {
+			unit.position = asVec2(cell);
+			activeChara.container.visible = false;
+			await summonEffect(scene, activeChara.container);
+			await tween({
+				targets: [activeChara.container],
+				x: cell.x * 64 + 32,
+				y: cell.y * 64 + 32,
+				duration: 100 / scene.state.options.speed
+			});
+			activeChara.container.visible = true;
+
+			await summonEffect(scene, activeChara.container);
+		}
+
+
 	}
-	return skill.id;
+
+	unit.cooldowns[skill.id] = skill.cooldown;
+
+	return true;
 }

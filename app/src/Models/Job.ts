@@ -1,3 +1,5 @@
+import * as Skill from "./Skill";
+
 export type Job = {
   id: string;
   name: string;
@@ -11,8 +13,7 @@ export type Job = {
     accuracy: number;
     agility: number;
   };
-  baseAttack: string;
-  skills: string[];
+  skills: Skill.SkillId[];
 };
 
 export const jobs: Job[] = [
@@ -29,8 +30,7 @@ Focus: Backline damage, kiting.`,
       accuracy: 10,
       agility: 16,
     },
-    baseAttack: "shoot",
-    skills: ["multishot", "shoot"],
+    skills: [Skill.MULTISHOT, Skill.SHOOT],
     upgrades: [
       "hunter",
       "sniper"
@@ -49,8 +49,10 @@ Focus: Sustain, hybrid damage/support.`,
       accuracy: 0,
       agility: 12,
     },
-    baseAttack: "heal",
-    skills: ["healing-wave", "light-orb"],
+    skills: [
+      Skill.HEALING_WAVE,
+      Skill.LIGHT_ORB,
+    ],
     upgrades: [
       "cleric",
       "monk"
@@ -69,12 +71,11 @@ Focus: AoE damage, crowd control.`,
       accuracy: 0,
       agility: 4,
     },
-    baseAttack: "fireball",
     upgrades: [
       "elementalist",
       "arcanist"
     ],
-    skills: ["fireball", "arcane-missiles"],
+    skills: [Skill.FIREBALL, Skill.ARCANE_MISSILES],
   },
   {
     id: "soldier",
@@ -89,12 +90,11 @@ Focus: Frontline tanking, crowd control.`,
       accuracy: 10,
       agility: 8,
     },
-    baseAttack: "slash",
     upgrades: [
       "knight",
       "berserker"
-    ]
-    , skills: ["shieldbash", "slash"],
+    ],
+    skills: [Skill.SHIELDBASH, Skill.SLASH],
   },
   {
     id: "thief",
@@ -108,12 +108,11 @@ Focus: Frontline tanking, crowd control.`,
       accuracy: 0,
       agility: 4,
     },
-    baseAttack: "slash",
     upgrades: [
       "ninja",
       "rogue"
-    ]
-    , skills: ["feint", "slash"],
+    ],
+    skills: [Skill.FEINT, Skill.SLASH],
   },
   {
     id: "blob",
@@ -127,9 +126,8 @@ Focus: Frontline tanking, crowd control.`,
       accuracy: 10,
       agility: 10,
     },
-    baseAttack: "slash",
-    upgrades: []
-    , skills: ["slash"],
+    upgrades: [],
+    skills: [Skill.SLASH],
   },
   {
     id: "red_blob",
@@ -143,9 +141,8 @@ Focus: Frontline tanking, crowd control.`,
       accuracy: 10,
       agility: 10,
     },
-    baseAttack: "slash",
-    upgrades: []
-    , skills: ["explode"],
+    upgrades: [],
+    skills: [Skill.EXPLODE],
   },
   {
     id: "blob_king",
@@ -159,9 +156,8 @@ Focus: Frontline tanking, crowd control.`,
       accuracy: 10,
       agility: 10,
     },
-    baseAttack: "slash",
-    upgrades: []
-    , skills: ["summon_blob", "slash"],
+    upgrades: [],
+    skills: [Skill.SUMMON_BLOB, Skill.SLASH],
   },
   {
     id: "elementalist",
@@ -177,9 +173,8 @@ that burn enemies over time.  `,
       accuracy: 0,
       agility: 10,
     },
-    baseAttack: "fireball",
-    upgrades: []
-    , skills: ["fireball"],
+    upgrades: [],
+    skills: [Skill.FIREBALL],
   },
   {
     id: "arcanist",
@@ -195,9 +190,8 @@ at the start of battle. `,
       accuracy: 0,
       agility: 14,
     },
-    baseAttack: "fireball",
-    upgrades: []
-    , skills: ["fireball"],
+    upgrades: [],
+    skills: [Skill.FIREBALL],
   },
   {
     id: "knight",
@@ -212,9 +206,8 @@ Focus: Taunt, damage mitigation.`,
       accuracy: 0,
       agility: 6,
     },
-    baseAttack: "slash",
-    upgrades: []
-    , skills: ["slash"],
+    upgrades: [],
+    skills: [Skill.SLASH],
   },
   {
     id: "berserker",
@@ -229,9 +222,8 @@ Focus: High-risk damage, lifesteal.`,
       accuracy: 0,
       agility: 10,
     },
-    baseAttack: "slash",
-    upgrades: []
-    , skills: ["slash"],
+    upgrades: [],
+    skills: [Skill.SLASH],
   },
   {
     id: "sniper",
@@ -246,9 +238,8 @@ Focus: Priority target removal, backline damage.`,
       accuracy: 0,
       agility: 18,
     },
-    baseAttack: "shoot",
-    upgrades: []
-    , skills: ["shoot"],
+    upgrades: [],
+    skills: [Skill.SHOOT],
   },
   {
     id: "hunter",
@@ -263,9 +254,8 @@ Focus: Area denial, disruption.`,
       accuracy: 0,
       agility: 14,
     },
-    baseAttack: "shoot",
-    upgrades: []
-    , skills: ["shoot"],
+    upgrades: [],
+    skills: [Skill.SHOOT],
   },
   {
     id: "cleric",
@@ -280,9 +270,8 @@ Focus: Sustain, hybrid damage/support.`,
       accuracy: 0,
       agility: 12,
     },
-    baseAttack: "heal",
-    upgrades: []
-    , skills: ["heal"],
+    upgrades: [],
+    skills: [Skill.HEAL],
   },
   {
     id: "monk",
@@ -297,9 +286,8 @@ Focus: Self-sustain, distraction.`,
       accuracy: 0,
       agility: 10,
     },
-    baseAttack: "heal",
-    upgrades: []
-    , skills: ["heal"],
+    upgrades: [],
+    skills: [Skill.HEAL],
   },
   {
     id: "rogue",
@@ -314,9 +302,8 @@ Focus: Priority target removal, evasion.`,
       accuracy: 0,
       agility: 16,
     },
-    baseAttack: "slash",
-    upgrades: []
-    , skills: ["rogue"],
+    upgrades: [],
+    skills: [Skill.SLASH],
   },
   {
     id: "ninja",
@@ -331,9 +318,8 @@ Focus: Priority target removal, evasion.`,
       accuracy: 0,
       agility: 22,
     },
-    baseAttack: "slash",
-    upgrades: []
-    , skills: ["ninja"],
+    upgrades: [],
+    skills: [Skill.SLASH],
   },
   {
     id: "shadow-ghost",
@@ -347,9 +333,8 @@ Focus: Priority target removal, evasion.`,
       accuracy: 0,
       agility: 22,
     },
-    baseAttack: "slash",
-    upgrades: []
-    , skills: ["shadowstep", "slash"],
+    upgrades: [],
+    skills: [Skill.SHADOWSTEP, Skill.SLASH],
   }
 ];
 

@@ -1,4 +1,4 @@
-import { getSkill } from "../../../Models/Skill";
+import { FIREBALL, getSkill } from "../../../Models/Skill";
 import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { getUnitsByProximity } from "../../../Models/State";
@@ -13,7 +13,7 @@ export const fireball = (
 
 	const { state } = scene;
 
-	const skill = getSkill('fireball');
+	const skill = getSkill(FIREBALL);
 	const activeChara = scene.getChara(unit.id);
 
 	const target = await approach(activeChara, skill.range, true);

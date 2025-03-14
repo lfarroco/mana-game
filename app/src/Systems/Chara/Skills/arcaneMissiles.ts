@@ -1,5 +1,5 @@
 import { getJob } from "../../../Models/Job";
-import { getSkill } from "../../../Models/Skill";
+import { ARCANE_MISSILES, getSkill } from "../../../Models/Skill";
 import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { getUnitsByProximity } from "../../../Models/State";
@@ -14,7 +14,7 @@ export const arcaneMissiles = (
 ) => async (unit: Unit) => {
 
 	const { state } = scene;
-	const skill = getSkill('arcane-missiles');
+	const skill = getSkill(ARCANE_MISSILES);
 
 	const closest = await approach(scene.getChara(unit.id), skill.range, true);
 

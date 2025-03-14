@@ -1,4 +1,4 @@
-import { getSkill } from "../../../Models/Skill";
+import { getSkill, LIGHT_ORB } from "../../../Models/Skill";
 import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { getUnitsByProximity } from "../../../Models/State";
@@ -15,7 +15,7 @@ export const lightOrb = (
 
 	const { state } = scene;
 
-	const skill = getSkill('light-orb');
+	const skill = getSkill(LIGHT_ORB);
 
 	const damage = skill.power;
 	const heal = skill.power * 2;

@@ -7,7 +7,7 @@ import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { getUnitsByProximity } from "../../../Models/State";
 import { delay } from "../../../Utils/animation";
 import { approach } from "../approach";
-import { getSkill } from "../../../Models/Skill";
+import { getSkill, MULTISHOT } from "../../../Models/Skill";
 
 export async function multishot(
 	unit: Unit,
@@ -16,7 +16,7 @@ export async function multishot(
 ) {
 	console.log("[skill] :: multishot :: start");
 
-	const skill = getSkill('multishot');
+	const skill = getSkill(MULTISHOT);
 	const enemyUnits = getUnitsByProximity(getState(), unit, true, 5);
 
 	const targets = enemyUnits.slice(0, 4);
