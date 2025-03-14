@@ -341,7 +341,7 @@ Focus: Priority target removal, evasion.`,
     description: `Stealthy Assassin`,
     moveRange: 4,
     stats: {
-      hp: 140,
+      hp: 70,
       attack: 40,
       defense: 0,
       accuracy: 0,
