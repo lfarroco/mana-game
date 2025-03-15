@@ -24,7 +24,7 @@ export const THIEF = "thief" as JobId;
 const baseJobs = `
 Job           | Range | HP  | ATK  | DEF | AGI | Skills
 --------------|-------|-----|------|-----|-----|--------------------------------------
-${ARCHER}     | 3     | 100 | 30   | 3   | 16  | ${s.MULTISHOT}, ${s.SHOOT}
+${ARCHER}     | 3     | 100 | 20   | 3   | 16  | ${s.MULTISHOT}, ${s.SHOOT}
 ${ACOLYTE}    | 2     | 80  | 10   | 0   | 10  | ${s.HEALING_WAVE}, ${s.LIGHT_ORB}
 ${APPRENTICE} | 2     | 80  | 30   | 0   | 8   | ${s.FIREBALL}, ${s.ARCANE_MISSILES}
 ${SOLDIER}    | 3     | 300 | 20   | 5   | 8   | ${s.SHIELDBASH}, ${s.SLASH}
@@ -43,13 +43,13 @@ export const SWARMLING = "swarmling" as JobId;
 const monsters = `
 Job             | Range | HP  | ATK  | DEF | AGI | Skills
 ----------------|-------|-----|------|-----|-----|--------------------------------------
-${BLOB}         | 2     | 30  | 20   | 0   | 10  | ${s.SLASH}
-${RED_BLOB}     | 2     | 30  | 20   | 0   | 10  | ${s.EXPLODE}
+${BLOB}         | 3     | 30  | 20   | 0   | 10  | ${s.SLASH}
+${RED_BLOB}     | 3     | 30  | 20   | 0   | 10  | ${s.EXPLODE}
 ${BLOB_KING}    | 2     | 500 | 50   | 3   | 10  | ${s.SUMMON_BLOB}, ${s.SLASH}
 ${BLOB_MAGE}    | 3     | 60  | 15   | 0   | 8   | ${s.FIREBALL}, ${s.ARCANE_MISSILES}
 ${BLOB_KNIGHT}  | 2     | 400 | 25   | 8   | 6   | ${s.SHIELDBASH}, ${s.SLASH}
 ${SHADOW_BLOB}  | 3     | 900 | 25   | 10  | 6   | ${s.SUMMON_BLOB}
-${SHADOW_GHOST} | 4     | 90  | 40   | 0   | 18  | ${s.SHADOWSTEP}, ${s.SLASH}
+${SHADOW_GHOST} | 4     | 150 | 40   | 0   | 18  | ${s.SHADOWSTEP}, ${s.SLASH}
 ${SWARMLING}    | 5     | 20  | 30   | 0   | 20  | ${s.SLASH}
 `;
 // future jobs

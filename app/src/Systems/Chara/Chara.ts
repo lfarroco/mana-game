@@ -232,37 +232,19 @@ function displayUnitInfo(chara: Chara) {
 	bg.fillGradientStyle(0xc1a272, 0xc1a272, 0x8b6d45, 0x8b6d45, 1);
 	bg.fillRect(0, 0, width, height);
 
-
-
-
-
-
 	unitInfoContainer = scene.add.container(x, y);
 	unitInfoContainer.add([bg]);
 
 	unitInfoContainer.add([
 		scene.add.text(10, 10, job.name, bgConstants.defaultTextConfig),
 		scene.add.image(20, 50, job.id + "/full").setDisplaySize(200, 200).setOrigin(0),
-		...job.skills.reverse().map(getSkill).map(
-			(sk, i) => scene.add.text(10, 300 + i * 50, sk.name, bgConstants.defaultTextConfig))
-	]
-	)
-
-	const updgradeBtn = scene.add.text(10, 410,
-		`Promote (${bgConstants.PROMOTE_UNIT_PRICE} gold) `,
-		bgConstants.defaultTextConfig)
-		.setInteractive()
-		.on("pointerdown", () => {
-
-			upgradeWindow(unitInfoContainer!, chara)
-		});
-
-	const force = scene.playerForce;
-
-	if (force.gold < bgConstants.PROMOTE_UNIT_PRICE) {
-		updgradeBtn.setTint(0x666666);
-		updgradeBtn.removeInteractive();
-	}
+		...job.skills
+			.reverse()
+			.map(getSkill)
+			.map(
+				(sk, i) =>
+					scene.add.text(10, 300 + i * 50, sk.name, bgConstants.defaultTextConfig))
+	]);
 
 	const closeBtn = scene.add.text(
 		width - 80, 10, "X", bgConstants.defaultTextConfig)
@@ -273,118 +255,4 @@ function displayUnitInfo(chara: Chara) {
 		);
 
 	unitInfoContainer.add(closeBtn);
-
-
-	unitInfoContainer.add(updgradeBtn);
-
-}
-
-function upgradeWindow(
-	parent: Phaser.GameObjects.Container,
-	chara: Chara,
-) {
-	// display two rects with two job options 
-
-	const { scene, unit } = chara;
-
-	const width = bgConstants.SCREEN_WIDTH;
-	const height = bgConstants.SCREEN_HEIGHT;
-
-	const job = getJob(unit.job)
-
-	const container = scene.add.container(0, 0);
-
-
-	const bg = scene.add.graphics();
-	bg.fillStyle(0x000000, 0.6);
-	bg.fillRect(0, 0, width, height);
-	bg.setInteractive(
-		new Phaser.Geom.Rectangle(0, 0, width, height),
-		Phaser.Geom.Rectangle.Contains
-	)
-	container.add(bg);
-
-	job.upgrades.forEach((jobId, i) => {
-
-		const jobUpgrade = getJob(jobId);
-
-		const x = i * 500 + 300;
-
-		const pic = scene.add.image(
-			x,
-			300,
-			jobId + "/full"
-		).setDisplaySize(400, 400)
-			.setInteractive()
-			.on("pointerdown", () => {
-				console.log("Promote to job1");
-			});
-		pic.on("pointerover", () => {
-			tween({
-				targets: [pic],
-				duration: 200,
-				displayWidth: 420,
-				displayHeight: 420,
-			})
-		})
-			.on("pointerout", () => {
-				tween({
-					targets: [pic],
-					duration: 200,
-					displayWidth: 400,
-					displayHeight: 400,
-				})
-			})
-			.setInteractive()
-			.on("pointerdown", () => {
-
-				chara.container.destroy();
-
-				scene.charas = scene.charas.filter(c => c.id !== chara.id);
-
-				unit.job = jobId;
-				unit.hp = jobUpgrade.hp;
-				unit.maxHp = jobUpgrade.hp;
-
-				scene.playerForce.gold -= bgConstants.PROMOTE_UNIT_PRICE;
-
-				console.log("gold :: ", scene.playerForce.gold);
-
-				scene.renderUnit(unit);
-				container.destroy();
-				parent.destroy();
-				scene.updateUI();
-
-			});
-
-		const title = scene.add.text(
-			x
-			, pic.y + 220,
-			jobUpgrade.name, bgConstants.defaultTextConfig)
-			.setOrigin(0.5);
-
-
-		const description = scene.add.text(
-			x - 200
-			, pic.y + 250,
-			jobUpgrade.name, bgConstants.defaultTextConfig)
-			.setText(jobUpgrade.description)
-
-		container.add([pic, title, description]);
-
-	});
-
-
-	const cancelBtn = scene.add.text(
-		bgConstants.SCREEN_WIDTH / 2 - 140
-		, bgConstants.SCREEN_HEIGHT / 2 + 300,
-		"Cancel", bgConstants.defaultTextConfig)
-		.setInteractive()
-		.on("pointerdown", () => {
-			container.destroy();
-
-		});
-
-	container.add([bg, cancelBtn]);
-
 }

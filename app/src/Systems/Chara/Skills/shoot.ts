@@ -4,9 +4,9 @@ import { getSkill, SHOOT } from "../../../Models/Skill";
 import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { walk } from "../../../Scenes/Battleground/ProcessTick";
-import { getUnitsByProximity } from "../../../Models/State";
 import { shootAnimation } from "../Animations/shootAnimation";
 import { lookupAIPAth } from "../../../Scenes/Battleground/Systems/Pathfinding";
+import { approach } from "../approach";
 
 export function shoot(scene: BattlegroundScene) {
 
@@ -16,9 +16,7 @@ export function shoot(scene: BattlegroundScene) {
 
 		const skill = getSkill(SHOOT)
 
-		const { state } = scene;
-
-		const [closestEnemy] = getUnitsByProximity(state, unit, true, skill.range);
+		const closestEnemy = await approach(scene.getChara(unit.id), skill.range, true);
 
 		if (!closestEnemy) {
 			console.warn("No enemy found");
