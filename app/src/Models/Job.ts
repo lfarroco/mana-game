@@ -24,11 +24,11 @@ export const THIEF = "thief" as JobId;
 const baseJobs = `
 Job           | Range | HP  | ATK  | DEF | AGI | Skills
 --------------|-------|-----|------|-----|-----|--------------------------------------
-${ARCHER}     | 3     | 110 | 30   | 2   | 16  | ${s.MULTISHOT}, ${s.SHOOT}
-${ACOLYTE}    | 2     | 80  | 10   | 0   | 12  | ${s.HEALING_WAVE}, ${s.LIGHT_ORB}
-${APPRENTICE} | 2     | 80  | 30   | 0   | 4   | ${s.FIREBALL}, ${s.ARCANE_MISSILES}
+${ARCHER}     | 3     | 100 | 30   | 3   | 16  | ${s.MULTISHOT}, ${s.SHOOT}
+${ACOLYTE}    | 2     | 80  | 10   | 0   | 10  | ${s.HEALING_WAVE}, ${s.LIGHT_ORB}
+${APPRENTICE} | 2     | 80  | 30   | 0   | 8   | ${s.FIREBALL}, ${s.ARCANE_MISSILES}
 ${SOLDIER}    | 3     | 300 | 20   | 5   | 8   | ${s.SHIELDBASH}, ${s.SLASH}
-${THIEF}      | 4     | 150 | 40   | 2   | 14  | ${s.FEINT}, ${s.SLASH}
+${THIEF}      | 4     | 130 | 35   | 2   | 14  | ${s.FEINT}, ${s.SLASH}
 `;
 
 export const BLOB = "blob" as JobId;
@@ -41,8 +41,8 @@ Job             | Range | HP  | ATK  | DEF | AGI | Skills
 ----------------|-------|-----|------|-----|-----|--------------------------------------
 ${BLOB}         | 2     | 30  | 20   | 0   | 10  | ${s.SLASH}
 ${RED_BLOB}     | 2     | 30  | 20   | 0   | 10  | ${s.EXPLODE}
-${BLOB_KING}    | 2     | 500 | 50   | 0   | 10  | ${s.SUMMON_BLOB}, ${s.SLASH}
-${SHADOW_GHOST} | 4     | 70  | 40   | 0   | 22  | ${s.SHADOWSTEP}, ${s.SLASH}
+${BLOB_KING}    | 2     | 500 | 50   | 3   | 10  | ${s.SUMMON_BLOB}, ${s.SLASH}
+${SHADOW_GHOST} | 4     | 90  | 40   | 0   | 18  | ${s.SHADOWSTEP}, ${s.SLASH}
 `;
 
 // future jobs

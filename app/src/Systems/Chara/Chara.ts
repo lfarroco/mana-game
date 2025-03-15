@@ -7,13 +7,13 @@ import { asVec2, eqVec2, vec2, Vec2 } from "../../Models/Geometry";
 import { tween } from "../../Utils/animation";
 import { TURN_DURATION } from "../../config";
 import { FORCE_ID_PLAYER } from "../../Models/Force";
-import { getJob } from "../../Models/Job";
+import { getJob, Job } from "../../Models/Job";
 import { getSkill } from "../../Models/Skill";
 
 export type Chara = {
 	id: string;
 	force: string;
-	job: string;
+	job: Job;
 	sprite: Phaser.GameObjects.Image,
 	scene: BattlegroundScene,
 	unit: Unit,
@@ -61,7 +61,7 @@ export function createChara(
 	const chara: Chara = {
 		id: unit.id,
 		force: unit.force,
-		job: unit.job,
+		job: getJob(unit.job),
 		scene,
 		sprite,
 		container,

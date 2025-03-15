@@ -1,16 +1,13 @@
-import { emit, signals } from "../../../Models/Signals";
 import { Unit } from "../../../Models/Unit";
 import { popText } from "./popText";
 import { tween } from "../../../Utils/animation";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
-import { impactEffect } from "../../../Effects";
-import { getJob } from "../../../Models/Job";
+import { physicalAttack } from "../Skills/physicalAttack";
 
 export async function shootAnimation(scene: BattlegroundScene, unit: Unit, target: Unit) {
 
 	const activeChara = scene.getChara(unit.id);
 	const targetChara = scene.getChara(target.id);
-	const job = getJob(unit.job);
 
 	await popText(scene, "Shoot", unit.id);
 
@@ -31,20 +28,7 @@ export async function shootAnimation(scene: BattlegroundScene, unit: Unit, targe
 		duration: 200 / scene.state.options.speed,
 	});
 
-	popText(scene, job.attack.toString(), target.id);
 	arrow.destroy();
-	emit(
-		signals.DAMAGE_UNIT,
-		targetChara.id,
-		job.attack
-	);
 
-	await impactEffect({
-		scene,
-		location: targetChara.container,
-		pointA: activeChara.container,
-		pointB: targetChara.container,
-		speed: scene.state.options.speed,
-	})
-
+	await physicalAttack(activeChara, targetChara);
 }
