@@ -6,19 +6,17 @@ import { makeUnit, Unit } from "../../Models/Unit";
 import { BattlegroundScene } from "./BattlegroundScene";
 import { defaultTextConfig, RECRUIT_UNIT_PRICE, } from "./constants";
 
-let units: Unit[] = [];
+const units: Job.JobId[] = [
+	Job.SOLDIER,
+	Job.ARCHER,
+	Job.APPRENTICE,
+	Job.ACOLYTE,
+	Job.THIEF,
+];
 
 let container: Phaser.GameObjects.Container | null = null;
 
 export function init(scene: BattlegroundScene) {
-
-	units = [
-		Job.SOLDIER,
-		Job.ARCHER,
-		Job.APPRENTICE,
-		Job.ACOLYTE,
-		Job.THIEF,
-	].map(job => makeUnit(Math.random().toString(), FORCE_ID_PLAYER, job, asVec2({ x: 0, y: 0 })));
 
 	listeners([
 		[signals.WAVE_START, async () => {
@@ -31,10 +29,10 @@ export function updateStore(scene: BattlegroundScene) {
 
 	if (container) container.destroy(true);
 
-	const width = scene.cameras.main.width;
+	const width = 300
 	const height = 150;
-	const x = 0;
-	const y = scene.cameras.main.height - height;
+	const x = scene.cameras.main.width - width;
+	const y = 0;
 
 	container = scene.add.container(x, y);
 
@@ -49,14 +47,16 @@ export function updateStore(scene: BattlegroundScene) {
 
 }
 
-const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
+const renderUnit = (scene: BattlegroundScene) => (jobId: Job.JobId, i: number) => {
 
 	const force = scene.playerForce;
 
-	const job = Job.getJob(unit.job);
+	const job = Job.getJob(jobId);
 
-	const x = 100 + i * 120;
-	const y = 60;
+	const row = Math.floor(i / 2);
+	const col = i % 2;
+	const x = 100 + col * 100;
+	const y = 150 + row * 140;
 
 	const sprite = scene.add.image(
 		x, y,
@@ -99,7 +99,7 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 			const coords = scene.getTileAtWorldXY(vec2(pointer.worldX, pointer.worldY));
 
 			force.gold -= RECRUIT_UNIT_PRICE;
-			emit(signals.RECRUIT_UNIT, FORCE_ID_PLAYER, unit.job, asVec2(coords));
+			emit(signals.RECRUIT_UNIT, FORCE_ID_PLAYER, jobId, asVec2(coords));
 
 			scene.updateUI();
 		}
@@ -110,17 +110,17 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 
 		if (pointer.getDistance() < 10) {
 			console.log("low pointer distance: click");
-			handleClick(scene, unit)(pointer);
+			handleClick(scene, job)(pointer);
 		}
 		// dragend happens after drop
-		scene.renderStore();
+		scene.updateUI();
 
 	});
 }
 
 const handleClick = (
 	scene: BattlegroundScene,
-	unit: Unit,
+	job: Job.Job,
 ) => (pointer: Phaser.Input.Pointer) => {
 
 

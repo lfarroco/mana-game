@@ -77,7 +77,7 @@ export class BattlegroundScene extends Phaser.Scene {
         processTick(this);
       }],
       [signals.UNIT_CREATED, (unitId: string) => {
-        const unit = this.getSquad(unitId)
+        const unit = getUnit(this.state)(unitId);
 
         this.renderUnit(unit)
 
@@ -142,7 +142,7 @@ export class BattlegroundScene extends Phaser.Scene {
         }
 
         this.createWave();
-        this.renderStore();
+        this.updateUI();
 
       }],
 
@@ -210,7 +210,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.createWave();
 
-    this.renderStore();
 
   };
 
@@ -265,12 +264,18 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.ui = this.add.container(0, 0);
 
-    const gold = this.add.text(
-      SCREEN_WIDTH - 200, 250, "Gold: " + force.gold, defaultTextConfig);
+    [
+      "Gold: " + force.gold,
+      "HP: " + force.hp,
+      "Wave: " + this.state.gameData.wave,
+    ].forEach((text, i) => {
+      const uiText = this.add.text(10 + 150 * i, 10, text, defaultTextConfig);
+      this.ui?.add(uiText);
+    });
 
-    this.ui.add(gold);
-
-    const startBattleBtn = this.add.text(SCREEN_WIDTH - 200, SCREEN_HEIGHT - 200, "Start Battle", defaultTextConfig);
+    const startBattleBtn = this.add.text(
+      SCREEN_WIDTH - 200, SCREEN_HEIGHT - 50,
+      "Start Battle", defaultTextConfig);
 
     startBattleBtn.setInteractive();
 
@@ -280,28 +285,14 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.ui.add(startBattleBtn);
 
-    const playerHP = this.add.text(SCREEN_WIDTH - 200, 350, "HP: " + force.hp, defaultTextConfig);
-
-    this.ui.add(playerHP);
-
-    const wave = this.add.text(SCREEN_WIDTH - 200, 400, "Wave: " + this.state.gameData.wave, defaultTextConfig);
-
-    this.ui.add(wave);
-
-  }
-
-  renderStore() {
     StoreSystem.updateStore(this);
+
   }
 
   getChara = (id: string) => {
     const chara = this.charas.find((chara) => chara.id === id);
     if (!chara) throw new Error(this.errors.charaNotFound(id));
     return chara;
-  };
-
-  getSquad = (id: string) => {
-    return getUnit(getState())(id)
   };
 
   getTileAt = (vec: Vec2) => {
@@ -327,7 +318,6 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
   async renderUnit(unit: Unit) {
-
 
     const vec = vec2(unit.position.x * 64 + 32,
       unit.position.y * 64 + 32)
