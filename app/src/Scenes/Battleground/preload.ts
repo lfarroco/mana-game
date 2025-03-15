@@ -1,23 +1,7 @@
 import Phaser from "phaser";
+import * as Job from "../../Models/Job";
 
-const jobs = [
-	'archer',
-	'acolyte',
-	'apprentice',
-	'arcanist',
-	'elementalist',
-	'knight',
-	'berserker',
-	'soldier',
-	'monk',
-	'cleric',
-	'thief',
-	'blob',
-	'blob_king',
-	'red_blob',
-	'shadow-ghost',
-
-]
+const jobs = Job.jobs.map(j => j.id);
 
 const emotes = [
 	'moving-emote',
@@ -84,17 +68,8 @@ export function preload(this: Phaser.Scene) {
 	this.load.audio("ui/error", "assets/audio/error.ogg")
 
 	jobs.forEach(job => {
-		this.load.image(
-			`${job}/portrait`,
-			`assets/jobs/${job}/portrait.png`,
-		)
-	});
-
-	jobs.forEach(job => {
-		this.load.image(
-			`${job}/full`,
-			`assets/jobs/${job}/full.jpeg`,
-		)
+		this.load.image(`${job}/portrait`, `assets/jobs/${job}/portrait.png`);
+		this.load.image(`${job}/full`, `assets/jobs/${job}/full.jpeg`);
 	});
 
 	emotes.forEach(emote => {

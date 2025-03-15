@@ -7,6 +7,7 @@ import { delay, tween } from "../../../Utils/animation";
 import { emit, signals } from "../../../Models/Signals";
 import { impactEffect } from "../../../Effects/impactEffect";
 import { criticalDamageDisplay } from "../../../Effects/criticalDamageDisplay";
+import { getJob } from "../../../Models/Job";
 
 export async function slash(
 	scene: BattlegroundScene,
@@ -14,6 +15,7 @@ export async function slash(
 	target: Unit,
 ) {
 	console.log("[skill] :: slash :: start", unit.job);
+	const job = getJob(unit.job);
 	const state = scene.state;
 	const { speed } = state.options
 
@@ -57,7 +59,7 @@ export async function slash(
 	// it will check for other factors including buffs
 	const isCritical = activeChara.unit.statuses["next-critical"] > 0;
 
-	const damage = isCritical ? activeChara.unit.attack * 3 : activeChara.unit.attack;
+	const damage = isCritical ? job.attack * 3 : job.attack;
 
 	if (isCritical) {
 		criticalDamageDisplay(scene, targetChara.container, damage, speed);

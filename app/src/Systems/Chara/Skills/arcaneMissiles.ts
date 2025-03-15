@@ -15,6 +15,7 @@ export const arcaneMissiles = (
 
 	const { state } = scene;
 	const skill = getSkill(ARCANE_MISSILES);
+	const job = getJob(unit.job);
 
 	const closest = await approach(scene.getChara(unit.id), skill.range, true);
 
@@ -42,7 +43,7 @@ export const arcaneMissiles = (
 
 		await animation.arcaneMissle(scene, activeChara.container, targetChara.container, state.options.speed);
 
-		popText(scene, activeChara.unit.attack.toString(), targetChara.unit.id);
+		popText(scene, job.attack.toString(), targetChara.unit.id);
 
 		if (targetChara.unit.hp <= 0) return;
 

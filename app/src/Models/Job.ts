@@ -1,306 +1,90 @@
-import * as Skill from "./Skill";
+import * as s from "./Skill";
+
+export type JobId = string & { __jobId: true };
 
 export type Job = {
-  id: string;
+  id: JobId;
   name: string;
   description: string;
   moveRange: number;
-  upgrades: string[];
+  upgrades: JobId[];
   hp: number;
   attack: number;
   defense: number;
-  accuracy: number;
   agility: number;
-  skills: Skill.SkillId[];
+  skills: s.SkillId[];
 };
 
-export const jobs: Job[] = [
-  {
-    id: "archer",
-    name: "Archer",
-    description: `Ranged DPS | Pick off enemies from a distance with high accuracy.
-Focus: Backline damage, kiting.`,
-    moveRange: 3,
-    hp: 100,
-    attack: 50,
-    defense: 0,
-    accuracy: 10,
-    agility: 16,
-    skills: [Skill.MULTISHOT, Skill.SHOOT],
-    upgrades: [
-      "hunter",
-      "sniper"
-    ]
-  },
-  {
-    id: "acolyte",
-    name: "Acolyte",
-    description: `Healing Support | Restore health to allies with your attacks.
-Focus: Sustain, hybrid damage/support.`,
-    moveRange: 2,
-    hp: 80,
-    attack: 30,
-    defense: 2,
-    accuracy: 0,
-    agility: 12,
-    skills: [
-      Skill.HEALING_WAVE,
-      Skill.LIGHT_ORB,
-    ],
-    upgrades: [
-      "cleric",
-      "monk"
-    ]
-  },
-  {
-    id: "apprentice",
-    name: "Apprentice",
-    description: `AoE Mage | Unleash devastating firestorms that burn enemies over time.
-Focus: AoE damage, crowd control.`,
-    moveRange: 2,
-    hp: 80,
-    attack: 30,
-    defense: 0,
-    accuracy: 0,
-    agility: 4,
-    upgrades: [
-      "elementalist",
-      "arcanist"
-    ],
-    skills: [Skill.FIREBALL, Skill.ARCANE_MISSILES],
-  },
-  {
-    id: "soldier",
-    name: "Soldier",
-    description: `Melee Tank | Absorb damage and protect allies with high defense.
-Focus: Frontline tanking, crowd control.`,
-    moveRange: 3,
-    hp: 250,
-    attack: 10,
-    defense: 20,
-    accuracy: 10,
-    agility: 8,
-    upgrades: [
-      "knight",
-      "berserker"
-    ],
-    skills: [Skill.SHIELDBASH, Skill.SLASH],
-  },
-  {
-    id: "thief",
-    name: "Thief",
-    description: `A slippery opportunist who thrives on evasion and punishing enemy mistakes.`,
-    moveRange: 4,
-    hp: 200,
-    attack: 30,
-    defense: 0,
-    accuracy: 0,
-    agility: 4,
-    upgrades: [
-      "ninja",
-      "rogue"
-    ],
-    skills: [Skill.FEINT, Skill.SLASH],
-  },
-  {
-    id: "blob",
-    name: "Green Blob",
-    description: `Blob | Blob.`,
-    moveRange: 2,
-    hp: 30,
-    attack: 20,
-    defense: 10,
-    accuracy: 10,
-    agility: 10,
-    upgrades: [],
-    skills: [Skill.SLASH],
-  },
-  {
-    id: "red_blob",
-    name: "Red Blob",
-    description: `Red Blob `,
-    moveRange: 2,
-    hp: 20,
-    attack: 20,
-    defense: 10,
-    accuracy: 10,
-    agility: 10,
-    upgrades: [],
-    skills: [Skill.EXPLODE],
-  },
-  {
-    id: "blob_king",
-    name: "Blob King",
-    description: `Blob King`,
-    moveRange: 2,
-    hp: 500,
-    attack: 30,
-    defense: 20,
-    accuracy: 10,
-    agility: 10,
-    upgrades: [],
-    skills: [Skill.SUMMON_BLOB, Skill.SLASH],
-  },
-  {
-    id: "elementalist",
-    name: "Elementalist",
-    description: `AoE damage, crowd control
-Unleash devastating firestorms
-that burn enemies over time.  `,
-    moveRange: 2,
-    hp: 12,
-    attack: 4,
-    defense: 1,
-    accuracy: 0,
-    agility: 10,
-    upgrades: [],
-    skills: [Skill.FIREBALL],
-  },
-  {
-    id: "arcanist",
-    name: "Arcanist",
-    description: `Defensive support, pre-combat prep
-Bolster allies with arcane barriers
-at the start of battle. `,
-    moveRange: 2,
-    hp: 10,
-    attack: 2,
-    defense: 0,
-    accuracy: 0,
-    agility: 14,
-    upgrades: [],
-    skills: [Skill.FIREBALL],
-  },
-  {
-    id: "knight",
-    name: "Knight",
-    description: `Defensive Tank | Force enemies to target you while protecting allies.
-Focus: Taunt, damage mitigation.`,
-    moveRange: 2,
-    hp: 350,
-    attack: 30,
-    defense: 4,
-    accuracy: 0,
-    agility: 6,
-    upgrades: [],
-    skills: [Skill.SLASH],
-  },
-  {
-    id: "berserker",
-    name: "Berserker",
-    description: `Rage-fueled DPS | Trade defense for relentless, self-sustaining offense.
-Focus: High-risk damage, lifesteal.`,
-    moveRange: 3,
-    hp: 300,
-    attack: 50,
-    defense: 0,
-    accuracy: 0,
-    agility: 10,
-    upgrades: [],
-    skills: [Skill.SLASH],
-  },
-  {
-    id: "sniper",
-    name: "Sniper",
-    description: `Execution Specialist | Eliminate weakened foes with guaranteed critical strikes.
-Focus: Priority target removal, backline damage.`,
-    moveRange: 3,
-    hp: 12,
-    attack: 7,
-    defense: 0,
-    accuracy: 0,
-    agility: 18,
-    upgrades: [],
-    skills: [Skill.SHOOT],
-  },
-  {
-    id: "hunter",
-    name: "Hunter",
-    description: `Crowd Control Trapper | Lock down enemies with roots after each kill.
-Focus: Area denial, disruption.`,
-    moveRange: 3,
-    hp: 14,
-    attack: 6,
-    defense: 1,
-    accuracy: 0,
-    agility: 14,
-    upgrades: [],
-    skills: [Skill.SHOOT],
-  },
-  {
-    id: "cleric",
-    name: "Cleric",
-    description: `Combat Healer | Convert your attacks into healing for the most injured ally.
-Focus: Sustain, hybrid damage/support.`,
-    moveRange: 2,
-    hp: 14,
-    attack: 3,
-    defense: 1,
-    accuracy: 0,
-    agility: 12,
-    upgrades: [],
-    skills: [Skill.HEAL],
-  },
-  {
-    id: "monk",
-    name: "Monk",
-    description: `Evasive Support | Dodge attacks and heal yourself while baiting enemy focus.
-Focus: Self-sustain, distraction.`,
-    moveRange: 2,
-    hp: 18,
-    attack: 4,
-    defense: 1,
-    accuracy: 0,
-    agility: 10,
-    upgrades: [],
-    skills: [Skill.HEAL],
-  },
-  {
-    id: "rogue",
-    name: "Rogue",
-    description: `Assassin | Stealth and critical strikes to eliminate high-priority targets.
-Focus: Priority target removal, evasion.`,
-    moveRange: 3,
-    hp: 16,
-    attack: 7,
-    defense: 0,
-    accuracy: 0,
-    agility: 16,
-    upgrades: [],
-    skills: [Skill.SLASH],
-  },
-  {
-    id: "ninja",
-    name: "Ninja",
-    description: `Stealthy Assassin | Slip past enemy lines and strike from the shadows.
-Focus: Priority target removal, evasion.`,
-    moveRange: 3,
-    hp: 14,
-    attack: 6,
-    defense: 0,
-    accuracy: 0,
-    agility: 22,
-    upgrades: [],
-    skills: [Skill.SLASH],
-  },
-  {
-    id: "shadow-ghost",
-    name: "Shadow Ghost",
-    description: `Stealthy Assassin`,
-    moveRange: 4,
-    hp: 70,
-    attack: 40,
-    defense: 0,
-    accuracy: 0,
-    agility: 22,
-    upgrades: [],
-    skills: [Skill.SHADOWSTEP, Skill.SLASH],
-  }
-];
+export const ARCHER = "archer" as JobId;
+export const ACOLYTE = "acolyte" as JobId;
+export const APPRENTICE = "apprentice" as JobId;
+export const SOLDIER = "soldier" as JobId;
+export const THIEF = "thief" as JobId;
 
-export const getJob = (id: string): Job => {
-  const job = jobs.find((j) => j.id === id);
-  if (!job) throw new Error(`Job ${id} not found`);
-  return job;
-};
+const baseJobs = `
+Job           | Range | HP  | ATK  | DEF | AGI | Skills
+--------------|-------|-----|------|-----|-----|--------------------------------------
+${ARCHER}     | 3     | 110 | 30   | 2   | 16  | ${s.MULTISHOT}, ${s.SHOOT}
+${ACOLYTE}    | 2     | 80  | 10   | 0   | 12  | ${s.HEALING_WAVE}, ${s.LIGHT_ORB}
+${APPRENTICE} | 2     | 80  | 30   | 0   | 4   | ${s.FIREBALL}, ${s.ARCANE_MISSILES}
+${SOLDIER}    | 3     | 300 | 20   | 5   | 8   | ${s.SHIELDBASH}, ${s.SLASH}
+${THIEF}      | 4     | 150 | 40   | 2   | 14  | ${s.FEINT}, ${s.SLASH}
+`;
 
+export const BLOB = "blob" as JobId;
+export const RED_BLOB = "red_blob" as JobId;
+export const BLOB_KING = "blob_king" as JobId;
+export const SHADOW_GHOST = "shadow_ghost" as JobId;
+
+const monsters = `
+Job             | Range | HP  | ATK  | DEF | AGI | Skills
+----------------|-------|-----|------|-----|-----|--------------------------------------
+${BLOB}         | 2     | 30  | 20   | 0   | 10  | ${s.SLASH}
+${RED_BLOB}     | 2     | 30  | 20   | 0   | 10  | ${s.EXPLODE}
+${BLOB_KING}    | 2     | 500 | 50   | 0   | 10  | ${s.SUMMON_BLOB}, ${s.SLASH}
+${SHADOW_GHOST} | 4     | 70  | 40   | 0   | 22  | ${s.SHADOWSTEP}, ${s.SLASH}
+`;
+
+// future jobs
+// Elementalist  | 2     | 150 | 60   | 5  | 10  | ${s.SHOOT}                           | —                  
+// Arcanist      | 2     | 140 | 55   | 5  | 14  | ${s.SHOOT}                           | —                  
+// Knight        | 2     | 350 | 50   | 30 | 6   | ${s.SLASH}                           | —                  
+// Berserker     | 3     | 300 | 80   | 10 | 10  | ${s.SLASH}                           | —                  
+// Sniper        | 3     | 180 | 70   | 5  | 18  | ${s.SHOOT}                           | —                  
+// Hunter        | 3     | 170 | 60   | 10 | 14  | ${s.SHOOT}                           | —                  
+// Cleric        | 2     | 160 | 40   | 10 | 12  | ${s.SHOOT}                           | —                  
+// Monk          | 2     | 180 | 50   | 10 | 10  | ${s.SHOOT}                           | —                  
+// Rogue         | 3     | 190 | 60   | 5  | 16  | ${s.SLASH}                           | —                  
+// Ninja         | 3     | 180 | 55   | 5  | 22  | ${s.SLASH}                           | —
+
+function parseJobsTable(table: string) {
+  const rows = table.trim().split("\n").map((r) => r.trim());
+  const header = rows[0].split("|").map((h) => h.trim());
+  const data = rows.slice(2).map((r) => {
+    const cells = r.split("|").map((c) => c.trim());
+    return header.reduce((acc, h, i) => {
+      acc[h] = cells[i];
+      return acc;
+    }, {} as { [key: string]: string });
+  });
+
+  return data.map((d) => {
+    const skills = d["Skills"].split(",").map((s) => s.trim() as s.SkillId);
+    return {
+      id: d["Job"] as JobId,
+      name: d["Job"],
+      description: "",
+      moveRange: parseInt(d["Range"]),
+      upgrades: [],
+      hp: parseInt(d["HP"]),
+      attack: parseInt(d["ATK"]),
+      defense: parseInt(d["DEF"]),
+      agility: parseInt(d["AGI"]),
+      skills,
+    } as Job;
+  })
+}
+
+export const jobs = parseJobsTable(baseJobs).concat(parseJobsTable(monsters));
+
+export const getJob = (id: JobId): Job => jobs.find((j) => j.id === id)!;

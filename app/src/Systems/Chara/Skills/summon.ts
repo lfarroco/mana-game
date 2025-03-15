@@ -4,6 +4,7 @@ import { Unit, makeUnit } from "../../../Models/Unit";
 import { runPromisesInOrder } from "../../../utils";
 import { delay } from "../../../Utils/animation";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
+import { BLOB } from "../../../Models/Job";
 
 export async function summon(unit: Unit, scene: BattlegroundScene) {
 	let emptySlots = [] as Vec2[];
@@ -34,7 +35,7 @@ export async function summon(unit: Unit, scene: BattlegroundScene) {
 
 	// create a blob in each slot
 	const actions = emptySlots.map(slot => async () => {
-		const blob = makeUnit(Math.random().toString(), FORCE_ID_CPU, "blob", slot);
+		const blob = makeUnit(Math.random().toString(), FORCE_ID_CPU, BLOB, slot);
 		scene.state.gameData.units.push(blob);
 		scene.renderUnit(blob);
 		await delay(scene, 500 / scene.state.options.speed);

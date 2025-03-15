@@ -345,10 +345,6 @@ function upgradeWindow(
 				unit.job = jobId;
 				unit.hp = jobUpgrade.hp;
 				unit.maxHp = jobUpgrade.hp;
-				unit.attack = jobUpgrade.attack;
-				unit.defense = jobUpgrade.defense;
-				unit.accuracy = jobUpgrade.accuracy;
-				unit.agility = jobUpgrade.agility;
 
 				scene.playerForce.gold -= bgConstants.PROMOTE_UNIT_PRICE;
 
