@@ -30,7 +30,8 @@ export const lightOrb = (
 	await popText(scene, skill.name, unit.id);
 
 	// get allies surrounding target
-	const allies = getUnitsByProximity(state, target, false, 1).filter(u => u.hp < u.maxHp);
+	const allies = getUnitsByProximity(state, target, true, 1)
+		.filter(u => u.hp < u.maxHp);
 
 	const orb = new GlowingOrb(scene,
 		activeChara.container.x,
