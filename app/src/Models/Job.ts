@@ -36,6 +36,7 @@ export const RED_BLOB = "red_blob" as JobId;
 export const BLOB_KING = "blob_king" as JobId;
 export const BLOB_MAGE = "blob_mage" as JobId;
 export const SHADOW_GHOST = "shadow_ghost" as JobId;
+export const SWARMLING = "swarmling" as JobId;
 
 const monsters = `
 Job             | Range | HP  | ATK  | DEF | AGI | Skills
@@ -45,6 +46,7 @@ ${RED_BLOB}     | 2     | 30  | 20   | 0   | 10  | ${s.EXPLODE}
 ${BLOB_KING}    | 2     | 500 | 50   | 3   | 10  | ${s.SUMMON_BLOB}, ${s.SLASH}
 ${BLOB_MAGE}    | 3     | 60  | 15   | 0   | 8   | ${s.FIREBALL}, ${s.ARCANE_MISSILES}
 ${SHADOW_GHOST} | 4     | 90  | 40   | 0   | 18  | ${s.SHADOWSTEP}, ${s.SLASH}
+${SWARMLING}    | 5     | 20  | 30   | 0   | 20  | ${s.SLASH}
 `;
 // future jobs
 // Elementalist  | 2     | 150 | 60   | 5  | 10  | ${s.SHOOT}                           | —                  
