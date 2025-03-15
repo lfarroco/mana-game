@@ -42,20 +42,16 @@ function cluster(job: JobId, size: number) {
 
 export const waves: { [idx: number]: Unit[] } = {
 	1: [
-		...row(BLOB, 6, FRONTLINE),
-		enemy(SHADOW_GHOST, 0, BACKLINE)
+
+		...row(BLOB, 4, MIDDLE),
+		...row(BLOB, 4, FRONTLINE),
 	],
 	2: [
-		...row(BLOB, 10, FRONTLINE),
+		...row(RED_BLOB, 4, MIDDLE),
+		...row(BLOB, 4, FRONTLINE),
 	],
 	3: [
-		...cluster(BLOB, 5),
-		enemy(RED_BLOB, -1, 0),
-	],
-	4: [
-		enemy(SOLDIER, 0, 2),
-		enemy(THIEF, 1, 2),
-		...row(BLOB, 4, FRONTLINE)
+		...row(SHADOW_GHOST, 4, MIDDLE),
 	],
 
 }
