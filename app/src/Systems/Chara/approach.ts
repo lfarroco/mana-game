@@ -12,6 +12,7 @@ It will walk towards the closest unit (allied or enemy) until it
 either reaches it or runs out of movement range
 Returns the unit if it is within the specified range
 */
+// TODO: return all enemies in range
 export async function approach(
 	chara: Chara,
 	range: number = 1,
