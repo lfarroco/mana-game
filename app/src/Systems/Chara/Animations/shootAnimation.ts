@@ -4,11 +4,13 @@ import { popText } from "./popText";
 import { tween } from "../../../Utils/animation";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { impactEffect } from "../../../Effects";
+import { getJob } from "../../../Models/Job";
 
 export async function shootAnimation(scene: BattlegroundScene, unit: Unit, target: Unit) {
 
 	const activeChara = scene.getChara(unit.id);
 	const targetChara = scene.getChara(target.id);
+	const job = getJob(unit.job);
 
 	await popText(scene, "Shoot", unit.id);
 
@@ -29,12 +31,12 @@ export async function shootAnimation(scene: BattlegroundScene, unit: Unit, targe
 		duration: 200 / scene.state.options.speed,
 	});
 
-	popText(scene, unit.attack.toString(), target.id);
+	popText(scene, job.attack.toString(), target.id);
 	arrow.destroy();
 	emit(
 		signals.DAMAGE_UNIT,
 		targetChara.id,
-		unit.attack
+		job.attack
 	);
 
 	await impactEffect({

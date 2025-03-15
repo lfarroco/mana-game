@@ -1,8 +1,9 @@
 import { FORCE_ID_CPU } from "../../Models/Force";
 import { sumVec2, vec2 } from "../../Models/Geometry";
+import { BLOB, BLOB_KING, JobId, RED_BLOB, SHADOW_GHOST, SOLDIER, THIEF } from "../../Models/Job";
 import { makeUnit, Unit } from "../../Models/Unit";
 
-const enemy = (job: string, x: number, y: number) => makeUnit(
+const enemy = (job: JobId, x: number, y: number) => makeUnit(
 	Math.random().toString(),
 	FORCE_ID_CPU,
 	job,
@@ -11,9 +12,9 @@ const enemy = (job: string, x: number, y: number) => makeUnit(
 		y + 2
 	))
 
-const FRONTLINE = 2;
-const MIDDLE = 1;
-const BACKLINE = 0;
+const FRONTLINE = 3;
+const MIDDLE = 2;
+const BACKLINE = 1;
 
 const shift = (x: number, y: number) => (u: Unit) => {
 
@@ -21,9 +22,10 @@ const shift = (x: number, y: number) => (u: Unit) => {
 	return u
 }
 
-const row = (job: string, size: number) => new Array(size).fill(0).map((_, i) => enemy(job, i, 0))
+const row = (job: JobId, size: number, y: number) =>
+	new Array(size).fill(0).map((_, i) => enemy(job, i, 0)).map(shift(-Math.floor(size / 2), y));
 
-function cluster(job: string, size: number) {
+function cluster(job: JobId, size: number) {
 	return new Array(
 		size * size
 	).fill(0).map((_, i) => {
@@ -38,15 +40,22 @@ function cluster(job: string, size: number) {
 	})
 }
 
-const blobKing = () => [makeUnit(Math.random().toString(), FORCE_ID_CPU, "blob_king", vec2(8, 1))]
-
 export const waves: { [idx: number]: Unit[] } = {
-	1: row("blob", 6).map(shift(-2, 3)).concat([enemy("shadow-ghost", 0, 0)]),
-	2: row("blob", 10),
-	3: cluster("blob", 5).concat([enemy("red_blob", -1, 0)]),
+	1: [
+		...row(BLOB, 6, FRONTLINE),
+		enemy(SHADOW_GHOST, 0, BACKLINE)
+	],
+	2: [
+		...row(BLOB, 10, FRONTLINE),
+	],
+	3: [
+		...cluster(BLOB, 5),
+		enemy(RED_BLOB, -1, 0),
+	],
 	4: [
-		enemy("soldier", 0, 2),
-		enemy("thief", 1, 2),
-	].concat(row("blob", 4)),
+		enemy(SOLDIER, 0, 2),
+		enemy(THIEF, 1, 2),
+		...row(BLOB, 4, FRONTLINE)
+	],
 
 }

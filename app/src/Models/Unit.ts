@@ -1,11 +1,11 @@
 import { asVec2, Vec2 } from "./Geometry";
-import { getJob } from "./Job";
-import { getSkill } from "./Skill";
+import { getJob, JobId } from "./Job";
+import { getSkill, SkillId } from "./Skill";
 
 export type Unit = {
   id: string;
   name: string;
-  job: string;
+  job: JobId;
   force: string;
   position: Vec2;
   initialPosition: Vec2;
@@ -13,23 +13,20 @@ export type Unit = {
   hp: number;
   maxHp: number;
 
-  cooldowns: { [key: string]: number };
+  cooldowns: { [key: SkillId]: number };
   statuses: { [key: string]: number };
 
-  attack: number;
-  defense: number;
-  accuracy: number;
-  agility: number;
   log: string[];
 };
 
-export const makeUnit = (id: string, force: string, job: string, position: Vec2): Unit => {
+export const makeUnit = (id: string, force: string, job: JobId, position: Vec2): Unit => {
 
-  const job_ = getJob(job);
+  const jobId = job as JobId;
+  const job_ = getJob(jobId);
   return {
     ...job_,
     id,
-    job,
+    job: jobId,
     force,
     position: asVec2(position),
     initialPosition: position,

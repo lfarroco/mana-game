@@ -1,6 +1,6 @@
 import { FORCE_ID_PLAYER } from "../../Models/Force";
 import { asVec2, vec2 } from "../../Models/Geometry";
-import { getJob } from "../../Models/Job";
+import * as Job from "../../Models/Job";
 import { emit, listeners, signals } from "../../Models/Signals";
 import { makeUnit, Unit } from "../../Models/Unit";
 import { BattlegroundScene } from "./BattlegroundScene";
@@ -13,11 +13,11 @@ let container: Phaser.GameObjects.Container | null = null;
 export function init(scene: BattlegroundScene) {
 
 	units = [
-		'soldier',
-		'archer',
-		'acolyte',
-		'apprentice',
-		'thief'
+		Job.SOLDIER,
+		Job.ARCHER,
+		Job.APPRENTICE,
+		Job.ACOLYTE,
+		Job.THIEF,
 	].map(job => makeUnit(Math.random().toString(), FORCE_ID_PLAYER, job, asVec2({ x: 0, y: 0 })));
 
 	listeners([
@@ -53,7 +53,7 @@ const renderUnit = (scene: BattlegroundScene) => (unit: Unit, i: number) => {
 
 	const force = scene.playerForce;
 
-	const job = getJob(unit.job);
+	const job = Job.getJob(unit.job);
 
 	const x = 100 + i * 120;
 	const y = 60;

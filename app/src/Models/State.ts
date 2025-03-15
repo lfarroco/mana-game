@@ -3,6 +3,7 @@ import { cpuForce, Force, playerForce } from "./Force";
 import { snakeDistanceBetween, sortBySnakeDistance, Vec2 } from "./Geometry";
 import { emit, signals, listeners } from "./Signals";
 import { Unit, makeUnit } from "./Unit";
+import { JobId } from "./Job";
 
 export const initialState = (): State => ({
   options: {
@@ -101,7 +102,7 @@ export const updateForce = (state: State) => (
 export const listenToStateEvents = (state: State) => {
   listeners([
 
-    [signals.RECRUIT_UNIT, (forceId: string, jobId: string, position: Vec2) => {
+    [signals.RECRUIT_UNIT, (forceId: string, jobId: JobId, position: Vec2) => {
 
       const unitId = uuid.v4();
 

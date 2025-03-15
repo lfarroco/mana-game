@@ -3,6 +3,7 @@ import { Vec2 } from "./Geometry";
 import { Unit } from "./Unit";
 import { GameData } from "./State";
 import { Force } from "./Force";
+import { JobId } from "./Job";
 
 let events: any[] = [];
 //@ts-ignore
@@ -43,7 +44,7 @@ export type Signals = {
   TOGGLE_SAVE_GAME_MODAL: (value: boolean) => void;
   TOGGLE_RECRUIT_MODAL: () => void;
   // When a unit is added to a force
-  RECRUIT_UNIT: (forceId: string, jobId: string, location: Vec2) => void;
+  RECRUIT_UNIT: (forceId: string, jobId: JobId, location: Vec2) => void;
   // When a unit is finished being added to a force
   UNIT_CREATED: (unitId: string) => void;
   // When a chara is created in the map

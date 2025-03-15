@@ -6,12 +6,14 @@ import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import * as animation from "../Animations/shieldBash"
 import { approach } from "../approach";
 import { specialAnimation } from "../Animations/specialAnimation";
+import { getJob } from "../../../Models/Job";
 
 export async function shieldBash(
 	scene: BattlegroundScene,
 	unit: Unit,
 ) {
 	const activeChara = scene.getChara(unit.id);
+	const job = getJob(unit.job);
 
 	if (!activeChara) { throw new Error("no active unit\n" + unit.id); }
 
@@ -36,7 +38,7 @@ export async function shieldBash(
 	emit(
 		signals.DAMAGE_UNIT,
 		targetChara.id,
-		unit.attack
+		job.attack
 	);
 
 	if (targetChara.unit.hp > 0) {
