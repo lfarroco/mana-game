@@ -1,6 +1,6 @@
 import { FORCE_ID_CPU } from "../../Models/Force";
 import { sumVec2, vec2 } from "../../Models/Geometry";
-import { BLOB, BLOB_KING, BLOB_MAGE, JobId, RED_BLOB, SHADOW_GHOST, SOLDIER, SWARMLING, THIEF } from "../../Models/Job";
+import { BLOB, BLOB_KING, BLOB_KNIGHT, BLOB_MAGE, JobId, RED_BLOB, SHADOW_BLOB, SHADOW_GHOST, SOLDIER, SWARMLING, THIEF } from "../../Models/Job";
 import { makeUnit, Unit } from "../../Models/Unit";
 
 const enemy = (job: JobId, x: number, y: number) => makeUnit(
@@ -65,6 +65,23 @@ export const waves: { [idx: number]: Unit[] } = {
 	6: [
 		...row(SHADOW_GHOST, 3, MIDDLE),
 		...row(SWARMLING, 6, FRONTLINE),
+	],
+	7: [
+		...row(BLOB_MAGE, 3, BACKLINE),
+		...row(BLOB_KNIGHT, 2, FRONTLINE),
+	],
+	8: [
+		...row(SHADOW_GHOST, 3, BACKLINE),
+		...row(BLOB_KING, 1, MIDDLE),
+		...row(SWARMLING, 6, FRONTLINE),
+	],
+	9: [
+		...row(BLOB_MAGE, 3, BACKLINE),
+		...row(BLOB_KNIGHT, 3, FRONTLINE),
+	],
+	10: [
+		...row(SHADOW_GHOST, 3, BACKLINE),
+		...row(SHADOW_BLOB, 1, MIDDLE),
+		...row(SWARMLING, 8, FRONTLINE),
 	]
-
 }
