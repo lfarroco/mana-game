@@ -1,5 +1,5 @@
 import { summonEffect } from "../../../Effects";
-import { asVec2, eqVec2, eqVec2_, sumVec2, Vec2, vec2 } from "../../../Models/Geometry";
+import { eqVec2, sumVec2, vec2 } from "../../../Models/Geometry";
 import { Skill } from "../../../Models/Skill";
 import { getUnitsByProximity } from "../../../Models/State";
 import { Unit } from "../../../Models/Unit";
@@ -7,6 +7,7 @@ import { specialAnimation } from "../Animations/specialAnimation";
 import { Chara } from "../Chara";
 import { tween } from "../../../Utils/animation";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
+import { slash } from "./slash";
 
 const coords = [1, 0, -1]
 	.map(x => [0, 1, -1]
@@ -47,6 +48,8 @@ export async function shadowStep(
 	await summonEffect(scene, activeChara.container);
 
 	unit.cooldowns[skill.id] = skill.cooldown;
+
+	await slash(scene, unit);
 
 	return true;
 }

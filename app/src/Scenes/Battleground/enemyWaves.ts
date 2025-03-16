@@ -54,7 +54,8 @@ export const waves: { [idx: number]: Unit[] } = {
 		...row(BLOB, 4, FRONTLINE),
 	],
 	3: [
-		...row(SHADOW_GHOST, 4, BACKLINE),
+		...row(SHADOW_GHOST, 2, BACKLINE),
+		...row(BLOB, 4, FRONTLINE),
 	],
 	4: [
 		...row(BLOB_MAGE, 2, BACKLINE),

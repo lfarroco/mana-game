@@ -49,7 +49,7 @@ ${BLOB_KING}    | 2     | 500 | 50   | 3   | 10  | ${s.SUMMON_BLOB}, ${s.SLASH}
 ${BLOB_MAGE}    | 3     | 90  | 15   | 0   | 8   | ${s.FIREBALL}, ${s.ARCANE_MISSILES}
 ${BLOB_KNIGHT}  | 2     | 400 | 25   | 8   | 6   | ${s.SHIELDBASH}, ${s.SLASH}
 ${SHADOW_BLOB}  | 3     | 900 | 25   | 10  | 6   | ${s.SUMMON_BLOB}
-${SHADOW_GHOST} | 4     | 150 | 40   | 0   | 18  | ${s.SHADOWSTEP}, ${s.SLASH}
+${SHADOW_GHOST} | 4     | 90  | 40   | 0   | 18  | ${s.SHADOWSTEP}, ${s.SLASH}
 ${SWARMLING}    | 5     | 120 | 30   | 0   | 20  | ${s.SLASH}
 `;
 // future jobs
