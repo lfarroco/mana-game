@@ -30,7 +30,7 @@ export function preload(this: Phaser.Scene) {
 		this.load.image(`${city}_map`, `assets/cities/${city}_map.png`);
 
 	});
-	this.load.image("cursor", "assets/ui/selected_cursor.png");
+	this.load.image("ui/button", "assets/ui/button.png");
 	this.load.image("light", "assets/fx/light.png");
 	this.load.image("beam", "assets/fx/beam.png");
 	this.load.image("white-dot", "assets/fx/white-dot.png");
