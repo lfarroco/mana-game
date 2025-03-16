@@ -86,10 +86,12 @@ export const getUnit = (state: State) => (id: string): Unit => {
   return state.gameData.units.find((u) => u.id === id)!;
 }
 
-
 export const getActiveUnits = (state: State): Unit[] => state.gameData.units
   .filter(u => u.hp > 0)
 
+export const getAllActiveFoes = (state: State) => (forceId: string): Unit[] => {
+  return getActiveUnits(state).filter(u => u.force !== forceId);
+}
 
 export const updateForce = (state: State) => (
   force: Partial<Force>

@@ -15,36 +15,35 @@ Returns the unit if it is within the specified range
 // TODO: return all enemies in range
 export async function approach(
 	chara: Chara,
-	range: number = 1,
+	skillRange: number = 1,
 	enemy: boolean = true
-): Promise<Unit | null> {
+): Promise<Unit[] | null> {
 
 	const { scene, unit } = chara;
 	const { state } = chara.scene;
 
 	const job = getJob(unit.job);
 
-	const [closestUnit] = getUnitsByProximity(state, unit, enemy, Infinity);
+	// if there are enemies in range, return them
+	const enemiesInRange = getUnitsByProximity(state, unit, enemy, skillRange);
+	if (enemiesInRange.length > 0) return enemiesInRange;
 
-	if (!closestUnit) {
-		return null;
-	}
+	// try approaching the closest enemy
+	const enemies = getUnitsByProximity(state, unit, enemy, Infinity);
+	const [closestEnemy] = enemies;
 
-	const distance = snakeDistanceBetween(unit.position)(closestUnit.position);
-
-	if (distance <= range) return closestUnit;
-
-	const pathTo = await lookupAIPAth(scene, unit.id, unit.position, closestUnit.position, job.moveRange);
+	const pathTo = await lookupAIPAth(scene, unit.id, unit.position, closestEnemy.position, job.moveRange);
 
 	await walk(scene, unit, pathTo, (position: Vec2) => {
-		const distance = snakeDistanceBetween(position)(closestUnit.position);
-		return distance <= range;
+		const distance = snakeDistanceBetween(position)(closestEnemy.position);
+		return distance <= skillRange;
 	});
 
-	const finalDistance = snakeDistanceBetween(unit.position)(closestUnit.position);
+	// return any enemies in range after moving
+	const enemiesInRangeAfterMove = getUnitsByProximity(state, unit, enemy, skillRange);
 
-	if (finalDistance <= range)
-		return closestUnit;
+	if (enemiesInRangeAfterMove.length)
+		return enemiesInRangeAfterMove
 	else
 		return null;
 

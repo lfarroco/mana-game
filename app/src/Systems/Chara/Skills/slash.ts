@@ -5,24 +5,26 @@ import { popText } from "../Animations/popText";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { delay } from "../../../Utils/animation";
 import { physicalAttack } from "./physicalAttack";
+import { approach } from "../approach";
 
 export async function slash(
 	scene: BattlegroundScene,
 	unit: Unit,
-	target: Unit,
 ) {
 	console.log("[skill] :: slash :: start", unit.job);
 	const state = scene.state;
 	const { speed } = state.options
 
 	const activeChara = scene.getChara(unit.id);
+
+	const candidates = await approach(activeChara, 1, true);
+	if (!candidates) return;
+
+	// unit with higher maxhp
+	const [target] = candidates.sort((a, b) => b.maxHp - a.maxHp);
+
 	const targetUnit = getUnit(scene.state)(target.id);
-
 	const targetChara = scene.getChara(targetUnit.id);
-
-	if (targetUnit.hp <= 0) {
-		throw new Error("target is dead");
-	}
 
 	await popText(scene, "Slash", unit.id);
 

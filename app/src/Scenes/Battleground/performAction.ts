@@ -19,6 +19,7 @@ import { summon } from "../../Systems/Chara/Skills/summon";
 import BattlegroundScene from "./BattlegroundScene";
 import { panTo } from "./ProcessTick";
 import { shadowStep } from "../../Systems/Chara/Skills/shadowStep";
+import { getAllActiveFoes } from "../../Models/State";
 
 export const performAction = (
 	scene: BattlegroundScene
@@ -32,6 +33,10 @@ export const performAction = (
 		console.log("unit is dead. skipping turn");
 		return;
 	}
+
+	const activeFoes = getAllActiveFoes(scene.state)(unit.force);
+
+	if (activeFoes.length === 0) return;
 
 	const job = getJob(unit.job);
 
@@ -112,9 +117,7 @@ export const performAction = (
 	}
 
 	if (skillId === "slash") {
-		const mtarget = await approach(activeChara, 1, true);
-		if (mtarget)
-			await slash(scene, unit, mtarget);
+		await slash(scene, unit);
 	}
 	else if (skillId === HEAL) {
 		await healing(scene)(unit);

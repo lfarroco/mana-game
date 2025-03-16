@@ -23,7 +23,10 @@ const shift = (x: number, y: number) => (u: Unit) => {
 }
 
 const row = (job: JobId, size: number, y: number) =>
-	new Array(size).fill(0).map((_, i) => enemy(job, i, 0)).map(shift(-Math.floor(size / 2), y));
+	new Array(size)
+		.fill(0)
+		.map((_, i) => enemy(job, i + 2, 0))
+		.map(shift(-Math.floor(size / 2), y));
 
 function cluster(job: JobId, size: number) {
 	return new Array(
@@ -51,7 +54,7 @@ export const waves: { [idx: number]: Unit[] } = {
 		...row(BLOB, 4, FRONTLINE),
 	],
 	3: [
-		...row(SHADOW_GHOST, 4, MIDDLE),
+		...row(SHADOW_GHOST, 4, BACKLINE),
 	],
 	4: [
 		...row(BLOB_MAGE, 2, BACKLINE),
