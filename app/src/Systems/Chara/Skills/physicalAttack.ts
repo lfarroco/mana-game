@@ -9,7 +9,7 @@ export async function physicalAttack(
 	targetChara: Chara,
 ) {
 	const { scene } = activeChara;
-	const { speed } = scene.state.options;
+	const { speed } = scene;
 
 	const dodges = targetChara.unit.statuses["next-dodge"] > 0;
 

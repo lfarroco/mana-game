@@ -110,8 +110,8 @@ export class DebugScene extends Phaser.Scene {
 				this.time.addEvent({
 					delay: 1200,
 					callback: () => {
-						effects.summonEffect(this, { x: 100, y: 100 });
-						effects.summonEffect(this, { x: 200, y: 200 });
+						effects.summonEffect(this, 1, { x: 100, y: 100 });
+						effects.summonEffect(this, 1, { x: 200, y: 200 });
 					},
 					repeat: -1
 				})

@@ -47,7 +47,7 @@ export async function healingWave(scene: BattlegroundScene, unit: Unit) {
 
 
 async function animation(scene: BattlegroundScene, targets: Vec2[]) {
-	const lifespan = 1000 / scene.state.options.speed;
+	const lifespan = 1000 / scene.speed;
 
 	const waves = targets.reduce((acc, target, i) => {
 
@@ -105,7 +105,7 @@ async function animation(scene: BattlegroundScene, targets: Vec2[]) {
 
 	scene.events.on(Phaser.Scenes.Events.UPDATE, update);
 
-	targets.forEach(t => healingHitEffect(scene, t, lifespan, scene.state.options.speed));
+	targets.forEach(t => healingHitEffect(scene, t, lifespan, scene.speed));
 
 	await (delay(scene, lifespan));
 

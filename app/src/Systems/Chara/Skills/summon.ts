@@ -38,7 +38,7 @@ export async function summon(unit: Unit, scene: BattlegroundScene) {
 		const blob = makeUnit(Math.random().toString(), FORCE_ID_CPU, BLOB, slot);
 		scene.state.gameData.units.push(blob);
 		scene.renderUnit(blob);
-		await delay(scene, 500 / scene.state.options.speed);
+		await delay(scene, 500 / scene.speed);
 	});
 
 	await runPromisesInOrder(actions);

@@ -168,7 +168,7 @@ export function CharaSystem_init(scene: BattlegroundScene) {
 			chara.hightlightTween = scene.add.tween({
 				targets: chara.sprite,
 				alpha: 0.7,
-				duration: 400 / scene.state.options.speed,
+				duration: 400 / scene.speed,
 				ease: "Linear",
 				repeat: -1,
 				yoyo: true,
@@ -194,7 +194,7 @@ export function CharaSystem_init(scene: BattlegroundScene) {
 				targets: [chara.container],
 				x: nextTile.getCenterX(),
 				y: nextTile.getCenterY(),
-				duration: TURN_DURATION / (2 * scene.state.options.speed),
+				duration: TURN_DURATION / (2 * scene.speed),
 				ease: "Sine.easeInOut",
 			})
 

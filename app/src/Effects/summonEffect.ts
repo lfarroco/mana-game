@@ -3,10 +3,11 @@ import { delay } from "../Utils/animation";
 
 export async function summonEffect(
 	scene: Phaser.Scene,
+	speed: number,
 	{ x, y }: { x: number, y: number },
 ) {
 
-	const lifespan = 300;
+	const lifespan = 300 / speed;
 
 	const summonEffect = scene.add.particles(x, y, 'light-pillar', {
 		lifespan,
