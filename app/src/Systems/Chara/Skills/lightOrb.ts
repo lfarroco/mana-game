@@ -39,10 +39,10 @@ export const lightOrb = (
 	const orb = new GlowingOrb(scene,
 		activeChara.container.x, activeChara.container.y,
 		targetChara.container,
-		1000 / state.options.speed
+		500 / state.options.speed
 	).setScale(0.5);
 
-	await delay(scene, 1000 / state.options.speed);
+	await delay(scene, 500 / state.options.speed);
 
 	// TODO: display pop text on damage using listener
 	emit(signals.DAMAGE_UNIT, targetChara.id, damage);

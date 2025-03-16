@@ -30,14 +30,15 @@ export function preload(this: Phaser.Scene) {
 		this.load.image(`${city}_map`, `assets/cities/${city}_map.png`);
 
 	});
-	this.load.image("tilesets/tileset", "assets/tilesets/tileset.png");
 	this.load.image("cursor", "assets/ui/selected_cursor.png");
 	this.load.image("light", "assets/fx/light.png");
 	this.load.image("beam", "assets/fx/beam.png");
 	this.load.image("white-dot", "assets/fx/white-dot.png");
 	this.load.image("light-pillar", "assets/fx/light-pillar.png");
 	this.load.image("damage_display", "assets/ui/damage_display.png");
-	this.load.tilemapTiledJSON("maps/map1", "assets/maps/map1/mapdata.json");
+
+	this.load.image("bg", "assets/bgs/forest.jpeg");
+	this.load.image("cave_entrance", "assets/bgs/cave_entrance.jpeg");
 
 	this.load.image('arrow', 'assets/equips/arrow.png');
 
@@ -85,22 +86,7 @@ export function preload(this: Phaser.Scene) {
 
 	});
 
-	this.load.spritesheet(
-		"cethiel-light",
-		`assets/fx/cethiel-light.png`,
-		{
-			frameWidth: 64,
-			frameHeight: 64,
-		}
-	);
-	this.load.spritesheet(
-		"cethiel-slash",
-		`assets/fx/cethiel-slash.png`,
-		{
-			frameWidth: 150,
-			frameHeight: 150,
-		}
-	);
+
 	this.load.spritesheet(
 		"pipo-light-pillar",
 		`assets/fx/pipo-light-pillar.png`,
@@ -122,19 +108,6 @@ export function preload(this: Phaser.Scene) {
 			});
 		});
 
-
-		this.anims.create({
-			key: "cethiel-light",
-			frames: this.anims.generateFrameNumbers("cethiel-light", { start: 0, end: 4 }),
-			frameRate: 5,
-			repeat: -1,
-		});
-		this.anims.create({
-			key: "cethiel-slash",
-			frames: this.anims.generateFrameNumbers("cethiel-slash", { start: 0, end: 5 }),
-			frameRate: 12,
-			repeat: 0,
-		});
 		this.anims.create({
 			key: "pipo-light-pillar",
 			frames: this.anims.generateFrameNumbers("pipo-light-pillar", { start: 0, end: 9 }),

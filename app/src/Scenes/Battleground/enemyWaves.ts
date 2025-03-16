@@ -7,14 +7,11 @@ const enemy = (job: JobId, x: number, y: number) => makeUnit(
 	Math.random().toString(),
 	FORCE_ID_CPU,
 	job,
-	vec2(
-		x + 6,
-		y + 2
-	))
+	vec2(x + 3, y))
 
-const FRONTLINE = 3;
-const MIDDLE = 2;
-const BACKLINE = 1;
+const FRONTLINE = 2;
+const MIDDLE = 1;
+const BACKLINE = 0;
 
 const shift = (x: number, y: number) => (u: Unit) => {
 
@@ -25,8 +22,12 @@ const shift = (x: number, y: number) => (u: Unit) => {
 const row = (job: JobId, size: number, y: number) =>
 	new Array(size)
 		.fill(0)
-		.map((_, i) => enemy(job, i + 2, 0))
-		.map(shift(-Math.floor(size / 2), y));
+		.map((_, i) => enemy(job, i, y));
+
+const col = (job: JobId, size: number, x: number) =>
+	new Array(size)
+		.fill(0)
+		.map((_, i) => enemy(job, x, i));
 
 function cluster(job: JobId, size: number) {
 	return new Array(
@@ -46,46 +47,48 @@ function cluster(job: JobId, size: number) {
 export const waves: { [idx: number]: Unit[] } = {
 	1: [
 
-		...row(BLOB, 4, MIDDLE),
-		...row(BLOB, 4, FRONTLINE),
-	],
+		...col(BLOB, 1, MIDDLE),
+		//...col(BLOB, 4, FRONTLINE),
+	].map(shift(0, 1)),
 	2: [
-		...row(RED_BLOB, 4, MIDDLE),
-		...row(BLOB, 4, FRONTLINE),
-	],
+		...col(RED_BLOB, 4, MIDDLE),
+		...col(BLOB, 4, FRONTLINE),
+	].map(shift(0, 2)),
 	3: [
-		...row(SHADOW_GHOST, 2, BACKLINE),
-		...row(BLOB, 4, FRONTLINE),
+		...col(SHADOW_GHOST, 2, BACKLINE),
+		...col(BLOB, 4, FRONTLINE),
 	],
 	4: [
-		...row(BLOB_MAGE, 2, BACKLINE),
-		...row(BLOB, 6, FRONTLINE),
+		...col(BLOB_MAGE, 2, BACKLINE),
+		...col(BLOB, 6, FRONTLINE),
 	],
 	5: [
-		...row(BLOB_MAGE, 1, BACKLINE),
-		...row(BLOB_KING, 1, MIDDLE),
-		...row(BLOB, 6, FRONTLINE),
+		...col(BLOB_MAGE, 1, BACKLINE),
+		...col(BLOB_KING, 1, MIDDLE),
+		...col(BLOB, 6, FRONTLINE),
 	],
 	6: [
-		...row(SHADOW_GHOST, 3, MIDDLE),
-		...row(SWARMLING, 6, FRONTLINE),
+		...col(SHADOW_GHOST, 3, MIDDLE),
+		...col(SWARMLING, 6, FRONTLINE),
 	],
 	7: [
-		...row(BLOB_MAGE, 3, BACKLINE),
-		...row(BLOB_KNIGHT, 2, FRONTLINE),
+		...col(BLOB_MAGE, 3, BACKLINE),
+		...col(BLOB_KNIGHT, 2, FRONTLINE),
 	],
 	8: [
-		...row(SHADOW_GHOST, 3, BACKLINE),
-		...row(BLOB_KING, 1, MIDDLE),
-		...row(SWARMLING, 6, FRONTLINE),
+		...col(SHADOW_GHOST, 3, BACKLINE),
+		...col(BLOB_KING, 1, MIDDLE),
+		...col(SWARMLING, 6, FRONTLINE),
 	],
 	9: [
-		...row(BLOB_MAGE, 3, BACKLINE),
-		...row(BLOB_KNIGHT, 3, FRONTLINE),
+		...col(BLOB_MAGE, 3, BACKLINE),
+		...col(BLOB_KNIGHT, 3, FRONTLINE),
 	],
 	10: [
-		...row(SHADOW_GHOST, 3, BACKLINE),
-		...row(SHADOW_BLOB, 1, MIDDLE),
-		...row(SWARMLING, 8, FRONTLINE),
+		...col(SHADOW_GHOST, 3, BACKLINE),
+		...col(SHADOW_BLOB, 1, MIDDLE),
+		...col(SWARMLING, 8, FRONTLINE),
 	]
-}
+};
+
+console.log("waves", waves);

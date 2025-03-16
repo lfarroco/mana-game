@@ -1,5 +1,6 @@
 import { Chara } from "../Chara";
 import { tweenSequence } from "../../../Utils/animation";
+import { HALF_TILE_WIDTH } from "../../../Scenes/Battleground/constants";
 
 export async function shieldBash(
 	activeChara: Chara,
@@ -15,7 +16,7 @@ export async function shieldBash(
 
 	const returnMovementDuration = 300 / state.options.speed;
 
-	const backDistance = 32;
+	const backDistance = HALF_TILE_WIDTH;
 	const forwardDistance = backDistance * 2;
 
 	const directionVector = Phaser.Math.Angle.BetweenPoints(

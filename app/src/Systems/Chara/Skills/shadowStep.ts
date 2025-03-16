@@ -8,6 +8,7 @@ import { Chara } from "../Chara";
 import { tween } from "../../../Utils/animation";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { slash } from "./slash";
+import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../../../Scenes/Battleground/constants";
 
 const coords = [1, 0, -1]
 	.map(x => [0, 1, -1]
@@ -39,8 +40,8 @@ export async function shadowStep(
 	await summonEffect(scene, scene.speed, activeChara.container);
 	await tween({
 		targets: [activeChara.container],
-		x: cell.x * 64 + 32,
-		y: cell.y * 64 + 32,
+		x: cell.x * TILE_WIDTH + HALF_TILE_WIDTH,
+		y: cell.y * TILE_HEIGHT + HALF_TILE_HEIGHT,
 		duration: 100 / scene.speed
 	});
 	activeChara.container.visible = true;

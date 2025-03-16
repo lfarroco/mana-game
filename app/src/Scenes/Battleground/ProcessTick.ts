@@ -2,14 +2,15 @@ import { emit, signals, } from "../../Models/Signals";
 import { BattlegroundScene } from "./BattlegroundScene";
 import { getActiveUnits, getState } from "../../Models/State";
 import { Unit, unitLog } from "../../Models/Unit";
-import { delay } from "../../Utils/animation";
+import { delay, tween } from "../../Utils/animation";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
 import { getJob } from "../../Models/Job";
 import { asVec2, Vec2 } from "../../Models/Geometry";
 import { runPromisesInOrder as sequenceAsync } from "../../utils";
 import { vignette } from "./Animations/vignette";
-import { GOLD_PER_WAVE } from "./constants";
+import { GOLD_PER_WAVE, HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "./constants";
 import { performAction } from "./performAction";
+import { TURN_DURATION } from "../../config";
 
 const processTick = async (scene: BattlegroundScene) => {
 
@@ -69,14 +70,18 @@ export async function walk(
   const job = getJob(unit.job);
   let walked = 0;
 
-  const activeChara = scene.getChara(unit.id);
-
   while (walked < job.moveRange && path[walked]) {
     const next = path[walked];
 
-    await panTo(scene, asVec2(activeChara.container));
+    const chara = scene.getChara(unit.id);
 
-    emit(signals.MOVE_UNIT_INTO_CELL_START, unit.id, next);
+    await tween({
+      targets: [chara.container],
+      x: next.x * TILE_WIDTH + HALF_TILE_WIDTH,
+      y: next.y * TILE_HEIGHT + HALF_TILE_HEIGHT,
+      duration: TURN_DURATION / (2 * scene.speed),
+      ease: "Sine.easeInOut",
+    })
 
     scene.playFx("audio/chip-lay-3")
 
@@ -89,17 +94,6 @@ export async function walk(
     walked++;
   }
 
-}
-
-export async function panTo(scene: BattlegroundScene, vec: Vec2) {
-
-  if (!scene.state.options.scrollEnabled) return;
-
-  const speed = getState().options.speed
-
-  scene.cameras.main.pan(vec.x, vec.y, 500 / speed, "Expo.easeOut", false);
-
-  await delay(scene, 500 / speed);
 }
 
 export default processTick;

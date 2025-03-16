@@ -36,13 +36,6 @@ export function updateStore(scene: BattlegroundScene) {
 
 	container = scene.add.container(x, y);
 
-	// black rect
-	const bg = scene.add.graphics();
-	bg.fillStyle(0x000000, 0.8);
-	bg.fillRect(0, 0, width, height);
-
-	container.add(bg);
-
 	units.forEach(renderUnit(scene));
 
 }
@@ -96,7 +89,7 @@ const renderUnit = (scene: BattlegroundScene) => (jobId: Job.JobId, i: number) =
 
 		if (zone.name === "board") {
 
-			const coords = scene.getTileAtWorldXY(vec2(pointer.worldX, pointer.worldY));
+			const coords = scene.getTileAt(vec2(pointer.worldX, pointer.worldY));
 
 			force.gold -= RECRUIT_UNIT_PRICE;
 			emit(signals.RECRUIT_UNIT, FORCE_ID_PLAYER, jobId, asVec2(coords));

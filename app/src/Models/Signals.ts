@@ -9,6 +9,7 @@ let events: any[] = [];
 //@ts-ignore
 window.events = events;
 
+// TODO: purge events that are called just once
 export type Signals = {
   SET_ROUTE: (route: string) => void;
   START_NEW_GAME: () => void;
@@ -63,8 +64,6 @@ export type Signals = {
   HEAL_UNIT: (unitId: string, amount: number) => any;
   UNIT_DESTROYED: (unitId: string) => any;
   FORCE_VICTORY: (force: string) => void;
-  MOVE_UNIT_INTO_CELL_START: (unitId: string, vec: Vec2) => void;
-  MOVE_UNIT_INTO_CELL_FINISH: (unitId: string, vec: Vec2) => void;
   MOVEMENT_FINISHED: (unitId: string, vec: Vec2) => void;
 
   DISPLAY_EMOTE: (id: string, key: string) => void;
@@ -112,8 +111,6 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   HEAL_UNIT: "HEAL_UNIT",
   UNIT_DESTROYED: "UNIT_DESTROYED",
   FORCE_VICTORY: "FORCE_VICTORY",
-  MOVE_UNIT_INTO_CELL_START: "MOVE_UNIT_INTO_CELL_START",
-  MOVE_UNIT_INTO_CELL_FINISH: "MOVE_UNIT_INTO_CELL_FINISH",
   MOVEMENT_FINISHED: "MOVEMENT_FINISHED",
   DISPLAY_EMOTE: "DISPLAY_EMOTE",
   HIDE_EMOTE: "HIDE_EMOTE",
