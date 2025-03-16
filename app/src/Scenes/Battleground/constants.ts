@@ -2,8 +2,8 @@
 export const SCREEN_WIDTH = 1920;
 export const SCREEN_HEIGHT = 1080;
 
-export const TILE_WIDTH = 150;
-export const TILE_HEIGHT = 150;
+export const TILE_WIDTH = SCREEN_HEIGHT / 7;
+export const TILE_HEIGHT = TILE_WIDTH;
 export const HALF_TILE_WIDTH = TILE_WIDTH / 2;
 export const HALF_TILE_HEIGHT = TILE_HEIGHT / 2;
 
