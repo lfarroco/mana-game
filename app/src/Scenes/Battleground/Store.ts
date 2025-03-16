@@ -31,14 +31,14 @@ const renderUnit = (scene: BattlegroundScene) => (jobId: Job.JobId, i: number) =
 
 	const row = Math.floor(i / 2);
 	const col = i % 2;
-	const x = (scene.cameras.main.width - 300) + col * TILE_WIDTH * 1.1;
+	const x = (scene.cameras.main.width - 270) + col * TILE_WIDTH * 1.1;
 	const y = 150 + row * TILE_HEIGHT * 1.4;
 
 	const sprite = scene.add.image(
 		x, y,
 		job.id + "/portrait")
 		.setOrigin(0.5, 0.5)
-		.setDisplaySize(TILE_WIDTH, TILE_HEIGHT)
+		.setDisplaySize(TILE_WIDTH * 0.8, TILE_HEIGHT * 0.8)
 		.setAlpha(force.gold >= RECRUIT_UNIT_PRICE ? 1 : 0.5);
 
 	scene.ui?.add(sprite);

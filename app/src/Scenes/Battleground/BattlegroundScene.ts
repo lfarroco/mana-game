@@ -299,38 +299,26 @@ export class BattlegroundScene extends Phaser.Scene {
       this.ui?.add(uiText);
     });
 
+    const sidebarWidth = 350;
+
     const bg = this.add.graphics();
     bg.fillStyle(0x000000, 0.7);
     bg.fillRect(
-      (this.cameras.main.width - 400)
-      , 0, 400, this.cameras.main.height);
+      (this.cameras.main.width - sidebarWidth)
+      , 0, sidebarWidth, this.cameras.main.height);
 
     this.ui?.add(bg);
 
     StoreSystem.updateStore(this);
 
-    const btnBg = this.add.image(
-      SCREEN_WIDTH - 230, SCREEN_HEIGHT - 60,
-      'ui/button'
-    ).setOrigin(0.5)
-      .setDisplaySize(350, 100);
-    const startBattleBtn = this.add.text(
-      SCREEN_WIDTH - 230, SCREEN_HEIGHT - 60,
-      "Start Battle", {
-      ...defaultTextConfig,
-      color: '#000000',
-      stroke: 'none',
-      strokeThickness: 0,
+    const btn = this.btn(
+      "Start Battle",
+      SCREEN_WIDTH - 180, SCREEN_HEIGHT - 60,
+      () => {
+        emit(signals.WAVE_START, this.state.gameData.tick);
+      });
 
-    }).setOrigin(0.5)
-
-    startBattleBtn.setInteractive();
-
-    startBattleBtn.on("pointerdown", () => {
-      emit(signals.WAVE_START, this.state.gameData.tick);
-    });
-
-    this.ui.add([btnBg, startBattleBtn]);
+    this.ui.add(btn);
 
   }
 
@@ -348,6 +336,35 @@ export class BattlegroundScene extends Phaser.Scene {
     return tile;
   };
 
+
+  private btn(
+    text: string,
+    x: number,
+    y: number,
+    callback: () => void) {
+    const btnBg = this.add.image(
+      x, y,
+      'ui/button'
+    ).setOrigin(0.5)
+      .setDisplaySize(350, 100);
+    const startBattleBtn = this.add.text(
+      x, y,
+      text,
+      {
+        ...defaultTextConfig,
+        color: '#000000',
+        stroke: 'none',
+        strokeThickness: 0,
+      }).setOrigin(0.5);
+
+    startBattleBtn.setInteractive();
+
+    startBattleBtn.on("pointerdown", callback);
+
+    const container = this.add.container(0, 0);
+    container.add([btnBg, startBattleBtn]);
+    return container;
+  }
 
   async renderUnit(unit: Unit) {
 
@@ -411,9 +428,9 @@ export class BattlegroundScene extends Phaser.Scene {
 
   createDropZone() {
     const x = TILE_WIDTH * 6;
-    const y = TILE_WIDTH * 0;
+    const y = TILE_WIDTH * 1;
     const w = TILE_WIDTH * 4;
-    const h = TILE_WIDTH * 7;
+    const h = TILE_WIDTH * 5;
     const zone = this.add.zone(x, y, w, h);
     zone.setOrigin(0);
 
