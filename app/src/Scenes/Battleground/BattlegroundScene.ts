@@ -1,6 +1,5 @@
 import Phaser from "phaser";
 import { preload } from "./preload";
-import { createMap } from "./Map/createMap";
 import { makeUnit, Unit } from "../../Models/Unit";
 import processTick from "./ProcessTick";
 import { eqVec2, vec2, Vec2 } from "../../Models/Geometry";
@@ -9,35 +8,22 @@ import { emit, signals, listeners } from "../../Models/Signals";
 import { State, getUnit, getState } from "../../Models/State";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
 import { unitDestroyed } from "./Events/UNIT_DESTROYED";
-import * as FogOfWarSystem from "./Systems/FogOfWar/FogOfWar";
-import * as CursorSystem from "./Systems/Cursor";
 import * as AISystem from "../../Systems/AI/AI";
 import * as HPBarSystem from "../../Systems/Chara/HPBar";
-import * as HightlightCellsSystem from "./Map/highlightCells";
 
-import { createFowLayer } from "./Systems/FogOfWar/createFowLayer";
 import { BattlegroundAudioSystem_init } from "./Systems/Audio";
-import { makeMapInteractive } from "./Map/makeMapInteractive";
 import { Force, FORCE_ID_PLAYER } from "../../Models/Force";
 import * as StoreSystem from "./Store";
 import { delay, tween } from "../../Utils/animation";
-import { defaultTextConfig, SCREEN_HEIGHT, SCREEN_WIDTH } from "./constants";
+import { defaultTextConfig, HALF_TILE_HEIGHT, HALF_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "./constants";
 import { waves } from "./enemyWaves";
 import { vignette } from "./Animations/vignette";
 import { summonEffect } from "../../Effects/summonEffect";
 
 export class BattlegroundScene extends Phaser.Scene {
 
-  graphics: Phaser.GameObjects.Graphics | null = null;
   charas: Chara[] = [];
-  layers: {
-    background: Phaser.Tilemaps.TilemapLayer;
-    obstacles: Phaser.Tilemaps.TilemapLayer;
-    features: Phaser.Tilemaps.TilemapLayer;
-  } | null = null;
   isPaused = false;
-  tilemap: Phaser.Tilemaps.Tilemap | null = null;
-  fow: Phaser.Tilemaps.TilemapLayer | null = null;
   grid: (0 | 1)[][] = []
   state: State;
   dropZone: Phaser.GameObjects.Zone | null = null;
@@ -45,23 +31,17 @@ export class BattlegroundScene extends Phaser.Scene {
   dropZoneDisplay: Phaser.GameObjects.Graphics | null = null;
   playerForce: Force;
   speed: number;
+  tileGrid!: Phaser.GameObjects.Grid;
+  bgContainer!: Phaser.GameObjects.Container;
+  bgImage!: Phaser.GameObjects.Image;
 
   cleanup() {
     this.charas.forEach(chara => {
       chara.container.destroy(true)
     })
     this.charas = []
-    this.layers?.background.destroy()
-    this.layers?.obstacles.destroy()
-    this.layers?.features.destroy()
-    this.layers = null
-    this.tilemap?.destroy()
-    this.tilemap = null
-    this.graphics?.destroy();
     this.isPaused = false;
     this.time.removeAllEvents();
-    this.fow?.destroy()
-    this.fow = null
     this.grid = []
   }
 
@@ -92,6 +72,12 @@ export class BattlegroundScene extends Phaser.Scene {
 
         this.hideDropZone();
         this.hideUI();
+        tween({
+          targets: [this.tileGrid],
+          alpha: 0,
+          duration: 500 / this.speed,
+          ease: 'Power2',
+        })
 
         this.state.gameData.units = this.state.gameData.units.map(u => {
           u.initialPosition = vec2(u.position.x, u.position.y)
@@ -107,11 +93,6 @@ export class BattlegroundScene extends Phaser.Scene {
         // clear the scene
         // and reposition the units
 
-
-        this.displayDropZone();
-
-        this.updateUI();
-
         this.charas.forEach(chara => chara.container.destroy())
         this.state.gameData.units = this.state.gameData.units.filter(u => u.force === FORCE_ID_PLAYER);
         this.charas = []
@@ -124,6 +105,19 @@ export class BattlegroundScene extends Phaser.Scene {
           )
         });
         this.state.gameData.tick = 0;
+
+        tween({
+          targets: [this.tileGrid],
+          alpha: 1,
+          duration: 500 / this.speed,
+          ease: 'Power2',
+          delay: 500,
+        });
+
+        this.displayDropZone();
+
+        this.updateUI();
+
         this.state.gameData.units.forEach(u =>
           this.renderUnit(u)
         );
@@ -139,8 +133,6 @@ export class BattlegroundScene extends Phaser.Scene {
           this.charas = []
           this.state.gameData.units = []
           this.state.gameData.wave = 1;
-
-
         }
 
         this.createWave();
@@ -156,12 +148,8 @@ export class BattlegroundScene extends Phaser.Scene {
     // TODO: separate scene-related listeners from state listeners
     unitDestroyed(this, state);
     AISystem.init(state);
-    if (state.options.fogOfWarEnabled)
-      FogOfWarSystem.init(this, state);
-    CursorSystem.init(state, this);
     HPBarSystem.init(state, this);
     BattlegroundAudioSystem_init(state, this);
-    HightlightCellsSystem.init(this);
     CharaSystem_init(this);
     StoreSystem.init(this);
 
@@ -184,19 +172,55 @@ export class BattlegroundScene extends Phaser.Scene {
     this.sound.setVolume(0.05)
 
     console.log("BattlegroundScene create");
-    const { map, layers } = createMap(this);
 
-    this.layers = layers;
-    this.tilemap = map;
+    const bg = this.add.image(0, 0, 'bg').setDisplaySize(SCREEN_WIDTH, SCREEN_HEIGHT)
+      .setPosition(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
 
-    makeMapInteractive(this, map, layers.background);
+    this.bgImage = bg;
 
-    if (state.options.fogOfWarEnabled)
-      this.fow = createFowLayer(this)
+    const tiles = this.add.grid(
+      0, 0,
+      SCREEN_WIDTH, SCREEN_HEIGHT,
+      TILE_WIDTH, TILE_HEIGHT,
+      0x000000, 0.3, 0x00FF00, 0.5,
+    ).setOrigin(0);
+    tiles.setInteractive();
 
-    this.grid = layers.obstacles.layer.data.map((row) =>
-      row.map((tile) => (tile.index === -1 ? 0 : 1))
-    );
+    this.tileGrid = tiles;
+    // create outline over tile being hovered
+    const hoverOutline = this.add.graphics();
+    // orange
+    const color = 0xffa500;
+    hoverOutline.lineStyle(2, color, 4);
+    hoverOutline.strokeRect(0, 0, TILE_WIDTH, TILE_WIDTH);
+    hoverOutline.visible = false;
+
+    // have outline follow cursor
+    this.input.on("pointermove", (pointer: Phaser.Input.Pointer) => {
+      const tile = this.getTileAt(
+        vec2(pointer.worldX, pointer.worldY)
+      );
+
+      if (tile) {
+        hoverOutline.x = tile.x * TILE_WIDTH;
+        hoverOutline.y = tile.y * TILE_HEIGHT;
+        hoverOutline.visible = true;
+      } else {
+        hoverOutline.visible = false;
+      }
+    });
+
+    this.bgContainer = this.add.container(0, 0);
+    this.bgContainer.add([bg, tiles, hoverOutline]);
+
+
+    this.grid = [[]];
+    for (let y = 0; y < 32; y++) {
+      this.grid[y] = [];
+      for (let x = 0; x < 32; x++) {
+        this.grid[y][x] = 0;
+      }
+    }
 
     this.createDropZone();
 
@@ -298,31 +322,20 @@ export class BattlegroundScene extends Phaser.Scene {
   };
 
   getTileAt = (vec: Vec2) => {
-    const tile = this.layers?.background.getTileAt(vec.x, vec.y, true);
-    if (!tile) {
-      throw new Error(this.errors.noTileAt(vec));
-    }
+    const tile = vec2(
+      Math.floor(vec.x / TILE_WIDTH),
+      Math.floor(vec.y / TILE_HEIGHT)
+    );
     return tile;
   };
-  getTileAtWorldXY = (vec: Vec2) => {
-    const tile = this.layers?.background.getTileAtWorldXY(vec.x, vec.y);
-    if (!tile) throw new Error(this.errors.noTileAt(vec));
-    return tile;
-  };
-  isTileVisible = (vec: Vec2) => {
-    const { fow } = this;
 
-    if (!fow) throw new Error("fow is null");
-
-    const tile = fow.getTileAt(vec.x, vec.y);
-
-    return tile.alpha === 0;
-  }
 
   async renderUnit(unit: Unit) {
 
-    const vec = vec2(unit.position.x * 64 + 32,
-      unit.position.y * 64 + 32)
+    const vec = vec2(
+      unit.position.x * TILE_WIDTH + HALF_TILE_WIDTH,
+      unit.position.y * TILE_HEIGHT + HALF_TILE_HEIGHT,
+    );
 
     summonEffect(this, this.speed, vec);
 
@@ -378,11 +391,12 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
   createDropZone() {
-    const x = 64 * 8;
-    const y = 64 * 8;
-    const w = 64 * 10;
-    const h = 64 * 4;
-    const zone = this.add.zone(x, y, w, h)
+    const x = TILE_WIDTH * 6;
+    const y = TILE_WIDTH * 0;
+    const w = TILE_WIDTH * 4;
+    const h = TILE_WIDTH * 7;
+    const zone = this.add.zone(x, y, w, h);
+    zone.setOrigin(0);
 
     zone.setName("board");
 
@@ -395,7 +409,7 @@ export class BattlegroundScene extends Phaser.Scene {
     this.dropZoneDisplay = this.add.graphics();
     this.dropZoneDisplay.lineStyle(2, 0xffff00);
     this.dropZoneDisplay.strokeRect(
-      x - w / 2, y - h / 2,
+      x, y,
       w, h
     );
 

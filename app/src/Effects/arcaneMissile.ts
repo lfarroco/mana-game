@@ -33,7 +33,7 @@ export async function arcaneMissle(
 			tint: [0xFF00FF, 0x0000FF],
 			lifespan: 200 / speed,
 			alpha: { start: 1, end: 0 },
-			scale: { start: 2, end: 0 },
+			scale: { start: 4, end: 0 },
 			blendMode: 'ADD',
 			radial: true,
 		}
@@ -72,7 +72,7 @@ export async function arcaneMissle(
 			tint: [0x800080, 0x0000FF],
 			lifespan: 200 / speed,
 			alpha: { start: 0.5, end: 0 },
-			scale: { start: 3, end: 0 },
+			scale: { start: 6, end: 0 },
 			blendMode: 'ADD',
 		}
 	);

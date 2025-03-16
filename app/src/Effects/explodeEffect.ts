@@ -1,4 +1,5 @@
 import { asVec2, sumVec2, vec2 } from "../Models/Geometry";
+import { TILE_WIDTH } from "../Scenes/Battleground/constants";
 import { delay } from "../Utils/animation";
 
 export async function explodeEffect(
@@ -66,14 +67,14 @@ export async function explodeEffect(
 	await delay(scene, lifespan / 4);
 
 	[
-		vec2(0, -64),
-		vec2(0, 64),
-		vec2(64, 0),
-		vec2(-64, 0),
-		vec2(64, 64),
-		vec2(-64, -64),
-		vec2(-64, 64),
-		vec2(64, -64),
+		vec2(0, -TILE_WIDTH),
+		vec2(0, TILE_WIDTH),
+		vec2(TILE_WIDTH, 0),
+		vec2(-TILE_WIDTH, 0),
+		vec2(TILE_WIDTH, TILE_WIDTH),
+		vec2(-TILE_WIDTH, -TILE_WIDTH),
+		vec2(-TILE_WIDTH, TILE_WIDTH),
+		vec2(TILE_WIDTH, -TILE_WIDTH),
 
 	]
 		.map(v => impactEffect(scene, sumVec2(asVec2(source))(v), speed, lifespan / 3))

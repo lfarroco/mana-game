@@ -24,7 +24,7 @@ export async function impactEffect({ scene, location, pointA, pointB, speed }: I
 		gravityY: 0,
 		alpha: { start: 1, end: 0, ease: 'sine.out' },
 		maxAliveParticles: 5,
-		scale: { min: 0.5, max: 2, },
+		scale: { min: 1, max: 6, },
 		stopAfter: 5
 	});
 

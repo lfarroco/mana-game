@@ -1,5 +1,6 @@
 import { Chara } from "../Chara";
 import { tween } from "../../../Utils/animation";
+import { TILE_HEIGHT, TILE_WIDTH } from "../../../Scenes/Battleground/constants";
 
 export async function specialAnimation(activeChara: Chara) {
 
@@ -9,7 +10,7 @@ export async function specialAnimation(activeChara: Chara) {
 		activeChara.container.x, activeChara.container.y,
 		unit.job + "/full"
 	)
-		.setDisplaySize(64, 64)
+		.setDisplaySize(TILE_WIDTH, TILE_HEIGHT)
 		.setOrigin(0.5, 0.5);
 
 	scene.playFx("audio/laser");

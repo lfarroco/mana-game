@@ -13,7 +13,7 @@ export async function shootAnimation(scene: BattlegroundScene, unit: Unit, targe
 
 	const arrow = scene.add.image(activeChara.container.x, activeChara.container.y, "arrow");
 
-	arrow.setScale(0.15);
+	arrow.setScale(0.3);
 
 	const angle = Phaser.Math.Angle.Between(
 		activeChara.container.x, activeChara.container.y,

@@ -89,7 +89,7 @@ export const makeCharaInteractive = (chara: Chara) => {
 		zone: Phaser.GameObjects.GameObject,
 	) => {
 
-		const tile = scene.getTileAtWorldXY(vec2(pointer.worldX, pointer.worldY));
+		const tile = scene.getTileAt(vec2(pointer.worldX, pointer.worldY));
 
 		const charaUnit = scene.state.gameData.units.find(u => u.id === chara.id)!;
 
@@ -183,22 +183,6 @@ export function CharaSystem_init(scene: BattlegroundScene) {
 			chara.hightlightTween?.destroy();
 			chara.hightlightTween = null;
 
-		}],
-		[signals.MOVE_UNIT_INTO_CELL_START, async (unitId: string, cell: Vec2) => {
-
-			const chara = scene.getChara(unitId);
-
-			const nextTile = scene.getTileAt(cell);
-
-			await tween({
-				targets: [chara.container],
-				x: nextTile.getCenterX(),
-				y: nextTile.getCenterY(),
-				duration: TURN_DURATION / (2 * scene.speed),
-				ease: "Sine.easeInOut",
-			})
-
-			emit(signals.MOVE_UNIT_INTO_CELL_FINISH, unitId, cell);
 		}],
 		[signals.END_STATUS, (unitId: string, status: string) => {
 

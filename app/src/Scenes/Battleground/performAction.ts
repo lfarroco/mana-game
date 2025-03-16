@@ -1,9 +1,7 @@
-import { asVec2 } from "../../Models/Geometry";
 import { getJob } from "../../Models/Job";
 import { FEINT, FIREBALL, getSkill, HEAL, HEALING_WAVE, MULTISHOT, SHADOWSTEP, SHIELDBASH, SUMMON_BLOB } from "../../Models/Skill";
 import { Unit } from "../../Models/Unit";
 import { specialAnimation } from "../../Systems/Chara/Animations/specialAnimation";
-import { approach } from "../../Systems/Chara/approach";
 import { arcaneMissiles } from "../../Systems/Chara/Skills/arcaneMissiles";
 import { explode } from "../../Systems/Chara/Skills/explode";
 import { feint } from "../../Systems/Chara/Skills/feint";
@@ -17,7 +15,6 @@ import { shoot } from "../../Systems/Chara/Skills/shoot";
 import { slash } from "../../Systems/Chara/Skills/slash";
 import { summon } from "../../Systems/Chara/Skills/summon";
 import BattlegroundScene from "./BattlegroundScene";
-import { panTo } from "./ProcessTick";
 import { shadowStep } from "../../Systems/Chara/Skills/shadowStep";
 import { getAllActiveFoes } from "../../Models/State";
 
@@ -41,8 +38,6 @@ export const performAction = (
 	const job = getJob(unit.job);
 
 	const activeChara = scene.getChara(unit.id);
-
-	await panTo(scene, asVec2(activeChara.container));
 
 	const availableSkills = job.skills.filter(skillId => {
 		const cooldown = unit.cooldowns[skillId];

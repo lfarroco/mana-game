@@ -1,4 +1,5 @@
 import { asVec2, sumVec2, vec2 } from "../Models/Geometry";
+import { TILE_WIDTH } from "../Scenes/Battleground/constants";
 import { delay, tween } from "../Utils/animation";
 
 export async function fireballEffect(
@@ -26,14 +27,14 @@ export async function fireballEffect(
 	});
 
 	[
-		vec2(0, -64),
-		vec2(0, 64),
-		vec2(64, 0),
-		vec2(-64, 0),
-		vec2(64, 64),
-		vec2(-64, -64),
-		vec2(-64, 64),
-		vec2(64, -64),
+		vec2(0, -TILE_WIDTH),
+		vec2(0, TILE_WIDTH),
+		vec2(TILE_WIDTH, 0),
+		vec2(-TILE_WIDTH, 0),
+		vec2(TILE_WIDTH, TILE_WIDTH),
+		vec2(-TILE_WIDTH, -TILE_WIDTH),
+		vec2(-TILE_WIDTH, TILE_WIDTH),
+		vec2(TILE_WIDTH, -TILE_WIDTH),
 
 	]
 		.map(v => impactEffect(scene, sumVec2(asVec2(target))(v), speed, lifespan / 3))
