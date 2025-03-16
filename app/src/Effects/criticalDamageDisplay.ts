@@ -16,7 +16,7 @@ export async function criticalDamageDisplay(
 		x, y,
 		`${damage}`,
 		{
-			fontSize: '96px',
+			fontSize: '146px',
 			color: '#000000',
 			stroke: '#000000',
 			strokeThickness: 4,

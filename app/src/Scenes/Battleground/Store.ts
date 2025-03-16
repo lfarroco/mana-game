@@ -4,7 +4,7 @@ import * as Job from "../../Models/Job";
 import { emit, listeners, signals } from "../../Models/Signals";
 import { makeUnit, Unit } from "../../Models/Unit";
 import { BattlegroundScene } from "./BattlegroundScene";
-import { defaultTextConfig, RECRUIT_UNIT_PRICE, } from "./constants";
+import { defaultTextConfig, HALF_TILE_HEIGHT, RECRUIT_UNIT_PRICE, TILE_HEIGHT, TILE_WIDTH, } from "./constants";
 
 const units: Job.JobId[] = [
 	Job.SOLDIER,
@@ -14,30 +14,13 @@ const units: Job.JobId[] = [
 	Job.THIEF,
 ];
 
-let container: Phaser.GameObjects.Container | null = null;
-
 export function init(scene: BattlegroundScene) {
 
-	listeners([
-		[signals.WAVE_START, async () => {
-			container?.destroy(true);
-		}]
-	])
 }
 
 export function updateStore(scene: BattlegroundScene) {
 
-	if (container) container.destroy(true);
-
-	const width = 300
-	const height = 150;
-	const x = scene.cameras.main.width - width;
-	const y = 0;
-
-	container = scene.add.container(x, y);
-
 	units.forEach(renderUnit(scene));
-
 }
 
 const renderUnit = (scene: BattlegroundScene) => (jobId: Job.JobId, i: number) => {
@@ -48,20 +31,22 @@ const renderUnit = (scene: BattlegroundScene) => (jobId: Job.JobId, i: number) =
 
 	const row = Math.floor(i / 2);
 	const col = i % 2;
-	const x = 100 + col * 100;
-	const y = 150 + row * 140;
+	const x = (scene.cameras.main.width - 300) + col * TILE_WIDTH * 1.1;
+	const y = 150 + row * TILE_HEIGHT * 1.4;
 
 	const sprite = scene.add.image(
 		x, y,
 		job.id + "/portrait")
 		.setOrigin(0.5, 0.5)
-		.setDisplaySize(96, 96)
+		.setDisplaySize(TILE_WIDTH, TILE_HEIGHT)
 		.setAlpha(force.gold >= RECRUIT_UNIT_PRICE ? 1 : 0.5);
 
-	container?.add(sprite);
+	scene.ui?.add(sprite);
 
-	const name = scene.add.text(x, y + 60, job.name, defaultTextConfig).setOrigin(0.5, 0.5);
-	container?.add(name);
+	const name = scene.add.text(
+		x, y + HALF_TILE_HEIGHT * 1.4,
+		job.name, defaultTextConfig).setOrigin(0.5, 0.5);
+	scene.ui?.add(name);
 
 	sprite.setInteractive({ draggable: true });
 

@@ -13,7 +13,7 @@ export async function fireballEffect(
 	const lifespan = 400 / speed;
 
 	const particles = fireball(source, target, scene, speed, lifespan, travelDuration);
-	particles.setScale(1.2)
+	particles.setScale(2.4)
 
 	await delay(scene, travelDuration);
 
@@ -57,7 +57,7 @@ function impactEffect(scene: Phaser.Scene, target: { x: number; y: number; }, sp
 			tint: [0xff0000, 0xffff00, 0xffa500],
 			lifespan: lifespan,
 			alpha: { start: 0.5, end: 0 },
-			scale: { start: 2, end: 4 },
+			scale: { start: 4, end: 8 },
 			blendMode: 'ADD',
 			frequency: 5,
 			stopAfter: 15
@@ -85,7 +85,7 @@ function fireball(source: { x: number; y: number; }, target: { x: number; y: num
 			tint: [0xff0000, 0xffff00, 0xffa500],
 			lifespan,
 			alpha: { start: 1, end: 0 },
-			scale: { start: 4, end: 0 },
+			scale: { start: 8, end: 0 },
 			blendMode: 'ADD',
 			radial: true,
 			stopAfter: travelDuration

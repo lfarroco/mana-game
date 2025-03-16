@@ -295,13 +295,34 @@ export class BattlegroundScene extends Phaser.Scene {
       "HP: " + force.hp,
       "Wave: " + this.state.gameData.wave,
     ].forEach((text, i) => {
-      const uiText = this.add.text(10 + 150 * i, 10, text, defaultTextConfig);
+      const uiText = this.add.text(10 + 200 * i, 10, text, defaultTextConfig);
       this.ui?.add(uiText);
     });
 
+    const bg = this.add.graphics();
+    bg.fillStyle(0x000000, 0.7);
+    bg.fillRect(
+      (this.cameras.main.width - 400)
+      , 0, 400, this.cameras.main.height);
+
+    this.ui?.add(bg);
+
+    StoreSystem.updateStore(this);
+
+    const btnBg = this.add.image(
+      SCREEN_WIDTH - 230, SCREEN_HEIGHT - 60,
+      'ui/button'
+    ).setOrigin(0.5)
+      .setDisplaySize(350, 100);
     const startBattleBtn = this.add.text(
-      SCREEN_WIDTH - 200, SCREEN_HEIGHT - 50,
-      "Start Battle", defaultTextConfig);
+      SCREEN_WIDTH - 230, SCREEN_HEIGHT - 60,
+      "Start Battle", {
+      ...defaultTextConfig,
+      color: '#000000',
+      stroke: 'none',
+      strokeThickness: 0,
+
+    }).setOrigin(0.5)
 
     startBattleBtn.setInteractive();
 
@@ -309,9 +330,7 @@ export class BattlegroundScene extends Phaser.Scene {
       emit(signals.WAVE_START, this.state.gameData.tick);
     });
 
-    this.ui.add(startBattleBtn);
-
-    StoreSystem.updateStore(this);
+    this.ui.add([btnBg, startBattleBtn]);
 
   }
 
@@ -421,13 +440,21 @@ export class BattlegroundScene extends Phaser.Scene {
 
   displayDropZone() {
 
-    this.dropZoneDisplay?.setVisible(true);
+    this.tweens.add({
+      targets: this.dropZoneDisplay,
+      alpha: 1,
+      duration: 500 / this.speed,
+    });
 
   }
 
   hideDropZone() {
 
-    this.dropZoneDisplay?.setVisible(false);
+    this.tweens.add({
+      targets: this.dropZoneDisplay,
+      alpha: 0,
+      duration: 500 / this.speed,
+    });
 
   }
 
