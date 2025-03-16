@@ -16,9 +16,11 @@ export const fireball = (
 	const skill = getSkill(FIREBALL);
 	const activeChara = scene.getChara(unit.id);
 
-	const target = await approach(activeChara, skill.range, true);
+	const candidates = await approach(activeChara, skill.range, true);
 
-	if (!target) return;
+	if (!candidates) return;
+
+	const [target] = candidates;
 
 	const targetChara = scene.getChara(target.id);
 

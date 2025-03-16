@@ -20,9 +20,12 @@ export const lightOrb = (
 	const damage = skill.power;
 	const heal = skill.power * 2;
 
-	const target = await approach(scene.getChara(unit.id), skill.range, true);
+	const candidates = await approach(scene.getChara(unit.id), skill.range, true);
 
-	if (!target) return;
+	if (!candidates) return;
+
+	// allied with lower hp
+	const [target] = candidates.sort((a, b) => a.hp - b.hp);
 
 	const activeChara = scene.getChara(unit.id);
 	const targetChara = scene.getChara(target.id);
@@ -34,8 +37,7 @@ export const lightOrb = (
 		.filter(u => u.hp < u.maxHp);
 
 	const orb = new GlowingOrb(scene,
-		activeChara.container.x,
-		activeChara.container.y,
+		activeChara.container.x, activeChara.container.y,
 		targetChara.container,
 		1000 / state.options.speed
 	).setScale(0.5);

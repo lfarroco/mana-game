@@ -17,39 +17,32 @@ export async function shieldBash(
 
 	if (!activeChara) { throw new Error("no active unit\n" + unit.id); }
 
-	const mtarget = await approach(activeChara, 1, true);
+	const candidates = await approach(activeChara, 1, true);
 
-	if (!mtarget) return false;
+	if (!candidates) return false;
 
-	const targetChara = scene.getChara(mtarget.id);
+	// unit with higher maxhp
+	const [target] = candidates.sort((a, b) => b.maxHp - a.maxHp);
+	const targetChara = scene.getChara(target.id);
 
 	await specialAnimation(activeChara);
-	if (mtarget.hp > 0) {
-	}
 
 	await popText(scene, "Shield Bash", unit.id);
 
-	unitLog(unit, `will cast shield bash on ${mtarget.id}`);
+	unitLog(unit, `will cast shield bash on ${target.id}`);
 
 	bashPieceAnimation(activeChara, targetChara.container);
 
 	await animation.shieldBash(activeChara, targetChara)
 
-	emit(
-		signals.DAMAGE_UNIT,
-		targetChara.id,
-		job.attack
-	);
+	emit(signals.DAMAGE_UNIT, targetChara.id, job.attack);
 
 	if (targetChara.unit.hp > 0) {
 
-		scene.createParticle(mtarget.id, "stun")
-		emit(
-			signals.ADD_STATUS,
-			targetChara.id,
-			"stun",
-			1
-		);
+		// TODO: make particle part of the chara
+		// only "poison cloud" type particles should be bg-bound
+		scene.createParticle(target.id, "stun")
+		emit(signals.ADD_STATUS, targetChara.id, "stun", 1);
 	}
 
 	return true;

@@ -1,5 +1,5 @@
 import { summonEffect } from "../../../Effects";
-import { asVec2 } from "../../../Models/Geometry";
+import { asVec2, eqVec2, eqVec2_, sumVec2, Vec2, vec2 } from "../../../Models/Geometry";
 import { Skill } from "../../../Models/Skill";
 import { getUnitsByProximity } from "../../../Models/State";
 import { Unit } from "../../../Models/Unit";
@@ -8,66 +8,65 @@ import { Chara } from "../Chara";
 import { tween } from "../../../Utils/animation";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 
+const coords = [1, 0, -1]
+	.map(x => [0, 1, -1]
+		.map(y => vec2(x, y))
+	)
+	.flatMap(x => x);
+
 export async function shadowStep(
 	scene: BattlegroundScene,
 	unit: Unit,
 	activeChara: Chara,
-	skill: Skill) {
+	skill: Skill,
+) {
 	const enemies = getUnitsByProximity(scene.state, unit, true, 2);
-
-	console.log(";:", enemies)
 
 	if (enemies.length > 0)
 		return false;
 
 	await specialAnimation(activeChara);
 
-	const [target] = getUnitsByProximity(scene.state, unit, true, Infinity).reverse();
+	const candidates = getUnitsByProximity(scene.state, unit, true, Infinity).reverse();
 
-	if (target) {
-		//get cell behind target
-		let cell = null;
-		let x = 0;
-		let y = 0;
-		let counter = 0;
+	const cell = planShadowStep(scene, candidates);
 
-		while (!cell) {
+	if (!cell) return false;
 
-			if (counter > 10) {
-				break;
-			}
-			counter++;
+	unit.position = cell;
+	activeChara.container.visible = false;
+	await summonEffect(scene, activeChara.container);
+	await tween({
+		targets: [activeChara.container],
+		x: cell.x * 64 + 32,
+		y: cell.y * 64 + 32,
+		duration: 100 / scene.state.options.speed
+	});
+	activeChara.container.visible = true;
 
-			x = target.position.x + Math.floor(Math.random() * 3) - 1;
-			y = target.position.y + Math.floor(Math.random() * 3) - 1;
-
-			const occupier = scene.state.gameData.units.find(u => u.position.x === x && u.position.y === y);
-
-			if (!occupier) {
-				cell = { x, y };
-			}
-
-		}
-
-		if (cell) {
-			unit.position = asVec2(cell);
-			activeChara.container.visible = false;
-			await summonEffect(scene, activeChara.container);
-			await tween({
-				targets: [activeChara.container],
-				x: cell.x * 64 + 32,
-				y: cell.y * 64 + 32,
-				duration: 100 / scene.state.options.speed
-			});
-			activeChara.container.visible = true;
-
-			await summonEffect(scene, activeChara.container);
-		}
-
-
-	}
+	await summonEffect(scene, activeChara.container);
 
 	unit.cooldowns[skill.id] = skill.cooldown;
 
 	return true;
+}
+
+function planShadowStep(
+	scene: BattlegroundScene,
+	candidates: Unit[],
+) {
+	for (const target of candidates) {
+		//get empty cell around
+		const cells = coords
+			.filter(cell => Math.abs(cell.x) + Math.abs(cell.y))
+			.map(vec => sumVec2(target.position)(vec))
+			.filter(cell => {
+				return !scene.state.gameData.units.find(unit => eqVec2(unit.position, cell));
+			});
+
+		const [cell] = cells;
+
+		return cell
+	}
+	return null;
 }
