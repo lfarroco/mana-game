@@ -11,10 +11,13 @@ export function initGame(state: State) {
 
 	const game = new Phaser.Game({
 		type: Phaser.WEBGL,
-		mode: Phaser.Scale.CENTER_BOTH,
-		width: SCREEN_WIDTH,
-		height: SCREEN_HEIGHT,
 		pixelArt: false,
+		scale: {
+			width: SCREEN_WIDTH,
+			height: SCREEN_HEIGHT,
+			mode: Phaser.Scale.FIT,
+			autoCenter: Phaser.Scale.CENTER_BOTH
+		},
 		parent: "game-container",
 		scene: [Core, DebugScene, BattlegroundScene],
 		physics: {
@@ -24,10 +27,6 @@ export function initGame(state: State) {
 			}
 		}
 	});
-
-	// window.addEventListener("resize", () => {
-	// 	game.scale.resize(window.innerWidth, window.innerHeight);
-	// });
 
 	listeners([]);
 
@@ -43,5 +42,4 @@ export function initGame(state: State) {
 		game.scene.start("BattlegroundScene", state);
 	}
 
-	return game;
 }
