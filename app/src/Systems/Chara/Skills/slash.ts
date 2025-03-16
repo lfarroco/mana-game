@@ -12,8 +12,7 @@ export async function slash(
 	unit: Unit,
 ) {
 	console.log("[skill] :: slash :: start", unit.job);
-	const state = scene.state;
-	const { speed } = state.options
+	const { speed } = scene;
 
 	const activeChara = scene.getChara(unit.id);
 

@@ -59,7 +59,7 @@ export const lightOrb = (
 			scene,
 			chara.container,
 			1000 / state.options.speed,
-			scene.state.options.speed,
+			scene.speed,
 		);
 		popText(scene, heal.toString(), ally.id);
 	});

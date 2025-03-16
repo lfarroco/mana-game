@@ -101,7 +101,7 @@ export async function healAnimation(
 
     popText(scene, skill.power.toString(), targetUnit.id);
 
-    await delay(scene, 500 / scene.state.options.speed);
+    await delay(scene, 500 / scene.speed);
 
     shader.destroy();
 

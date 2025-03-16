@@ -25,7 +25,7 @@ export async function shootAnimation(scene: BattlegroundScene, unit: Unit, targe
 		targets: [arrow],
 		x: targetChara.container.x,
 		y: targetChara.container.y,
-		duration: 200 / scene.state.options.speed,
+		duration: 200 / scene.speed,
 	});
 
 	arrow.destroy();

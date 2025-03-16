@@ -44,6 +44,7 @@ export class BattlegroundScene extends Phaser.Scene {
   ui: Phaser.GameObjects.Container | null = null;
   dropZoneDisplay: Phaser.GameObjects.Graphics | null = null;
   playerForce: Force;
+  speed: number;
 
   cleanup() {
     this.charas.forEach(chara => {
@@ -70,6 +71,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     const state = getState();
     this.state = state;
+    this.speed = state.options.speed;
     this.playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
 
     listeners([
@@ -96,7 +98,7 @@ export class BattlegroundScene extends Phaser.Scene {
           return u;
         })
 
-        await delay(this, 200 / this.state.options.speed);
+        await delay(this, 200 / this.speed);
 
         emit(signals.BATTLEGROUND_TICK)
 
@@ -322,7 +324,7 @@ export class BattlegroundScene extends Phaser.Scene {
     const vec = vec2(unit.position.x * 64 + 32,
       unit.position.y * 64 + 32)
 
-    summonEffect(this, vec);
+    summonEffect(this, this.speed, vec);
 
     const chara = createChara(
       this,

@@ -16,7 +16,7 @@ export async function popText(scene: BattlegroundScene, text: string, targetId: 
 		targets: [popText],
 		alpha: 0,
 		y: chara.container.y - 48,
-		duration: 1000 / scene.state.options.speed,
+		duration: 1000 / scene.speed,
 		ease: "Linear"
 	});
 

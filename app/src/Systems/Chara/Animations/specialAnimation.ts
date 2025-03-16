@@ -19,7 +19,7 @@ export async function specialAnimation(activeChara: Chara) {
 		displayWidth: 250,
 		displayHeight: 250,
 		ease: "Power2",
-		duration: 1000 / scene.state.options.speed,
+		duration: 1000 / scene.speed,
 	});
 
 	await tween({
@@ -28,6 +28,6 @@ export async function specialAnimation(activeChara: Chara) {
 		displayHeight: 350,
 		alpha: 0,
 		ease: "Power2",
-		duration: 500 / scene.state.options.speed,
+		duration: 500 / scene.speed,
 	});
 }

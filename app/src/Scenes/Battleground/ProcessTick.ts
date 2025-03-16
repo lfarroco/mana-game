@@ -80,7 +80,7 @@ export async function walk(
 
     scene.playFx("audio/chip-lay-3")
 
-    await delay(scene, 200 / scene.state.options.speed);
+    await delay(scene, 200 / scene.speed);
 
     unit.position = next;
     unitLog(unit, "finished whalking");

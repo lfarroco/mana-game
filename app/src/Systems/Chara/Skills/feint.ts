@@ -18,7 +18,7 @@ export async function feint(
 
 	unitLog(unit, `will cast feint on myself`);
 
-	summonEffect(scene, asVec2(activeChara.container));
+	summonEffect(scene, scene.speed, asVec2(activeChara.container));
 
 	emit(signals.ADD_STATUS, activeChara.id, "next-critical", 2);
 

@@ -36,16 +36,16 @@ export async function shadowStep(
 
 	unit.position = cell;
 	activeChara.container.visible = false;
-	await summonEffect(scene, activeChara.container);
+	await summonEffect(scene, scene.speed, activeChara.container);
 	await tween({
 		targets: [activeChara.container],
 		x: cell.x * 64 + 32,
 		y: cell.y * 64 + 32,
-		duration: 100 / scene.state.options.speed
+		duration: 100 / scene.speed
 	});
 	activeChara.container.visible = true;
 
-	await summonEffect(scene, activeChara.container);
+	await summonEffect(scene, scene.speed, activeChara.container);
 
 	unit.cooldowns[skill.id] = skill.cooldown;
 
