@@ -207,27 +207,29 @@ function displayUnitInfo(chara: Chara) {
 	const job = getJob(unit.job);
 
 	const x = 0;
-	const y = 100;
-	const width = 300;
-	const height = 500;
+	const y = bgConstants.TILE_HEIGHT * 1;
+	const width = bgConstants.TILE_WIDTH * 2;
+	const height = bgConstants.TILE_HEIGHT * 5;
 
 	// bg is a round rect with a beige gradient fill
 	const bg = scene.add.graphics();
-	bg.fillGradientStyle(0xc1a272, 0xc1a272, 0x8b6d45, 0x8b6d45, 1);
-	bg.fillRect(0, 0, width, height);
+	bg.fillStyle(0x000000, 0.7);
+	bg.fillRoundedRect(0, 0, width, height, 10);
 
 	unitInfoContainer = scene.add.container(x, y);
 	unitInfoContainer.add([bg]);
 
 	unitInfoContainer.add([
 		scene.add.text(10, 10, job.name, bgConstants.defaultTextConfig),
-		scene.add.image(20, 50, job.id + "/full").setDisplaySize(200, 200).setOrigin(0),
+		scene.add.image(0, 60, job.id + "/full")
+			.setDisplaySize(bgConstants.TILE_WIDTH * 2, bgConstants.TILE_WIDTH * 2)
+			.setOrigin(0),
 		...job.skills
 			.reverse()
 			.map(getSkill)
 			.map(
 				(sk, i) =>
-					scene.add.text(10, 300 + i * 50, sk.name, bgConstants.defaultTextConfig))
+					scene.add.text(10, 380 + i * 50, sk.name, bgConstants.defaultTextConfig))
 	]);
 
 	const closeBtn = scene.add.text(
