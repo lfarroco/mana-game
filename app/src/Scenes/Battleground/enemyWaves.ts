@@ -45,50 +45,28 @@ function cluster(job: JobId, size: number) {
 }
 
 export const waves: { [idx: number]: Unit[] } = {
-	2: [
-
-		...col(BLOB, 5, FRONTLINE),
-	],
 	1: [
+		...col(BLOB, 4, MIDDLE),
+	],
+	2: [
 		...cluster(BLOB, 2).map(shift(1, 2)),
 		enemy(RED_BLOB, 1, 0),
 		enemy(RED_BLOB, 1, 3),
 	],
 	3: [
-		...col(SHADOW_GHOST, 2, BACKLINE),
+		enemy(BLOB_MAGE, 1, 3),
 		...col(BLOB, 4, FRONTLINE),
 	],
 	4: [
 		...col(BLOB_MAGE, 2, BACKLINE),
-		...col(BLOB, 6, FRONTLINE),
-	].map(shift(0, 2)),
+		...col(BLOB, 5, FRONTLINE),
+	],
 	5: [
 		...col(BLOB_MAGE, 1, BACKLINE),
-		...col(BLOB_KING, 1, MIDDLE),
-		...col(BLOB, 6, FRONTLINE),
-	],
-	6: [
-		...col(SHADOW_GHOST, 3, MIDDLE),
-		...col(SWARMLING, 4, FRONTLINE),
-	],
-	7: [
-		...col(BLOB_MAGE, 3, BACKLINE),
+		...col(BLOB, 4, MIDDLE),
 		...col(BLOB_KNIGHT, 2, FRONTLINE),
 	],
-	8: [
-		...col(SHADOW_GHOST, 3, BACKLINE),
-		...col(BLOB_KING, 1, MIDDLE),
-		...col(SWARMLING, 6, FRONTLINE),
-	],
-	9: [
-		...col(BLOB_MAGE, 3, BACKLINE),
-		...col(BLOB_KNIGHT, 3, FRONTLINE),
-	],
-	10: [
-		...col(SHADOW_GHOST, 3, BACKLINE),
-		...col(SHADOW_BLOB, 1, MIDDLE),
-		...col(SWARMLING, 8, FRONTLINE),
-	]
+
 };
 
 console.log("waves", waves);
