@@ -18,7 +18,8 @@ export async function healingWave(scene: BattlegroundScene, unit: Unit) {
 
 	if (!target) return;
 
-	const allies = getUnitsByProximity(scene.state, unit, false, 5);
+	const allies = getUnitsByProximity(scene.state, unit, false, 5)
+		.concat([unit]);
 
 	const hurtAllies = allies
 		.filter(u => u.hp < u.maxHp)
