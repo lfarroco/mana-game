@@ -30,7 +30,7 @@ export async function arcaneMissle(
 		{
 			speed: 100 * speed,
 			// dark purple to blue tones
-			tint: [0xFF00FF, 0x0000FF],
+			tint: [0xFF00FF, 0x0000FF, 0x000000],
 			lifespan: 200 / speed,
 			alpha: { start: 1, end: 0 },
 			scale: { start: 4, end: 0 },
