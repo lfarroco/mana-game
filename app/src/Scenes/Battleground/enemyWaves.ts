@@ -47,8 +47,7 @@ function cluster(job: JobId, size: number) {
 export const waves: { [idx: number]: Unit[] } = {
 	1: [
 
-		...col(BLOB, 1, MIDDLE),
-		//...col(BLOB, 4, FRONTLINE),
+		...col(BLOB, 4, FRONTLINE),
 	].map(shift(0, 1)),
 	2: [
 		...col(RED_BLOB, 4, MIDDLE),

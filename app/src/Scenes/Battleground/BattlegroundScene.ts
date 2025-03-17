@@ -357,9 +357,20 @@ export class BattlegroundScene extends Phaser.Scene {
         strokeThickness: 0,
       }).setOrigin(0.5);
 
-    startBattleBtn.setInteractive();
+    btnBg.setInteractive();
 
-    startBattleBtn.on("pointerdown", callback);
+    btnBg.on("pointerup", callback);
+    btnBg.on("pointerdown", () => {
+      startBattleBtn.setShadow(0, 0, "#000000", 0, true, true);
+    });
+    btnBg.on("pointerover", () => {
+      startBattleBtn.setColor('#ffffff');
+      startBattleBtn.setShadow(2, 2, "#000000", 2, true, true);
+    });
+    btnBg.on("pointerout", () => {
+      startBattleBtn.setColor('#000000');
+      startBattleBtn.setShadow(0, 0, "#000000", 0, true, true);
+    });
 
     const container = this.add.container(0, 0);
     container.add([btnBg, startBattleBtn]);

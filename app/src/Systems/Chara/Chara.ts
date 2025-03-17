@@ -2,10 +2,9 @@ import Phaser from "phaser";
 import { Unit } from "../../Models/Unit";
 import * as bgConstants from "../../Scenes/Battleground/constants";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
-import { emit, listeners, signals } from "../../Models/Signals";
-import { asVec2, eqVec2, vec2, Vec2 } from "../../Models/Geometry";
+import { listeners, signals } from "../../Models/Signals";
+import { asVec2, eqVec2, vec2 } from "../../Models/Geometry";
 import { tween } from "../../Utils/animation";
-import { TURN_DURATION } from "../../config";
 import { FORCE_ID_PLAYER } from "../../Models/Force";
 import { getJob, Job } from "../../Models/Job";
 import { getSkill } from "../../Models/Skill";
@@ -80,6 +79,7 @@ export const makeCharaInteractive = (chara: Chara) => {
 	chara.sprite.setInteractive({ draggable: true });
 
 	chara.sprite.on('drag', (pointer: Phaser.Input.Pointer) => {
+		if (chara.unit.force !== FORCE_ID_PLAYER) return;
 		chara.container.x = pointer.x;
 		chara.container.y = pointer.y;
 	});
@@ -208,7 +208,7 @@ function displayUnitInfo(chara: Chara) {
 
 	const x = 0;
 	const y = bgConstants.TILE_HEIGHT * 1;
-	const width = bgConstants.TILE_WIDTH * 2;
+	const width = bgConstants.TILE_WIDTH * 3;
 	const height = bgConstants.TILE_HEIGHT * 5;
 
 	// bg is a round rect with a beige gradient fill
@@ -220,20 +220,22 @@ function displayUnitInfo(chara: Chara) {
 	unitInfoContainer.add([bg]);
 
 	unitInfoContainer.add([
-		scene.add.text(10, 10, job.name, bgConstants.defaultTextConfig),
-		scene.add.image(0, 60, job.id + "/full")
-			.setDisplaySize(bgConstants.TILE_WIDTH * 2, bgConstants.TILE_WIDTH * 2)
+		scene.add.image(0, 0, job.id + "/full")
+			.setDisplaySize(bgConstants.TILE_WIDTH * 3, bgConstants.TILE_WIDTH * 3)
 			.setOrigin(0),
+		scene.add.text(10, 10, job.name, bgConstants.defaultTextConfig),
 		...job.skills
 			.reverse()
 			.map(getSkill)
 			.map(
 				(sk, i) =>
-					scene.add.text(10, 380 + i * 50, sk.name, bgConstants.defaultTextConfig))
+					scene.add.text(
+						10, (bgConstants.TILE_HEIGHT * 3) + 60 + i * 50,
+						sk.name, bgConstants.defaultTextConfig))
 	]);
 
 	const closeBtn = scene.add.text(
-		width - 80, 10, "X", bgConstants.defaultTextConfig)
+		width - 40, 10, "X", bgConstants.defaultTextConfig)
 		.setInteractive()
 		.on("pointerdown", () => {
 			unitInfoContainer?.destroy();
@@ -241,4 +243,6 @@ function displayUnitInfo(chara: Chara) {
 		);
 
 	unitInfoContainer.add(closeBtn);
+
+	chara.scene.ui?.add(unitInfoContainer);
 }
