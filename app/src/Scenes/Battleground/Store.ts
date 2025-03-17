@@ -1,8 +1,8 @@
 import { FORCE_ID_PLAYER } from "../../Models/Force";
 import { asVec2, vec2 } from "../../Models/Geometry";
 import * as Job from "../../Models/Job";
-import { emit, listeners, signals } from "../../Models/Signals";
-import { makeUnit, Unit } from "../../Models/Unit";
+import { emit, signals } from "../../Models/Signals";
+import { getUnitAt } from "../../Models/State";
 import { BattlegroundScene } from "./BattlegroundScene";
 import { defaultTextConfig, HALF_TILE_HEIGHT, RECRUIT_UNIT_PRICE, TILE_HEIGHT, TILE_WIDTH, } from "./constants";
 
@@ -72,15 +72,19 @@ const renderUnit = (scene: BattlegroundScene) => (jobId: Job.JobId, i: number) =
 
 		console.log("dropped on zone", zone.name);
 
-		if (zone.name === "board") {
+		// if we have more zones in the future:
+		//if (zone.name === "board") {
 
-			const coords = scene.getTileAt(vec2(pointer.worldX, pointer.worldY));
+		const coords = scene.getTileAt(vec2(pointer.worldX, pointer.worldY));
 
-			force.gold -= RECRUIT_UNIT_PRICE;
-			emit(signals.RECRUIT_UNIT, FORCE_ID_PLAYER, jobId, asVec2(coords));
+		const maybeOccupier = getUnitAt(scene.state)(coords);
 
-			scene.updateUI();
-		}
+		if (maybeOccupier) return;
+
+		force.gold -= RECRUIT_UNIT_PRICE;
+		emit(signals.RECRUIT_UNIT, FORCE_ID_PLAYER, jobId, asVec2(coords));
+
+		scene.updateUI();
 
 	});
 

@@ -1,6 +1,6 @@
 import * as uuid from "uuid";
 import { cpuForce, Force, playerForce } from "./Force";
-import { snakeDistanceBetween, sortBySnakeDistance, Vec2 } from "./Geometry";
+import { eqVec2, snakeDistanceBetween, sortBySnakeDistance, Vec2 } from "./Geometry";
 import { emit, signals, listeners } from "./Signals";
 import { Unit, makeUnit } from "./Unit";
 import { JobId } from "./Job";
@@ -87,6 +87,10 @@ export const getActiveUnits = (state: State): Unit[] => state.gameData.units
 
 export const getAllActiveFoes = (state: State) => (forceId: string): Unit[] => {
   return getActiveUnits(state).filter(u => u.force !== forceId);
+}
+
+export const getUnitAt = (state: State) => (position: Vec2): Unit | undefined => {
+  return getActiveUnits(state).find((u) => eqVec2(u.position, position));
 }
 
 export const updateForce = (state: State) => (

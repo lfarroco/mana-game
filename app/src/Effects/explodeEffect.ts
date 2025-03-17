@@ -19,8 +19,8 @@ export async function explodeEffect(
 			tint: [0xff0000, 0xffff00, 0xffa500],
 			lifespan: lifespan,
 			alpha: { start: 0.5, end: 0 },
-			scaleX: { start: 0.05, end: 0 },
-			scaleY: { start: 0.4, end: 0 },
+			scaleX: { start: 0.1, end: 0 },
+			scaleY: { start: 0.8, end: 0 },
 			blendMode: 'ADD',
 			frequency: 5,
 			stopAfter: 15,
@@ -32,7 +32,7 @@ export async function explodeEffect(
 	const energy = scene.add.particles(source.x, source.y, 'white-dot', {
 		lifespan: lifespan,
 		alpha: { start: 0.5, end: 0 },
-		scale: { start: 1, end: 0 },
+		scale: { start: 2, end: 0 },
 		blendMode: 'ADD',
 		frequency: 70,
 		emitZone: {
@@ -93,7 +93,7 @@ function impactEffect(scene: Phaser.Scene, target: { x: number; y: number; }, sp
 			tint: [0xff0000, 0xffff00, 0xffa500],
 			lifespan: lifespan,
 			alpha: { start: 0.5, end: 0 },
-			scale: { start: 2, end: 4 },
+			scale: { start: 4, end: 8 },
 			blendMode: 'ADD',
 			frequency: 5,
 			stopAfter: 30
