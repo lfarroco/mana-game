@@ -75,7 +75,7 @@ export class BattlegroundScene extends Phaser.Scene {
         tween({
           targets: [this.tileGrid],
           alpha: 0,
-          duration: 500 / this.speed,
+          duration: 2500 / this.speed,
           ease: 'Power2',
         })
 
@@ -111,7 +111,7 @@ export class BattlegroundScene extends Phaser.Scene {
           alpha: 1,
           duration: 500 / this.speed,
           ease: 'Power2',
-          delay: 500,
+          delay: 2500,
         });
 
         this.displayDropZone();
@@ -182,7 +182,7 @@ export class BattlegroundScene extends Phaser.Scene {
       0, 0,
       SCREEN_WIDTH, SCREEN_HEIGHT,
       TILE_WIDTH, TILE_HEIGHT,
-      0x000000, 0.3, 0x00FF00, 0.5,
+      0x000000, 0, 0x00FF00, 0.5,
     ).setOrigin(0);
     tiles.setInteractive();
 
@@ -455,10 +455,22 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.dropZoneDisplay = this.add.graphics();
     this.dropZoneDisplay.lineStyle(2, 0xffff00);
+    this.dropZoneDisplay.fillStyle(0x00ffff, 0.3);
+    this.dropZoneDisplay.fillRect(
+      x, y,
+      w, h
+    );
     this.dropZoneDisplay.strokeRect(
       x, y,
       w, h
     );
+    this.tweens.add({
+      targets: this.dropZoneDisplay,
+      alpha: 0.1,
+      duration: 2000,
+      repeat: -1,
+      yoyo: true
+    });
 
     this.dropZone = zone;
 

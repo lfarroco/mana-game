@@ -16,7 +16,7 @@ export async function criticalDamageDisplay(
 		x, y,
 		`${damage}`,
 		{
-			fontSize: '146px',
+			fontSize: '100px',
 			color: '#000000',
 			stroke: '#000000',
 			strokeThickness: 4,
@@ -29,7 +29,7 @@ export async function criticalDamageDisplay(
 
 	await tween({
 		targets: [critBg, dmg],
-		scale: 0.4,
+		scale: 0.8,
 		duration: 500 / speed,
 		ease: 'Bounce.easeOut',
 	});
