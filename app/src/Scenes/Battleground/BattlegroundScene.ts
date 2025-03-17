@@ -106,13 +106,7 @@ export class BattlegroundScene extends Phaser.Scene {
         });
         this.state.gameData.tick = 0;
 
-        tween({
-          targets: [this.tileGrid],
-          alpha: 1,
-          duration: 500 / this.speed,
-          ease: 'Power2',
-          delay: 2500,
-        });
+        this.tileGrid.alpha = 1;
 
         this.displayDropZone();
 
@@ -480,21 +474,13 @@ export class BattlegroundScene extends Phaser.Scene {
 
   displayDropZone() {
 
-    this.tweens.add({
-      targets: this.dropZoneDisplay,
-      alpha: 1,
-      duration: 500 / this.speed,
-    });
+    this.dropZoneDisplay?.setVisible(true);
 
   }
 
   hideDropZone() {
 
-    this.tweens.add({
-      targets: this.dropZoneDisplay,
-      alpha: 0,
-      duration: 500 / this.speed,
-    });
+    this.dropZoneDisplay?.setVisible(false);
 
   }
 
