@@ -18,17 +18,17 @@ export type Job = {
 export const ARCHER = "archer" as JobId;
 export const ACOLYTE = "acolyte" as JobId;
 export const APPRENTICE = "apprentice" as JobId;
-export const SOLDIER = "soldier" as JobId;
+export const SQUIRE = "squire" as JobId;
 export const THIEF = "thief" as JobId;
 
 const baseJobs = `
-Job           | Range | HP  | ATK  | DEF | AGI | Skills
---------------|-------|-----|------|-----|-----|--------------------------------------
-${ARCHER}     | 3     | 100 | 20   | 3   | 16  | ${s.MULTISHOT}, ${s.SHOOT}
-${ACOLYTE}    | 2     | 80  | 10   | 0   | 10  | ${s.HEALING_WAVE}, ${s.LIGHT_ORB}
-${APPRENTICE} | 2     | 80  | 30   | 0   | 8   | ${s.FIREBALL}, ${s.ARCANE_MISSILES}
-${SOLDIER}    | 3     | 300 | 20   | 5   | 8   | ${s.SHIELDBASH}, ${s.SLASH}
-${THIEF}      | 4     | 130 | 35   | 2   | 14  | ${s.FEINT}, ${s.SLASH}
+Job           | Name        | Range | HP  | ATK  | DEF | AGI | Skills
+--------------|-------------|-------|-----|------|-----|-----|--------------------------------------
+${ARCHER}     | Archer      | 3     | 100 | 20   | 3   | 16  | ${s.MULTISHOT}, ${s.SHOOT}
+${ACOLYTE}    | Acolyte     | 2     | 80  | 10   | 0   | 10  | ${s.HEALING_WAVE}, ${s.LIGHT_ORB}
+${APPRENTICE} | Apprentice  | 2     | 80  | 30   | 0   | 8   | ${s.FIREBALL}, ${s.ARCANE_MISSILES}
+${SQUIRE}     | Squire      | 3     | 300 | 20   | 5   | 8   | ${s.SHIELDBASH}, ${s.SLASH}
+${THIEF}      | Thief       | 4     | 130 | 35   | 2   | 14  | ${s.FEINT}, ${s.SLASH}
 `;
 
 export const BLOB = "blob" as JobId;
@@ -41,17 +41,17 @@ export const SHADOW_GHOST = "shadow_ghost" as JobId;
 export const SWARMLING = "swarmling" as JobId;
 
 const monsters = `
-Job             | Range | HP  | ATK  | DEF | AGI | Skills
-----------------|-------|-----|------|-----|-----|--------------------------------------
-${BLOB}         | 3     | 40  | 20   | 0   | 10  | ${s.SLASH}
-${RED_BLOB}     | 3     | 40  | 20   | 0   | 10  | ${s.EXPLODE}
-${BLOB_KING}    | 2     | 500 | 50   | 3   | 10  | ${s.SUMMON_BLOB}, ${s.SLASH}
-${BLOB_MAGE}    | 3     | 90  | 15   | 0   | 8   | ${s.FIREBALL}, ${s.ARCANE_MISSILES}
-${BLOB_KNIGHT}  | 2     | 400 | 25   | 8   | 6   | ${s.SHIELDBASH}, ${s.SLASH}
-${SHADOW_BLOB}  | 3     | 900 | 25   | 10  | 6   | ${s.SUMMON_BLOB}
-${SHADOW_GHOST} | 4     | 90  | 40   | 0   | 18  | ${s.SHADOWSTEP}, ${s.SLASH}
-${SWARMLING}    | 5     | 120 | 30   | 0   | 20  | ${s.SLASH}
-`;
+Job             | Name         | Range | HP  | ATK  | DEF | AGI | Skills
+----------------|--------------|-------|-----|------|-----|-----|--------------------------------------
+${BLOB}         | Blob         | 3     | 40  | 20   | 0   | 10  | ${s.SLASH}
+${RED_BLOB}     | Red Blob     | 3     | 40  | 20   | 0   | 10  | ${s.EXPLODE}
+${BLOB_KING}    | Blob King    | 2     | 500 | 50   | 3   | 10  | ${s.SUMMON_BLOB}, ${s.SLASH}
+${BLOB_MAGE}    | Blob Mage    | 3     | 90  | 15   | 0   | 8   | ${s.FIREBALL}, ${s.ARCANE_MISSILES}
+${BLOB_KNIGHT}  | Blob Knight  | 2     | 400 | 25   | 8   | 6   | ${s.SHIELDBASH}, ${s.SLASH}
+${SHADOW_BLOB}  | Shadow Blob  | 3     | 900 | 25   | 10  | 6   | ${s.SUMMON_BLOB}
+${SHADOW_GHOST} | Shadow Ghost | 4     | 90  | 40   | 0   | 18  | ${s.SHADOWSTEP}, ${s.SLASH}
+${SWARMLING}    | Shadowling   | 5     | 120 | 30   | 0   | 20  | ${s.SLASH}
+`
 // future jobs
 // Elementalist  | 2     | 150 | 60   | 5  | 10  | ${s.SHOOT}                           | —                  
 // Arcanist      | 2     | 140 | 55   | 5  | 14  | ${s.SHOOT}                           | —                  
@@ -79,7 +79,7 @@ function parseJobsTable(table: string) {
     const skills = d["Skills"].split(",").map((s) => s.trim() as s.SkillId);
     return {
       id: d["Job"] as JobId,
-      name: d["Job"],
+      name: d["Name"],
       description: "",
       moveRange: parseInt(d["Range"]),
       upgrades: [],

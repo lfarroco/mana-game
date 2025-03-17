@@ -7,7 +7,7 @@ import { BattlegroundScene } from "./BattlegroundScene";
 import { defaultTextConfig, HALF_TILE_HEIGHT, RECRUIT_UNIT_PRICE, TILE_HEIGHT, TILE_WIDTH, } from "./constants";
 
 const units: Job.JobId[] = [
-	Job.SOLDIER,
+	Job.SQUIRE,
 	Job.ARCHER,
 	Job.APPRENTICE,
 	Job.ACOLYTE,
