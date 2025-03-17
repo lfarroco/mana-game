@@ -63,7 +63,12 @@ export const waves: { [idx: number]: Unit[] } = {
 	],
 	5: [
 		...col(BLOB_MAGE, 1, BACKLINE),
-		...col(BLOB, 4, MIDDLE),
+		...col(RED_BLOB, 2, MIDDLE),
+		...col(BLOB_KNIGHT, 2, FRONTLINE),
+	],
+	6: [
+		...col(BLOB_KING, 2, BACKLINE),
+		...col(RED_BLOB, 2, MIDDLE),
 		...col(BLOB_KNIGHT, 2, FRONTLINE),
 	],
 

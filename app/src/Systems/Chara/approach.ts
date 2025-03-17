@@ -24,9 +24,11 @@ export async function approach(
 
 	const job = getJob(unit.job);
 
-	// if there are enemies in range, return them
-	const enemiesInRange = getUnitsByProximity(state, unit, enemy, skillRange);
-	if (enemiesInRange.length > 0) return enemiesInRange;
+	// if there are units in range, return them
+	const unitsInRange = getUnitsByProximity(state, unit, enemy, skillRange).concat(
+		!enemy ? [chara.unit] : [] // include self if looking for allies
+	);
+	if (unitsInRange.length > 0) return unitsInRange;
 
 	// try approaching the closest enemy
 	const enemies = getUnitsByProximity(state, unit, enemy, Infinity);
