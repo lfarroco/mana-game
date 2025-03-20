@@ -433,9 +433,9 @@ export class BattlegroundScene extends Phaser.Scene {
 
   createDropZone() {
     const x = TILE_WIDTH * 6;
-    const y = TILE_WIDTH * 1;
-    const w = TILE_WIDTH * 4;
-    const h = TILE_WIDTH * 5;
+    const y = TILE_WIDTH * 2;
+    const w = TILE_WIDTH * 3;
+    const h = TILE_WIDTH * 3;
     const zone = this.add.zone(x, y, w, h);
     zone.setOrigin(0);
 
