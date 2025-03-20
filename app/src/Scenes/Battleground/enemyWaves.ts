@@ -1,6 +1,6 @@
 import { FORCE_ID_CPU } from "../../Models/Force";
 import { sumVec2, vec2 } from "../../Models/Geometry";
-import { BLOB, BLOB_KING, BLOB_KNIGHT, BLOB_MAGE, JobId, RED_BLOB, SHADOW_BLOB, SHADOW_GHOST, SWARMLING } from "../../Models/Job";
+import { BLOB, BLOB_KING, BLOB_KNIGHT, BLOB_MAGE, JobId, RED_BLOB } from "../../Models/Job";
 import { makeUnit, Unit } from "../../Models/Unit";
 
 const enemy = (job: JobId, x: number, y: number) => makeUnit(
@@ -46,7 +46,7 @@ function cluster(job: JobId, size: number) {
 
 export const waves: { [idx: number]: Unit[] } = {
 	1: [
-		...col(BLOB, 4, MIDDLE),
+		...col(BLOB, 3, MIDDLE).map(shift(0, 1)),
 	],
 	2: [
 		...cluster(BLOB, 2).map(shift(1, 2)),
