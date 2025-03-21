@@ -49,6 +49,12 @@ const processTick = async (scene: BattlegroundScene) => {
 
   } else {
 
+    if (scene.interrupt) {
+      await scene.getInterruptAction();
+      scene.interrupt = false;
+      scene.displayInterruptBtn();
+    }
+
     state.gameData.tick++;
     emit(signals.TURN_END)
     await processTick(scene);
