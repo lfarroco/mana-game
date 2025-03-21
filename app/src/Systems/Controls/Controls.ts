@@ -12,7 +12,6 @@ export function init(scene: BattlegroundScene) {
 
 	keyToSelectorMap.forEach(([key, selector]) => {
 		scene.input.keyboard?.on(`keydown-${key}`, () => {
-			if (state.inputDisabled) { return; }
 			//@ts-ignore
 			document.querySelector(selector)?.click();
 		});
@@ -25,7 +24,6 @@ export function init(scene: BattlegroundScene) {
 	//bind space to end turn
 	scene.input.keyboard?.on("keydown-SPACE", () => {
 
-		if (state.inputDisabled) { return; }
 		//@ts-ignore
 		document.querySelector("#next-turn")?.click();
 	});
