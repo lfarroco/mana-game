@@ -35,12 +35,22 @@ export function preload(this: Phaser.Scene) {
 	this.load.image("beam", "assets/fx/beam.png");
 	this.load.image("white-dot", "assets/fx/white-dot.png");
 	this.load.image("light-pillar", "assets/fx/light-pillar.png");
+	this.load.image("white-splash-fade", "assets/fx/white-splash-fade.png");
 	this.load.image("damage_display", "assets/ui/damage_display.png");
 
 	this.load.image("bg", "assets/bgs/forest.jpeg");
 	this.load.image("cave_entrance", "assets/bgs/cave_entrance.jpeg");
 
 	this.load.image('arrow', 'assets/equips/arrow.png');
+
+	['advance', 'explore', 'rest', 'merchant'].forEach(card => {
+		this.load.image(`cards/${card}`, `assets/cards/${card}.jpeg`);
+	});
+
+	this.load.audio("audio/battle_theme", [
+		"assets/music/clashing_realms_suno.mp3",
+		"assets/music/clashing_realms_suno.ogg",
+	])
 
 	this.load.audio('theme', [
 		'assets/audio/main_theme.mp3',

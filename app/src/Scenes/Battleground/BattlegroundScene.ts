@@ -86,6 +86,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
         await delay(this, 200 / this.speed);
 
+        this.playFx('audio/battle_theme');
         emit(signals.BATTLEGROUND_TICK)
 
       }],
@@ -230,6 +231,12 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.createWave();
 
+    // this.displayChoices([
+    //   { title: "Advance", pic: "cards/advance", desc: "Advance to the next wave" },
+    //   { title: "Explore", pic: "cards/explore", desc: "Explore the area for loot" },
+    //   { title: "Merchant", pic: "cards/merchant", desc: "Visit the merchant to buy items" },
+    //   { title: "Rest", pic: "cards/rest", desc: "Rest and recover" },
+    // ]);
 
   };
 
@@ -510,6 +517,142 @@ export class BattlegroundScene extends Phaser.Scene {
         })
       }
     })
+
+  }
+
+  displayChoices(choices: { pic: string, title: string, desc: string }[]) {
+
+    const component = this.add.container();
+
+    // display 3 cards, each one with a different reward
+
+    const backdrop = this.add.graphics();
+    backdrop.fillStyle(0x000000, 0.7);
+    backdrop.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    backdrop.setInteractive(new Phaser.Geom.Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT), Phaser.Geom.Rectangle.Contains);
+
+    const title = this.add.text(
+      SCREEN_WIDTH / 2, 100,
+      "Select an action",
+      {
+        ...defaultTextConfig,
+        fontSize: '64px',
+      }
+    );
+    title.setOrigin(0.5);
+
+    const cardWidth = 350;
+    const cardHeight = 500;
+    const spacing = (SCREEN_WIDTH - (choices.length * cardWidth)) / (choices.length + 1);
+
+    const baseY = SCREEN_HEIGHT / 2 - cardHeight / 2;
+
+    const cards = choices.map((choice, i) => {
+      const x = (spacing * (i + 1)) + (cardWidth * i);
+      const y = baseY;
+      const card = this.add.container(x, y);
+
+      const pic = this.add.image(0, 0, choice.pic).setDisplaySize(cardWidth, cardWidth).setOrigin(0)
+
+      const emitter = this.add.particles(0, 0, 'white-splash-fade', {
+        speed: 0,
+        lifespan: { min: 400, max: 1000 },
+        scale: { start: 0.0, end: 0.2 },
+        alpha: { start: 1.0, end: 0 },
+        blendMode: 'ADD',
+        tint: 0x3333ff,
+        frequency: 300,
+        rotate: {
+          min: 0,
+          max: 360
+        },
+        quantity: 128,
+        emitZone: {
+          type: 'edge',
+          source: new Phaser.Geom.Rectangle(0, 0, cardWidth, cardHeight),
+          quantity: 128
+        }
+      });
+
+      card.add(emitter)
+
+      const cardBg = this.add.graphics();
+
+      cardBg.fillStyle(0xffffff);
+      cardBg.fillRect(0, 0, cardWidth, cardHeight);
+      cardBg.lineStyle(2, 0x000000);
+      cardBg.strokeRect(0, 0, cardWidth, cardHeight);
+
+      card.add(cardBg);
+
+      card.add(pic);
+
+      cardBg.setInteractive(new Phaser.Geom.Rectangle(0, 0, cardWidth, cardHeight), Phaser.Geom.Rectangle.Contains);
+
+      cardBg.on("pointerover", () => {
+
+        emitter.particleTint = 0x00ff00;
+        this.tweens.add({
+          targets: card,
+          scaleX: 1.05,
+          scaleY: 1.05,
+          x: x - 10,
+          y: y - 10,
+          duration: 300,
+          ease: 'Power',
+        })
+
+      });
+
+      cardBg.on("pointerout", () => {
+
+        emitter.particleTint = 0x3333ff;
+        this.tweens.add({
+          targets: card,
+          scaleX: 1.00,
+          scaleY: 1.00,
+          x,
+          y,
+          duration: 300,
+          ease: 'Power',
+        });
+
+      });
+
+      const text = this.add.text(
+        cardWidth / 2, cardHeight / 2,
+        choice.title,
+        defaultTextConfig
+      );
+      text.setOrigin(0.5);
+
+      card.add(text);
+
+      return card;
+
+    });
+
+    const confirmBtn = this.btn(
+      "Confirm",
+      SCREEN_WIDTH / 2, SCREEN_HEIGHT - 100,
+      () => {
+        backdrop.destroy();
+        title.destroy();
+        this.updateUI();
+      });
+
+    component.add([backdrop, title, ...cards, confirmBtn]);
+
+    component.setAlpha(0);
+
+    this.tweens.add({
+      targets: component,
+      alpha: 1,
+      duration: 500,
+      ease: 'Power',
+      delay: 500,
+    });
+
 
   }
 
