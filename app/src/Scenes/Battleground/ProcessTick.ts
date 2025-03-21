@@ -5,7 +5,7 @@ import { Unit, unitLog } from "../../Models/Unit";
 import { delay, tween } from "../../Utils/animation";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
 import { getJob } from "../../Models/Job";
-import { asVec2, Vec2 } from "../../Models/Geometry";
+import { Vec2 } from "../../Models/Geometry";
 import { runPromisesInOrder as sequenceAsync } from "../../utils";
 import { vignette } from "./Animations/vignette";
 import { GOLD_PER_WAVE, HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "./constants";
@@ -18,14 +18,10 @@ const processTick = async (scene: BattlegroundScene) => {
 
   const state = getState();
 
-  state.inputDisabled = true;
-
   const unitActions = getActiveUnits(state)
     .map(performAction(scene));
 
   await sequenceAsync(unitActions);
-
-  state.inputDisabled = false;
 
   const playerUnits = state.gameData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_PLAYER);
   const cpuUnits = state.gameData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_CPU);

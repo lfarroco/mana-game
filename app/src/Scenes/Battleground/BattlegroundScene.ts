@@ -77,7 +77,7 @@ export class BattlegroundScene extends Phaser.Scene {
           alpha: 0,
           duration: 2500 / this.speed,
           ease: 'Power2',
-        })
+        });
 
         this.state.gameData.units = this.state.gameData.units.map(u => {
           u.initialPosition = vec2(u.position.x, u.position.y)
