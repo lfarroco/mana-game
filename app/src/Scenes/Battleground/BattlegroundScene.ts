@@ -34,6 +34,8 @@ export class BattlegroundScene extends Phaser.Scene {
   tileGrid!: Phaser.GameObjects.Grid;
   bgContainer!: Phaser.GameObjects.Container;
   bgImage!: Phaser.GameObjects.Image;
+  interrupt: boolean = false;
+  interruptBtn: Phaser.GameObjects.Container | null = null;
 
   cleanup() {
     this.charas.forEach(chara => {
@@ -72,6 +74,9 @@ export class BattlegroundScene extends Phaser.Scene {
 
         this.hideDropZone();
         this.hideUI();
+
+        this.displayInterruptBtn();
+
         tween({
           targets: [this.tileGrid],
           alpha: 0,
@@ -153,6 +158,21 @@ export class BattlegroundScene extends Phaser.Scene {
 
   }
 
+  displayInterruptBtn() {
+    this.interruptBtn = this.btn(
+      "Interrupt",
+      SCREEN_WIDTH - 180, SCREEN_HEIGHT - 60,
+      () => {
+        this.interrupt = true;
+        this.interruptBtn?.destroy();
+      });
+  }
+
+  private hideInterruptBtn() {
+    this.interruptBtn?.destroy();
+    this.interruptBtn = null;
+  }
+
   hideUI() {
     this.ui?.destroy(false);
   }
@@ -231,12 +251,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.createWave();
 
-    // this.displayChoices([
-    //   { title: "Advance", pic: "cards/advance", desc: "Advance to the next wave" },
-    //   { title: "Explore", pic: "cards/explore", desc: "Explore the area for loot" },
-    //   { title: "Merchant", pic: "cards/merchant", desc: "Visit the merchant to buy items" },
-    //   { title: "Rest", pic: "cards/rest", desc: "Rest and recover" },
-    // ]);
+
 
   };
 
@@ -520,11 +535,15 @@ export class BattlegroundScene extends Phaser.Scene {
 
   }
 
-  displayChoices(choices: { pic: string, title: string, desc: string }[]) {
+  displayChoices = (resolve: (choice: {
+    pic: string,
+    title: string,
+    desc: string
+  }) => void) => (choices: { pic: string, title: string, desc: string }[]) => {
 
     const component = this.add.container();
 
-    // display 3 cards, each one with a different reward
+    // display n cards, each one with a different reward
 
     const backdrop = this.add.graphics();
     backdrop.fillStyle(0x000000, 0.7);
@@ -619,6 +638,18 @@ export class BattlegroundScene extends Phaser.Scene {
 
       });
 
+      cardBg.on("pointerup", async () => {
+        await tween({
+          targets: [component],
+          duration: 1000,
+          alpha: 0,
+        });
+
+        component.destroy();
+
+        resolve(choice);
+      });
+
       const text = this.add.text(
         cardWidth / 2, cardHeight / 2,
         choice.title,
@@ -653,6 +684,28 @@ export class BattlegroundScene extends Phaser.Scene {
       delay: 500,
     });
 
+
+  }
+
+  async getInterruptAction() {
+
+    const choice = await new Promise<{
+      pic: string,
+      title: string,
+      desc: string
+    }>((resolve) => {
+      this.displayChoices(resolve)([
+        { title: "Advance", pic: "cards/advance", desc: "Advance to the next wave" },
+        { title: "Explore", pic: "cards/explore", desc: "Explore the area for loot" },
+        { title: "Merchant", pic: "cards/merchant", desc: "Visit the merchant to buy items" },
+        { title: "Rest", pic: "cards/rest", desc: "Rest and recover" },
+      ])
+    });
+
+    console.log("interrupt...", choice)
+    await delay(this, 13000 / this.speed);
+
+    return null;
 
   }
 
