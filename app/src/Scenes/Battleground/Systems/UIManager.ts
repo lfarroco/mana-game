@@ -7,6 +7,7 @@ import { getJob } from "../../../Models/Job";
 import { getSkill } from "../../../Models/Skill";
 import * as CharaSystem from "../../../Systems/Chara/Chara";
 import * as bgConstants from "../constants";
+import { COLOR_BLACK } from "../../../Utils/colors";
 
 export let ui: Phaser.GameObjects.Container | null = null;
 export let dropZone: Phaser.GameObjects.Zone | null = null;
@@ -80,7 +81,7 @@ export function updateUI() {
 	const sidebarWidth = 350;
 
 	const bg = scene.add.graphics();
-	bg.fillStyle(0x000000, 0.7);
+	bg.fillStyle(COLOR_BLACK, 0.7);
 	bg.fillRect(
 		(scene.cameras.main.width - sidebarWidth)
 		, 0, sidebarWidth, scene.cameras.main.height);
@@ -193,9 +194,8 @@ export function displayUnitInfo(chara: CharaSystem.Chara) {
 	const width = bgConstants.TILE_WIDTH * 3;
 	const height = bgConstants.TILE_HEIGHT * 5;
 
-	// bg is a round rect with a beige gradient fill
 	const bg = scene.add.graphics();
-	bg.fillStyle(0x000000, 0.7);
+	bg.fillStyle(COLOR_BLACK, 0.7);
 	bg.fillRoundedRect(0, 0, width, height, 10);
 
 	unitInfoContainer = scene.add.container(x, y);
