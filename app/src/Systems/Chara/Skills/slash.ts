@@ -6,6 +6,7 @@ import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { delay } from "../../../Utils/animation";
 import { physicalAttack } from "./physicalAttack";
 import { approach } from "../approach";
+import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
 
 export async function slash(
 	scene: BattlegroundScene,
@@ -14,7 +15,7 @@ export async function slash(
 	console.log("[skill] :: slash :: start", unit.job);
 	const { speed } = scene;
 
-	const activeChara = scene.getChara(unit.id);
+	const activeChara = UnitManager.getChara(unit.id);
 
 	const candidates = await approach(activeChara, 1, true);
 	if (!candidates) return;
@@ -23,7 +24,7 @@ export async function slash(
 	const [target] = candidates.sort((a, b) => b.maxHp - a.maxHp);
 
 	const targetUnit = getUnit(scene.state)(target.id);
-	const targetChara = scene.getChara(targetUnit.id);
+	const targetChara = UnitManager.getChara(targetUnit.id);
 
 	await popText(scene, "Slash", unit.id);
 

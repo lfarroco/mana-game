@@ -4,6 +4,7 @@ import { State, getUnit } from "../../Models/State"
 import { Unit } from "../../Models/Unit";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene"
 import { HALF_TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
+import * as UnitManager from "../../Scenes/Battleground/Systems/UnitManager";
 import { hpColor } from "../../Utils/hpColor";
 
 export const CHARA_SCALE = 1;
@@ -24,7 +25,7 @@ export function init(state: State, scene: BattlegroundScene) {
 	listeners([
 		[signals.CHARA_CREATED, (id: string) => {
 
-			const chara = scene.getChara(id)
+			const chara = UnitManager.getChara(id)
 
 			const unit = getUnit(state)(id)
 

@@ -3,11 +3,12 @@ import { popText } from "./popText";
 import { tween } from "../../../Utils/animation";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { physicalAttack } from "../Skills/physicalAttack";
+import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
 
 export async function shootAnimation(scene: BattlegroundScene, unit: Unit, target: Unit) {
 
-	const activeChara = scene.getChara(unit.id);
-	const targetChara = scene.getChara(target.id);
+	const activeChara = UnitManager.getChara(unit.id);
+	const targetChara = UnitManager.getChara(target.id);
 
 	await popText(scene, "Shoot", unit.id);
 

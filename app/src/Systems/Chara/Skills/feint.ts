@@ -4,6 +4,7 @@ import { popText } from "../Animations/popText";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { summonEffect } from "../../../Effects/summonEffect";
 import { asVec2 } from "../../../Models/Geometry";
+import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
 
 export async function feint(
 	scene: BattlegroundScene,
@@ -12,7 +13,7 @@ export async function feint(
 
 	await popText(scene, "Feint", unit.id);
 
-	const activeChara = scene.getChara(unit.id);
+	const activeChara = UnitManager.getChara(unit.id);
 
 	if (!activeChara) { throw new Error("no active unit\n" + unit.id); }
 

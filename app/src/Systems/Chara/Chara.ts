@@ -9,6 +9,7 @@ import { FORCE_ID_PLAYER } from "../../Models/Force";
 import { getJob, Job } from "../../Models/Job";
 import { getSkill } from "../../Models/Skill";
 import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
+import * as UnitManager from "../../Scenes/Battleground/Systems/UnitManager";
 
 export type Chara = {
 	id: string;
@@ -99,7 +100,7 @@ export const makeCharaInteractive = (chara: Chara) => {
 		const maybeOccupier = scene.state.gameData.units.find(u => eqVec2(u.position, position));
 
 		if (maybeOccupier) {
-			const occupierChara = scene.getChara(maybeOccupier.id);
+			const occupierChara = UnitManager.getChara(maybeOccupier.id);
 
 			console.log("position for occupier", asVec2(charaUnit.position));
 			maybeOccupier.position = asVec2(charaUnit.position);
@@ -154,13 +155,13 @@ export const makeCharaInteractive = (chara: Chara) => {
 export function CharaSystem_init(scene: BattlegroundScene) {
 	listeners([
 		[signals.BATTLEGROUND_TICK, () => {
-			scene.charas.forEach((chara) => {
+			UnitManager.charas.forEach((chara) => {
 				chara.sprite.alpha = 1;
 			})
 		}],
 		[signals.HIGHLIGHT_UNIT, (unitId: string, color: number) => {
 
-			const chara = scene.getChara(unitId);
+			const chara = UnitManager.getChara(unitId);
 
 			chara.sprite.setTint(color);
 			chara.hightlightTween = scene.add.tween({
@@ -175,7 +176,7 @@ export function CharaSystem_init(scene: BattlegroundScene) {
 		}],
 		[signals.STOP_HIGHLIGHT_UNIT, (unitId: string) => {
 
-			const chara = scene.getChara(unitId);
+			const chara = UnitManager.getChara(unitId);
 
 			chara.sprite.clearTint();
 			chara.hightlightTween?.destroy();
@@ -184,7 +185,7 @@ export function CharaSystem_init(scene: BattlegroundScene) {
 		}],
 		[signals.END_STATUS, (unitId: string, status: string) => {
 
-			const chara = scene.getChara(unitId);
+			const chara = UnitManager.getChara(unitId);
 
 			chara.container.getByName("status-" + status)?.destroy();
 

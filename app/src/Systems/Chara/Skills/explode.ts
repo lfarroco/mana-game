@@ -7,6 +7,7 @@ import { emit, signals } from "../../../Models/Signals";
 import { approach } from "../approach";
 import { delay } from "../../../Utils/animation";
 import { explodeEffect } from "../../../Effects";
+import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
 
 export const explode = (
 	scene: BattlegroundScene
@@ -15,7 +16,7 @@ export const explode = (
 	const { state } = scene;
 
 	const skill = getSkill(EXPLODE);
-	const activeChara = scene.getChara(unit.id);
+	const activeChara = UnitManager.getChara(unit.id);
 
 	const target = await approach(activeChara, skill.range, true);
 

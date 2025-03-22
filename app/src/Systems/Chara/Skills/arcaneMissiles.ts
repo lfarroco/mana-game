@@ -8,6 +8,7 @@ import { emit, signals } from "../../../Models/Signals";
 import * as animation from "../../../Effects/arcaneMissile";
 import { delay } from "../../../Utils/animation";
 import { approach } from "../approach";
+import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
 
 export const arcaneMissiles = (
 	scene: BattlegroundScene
@@ -17,7 +18,7 @@ export const arcaneMissiles = (
 	const skill = getSkill(ARCANE_MISSILES);
 	const job = getJob(unit.job);
 
-	const closest = await approach(scene.getChara(unit.id), skill.range, true);
+	const closest = await approach(UnitManager.getChara(unit.id), skill.range, true);
 
 	if (!closest) return;
 
@@ -28,7 +29,7 @@ export const arcaneMissiles = (
 		return;
 	};
 
-	const activeChara = scene.getChara(unit.id);
+	const activeChara = UnitManager.getChara(unit.id);
 
 	//pick 3 random indexes (can be repeated)
 	const targetIndexes = Array.from({ length: 3 }, () => Math.floor(Math.random() * targets.length));
@@ -39,7 +40,7 @@ export const arcaneMissiles = (
 
 		const target = targets[index];
 
-		const targetChara = scene.getChara(target.id);
+		const targetChara = UnitManager.getChara(target.id);
 
 		await animation.arcaneMissle(scene, activeChara.container, targetChara.container, state.options.speed);
 

@@ -9,6 +9,7 @@ import BattlegroundScene from "./BattlegroundScene";
 import { waves } from "./enemyWaves";
 import processTick from "./ProcessTick";
 import * as UIManager from "./Systems/UIManager";
+import * as UnitManager from "./Systems/UnitManager";
 
 export function setupEventListeners(scene: BattlegroundScene) {
 	listeners([
@@ -17,7 +18,7 @@ export function setupEventListeners(scene: BattlegroundScene) {
 		}],
 		[signals.UNIT_CREATED, (unitId: string) => {
 			const unit = getUnit(scene.state)(unitId);
-			scene.renderUnit(unit);
+			UnitManager.renderUnit(unit);
 		}],
 		[signals.UNIT_SELECTED, () => {
 			const pop = scene.sound.add('ui/button_click');
@@ -50,9 +51,9 @@ export function setupEventListeners(scene: BattlegroundScene) {
 			// clear the scene
 			// and reposition the units
 
-			scene.charas.forEach(chara => chara.container.destroy())
+			UnitManager.clearCharas();
+
 			scene.state.gameData.units = scene.state.gameData.units.filter(u => u.force === FORCE_ID_PLAYER);
-			scene.charas = []
 			scene.state.gameData.units = scene.state.gameData.units.map(u => {
 				return makeUnit(
 					u.id,
@@ -70,7 +71,7 @@ export function setupEventListeners(scene: BattlegroundScene) {
 			UIManager.updateUI();
 
 			scene.state.gameData.units.forEach(u =>
-				scene.renderUnit(u)
+				UnitManager.renderUnit(u)
 			);
 
 			scene.state.gameData.wave++;
@@ -80,8 +81,7 @@ export function setupEventListeners(scene: BattlegroundScene) {
 			if (isGameOver) {
 				await vignette(scene, "Victory! Thanks for Playing!");
 
-				scene.charas.forEach(chara => chara.container.destroy())
-				scene.charas = []
+				UnitManager.clearCharas();
 				scene.state.gameData.units = []
 				scene.state.gameData.wave = 1;
 			}

@@ -6,6 +6,7 @@ import { popText } from "../Animations/popText";
 import { emit, signals } from "../../../Models/Signals";
 import { fireballEffect } from "../../../Effects/fireballEffect";
 import { approach } from "../approach";
+import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
 
 export const fireball = (
 	scene: BattlegroundScene
@@ -14,7 +15,7 @@ export const fireball = (
 	const { state } = scene;
 
 	const skill = getSkill(FIREBALL);
-	const activeChara = scene.getChara(unit.id);
+	const activeChara = UnitManager.getChara(unit.id);
 
 	const candidates = await approach(activeChara, skill.range, true);
 
@@ -22,7 +23,7 @@ export const fireball = (
 
 	const [target] = candidates;
 
-	const targetChara = scene.getChara(target.id);
+	const targetChara = UnitManager.getChara(target.id);
 
 	popText(scene, skill.name, unit.id);
 

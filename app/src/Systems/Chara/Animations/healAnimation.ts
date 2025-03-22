@@ -5,6 +5,7 @@ import { Unit, unitLog } from "../../../Models/Unit";
 import { popText } from "./popText";
 import { delay } from "../../../Utils/animation";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
+import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
 
 export async function healAnimation(
     scene: BattlegroundScene,
@@ -12,11 +13,11 @@ export async function healAnimation(
     target: Unit
 ) {
 
-    const activeChara = scene.getChara(unit.id);
+    const activeChara = UnitManager.getChara(unit.id);
 
     const targetUnit = getUnit(scene.state)(target.id);
 
-    const targetChara = scene.getChara(targetUnit.id);
+    const targetChara = UnitManager.getChara(targetUnit.id);
 
     if (!activeChara) { throw new Error("no active unit\n" + unit.id); }
 
