@@ -17,9 +17,9 @@ import * as StoreSystem from "./Store";
 import { delay, tween } from "../../Utils/animation";
 import * as constants from "./constants";
 import { waves } from "./enemyWaves";
-import { vignette } from "./Animations/vignette";
 import { summonEffect } from "../../Effects/summonEffect";
 import * as InterruptSystem from "./Systems/Interrupt";
+import { setupEventListeners } from "./events";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -55,89 +55,7 @@ export class BattlegroundScene extends Phaser.Scene {
     this.speed = state.options.speed;
     this.playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
 
-    listeners([
-      [signals.BATTLEGROUND_TICK, () => {
-        processTick(this);
-      }],
-      [signals.UNIT_CREATED, (unitId: string) => {
-        const unit = getUnit(this.state)(unitId);
-
-        this.renderUnit(unit)
-
-      }],
-      [signals.UNIT_SELECTED, () => {
-        const pop = this.sound.add('ui/button_click')
-        pop.play()
-      }],
-      [signals.WAVE_START, async () => {
-
-        this.hideDropZone();
-        this.hideUI();
-
-        tween({
-          targets: [this.tileGrid],
-          alpha: 0,
-          duration: 2500 / this.speed,
-          ease: 'Power2',
-        });
-
-        this.state.gameData.units = this.state.gameData.units.map(u => {
-          u.initialPosition = vec2(u.position.x, u.position.y)
-          return u;
-        })
-
-        await delay(this, 200 / this.speed);
-
-        this.playFx('audio/battle_theme');
-        emit(signals.BATTLEGROUND_TICK)
-
-      }],
-      [signals.WAVE_FINISHED, async () => {
-        // clear the scene
-        // and reposition the units
-
-        this.charas.forEach(chara => chara.container.destroy())
-        this.state.gameData.units = this.state.gameData.units.filter(u => u.force === FORCE_ID_PLAYER);
-        this.charas = []
-        this.state.gameData.units = this.state.gameData.units.map(u => {
-          return makeUnit(
-            u.id,
-            u.force,
-            u.job,
-            u.initialPosition
-          )
-        });
-        this.state.gameData.tick = 0;
-
-        this.tileGrid.alpha = 1;
-
-        this.displayDropZone();
-
-        this.updateUI();
-
-        this.state.gameData.units.forEach(u =>
-          this.renderUnit(u)
-        );
-
-        this.state.gameData.wave++;
-
-        const isGameOver = this.state.gameData.wave > Object.keys(waves).length;
-
-        if (isGameOver) {
-          await vignette(this, "Victory! Thanks for Playing!");
-
-          this.charas.forEach(chara => chara.container.destroy())
-          this.charas = []
-          this.state.gameData.units = []
-          this.state.gameData.wave = 1;
-        }
-
-        this.createWave();
-        this.updateUI();
-
-      }],
-
-    ]);
+    setupEventListeners(this);
 
     /**
      * Global listeners can be created here because they are only created once
