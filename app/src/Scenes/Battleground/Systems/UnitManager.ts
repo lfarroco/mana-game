@@ -31,7 +31,7 @@ export async function renderUnit(unit: Unit) {
 
 	summonEffect(scene, scene.speed, vec);
 
-	const chara = createChara(scene, unit)
+	const chara = createChara(unit)
 
 	chara.container.setAlpha(0);
 
@@ -42,11 +42,9 @@ export async function renderUnit(unit: Unit) {
 	tween({
 		targets: [chara.container],
 		alpha: 1,
-		duration: 500,
+		duration: 500 / scene.speed,
 		ease: 'Power2',
 	})
-
-	// Remaining implementation
 }
 
 export function getChara(id: string) {
