@@ -52,7 +52,7 @@ const processTick = async (scene: BattlegroundScene) => {
   } else {
 
     if (InterruptSystem.state.interrupt) {
-      const action = await InterruptSystem.getInterruptAction(scene)();
+      const action = await InterruptSystem.getInterruptAction();
       console.log(">>>", action)
 
       await delay(scene, 3000 / scene.speed);
