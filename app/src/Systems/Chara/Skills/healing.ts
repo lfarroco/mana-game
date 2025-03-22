@@ -34,8 +34,9 @@ export const healing = (
 
 	const [closerHurt] = hurtAllies.sort((a, b) => sortBySnakeDistance(unit.position)(a.position)(b.position));
 
+	// TODO: use approach instead
 	if (closerHurt) {
-		const path = await lookupAIPAth(scene, unit.id, unit.position, closerHurt.position);
+		const path = await lookupAIPAth(unit.position, closerHurt.position);
 
 		//remove 3 last tiles from the path
 		const path_ = path.slice(0, path.length - 3);

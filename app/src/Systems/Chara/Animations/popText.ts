@@ -1,10 +1,10 @@
 import { tween } from "../../../Utils/animation";
-import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { defaultTextConfig } from "../../../Scenes/Battleground/constants";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
+import { getState } from "../../../Models/State";
 
 // TODO: add color option (heals: green, damage: yellow, etc)
-export async function popText(scene: BattlegroundScene, text: string, targetId: string) {
+export async function popText(scene: Phaser.Scene, text: string, targetId: string) {
 
 	const chara = UnitManager.getChara(targetId);
 	const popText = scene.add.text(
@@ -17,7 +17,7 @@ export async function popText(scene: BattlegroundScene, text: string, targetId: 
 		targets: [popText],
 		alpha: 0,
 		y: chara.container.y - 48,
-		duration: 1000 / scene.speed,
+		duration: 1000 / getState().options.speed,
 		ease: "Linear"
 	});
 

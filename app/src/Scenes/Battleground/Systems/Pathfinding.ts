@@ -1,7 +1,6 @@
 import * as Easystar from "easystarjs";
 import { Vec2, asVec2, eqVec2, } from "../../../Models/Geometry";
 import { getState } from "../../../Models/State";
-import BattlegroundScene from "../BattlegroundScene";
 import * as GridSystem from "./GridSystem";
 
 /**
@@ -9,8 +8,6 @@ import * as GridSystem from "./GridSystem";
  * Avoids allied units
  */
 export async function lookupAIPAth(
-  scene: BattlegroundScene,
-  unitId: string,
   source: Vec2,
   target: Vec2,
   moveRange: number = 0

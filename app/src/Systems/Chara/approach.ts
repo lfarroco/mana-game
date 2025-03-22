@@ -2,7 +2,7 @@ import { snakeDistanceBetween, Vec2 } from "../../Models/Geometry";
 import { getJob } from "../../Models/Job";
 import { Unit } from "../../Models/Unit";
 import { walk } from "../../Scenes/Battleground/ProcessTick";
-import { getUnitsByProximity } from "../../Models/State";
+import { getState, getUnitsByProximity } from "../../Models/State";
 import { lookupAIPAth } from "../../Scenes/Battleground/Systems/Pathfinding";
 import { Chara } from "./Chara";
 
@@ -20,7 +20,7 @@ export async function approach(
 ): Promise<Unit[] | null> {
 
 	const { scene, unit } = chara;
-	const { state } = chara.scene;
+	const state = getState();
 
 	const job = getJob(unit.job);
 
@@ -34,7 +34,7 @@ export async function approach(
 	const enemies = getUnitsByProximity(state, unit, enemy, Infinity);
 	const [closestEnemy] = enemies;
 
-	const pathTo = await lookupAIPAth(scene, unit.id, unit.position, closestEnemy.position, job.moveRange);
+	const pathTo = await lookupAIPAth(unit.position, closestEnemy.position, job.moveRange);
 
 	await walk(scene, unit, pathTo, (position: Vec2) => {
 		const distance = snakeDistanceBetween(position)(closestEnemy.position);
