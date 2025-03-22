@@ -92,11 +92,11 @@ export const makeCharaInteractive = (chara: Chara) => {
 		zone: Phaser.GameObjects.GameObject,
 	) => {
 
-		const tile = GridSystem.getTileAt(pointer);
+		const tile = GridSystem.getTileAt(pointer)!;
 
 		const charaUnit = scene.state.gameData.units.find(u => u.id === chara.id)!;
 
-		const position = vec2(tile.x, tile.y)
+		const position = vec2(tile.x, tile.y)!
 
 		const maybeOccupier = scene.state.gameData.units.find(u => eqVec2(u.position, position));
 

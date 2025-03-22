@@ -19,3 +19,7 @@ export const defaultTextConfig = {
 	stroke: "black",
 	strokeThickness: 4,
 };
+export const GRID_BORDER_COLOR = 0x00FF00;
+export const GRID_FILL_COLOR = 0x000000; export const MAX_GRID_HEIGHT = 32;
+export const MAX_GRID_WIDTH = 32;
+
