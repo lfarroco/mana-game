@@ -148,6 +148,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
   };
 
+  // TODO: move to CharaSystem
   createParticle(id: string, status: string) {
 
     const chara = this.getChara(id);
