@@ -11,6 +11,7 @@ import { getSkill } from "../../Models/Skill";
 import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
 import * as UnitManager from "../../Scenes/Battleground/Systems/UnitManager";
 import * as GridSystem from "../../Scenes/Battleground/Systems/GridSystem";
+import { BLUE_BONNET, VIVIRED_RED } from "../../Utils/colors";
 
 export type Chara = {
 	id: string;
@@ -25,8 +26,6 @@ export type Chara = {
 
 const spriteSize = bgConstants.TILE_WIDTH - 4;
 
-export const CHARA_SCALE = 1;
-
 let unitInfoContainer: Phaser.GameObjects.Container | null = null;
 
 export function createChara(
@@ -39,7 +38,7 @@ export function createChara(
 		unit.position.y * bgConstants.TILE_HEIGHT + bgConstants.HALF_TILE_HEIGHT
 	)
 
-	const borderColor = unit.force === FORCE_ID_PLAYER ? 0x1818d1 : 0xfa0f0f;
+	const borderColor = unit.force === FORCE_ID_PLAYER ? BLUE_BONNET : VIVIRED_RED;
 
 	const border = scene.add.rectangle(
 		0, 0,
