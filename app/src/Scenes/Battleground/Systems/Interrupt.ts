@@ -14,22 +14,28 @@ type InterruptState = {
 	interruptBtn: Phaser.GameObjects.Container | null
 }
 
-const displayInterruptBtn = (scene: BattlegroundScene) => (state: InterruptState) => () => {
+let scene: BattlegroundScene;
+export let state: InterruptState = {
+	interrupt: false,
+	interruptBtn: null
+}
+
+const displayInterruptBtn = () => {
 	state.interruptBtn = UIManager.createButton(
 		"Interrupt",
 		SCREEN_WIDTH - 180, SCREEN_HEIGHT - 60,
 		async () => {
 			state.interrupt = true;
-			hideInterruptBtn(state)();
+			hideInterruptBtn();
 		});
 }
 
-const hideInterruptBtn = (state: InterruptState) => () => {
+const hideInterruptBtn = () => {
 	state.interruptBtn?.destroy();
 	state.interruptBtn = null;
 }
 
-export const getInterruptAction = (scene: BattlegroundScene) => async () => {
+export const getInterruptAction = async () => {
 
 	const choice = await new Promise<{
 		pic: string,
@@ -51,19 +57,18 @@ export const getInterruptAction = (scene: BattlegroundScene) => async () => {
 }
 
 
-export let state: InterruptState = {
-	interrupt: false,
-	interruptBtn: null
-}
 
-export const init = (scene: BattlegroundScene) => {
+
+export const init = (sceneRef: BattlegroundScene) => {
+
+	scene = sceneRef;
 
 	listeners([
 		[signals.WAVE_START, () => {
-			displayInterruptBtn(scene)(state)();
+			displayInterruptBtn();
 		}],
 		[signals.WAVE_FINISHED, () => {
-			hideInterruptBtn(state)();
+			hideInterruptBtn();
 		}],
 	]);
 }

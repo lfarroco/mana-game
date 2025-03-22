@@ -28,7 +28,6 @@ let scene: BattlegroundScene;
 
 const spriteSize = bgConstants.TILE_WIDTH - 4;
 
-
 export function createChara(unit: Unit): Chara {
 
 	const container = scene.add.container(

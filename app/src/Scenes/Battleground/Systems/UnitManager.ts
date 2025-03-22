@@ -7,7 +7,6 @@ import { emit, signals } from "../../../Models/Signals";
 import { tween } from "../../../Utils/animation";
 import { BattlegroundScene } from "../BattlegroundScene";
 
-
 let scene: BattlegroundScene;
 export let charas: Chara[] = [];
 
