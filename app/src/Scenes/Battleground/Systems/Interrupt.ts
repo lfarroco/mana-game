@@ -6,6 +6,7 @@ import { signals, listeners } from "../../../Models/Signals";
 import { delay } from "../../../Utils/animation";
 import BattlegroundScene from "../BattlegroundScene";
 import { SCREEN_WIDTH, SCREEN_HEIGHT } from "../constants";
+import * as Choice from "./Choice";
 
 type InterruptState = {
 	interrupt: boolean,
@@ -34,7 +35,7 @@ export const getInterruptAction = (scene: BattlegroundScene) => async () => {
 		title: string,
 		desc: string
 	}>((resolve) =>
-		scene.displayChoices(resolve)([
+		Choice.displayChoices(scene)(resolve)([
 			{ title: "Advance", pic: "cards/advance", desc: "Advance to the next wave" },
 			{ title: "Explore", pic: "cards/explore", desc: "Explore the area for loot" },
 			{ title: "Merchant", pic: "cards/merchant", desc: "Visit the merchant to buy items" },
@@ -64,5 +65,4 @@ export const init = (scene: BattlegroundScene) => {
 			hideInterruptBtn(state)();
 		}],
 	]);
-
 }
