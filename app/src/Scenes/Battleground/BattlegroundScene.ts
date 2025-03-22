@@ -4,7 +4,6 @@ import * as CharaSystem from "../../Systems/Chara/Chara";
 import { emit, signals } from "../../Models/Signals";
 import { State, getState } from "../../Models/State";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
-import { unitDestroyed } from "./Events/UNIT_DESTROYED";
 import * as AISystem from "../../Systems/AI/AI";
 import * as HPBarSystem from "../../Systems/Chara/HPBar";
 import { BattlegroundAudioSystem_init } from "./Systems/Audio";
@@ -47,7 +46,6 @@ export class BattlegroundScene extends Phaser.Scene {
      * Global listeners can be created here because they are only created once
      */
     // TODO: separate scene-related listeners from state listeners
-    unitDestroyed(this, state);
     AISystem.init(state);
     HPBarSystem.init(state, this);
     BattlegroundAudioSystem_init(state, this);

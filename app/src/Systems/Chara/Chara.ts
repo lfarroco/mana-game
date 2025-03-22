@@ -201,9 +201,26 @@ export function init(sceneRef: BattlegroundScene) {
 
 			chara.container.getByName("status-" + status)?.destroy();
 
-		}]
+		}],
+		[signals.UNIT_DESTROYED, (id: string) => {
 
+			const chara = UnitManager.getChara(id)
+
+			scene.tweens.add({
+				targets: chara.container,
+				alpha: 0,
+				duration: 1000 / scene.state.options.speed,
+				ease: 'Power2',
+				onComplete: () => {
+					chara.container.destroy(true)
+				}
+			});
+
+		}]
 	])
 
 }
+
+
+
 
