@@ -7,11 +7,11 @@ import { asVec2, eqVec2, vec2 } from "../../Models/Geometry";
 import { tween } from "../../Utils/animation";
 import { FORCE_ID_PLAYER } from "../../Models/Force";
 import { getJob, Job } from "../../Models/Job";
-import { getSkill } from "../../Models/Skill";
 import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
 import * as UnitManager from "../../Scenes/Battleground/Systems/UnitManager";
 import * as GridSystem from "../../Scenes/Battleground/Systems/GridSystem";
 import { BLUE_BONNET, VIVIRED_RED } from "../../Utils/colors";
+import { displayUnitInfo } from "../../Scenes/Battleground/Systems/UIManager";
 
 export type Chara = {
 	id: string;
@@ -26,7 +26,6 @@ export type Chara = {
 
 const spriteSize = bgConstants.TILE_WIDTH - 4;
 
-let unitInfoContainer: Phaser.GameObjects.Container | null = null;
 
 export function createChara(
 	scene: BattlegroundScene,
@@ -195,53 +194,3 @@ export function init(scene: BattlegroundScene) {
 
 }
 
-// create a rect with the unit's portrait and stats
-// to the right of the sprite
-function displayUnitInfo(chara: Chara) {
-
-	unitInfoContainer?.destroy();
-
-	const { scene, unit } = chara;
-
-	const job = getJob(unit.job);
-
-	const x = 0;
-	const y = bgConstants.TILE_HEIGHT * 1;
-	const width = bgConstants.TILE_WIDTH * 3;
-	const height = bgConstants.TILE_HEIGHT * 5;
-
-	// bg is a round rect with a beige gradient fill
-	const bg = scene.add.graphics();
-	bg.fillStyle(0x000000, 0.7);
-	bg.fillRoundedRect(0, 0, width, height, 10);
-
-	unitInfoContainer = scene.add.container(x, y);
-	unitInfoContainer.add([bg]);
-
-	unitInfoContainer.add([
-		scene.add.image(0, 0, job.id + "/full")
-			.setDisplaySize(bgConstants.TILE_WIDTH * 3, bgConstants.TILE_WIDTH * 3)
-			.setOrigin(0),
-		scene.add.text(10, 10, job.name, bgConstants.defaultTextConfig),
-		...job.skills
-			.reverse()
-			.map(getSkill)
-			.map(
-				(sk, i) =>
-					scene.add.text(
-						10, (bgConstants.TILE_HEIGHT * 3) + 60 + i * 50,
-						sk.name, bgConstants.defaultTextConfig))
-	]);
-
-	const closeBtn = scene.add.text(
-		width - 40, 10, "X", bgConstants.defaultTextConfig)
-		.setInteractive()
-		.on("pointerdown", () => {
-			unitInfoContainer?.destroy();
-		}
-		);
-
-	unitInfoContainer.add(closeBtn);
-
-	UIManager.ui?.add(unitInfoContainer);
-}
