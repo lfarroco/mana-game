@@ -3,10 +3,15 @@ import { signals, emit } from "../../../Models/Signals";
 import * as StoreSystem from "../Store";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { delay } from "../../../Utils/animation";
+import { getJob } from "../../../Models/Job";
+import { getSkill } from "../../../Models/Skill";
+import * as CharaSystem from "../../../Systems/Chara/Chara";
+import * as bgConstants from "../constants";
 
 export let ui: Phaser.GameObjects.Container | null = null;
 export let dropZone: Phaser.GameObjects.Zone | null = null;
 export let dropZoneDisplay: Phaser.GameObjects.Graphics | null = null;
+export let unitInfoContainer: Phaser.GameObjects.Container | null = null;
 
 let scene: BattlegroundScene;
 
@@ -168,6 +173,57 @@ export function displayDropZone() {
 export function hideDropZone() {
 	dropZoneDisplay?.setVisible(false);
 }
+
 export function hideUI() {
 	ui?.destroy(false);
+}
+
+// create a rect with the unit's portrait and stats
+// to the right of the sprite
+export function displayUnitInfo(chara: CharaSystem.Chara) {
+
+	unitInfoContainer?.destroy();
+
+	const { unit } = chara;
+
+	const job = getJob(unit.job);
+
+	const x = 0;
+	const y = bgConstants.TILE_HEIGHT * 1;
+	const width = bgConstants.TILE_WIDTH * 3;
+	const height = bgConstants.TILE_HEIGHT * 5;
+
+	// bg is a round rect with a beige gradient fill
+	const bg = scene.add.graphics();
+	bg.fillStyle(0x000000, 0.7);
+	bg.fillRoundedRect(0, 0, width, height, 10);
+
+	unitInfoContainer = scene.add.container(x, y);
+	unitInfoContainer.add([bg]);
+
+	unitInfoContainer.add([
+		scene.add.image(0, 0, job.id + "/full")
+			.setDisplaySize(bgConstants.TILE_WIDTH * 3, bgConstants.TILE_WIDTH * 3)
+			.setOrigin(0),
+		scene.add.text(10, 10, job.name, bgConstants.defaultTextConfig),
+		...job.skills
+			.reverse()
+			.map(getSkill)
+			.map(
+				(sk, i) => scene.add.text(
+					10, (bgConstants.TILE_HEIGHT * 3) + 60 + i * 50,
+					sk.name, bgConstants.defaultTextConfig))
+	]);
+
+	const closeBtn = scene.add.text(
+		width - 40, 10, "X", bgConstants.defaultTextConfig)
+		.setInteractive()
+		.on("pointerdown", () => {
+			unitInfoContainer?.destroy();
+		}
+		);
+
+	unitInfoContainer.add(closeBtn);
+
+	ui?.add(unitInfoContainer);
 }
