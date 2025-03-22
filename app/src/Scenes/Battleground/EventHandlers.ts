@@ -30,13 +30,6 @@ export function setupEventListeners(scene: BattlegroundScene) {
 			UIManager.hideDropZone();
 			UIManager.hideUI();
 
-			tween({
-				targets: [scene.tileGrid],
-				alpha: 0,
-				duration: 2500 / scene.speed,
-				ease: 'Power2',
-			});
-
 			scene.state.gameData.units = scene.state.gameData.units.map(u => {
 				u.initialPosition = vec2(u.position.x, u.position.y)
 				return u;
@@ -65,15 +58,10 @@ export function setupEventListeners(scene: BattlegroundScene) {
 			});
 			scene.state.gameData.tick = 0;
 
-			scene.tileGrid.alpha = 1;
-
 			UIManager.displayDropZone();
-
 			UIManager.updateUI();
 
-			scene.state.gameData.units.forEach(u =>
-				UnitManager.renderUnit(u)
-			);
+			scene.state.gameData.units.forEach(UnitManager.renderUnit);
 
 			scene.state.gameData.wave++;
 

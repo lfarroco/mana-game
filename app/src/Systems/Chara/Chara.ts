@@ -10,6 +10,7 @@ import { getJob, Job } from "../../Models/Job";
 import { getSkill } from "../../Models/Skill";
 import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
 import * as UnitManager from "../../Scenes/Battleground/Systems/UnitManager";
+import * as GridSystem from "../../Scenes/Battleground/Systems/GridSystem";
 
 export type Chara = {
 	id: string;
@@ -91,7 +92,7 @@ export const makeCharaInteractive = (chara: Chara) => {
 		zone: Phaser.GameObjects.GameObject,
 	) => {
 
-		const tile = scene.getTileAt(vec2(pointer.worldX, pointer.worldY));
+		const tile = GridSystem.getTileAt(pointer);
 
 		const charaUnit = scene.state.gameData.units.find(u => u.id === chara.id)!;
 

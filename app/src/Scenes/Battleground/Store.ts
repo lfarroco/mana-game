@@ -5,6 +5,7 @@ import { emit, signals } from "../../Models/Signals";
 import { getUnitAt } from "../../Models/State";
 import { BattlegroundScene } from "./BattlegroundScene";
 import * as constants from "./constants";
+import * as GridSystem from "./Systems/GridSystem";
 import * as UIManager from "./Systems/UIManager";
 
 const units: Job.JobId[] = [
@@ -76,7 +77,7 @@ const renderUnit = (scene: BattlegroundScene) => (jobId: Job.JobId, i: number) =
 		// if we have more zones in the future:
 		//if (zone.name === "board") {
 
-		const coords = scene.getTileAt(vec2(pointer.worldX, pointer.worldY));
+		const coords = GridSystem.getTileAt(pointer);
 
 		const maybeOccupier = getUnitAt(scene.state)(coords);
 
