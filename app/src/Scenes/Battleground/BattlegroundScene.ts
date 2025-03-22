@@ -12,15 +12,14 @@ import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import { Force, FORCE_ID_PLAYER } from "../../Models/Force";
 import * as StoreSystem from "./Store";
 import * as constants from "./constants";
-import { waves } from "./enemyWaves";
 import * as InterruptSystem from "./Systems/Interrupt";
 import { setupEventListeners } from "./EventHandlers";
 import * as UIManager from "./Systems/UIManager";
 import * as UnitManager from "./Systems/UnitManager";
+import * as WaveManager from "./Systems/WaveManager";
 
 export class BattlegroundScene extends Phaser.Scene {
 
-  isPaused = false;
   grid: (0 | 1)[][] = []
   state: State;
   playerForce: Force;
@@ -31,7 +30,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
   cleanup() {
     UnitManager.clearCharas();
-    this.isPaused = false;
     this.time.removeAllEvents();
     this.grid = []
   }
@@ -61,7 +59,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     UnitManager.init(this);
     UIManager.init(this);
-
+    WaveManager.init(this);
 
     //@ts-ignore
     window.bg = this;
@@ -139,23 +137,9 @@ export class BattlegroundScene extends Phaser.Scene {
     UIManager.createDropZone(this);
     UIManager.updateUI();
 
-    this.createWave();
+    WaveManager.createWave();
 
   };
-
-  createWave() {
-    const enemies = waves[this.state.gameData.wave]
-
-    this.state.gameData.units = this.state.gameData.units.concat(enemies)
-
-    this.state.gameData.units = this.state.gameData.units.map(u => {
-      u.initialPosition = vec2(u.position.x, u.position.y)
-      return u;
-    })
-
-    enemies.forEach(UnitManager.renderUnit);
-  }
-
 
   getTileAt = (vec: Vec2) => {
     const tile = vec2(
@@ -163,13 +147,6 @@ export class BattlegroundScene extends Phaser.Scene {
       Math.floor(vec.y / constants.TILE_HEIGHT)
     );
     return tile;
-  };
-
-  pauseGame = () => {
-    this.isPaused = true;
-  };
-  resumeGame = () => {
-    this.isPaused = false;
   };
 
   errors = {
