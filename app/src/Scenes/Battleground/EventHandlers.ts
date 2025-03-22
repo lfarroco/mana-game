@@ -10,6 +10,7 @@ import { waves } from "./enemyWaves";
 import processTick from "./ProcessTick";
 import * as UIManager from "./Systems/UIManager";
 import * as UnitManager from "./Systems/UnitManager";
+import * as WaveManager from "./Systems/WaveManager";
 
 export function setupEventListeners(scene: BattlegroundScene) {
 	listeners([
@@ -86,7 +87,7 @@ export function setupEventListeners(scene: BattlegroundScene) {
 				scene.state.gameData.wave = 1;
 			}
 
-			scene.createWave();
+			WaveManager.createWave();
 			UIManager.updateUI();
 		}],
 	]);
