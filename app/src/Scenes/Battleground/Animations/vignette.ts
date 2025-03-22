@@ -1,4 +1,5 @@
 import { tween } from "../../../Utils/animation";
+import { COLOR_BLACK } from "../../../Utils/colors";
 import BattlegroundScene from "../BattlegroundScene";
 import { defaultTextConfig } from "../constants";
 
@@ -8,7 +9,7 @@ export async function vignette(scene: BattlegroundScene, text: string) {
 	const rect = scene.add.rectangle(
 		0, scene.scale.height / 2,
 		scene.scale.width, 100,
-		0x000000)
+		COLOR_BLACK)
 		.setOrigin(0, 0)
 		.setAlpha(0)
 		.setScrollFactor(0);

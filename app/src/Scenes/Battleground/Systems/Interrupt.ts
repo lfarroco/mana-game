@@ -56,9 +56,6 @@ export const getInterruptAction = async () => {
 	return choice;
 }
 
-
-
-
 export const init = (sceneRef: BattlegroundScene) => {
 
 	scene = sceneRef;
