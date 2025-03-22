@@ -7,6 +7,7 @@ import { delay } from "../../../Utils/animation";
 import BattlegroundScene from "../BattlegroundScene";
 import { SCREEN_WIDTH, SCREEN_HEIGHT } from "../constants";
 import * as Choice from "./Choice";
+import * as UIManager from "./UIManager";
 
 type InterruptState = {
 	interrupt: boolean,
@@ -14,7 +15,7 @@ type InterruptState = {
 }
 
 const displayInterruptBtn = (scene: BattlegroundScene) => (state: InterruptState) => () => {
-	state.interruptBtn = scene.btn(
+	state.interruptBtn = UIManager.createButton(
 		"Interrupt",
 		SCREEN_WIDTH - 180, SCREEN_HEIGHT - 60,
 		async () => {

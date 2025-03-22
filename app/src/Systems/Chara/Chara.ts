@@ -8,6 +8,7 @@ import { tween } from "../../Utils/animation";
 import { FORCE_ID_PLAYER } from "../../Models/Force";
 import { getJob, Job } from "../../Models/Job";
 import { getSkill } from "../../Models/Skill";
+import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
 
 export type Chara = {
 	id: string;
@@ -137,7 +138,7 @@ export const makeCharaInteractive = (chara: Chara) => {
 
 		// check if the drag ended inside or outside scene.dropZone
 
-		if (!scene.dropZone?.getBounds().contains(pointer.x, pointer.y)) {
+		if (!UIManager.dropZone?.getBounds().contains(pointer.x, pointer.y)) {
 			tween({
 				targets: [chara.container],
 				duration: 500,
@@ -147,10 +148,7 @@ export const makeCharaInteractive = (chara: Chara) => {
 			})
 		}
 
-
 	})
-
-
 }
 
 export function CharaSystem_init(scene: BattlegroundScene) {
@@ -244,5 +242,5 @@ function displayUnitInfo(chara: Chara) {
 
 	unitInfoContainer.add(closeBtn);
 
-	chara.scene.ui?.add(unitInfoContainer);
+	UIManager.ui?.add(unitInfoContainer);
 }

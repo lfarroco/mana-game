@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { tween } from "../../../Utils/animation";
 import { BattlegroundScene } from "../BattlegroundScene";
 import * as constants from "../constants";
+import * as UIManager from "./UIManager";
 
 type Choice = {
 	pic: string;
@@ -140,13 +141,13 @@ export const displayChoices = (scene: BattlegroundScene) => (resolve: (choice: C
 		return card;
 	});
 
-	const confirmBtn = scene.btn(
+	const confirmBtn = UIManager.createButton(
 		"Confirm",
 		constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100,
 		() => {
 			backdrop.destroy();
 			title.destroy();
-			scene.updateUI();
+			UIManager.updateUI();
 		});
 
 	component.add([backdrop, title, ...cards, confirmBtn]);

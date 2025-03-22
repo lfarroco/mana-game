@@ -4,7 +4,8 @@ import * as Job from "../../Models/Job";
 import { emit, signals } from "../../Models/Signals";
 import { getUnitAt } from "../../Models/State";
 import { BattlegroundScene } from "./BattlegroundScene";
-import { defaultTextConfig, HALF_TILE_HEIGHT, RECRUIT_UNIT_PRICE, TILE_HEIGHT, TILE_WIDTH, } from "./constants";
+import * as constants from "./constants";
+import * as UIManager from "./Systems/UIManager";
 
 const units: Job.JobId[] = [
 	Job.SQUIRE,
@@ -31,33 +32,33 @@ const renderUnit = (scene: BattlegroundScene) => (jobId: Job.JobId, i: number) =
 
 	const row = Math.floor(i / 2);
 	const col = i % 2;
-	const x = (scene.cameras.main.width - 270) + col * TILE_WIDTH * 1.1;
-	const y = 150 + row * TILE_HEIGHT * 1.4;
+	const x = (scene.cameras.main.width - 270) + col * constants.TILE_WIDTH * 1.1;
+	const y = 150 + row * constants.TILE_HEIGHT * 1.4;
 
 	const sprite = scene.add.image(
 		x, y,
 		job.id + "/portrait")
 		.setOrigin(0.5, 0.5)
-		.setDisplaySize(TILE_WIDTH * 0.8, TILE_HEIGHT * 0.8)
-		.setAlpha(force.gold >= RECRUIT_UNIT_PRICE ? 1 : 0.5);
+		.setDisplaySize(constants.TILE_WIDTH * 0.8, constants.TILE_HEIGHT * 0.8)
+		.setAlpha(force.gold >= constants.RECRUIT_UNIT_PRICE ? 1 : 0.5);
 
-	scene.ui?.add(sprite);
+	UIManager.ui?.add(sprite);
 
 	const name = scene.add.text(
-		x, y + HALF_TILE_HEIGHT * 1.4,
-		job.name, defaultTextConfig).setOrigin(0.5, 0.5);
-	scene.ui?.add(name);
+		x, y + constants.HALF_TILE_HEIGHT * 1.4,
+		job.name, constants.defaultTextConfig).setOrigin(0.5, 0.5);
+	UIManager.ui?.add(name);
 
 	sprite.setInteractive({ draggable: true });
 
 	sprite.on('pointerdown', () => {
 		if (force.gold > 0) return
 
-		scene.displayError("Not enough gold");
+		UIManager.displayError("Not enough gold");
 
 	})
 
-	if (force.gold < RECRUIT_UNIT_PRICE) return;
+	if (force.gold < constants.RECRUIT_UNIT_PRICE) return;
 
 	//sprite.on('dragstart', (pointer: Phaser.Input.Pointer) => {
 	//  });
@@ -81,10 +82,10 @@ const renderUnit = (scene: BattlegroundScene) => (jobId: Job.JobId, i: number) =
 
 		if (maybeOccupier) return;
 
-		force.gold -= RECRUIT_UNIT_PRICE;
+		force.gold -= constants.RECRUIT_UNIT_PRICE;
 		emit(signals.RECRUIT_UNIT, FORCE_ID_PLAYER, jobId, asVec2(coords));
 
-		scene.updateUI();
+		UIManager.updateUI();
 
 	});
 
@@ -95,7 +96,7 @@ const renderUnit = (scene: BattlegroundScene) => (jobId: Job.JobId, i: number) =
 			handleClick(scene, job)(pointer);
 		}
 		// dragend happens after drop
-		scene.updateUI();
+		UIManager.updateUI();
 
 	});
 }
