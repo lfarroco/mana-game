@@ -29,10 +29,12 @@ export const displayChoices = (scene: BattlegroundScene) => (resolve: (choice: C
 
 	const component = scene.add.container();
 
+	const cardRect = new Phaser.Geom.Rectangle(0, 0, constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT);
+
 	const backdrop = scene.add.graphics();
 	backdrop.fillStyle(0x000000, 0.7);
 	backdrop.fillRect(0, 0, constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT);
-	backdrop.setInteractive(new Phaser.Geom.Rectangle(0, 0, constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT), Phaser.Geom.Rectangle.Contains);
+	backdrop.setInteractive(cardRect, Phaser.Geom.Rectangle.Contains);
 
 	const title = scene.add.text(
 		TITLE_POSITION.x, TITLE_POSITION.y,
@@ -86,7 +88,7 @@ export const displayChoices = (scene: BattlegroundScene) => (resolve: (choice: C
 
 		card.add(pic);
 
-		cardBg.setInteractive(new Phaser.Geom.Rectangle(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height), Phaser.Geom.Rectangle.Contains);
+		cardBg.setInteractive(cardRect, Phaser.Geom.Rectangle.Contains);
 
 		cardBg.on("pointerover", () => {
 			emitter.particleTint = STYLE_CONSTANTS.PARTICLE_COLORS.HOVER;
@@ -105,8 +107,8 @@ export const displayChoices = (scene: BattlegroundScene) => (resolve: (choice: C
 			emitter.particleTint = STYLE_CONSTANTS.PARTICLE_COLORS.DEFAULT;
 			scene.tweens.add({
 				targets: card,
-				scaleX: 1.00,
-				scaleY: 1.00,
+				scaleX: 1,
+				scaleY: 1,
 				x,
 				y,
 				duration: STYLE_CONSTANTS.ANIMATION_DURATION,
@@ -117,7 +119,7 @@ export const displayChoices = (scene: BattlegroundScene) => (resolve: (choice: C
 		cardBg.on("pointerup", async () => {
 			await tween({
 				targets: [component],
-				duration: 1000,
+				duration: 1000 / scene.speed,
 				alpha: 0,
 			});
 
