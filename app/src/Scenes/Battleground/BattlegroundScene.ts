@@ -13,12 +13,13 @@ import * as HPBarSystem from "../../Systems/Chara/HPBar";
 import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import { Force, FORCE_ID_PLAYER } from "../../Models/Force";
 import * as StoreSystem from "./Store";
-import { delay, tween } from "../../Utils/animation";
+import { tween } from "../../Utils/animation";
 import * as constants from "./constants";
 import { waves } from "./enemyWaves";
 import { summonEffect } from "../../Effects/summonEffect";
 import * as InterruptSystem from "./Systems/Interrupt";
 import { setupEventListeners } from "./EventHandlers";
+import * as UIManager from "./Systems/UIManager";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -26,9 +27,6 @@ export class BattlegroundScene extends Phaser.Scene {
   isPaused = false;
   grid: (0 | 1)[][] = []
   state: State;
-  dropZone: Phaser.GameObjects.Zone | null = null;
-  ui: Phaser.GameObjects.Container | null = null;
-  dropZoneDisplay: Phaser.GameObjects.Graphics | null = null;
   playerForce: Force;
   speed: number;
   tileGrid!: Phaser.GameObjects.Grid;
@@ -68,14 +66,11 @@ export class BattlegroundScene extends Phaser.Scene {
     StoreSystem.init(this);
     InterruptSystem.init(this);
 
+    UIManager.init(this);
+
     //@ts-ignore
     window.bg = this;
 
-  }
-
-
-  hideUI() {
-    this.ui?.destroy(false);
   }
 
   preload = preload;
@@ -138,8 +133,6 @@ export class BattlegroundScene extends Phaser.Scene {
       }
     }
 
-    this.createDropZone();
-
     ControlsSystem.init(this);
 
     //@ts-ignore
@@ -148,7 +141,8 @@ export class BattlegroundScene extends Phaser.Scene {
     //this.cameras.main.setZoom(1.5)
     emit(signals.BATTLEGROUND_STARTED);
 
-    this.updateUI();
+    UIManager.createDropZone(this);
+    UIManager.updateUI();
 
     this.createWave();
 
@@ -197,51 +191,7 @@ export class BattlegroundScene extends Phaser.Scene {
     enemies.forEach((unit) => this.renderUnit(unit))
   }
 
-  updateUI() {
-
-    this.ui?.destroy(true);
-
-    const force = this.playerForce
-
-    this.ui = this.add.container(0, 0);
-
-    [
-      "Gold: " + force.gold,
-      "HP: " + force.hp,
-      "Wave: " + this.state.gameData.wave,
-    ].forEach((text, i) => {
-      const uiText = this.add.text(10 + 200 * i, 10, text, constants.defaultTextConfig);
-      this.ui?.add(uiText);
-    });
-
-    const sidebarWidth = 350;
-
-    const bg = this.add.graphics();
-    bg.fillStyle(0x000000, 0.7);
-    bg.fillRect(
-      (this.cameras.main.width - sidebarWidth)
-      , 0, sidebarWidth, this.cameras.main.height);
-
-    this.ui?.add(bg);
-
-    StoreSystem.updateStore(this);
-
-    const btn = this.btn(
-      "Start Battle",
-      constants.SCREEN_WIDTH - 180, constants.SCREEN_HEIGHT - 60,
-      () => {
-        emit(signals.WAVE_START, this.state.gameData.tick);
-      });
-
-    this.ui.add(btn);
-
-  }
-
-  getChara = (id: string) => {
-    const chara = this.charas.find((chara) => chara.id === id);
-    if (!chara) throw new Error(this.errors.charaNotFound(id));
-    return chara;
-  };
+  getChara = (id: string) => this.charas.find((chara) => chara.id === id)!;
 
   getTileAt = (vec: Vec2) => {
     const tile = vec2(
@@ -250,47 +200,6 @@ export class BattlegroundScene extends Phaser.Scene {
     );
     return tile;
   };
-
-
-  btn(
-    text: string,
-    x: number,
-    y: number,
-    callback: () => void) {
-    const btnBg = this.add.image(
-      x, y,
-      'ui/button'
-    ).setOrigin(0.5)
-      .setDisplaySize(350, 100);
-    const startBattleBtn = this.add.text(
-      x, y,
-      text,
-      {
-        ...constants.defaultTextConfig,
-        color: '#000000',
-        stroke: 'none',
-        strokeThickness: 0,
-      }).setOrigin(0.5);
-
-    btnBg.setInteractive();
-
-    btnBg.on("pointerup", callback);
-    btnBg.on("pointerdown", () => {
-      startBattleBtn.setShadow(0, 0, "#000000", 0, true, true);
-    });
-    btnBg.on("pointerover", () => {
-      startBattleBtn.setColor('#ffffff');
-      startBattleBtn.setShadow(2, 2, "#000000", 2, true, true);
-    });
-    btnBg.on("pointerout", () => {
-      startBattleBtn.setColor('#000000');
-      startBattleBtn.setShadow(0, 0, "#000000", 0, true, true);
-    });
-
-    const container = this.add.container(0, 0);
-    container.add([btnBg, startBattleBtn]);
-    return container;
-  }
 
   async renderUnit(unit: Unit) {
 
@@ -318,7 +227,6 @@ export class BattlegroundScene extends Phaser.Scene {
       duration: 500,
       ease: 'Power2',
     })
-
 
   }
 
@@ -350,88 +258,6 @@ export class BattlegroundScene extends Phaser.Scene {
     const audio = this.sound.add(key)
     audio.volume = this.state.options.soundVolume;
     audio.play();
-  }
-
-  createDropZone() {
-    const x = constants.TILE_WIDTH * 6;
-    const y = constants.TILE_WIDTH * 2;
-    const w = constants.TILE_WIDTH * 3;
-    const h = constants.TILE_WIDTH * 3;
-    const zone = this.add.zone(x, y, w, h);
-    zone.setOrigin(0);
-
-    zone.setName("board");
-
-    zone.setRectangleDropZone(w, h);
-
-    if (!zone.input) throw new Error("dropZone.input is null");
-
-    //this.dropZone.input.dropZone = true;
-
-    this.dropZoneDisplay = this.add.graphics();
-    this.dropZoneDisplay.lineStyle(2, 0xffff00);
-    this.dropZoneDisplay.fillStyle(0x00ffff, 0.3);
-    this.dropZoneDisplay.fillRect(
-      x, y,
-      w, h
-    );
-    this.dropZoneDisplay.strokeRect(
-      x, y,
-      w, h
-    );
-    this.tweens.add({
-      targets: this.dropZoneDisplay,
-      alpha: 0.1,
-      duration: 2000,
-      repeat: -1,
-      yoyo: true
-    });
-
-    this.dropZone = zone;
-
-    this.updateUI();
-
-  }
-
-  displayDropZone() {
-
-    this.dropZoneDisplay?.setVisible(true);
-
-  }
-
-  hideDropZone() {
-
-    this.dropZoneDisplay?.setVisible(false);
-
-  }
-
-  displayError(err: string) {
-
-    this.playFx('ui/error');
-
-    const text = this.add.text(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100, err, constants.defaultTextConfig);
-
-    text.setOrigin(0.5)
-    this.tweens.add({
-      targets: text,
-      scaleX: 1.05,
-      scaleY: 1.05,
-      duration: 200,
-      yoyo: true,
-      repeat: 0,
-      onComplete: async () => {
-        await delay(this, 1000);
-        this.tweens.add({
-          targets: text,
-          alpha: 0,
-          duration: 500,
-          onComplete: () => {
-            text.destroy();
-          }
-        })
-      }
-    })
-
   }
 
 }

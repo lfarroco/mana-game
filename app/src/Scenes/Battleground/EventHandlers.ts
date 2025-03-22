@@ -8,6 +8,7 @@ import { vignette } from "./Animations/vignette";
 import BattlegroundScene from "./BattlegroundScene";
 import { waves } from "./enemyWaves";
 import processTick from "./ProcessTick";
+import * as UIManager from "./Systems/UIManager";
 
 export function setupEventListeners(scene: BattlegroundScene) {
 	listeners([
@@ -24,8 +25,8 @@ export function setupEventListeners(scene: BattlegroundScene) {
 		}],
 		[signals.WAVE_START, async () => {
 
-			scene.hideDropZone();
-			scene.hideUI();
+			UIManager.hideDropZone();
+			UIManager.hideUI();
 
 			tween({
 				targets: [scene.tileGrid],
@@ -64,9 +65,9 @@ export function setupEventListeners(scene: BattlegroundScene) {
 
 			scene.tileGrid.alpha = 1;
 
-			scene.displayDropZone();
+			UIManager.displayDropZone();
 
-			scene.updateUI();
+			UIManager.updateUI();
 
 			scene.state.gameData.units.forEach(u =>
 				scene.renderUnit(u)
@@ -86,7 +87,7 @@ export function setupEventListeners(scene: BattlegroundScene) {
 			}
 
 			scene.createWave();
-			scene.updateUI();
+			UIManager.updateUI();
 		}],
 	]);
 }

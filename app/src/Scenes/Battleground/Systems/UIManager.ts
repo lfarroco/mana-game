@@ -4,8 +4,17 @@ import * as StoreSystem from "../Store";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { delay } from "../../../Utils/animation";
 
+export let ui: Phaser.GameObjects.Container | null = null;
+export let dropZone: Phaser.GameObjects.Zone | null = null;
+export let dropZoneDisplay: Phaser.GameObjects.Graphics | null = null;
+
+let scene: BattlegroundScene;
+
+export function init(sceneRef: BattlegroundScene) {
+	scene = sceneRef;
+}
+
 export function createButton(
-	scene: BattlegroundScene,
 	text: string,
 	x: number,
 	y: number,
@@ -46,13 +55,13 @@ export function createButton(
 	return container;
 }
 
-export function updateUI(scene: BattlegroundScene) {
+export function updateUI() {
 
-	scene.ui?.destroy(true);
+	ui?.destroy(true);
 
 	const force = scene.playerForce
 
-	scene.ui = scene.add.container(0, 0);
+	ui = scene.add.container(0, 0);
 
 	[
 		"Gold: " + force.gold,
@@ -60,7 +69,7 @@ export function updateUI(scene: BattlegroundScene) {
 		"Wave: " + scene.state.gameData.wave,
 	].forEach((text, i) => {
 		const uiText = scene.add.text(10 + 200 * i, 10, text, constants.defaultTextConfig);
-		scene.ui?.add(uiText);
+		ui?.add(uiText);
 	});
 
 	const sidebarWidth = 350;
@@ -71,21 +80,21 @@ export function updateUI(scene: BattlegroundScene) {
 		(scene.cameras.main.width - sidebarWidth)
 		, 0, sidebarWidth, scene.cameras.main.height);
 
-	scene.ui?.add(bg);
+	ui?.add(bg);
 
 	StoreSystem.updateStore(scene);
 
-	const btn = scene.btn(
+	const btn = createButton(
 		"Start Battle",
 		constants.SCREEN_WIDTH - 180, constants.SCREEN_HEIGHT - 60,
 		() => {
 			emit(signals.WAVE_START, scene.state.gameData.tick);
 		});
 
-	scene.ui.add(btn);
+	ui.add(btn);
 }
 
-export function displayError(scene: BattlegroundScene, err: string) {
+export function displayError(err: string) {
 
 	scene.playFx('ui/error');
 
@@ -127,36 +136,38 @@ export function createDropZone(scene: BattlegroundScene) {
 
 	if (!zone.input) throw new Error("dropZone.input is null");
 
-	//scene.dropZone.input.dropZone = true;
 
-	scene.dropZoneDisplay = scene.add.graphics();
-	scene.dropZoneDisplay.lineStyle(2, 0xffff00);
-	scene.dropZoneDisplay.fillStyle(0x00ffff, 0.3);
-	scene.dropZoneDisplay.fillRect(
+	dropZoneDisplay = scene.add.graphics();
+	dropZoneDisplay.lineStyle(2, 0xffff00);
+	dropZoneDisplay.fillStyle(0x00ffff, 0.3);
+	dropZoneDisplay.fillRect(
 		x, y,
 		w, h
 	);
-	scene.dropZoneDisplay.strokeRect(
+	dropZoneDisplay.strokeRect(
 		x, y,
 		w, h
 	);
 	scene.tweens.add({
-		targets: scene.dropZoneDisplay,
+		targets: dropZoneDisplay,
 		alpha: 0.1,
 		duration: 2000,
 		repeat: -1,
 		yoyo: true
 	});
 
-	scene.dropZone = zone;
+	dropZone = zone;
 
-	scene.updateUI();
+	updateUI();
 }
 
-export function displayDropZone(scene: BattlegroundScene) {
-	scene.dropZoneDisplay?.setVisible(true);
+export function displayDropZone() {
+	dropZoneDisplay?.setVisible(true);
 }
 
-export function hideDropZone(scene: BattlegroundScene) {
-	scene.dropZoneDisplay?.setVisible(false);
+export function hideDropZone() {
+	dropZoneDisplay?.setVisible(false);
+}
+export function hideUI() {
+	ui?.destroy(false);
 }
