@@ -9,6 +9,22 @@ type Choice = {
 	desc: string;
 };
 
+const CARD_DIMENSIONS = { width: 350, height: 500 };
+const TITLE_POSITION = { x: constants.SCREEN_WIDTH / 2, y: 100 };
+const BASE_Y = constants.SCREEN_HEIGHT / 2 - CARD_DIMENSIONS.height / 2;
+
+const STYLE_CONSTANTS = {
+	HOVER_SCALE: 1.05,
+	HOVER_OFFSET: 10,
+	ANIMATION_DURATION: 300,
+	FADE_DURATION: 500,
+	FADE_DELAY: 500,
+	PARTICLE_COLORS: {
+		DEFAULT: 0x3333ff,
+		HOVER: 0x00ff00
+	}
+} as const;
+
 export const displayChoices = (scene: BattlegroundScene) => (resolve: (choice: Choice) => void) => (choices: Choice[]) => {
 
 	const component = scene.add.container();
@@ -19,7 +35,7 @@ export const displayChoices = (scene: BattlegroundScene) => (resolve: (choice: C
 	backdrop.setInteractive(new Phaser.Geom.Rectangle(0, 0, constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT), Phaser.Geom.Rectangle.Contains);
 
 	const title = scene.add.text(
-		constants.SCREEN_WIDTH / 2, 100,
+		TITLE_POSITION.x, TITLE_POSITION.y,
 		"Select an action",
 		{
 			...constants.defaultTextConfig,
@@ -28,18 +44,14 @@ export const displayChoices = (scene: BattlegroundScene) => (resolve: (choice: C
 	);
 	title.setOrigin(0.5);
 
-	const cardWidth = 350;
-	const cardHeight = 500;
-	const spacing = (constants.SCREEN_WIDTH - (choices.length * cardWidth)) / (choices.length + 1);
-
-	const baseY = constants.SCREEN_HEIGHT / 2 - cardHeight / 2;
+	const spacing = (constants.SCREEN_WIDTH - (choices.length * CARD_DIMENSIONS.width)) / (choices.length + 1);
 
 	const cards = choices.map((choice, i) => {
-		const x = (spacing * (i + 1)) + (cardWidth * i);
-		const y = baseY;
+		const x = (spacing * (i + 1)) + (CARD_DIMENSIONS.width * i);
+		const y = BASE_Y;
 		const card = scene.add.container(x, y);
 
-		const pic = scene.add.image(0, 0, choice.pic).setDisplaySize(cardWidth, cardWidth).setOrigin(0);
+		const pic = scene.add.image(0, 0, choice.pic).setDisplaySize(CARD_DIMENSIONS.width, CARD_DIMENSIONS.width).setOrigin(0);
 
 		const emitter = scene.add.particles(0, 0, 'white-splash-fade', {
 			speed: 0,
@@ -47,7 +59,7 @@ export const displayChoices = (scene: BattlegroundScene) => (resolve: (choice: C
 			scale: { start: 0.0, end: 0.2 },
 			alpha: { start: 1.0, end: 0 },
 			blendMode: 'ADD',
-			tint: 0x3333ff,
+			tint: STYLE_CONSTANTS.PARTICLE_COLORS.DEFAULT,
 			frequency: 300,
 			rotate: {
 				min: 0,
@@ -56,7 +68,7 @@ export const displayChoices = (scene: BattlegroundScene) => (resolve: (choice: C
 			quantity: 128,
 			emitZone: {
 				type: 'edge',
-				source: new Phaser.Geom.Rectangle(0, 0, cardWidth, cardHeight),
+				source: new Phaser.Geom.Rectangle(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height),
 				quantity: 128
 			}
 		});
@@ -66,38 +78,38 @@ export const displayChoices = (scene: BattlegroundScene) => (resolve: (choice: C
 		const cardBg = scene.add.graphics();
 
 		cardBg.fillStyle(0xffffff);
-		cardBg.fillRect(0, 0, cardWidth, cardHeight);
+		cardBg.fillRect(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height);
 		cardBg.lineStyle(2, 0x000000);
-		cardBg.strokeRect(0, 0, cardWidth, cardHeight);
+		cardBg.strokeRect(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height);
 
 		card.add(cardBg);
 
 		card.add(pic);
 
-		cardBg.setInteractive(new Phaser.Geom.Rectangle(0, 0, cardWidth, cardHeight), Phaser.Geom.Rectangle.Contains);
+		cardBg.setInteractive(new Phaser.Geom.Rectangle(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height), Phaser.Geom.Rectangle.Contains);
 
 		cardBg.on("pointerover", () => {
-			emitter.particleTint = 0x00ff00;
+			emitter.particleTint = STYLE_CONSTANTS.PARTICLE_COLORS.HOVER;
 			scene.tweens.add({
 				targets: card,
-				scaleX: 1.05,
-				scaleY: 1.05,
-				x: x - 10,
-				y: y - 10,
-				duration: 300,
+				scaleX: STYLE_CONSTANTS.HOVER_SCALE,
+				scaleY: STYLE_CONSTANTS.HOVER_SCALE,
+				x: x - STYLE_CONSTANTS.HOVER_OFFSET,
+				y: y - STYLE_CONSTANTS.HOVER_OFFSET,
+				duration: STYLE_CONSTANTS.ANIMATION_DURATION,
 				ease: 'Power',
 			});
 		});
 
 		cardBg.on("pointerout", () => {
-			emitter.particleTint = 0x3333ff;
+			emitter.particleTint = STYLE_CONSTANTS.PARTICLE_COLORS.DEFAULT;
 			scene.tweens.add({
 				targets: card,
 				scaleX: 1.00,
 				scaleY: 1.00,
 				x,
 				y,
-				duration: 300,
+				duration: STYLE_CONSTANTS.ANIMATION_DURATION,
 				ease: 'Power',
 			});
 		});
@@ -115,7 +127,7 @@ export const displayChoices = (scene: BattlegroundScene) => (resolve: (choice: C
 		});
 
 		const text = scene.add.text(
-			cardWidth / 2, cardHeight / 2,
+			CARD_DIMENSIONS.width / 2, CARD_DIMENSIONS.height / 2,
 			choice.title,
 			constants.defaultTextConfig
 		);
@@ -142,8 +154,8 @@ export const displayChoices = (scene: BattlegroundScene) => (resolve: (choice: C
 	scene.tweens.add({
 		targets: component,
 		alpha: 1,
-		duration: 500,
+		duration: STYLE_CONSTANTS.FADE_DURATION,
 		ease: 'Power',
-		delay: 500,
+		delay: STYLE_CONSTANTS.FADE_DELAY,
 	});
 };
