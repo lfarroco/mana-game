@@ -1,6 +1,5 @@
 import Phaser from "phaser";
 import { preload } from "./preload";
-import { eqVec2, vec2, Vec2 } from "../../Models/Geometry";
 import { CharaSystem_init } from "../../Systems/Chara/Chara";
 import { emit, signals } from "../../Models/Signals";
 import { State, getState } from "../../Models/State";
@@ -99,14 +98,6 @@ export class BattlegroundScene extends Phaser.Scene {
     WaveManager.createWave();
 
   };
-
-  getCharaAt = (vec: Vec2) => {
-    const chara = UnitManager.charas
-      .filter(chara => chara.unit.hp > 0)
-      .find((chara) => eqVec2(chara.unit.position, vec));
-
-    return chara
-  }
 
   playFx(key: string) {
     const audio = this.sound.add(key)
