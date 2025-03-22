@@ -78,5 +78,11 @@ export function setupEventListeners(scene: BattlegroundScene) {
 			WaveManager.createWave();
 			UIManager.updateUI();
 		}],
+		[signals.MOVEMENT_STARTED, () => {
+			scene.playFx('audio/chip-lay-3')
+		}],
+		[signals.UNIT_CASTS_SPECIAL, () => {
+			scene.playFx('audio/laser')
+		}]
 	]);
 }

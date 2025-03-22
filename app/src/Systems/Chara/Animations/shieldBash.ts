@@ -1,14 +1,14 @@
 import { Chara } from "../Chara";
 import { tweenSequence } from "../../../Utils/animation";
 import { HALF_TILE_WIDTH } from "../../../Scenes/Battleground/constants";
+import { getState } from "../../../Models/State";
 
 export async function shieldBash(
 	activeChara: Chara,
 	targetChara: Chara,
 ) {
 
-	const { scene } = activeChara;
-	const { state } = scene;
+	const state = getState();
 
 	const backMovementDuration = 300 / state.options.speed;
 	// The actual "strike" happens at the end of the forward movement

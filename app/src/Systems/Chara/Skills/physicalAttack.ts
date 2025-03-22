@@ -1,5 +1,6 @@
 import { impactEffect, criticalDamageDisplay } from "../../../Effects";
 import { emit, signals } from "../../../Models/Signals";
+import { getState } from "../../../Models/State";
 import { tween, delay } from "../../../Utils/animation";
 import { popText } from "../Animations/popText";
 import { Chara } from "../Chara";
@@ -9,7 +10,7 @@ export async function physicalAttack(
 	targetChara: Chara,
 ) {
 	const { scene } = activeChara;
-	const { speed } = scene;
+	const { speed } = getState().options;
 
 	const dodges = targetChara.unit.statuses["next-dodge"] > 0;
 

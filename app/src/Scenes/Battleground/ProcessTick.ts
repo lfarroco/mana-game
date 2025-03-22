@@ -67,11 +67,12 @@ const processTick = async (scene: BattlegroundScene) => {
 };
 
 export async function walk(
-  scene: BattlegroundScene,
+  scene: Phaser.Scene,
   unit: Unit,
   path: Vec2[],
   interrupt: null | ((vec: Vec2) => boolean),
 ) {
+  const state = getState();
 
   const job = getJob(unit.job);
   let walked = 0;
@@ -81,17 +82,17 @@ export async function walk(
 
     const chara = UnitManager.getChara(unit.id);
 
+    emit(signals.MOVEMENT_STARTED, unit.id, chara.unit.position);
+
     await tween({
       targets: [chara.container],
       x: next.x * TILE_WIDTH + HALF_TILE_WIDTH,
       y: next.y * TILE_HEIGHT + HALF_TILE_HEIGHT,
-      duration: TURN_DURATION / (2 * scene.speed),
+      duration: TURN_DURATION / (2 * state.options.speed),
       ease: "Sine.easeInOut",
-    })
+    });
 
-    scene.playFx("audio/chip-lay-3")
-
-    await delay(scene, 200 / scene.speed);
+    await delay(scene, 200 / state.options.speed);
 
     unit.position = next;
     unitLog(unit, "finished whalking");

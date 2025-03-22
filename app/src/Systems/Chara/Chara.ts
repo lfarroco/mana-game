@@ -1,7 +1,6 @@
 import Phaser from "phaser";
 import { Unit } from "../../Models/Unit";
 import * as bgConstants from "../../Scenes/Battleground/constants";
-import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { listeners, signals } from "../../Models/Signals";
 import { asVec2, eqVec2, vec2 } from "../../Models/Geometry";
 import { tween } from "../../Utils/animation";
@@ -12,19 +11,21 @@ import * as UnitManager from "../../Scenes/Battleground/Systems/UnitManager";
 import * as GridSystem from "../../Scenes/Battleground/Systems/GridSystem";
 import { BLUE_BONNET, VIVIRED_RED } from "../../Utils/colors";
 import { displayUnitInfo } from "../../Scenes/Battleground/Systems/UIManager";
+import { getState, State } from "../../Models/State";
 
 export type Chara = {
 	id: string;
 	force: string;
 	job: Job;
 	sprite: Phaser.GameObjects.Image,
-	scene: BattlegroundScene,
+	scene: Phaser.Scene,
 	unit: Unit,
 	container: Phaser.GameObjects.Container,
 	hightlightTween: Phaser.Tweens.Tween | null,
 }
 
-let scene: BattlegroundScene;
+let scene: Phaser.Scene;
+let state: State;
 
 const spriteSize = bgConstants.TILE_WIDTH - 4;
 
@@ -86,11 +87,11 @@ export const makeCharaInteractive = (chara: Chara) => {
 
 		const tile = GridSystem.getTileAt(pointer)!;
 
-		const charaUnit = scene.state.gameData.units.find(u => u.id === chara.id)!;
+		const charaUnit = state.gameData.units.find(u => u.id === chara.id)!;
 
 		const position = vec2(tile.x, tile.y)!
 
-		const maybeOccupier = scene.state.gameData.units.find(u => eqVec2(u.position, position));
+		const maybeOccupier = state.gameData.units.find(u => eqVec2(u.position, position));
 
 		if (maybeOccupier) {
 			const occupierChara = UnitManager.getChara(maybeOccupier.id);
@@ -161,9 +162,10 @@ export function destroyChara(chara: Chara) {
 	chara.container.destroy();
 }
 
-export function init(sceneRef: BattlegroundScene) {
+export function init(sceneRef: Phaser.Scene) {
 
 	scene = sceneRef;
+	state = getState();
 
 	listeners([
 		[signals.BATTLEGROUND_TICK, () => {
@@ -179,7 +181,7 @@ export function init(sceneRef: BattlegroundScene) {
 			chara.hightlightTween = scene.add.tween({
 				targets: chara.sprite,
 				alpha: 0.7,
-				duration: 400 / scene.speed,
+				duration: 400 / state.options.speed,
 				ease: "Linear",
 				repeat: -1,
 				yoyo: true,
@@ -209,7 +211,7 @@ export function init(sceneRef: BattlegroundScene) {
 			scene.tweens.add({
 				targets: chara.container,
 				alpha: 0,
-				duration: 1000 / scene.state.options.speed,
+				duration: 1000 / state.options.speed,
 				ease: 'Power2',
 				onComplete: () => {
 					chara.container.destroy(true)

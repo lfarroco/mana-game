@@ -59,11 +59,16 @@ export type Signals = {
   // TODO: have a parent level for the system
   UPDATE_UNIT: (unitId: string, u: Partial<Unit>) => any;
   DAMAGE_UNIT: (unitId: string, damage: number) => any;
+
+  UNIT_CASTS_SPECIAL: (unitId: string, specialId: string) => any;
+
   ADD_STATUS: (unitId: string, status: string, duration: number) => any;
   END_STATUS: (unitId: string, status: string) => any;
   HEAL_UNIT: (unitId: string, amount: number) => any;
   UNIT_DESTROYED: (unitId: string) => any;
   FORCE_VICTORY: (force: string) => void;
+
+  MOVEMENT_STARTED: (unitId: string, vec: Vec2) => void;
   MOVEMENT_FINISHED: (unitId: string, vec: Vec2) => void;
 
   DISPLAY_EMOTE: (id: string, key: string) => void;
@@ -90,6 +95,7 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   WAVE_FINISHED: "WAVE_FINISHED",
   UNIT_SELECTED: "UNIT_SELECTED",
   UNIT_DESELECTED: "UNIT_DESELECTED",
+  UNIT_CASTS_SPECIAL: "UNIT_CASTS_SPECIAL",
   TOGGLE_DISPATCH_MODAL: "TOGGLE_DISPATCH_MODAL",
   TOGGLE_OPTIONS_MODAL: "TOGGLE_OPTIONS_MODAL",
   TOGGLE_LOAD_GAME_MODAL: "TOGGLE_LOAD_GAME_MODAL",
@@ -111,6 +117,7 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   HEAL_UNIT: "HEAL_UNIT",
   UNIT_DESTROYED: "UNIT_DESTROYED",
   FORCE_VICTORY: "FORCE_VICTORY",
+  MOVEMENT_STARTED: "MOVEMENT_STARTED",
   MOVEMENT_FINISHED: "MOVEMENT_FINISHED",
   DISPLAY_EMOTE: "DISPLAY_EMOTE",
   HIDE_EMOTE: "HIDE_EMOTE",
