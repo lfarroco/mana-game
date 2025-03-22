@@ -1,11 +1,10 @@
 import Phaser from "phaser";
 import { preload } from "./preload";
-import { makeUnit, Unit } from "../../Models/Unit";
-import processTick from "./ProcessTick";
+import { Unit } from "../../Models/Unit";
 import { eqVec2, vec2, Vec2 } from "../../Models/Geometry";
 import { Chara, CharaSystem_init, createChara } from "../../Systems/Chara/Chara";
-import { emit, signals, listeners } from "../../Models/Signals";
-import { State, getUnit, getState } from "../../Models/State";
+import { emit, signals } from "../../Models/Signals";
+import { State, getState } from "../../Models/State";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
 import { unitDestroyed } from "./Events/UNIT_DESTROYED";
 import * as AISystem from "../../Systems/AI/AI";
@@ -19,7 +18,7 @@ import * as constants from "./constants";
 import { waves } from "./enemyWaves";
 import { summonEffect } from "../../Effects/summonEffect";
 import * as InterruptSystem from "./Systems/Interrupt";
-import { setupEventListeners } from "./events";
+import { setupEventListeners } from "./EventHandlers";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -152,8 +151,6 @@ export class BattlegroundScene extends Phaser.Scene {
     this.updateUI();
 
     this.createWave();
-
-
 
   };
 
