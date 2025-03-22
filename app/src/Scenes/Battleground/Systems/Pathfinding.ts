@@ -2,6 +2,7 @@ import * as Easystar from "easystarjs";
 import { Vec2, asVec2, eqVec2, } from "../../../Models/Geometry";
 import { getState } from "../../../Models/State";
 import BattlegroundScene from "../BattlegroundScene";
+import * as GridSystem from "./GridSystem";
 
 /**
  * Function used by the AI to find a path to a target
@@ -18,7 +19,7 @@ export async function lookupAIPAth(
   return new Promise<Vec2[]>(async (resolve, reject) => {
     const easystar = new Easystar.js();
     easystar.setAcceptableTiles([0]);
-    easystar.setGrid(scene.grid);
+    easystar.setGrid(GridSystem.grid);
 
     // set tiles with units as blocked
     const state = getState();

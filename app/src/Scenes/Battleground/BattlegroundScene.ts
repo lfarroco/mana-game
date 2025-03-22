@@ -17,21 +17,20 @@ import { setupEventListeners } from "./EventHandlers";
 import * as UIManager from "./Systems/UIManager";
 import * as UnitManager from "./Systems/UnitManager";
 import * as WaveManager from "./Systems/WaveManager";
+import * as GridSystem from "./Systems/GridSystem";
 
 export class BattlegroundScene extends Phaser.Scene {
 
-  grid: (0 | 1)[][] = []
   state: State;
   playerForce: Force;
   speed: number;
-  tileGrid!: Phaser.GameObjects.Grid;
   bgContainer!: Phaser.GameObjects.Container;
   bgImage!: Phaser.GameObjects.Image;
 
   cleanup() {
     UnitManager.clearCharas();
     this.time.removeAllEvents();
-    this.grid = []
+    GridSystem.clearGrid();
   }
 
   constructor() {
@@ -60,6 +59,7 @@ export class BattlegroundScene extends Phaser.Scene {
     UnitManager.init(this);
     UIManager.init(this);
     WaveManager.init(this);
+    GridSystem.init(this);
 
     //@ts-ignore
     window.bg = this;
@@ -77,54 +77,13 @@ export class BattlegroundScene extends Phaser.Scene {
 
     console.log("BattlegroundScene create");
 
-    const bg = this.add.image(0, 0, 'bg').setDisplaySize(constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT)
+    this.bgImage = this.add.image(0, 0, 'bg').setDisplaySize(constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT)
       .setPosition(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2);
 
-    this.bgImage = bg;
-
-    const tiles = this.add.grid(
-      0, 0,
-      constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT,
-      constants.TILE_WIDTH, constants.TILE_HEIGHT,
-      0x000000, 0, 0x00FF00, 0.5,
-    ).setOrigin(0);
-    tiles.setInteractive();
-
-    this.tileGrid = tiles;
-    // create outline over tile being hovered
-    const hoverOutline = this.add.graphics();
-    // orange
-    const color = 0xffa500;
-    hoverOutline.lineStyle(2, color, 4);
-    hoverOutline.strokeRect(0, 0, constants.TILE_WIDTH, constants.TILE_WIDTH);
-    hoverOutline.visible = false;
-
-    // have outline follow cursor
-    this.input.on("pointermove", (pointer: Phaser.Input.Pointer) => {
-      const tile = this.getTileAt(
-        vec2(pointer.worldX, pointer.worldY)
-      );
-
-      if (tile) {
-        hoverOutline.x = tile.x * constants.TILE_WIDTH;
-        hoverOutline.y = tile.y * constants.TILE_HEIGHT;
-        hoverOutline.visible = true;
-      } else {
-        hoverOutline.visible = false;
-      }
-    });
+    const { tiles, hoverOutline } = GridSystem.createTileGrid();
 
     this.bgContainer = this.add.container(0, 0);
-    this.bgContainer.add([bg, tiles, hoverOutline]);
-
-
-    this.grid = [[]];
-    for (let y = 0; y < 32; y++) {
-      this.grid[y] = [];
-      for (let x = 0; x < 32; x++) {
-        this.grid[y][x] = 0;
-      }
-    }
+    this.bgContainer.add([this.bgImage, tiles, hoverOutline]);
 
     ControlsSystem.init(this);
 
@@ -139,23 +98,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     WaveManager.createWave();
 
-  };
-
-  getTileAt = (vec: Vec2) => {
-    const tile = vec2(
-      Math.floor(vec.x / constants.TILE_WIDTH),
-      Math.floor(vec.y / constants.TILE_HEIGHT)
-    );
-    return tile;
-  };
-
-  errors = {
-    noTileAt: ({ x, y }: Vec2) => `no tile at ${x}, ${y}`,
-    squadNotFound: (id: string) => `unit ${id} not found`,
-    cityNotFound: (id: string) => `city ${id} not found`,
-    charaNotFound: (id: string) => `chara ${id} not found`,
-    errorCreatingTileset: (tilesetName: string) => `error creating tileset ${tilesetName}`,
-    errorCreatingTilemapLayer: (layerName: string) => `error creating tilemap layer ${layerName}`,
   };
 
   getCharaAt = (vec: Vec2) => {
