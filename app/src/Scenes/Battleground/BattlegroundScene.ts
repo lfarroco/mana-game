@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { preload } from "./preload";
-import { CharaSystem_init } from "../../Systems/Chara/Chara";
+import * as CharaSystem from "../../Systems/Chara/Chara";
 import { emit, signals } from "../../Models/Signals";
 import { State, getState } from "../../Models/State";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
@@ -51,7 +51,7 @@ export class BattlegroundScene extends Phaser.Scene {
     AISystem.init(state);
     HPBarSystem.init(state, this);
     BattlegroundAudioSystem_init(state, this);
-    CharaSystem_init(this);
+    CharaSystem.init(this);
     StoreSystem.init(this);
     InterruptSystem.init(this);
 

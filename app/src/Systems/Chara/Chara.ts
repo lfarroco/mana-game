@@ -152,7 +152,7 @@ export const makeCharaInteractive = (chara: Chara) => {
 	})
 }
 
-export function CharaSystem_init(scene: BattlegroundScene) {
+export function init(scene: BattlegroundScene) {
 	listeners([
 		[signals.BATTLEGROUND_TICK, () => {
 			UnitManager.charas.forEach((chara) => {
