@@ -24,13 +24,12 @@ export type Chara = {
 	hightlightTween: Phaser.Tweens.Tween | null,
 }
 
+let scene: BattlegroundScene;
+
 const spriteSize = bgConstants.TILE_WIDTH - 4;
 
 
-export function createChara(
-	scene: BattlegroundScene,
-	unit: Unit,
-): Chara {
+export function createChara(unit: Unit): Chara {
 
 	const container = scene.add.container(
 		unit.position.x * bgConstants.TILE_WIDTH + bgConstants.HALF_TILE_WIDTH,
@@ -53,9 +52,6 @@ export function createChara(
 
 	sprite.setDisplaySize(spriteSize, spriteSize)
 
-	// TODO: move to animation system
-	//sprite.play(unit.job + "-idle-down", true);
-
 	container.add([border, sprite])
 
 	const chara: Chara = {
@@ -73,9 +69,8 @@ export function createChara(
 
 	return chara
 }
-export const makeCharaInteractive = (chara: Chara) => {
 
-	const { scene } = chara;
+export const makeCharaInteractive = (chara: Chara) => {
 
 	chara.sprite.setInteractive({ draggable: true });
 
@@ -151,7 +146,26 @@ export const makeCharaInteractive = (chara: Chara) => {
 	})
 }
 
-export function init(scene: BattlegroundScene) {
+export function destroyChara(chara: Chara) {
+	// Remove event listeners
+	chara.sprite.removeAllListeners('drag');
+	chara.sprite.removeAllListeners('drop');
+	chara.sprite.removeAllListeners('dragend');
+
+	// Clean up tweens
+	if (chara.hightlightTween) {
+		chara.hightlightTween.remove();
+		chara.hightlightTween = null;
+	}
+
+	// Destroy container and contents
+	chara.container.destroy();
+}
+
+export function init(sceneRef: BattlegroundScene) {
+
+	scene = sceneRef;
+
 	listeners([
 		[signals.BATTLEGROUND_TICK, () => {
 			UnitManager.charas.forEach((chara) => {
