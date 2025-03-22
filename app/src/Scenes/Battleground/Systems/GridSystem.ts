@@ -6,34 +6,39 @@ import { getState } from "../../../Models/State";
 
 let scene: Phaser.Scene;
 
-export let grid: number[][] = [[]];
-export let tiles: Phaser.GameObjects.Grid;
+type GridState = {
+	grid: number[][],
+	tiles: Phaser.GameObjects.Grid | null
+}
 
-export const clearGrid = () => {
-	grid.length = 0;
-	grid.push([]);
+export let state: GridState = {
+	grid: [[]],
+	tiles: null
+}
+
+export const resetGrid = () => {
+	state.grid = [[]]
 }
 
 export function init(sceneRef: Phaser.Scene) {
 	scene = sceneRef;
-	const state = getState();
 	setupGrid();
 
 	listeners([
 		[signals.WAVE_START, () => {
 			tween({
-				targets: [tiles],
+				targets: [state.tiles],
 				alpha: 0,
-				duration: 500 / state.options.speed,
+				duration: 500 / getState().options.speed,
 				ease: 'Power2',
 			});
 
 		}],
 		[signals.WAVE_FINISHED, () => {
 			tween({
-				targets: [tiles],
+				targets: [state.tiles],
 				alpha: 1,
-				duration: 9500 / state.options.speed,
+				duration: 9500 / getState().options.speed,
 				ease: 'Power2',
 			});
 		}]
@@ -41,22 +46,22 @@ export function init(sceneRef: Phaser.Scene) {
 }
 
 export function setupGrid() {
-	for (let y = 0; y < 32; y++) {
-		grid[y] = [];
-		for (let x = 0; x < 32; x++) {
-			grid[y][x] = 0;
+	for (let y = 0; y < constants.MAX_GRID_HEIGHT; y++) {
+		state.grid[y] = [];
+		for (let x = 0; x < constants.MAX_GRID_WIDTH; x++) {
+			state.grid[y][x] = 0;
 		}
 	}
 }
 
 export function createTileGrid() {
-	tiles = scene.add.grid(
+	state.tiles = scene.add.grid(
 		0, 0,
 		constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT,
 		constants.TILE_WIDTH, constants.TILE_HEIGHT,
-		0x000000, 0, 0x00FF00, 0.5,
+		constants.GRID_FILL_COLOR, 0, constants.GRID_BORDER_COLOR, 0.5,
 	).setOrigin(0);
-	tiles.setInteractive();
+	state.tiles.setInteractive();
 
 	// create outline over tile being hovered
 	const hoverOutline = scene.add.graphics();
@@ -67,7 +72,7 @@ export function createTileGrid() {
 	hoverOutline.visible = false;
 
 	// have outline follow cursor
-	scene.input.on("pointermove", (pointer: Phaser.Input.Pointer) => {
+	state.tiles.on("pointermove", (pointer: Phaser.Input.Pointer) => {
 		const tile = getTileAt(pointer);
 
 		if (tile) {
@@ -79,12 +84,22 @@ export function createTileGrid() {
 		}
 	});
 
-	return { tiles, hoverOutline };
+	return { tiles: state.tiles, hoverOutline };
 }
 
-export function getTileAt({ x, y }: { x: number, y: number }): Vec2 {
-	return vec2(
-		Math.floor(x / constants.TILE_WIDTH),
-		Math.floor(y / constants.TILE_HEIGHT)
-	);
+export function getTileAt({ x, y }: { x: number, y: number }): Vec2 | null {
+
+	const x_ = Math.floor(x / constants.TILE_WIDTH);
+	const y_ = Math.floor(y / constants.TILE_HEIGHT);
+
+	const isOutOfBounds = x_ < 0
+		|| x_ >= constants.MAX_GRID_WIDTH
+		|| y_ < 0
+		|| y_ >= constants.MAX_GRID_HEIGHT;
+
+	if (isOutOfBounds) {
+		return null;
+	}
+
+	return vec2(x_, y_);
 }

@@ -19,7 +19,7 @@ export async function lookupAIPAth(
   return new Promise<Vec2[]>(async (resolve, reject) => {
     const easystar = new Easystar.js();
     easystar.setAcceptableTiles([0]);
-    easystar.setGrid(GridSystem.grid);
+    easystar.setGrid(GridSystem.state.grid);
 
     // set tiles with units as blocked
     const state = getState();

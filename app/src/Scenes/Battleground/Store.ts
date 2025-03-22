@@ -77,7 +77,7 @@ const renderUnit = (scene: BattlegroundScene) => (jobId: Job.JobId, i: number) =
 		// if we have more zones in the future:
 		//if (zone.name === "board") {
 
-		const coords = GridSystem.getTileAt(pointer);
+		const coords = GridSystem.getTileAt(pointer)!;
 
 		const maybeOccupier = getUnitAt(scene.state)(coords);
 

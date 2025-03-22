@@ -29,7 +29,7 @@ export class BattlegroundScene extends Phaser.Scene {
   cleanup() {
     UnitManager.clearCharas();
     this.time.removeAllEvents();
-    GridSystem.clearGrid();
+    GridSystem.resetGrid();
   }
 
   constructor() {
