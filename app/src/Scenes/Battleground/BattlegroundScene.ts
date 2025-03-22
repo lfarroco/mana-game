@@ -19,6 +19,7 @@ import { defaultTextConfig, HALF_TILE_HEIGHT, HALF_TILE_WIDTH, SCREEN_HEIGHT, SC
 import { waves } from "./enemyWaves";
 import { vignette } from "./Animations/vignette";
 import { summonEffect } from "../../Effects/summonEffect";
+import * as InterruptSystem from "./Systems/Interrupt";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -34,8 +35,6 @@ export class BattlegroundScene extends Phaser.Scene {
   tileGrid!: Phaser.GameObjects.Grid;
   bgContainer!: Phaser.GameObjects.Container;
   bgImage!: Phaser.GameObjects.Image;
-  interrupt: boolean = false;
-  interruptBtn: Phaser.GameObjects.Container | null = null;
 
   cleanup() {
     this.charas.forEach(chara => {
@@ -74,8 +73,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
         this.hideDropZone();
         this.hideUI();
-
-        this.displayInterruptBtn();
 
         tween({
           targets: [this.tileGrid],
@@ -152,26 +149,13 @@ export class BattlegroundScene extends Phaser.Scene {
     BattlegroundAudioSystem_init(state, this);
     CharaSystem_init(this);
     StoreSystem.init(this);
+    InterruptSystem.init(this);
 
     //@ts-ignore
     window.bg = this;
 
   }
 
-  displayInterruptBtn() {
-    this.interruptBtn = this.btn(
-      "Interrupt",
-      SCREEN_WIDTH - 180, SCREEN_HEIGHT - 60,
-      () => {
-        this.interrupt = true;
-        this.interruptBtn?.destroy();
-      });
-  }
-
-  private hideInterruptBtn() {
-    this.interruptBtn?.destroy();
-    this.interruptBtn = null;
-  }
 
   hideUI() {
     this.ui?.destroy(false);
@@ -353,7 +337,7 @@ export class BattlegroundScene extends Phaser.Scene {
   };
 
 
-  private btn(
+  btn(
     text: string,
     x: number,
     y: number,
@@ -687,30 +671,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
   }
 
-  async getInterruptAction() {
-
-    const choice = await new Promise<{
-      pic: string,
-      title: string,
-      desc: string
-    }>((resolve) => {
-      this.displayChoices(resolve)([
-        { title: "Advance", pic: "cards/advance", desc: "Advance to the next wave" },
-        { title: "Explore", pic: "cards/explore", desc: "Explore the area for loot" },
-        { title: "Merchant", pic: "cards/merchant", desc: "Visit the merchant to buy items" },
-        { title: "Rest", pic: "cards/rest", desc: "Rest and recover" },
-      ])
-    });
-
-    console.log("interrupt...", choice)
-    await delay(this, 13000 / this.speed);
-
-    return null;
-
-  }
 
 }
 
 export default BattlegroundScene;
-
-
