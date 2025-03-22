@@ -15,7 +15,7 @@ import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import { Force, FORCE_ID_PLAYER } from "../../Models/Force";
 import * as StoreSystem from "./Store";
 import { delay, tween } from "../../Utils/animation";
-import { defaultTextConfig, HALF_TILE_HEIGHT, HALF_TILE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "./constants";
+import * as constants from "./constants";
 import { waves } from "./enemyWaves";
 import { vignette } from "./Animations/vignette";
 import { summonEffect } from "../../Effects/summonEffect";
@@ -172,15 +172,15 @@ export class BattlegroundScene extends Phaser.Scene {
 
     console.log("BattlegroundScene create");
 
-    const bg = this.add.image(0, 0, 'bg').setDisplaySize(SCREEN_WIDTH, SCREEN_HEIGHT)
-      .setPosition(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+    const bg = this.add.image(0, 0, 'bg').setDisplaySize(constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT)
+      .setPosition(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2);
 
     this.bgImage = bg;
 
     const tiles = this.add.grid(
       0, 0,
-      SCREEN_WIDTH, SCREEN_HEIGHT,
-      TILE_WIDTH, TILE_HEIGHT,
+      constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT,
+      constants.TILE_WIDTH, constants.TILE_HEIGHT,
       0x000000, 0, 0x00FF00, 0.5,
     ).setOrigin(0);
     tiles.setInteractive();
@@ -191,7 +191,7 @@ export class BattlegroundScene extends Phaser.Scene {
     // orange
     const color = 0xffa500;
     hoverOutline.lineStyle(2, color, 4);
-    hoverOutline.strokeRect(0, 0, TILE_WIDTH, TILE_WIDTH);
+    hoverOutline.strokeRect(0, 0, constants.TILE_WIDTH, constants.TILE_WIDTH);
     hoverOutline.visible = false;
 
     // have outline follow cursor
@@ -201,8 +201,8 @@ export class BattlegroundScene extends Phaser.Scene {
       );
 
       if (tile) {
-        hoverOutline.x = tile.x * TILE_WIDTH;
-        hoverOutline.y = tile.y * TILE_HEIGHT;
+        hoverOutline.x = tile.x * constants.TILE_WIDTH;
+        hoverOutline.y = tile.y * constants.TILE_HEIGHT;
         hoverOutline.visible = true;
       } else {
         hoverOutline.visible = false;
@@ -295,7 +295,7 @@ export class BattlegroundScene extends Phaser.Scene {
       "HP: " + force.hp,
       "Wave: " + this.state.gameData.wave,
     ].forEach((text, i) => {
-      const uiText = this.add.text(10 + 200 * i, 10, text, defaultTextConfig);
+      const uiText = this.add.text(10 + 200 * i, 10, text, constants.defaultTextConfig);
       this.ui?.add(uiText);
     });
 
@@ -313,7 +313,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     const btn = this.btn(
       "Start Battle",
-      SCREEN_WIDTH - 180, SCREEN_HEIGHT - 60,
+      constants.SCREEN_WIDTH - 180, constants.SCREEN_HEIGHT - 60,
       () => {
         emit(signals.WAVE_START, this.state.gameData.tick);
       });
@@ -330,8 +330,8 @@ export class BattlegroundScene extends Phaser.Scene {
 
   getTileAt = (vec: Vec2) => {
     const tile = vec2(
-      Math.floor(vec.x / TILE_WIDTH),
-      Math.floor(vec.y / TILE_HEIGHT)
+      Math.floor(vec.x / constants.TILE_WIDTH),
+      Math.floor(vec.y / constants.TILE_HEIGHT)
     );
     return tile;
   };
@@ -351,7 +351,7 @@ export class BattlegroundScene extends Phaser.Scene {
       x, y,
       text,
       {
-        ...defaultTextConfig,
+        ...constants.defaultTextConfig,
         color: '#000000',
         stroke: 'none',
         strokeThickness: 0,
@@ -380,8 +380,8 @@ export class BattlegroundScene extends Phaser.Scene {
   async renderUnit(unit: Unit) {
 
     const vec = vec2(
-      unit.position.x * TILE_WIDTH + HALF_TILE_WIDTH,
-      unit.position.y * TILE_HEIGHT + HALF_TILE_HEIGHT,
+      unit.position.x * constants.TILE_WIDTH + constants.HALF_TILE_WIDTH,
+      unit.position.y * constants.TILE_HEIGHT + constants.HALF_TILE_HEIGHT,
     );
 
     summonEffect(this, this.speed, vec);
@@ -438,10 +438,10 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
   createDropZone() {
-    const x = TILE_WIDTH * 6;
-    const y = TILE_WIDTH * 2;
-    const w = TILE_WIDTH * 3;
-    const h = TILE_WIDTH * 3;
+    const x = constants.TILE_WIDTH * 6;
+    const y = constants.TILE_WIDTH * 2;
+    const w = constants.TILE_WIDTH * 3;
+    const h = constants.TILE_WIDTH * 3;
     const zone = this.add.zone(x, y, w, h);
     zone.setOrigin(0);
 
@@ -494,7 +494,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.playFx('ui/error');
 
-    const text = this.add.text(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 100, err, defaultTextConfig);
+    const text = this.add.text(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100, err, constants.defaultTextConfig);
 
     text.setOrigin(0.5)
     this.tweens.add({
@@ -518,159 +518,6 @@ export class BattlegroundScene extends Phaser.Scene {
     })
 
   }
-
-  displayChoices = (resolve: (choice: {
-    pic: string,
-    title: string,
-    desc: string
-  }) => void) => (choices: { pic: string, title: string, desc: string }[]) => {
-
-    const component = this.add.container();
-
-    // display n cards, each one with a different reward
-
-    const backdrop = this.add.graphics();
-    backdrop.fillStyle(0x000000, 0.7);
-    backdrop.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-    backdrop.setInteractive(new Phaser.Geom.Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT), Phaser.Geom.Rectangle.Contains);
-
-    const title = this.add.text(
-      SCREEN_WIDTH / 2, 100,
-      "Select an action",
-      {
-        ...defaultTextConfig,
-        fontSize: '64px',
-      }
-    );
-    title.setOrigin(0.5);
-
-    const cardWidth = 350;
-    const cardHeight = 500;
-    const spacing = (SCREEN_WIDTH - (choices.length * cardWidth)) / (choices.length + 1);
-
-    const baseY = SCREEN_HEIGHT / 2 - cardHeight / 2;
-
-    const cards = choices.map((choice, i) => {
-      const x = (spacing * (i + 1)) + (cardWidth * i);
-      const y = baseY;
-      const card = this.add.container(x, y);
-
-      const pic = this.add.image(0, 0, choice.pic).setDisplaySize(cardWidth, cardWidth).setOrigin(0)
-
-      const emitter = this.add.particles(0, 0, 'white-splash-fade', {
-        speed: 0,
-        lifespan: { min: 400, max: 1000 },
-        scale: { start: 0.0, end: 0.2 },
-        alpha: { start: 1.0, end: 0 },
-        blendMode: 'ADD',
-        tint: 0x3333ff,
-        frequency: 300,
-        rotate: {
-          min: 0,
-          max: 360
-        },
-        quantity: 128,
-        emitZone: {
-          type: 'edge',
-          source: new Phaser.Geom.Rectangle(0, 0, cardWidth, cardHeight),
-          quantity: 128
-        }
-      });
-
-      card.add(emitter)
-
-      const cardBg = this.add.graphics();
-
-      cardBg.fillStyle(0xffffff);
-      cardBg.fillRect(0, 0, cardWidth, cardHeight);
-      cardBg.lineStyle(2, 0x000000);
-      cardBg.strokeRect(0, 0, cardWidth, cardHeight);
-
-      card.add(cardBg);
-
-      card.add(pic);
-
-      cardBg.setInteractive(new Phaser.Geom.Rectangle(0, 0, cardWidth, cardHeight), Phaser.Geom.Rectangle.Contains);
-
-      cardBg.on("pointerover", () => {
-
-        emitter.particleTint = 0x00ff00;
-        this.tweens.add({
-          targets: card,
-          scaleX: 1.05,
-          scaleY: 1.05,
-          x: x - 10,
-          y: y - 10,
-          duration: 300,
-          ease: 'Power',
-        })
-
-      });
-
-      cardBg.on("pointerout", () => {
-
-        emitter.particleTint = 0x3333ff;
-        this.tweens.add({
-          targets: card,
-          scaleX: 1.00,
-          scaleY: 1.00,
-          x,
-          y,
-          duration: 300,
-          ease: 'Power',
-        });
-
-      });
-
-      cardBg.on("pointerup", async () => {
-        await tween({
-          targets: [component],
-          duration: 1000,
-          alpha: 0,
-        });
-
-        component.destroy();
-
-        resolve(choice);
-      });
-
-      const text = this.add.text(
-        cardWidth / 2, cardHeight / 2,
-        choice.title,
-        defaultTextConfig
-      );
-      text.setOrigin(0.5);
-
-      card.add(text);
-
-      return card;
-
-    });
-
-    const confirmBtn = this.btn(
-      "Confirm",
-      SCREEN_WIDTH / 2, SCREEN_HEIGHT - 100,
-      () => {
-        backdrop.destroy();
-        title.destroy();
-        this.updateUI();
-      });
-
-    component.add([backdrop, title, ...cards, confirmBtn]);
-
-    component.setAlpha(0);
-
-    this.tweens.add({
-      targets: component,
-      alpha: 1,
-      duration: 500,
-      ease: 'Power',
-      delay: 500,
-    });
-
-
-  }
-
 
 }
 
