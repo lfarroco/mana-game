@@ -3,7 +3,7 @@ import { vec2 } from "../../Models/Geometry";
 import { emit, listeners, signals } from "../../Models/Signals";
 import { getUnit } from "../../Models/State";
 import { makeUnit } from "../../Models/Unit";
-import { delay, tween } from "../../Utils/animation";
+import { delay } from "../../Utils/animation";
 import { vignette } from "./Animations/vignette";
 import BattlegroundScene from "./BattlegroundScene";
 import { waves } from "./enemyWaves";
