@@ -11,6 +11,7 @@ import { vignette } from "./Animations/vignette";
 import { GOLD_PER_WAVE, HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "./constants";
 import { performAction } from "./performAction";
 import { TURN_DURATION } from "../../config";
+import * as InterruptSystem from "./Systems/Interrupt";
 
 const processTick = async (scene: BattlegroundScene) => {
 
@@ -49,10 +50,12 @@ const processTick = async (scene: BattlegroundScene) => {
 
   } else {
 
-    if (scene.interrupt) {
-      await scene.getInterruptAction();
-      scene.interrupt = false;
-      scene.displayInterruptBtn();
+    if (InterruptSystem.state.interrupt) {
+      const action = await InterruptSystem.getInterruptAction(scene)();
+      console.log(">>>", action)
+
+      await delay(scene, 3000 / scene.speed);
+
     }
 
     state.gameData.tick++;
