@@ -8,6 +8,7 @@ import { GlowingOrb } from "../../../Effects/GlowingOrb";
 import { delay } from "../../../Utils/animation";
 import { healingHitEffect } from "../../../Effects/healingHitEffect";
 import { approach } from "../approach";
+import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
 
 export const lightOrb = (
 	scene: BattlegroundScene
@@ -20,15 +21,15 @@ export const lightOrb = (
 	const damage = skill.power;
 	const heal = skill.power * 2;
 
-	const candidates = await approach(scene.getChara(unit.id), skill.range, true);
+	const candidates = await approach(UnitManager.getChara(unit.id), skill.range, true);
 
 	if (!candidates) return;
 
 	// allied with lower hp
 	const [target] = candidates.sort((a, b) => a.hp - b.hp);
 
-	const activeChara = scene.getChara(unit.id);
-	const targetChara = scene.getChara(target.id);
+	const activeChara = UnitManager.getChara(unit.id);
+	const targetChara = UnitManager.getChara(target.id);
 
 	await popText(scene, skill.name, unit.id);
 
@@ -51,7 +52,7 @@ export const lightOrb = (
 
 	allies.forEach(ally => {
 
-		const chara = scene.getChara(ally.id);
+		const chara = UnitManager.getChara(ally.id);
 
 		emit(signals.HEAL_UNIT, ally.id, heal);
 

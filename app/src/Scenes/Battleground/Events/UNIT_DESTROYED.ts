@@ -1,13 +1,14 @@
 import { signals, listeners } from "../../../Models/Signals";
 import { State } from "../../../Models/State";
 import BattlegroundScene from "../BattlegroundScene";
+import * as UnitManager from "../Systems/UnitManager";
 
 export function unitDestroyed(scene: BattlegroundScene, state: State) {
 
 	listeners([
 		[signals.UNIT_DESTROYED, (id: string) => {
 
-			const chara = scene.getChara(id)
+			const chara = UnitManager.getChara(id)
 
 			scene.tweens.add({
 				targets: chara.container,

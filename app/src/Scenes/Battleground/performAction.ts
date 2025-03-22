@@ -17,6 +17,7 @@ import { summon } from "../../Systems/Chara/Skills/summon";
 import BattlegroundScene from "./BattlegroundScene";
 import { shadowStep } from "../../Systems/Chara/Skills/shadowStep";
 import { getAllActiveFoes } from "../../Models/State";
+import * as UnitManager from "./Systems/UnitManager";
 
 export const performAction = (
 	scene: BattlegroundScene
@@ -37,7 +38,7 @@ export const performAction = (
 
 	const job = getJob(unit.job);
 
-	const activeChara = scene.getChara(unit.id);
+	const activeChara = UnitManager.getChara(unit.id);
 
 	const availableSkills = job.skills.filter(skillId => {
 		const cooldown = unit.cooldowns[skillId];

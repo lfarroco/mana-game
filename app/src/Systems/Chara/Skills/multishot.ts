@@ -8,6 +8,7 @@ import { getUnitsByProximity } from "../../../Models/State";
 import { delay } from "../../../Utils/animation";
 import { approach } from "../approach";
 import { getSkill, MULTISHOT } from "../../../Models/Skill";
+import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
 
 export async function multishot(
 	unit: Unit,
@@ -21,7 +22,7 @@ export async function multishot(
 
 	const targets = enemyUnits.slice(0, 4);
 
-	const chara = scene.getChara(unit.id);
+	const chara = UnitManager.getChara(unit.id);
 	const target = await approach(chara, skill.range, true)
 
 	if (!target) {

@@ -9,12 +9,13 @@ import { EnergyBeam } from "../../../Effects/EnergyBeam";
 import { healingHitEffect } from "../../../Effects/healingHitEffect";
 import { getSkill, HEALING_WAVE } from "../../../Models/Skill";
 import { approach } from "../approach";
+import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
 
 export async function healingWave(scene: BattlegroundScene, unit: Unit) {
 
 	const skill = getSkill(HEALING_WAVE);
 
-	const target = await approach(scene.getChara(unit.id), skill.range, false);
+	const target = await approach(UnitManager.getChara(unit.id), skill.range, false);
 
 	if (!target) return;
 
@@ -40,7 +41,7 @@ export async function healingWave(scene: BattlegroundScene, unit: Unit) {
 		emit(signals.HEAL_UNIT, ally.id, skill.power);
 	});
 
-	const charas = [scene.getChara(unit.id)].concat(top3.map(u => scene.getChara(u.id)))
+	const charas = [UnitManager.getChara(unit.id)].concat(top3.map(u => UnitManager.getChara(u.id)))
 
 	await animation(scene, charas.map(c => asVec2(c.container)));
 

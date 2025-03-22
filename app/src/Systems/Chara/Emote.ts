@@ -4,6 +4,7 @@ import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { HALF_TILE_HEIGHT } from "../../Scenes/Battleground/constants";
 import { State } from "../../Models/State";
 import { Vec2 } from "../../Models/Geometry";
+import * as UnitManager from "../../Scenes/Battleground/Systems/UnitManager";
 
 export const EMOTE_SCALE = 1
 
@@ -20,12 +21,12 @@ export function EmoteSystem_init(state: State, scene: BattlegroundScene) {
 	listeners([
 		[signals.CHARA_CREATED, (id: string) => {
 
-			createEmote(emoteIndex, scene.getChara(id))
+			createEmote(emoteIndex, UnitManager.getChara(id))
 
 		}],
 		[signals.DISPLAY_EMOTE, (id: string, key: string) => {
 
-			const chara = scene.getChara(id)
+			const chara = UnitManager.getChara(id)
 			const emote = emoteIndex[chara.id]
 			if (!emote) throw new Error(`No emote for ${chara.id}`)
 			if (emote.texture.key === key && emote.visible) return

@@ -12,6 +12,7 @@ import { GOLD_PER_WAVE, HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WID
 import { performAction } from "./performAction";
 import { TURN_DURATION } from "../../config";
 import * as InterruptSystem from "./Systems/Interrupt";
+import * as UnitManager from "./Systems/UnitManager";
 
 const processTick = async (scene: BattlegroundScene) => {
 
@@ -78,7 +79,7 @@ export async function walk(
   while (walked < job.moveRange && path[walked]) {
     const next = path[walked];
 
-    const chara = scene.getChara(unit.id);
+    const chara = UnitManager.getChara(unit.id);
 
     await tween({
       targets: [chara.container],
