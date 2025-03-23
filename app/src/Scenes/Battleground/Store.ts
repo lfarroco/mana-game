@@ -84,7 +84,7 @@ const renderUnit = (scene: BattlegroundScene) => (jobId: Job.JobId, i: number) =
 		if (maybeOccupier) return;
 
 		force.gold -= constants.RECRUIT_UNIT_PRICE;
-		emit(signals.RECRUIT_UNIT, FORCE_ID_PLAYER, jobId, asVec2(coords));
+		emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, jobId, asVec2(coords));
 
 		UIManager.updateUI();
 

@@ -88,8 +88,6 @@ export function updateUI() {
 
 	ui?.add(bg);
 
-	StoreSystem.updateStore(scene);
-
 	const btn = createButton(
 		"Start Battle",
 		constants.SCREEN_WIDTH - 180, constants.SCREEN_HEIGHT - 60,

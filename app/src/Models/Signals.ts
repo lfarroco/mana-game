@@ -45,7 +45,7 @@ export type Signals = {
   TOGGLE_SAVE_GAME_MODAL: (value: boolean) => void;
   TOGGLE_RECRUIT_MODAL: () => void;
   // When a unit is added to a force
-  RECRUIT_UNIT: (forceId: string, jobId: JobId, location: Vec2) => void;
+  ADD_UNIT_TO_GUILD: (forceId: string, jobId: JobId, location: Vec2) => void;
   // When a unit is finished being added to a force
   UNIT_CREATED: (unitId: string) => void;
   // When a chara is created in the map
@@ -101,7 +101,7 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   TOGGLE_LOAD_GAME_MODAL: "TOGGLE_LOAD_GAME_MODAL",
   TOGGLE_SAVE_GAME_MODAL: "TOGGLE_SAVE_GAME_MODAL",
   TOGGLE_RECRUIT_MODAL: "TOGGLE_RECRUIT_MODAL",
-  RECRUIT_UNIT: "RECRUIT_UNIT",
+  ADD_UNIT_TO_GUILD: "ADD_UNIT_TO_GUILD",
   UNIT_CREATED: "UNIT_CREATED",
   CHARA_CREATED: "CHARA_CREATED",
   BATTLEGROUND_TICK: "BATTLEGROUND_TICK",
