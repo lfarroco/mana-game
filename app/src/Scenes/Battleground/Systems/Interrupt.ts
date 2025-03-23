@@ -37,18 +37,14 @@ const hideInterruptBtn = () => {
 
 export const getInterruptAction = async () => {
 
-	const choice = await new Promise<{
-		pic: string,
-		title: string,
-		desc: string
-	}>((resolve) =>
-		Choice.displayChoices(scene)(resolve)([
-			{ title: "Advance", pic: "cards/advance", desc: "Advance to the next wave" },
-			{ title: "Explore", pic: "cards/explore", desc: "Explore the area for loot" },
-			{ title: "Merchant", pic: "cards/merchant", desc: "Visit the merchant to buy items" },
-			{ title: "Rest", pic: "cards/rest", desc: "Rest and recover" },
-		])
-	);
+	const choice = await Choice.displayChoices(
+		"Select an action",
+		[
+			{ title: "Advance", pic: "cards/advance", desc: "Advance to the next wave", onSelect: () => { } },
+			{ title: "Explore", pic: "cards/explore", desc: "Explore the area for loot", onSelect: () => { } },
+			{ title: "Merchant", pic: "cards/merchant", desc: "Visit the merchant to buy items", onSelect: () => { } },
+			{ title: "Rest", pic: "cards/rest", desc: "Rest and recover", onSelect: () => { } },
+		]);
 
 	console.log("interrupt...", choice)
 	await delay(scene, 1000 / scene.speed);

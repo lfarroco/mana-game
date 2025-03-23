@@ -1,7 +1,6 @@
 import Phaser from "phaser";
 import { preload } from "./preload";
 import * as CharaSystem from "../../Systems/Chara/Chara";
-import { emit, signals } from "../../Models/Signals";
 import { State, getState } from "../../Models/State";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
 import * as AISystem from "../../Systems/AI/AI";
@@ -16,6 +15,9 @@ import * as UIManager from "./Systems/UIManager";
 import * as UnitManager from "./Systems/UnitManager";
 import * as WaveManager from "./Systems/WaveManager";
 import * as GridSystem from "./Systems/GridSystem";
+import * as ChoiceSystem from "./Systems/Choice";
+import { jobs } from "../../Models/Job";
+import { pickRandom } from "../../utils";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -58,6 +60,8 @@ export class BattlegroundScene extends Phaser.Scene {
     WaveManager.init(this);
     GridSystem.init(this);
 
+    ChoiceSystem.init(this);
+
     //@ts-ignore
     window.bg = this;
 
@@ -77,23 +81,38 @@ export class BattlegroundScene extends Phaser.Scene {
     this.bgImage = this.add.image(0, 0, 'bg').setDisplaySize(constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT)
       .setPosition(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2);
 
-    const { tiles, hoverOutline } = GridSystem.createTileGrid();
+    //const { tiles, hoverOutline } = GridSystem.createTileGrid();
 
     this.bgContainer = this.add.container(0, 0);
-    this.bgContainer.add([this.bgImage, tiles, hoverOutline]);
+    //this.bgContainer.add([this.bgImage, tiles, hoverOutline]);
 
     ControlsSystem.init(this);
+
+    //emit(signals.BATTLEGROUND_STARTED);
+
+    //UIManager.createDropZone(this);
+    //UIManager.updateUI();
+
+    //WaveManager.createWave();
 
     //@ts-ignore
     window.scene = this;
 
-    //this.cameras.main.setZoom(1.5)
-    emit(signals.BATTLEGROUND_STARTED);
+    // pick 3 random jobs
+    const jobs_ = pickRandom(jobs, 3)
 
-    UIManager.createDropZone(this);
-    UIManager.updateUI();
+    const job = await ChoiceSystem.displayChoices(
+      "Who's your hero?",
+      jobs_.map(job => ({
+        pic: `${job.id}/full`,
+        title: job.name,
+        desc: job.description,
+        onSelect: () => {
+          console.log("selected job", job)
+        }
+      })));
 
-    WaveManager.createWave();
+    console.log(">>>", job);
 
   };
 

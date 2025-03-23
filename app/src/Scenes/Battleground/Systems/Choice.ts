@@ -1,16 +1,21 @@
 import Phaser from "phaser";
 import { tween } from "../../../Utils/animation";
-import { BattlegroundScene } from "../BattlegroundScene";
 import * as constants from "../constants";
 import * as UIManager from "./UIManager";
+import { getState, State } from "../../../Models/State";
+import { breakLines } from "../../../utils";
+
+let scene: Phaser.Scene;
+let state: State;
 
 type Choice = {
 	pic: string;
 	title: string;
 	desc: string;
+	onSelect: () => void;
 };
 
-const CARD_DIMENSIONS = { width: 350, height: 500 };
+const CARD_DIMENSIONS = { width: 450, height: 700 };
 const TITLE_POSITION = { x: constants.SCREEN_WIDTH / 2, y: 100 };
 const BASE_Y = constants.SCREEN_HEIGHT / 2 - CARD_DIMENSIONS.height / 2;
 
@@ -26,7 +31,14 @@ const STYLE_CONSTANTS = {
 	}
 } as const;
 
-export const displayChoices = (scene: BattlegroundScene) => (resolve: (choice: Choice) => void) => (choices: Choice[]) => {
+export const init = (sceneRef: Phaser.Scene) => {
+	scene = sceneRef;
+	state = getState();
+	// add listeners here
+	//...
+}
+
+export const displayChoices = (title: string, choices: Choice[]) => new Promise((resolve) => {
 
 	const component = scene.add.container();
 
@@ -37,15 +49,15 @@ export const displayChoices = (scene: BattlegroundScene) => (resolve: (choice: C
 	backdrop.fillRect(0, 0, constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT);
 	backdrop.setInteractive(cardRect, Phaser.Geom.Rectangle.Contains);
 
-	const title = scene.add.text(
+	const titleText = scene.add.text(
 		TITLE_POSITION.x, TITLE_POSITION.y,
-		"Select an action",
+		title,
 		{
 			...constants.defaultTextConfig,
 			fontSize: '64px',
 		}
 	);
-	title.setOrigin(0.5);
+	titleText.setOrigin(0.5);
 
 	const spacing = (constants.SCREEN_WIDTH - (choices.length * CARD_DIMENSIONS.width)) / (choices.length + 1);
 
@@ -80,7 +92,7 @@ export const displayChoices = (scene: BattlegroundScene) => (resolve: (choice: C
 
 		const cardBg = scene.add.graphics();
 
-		cardBg.fillStyle(0xffffff);
+		cardBg.fillStyle(0x333333);
 		cardBg.fillRect(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height);
 		cardBg.lineStyle(2, 0x000000);
 		cardBg.strokeRect(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height);
@@ -120,7 +132,7 @@ export const displayChoices = (scene: BattlegroundScene) => (resolve: (choice: C
 		cardBg.on("pointerup", async () => {
 			await tween({
 				targets: [component],
-				duration: 1000 / scene.speed,
+				duration: 1000 / state.options.speed,
 				alpha: 0,
 			});
 
@@ -130,13 +142,22 @@ export const displayChoices = (scene: BattlegroundScene) => (resolve: (choice: C
 		});
 
 		const text = scene.add.text(
-			CARD_DIMENSIONS.width / 2, CARD_DIMENSIONS.height / 2,
+			CARD_DIMENSIONS.width / 2, CARD_DIMENSIONS.height / 2 + 140,
 			choice.title,
 			constants.defaultTextConfig
 		);
 		text.setOrigin(0.5);
 
 		card.add(text);
+
+		const desc = scene.add.text(
+			CARD_DIMENSIONS.width / 2, CARD_DIMENSIONS.height / 2 + 230,
+			breakLines(choice.desc, 25),
+			{ ...constants.defaultTextConfig, fontSize: '40px' }
+		);
+		desc.setOrigin(0.5);
+
+		card.add(desc);
 
 		return card;
 	});
@@ -145,12 +166,11 @@ export const displayChoices = (scene: BattlegroundScene) => (resolve: (choice: C
 		"Confirm",
 		constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100,
 		() => {
-			backdrop.destroy();
-			title.destroy();
+			component.destroy();
 			UIManager.updateUI();
 		});
 
-	component.add([backdrop, title, ...cards, confirmBtn]);
+	component.add([backdrop, titleText, ...cards, confirmBtn]);
 
 	component.setAlpha(0);
 
@@ -161,4 +181,5 @@ export const displayChoices = (scene: BattlegroundScene) => (resolve: (choice: C
 		ease: 'Power',
 		delay: STYLE_CONSTANTS.FADE_DELAY,
 	});
-};
+
+});

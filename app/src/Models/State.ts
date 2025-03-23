@@ -24,6 +24,7 @@ export const initialState = (): State => ({
     ],
     units: [],
     grid: [],
+    choices: []
   }
 });
 
@@ -47,6 +48,7 @@ export type GameData = {
   forces: Force[];
   units: Unit[];
   grid: number[][];
+  choices: string[];
 }
 
 export const getState = (): State => {
