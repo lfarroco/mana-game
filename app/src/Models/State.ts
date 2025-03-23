@@ -104,7 +104,7 @@ export const updateForce = (state: State) => (
 export const listenToStateEvents = (state: State) => {
   listeners([
 
-    [signals.RECRUIT_UNIT, (forceId: string, jobId: JobId, position: Vec2) => {
+    [signals.ADD_UNIT_TO_GUILD, (forceId: string, jobId: JobId, position: Vec2) => {
 
       const unitId = uuid.v4();
 
@@ -112,7 +112,7 @@ export const listenToStateEvents = (state: State) => {
 
       state.gameData.units.push(unit);
 
-      emit(signals.UNIT_CREATED, unit.id);
+      //emit(signals.UNIT_CREATED, unit.id);
 
     }],
 

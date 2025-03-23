@@ -8,12 +8,19 @@ import { breakLines } from "../../../utils";
 let scene: Phaser.Scene;
 let state: State;
 
-type Choice = {
+export type Choice = {
 	pic: string;
 	title: string;
 	desc: string;
-	onSelect: () => void;
+	value: string;
 };
+
+export const newChoice = (pic: string, title: string, desc: string, value: string): Choice => ({
+	pic,
+	title,
+	desc,
+	value
+});
 
 const CARD_DIMENSIONS = { width: 450, height: 700 };
 const TITLE_POSITION = { x: constants.SCREEN_WIDTH / 2, y: 100 };
@@ -38,7 +45,7 @@ export const init = (sceneRef: Phaser.Scene) => {
 	//...
 }
 
-export const displayChoices = (title: string, choices: Choice[]) => new Promise((resolve) => {
+export const displayChoices = (title: string, choices: Choice[]) => new Promise<Choice>((resolve) => {
 
 	const component = scene.add.container();
 

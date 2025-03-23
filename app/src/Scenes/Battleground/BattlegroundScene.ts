@@ -16,8 +16,10 @@ import * as UnitManager from "./Systems/UnitManager";
 import * as WaveManager from "./Systems/WaveManager";
 import * as GridSystem from "./Systems/GridSystem";
 import * as ChoiceSystem from "./Systems/Choice";
-import { jobs } from "../../Models/Job";
+import { JobId, jobs } from "../../Models/Job";
 import { pickRandom } from "../../utils";
+import { signals, emit } from "../../Models/Signals";
+import { vec2 } from "../../Models/Geometry";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -52,7 +54,7 @@ export class BattlegroundScene extends Phaser.Scene {
     HPBarSystem.init(state, this);
     BattlegroundAudioSystem_init(state, this);
     CharaSystem.init(this);
-    StoreSystem.init(this);
+    //StoreSystem.init(this);
     InterruptSystem.init(this);
 
     UnitManager.init(this);
@@ -81,17 +83,13 @@ export class BattlegroundScene extends Phaser.Scene {
     this.bgImage = this.add.image(0, 0, 'bg').setDisplaySize(constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT)
       .setPosition(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2);
 
-    //const { tiles, hoverOutline } = GridSystem.createTileGrid();
 
     this.bgContainer = this.add.container(0, 0);
-    //this.bgContainer.add([this.bgImage, tiles, hoverOutline]);
+
 
     ControlsSystem.init(this);
 
     //emit(signals.BATTLEGROUND_STARTED);
-
-    //UIManager.createDropZone(this);
-    //UIManager.updateUI();
 
     //WaveManager.createWave();
 
@@ -99,20 +97,35 @@ export class BattlegroundScene extends Phaser.Scene {
     window.scene = this;
 
     // pick 3 random jobs
-    const jobs_ = pickRandom(jobs, 3)
 
-    const job = await ChoiceSystem.displayChoices(
+    const choice = await ChoiceSystem.displayChoices(
       "Who's your hero?",
-      jobs_.map(job => ({
-        pic: `${job.id}/full`,
-        title: job.name,
-        desc: job.description,
-        onSelect: () => {
-          console.log("selected job", job)
-        }
-      })));
+      pickRandom(jobs, 3).map(job => ChoiceSystem.newChoice(
+        `${job.id}/full`,
+        job.name,
+        job.description,
+        job.id,
+      )));
 
-    console.log(">>>", job);
+    emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, choice.value as JobId, vec2(7, 3));
+
+    console.log(">>>", choice);
+
+    const { tiles, hoverOutline } = GridSystem.createTileGrid();
+    this.bgContainer.add([this.bgImage, tiles, hoverOutline]);
+    UIManager.createDropZone(this);
+    UIManager.updateUI();
+
+    this.state.gameData.units.forEach(UnitManager.renderUnit);
+
+    const skillChoice = await ChoiceSystem.displayChoices(
+      "Choose a skill",
+      [
+        ChoiceSystem.newChoice("icon/fireball", "Fireball", "A powerful fireball", "fireball"),
+        ChoiceSystem.newChoice("icon/arcane_missiles", "Arcane Missiles", "A barrage of arcane missiles", "arcane_missiles"),
+      ]);
+
+    console.log(">>>", skillChoice);
 
   };
 
