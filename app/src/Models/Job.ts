@@ -92,6 +92,39 @@ function parseJobsTable(table: string) {
   })
 }
 
-export const jobs = parseJobsTable(baseJobs).concat(parseJobsTable(monsters));
+
+export const descriptions = `
+Job           | Description
+--------------|--------------------------------------
+${ARCHER}     | A ranged attacker that can hit multiple targets
+${ACOLYTE}    | A healer that can heal multiple targets
+${APPRENTICE} | A spellcaster that can deal high damage
+${SQUIRE}     | A tank that can take a lot of damage
+${THIEF}      | A fast attacker that can deal high damage
+${BLOB}       | A basic enemy that can deal damage
+${RED_BLOB}   | A basic enemy that can explode
+${BLOB_KING}  | A boss enemy that can summon other blobs
+${BLOB_MAGE}  | A mage enemy that can deal high damage
+${BLOB_KNIGHT}| A tank enemy that can deal damage
+${SHADOW_BLOB}| A shadow enemy that can summon other blobs
+${SHADOW_GHOST}| A shadow enemy that can teleport
+${SWARMLING}  | A shadow enemy that can deal damage
+`;
+
+
+const descriptionsMap = descriptions.trim().split("\n").slice(2).map((r) => {
+  const [id, description] = r.split("|").map((c) => c.trim());
+  return { id, description };
+}).reduce((acc, { id, description }) => {
+  acc[id] = description;
+  return acc;
+}
+  , {} as { [key: string]: string });
+
+function getDesctiption(job: Job): Job {
+  job.description = descriptionsMap[job.id];
+  return job;
+}
+export const jobs = parseJobsTable(baseJobs).concat(parseJobsTable(monsters)).map(getDesctiption);
 
 export const getJob = (id: JobId): Job => jobs.find((j) => j.id === id)!;
