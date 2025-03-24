@@ -28,30 +28,31 @@ export type Event = {
 		onSelect: () => void;
 	}
 }
+const starterEvent = {
+	id: "1",
+	level: 1,
+	title: "Start your guild",
+	description: "Recruit the first member of your guild",
+	pic: "https://via.placeholder.com/150",
+	triggers: {
+		choices: () => {
+			return pickRandom(jobs, 3).map(job => newChoice(
+				`${job.id}/full`,
+				job.name,
+				job.description,
+				job.id,
+			));
+		},
+		onChoice: async (choice: Choice) => {
+			console.log(">>>", choice);
 
-export const events: Event[] = [
-	{
-		id: "1",
-		level: 1,
-		title: "Start your guild",
-		description: "Recruit the first member of your guild",
-		pic: "https://via.placeholder.com/150",
-		triggers: {
-			choices: () => {
-				return pickRandom(jobs, 3).map(job => newChoice(
-					`${job.id}/full`,
-					job.name,
-					job.description,
-					job.id,
-				));
-			},
-			onChoice: async (choice: Choice) => {
-				console.log(">>>", choice);
-
-				emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, choice.value as JobId, vec2(7, 3));
-			}
+			emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, choice.value as JobId, vec2(7, 3));
 		}
-	},
+	}
+}
+
+
+const randomEvents = [
 	{
 		id: "2",
 		level: 1,
@@ -65,11 +66,41 @@ export const events: Event[] = [
 				UIManager.updateUI();
 			},
 		}
-	}
-
+	},
+	{
+		id: "3",
+		level: 1,
+		title: "A new friend",
+		description: "You have made a new friend",
+		pic: "https://via.placeholder.com/150",
+		triggers: {
+			onSelect: () => {
+				emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, "blob" as JobId, vec2(7, 3));
+			}
+		}
+	},
+	{
+		id: "4",
+		level: 1,
+		title: "Pick some fruit",
+		description: "Get a random fruit",
+		pic: "https://via.placeholder.com/150",
+		triggers: {
+			onSelect: () => {
+				const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
+				playerForce.gold += 33;
+				UIManager.updateUI();
+			}
+		}
+	},
 ];
 
-export const renderEvent = async (event: Event) => {
+export const events: Event[] = [
+	starterEvent,
+	...randomEvents
+];
+
+export const evalEvent = async (event: Event) => {
 
 	if ('choices' in event.triggers) {
 
@@ -80,5 +111,19 @@ export const renderEvent = async (event: Event) => {
 	if ('onSelect' in event.triggers) {
 		event.triggers.onSelect();
 	}
+
+	return true;
+
+}
+
+export const displayRandomEvents = async () => {
+	const randomItems = pickRandom(randomEvents, 3);
+	const chosenEvent = await displayChoices("Random event", randomItems.map(e => newChoice(e.id, e.title, e.description, e.id)));
+
+	const event = events.find(e => e.id === chosenEvent.value);
+
+	if (!event) throw new Error("Event not found");
+
+	await evalEvent(event);
 
 }
