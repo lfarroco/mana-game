@@ -89,6 +89,11 @@ export class BattlegroundScene extends Phaser.Scene {
 
     ControlsSystem.init(this);
 
+    const { tiles, hoverOutline } = GridSystem.createTileGrid();
+    this.bgContainer.add([this.bgImage, tiles, hoverOutline]);
+    UIManager.createDropZone(this);
+    UIManager.updateUI();
+
     //emit(signals.BATTLEGROUND_STARTED);
 
     //WaveManager.createWave();
@@ -111,10 +116,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     console.log(">>>", choice);
 
-    const { tiles, hoverOutline } = GridSystem.createTileGrid();
-    this.bgContainer.add([this.bgImage, tiles, hoverOutline]);
-    UIManager.createDropZone(this);
-    UIManager.updateUI();
+
 
     this.state.gameData.units.forEach(UnitManager.renderUnit);
 
