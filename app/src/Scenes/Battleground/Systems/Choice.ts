@@ -22,9 +22,8 @@ export const newChoice = (pic: string, title: string, desc: string, value: strin
 	value
 });
 
-const CARD_DIMENSIONS = { width: 450, height: 700 };
-const TITLE_POSITION = { x: constants.SCREEN_WIDTH / 2, y: 100 };
-const BASE_Y = constants.SCREEN_HEIGHT / 2 - CARD_DIMENSIONS.height / 2;
+const CARD_DIMENSIONS = { width: 800, height: 300 };
+const BASE_X = 10;
 
 const STYLE_CONSTANTS = {
 	HOVER_SCALE: 1.05,
@@ -49,37 +48,21 @@ export const displayChoices = (title: string, choices: Choice[]) => new Promise<
 
 	const component = scene.add.container();
 
-	const cardRect = new Phaser.Geom.Rectangle(0, 0, constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT);
-
-	const backdrop = scene.add.graphics();
-	backdrop.fillStyle(0x000000, 0.7);
-	backdrop.fillRect(0, 0, constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT);
-	backdrop.setInteractive(cardRect, Phaser.Geom.Rectangle.Contains);
-
-	const titleText = scene.add.text(
-		TITLE_POSITION.x, TITLE_POSITION.y,
-		title,
-		{
-			...constants.defaultTextConfig,
-			fontSize: '64px',
-		}
-	);
-	titleText.setOrigin(0.5);
-
-	const spacing = (constants.SCREEN_WIDTH - (choices.length * CARD_DIMENSIONS.width)) / (choices.length + 1);
+	const spacing = (constants.SCREEN_HEIGHT - (choices.length * CARD_DIMENSIONS.height)) / (choices.length + 1);
 
 	const cards = choices.map((choice, i) => {
-		const x = (spacing * (i + 1)) + (CARD_DIMENSIONS.width * i);
-		const y = BASE_Y;
+		const x = BASE_X;
+		const y = (spacing * (i + 1)) + (CARD_DIMENSIONS.height * i);
 		const card = scene.add.container(x, y);
 
-		const pic = scene.add.image(0, 0, choice.pic).setDisplaySize(CARD_DIMENSIONS.width, CARD_DIMENSIONS.width).setOrigin(0);
+		const pic = scene.add.image(0, 0, choice.pic)
+			.setDisplaySize(CARD_DIMENSIONS.height, CARD_DIMENSIONS.height).setOrigin(0);
 
 		const emitter = scene.add.particles(0, 0, 'white-splash-fade', {
 			speed: 0,
-			lifespan: { min: 400, max: 1000 },
-			scale: { start: 0.0, end: 0.2 },
-			alpha: { start: 1.0, end: 0 },
+			lifespan: { min: 400, max: 700 },
+			scale: { start: 0.0, end: 0.15 },
+			alpha: { start: 0.8, end: 0 },
 			blendMode: 'ADD',
 			tint: STYLE_CONSTANTS.PARTICLE_COLORS.DEFAULT,
 			frequency: 300,
@@ -87,11 +70,11 @@ export const displayChoices = (title: string, choices: Choice[]) => new Promise<
 				min: 0,
 				max: 360
 			},
-			quantity: 128,
+			quantity: 64,
 			emitZone: {
 				type: 'edge',
 				source: new Phaser.Geom.Rectangle(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height),
-				quantity: 128
+				quantity: 64
 			}
 		});
 
@@ -108,7 +91,7 @@ export const displayChoices = (title: string, choices: Choice[]) => new Promise<
 
 		card.add(pic);
 
-		cardBg.setInteractive(cardRect, Phaser.Geom.Rectangle.Contains);
+		cardBg.setInteractive(new Phaser.Geom.Rectangle(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height), Phaser.Geom.Rectangle.Contains);
 
 		cardBg.on("pointerover", () => {
 			emitter.particleTint = STYLE_CONSTANTS.PARTICLE_COLORS.HOVER;
@@ -149,35 +132,27 @@ export const displayChoices = (title: string, choices: Choice[]) => new Promise<
 		});
 
 		const text = scene.add.text(
-			CARD_DIMENSIONS.width / 2, CARD_DIMENSIONS.height / 2 + 140,
+			CARD_DIMENSIONS.height + 20, 20,
 			choice.title,
 			constants.defaultTextConfig
 		);
-		text.setOrigin(0.5);
+		text.setOrigin(0);
 
 		card.add(text);
 
 		const desc = scene.add.text(
-			CARD_DIMENSIONS.width / 2, CARD_DIMENSIONS.height / 2 + 230,
+			CARD_DIMENSIONS.height + 20, 80,
 			breakLines(choice.desc, 25),
 			{ ...constants.defaultTextConfig, fontSize: '40px' }
 		);
-		desc.setOrigin(0.5);
+		desc.setOrigin(0);
 
 		card.add(desc);
 
 		return card;
 	});
 
-	const confirmBtn = UIManager.createButton(
-		"Confirm",
-		constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100,
-		() => {
-			component.destroy();
-			UIManager.updateUI();
-		});
-
-	component.add([backdrop, titleText, ...cards, confirmBtn]);
+	component.add(cards);
 
 	component.setAlpha(0);
 
