@@ -101,7 +101,14 @@ export class BattlegroundScene extends Phaser.Scene {
 
     // pick 3 random jobs
 
-    EventSystem.renderEvent(EventSystem.events[0]);
+    EventSystem.evalEvent(EventSystem.events[0]);
+
+    let hours = 0;
+
+    while (hours < 5) {
+      hours += 1;
+      const result = await EventSystem.evalEvent
+    }
 
 
 
