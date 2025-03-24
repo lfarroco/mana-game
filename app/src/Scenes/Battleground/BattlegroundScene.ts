@@ -7,7 +7,6 @@ import * as AISystem from "../../Systems/AI/AI";
 import * as HPBarSystem from "../../Systems/Chara/HPBar";
 import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import { Force, FORCE_ID_PLAYER } from "../../Models/Force";
-import * as StoreSystem from "./Store";
 import * as constants from "./constants";
 import * as InterruptSystem from "./Systems/Interrupt";
 import { setupEventListeners } from "./EventHandlers";
@@ -16,10 +15,7 @@ import * as UnitManager from "./Systems/UnitManager";
 import * as WaveManager from "./Systems/WaveManager";
 import * as GridSystem from "./Systems/GridSystem";
 import * as ChoiceSystem from "./Systems/Choice";
-import { JobId, jobs } from "../../Models/Job";
-import { pickRandom } from "../../utils";
-import { signals, emit } from "../../Models/Signals";
-import { vec2 } from "../../Models/Geometry";
+import * as EventSystem from "../../Models/Events";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -64,6 +60,8 @@ export class BattlegroundScene extends Phaser.Scene {
 
     ChoiceSystem.init(this);
 
+    EventSystem.init(this);
+
     //@ts-ignore
     window.bg = this;
 
@@ -103,31 +101,9 @@ export class BattlegroundScene extends Phaser.Scene {
 
     // pick 3 random jobs
 
-    const choice = await ChoiceSystem.displayChoices(
-      "Who's your hero?",
-      pickRandom(jobs, 3).map(job => ChoiceSystem.newChoice(
-        `${job.id}/full`,
-        job.name,
-        job.description,
-        job.id,
-      )));
-
-    emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, choice.value as JobId, vec2(7, 3));
-
-    console.log(">>>", choice);
+    EventSystem.renderEvent(EventSystem.events[0]);
 
 
-
-    this.state.gameData.units.forEach(UnitManager.renderUnit);
-
-    const skillChoice = await ChoiceSystem.displayChoices(
-      "Choose a skill",
-      [
-        ChoiceSystem.newChoice("icon/fireball", "Fireball", "A powerful fireball", "fireball"),
-        ChoiceSystem.newChoice("icon/arcane_missiles", "Arcane Missiles", "A barrage of arcane missiles", "arcane_missiles"),
-      ]);
-
-    console.log(">>>", skillChoice);
 
   };
 

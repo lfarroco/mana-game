@@ -112,7 +112,7 @@ export const listenToStateEvents = (state: State) => {
 
       state.gameData.units.push(unit);
 
-      //emit(signals.UNIT_CREATED, unit.id);
+      emit(signals.UNIT_CREATED, unit.id);
 
     }],
 
