@@ -1,6 +1,6 @@
 import * as uuid from "uuid";
 import { cpuForce, Force, playerForce } from "./Force";
-import { eqVec2, snakeDistanceBetween, sortBySnakeDistance, Vec2 } from "./Geometry";
+import { eqVec2, snakeDistanceBetween, sortBySnakeDistance, vec2, Vec2 } from "./Geometry";
 import { emit, signals, listeners } from "./Signals";
 import { Unit, makeUnit } from "./Unit";
 import { JobId } from "./Job";
@@ -104,11 +104,34 @@ export const updateForce = (state: State) => (
 export const listenToStateEvents = (state: State) => {
   listeners([
 
-    [signals.ADD_UNIT_TO_GUILD, (forceId: string, jobId: JobId, position: Vec2) => {
+    [signals.ADD_UNIT_TO_GUILD, (forceId: string, jobId: JobId) => {
 
       const unitId = uuid.v4();
 
-      const unit = makeUnit(unitId, forceId, jobId, position)
+      const startX = 6;
+      const endX = 9;
+      const startY = 2;
+      const endY = 5;
+
+      let isValid = false;
+      let position = vec2(0, 0);
+
+      while (!isValid) {
+        for (let x = startX; x < endX; x++) {
+          for (let y = startY; y < endY; y++) {
+            if (!getUnitAt(state)(vec2(x, y))) {
+              isValid = true;
+              position = vec2(x, y);
+              break;
+            }
+          }
+          if (isValid) break;
+        }
+      }
+
+      const unit = makeUnit(unitId, forceId, jobId, position);
+
+
 
       state.gameData.units.push(unit);
 
