@@ -44,9 +44,7 @@ const starterEvent = {
 			));
 		},
 		onChoice: async (choice: Choice) => {
-			console.log(">>>", choice);
-
-			emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, choice.value as JobId, vec2(7, 3));
+			emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, choice.value as JobId);
 		}
 	}
 }
@@ -75,7 +73,7 @@ const randomEvents = [
 		pic: "https://via.placeholder.com/150",
 		triggers: {
 			onSelect: () => {
-				emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, "blob" as JobId, vec2(7, 3));
+				emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, "blob" as JobId);
 			}
 		}
 	},
@@ -165,7 +163,7 @@ const randomEvents = [
 			onChoice: (choice: Choice) => {
 				const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
 				if (choice.value === "recruit") {
-					emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, pickRandom(jobs, 1)[0].id as JobId, vec2(7, 3));
+					emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, pickRandom(jobs, 1)[0].id as JobId);
 				} else if (choice.value === "bribe" && playerForce.gold >= 5) {
 					playerForce.gold -= 5;
 					playerForce.gold += 15; // Information leads to greater reward

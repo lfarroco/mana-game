@@ -1,5 +1,4 @@
 import { FORCE_ID_PLAYER } from "../../Models/Force";
-import { asVec2, vec2 } from "../../Models/Geometry";
 import * as Job from "../../Models/Job";
 import { emit, signals } from "../../Models/Signals";
 import { getUnitAt } from "../../Models/State";
@@ -84,7 +83,7 @@ const renderUnit = (scene: BattlegroundScene) => (jobId: Job.JobId, i: number) =
 		if (maybeOccupier) return;
 
 		force.gold -= constants.RECRUIT_UNIT_PRICE;
-		emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, jobId, asVec2(coords));
+		emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, jobId);
 
 		UIManager.updateUI();
 
