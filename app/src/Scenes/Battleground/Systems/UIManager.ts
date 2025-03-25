@@ -68,24 +68,26 @@ export function updateUI() {
 
 	ui = scene.add.container(0, 0);
 
+
+
+	const sidebarWidth = 350;
+
+	const sidebarBg = scene.add.graphics();
+	sidebarBg.fillStyle(COLOR_BLACK, 0.7);
+	sidebarBg.fillRect(
+		(scene.cameras.main.width - sidebarWidth)
+		, 0, sidebarWidth, scene.cameras.main.height);
+
+	ui?.add(sidebarBg);
+
 	[
 		"Gold: " + force.gold,
 		"HP: " + force.hp,
 		"Wave: " + scene.state.gameData.wave,
 	].forEach((text, i) => {
-		const uiText = scene.add.text(10 + 200 * i, 10, text, constants.defaultTextConfig);
+		const uiText = scene.add.text(constants.SCREEN_WIDTH - 200, 30 + i * 80, text, constants.defaultTextConfig);
 		ui?.add(uiText);
 	});
-
-	const sidebarWidth = 350;
-
-	const bg = scene.add.graphics();
-	bg.fillStyle(COLOR_BLACK, 0.7);
-	bg.fillRect(
-		(scene.cameras.main.width - sidebarWidth)
-		, 0, sidebarWidth, scene.cameras.main.height);
-
-	ui?.add(bg);
 
 	const btn = createButton(
 		"Start Battle",
