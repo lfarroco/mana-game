@@ -1,6 +1,5 @@
 import * as constants from "../constants";
 import { signals, emit } from "../../../Models/Signals";
-import * as StoreSystem from "../Store";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { delay } from "../../../Utils/animation";
 import { getJob } from "../../../Models/Job";
@@ -187,14 +186,15 @@ export function displayUnitInfo(chara: CharaSystem.Chara) {
 
 	const job = getJob(unit.job);
 
-	const x = 0;
-	const y = bgConstants.TILE_HEIGHT * 1;
+	const x = chara.container.x + constants.TILE_WIDTH + 10;
+	const y = chara.container.y - constants.TILE_HEIGHT;
 	const width = bgConstants.TILE_WIDTH * 3;
 	const height = bgConstants.TILE_HEIGHT * 5;
 
 	const bg = scene.add.graphics();
 	bg.fillStyle(COLOR_BLACK, 0.7);
 	bg.fillRoundedRect(0, 0, width, height, 10);
+
 
 	unitInfoContainer = scene.add.container(x, y);
 	unitInfoContainer.add([bg]);
