@@ -72,6 +72,19 @@ export const waves: { [idx: number]: Unit[] } = {
 		...col(BLOB_KNIGHT, 2, FRONTLINE),
 	],
 
+	11: [
+		...col(BLOB, 3, MIDDLE).map(shift(0, 1)),
+	],
+	12: [
+		...cluster(BLOB, 2).map(shift(1, 2)),
+		enemy(RED_BLOB, 1, 0),
+		enemy(RED_BLOB, 1, 3),
+	],
+	13: [
+		enemy(BLOB_MAGE, 1, 3),
+		...col(BLOB, 4, FRONTLINE),
+	]
+
 };
 
 console.log("waves", waves);

@@ -63,20 +63,16 @@ export function setupEventListeners(scene: BattlegroundScene) {
 
 			scene.state.gameData.units.forEach(UnitManager.renderUnit);
 
-			scene.state.gameData.wave++;
-
-			const isGameOver = scene.state.gameData.wave > Object.keys(waves).length;
+			const isGameOver = scene.state.gameData.hour > Object.keys(waves).length;
 
 			if (isGameOver) {
 				await vignette(scene, "Victory! Thanks for Playing!");
 
 				UnitManager.clearCharas();
 				scene.state.gameData.units = []
-				scene.state.gameData.wave = 1;
+				scene.state.gameData.hour = 1;
 			}
 
-			WaveManager.createWave();
-			UIManager.updateUI();
 		}],
 		[signals.MOVEMENT_STARTED, () => {
 			scene.playFx('audio/chip-lay-3')

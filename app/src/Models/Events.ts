@@ -1,8 +1,8 @@
 import { Choice, displayChoices, newChoice } from "../Scenes/Battleground/Systems/Choice";
 import * as UIManager from "../Scenes/Battleground/Systems/UIManager";
+import { createWave } from "../Scenes/Battleground/Systems/WaveManager";
 import { pickRandom } from "../utils";
 import { FORCE_ID_PLAYER } from "./Force";
-import { vec2 } from "./Geometry";
 import { JobId, jobs } from "./Job";
 import { emit, signals } from "./Signals";
 import { getState, State } from "./State";
@@ -174,9 +174,49 @@ const randomEvents = [
 	}
 ];
 
+const monsterEvents = [
+	{
+		id: "9",
+		level: 1,
+		title: "Monster Attack",
+		description: "A monster is attacking the village",
+		pic: "https://via.placeholder.com/150",
+		triggers: {
+			onSelect: () => {
+				createWave(11)
+			}
+		}
+	},
+	{
+		id: "10",
+		level: 2,
+		title: "Goblin Raid",
+		description: "A band of goblins is raiding the village",
+		pic: "https://via.placeholder.com/150",
+		triggers: {
+			onSelect: () => {
+				createWave(12)
+			}
+		}
+	},
+	{
+		id: "11",
+		level: 3,
+		title: "Dragon Sighting",
+		description: "A dragon has been spotted near the village",
+		pic: "https://via.placeholder.com/150",
+		triggers: {
+			onSelect: () => {
+				createWave(13)
+			}
+		}
+	}
+];
+
 export const events: Event[] = [
 	starterEvent,
-	...randomEvents
+	...randomEvents,
+	...monsterEvents
 ];
 
 export const evalEvent = async (event: Event) => {
@@ -195,7 +235,7 @@ export const evalEvent = async (event: Event) => {
 
 }
 
-export const displayRandomEvents = async () => {
+export const displayRandomEvents = async (day: number) => {
 	const randomItems = pickRandom(randomEvents, 3);
 	const chosenEvent = await displayChoices("Random event", randomItems.map(e => newChoice(e.id, e.title, e.description, e.id)));
 
@@ -205,4 +245,15 @@ export const displayRandomEvents = async () => {
 
 	await evalEvent(event);
 
+}
+
+export const displayMonsterEvents = async (day: number) => {
+	const randomItems = pickRandom(monsterEvents, 3);
+	const chosenEvent = await displayChoices("Monster event", randomItems.map(e => newChoice(e.id, e.title, e.description, e.id)));
+
+	const event = events.find(e => e.id === chosenEvent.value);
+
+	if (!event) throw new Error("Event not found");
+
+	await evalEvent(event);
 }

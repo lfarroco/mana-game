@@ -83,7 +83,7 @@ export function updateUI() {
 	[
 		"Gold: " + force.gold,
 		"HP: " + force.hp,
-		"Wave: " + scene.state.gameData.wave,
+		"Wave: " + scene.state.gameData.hour,
 	].forEach((text, i) => {
 		const uiText = scene.add.text(constants.SCREEN_WIDTH - 200, 30 + i * 80, text, constants.defaultTextConfig);
 		ui?.add(uiText);

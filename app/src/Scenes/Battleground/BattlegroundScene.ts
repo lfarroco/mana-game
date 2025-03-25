@@ -16,6 +16,7 @@ import * as WaveManager from "./Systems/WaveManager";
 import * as GridSystem from "./Systems/GridSystem";
 import * as ChoiceSystem from "./Systems/Choice";
 import * as EventSystem from "../../Models/Events";
+import { waves } from "./enemyWaves";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -103,13 +104,19 @@ export class BattlegroundScene extends Phaser.Scene {
 
     await EventSystem.evalEvent(EventSystem.events[0]);
 
-    let hours = 0;
+    let hours = 1;
+    let day = 1;
 
-    while (hours < 5) {
+    while (hours < 3) {
       hours += 1;
-      await EventSystem.displayRandomEvents();
+      await EventSystem.displayRandomEvents(day);
       console.log("hours...", hours)
     }
+
+    EventSystem.displayMonsterEvents(day);
+
+    day += 1;
+
     console.log("done!!")
 
   };
