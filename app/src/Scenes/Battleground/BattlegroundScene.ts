@@ -104,20 +104,27 @@ export class BattlegroundScene extends Phaser.Scene {
 
     await EventSystem.evalEvent(EventSystem.events[0]);
 
-    let hours = 1;
     let day = 1;
 
-    while (hours < 3) {
-      hours += 1;
-      await EventSystem.displayRandomEvents(day);
-      console.log("hours...", hours)
+    // Infinite day loop
+    while (true) {
+      console.log("Day", day, "started");
+
+      let hours = 1;
+
+      // Hours loop for each day
+      while (hours < 3) {
+        hours += 1;
+        await EventSystem.displayRandomEvents(day);
+        console.log("hours...", hours);
+      }
+
+      // End of day events
+      await EventSystem.displayMonsterEvents(day);
+
+      // Move to next day
+      day += 1;
     }
-
-    EventSystem.displayMonsterEvents(day);
-
-    day += 1;
-
-    console.log("done!!")
 
   };
 
