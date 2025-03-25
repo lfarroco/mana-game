@@ -28,7 +28,7 @@ export type Event = {
 		onSelect: () => void;
 	}
 }
-const starterEvent = {
+const starterEvent: Event = {
 	id: "1",
 	level: 1,
 	title: "Start your guild",
@@ -50,7 +50,7 @@ const starterEvent = {
 }
 
 
-const randomEvents = [
+const randomEvents: Event[] = [
 	{
 		id: "2",
 		level: 1,
@@ -174,7 +174,7 @@ const randomEvents = [
 	}
 ];
 
-const monsterEvents = [
+const monsterEvents: Event[] = [
 	{
 		id: "9",
 		level: 1,
@@ -182,8 +182,8 @@ const monsterEvents = [
 		description: "A monster is attacking the village",
 		pic: "https://via.placeholder.com/150",
 		triggers: {
-			onSelect: () => {
-				createWave(11)
+			onSelect: async () => {
+				await createWave(11)
 			}
 		}
 	},
@@ -194,8 +194,8 @@ const monsterEvents = [
 		description: "A band of goblins is raiding the village",
 		pic: "https://via.placeholder.com/150",
 		triggers: {
-			onSelect: () => {
-				createWave(12)
+			onSelect: async () => {
+				await createWave(12)
 			}
 		}
 	},
@@ -206,8 +206,8 @@ const monsterEvents = [
 		description: "A dragon has been spotted near the village",
 		pic: "https://via.placeholder.com/150",
 		triggers: {
-			onSelect: () => {
-				createWave(13)
+			onSelect: async () => {
+				await createWave(13)
 			}
 		}
 	}
@@ -228,7 +228,7 @@ export const evalEvent = async (event: Event) => {
 	}
 
 	if ('onSelect' in event.triggers) {
-		event.triggers.onSelect();
+		await event.triggers.onSelect();
 	}
 
 	return true;
