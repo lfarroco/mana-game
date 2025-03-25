@@ -7,16 +7,11 @@ import { delay } from "../../Utils/animation";
 import { vignette } from "./Animations/vignette";
 import BattlegroundScene from "./BattlegroundScene";
 import { waves } from "./enemyWaves";
-import processTick from "./ProcessTick";
 import * as UIManager from "./Systems/UIManager";
 import * as UnitManager from "./Systems/UnitManager";
-import * as WaveManager from "./Systems/WaveManager";
 
 export function setupEventListeners(scene: BattlegroundScene) {
 	listeners([
-		[signals.BATTLEGROUND_TICK, () => {
-			processTick(scene);
-		}],
 		[signals.UNIT_CREATED, (unitId: string) => {
 			const unit = getUnit(scene.state)(unitId);
 			UnitManager.renderUnit(unit);
