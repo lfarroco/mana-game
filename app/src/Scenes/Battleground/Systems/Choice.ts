@@ -3,6 +3,8 @@ import { tween } from "../../../Utils/animation";
 import * as constants from "../constants";
 import { getState, State } from "../../../Models/State";
 import { breakLines } from "../../../utils";
+import { FORCE_ID_PLAYER } from "../../../Models/Force";
+import { updateUI } from "./UIManager";
 
 let scene: Phaser.Scene;
 let state: State;
@@ -71,8 +73,21 @@ export const displayStore = (choices: Choice[]) => new Promise<void>((resolve) =
 
 	let bought = 0;
 
+	const items: { [id: string]: number } = {
+		test_item_1: 10,
+		test_item_2: 20,
+		test_item_3: 30,
+	};
+
+	const force = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
+
 	const cards = choices.map(renderCard(
 		async (choice: Choice, card: Phaser.GameObjects.Container) => {
+
+			if (force.gold < items[choice.value]) {
+				return;
+			}
+
 			await tween({
 				targets: [card],
 				duration: 1000 / state.options.speed,
@@ -81,15 +96,34 @@ export const displayStore = (choices: Choice[]) => new Promise<void>((resolve) =
 
 			card.destroy();
 
+
+			force.gold -= items[choice.value];
+
+			updateUI();
+
 			bought++;
 
 			if (bought === choices.length) {
 				component.destroy();
-				resolve();
+				return resolve();
+			}
+
+			if (force.gold <= 0) {
+				cards.forEach((child) => {
+					child.setAlpha(0.5);
+				})
 			}
 
 		}
 	));
+
+	cards.forEach((card, i) => {
+
+		if (force.gold < items[choices[i].value]) {
+			(card).setAlpha(0.5);
+		}
+
+	});
 
 	const exitBtn = scene.add.text(
 		0, 0,

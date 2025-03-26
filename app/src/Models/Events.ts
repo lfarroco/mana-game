@@ -31,7 +31,6 @@ export type Event = {
 	} | {
 		type: "shop"
 		choices: () => Choice[];
-		onChoice: (choice: Choice) => void;
 	}
 
 }
@@ -112,22 +111,10 @@ const randomEvents: Event[] = [
 			type: "shop",
 			choices: () => {
 				return [
-					newChoice("buy_item", "Buy Equipment", "Upgrade your guild's gear (+5 attack)", "buy_item"),
-					newChoice("buy_potion", "Buy Potions", "Stock up on healing supplies (+10 health)", "buy_potion"),
-					newChoice("buy_chocolate", "Buy Chocolate", "Treat yourself to a sweet snack", "buy_chocolate")
+					newChoice("buy_item", "Buy Equipment", "Upgrade your guild's gear (+5 attack)", "test_item_1"),
+					newChoice("buy_potion", "Buy Potions", "Stock up on healing supplies (+10 health)", "test_item_2"),
+					newChoice("buy_chocolate", "Buy Chocolate", "Treat yourself to a sweet snack", "test_item_3")
 				];
-			},
-			onChoice: (choice: Choice) => {
-				const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
-				if (choice.value === "buy_item" && playerForce.gold >= 5) {
-					playerForce.gold -= 5;
-					// Apply attack bonus logic here
-					UIManager.updateUI();
-				} else if (choice.value === "buy_potion" && playerForce.gold >= 3) {
-					playerForce.gold -= 3;
-					// Apply health bonus logic here
-					UIManager.updateUI();
-				}
 			}
 		}
 	},
