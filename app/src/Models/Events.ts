@@ -1,4 +1,4 @@
-import { Choice, displayChoices, newChoice } from "../Scenes/Battleground/Systems/Choice";
+import { Choice, displayChoices, displayStore, newChoice } from "../Scenes/Battleground/Systems/Choice";
 import * as UIManager from "../Scenes/Battleground/Systems/UIManager";
 import { createWave } from "../Scenes/Battleground/Systems/WaveManager";
 import { pickRandom } from "../utils";
@@ -22,11 +22,18 @@ export type Event = {
 	description: string;
 	pic: string;
 	triggers: {
+		type: "nested";
 		choices: () => Choice[];
 		onChoice: (choice: Choice) => void;
 	} | {
+		type: "instant"
 		onSelect: () => void;
+	} | {
+		type: "shop"
+		choices: () => Choice[];
+		onChoice: (choice: Choice) => void;
 	}
+
 }
 const starterEvent: Event = {
 	id: "1",
@@ -35,6 +42,7 @@ const starterEvent: Event = {
 	description: "Recruit the first member of your guild",
 	pic: "https://via.placeholder.com/150",
 	triggers: {
+		type: "nested",
 		choices: () => {
 			return pickRandom(jobs, 3).map(job => newChoice(
 				`${job.id}/full`,
@@ -58,6 +66,7 @@ const randomEvents: Event[] = [
 		description: "You have been offered a job for 3 gold",
 		pic: "https://via.placeholder.com/150",
 		triggers: {
+			type: "instant",
 			onSelect: () => {
 				const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
 				playerForce.gold += 3;
@@ -72,6 +81,7 @@ const randomEvents: Event[] = [
 		description: "You have made a new friend",
 		pic: "https://via.placeholder.com/150",
 		triggers: {
+			type: "instant",
 			onSelect: () => {
 				emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, "blob" as JobId);
 			}
@@ -84,6 +94,7 @@ const randomEvents: Event[] = [
 		description: "Get a random fruit",
 		pic: "https://via.placeholder.com/150",
 		triggers: {
+			type: "instant",
 			onSelect: () => {
 				const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
 				playerForce.gold += 33;
@@ -98,11 +109,12 @@ const randomEvents: Event[] = [
 		description: "A traveling merchant offers special goods at reduced prices",
 		pic: "https://via.placeholder.com/150",
 		triggers: {
+			type: "shop",
 			choices: () => {
 				return [
 					newChoice("buy_item", "Buy Equipment", "Upgrade your guild's gear (+5 attack)", "buy_item"),
 					newChoice("buy_potion", "Buy Potions", "Stock up on healing supplies (+10 health)", "buy_potion"),
-					newChoice("decline", "Decline", "Save your gold for another day", "decline")
+					newChoice("buy_chocolate", "Buy Chocolate", "Treat yourself to a sweet snack", "buy_chocolate")
 				];
 			},
 			onChoice: (choice: Choice) => {
@@ -126,6 +138,7 @@ const randomEvents: Event[] = [
 		description: "An opportunity to train your guild members",
 		pic: "https://via.placeholder.com/150",
 		triggers: {
+			type: "instant",
 			onSelect: () => {
 				// emit(signals.BOOST_GUILD_UNITS, FORCE_ID_PLAYER, 2);
 				// UIManager.updateUI();
@@ -139,6 +152,7 @@ const randomEvents: Event[] = [
 		description: "You stumble upon a hidden chest in the forest",
 		pic: "https://via.placeholder.com/150",
 		triggers: {
+			type: "instant",
 			onSelect: () => {
 				const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
 				playerForce.gold += 10;
@@ -153,6 +167,7 @@ const randomEvents: Event[] = [
 		description: "A cloaked figure approaches your guild hall",
 		pic: "https://via.placeholder.com/150",
 		triggers: {
+			type: "nested",
 			choices: () => {
 				return [
 					newChoice("recruit", "Recruit Them", "Invite the stranger to join your guild", "recruit"),
@@ -182,6 +197,7 @@ const monsterEvents: Event[] = [
 		description: "A monster is attacking the village",
 		pic: "https://via.placeholder.com/150",
 		triggers: {
+			type: "instant",
 			onSelect: async () => {
 				await createWave(11)
 			}
@@ -194,6 +210,7 @@ const monsterEvents: Event[] = [
 		description: "A band of goblins is raiding the village",
 		pic: "https://via.placeholder.com/150",
 		triggers: {
+			type: "instant",
 			onSelect: async () => {
 				await createWave(12)
 			}
@@ -206,6 +223,7 @@ const monsterEvents: Event[] = [
 		description: "A dragon has been spotted near the village",
 		pic: "https://via.placeholder.com/150",
 		triggers: {
+			type: "instant",
 			onSelect: async () => {
 				await createWave(13)
 			}
@@ -221,14 +239,18 @@ export const events: Event[] = [
 
 export const evalEvent = async (event: Event) => {
 
-	if ('choices' in event.triggers) {
+	if (event.triggers.type === "nested") {
 
-		const choice = await displayChoices(event.title, event.triggers.choices());
+		const choice = await displayChoices(event.triggers.choices());
 		event.triggers.onChoice?.(choice);
 	}
 
-	if ('onSelect' in event.triggers) {
+	if (event.triggers.type === "instant") {
 		await event.triggers.onSelect();
+	}
+
+	if (event.triggers.type === "shop") {
+		await displayStore(event.triggers.choices());
 	}
 
 	return true;
@@ -237,7 +259,7 @@ export const evalEvent = async (event: Event) => {
 
 export const displayRandomEvents = async (day: number) => {
 	const randomItems = pickRandom(randomEvents, 3);
-	const chosenEvent = await displayChoices("Random event", randomItems.map(e => newChoice(e.id, e.title, e.description, e.id)));
+	const chosenEvent = await displayChoices(randomItems.map(e => newChoice(e.id, e.title, e.description, e.id)));
 
 	const event = events.find(e => e.id === chosenEvent.value);
 
@@ -249,7 +271,9 @@ export const displayRandomEvents = async (day: number) => {
 
 export const displayMonsterEvents = async (day: number) => {
 	const randomItems = pickRandom(monsterEvents, 3);
-	const chosenEvent = await displayChoices("Monster event", randomItems.map(e => newChoice(e.id, e.title, e.description, e.id)));
+	const chosenEvent = await displayChoices(
+		randomItems.map(e => newChoice(e.id, e.title, e.description, e.id))
+	);
 
 	const event = events.find(e => e.id === chosenEvent.value);
 

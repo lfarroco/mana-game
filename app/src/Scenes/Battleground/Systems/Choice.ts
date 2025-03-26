@@ -43,7 +43,7 @@ export const init = (sceneRef: Phaser.Scene) => {
 	//...
 }
 
-export const displayChoices = (title: string, choices: Choice[]) => new Promise<Choice>((resolve) => {
+export const displayChoices = (choices: Choice[]) => new Promise<Choice>((resolve) => {
 
 	const component = scene.add.container();
 
@@ -64,8 +64,54 @@ export const displayChoices = (title: string, choices: Choice[]) => new Promise<
 	component.add(cards)
 
 });
+
+export const displayStore = (choices: Choice[]) => new Promise<void>((resolve) => {
+
+	const component = scene.add.container();
+
+	let bought = 0;
+
+	const cards = choices.map(renderCard(
+		async (choice: Choice, card: Phaser.GameObjects.Container) => {
+			await tween({
+				targets: [card],
+				duration: 1000 / state.options.speed,
+				alpha: 0,
+			});
+
+			card.destroy();
+
+			bought++;
+
+			if (bought === choices.length) {
+				component.destroy();
+				resolve();
+			}
+
+		}
+	));
+
+	const exitBtn = scene.add.text(
+		0, 0,
+		"Exit",
+		constants.defaultTextConfig
+	);
+	exitBtn.setInteractive();
+	exitBtn.setOrigin(0);
+	exitBtn.on("pointerup", () => {
+		component.destroy();
+		resolve();
+	});
+
+	component.add(exitBtn);
+
+	component.add(cards)
+
+});
+
+
 function renderCard(
-	onSelect: (choice: Choice) => void):
+	onSelect: (choice: Choice, card: Phaser.GameObjects.Container) => void):
 	(value: Choice, index: number, choices: Choice[]) => Phaser.GameObjects.Container {
 	return (choice, i, choices) => {
 
@@ -138,7 +184,7 @@ function renderCard(
 			});
 		});
 
-		cardBg.on("pointerup", () => onSelect(choice))
+		cardBg.on("pointerup", () => onSelect(choice, card))
 
 		const text = scene.add.text(
 			CARD_DIMENSIONS.height + 20, 20,
