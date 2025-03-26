@@ -1,7 +1,6 @@
 import Phaser from "phaser";
 import { tween } from "../../../Utils/animation";
 import * as constants from "../constants";
-import * as UIManager from "./UIManager";
 import { getState, State } from "../../../Models/State";
 import { breakLines } from "../../../utils";
 
@@ -48,9 +47,29 @@ export const displayChoices = (title: string, choices: Choice[]) => new Promise<
 
 	const component = scene.add.container();
 
-	const spacing = (constants.SCREEN_HEIGHT - (choices.length * CARD_DIMENSIONS.height)) / (choices.length + 1);
+	const cards = choices.map(renderCard(
+		async (choice: Choice) => {
+			await tween({
+				targets: [component],
+				duration: 1000 / state.options.speed,
+				alpha: 0,
+			});
 
-	const cards = choices.map((choice, i) => {
+			component.destroy();
+
+			resolve(choice);
+		}
+	));
+
+	component.add(cards)
+
+});
+function renderCard(
+	onSelect: (choice: Choice) => void):
+	(value: Choice, index: number, choices: Choice[]) => Phaser.GameObjects.Container {
+	return (choice, i, choices) => {
+
+		const spacing = (constants.SCREEN_HEIGHT - (choices.length * CARD_DIMENSIONS.height)) / (choices.length + 1);
 		const x = BASE_X;
 		const y = (spacing * (i + 1)) + (CARD_DIMENSIONS.height * i);
 		const card = scene.add.container(x, y);
@@ -119,17 +138,7 @@ export const displayChoices = (title: string, choices: Choice[]) => new Promise<
 			});
 		});
 
-		cardBg.on("pointerup", async () => {
-			await tween({
-				targets: [component],
-				duration: 1000 / state.options.speed,
-				alpha: 0,
-			});
-
-			component.destroy();
-
-			resolve(choice);
-		});
+		cardBg.on("pointerup", () => onSelect(choice))
 
 		const text = scene.add.text(
 			CARD_DIMENSIONS.height + 20, 20,
@@ -150,18 +159,6 @@ export const displayChoices = (title: string, choices: Choice[]) => new Promise<
 		card.add(desc);
 
 		return card;
-	});
+	};
+}
 
-	component.add(cards);
-
-	component.setAlpha(0);
-
-	scene.tweens.add({
-		targets: component,
-		alpha: 1,
-		duration: STYLE_CONSTANTS.FADE_DURATION,
-		ease: 'Power',
-		delay: STYLE_CONSTANTS.FADE_DELAY,
-	});
-
-});
