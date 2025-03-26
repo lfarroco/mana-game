@@ -38,7 +38,6 @@ const hideInterruptBtn = () => {
 export const getInterruptAction = async () => {
 
 	const choice = await Choice.displayChoices(
-		"Select an action",
 		[
 			{ value: "1", title: "Advance", pic: "cards/advance", desc: "Advance to the next wave", },
 			{ value: "1", title: "Explore", pic: "cards/explore", desc: "Explore the area for loot" },
