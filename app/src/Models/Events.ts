@@ -137,7 +137,7 @@ const randomEvents: Event[] = [
 			type: "unit",
 			onChoose: async (unit) => {
 
-				unit.maxHp += 300;
+				unit.maxHp += 30;
 				unit.hp = unit.maxHp;
 
 				summonEffect(scene, 1, vec2(TILE_WIDTH * 3 + TILE_WIDTH / 2, TILE_HEIGHT * 3 + TILE_HEIGHT / 2));
@@ -148,9 +148,6 @@ const randomEvents: Event[] = [
 
 				await delay(scene, 1000);
 
-
-				// emit(signals.BOOST_GUILD_UNITS, FORCE_ID_PLAYER, 2);
-				// UIManager.updateUI();
 			}
 		}
 	},
@@ -302,7 +299,6 @@ export const displayMonsterEvents = async (day: number) => {
 
 const selectUnit = async () => new Promise<Unit>((resolve) => {
 	console.log("::: select unit event!!")
-	// create drop zone at 200 200
 	const dropZoneX = TILE_WIDTH * 3;
 	const dropZoneY = TILE_HEIGHT * 3;
 	const dropZone = scene.add.zone(dropZoneX, dropZoneY, TILE_WIDTH, TILE_HEIGHT)
@@ -323,7 +319,13 @@ const selectUnit = async () => new Promise<Unit>((resolve) => {
 		yoyo: true
 	});
 
-	const listener = (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.GameObject, dropZone: Phaser.GameObjects.Zone) => {
+	const listener = (
+		pointer: Phaser.Input.Pointer,
+		gameObject: Phaser.GameObjects.GameObject,
+		droppedZone: Phaser.GameObjects.Zone,
+	) => {
+
+		if (droppedZone.name !== 'selectUnit') return;
 
 		const unitId = gameObject.name;
 
@@ -334,7 +336,6 @@ const selectUnit = async () => new Promise<Unit>((resolve) => {
 
 		dropZoneDisplay.destroy();
 		dropZone.destroy();
-
 
 	}
 
