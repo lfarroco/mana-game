@@ -13,6 +13,10 @@ export type Unit = {
   hp: number;
   maxHp: number;
 
+  attack: number;
+  defense: number;
+  agility: number;
+
   cooldowns: { [key: SkillId]: number };
   statuses: { [key: string]: number };
 

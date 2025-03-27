@@ -30,8 +30,8 @@ export async function physicalAttack(
 
 	const isCritical = activeChara.unit.statuses["next-critical"] > 0;
 
-	const rawDmg = isCritical ? activeChara.job.attack * 3 : activeChara.job.attack;
-	const damage = Math.max(1, rawDmg - targetChara.job.defense);
+	const rawDmg = isCritical ? activeChara.unit.attack * 3 : activeChara.unit.attack;
+	const damage = Math.max(1, rawDmg - targetChara.unit.defense);
 
 	if (isCritical) {
 		criticalDamageDisplay(scene, targetChara.container, damage, speed);
