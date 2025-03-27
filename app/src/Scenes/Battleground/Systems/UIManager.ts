@@ -89,14 +89,6 @@ export function updateUI() {
 		ui?.add(uiText);
 	});
 
-	const btn = createButton(
-		"Start Battle",
-		constants.SCREEN_WIDTH - 180, constants.SCREEN_HEIGHT - 60,
-		() => {
-			emit(signals.WAVE_START, scene.state.gameData.tick);
-		});
-
-	ui.add(btn);
 }
 
 export function displayError(err: string) {

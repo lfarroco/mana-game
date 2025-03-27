@@ -8,7 +8,6 @@ import * as HPBarSystem from "../../Systems/Chara/HPBar";
 import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import { Force, FORCE_ID_PLAYER } from "../../Models/Force";
 import * as constants from "./constants";
-import * as InterruptSystem from "./Systems/Interrupt";
 import { setupEventListeners } from "./EventHandlers";
 import * as UIManager from "./Systems/UIManager";
 import * as UnitManager from "./Systems/UnitManager";
@@ -16,7 +15,6 @@ import * as WaveManager from "./Systems/WaveManager";
 import * as GridSystem from "./Systems/GridSystem";
 import * as ChoiceSystem from "./Systems/Choice";
 import * as EventSystem from "../../Models/Events";
-import { waves } from "./enemyWaves";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -52,7 +50,6 @@ export class BattlegroundScene extends Phaser.Scene {
     BattlegroundAudioSystem_init(state, this);
     CharaSystem.init(this);
     //StoreSystem.init(this);
-    InterruptSystem.init(this);
 
     UnitManager.init(this);
     UIManager.init(this);
@@ -101,6 +98,10 @@ export class BattlegroundScene extends Phaser.Scene {
     window.scene = this;
 
     // pick 3 random jobs
+
+    await EventSystem.evalEvent(EventSystem.events[0]);
+
+    await EventSystem.evalEvent(EventSystem.events[0]);
 
     await EventSystem.evalEvent(EventSystem.events[0]);
 
