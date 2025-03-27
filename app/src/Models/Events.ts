@@ -121,8 +121,8 @@ const randomEvents: Event[] = [
 	{
 		id: "6",
 		level: 2,
-		title: "Advanced Training",
-		description: "An opportunity to train your guild members",
+		title: "Endurance Training",
+		description: "Make a guild member gain 30 HP",
 		pic: "icon/quest",
 		triggers: {
 			type: "instant",
