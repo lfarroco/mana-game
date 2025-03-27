@@ -44,12 +44,11 @@ export function setupEventListeners(scene: BattlegroundScene) {
 
 			scene.state.gameData.units = scene.state.gameData.units.filter(u => u.force === FORCE_ID_PLAYER);
 			scene.state.gameData.units = scene.state.gameData.units.map(u => {
-				return makeUnit(
-					u.id,
-					u.force,
-					u.job,
-					u.initialPosition
-				)
+				return {
+					...u,
+					hp: u.maxHp,
+					position: u.initialPosition,
+				}
 			});
 			scene.state.gameData.tick = 0;
 
