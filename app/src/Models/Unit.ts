@@ -16,6 +16,8 @@ export type Unit = {
   cooldowns: { [key: SkillId]: number };
   statuses: { [key: string]: number };
 
+  learnedSkills: SkillId[];
+
   log: string[];
 };
 
@@ -23,6 +25,7 @@ export const makeUnit = (id: string, force: string, job: JobId, position: Vec2):
 
   const jobId = job as JobId;
   const job_ = getJob(jobId);
+  const learnedSkills = [job_.baseSkill];
   return {
     ...job_,
     id,
@@ -32,12 +35,13 @@ export const makeUnit = (id: string, force: string, job: JobId, position: Vec2):
     initialPosition: position,
     maxHp: job_.hp,
     log: [],
-    cooldowns: job_.skills.reduce((acc, skillId) => {
+    cooldowns: learnedSkills.reduce((acc, skillId) => {
       const skill = getSkill(skillId)
       acc[skillId] = skill.cooldown;
       return acc;
     }, {} as { [key: string]: number }),
     statuses: {},
+    learnedSkills
   } as Unit;
 };
 

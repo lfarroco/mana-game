@@ -198,13 +198,11 @@ export function displayUnitInfo(chara: CharaSystem.Chara) {
 			.setDisplaySize(bgConstants.TILE_WIDTH * 3, bgConstants.TILE_WIDTH * 3)
 			.setOrigin(0),
 		scene.add.text(10, 10, job.name, bgConstants.defaultTextConfig),
-		...job.skills
-			.reverse()
+		...unit.learnedSkills
 			.map(getSkill)
-			.map(
-				(sk, i) => scene.add.text(
-					10, (bgConstants.TILE_HEIGHT * 3) + 60 + i * 50,
-					sk.name, bgConstants.defaultTextConfig))
+			.map((sk, i) => scene.add.text(
+				10, (bgConstants.TILE_HEIGHT * 3) + 60 + i * 50,
+				sk.name, bgConstants.defaultTextConfig))
 	]);
 
 	const closeBtn = scene.add.text(

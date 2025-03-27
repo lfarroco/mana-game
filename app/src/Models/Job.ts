@@ -13,6 +13,7 @@ export type Job = {
   defense: number;
   agility: number;
   skills: s.SkillId[];
+  baseSkill: s.SkillId;
 };
 
 export const ARCHER = "archer" as JobId;
@@ -88,6 +89,7 @@ function parseJobsTable(table: string) {
       defense: parseInt(d["DEF"]),
       agility: parseInt(d["AGI"]),
       skills,
+      baseSkill: skills[skills.length - 1],
     } as Job;
   })
 }
