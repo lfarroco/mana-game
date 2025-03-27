@@ -11,7 +11,7 @@ export async function summonEffect(
 
 	const summonEffect = scene.add.particles(x, y, 'light-pillar', {
 		lifespan,
-		scale: { start: 0.05, end: 0.1 },
+		scale: { start: 0.05, end: 0.3 },
 		alpha: { start: 1, end: 0 },
 		speed: { min: 100, max: 200 },
 		quantity: 4,
