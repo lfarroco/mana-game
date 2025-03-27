@@ -1,9 +1,13 @@
+import { summonEffect } from "../Effects";
 import { TILE_HEIGHT, TILE_WIDTH } from "../Scenes/Battleground/constants";
 import { Choice, displayChoices, displayStore, newChoice } from "../Scenes/Battleground/Systems/Choice";
 import * as UIManager from "../Scenes/Battleground/Systems/UIManager";
+import { getChara, renderUnit } from "../Scenes/Battleground/Systems/UnitManager";
 import { createWave } from "../Scenes/Battleground/Systems/WaveManager";
 import { pickRandom } from "../utils";
+import { delay } from "../Utils/animation";
 import { FORCE_ID_PLAYER } from "./Force";
+import { vec2 } from "./Geometry";
 import { JobId, jobs } from "./Job";
 import { emit, signals } from "./Signals";
 import { getState, getUnit, State } from "./State";
@@ -63,34 +67,34 @@ const starterEvent: Event = {
 
 
 const randomEvents: Event[] = [
-	// {
-	// 	id: "2",
-	// 	level: 1,
-	// 	title: "Odd Job",
-	// 	description: "You have been offered a job for 3 gold",
-	// 	pic: "icon/quest",
-	// 	triggers: {
-	// 		type: "instant",
-	// 		onSelect: () => {
-	// 			const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
-	// 			playerForce.gold += 3;
-	// 			UIManager.updateUI();
-	// 		},
-	// 	}
-	// },
-	// {
-	// 	id: "3",
-	// 	level: 1,
-	// 	title: "A new friend",
-	// 	description: "You have made a new friend",
-	// 	pic: "icon/quest",
-	// 	triggers: {
-	// 		type: "instant",
-	// 		onSelect: () => {
-	// 			emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, "blob" as JobId);
-	// 		}
-	// 	}
-	// },
+	{
+		id: "2",
+		level: 1,
+		title: "Odd Job",
+		description: "You have been offered a job for 3 gold",
+		pic: "icon/quest",
+		triggers: {
+			type: "instant",
+			onSelect: () => {
+				const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
+				playerForce.gold += 3;
+				UIManager.updateUI();
+			},
+		}
+	},
+	{
+		id: "3",
+		level: 1,
+		title: "A new friend",
+		description: "You have made a new friend",
+		pic: "icon/quest",
+		triggers: {
+			type: "instant",
+			onSelect: () => {
+				emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, "blob" as JobId);
+			}
+		}
+	},
 	{
 		id: "4",
 		level: 1,
@@ -131,59 +135,67 @@ const randomEvents: Event[] = [
 		pic: "icon/quest",
 		triggers: {
 			type: "unit",
-			onChoose: (unit) => {
-				console.log("::: picked", unit)
+			onChoose: async (unit) => {
 
 				unit.maxHp += 300;
 				unit.hp = unit.maxHp;
+
+				summonEffect(scene, 1, vec2(TILE_WIDTH * 3 + TILE_WIDTH / 2, TILE_HEIGHT * 3 + TILE_HEIGHT / 2));
+
+				const chara = getChara(unit.id);
+				chara.container.destroy(true);
+				renderUnit(unit);
+
+				await delay(scene, 1000);
+
 
 				// emit(signals.BOOST_GUILD_UNITS, FORCE_ID_PLAYER, 2);
 				// UIManager.updateUI();
 			}
 		}
 	},
-	// {
-	// 	id: "7",
-	// 	level: 1,
-	// 	title: "Lost Treasure",
-	// 	description: "You stumble upon a hidden chest in the forest",
-	// 	pic: "icon/quest",
-	// 	triggers: {
-	// 		type: "instant",
-	// 		onSelect: () => {
-	// 			const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
-	// 			playerForce.gold += 10;
-	// 			UIManager.updateUI();
-	// 		}
-	// 	}
-	// },
-	// {
-	// 	id: "8",
-	// 	level: 2,
-	// 	title: "Mysterious Stranger",
-	// 	description: "A cloaked figure approaches your guild hall",
-	// 	pic: "icon/quest",
-	// 	triggers: {
-	// 		type: "nested",
-	// 		choices: () => {
-	// 			return [
-	// 				newChoice("recruit", "Recruit Them", "Invite the stranger to join your guild", "recruit"),
-	// 				newChoice("bribe", "Bribe for Info", "Pay 5 gold for valuable information", "bribe"),
-	// 				newChoice("ignore", "Turn Away", "You don't trust mysterious figures", "ignore")
-	// 			];
-	// 		},
-	// 		onChoice: (choice: Choice) => {
-	// 			const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
-	// 			if (choice.value === "recruit") {
-	// 				emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, pickRandom(jobs, 1)[0].id as JobId);
-	// 			} else if (choice.value === "bribe" && playerForce.gold >= 5) {
-	// 				playerForce.gold -= 5;
-	// 				playerForce.gold += 15; // Information leads to greater reward
-	// 				UIManager.updateUI();
-	// 			}
-	// 		}
-	// 	}
-	// }
+	{
+		id: "7",
+		level: 1,
+		title: "Lost Treasure",
+		description: "You stumble upon a hidden chest in the forest",
+		pic: "icon/quest",
+		triggers: {
+			type: "instant",
+			onSelect: () => {
+				const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
+				playerForce.gold += 10;
+				UIManager.updateUI();
+			}
+		}
+	},
+	{
+		id: "8",
+		level: 2,
+		title: "Mysterious Stranger",
+		description: "A cloaked figure approaches your guild hall",
+		pic: "icon/quest",
+		triggers: {
+			type: "nested",
+			choices: () => {
+				return [
+					newChoice("recruit", "Recruit Them", "Invite the stranger to join your guild", "recruit"),
+					newChoice("bribe", "Bribe for Info", "Pay 5 gold for valuable information", "bribe"),
+					newChoice("ignore", "Turn Away", "You don't trust mysterious figures", "ignore")
+				];
+			},
+			onChoice: (choice: Choice) => {
+				const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
+				if (choice.value === "recruit") {
+					emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, pickRandom(jobs, 1)[0].id as JobId);
+				} else if (choice.value === "bribe" && playerForce.gold >= 5) {
+					playerForce.gold -= 5;
+					playerForce.gold += 15; // Information leads to greater reward
+					UIManager.updateUI();
+				}
+			}
+		}
+	}
 ];
 
 const monsterEvents: Event[] = [
@@ -319,8 +331,11 @@ const selectUnit = async () => new Promise<Unit>((resolve) => {
 
 		resolve(unit);
 		scene.input.off('drop', listener);
+
 		dropZoneDisplay.destroy();
 		dropZone.destroy();
+
+
 	}
 
 	scene.input.on('drop', listener);

@@ -5,6 +5,11 @@ export async function tween(
 
 	const { scene } = attributes.targets[0];
 
+	if (!scene) {
+		console.warn("No scene found in tween attributes");
+		return;
+	}
+
 	return new Promise<void>((resolve, _reject) => {
 		scene.add.tween({
 			...attributes,
