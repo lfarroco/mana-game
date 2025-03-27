@@ -136,7 +136,6 @@ export const makeCharaInteractive = (chara: Chara) => {
 			})
 		}
 
-		console.log("position for dropped:: ", position);
 		charaUnit.position = position;
 
 		tween({
@@ -152,7 +151,7 @@ export const makeCharaInteractive = (chara: Chara) => {
 	chara.sprite.on('dragend', (pointer: Phaser.Input.Pointer) => {
 
 		// check if it was a click or drag
-		if (pointer.getDistance() < 10) {
+		if (pointer.getDistance() < 50) {
 
 			displayUnitInfo(chara);
 
