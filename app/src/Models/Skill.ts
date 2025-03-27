@@ -4,6 +4,7 @@ export type SkillId = string & { __skillId: true };
 export type Skill = {
 	id: SkillId;
 	name: string;
+	pic: string;
 	range: number;
 	cooldown: number;
 	power: number;
@@ -20,6 +21,7 @@ const skill = (
 ): Skill => ({
 	id: id as SkillId,
 	name,
+	pic: "icon/fireball",
 	range,
 	cooldown,
 	power,
