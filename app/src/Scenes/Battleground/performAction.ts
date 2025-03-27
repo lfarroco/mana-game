@@ -1,4 +1,3 @@
-import { getJob } from "../../Models/Job";
 import { FEINT, FIREBALL, getSkill, HEAL, HEALING_WAVE, MULTISHOT, SHADOWSTEP, SHIELDBASH, SUMMON_BLOB } from "../../Models/Skill";
 import { Unit } from "../../Models/Unit";
 import { specialAnimation } from "../../Systems/Chara/Animations/specialAnimation";
@@ -36,18 +35,16 @@ export const performAction = (
 
 	if (activeFoes.length === 0) return;
 
-	const job = getJob(unit.job);
-
 	const activeChara = UnitManager.getChara(unit.id);
 
-	const availableSkills = job.skills.filter(skillId => {
+	const availableSkills = unit.learnedSkills.filter(skillId => {
 		const cooldown = unit.cooldowns[skillId];
 
 		return cooldown === 0;
 	});
 
 	// decrease cooldowns
-	job.skills.forEach(skillId => {
+	unit.learnedSkills.forEach(skillId => {
 		unit.cooldowns[skillId] = Math.max(0, unit.cooldowns[skillId] - 1);
 	});
 
