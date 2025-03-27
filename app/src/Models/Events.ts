@@ -43,15 +43,61 @@ export type Event = {
 	}
 
 }
+
+/**
+ * Creates a nested trigger with choices
+ * @param choicesFn Function that returns the available choices
+ * @param onChoiceFn Function called when a choice is made
+ */
+function nestedTrigger(choicesFn: () => Choice[], onChoiceFn: (choice: Choice) => void) {
+	return {
+		type: "nested" as const,
+		choices: choicesFn,
+		onChoice: onChoiceFn
+	};
+}
+
+/**
+ * Creates an instant trigger
+ * @param onSelectFn Function called when the event is selected
+ */
+function instantTrigger(onSelectFn: () => void) {
+	return {
+		type: "instant" as const,
+		onSelect: onSelectFn
+	};
+}
+
+/**
+ * Creates a shop trigger
+ * @param choicesFn Function that returns the available shop items
+ */
+function shopTrigger(choicesFn: () => Choice[]) {
+	return {
+		type: "shop" as const,
+		choices: choicesFn
+	};
+}
+
+/**
+ * Creates a unit trigger
+ * @param onChooseFn Function called when a unit is chosen
+ */
+function unitTrigger(onChooseFn: (unit: Unit) => void) {
+	return {
+		type: "unit" as const,
+		onChoose: onChooseFn
+	};
+}
+
 const starterEvent: Event = {
 	id: "1",
 	level: 1,
 	title: "Start your guild",
 	description: "Recruit the first member of your guild",
 	pic: "icon/quest",
-	triggers: {
-		type: "nested",
-		choices: () => {
+	triggers: nestedTrigger(
+		() => {
 			return pickRandom(jobs, 3).map(job => newChoice(
 				`${job.id}/full`,
 				job.name,
@@ -59,10 +105,9 @@ const starterEvent: Event = {
 				job.id,
 			));
 		},
-		onChoice: async (choice: Choice) => {
+		async (choice: Choice) => {
 			emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, choice.value as JobId);
-		}
-	}
+		})
 }
 
 
@@ -73,14 +118,11 @@ const randomEvents: Event[] = [
 		title: "Odd Job",
 		description: "You have been offered a job for 3 gold",
 		pic: "icon/quest",
-		triggers: {
-			type: "instant",
-			onSelect: () => {
-				const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
-				playerForce.gold += 3;
-				UIManager.updateUI();
-			},
-		}
+		triggers: instantTrigger(() => {
+			const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
+			playerForce.gold += 3;
+			UIManager.updateUI();
+		}),
 	},
 	{
 		id: "3",
@@ -88,12 +130,9 @@ const randomEvents: Event[] = [
 		title: "A new friend",
 		description: "You have made a new friend",
 		pic: "icon/quest",
-		triggers: {
-			type: "instant",
-			onSelect: () => {
-				emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, "blob" as JobId);
-			}
-		}
+		triggers: instantTrigger(() => {
+			emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, "blob" as JobId);
+		})
 	},
 	{
 		id: "4",
@@ -101,14 +140,11 @@ const randomEvents: Event[] = [
 		title: "Pick some fruit",
 		description: "Get a random fruit",
 		pic: "icon/quest",
-		triggers: {
-			type: "instant",
-			onSelect: () => {
-				const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
-				playerForce.gold += 33;
-				UIManager.updateUI();
-			}
-		}
+		triggers: instantTrigger(() => {
+			const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
+			playerForce.gold += 33;
+			UIManager.updateUI();
+		})
 	},
 	{
 		id: "5",
@@ -116,16 +152,14 @@ const randomEvents: Event[] = [
 		title: "Market Day",
 		description: "A traveling merchant offers special goods at reduced prices",
 		pic: "icon/quest",
-		triggers: {
-			type: "shop",
-			choices: () => {
+		triggers: shopTrigger(
+			() => {
 				return [
 					newChoice("icon/quest", "Buy Equipment", "Upgrade your guild's gear (+5 attack)", "test_item_1"),
 					newChoice("icon/quest", "Buy Potions", "Stock up on healing supplies (+10 health)", "test_item_2"),
 					newChoice("icon/quest", "Buy Chocolate", "Treat yourself to a sweet snack", "test_item_3")
 				];
-			}
-		}
+			})
 	},
 	{
 		id: "6",
@@ -133,9 +167,8 @@ const randomEvents: Event[] = [
 		title: "Endurance Training",
 		description: "Make a guild member gain 30 HP",
 		pic: "icon/quest",
-		triggers: {
-			type: "unit",
-			onChoose: async (unit) => {
+		triggers: unitTrigger(
+			async (unit) => {
 
 				unit.maxHp += 30;
 				unit.hp = unit.maxHp;
@@ -148,8 +181,7 @@ const randomEvents: Event[] = [
 
 				await delay(scene, 1000);
 
-			}
-		}
+			})
 	},
 	{
 		id: "7",
@@ -157,14 +189,13 @@ const randomEvents: Event[] = [
 		title: "Lost Treasure",
 		description: "You stumble upon a hidden chest in the forest",
 		pic: "icon/quest",
-		triggers: {
-			type: "instant",
-			onSelect: () => {
+		triggers: instantTrigger(
+			() => {
 				const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
 				playerForce.gold += 10;
 				UIManager.updateUI();
 			}
-		}
+		)
 	},
 	{
 		id: "8",
@@ -172,16 +203,15 @@ const randomEvents: Event[] = [
 		title: "Mysterious Stranger",
 		description: "A cloaked figure approaches your guild hall",
 		pic: "icon/quest",
-		triggers: {
-			type: "nested",
-			choices: () => {
+		triggers: nestedTrigger(
+			() => {
 				return [
 					newChoice("recruit", "Recruit Them", "Invite the stranger to join your guild", "recruit"),
 					newChoice("bribe", "Bribe for Info", "Pay 5 gold for valuable information", "bribe"),
 					newChoice("ignore", "Turn Away", "You don't trust mysterious figures", "ignore")
 				];
 			},
-			onChoice: (choice: Choice) => {
+			(choice: Choice) => {
 				const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
 				if (choice.value === "recruit") {
 					emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, pickRandom(jobs, 1)[0].id as JobId);
@@ -190,8 +220,7 @@ const randomEvents: Event[] = [
 					playerForce.gold += 15; // Information leads to greater reward
 					UIManager.updateUI();
 				}
-			}
-		}
+			})
 	}
 ];
 
