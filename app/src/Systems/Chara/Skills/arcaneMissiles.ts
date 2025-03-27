@@ -1,4 +1,3 @@
-import { getJob } from "../../../Models/Job";
 import { ARCANE_MISSILES, getSkill } from "../../../Models/Skill";
 import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
@@ -16,7 +15,6 @@ export const arcaneMissiles = (
 
 	const { state } = scene;
 	const skill = getSkill(ARCANE_MISSILES);
-	const job = getJob(unit.job);
 
 	const closest = await approach(UnitManager.getChara(unit.id), skill.range, true);
 
@@ -44,7 +42,7 @@ export const arcaneMissiles = (
 
 		await animation.arcaneMissle(scene, activeChara.container, targetChara.container, state.options.speed);
 
-		popText(scene, job.attack.toString(), targetChara.unit.id);
+		popText(scene, unit.attack.toString(), targetChara.unit.id);
 
 		if (targetChara.unit.hp <= 0) return;
 
