@@ -12,6 +12,7 @@ import * as GridSystem from "../../Scenes/Battleground/Systems/GridSystem";
 import { BLUE_BONNET, VIVIRED_RED } from "../../Utils/colors";
 import { displayUnitInfo } from "../../Scenes/Battleground/Systems/UIManager";
 import { getState, State } from "../../Models/State";
+import { getSkill } from "../../Models/Skill";
 
 export type Chara = {
 	id: string;
@@ -64,6 +65,22 @@ export function createChara(unit: Unit): Chara {
 		unit,
 		hightlightTween: null,
 	}
+
+	unit.learnedSkills.forEach((skillId, i) => {
+
+		const skill = getSkill(skillId);
+
+		const skillBorder = scene.add.rectangle(0, 0, 48, 48, 0xff0000, 1).setOrigin(0.5, 0.5);
+		skillBorder.setPosition(-spriteSize / 2 + 20, spriteSize / 2 - 20);
+		container.add(skillBorder);
+
+		const skillIcon = scene.add.image(0, 0, skill.pic).setDisplaySize(40, 40).setOrigin(0.5, 0.5);
+		//round mask cutting the skill icon
+		skillIcon.setPosition(-spriteSize / 2 + 20, spriteSize / 2 - 20);
+		container.add(skillIcon);
+
+	});
+
 
 	makeCharaInteractive(chara);
 
