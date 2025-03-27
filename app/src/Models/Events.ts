@@ -270,35 +270,22 @@ export const evalEvent = async (event: Event) => {
 
 }
 
-export const displayRandomEvents = async (day: number) => {
-	const randomItems = pickRandom(randomEvents, 3);
-	const chosenEvent = await displayChoices(randomItems.map(e =>
-
-		newChoice(e.pic, e.title, e.description, e.id)));
-
-	const event = events.find(e => e.id === chosenEvent.value);
-
-	if (!event) throw new Error("Event not found");
-
-	await evalEvent(event);
-
-}
-
-export const displayMonsterEvents = async (day: number) => {
-	const randomItems = pickRandom(monsterEvents, 3);
+const displayEvents = async (eventArray: Event[], day: number) => {
+	const randomItems = pickRandom(eventArray, 3);
 	const chosenEvent = await displayChoices(
 		randomItems.map(e => newChoice(e.pic, e.title, e.description, e.id))
 	);
 
 	const event = events.find(e => e.id === chosenEvent.value);
-
 	if (!event) throw new Error("Event not found");
 
-	await evalEvent(event);
+	return evalEvent(event);
 }
 
+export const displayRandomEvents = (day: number) => displayEvents(randomEvents, day);
+export const displayMonsterEvents = (day: number) => displayEvents(monsterEvents, day);
+
 const selectUnit = async () => new Promise<Unit>((resolve) => {
-	console.log("::: select unit event!!")
 	const dropZoneX = TILE_WIDTH * 3;
 	const dropZoneY = TILE_HEIGHT * 3;
 	const dropZone = scene.add.zone(dropZoneX, dropZoneY, TILE_WIDTH, TILE_HEIGHT)
