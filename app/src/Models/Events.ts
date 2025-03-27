@@ -39,7 +39,7 @@ const starterEvent: Event = {
 	level: 1,
 	title: "Start your guild",
 	description: "Recruit the first member of your guild",
-	pic: "https://via.placeholder.com/150",
+	pic: "icon/quest",
 	triggers: {
 		type: "nested",
 		choices: () => {
@@ -63,7 +63,7 @@ const randomEvents: Event[] = [
 		level: 1,
 		title: "Odd Job",
 		description: "You have been offered a job for 3 gold",
-		pic: "https://via.placeholder.com/150",
+		pic: "icon/quest",
 		triggers: {
 			type: "instant",
 			onSelect: () => {
@@ -78,7 +78,7 @@ const randomEvents: Event[] = [
 		level: 1,
 		title: "A new friend",
 		description: "You have made a new friend",
-		pic: "https://via.placeholder.com/150",
+		pic: "icon/quest",
 		triggers: {
 			type: "instant",
 			onSelect: () => {
@@ -91,7 +91,7 @@ const randomEvents: Event[] = [
 		level: 1,
 		title: "Pick some fruit",
 		description: "Get a random fruit",
-		pic: "https://via.placeholder.com/150",
+		pic: "icon/quest",
 		triggers: {
 			type: "instant",
 			onSelect: () => {
@@ -106,14 +106,14 @@ const randomEvents: Event[] = [
 		level: 1,
 		title: "Market Day",
 		description: "A traveling merchant offers special goods at reduced prices",
-		pic: "https://via.placeholder.com/150",
+		pic: "icon/quest",
 		triggers: {
 			type: "shop",
 			choices: () => {
 				return [
-					newChoice("buy_item", "Buy Equipment", "Upgrade your guild's gear (+5 attack)", "test_item_1"),
-					newChoice("buy_potion", "Buy Potions", "Stock up on healing supplies (+10 health)", "test_item_2"),
-					newChoice("buy_chocolate", "Buy Chocolate", "Treat yourself to a sweet snack", "test_item_3")
+					newChoice("icon/quest", "Buy Equipment", "Upgrade your guild's gear (+5 attack)", "test_item_1"),
+					newChoice("icon/quest", "Buy Potions", "Stock up on healing supplies (+10 health)", "test_item_2"),
+					newChoice("icon/quest", "Buy Chocolate", "Treat yourself to a sweet snack", "test_item_3")
 				];
 			}
 		}
@@ -123,7 +123,7 @@ const randomEvents: Event[] = [
 		level: 2,
 		title: "Advanced Training",
 		description: "An opportunity to train your guild members",
-		pic: "https://via.placeholder.com/150",
+		pic: "icon/quest",
 		triggers: {
 			type: "instant",
 			onSelect: () => {
@@ -137,7 +137,7 @@ const randomEvents: Event[] = [
 		level: 1,
 		title: "Lost Treasure",
 		description: "You stumble upon a hidden chest in the forest",
-		pic: "https://via.placeholder.com/150",
+		pic: "icon/quest",
 		triggers: {
 			type: "instant",
 			onSelect: () => {
@@ -152,7 +152,7 @@ const randomEvents: Event[] = [
 		level: 2,
 		title: "Mysterious Stranger",
 		description: "A cloaked figure approaches your guild hall",
-		pic: "https://via.placeholder.com/150",
+		pic: "icon/quest",
 		triggers: {
 			type: "nested",
 			choices: () => {
@@ -182,7 +182,7 @@ const monsterEvents: Event[] = [
 		level: 1,
 		title: "Monster Attack",
 		description: "A monster is attacking the village",
-		pic: "https://via.placeholder.com/150",
+		pic: "icon/quest",
 		triggers: {
 			type: "instant",
 			onSelect: async () => {
@@ -195,7 +195,7 @@ const monsterEvents: Event[] = [
 		level: 2,
 		title: "Goblin Raid",
 		description: "A band of goblins is raiding the village",
-		pic: "https://via.placeholder.com/150",
+		pic: "icon/quest",
 		triggers: {
 			type: "instant",
 			onSelect: async () => {
@@ -208,7 +208,7 @@ const monsterEvents: Event[] = [
 		level: 3,
 		title: "Dragon Sighting",
 		description: "A dragon has been spotted near the village",
-		pic: "https://via.placeholder.com/150",
+		pic: "icon/quest",
 		triggers: {
 			type: "instant",
 			onSelect: async () => {
@@ -246,7 +246,9 @@ export const evalEvent = async (event: Event) => {
 
 export const displayRandomEvents = async (day: number) => {
 	const randomItems = pickRandom(randomEvents, 3);
-	const chosenEvent = await displayChoices(randomItems.map(e => newChoice(e.id, e.title, e.description, e.id)));
+	const chosenEvent = await displayChoices(randomItems.map(e =>
+
+		newChoice(e.pic, e.title, e.description, e.id)));
 
 	const event = events.find(e => e.id === chosenEvent.value);
 

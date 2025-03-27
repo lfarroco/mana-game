@@ -154,6 +154,7 @@ function renderCard(
 		const y = (spacing * (i + 1)) + (CARD_DIMENSIONS.height * i);
 		const card = scene.add.container(x, y);
 
+		console.log(">>>", choice)
 		const pic = scene.add.image(0, 0, choice.pic)
 			.setDisplaySize(CARD_DIMENSIONS.height, CARD_DIMENSIONS.height).setOrigin(0);
 

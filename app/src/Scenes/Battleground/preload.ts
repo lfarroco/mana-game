@@ -47,7 +47,7 @@ export function preload(this: Phaser.Scene) {
 		this.load.image(`cards/${card}`, `assets/cards/${card}.jpeg`);
 	});
 
-	['fireball', 'arcane_missiles', 'feint'].forEach(icon => {
+	['fireball', 'arcane_missiles', 'feint', 'quest'].forEach(icon => {
 		this.load.image(`icon/${icon}`, `assets/icons/${icon}.jpeg`);
 	});
 
