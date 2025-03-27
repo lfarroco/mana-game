@@ -261,7 +261,7 @@ export const displayRandomEvents = async (day: number) => {
 export const displayMonsterEvents = async (day: number) => {
 	const randomItems = pickRandom(monsterEvents, 3);
 	const chosenEvent = await displayChoices(
-		randomItems.map(e => newChoice(e.id, e.title, e.description, e.id))
+		randomItems.map(e => newChoice(e.pic, e.title, e.description, e.id))
 	);
 
 	const event = events.find(e => e.id === chosenEvent.value);
