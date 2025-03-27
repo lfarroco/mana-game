@@ -131,9 +131,6 @@ export function createDropZone(scene: BattlegroundScene) {
 
 	zone.setRectangleDropZone(w, h);
 
-	if (!zone.input) throw new Error("dropZone.input is null");
-
-
 	dropZoneDisplay = scene.add.graphics();
 	dropZoneDisplay.lineStyle(2, 0xffff00);
 	dropZoneDisplay.fillStyle(0x00ffff, 0.3);

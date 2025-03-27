@@ -49,7 +49,7 @@ export function createChara(unit: Unit): Chara {
 		.add.image(
 			0, 0,
 			unit.job + "/portrait"
-		)
+		).setName(unit.id) // used for scene-level drop events
 
 	sprite.setDisplaySize(spriteSize, spriteSize)
 
@@ -110,6 +110,8 @@ export const makeCharaInteractive = (chara: Chara) => {
 		pointer: Phaser.Input.Pointer,
 		zone: Phaser.GameObjects.GameObject,
 	) => {
+
+		if (zone.name !== "board") return;
 
 		const tile = GridSystem.getTileAt(pointer)!;
 
