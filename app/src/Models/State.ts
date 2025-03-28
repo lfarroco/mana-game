@@ -1,9 +1,10 @@
 import * as uuid from "uuid";
-import { cpuForce, Force, playerForce } from "./Force";
+import { cpuForce, Force, FORCE_ID_PLAYER, playerForce } from "./Force";
 import { eqVec2, snakeDistanceBetween, sortBySnakeDistance, vec2, Vec2 } from "./Geometry";
 import { emit, signals, listeners } from "./Signals";
 import { Unit, makeUnit } from "./Unit";
 import { JobId } from "./Job";
+import { pickRandom } from "../utils";
 
 export const initialState = (): State => ({
   options: {
@@ -133,8 +134,6 @@ export const listenToStateEvents = (state: State) => {
 
       const unit = makeUnit(unitId, forceId, jobId, position);
 
-
-
       state.gameData.units.push(unit);
 
       emit(signals.UNIT_CREATED, unit.id);
@@ -214,4 +213,8 @@ export function getUnitsByProximity(state: State, unit: Unit, enemy: boolean, ra
 
 export function getPlayerForce(state: State): Force {
   return state.gameData.forces.find(f => f.id === playerForce.id)!;
+}
+
+export function randomPlayerUnit(state: State) {
+  return pickRandom(state.gameData.units.filter(u => u.force === FORCE_ID_PLAYER), 1)[0];
 }

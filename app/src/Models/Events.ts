@@ -6,19 +6,21 @@ import { getChara, renderUnit } from "../Scenes/Battleground/Systems/UnitManager
 import { createWave } from "../Scenes/Battleground/Systems/WaveManager";
 import { pickRandom } from "../utils";
 import { delay } from "../Utils/animation";
-import { FORCE_ID_PLAYER } from "./Force";
+import { Force, FORCE_ID_PLAYER } from "./Force";
 import { vec2 } from "./Geometry";
 import { JobId, jobs, starterJobs } from "./Job";
 import { emit, signals } from "./Signals";
-import { getState, getUnit, State } from "./State";
+import { getPlayerForce, getState, getUnit, randomPlayerUnit, State } from "./State";
 import { Unit } from "./Unit";
 
 let scene: Phaser.Scene;
-let state: State;
+export let state: State;
+let player: Force;
 
 export const init = (s: Phaser.Scene) => {
 	scene = s;
 	state = getState();
+	player = getPlayerForce(state);
 }
 
 export type Event = {
@@ -194,8 +196,7 @@ const randomEvents: Event[] = [
 		pic: "icon/quest",
 		triggers: instantTrigger(
 			() => {
-				const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
-				playerForce.gold += 10;
+				player.gold += 10;
 				UIManager.updateUI();
 			}
 		)
@@ -215,12 +216,10 @@ const randomEvents: Event[] = [
 				];
 			},
 			(choice: Choice) => {
-				const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
 				if (choice.value === "recruit") {
 					emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, pickRandom(jobs, 1)[0].id as JobId);
-				} else if (choice.value === "bribe" && playerForce.gold >= 5) {
-					playerForce.gold -= 5;
-					playerForce.gold += 15; // Information leads to greater reward
+				} else if (choice.value === "bribe" && player.gold >= 5) {
+					player.gold += 10; // Information leads to greater reward
 					UIManager.updateUI();
 				}
 			})
@@ -232,11 +231,168 @@ const randomEvents: Event[] = [
 		description: "A merchant offers you a chance to invest in their business, increasing your guild's income.",
 		pic: "icon/quest",
 		triggers: instantTrigger(() => {
-			const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
-			playerForce.income = (playerForce.income || 0) + 5; // Increase income by 5
+			player.income += 2;
 			UIManager.updateUI();
 		}),
 	},
+	{
+		id: "13",
+		level: 2,
+		title: "Mysterious Shrine",
+		description: "You discover an ancient shrine with strange inscriptions",
+		pic: "icon/quest",
+		triggers: nestedTrigger(
+			() => {
+				return [
+					newChoice("shrine", "Make an Offering", "Sacrifice 10 gold for unknown blessings", "offering"),
+					newChoice("shrine", "Touch the Relic", "Something might happen to one of your guild members", "touch"),
+					newChoice("shrine", "Leave it Alone", "It's safer not to meddle with unknown forces", "leave")
+				];
+			},
+			(choice: Choice) => {
+				const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
+				if (choice.value === "offering" && playerForce.gold >= 10) {
+					playerForce.gold -= 10;
+					const randomEffect = Math.random();
+					if (randomEffect < 0.6) {
+						// Good effect
+						playerForce.gold += 25;
+					} else {
+						// Bad effect
+						const randomUnit = randomPlayerUnit(state);
+						if (randomUnit) {
+							randomUnit.hp = Math.max(1, randomUnit.hp - 10);
+						}
+					}
+					UIManager.updateUI();
+				} else if (choice.value === "touch") {
+					const randomUnit = randomPlayerUnit(state);
+					if (randomUnit) {
+						const effect = Math.floor(Math.random() * 3);
+						if (effect === 0) {
+							randomUnit.attack += 5; // Strength blessing
+						} else if (effect === 1) {
+							randomUnit.maxHp += 15; // Health blessing
+							randomUnit.hp += 15;
+						} else {
+							randomUnit.attack -= 2; // Curse
+							randomUnit.attack = Math.max(1, randomUnit.attack);
+						}
+					}
+				}
+			}
+		)
+	},
+	{
+		id: "14",
+		level: 1,
+		title: "The Tavern",
+		description: "A rowdy tavern full of potential recruits and rumors",
+		pic: "icon/quest",
+		triggers: nestedTrigger(
+			() => {
+				return [
+					newChoice("tavern", "Hire Mercenary", "Pay 15 gold to recruit a seasoned warrior", "mercenary"),
+					newChoice("tavern", "Buy a Round of Drinks", "Spend 5 gold to hear valuable rumors", "rumors"),
+					newChoice("tavern", "Join the Card Game", "Gamble 8 gold for a chance to win more", "gamble")
+				];
+			},
+			(choice: Choice) => {
+				const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
+				if (choice.value === "mercenary" && playerForce.gold >= 15) {
+					playerForce.gold -= 15;
+					const randomJob = pickRandom(jobs, 1)[0];
+					// TODO: limit tier
+					emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, randomJob.id);
+					UIManager.updateUI();
+				} else if (choice.value === "rumors" && playerForce.gold >= 5) {
+					playerForce.gold -= 5;
+					playerForce.income += 3;
+					UIManager.updateUI();
+				} else if (choice.value === "gamble" && playerForce.gold >= 8) {
+					playerForce.gold -= 8;
+					if (Math.random() < 0.4) {
+						playerForce.gold += 20;
+					}
+					UIManager.updateUI();
+				}
+			}
+		)
+	},
+	{
+		id: "15",
+		level: 2,
+		title: "Enchanted Forest",
+		description: "Your guild stumbles upon a magical forest with strange properties",
+		pic: "icon/quest",
+		triggers: instantTrigger(() => {
+			const randomUnit = randomPlayerUnit(state);
+			if (randomUnit) {
+				randomUnit.attack += 3;
+				randomUnit.maxHp += 10;
+				randomUnit.hp += randomUnit.maxHp;
+			}
+			UIManager.updateUI();
+		})
+	},
+	{
+		id: "16",
+		level: 3,
+		title: "Arcane Library",
+		description: "An ancient repository of magical knowledge",
+		pic: "icon/quest",
+		triggers: unitTrigger(
+			async (unit) => {
+				// Give the unit a significant power boost
+				unit.attack += 8;
+				unit.agility += 2;
+
+				summonEffect(scene, 2, vec2(TILE_WIDTH * 3 + TILE_WIDTH / 2, TILE_HEIGHT * 3 + TILE_HEIGHT / 2));
+
+				const chara = getChara(unit.id);
+				chara.container.destroy(true);
+				renderUnit(unit);
+
+				await delay(scene, 1000);
+			}
+		)
+	},
+	{
+		id: "17",
+		level: 2,
+		title: "Cursed Idol",
+		description: "Your guild discovers a valuable but possibly cursed artifact",
+		pic: "icon/quest",
+		triggers: nestedTrigger(
+			() => {
+				return [
+					newChoice("idol", "Take the Idol", "Risk the curse for great power", "take"),
+					newChoice("idol", "Sell to Collector", "Gain 20 gold safely", "sell"),
+					newChoice("idol", "Leave it Alone", "Better safe than sorry", "leave")
+				];
+			},
+			(choice: Choice) => {
+				const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
+				if (choice.value === "take") {
+					// 50% curse, 50% blessing
+					if (Math.random() < 0.5) {
+						// Curse - reduce all units' HP slightly
+						state.gameData.units.filter(u => u.force === FORCE_ID_PLAYER).forEach(u => {
+							u.hp = Math.max(1, u.hp - 5);
+						});
+					} else {
+						// Blessing - increase all units' attack
+						state.gameData.units.filter(u => u.force === FORCE_ID_PLAYER).forEach(u => {
+							u.attack += 2;
+						});
+					}
+				} else if (choice.value === "sell") {
+					playerForce.gold += 20;
+					UIManager.updateUI();
+				}
+			}
+		)
+	}
 ];
 
 const monsterEvents: Event[] = [
