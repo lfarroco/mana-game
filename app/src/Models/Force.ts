@@ -4,6 +4,7 @@ export type Force = {
 	name: string;
 	color: string;
 	gold: number;
+	income: number;
 	hp: number;
 };
 
@@ -12,6 +13,7 @@ export const makeForce = (id: string): Force => ({
 	name: "",
 	color: "",
 	gold: 10,
+	income: 5,
 	hp: 50,
 });
 

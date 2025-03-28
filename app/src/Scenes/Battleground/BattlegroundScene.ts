@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { preload } from "./preload";
 import * as CharaSystem from "../../Systems/Chara/Chara";
-import { State, getState } from "../../Models/State";
+import { State, getPlayerForce, getState } from "../../Models/State";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
 import * as AISystem from "../../Systems/AI/AI";
 import * as HPBarSystem from "../../Systems/Chara/HPBar";
@@ -121,6 +121,9 @@ export class BattlegroundScene extends Phaser.Scene {
       // Move to next day
       state.gameData.day += 1;
       state.gameData.hour = 1;
+
+      const force = getPlayerForce(state);
+      force.gold += force.income;
 
       UIManager.updateUI();
 

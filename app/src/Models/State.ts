@@ -212,3 +212,6 @@ export function getUnitsByProximity(state: State, unit: Unit, enemy: boolean, ra
     .filter(u => snakeDistanceBetween(unit.position)(u.position) <= range)
 }
 
+export function getPlayerForce(state: State): Force {
+  return state.gameData.forces.find(f => f.id === playerForce.id)!;
+}

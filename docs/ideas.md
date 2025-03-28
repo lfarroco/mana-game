@@ -62,6 +62,10 @@ level up skills
 
 - gain x income
 
+merchants based on attributes
+
+- sell economy/heal/attack/defense/speed items
+
 create combinations with the events above:
 
 - eg.: on x, the y something gets z
