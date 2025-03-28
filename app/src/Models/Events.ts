@@ -224,7 +224,19 @@ const randomEvents: Event[] = [
 					UIManager.updateUI();
 				}
 			})
-	}
+	},
+	{
+		id: "12",
+		level: 1,
+		title: "Investment Opportunity",
+		description: "A merchant offers you a chance to invest in their business, increasing your guild's income.",
+		pic: "icon/quest",
+		triggers: instantTrigger(() => {
+			const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
+			playerForce.income = (playerForce.income || 0) + 5; // Increase income by 5
+			UIManager.updateUI();
+		}),
+	},
 ];
 
 const monsterEvents: Event[] = [
