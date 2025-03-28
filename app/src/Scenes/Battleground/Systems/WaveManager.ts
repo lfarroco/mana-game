@@ -11,7 +11,9 @@ export function init(sceneRef: BattlegroundScene) {
 }
 
 export async function createWave(id: number) {
-	const enemies = waves[id];
+	const waveSpec = waves[id];
+
+	const enemies = waveSpec.map(u => ({ ...u }));
 
 	scene.state.gameData.units = scene.state.gameData.units.concat(enemies);
 

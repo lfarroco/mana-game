@@ -22,6 +22,8 @@ export const APPRENTICE = "apprentice" as JobId;
 export const SQUIRE = "squire" as JobId;
 export const THIEF = "thief" as JobId;
 
+const STARTER_JOBS = [ARCHER, ACOLYTE, APPRENTICE, SQUIRE, THIEF];
+
 const baseJobs = `
 Job           | Name        | Range | HP  | ATK  | DEF | AGI | Skills
 --------------|-------------|-------|-----|------|-----|-----|--------------------------------------
@@ -128,5 +130,7 @@ function getDesctiption(job: Job): Job {
   return job;
 }
 export const jobs = parseJobsTable(baseJobs).concat(parseJobsTable(monsters)).map(getDesctiption);
+
+export const starterJobs = jobs.filter((j) => STARTER_JOBS.includes(j.id));
 
 export const getJob = (id: JobId): Job => jobs.find((j) => j.id === id)!;
