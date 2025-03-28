@@ -8,7 +8,7 @@ import { pickRandom } from "../utils";
 import { delay } from "../Utils/animation";
 import { FORCE_ID_PLAYER } from "./Force";
 import { vec2 } from "./Geometry";
-import { JobId, jobs } from "./Job";
+import { JobId, jobs, starterJobs } from "./Job";
 import { emit, signals } from "./Signals";
 import { getState, getUnit, State } from "./State";
 import { Unit } from "./Unit";
@@ -90,7 +90,7 @@ function unitTrigger(onChooseFn: (unit: Unit) => void) {
 	};
 }
 
-const starterEvent: Event = {
+export const starterEvent: Event = {
 	id: "1",
 	level: 1,
 	title: "Start your guild",
@@ -98,7 +98,10 @@ const starterEvent: Event = {
 	pic: "icon/quest",
 	triggers: nestedTrigger(
 		() => {
-			return pickRandom(jobs, 3).map(job => newChoice(
+
+			const remaning = starterJobs.filter(j => !state.gameData.units.find(f => f.job === j.id));
+
+			return pickRandom(remaning, 3).map(job => newChoice(
 				`${job.id}/full`,
 				job.name,
 				job.description,
