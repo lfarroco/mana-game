@@ -28,6 +28,8 @@ export type Event = {
 	level: number;
 	title: string;
 	description: string;
+	/* a prompt used to generate the event's icon */
+	prompt?: string;
 	pic: string;
 	triggers: {
 		type: "nested";
@@ -121,11 +123,12 @@ const randomEvents: Event[] = [
 		id: "2",
 		level: 1,
 		title: "Odd Job",
-		description: "You have been offered a job for 3 gold",
-		pic: "icon/quest",
+		description: "You have been offered a job for 5 gold",
+		prompt: "a small bag of gold coins and a scroll with a job contract",
+		pic: "icon/job_contract",
 		triggers: instantTrigger(() => {
 			const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
-			playerForce.gold += 3;
+			playerForce.gold += 5;
 			UIManager.updateUI();
 		}),
 	},
@@ -135,6 +138,7 @@ const randomEvents: Event[] = [
 		title: "A new friend",
 		description: "You have made a new friend",
 		pic: "icon/quest",
+		prompt: "a cute friendly green blob character, glowing with blue light, smiling",
 		triggers: instantTrigger(() => {
 			emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, "blob" as JobId);
 		})
@@ -144,7 +148,8 @@ const randomEvents: Event[] = [
 		level: 1,
 		title: "Pick some fruit",
 		description: "Get a random fruit",
-		pic: "icon/quest",
+		prompt: "a basket of fruits",
+		pic: "icon/fruits",
 		triggers: instantTrigger(() => {
 			const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
 			playerForce.gold += 33;
@@ -156,6 +161,7 @@ const randomEvents: Event[] = [
 		level: 1,
 		title: "Market Day",
 		description: "A traveling merchant offers special goods at reduced prices",
+		prompt: "an old and plump male merchant with a cart full of goods like armors, staves, swords, trinkets. in a market",
 		pic: "icon/quest",
 		triggers: shopTrigger(
 			() => {
@@ -171,7 +177,8 @@ const randomEvents: Event[] = [
 		level: 2,
 		title: "Endurance Training",
 		description: "Make a guild member gain 30 HP",
-		pic: "icon/quest",
+		prompt: "a training ground with a guild member lifting weights",
+		pic: "icon/endurance_training",
 		triggers: unitTrigger(
 			async (unit) => {
 
@@ -193,7 +200,8 @@ const randomEvents: Event[] = [
 		level: 1,
 		title: "Lost Treasure",
 		description: "You stumble upon a hidden chest in the forest",
-		pic: "icon/quest",
+		prompt: "an old wooden chest with a rusty lock, surrounded by trees and bushes",
+		pic: "icon/hidde_treasure",
 		triggers: instantTrigger(
 			() => {
 				player.gold += 10;

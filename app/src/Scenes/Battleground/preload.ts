@@ -47,13 +47,23 @@ export function preload(this: Phaser.Scene) {
 		this.load.image(`cards/${card}`, `assets/cards/${card}.jpeg`);
 	});
 
-	['fireball', 'arcane_missiles', 'feint', 'quest',
+	[
+		'fireball',
+		'arcane_missiles',
+		'feint',
+		'quest',
 		"chest_small",
 		"chest_medium",
 		"chest_large",
+		'fruits',
+		'endurance_training',
+		'hidden_treasure',
+		'job_contract',
+		'merchant',
 	].forEach(icon => {
 		this.load.image(`icon/${icon}`, `assets/icons/${icon}.jpeg`);
 	});
+
 
 	this.load.audio("audio/battle_theme", [
 		"assets/music/clashing_realms_suno.mp3",
