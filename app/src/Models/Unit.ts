@@ -53,3 +53,4 @@ export const unitLog = (unit: Unit, log: string) => {
   unit.log = [log, ...unit.log];
   console.log(unit.id, log);
 }
+
