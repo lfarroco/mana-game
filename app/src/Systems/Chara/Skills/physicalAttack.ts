@@ -28,9 +28,11 @@ export async function physicalAttack(
 		speed,
 	});
 
-	const isCritical = activeChara.unit.statuses["next-critical"] > 0;
+	const dice = Math.floor(Math.random() * 100);
 
-	const rawDmg = isCritical ? activeChara.unit.attack * 3 : activeChara.unit.attack;
+	const isCritical = dice <= activeChara.unit.crit || activeChara.unit.statuses["next-critical"] > 0;
+
+	const rawDmg = isCritical ? activeChara.unit.attack * 2 : activeChara.unit.attack;
 	const damage = Math.max(1, rawDmg - targetChara.unit.defense);
 
 	if (isCritical) {
