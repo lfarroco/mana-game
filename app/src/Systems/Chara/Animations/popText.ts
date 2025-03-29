@@ -12,7 +12,11 @@ export async function popText(scene: Phaser.Scene, text: string, targetId: strin
 	const popText = scene.add.text(
 		chara.container.x, chara.container.y,
 		text,
-		defaultTextConfig
+		{
+			...defaultTextConfig,
+			fontSize: '42px',
+			fontStyle: 'bold',
+		}
 	)
 		.setOrigin(0.5, 0.5)
 		.setColor(color || defaultTextConfig.color)
@@ -20,7 +24,7 @@ export async function popText(scene: Phaser.Scene, text: string, targetId: strin
 	await tween({
 		targets: [popText],
 		alpha: 0,
-		y: chara.container.y - 48,
+		y: chara.container.y - 64,
 		duration: 1000 / getState().options.speed,
 		ease: "Linear"
 	});
