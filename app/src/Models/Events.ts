@@ -201,7 +201,7 @@ const randomEvents: Event[] = [
 		title: "Lost Treasure",
 		description: "You stumble upon a hidden chest in the forest",
 		prompt: "an old wooden chest with a rusty lock, surrounded by trees and bushes",
-		pic: "icon/hidde_treasure",
+		pic: "icon/hidden_treasure",
 		triggers: instantTrigger(
 			() => {
 				player.gold += 10;
@@ -260,18 +260,27 @@ const randomEvents: Event[] = [
 			(choice: Choice) => {
 				const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
 				if (choice.value === "offering" && playerForce.gold >= 10) {
+
 					playerForce.gold -= 10;
-					const randomEffect = Math.random();
-					if (randomEffect < 0.6) {
-						// Good effect
-						playerForce.gold += 25;
+					const randomUnit = randomPlayerUnit(state);
+					const effect = Math.floor(Math.random() * 4);
+					if (effect === 0) {
+						randomUnit.attack += 7; // Increased attack power
+					} else if (effect === 1) {
+						randomUnit.maxHp += 25; // Enhanced vitality
+						randomUnit.hp += 25;
+					} else if (effect === 2) {
+						randomUnit.agility += 3; // Improved reflexes
 					} else {
-						// Bad effect
-						const randomUnit = randomPlayerUnit(state);
-						if (randomUnit) {
-							randomUnit.hp = Math.max(1, randomUnit.hp - 10);
-						}
+						// Balanced blessing
+						randomUnit.attack += 3;
+						randomUnit.maxHp += 10;
+						randomUnit.hp += 10;
+						randomUnit.agility += 1;
 					}
+					// Visual effect could be added here if needed
+
+
 					UIManager.updateUI();
 				} else if (choice.value === "touch") {
 					const randomUnit = randomPlayerUnit(state);
