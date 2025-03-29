@@ -2,8 +2,9 @@ import { summonEffect } from "../Effects";
 import { TILE_HEIGHT, TILE_WIDTH } from "../Scenes/Battleground/constants";
 import { Choice, displayChoices, displayStore, newChoice } from "../Scenes/Battleground/Systems/Choice";
 import * as UIManager from "../Scenes/Battleground/Systems/UIManager";
-import { getChara, renderUnit } from "../Scenes/Battleground/Systems/UnitManager";
+import { destroyChara, renderUnit } from "../Scenes/Battleground/Systems/UnitManager";
 import { createWave } from "../Scenes/Battleground/Systems/WaveManager";
+import { popText } from "../Systems/Chara/Animations/popText";
 import { pickRandom } from "../utils";
 import { delay } from "../Utils/animation";
 import { Force, FORCE_ID_PLAYER } from "./Force";
@@ -185,11 +186,8 @@ const randomEvents: Event[] = [
 				unit.maxHp += 30;
 				unit.hp = unit.maxHp;
 
-				summonEffect(scene, 1, vec2(TILE_WIDTH * 3 + TILE_WIDTH / 2, TILE_HEIGHT * 3 + TILE_HEIGHT / 2));
-
-				renderUnit(unit);
-
-				await delay(scene, 1000);
+				popText(scene, "+30 HP", unit.id, "heal");
+				await delay(scene, 1000 / state.options.speed);
 
 			})
 	},
@@ -362,13 +360,9 @@ const randomEvents: Event[] = [
 				unit.attack += 8;
 				unit.agility += 2;
 
-				summonEffect(scene, 2, vec2(TILE_WIDTH * 3 + TILE_WIDTH / 2, TILE_HEIGHT * 3 + TILE_HEIGHT / 2));
+				popText(scene, "+8 ATK +2 AGI", unit.id, "heal");
 
-				const chara = getChara(unit.id);
-				chara.container.destroy(true);
-				renderUnit(unit);
-
-				await delay(scene, 1000);
+				await delay(scene, 1000 / state.options.speed);
 			}
 		)
 	},
@@ -389,7 +383,7 @@ const randomEvents: Event[] = [
 			(choice: Choice) => {
 				const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
 				if (choice.value === "take") {
-					// 50% curse, 50% blessing
+
 					if (Math.random() < 0.5) {
 						// Curse - reduce all units' HP slightly
 						state.gameData.units.filter(u => u.force === FORCE_ID_PLAYER).forEach(u => {
@@ -531,13 +525,19 @@ const selectUnit = async () => new Promise<Unit>((resolve) => {
 
 		const unitId = gameObject.name;
 
-		const unit = getUnit(state)(unitId);
+		destroyChara(unitId);
 
-		resolve(unit);
+		summonEffect(scene, 2, vec2(TILE_WIDTH * 3 + TILE_WIDTH / 2, TILE_HEIGHT * 3 + TILE_HEIGHT / 2));
+
+		const unit = getUnit(state)(unitId);
+		renderUnit(unit);
+
 		scene.input.off('drop', listener);
 
 		dropZoneDisplay.destroy();
 		dropZone.destroy();
+
+		resolve(unit);
 
 	}
 
