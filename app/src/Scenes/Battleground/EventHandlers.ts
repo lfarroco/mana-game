@@ -2,7 +2,6 @@ import { FORCE_ID_PLAYER } from "../../Models/Force";
 import { vec2 } from "../../Models/Geometry";
 import { emit, listeners, signals } from "../../Models/Signals";
 import { getUnit } from "../../Models/State";
-import { makeUnit } from "../../Models/Unit";
 import { delay } from "../../Utils/animation";
 import { vignette } from "./Animations/vignette";
 import BattlegroundScene from "./BattlegroundScene";

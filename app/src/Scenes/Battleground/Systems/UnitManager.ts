@@ -23,6 +23,13 @@ export function clearCharas() {
 	});
 	state.charas = [];
 }
+export function destroyChara(id: string) {
+	const chara = state.charas.find(chara => chara.id === id);
+	if (chara) {
+		chara.container.destroy();
+		state.charas = state.charas.filter(c => c.id !== id);
+	}
+}
 
 export function init(sceneRef: BattlegroundScene) {
 	scene = sceneRef;
