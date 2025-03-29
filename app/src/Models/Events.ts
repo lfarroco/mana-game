@@ -187,8 +187,6 @@ const randomEvents: Event[] = [
 
 				summonEffect(scene, 1, vec2(TILE_WIDTH * 3 + TILE_WIDTH / 2, TILE_HEIGHT * 3 + TILE_HEIGHT / 2));
 
-				const chara = getChara(unit.id);
-				chara.container.destroy(true);
 				renderUnit(unit);
 
 				await delay(scene, 1000);

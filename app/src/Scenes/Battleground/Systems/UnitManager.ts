@@ -8,13 +8,20 @@ import { tween } from "../../../Utils/animation";
 import { BattlegroundScene } from "../BattlegroundScene";
 
 let scene: BattlegroundScene;
-export let charas: Chara[] = [];
+
+type State = {
+	charas: Chara[]
+}
+
+export const state: State = {
+	charas: [],
+}
 
 export function clearCharas() {
-	charas.forEach((chara) => {
+	state.charas.forEach(chara => {
 		chara.container.destroy();
 	});
-	charas.length = 0; // update in place
+	state.charas = [];
 }
 
 export function init(sceneRef: BattlegroundScene) {
@@ -34,7 +41,7 @@ export async function renderUnit(unit: Unit) {
 
 	chara.container.setAlpha(0);
 
-	charas.push(chara)
+	state.charas.push(chara);
 
 	emit(signals.CHARA_CREATED, unit.id)
 
@@ -43,15 +50,15 @@ export async function renderUnit(unit: Unit) {
 		alpha: 1,
 		duration: 500 / scene.speed,
 		ease: 'Power2',
-	})
+	});
 }
 
 export function getChara(id: string) {
-	return charas.find((chara) => chara.id === id)!;
+	return state.charas.find((chara) => chara.id === id)!;
 }
 
 export function getCharaAt(vec: Vec2) {
-	return charas
+	return state.charas
 		.filter(chara => chara.unit.hp > 0)
 		.find((chara) => eqVec2(chara.unit.position, vec));
 }

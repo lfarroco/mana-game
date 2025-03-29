@@ -195,11 +195,6 @@ export function init(sceneRef: Phaser.Scene) {
 	state = getState();
 
 	listeners([
-		[signals.BATTLEGROUND_TICK, () => {
-			UnitManager.charas.forEach((chara) => {
-				chara.sprite.alpha = 1;
-			})
-		}],
 		[signals.HIGHLIGHT_UNIT, (unitId: string, color: number) => {
 
 			const chara = UnitManager.getChara(unitId);
