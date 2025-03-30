@@ -27,11 +27,11 @@ const STARTER_JOBS = [ARCHER, ACOLYTE, APPRENTICE, SQUIRE, THIEF];
 const baseJobs = `
 Job           | Name        | Range | HP  | ATK  | DEF | AGI | Skills
 --------------|-------------|-------|-----|------|-----|-----|--------------------------------------
-${ARCHER}     | Archer      | 3     | 100 | 20   | 3   | 12  | ${s.MULTISHOT}, ${s.SHOOT}
+${ARCHER}     | Archer      | 3     | 100 | 20   | 3   | 12  | ${s.MULTISHOT}
 ${ACOLYTE}    | Acolyte     | 2     | 80  | 10   | 0   | 6   | ${s.HEALING_WAVE}, ${s.LIGHT_ORB}
 ${APPRENTICE} | Apprentice  | 2     | 80  | 30   | 0   | 8   | ${s.FIREBALL}, ${s.ARCANE_MISSILES}
 ${SQUIRE}     | Squire      | 3     | 300 | 20   | 5   | 10  | ${s.SHIELDBASH}, ${s.SLASH}
-${THIEF}      | Thief       | 4     | 130 | 35   | 2   | 18  | ${s.FEINT}, ${s.SLASH}
+${THIEF}      | Thief       | 4     | 130 | 20   | 2   | 18  | ${s.FEINT}, ${s.SLASH}
 `;
 
 export const BLOB = "blob" as JobId;
