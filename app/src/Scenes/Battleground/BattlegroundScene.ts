@@ -14,7 +14,7 @@ import * as UnitManager from "./Systems/UnitManager";
 import * as WaveManager from "./Systems/WaveManager";
 import * as GridSystem from "./Systems/GridSystem";
 import * as ChoiceSystem from "./Systems/Choice";
-import * as EventSystem from "../../Models/Encounter";
+import * as EventSystem from "../../Models/Encounters/Encounter";
 
 export class BattlegroundScene extends Phaser.Scene {
 
