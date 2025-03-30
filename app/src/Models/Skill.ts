@@ -1,5 +1,5 @@
 
-export type SkillId = string & { __skillId: true };
+export type SkillId = string & { __skillId: never };
 
 export type Skill = {
 	id: SkillId;
@@ -67,11 +67,7 @@ ${SHADOWSTEP}     | Shadowstep      | 5     | 0        | 0     | If no enemy is 
 		return skill(id, name, parseInt(range), parseInt(cooldown), parseInt(power), tooltip);
 	});
 
-// ideas for skills:
-//- fire pillar
-export const getSkill = (id: SkillId): Skill => {
+export const getSkill = (id: SkillId): Skill =>
+	skills.find(skill => skill.id === id)!
 
-	return skills.find(skill => skill.id === id)!
-
-}
 
