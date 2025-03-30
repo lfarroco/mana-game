@@ -173,36 +173,48 @@ export function hideUI() {
 // to the right of the sprite
 export function displayUnitInfo(chara: CharaSystem.Chara) {
 
-	unitInfoContainer?.destroy();
-
 	const { unit } = chara;
+
+	const x = chara.container.x + constants.TILE_WIDTH + 10;
+	const y = Math.min(chara.container.y - constants.TILE_HEIGHT, 200);
+	const width = bgConstants.TILE_WIDTH * 3;
+	const height = bgConstants.TILE_HEIGHT * 5;
 
 	const job = getJob(unit.job);
 
-	const x = chara.container.x + constants.TILE_WIDTH + 10;
-	const y = chara.container.y - constants.TILE_HEIGHT;
-	const width = bgConstants.TILE_WIDTH * 3;
-	const height = bgConstants.TILE_HEIGHT * 5;
+	unitInfoContainer?.destroy();
+	unitInfoContainer = scene.add.container(x, y);
 
 	const bg = scene.add.graphics();
 	bg.fillStyle(COLOR_BLACK, 0.7);
 	bg.fillRoundedRect(0, 0, width, height, 10);
 
-
-	unitInfoContainer = scene.add.container(x, y);
 	unitInfoContainer.add([bg]);
 
-	unitInfoContainer.add([
-		scene.add.image(0, 0, job.id + "/full")
-			.setDisplaySize(bgConstants.TILE_WIDTH * 3, bgConstants.TILE_WIDTH * 3)
-			.setOrigin(0),
-		scene.add.text(10, 10, job.name, bgConstants.defaultTextConfig),
-		...unit.learnedSkills
-			.map(getSkill)
-			.map((sk, i) => scene.add.text(
-				10, (bgConstants.TILE_HEIGHT * 3) + 60 + i * 50,
-				sk.name, bgConstants.defaultTextConfig))
-	]);
+	const pic = scene.add.image(0, 0, job.id + "/full")
+		.setDisplaySize(bgConstants.TILE_WIDTH * 3, bgConstants.TILE_WIDTH * 3)
+		.setOrigin(0);
+
+	const jobName = scene.add.text(10, 10, job.name, bgConstants.defaultTextConfig);
+
+	const stats = [
+		`❤️ ${unit.hp}/${unit.maxHp}`,
+		`⚔️ ${unit.attack}`,
+		"🛡️ " + unit.defense,
+		"🏃 " + unit.agility,
+		"🎯 " + unit.crit,
+	].map((text, i) => scene.add.text(
+		250, (bgConstants.TILE_HEIGHT * 3) + 10 + i * 50,
+		text, bgConstants.defaultTextConfig));
+	unitInfoContainer.add(stats);
+
+	const skills = unit.learnedSkills
+		.map(getSkill)
+		.map((sk, i) => scene.add.text(
+			10, (bgConstants.TILE_HEIGHT * 3) + 80 + i * 50,
+			sk.name, bgConstants.defaultTextConfig));
+
+	unitInfoContainer.add([pic, jobName, ...skills]);
 
 	const closeBtn = scene.add.text(
 		width - 40, 10, "X", bgConstants.defaultTextConfig)
