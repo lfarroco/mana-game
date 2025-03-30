@@ -1,6 +1,7 @@
 import { asVec2, Vec2 } from "./Geometry";
 import { getJob, JobId } from "./Job";
 import { getSkill, SkillId } from "./Skill";
+import { TraitId } from "./Traits";
 
 export type Unit = {
   id: string;
@@ -20,7 +21,7 @@ export type Unit = {
 
   cooldowns: { [key: SkillId]: number };
   statuses: { [key: string]: number };
-
+  traits: TraitId[];
   learnedSkills: SkillId[];
 
   log: string[];
@@ -47,6 +48,7 @@ export const makeUnit = (id: string, force: string, job: JobId, position: Vec2):
       return acc;
     }, {} as { [key: string]: number }),
     statuses: {},
+    traits: [],
     learnedSkills
   } as Unit;
 };
