@@ -9,6 +9,7 @@ export type Job = {
   moveRange: number;
   upgrades: JobId[];
   hp: number;
+  multicast: number;
   attack: number;
   defense: number;
   agility: number;
@@ -25,13 +26,13 @@ export const THIEF = "thief" as JobId;
 const STARTER_JOBS = [ARCHER, ACOLYTE, APPRENTICE, SQUIRE, THIEF];
 
 const baseJobs = `
-Job           | Name        | Range | HP  | ATK  | DEF | AGI | Skills
+Job           | Name        | Range | HP  | ATK  | DEF | AGI | Skill
 --------------|-------------|-------|-----|------|-----|-----|--------------------------------------
-${ARCHER}     | Archer      | 3     | 100 | 20   | 3   | 12  | ${s.MULTISHOT}
-${ACOLYTE}    | Acolyte     | 2     | 80  | 10   | 0   | 6   | ${s.HEALING_WAVE}, ${s.LIGHT_ORB}
-${APPRENTICE} | Apprentice  | 2     | 80  | 30   | 0   | 8   | ${s.FIREBALL}, ${s.ARCANE_MISSILES}
-${SQUIRE}     | Squire      | 3     | 300 | 20   | 5   | 10  | ${s.SHIELDBASH}, ${s.SLASH}
-${THIEF}      | Thief       | 4     | 130 | 20   | 2   | 18  | ${s.FEINT}, ${s.SLASH}
+${ARCHER}     | Archer      | 3     | 100 | 20   | 3   | 12  | ${s.SHOOT}
+${ACOLYTE}    | Acolyte     | 2     | 80  | 10   | 0   | 6   | ${s.HEALING_WAVE}
+${APPRENTICE} | Apprentice  | 2     | 80  | 30   | 0   | 8   | ${s.ARCANE_MISSILES}
+${SQUIRE}     | Squire      | 3     | 300 | 20   | 5   | 10  | ${s.SLASH}
+${THIEF}      | Thief       | 4     | 130 | 20   | 2   | 18  | ${s.SLASH}
 `;
 
 export const BLOB = "blob" as JobId;
@@ -44,15 +45,15 @@ export const SHADOW_GHOST = "shadow_ghost" as JobId;
 export const SWARMLING = "swarmling" as JobId;
 
 const monsters = `
-Job             | Name         | Range | HP  | ATK  | DEF | AGI | Skills
+Job             | Name         | Range | HP  | ATK  | DEF | AGI | Skill
 ----------------|--------------|-------|-----|------|-----|-----|--------------------------------------
 ${BLOB}         | Blob         | 3     | 40  | 20   | 0   | 10  | ${s.SLASH}
 ${RED_BLOB}     | Red Blob     | 3     | 40  | 20   | 0   | 10  | ${s.EXPLODE}
-${BLOB_KING}    | Blob King    | 2     | 500 | 50   | 3   | 10  | ${s.SUMMON_BLOB}, ${s.SLASH}
-${BLOB_MAGE}    | Blob Mage    | 3     | 90  | 15   | 0   | 8   | ${s.FIREBALL}, ${s.ARCANE_MISSILES}
-${BLOB_KNIGHT}  | Blob Knight  | 2     | 400 | 25   | 8   | 6   | ${s.SHIELDBASH}, ${s.SLASH}
+${BLOB_KING}    | Blob King    | 2     | 500 | 50   | 3   | 10  | ${s.SLASH}
+${BLOB_MAGE}    | Blob Mage    | 3     | 90  | 15   | 0   | 8   | ${s.ARCANE_MISSILES}
+${BLOB_KNIGHT}  | Blob Knight  | 2     | 400 | 25   | 8   | 6   | ${s.SLASH}
 ${SHADOW_BLOB}  | Shadow Blob  | 3     | 900 | 25   | 10  | 6   | ${s.SUMMON_BLOB}
-${SHADOW_GHOST} | Shadow Ghost | 4     | 90  | 40   | 0   | 18  | ${s.SHADOWSTEP}, ${s.SLASH}
+${SHADOW_GHOST} | Shadow Ghost | 4     | 90  | 40   | 0   | 18  | ${s.SLASH}
 ${SWARMLING}    | Shadowling   | 5     | 120 | 30   | 0   | 20  | ${s.SLASH}
 `
 // future jobs
@@ -91,10 +92,23 @@ function parseJobsTable(table: string) {
       defense: parseInt(d["DEF"]),
       agility: parseInt(d["AGI"]),
       skills,
+      multicast: getMulticast(d["Job"] as JobId),
       baseSkill: skills[skills.length - 1],
     } as Job;
   })
 }
+
+const getMulticast = (jobId: JobId): number => {
+  const multipleJobs = [
+    THIEF, ARCHER
+  ];
+
+  if (multipleJobs.includes(jobId)) {
+    return 2;
+  }
+  else return 1;
+}
+
 
 
 export const descriptions = `
