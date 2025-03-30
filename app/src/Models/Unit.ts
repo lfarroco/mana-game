@@ -18,6 +18,7 @@ export type Unit = {
   defense: number;
   agility: number;
   crit: number;
+  multicast: number;
 
   cooldowns: { [key: SkillId]: number };
   statuses: { [key: string]: number };
@@ -40,6 +41,7 @@ export const makeUnit = (id: string, force: string, job: JobId, position: Vec2):
     position: asVec2(position),
     initialPosition: position,
     maxHp: job_.hp,
+    multicast: 2,
     crit: job_.agility * 1.5,
     log: [],
     cooldowns: learnedSkills.reduce((acc, skillId) => {
