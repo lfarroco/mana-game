@@ -196,36 +196,6 @@ export function displayUnitInfo(chara: CharaSystem.Chara) {
 		.setOrigin(0);
 	unitInfoContainer.add(pic);
 
-	// display 3 item slots 
-	["Weapon", "Armor", "Trinket"].forEach((item, i) => {
-
-		// border graphics (square icon)
-		const slot = scene.add.graphics();
-		slot.fillStyle(0xff0000, 1);
-		slot.fillRect(0, 0, bgConstants.TILE_WIDTH / 2, bgConstants.TILE_WIDTH / 2);
-		slot.lineStyle(8, 0xeaeaea, 1);
-		slot.strokeRect(0, 0, bgConstants.TILE_WIDTH / 2, bgConstants.TILE_WIDTH / 2);
-		slot.setPosition(10 + i * bgConstants.TILE_WIDTH, bgConstants.TILE_HEIGHT * 2 + 30);
-		unitInfoContainer?.add(slot);
-
-		const text = scene.add.text(
-			10 + i * bgConstants.TILE_WIDTH + bgConstants.TILE_WIDTH / 4,
-			bgConstants.TILE_HEIGHT * 2 + 30 + bgConstants.TILE_WIDTH / 4,
-			item, {
-			...bgConstants.defaultTextConfig,
-			color: "#ffffff",
-			stroke: "#000000",
-			strokeThickness: 2,
-			fontSize: "20px",
-		}).setOrigin(0.5, 0.5);
-		unitInfoContainer?.add(text);
-
-		// const itemPic = scene.add.image(0, 0, "icon/quest")
-		// 	.setDisplaySize(bgConstants.TILE_WIDTH / 2, bgConstants.TILE_WIDTH / 2)
-		// 	.setOrigin(0);
-		// itemPic.setPosition(10 + i * bgConstants.TILE_WIDTH, bgConstants.TILE_HEIGHT * 2 + 30);
-	});
-
 	const jobName = scene.add.text(10, 10, job.name, bgConstants.defaultTextConfig);
 	unitInfoContainer.add(jobName);
 
