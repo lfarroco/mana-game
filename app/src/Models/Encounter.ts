@@ -1,3 +1,45 @@
+/**
+ * @fileoverview Events system for the game.
+ * 
+ * @recommendation Event Organization
+ * The current implementation stores all events directly in code, which becomes
+ * hard to maintain as the number of events grows. Consider the following reorganization:
+ * 
+ * 1. Create a directory structure like:
+ *    /data/events/
+ *      - starter.json
+ *      - random.json
+ *      - monster.json
+ * 
+ * 2. Each JSON file should contain an array of event objects:
+ *    [
+ *      {
+ *        "id": "1",
+ *        "day": 1,
+ *        "title": "Event title",
+ *        "description": "Description text",
+ *        "pic": "icon/path",
+ *        "prompt": "prompt text",
+ *        "triggerType": "nested|instant|shop|unit",
+ *        "triggerData": {...} // Data specific to each trigger type
+ *      }
+ *    ]
+ * 
+ * 3. Create utility functions to:
+ *    - Load events from JSON files
+ *    - Parse trigger data based on trigger type
+ *    - Implement trigger functions separately
+ * 
+ * 4. Benefits:
+ *    - Content designers can edit events without touching code
+ *    - Events can be easily added, modified, or removed
+ *    - Better separation of data and logic
+ *    - Avoids performance issues with large inline data
+ *    - Makes it easier to implement an event editor tool
+ * 
+ * This approach will make the events more manageable while keeping
+ * the core event handling logic intact.
+ */
 import { summonEffect } from "../Effects";
 import { TILE_HEIGHT, TILE_WIDTH } from "../Scenes/Battleground/constants";
 import { Choice, displayChoices, displayStore, newChoice } from "../Scenes/Battleground/Systems/Choice";
@@ -6,7 +48,6 @@ import { destroyChara, renderUnit } from "../Scenes/Battleground/Systems/UnitMan
 import { createWave } from "../Scenes/Battleground/Systems/WaveManager";
 import { popText } from "../Systems/Chara/Animations/popText";
 import { pickRandom } from "../utils";
-import { delay } from "../Utils/animation";
 import { Force, FORCE_ID_PLAYER } from "./Force";
 import { vec2 } from "./Geometry";
 import { JobId, jobs, starterJobs } from "./Job";
@@ -24,7 +65,7 @@ export const init = (s: Phaser.Scene) => {
 	player = getPlayerForce(state);
 }
 
-export type Event = {
+export type Encounter = {
 	id: string;
 	day: number;
 	title: string;
@@ -95,7 +136,7 @@ function unitTrigger(onChooseFn: (unit: Unit) => void) {
 	};
 }
 
-export const starterEvent: Event = {
+export const starterEvent: Encounter = {
 	id: "1",
 	day: 1,
 	title: "Start your guild",
@@ -119,7 +160,7 @@ export const starterEvent: Event = {
 }
 
 
-const randomEvents: Event[] = [
+const randomEvents: Encounter[] = [
 	{
 		id: "2",
 		day: 1,
@@ -145,31 +186,18 @@ const randomEvents: Event[] = [
 		})
 	},
 	{
-		id: "4",
-		day: 1,
-		title: "Pick some fruit",
-		description: "Get a random fruit",
-		prompt: "a basket of fruits",
-		pic: "icon/fruits",
-		triggers: instantTrigger(() => {
-			const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
-			playerForce.gold += 33;
-			UIManager.updateUI();
-		})
-	},
-	{
 		id: "5",
 		day: 1,
 		title: "Market Day",
 		description: "A traveling merchant offers special goods at reduced prices",
 		prompt: "an old and plump male merchant with a cart full of goods like armors, staves, swords, trinkets. in a market",
-		pic: "icon/quest",
+		pic: "icon/merchant",
 		triggers: shopTrigger(
 			() => {
 				return [
-					newChoice("icon/quest", "Buy Equipment", "Upgrade your guild's gear (+5 attack)", "test_item_1"),
+					newChoice("icon/quest", "Buy Equipment", "Upgrade your guild's gear (+1 attack)", "test_item_1"),
 					newChoice("icon/quest", "Buy Potions", "Stock up on healing supplies (+10 health)", "test_item_2"),
-					newChoice("icon/quest", "Buy Chocolate", "Treat yourself to a sweet snack", "test_item_3")
+					newChoice("icon/quest", "Buy Armor", "Enhance your guild's defense (+1 defense)", "test_item_3"),
 				];
 			})
 	},
@@ -186,8 +214,7 @@ const randomEvents: Event[] = [
 				unit.maxHp += 30;
 				unit.hp = unit.maxHp;
 
-				popText(scene, "+30 HP", unit.id, "heal");
-				await delay(scene, 1000 / state.options.speed);
+				popText(scene, "+30 MAX HP", unit.id, "heal");
 
 			})
 	},
@@ -216,7 +243,6 @@ const randomEvents: Event[] = [
 				return [
 					newChoice("recruit", "Recruit Them", "Invite the stranger to join your guild", "recruit"),
 					newChoice("bribe", "Bribe for Info", "Pay 5 gold for valuable information", "bribe"),
-					newChoice("ignore", "Turn Away", "You don't trust mysterious figures", "ignore")
 				];
 			},
 			(choice: Choice) => {
@@ -320,7 +346,7 @@ const randomEvents: Event[] = [
 					UIManager.updateUI();
 				} else if (choice.value === "rumors" && playerForce.gold >= 5) {
 					playerForce.gold -= 5;
-					playerForce.income += 3;
+					playerForce.income += 1;
 					UIManager.updateUI();
 				} else if (choice.value === "gamble" && playerForce.gold >= 8) {
 					playerForce.gold -= 8;
@@ -361,8 +387,6 @@ const randomEvents: Event[] = [
 				unit.agility += 2;
 
 				popText(scene, "+8 ATK +2 AGI", unit.id, "heal");
-
-				await delay(scene, 1000 / state.options.speed);
 			}
 		)
 	},
@@ -401,10 +425,40 @@ const randomEvents: Event[] = [
 				}
 			}
 		)
+	},
+	{
+		id: "18",
+		day: 3,
+		title: "Agility Training",
+		description: "A mysterious trainer offers to enhance a guild member's agility",
+		pic: "icon/quest",
+		triggers: unitTrigger(
+			async (unit) => {
+				unit.agility += 5;
+				popText(scene, "+5 AGI", unit.id, "heal");
+			}
+		)
+	},
+	{
+		id: "19",
+		day: 2,
+		title: "Ancient Ruins",
+		description: "Your guild uncovers ancient ruins filled with treasures and traps",
+		pic: "icon/quest",
+		triggers: instantTrigger(() => {
+			const randomUnit = randomPlayerUnit(state);
+			if (randomUnit) {
+				randomUnit.attack += 4;
+				randomUnit.maxHp += 15;
+				randomUnit.hp += randomUnit.maxHp;
+			}
+			UIManager.updateUI();
+		})
+
 	}
 ];
 
-const monsterEvents: Event[] = [
+const monsterEvents: Encounter[] = [
 	{
 		id: "9",
 		day: 1,
@@ -415,6 +469,32 @@ const monsterEvents: Event[] = [
 			type: "instant",
 			onSelect: async () => {
 				await createWave(11)
+			}
+		}
+	},
+	{
+		id: "10",
+		day: 1,
+		title: "Bandit Ambush",
+		description: "A group of bandits is attacking the village",
+		pic: "icon/quest",
+		triggers: {
+			type: "instant",
+			onSelect: async () => {
+				await createWave(12)
+			}
+		}
+	},
+	{
+		id: "11",
+		day: 1,
+		title: "Undead Horde",
+		description: "A horde of undead is attacking the village",
+		pic: "icon/quest",
+		triggers: {
+			type: "instant",
+			onSelect: async () => {
+				await createWave(13)
 			}
 		}
 	},
@@ -446,13 +526,15 @@ const monsterEvents: Event[] = [
 	}
 ];
 
-export const events: Event[] = [
+
+
+export const events: Encounter[] = [
 	starterEvent,
 	...randomEvents,
 	...monsterEvents
 ];
 
-export const evalEvent = async (event: Event) => {
+export const evalEvent = async (event: Encounter) => {
 
 	if (event.triggers.type === "nested") {
 
@@ -479,7 +561,7 @@ export const evalEvent = async (event: Event) => {
 
 }
 
-const displayEvents = async (eventArray: Event[], day: number) => {
+const displayEvents = async (eventArray: Encounter[], day: number) => {
 	const randomItems = pickRandom(eventArray, 3);
 	const chosenEvent = await displayChoices(
 		randomItems.map(e => newChoice(e.pic, e.title, e.description, e.id))
