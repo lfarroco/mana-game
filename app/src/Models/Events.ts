@@ -26,7 +26,7 @@ export const init = (s: Phaser.Scene) => {
 
 export type Event = {
 	id: string;
-	level: number;
+	day: number;
 	title: string;
 	description: string;
 	/* a prompt used to generate the event's icon */
@@ -97,9 +97,9 @@ function unitTrigger(onChooseFn: (unit: Unit) => void) {
 
 export const starterEvent: Event = {
 	id: "1",
-	level: 1,
+	day: 1,
 	title: "Start your guild",
-	description: "Recruit the first member of your guild",
+	description: "Recruit the founding members of your guild",
 	pic: "icon/quest",
 	triggers: nestedTrigger(
 		() => {
@@ -122,7 +122,7 @@ export const starterEvent: Event = {
 const randomEvents: Event[] = [
 	{
 		id: "2",
-		level: 1,
+		day: 1,
 		title: "Odd Job",
 		description: "You have been offered a job for 5 gold",
 		prompt: "a small bag of gold coins and a scroll with a job contract",
@@ -135,7 +135,7 @@ const randomEvents: Event[] = [
 	},
 	{
 		id: "3",
-		level: 1,
+		day: 1,
 		title: "A new friend",
 		description: "You have made a new friend",
 		pic: "icon/quest",
@@ -146,7 +146,7 @@ const randomEvents: Event[] = [
 	},
 	{
 		id: "4",
-		level: 1,
+		day: 1,
 		title: "Pick some fruit",
 		description: "Get a random fruit",
 		prompt: "a basket of fruits",
@@ -159,7 +159,7 @@ const randomEvents: Event[] = [
 	},
 	{
 		id: "5",
-		level: 1,
+		day: 1,
 		title: "Market Day",
 		description: "A traveling merchant offers special goods at reduced prices",
 		prompt: "an old and plump male merchant with a cart full of goods like armors, staves, swords, trinkets. in a market",
@@ -175,7 +175,7 @@ const randomEvents: Event[] = [
 	},
 	{
 		id: "6",
-		level: 2,
+		day: 2,
 		title: "Endurance Training",
 		description: "Make a guild member gain 30 HP",
 		prompt: "a training ground with a guild member lifting weights",
@@ -193,7 +193,7 @@ const randomEvents: Event[] = [
 	},
 	{
 		id: "7",
-		level: 1,
+		day: 1,
 		title: "Lost Treasure",
 		description: "You stumble upon a hidden chest in the forest",
 		prompt: "an old wooden chest with a rusty lock, surrounded by trees and bushes",
@@ -207,7 +207,7 @@ const randomEvents: Event[] = [
 	},
 	{
 		id: "8",
-		level: 2,
+		day: 2,
 		title: "Mysterious Stranger",
 		description: "A cloaked figure approaches your guild hall",
 		pic: "icon/quest",
@@ -230,7 +230,7 @@ const randomEvents: Event[] = [
 	},
 	{
 		id: "12",
-		level: 1,
+		day: 1,
 		title: "Investment Opportunity",
 		description: "A merchant offers you a chance to invest in their business, increasing your guild's income.",
 		pic: "icon/quest",
@@ -241,7 +241,7 @@ const randomEvents: Event[] = [
 	},
 	{
 		id: "13",
-		level: 2,
+		day: 2,
 		title: "Mysterious Shrine",
 		description: "You discover an ancient shrine with strange inscriptions",
 		pic: "icon/quest",
@@ -298,7 +298,7 @@ const randomEvents: Event[] = [
 	},
 	{
 		id: "14",
-		level: 1,
+		day: 1,
 		title: "The Tavern",
 		description: "A rowdy tavern full of potential recruits and rumors",
 		pic: "icon/quest",
@@ -334,7 +334,7 @@ const randomEvents: Event[] = [
 	},
 	{
 		id: "15",
-		level: 2,
+		day: 2,
 		title: "Enchanted Forest",
 		description: "Your guild stumbles upon a magical forest with strange properties",
 		pic: "icon/quest",
@@ -350,7 +350,7 @@ const randomEvents: Event[] = [
 	},
 	{
 		id: "16",
-		level: 3,
+		day: 3,
 		title: "Arcane Library",
 		description: "An ancient repository of magical knowledge",
 		pic: "icon/quest",
@@ -368,7 +368,7 @@ const randomEvents: Event[] = [
 	},
 	{
 		id: "17",
-		level: 2,
+		day: 2,
 		title: "Cursed Idol",
 		description: "Your guild discovers a valuable but possibly cursed artifact",
 		pic: "icon/quest",
@@ -407,7 +407,7 @@ const randomEvents: Event[] = [
 const monsterEvents: Event[] = [
 	{
 		id: "9",
-		level: 1,
+		day: 1,
 		title: "Monster Attack",
 		description: "A monster is attacking the village",
 		pic: "icon/quest",
@@ -420,7 +420,7 @@ const monsterEvents: Event[] = [
 	},
 	{
 		id: "10",
-		level: 2,
+		day: 2,
 		title: "Goblin Raid",
 		description: "A band of goblins is raiding the village",
 		pic: "icon/quest",
@@ -433,7 +433,7 @@ const monsterEvents: Event[] = [
 	},
 	{
 		id: "11",
-		level: 3,
+		day: 3,
 		title: "Dragon Sighting",
 		description: "A dragon has been spotted near the village",
 		pic: "icon/quest",
