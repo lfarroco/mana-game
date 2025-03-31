@@ -109,81 +109,81 @@ const commonEvents = (): Encounter[] => [
 			popText(scene, "+ Brave Trait", unit.id, "neutral");
 		}
 	}),
-	makeEncounter("greedy_trait", TIER.COMMON, "Greed", "A guild member becomes obsessed with wealth", "icon/personality", {
-		type: "unit",
-		onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
-			unit.traits.push(Traits.GREEDY.id)
-			popText(scene, "+ Greedy Trait", unit.id, "neutral");
-		}
-	}),
-	makeEncounter("kind_trait", TIER.COMMON, "Kindness", "A guild member shows exceptional kindness to others", "icon/personality", {
-		type: "unit",
-		onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
-			unit.traits.push(Traits.KIND.id)
-			popText(scene, "+ Kind Trait", unit.id, "neutral");
-		}
-	}),
-	makeEncounter("cunning_trait", TIER.COMMON, "Cunning", "A guild member shows exceptional cunning in battle", "icon/personality", {
-		type: "unit",
-		onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
-			unit.traits.push(Traits.CUNNING.id)
-			popText(scene, "+ Cunning Trait", unit.id, "neutral");
-		}
-	}),
-	makeEncounter("loyal_trait", TIER.COMMON, "Loyalty", "A guild member shows exceptional loyalty to the guild", "icon/personality", {
-		type: "unit",
-		onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
-			unit.traits.push(Traits.LOYAL.id)
-			popText(scene, "+ Loyal Trait", unit.id, "neutral");
-		}
-	}),
-	makeEncounter("lazy_trait", TIER.COMMON, "Laziness", "A guild member becomes lazy and unmotivated", "icon/personality", {
-		type: "unit",
-		onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
-			unit.traits.push(Traits.LAZY.id)
-			popText(scene, "+ Lazy Trait", unit.id, "neutral");
-		}
-	}),
-	makeEncounter("brilliant_trait", TIER.COMMON, "Brilliance", "A guild member shows exceptional intelligence", "icon/personality", {
-		type: "unit",
-		onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
-			unit.traits.push(Traits.BRILLIANT.id)
-			popText(scene, "+ Brilliant Trait", unit.id, "neutral");
-		}
-	}),
-	makeEncounter("clumsy_trait", TIER.COMMON, "Clumsiness", "A guild member becomes clumsy and accident-prone", "icon/personality", {
-		type: "unit",
-		onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
-			unit.traits.push(Traits.CLUMSY.id)
-			popText(scene, "+ Clumsy Trait", unit.id, "neutral");
-		}
-	}),
+	// makeEncounter("greedy_trait", TIER.COMMON, "Greed", "A guild member becomes obsessed with wealth", "icon/personality", {
+	// 	type: "unit",
+	// 	onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
+	// 		unit.traits.push(Traits.GREEDY.id)
+	// 		popText(scene, "+ Greedy Trait", unit.id, "neutral");
+	// 	}
+	// }),
+	// makeEncounter("kind_trait", TIER.COMMON, "Kindness", "A guild member shows exceptional kindness to others", "icon/personality", {
+	// 	type: "unit",
+	// 	onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
+	// 		unit.traits.push(Traits.KIND.id)
+	// 		popText(scene, "+ Kind Trait", unit.id, "neutral");
+	// 	}
+	// }),
+	// makeEncounter("cunning_trait", TIER.COMMON, "Cunning", "A guild member shows exceptional cunning in battle", "icon/personality", {
+	// 	type: "unit",
+	// 	onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
+	// 		unit.traits.push(Traits.CUNNING.id)
+	// 		popText(scene, "+ Cunning Trait", unit.id, "neutral");
+	// 	}
+	// }),
+	// makeEncounter("loyal_trait", TIER.COMMON, "Loyalty", "A guild member shows exceptional loyalty to the guild", "icon/personality", {
+	// 	type: "unit",
+	// 	onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
+	// 		unit.traits.push(Traits.LOYAL.id)
+	// 		popText(scene, "+ Loyal Trait", unit.id, "neutral");
+	// 	}
+	// }),
+	// makeEncounter("lazy_trait", TIER.COMMON, "Laziness", "A guild member becomes lazy and unmotivated", "icon/personality", {
+	// 	type: "unit",
+	// 	onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
+	// 		unit.traits.push(Traits.LAZY.id)
+	// 		popText(scene, "+ Lazy Trait", unit.id, "neutral");
+	// 	}
+	// }),
+	// makeEncounter("brilliant_trait", TIER.COMMON, "Brilliance", "A guild member shows exceptional intelligence", "icon/personality", {
+	// 	type: "unit",
+	// 	onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
+	// 		unit.traits.push(Traits.BRILLIANT.id)
+	// 		popText(scene, "+ Brilliant Trait", unit.id, "neutral");
+	// 	}
+	// }),
+	// makeEncounter("clumsy_trait", TIER.COMMON, "Clumsiness", "A guild member becomes clumsy and accident-prone", "icon/personality", {
+	// 	type: "unit",
+	// 	onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
+	// 		unit.traits.push(Traits.CLUMSY.id)
+	// 		popText(scene, "+ Clumsy Trait", unit.id, "neutral");
+	// 	}
+	// }),
 
-	makeEncounter("paranoid_trait", TIER.COMMON, "Paranoia", "A guild member becomes convinced everyone is plotting against them", "icon/personality", {
-		type: "unit",
-		onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
-			popText(scene, "+ Paranoid Trait", unit.id, "neutral");
-		}
-	}),
+	// makeEncounter("paranoid_trait", TIER.COMMON, "Paranoia", "A guild member becomes convinced everyone is plotting against them", "icon/personality", {
+	// 	type: "unit",
+	// 	onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
+	// 		popText(scene, "+ Paranoid Trait", unit.id, "neutral");
+	// 	}
+	// }),
 
-	makeEncounter("punmaster_trait", TIER.COMMON, "Terrible Punster", "A guild member now makes awful puns at every opportunity", "icon/personality", {
-		type: "unit",
-		onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
-			popText(scene, "+ Punmaster Trait", unit.id, "neutral");
-		}
-	}),
-	makeEncounter("conspiracy_trait", TIER.COMMON, "Conspiracy Theorist", "A guild member is convinced the kingdom is run by lizard people", "icon/personality", {
-		type: "unit",
-		onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
-			popText(scene, "+ Conspiracy Theorist Trait", unit.id, "neutral");
-		}
-	}),
-	makeEncounter("sleepwalker_trait", TIER.COMMON, "Sleepwalker", "A guild member has been found fighting monsters in their pajamas", "icon/personality", {
-		type: "unit",
-		onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
-			popText(scene, "+ Sleepwalker Trait", unit.id, "neutral");
-		}
-	})
+	// makeEncounter("punmaster_trait", TIER.COMMON, "Terrible Punster", "A guild member now makes awful puns at every opportunity", "icon/personality", {
+	// 	type: "unit",
+	// 	onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
+	// 		popText(scene, "+ Punmaster Trait", unit.id, "neutral");
+	// 	}
+	// }),
+	// makeEncounter("conspiracy_trait", TIER.COMMON, "Conspiracy Theorist", "A guild member is convinced the kingdom is run by lizard people", "icon/personality", {
+	// 	type: "unit",
+	// 	onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
+	// 		popText(scene, "+ Conspiracy Theorist Trait", unit.id, "neutral");
+	// 	}
+	// }),
+	// makeEncounter("sleepwalker_trait", TIER.COMMON, "Sleepwalker", "A guild member has been found fighting monsters in their pajamas", "icon/personality", {
+	// 	type: "unit",
+	// 	onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
+	// 		popText(scene, "+ Sleepwalker Trait", unit.id, "neutral");
+	// 	}
+	// })
 
 ];
 

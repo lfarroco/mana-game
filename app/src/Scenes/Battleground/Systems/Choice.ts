@@ -3,7 +3,6 @@ import { tween } from "../../../Utils/animation";
 import * as constants from "../constants";
 import { getState, State } from "../../../Models/State";
 import { breakLines } from "../../../utils";
-import { FORCE_ID_PLAYER } from "../../../Models/Force";
 import { updateUI } from "./UIManager";
 
 let scene: Phaser.Scene;
