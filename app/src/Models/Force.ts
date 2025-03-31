@@ -1,3 +1,4 @@
+import { Unit } from "./Unit";
 
 export type Force = {
 	id: string;
@@ -6,6 +7,7 @@ export type Force = {
 	gold: number;
 	income: number;
 	hp: number;
+	units: Unit[]
 };
 
 export const makeForce = (id: string): Force => ({
@@ -15,6 +17,7 @@ export const makeForce = (id: string): Force => ({
 	gold: 10,
 	income: 5,
 	hp: 50,
+	units: []
 });
 
 export const FORCE_ID_PLAYER = "PLAYER"

@@ -15,8 +15,8 @@ type Trait = {
 	onRemove?: (state: State, unit: Unit) => Unit;
 	onTurnStart?: (state: State, unit: Unit) => Unit;
 	onTurnEnd?: (state: State, unit: Unit) => Unit;
-	onAttack?: (state: State, unit: Unit, target: Unit) => Unit;
-	onDefend?: (state: State, unit: Unit, attacker: Unit) => Unit;
+	onAttackByMe?: (state: State, unit: Unit, target: Unit) => Unit;
+	onDefendByMe?: (state: State, unit: Unit, attacker: Unit) => Unit;
 	onBattleStart?: (state: State, unit: Unit) => Unit;
 	onBattleEnd?: (state: State, unit: Unit) => Unit;
 	onUnitKillByMe?: (state: State, unit: Unit, target: Unit) => Unit;
@@ -30,7 +30,7 @@ export const SHY: Trait = {
 	name: "Shy",
 	description: "+3 defense when aline in a row",
 	onBattleStart: (state, unit) => {
-		const neighboringUnits = state.gameData.units.filter((u) => {
+		const neighboringUnits = state.battleData.units.filter((u) => {
 			const distace = snakeDistanceBetween(
 				u.position)(
 					unit.position
@@ -54,6 +54,12 @@ export const BRAVE: Trait = {
 		}
 		return unit;
 	},
+	onAttackByMe: (state, unit, target) => {
+		if (unit.position.y === 0) {
+			unit.attack += 100;
+		}
+		return unit;
+	}
 }
 
 export const COWARD: Trait = {

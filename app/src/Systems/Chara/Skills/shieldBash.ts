@@ -1,20 +1,16 @@
 import { emit, signals } from "../../../Models/Signals";
-import { Unit, unitLog } from "../../../Models/Unit";
+import { unitLog } from "../../../Models/Unit";
 import { bashPieceAnimation } from "../Animations/bashPieceAnimation";
 import { popText } from "../Animations/popText";
-import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import * as animation from "../Animations/shieldBash"
 import { approach } from "../approach";
 import { specialAnimation } from "../Animations/specialAnimation";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
+import { Chara } from "../Chara";
 
-export async function shieldBash(
-	scene: BattlegroundScene,
-	unit: Unit,
-) {
-	const activeChara = UnitManager.getChara(unit.id);
+export async function shieldBash(activeChara: Chara) {
 
-	if (!activeChara) { throw new Error("no active unit\n" + unit.id); }
+	const { scene, unit } = activeChara;
 
 	const candidates = await approach(activeChara, 1, true);
 

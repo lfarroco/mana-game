@@ -1,12 +1,11 @@
 import * as constants from "../constants";
-import { signals, emit } from "../../../Models/Signals";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { delay } from "../../../Utils/animation";
 import { getJob } from "../../../Models/Job";
-import { getSkill } from "../../../Models/Skill";
 import * as CharaSystem from "../../../Systems/Chara/Chara";
 import * as bgConstants from "../constants";
 import { COLOR_BLACK } from "../../../Utils/colors";
+import { State } from "../../../Models/State";
 
 export let ui: Phaser.GameObjects.Container | null = null;
 export let dropZone: Phaser.GameObjects.Zone | null = null;
@@ -14,9 +13,11 @@ export let dropZoneDisplay: Phaser.GameObjects.Graphics | null = null;
 export let unitInfoContainer: Phaser.GameObjects.Container | null = null;
 
 let scene: BattlegroundScene;
+let state: State;
 
 export function init(sceneRef: BattlegroundScene) {
 	scene = sceneRef;
+	state = scene.state;
 }
 
 export function createButton(
@@ -64,11 +65,9 @@ export function updateUI() {
 
 	ui?.destroy(true);
 
-	const force = scene.playerForce
+	const force = state.gameData.player;
 
 	ui = scene.add.container(0, 0);
-
-
 
 	const sidebarWidth = 350;
 

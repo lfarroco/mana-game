@@ -42,14 +42,13 @@ export const performAction = (scene: BattlegroundScene) => (unit: Unit) => async
 
 	if (skillId === Skill.SHIELDBASH) {
 
-		await shieldBash(scene, activeChara.unit);
+		await shieldBash(activeChara);
 
 	} else if (skillId === Skill.SUMMON_BLOB) {
 
 		await specialAnimation(activeChara);
 
-		await summon(unit, scene);
-
+		await summon(activeChara);
 
 	} else if (skillId === Skill.MULTISHOT) {
 

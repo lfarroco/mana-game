@@ -18,19 +18,20 @@ const processTick = async (scene: BattlegroundScene) => {
   emit(signals.TURN_START)
 
   const state = getState();
+  const { player } = state.gameData;
 
   const unitActions = getActiveUnits(state)
     .map(performAction(scene));
 
   await sequenceAsync(unitActions);
 
-  const playerUnits = state.gameData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_PLAYER);
-  const cpuUnits = state.gameData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_CPU);
+  const playerUnits = state.battleData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_PLAYER);
+  const cpuUnits = state.battleData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_CPU);
 
   if (cpuUnits.length === 0) {
     await vignette(scene, "Victory!");
 
-    scene.playerForce.gold += GOLD_PER_WAVE;
+    player.gold += GOLD_PER_WAVE;
 
     await delay(scene, 1000 / state.options.speed);
 
@@ -38,9 +39,9 @@ const processTick = async (scene: BattlegroundScene) => {
 
   } else if (playerUnits.length === 0) {
 
-    scene.playerForce.gold += GOLD_PER_WAVE;
+    player.gold += GOLD_PER_WAVE;
 
-    scene.playerForce.hp = Math.max(0, scene.playerForce.hp - cpuUnits.length);
+    player.hp = Math.max(0, player.hp - cpuUnits.length);
 
     await vignette(scene, "Defeat!");
 

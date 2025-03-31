@@ -26,7 +26,7 @@ export function updateStore(scene: BattlegroundScene) {
 
 const renderUnit = (scene: BattlegroundScene) => (jobId: Job.JobId, i: number) => {
 
-	const force = scene.playerForce;
+	const { player } = scene.state.gameData;
 
 	const job = Job.getJob(jobId);
 
@@ -40,7 +40,7 @@ const renderUnit = (scene: BattlegroundScene) => (jobId: Job.JobId, i: number) =
 		job.id + "/portrait")
 		.setOrigin(0.5, 0.5)
 		.setDisplaySize(constants.TILE_WIDTH * 0.8, constants.TILE_HEIGHT * 0.8)
-		.setAlpha(force.gold >= constants.RECRUIT_UNIT_PRICE ? 1 : 0.5);
+		.setAlpha(player.gold >= constants.RECRUIT_UNIT_PRICE ? 1 : 0.5);
 
 	UIManager.ui?.add(sprite);
 
@@ -52,13 +52,13 @@ const renderUnit = (scene: BattlegroundScene) => (jobId: Job.JobId, i: number) =
 	sprite.setInteractive({ draggable: true });
 
 	sprite.on('pointerdown', () => {
-		if (force.gold > 0) return
+		if (player.gold > 0) return
 
 		UIManager.displayError("Not enough gold");
 
 	})
 
-	if (force.gold < constants.RECRUIT_UNIT_PRICE) return;
+	if (player.gold < constants.RECRUIT_UNIT_PRICE) return;
 
 	//sprite.on('dragstart', (pointer: Phaser.Input.Pointer) => {
 	//  });
@@ -82,7 +82,7 @@ const renderUnit = (scene: BattlegroundScene) => (jobId: Job.JobId, i: number) =
 
 		if (maybeOccupier) return;
 
-		force.gold -= constants.RECRUIT_UNIT_PRICE;
+		player.gold -= constants.RECRUIT_UNIT_PRICE;
 		emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, jobId);
 
 		UIManager.updateUI();

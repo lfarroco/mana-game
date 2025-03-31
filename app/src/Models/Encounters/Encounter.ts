@@ -3,7 +3,7 @@ import { TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 import { Choice, displayChoices, displayStore, newChoice } from "../../Scenes/Battleground/Systems/Choice";
 import { destroyChara, renderUnit } from "../../Scenes/Battleground/Systems/UnitManager";
 import { pickRandom } from "../../utils";
-import { FORCE_ID_PLAYER } from "../Force";
+import { FORCE_ID_PLAYER, playerForce } from "../Force";
 import { vec2 } from "../Geometry";
 import { JobId, starterJobs } from "../Job";
 import { emit, signals } from "../Signals";
@@ -80,7 +80,7 @@ export const starterEvent: Encounter = {
 	triggers: {
 		type: "nested",
 		choices: () => {
-			const remaning = starterJobs.filter(j => !state.gameData.units.find(f => f.job === j.id));
+			const remaning = starterJobs.filter(j => playerForce.units.find(f => f.job === j.id));
 
 			return pickRandom(remaning, 3).map(job => newChoice(
 				`${job.id}/full`,

@@ -5,7 +5,7 @@ import { pickRandom } from "../../utils";
 import { FORCE_ID_PLAYER } from "../Force";
 import { BLOB, jobs } from "../Job";
 import { emit, signals } from "../Signals";
-import { getPlayerForce, State } from "../State";
+import { State } from "../State";
 import * as Traits from "../Traits";
 import { Unit } from "../Unit";
 import { Encounter, makeEncounter, TIER } from "./Encounter";
@@ -14,8 +14,7 @@ const commonEvents = (): Encounter[] => [
 	makeEncounter("odd_job", TIER.COMMON, "Odd Job", "You have been offered a job for 5 gold", "icon/job_contract", {
 		type: "instant",
 		action: (_scene, state: State) => {
-			const playerForce = getPlayerForce(state);
-			playerForce.gold += 5;
+			state.gameData.player.gold += 5;
 			UIManager.updateUI();
 		}
 	}),
@@ -47,16 +46,14 @@ const commonEvents = (): Encounter[] => [
 	makeEncounter("treasure_hunt", TIER.COMMON, "Treasure Hunt", "You have found a treasure chest", "icon/hidden_treasure", {
 		type: "instant",
 		action: (scene, state: State) => {
-			const playerForce = getPlayerForce(state);
-			playerForce.gold += 20;
+			state.gameData.player.gold += 20;
 			UIManager.updateUI();
 		}
 	}),
 	makeEncounter("investment_opportunity", TIER.COMMON, "Investment Opportunity", "A merchant offers you a chance to invest in their business, increasing your guild's income.", "icon/quest", {
 		type: "instant",
 		action: (scene, state: State) => {
-			const playerForce = getPlayerForce(state);
-			playerForce.income += 2;
+			state.gameData.player.income += 2;
 			UIManager.updateUI();
 		}
 	}),
@@ -70,21 +67,21 @@ const commonEvents = (): Encounter[] => [
 			]
 		},
 		onChoose: (state: State, choice: Choice) => {
-			const playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
-			if (choice.value === "mercenary" && playerForce.gold >= 15) {
-				playerForce.gold -= 15;
+			const { player } = state.gameData;
+			if (choice.value === "mercenary" && player.gold >= 15) {
+				player.gold -= 15;
 				const randomJob = pickRandom(jobs, 1)[0];
 				// TODO: limit tier
 				emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, randomJob.id);
 				UIManager.updateUI();
-			} else if (choice.value === "rumors" && playerForce.gold >= 5) {
-				playerForce.gold -= 5;
-				playerForce.income += 1;
+			} else if (choice.value === "rumors" && player.gold >= 5) {
+				player.gold -= 5;
+				player.income += 1;
 				UIManager.updateUI();
-			} else if (choice.value === "gamble" && playerForce.gold >= 8) {
-				playerForce.gold -= 8;
+			} else if (choice.value === "gamble" && player.gold >= 8) {
+				player.gold -= 8;
 				if (Math.random() < 0.4) {
-					playerForce.gold += 20;
+					player.gold += 20;
 				}
 				UIManager.updateUI();
 			}
@@ -93,8 +90,7 @@ const commonEvents = (): Encounter[] => [
 	makeEncounter("lost_treasure", TIER.COMMON, "Lost Treasure", "You stumble upon a hidden chest in the forest", "icon/hidden_treasure", {
 		type: "instant",
 		action: (scene, state: State) => {
-			const playerForce = getPlayerForce(state);
-			playerForce.gold += 10;
+			state.gameData.player.gold += 10;
 			UIManager.updateUI();
 		}
 	}),

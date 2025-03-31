@@ -21,7 +21,7 @@ export async function lookupAIPAth(
     // set tiles with units as blocked
     const state = getState();
 
-    state.gameData
+    state.battleData
       .units
       .filter(u => u.hp > 0)
       .forEach(unit => {

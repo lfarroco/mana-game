@@ -12,7 +12,6 @@ import * as GridSystem from "../../Scenes/Battleground/Systems/GridSystem";
 import { BLUE_BONNET, VIVIRED_RED } from "../../Utils/colors";
 import { displayUnitInfo } from "../../Scenes/Battleground/Systems/UIManager";
 import { getState, State } from "../../Models/State";
-import { getSkill } from "../../Models/Skill";
 
 export type Chara = {
 	id: string;
@@ -90,11 +89,11 @@ export const makeCharaInteractive = (chara: Chara) => {
 
 		const tile = GridSystem.getTileAt(pointer)!;
 
-		const charaUnit = state.gameData.units.find(u => u.id === chara.id)!;
+		const charaUnit = state.gameData.player.units.find(u => u.id === chara.id)!;
 
 		const position = vec2(tile.x, tile.y)!
 
-		const maybeOccupier = state.gameData.units.find(u => eqVec2(u.position, position));
+		const maybeOccupier = state.gameData.player.units.find(u => eqVec2(u.position, position));
 
 		if (maybeOccupier) {
 			const occupierChara = UnitManager.getChara(maybeOccupier.id);

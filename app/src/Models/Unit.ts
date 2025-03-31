@@ -8,7 +8,6 @@ export type Unit = {
   job: JobId;
   force: string;
   position: Vec2;
-  initialPosition: Vec2;
 
   hp: number;
   maxHp: number;
@@ -35,7 +34,6 @@ export const makeUnit = (id: string, force: string, job: JobId, position: Vec2):
     job: jobId,
     force,
     position: asVec2(position),
-    initialPosition: position,
     maxHp: job_.hp,
     multicast: 2,
     crit: job_.agility * 1.5,

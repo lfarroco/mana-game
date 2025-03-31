@@ -11,18 +11,13 @@ export function init(sceneRef: BattlegroundScene) {
 }
 
 export async function createWave(id: number) {
-	const waveSpec = waves[id];
+	const enemies = waves[id];
 
-	const enemies = waveSpec.map(u => ({ ...u }));
+	scene.state.battleData.units = scene.state.gameData.player.units
+		.concat(enemies)
+		.map(u => ({ ...u }))
 
-	scene.state.gameData.units = scene.state.gameData.units.concat(enemies);
-
-	scene.state.gameData.units = scene.state.gameData.units.map(u => {
-		u.initialPosition = vec2(u.position.x, u.position.y);
-		return u;
-	});
-
-	enemies.forEach((unit) => UnitManager.renderUnit(unit));
+	scene.state.battleData.units.forEach(UnitManager.renderUnit);
 
 	await processTick(scene);
 
