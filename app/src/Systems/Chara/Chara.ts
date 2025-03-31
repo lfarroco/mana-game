@@ -66,31 +66,6 @@ export function createChara(unit: Unit): Chara {
 		hightlightTween: null,
 	};
 
-	unit.learnedSkills.forEach((skillId, i) => {
-
-		const skill = getSkill(skillId);
-
-		const iconSize = 40;
-		const borderWidth = 2;
-		const borderColor = 0xeaeaea;
-
-		const x = i * iconSize + i * 5;
-
-		const skillBorder = scene.add.rectangle(0, 0, iconSize + borderWidth, iconSize + borderWidth, borderColor, 1)
-			.setOrigin(0.5, 0.5);
-		skillBorder.setPosition(-spriteSize / 2 + iconSize / 2 + x, spriteSize / 2 - iconSize / 2);
-		container.add(skillBorder);
-
-		const skillIcon = scene.add.image(0, 0, skill.pic)
-			.setDisplaySize(iconSize, iconSize)
-			.setOrigin(0.5, 0.5);
-		//round mask cutting the skill icon
-		skillIcon.setPosition(-spriteSize / 2 + iconSize / 2 + x, spriteSize / 2 - iconSize / 2);
-		container.add(skillIcon);
-
-	});
-
-
 	makeCharaInteractive(chara);
 
 	return chara

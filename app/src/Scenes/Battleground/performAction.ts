@@ -1,4 +1,4 @@
-import { FEINT, FIREBALL, getSkill, HEAL, HEALING_WAVE, MULTISHOT, SHADOWSTEP, SHIELDBASH, SUMMON_BLOB } from "../../Models/Skill";
+import * as Skill from "../../Models/Skill";
 import { Unit } from "../../Models/Unit";
 import { specialAnimation } from "../../Systems/Chara/Animations/specialAnimation";
 import { arcaneMissiles } from "../../Systems/Chara/Skills/arcaneMissiles";
@@ -17,12 +17,9 @@ import BattlegroundScene from "./BattlegroundScene";
 import { shadowStep } from "../../Systems/Chara/Skills/shadowStep";
 import { getAllActiveFoes } from "../../Models/State";
 import * as UnitManager from "./Systems/UnitManager";
+import { getJob } from "../../Models/Job";
 
-export const performAction = (
-	scene: BattlegroundScene
-) => (
-	unit: Unit
-) => async () => {
+export const performAction = (scene: BattlegroundScene) => (unit: Unit) => async () => {
 
 	console.log("[action] :: ", unit.job, ":: start", unit.id)
 
@@ -31,88 +28,59 @@ export const performAction = (
 		return;
 	}
 
+	const job = getJob(unit.job);
+
 	const activeFoes = getAllActiveFoes(scene.state)(unit.force);
 
 	if (activeFoes.length === 0) return;
 
 	const activeChara = UnitManager.getChara(unit.id);
 
-	const availableSkills = unit.learnedSkills.filter(skillId => {
-		const cooldown = unit.cooldowns[skillId];
-
-		return cooldown === 0;
-	});
-
-	// decrease cooldowns
-	unit.learnedSkills.forEach(skillId => {
-		unit.cooldowns[skillId] = Math.max(0, unit.cooldowns[skillId] - 1);
-	});
-
 	if (unit.statuses.stun >= 0) return;
 
-	let [skillId] = availableSkills;
+	const skillId = job.skill;
 
-	const skill = getSkill(skillId);
+	if (skillId === Skill.SHIELDBASH) {
 
-	// TODO: try to cast special, otherwise, basic attack
+		await shieldBash(scene, activeChara.unit);
 
-	if (skillId === SHIELDBASH) {
-
-		const casted = await shieldBash(scene, activeChara.unit);
-		if (casted) {
-			unit.cooldowns[skillId] = skill.cooldown;
-		}
-
-	} else if (skillId === SUMMON_BLOB) {
+	} else if (skillId === Skill.SUMMON_BLOB) {
 
 		await specialAnimation(activeChara);
 
 		await summon(unit, scene);
 
-		unit.cooldowns[skillId] = skill.cooldown;
 
-	} else if (skillId === MULTISHOT) {
+	} else if (skillId === Skill.MULTISHOT) {
 
 		await specialAnimation(activeChara);
 
 		await multishot(unit, activeChara, scene);
 
-		unit.cooldowns[skillId] = skill.cooldown;
-
-	} else if (skillId === HEALING_WAVE) {
+	} else if (skillId === Skill.HEALING_WAVE) {
 
 		await specialAnimation(activeChara);
 
 		await healingWave(scene, unit);
 
-		unit.cooldowns[skillId] = skill.cooldown;
-
-	} else if (skillId === FEINT) {
+	} else if (skillId === Skill.FEINT) {
 		await specialAnimation(activeChara);
 
 		await feint(scene, unit);
-		unit.cooldowns[skillId] = skill.cooldown;
 
-	} else if (skillId === FIREBALL) {
+	} else if (skillId === Skill.FIREBALL) {
 		await specialAnimation(activeChara);
 
 		await fireball(scene)(unit);
-		unit.cooldowns[skillId] = skill.cooldown;
 
-	} else if (skillId === SHADOWSTEP) {
+	} else if (skillId === Skill.SHADOWSTEP) {
 
-		const casted = await shadowStep(scene, unit, activeChara, skill);
+		await shadowStep(scene, unit, activeChara, Skill.getSkill(Skill.SLASH));
 
-		if (!casted) {
-			skillId = availableSkills[1];
-		}
-
-	}
-
-	if (skillId === "slash") {
+	} else if (skillId === "slash") {
 		await slash(scene, unit);
 	}
-	else if (skillId === HEAL) {
+	else if (skillId === Skill.HEAL) {
 		await healing(scene)(unit);
 	}
 	else if (skillId === "shoot") {
