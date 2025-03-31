@@ -25,6 +25,8 @@ type Trait = {
 	onEnemyKilled?: (state: State, unit: Unit, target: Unit) => Unit;
 };
 
+
+
 export const SHY: Trait = {
 	id: "shy" as TraitId,
 	name: "Shy",
@@ -242,4 +244,36 @@ export const BRILLIANT: Trait = {
 		}
 		return unit;
 	},
+}
+
+export const traits: { [id: TraitId]: Trait } = {
+	[SHY.id]: SHY,
+	[BRAVE.id]: BRAVE,
+	[COWARD.id]: COWARD,
+	[OPTIMISTIC.id]: OPTIMISTIC,
+	[SWIFT.id]: SWIFT,
+	[TELEPORTER.id]: TELEPORTER,
+	[VAMPIRIC.id]: VAMPIRIC,
+	[CURSED.id]: CURSED,
+	[BLESSED.id]: BLESSED,
+	[GUARDIAN.id]: GUARDIAN,
+	[TOXIC.id]: TOXIC,
+	[THORNY.id]: THORNY,
+	[STRATEGIC.id]: STRATEGIC,
+	[INTIMIDATING.id]: INTIMIDATING,
+	[KIND.id]: KIND,
+	[CUNNING.id]: CUNNING,
+	[GREEDY.id]: GREEDY,
+	[LAZY.id]: LAZY,
+	[LOYAL.id]: LOYAL,
+	[CLUMSY.id]: CLUMSY,
+	[BRILLIANT.id]: BRILLIANT,
+};
+
+export const getTrait = (id: TraitId): Trait => {
+	const trait = traits[id];
+	if (!trait) {
+		throw new Error(`Trait with id ${id} not found`);
+	}
+	return trait;
 }

@@ -6,6 +6,7 @@ import * as CharaSystem from "../../../Systems/Chara/Chara";
 import * as bgConstants from "../constants";
 import { COLOR_BLACK } from "../../../Utils/colors";
 import { State } from "../../../Models/State";
+import { getTrait } from "../../../Models/Traits"
 
 export let ui: Phaser.GameObjects.Container | null = null;
 export let dropZone: Phaser.GameObjects.Zone | null = null;
@@ -197,6 +198,16 @@ export function displayUnitInfo(chara: CharaSystem.Chara) {
 
 	const jobName = scene.add.text(10, 10, job.name, bgConstants.defaultTextConfig);
 	unitInfoContainer.add(jobName);
+
+	const traitsList = unit.traits.map((traitId, idx) => {
+		const trait = getTrait(traitId);
+		const text = scene.add.text(10, 450 + 10 + idx * 30, trait.name, bgConstants.defaultTextConfig);
+		text.setOrigin(0);
+		//text.setColor(trait.color);
+		return text
+	});
+	unitInfoContainer.add(traitsList);
+
 
 	const stats = [
 		`❤️ ${unit.hp}/${unit.maxHp}`,
