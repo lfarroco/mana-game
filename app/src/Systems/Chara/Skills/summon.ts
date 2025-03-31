@@ -43,7 +43,7 @@ export async function summon(chara: Chara) {
 	const actions = emptySlots.map(slot => async () => {
 		const blob = makeUnit(Math.random().toString(), FORCE_ID_CPU, BLOB, slot);
 		state.battleData.units.push(blob);
-		UnitManager.renderUnit(blob);
+		UnitManager.renderChara(blob);
 		await delay(scene, 500 / state.options.speed);
 	});
 

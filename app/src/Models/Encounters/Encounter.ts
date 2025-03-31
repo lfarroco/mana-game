@@ -1,7 +1,7 @@
 import { summonEffect } from "../../Effects";
 import { TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 import { Choice, displayChoices, displayStore, newChoice } from "../../Scenes/Battleground/Systems/Choice";
-import { destroyChara, renderUnit } from "../../Scenes/Battleground/Systems/UnitManager";
+import { destroyChara, renderChara } from "../../Scenes/Battleground/Systems/UnitManager";
 import { pickRandom } from "../../utils";
 import { FORCE_ID_PLAYER, playerForce } from "../Force";
 import { vec2 } from "../Geometry";
@@ -187,7 +187,7 @@ const selectUnit = async () => new Promise<Unit>((resolve) => {
 		summonEffect(scene, 2, vec2(TILE_WIDTH * 3 + TILE_WIDTH / 2, TILE_HEIGHT * 3 + TILE_HEIGHT / 2));
 
 		const unit = getGuildUnit(state)(unitId)!;
-		renderUnit(unit);
+		renderChara(unit);
 
 		scene.input.off('drop', listener);
 

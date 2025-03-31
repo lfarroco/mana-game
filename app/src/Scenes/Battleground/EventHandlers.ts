@@ -36,7 +36,7 @@ export function setupEventListeners(scene: BattlegroundScene) {
 			UIManager.displayDropZone();
 			UIManager.updateUI();
 
-			scene.state.gameData.player.units.forEach(UnitManager.renderUnit);
+			scene.state.gameData.player.units.forEach(UnitManager.renderChara);
 
 			const isGameOver = scene.state.gameData.hour > Object.keys(waves).length;
 

@@ -133,7 +133,7 @@ export const listenToStateEvents = (state: State) => {
 
       state.gameData.player.units.push(unit);
 
-      UnitManager.renderUnit(unit);
+      UnitManager.renderChara(unit);
 
     }],
 
