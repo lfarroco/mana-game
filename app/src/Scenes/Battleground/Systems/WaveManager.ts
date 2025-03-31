@@ -1,8 +1,8 @@
 import { waves } from "../enemyWaves";
-import { vec2 } from "../../../Models/Geometry";
 import { BattlegroundScene } from "../BattlegroundScene";
 import * as UnitManager from "./UnitManager";
 import processTick from "../ProcessTick";
+import { getTrait } from "../../../Models/Traits";
 
 let scene: BattlegroundScene;
 
@@ -20,6 +20,16 @@ export async function createWave(id: number) {
 		.map(u => ({ ...u }))
 
 	scene.state.battleData.units.forEach(UnitManager.renderChara);
+
+	scene.state.battleData.units.forEach((unit, i) => {
+		unit.traits.forEach(traitId => {
+			const trait = getTrait(traitId);
+
+			if (trait.onBattleStart) {
+				trait.onBattleStart(scene.state, unit);
+			}
+		});
+	});
 
 	await processTick(scene);
 
