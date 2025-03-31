@@ -25,12 +25,10 @@ type Trait = {
 	onEnemyKilled?: (state: State, unit: Unit, target: Unit) => Unit;
 };
 
-// a few traits: shy, brave, coward, optimistic, greedy
-
 const SHY: Trait = {
 	id: "shy" as TraitId,
 	name: "Shy",
-	description: "This unit is shy and prefers to stay away from others. It gets +3 defense if there are no other units in the same row.",
+	description: "+3 defense when aline in a row",
 	onBattleStart: (state, unit) => {
 		const neighboringUnits = state.gameData.units.filter((u) => {
 			const distace = snakeDistanceBetween(
@@ -49,7 +47,7 @@ const SHY: Trait = {
 const BRAVE: Trait = {
 	id: "brave" as TraitId,
 	name: "Brave",
-	description: "This unit is brave and charges into battle. It gets +10 attack if it is in the front row.",
+	description: "+10 attack when in the front row",
 	onBattleStart: (state, unit) => {
 		if (unit.position.y === 0) {
 			unit.attack += 1;
@@ -61,7 +59,7 @@ const BRAVE: Trait = {
 const COWARD: Trait = {
 	id: "coward" as TraitId,
 	name: "Coward",
-	description: "This unit is cowardly and prefers to stay away from battle. It gets +2 defense if it is in the back row.",
+	description: "+2 defense when in the back row",
 	onBattleStart: (state, unit) => {
 		if (unit.position.y === 1) {
 			unit.defense += 1;
@@ -73,7 +71,7 @@ const COWARD: Trait = {
 const OPTIMISTIC: Trait = {
 	id: "optimistic" as TraitId,
 	name: "Optimistic",
-	description: "This unit is optimistic and believes in a bright future. It gets +1 attack if it is in the front row.",
+	description: "+1 attack if it is in the front row",
 	onBattleStart: (state, unit) => {
 		if (unit.position.y === 0) {
 			unit.attack += 1;
