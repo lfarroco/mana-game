@@ -25,7 +25,7 @@ type Trait = {
 	onEnemyKilled?: (state: State, unit: Unit, target: Unit) => Unit;
 };
 
-const SHY: Trait = {
+export const SHY: Trait = {
 	id: "shy" as TraitId,
 	name: "Shy",
 	description: "+3 defense when aline in a row",
@@ -44,7 +44,7 @@ const SHY: Trait = {
 	},
 }
 
-const BRAVE: Trait = {
+export const BRAVE: Trait = {
 	id: "brave" as TraitId,
 	name: "Brave",
 	description: "+10 attack when in the front row",
@@ -56,7 +56,7 @@ const BRAVE: Trait = {
 	},
 }
 
-const COWARD: Trait = {
+export const COWARD: Trait = {
 	id: "coward" as TraitId,
 	name: "Coward",
 	description: "+2 defense when in the back row",
@@ -68,7 +68,7 @@ const COWARD: Trait = {
 	},
 }
 
-const OPTIMISTIC: Trait = {
+export const OPTIMISTIC: Trait = {
 	id: "optimistic" as TraitId,
 	name: "Optimistic",
 	description: "+1 attack if it is in the front row",
@@ -81,14 +81,14 @@ const OPTIMISTIC: Trait = {
 }
 
 // ---- Movement Traits ----
-const SWIFT: Trait = {
+export const SWIFT: Trait = {
 	id: "swift" as TraitId,
 	name: "Swift",
 	description: "This unit moves quickly, gaining an extra movement point each turn.",
 	// Gives +1 movement at the start of each turn
 };
 
-const TELEPORTER: Trait = {
+export const TELEPORTER: Trait = {
 	id: "teleporter" as TraitId,
 	name: "Teleporter",
 	description: "This unit can teleport to any empty tile once per battle.",
@@ -96,14 +96,14 @@ const TELEPORTER: Trait = {
 };
 
 // ---- Dark Traits ----
-const VAMPIRIC: Trait = {
+export const VAMPIRIC: Trait = {
 	id: "vampiric" as TraitId,
 	name: "Vampiric",
 	description: "This unit heals for 10% of the damage it deals.",
 	// Heals based on damage dealt during attacks
 };
 
-const CURSED: Trait = {
+export const CURSED: Trait = {
 	id: "cursed" as TraitId,
 	name: "Cursed",
 	description: "This unit has reduced health but gains +2 attack when below 50% health.",
@@ -111,14 +111,14 @@ const CURSED: Trait = {
 };
 
 // ---- Holy Traits ----
-const BLESSED: Trait = {
+export const BLESSED: Trait = {
 	id: "blessed" as TraitId,
 	name: "Blessed",
 	description: "This unit regenerates 5% of its health at the start of each turn.",
 	// Regenerates health at the start of each turn
 };
 
-const GUARDIAN: Trait = {
+export const GUARDIAN: Trait = {
 	id: "guardian" as TraitId,
 	name: "Guardian",
 	description: "Nearby ally units gain +1 defense.",
@@ -126,14 +126,14 @@ const GUARDIAN: Trait = {
 };
 
 // ---- Natural Traits ----
-const TOXIC: Trait = {
+export const TOXIC: Trait = {
 	id: "toxic" as TraitId,
 	name: "Toxic",
 	description: "This unit's attacks poison enemies, dealing 1 damage per turn for 3 turns.",
 	// Applies poison effect to enemies on attack
 };
 
-const THORNY: Trait = {
+export const THORNY: Trait = {
 	id: "thorny" as TraitId,
 	name: "Thorny",
 	description: "When attacked, this unit deals 2 damage back to the attacker.",
@@ -141,36 +141,99 @@ const THORNY: Trait = {
 };
 
 // ---- Mental Traits ----
-const STRATEGIC: Trait = {
+export const STRATEGIC: Trait = {
 	id: "strategic" as TraitId,
 	name: "Strategic",
 	description: "This unit gains +1 attack for each ally adjacent to its target.",
 	// Attack bonus based on allies near the target
 };
 
-const INTIMIDATING: Trait = {
+export const INTIMIDATING: Trait = {
 	id: "intimidating" as TraitId,
 	name: "Intimidating",
 	description: "Enemy units adjacent to this unit have -1 attack.",
 	// Reduces attack of nearby enemies
 };
 
+export const KIND: Trait = {
+	id: "kind" as TraitId,
+	name: "Kind",
+	description: "+1 attack when in the back row",
+	onBattleStart: (state, unit) => {
+		if (unit.position.y === 1) {
+			unit.attack += 1;
+		}
+		return unit;
+	},
+}
 
+export const CUNNING: Trait = {
+	id: "cunning" as TraitId,
+	name: "Cunning",
+	description: "+1 attack when in the front row",
+	onBattleStart: (state, unit) => {
+		if (unit.position.y === 0) {
+			unit.attack += 1;
+		}
+		return unit;
+	},
+}
 
+export const GREEDY: Trait = {
+	id: "greedy" as TraitId,
+	name: "Greedy",
+	description: "+1 attack when in the front row",
+	onBattleStart: (state, unit) => {
+		if (unit.position.y === 0) {
+			unit.attack += 1;
+		}
+		return unit;
+	},
+}
 
-export const TRAITS = {
-	SHY,
-	BRAVE,
-	COWARD,
-	OPTIMISTIC,
-	SWIFT,
-	TELEPORTER,
-	VAMPIRIC,
-	CURSED,
-	BLESSED,
-	GUARDIAN,
-	TOXIC,
-	THORNY,
-	STRATEGIC,
-	INTIMIDATING
+export const LAZY: Trait = {
+	id: "lazy" as TraitId,
+	name: "Lazy",
+	description: "+1 attack when in the back row",
+	onBattleStart: (state, unit) => {
+		if (unit.position.y === 1) {
+			unit.attack += 1;
+		}
+		return unit;
+	},
+}
+export const LOYAL: Trait = {
+	id: "loyal" as TraitId,
+	name: "Loyal",
+	description: "+1 attack when in the back row",
+	onBattleStart: (state, unit) => {
+		if (unit.position.y === 1) {
+			unit.attack += 1;
+		}
+		return unit;
+	},
+}
+
+export const CLUMSY: Trait = {
+	id: "clumsy" as TraitId,
+	name: "Clumsy",
+	description: "+1 attack when in the back row",
+	onBattleStart: (state, unit) => {
+		if (unit.position.y === 1) {
+			unit.attack += 1;
+		}
+		return unit;
+	},
+}
+
+export const BRILLIANT: Trait = {
+	id: "brilliant" as TraitId,
+	name: "Brilliant",
+	description: "+1 attack when in the back row",
+	onBattleStart: (state, unit) => {
+		if (unit.position.y === 1) {
+			unit.attack += 1;
+		}
+		return unit;
+	},
 }
