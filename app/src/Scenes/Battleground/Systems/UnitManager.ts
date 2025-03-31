@@ -35,7 +35,7 @@ export function init(sceneRef: BattlegroundScene) {
 	scene = sceneRef;
 }
 
-export async function renderUnit(unit: Unit) {
+export async function renderChara(unit: Unit) {
 
 	const vec = vec2(
 		unit.position.x * constants.TILE_WIDTH + constants.HALF_TILE_WIDTH,
