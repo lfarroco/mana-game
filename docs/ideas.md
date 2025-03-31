@@ -71,3 +71,10 @@ create combinations with the events above:
 - eg.: on x, the y something gets z
 
 - allow learning skill on encounter reward
+
+Inspiration for traits:
+
+- diablo 3 talents
+- the bazaar talents
+
+Give every unit a random personality trait?

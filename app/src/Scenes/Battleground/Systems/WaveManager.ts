@@ -26,7 +26,7 @@ export async function createWave(id: number) {
 			const trait = getTrait(traitId);
 
 			if (trait.onBattleStart) {
-				trait.onBattleStart(scene.state, unit);
+				trait.onBattleStart(unit);
 			}
 		});
 	});
