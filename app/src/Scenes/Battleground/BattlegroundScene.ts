@@ -79,7 +79,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.bgContainer = this.add.container(0, 0);
 
-
     ControlsSystem.init(this);
 
     const { tiles, hoverOutline } = GridSystem.createTileGrid();

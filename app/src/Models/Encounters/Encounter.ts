@@ -7,7 +7,7 @@ import { FORCE_ID_PLAYER, playerForce } from "../Force";
 import { vec2 } from "../Geometry";
 import { JobId, starterJobs } from "../Job";
 import { emit, signals } from "../Signals";
-import { getState, getUnit, State } from "../State";
+import { getState, State, getGuildUnit } from "../State";
 import { Unit } from "../Unit";
 import commonEvents from "./common";
 import monsterEvents from "./monster";
@@ -80,7 +80,8 @@ export const starterEvent: Encounter = {
 	triggers: {
 		type: "nested",
 		choices: () => {
-			const remaning = starterJobs.filter(j => playerForce.units.find(f => f.job === j.id));
+			const playerJobs = playerForce.units.map(u => u.job);
+			const remaning = starterJobs.filter(j => !playerJobs.includes(j.id));
 
 			return pickRandom(remaning, 3).map(job => newChoice(
 				`${job.id}/full`,
@@ -149,18 +150,20 @@ export const displayRandomEvents = (day: number) => displayEvents(randomEvents, 
 export const displayMonsterEvents = (day: number) => displayEvents(monsterEvents(), day);
 
 const selectUnit = async () => new Promise<Unit>((resolve) => {
-	const dropZoneX = TILE_WIDTH * 3;
-	const dropZoneY = TILE_HEIGHT * 3;
+	const dropZoneX = TILE_WIDTH * 1;
+	const dropZoneY = TILE_HEIGHT * 1;
+	const dropZoneWidth = TILE_WIDTH * 4;
+	const dropZoneHeight = TILE_HEIGHT * 5;
 	const dropZone = scene.add.zone(dropZoneX, dropZoneY, TILE_WIDTH, TILE_HEIGHT)
-		.setRectangleDropZone(TILE_WIDTH, TILE_HEIGHT)
+		.setRectangleDropZone(dropZoneWidth, dropZoneHeight)
 		.setName('selectUnit')
 		.setOrigin(0);
 
 	const dropZoneDisplay = scene.add.graphics();
 	dropZoneDisplay.lineStyle(2, 0xffff00);
 	dropZoneDisplay.fillStyle(0x00ffff, 0.3);
-	dropZoneDisplay.fillRect(dropZoneX, dropZoneY, TILE_WIDTH, TILE_HEIGHT);
-	dropZoneDisplay.strokeRect(dropZoneX, dropZoneY, TILE_WIDTH, TILE_HEIGHT);
+	dropZoneDisplay.fillRect(dropZoneX, dropZoneY, dropZoneWidth, dropZoneHeight);
+	dropZoneDisplay.strokeRect(dropZoneX, dropZoneY, dropZoneWidth, dropZoneHeight);
 	scene.tweens.add({
 		targets: dropZoneDisplay,
 		alpha: 0.1,
@@ -183,7 +186,7 @@ const selectUnit = async () => new Promise<Unit>((resolve) => {
 
 		summonEffect(scene, 2, vec2(TILE_WIDTH * 3 + TILE_WIDTH / 2, TILE_HEIGHT * 3 + TILE_HEIGHT / 2));
 
-		const unit = getUnit(state)(unitId);
+		const unit = getGuildUnit(state)(unitId)!;
 		renderUnit(unit);
 
 		scene.input.off('drop', listener);
@@ -192,7 +195,6 @@ const selectUnit = async () => new Promise<Unit>((resolve) => {
 		dropZone.destroy();
 
 		resolve(unit);
-
 	}
 
 	scene.input.on('drop', listener);

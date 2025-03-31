@@ -1,7 +1,4 @@
-import { FORCE_ID_PLAYER } from "../../Models/Force";
-import { vec2 } from "../../Models/Geometry";
 import { emit, listeners, signals } from "../../Models/Signals";
-import { getUnit } from "../../Models/State";
 import { delay } from "../../Utils/animation";
 import { vignette } from "./Animations/vignette";
 import BattlegroundScene from "./BattlegroundScene";
@@ -11,10 +8,6 @@ import * as UnitManager from "./Systems/UnitManager";
 
 export function setupEventListeners(scene: BattlegroundScene) {
 	listeners([
-		[signals.UNIT_CREATED, (unitId: string) => {
-			const unit = getUnit(scene.state)(unitId);
-			UnitManager.renderUnit(unit);
-		}],
 		[signals.UNIT_SELECTED, () => {
 			const pop = scene.sound.add('ui/button_click');
 			pop.play();

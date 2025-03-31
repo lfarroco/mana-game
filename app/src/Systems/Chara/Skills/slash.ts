@@ -1,4 +1,4 @@
-import { getUnit } from "../../../Models/State";
+import { getBattleUnit } from "../../../Models/State";
 import { Unit } from "../../../Models/Unit";
 import { bashPieceAnimation } from "../Animations/bashPieceAnimation";
 import { popText } from "../Animations/popText";
@@ -21,7 +21,7 @@ export async function slash(
 	// unit with higher maxhp
 	const [target] = candidates.sort((a, b) => b.maxHp - a.maxHp);
 
-	const targetUnit = getUnit(scene.state)(target.id);
+	const targetUnit = getBattleUnit(scene.state)(target.id);
 	const targetChara = UnitManager.getChara(targetUnit.id);
 
 	await popText(scene, "Slash", unit.id);

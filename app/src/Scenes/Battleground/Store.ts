@@ -1,7 +1,7 @@
 import { FORCE_ID_PLAYER } from "../../Models/Force";
 import * as Job from "../../Models/Job";
 import { emit, signals } from "../../Models/Signals";
-import { getUnitAt } from "../../Models/State";
+import { getBattleUnitAt } from "../../Models/State";
 import { BattlegroundScene } from "./BattlegroundScene";
 import * as constants from "./constants";
 import * as GridSystem from "./Systems/GridSystem";
@@ -78,7 +78,7 @@ const renderUnit = (scene: BattlegroundScene) => (jobId: Job.JobId, i: number) =
 
 		const coords = GridSystem.getTileAt(pointer)!;
 
-		const maybeOccupier = getUnitAt(scene.state)(coords);
+		const maybeOccupier = getBattleUnitAt(scene.state)(coords);
 
 		if (maybeOccupier) return;
 
