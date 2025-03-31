@@ -1,10 +1,9 @@
 import * as uuid from "uuid";
-import { cpuForce, Force, FORCE_ID_PLAYER, playerForce } from "./Force";
+import { Force, playerForce } from "./Force";
 import { eqVec2, snakeDistanceBetween, sortBySnakeDistance, vec2, Vec2 } from "./Geometry";
 import { emit, signals, listeners } from "./Signals";
 import { Unit, makeUnit } from "./Unit";
 import { JobId } from "./Job";
-import { pickRandom } from "../utils";
 
 export const initialState = (): State => ({
   options: {
@@ -20,13 +19,13 @@ export const initialState = (): State => ({
     tick: 0,
     hour: 1,
     day: 1,
-    forces: [
-      playerForce,
-      cpuForce
-    ],
-    units: [],
-    grid: [],
+    player: playerForce,
     choices: []
+  },
+  battleData: {
+    forces: [],
+    grid: [],
+    units: []
   }
 });
 
@@ -42,15 +41,18 @@ export type State = {
   };
   savedGames: string[];
   gameData: GameData;
+  battleData: {
+    forces: Force[];
+    grid: number[][];
+    units: Unit[];
+  }
 };
 
 export type GameData = {
   tick: number;
   hour: number;
   day: number;
-  forces: Force[];
-  units: Unit[];
-  grid: number[][];
+  player: Force;
   choices: string[];
 }
 
@@ -64,28 +66,22 @@ export const setState = (state: State) => {
   window.state = state;
 };
 
-export const addForce = (state: State) => (force: Force) => {
-  state.gameData.forces.push(force);
-};
 
-export const addUnit = (state: State) => (unit: Unit) => {
-  state.gameData.units.push(unit);
-};
 
 
 export const updateUnit = (state: State) => (id: string) => (
   u: Partial<Unit>
 ) => {
-  const unit = state.gameData.units.find((u) => u.id === id);
+  const unit = state.battleData.units.find((u) => u.id === id);
   if (!unit) throw new Error("unit not found");
   Object.assign(unit, u);
 };
 
 export const getUnit = (state: State) => (id: string): Unit => {
-  return state.gameData.units.find((u) => u.id === id)!;
+  return state.battleData.units.find((u) => u.id === id)!;
 }
 
-export const getActiveUnits = (state: State): Unit[] => state.gameData.units
+export const getActiveUnits = (state: State): Unit[] => state.battleData.units
   .filter(u => u.hp > 0)
 
 export const getAllActiveFoes = (state: State) => (forceId: string): Unit[] => {
@@ -94,14 +90,6 @@ export const getAllActiveFoes = (state: State) => (forceId: string): Unit[] => {
 
 export const getUnitAt = (state: State) => (position: Vec2): Unit | undefined => {
   return getActiveUnits(state).find((u) => eqVec2(u.position, position));
-}
-
-export const updateForce = (state: State) => (
-  force: Partial<Force>
-) => {
-  const f = state.gameData.forces.find((f) => f.id === force.id);
-  if (!f) throw new Error("force not found");
-  Object.assign(f, force);
 }
 
 export const listenToStateEvents = (state: State) => {
@@ -134,7 +122,8 @@ export const listenToStateEvents = (state: State) => {
 
       const unit = makeUnit(unitId, forceId, jobId, position);
 
-      state.gameData.units.push(unit);
+      state.gameData.player.units.push(unit);
+      state.battleData.units.push({ ...unit });
 
       emit(signals.UNIT_CREATED, unit.id);
 
@@ -142,7 +131,7 @@ export const listenToStateEvents = (state: State) => {
 
     [signals.UPDATE_UNIT, (id: string, u: Partial<Unit>) => {
 
-      const currentUnit = state.gameData.units.find((s) => s.id === id)
+      const currentUnit = state.battleData.units.find((s) => s.id === id)
 
       if (!currentUnit) throw new Error(`unit ${id} not found`)
 
@@ -150,7 +139,7 @@ export const listenToStateEvents = (state: State) => {
     }],
     [signals.DAMAGE_UNIT, (id: string, damage: number) => {
 
-      const unit = state.gameData.units.find((u) => u.id === id);
+      const unit = state.battleData.units.find((u) => u.id === id);
 
       if (!unit) throw new Error(`unit ${id} not found`)
 
@@ -167,7 +156,7 @@ export const listenToStateEvents = (state: State) => {
     }],
     [signals.HEAL_UNIT, (id: string, amount: number) => {
 
-      const unit = state.gameData.units.find((u) => u.id === id);
+      const unit = state.battleData.units.find((u) => u.id === id);
 
       if (!unit) throw new Error(`unit ${id} not found`)
 
@@ -177,19 +166,17 @@ export const listenToStateEvents = (state: State) => {
 
 
     }],
-    [signals.UPDATE_FORCE, (force: Partial<Force>) => {
-      updateForce(state)(force);
-    }],
+
     [signals.ADD_STATUS, (id: string, status: string, duration: number) => {
 
-      const unit = state.gameData.units.find((u) => u.id === id)!;
+      const unit = state.battleData.units.find((u) => u.id === id)!;
 
       unit.statuses[status] = duration;
 
     }],
     [signals.TURN_START, (tick: number) => {
 
-      state.gameData.units.forEach((u) => {
+      state.battleData.units.forEach((u) => {
         Object.keys(u.statuses).forEach((status) => {
           u.statuses[status] -= 1;
           if (u.statuses[status] < 0) {
@@ -211,10 +198,3 @@ export function getUnitsByProximity(state: State, unit: Unit, enemy: boolean, ra
     .filter(u => snakeDistanceBetween(unit.position)(u.position) <= range)
 }
 
-export function getPlayerForce(state: State): Force {
-  return state.gameData.forces.find(f => f.id === playerForce.id)!;
-}
-
-export function randomPlayerUnit(state: State) {
-  return pickRandom(state.gameData.units.filter(u => u.force === FORCE_ID_PLAYER), 1)[0];
-}

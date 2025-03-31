@@ -63,7 +63,7 @@ function planShadowStep(
 			.filter(cell => Math.abs(cell.x) + Math.abs(cell.y))
 			.map(vec => sumVec2(target.position)(vec))
 			.filter(cell => {
-				return !scene.state.gameData.units.find(unit => eqVec2(unit.position, cell));
+				return !scene.state.battleData.units.find(unit => eqVec2(unit.position, cell));
 			});
 
 		const [cell] = cells;

@@ -52,8 +52,6 @@ export type Signals = {
   CHARA_CREATED: (charaId: string) => void;
   BATTLEGROUND_TICK: (tick: number) => void;
 
-  UPDATE_FORCE: (force: Partial<Force>) => void;
-
   DESTINATION_GOAL_TO: (unitId: string, target: Vec2) => void;
 
   // TODO: have a parent level for the system
@@ -89,7 +87,6 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   SAVE_GAME: "SAVE_GAME",
   LOAD_GAME: "LOAD_GAME",
   DELETE_GAME: "DELETE_GAME",
-  UPDATE_FORCE: "UPDATE_FORCE",
   BATTLEGROUND_STARTED: "BATTLEGROUND_STARTED",
   WAVE_START: "WAVE_START",
   WAVE_FINISHED: "WAVE_FINISHED",

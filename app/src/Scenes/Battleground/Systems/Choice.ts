@@ -69,6 +69,8 @@ export const displayChoices = (choices: Choice[]) => new Promise<Choice>((resolv
 
 export const displayStore = (choices: Choice[]) => new Promise<void>((resolve) => {
 
+	const { player } = state.gameData
+
 	const component = scene.add.container();
 
 	let bought = 0;
@@ -79,12 +81,10 @@ export const displayStore = (choices: Choice[]) => new Promise<void>((resolve) =
 		test_item_3: 30,
 	};
 
-	const force = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
-
 	const cards = choices.map(renderCard(
 		async (choice: Choice, card: Phaser.GameObjects.Container) => {
 
-			if (force.gold < items[choice.value]) {
+			if (player.gold < items[choice.value]) {
 				return;
 			}
 
@@ -96,8 +96,7 @@ export const displayStore = (choices: Choice[]) => new Promise<void>((resolve) =
 
 			card.destroy();
 
-
-			force.gold -= items[choice.value];
+			player.gold -= items[choice.value];
 
 			updateUI();
 
@@ -108,7 +107,7 @@ export const displayStore = (choices: Choice[]) => new Promise<void>((resolve) =
 				return resolve();
 			}
 
-			if (force.gold <= 0) {
+			if (player.gold <= 0) {
 				cards.forEach((child) => {
 					child.setAlpha(0.5);
 				})
@@ -119,7 +118,7 @@ export const displayStore = (choices: Choice[]) => new Promise<void>((resolve) =
 
 	cards.forEach((card, i) => {
 
-		if (force.gold < items[choices[i].value]) {
+		if (player.gold < items[choices[i].value]) {
 			(card).setAlpha(0.5);
 		}
 

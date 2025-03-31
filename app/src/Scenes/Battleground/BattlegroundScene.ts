@@ -1,12 +1,11 @@
 import Phaser from "phaser";
 import { preload } from "./preload";
 import * as CharaSystem from "../../Systems/Chara/Chara";
-import { State, getPlayerForce, getState } from "../../Models/State";
+import { State, getState } from "../../Models/State";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
 import * as AISystem from "../../Systems/AI/AI";
 import * as HPBarSystem from "../../Systems/Chara/HPBar";
 import { BattlegroundAudioSystem_init } from "./Systems/Audio";
-import { Force, FORCE_ID_PLAYER } from "../../Models/Force";
 import * as constants from "./constants";
 import { setupEventListeners } from "./EventHandlers";
 import * as UIManager from "./Systems/UIManager";
@@ -19,7 +18,6 @@ import * as EventSystem from "../../Models/Encounters/Encounter";
 export class BattlegroundScene extends Phaser.Scene {
 
   state: State;
-  playerForce: Force;
   speed: number;
   bgContainer!: Phaser.GameObjects.Container;
   bgImage!: Phaser.GameObjects.Image;
@@ -37,7 +35,6 @@ export class BattlegroundScene extends Phaser.Scene {
     const state = getState();
     this.state = state;
     this.speed = state.options.speed;
-    this.playerForce = state.gameData.forces.find(f => f.id === FORCE_ID_PLAYER)!;
 
     setupEventListeners(this);
 
@@ -90,15 +87,11 @@ export class BattlegroundScene extends Phaser.Scene {
     UIManager.createDropZone(this);
     UIManager.updateUI();
 
-    //emit(signals.BATTLEGROUND_STARTED);
-
-    //WaveManager.createWave();
-
     //@ts-ignore
     window.scene = this;
 
     // pick 3 random jobs
-    while (state.gameData.units.length < 3) {
+    while (state.gameData.player.units.length < 3) {
       await EventSystem.evalEvent(EventSystem.starterEvent);
     }
 
@@ -122,8 +115,7 @@ export class BattlegroundScene extends Phaser.Scene {
       state.gameData.day += 1;
       state.gameData.hour = 1;
 
-      const force = getPlayerForce(state);
-      force.gold += force.income;
+      state.gameData.player.gold += state.gameData.player.income;
 
       UIManager.updateUI();
 

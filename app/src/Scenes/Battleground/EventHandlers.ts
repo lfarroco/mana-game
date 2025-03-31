@@ -24,11 +24,6 @@ export function setupEventListeners(scene: BattlegroundScene) {
 			UIManager.hideDropZone();
 			UIManager.hideUI();
 
-			scene.state.gameData.units = scene.state.gameData.units.map(u => {
-				u.initialPosition = vec2(u.position.x, u.position.y)
-				return u;
-			})
-
 			await delay(scene, 200 / scene.speed);
 
 			scene.playFx('audio/battle_theme');
@@ -41,20 +36,14 @@ export function setupEventListeners(scene: BattlegroundScene) {
 
 			UnitManager.clearCharas();
 
-			scene.state.gameData.units = scene.state.gameData.units.filter(u => u.force === FORCE_ID_PLAYER);
-			scene.state.gameData.units = scene.state.gameData.units.map(u => {
-				return {
-					...u,
-					hp: u.maxHp,
-					position: u.initialPosition,
-				}
-			});
+			scene.state.battleData.units = [];
+
 			scene.state.gameData.tick = 0;
 
 			UIManager.displayDropZone();
 			UIManager.updateUI();
 
-			scene.state.gameData.units.forEach(UnitManager.renderUnit);
+			scene.state.gameData.player.units.forEach(UnitManager.renderUnit);
 
 			const isGameOver = scene.state.gameData.hour > Object.keys(waves).length;
 
@@ -62,8 +51,9 @@ export function setupEventListeners(scene: BattlegroundScene) {
 				await vignette(scene, "Victory! Thanks for Playing!");
 
 				UnitManager.clearCharas();
-				scene.state.gameData.units = []
+				scene.state.battleData.units = []
 				scene.state.gameData.hour = 1;
+				scene.state.gameData.day = 1;
 			}
 
 		}],

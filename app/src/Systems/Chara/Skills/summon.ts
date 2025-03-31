@@ -1,13 +1,18 @@
 import { FORCE_ID_CPU } from "../../../Models/Force";
 import { Vec2, vec2, eqVec2 } from "../../../Models/Geometry";
-import { Unit, makeUnit } from "../../../Models/Unit";
+import { makeUnit } from "../../../Models/Unit";
 import { runPromisesInOrder } from "../../../utils";
 import { delay } from "../../../Utils/animation";
-import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { BLOB } from "../../../Models/Job";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
+import { Chara } from "../Chara";
+import { getState } from "../../../Models/State";
 
-export async function summon(unit: Unit, scene: BattlegroundScene) {
+export async function summon(chara: Chara) {
+
+	const { scene, unit } = chara;
+	const state = getState();
+
 	let emptySlots = [] as Vec2[];
 
 	// pick 4 empty slots close to the unit
@@ -22,7 +27,7 @@ export async function summon(unit: Unit, scene: BattlegroundScene) {
 
 		emptySlots = emptySlots.concat(
 			slots.filter(slot => {
-				const unitAtSlot = scene.state.gameData.units
+				const unitAtSlot = state.battleData.units
 					.filter(u => u.hp > 0)
 					.find(u => eqVec2(u.position, slot));
 				return !unitAtSlot;
@@ -37,9 +42,9 @@ export async function summon(unit: Unit, scene: BattlegroundScene) {
 	// create a blob in each slot
 	const actions = emptySlots.map(slot => async () => {
 		const blob = makeUnit(Math.random().toString(), FORCE_ID_CPU, BLOB, slot);
-		scene.state.gameData.units.push(blob);
+		state.battleData.units.push(blob);
 		UnitManager.renderUnit(blob);
-		await delay(scene, 500 / scene.speed);
+		await delay(scene, 500 / state.options.speed);
 	});
 
 	await runPromisesInOrder(actions);
