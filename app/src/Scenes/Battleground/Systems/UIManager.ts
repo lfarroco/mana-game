@@ -210,14 +210,6 @@ export function displayUnitInfo(chara: CharaSystem.Chara) {
 		text, bgConstants.defaultTextConfig));
 	unitInfoContainer.add(stats);
 
-	const skills = unit.learnedSkills
-		.map(getSkill)
-		.map((sk, i) => scene.add.text(
-			10, (bgConstants.TILE_HEIGHT * 3) + 80 + i * 50,
-			sk.name, bgConstants.defaultTextConfig));
-
-	unitInfoContainer.add([...skills]);
-
 	const closeBtn = scene.add.text(
 		width - 40, 10, "X", bgConstants.defaultTextConfig)
 		.setInteractive()

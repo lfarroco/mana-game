@@ -48,8 +48,6 @@ export async function shadowStep(
 
 	await summonEffect(scene, scene.speed, activeChara.container);
 
-	unit.cooldowns[skill.id] = skill.cooldown;
-
 	await slash(scene, unit);
 
 	return true;

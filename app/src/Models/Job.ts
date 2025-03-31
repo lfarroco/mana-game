@@ -13,8 +13,7 @@ export type Job = {
   attack: number;
   defense: number;
   agility: number;
-  skills: s.SkillId[];
-  baseSkill: s.SkillId;
+  skill: s.SkillId;
 };
 
 export const ARCHER = "archer" as JobId;
@@ -80,7 +79,6 @@ function parseJobsTable(table: string) {
   });
 
   return data.map((d) => {
-    const skills = d["Skills"].split(",").map((s) => s.trim() as s.SkillId);
     return {
       id: d["Job"] as JobId,
       name: d["Name"],
@@ -91,9 +89,8 @@ function parseJobsTable(table: string) {
       attack: parseInt(d["ATK"]),
       defense: parseInt(d["DEF"]),
       agility: parseInt(d["AGI"]),
-      skills,
+      skill: d["Skill"] as s.SkillId,
       multicast: getMulticast(d["Job"] as JobId),
-      baseSkill: skills[skills.length - 1],
     } as Job;
   })
 }

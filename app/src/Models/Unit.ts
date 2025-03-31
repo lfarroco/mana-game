@@ -1,6 +1,5 @@
 import { asVec2, Vec2 } from "./Geometry";
 import { getJob, JobId } from "./Job";
-import { getSkill, SkillId } from "./Skill";
 import { TraitId } from "./Traits";
 
 export type Unit = {
@@ -20,10 +19,8 @@ export type Unit = {
   crit: number;
   multicast: number;
 
-  cooldowns: { [key: SkillId]: number };
   statuses: { [key: string]: number };
   traits: TraitId[];
-  learnedSkills: SkillId[];
 
   log: string[];
 };
@@ -32,7 +29,6 @@ export const makeUnit = (id: string, force: string, job: JobId, position: Vec2):
 
   const jobId = job as JobId;
   const job_ = getJob(jobId);
-  const learnedSkills = [job_.baseSkill];
   return {
     ...job_,
     id,
@@ -44,14 +40,8 @@ export const makeUnit = (id: string, force: string, job: JobId, position: Vec2):
     multicast: 2,
     crit: job_.agility * 1.5,
     log: [],
-    cooldowns: learnedSkills.reduce((acc, skillId) => {
-      const skill = getSkill(skillId)
-      acc[skillId] = skill.cooldown;
-      return acc;
-    }, {} as { [key: string]: number }),
     statuses: {},
     traits: [],
-    learnedSkills
   } as Unit;
 };
 
