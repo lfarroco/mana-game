@@ -1,6 +1,6 @@
 import { vec2, Vec2 } from "../../Models/Geometry";
 import { listeners, signals } from "../../Models/Signals"
-import { State, getUnit } from "../../Models/State"
+import { State, getBattleUnit } from "../../Models/State"
 import { Unit } from "../../Models/Unit";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene"
 import { HALF_TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
@@ -27,7 +27,9 @@ export function init(state: State, scene: BattlegroundScene) {
 
 			const chara = UnitManager.getChara(id)
 
-			const unit = getUnit(state)(id)
+			const unit = getBattleUnit(state)(id)
+
+			if (!unit) return;
 
 			const x = -BAR_WIDTH / 2;
 			const y = HALF_TILE_HEIGHT - 10;
@@ -56,7 +58,7 @@ export function init(state: State, scene: BattlegroundScene) {
 			// check if argument exists
 			if (hp === undefined) return
 
-			const unit = getUnit(state)(id)
+			const unit = getBattleUnit(state)(id)
 
 			const { bar, xy } = barIndex[id]
 

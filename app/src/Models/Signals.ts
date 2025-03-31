@@ -2,7 +2,6 @@ import Events from "events";
 import { Vec2 } from "./Geometry";
 import { Unit } from "./Unit";
 import { GameData } from "./State";
-import { Force } from "./Force";
 import { JobId } from "./Job";
 
 let events: any[] = [];
@@ -12,7 +11,6 @@ window.events = events;
 // TODO: purge events that are called just once
 export type Signals = {
   SET_ROUTE: (route: string) => void;
-  START_NEW_GAME: () => void;
 
   TURN_START: () => void;
   TURN_END: () => void;
@@ -46,8 +44,6 @@ export type Signals = {
   TOGGLE_RECRUIT_MODAL: () => void;
   // When a unit is added to a force
   ADD_UNIT_TO_GUILD: (forceId: string, jobId: JobId, location: Vec2) => void;
-  // When a unit is finished being added to a force
-  UNIT_CREATED: (unitId: string) => void;
   // When a chara is created in the map
   CHARA_CREATED: (charaId: string) => void;
   BATTLEGROUND_TICK: (tick: number) => void;
@@ -77,7 +73,6 @@ export type Operation = [keyof Signals, ...Parameters<Signals[keyof Signals]>];
 
 export const signals: { [key in keyof Signals]: keyof Signals } = {
   SET_ROUTE: "SET_ROUTE",
-  START_NEW_GAME: "START_NEW_GAME",
   PAUSE_GAME: "PAUSE_GAME",
   RESUME_GAME: "RESUME_GAME",
   TURN_START: "TURN_START",
@@ -99,7 +94,6 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   TOGGLE_SAVE_GAME_MODAL: "TOGGLE_SAVE_GAME_MODAL",
   TOGGLE_RECRUIT_MODAL: "TOGGLE_RECRUIT_MODAL",
   ADD_UNIT_TO_GUILD: "ADD_UNIT_TO_GUILD",
-  UNIT_CREATED: "UNIT_CREATED",
   CHARA_CREATED: "CHARA_CREATED",
   BATTLEGROUND_TICK: "BATTLEGROUND_TICK",
 

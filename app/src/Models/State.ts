@@ -4,6 +4,7 @@ import { eqVec2, snakeDistanceBetween, sortBySnakeDistance, vec2, Vec2 } from ".
 import { emit, signals, listeners } from "./Signals";
 import { Unit, makeUnit } from "./Unit";
 import { JobId } from "./Job";
+import * as UnitManager from "../Scenes/Battleground/Systems/UnitManager";
 
 export const initialState = (): State => ({
   options: {
@@ -77,7 +78,7 @@ export const updateUnit = (state: State) => (id: string) => (
   Object.assign(unit, u);
 };
 
-export const getUnit = (state: State) => (id: string): Unit => {
+export const getBattleUnit = (state: State) => (id: string): Unit => {
   return state.battleData.units.find((u) => u.id === id)!;
 }
 
@@ -88,8 +89,16 @@ export const getAllActiveFoes = (state: State) => (forceId: string): Unit[] => {
   return getActiveUnits(state).filter(u => u.force !== forceId);
 }
 
-export const getUnitAt = (state: State) => (position: Vec2): Unit | undefined => {
+export const getBattleUnitAt = (state: State) => (position: Vec2): Unit | undefined => {
   return getActiveUnits(state).find((u) => eqVec2(u.position, position));
+}
+
+export const getGuildUnitAt = (state: State) => (position: Vec2): Unit | undefined => {
+  return state.gameData.player.units.find((u) => eqVec2(u.position, position));
+}
+
+export const getGuildUnit = (state: State) => (id: string): Unit | undefined => {
+  return state.gameData.player.units.find((u) => u.id === id);
 }
 
 export const listenToStateEvents = (state: State) => {
@@ -110,7 +119,7 @@ export const listenToStateEvents = (state: State) => {
       while (!isValid) {
         for (let x = startX; x < endX; x++) {
           for (let y = startY; y < endY; y++) {
-            if (!getUnitAt(state)(vec2(x, y))) {
+            if (!getGuildUnitAt(state)(vec2(x, y))) {
               isValid = true;
               position = vec2(x, y);
               break;
@@ -123,9 +132,8 @@ export const listenToStateEvents = (state: State) => {
       const unit = makeUnit(unitId, forceId, jobId, position);
 
       state.gameData.player.units.push(unit);
-      state.battleData.units.push({ ...unit });
 
-      emit(signals.UNIT_CREATED, unit.id);
+      UnitManager.renderUnit(unit);
 
     }],
 

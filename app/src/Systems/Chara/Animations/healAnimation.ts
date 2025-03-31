@@ -1,6 +1,6 @@
 import { emit, signals } from "../../../Models/Signals";
 import { getSkill, HEAL } from "../../../Models/Skill";
-import { getUnit } from "../../../Models/State";
+import { getBattleUnit } from "../../../Models/State";
 import { Unit, unitLog } from "../../../Models/Unit";
 import { popText } from "./popText";
 import { delay } from "../../../Utils/animation";
@@ -15,7 +15,7 @@ export async function healAnimation(
 
     const activeChara = UnitManager.getChara(unit.id);
 
-    const targetUnit = getUnit(scene.state)(target.id);
+    const targetUnit = getBattleUnit(scene.state)(target.id);
 
     const targetChara = UnitManager.getChara(targetUnit.id);
 
