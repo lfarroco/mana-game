@@ -2,7 +2,7 @@ import { waves } from "../enemyWaves";
 import { BattlegroundScene } from "../BattlegroundScene";
 import * as UnitManager from "./UnitManager";
 import processTick from "../ProcessTick";
-import { runUnitHandlers } from "../../../Models/Traits";
+import { HANDLER_ON_BATTLE_START, runUnitTraitHandlers } from "../../../Models/Traits";
 
 export let scene: BattlegroundScene;
 
@@ -20,7 +20,7 @@ export async function createWave(id: number) {
 
 	scene.state.battleData.units.forEach(UnitManager.renderChara);
 
-	await runUnitHandlers('onBattleStart');
+	await runUnitTraitHandlers(HANDLER_ON_BATTLE_START);
 
 	await processTick(scene);
 

@@ -17,7 +17,6 @@ export const init = (sceneRef: Phaser.Scene, stateRef: State) => {
 
 export type TraitId = string & { __traitId: never };
 
-
 const FRONTLINE = 6;
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const MIDDLELINE = 7;
@@ -27,29 +26,46 @@ const BACKLINE = 8;
 type UnitHandler = (u: Unit) => Promise<void>;
 type TargetUnitHandler = (u: Unit, target: Unit) => Promise<void>;
 
-type UnitHandlerIndex = {
-	onAcquire?: UnitHandler;
-	onRemove?: UnitHandler;
-	onTurnStart?: UnitHandler;
-	onTurnEnd?: UnitHandler;
-	onBattleStart?: UnitHandler;
-	onBattleEnd?: UnitHandler;
-}
+// Handler type constants
+export const HANDLER_ON_TURN_START = 'onTurnStart' as const;
+export const HANDLER_ON_TURN_END = 'onTurnEnd' as const;
+export const HANDLER_ON_BATTLE_START = 'onBattleStart' as const;
+export const HANDLER_ON_BATTLE_END = 'onBattleEnd' as const;
 
-// the units provided in the event handlers are temporary (don't need cleanup)
+// Target handler type constants
+export const TARGET_HANDLER_ON_ATTACK_BY_ME = 'onAttackByMe' as const;
+export const TARGET_HANDLER_ON_DEFEND_BY_ME = 'onDefendByMe' as const;
+export const TARGET_HANDLER_ON_UNIT_KILL_BY_ME = 'onUnitKillByMe' as const;
+export const TARGET_HANDLER_ON_UNIT_KILL = 'onUnitKill' as const;
+export const TARGET_HANDLER_ON_ALLIED_KILLED = 'onAlliedKilled' as const;
+export const TARGET_HANDLER_ON_ENEMY_KILLED = 'onEnemyKilled' as const;
+
+export type UnitHandlerType = typeof HANDLER_ON_TURN_START
+	| typeof HANDLER_ON_TURN_END
+	| typeof HANDLER_ON_BATTLE_START
+	| typeof HANDLER_ON_BATTLE_END;
+
+export type TargetUnitHandlerType = typeof TARGET_HANDLER_ON_ATTACK_BY_ME
+	| typeof TARGET_HANDLER_ON_DEFEND_BY_ME
+	| typeof TARGET_HANDLER_ON_UNIT_KILL_BY_ME
+	| typeof TARGET_HANDLER_ON_UNIT_KILL
+	| typeof TARGET_HANDLER_ON_ALLIED_KILLED
+	| typeof TARGET_HANDLER_ON_ENEMY_KILLED;
+
+type UnitHandlerIndex = {
+	[key in UnitHandlerType]?: UnitHandler;
+};
+
+type TargetUnitHandlerIndex = {
+	[key in TargetUnitHandlerType]?: TargetUnitHandler;
+};
+
 export type Trait = {
 	id: TraitId;
 	name: string;
 	description: string;
 	unitHandlers?: UnitHandlerIndex,
-	targetUnitHandlers?: {
-		onAttackByMe?: TargetUnitHandler;
-		onDefendByMe?: TargetUnitHandler;
-		onUnitKillByMe?: TargetUnitHandler;
-		onUnitKill?: TargetUnitHandler;
-		onAlliedKilled?: TargetUnitHandler;
-		onEnemyKilled?: TargetUnitHandler;
-	}
+	targetUnitHandlers?: TargetUnitHandlerIndex
 };
 
 export const SHY: Trait = {
@@ -57,7 +73,7 @@ export const SHY: Trait = {
 	name: "Shy",
 	description: "+3 defense when aline in a row",
 	unitHandlers: {
-		onBattleStart: async (unit) => {
+		[HANDLER_ON_BATTLE_START]: async (unit) => {
 			const neighboringUnits = state.battleData.units.filter((u) => {
 				const distace = snakeDistanceBetween(
 					u.position)(
@@ -79,8 +95,7 @@ export const BRAVE: Trait = {
 	name: "Brave",
 	description: "+10 attack when in the front row",
 	unitHandlers: {
-		onBattleStart: async (unit) => {
-
+		[HANDLER_ON_BATTLE_START]: async (unit) => {
 			if (unit.position.x !== FRONTLINE) return;
 
 			unit.statuses["brave"] = Infinity;
@@ -92,7 +107,7 @@ export const BRAVE: Trait = {
 		},
 	},
 	targetUnitHandlers: {
-		onAttackByMe: async (unit, target) => {
+		[TARGET_HANDLER_ON_ATTACK_BY_ME]: async (unit, target) => {
 			if (!unit.statuses["brave"]) return
 			await popText(scene, "On Attack: Brave", unit.id);
 			await popText(scene, "+1 attack", unit.id);
@@ -100,6 +115,7 @@ export const BRAVE: Trait = {
 		}
 	}
 }
+
 export const getTrait = (id: TraitId): Trait => {
 	const trait = traits[id];
 	if (!trait) {
@@ -108,10 +124,14 @@ export const getTrait = (id: TraitId): Trait => {
 	return trait;
 }
 
-export async function runUnitHandlers(handler: keyof UnitHandlerIndex) {
+export async function runUnitTraitHandlers(handler: UnitHandlerType) {
 	const promises = state.battleData.units.flatMap(unit => {
-		return unit.traits.reduce((xs, traitId) => {
-			const trait = getTrait(traitId);
+
+		type handlers = (() => Promise<void>)[];
+
+		const initial = [] as handlers;
+
+		const reducingFn = (xs: handlers, trait: Trait) => {
 
 			if (trait.unitHandlers && trait.unitHandlers[handler]) {
 				const handlerFn = trait.unitHandlers[handler];
@@ -119,12 +139,12 @@ export async function runUnitHandlers(handler: keyof UnitHandlerIndex) {
 			} else {
 				return xs;
 			}
-		}, [] as (() => Promise<void>)[]);
+		}
+		return unit.traits.map(getTrait).reduce(reducingFn, initial);
 	});
 
 	await runPromisesInOrder(promises);
 }
-
 
 // Future traits: check docs/traits/md
 
