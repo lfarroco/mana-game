@@ -1,6 +1,7 @@
 // traits are a way to add special abilities or characteristics to units
 
 import { popText } from "../Systems/Chara/Animations/popText";
+import { runPromisesInOrder } from "../utils";
 import { snakeDistanceBetween } from "./Geometry";
 import { State } from "./State";
 import { Unit } from "./Unit";
@@ -16,269 +17,89 @@ export const init = (sceneRef: Phaser.Scene, stateRef: State) => {
 
 export type TraitId = string & { __traitId: never };
 
+
 const FRONTLINE = 6;
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const MIDDLELINE = 7;
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const BACKLINE = 8;
 
+type UnitHandler = (u: Unit) => Promise<void>;
+type TargetUnitHandler = (u: Unit, target: Unit) => Promise<void>;
+
+type UnitHandlerIndex = {
+	onAcquire?: UnitHandler;
+	onRemove?: UnitHandler;
+	onTurnStart?: UnitHandler;
+	onTurnEnd?: UnitHandler;
+	onBattleStart?: UnitHandler;
+	onBattleEnd?: UnitHandler;
+}
+
 // the units provided in the event handlers are temporary (don't need cleanup)
-type Trait = {
+export type Trait = {
 	id: TraitId;
 	name: string;
 	description: string;
-	onAcquire?: (unit: Unit) => void;
-	onRemove?: (unit: Unit) => void;
-	onTurnStart?: (unit: Unit) => void;
-	onTurnEnd?: (unit: Unit) => void;
-	onAttackByMe?: (unit: Unit, target: Unit) => void;
-	onDefendByMe?: (unit: Unit, attacker: Unit) => void;
-	onBattleStart?: (unit: Unit) => Promise<void>;
-	onBattleEnd?: (unit: Unit) => Unit;
-	onUnitKillByMe?: (unit: Unit, target: Unit) => void;
-	onUnitKill?: (unit: Unit, target: Unit) => void;
-	onAlliedKilled?: (unit: Unit, target: Unit) => void;
-	onEnemyKilled?: (unit: Unit, target: Unit) => void;
+	unitHandlers?: UnitHandlerIndex,
+	targetUnitHandlers?: {
+		onAttackByMe?: TargetUnitHandler;
+		onDefendByMe?: TargetUnitHandler;
+		onUnitKillByMe?: TargetUnitHandler;
+		onUnitKill?: TargetUnitHandler;
+		onAlliedKilled?: TargetUnitHandler;
+		onEnemyKilled?: TargetUnitHandler;
+	}
 };
 
 export const SHY: Trait = {
 	id: "shy" as TraitId,
 	name: "Shy",
 	description: "+3 defense when aline in a row",
-	onBattleStart: async (unit) => {
-		const neighboringUnits = state.battleData.units.filter((u) => {
-			const distace = snakeDistanceBetween(
-				u.position)(
-					unit.position
-				);
-			return distace < 2 && u.id !== unit.id;
-		});
-		if (neighboringUnits.length === 0) {
-			await popText(scene, "On Battle Start: Shy", unit.id);
-			await popText(scene, "+3 defense", unit.id);
-			unit.defense += 3;
-		}
-	},
+	unitHandlers: {
+		onBattleStart: async (unit) => {
+			const neighboringUnits = state.battleData.units.filter((u) => {
+				const distace = snakeDistanceBetween(
+					u.position)(
+						unit.position
+					);
+				return distace < 2 && u.id !== unit.id;
+			});
+			if (neighboringUnits.length === 0) {
+				await popText(scene, "On Battle Start: Shy", unit.id);
+				await popText(scene, "+3 defense", unit.id);
+				unit.defense += 3;
+			}
+		},
+	}
 }
 
 export const BRAVE: Trait = {
 	id: "brave" as TraitId,
 	name: "Brave",
 	description: "+10 attack when in the front row",
-	onBattleStart: async (unit) => {
+	unitHandlers: {
+		onBattleStart: async (unit) => {
 
-		if (unit.position.x !== FRONTLINE) return;
+			if (unit.position.x !== FRONTLINE) return;
 
-		unit.statuses["brave"] = Infinity;
+			unit.statuses["brave"] = Infinity;
 
-		await popText(scene, "On Battle Start: Brave", unit.id);
-		await popText(scene, "+10 attack", unit.id);
+			await popText(scene, "On Battle Start: Brave", unit.id);
+			await popText(scene, "+10 attack", unit.id);
 
-		unit.attack += 5;
+			unit.attack += 5;
+		},
 	},
-	onAttackByMe: async (unit, target) => {
-		if (!unit.statuses["brave"]) return
-		await popText(scene, "On Attack: Brave", unit.id);
-		await popText(scene, "+1 attack", unit.id);
-		unit.attack += 1;
+	targetUnitHandlers: {
+		onAttackByMe: async (unit, target) => {
+			if (!unit.statuses["brave"]) return
+			await popText(scene, "On Attack: Brave", unit.id);
+			await popText(scene, "+1 attack", unit.id);
+			unit.attack += 1;
+		}
 	}
 }
-
-// Future traits:
-
-// export const OPTIMISTIC: Trait = {
-// 	id: "optimistic" as TraitId,
-// 	name: "Optimistic",
-// 	description: "+1 attack if it is in the front row",
-// 	onBattleStart: async (unit) => {
-// 		if (unit.position.y === 0) {
-// 			unit.attack += 1;
-// 		}
-// 		return unit;
-// 	},
-// }
-
-// // ---- Movement Traits ----
-// export const SWIFT: Trait = {
-// 	id: "swift" as TraitId,
-// 	name: "Swift",
-// 	description: "This unit moves quickly, gaining an extra movement point each turn.",
-// 	// Gives +1 movement at the start of each turn
-// };
-
-// export const TELEPORTER: Trait = {
-// 	id: "teleporter" as TraitId,
-// 	name: "Teleporter",
-// 	description: "This unit can teleport to any empty tile once per battle.",
-// 	// Would allow unit to move to any empty tile once per battle
-// };
-
-// // ---- Dark Traits ----
-// export const VAMPIRIC: Trait = {
-// 	id: "vampiric" as TraitId,
-// 	name: "Vampiric",
-// 	description: "This unit heals for 10% of the damage it deals.",
-// 	// Heals based on damage dealt during attacks
-// };
-
-// export const CURSED: Trait = {
-// 	id: "cursed" as TraitId,
-// 	name: "Cursed",
-// 	description: "This unit has reduced health but gains +2 attack when below 50% health.",
-// 	// Reduces max health but provides attack bonus when health is low
-// };
-
-// // ---- Holy Traits ----
-// export const BLESSED: Trait = {
-// 	id: "blessed" as TraitId,
-// 	name: "Blessed",
-// 	description: "This unit regenerates 5% of its health at the start of each turn.",
-// 	// Regenerates health at the start of each turn
-// };
-
-// export const GUARDIAN: Trait = {
-// 	id: "guardian" as TraitId,
-// 	name: "Guardian",
-// 	description: "Nearby ally units gain +1 defense.",
-// 	// Provides defense bonus to nearby allies
-// };
-
-// // ---- Natural Traits ----
-// export const TOXIC: Trait = {
-// 	id: "toxic" as TraitId,
-// 	name: "Toxic",
-// 	description: "This unit's attacks poison enemies, dealing 1 damage per turn for 3 turns.",
-// 	// Applies poison effect to enemies on attack
-// };
-
-// export const THORNY: Trait = {
-// 	id: "thorny" as TraitId,
-// 	name: "Thorny",
-// 	description: "When attacked, this unit deals 2 damage back to the attacker.",
-// 	// Deals damage to attackers when defending
-// };
-
-// // ---- Mental Traits ----
-// export const STRATEGIC: Trait = {
-// 	id: "strategic" as TraitId,
-// 	name: "Strategic",
-// 	description: "This unit gains +1 attack for each ally adjacent to its target.",
-// 	// Attack bonus based on allies near the target
-// };
-
-// export const INTIMIDATING: Trait = {
-// 	id: "intimidating" as TraitId,
-// 	name: "Intimidating",
-// 	description: "Enemy units adjacent to this unit have -1 attack.",
-// 	// Reduces attack of nearby enemies
-// };
-
-// export const KIND: Trait = {
-// 	id: "kind" as TraitId,
-// 	name: "Kind",
-// 	description: "+1 attack when in the back row",
-// 	onBattleStart: (unit) => {
-// 		if (unit.position.y === 1) {
-// 			unit.attack += 1;
-// 		}
-// 		return unit;
-// 	},
-// }
-
-// export const CUNNING: Trait = {
-// 	id: "cunning" as TraitId,
-// 	name: "Cunning",
-// 	description: "+1 attack when in the front row",
-// 	onBattleStart: (state, unit) => {
-// 		if (unit.position.y === 0) {
-// 			unit.attack += 1;
-// 		}
-// 		return unit;
-// 	},
-// }
-
-// export const GREEDY: Trait = {
-// 	id: "greedy" as TraitId,
-// 	name: "Greedy",
-// 	description: "+1 attack when in the front row",
-// 	onBattleStart: (state, unit) => {
-// 		if (unit.position.y === 0) {
-// 			unit.attack += 1;
-// 		}
-// 		return unit;
-// 	},
-// }
-
-// export const LAZY: Trait = {
-// 	id: "lazy" as TraitId,
-// 	name: "Lazy",
-// 	description: "+1 attack when in the back row",
-// 	onBattleStart: (state, unit) => {
-// 		if (unit.position.y === 1) {
-// 			unit.attack += 1;
-// 		}
-// 		return unit;
-// 	},
-// }
-// export const LOYAL: Trait = {
-// 	id: "loyal" as TraitId,
-// 	name: "Loyal",
-// 	description: "+1 attack when in the back row",
-// 	onBattleStart: (state, unit) => {
-// 		if (unit.position.y === 1) {
-// 			unit.attack += 1;
-// 		}
-// 		return unit;
-// 	},
-// }
-
-// export const CLUMSY: Trait = {
-// 	id: "clumsy" as TraitId,
-// 	name: "Clumsy",
-// 	description: "+1 attack when in the back row",
-// 	onBattleStart: (state, unit) => {
-// 		if (unit.position.y === 1) {
-// 			unit.attack += 1;
-// 		}
-// 		return unit;
-// 	},
-// }
-
-// export const BRILLIANT: Trait = {
-// 	id: "brilliant" as TraitId,
-// 	name: "Brilliant",
-// 	description: "+1 attack when in the back row",
-// 	onBattleStart: (state, unit) => {
-// 		if (unit.position.y === 1) {
-// 			unit.attack += 1;
-// 		}
-// 		return unit;
-// 	},
-// }
-
-export const traits: { [id: TraitId]: Trait } = {
-	[SHY.id]: SHY,
-	[BRAVE.id]: BRAVE,
-	// [OPTIMISTIC.id]: OPTIMISTIC,
-	// [SWIFT.id]: SWIFT,
-	// [TELEPORTER.id]: TELEPORTER,
-	// [VAMPIRIC.id]: VAMPIRIC,
-	// [CURSED.id]: CURSED,
-	// [BLESSED.id]: BLESSED,
-	// [GUARDIAN.id]: GUARDIAN,
-	// [TOXIC.id]: TOXIC,
-	// [THORNY.id]: THORNY,
-	// [STRATEGIC.id]: STRATEGIC,
-	// [INTIMIDATING.id]: INTIMIDATING,
-	// [KIND.id]: KIND,
-	// [CUNNING.id]: CUNNING,
-	// [GREEDY.id]: GREEDY,
-	// [LAZY.id]: LAZY,
-	// [LOYAL.id]: LOYAL,
-	// [CLUMSY.id]: CLUMSY,
-	// [BRILLIANT.id]: BRILLIANT,
-};
-
 export const getTrait = (id: TraitId): Trait => {
 	const trait = traits[id];
 	if (!trait) {
@@ -286,3 +107,28 @@ export const getTrait = (id: TraitId): Trait => {
 	}
 	return trait;
 }
+
+export async function runUnitHandlers(handler: keyof UnitHandlerIndex) {
+	const promises = state.battleData.units.flatMap(unit => {
+		return unit.traits.reduce((xs, traitId) => {
+			const trait = getTrait(traitId);
+
+			if (trait.unitHandlers && trait.unitHandlers[handler]) {
+				const handlerFn = trait.unitHandlers[handler];
+				return xs.concat([async () => await handlerFn!(unit)]);
+			} else {
+				return xs;
+			}
+		}, [] as (() => Promise<void>)[]);
+	});
+
+	await runPromisesInOrder(promises);
+}
+
+
+// Future traits: check docs/traits/md
+
+export const traits: { [id: TraitId]: Trait } = {
+	[SHY.id]: SHY,
+	[BRAVE.id]: BRAVE,
+};
