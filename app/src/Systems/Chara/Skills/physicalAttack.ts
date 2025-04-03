@@ -1,6 +1,7 @@
 import { impactEffect, criticalDamageDisplay } from "../../../Effects";
 import { emit, signals } from "../../../Models/Signals";
 import { getState } from "../../../Models/State";
+import * as Traits from "../../../Models/Traits";
 import { tween, delay } from "../../../Utils/animation";
 import { popText } from "../Animations/popText";
 import { Chara } from "../Chara";
@@ -52,6 +53,8 @@ export async function physicalAttack(
 	});
 
 	emit(signals.DAMAGE_UNIT, targetChara.id, damage);
+
+	await Traits.runTargetUnitTraitHandlers(Traits.TARGET_HANDLER_ON_ATTACK_BY_ME, activeChara.unit, targetChara.unit)
 
 	await delay(scene, 300 / speed);
 

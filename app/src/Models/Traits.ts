@@ -125,22 +125,25 @@ export const getTrait = (id: TraitId): Trait => {
 }
 
 export async function runUnitTraitHandlers(handler: UnitHandlerType) {
-	const promises = state.battleData.units.flatMap(unit => {
-
-		type handlers = (() => Promise<void>)[];
-
-		const initial = [] as handlers;
-
-		const reducingFn = (xs: handlers, trait: Trait) => {
-
-			if (trait.unitHandlers && trait.unitHandlers[handler]) {
+	const promises = state.battleData.units
+		.flatMap(unit => {
+			const reducingFn = (trait: Trait) => {
+				if (!trait.unitHandlers || !trait.unitHandlers[handler])
+					return []
 				const handlerFn = trait.unitHandlers[handler];
-				return xs.concat([async () => await handlerFn!(unit)]);
-			} else {
-				return xs;
+				return [async () => await handlerFn!(unit)];
 			}
-		}
-		return unit.traits.map(getTrait).reduce(reducingFn, initial);
+			return unit.traits.map(getTrait).flatMap(reducingFn);
+		});
+
+	await runPromisesInOrder(promises);
+}
+
+export async function runTargetUnitTraitHandlers(handler: TargetUnitHandlerType, unit: Unit, target: Unit) {
+	const promises = unit.traits.map(getTrait).flatMap(trait => {
+		if (!trait.targetUnitHandlers) return [];
+		const handlerFn = trait.targetUnitHandlers[handler];
+		return [async () => await handlerFn!(unit, target)]
 	});
 
 	await runPromisesInOrder(promises);
