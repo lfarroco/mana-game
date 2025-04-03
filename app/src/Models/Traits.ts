@@ -1,5 +1,6 @@
 // traits are a way to add special abilities or characteristics to units
 
+import { popText } from "../Systems/Chara/Animations/popText";
 import { snakeDistanceBetween } from "./Geometry";
 import { State } from "./State";
 import { Unit } from "./Unit";
@@ -26,21 +27,19 @@ type Trait = {
 	id: TraitId;
 	name: string;
 	description: string;
-	onAcquire?: (unit: Unit) => Unit;
-	onRemove?: (unit: Unit) => Unit;
-	onTurnStart?: (unit: Unit) => Unit;
-	onTurnEnd?: (unit: Unit) => Unit;
-	onAttackByMe?: (unit: Unit, target: Unit) => Unit;
-	onDefendByMe?: (unit: Unit, attacker: Unit) => Unit;
-	onBattleStart?: (unit: Unit) => Promise<Unit>;
+	onAcquire?: (unit: Unit) => void;
+	onRemove?: (unit: Unit) => void;
+	onTurnStart?: (unit: Unit) => void;
+	onTurnEnd?: (unit: Unit) => void;
+	onAttackByMe?: (unit: Unit, target: Unit) => void;
+	onDefendByMe?: (unit: Unit, attacker: Unit) => void;
+	onBattleStart?: (unit: Unit) => Promise<void>;
 	onBattleEnd?: (unit: Unit) => Unit;
-	onUnitKillByMe?: (unit: Unit, target: Unit) => Unit;
-	onUnitKill?: (unit: Unit, target: Unit) => Unit;
-	onAlliedKilled?: (unit: Unit, target: Unit) => Unit;
-	onEnemyKilled?: (unit: Unit, target: Unit) => Unit;
+	onUnitKillByMe?: (unit: Unit, target: Unit) => void;
+	onUnitKill?: (unit: Unit, target: Unit) => void;
+	onAlliedKilled?: (unit: Unit, target: Unit) => void;
+	onEnemyKilled?: (unit: Unit, target: Unit) => void;
 };
-
-
 
 export const SHY: Trait = {
 	id: "shy" as TraitId,
@@ -55,9 +54,10 @@ export const SHY: Trait = {
 			return distace < 2 && u.id !== unit.id;
 		});
 		if (neighboringUnits.length === 0) {
-			unit.defense += 1;
+			await popText(scene, "On Battle Start: Shy", unit.id);
+			await popText(scene, "+3 defense", unit.id);
+			unit.defense += 3;
 		}
-		return unit;
 	},
 }
 
@@ -66,29 +66,22 @@ export const BRAVE: Trait = {
 	name: "Brave",
 	description: "+10 attack when in the front row",
 	onBattleStart: async (unit) => {
-		if (unit.position.x === FRONTLINE) {
-			unit.attack += 5;
-		}
-		return unit;
-	},
-	onAttackByMe: (unit, target) => {
-		if (unit.position.x === FRONTLINE) {
-			unit.attack += 1;
-		}
-		return unit;
-	}
-}
 
-export const COWARD: Trait = {
-	id: "coward" as TraitId,
-	name: "Coward",
-	description: "+2 defense when in the back row",
-	onBattleStart: async (unit) => {
-		if (unit.position.y === 1) {
-			unit.defense += 1;
-		}
-		return unit;
+		if (unit.position.x !== FRONTLINE) return;
+
+		unit.statuses["brave"] = Infinity;
+
+		await popText(scene, "On Battle Start: Brave", unit.id);
+		await popText(scene, "+10 attack", unit.id);
+
+		unit.attack += 5;
 	},
+	onAttackByMe: async (unit, target) => {
+		if (!unit.statuses["brave"]) return
+		await popText(scene, "On Attack: Brave", unit.id);
+		await popText(scene, "+1 attack", unit.id);
+		unit.attack += 1;
+	}
 }
 
 // Future traits:
@@ -266,7 +259,6 @@ export const COWARD: Trait = {
 export const traits: { [id: TraitId]: Trait } = {
 	[SHY.id]: SHY,
 	[BRAVE.id]: BRAVE,
-	[COWARD.id]: COWARD,
 	// [OPTIMISTIC.id]: OPTIMISTIC,
 	// [SWIFT.id]: SWIFT,
 	// [TELEPORTER.id]: TELEPORTER,

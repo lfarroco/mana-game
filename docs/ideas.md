@@ -78,3 +78,21 @@ Inspiration for traits:
 - the bazaar talents
 
 Give every unit a random personality trait?
+
+Besides having the units, the player also controls a guild hall (buying
+upgrades, upgrading the guild hall, etc). The guild hall is a place where the
+player can recruit units, buy items, and upgrade their units.
+
+player has a limited number of rooms, and needs to choose:
+
+- library: makes it easier to learn skills
+- training room: makes it easier to level up
+- armory: makes it easier to upgrade items
+- tavern: makes it easier to recruit units
+- workshop: makes it easier to craft items
+- alchemy lab: makes it easier to brew potions
+- arena: makes it easier to train units
+- market: makes it easier to buy/sell items
+- shrine: makes it easier to learn skills
+- forge: makes it easier to upgrade items
+- temple: makes it easier to brew potions

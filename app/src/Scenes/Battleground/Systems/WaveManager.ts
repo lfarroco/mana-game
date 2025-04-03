@@ -3,6 +3,7 @@ import { BattlegroundScene } from "../BattlegroundScene";
 import * as UnitManager from "./UnitManager";
 import processTick from "../ProcessTick";
 import { getTrait } from "../../../Models/Traits";
+import { runPromisesInOrder } from "../../../utils";
 
 let scene: BattlegroundScene;
 
@@ -21,15 +22,19 @@ export async function createWave(id: number) {
 
 	scene.state.battleData.units.forEach(UnitManager.renderChara);
 
-	scene.state.battleData.units.forEach((unit, i) => {
-		unit.traits.forEach(traitId => {
+	const promises = scene.state.battleData.units.flatMap((unit, i) => {
+		return unit.traits.reduce((xs, traitId) => {
 			const trait = getTrait(traitId);
 
 			if (trait.onBattleStart) {
-				trait.onBattleStart(unit);
+				return xs.concat([async () => await trait.onBattleStart!(unit)]);
+			} else {
+				return xs
 			}
-		});
+		}, [] as (() => Promise<void>)[]);
 	});
+
+	await runPromisesInOrder(promises)
 
 	await processTick(scene);
 
