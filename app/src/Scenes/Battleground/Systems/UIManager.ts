@@ -200,11 +200,12 @@ export function displayUnitInfo(chara: CharaSystem.Chara) {
 	unitInfoContainer.add(jobName);
 
 	const traitsList = unit.traits.map((traitId, idx) => {
+		const iconSize = 96;
 		const trait = getTrait(traitId);
-		const text = scene.add.text(10, 450 + 10 + idx * 30, trait.name, bgConstants.defaultTextConfig);
-		text.setOrigin(0);
+		const icon = scene.add.image(10, 450 + idx * (iconSize + 5), trait.id).setDisplaySize(iconSize, iconSize);
+		icon.setOrigin(0);
 		//text.setColor(trait.color);
-		return text
+		return icon
 	});
 	unitInfoContainer.add(traitsList);
 
