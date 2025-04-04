@@ -83,8 +83,9 @@ export const SHY: Trait = {
 			});
 			if (neighboringUnits.length === 0) {
 				await popText({ text: "On Battle Start: Shy", targetId: unit.id, speed: 2 });
-				await popText({ text: "+3 defense", targetId: unit.id, speed: 2 });
-				unit.defense += 3;
+				await popText({ text: "+30 HP", targetId: unit.id, speed: 2 });
+				unit.maxHp += 30;
+				unit.hp = unit.maxHp;
 			}
 		},
 	}
@@ -106,11 +107,17 @@ export const BRAVE: Trait = {
 			unit.attack += 5;
 		},
 	},
+
+}
+
+export const BATTLE_HUNGER: Trait = {
+	id: "battle_hunger" as TraitId,
+	name: "Battle Hunger",
+	description: "Gains +1 attack every time this unit attacks",
 	targetUnitHandlers: {
 		[TARGET_HANDLER_ON_ATTACK_BY_ME]: async (unit, target) => {
-			if (!unit.statuses["brave"]) return
-			await popText({ text: "On Attack: Brave", targetId: unit.id });
-			await popText({ text: "+1 attack", targetId: unit.id });
+			await popText({ text: "On attack: Battle Hunger", targetId: unit.id, speed: 2 });
+			await popText({ text: "+1 attack", targetId: unit.id, speed: 2 });
 			unit.attack += 1;
 		}
 	}
@@ -154,4 +161,5 @@ export async function runTargetUnitTraitHandlers(handler: TargetUnitHandlerType,
 export const traits: { [id: TraitId]: Trait } = {
 	[SHY.id]: SHY,
 	[BRAVE.id]: BRAVE,
+	[BATTLE_HUNGER.id]: BATTLE_HUNGER,
 };
