@@ -40,7 +40,7 @@ const commonEvents = (): Encounter[] => [
 			unit.maxHp += 30;
 			unit.hp = unit.maxHp;
 
-			popText(scene, "+30 MAX HP", unit.id, "heal");
+			popText({ scene, text: "+30 MAX HP", targetId: unit.id, type: "heal" });
 		}
 	}),
 	makeEncounter("treasure_hunt", TIER.COMMON, "Treasure Hunt", "You have found a treasure chest", "icon/hidden_treasure", {
@@ -99,14 +99,14 @@ const commonEvents = (): Encounter[] => [
 		type: "unit",
 		onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
 			unit.traits.push(Traits.SHY.id)
-			popText(scene, "+ Shy Trait", unit.id, "neutral");
+			popText({ scene, text: "+ Shy Trait", targetId: unit.id, type: "neutral" });
 		}
 	}),
 	makeEncounter("brave_trait", TIER.COMMON, "Bravery", "A guild member shows exceptional bravery in battle", "icon/personality", {
 		type: "unit",
 		onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
 			unit.traits.push(Traits.BRAVE.id)
-			popText(scene, "+ Brave Trait", unit.id, "neutral");
+			popText({ scene, text: "+ Brave Trait", targetId: unit.id, type: "neutral" });
 		}
 	}),
 	// makeEncounter("greedy_trait", TIER.COMMON, "Greed", "A guild member becomes obsessed with wealth", "icon/personality", {

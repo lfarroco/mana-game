@@ -25,7 +25,7 @@ export const fireball = (
 
 	const targetChara = UnitManager.getChara(target.id);
 
-	popText(scene, skill.name, unit.id);
+	popText({ scene, text: skill.name, targetId: unit.id });
 
 	await fireballEffect(scene, state.options.speed, activeChara.container, targetChara.container);
 
@@ -35,11 +35,11 @@ export const fireball = (
 	// deal damage to all targets
 
 	emit(signals.DAMAGE_UNIT, target.id, skill.power);
-	popText(scene, skill.power.toString(), target.id);
+	popText({ scene, text: skill.power.toString(), targetId: target.id });
 
 	targets.forEach(target => {
 		emit(signals.DAMAGE_UNIT, target.id, skill.power / 2);
-		popText(scene, (skill.power / 2).toString(), target.id);
+		popText({ scene, text: (skill.power / 2).toString(), targetId: target.id });
 	});
 
 }

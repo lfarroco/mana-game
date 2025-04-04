@@ -10,7 +10,7 @@ export async function shootAnimation(scene: BattlegroundScene, unit: Unit, targe
 	const activeChara = UnitManager.getChara(unit.id);
 	const targetChara = UnitManager.getChara(target.id);
 
-	await popText(scene, "Shoot", unit.id);
+	await popText({ scene, text: "Shoot", targetId: unit.id });
 
 	const arrow = scene.add.image(activeChara.container.x, activeChara.container.y, "arrow");
 

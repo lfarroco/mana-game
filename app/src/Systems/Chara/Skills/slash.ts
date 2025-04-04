@@ -24,7 +24,7 @@ export async function slash(
 	const targetUnit = getBattleUnit(scene.state)(target.id);
 	const targetChara = UnitManager.getChara(targetUnit.id);
 
-	await popText(scene, "Slash", unit.id);
+	await popText({ scene, text: "Slash", targetId: unit.id });
 
 	for (let i = 0; i < unit.multicast; i++) {
 
