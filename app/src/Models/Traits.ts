@@ -82,8 +82,8 @@ export const SHY: Trait = {
 				return distace < 2 && u.id !== unit.id;
 			});
 			if (neighboringUnits.length === 0) {
-				await popText({ text: "On Battle Start: Shy", targetId: unit.id });
-				await popText({ text: "+3 defense", targetId: unit.id });
+				await popText({ text: "On Battle Start: Shy", targetId: unit.id, speed: 2 });
+				await popText({ text: "+3 defense", targetId: unit.id, speed: 2 });
 				unit.defense += 3;
 			}
 		},
