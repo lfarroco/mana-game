@@ -1,7 +1,7 @@
 // traits are a way to add special abilities or characteristics to units
 
 import { popText } from "../Systems/Chara/Animations/popText";
-import { runPromisesInOrder } from "../utils";
+import { pickRandom, runPromisesInOrder } from "../utils";
 import { snakeDistanceBetween } from "./Geometry";
 import { State } from "./State";
 import { Unit } from "./Unit";
@@ -156,7 +156,7 @@ export async function runUnitTraitHandlers(units: Unit[], handler: UnitHandlerTy
 				if (!trait.unitHandlers || !trait.unitHandlers[handler])
 					return []
 				const handlerFn = trait.unitHandlers[handler];
-				return [async () => await handlerFn!(unit)];
+				return [async () => handlerFn ? await handlerFn(unit) : Promise.resolve()]
 			}
 			return unit.traits.map(getTrait).flatMap(reducingFn);
 		});
@@ -168,7 +168,7 @@ export async function runTargetUnitTraitHandlers(handler: TargetUnitHandlerType,
 	const promises = unit.traits.map(getTrait).flatMap(trait => {
 		if (!trait.targetUnitHandlers) return [];
 		const handlerFn = trait.targetUnitHandlers[handler];
-		return [async () => await handlerFn!(unit, target)]
+		return [async () => handlerFn ? await handlerFn(unit, target) : Promise.resolve()]
 	});
 
 	await runPromisesInOrder(promises);
@@ -182,3 +182,12 @@ export const traits: { [id: TraitId]: Trait } = {
 	[BATTLE_HUNGER.id]: BATTLE_HUNGER,
 	[SHARP_EYES.id]: SHARP_EYES,
 };
+
+export const randomCategoryTrait = (category: string): Trait => {
+	const traitsInCategory = Object.values(traits).filter(t => t.categories.includes(category));
+	if (traitsInCategory.length === 0) {
+		throw new Error(`No traits found for category ${category}`);
+	}
+	const [randomTrait] = pickRandom(traitsInCategory, 1)
+	return randomTrait;
+}
