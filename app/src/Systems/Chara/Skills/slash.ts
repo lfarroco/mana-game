@@ -39,11 +39,10 @@ export async function slash(
 
 async function attack(scene: BattlegroundScene, activeChara: Chara, targetChara: Chara) {
 
-	bashPieceAnimation(activeChara, targetChara.container);
+	// TODO: bash piece animation gets out of sync with the physical attack logic.
+	// should make it accept the physical attack function as a callback
 
-	scene.playFx("audio/sword2");
-
-	await delay(scene, 1300 / scene.speed);
+	await bashPieceAnimation(activeChara, targetChara.container);
 
 	await physicalAttack(activeChara, targetChara);
 }

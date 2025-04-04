@@ -58,7 +58,6 @@ export async function physicalAttack(
 
 	emit(signals.DAMAGE_UNIT, targetChara.id, damage);
 
-
 	await delay(scene, 300 / speed);
 
 }
