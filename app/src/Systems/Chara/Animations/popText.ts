@@ -6,9 +6,9 @@ import { getState } from "../../../Models/State";
 const animationDuration = 1000;
 // TODO: add color option (heals: green, damage: yellow, etc)
 // TODO: move this to the chara system, as it always uses the chara container
-export async function popText({ text, targetId, type, speed }: { text: string; targetId: string; type?: string; speed?: number }) {
+export async function popText({ text, targetId, type, speed = 1 }: { text: string; targetId: string; type?: string; speed?: number }) {
 
-	const animationSpeed = speed || getState().options.speed;
+	const animationSpeed = getState().options.speed * speed;
 	const chara = UnitManager.getChara(targetId);
 	const { scene } = chara;
 
