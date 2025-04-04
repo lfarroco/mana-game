@@ -30,7 +30,7 @@ export async function multishot(
 		return;
 	}
 
-	popText({ scene, text: "Multishot", targetId: activeChara.id });
+	popText({ text: "Multishot", targetId: activeChara.id });
 
 	targets.forEach(async (target, i) => {
 

@@ -16,7 +16,7 @@ export async function physicalAttack(
 	const dodges = targetChara.unit.statuses["next-dodge"] > 0;
 
 	if (dodges) {
-		await popText({ scene, text: "Dodge", targetId: targetChara.unit.id });
+		await popText({ text: "Dodge", targetId: targetChara.unit.id });
 		delete targetChara.unit.statuses["next-dodge"];
 		return;
 	}
@@ -41,7 +41,7 @@ export async function physicalAttack(
 
 		activeChara.unit.statuses["next-critical"] = 0;
 	} else {
-		popText({ scene, text: damage.toString(), targetId: targetChara.unit.id });
+		popText({ text: damage.toString(), targetId: targetChara.unit.id });
 	}
 
 	tween({

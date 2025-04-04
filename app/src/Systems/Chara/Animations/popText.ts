@@ -3,14 +3,17 @@ import { defaultTextConfig } from "../../../Scenes/Battleground/constants";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
 import { getState } from "../../../Models/State";
 
+const animationDuration = 1000;
 // TODO: add color option (heals: green, damage: yellow, etc)
-export async function popText({ scene, text, targetId, type, speed }: { scene: Phaser.Scene; text: string; targetId: string; type?: string; speed?: number }) {
+// TODO: move this to the chara system, as it always uses the chara container
+export async function popText({ text, targetId, type, speed }: { text: string; targetId: string; type?: string; speed?: number }) {
 
 	const animationSpeed = speed || getState().options.speed;
+	const chara = UnitManager.getChara(targetId);
+	const { scene } = chara;
 
 	const color = type === "heal" ? "#00FF00" : type === "damage" ? defaultTextConfig.color : undefined;
 
-	const chara = UnitManager.getChara(targetId);
 	const popText = scene.add.text(
 		chara.container.x, chara.container.y,
 		text,
@@ -27,7 +30,7 @@ export async function popText({ scene, text, targetId, type, speed }: { scene: P
 		targets: [popText],
 		alpha: 0,
 		y: chara.container.y - 64,
-		duration: 1000 / animationSpeed,
+		duration: animationDuration / animationSpeed,
 		ease: "Linear"
 	});
 

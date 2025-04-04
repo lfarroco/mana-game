@@ -11,7 +11,7 @@ export async function feint(
 	unit: Unit,
 ) {
 
-	await popText({ scene, text: "Feint", targetId: unit.id });
+	await popText({ text: "Feint", targetId: unit.id });
 
 	const activeChara = UnitManager.getChara(unit.id);
 
