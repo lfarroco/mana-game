@@ -20,7 +20,7 @@ export async function createWave(id: number) {
 
 	scene.state.battleData.units.forEach(UnitManager.renderChara);
 
-	await runUnitTraitHandlers(HANDLER_ON_BATTLE_START);
+	await runUnitTraitHandlers(scene.state.battleData.units, HANDLER_ON_BATTLE_START);
 
 	await processTick(scene);
 

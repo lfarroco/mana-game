@@ -66,12 +66,14 @@ export type Trait = {
 	description: string;
 	unitHandlers?: UnitHandlerIndex,
 	targetUnitHandlers?: TargetUnitHandlerIndex
+	categories: string[];
 };
 
 export const SHY: Trait = {
 	id: "shy" as TraitId,
 	name: "Shy",
-	description: "+3 defense when aline in a row",
+	description: "+30 HP when alone in a row",
+	categories: ["defensive", "personality", "hp"],
 	unitHandlers: {
 		[HANDLER_ON_BATTLE_START]: async (unit) => {
 			const neighboringUnits = state.battleData.units.filter((u) => {
@@ -95,6 +97,7 @@ export const BRAVE: Trait = {
 	id: "brave" as TraitId,
 	name: "Brave",
 	description: "+10 attack when in the front row",
+	categories: ["attack", "personality", "offensive"],
 	unitHandlers: {
 		[HANDLER_ON_BATTLE_START]: async (unit) => {
 			if (unit.position.x !== FRONTLINE) return;
@@ -113,12 +116,27 @@ export const BRAVE: Trait = {
 export const BATTLE_HUNGER: Trait = {
 	id: "battle_hunger" as TraitId,
 	name: "Battle Hunger",
+	categories: ["attack", "personality", "offensive"],
 	description: "Gains +1 attack every time this unit attacks",
 	targetUnitHandlers: {
 		[TARGET_HANDLER_ON_ATTACK_BY_ME]: async (unit, target) => {
 			await popText({ text: "On attack: Battle Hunger", targetId: unit.id, speed: 2 });
 			await popText({ text: "+1 attack", targetId: unit.id, speed: 2 });
 			unit.attack += 1;
+		}
+	}
+}
+
+export const SHARP_EYES: Trait = {
+	id: "sharp_eyes" as TraitId,
+	name: "Sharp Eyes",
+	description: "Increases critical hit chance by 10%",
+	categories: ["attack", "offensive", "vision"],
+	unitHandlers: {
+		[HANDLER_ON_BATTLE_START]: async (unit) => {
+			await popText({ text: "On Battle Start: Sharp Eyes", targetId: unit.id });
+			await popText({ text: "+10% critical chance", targetId: unit.id });
+			unit.crit += 10;
 		}
 	}
 }
@@ -131,8 +149,8 @@ export const getTrait = (id: TraitId): Trait => {
 	return trait;
 }
 
-export async function runUnitTraitHandlers(handler: UnitHandlerType) {
-	const promises = state.battleData.units
+export async function runUnitTraitHandlers(units: Unit[], handler: UnitHandlerType) {
+	const promises = units
 		.flatMap(unit => {
 			const reducingFn = (trait: Trait) => {
 				if (!trait.unitHandlers || !trait.unitHandlers[handler])
@@ -162,4 +180,5 @@ export const traits: { [id: TraitId]: Trait } = {
 	[SHY.id]: SHY,
 	[BRAVE.id]: BRAVE,
 	[BATTLE_HUNGER.id]: BATTLE_HUNGER,
+	[SHARP_EYES.id]: SHARP_EYES,
 };
