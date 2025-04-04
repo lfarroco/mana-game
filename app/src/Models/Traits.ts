@@ -82,8 +82,8 @@ export const SHY: Trait = {
 				return distace < 2 && u.id !== unit.id;
 			});
 			if (neighboringUnits.length === 0) {
-				await popText({ scene, text: "On Battle Start: Shy", targetId: unit.id });
-				await popText({ scene, text: "+3 defense", targetId: unit.id });
+				await popText({ text: "On Battle Start: Shy", targetId: unit.id });
+				await popText({ text: "+3 defense", targetId: unit.id });
 				unit.defense += 3;
 			}
 		},
@@ -100,8 +100,8 @@ export const BRAVE: Trait = {
 
 			unit.statuses["brave"] = Infinity;
 
-			await popText({ scene, text: "On Battle Start: Brave", targetId: unit.id });
-			await popText({ scene, text: "+10 attack", targetId: unit.id });
+			await popText({ text: "On Battle Start: Brave", targetId: unit.id });
+			await popText({ text: "+10 attack", targetId: unit.id });
 
 			unit.attack += 5;
 		},
@@ -109,8 +109,8 @@ export const BRAVE: Trait = {
 	targetUnitHandlers: {
 		[TARGET_HANDLER_ON_ATTACK_BY_ME]: async (unit, target) => {
 			if (!unit.statuses["brave"]) return
-			await popText({ scene, text: "On Attack: Brave", targetId: unit.id });
-			await popText({ scene, text: "+1 attack", targetId: unit.id });
+			await popText({ text: "On Attack: Brave", targetId: unit.id });
+			await popText({ text: "+1 attack", targetId: unit.id });
 			unit.attack += 1;
 		}
 	}

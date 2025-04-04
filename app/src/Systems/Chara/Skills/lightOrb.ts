@@ -31,7 +31,7 @@ export const lightOrb = (
 	const activeChara = UnitManager.getChara(unit.id);
 	const targetChara = UnitManager.getChara(target.id);
 
-	await popText({ scene, text: skill.name, targetId: unit.id });
+	await popText({ text: skill.name, targetId: unit.id });
 
 	// get allies surrounding target
 	const allies = getUnitsByProximity(state, target, true, 1)
@@ -48,7 +48,7 @@ export const lightOrb = (
 	// TODO: display pop text on damage using listener
 	emit(signals.DAMAGE_UNIT, targetChara.id, damage);
 
-	popText({ scene, text: damage.toString(), targetId: targetChara.unit.id });
+	popText({ text: damage.toString(), targetId: targetChara.unit.id });
 
 	allies.forEach(ally => {
 
@@ -62,7 +62,7 @@ export const lightOrb = (
 			1000 / state.options.speed,
 			scene.speed,
 		);
-		popText({ scene, text: heal.toString(), targetId: ally.id });
+		popText({ text: heal.toString(), targetId: ally.id });
 	});
 
 	await delay(scene, 1000 / state.options.speed);
