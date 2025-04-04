@@ -22,7 +22,7 @@ export const explode = (
 
 	if (!target) return;
 
-	popText(scene, skill.name, unit.id);
+	popText({ scene, text: skill.name, targetId: unit.id });
 
 	await explodeEffect(scene, state.options.speed, activeChara.container);
 
@@ -36,7 +36,7 @@ export const explode = (
 
 	[...enemies, ...allies].forEach(target => {
 		emit(signals.DAMAGE_UNIT, target.id, skill.power / 2);
-		popText(scene, (skill.power / 2).toString(), target.id);
+		popText({ scene, text: (skill.power / 2).toString(), targetId: target.id });
 	});
 
 	await delay(scene, 500 / state.options.speed);

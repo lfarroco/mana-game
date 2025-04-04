@@ -16,7 +16,7 @@ export async function physicalAttack(
 	const dodges = targetChara.unit.statuses["next-dodge"] > 0;
 
 	if (dodges) {
-		await popText(scene, "Dodge", targetChara.unit.id);
+		await popText({ scene, text: "Dodge", targetId: targetChara.unit.id });
 		delete targetChara.unit.statuses["next-dodge"];
 		return;
 	}
@@ -41,7 +41,7 @@ export async function physicalAttack(
 
 		activeChara.unit.statuses["next-critical"] = 0;
 	} else {
-		popText(scene, damage.toString(), targetChara.unit.id);
+		popText({ scene, text: damage.toString(), targetId: targetChara.unit.id });
 	}
 
 	tween({
@@ -52,9 +52,12 @@ export async function physicalAttack(
 		repeat: 4,
 	});
 
+	await Traits.runTargetUnitTraitHandlers(Traits.TARGET_HANDLER_ON_ATTACK_BY_ME, activeChara.unit, targetChara.unit)
+
+	await Traits.runTargetUnitTraitHandlers(Traits.TARGET_HANDLER_ON_DEFEND_BY_ME, targetChara.unit, activeChara.unit);
+
 	emit(signals.DAMAGE_UNIT, targetChara.id, damage);
 
-	await Traits.runTargetUnitTraitHandlers(Traits.TARGET_HANDLER_ON_ATTACK_BY_ME, activeChara.unit, targetChara.unit)
 
 	await delay(scene, 300 / speed);
 

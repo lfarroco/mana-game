@@ -22,7 +22,7 @@ export async function shieldBash(activeChara: Chara) {
 
 	await specialAnimation(activeChara);
 
-	await popText(scene, "Shield Bash", unit.id);
+	await popText({ scene, text: "Shield Bash", targetId: unit.id });
 
 	unitLog(unit, `will cast shield bash on ${target.id}`);
 

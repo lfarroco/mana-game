@@ -32,7 +32,7 @@ export const arcaneMissiles = (
 	//pick 3 random indexes (can be repeated)
 	const targetIndexes = Array.from({ length: 3 }, () => Math.floor(Math.random() * targets.length));
 
-	popText(scene, skill.name, unit.id);
+	popText({ scene, text: skill.name, targetId: unit.id });
 
 	targetIndexes.forEach(async (index) => {
 
@@ -42,7 +42,7 @@ export const arcaneMissiles = (
 
 		await animation.arcaneMissle(scene, activeChara.container, targetChara.container, state.options.speed);
 
-		popText(scene, unit.attack.toString(), targetChara.unit.id);
+		popText({ scene, text: unit.attack.toString(), targetId: targetChara.unit.id });
 
 		if (targetChara.unit.hp <= 0) return;
 

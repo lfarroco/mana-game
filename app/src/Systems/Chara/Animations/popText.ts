@@ -4,7 +4,9 @@ import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
 import { getState } from "../../../Models/State";
 
 // TODO: add color option (heals: green, damage: yellow, etc)
-export async function popText(scene: Phaser.Scene, text: string, targetId: string, type?: string) {
+export async function popText({ scene, text, targetId, type, speed }: { scene: Phaser.Scene; text: string; targetId: string; type?: string; speed?: number }) {
+
+	const animationSpeed = speed || getState().options.speed;
 
 	const color = type === "heal" ? "#00FF00" : type === "damage" ? defaultTextConfig.color : undefined;
 
@@ -25,7 +27,7 @@ export async function popText(scene: Phaser.Scene, text: string, targetId: strin
 		targets: [popText],
 		alpha: 0,
 		y: chara.container.y - 64,
-		duration: 1000 / getState().options.speed,
+		duration: 1000 / animationSpeed,
 		ease: "Linear"
 	});
 

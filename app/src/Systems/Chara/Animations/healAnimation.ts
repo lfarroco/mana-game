@@ -29,7 +29,7 @@ export async function healAnimation(
 
     unitLog(unit, `will cast ${skill.name} on ${targetUnit.id}`);
 
-    await popText(scene, skill.name, unit.id);
+    await popText({ scene, text: skill.name, targetId: unit.id });
 
     scene.playFx("audio/curemagic");
 
@@ -100,7 +100,7 @@ export async function healAnimation(
         128, 128)
         .setOrigin(0.5, 0.5);
 
-    popText(scene, skill.power.toString(), targetUnit.id);
+    popText({ scene, text: skill.power.toString(), targetId: targetUnit.id });
 
     await delay(scene, 500 / scene.speed);
 
