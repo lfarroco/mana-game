@@ -64,6 +64,9 @@ export function preload(this: Phaser.Scene) {
 		this.load.image(`icon/${icon}`, `assets/icons/${icon}.jpeg`);
 	});
 
+	['knight'].forEach(key => {
+		this.load.svg(`charas/${key}`, `charas/${key}.svg`, { scale: 0.5 })
+	});
 
 	this.load.audio("audio/battle_theme", [
 		"assets/music/clashing_realms_suno.mp3",
