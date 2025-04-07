@@ -3,7 +3,6 @@ import { Unit } from "../../../Models/Unit";
 import { bashPieceAnimation } from "../Animations/bashPieceAnimation";
 import { popText } from "../Animations/popText";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
-import { delay } from "../../../Utils/animation";
 import { physicalAttack } from "./physicalAttack";
 import { approach } from "../approach";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
@@ -41,6 +40,7 @@ async function attack(scene: BattlegroundScene, activeChara: Chara, targetChara:
 
 	// TODO: bash piece animation gets out of sync with the physical attack logic.
 	// should make it accept the physical attack function as a callback
+	// currently, one's tweens interferes with the other
 
 	await bashPieceAnimation(activeChara, targetChara.container);
 
