@@ -8,7 +8,7 @@ import * as GridSystem from "./Systems/GridSystem";
 import * as UIManager from "./Systems/UIManager";
 
 const units: Job.JobId[] = [
-	Job.SQUIRE,
+	Job.KNIGHT,
 	Job.ARCHER,
 	Job.APPRENTICE,
 	Job.ACOLYTE,

@@ -91,9 +91,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     //@ts-ignore
     window.scene = this;
-
-    this.add.image(1200, 300, 'charas/knight')
-
     // pick 3 random jobs
     while (state.gameData.player.units.length < 3) {
       await EventSystem.evalEvent(EventSystem.starterEvent);
