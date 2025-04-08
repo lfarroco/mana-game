@@ -44,15 +44,32 @@ export function createChara(unit: Unit): Chara {
 		borderColor, 1)
 		.setOrigin(0.5, 0.5)
 
-	const sprite = scene
-		.add.image(
-			0, 0,
-			unit.job + "/portrait"
-		).setName(unit.id) // used for scene-level drop events
+	const shape = scene.add.rectangle(0, 0, bgConstants.TILE_WIDTH, bgConstants.TILE_HEIGHT, 0xffffff);
+	const mask = shape.createBitmapMask();
 
-	sprite.setDisplaySize(spriteSize, spriteSize)
+	const sprite = scene.add.image(0, 0, `charas/${unit.job}`);
+	sprite.mask = mask;
 
-	container.add([border, sprite])
+	container.add([border]);
+
+	// masks inside containers are currently not supported by phaser, so we need to manually follow the container
+	// the container is still used to hold chara's aggregates (hp bar, icons, particles)
+	const follow = () => {
+		shape.x = container.x;
+		shape.y = container.y;
+		sprite.x = container.x + 20;
+		sprite.y = container.y + 140;
+	}
+
+	scene.events.on('update', follow)
+	container.on('destroy', () => {
+		shape.destroy();
+		sprite.destroy();
+		scene.events.off('update', follow);
+	})
+
+	sprite.setName(unit.id) // used for scene-level drop events
+
 
 	const chara: Chara = {
 		id: unit.id,
@@ -218,7 +235,3 @@ export function init(sceneRef: Phaser.Scene) {
 	])
 
 }
-
-
-
-

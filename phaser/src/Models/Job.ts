@@ -19,10 +19,10 @@ export type Job = {
 export const ARCHER = "archer" as JobId;
 export const ACOLYTE = "acolyte" as JobId;
 export const APPRENTICE = "apprentice" as JobId;
-export const SQUIRE = "squire" as JobId;
+export const KNIGHT = "knight" as JobId;
 export const THIEF = "thief" as JobId;
 
-const STARTER_JOBS = [ARCHER, ACOLYTE, APPRENTICE, SQUIRE, THIEF];
+const STARTER_JOBS = [ARCHER, ACOLYTE, APPRENTICE, KNIGHT, THIEF];
 
 const baseJobs = `
 Job           | Name        | Range | HP  | ATK  | DEF | AGI | Skill
@@ -30,7 +30,7 @@ Job           | Name        | Range | HP  | ATK  | DEF | AGI | Skill
 ${ARCHER}     | Archer      | 3     | 100 | 20   | 3   | 12  | ${s.SHOOT}
 ${ACOLYTE}    | Acolyte     | 2     | 80  | 10   | 0   | 6   | ${s.HEALING_WAVE}
 ${APPRENTICE} | Apprentice  | 2     | 80  | 30   | 0   | 8   | ${s.ARCANE_MISSILES}
-${SQUIRE}     | Squire      | 3     | 300 | 20   | 5   | 10  | ${s.SLASH}
+${KNIGHT}     | Knight      | 3     | 300 | 20   | 5   | 10  | ${s.SLASH}
 ${THIEF}      | Thief       | 4     | 130 | 20   | 2   | 18  | ${s.SLASH}
 `;
 
@@ -114,7 +114,7 @@ Job           | Description
 ${ARCHER}     | A ranged attacker that can hit multiple targets
 ${ACOLYTE}    | A healer that can heal multiple targets
 ${APPRENTICE} | A spellcaster that can deal high damage
-${SQUIRE}     | A tank that can take a lot of damage
+${KNIGHT}     | A tank that can take a lot of damage
 ${THIEF}      | A fast attacker that can deal high damage
 ${BLOB}       | A basic enemy that can deal damage
 ${RED_BLOB}   | A basic enemy that can explode

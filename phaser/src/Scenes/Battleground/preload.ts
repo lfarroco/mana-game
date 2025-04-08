@@ -65,7 +65,7 @@ export function preload(this: Phaser.Scene) {
 	});
 
 	['knight'].forEach(key => {
-		this.load.svg(`charas/${key}`, `assets/charas/${key}.svg`, { scale: 1 });
+		this.load.svg(`charas/${key}`, `assets/charas/${key}.svg`, { scale: 3 });
 	});
 
 	this.load.audio("audio/battle_theme", [
