@@ -64,10 +64,6 @@ export function preload(this: Phaser.Scene) {
 		this.load.image(`icon/${icon}`, `assets/icons/${icon}.jpeg`);
 	});
 
-	['knight'].forEach(key => {
-		this.load.svg(`charas/${key}`, `assets/charas/${key}.svg`, { scale: 3 });
-	});
-
 	this.load.audio("audio/battle_theme", [
 		"assets/music/clashing_realms_suno.mp3",
 		"assets/music/clashing_realms_suno.ogg",
@@ -102,6 +98,7 @@ export function preload(this: Phaser.Scene) {
 	jobs.forEach(job => {
 		this.load.image(`${job}/portrait`, `assets/jobs/${job}/portrait.png`);
 		this.load.image(`${job}/full`, `assets/jobs/${job}/full.jpeg`);
+		this.load.svg(`charas/${job}`, `assets/charas/${job}.svg`, { scale: 3 });
 	});
 
 	emotes.forEach(emote => {
