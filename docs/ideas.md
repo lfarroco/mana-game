@@ -96,3 +96,8 @@ player has a limited number of rooms, and needs to choose:
 - shrine: makes it easier to learn skills
 - forge: makes it easier to upgrade items
 - temple: makes it easier to brew potions
+
+Create events based on party composition:
+
+- hunter: gather healing herbs
+- monk: meditate

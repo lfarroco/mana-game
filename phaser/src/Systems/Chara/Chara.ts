@@ -31,11 +31,6 @@ const spriteSize = bgConstants.TILE_WIDTH - 4;
 
 export function createChara(unit: Unit): Chara {
 
-	const container = scene.add.container(
-		unit.position.x * bgConstants.TILE_WIDTH + bgConstants.HALF_TILE_WIDTH,
-		unit.position.y * bgConstants.TILE_HEIGHT + bgConstants.HALF_TILE_HEIGHT
-	)
-
 	const borderColor = unit.force === FORCE_ID_PLAYER ? BLUE_BONNET : VIVIRED_RED;
 
 	const border = scene.add.rectangle(
@@ -50,11 +45,16 @@ export function createChara(unit: Unit): Chara {
 	const sprite = scene.add.image(0, 0, `charas/${unit.job}`);
 	sprite.mask = mask;
 
-	container.add([border]);
+	const container = scene.add.container(
+		unit.position.x * bgConstants.TILE_WIDTH + bgConstants.HALF_TILE_WIDTH,
+		unit.position.y * bgConstants.TILE_HEIGHT + bgConstants.HALF_TILE_HEIGHT
+	)
 
 	// masks inside containers are currently not supported by phaser, so we need to manually follow the container
 	// the container is still used to hold chara's aggregates (hp bar, icons, particles)
 	const follow = () => {
+		border.x = container.x;
+		border.y = container.y;
 		shape.x = container.x;
 		shape.y = container.y;
 		sprite.x = container.x + 20;
@@ -63,6 +63,7 @@ export function createChara(unit: Unit): Chara {
 
 	scene.events.on('update', follow)
 	container.on('destroy', () => {
+		border.destroy();
 		shape.destroy();
 		sprite.destroy();
 		scene.events.off('update', follow);
