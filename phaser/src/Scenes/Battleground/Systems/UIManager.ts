@@ -191,7 +191,7 @@ export function displayUnitInfo(chara: CharaSystem.Chara) {
 
 	unitInfoContainer.add([bg]);
 
-	const pic = scene.add.image(0, 0, job.id + "/full")
+	const pic = scene.add.image(0, 0, "charas/" + job.id)
 		.setDisplaySize(bgConstants.TILE_WIDTH * 3, bgConstants.TILE_WIDTH * 3)
 		.setOrigin(0);
 	unitInfoContainer.add(pic);

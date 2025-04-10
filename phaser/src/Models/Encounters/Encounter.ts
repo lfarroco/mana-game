@@ -85,7 +85,7 @@ export const starterEvent: Encounter = {
 			const remaning = starterJobs.filter(j => !playerJobs.includes(j.id));
 
 			return pickRandom(remaning, 3).map(job => newChoice(
-				`${job.id}/full`,
+				`charas/${job.id}`,
 				job.name,
 				job.description,
 				job.id,

@@ -104,8 +104,6 @@ export function preload(this: Phaser.Scene) {
 	this.load.audio("ui/error", "assets/audio/error.ogg")
 
 	jobs.forEach(job => {
-		this.load.image(`${job}/portrait`, `assets/jobs/${job}/portrait.png`);
-		this.load.image(`${job}/full`, `assets/jobs/${job}/full.jpeg`);
 		this.load.svg(`charas/${job}`, `assets/charas/${job}.svg`, { scale: 3 });
 	});
 
