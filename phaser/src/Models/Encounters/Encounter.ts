@@ -8,7 +8,7 @@ import { vec2 } from "../Geometry";
 import { JobId, starterJobs } from "../Job";
 import { emit, signals } from "../Signals";
 import { getState, State, getGuildUnit } from "../State";
-import { randomCategoryTrait } from "../Traits";
+import { randomCategoryTrait, TRAIT_CATEGORY_DEFENSIVE, TRAIT_CATEGORY_PERSONALITY } from "../Traits";
 import { Unit } from "../Unit";
 import commonEvents from "./common";
 import monsterEvents from "./monster";
@@ -95,9 +95,9 @@ export const starterEvent: Encounter = {
 			emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, choice.value as JobId);
 			// testing: add random traits
 			const { units } = state.gameData.player;
-			const trait = randomCategoryTrait("attack")
+			const trait = randomCategoryTrait(TRAIT_CATEGORY_PERSONALITY)
 			units[units.length - 1].traits.push(trait.id)
-			const trait2 = randomCategoryTrait("attack")
+			const trait2 = randomCategoryTrait(TRAIT_CATEGORY_DEFENSIVE)
 			units[units.length - 1].traits.push(trait2.id)
 		}
 	}

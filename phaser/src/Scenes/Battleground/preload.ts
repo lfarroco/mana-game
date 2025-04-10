@@ -64,6 +64,14 @@ export function preload(this: Phaser.Scene) {
 		this.load.image(`icon/${icon}`, `assets/icons/${icon}.jpeg`);
 	});
 
+	[
+		'old_adventurer',
+		'combat_training',
+		'agility_training'
+	].forEach(icon => {
+		this.load.image(`icon/${icon}`, `assets/icons/${icon}.png`);
+	});
+
 	this.load.audio("audio/battle_theme", [
 		"assets/music/clashing_realms_suno.mp3",
 		"assets/music/clashing_realms_suno.ogg",

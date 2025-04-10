@@ -16,6 +16,7 @@ export const init = (_sceneRef: Phaser.Scene, stateRef: State) => {
 }
 
 export type TraitId = string & { __traitId: never };
+export type TraitCategory = string & { __traitCategory: never };
 
 const FRONTLINE = 6;
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -66,14 +67,21 @@ export type Trait = {
 	description: string;
 	unitHandlers?: UnitHandlerIndex,
 	targetUnitHandlers?: TargetUnitHandlerIndex
-	categories: string[];
+	categories: TraitCategory[];
 };
+
+export const TRAIT_CATEGORY_PERSONALITY = "personality" as TraitCategory;
+export const TRAIT_CATEGORY_OFFENSIVE = "offensive" as TraitCategory;
+export const TRAIT_CATEGORY_DEFENSIVE = "defensive" as TraitCategory;
+export const TRAIT_CATEGORY_VISION = "vision" as TraitCategory;
+export const TRAIT_CATEGORY_HP = "hp" as TraitCategory;
+export const TRAIT_CATEGORY_ATTACK = "attack" as TraitCategory;
 
 export const SHY: Trait = {
 	id: "shy" as TraitId,
 	name: "Shy",
 	description: "+30 HP when alone in a row",
-	categories: ["defensive", "personality", "hp"],
+	categories: [TRAIT_CATEGORY_DEFENSIVE, TRAIT_CATEGORY_PERSONALITY, TRAIT_CATEGORY_HP],
 	unitHandlers: {
 		[HANDLER_ON_BATTLE_START]: async (unit) => {
 			const neighboringUnits = state.battleData.units.filter((u) => {
@@ -97,7 +105,7 @@ export const BRAVE: Trait = {
 	id: "brave" as TraitId,
 	name: "Brave",
 	description: "+10 attack when in the front row",
-	categories: ["attack", "personality", "offensive"],
+	categories: [TRAIT_CATEGORY_ATTACK, TRAIT_CATEGORY_PERSONALITY, TRAIT_CATEGORY_OFFENSIVE],
 	unitHandlers: {
 		[HANDLER_ON_BATTLE_START]: async (unit) => {
 			if (unit.position.x !== FRONTLINE) return;
@@ -116,7 +124,7 @@ export const BRAVE: Trait = {
 export const BATTLE_HUNGER: Trait = {
 	id: "battle_hunger" as TraitId,
 	name: "Battle Hunger",
-	categories: ["attack", "personality", "offensive"],
+	categories: [TRAIT_CATEGORY_ATTACK, TRAIT_CATEGORY_PERSONALITY, TRAIT_CATEGORY_OFFENSIVE],
 	description: "Gains +1 attack every time this unit attacks",
 	targetUnitHandlers: {
 		[TARGET_HANDLER_ON_ATTACK_BY_ME]: async (unit, _target) => {
@@ -131,7 +139,7 @@ export const SHARP_EYES: Trait = {
 	id: "sharp_eyes" as TraitId,
 	name: "Sharp Eyes",
 	description: "Increases critical hit chance by 10%",
-	categories: ["attack", "offensive", "vision"],
+	categories: [TRAIT_CATEGORY_ATTACK, TRAIT_CATEGORY_OFFENSIVE, TRAIT_CATEGORY_VISION],
 	unitHandlers: {
 		[HANDLER_ON_BATTLE_START]: async (unit) => {
 			await popText({ text: "On Battle Start: Sharp Eyes", targetId: unit.id });
@@ -183,7 +191,7 @@ export const traits: { [id: TraitId]: Trait } = {
 	[SHARP_EYES.id]: SHARP_EYES,
 };
 
-export const randomCategoryTrait = (category: string): Trait => {
+export const randomCategoryTrait = (category: TraitCategory): Trait => {
 	const traitsInCategory = Object.values(traits).filter(t => t.categories.includes(category));
 	if (traitsInCategory.length === 0) {
 		throw new Error(`No traits found for category ${category}`);
