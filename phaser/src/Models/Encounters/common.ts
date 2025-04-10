@@ -1,9 +1,7 @@
-import { Choice, newChoice } from "../../Scenes/Battleground/Systems/Choice";
 import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
 import { popText } from "../../Systems/Chara/Animations/popText";
-import { pickRandom } from "../../utils";
 import { FORCE_ID_PLAYER } from "../Force";
-import { BLOB, jobs } from "../Job";
+import { BLOB } from "../Job";
 import { emit, signals } from "../Signals";
 import { State } from "../State";
 import * as Traits from "../Traits";
@@ -11,29 +9,20 @@ import { Unit } from "../Unit";
 import { Encounter, makeEncounter, TIER } from "./Encounter";
 
 const commonEvents = (): Encounter[] => [
-	makeEncounter("odd_job", TIER.COMMON, "Odd Job", "You have been offered a job for 5 gold", "icon/job_contract", {
+	makeEncounter("odd_job", TIER.COMMON, "Odd Job", "You have been offered a job for 5 gold", "icon/old_adventurer", {
 		type: "instant",
 		action: (_scene, state: State) => {
 			state.gameData.player.gold += 5;
 			UIManager.updateUI();
 		}
 	}),
-	makeEncounter("new_friend", TIER.COMMON, "A new friend", "You have made a new friend", "icon/quest", {
+	makeEncounter("new_friend", TIER.COMMON, "A new friend", "You have made a new friend", "icon/old_adventurer", {
 		type: "instant",
 		action: (_scene, _state) => {
 			emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, BLOB);
 		}
 	}),
-	makeEncounter("learn_something_new", TIER.COMMON, "Learn something new", "A guild member has learned something new", "icon/merchant", {
-		type: "shop", choices: () => {
-			return [
-				newChoice("learn", "Learn a New Skill", "Pay 5 gold to learn a new skill", "learn"),
-				newChoice("study", "Study the Ancient Texts", "Spend 10 gold to gain knowledge", "study"),
-				newChoice("research", "Conduct Research", "Invest 15 gold in research for future benefits", "research")
-			]
-		}
-	}),
-	makeEncounter("endurance_training", TIER.COMMON, "Endurance Training", "Make a guild member gain 30 HP", "icon/endurance_training", {
+	makeEncounter("endurance_training", TIER.COMMON, "Endurance Training", "Make a guild member gain 30 HP", "icon/combat_training", {
 		type: "unit",
 		onChoose: async (_scene: Phaser.Scene, _state, unit: Unit) => {
 
@@ -43,148 +32,24 @@ const commonEvents = (): Encounter[] => [
 			popText({ text: "+30 MAX HP", targetId: unit.id, type: "heal" });
 		}
 	}),
-	makeEncounter("treasure_hunt", TIER.COMMON, "Treasure Hunt", "You have found a treasure chest", "icon/hidden_treasure", {
-		type: "instant",
-		action: (_scene, state: State) => {
-			state.gameData.player.gold += 20;
-			UIManager.updateUI();
-		}
-	}),
-	makeEncounter("investment_opportunity", TIER.COMMON, "Investment Opportunity", "A merchant offers you a chance to invest in their business, increasing your guild's income.", "icon/quest", {
+	makeEncounter("investment_opportunity", TIER.COMMON, "Investment Opportunity", "+2 income", "icon/old_adventurer", {
 		type: "instant",
 		action: (_scene, state: State) => {
 			state.gameData.player.income += 2;
 			UIManager.updateUI();
 		}
 	}),
-	makeEncounter("the_tavern", TIER.COMMON, "The Tavern", "A rowdy tavern full of potential recruits and rumors", "icon/quest", {
-		type: "nested",
-		choices: () => {
-			return [
-				newChoice("tavern", "Hire Mercenary", "Pay 15 gold to recruit a seasoned warrior", "mercenary"),
-				newChoice("tavern", "Buy a Round of Drinks", "Spend 5 gold to hear valuable rumors", "rumors"),
-				newChoice("tavern", "Join the Card Game", "Gamble 8 gold for a chance to win more", "gamble")
-			]
-		},
-		onChoose: (state: State, choice: Choice) => {
-			const { player } = state.gameData;
-			if (choice.value === "mercenary" && player.gold >= 15) {
-				player.gold -= 15;
-				const randomJob = pickRandom(jobs, 1)[0];
-				// TODO: limit tier
-				emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, randomJob.id);
-				UIManager.updateUI();
-			} else if (choice.value === "rumors" && player.gold >= 5) {
-				player.gold -= 5;
-				player.income += 1;
-				UIManager.updateUI();
-			} else if (choice.value === "gamble" && player.gold >= 8) {
-				player.gold -= 8;
-				if (Math.random() < 0.4) {
-					player.gold += 20;
-				}
-				UIManager.updateUI();
-			}
-		}
-	}),
-	makeEncounter("lost_treasure", TIER.COMMON, "Lost Treasure", "You stumble upon a hidden chest in the forest", "icon/hidden_treasure", {
-		type: "instant",
-		action: (_scene, state: State) => {
-			state.gameData.player.gold += 10;
-			UIManager.updateUI();
-		}
-	}),
-
-	makeEncounter("shy_trait", TIER.COMMON, "Social Anxiety", "A guild member becomes shy and reserved around others", "icon/personality", {
+	makeEncounter("combat_trainer", TIER.COMMON, "Combat Trainer", "Learn attack skills", "icon/agility_training", {
 		type: "unit",
 		onChoose: async (_scene: Phaser.Scene, _state, unit: Unit) => {
-			unit.traits.push(Traits.SHY.id)
-			popText({ text: "+ Shy Trait", targetId: unit.id, type: "neutral" });
+
+			const trait = Traits.randomCategoryTrait(Traits.TRAIT_CATEGORY_ATTACK)
+
+			unit.traits.push(trait.id)
+			popText({ text: `+ ${trait.name} Trait`, targetId: unit.id, type: "neutral" });
 		}
 	}),
-	makeEncounter("brave_trait", TIER.COMMON, "Bravery", "A guild member shows exceptional bravery in battle", "icon/personality", {
-		type: "unit",
-		onChoose: async (_scene: Phaser.Scene, _state, unit: Unit) => {
-			unit.traits.push(Traits.BRAVE.id)
-			popText({ text: "+ Brave Trait", targetId: unit.id, type: "neutral" });
-		}
-	}),
-	// makeEncounter("greedy_trait", TIER.COMMON, "Greed", "A guild member becomes obsessed with wealth", "icon/personality", {
-	// 	type: "unit",
-	// 	onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
-	// 		unit.traits.push(Traits.GREEDY.id)
-	// 		popText(scene, "+ Greedy Trait", unit.id, "neutral");
-	// 	}
-	// }),
-	// makeEncounter("kind_trait", TIER.COMMON, "Kindness", "A guild member shows exceptional kindness to others", "icon/personality", {
-	// 	type: "unit",
-	// 	onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
-	// 		unit.traits.push(Traits.KIND.id)
-	// 		popText(scene, "+ Kind Trait", unit.id, "neutral");
-	// 	}
-	// }),
-	// makeEncounter("cunning_trait", TIER.COMMON, "Cunning", "A guild member shows exceptional cunning in battle", "icon/personality", {
-	// 	type: "unit",
-	// 	onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
-	// 		unit.traits.push(Traits.CUNNING.id)
-	// 		popText(scene, "+ Cunning Trait", unit.id, "neutral");
-	// 	}
-	// }),
-	// makeEncounter("loyal_trait", TIER.COMMON, "Loyalty", "A guild member shows exceptional loyalty to the guild", "icon/personality", {
-	// 	type: "unit",
-	// 	onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
-	// 		unit.traits.push(Traits.LOYAL.id)
-	// 		popText(scene, "+ Loyal Trait", unit.id, "neutral");
-	// 	}
-	// }),
-	// makeEncounter("lazy_trait", TIER.COMMON, "Laziness", "A guild member becomes lazy and unmotivated", "icon/personality", {
-	// 	type: "unit",
-	// 	onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
-	// 		unit.traits.push(Traits.LAZY.id)
-	// 		popText(scene, "+ Lazy Trait", unit.id, "neutral");
-	// 	}
-	// }),
-	// makeEncounter("brilliant_trait", TIER.COMMON, "Brilliance", "A guild member shows exceptional intelligence", "icon/personality", {
-	// 	type: "unit",
-	// 	onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
-	// 		unit.traits.push(Traits.BRILLIANT.id)
-	// 		popText(scene, "+ Brilliant Trait", unit.id, "neutral");
-	// 	}
-	// }),
-	// makeEncounter("clumsy_trait", TIER.COMMON, "Clumsiness", "A guild member becomes clumsy and accident-prone", "icon/personality", {
-	// 	type: "unit",
-	// 	onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
-	// 		unit.traits.push(Traits.CLUMSY.id)
-	// 		popText(scene, "+ Clumsy Trait", unit.id, "neutral");
-	// 	}
-	// }),
-
-	// makeEncounter("paranoid_trait", TIER.COMMON, "Paranoia", "A guild member becomes convinced everyone is plotting against them", "icon/personality", {
-	// 	type: "unit",
-	// 	onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
-	// 		popText(scene, "+ Paranoid Trait", unit.id, "neutral");
-	// 	}
-	// }),
-
-	// makeEncounter("punmaster_trait", TIER.COMMON, "Terrible Punster", "A guild member now makes awful puns at every opportunity", "icon/personality", {
-	// 	type: "unit",
-	// 	onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
-	// 		popText(scene, "+ Punmaster Trait", unit.id, "neutral");
-	// 	}
-	// }),
-	// makeEncounter("conspiracy_trait", TIER.COMMON, "Conspiracy Theorist", "A guild member is convinced the kingdom is run by lizard people", "icon/personality", {
-	// 	type: "unit",
-	// 	onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
-	// 		popText(scene, "+ Conspiracy Theorist Trait", unit.id, "neutral");
-	// 	}
-	// }),
-	// makeEncounter("sleepwalker_trait", TIER.COMMON, "Sleepwalker", "A guild member has been found fighting monsters in their pajamas", "icon/personality", {
-	// 	type: "unit",
-	// 	onChoose: async (scene: Phaser.Scene, state, unit: Unit) => {
-	// 		popText(scene, "+ Sleepwalker Trait", unit.id, "neutral");
-	// 	}
-	// })
-
 ];
+
 
 export default commonEvents;
