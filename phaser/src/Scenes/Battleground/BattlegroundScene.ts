@@ -4,7 +4,6 @@ import * as CharaSystem from "../../Systems/Chara/Chara";
 import { State, getState } from "../../Models/State";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
 import * as AISystem from "../../Systems/AI/AI";
-import * as HPBarSystem from "../../Systems/Chara/HPBar";
 import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import * as constants from "./constants";
 import { setupEventListeners } from "./EventHandlers";
@@ -44,7 +43,6 @@ export class BattlegroundScene extends Phaser.Scene {
      */
     // TODO: separate scene-related listeners from state listeners
     AISystem.init(state);
-    HPBarSystem.init(state, this);
     BattlegroundAudioSystem_init(state, this);
     CharaSystem.init(this);
     //StoreSystem.init(this);

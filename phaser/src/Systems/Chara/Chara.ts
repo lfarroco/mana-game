@@ -22,6 +22,9 @@ export type Chara = {
 	unit: Unit,
 	container: Phaser.GameObjects.Container,
 	hightlightTween: Phaser.Tweens.Tween | null,
+	atkDisplay: Phaser.GameObjects.Text,
+	hpDisplay: Phaser.GameObjects.Text,
+	zone: Phaser.GameObjects.Zone,
 }
 
 let scene: Phaser.Scene;
@@ -72,6 +75,47 @@ export function createChara(unit: Unit): Chara {
 	sprite.setName(unit.id) // used for scene-level drop events
 
 
+	const textConfig = { ...bgConstants.defaultTextConfig, fontSize: '35px', color: '#ffffff' };
+
+	//red box
+	const atkBg = scene.add.graphics();
+
+	atkBg.fillStyle(0xff0000, 0.5);
+	atkBg.fillRoundedRect(
+		-bgConstants.HALF_TILE_WIDTH, 30,
+		55, 50,
+		15
+	);
+
+	const atk = scene.add.text(
+		-50, 50,
+		unit.attack.toString(),
+		textConfig).setOrigin(0.5).setAlign('center');
+
+	container.add([atkBg, atk])
+
+	const hpBg = scene.add.graphics();
+	hpBg.fillStyle(0x00ff00, 0.5);
+	hpBg.fillRoundedRect(
+		30, 30,
+		50, 50,
+		10
+	);
+	const hp = scene.add.text(
+		30, 30, unit.hp.toString(), textConfig).setAlign('center');
+
+	container.add([hpBg, hp])
+
+	//zone over the sprite for click/drag events
+	const zone = scene.add.zone(
+		0, 0,
+		spriteSize, spriteSize
+	).setOrigin(0.5, 0.5)
+		.setName(unit.id) //needed for drop events
+
+	container.add(zone);
+
+
 	const chara: Chara = {
 		id: unit.id,
 		force: unit.force,
@@ -81,6 +125,10 @@ export function createChara(unit: Unit): Chara {
 		container,
 		unit,
 		hightlightTween: null,
+		atkDisplay: atk,
+		hpDisplay: hp,
+		zone
+
 	};
 
 	makeCharaInteractive(chara);
@@ -90,15 +138,15 @@ export function createChara(unit: Unit): Chara {
 
 export const makeCharaInteractive = (chara: Chara) => {
 
-	chara.sprite.setInteractive({ draggable: true });
+	chara.zone.setInteractive({ draggable: true })
 
-	chara.sprite.on('drag', (pointer: Phaser.Input.Pointer) => {
+	chara.zone.on('drag', (pointer: Phaser.Input.Pointer) => {
 		if (chara.unit.force !== FORCE_ID_PLAYER) return;
 		chara.container.x = pointer.x;
 		chara.container.y = pointer.y;
 	});
 
-	chara.sprite.on('drop', (
+	chara.zone.on('drop', (
 		pointer: Phaser.Input.Pointer,
 		zone: Phaser.GameObjects.GameObject,
 	) => {
@@ -140,7 +188,7 @@ export const makeCharaInteractive = (chara: Chara) => {
 
 	});
 
-	chara.sprite.on('dragend', (pointer: Phaser.Input.Pointer) => {
+	chara.zone.on('dragend', (pointer: Phaser.Input.Pointer) => {
 
 		// check if it was a click or drag
 		if (pointer.getDistance() < 50) {
@@ -167,9 +215,9 @@ export const makeCharaInteractive = (chara: Chara) => {
 
 export function destroyChara(chara: Chara) {
 	// Remove event listeners
-	chara.sprite.removeAllListeners('drag');
-	chara.sprite.removeAllListeners('drop');
-	chara.sprite.removeAllListeners('dragend');
+	chara.zone.removeAllListeners('drag');
+	chara.zone.removeAllListeners('drop');
+	chara.zone.removeAllListeners('dragend');
 
 	// Clean up tweens
 	if (chara.hightlightTween) {
@@ -231,6 +279,12 @@ export function init(sceneRef: Phaser.Scene) {
 					chara.container.destroy(true)
 				}
 			});
+
+		}],
+		[signals.DAMAGE_UNIT, (unitId: string, damage: number) => {
+
+			const chara = UnitManager.getChara(unitId);
+			chara.hpDisplay.setText((chara.unit.hp - damage).toString());
 
 		}]
 	])
