@@ -123,9 +123,9 @@ export function displayError(err: string) {
 
 export function createDropZone(scene: BattlegroundScene) {
 	const x = constants.TILE_WIDTH * 6;
-	const y = constants.TILE_WIDTH * 2;
+	const y = constants.TILE_HEIGHT * 1;
 	const w = constants.TILE_WIDTH * 3;
-	const h = constants.TILE_WIDTH * 3;
+	const h = constants.TILE_HEIGHT * 3;
 	const zone = scene.add.zone(x, y, w, h);
 	zone.setOrigin(0);
 

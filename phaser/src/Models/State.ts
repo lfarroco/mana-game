@@ -110,8 +110,8 @@ export const listenToStateEvents = (state: State) => {
 
       const startX = 6;
       const endX = 9;
-      const startY = 2;
-      const endY = 5;
+      const startY = 1;
+      const endY = 4;
 
       let isValid = false;
       let position = vec2(0, 0);
@@ -156,6 +156,8 @@ export const listenToStateEvents = (state: State) => {
       const hasDied = nextHp <= 0;
 
       emit(signals.UPDATE_UNIT, id, { hp: hasDied ? 0 : nextHp });
+
+      emit(signals.UNIT_HP_UPDATED, id, nextHp);
 
       if (hasDied) {
         emit(signals.UNIT_DESTROYED, id);
