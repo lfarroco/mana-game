@@ -77,18 +77,19 @@ export function createChara(unit: Unit): Chara {
 
 	const textConfig = { ...bgConstants.defaultTextConfig, fontSize: '35px', color: '#ffffff' };
 
-	//red box
+	const boxWidth = 50;
+	const boxHeight = 50;
 	const atkBg = scene.add.graphics();
 
 	atkBg.fillStyle(0xff0000, 0.5);
 	atkBg.fillRoundedRect(
-		-bgConstants.HALF_TILE_WIDTH, 30,
-		55, 50,
+		-bgConstants.HALF_TILE_WIDTH, bgConstants.HALF_TILE_HEIGHT - boxHeight,
+		boxWidth, boxHeight,
 		15
 	);
 
 	const atk = scene.add.text(
-		-50, 50,
+		-boxWidth, bgConstants.HALF_TILE_HEIGHT - boxHeight / 2,
 		unit.attack.toString(),
 		textConfig).setOrigin(0.5).setAlign('center');
 
@@ -97,12 +98,15 @@ export function createChara(unit: Unit): Chara {
 	const hpBg = scene.add.graphics();
 	hpBg.fillStyle(0x00ff00, 0.5);
 	hpBg.fillRoundedRect(
-		30, 30,
-		50, 50,
+		bgConstants.HALF_TILE_WIDTH - boxWidth, bgConstants.HALF_TILE_HEIGHT - boxHeight,
+		boxWidth, boxHeight,
 		10
 	);
 	const hp = scene.add.text(
-		30, 30, unit.hp.toString(), textConfig).setAlign('center');
+		bgConstants.HALF_TILE_WIDTH - boxWidth / 2, bgConstants.HALF_TILE_HEIGHT - boxHeight / 2,
+		unit.hp.toString(), textConfig)
+		.setOrigin(0.5)
+		.setAlign('center');
 
 	container.add([hpBg, hp])
 
@@ -281,10 +285,10 @@ export function init(sceneRef: Phaser.Scene) {
 			});
 
 		}],
-		[signals.DAMAGE_UNIT, (unitId: string, damage: number) => {
+		[signals.UNIT_HP_UPDATED, (unitId: string, hp: number) => {
 
 			const chara = UnitManager.getChara(unitId);
-			chara.hpDisplay.setText((chara.unit.hp - damage).toString());
+			chara.hpDisplay.setText(hp.toString());
 
 		}]
 	])

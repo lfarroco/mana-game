@@ -160,7 +160,7 @@ const selectUnit = async () => new Promise<Unit>((resolve) => {
 	const dropZoneX = TILE_WIDTH * 1;
 	const dropZoneY = TILE_HEIGHT * 1;
 	const dropZoneWidth = TILE_WIDTH * 4;
-	const dropZoneHeight = TILE_HEIGHT * 5;
+	const dropZoneHeight = TILE_HEIGHT * 3;
 	const dropZone = scene.add.zone(dropZoneX, dropZoneY, TILE_WIDTH, TILE_HEIGHT)
 		.setRectangleDropZone(dropZoneWidth, dropZoneHeight)
 		.setName('selectUnit')
