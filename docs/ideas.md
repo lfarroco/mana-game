@@ -101,3 +101,9 @@ Create events based on party composition:
 
 - hunter: gather healing herbs
 - monk: meditate
+
+Display possible loot when selecting quest
+
+Loop: loot during the week, pvp on weekend
+
+Units with professions can give items per day/week

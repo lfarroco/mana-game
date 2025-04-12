@@ -14,6 +14,7 @@ import * as GridSystem from "./Systems/GridSystem";
 import * as ChoiceSystem from "./Systems/Choice";
 import * as EventSystem from "../../Models/Encounters/Encounter";
 import * as TraitSystem from "../../Models/Traits";
+import * as TooltipSystem from "../../Systems/Tooltip";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -57,6 +58,8 @@ export class BattlegroundScene extends Phaser.Scene {
     EventSystem.init(this);
 
     TraitSystem.init(this, state)
+
+    TooltipSystem.init(this);
 
     //@ts-ignore
     window.bg = this;

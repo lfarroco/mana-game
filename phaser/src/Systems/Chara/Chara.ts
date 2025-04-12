@@ -12,6 +12,8 @@ import * as GridSystem from "../../Scenes/Battleground/Systems/GridSystem";
 import { BLUE_BONNET, VIVIRED_RED } from "../../Utils/colors";
 import { displayUnitInfo } from "../../Scenes/Battleground/Systems/UIManager";
 import { getState, State } from "../../Models/State";
+import * as TooltipSytem from "../Tooltip";
+import { getTrait } from "../../Models/Traits";
 
 export type Chara = {
 	id: string;
@@ -148,6 +150,7 @@ export const makeCharaInteractive = (chara: Chara) => {
 		if (chara.unit.force !== FORCE_ID_PLAYER) return;
 		chara.container.x = pointer.x;
 		chara.container.y = pointer.y;
+		TooltipSytem.hide();
 	});
 
 	chara.zone.on('drop', (
@@ -215,6 +218,26 @@ export const makeCharaInteractive = (chara: Chara) => {
 		}
 
 	})
+
+	chara.zone.on('pointerover', () => {
+
+		const text = [
+			`${chara.job.name}`,
+			`Attack: ${chara.unit.attack} HP: ${chara.unit.hp}`,
+			chara.unit.traits.map(getTrait).map((trait) => trait.description).join("\n"),
+		].join('\n');
+
+		TooltipSytem.render(
+			chara.zone.parentContainer.x + 340,
+			chara.zone.parentContainer.y,
+			text,
+		)
+	})
+
+	chara.zone.on('pointerout', () => {
+		TooltipSytem.hide()
+	})
+
 }
 
 export function destroyChara(chara: Chara) {
