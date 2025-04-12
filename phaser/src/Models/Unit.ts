@@ -21,6 +21,8 @@ export type Unit = {
   statuses: { [key: string]: number };
   traits: TraitId[];
 
+  equip: string;
+
   log: string[];
 };
 
@@ -37,6 +39,7 @@ export const makeUnit = (id: string, force: string, job: JobId, position: Vec2):
     maxHp: job_.hp,
     multicast: 2,
     crit: job_.agility * 1.5,
+    equip: "",
     log: [],
     statuses: {},
     traits: [],
