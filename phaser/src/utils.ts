@@ -25,3 +25,15 @@ export function breakLines(text: string, width: number) {
 		, ['']).map(line => line.trim());
 }
 
+export function follows(a: { x: any; y: any; scene: { on: (arg0: string, arg1: () => void) => void; off: (arg0: string, arg1: () => void) => void; }; }, b: { x: any; y: any; on: (arg0: string, arg1: () => void) => void; }) {
+
+	const follow = () => {
+		a.x = b.x;
+		a.y = b.y;
+	}
+	a.scene.on('update', follow);
+	b.on('destroy', () => {
+		a.scene.off('update', follow);
+	});
+
+}

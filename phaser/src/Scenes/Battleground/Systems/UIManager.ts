@@ -91,6 +91,41 @@ export function updateUI() {
 		ui?.add(uiText);
 	});
 
+	const chest = scene.add.image(
+		constants.SCREEN_WIDTH - 140,
+		constants.SCREEN_HEIGHT - 100,
+		"ui/chest"
+	).setOrigin(0.5).setDisplaySize(250, 250);
+
+	chest.setInteractive();
+
+	const chestContainer = scene.add.container(0, 0);
+
+	chest.on("pointerup", () => {
+
+		const width = constants.SCREEN_WIDTH / 2 - 100;
+
+		scene.children.bringToTop(chestContainer);
+		chestContainer.setX(-width);
+
+		const bg = scene.add.graphics();
+		bg.fillStyle(0x000000, 0.8);
+		bg.fillRect(0, 0, width, constants.SCREEN_HEIGHT);
+
+		chestContainer.add(bg);
+
+
+		
+
+		scene.add.tween({
+			targets: chestContainer,
+			x: 0,
+			duration: 500,
+			ease: "Power2",
+		});
+
+	});
+
 }
 
 export function displayError(err: string) {

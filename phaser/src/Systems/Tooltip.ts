@@ -1,5 +1,7 @@
 import { defaultTextConfig } from "../Scenes/Battleground/constants";
 
+// TODO: on mobile, use a long press to show the tooltip
+
 let scene: Phaser.Scene;
 
 let tooltip: Phaser.GameObjects.Container;

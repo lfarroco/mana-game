@@ -55,27 +55,7 @@ export function createChara(unit: Unit): Chara {
 		unit.position.y * bgConstants.TILE_HEIGHT + bgConstants.HALF_TILE_HEIGHT
 	)
 
-	// masks inside containers are currently not supported by phaser, so we need to manually follow the container
-	// the container is still used to hold chara's aggregates (hp bar, icons, particles)
-	const follow = () => {
-		border.x = container.x;
-		border.y = container.y;
-		shape.x = container.x;
-		shape.y = container.y;
-		sprite.x = container.x + 20;
-		sprite.y = container.y + 140;
-	}
-
-	scene.events.on('update', follow)
-	container.on('destroy', () => {
-		border.destroy();
-		shape.destroy();
-		sprite.destroy();
-		scene.events.off('update', follow);
-	})
-
 	sprite.setName(unit.id) // used for scene-level drop events
-
 
 	const textConfig = { ...bgConstants.defaultTextConfig, fontSize: '35px', color: '#ffffff' };
 
@@ -121,6 +101,16 @@ export function createChara(unit: Unit): Chara {
 
 	container.add(zone);
 
+	const itemBorder = scene.add.rectangle(
+		bgConstants.HALF_TILE_WIDTH - 40, - bgConstants.HALF_TILE_HEIGHT + 40,
+		74, 74,
+		0x000, 1)
+		.setOrigin(0.5, 0.5);
+	const item = scene.add.image(
+		bgConstants.HALF_TILE_WIDTH - 40, - bgConstants.HALF_TILE_HEIGHT + 40,
+		`icon/merchant`).setDisplaySize(60, 60).setOrigin(0.5, 0.5);
+
+	container.add([itemBorder, item]);
 
 	const chara: Chara = {
 		id: unit.id,
@@ -138,6 +128,25 @@ export function createChara(unit: Unit): Chara {
 	};
 
 	makeCharaInteractive(chara);
+
+	// masks inside containers are currently not supported by phaser, so we need to manually follow the container
+	// the container is still used to hold chara's aggregates (hp bar, icons, particles)
+	const follow = () => {
+		border.x = container.x;
+		border.y = container.y;
+		shape.x = container.x;
+		shape.y = container.y;
+		sprite.x = container.x + 20;
+		sprite.y = container.y + 140;
+	}
+
+	scene.events.on('update', follow)
+	container.on('destroy', () => {
+		border.destroy();
+		shape.destroy();
+		sprite.destroy();
+		scene.events.off('update', follow);
+	})
 
 	return chara
 }

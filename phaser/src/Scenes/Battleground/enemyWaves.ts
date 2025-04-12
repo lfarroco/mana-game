@@ -76,9 +76,9 @@ export const waves: { [idx: number]: Unit[] } = {
 		...col(BLOB, 3, MIDDLE).map(shift(0, 1)),
 	],
 	12: [
-		...cluster(BLOB, 2).map(shift(1, 2)),
-		enemy(RED_BLOB, 1, 0),
-		enemy(RED_BLOB, 1, 3),
+		...cluster(BLOB, 2).map(shift(1, 1)),
+		enemy(RED_BLOB, 1, 1),
+		enemy(RED_BLOB, 1, 2),
 	],
 	13: [
 		enemy(BLOB_MAGE, 1, 3),
