@@ -125,7 +125,7 @@ export const BATTLE_HUNGER: Trait = {
 	id: "battle_hunger" as TraitId,
 	name: "Battle Hunger",
 	categories: [TRAIT_CATEGORY_ATTACK, TRAIT_CATEGORY_PERSONALITY, TRAIT_CATEGORY_OFFENSIVE],
-	description: "Gains +1 attack every time this unit attacks",
+	description: "+1 attack on each attack",
 	targetUnitHandlers: {
 		[TARGET_HANDLER_ON_ATTACK_BY_ME]: async (unit, _target) => {
 			await popText({ text: "On attack: Battle Hunger", targetId: unit.id, speed: 2 });
