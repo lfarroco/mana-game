@@ -98,3 +98,18 @@ export function createParticle(id: string, status: string) {
 		}).setName("status-" + status);
 	chara.container.add(particles);
 }
+
+// return any chara that contains the vec
+export const overlap = (vec: { x: number, y: number }) => {
+	return state.charas.find(chara => {
+		return Phaser.Geom.Intersects.RectangleToRectangle(
+			new Phaser.Geom.Rectangle(
+				chara.container.x - constants.HALF_TILE_WIDTH,
+				chara.container.y - constants.HALF_TILE_HEIGHT,
+				constants.TILE_WIDTH,
+				constants.TILE_HEIGHT
+			),
+			new Phaser.Geom.Rectangle(vec.x, vec.y, 1, 1)
+		)
+	})
+}

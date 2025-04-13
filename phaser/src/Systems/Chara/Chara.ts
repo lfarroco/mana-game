@@ -4,7 +4,7 @@ import * as bgConstants from "../../Scenes/Battleground/constants";
 import { listeners, signals } from "../../Models/Signals";
 import { asVec2, eqVec2, vec2 } from "../../Models/Geometry";
 import { tween } from "../../Utils/animation";
-import { FORCE_ID_PLAYER } from "../../Models/Force";
+import { FORCE_ID_PLAYER, playerForce } from "../../Models/Force";
 import { getJob, Job } from "../../Models/Job";
 import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
 import * as UnitManager from "../../Scenes/Battleground/Systems/UnitManager";
@@ -26,6 +26,7 @@ export type Chara = {
 	hightlightTween: Phaser.Tweens.Tween | null,
 	atkDisplay: Phaser.GameObjects.Text,
 	hpDisplay: Phaser.GameObjects.Text,
+	equipDisplay: Phaser.GameObjects.Image,
 	zone: Phaser.GameObjects.Zone,
 }
 
@@ -108,7 +109,50 @@ export function createChara(unit: Unit): Chara {
 		.setOrigin(0.5, 0.5);
 	const item = scene.add.image(
 		bgConstants.HALF_TILE_WIDTH - 40, - bgConstants.HALF_TILE_HEIGHT + 40,
-		`icon/merchant`).setDisplaySize(60, 60).setOrigin(0.5, 0.5);
+		unit.equip).setDisplaySize(60, 60).setOrigin(0.5, 0.5);
+
+	item.setInteractive({ draggable: true });
+	item.on('drag', (pointer: Phaser.Input.Pointer) => {
+		if (unit.force !== FORCE_ID_PLAYER) return;
+		item.x = pointer.x - item.parentContainer.x;
+		item.y = pointer.y - item.parentContainer.y;
+	});
+
+	item.on('dragend', (pointer: Phaser.Input.Pointer) => {
+		console.log("dragend", pointer.x, pointer.y);
+
+		const closest = UnitManager.overlap(pointer);
+
+		const equip = (id: string) => {
+			unit.equip = id;
+			item.setTexture(id);
+			item.setDisplaySize(60, 60);
+			item.setPosition(
+				bgConstants.HALF_TILE_WIDTH - 40, - bgConstants.HALF_TILE_HEIGHT + 40
+			)
+		}
+
+		if (!closest) {
+			// back to chest
+			console.log(">>", unit.equip)
+			playerForce.items.push(unit.equip);
+			equip("");
+
+			UIManager.updateChest()
+		} else {
+			if (closest.unit.id === unit.id) {//self
+				equip(unit.equip);
+			} else { //another
+				const currEquip = closest.unit.equip;
+
+				closest.unit.equip = unit.equip;
+				closest.equipDisplay.setTexture(unit.equip);
+				closest.equipDisplay.setDisplaySize(60, 60);
+				equip(currEquip);
+
+			}
+		}
+	});
 
 	container.add([itemBorder, item]);
 
@@ -123,8 +167,8 @@ export function createChara(unit: Unit): Chara {
 		hightlightTween: null,
 		atkDisplay: atk,
 		hpDisplay: hp,
-		zone
-
+		zone,
+		equipDisplay: item,
 	};
 
 	makeCharaInteractive(chara);
@@ -234,6 +278,7 @@ export const makeCharaInteractive = (chara: Chara) => {
 			`${chara.job.name}`,
 			`Attack: ${chara.unit.attack} HP: ${chara.unit.hp}`,
 			chara.unit.traits.map(getTrait).map((trait) => trait.description).join("\n"),
+			`Equip: ${chara.unit.equip}`,
 		].join('\n');
 
 		TooltipSytem.render(
