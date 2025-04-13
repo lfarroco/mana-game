@@ -7,11 +7,16 @@ import * as bgConstants from "../constants";
 import { COLOR_BLACK } from "../../../Utils/colors";
 import { State } from "../../../Models/State";
 import { getTrait } from "../../../Models/Traits"
+import * as Tooltip from "../../../Systems/Tooltip";
+import { overlap } from "./UnitManager";
 
 export let ui: Phaser.GameObjects.Container | null = null;
 export let dropZone: Phaser.GameObjects.Zone | null = null;
 export let dropZoneDisplay: Phaser.GameObjects.Graphics | null = null;
 export let unitInfoContainer: Phaser.GameObjects.Container | null = null;
+
+let chestContainer: Phaser.GameObjects.Container;
+const chestWidth = constants.SCREEN_WIDTH / 2 - 100;
 
 let scene: BattlegroundScene;
 let state: State;
@@ -99,23 +104,14 @@ export function updateUI() {
 
 	chest.setInteractive();
 
-	const chestContainer = scene.add.container(0, 0);
+	chestContainer = scene.add.container(0, 0);
 
 	chest.on("pointerup", () => {
 
-		const width = constants.SCREEN_WIDTH / 2 - 100;
-
 		scene.children.bringToTop(chestContainer);
-		chestContainer.setX(-width);
+		chestContainer.setX(-chestWidth);
 
-		const bg = scene.add.graphics();
-		bg.fillStyle(0x000000, 0.8);
-		bg.fillRect(0, 0, width, constants.SCREEN_HEIGHT);
-
-		chestContainer.add(bg);
-
-
-		
+		updateChest();
 
 		scene.add.tween({
 			targets: chestContainer,
@@ -126,6 +122,66 @@ export function updateUI() {
 
 	});
 
+}
+
+export function updateChest() {
+
+	chestContainer.removeAll(true);
+
+	const bg = scene.add.graphics();
+	bg.fillStyle(0x000000, 0.8);
+	bg.fillRect(0, 0, chestWidth, constants.SCREEN_HEIGHT);
+
+	bg.setInteractive(new Phaser.Geom.Rectangle(0, 0, chestWidth, constants.SCREEN_HEIGHT), Phaser.Geom.Rectangle.Contains);
+
+	chestContainer.add(bg);
+
+	state.gameData.player.items.forEach((id, i) => {
+		const baseX = 100;
+		const baseY = 100;
+
+		const icon = scene.add.image(0, 0, id)
+			.setDisplaySize(constants.TILE_WIDTH, constants.TILE_WIDTH)
+			.setOrigin(0);
+
+		// 3x3 grid
+		const x = i % 3;
+		const y = Math.floor(i / 3);
+		icon.setPosition(
+			baseX + (x * constants.TILE_WIDTH),
+			baseY + (y * constants.TILE_WIDTH)
+		);
+		chestContainer.add(icon);
+
+		icon.setInteractive({ draggable: true });
+		icon.on("pointerover", () => {
+			Tooltip.render(
+				icon.x + 400, icon.y + 100,
+				"Item: " + id);
+		});
+		icon.on("pointerout", () => {
+			Tooltip.hide();
+		});
+		icon.on("dragstart", () => {
+			Tooltip.hide();
+		});
+		icon.on("drag", (pointer: Phaser.Input.Pointer) => {
+			icon.x = pointer.x - constants.TILE_WIDTH / 2;
+			icon.y = pointer.y - constants.TILE_WIDTH / 2;
+		});
+
+		icon.on("drop", (pointer: Phaser.Input.Pointer, _target: Phaser.GameObjects.Zone) => {
+			const target = overlap(pointer);
+			if (!target) return;
+			console.log("target", target);
+			icon.destroy();
+			target.unit.equip = id;
+			target.equipDisplay.setTexture(id);
+			target.equipDisplay.setDisplaySize(60, 60);
+			state.gameData.player.items = state.gameData.player.items.filter(item => item !== id);
+		});
+
+	});
 }
 
 export function displayError(err: string) {

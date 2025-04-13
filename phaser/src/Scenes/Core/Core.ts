@@ -1,5 +1,4 @@
 import { signals, listeners } from "../../Models/Signals";
-import { getState } from "../../Models/State";
 
 // over-complicated phaser type :shrug:
 type PhaserAudio = Phaser.Sound.HTML5AudioSound |
@@ -19,23 +18,23 @@ export default class Core extends Phaser.Scene {
 	}
 
 	preload() {
-		this.load.audio('theme', [
-			'assets/audio/main_theme.mp3',
-			'assets/audio/main_theme.ogg',
-			//'jshaw_a_dream_of_first_flight',
-		]);
+		// this.load.audio('theme', [
+		// 	'assets/audio/main_theme.mp3',
+		// 	'assets/audio/main_theme.ogg',
+		// 	//'jshaw_a_dream_of_first_flight',
+		// ]);
 	}
 
 	create() {
 
-		this.music = this.sound.add('theme');
+		//this.music = this.sound.add('theme');
 
-		this.music.setVolume(0.05);
+		//this.music.setVolume(0.05);
 
-		const state = getState();
+		// const state = getState();
 
-		if (state.options.music)
-			this.music.play();
+		// if (state.options.music)
+		// 	this.music.play();
 
 	}
 }

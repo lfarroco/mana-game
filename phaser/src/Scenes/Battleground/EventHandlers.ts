@@ -19,7 +19,7 @@ export function setupEventListeners(scene: BattlegroundScene) {
 
 			await delay(scene, 200 / scene.speed);
 
-			scene.playFx('audio/battle_theme');
+			//scene.playFx('audio/battle_theme');
 			emit(signals.BATTLEGROUND_TICK)
 
 		}],
