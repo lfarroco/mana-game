@@ -21,6 +21,8 @@ const chestWidth = constants.SCREEN_WIDTH / 2 - 100;
 let scene: BattlegroundScene;
 let state: State;
 
+let isChestOpen = false;
+
 export function init(sceneRef: BattlegroundScene) {
 	scene = sceneRef;
 	state = scene.state;
@@ -108,17 +110,31 @@ export function updateUI() {
 
 	chest.on("pointerup", () => {
 
-		scene.children.bringToTop(chestContainer);
-		chestContainer.setX(-chestWidth);
+		if (isChestOpen) {
+			isChestOpen = false;
+			scene.add.tween({
+				targets: chestContainer,
+				x: -chestWidth,
+				duration: 500,
+				ease: "Power2",
+				onComplete: () => {
+					chestContainer.removeAll(true);
+				}
+			});
+		} else {
+			isChestOpen = true;
+			scene.children.bringToTop(chestContainer);
+			chestContainer.setX(-chestWidth);
 
-		updateChest();
+			updateChest();
 
-		scene.add.tween({
-			targets: chestContainer,
-			x: 0,
-			duration: 500,
-			ease: "Power2",
-		});
+			scene.add.tween({
+				targets: chestContainer,
+				x: 0,
+				duration: 500,
+				ease: "Power2",
+			});
+		}
 
 	});
 
@@ -147,10 +163,12 @@ export function updateChest() {
 		// 3x3 grid
 		const x = i % 3;
 		const y = Math.floor(i / 3);
-		icon.setPosition(
+
+		const position = [
 			baseX + (x * constants.TILE_WIDTH),
 			baseY + (y * constants.TILE_WIDTH)
-		);
+		]
+		icon.setPosition(...position);
 		chestContainer.add(icon);
 
 		icon.setInteractive({ draggable: true });
@@ -170,13 +188,17 @@ export function updateChest() {
 			icon.y = pointer.y - constants.TILE_WIDTH / 2;
 		});
 
-		icon.on("drop", (pointer: Phaser.Input.Pointer, _target: Phaser.GameObjects.Zone) => {
+		icon.on("dragend", (pointer: Phaser.Input.Pointer) => {
 			const target = overlap(pointer);
-			if (!target) return;
+			if (!target) {
+				icon.setPosition(...position)
+				return;
+			};
 			console.log("target", target);
 			icon.destroy();
 			target.unit.equip = id;
 			target.equipDisplay.setTexture(id);
+			target.equipDisplay.alpha = 1;
 			target.equipDisplay.setDisplaySize(60, 60);
 			state.gameData.player.items = state.gameData.player.items.filter(item => item !== id);
 		});
