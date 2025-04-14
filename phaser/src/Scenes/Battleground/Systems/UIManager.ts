@@ -144,11 +144,11 @@ export function updateChest() {
 
 	chestContainer.removeAll(true);
 
-	const bg = scene.add.graphics();
-	bg.fillStyle(0x000000, 0.8);
-	bg.fillRect(0, 0, chestWidth, constants.SCREEN_HEIGHT);
+	const bg = scene.add.image(0, 0, "ui/wood_texture");
 
-	bg.setInteractive(new Phaser.Geom.Rectangle(0, 0, chestWidth, constants.SCREEN_HEIGHT), Phaser.Geom.Rectangle.Contains);
+	bg.setDisplaySize(chestWidth, constants.SCREEN_HEIGHT);
+	bg.setOrigin(0);
+	bg.setInteractive();
 
 	chestContainer.add(bg);
 
