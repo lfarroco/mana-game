@@ -102,20 +102,35 @@ export function createChara(unit: Unit): Chara {
 
 	container.add(zone);
 
-	const itemBorder = scene.add.rectangle(
+	const itemBorder = scene.add.image(
 		bgConstants.HALF_TILE_WIDTH - 40, - bgConstants.HALF_TILE_HEIGHT + 40,
-		74, 74,
-		0x000, 1)
-		.setOrigin(0.5, 0.5);
+		"ui/slot")
+		.setOrigin(0.5, 0.5)
+		.setDisplaySize(80, 80);
 	const item = scene.add.image(
 		bgConstants.HALF_TILE_WIDTH - 40, - bgConstants.HALF_TILE_HEIGHT + 40,
 		unit.equip).setDisplaySize(60, 60).setOrigin(0.5, 0.5);
 
+	if (unit.equip === "") {
+		item.alpha = 0;
+	}
 	item.setInteractive({ draggable: true });
+	item.on('dragstart', () => {
+		scene.children.bringToTop(chara.container);
+	});
 	item.on('drag', (pointer: Phaser.Input.Pointer) => {
 		if (unit.force !== FORCE_ID_PLAYER) return;
 		item.x = pointer.x - item.parentContainer.x;
 		item.y = pointer.y - item.parentContainer.y;
+	});
+
+	item.on('pointerover', () => {
+		const text = [
+			`${unit.equip}`,
+		];
+		TooltipSytem.render(
+			item.parentContainer.x + item.x + 300, item.parentContainer.y + item.y,
+			text.join('\n'));
 	});
 
 	item.on('dragend', (pointer: Phaser.Input.Pointer) => {
@@ -123,8 +138,14 @@ export function createChara(unit: Unit): Chara {
 
 		const closest = UnitManager.overlap(pointer);
 
-		const equip = (id: string) => {
+		const equipItem = (id: string) => {
+			console.log("equipping ", id)
 			unit.equip = id;
+			if (id === "") {
+				item.alpha = 0;
+			} else {
+				item.alpha = 1;
+			}
 			item.setTexture(id);
 			item.setDisplaySize(60, 60);
 			item.setPosition(
@@ -134,21 +155,22 @@ export function createChara(unit: Unit): Chara {
 
 		if (!closest) {
 			// back to chest
-			console.log(">>", unit.equip)
 			playerForce.items.push(unit.equip);
-			equip("");
+			equipItem("");
 
 			UIManager.updateChest()
 		} else {
 			if (closest.unit.id === unit.id) {//self
-				equip(unit.equip);
+				equipItem(unit.equip);
 			} else { //another
 				const currEquip = closest.unit.equip;
 
 				closest.unit.equip = unit.equip;
 				closest.equipDisplay.setTexture(unit.equip);
 				closest.equipDisplay.setDisplaySize(60, 60);
-				equip(currEquip);
+				closest.equipDisplay.alpha = 1;
+
+				equipItem(currEquip);
 
 			}
 		}
@@ -285,7 +307,7 @@ export const makeCharaInteractive = (chara: Chara) => {
 			chara.zone.parentContainer.x + 340,
 			chara.zone.parentContainer.y,
 			text,
-		)
+		);
 	})
 
 	chara.zone.on('pointerout', () => {
