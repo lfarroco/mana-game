@@ -1,12 +1,8 @@
 import * as constants from "../constants";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { delay } from "../../../Utils/animation";
-import { getJob } from "../../../Models/Job";
-import * as CharaSystem from "../../../Systems/Chara/Chara";
-import * as bgConstants from "../constants";
 import { COLOR_BLACK } from "../../../Utils/colors";
 import { State } from "../../../Models/State";
-import { getTrait } from "../../../Models/Traits"
 import * as Tooltip from "../../../Systems/Tooltip";
 import { overlap } from "./UnitManager";
 import { emitterv2 } from "../../../Models/Signals";
@@ -206,12 +202,19 @@ export function updateChest() {
 				icon.setPosition(...position)
 				return;
 			};
-			console.log("target", target);
 			icon.destroy();
+
+			const currentItem = target.unit.equip;
 
 			emitterv2.emit("equipItem", { itemId: id, unitId: target.unit.id });
 
 			state.gameData.player.items = state.gameData.player.items.filter(item => item !== id);
+
+			if (currentItem !== "") {
+				state.gameData.player.items.push(currentItem);
+			}
+
+			updateChest();
 		});
 
 	});
@@ -291,69 +294,4 @@ export function hideDropZone() {
 
 export function hideUI() {
 	ui?.destroy(false);
-}
-
-// create a rect with the unit's portrait and stats
-// to the right of the sprite
-export function displayUnitInfo(chara: CharaSystem.Chara) {
-
-	const { unit } = chara;
-
-	const x = chara.container.x + constants.TILE_WIDTH + 10;
-	const y = Math.min(chara.container.y - constants.TILE_HEIGHT, 200);
-	const width = bgConstants.TILE_WIDTH * 3;
-	const height = bgConstants.TILE_HEIGHT * 5;
-
-	const job = getJob(unit.job);
-
-	unitInfoContainer?.destroy();
-	unitInfoContainer = scene.add.container(x, y);
-
-	const bg = scene.add.graphics();
-	bg.fillStyle(COLOR_BLACK, 0.7);
-	bg.fillRoundedRect(0, 0, width, height, 10);
-
-	unitInfoContainer.add([bg]);
-
-	const pic = scene.add.image(0, 0, "charas/" + job.id)
-		.setDisplaySize(bgConstants.TILE_WIDTH * 3, bgConstants.TILE_WIDTH * 3)
-		.setOrigin(0);
-	unitInfoContainer.add(pic);
-
-	const jobName = scene.add.text(10, 10, job.name, bgConstants.defaultTextConfig);
-	unitInfoContainer.add(jobName);
-
-	const traitsList = unit.traits.map((traitId, idx) => {
-		const iconSize = 96;
-		const trait = getTrait(traitId);
-		const icon = scene.add.image(10, 450 + idx * (iconSize + 5), trait.id).setDisplaySize(iconSize, iconSize);
-		icon.setOrigin(0);
-		//text.setColor(trait.color);
-		return icon
-	});
-	unitInfoContainer.add(traitsList);
-
-
-	const stats = [
-		`❤️ ${unit.hp}/${unit.maxHp}`,
-		`⚔️ ${unit.attack}`,
-		"🛡️ " + unit.defense,
-		"🏃 " + unit.agility,
-		"🎯 " + unit.crit,
-	].map((text, i) => scene.add.text(
-		250, (bgConstants.TILE_HEIGHT * 3) + 10 + i * 50,
-		text, bgConstants.defaultTextConfig));
-	unitInfoContainer.add(stats);
-
-	const closeBtn = scene.add.text(
-		width - 40, 10, "X", bgConstants.defaultTextConfig)
-		.setInteractive()
-		.on("pointerdown", () => {
-			unitInfoContainer?.destroy();
-		}
-		);
-
-	unitInfoContainer.add(closeBtn);
-
-	ui?.add(unitInfoContainer);
 }

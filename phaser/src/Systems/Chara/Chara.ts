@@ -10,7 +10,6 @@ import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
 import * as UnitManager from "../../Scenes/Battleground/Systems/UnitManager";
 import * as GridSystem from "../../Scenes/Battleground/Systems/GridSystem";
 import { BLUE_BONNET, VIVIRED_RED } from "../../Utils/colors";
-import { displayUnitInfo } from "../../Scenes/Battleground/Systems/UIManager";
 import { getGuildUnit, getState, State } from "../../Models/State";
 import * as TooltipSytem from "../Tooltip";
 import { getTrait } from "../../Models/Traits";
@@ -196,14 +195,6 @@ export const makeCharaInteractive = (chara: Chara) => {
 	});
 
 	chara.zone.on('dragend', (pointer: Phaser.Input.Pointer) => {
-
-		// check if it was a click or drag
-		if (pointer.getDistance() < 50) {
-
-			displayUnitInfo(chara);
-
-			return;
-		}
 
 		// check if the drag ended inside or outside scene.dropZone
 
