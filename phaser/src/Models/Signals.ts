@@ -181,3 +181,46 @@ export function traverse_<A>(data: A[], fn: (a: A) => Operation[]) {
   });
 }
 
+// new event system, based on the old one
+
+export type Listener<T, R> = (payload: T) => Promise<R>;
+
+export class EventEmitter<E extends Record<string, [any, any]>> {
+  private listeners: {
+    [K in keyof E]?: Array<Listener<E[K][0], E[K][1]>>;
+  } = {};
+
+  // Register a listener for an event
+  on<K extends keyof E>(
+    event: K,
+    listener: Listener<E[K][0], E[K][1]>
+  ): void {
+    if (!this.listeners[event]) {
+      this.listeners[event] = [];
+    }
+    this.listeners[event]!.push(listener);
+  }
+
+  // Emit an event and return a promise of all listener results
+  async emit<K extends keyof E>(
+    event: K,
+    payload: E[K][0]
+  ): Promise<Array<E[K][1]>> {
+    const listeners = this.listeners[event] || [];
+    const results = listeners.map(listener => listener(payload));
+    return Promise.all(results);
+  }
+}
+
+// Define event types
+export type AppEvents = {
+  //example events:
+  start: [string, void];       // example: string, Return: void
+  process: [number, number];   // example: number, Return: number
+
+  // actual events
+  equipItem: [{ itemId: string, unitId: string }, void];
+
+}
+
+export const emitterv2 = new EventEmitter<AppEvents>();

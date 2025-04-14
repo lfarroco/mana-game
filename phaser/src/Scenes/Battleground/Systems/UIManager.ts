@@ -9,6 +9,7 @@ import { State } from "../../../Models/State";
 import { getTrait } from "../../../Models/Traits"
 import * as Tooltip from "../../../Systems/Tooltip";
 import { overlap } from "./UnitManager";
+import { emitterv2 } from "../../../Models/Signals";
 
 export let ui: Phaser.GameObjects.Container | null = null;
 export let dropZone: Phaser.GameObjects.Zone | null = null;
@@ -196,10 +197,9 @@ export function updateChest() {
 			};
 			console.log("target", target);
 			icon.destroy();
-			target.unit.equip = id;
-			target.equipDisplay.setTexture(id);
-			target.equipDisplay.alpha = 1;
-			target.equipDisplay.setDisplaySize(60, 60);
+
+			emitterv2.emit("equipItem", { itemId: id, unitId: target.unit.id });
+
 			state.gameData.player.items = state.gameData.player.items.filter(item => item !== id);
 		});
 
