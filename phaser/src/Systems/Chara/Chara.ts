@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { Unit } from "../../Models/Unit";
 import * as bgConstants from "../../Scenes/Battleground/constants";
-import { listeners, signals } from "../../Models/Signals";
+import { emitterv2, listeners, signals } from "../../Models/Signals";
 import { asVec2, eqVec2, vec2 } from "../../Models/Geometry";
 import { tween } from "../../Utils/animation";
 import { FORCE_ID_PLAYER, playerForce } from "../../Models/Force";
@@ -11,7 +11,7 @@ import * as UnitManager from "../../Scenes/Battleground/Systems/UnitManager";
 import * as GridSystem from "../../Scenes/Battleground/Systems/GridSystem";
 import { BLUE_BONNET, VIVIRED_RED } from "../../Utils/colors";
 import { displayUnitInfo } from "../../Scenes/Battleground/Systems/UIManager";
-import { getState, State } from "../../Models/State";
+import { getGuildUnit, getState, State } from "../../Models/State";
 import * as TooltipSytem from "../Tooltip";
 import { getTrait } from "../../Models/Traits";
 
@@ -138,39 +138,19 @@ export function createChara(unit: Unit): Chara {
 
 		const closest = UnitManager.overlap(pointer);
 
-		const equipItem = (id: string) => {
-			console.log("equipping ", id)
-			unit.equip = id;
-			if (id === "") {
-				item.alpha = 0;
-			} else {
-				item.alpha = 1;
-			}
-			item.setTexture(id);
-			item.setDisplaySize(60, 60);
-			item.setPosition(
-				bgConstants.HALF_TILE_WIDTH - 40, - bgConstants.HALF_TILE_HEIGHT + 40
-			)
-		}
-
 		if (!closest) {
 			// back to chest
 			playerForce.items.push(unit.equip);
-			equipItem("");
-
+			emitterv2.emit("equipItem", { itemId: "", unitId: unit.id });
 			UIManager.updateChest()
 		} else {
 			if (closest.unit.id === unit.id) {//self
-				equipItem(unit.equip);
+				emitterv2.emit("equipItem", { itemId: "", unitId: unit.id });
 			} else { //another
 				const currEquip = closest.unit.equip;
 
-				closest.unit.equip = unit.equip;
-				closest.equipDisplay.setTexture(unit.equip);
-				closest.equipDisplay.setDisplaySize(60, 60);
-				closest.equipDisplay.alpha = 1;
-
-				equipItem(currEquip);
+				emitterv2.emit("equipItem", { itemId: unit.equip, unitId: closest.id });
+				emitterv2.emit("equipItem", { itemId: currEquip, unitId: unit.id });
 
 			}
 		}
@@ -246,7 +226,6 @@ export const makeCharaInteractive = (chara: Chara) => {
 		if (maybeOccupier) {
 			const occupierChara = UnitManager.getChara(maybeOccupier.id);
 
-			console.log("position for occupier", asVec2(charaUnit.position));
 			maybeOccupier.position = asVec2(charaUnit.position);
 
 			tween({
@@ -391,5 +370,28 @@ export function init(sceneRef: Phaser.Scene) {
 
 		}]
 	])
+
+	emitterv2.on("equipItem", async ({ unitId, itemId }): Promise<void> => {
+
+		const unit = getGuildUnit(state)(unitId);
+		const chara = UnitManager.getChara(unitId);
+		if (!unit) throw new Error("unit not found");
+
+
+		console.log("equipping ", itemId)
+		unit.equip = itemId;
+
+		if (itemId === "") {
+			chara.equipDisplay.alpha = 0;
+		} else {
+			chara.equipDisplay.alpha = 1;
+		}
+		chara.equipDisplay.setTexture(itemId);
+		chara.equipDisplay.setDisplaySize(60, 60);
+		chara.equipDisplay.setPosition(
+			bgConstants.HALF_TILE_WIDTH - 40, - bgConstants.HALF_TILE_HEIGHT + 40
+		)
+
+	})
 
 }
