@@ -99,6 +99,11 @@ export function updateUI() {
 		ui?.add(uiText);
 	});
 
+	chestButton();
+
+}
+
+function chestButton() {
 	const chest = scene.add.image(
 		constants.SCREEN_WIDTH - 140,
 		constants.SCREEN_HEIGHT - 100,
@@ -138,7 +143,6 @@ export function updateUI() {
 		}
 
 	});
-
 }
 
 export function updateChest() {
@@ -156,19 +160,26 @@ export function updateChest() {
 	state.gameData.player.items.forEach((id, i) => {
 		const baseX = 100;
 		const baseY = 100;
-
-		const icon = scene.add.image(0, 0, id)
-			.setDisplaySize(constants.TILE_WIDTH, constants.TILE_WIDTH)
-			.setOrigin(0);
-
 		// 3x3 grid
 		const x = i % 3;
 		const y = Math.floor(i / 3);
 
 		const position = [
-			baseX + (x * constants.TILE_WIDTH),
-			baseY + (y * constants.TILE_WIDTH)
+			baseX + (x * constants.TILE_WIDTH) + (x * 16),
+			baseY + (y * constants.TILE_WIDTH) + (y * 16)
 		]
+
+		const slot = scene.add.image(0, 0, "ui/slot").setOrigin(0)
+			.setDisplaySize(constants.TILE_WIDTH + 12, constants.TILE_WIDTH + 12)
+			.setPosition(...position);
+
+		chestContainer.add(slot);
+
+		const icon = scene.add.image(0, 0, id)
+			.setDisplaySize(constants.TILE_WIDTH, constants.TILE_WIDTH)
+			.setOrigin(0);
+
+
 		icon.setPosition(...position);
 		chestContainer.add(icon);
 
