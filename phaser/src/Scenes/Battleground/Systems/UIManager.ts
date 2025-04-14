@@ -153,13 +153,14 @@ export function updateChest() {
 
 	chestContainer.add(bg);
 
-	state.gameData.player.items.forEach((id, i) => {
-		const baseX = 100;
-		const baseY = 100;
-		// 3x3 grid
+	const baseX = 100;
+	const baseY = 100;
+
+	// 3x3 grid
+	new Array(9).fill(0).forEach((_, i) => {
+
 		const x = i % 3;
 		const y = Math.floor(i / 3);
-
 		const position = [
 			baseX + (x * constants.TILE_WIDTH) + (x * 16),
 			baseY + (y * constants.TILE_WIDTH) + (y * 16)
@@ -171,10 +172,14 @@ export function updateChest() {
 
 		chestContainer.add(slot);
 
+		const id = state.gameData.player.items[i];
+
+		if (!id) {
+			return;
+		}
 		const icon = scene.add.image(0, 0, id)
 			.setDisplaySize(constants.TILE_WIDTH, constants.TILE_WIDTH)
 			.setOrigin(0);
-
 
 		icon.setPosition(...position);
 		chestContainer.add(icon);
@@ -197,16 +202,16 @@ export function updateChest() {
 		});
 
 		icon.on("dragend", (pointer: Phaser.Input.Pointer) => {
-			const target = overlap(pointer);
-			if (!target) {
+			const targetChara = overlap(pointer);
+			if (!targetChara) {
 				icon.setPosition(...position)
 				return;
 			};
 			icon.destroy();
 
-			const currentItem = target.unit.equip;
+			const currentItem = targetChara.unit.equip;
 
-			emitterv2.emit("equipItem", { itemId: id, unitId: target.unit.id });
+			emitterv2.emit("equipItem", { itemId: id, unitId: targetChara.unit.id });
 
 			state.gameData.player.items = state.gameData.player.items.filter(item => item !== id);
 
@@ -218,6 +223,7 @@ export function updateChest() {
 		});
 
 	});
+
 }
 
 export function displayError(err: string) {
