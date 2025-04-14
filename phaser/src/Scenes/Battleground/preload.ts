@@ -105,7 +105,12 @@ export function preload(this: Phaser.Scene) {
 
 	this.load.image("ui/chest", "assets/ui/chest.png")
 	this.load.image("ui/slot", "assets/ui/slot.png")
-	this.load.image("ui/wood_texture", "assets/ui/wood_texture.png")
+	this.load.image("ui/wood_texture", "assets/ui/wood_texture.png");
+
+	['blue_potion', 'red_potion', 'toxic_potion', 'burn_potion', 'gold_ring', 'iron_sword'].forEach(item => {
+
+		this.load.image(`items/${item}`, `assets/items/${item}.png`);
+	});
 
 	jobs.forEach(job => {
 		this.load.svg(`charas/${job}`, `assets/charas/${job}.svg`, { scale: 3 });

@@ -19,17 +19,7 @@ export const makeForce = (id: string): Force => ({
 	income: 5,
 	hp: 50,
 	units: [],
-	items: [
-		'icon/fireball',
-		'icon/arcane_missiles',
-		'icon/feint',
-		'icon/quest',
-		"icon/chest_small",
-		"icon/chest_medium",
-		"icon/chest_large",
-		'icon/fruits',
-		'icon/endurance_training',
-	]
+	items: ['blue_potion', 'red_potion', 'toxic_potion', 'burn_potion', 'gold_ring', 'iron_sword'].map(i => `items/${i}`) // TODO: move to a better place
 });
 
 export const FORCE_ID_PLAYER = "PLAYER"

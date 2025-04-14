@@ -102,61 +102,7 @@ export function createChara(unit: Unit): Chara {
 
 	container.add(zone);
 
-	const itemBorder = scene.add.image(
-		bgConstants.HALF_TILE_WIDTH - 40, - bgConstants.HALF_TILE_HEIGHT + 40,
-		"ui/slot")
-		.setOrigin(0.5, 0.5)
-		.setDisplaySize(80, 80);
-	const item = scene.add.image(
-		bgConstants.HALF_TILE_WIDTH - 40, - bgConstants.HALF_TILE_HEIGHT + 40,
-		unit.equip).setDisplaySize(60, 60).setOrigin(0.5, 0.5);
-
-	if (unit.equip === "") {
-		item.alpha = 0;
-	}
-	item.setInteractive({ draggable: true });
-	item.on('dragstart', () => {
-		scene.children.bringToTop(chara.container);
-	});
-	item.on('drag', (pointer: Phaser.Input.Pointer) => {
-		if (unit.force !== FORCE_ID_PLAYER) return;
-		item.x = pointer.x - item.parentContainer.x;
-		item.y = pointer.y - item.parentContainer.y;
-	});
-
-	item.on('pointerover', () => {
-		const text = [
-			`${unit.equip}`,
-		];
-		TooltipSytem.render(
-			item.parentContainer.x + item.x + 300, item.parentContainer.y + item.y,
-			text.join('\n'));
-	});
-
-	item.on('dragend', (pointer: Phaser.Input.Pointer) => {
-		console.log("dragend", pointer.x, pointer.y);
-
-		const closest = UnitManager.overlap(pointer);
-
-		if (!closest) {
-			// back to chest
-			playerForce.items.push(unit.equip);
-			emitterv2.emit("equipItem", { itemId: "", unitId: unit.id });
-			UIManager.updateChest()
-		} else {
-			if (closest.unit.id === unit.id) {//self
-				emitterv2.emit("equipItem", { itemId: "", unitId: unit.id });
-			} else { //another
-				const currEquip = closest.unit.equip;
-
-				emitterv2.emit("equipItem", { itemId: unit.equip, unitId: closest.id });
-				emitterv2.emit("equipItem", { itemId: currEquip, unitId: unit.id });
-
-			}
-		}
-	});
-
-	container.add([itemBorder, item]);
+	const item = renderItemSlot(unit, container);
 
 	const chara: Chara = {
 		id: unit.id,
@@ -293,6 +239,65 @@ export const makeCharaInteractive = (chara: Chara) => {
 		TooltipSytem.hide()
 	})
 
+}
+
+function renderItemSlot(unit: Unit, container: Phaser.GameObjects.Container) {
+	const itemBorder = scene.add.image(
+		bgConstants.HALF_TILE_WIDTH - 40, -bgConstants.HALF_TILE_HEIGHT + 40,
+		"ui/slot")
+		.setOrigin(0.5, 0.5)
+		.setDisplaySize(80, 80);
+	const item = scene.add.image(
+		bgConstants.HALF_TILE_WIDTH - 40, -bgConstants.HALF_TILE_HEIGHT + 40,
+		unit.equip).setDisplaySize(60, 60).setOrigin(0.5, 0.5);
+
+	if (unit.equip === "") {
+		item.alpha = 0;
+	}
+	item.setInteractive({ draggable: true });
+	item.on('dragstart', () => {
+		scene.children.bringToTop(container);
+	});
+	item.on('drag', (pointer: Phaser.Input.Pointer) => {
+		if (unit.force !== FORCE_ID_PLAYER) return;
+		item.x = pointer.x - item.parentContainer.x;
+		item.y = pointer.y - item.parentContainer.y;
+	});
+
+	item.on('pointerover', () => {
+		const text = [
+			`${unit.equip}`,
+		];
+		TooltipSytem.render(
+			item.parentContainer.x + item.x + 300, item.parentContainer.y + item.y,
+			text.join('\n'));
+	});
+
+	item.on('dragend', (pointer: Phaser.Input.Pointer) => {
+		console.log("dragend", pointer.x, pointer.y);
+
+		const closest = UnitManager.overlap(pointer);
+
+		if (!closest) {
+			// back to chest
+			playerForce.items.push(unit.equip);
+			emitterv2.emit("equipItem", { itemId: "", unitId: unit.id });
+			UIManager.updateChest();
+		} else {
+			if (closest.unit.id === unit.id) { //self
+				emitterv2.emit("equipItem", { itemId: "", unitId: unit.id });
+			} else { //another
+				const currEquip = closest.unit.equip;
+
+				emitterv2.emit("equipItem", { itemId: unit.equip, unitId: closest.id });
+				emitterv2.emit("equipItem", { itemId: currEquip, unitId: unit.id });
+
+			}
+		}
+	});
+
+	container.add([itemBorder, item]);
+	return item;
 }
 
 export function destroyChara(chara: Chara) {
