@@ -67,7 +67,8 @@ export function preload(this: Phaser.Scene) {
 	[
 		'old_adventurer',
 		'combat_training',
-		'agility_training'
+		'agility_training',
+		'forest_entrance',
 	].forEach(icon => {
 		this.load.image(`icon/${icon}`, `assets/icons/${icon}.png`);
 	});

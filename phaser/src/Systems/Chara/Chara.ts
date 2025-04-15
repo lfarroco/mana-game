@@ -44,11 +44,7 @@ export function createChara(unit: Unit): Chara {
 		borderColor, 1)
 		.setOrigin(0.5, 0.5)
 
-	const shape = scene.add.rectangle(0, 0, bgConstants.TILE_WIDTH, bgConstants.TILE_HEIGHT, 0xffffff);
-	const mask = shape.createBitmapMask();
-
-	const sprite = scene.add.image(0, 0, `charas/${unit.job}`);
-	sprite.mask = mask;
+	const { sprite, shape } = portrait(unit);
 
 	const container = scene.add.container(
 		unit.position.x * bgConstants.TILE_WIDTH + bgConstants.HALF_TILE_WIDTH,
@@ -230,6 +226,15 @@ export const makeCharaInteractive = (chara: Chara) => {
 		TooltipSytem.hide()
 	})
 
+}
+
+export function portrait(unit: Unit) {
+	const shape = scene.add.rectangle(0, 0, bgConstants.TILE_WIDTH, bgConstants.TILE_HEIGHT, 0xffffff);
+	const mask = shape.createBitmapMask();
+
+	const sprite = scene.add.image(0, 0, `charas/${unit.job}`);
+	sprite.mask = mask;
+	return { sprite, shape };
 }
 
 function renderItemSlot(unit: Unit, container: Phaser.GameObjects.Container) {
