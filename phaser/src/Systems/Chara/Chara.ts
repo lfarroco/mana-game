@@ -4,7 +4,7 @@ import * as bgConstants from "../../Scenes/Battleground/constants";
 import { emitterv2, listeners, signals } from "../../Models/Signals";
 import { asVec2, eqVec2, vec2 } from "../../Models/Geometry";
 import { tween } from "../../Utils/animation";
-import { FORCE_ID_PLAYER, playerForce } from "../../Models/Force";
+import { FORCE_ID_CPU, FORCE_ID_PLAYER, playerForce } from "../../Models/Force";
 import { getJob, Job } from "../../Models/Job";
 import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
 import * as UnitManager from "../../Scenes/Battleground/Systems/UnitManager";
@@ -368,6 +368,42 @@ export function init(sceneRef: Phaser.Scene) {
 
 			const chara = UnitManager.getChara(unitId);
 			chara.hpDisplay.setText(hp.toString());
+
+		}],
+		[signals.UNIT_DESTROYED, (unitId: string) => {
+
+			const chara = UnitManager.getChara(unitId);
+
+			if (chara.unit.force !== FORCE_ID_CPU) return;
+
+			// render item at location
+
+			const item = scene.add.image(
+				chara.container.x, chara.container.y,
+				"items/toxic_potion").setScale(0.3)
+
+			scene.tweens.add({
+				targets: item,
+				y: item.y - 100,
+				duration: 500,
+				ease: 'Power2',
+				onComplete: () => {
+					// accelerate towards lower right of the screen
+					scene.tweens.add({
+						targets: item,
+						x: scene.cameras.main.width - 100,
+						y: scene.cameras.main.height - 100,
+						duration: 500,
+						alpha: 0,
+						ease: 'Power2',
+						onComplete: () => {
+							item.destroy();
+							state.gameData.player.items.push("items/toxic_potion");
+						}
+					})
+
+				}
+			});
 
 		}]
 	])
