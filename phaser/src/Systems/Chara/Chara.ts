@@ -1,18 +1,19 @@
 import Phaser from "phaser";
 import { Unit } from "../../Models/Unit";
 import * as bgConstants from "../../Scenes/Battleground/constants";
-import { emitterv2, listeners, signals } from "../../Models/Signals";
+import { listeners, signals } from "../../Models/Signals";
 import { asVec2, eqVec2, vec2 } from "../../Models/Geometry";
 import { tween } from "../../Utils/animation";
-import { FORCE_ID_CPU, FORCE_ID_PLAYER, playerForce } from "../../Models/Force";
+import { FORCE_ID_PLAYER, playerForce } from "../../Models/Force";
 import { getJob, Job } from "../../Models/Job";
 import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
 import * as UnitManager from "../../Scenes/Battleground/Systems/UnitManager";
 import * as GridSystem from "../../Scenes/Battleground/Systems/GridSystem";
 import { BLUE_BONNET, VIVIRED_RED } from "../../Utils/colors";
-import { getGuildUnit, getState, State } from "../../Models/State";
+import { getState, State } from "../../Models/State";
 import * as TooltipSytem from "../Tooltip";
 import { getTrait } from "../../Models/Traits";
+import { equipItem } from "../Item/EquipItem";
 
 export type Chara = {
 	id: string;
@@ -277,16 +278,16 @@ function renderItemSlot(unit: Unit, container: Phaser.GameObjects.Container) {
 		if (!closest) {
 			// back to chest
 			playerForce.items.push(unit.equip);
-			emitterv2.emit("equipItem", { itemId: "", unitId: unit.id });
+			equipItem({ unitId: unit.id, itemId: "" });
 			UIManager.updateChest();
 		} else {
 			if (closest.unit.id === unit.id) { //self
-				emitterv2.emit("equipItem", { itemId: "", unitId: unit.id });
+				equipItem({ unitId: unit.id, itemId: "" });
 			} else { //another
 				const currEquip = closest.unit.equip;
 
-				emitterv2.emit("equipItem", { itemId: unit.equip, unitId: closest.id });
-				emitterv2.emit("equipItem", { itemId: currEquip, unitId: unit.id });
+				equipItem({ unitId: closest.id, itemId: unit.equip });
+				equipItem({ unitId: unit.id, itemId: currEquip });
 
 			}
 		}
@@ -370,65 +371,7 @@ export function init(sceneRef: Phaser.Scene) {
 			chara.hpDisplay.setText(hp.toString());
 
 		}],
-		[signals.UNIT_DESTROYED, (unitId: string) => {
 
-			const chara = UnitManager.getChara(unitId);
-
-			if (chara.unit.force !== FORCE_ID_CPU) return;
-
-			// render item at location
-
-			const item = scene.add.image(
-				chara.container.x, chara.container.y,
-				"items/toxic_potion").setScale(0.3)
-
-			scene.tweens.add({
-				targets: item,
-				y: item.y - 100,
-				duration: 500,
-				ease: 'Power2',
-				onComplete: () => {
-					// accelerate towards lower right of the screen
-					scene.tweens.add({
-						targets: item,
-						x: scene.cameras.main.width - 100,
-						y: scene.cameras.main.height - 100,
-						duration: 500,
-						alpha: 0,
-						ease: 'Power2',
-						onComplete: () => {
-							item.destroy();
-							state.gameData.player.items.push("items/toxic_potion");
-						}
-					})
-
-				}
-			});
-
-		}]
 	])
-
-	emitterv2.on("equipItem", async ({ unitId, itemId }): Promise<void> => {
-
-		const unit = getGuildUnit(state)(unitId);
-		const chara = UnitManager.getChara(unitId);
-		if (!unit) throw new Error("unit not found");
-
-
-		console.log("equipping ", itemId)
-		unit.equip = itemId;
-
-		if (itemId === "") {
-			chara.equipDisplay.alpha = 0;
-		} else {
-			chara.equipDisplay.alpha = 1;
-		}
-		chara.equipDisplay.setTexture(itemId);
-		chara.equipDisplay.setDisplaySize(60, 60);
-		chara.equipDisplay.setPosition(
-			bgConstants.HALF_TILE_WIDTH - 40, - bgConstants.HALF_TILE_HEIGHT + 40
-		)
-
-	})
 
 }
