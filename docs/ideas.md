@@ -107,3 +107,17 @@ Display possible loot when selecting quest
 Loop: loot during the week, pvp on weekend
 
 Units with professions can give items per day/week
+
+Loot: in the bazaar, the player gains hp/regen/shield
+for this game, the units do
+and for some effects, the items
+Examples:
+regen -> unit
+poison -> weapon
+
+https://thebazaar.wiki.gg/wiki/Loot_Items
+
+cinders -> burn
+talisman -> unit
+extract (poison) -> item
+chocolate bars -> unit (+hp)
