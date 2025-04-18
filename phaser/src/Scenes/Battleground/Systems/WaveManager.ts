@@ -21,12 +21,10 @@ export async function createWave(id: number) {
 	scene.state.battleData.units.forEach(UnitManager.renderChara);
 
 	const promises = scene.state.battleData.units
-		.flatMap(u => u.traits
-			.filter(t => t.events.onBattleStart)
-			.map(t => t.events.onBattleStart!(u))
+		.flatMap(u => u.events.onBattleStart.map(fn => fn(u))
 		);
 
-	await runPromisesInOrder(promises)
+	await runPromisesInOrder(promises);
 
 	await processTick(scene);
 }

@@ -43,16 +43,14 @@ export async function physicalAttack(
 	});
 
 	await runPromisesInOrder(
-		activeChara.unit
-			.traits.filter(t => t.events.onAttackByMe)
-			.map(u => u.events.onAttackByMe!(activeChara.unit, targetChara.unit))
-	)
+		activeChara.unit.events
+			.onAttackByMe.map(fn => fn(activeChara.unit, targetChara.unit))
+	);
 
 	await runPromisesInOrder(
-		targetChara.unit
-			.traits.filter(t => t.events.onDefendByMe)
-			.map(u => u.events.onDefendByMe!(targetChara.unit, activeChara.unit))
-	)
+		targetChara.unit.events
+			.onDefendByMe.map(fn => fn(activeChara.unit, targetChara.unit))
+	);
 
 	emit(signals.DAMAGE_UNIT, targetChara.id, damage);
 

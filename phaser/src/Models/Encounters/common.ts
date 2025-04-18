@@ -5,6 +5,7 @@ import { BLOB } from "../Job";
 import { emit, signals } from "../Signals";
 import { State } from "../State";
 import * as Traits from "../Traits";
+import { addUnitTrait } from "../Traits";
 import { Unit } from "../Unit";
 import { Encounter, makeEncounter, TIER } from "./Encounter";
 
@@ -45,8 +46,7 @@ const commonEvents = (): Encounter[] => [
 
 			const trait = Traits.randomCategoryTrait(Traits.TRAIT_CATEGORY_ATTACK)
 
-			unit.traits.push(trait)
-			popText({ text: `+ ${trait.name} Trait`, targetId: unit.id, type: "neutral" });
+			addUnitTrait(trait, unit);
 		}
 	}),
 ];
