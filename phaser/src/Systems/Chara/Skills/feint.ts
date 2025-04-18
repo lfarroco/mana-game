@@ -1,4 +1,3 @@
-import { emit, signals } from "../../../Models/Signals";
 import { Unit, unitLog } from "../../../Models/Unit";
 import { popText } from "../Animations/popText";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
@@ -21,8 +20,7 @@ export async function feint(
 
 	summonEffect(scene, scene.speed, asVec2(activeChara.container));
 
-	emit(signals.ADD_STATUS, activeChara.id, "next-critical", 2);
-
-	emit(signals.ADD_STATUS, activeChara.id, "next-dodge", 2);
+	// TODO: do something
+	
 
 }
