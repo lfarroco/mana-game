@@ -2,7 +2,7 @@ import { waves } from "../enemyWaves";
 import { BattlegroundScene } from "../BattlegroundScene";
 import * as UnitManager from "./UnitManager";
 import processTick from "../ProcessTick";
-import { HANDLER_ON_BATTLE_START, runUnitTraitHandlers } from "../../../Models/Traits";
+import { runPromisesInOrder } from "../../../utils";
 
 export let scene: BattlegroundScene;
 
@@ -20,10 +20,15 @@ export async function createWave(id: number) {
 
 	scene.state.battleData.units.forEach(UnitManager.renderChara);
 
-	await runUnitTraitHandlers(scene.state.battleData.units, HANDLER_ON_BATTLE_START);
+	const promises = scene.state.battleData.units
+		.flatMap(u => u.traits
+			.filter(t => t.events.onBattleStart)
+			.map(t => t.events.onBattleStart!(u))
+		);
+
+	await runPromisesInOrder(promises)
 
 	await processTick(scene);
-
 }
 
 export function handleWaveFinished(_scene: BattlegroundScene) {

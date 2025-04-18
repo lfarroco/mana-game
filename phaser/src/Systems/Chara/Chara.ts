@@ -12,7 +12,6 @@ import * as GridSystem from "../../Scenes/Battleground/Systems/GridSystem";
 import { BLUE_BONNET, VIVIRED_RED } from "../../Utils/colors";
 import { getState, State } from "../../Models/State";
 import * as TooltipSytem from "../Tooltip";
-import { getTrait } from "../../Models/Traits";
 import { equipItem } from "../Item/EquipItem";
 
 export type Chara = {
@@ -212,7 +211,7 @@ export const makeCharaInteractive = (chara: Chara) => {
 		const text = [
 			`${chara.job.name}`,
 			`Attack: ${chara.unit.attack} HP: ${chara.unit.hp}`,
-			chara.unit.traits.map(getTrait).map((trait) => trait.description).join("\n"),
+			chara.unit.traits.map((trait) => trait.description).join("\n"),
 			`Equip: ${chara.unit.equip}`,
 		].join('\n');
 
@@ -374,4 +373,14 @@ export function init(sceneRef: Phaser.Scene) {
 
 	])
 
+}
+
+export function updateAtkDisplay(id: string, atk: number) {
+	const chara = UnitManager.getChara(id);
+	chara.atkDisplay.setText(atk.toString());
+}
+
+export function updateHpDisplay(id: string, hp: number) {
+	const chara = UnitManager.getChara(id);
+	chara.hpDisplay.setText(hp.toString());
 }

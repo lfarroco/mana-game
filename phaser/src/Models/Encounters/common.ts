@@ -45,7 +45,7 @@ const commonEvents = (): Encounter[] => [
 
 			const trait = Traits.randomCategoryTrait(Traits.TRAIT_CATEGORY_ATTACK)
 
-			unit.traits.push(trait.id)
+			unit.traits.push(trait)
 			popText({ text: `+ ${trait.name} Trait`, targetId: unit.id, type: "neutral" });
 		}
 	}),

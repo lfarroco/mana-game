@@ -1,7 +1,7 @@
 import { impactEffect, criticalDamageDisplay } from "../../../Effects";
 import { emit, signals } from "../../../Models/Signals";
 import { getState } from "../../../Models/State";
-import * as Traits from "../../../Models/Traits";
+import { runPromisesInOrder } from "../../../utils";
 import { tween, delay } from "../../../Utils/animation";
 import { popText } from "../Animations/popText";
 import { Chara } from "../Chara";
@@ -42,9 +42,17 @@ export async function physicalAttack(
 		repeat: 4,
 	});
 
-	await Traits.runTargetUnitTraitHandlers(Traits.TARGET_HANDLER_ON_ATTACK_BY_ME, activeChara.unit, targetChara.unit)
+	await runPromisesInOrder(
+		activeChara.unit
+			.traits.filter(t => t.events.onAttackByMe)
+			.map(u => u.events.onAttackByMe!(activeChara.unit, targetChara.unit))
+	)
 
-	await Traits.runTargetUnitTraitHandlers(Traits.TARGET_HANDLER_ON_DEFEND_BY_ME, targetChara.unit, activeChara.unit);
+	await runPromisesInOrder(
+		targetChara.unit
+			.traits.filter(t => t.events.onDefendByMe)
+			.map(u => u.events.onDefendByMe!(targetChara.unit, activeChara.unit))
+	)
 
 	emit(signals.DAMAGE_UNIT, targetChara.id, damage);
 

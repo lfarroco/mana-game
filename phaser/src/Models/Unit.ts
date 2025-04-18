@@ -1,6 +1,6 @@
 import { asVec2, Vec2 } from "./Geometry";
 import { getJob, JobId } from "./Job";
-import { TraitId } from "./Traits";
+import { Trait } from "./Traits";
 
 export type Unit = {
   id: string;
@@ -19,7 +19,7 @@ export type Unit = {
   multicast: number;
 
   statuses: { [key: string]: number };
-  traits: TraitId[];
+  traits: Trait[];
 
   equip: string;
 

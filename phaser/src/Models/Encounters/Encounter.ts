@@ -96,9 +96,9 @@ export const starterEvent: Encounter = {
 			// testing: add random traits
 			const { units } = state.gameData.player;
 			const trait = randomCategoryTrait(TRAIT_CATEGORY_PERSONALITY)
-			units[units.length - 1].traits.push(trait.id)
+			units[units.length - 1].traits.push(trait)
 			const trait2 = randomCategoryTrait(TRAIT_CATEGORY_DEFENSIVE)
-			units[units.length - 1].traits.push(trait2.id)
+			units[units.length - 1].traits.push(trait2)
 		}
 	}
 }
