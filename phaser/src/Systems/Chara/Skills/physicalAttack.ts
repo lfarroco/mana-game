@@ -13,14 +13,6 @@ export async function physicalAttack(
 	const { scene } = activeChara;
 	const { speed } = getState().options;
 
-	const dodges = targetChara.unit.statuses["next-dodge"] > 0;
-
-	if (dodges) {
-		await popText({ text: "Dodge", targetId: targetChara.unit.id });
-		delete targetChara.unit.statuses["next-dodge"];
-		return;
-	}
-
 	impactEffect({
 		scene,
 		location: targetChara.container,
@@ -31,15 +23,13 @@ export async function physicalAttack(
 
 	const dice = Math.floor(Math.random() * 100);
 
-	const isCritical = dice <= activeChara.unit.crit || activeChara.unit.statuses["next-critical"] > 0;
+	const isCritical = dice <= activeChara.unit.crit;
 
 	const rawDmg = isCritical ? activeChara.unit.attack * 2 : activeChara.unit.attack;
 	const damage = Math.max(1, rawDmg - targetChara.unit.defense);
 
 	if (isCritical) {
 		criticalDamageDisplay(scene, targetChara.container, damage, speed);
-
-		activeChara.unit.statuses["next-critical"] = 0;
 	} else {
 		popText({ text: damage.toString(), targetId: targetChara.unit.id });
 	}
