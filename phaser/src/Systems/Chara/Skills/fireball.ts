@@ -3,10 +3,10 @@ import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { getUnitsByProximity } from "../../../Models/State";
 import { popText } from "../Animations/popText";
-import { emit, signals } from "../../../Models/Signals";
 import { fireballEffect } from "../../../Effects/fireballEffect";
 import { approach } from "../approach";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
+import { damageUnit } from "../Chara";
 
 export const fireball = (
 	scene: BattlegroundScene
@@ -34,11 +34,10 @@ export const fireball = (
 
 	// deal damage to all targets
 
-	emit(signals.DAMAGE_UNIT, target.id, skill.power);
-	popText({ text: skill.power.toString(), targetId: target.id });
+	damageUnit(target.id, skill.power);
 
 	targets.forEach(target => {
-		emit(signals.DAMAGE_UNIT, target.id, skill.power / 2);
+		damageUnit(target.id, skill.power / 2);
 		popText({ text: (skill.power / 2).toString(), targetId: target.id });
 	});
 

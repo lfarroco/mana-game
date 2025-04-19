@@ -9,6 +9,7 @@ import { delay } from "../../../Utils/animation";
 import { healingHitEffect } from "../../../Effects/healingHitEffect";
 import { approach } from "../approach";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
+import { damageUnit } from "../Chara";
 
 export const lightOrb = (
 	scene: BattlegroundScene
@@ -45,10 +46,7 @@ export const lightOrb = (
 
 	await delay(scene, 500 / state.options.speed);
 
-	// TODO: display pop text on damage using listener
-	emit(signals.DAMAGE_UNIT, targetChara.id, damage);
-
-	popText({ text: damage.toString(), targetId: targetChara.unit.id });
+	damageUnit(targetChara.id, damage);
 
 	allies.forEach(ally => {
 

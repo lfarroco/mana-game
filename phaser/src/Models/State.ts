@@ -69,15 +69,6 @@ export const setState = (state: State) => {
 
 
 
-
-export const updateUnit = (state: State) => (id: string) => (
-  u: Partial<Unit>
-) => {
-  const unit = state.battleData.units.find((u) => u.id === id);
-  if (!unit) throw new Error("unit not found");
-  Object.assign(unit, u);
-};
-
 export const getBattleUnit = (state: State) => (id: string): Unit => {
   return state.battleData.units.find((u) => u.id === id)!;
 }
@@ -136,34 +127,6 @@ export const listenToStateEvents = (state: State) => {
       UnitManager.renderChara(unit);
 
     }],
-
-    [signals.UPDATE_UNIT, (id: string, u: Partial<Unit>) => {
-
-      const currentUnit = state.battleData.units.find((s) => s.id === id)
-
-      if (!currentUnit) throw new Error(`unit ${id} not found`)
-
-      updateUnit(state)(id)(u);
-    }],
-    [signals.DAMAGE_UNIT, (id: string, damage: number) => {
-
-      const unit = state.battleData.units.find((u) => u.id === id);
-
-      if (!unit) throw new Error(`unit ${id} not found`)
-
-      const nextHp = unit.hp - damage;
-
-      const hasDied = nextHp <= 0;
-
-      emit(signals.UPDATE_UNIT, id, { hp: hasDied ? 0 : nextHp });
-
-      emit(signals.UNIT_HP_UPDATED, id, nextHp);
-
-      if (hasDied) {
-        emit(signals.UNIT_DESTROYED, id);
-      }
-
-    }],
     [signals.HEAL_UNIT, (id: string, amount: number) => {
 
       const unit = state.battleData.units.find((u) => u.id === id);
@@ -172,8 +135,7 @@ export const listenToStateEvents = (state: State) => {
 
       const nextHp = unit.hp + amount;
 
-      emit(signals.UPDATE_UNIT, id, { hp: nextHp > unit.maxHp ? unit.maxHp : nextHp });
-
+      unit.hp = nextHp > unit.maxHp ? unit.maxHp : nextHp;
 
     }],
 

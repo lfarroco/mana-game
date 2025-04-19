@@ -6,7 +6,7 @@ import * as animation from "../Animations/shieldBash"
 import { approach } from "../approach";
 import { specialAnimation } from "../Animations/specialAnimation";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
-import { Chara } from "../Chara";
+import { Chara, damageUnit } from "../Chara";
 
 export async function shieldBash(activeChara: Chara) {
 
@@ -30,7 +30,7 @@ export async function shieldBash(activeChara: Chara) {
 
 	await animation.shieldBash(activeChara, targetChara)
 
-	emit(signals.DAMAGE_UNIT, targetChara.id, unit.attack);
+	await damageUnit(targetChara.id, unit.attack);
 
 	if (targetChara.unit.hp > 0) {
 
