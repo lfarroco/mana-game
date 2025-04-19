@@ -13,6 +13,9 @@ import { BLUE_BONNET, VIVIRED_RED } from "../../Utils/colors";
 import { getState, State } from "../../Models/State";
 import * as TooltipSytem from "../Tooltip";
 import { equipItem } from "../Item/EquipItem";
+import { popText } from "./Animations/popText";
+import { criticalDamageDisplay } from "../../Effects";
+import * as ItemDrop from "../Item/ItemDrop";
 
 export type Chara = {
 	id: string;
@@ -349,27 +352,6 @@ export function init(sceneRef: Phaser.Scene) {
 			chara.container.getByName("status-" + status)?.destroy();
 
 		}],
-		[signals.UNIT_DESTROYED, (id: string) => {
-
-			const chara = UnitManager.getChara(id)
-
-			scene.tweens.add({
-				targets: chara.container,
-				alpha: 0,
-				duration: 1000 / state.options.speed,
-				ease: 'Power2',
-				onComplete: () => {
-					chara.container.destroy(true)
-				}
-			});
-
-		}],
-		[signals.UNIT_HP_UPDATED, (unitId: string, hp: number) => {
-
-			const chara = UnitManager.getChara(unitId);
-			chara.hpDisplay.setText(hp.toString());
-
-		}],
 
 	])
 
@@ -383,4 +365,45 @@ export function updateAtkDisplay(id: string, atk: number) {
 export function updateHpDisplay(id: string, hp: number) {
 	const chara = UnitManager.getChara(id);
 	chara.hpDisplay.setText(hp.toString());
+}
+
+export async function damageUnit(id: string, damage: number, isCritical = false) {
+	const chara = UnitManager.getChara(id);
+
+	const nextHp = chara.unit.hp - damage;
+	const hasDied = nextHp <= 0;
+
+	chara.unit.hp = nextHp <= 0 ? 0 : nextHp;
+	chara.hpDisplay.setText(chara.unit.hp.toString());
+
+	if (isCritical) {
+		criticalDamageDisplay(scene, chara.container, damage, getState().options.speed);
+	} else {
+		popText({ text: damage.toString(), targetId: chara.id });
+	}
+
+	if (hasDied)
+		await killUnit(chara)
+	else
+		await tween({
+			targets: [chara.container],
+			alpha: 0.5,
+			duration: 100 / getState().options.speed,
+			yoyo: true,
+			repeat: 4,
+		});
+}
+
+export async function killUnit(chara: Chara) {
+	await tween({
+		targets: [chara.container],
+		alpha: 0,
+		yoyo: true,
+		duration: 250 / state.options.speed,
+		repeat: 4,
+		ease: 'Power2',
+	});
+	chara.container.destroy(true);
+
+	ItemDrop.dropItem(chara);
 }

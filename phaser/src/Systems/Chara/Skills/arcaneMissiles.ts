@@ -3,11 +3,11 @@ import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { getUnitsByProximity } from "../../../Models/State";
 import { popText } from "../Animations/popText";
-import { emit, signals } from "../../../Models/Signals";
 import * as animation from "../../../Effects/arcaneMissile";
 import { delay } from "../../../Utils/animation";
 import { approach } from "../approach";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
+import { damageUnit } from "../Chara";
 
 export const arcaneMissiles = (
 	scene: BattlegroundScene
@@ -46,7 +46,7 @@ export const arcaneMissiles = (
 
 		if (targetChara.unit.hp <= 0) return;
 
-		emit(signals.DAMAGE_UNIT, targetChara.id, skill.power);
+		await damageUnit(targetChara.id, skill.power)
 
 	});
 

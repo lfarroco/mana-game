@@ -3,11 +3,11 @@ import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { getUnitsByProximity } from "../../../Models/State";
 import { popText } from "../Animations/popText";
-import { emit, signals } from "../../../Models/Signals";
 import { approach } from "../approach";
 import { delay } from "../../../Utils/animation";
 import { explodeEffect } from "../../../Effects";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
+import { damageUnit, killUnit } from "../Chara";
 
 export const explode = (
 	scene: BattlegroundScene
@@ -30,13 +30,10 @@ export const explode = (
 	const enemies = getUnitsByProximity(state, unit, true, 2)
 	const allies = getUnitsByProximity(state, unit, false, 2)
 
-	// deal damage to all targets and self
-
-	emit(signals.DAMAGE_UNIT, unit.id, 999);
+	killUnit(activeChara);
 
 	[...enemies, ...allies].forEach(target => {
-		emit(signals.DAMAGE_UNIT, target.id, skill.power / 2);
-		popText({ text: (skill.power / 2).toString(), targetId: target.id });
+		damageUnit(target.id, skill.power / 2);
 	});
 
 	await delay(scene, 500 / state.options.speed);

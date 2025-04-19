@@ -1,6 +1,5 @@
 import Events from "events";
 import { Vec2 } from "./Geometry";
-import { Unit } from "./Unit";
 import { GameData } from "./State";
 import { JobId } from "./Job";
 
@@ -50,17 +49,11 @@ export type Signals = {
 
   DESTINATION_GOAL_TO: (unitId: string, target: Vec2) => void;
 
-  // TODO: have a parent level for the system
-  UPDATE_UNIT: (unitId: string, u: Partial<Unit>) => any;
-  DAMAGE_UNIT: (unitId: string, damage: number) => any;
-  UNIT_HP_UPDATED: (unitId: string, hp: number) => any;
-
   UNIT_CASTS_SPECIAL: (unitId: string, specialId: string) => any;
 
   ADD_STATUS: (unitId: string, status: string, duration: number) => any;
   END_STATUS: (unitId: string, status: string) => any;
   HEAL_UNIT: (unitId: string, amount: number) => any;
-  UNIT_DESTROYED: (unitId: string) => any;
   FORCE_VICTORY: (force: string) => void;
 
   MOVEMENT_STARTED: (unitId: string, vec: Vec2) => void;
@@ -102,13 +95,9 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   STOP_HIGHLIGHT_UNIT: "STOP_HIGHLIGHT_UNIT",
 
   DESTINATION_GOAL_TO: "DESTINATION_GOAL_TO",
-  UPDATE_UNIT: "UPDATE_UNIT",
-  DAMAGE_UNIT: "DAMAGE_UNIT",
-  UNIT_HP_UPDATED: "UNIT_HP_UPDATED",
   ADD_STATUS: "ADD_STATUS",
   END_STATUS: "END_STATUS",
   HEAL_UNIT: "HEAL_UNIT",
-  UNIT_DESTROYED: "UNIT_DESTROYED",
   FORCE_VICTORY: "FORCE_VICTORY",
   MOVEMENT_STARTED: "MOVEMENT_STARTED",
   MOVEMENT_FINISHED: "MOVEMENT_FINISHED",

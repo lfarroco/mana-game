@@ -1,10 +1,8 @@
-import { impactEffect, criticalDamageDisplay } from "../../../Effects";
-import { emit, signals } from "../../../Models/Signals";
+import { impactEffect } from "../../../Effects";
 import { getState } from "../../../Models/State";
 import { runPromisesInOrder } from "../../../utils";
-import { tween, delay } from "../../../Utils/animation";
-import { popText } from "../Animations/popText";
-import { Chara } from "../Chara";
+import { delay } from "../../../Utils/animation";
+import { Chara, damageUnit } from "../Chara";
 
 export async function physicalAttack(
 	activeChara: Chara,
@@ -22,25 +20,12 @@ export async function physicalAttack(
 	});
 
 	const dice = Math.floor(Math.random() * 100);
-
 	const isCritical = dice <= activeChara.unit.crit;
 
 	const rawDmg = isCritical ? activeChara.unit.attack * 2 : activeChara.unit.attack;
 	const damage = Math.max(1, rawDmg - targetChara.unit.defense);
 
-	if (isCritical) {
-		criticalDamageDisplay(scene, targetChara.container, damage, speed);
-	} else {
-		popText({ text: damage.toString(), targetId: targetChara.unit.id });
-	}
 
-	tween({
-		targets: [targetChara.container],
-		alpha: 0.5,
-		duration: 100 / speed,
-		yoyo: true,
-		repeat: 4,
-	});
 
 	await runPromisesInOrder(
 		activeChara.unit.events
@@ -52,7 +37,7 @@ export async function physicalAttack(
 			.onDefendByMe.map(fn => fn(activeChara.unit, targetChara.unit))
 	);
 
-	emit(signals.DAMAGE_UNIT, targetChara.id, damage);
+	await damageUnit(targetChara.id, damage, isCritical);
 
 	await delay(scene, 300 / speed);
 

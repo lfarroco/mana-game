@@ -1,6 +1,10 @@
 
 export async function tween(
-	attributes: any,
+	attributes: {
+		targets: any[],
+	} & {
+		[key: string]: any
+	},
 ) {
 
 	const { scene } = attributes.targets[0];
