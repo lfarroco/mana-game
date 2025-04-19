@@ -1,7 +1,6 @@
 import Phaser from "phaser";
 import { Unit } from "../../Models/Unit";
 import * as bgConstants from "../../Scenes/Battleground/constants";
-import { listeners, signals } from "../../Models/Signals";
 import { asVec2, eqVec2, vec2 } from "../../Models/Geometry";
 import { tween } from "../../Utils/animation";
 import { FORCE_ID_PLAYER, playerForce } from "../../Models/Force";
@@ -320,41 +319,6 @@ export function init(sceneRef: Phaser.Scene) {
 	scene = sceneRef;
 	state = getState();
 
-	listeners([
-		[signals.HIGHLIGHT_UNIT, (unitId: string, color: number) => {
-
-			const chara = UnitManager.getChara(unitId);
-
-			chara.sprite.setTint(color);
-			chara.hightlightTween = scene.add.tween({
-				targets: chara.sprite,
-				alpha: 0.7,
-				duration: 400 / state.options.speed,
-				ease: "Linear",
-				repeat: -1,
-				yoyo: true,
-			});
-
-		}],
-		[signals.STOP_HIGHLIGHT_UNIT, (unitId: string) => {
-
-			const chara = UnitManager.getChara(unitId);
-
-			chara.sprite.clearTint();
-			chara.hightlightTween?.destroy();
-			chara.hightlightTween = null;
-
-		}],
-		[signals.END_STATUS, (unitId: string, status: string) => {
-
-			const chara = UnitManager.getChara(unitId);
-
-			chara.container.getByName("status-" + status)?.destroy();
-
-		}],
-
-	])
-
 }
 
 export function updateAtkDisplay(id: string, atk: number) {
@@ -407,3 +371,4 @@ export async function killUnit(chara: Chara) {
 
 	ItemDrop.dropItem(chara);
 }
+

@@ -1,9 +1,9 @@
 import * as uuid from "uuid";
 import { Force, playerForce } from "./Force";
 import { eqVec2, snakeDistanceBetween, sortBySnakeDistance, vec2, Vec2 } from "./Geometry";
-import { emit, signals, listeners } from "./Signals";
 import { Unit, makeUnit } from "./Unit";
 import { JobId } from "./Job";
+import { getChara } from "../Scenes/Battleground/Systems/UnitManager";
 
 export const initialState = (): State => ({
   options: {
@@ -91,44 +91,6 @@ export const getGuildUnit = (state: State) => (id: string): Unit | undefined => 
   return state.gameData.player.units.find((u) => u.id === id);
 }
 
-export const listenToStateEvents = (state: State) => {
-  listeners([
-
-    [signals.HEAL_UNIT, (id: string, amount: number) => {
-
-      const unit = state.battleData.units.find((u) => u.id === id);
-
-      if (!unit) throw new Error(`unit ${id} not found`)
-
-      const nextHp = unit.hp + amount;
-
-      unit.hp = nextHp > unit.maxHp ? unit.maxHp : nextHp;
-
-    }],
-
-    [signals.ADD_STATUS, (id: string, status: string, duration: number) => {
-
-      const unit = state.battleData.units.find((u) => u.id === id)!;
-
-      unit.statuses[status] = duration;
-
-    }],
-    [signals.TURN_START, (_tick: number) => {
-
-      state.battleData.units.forEach((u) => {
-        Object.keys(u.statuses).forEach((status) => {
-          u.statuses[status] -= 1;
-          if (u.statuses[status] < 0) {
-            emit(signals.END_STATUS, u.id, status);
-            delete u.statuses[status];
-          }
-        });
-      });
-    }],
-
-  ])
-}
-
 export function addUnitToGuild(forceId: string, jobId: JobId) {
   const state = getState();
   const unitId = uuid.v4();
@@ -169,3 +131,34 @@ export function getUnitsByProximity(state: State, unit: Unit, enemy: boolean, ra
     .filter(u => snakeDistanceBetween(unit.position)(u.position) <= range)
 }
 
+
+export function addStatus(unit: Unit, status: string, duration: number) {
+  unit.statuses[status] = duration;
+
+}
+export function endStatus(unitId: string, status: string) {
+  const chara = getChara(unitId);
+
+  chara.container.getByName("status-" + status)?.destroy();
+
+  delete chara.unit.statuses[status];
+
+}
+export function updateStatuses(state: State) {
+  state.battleData.units.forEach((u) => {
+    Object.keys(u.statuses).forEach((status) => {
+      u.statuses[status] -= 1;
+      if (u.statuses[status] < 0) {
+        endStatus(u.id, status);
+      }
+    });
+  });
+
+}
+
+export function healUnit(unit: Unit, amount: number) {
+
+  const nextHp = unit.hp + amount;
+
+  unit.hp = nextHp > unit.maxHp ? unit.maxHp : nextHp;
+}

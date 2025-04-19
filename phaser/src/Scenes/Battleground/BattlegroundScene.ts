@@ -6,7 +6,6 @@ import * as ControlsSystem from "../../Systems/Controls/Controls";
 import * as AISystem from "../../Systems/AI/AI";
 import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import * as constants from "./constants";
-import { setupEventListeners } from "./EventHandlers";
 import * as UIManager from "./Systems/UIManager";
 import * as UnitManager from "./Systems/UnitManager";
 import * as WaveManager from "./Systems/WaveManager";
@@ -36,8 +35,6 @@ export class BattlegroundScene extends Phaser.Scene {
     const state = getState();
     this.state = state;
     this.speed = state.options.speed;
-
-    setupEventListeners(this);
 
     /**
      * Global listeners can be created here because they are only created once

@@ -1,5 +1,5 @@
 import events from "events";
-import { State, initialState, listenToStateEvents } from "./Models/State";
+import { State, initialState } from "./Models/State";
 import { initGame } from "./initGame";
 
 const eventEmitter = new events.EventEmitter();
@@ -14,9 +14,6 @@ declare global {
 const state = initialState();
 window.state = state;
 window.emitter = eventEmitter;
-
-// create this listener first so that state changes are processed first
-listenToStateEvents(state);
 
 initGame(state);
 

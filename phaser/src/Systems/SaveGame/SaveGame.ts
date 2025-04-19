@@ -1,50 +1,47 @@
-import { deleteGame, loadGame, makeSavedGame, saveGame } from "../../Models/SavedGame";
-import { emit, signals, listeners } from "../../Models/Signals";
-import { GameData, State } from "../../Models/State";
-import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
+import { State } from "../../Models/State";
 
-export function SaveGameSystem_init(state: State, game: Phaser.Game) {
+export function SaveGameSystem_init(_state: State, _game: Phaser.Game) {
 
-	listeners([
+	// listeners([
 
-		[signals.SAVE_GAME, (gameData: GameData, name: string) => {
+	// 	[signals.SAVE_GAME, (gameData: GameData, name: string) => {
 
-			const save = makeSavedGame(name, gameData)
+	// 		const save = makeSavedGame(name, gameData)
 
-			saveGame(save)
+	// 		saveGame(save)
 
-		}],
+	// 	}],
 
-		[signals.LOAD_GAME, (name: string) => {
+	// 	[signals.LOAD_GAME, (name: string) => {
 
-			const save = loadGame(name)
-			if (save) {
+	// 		const save = loadGame(name)
+	// 		if (save) {
 
-				state.gameData = save.state
+	// 			state.gameData = save.state
 
-				emit(signals.SET_ROUTE, "battleground");
-				// check if the scene is already running
-				if (game.scene.isActive("BattlegroundScene")) {
+	// 			//emit(signals.SET_ROUTE, "battleground");
+	// 			// check if the scene is already running
+	// 			if (game.scene.isActive("BattlegroundScene")) {
 
-					const scene = game.scene.getScene("BattlegroundScene") as BattlegroundScene
+	// 				const scene = game.scene.getScene("BattlegroundScene") as BattlegroundScene
 
-					scene.cleanup()
-					scene.create(state)
+	// 				scene.cleanup()
+	// 				scene.create(state)
 
-				} else {
-					game.scene.start("BattlegroundScene", state);
-				}
-			}
-		}], [
-			signals.DELETE_GAME, (name: string) => {
+	// 			} else {
+	// 				game.scene.start("BattlegroundScene", state);
+	// 			}
+	// 		}
+	// 	}], [
+	// 		signals.DELETE_GAME, (name: string) => {
 
-				const saveGames = deleteGame(name)
+	// 			const saveGames = deleteGame(name)
 
-				state.savedGames = saveGames
+	// 			state.savedGames = saveGames
 
-			}
-		]
+	// 		}
+	// 	]
 
-	])
+	// ])
 
 }

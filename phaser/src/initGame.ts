@@ -1,6 +1,5 @@
 import * as Phaser from "phaser";
 import BattlegroundScene from "./Scenes/Battleground/BattlegroundScene";
-import { listeners } from './Models/Signals';
 import Core from "./Scenes/Core/Core";
 import { State } from "./Models/State";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "./Scenes/Battleground/constants";
@@ -27,8 +26,6 @@ export function initGame(state: State) {
 			}
 		}
 	});
-
-	listeners([]);
 
 	SaveGameSystem_init(state, game);
 
