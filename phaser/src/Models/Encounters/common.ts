@@ -1,9 +1,9 @@
 import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
+import { renderChara } from "../../Scenes/Battleground/Systems/UnitManager";
 import { popText } from "../../Systems/Chara/Animations/popText";
 import { FORCE_ID_PLAYER } from "../Force";
 import { BLOB } from "../Job";
-import { emit, signals } from "../Signals";
-import { State } from "../State";
+import { addUnitToGuild, State } from "../State";
 import * as Traits from "../Traits";
 import { addUnitTrait } from "../Traits";
 import { Unit } from "../Unit";
@@ -20,7 +20,8 @@ const commonEvents = (): Encounter[] => [
 	makeEncounter("new_friend", TIER.COMMON, "A new friend", "You have made a new friend", "icon/old_adventurer", {
 		type: "instant",
 		action: (_scene, _state) => {
-			emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, BLOB);
+			const unit = addUnitToGuild(FORCE_ID_PLAYER, BLOB);
+			renderChara(unit);
 		}
 	}),
 	makeEncounter("endurance_training", TIER.COMMON, "Endurance Training", "Make a guild member gain 30 HP", "icon/combat_training", {

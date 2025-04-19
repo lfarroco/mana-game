@@ -4,7 +4,6 @@ import { eqVec2, snakeDistanceBetween, sortBySnakeDistance, vec2, Vec2 } from ".
 import { emit, signals, listeners } from "./Signals";
 import { Unit, makeUnit } from "./Unit";
 import { JobId } from "./Job";
-import * as UnitManager from "../Scenes/Battleground/Systems/UnitManager";
 
 export const initialState = (): State => ({
   options: {
@@ -95,38 +94,6 @@ export const getGuildUnit = (state: State) => (id: string): Unit | undefined => 
 export const listenToStateEvents = (state: State) => {
   listeners([
 
-    [signals.ADD_UNIT_TO_GUILD, (forceId: string, jobId: JobId) => {
-
-      const unitId = uuid.v4();
-
-      const startX = 6;
-      const endX = 9;
-      const startY = 1;
-      const endY = 4;
-
-      let isValid = false;
-      let position = vec2(0, 0);
-
-      while (!isValid) {
-        for (let x = startX; x < endX; x++) {
-          for (let y = startY; y < endY; y++) {
-            if (!getGuildUnitAt(state)(vec2(x, y))) {
-              isValid = true;
-              position = vec2(x, y);
-              break;
-            }
-          }
-          if (isValid) break;
-        }
-      }
-
-      const unit = makeUnit(unitId, forceId, jobId, position);
-
-      state.gameData.player.units.push(unit);
-
-      UnitManager.renderChara(unit);
-
-    }],
     [signals.HEAL_UNIT, (id: string, amount: number) => {
 
       const unit = state.battleData.units.find((u) => u.id === id);
@@ -160,6 +127,38 @@ export const listenToStateEvents = (state: State) => {
     }],
 
   ])
+}
+
+export function addUnitToGuild(forceId: string, jobId: JobId) {
+  const state = getState();
+  const unitId = uuid.v4();
+
+  const startX = 6;
+  const endX = 9;
+  const startY = 1;
+  const endY = 4;
+
+  let isValid = false;
+  let position = vec2(0, 0);
+
+  while (!isValid) {
+    for (let x = startX; x < endX; x++) {
+      for (let y = startY; y < endY; y++) {
+        if (!getGuildUnitAt(state)(vec2(x, y))) {
+          isValid = true;
+          position = vec2(x, y);
+          break;
+        }
+      }
+      if (isValid) break;
+    }
+  }
+
+  const unit = makeUnit(unitId, forceId, jobId, position);
+
+  state.gameData.player.units.push(unit);
+
+  return unit;
 }
 
 export function getUnitsByProximity(state: State, unit: Unit, enemy: boolean, range: number): Unit[] {
