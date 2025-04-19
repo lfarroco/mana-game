@@ -2,8 +2,7 @@ import Phaser from "phaser";
 import { asVec2, Vec2 } from "../../../Models/Geometry";
 import { delay } from "../../../Utils/animation";
 import { Unit } from "../../../Models/Unit";
-import { getUnitsByProximity } from "../../../Models/State";
-import { emit, signals } from "../../../Models/Signals";
+import { getUnitsByProximity, healUnit } from "../../../Models/State";
 import { BattlegroundScene } from "../../../Scenes/Battleground/BattlegroundScene";
 import { EnergyBeam } from "../../../Effects/EnergyBeam";
 import { healingHitEffect } from "../../../Effects/healingHitEffect";
@@ -38,7 +37,7 @@ export async function healingWave(scene: BattlegroundScene, unit: Unit) {
 	const top3 = hurtAllies.slice(0, 3);
 
 	top3.forEach(ally => {
-		emit(signals.HEAL_UNIT, ally.id, skill.power);
+		healUnit(ally, skill.power);
 	});
 
 	const charas = [UnitManager.getChara(unit.id)].concat(top3.map(u => UnitManager.getChara(u.id)))

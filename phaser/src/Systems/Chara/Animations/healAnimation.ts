@@ -1,6 +1,5 @@
-import { emit, signals } from "../../../Models/Signals";
 import { getSkill, HEAL } from "../../../Models/Skill";
-import { getBattleUnit } from "../../../Models/State";
+import { getBattleUnit, healUnit } from "../../../Models/State";
 import { Unit, unitLog } from "../../../Models/Unit";
 import { popText } from "./popText";
 import { delay } from "../../../Utils/animation";
@@ -106,6 +105,6 @@ export async function healAnimation(
 
     shader.destroy();
 
-    emit(signals.HEAL_UNIT, targetUnit.id, 50); // TODO: use skill's stats
+    healUnit(targetUnit, 50);
 
 }

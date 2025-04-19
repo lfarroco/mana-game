@@ -1,9 +1,8 @@
 import { getSkill, LIGHT_ORB } from "../../../Models/Skill";
 import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
-import { getUnitsByProximity } from "../../../Models/State";
+import { getUnitsByProximity, healUnit } from "../../../Models/State";
 import { popText } from "../Animations/popText";
-import { emit, signals } from "../../../Models/Signals";
 import { GlowingOrb } from "../../../Effects/GlowingOrb";
 import { delay } from "../../../Utils/animation";
 import { healingHitEffect } from "../../../Effects/healingHitEffect";
@@ -52,7 +51,7 @@ export const lightOrb = (
 
 		const chara = UnitManager.getChara(ally.id);
 
-		emit(signals.HEAL_UNIT, ally.id, heal);
+		healUnit(ally, heal);
 
 		healingHitEffect(
 			scene,

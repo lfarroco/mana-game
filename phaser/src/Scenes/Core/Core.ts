@@ -1,5 +1,3 @@
-import { signals, listeners } from "../../Models/Signals";
-
 // over-complicated phaser type :shrug:
 type PhaserAudio = Phaser.Sound.HTML5AudioSound |
 	Phaser.Sound.NoAudioSound |
@@ -11,10 +9,10 @@ export default class Core extends Phaser.Scene {
 	constructor() {
 		super('CoreScene');
 
-		listeners([
-			[signals.PLAY_MUSIC, () => { this.music?.play() }],
-			[signals.STOP_MUSIC, () => { this.music?.stop() }],
-		])
+		// listeners([
+		// 	[signals.PLAY_MUSIC, () => { this.music?.play() }],
+		// 	[signals.STOP_MUSIC, () => { this.music?.stop() }],
+		// ])
 	}
 
 	preload() {

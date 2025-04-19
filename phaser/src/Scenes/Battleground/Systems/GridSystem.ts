@@ -1,6 +1,5 @@
 import * as constants from "../constants";
 import { vec2, Vec2 } from "../../../Models/Geometry";
-import { listeners, signals } from "../../../Models/Signals";
 import { tween } from "../../../Utils/animation";
 import { getState } from "../../../Models/State";
 
@@ -24,25 +23,14 @@ export function init(sceneRef: Phaser.Scene) {
 	scene = sceneRef;
 	setupGrid();
 
-	listeners([
-		[signals.WAVE_START, () => {
-			tween({
-				targets: [state.tiles],
-				alpha: 0,
-				duration: 500 / getState().options.speed,
-				ease: 'Power2',
-			});
-
-		}],
-		[signals.WAVE_FINISHED, () => {
-			tween({
-				targets: [state.tiles],
-				alpha: 1,
-				duration: 9500 / getState().options.speed,
-				ease: 'Power2',
-			});
-		}]
-	])
+}
+export function showGrid() {
+	tween({
+		targets: [state.tiles],
+		alpha: 1,
+		duration: 9500 / getState().options.speed,
+		ease: 'Power2',
+	});
 }
 
 export function setupGrid() {

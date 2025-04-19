@@ -1,6 +1,5 @@
-import { emit, signals, } from "../../Models/Signals";
 import { BattlegroundScene } from "./BattlegroundScene";
-import { getActiveUnits, getState } from "../../Models/State";
+import { getActiveUnits, getState, updateStatuses } from "../../Models/State";
 import { Unit, unitLog } from "../../Models/Unit";
 import { delay, tween } from "../../Utils/animation";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
@@ -12,13 +11,15 @@ import { GOLD_PER_WAVE, HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WID
 import { performAction } from "./performAction";
 import { TURN_DURATION } from "../../config";
 import * as UnitManager from "./Systems/UnitManager";
+import { showGrid } from "./Systems/GridSystem";
+import { refreshScene } from "./EventHandlers";
 
 const processTick = async (scene: BattlegroundScene) => {
 
-  emit(signals.TURN_START)
-
   const state = getState();
   const { player } = state.gameData;
+
+  updateStatuses(state);
 
   const unitActions = getActiveUnits(state)
     .map(performAction(scene));
@@ -35,7 +36,7 @@ const processTick = async (scene: BattlegroundScene) => {
 
     await delay(scene, 1000 / state.options.speed);
 
-    emit(signals.WAVE_FINISHED, FORCE_ID_PLAYER);
+    waveFinished(scene);
 
   } else if (playerUnits.length === 0) {
 
@@ -47,16 +48,21 @@ const processTick = async (scene: BattlegroundScene) => {
 
     await delay(scene, 1000 / state.options.speed);
 
-    emit(signals.WAVE_FINISHED, FORCE_ID_CPU);
+    waveFinished(scene);
 
   } else {
 
     state.gameData.tick++;
-    emit(signals.TURN_END)
     await processTick(scene);
   }
 
 };
+
+function waveFinished(scene: BattlegroundScene) {
+  showGrid();
+
+  refreshScene(scene)
+}
 
 export async function walk(
   scene: Phaser.Scene,
@@ -74,7 +80,7 @@ export async function walk(
 
     const chara = UnitManager.getChara(unit.id);
 
-    emit(signals.MOVEMENT_STARTED, unit.id, chara.unit.position);
+    //scene.playFx('audio/chip-lay-3')
 
     await tween({
       targets: [chara.container],

@@ -1,4 +1,3 @@
-import { emit, signals } from "../../../Models/Signals";
 import { unitLog } from "../../../Models/Unit";
 import { bashPieceAnimation } from "../Animations/bashPieceAnimation";
 import { popText } from "../Animations/popText";
@@ -7,6 +6,7 @@ import { approach } from "../approach";
 import { specialAnimation } from "../Animations/specialAnimation";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
 import { Chara, damageUnit } from "../Chara";
+import { addStatus } from "../../../Models/State";
 
 export async function shieldBash(activeChara: Chara) {
 
@@ -37,7 +37,7 @@ export async function shieldBash(activeChara: Chara) {
 		// TODO: make particle part of the chara
 		// only "poison cloud" type particles should be bg-bound
 		UnitManager.createParticle(target.id, "stun")
-		emit(signals.ADD_STATUS, targetChara.id, "stun", 1);
+		addStatus(targetChara.unit, "stun", 1);
 	}
 
 	return true;

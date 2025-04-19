@@ -2,7 +2,6 @@ import { Chara } from "../Chara";
 import { tween } from "../../../Utils/animation";
 import { TILE_HEIGHT, TILE_WIDTH } from "../../../Scenes/Battleground/constants";
 import { getState } from "../../../Models/State";
-import { emit, signals } from "../../../Models/Signals";
 
 export async function specialAnimation(activeChara: Chara) {
 
@@ -15,9 +14,6 @@ export async function specialAnimation(activeChara: Chara) {
 	)
 		.setDisplaySize(TILE_WIDTH, TILE_HEIGHT)
 		.setOrigin(0.5, 0.5);
-
-	emit(signals.UNIT_CASTS_SPECIAL, activeChara.id);
-	//scene.playFx("audio/laser");
 
 	await tween({
 		targets: [pic],
