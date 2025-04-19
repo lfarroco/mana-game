@@ -1,7 +1,6 @@
 import Events from "events";
 import { Vec2 } from "./Geometry";
 import { GameData } from "./State";
-import { JobId } from "./Job";
 
 let events: any[] = [];
 //@ts-ignore
@@ -41,10 +40,6 @@ export type Signals = {
   TOGGLE_LOAD_GAME_MODAL: (value: boolean) => void;
   TOGGLE_SAVE_GAME_MODAL: (value: boolean) => void;
   TOGGLE_RECRUIT_MODAL: () => void;
-  // When a unit is added to a force
-  ADD_UNIT_TO_GUILD: (forceId: string, jobId: JobId, location: Vec2) => void;
-  // When a chara is created in the map
-  CHARA_CREATED: (charaId: string) => void;
   BATTLEGROUND_TICK: (tick: number) => void;
 
   DESTINATION_GOAL_TO: (unitId: string, target: Vec2) => void;
@@ -87,8 +82,6 @@ export const signals: { [key in keyof Signals]: keyof Signals } = {
   TOGGLE_LOAD_GAME_MODAL: "TOGGLE_LOAD_GAME_MODAL",
   TOGGLE_SAVE_GAME_MODAL: "TOGGLE_SAVE_GAME_MODAL",
   TOGGLE_RECRUIT_MODAL: "TOGGLE_RECRUIT_MODAL",
-  ADD_UNIT_TO_GUILD: "ADD_UNIT_TO_GUILD",
-  CHARA_CREATED: "CHARA_CREATED",
   BATTLEGROUND_TICK: "BATTLEGROUND_TICK",
 
   HIGHLIGHT_UNIT: "HIGHLIGHT_UNIT",

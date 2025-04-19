@@ -1,7 +1,5 @@
-import { FORCE_ID_PLAYER } from "../../Models/Force";
 import * as Job from "../../Models/Job";
-import { emit, signals } from "../../Models/Signals";
-import { getBattleUnitAt } from "../../Models/State";
+import { addUnitToGuild, getBattleUnitAt } from "../../Models/State";
 import { BattlegroundScene } from "./BattlegroundScene";
 import * as constants from "./constants";
 import * as GridSystem from "./Systems/GridSystem";
@@ -83,7 +81,7 @@ const renderUnit = (scene: BattlegroundScene) => (jobId: Job.JobId, i: number) =
 		if (maybeOccupier) return;
 
 		player.gold -= constants.RECRUIT_UNIT_PRICE;
-		emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, jobId);
+		addUnitToGuild(player.id, jobId)
 
 		UIManager.updateUI();
 

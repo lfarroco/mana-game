@@ -3,7 +3,6 @@ import { Chara, createChara } from "../../../Systems/Chara/Chara";
 import { vec2, Vec2, eqVec2 } from "../../../Models/Geometry";
 import * as constants from "../constants";
 import { summonEffect } from "../../../Effects/summonEffect";
-import { emit, signals } from "../../../Models/Signals";
 import { tween } from "../../../Utils/animation";
 import { BattlegroundScene } from "../BattlegroundScene";
 
@@ -49,8 +48,6 @@ export async function renderChara(unit: Unit) {
 	chara.container.setAlpha(0);
 
 	state.charas.push(chara);
-
-	emit(signals.CHARA_CREATED, unit.id)
 
 	tween({
 		targets: [chara.container],

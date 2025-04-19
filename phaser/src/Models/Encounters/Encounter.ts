@@ -3,11 +3,10 @@ import { TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 import { Choice, displayChoices, displayStore, newChoice } from "../../Scenes/Battleground/Systems/Choice";
 import { destroyChara, renderChara } from "../../Scenes/Battleground/Systems/UnitManager";
 import { pickRandom } from "../../utils";
-import { FORCE_ID_PLAYER, playerForce } from "../Force";
+import { playerForce } from "../Force";
 import { vec2 } from "../Geometry";
 import { JobId, starterJobs } from "../Job";
-import { emit, signals } from "../Signals";
-import { getState, State, getGuildUnit } from "../State";
+import { getState, State, getGuildUnit, addUnitToGuild } from "../State";
 import { addUnitTrait, randomCategoryTrait, TRAIT_CATEGORY_DEFENSIVE, TRAIT_CATEGORY_PERSONALITY } from "../Traits";
 import { Unit } from "../Unit";
 import commonEvents from "./common";
@@ -91,8 +90,10 @@ export const starterEvent: Encounter = {
 				job.id,
 			));
 		},
-		onChoose: (state, choice) => {
-			emit(signals.ADD_UNIT_TO_GUILD, FORCE_ID_PLAYER, choice.value as JobId);
+		onChoose: async (state, choice) => {
+
+			const unit = addUnitToGuild(playerForce.id, choice.value as JobId);
+			await renderChara(unit)
 			// testing: add random traits
 			const { units } = state.gameData.player;
 			const trait = randomCategoryTrait(TRAIT_CATEGORY_PERSONALITY)
