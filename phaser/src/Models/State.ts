@@ -155,10 +155,3 @@ export function updateStatuses(state: State) {
   });
 
 }
-
-export function healUnit(unit: Unit, amount: number) {
-
-  const nextHp = unit.hp + amount;
-
-  unit.hp = nextHp > unit.maxHp ? unit.maxHp : nextHp;
-}

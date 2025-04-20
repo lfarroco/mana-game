@@ -249,9 +249,10 @@ function renderItemSlot(unit: Unit, container: Phaser.GameObjects.Container) {
 		.setDisplaySize(80, 80);
 	const item = scene.add.image(
 		bgConstants.HALF_TILE_WIDTH - 40, -bgConstants.HALF_TILE_HEIGHT + 40,
-		unit.equip).setDisplaySize(60, 60).setOrigin(0.5, 0.5);
+		unit.equip?.icon || "empty"
+	).setDisplaySize(60, 60).setOrigin(0.5, 0.5);
 
-	if (unit.equip === "") {
+	if (unit.equip === null) {
 		item.alpha = 0;
 	}
 	item.setInteractive({ draggable: true });
@@ -274,23 +275,22 @@ function renderItemSlot(unit: Unit, container: Phaser.GameObjects.Container) {
 	});
 
 	item.on('dragend', (pointer: Phaser.Input.Pointer) => {
-		console.log("dragend", pointer.x, pointer.y);
-
 		const closest = UnitManager.overlap(pointer);
 
 		if (!closest) {
 			// back to chest
-			playerForce.items.push(unit.equip);
-			equipItem({ unitId: unit.id, itemId: "" });
+			if (unit.equip) playerForce.items.push(unit.equip);
+
+			equipItem({ unitId: unit.id, item: null });
 			UIManager.updateChest();
 		} else {
 			if (closest.unit.id === unit.id) { //self
-				equipItem({ unitId: unit.id, itemId: "" });
+				equipItem({ unitId: unit.id, item: unit.equip });
 			} else { //another
 				const currEquip = closest.unit.equip;
 
-				equipItem({ unitId: closest.id, itemId: unit.equip });
-				equipItem({ unitId: unit.id, itemId: currEquip });
+				equipItem({ unitId: closest.id, item: unit.equip });
+				equipItem({ unitId: unit.id, item: currEquip });
 
 			}
 		}
@@ -398,6 +398,14 @@ export async function updateUnitAttribute<K extends keyof Unit>(
 	}
 
 	await popText({ text, targetId: unit.id, speed: 2 });
+}
+export function healUnit(unit: Unit, amount: number) {
+
+	const nextHp = unit.hp + amount;
+
+	unit.hp = nextHp > unit.maxHp ? unit.maxHp : nextHp;
+
+	updateHpDisplay(unit.id, unit.hp);
 }
 
 

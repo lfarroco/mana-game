@@ -1,5 +1,6 @@
 import { getSkill, HEAL } from "../../../Models/Skill";
-import { getBattleUnit, healUnit } from "../../../Models/State";
+import { getBattleUnit } from "../../../Models/State";
+import { healUnit } from "../Chara";
 import { Unit, unitLog } from "../../../Models/Unit";
 import { popText } from "./popText";
 import { delay } from "../../../Utils/animation";

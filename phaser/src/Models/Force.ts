@@ -1,3 +1,4 @@
+import { Item } from "./Item";
 import { Unit } from "./Unit";
 
 export type Force = {
@@ -6,7 +7,7 @@ export type Force = {
 	color: string;
 	gold: number;
 	income: number;
-	items: string[];
+	items: Item[];
 	hp: number;
 	units: Unit[]
 };
@@ -19,7 +20,9 @@ export const makeForce = (id: string): Force => ({
 	income: 5,
 	hp: 50,
 	units: [],
-	items: ['blue_potion', 'red_potion', 'toxic_potion', 'burn_potion', 'gold_ring', 'iron_sword'].map(i => `items/${i}`) // TODO: move to a better place
+	items: [
+
+	]
 });
 
 export const FORCE_ID_PLAYER = "PLAYER"
