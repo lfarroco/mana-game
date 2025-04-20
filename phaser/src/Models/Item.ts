@@ -15,6 +15,7 @@ export type Item = {
 	id: string;
 	name: string;
 	icon: string;
+	description: string,
 	type: {
 		key: "instant",
 		onUse: (u: Unit) => void;
@@ -24,20 +25,22 @@ export type Item = {
 	}
 }
 
-export const instantItem = (name: string, icon: string, onUse: (u: Unit) => void): Item => ({
+export const instantItem = (name: string, icon: string, description: string, onUse: (u: Unit) => void): Item => ({
 	id: v4(),
 	name,
 	icon,
+	description,
 	type: {
 		key: "instant",
 		onUse
 	}
 });
 
-export const equipmentItem = (name: string, icon: string, events: Partial<Equipment>): Item => ({
+export const equipmentItem = (name: string, icon: string, description: string, events: Partial<Equipment>): Item => ({
 	id: v4(),
 	name,
 	icon,
+	description,
 	type: {
 		key: "equipment",
 		onEquip: () => { },
@@ -49,13 +52,13 @@ export const equipmentItem = (name: string, icon: string, events: Partial<Equipm
 });
 
 export const ITEMS = {
-	RED_POTION: () => equipmentItem('Red Potion', 'items/red_potion', {
+	RED_POTION: () => equipmentItem('Red Potion', 'items/red_potion', 'Heals 30 HP', {
 		onHalfHP: (u) => {
 			healUnit(u, 30);
 			burnConsumableInBattle(u.id);
 		}
 	}),
-	IRON_SWORD: () => equipmentItem('Iron Sword', 'items/iron_sword', {
+	IRON_SWORD: () => equipmentItem('Iron Sword', 'items/iron_sword', 'Increases attack by 5', {
 		onEquip: (u) => {
 			u.attack += 5;
 		},
