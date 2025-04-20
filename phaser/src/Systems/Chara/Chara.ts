@@ -38,6 +38,8 @@ const spriteSize = bgConstants.TILE_WIDTH - 4;
 
 export function createChara(unit: Unit): Chara {
 
+	console.log("creating", unit)
+
 	const borderColor = unit.force === FORCE_ID_PLAYER ? BLUE_BONNET : VIVIRED_RED;
 
 	const border = scene.add.rectangle(
