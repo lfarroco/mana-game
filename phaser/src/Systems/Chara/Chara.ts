@@ -374,7 +374,7 @@ export async function killUnit(chara: Chara) {
 	ItemDrop.dropItem(chara);
 }
 
-// Function to update an attribute (not apply damage of heal)
+// Function to update an attributattribute, not applying it (not apply damage of heal)
 // This means changing the value of the card
 export async function updateUnitAttribute<K extends keyof Unit>(
 	unit: Unit,
