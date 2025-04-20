@@ -1,7 +1,7 @@
 // traits are a way to add special abilities or characteristics to units
 
 import { popText } from "../Systems/Chara/Animations/popText";
-import { updateAtkDisplay } from "../Systems/Chara/Chara";
+import { updateUnitAttribute } from "../Systems/Chara/Chara";
 import { pickRandom } from "../utils";
 import { snakeDistanceBetween } from "./Geometry";
 import { State } from "./State";
@@ -97,9 +97,7 @@ export const SHY: Trait = makeTrait({
 			});
 			if (neighboringUnits.length === 0) {
 				await popText({ text: "On Battle Start: Shy", targetId: unit.id, speed: 2 });
-				await popText({ text: "+30 HP", targetId: unit.id, speed: 2 });
-				unit.maxHp += 30;
-				unit.hp = unit.maxHp;
+				updateUnitAttribute(unit, "maxHp", 30);
 			}
 		}]
 	}
@@ -115,9 +113,8 @@ export const BRAVE: Trait = makeTrait({
 			if (unit.position.x !== FRONTLINE) return;
 
 			await popText({ text: "On Battle Start: Brave", targetId: unit.id });
-			await popText({ text: "+5 attack", targetId: unit.id });
 
-			unit.attack += 5;
+			await updateUnitAttribute(unit, "attack", 5);
 		}]
 	}
 });
@@ -130,9 +127,7 @@ export const BATTLE_HUNGER: Trait = makeTrait({
 	events: {
 		onAttackByMe: [(unit, _target) => async () => {
 			await popText({ text: "On attack: Battle Hunger", targetId: unit.id, speed: 2 });
-			await popText({ text: "+1 attack", targetId: unit.id, speed: 2 });
-			unit.attack += 1;
-			updateAtkDisplay(unit.id, unit.attack);
+			await updateUnitAttribute(unit, "attack", 1);
 		}]
 	}
 });
@@ -176,6 +171,7 @@ export const randomCategoryTrait = (category: TraitCategory): Trait => {
 	const [randomTrait] = pickRandom(traitsInCategory, 1)
 	return randomTrait;
 }
+
 export function addUnitTrait(trait: Trait, unit: Unit) {
 
 	UNIT_EVENTS.forEach(event => {

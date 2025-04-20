@@ -323,9 +323,9 @@ export function init(sceneRef: Phaser.Scene) {
 
 }
 
-export function updateAtkDisplay(id: string, atk: number) {
+export function updateAtkDisplay(id: string) {
 	const chara = UnitManager.getChara(id);
-	chara.atkDisplay.setText(atk.toString());
+	chara.atkDisplay.setText(chara.unit.attack.toString());
 }
 
 export function updateHpDisplay(id: string, hp: number) {
@@ -373,4 +373,31 @@ export async function killUnit(chara: Chara) {
 
 	ItemDrop.dropItem(chara);
 }
+
+// Function to update an attribute (not apply damage of heal)
+// This means changing the value of the card
+export async function updateUnitAttribute<K extends keyof Unit>(
+	unit: Unit,
+	attribute: K,
+	num: number,
+) {
+	const positive = num >= 0;
+	const text = `${positive ? "+" : "-"}${num} ${attribute}`;
+
+	if (typeof unit[attribute] === 'number') {
+		(unit[attribute] as unknown as number) += num;
+	} else {
+		console.error(`Cannot add number to non-numeric attribute: ${attribute}`);
+	}
+
+	if (attribute === "attack") {
+		updateAtkDisplay(unit.id);
+	} else if (attribute === "maxHp") {
+		unit.hp = Math.min(unit.hp, unit.maxHp);
+		updateHpDisplay(unit.id, unit.hp);
+	}
+
+	await popText({ text, targetId: unit.id, speed: 2 });
+}
+
 
