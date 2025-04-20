@@ -1,4 +1,5 @@
 import { asVec2, Vec2 } from "./Geometry";
+import { Item } from "./Item";
 import { getJob, JobId } from "./Job";
 import { Trait } from "./Traits";
 
@@ -21,7 +22,7 @@ export type Unit = {
   statuses: { [key: string]: number };
   traits: Trait[];
 
-  equip: string;
+  equip: Item | null;
 
   log: string[];
   events: UnitEvents
@@ -72,7 +73,7 @@ export const makeUnit = (id: string, force: string, job: JobId, position: Vec2):
     maxHp: job_.hp,
     multicast: 2,
     crit: job_.agility * 1.5,
-    equip: "",
+    equip: null,
     log: [],
     statuses: {},
     traits: [],

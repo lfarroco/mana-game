@@ -1,4 +1,5 @@
 import { FORCE_ID_CPU } from "../../Models/Force";
+import { ITEMS } from "../../Models/Item";
 import { getState } from "../../Models/State";
 import { tween } from "../../Utils/animation";
 import { Chara } from "../Chara/Chara";
@@ -13,7 +14,7 @@ export const dropItem = async (chara: Chara) => {
 
 	const item = scene.add.image(
 		chara.container.x, chara.container.y,
-		"items/toxic_potion")
+		ITEMS.RED_POTION.icon)
 		.setScale(0.3)
 
 	await tween({
@@ -35,6 +36,6 @@ export const dropItem = async (chara: Chara) => {
 
 	item.destroy();
 
-	getState().gameData.player.items.push("items/toxic_potion");
+	getState().gameData.player.items.push(ITEMS.RED_POTION);
 
 }

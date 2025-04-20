@@ -172,12 +172,12 @@ export function updateChest() {
 
 		chestContainer.add(slot);
 
-		const id = state.gameData.player.items[i];
+		const item = state.gameData.player.items[i];
 
-		if (!id) {
+		if (!item) {
 			return;
 		}
-		const icon = scene.add.image(0, 0, id)
+		const icon = scene.add.image(0, 0, item.icon)
 			.setDisplaySize(constants.TILE_WIDTH, constants.TILE_WIDTH)
 			.setOrigin(0);
 
@@ -188,7 +188,7 @@ export function updateChest() {
 		icon.on("pointerover", () => {
 			Tooltip.render(
 				icon.x + 400, icon.y + 100,
-				"Item: " + id);
+				"Item: " + item);
 		});
 		icon.on("pointerout", () => {
 			Tooltip.hide();
@@ -211,11 +211,11 @@ export function updateChest() {
 
 			const currentItem = targetChara.unit.equip;
 
-			equipItem({ unitId: targetChara.unit.id, itemId: id });
+			equipItem({ unitId: targetChara.unit.id, item });
 
-			state.gameData.player.items = state.gameData.player.items.filter(item => item !== id);
+			state.gameData.player.items = state.gameData.player.items.filter(item => item !== item);
 
-			if (currentItem !== "") {
+			if (currentItem !== null) {
 				state.gameData.player.items.push(currentItem);
 			}
 
