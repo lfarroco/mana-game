@@ -1,6 +1,6 @@
 import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
 import { renderChara } from "../../Scenes/Battleground/Systems/UnitManager";
-import { popText } from "../../Systems/Chara/Animations/popText";
+import { updateUnitAttribute } from "../../Systems/Chara/Chara";
 import { FORCE_ID_PLAYER } from "../Force";
 import { BLOB } from "../Job";
 import { addUnitToGuild, State } from "../State";
@@ -28,10 +28,8 @@ const commonEvents = (): Encounter[] => [
 		type: "unit",
 		onChoose: async (_scene: Phaser.Scene, _state, unit: Unit) => {
 
-			unit.maxHp += 30;
-			unit.hp = unit.maxHp;
+			updateUnitAttribute(unit, "maxHp", 30);
 
-			popText({ text: "+30 MAX HP", targetId: unit.id, type: "heal" });
 		}
 	}),
 	makeEncounter("investment_opportunity", TIER.COMMON, "Investment Opportunity", "+2 income", "icon/old_adventurer", {

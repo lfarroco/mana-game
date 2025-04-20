@@ -393,7 +393,7 @@ export async function updateUnitAttribute<K extends keyof Unit>(
 	if (attribute === "attack") {
 		updateAtkDisplay(unit.id);
 	} else if (attribute === "maxHp") {
-		unit.hp = Math.min(unit.hp, unit.maxHp);
+		unit.hp = unit.maxHp;
 		updateHpDisplay(unit.id, unit.hp);
 	}
 
