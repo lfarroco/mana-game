@@ -212,11 +212,14 @@ export const makeCharaInteractive = (chara: Chara) => {
 
 	chara.zone.on('pointerover', () => {
 
+		const equipText = chara.unit.equip ?
+			`${chara.unit.equip.name} : ${chara.unit.equip.description}` : 'No equip';;
+
 		const text = [
 			`${chara.job.name}`,
 			`Attack: ${chara.unit.attack} HP: ${chara.unit.hp}`,
 			chara.unit.traits.map((trait) => trait.description).join("\n"),
-			`Equip: ${chara.unit.equip}`,
+			`${equipText}`,
 		].join('\n');
 
 		TooltipSytem.render(
@@ -265,10 +268,12 @@ function renderItemSlot(unit: Unit, container: Phaser.GameObjects.Container) {
 		item.y = pointer.y - item.parentContainer.y;
 	});
 
+	// TODO: move to Item module under "item tooltip"
 	item.on('pointerover', () => {
-		const text = [
-			`${unit.equip}`,
-		];
+		const text = unit.equip ? [
+			unit.equip.name,
+			unit.equip.description,
+		] : [];
 		TooltipSytem.render(
 			item.parentContainer.x + item.x + 300, item.parentContainer.y + item.y,
 			text.join('\n'));

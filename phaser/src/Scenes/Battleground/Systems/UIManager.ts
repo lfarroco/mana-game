@@ -188,7 +188,8 @@ export function updateChest() {
 		icon.on("pointerover", () => {
 			Tooltip.render(
 				icon.x + 400, icon.y + 100,
-				"Item: " + item);
+				`${item.name}\n${item.description}`,
+			);
 		});
 		icon.on("pointerout", () => {
 			Tooltip.hide();

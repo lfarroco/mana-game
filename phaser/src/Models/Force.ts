@@ -1,4 +1,4 @@
-import { Item } from "./Item";
+import { Item, ITEMS } from "./Item";
 import { Unit } from "./Unit";
 
 export type Force = {
@@ -21,7 +21,8 @@ export const makeForce = (id: string): Force => ({
 	hp: 50,
 	units: [],
 	items: [
-
+		ITEMS.RED_POTION(),
+		ITEMS.IRON_SWORD(),
 	]
 });
 
