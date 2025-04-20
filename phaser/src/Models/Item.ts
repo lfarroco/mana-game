@@ -1,6 +1,6 @@
 import { v4 } from "uuid";
 import { healUnit } from "../Systems/Chara/Chara";
-import { equipItem } from "../Systems/Item/EquipItem";
+import { burnConsumableInBattle } from "../Systems/Item/EquipItem";
 import { Unit } from "./Unit";
 
 type Equipment = {
@@ -51,11 +51,8 @@ export const equipmentItem = (name: string, icon: string, events: Partial<Equipm
 export const ITEMS = {
 	RED_POTION: () => equipmentItem('Red Potion', 'items/red_potion', {
 		onHalfHP: (u) => {
-			healUnit(u, 10);
-			equipItem({
-				unitId: u.id,
-				item: null
-			});
+			healUnit(u, 30);
+			burnConsumableInBattle(u.id);
 		}
 	}),
 	IRON_SWORD: () => equipmentItem('Iron Sword', 'items/iron_sword', {
