@@ -11,7 +11,7 @@ import * as GridSystem from "../../Scenes/Battleground/Systems/GridSystem";
 import { BLUE_BONNET, VIVIRED_RED } from "../../Utils/colors";
 import { getState, State } from "../../Models/State";
 import * as TooltipSytem from "../Tooltip";
-import { equipItem } from "../Item/EquipItem";
+import { equipItemInGuildUnit } from "../Item/EquipItem";
 import { popText } from "./Animations/popText";
 import { criticalDamageDisplay } from "../../Effects";
 import * as ItemDrop from "../Item/ItemDrop";
@@ -281,16 +281,16 @@ function renderItemSlot(unit: Unit, container: Phaser.GameObjects.Container) {
 			// back to chest
 			if (unit.equip) playerForce.items.push(unit.equip);
 
-			equipItem({ unitId: unit.id, item: null });
+			equipItemInGuildUnit({ unitId: unit.id, item: null });
 			UIManager.updateChest();
 		} else {
 			if (closest.unit.id === unit.id) { //self
-				equipItem({ unitId: unit.id, item: unit.equip });
+				equipItemInGuildUnit({ unitId: unit.id, item: unit.equip });
 			} else { //another
 				const currEquip = closest.unit.equip;
 
-				equipItem({ unitId: closest.id, item: unit.equip });
-				equipItem({ unitId: unit.id, item: currEquip });
+				equipItemInGuildUnit({ unitId: closest.id, item: unit.equip });
+				equipItemInGuildUnit({ unitId: unit.id, item: currEquip });
 
 			}
 		}
@@ -348,16 +348,30 @@ export async function damageUnit(id: string, damage: number, isCritical = false)
 		popText({ text: damage.toString(), targetId: chara.id });
 	}
 
-	if (hasDied)
+	if (hasDied) {
 		await killUnit(chara)
-	else
-		await tween({
-			targets: [chara.container],
-			alpha: 0.5,
-			duration: 100 / getState().options.speed,
-			yoyo: true,
-			repeat: 4,
-		});
+		return
+	}
+	await tween({
+		targets: [chara.container],
+		alpha: 0.5,
+		duration: 100 / getState().options.speed,
+		yoyo: true,
+		repeat: 4,
+	});
+
+	if (
+		nextHp <= chara.unit.maxHp / 2 &&
+		chara.unit.equip?.type.key === "equipment" &&
+		chara.unit.equip.type.onHalfHP
+	) {
+		popText({
+			text: chara.unit.equip.name,
+			targetId: chara.id,
+		})
+		await chara.unit.equip.type.onHalfHP(chara.unit);
+	}
+
 }
 
 export async function killUnit(chara: Chara) {

@@ -5,7 +5,7 @@ import { COLOR_BLACK } from "../../../Utils/colors";
 import { State } from "../../../Models/State";
 import * as Tooltip from "../../../Systems/Tooltip";
 import { overlap } from "./UnitManager";
-import { equipItem } from "../../../Systems/Item/EquipItem";
+import { equipItemInGuildUnit } from "../../../Systems/Item/EquipItem";
 
 export let ui: Phaser.GameObjects.Container | null = null;
 export let dropZone: Phaser.GameObjects.Zone | null = null;
@@ -211,7 +211,7 @@ export function updateChest() {
 
 			const currentItem = targetChara.unit.equip;
 
-			equipItem({ unitId: targetChara.unit.id, item });
+			equipItemInGuildUnit({ unitId: targetChara.unit.id, item });
 
 			state.gameData.player.items = state.gameData.player.items.filter(i => i.id !== item.id);
 
