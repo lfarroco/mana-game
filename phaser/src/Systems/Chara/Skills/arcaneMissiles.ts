@@ -16,7 +16,7 @@ export const arcaneMissiles = (
 	const { state } = scene;
 	const skill = getSkill(ARCANE_MISSILES);
 
-	const closest = await approach(UnitManager.getChara(unit.id), skill.range, true);
+	const closest = await approach(UnitManager.getChara(unit.id));
 
 	if (!closest) return;
 

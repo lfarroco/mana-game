@@ -18,7 +18,7 @@ export const explode = (
 	const skill = getSkill(EXPLODE);
 	const activeChara = UnitManager.getChara(unit.id);
 
-	const target = await approach(activeChara, skill.range, true);
+	const target = await approach(activeChara);
 
 	if (!target) return;
 

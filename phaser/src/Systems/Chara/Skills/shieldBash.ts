@@ -12,12 +12,9 @@ export async function shieldBash(activeChara: Chara) {
 
 	const { unit } = activeChara;
 
-	const candidates = await approach(activeChara, 1, true);
-
-	if (!candidates) return false;
+	const target = await approach(activeChara);
 
 	// unit with higher maxhp
-	const [target] = candidates.sort((a, b) => b.maxHp - a.maxHp);
 	const targetChara = UnitManager.getChara(target.id);
 
 	await specialAnimation(activeChara);
