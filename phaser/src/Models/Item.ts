@@ -1,3 +1,4 @@
+import { v4 } from "uuid";
 import { healUnit } from "../Systems/Chara/Chara";
 import { equipItem } from "../Systems/Item/EquipItem";
 import { Unit } from "./Unit";
@@ -23,8 +24,8 @@ export type Item = {
 	}
 }
 
-export const instantItem = (id: string, name: string, icon: string, onUse: (u: Unit) => void): Item => ({
-	id,
+export const instantItem = (name: string, icon: string, onUse: (u: Unit) => void): Item => ({
+	id: v4(),
 	name,
 	icon,
 	type: {
@@ -33,8 +34,8 @@ export const instantItem = (id: string, name: string, icon: string, onUse: (u: U
 	}
 });
 
-export const equipmentItem = (id: string, name: string, icon: string, events: Partial<Equipment>): Item => ({
-	id,
+export const equipmentItem = (name: string, icon: string, events: Partial<Equipment>): Item => ({
+	id: v4(),
 	name,
 	icon,
 	type: {
@@ -48,7 +49,7 @@ export const equipmentItem = (id: string, name: string, icon: string, events: Pa
 });
 
 export const ITEMS = {
-	RED_POTION: equipmentItem('red_potion', 'Red Potion', 'items/red_potion', {
+	RED_POTION: () => equipmentItem('Red Potion', 'items/red_potion', {
 		onHalfHP: (u) => {
 			healUnit(u, 10);
 			equipItem({
@@ -57,7 +58,7 @@ export const ITEMS = {
 			});
 		}
 	}),
-	IRON_SWORD: equipmentItem('iron_sword', 'Iron Sword', 'items/iron_sword', {
+	IRON_SWORD: () => equipmentItem('Iron Sword', 'items/iron_sword', {
 		onEquip: (u) => {
 			u.attack += 5;
 		},

@@ -213,7 +213,7 @@ export function updateChest() {
 
 			equipItem({ unitId: targetChara.unit.id, item });
 
-			state.gameData.player.items = state.gameData.player.items.filter(item => item !== item);
+			state.gameData.player.items = state.gameData.player.items.filter(i => i.id !== item.id);
 
 			if (currentItem !== null) {
 				state.gameData.player.items.push(currentItem);

@@ -14,7 +14,7 @@ export const dropItem = async (chara: Chara) => {
 
 	const item = scene.add.image(
 		chara.container.x, chara.container.y,
-		ITEMS.RED_POTION.icon)
+		ITEMS.RED_POTION().icon)
 		.setScale(0.3)
 
 	await tween({
@@ -36,6 +36,6 @@ export const dropItem = async (chara: Chara) => {
 
 	item.destroy();
 
-	getState().gameData.player.items.push(ITEMS.RED_POTION);
+	getState().gameData.player.items.push(ITEMS.RED_POTION());
 
 }
