@@ -2,13 +2,15 @@ import { summonEffect } from "../../Effects";
 import { TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 import { Choice, displayChoices, displayStore, newChoice } from "../../Scenes/Battleground/Systems/Choice";
 import { destroyChara, renderChara } from "../../Scenes/Battleground/Systems/UnitManager";
+import { createChara } from "../../Systems/Chara/Chara";
+import * as Tooltip from "../../Systems/Tooltip";
 import { pickRandom } from "../../utils";
 import { playerForce } from "../Force";
 import { vec2 } from "../Geometry";
 import { JobId, starterJobs } from "../Job";
 import { getState, State, getGuildUnit, addUnitToGuild } from "../State";
 import { addUnitTrait, randomCategoryTrait, TRAIT_CATEGORY_DEFENSIVE, TRAIT_CATEGORY_PERSONALITY } from "../Traits";
-import { Unit } from "../Unit";
+import { makeUnit, Unit } from "../Unit";
 import commonEvents from "./common";
 import monsterEvents from "./monster";
 
@@ -51,6 +53,10 @@ export type Encounter = {
 	} | {
 		type: "unit"
 		onChoose: (scene: Phaser.Scene, state: State, unit: Unit) => void;
+	} | {
+		type: "pick-card"
+		choices: () => Choice[];
+		onChoose: (state: State, choice: Choice) => void;
 	}
 
 }
@@ -78,7 +84,7 @@ export const starterEvent: Encounter = {
 	description: "Recruit the founding members of your guild",
 	pic: "icon/quest",
 	triggers: {
-		type: "nested",
+		type: "pick-card",
 		choices: () => {
 			const playerJobs = playerForce.units.map(u => u.job);
 			const remaning = starterJobs.filter(j => !playerJobs.includes(j.id));
@@ -117,25 +123,27 @@ export const events: Encounter[] = [
 
 export const evalEvent = async (event: Encounter) => {
 
-	if (event.triggers.type === "nested") {
-
-		const choice = await displayChoices(event.triggers.choices());
-		event.triggers.onChoose?.(state, choice);
-	}
-
-	if (event.triggers.type === "instant") {
-		await event.triggers.action(scene, state);
-	}
-
-	if (event.triggers.type === "shop") {
-		await displayStore(event.triggers.choices());
-	}
-
-	if (event.triggers.type === "unit") {
-
-		const unit = await selectUnit();
-
-		await event.triggers.onChoose(scene, state, unit);
+	switch (event.triggers.type) {
+		case "nested":
+			const choice = await displayChoices(event.triggers.choices());
+			event.triggers.onChoose?.(state, choice);
+			break
+		case "instant":
+			await event.triggers.action(scene, state);
+			break;
+		case "shop":
+			await displayStore(event.triggers.choices());
+			break;
+		case "unit":
+			const unit = await selectUnit();
+			await event.triggers.onChoose(scene, state, unit);
+			break;
+		case "pick-card":
+			const card = await pickCard(event.triggers.choices());
+			event.triggers.onChoose(state, card);
+			break;
+		default:
+			throw new Error("Unknown event type");
 	}
 
 	return true;
@@ -207,5 +215,25 @@ const selectUnit = async () => new Promise<Unit>((resolve) => {
 
 	scene.input.on('drop', listener);
 
+});
+
+const pickCard = (choices: Choice[]) => new Promise<Choice>((resolve) => {
+	const charas = choices.map((choice, i) => createChara(
+		makeUnit(choice.value, playerForce.id, choice.value as JobId, vec2(2, i + 1))
+	));
+
+	charas.forEach((chara, i) => {
+
+		chara.zone.on('pointerup', () => {
+
+			charas.forEach(c => {
+				c.container.destroy();
+				Tooltip.hide();
+			});
+
+			resolve(choices[i]);
+		});
+
+	});
 });
 

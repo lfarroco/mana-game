@@ -89,10 +89,8 @@ export class BattlegroundScene extends Phaser.Scene {
 
     //@ts-ignore
     window.scene = this;
-    // pick 3 random jobs
-    while (state.gameData.player.units.length < 3) {
-      await EventSystem.evalEvent(EventSystem.starterEvent);
-    }
+
+    await EventSystem.evalEvent(EventSystem.starterEvent);
 
     // Infinite day loop
     while (true) {
