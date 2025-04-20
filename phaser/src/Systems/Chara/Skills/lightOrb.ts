@@ -21,12 +21,7 @@ export const lightOrb = (
 	const damage = skill.power;
 	const heal = skill.power * 2;
 
-	const candidates = await approach(UnitManager.getChara(unit.id), skill.range, true);
-
-	if (!candidates) return;
-
-	// allied with lower hp
-	const [target] = candidates.sort((a, b) => a.hp - b.hp);
+	const target = await approach(UnitManager.getChara(unit.id));
 
 	const activeChara = UnitManager.getChara(unit.id);
 	const targetChara = UnitManager.getChara(target.id);

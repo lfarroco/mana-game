@@ -7,7 +7,6 @@ import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { getUnitsByProximity } from "../../../Models/State";
 import { delay } from "../../../Utils/animation";
 import { approach } from "../approach";
-import { getSkill, MULTISHOT } from "../../../Models/Skill";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
 
 export async function multishot(
@@ -17,13 +16,12 @@ export async function multishot(
 ) {
 	console.log("[skill] :: multishot :: start");
 
-	const skill = getSkill(MULTISHOT);
 	const enemyUnits = getUnitsByProximity(getState(), unit, true, 5);
 
 	const targets = enemyUnits.slice(0, 4);
 
 	const chara = UnitManager.getChara(unit.id);
-	const target = await approach(chara, skill.range, true)
+	const target = await approach(chara)
 
 	if (!target) {
 		console.log("no target found");

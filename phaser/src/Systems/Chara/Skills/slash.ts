@@ -7,6 +7,8 @@ import { physicalAttack } from "./physicalAttack";
 import { approach } from "../approach";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
 import { Chara } from "../Chara";
+import { HALF_TILE_WIDTH, TILE_WIDTH } from "../../../Scenes/Battleground/constants";
+import { tween } from "../../../Utils/animation";
 
 export async function slash(
 	scene: BattlegroundScene,
@@ -14,11 +16,7 @@ export async function slash(
 ) {
 	const activeChara = UnitManager.getChara(unit.id);
 
-	const candidates = await approach(activeChara, 1, true);
-	if (!candidates) return;
-
-	// unit with higher maxhp
-	const [target] = candidates.sort((a, b) => b.maxHp - a.maxHp);
+	const target = await approach(activeChara);
 
 	const targetUnit = getBattleUnit(scene.state)(target.id);
 	const targetChara = UnitManager.getChara(targetUnit.id);
@@ -27,12 +25,17 @@ export async function slash(
 
 	for (let i = 0; i < unit.multicast; i++) {
 
-		if (targetChara.unit.hp <= 0) {
-			return
-		}
-
-		await attack(scene, activeChara, targetChara);
+		if (targetChara.unit.hp > 0)
+			await attack(scene, activeChara, targetChara);
 	}
+
+	// return to the original position
+	await tween({
+		targets: [activeChara.container],
+		x: activeChara.unit.position.x * TILE_WIDTH + HALF_TILE_WIDTH,
+		Y: activeChara.unit.position.y * TILE_WIDTH + HALF_TILE_WIDTH,
+		duration: 500 / scene.state.options.speed,
+	})
 }
 
 
