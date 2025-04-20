@@ -1,5 +1,5 @@
 import { v4 } from "uuid";
-import { healUnit } from "../Systems/Chara/Chara";
+import { healUnit, updateUnitAttribute } from "../Systems/Chara/Chara";
 import { burnConsumableInBattle } from "../Systems/Item/EquipItem";
 import { Unit } from "./Unit";
 
@@ -60,10 +60,10 @@ export const ITEMS = {
 	}),
 	IRON_SWORD: () => equipmentItem('Iron Sword', 'items/iron_sword', 'Increases attack by 5', {
 		onEquip: (u) => {
-			u.attack += 5;
+			updateUnitAttribute(u, "attack", 5)
 		},
 		onUnequip: (u) => {
-			u.attack -= 5;
+			updateUnitAttribute(u, "attack", -5)
 		}
 	})
 }

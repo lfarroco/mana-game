@@ -29,6 +29,22 @@ export const equipItemInGuildUnit = async ({ unitId, item }: EquipItemArgs): Pro
 
 	const unit = getGuildUnit(state)(unitId)!;
 
+	const currentItem = unit.equip;
+
+	if (currentItem !== null) {
+
+		if (currentItem.type.key === "equipment" && currentItem.name !== item?.name) {
+			currentItem.type.onUnequip(unit);
+		}
+
+	}
+
+	if (item !== null) {
+		if (item.type.key === "equipment") {
+			item.type.onEquip(unit);
+		}
+	}
+
 	unit.equip = item;
 
 	equipItemInChara({ unitId, item });
