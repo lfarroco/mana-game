@@ -52,18 +52,22 @@ export const equipmentItem = (name: string, icon: string, description: string, e
 });
 
 export const ITEMS = {
-	RED_POTION: () => equipmentItem('Red Potion', 'items/red_potion', 'Heals 30 HP', {
+	RED_POTION: () => equipmentItem('Red Potion', 'items/red_potion', 'Heals 30 HP when below 50% HP', {
 		onHalfHP: (u) => {
 			healUnit(u, 30);
 			burnConsumableInBattle(u.id);
 		}
 	}),
-	IRON_SWORD: () => equipmentItem('Iron Sword', 'items/iron_sword', 'Increases attack by 5', {
-		onEquip: (u) => {
-			updateUnitAttribute(u, "attack", 5)
-		},
-		onUnequip: (u) => {
-			updateUnitAttribute(u, "attack", -5)
-		}
-	})
+	IRON_SWORD: () => equipmentItem('Iron Sword', 'items/iron_sword', 'Increases attack by 5', attributeModifier('attack', 5)),
 }
+
+const attributeModifier = (attribute: keyof Unit, value: number) => (
+	{
+		onEquip: (u: Unit) => {
+			updateUnitAttribute(u, attribute, value)
+		},
+		onUnequip: (u: Unit) => {
+			updateUnitAttribute(u, attribute, value * -1)
+		}
+	}
+)
