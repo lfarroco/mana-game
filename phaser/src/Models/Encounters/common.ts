@@ -32,17 +32,14 @@ const commonEvents = (): Encounter[] => [
 		type: "item-shop",
 		choices: () => [
 			ITEMS.RED_POTION(),
-			ITEMS.RED_POTION(),
-			ITEMS.RED_POTION(),
-			ITEMS.RED_POTION(),
+			ITEMS.TOXIC_POTION(),
 		]
 	}),
 	makeEncounter("equipment_vendor", TIER.COMMON, "Equipment Vendor", "You have found an equipment vendor", "icon/equipment_vendor", {
 		type: "item-shop",
 		choices: () => [
 			ITEMS.IRON_SWORD(),
-			ITEMS.IRON_SWORD(),
-			ITEMS.IRON_SWORD(),
+			ITEMS.GOLD_RING(),
 		]
 	}),
 ];

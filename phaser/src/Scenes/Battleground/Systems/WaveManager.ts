@@ -2,7 +2,6 @@ import { waves } from "../enemyWaves";
 import { BattlegroundScene } from "../BattlegroundScene";
 import * as UnitManager from "./UnitManager";
 import processTick from "../ProcessTick";
-import { runPromisesInOrder } from "../../../utils";
 
 export let scene: BattlegroundScene;
 
@@ -20,11 +19,17 @@ export async function createWave(id: number) {
 
 	scene.state.battleData.units.forEach(UnitManager.renderChara);
 
-	const promises = scene.state.battleData.units
-		.flatMap(u => u.events.onBattleStart.map(fn => fn(u))
-		);
+	const itemPromises = scene.state.battleData.units
+		.map(u => u.equip?.type?.key === "equipment" ?
+			u.equip.type.onCombatStart(u) : () => Promise.resolve())
 
-	await runPromisesInOrder(promises);
+	const promises = scene.state.battleData.units
+		.flatMap(u => u.events.onBattleStart.map(fn => fn(u)))
+		.concat(itemPromises)
+
+	for (const func of promises) {
+		await func();
+	}
 
 	await processTick(scene);
 }

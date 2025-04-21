@@ -25,7 +25,7 @@ export async function slash(
 		const targetUnit = getBattleUnit(scene.state)(target.id);
 		const targetChara = UnitManager.getChara(targetUnit.id);
 
-		await attack(scene, activeChara, targetChara);
+		await attack(activeChara, targetChara);
 	}
 
 	// return to the original position
@@ -38,7 +38,7 @@ export async function slash(
 }
 
 
-async function attack(_scene: BattlegroundScene, activeChara: Chara, targetChara: Chara) {
+async function attack(activeChara: Chara, targetChara: Chara) {
 
 	// TODO: bash piece animation gets out of sync with the physical attack logic.
 	// should make it accept the physical attack function as a callback

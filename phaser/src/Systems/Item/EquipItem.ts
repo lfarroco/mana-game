@@ -34,14 +34,14 @@ export const equipItemInGuildUnit = async ({ unitId, item }: EquipItemArgs): Pro
 	if (currentItem !== null) {
 
 		if (currentItem.type.key === "equipment" && currentItem.name !== item?.name) {
-			currentItem.type.onUnequip(unit);
+			currentItem.type.onUnequip(unit)();
 		}
 
 	}
 
 	if (item !== null) {
 		if (item.type.key === "equipment") {
-			item.type.onEquip(unit);
+			item.type.onEquip(unit)();
 		}
 	}
 
