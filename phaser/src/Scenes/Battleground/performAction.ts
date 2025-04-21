@@ -23,13 +23,6 @@ export const performAction = (scene: BattlegroundScene) => (unit: Unit) => async
 
 	console.log("[action] :: ", unit.job, ":: start", unit.id)
 
-	if (unit.hp <= 0) {
-		console.log("unit is dead. skipping turn");
-		return;
-	}
-
-	const job = getJob(unit.job);
-
 	const activeFoes = getAllActiveFoes(scene.state)(unit.force);
 
 	if (activeFoes.length === 0) return;
@@ -37,6 +30,8 @@ export const performAction = (scene: BattlegroundScene) => (unit: Unit) => async
 	const activeChara = UnitManager.getChara(unit.id);
 
 	if (unit.statuses.stun >= 0) return;
+
+	const job = getJob(unit.job);
 
 	const skillId = job.skill;
 

@@ -379,6 +379,9 @@ export async function damageUnit(id: string, damage: number, isCritical = false)
 }
 
 export async function killUnit(chara: Chara) {
+
+	chara.unit.hp = 0;
+
 	await tween({
 		targets: [chara.container],
 		alpha: 0,
