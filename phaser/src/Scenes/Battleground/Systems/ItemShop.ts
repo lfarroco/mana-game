@@ -1,32 +1,35 @@
-import { Item, ITEMS } from "../../../Models/Item";
+import { Item } from "../../../Models/Item";
 import { getState } from "../../../Models/State";
 import { tween } from "../../../Utils/animation";
 import * as constants from "../constants";
 import { scene } from "./Choice";
 import * as UIManager from "./UIManager";
 
-export const itemShop = async () => new Promise<void>((resolve) => {
-	const choices = [
-		ITEMS.RED_POTION(),
-		ITEMS.IRON_SWORD(),
-		ITEMS.RED_POTION(),
-		ITEMS.RED_POTION(),
-		ITEMS.RED_POTION(),
-		ITEMS.IRON_SWORD(),
-		ITEMS.IRON_SWORD(),
-		ITEMS.IRON_SWORD(),
-	];
+export const itemShop = async (
+	title: string,
+	items: Item[],
+) => new Promise<void>((resolve) => {
 
 	const store = scene.add.container();
 
 	const bg = scene.add.image(0, 0, "ui/wood_texture").setOrigin(0);
 	store.add(bg);
 
-	choices.forEach((item, i) => {
+	const titleText = scene.add.text(0, 0, title, {
+		...constants.defaultTextConfig,
+		fontSize: "40px",
+	})
+		.setOrigin(0)
+		.setPosition(300, 50)
+		.setAlign("center")
+		.setWordWrapWidth(600);
+	store.add(titleText);
+
+	items.forEach((item, i) => {
 
 		// 5 columns
 		const x = 100 + (i % 5) * 150;
-		const y = 100 + Math.floor(i / 5) * 250;
+		const y = 140 + Math.floor(i / 5) * 250;
 
 		const icon = scene.add.image(x, y, item.icon)
 			.setDisplaySize(100, 100)

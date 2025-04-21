@@ -8,6 +8,7 @@ import * as Tooltip from "../../Systems/Tooltip";
 import { pickRandom } from "../../utils";
 import { playerForce } from "../Force";
 import { vec2 } from "../Geometry";
+import { Item, ITEMS } from "../Item";
 import { JobId, starterJobs } from "../Job";
 import { getState, State, getGuildUnit, addUnitToGuild } from "../State";
 import { addUnitTrait, randomCategoryTrait, TRAIT_CATEGORY_DEFENSIVE, TRAIT_CATEGORY_PERSONALITY } from "../Traits";
@@ -60,8 +61,7 @@ export type Encounter = {
 		onChoose: (state: State, choice: Choice) => void;
 	} | {
 		type: "item-shop",
-		choices: () => Choice[];
-		onChoose: (state: State, choice: Choice) => void;
+		choices: () => Item[];
 	}
 
 }
@@ -148,7 +148,9 @@ export const evalEvent = async (event: Encounter) => {
 			event.triggers.onChoose(state, card);
 			break;
 		case "item-shop":
-			await itemShop();
+			await itemShop(
+				event.title,
+				event.triggers.choices());
 			break;
 		default:
 			const never_: never = event.triggers;
@@ -169,11 +171,13 @@ export const testShop: Encounter = {
 		type: "item-shop",
 		choices: () => {
 			return [
+				ITEMS.RED_POTION(),
+				ITEMS.IRON_SWORD(),
+				ITEMS.IRON_SWORD(),
+				ITEMS.IRON_SWORD(),
+				ITEMS.IRON_SWORD(),
 			]
 		},
-		onChoose: (state, choice) => {
-			console.log(state, choice);
-		}
 	}
 }
 
