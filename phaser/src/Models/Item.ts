@@ -1,14 +1,15 @@
 import { v4 } from "uuid";
 import { healUnit, updateUnitAttribute } from "../Systems/Chara/Chara";
 import { burnConsumableInBattle } from "../Systems/Item/EquipItem";
-import { Unit } from "./Unit";
+import { Unit, UnitEvent } from "./Unit";
 
 type Equipment = {
 	key: "equipment",
-	onEquip: (u: Unit) => void;
-	onUnequip: (u: Unit) => void;
-	onHalfHP: (u: Unit) => void;
-	onDeath: (u: Unit) => void;
+	onEquip: UnitEvent;
+	onUnequip: UnitEvent;
+	onHalfHP: UnitEvent;
+	onDeath: UnitEvent;
+	onCombatStart: UnitEvent;
 }
 
 export type Item = {
@@ -46,30 +47,39 @@ export const equipmentItem = (name: string, icon: string, cost: number, descript
 	description,
 	type: {
 		key: "equipment",
-		onEquip: () => { },
-		onUnequip: () => { },
-		onHalfHP: () => { },
-		onDeath: () => { },
+		onEquip: () => () => Promise.resolve(),
+		onUnequip: () => () => Promise.resolve(),
+		onHalfHP: () => () => Promise.resolve(),
+		onDeath: () => () => Promise.resolve(),
+		onCombatStart: () => () => Promise.resolve(),
 		...events
 	}
 });
 
+
 export const ITEMS = {
 	RED_POTION: () => equipmentItem('Red Potion', 'items/red_potion', 4, 'Heals 30 HP when below 50% HP', {
-		onHalfHP: (u) => {
+		onHalfHP: (u) => async () => {
 			healUnit(u, 30);
 			burnConsumableInBattle(u.id);
 		}
 	}),
+	TOXIC_POTION: () => equipmentItem('Toxic Potion', 'items/toxic_potion', 4, 'Increases attack by 5 until the end of the battle', {
+		onCombatStart: (u) => async () => {
+			updateUnitAttribute(u, 'attack', 5);
+			burnConsumableInBattle(u.id);
+		}
+	}),
 	IRON_SWORD: () => equipmentItem('Iron Sword', 'items/iron_sword', 10, 'Increases attack by 5', attributeModifier('attack', 5)),
+	GOLD_RING: () => equipmentItem('Gold Ring', 'items/gold_ring', 10, 'Increases def by 5', attributeModifier('defense', 5)),
 }
 
 const attributeModifier = (attribute: keyof Unit, value: number) => (
 	{
-		onEquip: (u: Unit) => {
+		onEquip: (u: Unit) => async () => {
 			updateUnitAttribute(u, attribute, value)
 		},
-		onUnequip: (u: Unit) => {
+		onUnequip: (u: Unit) => async () => {
 			updateUnitAttribute(u, attribute, value * -1)
 		}
 	}

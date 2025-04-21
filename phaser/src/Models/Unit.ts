@@ -28,8 +28,8 @@ export type Unit = {
   events: UnitEvents
 };
 
-type IO = () => Promise<void>;
-type UnitEvent = ((u: Unit) => IO);
+export type IO = () => Promise<void>;
+export type UnitEvent = ((u: Unit) => IO);
 type UnitEventWithTarget = ((u: Unit, target: Unit) => IO);
 
 export type UnitEvents = {

@@ -8,7 +8,7 @@ import * as Tooltip from "../../Systems/Tooltip";
 import { pickRandom } from "../../utils";
 import { playerForce } from "../Force";
 import { vec2 } from "../Geometry";
-import { Item, ITEMS } from "../Item";
+import { Item } from "../Item";
 import { JobId, starterJobs } from "../Job";
 import { getState, State, getGuildUnit, addUnitToGuild } from "../State";
 import { addUnitTrait, randomCategoryTrait, TRAIT_CATEGORY_DEFENSIVE, TRAIT_CATEGORY_PERSONALITY } from "../Traits";
@@ -160,28 +160,6 @@ export const evalEvent = async (event: Encounter) => {
 	return true;
 
 }
-
-export const testShop: Encounter = {
-	id: "test_shop",
-	tier: TIER.COMMON,
-	title: "Test shop",
-	description: "Test shop",
-	pic: "icon/quest",
-	triggers: {
-		type: "item-shop",
-		choices: () => {
-			return [
-				ITEMS.RED_POTION(),
-				ITEMS.IRON_SWORD(),
-				ITEMS.IRON_SWORD(),
-				ITEMS.IRON_SWORD(),
-				ITEMS.IRON_SWORD(),
-			]
-		},
-	}
-}
-
-
 
 const displayEvents = async (eventArray: Encounter[], _day: number) => {
 	const randomItems = pickRandom(eventArray, 3);

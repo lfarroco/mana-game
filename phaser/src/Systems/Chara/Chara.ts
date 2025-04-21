@@ -373,7 +373,7 @@ export async function damageUnit(id: string, damage: number, isCritical = false)
 			text: chara.unit.equip.name,
 			targetId: chara.id,
 		})
-		await chara.unit.equip.type.onHalfHP(chara.unit);
+		await chara.unit.equip.type.onHalfHP(chara.unit)();
 	}
 
 }
