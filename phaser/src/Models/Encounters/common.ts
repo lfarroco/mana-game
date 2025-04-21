@@ -1,12 +1,9 @@
 import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
 import { renderChara } from "../../Scenes/Battleground/Systems/UnitManager";
-import { updateUnitAttribute } from "../../Systems/Chara/Chara";
 import { FORCE_ID_PLAYER } from "../Force";
+import { ITEMS } from "../Item";
 import { BLOB } from "../Job";
 import { addUnitToGuild, State } from "../State";
-import * as Traits from "../Traits";
-import { addUnitTrait } from "../Traits";
-import { Unit } from "../Unit";
 import { Encounter, makeEncounter, TIER } from "./Encounter";
 
 const commonEvents = (): Encounter[] => [
@@ -24,14 +21,6 @@ const commonEvents = (): Encounter[] => [
 			renderChara(unit);
 		}
 	}),
-	makeEncounter("endurance_training", TIER.COMMON, "Endurance Training", "Make a guild member gain 30 HP", "icon/combat_training", {
-		type: "unit",
-		onChoose: async (_scene: Phaser.Scene, _state, unit: Unit) => {
-
-			updateUnitAttribute(unit, "maxHp", 30);
-
-		}
-	}),
 	makeEncounter("investment_opportunity", TIER.COMMON, "Investment Opportunity", "+2 income", "icon/old_adventurer", {
 		type: "instant",
 		action: (_scene, state: State) => {
@@ -39,14 +28,22 @@ const commonEvents = (): Encounter[] => [
 			UIManager.updateUI();
 		}
 	}),
-	makeEncounter("combat_trainer", TIER.COMMON, "Combat Trainer", "Learn attack skills", "icon/agility_training", {
-		type: "unit",
-		onChoose: async (_scene: Phaser.Scene, _state, unit: Unit) => {
-
-			const trait = Traits.randomCategoryTrait(Traits.TRAIT_CATEGORY_ATTACK)
-
-			addUnitTrait(trait, unit);
-		}
+	makeEncounter("potion_vendor", TIER.COMMON, "Potion Vendor", "You have found a potion vendor", "icon/potion_vendor", {
+		type: "item-shop",
+		choices: () => [
+			ITEMS.RED_POTION(),
+			ITEMS.RED_POTION(),
+			ITEMS.RED_POTION(),
+			ITEMS.RED_POTION(),
+		]
+	}),
+	makeEncounter("equipment_vendor", TIER.COMMON, "Equipment Vendor", "You have found an equipment vendor", "icon/equipment_vendor", {
+		type: "item-shop",
+		choices: () => [
+			ITEMS.IRON_SWORD(),
+			ITEMS.IRON_SWORD(),
+			ITEMS.IRON_SWORD(),
+		]
 	}),
 ];
 

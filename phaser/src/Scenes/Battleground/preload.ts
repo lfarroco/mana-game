@@ -66,6 +66,9 @@ export function preload(this: Phaser.Scene) {
 
 	[
 		'old_adventurer',
+		'potion_vendor',
+		'equipment_vendor',
+		'magic_store',
 		'combat_training',
 		'agility_training',
 		'forest_entrance',
