@@ -59,13 +59,9 @@ export function updateChest() {
 
 	chestContainer.removeAll(true);
 
-	const bg = scene.add.image(0, 0, "ui/wood_texture");
+	background();
 
-	bg.setDisplaySize(chestWidth, constants.SCREEN_HEIGHT);
-	bg.setOrigin(0);
-	bg.setInteractive();
-
-	chestContainer.add(bg);
+	title();
 
 	const baseX = 100;
 	const baseY = 100;
@@ -141,3 +137,29 @@ export function updateChest() {
 	});
 
 }
+function title() {
+	const title = scene.add.text(
+		400, 50,
+		"Chest",
+		{
+			...constants.defaultTextConfig,
+			color: "#ffffff",
+		})
+		.setOrigin(0.5)
+		.setFontFamily("Arial Black")
+		.setStroke("black", 14)
+		;
+
+	chestContainer.add(title);
+}
+
+function background() {
+	const bg = scene.add.image(0, 0, "ui/wood_texture");
+
+	bg.setDisplaySize(chestWidth, constants.SCREEN_HEIGHT);
+	bg.setOrigin(0);
+	bg.setInteractive();
+
+	chestContainer.add(bg);
+}
+
