@@ -1,5 +1,6 @@
 import { Item } from "../../../Models/Item";
 import { getState } from "../../../Models/State";
+import { hide, render } from "../../../Systems/Tooltip";
 import { tween } from "../../../Utils/animation";
 import * as constants from "../constants";
 import { scene } from "./Choice";
@@ -47,6 +48,8 @@ export const itemShop = async (
 
 		icon.setInteractive();
 		icon.on("pointerup", handlePick(scene, item, icon, price))
+		icon.on("pointerover", displayTooltip(icon, item));
+		icon.on("pointerout", hide);
 
 	});
 
@@ -108,3 +111,13 @@ const handlePick = (
 	icon.destroy();
 
 }
+
+
+const displayTooltip = (icon: Phaser.GameObjects.Image, item: Item) => () => {
+
+	render(
+		icon.x + 400,
+		icon.y + 150,
+		item.description,
+	);
+};
