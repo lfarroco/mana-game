@@ -13,53 +13,56 @@ import * as UnitManager from "./Systems/UnitManager";
 import { showGrid } from "./Systems/GridSystem";
 import { refreshScene } from "./EventHandlers";
 
-const processTick = async (scene: BattlegroundScene) => {
 
+const processTick = async (scene: BattlegroundScene) => {
   const state = getState();
   const { player } = state.gameData;
 
-  updateStatuses(state);
+  let continueProcessing = true;
 
-  const activeUnits = getActiveUnits(state)
+  while (continueProcessing) {
+    updateStatuses(state);
 
-  for (const unit of activeUnits) {
+    const activeUnits = getActiveUnits(state);
 
-    if (unit.hp <= 0) continue;
+    for (const unit of activeUnits) {
+      if (unit.hp <= 0) continue;
 
-    await performAction(scene)(unit)();
+      await performAction(scene)(unit)();
 
-    const playerUnits = scene.state.battleData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_PLAYER);
-    const cpuUnits = scene.state.battleData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_CPU);
+      const playerUnits = scene.state.battleData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_PLAYER);
+      const cpuUnits = scene.state.battleData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_CPU);
 
-    if (cpuUnits.length === 0) {
-      await vignette(scene, "Victory!");
+      if (cpuUnits.length === 0) {
+        await vignette(scene, "Victory!");
 
-      player.gold += GOLD_PER_WAVE;
+        player.gold += GOLD_PER_WAVE;
 
-      await delay(scene, 1000 / state.options.speed);
+        await delay(scene, 1000 / state.options.speed);
 
-      waveFinished(scene);
-      return;
+        waveFinished(scene);
+        continueProcessing = false;
+        break;
 
-    } else if (playerUnits.length === 0) {
+      } else if (playerUnits.length === 0) {
+        player.gold += GOLD_PER_WAVE;
 
-      player.gold += GOLD_PER_WAVE;
+        player.hp = Math.max(0, player.hp - cpuUnits.length);
 
-      player.hp = Math.max(0, player.hp - cpuUnits.length);
+        await vignette(scene, "Defeat!");
 
-      await vignette(scene, "Defeat!");
+        await delay(scene, 1000 / state.options.speed);
 
-      await delay(scene, 1000 / state.options.speed);
-
-      waveFinished(scene);
-      return;
-
+        waveFinished(scene);
+        continueProcessing = false;
+        break;
+      }
     }
 
+    if (continueProcessing) {
+      state.gameData.tick++;
+    }
   }
-
-  state.gameData.tick++;
-  await processTick(scene);
 };
 
 function waveFinished(scene: BattlegroundScene) {
