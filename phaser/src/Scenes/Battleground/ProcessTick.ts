@@ -5,7 +5,6 @@ import { delay, tween } from "../../Utils/animation";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
 import { getJob } from "../../Models/Job";
 import { Vec2 } from "../../Models/Geometry";
-import { runPromisesInOrder as sequenceAsync } from "../../utils";
 import { vignette } from "./Animations/vignette";
 import { GOLD_PER_WAVE, HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "./constants";
 import { performAction } from "./performAction";
@@ -21,41 +20,46 @@ const processTick = async (scene: BattlegroundScene) => {
 
   updateStatuses(state);
 
-  const unitActions = getActiveUnits(state)
-    .map(performAction(scene));
+  const activeUnits = getActiveUnits(state)
 
-  await sequenceAsync(unitActions);
+  for (const unit of activeUnits) {
 
-  const playerUnits = state.battleData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_PLAYER);
-  const cpuUnits = state.battleData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_CPU);
+    if (unit.hp <= 0) continue;
 
-  if (cpuUnits.length === 0) {
-    await vignette(scene, "Victory!");
+    await performAction(scene)(unit)();
 
-    player.gold += GOLD_PER_WAVE;
+    const playerUnits = scene.state.battleData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_PLAYER);
+    const cpuUnits = scene.state.battleData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_CPU);
 
-    await delay(scene, 1000 / state.options.speed);
+    if (cpuUnits.length === 0) {
+      await vignette(scene, "Victory!");
 
-    waveFinished(scene);
+      player.gold += GOLD_PER_WAVE;
 
-  } else if (playerUnits.length === 0) {
+      await delay(scene, 1000 / state.options.speed);
 
-    player.gold += GOLD_PER_WAVE;
+      waveFinished(scene);
+      return;
 
-    player.hp = Math.max(0, player.hp - cpuUnits.length);
+    } else if (playerUnits.length === 0) {
 
-    await vignette(scene, "Defeat!");
+      player.gold += GOLD_PER_WAVE;
 
-    await delay(scene, 1000 / state.options.speed);
+      player.hp = Math.max(0, player.hp - cpuUnits.length);
 
-    waveFinished(scene);
+      await vignette(scene, "Defeat!");
 
-  } else {
+      await delay(scene, 1000 / state.options.speed);
 
-    state.gameData.tick++;
-    await processTick(scene);
+      waveFinished(scene);
+      return;
+
+    }
+
   }
 
+  state.gameData.tick++;
+  await processTick(scene);
 };
 
 function waveFinished(scene: BattlegroundScene) {

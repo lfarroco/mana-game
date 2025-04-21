@@ -4,7 +4,7 @@ import { bashPieceAnimation } from "../Animations/bashPieceAnimation";
 import { popText } from "../Animations/popText";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { physicalAttack } from "./physicalAttack";
-import { approach } from "../approach";
+import { approach as getMeleeTarget } from "../approach";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
 import { Chara } from "../Chara";
 import { HALF_TILE_WIDTH, TILE_WIDTH } from "../../../Scenes/Battleground/constants";
@@ -16,17 +16,16 @@ export async function slash(
 ) {
 	const activeChara = UnitManager.getChara(unit.id);
 
-	const target = await approach(activeChara);
-
-	const targetUnit = getBattleUnit(scene.state)(target.id);
-	const targetChara = UnitManager.getChara(targetUnit.id);
-
 	await popText({ text: "Slash", targetId: unit.id });
 
 	for (let i = 0; i < unit.multicast; i++) {
 
-		if (targetChara.unit.hp > 0)
-			await attack(scene, activeChara, targetChara);
+		const target = await getMeleeTarget(activeChara);
+		if (!target) return;
+		const targetUnit = getBattleUnit(scene.state)(target.id);
+		const targetChara = UnitManager.getChara(targetUnit.id);
+
+		await attack(scene, activeChara, targetChara);
 	}
 
 	// return to the original position
