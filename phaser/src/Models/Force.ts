@@ -7,7 +7,7 @@ export type Force = {
 	color: string;
 	gold: number;
 	income: number;
-	items: Item[];
+	items: (Item | null)[]; // todo: replace with map
 	hp: number;
 	units: Unit[]
 };

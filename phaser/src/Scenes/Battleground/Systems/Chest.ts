@@ -74,11 +74,11 @@ export function updateChest() {
 
 	title();
 
-	const baseX = 100;
-	const baseY = 100;
+	const baseX = 200;
+	const baseY = 200;
 
 	// 3x3 grid
-	new Array(9).fill(0).forEach((_, i) => {
+	const slots = new Array(9).fill(0).map((_, i) => {
 
 		const x = i % 3;
 		const y = Math.floor(i / 3);
@@ -87,7 +87,8 @@ export function updateChest() {
 			baseY + (y * constants.TILE_WIDTH) + (y * 16)
 		];
 
-		const slot = UIManager.scene.add.image(0, 0, "ui/slot").setOrigin(0)
+		const slot = UIManager.scene.add.image(0, 0, "ui/slot")
+			.setOrigin(0.5)
 			.setDisplaySize(constants.TILE_WIDTH + 12, constants.TILE_WIDTH + 12)
 			.setPosition(...position);
 
@@ -96,11 +97,12 @@ export function updateChest() {
 		const item = state.gameData.player.items[i];
 
 		if (!item) {
-			return;
+			return slot;
 		}
 		const icon = UIManager.scene.add.image(0, 0, item.icon)
 			.setDisplaySize(constants.TILE_WIDTH, constants.TILE_WIDTH)
-			.setOrigin(0);
+			.setOrigin(0.5)
+			.setName(item.id);
 
 		icon.setPosition(...position);
 		chestContainer.add(icon);
@@ -118,10 +120,11 @@ export function updateChest() {
 		});
 		icon.on("dragstart", () => {
 			Tooltip.hide();
+			chestContainer.bringToTop(icon);
 		});
 		icon.on("drag", (pointer: Phaser.Input.Pointer) => {
-			icon.x = pointer.x - constants.TILE_WIDTH / 2;
-			icon.y = pointer.y - constants.TILE_WIDTH / 2;
+			icon.x = pointer.x;
+			icon.y = pointer.y;
 		});
 		icon.on("dragend", (pointer: Phaser.Input.Pointer) => {
 			const targetChara = UnitManager.overlap(pointer);
@@ -137,7 +140,7 @@ export function updateChest() {
 			)) {
 				icon.destroy();
 
-				state.gameData.player.items = state.gameData.player.items.filter(i => i.id !== item.id);
+				state.gameData.player.items = state.gameData.player.items.filter(i => i?.id !== item.id);
 				updateChest();
 
 				state.gameData.player.gold += Math.floor(item.cost / 2)
@@ -146,13 +149,49 @@ export function updateChest() {
 				return;
 			}
 
-			if (!targetChara) {
-				icon.setPosition(...position);
-				return;
-			};
 
+			// check if dropped over another item
+			const targetSlot = slots.find(slot => Phaser.Geom.Intersects.RectangleToRectangle(
+				new Phaser.Geom.Rectangle(pointer.x, pointer.y, 1, 1),
+				slot.getBounds()
+			));
+
+			if (targetSlot) {
+				// move item to slot
+				// if the slot is not empty, switch
+
+				chestContainer.bringToTop(icon);
+
+				const targetIndex = slots.indexOf(targetSlot);
+				const targetItem = state.gameData.player.items[targetIndex];
+				if (targetItem) {
+					// swap items in state, update ches
+
+					state.gameData.player.items[i] = targetItem;
+					state.gameData.player.items[targetIndex] = item;
+
+					updateChest();
+
+					return;
+				}
+
+				// move item to slot
+
+				state.gameData.player.items[i] = null;
+				state.gameData.player.items[targetIndex] = item;
+
+				// update chest
+				updateChest();
+
+			}
+
+			// nothing happened, return to original position
+			icon.setPosition(...position);
+			return;
 
 		});
+
+		return slot
 
 	});
 
@@ -170,7 +209,7 @@ function dropItemInChara(targetChara: Chara, icon: Phaser.GameObjects.Image, ite
 
 	equipItemInGuildUnit({ unitId: targetChara.unit.id, item });
 
-	state.gameData.player.items = state.gameData.player.items.filter(i => i.id !== item.id);
+	state.gameData.player.items = state.gameData.player.items.filter(i => i?.id !== item.id);
 
 	if (currentItem !== null) {
 		state.gameData.player.items.push(currentItem);
