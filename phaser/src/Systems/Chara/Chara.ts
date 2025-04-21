@@ -6,6 +6,7 @@ import { tween } from "../../Utils/animation";
 import { FORCE_ID_PLAYER, playerForce } from "../../Models/Force";
 import { getJob, Job } from "../../Models/Job";
 import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
+import * as Chest from "../../Scenes/Battleground/Systems/Chest";
 import * as UnitManager from "../../Scenes/Battleground/Systems/UnitManager";
 import * as GridSystem from "../../Scenes/Battleground/Systems/GridSystem";
 import { BLUE_BONNET, VIVIRED_RED } from "../../Utils/colors";
@@ -286,7 +287,7 @@ function renderItemSlot(unit: Unit, container: Phaser.GameObjects.Container) {
 			if (unit.equip) playerForce.items.push(unit.equip);
 
 			equipItemInGuildUnit({ unitId: unit.id, item: null });
-			UIManager.updateChest();
+			Chest.updateChest();
 		} else {
 			if (closest.unit.id === unit.id) { //self
 				equipItemInGuildUnit({ unitId: unit.id, item: unit.equip });
