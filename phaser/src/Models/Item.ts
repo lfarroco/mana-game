@@ -14,6 +14,7 @@ type Equipment = {
 export type Item = {
 	id: string;
 	name: string;
+	cost: number;
 	icon: string;
 	description: string,
 	type: {
@@ -25,10 +26,11 @@ export type Item = {
 	}
 }
 
-export const instantItem = (name: string, icon: string, description: string, onUse: (u: Unit) => void): Item => ({
+export const instantItem = (name: string, icon: string, cost: number, description: string, onUse: (u: Unit) => void): Item => ({
 	id: v4(),
 	name,
 	icon,
+	cost,
 	description,
 	type: {
 		key: "instant",
@@ -36,10 +38,11 @@ export const instantItem = (name: string, icon: string, description: string, onU
 	}
 });
 
-export const equipmentItem = (name: string, icon: string, description: string, events: Partial<Equipment>): Item => ({
+export const equipmentItem = (name: string, icon: string, cost: number, description: string, events: Partial<Equipment>): Item => ({
 	id: v4(),
 	name,
 	icon,
+	cost,
 	description,
 	type: {
 		key: "equipment",
@@ -52,13 +55,13 @@ export const equipmentItem = (name: string, icon: string, description: string, e
 });
 
 export const ITEMS = {
-	RED_POTION: () => equipmentItem('Red Potion', 'items/red_potion', 'Heals 30 HP when below 50% HP', {
+	RED_POTION: () => equipmentItem('Red Potion', 'items/red_potion', 4, 'Heals 30 HP when below 50% HP', {
 		onHalfHP: (u) => {
 			healUnit(u, 30);
 			burnConsumableInBattle(u.id);
 		}
 	}),
-	IRON_SWORD: () => equipmentItem('Iron Sword', 'items/iron_sword', 'Increases attack by 5', attributeModifier('attack', 5)),
+	IRON_SWORD: () => equipmentItem('Iron Sword', 'items/iron_sword', 10, 'Increases attack by 5', attributeModifier('attack', 5)),
 }
 
 const attributeModifier = (attribute: keyof Unit, value: number) => (

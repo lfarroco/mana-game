@@ -1,6 +1,7 @@
 import { summonEffect } from "../../Effects";
 import { TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 import { Choice, displayChoices, displayStore, newChoice } from "../../Scenes/Battleground/Systems/Choice";
+import { itemShop } from "../../Scenes/Battleground/Systems/ItemShop";
 import { destroyChara, renderChara } from "../../Scenes/Battleground/Systems/UnitManager";
 import { createChara } from "../../Systems/Chara/Chara";
 import * as Tooltip from "../../Systems/Tooltip";
@@ -55,6 +56,10 @@ export type Encounter = {
 		onChoose: (scene: Phaser.Scene, state: State, unit: Unit) => void;
 	} | {
 		type: "pick-card"
+		choices: () => Choice[];
+		onChoose: (state: State, choice: Choice) => void;
+	} | {
+		type: "item-shop",
 		choices: () => Choice[];
 		onChoose: (state: State, choice: Choice) => void;
 	}
@@ -142,13 +147,37 @@ export const evalEvent = async (event: Encounter) => {
 			const card = await pickCard(event.triggers.choices());
 			event.triggers.onChoose(state, card);
 			break;
+		case "item-shop":
+			await itemShop();
+			break;
 		default:
-			throw new Error("Unknown event type");
+			const never_: never = event.triggers;
+			throw new Error(`Unknown event type: ${never_}`);
 	}
 
 	return true;
 
 }
+
+export const testShop: Encounter = {
+	id: "test_shop",
+	tier: TIER.COMMON,
+	title: "Test shop",
+	description: "Test shop",
+	pic: "icon/quest",
+	triggers: {
+		type: "item-shop",
+		choices: () => {
+			return [
+			]
+		},
+		onChoose: (state, choice) => {
+			console.log(state, choice);
+		}
+	}
+}
+
+
 
 const displayEvents = async (eventArray: Encounter[], _day: number) => {
 	const randomItems = pickRandom(eventArray, 3);

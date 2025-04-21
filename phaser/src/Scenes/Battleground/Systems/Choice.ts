@@ -5,7 +5,7 @@ import { getState, State } from "../../../Models/State";
 import { breakLines } from "../../../utils";
 import { updateUI } from "./UIManager";
 
-let scene: Phaser.Scene;
+export let scene: Phaser.Scene;
 let state: State;
 
 export type Choice = {
@@ -22,8 +22,8 @@ export const newChoice = (pic: string, title: string, desc: string, value: strin
 	value
 });
 
-const CARD_DIMENSIONS = { width: 800, height: 300 };
-const BASE_X = 10;
+export const CARD_DIMENSIONS = { width: 800, height: 300 };
+export const BASE_X = 10;
 
 const STYLE_CONSTANTS = {
 	HOVER_SCALE: 1.05,
