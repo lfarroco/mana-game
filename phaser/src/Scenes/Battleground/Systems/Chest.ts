@@ -1,18 +1,24 @@
+import { Item } from "../../../Models/Item";
 import { getState } from "../../../Models/State";
+import { Chara } from "../../../Systems/Chara/Chara";
 import { equipItemInGuildUnit } from "../../../Systems/Item/EquipItem";
 import * as Tooltip from "../../../Systems/Tooltip";
+import { tween } from "../../../Utils/animation";
 import * as constants from "../constants";
-import { scene } from "./UIManager";
-import { overlap } from "./UnitManager";
+import * as UIManager from "./UIManager";
+import * as UnitManager from "./UnitManager";
 
 const chestWidth = constants.SCREEN_WIDTH / 2 - 100;
 
 let isChestOpen = false;
+let isAnimating = false;
 let chestContainer: Phaser.GameObjects.Container;
+
+let sellText: Phaser.GameObjects.Text;
 
 export function renderChestButton() {
 
-	const chest = scene.add.image(
+	const chest = UIManager.scene.add.image(
 		constants.SCREEN_WIDTH - 140,
 		constants.SCREEN_HEIGHT - 100,
 		"ui/chest"
@@ -20,34 +26,39 @@ export function renderChestButton() {
 
 	chest.setInteractive();
 
-	chestContainer = scene.add.container(0, 0);
+	chestContainer = UIManager.scene.add.container(0, 0);
 
-	chest.on("pointerup", () => {
+	chest.on("pointerup", async () => {
+		if (isAnimating) return;
 
 		if (isChestOpen) {
 			isChestOpen = false;
-			scene.add.tween({
-				targets: chestContainer,
+			isAnimating = true;
+			await tween({
+				targets: [chestContainer],
 				x: -chestWidth,
 				duration: 500,
 				ease: "Power2",
-				onComplete: () => {
-					chestContainer.removeAll(true);
-				}
+
 			});
+
+			isAnimating = false;
+			chestContainer.removeAll(true);
 		} else {
 			isChestOpen = true;
-			scene.children.bringToTop(chestContainer);
+			UIManager.scene.children.bringToTop(chestContainer);
 			chestContainer.setX(-chestWidth);
 
 			updateChest();
 
-			scene.add.tween({
-				targets: chestContainer,
+			isAnimating = true;
+			await tween({
+				targets: [chestContainer],
 				x: 0,
 				duration: 500,
 				ease: "Power2",
 			});
+			isAnimating = false;
 		}
 
 	});
@@ -71,12 +82,12 @@ export function updateChest() {
 
 		const x = i % 3;
 		const y = Math.floor(i / 3);
-		const position = [
+		const position: [number, number] = [
 			baseX + (x * constants.TILE_WIDTH) + (x * 16),
 			baseY + (y * constants.TILE_WIDTH) + (y * 16)
 		];
 
-		const slot = scene.add.image(0, 0, "ui/slot").setOrigin(0)
+		const slot = UIManager.scene.add.image(0, 0, "ui/slot").setOrigin(0)
 			.setDisplaySize(constants.TILE_WIDTH + 12, constants.TILE_WIDTH + 12)
 			.setPosition(...position);
 
@@ -87,7 +98,7 @@ export function updateChest() {
 		if (!item) {
 			return;
 		}
-		const icon = scene.add.image(0, 0, item.icon)
+		const icon = UIManager.scene.add.image(0, 0, item.icon)
 			.setDisplaySize(constants.TILE_WIDTH, constants.TILE_WIDTH)
 			.setOrigin(0);
 
@@ -112,33 +123,65 @@ export function updateChest() {
 			icon.x = pointer.x - constants.TILE_WIDTH / 2;
 			icon.y = pointer.y - constants.TILE_WIDTH / 2;
 		});
-
 		icon.on("dragend", (pointer: Phaser.Input.Pointer) => {
-			const targetChara = overlap(pointer);
+			const targetChara = UnitManager.overlap(pointer);
+
+			if (targetChara) {
+				dropItemInChara(targetChara, icon, item);
+				return;
+			}
+
+			if (Phaser.Geom.Intersects.RectangleToRectangle(
+				icon.getBounds(),
+				sellText.getBounds()
+			)) {
+				icon.destroy();
+
+				state.gameData.player.items = state.gameData.player.items.filter(i => i.id !== item.id);
+				updateChest();
+
+				state.gameData.player.gold += Math.floor(item.cost / 2)
+				UIManager.updateUI();
+
+				return;
+			}
+
 			if (!targetChara) {
 				icon.setPosition(...position);
 				return;
 			};
-			icon.destroy();
 
-			const currentItem = targetChara.unit.equip;
 
-			equipItemInGuildUnit({ unitId: targetChara.unit.id, item });
-
-			state.gameData.player.items = state.gameData.player.items.filter(i => i.id !== item.id);
-
-			if (currentItem !== null) {
-				state.gameData.player.items.push(currentItem);
-			}
-
-			updateChest();
 		});
 
 	});
 
+	sellZone();
+
 }
+
+function dropItemInChara(targetChara: Chara, icon: Phaser.GameObjects.Image, item: Item) {
+
+	const state = getState();
+
+	icon.destroy();
+
+	const currentItem = targetChara.unit.equip;
+
+	equipItemInGuildUnit({ unitId: targetChara.unit.id, item });
+
+	state.gameData.player.items = state.gameData.player.items.filter(i => i.id !== item.id);
+
+	if (currentItem !== null) {
+		state.gameData.player.items.push(currentItem);
+	}
+
+	updateChest();
+
+}
+
 function title() {
-	const title = scene.add.text(
+	const title = UIManager.scene.add.text(
 		400, 50,
 		"Chest",
 		{
@@ -154,7 +197,7 @@ function title() {
 }
 
 function background() {
-	const bg = scene.add.image(0, 0, "ui/wood_texture");
+	const bg = UIManager.scene.add.image(0, 0, "ui/wood_texture");
 
 	bg.setDisplaySize(chestWidth, constants.SCREEN_HEIGHT);
 	bg.setOrigin(0);
@@ -163,3 +206,13 @@ function background() {
 	chestContainer.add(bg);
 }
 
+function sellZone() {
+
+	sellText = UIManager.scene.add.text(
+		200, constants.SCREEN_HEIGHT - 100,
+		"Sell"
+	).setFontSize(50);
+
+	chestContainer.add(sellText);
+
+}
