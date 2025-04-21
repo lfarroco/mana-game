@@ -118,6 +118,7 @@ const displayTooltip = (icon: Phaser.GameObjects.Image, item: Item) => () => {
 	render(
 		icon.x + 400,
 		icon.y + 150,
+		item.name,
 		item.description,
 	);
 };

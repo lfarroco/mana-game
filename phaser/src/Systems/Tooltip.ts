@@ -13,7 +13,12 @@ export function init(sceneRef: Phaser.Scene) {
 	scene = sceneRef;
 }
 
-export function render(x: number, y: number, text: string) {
+export function render(
+	x: number,
+	y: number,
+	title: string,
+	description: string,
+) {
 	if (!tooltip) tooltip = scene.add.container(0, 0);
 	tooltip.removeAll(true);
 	scene.children.bringToTop(tooltip);
@@ -25,14 +30,22 @@ export function render(x: number, y: number, text: string) {
 	tooltipBg.fillStyle(0x000000, 0.8);
 	tooltipBg.fillRoundedRect(-TOOLTIP_WIDTH / 2, -TOOLTIP_HEIGHT / 2, TOOLTIP_WIDTH, TOOLTIP_HEIGHT, 10);
 
+	const titleText = scene.add.text(
+		-TOOLTIP_WIDTH / 2 + 20, -TOOLTIP_HEIGHT / 2 + 20,
+		title, defaultTextConfig)
+		.setOrigin(0)
+		.setFontSize(40)
+		.setFontFamily("Arial Black")
+		.setAlign("left");
+
 	const tooltipText = scene.add.text(
-		-TOOLTIP_WIDTH / 2 + 20, - TOOLTIP_HEIGHT / 2 + 20,
-		text, defaultTextConfig)
+		-TOOLTIP_WIDTH / 2 + 20, -TOOLTIP_HEIGHT / 2 + 80,
+		description, defaultTextConfig)
 		.setOrigin(0)
 		.setFontSize(30)
 		.setAlign("left");
 
-	tooltip.add([tooltipBg, tooltipText]);
+	tooltip.add([tooltipBg, titleText, tooltipText]);
 }
 
 /**

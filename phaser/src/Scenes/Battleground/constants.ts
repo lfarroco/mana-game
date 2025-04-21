@@ -15,7 +15,7 @@ export const defaultTextConfig = {
 		Math.min(SCREEN_WIDTH, SCREEN_HEIGHT) / 100
 	) * 4 + "px",
 	color: "white",
-	fontFamily: "'Macondo', sans-serif",
+	fontFamily: "'Arial', sans-serif",
 	stroke: "black",
 	strokeThickness: 4,
 };
