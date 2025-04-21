@@ -90,8 +90,6 @@ export class BattlegroundScene extends Phaser.Scene {
     //@ts-ignore
     window.scene = this;
 
-    await EventSystem.evalEvent(EventSystem.testShop);
-
     await EventSystem.evalEvent(EventSystem.starterEvent);
 
     // Infinite day loop
