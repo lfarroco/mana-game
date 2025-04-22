@@ -17,7 +17,7 @@ export async function createWave(id: number) {
 		.concat(enemies)
 		.map(u => ({ ...u }))
 
-	scene.state.battleData.units.forEach(UnitManager.renderChara);
+	scene.state.battleData.units.forEach(u => UnitManager.summonChara(u));
 
 	const itemPromises = scene.state.battleData.units
 		.map(u => u.equip?.type?.key === "equipment" ?

@@ -17,7 +17,7 @@ export async function refreshScene(scene: BattlegroundScene) {
 	UIManager.displayDropZone();
 	UIManager.updateUI();
 
-	scene.state.gameData.player.units.forEach(UnitManager.renderChara);
+	scene.state.gameData.player.units.forEach(u => UnitManager.summonChara(u));
 
 	const isGameOver = scene.state.gameData.hour > Object.keys(waves).length;
 

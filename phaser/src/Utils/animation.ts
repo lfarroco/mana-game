@@ -16,6 +16,7 @@ export async function tween(
 
 	return new Promise<void>((resolve, _reject) => {
 		scene.add.tween({
+			ease: "Power2",
 			...attributes,
 			onComplete: () => {
 				if (attributes.onComplete) {
