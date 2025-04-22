@@ -1,8 +1,9 @@
+import Phaser from "phaser";
 import * as constants from "../constants";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { delay } from "../../../Utils/animation";
 import { COLOR_BLACK } from "../../../Utils/colors";
-import { State } from "../../../Models/State";
+import { getState, State } from "../../../Models/State";
 import * as Chest from "./Chest";
 
 export let ui: Phaser.GameObjects.Container | null = null;
@@ -169,3 +170,119 @@ export function hideDropZone() {
 export function hideUI() {
 	ui?.destroy(false);
 }
+
+export function goldChangeAnimation(
+	gold: number,
+) {
+
+	const state = getState();
+
+	const sign = gold > 0 ? "+" : "-";
+
+	const goldAmount = scene.add.text(...Chest.position, `${sign}${gold}`, constants.titleTextConfig)
+		.setOrigin(0.5, 0.5)
+		.setAlpha(0);
+
+
+	scene.add.tween({
+		targets: goldAmount,
+		alpha: 1,
+		y: goldAmount.y + (50 * Math.sign(gold)),
+		duration: 500 / state.options.speed,
+		onComplete: () => {
+			scene.add.tween({
+				targets: goldAmount,
+				alpha: 0,
+				duration: 500 / state.options.speed,
+				onComplete: () => {
+					goldAmount.destroy();
+				}
+			});
+		}
+	});
+
+} export async function coinDrop(
+	gold: number,
+	coins: number,
+	x: number, y: number,
+) {
+
+	const state = getState();
+
+	state.options.speed = 1;
+
+	const chestPosition: [number, number] = [
+		scene.cameras.main.width - 150,
+		scene.cameras.main.height - 100
+	];
+
+	const [chestX, chestY] = chestPosition;
+
+	goldChangeAnimation.call(scene, gold);
+
+	for (let i = 0; i < coins; i++) {
+		const coin = scene.add.image(0, 0, 'coin').setOrigin(0.5, 0.5)
+			.setPosition(x + Math.random() * 200, y + Math.random() * 150)
+			.setAlpha(0)
+			//random rotation
+			.setRotation(Math.random() * Math.PI * 2);
+
+		scene.add.tween({
+			targets: coin,
+			alpha: 1,
+			duration: (500 / state.options.speed) * Math.max(Math.random(), 0.5),
+		});
+
+		scene.add.tween({
+			targets: coin,
+			scaleY: 0.5,
+			duration: 100 / state.options.speed,
+			yoyo: true,
+			repeat: -1
+		});
+
+		scene.add.tween({
+			targets: coin,
+			y: coin.y - 100,
+			ease: "Quad.Out",
+			duration: 500 / state.options.speed,
+			onComplete: () => {
+				const distance = Phaser.Math.Distance.Between(coin.x, coin.y, chestX, chestY);
+				scene.add.tween({
+					targets: coin,
+					x: chestX,
+					y: chestY,
+					alpha: 0.5,
+					duration: distance / 2,
+					ease: "Quad.In",
+					onComplete: () => {
+						coin.destroy();
+					}
+				});
+			}
+		});
+	}
+
+	// when coins hit target, emit coins around
+	await delay(scene, 1000 / state.options.speed);
+
+	scene.add.particles(...chestPosition, 'coin', {
+		speed: { min: 100, max: 200, },
+		lifespan: 500,
+		alpha: { start: 1.4, end: 0 },
+		angle: { min: 0, max: 360 },
+		quantity: coins * 2,
+		frequency: 100,
+		maxParticles: coins * 2,
+		rotate: {
+			min: 0,
+			max: 360
+		},
+		scaleY: {
+			start: -1,
+			end: 1
+		}
+
+	});
+}
+

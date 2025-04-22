@@ -77,7 +77,6 @@ export class BattlegroundScene extends Phaser.Scene {
     this.bgImage = this.add.image(0, 0, 'bg').setDisplaySize(constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT)
       .setPosition(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2);
 
-
     this.bgContainer = this.add.container(0, 0);
 
     ControlsSystem.init(this);
