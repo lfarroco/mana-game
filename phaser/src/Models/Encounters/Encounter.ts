@@ -262,7 +262,7 @@ const pickCard = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 			makeUnit(v4(), playerForce.id, choice.value as JobId, vec2(0, 1)),
 		)
 
-		chara.container.setPosition(-100, 400);
+		chara.container.setPosition(-100, 500);
 		charas.push(chara);
 	}
 
@@ -273,7 +273,7 @@ const pickCard = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 
 		await tween({
 			targets: [chara.container],
-			x: x + 100 + (250 * i),
+			x: x + 250 + (250 * i),
 			duration: 1500 / getState().options.speed,
 			ease: "Power2",
 		})

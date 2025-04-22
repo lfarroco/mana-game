@@ -1,6 +1,6 @@
 import { asVec2, Vec2 } from "./Geometry";
 import { Item } from "./Item";
-import { getJob, JobId } from "./Job";
+import { getJob, getMulticast, JobId } from "./Job";
 import { Trait } from "./Traits";
 
 export type Unit = {
@@ -71,7 +71,7 @@ export const makeUnit = (id: string, force: string, job: JobId, position: Vec2):
     force,
     position: asVec2(position),
     maxHp: job_.hp,
-    multicast: 2,
+    multicast: getMulticast(job_.id),
     crit: job_.agility * 1.5,
     equip: null,
     log: [],

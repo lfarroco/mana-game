@@ -18,7 +18,7 @@ export async function slash(
 
 	await popText({ text: "Slash", targetId: unit.id });
 
-	for (let i = 0; i < unit.multicast; i++) {
+	for (let i = 1; i <= unit.multicast; i++) {
 
 		const target = await getMeleeTarget(activeChara);
 		if (!target) return;

@@ -95,7 +95,7 @@ function parseJobsTable(table: string) {
   })
 }
 
-const getMulticast = (jobId: JobId): number => {
+export const getMulticast = (jobId: JobId): number => {
   const multipleJobs = [
     THIEF, ARCHER
   ];
