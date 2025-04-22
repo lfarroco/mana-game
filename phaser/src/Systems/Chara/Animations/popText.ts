@@ -24,7 +24,7 @@ export async function popText({ text, targetId, type, speed = 1 }: { text: strin
 		}
 	)
 		.setOrigin(0.5, 0.5)
-		.setColor(color || defaultTextConfig.color)
+		.setColor(color || defaultTextConfig.color as string)
 
 	await tween({
 		targets: [popText],

@@ -163,6 +163,20 @@ export function preload(this: Phaser.Scene) {
 		});
 	});
 
+	coinTexture.call(this);
+
 }
 
+
+
+//gold round circle with black outline
+function coinTexture(this: Phaser.Scene) {
+	const gfx = this.make.graphics({ x: 0, y: 0 });
+	gfx.fillStyle(0xFFD700, 1);
+	gfx.fillCircle(16, 16, 16);
+	gfx.lineStyle(3, 0x000000, 1);
+	gfx.strokeCircle(16, 16, 16);
+
+	gfx.generateTexture('coin', 16 * 2 + 3 * 2, 16 * 2 + 3 * 2);
+}
 
