@@ -1,5 +1,5 @@
 import { Unit } from "../../../Models/Unit";
-import { Chara, createChara } from "../../../Systems/Chara/Chara";
+import { Chara, createCharaCard } from "../../../Systems/Chara/Chara";
 import { vec2, Vec2, eqVec2 } from "../../../Models/Geometry";
 import * as constants from "../constants";
 import { summonEffect } from "../../../Effects/summonEffect";
@@ -34,16 +34,13 @@ export function init(sceneRef: BattlegroundScene) {
 	scene = sceneRef;
 }
 
-export async function renderChara(unit: Unit) {
+export async function summonChara(unit: Unit, useSummonEffect = true) {
 
-	const vec = vec2(
-		unit.position.x * constants.TILE_WIDTH + constants.HALF_TILE_WIDTH,
-		unit.position.y * constants.TILE_HEIGHT + constants.HALF_TILE_HEIGHT,
-	);
+	const vec = getCharaPosition(unit);
 
-	summonEffect(scene, scene.speed, vec);
+	if (useSummonEffect) summonEffect(scene, scene.speed, vec);
 
-	const chara = createChara(unit)
+	const chara = createCharaCard(unit)
 
 	chara.container.setAlpha(0);
 
@@ -55,6 +52,13 @@ export async function renderChara(unit: Unit) {
 		duration: 500 / scene.speed,
 		ease: 'Power2',
 	});
+}
+
+export function getCharaPosition(unit: Unit) {
+	return vec2(
+		unit.position.x * constants.TILE_WIDTH + constants.HALF_TILE_WIDTH,
+		unit.position.y * constants.TILE_HEIGHT + constants.HALF_TILE_HEIGHT
+	);
 }
 
 export function getChara(id: string) {

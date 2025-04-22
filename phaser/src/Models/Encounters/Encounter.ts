@@ -1,17 +1,18 @@
+import { v4 } from "uuid";
 import { summonEffect } from "../../Effects";
-import { TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
+import { defaultTextConfig, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 import { Choice, displayChoices, displayStore, newChoice } from "../../Scenes/Battleground/Systems/Choice";
 import { itemShop } from "../../Scenes/Battleground/Systems/ItemShop";
-import { destroyChara, renderChara } from "../../Scenes/Battleground/Systems/UnitManager";
-import { createChara } from "../../Systems/Chara/Chara";
+import { destroyChara, summonChara } from "../../Scenes/Battleground/Systems/UnitManager";
+import { createCharaCard } from "../../Systems/Chara/Chara";
 import * as Tooltip from "../../Systems/Tooltip";
 import { pickRandom } from "../../utils";
+import { delay, tween } from "../../Utils/animation";
 import { playerForce } from "../Force";
 import { vec2 } from "../Geometry";
 import { Item } from "../Item";
 import { JobId, starterJobs } from "../Job";
 import { getState, State, getGuildUnit, addUnitToGuild } from "../State";
-import { addUnitTrait, randomCategoryTrait, TRAIT_CATEGORY_DEFENSIVE, TRAIT_CATEGORY_PERSONALITY } from "../Traits";
 import { makeUnit, Unit } from "../Unit";
 import commonEvents from "./common";
 import monsterEvents from "./monster";
@@ -103,14 +104,15 @@ export const starterEvent: Encounter = {
 		},
 		onChoose: async (state, choice) => {
 
-			const unit = addUnitToGuild(playerForce.id, choice.value as JobId);
-			await renderChara(unit)
-			// testing: add random traits
-			const { units } = state.gameData.player;
-			const trait = randomCategoryTrait(TRAIT_CATEGORY_PERSONALITY)
-			addUnitTrait(trait, units[units.length - 1])
-			const trait2 = randomCategoryTrait(TRAIT_CATEGORY_DEFENSIVE)
-			addUnitTrait(trait2, units[units.length - 1])
+			console.log(state, choice)
+			// const unit = addUnitToGuild(playerForce.id, choice.value as JobId);
+			// await renderChara(unit)
+			// // testing: add random traits
+			// const { units } = state.gameData.player;
+			// const trait = randomCategoryTrait(TRAIT_CATEGORY_PERSONALITY)
+			// addUnitTrait(trait, units[units.length - 1])
+			// const trait2 = randomCategoryTrait(TRAIT_CATEGORY_DEFENSIVE)
+			// addUnitTrait(trait2, units[units.length - 1])
 		}
 	}
 }
@@ -145,6 +147,8 @@ export const evalEvent = async (event: Encounter) => {
 			break;
 		case "pick-card":
 			const card = await pickCard(event.triggers.choices());
+
+			await delay(scene, 500);
 			event.triggers.onChoose(state, card);
 			break;
 		case "item-shop":
@@ -214,7 +218,7 @@ const selectUnit = async () => new Promise<Unit>((resolve) => {
 		summonEffect(scene, 2, vec2(TILE_WIDTH * 3 + TILE_WIDTH / 2, TILE_HEIGHT * 3 + TILE_HEIGHT / 2));
 
 		const unit = getGuildUnit(state)(unitId)!;
-		renderChara(unit);
+		summonChara(unit);
 
 		scene.input.off('drop', listener);
 
@@ -228,19 +232,88 @@ const selectUnit = async () => new Promise<Unit>((resolve) => {
 
 });
 
-const pickCard = (choices: Choice[]) => new Promise<Choice>((resolve) => {
-	const charas = choices.map((choice, i) => createChara(
-		makeUnit(choice.value, playerForce.id, choice.value as JobId, vec2(2, i + 1))
-	));
+const pickCard = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 
-	charas.forEach((chara, i) => {
+	const bg = scene.add.image(0, 0, "ui/wood_texture").setOrigin(0);
+	bg.setDisplaySize(900, scene.cameras.main.height);
+	bg.setPosition(-400, 0);
 
-		chara.zone.on('pointerup', () => {
+	await tween({
+		targets: [bg],
+		x: 0,
+		duration: 500,
+		ease: "Power2",
+	});
 
-			charas.forEach(c => {
-				c.container.destroy();
-				Tooltip.hide();
-			});
+	const title = scene.add.text(200, 50, "Choose a Starting Hero", defaultTextConfig).setFontSize(40).setAlpha(0);
+
+	tween({
+		targets: [title],
+		alpha: 1,
+		duration: 500,
+		ease: "Power2",
+	});
+
+	const charas = choices.map((choice) => {
+		const chara = createCharaCard(
+			makeUnit(v4(), playerForce.id, choice.value as JobId, vec2(0, 1))
+		)
+		return chara;
+	});
+
+	charas.forEach(async (chara, i) => {
+		const x = chara.container.x;
+
+		chara.container.setX(-100);
+
+		await delay(scene, 200 + (250 * i));
+
+		await tween({
+			targets: [chara.container],
+			x: x + 100 + (250 * i),
+			duration: 1500 / getState().options.speed,
+			ease: "Power2",
+		})
+
+		chara.zone.on('pointerup', async () => {
+
+			Tooltip.hide();
+
+			const unit = addUnitToGuild(playerForce.id, choices[i].value as JobId);
+
+			summonChara(unit, false);
+
+			tween({
+				targets: [bg],
+				x: -900,
+				duration: 500,
+				onComplete: () => {
+					bg.destroy();
+				}
+			})
+
+			title.destroy();
+
+			for (const c of charas) {
+
+				if (chara.id === c.id) {
+					chara.container.destroy();
+					continue;
+				};
+
+				tween({
+					targets: [c.container],
+					x: -100,
+					duration: 500,
+					ease: "Power2",
+					onComplete: () => {
+						destroyChara(c.id);
+					}
+				})
+
+			}
+
+			await delay(scene, 500);
 
 			resolve(choices[i]);
 		});

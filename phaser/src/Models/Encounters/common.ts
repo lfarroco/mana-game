@@ -1,5 +1,5 @@
 import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
-import { renderChara } from "../../Scenes/Battleground/Systems/UnitManager";
+import { summonChara } from "../../Scenes/Battleground/Systems/UnitManager";
 import { FORCE_ID_PLAYER } from "../Force";
 import { ITEMS } from "../Item";
 import { BLOB } from "../Job";
@@ -18,7 +18,7 @@ const commonEvents = (): Encounter[] => [
 		type: "instant",
 		action: (_scene, _state) => {
 			const unit = addUnitToGuild(FORCE_ID_PLAYER, BLOB);
-			renderChara(unit);
+			summonChara(unit);
 		}
 	}),
 	makeEncounter("investment_opportunity", TIER.COMMON, "Investment Opportunity", "+2 income", "icon/old_adventurer", {

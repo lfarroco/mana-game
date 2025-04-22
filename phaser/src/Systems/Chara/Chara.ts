@@ -25,7 +25,6 @@ export type Chara = {
 	scene: Phaser.Scene,
 	unit: Unit,
 	container: Phaser.GameObjects.Container,
-	hightlightTween: Phaser.Tweens.Tween | null,
 	atkDisplay: Phaser.GameObjects.Text,
 	hpDisplay: Phaser.GameObjects.Text,
 	equipDisplay: Phaser.GameObjects.Image,
@@ -37,9 +36,7 @@ let state: State;
 
 const spriteSize = bgConstants.TILE_WIDTH - 4;
 
-export function createChara(unit: Unit): Chara {
-
-	console.log("creating", unit)
+export function createCharaCard(unit: Unit): Chara {
 
 	const borderColor = unit.force === FORCE_ID_PLAYER ? BLUE_BONNET : VIVIRED_RED;
 
@@ -112,7 +109,6 @@ export function createChara(unit: Unit): Chara {
 		sprite,
 		container,
 		unit,
-		hightlightTween: null,
 		atkDisplay: atk,
 		hpDisplay: hp,
 		zone,
@@ -310,12 +306,6 @@ export function destroyChara(chara: Chara) {
 	chara.zone.removeAllListeners('drag');
 	chara.zone.removeAllListeners('drop');
 	chara.zone.removeAllListeners('dragend');
-
-	// Clean up tweens
-	if (chara.hightlightTween) {
-		chara.hightlightTween.remove();
-		chara.hightlightTween = null;
-	}
 
 	// Destroy container and contents
 	chara.container.destroy();
