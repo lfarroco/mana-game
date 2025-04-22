@@ -3,8 +3,8 @@ import { summonEffect } from "../../Effects";
 import { defaultTextConfig, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 import { Choice, displayChoices, displayStore, newChoice } from "../../Scenes/Battleground/Systems/Choice";
 import { itemShop } from "../../Scenes/Battleground/Systems/ItemShop";
-import { destroyChara, summonChara } from "../../Scenes/Battleground/Systems/UnitManager";
-import { createCharaCard } from "../../Systems/Chara/Chara";
+import { addCharaToState, destroyChara, getCharaPosition, summonChara } from "../../Scenes/Battleground/Systems/UnitManager";
+import { Chara, createCharaCard } from "../../Systems/Chara/Chara";
 import * as Tooltip from "../../Systems/Tooltip";
 import { pickRandom } from "../../utils";
 import { delay, tween } from "../../Utils/animation";
@@ -12,7 +12,7 @@ import { playerForce } from "../Force";
 import { vec2 } from "../Geometry";
 import { Item } from "../Item";
 import { JobId, starterJobs } from "../Job";
-import { getState, State, getGuildUnit, addUnitToGuild } from "../State";
+import { getState, State, getGuildUnit, getEmptySlot } from "../State";
 import { makeUnit, Unit } from "../Unit";
 import commonEvents from "./common";
 import monsterEvents from "./monster";
@@ -254,17 +254,20 @@ const pickCard = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 		ease: "Power2",
 	});
 
-	const charas = choices.map((choice) => {
-		const chara = createCharaCard(
-			makeUnit(v4(), playerForce.id, choice.value as JobId, vec2(0, 1))
+	let charas: Chara[] = [];
+
+	for (const choice of choices) {
+		const chara = await createCharaCard(
+
+			makeUnit(v4(), playerForce.id, choice.value as JobId, vec2(0, 1)),
 		)
-		return chara;
-	});
+
+		chara.container.setPosition(-100, 400);
+		charas.push(chara);
+	}
 
 	charas.forEach(async (chara, i) => {
 		const x = chara.container.x;
-
-		chara.container.setX(-100);
 
 		await delay(scene, 200 + (250 * i));
 
@@ -275,13 +278,15 @@ const pickCard = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 			ease: "Power2",
 		})
 
-		chara.zone.on('pointerup', async () => {
+		chara.zone.once('pointerup', async () => {
 
 			Tooltip.hide();
 
-			const unit = addUnitToGuild(playerForce.id, choices[i].value as JobId);
+			const emptySlot = getEmptySlot(state);
 
-			summonChara(unit, false);
+			chara.unit.position = emptySlot
+			state.gameData.player.units.push(chara.unit);
+			addCharaToState(chara);
 
 			tween({
 				targets: [bg],
@@ -297,7 +302,12 @@ const pickCard = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 			for (const c of charas) {
 
 				if (chara.id === c.id) {
-					chara.container.destroy();
+					const pos = getCharaPosition(c.unit);
+					tween({
+						targets: [c.container],
+						...pos,
+						duration: 500,
+					})
 					continue;
 				};
 

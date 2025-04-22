@@ -34,7 +34,7 @@ export function init(sceneRef: BattlegroundScene) {
 	scene = sceneRef;
 }
 
-export async function summonChara(unit: Unit, useSummonEffect = true) {
+export async function summonChara(unit: Unit, useSummonEffect = true, fadeIn = true) {
 
 	const vec = getCharaPosition(unit);
 
@@ -44,14 +44,21 @@ export async function summonChara(unit: Unit, useSummonEffect = true) {
 
 	chara.container.setAlpha(0);
 
-	state.charas.push(chara);
+	addCharaToState(chara);
 
-	tween({
-		targets: [chara.container],
-		alpha: 1,
-		duration: 500 / scene.speed,
-		ease: 'Power2',
-	});
+	if (fadeIn)
+		tween({
+			targets: [chara.container],
+			alpha: 1,
+			duration: 500 / scene.speed,
+			ease: 'Power2',
+		});
+
+	return chara
+}
+
+export function addCharaToState(chara: Chara) {
+	state.charas.push(chara);
 }
 
 export function getCharaPosition(unit: Unit) {
