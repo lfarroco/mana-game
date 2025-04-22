@@ -95,6 +95,16 @@ export function addUnitToGuild(forceId: string, jobId: JobId) {
   const state = getState();
   const unitId = uuid.v4();
 
+  const position = getEmptySlot(state);
+
+  const unit = makeUnit(unitId, forceId, jobId, position);
+
+  state.gameData.player.units.push(unit);
+
+  return unit;
+}
+
+export function getEmptySlot(state: State) {
   const startX = 6;
   const endX = 9;
   const startY = 1;
@@ -115,12 +125,7 @@ export function addUnitToGuild(forceId: string, jobId: JobId) {
       if (isValid) break;
     }
   }
-
-  const unit = makeUnit(unitId, forceId, jobId, position);
-
-  state.gameData.player.units.push(unit);
-
-  return unit;
+  return position;
 }
 
 export function getUnitsByProximity(state: State, unit: Unit, enemy: boolean, range: number): Unit[] {
