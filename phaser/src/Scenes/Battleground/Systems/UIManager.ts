@@ -183,7 +183,6 @@ export function goldChangeAnimation(
 		.setOrigin(0.5, 0.5)
 		.setAlpha(0);
 
-
 	scene.add.tween({
 		targets: goldAmount,
 		alpha: 1,
@@ -243,9 +242,9 @@ export function goldChangeAnimation(
 
 		scene.add.tween({
 			targets: coin,
-			y: coin.y - 100,
+			y: coin.y - 150,
 			ease: "Quad.Out",
-			duration: 500 / state.options.speed,
+			duration: 300 / state.options.speed,
 			onComplete: () => {
 				const distance = Phaser.Math.Distance.Between(coin.x, coin.y, chestX, chestY);
 				scene.add.tween({
@@ -253,7 +252,7 @@ export function goldChangeAnimation(
 					x: chestX,
 					y: chestY,
 					alpha: 0.5,
-					duration: distance / 2,
+					duration: distance / 3,
 					ease: "Quad.In",
 					onComplete: () => {
 						coin.destroy();

@@ -1,5 +1,6 @@
+import { updatePlayerGold } from "../../../Models/Force";
 import { Item } from "../../../Models/Item";
-import { getState } from "../../../Models/State";
+import { getState, State } from "../../../Models/State";
 import { Chara } from "../../../Systems/Chara/Chara";
 import { equipItemInGuildUnit } from "../../../Systems/Item/EquipItem";
 import * as Tooltip from "../../../Systems/Tooltip";
@@ -142,14 +143,7 @@ export function updateChest() {
 				icon.getBounds(),
 				sellText.getBounds()
 			)) {
-				icon.destroy();
-
-				state.gameData.player.items = state.gameData.player.items.filter(i => i?.id !== item.id);
-				updateChest();
-
-				state.gameData.player.gold += Math.floor(item.cost / 2)
-				UIManager.updateUI();
-
+				handleSelling(icon, state, item);
 				return;
 			}
 
@@ -201,6 +195,19 @@ export function updateChest() {
 
 	sellZone();
 
+}
+
+function handleSelling(icon: Phaser.GameObjects.Image, state: State, item: Item) {
+
+	icon.destroy();
+
+	UIManager.coinDrop(item.cost / 2, item.cost / 2, icon.x, icon.y)
+
+	state.gameData.player.items = state.gameData.player.items.filter(i => i?.id !== item.id);
+	updateChest();
+
+	updatePlayerGold(item.cost / 2);
+	UIManager.updateUI();
 }
 
 function dropItemInChara(targetChara: Chara, icon: Phaser.GameObjects.Image, item: Item) {
