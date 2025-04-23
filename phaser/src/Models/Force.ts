@@ -37,7 +37,7 @@ export const cpuForce = makeForce(FORCE_ID_CPU);
 export const updatePlayerGoldIO = (gold: number) => {
 
 	playerForce.gold += Math.floor(gold);
-	goldChangeAnimation(playerForce.gold);
 	updateUI();
+	goldChangeAnimation(gold);
 
 }

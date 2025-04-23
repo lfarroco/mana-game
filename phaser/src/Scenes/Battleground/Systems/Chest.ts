@@ -1,4 +1,3 @@
-import { updatePlayerGoldIO } from "../../../Models/Force";
 import { Item } from "../../../Models/Item";
 import { getState, State } from "../../../Models/State";
 import { Chara } from "../../../Systems/Chara/Chara";
@@ -201,12 +200,10 @@ function handleSelling(icon: Phaser.GameObjects.Image, state: State, item: Item)
 
 	icon.destroy();
 
-	UIManager.coinDrop(item.cost / 2, item.cost / 2, icon.x, icon.y)
-
 	state.gameData.player.items = state.gameData.player.items.filter(i => i?.id !== item.id);
 	updateChest();
 
-	updatePlayerGoldIO(item.cost / 2);
+	UIManager.coinDropIO(item.cost / 2, item.cost / 2, icon.x, icon.y)
 }
 
 function dropItemInChara(targetChara: Chara, icon: Phaser.GameObjects.Image, item: Item) {

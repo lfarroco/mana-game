@@ -47,7 +47,7 @@ export const itemShop = async (
 		store.add(price);
 
 		icon.setInteractive();
-		icon.on("pointerup", handlePick(scene, item, icon, price))
+		icon.on("pointerup", handleBuy(scene, item, icon, price))
 		icon.on("pointerover", displayTooltip(icon, item));
 		icon.on("pointerout", hide);
 
@@ -65,11 +65,11 @@ export const itemShop = async (
 
 });
 
-const handlePick = (
+const handleBuy = (
 	scene: Phaser.Scene,
 	item: Item,
 	icon: Phaser.GameObjects.Image,
-	price: Phaser.GameObjects.Text,
+	priceText: Phaser.GameObjects.Text,
 ) => async () => {
 
 	const player = getState().gameData.player;
@@ -87,7 +87,8 @@ const handlePick = (
 
 		return;
 	}
-	price.destroy();
+
+	priceText.destroy();
 
 	updatePlayerGoldIO(-item.cost);
 
