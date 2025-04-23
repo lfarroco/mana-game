@@ -1,7 +1,7 @@
 import { updatePlayerGoldIO } from "../../../Models/Force";
 import { Item } from "../../../Models/Item";
 import { getState } from "../../../Models/State";
-import { hide, render } from "../../../Systems/Tooltip";
+import * as Tooltip from "../../../Systems/Tooltip";
 import { tween } from "../../../Utils/animation";
 import * as constants from "../constants";
 import { scene } from "./Choice";
@@ -49,19 +49,28 @@ export const itemShop = async (
 		icon.setInteractive();
 		icon.on("pointerup", handleBuy(scene, item, icon, price))
 		icon.on("pointerover", displayTooltip(icon, item));
-		icon.on("pointerout", hide);
+		icon.on("pointerout", Tooltip.hide);
 
 	});
 
-	const exit = scene.add.text(0, 0, "Exit Shop", constants.defaultTextConfig)
+
+	const exit = scene.add.image(0, 0, "icon/exit")
+		.setScale(0.3)
 		.setOrigin(0)
 		.setInteractive()
-		.setPosition(300, scene.cameras.main.height - 100)
+		.setPosition(700, scene.cameras.main.height - 320)
 		.on("pointerup", () => {
 			store.destroy();
 			exit.destroy();
 			resolve();
+			exitText.destroy();
 		});
+	const center = exit.getCenter();
+
+	const exitText = scene.add.text(0, 0, "Exit", constants.titleTextConfig)
+		.setOrigin(0.5)
+		.setPosition(center.x, center.y + 50)
+		.setAlign("center")
 
 });
 
@@ -73,6 +82,8 @@ const handleBuy = (
 ) => async () => {
 
 	const player = getState().gameData.player;
+
+	Tooltip.hide();
 
 	if (player.gold < item.cost) {
 		const err = scene.add.text(0, 0, "Not enough gold", constants.defaultTextConfig);
@@ -116,7 +127,7 @@ const handleBuy = (
 
 const displayTooltip = (icon: Phaser.GameObjects.Image, item: Item) => () => {
 
-	render(
+	Tooltip.render(
 		icon.x + 400,
 		icon.y + 150,
 		item.name,
