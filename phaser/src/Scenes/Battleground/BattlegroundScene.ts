@@ -102,7 +102,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
         await EventSystem.displayRandomEvents(state.gameData.day);
 
-        UIManager.updateUI();
       }
 
       // End of day events

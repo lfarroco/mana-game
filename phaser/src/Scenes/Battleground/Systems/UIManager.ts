@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import * as constants from "../constants";
 import { BattlegroundScene } from "../BattlegroundScene";
-import { delay } from "../../../Utils/animation";
+import { delay, tween } from "../../../Utils/animation";
 import { COLOR_BLACK } from "../../../Utils/colors";
 import { getState, State } from "../../../Models/State";
 import * as Chest from "./Chest";
@@ -171,44 +171,49 @@ export function hideUI() {
 	ui?.destroy(false);
 }
 
-export function goldChangeAnimation(
+export async function goldChangeAnimation(
 	gold: number,
 ) {
 
 	const state = getState();
 
-	const sign = gold > 0 ? "+" : "-";
+	const sign = gold > 0 ? "+" : "";
 
-	const goldAmount = scene.add.text(...Chest.position, `${sign}${gold}`, constants.titleTextConfig)
+	const text = `${sign}${gold}`;
+
+	const goldAmount = scene.add.text(...Chest.position, text, constants.titleTextConfig)
 		.setOrigin(0.5, 0.5)
-		.setAlpha(0);
+		.setAlpha(0)
+		.setScale(1);
 
-	scene.add.tween({
-		targets: goldAmount,
+	await tween({
+		targets: [goldAmount],
 		alpha: 1,
-		y: goldAmount.y + (50 * Math.sign(gold)),
+		scale: 1.5,
+		y: goldAmount.y + (-50 * Math.sign(gold)),
 		duration: 500 / state.options.speed,
+	});
+
+	await tween({
+		targets: [goldAmount],
+		alpha: 0,
+		scale: 1,
+		y: goldAmount.y + (-50 * Math.sign(gold)),
+		duration: 1000 / state.options.speed,
 		onComplete: () => {
-			scene.add.tween({
-				targets: goldAmount,
-				alpha: 0,
-				duration: 500 / state.options.speed,
-				onComplete: () => {
-					goldAmount.destroy();
-				}
-			});
+			goldAmount.destroy();
 		}
 	});
 
-} export async function coinDrop(
+}
+
+export async function coinDropIO(
 	gold: number,
 	coins: number,
 	x: number, y: number,
 ) {
 
 	const state = getState();
-
-	state.options.speed = 1;
 
 	const chestPosition: [number, number] = [
 		scene.cameras.main.width - 150,
@@ -217,7 +222,7 @@ export function goldChangeAnimation(
 
 	const [chestX, chestY] = chestPosition;
 
-	goldChangeAnimation.call(scene, gold);
+	goldChangeAnimation(gold);
 
 	for (let i = 0; i < coins; i++) {
 		const coin = scene.add.image(0, 0, 'coin').setOrigin(0.5, 0.5)
