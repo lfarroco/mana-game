@@ -14,7 +14,7 @@ let isChestOpen = false;
 let isAnimating = false;
 let chestContainer: Phaser.GameObjects.Container;
 
-let sellText: Phaser.GameObjects.Text;
+let sellImage: Phaser.GameObjects.Image;
 
 export const position: [number, number] = [
 	constants.SCREEN_WIDTH - 140,
@@ -140,7 +140,7 @@ export function updateChest() {
 
 			if (Phaser.Geom.Intersects.RectangleToRectangle(
 				icon.getBounds(),
-				sellText.getBounds()
+				sellImage.getBounds()
 			)) {
 				handleSelling(icon, state, item);
 				return;
@@ -254,11 +254,20 @@ function background() {
 
 function sellZone() {
 
-	sellText = UIManager.scene.add.text(
-		200, constants.SCREEN_HEIGHT - 100,
-		"Sell"
-	).setFontSize(50);
+	sellImage = UIManager.scene.add.image(
+		400, constants.SCREEN_HEIGHT - 150,
+		"icon/sell"
+	).setScale(0.3);
+	const sellText = UIManager.scene.add.text(
+		400, constants.SCREEN_HEIGHT - 150,
+		"Sell",
+		constants.defaultTextConfig,
+	)
+		.setOrigin(0.5)
+		.setFontFamily("Arial Black")
+		.setStroke("black", 14)
+		;
 
-	chestContainer.add(sellText);
+	chestContainer.add([sellImage, sellText]);
 
 }
