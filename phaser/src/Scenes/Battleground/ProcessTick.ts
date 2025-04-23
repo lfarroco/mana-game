@@ -2,7 +2,7 @@ import { BattlegroundScene } from "./BattlegroundScene";
 import { getActiveUnits, getState, updateStatuses } from "../../Models/State";
 import { Unit, unitLog } from "../../Models/Unit";
 import { delay, tween } from "../../Utils/animation";
-import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../Models/Force";
+import { FORCE_ID_CPU, FORCE_ID_PLAYER, updatePlayerGoldIO } from "../../Models/Force";
 import { getJob } from "../../Models/Job";
 import { Vec2 } from "../../Models/Geometry";
 import { vignette } from "./Animations/vignette";
@@ -36,7 +36,7 @@ const processTick = async (scene: BattlegroundScene) => {
       if (cpuUnits.length === 0) {
         await vignette(scene, "Victory!");
 
-        player.gold += GOLD_PER_WAVE;
+        updatePlayerGoldIO(GOLD_PER_WAVE);
 
         await delay(scene, 1000 / state.options.speed);
 
@@ -45,7 +45,7 @@ const processTick = async (scene: BattlegroundScene) => {
         break;
 
       } else if (playerUnits.length === 0) {
-        player.gold += GOLD_PER_WAVE;
+        updatePlayerGoldIO(GOLD_PER_WAVE);
 
         player.hp = Math.max(0, player.hp - cpuUnits.length);
 

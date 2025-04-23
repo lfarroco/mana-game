@@ -1,4 +1,4 @@
-import { goldChangeAnimation } from "../Scenes/Battleground/Systems/UIManager";
+import { goldChangeAnimation, updateUI } from "../Scenes/Battleground/Systems/UIManager";
 import { Item, ITEMS } from "./Item";
 import { Unit } from "./Unit";
 
@@ -34,9 +34,10 @@ export const FORCE_ID_CPU = "CPU";
 export const playerForce = makeForce(FORCE_ID_PLAYER);
 export const cpuForce = makeForce(FORCE_ID_CPU);
 
-export const updatePlayerGold = (gold: number) => {
+export const updatePlayerGoldIO = (gold: number) => {
 
 	playerForce.gold += Math.floor(gold);
 	goldChangeAnimation(playerForce.gold);
+	updateUI();
 
 }
