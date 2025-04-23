@@ -105,13 +105,13 @@ export function addUnitToGuild(forceId: string, jobId: JobId) {
 }
 
 export function getEmptySlot(state: State) {
-  const startX = 6;
-  const endX = 9;
+  const startX = 4;
+  const endX = 7;
   const startY = 1;
   const endY = 4;
 
   let isValid = false;
-  let position = vec2(0, 0);
+  let position = vec2(1, 1);
 
   while (!isValid) {
     for (let x = startX; x < endX; x++) {
