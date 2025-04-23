@@ -6,6 +6,9 @@ import { tween } from "../../../Utils/animation";
 import * as constants from "../constants";
 import { scene } from "./Choice";
 
+// continue from here:
+// create undead units with deathrattle meachnics
+
 export const itemShop = async (
 	title: string,
 	items: Item[],

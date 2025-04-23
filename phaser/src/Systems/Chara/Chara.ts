@@ -34,7 +34,7 @@ export type Chara = {
 let scene: Phaser.Scene;
 let state: State;
 
-const spriteSize = bgConstants.TILE_WIDTH - 4;
+const borderWidth = 4
 
 export function createCharaCard(unit: Unit): Chara {
 
@@ -42,18 +42,25 @@ export function createCharaCard(unit: Unit): Chara {
 
 	const border = scene.add.rectangle(
 		0, 0,
-		spriteSize + 4, spriteSize + 4,
+		bgConstants.TILE_WIDTH, bgConstants.TILE_HEIGHT,
 		borderColor, 1)
 		.setOrigin(0.5, 0.5)
 
-	const { sprite, shape } = portrait(unit);
 
 	const container = scene.add.container(
 		unit.position.x * bgConstants.TILE_WIDTH + bgConstants.HALF_TILE_WIDTH,
 		unit.position.y * bgConstants.TILE_HEIGHT + bgConstants.HALF_TILE_HEIGHT
 	)
 
-	sprite.setName(unit.id) // used for scene-level drop events
+	const key = `charas/${unit.job}`
+	const fallbackKey = 'charas/nameless'
+	const textureKey = scene.textures.exists(key) ? key : fallbackKey;
+
+	const sprite = scene.add.image(0, 0, textureKey)
+		.setDisplaySize(bgConstants.TILE_WIDTH - borderWidth, bgConstants.TILE_HEIGHT - borderWidth)
+		.setName(unit.id) // used for scene-level drop events
+
+	container.add([border, sprite]);
 
 	const textConfig = { ...bgConstants.defaultTextConfig, fontSize: '35px', color: '#ffffff' };
 
@@ -69,9 +76,12 @@ export function createCharaCard(unit: Unit): Chara {
 	);
 
 	const atk = scene.add.text(
-		-boxWidth, bgConstants.HALF_TILE_HEIGHT - boxHeight / 2,
+		atkBg.x, atkBg.y,
 		unit.attack.toString(),
-		textConfig).setOrigin(0.5).setAlign('center');
+		textConfig
+	)
+		.setOrigin(0)
+		.setAlign('left');
 
 	container.add([atkBg, atk])
 
@@ -93,7 +103,7 @@ export function createCharaCard(unit: Unit): Chara {
 	//zone over the sprite for click/drag events
 	const zone = scene.add.zone(
 		0, 0,
-		spriteSize, spriteSize
+		bgConstants.TILE_WIDTH, bgConstants.TILE_HEIGHT
 	).setOrigin(0.5, 0.5)
 		.setName(unit.id) //needed for drop events
 
@@ -116,25 +126,6 @@ export function createCharaCard(unit: Unit): Chara {
 	};
 
 	makeCharaInteractive(chara);
-
-	// masks inside containers are currently not supported by phaser, so we need to manually follow the container
-	// the container is still used to hold chara's aggregates (hp bar, icons, particles)
-	const follow = () => {
-		border.x = container.x;
-		border.y = container.y;
-		shape.x = container.x;
-		shape.y = container.y;
-		sprite.x = container.x + 20;
-		sprite.y = container.y + 140;
-	}
-
-	scene.events.on('update', follow)
-	container.on('destroy', () => {
-		border.destroy();
-		shape.destroy();
-		sprite.destroy();
-		scene.events.off('update', follow);
-	})
 
 	return chara
 }
@@ -230,15 +221,6 @@ export const makeCharaInteractive = (chara: Chara) => {
 		TooltipSytem.hide()
 	})
 
-}
-
-export function portrait(unit: Unit) {
-	const shape = scene.add.rectangle(0, 0, bgConstants.TILE_WIDTH, bgConstants.TILE_HEIGHT, 0xffffff);
-	const mask = shape.createBitmapMask();
-
-	const sprite = scene.add.image(0, 0, `charas/${unit.job}`);
-	sprite.mask = mask;
-	return { sprite, shape };
 }
 
 function renderItemSlot(unit: Unit, container: Phaser.GameObjects.Container) {
