@@ -7,7 +7,7 @@ const enemy = (job: JobId, x: number, y: number) => makeUnit(
 	Math.random().toString(),
 	FORCE_ID_CPU,
 	job,
-	vec2(x + 3, y + 1))
+	vec2(x + 1, y + 1))
 
 const FRONTLINE = 2;
 const MIDDLE = 1;

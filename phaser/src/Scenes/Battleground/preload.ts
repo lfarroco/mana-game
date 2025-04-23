@@ -3,27 +3,6 @@ import * as Job from "../../Models/Job";
 
 const jobs = Job.jobs.map(j => j.id);
 
-const emotes = [
-	'moving-emote',
-	'defend-emote',
-	'combat-emote',
-	'arrow-bottom-emote', // TODO: rename to arrow-down to match the DIRECTIONS const
-	'arrow-left-emote',
-	'arrow-right-emote',
-	'arrow-top-emote',// TODO: rename to arrow-up to match the DIRECTIONS const
-	'exclamation-emote',
-	'question-emote',
-	'sing-emote',
-	'skull-emote',
-	'sleep-emote',
-	'sparkle-emote',
-	'surprise-emote',
-	'surprise2-emote',
-	'magic-emote',
-	'sweat-emote',
-	'v-hand-emote',
-]
-
 export function preload(this: Phaser.Scene) {
 	["castle", "cave", "fort", "town", "tavern"].forEach(city => {
 		this.load.image(city, `assets/cities/${city}.png`);
@@ -118,22 +97,11 @@ export function preload(this: Phaser.Scene) {
 		this.load.image(`items/${item}`, `assets/items/${item}.png`);
 	});
 
-	jobs.forEach(job => {
-		this.load.svg(`charas/${job}`, `assets/charas/${job}.svg`, { scale: 3 });
-	});
+	this.load.image("charas/nameless", "assets/charas/nameless.png");
 
-	emotes.forEach(emote => {
-
-		this.load.spritesheet(
-			emote,
-			`assets/emotes/${emote}.png`,
-			{
-				frameWidth: 32,
-				frameHeight: 32,
-			}
-		);
-
-	});
+	jobs.forEach(job =>
+		this.load.image(`charas/${job}`, `assets/charas/${job}.png`)
+	);
 
 
 	this.load.spritesheet(
@@ -144,26 +112,6 @@ export function preload(this: Phaser.Scene) {
 			frameHeight: 192,
 		}
 	);
-
-	//once all assets are loaded, create animations
-	this.load.on("complete", () => {
-
-		emotes.forEach(emote => {
-			this.anims.create({
-				key: emote,
-				frames: this.anims.generateFrameNumbers(emote, { start: 0, end: 2 }),
-				frameRate: 3,
-				repeat: -1,
-			});
-		});
-
-		this.anims.create({
-			key: "pipo-light-pillar",
-			frames: this.anims.generateFrameNumbers("pipo-light-pillar", { start: 0, end: 9 }),
-			frameRate: 10,
-			repeat: -1,
-		});
-	});
 
 	coinTexture.call(this);
 

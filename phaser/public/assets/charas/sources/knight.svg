@@ -23,9 +23,9 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
-     inkscape:zoom="0.4204826"
-     inkscape:cx="527.96477"
-     inkscape:cy="447.1053"
+     inkscape:zoom="0.8409652"
+     inkscape:cx="328.78887"
+     inkscape:cy="361.48939"
      inkscape:window-width="2560"
      inkscape:window-height="1027"
      inkscape:window-x="0"
@@ -75,6 +75,16 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
+    <rect
+       style="opacity:0.99;fill:#d7eef4;stroke-width:0.984962;stroke-linejoin:round;paint-order:stroke fill markers"
+       id="rect1"
+       width="123.64513"
+       height="123.64513"
+       x="41.215042"
+       y="35.551907"
+       inkscape:export-filename="knight.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
     <ellipse
        style="opacity:0.33;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1.85225;stroke-linecap:round;stroke-dasharray:none;paint-order:normal"
        id="path445"
