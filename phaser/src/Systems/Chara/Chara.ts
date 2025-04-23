@@ -66,34 +66,47 @@ export function createCharaCard(unit: Unit): Chara {
 
 	const boxWidth = 50;
 	const boxHeight = 50;
+
+	const atkPosition: [number, number] = [
+		-bgConstants.HALF_TILE_WIDTH, bgConstants.HALF_TILE_HEIGHT - boxHeight,
+	]
+
 	const atkBg = scene.add.graphics();
 
 	atkBg.fillStyle(0xff0000, 0.5);
 	atkBg.fillRoundedRect(
-		-bgConstants.HALF_TILE_WIDTH, bgConstants.HALF_TILE_HEIGHT - boxHeight,
+		...atkPosition,
 		boxWidth, boxHeight,
 		15
 	);
-
+	const atkBgCenter: [number, number] = [
+		atkPosition[0] + boxWidth / 2, atkPosition[1] + boxHeight / 2,
+	]
 	const atk = scene.add.text(
-		atkBg.x, atkBg.y,
+		...atkBgCenter,
 		unit.attack.toString(),
 		textConfig
 	)
-		.setOrigin(0)
-		.setAlign('left');
+		.setOrigin(0.5)
+		.setAlign('center');
 
 	container.add([atkBg, atk])
 
+	const hpPosition: [number, number] = [
+		bgConstants.HALF_TILE_WIDTH - boxWidth, bgConstants.HALF_TILE_HEIGHT - boxHeight,
+	]
 	const hpBg = scene.add.graphics();
 	hpBg.fillStyle(0x00ff00, 0.5);
 	hpBg.fillRoundedRect(
-		bgConstants.HALF_TILE_WIDTH - boxWidth, bgConstants.HALF_TILE_HEIGHT - boxHeight,
+		...hpPosition,
 		boxWidth, boxHeight,
 		10
 	);
+	const hpBgCenter: [number, number] = [
+		hpPosition[0] + boxWidth / 2, hpPosition[1] + boxHeight / 2,
+	]
 	const hp = scene.add.text(
-		bgConstants.HALF_TILE_WIDTH - boxWidth / 2, bgConstants.HALF_TILE_HEIGHT - boxHeight / 2,
+		...hpBgCenter,
 		unit.hp.toString(), textConfig)
 		.setOrigin(0.5)
 		.setAlign('center');
