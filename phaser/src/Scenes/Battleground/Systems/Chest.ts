@@ -1,4 +1,4 @@
-import { updatePlayerGold } from "../../../Models/Force";
+import { updatePlayerGoldIO } from "../../../Models/Force";
 import { Item } from "../../../Models/Item";
 import { getState, State } from "../../../Models/State";
 import { Chara } from "../../../Systems/Chara/Chara";
@@ -206,8 +206,7 @@ function handleSelling(icon: Phaser.GameObjects.Image, state: State, item: Item)
 	state.gameData.player.items = state.gameData.player.items.filter(i => i?.id !== item.id);
 	updateChest();
 
-	updatePlayerGold(item.cost / 2);
-	UIManager.updateUI();
+	updatePlayerGoldIO(item.cost / 2);
 }
 
 function dropItemInChara(targetChara: Chara, icon: Phaser.GameObjects.Image, item: Item) {

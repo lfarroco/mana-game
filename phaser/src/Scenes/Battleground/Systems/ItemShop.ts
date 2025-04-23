@@ -1,10 +1,10 @@
+import { updatePlayerGoldIO } from "../../../Models/Force";
 import { Item } from "../../../Models/Item";
 import { getState } from "../../../Models/State";
 import { hide, render } from "../../../Systems/Tooltip";
 import { tween } from "../../../Utils/animation";
 import * as constants from "../constants";
 import { scene } from "./Choice";
-import * as UIManager from "./UIManager";
 
 export const itemShop = async (
 	title: string,
@@ -89,8 +89,8 @@ const handlePick = (
 	}
 	price.destroy();
 
-	player.gold -= item.cost;
-	UIManager.updateUI();
+	updatePlayerGoldIO(-item.cost);
+
 	player.items.push(item);
 
 	await tween({

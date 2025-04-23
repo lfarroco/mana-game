@@ -3,7 +3,7 @@ import { tween } from "../../../Utils/animation";
 import * as constants from "../constants";
 import { getState, State } from "../../../Models/State";
 import { breakLines } from "../../../utils";
-import { updateUI } from "./UIManager";
+import { updatePlayerGoldIO } from "../../../Models/Force";
 
 export let scene: Phaser.Scene;
 let state: State;
@@ -95,9 +95,7 @@ export const displayStore = (choices: Choice[]) => new Promise<void>((resolve) =
 
 			card.destroy();
 
-			player.gold -= items[choice.value];
-
-			updateUI();
+			updatePlayerGoldIO(-items[choice.value]);
 
 			bought++;
 

@@ -1,3 +1,4 @@
+import { updatePlayerGoldIO } from "../../Models/Force";
 import * as Job from "../../Models/Job";
 import { addUnitToGuild, getBattleUnitAt } from "../../Models/State";
 import { BattlegroundScene } from "./BattlegroundScene";
@@ -80,10 +81,8 @@ const renderUnit = (scene: BattlegroundScene) => (jobId: Job.JobId, i: number) =
 
 		if (maybeOccupier) return;
 
-		player.gold -= constants.RECRUIT_UNIT_PRICE;
+		updatePlayerGoldIO(-constants.RECRUIT_UNIT_PRICE);
 		addUnitToGuild(player.id, jobId)
-
-		UIManager.updateUI();
 
 	});
 

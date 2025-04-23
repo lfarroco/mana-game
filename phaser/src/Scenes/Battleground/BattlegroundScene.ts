@@ -14,6 +14,7 @@ import * as ChoiceSystem from "./Systems/Choice";
 import * as EventSystem from "../../Models/Encounters/Encounter";
 import * as TraitSystem from "../../Models/Traits";
 import * as TooltipSystem from "../../Systems/Tooltip";
+import { updatePlayerGoldIO } from "../../Models/Force";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -111,9 +112,7 @@ export class BattlegroundScene extends Phaser.Scene {
       state.gameData.day += 1;
       state.gameData.hour = 1;
 
-      state.gameData.player.gold += state.gameData.player.income;
-
-      UIManager.updateUI();
+      updatePlayerGoldIO(state.gameData.player.income);
 
     }
 

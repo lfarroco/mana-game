@@ -1,6 +1,6 @@
 import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
 import { summonChara } from "../../Scenes/Battleground/Systems/UnitManager";
-import { FORCE_ID_PLAYER } from "../Force";
+import { FORCE_ID_PLAYER, updatePlayerGoldIO } from "../Force";
 import { ITEMS } from "../Item";
 import { BLOB } from "../Job";
 import { addUnitToGuild, State } from "../State";
@@ -9,9 +9,8 @@ import { Encounter, makeEncounter, TIER } from "./Encounter";
 const commonEvents = (): Encounter[] => [
 	makeEncounter("odd_job", TIER.COMMON, "Odd Job", "You have been offered a job for 5 gold", "icon/old_adventurer", {
 		type: "instant",
-		action: (_scene, state: State) => {
-			state.gameData.player.gold += 5;
-			UIManager.updateUI();
+		action: (_scene, _state: State) => {
+			updatePlayerGoldIO(5);
 		}
 	}),
 	makeEncounter("new_friend", TIER.COMMON, "A new friend", "You have made a new friend", "icon/old_adventurer", {
