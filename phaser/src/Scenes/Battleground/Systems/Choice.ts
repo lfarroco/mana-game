@@ -149,7 +149,8 @@ const renderCard = (
 	const spacing = (constants.SCREEN_HEIGHT - (choices.length * CARD_DIMENSIONS.height)) / (choices.length + 1);
 	const x = BASE_X;
 	const y = (spacing * (index + 1)) + (CARD_DIMENSIONS.height * index);
-	const card = scene.add.container(CARD_DIMENSIONS.width, y);
+
+	const cardContainer = scene.add.container(-CARD_DIMENSIONS.width * 1.4, y);
 
 	const pic = scene.add.image(0, 0, choice.pic)
 		.setDisplaySize(CARD_DIMENSIONS.height, CARD_DIMENSIONS.height).setOrigin(0);
@@ -161,12 +162,9 @@ const renderCard = (
 	cardBg.lineStyle(2, 0x000000);
 	cardBg.strokeRect(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height);
 
-	card.add(cardBg);
-
-	card.add(pic);
 
 	await tween({
-		targets: [card],
+		targets: [cardContainer],
 		x,
 		duration: 1000 / state.options.speed,
 		ease: "Power2",
@@ -195,12 +193,12 @@ const renderCard = (
 		}
 	});
 
-	card.add(emitter);
+	cardContainer.add([emitter, cardBg, pic]);
 
 	cardBg.on("pointerover", () => {
 		emitter.particleTint = STYLE_CONSTANTS.PARTICLE_COLORS.HOVER;
 		scene.tweens.add({
-			targets: card,
+			targets: cardContainer,
 			scaleX: STYLE_CONSTANTS.HOVER_SCALE,
 			scaleY: STYLE_CONSTANTS.HOVER_SCALE,
 			x: x - STYLE_CONSTANTS.HOVER_OFFSET,
@@ -213,7 +211,7 @@ const renderCard = (
 	cardBg.on("pointerout", () => {
 		emitter.particleTint = STYLE_CONSTANTS.PARTICLE_COLORS.DEFAULT;
 		scene.tweens.add({
-			targets: card,
+			targets: cardContainer,
 			scaleX: 1,
 			scaleY: 1,
 			x,
@@ -223,7 +221,7 @@ const renderCard = (
 		});
 	});
 
-	cardBg.on("pointerup", () => onSelect(choice, card))
+	cardBg.on("pointerup", () => onSelect(choice, cardContainer))
 
 	const text = scene.add.text(
 		CARD_DIMENSIONS.height + 20, 20,
@@ -232,7 +230,7 @@ const renderCard = (
 	);
 	text.setOrigin(0);
 
-	card.add(text);
+	cardContainer.add(text);
 
 	const desc = scene.add.text(
 		CARD_DIMENSIONS.height + 20, 80,
@@ -241,8 +239,8 @@ const renderCard = (
 	);
 	desc.setOrigin(0);
 
-	card.add(desc);
+	cardContainer.add(desc);
 
-	return card;
+	return cardContainer;
 }
 
