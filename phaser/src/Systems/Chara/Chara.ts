@@ -36,7 +36,7 @@ let state: State;
 
 const borderWidth = 4
 
-export function createCharaCard(unit: Unit): Chara {
+export function createCard(unit: Unit): Chara {
 
 	const borderColor = unit.force === FORCE_ID_PLAYER ? BLUE_BONNET : VIVIRED_RED;
 
@@ -138,12 +138,10 @@ export function createCharaCard(unit: Unit): Chara {
 		equipDisplay: item,
 	};
 
-	makeCharaInteractive(chara);
-
 	return chara
 }
 
-export const makeCharaInteractive = (chara: Chara) => {
+export const addBoardEvents = (chara: Chara) => {
 
 	chara.zone.setInteractive({ draggable: true })
 
