@@ -124,7 +124,7 @@ export function displayError(err: string) {
 }
 
 export function createDropZone(scene: BattlegroundScene) {
-	const x = constants.TILE_WIDTH * 6;
+	const x = constants.TILE_WIDTH * 4;
 	const y = constants.TILE_HEIGHT * 1;
 	const w = constants.TILE_WIDTH * 3;
 	const h = constants.TILE_HEIGHT * 3;
