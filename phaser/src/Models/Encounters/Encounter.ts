@@ -4,7 +4,7 @@ import { defaultTextConfig, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleg
 import { Choice, displayChoices, displayStore, newChoice } from "../../Scenes/Battleground/Systems/Choice";
 import { itemShop } from "../../Scenes/Battleground/Systems/ItemShop";
 import { addCharaToState, destroyChara, getCharaPosition, summonChara } from "../../Scenes/Battleground/Systems/UnitManager";
-import { Chara, createCharaCard } from "../../Systems/Chara/Chara";
+import { createCharaCard } from "../../Systems/Chara/Chara";
 import * as Tooltip from "../../Systems/Tooltip";
 import { pickRandom } from "../../utils";
 import { delay, tween } from "../../Utils/animation";
@@ -252,17 +252,15 @@ const pickCard = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 		ease: "Power2",
 	});
 
-	let charas: Chara[] = [];
-
-	for (const choice of choices) {
-		const chara = await createCharaCard(
-
-			makeUnit(v4(), playerForce.id, choice.value as JobId, vec2(0, 1)),
-		)
-
-		chara.container.setPosition(-100, 500);
-		charas.push(chara);
-	}
+	const charas = await Promise.all(
+		choices.map(choice => {
+			const chara = createCharaCard(
+				makeUnit(v4(), playerForce.id, choice.value as JobId, vec2(0, 1)),
+			);
+			chara.container.setPosition(-100, 500);
+			return chara
+		})
+	)
 
 	charas.forEach(async (chara, i) => {
 		const x = chara.container.x;
