@@ -147,8 +147,6 @@ export const evalEvent = async (event: Encounter) => {
 			break;
 		case "pick-card":
 			const card = await pickCard(event.triggers.choices());
-
-			await delay(scene, 500);
 			event.triggers.onChoose(state, card);
 			break;
 		case "item-shop":
@@ -278,6 +276,8 @@ const pickCard = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 			ease: "Power2",
 		})
 
+		addCharaToState(chara);
+
 		chara.zone.once('pointerup', async () => {
 
 			Tooltip.hide();
@@ -286,7 +286,6 @@ const pickCard = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 
 			chara.unit.position = emptySlot
 			state.gameData.player.units.push(chara.unit);
-			addCharaToState(chara);
 
 			tween({
 				targets: [bg],
