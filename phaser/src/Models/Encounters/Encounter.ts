@@ -1,6 +1,5 @@
 import { v4 } from "uuid";
-import { summonEffect } from "../../Effects";
-import { defaultTextConfig, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
+import { defaultTextConfig } from "../../Scenes/Battleground/constants";
 import { Choice, displayChoices, newChoice } from "../../Scenes/Battleground/Systems/Choice";
 import { itemShop } from "../../Scenes/Battleground/Systems/ItemShop";
 import * as UnitManager from "../../Scenes/Battleground/Systems/UnitManager";
@@ -12,8 +11,8 @@ import { playerForce } from "../Force";
 import { vec2 } from "../Geometry";
 import { Item } from "../Item";
 import { JobId, starterJobs } from "../Job";
-import { getState, State, getGuildUnit, getEmptySlot } from "../State";
-import { makeUnit, Unit } from "../Unit";
+import { getState, State, getEmptySlot } from "../State";
+import { makeUnit } from "../Unit";
 import commonEvents from "./common";
 import monsterEvents from "./monster";
 
@@ -50,9 +49,6 @@ export type Encounter = {
 	} | {
 		type: "instant"
 		action: (scene: Phaser.Scene, State: State) => void;
-	} | {
-		type: "unit"
-		onChoose: (scene: Phaser.Scene, state: State, unit: Unit) => void;
 	} | {
 		type: "pick-unit"
 		choices: () => Choice[];
@@ -122,10 +118,6 @@ export const evalEvent = async (event: Encounter) => {
 		case "instant":
 			await event.triggers.action(scene, state);
 			break;
-		case "unit":
-			const unit = await selectUnit();
-			await event.triggers.onChoose(scene, state, unit);
-			break;
 		case "pick-unit":
 			await pickUnit(event.triggers.choices());
 			break;
@@ -157,58 +149,6 @@ const displayEvents = async (eventArray: Encounter[], _day: number) => {
 
 export const displayRandomEvents = (day: number) => displayEvents(randomEvents, day);
 export const displayMonsterEvents = (day: number) => displayEvents(monsterEvents(), day);
-
-const selectUnit = async () => new Promise<Unit>((resolve) => {
-	const dropZoneX = TILE_WIDTH * 1;
-	const dropZoneY = TILE_HEIGHT * 1;
-	const dropZoneWidth = TILE_WIDTH * 4;
-	const dropZoneHeight = TILE_HEIGHT * 3;
-	const dropZone = scene.add.zone(dropZoneX, dropZoneY, TILE_WIDTH, TILE_HEIGHT)
-		.setRectangleDropZone(dropZoneWidth, dropZoneHeight)
-		.setName('selectUnit')
-		.setOrigin(0);
-
-	const dropZoneDisplay = scene.add.graphics();
-	dropZoneDisplay.lineStyle(2, 0xffff00);
-	dropZoneDisplay.fillStyle(0x00ffff, 0.3);
-	dropZoneDisplay.fillRect(dropZoneX, dropZoneY, dropZoneWidth, dropZoneHeight);
-	dropZoneDisplay.strokeRect(dropZoneX, dropZoneY, dropZoneWidth, dropZoneHeight);
-	scene.tweens.add({
-		targets: dropZoneDisplay,
-		alpha: 0.1,
-		duration: 2000,
-		repeat: -1,
-		yoyo: true
-	});
-
-	const listener = (
-		_pointer: Phaser.Input.Pointer,
-		gameObject: Phaser.GameObjects.GameObject,
-		droppedZone: Phaser.GameObjects.Zone,
-	) => {
-
-		if (droppedZone.name !== 'selectUnit') return;
-
-		const unitId = gameObject.name;
-
-		UnitManager.destroyChara(unitId);
-
-		summonEffect(scene, 2, vec2(TILE_WIDTH * 3 + TILE_WIDTH / 2, TILE_HEIGHT * 3 + TILE_HEIGHT / 2));
-
-		const unit = getGuildUnit(state)(unitId)!;
-		UnitManager.summonChara(unit);
-
-		scene.input.off('drop', listener);
-
-		dropZoneDisplay.destroy();
-		dropZone.destroy();
-
-		resolve(unit);
-	}
-
-	scene.input.on('drop', listener);
-
-});
 
 const pickUnit = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 
