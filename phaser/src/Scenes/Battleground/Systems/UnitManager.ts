@@ -1,5 +1,5 @@
 import { Unit } from "../../../Models/Unit";
-import { Chara, createCharaCard } from "../../../Systems/Chara/Chara";
+import * as Chara from "../../../Systems/Chara/Chara";
 import { vec2, Vec2, eqVec2 } from "../../../Models/Geometry";
 import * as constants from "../constants";
 import { summonEffect } from "../../../Effects/summonEffect";
@@ -9,7 +9,7 @@ import { BattlegroundScene } from "../BattlegroundScene";
 let scene: BattlegroundScene;
 
 type State = {
-	charas: Chara[]
+	charas: Chara.Chara[]
 }
 
 export const state: State = {
@@ -40,7 +40,9 @@ export async function summonChara(unit: Unit, useSummonEffect = true, fadeIn = t
 
 	if (useSummonEffect) summonEffect(scene, scene.speed, vec);
 
-	const chara = createCharaCard(unit)
+	const chara = Chara.createCard(unit)
+
+	Chara.addBoardEvents(chara);
 
 	chara.container.setAlpha(0);
 
@@ -57,7 +59,7 @@ export async function summonChara(unit: Unit, useSummonEffect = true, fadeIn = t
 	return chara
 }
 
-export function addCharaToState(chara: Chara) {
+export function addCharaToState(chara: Chara.Chara) {
 	state.charas.push(chara);
 }
 
