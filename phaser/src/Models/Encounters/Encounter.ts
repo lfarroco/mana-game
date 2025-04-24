@@ -3,8 +3,8 @@ import { summonEffect } from "../../Effects";
 import { defaultTextConfig, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 import { Choice, displayChoices, newChoice } from "../../Scenes/Battleground/Systems/Choice";
 import { itemShop } from "../../Scenes/Battleground/Systems/ItemShop";
-import { addCharaToState, destroyChara, getCharaPosition, summonChara } from "../../Scenes/Battleground/Systems/UnitManager";
-import { addBoardEvents, createCard } from "../../Systems/Chara/Chara";
+import * as UnitManager from "../../Scenes/Battleground/Systems/UnitManager";
+import * as Chara from "../../Systems/Chara/Chara";
 import * as Tooltip from "../../Systems/Tooltip";
 import { pickRandom } from "../../utils";
 import { delay, tween } from "../../Utils/animation";
@@ -54,9 +54,8 @@ export type Encounter = {
 		type: "unit"
 		onChoose: (scene: Phaser.Scene, state: State, unit: Unit) => void;
 	} | {
-		type: "pick-card"
+		type: "pick-unit"
 		choices: () => Choice[];
-		onChoose: (state: State, choice: Choice) => void;
 	} | {
 		type: "item-shop",
 		choices: () => Item[];
@@ -87,7 +86,7 @@ export const starterEvent: Encounter = {
 	description: "Recruit the founding members of your guild",
 	pic: "icon/quest",
 	triggers: {
-		type: "pick-card",
+		type: "pick-unit",
 		choices: () => {
 			const playerJobs = playerForce.units.map(u => u.job);
 			const remaning = starterJobs.filter(j => !playerJobs.includes(j.id));
@@ -98,19 +97,8 @@ export const starterEvent: Encounter = {
 				job.description,
 				job.id,
 			));
-		},
-		onChoose: async (state, choice) => {
-
-			console.log(state, choice)
-			// const unit = addUnitToGuild(playerForce.id, choice.value as JobId);
-			// await renderChara(unit)
-			// // testing: add random traits
-			// const { units } = state.gameData.player;
-			// const trait = randomCategoryTrait(TRAIT_CATEGORY_PERSONALITY)
-			// addUnitTrait(trait, units[units.length - 1])
-			// const trait2 = randomCategoryTrait(TRAIT_CATEGORY_DEFENSIVE)
-			// addUnitTrait(trait2, units[units.length - 1])
 		}
+
 	}
 }
 
@@ -138,9 +126,8 @@ export const evalEvent = async (event: Encounter) => {
 			const unit = await selectUnit();
 			await event.triggers.onChoose(scene, state, unit);
 			break;
-		case "pick-card":
-			const card = await pickCard(event.triggers.choices());
-			event.triggers.onChoose(state, card);
+		case "pick-unit":
+			await pickUnit(event.triggers.choices());
 			break;
 		case "item-shop":
 			await itemShop(
@@ -204,12 +191,12 @@ const selectUnit = async () => new Promise<Unit>((resolve) => {
 
 		const unitId = gameObject.name;
 
-		destroyChara(unitId);
+		UnitManager.destroyChara(unitId);
 
 		summonEffect(scene, 2, vec2(TILE_WIDTH * 3 + TILE_WIDTH / 2, TILE_HEIGHT * 3 + TILE_HEIGHT / 2));
 
 		const unit = getGuildUnit(state)(unitId)!;
-		summonChara(unit);
+		UnitManager.summonChara(unit);
 
 		scene.input.off('drop', listener);
 
@@ -223,7 +210,7 @@ const selectUnit = async () => new Promise<Unit>((resolve) => {
 
 });
 
-const pickCard = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
+const pickUnit = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 
 	const bg = scene.add.image(0, 0, "ui/wood_texture").setOrigin(0);
 	bg.setDisplaySize(900, scene.cameras.main.height);
@@ -247,7 +234,7 @@ const pickCard = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 
 	const charas = await Promise.all(
 		choices.map(choice => {
-			const chara = createCard(
+			const chara = Chara.createCard(
 				makeUnit(v4(), playerForce.id, choice.value as JobId, vec2(0, 1)),
 			);
 			chara.container.setPosition(chara.sprite.width * -1.2, 500);
@@ -265,9 +252,11 @@ const pickCard = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 			ease: "Power2",
 		})
 
-		addCharaToState(chara);
+		UnitManager.addCharaToState(chara);
 
-		chara.zone.setInteractive();
+		chara.zone.setInteractive({ draggable: true });
+
+		Chara.addTooltip(chara);
 
 		chara.zone.once('pointerup', async () => {
 
@@ -292,13 +281,13 @@ const pickCard = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 			for (const c of charas) {
 
 				if (chara.id === c.id) {
-					const pos = getCharaPosition(c.unit);
+					const pos = UnitManager.getCharaPosition(c.unit);
 					tween({
 						targets: [c.container],
 						...pos,
 						duration: 500,
 					});
-					addBoardEvents(c);
+					Chara.addBoardEvents(c);
 					continue;
 				};
 
@@ -308,7 +297,7 @@ const pickCard = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 					duration: 500,
 					ease: "Power2",
 					onComplete: () => {
-						destroyChara(c.id);
+						UnitManager.destroyChara(c.id);
 					}
 				})
 

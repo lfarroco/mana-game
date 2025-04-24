@@ -209,6 +209,9 @@ export const addBoardEvents = (chara: Chara) => {
 
 	})
 
+}
+
+export function addTooltip(chara: Chara) {
 	chara.zone.on('pointerover', () => {
 
 		const equipText = chara.unit.equip ?
@@ -231,7 +234,6 @@ export const addBoardEvents = (chara: Chara) => {
 	chara.zone.on('pointerout', () => {
 		TooltipSytem.hide()
 	})
-
 }
 
 function renderItemSlot(unit: Unit, container: Phaser.GameObjects.Container) {
