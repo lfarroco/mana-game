@@ -44,6 +44,8 @@ export async function summonChara(unit: Unit, useSummonEffect = true, fadeIn = t
 
 	Chara.addBoardEvents(chara);
 
+	Chara.addTooltip(chara);
+
 	chara.container.setAlpha(0);
 
 	addCharaToState(chara);
