@@ -43,10 +43,6 @@ export type Encounter = {
 	prompt?: string;
 	pic: string;
 	triggers: {
-		type: "nested";
-		choices: () => Choice[];
-		onChoose: (state: State, choice: Choice) => void;
-	} | {
 		type: "instant"
 		action: (scene: Phaser.Scene, State: State) => void;
 	} | {
@@ -111,10 +107,6 @@ export const events: Encounter[] = [
 export const evalEvent = async (event: Encounter) => {
 
 	switch (event.triggers.type) {
-		case "nested":
-			const choice = await displayChoices(event.triggers.choices());
-			event.triggers.onChoose?.(state, choice);
-			break
 		case "instant":
 			await event.triggers.action(scene, state);
 			break;
