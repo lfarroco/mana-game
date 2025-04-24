@@ -1,7 +1,7 @@
 import { v4 } from "uuid";
 import { summonEffect } from "../../Effects";
 import { defaultTextConfig, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
-import { Choice, displayChoices, displayStore, newChoice } from "../../Scenes/Battleground/Systems/Choice";
+import { Choice, displayChoices, newChoice } from "../../Scenes/Battleground/Systems/Choice";
 import { itemShop } from "../../Scenes/Battleground/Systems/ItemShop";
 import { addCharaToState, destroyChara, getCharaPosition, summonChara } from "../../Scenes/Battleground/Systems/UnitManager";
 import { addBoardEvents, createCard } from "../../Systems/Chara/Chara";
@@ -50,9 +50,6 @@ export type Encounter = {
 	} | {
 		type: "instant"
 		action: (scene: Phaser.Scene, State: State) => void;
-	} | {
-		type: "shop"
-		choices: () => Choice[];
 	} | {
 		type: "unit"
 		onChoose: (scene: Phaser.Scene, state: State, unit: Unit) => void;
@@ -117,7 +114,6 @@ export const starterEvent: Encounter = {
 	}
 }
 
-
 const randomEvents: Encounter[] = [
 	...commonEvents()
 ];
@@ -137,9 +133,6 @@ export const evalEvent = async (event: Encounter) => {
 			break
 		case "instant":
 			await event.triggers.action(scene, state);
-			break;
-		case "shop":
-			await displayStore(event.triggers.choices());
 			break;
 		case "unit":
 			const unit = await selectUnit();

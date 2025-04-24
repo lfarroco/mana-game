@@ -3,7 +3,6 @@ import { tween } from "../../../Utils/animation";
 import * as constants from "../constants";
 import { getState, State } from "../../../Models/State";
 import { breakLines } from "../../../utils";
-import { updatePlayerGoldIO } from "../../../Models/Force";
 
 export let scene: Phaser.Scene;
 let state: State;
@@ -40,8 +39,6 @@ const STYLE_CONSTANTS = {
 export const init = (sceneRef: Phaser.Scene) => {
 	scene = sceneRef;
 	state = getState();
-	// add listeners here
-	//...
 }
 
 export const displayChoices = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
@@ -59,8 +56,8 @@ export const displayChoices = (choices: Choice[]) => new Promise<Choice>(async (
 			component.destroy();
 
 			resolve(choice);
-		}
-	));
+		})
+	);
 
 	const cards = await Promise.all(promises);
 
@@ -68,86 +65,11 @@ export const displayChoices = (choices: Choice[]) => new Promise<Choice>(async (
 
 });
 
-export const displayStore = (choices: Choice[]) => new Promise<void>(async (resolve) => {
-
-	const { player } = state.gameData
-
-	const component = scene.add.container();
-
-	let bought = 0;
-
-	const items: { [id: string]: number } = {
-		test_item_1: 10,
-		test_item_2: 20,
-		test_item_3: 30,
-	};
-
-	const onSelect = async (choice: Choice, card: Phaser.GameObjects.Container) => {
-
-		if (player.gold < items[choice.value]) {
-			return;
-		}
-
-		await tween({
-			targets: [card],
-			duration: 1000 / state.options.speed,
-			alpha: 0,
-		});
-
-		card.destroy();
-
-		updatePlayerGoldIO(-items[choice.value]);
-
-		bought++;
-
-		if (bought === choices.length) {
-			component.destroy();
-			return resolve();
-		}
-
-		if (player.gold <= 0) {
-			cards.forEach((child) => {
-				child.setAlpha(0.5);
-			})
-		}
-
-	}
-
-	const cards = await Promise.all(choices.map(renderCard(onSelect)));
-
-	cards.forEach((card, i) => {
-
-		if (player.gold < items[choices[i].value]) {
-			(card).setAlpha(0.5);
-		}
-
-	});
-
-	const exitBtn = scene.add.text(
-		0, 0,
-		"Exit",
-		constants.defaultTextConfig
-	);
-	exitBtn.setInteractive();
-	exitBtn.setOrigin(0);
-	exitBtn.on("pointerup", () => {
-		component.destroy();
-		resolve();
-	});
-
-	component.add(exitBtn);
-
-	component.add(cards)
-
-});
-
-
 const renderCard = (
 	onSelect: (choice: Choice, card: Phaser.GameObjects.Container) => void
 ) => async (choice: Choice, index: number, choices: Choice[]): Promise<Phaser.GameObjects.Container> => {
 
 	const spacing = (constants.SCREEN_HEIGHT - (choices.length * CARD_DIMENSIONS.height)) / (choices.length + 1);
-	const x = BASE_X;
 	const y = (spacing * (index + 1)) + (CARD_DIMENSIONS.height * index);
 
 	const cardContainer = scene.add.container(-CARD_DIMENSIONS.width * 1.4, y);
@@ -161,17 +83,6 @@ const renderCard = (
 	cardBg.fillRect(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height);
 	cardBg.lineStyle(2, 0x000000);
 	cardBg.strokeRect(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height);
-
-
-	await tween({
-		targets: [cardContainer],
-		x,
-		duration: 1000 / state.options.speed,
-		ease: "Power2",
-		delay: index * 200,
-	})
-
-	cardBg.setInteractive(new Phaser.Geom.Rectangle(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height), Phaser.Geom.Rectangle.Contains);
 
 	const emitter = scene.add.particles(0, 0, 'white-splash-fade', {
 		speed: 0,
@@ -195,13 +106,23 @@ const renderCard = (
 
 	cardContainer.add([emitter, cardBg, pic]);
 
+	await tween({
+		targets: [cardContainer],
+		x: BASE_X,
+		duration: 1000 / state.options.speed,
+		ease: "Power2",
+		delay: index * 200,
+	})
+
+	cardBg.setInteractive(new Phaser.Geom.Rectangle(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height), Phaser.Geom.Rectangle.Contains);
+
 	cardBg.on("pointerover", () => {
 		emitter.particleTint = STYLE_CONSTANTS.PARTICLE_COLORS.HOVER;
 		scene.tweens.add({
 			targets: cardContainer,
 			scaleX: STYLE_CONSTANTS.HOVER_SCALE,
 			scaleY: STYLE_CONSTANTS.HOVER_SCALE,
-			x: x - STYLE_CONSTANTS.HOVER_OFFSET,
+			x: BASE_X - STYLE_CONSTANTS.HOVER_OFFSET,
 			y: y - STYLE_CONSTANTS.HOVER_OFFSET,
 			duration: STYLE_CONSTANTS.ANIMATION_DURATION,
 			ease: 'Power',
@@ -214,7 +135,7 @@ const renderCard = (
 			targets: cardContainer,
 			scaleX: 1,
 			scaleY: 1,
-			x,
+			x: BASE_X,
 			y,
 			duration: STYLE_CONSTANTS.ANIMATION_DURATION,
 			ease: 'Power',
