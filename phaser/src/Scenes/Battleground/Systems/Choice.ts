@@ -44,11 +44,11 @@ export const init = (sceneRef: Phaser.Scene) => {
 	//...
 }
 
-export const displayChoices = (choices: Choice[]) => new Promise<Choice>((resolve) => {
+export const displayChoices = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 
 	const component = scene.add.container();
 
-	const cards = choices.map(renderCard(
+	const promises = choices.map(renderCard(
 		async (choice: Choice) => {
 			await tween({
 				targets: [component],
@@ -62,11 +62,13 @@ export const displayChoices = (choices: Choice[]) => new Promise<Choice>((resolv
 		}
 	));
 
+	const cards = await Promise.all(promises);
+
 	component.add(cards)
 
 });
 
-export const displayStore = (choices: Choice[]) => new Promise<void>((resolve) => {
+export const displayStore = (choices: Choice[]) => new Promise<void>(async (resolve) => {
 
 	const { player } = state.gameData
 
@@ -80,38 +82,38 @@ export const displayStore = (choices: Choice[]) => new Promise<void>((resolve) =
 		test_item_3: 30,
 	};
 
-	const cards = choices.map(renderCard(
-		async (choice: Choice, card: Phaser.GameObjects.Container) => {
+	const onSelect = async (choice: Choice, card: Phaser.GameObjects.Container) => {
 
-			if (player.gold < items[choice.value]) {
-				return;
-			}
-
-			await tween({
-				targets: [card],
-				duration: 1000 / state.options.speed,
-				alpha: 0,
-			});
-
-			card.destroy();
-
-			updatePlayerGoldIO(-items[choice.value]);
-
-			bought++;
-
-			if (bought === choices.length) {
-				component.destroy();
-				return resolve();
-			}
-
-			if (player.gold <= 0) {
-				cards.forEach((child) => {
-					child.setAlpha(0.5);
-				})
-			}
-
+		if (player.gold < items[choice.value]) {
+			return;
 		}
-	));
+
+		await tween({
+			targets: [card],
+			duration: 1000 / state.options.speed,
+			alpha: 0,
+		});
+
+		card.destroy();
+
+		updatePlayerGoldIO(-items[choice.value]);
+
+		bought++;
+
+		if (bought === choices.length) {
+			component.destroy();
+			return resolve();
+		}
+
+		if (player.gold <= 0) {
+			cards.forEach((child) => {
+				child.setAlpha(0.5);
+			})
+		}
+
+	}
+
+	const cards = await Promise.all(choices.map(renderCard(onSelect)));
 
 	cards.forEach((card, i) => {
 
@@ -140,101 +142,107 @@ export const displayStore = (choices: Choice[]) => new Promise<void>((resolve) =
 });
 
 
-function renderCard(
-	onSelect: (choice: Choice, card: Phaser.GameObjects.Container) => void):
-	(value: Choice, index: number, choices: Choice[]) => Phaser.GameObjects.Container {
-	return (choice, i, choices) => {
+const renderCard = (
+	onSelect: (choice: Choice, card: Phaser.GameObjects.Container) => void
+) => async (choice: Choice, index: number, choices: Choice[]): Promise<Phaser.GameObjects.Container> => {
 
-		const spacing = (constants.SCREEN_HEIGHT - (choices.length * CARD_DIMENSIONS.height)) / (choices.length + 1);
-		const x = BASE_X;
-		const y = (spacing * (i + 1)) + (CARD_DIMENSIONS.height * i);
-		const card = scene.add.container(x, y);
+	const spacing = (constants.SCREEN_HEIGHT - (choices.length * CARD_DIMENSIONS.height)) / (choices.length + 1);
+	const x = BASE_X;
+	const y = (spacing * (index + 1)) + (CARD_DIMENSIONS.height * index);
+	const card = scene.add.container(CARD_DIMENSIONS.width, y);
 
-		const pic = scene.add.image(0, 0, choice.pic)
-			.setDisplaySize(CARD_DIMENSIONS.height, CARD_DIMENSIONS.height).setOrigin(0);
+	const pic = scene.add.image(0, 0, choice.pic)
+		.setDisplaySize(CARD_DIMENSIONS.height, CARD_DIMENSIONS.height).setOrigin(0);
 
-		const emitter = scene.add.particles(0, 0, 'white-splash-fade', {
-			speed: 0,
-			lifespan: { min: 400, max: 700 },
-			scale: { start: 0.0, end: 0.15 },
-			alpha: { start: 0.8, end: 0 },
-			blendMode: 'ADD',
-			tint: STYLE_CONSTANTS.PARTICLE_COLORS.DEFAULT,
-			frequency: 300,
-			rotate: {
-				min: 0,
-				max: 360
-			},
-			quantity: 64,
-			emitZone: {
-				type: 'edge',
-				source: new Phaser.Geom.Rectangle(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height),
-				quantity: 64
-			}
+	const cardBg = scene.add.graphics();
+
+	cardBg.fillStyle(0x333333);
+	cardBg.fillRect(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height);
+	cardBg.lineStyle(2, 0x000000);
+	cardBg.strokeRect(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height);
+
+	card.add(cardBg);
+
+	card.add(pic);
+
+	await tween({
+		targets: [card],
+		x,
+		duration: 1000 / state.options.speed,
+		ease: "Power2",
+		delay: index * 200,
+	})
+
+	cardBg.setInteractive(new Phaser.Geom.Rectangle(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height), Phaser.Geom.Rectangle.Contains);
+
+	const emitter = scene.add.particles(0, 0, 'white-splash-fade', {
+		speed: 0,
+		lifespan: { min: 400, max: 700 },
+		scale: { start: 0.0, end: 0.15 },
+		alpha: { start: 0.8, end: 0 },
+		blendMode: 'ADD',
+		tint: STYLE_CONSTANTS.PARTICLE_COLORS.DEFAULT,
+		frequency: 300,
+		rotate: {
+			min: 0,
+			max: 360
+		},
+		quantity: 64,
+		emitZone: {
+			type: 'edge',
+			source: new Phaser.Geom.Rectangle(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height),
+			quantity: 64
+		}
+	});
+
+	card.add(emitter);
+
+	cardBg.on("pointerover", () => {
+		emitter.particleTint = STYLE_CONSTANTS.PARTICLE_COLORS.HOVER;
+		scene.tweens.add({
+			targets: card,
+			scaleX: STYLE_CONSTANTS.HOVER_SCALE,
+			scaleY: STYLE_CONSTANTS.HOVER_SCALE,
+			x: x - STYLE_CONSTANTS.HOVER_OFFSET,
+			y: y - STYLE_CONSTANTS.HOVER_OFFSET,
+			duration: STYLE_CONSTANTS.ANIMATION_DURATION,
+			ease: 'Power',
 		});
+	});
 
-		card.add(emitter);
-
-		const cardBg = scene.add.graphics();
-
-		cardBg.fillStyle(0x333333);
-		cardBg.fillRect(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height);
-		cardBg.lineStyle(2, 0x000000);
-		cardBg.strokeRect(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height);
-
-		card.add(cardBg);
-
-		card.add(pic);
-
-		cardBg.setInteractive(new Phaser.Geom.Rectangle(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height), Phaser.Geom.Rectangle.Contains);
-
-		cardBg.on("pointerover", () => {
-			emitter.particleTint = STYLE_CONSTANTS.PARTICLE_COLORS.HOVER;
-			scene.tweens.add({
-				targets: card,
-				scaleX: STYLE_CONSTANTS.HOVER_SCALE,
-				scaleY: STYLE_CONSTANTS.HOVER_SCALE,
-				x: x - STYLE_CONSTANTS.HOVER_OFFSET,
-				y: y - STYLE_CONSTANTS.HOVER_OFFSET,
-				duration: STYLE_CONSTANTS.ANIMATION_DURATION,
-				ease: 'Power',
-			});
+	cardBg.on("pointerout", () => {
+		emitter.particleTint = STYLE_CONSTANTS.PARTICLE_COLORS.DEFAULT;
+		scene.tweens.add({
+			targets: card,
+			scaleX: 1,
+			scaleY: 1,
+			x,
+			y,
+			duration: STYLE_CONSTANTS.ANIMATION_DURATION,
+			ease: 'Power',
 		});
+	});
 
-		cardBg.on("pointerout", () => {
-			emitter.particleTint = STYLE_CONSTANTS.PARTICLE_COLORS.DEFAULT;
-			scene.tweens.add({
-				targets: card,
-				scaleX: 1,
-				scaleY: 1,
-				x,
-				y,
-				duration: STYLE_CONSTANTS.ANIMATION_DURATION,
-				ease: 'Power',
-			});
-		});
+	cardBg.on("pointerup", () => onSelect(choice, card))
 
-		cardBg.on("pointerup", () => onSelect(choice, card))
+	const text = scene.add.text(
+		CARD_DIMENSIONS.height + 20, 20,
+		choice.title,
+		constants.defaultTextConfig
+	);
+	text.setOrigin(0);
 
-		const text = scene.add.text(
-			CARD_DIMENSIONS.height + 20, 20,
-			choice.title,
-			constants.defaultTextConfig
-		);
-		text.setOrigin(0);
+	card.add(text);
 
-		card.add(text);
+	const desc = scene.add.text(
+		CARD_DIMENSIONS.height + 20, 80,
+		breakLines(choice.desc, 25),
+		{ ...constants.defaultTextConfig, fontSize: '40px' }
+	);
+	desc.setOrigin(0);
 
-		const desc = scene.add.text(
-			CARD_DIMENSIONS.height + 20, 80,
-			breakLines(choice.desc, 25),
-			{ ...constants.defaultTextConfig, fontSize: '40px' }
-		);
-		desc.setOrigin(0);
+	card.add(desc);
 
-		card.add(desc);
-
-		return card;
-	};
+	return card;
 }
 
