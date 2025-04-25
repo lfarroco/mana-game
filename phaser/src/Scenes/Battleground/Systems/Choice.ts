@@ -50,11 +50,15 @@ export const displayChoices = (choices: Choice[]) => new Promise<Choice>(async (
 
 	const promises = choices.map(renderChoiceCard(
 		async (choice: Choice) => {
-			await tween({
-				targets: [component],
-				duration: 1000 / state.options.speed,
-				alpha: 0,
-			});
+
+			await Promise.all(cards.map(async (card, i) => {
+				await tween({
+					targets: [card],
+					x: -CARD_DIMENSIONS.width * 1.4,
+					duration: 1000 / state.options.speed,
+					delay: i * 200,
+				});
+			}));
 
 			component.destroy();
 
@@ -71,6 +75,8 @@ export const displayChoices = (choices: Choice[]) => new Promise<Choice>(async (
 const renderChoiceCard = (
 	onSelect: (choice: Choice, card: Phaser.GameObjects.Container) => void
 ) => async (choice: Choice, index: number, choices: Choice[]): Promise<Phaser.GameObjects.Container> => {
+
+
 
 	const spacing = (constants.SCREEN_HEIGHT - (choices.length * CARD_DIMENSIONS.height)) / (choices.length + 1);
 	const y = (spacing * (index + 1)) + (CARD_DIMENSIONS.height * index);
@@ -159,7 +165,10 @@ const renderChoiceCard = (
 		});
 	});
 
-	cardBg.on("pointerup", () => onSelect(choice, cardContainer))
+	cardBg.on("pointerup", () => {
+		cardBg.removeAllListeners();
+		onSelect(choice, cardContainer);
+	});
 
 	return cardContainer;
 }
