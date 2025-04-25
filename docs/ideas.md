@@ -121,3 +121,7 @@ cinders -> burn
 talisman -> unit
 extract (poison) -> item
 chocolate bars -> unit (+hp)
+
+card ideas
+- +x attack when hurt
+- 

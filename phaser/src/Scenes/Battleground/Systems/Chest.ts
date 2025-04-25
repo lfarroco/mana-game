@@ -21,6 +21,8 @@ export const position: [number, number] = [
 	constants.SCREEN_HEIGHT - 100
 ];
 
+const CHEST_TILE_SIZE = constants.TILE_WIDTH / 2;
+
 export function renderChestButton() {
 
 	const chest = UIManager.scene.add.image(
@@ -82,116 +84,121 @@ export function updateChest() {
 	const baseX = 200;
 	const baseY = 200;
 
-	// 3x3 grid
-	const slots = new Array(9).fill(0).map((_, i) => {
+	const gridWidth = 4;
+	const gridHeight = 4;
+	const spacing = 16;
 
-		const x = i % 3;
-		const y = Math.floor(i / 3);
-		const position: [number, number] = [
-			baseX + (x * constants.TILE_WIDTH) + (x * 16),
-			baseY + (y * constants.TILE_WIDTH) + (y * 16)
-		];
+	const slots = new Array(gridWidth * gridHeight)
+		.fill(0)
+		.map((_, index) => {
 
-		const slot = UIManager.scene.add.image(0, 0, "ui/slot")
-			.setOrigin(0.5)
-			.setDisplaySize(constants.TILE_WIDTH + 12, constants.TILE_WIDTH + 12)
-			.setPosition(...position);
+			const x = index % gridWidth;
+			const y = Math.floor(index / gridHeight);
+			const position: [number, number] = [
+				baseX + (x * CHEST_TILE_SIZE) + (x * spacing),
+				baseY + (y * CHEST_TILE_SIZE) + (y * spacing)
+			];
 
-		chestContainer.add(slot);
+			const slot = UIManager.scene.add.image(0, 0, "ui/slot")
+				.setOrigin(0.5)
+				.setDisplaySize(CHEST_TILE_SIZE + spacing, CHEST_TILE_SIZE + spacing)
+				.setPosition(...position);
 
-		const item = state.gameData.player.items[i];
+			chestContainer.add(slot);
 
-		if (!item) {
-			return slot;
-		}
-		const icon = UIManager.scene.add.image(0, 0, item.icon)
-			.setDisplaySize(constants.TILE_WIDTH, constants.TILE_WIDTH)
-			.setOrigin(0.5)
-			.setName(item.id);
+			const item = state.gameData.player.items[index];
 
-		icon.setPosition(...position);
-		chestContainer.add(icon);
-
-		icon.setInteractive({ draggable: true });
-		icon.on("pointerover", () => {
-			Tooltip.render(
-				icon.x + 400, icon.y + 100,
-				item.name,
-				item.description
-			);
-		});
-		icon.on("pointerout", () => {
-			Tooltip.hide();
-		});
-		icon.on("dragstart", () => {
-			Tooltip.hide();
-			chestContainer.bringToTop(icon);
-		});
-		icon.on("drag", (pointer: Phaser.Input.Pointer) => {
-			icon.x = pointer.x;
-			icon.y = pointer.y;
-		});
-		icon.on("dragend", (pointer: Phaser.Input.Pointer) => {
-			const targetChara = UnitManager.overlap(pointer);
-
-			if (targetChara) {
-				dropItemInChara(targetChara, icon, item);
-				return;
+			if (!item) {
+				return slot;
 			}
+			const icon = UIManager.scene.add.image(0, 0, item.icon)
+				.setDisplaySize(CHEST_TILE_SIZE, CHEST_TILE_SIZE)
+				.setOrigin(0.5)
+				.setName(item.id);
 
-			if (Phaser.Geom.Intersects.RectangleToRectangle(
-				icon.getBounds(),
-				sellImage.getBounds()
-			)) {
-				handleSelling(icon, state, item);
-				return;
-			}
+			icon.setPosition(...position);
+			chestContainer.add(icon);
 
-
-			// check if dropped over another item
-			const targetSlot = slots.find(slot => Phaser.Geom.Intersects.RectangleToRectangle(
-				new Phaser.Geom.Rectangle(pointer.x, pointer.y, 1, 1),
-				slot.getBounds()
-			));
-
-			if (targetSlot) {
-				// move item to slot
-				// if the slot is not empty, switch
-
+			icon.setInteractive({ draggable: true });
+			icon.on("pointerover", () => {
+				Tooltip.render(
+					icon.x + 400, icon.y + 100,
+					item.name,
+					item.description
+				);
+			});
+			icon.on("pointerout", () => {
+				Tooltip.hide();
+			});
+			icon.on("dragstart", () => {
+				Tooltip.hide();
 				chestContainer.bringToTop(icon);
+			});
+			icon.on("drag", (pointer: Phaser.Input.Pointer) => {
+				icon.x = pointer.x;
+				icon.y = pointer.y;
+			});
+			icon.on("dragend", (pointer: Phaser.Input.Pointer) => {
+				const targetChara = UnitManager.overlap(pointer);
 
-				const targetIndex = slots.indexOf(targetSlot);
-				const targetItem = state.gameData.player.items[targetIndex];
-				if (targetItem) {
-					// swap items in state, update ches
-
-					state.gameData.player.items[i] = targetItem;
-					state.gameData.player.items[targetIndex] = item;
-
-					updateChest();
-
+				if (targetChara && state.gameData.player.units.find(chara => chara.id === targetChara.unit.id)) {
+					dropItemInChara(targetChara, icon, item);
 					return;
 				}
 
-				// move item to slot
+				if (Phaser.Geom.Intersects.RectangleToRectangle(
+					icon.getBounds(),
+					sellImage.getBounds()
+				)) {
+					handleSelling(icon, state, item);
+					return;
+				}
 
-				state.gameData.player.items[i] = null;
-				state.gameData.player.items[targetIndex] = item;
 
-				// update chest
-				updateChest();
+				// check if dropped over another item
+				const targetSlot = slots.find(slot => Phaser.Geom.Intersects.RectangleToRectangle(
+					new Phaser.Geom.Rectangle(pointer.x, pointer.y, 1, 1),
+					slot.getBounds()
+				));
 
-			}
+				if (targetSlot) {
+					// move item to slot
+					// if the slot is not empty, switch
 
-			// nothing happened, return to original position
-			icon.setPosition(...position);
-			return;
+					chestContainer.bringToTop(icon);
+
+					const targetIndex = slots.indexOf(targetSlot);
+					const targetItem = state.gameData.player.items[targetIndex];
+					if (targetItem) {
+						// swap items in state, update ches
+
+						state.gameData.player.items[index] = targetItem;
+						state.gameData.player.items[targetIndex] = item;
+
+						updateChest();
+
+						return;
+					}
+
+					// move item to slot
+
+					state.gameData.player.items[index] = null;
+					state.gameData.player.items[targetIndex] = item;
+
+					// update chest
+					updateChest();
+
+				}
+
+				// nothing happened, return to original position
+				icon.setPosition(...position);
+				return;
+
+			});
+
+			return slot
 
 		});
-
-		return slot
-
-	});
 
 	sellZone();
 
@@ -256,7 +263,7 @@ function background() {
 function sellZone() {
 
 	sellImage = UIManager.scene.add.image(
-		400, constants.SCREEN_HEIGHT - 150,
+		400, constants.SCREEN_HEIGHT - 200,
 		"icon/sell"
 	).setScale(0.3);
 	const sellText = UIManager.scene.add.text(

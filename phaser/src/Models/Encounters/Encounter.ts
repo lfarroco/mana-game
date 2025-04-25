@@ -155,7 +155,14 @@ const pickUnit = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 		ease: "Power2",
 	});
 
-	const title = scene.add.text(200, 50, "Choose a Starting Hero", defaultTextConfig).setFontSize(40).setAlpha(0);
+	const title = scene.add.text(
+		400, 50,
+		"Choose a Starting Hero",
+		defaultTextConfig
+	)
+		.setOrigin(0.5)
+		.setFontFamily("Arial Black")
+		.setStroke("black", 14);
 
 	tween({
 		targets: [title],

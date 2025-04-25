@@ -19,15 +19,7 @@ export const itemShop = async (
 	const bg = scene.add.image(0, 0, "ui/wood_texture").setOrigin(0);
 	store.add(bg);
 
-	const titleText = scene.add.text(0, 0, title, {
-		...constants.defaultTextConfig,
-		fontSize: "40px",
-	})
-		.setOrigin(0)
-		.setPosition(300, 50)
-		.setAlign("center")
-		.setWordWrapWidth(600);
-	store.add(titleText);
+	renderTitle(store, title);
 
 	items.forEach((item, i) => {
 
@@ -57,25 +49,55 @@ export const itemShop = async (
 	});
 
 
+	// sellImage = UIManager.scene.add.image(
+	// 	400, constants.SCREEN_HEIGHT - 200,
+	// 	"icon/sell"
+	// ).setScale(0.3);
+	// const sellText = UIManager.scene.add.text(
+	// 	400, constants.SCREEN_HEIGHT - 150,
+	// 	"Sell",
+	// 	constants.defaultTextConfig,
+	// )
+
 	const exit = scene.add.image(0, 0, "icon/exit")
 		.setScale(0.3)
-		.setOrigin(0)
+		.setOrigin(0.5)
 		.setInteractive()
-		.setPosition(700, scene.cameras.main.height - 320)
+		.setPosition(400, scene.cameras.main.height - 200)
 		.on("pointerup", () => {
 			store.destroy();
 			exit.destroy();
 			resolve();
 			exitText.destroy();
 		});
-	const center = exit.getCenter();
 
-	const exitText = scene.add.text(0, 0, "Exit", constants.titleTextConfig)
+	const exitText = scene.add.text(
+		400, constants.SCREEN_HEIGHT - 150,
+		"Exit",
+		constants.defaultTextConfig,
+	)
 		.setOrigin(0.5)
-		.setPosition(center.x, center.y + 50)
-		.setAlign("center")
+		.setFontFamily("Arial Black")
+		.setStroke("black", 14)
+		;
 
 });
+
+function renderTitle(parent: Phaser.GameObjects.Container, title: string) {
+	const titleText = parent.scene.add.text(
+		400, 50,
+		title,
+		{
+			...constants.defaultTextConfig,
+			color: "#ffffff",
+		})
+		.setOrigin(0.5)
+		.setFontFamily("Arial Black")
+		.setStroke("black", 14)
+		;
+
+	parent.add(titleText);
+}
 
 const handleBuy = (
 	scene: Phaser.Scene,
