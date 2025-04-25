@@ -1,5 +1,5 @@
 import * as s from "./Skill";
-import { TraitId } from "./Traits";
+import * as t from "./Traits";
 
 export type JobId = string & { __jobId: true };
 
@@ -14,7 +14,7 @@ export type Job = {
   defense: number;
   agility: number;
   skill: s.SkillId;
-  traits: TraitId[]
+  traits: t.TraitId[]
 };
 
 export const ARCHER = "archer" as JobId;
@@ -26,13 +26,13 @@ export const THIEF = "thief" as JobId;
 const STARTER_JOBS = [ARCHER, ACOLYTE, APPRENTICE, KNIGHT, THIEF];
 
 const baseJobs = `
-Job           | Name        | HP  | ATK  | DEF | AGI | Skill
+Job           | Name        | HP  | ATK  | DEF | AGI | Skill                | Traits
 --------------|-------------|-----|------|-----|-----|--------------------------------------
-${ARCHER}     | Archer      | 100 | 20   | 3   | 12  | ${s.SHOOT}
-${ACOLYTE}    | Acolyte     | 80  | 10   | 0   | 6   | ${s.HEALING_WAVE}
-${APPRENTICE} | Apprentice  | 80  | 30   | 0   | 8   | ${s.ARCANE_MISSILES}
-${KNIGHT}     | Knight      | 300 | 20   | 5   | 10  | ${s.SLASH}
-${THIEF}      | Thief       | 130 | 20   | 2   | 18  | ${s.SLASH}
+${ARCHER}     | Archer      | 100 | 20   | 3   | 12  | ${s.SHOOT}           | ${t.SHY.id}
+${ACOLYTE}    | Acolyte     | 80  | 10   | 0   | 6   | ${s.HEALING_WAVE}    | ${t.SHY.id}
+${APPRENTICE} | Apprentice  | 80  | 30   | 0   | 8   | ${s.ARCANE_MISSILES} | ${t.SHY.id}
+${KNIGHT}     | Knight      | 300 | 20   | 5   | 10  | ${s.SLASH}           | ${t.BRAVE.id}
+${THIEF}      | Thief       | 130 | 20   | 2   | 18  | ${s.SLASH}           | ${t.BRAVE.id}
 `;
 
 export const BLOB = "blob" as JobId;
@@ -80,7 +80,7 @@ function parseJobsTable(table: string) {
       agility: parseInt(d["AGI"]),
       skill: d["Skill"] as s.SkillId,
       multicast: getMulticast(d["Job"] as JobId),
-      traits: []
+      traits: d["Traits"]?.split(",").map((t) => t.trim() as t.TraitId) || [],
     } as Job;
   })
 }

@@ -46,7 +46,7 @@ export const makeUnit = (id: string, force: string, jobId: JobId, position: Vec2
     equip: null,
     log: [],
     statuses: {},
-    traits: [],
+    traits: jobTraits,
     events: UNIT_EVENTS.reduce((acc, event) => {
       acc[event] = [];
 
