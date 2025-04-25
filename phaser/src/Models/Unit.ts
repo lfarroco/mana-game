@@ -1,7 +1,8 @@
 import { asVec2, Vec2 } from "./Geometry";
 import { Item } from "./Item";
 import { getJob, getMulticast, JobId } from "./Job";
-import { Trait } from "./Traits";
+import { getTrait, Trait } from "./Traits";
+import { UnitEvents, UNIT_EVENTS } from "./UnitEvents";
 
 export type Unit = {
   id: string;
@@ -28,41 +29,11 @@ export type Unit = {
   events: UnitEvents
 };
 
-export type IO = () => Promise<void>;
-export type UnitEvent = ((u: Unit) => IO);
-type UnitEventWithTarget = ((u: Unit, target: Unit) => IO);
-
-export type UnitEvents = {
-  onTurnStart: UnitEvent[];
-  onTurnEnd: UnitEvent[];
-  onBattleStart: UnitEvent[];
-  onBattleEnd: UnitEvent[];
-  onAttackByMe: UnitEventWithTarget[];
-  onDefendByMe: UnitEventWithTarget[];
-  onUnitKillByMe: UnitEventWithTarget[];
-  onUnitKill: UnitEventWithTarget[];
-  onAlliedKilled: UnitEventWithTarget[];
-  onEnemyKilled: UnitEventWithTarget[];
-  onSelfEliminated: UnitEventWithTarget[];
-}
-
-export const UNIT_EVENTS: Array<keyof UnitEvents> = [
-  "onTurnStart",
-  "onTurnEnd",
-  "onBattleStart",
-  "onBattleEnd",
-  "onAttackByMe",
-  "onDefendByMe",
-  "onUnitKillByMe",
-  "onUnitKill",
-  "onAlliedKilled",
-  "onEnemyKilled",
-  "onSelfEliminated",
-];
-
 export const makeUnit = (id: string, force: string, jobId: JobId, position: Vec2): Unit => {
 
   const job = getJob(jobId);
+  const jobTraits = job.traits.map(getTrait());
+  console.log(jobTraits)
   const unit = {
     ...job,
     id,
@@ -78,6 +49,23 @@ export const makeUnit = (id: string, force: string, jobId: JobId, position: Vec2
     traits: [],
     events: UNIT_EVENTS.reduce((acc, event) => {
       acc[event] = [];
+
+      // Traits that have triggers for the current event (onTurnStart, onTurnEnd, etc)
+      const matchingTraits = jobTraits.filter(t => t.events[event])
+
+      if (matchingTraits.length > 0) {
+        matchingTraits.forEach((trait) => {
+          const traitEvents = trait.events[event];
+          if (traitEvents) {
+            // the type system doesn't know that the trait event will be of the same type
+            //@ts-ignore
+            acc[event].push(...traitEvents);
+          }
+        });
+      }
+
+      // if (job.traits[event]) {
+      // }
       return acc;
     }, {} as UnitEvents),
   } as Unit;

@@ -6,7 +6,8 @@ import { updateUnitAttribute } from "../Systems/Chara/Chara";
 import { pickRandom } from "../utils";
 import { snakeDistanceBetween } from "./Geometry";
 import { State } from "./State";
-import { Unit, UNIT_EVENTS, UnitEvents } from "./Unit";
+import { Unit } from "./Unit";
+import { UNIT_EVENTS, UnitEvents } from "./UnitEvents";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 //let scene: Phaser.Scene;
@@ -147,7 +148,7 @@ export const SHARP_EYES: Trait = makeTrait({
 	}
 });
 
-export const getTrait = (id: TraitId): Trait => {
+export const getTrait = () => (id: TraitId): Trait => {
 	const trait = traits[id];
 	if (!trait) {
 		throw new Error(`Trait with id ${id} not found`);
