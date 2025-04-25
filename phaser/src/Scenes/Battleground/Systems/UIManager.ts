@@ -70,7 +70,7 @@ export function updateUI() {
 
 	ui = scene.add.container(0, 0);
 
-	const sidebarWidth = 350;
+	const sidebarWidth = constants.TILE_WIDTH;
 
 	const sidebarBg = scene.add.graphics();
 	sidebarBg.fillStyle(COLOR_BLACK, 0.7);
