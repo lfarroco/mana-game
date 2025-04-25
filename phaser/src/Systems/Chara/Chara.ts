@@ -219,7 +219,7 @@ export function addTooltip(chara: Chara) {
 
 		const text = [
 			`Attack: ${chara.unit.attack} HP: ${chara.unit.hp}`,
-			chara.unit.traits.map((trait) => trait.description).join("\n"),
+			chara.unit.traits.map((trait) => trait.name).join("\n"),
 			`${equipText}`,
 		].join('\n');
 

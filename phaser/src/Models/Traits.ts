@@ -1,4 +1,5 @@
-// traits are a way to add special abilities or characteristics to units
+// traits are a way to add special abilities or characteristics to cards
+// feature like "taunt", "flying", "trample", etc.
 
 import { popText } from "../Systems/Chara/Animations/popText";
 import { updateUnitAttribute } from "../Systems/Chara/Chara";
@@ -180,7 +181,5 @@ export function addUnitTrait(trait: Trait, unit: Unit) {
 		unit.events[event].push(...trait.events[event]);
 	});
 
-
 	unit.traits.push(trait);
-	popText({ text: `+ ${trait.name} Trait`, targetId: unit.id, type: "neutral" });
 }

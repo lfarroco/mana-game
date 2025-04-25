@@ -1,4 +1,5 @@
 import * as s from "./Skill";
+import { TraitId } from "./Traits";
 
 export type JobId = string & { __jobId: true };
 
@@ -6,7 +7,6 @@ export type Job = {
   id: JobId;
   name: string;
   description: string;
-  moveRange: number;
   upgrades: JobId[];
   hp: number;
   multicast: number;
@@ -14,6 +14,7 @@ export type Job = {
   defense: number;
   agility: number;
   skill: s.SkillId;
+  traits: TraitId[]
 };
 
 export const ARCHER = "archer" as JobId;
@@ -25,13 +26,13 @@ export const THIEF = "thief" as JobId;
 const STARTER_JOBS = [ARCHER, ACOLYTE, APPRENTICE, KNIGHT, THIEF];
 
 const baseJobs = `
-Job           | Name        | Range | HP  | ATK  | DEF | AGI | Skill
---------------|-------------|-------|-----|------|-----|-----|--------------------------------------
-${ARCHER}     | Archer      | 3     | 100 | 20   | 3   | 12  | ${s.SHOOT}
-${ACOLYTE}    | Acolyte     | 2     | 80  | 10   | 0   | 6   | ${s.HEALING_WAVE}
-${APPRENTICE} | Apprentice  | 2     | 80  | 30   | 0   | 8   | ${s.ARCANE_MISSILES}
-${KNIGHT}     | Knight      | 3     | 300 | 20   | 5   | 10  | ${s.SLASH}
-${THIEF}      | Thief       | 4     | 130 | 20   | 2   | 18  | ${s.SLASH}
+Job           | Name        | HP  | ATK  | DEF | AGI | Skill
+--------------|-------------|-----|------|-----|-----|--------------------------------------
+${ARCHER}     | Archer      | 100 | 20   | 3   | 12  | ${s.SHOOT}
+${ACOLYTE}    | Acolyte     | 80  | 10   | 0   | 6   | ${s.HEALING_WAVE}
+${APPRENTICE} | Apprentice  | 80  | 30   | 0   | 8   | ${s.ARCANE_MISSILES}
+${KNIGHT}     | Knight      | 300 | 20   | 5   | 10  | ${s.SLASH}
+${THIEF}      | Thief       | 130 | 20   | 2   | 18  | ${s.SLASH}
 `;
 
 export const BLOB = "blob" as JobId;
@@ -44,28 +45,17 @@ export const SHADOW_GHOST = "shadow_ghost" as JobId;
 export const SWARMLING = "swarmling" as JobId;
 
 const monsters = `
-Job             | Name         | Range | HP  | ATK  | DEF | AGI | Skill
-----------------|--------------|-------|-----|------|-----|-----|--------------------------------------
-${BLOB}         | Blob         | 3     | 40  | 20   | 0   | 10  | ${s.SLASH}
-${RED_BLOB}     | Red Blob     | 3     | 40  | 20   | 0   | 10  | ${s.EXPLODE}
-${BLOB_KING}    | Blob King    | 2     | 500 | 50   | 3   | 10  | ${s.SLASH}
-${BLOB_MAGE}    | Blob Mage    | 3     | 90  | 15   | 0   | 8   | ${s.ARCANE_MISSILES}
-${BLOB_KNIGHT}  | Blob Knight  | 2     | 400 | 25   | 8   | 6   | ${s.SLASH}
-${SHADOW_BLOB}  | Shadow Blob  | 3     | 900 | 25   | 10  | 6   | ${s.SUMMON_BLOB}
-${SHADOW_GHOST} | Shadow Ghost | 4     | 90  | 40   | 0   | 18  | ${s.SLASH}
-${SWARMLING}    | Shadowling   | 5     | 120 | 30   | 0   | 20  | ${s.SLASH}
+Job             | Name         | HP  | ATK  | DEF | AGI | Skill
+----------------|--------------|-----|------|-----|-----|--------------------------------------
+${BLOB}         | Blob         | 40  | 20   | 0   | 10  | ${s.SLASH}
+${RED_BLOB}     | Red Blob     | 40  | 20   | 0   | 10  | ${s.EXPLODE}
+${BLOB_KING}    | Blob King    | 500 | 50   | 3   | 10  | ${s.SLASH}
+${BLOB_MAGE}    | Blob Mage    | 90  | 15   | 0   | 8   | ${s.ARCANE_MISSILES}
+${BLOB_KNIGHT}  | Blob Knight  | 400 | 25   | 8   | 6   | ${s.SLASH}
+${SHADOW_BLOB}  | Shadow Blob  | 900 | 25   | 10  | 6   | ${s.SUMMON_BLOB}
+${SHADOW_GHOST} | Shadow Ghost | 90  | 40   | 0   | 18  | ${s.SLASH}
+${SWARMLING}    | Shadowling   | 120 | 30   | 0   | 20  | ${s.SLASH}
 `
-// future jobs
-// Elementalist  | 2     | 150 | 60   | 5  | 10  | ${s.SHOOT}                           | —                  
-// Arcanist      | 2     | 140 | 55   | 5  | 14  | ${s.SHOOT}                           | —                  
-// Knight        | 2     | 350 | 50   | 30 | 6   | ${s.SLASH}                           | —                  
-// Berserker     | 3     | 300 | 80   | 10 | 10  | ${s.SLASH}                           | —                  
-// Sniper        | 3     | 180 | 70   | 5  | 18  | ${s.SHOOT}                           | —                  
-// Hunter        | 3     | 170 | 60   | 10 | 14  | ${s.SHOOT}                           | —                  
-// Cleric        | 2     | 160 | 40   | 10 | 12  | ${s.SHOOT}                           | —                  
-// Monk          | 2     | 180 | 50   | 10 | 10  | ${s.SHOOT}                           | —                  
-// Rogue         | 3     | 190 | 60   | 5  | 16  | ${s.SLASH}                           | —                  
-// Ninja         | 3     | 180 | 55   | 5  | 22  | ${s.SLASH}                           | —
 
 function parseJobsTable(table: string) {
   const rows = table.trim().split("\n").map((r) => r.trim());
@@ -83,7 +73,6 @@ function parseJobsTable(table: string) {
       id: d["Job"] as JobId,
       name: d["Name"],
       description: "",
-      moveRange: parseInt(d["Range"]),
       upgrades: [],
       hp: parseInt(d["HP"]),
       attack: parseInt(d["ATK"]),
@@ -91,6 +80,7 @@ function parseJobsTable(table: string) {
       agility: parseInt(d["AGI"]),
       skill: d["Skill"] as s.SkillId,
       multicast: getMulticast(d["Job"] as JobId),
+      traits: []
     } as Job;
   })
 }
