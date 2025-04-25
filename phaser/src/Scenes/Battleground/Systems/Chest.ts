@@ -17,7 +17,7 @@ let chestContainer: Phaser.GameObjects.Container;
 let sellImage: Phaser.GameObjects.Image;
 
 export const position: [number, number] = [
-	constants.SCREEN_WIDTH - 140,
+	constants.SCREEN_WIDTH - 120,
 	constants.SCREEN_HEIGHT - 100
 ];
 
@@ -25,8 +25,9 @@ export function renderChestButton() {
 
 	const chest = UIManager.scene.add.image(
 		...position,
-		"ui/chest"
-	).setOrigin(0.5).setDisplaySize(250, 250);
+		"ui/chest")
+		.setOrigin(0.5)
+		.setDisplaySize(230, 230);
 
 	chest.setInteractive();
 
