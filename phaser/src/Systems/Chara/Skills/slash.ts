@@ -18,15 +18,12 @@ export async function slash(
 
 	await popText({ text: "Slash", targetId: unit.id });
 
-	for (let i = 1; i <= unit.multicast; i++) {
+	const target = await getMeleeTarget(activeChara);
+	if (!target) return;
+	const targetUnit = getBattleUnit(scene.state)(target.id);
+	const targetChara = UnitManager.getChara(targetUnit.id);
 
-		const target = await getMeleeTarget(activeChara);
-		if (!target) return;
-		const targetUnit = getBattleUnit(scene.state)(target.id);
-		const targetChara = UnitManager.getChara(targetUnit.id);
-
-		await attack(activeChara, targetChara);
-	}
+	await attack(activeChara, targetChara);
 
 	// return to the original position
 	await tween({
