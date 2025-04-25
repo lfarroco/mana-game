@@ -9,7 +9,6 @@ export type Job = {
   description: string;
   upgrades: JobId[];
   hp: number;
-  multicast: number;
   attack: number;
   defense: number;
   agility: number;
@@ -79,24 +78,10 @@ function parseJobsTable(table: string) {
       defense: parseInt(d["DEF"]),
       agility: parseInt(d["AGI"]),
       skill: d["Skill"] as s.SkillId,
-      multicast: getMulticast(d["Job"] as JobId),
       traits: d["Traits"]?.split(",").map((t) => t.trim() as t.TraitId) || [],
     } as Job;
   })
 }
-
-export const getMulticast = (jobId: JobId): number => {
-  const multipleJobs = [
-    THIEF, ARCHER
-  ];
-
-  if (multipleJobs.includes(jobId)) {
-    return 2;
-  }
-  else return 1;
-}
-
-
 
 export const descriptions = `
 Job           | Description
