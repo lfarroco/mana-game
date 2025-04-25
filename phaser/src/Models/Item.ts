@@ -1,7 +1,8 @@
 import { v4 } from "uuid";
 import { healUnit, updateUnitAttribute } from "../Systems/Chara/Chara";
 import { burnConsumableInBattle } from "../Systems/Item/EquipItem";
-import { Unit, UnitEvent } from "./Unit";
+import { Unit } from "./Unit";
+import { UnitEvent } from "./UnitEvents";
 
 type Equipment = {
 	key: "equipment",
