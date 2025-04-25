@@ -1,10 +1,8 @@
 import { snakeDistanceBetween, sortBySnakeDistance } from "../../../Models/Geometry";
 import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
-import { walk } from "../../../Scenes/Battleground/ProcessTick";
 import { getUnitsByProximity } from "../../../Models/State";
 import { healAnimation } from "../Animations/healAnimation";
-import { lookupAIPAth } from "../../../Scenes/Battleground/Systems/Pathfinding";
 
 export const healing = (
 	scene: BattlegroundScene
@@ -36,16 +34,8 @@ export const healing = (
 
 	// TODO: use approach instead
 	if (closerHurt) {
-		const path = await lookupAIPAth(unit.position, closerHurt.position);
 
-		//remove 3 last tiles from the path
-		const path_ = path.slice(0, path.length - 3);
-
-		await walk(scene, unit, path_, null);
-
-		if (path_.length < 1) {
-			await healAnimation(scene, unit, closerHurt);
-		}
+		await healAnimation(scene, unit, closerHurt);
 
 	}
 

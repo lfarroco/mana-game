@@ -60,19 +60,18 @@ export const UNIT_EVENTS: Array<keyof UnitEvents> = [
   "onSelfEliminated",
 ];
 
-export const makeUnit = (id: string, force: string, job: JobId, position: Vec2): Unit => {
+export const makeUnit = (id: string, force: string, jobId: JobId, position: Vec2): Unit => {
 
-  const jobId = job as JobId;
-  const job_ = getJob(jobId);
-  return {
-    ...job_,
+  const job = getJob(jobId);
+  const unit = {
+    ...job,
     id,
     job: jobId,
     force,
     position: asVec2(position),
-    maxHp: job_.hp,
-    multicast: getMulticast(job_.id),
-    crit: job_.agility * 1.5,
+    maxHp: job.hp,
+    multicast: getMulticast(job.id),
+    crit: job.agility * 1.5,
     equip: null,
     log: [],
     statuses: {},
@@ -80,8 +79,9 @@ export const makeUnit = (id: string, force: string, job: JobId, position: Vec2):
     events: UNIT_EVENTS.reduce((acc, event) => {
       acc[event] = [];
       return acc;
-    }, {} as UnitEvents) as UnitEvents,
+    }, {} as UnitEvents),
   } as Unit;
+  return unit
 };
 
 export const unitLog = (unit: Unit, log: string) => {
