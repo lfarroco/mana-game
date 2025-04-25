@@ -45,7 +45,7 @@ export const displayChoices = (choices: Choice[]) => new Promise<Choice>(async (
 
 	const component = scene.add.container();
 
-	const promises = choices.map(renderCard(
+	const promises = choices.map(renderChoiceCard(
 		async (choice: Choice) => {
 			await tween({
 				targets: [component],
@@ -65,7 +65,7 @@ export const displayChoices = (choices: Choice[]) => new Promise<Choice>(async (
 
 });
 
-const renderCard = (
+const renderChoiceCard = (
 	onSelect: (choice: Choice, card: Phaser.GameObjects.Container) => void
 ) => async (choice: Choice, index: number, choices: Choice[]): Promise<Phaser.GameObjects.Container> => {
 
@@ -104,7 +104,21 @@ const renderCard = (
 		}
 	});
 
-	cardContainer.add([emitter, cardBg, pic]);
+	const text = scene.add.text(
+		CARD_DIMENSIONS.height + 20, 20,
+		choice.title,
+		constants.defaultTextConfig
+	);
+	text.setOrigin(0);
+
+	const desc = scene.add.text(
+		CARD_DIMENSIONS.height + 20, 80,
+		breakLines(choice.desc, 25),
+		{ ...constants.defaultTextConfig, fontSize: '40px' }
+	);
+	desc.setOrigin(0);
+
+	cardContainer.add([emitter, cardBg, pic, text, desc]);
 
 	await tween({
 		targets: [cardContainer],
@@ -144,23 +158,7 @@ const renderCard = (
 
 	cardBg.on("pointerup", () => onSelect(choice, cardContainer))
 
-	const text = scene.add.text(
-		CARD_DIMENSIONS.height + 20, 20,
-		choice.title,
-		constants.defaultTextConfig
-	);
-	text.setOrigin(0);
 
-	cardContainer.add(text);
-
-	const desc = scene.add.text(
-		CARD_DIMENSIONS.height + 20, 80,
-		breakLines(choice.desc, 25),
-		{ ...constants.defaultTextConfig, fontSize: '40px' }
-	);
-	desc.setOrigin(0);
-
-	cardContainer.add(desc);
 
 	return cardContainer;
 }
