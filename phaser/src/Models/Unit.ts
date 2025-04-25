@@ -33,7 +33,6 @@ export const makeUnit = (id: string, force: string, jobId: JobId, position: Vec2
 
   const job = getJob(jobId);
   const jobTraits = job.traits.map(getTrait());
-  console.log(jobTraits)
   const unit = {
     ...job,
     id,
@@ -47,8 +46,8 @@ export const makeUnit = (id: string, force: string, jobId: JobId, position: Vec2
     log: [],
     statuses: {},
     traits: jobTraits,
-    events: UNIT_EVENTS.reduce((acc, event) => {
-      acc[event] = [];
+    events: UNIT_EVENTS.reduce((eventsIndex, event) => {
+      eventsIndex[event] = [];
 
       // Traits that have triggers for the current event (onTurnStart, onTurnEnd, etc)
       const matchingTraits = jobTraits.filter(t => t.events[event])
@@ -59,14 +58,12 @@ export const makeUnit = (id: string, force: string, jobId: JobId, position: Vec2
           if (traitEvents) {
             // the type system doesn't know that the trait event will be of the same type
             //@ts-ignore
-            acc[event].push(...traitEvents);
+            eventsIndex[event].push(...traitEvents);
           }
         });
       }
 
-      // if (job.traits[event]) {
-      // }
-      return acc;
+      return eventsIndex;
     }, {} as UnitEvents),
   } as Unit;
   return unit

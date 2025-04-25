@@ -1,5 +1,7 @@
 import { Unit } from "./Unit";
 
+// This module is isolated because some loops are formed when UNIT_EVENTS is used
+// in the UNits and Traits modules
 
 export type IO = () => Promise<void>;
 export type UnitEvent = ((u: Unit) => IO);
