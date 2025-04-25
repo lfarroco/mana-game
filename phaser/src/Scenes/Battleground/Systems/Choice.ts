@@ -33,7 +33,10 @@ const STYLE_CONSTANTS = {
 	PARTICLE_COLORS: {
 		DEFAULT: 0x3333ff,
 		HOVER: 0x00ff00
-	}
+	},
+	CARD_FILL: 0x333333,
+	CARD_STROKE_WIDTH: 2,
+	CARD_STROKE_COLOR: 0x000000
 } as const;
 
 export const init = (sceneRef: Phaser.Scene) => {
@@ -79,14 +82,14 @@ const renderChoiceCard = (
 
 	const cardBg = scene.add.graphics();
 
-	cardBg.fillStyle(0x333333);
+	cardBg.fillStyle(STYLE_CONSTANTS.CARD_FILL);
 	cardBg.fillRect(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height);
-	cardBg.lineStyle(2, 0x000000);
+	cardBg.lineStyle(STYLE_CONSTANTS.CARD_STROKE_WIDTH, STYLE_CONSTANTS.CARD_STROKE_COLOR);
 	cardBg.strokeRect(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height);
 
 	const emitter = scene.add.particles(0, 0, 'white-splash-fade', {
 		speed: 0,
-		lifespan: { min: 400, max: 700 },
+		lifespan: { min: CARD_DIMENSIONS.width, max: CARD_DIMENSIONS.height },
 		scale: { start: 0.0, end: 0.15 },
 		alpha: { start: 0.8, end: 0 },
 		blendMode: 'ADD',
@@ -157,8 +160,6 @@ const renderChoiceCard = (
 	});
 
 	cardBg.on("pointerup", () => onSelect(choice, cardContainer))
-
-
 
 	return cardContainer;
 }
