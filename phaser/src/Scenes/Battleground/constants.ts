@@ -29,4 +29,6 @@ export const titleTextConfig: Phaser.Types.GameObjects.Text.TextStyle = {
 export const GRID_BORDER_COLOR = 0x00FF00;
 export const GRID_FILL_COLOR = 0x000000; export const MAX_GRID_HEIGHT = 32;
 export const MAX_GRID_WIDTH = 32;
+export const FORCE_ID_PLAYER = "PLAYER";
+export const FORCE_ID_CPU = "CPU";
 

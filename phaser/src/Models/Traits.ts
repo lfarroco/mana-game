@@ -4,7 +4,7 @@
 import { popText } from "../Systems/Chara/Animations/popText";
 import { damageUnit, updateUnitAttribute } from "../Systems/Chara/Chara";
 import { pickRandom } from "../utils";
-import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "./Force";
+import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../Scenes/Battleground/constants";
 import { addStatus, endStatus, State } from "./State";
 import { Unit } from "./Unit";
 import { UNIT_EVENTS, UnitEvents } from "./UnitEvents";

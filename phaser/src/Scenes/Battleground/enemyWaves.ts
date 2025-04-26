@@ -1,4 +1,4 @@
-import { FORCE_ID_CPU } from "../../Models/Force";
+import { FORCE_ID_CPU } from "./constants";
 import { sumVec2, vec2 } from "../../Models/Geometry";
 import { BLOB, BLOB_KING, BLOB_KNIGHT, BLOB_MAGE, JobId, RED_BLOB } from "../../Models/Job";
 import { makeUnit, Unit } from "../../Models/Unit";
