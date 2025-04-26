@@ -1,5 +1,6 @@
 import { Unit } from "../../Models/Unit";
-import { getState, getUnitsByProximity } from "../../Models/State";
+import { getState } from "../../Models/State";
+import { getUnitsByProximity } from "../../Models/Board";
 import { Chara } from "./Chara";
 
 // TODO: return all enemies in range

@@ -1,7 +1,7 @@
 import { snakeDistanceBetween, sortBySnakeDistance } from "../../../Models/Geometry";
 import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
-import { getUnitsByProximity } from "../../../Models/State";
+import { getUnitsByProximity } from "../../../Models/Board";
 import { healAnimation } from "../Animations/healAnimation";
 
 export const healing = (

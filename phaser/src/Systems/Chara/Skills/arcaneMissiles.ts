@@ -1,7 +1,7 @@
 import { ARCANE_MISSILES, getSkill } from "../../../Models/Skill";
 import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
-import { getUnitsByProximity } from "../../../Models/State";
+import { getUnitsByProximity } from "../../../Models/Board";
 import { popText } from "../Animations/popText";
 import * as animation from "../../../Effects/arcaneMissile";
 import { delay } from "../../../Utils/animation";

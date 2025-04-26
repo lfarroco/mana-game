@@ -1,7 +1,7 @@
 import { EXPLODE, getSkill } from "../../../Models/Skill";
 import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
-import { getUnitsByProximity } from "../../../Models/State";
+import { getUnitsByProximity } from "../../../Models/Board";
 import { popText } from "../Animations/popText";
 import { approach } from "../approach";
 import { delay } from "../../../Utils/animation";

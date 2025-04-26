@@ -4,7 +4,7 @@ import { popText } from "../Animations/popText";
 import { shootAnimation } from "../Animations/shootAnimation";
 import { Chara } from "../Chara";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
-import { getUnitsByProximity } from "../../../Models/State";
+import { getUnitsByProximity } from "../../../Models/Board";
 import { delay } from "../../../Utils/animation";
 import { approach } from "../approach";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
