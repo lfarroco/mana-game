@@ -24,12 +24,10 @@ export async function physicalAttack(
 	const rawDmg = isCritical ? activeChara.unit.attack * 2 : activeChara.unit.attack;
 	const damage = Math.max(1, rawDmg - targetChara.unit.defense);
 
-
-
 	await Promise.all(
 		activeChara.unit.events
 			.onAttackByMe
-			.map(fn => fn(activeChara.unit, targetChara.unit)())
+			.map(fn => fn(activeChara.unit, targetChara.unit, damage, isCritical)())
 	);
 
 	await Promise.all(
