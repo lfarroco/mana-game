@@ -12,6 +12,7 @@ export type UnitEvents = {
 	onTurnEnd: UnitEvent[];
 	onBattleStart: UnitEvent[];
 	onBattleEnd: UnitEvent[];
+	onHalfHP: UnitEvent[];
 	onAttackByMe: UnitEventWithTarget[];
 	onAfterAttackByMe: UnitEventWithTarget[];
 	onDefendByMe: UnitEventWithTarget[];
@@ -28,6 +29,7 @@ export const UNIT_EVENTS: Array<keyof UnitEvents> = [
 	"onTurnEnd",
 	"onBattleStart",
 	"onBattleEnd",
+	"onHalfHP",
 	"onAttackByMe",
 	"onAfterAttackByMe",
 	"onDefendByMe",
