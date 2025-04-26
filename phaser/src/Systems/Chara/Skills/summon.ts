@@ -1,4 +1,4 @@
-import { FORCE_ID_CPU } from "../../../Models/Force";
+import { FORCE_ID_CPU } from "../../../Scenes/Battleground/constants";
 import { Vec2, vec2, eqVec2 } from "../../../Models/Geometry";
 import { makeUnit } from "../../../Models/Unit";
 import { runPromisesInOrder } from "../../../utils";

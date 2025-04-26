@@ -1,4 +1,4 @@
-import { FORCE_ID_CPU } from "../../Models/Force";
+import { FORCE_ID_CPU } from "../../Scenes/Battleground/constants";
 import { ITEMS } from "../../Models/Item";
 import { getState } from "../../Models/State";
 import { tween } from "../../Utils/animation";

@@ -1,7 +1,8 @@
 import { BattlegroundScene } from "./BattlegroundScene";
 import { getActiveUnits, getState, updateStatuses } from "../../Models/State";
 import { delay } from "../../Utils/animation";
-import { FORCE_ID_CPU, FORCE_ID_PLAYER, updatePlayerGoldIO } from "../../Models/Force";
+import { updatePlayerGoldIO } from "../../Models/Force";
+import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "./constants";
 import { vignette } from "./Animations/vignette";
 import { GOLD_PER_WAVE } from "./constants";
 import { performAction } from "./performAction";

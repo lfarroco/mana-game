@@ -1,6 +1,7 @@
 import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
 import { summonChara } from "../../Scenes/Battleground/Systems/UnitManager";
-import { FORCE_ID_PLAYER, updatePlayerGoldIO } from "../Force";
+import { updatePlayerGoldIO } from "../Force";
+import { FORCE_ID_PLAYER } from "../../Scenes/Battleground/constants";
 import { ITEMS } from "../Item";
 import { BLOB } from "../Job";
 import { addUnitToGuild, State } from "../State";
