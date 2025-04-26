@@ -148,6 +148,14 @@ export const SHARP_EYES: Trait = makeTrait({
 	}
 });
 
+export const TAUNT: Trait = makeTrait({
+	id: "taunt" as TraitId,
+	name: "Taunt",
+	description: "If in range, enemies will attackthis unit",
+	categories: [TRAIT_CATEGORY_DEFENSIVE, TRAIT_CATEGORY_PERSONALITY],
+	events: {}
+});
+
 export const getTrait = () => (id: TraitId): Trait => {
 	const trait = traits[id];
 	if (!trait) {
@@ -163,6 +171,7 @@ export const traits: { [id: TraitId]: Trait } = {
 	[BRAVE.id]: BRAVE,
 	[BATTLE_HUNGER.id]: BATTLE_HUNGER,
 	[SHARP_EYES.id]: SHARP_EYES,
+	[TAUNT.id]: TAUNT,
 };
 
 export const randomCategoryTrait = (category: TraitCategory): Trait => {

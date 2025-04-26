@@ -11,6 +11,11 @@ export function pickRandom<T>(arr: T[], n: number): T[] {
 	return shuffled.slice(0, n);
 }
 
+export function pickOne<a>(arr: a[]): a {
+	const [item] = pickRandom(arr, 1);
+	return item;
+}
+
 // breaks lines of text into an array of lines that fit within the given width
 export function breakLines(text: string, width: number) {
 	return text.split(' ').reduce((acc, word) => {

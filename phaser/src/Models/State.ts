@@ -4,6 +4,7 @@ import { eqVec2, snakeDistanceBetween, sortBySnakeDistance, vec2, Vec2 } from ".
 import { Unit, makeUnit } from "./Unit";
 import { JobId } from "./Job";
 import { getChara } from "../Scenes/Battleground/Systems/UnitManager";
+import { pickOne } from "../utils";
 
 export const initialState = (): State => ({
   options: {
@@ -134,6 +135,67 @@ export function getUnitsByProximity(state: State, unit: Unit, enemy: boolean, ra
     .filter(u => u.id !== unit.id)
     .sort((a, b) => sortBySnakeDistance(unit.position)(a.position)(b.position))
     .filter(u => snakeDistanceBetween(unit.position)(u.position) <= range)
+}
+
+export function getMeleeTarget(state: State, unit: Unit): Unit {
+
+  const enemies = getActiveUnits(state)
+    .filter(u => u.force !== unit.force)
+
+  // get all enemies in the same row, or neighoring row
+  const closeUnits = enemies
+    .filter(u => u.position.y >= unit.position.y - 1 && u.position.y <= unit.position.y + 1)
+    .sort((a, b) => sortBySnakeDistance(unit.position)(a.position)(b.position))
+    // keep 1 per row, as a far unit can be blocked by a closer unit
+    .reduce((acc, u) => {
+      if (acc.findIndex((a) => a.position.y === u.position.y) === -1) {
+        acc.push(u);
+      }
+      return acc;
+    }, [] as Unit[]);
+
+  // any of them has the tratt "taunt"?
+  const taunting = closeUnits
+    .filter(u => u.traits.find(t => t.id === "taunt"))
+
+  if (taunting.length > 0) {
+    return pickOne(taunting);
+  }
+
+  if (closeUnits.length > 0) {
+    return pickOne(closeUnits);
+  }
+
+  // pick random from remaining
+
+  return pickOne(enemies);
+
+}
+
+export function getRangedTarget(state: State, unit: Unit): Unit {
+  const enemies = getActiveUnits(state)
+    .filter(u => u.force !== unit.force)
+
+  // get all enemies in the same row, or neighoring row
+  const closeUnits = enemies
+    .filter(u => u.position.y >= unit.position.y - 1 && u.position.y <= unit.position.y + 1);
+
+  // any of them has the tratt "taunt"?
+  const taunting = closeUnits
+    .filter(u => u.traits.find(t => t.id === "taunt"));
+
+  if (taunting.length > 0) {
+    return pickOne(taunting);
+  }
+
+  if (closeUnits.length > 0) {
+    return pickOne(closeUnits);
+  }
+
+  // pick random from remaining
+
+  return pickOne(enemies);
+
 }
 
 
