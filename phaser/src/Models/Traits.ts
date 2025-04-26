@@ -4,7 +4,7 @@
 import { popText } from "../Systems/Chara/Animations/popText";
 import { damageUnit, updateUnitAttribute } from "../Systems/Chara/Chara";
 import { pickRandom } from "../utils";
-import { addStatus, State } from "./State";
+import { addStatus, endStatus, State } from "./State";
 import { Unit } from "./Unit";
 import { UNIT_EVENTS, UnitEvents } from "./UnitEvents";
 
@@ -175,7 +175,6 @@ export const PROTECTOR: Trait = makeTrait({
 // Sniper	When attacking a target in a different column, deal +10 bonus damage.
 // Berserk	When at ≤ 50% HP, gain +15 Atk for the rest of combat.
 // Splash	40% of this unit’s Atk is dealt as damage to each adjacent enemy when you attack.
-// Siege	Deal +20 bonus damage when attacking enemy buildings (e.g., guild structures).
 // Stealth	Cannot be targeted by enemy units or abilities until this unit makes its first attack.
 // Assassin	First attack deals double damage, then this unit loses Stealth.
 // Rally	At the start of combat, grants +5 Atk to all allied units in the same row.
@@ -237,6 +236,24 @@ export const SPLASH = makeTrait({
 		}]
 	}
 });
+
+export const STEALTH = makeTrait({
+	id: "stealth" as TraitId,
+	name: "Stealth",
+	description: "Cannot be targeted by enemy units or abilities until this unit makes its first attack.",
+	categories: [TRAIT_CATEGORY_OFFENSIVE],
+	events: {
+		onBattleStart: [(unit) => async () => {
+			await popText({ text: "On Battle Start: Stealth", targetId: unit.id, speed: 2 });
+		}],
+		onAttackByMe: [(unit) => async () => {
+			if (!unit.statuses["stealth"]) return;
+			await popText({ text: "Remove Stealth", targetId: unit.id, speed: 2 });
+			endStatus(unit.id, "stealth");
+		}]
+	}
+});
+
 
 export const getTrait = () => (id: TraitId): Trait => {
 	const trait = traits[id];

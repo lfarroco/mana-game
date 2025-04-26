@@ -44,6 +44,7 @@ export function getMeleeTarget(state: State, unit: Unit): Unit {
 	// get all enemies in the same row, or neighoring row
 	const closeUnits = enemies
 		.filter(u => u.position.y >= unit.position.y - 1 && u.position.y <= unit.position.y + 1)
+		.filter(u => !u.statuses["stealth"])
 		.sort((a, b) => sortBySnakeDistance(unit.position)(a.position)(b.position))
 		// keep 1 per row, as a far unit can be blocked by a closer unit
 		.reduce((acc, u) => {
@@ -72,6 +73,7 @@ export function getMeleeTarget(state: State, unit: Unit): Unit {
 
 export function getRangedTarget(state: State, unit: Unit): Unit {
 	const enemies = getActiveUnits(state)
+		.filter(u => !u.statuses["stealth"])
 		.filter(u => u.force !== unit.force);
 
 	// get all enemies in the same row, or neighoring row
