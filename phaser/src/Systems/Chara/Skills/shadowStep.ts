@@ -1,7 +1,7 @@
 import { summonEffect } from "../../../Effects";
 import { eqVec2, sumVec2, vec2 } from "../../../Models/Geometry";
 import { Skill } from "../../../Models/Skill";
-import { getUnitsByProximity } from "../../../Models/State";
+import { getUnitsByProximity } from "../../../Models/Board";
 import { Unit } from "../../../Models/Unit";
 import { specialAnimation } from "../Animations/specialAnimation";
 import { Chara } from "../Chara";

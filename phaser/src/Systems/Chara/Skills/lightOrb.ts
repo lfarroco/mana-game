@@ -1,7 +1,7 @@
 import { getSkill, LIGHT_ORB } from "../../../Models/Skill";
 import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
-import { getUnitsByProximity } from "../../../Models/State";
+import { getUnitsByProximity } from "../../../Models/Board";
 import { healUnit } from "../Chara";
 import { popText } from "../Animations/popText";
 import { GlowingOrb } from "../../../Effects/GlowingOrb";

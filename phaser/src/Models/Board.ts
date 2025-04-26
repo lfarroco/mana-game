@@ -1,0 +1,96 @@
+import { pickOne } from "../utils";
+import { vec2, sortBySnakeDistance, snakeDistanceBetween } from "./Geometry";
+import { State, getGuildUnitAt, getActiveUnits } from "./State";
+import { Unit } from "./Unit";
+
+
+export function getEmptySlot(state: State) {
+	const startX = 4;
+	const endX = 7;
+	const startY = 1;
+	const endY = 4;
+
+	let isValid = false;
+	let position = vec2(1, 1);
+
+	while (!isValid) {
+		for (let x = startX; x < endX; x++) {
+			for (let y = startY; y < endY; y++) {
+				if (!getGuildUnitAt(state)(vec2(x, y))) {
+					isValid = true;
+					position = vec2(x, y);
+					break;
+				}
+			}
+			if (isValid) break;
+		}
+	}
+	return position;
+}
+
+export function getUnitsByProximity(state: State, unit: Unit, enemy: boolean, range: number): Unit[] {
+	return getActiveUnits(state)
+		.filter(u => enemy ? u.force !== unit.force : u.force === unit.force)
+		.filter(u => u.id !== unit.id)
+		.sort((a, b) => sortBySnakeDistance(unit.position)(a.position)(b.position))
+		.filter(u => snakeDistanceBetween(unit.position)(u.position) <= range);
+}
+
+export function getMeleeTarget(state: State, unit: Unit): Unit {
+
+	const enemies = getActiveUnits(state)
+		.filter(u => u.force !== unit.force);
+
+	// get all enemies in the same row, or neighoring row
+	const closeUnits = enemies
+		.filter(u => u.position.y >= unit.position.y - 1 && u.position.y <= unit.position.y + 1)
+		.sort((a, b) => sortBySnakeDistance(unit.position)(a.position)(b.position))
+		// keep 1 per row, as a far unit can be blocked by a closer unit
+		.reduce((acc, u) => {
+			if (acc.findIndex((a) => a.position.y === u.position.y) === -1) {
+				acc.push(u);
+			}
+			return acc;
+		}, [] as Unit[]);
+
+	// any of them has the tratt "taunt"?
+	const taunting = closeUnits
+		.filter(u => u.traits.find(t => t.id === "taunt"));
+
+	if (taunting.length > 0) {
+		return pickOne(taunting);
+	}
+
+	if (closeUnits.length > 0) {
+		return pickOne(closeUnits);
+	}
+
+	// pick random from remaining
+	return pickOne(enemies);
+
+}
+
+export function getRangedTarget(state: State, unit: Unit): Unit {
+	const enemies = getActiveUnits(state)
+		.filter(u => u.force !== unit.force);
+
+	// get all enemies in the same row, or neighoring row
+	const closeUnits = enemies
+		.filter(u => u.position.y >= unit.position.y - 1 && u.position.y <= unit.position.y + 1);
+
+	// any of them has the tratt "taunt"?
+	const taunting = closeUnits
+		.filter(u => u.traits.find(t => t.id === "taunt"));
+
+	if (taunting.length > 0) {
+		return pickOne(taunting);
+	}
+
+	if (closeUnits.length > 0) {
+		return pickOne(closeUnits);
+	}
+
+	// pick random from remaining
+	return pickOne(enemies);
+
+}

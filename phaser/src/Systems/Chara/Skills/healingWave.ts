@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { asVec2, Vec2 } from "../../../Models/Geometry";
 import { delay } from "../../../Utils/animation";
 import { Unit } from "../../../Models/Unit";
-import { getUnitsByProximity } from "../../../Models/State";
+import { getUnitsByProximity } from "../../../Models/Board";
 import { healUnit } from "../Chara";
 import { BattlegroundScene } from "../../../Scenes/Battleground/BattlegroundScene";
 import { EnergyBeam } from "../../../Effects/EnergyBeam";
