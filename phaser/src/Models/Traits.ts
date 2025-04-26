@@ -169,6 +169,43 @@ export const PROTECTOR: Trait = makeTrait({
 	}
 });
 
+// Feature	Description
+// Taunt	Units in the same row or in a neighboring row must target this unit first.
+// Protector	Allied units in the same column take 10 less damage from all sources.
+// Sniper	When attacking a target in a different column, deal +10 bonus damage.
+// Berserk	When at ≤ 50% HP, gain +15 Atk for the rest of combat.
+// Splash	40% of this unit’s Atk is dealt as damage to each adjacent enemy when you attack.
+// Siege	Deal +20 bonus damage when attacking enemy buildings (e.g., guild structures).
+// Stealth	Cannot be targeted by enemy units or abilities until this unit makes its first attack.
+// Assassin	First attack deals double damage, then this unit loses Stealth.
+// Rally	At the start of combat, grants +5 Atk to all allied units in the same row.
+// Heal	At the end of each turn, heals 20 HP to each adjacent allied unit.
+// AoE	At the end of each turn, deals 15 damage to all enemy units.
+// Guard	When attacked, reduces incoming damage by 10 (after all other modifiers).
+// Flex	At the start of combat, may swap positions with any allied unit in an adjacent column.
+// Last Stand	Upon death, deals 50% of this unit’s Atk as damage to all adjacent enemies.
+
+export const SNIPER = makeTrait({
+	id: "sniper" as TraitId,
+	name: "Sniper",
+	description: "When attacking a target in a different row, gain +10 attack",
+	categories: [TRAIT_CATEGORY_OFFENSIVE],
+	events: {
+		onAttackByMe: [(unit, target) => async () => {
+			if (unit.position.y !== target.position.y) {
+				await popText({ text: "On attack: Sniper", targetId: unit.id, speed: 2 });
+				updateUnitAttribute(unit, "attack", 10);
+			}
+		}],
+		onAfterAttackByMe: [(unit, target) => async () => {
+			if (unit.position.y !== target.position.y) {
+				updateUnitAttribute(unit, "attack", -10);
+			}
+
+		}]
+	}
+});
+
 export const getTrait = () => (id: TraitId): Trait => {
 	const trait = traits[id];
 	if (!trait) {

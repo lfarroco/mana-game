@@ -1,6 +1,5 @@
 import { impactEffect } from "../../../Effects";
 import { getState } from "../../../Models/State";
-import { runPromisesInOrder } from "../../../utils";
 import { delay } from "../../../Utils/animation";
 import { Chara, damageUnit } from "../Chara";
 
@@ -27,17 +26,23 @@ export async function physicalAttack(
 
 
 
-	await runPromisesInOrder(
+	await Promise.all(
 		activeChara.unit.events
-			.onAttackByMe.map(fn => fn(activeChara.unit, targetChara.unit))
+			.onAttackByMe
+			.map(fn => fn(activeChara.unit, targetChara.unit)())
 	);
 
-	await runPromisesInOrder(
+	await Promise.all(
 		targetChara.unit.events
-			.onDefendByMe.map(fn => fn(activeChara.unit, targetChara.unit))
+			.onDefendByMe.map(fn => fn(activeChara.unit, targetChara.unit)())
 	);
 
 	await damageUnit(targetChara.id, damage, isCritical);
+
+	await Promise.all(
+		activeChara.unit.events
+			.onAfterAttackByMe.map(fn => fn(activeChara.unit, targetChara.unit)())
+	);
 
 	await delay(scene, 300 / speed);
 
