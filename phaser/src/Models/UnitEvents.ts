@@ -13,6 +13,7 @@ export type UnitEvents = {
 	onBattleStart: UnitEvent[];
 	onBattleEnd: UnitEvent[];
 	onAttackByMe: UnitEventWithTarget[];
+	onAfterAttackByMe: UnitEventWithTarget[];
 	onDefendByMe: UnitEventWithTarget[];
 	onUnitKillByMe: UnitEventWithTarget[];
 	onUnitKill: UnitEventWithTarget[];
@@ -21,12 +22,14 @@ export type UnitEvents = {
 	onSelfEliminated: UnitEventWithTarget[];
 };
 
+// todo: should contains all keys of UnitEvents
 export const UNIT_EVENTS: Array<keyof UnitEvents> = [
 	"onTurnStart",
 	"onTurnEnd",
 	"onBattleStart",
 	"onBattleEnd",
 	"onAttackByMe",
+	"onAfterAttackByMe",
 	"onDefendByMe",
 	"onUnitKillByMe",
 	"onUnitKill",
