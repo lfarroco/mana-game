@@ -4,7 +4,6 @@
 import { popText } from "../Systems/Chara/Animations/popText";
 import { updateUnitAttribute } from "../Systems/Chara/Chara";
 import { pickRandom } from "../utils";
-import { snakeDistanceBetween } from "./Geometry";
 import { State } from "./State";
 import { Unit } from "./Unit";
 import { UNIT_EVENTS, UnitEvents } from "./UnitEvents";
@@ -90,13 +89,10 @@ export const SHY: Trait = makeTrait({
 	categories: [TRAIT_CATEGORY_DEFENSIVE, TRAIT_CATEGORY_PERSONALITY, TRAIT_CATEGORY_HP],
 	events: {
 		onBattleStart: [(unit) => async () => {
-			const neighboringUnits = state.battleData.units.filter((u) => {
-				const distace = snakeDistanceBetween(
-					u.position)(
-						unit.position
-					);
-				return distace < 2 && u.id !== unit.id;
-			});
+			const neighboringUnits = state.battleData.units
+				.filter((u) => {
+					u.position.x === unit.position.x && u.id !== unit.id
+				});
 			if (neighboringUnits.length === 0) {
 				await popText({ text: "On Battle Start: Shy", targetId: unit.id, speed: 2 });
 				updateUnitAttribute(unit, "maxHp", 30);
@@ -115,7 +111,6 @@ export const BRAVE: Trait = makeTrait({
 			if (unit.position.x !== FRONTLINE) return;
 
 			await popText({ text: "On Battle Start: Brave", targetId: unit.id });
-
 			await updateUnitAttribute(unit, "attack", 5);
 		}]
 	}
@@ -142,8 +137,7 @@ export const SHARP_EYES: Trait = makeTrait({
 	events: {
 		onBattleStart: [(unit) => async () => {
 			await popText({ text: "On Battle Start: Sharp Eyes", targetId: unit.id });
-			await popText({ text: "+10% critical chance", targetId: unit.id });
-			unit.crit += 10;
+			updateUnitAttribute(unit, "crit", 10);
 		}]
 	}
 });
@@ -154,6 +148,25 @@ export const TAUNT: Trait = makeTrait({
 	description: "If in range, enemies will attackthis unit",
 	categories: [TRAIT_CATEGORY_DEFENSIVE, TRAIT_CATEGORY_PERSONALITY],
 	events: {}
+});
+
+export const PROTECTOR: Trait = makeTrait({
+	id: "protector" as TraitId,
+	name: "Protector",
+	description: "Units in the same column have +5 defense",
+	categories: [TRAIT_CATEGORY_DEFENSIVE, TRAIT_CATEGORY_PERSONALITY],
+	events: {
+		onBattleStart: [(unit) => async () => {
+			const neighboringUnits = state.battleData.units
+				.filter(u => {
+					u.position.x === unit.position.x
+				})
+			if (neighboringUnits.length > 0) {
+				await popText({ text: "On Battle Start: Protector", targetId: unit.id, speed: 2 });
+				updateUnitAttribute(unit, "defense", 5);
+			}
+		}]
+	}
 });
 
 export const getTrait = () => (id: TraitId): Trait => {
@@ -172,6 +185,7 @@ export const traits: { [id: TraitId]: Trait } = {
 	[BATTLE_HUNGER.id]: BATTLE_HUNGER,
 	[SHARP_EYES.id]: SHARP_EYES,
 	[TAUNT.id]: TAUNT,
+	[PROTECTOR.id]: PROTECTOR,
 };
 
 export const randomCategoryTrait = (category: TraitCategory): Trait => {
