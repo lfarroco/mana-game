@@ -4,7 +4,7 @@
 import { popText } from "../Systems/Chara/Animations/popText";
 import { updateUnitAttribute } from "../Systems/Chara/Chara";
 import { pickRandom } from "../utils";
-import { State } from "./State";
+import { addStatus, State } from "./State";
 import { Unit } from "./Unit";
 import { UNIT_EVENTS, UnitEvents } from "./UnitEvents";
 
@@ -202,6 +202,22 @@ export const SNIPER = makeTrait({
 				updateUnitAttribute(unit, "attack", -10);
 			}
 
+		}]
+	}
+});
+
+export const BERSERK = makeTrait({
+	id: "berserk" as TraitId,
+	name: "Berserk",
+	description: "When your health dropd below 50% HP for the first time, gain +15 Atk for the rest of combat",
+	categories: [TRAIT_CATEGORY_OFFENSIVE],
+	events: {
+		onHalfHP: [(unit) => async () => {
+			const hasBerserk = unit.statuses["berserk"];
+			if (hasBerserk) return;
+			await popText({ text: "On Half HP: Berserk", targetId: unit.id, speed: 2 });
+			updateUnitAttribute(unit, "attack", 15);
+			addStatus(unit, "berserk", Infinity);
 		}]
 	}
 });
