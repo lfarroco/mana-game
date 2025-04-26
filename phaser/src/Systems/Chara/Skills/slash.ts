@@ -4,11 +4,11 @@ import { bashPieceAnimation } from "../Animations/bashPieceAnimation";
 import { popText } from "../Animations/popText";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { physicalAttack } from "./physicalAttack";
-import { approach as getMeleeTarget } from "../approach";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
 import { Chara } from "../Chara";
 import { HALF_TILE_WIDTH, TILE_WIDTH } from "../../../Scenes/Battleground/constants";
 import { tween } from "../../../Utils/animation";
+import { getMeleeTarget } from "../../../Models/Board";
 
 export async function slash(
 	scene: BattlegroundScene,
@@ -18,8 +18,7 @@ export async function slash(
 
 	await popText({ text: "Slash", targetId: unit.id });
 
-	const target = await getMeleeTarget(activeChara);
-	if (!target) return;
+	const target = getMeleeTarget(scene.state, unit);
 	const targetUnit = getBattleUnit(scene.state)(target.id);
 	const targetChara = UnitManager.getChara(targetUnit.id);
 
