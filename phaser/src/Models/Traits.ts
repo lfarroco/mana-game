@@ -4,27 +4,59 @@
 import { popText } from "../Systems/Chara/Animations/popText";
 import { damageUnit, updateUnitAttribute } from "../Systems/Chara/Chara";
 import { pickRandom } from "../utils";
+import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "./Force";
 import { addStatus, endStatus, State } from "./State";
 import { Unit } from "./Unit";
 import { UNIT_EVENTS, UnitEvents } from "./UnitEvents";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-//let scene: Phaser.Scene;
 let state: State;
 
 export const init = (_sceneRef: Phaser.Scene, stateRef: State) => {
-	//scene = sceneRef;
 	state = stateRef;
 }
 
 export type TraitId = string & { __traitId: never };
 export type TraitCategory = string & { __traitCategory: never };
 
-const FRONTLINE = 6;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-//const MIDDLELINE = 7;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-//const BACKLINE = 8;
+export const FRONTLINE_CPU = 1;
+export const MIDDLEINE_CPU = 2;
+export const BACKLINE_CPU = 3;
+
+export const FRONTLINE_PLAYER = 6;
+export const MIDDLEINE_PLAYER = 7;
+export const BACKLINE_PLAYER = 8;
+
+export const LINES: {
+	[force: string]: {
+		FRONT: number;
+		MIDDLE: number;
+		BACK: number;
+	}
+} = {
+	[FORCE_ID_PLAYER]: {
+		FRONT: 6,
+		MIDDLE: 7,
+		BACK: 8,
+	},
+	[FORCE_ID_CPU]: {
+		FRONT: 1,
+		MIDDLE: 2,
+		BACK: 3,
+	}
+}
+
+export const isInFrontline = (unit: Unit): boolean => {
+	const frontline = LINES[unit.force].FRONT;
+	return unit.position.y === frontline;
+}
+export const isInMiddleline = (unit: Unit): boolean => {
+	const middleline = LINES[unit.force].MIDDLE;
+	return unit.position.y === middleline;
+}
+export const isInBackline = (unit: Unit): boolean => {
+	const backline = LINES[unit.force].BACK;
+	return unit.position.y === backline;
+}
 
 // Handler type constants
 export const HANDLER_ON_TURN_START = 'onTurnStart' as const;
@@ -82,8 +114,8 @@ const makeTrait = (
 		},
 	});
 
-export const SHY: Trait = makeTrait({
-	id: "shy" as TraitId,
+export const LONE_WOLF: Trait = makeTrait({
+	id: "lone_wolf" as TraitId,
 	name: "Shy",
 	description: "+30 HP when alone in a row",
 	categories: [TRAIT_CATEGORY_DEFENSIVE, TRAIT_CATEGORY_PERSONALITY, TRAIT_CATEGORY_HP],
@@ -108,7 +140,8 @@ export const BRAVE: Trait = makeTrait({
 	categories: [TRAIT_CATEGORY_ATTACK, TRAIT_CATEGORY_PERSONALITY, TRAIT_CATEGORY_OFFENSIVE],
 	events: {
 		onBattleStart: [(unit) => async () => {
-			if (unit.position.x !== FRONTLINE) return;
+			const frontline = LINES[unit.force].FRONT;
+			if (unit.position.y !== frontline) return;
 
 			await popText({ text: "On Battle Start: Brave", targetId: unit.id });
 			await updateUnitAttribute(unit, "attack", 5);
@@ -170,10 +203,6 @@ export const PROTECTOR: Trait = makeTrait({
 });
 
 // Feature	Description
-// Taunt	Units in the same row or in a neighboring row must target this unit first.
-// Protector	Allied units in the same column take 10 less damage from all sources.
-// Sniper	When attacking a target in a different column, deal +10 bonus damage.
-// Berserk	When at ≤ 50% HP, gain +15 Atk for the rest of combat.
 // Splash	40% of this unit’s Atk is dealt as damage to each adjacent enemy when you attack.
 // Stealth	Cannot be targeted by enemy units or abilities until this unit makes its first attack.
 // Assassin	First attack deals double damage, then this unit loses Stealth.
@@ -187,21 +216,15 @@ export const PROTECTOR: Trait = makeTrait({
 export const SNIPER = makeTrait({
 	id: "sniper" as TraitId,
 	name: "Sniper",
-	description: "When attacking a target in a different row, gain +10 attack",
+	description: "When placed in the back row, this unit gains +10 attack",
 	categories: [TRAIT_CATEGORY_OFFENSIVE],
 	events: {
-		onAttackByMe: [(unit, target) => async () => {
-			if (unit.position.y !== target.position.y) {
-				await popText({ text: "On attack: Sniper", targetId: unit.id, speed: 2 });
-				updateUnitAttribute(unit, "attack", 10);
-			}
-		}],
-		onAfterAttackByMe: [(unit, target) => async () => {
-			if (unit.position.y !== target.position.y) {
-				updateUnitAttribute(unit, "attack", -10);
-			}
+		onBattleStart: [unit => async () => {
+			if (!isInBackline(unit)) return;
 
-		}]
+			await popText({ text: "On Battle Start: Sniper", targetId: unit.id, speed: 2 });
+			updateUnitAttribute(unit, "attack", 10);
+		}],
 	}
 });
 
@@ -281,7 +304,7 @@ export const getTrait = () => (id: TraitId): Trait => {
 // Future traits: check docs/traits/md
 
 export const traits: { [id: TraitId]: Trait } = {
-	[SHY.id]: SHY,
+	[LONE_WOLF.id]: LONE_WOLF,
 	[BRAVE.id]: BRAVE,
 	[BATTLE_HUNGER.id]: BATTLE_HUNGER,
 	[SHARP_EYES.id]: SHARP_EYES,
