@@ -22,7 +22,10 @@ export async function physicalAttack(
 	const isCritical = dice <= activeChara.unit.crit;
 
 	const rawDmg = isCritical ? activeChara.unit.attack * 2 : activeChara.unit.attack;
-	const damage = Math.max(1, rawDmg - targetChara.unit.defense);
+	let damage = Math.max(1, rawDmg - targetChara.unit.defense);
+
+	if (activeChara.unit.statuses["double_damage"])
+		damage *= 2;
 
 	await Promise.all(
 		activeChara.unit.events

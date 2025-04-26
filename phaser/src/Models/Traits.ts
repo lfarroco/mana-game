@@ -254,6 +254,21 @@ export const STEALTH = makeTrait({
 	}
 });
 
+export const ASSASSIN = makeTrait({
+	id: "assassin" as TraitId,
+	name: "Assassin",
+	description: "First attack deals double damage",
+	categories: [TRAIT_CATEGORY_OFFENSIVE],
+	events: {
+		onBattleStart: [(unit) => async () => {
+			addStatus(unit, "double_damage", Infinity);
+		}],
+		onAfterAttackByMe: [(unit) => async () => {
+			if (!unit.statuses["double_damage"]) return;
+			endStatus(unit.id, "double_damage");
+		}]
+	}
+});
 
 export const getTrait = () => (id: TraitId): Trait => {
 	const trait = traits[id];
