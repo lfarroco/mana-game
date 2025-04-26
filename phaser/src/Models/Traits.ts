@@ -2,7 +2,7 @@
 // feature like "taunt", "flying", "trample", etc.
 
 import { popText } from "../Systems/Chara/Animations/popText";
-import { updateUnitAttribute } from "../Systems/Chara/Chara";
+import { damageUnit, updateUnitAttribute } from "../Systems/Chara/Chara";
 import { pickRandom } from "../utils";
 import { addStatus, State } from "./State";
 import { Unit } from "./Unit";
@@ -218,6 +218,22 @@ export const BERSERK = makeTrait({
 			await popText({ text: "On Half HP: Berserk", targetId: unit.id, speed: 2 });
 			updateUnitAttribute(unit, "attack", 15);
 			addStatus(unit, "berserk", Infinity);
+		}]
+	}
+});
+
+export const SPLASH = makeTrait({
+	id: "splash" as TraitId,
+	name: "Splash",
+	description: "40% of this unit’s Atk is dealt as damage to each adjacent enemy when you attack.",
+	categories: [TRAIT_CATEGORY_OFFENSIVE],
+	events: {
+		onAttackByMe: [(unit, target, damage, isCritical) => async () => {
+			const neighboringUnits = state.battleData.units
+				.filter(u => u.position.x === target.position.x && u.id !== unit.id);
+			for (const neighboringUnit of neighboringUnits) {
+				await damageUnit(neighboringUnit.id, damage * 0.4, isCritical);
+			}
 		}]
 	}
 });
