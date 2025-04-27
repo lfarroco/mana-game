@@ -21,12 +21,7 @@ export type Unit = {
   evade: number;
 
   // Temporary status effects
-  statuses: {
-    [key: string]: {
-      effect: UnitEvent,
-      duration: number;
-    }
-  };
+  statuses: UnitStatusIndex;
   traits: Trait[];
 
   equip: Item | null;
@@ -34,6 +29,15 @@ export type Unit = {
   log: string[];
   events: UnitEvents
 };
+
+export type UnitStatusIndex = {
+  [key: string]: {
+    effect: UnitEvent,
+    onEnd: UnitEvent,
+    duration: number;
+  }
+}
+
 
 export const makeUnit = (id: string, force: string, jobId: JobId, position: Vec2): Unit => {
 

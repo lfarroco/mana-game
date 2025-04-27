@@ -5,7 +5,7 @@ import { Unit, makeUnit } from "./Unit";
 import { JobId } from "./Job";
 import { getChara } from "../Scenes/Battleground/Systems/UnitManager";
 import { getEmptySlot } from "./Board";
-import { UnitEvent } from "./UnitEvents";
+import { UNIT_EVENT_NO_OP, UnitEvent } from "./UnitEvents";
 
 export const initialState = (): State => ({
   options: {
@@ -106,9 +106,16 @@ export function addUnitToGuild(forceId: string, jobId: JobId) {
   return unit;
 }
 
-export function addStatus(unit: Unit, status: string, duration: number, effect: UnitEvent) {
+export function addStatus(
+  unit: Unit,
+  status: string,
+  duration: number = Infinity,
+  effect: UnitEvent = UNIT_EVENT_NO_OP,
+  onEnd: UnitEvent = UNIT_EVENT_NO_OP,
+) {
   unit.statuses[status] = {
     effect,
+    onEnd,
     duration
   }
 }
@@ -121,15 +128,4 @@ export function endStatus(unitId: string, status: string) {
 
   delete chara.unit.statuses[status];
 
-}
-
-export function decreaseStatusesDuration(state: State) {
-  state.battleData.units.forEach((u) => {
-    Object.keys(u.statuses).forEach((status) => {
-      u.statuses[status].duration -= 1;
-      if (u.statuses[status].duration == 0) {
-        endStatus(u.id, status);
-      }
-    });
-  });
 }
