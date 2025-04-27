@@ -390,6 +390,10 @@ export async function killUnit(chara: Chara) {
 	chara.container.destroy(true);
 
 	ItemDrop.dropItem(chara);
+
+	for (const ev of chara.unit.events.onDeath)
+		await ev(chara.unit)()
+
 }
 
 // Function to update an attributattribute, not applying it (not apply damage of heal)

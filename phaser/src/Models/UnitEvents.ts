@@ -24,7 +24,7 @@ export type UnitEvents = {
 	onUnitKill: UnitEventWithTarget[];
 	onAlliedKilled: UnitEventWithTarget[];
 	onEnemyKilled: UnitEventWithTarget[];
-	onSelfEliminated: UnitEventWithTarget[];
+	onDeath: UnitEvent[];
 	onLeavePosition: UnitEvent[];
 	onEnterPosition: UnitEvent[];
 };
@@ -45,7 +45,7 @@ export const UNIT_EVENTS: readonly (keyof UnitEvents)[] = [
 	"onUnitKill",
 	"onAlliedKilled",
 	"onEnemyKilled",
-	"onSelfEliminated",
+	"onDeath",
 	"onEnterPosition",
 	"onLeavePosition"
 ] as const;

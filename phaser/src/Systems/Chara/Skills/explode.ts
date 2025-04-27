@@ -30,7 +30,7 @@ export const explode = (
 	const enemies = getUnitsByProximity(state, unit, true, 2)
 	const allies = getUnitsByProximity(state, unit, false, 2)
 
-	killUnit(activeChara);
+	await killUnit(activeChara);
 
 	[...enemies, ...allies].forEach(target => {
 		damageUnit(target.id, skill.power / 2);

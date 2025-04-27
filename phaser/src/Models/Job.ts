@@ -39,21 +39,17 @@ export const RED_BLOB = "red_blob" as JobId;
 export const BLOB_KING = "blob_king" as JobId;
 export const BLOB_MAGE = "blob_mage" as JobId;
 export const BLOB_KNIGHT = "blob_knight" as JobId;
-export const SHADOW_BLOB = "shadow_blob" as JobId;
-export const SHADOW_GHOST = "shadow_ghost" as JobId;
-export const SWARMLING = "swarmling" as JobId;
+export const TINY_BLOB = "tiny_blob" as JobId;
 
 const monsters = `
-Job             | Name         | HP  | ATK  | DEF | AGI | Skill
+Job             | Name         | HP  | ATK  | DEF | AGI | Skill                | Traits
 ----------------|--------------|-----|------|-----|-----|--------------------------------------
-${BLOB}         | Blob         | 40  | 20   | 0   | 10  | ${s.SLASH}
-${RED_BLOB}     | Red Blob     | 40  | 20   | 0   | 10  | ${s.EXPLODE}
-${BLOB_KING}    | Blob King    | 500 | 50   | 3   | 10  | ${s.SLASH}
-${BLOB_MAGE}    | Blob Mage    | 90  | 15   | 0   | 8   | ${s.ARCANE_MISSILES}
-${BLOB_KNIGHT}  | Blob Knight  | 400 | 25   | 8   | 6   | ${s.SLASH}
-${SHADOW_BLOB}  | Shadow Blob  | 900 | 25   | 10  | 6   | ${s.SUMMON_BLOB}
-${SHADOW_GHOST} | Shadow Ghost | 90  | 40   | 0   | 18  | ${s.SLASH}
-${SWARMLING}    | Shadowling   | 120 | 30   | 0   | 20  | ${s.SLASH}
+${BLOB}         | Blob         | 40  | 20   | 0   | 10  | ${s.SLASH}           | ${t.SPLIT_BLOB.id}
+${RED_BLOB}     | Red Blob     | 40  | 20   | 0   | 10  | ${s.EXPLODE}         | ${t.BURN.id}, ${t.SPLIT_BLOB.id}
+${BLOB_KING}    | Blob King    | 500 | 50   | 3   | 10  | ${s.SLASH}           | ${t.SPLIT_BLOB.id}
+${BLOB_MAGE}    | Blob Mage    | 90  | 15   | 0   | 8   | ${s.ARCANE_MISSILES} | ${t.SPLIT_BLOB.id}
+${BLOB_KNIGHT}  | Blob Knight  | 400 | 25   | 8   | 6   | ${s.SLASH}           | ${t.TAUNT.id}
+${TINY_BLOB}     | Tiny Blob   | 20  | 10   | 0   | 10  | ${s.SLASH}           |
 `
 
 function parseJobsTable(table: string) {
@@ -78,7 +74,7 @@ function parseJobsTable(table: string) {
       defense: parseInt(d["DEF"]),
       agility: parseInt(d["AGI"]),
       skill: d["Skill"] as s.SkillId,
-      traits: d["Traits"]?.split(",").map((t) => t.trim() as t.TraitId) || [],
+      traits: d["Traits"]?.split(",").map((t) => t.trim() as t.TraitId).filter(t => t) || [],
     } as Job;
   })
 }
@@ -96,9 +92,6 @@ ${RED_BLOB}   | A basic enemy that can explode
 ${BLOB_KING}  | A boss enemy that can summon other blobs
 ${BLOB_MAGE}  | A mage enemy that can deal high damage
 ${BLOB_KNIGHT}| A tank enemy that can deal damage
-${SHADOW_BLOB}| A shadow enemy that can summon other blobs
-${SHADOW_GHOST}| A shadow enemy that can teleport
-${SWARMLING}  | A shadow enemy that can deal damage
 `;
 
 
