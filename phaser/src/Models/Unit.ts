@@ -2,7 +2,7 @@ import { asVec2, Vec2 } from "./Geometry";
 import { Item } from "./Item";
 import { getJob, JobId } from "./Job";
 import { getTrait, Trait } from "./Traits";
-import { UnitEvents, UNIT_EVENTS } from "./UnitEvents";
+import { UnitEvent, UnitEvents, UNIT_EVENTS } from "./UnitEvents";
 
 export type Unit = {
   id: string;
@@ -20,7 +20,13 @@ export type Unit = {
   crit: number;
   evade: number;
 
-  statuses: { [key: string]: number };
+  // Temporary status effects
+  statuses: {
+    [key: string]: {
+      effect: UnitEvent,
+      duration: number;
+    }
+  };
   traits: Trait[];
 
   equip: Item | null;

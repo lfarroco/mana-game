@@ -8,6 +8,8 @@ export type UnitEvent = ((u: Unit) => IO);
 type UnitEventWithTarget = ((u: Unit, target: Unit) => IO);
 type AttackEvent = ((u: Unit, target: Unit, damage: number, isCritical: boolean, evaded: boolean) => IO);
 
+export const UNIT_EVENT_NO_OP: UnitEvent = () => async () => { };
+
 export type UnitEvents = {
 	onTurnStart: UnitEvent[];
 	onTurnEnd: UnitEvent[];

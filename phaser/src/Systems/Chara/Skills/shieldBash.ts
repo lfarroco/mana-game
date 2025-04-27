@@ -6,8 +6,10 @@ import { approach } from "../approach";
 import { specialAnimation } from "../Animations/specialAnimation";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
 import { Chara, damageUnit } from "../Chara";
-import { addStatus } from "../../../Models/State";
 
+
+// TODO: skill not being used anymore
+// need to reimplment stun status and effect
 export async function shieldBash(activeChara: Chara) {
 
 	const { unit } = activeChara;
@@ -28,14 +30,6 @@ export async function shieldBash(activeChara: Chara) {
 	await animation.shieldBash(activeChara, targetChara)
 
 	await damageUnit(targetChara.id, unit.attack);
-
-	if (targetChara.unit.hp > 0) {
-
-		// TODO: make particle part of the chara
-		// only "poison cloud" type particles should be bg-bound
-		UnitManager.createParticle(target.id, "stun")
-		addStatus(targetChara.unit, "stun", 1);
-	}
 
 	return true;
 

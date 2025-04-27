@@ -5,6 +5,7 @@ import { Unit, makeUnit } from "./Unit";
 import { JobId } from "./Job";
 import { getChara } from "../Scenes/Battleground/Systems/UnitManager";
 import { getEmptySlot } from "./Board";
+import { UnitEvent } from "./UnitEvents";
 
 export const initialState = (): State => ({
   options: {
@@ -105,10 +106,14 @@ export function addUnitToGuild(forceId: string, jobId: JobId) {
   return unit;
 }
 
-export function addStatus(unit: Unit, status: string, duration: number) {
-  unit.statuses[status] = duration;
-
+export function addStatus(unit: Unit, status: string, duration: number, effect: UnitEvent) {
+  unit.statuses[status] = {
+    effect,
+    duration
+  }
 }
+
+// TODO: add "on status removed" to unit events
 export function endStatus(unitId: string, status: string) {
   const chara = getChara(unitId);
 
@@ -117,14 +122,14 @@ export function endStatus(unitId: string, status: string) {
   delete chara.unit.statuses[status];
 
 }
-export function updateStatuses(state: State) {
+
+export function decreaseStatusesDuration(state: State) {
   state.battleData.units.forEach((u) => {
     Object.keys(u.statuses).forEach((status) => {
-      u.statuses[status] -= 1;
-      if (u.statuses[status] < 0) {
+      u.statuses[status].duration -= 1;
+      if (u.statuses[status].duration == 0) {
         endStatus(u.id, status);
       }
     });
   });
-
 }
