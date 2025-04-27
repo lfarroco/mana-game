@@ -19,6 +19,9 @@ export async function physicalAttack(
 	});
 
 	const dice = Math.floor(Math.random() * 100);
+
+	const evaded = dice <= targetChara.unit.evade;
+
 	const isCritical = dice <= activeChara.unit.crit;
 
 	const rawDmg = isCritical ? activeChara.unit.attack * 2 : activeChara.unit.attack;
@@ -30,7 +33,7 @@ export async function physicalAttack(
 	await Promise.all(
 		activeChara.unit.events
 			.onAttackByMe
-			.map(fn => fn(activeChara.unit, targetChara.unit, damage, isCritical)())
+			.map(fn => fn(activeChara.unit, targetChara.unit, damage, isCritical, evaded)())
 	);
 
 	await Promise.all(
@@ -38,11 +41,17 @@ export async function physicalAttack(
 			.onDefendByMe.map(fn => fn(activeChara.unit, targetChara.unit)())
 	);
 
-	await damageUnit(targetChara.id, damage, isCritical);
+	if (evaded) {
+		await targetChara.unit.events.onEvadeByMe
+			.map(fn => fn(targetChara.unit, activeChara.unit)());
+	} else {
+
+		await damageUnit(targetChara.id, damage, isCritical);
+	}
 
 	await Promise.all(
 		activeChara.unit.events
-			.onAfterAttackByMe.map(fn => fn(activeChara.unit, targetChara.unit)())
+			.onAfterAttackByMe.map(fn => fn(activeChara.unit, targetChara.unit, damage, isCritical, evaded)())
 	);
 
 	await delay(scene, 300 / speed);

@@ -27,7 +27,7 @@ const STARTER_JOBS = [ARCHER, ACOLYTE, APPRENTICE, KNIGHT, THIEF];
 const baseJobs = `
 Job           | Name        | HP  | ATK  | DEF | AGI | Skill                | Traits
 --------------|-------------|-----|------|-----|-----|--------------------------------------
-${ARCHER}     | Archer      | 100 | 20   | 3   | 12  | ${s.SHOOT}           | ${t.LONE_WOLF.id}
+${ARCHER}     | Archer      | 100 | 20   | 3   | 12  | ${s.SHOOT}           | ${t.SNIPER.id}
 ${ACOLYTE}    | Acolyte     | 80  | 10   | 0   | 6   | ${s.HEALING_WAVE}    | ${t.LONE_WOLF.id}
 ${APPRENTICE} | Apprentice  | 80  | 30   | 0   | 8   | ${s.ARCANE_MISSILES} | ${t.LONE_WOLF.id}
 ${KNIGHT}     | Knight      | 300 | 20   | 5   | 10  | ${s.SLASH}           | ${t.BRAVE.id}

@@ -6,7 +6,7 @@ import { Unit } from "./Unit";
 export type IO = () => Promise<void>;
 export type UnitEvent = ((u: Unit) => IO);
 type UnitEventWithTarget = ((u: Unit, target: Unit) => IO);
-type AttackEvent = ((u: Unit, target: Unit, damage: number, isCritical: boolean) => IO);
+type AttackEvent = ((u: Unit, target: Unit, damage: number, isCritical: boolean, evaded: boolean) => IO);
 
 export type UnitEvents = {
 	onTurnStart: UnitEvent[];
@@ -15,7 +15,8 @@ export type UnitEvents = {
 	onBattleEnd: UnitEvent[];
 	onHalfHP: UnitEvent[];
 	onAttackByMe: AttackEvent[];
-	onAfterAttackByMe: UnitEventWithTarget[];
+	onEvadeByMe: UnitEventWithTarget[];
+	onAfterAttackByMe: AttackEvent[];
 	onDefendByMe: UnitEventWithTarget[];
 	onUnitKillByMe: UnitEventWithTarget[];
 	onUnitKill: UnitEventWithTarget[];
@@ -32,6 +33,7 @@ export const UNIT_EVENTS: readonly (keyof UnitEvents)[] = [
 	"onBattleStart",
 	"onBattleEnd",
 	"onHalfHP",
+	"onEvadeByMe",
 	"onAttackByMe",
 	"onAfterAttackByMe",
 	"onDefendByMe",
