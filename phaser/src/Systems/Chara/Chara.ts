@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { Unit } from "../../Models/Unit";
 import * as bgConstants from "../../Scenes/Battleground/constants";
-import { asVec2, eqVec2, vec2 } from "../../Models/Geometry";
+import { eqVec2, vec2 } from "../../Models/Geometry";
 import { tween } from "../../Utils/animation";
 import { playerForce } from "../../Models/Force";
 import { FORCE_ID_PLAYER } from "../../Scenes/Battleground/constants";
@@ -160,6 +160,11 @@ export const addBoardEvents = (chara: Chara) => {
 
 		if (zone.name !== "board") return;
 
+		// The board will change: remove position bonuses for all units
+		state.gameData.player.units.forEach((unit) => {
+			unit.events.onLeavePosition.forEach(fn => fn(unit)());
+		});
+
 		const tile = GridSystem.getTileAt(pointer)!;
 
 		const charaUnit = state.gameData.player.units.find(u => u.id === chara.id)!;
@@ -171,7 +176,7 @@ export const addBoardEvents = (chara: Chara) => {
 		if (maybeOccupier) {
 			const occupierChara = UnitManager.getChara(maybeOccupier.id);
 
-			maybeOccupier.position = asVec2(charaUnit.position);
+			charaUnit.position = position;
 
 			tween({
 				targets: [occupierChara.container],
@@ -183,6 +188,11 @@ export const addBoardEvents = (chara: Chara) => {
 		}
 
 		charaUnit.position = position;
+
+		// The board has changed: calculate position bonuses for all units
+		state.gameData.player.units.forEach((unit) => {
+			unit.events.onEnterPosition.forEach(fn => fn(unit)());
+		});
 
 		tween({
 			targets: [chara.container],
