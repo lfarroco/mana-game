@@ -1,6 +1,5 @@
 import { vignette } from "./Animations/vignette";
 import BattlegroundScene from "./BattlegroundScene";
-import { waves } from "./enemyWaves";
 import * as UIManager from "./Systems/UIManager";
 import * as UnitManager from "./Systems/UnitManager";
 
@@ -19,7 +18,7 @@ export async function refreshScene(scene: BattlegroundScene) {
 
 	scene.state.gameData.player.units.forEach(u => UnitManager.summonChara(u));
 
-	const isGameOver = scene.state.gameData.hour > Object.keys(waves).length;
+	const isGameOver = scene.state.gameData.day > 10;
 
 	if (isGameOver) {
 		await vignette(scene, "Victory! Thanks for Playing!");

@@ -8,25 +8,28 @@ import { BattlegroundScene } from "../BattlegroundScene";
 
 let scene: BattlegroundScene;
 
-type State = {
-	charas: Chara.Chara[]
+type UnitManagerState = {
+	charaIndex: Chara.Chara[]
 }
 
-export const state: State = {
-	charas: [],
+export const unitManagerState: UnitManagerState = {
+	charaIndex: [],
 }
 
 export function clearCharas() {
-	state.charas.forEach(chara => {
+	unitManagerState.charaIndex.forEach(chara => {
 		chara.container.destroy();
 	});
-	state.charas = [];
+	unitManagerState.charaIndex = [];
 }
+
 export function destroyChara(id: string) {
-	const chara = state.charas.find(chara => chara.id === id);
+	const chara = unitManagerState.charaIndex.find(chara => chara.id === id);
+
+	debugger;
 	if (chara) {
 		chara.container.destroy();
-		state.charas = state.charas.filter(c => c.id !== id);
+		unitManagerState.charaIndex = unitManagerState.charaIndex.filter(c => c.id !== id);
 	}
 }
 
@@ -62,7 +65,7 @@ export async function summonChara(unit: Unit, useSummonEffect = true, fadeIn = t
 }
 
 export function addCharaToState(chara: Chara.Chara) {
-	state.charas.push(chara);
+	unitManagerState.charaIndex.push(chara);
 }
 
 export function getCharaPosition(unit: Unit) {
@@ -73,11 +76,11 @@ export function getCharaPosition(unit: Unit) {
 }
 
 export function getChara(id: string) {
-	return state.charas.find((chara) => chara.id === id)!;
+	return unitManagerState.charaIndex.find((chara) => chara.id === id)!;
 }
 
 export function getCharaAt(vec: Vec2) {
-	return state.charas
+	return unitManagerState.charaIndex
 		.filter(chara => chara.unit.hp > 0)
 		.find((chara) => eqVec2(chara.unit.position, vec));
 }
@@ -113,7 +116,7 @@ export function createParticle(id: string, status: string) {
 
 // return any chara that contains the vec
 export const overlap = (vec: { x: number, y: number }) => {
-	return state.charas.find(chara => {
+	return unitManagerState.charaIndex.find(chara => {
 		return Phaser.Geom.Intersects.RectangleToRectangle(
 			new Phaser.Geom.Rectangle(
 				chara.container.x - constants.HALF_TILE_WIDTH,
