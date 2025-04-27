@@ -1,28 +1,31 @@
 /**
- * Parses a string containing special [word=color] syntax into an array of text chunks.
+ * Creates an array of Phaser Text objects with styled segments based on input string.
+ * Supports custom styling by using syntax: [text=color] to color specific words.
  * 
- * Each chunk is an object with the text content and a color.
+ * @param scene - The Phaser scene to add the text objects to
+ * @param config - Optional text style configuration to apply to all text segments
+ * @param input - The input string to parse and style, can contain [word=color] syntax
  * 
- * If no color is specified, the chunk defaults to `"default"`.
- * 
- * @param {string} input - The input string to parse.
- * @returns {{ text: string, color: string }[]} Array of parsed text chunks.
+ * @returns An array of Phaser.GameObjects.Text objects representing the styled segments
  * 
  * @example
- * const input = "When you [crit=red], [heal=green] 10 hp";
- * const parsed = parseText(input);
- * console.log(parsed);
- * // Output:
- * // [
- * //   { text: "When you ", color: "default" },
- * //   { text: "crit", color: "red" },
- * //   { text: ", ", color: "default" },
- * //   { text: "heal", color: "green" },
- * //   { text: " 10 hp", color: "default" }
- * // ]
+ * // Creates text with the word "health" colored in red
+ * const textSegments = styledText(scene, { fontSize: '24px' }, "Your [health=red] is low");
+ * 
+ * // The returned segments can be iterated over or added to a container
+ * 
+ * // Positionining the text segments in a row
+ * let xPos = 100;
+ * textSegments.forEach(segment => {
+ *   segment.setPosition(xPos, 200);
+ *   xPos += segment.width;
+ * });
  */
-function parseText(input: string) {
-	const result = [];
+import { defaultTextConfig } from "../Scenes/Battleground/constants";
+
+
+export function styledText(scene: Phaser.Scene, config: Phaser.Types.GameObjects.Text.TextStyle = {}, input: string = "") {
+	const result: Phaser.GameObjects.Text[] = [];
 	let i = 0;
 	let currentText = '';
 
@@ -30,7 +33,8 @@ function parseText(input: string) {
 		if (input[i] === '[') {
 			// Push any normal text collected so far
 			if (currentText) {
-				result.push({ text: currentText, color: 'default' });
+				const segment = scene.add.text(0, 0, currentText, { ...defaultTextConfig, ...config });
+				result.push(segment);
 				currentText = '';
 			}
 
@@ -45,7 +49,9 @@ function parseText(input: string) {
 
 			const content = input.substring(i + 1, endBracket);
 			const [word, color] = content.split('=');
-			result.push({ text: word, color: color || 'default' });
+
+			const segment = scene.add.text(0, 0, word, { ...defaultTextConfig, ...config, color });
+			result.push(segment);
 
 			i = endBracket + 1;
 		} else {
@@ -56,7 +62,8 @@ function parseText(input: string) {
 
 	// Push any leftover text
 	if (currentText) {
-		result.push({ text: currentText, color: 'default' });
+		const segment = scene.add.text(0, 0, currentText, { ...defaultTextConfig, ...config });
+		result.push(segment);
 	}
 
 	return result;
