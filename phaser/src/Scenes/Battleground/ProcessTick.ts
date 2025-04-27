@@ -1,5 +1,5 @@
 import { BattlegroundScene } from "./BattlegroundScene";
-import { getActiveUnits, getState, decreaseStatusesDuration } from "../../Models/State";
+import { getActiveUnits, getState, } from "../../Models/State";
 import { delay } from "../../Utils/animation";
 import { updatePlayerGoldIO } from "../../Models/Force";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "./constants";
@@ -9,7 +9,6 @@ import { performAction } from "./performAction";
 import { showGrid } from "./Systems/GridSystem";
 import { refreshScene } from "./EventHandlers";
 
-
 const processTick = async (scene: BattlegroundScene) => {
   const state = getState();
   const { player } = state.gameData;
@@ -17,7 +16,6 @@ const processTick = async (scene: BattlegroundScene) => {
   let continueProcessing = true;
 
   while (continueProcessing) {
-    decreaseStatusesDuration(state);
 
     const activeUnits = getActiveUnits(state);
 
@@ -53,6 +51,25 @@ const processTick = async (scene: BattlegroundScene) => {
         continueProcessing = false;
         break;
       }
+    }
+
+    //run end of turn effects
+    for (const unit of activeUnits) {
+      if (unit.hp <= 0) continue;
+
+      for (const effect of unit.events.onTurnEnd) {
+        await effect(unit)();
+      }
+
+      for (const [key, status] of Object.entries(unit.statuses)) {
+        if (status.duration > 0) {
+          status.duration--;
+          await status.effect(unit)();
+        } else {
+          delete unit.statuses[key];
+        }
+      }
+
     }
 
     if (continueProcessing) {

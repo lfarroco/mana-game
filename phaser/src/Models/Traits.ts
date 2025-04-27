@@ -7,7 +7,7 @@ import { pickRandom } from "../utils";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../Scenes/Battleground/constants";
 import { addStatus, endStatus, State } from "./State";
 import { Unit } from "./Unit";
-import { UNIT_EVENT_NO_OP, UNIT_EVENTS, UnitEvents } from "./UnitEvents";
+import { UNIT_EVENTS, UnitEvents } from "./UnitEvents";
 
 let state: State;
 
@@ -225,17 +225,6 @@ export const PROTECTOR: Trait = makeTrait({
 	}
 });
 
-// Feature	Description
-// Splash	40% of this unit’s Atk is dealt as damage to each adjacent enemy when you attack.
-// Stealth	Cannot be targeted by enemy units or abilities until this unit makes its first attack.
-// Assassin	First attack deals double damage, then this unit loses Stealth.
-// Rally	At the start of combat, grants +5 Atk to all allied units in the same row.
-// Heal	At the end of each turn, heals 20 HP to each adjacent allied unit.
-// AoE	At the end of each turn, deals 15 damage to all enemy units.
-// Guard	When attacked, reduces incoming damage by 10 (after all other modifiers).
-// Flex	At the start of combat, may swap positions with any allied unit in an adjacent column.
-// Last Stand	Upon death, deals 50% of this unit’s Atk as damage to all adjacent enemies.
-
 export const SNIPER = makeTrait({
 	id: "sniper" as TraitId,
 	name: "Sniper",
@@ -268,7 +257,7 @@ export const BERSERK = makeTrait({
 			if (hasBerserk) return;
 			await popText({ text: "On Half HP: Berserk", targetId: unit.id, speed: 2 });
 			updateUnitAttribute(unit, "attack", 15);
-			addStatus(unit, "berserk", Infinity, UNIT_EVENT_NO_OP);
+			addStatus(unit, "berserk");
 		}]
 	}
 });
@@ -313,7 +302,7 @@ export const ASSASSIN = makeTrait({
 	categories: [TRAIT_CATEGORY_OFFENSIVE],
 	events: {
 		onBattleStart: [(unit) => async () => {
-			addStatus(unit, "double_damage", Infinity, UNIT_EVENT_NO_OP);
+			addStatus(unit, "double_damage");
 		}],
 		onAfterAttackByMe: [(unit) => async () => {
 			if (!unit.statuses["double_damage"]) return;

@@ -28,6 +28,8 @@ export type UnitEvents = {
 	onLeavePosition: UnitEvent[];
 	onEnterPosition: UnitEvent[];
 };
+// TODO: add onDamageCalculation, onDodgeCalculation, onCriticalHitCalculation, onAttackCalculation
+// This allows adding buffs/debuffs to damage, dodge, critical hit and attack
 
 export const UNIT_EVENTS: readonly (keyof UnitEvents)[] = [
 	"onTurnStart",
