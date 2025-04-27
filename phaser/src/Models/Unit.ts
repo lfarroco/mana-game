@@ -18,6 +18,7 @@ export type Unit = {
   defense: number;
   agility: number;
   crit: number;
+  evade: number;
 
   statuses: { [key: string]: number };
   traits: Trait[];
@@ -40,6 +41,7 @@ export const makeUnit = (id: string, force: string, jobId: JobId, position: Vec2
     position: asVec2(position),
     maxHp: job.hp,
     crit: job.agility * 1.5,
+    evade: 0,
     equip: null,
     log: [],
     statuses: {},

@@ -2,7 +2,7 @@
 // feature like "taunt", "flying", "trample", etc.
 
 import { popText } from "../Systems/Chara/Animations/popText";
-import { damageUnit, updateUnitAttribute } from "../Systems/Chara/Chara";
+import { damageUnit, healUnit, updateUnitAttribute } from "../Systems/Chara/Chara";
 import { pickRandom } from "../utils";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../Scenes/Battleground/constants";
 import { addStatus, endStatus, State } from "./State";
@@ -108,7 +108,7 @@ const makeTrait = (
 
 export const LONE_WOLF: Trait = makeTrait({
 	id: "lone_wolf" as TraitId,
-	name: "Shy",
+	name: "Lone Wolf",
 	description: "+30 HP when alone in a row",
 	categories: [TRAIT_CATEGORY_DEFENSIVE, TRAIT_CATEGORY_PERSONALITY, TRAIT_CATEGORY_HP],
 	events: {
@@ -322,6 +322,90 @@ export const ASSASSIN = makeTrait({
 	}
 });
 
+export const RALLY = makeTrait({
+	id: "rally" as TraitId,
+	name: "Rally",
+	description: "At the start of combat, grants +5 Atk to all allied units in the same column.",
+	categories: [TRAIT_CATEGORY_OFFENSIVE],
+	events: {
+		onBattleStart: [(unit) => async () => {
+			const neighboringUnits = getColumnNeighbors(unit);
+			for (const neighboringUnit of neighboringUnits) {
+				await popText({ text: "+Rally", targetId: neighboringUnit.id, speed: 2 });
+				updateUnitAttribute(neighboringUnit, "attack", 5);
+			}
+		}]
+	}
+});
+
+export const EVADE = makeTrait({
+	id: "evade" as TraitId,
+	name: "Evade",
+	description: "Adds a 20% chance to dodge an attack",
+	categories: [TRAIT_CATEGORY_DEFENSIVE],
+	events: {
+		onBattleStart: [(unit) => async () => {
+			updateUnitAttribute(unit, "evade", 20);
+		}]
+	}
+});
+
+export const CURSE = makeTrait({
+	id: "curse" as TraitId,
+	name: "Curse",
+	description: "Reduces the target's damage by 5 on each attack",
+	categories: [TRAIT_CATEGORY_DEFENSIVE],
+	events: {
+		onAfterAttackByMe: [(_unit, target, _damage, _critical, evaded) => async () => {
+			if (evaded) return;
+
+			await popText({ text: "Curse", targetId: target.id, speed: 2 });
+			updateUnitAttribute(target, "attack", -5);
+		}]
+	}
+});
+
+export const LIFESTEAL = makeTrait({
+	id: "lifesteal" as TraitId,
+	name: "Lifesteal",
+	description: "Heals 50% of the damage dealt",
+	categories: [TRAIT_CATEGORY_DEFENSIVE],
+	events: {
+		onAfterAttackByMe: [(unit, _target, damage, _critical, evaded) => async () => {
+			if (evaded) return;
+			await popText({ text: "Lifesteal", targetId: unit.id, speed: 2 });
+			healUnit(unit, damage * 0.5);
+		}]
+	}
+});
+
+export const LACERATE = makeTrait({
+	id: "lacerate" as TraitId,
+	name: "Lacerate",
+	description: "For 2 turns: deals 10 damage to the target at the end of each turn",
+	categories: [TRAIT_CATEGORY_OFFENSIVE],
+	events: {
+		onAfterAttackByMe: [(_unit, target) => async () => {
+			// TODO: implement status
+			await popText({ text: "Lacerate", targetId: target.id, speed: 2 });
+			addStatus(target, "lacerate", 2);
+		}]
+	}
+});
+
+export const REGENERATE = makeTrait({
+	id: "regenerate" as TraitId,
+	name: "Regenerate",
+	description: "Heals 15 HP at the end of each turn",
+	categories: [TRAIT_CATEGORY_DEFENSIVE],
+	events: {
+		onTurnEnd: [(unit) => async () => {
+			await popText({ text: "Regenerate", targetId: unit.id, speed: 2 });
+			healUnit(unit, 15);
+		}]
+	}
+});
+
 export const getTrait = () => (id: TraitId): Trait => {
 	const trait = traits[id];
 	if (!trait) {
@@ -339,6 +423,11 @@ export const traits: { [id: TraitId]: Trait } = {
 	[SHARP_EYES.id]: SHARP_EYES,
 	[TAUNT.id]: TAUNT,
 	[PROTECTOR.id]: PROTECTOR,
+	[SNIPER.id]: SNIPER,
+	[BERSERK.id]: BERSERK,
+	[SPLASH.id]: SPLASH,
+	[STEALTH.id]: STEALTH,
+	[ASSASSIN.id]: ASSASSIN,
 };
 
 export const randomCategoryTrait = (category: TraitCategory): Trait => {
@@ -348,6 +437,11 @@ export const randomCategoryTrait = (category: TraitCategory): Trait => {
 	}
 	const [randomTrait] = pickRandom(traitsInCategory, 1)
 	return randomTrait;
+}
+
+function getColumnNeighbors(unit: Unit) {
+	return state.battleData.units
+		.filter(u => u.position.x === unit.position.x && u.id !== unit.id);
 }
 
 export function addUnitTrait(trait: Trait, unit: Unit) {
