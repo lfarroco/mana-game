@@ -231,15 +231,12 @@ const pickUnit = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 					continue;
 				};
 
-				tween({
+				await tween({
 					targets: [c.container],
 					x: -100,
-					duration: 500,
-					ease: "Power2",
-					onComplete: () => {
-						UnitManager.destroyChara(c.id);
-					}
 				})
+
+				UnitManager.destroyChara(c.id);
 
 			}
 
