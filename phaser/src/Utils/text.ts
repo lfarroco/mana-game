@@ -66,5 +66,17 @@ export function styledText(scene: Phaser.Scene, config: Phaser.Types.GameObjects
 		result.push(segment);
 	}
 
+	result.forEach((segment, index) => {
+		// make each segment start at the end of the previous one
+		if (index > 0) {
+			const prevSegment = result[index - 1];
+			segment.setPosition(prevSegment.x + prevSegment.width, prevSegment.y);
+		} else {
+			// First segment starts at (0, 0)
+			segment.setPosition(0, 0);
+		}
+	});
+
+
 	return result;
 }
