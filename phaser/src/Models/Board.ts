@@ -96,3 +96,9 @@ export function getRangedTarget(state: State, unit: Unit): Unit {
 	return pickOne(enemies);
 
 }
+
+export function getColumnNeighbors(state: State, unit: Unit) {
+	return state.battleData.units
+		.filter(u => u.position.x === unit.position.x && u.id !== unit.id);
+}
+

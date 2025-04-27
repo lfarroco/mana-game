@@ -12,6 +12,7 @@ import { summonChara } from "../Scenes/Battleground/Systems/UnitManager";
 import { v4 } from "uuid";
 import { TINY_BLOB } from "./Job";
 import { asVec2 } from "./Geometry";
+import { getColumnNeighbors } from "./Board";
 
 let state: State;
 
@@ -322,7 +323,7 @@ export const RALLY = makeTrait({
 	categories: [TRAIT_CATEGORY_OFFENSIVE],
 	events: {
 		onBattleStart: [(unit) => async () => {
-			const neighboringUnits = getColumnNeighbors(unit);
+			const neighboringUnits = getColumnNeighbors(state, unit)
 			for (const neighboringUnit of neighboringUnits) {
 				await popText({ text: "+Rally", targetId: neighboringUnit.id, speed: 2 });
 				updateUnitAttribute(neighboringUnit, "attack", 5);
@@ -499,11 +500,6 @@ export const randomCategoryTrait = (category: TraitCategory): Trait => {
 	}
 	const [randomTrait] = pickRandom(traitsInCategory, 1)
 	return randomTrait;
-}
-
-function getColumnNeighbors(unit: Unit) {
-	return state.battleData.units
-		.filter(u => u.position.x === unit.position.x && u.id !== unit.id);
 }
 
 export function addUnitTrait(trait: Trait, unit: Unit) {
