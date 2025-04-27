@@ -1,15 +1,14 @@
-import { waves } from "../enemyWaves";
 import { BattlegroundScene } from "../BattlegroundScene";
 import * as UnitManager from "./UnitManager";
 import processTick from "../ProcessTick";
+import { Unit } from "../../../Models/Unit";
 
 export let scene: BattlegroundScene;
 
 export function init(sceneRef: BattlegroundScene) {
 	scene = sceneRef;
 }
-export async function createWave(id: number) {
-	const enemies = waves[id];
+export async function createWave(enemies: Unit[]) {
 
 	UnitManager.clearCharas();
 
