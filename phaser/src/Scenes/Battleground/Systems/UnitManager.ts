@@ -26,7 +26,6 @@ export function clearCharas() {
 export function destroyChara(id: string) {
 	const chara = unitManagerState.charaIndex.find(chara => chara.id === id);
 
-	debugger;
 	if (chara) {
 		chara.container.destroy();
 		unitManagerState.charaIndex = unitManagerState.charaIndex.filter(c => c.id !== id);

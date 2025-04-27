@@ -48,9 +48,9 @@ export const parseEncounter = (template: string, charToJob: Record<string, JobId
 }
 
 export const ENCOUNTER_BLOBS = parseEncounter(`
-x21
-xx1
-x21
+xxx
+2x1
+xxx
 `, { '1': BLOB, '2': RED_BLOB });
 
 console.log(">>>", ENCOUNTER_BLOBS)

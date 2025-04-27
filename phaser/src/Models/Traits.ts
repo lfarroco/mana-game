@@ -6,8 +6,12 @@ import { damageUnit, healUnit, updateUnitAttribute } from "../Systems/Chara/Char
 import { pickRandom } from "../utils";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../Scenes/Battleground/constants";
 import { addStatus, endStatus, State } from "./State";
-import { Unit } from "./Unit";
+import { makeUnit, Unit } from "./Unit";
 import { UNIT_EVENTS, UnitEvents } from "./UnitEvents";
+import { summonChara } from "../Scenes/Battleground/Systems/UnitManager";
+import { v4 } from "uuid";
+import { TINY_BLOB } from "./Job";
+import { asVec2 } from "./Geometry";
 
 let state: State;
 
@@ -385,6 +389,23 @@ export const LACERATE = makeTrait({
 	}
 });
 
+export const BURN = makeTrait({
+	id: "burn" as TraitId,
+	name: "Burn",
+	description: "For 2 turns: deals 5 damage to the target at the end of each turn",
+	categories: [TRAIT_CATEGORY_OFFENSIVE],
+	events: {
+		onAfterAttackByMe: [(_unit, target) => async () => {
+			// TODO: implement status
+			await popText({ text: "Burn", targetId: target.id, speed: 2 });
+			addStatus(target, "burn", 2, u => async () => {
+				await popText({ text: "Burn", targetId: u.id, speed: 2 });
+				damageUnit(u.id, 5);
+			});
+		}]
+	}
+});
+
 export const REGENERATE = makeTrait({
 	id: "regenerate" as TraitId,
 	name: "Regenerate",
@@ -394,6 +415,47 @@ export const REGENERATE = makeTrait({
 		onTurnEnd: [(unit) => async () => {
 			await popText({ text: "Regenerate", targetId: unit.id, speed: 2 });
 			healUnit(unit, 15);
+		}]
+	}
+});
+
+export const SPLIT_BLOB = makeTrait({
+	id: "split_blob" as TraitId,
+	name: "Split Blob",
+	description: "When this unit dies, it splits into 2 Tiny Blobs",
+	categories: [TRAIT_CATEGORY_DEFENSIVE],
+	events: {
+		onDeath: [(unit) => async () => {
+			// get 2 close empty slots
+			let slots = []
+			for (let x = 1; x <= 3; x++) {
+				for (let y = 1; y <= 3; y++) {
+					slots.push({ x, y });
+				}
+			}
+
+			const allies = state.battleData.units.filter(u => u.force === unit.force && u.id !== unit.id);
+
+			if (unit.force === FORCE_ID_PLAYER) {
+				for (const slot of slots) {
+					slot.x += 3;
+				}
+			}
+
+			const emptySlots = slots.filter(slot => {
+				const unitAtSlot = allies.find(u => u.position.x === slot.x && u.position.y === slot.y);
+				return !unitAtSlot;
+			});
+
+			const targetSlots = emptySlots.slice(0, 2);
+
+			for (const slot of targetSlots) {
+
+				const newUnit = makeUnit(v4(), unit.force, TINY_BLOB, asVec2(slot))
+				state.battleData.units.push(newUnit);
+				await summonChara(newUnit)
+			}
+
 		}]
 	}
 });
@@ -420,6 +482,14 @@ export const traits: { [id: TraitId]: Trait } = {
 	[SPLASH.id]: SPLASH,
 	[STEALTH.id]: STEALTH,
 	[ASSASSIN.id]: ASSASSIN,
+	[RALLY.id]: RALLY,
+	[EVADE.id]: EVADE,
+	[CURSE.id]: CURSE,
+	[LIFESTEAL.id]: LIFESTEAL,
+	[LACERATE.id]: LACERATE,
+	[BURN.id]: BURN,
+	[REGENERATE.id]: REGENERATE,
+	[SPLIT_BLOB.id]: SPLIT_BLOB,
 };
 
 export const randomCategoryTrait = (category: TraitCategory): Trait => {
