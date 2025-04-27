@@ -1,5 +1,5 @@
 import { BattlegroundScene } from "./BattlegroundScene";
-import { getActiveUnits, getState, updateStatuses } from "../../Models/State";
+import { getActiveUnits, getState, decreaseStatusesDuration } from "../../Models/State";
 import { delay } from "../../Utils/animation";
 import { updatePlayerGoldIO } from "../../Models/Force";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "./constants";
@@ -17,7 +17,7 @@ const processTick = async (scene: BattlegroundScene) => {
   let continueProcessing = true;
 
   while (continueProcessing) {
-    updateStatuses(state);
+    decreaseStatusesDuration(state);
 
     const activeUnits = getActiveUnits(state);
 

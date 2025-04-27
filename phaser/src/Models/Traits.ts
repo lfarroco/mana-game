@@ -7,7 +7,7 @@ import { pickRandom } from "../utils";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../Scenes/Battleground/constants";
 import { addStatus, endStatus, State } from "./State";
 import { Unit } from "./Unit";
-import { UNIT_EVENTS, UnitEvents } from "./UnitEvents";
+import { UNIT_EVENT_NO_OP, UNIT_EVENTS, UnitEvents } from "./UnitEvents";
 
 let state: State;
 
@@ -268,7 +268,7 @@ export const BERSERK = makeTrait({
 			if (hasBerserk) return;
 			await popText({ text: "On Half HP: Berserk", targetId: unit.id, speed: 2 });
 			updateUnitAttribute(unit, "attack", 15);
-			addStatus(unit, "berserk", Infinity);
+			addStatus(unit, "berserk", Infinity, UNIT_EVENT_NO_OP);
 		}]
 	}
 });
@@ -313,7 +313,7 @@ export const ASSASSIN = makeTrait({
 	categories: [TRAIT_CATEGORY_OFFENSIVE],
 	events: {
 		onBattleStart: [(unit) => async () => {
-			addStatus(unit, "double_damage", Infinity);
+			addStatus(unit, "double_damage", Infinity, UNIT_EVENT_NO_OP);
 		}],
 		onAfterAttackByMe: [(unit) => async () => {
 			if (!unit.statuses["double_damage"]) return;
@@ -388,7 +388,10 @@ export const LACERATE = makeTrait({
 		onAfterAttackByMe: [(_unit, target) => async () => {
 			// TODO: implement status
 			await popText({ text: "Lacerate", targetId: target.id, speed: 2 });
-			addStatus(target, "lacerate", 2);
+			addStatus(target, "lacerate", 2, u => async () => {
+				await popText({ text: "Lacerate", targetId: u.id, speed: 2 });
+				damageUnit(u.id, 10);
+			});
 		}]
 	}
 });

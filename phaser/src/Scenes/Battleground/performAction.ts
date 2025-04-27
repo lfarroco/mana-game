@@ -9,7 +9,6 @@ import { healing } from "../../Systems/Chara/Skills/healing";
 import { healingWave } from "../../Systems/Chara/Skills/healingWave";
 import { lightOrb } from "../../Systems/Chara/Skills/lightOrb";
 import { multishot } from "../../Systems/Chara/Skills/multishot";
-import { shieldBash } from "../../Systems/Chara/Skills/shieldBash";
 import { shoot } from "../../Systems/Chara/Skills/shoot";
 import { slash } from "../../Systems/Chara/Skills/slash";
 import { summon } from "../../Systems/Chara/Skills/summon";
@@ -29,17 +28,13 @@ export const performAction = (scene: BattlegroundScene) => (unit: Unit) => async
 
 	const activeChara = UnitManager.getChara(unit.id);
 
-	if (unit.statuses.stun >= 0) return;
+	if (unit.statuses.stun?.duration > 0) return;
 
 	const job = getJob(unit.job);
 
 	const skillId = job.skill;
 
-	if (skillId === Skill.SHIELDBASH) {
-
-		await shieldBash(activeChara);
-
-	} else if (skillId === Skill.SUMMON_BLOB) {
+	if (skillId === Skill.SUMMON_BLOB) {
 
 		await specialAnimation(activeChara);
 
