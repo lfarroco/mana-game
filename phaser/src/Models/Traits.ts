@@ -18,14 +18,6 @@ export const init = (_sceneRef: Phaser.Scene, stateRef: State) => {
 export type TraitId = string & { __traitId: never };
 export type TraitCategory = string & { __traitCategory: never };
 
-export const FRONTLINE_CPU = 1;
-export const MIDDLEINE_CPU = 2;
-export const BACKLINE_CPU = 3;
-
-export const FRONTLINE_PLAYER = 6;
-export const MIDDLEINE_PLAYER = 7;
-export const BACKLINE_PLAYER = 8;
-
 export const LINES: {
 	[force: string]: {
 		FRONT: number;
@@ -34,9 +26,9 @@ export const LINES: {
 	}
 } = {
 	[FORCE_ID_PLAYER]: {
-		FRONT: 6,
-		MIDDLE: 7,
-		BACK: 8,
+		FRONT: 4,
+		MIDDLE: 5,
+		BACK: 6,
 	},
 	[FORCE_ID_CPU]: {
 		FRONT: 1,
@@ -120,14 +112,24 @@ export const LONE_WOLF: Trait = makeTrait({
 	description: "+30 HP when alone in a row",
 	categories: [TRAIT_CATEGORY_DEFENSIVE, TRAIT_CATEGORY_PERSONALITY, TRAIT_CATEGORY_HP],
 	events: {
-		onBattleStart: [(unit) => async () => {
+		onEnterPosition: [(unit) => async () => {
 			const neighboringUnits = state.battleData.units
 				.filter((u) => {
 					u.position.x === unit.position.x && u.id !== unit.id
 				});
 			if (neighboringUnits.length === 0) {
-				await popText({ text: "On Battle Start: Shy", targetId: unit.id, speed: 2 });
+				await popText({ text: "+Shy", targetId: unit.id, speed: 2 });
 				updateUnitAttribute(unit, "maxHp", 30);
+			}
+		}],
+		onLeavePosition: [(unit) => async () => {
+			const neighboringUnits = state.battleData.units
+				.filter((u) => {
+					u.position.x === unit.position.x && u.id !== unit.id
+				});
+			if (neighboringUnits.length === 0) {
+				await popText({ text: "-Shy", targetId: unit.id, speed: 2 });
+				updateUnitAttribute(unit, "maxHp", -30);
 			}
 		}]
 	}
@@ -139,12 +141,19 @@ export const BRAVE: Trait = makeTrait({
 	description: "+10 attack when in the front row",
 	categories: [TRAIT_CATEGORY_ATTACK, TRAIT_CATEGORY_PERSONALITY, TRAIT_CATEGORY_OFFENSIVE],
 	events: {
-		onBattleStart: [(unit) => async () => {
+		onEnterPosition: [(unit) => async () => {
 			const frontline = LINES[unit.force].FRONT;
-			if (unit.position.y !== frontline) return;
+			if (unit.position.x !== frontline) return;
 
-			await popText({ text: "On Battle Start: Brave", targetId: unit.id });
+			await popText({ text: "+Brave", targetId: unit.id });
 			await updateUnitAttribute(unit, "attack", 5);
+		}],
+		onLeavePosition: [(unit) => async () => {
+			const frontline = LINES[unit.force].FRONT;
+			if (unit.position.x !== frontline) return;
+
+			await popText({ text: "-Brave", targetId: unit.id });
+			await updateUnitAttribute(unit, "attack", -5);
 		}]
 	}
 });
@@ -168,9 +177,13 @@ export const SHARP_EYES: Trait = makeTrait({
 	description: "Increases critical hit chance by 10%",
 	categories: [TRAIT_CATEGORY_ATTACK, TRAIT_CATEGORY_OFFENSIVE, TRAIT_CATEGORY_VISION],
 	events: {
-		onBattleStart: [(unit) => async () => {
-			await popText({ text: "On Battle Start: Sharp Eyes", targetId: unit.id });
+		onEnterPosition: [(unit) => async () => {
+			await popText({ text: "+Sharp Eyes", targetId: unit.id });
 			updateUnitAttribute(unit, "crit", 10);
+		}],
+		onLeavePosition: [(unit) => async () => {
+			await popText({ text: "-Sharp Eyes", targetId: unit.id });
+			updateUnitAttribute(unit, "crit", -10);
 		}]
 	}
 });
@@ -189,14 +202,24 @@ export const PROTECTOR: Trait = makeTrait({
 	description: "Units in the same column have +5 defense",
 	categories: [TRAIT_CATEGORY_DEFENSIVE, TRAIT_CATEGORY_PERSONALITY],
 	events: {
-		onBattleStart: [(unit) => async () => {
+		onEnterPosition: [(unit) => async () => {
 			const neighboringUnits = state.battleData.units
 				.filter(u => {
 					u.position.x === unit.position.x
 				})
 			if (neighboringUnits.length > 0) {
-				await popText({ text: "On Battle Start: Protector", targetId: unit.id, speed: 2 });
+				await popText({ text: "+Protector", targetId: unit.id, speed: 2 });
 				updateUnitAttribute(unit, "defense", 5);
+			}
+		}],
+		onLeavePosition: [(unit) => async () => {
+			const neighboringUnits = state.battleData.units
+				.filter(u => {
+					u.position.x === unit.position.x
+				})
+			if (neighboringUnits.length > 0) {
+				await popText({ text: "-Protector", targetId: unit.id, speed: 2 });
+				updateUnitAttribute(unit, "defense", -5);
 			}
 		}]
 	}
@@ -219,12 +242,18 @@ export const SNIPER = makeTrait({
 	description: "When placed in the back row, this unit gains +10 attack",
 	categories: [TRAIT_CATEGORY_OFFENSIVE],
 	events: {
-		onBattleStart: [unit => async () => {
+		onEnterPosition: [unit => async () => {
 			if (!isInBackline(unit)) return;
 
-			await popText({ text: "On Battle Start: Sniper", targetId: unit.id, speed: 2 });
+			await popText({ text: "+Sniper", targetId: unit.id, speed: 2 });
 			updateUnitAttribute(unit, "attack", 10);
 		}],
+		onLeavePosition: [unit => async () => {
+			if (!isInBackline(unit)) return;
+
+			await popText({ text: "-Sniper", targetId: unit.id, speed: 2 });
+			updateUnitAttribute(unit, "attack", -10);
+		}]
 	}
 });
 
