@@ -93,11 +93,15 @@ export const getGuildUnit = (state: State) => (id: string): Unit | undefined => 
   return state.gameData.player.units.find((u) => u.id === id);
 }
 
+export const getUnitAt = (units: Unit[]) => (position: Vec2) => {
+  return units.find((u) => eqVec2(u.position, position));
+}
+
 export function addUnitToGuild(forceId: string, jobId: JobId) {
   const state = getState();
   const unitId = uuid.v4();
 
-  const position = getEmptySlot(state);
+  const position = getEmptySlot(state.gameData.player.units);
 
   const unit = makeUnit(unitId, forceId, jobId, position);
 

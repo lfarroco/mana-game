@@ -38,6 +38,7 @@
     },
     "dependencies": {
         "easystarjs": "^0.4.4",
+        "fp-ts": "^2.16.10",
         "phaser": "^3.88.2",
         "uuid": "^11.1.0"
     }

@@ -145,8 +145,6 @@ export const displayMonsterEvents = (day: number) => displayEvents(monsterEvents
 
 const pickUnit = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 
-
-
 	const flyout = await Flyout(
 		scene,
 		"Choose a Starting Hero",
@@ -184,7 +182,7 @@ const pickUnit = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 
 			Tooltip.hide();
 
-			const emptySlot = getEmptySlot(state);
+			const emptySlot = getEmptySlot(playerForce.units);
 
 			chara.unit.position = emptySlot
 			state.gameData.player.units.push(chara.unit);

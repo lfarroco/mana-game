@@ -1,14 +1,34 @@
+import { FORCE_ID_PLAYER } from "../Scenes/Battleground/constants";
 import { pickOne } from "../utils";
 import { vec2, sortBySnakeDistance, snakeDistanceBetween } from "./Geometry";
-import { State, getGuildUnitAt, getActiveUnits } from "./State";
+import { State, getActiveUnits, getUnitAt } from "./State";
 import { Unit } from "./Unit";
+import * as A from 'fp-ts/lib/Array';
+import { pipe } from 'fp-ts/lib/function';
 
+export const cells = pipe(
+	A.range(1, 3),
+	A.flatMap(x =>
+		pipe(
+			A.range(1, 3),
+			A.map(y => ({ x, y }))
+		)
+	)
+);
 
-export function getEmptySlot(state: State) {
-	const startX = 4;
-	const endX = 7;
+export function getEmptySlot(units: Unit[]) {
+
+	let startX = 0;
+	let endX = 3;
 	const startY = 1;
 	const endY = 4;
+
+	if (units[0].force === FORCE_ID_PLAYER) {
+		startX += 3;
+		endX += 3;
+	}
+
+	// find an empty slot
 
 	let isValid = false;
 	let position = vec2(1, 1);
@@ -16,7 +36,7 @@ export function getEmptySlot(state: State) {
 	while (!isValid) {
 		for (let x = startX; x < endX; x++) {
 			for (let y = startY; y < endY; y++) {
-				if (!getGuildUnitAt(state)(vec2(x, y))) {
+				if (!getUnitAt(units)(vec2(x, y))) {
 					isValid = true;
 					position = vec2(x, y);
 					break;
@@ -99,6 +119,22 @@ export function getRangedTarget(state: State, unit: Unit): Unit {
 
 export function getColumnNeighbors(state: State, unit: Unit) {
 	return state.battleData.units
+		.filter(u => u.force === unit.force)
 		.filter(u => u.position.x === unit.position.x && u.id !== unit.id);
+}
+
+export function getRowNeighbors(state: State, unit: Unit) {
+	return state.battleData.units
+		.filter(u => u.force === unit.force)
+		.filter(u => u.position.y === unit.position.y && u.id !== unit.id);
+}
+
+export function getNeighbors(state: State, unit: Unit) {
+	return state.battleData.units
+		.filter(u => u.force === unit.force)
+		.filter(u => u.id !== unit.id)
+		.filter(u => u.position.x >= unit.position.x - 1 && u.position.x <= unit.position.x + 1)
+		.filter(u => u.position.y >= unit.position.y - 1 && u.position.y <= unit.position.y + 1)
+		;
 }
 
