@@ -40,6 +40,7 @@ export const BLOB_KING = "blob_king" as JobId;
 export const BLOB_MAGE = "blob_mage" as JobId;
 export const BLOB_KNIGHT = "blob_knight" as JobId;
 export const TINY_BLOB = "tiny_blob" as JobId;
+export const SKELETON = "skeleton" as JobId;
 
 const monsters = `
 Job             | Name         | HP  | ATK  | DEF | AGI | Skill                | Traits
@@ -49,7 +50,8 @@ ${RED_BLOB}     | Red Blob     | 40  | 20   | 0   | 10  | ${s.EXPLODE}         |
 ${BLOB_KING}    | Blob King    | 500 | 50   | 3   | 10  | ${s.SLASH}           | ${t.SPLIT_BLOB.id}
 ${BLOB_MAGE}    | Blob Mage    | 90  | 15   | 0   | 8   | ${s.ARCANE_MISSILES} | ${t.SPLIT_BLOB.id}
 ${BLOB_KNIGHT}  | Blob Knight  | 400 | 25   | 8   | 6   | ${s.SLASH}           | ${t.TAUNT.id}
-${TINY_BLOB}     | Tiny Blob   | 20  | 10   | 0   | 10  | ${s.SLASH}           |
+${TINY_BLOB}    | Tiny Blob    | 20  | 10   | 0   | 10  | ${s.SLASH}           |
+${SKELETON}     | Skeleton     | 50  | 20   | 0   | 10  | ${s.SLASH}           | ${t.REBORN.id}
 `
 
 function parseJobsTable(table: string) {

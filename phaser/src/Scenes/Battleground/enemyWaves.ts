@@ -1,6 +1,6 @@
 import { FORCE_ID_CPU } from "./constants";
 import { vec2 } from "../../Models/Geometry";
-import { BLOB, BLOB_MAGE, JobId, RED_BLOB } from "../../Models/Job";
+import { BLOB, BLOB_MAGE, JobId, RED_BLOB, SKELETON } from "../../Models/Job";
 import { makeUnit, Unit } from "../../Models/Unit";
 
 const enemy = (job: JobId, x: number, y: number) => makeUnit(
@@ -53,4 +53,8 @@ xxx
 xxx
 `, { '1': BLOB, '2': RED_BLOB });
 
-console.log(">>>", ENCOUNTER_BLOBS)
+export const ENCOUNTER_UNDEAD = parseEncounter(`
+x11
+xx1
+x11
+`, { '1': SKELETON });
