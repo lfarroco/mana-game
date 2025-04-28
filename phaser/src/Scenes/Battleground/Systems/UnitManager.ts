@@ -59,6 +59,8 @@ export async function summonChara(unit: Unit, useSummonEffect = true, fadeIn = t
 			duration: 500 / scene.speed,
 			ease: 'Power2',
 		});
+	else
+		chara.container.setAlpha(1);
 
 	return chara
 }

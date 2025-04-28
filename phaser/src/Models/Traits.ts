@@ -461,6 +461,31 @@ export const SPLIT_BLOB = makeTrait({
 	}
 });
 
+export const REBORN = makeTrait({
+	id: "reborn" as TraitId,
+	name: "Reborn",
+	description: "When this unit dies, it is revived with 1 HP",
+	categories: [TRAIT_CATEGORY_DEFENSIVE],
+	events: {
+		onDeath: [(unit) => async () => {
+
+			if (unit.statuses["reborn"]) return; // already reborn
+
+			// create a new unit with the same id and position
+			const newUnit = makeUnit(v4(), unit.force, unit.job, unit.position);
+			newUnit.hp = 1;
+
+			addStatus(newUnit, "reborn");
+
+			await popText({ text: "Reborn", targetId: unit.id, speed: 2 });
+
+			state.battleData.units.push(newUnit);
+			await summonChara(newUnit, false, false);
+
+		}]
+	}
+});
+
 export const getTrait = () => (id: TraitId): Trait => {
 	const trait = traits[id];
 	if (!trait) {
@@ -491,6 +516,7 @@ export const traits: { [id: TraitId]: Trait } = {
 	[BURN.id]: BURN,
 	[REGENERATE.id]: REGENERATE,
 	[SPLIT_BLOB.id]: SPLIT_BLOB,
+	[REBORN.id]: REBORN,
 };
 
 export const randomCategoryTrait = (category: TraitCategory): Trait => {
