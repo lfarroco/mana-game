@@ -42,7 +42,7 @@ export const arcaneMissiles = (
 
 		await animation.arcaneMissle(scene, activeChara.container, targetChara.container, state.options.speed);
 
-		popText({ text: unit.attack.toString(), targetId: targetChara.unit.id });
+		popText({ text: unit.attackPower.toString(), targetId: targetChara.unit.id });
 
 		if (targetChara.unit.hp <= 0) return;
 

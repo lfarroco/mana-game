@@ -67,11 +67,11 @@ export const ITEMS = {
 	}),
 	TOXIC_POTION: () => equipmentItem('Toxic Potion', 'items/toxic_potion', 4, 'Increases attack by 5 until the end of the battle', {
 		onCombatStart: (u) => async () => {
-			updateUnitAttribute(u, 'attack', 5);
+			updateUnitAttribute(u, 'attackPower', 5);
 			burnConsumableInBattle(u.id);
 		}
 	}),
-	IRON_SWORD: () => equipmentItem('Iron Sword', 'items/iron_sword', 10, 'Increases attack by 5', attributeModifier('attack', 5)),
+	IRON_SWORD: () => equipmentItem('Iron Sword', 'items/iron_sword', 10, 'Increases attack by 5', attributeModifier('attackPower', 5)),
 	GOLD_RING: () => equipmentItem('Gold Ring', 'items/gold_ring', 10, 'Increases def by 5', attributeModifier('defense', 5)),
 }
 

@@ -29,7 +29,7 @@ export async function shieldBash(activeChara: Chara) {
 
 	await animation.shieldBash(activeChara, targetChara)
 
-	await damageUnit(targetChara.id, unit.attack);
+	await damageUnit(targetChara.id, unit.attackPower);
 
 	return true;
 
