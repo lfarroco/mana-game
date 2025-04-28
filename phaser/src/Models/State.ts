@@ -101,7 +101,7 @@ export function addUnitToGuild(forceId: string, jobId: JobId) {
   const state = getState();
   const unitId = uuid.v4();
 
-  const position = getEmptySlot(state.gameData.player.units);
+  const position = getEmptySlot(state.gameData.player.units, playerForce.id);
 
   const unit = makeUnit(unitId, forceId, jobId, position);
 
