@@ -10,7 +10,7 @@ const units: Job.JobId[] = [
 	Job.KNIGHT,
 	Job.ARCHER,
 	Job.APPRENTICE,
-	Job.ACOLYTE,
+	Job.CLERIC,
 	Job.THIEF,
 ];
 
