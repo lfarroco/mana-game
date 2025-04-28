@@ -1,6 +1,7 @@
 import { asVec2, Vec2 } from "./Geometry";
 import { Item } from "./Item";
 import { getJob, JobId } from "./Job";
+import { SHOOT, SLASH } from "./Skill";
 import { getTrait, Trait } from "./Traits";
 import { UnitEvent, UnitEvents, UNIT_EVENTS } from "./UnitEvents";
 
@@ -14,8 +15,12 @@ export type Unit = {
   hp: number;
   maxHp: number;
 
-  attack: number;
+  attackPower: number;
+  attackType: "melee" | "ranged" | "magic";
+
   defense: number;
+  magicDefense: number;
+
   agility: number;
   crit: number;
   evade: number;
@@ -52,6 +57,10 @@ export const makeUnit = (id: string, force: string, jobId: JobId, position: Vec2
     maxHp: job.hp,
     crit: job.agility * 1.5,
     evade: 0,
+    attackType: job.skill === SLASH ? "melee" : job.skill === SHOOT ? "ranged" : "magic",
+    attackPower: job.attack,
+    defense: 0,
+    magicDefense: 0,
     equip: null,
     log: [],
     statuses: {},

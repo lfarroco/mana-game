@@ -151,14 +151,14 @@ export const VANGUARD: Trait = makeTrait({
 			if (unit.position.x !== frontline) return;
 
 			await popText({ text: "+Vanguard", targetId: unit.id });
-			await updateUnitAttribute(unit, "attack", 5);
+			await updateUnitAttribute(unit, "attackPower", 5);
 		}],
 		onLeavePosition: [(unit) => async () => {
 			const frontline = LINES[unit.force].FRONT;
 			if (unit.position.x !== frontline) return;
 
 			await popText({ text: "-Vanguard", targetId: unit.id });
-			await updateUnitAttribute(unit, "attack", -5);
+			await updateUnitAttribute(unit, "attackPower", -5);
 		}]
 	}
 });
@@ -171,7 +171,7 @@ export const BATTLE_HUNGER: Trait = makeTrait({
 	events: {
 		onAttackByMe: [(unit, _target) => async () => {
 			await popText({ text: "On attack: Battle Hunger", targetId: unit.id, speed: 2 });
-			await updateUnitAttribute(unit, "attack", 1);
+			await updateUnitAttribute(unit, "attackPower", 1);
 		}]
 	}
 });
@@ -240,13 +240,13 @@ export const SNIPER = makeTrait({
 			if (!isInBackline(unit)) return;
 
 			await popText({ text: "+Sniper", targetId: unit.id, speed: 2 });
-			updateUnitAttribute(unit, "attack", 10);
+			updateUnitAttribute(unit, "attackPower", 10);
 		}],
 		onLeavePosition: [unit => async () => {
 			if (!isInBackline(unit)) return;
 
 			await popText({ text: "-Sniper", targetId: unit.id, speed: 2 });
-			updateUnitAttribute(unit, "attack", -10);
+			updateUnitAttribute(unit, "attackPower", -10);
 		}]
 	}
 });
@@ -261,7 +261,7 @@ export const BERSERK = makeTrait({
 			const hasBerserk = unit.statuses["berserk"];
 			if (hasBerserk) return;
 			await popText({ text: "On Half HP: Berserk", targetId: unit.id, speed: 2 });
-			updateUnitAttribute(unit, "attack", 15);
+			updateUnitAttribute(unit, "attackPower", 15);
 			addStatus(unit, "berserk");
 		}]
 	}
@@ -326,7 +326,7 @@ export const RALLY = makeTrait({
 			const neighboringUnits = getColumnNeighbors(state, unit)
 			for (const neighboringUnit of neighboringUnits) {
 				await popText({ text: "+Rally", targetId: neighboringUnit.id, speed: 2 });
-				updateUnitAttribute(neighboringUnit, "attack", 5);
+				updateUnitAttribute(neighboringUnit, "attackPower", 5);
 			}
 		}]
 	}
@@ -354,7 +354,7 @@ export const CURSE = makeTrait({
 			if (evaded) return;
 
 			await popText({ text: "Curse", targetId: target.id, speed: 2 });
-			updateUnitAttribute(target, "attack", -5);
+			updateUnitAttribute(target, "attackPower", -5);
 		}]
 	}
 });

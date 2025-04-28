@@ -85,7 +85,7 @@ export function createCard(unit: Unit): Chara {
 	]
 	const atk = scene.add.text(
 		...atkBgCenter,
-		unit.attack.toString(),
+		unit.attackPower.toString(),
 		textConfig
 	)
 		.setOrigin(0.5)
@@ -229,7 +229,7 @@ export function addTooltip(chara: Chara) {
 			`${chara.unit.equip.name} : ${chara.unit.equip.description}` : 'No equip';;
 
 		const text = [
-			`Attack: ${chara.unit.attack} HP: ${chara.unit.hp}`,
+			`Attack: ${chara.unit.attackPower} HP: ${chara.unit.hp}`,
 			chara.unit.traits.map((trait) => trait.name).join("\n"),
 			`${equipText}`,
 		].join('\n');
@@ -326,7 +326,7 @@ export function init(sceneRef: Phaser.Scene) {
 
 export function updateAtkDisplay(id: string) {
 	const chara = UnitManager.getChara(id);
-	chara.atkDisplay.setText(chara.unit.attack.toString());
+	chara.atkDisplay.setText(chara.unit.attackPower.toString());
 }
 
 export function updateHpDisplay(id: string, hp: number) {
@@ -412,7 +412,7 @@ export async function updateUnitAttribute<K extends keyof Unit>(
 		console.error(`Cannot add number to non-numeric attribute: ${attribute}`);
 	}
 
-	if (attribute === "attack") {
+	if (attribute === "attackPower") {
 		updateAtkDisplay(unit.id);
 	} else if (attribute === "maxHp") {
 		unit.hp = unit.maxHp;
