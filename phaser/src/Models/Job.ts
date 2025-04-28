@@ -17,21 +17,37 @@ export type Job = {
 };
 
 export const ARCHER = "archer" as JobId;
-export const ACOLYTE = "acolyte" as JobId;
+export const CLERIC = "cleric" as JobId;
 export const APPRENTICE = "apprentice" as JobId;
 export const KNIGHT = "knight" as JobId;
 export const THIEF = "thief" as JobId;
+export const DRUID = "druid" as JobId;
+export const BARBARIAN = "barbarian" as JobId;
+export const PIRATE = "pirate" as JobId;
+export const PALADIN = "paladin" as JobId;
+export const RANGER = "ranger" as JobId;
+export const ROGUE = "rogue" as JobId;
+export const NECROMANCER = "necromancer" as JobId;
+export const BARD = "bard" as JobId;
 
-const STARTER_JOBS = [ARCHER, ACOLYTE, APPRENTICE, KNIGHT, THIEF];
+const STARTER_JOBS = [ARCHER, CLERIC, APPRENTICE, KNIGHT, THIEF, DRUID, BARBARIAN, PIRATE, PALADIN, RANGER, ROGUE, NECROMANCER, BARD];
 
 const baseJobs = `
 Job           | Name        | HP  | ATK  | DEF | AGI | Skill                | Traits
 --------------|-------------|-----|------|-----|-----|--------------------------------------
-${ARCHER}     | Archer      | 100 | 20   | 3   | 12  | ${s.SHOOT}           | ${t.SNIPER.id}
-${ACOLYTE}    | Acolyte     | 80  | 10   | 0   | 6   | ${s.HEALING_WAVE}    | ${t.LONE_WOLF.id}
-${APPRENTICE} | Apprentice  | 80  | 30   | 0   | 8   | ${s.ARCANE_MISSILES} | ${t.LONE_WOLF.id}
-${KNIGHT}     | Knight      | 300 | 20   | 5   | 10  | ${s.SLASH}           | ${t.BRAVE.id}
-${THIEF}      | Thief       | 130 | 20   | 2   | 18  | ${s.SLASH}           | ${t.BRAVE.id}
+${ARCHER}     | Archer      | 150 | 25   | 3   | 32  | ${s.SHOOT}           | ${t.SNIPER.id}
+${CLERIC}     | Cleric      | 180 | 12   | 0   | 24  | ${s.HEALING_WAVE}    |
+${APPRENTICE} | Apprentice  | 180 | 20   | 0   | 27  | ${s.ARCANE_MISSILES} | ${t.SPLASH.id}
+${KNIGHT}     | Knight      | 220 | 17   | 5   | 23  | ${s.SLASH}           | ${t.TAUNT.id}, ${t.PROTECTOR.id}
+${THIEF}      | Thief       | 140 | 28   | 2   | 41  | ${s.SLASH}           | ${t.STEALTH.id},${t.ASSASSIN.id}
+${DRUID}      | Druid       | 200 | 15   | 0   | 30  | ${s.SLASH}           |
+${BARBARIAN}  | Barbarian   | 250 | 30   | 0   | 20  | ${s.SLASH}           | ${t.BERSERK.id}
+${PIRATE}     | Pirate      | 200 | 20   | 0   | 30  | ${s.SLASH}           |
+${PALADIN}    | Paladin     | 250 | 20   | 5   | 20  | ${s.SLASH}           | ${t.TAUNT.id}, ${t.PROTECTOR.id}
+${RANGER}     | Ranger      | 250 | 20   | 5   | 20  | ${s.SHOOT}           | 
+${ROGUE}      | Rogue       | 250 | 20   | 5   | 20  | ${s.SLASH}           |
+${NECROMANCER}| Necromancer | 250 | 20   | 5   | 20  | ${s.SLASH}           |
+${BARD}       | Bard        | 250 | 20   | 5   | 20  | ${s.SLASH}           |
 `;
 
 export const BLOB = "blob" as JobId;
@@ -85,7 +101,7 @@ export const descriptions = `
 Job           | Description
 --------------|--------------------------------------
 ${ARCHER}     | A ranged attacker that can hit multiple targets
-${ACOLYTE}    | A healer that can heal multiple targets
+${CLERIC}     | A healer that can heal multiple targets
 ${APPRENTICE} | A spellcaster that can deal high damage
 ${KNIGHT}     | A tank that can take a lot of damage
 ${THIEF}      | A fast attacker that can deal high damage

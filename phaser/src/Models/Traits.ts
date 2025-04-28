@@ -140,9 +140,9 @@ export const LONE_WOLF: Trait = makeTrait({
 	}
 })
 
-export const BRAVE: Trait = makeTrait({
-	id: "brave" as TraitId,
-	name: "Brave",
+export const VANGUARD: Trait = makeTrait({
+	id: "vanguard" as TraitId,
+	name: "Vanguard",
 	description: "+10 attack when in the front row",
 	categories: [TRAIT_CATEGORY_ATTACK, TRAIT_CATEGORY_PERSONALITY, TRAIT_CATEGORY_OFFENSIVE],
 	events: {
@@ -150,14 +150,14 @@ export const BRAVE: Trait = makeTrait({
 			const frontline = LINES[unit.force].FRONT;
 			if (unit.position.x !== frontline) return;
 
-			await popText({ text: "+Brave", targetId: unit.id });
+			await popText({ text: "+Vanguard", targetId: unit.id });
 			await updateUnitAttribute(unit, "attack", 5);
 		}],
 		onLeavePosition: [(unit) => async () => {
 			const frontline = LINES[unit.force].FRONT;
 			if (unit.position.x !== frontline) return;
 
-			await popText({ text: "-Brave", targetId: unit.id });
+			await popText({ text: "-Vanguard", targetId: unit.id });
 			await updateUnitAttribute(unit, "attack", -5);
 		}]
 	}
@@ -498,7 +498,7 @@ export const getTrait = () => (id: TraitId): Trait => {
 
 export const traits: { [id: TraitId]: Trait } = {
 	[LONE_WOLF.id]: LONE_WOLF,
-	[BRAVE.id]: BRAVE,
+	[VANGUARD.id]: VANGUARD,
 	[BATTLE_HUNGER.id]: BATTLE_HUNGER,
 	[SHARP_EYES.id]: SHARP_EYES,
 	[TAUNT.id]: TAUNT,
