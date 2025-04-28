@@ -147,7 +147,7 @@ const pickUnit = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 
 	const flyout = await Flyout(
 		scene,
-		"Choose a Starting Hero",
+		"Choose Your Guild Members",
 		null
 	);
 
@@ -182,7 +182,7 @@ const pickUnit = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 
 			Tooltip.hide();
 
-			const emptySlot = getEmptySlot(playerForce.units);
+			const emptySlot = getEmptySlot(playerForce.units, playerForce.id);
 
 			chara.unit.position = emptySlot
 			state.gameData.player.units.push(chara.unit);

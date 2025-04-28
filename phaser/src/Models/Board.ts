@@ -16,14 +16,14 @@ export const cells = pipe(
 	)
 );
 
-export function getEmptySlot(units: Unit[]) {
+export function getEmptySlot(units: Unit[], forceId: string) {
 
-	let startX = 0;
+	let startX = 1;
 	let endX = 3;
 	const startY = 1;
 	const endY = 4;
 
-	if (units[0].force === FORCE_ID_PLAYER) {
+	if (forceId === FORCE_ID_PLAYER) {
 		startX += 3;
 		endX += 3;
 	}
