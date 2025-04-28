@@ -1,5 +1,4 @@
 import { v4 } from "uuid";
-import { defaultTextConfig } from "../../Scenes/Battleground/constants";
 import { Choice, displayChoices, newChoice } from "../../Scenes/Battleground/Systems/Choice";
 import { itemShop } from "../../Scenes/Battleground/Systems/ItemShop";
 import * as UnitManager from "../../Scenes/Battleground/Systems/UnitManager";
@@ -16,6 +15,7 @@ import { getEmptySlot } from "../Board";
 import { makeUnit } from "../Unit";
 import commonEvents from "./common";
 import monsterEvents from "./monster";
+import { Flyout, retractFlyout, slideFlyoutIn } from "../../Systems/Flyout";
 
 let scene: Phaser.Scene;
 export let state: State;
@@ -145,33 +145,15 @@ export const displayMonsterEvents = (day: number) => displayEvents(monsterEvents
 
 const pickUnit = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 
-	const bg = scene.add.image(0, 0, "ui/wood_texture").setOrigin(0);
-	bg.setDisplaySize(900, scene.cameras.main.height);
-	bg.setPosition(-400, 0);
 
-	await tween({
-		targets: [bg],
-		x: 0,
-		duration: 500,
-		ease: "Power2",
-	});
 
-	const title = scene.add.text(
-		400, 50,
+	const flyout = await Flyout(
+		scene,
 		"Choose a Starting Hero",
-		defaultTextConfig
-	)
-		.setOrigin(0.5)
-		.setFontFamily("Arial Black")
-		.setStroke("black", 14);
+		null
+	);
 
-	tween({
-		targets: [title],
-		alpha: 1,
-		duration: 500,
-		ease: "Power2",
-	});
-
+	slideFlyoutIn(flyout);
 	const charas = await Promise.all(
 		choices.map(choice => {
 			const chara = Chara.createCard(
@@ -207,17 +189,6 @@ const pickUnit = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 			chara.unit.position = emptySlot
 			state.gameData.player.units.push(chara.unit);
 
-			tween({
-				targets: [bg],
-				x: -900,
-				duration: 500,
-				onComplete: () => {
-					bg.destroy();
-				}
-			})
-
-			title.destroy();
-
 			for (const c of charas) {
 
 				if (chara.id === c.id) {
@@ -225,7 +196,6 @@ const pickUnit = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 					tween({
 						targets: [c.container],
 						...pos,
-						duration: 500,
 					});
 					Chara.addBoardEvents(c);
 					continue;
@@ -240,9 +210,13 @@ const pickUnit = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 
 			}
 
+			await retractFlyout(flyout);
+
 			await delay(scene, 500);
 
 			resolve(choices[i]);
+
+			flyout.destroy();
 		});
 
 	});

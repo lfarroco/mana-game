@@ -15,7 +15,6 @@ import * as EventSystem from "../../Models/Encounters/Encounter";
 import * as TraitSystem from "../../Models/Traits";
 import * as TooltipSystem from "../../Systems/Tooltip";
 import { updatePlayerGoldIO } from "../../Models/Force";
-import { Flyout } from "../../Systems/Flyout";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -91,12 +90,6 @@ export class BattlegroundScene extends Phaser.Scene {
     //@ts-ignore
     window.scene = this;
 
-    await Flyout(this, "Welcome to Battleground", false, (flyout, resolve) => {
-      setTimeout(() => {
-        resolve();
-        flyout.destroy();
-      }, 2000);
-    });
 
     await EventSystem.evalEvent(EventSystem.starterEvent);
 
