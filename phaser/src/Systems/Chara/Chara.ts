@@ -63,13 +63,13 @@ export function createCard(unit: Unit): Chara {
 
 	container.add([border, sprite]);
 
-	const textConfig = { ...bgConstants.defaultTextConfig, fontSize: '35px', color: '#ffffff' };
+	const textConfig = { ...bgConstants.titleTextConfig, fontSize: '24px' };
 
-	const boxWidth = 50;
+	const boxWidth = 60;
 	const boxHeight = 50;
 
 	const atkPosition: [number, number] = [
-		-bgConstants.HALF_TILE_WIDTH, bgConstants.HALF_TILE_HEIGHT - boxHeight,
+		-bgConstants.HALF_TILE_WIDTH + 10, bgConstants.HALF_TILE_HEIGHT - boxHeight - 10,
 	]
 
 	const atkBg = scene.add.graphics();
@@ -94,7 +94,7 @@ export function createCard(unit: Unit): Chara {
 	container.add([atkBg, atk])
 
 	const hpPosition: [number, number] = [
-		bgConstants.HALF_TILE_WIDTH - boxWidth, bgConstants.HALF_TILE_HEIGHT - boxHeight,
+		bgConstants.HALF_TILE_WIDTH - boxWidth - 10, bgConstants.HALF_TILE_HEIGHT - boxHeight - 10,
 	]
 	const hpBg = scene.add.graphics();
 	hpBg.fillStyle(0x00ff00, 0.5);
