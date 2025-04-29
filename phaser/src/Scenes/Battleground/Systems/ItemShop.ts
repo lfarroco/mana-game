@@ -1,7 +1,7 @@
 import { updatePlayerGoldIO } from "../../../Models/Force";
 import { Item } from "../../../Models/Item";
 import { getState } from "../../../Models/State";
-import { Flyout, retractFlyout, slideFlyoutIn } from "../../../Systems/Flyout";
+import * as Flyout from "../../../Systems/Flyout";
 import * as Tooltip from "../../../Systems/Tooltip";
 import { tween } from "../../../Utils/animation";
 import * as constants from "../constants";
@@ -17,15 +17,17 @@ export const itemShop = async (
 
 	const store = scene.add.container();
 
-	const flyout = await Flyout(scene, title, () => {
-		retractFlyout(flyout);
+	const flyout = await Flyout.create(scene, title)
+
+	Flyout.addExitButton(flyout, () => {
+		Flyout.retractFlyout(flyout);
 		flyout.destroy();
 		resolve();
 	});
 
 	flyout.add(store);
 
-	slideFlyoutIn(flyout);
+	Flyout.slideFlyoutIn(flyout);
 
 	items.forEach((item, i) => {
 
