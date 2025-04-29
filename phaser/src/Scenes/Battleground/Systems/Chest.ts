@@ -8,19 +8,15 @@ import * as constants from "../constants";
 import * as UIManager from "./UIManager";
 import * as UnitManager from "./UnitManager";
 
-let isChestOpen = false;
-let isAnimating = false;
-let flyout: Phaser.GameObjects.Container;
-let chestContainer: Phaser.GameObjects.Container;
-
-let sellImage: Phaser.GameObjects.Image;
+const CHEST_TILE_SIZE = constants.TILE_WIDTH / 2;
 
 export const position: [number, number] = [
 	constants.SCREEN_WIDTH - 120,
 	constants.SCREEN_HEIGHT - 100
 ];
-
-const CHEST_TILE_SIZE = constants.TILE_WIDTH / 2;
+export let updateChestIO = async () => { }
+export let isChestOpen = false;
+export let isAnimating = false;
 
 export async function renderChestButton() {
 
@@ -32,37 +28,38 @@ export async function renderChestButton() {
 
 	chest.setInteractive();
 
-	chestContainer = UIManager.scene.add.container(0, 0)
+	const chestContainer = UIManager.scene.add.container(0, 0)
 
-	flyout = await Flyout(UIManager.scene, "Chest", closeChest);
+	const flyout = await Flyout(UIManager.scene, "Chest", () => closeChest(flyout, chestContainer)());
 
 	flyout.add(chestContainer);
 
-	chest.on("pointerup", handleChestButtonClick);
+	updateChestIO = () => updateChest(flyout, chestContainer);
+
+	chest.on("pointerup", handleChestButtonClick(chestContainer, flyout));
 }
 
-async function handleChestButtonClick() {
+const handleChestButtonClick = (chestContainer: Container, flyout: Container) => async () => {
 	if (isAnimating) return;
 
 	if (isChestOpen) {
-		await closeChest();
+		await closeChest(chestContainer, flyout)();
 	} else {
-		await openChest();
+		await openChest(chestContainer, flyout)();
 	}
-
 }
 
-async function openChest() {
+const openChest = (flyout: Container, chestContainer: Container) => async () => {
 	isChestOpen = true;
 
-	updateChest();
+	updateChest(flyout, chestContainer);
 
 	isAnimating = true;
 	await slideFlyoutIn(flyout);
 	isAnimating = false;
 }
 
-async function closeChest() {
+const closeChest = (flyout: Container, chestContainer: Container) => async () => {
 	isChestOpen = false;
 
 	isAnimating = true;
@@ -72,9 +69,12 @@ async function closeChest() {
 	chestContainer.removeAll(true);
 }
 
-export async function updateChest() {
+
+const updateChest = async (flyout: Container, chestContainer: Container) => {
 
 	const state = getState();
+
+	const sellImage = sellZone(chestContainer);
 
 	chestContainer.removeAll(true);
 
@@ -139,7 +139,8 @@ export async function updateChest() {
 				const targetChara = UnitManager.overlap(pointer);
 
 				if (targetChara && state.gameData.player.units.find(chara => chara.id === targetChara.unit.id)) {
-					dropItemInChara(targetChara, icon, item);
+
+					dropItemInChara(targetChara, icon, item, updateChestIO);
 					return;
 				}
 
@@ -147,7 +148,7 @@ export async function updateChest() {
 					icon.getBounds(),
 					sellImage.getBounds()
 				)) {
-					handleSelling(icon, state, item);
+					handleSelling(icon, state, item, updateChestIO);
 					return;
 				}
 
@@ -172,7 +173,7 @@ export async function updateChest() {
 						state.gameData.player.items[index] = targetItem;
 						state.gameData.player.items[targetIndex] = item;
 
-						updateChest();
+						updateChest(flyout, chestContainer);
 
 						return;
 					}
@@ -183,7 +184,7 @@ export async function updateChest() {
 					state.gameData.player.items[targetIndex] = item;
 
 					// update chest
-					updateChest();
+					updateChest(flyout, chestContainer);
 
 				}
 
@@ -196,22 +197,19 @@ export async function updateChest() {
 			return slot
 
 		});
-
-	sellZone();
-
 }
 
-function handleSelling(icon: Phaser.GameObjects.Image, state: State, item: Item) {
+function handleSelling(icon: Phaser.GameObjects.Image, state: State, item: Item, onSell: () => void) {
 
 	icon.destroy();
 
 	state.gameData.player.items = state.gameData.player.items.filter(i => i?.id !== item.id);
-	updateChest();
+	onSell();
 
 	UIManager.coinDropIO(item.cost / 2, item.cost / 2, icon.x, icon.y)
 }
 
-function dropItemInChara(targetChara: Chara, icon: Phaser.GameObjects.Image, item: Item) {
+function dropItemInChara(targetChara: Chara, icon: Phaser.GameObjects.Image, item: Item, onDrop: () => void) {
 
 	const state = getState();
 
@@ -227,13 +225,12 @@ function dropItemInChara(targetChara: Chara, icon: Phaser.GameObjects.Image, ite
 		state.gameData.player.items.push(currentItem);
 	}
 
-	updateChest();
-
+	onDrop();
 }
 
-function sellZone() {
+function sellZone(chestContainer: Container) {
 
-	sellImage = UIManager.scene.add.image(
+	const sellImage = UIManager.scene.add.image(
 		400, constants.SCREEN_HEIGHT - 200,
 		"icon/sell"
 	).setScale(0.3);
@@ -248,5 +245,7 @@ function sellZone() {
 		;
 
 	chestContainer.add([sellImage, sellText]);
+
+	return sellImage
 
 }

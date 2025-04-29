@@ -289,7 +289,7 @@ function renderItemSlot(unit: Unit, container: Phaser.GameObjects.Container) {
 			if (unit.equip) playerForce.items.push(unit.equip);
 
 			equipItemInGuildUnit({ unitId: unit.id, item: null });
-			Chest.updateChest();
+			Chest.updateChestIO();
 		} else {
 			if (closest.unit.id === unit.id) { //self
 				equipItemInGuildUnit({ unitId: unit.id, item: unit.equip });

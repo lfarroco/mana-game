@@ -10,7 +10,7 @@ const flyoutWidth = 900;
 export const Flyout = async (
 	scene: Phaser.Scene,
 	title: string,
-	onExit: (() => void) | null,
+	onExit: (() => void) | null, //todo: move this to a "addExit" function
 ) => {
 
 	const flyout = scene.add.container();
