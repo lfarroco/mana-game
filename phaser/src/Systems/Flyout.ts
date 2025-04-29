@@ -37,7 +37,7 @@ export const Flyout = async (
 			.setScale(0.2)
 			.setOrigin(0.5)
 			.setInteractive()
-			.setPosition(900, scene.cameras.main.height - 100)
+			.setPosition(780, scene.cameras.main.height - 100)
 			.on("pointerup", async () => {
 				await retractFlyout(flyout);
 				onExit();
@@ -62,6 +62,7 @@ export const Flyout = async (
 }
 
 export async function slideFlyoutIn(flyout: Phaser.GameObjects.Container) {
+	flyout.scene.children.bringToTop(flyout);
 	await tween({
 		targets: [flyout],
 		x: 0,

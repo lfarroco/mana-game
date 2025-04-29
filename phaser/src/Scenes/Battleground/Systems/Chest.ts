@@ -1,17 +1,16 @@
 import { Item } from "../../../Models/Item";
 import { getState, State } from "../../../Models/State";
 import { Chara } from "../../../Systems/Chara/Chara";
+import { Flyout, retractFlyout, slideFlyoutIn } from "../../../Systems/Flyout";
 import { equipItemInGuildUnit } from "../../../Systems/Item/EquipItem";
 import * as Tooltip from "../../../Systems/Tooltip";
-import { tween } from "../../../Utils/animation";
 import * as constants from "../constants";
 import * as UIManager from "./UIManager";
 import * as UnitManager from "./UnitManager";
 
-const chestWidth = constants.SCREEN_WIDTH / 2 - 100;
-
 let isChestOpen = false;
 let isAnimating = false;
+let flyout: Phaser.GameObjects.Container;
 let chestContainer: Phaser.GameObjects.Container;
 
 let sellImage: Phaser.GameObjects.Image;
@@ -23,7 +22,7 @@ export const position: [number, number] = [
 
 const CHEST_TILE_SIZE = constants.TILE_WIDTH / 2;
 
-export function renderChestButton() {
+export async function renderChestButton() {
 
 	const chest = UIManager.scene.add.image(
 		...position,
@@ -33,53 +32,51 @@ export function renderChestButton() {
 
 	chest.setInteractive();
 
-	chestContainer = UIManager.scene.add.container(0, 0);
+	chestContainer = UIManager.scene.add.container(0, 0)
 
-	chest.on("pointerup", async () => {
-		if (isAnimating) return;
+	flyout = await Flyout(UIManager.scene, "Chest", closeChest);
 
-		if (isChestOpen) {
-			isChestOpen = false;
-			isAnimating = true;
-			await tween({
-				targets: [chestContainer],
-				x: -chestWidth,
-				duration: 500,
-				ease: "Power2",
+	flyout.add(chestContainer);
 
-			});
-
-			isAnimating = false;
-			chestContainer.removeAll(true);
-		} else {
-			isChestOpen = true;
-			UIManager.scene.children.bringToTop(chestContainer);
-			chestContainer.setX(-chestWidth);
-
-			updateChest();
-
-			isAnimating = true;
-			await tween({
-				targets: [chestContainer],
-				x: 0,
-				duration: 500,
-				ease: "Power2",
-			});
-			isAnimating = false;
-		}
-
-	});
+	chest.on("pointerup", handleChestButtonClick);
 }
 
-export function updateChest() {
+async function handleChestButtonClick() {
+	if (isAnimating) return;
+
+	if (isChestOpen) {
+		await closeChest();
+	} else {
+		await openChest();
+	}
+
+}
+
+async function openChest() {
+	isChestOpen = true;
+
+	updateChest();
+
+	isAnimating = true;
+	await slideFlyoutIn(flyout);
+	isAnimating = false;
+}
+
+async function closeChest() {
+	isChestOpen = false;
+
+	isAnimating = true;
+	await retractFlyout(flyout);
+	isAnimating = false;
+
+	chestContainer.removeAll(true);
+}
+
+export async function updateChest() {
 
 	const state = getState();
 
 	chestContainer.removeAll(true);
-
-	background();
-
-	title();
 
 	const baseX = 200;
 	const baseY = 200;
@@ -232,32 +229,6 @@ function dropItemInChara(targetChara: Chara, icon: Phaser.GameObjects.Image, ite
 
 	updateChest();
 
-}
-
-function title() {
-	const title = UIManager.scene.add.text(
-		400, 50,
-		"Chest",
-		{
-			...constants.defaultTextConfig,
-			color: "#ffffff",
-		})
-		.setOrigin(0.5)
-		.setFontFamily("Arial Black")
-		.setStroke("black", 14)
-		;
-
-	chestContainer.add(title);
-}
-
-function background() {
-	const bg = UIManager.scene.add.image(0, 0, "ui/wood_texture");
-
-	bg.setDisplaySize(chestWidth, constants.SCREEN_HEIGHT);
-	bg.setOrigin(0);
-	bg.setInteractive();
-
-	chestContainer.add(bg);
 }
 
 function sellZone() {

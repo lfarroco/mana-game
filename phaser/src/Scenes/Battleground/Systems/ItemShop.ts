@@ -48,16 +48,17 @@ export const itemShop = async (
 
 	});
 
+	const sellImage = scene.add.image(
+		400, constants.SCREEN_HEIGHT - 200,
+		"icon/sell"
+	).setScale(0.3);
+	const sellText = scene.add.text(
+		400, constants.SCREEN_HEIGHT - 150,
+		"Sell",
+		constants.defaultTextConfig,
+	)
 
-	// sellImage = UIManager.scene.add.image(
-	// 	400, constants.SCREEN_HEIGHT - 200,
-	// 	"icon/sell"
-	// ).setScale(0.3);
-	// const sellText = UIManager.scene.add.text(
-	// 	400, constants.SCREEN_HEIGHT - 150,
-	// 	"Sell",
-	// 	constants.defaultTextConfig,
-	// )
+	store.add([sellImage, sellText]);
 
 	const exit = scene.add.image(0, 0, "icon/exit")
 		.setScale(0.3)
