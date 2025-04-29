@@ -10,6 +10,8 @@ import { scene } from "./Choice";
 // continue from here:
 // create undead units with deathrattle meachnics
 
+const SHOP_TILE_SIZE = constants.TILE_WIDTH / 2;
+
 export const itemShop = async (
 	title: string,
 	items: Item[],
@@ -19,8 +21,8 @@ export const itemShop = async (
 
 	const flyout = await Flyout.create(scene, title)
 
-	Flyout.addExitButton(flyout, () => {
-		Flyout.retractFlyout(flyout);
+	Flyout.addExitButton(flyout, async () => {
+		await Flyout.retractFlyout(flyout);
 		flyout.destroy();
 		resolve();
 	});
@@ -33,21 +35,34 @@ export const itemShop = async (
 
 		// 5 columns
 		const x = 100 + (i % 5) * 150;
-		const y = 140 + Math.floor(i / 5) * 250;
+		const y = 200 + Math.floor(i / 5) * 150;
+
+		const spacing = 16;
+
+		const slot = scene.add.image(x, y, "ui/slot")
+			.setOrigin(0.5)
+			.setDisplaySize(SHOP_TILE_SIZE + spacing, SHOP_TILE_SIZE + spacing)
 
 		const icon = scene.add.image(x, y, item.icon)
 			.setDisplaySize(100, 100)
-			.setOrigin(0)
-			.setScale(0.3);
+			.setOrigin(0.5)
+			.setDisplaySize(SHOP_TILE_SIZE, SHOP_TILE_SIZE);
 
-		store.add(icon);
-
-		const price = scene.add.text(icon.x + icon.displayWidth / 2, icon.y + icon.displayHeight + 20, `${item.cost}`, {
+		const price = scene.add.text(
+			icon.getBottomLeft().x + 20, icon.getBottomLeft().y,
+			`${item.cost}`, {
 			...constants.defaultTextConfig,
 			align: "center",
 		})
 			.setOrigin(0.5);
-		store.add(price);
+
+		const rect = scene.add.rectangle(
+			icon.getBottomLeft().x + 20, icon.getBottomLeft().y,
+			60, 30,
+			0xaaaa00, 1
+		).setOrigin(0.5);
+
+		store.add([slot, icon, rect, price]);
 
 		icon.setInteractive();
 		icon.on("pointerup", handleBuy(scene, item, icon, price))
@@ -55,19 +70,6 @@ export const itemShop = async (
 		icon.on("pointerout", Tooltip.hide);
 
 	});
-
-	const sellImage = scene.add.image(
-		400, constants.SCREEN_HEIGHT - 200,
-		"icon/sell"
-	).setScale(0.3);
-	const sellText = scene.add.text(
-		400, constants.SCREEN_HEIGHT - 150,
-		"Sell",
-		constants.defaultTextConfig,
-	)
-
-	store.add([sellImage, sellText]);
-
 
 });
 
@@ -124,7 +126,7 @@ const handleBuy = (
 const displayTooltip = (icon: Phaser.GameObjects.Image, item: Item) => () => {
 
 	Tooltip.render(
-		icon.x + 400,
+		icon.x + 250,
 		icon.y + 150,
 		item.name,
 		item.description,
