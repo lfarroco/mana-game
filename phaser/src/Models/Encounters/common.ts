@@ -35,14 +35,21 @@ const commonEvents = (): Encounter[] => [
 			ITEMS.TOXIC_POTION(),
 		]
 	}),
-	makeEncounter("equipment_vendor", TIER.COMMON, "Equipment Vendor", "You have found an equipment vendor", "icon/equipment_vendor", {
-		type: "item-shop",
-		choices: () => [
-			ITEMS.IRON_SWORD(),
-			ITEMS.GOLD_RING(),
-		]
-	}),
+	equipmentVendor()
 ];
+export const equipmentVendor = () => makeEncounter("equipment_vendor", TIER.COMMON, "Equipment Vendor", "You have found an equipment vendor", "icon/equipment_vendor", {
+	type: "item-shop",
+	choices: () => [
+		ITEMS.IRON_SWORD(),
+		ITEMS.GOLD_RING(),
+		ITEMS.IRON_SWORD(),
+		ITEMS.IRON_SWORD(),
+		ITEMS.IRON_SWORD(),
+		ITEMS.IRON_SWORD(),
+		ITEMS.GOLD_RING(),
+		ITEMS.GOLD_RING(),
+	]
+})
 
 
 export default commonEvents;
