@@ -74,7 +74,7 @@ export function createCard(unit: Unit): Chara {
 
 	const atkBg = scene.add.graphics();
 
-	atkBg.fillStyle(0xff0000, 0.5);
+	atkBg.fillStyle(0x98240a, 1);
 	atkBg.fillRoundedRect(
 		...atkPosition,
 		boxWidth, boxHeight,
@@ -97,7 +97,7 @@ export function createCard(unit: Unit): Chara {
 		bgConstants.HALF_TILE_WIDTH - boxWidth - 10, bgConstants.HALF_TILE_HEIGHT - boxHeight - 10,
 	]
 	const hpBg = scene.add.graphics();
-	hpBg.fillStyle(0x00ff00, 0.5);
+	hpBg.fillStyle(0x327a0a, 1.0);
 	hpBg.fillRoundedRect(
 		...hpPosition,
 		boxWidth, boxHeight,
