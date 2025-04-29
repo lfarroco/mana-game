@@ -14,7 +14,7 @@ import * as ChoiceSystem from "./Systems/Choice";
 import * as EventSystem from "../../Models/Encounters/Encounter";
 import * as TraitSystem from "../../Models/Traits";
 import * as TooltipSystem from "../../Systems/Tooltip";
-import { playerForce, updatePlayerGoldIO } from "../../Models/Force";
+import { updatePlayerGoldIO } from "../../Models/Force";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -90,11 +90,7 @@ export class BattlegroundScene extends Phaser.Scene {
     //@ts-ignore
     window.scene = this;
 
-    while (playerForce.units.length < 3) {
-
-      await EventSystem.evalEvent(EventSystem.starterEvent);
-
-    }
+    await EventSystem.evalEvent(EventSystem.starterEvent);
 
     // Infinite day loop
     while (true) {
