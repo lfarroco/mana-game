@@ -8,13 +8,14 @@ export let scene: BattlegroundScene;
 export function init(sceneRef: BattlegroundScene) {
 	scene = sceneRef;
 }
-export async function createWave(enemies: Unit[]) {
+export async function createWave(
+	units: Unit[],
+) {
 
 	UnitManager.clearCharas();
 
-	scene.state.battleData.units = scene.state.gameData.player.units
-		.concat(enemies)
-		.map(u => ({ ...u }))
+	scene.state.battleData.units = units
+		.map(u => ({ ...u }));
 
 	scene.state.battleData.units.forEach(u => UnitManager.summonChara(u));
 
