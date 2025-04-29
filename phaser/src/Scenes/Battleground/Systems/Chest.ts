@@ -1,7 +1,7 @@
 import { Item } from "../../../Models/Item";
 import { getState, State } from "../../../Models/State";
 import { Chara } from "../../../Systems/Chara/Chara";
-import { Flyout, retractFlyout, slideFlyoutIn } from "../../../Systems/Flyout";
+import * as Flyout from "../../../Systems/Flyout";
 import { equipItemInGuildUnit } from "../../../Systems/Item/EquipItem";
 import * as Tooltip from "../../../Systems/Tooltip";
 import * as constants from "../constants";
@@ -14,9 +14,11 @@ export const position: [number, number] = [
 	constants.SCREEN_WIDTH - 120,
 	constants.SCREEN_HEIGHT - 100
 ];
-export let updateChestIO = async () => { }
 export let isChestOpen = false;
 export let isAnimating = false;
+
+export let flyout: Container;
+export let chestContainer: Container;
 
 export async function renderChestButton() {
 
@@ -28,55 +30,53 @@ export async function renderChestButton() {
 
 	chest.setInteractive();
 
-	const chestContainer = UIManager.scene.add.container(0, 0)
+	chestContainer = UIManager.scene.add.container(0, 0)
 
-	const flyout = await Flyout(UIManager.scene, "Chest", () => closeChest(flyout, chestContainer)());
+	flyout = await Flyout.create(UIManager.scene, "Chest")
+	Flyout.addExitButton(flyout, () => closeChest());
 
 	flyout.add(chestContainer);
 
-	updateChestIO = () => updateChest(flyout, chestContainer);
-
-	chest.on("pointerup", handleChestButtonClick(chestContainer, flyout));
+	chest.on("pointerup", handleChestButtonClick());
 }
 
-const handleChestButtonClick = (chestContainer: Container, flyout: Container) => async () => {
+const handleChestButtonClick = () => async () => {
 	if (isAnimating) return;
 
 	if (isChestOpen) {
-		await closeChest(chestContainer, flyout)();
+		await closeChest();
 	} else {
-		await openChest(chestContainer, flyout)();
+		await openChest();
 	}
 }
 
-const openChest = (flyout: Container, chestContainer: Container) => async () => {
+const openChest = async () => {
 	isChestOpen = true;
 
-	updateChest(flyout, chestContainer);
+	updateChestIO();
 
 	isAnimating = true;
-	await slideFlyoutIn(flyout);
+	await Flyout.slideFlyoutIn(flyout);
 	isAnimating = false;
 }
 
-const closeChest = (flyout: Container, chestContainer: Container) => async () => {
+const closeChest = async () => {
 	isChestOpen = false;
 
 	isAnimating = true;
-	await retractFlyout(flyout);
+	await Flyout.retractFlyout(flyout);
 	isAnimating = false;
 
 	chestContainer.removeAll(true);
 }
 
-
-const updateChest = async (flyout: Container, chestContainer: Container) => {
+export const updateChestIO = async () => {
 
 	const state = getState();
 
-	const sellImage = sellZone(chestContainer);
-
 	chestContainer.removeAll(true);
+
+	const sellImage = sellZone();
 
 	const baseX = 200;
 	const baseY = 200;
@@ -173,7 +173,7 @@ const updateChest = async (flyout: Container, chestContainer: Container) => {
 						state.gameData.player.items[index] = targetItem;
 						state.gameData.player.items[targetIndex] = item;
 
-						updateChest(flyout, chestContainer);
+						updateChestIO();
 
 						return;
 					}
@@ -184,7 +184,7 @@ const updateChest = async (flyout: Container, chestContainer: Container) => {
 					state.gameData.player.items[targetIndex] = item;
 
 					// update chest
-					updateChest(flyout, chestContainer);
+					updateChestIO();
 
 				}
 
@@ -228,12 +228,13 @@ function dropItemInChara(targetChara: Chara, icon: Phaser.GameObjects.Image, ite
 	onDrop();
 }
 
-function sellZone(chestContainer: Container) {
+function sellZone() {
 
 	const sellImage = UIManager.scene.add.image(
 		400, constants.SCREEN_HEIGHT - 200,
 		"icon/sell"
 	).setScale(0.3);
+
 	const sellText = UIManager.scene.add.text(
 		400, constants.SCREEN_HEIGHT - 150,
 		"Sell",

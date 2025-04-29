@@ -15,7 +15,7 @@ import { getEmptySlot } from "../Board";
 import { makeUnit } from "../Unit";
 import commonEvents from "./common";
 import monsterEvents from "./monster";
-import { Flyout, retractFlyout, slideFlyoutIn } from "../../Systems/Flyout";
+import * as Flyout from "../../Systems/Flyout";
 
 let scene: Phaser.Scene;
 export let state: State;
@@ -145,13 +145,12 @@ export const displayMonsterEvents = (day: number) => displayEvents(monsterEvents
 
 const pickUnit = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 
-	const flyout = await Flyout(
+	const flyout = await Flyout.create(
 		scene,
 		"Choose Your Guild Members",
-		null
 	);
 
-	slideFlyoutIn(flyout);
+	Flyout.slideFlyoutIn(flyout);
 	const charas = await Promise.all(
 		choices.map(choice => {
 			const chara = Chara.createCard(
@@ -208,7 +207,7 @@ const pickUnit = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 
 			}
 
-			await retractFlyout(flyout);
+			await Flyout.retractFlyout(flyout);
 
 			await delay(scene, 500);
 

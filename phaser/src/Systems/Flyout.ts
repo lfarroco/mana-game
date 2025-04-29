@@ -7,10 +7,9 @@ import { tween } from "../Utils/animation";
 
 const flyoutWidth = 900;
 
-export const Flyout = async (
+export const create = async (
 	scene: Phaser.Scene,
 	title: string,
-	onExit: (() => void) | null, //todo: move this to a "addExit" function
 ) => {
 
 	const flyout = scene.add.container();
@@ -31,34 +30,33 @@ export const Flyout = async (
 
 	flyout.add([bg, titleText]);
 
-	if (onExit) {
-
-		const exit = scene.add.image(0, 0, "icon/exit")
-			.setScale(0.2)
-			.setOrigin(0.5)
-			.setInteractive()
-			.setPosition(780, scene.cameras.main.height - 100)
-			.on("pointerup", async () => {
-				await retractFlyout(flyout);
-				onExit();
-			});
-
-		const exitText = scene.add.text(
-			exit.x, exit.y,
-			"Exit",
-			defaultTextConfig,
-		)
-			.setOrigin(0.5)
-			.setFontFamily("Arial Black")
-			.setStroke("black", 14);
-
-		flyout.add([exit, exitText]);
-	}
-
 	flyout.setX(-flyoutWidth);
 
 	return flyout;
 
+}
+
+export function addExitButton(flyout: Container, onExit: () => void) {
+	const exit = flyout.scene.add.image(0, 0, "icon/exit")
+		.setScale(0.2)
+		.setOrigin(0.5)
+		.setInteractive()
+		.setPosition(780, flyout.scene.cameras.main.height - 100)
+		.on("pointerup", async () => {
+			await retractFlyout(flyout);
+			onExit();
+		});
+
+	const exitText = flyout.scene.add.text(
+		exit.x, exit.y,
+		"Exit",
+		defaultTextConfig,
+	)
+		.setOrigin(0.5)
+		.setFontFamily("Arial Black")
+		.setStroke("black", 14);
+
+	flyout.add([exit, exitText]);
 }
 
 export async function slideFlyoutIn(flyout: Phaser.GameObjects.Container) {
