@@ -1,6 +1,7 @@
 import { updatePlayerGoldIO } from "../../../Models/Force";
 import { Item } from "../../../Models/Item";
 import { getState } from "../../../Models/State";
+import { Flyout, retractFlyout, slideFlyoutIn } from "../../../Systems/Flyout";
 import * as Tooltip from "../../../Systems/Tooltip";
 import { tween } from "../../../Utils/animation";
 import * as constants from "../constants";
@@ -12,14 +13,19 @@ import { scene } from "./Choice";
 export const itemShop = async (
 	title: string,
 	items: Item[],
-) => new Promise<void>((resolve) => {
+) => new Promise<void>(async (resolve) => {
 
 	const store = scene.add.container();
 
-	const bg = scene.add.image(0, 0, "ui/wood_texture").setOrigin(0);
-	store.add(bg);
+	const flyout = await Flyout(scene, title, () => {
+		retractFlyout(flyout);
+		flyout.destroy();
+		resolve();
+	});
 
-	renderTitle(store, title);
+	flyout.add(store);
+
+	slideFlyoutIn(flyout);
 
 	items.forEach((item, i) => {
 
@@ -60,45 +66,8 @@ export const itemShop = async (
 
 	store.add([sellImage, sellText]);
 
-	const exit = scene.add.image(0, 0, "icon/exit")
-		.setScale(0.3)
-		.setOrigin(0.5)
-		.setInteractive()
-		.setPosition(400, scene.cameras.main.height - 200)
-		.on("pointerup", () => {
-			store.destroy();
-			exit.destroy();
-			resolve();
-			exitText.destroy();
-		});
-
-	const exitText = scene.add.text(
-		400, constants.SCREEN_HEIGHT - 150,
-		"Exit",
-		constants.defaultTextConfig,
-	)
-		.setOrigin(0.5)
-		.setFontFamily("Arial Black")
-		.setStroke("black", 14)
-		;
 
 });
-
-function renderTitle(parent: Phaser.GameObjects.Container, title: string) {
-	const titleText = parent.scene.add.text(
-		400, 50,
-		title,
-		{
-			...constants.defaultTextConfig,
-			color: "#ffffff",
-		})
-		.setOrigin(0.5)
-		.setFontFamily("Arial Black")
-		.setStroke("black", 14)
-		;
-
-	parent.add(titleText);
-}
 
 const handleBuy = (
 	scene: Phaser.Scene,
@@ -149,7 +118,6 @@ const handleBuy = (
 	icon.destroy();
 
 }
-
 
 const displayTooltip = (icon: Phaser.GameObjects.Image, item: Item) => () => {
 
