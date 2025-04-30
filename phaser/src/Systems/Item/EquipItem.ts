@@ -1,15 +1,16 @@
 import { Item } from "../../Models/Item";
 import { getBattleUnit, getGuildUnit, getState } from "../../Models/State";
+import { Unit } from "../../Models/Unit";
 import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH } from "../../Scenes/Battleground/constants";
 import { getChara } from "../../Scenes/Battleground/Systems/UnitManager";
 
 export type EquipItemArgs = {
 	item: Item | null;
-	unitId: string;
+	unit: Unit;
 }
-const equipItemInChara = async ({ unitId, item }: EquipItemArgs): Promise<void> => {
+const equipItemInChara = async ({ unit, item }: EquipItemArgs): Promise<void> => {
 
-	const chara = getChara(unitId);
+	const chara = getChara(unit.id);
 
 	if (item === null) {
 		chara.equipDisplay.alpha = 0;
@@ -23,11 +24,7 @@ const equipItemInChara = async ({ unitId, item }: EquipItemArgs): Promise<void> 
 	);
 }
 
-export const equipItemInGuildUnit = async ({ unitId, item }: EquipItemArgs): Promise<void> => {
-
-	const state = getState();
-
-	const unit = getGuildUnit(state)(unitId)!;
+export const equipItemInUnit = async ({ unit, item }: EquipItemArgs): Promise<void> => {
 
 	const currentItem = unit.equip;
 
@@ -47,7 +44,7 @@ export const equipItemInGuildUnit = async ({ unitId, item }: EquipItemArgs): Pro
 
 	unit.equip = item;
 
-	equipItemInChara({ unitId, item });
+	equipItemInChara({ unit, item });
 }
 
 export const burnConsumableInBattle = (unitId: string) => {
@@ -59,7 +56,7 @@ export const burnConsumableInBattle = (unitId: string) => {
 	unit.equip = null;
 
 	// update display
-	equipItemInChara({ unitId, item: null });
+	equipItemInChara({ unit, item: null });
 
 	// propagate to guild unit
 	const guildUnit = getGuildUnit(state)(unitId)!;
