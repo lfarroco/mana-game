@@ -143,7 +143,7 @@ const displayEvents = async (eventArray: Encounter[], _day: number) => {
 export const displayRandomEvents = (day: number) => displayEvents(randomEvents, day);
 export const displayMonsterEvents = (day: number) => displayEvents(monsterEvents(), day);
 
-const pickUnit = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
+const pickUnit = async (choices: Choice[]) => {
 
 	const flyout = await Flyout.create(
 		scene,
@@ -151,71 +151,80 @@ const pickUnit = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
 	);
 
 	Flyout.slideFlyoutIn(flyout);
-	const charas = await Promise.all(
-		choices.map(choice => {
-			const chara = Chara.createCard(
-				makeUnit(v4(), playerForce.id, choice.value as JobId, vec2(0, 1)),
-			);
-			chara.container.setPosition(chara.sprite.width * -1.2, 500);
-			return chara
-		})
-	)
 
-	charas.forEach(async (chara, i) => {
-		await delay(scene, 200 + (250 * i));
+	while (state.gameData.player.units.length < 3) {
 
-		await tween({
-			targets: [chara.container],
-			x: 180 + 250 * i,
-			duration: 1500 / getState().options.speed,
-			ease: "Power2",
-		})
+		await new Promise<void>(async (resolve) => {
 
-		UnitManager.addCharaToState(chara);
+			const charas = await Promise.all(
+				choices.map(choice => {
+					const chara = Chara.createCard(
+						makeUnit(v4(), playerForce.id, choice.value as JobId, vec2(0, 1)),
+					);
+					chara.container.setPosition(chara.sprite.width * -1.2, 500);
+					return chara
+				})
+			)
 
-		chara.zone.setInteractive({ draggable: true });
-
-		Chara.addTooltip(chara);
-
-		chara.zone.once('pointerup', async () => {
-
-			Tooltip.hide();
-
-			const emptySlot = getEmptySlot(playerForce.units, playerForce.id);
-
-			chara.unit.position = emptySlot
-			state.gameData.player.units.push(chara.unit);
-
-			for (const c of charas) {
-
-				if (chara.id === c.id) {
-					const pos = UnitManager.getCharaPosition(c.unit);
-					tween({
-						targets: [c.container],
-						...pos,
-					});
-					Chara.addBoardEvents(c);
-					continue;
-				};
+			charas.forEach(async (chara, i) => {
+				await delay(scene, 200 + (250 * i));
 
 				await tween({
-					targets: [c.container],
-					x: -100,
+					targets: [chara.container],
+					x: 180 + 250 * i,
+					duration: 1500 / getState().options.speed,
+					ease: "Power2",
 				})
 
-				UnitManager.destroyChara(c.id);
+				UnitManager.addCharaToState(chara);
 
-			}
+				chara.zone.setInteractive({ draggable: true });
 
-			await Flyout.retractFlyout(flyout);
+				Chara.addTooltip(chara);
 
-			await delay(scene, 500);
+				chara.zone.once('pointerup', async () => {
 
-			resolve(choices[i]);
+					Tooltip.hide();
 
-			flyout.destroy();
+					const emptySlot = getEmptySlot(playerForce.units, playerForce.id);
+
+					chara.unit.position = emptySlot
+					state.gameData.player.units.push(chara.unit);
+
+					for (const c of charas) {
+
+						if (chara.id === c.id) {
+							const pos = UnitManager.getCharaPosition(c.unit);
+							tween({
+								targets: [c.container],
+								...pos,
+							});
+							Chara.addBoardEvents(c);
+							continue;
+						};
+
+						await tween({
+							targets: [c.container],
+							x: -100,
+						})
+
+						UnitManager.destroyChara(c.id);
+
+					}
+
+
+
+					resolve();
+
+				});
+
+			});
+
 		});
+	}
 
-	});
-});
+	await Flyout.retractFlyout(flyout);
+	await delay(scene, 500);
+	flyout.destroy();
+}
 
