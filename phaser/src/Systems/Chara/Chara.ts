@@ -74,7 +74,10 @@ export function createCard(unit: Unit): Chara {
 
 	const atkBg = scene.add.graphics();
 
-	atkBg.fillStyle(0x98240a, 1);
+	// physical = red
+	// magic = blue
+	const color = unit.attackType === "magic" ? 0x0a4a98 : 0x98240a;
+	atkBg.fillStyle(color, 1);
 	atkBg.fillRoundedRect(
 		...atkPosition,
 		boxWidth, boxHeight,
