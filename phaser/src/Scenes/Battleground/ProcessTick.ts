@@ -29,19 +29,16 @@ const processTick = async (scene: BattlegroundScene) => {
       const cpuUnits = scene.state.battleData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_CPU);
 
       if (cpuUnits.length === 0) {
-        await vignette(scene, "Victory!");
-
         if (UIManager.uiState.interruptCommand) {
-          const interrupt = await shouldInterrupt();
+          const shouldReturnToTown = await shouldInterrupt();
 
-          if (interrupt) {
+          if (shouldReturnToTown) {
             waveFinished(scene);
             continueProcessing = false;
             return;
           } else {
             UIManager.uiState.interruptCommand = false;
           }
-
         }
 
         await delay(scene, 1000 / state.options.speed);

@@ -62,39 +62,12 @@ export const ENCOUNTER_BLOBS = () => {
 			"xx1"
 		],
 		[
-			"x11",
-			"xx1",
-			"x11"
-		],
-		[
-			"1xx",
-			"2x1",
-			"xx1"
-		],
-		[
-			"xx1",
-			"x11",
-			"xx1"
-		],
-		[
-			"x11",
+			"xxx",
 			"xx1",
 			"x11"
 		],
 
-		[
-			"x11",
-			"x21",
-			"x11"
-		],
-
-		[
-			"x21",
-			"x11",
-			"x21"
-		]
-
-	]
+	];
 	return parseEncounter(pickOne(templates), { '1': BLOB, '2': RED_BLOB })
 
 };
