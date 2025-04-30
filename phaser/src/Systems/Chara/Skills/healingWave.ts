@@ -9,7 +9,19 @@ import { EnergyBeam } from "../../../Effects/EnergyBeam";
 import { healingHitEffect } from "../../../Effects/healingHitEffect";
 import { getSkill, HEALING_WAVE } from "../../../Models/Skill";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
+import { lightOrb } from "./lightOrb";
 
+/**
+ * Performs a healing wave skill that targets allies with low health.
+ * 
+ * This function identifies allies near the casting unit who have less than 70% health,
+ * sorts them by health percentage, and heals up to 3 of the most damaged allies.
+ * If no allies need healing, it performs a light orb skill instead.
+ * The healing effect is visualized with a wave animation connecting the healed units.
+ * 
+ * @param scene - The battleground scene where the skill is being used
+ * @param unit - The unit casting the healing wave skill
+ */
 export async function healingWave(scene: BattlegroundScene, unit: Unit) {
 
 	const skill = getSkill(HEALING_WAVE);
@@ -18,7 +30,7 @@ export async function healingWave(scene: BattlegroundScene, unit: Unit) {
 		.concat([unit]);
 
 	const hurtAllies = allies
-		.filter(u => u.hp < u.maxHp)
+		.filter(u => u.hp < u.maxHp * 0.7)
 		.map(unit => {
 			const percentage = unit.hp / unit.maxHp;
 			return {
@@ -29,6 +41,10 @@ export async function healingWave(scene: BattlegroundScene, unit: Unit) {
 		.sort((a, b) => b.percentage - a.percentage)
 		.map(({ unit }) => unit);
 
+	if (hurtAllies.length === 0) {
+		await lightOrb(scene)(unit);
+		return;
+	}
 
 	const top3 = hurtAllies.slice(0, 3);
 
@@ -42,7 +58,16 @@ export async function healingWave(scene: BattlegroundScene, unit: Unit) {
 
 }
 
-
+/**
+ * Creates a visual animation showing energy beams connecting between targets.
+ * 
+ * Generates energy beam effects between each consecutive target in the provided array,
+ * creates healing hit effects at each target position, and manages the animation
+ * lifecycle including creation, updates during the animation duration, and cleanup.
+ * 
+ * @param scene - The battleground scene where the animation will be displayed
+ * @param targets - Array of positions where healing effects should be displayed
+ */
 async function animation(scene: BattlegroundScene, targets: Vec2[]) {
 	const lifespan = 1000 / scene.speed;
 
