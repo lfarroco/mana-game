@@ -77,21 +77,13 @@ export async function arcaneMissle(
 		}
 	);
 
+	await delay(scene, 300 / speed);
 
-	scene.time.addEvent({
-		delay: 300 / speed,
-		callback: () => {
-			impact.stop();
-		}
-	});
+	impact.stop();
 
-	scene.time.addEvent({
-		delay: 500 / speed,
-		callback: () => {
+	await delay(scene, 500 / speed);
 
-			beam.destroy();
-			particles.destroy();
-			impact.destroy();
-		}
-	});
+	beam.destroy();
+	particles.destroy();
+	impact.destroy();
 }
