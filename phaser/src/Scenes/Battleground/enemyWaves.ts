@@ -2,6 +2,7 @@ import { FORCE_ID_CPU } from "./constants";
 import { vec2 } from "../../Models/Geometry";
 import { BLOB, BLOB_MAGE, JobId, RED_BLOB, SKELETON } from "../../Models/Job";
 import { makeUnit, Unit } from "../../Models/Unit";
+import { pickOne } from "../../utils";
 
 const enemy = (job: JobId, x: number, y: number) => makeUnit(
 	Math.random().toString(),
@@ -29,11 +30,11 @@ export const waves: { [idx: number]: Unit[] } = {
 	]
 };
 
-export const parseEncounter = (template: string, charToJob: Record<string, JobId> = { '1': BLOB, '2': RED_BLOB }): Unit[] => {
-	const lines = template.trim().split('\n');
+export const parseEncounter = (lines: string[], charToJob: Record<string, JobId>): Unit[] => {
 	const height = lines.length;
 	const width = lines[0].length;
 	const units: Unit[] = [];
+
 	for (let y = 0; y < height; y++) {
 		const line = lines[y];
 		for (let x = 0; x < width; x++) {
@@ -44,17 +45,64 @@ export const parseEncounter = (template: string, charToJob: Record<string, JobId
 			units.push(enemy(job, x, y));
 		}
 	}
+
 	return units;
-}
+};
 
-export const ENCOUNTER_BLOBS = parseEncounter(`
-xxx
-xx1
-xxx
-`, { '1': BLOB, '2': RED_BLOB });
+export const ENCOUNTER_BLOBS = () => {
+	const templates = [
+		[
+			"xxx",
+			"x1x",
+			"xxx"
+		],
+		[
+			"xx1",
+			"x2x",
+			"xx1"
+		],
+		[
+			"x11",
+			"xx1",
+			"x11"
+		],
+		[
+			"1xx",
+			"2x1",
+			"xx1"
+		],
+		[
+			"xx1",
+			"x11",
+			"xx1"
+		],
+		[
+			"x11",
+			"xx1",
+			"x11"
+		],
 
-export const ENCOUNTER_UNDEAD = parseEncounter(`
-x11
-xx1
-x11
-`, { '1': SKELETON });
+		[
+			"x11",
+			"x21",
+			"x11"
+		],
+
+		[
+			"x21",
+			"x11",
+			"x21"
+		]
+
+	]
+	return parseEncounter(pickOne(templates), { '1': BLOB, '2': RED_BLOB })
+
+};
+
+export const ENCOUNTER_UNDEAD = parseEncounter(
+	[
+		"x11",
+		"xx1",
+		"x11"
+	]
+	, { '1': SKELETON });

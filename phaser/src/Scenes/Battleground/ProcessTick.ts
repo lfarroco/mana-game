@@ -48,7 +48,7 @@ const processTick = async (scene: BattlegroundScene) => {
 
         const playerUnits = state.battleData.units.filter(u => u.force === FORCE_ID_PLAYER);
 
-        return await createWave([...playerUnits, ...ENCOUNTER_BLOBS])
+        return await createWave([...playerUnits, ...ENCOUNTER_BLOBS()])
 
       } else if (playerUnits.length === 0) {
 
