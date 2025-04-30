@@ -49,7 +49,7 @@ const processTick = async (scene: BattlegroundScene) => {
 
       } else if (playerUnits.length === 0) {
 
-        await vignette(scene, "Defeat!");
+        await vignette(scene, "End of Run!");
 
         await delay(scene, 1000 / state.options.speed);
 
