@@ -61,8 +61,7 @@ export const performAction = (scene: BattlegroundScene) => (unit: Unit) => async
 	}
 	else if (skillId === Skill.HEAL) {
 		await healing(scene)(unit);
-	}
-	else if (skillId === "shoot") {
+	} else if (skillId === "shoot") {
 		await shoot(scene)(unit);
 	} else if (skillId === "light-orb") {
 		await lightOrb(scene)(unit);

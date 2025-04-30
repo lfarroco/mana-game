@@ -24,7 +24,6 @@ export const healing = (
 	const [hurtAndClose] = hurtAllies
 		.filter((a) => snakeDistanceBetween(a.position)(unit.position) <= 3);
 
-
 	if (hurtAndClose) {
 		await healAnimation(scene, unit, hurtAndClose);
 		return;
