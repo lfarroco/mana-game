@@ -15,6 +15,7 @@ export async function createWave(
 	UnitManager.clearCharas();
 
 	scene.state.battleData.units = units
+		.filter(u => u.hp > 0)
 		.map(u => ({ ...u }));
 
 	scene.state.battleData.units.forEach(u => UnitManager.summonChara(u));
