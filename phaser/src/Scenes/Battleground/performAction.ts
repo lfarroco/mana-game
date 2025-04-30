@@ -1,6 +1,5 @@
 import * as Skill from "../../Models/Skill";
 import { Unit } from "../../Models/Unit";
-import { specialAnimation } from "../../Systems/Chara/Animations/specialAnimation";
 import { arcaneMissiles } from "../../Systems/Chara/Skills/arcaneMissiles";
 import { explode } from "../../Systems/Chara/Skills/explode";
 import { feint } from "../../Systems/Chara/Skills/feint";
@@ -36,29 +35,20 @@ export const performAction = (scene: BattlegroundScene) => (unit: Unit) => async
 
 	if (skillId === Skill.SUMMON_BLOB) {
 
-		await specialAnimation(activeChara);
-
 		await summon(activeChara);
 
 	} else if (skillId === Skill.MULTISHOT) {
-
-		await specialAnimation(activeChara);
 
 		await multishot(unit, activeChara, scene);
 
 	} else if (skillId === Skill.HEALING_WAVE) {
 
-		await specialAnimation(activeChara);
-
 		await healingWave(scene, unit);
 
 	} else if (skillId === Skill.FEINT) {
-		await specialAnimation(activeChara);
-
 		await feint(scene, unit);
 
 	} else if (skillId === Skill.FIREBALL) {
-		await specialAnimation(activeChara);
 
 		await fireball(scene)(unit);
 
