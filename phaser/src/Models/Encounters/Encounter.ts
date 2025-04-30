@@ -91,7 +91,6 @@ export const starterEvent: Encounter = {
 				job.id,
 			));
 		}
-
 	}
 }
 
@@ -112,7 +111,7 @@ export const evalEvent = async (event: Encounter) => {
 			await event.triggers.action(scene, state);
 			break;
 		case "pick-unit":
-			await pickUnit(event.triggers.choices());
+			await pickUnit(event.triggers.choices);
 			break;
 		case "item-shop":
 			await itemShop(
@@ -143,7 +142,7 @@ const displayEvents = async (eventArray: Encounter[], _day: number) => {
 export const displayRandomEvents = (day: number) => displayEvents(randomEvents, day);
 export const displayMonsterEvents = (day: number) => displayEvents(monsterEvents(), day);
 
-const pickUnit = async (choices: Choice[]) => {
+const pickUnit = async (genChoices: () => Choice[]) => {
 
 	const flyout = await Flyout.create(
 		scene,
@@ -157,14 +156,14 @@ const pickUnit = async (choices: Choice[]) => {
 		await new Promise<void>(async (resolve) => {
 
 			const charas = await Promise.all(
-				choices.map(choice => {
+				genChoices().map(choice => {
 					const chara = Chara.createCard(
 						makeUnit(v4(), playerForce.id, choice.value as JobId, vec2(0, 1)),
 					);
 					chara.container.setPosition(chara.sprite.width * -1.2, 500);
 					return chara
 				})
-			)
+			);
 
 			charas.forEach(async (chara, i) => {
 				await delay(scene, 200 + (250 * i));
