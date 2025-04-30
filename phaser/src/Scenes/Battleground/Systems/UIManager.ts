@@ -83,7 +83,6 @@ export function updateUI() {
 	[
 		"Gold: " + force.gold,
 		"Income: " + force.income,
-		"HP: " + force.hp,
 		"Day: " + scene.state.gameData.day,
 		"Hour: " + scene.state.gameData.hour,
 	].forEach((text, i) => {

@@ -1,20 +1,32 @@
 import { BattlegroundScene } from "./BattlegroundScene";
 import { getActiveUnits, getState, } from "../../Models/State";
 import { delay } from "../../Utils/animation";
-import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "./constants";
+import { defaultTextConfig, FORCE_ID_CPU, FORCE_ID_PLAYER } from "./constants";
 import { vignette } from "./Animations/vignette";
 import { performAction } from "./performAction";
 import { showGrid } from "./Systems/GridSystem";
 import { refreshScene } from "./EventHandlers";
 import { createWave } from "./Systems/WaveManager";
 import { ENCOUNTER_BLOBS } from "./enemyWaves";
-import { clearCharas } from "./Systems/UnitManager";
+import { displayChoices } from "./Systems/Choice";
 
 const processTick = async (scene: BattlegroundScene) => {
   const state = getState();
-  const { player } = state.gameData;
 
   let continueProcessing = true;
+  let interruptCommand = false;
+
+  const interruptBtn = scene.add.text(
+    scene.cameras.main.centerX,
+    scene.cameras.main.height - 100,
+    "Interrupt",
+    defaultTextConfig).setInteractive()
+    .on("pointerup", async () => {
+
+      interruptCommand = true;
+      interruptBtn.setText("Continue").setStyle({ color: "#00ff00" });
+
+    });
 
   while (continueProcessing) {
 
@@ -31,26 +43,27 @@ const processTick = async (scene: BattlegroundScene) => {
       if (cpuUnits.length === 0) {
         await vignette(scene, "Victory!");
 
-        //updatePlayerGoldIO(GOLD_PER_WAVE);
+        if (interruptCommand) {
+          const interrupt = await shouldInterrupt();
+
+          if (interrupt) {
+            waveFinished(scene);
+            continueProcessing = false;
+            return;
+          } else {
+            interruptBtn.setText("Interrupt").setStyle({ color: "#00ff00" });
+            interruptCommand = false;
+          }
+
+        }
 
         await delay(scene, 1000 / state.options.speed);
 
-        // get next wave or finish
-
         const playerUnits = state.battleData.units.filter(u => u.force === FORCE_ID_PLAYER);
 
-        clearCharas();
-
-        await createWave([...playerUnits, ...ENCOUNTER_BLOBS])
-
-        //waveFinished(scene);
-        //continueProcessing = false;
-        break;
+        return await createWave([...playerUnits, ...ENCOUNTER_BLOBS])
 
       } else if (playerUnits.length === 0) {
-        //updatePlayerGoldIO(GOLD_PER_WAVE);
-
-        player.hp = Math.max(0, player.hp - cpuUnits.length);
 
         await vignette(scene, "Defeat!");
 
@@ -58,7 +71,7 @@ const processTick = async (scene: BattlegroundScene) => {
 
         waveFinished(scene);
         continueProcessing = false;
-        break;
+        return;
       }
     }
 
@@ -86,6 +99,20 @@ const processTick = async (scene: BattlegroundScene) => {
     }
   }
 };
+
+async function shouldInterrupt() {
+  const choice = await displayChoices([
+    { pic: "icon/forest_entrance", title: "Continue", desc: "Continue the adventure", value: "continue" },
+    { pic: "icon/agility_training", title: "Retreat", desc: "Return to town", value: "retreat" },
+  ])
+
+  if (choice.value === "continue") {
+    return false;
+  }
+  if (choice.value === "retreat") {
+    return true;
+  }
+}
 
 function waveFinished(scene: BattlegroundScene) {
   showGrid();

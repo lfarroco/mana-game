@@ -10,6 +10,8 @@ export const dropItem = async (chara: Chara) => {
 
 	if (chara.unit.force !== FORCE_ID_CPU) return;
 
+	if (Math.random() > 0.2) return;
+
 	// render item at location
 
 	const item = scene.add.image(
