@@ -13,7 +13,7 @@ import * as GridSystem from "../../Scenes/Battleground/Systems/GridSystem";
 import { BLUE_BONNET, VIVIRED_RED } from "../../Utils/colors";
 import { getState, State } from "../../Models/State";
 import * as TooltipSytem from "../Tooltip";
-import { equipItemInGuildUnit } from "../Item/EquipItem";
+import { equipItemInUnit } from "../Item/EquipItem";
 import { popText } from "./Animations/popText";
 import { criticalDamageDisplay } from "../../Effects";
 import * as ItemDrop from "../Item/ItemDrop";
@@ -288,16 +288,16 @@ function renderItemSlot(unit: Unit, container: Phaser.GameObjects.Container) {
 			// back to chest
 			if (unit.equip) playerForce.items.push(unit.equip);
 
-			equipItemInGuildUnit({ unitId: unit.id, item: null });
+			equipItemInUnit({ unit, item: null });
 			Chest.updateChestIO();
 		} else {
 			if (closest.unit.id === unit.id) { //self
-				equipItemInGuildUnit({ unitId: unit.id, item: unit.equip });
+				equipItemInUnit({ unit, item: unit.equip });
 			} else { //another
 				const currEquip = closest.unit.equip;
 
-				equipItemInGuildUnit({ unitId: closest.id, item: unit.equip });
-				equipItemInGuildUnit({ unitId: unit.id, item: currEquip });
+				equipItemInUnit({ unit: closest.unit, item: unit.equip });
+				equipItemInUnit({ unit: unit, item: currEquip });
 
 			}
 		}

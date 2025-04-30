@@ -2,7 +2,7 @@ import { Item } from "../../../Models/Item";
 import { getState, State } from "../../../Models/State";
 import { Chara } from "../../../Systems/Chara/Chara";
 import * as Flyout from "../../../Systems/Flyout";
-import { equipItemInGuildUnit } from "../../../Systems/Item/EquipItem";
+import { equipItemInUnit } from "../../../Systems/Item/EquipItem";
 import * as Tooltip from "../../../Systems/Tooltip";
 import * as constants from "../constants";
 import * as UIManager from "./UIManager";
@@ -152,7 +152,6 @@ export const updateChestIO = async () => {
 					return;
 				}
 
-
 				// check if dropped over another item
 				const targetSlot = slots.find(slot => Phaser.Geom.Intersects.RectangleToRectangle(
 					new Phaser.Geom.Rectangle(pointer.x, pointer.y, 1, 1),
@@ -217,7 +216,16 @@ function dropItemInChara(targetChara: Chara, icon: Phaser.GameObjects.Image, ite
 
 	const currentItem = targetChara.unit.equip;
 
-	equipItemInGuildUnit({ unitId: targetChara.unit.id, item });
+	equipItemInUnit({ unit: targetChara.unit, item });
+
+	// propagate to guild unit
+	if (UIManager.uiState.interruptCommand) {
+		state.gameData.player.units.forEach(u => {
+			if (u.id === targetChara.unit.id) {
+				u.equip = item;
+			}
+		})
+	}
 
 	state.gameData.player.items = state.gameData.player.items.filter(i => i?.id !== item.id);
 
