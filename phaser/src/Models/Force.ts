@@ -10,7 +10,6 @@ export type Force = {
 	gold: number;
 	income: number;
 	items: (Item | null)[]; // todo: replace with map
-	hp: number;
 	units: Unit[]
 };
 
@@ -20,7 +19,6 @@ export const makeForce = (id: string): Force => ({
 	color: "",
 	gold: 10,
 	income: 5,
-	hp: 50,
 	units: [],
 	items: [
 		ITEMS.RED_POTION(),

@@ -49,7 +49,7 @@ export const parseEncounter = (template: string, charToJob: Record<string, JobId
 
 export const ENCOUNTER_BLOBS = parseEncounter(`
 xxx
-2x1
+xx1
 xxx
 `, { '1': BLOB, '2': RED_BLOB });
 
