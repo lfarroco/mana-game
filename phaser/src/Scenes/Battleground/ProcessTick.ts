@@ -1,7 +1,7 @@
 import { BattlegroundScene } from "./BattlegroundScene";
 import { getActiveUnits, getState, } from "../../Models/State";
 import { delay } from "../../Utils/animation";
-import { defaultTextConfig, FORCE_ID_CPU, FORCE_ID_PLAYER } from "./constants";
+import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "./constants";
 import { vignette } from "./Animations/vignette";
 import { performAction } from "./performAction";
 import { showGrid } from "./Systems/GridSystem";
@@ -9,24 +9,12 @@ import { refreshScene } from "./EventHandlers";
 import { createWave } from "./Systems/WaveManager";
 import { ENCOUNTER_BLOBS } from "./enemyWaves";
 import { displayChoices } from "./Systems/Choice";
+import * as UIManager from "./Systems/UIManager";
 
 const processTick = async (scene: BattlegroundScene) => {
   const state = getState();
 
   let continueProcessing = true;
-  let interruptCommand = false;
-
-  const interruptBtn = scene.add.text(
-    scene.cameras.main.centerX,
-    scene.cameras.main.height - 100,
-    "Interrupt",
-    defaultTextConfig).setInteractive()
-    .on("pointerup", async () => {
-
-      interruptCommand = true;
-      interruptBtn.setText("Continue").setStyle({ color: "#00ff00" });
-
-    });
 
   while (continueProcessing) {
 
@@ -43,7 +31,7 @@ const processTick = async (scene: BattlegroundScene) => {
       if (cpuUnits.length === 0) {
         await vignette(scene, "Victory!");
 
-        if (interruptCommand) {
+        if (UIManager.uiState.interruptCommand) {
           const interrupt = await shouldInterrupt();
 
           if (interrupt) {
@@ -51,8 +39,7 @@ const processTick = async (scene: BattlegroundScene) => {
             continueProcessing = false;
             return;
           } else {
-            interruptBtn.setText("Interrupt").setStyle({ color: "#00ff00" });
-            interruptCommand = false;
+            UIManager.uiState.interruptCommand = false;
           }
 
         }
