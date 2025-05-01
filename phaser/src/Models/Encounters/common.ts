@@ -1,42 +1,38 @@
-import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
-import { summonChara } from "../../Scenes/Battleground/Systems/UnitManager";
-import { updatePlayerGoldIO } from "../Force";
-import { FORCE_ID_PLAYER } from "../../Scenes/Battleground/constants";
+import { playerForce } from "../Force";
 import { ITEMS } from "../Item";
-import { BLOB } from "../Job";
-import { addUnitToGuild, State } from "../State";
+import { getJob } from "../Job";
 import { Encounter, makeEncounter, TIER } from "./Encounter";
+import { pickRandom } from "../../utils";
+import { newChoice } from "../../Scenes/Battleground/Systems/Choice";
 
 const commonEvents = (): Encounter[] => [
-	makeEncounter("odd_job", TIER.COMMON, "Odd Job", "You have been offered a job for 5 gold", "icon/old_adventurer", {
-		type: "instant",
-		action: (_scene, _state: State) => {
-			updatePlayerGoldIO(5);
-		}
-	}),
-	makeEncounter("new_friend", TIER.COMMON, "A new friend", "You have made a new friend", "icon/old_adventurer", {
-		type: "instant",
-		action: (_scene, _state) => {
-			const unit = addUnitToGuild(FORCE_ID_PLAYER, BLOB);
-			summonChara(unit);
-		}
-	}),
-	makeEncounter("investment_opportunity", TIER.COMMON, "Investment Opportunity", "+2 income", "icon/old_adventurer", {
-		type: "instant",
-		action: (_scene, state: State) => {
-			state.gameData.player.income += 2;
-			UIManager.updateUI();
-		}
-	}),
-	makeEncounter("potion_vendor", TIER.COMMON, "Potion Vendor", "You have found a potion vendor", "icon/potion_vendor", {
-		type: "item-shop",
-		choices: () => [
-			ITEMS.RED_POTION(),
-			ITEMS.TOXIC_POTION(),
-		]
-	}),
-	equipmentVendor()
+	potionVendor(),
+	equipmentVendor(),
+	tavern()
 ];
+
+export const tavern = (): Encounter => ({
+	id: "2",
+	tier: TIER.COMMON,
+	title: "Tavern",
+	description: "Recruit new members for your guild",
+	pic: "icon/tavern",
+	triggers: {
+		type: "pick-unit",
+		choices: () => {
+			const playerJobs = playerForce.units.map(u => u.job);
+			const remaning = playerForce.units.map(u => u.job).filter(job => !playerJobs.includes(job));
+			const randomJobs = pickRandom(remaning, 3).map(getJob)
+			return randomJobs.map(job => newChoice(
+				`charas/${job.id}`,
+				job.name,
+				job.description,
+				job.id,
+			));
+		}
+	}
+});
+
 export const equipmentVendor = () => makeEncounter("equipment_vendor", TIER.COMMON, "Equipment Vendor", "You have found an equipment vendor", "icon/equipment_vendor", {
 	type: "item-shop",
 	choices: () => [
@@ -53,3 +49,13 @@ export const equipmentVendor = () => makeEncounter("equipment_vendor", TIER.COMM
 
 
 export default commonEvents;
+function potionVendor(): Encounter {
+	return makeEncounter("potion_vendor", TIER.COMMON, "Potion Vendor", "You have found a potion vendor", "icon/potion_vendor", {
+		type: "item-shop",
+		choices: () => [
+			ITEMS.RED_POTION(),
+			ITEMS.TOXIC_POTION(),
+		]
+	});
+}
+
