@@ -26,11 +26,10 @@ export const BARBARIAN = "barbarian" as JobId;
 export const PIRATE = "pirate" as JobId;
 export const PALADIN = "paladin" as JobId;
 export const RANGER = "ranger" as JobId;
-export const ROGUE = "rogue" as JobId;
 export const NECROMANCER = "necromancer" as JobId;
 export const BARD = "bard" as JobId;
 
-const STARTER_JOBS = [ARCHER, CLERIC, APPRENTICE, KNIGHT, THIEF, DRUID, BARBARIAN, PIRATE, PALADIN, RANGER, ROGUE, NECROMANCER, BARD];
+const STARTER_JOBS = [ARCHER, CLERIC, APPRENTICE, KNIGHT, THIEF, DRUID, BARBARIAN, PIRATE, PALADIN, RANGER, NECROMANCER, BARD];
 
 const baseJobs = `
 Job           | Name        | HP  | ATK  | AGI | Skill                | Traits
@@ -45,7 +44,6 @@ ${BARBARIAN}  | Barbarian   | 250 | 30   | 20  | ${s.SLASH}           | ${t.BERS
 ${PIRATE}     | Pirate      | 200 | 20   | 30  | ${s.SLASH}           |
 ${PALADIN}    | Paladin     | 250 | 20   | 20  | ${s.SLASH}           | ${t.TAUNT.id}, ${t.PROTECTOR.id}
 ${RANGER}     | Ranger      | 250 | 20   | 20  | ${s.SHOOT}           | 
-${ROGUE}      | Rogue       | 250 | 20   | 20  | ${s.SLASH}           |
 ${NECROMANCER}| Necromancer | 250 | 20   | 20  | ${s.SLASH}           |
 ${BARD}       | Bard        | 250 | 20   | 20  | ${s.SLASH}           |
 `;
