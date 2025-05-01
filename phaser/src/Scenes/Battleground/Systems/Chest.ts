@@ -21,6 +21,16 @@ export let flyout: Container;
 export let chestContainer: Container;
 
 export async function renderChestButton() {
+	UIManager.scene.add.image(
+		...[
+
+			constants.SCREEN_WIDTH - 120,
+			constants.SCREEN_HEIGHT - 330
+
+		],
+		"icon/map")
+		.setOrigin(0.5)
+		.setDisplaySize(230, 230);
 
 	const chest = UIManager.scene.add.image(
 		...position,
@@ -241,7 +251,8 @@ function sellZone() {
 	const sellImage = UIManager.scene.add.image(
 		400, constants.SCREEN_HEIGHT - 200,
 		"icon/sell"
-	).setScale(0.3);
+	)
+		.setDisplaySize(400, 250)
 
 	const sellText = UIManager.scene.add.text(
 		400, constants.SCREEN_HEIGHT - 150,

@@ -38,7 +38,7 @@ export const create = async (
 
 export function addExitButton(flyout: Container, onExit: () => void) {
 	const exit = flyout.scene.add.image(0, 0, "icon/exit")
-		.setScale(0.2)
+		.setDisplaySize(200, 200)
 		.setOrigin(0.5)
 		.setInteractive()
 		.setPosition(780, flyout.scene.cameras.main.height - 100)

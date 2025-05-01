@@ -52,7 +52,8 @@ export function preload(this: Phaser.Scene) {
 		'agility_training',
 		'forest_entrance',
 		'sell',
-		'exit'
+		'exit',
+		'map',
 	].forEach(icon => {
 		this.load.image(`icon/${icon}`, `assets/icons/${icon}.png`);
 	});
