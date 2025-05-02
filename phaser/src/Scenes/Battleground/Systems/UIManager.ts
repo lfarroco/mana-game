@@ -5,6 +5,7 @@ import { delay, tween } from "../../../Utils/animation";
 import { COLOR_BLACK } from "../../../Utils/colors";
 import { getState, State } from "../../../Models/State";
 import * as Chest from "./Chest";
+import * as MapList from "./MapList";
 
 export let ui: Phaser.GameObjects.Container | null = null;
 export let dropZone: Phaser.GameObjects.Zone | null = null;
@@ -94,8 +95,9 @@ export function updateUI() {
 		ui?.add(uiText);
 	});
 
-	Chest.renderChestButton();
+	Chest.renderChestButton(scene);
 
+	MapList.renderMapButton(scene);
 
 }
 

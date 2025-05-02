@@ -20,19 +20,9 @@ export let isAnimating = false;
 export let flyout: Container;
 export let chestContainer: Container;
 
-export async function renderChestButton() {
-	UIManager.scene.add.image(
-		...[
+export async function renderChestButton(scene: Scene) {
 
-			constants.SCREEN_WIDTH - 120,
-			constants.SCREEN_HEIGHT - 330
-
-		],
-		"icon/map")
-		.setOrigin(0.5)
-		.setDisplaySize(230, 230);
-
-	const chest = UIManager.scene.add.image(
+	const chest = scene.add.image(
 		...position,
 		"ui/chest")
 		.setOrigin(0.5)
@@ -40,9 +30,9 @@ export async function renderChestButton() {
 
 	chest.setInteractive();
 
-	chestContainer = UIManager.scene.add.container(0, 0)
+	chestContainer = scene.add.container(0, 0)
 
-	flyout = await Flyout.create(UIManager.scene, "Chest")
+	flyout = await Flyout.create(scene, "Chest")
 	Flyout.addExitButton(flyout, () => closeChest());
 
 	flyout.add(chestContainer);
