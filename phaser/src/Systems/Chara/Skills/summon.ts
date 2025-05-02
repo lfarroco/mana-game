@@ -41,7 +41,7 @@ export async function summon(chara: Chara) {
 
 	// create a blob in each slot
 	const actions = emptySlots.map(slot => async () => {
-		const blob = makeUnit(Math.random().toString(), FORCE_ID_CPU, BLOB, slot);
+		const blob = makeUnit(FORCE_ID_CPU, BLOB, slot);
 		state.battleData.units.push(blob);
 		UnitManager.summonChara(blob);
 		await delay(scene, 500 / state.options.speed);

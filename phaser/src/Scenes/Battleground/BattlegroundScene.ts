@@ -14,6 +14,10 @@ import * as ChoiceSystem from "./Systems/Choice";
 import * as EventSystem from "../../Models/Encounters/Encounter";
 import * as TraitSystem from "../../Models/Traits";
 import * as TooltipSystem from "../../Systems/Tooltip";
+import { makeUnit } from "../../Models/Unit";
+import { playerForce, updatePlayerGoldIO } from "../../Models/Force";
+import { ARCHER, CLERIC, KNIGHT } from "../../Models/Job";
+import { vec2 } from "../../Models/Geometry";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -87,30 +91,62 @@ export class BattlegroundScene extends Phaser.Scene {
     //@ts-ignore
     window.scene = this;
 
-    await EventSystem.evalEvent(EventSystem.starterEvent);
+    const { state } = this;
 
-    // Infinite day loop
-    // while (true) {
-    //   console.log("Day", state.gameData.day, "started");
+    if (Math.random() > 0.00001) {
 
-    //   // Hours loop for each day
-    //   while (state.gameData.hour < 3) {
-    //     state.gameData.hour += 1;
+      this.state.gameData.player.units.push(
+        makeUnit(
+          playerForce.id,
+          KNIGHT,
+          vec2(5, 1),
+        )
+      )
+      this.state.gameData.player.units.push(
+        makeUnit(
+          playerForce.id,
+          ARCHER,
+          vec2(5, 2),
+        )
+      )
+      this.state.gameData.player.units.push(
+        makeUnit(
+          playerForce.id,
+          CLERIC,
+          vec2(5, 3),
+        )
+      )
 
-    //     await EventSystem.displayRandomEvents(state.gameData.day);
+      this.state.gameData.player.units.forEach(unit => {
+        UnitManager.summonChara(unit)
+      })
+    } else {
 
-    //   }
+      await EventSystem.evalEvent(EventSystem.starterEvent);
 
-    //   // End of day events
-    //   await EventSystem.displayMonsterEvents(state.gameData.day);
+      //Infinite day loop
+      while (true) {
+        console.log("Day", this.state.gameData.day, "started");
 
-    //   // Move to next day
-    //   state.gameData.day += 1;
-    //   state.gameData.hour = 1;
+        // Hours loop for each day
+        while (state.gameData.hour < 3) {
+          state.gameData.hour += 1;
 
-    //   updatePlayerGoldIO(state.gameData.player.income);
+          await EventSystem.displayRandomEvents(state.gameData.day);
 
-    // }
+        }
+
+        // End of day events
+        await EventSystem.displayMonsterEvents(state.gameData.day);
+
+        // Move to next day
+        state.gameData.day += 1;
+        state.gameData.hour = 1;
+
+        updatePlayerGoldIO(state.gameData.player.income);
+
+      }
+    }
 
   };
 

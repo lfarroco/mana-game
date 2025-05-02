@@ -9,7 +9,6 @@ import { addStatus, endStatus, State } from "./State";
 import { makeUnit, Unit } from "./Unit";
 import { UNIT_EVENTS, UnitEvents } from "./UnitEvents";
 import { summonChara } from "../Scenes/Battleground/Systems/UnitManager";
-import { v4 } from "uuid";
 import { TINY_BLOB } from "./Job";
 import { asVec2 } from "./Geometry";
 import { getColumnNeighbors } from "./Board";
@@ -452,7 +451,7 @@ export const SPLIT_BLOB = makeTrait({
 
 			for (const slot of targetSlots) {
 
-				const newUnit = makeUnit(v4(), unit.force, TINY_BLOB, asVec2(slot))
+				const newUnit = makeUnit(unit.force, TINY_BLOB, asVec2(slot))
 				state.battleData.units.push(newUnit);
 				await summonChara(newUnit)
 			}
@@ -472,7 +471,7 @@ export const REBORN = makeTrait({
 			if (unit.statuses["reborn"]) return; // already reborn
 
 			// create a new unit with the same id and position
-			const newUnit = makeUnit(v4(), unit.force, unit.job, unit.position);
+			const newUnit = makeUnit(unit.force, unit.job, unit.position);
 			newUnit.hp = 1;
 
 			addStatus(newUnit, "reborn");

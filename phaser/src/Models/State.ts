@@ -1,4 +1,3 @@
-import * as uuid from "uuid";
 import { Force, playerForce } from "./Force";
 import { eqVec2, Vec2 } from "./Geometry";
 import { Unit, makeUnit } from "./Unit";
@@ -99,11 +98,10 @@ export const getUnitAt = (units: Unit[]) => (position: Vec2) => {
 
 export function addUnitToGuild(forceId: string, jobId: JobId) {
   const state = getState();
-  const unitId = uuid.v4();
 
   const position = getEmptySlot(state.gameData.player.units, playerForce.id);
 
-  const unit = makeUnit(unitId, forceId, jobId, position);
+  const unit = makeUnit(forceId, jobId, position);
 
   state.gameData.player.units.push(unit);
 
