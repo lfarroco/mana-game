@@ -14,7 +14,6 @@ import * as ChoiceSystem from "./Systems/Choice";
 import * as EventSystem from "../../Models/Encounters/Encounter";
 import * as TraitSystem from "../../Models/Traits";
 import * as TooltipSystem from "../../Systems/Tooltip";
-import { updatePlayerGoldIO } from "../../Models/Force";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -65,15 +64,13 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
   preload = preload;
-  create = async (state: State) => {
+  create = async (_state: State) => {
     /**
      * It is important to NOT create new global listeners here
      * TODO: add test to confirm that global listeners are not created here
      */
 
     this.sound.setVolume(0.05)
-
-    console.log("BattlegroundScene create");
 
     this.bgImage = this.add.image(0, 0, 'bg').setDisplaySize(constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT)
       .setPosition(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2);
@@ -93,27 +90,27 @@ export class BattlegroundScene extends Phaser.Scene {
     await EventSystem.evalEvent(EventSystem.starterEvent);
 
     // Infinite day loop
-    while (true) {
-      console.log("Day", state.gameData.day, "started");
+    // while (true) {
+    //   console.log("Day", state.gameData.day, "started");
 
-      // Hours loop for each day
-      while (state.gameData.hour < 3) {
-        state.gameData.hour += 1;
+    //   // Hours loop for each day
+    //   while (state.gameData.hour < 3) {
+    //     state.gameData.hour += 1;
 
-        await EventSystem.displayRandomEvents(state.gameData.day);
+    //     await EventSystem.displayRandomEvents(state.gameData.day);
 
-      }
+    //   }
 
-      // End of day events
-      await EventSystem.displayMonsterEvents(state.gameData.day);
+    //   // End of day events
+    //   await EventSystem.displayMonsterEvents(state.gameData.day);
 
-      // Move to next day
-      state.gameData.day += 1;
-      state.gameData.hour = 1;
+    //   // Move to next day
+    //   state.gameData.day += 1;
+    //   state.gameData.hour = 1;
 
-      updatePlayerGoldIO(state.gameData.player.income);
+    //   updatePlayerGoldIO(state.gameData.player.income);
 
-    }
+    // }
 
   };
 
