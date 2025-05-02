@@ -1,0 +1,40 @@
+import Phaser from "phaser";
+import { scene } from "./UIManager";
+
+let bar: Phaser.GameObjects.Graphics;
+let barBg: Phaser.GameObjects.Graphics;
+const barWidth = 1500;
+const barHeight = 20;
+const barX = 50;
+const barY = 50;
+const bgColor = 0x000000;
+const bgAlpha = 0.5;
+const fillColor = 0xeaeaea;
+const fillAlpha = 1;
+
+export function createProgressBar() {
+	barBg = scene.add.graphics();
+	barBg.fillStyle(bgColor, bgAlpha);
+	barBg.fillRect(barX, barY, barWidth, barHeight);
+
+	bar = scene.add.graphics();
+}
+
+export function destroyProgressBar() {
+	bar.destroy();
+	barBg.destroy();
+}
+
+export function updateProgressBar(
+	value: number,
+	maxValue: number
+) {
+	bar.clear();
+	bar.fillStyle(fillColor, fillAlpha);
+	bar.fillRect(
+		barX,
+		barY,
+		Math.max(0, (value / maxValue) * barWidth),
+		barHeight
+	);
+}

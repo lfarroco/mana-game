@@ -9,6 +9,7 @@ import { refreshScene } from "./EventHandlers";
 import { createWave } from "./Systems/WaveManager";
 import { displayChoices } from "./Systems/Choice";
 import * as UIManager from "./Systems/UIManager";
+import * as bar from "./Systems/ProgressBar";
 import { Unit } from "../../Models/Unit";
 
 const processTick = async (
@@ -23,6 +24,11 @@ const processTick = async (
 
   let continueProcessing = true;
 
+  const finishAdventure = () => {
+    waveFinished(scene);
+    continueProcessing = false;
+  }
+
   while (continueProcessing) {
 
     const activeUnits = getActiveUnits(state);
@@ -36,13 +42,22 @@ const processTick = async (
       const cpuUnits = scene.state.battleData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_CPU);
 
       if (cpuUnits.length === 0) {
+        if (adventure.current >= adventure.total) {
+          console.log("Adventure finished! Congrats!");
+          return finishAdventure();
+        } else {
+          console.log("Adventure in progress...");
+          adventure.current++;
+          bar.updateProgressBar(adventure.current, adventure.total);
+        }
+      }
+
+      if (cpuUnits.length === 0) {
         if (UIManager.uiState.interruptCommand) {
           const shouldReturnToTown = await shouldInterrupt();
 
           if (shouldReturnToTown) {
-            waveFinished(scene);
-            continueProcessing = false;
-            return;
+            return finishAdventure();
           } else {
             UIManager.uiState.interruptCommand = false;
           }
@@ -60,9 +75,7 @@ const processTick = async (
 
         await delay(scene, 1000 / state.options.speed);
 
-        waveFinished(scene);
-        continueProcessing = false;
-        return;
+        return finishAdventure();
       }
     }
 
