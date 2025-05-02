@@ -338,6 +338,7 @@ export function updateHpDisplay(id: string, hp: number) {
 }
 
 export async function damageUnit(id: string, damage: number, isCritical = false) {
+
 	const chara = UnitManager.getChara(id);
 
 	const nextHp = chara.unit.hp - damage;
@@ -347,29 +348,22 @@ export async function damageUnit(id: string, damage: number, isCritical = false)
 	chara.hpDisplay.setText(chara.unit.hp.toString());
 
 	if (isCritical) {
-		criticalDamageDisplay(scene, chara.container, damage, getState().options.speed);
+		await criticalDamageDisplay(scene, chara.container, damage, getState().options.speed);
 	} else {
-		popText({ text: damage.toString(), targetId: chara.id });
+		await popText({ text: damage.toString(), targetId: chara.id });
 	}
 
 	if (hasDied) {
 		await killUnit(chara)
-		return
+		return;
 	}
-	await tween({
-		targets: [chara.container],
-		alpha: 0.5,
-		duration: 100 / getState().options.speed,
-		yoyo: true,
-		repeat: 4,
-	});
 
 	if (
 		nextHp <= chara.unit.maxHp / 2 &&
 		chara.unit.equip?.type.key === "equipment" &&
 		chara.unit.equip.type.onHalfHP
 	) {
-		popText({
+		await popText({
 			text: chara.unit.equip.name,
 			targetId: chara.id,
 		})
@@ -379,6 +373,8 @@ export async function damageUnit(id: string, damage: number, isCritical = false)
 }
 
 export async function killUnit(chara: Chara) {
+
+	console.log(`Unit ${chara.unit.id} has died`);
 
 	chara.unit.hp = 0;
 

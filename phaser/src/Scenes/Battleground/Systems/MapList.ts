@@ -22,7 +22,11 @@ const mapInfo: { [id: string]: MapInfo } = {
 	},
 }
 
+let hasClicked_debug = false;
+
 export async function renderMapButton(scene: Phaser.Scene) {
+
+	console.log("renderMapButton");
 
 	let isOpened = false;
 
@@ -40,22 +44,33 @@ export async function renderMapButton(scene: Phaser.Scene) {
 		.setOrigin(0.5)
 		.setDisplaySize(230, 230)
 		.setInteractive()
-		.on("pointerup", async () => {
+		.on("pointerup", () => handleButtonClicked(isOpened, container)());
 
-			if (isOpened) {
-				isOpened = false;
-				await retractFlyout(flyout);
-				return;
-			}
-
-			render(scene, container);
-
-			await slideFlyoutIn(flyout);
-			isOpened = true;
-		});
+	setTimeout(() => {
+		if (hasClicked_debug) return;
+		handleButtonClicked(isOpened, container)();
+		hasClicked_debug = true;
+	}, 500);
 
 }
+
+const handleButtonClicked = (isOpened: boolean, container: Container) => async () => {
+
+	if (isOpened) {
+		isOpened = false;
+		await retractFlyout(container.parentContainer);
+		return;
+	}
+
+	render(container.scene, container);
+
+	await slideFlyoutIn(container.parentContainer);
+	isOpened = true;
+}
+
 export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container) {
+
+	console.log("renderMapList");
 
 	parent.removeAll(true);
 
@@ -77,15 +92,17 @@ export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container
 
 		parent.add(icon);
 
-		icon.on("pointerup", () => {
-			renderMapInfo(scene, parent, map);
-		});
+		icon.on("pointerup", renderMapInfo(scene, parent, map));
 
 	});
 
+	setTimeout(() => renderMapInfo(scene, parent, maps[0])(), 500);
+
 }
 
-function renderMapInfo(scene: Scene, parent: Container, map: string) {
+const renderMapInfo = (scene: Scene, parent: Container, map: string) => async () => {
+
+	console.log("renderMapInfo", map);
 
 	parent.removeAll(true);
 
@@ -112,25 +129,7 @@ function renderMapInfo(scene: Scene, parent: Container, map: string) {
 	const embarkButton = createButton(
 		"Embark",
 		500, SCREEN_HEIGHT - 400,
-		async () => {
-
-			const state = getState();
-
-			await retractFlyout(parent.parentContainer);
-
-			ProgressBar.createProgressBar();
-
-			await createWave(
-				state.gameData.player.units,
-				{
-					generate: ENCOUNTER_BLOBS,
-					current: 0,
-					total: 15
-				})
-
-			ProgressBar.destroyProgressBar();
-
-		}
+		handleEmbarkButtonClicked(parent)
 	);
 
 	parent.add(embarkButton);
@@ -139,9 +138,36 @@ function renderMapInfo(scene: Scene, parent: Container, map: string) {
 		"Back",
 		500, SCREEN_HEIGHT - 200,
 		() => {
+			console.log("Back button clicked");
 			render(scene, parent);
 		}
 	);
 	parent.add(backButton);
+
+	setTimeout(() => {
+		handleEmbarkButtonClicked(parent)();
+	}, 500);
+
+}
+
+const handleEmbarkButtonClicked = (parent: Container) => async () => {
+
+	console.log("Embark button clicked");
+
+	const state = getState();
+
+	await retractFlyout(parent.parentContainer);
+
+	ProgressBar.createProgressBar();
+
+	await createWave(
+		state.gameData.player.units,
+		{
+			generate: ENCOUNTER_BLOBS,
+			current: 0,
+			total: 15
+		})
+
+	ProgressBar.destroyProgressBar();
 
 }
