@@ -10,12 +10,18 @@ export function init(sceneRef: BattlegroundScene) {
 }
 export async function createWave(
 	units: Unit[],
+	adventure: {
+		generate: () => Unit[];
+		current: number;
+		total: number
+	}
 ) {
 
 	UnitManager.clearCharas();
 
 	scene.state.battleData.units = units
 		.filter(u => u.hp > 0)
+		.concat(adventure.generate())
 		.map(u => ({ ...u }));
 
 	scene.state.battleData.units.forEach(u => UnitManager.summonChara(u));
@@ -32,7 +38,7 @@ export async function createWave(
 		await func();
 	}
 
-	await processTick(scene);
+	await processTick(scene, adventure);
 }
 
 export function handleWaveFinished(_scene: BattlegroundScene) {

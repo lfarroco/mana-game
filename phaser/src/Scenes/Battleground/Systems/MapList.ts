@@ -92,13 +92,20 @@ function renderMapInfo(scene: Scene, parent: Container, map: string) {
 
 	if (!info) return;
 
+	const icon = scene.add.image(
+		300,
+		300,
+		`icon/${map}`
+	).setOrigin(0.5).setScale(1);
+	parent.add(icon);
+
 	const text = `
 		Name: ${info.name}
 		Description: ${info.description}
 		Encounter: ${info.encounter}
 		`;
 
-	const textDisplay = scene.add.text(100, 100, text, defaultTextConfig);
+	const textDisplay = scene.add.text(100, 420, text, defaultTextConfig);
 	parent.add(textDisplay);
 
 	const embarkButton = createButton(
@@ -106,29 +113,30 @@ function renderMapInfo(scene: Scene, parent: Container, map: string) {
 		500, SCREEN_HEIGHT - 400,
 		async () => {
 
-			const enemies = ENCOUNTER_BLOBS()
-
 			const state = getState();
 
 			await retractFlyout(parent.parentContainer);
 
-			await createWave([
-				...enemies,
-				...state.gameData.player.units.map(u => ({ ...u })),
-			])
+			await createWave(
+				state.gameData.player.units,
+			{
+				generate: ENCOUNTER_BLOBS,
+				current: 0,
+				total: 5
+			})
 
-		}
+}
 	);
 
-	parent.add(embarkButton);
+parent.add(embarkButton);
 
-	const backButton = createButton(
-		"Back",
-		500, SCREEN_HEIGHT - 200,
-		() => {
-			render(scene, parent);
-		}
-	);
-	parent.add(backButton);
+const backButton = createButton(
+	"Back",
+	500, SCREEN_HEIGHT - 200,
+	() => {
+		render(scene, parent);
+	}
+);
+parent.add(backButton);
 
 }
