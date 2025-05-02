@@ -42,10 +42,12 @@ export async function physicalAttack(
 	);
 
 	if (evaded) {
-		await targetChara.unit.events.onEvadeByMe
-			.map(fn => fn(targetChara.unit, activeChara.unit)());
+		await Promise.all(
+			targetChara.unit.events
+				.onEvadeByMe
+				.map(fn => fn(targetChara.unit, activeChara.unit)())
+		);
 	} else {
-
 		await damageUnit(targetChara.id, damage, isCritical);
 	}
 
@@ -54,6 +56,6 @@ export async function physicalAttack(
 			.onAfterAttackByMe.map(fn => fn(activeChara.unit, targetChara.unit, damage, isCritical, evaded)())
 	);
 
-	await delay(scene, 300 / speed);
+	await delay(scene, 500 / speed);
 
 }

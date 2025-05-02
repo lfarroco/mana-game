@@ -22,6 +22,8 @@ const processTick = async (
 ) => {
   const state = getState();
 
+  console.log("processTick:: tick", state.gameData.tick);
+
   let continueProcessing = true;
 
   const finishAdventure = () => {
@@ -36,17 +38,19 @@ const processTick = async (
     for (const unit of activeUnits) {
       if (unit.hp <= 0) continue;
 
+      // TODO: track which one is the active unit
+      // if they overlap, throw an error
+      console.log("[~~~start~~~")
       await performAction(scene)(unit)();
+      console.log("~~~~end~~~]")
 
       const playerUnits = scene.state.battleData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_PLAYER);
       const cpuUnits = scene.state.battleData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_CPU);
 
       if (cpuUnits.length === 0) {
         if (adventure.current >= adventure.total) {
-          console.log("Adventure finished! Congrats!");
           return finishAdventure();
         } else {
-          console.log("Adventure in progress...");
           adventure.current++;
           bar.updateProgressBar(adventure.current, adventure.total);
         }
@@ -77,6 +81,7 @@ const processTick = async (
 
         return finishAdventure();
       }
+
     }
 
     //run end of turn effects
@@ -97,6 +102,9 @@ const processTick = async (
       }
 
     }
+
+
+
 
     if (continueProcessing) {
       state.gameData.tick++;

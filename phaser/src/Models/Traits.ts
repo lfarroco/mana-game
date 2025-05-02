@@ -426,6 +426,9 @@ export const SPLIT_BLOB = makeTrait({
 	categories: [TRAIT_CATEGORY_DEFENSIVE],
 	events: {
 		onDeath: [(unit) => async () => {
+
+			console.log("SPLIT_BLOB:: unit", unit.id);
+
 			// get 2 close empty slots
 			let slots = []
 			for (let x = 1; x <= 3; x++) {
@@ -452,6 +455,8 @@ export const SPLIT_BLOB = makeTrait({
 			for (const slot of targetSlots) {
 
 				const newUnit = makeUnit(unit.force, TINY_BLOB, asVec2(slot))
+
+				console.log("SPLIT_BLOB:: newUnit", newUnit.id);
 				state.battleData.units.push(newUnit);
 				await summonChara(newUnit)
 			}

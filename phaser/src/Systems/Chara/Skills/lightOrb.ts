@@ -1,12 +1,9 @@
 import { getSkill, LIGHT_ORB } from "../../../Models/Skill";
 import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
-import { getUnitsByProximity } from "../../../Models/Board";
-import { healUnit } from "../Chara";
 import { popText } from "../Animations/popText";
 import { GlowingOrb } from "../../../Effects/GlowingOrb";
 import { delay } from "../../../Utils/animation";
-import { healingHitEffect } from "../../../Effects/healingHitEffect";
 import { approach } from "../approach";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
 import { damageUnit } from "../Chara";
@@ -20,7 +17,6 @@ export const lightOrb = (
 	const skill = getSkill(LIGHT_ORB);
 
 	const damage = skill.power;
-	const heal = skill.power * 2;
 
 	const target = await approach(UnitManager.getChara(unit.id));
 
@@ -28,10 +24,6 @@ export const lightOrb = (
 	const targetChara = UnitManager.getChara(target.id);
 
 	await popText({ text: skill.name, targetId: unit.id });
-
-	// get allies surrounding target
-	const allies = getUnitsByProximity(state, target, true, 1)
-		.filter(u => u.hp < u.maxHp);
 
 	const orb = new GlowingOrb(scene,
 		activeChara.container.x, activeChara.container.y,
@@ -41,22 +33,7 @@ export const lightOrb = (
 
 	await delay(scene, 500 / state.options.speed);
 
-	damageUnit(targetChara.id, damage);
-
-	allies.forEach(ally => {
-
-		const chara = UnitManager.getChara(ally.id);
-
-		healUnit(ally, heal);
-
-		healingHitEffect(
-			scene,
-			chara.container,
-			1000 / state.options.speed,
-			scene.speed,
-		);
-		popText({ text: heal.toString(), targetId: ally.id });
-	});
+	await damageUnit(targetChara.id, damage);
 
 	await delay(scene, 1000 / state.options.speed);
 

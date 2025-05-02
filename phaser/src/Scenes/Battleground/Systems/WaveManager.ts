@@ -17,6 +17,8 @@ export async function createWave(
 	}
 ) {
 
+	console.log("createWave:: units", units);
+
 	UnitManager.clearCharas();
 
 	scene.state.battleData.units = units

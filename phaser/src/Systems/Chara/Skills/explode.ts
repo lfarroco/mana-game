@@ -13,6 +13,8 @@ export const explode = (
 	scene: BattlegroundScene
 ) => async (unit: Unit) => {
 
+	console.log("explode:: unit", unit);
+
 	const { state } = scene;
 
 	const skill = getSkill(EXPLODE);
