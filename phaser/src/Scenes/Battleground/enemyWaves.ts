@@ -5,7 +5,6 @@ import { makeUnit, Unit } from "../../Models/Unit";
 import { pickOne } from "../../utils";
 
 const enemy = (job: JobId, x: number, y: number) => makeUnit(
-	Math.random().toString(),
 	FORCE_ID_CPU,
 	job,
 	vec2(x + 1, y + 1))

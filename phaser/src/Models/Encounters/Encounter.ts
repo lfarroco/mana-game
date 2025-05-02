@@ -1,4 +1,3 @@
-import { v4 } from "uuid";
 import { Choice, displayChoices, newChoice } from "../../Scenes/Battleground/Systems/Choice";
 import { itemShop } from "../../Scenes/Battleground/Systems/ItemShop";
 import * as UnitManager from "../../Scenes/Battleground/Systems/UnitManager";
@@ -158,7 +157,7 @@ const pickUnit = async (genChoices: () => Choice[]) => {
 			const charas = await Promise.all(
 				genChoices().map(choice => {
 					const chara = Chara.createCard(
-						makeUnit(v4(), playerForce.id, choice.value as JobId, vec2(0, 1)),
+						makeUnit(playerForce.id, choice.value as JobId, vec2(0, 1)),
 					);
 					chara.container.setPosition(chara.sprite.width * -1.2, 500);
 					return chara
