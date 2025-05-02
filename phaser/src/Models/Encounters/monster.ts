@@ -1,19 +1,18 @@
 import { ENCOUNTER_BLOBS, ENCOUNTER_UNDEAD } from "../../Scenes/Battleground/enemyWaves";
 import { renderInterruptButton } from "../../Scenes/Battleground/Systems/UIManager";
-import { createWave } from "../../Scenes/Battleground/Systems/WaveManager";
 import { State } from "../State";
 import { Unit } from "../Unit";
 import { Encounter, makeEncounter, TIER } from "./Encounter";
 
-const encounter = (state: State) => async (enemies: Unit[]) => {
+const encounter = (_state: State) => async (_enemies: Unit[]) => {
 
 	renderInterruptButton();
-	return await createWave(
-		[
-			...state.gameData.player.units,
-			...enemies
-		]
-	)
+	// return await createWave(
+	// 	[
+	// 		...state.gameData.player.units,
+	// 		...enemies
+	// 	]
+	// )
 }
 
 const monsterEvents = (): Encounter[] => [

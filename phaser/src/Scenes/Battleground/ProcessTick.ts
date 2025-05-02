@@ -7,11 +7,18 @@ import { performAction } from "./performAction";
 import { showGrid } from "./Systems/GridSystem";
 import { refreshScene } from "./EventHandlers";
 import { createWave } from "./Systems/WaveManager";
-import { ENCOUNTER_BLOBS } from "./enemyWaves";
 import { displayChoices } from "./Systems/Choice";
 import * as UIManager from "./Systems/UIManager";
+import { Unit } from "../../Models/Unit";
 
-const processTick = async (scene: BattlegroundScene) => {
+const processTick = async (
+  scene: BattlegroundScene,
+  adventure: {
+    generate: () => Unit[];
+    current: number;
+    total: number
+  }
+) => {
   const state = getState();
 
   let continueProcessing = true;
@@ -45,7 +52,7 @@ const processTick = async (scene: BattlegroundScene) => {
 
         const playerUnits = state.battleData.units.filter(u => u.force === FORCE_ID_PLAYER);
 
-        return await createWave([...playerUnits, ...ENCOUNTER_BLOBS()])
+        return await createWave([...playerUnits], adventure)
 
       } else if (playerUnits.length === 0) {
 
