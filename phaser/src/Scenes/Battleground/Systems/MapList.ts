@@ -2,6 +2,7 @@ import { getState } from "../../../Models/State";
 import { create, retractFlyout, slideFlyoutIn } from "../../../Systems/Flyout";
 import { defaultTextConfig, SCREEN_HEIGHT, SCREEN_WIDTH } from "../constants";
 import { ENCOUNTER_BLOBS } from "../enemyWaves";
+import * as ProgressBar from "./ProgressBar";
 import { createButton } from "./UIManager";
 import { createWave } from "./WaveManager";
 
@@ -117,26 +118,30 @@ function renderMapInfo(scene: Scene, parent: Container, map: string) {
 
 			await retractFlyout(parent.parentContainer);
 
+			ProgressBar.createProgressBar();
+
 			await createWave(
 				state.gameData.player.units,
-			{
-				generate: ENCOUNTER_BLOBS,
-				current: 0,
-				total: 5
-			})
+				{
+					generate: ENCOUNTER_BLOBS,
+					current: 0,
+					total: 15
+				})
 
-}
+			ProgressBar.destroyProgressBar();
+
+		}
 	);
 
-parent.add(embarkButton);
+	parent.add(embarkButton);
 
-const backButton = createButton(
-	"Back",
-	500, SCREEN_HEIGHT - 200,
-	() => {
-		render(scene, parent);
-	}
-);
-parent.add(backButton);
+	const backButton = createButton(
+		"Back",
+		500, SCREEN_HEIGHT - 200,
+		() => {
+			render(scene, parent);
+		}
+	);
+	parent.add(backButton);
 
 }
