@@ -1,5 +1,8 @@
 import Phaser from "phaser";
 import { scene } from "./UIManager";
+import { pipe } from 'fp-ts/lib/function';
+import * as A from 'fp-ts/lib/Array';
+import { range } from "fp-ts/lib/NonEmptyArray";
 
 let bar: Phaser.GameObjects.Graphics;
 let barBg: Phaser.GameObjects.Graphics;
@@ -13,7 +16,7 @@ const bgAlpha = 0.5;
 const fillColor = 0xeaeaea;
 const fillAlpha = 1;
 
-export function createProgressBar() {
+export function createProgressBar(value: number, maxValue: number) {
 	barBg = scene.add.graphics();
 	barBg.fillStyle(bgColor, bgAlpha);
 	barBg.fillRect(barX, barY, barWidth, barHeight);
@@ -21,6 +24,8 @@ export function createProgressBar() {
 	bar = scene.add.graphics();
 
 	circles = scene.add.graphics();
+
+	updateProgressBar(value, maxValue);
 }
 
 export function destroyProgressBar() {
@@ -32,26 +37,37 @@ export function destroyProgressBar() {
 export function updateProgressBar(
 	value: number,
 	maxValue: number,
+	current: number = 1
 ) {
 	bar.clear();
 	bar.fillStyle(fillColor, fillAlpha);
 	bar.fillRect(
 		barX,
 		barY,
-		Math.max(0, (value / maxValue) * barWidth),
+		Math.max(0, ((value - 1) / maxValue) * barWidth),
 		barHeight
 	);
 
-	//render 8 circles, distributed evenly
-	for (let i = 1; i < maxValue; i++) {
+	circles.clear();
 
-		circles.fillStyle(
-			(i >= value) ? fillColor : 0x000000,
-			1);
-		circles.fillCircle(
-			barX + (i * barWidth) / maxValue,
-			barY + barHeight / 2,
-			10
-		);
-	}
+	const colorCurrent = 0xff0000;
+	const colorFuture = 0xeaeaea;
+	const colorPast = 0x000000;
+
+	pipe(
+		range(1, maxValue + 1),
+		A.map((i: number) => {
+			circles.fillStyle(
+				(i === current) ? colorCurrent :
+					(i >= current) ? colorFuture :
+						colorPast,
+				1
+			);
+			circles.fillCircle(
+				barX + ((i - 1) * barWidth) / maxValue,
+				barY + barHeight / 2,
+				10
+			);
+		}),
+	);
 }
