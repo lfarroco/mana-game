@@ -10,15 +10,11 @@ import { createWave } from "./Systems/WaveManager";
 import { displayChoices } from "./Systems/Choice";
 import * as UIManager from "./Systems/UIManager";
 import * as bar from "./Systems/ProgressBar";
-import { Unit } from "../../Models/Unit";
+import { Adventure } from "../../Models/Adventure";
 
 const processTick = async (
   scene: BattlegroundScene,
-  adventure: {
-    generate: () => Unit[];
-    current: number;
-    total: number
-  }
+  adventure: Adventure,
 ) => {
   const state = getState();
 
@@ -32,6 +28,8 @@ const processTick = async (
   }
 
   while (continueProcessing) {
+
+    console.log("CURRENT WAVE >>>", adventure.currentWave);
 
     const activeUnits = getActiveUnits(state);
 
@@ -48,11 +46,11 @@ const processTick = async (
       const cpuUnits = scene.state.battleData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_CPU);
 
       if (cpuUnits.length === 0) {
-        if (adventure.current >= adventure.total) {
+        if (adventure.currentWave >= adventure.waves.length - 1) {
           return finishAdventure();
         } else {
-          adventure.current++;
-          bar.updateProgressBar(adventure.current, adventure.total, adventure.current);
+          adventure.currentWave++;
+          bar.updateProgressBar(adventure);
         }
       }
 
@@ -102,9 +100,6 @@ const processTick = async (
       }
 
     }
-
-
-
 
     if (continueProcessing) {
       state.gameData.tick++;
