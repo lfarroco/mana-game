@@ -165,7 +165,7 @@ const handleEmbarkButtonClicked = (parent: Container) => async () => {
 		{
 			generate: ENCOUNTER_BLOBS,
 			current: 0,
-			total: 15
+			total: 8
 		})
 
 	ProgressBar.destroyProgressBar();

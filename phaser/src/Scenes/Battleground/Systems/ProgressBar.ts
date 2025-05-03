@@ -3,6 +3,7 @@ import { scene } from "./UIManager";
 
 let bar: Phaser.GameObjects.Graphics;
 let barBg: Phaser.GameObjects.Graphics;
+let circles: Phaser.GameObjects.Graphics;
 const barWidth = 1500;
 const barHeight = 20;
 const barX = 50;
@@ -18,16 +19,19 @@ export function createProgressBar() {
 	barBg.fillRect(barX, barY, barWidth, barHeight);
 
 	bar = scene.add.graphics();
+
+	circles = scene.add.graphics();
 }
 
 export function destroyProgressBar() {
 	bar.destroy();
 	barBg.destroy();
+	circles.destroy();
 }
 
 export function updateProgressBar(
 	value: number,
-	maxValue: number
+	maxValue: number,
 ) {
 	bar.clear();
 	bar.fillStyle(fillColor, fillAlpha);
@@ -37,4 +41,17 @@ export function updateProgressBar(
 		Math.max(0, (value / maxValue) * barWidth),
 		barHeight
 	);
+
+	//render 8 circles, distributed evenly
+	for (let i = 1; i < maxValue; i++) {
+
+		circles.fillStyle(
+			(i >= value) ? fillColor : 0x000000,
+			1);
+		circles.fillCircle(
+			barX + (i * barWidth) / maxValue,
+			barY + barHeight / 2,
+			10
+		);
+	}
 }
