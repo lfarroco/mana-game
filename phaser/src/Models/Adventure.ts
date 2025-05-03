@@ -1,4 +1,5 @@
 import { ENCOUNTER_BLOBS } from "../Scenes/Battleground/enemyWaves";
+import { Item, ITEMS } from "./Item";
 import { Unit } from "./Unit";
 
 export type Adventure = {
@@ -11,7 +12,8 @@ export type Adventure = {
 
 export type Wave = {
 	generate: () => Unit[];
-	icon: string | null;
+	icon?: string;
+	loot?: () => Item[];
 }
 
 export const adventures: Record<string, Adventure> = {
@@ -24,22 +26,27 @@ export const adventures: Record<string, Adventure> = {
 			{
 				generate: ENCOUNTER_BLOBS,
 				icon: "ui/chest",
+				loot: () => [
+					ITEMS.IRON_SWORD(),
+					ITEMS.TOXIC_POTION(),
+				]
 			},
 			{
 				generate: ENCOUNTER_BLOBS,
-				icon: null,
+			},
+			{
+				generate: ENCOUNTER_BLOBS,
+			},
+			{
+				generate: ENCOUNTER_BLOBS,
 			},
 			{
 				generate: ENCOUNTER_BLOBS,
 				icon: "ui/chest",
-			},
-			{
-				generate: ENCOUNTER_BLOBS,
-				icon: null,
-			},
-			{
-				generate: ENCOUNTER_BLOBS,
-				icon: "ui/chest",
+				loot: () => [
+					ITEMS.TOXIC_POTION(),
+				]
+
 			},
 		]
 	},

@@ -11,6 +11,7 @@ import { displayChoices } from "./Systems/Choice";
 import * as UIManager from "./Systems/UIManager";
 import * as bar from "./Systems/ProgressBar";
 import { Adventure } from "../../Models/Adventure";
+import { dropItem } from "../../Systems/Item/ItemDrop";
 
 const processTick = async (
   scene: BattlegroundScene,
@@ -46,6 +47,16 @@ const processTick = async (
       const cpuUnits = scene.state.battleData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_CPU);
 
       if (cpuUnits.length === 0) {
+
+        const wave = adventure.waves[adventure.currentWave];
+
+        if (wave.loot) {
+          const loot = wave.loot();
+          state.gameData.player.items.push(...loot);
+
+          await Promise.all(loot.map(item => dropItem(scene, { x: 300, y: 300 }, item)));
+        }
+
         if (adventure.currentWave >= adventure.waves.length - 1) {
           return finishAdventure();
         } else {
