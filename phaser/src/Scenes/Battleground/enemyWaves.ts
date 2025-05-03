@@ -56,14 +56,14 @@ export const ENCOUNTER_BLOBS = () => {
 			"xxx"
 		],
 		[
-			"xx1",
-			"x2x",
-			"xx1"
+			"xxx",
+			"x1x",
+			"xxx"
 		],
 		[
 			"xxx",
-			"xx1",
-			"x11"
+			"1xx",
+			"xxx"
 		],
 
 	];
