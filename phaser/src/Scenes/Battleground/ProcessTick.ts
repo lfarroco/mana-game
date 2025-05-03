@@ -7,8 +7,6 @@ import { performAction } from "./performAction";
 import { showGrid } from "./Systems/GridSystem";
 import { refreshScene } from "./EventHandlers";
 import { createWave } from "./Systems/WaveManager";
-import { displayChoices } from "./Systems/Choice";
-import * as UIManager from "./Systems/UIManager";
 import * as bar from "./Systems/ProgressBar";
 import { Adventure } from "../../Models/Adventure";
 import { dropItem } from "../../Systems/Item/ItemDrop";
@@ -55,9 +53,14 @@ const processTick = async (
           state.gameData.player.items.push(...loot);
 
           await Promise.all(loot.map(item => dropItem(scene, { x: 300, y: 300 }, item)));
+
+          // TODO: proper loot screen
+          await vignette(scene, "Loot!")
         }
 
         if (adventure.currentWave >= adventure.waves.length - 1) {
+          // TODO: proper victory screen
+          await vignette(scene, "Adventure completed, congratulations!")
           return finishAdventure();
         } else {
           adventure.currentWave++;
@@ -66,15 +69,6 @@ const processTick = async (
       }
 
       if (cpuUnits.length === 0) {
-        if (UIManager.uiState.interruptCommand) {
-          const shouldReturnToTown = await shouldInterrupt();
-
-          if (shouldReturnToTown) {
-            return finishAdventure();
-          } else {
-            UIManager.uiState.interruptCommand = false;
-          }
-        }
 
         await delay(scene, 1000 / state.options.speed);
 
@@ -82,7 +76,9 @@ const processTick = async (
 
         return await createWave([...playerUnits], adventure)
 
-      } else if (playerUnits.length === 0) {
+      }
+
+      if (playerUnits.length === 0) {
 
         await vignette(scene, "End of Run!");
 
@@ -117,20 +113,6 @@ const processTick = async (
     }
   }
 };
-
-async function shouldInterrupt() {
-  const choice = await displayChoices([
-    { pic: "icon/forest_entrance", title: "Continue", desc: "Continue the adventure", value: "continue" },
-    { pic: "icon/agility_training", title: "Retreat", desc: "Return to town", value: "retreat" },
-  ])
-
-  if (choice.value === "continue") {
-    return false;
-  }
-  if (choice.value === "retreat") {
-    return true;
-  }
-}
 
 function waveFinished(scene: BattlegroundScene) {
   showGrid();
