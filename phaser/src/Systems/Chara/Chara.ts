@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { Unit } from "../../Models/Unit";
 import * as bgConstants from "../../Scenes/Battleground/constants";
-import { eqVec2, vec2 } from "../../Models/Geometry";
+import { asVec2, eqVec2, vec2 } from "../../Models/Geometry";
 import { tween } from "../../Utils/animation";
 import { playerForce } from "../../Models/Force";
 import { FORCE_ID_PLAYER } from "../../Scenes/Battleground/constants";
@@ -17,6 +17,8 @@ import { equipItemInUnit } from "../Item/EquipItem";
 import { popText } from "./Animations/popText";
 import { criticalDamageDisplay } from "../../Effects";
 import * as ItemDrop from "../Item/ItemDrop";
+import { pickOne } from "../../utils";
+import { ITEMS } from "../../Models/Item";
 
 export type Chara = {
 	id: string;
@@ -388,7 +390,15 @@ export async function killUnit(chara: Chara) {
 	});
 	chara.container.destroy(true);
 
-	ItemDrop.dropItem(chara);
+	// TODO: loot table
+	const randomItem = pickOne([
+		ITEMS.RED_POTION(),
+		ITEMS.IRON_SWORD(),
+		ITEMS.GOLD_RING(),
+	])
+
+	if (chara.unit.force === bgConstants.FORCE_ID_CPU && Math.random() > 0.8)
+		ItemDrop.dropItem(scene, asVec2(chara.container), randomItem);
 
 	for (const ev of chara.unit.events.onDeath)
 		await ev(chara.unit)()
