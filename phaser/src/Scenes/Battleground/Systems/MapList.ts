@@ -1,26 +1,10 @@
+import { Adventure, adventures } from "../../../Models/Adventure";
 import { getState } from "../../../Models/State";
 import { create, retractFlyout, slideFlyoutIn } from "../../../Systems/Flyout";
 import { defaultTextConfig, SCREEN_HEIGHT, SCREEN_WIDTH } from "../constants";
-import { ENCOUNTER_BLOBS } from "../enemyWaves";
 import * as ProgressBar from "./ProgressBar";
 import { createButton } from "./UIManager";
 import { createWave } from "./WaveManager";
-
-type MapInfo = {
-	name: string;
-	description: string;
-	encounter: string;
-	loot: string;
-}
-
-const mapInfo: { [id: string]: MapInfo } = {
-	"forest_entrance": {
-		name: "Forest Entrance",
-		description: "A dark and mysterious forest entrance.",
-		encounter: "You encounter a wild beast.",
-		loot: "You find a treasure chest.",
-	},
-}
 
 let hasClicked_debug = false;
 
@@ -106,9 +90,9 @@ const renderMapInfo = (scene: Scene, parent: Container, map: string) => async ()
 
 	parent.removeAll(true);
 
-	const info = mapInfo[map];
+	const adventure = adventures[map];
 
-	if (!info) return;
+	if (!adventure) return;
 
 	const icon = scene.add.image(
 		300,
@@ -118,9 +102,8 @@ const renderMapInfo = (scene: Scene, parent: Container, map: string) => async ()
 	parent.add(icon);
 
 	const text = `
-		Name: ${info.name}
-		Description: ${info.description}
-		Encounter: ${info.encounter}
+		Name: ${adventure.name}
+		Description: ${adventure.description}
 		`;
 
 	const textDisplay = scene.add.text(100, 420, text, defaultTextConfig);
@@ -129,7 +112,7 @@ const renderMapInfo = (scene: Scene, parent: Container, map: string) => async ()
 	const embarkButton = createButton(
 		"Embark",
 		500, SCREEN_HEIGHT - 400,
-		handleEmbarkButtonClicked(parent)
+		handleEmbarkButtonClicked(parent, adventure)
 	);
 
 	parent.add(embarkButton);
@@ -145,28 +128,27 @@ const renderMapInfo = (scene: Scene, parent: Container, map: string) => async ()
 	parent.add(backButton);
 
 	setTimeout(() => {
-		handleEmbarkButtonClicked(parent)();
+		handleEmbarkButtonClicked(parent, adventure)();
 	}, 500);
 
 }
 
-const handleEmbarkButtonClicked = (parent: Container) => async () => {
+const handleEmbarkButtonClicked = (parent: Container, adventure: Adventure) => async () => {
 
 	console.log("Embark button clicked");
+
+	const adventure_ = { ...adventure };
 
 	const state = getState();
 
 	await retractFlyout(parent.parentContainer);
 
-	ProgressBar.createProgressBar(1, 8);
+	ProgressBar.createProgressBar(adventure_);
 
 	await createWave(
 		state.gameData.player.units,
-		{
-			generate: ENCOUNTER_BLOBS,
-			current: 1,
-			total: 8
-		})
+		adventure_,
+	)
 
 	ProgressBar.destroyProgressBar();
 

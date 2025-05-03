@@ -3,6 +3,7 @@ import { scene } from "./UIManager";
 import { pipe } from 'fp-ts/lib/function';
 import * as A from 'fp-ts/lib/Array';
 import { range } from "fp-ts/lib/NonEmptyArray";
+import { Adventure } from "../../../Models/Adventure";
 
 let bar: Phaser.GameObjects.Graphics;
 let barBg: Phaser.GameObjects.Graphics;
@@ -16,7 +17,7 @@ const bgAlpha = 0.5;
 const fillColor = 0xeaeaea;
 const fillAlpha = 1;
 
-export function createProgressBar(value: number, maxValue: number) {
+export function createProgressBar(adventure: Adventure) {
 	barBg = scene.add.graphics();
 	barBg.fillStyle(bgColor, bgAlpha);
 	barBg.fillRect(barX, barY, barWidth, barHeight);
@@ -25,7 +26,7 @@ export function createProgressBar(value: number, maxValue: number) {
 
 	circles = scene.add.graphics();
 
-	updateProgressBar(value, maxValue);
+	updateProgressBar(adventure);
 }
 
 export function destroyProgressBar() {
@@ -35,16 +36,14 @@ export function destroyProgressBar() {
 }
 
 export function updateProgressBar(
-	value: number,
-	maxValue: number,
-	current: number = 1
+	adventure: Adventure,
 ) {
 	bar.clear();
 	bar.fillStyle(fillColor, fillAlpha);
 	bar.fillRect(
 		barX,
 		barY,
-		Math.max(0, ((value - 1) / maxValue) * barWidth),
+		Math.max(0, ((adventure.currentWave) / adventure.waves.length) * barWidth),
 		barHeight
 	);
 
@@ -55,16 +54,16 @@ export function updateProgressBar(
 	const colorPast = 0x000000;
 
 	pipe(
-		range(1, maxValue + 1),
+		range(0, adventure.waves.length),
 		A.map((i: number) => {
 			circles.fillStyle(
-				(i === current) ? colorCurrent :
-					(i >= current) ? colorFuture :
+				(i === adventure.currentWave) ? colorCurrent :
+					(i >= adventure.currentWave) ? colorFuture :
 						colorPast,
 				1
 			);
 			circles.fillCircle(
-				barX + ((i - 1) * barWidth) / maxValue,
+				barX + ((i - 1) * barWidth) / adventure.waves.length,
 				barY + barHeight / 2,
 				10
 			);
