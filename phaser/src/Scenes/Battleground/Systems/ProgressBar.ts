@@ -5,6 +5,7 @@ import * as A from 'fp-ts/lib/Array';
 import { range } from "fp-ts/lib/NonEmptyArray";
 import { Adventure } from "../../../Models/Adventure";
 
+let container: Phaser.GameObjects.Container;
 let bar: Phaser.GameObjects.Graphics;
 let barBg: Phaser.GameObjects.Graphics;
 let circles: Phaser.GameObjects.Graphics;
@@ -18,6 +19,7 @@ const fillColor = 0xeaeaea;
 const fillAlpha = 1;
 
 export function createProgressBar(adventure: Adventure) {
+	container = scene.add.container(0, 0);
 	barBg = scene.add.graphics();
 	barBg.fillStyle(bgColor, bgAlpha);
 	barBg.fillRect(barX, barY, barWidth, barHeight);
@@ -26,13 +28,13 @@ export function createProgressBar(adventure: Adventure) {
 
 	circles = scene.add.graphics();
 
+	container.add([barBg, bar, circles]);
+
 	updateProgressBar(adventure);
 }
 
 export function destroyProgressBar() {
-	bar.destroy();
-	barBg.destroy();
-	circles.destroy();
+	container.removeAll(true);
 }
 
 export function updateProgressBar(
@@ -43,7 +45,7 @@ export function updateProgressBar(
 	bar.fillRect(
 		barX,
 		barY,
-		Math.max(0, ((adventure.currentWave) / adventure.waves.length) * barWidth),
+		((adventure.currentWave + 1) / adventure.waves.length) * barWidth,
 		barHeight
 	);
 
@@ -54,19 +56,31 @@ export function updateProgressBar(
 	const colorPast = 0x000000;
 
 	pipe(
-		range(0, adventure.waves.length),
+		range(1, adventure.waves.length),
 		A.map((i: number) => {
+			const x = barX + (i / adventure.waves.length) * barWidth;
+			const y = barY + barHeight / 2;
+
+			console.log(i, adventure.currentWave, ">>>");
 			circles.fillStyle(
-				(i === adventure.currentWave) ? colorCurrent :
-					(i >= adventure.currentWave) ? colorFuture :
+				(i - 1 === adventure.currentWave) ? colorCurrent :
+					(i - 1 >= adventure.currentWave) ? colorFuture :
 						colorPast,
 				1
 			);
 			circles.fillCircle(
-				barX + ((i - 1) * barWidth) / adventure.waves.length,
-				barY + barHeight / 2,
+				x, y,
 				10
 			);
+
+			const wave = adventure.waves[i - 1];
+			if (wave?.icon) {
+				const icon = scene.add.image(
+					x, y + 100,
+					`${wave.icon}`
+				).setOrigin(0.5).setDisplaySize(100, 100);
+				container.add(icon);
+			}
 		}),
 	);
 }
