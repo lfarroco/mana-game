@@ -15,10 +15,6 @@ export let unitInfoContainer: Phaser.GameObjects.Container | null = null;
 export let scene: BattlegroundScene;
 export let state: State;
 
-export let uiState = {
-	interruptCommand: false
-}
-
 export function init(sceneRef: BattlegroundScene) {
 	scene = sceneRef;
 	state = scene.state;
@@ -99,12 +95,6 @@ export function updateUI() {
 
 	MapList.renderMapButton(scene);
 
-}
-
-export function renderInterruptButton() {
-	createButton("Interrupt", constants.SCREEN_WIDTH - 600, constants.SCREEN_HEIGHT - 60, () => {
-		uiState.interruptCommand = true;
-	});
 }
 
 export function displayError(err: string) {

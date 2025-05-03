@@ -219,14 +219,6 @@ function dropItemInChara(targetChara: Chara, icon: Phaser.GameObjects.Image, ite
 	equipItemInUnit({ unit: targetChara.unit, item });
 
 	// propagate to guild unit
-	if (UIManager.uiState.interruptCommand) {
-		state.gameData.player.units.forEach(u => {
-			if (u.id === targetChara.unit.id) {
-				u.equip = item;
-			}
-		})
-	}
-
 	state.gameData.player.items = state.gameData.player.items.filter(i => i?.id !== item.id);
 
 	if (currentItem !== null) {
