@@ -23,14 +23,6 @@ export const adventures: Record<string, Adventure> = {
 		waves: [
 			{
 				generate: ENCOUNTER_BLOBS,
-				icon: null,
-			},
-			{
-				generate: ENCOUNTER_BLOBS,
-				icon: null,
-			},
-			{
-				generate: ENCOUNTER_BLOBS,
 				icon: "ui/chest",
 			},
 			{
@@ -39,7 +31,7 @@ export const adventures: Record<string, Adventure> = {
 			},
 			{
 				generate: ENCOUNTER_BLOBS,
-				icon: null,
+				icon: "ui/chest",
 			},
 			{
 				generate: ENCOUNTER_BLOBS,
