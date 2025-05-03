@@ -158,13 +158,13 @@ const handleEmbarkButtonClicked = (parent: Container) => async () => {
 
 	await retractFlyout(parent.parentContainer);
 
-	ProgressBar.createProgressBar();
+	ProgressBar.createProgressBar(1, 8);
 
 	await createWave(
 		state.gameData.player.units,
 		{
 			generate: ENCOUNTER_BLOBS,
-			current: 0,
+			current: 1,
 			total: 8
 		})
 

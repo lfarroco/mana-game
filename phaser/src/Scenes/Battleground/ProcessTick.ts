@@ -52,7 +52,7 @@ const processTick = async (
           return finishAdventure();
         } else {
           adventure.current++;
-          bar.updateProgressBar(adventure.current, adventure.total);
+          bar.updateProgressBar(adventure.current, adventure.total, adventure.current);
         }
       }
 
