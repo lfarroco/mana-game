@@ -6,10 +6,10 @@ type LootTable = [string, number][]
 
 export const LOOT_DROPS: { [id: string]: LootTable } = {};
 
-LOOT_DROPS[BLOB] = [["gold_ring", 0.2], ["red_potion", 0.7]];
+LOOT_DROPS[BLOB] = [["GOLD_RING_COMMON", 0.2], ["RED_POTION_COMMON", 0.7]];
 // other loots...
 
-const DEFAULT_LOOT: LootTable = [["iron_sword", 0.7]]
+const DEFAULT_LOOT: LootTable = [["IRON_SWORD_COMMON", 0.7]]
 
 export const rollLoot = (id: JobId): Item[] => {
 	const roll = Math.random();

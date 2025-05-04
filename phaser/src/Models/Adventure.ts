@@ -27,9 +27,11 @@ export const adventures: Record<string, Adventure> = {
 				generate: ENCOUNTER_BLOBS,
 				icon: "ui/chest",
 				loot: () => [
-					ITEMS.IRON_SWORD(),
-					ITEMS.TOXIC_POTION(),
-				]
+					ITEMS.IRON_SWORD_COMMON(),
+					ITEMS.TOXIC_POTION_COMMON(),
+				].concat(
+					Math.random() > 0.3 ? [ITEMS.RED_POTION_COMMON()] : []
+				)
 			},
 			{
 				generate: ENCOUNTER_BLOBS,
@@ -43,9 +45,9 @@ export const adventures: Record<string, Adventure> = {
 			{
 				generate: ENCOUNTER_BLOBS,
 				icon: "ui/chest",
-				loot: () => [
-					ITEMS.TOXIC_POTION(),
-				]
+				loot: () => ([] as Item[]).concat(
+					Math.random() > 0.3 ? [ITEMS.TOXIC_POTION_COMMON()] : []
+				)
 
 			},
 		]
