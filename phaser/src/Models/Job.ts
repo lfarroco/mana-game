@@ -58,7 +58,7 @@ export const SKELETON = "skeleton" as JobId;
 
 const monsters = `
 Job             | Name         | HP  | ATK | AGI | Skill                | Traits
-----------------|--------------|-----|-----|-----|--------------------------------------
+----------------|--------------|-----|-----|-----|----------------------|---------------
 ${BLOB}         | Blob         | 40  | 20  | 10  | ${s.SLASH}           | ${t.SPLIT_BLOB.id}
 ${RED_BLOB}     | Red Blob     | 40  | 20  | 10  | ${s.EXPLODE}         | ${t.BURN.id}, ${t.SPLIT_BLOB.id}
 ${BLOB_KING}    | Blob King    | 500 | 50  | 10  | ${s.SLASH}           | ${t.SPLIT_BLOB.id}
