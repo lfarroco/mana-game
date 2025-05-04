@@ -13,10 +13,13 @@ type Equipment = {
 	onCombatStart: UnitEvent;
 }
 
+export type Quality = "common" | "ïncommon" | "rare" | "epic";
+
 export type Item = {
 	id: string;
 	name: string;
 	cost: number;
+	quality: Quality;
 	icon: string;
 	description: string,
 	type: {
@@ -28,24 +31,26 @@ export type Item = {
 	}
 }
 
-export const instantItem = (name: string, icon: string, cost: number, description: string, onUse: (u: Unit) => void): Item => ({
+export const instantItem = (name: string, icon: string, cost: number, description: string, quality: Quality, onUse: (u: Unit) => void): Item => ({
 	id: v4(),
 	name,
 	icon,
 	cost,
 	description,
+	quality,
 	type: {
 		key: "instant",
 		onUse
 	}
 });
 
-export const equipmentItem = (name: string, icon: string, cost: number, description: string, events: Partial<Equipment>): Item => ({
+export const equipmentItem = (name: string, icon: string, cost: number, description: string, quality: Quality, events: Partial<Equipment>): Item => ({
 	id: v4(),
 	name,
 	icon,
 	cost,
 	description,
+	quality,
 	type: {
 		key: "equipment",
 		onEquip: () => () => Promise.resolve(),
@@ -59,20 +64,20 @@ export const equipmentItem = (name: string, icon: string, cost: number, descript
 
 
 export const ITEMS: { [id: string]: () => Item } = {
-	RED_POTION: () => equipmentItem('Red Potion', 'items/red_potion', 4, 'Heals 30 HP when below 50% HP', {
+	RED_POTION_COMMON: () => equipmentItem('Red Potion', 'items/red_potion', 4, 'Heals 30 HP when below 50% HP', "common", {
 		onHalfHP: (u) => async () => {
 			healUnit(u, 30);
 			burnConsumableInBattle(u.id);
 		}
 	}),
-	TOXIC_POTION: () => equipmentItem('Toxic Potion', 'items/toxic_potion', 4, 'Increases attack by 5 until the end of the battle', {
+	TOXIC_POTION_COMMON: () => equipmentItem('Toxic Potion', 'items/toxic_potion', 4, 'Increases attack by 5 until the end of the battle', "common", {
 		onCombatStart: (u) => async () => {
 			updateUnitAttribute(u, 'attackPower', 5);
 			burnConsumableInBattle(u.id);
 		}
 	}),
-	IRON_SWORD: () => equipmentItem('Iron Sword', 'items/iron_sword', 10, 'Increases attack by 5', attributeModifier('attackPower', 5)),
-	GOLD_RING: () => equipmentItem('Gold Ring', 'items/gold_ring', 10, 'Increases def by 5', attributeModifier('defense', 5)),
+	IRON_SWORD_COMMON: () => equipmentItem('Iron Sword', 'items/iron_sword', 10, 'Increases attack by 5', "common", attributeModifier('attackPower', 5)),
+	GOLD_RING_COMMON: () => equipmentItem('Gold Ring', 'items/gold_ring', 10, 'Increases def by 5', "common", attributeModifier('defense', 5)),
 }
 
 const attributeModifier = (attribute: keyof Unit, value: number) => (
