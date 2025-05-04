@@ -17,7 +17,8 @@ export function preload(this: Phaser.Scene) {
 	this.load.image("white-splash-fade", "assets/fx/white-splash-fade.png");
 	this.load.image("damage_display", "assets/ui/damage_display.png");
 
-	this.load.image("bg", "assets/bgs/forest.jpeg");
+	this.load.image("bg", "assets/bgs/forest.png");
+	this.load.image("city", "assets/bgs/city.png");
 	this.load.image("cave_entrance", "assets/bgs/cave_entrance.jpeg");
 
 	this.load.image('arrow', 'assets/equips/arrow.png');
