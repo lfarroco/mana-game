@@ -58,7 +58,7 @@ export const equipmentItem = (name: string, icon: string, cost: number, descript
 });
 
 
-export const ITEMS = {
+export const ITEMS: { [id: string]: () => Item } = {
 	RED_POTION: () => equipmentItem('Red Potion', 'items/red_potion', 4, 'Heals 30 HP when below 50% HP', {
 		onHalfHP: (u) => async () => {
 			healUnit(u, 30);
@@ -85,3 +85,14 @@ const attributeModifier = (attribute: keyof Unit, value: number) => (
 		}
 	}
 )
+
+export const getItem = (itemId: string): Item => {
+	const item = ITEMS[itemId];
+
+	if (!item) {
+		throw new Error(`Invalid item id ${itemId}`)
+	}
+
+	return item()
+
+}
