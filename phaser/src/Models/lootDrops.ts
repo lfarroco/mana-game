@@ -6,22 +6,10 @@ type LootTable = [string, number][]
 
 export const LOOT_DROPS: { [id: string]: LootTable } = {};
 
-LOOT_DROPS[BLOB] = [["gold_ring", 0.2], ["red_potion", 0.7]]
+LOOT_DROPS[BLOB] = [["gold_ring", 0.2], ["red_potion", 0.7]];
+// other loots...
 
 const DEFAULT_LOOT: LootTable = [["iron_sword", 0.7]]
-
-export const getLootFor = (id: JobId) => {
-
-	const loot = LOOT_DROPS[id];
-
-	if (!loot) {
-		console.warn(`No loot found for ${id}. Returning default loot table.`)
-		return DEFAULT_LOOT
-	}
-
-	return loot;
-
-}
 
 export const rollLoot = (id: JobId): Item[] => {
 	const roll = Math.random();
@@ -33,4 +21,16 @@ export const rollLoot = (id: JobId): Item[] => {
 
 	return filtered.map(getItem)
 
+}
+
+const getLootFor = (id: JobId) => {
+
+	const loot = LOOT_DROPS[id];
+
+	if (!loot) {
+		console.warn(`No loot found for ${id}. Returning default loot table.`)
+		return DEFAULT_LOOT
+	}
+
+	return loot;
 }

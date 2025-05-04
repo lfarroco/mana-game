@@ -1,6 +1,6 @@
 import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "../Scenes/Battleground/constants";
 import { goldChangeAnimation, updateUI } from "../Scenes/Battleground/Systems/UIManager";
-import { Item, ITEMS } from "./Item";
+import { Item } from "./Item";
 import { Unit } from "./Unit";
 
 export type Force = {
@@ -20,10 +20,7 @@ export const makeForce = (id: string): Force => ({
 	gold: 10,
 	income: 5,
 	units: [],
-	items: [
-		ITEMS.RED_POTION(),
-		ITEMS.IRON_SWORD(),
-	]
+	items: []
 });
 
 export const playerForce = makeForce(FORCE_ID_PLAYER);
