@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { Unit } from "../../Models/Unit";
 import * as bgConstants from "../../Scenes/Battleground/constants";
 import { asVec2, eqVec2, vec2 } from "../../Models/Geometry";
-import { tween } from "../../Utils/animation";
+import { delay, tween } from "../../Utils/animation";
 import { playerForce } from "../../Models/Force";
 import { FORCE_ID_PLAYER } from "../../Scenes/Battleground/constants";
 import { getJob, Job } from "../../Models/Job";
@@ -17,8 +17,7 @@ import { equipItemInUnit } from "../Item/EquipItem";
 import { popText } from "./Animations/popText";
 import { criticalDamageDisplay } from "../../Effects";
 import * as ItemDrop from "../Item/ItemDrop";
-import { pickOne } from "../../utils";
-import { ITEMS } from "../../Models/Item";
+import { rollLoot } from "../../Models/lootDrops";
 
 export type Chara = {
 	id: string;
@@ -390,15 +389,17 @@ export async function killUnit(chara: Chara) {
 	});
 	chara.container.destroy(true);
 
-	// TODO: loot table
-	const randomItem = pickOne([
-		ITEMS.RED_POTION(),
-		ITEMS.IRON_SWORD(),
-		ITEMS.GOLD_RING(),
-	])
 
-	if (chara.unit.force === bgConstants.FORCE_ID_CPU && Math.random() > 0.8)
-		ItemDrop.dropItem(scene, asVec2(chara.container), randomItem);
+	if (chara.unit.force === bgConstants.FORCE_ID_CPU) {
+
+		const loot = rollLoot(chara.unit.job);
+		await Promise.all(
+			loot.map(async (item, idx) => {
+				await delay(scene, idx * (200 / state.options.speed))
+				return ItemDrop.dropItem(scene, asVec2(chara.container), item);
+			})
+		)
+	}
 
 	for (const ev of chara.unit.events.onDeath)
 		await ev(chara.unit)()
