@@ -1,5 +1,7 @@
-import { ENCOUNTER_BLOBS } from "../Scenes/Battleground/enemyWaves";
+import { ENCOUNTER_BLOBS, parseEncounter } from "../Scenes/Battleground/enemyWaves";
+import { pickOne } from "../utils";
 import { Item, ITEMS } from "./Item";
+import { SKELETON, SKELETON_MAGE } from "./Job";
 import { Unit } from "./Unit";
 
 export type Adventure = {
@@ -16,10 +18,24 @@ export type Wave = {
 	loot?: () => Item[];
 }
 
+const ENCOUNTER_CRYPT = () => {
+
+	const randomEncounters = [[
+		"x1x",
+		"1xx",
+		"x1x"
+	]
+	]
+
+	return parseEncounter(pickOne(randomEncounters), { '1': SKELETON, 2: SKELETON_MAGE })
+
+
+};
+
 export const adventures: Record<string, Adventure> = {
 	forest_entrance: {
 		name: "Forest Entrance",
-		icon: "forest_entrance",
+		icon: "icon/forest_entrance",
 		currentWave: 0,
 		description: "A dark and gloomy forest entrance.",
 		waves: [
@@ -52,4 +68,33 @@ export const adventures: Record<string, Adventure> = {
 			},
 		]
 	},
+	crypts: {
+		name: "Crypts",
+		icon: "charas/skeleton",
+		currentWave: 0,
+		description: "A dark and gloomy crypt.",
+		waves: [
+			{
+				generate: ENCOUNTER_CRYPT,
+			},
+			{
+				generate: ENCOUNTER_CRYPT,
+			},
+			{
+				generate: ENCOUNTER_CRYPT,
+				icon: "ui/chest",
+				loot: () => ([] as Item[]).concat(
+					Math.random() > 0.3 ? [ITEMS.TOXIC_POTION_COMMON()] : []
+				)
+			},
+			{
+				generate: ENCOUNTER_CRYPT,
+			},
+			{
+				generate: ENCOUNTER_CRYPT,
+			},
+
+		]
+	}
 }
+

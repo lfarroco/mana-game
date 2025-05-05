@@ -124,4 +124,7 @@ chocolate bars -> unit (+hp)
 
 card ideas
 - +x attack when hurt
-- 
+
+
+- diablo-style items
+- sword -> sword of the whale (+hp), sword of the tiger (+attack), red sword of the tiger (+agi, +attack)

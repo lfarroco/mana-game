@@ -1,12 +1,23 @@
 import { fst } from "fp-ts/lib/Tuple";
 import { getItem, Item } from "./Item";
-import { BLOB, JobId } from "./Job";
+import { BLOB, JobId, SKELETON, SKELETON_MAGE } from "./Job";
 
 type LootTable = [string, number][]
 
 export const LOOT_DROPS: { [id: string]: LootTable } = {};
 
-LOOT_DROPS[BLOB] = [["GOLD_RING_COMMON", 0.2], ["RED_POTION_COMMON", 0.7]];
+LOOT_DROPS[BLOB] = [
+	["GOLD_RING_COMMON", 0.2],
+	["RED_POTION_COMMON", 0.7],
+];
+LOOT_DROPS[SKELETON] = [
+	["BONE", 0.2],
+];
+LOOT_DROPS[SKELETON_MAGE] = [
+	["BONE", 0.2],
+	["MAGIC_WAND_COMMON", 0.1],
+	["MAGIC_DUST", 0.3],
+]
 // other loots...
 
 const DEFAULT_LOOT: LootTable = []

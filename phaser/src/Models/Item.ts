@@ -78,6 +78,17 @@ export const ITEMS: { [id: string]: () => Item } = {
 	}),
 	IRON_SWORD_COMMON: () => equipmentItem('Iron Sword', 'items/iron_sword', 10, 'Increases attack by 5', "common", attributeModifier('attackPower', 5)),
 	GOLD_RING_COMMON: () => equipmentItem('Gold Ring', 'items/gold_ring', 10, 'Increases def by 5', "common", attributeModifier('defense', 5)),
+	BONE: () => ({
+		id: v4(),
+		name: 'Bone',
+		icon: 'charas/skeleton',
+		cost: 1,
+		description: 'A bone from a skeleton',
+		quality: "common",
+		type: {
+			key: "material",
+		}
+	})
 }
 
 const attributeModifier = (attribute: keyof Unit, value: number) => (
