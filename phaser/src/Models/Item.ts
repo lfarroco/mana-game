@@ -85,9 +85,17 @@ export const ITEMS: { [id: string]: () => Item } = {
 		cost: 1,
 		description: 'A bone from a skeleton',
 		quality: "common",
-		type: {
-			key: "material",
-		}
+		type: { key: "material", }
+	}),
+	MAGIC_WAND_COMMON: () => equipmentItem('Magic Wand', 'items/magic_wand', 10, 'Increases attack by 5', "common", attributeModifier('attackPower', 5)),
+	MAGIC_DUST: () => ({
+		id: v4(),
+		name: 'Magic Dust',
+		icon: 'charas/skeleton',
+		cost: 1,
+		description: 'It contains magic power that can be fused into items',
+		quality: "common",
+		type: { key: "material", }
 	})
 }
 

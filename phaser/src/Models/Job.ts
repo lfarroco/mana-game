@@ -44,7 +44,7 @@ ${BARBARIAN}  | Barbarian   | 250 | 30   | 20  | ${s.SLASH}           | ${t.BERS
 ${PIRATE}     | Pirate      | 200 | 20   | 30  | ${s.SLASH}           |
 ${PALADIN}    | Paladin     | 250 | 20   | 20  | ${s.SLASH}           | ${t.TAUNT.id}, ${t.PROTECTOR.id}
 ${RANGER}     | Ranger      | 250 | 20   | 20  | ${s.SHOOT}           | 
-${NECROMANCER}| Necromancer | 250 | 20   | 20  | ${s.SLASH}           |
+${NECROMANCER}| Necromancer | 250 | 20   | 20  | ${s.ARCANE_MISSILES} | ${t.UNDEAD_STRENGTH.id}
 ${BARD}       | Bard        | 250 | 20   | 20  | ${s.SLASH}           |
 `;
 
@@ -66,8 +66,8 @@ ${BLOB_KING}     | Blob King    | 500 | 50  | 10  | ${s.SLASH}           | ${t.S
 ${BLOB_MAGE}     | Blob Mage    | 90  | 15  | 8   | ${s.ARCANE_MISSILES} | ${t.SPLIT_BLOB.id}
 ${BLOB_KNIGHT}   | Blob Knight  | 400 | 25  | 6   | ${s.SLASH}           | ${t.TAUNT.id}
 ${TINY_BLOB}     | Tiny Blob    | 20  | 10  | 10  | ${s.SLASH}           |
-${SKELETON}      | Skeleton     | 50  | 10  | 10  | ${s.SLASH}           | ${t.REBORN.id}
-${SKELETON_MAGE} | Skeleton Mage| 80  | 5   | 8   | ${s.ARCANE_MISSILES} | ${t.REBORN.id}
+${SKELETON}      | Skeleton     | 50  | 10  | 10  | ${s.SLASH}           | ${t.UNDEAD.id},${t.REBORN.id}
+${SKELETON_MAGE} | Skeleton Mage| 80  | 5   | 8   | ${s.ARCANE_MISSILES} | ${t.UNDEAD.id},${t.REBORN.id}
 `
 
 function parseJobsTable(table: string) {

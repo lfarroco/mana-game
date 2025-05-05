@@ -490,6 +490,38 @@ export const REBORN = makeTrait({
 	}
 });
 
+export const UNDEAD = makeTrait({
+	id: "undead" as TraitId,
+	name: "Undead",
+	description: "This unit cannot be healed, but can be revived",
+	categories: [TRAIT_CATEGORY_DEFENSIVE],
+	events: {
+		onDeath: [(unit) => async () => {
+			if (unit.statuses["undead"]) return; // already undead
+			await popText({ text: "Undead", targetId: unit.id, speed: 2 });
+			addStatus(unit, "undead");
+		}]
+	}
+});
+
+export const UNDEAD_STRENGTH = makeTrait({
+	id: "undead_strength" as TraitId,
+	name: "Undead Strength",
+	description: "Allied undead units gain +20 attack and HP",
+	categories: [TRAIT_CATEGORY_OFFENSIVE, TRAIT_CATEGORY_DEFENSIVE],
+	events: {
+		onBattleStart: [(unit) => async () => {
+			const allies = state.battleData.units.filter(u => u.force === unit.force && u.id !== unit.id);
+			const undeadAllies = allies.filter(u => u.traits.some(t => t.id === UNDEAD.id));
+			for (const undead of undeadAllies) {
+				await popText({ text: "+Undead Strength", targetId: undead.id, speed: 2 });
+				updateUnitAttribute(undead, "attackPower", 20);
+				updateUnitAttribute(undead, "maxHp", 20);
+			}
+		}]
+	}
+});
+
 export const getTrait = () => (id: TraitId): Trait => {
 	const trait = traits[id];
 	if (!trait) {
@@ -521,6 +553,8 @@ export const traits: { [id: TraitId]: Trait } = {
 	[REGENERATE.id]: REGENERATE,
 	[SPLIT_BLOB.id]: SPLIT_BLOB,
 	[REBORN.id]: REBORN,
+	[UNDEAD.id]: UNDEAD,
+	[UNDEAD_STRENGTH.id]: UNDEAD_STRENGTH,
 };
 
 export const randomCategoryTrait = (category: TraitCategory): Trait => {

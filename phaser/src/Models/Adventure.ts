@@ -1,7 +1,7 @@
 import { ENCOUNTER_BLOBS, parseEncounter } from "../Scenes/Battleground/enemyWaves";
 import { pickOne } from "../utils";
 import { Item, ITEMS } from "./Item";
-import { SKELETON, SKELETON_MAGE } from "./Job";
+import { NECROMANCER, SKELETON, SKELETON_MAGE } from "./Job";
 import { Unit } from "./Unit";
 
 export type Adventure = {
@@ -24,10 +24,16 @@ const ENCOUNTER_CRYPT = () => {
 		"x1x",
 		"1xx",
 		"x1x"
+	],
+	[
+
+		"xxx",
+		"3x1",
+		"2xx"
 	]
 	]
 
-	return parseEncounter(pickOne(randomEncounters), { '1': SKELETON, 2: SKELETON_MAGE })
+	return parseEncounter(pickOne(randomEncounters), { '1': SKELETON, '2': SKELETON_MAGE, '3': NECROMANCER })
 
 
 };
