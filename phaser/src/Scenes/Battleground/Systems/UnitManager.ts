@@ -80,6 +80,10 @@ export function getChara(id: string) {
 	return unitManagerState.charaIndex.find((chara) => chara.id === id)!;
 }
 
+export function getCPUCharas() {
+	return unitManagerState.charaIndex.filter((chara) => chara.unit.force === constants.FORCE_ID_CPU)
+}
+
 export function getCharaAt(vec: Vec2) {
 	return unitManagerState.charaIndex
 		.filter(chara => chara.unit.hp > 0)

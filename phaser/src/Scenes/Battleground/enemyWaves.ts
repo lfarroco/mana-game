@@ -71,7 +71,7 @@ export const ENCOUNTER_BLOBS = () => {
 
 };
 
-export const ENCOUNTER_UNDEAD = parseEncounter(
+export const ENCOUNTER_UNDEAD = () => parseEncounter(
 	[
 		"x11",
 		"xx1",
