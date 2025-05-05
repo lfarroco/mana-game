@@ -79,6 +79,7 @@ export type Trait = {
 export const TRAIT_CATEGORY_PERSONALITY = "personality" as TraitCategory;
 export const TRAIT_CATEGORY_OFFENSIVE = "offensive" as TraitCategory;
 export const TRAIT_CATEGORY_DEFENSIVE = "defensive" as TraitCategory;
+export const TRAIT_CATEGORY_TRIBE = "tribe" as TraitCategory;
 export const TRAIT_CATEGORY_VISION = "vision" as TraitCategory;
 export const TRAIT_CATEGORY_HP = "hp" as TraitCategory;
 export const TRAIT_CATEGORY_ATTACK = "attack" as TraitCategory;
@@ -493,15 +494,9 @@ export const REBORN = makeTrait({
 export const UNDEAD = makeTrait({
 	id: "undead" as TraitId,
 	name: "Undead",
-	description: "This unit cannot be healed, but can be revived",
-	categories: [TRAIT_CATEGORY_DEFENSIVE],
-	events: {
-		onDeath: [(unit) => async () => {
-			if (unit.statuses["undead"]) return; // already undead
-			await popText({ text: "Undead", targetId: unit.id, speed: 2 });
-			addStatus(unit, "undead");
-		}]
-	}
+	description: "This unit cannot be healed, but can be revived. It also immune to mind control and death effects.",
+	categories: [TRAIT_CATEGORY_TRIBE],
+	events: {}
 });
 
 export const UNDEAD_STRENGTH = makeTrait({
