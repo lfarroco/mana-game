@@ -58,46 +58,38 @@ export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container
 
 	parent.removeAll(true);
 
-	const maps = [
-		"forest_entrance",
-		"forest_entrance",
-	];
-
 	// each row has 5 maps
 
-	maps.forEach((map, index) => {
+	Object.values(adventures).forEach((adventure, index) => {
 
 		const x = 100 + (index % 5) * 200;
 		const y = 100 + Math.floor(index / 5) * 200;
 
-		const icon = scene.add.image(x, y, `icon/${map}`).setOrigin(0).setScale(0.5);
+		const icon = scene.add.image(x, y, adventure.icon).setOrigin(0).setScale(0.5);
 
 		icon.setInteractive();
 
 		parent.add(icon);
 
-		icon.on("pointerup", renderMapInfo(scene, parent, map));
+		icon.on("pointerup", renderMapInfo(scene, parent, adventure));
 
 	});
 
-	setTimeout(() => renderMapInfo(scene, parent, maps[0])(), 500);
+	setTimeout(() => renderMapInfo(scene, parent, adventures.crypts)(), 500);
 
 }
 
-const renderMapInfo = (scene: Scene, parent: Container, map: string) => async () => {
+const renderMapInfo = (scene: Scene, parent: Container, adventure: Adventure) => async () => {
 
-	console.log("renderMapInfo", map);
+	console.log("renderMapInfo", adventure);
 
 	parent.removeAll(true);
 
-	const adventure = adventures[map];
-
-	if (!adventure) return;
 
 	const icon = scene.add.image(
 		300,
 		300,
-		`icon/${map}`
+		adventure.icon,
 	).setOrigin(0.5).setScale(1);
 	parent.add(icon);
 
