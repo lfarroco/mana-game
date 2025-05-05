@@ -128,3 +128,8 @@ card ideas
 
 - diablo-style items
 - sword -> sword of the whale (+hp), sword of the tiger (+attack), red sword of the tiger (+agi, +attack)
+
+unicorn overlord allows setting some basic ai:
+- priority #1, 2 and 3
+- target (lower hp, higher atk)
+- if /else (eg. heal, if hp < 50%)
