@@ -10,6 +10,10 @@ export async function popText({ text, targetId, type, speed = 1 }: { text: strin
 
 	const animationSpeed = getState().options.speed * speed;
 	const chara = UnitManager.getChara(targetId);
+	if (!chara) {
+		console.warn("Chara not found for popText", targetId);
+		return;
+	}
 	const { scene } = chara;
 
 	const color = type === "heal" ? "#00FF00" : type === "damage" ? defaultTextConfig.color : undefined;

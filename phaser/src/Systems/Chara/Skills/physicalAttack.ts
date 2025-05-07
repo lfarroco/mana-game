@@ -1,6 +1,5 @@
 import { impactEffect } from "../../../Effects";
 import { getState } from "../../../Models/State";
-import { delay } from "../../../Utils/animation";
 import { Chara, damageUnit } from "../Chara";
 
 export async function physicalAttack(
@@ -35,32 +34,22 @@ export async function physicalAttack(
 	if (activeChara.unit.statuses["double_damage"])
 		damage *= 2;
 
-	await Promise.all(
-		activeChara.unit.events
-			.onAttackByMe
-			.map(fn => fn(activeChara.unit, targetChara.unit, damage, isCritical, evaded)())
-	);
+	activeChara.unit.events
+		.onAttackByMe
+		.map(fn => fn(activeChara.unit, targetChara.unit, damage, isCritical, evaded)())
 
-	await Promise.all(
-		targetChara.unit.events
-			.onDefendByMe.map(fn => fn(activeChara.unit, targetChara.unit)())
-	);
+	targetChara.unit.events
+		.onDefendByMe.map(fn => fn(activeChara.unit, targetChara.unit)())
 
 	if (evaded) {
-		await Promise.all(
-			targetChara.unit.events
-				.onEvadeByMe
-				.map(fn => fn(targetChara.unit, activeChara.unit)())
-		);
+		targetChara.unit.events
+			.onEvadeByMe
+			.map(fn => fn(targetChara.unit, activeChara.unit)())
 	} else {
-		await damageUnit(targetChara.id, damage, isCritical);
+		damageUnit(targetChara.id, damage, isCritical);
 	}
 
-	await Promise.all(
-		activeChara.unit.events
-			.onAfterAttackByMe.map(fn => fn(activeChara.unit, targetChara.unit, damage, isCritical, evaded)())
-	);
-
-	await delay(scene, 500 / speed);
+	activeChara.unit.events
+		.onAfterAttackByMe.map(fn => fn(activeChara.unit, targetChara.unit, damage, isCritical, evaded)())
 
 }

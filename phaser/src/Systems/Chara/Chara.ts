@@ -29,12 +29,16 @@ export type Chara = {
 	hpDisplay: Phaser.GameObjects.Text,
 	equipDisplay: Phaser.GameObjects.Image,
 	zone: Phaser.GameObjects.Zone,
+	chargeBarBg: Phaser.GameObjects.Graphics,
+	chargeBar: Phaser.GameObjects.Graphics,
 }
 
 export let scene: Phaser.Scene;
 let state: State;
 
 const borderWidth = 4
+const boxWidth = 60;
+const boxHeight = 50;
 
 export function createCard(unit: Unit): Chara {
 
@@ -45,7 +49,6 @@ export function createCard(unit: Unit): Chara {
 		bgConstants.TILE_WIDTH, bgConstants.TILE_HEIGHT,
 		borderColor, 1)
 		.setOrigin(0.5, 0.5)
-
 
 	const container = scene.add.container(
 		unit.position.x * bgConstants.TILE_WIDTH + bgConstants.HALF_TILE_WIDTH,
@@ -64,8 +67,7 @@ export function createCard(unit: Unit): Chara {
 
 	const textConfig = { ...bgConstants.titleTextConfig, fontSize: '24px' };
 
-	const boxWidth = 60;
-	const boxHeight = 50;
+
 
 	const atkPosition: [number, number] = [
 		-bgConstants.HALF_TILE_WIDTH + 10, bgConstants.HALF_TILE_HEIGHT - boxHeight - 10,
@@ -127,6 +129,11 @@ export function createCard(unit: Unit): Chara {
 
 	const item = renderItemSlot(unit, container);
 
+	// a bar based on the unit.charge value
+	const chargeBarBg = scene.add.graphics();
+	const chargeBar = scene.add.graphics();
+	container.add([chargeBarBg, chargeBar]);
+
 	const chara: Chara = {
 		id: unit.id,
 		force: unit.force,
@@ -139,6 +146,8 @@ export function createCard(unit: Unit): Chara {
 		hpDisplay: hp,
 		zone,
 		equipDisplay: item,
+		chargeBarBg,
+		chargeBar
 	};
 
 	return chara
@@ -224,6 +233,31 @@ export const addBoardEvents = (chara: Chara) => {
 
 }
 
+export function updateChargeBar({ chargeBar, chargeBarBg, unit }: Chara) {
+	chargeBar.clear();
+
+	const maxWidth = bgConstants.TILE_WIDTH - 20;
+
+	const percent = unit.charge / unit.agility;
+
+	const calcWidth = () => Math.min(
+		percent * maxWidth,
+		maxWidth,
+	);
+
+	chargeBarBg.fillStyle(0x000000, 1);
+	chargeBarBg.fillRect(
+		-bgConstants.HALF_TILE_WIDTH + 10, - bgConstants.HALF_TILE_HEIGHT + 10,
+		maxWidth, 10,
+	);
+	chargeBar.fillStyle(0xffff00, 1);
+	chargeBar.fillRect(
+		-bgConstants.HALF_TILE_WIDTH + 10, - bgConstants.HALF_TILE_HEIGHT + 10,
+		calcWidth(), 10,
+	);
+
+}
+
 export function addTooltip(chara: Chara) {
 	chara.zone.on('pointerover', () => {
 
@@ -280,20 +314,26 @@ export async function damageUnit(id: string, damage: number, isCritical = false)
 
 	const chara = UnitManager.getChara(id);
 
+	if (!chara || !chara.unit) {
+		console.warn(`damageUnit: Chara ${id} not found`);
+		return;
+	}
+
 	const nextHp = chara.unit.hp - damage;
+
 	const hasDied = nextHp <= 0;
 
 	chara.unit.hp = nextHp <= 0 ? 0 : nextHp;
 	chara.hpDisplay.setText(chara.unit.hp.toString());
 
 	if (isCritical) {
-		await criticalDamageDisplay(scene, chara.container, damage, getState().options.speed);
+		criticalDamageDisplay(scene, chara.container, damage, getState().options.speed);
 	} else {
-		await popText({ text: damage.toString(), targetId: chara.id });
+		popText({ text: damage.toString(), targetId: chara.id });
 	}
 
 	if (hasDied) {
-		await killUnit(chara)
+		killUnit(chara)
 		return;
 	}
 
@@ -302,11 +342,11 @@ export async function damageUnit(id: string, damage: number, isCritical = false)
 		chara.unit.equip?.type.key === "equipment" &&
 		chara.unit.equip.type.onHalfHP
 	) {
-		await popText({
+		popText({
 			text: chara.unit.equip.name,
 			targetId: chara.id,
 		})
-		await chara.unit.equip.type.onHalfHP(chara.unit)();
+		chara.unit.equip.type.onHalfHP(chara.unit)();
 	}
 
 }
@@ -317,7 +357,7 @@ export async function killUnit(chara: Chara) {
 
 	chara.unit.hp = 0;
 
-	await tween({
+	tween({
 		targets: [chara.container],
 		alpha: 0,
 		yoyo: true,
@@ -327,20 +367,17 @@ export async function killUnit(chara: Chara) {
 	});
 	chara.container.destroy(true);
 
-
 	if (chara.unit.force === bgConstants.FORCE_ID_CPU) {
 
 		const loot = rollLoot(chara.unit.job);
-		await Promise.all(
-			loot.map(async (item, idx) => {
-				await delay(scene, idx * (200 / state.options.speed))
-				return ItemDrop.dropItem(scene, asVec2(chara.container), item);
-			})
-		)
+		loot.forEach(async (item, idx) => {
+			await delay(scene, idx * (200 / state.options.speed))
+			return ItemDrop.dropItem(scene, asVec2(chara.container), item);
+		})
 	}
 
 	for (const ev of chara.unit.events.onDeath)
-		await ev(chara.unit)()
+		ev(chara.unit)()
 
 }
 

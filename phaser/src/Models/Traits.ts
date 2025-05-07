@@ -479,13 +479,13 @@ export const REBORN = makeTrait({
 			// create a new unit with the same id and position
 			const newUnit = makeUnit(unit.force, unit.job, unit.position);
 			newUnit.hp = 1;
-
 			addStatus(newUnit, "reborn");
 
-			await popText({ text: "Reborn", targetId: unit.id, speed: 2 });
-
 			state.battleData.units.push(newUnit);
-			await summonChara(newUnit, false, false);
+
+			popText({ text: "Reborn", targetId: unit.id, speed: 2 });
+
+			summonChara(newUnit, false, false);
 
 		}]
 	}

@@ -9,13 +9,13 @@ export async function bashPieceAnimation(
 ) {
 	const state = getState();
 
-	const backMovementDuration = 300 / state.options.speed;
+	const backMovementDuration = 100 / state.options.speed;
 	// The actual "strike" happens at the end of the forward movement
-	const forwardMovementDuration = 200 / state.options.speed;
+	const forwardMovementDuration = 100 / state.options.speed;
 
-	const returnMovementDuration = 300 / state.options.speed;
+	const returnMovementDuration = 100 / state.options.speed;
 
-	const backDistance = HALF_TILE_WIDTH;
+	const backDistance = HALF_TILE_WIDTH / 5;
 	const forwardDistance = backDistance * 2;
 
 	const directionVector = Phaser.Math.Angle.BetweenPoints(
