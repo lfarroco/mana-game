@@ -1,7 +1,6 @@
 import { getBattleUnit } from "../../../Models/State";
 import { Unit } from "../../../Models/Unit";
 import { bashPieceAnimation } from "../Animations/bashPieceAnimation";
-import { popText } from "../Animations/popText";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { physicalAttack } from "./physicalAttack";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
@@ -16,9 +15,11 @@ export async function slash(
 ) {
 	const activeChara = UnitManager.getChara(unit.id);
 
-	await popText({ text: "Slash", targetId: unit.id });
-
 	const target = getMeleeTarget(scene.state, unit);
+	if (!target) {
+		console.warn("No target found for slash");
+		return;
+	}
 	const targetUnit = getBattleUnit(scene.state)(target.id);
 	const targetChara = UnitManager.getChara(targetUnit.id);
 
@@ -29,7 +30,7 @@ export async function slash(
 		targets: [activeChara.container],
 		x: activeChara.unit.position.x * TILE_WIDTH + HALF_TILE_WIDTH,
 		Y: activeChara.unit.position.y * TILE_WIDTH + HALF_TILE_WIDTH,
-		duration: 200 / scene.state.options.speed,
+		duration: 100 / scene.state.options.speed,
 	})
 }
 

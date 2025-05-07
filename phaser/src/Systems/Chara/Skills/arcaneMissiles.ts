@@ -32,8 +32,6 @@ export const arcaneMissiles = (
 	//pick 3 random indexes (can be repeated)
 	const targetIndexes = Array.from({ length: 3 }, () => Math.floor(Math.random() * targets.length));
 
-	popText({ text: skill.name, targetId: unit.id });
-
 	targetIndexes.forEach(async (index) => {
 
 		const target = targets[index];

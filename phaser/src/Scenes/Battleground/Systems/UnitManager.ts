@@ -84,6 +84,10 @@ export function getCPUCharas() {
 	return unitManagerState.charaIndex.filter((chara) => chara.unit.force === constants.FORCE_ID_CPU)
 }
 
+export function getAllCharas() {
+	return unitManagerState.charaIndex.filter((chara) => chara.unit.hp > 0)
+}
+
 export function getCharaAt(vec: Vec2) {
 	return unitManagerState.charaIndex
 		.filter(chara => chara.unit.hp > 0)

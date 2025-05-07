@@ -1,5 +1,4 @@
 import { Unit } from "../../../Models/Unit";
-import { popText } from "./popText";
 import { tween } from "../../../Utils/animation";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { physicalAttack } from "../Skills/physicalAttack";
@@ -9,8 +8,6 @@ export async function shootAnimation(scene: BattlegroundScene, unit: Unit, targe
 
 	const activeChara = UnitManager.getChara(unit.id);
 	const targetChara = UnitManager.getChara(target.id);
-
-	await popText({ text: "Shoot", targetId: unit.id });
 
 	const arrow = scene.add.image(activeChara.container.x, activeChara.container.y, "arrow");
 
