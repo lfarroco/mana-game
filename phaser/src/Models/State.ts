@@ -12,7 +12,7 @@ export const initialState = (): State => ({
     soundVolume: 0.4,
     music: true,
     musicVolume: 0.2,
-    debug: true,
+    debug: false,
     speed: 6,
   },
   savedGames: [],

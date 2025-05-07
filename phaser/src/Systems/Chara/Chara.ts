@@ -3,21 +3,19 @@ import { Unit } from "../../Models/Unit";
 import * as bgConstants from "../../Scenes/Battleground/constants";
 import { asVec2, eqVec2, vec2 } from "../../Models/Geometry";
 import { delay, tween } from "../../Utils/animation";
-import { playerForce } from "../../Models/Force";
 import { FORCE_ID_PLAYER } from "../../Scenes/Battleground/constants";
 import { getJob, Job } from "../../Models/Job";
 import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
-import * as Chest from "../../Scenes/Battleground/Systems/Chest";
 import * as UnitManager from "../../Scenes/Battleground/Systems/UnitManager";
 import * as GridSystem from "../../Scenes/Battleground/Systems/GridSystem";
 import { BLUE_BONNET, VIVIRED_RED } from "../../Utils/colors";
 import { getState, State } from "../../Models/State";
 import * as TooltipSytem from "../Tooltip";
-import { equipItemInUnit } from "../Item/EquipItem";
 import { popText } from "./Animations/popText";
 import { criticalDamageDisplay } from "../../Effects";
 import * as ItemDrop from "../Item/ItemDrop";
 import { rollLoot } from "../../Models/lootDrops";
+import { renderItemSlot } from "./ItemSlot";
 
 export type Chara = {
 	id: string;
@@ -33,7 +31,7 @@ export type Chara = {
 	zone: Phaser.GameObjects.Zone,
 }
 
-let scene: Phaser.Scene;
+export let scene: Phaser.Scene;
 let state: State;
 
 const borderWidth = 4
@@ -249,66 +247,6 @@ export function addTooltip(chara: Chara) {
 	chara.zone.on('pointerout', () => {
 		TooltipSytem.hide()
 	})
-}
-
-function renderItemSlot(unit: Unit, container: Phaser.GameObjects.Container) {
-	const itemBorder = scene.add.image(
-		bgConstants.HALF_TILE_WIDTH - 40, -bgConstants.HALF_TILE_HEIGHT + 40,
-		"ui/slot")
-		.setOrigin(0.5, 0.5)
-		.setDisplaySize(80, 80);
-	const item = scene.add.image(
-		bgConstants.HALF_TILE_WIDTH - 40, -bgConstants.HALF_TILE_HEIGHT + 40,
-		unit.equip?.icon || "empty"
-	).setDisplaySize(60, 60).setOrigin(0.5, 0.5);
-
-	if (unit.equip === null) {
-		item.alpha = 0;
-	}
-	item.setInteractive({ draggable: true });
-	item.on('dragstart', () => {
-		scene.children.bringToTop(container);
-	});
-	item.on('drag', (pointer: Phaser.Input.Pointer) => {
-		if (unit.force !== FORCE_ID_PLAYER) return;
-		item.x = pointer.x - item.parentContainer.x;
-		item.y = pointer.y - item.parentContainer.y;
-	});
-
-	// TODO: move to Item module under "item tooltip"
-	item.on('pointerover', () => {
-		if (!unit.equip) return;
-		TooltipSytem.render(
-			item.parentContainer.x + item.x + 300, item.parentContainer.y + item.y,
-			unit.equip.name,
-			unit.equip.description,
-		);
-	});
-
-	item.on('dragend', (pointer: Phaser.Input.Pointer) => {
-		const closest = UnitManager.overlap(pointer);
-
-		if (!closest) {
-			// back to chest
-			if (unit.equip) playerForce.items.push(unit.equip);
-
-			equipItemInUnit({ unit, item: null });
-			Chest.updateChestIO();
-		} else {
-			if (closest.unit.id === unit.id) { //self
-				equipItemInUnit({ unit, item: unit.equip });
-			} else { //another
-				const currEquip = closest.unit.equip;
-
-				equipItemInUnit({ unit: closest.unit, item: unit.equip });
-				equipItemInUnit({ unit: unit, item: currEquip });
-
-			}
-		}
-	});
-
-	container.add([itemBorder, item]);
-	return item;
 }
 
 export function destroyChara(chara: Chara) {

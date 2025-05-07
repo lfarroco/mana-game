@@ -27,6 +27,11 @@ export async function physicalAttack(
 	const rawDmg = isCritical ? activeChara.unit.attackPower * 2 : activeChara.unit.attackPower;
 	let damage = Math.max(1, rawDmg - targetChara.unit.defense);
 
+	// TODO: use a hook for this
+	// hook: onbeforeAttackByMe
+	// receive base damage (without other modifiers)
+	// returns new damage, or attack cancel
+	// then, sum with all the other modifiers
 	if (activeChara.unit.statuses["double_damage"])
 		damage *= 2;
 

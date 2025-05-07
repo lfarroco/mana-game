@@ -6,8 +6,6 @@ import * as ProgressBar from "./ProgressBar";
 import { createButton } from "./UIManager";
 import { createWave } from "./WaveManager";
 
-let hasClicked_debug = false;
-
 export async function renderMapButton(scene: Phaser.Scene) {
 
 	console.log("renderMapButton");
@@ -29,12 +27,6 @@ export async function renderMapButton(scene: Phaser.Scene) {
 		.setDisplaySize(230, 230)
 		.setInteractive()
 		.on("pointerup", () => handleButtonClicked(isOpened, container)());
-
-	setTimeout(() => {
-		if (hasClicked_debug) return;
-		handleButtonClicked(isOpened, container)();
-		hasClicked_debug = true;
-	}, 500);
 
 }
 
@@ -74,8 +66,6 @@ export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container
 		icon.on("pointerup", renderMapInfo(scene, parent, adventure));
 
 	});
-
-	setTimeout(() => renderMapInfo(scene, parent, adventures.crypts)(), 500);
 
 }
 
@@ -118,10 +108,6 @@ const renderMapInfo = (scene: Scene, parent: Container, adventure: Adventure) =>
 		}
 	);
 	parent.add(backButton);
-
-	setTimeout(() => {
-		handleEmbarkButtonClicked(parent, adventure)();
-	}, 500);
 
 }
 
