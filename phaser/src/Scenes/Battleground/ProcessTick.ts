@@ -10,7 +10,7 @@ import { createWave } from "./Systems/WaveManager";
 import * as bar from "./Systems/ProgressBar";
 import { Adventure } from "../../Models/Adventure";
 import { dropItem } from "../../Systems/Item/ItemDrop";
-import { getAllCharas } from "./Systems/UnitManager";
+import { getChara } from "./Systems/UnitManager";
 import { updateChargeBar } from "../../Systems/Chara/Chara";
 
 const processTick = async (
@@ -27,10 +27,6 @@ const processTick = async (
 
       dostuff();
 
-      getAllCharas().forEach(chara => {
-        updateChargeBar(chara);
-      });
-
     },
     loop: true,
   });
@@ -44,8 +40,6 @@ const processTick = async (
 
   async function dostuff() {
 
-    console.log("[~~~start~~~")
-
     const activeUnits = getActiveUnits(state);
 
     for (const unit of activeUnits) {
@@ -53,17 +47,16 @@ const processTick = async (
 
       unit.charge += TICK_DURATION;
 
-      console.log(`[${unit.job}] charge: ${unit.charge}`)
+      if (unit.charge >= unit.agility) {
 
-      if (unit.charge < unit.agility) continue;
-      else
+        // TODO: track which one is the active unit
+        // if they overlap, throw an error
+        performAction(scene)(unit)();
         unit.charge = unit.charge - unit.agility;
+      }
 
-      // TODO: track which one is the active unit
-      // if they overlap, throw an error
-      performAction(scene)(unit)();
-
-      console.log("~~~~end~~~]")
+      const chara = getChara(unit.id);
+      updateChargeBar(chara);
 
     }
 

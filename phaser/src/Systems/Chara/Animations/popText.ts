@@ -1,14 +1,11 @@
 import { tween } from "../../../Utils/animation";
-import { defaultTextConfig } from "../../../Scenes/Battleground/constants";
+import { defaultTextConfig, titleTextConfig } from "../../../Scenes/Battleground/constants";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
-import { getState } from "../../../Models/State";
 
-const animationDuration = 1000;
 // TODO: add color option (heals: green, damage: yellow, etc)
 // TODO: move this to the chara system, as it always uses the chara container
-export async function popText({ text, targetId, type, speed = 1 }: { text: string; targetId: string; type?: string; speed?: number }) {
+export async function popText({ text, targetId, type }: { text: string; targetId: string; type?: string; speed?: number }) {
 
-	const animationSpeed = getState().options.speed * speed;
 	const chara = UnitManager.getChara(targetId);
 	if (!chara) {
 		console.warn("Chara not found for popText", targetId);
@@ -22,9 +19,7 @@ export async function popText({ text, targetId, type, speed = 1 }: { text: strin
 		chara.container.x, chara.container.y,
 		text,
 		{
-			...defaultTextConfig,
-			fontSize: '42px',
-			fontStyle: 'bold',
+			...titleTextConfig,
 		}
 	)
 		.setOrigin(0.5, 0.5)
@@ -32,10 +27,14 @@ export async function popText({ text, targetId, type, speed = 1 }: { text: strin
 
 	await tween({
 		targets: [popText],
-		alpha: 0,
+		scale: 1.4,
 		y: chara.container.y - 64,
-		duration: animationDuration / animationSpeed,
-		ease: "Linear"
+	});
+	await tween({
+		targets: [popText],
+		alpha: 0,
+		scale: 1,
+		y: chara.container.y - 128,
 	});
 
 	popText.destroy();

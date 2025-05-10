@@ -45,13 +45,10 @@ export async function createWave(
 		.map(u => u.equip?.type?.key === "equipment" ?
 			u.equip.type.onCombatStart(u) : () => Promise.resolve())
 
-	const promises = scene.state.battleData.units
+	scene.state.battleData.units
 		.flatMap(u => u.events.onBattleStart.map(fn => fn(u)))
 		.concat(itemPromises)
 
-	for (const func of promises) {
-		await func();
-	}
 
 	await processTick(scene, adventure);
 }

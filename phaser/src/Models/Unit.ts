@@ -58,7 +58,7 @@ export const makeUnit = (force: string, jobId: JobId, position: Vec2): Unit => {
     force,
     position: asVec2(position),
     maxHp: job.hp,
-    crit: job.agility * 1.5,
+    crit: 0,
     evade: 0,
     attackType: job.skill === SLASH ? "melee" : job.skill === SHOOT ? "ranged" : "magic",
     attackPower: job.attack,
