@@ -66,8 +66,8 @@ ${BLOB_KING}     | Blob King    | 500 | 50  | 2000 | ${s.SLASH}           | ${t.
 ${BLOB_MAGE}     | Blob Mage    | 90  | 15  | 2000 | ${s.ARCANE_MISSILES} | ${t.SPLIT_BLOB.id}
 ${BLOB_KNIGHT}   | Blob Knight  | 400 | 25  | 2000 | ${s.SLASH}           | ${t.TAUNT.id}
 ${TINY_BLOB}     | Tiny Blob    | 20  | 10  | 2000 | ${s.SLASH}           |
-${SKELETON}      | Skeleton     | 50  | 10  | 2000 | ${s.SLASH}           | ${t.UNDEAD.id},${t.REBORN.id}
-${SKELETON_MAGE} | Skeleton Mage| 80  | 5   | 2000 | ${s.ARCANE_MISSILES} | ${t.UNDEAD.id},${t.REBORN.id}
+${SKELETON}      | Skeleton     | 250 | 10  | 2000 | ${s.SLASH}           | ${t.UNDEAD.id}
+${SKELETON_MAGE} | Skeleton Mage| 80  | 5   | 2000 | ${s.ARCANE_MISSILES} | ${t.UNDEAD.id}
 `
 
 function parseJobsTable(table: string) {
