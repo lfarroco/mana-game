@@ -13,7 +13,12 @@ export async function popText({ text, targetId, type }: { text: string; targetId
 	}
 	const { scene } = chara;
 
-	const color = type === "heal" ? "#00FF00" : type === "damage" ? defaultTextConfig.color : undefined;
+	let color = defaultTextConfig.color;
+	if (type === "heal") {
+		color = "green";
+	} else if (type === "damage") {
+		color = "red";
+	}
 
 	const popText = scene.add.text(
 		chara.container.x, chara.container.y,

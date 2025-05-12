@@ -325,7 +325,7 @@ export async function damageUnit(id: string, damage: number, isCritical = false)
 	if (isCritical) {
 		criticalDamageDisplay(scene, chara.container, damage, getState().options.speed);
 	} else {
-		popText({ text: damage.toString(), targetId: chara.id });
+		popText({ text: damage.toString(), targetId: chara.id, type: "damage" });
 	}
 
 	if (hasDied) {

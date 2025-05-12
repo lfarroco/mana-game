@@ -4,8 +4,8 @@ export const SCREEN_HEIGHT = 1080;
 
 export const TICK_DURATION = 100;
 
-export const TILE_WIDTH = SCREEN_WIDTH / 10;
-export const TILE_HEIGHT = TILE_WIDTH * 1.2;
+export const TILE_WIDTH = SCREEN_WIDTH / 8;
+export const TILE_HEIGHT = TILE_WIDTH;
 export const HALF_TILE_WIDTH = TILE_WIDTH / 2;
 export const HALF_TILE_HEIGHT = TILE_HEIGHT / 2;
 

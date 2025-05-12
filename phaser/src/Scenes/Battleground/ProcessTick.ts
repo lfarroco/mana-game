@@ -24,7 +24,7 @@ const processTick = async (
 
   const updateHandler = (_time: number, delta: number) => {
 
-    const units = charge(state, delta);
+    const units = chargeUnits(state, delta);
 
     for (const unit of units) {
 
@@ -56,7 +56,7 @@ function finishWave(scene: BattlegroundScene, adventure: Adventure, onEnd: () =>
   bar.updateProgressBar(adventure);
 }
 
-function charge(state: State, delta: number): Unit[] {
+function chargeUnits(state: State, delta: number): Unit[] {
 
   const activeUnits = getActiveUnits(state);
 
@@ -65,7 +65,7 @@ function charge(state: State, delta: number): Unit[] {
   for (const unit of activeUnits) {
     if (unit.hp <= 0) continue;
 
-    unit.charge += delta;
+    unit.charge += delta * state.options.speed;
 
     unit.cooldown = Math.max(0, unit.cooldown - delta);
 
