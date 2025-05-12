@@ -63,21 +63,26 @@ const runWaveIO = (
       performAction(scene)(unit)();
 
     // TODO: move this to on unit death
-    const result = checkEndOfWave(scene);
+    const activeUnits = scene.state.battleData.units.filter(u => u.hp > 0)
+    const playerUnits = activeUnits.filter(u => u.force === FORCE_ID_PLAYER);
+    const cpuUnits = activeUnits.filter(u => u.force === FORCE_ID_CPU);
 
-    if (result === "no_op") return;
+    if (playerUnits.length && cpuUnits.length)
+      return;
 
     scene.events.off('update', updateHandler)
 
-    resolve(result);
+    if (playerUnits.length === 0)
+      resolve("player_lost");
+
+    if (cpuUnits.length === 0)
+      resolve("player_won");
 
   }
 
   scene.events.on('update', updateHandler)
 
-}
-
-);
+});
 
 function chargeUnits(state: State, delta: number): Unit[] {
 
@@ -106,20 +111,5 @@ function chargeUnits(state: State, delta: number): Unit[] {
   return performUnits;
 
 }
-
-function checkEndOfWave(scene: BattlegroundScene): ("no_op" | WaveOutcome) {
-
-  const playerUnits = scene.state.battleData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_PLAYER);
-  const cpuUnits = scene.state.battleData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_CPU);
-
-  if (playerUnits.length === 0)
-    return "player_lost";
-  if (cpuUnits.length === 0)
-    return "player_won";
-  return "no_op";
-
-
-}
-
 
 export default runWaveIO;
