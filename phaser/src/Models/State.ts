@@ -6,14 +6,39 @@ import { getChara } from "../Scenes/Battleground/Systems/UnitManager";
 import { getEmptySlot } from "./Board";
 import { UNIT_EVENT_NO_OP, UnitEvent } from "./UnitEvents";
 
+// get ?speed=x parameter from url
+let speed = 1;
+
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.has("speed")) {
+  const paramSpeed = urlParams.get("speed");
+  if (paramSpeed) {
+    const parsedSpeed = parseFloat(paramSpeed);
+    if (!isNaN(parsedSpeed)) {
+      speed = parsedSpeed;
+    }
+  }
+}
+
+let debug = false;
+if (urlParams.has("debug")) {
+  const paramDebug = urlParams.get("debug");
+  if (paramDebug) {
+    const parsedDebug = paramDebug === "true";
+    if (parsedDebug) {
+      debug = parsedDebug;
+    }
+  }
+}
+
 export const initialState = (): State => ({
   options: {
     sound: true,
     soundVolume: 0.4,
     music: true,
     musicVolume: 0.2,
-    debug: false,
-    speed: 1,
+    debug,
+    speed,
   },
   savedGames: [],
   gameData: {

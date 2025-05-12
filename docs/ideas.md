@@ -133,3 +133,5 @@ unicorn overlord allows setting some basic ai:
 - priority #1, 2 and 3
 - target (lower hp, higher atk)
 - if /else (eg. heal, if hp < 50%)
+
+- make projectils use speed
