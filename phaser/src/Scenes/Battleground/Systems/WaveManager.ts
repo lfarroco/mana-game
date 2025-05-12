@@ -1,6 +1,6 @@
 import { BattlegroundScene } from "../BattlegroundScene";
 import * as UnitManager from "./UnitManager";
-import processWave from "../ProcessTick";
+import processTick from "../ProcessTick";
 import { Unit } from "../../../Models/Unit";
 import { Adventure } from "../../../Models/Adventure";
 import { tween } from "../../../Utils/animation";
@@ -10,7 +10,7 @@ export let scene: BattlegroundScene;
 export function init(sceneRef: BattlegroundScene) {
 	scene = sceneRef;
 }
-export async function createWave(
+export async function processWaves(
 	units: Unit[],
 	adventure: Adventure,
 ) {
@@ -50,9 +50,9 @@ export async function createWave(
 		.flatMap(u => u.events.onBattleStart.map(fn => fn(u)))
 		.concat(itemPromises)
 
-	await processWave(scene, adventure);
+	await processTick(scene, adventure);
 
-	console.log("finished!!")
+	console.log("...finished!!")
 }
 
 export function handleWaveFinished(_scene: BattlegroundScene) {
