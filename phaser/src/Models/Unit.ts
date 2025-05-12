@@ -36,6 +36,7 @@ export type Unit = {
   events: UnitEvents
 
   charge: number; // each tick the job's agi is added here. when it reaches 100, the job can act
+  cooldown: number; // the time it takes for the job to act again. Even if charged, this must be 0
 };
 
 export type UnitStatusIndex = {
@@ -68,6 +69,7 @@ export const makeUnit = (force: string, jobId: JobId, position: Vec2): Unit => {
     log: [],
     statuses: {},
     charge: 0,
+    cooldown: 0,
     traits: jobTraits,
     events: UNIT_EVENTS.reduce((eventsIndex, event) => {
       eventsIndex[event] = [];

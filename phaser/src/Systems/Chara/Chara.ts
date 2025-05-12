@@ -27,8 +27,8 @@ export type Chara = {
 	hpDisplay: Phaser.GameObjects.Text,
 	equipDisplay: Phaser.GameObjects.Image,
 	zone: Phaser.GameObjects.Zone,
-	chargeBarBg: Phaser.GameObjects.Graphics,
 	chargeBar: Phaser.GameObjects.Graphics,
+	cooldownBar: Phaser.GameObjects.Graphics,
 }
 
 export let scene: Phaser.Scene;
@@ -64,8 +64,6 @@ export function createCard(unit: Unit): Chara {
 	container.add([border, sprite]);
 
 	const textConfig = { ...bgConstants.titleTextConfig, fontSize: '24px' };
-
-
 
 	const atkPosition: [number, number] = [
 		-bgConstants.HALF_TILE_WIDTH + 10, bgConstants.HALF_TILE_HEIGHT - boxHeight - 10,
@@ -128,9 +126,11 @@ export function createCard(unit: Unit): Chara {
 	const item = renderItemSlot(unit, container);
 
 	// a bar based on the unit.charge value
-	const chargeBarBg = scene.add.graphics();
 	const chargeBar = scene.add.graphics();
-	container.add([chargeBarBg, chargeBar]);
+
+	const cooldownBar = scene.add.graphics();
+	container.add([chargeBar, cooldownBar]);
+
 
 	const chara: Chara = {
 		id: unit.id,
@@ -144,7 +144,7 @@ export function createCard(unit: Unit): Chara {
 		hpDisplay: hp,
 		zone,
 		equipDisplay: item,
-		chargeBarBg,
+		cooldownBar,
 		chargeBar
 	};
 
@@ -231,29 +231,27 @@ export const addBoardEvents = (chara: Chara) => {
 
 }
 
-export function updateChargeBar({ chargeBar, chargeBarBg, unit }: Chara) {
-	chargeBar.clear();
+export function updateChargeBar({ chargeBar, cooldownBar, unit }: Chara) {
 
 	const maxWidth = bgConstants.TILE_WIDTH - 20;
 
+	chargeBar.clear();
 	const percent = unit.charge / unit.agility;
-
-	const calcWidth = () => Math.min(
-		percent * maxWidth,
-		maxWidth,
-	);
-
-	chargeBarBg.fillStyle(0x000000, 1);
-	chargeBarBg.fillRect(
-		-bgConstants.HALF_TILE_WIDTH + 10, - bgConstants.HALF_TILE_HEIGHT + 10,
-		maxWidth, 10,
-	);
 	chargeBar.fillStyle(0xffff00, 1);
 	chargeBar.fillRect(
 		-bgConstants.HALF_TILE_WIDTH + 10, - bgConstants.HALF_TILE_HEIGHT + 10,
-		calcWidth(), 10,
+		Math.min(percent * maxWidth, maxWidth,), 10
 	);
 
+	if (!state.options.debug) return;
+
+	cooldownBar.clear();
+	const cooldownPercent = unit.cooldown / bgConstants.MIN_COOLDOWN;
+	cooldownBar.fillStyle(0xff0000, 1);
+	cooldownBar.fillRect(
+		-bgConstants.HALF_TILE_WIDTH + 10, - bgConstants.HALF_TILE_HEIGHT + 30,
+		Math.min(cooldownPercent * maxWidth, maxWidth), 10
+	);
 }
 
 export function addTooltip(chara: Chara) {
