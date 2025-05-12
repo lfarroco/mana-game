@@ -21,16 +21,22 @@ export type Wave = {
 const ENCOUNTER_CRYPT = () => {
 
 	const randomEncounters = [[
-		"x1x",
-		"1xx",
+		"xxx",
+		"xxx",
 		"x1x"
 	],
 	[
 
 		"xxx",
-		"3x1",
-		"2xx"
-	]
+		"2xx",
+		"xxx"
+	],
+	[
+
+		"xxx",
+		"3xx",
+		"xxx"
+	],
 	]
 
 	return parseEncounter(pickOne(randomEncounters), { '1': SKELETON, '2': SKELETON_MAGE, '3': NECROMANCER })
@@ -85,21 +91,11 @@ export const adventures: Record<string, Adventure> = {
 			},
 			{
 				generate: ENCOUNTER_CRYPT,
-			},
-			{
-				generate: ENCOUNTER_CRYPT,
 				icon: "ui/chest",
 				loot: () => ([] as Item[]).concat(
 					Math.random() > 0.3 ? [ITEMS.TOXIC_POTION_COMMON()] : []
 				)
 			},
-			{
-				generate: ENCOUNTER_CRYPT,
-			},
-			{
-				generate: ENCOUNTER_CRYPT,
-			},
-
 		]
 	}
 }
