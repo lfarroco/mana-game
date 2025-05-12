@@ -45,7 +45,7 @@ export function updateProgressBar(
 	bar.fillRect(
 		barX,
 		barY,
-		((adventure.currentWave + 1) / adventure.waves.length) * barWidth,
+		((adventure.currentWave) / adventure.waves.length) * barWidth,
 		barHeight
 	);
 
@@ -62,8 +62,8 @@ export function updateProgressBar(
 			const y = barY + barHeight / 2;
 
 			circles.fillStyle(
-				(i - 1 === adventure.currentWave) ? colorCurrent :
-					(i - 1 >= adventure.currentWave) ? colorFuture :
+				(i === adventure.currentWave) ? colorCurrent :
+					(i >= adventure.currentWave) ? colorFuture :
 						colorPast,
 				1
 			);
