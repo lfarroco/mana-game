@@ -42,7 +42,7 @@ export const adventures: Record<string, Adventure> = {
 	forest_entrance: {
 		name: "Forest Entrance",
 		icon: "icon/forest_entrance",
-		currentWave: 0,
+		currentWave: 1,
 		description: "A dark and gloomy forest entrance.",
 		waves: [
 			{
@@ -77,7 +77,7 @@ export const adventures: Record<string, Adventure> = {
 	crypts: {
 		name: "Crypts",
 		icon: "charas/skeleton",
-		currentWave: 0,
+		currentWave: 1,
 		description: "A dark and gloomy crypt.",
 		waves: [
 			{

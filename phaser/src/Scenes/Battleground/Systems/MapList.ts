@@ -4,7 +4,7 @@ import { create, retractFlyout, slideFlyoutIn } from "../../../Systems/Flyout";
 import { defaultTextConfig, SCREEN_HEIGHT, SCREEN_WIDTH } from "../constants";
 import * as ProgressBar from "./ProgressBar";
 import { createButton } from "./UIManager";
-import { createWave } from "./WaveManager";
+import { createWave as runWave } from "./WaveManager";
 
 export async function renderMapButton(scene: Phaser.Scene) {
 
@@ -123,7 +123,7 @@ const handleEmbarkButtonClicked = (parent: Container, adventure: Adventure) => a
 
 	ProgressBar.createProgressBar(adventure_);
 
-	await createWave(
+	await runWave(
 		state.gameData.player.units,
 		adventure_,
 	)

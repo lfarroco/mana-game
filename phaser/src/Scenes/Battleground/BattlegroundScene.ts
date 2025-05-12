@@ -93,7 +93,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     const { state } = this;
 
-    if (Math.random() > 0.00001) {
+    if (state.options.debug) {
 
       this.state.gameData.player.units.push(
         makeUnit(

@@ -1,6 +1,6 @@
 import { BattlegroundScene } from "../BattlegroundScene";
 import * as UnitManager from "./UnitManager";
-import processTick from "../ProcessTick";
+import processWave from "../ProcessTick";
 import { Unit } from "../../../Models/Unit";
 import { Adventure } from "../../../Models/Adventure";
 import { tween } from "../../../Utils/animation";
@@ -15,7 +15,7 @@ export async function createWave(
 	adventure: Adventure,
 ) {
 
-	const currentWave = adventure.waves[adventure.currentWave];
+	const currentWave = adventure.waves[adventure.currentWave - 1];
 
 	UnitManager.clearCharas();
 
@@ -45,12 +45,14 @@ export async function createWave(
 		.map(u => u.equip?.type?.key === "equipment" ?
 			u.equip.type.onCombatStart(u) : () => Promise.resolve())
 
+
 	scene.state.battleData.units
 		.flatMap(u => u.events.onBattleStart.map(fn => fn(u)))
 		.concat(itemPromises)
 
+	await processWave(scene, adventure);
 
-	await processTick(scene, adventure);
+	console.log("finished!!")
 }
 
 export function handleWaveFinished(_scene: BattlegroundScene) {
