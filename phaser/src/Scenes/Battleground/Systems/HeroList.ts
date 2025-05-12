@@ -1,6 +1,9 @@
+import { playerForce } from "../../../Models/Force";
 import { jobs } from "../../../Models/Job";
+import { makeUnit } from "../../../Models/Unit";
+import { createCard } from "../../../Systems/Chara/Chara";
 import { create, retractFlyout, slideFlyoutIn } from "../../../Systems/Flyout";
-import { SCREEN_HEIGHT, SCREEN_WIDTH } from "../constants";
+import { SCREEN_HEIGHT, SCREEN_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../constants";
 
 export async function renderHeroButton(scene: Phaser.Scene) {
 
@@ -10,17 +13,19 @@ export async function renderHeroButton(scene: Phaser.Scene) {
 	const container = scene.add.container(0, 0);
 	flyout.add(container);
 
-	scene.add.image(
+	const button = scene.add.image(
 		...[
 
-			SCREEN_WIDTH - 120,
-			SCREEN_HEIGHT - 530
+			SCREEN_WIDTH + 800,
+			SCREEN_HEIGHT - 560
 		],
 		"charas/nameless")
 		.setOrigin(0.5)
 		.setDisplaySize(230, 230)
 		.setInteractive()
 		.on("pointerup", () => handleButtonClicked(isOpened, container)());
+
+	container.add(button);
 
 }
 
@@ -53,17 +58,20 @@ export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container
 		jobs.slice(page * 15, (page + 1) * 15)
 			.forEach((job, index) => {
 
-				const x = 100 + (index % 3) * 200;
-				const y = 100 + Math.floor(index / 5) * 200;
 
-				const icon = scene.add.image(x, y, `charas/${job.id}`)
-					.setOrigin(0)
-					.setDisplaySize(180, 180);
+				const chara = createCard({
+					...makeUnit(playerForce.id, job.id)
+				});
 
-				parent.add(icon);
+				const x = 160 + (index % 3) * TILE_WIDTH + ((index % 3) * 20);
+				const y = 220 + Math.floor(index / 5) * TILE_HEIGHT + ((Math.floor(index / 5) * 20));
+
+				chara.container.setPosition(x, y);
+
+				parent.add(chara.container);
 			});
 
-		const nextPage = scene.add.image(400, 700, "ui/button")
+		const nextPage = scene.add.image(400, 900, "ui/button")
 			.setOrigin(0)
 			.setDisplaySize(100, 100)
 			.setInteractive()
@@ -76,7 +84,7 @@ export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container
 				}
 				update();
 			});
-		const prevPage = scene.add.image(100, 700, "ui/button")
+		const prevPage = scene.add.image(100, 900, "ui/button")
 			.setOrigin(0)
 			.setDisplaySize(100, 100)
 			.setInteractive()
