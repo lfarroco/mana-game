@@ -6,6 +6,8 @@ export type Vec2 = {
 	y: number,
 }
 
+export const vec2Zero = (): Vec2 => vec2(0, 0)
+
 export const vec2 = (x: number, y: number): Vec2 => ({
 	tag: "_vec2",
 	x, y

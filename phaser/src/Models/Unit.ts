@@ -1,5 +1,5 @@
 import { v4 } from "uuid";
-import { asVec2, Vec2 } from "./Geometry";
+import { Vec2, vec2Zero } from "./Geometry";
 import { Item } from "./Item";
 import { getJob, JobId } from "./Job";
 import { SHOOT, SLASH } from "./Skill";
@@ -48,7 +48,7 @@ export type UnitStatusIndex = {
 }
 
 
-export const makeUnit = (force: string, jobId: JobId, position: Vec2): Unit => {
+export const makeUnit = (force: string, jobId: JobId, position = vec2Zero()): Unit => {
 
   const job = getJob(jobId);
   const jobTraits = job.traits.map(getTrait());
@@ -57,7 +57,7 @@ export const makeUnit = (force: string, jobId: JobId, position: Vec2): Unit => {
     id: v4(),
     job: jobId,
     force,
-    position: asVec2(position),
+    position,
     maxHp: job.hp,
     crit: 0,
     evade: 0,
