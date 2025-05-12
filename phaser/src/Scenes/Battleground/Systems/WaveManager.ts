@@ -1,60 +1,62 @@
 import { BattlegroundScene } from "../BattlegroundScene";
-import * as UnitManager from "./UnitManager";
-import processTick from "../ProcessTick";
-import { Unit } from "../../../Models/Unit";
+import runWaveIO from "../RunWave";
 import { Adventure } from "../../../Models/Adventure";
-import { tween } from "../../../Utils/animation";
+import { delay } from "../../../Utils/animation";
+import { updateProgressBar } from "./ProgressBar";
+import { vignette } from "../Animations/vignette";
+import { showGrid } from "./GridSystem";
+import { refreshScene } from "../EventHandlers";
 
 export let scene: BattlegroundScene;
 
 export function init(sceneRef: BattlegroundScene) {
 	scene = sceneRef;
 }
-export async function processWaves(
-	units: Unit[],
+
+export type AdventureOutcome = "success" | "failure";
+
+export async function runAdventure(
 	adventure: Adventure,
-) {
+): Promise<AdventureOutcome> {
 
 	const currentWave = adventure.waves[adventure.currentWave - 1];
 
-	UnitManager.clearCharas();
+	updateProgressBar(adventure);
 
-	scene.state.battleData.units = units
-		.filter(u => u.hp > 0)
-		.concat(currentWave.generate())
-		.map(u => ({ ...u }));
+	await delay(scene, 1000 / scene.state.options.speed);
 
-	scene.state.battleData.units.forEach(u => UnitManager.summonChara(u, false, false));
+	scene.state.battleData.units =
+		scene.state.battleData.units.concat(currentWave.generate())
 
-	const cpuCharas = UnitManager.getCPUCharas();
+	const result = await runWaveIO(scene);
 
-	await Promise.all(cpuCharas.map(async (chara, i) => {
+	if (result === "player_won") {
+		adventure.currentWave++;
+		const nextWave = adventure.waves[adventure.currentWave - 1];
 
-		const originalX = chara.container.x;
-		chara.container.x = chara.container.x - 1000;
+		if (nextWave) {
+			scene.state.battleData.units =
+				scene.state.battleData.units.filter(u => u.hp > 0);
+			await vignette(scene, "Next Wave!");
+			return runAdventure(adventure);
+		} else {
+			showGrid();
+			refreshScene(scene);
 
-		await tween({
-			targets: [chara.container],
-			x: originalX,
-			duration: 500,
-			delay: i * 100,
-		})
-	}));
+			await vignette(scene, "Finished!");
+			await delay(scene, 1000 / scene.state.options.speed);
+			return "success";
+		}
+	}
 
-	const itemPromises = scene.state.battleData.units
-		.map(u => u.equip?.type?.key === "equipment" ?
-			u.equip.type.onCombatStart(u) : () => Promise.resolve())
+	if (result === "player_lost") {
 
+		await vignette(scene, "End of Run!");
+		await delay(scene, 1000 / scene.state.options.speed);
 
-	scene.state.battleData.units
-		.flatMap(u => u.events.onBattleStart.map(fn => fn(u)))
-		.concat(itemPromises)
+		return "failure";
+	}
 
-	await processTick(scene, adventure);
+	throw new Error("Invalid result from runWaveIO");
 
-	console.log("...finished!!")
-}
-
-export function handleWaveFinished(_scene: BattlegroundScene) {
-	// Wave finished logic that could be extracted
 }

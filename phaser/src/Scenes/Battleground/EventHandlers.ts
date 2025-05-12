@@ -11,8 +11,6 @@ export async function refreshScene(scene: BattlegroundScene) {
 
 	scene.state.battleData.units = [];
 
-	scene.state.gameData.tick = 0;
-
 	UIManager.displayDropZone();
 	UIManager.updateUI();
 
