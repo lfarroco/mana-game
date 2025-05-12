@@ -42,7 +42,6 @@ export const initialState = (): State => ({
   },
   savedGames: [],
   gameData: {
-    tick: 0,
     hour: 1,
     day: 1,
     player: playerForce,
@@ -75,7 +74,6 @@ export type State = {
 };
 
 export type GameData = {
-  tick: number;
   hour: number;
   day: number;
   player: Force;

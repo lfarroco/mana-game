@@ -55,8 +55,6 @@ export function updateProgressBar(
 	const colorFuture = 0xeaeaea;
 	const colorPast = 0x000000;
 
-	console.log("...", adventure)
-
 	pipe(
 		range(1, adventure.waves.length),
 		A.map((i: number) => {
@@ -74,11 +72,8 @@ export function updateProgressBar(
 				10
 			);
 
-			console.log("...", i)
-
 			const wave = adventure.waves[i - 1];
 
-			console.log("...", wave)
 			if (wave?.icon) {
 				const icon = scene.add.image(
 					x, y + 100,
