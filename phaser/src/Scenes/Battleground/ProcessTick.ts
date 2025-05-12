@@ -5,7 +5,7 @@ import { FORCE_ID_CPU, FORCE_ID_PLAYER, MIN_COOLDOWN } from "./constants";
 import { vignette } from "./Animations/vignette";
 import { showGrid } from "./Systems/GridSystem";
 import { refreshScene } from "./EventHandlers";
-import { createWave } from "./Systems/WaveManager";
+import { processWaves } from "./Systems/WaveManager";
 import * as progressBar from "./Systems/ProgressBar";
 import { Adventure } from "../../Models/Adventure";
 import { getChara } from "./Systems/UnitManager";
@@ -31,21 +31,20 @@ const processTick = (
     }
 
     // TODO: move this to on unit death
-    checkEndOfWave(scene, adventure, turnOff);
+    checkEndOfWave(scene, adventure, turnOff, resolve);
 
   }
 
   const turnOff = () => {
     scene.events.off('update', updateHandler)
-    resolve();
   };
 
   scene.events.on('update', updateHandler)
 
 });
 
-function finishWave(scene: BattlegroundScene, adventure: Adventure, onEnd: () => void) {
-  onEnd();
+function finishWave(scene: BattlegroundScene, adventure: Adventure, onWaveEnd: () => void) {
+  onWaveEnd();
 
   scene.state.battleData.units.forEach(u => {
     u.charge = 0;
@@ -83,7 +82,7 @@ function chargeUnits(state: State, delta: number): Unit[] {
 
 }
 
-async function checkEndOfWave(scene: BattlegroundScene, adventure: Adventure, onEnd: () => void) {
+async function checkEndOfWave(scene: BattlegroundScene, adventure: Adventure, onWaveEnd: () => void, resolve: () => void) {
 
   const { state } = scene;
   const playerUnits = scene.state.battleData.units.filter(u => u.hp > 0).filter(u => u.force === FORCE_ID_PLAYER);
@@ -95,14 +94,14 @@ async function checkEndOfWave(scene: BattlegroundScene, adventure: Adventure, on
 
     adventure.currentWave++;
 
-    finishWave(scene, adventure, onEnd);
+    finishWave(scene, adventure, onWaveEnd);
 
     if (adventure.currentWave > adventure.waves.length) {
       // TODO: proper victory screen
 
       await vignette(scene, "Adventure completed, congratulations!")
 
-      return adventureFinished(scene);
+      return adventureFinished(scene, resolve);
 
     }
 
@@ -110,7 +109,7 @@ async function checkEndOfWave(scene: BattlegroundScene, adventure: Adventure, on
 
     const playerUnits = state.battleData.units.filter(u => u.force === FORCE_ID_PLAYER);
 
-    return await createWave([...playerUnits], adventure)
+    return await processWaves([...playerUnits], adventure)
 
   }
 
@@ -120,14 +119,17 @@ async function checkEndOfWave(scene: BattlegroundScene, adventure: Adventure, on
 
     await delay(scene, 1000 / state.options.speed);
 
-    finishWave(scene, adventure, onEnd);
+    finishWave(scene, adventure, onWaveEnd);
 
-    return adventureFinished(scene);
+    return adventureFinished(scene, resolve);
   }
 
 }
 
-function adventureFinished(scene: BattlegroundScene) {
+function adventureFinished(scene: BattlegroundScene, resolve: () => void) {
+
+  resolve();
+
   showGrid();
   refreshScene(scene)
 }
