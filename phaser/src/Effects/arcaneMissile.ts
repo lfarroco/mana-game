@@ -6,6 +6,7 @@ export async function arcaneMissle(
 	source: { x: number; y: number; },
 	target: { x: number; y: number; },
 	speed: number,
+	onHit: () => void = () => { }
 ) {
 
 	const positiveOrNegative = Math.random() > 0.5 ? 1 : -1;
@@ -76,6 +77,8 @@ export async function arcaneMissle(
 			blendMode: 'ADD',
 		}
 	);
+
+	onHit();
 
 	await delay(scene, 300 / speed);
 

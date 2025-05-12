@@ -53,6 +53,7 @@ export async function runAdventure(
 
 		await vignette(scene, "End of Run!");
 		await delay(scene, 1000 / scene.state.options.speed);
+		refreshScene(scene);
 
 		return "failure";
 	}
