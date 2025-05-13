@@ -215,17 +215,18 @@ export const addBoardEvents = (chara: Chara) => {
 
 	chara.zone.on('dragend', (pointer: Phaser.Input.Pointer) => {
 
-		// check if the drag ended inside or outside scene.dropZone
 
-		if (!UIManager.dropZone?.getBounds().contains(pointer.x, pointer.y)) {
-			tween({
-				targets: [chara.container],
-				duration: 500,
-				ease: 'Power2',
-				x: chara.unit.position.x * bgConstants.TILE_WIDTH + bgConstants.HALF_TILE_WIDTH,
-				y: chara.unit.position.y * bgConstants.TILE_HEIGHT + bgConstants.HALF_TILE_HEIGHT,
-			})
-		}
+		if (UIManager.isPointerInDropZone(pointer)) return
+
+		// check if the drag ended inside or outside scene.dropZone
+		// return to original position if outside
+		tween({
+			targets: [chara.container],
+			duration: 500,
+			ease: 'Power2',
+			x: chara.unit.position.x * bgConstants.TILE_WIDTH + bgConstants.HALF_TILE_WIDTH,
+			y: chara.unit.position.y * bgConstants.TILE_HEIGHT + bgConstants.HALF_TILE_HEIGHT,
+		})
 
 	})
 

@@ -295,4 +295,6 @@ export async function coinDropIO(
 	});
 }
 
-
+export function isPointerInDropZone({ x, y }: { x: number, y: number }) {
+	return dropZone?.getBounds().contains(x, y);
+}
