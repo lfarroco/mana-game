@@ -29,6 +29,7 @@ export type Chara = {
 	zone: Phaser.GameObjects.Zone,
 	chargeBar: Phaser.GameObjects.Graphics,
 	cooldownBar: Phaser.GameObjects.Graphics,
+	hpBar: Phaser.GameObjects.Graphics,
 }
 
 export let scene: Phaser.Scene;
@@ -127,10 +128,10 @@ export function createCard(unit: Unit): Chara {
 
 	// a bar based on the unit.charge value
 	const chargeBar = scene.add.graphics();
-
 	const cooldownBar = scene.add.graphics();
-	container.add([chargeBar, cooldownBar]);
+	const hpBar = scene.add.graphics();
 
+	container.add([chargeBar, cooldownBar, hpBar]);
 
 	const chara: Chara = {
 		id: unit.id,
@@ -145,7 +146,8 @@ export function createCard(unit: Unit): Chara {
 		zone,
 		equipDisplay: item,
 		cooldownBar,
-		chargeBar
+		chargeBar,
+		hpBar,
 	};
 
 	return chara
@@ -232,7 +234,7 @@ export const addBoardEvents = (chara: Chara) => {
 
 }
 
-export function updateChargeBar({ chargeBar, cooldownBar, unit }: Chara) {
+export function updateChargeBar({ chargeBar, cooldownBar, hpBar, unit }: Chara) {
 
 	const maxWidth = bgConstants.TILE_WIDTH - 20;
 
@@ -244,8 +246,6 @@ export function updateChargeBar({ chargeBar, cooldownBar, unit }: Chara) {
 		Math.min(percent * maxWidth, maxWidth,), 10
 	);
 
-	if (!state.options.debug) return;
-
 	cooldownBar.clear();
 	const cooldownPercent = unit.cooldown / bgConstants.MIN_COOLDOWN;
 	cooldownBar.fillStyle(0xff0000, 1);
@@ -253,6 +253,15 @@ export function updateChargeBar({ chargeBar, cooldownBar, unit }: Chara) {
 		-bgConstants.HALF_TILE_WIDTH + 10, - bgConstants.HALF_TILE_HEIGHT + 30,
 		Math.min(cooldownPercent * maxWidth, maxWidth), 10
 	);
+
+	hpBar.clear();
+	const hpPercent = unit.hp / unit.maxHp;
+	hpBar.fillStyle(0x00ff00, 1);
+	hpBar.fillRect(
+		-bgConstants.HALF_TILE_WIDTH + 10, - bgConstants.HALF_TILE_HEIGHT + 50,
+		Math.min(hpPercent * maxWidth, maxWidth), 10
+	);
+
 }
 
 export function addTooltip(chara: Chara) {
