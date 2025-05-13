@@ -1,7 +1,7 @@
 import { Item } from "../../../Models/Item";
 import { getState, State } from "../../../Models/State";
 import { Chara } from "../../../Systems/Chara/Chara";
-import * as Flyout from "../../../Systems/Flyout";
+import * as Flyout_ from "../../../Systems/Flyout";
 import { equipItemInUnit } from "../../../Systems/Item/EquipItem";
 import * as Tooltip from "../../../Systems/Tooltip";
 import * as constants from "../constants";
@@ -14,10 +14,8 @@ export const position: [number, number] = [
 	constants.SCREEN_WIDTH - 120,
 	constants.SCREEN_HEIGHT - 100
 ];
-export let isChestOpen = false;
-export let isAnimating = false;
 
-export let flyout: Container;
+export let flyout: Flyout_.Flyout;
 export let chestContainer: Container;
 
 export async function renderChestButton(scene: Scene) {
@@ -32,40 +30,33 @@ export async function renderChestButton(scene: Scene) {
 
 	chestContainer = scene.add.container(0, 0)
 
-	flyout = await Flyout.create(scene, "Chest")
-	Flyout.addExitButton(flyout, () => closeChest());
+	flyout = await Flyout_.create(scene, "Chest")
+	Flyout_.addExitButton(flyout, () => closeChest(flyout));
 
 	flyout.add(chestContainer);
 
-	chest.on("pointerup", handleChestButtonClick());
+	chest.on("pointerup", handleChestButtonClick(flyout));
 }
 
-const handleChestButtonClick = () => async () => {
-	if (isAnimating) return;
+const handleChestButtonClick = (flyout: Flyout_.Flyout) => async () => {
 
-	if (isChestOpen) {
-		await closeChest();
+	if (flyout.isOpen) {
+		await closeChest(flyout);
 	} else {
-		await openChest();
+		await openChest(flyout);
 	}
 }
 
-const openChest = async () => {
-	isChestOpen = true;
+const openChest = async (flyout: Flyout_.Flyout) => {
 
 	updateChestIO();
 
-	isAnimating = true;
-	await Flyout.slideFlyoutIn(flyout);
-	isAnimating = false;
+	await flyout.slideIn();
 }
 
-const closeChest = async () => {
-	isChestOpen = false;
+const closeChest = async (flyout: Flyout_.Flyout) => {
 
-	isAnimating = true;
-	await Flyout.retractFlyout(flyout);
-	isAnimating = false;
+	await flyout.slideOut();
 
 	chestContainer.removeAll(true);
 }

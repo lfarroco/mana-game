@@ -148,7 +148,7 @@ const pickUnit = async (genChoices: () => Choice[]) => {
 		"Choose Your Guild Members",
 	);
 
-	Flyout.slideFlyoutIn(flyout);
+	flyout.slideIn();
 
 	while (state.gameData.player.units.length < 3) {
 
@@ -221,7 +221,7 @@ const pickUnit = async (genChoices: () => Choice[]) => {
 		});
 	}
 
-	await Flyout.retractFlyout(flyout);
+	await flyout.slideOut();
 	await delay(scene, 500);
 	flyout.destroy();
 }

@@ -1,6 +1,6 @@
 import { Adventure, adventures } from "../../../Models/Adventure";
 import { getState } from "../../../Models/State";
-import { create, retractFlyout, slideFlyoutIn } from "../../../Systems/Flyout";
+import { create, Flyout } from "../../../Systems/Flyout";
 import { defaultTextConfig, SCREEN_HEIGHT, SCREEN_WIDTH } from "../constants";
 import * as ProgressBar from "./ProgressBar";
 import { createButton } from "./UIManager";
@@ -9,8 +9,6 @@ import { runAdventure } from "./WaveManager";
 export async function renderMapButton(scene: Phaser.Scene) {
 
 	console.log("renderMapButton");
-
-	let isOpened = false;
 
 	const flyout = await create(scene, "World Map")
 	const container = scene.add.container(0, 0);
@@ -26,25 +24,23 @@ export async function renderMapButton(scene: Phaser.Scene) {
 		.setOrigin(0.5)
 		.setDisplaySize(230, 230)
 		.setInteractive()
-		.on("pointerup", () => handleButtonClicked(isOpened, container)());
+		.on("pointerup", () => handleButtonClicked(container, flyout)());
 
 }
 
-const handleButtonClicked = (isOpened: boolean, container: Container) => async () => {
+const handleButtonClicked = (container: Container, flyout: Flyout) => async () => {
 
-	if (isOpened) {
-		isOpened = false;
-		await retractFlyout(container.parentContainer);
+	if (flyout.isOpen) {
+		await flyout.slideOut();
 		return;
 	}
 
-	render(container.scene, container);
+	render(container.scene, container, flyout);
 
-	await slideFlyoutIn(container.parentContainer);
-	isOpened = true;
+	await flyout.slideIn();
 }
 
-export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container) {
+export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container, flyout: Flyout) {
 
 	console.log("renderMapList");
 
@@ -63,13 +59,13 @@ export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container
 
 		parent.add(icon);
 
-		icon.on("pointerup", renderMapInfo(scene, parent, adventure));
+		icon.on("pointerup", renderMapInfo(scene, parent, flyout, adventure));
 
 	});
 
 }
 
-const renderMapInfo = (scene: Scene, parent: Container, adventure: Adventure) => async () => {
+const renderMapInfo = (scene: Scene, parent: Container, flyout: Flyout, adventure: Adventure) => async () => {
 
 	console.log("renderMapInfo", adventure);
 
@@ -94,7 +90,7 @@ const renderMapInfo = (scene: Scene, parent: Container, adventure: Adventure) =>
 	const embarkButton = createButton(
 		"Embark",
 		500, SCREEN_HEIGHT - 400,
-		handleEmbarkButtonClicked(parent, adventure)
+		handleEmbarkButtonClicked(flyout, adventure)
 	);
 
 	parent.add(embarkButton);
@@ -104,20 +100,20 @@ const renderMapInfo = (scene: Scene, parent: Container, adventure: Adventure) =>
 		500, SCREEN_HEIGHT - 200,
 		() => {
 			console.log("Back button clicked");
-			render(scene, parent);
+			render(scene, parent, flyout);
 		}
 	);
 	parent.add(backButton);
 
 }
 
-const handleEmbarkButtonClicked = (parent: Container, adv: Adventure) => async () => {
+const handleEmbarkButtonClicked = (flyout: Flyout, adv: Adventure) => async () => {
 
 	console.log("Embark button clicked");
 
 	let adventure = { ...adv };
 
-	await retractFlyout(parent.parentContainer);
+	await flyout.slideOut();
 
 	ProgressBar.createProgressBar(adventure);
 
