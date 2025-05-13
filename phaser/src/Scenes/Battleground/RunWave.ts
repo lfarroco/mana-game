@@ -93,7 +93,18 @@ function chargeUnits(state: State, delta: number): Unit[] {
   for (const unit of activeUnits) {
     if (unit.hp <= 0) continue;
 
-    unit.charge += delta * state.options.speed;
+    // If the delta is too high, there's the risk of being hasted/slowed beyond the expected
+    // It should be fine for now by having a delta for each frame (0.016)
+    let modifier = 1;
+    if (unit.hasted > 0) {
+      unit.hasted = Math.max(0, unit.hasted - delta);
+      modifier = 2;
+    }
+    if (unit.slowed > 0) {
+      unit.slowed = Math.max(0, unit.slowed - delta);
+      modifier = modifier / 2;
+    }
+    unit.charge += delta * state.options.speed * modifier;
 
     unit.cooldown = Math.max(0, unit.cooldown - delta);
 
