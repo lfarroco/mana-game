@@ -41,6 +41,7 @@ export const LIGHT_ORB = "light-orb" as SkillId;
 export const ARCANE_MISSILES = "arcane-missiles" as SkillId;
 export const EXPLODE = "explode" as SkillId;
 export const SHADOWSTEP = "shadowstep" as SkillId;
+export const SONG = "song" as SkillId;
 
 const skills = `
 id                | name            | range | cooldown | power | tooltip
@@ -58,6 +59,7 @@ ${LIGHT_ORB}      | Light Orb       | 5     | 0        | 10    | Deals 10 damage
 ${ARCANE_MISSILES}| Arcane Missiles | 5     | 0        | 10    | Deals 10 damage to 3 random enemy targets
 ${EXPLODE}        | Explode         | 1     | 0        | 100   | Deals 100 damage around the caster
 ${SHADOWSTEP}     | Shadowstep      | 5     | 0        | 0     | If no enemy is nearby, teleports to the furthest enemy
+${SONG}           | Song            | 5     | 0        | 0     | Surrounding allies are hasted for 2.0s
 `.trim()
 	.split("\n")
 	.slice(2)
