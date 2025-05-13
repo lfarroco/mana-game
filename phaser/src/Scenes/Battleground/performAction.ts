@@ -16,6 +16,7 @@ import { shadowStep } from "../../Systems/Chara/Skills/shadowStep";
 import { getAllActiveFoes } from "../../Models/State";
 import * as UnitManager from "./Systems/UnitManager";
 import { getJob } from "../../Models/Job";
+import { song } from "../../Systems/Chara/Skills/song";
 
 export const performAction = (scene: BattlegroundScene) => (unit: Unit) => async () => {
 
@@ -37,6 +38,8 @@ export const performAction = (scene: BattlegroundScene) => (unit: Unit) => async
 
 		await summon(activeChara);
 
+	} else if (skillId === Skill.SONG) {
+		await song(scene, unit);
 	} else if (skillId === Skill.MULTISHOT) {
 
 		await multishot(unit, activeChara, scene);
