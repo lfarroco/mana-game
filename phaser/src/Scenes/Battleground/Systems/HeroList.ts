@@ -4,7 +4,7 @@ import { jobs } from "../../../Models/Job";
 import { getState } from "../../../Models/State";
 import { makeUnit } from "../../../Models/Unit";
 import { addTooltip, createCard } from "../../../Systems/Chara/Chara";
-import * as Flyout from "../../../Systems/Flyout";
+import * as Flyout_ from "../../../Systems/Flyout";
 import * as Tooltip from "../../../Systems/Tooltip";
 import * as constants from "../constants";
 import { getTileAt } from "./GridSystem";
@@ -12,39 +12,33 @@ import { destroyChara, summonChara } from "./UnitManager";
 
 export async function renderHeroButton(scene: Phaser.Scene) {
 
-	let isOpened = false;
-
-	const flyout = await Flyout.create(scene, "Heroes")
+	const flyout = await Flyout_.create(scene, "Heroes")
 	const container = scene.add.container(0, 0);
 	flyout.add(container);
 
-	const button = scene.add.image(
+	scene.add.image(
 		...[
-			constants.SCREEN_WIDTH + 800,
+			constants.SCREEN_WIDTH - 120,
 			constants.SCREEN_HEIGHT - 560
 		],
 		"charas/nameless")
 		.setOrigin(0.5)
 		.setDisplaySize(230, 230)
 		.setInteractive()
-		.on("pointerup", () => handleButtonClicked(isOpened, container)());
-
-	container.add(button);
+		.on("pointerup", () => handleButtonClicked(container, flyout)());
 
 }
 
-const handleButtonClicked = (isOpened: boolean, container: Container) => async () => {
+const handleButtonClicked = (container: Container, flyout: Flyout_.Flyout) => async () => {
 
-	if (isOpened) {
-		isOpened = false;
-		await Flyout.retractFlyout(container.parentContainer);
+	if (flyout.isOpen) {
+		flyout.slideOut();
 		return;
 	}
 
 	render(container.scene, container);
 
-	await Flyout.slideFlyoutIn(container.parentContainer);
-	isOpened = true;
+	await flyout.slideIn();
 }
 
 export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container) {

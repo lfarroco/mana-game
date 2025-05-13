@@ -22,14 +22,14 @@ export const itemShop = async (
 	const flyout = await Flyout.create(scene, title)
 
 	Flyout.addExitButton(flyout, async () => {
-		await Flyout.retractFlyout(flyout);
+		await flyout.slideIn();
 		flyout.destroy();
 		resolve();
 	});
 
 	flyout.add(store);
 
-	Flyout.slideFlyoutIn(flyout);
+	flyout.slideIn();
 
 	items.forEach((item, i) => {
 
