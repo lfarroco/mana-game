@@ -145,12 +145,10 @@ export const getSurroundingAllies = (unit: Unit) => {
 		.filter(chara => chara.unit.force === unit.force)
 		.filter(chara => chara.id !== unit.id)
 		.filter(chara => {
-			const distance = Phaser.Math.Distance.Between(
-				unit.position.x,
-				unit.position.y,
-				chara.unit.position.x,
-				chara.unit.position.y
+			const distance = Phaser.Math.Distance.BetweenPoints(
+				unit.position,
+				chara.unit.position
 			);
-			return distance <= 1;
+			return distance === 1;
 		});
 }

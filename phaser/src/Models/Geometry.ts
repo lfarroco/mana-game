@@ -11,7 +11,16 @@ export const vec2Zero = (): Vec2 => vec2(0, 0)
 export const vec2 = (x: number, y: number): Vec2 => ({
 	tag: "_vec2",
 	x, y
-})
+});
+
+export const randomVec2InRange = (
+	[minX, maxX]: [number, number],
+	[minY, maxY]: [number, number],
+): Vec2 => {
+	const x = Math.floor(Math.random() * (maxX - minX + 1)) + minX;
+	const y = Math.floor(Math.random() * (maxY - minY + 1)) + minY;
+	return vec2(x, y);
+}
 export const asVec2 = ({ x, y }: { x: number, y: number }): Vec2 => vec2(x, y)
 
 export const eqVec2 = (v1: Vec2, v2: Vec2) => v1.x === v2.x && v1.y === v2.y

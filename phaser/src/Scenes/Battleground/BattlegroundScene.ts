@@ -15,10 +15,12 @@ import * as EventSystem from "../../Models/Encounters/Encounter";
 import * as TraitSystem from "../../Models/Traits";
 import * as TooltipSystem from "../../Systems/Tooltip";
 import { makeUnit } from "../../Models/Unit";
-import { cpuForce, playerForce, updatePlayerGoldIO } from "../../Models/Force";
-import { ARCHER, CLERIC, KNIGHT } from "../../Models/Job";
-import { vec2 } from "../../Models/Geometry";
+import { cpuForce, playerForce } from "../../Models/Force";
+import { ARCHER, CLERIC, jobs, KNIGHT } from "../../Models/Job";
+import { randomVec2InRange, vec2 } from "../../Models/Geometry";
 import runCombatIO from "./RunCombatIO";
+import { range } from "fp-ts/lib/ReadonlyNonEmptyArray";
+import { pickOne } from "../../utils";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -131,25 +133,82 @@ export class BattlegroundScene extends Phaser.Scene {
       console.log("Day", this.state.gameData.day, "started");
 
       // Hours loop for each day
-      while (state.gameData.hour < 3) {
+      while (state.gameData.hour < 10) {
         state.gameData.hour += 1;
+        state.battleData.units = [];
 
-        const enemies = [
-          makeUnit(
-            cpuForce.id,
-            ARCHER,
-            vec2(1, 2),
-          )];
+        range(1, state.gameData.player.units.length)
+          .map(() => {
 
-        state.battleData.units = [...state.gameData.player.units, ...enemies];
+            let position = vec2(0, 0);
+
+            // random empty position between 1,1 and 3,3
+            let found = false;
+
+            while (!found && state.battleData.units.length <= 9) {
+
+              position = randomVec2InRange([1, 3], [1, 3]);
+              const occupier = state.battleData.units.find(unit => unit.position.x === position.x && unit.position.y === position.y);
+              if (!occupier) {
+                found = true;
+              }
+            }
+
+            const unit = makeUnit(
+              cpuForce.id,
+              pickOne(jobs).id,
+              position,
+            );
+            state.battleData.units.push(unit)
+
+          })
+
+        state.battleData.units = [...state.battleData.units, ...state.gameData.player.units];
+
+        UnitManager.clearCharas();
+        state.battleData.units.forEach(unit => {
+          UnitManager.summonChara(unit, false, false);
+        });
+
+        await new Promise<void>(resolve => {
+          const start = UIManager.createButton("Start",
+            constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100,
+            async () => {
+              start.destroy();
+              resolve();
+            });
+        });
 
         const result = await runCombatIO(this);
 
         console.log("Combat result", result);
 
-        updatePlayerGoldIO(state.gameData.player.income);
+        await new Promise<void>(resolve => {
+          const start = UIManager.createButton("Continue",
+            constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100,
+            async () => {
+              start.destroy();
+              resolve();
+            });
+        });
+
+        UnitManager.clearCharas();
+
+        state.gameData.player.units.forEach(unit => {
+          unit.charge = 0;
+          unit.cooldown = 0;
+          unit.slowed = 0;
+          unit.hasted = 0;
+          unit.hp = unit.maxHp;
+        })
+
+        state.gameData.player.units.forEach(unit => {
+          UnitManager.summonChara(unit);
+        });
 
         await EventSystem.evalEvent(EventSystem.pickAHero);
+
+
 
       }
 
