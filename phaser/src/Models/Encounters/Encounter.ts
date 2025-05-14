@@ -215,6 +215,8 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
 
 					const emptySlot = getEmptySlot(playerForce.units, playerForce.id);
 
+					if (!emptySlot) throw new Error("No empty slot found");
+
 					chara.unit.position = emptySlot
 					state.gameData.player.units.push(chara.unit);
 

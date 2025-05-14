@@ -124,6 +124,10 @@ export function addUnitToGuild(forceId: string, jobId: JobId) {
 
   const position = getEmptySlot(state.gameData.player.units, playerForce.id);
 
+  if (!position) {
+    throw new Error("No empty slot available");
+  }
+
   const unit = makeUnit(forceId, jobId, position);
 
   state.gameData.player.units.push(unit);

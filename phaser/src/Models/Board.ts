@@ -18,8 +18,11 @@ export const cells = pipe(
 
 export function getEmptySlot(units: Unit[], forceId: string) {
 
+	if (units.length >= 9)
+		return null;
+
 	let startX = 1;
-	let endX = 3;
+	let endX = 4;
 	const startY = 1;
 	const endY = 4;
 
@@ -45,6 +48,7 @@ export function getEmptySlot(units: Unit[], forceId: string) {
 			if (isValid) break;
 		}
 	}
+
 	return position;
 }
 
