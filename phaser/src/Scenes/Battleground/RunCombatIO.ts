@@ -46,7 +46,7 @@ async function setupWave(scene: BattlegroundScene) {
 
 }
 
-const runWaveIO = (
+const runCombatIO = (
   scene: BattlegroundScene,
 ) => new Promise<WaveOutcome>(async resolve => {
   const { state } = scene;
@@ -55,7 +55,7 @@ const runWaveIO = (
 
   console.log("[runWaveIO]");
 
-  const updateHandler = (_time: number, delta: number) => {
+  const updateHandler = async (_time: number, delta: number) => {
 
     const units = chargeUnits(state, delta);
 
@@ -123,4 +123,4 @@ function chargeUnits(state: State, delta: number): Unit[] {
 
 }
 
-export default runWaveIO;
+export default runCombatIO;

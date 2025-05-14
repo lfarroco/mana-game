@@ -46,7 +46,8 @@ export type Encounter = {
 		type: "instant"
 		action: (scene: Phaser.Scene, State: State) => void;
 	} | {
-		type: "pick-unit"
+		type: "pick-unit";
+		totalPicks: number;
 		choices: () => Choice[];
 	} | {
 		type: "item-shop",
@@ -79,11 +80,35 @@ export const starterEvent: Encounter = {
 	pic: "icon/quest",
 	triggers: {
 		type: "pick-unit",
+		totalPicks: 3,
 		choices: () => {
 			const playerJobs = playerForce.units.map(u => u.job);
 			const remaning = starterJobs.filter(j => !playerJobs.includes(j.id));
 
 			return pickRandom(remaning, 3).map(job => newChoice(
+				`charas/${job.id}`,
+				job.name,
+				job.description,
+				job.id,
+			));
+		}
+	}
+}
+
+export const pickAHero: Encounter = {
+	id: "2",
+	tier: TIER.COMMON,
+	title: "Pick a hero",
+	description: "Choose a hero to join your guild",
+	pic: "icon/quest",
+	triggers: {
+		type: "pick-unit",
+		totalPicks: 1,
+		choices: () => {
+
+			console.log("pick a hero...");
+
+			return pickRandom(starterJobs, 3).map(job => newChoice(
 				`charas/${job.id}`,
 				job.name,
 				job.description,
@@ -110,7 +135,7 @@ export const evalEvent = async (event: Encounter) => {
 			await event.triggers.action(scene, state);
 			break;
 		case "pick-unit":
-			await pickUnit(event.triggers.choices);
+			await pickUnit(event.triggers.choices, event.triggers.totalPicks);
 			break;
 		case "item-shop":
 			await itemShop(
@@ -141,7 +166,7 @@ const displayEvents = async (eventArray: Encounter[], _day: number) => {
 export const displayRandomEvents = (day: number) => displayEvents(randomEvents, day);
 export const displayMonsterEvents = (day: number) => displayEvents(monsterEvents(), day);
 
-const pickUnit = async (genChoices: () => Choice[]) => {
+const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
 
 	const flyout = await Flyout.create(
 		scene,
@@ -150,7 +175,9 @@ const pickUnit = async (genChoices: () => Choice[]) => {
 
 	flyout.slideIn();
 
-	while (state.gameData.player.units.length < 3) {
+	let picks = 0;
+
+	while (totalPicks > picks) {
 
 		await new Promise<void>(async (resolve) => {
 
@@ -182,6 +209,8 @@ const pickUnit = async (genChoices: () => Choice[]) => {
 
 				chara.zone.once('pointerup', async () => {
 
+					picks++;
+
 					Tooltip.hide();
 
 					const emptySlot = getEmptySlot(playerForce.units, playerForce.id);
@@ -210,9 +239,8 @@ const pickUnit = async (genChoices: () => Choice[]) => {
 
 					}
 
-
-
 					resolve();
+
 
 				});
 

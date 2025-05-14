@@ -1,8 +1,7 @@
 import { BattlegroundScene } from "../BattlegroundScene";
-import runWaveIO from "../RunWave";
+import runCombatIO from "../RunCombatIO";
 import { Adventure } from "../../../Models/Adventure";
 import { delay } from "../../../Utils/animation";
-import { updateProgressBar } from "./ProgressBar";
 import { vignette } from "../Animations/vignette";
 import { showGrid } from "./GridSystem";
 import { refreshScene } from "../EventHandlers";
@@ -21,14 +20,12 @@ export async function runAdventure(
 
 	const currentWave = adventure.waves[adventure.currentWave - 1];
 
-	updateProgressBar(adventure);
-
 	await delay(scene, 1000 / scene.state.options.speed);
 
 	scene.state.battleData.units =
 		scene.state.battleData.units.concat(currentWave.generate())
 
-	const result = await runWaveIO(scene);
+	const result = await runCombatIO(scene);
 
 	if (result === "player_won") {
 		adventure.currentWave++;
