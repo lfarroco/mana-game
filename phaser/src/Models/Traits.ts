@@ -80,6 +80,7 @@ export const TRAIT_CATEGORY_PERSONALITY = "personality" as TraitCategory;
 export const TRAIT_CATEGORY_OFFENSIVE = "offensive" as TraitCategory;
 export const TRAIT_CATEGORY_DEFENSIVE = "defensive" as TraitCategory;
 export const TRAIT_CATEGORY_TRIBE = "tribe" as TraitCategory;
+export const TRAIT_CATEGORY_COMPANION = "companion" as TraitCategory;
 export const TRAIT_CATEGORY_VISION = "vision" as TraitCategory;
 export const TRAIT_CATEGORY_HP = "hp" as TraitCategory;
 export const TRAIT_CATEGORY_ATTACK = "attack" as TraitCategory;
@@ -517,6 +518,15 @@ export const UNDEAD_STRENGTH = makeTrait({
 	}
 });
 
+// TODO: implement
+export const SKELETON_WARRIOR = makeTrait({
+	id: "skeleton_warrior" as TraitId,
+	name: "Skeleton Warrior",
+	description: "When recruited, this unit adds a Skeleton Warrior to your deck",
+	categories: [TRAIT_CATEGORY_COMPANION],
+	events: {}
+});
+
 export const getTrait = () => (id: TraitId): Trait => {
 	const trait = traits[id];
 	if (!trait) {
@@ -548,6 +558,7 @@ export const traits: { [id: TraitId]: Trait } = {
 	[REGENERATE.id]: REGENERATE,
 	[SPLIT_BLOB.id]: SPLIT_BLOB,
 	[REBORN.id]: REBORN,
+	[SKELETON_WARRIOR.id]: SKELETON_WARRIOR,
 	[UNDEAD.id]: UNDEAD,
 	[UNDEAD_STRENGTH.id]: UNDEAD_STRENGTH,
 };

@@ -34,7 +34,7 @@ const STARTER_JOBS = [ARCHER, CLERIC, APPRENTICE, KNIGHT, THIEF, DRUID, BARBARIA
 const baseJobs = `
 Job           | Name        | HP  | ATK  | AGI   | Skill                | Traits
 --------------|-------------|-----|------|-------|--------------------------------------
-${ARCHER}     | Archer      | 150 | 25   |  2000  | ${s.SHOOT}          | ${t.SNIPER.id}
+${ARCHER}     | Archer      | 150 | 25   |  2000 | ${s.SHOOT}           | ${t.SNIPER.id}
 ${CLERIC}     | Cleric      | 180 | 12   |  3400 | ${s.HEALING_WAVE}    |
 ${APPRENTICE} | Apprentice  | 180 | 20   |  2200 | ${s.ARCANE_MISSILES} | ${t.SPLASH.id}
 ${KNIGHT}     | Knight      | 220 | 17   |  2700 | ${s.SLASH}           | ${t.TAUNT.id}, ${t.PROTECTOR.id}
@@ -44,7 +44,7 @@ ${BARBARIAN}  | Barbarian   | 250 | 30   |  1000 | ${s.SLASH}           | ${t.BE
 ${PIRATE}     | Pirate      | 200 | 20   |  4000 | ${s.SONG}            |
 ${PALADIN}    | Paladin     | 250 | 20   |  1000 | ${s.SLASH}           | ${t.TAUNT.id}, ${t.PROTECTOR.id}
 ${RANGER}     | Ranger      | 250 | 20   |  1000 | ${s.SHOOT}           | 
-${NECROMANCER}| Necromancer | 250 | 20   |  4200 | ${s.ARCANE_MISSILES} | ${t.UNDEAD_STRENGTH.id}
+${NECROMANCER}| Necromancer | 250 | 20   |  4200 | ${s.ARCANE_MISSILES} | ${t.UNDEAD_STRENGTH.id}, ${t.SKELETON_WARRIOR.id}
 ${BARD}       | Bard        | 250 | 20   |  1000 | ${s.SONG}            |
 `;
 
@@ -61,10 +61,7 @@ const monsters = `
 Job              | Name         | HP  | ATK | AGI  | Skill                | Traits
 -----------------|--------------|-----|-----|------|----------------------|---------------
 ${BLOB}          | Blob         | 210 | 20  | 2000 | ${s.SLASH}           | ${t.SPLIT_BLOB.id}
-${RED_BLOB}      | Red Blob     | 40  | 20  | 2000 | ${s.EXPLODE}         | ${t.BURN.id}, ${t.SPLIT_BLOB.id}
-${BLOB_KING}     | Blob King    | 500 | 50  | 2000 | ${s.SLASH}           | ${t.SPLIT_BLOB.id}
 ${BLOB_MAGE}     | Blob Mage    | 90  | 15  | 2000 | ${s.ARCANE_MISSILES} | ${t.SPLIT_BLOB.id}
-${BLOB_KNIGHT}   | Blob Knight  | 400 | 25  | 2000 | ${s.SLASH}           | ${t.TAUNT.id}
 ${TINY_BLOB}     | Tiny Blob    | 20  | 10  | 2000 | ${s.SLASH}           |
 ${SKELETON}      | Skeleton     | 750 | 10  | 2200 | ${s.SLASH}           | ${t.UNDEAD.id}
 ${SKELETON_MAGE} | Skeleton Mage| 80  | 5   | 4400 | ${s.ARCANE_MISSILES} | ${t.UNDEAD.id}

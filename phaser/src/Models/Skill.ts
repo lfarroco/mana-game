@@ -53,7 +53,7 @@ ${FIREBALL}       | Fireball        | 5     | 3        | 80    | Deals 80 damage
 ${SHIELDBASH}     | Shield Bash     | 1     | 3        | 20    | Deals damage and stuns the enemy for 1 turn
 ${SUMMON_BLOB}    | Summon Blobs    | 1     | 3        | 20    | Summons 4 blobs
 ${MULTISHOT}      | Multishot       | 5     | 4        | 20    | Shoots 4 arrows
-${HEALING_WAVE}   | Healing Wave    | 5     | 3        | 50    | Heals 4 allied units for 50 HP
+${HEALING_WAVE}   | Healing Wave    | 5     | 3        | 20    | Heals 4 allied units for 20 HP
 ${FEINT}          | Feint           | 1     | 2        | 20    | Dodges the next attack and deals a critical
 ${LIGHT_ORB}      | Light Orb       | 5     | 0        | 10    | Deals 10 damage to an enemy unit and heals 5 HP to close allies
 ${ARCANE_MISSILES}| Arcane Missiles | 5     | 0        | 10    | Deals 10 damage to 3 random enemy targets
