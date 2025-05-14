@@ -17,10 +17,11 @@ import * as TooltipSystem from "../../Systems/Tooltip";
 import { makeUnit } from "../../Models/Unit";
 import { cpuForce, playerForce } from "../../Models/Force";
 import { ARCHER, CLERIC, jobs, KNIGHT } from "../../Models/Job";
-import { randomVec2InRange, vec2 } from "../../Models/Geometry";
+import { vec2 } from "../../Models/Geometry";
 import runCombatIO from "./RunCombatIO";
 import { range } from "fp-ts/lib/ReadonlyNonEmptyArray";
 import { pickOne } from "../../utils";
+import { getEmptySlot } from "../../Models/Board";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -133,25 +134,16 @@ export class BattlegroundScene extends Phaser.Scene {
       console.log("Day", this.state.gameData.day, "started");
 
       // Hours loop for each day
-      while (state.gameData.hour < 10) {
+      while (state.gameData.hour < 9) {
         state.gameData.hour += 1;
         state.battleData.units = [];
 
         range(1, state.gameData.player.units.length)
           .map(() => {
 
-            let position = vec2(0, 0);
-
-            // random empty position between 1,1 and 3,3
-            let found = false;
-
-            while (!found && state.battleData.units.length <= 9) {
-
-              position = randomVec2InRange([1, 3], [1, 3]);
-              const occupier = state.battleData.units.find(unit => unit.position.x === position.x && unit.position.y === position.y);
-              if (!occupier) {
-                found = true;
-              }
+            const position = getEmptySlot(state.battleData.units, cpuForce.id);
+            if (!position) {
+              throw new Error("No empty slot available");
             }
 
             const unit = makeUnit(
