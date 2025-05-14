@@ -135,3 +135,10 @@ unicorn overlord allows setting some basic ai:
 - if /else (eg. heal, if hp < 50%)
 
 - make projectils use speed
+
+- item slots: valve artifact had 3 slots per hero, displayed on top
+item ideas:
+- 20pct cooldown
+- add 20pct cooldown, gain atk/hp
+
+todo: check artifact's item list
