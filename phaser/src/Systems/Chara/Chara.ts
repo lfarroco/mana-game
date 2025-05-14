@@ -178,8 +178,6 @@ export const addBoardEvents = (chara: Chara) => {
 
 		const tile = GridSystem.getTileAt(pointer)!;
 
-		const charaUnit = state.gameData.player.units.find(u => u.id === chara.id)!;
-
 		const position = vec2(tile.x, tile.y)!
 
 		const maybeOccupier = state.gameData.player.units.find(u => eqVec2(u.position, position));
@@ -187,18 +185,16 @@ export const addBoardEvents = (chara: Chara) => {
 		if (maybeOccupier) {
 			const occupierChara = UnitManager.getChara(maybeOccupier.id);
 
-			charaUnit.position = position;
+			occupierChara.unit.position = { ...chara.unit.position };
 
 			tween({
 				targets: [occupierChara.container],
-				duration: 500,
-				ease: 'Power2',
-				x: maybeOccupier.position.x * bgConstants.TILE_WIDTH + bgConstants.HALF_TILE_WIDTH,
-				y: maybeOccupier.position.y * bgConstants.TILE_HEIGHT + bgConstants.HALF_TILE_HEIGHT,
+				x: occupierChara.unit.position.x * bgConstants.TILE_WIDTH + bgConstants.HALF_TILE_WIDTH,
+				y: occupierChara.unit.position.y * bgConstants.TILE_HEIGHT + bgConstants.HALF_TILE_HEIGHT,
 			})
 		}
 
-		charaUnit.position = position;
+		chara.unit.position = position;
 
 		// The board has changed: calculate position bonuses for all units
 		state.gameData.player.units.forEach((unit) => {
@@ -207,8 +203,6 @@ export const addBoardEvents = (chara: Chara) => {
 
 		tween({
 			targets: [chara.container],
-			duration: 500,
-			ease: 'Power2',
 			x: position.x * bgConstants.TILE_WIDTH + bgConstants.HALF_TILE_WIDTH,
 			y: position.y * bgConstants.TILE_HEIGHT + bgConstants.HALF_TILE_HEIGHT,
 		})
