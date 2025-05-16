@@ -32,7 +32,7 @@ export async function song(
 
 		scene.events.on(Phaser.Scenes.Events.UPDATE, update);
 
-		await delay(scene, 200)
+		await delay(scene, 200);
 
 		ally.unit.hasted += 2000;
 		popText({

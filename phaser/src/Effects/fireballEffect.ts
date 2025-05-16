@@ -9,8 +9,8 @@ export async function fireballEffect(
 	target: { x: number; y: number; },
 ) {
 
-	const travelDuration = 500 / speed;
-	const lifespan = 400 / speed;
+	const travelDuration = 500;
+	const lifespan = 400;
 
 	const particles = fireball(source, target, scene, speed, lifespan, travelDuration);
 	particles.setScale(2.4)

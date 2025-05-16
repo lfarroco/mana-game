@@ -32,11 +32,11 @@ export async function multishot(
 
 	targets.forEach(async (target, i) => {
 
-		await delay(scene, (i * 200) / scene.speed);
+		await delay(scene, (i * 200));
 		shootAnimation(scene, unit, target);
 	});
 
-	await delay(scene, 450 + ((targets.length * 200) / scene.speed));
+	await delay(scene, 450 + ((targets.length * 200)));
 
 	console.log("[skill] :: multishot :: end");
 

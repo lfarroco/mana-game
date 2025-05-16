@@ -20,7 +20,7 @@ export async function runAdventure(
 
 	const currentWave = adventure.waves[adventure.currentWave - 1];
 
-	await delay(scene, 1000 / scene.state.options.speed);
+	await delay(scene, 1000);
 
 	scene.state.battleData.units =
 		scene.state.battleData.units.concat(currentWave.generate())
@@ -41,7 +41,7 @@ export async function runAdventure(
 			refreshScene(scene);
 
 			await vignette(scene, "Finished!");
-			await delay(scene, 1000 / scene.state.options.speed);
+			await delay(scene, 1000);
 			return "success";
 		}
 	}
@@ -49,7 +49,7 @@ export async function runAdventure(
 	if (result === "player_lost") {
 
 		await vignette(scene, "End of Run!");
-		await delay(scene, 1000 / scene.state.options.speed);
+		await delay(scene, 1000);
 		refreshScene(scene);
 
 		return "failure";

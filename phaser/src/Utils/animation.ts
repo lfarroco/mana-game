@@ -1,3 +1,4 @@
+import { getState } from "../Models/State";
 
 export async function tween(
 	attributes: {
@@ -46,18 +47,16 @@ export async function tweenSequence(
 	}
 }
 
-export async function delay(
-	scene: Phaser.Scene,
+export const delay = (
+	scene: Phaser.Scene, // TODO: remove
 	duration: number,
-) {
-	return new Promise<void>((resolve, _reject) => {
-		scene.time.addEvent(
-			{
-				delay: duration,
-				callback: () => {
-					resolve();
-				}
+) => new Promise<void>((resolve, _reject) => {
+	scene.time.addEvent(
+		{
+			delay: duration / getState().options.speed,
+			callback: () => {
+				resolve();
 			}
-		);
-	});
-}
+		}
+	);
+});

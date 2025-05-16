@@ -44,7 +44,7 @@ export async function summon(chara: Chara) {
 		const blob = makeUnit(FORCE_ID_CPU, BLOB, slot);
 		state.battleData.units.push(blob);
 		UnitManager.summonChara(blob);
-		await delay(scene, 500 / state.options.speed);
+		await delay(scene, 500);
 	});
 
 	await runPromisesInOrder(actions);

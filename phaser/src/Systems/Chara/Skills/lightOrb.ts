@@ -28,11 +28,11 @@ export const lightOrb = (
 		500 / state.options.speed
 	).setScale(0.5);
 
-	await delay(scene, 500 / state.options.speed);
+	await delay(scene, 500);
 
 	await damageUnit(targetChara.id, damage);
 
-	await delay(scene, 1000 / state.options.speed);
+	await delay(scene, 1000);
 
 	orb.destroy();
 }

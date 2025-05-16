@@ -269,7 +269,7 @@ export async function coinDropIO(
 	}
 
 	// when coins hit target, emit coins around
-	await delay(scene, 1000 / state.options.speed);
+	await delay(scene, 1000);
 
 	scene.add.particles(...chestPosition, 'coin', {
 		speed: { min: 100, max: 200, },
