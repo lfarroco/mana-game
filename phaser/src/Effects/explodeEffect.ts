@@ -8,7 +8,7 @@ export async function explodeEffect(
 	source: { x: number; y: number; },
 ) {
 
-	const lifespan = 1000 / speed;
+	const lifespan = 1000;
 
 	const sparks = scene.add.particles(
 		source.x,

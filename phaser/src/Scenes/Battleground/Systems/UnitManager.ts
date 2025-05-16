@@ -40,7 +40,7 @@ export async function summonChara(unit: Unit, useSummonEffect = true, fadeIn = t
 
 	const vec = getCharaPosition(unit);
 
-	if (useSummonEffect) summonEffect(scene, scene.speed, vec);
+	if (useSummonEffect) summonEffect(scene, vec);
 
 	const chara = Chara.createCard(unit)
 

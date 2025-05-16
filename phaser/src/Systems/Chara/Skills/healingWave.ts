@@ -69,7 +69,7 @@ export async function healingWave(scene: BattlegroundScene, unit: Unit) {
  * @param targets - Array of positions where healing effects should be displayed
  */
 async function animation(scene: BattlegroundScene, targets: Vec2[]) {
-	const lifespan = 1000 / scene.speed;
+	const lifespan = 1000;
 
 	const waves = targets.reduce((acc, target, i) => {
 

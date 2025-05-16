@@ -36,7 +36,7 @@ export const explode = (
 	for (const enemy of enemies)
 		await damageUnit(enemy.id, skill.power / 2);
 
-	await delay(scene, 500 / state.options.speed);
+	await delay(scene, 500);
 }
 
 

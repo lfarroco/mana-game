@@ -37,7 +37,7 @@ export async function shadowStep(
 
 	unit.position = cell;
 	activeChara.container.visible = false;
-	await summonEffect(scene, scene.speed, activeChara.container);
+	await summonEffect(scene, activeChara.container);
 	await tween({
 		targets: [activeChara.container],
 		x: cell.x * TILE_WIDTH + HALF_TILE_WIDTH,
@@ -46,7 +46,7 @@ export async function shadowStep(
 	});
 	activeChara.container.visible = true;
 
-	await summonEffect(scene, scene.speed, activeChara.container);
+	await summonEffect(scene, activeChara.container);
 
 	await slash(scene, unit);
 

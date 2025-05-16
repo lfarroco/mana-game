@@ -28,7 +28,7 @@ export async function impactEffect({ scene, location, pointA, pointB, speed }: I
 		stopAfter: 5
 	});
 
-	await delay(scene, 600 / speed);
+	await delay(scene, 600);
 
 	particles.destroy();
 }

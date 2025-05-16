@@ -48,7 +48,7 @@ export async function arcaneMissle(
 
 	const follower = scene.add.follower(path, source.x, source.y, 'white-dot');
 
-	const duration = (500 * Math.random() + 500) / speed;
+	const duration = (500 * Math.random() + 500);
 	follower.setVisible(false);
 	follower.startFollow({
 		positionOnPath: true,
@@ -80,11 +80,11 @@ export async function arcaneMissle(
 
 	onHit();
 
-	await delay(scene, 300 / speed);
+	await delay(scene, 300);
 
 	impact.stop();
 
-	await delay(scene, 500 / speed);
+	await delay(scene, 500);
 
 	beam.destroy();
 	particles.destroy();
