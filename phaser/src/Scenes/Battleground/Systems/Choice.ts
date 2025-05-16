@@ -1,11 +1,9 @@
 import Phaser from "phaser";
 import { tween } from "../../../Utils/animation";
 import * as constants from "../constants";
-import { getState, State } from "../../../Models/State";
 import { breakLines } from "../../../utils";
 
 export let scene: Phaser.Scene;
-let state: State;
 
 export type Choice = {
 	pic: string;
@@ -41,7 +39,6 @@ const STYLE_CONSTANTS = {
 
 export const init = (sceneRef: Phaser.Scene) => {
 	scene = sceneRef;
-	state = getState();
 }
 
 export const displayChoices = (choices: Choice[]) => new Promise<Choice>(async (resolve) => {
@@ -55,7 +52,7 @@ export const displayChoices = (choices: Choice[]) => new Promise<Choice>(async (
 				await tween({
 					targets: [card],
 					x: -CARD_DIMENSIONS.width * 1.4,
-					duration: 1000 / state.options.speed,
+					duration: 1000,
 					delay: i * 200,
 				});
 			}));
@@ -132,8 +129,7 @@ const renderChoiceCard = (
 	await tween({
 		targets: [cardContainer],
 		x: BASE_X,
-		duration: 1000 / state.options.speed,
-		ease: "Power2",
+		duration: 1000,
 		delay: index * 200,
 	})
 

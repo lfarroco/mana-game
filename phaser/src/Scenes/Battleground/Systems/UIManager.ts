@@ -180,8 +180,6 @@ export async function goldChangeAnimation(
 	gold: number,
 ) {
 
-	const state = getState();
-
 	const sign = gold > 0 ? "+" : "";
 
 	const text = `${sign}${gold}`;
@@ -196,7 +194,6 @@ export async function goldChangeAnimation(
 		alpha: 1,
 		scale: 1.5,
 		y: goldAmount.y + (-50 * Math.sign(gold)),
-		duration: 500 / state.options.speed,
 	});
 
 	await tween({
@@ -204,11 +201,10 @@ export async function goldChangeAnimation(
 		alpha: 0,
 		scale: 1,
 		y: goldAmount.y + (-50 * Math.sign(gold)),
-		duration: 1000 / state.options.speed,
-		onComplete: () => {
-			goldAmount.destroy();
-		}
+		duration: 1000,
 	});
+
+	goldAmount.destroy();
 
 }
 

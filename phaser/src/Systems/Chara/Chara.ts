@@ -218,8 +218,6 @@ export const addBoardEvents = (chara: Chara) => {
 		// return to original position if outside
 		tween({
 			targets: [chara.container],
-			duration: 500,
-			ease: 'Power2',
 			x: chara.unit.position.x * bgConstants.TILE_WIDTH + bgConstants.HALF_TILE_WIDTH,
 			y: chara.unit.position.y * bgConstants.TILE_HEIGHT + bgConstants.HALF_TILE_HEIGHT,
 		})
@@ -327,7 +325,7 @@ export async function damageUnit(id: string, damage: number, isCritical = false)
 	chara.hpDisplay.setText(chara.unit.hp.toString());
 
 	if (isCritical) {
-		criticalDamageDisplay(scene, chara.container, damage, getState().options.speed);
+		criticalDamageDisplay(scene, chara.container, damage);
 	} else {
 		popText({ text: damage.toString(), targetId: chara.id, type: "damage" });
 	}
@@ -361,11 +359,12 @@ export async function killUnit(chara: Chara) {
 		targets: [chara.container],
 		alpha: 0,
 		yoyo: true,
-		duration: 250 / state.options.speed,
+		duration: 250,
 		repeat: 4,
-		ease: 'Power2',
 	});
-	chara.container.destroy(true);
+
+	//TODO: make grayscale
+	chara.sprite.setAlpha(0.5);
 
 	for (const ev of chara.unit.events.onDeath)
 		ev(chara.unit)()

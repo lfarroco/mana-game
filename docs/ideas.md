@@ -142,3 +142,6 @@ item ideas:
 - add 20pct cooldown, gain atk/hp
 
 todo: check artifact's item list
+
+rogue - fast atk (2s)
+rogue2 - gains +10% crit on every other attack

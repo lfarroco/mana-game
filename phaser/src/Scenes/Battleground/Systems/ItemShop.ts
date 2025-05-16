@@ -90,7 +90,6 @@ const handleBuy = (
 			targets: [err],
 			duration: 1000,
 			alpha: 0,
-			ease: "Power2",
 		});
 
 		err.destroy();
@@ -108,15 +107,12 @@ const handleBuy = (
 		targets: [icon],
 		y: icon.y - 100,
 		duration: 1000 / 2,
-		ease: "Power2",
 	})
 
 	await tween({
 		targets: [icon],
 		x: scene.cameras.main.width - 100,
 		y: scene.cameras.main.height - 100,
-		duration: 1000 / 2,
-		ease: "Power2",
 	});
 
 	icon.destroy();

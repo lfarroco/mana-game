@@ -14,8 +14,6 @@ export const dropItem = async (scene: Phaser.Scene, position: { x: number, y: nu
 	await tween({
 		targets: [icon],
 		y: icon.y - 100,
-		duration: 500,
-		ease: 'Power2',
 	});
 
 	// accelerate towards lower right of the screen
@@ -23,9 +21,7 @@ export const dropItem = async (scene: Phaser.Scene, position: { x: number, y: nu
 		targets: [icon],
 		x: scene.cameras.main.width - 100,
 		y: scene.cameras.main.height - 100,
-		duration: 500,
 		alpha: 0,
-		ease: 'Power2',
 	})
 
 	icon.destroy();

@@ -29,7 +29,6 @@ async function setupWave(scene: BattlegroundScene) {
     await tween({
       targets: [chara.container],
       x: originalX,
-      duration: 500,
       delay: i * 100,
     })
   }));

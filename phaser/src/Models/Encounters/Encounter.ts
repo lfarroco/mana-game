@@ -197,8 +197,7 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
 				await tween({
 					targets: [chara.container],
 					x: 180 + 250 * i,
-					duration: 1500 / getState().options.speed,
-					ease: "Power2",
+					duration: 1500,
 				})
 
 				UnitManager.addCharaToState(chara);
@@ -223,10 +222,10 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
 					for (const c of charas) {
 
 						if (chara.id === c.id) {
-							const pos = UnitManager.getCharaPosition(c.unit);
+							const vec = UnitManager.getCharaPosition(c.unit);
 							tween({
 								targets: [c.container],
-								...pos,
+								...vec,
 							});
 							Chara.addBoardEvents(c);
 							continue;
