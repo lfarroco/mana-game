@@ -1,11 +1,11 @@
 import { ARCANE_MISSILES, getSkill } from "../../../Models/Skill";
 import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
-import { getUnitsByProximity } from "../../../Models/Board";
+import { getRangedTargets } from "../../../Models/Board";
 import * as animation from "../../../Effects/arcaneMissile";
-import { approach } from "../approach";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
 import { damageUnit } from "../Chara";
+import { range } from "fp-ts/lib/ReadonlyNonEmptyArray";
 
 export const arcaneMissiles = (
 	scene: BattlegroundScene
@@ -14,43 +14,39 @@ export const arcaneMissiles = (
 	const { state } = scene;
 	const skill = getSkill(ARCANE_MISSILES);
 
-	const closest = await approach(UnitManager.getChara(unit.id));
-
-	if (!closest) return;
-
-	const targets = getUnitsByProximity(state, unit, true, skill.range);
+	const targets = getRangedTargets(state, unit, 3);
 
 	if (targets.length === 0) {
-		console.warn("No enemy found");
+		console.warn("No enemies found");
 		return;
 	};
 
 	const activeChara = UnitManager.getChara(unit.id);
 
 	//pick 3 random indexes (can be repeated)
-	const targetIndexes = Array.from({ length: 3 }, () => Math.floor(Math.random() * targets.length));
+	range(0, 3)
+		.map(() => Math.floor(Math.random() * targets.length))
+		.forEach((index) => {
 
-	targetIndexes.forEach((index) => {
+			const target = targets[index];
 
-		const target = targets[index];
+			const targetChara = UnitManager.getChara(target.id);
 
-		const targetChara = UnitManager.getChara(target.id);
+			animation.arcaneMissle(
+				scene,
+				activeChara.container,
+				targetChara.container,
+				state.options.speed,
+				() => {
 
-		animation.arcaneMissle(
-			scene,
-			activeChara.container,
-			targetChara.container,
-			state.options.speed,
-			() => {
+					if (targetChara.unit.hp <= 0) return;
+					damageUnit(targetChara.id, skill.power)
 
-				if (targetChara.unit.hp <= 0) return;
-				damageUnit(targetChara.id, skill.power)
+				}
 
-			}
+			);
 
-		);
-
-	});
+		});
 
 
 }

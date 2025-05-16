@@ -1,5 +1,5 @@
 import { FORCE_ID_PLAYER } from "../Scenes/Battleground/constants";
-import { pickOne } from "../utils";
+import { pickOne, pickRandom } from "../utils";
 import { vec2, sortBySnakeDistance, snakeDistanceBetween } from "./Geometry";
 import { State, getActiveUnits, getUnitAt } from "./State";
 import { Unit } from "./Unit";
@@ -95,7 +95,7 @@ export function getMeleeTarget(state: State, unit: Unit): Unit {
 
 }
 
-export function getRangedTarget(state: State, unit: Unit): Unit {
+export function getRangedTargets(state: State, unit: Unit, amount = 1): Unit[] {
 	const enemies = getActiveUnits(state)
 		.filter(u => !u.statuses["stealth"])
 		.filter(u => u.force !== unit.force);
@@ -104,20 +104,20 @@ export function getRangedTarget(state: State, unit: Unit): Unit {
 	const closeUnits = enemies
 		.filter(u => u.position.y >= unit.position.y - 1 && u.position.y <= unit.position.y + 1);
 
-	// any of them has the tratt "taunt"?
+	// any of them has the trait "taunt"?
 	const taunting = closeUnits
 		.filter(u => u.traits.find(t => t.id === "taunt"));
 
 	if (taunting.length > 0) {
-		return pickOne(taunting);
+		return pickRandom(taunting, amount);
 	}
 
 	if (closeUnits.length > 0) {
-		return pickOne(closeUnits);
+		return pickRandom(closeUnits, amount);
 	}
 
 	// pick random from remaining
-	return pickOne(enemies);
+	return pickRandom(enemies, amount);
 
 }
 
