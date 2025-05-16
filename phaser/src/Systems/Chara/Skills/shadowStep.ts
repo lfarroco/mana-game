@@ -42,7 +42,7 @@ export async function shadowStep(
 		targets: [activeChara.container],
 		x: cell.x * TILE_WIDTH + HALF_TILE_WIDTH,
 		y: cell.y * TILE_HEIGHT + HALF_TILE_HEIGHT,
-		duration: 100 / scene.speed
+		duration: 100
 	});
 	activeChara.container.visible = true;
 

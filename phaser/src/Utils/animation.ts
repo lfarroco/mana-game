@@ -14,10 +14,18 @@ export async function tween(
 		return;
 	}
 
+	if (attributes.duration) {
+		attributes.duration = attributes.duration / scene.speed;
+	} else {
+		attributes.duration = 200;
+	}
+	if (attributes.delay) {
+		attributes.delay = attributes.delay / scene.speed;
+	}
+
 	return new Promise<void>((resolve, _reject) => {
 		scene.add.tween({
 			ease: "Power2",
-			duration: 500 / scene.speed,
 			...attributes,
 			onComplete: () => {
 				if (attributes.onComplete) {

@@ -4,7 +4,6 @@ export async function criticalDamageDisplay(
 	scene: Phaser.Scene,
 	{ x, y }: { x: number; y: number; },
 	damage: number,
-	speed: number,
 ) {
 	const critBg = scene.add.image(
 		x, y,
@@ -30,14 +29,12 @@ export async function criticalDamageDisplay(
 	await tween({
 		targets: [critBg, dmg],
 		scale: 0.8,
-		duration: 500 / speed,
 		ease: 'Bounce.easeOut',
 	});
 
 	await tween({
 		targets: [critBg, dmg],
 		alpha: 0,
-		duration: 500 / speed,
 	});
 
 	[critBg, dmg].forEach(fx => fx.destroy());

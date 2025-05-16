@@ -1,7 +1,6 @@
 import * as constants from "../constants";
 import { vec2, Vec2 } from "../../../Models/Geometry";
 import { tween } from "../../../Utils/animation";
-import { getState } from "../../../Models/State";
 
 let scene: Phaser.Scene;
 
@@ -28,8 +27,7 @@ export function showGrid() {
 	tween({
 		targets: [state.tiles],
 		alpha: 1,
-		duration: 9500 / getState().options.speed,
-		ease: 'Power2',
+		duration: 1500,
 	});
 }
 

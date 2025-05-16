@@ -27,7 +27,7 @@ export class DebugScene extends Phaser.Scene {
 				this.time.addEvent({
 					delay: 1500,
 					callback: () => {
-						effects.arcaneMissle(this, { x: 200, y: 500 }, { x: 800, y: 200 }, 1 );
+						effects.arcaneMissle(this, { x: 200, y: 500 }, { x: 800, y: 200 }, 1);
 						effects.arcaneMissle(this, { x: 200, y: 500 }, { x: 800, y: 200 }, 1);
 						effects.arcaneMissle(this, { x: 200, y: 500 }, { x: 800, y: 200 }, 1);
 						effects.arcaneMissle(this, { x: 200, y: 500 }, { x: 800, y: 200 }, 1);
@@ -40,7 +40,7 @@ export class DebugScene extends Phaser.Scene {
 				this.time.addEvent({
 					delay: 1200,
 					callback: () => {
-						effects.criticalDamageDisplay(this, { x: 200, y: 200 }, 33, 1);
+						effects.criticalDamageDisplay(this, { x: 200, y: 200 }, 33);
 					},
 					repeat: -1
 				});

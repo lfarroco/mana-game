@@ -30,7 +30,7 @@ export async function slash(
 		targets: [activeChara.container],
 		x: activeChara.unit.position.x * TILE_WIDTH + HALF_TILE_WIDTH,
 		Y: activeChara.unit.position.y * TILE_WIDTH + HALF_TILE_WIDTH,
-		duration: 100 / scene.state.options.speed,
+		duration: 100,
 	})
 }
 

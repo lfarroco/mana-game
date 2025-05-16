@@ -23,15 +23,13 @@ export async function vignette(scene: BattlegroundScene, text: string) {
 	tween({
 		targets: [textObj],
 		x: scene.scale.width / 2,
-		duration: 250,
-		ease: "Expo.easeOut",
 		onComplete: () => {
 			tween({
 				targets: [textObj],
 				ease: "Expo.easeIn",
 				x: scene.scale.width + 300,
-				delay: 500 / scene.speed,
-				duration: 250 / scene.speed,
+				delay: 500,
+				duration: 250,
 				onComplete: () => {
 					textObj.destroy();
 				}
@@ -42,7 +40,7 @@ export async function vignette(scene: BattlegroundScene, text: string) {
 	await tween({
 		targets: [rect],
 		alpha: 0.5,
-		duration: 1000 / scene.speed,
+		duration: 1000,
 		yoyo: true,
 		onComplete: () => rect.destroy()
 	});

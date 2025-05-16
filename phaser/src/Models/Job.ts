@@ -38,7 +38,7 @@ ${ARCHER}     | Archer      | 150 | 25   |  2000 | ${s.SHOOT}           | ${t.SN
 ${CLERIC}     | Cleric      | 180 | 12   |  3400 | ${s.HEALING_WAVE}    |
 ${APPRENTICE} | Apprentice  | 180 | 20   |  2200 | ${s.ARCANE_MISSILES} | ${t.SPLASH.id}
 ${KNIGHT}     | Knight      | 220 | 17   |  2700 | ${s.SLASH}           | ${t.TAUNT.id}, ${t.PROTECTOR.id}
-${THIEF}      | Thief       | 140 | 28   |  1400 | ${s.SLASH}           | ${t.STEALTH.id},${t.ASSASSIN.id}
+${THIEF}      | Thief       | 140 | 10   |  2000 | ${s.SLASH}           | ${t.STEALTH.id},${t.ASSASSIN.id}
 ${DRUID}      | Druid       | 200 | 15   |  1000 | ${s.SLASH}           |
 ${BARBARIAN}  | Barbarian   | 250 | 30   |  1000 | ${s.SLASH}           | ${t.BERSERK.id}
 ${PIRATE}     | Pirate      | 200 | 20   |  4000 | ${s.SONG}            |

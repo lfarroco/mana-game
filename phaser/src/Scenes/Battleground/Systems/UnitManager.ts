@@ -56,8 +56,6 @@ export async function summonChara(unit: Unit, useSummonEffect = true, fadeIn = t
 		tween({
 			targets: [chara.container],
 			alpha: 1,
-			duration: 500 / scene.speed,
-			ease: 'Power2',
 		});
 	else
 		chara.container.setAlpha(1);
