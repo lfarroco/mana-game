@@ -1,7 +1,7 @@
 import { delay } from "../Utils/animation";
 import { EnergyBeam } from "./EnergyBeam";
 
-export async function arcaneMissle(
+export async function arcaneMissile(
 	scene: Phaser.Scene,
 	source: { x: number; y: number; },
 	target: { x: number; y: number; },
