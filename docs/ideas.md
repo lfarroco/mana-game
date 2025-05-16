@@ -145,3 +145,9 @@ todo: check artifact's item list
 
 rogue - fast atk (2s)
 rogue2 - gains +10% crit on every other attack
+
+skill ideas:
+- chain lightning (does damage to 3 units)
+- fire wall (does damage to all units in a column)
+- fireball (does damage to all enemy units in a row)
+- time stop (stops time for 2s)
