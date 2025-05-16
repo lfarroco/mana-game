@@ -32,7 +32,7 @@ export const arcaneMissiles = (
 
 			const targetChara = UnitManager.getChara(target.id);
 
-			animation.arcaneMissle(
+			animation.arcaneMissile(
 				scene,
 				activeChara.container,
 				targetChara.container,
