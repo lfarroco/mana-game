@@ -8,8 +8,8 @@ import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../Scenes/Battleground/constants"
 import { addStatus, endStatus, State } from "./State";
 import { makeUnit, Unit } from "./Unit";
 import { UNIT_EVENTS, UnitEvents } from "./UnitEvents";
-import { summonChara } from "../Scenes/Battleground/Systems/UnitManager";
-import { TINY_BLOB } from "./Card";
+import { getChara, summonChara } from "../Scenes/Battleground/Systems/UnitManager";
+import { SKELETON, TINY_BLOB } from "./Card";
 import { asVec2 } from "./Geometry";
 import { getColumnNeighbors } from "./Board";
 import { slash } from "../Systems/Chara/Skills/slash";
@@ -17,6 +17,9 @@ import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
 import { shoot } from "../Systems/Chara/Skills/shoot";
 import { healing } from "../Systems/Chara/Skills/healing";
 import { healingWave } from "../Systems/Chara/Skills/healingWave";
+import { arcaneMissiles } from "../Systems/Chara/Skills/arcaneMissiles";
+import { song } from "../Systems/Chara/Skills/song";
+import { summon } from "../Systems/Chara/Skills/summon";
 
 let state: State;
 let scene: BattlegroundScene;
@@ -306,6 +309,30 @@ export const HEALING_WAVE = makeTrait({
 	}
 });
 
+export const ARCANE_MISSILES = makeTrait({
+	id: "arcane_missiles" as TraitId,
+	name: "Arcane Missiles",
+	description: "Shoots 3 missiles that deal 5 damage each",
+	categories: [],
+	events: {
+		onAction: [unit => async () => {
+			arcaneMissiles(scene)(unit)
+		}]
+	}
+});
+
+export const SONG = makeTrait({
+	id: "song" as TraitId,
+	name: "Song",
+	description: "Hastes surrounding allies",
+	categories: [],
+	events: {
+		onAction: [unit => async () => {
+			song(scene, unit); // TODO: create standard interface for skills (scene)(unit)
+		}]
+	}
+});
+
 export const BERSERK = makeTrait({
 	id: "berserk" as TraitId,
 	name: "Berserk",
@@ -567,13 +594,17 @@ export const UNDEAD_STRENGTH = makeTrait({
 	}
 });
 
-// TODO: implement
-export const SKELETON_WARRIOR = makeTrait({
-	id: "skeleton_warrior" as TraitId,
-	name: "Skeleton Warrior",
-	description: "When recruited, this unit adds a Skeleton Warrior to your deck",
+export const SUMMON_SKELETON = makeTrait({
+	id: "summon_skeleton" as TraitId,
+	name: "Summon Skeleton",
+	description: "Summons a skeleton to fight on your side",
 	categories: [TRAIT_CATEGORY_COMPANION],
-	events: {}
+	events: {
+		onAction: [unit => async () => {
+			const chara = getChara(unit.id);
+			summon(chara, SKELETON)
+		}]
+	}
 });
 
 export const getTrait = () => (id: TraitId): Trait => {
@@ -607,13 +638,15 @@ export const traits: { [id: TraitId]: Trait } = {
 	[REGENERATE.id]: REGENERATE,
 	[SPLIT_BLOB.id]: SPLIT_BLOB,
 	[REBORN.id]: REBORN,
-	[SKELETON_WARRIOR.id]: SKELETON_WARRIOR,
+	[SUMMON_SKELETON.id]: SUMMON_SKELETON,
 	[UNDEAD.id]: UNDEAD,
 	[UNDEAD_STRENGTH.id]: UNDEAD_STRENGTH,
 	[MELEE.id]: MELEE,
 	[RANGED.id]: RANGED,
 	[HEAL.id]: HEAL,
 	[HEALING_WAVE.id]: HEALING_WAVE,
+	[ARCANE_MISSILES.id]: ARCANE_MISSILES,
+	[SONG.id]: SONG,
 };
 
 export const randomCategoryTrait = (category: TraitCategory): Trait => {

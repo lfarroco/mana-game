@@ -259,13 +259,10 @@ export function updateChargeBar({ chargeBar, cooldownBar, hpBar, unit }: Chara) 
 export function addTooltip(chara: Chara) {
 	chara.zone.on('pointerover', () => {
 
-		const equipText = chara.unit.equip ?
-			`${chara.unit.equip.name} : ${chara.unit.equip.description}` : 'No equip';;
 
 		const text = [
 			`Attack: ${chara.unit.attackPower} HP: ${chara.unit.hp}`,
 			chara.unit.traits.map((trait) => trait.name).join("\n"),
-			`${equipText}`,
 		].join('\n');
 
 		TooltipSytem.render(

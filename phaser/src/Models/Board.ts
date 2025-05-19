@@ -18,13 +18,17 @@ export const cells = pipe(
 
 export function getEmptySlot(units: Unit[], forceId: string) {
 
-	if (units.length >= 9)
+	if (units.filter(u => u.force === forceId).length >= 9) {
+		console.warn("Party full. No empty slot available for summoning");
 		return null;
+	}
 
 	let startX = 1;
 	let endX = 4;
 	const startY = 1;
 	const endY = 4;
+
+	console.log("force :: ", FORCE_ID_PLAYER)
 
 	if (forceId === FORCE_ID_PLAYER) {
 		startX += 3;
