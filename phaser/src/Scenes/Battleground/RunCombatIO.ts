@@ -14,7 +14,7 @@ async function setupWave(scene: BattlegroundScene) {
 
   scene.state.battleData.units.forEach(u => {
     u.charge = 0;
-    u.cooldown = 0;
+    u.refresh = 0;
   });
 
   scene.state.battleData.units.forEach(u => UnitManager.summonChara(u, false, false));
@@ -105,11 +105,11 @@ function chargeUnits(state: State, delta: number): Unit[] {
     }
     unit.charge += delta * state.options.speed * modifier;
 
-    unit.cooldown = Math.max(0, unit.cooldown - delta);
+    unit.refresh = Math.max(0, unit.refresh - delta);
 
-    if (unit.charge >= unit.agility && unit.cooldown === 0) {
-      unit.charge = unit.charge - unit.agility;
-      unit.cooldown = MIN_COOLDOWN; // minimum space between actions 
+    if (unit.charge >= unit.cooldown && unit.refresh === 0) {
+      unit.charge = unit.charge - unit.cooldown;
+      unit.refresh = MIN_COOLDOWN; // minimum space between actions 
       performUnits.push(unit);
     }
 

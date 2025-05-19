@@ -3,12 +3,12 @@ import { Vec2, vec2, eqVec2 } from "../../../Models/Geometry";
 import { makeUnit } from "../../../Models/Unit";
 import { runPromisesInOrder } from "../../../utils";
 import { delay } from "../../../Utils/animation";
-import { JobId } from "../../../Models/Job";
+import { CardId } from "../../../Models/Card";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
 import { Chara } from "../Chara";
 import { getState } from "../../../Models/State";
 
-export async function summon(chara: Chara, jobId: JobId) {
+export async function summon(chara: Chara, jobId: CardId) {
 
 	const { scene, unit } = chara;
 	const state = getState();

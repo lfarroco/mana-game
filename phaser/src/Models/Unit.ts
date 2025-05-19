@@ -1,7 +1,7 @@
 import { v4 } from "uuid";
 import { Vec2, vec2Zero } from "./Geometry";
 import { Item } from "./Item";
-import { getJob, JobId } from "./Job";
+import { getCard, CardId } from "./Card";
 import { SHOOT, SLASH } from "./Skill";
 import { getTrait, Trait } from "./Traits";
 import { UnitEvent, UnitEvents, UNIT_EVENTS } from "./UnitEvents";
@@ -9,7 +9,7 @@ import { UnitEvent, UnitEvents, UNIT_EVENTS } from "./UnitEvents";
 export type Unit = {
   id: string;
   name: string;
-  job: JobId;
+  job: CardId;
   force: string;
   position: Vec2;
 
@@ -22,7 +22,7 @@ export type Unit = {
   defense: number;
   magicDefense: number;
 
-  agility: number;
+  cooldown: number;
   crit: number;
   evade: number;
 
@@ -36,7 +36,7 @@ export type Unit = {
   events: UnitEvents
 
   charge: number; // each tick the job's agi is added here. when it reaches 100, the job can act
-  cooldown: number; // the time it takes for the job to act again. Even if charged, this must be 0
+  refresh: number; // the time it takes for the job to act again. Even if charged, this must be 0
 
   hasted: number;
   slowed: number;
@@ -51,9 +51,9 @@ export type UnitStatusIndex = {
 }
 
 
-export const makeUnit = (force: string, jobId: JobId, position = vec2Zero()): Unit => {
+export const makeUnit = (force: string, jobId: CardId, position = vec2Zero()): Unit => {
 
-  const job = getJob(jobId);
+  const job = getCard(jobId);
   const jobTraits = job.traits.map(getTrait());
   const unit = {
     ...job,
@@ -72,7 +72,7 @@ export const makeUnit = (force: string, jobId: JobId, position = vec2Zero()): Un
     log: [],
     statuses: {},
     charge: 0,
-    cooldown: 0,
+    refresh: 0,
     hasted: 0,
     slowed: 0,
     traits: jobTraits,

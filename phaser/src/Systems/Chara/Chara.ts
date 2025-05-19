@@ -4,7 +4,7 @@ import * as bgConstants from "../../Scenes/Battleground/constants";
 import { eqVec2, vec2 } from "../../Models/Geometry";
 import { tween } from "../../Utils/animation";
 import { FORCE_ID_PLAYER } from "../../Scenes/Battleground/constants";
-import { getJob, Job } from "../../Models/Job";
+import { getCard, Card } from "../../Models/Card";
 import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
 import * as UnitManager from "../../Scenes/Battleground/Systems/UnitManager";
 import * as GridSystem from "../../Scenes/Battleground/Systems/GridSystem";
@@ -18,7 +18,7 @@ import { renderItemSlot } from "./ItemSlot";
 export type Chara = {
 	id: string;
 	force: string;
-	job: Job;
+	job: Card;
 	sprite: Phaser.GameObjects.Image,
 	scene: Phaser.Scene,
 	unit: Unit,
@@ -136,7 +136,7 @@ export function createCard(unit: Unit): Chara {
 	const chara: Chara = {
 		id: unit.id,
 		force: unit.force,
-		job: getJob(unit.job),
+		job: getCard(unit.job),
 		scene,
 		sprite,
 		container,
@@ -231,7 +231,7 @@ export function updateChargeBar({ chargeBar, cooldownBar, hpBar, unit }: Chara) 
 	const maxWidth = bgConstants.TILE_WIDTH - 20;
 
 	chargeBar.clear();
-	const percent = unit.charge / unit.agility;
+	const percent = unit.charge / unit.cooldown;
 	chargeBar.fillStyle(0xffff00, 1);
 	chargeBar.fillRect(
 		-bgConstants.HALF_TILE_WIDTH + 10, - bgConstants.HALF_TILE_HEIGHT + 10,
@@ -239,7 +239,7 @@ export function updateChargeBar({ chargeBar, cooldownBar, hpBar, unit }: Chara) 
 	);
 
 	cooldownBar.clear();
-	const cooldownPercent = unit.cooldown / bgConstants.MIN_COOLDOWN;
+	const cooldownPercent = unit.refresh / bgConstants.MIN_COOLDOWN;
 	cooldownBar.fillStyle(0xff0000, 1);
 	cooldownBar.fillRect(
 		-bgConstants.HALF_TILE_WIDTH + 10, - bgConstants.HALF_TILE_HEIGHT + 30,

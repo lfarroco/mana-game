@@ -1,6 +1,6 @@
 import { playerForce } from "../Force";
 import { ITEMS } from "../Item";
-import { getJob } from "../Job";
+import { getCard } from "../Card";
 import { Encounter, makeEncounter, TIER } from "./Encounter";
 import { pickRandom } from "../../utils";
 import { newChoice } from "../../Scenes/Battleground/Systems/Choice";
@@ -23,7 +23,7 @@ export const tavern = (): Encounter => ({
 		choices: () => {
 			const playerJobs = playerForce.units.map(u => u.job);
 			const remaning = playerForce.units.map(u => u.job).filter(job => !playerJobs.includes(job));
-			const randomJobs = pickRandom(remaning, 3).map(getJob)
+			const randomJobs = pickRandom(remaning, 3).map(getCard)
 			return randomJobs.map(job => newChoice(
 				`charas/${job.id}`,
 				job.name,

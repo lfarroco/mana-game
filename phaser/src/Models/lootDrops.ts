@@ -1,6 +1,6 @@
 import { fst } from "fp-ts/lib/Tuple";
 import { getItem, Item } from "./Item";
-import { BLOB, JobId, SKELETON, SKELETON_MAGE } from "./Job";
+import { BLOB, CardId, SKELETON, SKELETON_MAGE } from "./Card";
 
 type LootTable = [string, number][]
 
@@ -22,7 +22,7 @@ LOOT_DROPS[SKELETON_MAGE] = [
 
 const DEFAULT_LOOT: LootTable = []
 
-export const rollLoot = (id: JobId): Item[] => {
+export const rollLoot = (id: CardId): Item[] => {
 	const roll = Math.random();
 	const loot = getLootFor(id);
 
@@ -34,7 +34,7 @@ export const rollLoot = (id: JobId): Item[] => {
 
 }
 
-const getLootFor = (id: JobId) => {
+const getLootFor = (id: CardId) => {
 
 	const loot = LOOT_DROPS[id];
 
