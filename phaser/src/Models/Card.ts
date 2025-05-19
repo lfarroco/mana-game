@@ -1,5 +1,4 @@
 import { parseTable } from "../utils";
-import * as s from "./Skill";
 import * as t from "./Traits";
 
 export type CardId = string & { __cardId: true };
@@ -12,7 +11,6 @@ export type Card = {
   attack: number;
   defense: number;
   cooldown: number;
-  skill: s.SkillId;
   traits: t.TraitId[]
 };
 
@@ -41,26 +39,26 @@ export const SKELETON_MAGE = "skeleton_mage" as CardId;
 const STARTER_CARDS = [ARCHER, CLERIC, APPRENTICE, KNIGHT, THIEF, DRUID, BARBARIAN, PIRATE, PALADIN, RANGER, NECROMANCER, BARD];
 
 const baseCards = `
-Id                | Name            | HP  | ATK  | CD   | Skill                | Traits
-------------------|-----------------|-----|------|------|--------------------------------------
-${ARCHER}         | Archer          | 150 | 25   | 2000 |                      | ${t.RANGED.id}, ${t.SNIPER.id}
-${CLERIC}         | Cleric          | 180 | 0    | 3400 |                      | ${t.HEALING_WAVE.id}
-${CLERIC_OF_LIGHT}| Cleric of Light | 180 | 0    | 3400 |                      | ${t.HEAL.id}
-${APPRENTICE}     | Apprentice      | 180 | 20   | 2200 | ${s.ARCANE_MISSILES} | ${t.RANGED.id}, ${t.SPLASH.id}
-${KNIGHT}         | Knight          | 220 | 17   | 2700 |                      | ${t.MELEE.id}, ${t.TAUNT.id}, ${t.PROTECTOR.id}
-${THIEF}          | Thief           | 140 | 10   | 2000 |                      | ${t.MELEE.id}, ${t.STEALTH.id},${t.ASSASSIN.id}
-${DRUID}          | Druid           | 200 | 15   | 1000 |                      | ${t.RANGED.id}
-${BARBARIAN}      | Barbarian       | 250 | 30   | 1000 |                      | ${t.MELEE.id}, ${t.BERSERK.id}
-${PIRATE}         | Pirate          | 200 | 20   | 4000 | ${s.SONG}            | ${t.MELEE.id}
-${PALADIN}        | Paladin         | 250 | 20   | 1000 |                      | ${t.MELEE.id}, ${t.TAUNT.id}, ${t.PROTECTOR.id}
-${RANGER}         | Ranger          | 250 | 20   | 1000 |                      | ${t.RANGED.id} 
-${NECROMANCER}    | Necromancer     | 250 | 0    | 7200 | ${s.SUMMON_SKELETON} | ${t.UNDEAD_STRENGTH.id}
-${BARD}           | Bard            | 250 | 20   | 1000 | ${s.SONG}            | ${t.RANGED.id}
-${BLOB}           | Blob            | 210 | 20   | 2000 |                      | ${t.MELEE.id}, ${t.SPLIT_BLOB.id}
-${BLOB_MAGE}      | Blob Mage       | 90  | 15   | 2000 | ${s.ARCANE_MISSILES} | ${t.RANGED.id}, ${t.SPLIT_BLOB.id}
-${TINY_BLOB}      | Tiny Blob       | 20  | 10   | 2000 |                      | ${t.MELEE.id}
-${SKELETON}       | Skeleton        | 250 | 10   | 2200 |                      | ${t.MELEE.id}, ${t.UNDEAD.id}
-${SKELETON_MAGE}  | Skeleton Mage   | 80  | 5    | 4400 | ${s.ARCANE_MISSILES} | ${t.RANGED.id}, ${t.UNDEAD.id}
+Id                | Name            | HP  | ATK  | CD   | Traits
+------------------|-----------------|-----|------|----------------------
+${ARCHER}         | Archer          | 150 | 25   | 2000 | ${t.RANGED.id}, ${t.SNIPER.id}
+${CLERIC}         | Cleric          | 180 | 0    | 3400 | ${t.HEALING_WAVE.id}
+${CLERIC_OF_LIGHT}| Cleric of Light | 180 | 0    | 3400 | ${t.HEAL.id}
+${APPRENTICE}     | Apprentice      | 180 | 20   | 2200 | ${t.RANGED.id}, ${t.ARCANE_MISSILES.id}
+${KNIGHT}         | Knight          | 220 | 17   | 2700 | ${t.MELEE.id}, ${t.TAUNT.id}, ${t.PROTECTOR.id}
+${THIEF}          | Thief           | 140 | 10   | 2000 | ${t.MELEE.id}, ${t.STEALTH.id},${t.ASSASSIN.id}
+${DRUID}          | Druid           | 200 | 15   | 1000 | ${t.RANGED.id}
+${BARBARIAN}      | Barbarian       | 250 | 30   | 1000 | ${t.MELEE.id}, ${t.BERSERK.id}
+${PIRATE}         | Pirate          | 200 | 20   | 4000 | ${t.MELEE.id}, ${t.SONG.id}
+${PALADIN}        | Paladin         | 250 | 20   | 1000 | ${t.MELEE.id}, ${t.TAUNT.id}, ${t.PROTECTOR.id}
+${RANGER}         | Ranger          | 250 | 20   | 1000 | ${t.RANGED.id} 
+${NECROMANCER}    | Necromancer     | 250 | 0    | 4200 | ${t.UNDEAD_STRENGTH.id}, ${t.SUMMON_SKELETON.id}
+${BARD}           | Bard            | 250 | 20   | 1000 | ${t.RANGED.id}, ${t.SONG.id}
+${BLOB}           | Blob            | 210 | 20   | 2000 | ${t.MELEE.id}, ${t.SPLIT_BLOB.id}
+${BLOB_MAGE}      | Blob Mage       | 90  | 15   | 2000 | ${t.RANGED.id}, ${t.SPLIT_BLOB.id}, ${t.ARCANE_MISSILES.id}
+${TINY_BLOB}      | Tiny Blob       | 20  | 10   | 2000 | ${t.MELEE.id}
+${SKELETON}       | Skeleton        | 250 | 10   | 2200 | ${t.MELEE.id}, ${t.UNDEAD.id}
+${SKELETON_MAGE}  | Skeleton Mage   | 80  | 5    | 4400 | ${t.RANGED.id}, ${t.UNDEAD.id}, ${t.ARCANE_MISSILES.id}
 `;
 
 function parseCardsTable(table: string) {
@@ -75,7 +73,6 @@ function parseCardsTable(table: string) {
       attack: parseInt(d["ATK"]),
       defense: 0,
       cooldown: parseInt(d["CD"]),
-      skill: d["Skill"] as s.SkillId,
       traits: d["Traits"]?.split(",").map((t) => t.trim() as t.TraitId).filter(t => t) || [],
     } as Card;
   })
