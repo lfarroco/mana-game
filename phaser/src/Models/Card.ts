@@ -44,8 +44,8 @@ const baseCards = `
 Id                | Name            | HP  | ATK  | CD   | Skill                | Traits
 ------------------|-----------------|-----|------|------|--------------------------------------
 ${ARCHER}         | Archer          | 150 | 25   | 2000 |                      | ${t.RANGED.id}, ${t.SNIPER.id}
-${CLERIC}         | Cleric          | 180 | 0    | 3400 | ${s.HEALING_WAVE}    |
-${CLERIC_OF_LIGHT}| Cleric of Light | 180 | 0    | 3400 | ${s.HEAL}            |
+${CLERIC}         | Cleric          | 180 | 0    | 3400 |                      | ${t.HEALING_WAVE.id}
+${CLERIC_OF_LIGHT}| Cleric of Light | 180 | 0    | 3400 |                      | ${t.HEAL.id}
 ${APPRENTICE}     | Apprentice      | 180 | 20   | 2200 | ${s.ARCANE_MISSILES} | ${t.RANGED.id}, ${t.SPLASH.id}
 ${KNIGHT}         | Knight          | 220 | 17   | 2700 |                      | ${t.MELEE.id}, ${t.TAUNT.id}, ${t.PROTECTOR.id}
 ${THIEF}          | Thief           | 140 | 10   | 2000 |                      | ${t.MELEE.id}, ${t.STEALTH.id},${t.ASSASSIN.id}

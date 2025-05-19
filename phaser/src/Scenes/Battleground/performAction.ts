@@ -4,8 +4,6 @@ import { arcaneMissiles } from "../../Systems/Chara/Skills/arcaneMissiles";
 import { explode } from "../../Systems/Chara/Skills/explode";
 import { feint } from "../../Systems/Chara/Skills/feint";
 import { fireball } from "../../Systems/Chara/Skills/fireball";
-import { healing } from "../../Systems/Chara/Skills/healing";
-import { healingWave } from "../../Systems/Chara/Skills/healingWave";
 import { lightOrb } from "../../Systems/Chara/Skills/lightOrb";
 import { multishot } from "../../Systems/Chara/Skills/multishot";
 import { summon } from "../../Systems/Chara/Skills/summon";
@@ -54,10 +52,6 @@ export const performAction = (scene: BattlegroundScene) => (unit: Unit) => async
 
 		multishot(unit, activeChara, scene);
 
-	} else if (skillId === Skill.HEALING_WAVE) {
-
-		healingWave(scene, unit);
-
 	} else if (skillId === Skill.FEINT) {
 		feint(scene, unit);
 
@@ -70,9 +64,7 @@ export const performAction = (scene: BattlegroundScene) => (unit: Unit) => async
 		shadowStep(scene, unit, activeChara, Skill.getSkill(Skill.SLASH));
 
 	}
-	else if (skillId === Skill.HEAL) {
-		healing(scene)(unit);
-	} else if (skillId === "light-orb") {
+	else if (skillId === "light-orb") {
 		lightOrb(scene)(unit);
 	} else if (skillId === "arcane-missiles") {
 		arcaneMissiles(scene)(unit);
