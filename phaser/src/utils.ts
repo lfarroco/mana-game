@@ -42,3 +42,15 @@ export function follows(a: { x: any; y: any; scene: { on: (arg0: string, arg1: (
 	});
 
 }
+export function parseTable(table: string) {
+	const rows = table.trim().split("\n").map((r) => r.trim());
+	const header = rows[0].split("|").map((h) => h.trim());
+	const data = rows.slice(2).map((r) => {
+		const cells = r.split("|").map((c) => c.trim());
+		return header.reduce((acc, h, i) => {
+			acc[h] = cells[i];
+			return acc;
+		}, {} as { [key: string]: string; });
+	});
+	return data;
+}

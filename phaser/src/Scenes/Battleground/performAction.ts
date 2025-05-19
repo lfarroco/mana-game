@@ -15,7 +15,7 @@ import BattlegroundScene from "./BattlegroundScene";
 import { shadowStep } from "../../Systems/Chara/Skills/shadowStep";
 import { getAllActiveFoes } from "../../Models/State";
 import * as UnitManager from "./Systems/UnitManager";
-import { getJob } from "../../Models/Job";
+import { BLOB, getJob, SKELETON } from "../../Models/Job";
 import { song } from "../../Systems/Chara/Skills/song";
 
 export const performAction = (scene: BattlegroundScene) => (unit: Unit) => async () => {
@@ -36,7 +36,10 @@ export const performAction = (scene: BattlegroundScene) => (unit: Unit) => async
 
 	if (skillId === Skill.SUMMON_BLOB) {
 
-		await summon(activeChara);
+		await summon(activeChara, BLOB);
+
+	} else if (skillId === Skill.SUMMON_SKELETON) {
+		await summon(activeChara, SKELETON);
 
 	} else if (skillId === Skill.SONG) {
 		await song(scene, unit);

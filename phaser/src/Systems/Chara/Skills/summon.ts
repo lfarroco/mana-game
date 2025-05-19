@@ -3,12 +3,12 @@ import { Vec2, vec2, eqVec2 } from "../../../Models/Geometry";
 import { makeUnit } from "../../../Models/Unit";
 import { runPromisesInOrder } from "../../../utils";
 import { delay } from "../../../Utils/animation";
-import { BLOB } from "../../../Models/Job";
+import { JobId } from "../../../Models/Job";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
 import { Chara } from "../Chara";
 import { getState } from "../../../Models/State";
 
-export async function summon(chara: Chara) {
+export async function summon(chara: Chara, jobId: JobId) {
 
 	const { scene, unit } = chara;
 	const state = getState();
@@ -41,7 +41,7 @@ export async function summon(chara: Chara) {
 
 	// create a blob in each slot
 	const actions = emptySlots.map(slot => async () => {
-		const blob = makeUnit(FORCE_ID_CPU, BLOB, slot);
+		const blob = makeUnit(FORCE_ID_CPU, jobId, slot);
 		state.battleData.units.push(blob);
 		UnitManager.summonChara(blob);
 		await delay(scene, 500);

@@ -287,16 +287,11 @@ export const SPLASH = makeTrait({
 export const STEALTH = makeTrait({
 	id: "stealth" as TraitId,
 	name: "Stealth",
-	description: "Cannot be targeted by enemy units or abilities until this unit makes its first attack.",
+	description: "After attacking, become untargetable for 1s",
 	categories: [TRAIT_CATEGORY_OFFENSIVE],
 	events: {
-		onBattleStart: [(unit) => async () => {
-			await popText({ text: "On Battle Start: Stealth", targetId: unit.id, speed: 2 });
-		}],
-		onAttackByMe: [(unit) => async () => {
-			if (!unit.statuses["stealth"]) return;
-			await popText({ text: "Remove Stealth", targetId: unit.id, speed: 2 });
-			endStatus(unit.id, "stealth");
+		onAttackByMe: [(_unit) => async () => {
+			// TODO: implement
 		}]
 	}
 });

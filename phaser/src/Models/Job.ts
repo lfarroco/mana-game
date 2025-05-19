@@ -1,3 +1,4 @@
+import { parseTable } from "../utils";
 import * as s from "./Skill";
 import * as t from "./Traits";
 
@@ -18,6 +19,7 @@ export type Job = {
 
 export const ARCHER = "archer" as JobId;
 export const CLERIC = "cleric" as JobId;
+export const CLERIC_OF_LIGHT = "cleric_of_light" as JobId;
 export const APPRENTICE = "apprentice" as JobId;
 export const KNIGHT = "knight" as JobId;
 export const THIEF = "thief" as JobId;
@@ -40,38 +42,30 @@ export const SKELETON_MAGE = "skeleton_mage" as JobId;
 const STARTER_JOBS = [ARCHER, CLERIC, APPRENTICE, KNIGHT, THIEF, DRUID, BARBARIAN, PIRATE, PALADIN, RANGER, NECROMANCER, BARD];
 
 const baseJobs = `
-Job              | Name         | HP  | ATK  | AGI  | Skill                | Traits
------------------|--------------|-----|------|------|--------------------------------------
-${ARCHER}        | Archer       | 150 | 25   | 2000 | ${s.SHOOT}           | ${t.SNIPER.id}
-${CLERIC}        | Cleric       | 180 | 12   | 3400 | ${s.HEALING_WAVE}    |
-${APPRENTICE}    | Apprentice   | 180 | 20   | 2200 | ${s.ARCANE_MISSILES} | ${t.SPLASH.id}
-${KNIGHT}        | Knight       | 220 | 17   | 2700 | ${s.SLASH}           | ${t.TAUNT.id}, ${t.PROTECTOR.id}
-${THIEF}         | Thief        | 140 | 10   | 2000 | ${s.SLASH}           | ${t.STEALTH.id},${t.ASSASSIN.id}
-${DRUID}         | Druid        | 200 | 15   | 1000 | ${s.SLASH}           |
-${BARBARIAN}     | Barbarian    | 250 | 30   | 1000 | ${s.SLASH}           | ${t.BERSERK.id}
-${PIRATE}        | Pirate       | 200 | 20   | 4000 | ${s.SONG}            |
-${PALADIN}       | Paladin      | 250 | 20   | 1000 | ${s.SLASH}           | ${t.TAUNT.id}, ${t.PROTECTOR.id}
-${RANGER}        | Ranger       | 250 | 20   | 1000 | ${s.SHOOT}           | 
-${NECROMANCER}   | Necromancer  | 250 | 20   | 4200 | ${s.ARCANE_MISSILES} | ${t.UNDEAD_STRENGTH.id}, ${t.SKELETON_WARRIOR.id}
-${BARD}          | Bard         | 250 | 20   | 1000 | ${s.SONG}            |
-${BLOB}          | Blob         | 210 | 20   | 2000 | ${s.SLASH}           | ${t.SPLIT_BLOB.id}
-${BLOB_MAGE}     | Blob Mage    | 90  | 15   | 2000 | ${s.ARCANE_MISSILES} | ${t.SPLIT_BLOB.id}
-${TINY_BLOB}     | Tiny Blob    | 20  | 10   | 2000 | ${s.SLASH}           |
-${SKELETON}      | Skeleton     | 250 | 10   | 2200 | ${s.SLASH}           | ${t.UNDEAD.id}
-${SKELETON_MAGE} | Skeleton Mage| 80  | 5    | 4400 | ${s.ARCANE_MISSILES} | ${t.UNDEAD.id}
+Job               | Name            | HP  | ATK  | AGI  | Skill                | Traits
+------------------|-----------------|-----|------|------|--------------------------------------
+${ARCHER}         | Archer          | 150 | 25   | 2000 | ${s.SHOOT}           | ${t.SNIPER.id}
+${CLERIC}         | Cleric          | 180 | 0    | 3400 | ${s.HEALING_WAVE}    |
+${CLERIC_OF_LIGHT}| Cleric of Light | 180 | 0    | 3400 | ${s.HEAL}            |
+${APPRENTICE}     | Apprentice      | 180 | 20   | 2200 | ${s.ARCANE_MISSILES} | ${t.SPLASH.id}
+${KNIGHT}         | Knight          | 220 | 17   | 2700 | ${s.SLASH}           | ${t.TAUNT.id}, ${t.PROTECTOR.id}
+${THIEF}          | Thief           | 140 | 10   | 2000 | ${s.SLASH}           | ${t.STEALTH.id},${t.ASSASSIN.id}
+${DRUID}          | Druid           | 200 | 15   | 1000 | ${s.SLASH}           |
+${BARBARIAN}      | Barbarian       | 250 | 30   | 1000 | ${s.SLASH}           | ${t.BERSERK.id}
+${PIRATE}         | Pirate          | 200 | 20   | 4000 | ${s.SONG}            |
+${PALADIN}        | Paladin         | 250 | 20   | 1000 | ${s.SLASH}           | ${t.TAUNT.id}, ${t.PROTECTOR.id}
+${RANGER}         | Ranger          | 250 | 20   | 1000 | ${s.SHOOT}           | 
+${NECROMANCER}    | Necromancer     | 250 | 0    | 7200 | ${s.SUMMON_SKELETON} | ${t.UNDEAD_STRENGTH.id}
+${BARD}           | Bard            | 250 | 20   | 1000 | ${s.SONG}            |
+${BLOB}           | Blob            | 210 | 20   | 2000 | ${s.SLASH}           | ${t.SPLIT_BLOB.id}
+${BLOB_MAGE}      | Blob Mage       | 90  | 15   | 2000 | ${s.ARCANE_MISSILES} | ${t.SPLIT_BLOB.id}
+${TINY_BLOB}      | Tiny Blob       | 20  | 10   | 2000 | ${s.SLASH}           |
+${SKELETON}       | Skeleton        | 250 | 10   | 2200 | ${s.SLASH}           | ${t.UNDEAD.id}
+${SKELETON_MAGE}  | Skeleton Mage   | 80  | 5    | 4400 | ${s.ARCANE_MISSILES} | ${t.UNDEAD.id}
 `;
 
-
 function parseJobsTable(table: string) {
-  const rows = table.trim().split("\n").map((r) => r.trim());
-  const header = rows[0].split("|").map((h) => h.trim());
-  const data = rows.slice(2).map((r) => {
-    const cells = r.split("|").map((c) => c.trim());
-    return header.reduce((acc, h, i) => {
-      acc[h] = cells[i];
-      return acc;
-    }, {} as { [key: string]: string });
-  });
+  const data = parseTable(table);
 
   return data.map((d) => {
     return {
@@ -102,7 +96,6 @@ ${BLOB_KING}  | A boss enemy that can summon other blobs
 ${BLOB_MAGE}  | A mage enemy that can deal high damage
 ${BLOB_KNIGHT}| A tank enemy that can deal damage
 `;
-
 
 const descriptionsMap = descriptions.trim().split("\n").slice(2).map((r) => {
   const [id, description] = r.split("|").map((c) => c.trim());
