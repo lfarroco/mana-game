@@ -16,7 +16,7 @@ import * as TraitSystem from "../../Models/Traits";
 import * as TooltipSystem from "../../Systems/Tooltip";
 import { makeUnit } from "../../Models/Unit";
 import { cpuForce, playerForce } from "../../Models/Force";
-import { ARCHER, CLERIC, jobs, KNIGHT } from "../../Models/Job";
+import { ARCHER, CLERIC, cards, KNIGHT } from "../../Models/Card";
 import { vec2 } from "../../Models/Geometry";
 import runCombatIO from "./RunCombatIO";
 import { range } from "fp-ts/lib/ReadonlyNonEmptyArray";
@@ -148,7 +148,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
             const unit = makeUnit(
               cpuForce.id,
-              pickOne(jobs).id,
+              pickOne(cards).id,
               position,
             );
             state.battleData.units.push(unit)
@@ -188,7 +188,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
         state.gameData.player.units.forEach(unit => {
           unit.charge = 0;
-          unit.cooldown = 0;
+          unit.refresh = 0;
           unit.slowed = 0;
           unit.hasted = 0;
           unit.hp = unit.maxHp;

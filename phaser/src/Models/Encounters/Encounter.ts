@@ -8,7 +8,7 @@ import { delay, tween } from "../../Utils/animation";
 import { playerForce } from "../Force";
 import { vec2 } from "../Geometry";
 import { Item } from "../Item";
-import { JobId, starterJobs } from "../Job";
+import { CardId, starterCards } from "../Card";
 import { getState, State } from "../State";
 import { getEmptySlot } from "../Board";
 import { makeUnit } from "../Unit";
@@ -83,7 +83,7 @@ export const starterEvent: Encounter = {
 		totalPicks: 3,
 		choices: () => {
 			const playerJobs = playerForce.units.map(u => u.job);
-			const remaning = starterJobs.filter(j => !playerJobs.includes(j.id));
+			const remaning = starterCards.filter(j => !playerJobs.includes(j.id));
 
 			return pickRandom(remaning, 3).map(job => newChoice(
 				`charas/${job.id}`,
@@ -108,7 +108,7 @@ export const pickAHero: Encounter = {
 
 			console.log("pick a hero...");
 
-			return pickRandom(starterJobs, 3).map(job => newChoice(
+			return pickRandom(starterCards, 3).map(job => newChoice(
 				`charas/${job.id}`,
 				job.name,
 				job.description,
@@ -184,7 +184,7 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
 			const charas = await Promise.all(
 				genChoices().map(choice => {
 					const chara = Chara.createCard(
-						makeUnit(playerForce.id, choice.value as JobId, vec2(0, 1)),
+						makeUnit(playerForce.id, choice.value as CardId, vec2(0, 1)),
 					);
 					chara.container.setPosition(chara.sprite.width * -1.2, 500);
 					return chara

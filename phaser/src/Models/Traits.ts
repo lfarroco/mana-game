@@ -9,14 +9,19 @@ import { addStatus, endStatus, State } from "./State";
 import { makeUnit, Unit } from "./Unit";
 import { UNIT_EVENTS, UnitEvents } from "./UnitEvents";
 import { summonChara } from "../Scenes/Battleground/Systems/UnitManager";
-import { TINY_BLOB } from "./Job";
+import { TINY_BLOB } from "./Card";
 import { asVec2 } from "./Geometry";
 import { getColumnNeighbors } from "./Board";
+import { slash } from "../Systems/Chara/Skills/slash";
+import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
+import { shoot } from "../Systems/Chara/Skills/shoot";
 
 let state: State;
+let scene: BattlegroundScene;
 
-export const init = (_sceneRef: Phaser.Scene, stateRef: State) => {
+export const init = (sceneRef: BattlegroundScene, stateRef: State) => {
 	state = stateRef;
+	scene = sceneRef;
 }
 
 export type TraitId = string & { __traitId: never };
@@ -248,6 +253,30 @@ export const SNIPER = makeTrait({
 
 			await popText({ text: "-Sniper", targetId: unit.id, speed: 2 });
 			updateUnitAttribute(unit, "attackPower", -10);
+		}]
+	}
+});
+
+export const RANGED = makeTrait({
+	id: "ranged" as TraitId,
+	name: "Ranged",
+	description: "This unit has a ranged attack",
+	categories: [],
+	events: {
+		onAction: [unit => async () => {
+			shoot(scene)(unit)
+		}]
+	}
+});
+
+export const MELEE = makeTrait({
+	id: "melee" as TraitId,
+	name: "Melee",
+	description: "This unit has a melee attack",
+	categories: [],
+	events: {
+		onAction: [unit => async () => {
+			slash(scene, unit)
 		}]
 	}
 });
@@ -556,6 +585,8 @@ export const traits: { [id: TraitId]: Trait } = {
 	[SKELETON_WARRIOR.id]: SKELETON_WARRIOR,
 	[UNDEAD.id]: UNDEAD,
 	[UNDEAD_STRENGTH.id]: UNDEAD_STRENGTH,
+	[MELEE.id]: MELEE,
+	[RANGED.id]: RANGED,
 };
 
 export const randomCategoryTrait = (category: TraitCategory): Trait => {

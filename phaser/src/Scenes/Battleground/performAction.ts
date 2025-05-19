@@ -8,15 +8,14 @@ import { healing } from "../../Systems/Chara/Skills/healing";
 import { healingWave } from "../../Systems/Chara/Skills/healingWave";
 import { lightOrb } from "../../Systems/Chara/Skills/lightOrb";
 import { multishot } from "../../Systems/Chara/Skills/multishot";
-import { shoot } from "../../Systems/Chara/Skills/shoot";
-import { slash } from "../../Systems/Chara/Skills/slash";
 import { summon } from "../../Systems/Chara/Skills/summon";
 import BattlegroundScene from "./BattlegroundScene";
 import { shadowStep } from "../../Systems/Chara/Skills/shadowStep";
 import { getAllActiveFoes } from "../../Models/State";
 import * as UnitManager from "./Systems/UnitManager";
-import { BLOB, getJob, SKELETON } from "../../Models/Job";
+import { BLOB, getCard, SKELETON } from "../../Models/Card";
 import { song } from "../../Systems/Chara/Skills/song";
+import { getTrait } from "../../Models/Traits";
 
 export const performAction = (scene: BattlegroundScene) => (unit: Unit) => async () => {
 
@@ -30,51 +29,55 @@ export const performAction = (scene: BattlegroundScene) => (unit: Unit) => async
 
 	if (unit.statuses.stun?.duration > 0) return;
 
-	const job = getJob(unit.job);
+	const card = getCard(unit.job);
 
-	const skillId = job.skill;
+	const skillId = card.skill;
+
+	card.traits.forEach(t => {
+		const trait = getTrait()(t);
+		trait.events.onAction.forEach(e => {
+			e(unit)();
+		});
+	});
+
 
 	if (skillId === Skill.SUMMON_BLOB) {
 
-		await summon(activeChara, BLOB);
+		summon(activeChara, BLOB);
 
 	} else if (skillId === Skill.SUMMON_SKELETON) {
-		await summon(activeChara, SKELETON);
+		summon(activeChara, SKELETON);
 
 	} else if (skillId === Skill.SONG) {
-		await song(scene, unit);
+		song(scene, unit);
 	} else if (skillId === Skill.MULTISHOT) {
 
-		await multishot(unit, activeChara, scene);
+		multishot(unit, activeChara, scene);
 
 	} else if (skillId === Skill.HEALING_WAVE) {
 
-		await healingWave(scene, unit);
+		healingWave(scene, unit);
 
 	} else if (skillId === Skill.FEINT) {
-		await feint(scene, unit);
+		feint(scene, unit);
 
 	} else if (skillId === Skill.FIREBALL) {
 
-		await fireball(scene)(unit);
+		fireball(scene)(unit);
 
 	} else if (skillId === Skill.SHADOWSTEP) {
 
-		await shadowStep(scene, unit, activeChara, Skill.getSkill(Skill.SLASH));
+		shadowStep(scene, unit, activeChara, Skill.getSkill(Skill.SLASH));
 
-	} else if (skillId === "slash") {
-		await slash(scene, unit);
 	}
 	else if (skillId === Skill.HEAL) {
-		await healing(scene)(unit);
-	} else if (skillId === "shoot") {
-		await shoot(scene)(unit);
+		healing(scene)(unit);
 	} else if (skillId === "light-orb") {
-		await lightOrb(scene)(unit);
+		lightOrb(scene)(unit);
 	} else if (skillId === "arcane-missiles") {
-		await arcaneMissiles(scene)(unit);
+		arcaneMissiles(scene)(unit);
 	} else if (skillId === "explode") {
-		await explode(scene)(unit);
+		explode(scene)(unit);
 	}
 
 	console.log("[action] :: ", unit.job, ":: end")

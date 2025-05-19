@@ -1,12 +1,12 @@
 import { updatePlayerGoldIO } from "../../Models/Force";
-import * as Job from "../../Models/Job";
+import * as Job from "../../Models/Card";
 import { addUnitToGuild, getBattleUnitAt } from "../../Models/State";
 import { BattlegroundScene } from "./BattlegroundScene";
 import * as constants from "./constants";
 import * as GridSystem from "./Systems/GridSystem";
 import * as UIManager from "./Systems/UIManager";
 
-const units: Job.JobId[] = [
+const units: Job.CardId[] = [
 	Job.KNIGHT,
 	Job.ARCHER,
 	Job.APPRENTICE,
@@ -23,11 +23,11 @@ export function updateStore(scene: BattlegroundScene) {
 	units.forEach(renderUnit(scene));
 }
 
-const renderUnit = (scene: BattlegroundScene) => (jobId: Job.JobId, i: number) => {
+const renderUnit = (scene: BattlegroundScene) => (jobId: Job.CardId, i: number) => {
 
 	const { player } = scene.state.gameData;
 
-	const job = Job.getJob(jobId);
+	const job = Job.getCard(jobId);
 
 	const row = Math.floor(i / 2);
 	const col = i % 2;
@@ -100,7 +100,7 @@ const renderUnit = (scene: BattlegroundScene) => (jobId: Job.JobId, i: number) =
 
 const handleClick = (
 	_scene: BattlegroundScene,
-	_job: Job.Job,
+	_job: Job.Card,
 ) => (_pointer: Phaser.Input.Pointer) => {
 
 

@@ -1,7 +1,7 @@
 import { ENCOUNTER_BLOBS, parseEncounter } from "../Scenes/Battleground/enemyWaves";
 import { pickOne } from "../utils";
 import { Item, ITEMS } from "./Item";
-import { NECROMANCER, SKELETON, SKELETON_MAGE } from "./Job";
+import { NECROMANCER, SKELETON, SKELETON_MAGE } from "./Card";
 import { Unit } from "./Unit";
 
 export type Adventure = {

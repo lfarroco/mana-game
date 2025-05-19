@@ -1,6 +1,6 @@
 import { playerForce } from "../../../Models/Force";
 import { eqVec2, vec2 } from "../../../Models/Geometry";
-import { jobs } from "../../../Models/Job";
+import { cards } from "../../../Models/Card";
 import { getState } from "../../../Models/State";
 import { makeUnit } from "../../../Models/Unit";
 import { addTooltip, createCard } from "../../../Systems/Chara/Chara";
@@ -53,7 +53,7 @@ export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container
 
 		parent.removeAll(true);
 
-		jobs.slice(page * 15, (page + 1) * 15)
+		cards.slice(page * 15, (page + 1) * 15)
 			.forEach((job, index) => {
 
 				const chara = createCard({
@@ -129,11 +129,11 @@ export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container
 			.setOrigin(0)
 			.setDisplaySize(100, 100)
 			.setInteractive()
-			.setAlpha(page < Math.ceil(jobs.length / 15) - 1 ? 1 : 0.5)
+			.setAlpha(page < Math.ceil(cards.length / 15) - 1 ? 1 : 0.5)
 			.on("pointerup", () => {
-				if (page >= Math.ceil(jobs.length / 15) - 1) return;
+				if (page >= Math.ceil(cards.length / 15) - 1) return;
 				page++;
-				if (page >= Math.ceil(jobs.length / 15)) {
+				if (page >= Math.ceil(cards.length / 15)) {
 					page = 0;
 				}
 				update();
@@ -148,7 +148,7 @@ export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container
 
 				page--;
 				if (page < 0) {
-					page = Math.ceil(jobs.length / 15) - 1;
+					page = Math.ceil(cards.length / 15) - 1;
 				}
 				update();
 			});

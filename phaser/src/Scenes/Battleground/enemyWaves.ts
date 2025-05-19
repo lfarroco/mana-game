@@ -1,10 +1,10 @@
 import { FORCE_ID_CPU } from "./constants";
 import { vec2 } from "../../Models/Geometry";
-import { BLOB, BLOB_MAGE, JobId, RED_BLOB, SKELETON } from "../../Models/Job";
+import { BLOB, BLOB_MAGE, CardId, RED_BLOB, SKELETON } from "../../Models/Card";
 import { makeUnit, Unit } from "../../Models/Unit";
 import { pickOne } from "../../utils";
 
-const enemy = (job: JobId, x: number, y: number) => makeUnit(
+const enemy = (job: CardId, x: number, y: number) => makeUnit(
 	FORCE_ID_CPU,
 	job,
 	vec2(x + 1, y + 1))
@@ -12,7 +12,7 @@ const enemy = (job: JobId, x: number, y: number) => makeUnit(
 const FRONTLINE = 3;
 const MIDDLE = 2;
 
-const col = (job: JobId, size: number, x: number) =>
+const col = (job: CardId, size: number, x: number) =>
 	new Array(size)
 		.fill(0)
 		.map((_, i) => enemy(job, x, i));
@@ -29,7 +29,7 @@ export const waves: { [idx: number]: Unit[] } = {
 	]
 };
 
-export const parseEncounter = (lines: string[], charToJob: Record<string, JobId>): Unit[] => {
+export const parseEncounter = (lines: string[], charToJob: Record<string, CardId>): Unit[] => {
 	const height = lines.length;
 	const width = lines[0].length;
 	const units: Unit[] = [];
