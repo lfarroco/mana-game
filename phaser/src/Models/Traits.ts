@@ -15,6 +15,8 @@ import { getColumnNeighbors } from "./Board";
 import { slash } from "../Systems/Chara/Skills/slash";
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
 import { shoot } from "../Systems/Chara/Skills/shoot";
+import { healing } from "../Systems/Chara/Skills/healing";
+import { healingWave } from "../Systems/Chara/Skills/healingWave";
 
 let state: State;
 let scene: BattlegroundScene;
@@ -277,6 +279,29 @@ export const MELEE = makeTrait({
 	events: {
 		onAction: [unit => async () => {
 			slash(scene, unit)
+		}]
+	}
+});
+
+export const HEAL = makeTrait({
+	id: "heal" as TraitId,
+	name: "Heal",
+	description: "This can heal an ally",
+	categories: [],
+	events: {
+		onAction: [unit => async () => {
+			healing(scene)(unit)
+		}]
+	}
+});
+export const HEALING_WAVE = makeTrait({
+	id: "healing_wave" as TraitId,
+	name: "Healing",
+	description: "Heals 3 allies",
+	categories: [],
+	events: {
+		onAction: [unit => async () => {
+			healingWave(scene, unit)
 		}]
 	}
 });
@@ -587,6 +612,8 @@ export const traits: { [id: TraitId]: Trait } = {
 	[UNDEAD_STRENGTH.id]: UNDEAD_STRENGTH,
 	[MELEE.id]: MELEE,
 	[RANGED.id]: RANGED,
+	[HEAL.id]: HEAL,
+	[HEALING_WAVE.id]: HEALING_WAVE,
 };
 
 export const randomCategoryTrait = (category: TraitCategory): Trait => {
