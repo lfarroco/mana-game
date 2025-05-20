@@ -349,6 +349,20 @@ export const BERSERK = makeTrait({
 	}
 });
 
+export const INITIATIVE = makeTrait({
+	id: "initiative" as TraitId,
+	name: "Initiative",
+	description: "Hastes for 3s when combat starts",
+	categories: [TRAIT_CATEGORY_OFFENSIVE],
+	events: {
+		onBattleStart: [(unit) => async () => {
+			// TODO: create haste fn to apply value and display effect
+			popText({ text: "Initiative", targetId: unit.id, speed: 2 });
+			unit.hasted = 3000;
+		}]
+	}
+})
+
 export const SPLASH = makeTrait({
 	id: "splash" as TraitId,
 	name: "Splash",
@@ -617,6 +631,7 @@ export const getTrait = () => (id: TraitId): Trait => {
 
 // Future traits: check docs/traits/md
 
+// TODO: remove this, use module import
 export const traits: { [id: TraitId]: Trait } = {
 	[LONE_WOLF.id]: LONE_WOLF,
 	[VANGUARD.id]: VANGUARD,
@@ -647,6 +662,7 @@ export const traits: { [id: TraitId]: Trait } = {
 	[HEALING_WAVE.id]: HEALING_WAVE,
 	[ARCANE_MISSILES.id]: ARCANE_MISSILES,
 	[SONG.id]: SONG,
+	[INITIATIVE.id]: INITIATIVE,
 };
 
 export const randomCategoryTrait = (category: TraitCategory): Trait => {
