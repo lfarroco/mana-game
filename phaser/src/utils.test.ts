@@ -18,8 +18,8 @@ describe('utils.ts', () => {
 		it('picks n random elements from array', () => {
 			const arr = [1, 2, 3, 4, 5];
 			const picked = pickRandom(arr, 3);
-			expect(picked.length).toBe(3);
-			picked.forEach(v => expect(arr.includes(v)).toBe(true));
+			expect(picked).toHaveLength(3);
+			picked.forEach(v => expect(arr).toContain(v));
 		});
 	});
 
@@ -27,7 +27,7 @@ describe('utils.ts', () => {
 		it('picks one element from array', () => {
 			const arr = ['a', 'b', 'c'];
 			const picked = pickOne(arr);
-			expect(arr.includes(picked)).toBe(true);
+			expect(arr).toContain(picked);
 		});
 	});
 
@@ -43,8 +43,8 @@ describe('utils.ts', () => {
 	describe('follows', () => {
 		it('makes object a follow b on update and stops on destroy', () => {
 			const events: Record<string, Function[]> = {};
-			const a = { x: 0, y: 0, scene: { on: (e: string, fn: () => void) => { (events[e] ||= []).push(fn); }, off: (e: string, fn: () => void) => { events[e] = (events[e] || []).filter(f => f !== fn); } } };
-			const b = { x: 5, y: 7, on: (e: string, fn: () => void) => { if (e === 'destroy') b._destroy = fn; } } as any;
+			const a = { x: 0, y: 0, scene: { on: jest.fn((e: string, fn: () => void) => { (events[e] ||= []).push(fn); }), off: jest.fn((e: string, fn: () => void) => { events[e] = (events[e] || []).filter(f => f !== fn); }) } };
+			const b = { x: 5, y: 7, on: jest.fn((e: string, fn: () => void) => { if (e === 'destroy') b._destroy = fn; }) } as any;
 			follows(a, b);
 			events['update'].forEach(fn => fn());
 			expect(a.x).toBe(5);
