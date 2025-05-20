@@ -6,6 +6,8 @@ import { getChara } from "../Scenes/Battleground/Systems/UnitManager";
 import { getEmptySlot } from "./Board";
 import { UNIT_EVENT_NO_OP, UnitEvent } from "./UnitEvents";
 
+// TODO: make this not import things from phaser
+
 // get ?speed=x parameter from url
 let speed = 1;
 
