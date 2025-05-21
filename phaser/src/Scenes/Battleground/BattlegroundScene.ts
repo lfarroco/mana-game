@@ -158,6 +158,7 @@ export class BattlegroundScene extends Phaser.Scene {
         state.battleData.units = [...state.battleData.units, ...state.gameData.player.units];
 
         UnitManager.clearCharas();
+
         state.battleData.units.forEach(unit => {
           UnitManager.summonChara(unit, false, false);
         });
