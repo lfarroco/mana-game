@@ -191,12 +191,12 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
 				})
 			);
 
-			charas.forEach(async (chara, i) => {
-				await delay(scene, 100 + (150 * i));
+			charas.forEach(async (chara, index) => {
+				await delay(scene, 100 + (150 * index));
 
 				await tween({
 					targets: [chara.container],
-					x: 180 + 250 * i,
+					x: 180 + 250 * index,
 				})
 
 				UnitManager.addCharaToState(chara);
@@ -230,7 +230,7 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
 							continue;
 						};
 
-						await tween({
+						tween({
 							targets: [c.container],
 							x: -100,
 						})
@@ -240,7 +240,6 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
 					}
 
 					resolve();
-
 
 				});
 
