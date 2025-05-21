@@ -6,15 +6,17 @@ import * as Tooltip from "../../Systems/Tooltip";
 import { pickRandom } from "../../utils";
 import { delay, tween } from "../../Utils/animation";
 import { playerForce } from "../Force";
-import { vec2 } from "../Geometry";
+import { eqVec2, Vec2, vec2 } from "../Geometry";
 import { Item } from "../Item";
 import { CardId, starterCards } from "../Card";
 import { getState, State } from "../State";
-import { getEmptySlot } from "../Board";
+import { getEmptySlot, overlapsWithPlayerBoard } from "../Board";
 import { makeUnit } from "../Unit";
 import commonEvents from "./common";
 import monsterEvents from "./monster";
 import * as Flyout from "../../Systems/Flyout";
+import { getTileAt } from "../../Scenes/Battleground/Systems/GridSystem";
+import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 
 let scene: Phaser.Scene;
 export let state: State;
@@ -197,7 +199,7 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
 				await tween({
 					targets: [chara.container],
 					x: 180 + 250 * index,
-				})
+				});
 
 				UnitManager.addCharaToState(chara);
 
@@ -205,9 +207,9 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
 
 				Chara.addTooltip(chara);
 
-				chara.zone.once('pointerup', async () => {
+				const pick = async () => {
 
-					picks++;
+					console.log("pick")
 
 					Tooltip.hide();
 
@@ -215,7 +217,14 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
 
 					if (!emptySlot) throw new Error("No empty slot found");
 
-					chara.unit.position = emptySlot
+					addCardToBoard(emptySlot);
+				}
+
+				const addCardToBoard = async (slot: Vec2) => {
+
+					picks++;
+
+					chara.unit.position = slot;
 					state.gameData.player.units.push(chara.unit);
 
 					for (const c of charas) {
@@ -240,8 +249,86 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
 					}
 
 					resolve();
+				}
 
-				});
+				const handleDrop = async (
+					pointer: Phaser.Input.Pointer,
+				) => {
+
+					// The board will change: remove position bonuses for all units
+					state.gameData.player.units.forEach((unit) => {
+						unit.events.onLeavePosition.forEach(fn => fn(unit)());
+					});
+
+					const tile = getTileAt(pointer)!;
+
+					const slot = vec2(tile.x, tile.y)!
+
+					const maybeOccupier = state.gameData.player.units.find(u => eqVec2(u.position, slot));
+
+					if (maybeOccupier) {
+						const occupierChara = UnitManager.getChara(maybeOccupier.id);
+
+						occupierChara.unit.position = { ...chara.unit.position };
+
+						tween({
+							targets: [occupierChara.container],
+							x: occupierChara.unit.position.x * TILE_WIDTH + HALF_TILE_WIDTH,
+							y: occupierChara.unit.position.y * TILE_HEIGHT + HALF_TILE_HEIGHT,
+						})
+					}
+
+					await addCardToBoard(slot);
+
+					// The board has changed: calculate position bonuses for all units
+					state.gameData.player.units.forEach((unit) => {
+						unit.events.onEnterPosition.forEach(fn => fn(unit)());
+					});
+
+				}
+
+				const dragHandler = (pointer: Phaser.Input.Pointer) => {
+					console.log("drag handler")
+
+					chara.container.x = pointer.x;
+					chara.container.y = pointer.y;
+					Tooltip.hide();
+				}
+
+				const dropHandler = (pointer: Pointer) => {
+
+					console.log("drop handler")
+
+					const wasDrag = pointer.getDistance() > 10;
+
+					const inBoard = overlapsWithPlayerBoard(pointer);
+
+					if (!inBoard && !wasDrag) {
+						pick();
+
+						chara.zone.off('drag', dragHandler);
+						chara.zone.off('pointerup', dropHandler);
+						return
+					}
+					if (inBoard && wasDrag) {
+						handleDrop(pointer);
+
+						chara.zone.off('drag', dragHandler);
+						chara.zone.off('pointerup', dropHandler);
+						return;
+					}
+
+					// go back to original position
+					tween({
+						targets: [chara.container],
+						x: 180 + 250 * index,
+						y: 500,
+					});
+
+				}
+
+				chara.zone.on('drag', dragHandler);
+				chara.zone.on('pointerup', dropHandler);
 
 			});
 

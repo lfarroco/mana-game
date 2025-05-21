@@ -1,4 +1,4 @@
-import { FORCE_ID_PLAYER } from "../Scenes/Battleground/constants";
+import { FORCE_ID_PLAYER, TILE_HEIGHT, TILE_WIDTH } from "../Scenes/Battleground/constants";
 import { pickOne, pickRandom } from "../utils";
 import { vec2, sortBySnakeDistance, snakeDistanceBetween } from "./Geometry";
 import { State, getActiveUnits, getUnitAt } from "./State";
@@ -16,6 +16,9 @@ export const cells = pipe(
 	)
 );
 
+const START_X = 1;
+const START_Y = 1;
+
 export function getEmptySlot(units: Unit[], forceId: string) {
 
 	if (units.filter(u => u.force === forceId).length >= 9) {
@@ -23,10 +26,10 @@ export function getEmptySlot(units: Unit[], forceId: string) {
 		return null;
 	}
 
-	let startX = 1;
-	let endX = 4;
-	const startY = 1;
-	const endY = 4;
+	let startX = START_X;
+	let endX = START_X + 3;
+	const startY = START_Y;
+	const endY = START_Y + 3;
 
 	console.log("force :: ", FORCE_ID_PLAYER)
 
@@ -146,3 +149,12 @@ export function getNeighbors(state: State, unit: Unit) {
 		;
 }
 
+// receives a screen position and returns if it overlaps with the player board
+export function overlapsWithPlayerBoard({ x, y }: { x: number, y: number }) {
+	return (
+		x >= (1 + 3) * TILE_WIDTH &&
+		x <= (1 + 3 + 3) * TILE_WIDTH &&
+		y >= 1 * TILE_HEIGHT &&
+		y <= (1 + 3) * TILE_HEIGHT
+	)
+}

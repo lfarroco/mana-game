@@ -211,7 +211,6 @@ export const addBoardEvents = (chara: Chara) => {
 
 	chara.zone.on('dragend', (pointer: Phaser.Input.Pointer) => {
 
-
 		if (UIManager.isPointerInDropZone(pointer)) return
 
 		// check if the drag ended inside or outside scene.dropZone
