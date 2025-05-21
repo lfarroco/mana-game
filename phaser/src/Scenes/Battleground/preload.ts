@@ -9,8 +9,12 @@ export function preload(this: Phaser.Scene) {
 		this.load.image(`${city}_map`, `assets/cities/${city}_map.png`);
 
 	});
+
+	this.load.image("ui/victory", "assets/ui/victory.png");
+	this.load.image("ui/defeat", "assets/ui/defeat.png");
 	this.load.image("ui/button", "assets/ui/button.png");
 	this.load.image("light", "assets/fx/light.png");
+	this.load.image("fx/reveal-mask", "assets/fx/reveal-mask.png");
 	this.load.image("beam", "assets/fx/beam.png");
 	this.load.image("white-dot", "assets/fx/white-dot.png");
 	this.load.image("light-pillar", "assets/fx/light-pillar.png");
