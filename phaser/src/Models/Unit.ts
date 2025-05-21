@@ -16,7 +16,7 @@ export type Unit = {
   maxHp: number;
 
   attackPower: number;
-  attackType: "melee" | "ranged" | "magic";
+  attackType: "melee" | "ranged" | "none";
 
   defense: number;
   magicDefense: number;
@@ -64,7 +64,7 @@ export const makeUnit = (force: string, jobId: CardId, position = vec2Zero()): U
     crit: 0,
     evade: 0,
     attackType: keywords.some(k => k === RANGED) ? "ranged" :
-      keywords.some(t => t === MELEE) ? "melee" : "magic",
+      keywords.some(t => t === MELEE) ? "melee" : "none",
     attackPower: card.attack,
     defense: 0,
     magicDefense: 0,
