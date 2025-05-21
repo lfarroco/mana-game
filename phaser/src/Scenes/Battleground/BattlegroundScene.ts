@@ -22,6 +22,8 @@ import runCombatIO from "./RunCombatIO";
 import { range } from "fp-ts/lib/ReadonlyNonEmptyArray";
 import { pickOne } from "../../utils";
 import { getEmptySlot } from "../../Models/Board";
+import { battleResultAnimation } from "./battleResultAnimation";
+import { delay } from "../../Utils/animation";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -173,6 +175,14 @@ export class BattlegroundScene extends Phaser.Scene {
         });
 
         const result = await runCombatIO(this);
+
+        await delay(this, 1000)
+
+        if (result === "player_won") {
+          await battleResultAnimation(this, "victory");
+        } else {
+          await battleResultAnimation(this, "defeat");
+        }
 
         console.log("Combat result", result);
 
