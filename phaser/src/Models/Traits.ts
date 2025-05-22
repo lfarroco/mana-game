@@ -262,6 +262,14 @@ export const SNIPER = makeTrait({
 	}
 });
 
+export const SUPPORT = makeTrait({
+	id: "support" as TraitId,
+	name: "Support",
+	description: "This unit helps other units",
+	categories: [],
+	events: {}
+});
+
 export const RANGED = makeTrait({
 	id: "ranged" as TraitId,
 	name: "Ranged",
@@ -663,6 +671,7 @@ export const traits: { [id: TraitId]: Trait } = {
 	[ARCANE_MISSILES.id]: ARCANE_MISSILES,
 	[SONG.id]: SONG,
 	[INITIATIVE.id]: INITIATIVE,
+	[SUPPORT.id]: SUPPORT,
 };
 
 export const randomCategoryTrait = (category: TraitCategory): Trait => {
