@@ -42,8 +42,8 @@ const baseCards = `
 Id                | Name            | HP  | ATK  | CD   | Traits
 ------------------|-----------------|-----|------|----------------------
 ${ARCHER}         | Archer          | 150 | 25   | 2000 | ${t.RANGED.id}, ${t.SNIPER.id}
-${CLERIC}         | Cleric          | 180 | 0    | 3400 | ${t.HEALING_WAVE.id}
-${CLERIC_OF_LIGHT}| Cleric of Light | 180 | 0    | 3400 | ${t.HEAL.id}
+${CLERIC}         | Cleric          | 180 | 0    | 3400 | ${t.HEALING_WAVE.id}, ${t.SUPPORT.id}
+${CLERIC_OF_LIGHT}| Cleric of Light | 180 | 0    | 3400 | ${t.HEAL.id}, ${t.SUPPORT.id}
 ${APPRENTICE}     | Apprentice      | 180 | 20   | 2200 | ${t.RANGED.id}, ${t.ARCANE_MISSILES.id}
 ${KNIGHT}         | Knight          | 220 | 17   | 2700 | ${t.MELEE.id}, ${t.TAUNT.id}, ${t.PROTECTOR.id}
 ${THIEF}          | Thief           | 140 | 10   | 2000 | ${t.MELEE.id}, ${t.STEALTH.id},${t.ASSASSIN.id}
@@ -52,8 +52,8 @@ ${BARBARIAN}      | Barbarian       | 250 | 30   | 1000 | ${t.MELEE.id}, ${t.BER
 ${PIRATE}         | Pirate          | 200 | 20   | 4000 | ${t.MELEE.id}, ${t.SONG.id}
 ${PALADIN}        | Paladin         | 250 | 20   | 1000 | ${t.MELEE.id}, ${t.TAUNT.id}, ${t.PROTECTOR.id}
 ${RANGER}         | Ranger          | 250 | 20   | 1000 | ${t.RANGED.id} 
-${NECROMANCER}    | Necromancer     | 250 | 0    | 4200 | ${t.UNDEAD_STRENGTH.id}, ${t.SUMMON_SKELETON.id}
-${BARD}           | Bard            | 250 | 0    | 3000 | ${t.SONG.id}
+${NECROMANCER}    | Necromancer     | 250 | 0    | 4200 | ${t.UNDEAD_STRENGTH.id}, ${t.SUMMON_SKELETON.id}, ${t.SUPPORT.id}
+${BARD}           | Bard            | 250 | 0    | 3000 | ${t.SONG.id}, ${t.SUPPORT.id}
 ${BLOB}           | Blob            | 210 | 20   | 2000 | ${t.MELEE.id}, ${t.SPLIT_BLOB.id}
 ${BLOB_MAGE}      | Blob Mage       | 90  | 15   | 2000 | ${t.RANGED.id}, ${t.SPLIT_BLOB.id}, ${t.ARCANE_MISSILES.id}
 ${TINY_BLOB}      | Tiny Blob       | 20  | 10   | 2000 | ${t.MELEE.id}
