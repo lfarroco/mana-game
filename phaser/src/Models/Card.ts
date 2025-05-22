@@ -53,7 +53,7 @@ ${PIRATE}         | Pirate          | 200 | 20   | 4000 | ${t.MELEE.id}, ${t.SON
 ${PALADIN}        | Paladin         | 250 | 20   | 1000 | ${t.MELEE.id}, ${t.TAUNT.id}, ${t.PROTECTOR.id}
 ${RANGER}         | Ranger          | 250 | 20   | 1000 | ${t.RANGED.id} 
 ${NECROMANCER}    | Necromancer     | 250 | 0    | 4200 | ${t.UNDEAD_STRENGTH.id}, ${t.SUMMON_SKELETON.id}
-${BARD}           | Bard            | 250 | 20   | 1000 | ${t.RANGED.id}, ${t.SONG.id}
+${BARD}           | Bard            | 250 | 0    | 3000 | ${t.SONG.id}
 ${BLOB}           | Blob            | 210 | 20   | 2000 | ${t.MELEE.id}, ${t.SPLIT_BLOB.id}
 ${BLOB_MAGE}      | Blob Mage       | 90  | 15   | 2000 | ${t.RANGED.id}, ${t.SPLIT_BLOB.id}, ${t.ARCANE_MISSILES.id}
 ${TINY_BLOB}      | Tiny Blob       | 20  | 10   | 2000 | ${t.MELEE.id}
