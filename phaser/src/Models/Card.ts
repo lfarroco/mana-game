@@ -49,11 +49,11 @@ ${KNIGHT}         | Knight          | 220 | 17   | 2700 | ${t.MELEE.id}, ${t.TAU
 ${THIEF}          | Thief           | 140 | 10   | 2000 | ${t.MELEE.id}, ${t.STEALTH.id},${t.ASSASSIN.id}
 ${DRUID}          | Druid           | 200 | 15   | 1000 | ${t.RANGED.id}
 ${BARBARIAN}      | Barbarian       | 250 | 30   | 1000 | ${t.MELEE.id}, ${t.BERSERK.id}, ${t.INITIATIVE.id}
-${PIRATE}         | Pirate          | 200 | 20   | 4000 | ${t.MELEE.id}, ${t.SONG.id}
+${PIRATE}         | Pirate          | 200 | 20   | 4000 | ${t.MELEE.id}, ${t.HASTE.id}
 ${PALADIN}        | Paladin         | 250 | 20   | 1000 | ${t.MELEE.id}, ${t.TAUNT.id}, ${t.PROTECTOR.id}
 ${RANGER}         | Ranger          | 250 | 20   | 1000 | ${t.RANGED.id} 
 ${NECROMANCER}    | Necromancer     | 250 | 0    | 4200 | ${t.UNDEAD_STRENGTH.id}, ${t.SUMMON_SKELETON.id}, ${t.SUPPORT.id}
-${BARD}           | Bard            | 250 | 0    | 3000 | ${t.SONG.id}, ${t.SUPPORT.id}
+${BARD}           | Bard            | 250 | 0    | 3000 | ${t.HASTE.id}, ${t.SUPPORT.id}
 ${BLOB}           | Blob            | 210 | 20   | 2000 | ${t.MELEE.id}, ${t.SPLIT_BLOB.id}
 ${BLOB_MAGE}      | Blob Mage       | 90  | 15   | 2000 | ${t.RANGED.id}, ${t.SPLIT_BLOB.id}, ${t.ARCANE_MISSILES.id}
 ${TINY_BLOB}      | Tiny Blob       | 20  | 10   | 2000 | ${t.MELEE.id}

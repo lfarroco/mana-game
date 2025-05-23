@@ -38,7 +38,7 @@ export const LIGHT_ORB = "light-orb" as SkillId;
 export const ARCANE_MISSILES = "arcane-missiles" as SkillId;
 export const EXPLODE = "explode" as SkillId;
 export const SHADOWSTEP = "shadowstep" as SkillId;
-export const SONG = "song" as SkillId;
+export const HASTE = "haste" as SkillId;
 export const FROST_BOLT = 'frost_bolt' as SkillId;
 export const SUMMON_SKELETON = 'summon_skeleton' as SkillId;
 
@@ -58,7 +58,7 @@ ${LIGHT_ORB}           | Light Orb           | 5     | 10    | Deals 10 damage t
 ${ARCANE_MISSILES}     | Arcane Missiles     | 5     | 10    | Deals 10 damage to 3 random enemy targets
 ${EXPLODE}             | Explode             | 1     | 100   | Deals 100 damage around the caster
 ${SHADOWSTEP}          | Shadowstep          | 5     | 0     | If no enemy is nearby, teleports to the furthest enemy
-${SONG}                | Song                | 5     | 0     | Surrounding allies are hasted for 2.0s
+${HASTE}               | Haste               | 5     | 0     | Surrounding allies are hasted for 2.0s
 ${FROST_BOLT}          | Frost Bolt          | 5     | 0     | Damages enemy by 10 and slows for 2s
 `.trim()
 	.split("\n")

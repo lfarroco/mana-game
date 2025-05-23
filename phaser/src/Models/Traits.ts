@@ -18,7 +18,7 @@ import { shoot } from "../Systems/Chara/Skills/shoot";
 import { healing } from "../Systems/Chara/Skills/healing";
 import { healingWave } from "../Systems/Chara/Skills/healingWave";
 import { arcaneMissiles } from "../Systems/Chara/Skills/arcaneMissiles";
-import { song } from "../Systems/Chara/Skills/song";
+import { haste } from "../Systems/Chara/Skills/haste";
 import { summon } from "../Systems/Chara/Skills/summon";
 
 let state: State;
@@ -329,14 +329,14 @@ export const ARCANE_MISSILES = makeTrait({
 	}
 });
 
-export const SONG = makeTrait({
-	id: "song" as TraitId,
-	name: "Song",
+export const HASTE = makeTrait({
+	id: "haste" as TraitId,
+	name: "Haste",
 	description: "Hastes surrounding allies",
 	categories: [],
 	events: {
 		onAction: [unit => async () => {
-			song(scene, unit); // TODO: create standard interface for skills (scene)(unit)
+			haste(scene, unit); // TODO: create standard interface for skills (scene)(unit)
 		}]
 	}
 });
@@ -669,7 +669,7 @@ export const traits: { [id: TraitId]: Trait } = {
 	[HEAL.id]: HEAL,
 	[HEALING_WAVE.id]: HEALING_WAVE,
 	[ARCANE_MISSILES.id]: ARCANE_MISSILES,
-	[SONG.id]: SONG,
+	[HASTE.id]: HASTE,
 	[INITIATIVE.id]: INITIATIVE,
 	[SUPPORT.id]: SUPPORT,
 };
