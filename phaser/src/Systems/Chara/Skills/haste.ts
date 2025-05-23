@@ -5,14 +5,14 @@ import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
 import { delay } from "../../../Utils/animation";
 import { popText } from "../Animations/popText";
 
-export async function song(
+export async function haste(
 	scene: BattlegroundScene,
 	unit: Unit,
 ) {
 	const activeChara = UnitManager.getChara(unit.id);
 
 	popText({
-		text: "Song",
+		text: "Haste",
 		targetId: unit.id,
 		type: "heal",
 	})
