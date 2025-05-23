@@ -82,7 +82,7 @@ export const starterEvent: Encounter = {
 	pic: "icon/quest",
 	triggers: {
 		type: "pick-unit",
-		totalPicks: 3,
+		totalPicks: 2,
 		choices: () => {
 			const playerJobs = playerForce.units.map(u => u.job);
 			const remaning = starterCards.filter(j => !playerJobs.includes(j.id));

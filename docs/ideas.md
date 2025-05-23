@@ -151,3 +151,29 @@ skill ideas:
 - fire wall (does damage to all units in a column)
 - fireball (does damage to all enemy units in a row)
 - time stop (stops time for 2s)
+
+selling: tavern icon
+when the player starts dragging, highlight icon and display ("sell")
+
+meta-progression:
+- gain cosmetic items to place in the side of the board
+
+Display victory stars  
+Hearts for lives
+
+
+Guildmaster:
+- is the leader of the guild, the "player"
+- adds some bonuses to the heroes
+
+
+start: 2 heroes + 1 item
+
+waves can give multiple rewards:
+- hero
+- item
+- gold
+
+losing a battle makes the player lose prestige
+prestige can be reacquired by winning battles
+prestige can be used to buy stuff or reroll
