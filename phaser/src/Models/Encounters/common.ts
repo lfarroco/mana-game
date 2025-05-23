@@ -1,7 +1,7 @@
 import { playerForce } from "../Force";
 import { ITEMS } from "../Item";
 import { getCard } from "../Card";
-import { Encounter, makeEncounter, TIER } from "./Encounter";
+import { Encounter, makeEncounter } from "./Encounter";
 import { pickRandom } from "../../utils";
 import { newChoice } from "../../Scenes/Battleground/Systems/Choice";
 
@@ -13,7 +13,6 @@ const commonEvents = (): Encounter[] => [
 
 export const tavern = (): Encounter => ({
 	id: "2",
-	tier: TIER.COMMON,
 	title: "Tavern",
 	description: "Recruit new members for your guild",
 	pic: "icon/tavern",
@@ -34,7 +33,7 @@ export const tavern = (): Encounter => ({
 	}
 });
 
-export const equipmentVendor = () => makeEncounter("equipment_vendor", TIER.COMMON, "Equipment Vendor", "You have found an equipment vendor", "icon/equipment_vendor", {
+export const equipmentVendor = () => makeEncounter("equipment_vendor", "Equipment Vendor", "You have found an equipment vendor", "icon/equipment_vendor", {
 	type: "item-shop",
 	choices: () => [
 		ITEMS.IRON_SWORD_COMMON(),
@@ -51,7 +50,7 @@ export const equipmentVendor = () => makeEncounter("equipment_vendor", TIER.COMM
 
 export default commonEvents;
 function potionVendor(): Encounter {
-	return makeEncounter("potion_vendor", TIER.COMMON, "Potion Vendor", "You have found a potion vendor", "icon/potion_vendor", {
+	return makeEncounter("potion_vendor", "Potion Vendor", "You have found a potion vendor", "icon/potion_vendor", {
 		type: "item-shop",
 		choices: () => [
 			ITEMS.RED_POTION_COMMON(),

@@ -27,19 +27,11 @@ export const init = (s: Phaser.Scene) => {
 	state = getState();
 }
 
-type Tier = "COMMON" | "UNCOMMON" | "RARE" | "EPIC" | "LEGENDARY";
 
-export const TIER: Record<Tier, Tier> = {
-	COMMON: "COMMON",
-	UNCOMMON: "UNCOMMON",
-	RARE: "RARE",
-	EPIC: "EPIC",
-	LEGENDARY: "LEGENDARY"
-}
+
 
 export type Encounter = {
 	id: string;
-	tier: Tier,
 	title: string;
 	description: string;
 	/* a prompt used to generate the event's icon */
@@ -61,14 +53,12 @@ export type Encounter = {
 
 export const makeEncounter = (
 	id: string,
-	tier: Tier,
 	title: string,
 	description: string,
 	pic: string,
 	triggers: Encounter["triggers"]
 ) => ({
 	id,
-	tier,
 	title,
 	description,
 	pic,
@@ -77,7 +67,6 @@ export const makeEncounter = (
 
 export const starterEvent: Encounter = {
 	id: "1",
-	tier: TIER.COMMON,
 	title: "Start your guild",
 	description: "Recruit the founding members of your guild",
 	pic: "icon/quest",
@@ -100,7 +89,6 @@ export const starterEvent: Encounter = {
 
 export const pickAHero: Encounter = {
 	id: "2",
-	tier: TIER.COMMON,
 	title: "Pick a hero",
 	description: "Choose a hero to join your guild",
 	pic: "icon/quest",
