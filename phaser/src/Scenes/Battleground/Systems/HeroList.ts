@@ -1,8 +1,6 @@
-import { playerForce } from "../../../Models/Force";
 import { eqVec2, vec2 } from "../../../Models/Geometry";
 import { cards } from "../../../Models/Card";
 import { getState } from "../../../Models/State";
-import { makeUnit } from "../../../Models/Unit";
 import { addTooltip, createCard } from "../../../Systems/Chara/Chara";
 import * as Flyout_ from "../../../Systems/Flyout";
 import * as Tooltip from "../../../Systems/Tooltip";
@@ -45,6 +43,8 @@ export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container
 
 	parent.removeAll(true);
 
+	const state = getState();
+
 	//const state = getState();
 
 	let page = 0;
@@ -53,12 +53,10 @@ export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container
 
 		parent.removeAll(true);
 
-		cards.slice(page * 15, (page + 1) * 15)
-			.forEach((job, index) => {
+		state.gameData.player.bench.slice(page * 15, (page + 1) * 15)
+			.forEach((unit, index) => {
 
-				const chara = createCard({
-					...makeUnit(playerForce.id, job.id)
-				});
+				const chara = createCard(unit);
 
 				const x = 160 + (index % 3) * constants.TILE_WIDTH + ((index % 3) * 20);
 				const y = 220 + Math.floor(index / 5) * constants.TILE_HEIGHT + ((Math.floor(index / 5) * 20));
