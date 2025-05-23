@@ -48,7 +48,7 @@ ${APPRENTICE}     | Apprentice      | 180 | 20   | 2200 | ${t.RANGED.id}, ${t.AR
 ${KNIGHT}         | Knight          | 320 | 7    | 2700 | ${t.MELEE.id}, ${t.TAUNT.id}, ${t.PROTECTOR.id}
 ${THIEF}          | Thief           | 220 | 20   | 2000 | ${t.MELEE.id}, ${t.STEALTH.id},${t.ASSASSIN.id}
 ${DRUID}          | Druid           | 200 | 15   | 1000 | ${t.RANGED.id}
-${BARBARIAN}      | Barbarian       | 250 | 25   | 1000 | ${t.MELEE.id}, ${t.BERSERK.id}, ${t.INITIATIVE.id}
+${BARBARIAN}      | Barbarian       | 180 | 20   | 1000 | ${t.MELEE.id}, ${t.BERSERK.id}, ${t.INITIATIVE.id}
 ${PIRATE}         | Pirate          | 200 | 10   | 4000 | ${t.MELEE.id}, ${t.HASTE.id}
 ${PALADIN}        | Paladin         | 350 | 5    | 1000 | ${t.MELEE.id}, ${t.TAUNT.id}, ${t.PROTECTOR.id}
 ${RANGER}         | Ranger          | 250 | 20   | 1000 | ${t.RANGED.id} 
