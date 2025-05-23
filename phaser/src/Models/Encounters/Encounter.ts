@@ -17,6 +17,7 @@ import monsterEvents from "./monster";
 import * as Flyout from "../../Systems/Flyout";
 import { getTileAt } from "../../Scenes/Battleground/Systems/GridSystem";
 import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
+import * as Chest from "../../Scenes/Battleground/Systems/Chest";
 
 let scene: Phaser.Scene;
 export let state: State;
@@ -209,9 +210,45 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
 
 				const pick = async () => {
 
-					console.log("pick")
-
 					Tooltip.hide();
+
+					if (state.gameData.player.units.length >= 5) {
+
+						state.gameData.player.bench.push(chara.unit);
+						picks++;
+
+						for (const c of charas) {
+
+							if (chara.id === c.id) {
+								const vec = vec2(
+									...Chest.position
+								);
+								tween({
+									targets: [c.container],
+									x: vec.x,
+									y: vec.y,
+									scale: 0,
+									duration: 1000,
+									onComplete: () => {
+										UnitManager.destroyChara(c.id);
+									}
+								});
+								continue;
+							};
+
+							tween({
+								targets: [c.container],
+								x: -100,
+							})
+
+							UnitManager.destroyChara(c.id);
+
+						}
+
+
+						resolve();
+						return;
+					}
 
 					const emptySlot = getEmptySlot(playerForce.units, playerForce.id);
 
