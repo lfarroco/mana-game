@@ -41,6 +41,7 @@ export type Encounter = {
 	} | {
 		type: "pick-unit";
 		totalPicks: number;
+		allowSkipping: boolean;
 		choices: () => Choice[];
 	} | {
 		type: "item-shop",
@@ -71,6 +72,7 @@ export const starterEvent: Encounter = {
 	triggers: {
 		type: "pick-unit",
 		totalPicks: 2,
+		allowSkipping: false,
 		choices: () => {
 			const playerJobs = playerForce.units.map(u => u.job);
 			const remaning = starterCards.filter(j => !playerJobs.includes(j.id));
@@ -93,6 +95,7 @@ export const pickAHero: Encounter = {
 	triggers: {
 		type: "pick-unit",
 		totalPicks: 1,
+		allowSkipping: true,
 		choices: () => {
 
 			const filtered =
@@ -128,7 +131,7 @@ export const evalEvent = async (event: Encounter) => {
 			await event.triggers.action(scene, state);
 			break;
 		case "pick-unit":
-			await pickUnit(event.triggers.choices, event.triggers.totalPicks);
+			await pickUnit(event.triggers.choices, event.triggers.totalPicks, event.triggers.allowSkipping);
 			break;
 		case "item-shop":
 			await itemShop(
@@ -159,7 +162,7 @@ const displayEvents = async (eventArray: Encounter[], _day: number) => {
 export const displayRandomEvents = (day: number) => displayEvents(randomEvents, day);
 export const displayMonsterEvents = (day: number) => displayEvents(monsterEvents(), day);
 
-const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
+const pickUnit = async (genChoices: () => Choice[], totalPicks: number, allowSkipping: boolean) => {
 
 	const flyout = await Flyout.create(
 		scene,
@@ -169,6 +172,8 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
 	flyout.slideIn();
 
 	let picks = 0;
+	let rerollButton: Container;
+	let skipButton: Container;
 
 	while (totalPicks > picks) {
 		await new Promise<void>(async (resolve) => {
@@ -253,6 +258,9 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
 				}
 
 				const addCardToBoard = async (slot: Vec2) => {
+
+					// Remove chara otherwise it will be slided out with the flyout as well
+					flyout.remove(chara.container);
 
 					picks++;
 
@@ -360,19 +368,22 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
 
 			});
 
+			if (!rerollButton) {
+				rerollButton = createButton("Reroll", 400, 700, () => {
+					charas.forEach(slideOutCard);
+					resolve();
+				});
+				flyout.add(rerollButton);
+			}
 
-			const rerollButton = createButton("Reroll", 400, 700, () => {
-				charas.forEach(slideOutCard);
-				resolve();
-			});
-			flyout.add(rerollButton);
-
-			const skipButton = createButton("Skip", 400, 900, () => {
-				charas.forEach(slideOutCard);
-				picks++;
-				resolve();
-			});
-			flyout.add(skipButton);
+			if (allowSkipping && !skipButton) {
+				skipButton = createButton("Skip", 400, 900, () => {
+					charas.forEach(slideOutCard);
+					picks++;
+					resolve();
+				});
+				flyout.add(skipButton);
+			}
 
 		});
 
