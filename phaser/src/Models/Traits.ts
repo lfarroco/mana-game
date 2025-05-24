@@ -20,6 +20,7 @@ import { healingWave } from "../Systems/Chara/Skills/healingWave";
 import { arcaneMissiles } from "../Systems/Chara/Skills/arcaneMissiles";
 import { haste } from "../Systems/Chara/Skills/haste";
 import { summon } from "../Systems/Chara/Skills/summon";
+import { slow } from "../Systems/Chara/Skills/slow";
 
 let state: State;
 let scene: BattlegroundScene;
@@ -337,6 +338,18 @@ export const HASTE = makeTrait({
 	events: {
 		onAction: [unit => async () => {
 			haste(scene, unit); // TODO: create standard interface for skills (scene)(unit)
+		}]
+	}
+});
+
+export const SLOW = makeTrait({
+	id: "slow" as TraitId,
+	name: "Slow",
+	description: "Slows an enemy for 2s",
+	categories: [],
+	events: {
+		onAction: [unit => async () => {
+			slow(scene, unit);
 		}]
 	}
 });
@@ -672,6 +685,7 @@ export const traits: { [id: TraitId]: Trait } = {
 	[HASTE.id]: HASTE,
 	[INITIATIVE.id]: INITIATIVE,
 	[SUPPORT.id]: SUPPORT,
+	[SLOW.id]: SLOW,
 };
 
 export const randomCategoryTrait = (category: TraitCategory): Trait => {
