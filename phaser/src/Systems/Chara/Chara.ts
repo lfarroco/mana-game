@@ -58,9 +58,14 @@ export function createCard(unit: Unit): Chara {
 	const fallbackKey = 'charas/nameless'
 	const textureKey = scene.textures.exists(key) ? key : fallbackKey;
 
+
 	const sprite = scene.add.image(0, 0, textureKey)
 		.setDisplaySize(bgConstants.TILE_WIDTH - borderWidth, bgConstants.TILE_HEIGHT - borderWidth)
 		.setName(unit.id) // used for scene-level drop events
+
+	if (unit.force === bgConstants.FORCE_ID_CPU) {
+		sprite.flipX = true;
+	}
 
 	container.add([border, sprite]);
 
