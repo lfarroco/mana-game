@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { Unit } from "../../Models/Unit";
 import * as bgConstants from "../../Scenes/Battleground/constants";
 import { eqVec2, vec2 } from "../../Models/Geometry";
-import { tween } from "../../Utils/animation";
+import { delay, tween } from "../../Utils/animation";
 import { FORCE_ID_PLAYER } from "../../Scenes/Battleground/constants";
 import { getCard, Card } from "../../Models/Card";
 import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
@@ -279,16 +279,6 @@ export function addTooltip(chara: Chara) {
 	})
 }
 
-export function destroyChara(chara: Chara) {
-	// Remove event listeners
-	chara.zone.removeAllListeners('drag');
-	chara.zone.removeAllListeners('drop');
-	chara.zone.removeAllListeners('dragend');
-
-	// Destroy container and contents
-	chara.container.destroy();
-}
-
 export function init(sceneRef: Phaser.Scene) {
 
 	scene = sceneRef;
@@ -356,13 +346,21 @@ export async function killUnit(chara: Chara) {
 	tween({
 		targets: [chara.container],
 		alpha: 0,
-		yoyo: true,
-		duration: 250,
-		repeat: 4,
+		duration: 1000,
 	});
 
-	//TODO: make grayscale
-	chara.sprite.setAlpha(0.5);
+	tween({
+		targets: [chara.container],
+		x: chara.container.x - 20,
+		duration: 2000,
+		yoyo: true,
+		repeat: 10,
+		ease: "Elastic.Out",
+	});
+
+	await delay(scene, 2000);
+
+	UnitManager.destroyChara(chara.id);
 
 	for (const ev of chara.unit.events.onDeath)
 		ev(chara.unit)()

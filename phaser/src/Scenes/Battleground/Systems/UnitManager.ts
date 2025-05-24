@@ -18,7 +18,7 @@ export const unitManagerState: UnitManagerState = {
 
 export function clearCharas() {
 	unitManagerState.charaIndex.forEach(chara => {
-		chara.container.destroy();
+		destroyChara(chara.id)
 	});
 	unitManagerState.charaIndex = [];
 }
