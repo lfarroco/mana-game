@@ -229,17 +229,19 @@ export const addBoardEvents = (chara: Chara) => {
 
 export function updateChargeBar({ chargeBar, cooldownBar, hpBar, unit }: Chara) {
 
-	if (!state.options.debug) return;
 
 	const maxWidth = bgConstants.TILE_WIDTH - 20;
 
 	chargeBar.clear();
 	const percent = unit.charge / unit.cooldown;
-	chargeBar.fillStyle(0xffff00, 1);
+	chargeBar.fillStyle(0x000, 0.4);
 	chargeBar.fillRect(
-		-bgConstants.HALF_TILE_WIDTH + 10, - bgConstants.HALF_TILE_HEIGHT + 10,
-		Math.min(percent * maxWidth, maxWidth,), 10
+		-bgConstants.HALF_TILE_WIDTH, -bgConstants.HALF_TILE_HEIGHT,
+		bgConstants.TILE_WIDTH,
+		bgConstants.TILE_HEIGHT - Math.min(percent * bgConstants.TILE_HEIGHT, bgConstants.TILE_HEIGHT)
 	);
+
+	if (!state.options.debug) return;
 
 	cooldownBar.clear();
 	const cooldownPercent = unit.refresh / bgConstants.MIN_COOLDOWN;
@@ -351,14 +353,23 @@ export async function killUnit(chara: Chara) {
 		duration: 1000,
 	});
 
-	tween({
-		targets: [chara.container],
-		x: chara.container.x - 20,
-		duration: 2000,
-		yoyo: true,
-		repeat: 10,
-		ease: "Elastic.Out",
-	});
+	const originalX = chara.container.x;
+
+	for (let i = 0; i < 5; i++) {
+		await tween({
+			targets: [chara.container],
+			x: originalX - 20,
+			duration: 100,
+			ease: "Cubic.Out",
+		});
+
+		await tween({
+			targets: [chara.container],
+			x: originalX + 20,
+			duration: 100,
+			ease: "Cubic.Out",
+		});
+	}
 
 	await delay(scene, 2000);
 
