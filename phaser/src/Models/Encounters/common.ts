@@ -19,6 +19,7 @@ export const tavern = (): Encounter => ({
 	triggers: {
 		type: "pick-unit",
 		totalPicks: 1,
+		allowSkipping: true,
 		choices: () => {
 			const playerJobs = playerForce.units.map(u => u.job);
 			const remaning = playerForce.units.map(u => u.job).filter(job => !playerJobs.includes(job));
