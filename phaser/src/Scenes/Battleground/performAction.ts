@@ -3,10 +3,14 @@ import BattlegroundScene from "./BattlegroundScene";
 import { getAllActiveFoes } from "../../Models/State";
 import { getCard } from "../../Models/Card";
 import { getTrait } from "../../Models/Traits";
+import { highlightCardAnimation } from "../../Systems/Chara/Animations/highlightCardAnimation";
+import { getChara } from "./Systems/UnitManager";
 
 export const performAction = (scene: BattlegroundScene) => (unit: Unit) => async () => {
 
 	console.log("[action] :: ", unit.job, ":: start", unit.id)
+
+	highlightCardAnimation(getChara(unit.id))
 
 	const activeFoes = getAllActiveFoes(scene.state)(unit.force);
 
