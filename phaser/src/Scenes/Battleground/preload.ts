@@ -119,6 +119,9 @@ export function preload(this: Phaser.Scene) {
 		}
 	);
 
+	// reference to loading json data
+	//this.load.json("archer-data", "assets/data/cards/archer/data.json");
+
 	coinTexture.call(this);
 
 }
