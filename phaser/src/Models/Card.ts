@@ -47,7 +47,7 @@ ${CLERIC_OF_LIGHT}| Cleric of Light | 180 | 0    | 3400 | ${t.HEAL.id}, ${t.SUPP
 ${APPRENTICE}     | Apprentice      | 180 | 20   | 2200 | ${t.RANGED.id}, ${t.ARCANE_MISSILES.id}
 ${KNIGHT}         | Knight          | 320 | 7    | 2700 | ${t.MELEE.id}, ${t.TAUNT.id}, ${t.PROTECTOR.id}
 ${THIEF}          | Thief           | 220 | 20   | 2000 | ${t.MELEE.id}, ${t.STEALTH.id},${t.ASSASSIN.id}
-${DRUID}          | Druid           | 200 | 15   | 1000 | ${t.RANGED.id}
+${DRUID}          | Druid           | 200 | 15   | 3000 | ${t.RANGED.id}, ${t.SLOW.id}
 ${BARBARIAN}      | Barbarian       | 180 | 20   | 1000 | ${t.MELEE.id}, ${t.BERSERK.id}, ${t.INITIATIVE.id}
 ${PIRATE}         | Pirate          | 200 | 10   | 4000 | ${t.MELEE.id}, ${t.HASTE.id}
 ${PALADIN}        | Paladin         | 350 | 5    | 1000 | ${t.MELEE.id}, ${t.TAUNT.id}, ${t.PROTECTOR.id}
