@@ -57,8 +57,8 @@ ${BARD}           | Bard            | 250 | 0    | 3000 | ${t.HASTE.id}, ${t.SUP
 ${BLOB}           | Blob            | 210 | 20   | 2000 | ${t.MELEE.id}, ${t.SPLIT_BLOB.id}
 ${BLOB_MAGE}      | Blob Mage       | 90  | 15   | 2000 | ${t.RANGED.id}, ${t.SPLIT_BLOB.id}, ${t.ARCANE_MISSILES.id}
 ${TINY_BLOB}      | Tiny Blob       | 20  | 10   | 2000 | ${t.MELEE.id}
-${SKELETON}       | Skeleton        | 110 | 10   | 2200 | ${t.MELEE.id}, ${t.UNDEAD.id}
-${SKELETON_MAGE}  | Skeleton Mage   | 80  | 5    | 4400 | ${t.RANGED.id}, ${t.UNDEAD.id}, ${t.ARCANE_MISSILES.id}
+${SKELETON}       | Skeleton        | 60  | 10   | 2200 | ${t.MELEE.id}, ${t.UNDEAD.id}
+${SKELETON_MAGE}  | Skeleton Mage   | 50  | 5    | 4400 | ${t.RANGED.id}, ${t.UNDEAD.id}, ${t.ARCANE_MISSILES.id}
 `;
 
 function parseCardsTable(table: string) {
