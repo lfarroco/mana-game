@@ -177,3 +177,8 @@ waves can give multiple rewards:
 losing a battle makes the player lose prestige
 prestige can be reacquired by winning battles
 prestige can be used to buy stuff or reroll
+
+-bleed
+-poison
+-burn
+1s ticks
