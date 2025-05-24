@@ -334,7 +334,6 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
 				const dropHandler = (pointer: Pointer) => {
 
 					const wasDrag = pointer.getDistance() > 10;
-
 					const inBoard = overlapsWithPlayerBoard(pointer);
 
 					if (!inBoard && !wasDrag) {

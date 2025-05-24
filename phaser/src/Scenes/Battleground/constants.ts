@@ -9,7 +9,7 @@ export const TILE_HEIGHT = TILE_WIDTH;
 export const HALF_TILE_WIDTH = TILE_WIDTH / 2;
 export const HALF_TILE_HEIGHT = TILE_HEIGHT / 2;
 
-export const MAX_PARTY_SIZE = 1;
+export const MAX_PARTY_SIZE = 5;
 
 export const RECRUIT_UNIT_PRICE = 3;
 export const PROMOTE_UNIT_PRICE = 5;

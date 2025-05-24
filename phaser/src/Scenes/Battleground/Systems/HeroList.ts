@@ -1,5 +1,4 @@
 import { eqVec2, vec2 } from "../../../Models/Geometry";
-import { cards } from "../../../Models/Card";
 import { getState } from "../../../Models/State";
 import { addTooltip, createCard } from "../../../Systems/Chara/Chara";
 import * as Flyout_ from "../../../Systems/Flyout";
@@ -7,6 +6,9 @@ import * as Tooltip from "../../../Systems/Tooltip";
 import * as constants from "../constants";
 import { getTileAt } from "./GridSystem";
 import { destroyChara, summonChara } from "./UnitManager";
+import { displayError } from "./UIManager";
+import { tween } from "../../../Utils/animation";
+import { overlapsWithPlayerBoard } from "../../../Models/Board";
 
 export async function renderHeroButton(scene: Phaser.Scene) {
 
@@ -45,15 +47,11 @@ export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container
 
 	const state = getState();
 
-	//const state = getState();
-
-	let page = 0;
-
 	const update = () => {
 
 		parent.removeAll(true);
 
-		state.gameData.player.bench.slice(page * 15, (page + 1) * 15)
+		state.gameData.player.bench
 			.forEach((unit, index) => {
 
 				const chara = createCard(unit);
@@ -69,18 +67,32 @@ export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container
 
 				parent.add(chara.container);
 
+				const returnToPosition = () => {
+					tween({
+						targets: [chara.container],
+						x,
+						y
+					})
+				}
+
 				chara.zone.on("dragstart", () => {
 					Tooltip.hide();
 				});
 
-				chara.zone.on('drop', (
+				chara.zone.on('dragend', (
 					pointer: Phaser.Input.Pointer,
-					zone: Phaser.GameObjects.GameObject,
 				) => {
 
-					if (zone.name !== "board") return;
+					const wasDrag = pointer.getDistance() > 10;
+					const inBoard = overlapsWithPlayerBoard(pointer);
+
+					if (wasDrag && !inBoard) {
+						returnToPosition();
+						return;
+					}
 
 					const state = getState();
+
 
 					// The board will change: remove position bonuses for all units
 					state.gameData.player.units.forEach((unit) => {
@@ -98,7 +110,17 @@ export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container
 						destroyChara(maybeOccupier.id);
 
 						state.gameData.player.units = state.gameData.player.units.filter(u => u.id !== maybeOccupier.id);
+						state.gameData.player.bench = state.gameData.player.bench.filter(u => u.id !== chara.id);
+						state.gameData.player.bench.push(maybeOccupier);
 
+						render(scene, parent);
+
+					} else {
+						if (state.gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
+							displayError(`You can only have ${constants.MAX_PARTY_SIZE} units in your party.`);
+							returnToPosition();
+							return;
+						}
 					}
 
 					const unit = chara.unit;
@@ -122,36 +144,6 @@ export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container
 				});
 
 			});
-
-		const nextPage = scene.add.image(400, 900, "ui/button")
-			.setOrigin(0)
-			.setDisplaySize(100, 100)
-			.setInteractive()
-			.setAlpha(page < Math.ceil(cards.length / 15) - 1 ? 1 : 0.5)
-			.on("pointerup", () => {
-				if (page >= Math.ceil(cards.length / 15) - 1) return;
-				page++;
-				if (page >= Math.ceil(cards.length / 15)) {
-					page = 0;
-				}
-				update();
-			});
-		const prevPage = scene.add.image(100, 900, "ui/button")
-			.setOrigin(0)
-			.setDisplaySize(100, 100)
-			.setInteractive()
-			.setAlpha(page > 0 ? 1 : 0.5)
-			.on("pointerup", () => {
-				if (page === 0) return;
-
-				page--;
-				if (page < 0) {
-					page = Math.ceil(cards.length / 15) - 1;
-				}
-				update();
-			});
-
-		parent.add([nextPage, prevPage]);
 	}
 
 	update();
