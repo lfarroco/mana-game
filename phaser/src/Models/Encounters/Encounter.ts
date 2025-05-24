@@ -97,9 +97,13 @@ export const pickAHero: Encounter = {
 		totalPicks: 1,
 		choices: () => {
 
-			console.log("pick a hero...");
+			const filtered =
+				starterCards.filter(card =>
+					!state.gameData.player.units.map(u => u.job).includes(card.id) &&
+					!state.gameData.player.bench.map(u => u.job).includes(card.id)
+				);
 
-			return pickRandom(starterCards, 3).map(job => newChoice(
+			return pickRandom(filtered, 3).map(job => newChoice(
 				`charas/${job.id}`,
 				job.name,
 				job.description,
