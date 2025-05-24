@@ -239,7 +239,17 @@ export function updateChargeBar({ chargeBar, cooldownBar, hpBar, unit }: Chara) 
 
 	chargeBar.clear();
 	const percent = unit.charge / unit.cooldown;
-	chargeBar.fillStyle(0x000, 0.4);
+
+	let color = 0x00ffff;
+
+	if (unit.hasted > 0 && unit.slowed > 0)
+		color = 0x00ffff;
+	else if (unit.hasted > 0)
+		color = 0x00ff00;
+	else if (unit.slowed > 0)
+		color = 0xff0000;
+
+	chargeBar.fillStyle(color, 0.2);
 	chargeBar.fillRect(
 		-bgConstants.HALF_TILE_WIDTH, -bgConstants.HALF_TILE_HEIGHT,
 		bgConstants.TILE_WIDTH,
