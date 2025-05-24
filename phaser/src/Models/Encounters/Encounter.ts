@@ -16,7 +16,7 @@ import commonEvents from "./common";
 import monsterEvents from "./monster";
 import * as Flyout from "../../Systems/Flyout";
 import { getTileAt } from "../../Scenes/Battleground/Systems/GridSystem";
-import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
+import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, MAX_PARTY_SIZE, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 import * as Chest from "../../Scenes/Battleground/Systems/Chest";
 
 let scene: Phaser.Scene;
@@ -26,9 +26,6 @@ export const init = (s: Phaser.Scene) => {
 	scene = s;
 	state = getState();
 }
-
-
-
 
 export type Encounter = {
 	id: string;
@@ -200,45 +197,48 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
 
 				Chara.addTooltip(chara);
 
+				function addToChest() {
+					state.gameData.player.bench.push(chara.unit);
+					picks++;
+
+					for (const c of charas) {
+
+						if (chara.id === c.id) {
+							const vec = vec2(
+								...Chest.position
+							);
+							tween({
+								targets: [c.container],
+								x: vec.x,
+								y: vec.y,
+								scale: 0,
+								duration: 1000,
+								onComplete: () => {
+									UnitManager.destroyChara(c.id);
+								}
+							});
+							continue;
+						};
+
+						tween({
+							targets: [c.container],
+							x: -100,
+						});
+
+						UnitManager.destroyChara(c.id);
+
+					}
+
+
+					resolve();
+				}
+
 				const pick = async () => {
 
 					Tooltip.hide();
 
-					if (state.gameData.player.units.length >= 5) {
-
-						state.gameData.player.bench.push(chara.unit);
-						picks++;
-
-						for (const c of charas) {
-
-							if (chara.id === c.id) {
-								const vec = vec2(
-									...Chest.position
-								);
-								tween({
-									targets: [c.container],
-									x: vec.x,
-									y: vec.y,
-									scale: 0,
-									duration: 1000,
-									onComplete: () => {
-										UnitManager.destroyChara(c.id);
-									}
-								});
-								continue;
-							};
-
-							tween({
-								targets: [c.container],
-								x: -100,
-							})
-
-							UnitManager.destroyChara(c.id);
-
-						}
-
-
-						resolve();
+					if (state.gameData.player.units.length >= MAX_PARTY_SIZE) {
+						addToChest();
 						return;
 					}
 
@@ -247,6 +247,8 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
 					if (!emptySlot) throw new Error("No empty slot found");
 
 					addCardToBoard(emptySlot);
+
+
 				}
 
 				const addCardToBoard = async (slot: Vec2) => {
@@ -283,6 +285,11 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
 				const handleDrop = async (
 					pointer: Phaser.Input.Pointer,
 				) => {
+
+					if (state.gameData.player.units.length >= MAX_PARTY_SIZE) {
+						addToChest();
+						return;
+					}
 
 					// The board will change: remove position bonuses for all units
 					state.gameData.player.units.forEach((unit) => {
@@ -326,8 +333,6 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
 
 				const dropHandler = (pointer: Pointer) => {
 
-					console.log("drop handler")
-
 					const wasDrag = pointer.getDistance() > 10;
 
 					const inBoard = overlapsWithPlayerBoard(pointer);
@@ -341,7 +346,6 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
 					}
 					if (inBoard && wasDrag) {
 						handleDrop(pointer);
-
 						chara.zone.off('drag', dragHandler);
 						chara.zone.off('pointerup', dropHandler);
 						return;
