@@ -104,18 +104,19 @@ export function displayError(err: string) {
 
 	scene.playFx('ui/error');
 
-	const text = scene.add.text(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100, err, constants.defaultTextConfig);
+	const text = scene.add.text(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100, err, constants.titleTextConfig);
 
 	text.setOrigin(0.5)
 	scene.tweens.add({
 		targets: text,
 		scaleX: 1.05,
 		scaleY: 1.05,
-		duration: 200,
+		duration: 1000 / state.options.speed,
 		yoyo: true,
+		ease: "Sine.elastic",
 		repeat: 0,
 		onComplete: async () => {
-			await delay(scene, 1000);
+			await delay(scene, 1000 / state.options.speed);
 			scene.tweens.add({
 				targets: text,
 				alpha: 0,

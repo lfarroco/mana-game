@@ -54,8 +54,8 @@ ${PALADIN}        | Paladin         | 350 | 5    | 1000 | ${t.MELEE.id}, ${t.TAU
 ${RANGER}         | Ranger          | 250 | 20   | 1000 | ${t.RANGED.id} 
 ${NECROMANCER}    | Necromancer     | 250 | 0    | 4200 | ${t.UNDEAD_STRENGTH.id}, ${t.SUMMON_SKELETON.id}, ${t.SUPPORT.id}
 ${BARD}           | Bard            | 250 | 0    | 3000 | ${t.HASTE.id}, ${t.SUPPORT.id}
-${BLOB}           | Blob            | 210 | 20   | 2000 | ${t.MELEE.id}, ${t.SPLIT_BLOB.id}
-${BLOB_MAGE}      | Blob Mage       | 90  | 15   | 2000 | ${t.RANGED.id}, ${t.SPLIT_BLOB.id}, ${t.ARCANE_MISSILES.id}
+${BLOB}           | Blob            | 110 | 10   | 2000 | ${t.MELEE.id}, ${t.SPLIT_BLOB.id}
+${BLOB_MAGE}      | Blob Mage       | 90  | 10   | 2000 | ${t.RANGED.id}, ${t.SPLIT_BLOB.id}, ${t.ARCANE_MISSILES.id}
 ${TINY_BLOB}      | Tiny Blob       | 20  | 10   | 2000 | ${t.MELEE.id}
 ${SKELETON}       | Skeleton        | 60  | 10   | 2200 | ${t.MELEE.id}, ${t.UNDEAD.id}
 ${SKELETON_MAGE}  | Skeleton Mage   | 50  | 5    | 4400 | ${t.RANGED.id}, ${t.UNDEAD.id}, ${t.ARCANE_MISSILES.id}
