@@ -52,7 +52,7 @@ ${BARBARIAN}      | Barbarian       | 180 | 20   | 1000 | ${t.MELEE.id}, ${t.BER
 ${PIRATE}         | Pirate          | 200 | 10   | 4000 | ${t.MELEE.id}, ${t.HASTE.id}
 ${PALADIN}        | Paladin         | 350 | 5    | 1000 | ${t.MELEE.id}, ${t.TAUNT.id}, ${t.PROTECTOR.id}
 ${RANGER}         | Ranger          | 250 | 20   | 1000 | ${t.RANGED.id} 
-${NECROMANCER}    | Necromancer     | 250 | 0    | 6200 | ${t.UNDEAD_STRENGTH.id}, ${t.SUMMON_SKELETON.id}, ${t.SUPPORT.id}
+${NECROMANCER}    | Necromancer     | 250 | 0    | 6300 | ${t.UNDEAD_STRENGTH.id}, ${t.SUMMON_SKELETON.id}, ${t.SUPPORT.id}
 ${BARD}           | Bard            | 250 | 0    | 3000 | ${t.HASTE.id}, ${t.SUPPORT.id}
 ${BLOB}           | Blob            | 110 | 10   | 2000 | ${t.MELEE.id}, ${t.SPLIT_BLOB.id}
 ${BLOB_MAGE}      | Blob Mage       | 90  | 10   | 2000 | ${t.RANGED.id}, ${t.SPLIT_BLOB.id}, ${t.ARCANE_MISSILES.id}
