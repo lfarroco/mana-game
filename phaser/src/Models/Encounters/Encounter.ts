@@ -18,6 +18,7 @@ import * as Flyout from "../../Systems/Flyout";
 import { getTileAt } from "../../Scenes/Battleground/Systems/GridSystem";
 import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, MAX_PARTY_SIZE, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 import * as Chest from "../../Scenes/Battleground/Systems/Chest";
+import { createButton } from "../../Scenes/Battleground/Systems/UIManager";
 
 let scene: Phaser.Scene;
 export let state: State;
@@ -170,7 +171,6 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
 	let picks = 0;
 
 	while (totalPicks > picks) {
-
 		await new Promise<void>(async (resolve) => {
 
 			const charas = await Promise.all(
@@ -271,12 +271,7 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
 							continue;
 						};
 
-						tween({
-							targets: [c.container],
-							x: -100,
-						})
-
-						UnitManager.destroyChara(c.id);
+						slideOutCard(c);
 
 					}
 
@@ -365,11 +360,36 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
 
 			});
 
+
+			const rerollButton = createButton("Reroll", 400, 700, () => {
+				charas.forEach(slideOutCard);
+				resolve();
+			});
+			flyout.add(rerollButton);
+
+			const skipButton = createButton("Skip", 400, 900, () => {
+				charas.forEach(slideOutCard);
+				picks++;
+				resolve();
+			});
+			flyout.add(skipButton);
+
 		});
+
 	}
 
 	await flyout.slideOut();
 	await delay(scene, 500);
 	flyout.destroy();
+}
+
+function slideOutCard(c: Chara.Chara) {
+	tween({
+		targets: [c.container],
+		x: -100,
+		onComplete: () => {
+			UnitManager.destroyChara(c.id);
+		}
+	});
 }
 
