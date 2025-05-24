@@ -179,6 +179,7 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number) => {
 						makeUnit(playerForce.id, choice.value as CardId, vec2(0, 1)),
 					);
 					chara.container.setPosition(chara.sprite.width * -1.2, 500);
+					flyout.add(chara.container);
 					return chara
 				})
 			);

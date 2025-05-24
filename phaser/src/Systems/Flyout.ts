@@ -9,6 +9,9 @@ const flyoutWidth = 900;
 
 let flyouts: Flyout[] = [];
 
+//@ts-ignore
+window.flyouts = flyouts;
+
 export class Flyout extends Phaser.GameObjects.Container {
 
 	isOpen = false;
@@ -47,9 +50,9 @@ export class Flyout extends Phaser.GameObjects.Container {
 
 	async slideIn() {
 
-		flyouts
-			.filter(f => f.isOpen)
-			.forEach(f => f.slideOut())
+		// flyouts
+		// 	.filter(f => f.isOpen)
+		// 	.forEach(f => f.slideOut())
 
 		this.scene.children.bringToTop(this);
 		await tween({
@@ -66,6 +69,7 @@ export class Flyout extends Phaser.GameObjects.Container {
 			x: -flyoutWidth,
 		});
 		this.isOpen = false;
+
 	}
 }
 
