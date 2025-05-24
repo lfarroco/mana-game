@@ -1,5 +1,5 @@
-import { tween } from "../../../Utils/animation";
-import { defaultTextConfig, titleTextConfig } from "../../../Scenes/Battleground/constants";
+import { delay, tween } from "../../../Utils/animation";
+import { defaultTextConfig, FORCE_ID_PLAYER, titleTextConfig } from "../../../Scenes/Battleground/constants";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
 
 // TODO: add color option (heals: green, damage: yellow, etc)
@@ -30,17 +30,25 @@ export async function popText({ text, targetId, type }: { text: string; targetId
 		.setOrigin(0.5, 0.5)
 		.setColor(color || defaultTextConfig.color as string)
 
-	await tween({
+	// random angle upwards
+	const angle = Math.random() * 30 * (chara.unit.force === FORCE_ID_PLAYER ? 1 : -1);
+
+	tween({
 		targets: [popText],
 		scale: 1.4,
-		y: chara.container.y - 64,
-	});
-	await tween({
-		targets: [popText],
-		alpha: 0,
-		scale: 1,
+		duration: 1000,
 		y: chara.container.y - 128,
+		// in the angle direction
+		x: chara.container.x + Math.sin(angle * Math.PI / 180) * 256,
 	});
+	tween({
+		targets: [popText],
+		delay: 500,
+		alpha: 0,
+		duration: 1000
+	});
+
+	await delay(scene, 1500);
 
 	popText.destroy();
 }
