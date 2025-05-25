@@ -11,6 +11,8 @@ export const HALF_TILE_HEIGHT = TILE_HEIGHT / 2;
 
 export const MAX_PARTY_SIZE = 5;
 
+export const REROLL_UNITS_PRICE = 2;
+
 export const RECRUIT_UNIT_PRICE = 3;
 export const PROMOTE_UNIT_PRICE = 5;
 export const GOLD_PER_WAVE = 3;
