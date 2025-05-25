@@ -15,7 +15,7 @@ export const tavern = (): Encounter => ({
 	id: "2",
 	title: "The Tavern",
 	description: "Recruit new members for your guild",
-	pic: "icon/tavern",
+	pic: "ui/tavern",
 	triggers: {
 		type: "pick-unit",
 		totalPicks: 1,

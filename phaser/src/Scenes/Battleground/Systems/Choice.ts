@@ -1,7 +1,9 @@
 import Phaser from "phaser";
 import { tween } from "../../../Utils/animation";
 import * as constants from "../constants";
-import { breakLines } from "../../../utils";
+import { breakLines, pickRandom } from "../../../utils";
+import { getItem, Item } from "../../../Models/Item";
+import { playerForce } from "../../../Models/Force";
 
 export let scene: Phaser.Scene;
 
@@ -70,10 +72,8 @@ export const displayChoices = (choices: Choice[]) => new Promise<Choice>(async (
 });
 
 const renderChoiceCard = (
-	onSelect: (choice: Choice, card: Phaser.GameObjects.Container) => void
-) => async (choice: Choice, index: number, choices: Choice[]): Promise<Phaser.GameObjects.Container> => {
-
-
+	onSelect: (choice: Choice, card: Container) => void
+) => async (choice: Choice, index: number, choices: Choice[]): Promise<Container> => {
 
 	const spacing = (constants.SCREEN_HEIGHT - (choices.length * CARD_DIMENSIONS.height)) / (choices.length + 1);
 	const y = (spacing * (index + 1)) + (CARD_DIMENSIONS.height * index);
@@ -169,3 +169,60 @@ const renderChoiceCard = (
 	return cardContainer;
 }
 
+
+export const chooseItems = (pool: [key: string, Item][]) => new Promise<Choice>(async (resolve) => {
+
+	const choices = pickRandom(pool, 3).map(([key, item]) => newChoice(
+		item.icon,
+		item.name,
+		item.description,
+		key
+	));
+
+	const component = scene.add.container();
+
+	const promises = choices.map(renderChoiceCard(
+		async (choice: Choice, card: Container) => {
+
+			const icon = scene.add.image(card.x, card.y, choice.pic)
+
+			tween({
+				targets: [icon],
+				x: constants.SCREEN_WIDTH - 100,
+				y: constants.SCREEN_HEIGHT - 100,
+				scaleX: 0.3,
+				scaleY: 0.3,
+				alpha: 0,
+				duration: 1000,
+				onComplete: () => {
+					icon.destroy();
+				}
+			})
+
+			await Promise.all(cards.map(async (c, i) => {
+
+				if (c === card) {
+					c.destroy();
+					return;
+				}
+				await tween({
+					targets: [c],
+					x: -CARD_DIMENSIONS.width * 1.4,
+					duration: 1000,
+					delay: i * 200,
+				});
+			}));
+
+			component.destroy();
+
+			playerForce.items.push(getItem(choice.value));
+
+			resolve(choice);
+		})
+	);
+
+	const cards = await Promise.all(promises);
+
+	component.add(cards)
+
+});
