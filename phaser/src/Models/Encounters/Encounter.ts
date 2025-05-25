@@ -5,7 +5,7 @@ import * as Chara from "../../Systems/Chara/Chara";
 import * as Tooltip from "../../Systems/Tooltip";
 import { pickRandom } from "../../utils";
 import { delay, tween } from "../../Utils/animation";
-import { playerForce } from "../Force";
+import { playerForce, updatePlayerGoldIO } from "../Force";
 import { eqVec2, Vec2, vec2 } from "../Geometry";
 import { Item } from "../Item";
 import { CardId, starterCards } from "../Card";
@@ -16,9 +16,9 @@ import commonEvents from "./common";
 import monsterEvents from "./monster";
 import * as Flyout from "../../Systems/Flyout";
 import { getTileAt } from "../../Scenes/Battleground/Systems/GridSystem";
-import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, MAX_PARTY_SIZE, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
+import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, MAX_PARTY_SIZE, REROLL_UNITS_PRICE, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 import * as Chest from "../../Scenes/Battleground/Systems/Chest";
-import { createButton } from "../../Scenes/Battleground/Systems/UIManager";
+import { createButton, disableButton, enableButton } from "../../Scenes/Battleground/Systems/UIManager";
 
 let scene: Phaser.Scene;
 export let state: State;
@@ -172,8 +172,6 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number, allowSki
 	flyout.slideIn();
 
 	let picks = 0;
-	let rerollButton: Container;
-	let skipButton: Container;
 
 	while (totalPicks > picks) {
 		await new Promise<void>(async (resolve) => {
@@ -368,16 +366,37 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number, allowSki
 
 			});
 
-			if (!rerollButton) {
-				rerollButton = createButton("Reroll", 400, 700, () => {
+			const rerollButton = createButton(
+				`Reroll (${REROLL_UNITS_PRICE})`,
+				400, 700,
+				async () => {
+					updatePlayerGoldIO(- REROLL_UNITS_PRICE);
 					charas.forEach(slideOutCard);
+
+					rerollButton.destroy();
+
+					await delay(scene, 500);
 					resolve();
 				});
-				flyout.add(rerollButton);
-			}
+			flyout.add(rerollButton);
 
-			if (allowSkipping && !skipButton) {
-				skipButton = createButton("Skip", 400, 900, () => {
+			const updateButtonStatus = () => {
+				if (state.gameData.player.gold < REROLL_UNITS_PRICE) {
+					disableButton(rerollButton);
+				} else {
+					enableButton(rerollButton);
+				}
+			}
+			updateButtonStatus();
+
+			scene.events.on("gold-changed", updateButtonStatus);
+
+			rerollButton.on("destroy", () => {
+				scene.events.off("gold-changed", updateButtonStatus);
+			});
+
+			if (allowSkipping) {
+				const skipButton = createButton("Skip", 400, 900, () => {
 					charas.forEach(slideOutCard);
 					picks++;
 					resolve();

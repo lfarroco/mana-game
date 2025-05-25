@@ -63,6 +63,32 @@ export function createButton(
 	return container;
 }
 
+export const disableButton = (button: Phaser.GameObjects.Container) => {
+	button.getAll().forEach((child) => {
+		if (child instanceof Phaser.GameObjects.Image) {
+			child.setAlpha(0.5);
+			child.disableInteractive();
+		}
+		if (child instanceof Phaser.GameObjects.Text) {
+			child.setAlpha(0.5);
+			child.disableInteractive();
+		}
+	});
+};
+
+export const enableButton = (button: Phaser.GameObjects.Container) => {
+	button.getAll().forEach((child) => {
+		if (child instanceof Phaser.GameObjects.Image) {
+			child.setAlpha(1);
+			child.setInteractive();
+		}
+		if (child instanceof Phaser.GameObjects.Text) {
+			child.setAlpha(1);
+			child.setInteractive();
+		}
+	});
+};
+
 export function updateUI() {
 
 	ui?.destroy(true);
