@@ -23,6 +23,7 @@ import { battleResultAnimation } from "./battleResultAnimation";
 import { delay } from "../../Utils/animation";
 import { generateEnemyTeam } from "./generateEnemyTeam";
 import { tavern } from "../../Models/Encounters/common";
+import { Item, ITEMS } from "../../Models/Item";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -158,7 +159,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
         const result = await runCombatIO(this);
 
-        await delay(this, 1000)
+        await delay(this, 500)
 
         if (result === "player_won") {
           await battleResultAnimation(this, "victory");
@@ -191,6 +192,13 @@ export class BattlegroundScene extends Phaser.Scene {
           UnitManager.summonChara(unit);
         });
 
+
+        const pool = Object.entries(ITEMS).map(([key, value]) => [key, value()] as [string, Item]);
+
+        const chosenLoot = await ChoiceSystem.chooseItems(pool)
+
+        console.log("Loot", chosenLoot);
+
         const tavern_ = tavern();
 
         await ChoiceSystem.displayChoices([
@@ -202,8 +210,6 @@ export class BattlegroundScene extends Phaser.Scene {
         state.gameData.hour += 1;
 
       }
-
-      console.log("done!!!")
 
     }
 
