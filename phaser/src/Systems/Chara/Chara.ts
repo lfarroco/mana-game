@@ -164,6 +164,10 @@ export const addBoardEvents = (chara: Chara) => {
 
 	chara.zone.setInteractive({ draggable: true })
 
+	chara.zone.on('dragstart', () => {
+		chara.scene.children.bringToTop(chara.container);
+	});
+
 	chara.zone.on('drag', (pointer: Phaser.Input.Pointer) => {
 		if (chara.unit.force !== FORCE_ID_PLAYER) return;
 		chara.container.x = pointer.x;
