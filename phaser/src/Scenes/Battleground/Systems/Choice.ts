@@ -113,18 +113,18 @@ const renderChoiceCard = (
 	const text = scene.add.text(
 		CARD_DIMENSIONS.height + 20, 20,
 		choice.title,
-		constants.defaultTextConfig
+		constants.titleTextConfig
 	);
 	text.setOrigin(0);
 
-	const desc = scene.add.text(
-		CARD_DIMENSIONS.height + 20, 80,
+	const description = scene.add.text(
+		CARD_DIMENSIONS.height + 20, 100,
 		breakLines(choice.desc, 25),
-		{ ...constants.defaultTextConfig, fontSize: '40px' }
+		{ ...constants.defaultTextConfig, fontSize: '32px' }
 	);
-	desc.setOrigin(0);
+	description.setOrigin(0);
 
-	cardContainer.add([emitter, cardBg, pic, text, desc]);
+	cardContainer.add([emitter, cardBg, pic, text, description]);
 
 	await tween({
 		targets: [cardContainer],

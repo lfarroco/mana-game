@@ -22,7 +22,7 @@ import runCombatIO from "./RunCombatIO";
 import { battleResultAnimation } from "./battleResultAnimation";
 import { delay } from "../../Utils/animation";
 import { generateEnemyTeam } from "./generateEnemyTeam";
-import { equipmentVendor } from "../../Models/Encounters/common";
+import { tavern } from "../../Models/Encounters/common";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -191,9 +191,13 @@ export class BattlegroundScene extends Phaser.Scene {
           UnitManager.summonChara(unit);
         });
 
-        await EventSystem.evalEvent(EventSystem.pickAHero);
+        const tavern_ = tavern();
 
-        await EventSystem.evalEvent(equipmentVendor());
+        await ChoiceSystem.displayChoices([
+          ChoiceSystem.newChoice(tavern_.pic, tavern_.title, tavern_.description, tavern_.id)
+        ])
+
+        await EventSystem.evalEvent(EventSystem.pickAHero);
 
         state.gameData.hour += 1;
 

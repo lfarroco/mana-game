@@ -27,6 +27,8 @@ export class Flyout extends Phaser.GameObjects.Container {
 		this.bg = scene.add.image(0, 0, "ui/wood_texture").setOrigin(0)
 			.setDisplaySize(flyoutWidth, SCREEN_HEIGHT);
 
+		this.bg.setInteractive();
+
 		this.titleText = scene.add.text(
 			400, 50,
 			title,
