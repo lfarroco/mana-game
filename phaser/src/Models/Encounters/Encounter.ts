@@ -16,9 +16,9 @@ import commonEvents from "./common";
 import monsterEvents from "./monster";
 import * as Flyout from "../../Systems/Flyout";
 import { getTileAt } from "../../Scenes/Battleground/Systems/GridSystem";
-import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, MAX_PARTY_SIZE, REROLL_UNITS_PRICE, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
+import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, MAX_BENCH_SIZE, MAX_PARTY_SIZE, REROLL_UNITS_PRICE, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 import * as Chest from "../../Scenes/Battleground/Systems/Chest";
-import { createButton, disableButton, enableButton } from "../../Scenes/Battleground/Systems/UIManager";
+import { createButton, disableButton, displayError, enableButton } from "../../Scenes/Battleground/Systems/UIManager";
 
 let scene: Phaser.Scene;
 export let state: State;
@@ -104,7 +104,7 @@ export const pickAHero: Encounter = {
 			const filtered =
 				starterCards.filter(card =>
 					!state.gameData.player.units.map(u => u.job).includes(card.id) &&
-					!state.gameData.player.bench.map(u => u.job).includes(card.id)
+					!state.gameData.player.bench.map(u => u?.job).includes(card.id)
 				);
 
 			return pickRandom(filtered, 3).map(job => newChoice(
@@ -205,7 +205,8 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number, allowSki
 				Chara.addTooltip(chara);
 
 				function addToChest() {
-					state.gameData.player.bench.push(chara.unit);
+					const firstEmptyIndex = state.gameData.player.bench.findIndex(slot => slot === null);
+					state.gameData.player.bench[firstEmptyIndex < 0 ? 0 : firstEmptyIndex] = chara.unit;
 					picks++;
 
 					for (const c of charas) {
@@ -245,6 +246,11 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number, allowSki
 					Tooltip.hide();
 
 					if (state.gameData.player.units.length >= MAX_PARTY_SIZE) {
+
+						if (state.gameData.player.bench.length >= MAX_BENCH_SIZE) {
+							displayError("Your party and bench are full! Discard a card or skip.");
+							return;
+						}
 						addToChest();
 						return;
 					}

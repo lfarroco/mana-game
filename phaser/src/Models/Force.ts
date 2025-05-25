@@ -11,7 +11,7 @@ export type Force = {
 	income: number;
 	items: (Item | null)[]; // todo: replace with map
 	units: Unit[]
-	bench: Unit[];
+	bench: (Unit | null)[];
 };
 
 export const makeForce = (id: string): Force => ({

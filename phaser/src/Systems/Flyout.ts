@@ -58,13 +58,13 @@ export class Flyout extends Phaser.GameObjects.Container {
 
 	}
 
+	// TODO: check if multiple flyouts are kept 
 	async slideOut() {
 		await tween({
 			targets: [this],
 			x: -flyoutWidth,
 		});
 		this.isOpen = false;
-
 	}
 }
 
