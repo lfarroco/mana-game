@@ -95,6 +95,7 @@ export function preload(this: Phaser.Scene) {
 	this.load.audio("ui/error", "assets/audio/error.ogg")
 
 	this.load.image("ui/chest", "assets/ui/chest.png")
+	this.load.image("ui/guild", "assets/ui/guild.png")
 	this.load.image("ui/slot", "assets/ui/slot.png")
 	this.load.image("ui/wood_texture", "assets/ui/wood_texture.png");
 

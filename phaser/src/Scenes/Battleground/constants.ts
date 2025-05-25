@@ -10,6 +10,7 @@ export const HALF_TILE_WIDTH = TILE_WIDTH / 2;
 export const HALF_TILE_HEIGHT = TILE_HEIGHT / 2;
 
 export const MAX_PARTY_SIZE = 5;
+export const MAX_BENCH_SIZE = 3;
 
 export const REROLL_UNITS_PRICE = 2;
 
@@ -28,8 +29,9 @@ export const titleTextConfig: Phaser.Types.GameObjects.Text.TextStyle = {
 	...defaultTextConfig,
 	fontSize: "40px",
 	fontFamily: "'Arial Black', sans-serif",
-	strokeThickness: 8,
-}
+	strokeThickness: 14,
+	stroke: "black",
+};
 
 export const GRID_BORDER_COLOR = 0x00FF00;
 export const GRID_FILL_COLOR = 0x000000; export const MAX_GRID_HEIGHT = 32;

@@ -2,7 +2,7 @@
 // continue from here:
 // create undead units with deathrattle meachnics
 
-import { defaultTextConfig, SCREEN_HEIGHT } from "../Scenes/Battleground/constants";
+import { defaultTextConfig, SCREEN_HEIGHT, titleTextConfig } from "../Scenes/Battleground/constants";
 import { tween } from "../Utils/animation";
 
 const flyoutWidth = 900;
@@ -30,13 +30,8 @@ export class Flyout extends Phaser.GameObjects.Container {
 		this.titleText = scene.add.text(
 			400, 50,
 			title,
-			{
-				...defaultTextConfig,
-				color: "#ffffff",
-			})
-			.setOrigin(0.5)
-			.setFontFamily("Arial Black")
-			.setStroke("black", 14);
+			titleTextConfig,
+		).setOrigin(0.5);
 
 		this.add([this.bg, this.titleText]);
 
