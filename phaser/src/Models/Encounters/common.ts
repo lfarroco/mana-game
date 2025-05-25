@@ -19,6 +19,7 @@ export const tavern = (): Encounter => ({
 	triggers: {
 		type: "pick-unit",
 		totalPicks: 1,
+		title: "Choose a new guild member",
 		allowSkipping: true,
 		choices: () => {
 			const playerJobs = playerForce.units.map(u => u.job);

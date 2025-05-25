@@ -39,6 +39,7 @@ export type Encounter = {
 		type: "instant"
 		action: (scene: Phaser.Scene, State: State) => void;
 	} | {
+		title: string;
 		type: "pick-unit";
 		totalPicks: number;
 		allowSkipping: boolean;
@@ -72,6 +73,7 @@ export const starterEvent: Encounter = {
 	triggers: {
 		type: "pick-unit",
 		totalPicks: 2,
+		title: "Choose your starting members",
 		allowSkipping: false,
 		choices: () => {
 			const playerJobs = playerForce.units.map(u => u.job);
@@ -95,6 +97,7 @@ export const pickAHero: Encounter = {
 	triggers: {
 		type: "pick-unit",
 		totalPicks: 1,
+		title: "Choose a hero",
 		allowSkipping: true,
 		choices: () => {
 
@@ -131,7 +134,7 @@ export const evalEvent = async (event: Encounter) => {
 			await event.triggers.action(scene, state);
 			break;
 		case "pick-unit":
-			await pickUnit(event.triggers.choices, event.triggers.totalPicks, event.triggers.allowSkipping);
+			await pickUnit(event.triggers.choices, event.triggers.totalPicks, event.triggers.allowSkipping, event.triggers.title);
 			break;
 		case "item-shop":
 			await itemShop(
@@ -162,11 +165,11 @@ const displayEvents = async (eventArray: Encounter[], _day: number) => {
 export const displayRandomEvents = (day: number) => displayEvents(randomEvents, day);
 export const displayMonsterEvents = (day: number) => displayEvents(monsterEvents(), day);
 
-const pickUnit = async (genChoices: () => Choice[], totalPicks: number, allowSkipping: boolean) => {
+const pickUnit = async (genChoices: () => Choice[], totalPicks: number, allowSkipping: boolean, title: string) => {
 
 	const flyout = await Flyout.create(
 		scene,
-		"Choose Your Guild Members",
+		title,
 	);
 
 	flyout.slideIn();
@@ -326,7 +329,6 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number, allowSki
 				}
 
 				const dragHandler = (pointer: Phaser.Input.Pointer) => {
-					console.log("drag handler")
 
 					chara.container.x = pointer.x;
 					chara.container.y = pointer.y;
