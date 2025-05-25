@@ -240,10 +240,10 @@ export function updateChargeBar({ chargeBar, cooldownBar, hpBar, unit }: Chara) 
 	chargeBar.clear();
 	const percent = unit.charge / unit.cooldown;
 
-	let color = 0x00ffff;
+	let color = 0x000;
 
 	if (unit.hasted > 0 && unit.slowed > 0)
-		color = 0x00ffff;
+		color = 0x000;
 	else if (unit.hasted > 0)
 		color = 0x00ff00;
 	else if (unit.slowed > 0)
