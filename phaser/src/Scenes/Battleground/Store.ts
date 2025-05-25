@@ -53,7 +53,7 @@ const renderUnit = (scene: BattlegroundScene) => (jobId: Job.CardId, i: number) 
 	sprite.on('pointerdown', () => {
 		if (player.gold > 0) return
 
-		UIManager.displayError("Not enough gold");
+		UIManager.displayError("Not enough gold")
 
 	})
 
