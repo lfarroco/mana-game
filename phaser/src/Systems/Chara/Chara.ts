@@ -180,6 +180,14 @@ export const addBoardEvents = (chara: Chara) => {
 		zone: Phaser.GameObjects.GameObject,
 	) => {
 
+		if (zone.name === "slot") {
+
+			const slotIndex = zone.getData("slot");
+			scene.events.emit("unitDroppedInBenchSlot", chara.unit, slotIndex);
+			return;
+
+		}
+
 		if (zone.name !== "board") return;
 
 		// The board will change: remove position bonuses for all units

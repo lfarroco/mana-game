@@ -11,6 +11,7 @@ import { tween } from "../../../Utils/animation";
 import { overlapsWithPlayerBoard } from "../../../Models/Board";
 import { Item } from "../../../Models/Item";
 import { equipItemInUnit } from "../../../Systems/Item/EquipItem";
+import { Unit } from "../../../Models/Unit";
 
 const CHEST_TILE_SIZE = constants.TILE_WIDTH / 2;
 
@@ -42,7 +43,32 @@ const handleButtonClicked = (container: Container, flyout: Flyout_.Flyout) => as
 
 	render(container.scene, container);
 
+	container.scene.events.on("unitDroppedInBenchSlot", handleUnitDroppedInSlot);
+
+	container.scene.events.on("unitDroppedInBenchSlot", () => {
+		render(container.scene, container);
+	});
+
 	await flyout.slideIn();
+}
+
+const handleUnitDroppedInSlot = (unit: Unit, index: number) => {
+
+	const state = getState();
+
+	const occupier = state.gameData.player.bench[index];
+
+	if (occupier) {
+		occupier.position = unit.position;
+		state.gameData.player.units.push(occupier);
+		summonChara(occupier, true);
+	}
+
+	state.gameData.player.bench[index] = unit;
+	state.gameData.player.units = state.gameData.player.units.filter(u => u.id !== unit.id);
+
+	destroyChara(unit.id);
+
 }
 
 export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container) {
@@ -83,20 +109,55 @@ function renderBench(scene: Phaser.Scene, parent: Container, state: State) {
 
 	for (let i = 0; i < constants.MAX_BENCH_SIZE; i++) {
 
+		const x = 60 + (i % 3) * constants.TILE_WIDTH + ((i % 3) * 20);
+		const y = 150 + Math.floor(i / 5) * constants.TILE_HEIGHT + ((Math.floor(i / 5) * 20));
+
+		const w = constants.TILE_WIDTH + 20;
+		const h = constants.TILE_HEIGHT + 20;
+
 		const slot = scene.add.image(
-			160 + (i % 3) * constants.TILE_WIDTH + ((i % 3) * 20),
-			270 + Math.floor(i / 5) * constants.TILE_HEIGHT + ((Math.floor(i / 5) * 20)),
-			"ui/slot").setDisplaySize(constants.TILE_WIDTH, constants.TILE_HEIGHT);
-		parent.add(slot);
+			x, y,
+			"ui/slot"
+		).setDisplaySize(w, h).setOrigin(0);
+		//create a drop zone for the slot
+		const zone = scene.add.zone(x, y, w, h)
+			.setPosition(x, y)
+			.setName("slot")
+			.setDataEnabled()
+			.setData("slot", i)
+			.setOrigin(0)
+			.setRectangleDropZone(w, h);
+
+
+
+		parent.add([slot, zone]);
+
+		if (!state.options.debug) continue;
+
+		const dropZoneDisplay = scene.add.graphics();
+		dropZoneDisplay.lineStyle(2, 0xffff00);
+		dropZoneDisplay.fillStyle(0x00ffff, 0.3);
+		dropZoneDisplay.fillRect(
+			x, y,
+			w, h
+		);
+		dropZoneDisplay.strokeRect(
+			x, y,
+			w, h
+		);
+
+		parent.add([dropZoneDisplay]);
 	}
 
 	state.gameData.player.bench
 		.forEach((unit, index) => {
 
+			if (!unit) return;
+
 			const chara = createCard(unit);
 
-			const x = 160 + (index % 3) * constants.TILE_WIDTH + ((index % 3) * 20);
-			const y = 250 + Math.floor(index / 5) * constants.TILE_HEIGHT + ((Math.floor(index / 5) * 20));
+			const x = 160 + (index % 3) * constants.TILE_WIDTH + ((index % 3) * 20) + 30;
+			const y = 250 + Math.floor(index / 5) * constants.TILE_HEIGHT + ((Math.floor(index / 5) * 20)) + 30;
 
 			chara.container.setPosition(x, y);
 
@@ -144,17 +205,17 @@ function renderBench(scene: Phaser.Scene, parent: Container, state: State) {
 
 				const maybeOccupier = state.gameData.player.units.find(u => eqVec2(u.position, position));
 
+				const benchIndex = state.gameData.player.bench.findIndex(u => u?.id === chara.id);
 				if (maybeOccupier) {
 
 					destroyChara(maybeOccupier.id);
-
 					state.gameData.player.units = state.gameData.player.units.filter(u => u.id !== maybeOccupier.id);
-					state.gameData.player.bench = state.gameData.player.bench.filter(u => u.id !== chara.id);
-					state.gameData.player.bench.push(maybeOccupier);
-
-					render(scene, parent);
+					state.gameData.player.bench[benchIndex] = maybeOccupier;
 
 				} else {
+
+					state.gameData.player.bench[benchIndex] = null;
+
 					if (state.gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
 						displayError(`You can only have ${constants.MAX_PARTY_SIZE} units in your party.`);
 						returnToPosition();
@@ -174,6 +235,8 @@ function renderBench(scene: Phaser.Scene, parent: Container, state: State) {
 				state.gameData.player.units.forEach((unit) => {
 					unit.events.onEnterPosition.forEach(fn => fn(unit)());
 				});
+
+				render(scene, parent);
 
 			});
 
@@ -203,6 +266,8 @@ export const renderItems = async (scene: Phaser.Scene, parent: Container, state:
 
 			const x = index % gridWidth;
 			const y = Math.floor(index / gridWidth);
+			const w = CHEST_TILE_SIZE + spacing;
+			const h = CHEST_TILE_SIZE + spacing;
 			const position: [number, number] = [
 				baseX + (x * CHEST_TILE_SIZE) + (x * spacing),
 				baseY + (y * CHEST_TILE_SIZE) + (y * spacing)
@@ -210,10 +275,22 @@ export const renderItems = async (scene: Phaser.Scene, parent: Container, state:
 
 			const slot = scene.add.image(0, 0, "ui/slot")
 				.setOrigin(0.5)
-				.setDisplaySize(CHEST_TILE_SIZE + spacing, CHEST_TILE_SIZE + spacing)
+				.setDisplaySize(w, h)
 				.setPosition(...position);
 
-			parent.add(slot);
+
+
+			parent.add([slot]);
+
+			slot.setInteractive({ useHandCursor: true });
+			slot.on("dragover", (pointer: Phaser.Input.Pointer) => {
+				if (Phaser.Geom.Intersects.RectangleToRectangle(
+					new Phaser.Geom.Rectangle(pointer.x, pointer.y, 1, 1),
+					slot.getBounds()
+				)) {
+					slot.setTint(0x00ff00);
+				}
+			});
 
 			const item = state.gameData.player.items[index];
 
