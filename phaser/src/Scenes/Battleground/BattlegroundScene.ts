@@ -22,6 +22,7 @@ import runCombatIO from "./RunCombatIO";
 import { battleResultAnimation } from "./battleResultAnimation";
 import { delay } from "../../Utils/animation";
 import { generateEnemyTeam } from "./generateEnemyTeam";
+import { equipmentVendor } from "../../Models/Encounters/common";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -191,6 +192,8 @@ export class BattlegroundScene extends Phaser.Scene {
         });
 
         await EventSystem.evalEvent(EventSystem.pickAHero);
+
+        await EventSystem.evalEvent(equipmentVendor());
 
         state.gameData.hour += 1;
 

@@ -122,33 +122,32 @@ export function updateUI() {
 
 }
 
-export function displayError(err: string) {
+export async function displayError(errorMessage: string) {
 
 	scene.playFx('ui/error');
 
-	const text = scene.add.text(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100, err, constants.titleTextConfig);
+	const text = scene.add.text(
+		constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100,
+		errorMessage,
+		constants.titleTextConfig,
+	).setOrigin(0.5);
 
-	text.setOrigin(0.5)
-	scene.tweens.add({
-		targets: text,
+	await tween({
+		targets: [text],
 		scaleX: 1.05,
 		scaleY: 1.05,
-		duration: 1000 / state.options.speed,
+		duration: 1000,
 		yoyo: true,
 		ease: "Sine.elastic",
 		repeat: 0,
-		onComplete: async () => {
-			await delay(scene, 1000 / state.options.speed);
-			scene.tweens.add({
-				targets: text,
-				alpha: 0,
-				duration: 500,
-				onComplete: () => {
-					text.destroy();
-				}
-			})
-		}
+	});
+
+	await tween({
+		targets: [text],
+		alpha: 0,
 	})
+
+	text.destroy();
 }
 
 export function createDropZone(scene: BattlegroundScene) {

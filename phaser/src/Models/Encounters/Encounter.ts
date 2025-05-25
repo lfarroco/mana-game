@@ -261,7 +261,6 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number, allowSki
 
 					addCardToBoard(emptySlot);
 
-
 				}
 
 				const addCardToBoard = async (slot: Vec2) => {

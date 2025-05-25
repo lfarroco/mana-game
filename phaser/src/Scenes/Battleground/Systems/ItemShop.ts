@@ -6,6 +6,7 @@ import * as Tooltip from "../../../Systems/Tooltip";
 import { tween } from "../../../Utils/animation";
 import * as constants from "../constants";
 import { scene } from "./Choice";
+import { displayError } from "./UIManager";
 
 // continue from here:
 // create undead units with deathrattle meachnics
@@ -85,14 +86,8 @@ const handleBuy = (
 	Tooltip.hide();
 
 	if (player.gold < item.cost) {
-		const err = scene.add.text(0, 0, "Not enough gold", constants.defaultTextConfig);
-		await tween({
-			targets: [err],
-			duration: 1000,
-			alpha: 0,
-		});
 
-		err.destroy();
+		displayError("Not enough gold")
 
 		return;
 	}
