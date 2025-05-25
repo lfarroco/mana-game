@@ -8,7 +8,7 @@ import { delay, tween } from "../../Utils/animation";
 import { playerForce, updatePlayerGoldIO } from "../Force";
 import { eqVec2, Vec2, vec2 } from "../Geometry";
 import { Item } from "../Item";
-import { CardId, starterCards } from "../Card";
+import { CardId, heroCards } from "../Card";
 import { getState, State } from "../State";
 import { getEmptySlot, overlapsWithPlayerBoard } from "../Board";
 import { makeUnit } from "../Unit";
@@ -77,7 +77,7 @@ export const starterEvent: Encounter = {
 		allowSkipping: false,
 		choices: () => {
 			const playerJobs = playerForce.units.map(u => u.job);
-			const remaning = starterCards.filter(j => !playerJobs.includes(j.id));
+			const remaning = heroCards.filter(j => !playerJobs.includes(j.id));
 
 			return pickRandom(remaning, 3).map(job => newChoice(
 				`charas/${job.id}`,
@@ -102,7 +102,7 @@ export const pickAHero: Encounter = {
 		choices: () => {
 
 			const filtered =
-				starterCards.filter(card =>
+				heroCards.filter(card =>
 					!state.gameData.player.units.map(u => u.job).includes(card.id) &&
 					!state.gameData.player.bench.map(u => u?.job).includes(card.id)
 				);

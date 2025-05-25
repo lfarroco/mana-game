@@ -36,7 +36,8 @@ export const TINY_BLOB = "tiny_blob" as CardId;
 export const SKELETON = "skeleton" as CardId;
 export const SKELETON_MAGE = "skeleton_mage" as CardId;
 
-const STARTER_CARDS = [ARCHER, CLERIC, APPRENTICE, KNIGHT, THIEF, DRUID, BARBARIAN, PIRATE, PALADIN, RANGER, NECROMANCER, BARD];
+// Cards that the player is allowed to pick
+const HERO_CARDS = [ARCHER, CLERIC, APPRENTICE, KNIGHT, THIEF, DRUID, BARBARIAN, PIRATE, PALADIN, RANGER, NECROMANCER, BARD];
 
 const baseCards = `
 Id                | Name            | HP  | ATK  | CD   | Traits
@@ -109,6 +110,6 @@ function getDesctiption(card: Card): Card {
 }
 export const cards = parseCardsTable(baseCards).map(getDesctiption);
 
-export const starterCards = cards.filter((j) => STARTER_CARDS.includes(j.id));
-
 export const getCard = (id: CardId): Card => cards.find((j) => j.id === id)!;
+
+export const heroCards = HERO_CARDS.map(getCard)

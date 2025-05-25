@@ -246,7 +246,6 @@ export const addBoardEvents = (chara: Chara) => {
 
 export function updateChargeBar({ chargeBar, cooldownBar, hpBar, unit }: Chara) {
 
-
 	const maxWidth = bgConstants.TILE_WIDTH - 20;
 
 	chargeBar.clear();
@@ -291,7 +290,6 @@ export function updateChargeBar({ chargeBar, cooldownBar, hpBar, unit }: Chara) 
 export function addTooltip(chara: Chara) {
 	chara.zone.on('pointerover', () => {
 
-
 		const text = [
 			`Attack: ${chara.unit.attackPower} HP: ${chara.unit.hp}`,
 			chara.unit.traits.map((trait) => trait.description).join("\n"),
@@ -303,7 +301,7 @@ export function addTooltip(chara: Chara) {
 			chara.job.name,
 			text,
 		);
-	})
+	});
 
 	chara.zone.on('pointerout', () => {
 		TooltipSytem.hide()

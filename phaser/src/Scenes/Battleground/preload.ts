@@ -4,11 +4,6 @@ import * as Job from "../../Models/Card";
 const jobs = Job.cards.map(j => j.id);
 
 export function preload(this: Phaser.Scene) {
-	["castle", "cave", "fort", "town", "tavern"].forEach(city => {
-		this.load.image(city, `assets/cities/${city}.png`);
-		this.load.image(`${city}_map`, `assets/cities/${city}_map.png`);
-
-	});
 
 	this.load.image("ui/victory", "assets/ui/victory.png");
 	this.load.image("ui/defeat", "assets/ui/defeat.png");
