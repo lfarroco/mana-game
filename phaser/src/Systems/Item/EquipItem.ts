@@ -31,14 +31,14 @@ export const equipItemInUnit = async ({ unit, item }: EquipItemArgs): Promise<vo
 	if (currentItem !== null) {
 
 		if (currentItem.type.key === "equipment" && currentItem.name !== item?.name) {
-			currentItem.type.onUnequip(unit)();
+			currentItem.type.onUnequip?.(unit)();
 		}
 
 	}
 
 	if (item !== null) {
 		if (item.type.key === "equipment") {
-			item.type.onEquip(unit)();
+			item.type.onEquip?.(unit)();
 		}
 	}
 

@@ -6,11 +6,11 @@ import { UnitEvent } from "./UnitEvents";
 
 type Equipment = {
 	key: "equipment",
-	onEquip: UnitEvent;
-	onUnequip: UnitEvent;
-	onHalfHP: UnitEvent;
-	onDeath: UnitEvent;
-	onCombatStart: UnitEvent;
+	onEquip?: UnitEvent;
+	onUnequip?: UnitEvent;
+	onHalfHP?: UnitEvent;
+	onDeath?: UnitEvent;
+	onCombatStart?: UnitEvent;
 }
 
 
@@ -49,11 +49,6 @@ export const equipmentItem = (name: string, icon: string, cost: number, descript
 	description,
 	type: {
 		key: "equipment",
-		onEquip: () => () => Promise.resolve(),
-		onUnequip: () => () => Promise.resolve(),
-		onHalfHP: () => () => Promise.resolve(),
-		onDeath: () => () => Promise.resolve(),
-		onCombatStart: () => () => Promise.resolve(),
 		...events
 	}
 });
