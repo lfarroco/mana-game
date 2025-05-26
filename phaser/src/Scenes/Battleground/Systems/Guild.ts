@@ -14,6 +14,8 @@ import { renderBench } from "./GuildBench";
 
 const CHEST_TILE_SIZE = constants.TILE_WIDTH / 2;
 
+let initialized = false;
+
 // Module-scoped variable for flyout and container
 let guildFlyout: Flyout_.Flyout | null = null;
 let flyoutContainer: Container | null = null;
@@ -86,12 +88,6 @@ export async function renderGuildButton(scene: Phaser.Scene) {
 	guildFlyout = flyout;
 	flyoutContainer = container;
 
-	// Register event handlers
-	scene.events.on("unitDroppedInBenchSlot", (unit: Unit, index: number) => onUnitDroppedInBenchSlot(unit, index));
-	scene.events.on("unitSell", (chara: Chara) => onUnitSell(chara));
-	scene.events.on("itemSell", (icon: Phaser.GameObjects.Image, item: Item) => onItemSell(icon, item));
-	scene.events.on("itemDroppedOnChara", (targetChara: Chara, icon: Phaser.GameObjects.Image, item: Item) => onItemDroppedOnChara(targetChara, icon, item));
-
 	scene.add.image(
 		...[
 			constants.SCREEN_WIDTH - 120,
@@ -102,6 +98,17 @@ export async function renderGuildButton(scene: Phaser.Scene) {
 		.setDisplaySize(230, 230)
 		.setInteractive()
 		.on("pointerup", () => handleButtonClicked(container, flyout)());
+
+	if (initialized) return;
+	// Register event handlers only once
+	scene.events.on("unitDroppedInBenchSlot", (unit: Unit, index: number) => onUnitDroppedInBenchSlot(unit, index));
+	scene.events.on("unitSell", (chara: Chara) => onUnitSell(chara));
+	scene.events.on("itemSell", (icon: Phaser.GameObjects.Image, item: Item) => onItemSell(icon, item));
+	scene.events.on("itemDroppedOnChara", (targetChara: Chara, icon: Phaser.GameObjects.Image, item: Item) => onItemDroppedOnChara(targetChara, icon, item));
+
+	initialized = true;
+
+
 }
 
 const handleButtonClicked = (container: Container, flyout: Flyout_.Flyout) => async () => {
