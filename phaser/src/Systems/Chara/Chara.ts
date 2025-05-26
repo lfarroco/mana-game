@@ -157,6 +157,8 @@ export function createCard(unit: Unit): Chara {
 		hpBar,
 	};
 
+	UnitManager.addCharaToState(chara); // TODO: all created cards should be tracked in state
+
 	return chara
 }
 

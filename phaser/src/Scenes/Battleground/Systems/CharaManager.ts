@@ -36,6 +36,8 @@ export function destroyChara(id: string) {
 	if (chara) {
 		chara.container.destroy();
 		charaManagerState.charaIndex = charaManagerState.charaIndex.filter(c => c.id !== id);
+	} else {
+		console.warn(`Chara with id ${id} not found`);
 	}
 }
 export async function summonChara(unit: Unit, useSummonEffect = true, fadeIn = true) {
@@ -51,8 +53,6 @@ export async function summonChara(unit: Unit, useSummonEffect = true, fadeIn = t
 	Chara.addTooltip(chara);
 
 	chara.container.setAlpha(0);
-
-	addCharaToState(chara);
 
 	if (fadeIn)
 		tween({

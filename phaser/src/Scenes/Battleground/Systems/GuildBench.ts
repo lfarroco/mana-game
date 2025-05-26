@@ -1,5 +1,5 @@
 import { State } from "../../../Models/State";
-import { createCard, addTooltip } from "../../../Systems/Chara/Chara";
+import { createCard, addTooltip, Chara } from "../../../Systems/Chara/Chara";
 import * as Tooltip from "../../../Systems/Tooltip";
 import * as constants from "../constants";
 import { render } from "./Guild";
@@ -7,7 +7,11 @@ import { handleUnitDrop } from "./GuildDragHandlers";
 import { getBenchSlotPosition, getBenchCardPosition } from "./GuildRenderHelpers";
 import { getTileAt } from "./GridSystem";
 import { overlapsWithPlayerBoard } from "../../../Models/Board";
-import { addCharaToState } from "./CharaManager";
+import { destroyChara } from "./CharaManager";
+
+const guildBenchState = {
+	benchCharas: [] as Chara[],
+};
 
 export function renderBench(
 	scene: Phaser.Scene,
@@ -15,6 +19,12 @@ export function renderBench(
 	state: State,
 	sellImage: Phaser.GameObjects.Image,
 ) {
+
+	guildBenchState.benchCharas.forEach(chara => {
+		destroyChara(chara.id);
+	});
+	guildBenchState.benchCharas = [];
+
 	const benchTitle = scene.add.text(
 		50,
 		80,
@@ -51,7 +61,7 @@ export function renderBench(
 	benchSlots.forEach(({ index, unit }) => {
 		if (!unit) return;
 		const chara = createCard(unit);
-		addCharaToState(chara); // TODO: all created cards should be tracked in state
+		guildBenchState.benchCharas.push(chara);
 		const { x, y } = getBenchCardPosition(index);
 		chara.container.setPosition(x, y);
 		chara.zone.setInteractive({ draggable: true });
@@ -71,7 +81,8 @@ export function renderBench(
 				render,
 				getTileAt,
 				overlapsWithPlayerBoard,
-				slotIndex: index
+				slotIndex: index,
+				guildBenchState
 			});
 			if (result === "sell") {
 				scene.events.emit("unitSell", chara);
