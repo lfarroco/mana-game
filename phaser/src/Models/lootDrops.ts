@@ -1,4 +1,3 @@
-import { fst } from "fp-ts/lib/Tuple";
 import { getItem, Item } from "./Item";
 import { BLOB, CardId, SKELETON, SKELETON_MAGE } from "./Card";
 
@@ -28,7 +27,7 @@ export const rollLoot = (id: CardId): Item[] => {
 
 	const filtered = loot.filter(([_key, val]) => {
 		return val >= roll;
-	}).map(fst)
+	}).map(arr => arr[0])
 
 	return filtered.map(getItem)
 

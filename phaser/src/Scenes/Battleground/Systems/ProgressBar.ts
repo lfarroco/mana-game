@@ -1,8 +1,5 @@
 import Phaser from "phaser";
 import { scene } from "./UIManager";
-import { pipe } from 'fp-ts/lib/function';
-import * as A from 'fp-ts/lib/Array';
-import { range } from "fp-ts/lib/NonEmptyArray";
 import { Adventure } from "../../../Models/Adventure";
 
 let container: Phaser.GameObjects.Container;
@@ -55,9 +52,8 @@ export function updateProgressBar(
 	const colorFuture = 0xeaeaea;
 	const colorPast = 0x000000;
 
-	pipe(
-		range(1, adventure.waves.length),
-		A.map((i: number) => {
+	new Array(adventure.waves.length).fill(0)
+		.map((i: number) => {
 			const x = barX + (i / adventure.waves.length) * barWidth;
 			const y = barY + barHeight / 2;
 
@@ -82,5 +78,4 @@ export function updateProgressBar(
 				container.add(icon);
 			}
 		}),
-	);
 }

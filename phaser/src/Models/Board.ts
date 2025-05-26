@@ -3,18 +3,12 @@ import { pickOne, pickRandom } from "../utils";
 import { vec2, sortBySnakeDistance, snakeDistanceBetween } from "./Geometry";
 import { State, getActiveUnits, getUnitAt } from "./State";
 import { Unit } from "./Unit";
-import * as A from 'fp-ts/lib/Array';
-import { pipe } from 'fp-ts/lib/function';
 
-export const cells = pipe(
-	A.range(1, 3),
-	A.flatMap(x =>
-		pipe(
-			A.range(1, 3),
-			A.map(y => ({ x, y }))
-		)
-	)
-);
+export const cells = [
+	[1, 2, 3],
+	[1, 2, 3],
+	[1, 2, 3],
+]
 
 const START_X = 1;
 const START_Y = 1;
