@@ -104,7 +104,7 @@ export const pickAHero: Encounter = {
 			const filtered =
 				heroCards.filter(card =>
 					!state.gameData.player.units.map(u => u.job).includes(card.id) &&
-					!state.gameData.player.bench.map(u => u?.job).includes(card.id)
+					!state.gameData.player.bench.map(u => u?.unit?.job).includes(card.id)
 				);
 
 			return pickRandom(filtered, 3).map(job => newChoice(
@@ -205,12 +205,13 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number, allowSki
 				Chara.addTooltip(chara);
 
 				function addToChest() {
-					const firstEmptyIndex = state.gameData.player.bench.findIndex(slot => slot === null);
-					state.gameData.player.bench[firstEmptyIndex < 0 ? 0 : firstEmptyIndex] = chara.unit;
+					// Find the first empty bench slot (unit === null)
+					const firstEmptyIndex = state.gameData.player.bench.findIndex(slot => !slot.unit);
+					const slotIndex = firstEmptyIndex < 0 ? 0 : firstEmptyIndex;
+					state.gameData.player.bench[slotIndex] = { index: slotIndex, unit: chara.unit };
 					picks++;
 
 					for (const c of charas) {
-
 						if (chara.id === c.id) {
 							const vec = vec2(
 								...Chest.position

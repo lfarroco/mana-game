@@ -10,8 +10,8 @@ export type Force = {
 	gold: number;
 	income: number;
 	items: (Item | null)[]; // todo: replace with map
-	units: Unit[]
-	bench: (Unit | null)[];
+	units: Unit[];
+	bench: Array<{ index: number; unit: Unit | null }>;
 };
 
 export const makeForce = (id: string): Force => ({
@@ -21,7 +21,10 @@ export const makeForce = (id: string): Force => ({
 	gold: 10,
 	income: 5,
 	units: [],
-	bench: [],
+	bench: new Array(3).fill(null).map((_, index) => ({
+		index,
+		unit: null
+	})),
 	items: []
 });
 
