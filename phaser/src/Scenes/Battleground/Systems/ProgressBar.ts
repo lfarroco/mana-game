@@ -52,8 +52,8 @@ export function updateProgressBar(
 	const colorFuture = 0xeaeaea;
 	const colorPast = 0x000000;
 
-	new Array(adventure.waves.length).fill(0)
-		.map((i: number) => {
+	new Array(adventure.waves.length)
+		.map((_, i: number) => {
 			const x = barX + (i / adventure.waves.length) * barWidth;
 			const y = barY + barHeight / 2;
 
@@ -77,5 +77,6 @@ export function updateProgressBar(
 				).setOrigin(0.5).setDisplaySize(100, 100);
 				container.add(icon);
 			}
-		}),
+		});
+
 }
