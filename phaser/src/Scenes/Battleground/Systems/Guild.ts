@@ -171,6 +171,31 @@ function renderBench(
 				handleUnitSell(chara);
 				return;
 			}
+
+			// --- BENCH SLOT DRAG & DROP ---
+			// Check if dropped over a bench slot
+			const dropBenchSlot = benchSlots.find(({ index: slotIdx }) => {
+				const { x: slotX, y: slotY } = getBenchSlotPosition(slotIdx);
+				const w = constants.TILE_WIDTH + 20;
+				const h = constants.TILE_HEIGHT + 20;
+				return (
+					pointer.x >= slotX && pointer.x <= slotX + w &&
+					pointer.y >= slotY && pointer.y <= slotY + h
+				);
+			});
+			if (dropBenchSlot) {
+				const fromIdx = index;
+				const toIdx = dropBenchSlot.index;
+				if (fromIdx !== toIdx) {
+					const fromUnit = state.gameData.player.bench[fromIdx].unit;
+					const toUnit = state.gameData.player.bench[toIdx].unit;
+					// Swap or move
+					state.gameData.player.bench[fromIdx].unit = toUnit || null;
+					state.gameData.player.bench[toIdx].unit = fromUnit;
+					render(scene, parent);
+					return;
+				}
+			}
 		});
 		chara.zone.on("drag", (pointer: Phaser.Input.Pointer) => {
 			chara.container.x = pointer.x;
