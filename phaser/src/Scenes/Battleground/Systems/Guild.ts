@@ -1,18 +1,16 @@
 import { getState, State } from "../../../Models/State";
-import { addTooltip, Chara, createCard } from "../../../Systems/Chara/Chara";
+import { Chara } from "../../../Systems/Chara/Chara";
 import * as Flyout_ from "../../../Systems/Flyout";
 import * as Tooltip from "../../../Systems/Tooltip";
 import * as constants from "../constants";
-import { getTileAt } from "./GridSystem";
 import { destroyChara, overlap, summonChara } from "./UnitManager";
 import { coinDropIO } from "./UIManager";
-import { overlapsWithPlayerBoard } from "../../../Models/Board";
+
 import { Item } from "../../../Models/Item";
 import { equipItemInUnit } from "../../../Systems/Item/EquipItem";
 import { Unit } from "../../../Models/Unit";
 import { updatePlayerGoldIO } from "../../../Models/Force";
-import { handleUnitDrop } from "./GuildDragHandlers";
-import { getBenchSlotPosition, getBenchCardPosition } from "./GuildRenderHelpers";
+import { renderBench } from "./GuildBench";
 
 const CHEST_TILE_SIZE = constants.TILE_WIDTH / 2;
 
@@ -49,6 +47,7 @@ function onUnitSell(chara: Chara) {
 	const state = getState();
 	const unit = chara.unit;
 	state.gameData.player.units = state.gameData.player.units.filter(u => u.id !== unit.id);
+	state.battleData.units = state.battleData.units.filter(u => u.id !== unit.id);
 	const benchIndex = state.gameData.player.bench.findIndex(b => b.unit && b.unit.id === unit.id);
 	if (benchIndex !== -1) {
 		state.gameData.player.bench[benchIndex] = { index: benchIndex, unit: null };
@@ -143,102 +142,6 @@ export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container
 	update();
 
 }
-
-function renderBench(
-	scene: Phaser.Scene,
-	parent: Container,
-	state: State,
-	sellImage: Phaser.GameObjects.Image
-) {
-	const benchTitle = scene.add.text(
-		50,
-		80,
-		"Bench",
-		constants.titleTextConfig);
-	parent.add(benchTitle);
-
-	// Use the bench array directly (already { index, unit })
-	const benchSlots = state.gameData.player.bench;
-
-	benchSlots.forEach(({ index }) => {
-		const { x, y } = getBenchSlotPosition(index);
-		const w = constants.TILE_WIDTH + 20;
-		const h = constants.TILE_HEIGHT + 20;
-		const slot = scene.add.image(x, y, "ui/slot").setDisplaySize(w, h).setOrigin(0);
-		const zone = scene.add.zone(x, y, w, h)
-			.setPosition(x, y)
-			.setName("slot")
-			.setDataEnabled()
-			.setData("slot", index)
-			.setOrigin(0)
-			.setRectangleDropZone(w, h);
-		parent.add([slot, zone]);
-		if (!state.options.debug) return;
-		const dropZoneDisplay = scene.add.graphics();
-		dropZoneDisplay.lineStyle(2, 0xffff00);
-		dropZoneDisplay.fillStyle(0x00ffff, 0.3);
-		dropZoneDisplay.fillRect(x, y, w, h);
-		dropZoneDisplay.strokeRect(x, y, w, h);
-		parent.add([dropZoneDisplay]);
-	});
-
-	benchSlots.forEach(({ index, unit }) => {
-		if (!unit) return;
-		const chara = createCard(unit);
-		const { x, y } = getBenchCardPosition(index);
-		chara.container.setPosition(x, y);
-		chara.zone.setInteractive({ draggable: true });
-		addTooltip(chara);
-		parent.add(chara.container);
-		chara.zone.on("dragstart", () => { Tooltip.hide(); });
-		chara.zone.on('dragend', (pointer: Phaser.Input.Pointer) => {
-			const result = handleUnitDrop({
-				chara,
-				pointer,
-				scene,
-				parent,
-				sellImage,
-				render,
-				getTileAt,
-				overlapsWithPlayerBoard
-			});
-			if (result === "sell") {
-				scene.events.emit("unitSell", chara);
-				render(scene, parent);
-				return;
-			}
-			// --- BENCH SLOT DRAG & DROP ---
-			// Check if dropped over a bench slot
-			const dropBenchSlot = benchSlots.find(({ index: slotIdx }) => {
-				const { x: slotX, y: slotY } = getBenchSlotPosition(slotIdx);
-				const w = constants.TILE_WIDTH + 20;
-				const h = constants.TILE_HEIGHT + 20;
-				return (
-					pointer.x >= slotX && pointer.x <= slotX + w &&
-					pointer.y >= slotY && pointer.y <= slotY + h
-				);
-			});
-			if (dropBenchSlot) {
-				const fromIdx = index;
-				const toIdx = dropBenchSlot.index;
-				if (fromIdx !== toIdx) {
-					const fromUnit = state.gameData.player.bench[fromIdx].unit;
-					const toUnit = state.gameData.player.bench[toIdx].unit;
-					// Swap or move
-					state.gameData.player.bench[fromIdx].unit = toUnit || null;
-					state.gameData.player.bench[toIdx].unit = fromUnit;
-					render(scene, parent);
-					return;
-				}
-			}
-		});
-		chara.zone.on("drag", (pointer: Phaser.Input.Pointer) => {
-			chara.container.x = pointer.x;
-			chara.container.y = pointer.y;
-		});
-	});
-}
-
 
 export const renderItems = (
 	scene: Phaser.Scene,
