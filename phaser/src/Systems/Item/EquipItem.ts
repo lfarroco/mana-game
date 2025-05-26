@@ -26,6 +26,7 @@ export const equipItemInBoardUnit = async ({ chara, item }: EquipItemArgs): Prom
 
 	if (currentItem !== null) {
 
+		// TODO: on bench, don't propagate events to neighboring units
 		if (currentItem.type.key === "equipment" && currentItem.name !== item?.name) {
 			currentItem.type.onUnequip?.(chara.unit)();
 		}
