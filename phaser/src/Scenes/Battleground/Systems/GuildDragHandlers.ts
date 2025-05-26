@@ -5,6 +5,7 @@ import { displayError } from "./UIManager";
 import * as constants from "../constants";
 import { tween } from "../../../Utils/animation";
 import { eqVec2, vec2 } from "../../../Models/Geometry";
+import { getBenchCardPosition, getBenchSlotPosition } from "./GuildRenderHelpers";
 
 export function handleUnitDrop({
 	chara,
@@ -14,13 +15,15 @@ export function handleUnitDrop({
 	sellImage,
 	render,
 	getTileAt,
-	overlapsWithPlayerBoard
+	overlapsWithPlayerBoard,
+	slotIndex
 }: any) {
 	const returnToPosition = () => {
+
+		const pos = getBenchCardPosition(slotIndex);
 		tween({
 			targets: [chara.container],
-			x: chara.container.x,
-			y: chara.container.y
+			...pos
 		});
 	};
 
@@ -32,6 +35,18 @@ export function handleUnitDrop({
 		sellImage.getBounds()
 	)) {
 		return "sell";
+	}
+	const dropBenchSlot = [0, 1, 2].find((slotIdx) => {
+		const { x: slotX, y: slotY } = getBenchSlotPosition(slotIdx);
+		const w = constants.TILE_WIDTH + 20;
+		const h = constants.TILE_HEIGHT + 20;
+		return (
+			pointer.x >= slotX && pointer.x <= slotX + w &&
+			pointer.y >= slotY && pointer.y <= slotY + h
+		);
+	});
+	if (wasDrag && dropBenchSlot !== undefined) {
+		return { type: "benchSlot", index: dropBenchSlot };
 	}
 
 	if (wasDrag && !inBoard) {
