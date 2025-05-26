@@ -12,8 +12,10 @@ import { overlapsWithPlayerBoard } from "../../../Models/Board";
 import { Item } from "../../../Models/Item";
 import { equipItemInUnit } from "../../../Systems/Item/EquipItem";
 import { Unit } from "../../../Models/Unit";
+import { updatePlayerGoldIO } from "../../../Models/Force";
 
 const CHEST_TILE_SIZE = constants.TILE_WIDTH / 2;
+let initialized = false;
 
 export async function renderGuildButton(scene: Phaser.Scene) {
 
@@ -43,16 +45,19 @@ const handleButtonClicked = (container: Container, flyout: Flyout_.Flyout) => as
 
 	render(container.scene, container);
 
-	container.scene.events.on("unitDroppedInBenchSlot", handleUnitDroppedInSlot);
+	if (!initialized) {
+		container.scene.events.on("unitDroppedInBenchSlot", handleUnitDroppedInBenchSlot);
 
-	container.scene.events.on("unitDroppedInBenchSlot", () => {
-		render(container.scene, container);
-	});
+		container.scene.events.on("unitDroppedInBenchSlot", () => {
+			render(container.scene, container);
+		});
+		initialized = true;
+	}
 
 	await flyout.slideIn();
 }
 
-const handleUnitDroppedInSlot = (unit: Unit, index: number) => {
+const handleUnitDroppedInBenchSlot = (unit: Unit, index: number) => {
 
 	const state = getState();
 
@@ -66,6 +71,7 @@ const handleUnitDroppedInSlot = (unit: Unit, index: number) => {
 
 	state.gameData.player.bench[index] = unit;
 	state.gameData.player.units = state.gameData.player.units.filter(u => u.id !== unit.id);
+	state.battleData.units = state.battleData.units.filter(u => u.id !== unit.id);
 
 	destroyChara(unit.id);
 
@@ -81,7 +87,9 @@ export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container
 
 		parent.removeAll(true);
 
-		renderBench(scene, parent, state);
+		const sellImage = sellZone(scene, parent);
+
+		renderBench(scene, parent, state, sellImage);
 
 		const itemsTitle = scene.add.text(
 			50,
@@ -91,7 +99,7 @@ export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container
 		parent.add(itemsTitle);
 
 
-		renderItems(scene, parent, state);
+		renderItems(scene, parent, state, sellImage);
 
 	}
 
@@ -99,7 +107,12 @@ export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container
 
 }
 
-function renderBench(scene: Phaser.Scene, parent: Container, state: State) {
+function renderBench(
+	scene: Phaser.Scene,
+	parent: Container,
+	state: State,
+	sellImage: Phaser.GameObjects.Image
+) {
 	const benchTitle = scene.add.text(
 		50,
 		80,
@@ -186,13 +199,20 @@ function renderBench(scene: Phaser.Scene, parent: Container, state: State) {
 				const wasDrag = pointer.getDistance() > 10;
 				const inBoard = overlapsWithPlayerBoard(pointer);
 
+				if (wasDrag && Phaser.Geom.Intersects.RectangleToRectangle(
+					chara.container.getBounds(),
+					sellImage.getBounds()
+				)) {
+					handleUnitSell(chara);
+					return;
+				}
+
 				if (wasDrag && !inBoard) {
 					returnToPosition();
 					return;
 				}
 
 				const state = getState();
-
 
 				// The board will change: remove position bonuses for all units
 				state.gameData.player.units.forEach((unit) => {
@@ -226,6 +246,7 @@ function renderBench(scene: Phaser.Scene, parent: Container, state: State) {
 				const unit = chara.unit;
 				unit.position = position;
 				state.gameData.player.units.push(unit);
+				state.battleData.units.push(unit);
 
 				chara.container.destroy();
 
@@ -249,9 +270,12 @@ function renderBench(scene: Phaser.Scene, parent: Container, state: State) {
 }
 
 
-export const renderItems = async (scene: Phaser.Scene, parent: Container, state: State) => {
-
-	const sellImage = sellZone(scene, parent);
+export const renderItems = async (
+	scene: Phaser.Scene,
+	parent: Container,
+	state: State,
+	sellImage: Phaser.GameObjects.Image
+) => {
 
 	const baseX = 120;
 	const baseY = 530;
@@ -420,6 +444,22 @@ function handleSelling(icon: Phaser.GameObjects.Image, state: State, item: Item,
 	onSell();
 
 	coinDropIO(item.cost / 2, item.cost / 2, icon.x, icon.y)
+}
+
+function handleUnitSell(chara: Chara) {
+	const state = getState();
+	const unit = chara.unit;
+	state.gameData.player.units = state.gameData.player.units.filter(u => u.id !== unit.id);
+
+	const benchIndex = state.gameData.player.bench.findIndex(u => u?.id === unit.id);
+	if (benchIndex !== -1) {
+		state.gameData.player.bench[benchIndex] = null;
+	}
+
+	chara.container.destroy();
+	coinDropIO(10, 10, chara.container.x, chara.container.y);
+
+	updatePlayerGoldIO(10);
 }
 
 function dropItemInChara(targetChara: Chara, icon: Phaser.GameObjects.Image, item: Item, onDrop: () => void) {

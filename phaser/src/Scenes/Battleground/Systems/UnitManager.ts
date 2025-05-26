@@ -16,6 +16,9 @@ export const unitManagerState: UnitManagerState = {
 	charaIndex: [],
 }
 
+//@ts-ignore
+window.charas = unitManagerState.charaIndex;
+
 export function clearCharas() {
 	unitManagerState.charaIndex.forEach(chara => {
 		destroyChara(chara.id)
