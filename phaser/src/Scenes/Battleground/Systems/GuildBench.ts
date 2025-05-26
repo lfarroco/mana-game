@@ -53,7 +53,10 @@ export function renderBench(
 		chara.zone.setInteractive({ draggable: true });
 		addTooltip(chara);
 		parent.add(chara.container);
-		chara.zone.on("dragstart", () => { Tooltip.hide(); });
+		chara.zone.on("dragstart", () => {
+			parent.bringToTop(chara.container);
+			Tooltip.hide();
+		});
 		chara.zone.on('dragend', (pointer: Phaser.Input.Pointer) => {
 			const result = handleUnitDrop({
 				chara,
@@ -63,27 +66,18 @@ export function renderBench(
 				sellImage,
 				render,
 				getTileAt,
-				overlapsWithPlayerBoard
+				overlapsWithPlayerBoard,
+				slotIndex: index
 			});
 			if (result === "sell") {
 				scene.events.emit("unitSell", chara);
 				render(scene, parent);
 				return;
 			}
-			// --- BENCH SLOT DRAG & DROP ---
-			// Check if dropped over a bench slot
-			const dropBenchSlot = benchSlots.find(({ index: slotIdx }) => {
-				const { x: slotX, y: slotY } = getBenchSlotPosition(slotIdx);
-				const w = constants.TILE_WIDTH + 20;
-				const h = constants.TILE_HEIGHT + 20;
-				return (
-					pointer.x >= slotX && pointer.x <= slotX + w &&
-					pointer.y >= slotY && pointer.y <= slotY + h
-				);
-			});
-			if (dropBenchSlot) {
+
+			if (result?.type === "benchSlot") {
 				const fromIdx = index;
-				const toIdx = dropBenchSlot.index;
+				const toIdx = result.index;
 				if (fromIdx !== toIdx) {
 					const fromUnit = state.gameData.player.bench[fromIdx].unit;
 					const toUnit = state.gameData.player.bench[toIdx].unit;
@@ -94,8 +88,10 @@ export function renderBench(
 					return;
 				}
 			}
+
 		});
 		chara.zone.on("drag", (pointer: Phaser.Input.Pointer) => {
+			console.log("drag!")
 			chara.container.x = pointer.x;
 			chara.container.y = pointer.y;
 		});
