@@ -12,7 +12,8 @@ export function renderBench(
 	scene: Phaser.Scene,
 	parent: Container,
 	state: State,
-	sellImage: Phaser.GameObjects.Image) {
+	sellImage: Phaser.GameObjects.Image,
+) {
 	const benchTitle = scene.add.text(
 		50,
 		80,
@@ -23,7 +24,7 @@ export function renderBench(
 	// Use the bench array directly (already { index, unit })
 	const benchSlots = state.gameData.player.bench;
 
-	benchSlots.forEach(({ index }) => {
+	const imageSlots = benchSlots.map(({ index }) => {
 		const { x, y } = getBenchSlotPosition(index);
 		const w = constants.TILE_WIDTH + 20;
 		const h = constants.TILE_HEIGHT + 20;
@@ -36,13 +37,14 @@ export function renderBench(
 			.setOrigin(0)
 			.setRectangleDropZone(w, h);
 		parent.add([slot, zone]);
-		if (!state.options.debug) return;
+		if (!state.options.debug) return slot;
 		const dropZoneDisplay = scene.add.graphics();
 		dropZoneDisplay.lineStyle(2, 0xffff00);
 		dropZoneDisplay.fillStyle(0x00ffff, 0.3);
 		dropZoneDisplay.fillRect(x, y, w, h);
 		dropZoneDisplay.strokeRect(x, y, w, h);
 		parent.add([dropZoneDisplay]);
+		return slot;
 	});
 
 	benchSlots.forEach(({ index, unit }) => {
@@ -95,4 +97,6 @@ export function renderBench(
 			chara.container.y = pointer.y;
 		});
 	});
+
+	return imageSlots;
 }
