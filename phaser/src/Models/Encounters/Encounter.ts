@@ -198,8 +198,6 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number, allowSki
 					x: 180 + 250 * index,
 				});
 
-				UnitManager.addCharaToState(chara);
-
 				chara.zone.setInteractive({ draggable: true });
 
 				Chara.addTooltip(chara);

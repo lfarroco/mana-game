@@ -16,7 +16,8 @@ export function handleUnitDrop({
 	render,
 	getTileAt,
 	overlapsWithPlayerBoard,
-	slotIndex
+	slotIndex,
+	guildBenchState,
 }: any) {
 	const returnToPosition = () => {
 
@@ -87,8 +88,11 @@ export function handleUnitDrop({
 	unit.position = position;
 	state.gameData.player.units.push(unit);
 	state.battleData.units.push(unit);
-	chara.container.destroy();
+
+	guildBenchState.benchCharas = guildBenchState.benchCharas.filter((b: any) => b.unit.id !== chara.unit.id);
+	destroyChara(chara.unit.id);
 	summonChara(unit, true);
+
 	state.gameData.player.units.forEach((unit: any) => {
 		unit.events.onEnterPosition.forEach((fn: any) => fn(unit)());
 	});
