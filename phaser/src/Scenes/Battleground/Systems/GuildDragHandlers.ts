@@ -73,8 +73,10 @@ export function handleUnitDrop({
 		state.gameData.player.units = state.gameData.player.units.filter((u: any) => u.id !== maybeOccupier.id);
 		sourceBenchSlot.unit = maybeOccupier;
 	} else {
-		sourceBenchSlot.unit = null;
-		if (state.gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
+
+		if (state.gameData.player.units.length < constants.MAX_PARTY_SIZE) {
+			sourceBenchSlot.unit = null;
+		} else {
 			displayError(`You can only have ${constants.MAX_PARTY_SIZE} units in your party.`);
 			returnToPosition();
 			return;
