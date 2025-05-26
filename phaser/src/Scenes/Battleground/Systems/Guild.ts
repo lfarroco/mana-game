@@ -101,13 +101,12 @@ export async function renderGuildButton(scene: Phaser.Scene) {
 
 	if (initialized) return;
 	// Register event handlers only once
-	scene.events.on("unitDroppedInBenchSlot", (unit: Unit, index: number) => onUnitDroppedInBenchSlot(unit, index));
-	scene.events.on("unitSell", (chara: Chara) => onUnitSell(chara));
-	scene.events.on("itemSell", (icon: Phaser.GameObjects.Image, item: Item) => onItemSell(icon, item));
-	scene.events.on("itemDroppedOnChara", (targetChara: Chara, icon: Phaser.GameObjects.Image, item: Item) => onItemDroppedOnChara(targetChara, icon, item));
+	scene.events.on("unitDroppedInBenchSlot", onUnitDroppedInBenchSlot);
+	scene.events.on("unitSell", onUnitSell);
+	scene.events.on("itemSell", onItemSell);
+	scene.events.on("itemDroppedOnChara", onItemDroppedOnChara);
 
 	initialized = true;
-
 
 }
 
