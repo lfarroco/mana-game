@@ -204,11 +204,14 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number, allowSki
 
 				Chara.addTooltip(chara);
 
-				function addToChest() {
+				function addToBench() {
 					// Find the first empty bench slot (unit === null)
-					const firstEmptyIndex = state.gameData.player.bench.findIndex(slot => !slot.unit);
-					const slotIndex = firstEmptyIndex < 0 ? 0 : firstEmptyIndex;
-					state.gameData.player.bench[slotIndex] = { index: slotIndex, unit: chara.unit };
+					const firstEmptySlot = state.gameData.player.bench.find(slot => !slot.unit);
+					if (!firstEmptySlot) {
+						return;
+					}
+					firstEmptySlot.unit = chara.unit;
+
 					picks++;
 
 					for (const c of charas) {
@@ -248,11 +251,11 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number, allowSki
 
 					if (state.gameData.player.units.length >= MAX_PARTY_SIZE) {
 
-						if (state.gameData.player.bench.length >= MAX_BENCH_SIZE) {
+						if (state.gameData.player.bench.filter(b => b.unit).length >= MAX_BENCH_SIZE) {
 							displayError("Your party and bench are full! Discard a card or skip.");
 							return;
 						}
-						addToChest();
+						addToBench();
 						return;
 					}
 
@@ -298,7 +301,7 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number, allowSki
 				) => {
 
 					if (state.gameData.player.units.length >= MAX_PARTY_SIZE) {
-						addToChest();
+						addToBench();
 						return;
 					}
 

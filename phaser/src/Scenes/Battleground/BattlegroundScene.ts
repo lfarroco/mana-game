@@ -192,12 +192,9 @@ export class BattlegroundScene extends Phaser.Scene {
           UnitManager.summonChara(unit);
         });
 
-
         const pool = Object.entries(ITEMS).map(([key, value]) => [key, value()] as [string, Item]);
 
-        const chosenLoot = await ChoiceSystem.chooseItems(pool)
-
-        console.log("Loot", chosenLoot);
+        await ChoiceSystem.chooseItems(pool)
 
         const tavern_ = tavern();
 

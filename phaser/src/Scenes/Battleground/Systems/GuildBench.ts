@@ -91,7 +91,6 @@ export function renderBench(
 
 		});
 		chara.zone.on("drag", (pointer: Phaser.Input.Pointer) => {
-			console.log("drag!")
 			chara.container.x = pointer.x;
 			chara.container.y = pointer.y;
 		});
