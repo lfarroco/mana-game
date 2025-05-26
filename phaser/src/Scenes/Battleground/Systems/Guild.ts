@@ -120,8 +120,16 @@ function renderBench(
 		constants.titleTextConfig);
 	parent.add(benchTitle);
 
-	for (let i = 0; i < constants.MAX_BENCH_SIZE; i++) {
-		const { x, y } = getBenchSlotPosition(i);
+	// Build benchSlots array: each slot has index and unit
+	const benchSlots: Array<{ index: number; unit: Unit | null }> = new Array(constants.MAX_BENCH_SIZE)
+		.fill(null)
+		.map((_, i) => ({
+			index: i,
+			unit: state.gameData.player.bench[i] || null
+		}));
+
+	benchSlots.forEach(({ index }) => {
+		const { x, y } = getBenchSlotPosition(index);
 		const w = constants.TILE_WIDTH + 20;
 		const h = constants.TILE_HEIGHT + 20;
 		const slot = scene.add.image(x, y, "ui/slot").setDisplaySize(w, h).setOrigin(0);
@@ -129,20 +137,20 @@ function renderBench(
 			.setPosition(x, y)
 			.setName("slot")
 			.setDataEnabled()
-			.setData("slot", i)
+			.setData("slot", index)
 			.setOrigin(0)
 			.setRectangleDropZone(w, h);
 		parent.add([slot, zone]);
-		if (!state.options.debug) continue;
+		if (!state.options.debug) return;
 		const dropZoneDisplay = scene.add.graphics();
 		dropZoneDisplay.lineStyle(2, 0xffff00);
 		dropZoneDisplay.fillStyle(0x00ffff, 0.3);
 		dropZoneDisplay.fillRect(x, y, w, h);
 		dropZoneDisplay.strokeRect(x, y, w, h);
 		parent.add([dropZoneDisplay]);
-	}
+	});
 
-	state.gameData.player.bench.forEach((unit, index) => {
+	benchSlots.forEach(({ index, unit }) => {
 		if (!unit) return;
 		const chara = createCard(unit);
 		const { x, y } = getBenchCardPosition(index);
