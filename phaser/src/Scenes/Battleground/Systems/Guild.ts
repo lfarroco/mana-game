@@ -15,13 +15,83 @@ import { handleUnitDrop } from "./GuildDragHandlers";
 import { getBenchSlotPosition, getBenchCardPosition } from "./GuildRenderHelpers";
 
 const CHEST_TILE_SIZE = constants.TILE_WIDTH / 2;
-let initialized = false;
+
+// Module-scoped variable for flyout and container
+let guildFlyout: Flyout_.Flyout | null = null;
+let flyoutContainer: Container | null = null;
+
+// Event handler for unit dropped in bench slot
+function onUnitDroppedInBenchSlot(unit: Unit, index: number) {
+	const state = getState();
+	const slot = state.gameData.player.bench[index];
+	const occupier = slot && slot.unit;
+	if (occupier) {
+		occupier.position = unit.position;
+		state.gameData.player.units.push(occupier);
+		summonChara(occupier, true);
+	}
+	state.gameData.player.bench[index] = { index, unit };
+	state.gameData.player.units = state.gameData.player.units.filter(u => u.id !== unit.id);
+	state.battleData.units = state.battleData.units.filter(u => u.id !== unit.id);
+	destroyChara(unit.id);
+
+	// Rerender the flyout contents if open
+	if (guildFlyout) {
+		const { scene, isOpen } = guildFlyout;
+		if (isOpen && flyoutContainer) {
+			render(scene, flyoutContainer);
+		}
+	}
+}
+
+// Event handler for unit sell
+function onUnitSell(chara: Chara) {
+	const state = getState();
+	const unit = chara.unit;
+	state.gameData.player.units = state.gameData.player.units.filter(u => u.id !== unit.id);
+	const benchIndex = state.gameData.player.bench.findIndex(b => b.unit && b.unit.id === unit.id);
+	if (benchIndex !== -1) {
+		state.gameData.player.bench[benchIndex] = { index: benchIndex, unit: null };
+	}
+	chara.container.destroy();
+	coinDropIO(10, 10, chara.container.x, chara.container.y);
+	updatePlayerGoldIO(10);
+}
+
+// Event handler for item sell
+function onItemSell(icon: Phaser.GameObjects.Image, item: Item) {
+	const state = getState();
+	icon.destroy();
+	state.gameData.player.items = state.gameData.player.items.filter(i => i?.id !== item.id);
+	coinDropIO(item.cost / 2, item.cost / 2, icon.x, icon.y);
+}
+
+// Event handler for item dropped on chara
+function onItemDroppedOnChara(targetChara: Chara, icon: Phaser.GameObjects.Image, item: Item) {
+	const state = getState();
+	icon.destroy();
+	const currentItem = targetChara.unit.equip;
+	equipItemInUnit({ unit: targetChara.unit, item });
+	state.gameData.player.items = state.gameData.player.items.filter(i => i?.id !== item.id);
+	if (currentItem !== null) {
+		state.gameData.player.items.push(currentItem);
+	}
+}
 
 export async function renderGuildButton(scene: Phaser.Scene) {
-
 	const flyout = await Flyout_.create(scene, "Your Guild")
 	const container = scene.add.container(0, 0);
 	flyout.add(container);
+
+	// Store references for event handlers in module scope
+	guildFlyout = flyout;
+	flyoutContainer = container;
+
+	// Register event handlers
+	scene.events.on("unitDroppedInBenchSlot", (unit: Unit, index: number) => onUnitDroppedInBenchSlot(unit, index));
+	scene.events.on("unitSell", (chara: Chara) => onUnitSell(chara));
+	scene.events.on("itemSell", (icon: Phaser.GameObjects.Image, item: Item) => onItemSell(icon, item));
+	scene.events.on("itemDroppedOnChara", (targetChara: Chara, icon: Phaser.GameObjects.Image, item: Item) => onItemDroppedOnChara(targetChara, icon, item));
 
 	scene.add.image(
 		...[
@@ -33,50 +103,15 @@ export async function renderGuildButton(scene: Phaser.Scene) {
 		.setDisplaySize(230, 230)
 		.setInteractive()
 		.on("pointerup", () => handleButtonClicked(container, flyout)());
-
 }
 
 const handleButtonClicked = (container: Container, flyout: Flyout_.Flyout) => async () => {
-
 	if (flyout.isOpen) {
 		flyout.slideOut();
 		return;
 	}
-
 	render(container.scene, container);
-
-	if (!initialized) {
-		container.scene.events.on("unitDroppedInBenchSlot", handleUnitDroppedInBenchSlot);
-
-		container.scene.events.on("unitDroppedInBenchSlot", () => {
-			render(container.scene, container);
-		});
-		initialized = true;
-	}
-
 	await flyout.slideIn();
-}
-
-const handleUnitDroppedInBenchSlot = (unit: Unit, index: number) => {
-
-	const state = getState();
-
-	const slot = state.gameData.player.bench[index];
-	const occupier = slot && slot.unit;
-
-	if (occupier) {
-		occupier.position = unit.position;
-		state.gameData.player.units.push(occupier);
-		summonChara(occupier, true);
-	}
-
-	// Place the new unit in the slot
-	state.gameData.player.bench[index] = { index, unit };
-	state.gameData.player.units = state.gameData.player.units.filter(u => u.id !== unit.id);
-	state.battleData.units = state.battleData.units.filter(u => u.id !== unit.id);
-
-	destroyChara(unit.id);
-
 }
 
 export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container) {
@@ -168,10 +203,10 @@ function renderBench(
 				overlapsWithPlayerBoard
 			});
 			if (result === "sell") {
-				handleUnitSell(chara);
+				scene.events.emit("unitSell", chara);
+				render(scene, parent);
 				return;
 			}
-
 			// --- BENCH SLOT DRAG & DROP ---
 			// Check if dropped over a bench slot
 			const dropBenchSlot = benchSlots.find(({ index: slotIdx }) => {
@@ -292,14 +327,16 @@ export const renderItems = (
 		icon.on("dragend", (pointer: Phaser.Input.Pointer) => {
 			const targetChara = overlap(pointer);
 			if (targetChara && state.gameData.player.units.find(chara => chara.id === targetChara.unit.id)) {
-				dropItemInChara(targetChara, icon, item, () => render(scene, parent));
+				scene.events.emit("itemDroppedOnChara", targetChara, icon, item);
+				render(scene, parent);
 				return;
 			}
 			if (Phaser.Geom.Intersects.RectangleToRectangle(
 				icon.getBounds(),
 				sellImage.getBounds()
 			)) {
-				handleSelling(icon, state, item, () => render(scene, parent));
+				scene.events.emit("itemSell", icon, item);
+				render(scene, parent);
 				return;
 			}
 			// check if dropped over another slot
@@ -354,51 +391,4 @@ function sellZone(scene: Scene, parent: Container) {
 
 	return sellImage
 
-}
-
-
-function handleSelling(icon: Phaser.GameObjects.Image, state: State, item: Item, onSell: () => void) {
-
-	icon.destroy();
-
-	state.gameData.player.items = state.gameData.player.items.filter(i => i?.id !== item.id);
-	onSell();
-
-	coinDropIO(item.cost / 2, item.cost / 2, icon.x, icon.y)
-}
-
-function handleUnitSell(chara: Chara) {
-	const state = getState();
-	const unit = chara.unit;
-	state.gameData.player.units = state.gameData.player.units.filter(u => u.id !== unit.id);
-
-	const benchIndex = state.gameData.player.bench.findIndex(b => b.unit && b.unit.id === unit.id);
-	if (benchIndex !== -1) {
-		state.gameData.player.bench[benchIndex] = { index: benchIndex, unit: null };
-	}
-
-	chara.container.destroy();
-	coinDropIO(10, 10, chara.container.x, chara.container.y);
-
-	updatePlayerGoldIO(10);
-}
-
-function dropItemInChara(targetChara: Chara, icon: Phaser.GameObjects.Image, item: Item, onDrop: () => void) {
-
-	const state = getState();
-
-	icon.destroy();
-
-	const currentItem = targetChara.unit.equip;
-
-	equipItemInUnit({ unit: targetChara.unit, item });
-
-	// propagate to guild unit
-	state.gameData.player.items = state.gameData.player.items.filter(i => i?.id !== item.id);
-
-	if (currentItem !== null) {
-		state.gameData.player.items.push(currentItem);
-	}
-
-	onDrop();
 }
