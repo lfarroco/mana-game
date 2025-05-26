@@ -2,7 +2,7 @@ import { Item } from "../../../Models/Item";
 import { getState, State } from "../../../Models/State";
 import { Chara } from "../../../Systems/Chara/Chara";
 import * as Flyout_ from "../../../Systems/Flyout";
-import { equipItemInUnit } from "../../../Systems/Item/EquipItem";
+import { equipItemInBoardUnit } from "../../../Systems/Item/EquipItem";
 import * as Tooltip from "../../../Systems/Tooltip";
 import * as constants from "../constants";
 import * as UIManager from "./UIManager";
@@ -207,7 +207,7 @@ function dropItemInChara(targetChara: Chara, icon: Phaser.GameObjects.Image, ite
 
 	const currentItem = targetChara.unit.equip;
 
-	equipItemInUnit({ unit: targetChara.unit, item });
+	equipItemInBoardUnit({ chara: targetChara, item });
 
 	// propagate to guild unit
 	state.gameData.player.items = state.gameData.player.items.filter(i => i?.id !== item.id);

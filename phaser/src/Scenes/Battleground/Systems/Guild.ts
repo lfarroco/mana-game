@@ -7,7 +7,7 @@ import { destroyChara, overlap, summonChara } from "./UnitManager";
 import { coinDropIO } from "./UIManager";
 
 import { Item } from "../../../Models/Item";
-import { equipItemInUnit } from "../../../Systems/Item/EquipItem";
+import { equipItemInBoardUnit } from "../../../Systems/Item/EquipItem";
 import { Unit } from "../../../Models/Unit";
 import { updatePlayerGoldIO } from "../../../Models/Force";
 import { renderBench } from "./GuildBench";
@@ -68,15 +68,27 @@ function onItemSell(icon: Phaser.GameObjects.Image, item: Item) {
 }
 
 // Event handler for item dropped on chara
-function onItemDroppedOnChara(targetChara: Chara, icon: Phaser.GameObjects.Image, item: Item) {
+function onItemDroppedOnBoardChara(targetChara: Chara, icon: Phaser.GameObjects.Image, item: Item) {
 	const state = getState();
 	icon.destroy();
 	const currentItem = targetChara.unit.equip;
-	equipItemInUnit({ unit: targetChara.unit, item });
+	equipItemInBoardUnit({ chara: targetChara, item });
 	state.gameData.player.items = state.gameData.player.items.filter(i => i?.id !== item.id);
 	if (currentItem !== null) {
 		state.gameData.player.items.push(currentItem);
 	}
+}
+
+function onItemDroppedOnBenchChara(_targetChara: Chara, _icon: Phaser.GameObjects.Image, _item: Item) {
+	console.log("implement me: onItemDroppedOnBenchChara");
+	// const state = getState();
+	// icon.destroy();
+	// const currentItem = targetChara.unit.equip;
+	//equipItemInBoardUnit({ chara: targetChara.unit, item });
+	// state.gameData.player.items = state.gameData.player.items.filter(i => i?.id !== item.id);
+	// if (currentItem !== null) {
+	// 	state.gameData.player.items.push(currentItem);
+	// }
 }
 
 export async function renderGuildButton(scene: Phaser.Scene) {
@@ -104,7 +116,8 @@ export async function renderGuildButton(scene: Phaser.Scene) {
 	scene.events.on("unitDroppedInBenchSlot", onUnitDroppedInBenchSlot);
 	scene.events.on("unitSell", onUnitSell);
 	scene.events.on("itemSell", onItemSell);
-	scene.events.on("itemDroppedOnChara", onItemDroppedOnChara);
+	scene.events.on("itemDroppedOnChara", onItemDroppedOnBoardChara);
+	scene.events.on("itemDroppedOnBenchChara", onItemDroppedOnBenchChara);
 
 	initialized = true;
 
@@ -131,7 +144,7 @@ export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container
 
 		const sellImage = sellZone(scene, parent);
 
-		renderBench(scene, parent, state, sellImage);
+		const benchSlots = renderBench(scene, parent, state, sellImage);
 
 		const itemsTitle = scene.add.text(
 			50,
@@ -141,7 +154,7 @@ export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container
 		parent.add(itemsTitle);
 
 
-		renderItems(scene, parent, state, sellImage);
+		renderItems(scene, parent, state, sellImage, benchSlots);
 
 	}
 
@@ -150,10 +163,11 @@ export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container
 }
 
 export const renderItems = (
-	scene: Phaser.Scene,
+	scene: Scene,
 	parent: Container,
 	state: State,
-	sellImage: Phaser.GameObjects.Image
+	sellImage: Image,
+	benchSlots: Image[]
 ) => {
 	const baseX = 120;
 	const baseY = 530;
@@ -240,6 +254,26 @@ export const renderItems = (
 				render(scene, parent);
 				return;
 			}
+
+			// check if overlaps with charas in the bench
+			benchSlots.forEach((slot, i) => {
+
+				const intersects = Phaser.Geom.Intersects.RectangleToRectangle(
+					slot.getBounds(),
+					icon.getBounds()
+				);
+
+				debugger;
+				if (intersects) {
+					const benchSlot = state.gameData.player.bench[i];
+					if (benchSlot && benchSlot.unit) {
+						scene.events.emit("itemDroppedOnBenchChara", benchSlot.unit, icon, item);
+						render(scene, parent);
+						return;
+					}
+				}
+			});
+
 			if (Phaser.Geom.Intersects.RectangleToRectangle(
 				icon.getBounds(),
 				sellImage.getBounds()

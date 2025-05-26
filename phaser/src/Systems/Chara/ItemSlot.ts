@@ -1,15 +1,19 @@
 import Phaser from "phaser";
 import { playerForce } from "../../Models/Force";
-import { Unit } from "../../Models/Unit";
 import * as bgConstants from "../../Scenes/Battleground/constants";
 import { FORCE_ID_PLAYER } from "../../Scenes/Battleground/constants";
 import * as Chest from "../../Scenes/Battleground/Systems/Chest";
 import * as UnitManager from "../../Scenes/Battleground/Systems/UnitManager";
-import { equipItemInUnit } from "../Item/EquipItem";
+import { equipItemInBoardUnit } from "../Item/EquipItem";
 import * as TooltipSytem from "../Tooltip";
 import { scene } from "./Chara";
+import { Unit } from "../../Models/Unit";
 
-export function renderItemSlot(unit: Unit, container: Phaser.GameObjects.Container) {
+export function renderItemSlot(
+	unit: Unit,
+	container: Container,
+) {
+
 	const itemBorder = scene.add.image(
 		bgConstants.HALF_TILE_WIDTH - 40, -bgConstants.HALF_TILE_HEIGHT + 40,
 		"ui/slot")
@@ -47,20 +51,22 @@ export function renderItemSlot(unit: Unit, container: Phaser.GameObjects.Contain
 	item.on('dragend', (pointer: Phaser.Input.Pointer) => {
 		const closest = UnitManager.overlap(pointer);
 
+		const chara = UnitManager.getChara(unit.id);
+
 		if (!closest) {
 			// back to chest
 			if (unit.equip) playerForce.items.push(unit.equip);
 
-			equipItemInUnit({ unit, item: null });
+			equipItemInBoardUnit({ chara, item: null });
 			Chest.updateChestIO();
 		} else {
 			if (closest.unit.id === unit.id) { //self
-				equipItemInUnit({ unit, item: unit.equip });
+				equipItemInBoardUnit({ chara, item: unit.equip });
 			} else { //another
 				const currEquip = closest.unit.equip;
 
-				equipItemInUnit({ unit: closest.unit, item: unit.equip });
-				equipItemInUnit({ unit: unit, item: currEquip });
+				equipItemInBoardUnit({ chara: closest, item: unit.equip });
+				equipItemInBoardUnit({ chara, item: currEquip });
 
 			}
 		}

@@ -1,6 +1,5 @@
 import { v4 } from "uuid";
 import { healUnit, updateUnitAttribute } from "../Systems/Chara/Chara";
-import { burnConsumableInBattle } from "../Systems/Item/EquipItem";
 import { Unit } from "./Unit";
 import { UnitEvent } from "./UnitEvents";
 
@@ -58,13 +57,11 @@ export const ITEMS: { [id: string]: () => Item } = {
 	RED_POTION_COMMON: () => equipmentItem('Red Potion', 'items/red_potion', 4, 'Heals 30 HP when below 50% HP', {
 		onHalfHP: (u) => async () => {
 			healUnit(u, 30);
-			burnConsumableInBattle(u.id);
 		}
 	}),
 	TOXIC_POTION_COMMON: () => equipmentItem('Toxic Potion', 'items/toxic_potion', 4, 'Increases attack by 5 until the end of the battle', {
 		onCombatStart: (u) => async () => {
 			updateUnitAttribute(u, 'attackPower', 5);
-			burnConsumableInBattle(u.id);
 		}
 	}),
 	IRON_SWORD_COMMON: () => equipmentItem('Iron Sword', 'items/iron_sword', 10, 'Increases attack by 5', attributeModifier('attackPower', 5)),
