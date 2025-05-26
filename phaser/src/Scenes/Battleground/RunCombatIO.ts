@@ -33,10 +33,10 @@ async function setupWave(scene: BattlegroundScene) {
     })
   }));
 
-  scene.state.battleData.units
-    .forEach(u =>
-      u.equip?.type?.key === "equipment" && u.equip.type.onCombatStart(u)
-    );
+  scene.state.battleData.units.forEach(u => {
+    if (u.equip?.type?.key !== "equipment") return;
+    u.equip.type.onCombatStart?.(u)();
+  });
 
   scene.state.battleData.units
     .forEach(u =>
