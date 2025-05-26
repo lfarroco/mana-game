@@ -15,6 +15,8 @@ export let unitInfoContainer: Phaser.GameObjects.Container | null = null;
 export let scene: BattlegroundScene;
 export let state: State;
 
+let goldText: Phaser.GameObjects.Text | null = null;
+
 export function init(sceneRef: BattlegroundScene) {
 	scene = sceneRef;
 	state = scene.state;
@@ -91,10 +93,14 @@ export const enableButton = (button: Phaser.GameObjects.Container) => {
 
 export function updateUI() {
 
+	if (!ui)
+		scene.events.on("gold-changed", (gold: number) => {
+			if (goldText) {
+				goldText.setText("Gold: " + gold);
+			}
+		});
+
 	ui?.destroy(true);
-
-	const force = state.gameData.player;
-
 	ui = scene.add.container(0, 0);
 
 	const sidebarWidth = constants.TILE_WIDTH;
@@ -107,19 +113,19 @@ export function updateUI() {
 
 	ui?.add(sidebarBg);
 
-	[
-		"Gold: " + force.gold,
-		"Income: " + force.income,
-		"Day: " + scene.state.gameData.day,
-		"Hour: " + scene.state.gameData.hour,
-	].forEach((text, i) => {
-		const uiText = scene.add.text(constants.SCREEN_WIDTH - 200, 30 + i * 80, text, constants.defaultTextConfig);
-		ui?.add(uiText);
-	});
-
+	createGoldText(ui);
 
 	Guild.renderGuildButton(scene);
 
+}
+
+function createGoldText(parent: Container) {
+
+	const force = state.gameData.player;
+	goldText = scene.add.text(
+		constants.SCREEN_WIDTH - 200, 80,
+		"Gold: " + force.gold, constants.defaultTextConfig);
+	parent.add(goldText);
 }
 
 export async function displayError(errorMessage: string) {
