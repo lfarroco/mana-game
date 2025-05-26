@@ -129,8 +129,7 @@ const renderChoiceCard = (
 	await tween({
 		targets: [cardContainer],
 		x: BASE_X,
-		duration: 1000,
-		delay: index * 200,
+		delay: index * 100,
 	})
 
 	cardBg.setInteractive(new Phaser.Geom.Rectangle(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height), Phaser.Geom.Rectangle.Contains);
@@ -144,7 +143,7 @@ const renderChoiceCard = (
 			x: BASE_X - STYLE_CONSTANTS.HOVER_OFFSET,
 			y: y - STYLE_CONSTANTS.HOVER_OFFSET,
 			duration: STYLE_CONSTANTS.ANIMATION_DURATION,
-			ease: 'Power',
+			ease: 'Power2',
 		});
 	});
 
@@ -157,7 +156,7 @@ const renderChoiceCard = (
 			x: BASE_X,
 			y,
 			duration: STYLE_CONSTANTS.ANIMATION_DURATION,
-			ease: 'Power',
+			ease: 'Power2',
 		});
 	});
 
@@ -193,7 +192,6 @@ export const chooseItems = (pool: [key: string, Item][]) => new Promise<Choice>(
 				scaleX: 0.3,
 				scaleY: 0.3,
 				alpha: 0,
-				duration: 1000,
 				onComplete: () => {
 					icon.destroy();
 				}
@@ -208,7 +206,6 @@ export const chooseItems = (pool: [key: string, Item][]) => new Promise<Choice>(
 				await tween({
 					targets: [c],
 					x: -CARD_DIMENSIONS.width * 1.4,
-					duration: 1000,
 					delay: i * 200,
 				});
 			}));
