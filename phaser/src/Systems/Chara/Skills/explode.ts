@@ -6,7 +6,7 @@ import { popText } from "../Animations/popText";
 import { approach } from "../approach";
 import { delay } from "../../../Utils/animation";
 import { explodeEffect } from "../../../Effects";
-import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
+import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 import { damageUnit, killUnit } from "../Chara";
 
 export const explode = (

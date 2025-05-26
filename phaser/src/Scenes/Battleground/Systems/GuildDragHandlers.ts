@@ -1,6 +1,6 @@
 // Drag-and-drop handlers for Guild UI
 import { getState } from "../../../Models/State";
-import { destroyChara, summonChara } from "./UnitManager";
+import { destroyChara, summonChara } from "./CharaManager";
 import { displayError } from "./UIManager";
 import * as constants from "../constants";
 import { tween } from "../../../Utils/animation";

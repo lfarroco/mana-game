@@ -7,7 +7,7 @@ import * as AISystem from "../../Systems/AI/AI";
 import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import * as constants from "./constants";
 import * as UIManager from "./Systems/UIManager";
-import * as UnitManager from "./Systems/UnitManager";
+import * as UnitManager from "./Systems/CharaManager";
 import * as WaveManager from "./Systems/WaveManager";
 import * as GridSystem from "./Systems/GridSystem";
 import * as ChoiceSystem from "./Systems/Choice";

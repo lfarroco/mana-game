@@ -1,6 +1,6 @@
 import { delay, tween } from "../../../Utils/animation";
 import { defaultTextConfig, FORCE_ID_PLAYER, titleTextConfig } from "../../../Scenes/Battleground/constants";
-import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
+import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 
 // TODO: add color option (heals: green, damage: yellow, etc)
 // TODO: move this to the chara system, as it always uses the chara container

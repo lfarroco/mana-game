@@ -1,7 +1,7 @@
 import { BattlegroundScene } from "./BattlegroundScene";
 import { getActiveUnits, State, } from "../../Models/State";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER, MIN_COOLDOWN } from "./constants";
-import * as UnitManager from "./Systems/UnitManager";
+import * as UnitManager from "./Systems/CharaManager";
 import { updateChargeBar } from "../../Systems/Chara/Chara";
 import { performAction } from "./performAction";
 import { Unit } from "../../Models/Unit";

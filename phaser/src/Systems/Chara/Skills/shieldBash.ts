@@ -4,7 +4,7 @@ import { popText } from "../Animations/popText";
 import * as animation from "../Animations/shieldBash"
 import { approach } from "../approach";
 import { specialAnimation } from "../Animations/specialAnimation";
-import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
+import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 import { Chara, damageUnit } from "../Chara";
 
 

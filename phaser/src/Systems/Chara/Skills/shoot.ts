@@ -1,6 +1,6 @@
 import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
-import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
+import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 import { shootAnimation } from "../Animations/shootAnimation";
 import { approach } from "../approach";
 

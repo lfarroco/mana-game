@@ -8,7 +8,7 @@ import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../Scenes/Battleground/constants"
 import { addStatus, endStatus, State } from "./State";
 import { makeUnit, Unit } from "./Unit";
 import { UNIT_EVENTS, UnitEvents } from "./UnitEvents";
-import { getChara, summonChara } from "../Scenes/Battleground/Systems/UnitManager";
+import { getChara, summonChara } from "../Scenes/Battleground/Systems/CharaManager";
 import { SKELETON, TINY_BLOB } from "./Card";
 import { asVec2 } from "./Geometry";
 import { getColumnNeighbors } from "./Board";

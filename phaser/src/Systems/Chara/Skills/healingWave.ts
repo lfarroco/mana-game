@@ -8,7 +8,7 @@ import { BattlegroundScene } from "../../../Scenes/Battleground/BattlegroundScen
 import { EnergyBeam } from "../../../Effects/EnergyBeam";
 import { healingHitEffect } from "../../../Effects/healingHitEffect";
 import { getSkill, HEALING_WAVE } from "../../../Models/Skill";
-import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
+import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 import { lightOrb } from "./lightOrb";
 
 /**

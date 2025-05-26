@@ -3,7 +3,7 @@ import { popText } from "../Animations/popText";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { summonEffect } from "../../../Effects/summonEffect";
 import { asVec2 } from "../../../Models/Geometry";
-import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
+import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 
 export async function feint(
 	scene: BattlegroundScene,

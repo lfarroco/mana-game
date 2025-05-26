@@ -7,7 +7,7 @@ import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { getUnitsByProximity } from "../../../Models/Board";
 import { delay } from "../../../Utils/animation";
 import { approach } from "../approach";
-import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
+import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 
 export async function multishot(
 	unit: Unit,

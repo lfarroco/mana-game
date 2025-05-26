@@ -5,7 +5,7 @@ import { Unit, unitLog } from "../../../Models/Unit";
 import { popText } from "./popText";
 import { delay } from "../../../Utils/animation";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
-import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
+import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 
 export async function healAnimation(
     scene: BattlegroundScene,

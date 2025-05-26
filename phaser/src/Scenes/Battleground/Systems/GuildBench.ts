@@ -7,7 +7,7 @@ import { handleUnitDrop } from "./GuildDragHandlers";
 import { getBenchSlotPosition, getBenchCardPosition } from "./GuildRenderHelpers";
 import { getTileAt } from "./GridSystem";
 import { overlapsWithPlayerBoard } from "../../../Models/Board";
-import { addCharaToState } from "./UnitManager";
+import { addCharaToState } from "./CharaManager";
 
 export function renderBench(
 	scene: Phaser.Scene,

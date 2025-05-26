@@ -2,7 +2,7 @@ import { Unit } from "../../../Models/Unit";
 import { tween } from "../../../Utils/animation";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { physicalAttack } from "../Skills/physicalAttack";
-import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
+import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 
 export async function shootAnimation(scene: BattlegroundScene, unit: Unit, target: Unit) {
 

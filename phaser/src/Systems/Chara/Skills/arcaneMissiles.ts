@@ -3,7 +3,7 @@ import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { getRangedTargets } from "../../../Models/Board";
 import * as animation from "../../../Effects/arcaneMissile";
-import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
+import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 import { damageUnit } from "../Chara";
 
 export const arcaneMissiles = (

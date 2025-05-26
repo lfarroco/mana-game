@@ -4,7 +4,7 @@ import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { GlowingOrb } from "../../../Effects/GlowingOrb";
 import { delay } from "../../../Utils/animation";
 import { approach } from "../approach";
-import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
+import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 import { damageUnit } from "../Chara";
 
 export const lightOrb = (

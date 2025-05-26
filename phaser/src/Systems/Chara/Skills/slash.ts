@@ -2,7 +2,7 @@ import { getBattleUnit } from "../../../Models/State";
 import { Unit } from "../../../Models/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { physicalAttack } from "./physicalAttack";
-import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
+import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 import { Chara } from "../Chara";
 import { HALF_TILE_WIDTH, TILE_WIDTH } from "../../../Scenes/Battleground/constants";
 import { tween } from "../../../Utils/animation";
