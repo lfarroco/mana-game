@@ -3,7 +3,7 @@ import { Chara } from "../../../Systems/Chara/Chara";
 import * as Flyout_ from "../../../Systems/Flyout";
 import * as Tooltip from "../../../Systems/Tooltip";
 import * as constants from "../constants";
-import { destroyChara, overlap, summonChara } from "./UnitManager";
+import { destroyChara, getChara, overlap, summonChara } from "./UnitManager";
 import { coinDropIO } from "./UIManager";
 
 import { Item } from "../../../Models/Item";
@@ -36,11 +36,11 @@ function onUnitDroppedInBenchSlot(unit: Unit, index: number) {
 	destroyChara(unit.id);
 
 	// Rerender the flyout contents if open
-	if (guildFlyout) {
-		const { scene, isOpen } = guildFlyout;
-		if (isOpen && flyoutContainer) {
-			render(scene, flyoutContainer);
-		}
+	if (!guildFlyout) return;
+
+	const { scene, isOpen } = guildFlyout;
+	if (isOpen && flyoutContainer) {
+		render(scene, flyoutContainer);
 	}
 }
 
@@ -68,7 +68,7 @@ function onItemSell(icon: Phaser.GameObjects.Image, item: Item) {
 }
 
 // Event handler for item dropped on chara
-function onItemDroppedOnBoardChara(targetChara: Chara, icon: Phaser.GameObjects.Image, item: Item) {
+function onItemDroppedOnChara(targetChara: Chara, icon: Phaser.GameObjects.Image, item: Item) {
 	const state = getState();
 	icon.destroy();
 	const currentItem = targetChara.unit.equip;
@@ -79,17 +79,6 @@ function onItemDroppedOnBoardChara(targetChara: Chara, icon: Phaser.GameObjects.
 	}
 }
 
-function onItemDroppedOnBenchChara(_targetChara: Chara, _icon: Phaser.GameObjects.Image, _item: Item) {
-	console.log("implement me: onItemDroppedOnBenchChara");
-	// const state = getState();
-	// icon.destroy();
-	// const currentItem = targetChara.unit.equip;
-	//equipItemInBoardUnit({ chara: targetChara.unit, item });
-	// state.gameData.player.items = state.gameData.player.items.filter(i => i?.id !== item.id);
-	// if (currentItem !== null) {
-	// 	state.gameData.player.items.push(currentItem);
-	// }
-}
 
 export async function renderGuildButton(scene: Phaser.Scene) {
 	const flyout = await Flyout_.create(scene, "Your Guild")
@@ -116,8 +105,8 @@ export async function renderGuildButton(scene: Phaser.Scene) {
 	scene.events.on("unitDroppedInBenchSlot", onUnitDroppedInBenchSlot);
 	scene.events.on("unitSell", onUnitSell);
 	scene.events.on("itemSell", onItemSell);
-	scene.events.on("itemDroppedOnChara", onItemDroppedOnBoardChara);
-	scene.events.on("itemDroppedOnBenchChara", onItemDroppedOnBenchChara);
+	scene.events.on("itemDroppedOnChara", onItemDroppedOnChara);
+	scene.events.on("itemDroppedOnBenchChara", onItemDroppedOnChara);
 
 	initialized = true;
 
@@ -263,11 +252,11 @@ export const renderItems = (
 					icon.getBounds()
 				);
 
-				debugger;
 				if (intersects) {
 					const benchSlot = state.gameData.player.bench[i];
 					if (benchSlot && benchSlot.unit) {
-						scene.events.emit("itemDroppedOnBenchChara", benchSlot.unit, icon, item);
+						const chara = getChara(benchSlot.unit.id);
+						scene.events.emit("itemDroppedOnBenchChara", chara, icon, item);
 						render(scene, parent);
 						return;
 					}

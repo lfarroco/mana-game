@@ -7,6 +7,7 @@ import { handleUnitDrop } from "./GuildDragHandlers";
 import { getBenchSlotPosition, getBenchCardPosition } from "./GuildRenderHelpers";
 import { getTileAt } from "./GridSystem";
 import { overlapsWithPlayerBoard } from "../../../Models/Board";
+import { addCharaToState } from "./UnitManager";
 
 export function renderBench(
 	scene: Phaser.Scene,
@@ -50,6 +51,7 @@ export function renderBench(
 	benchSlots.forEach(({ index, unit }) => {
 		if (!unit) return;
 		const chara = createCard(unit);
+		addCharaToState(chara); // TODO: all created cards should be tracked in state
 		const { x, y } = getBenchCardPosition(index);
 		chara.container.setPosition(x, y);
 		chara.zone.setInteractive({ draggable: true });
