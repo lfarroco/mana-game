@@ -8,37 +8,36 @@ import { BattlegroundScene } from "../BattlegroundScene";
 
 let scene: BattlegroundScene;
 
-type UnitManagerState = {
+type CharaManagerState = {
 	charaIndex: Chara.Chara[]
-}
-
-export const unitManagerState: UnitManagerState = {
-	charaIndex: [],
-}
-
-//@ts-ignore
-window.charas = unitManagerState.charaIndex;
-
-export function clearCharas() {
-	unitManagerState.charaIndex.forEach(chara => {
-		destroyChara(chara.id)
-	});
-	unitManagerState.charaIndex = [];
-}
-
-export function destroyChara(id: string) {
-	const chara = unitManagerState.charaIndex.find(chara => chara.id === id);
-
-	if (chara) {
-		chara.container.destroy();
-		unitManagerState.charaIndex = unitManagerState.charaIndex.filter(c => c.id !== id);
-	}
 }
 
 export function init(sceneRef: BattlegroundScene) {
 	scene = sceneRef;
 }
 
+export const charaManagerState: CharaManagerState = {
+	charaIndex: [],
+}
+
+//@ts-ignore
+window.charas = charaManagerState;
+
+export function clearCharas() {
+	charaManagerState.charaIndex.forEach(chara => {
+		destroyChara(chara.id)
+	});
+	charaManagerState.charaIndex = [];
+}
+
+export function destroyChara(id: string) {
+	const chara = charaManagerState.charaIndex.find(chara => chara.id === id);
+
+	if (chara) {
+		chara.container.destroy();
+		charaManagerState.charaIndex = charaManagerState.charaIndex.filter(c => c.id !== id);
+	}
+}
 export async function summonChara(unit: Unit, useSummonEffect = true, fadeIn = true) {
 
 	const vec = getCharaPosition(unit);
@@ -67,7 +66,7 @@ export async function summonChara(unit: Unit, useSummonEffect = true, fadeIn = t
 }
 
 export function addCharaToState(chara: Chara.Chara) {
-	unitManagerState.charaIndex.push(chara);
+	charaManagerState.charaIndex.push(chara);
 }
 
 export function getCharaPosition(unit: Unit) {
@@ -78,19 +77,19 @@ export function getCharaPosition(unit: Unit) {
 }
 
 export function getChara(id: string) {
-	return unitManagerState.charaIndex.find((chara) => chara.id === id)!;
+	return charaManagerState.charaIndex.find((chara) => chara.id === id)!;
 }
 
 export function getCPUCharas() {
-	return unitManagerState.charaIndex.filter((chara) => chara.unit.force === constants.FORCE_ID_CPU)
+	return charaManagerState.charaIndex.filter((chara) => chara.unit.force === constants.FORCE_ID_CPU)
 }
 
 export function getAllCharas() {
-	return unitManagerState.charaIndex.filter((chara) => chara.unit.hp > 0)
+	return charaManagerState.charaIndex.filter((chara) => chara.unit.hp > 0)
 }
 
 export function getCharaAt(vec: Vec2) {
-	return unitManagerState.charaIndex
+	return charaManagerState.charaIndex
 		.filter(chara => chara.unit.hp > 0)
 		.find((chara) => eqVec2(chara.unit.position, vec));
 }
@@ -126,7 +125,7 @@ export function createParticle(id: string, status: string) {
 
 // return any chara that contains the vec
 export const overlap = (vec: { x: number, y: number }) => {
-	return unitManagerState.charaIndex.find(chara => {
+	return charaManagerState.charaIndex.find(chara => {
 		return Phaser.Geom.Intersects.RectangleToRectangle(
 			new Phaser.Geom.Rectangle(
 				chara.container.x - constants.HALF_TILE_WIDTH,
@@ -141,7 +140,7 @@ export const overlap = (vec: { x: number, y: number }) => {
 
 // TODO: move this to the unit model?
 export const getSurroundingAllies = (unit: Unit) => {
-	return unitManagerState.charaIndex
+	return charaManagerState.charaIndex
 		.filter(chara => chara.unit.hp > 0)
 		.filter(chara => chara.unit.force === unit.force)
 		.filter(chara => chara.id !== unit.id)

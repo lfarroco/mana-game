@@ -3,7 +3,7 @@ import { playerForce } from "../../Models/Force";
 import * as bgConstants from "../../Scenes/Battleground/constants";
 import { FORCE_ID_PLAYER } from "../../Scenes/Battleground/constants";
 import * as Chest from "../../Scenes/Battleground/Systems/Chest";
-import * as UnitManager from "../../Scenes/Battleground/Systems/UnitManager";
+import * as UnitManager from "../../Scenes/Battleground/Systems/CharaManager";
 import { equipItemInBoardUnit } from "../Item/EquipItem";
 import * as TooltipSytem from "../Tooltip";
 import { scene } from "./Chara";

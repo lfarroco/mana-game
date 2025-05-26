@@ -5,7 +5,7 @@ import { getUnitsByProximity } from "../../../Models/Board";
 import { popText } from "../Animations/popText";
 import { fireballEffect } from "../../../Effects/fireballEffect";
 import { approach } from "../approach";
-import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
+import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 import { damageUnit } from "../Chara";
 
 export const fireball = (

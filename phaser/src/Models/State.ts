@@ -2,7 +2,7 @@ import { Force, playerForce } from "./Force";
 import { eqVec2, Vec2 } from "./Geometry";
 import { Unit, makeUnit } from "./Unit";
 import { CardId } from "./Card";
-import { getChara } from "../Scenes/Battleground/Systems/UnitManager";
+import { getChara } from "../Scenes/Battleground/Systems/CharaManager";
 import { getEmptySlot } from "./Board";
 import { UNIT_EVENT_NO_OP, UnitEvent } from "./UnitEvents";
 

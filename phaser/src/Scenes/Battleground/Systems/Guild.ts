@@ -3,7 +3,7 @@ import { Chara } from "../../../Systems/Chara/Chara";
 import * as Flyout_ from "../../../Systems/Flyout";
 import * as Tooltip from "../../../Systems/Tooltip";
 import * as constants from "../constants";
-import { destroyChara, getChara, overlap, summonChara } from "./UnitManager";
+import { destroyChara, getChara, overlap, summonChara } from "./CharaManager";
 import { coinDropIO } from "./UIManager";
 
 import { Item } from "../../../Models/Item";

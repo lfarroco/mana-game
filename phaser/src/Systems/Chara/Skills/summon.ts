@@ -1,6 +1,6 @@
 import { makeUnit } from "../../../Models/Unit";
 import { CardId } from "../../../Models/Card";
-import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
+import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 import { Chara } from "../Chara";
 import { getState } from "../../../Models/State";
 import { getEmptySlot } from "../../../Models/Board";

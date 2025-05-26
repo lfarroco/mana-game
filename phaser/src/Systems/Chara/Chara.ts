@@ -6,7 +6,7 @@ import { delay, tween } from "../../Utils/animation";
 import { FORCE_ID_PLAYER } from "../../Scenes/Battleground/constants";
 import { getCard, Card } from "../../Models/Card";
 import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
-import * as UnitManager from "../../Scenes/Battleground/Systems/UnitManager";
+import * as UnitManager from "../../Scenes/Battleground/Systems/CharaManager";
 import * as GridSystem from "../../Scenes/Battleground/Systems/GridSystem";
 import { BLUE_BONNET, VIVIRED_RED } from "../../Utils/colors";
 import { getState, State } from "../../Models/State";

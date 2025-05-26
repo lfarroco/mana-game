@@ -1,7 +1,7 @@
 import { vignette } from "./Animations/vignette";
 import BattlegroundScene from "./BattlegroundScene";
 import * as UIManager from "./Systems/UIManager";
-import * as UnitManager from "./Systems/UnitManager";
+import * as UnitManager from "./Systems/CharaManager";
 
 
 // clear the scene

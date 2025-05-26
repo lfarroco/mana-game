@@ -1,6 +1,6 @@
 import { Choice, displayChoices, newChoice } from "../../Scenes/Battleground/Systems/Choice";
 import { itemShop } from "../../Scenes/Battleground/Systems/ItemShop";
-import * as UnitManager from "../../Scenes/Battleground/Systems/UnitManager";
+import * as UnitManager from "../../Scenes/Battleground/Systems/CharaManager";
 import * as Chara from "../../Systems/Chara/Chara";
 import * as Tooltip from "../../Systems/Tooltip";
 import { pickRandom } from "../../utils";

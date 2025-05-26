@@ -6,7 +6,7 @@ import { equipItemInBoardUnit } from "../../../Systems/Item/EquipItem";
 import * as Tooltip from "../../../Systems/Tooltip";
 import * as constants from "../constants";
 import * as UIManager from "./UIManager";
-import * as UnitManager from "./UnitManager";
+import * as UnitManager from "./CharaManager";
 
 const CHEST_TILE_SIZE = constants.TILE_WIDTH / 2;
 

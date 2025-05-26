@@ -4,7 +4,7 @@ import { getAllActiveFoes } from "../../Models/State";
 import { getCard } from "../../Models/Card";
 import { getTrait } from "../../Models/Traits";
 import { highlightCardAnimation } from "../../Systems/Chara/Animations/highlightCardAnimation";
-import { getChara } from "./Systems/UnitManager";
+import { getChara } from "./Systems/CharaManager";
 
 export const performAction = (scene: BattlegroundScene) => (unit: Unit) => async () => {
 
