@@ -5,7 +5,6 @@ import { getRangedTargets } from "../../../Models/Board";
 import * as animation from "../../../Effects/arcaneMissile";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/UnitManager";
 import { damageUnit } from "../Chara";
-import { range } from "fp-ts/lib/ReadonlyNonEmptyArray";
 
 export const arcaneMissiles = (
 	scene: BattlegroundScene
@@ -24,7 +23,7 @@ export const arcaneMissiles = (
 	const activeChara = UnitManager.getChara(unit.id);
 
 	//pick 3 random indexes (can be repeated)
-	range(0, 3)
+	new Array(3)
 		.map(() => Math.floor(Math.random() * targets.length))
 		.forEach((index) => {
 

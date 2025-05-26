@@ -56,7 +56,7 @@ export const initialState = (): State => ({
   }
 });
 
-// make it an ioref https://gcanti.github.io/fp-ts/modules/IORef.ts.html#ioref-overview
+// todo: make it a type that describes an ioref
 export type State = {
   options: {
     sound: boolean;
