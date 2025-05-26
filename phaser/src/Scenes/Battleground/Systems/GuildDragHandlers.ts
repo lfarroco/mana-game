@@ -31,7 +31,6 @@ export function handleUnitDrop({
 		chara.container.getBounds(),
 		sellImage.getBounds()
 	)) {
-		// handleUnitSell is still in Guild.ts
 		return "sell";
 	}
 
@@ -39,6 +38,8 @@ export function handleUnitDrop({
 		returnToPosition();
 		return;
 	}
+
+	// drop in board
 
 	const state = getState();
 	state.gameData.player.units.forEach((unit: any) => {
@@ -48,14 +49,16 @@ export function handleUnitDrop({
 	const tile = getTileAt(pointer)!;
 	const position = vec2(tile.x, tile.y)!;
 	const maybeOccupier = state.gameData.player.units.find((u: any) => eqVec2(u.position, position));
-	const benchIndex = state.gameData.player.bench.findIndex((u: any) => u?.id === chara.id);
+
+	// Unit came from bench, so this will exist
+	const sourceBenchSlot = state.gameData.player.bench.find((b: any) => b && b.unit && b.unit.id === chara.unit.id)!;
 
 	if (maybeOccupier) {
 		destroyChara(maybeOccupier.id);
 		state.gameData.player.units = state.gameData.player.units.filter((u: any) => u.id !== maybeOccupier.id);
-		state.gameData.player.bench[benchIndex] = maybeOccupier;
+		sourceBenchSlot.unit = maybeOccupier;
 	} else {
-		state.gameData.player.bench[benchIndex] = null;
+		sourceBenchSlot.unit = null;
 		if (state.gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
 			displayError(`You can only have ${constants.MAX_PARTY_SIZE} units in your party.`);
 			returnToPosition();

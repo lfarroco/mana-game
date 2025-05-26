@@ -61,7 +61,8 @@ const handleUnitDroppedInBenchSlot = (unit: Unit, index: number) => {
 
 	const state = getState();
 
-	const occupier = state.gameData.player.bench[index];
+	const slot = state.gameData.player.bench[index];
+	const occupier = slot && slot.unit;
 
 	if (occupier) {
 		occupier.position = unit.position;
@@ -69,7 +70,8 @@ const handleUnitDroppedInBenchSlot = (unit: Unit, index: number) => {
 		summonChara(occupier, true);
 	}
 
-	state.gameData.player.bench[index] = unit;
+	// Place the new unit in the slot
+	state.gameData.player.bench[index] = { index, unit };
 	state.gameData.player.units = state.gameData.player.units.filter(u => u.id !== unit.id);
 	state.battleData.units = state.battleData.units.filter(u => u.id !== unit.id);
 
@@ -120,13 +122,8 @@ function renderBench(
 		constants.titleTextConfig);
 	parent.add(benchTitle);
 
-	// Build benchSlots array: each slot has index and unit
-	const benchSlots: Array<{ index: number; unit: Unit | null }> = new Array(constants.MAX_BENCH_SIZE)
-		.fill(null)
-		.map((_, i) => ({
-			index: i,
-			unit: state.gameData.player.bench[i] || null
-		}));
+	// Use the bench array directly (already { index, unit })
+	const benchSlots = state.gameData.player.bench;
 
 	benchSlots.forEach(({ index }) => {
 		const { x, y } = getBenchSlotPosition(index);
@@ -350,9 +347,9 @@ function handleUnitSell(chara: Chara) {
 	const unit = chara.unit;
 	state.gameData.player.units = state.gameData.player.units.filter(u => u.id !== unit.id);
 
-	const benchIndex = state.gameData.player.bench.findIndex(u => u?.id === unit.id);
+	const benchIndex = state.gameData.player.bench.findIndex(b => b.unit && b.unit.id === unit.id);
 	if (benchIndex !== -1) {
-		state.gameData.player.bench[benchIndex] = null;
+		state.gameData.player.bench[benchIndex] = { index: benchIndex, unit: null };
 	}
 
 	chara.container.destroy();
