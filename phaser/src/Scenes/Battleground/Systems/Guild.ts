@@ -1,4 +1,3 @@
-import { eqVec2, vec2 } from "../../../Models/Geometry";
 import { getState, State } from "../../../Models/State";
 import { addTooltip, Chara, createCard } from "../../../Systems/Chara/Chara";
 import * as Flyout_ from "../../../Systems/Flyout";
@@ -6,13 +5,14 @@ import * as Tooltip from "../../../Systems/Tooltip";
 import * as constants from "../constants";
 import { getTileAt } from "./GridSystem";
 import { destroyChara, overlap, summonChara } from "./UnitManager";
-import { coinDropIO, displayError } from "./UIManager";
-import { tween } from "../../../Utils/animation";
+import { coinDropIO } from "./UIManager";
 import { overlapsWithPlayerBoard } from "../../../Models/Board";
 import { Item } from "../../../Models/Item";
 import { equipItemInUnit } from "../../../Systems/Item/EquipItem";
 import { Unit } from "../../../Models/Unit";
 import { updatePlayerGoldIO } from "../../../Models/Force";
+import { handleUnitDrop } from "./GuildDragHandlers";
+import { getBenchSlotPosition, getBenchCardPosition } from "./GuildRenderHelpers";
 
 const CHEST_TILE_SIZE = constants.TILE_WIDTH / 2;
 let initialized = false;
@@ -121,18 +121,10 @@ function renderBench(
 	parent.add(benchTitle);
 
 	for (let i = 0; i < constants.MAX_BENCH_SIZE; i++) {
-
-		const x = 60 + (i % 3) * constants.TILE_WIDTH + ((i % 3) * 20);
-		const y = 150 + Math.floor(i / 5) * constants.TILE_HEIGHT + ((Math.floor(i / 5) * 20));
-
+		const { x, y } = getBenchSlotPosition(i);
 		const w = constants.TILE_WIDTH + 20;
 		const h = constants.TILE_HEIGHT + 20;
-
-		const slot = scene.add.image(
-			x, y,
-			"ui/slot"
-		).setDisplaySize(w, h).setOrigin(0);
-		//create a drop zone for the slot
+		const slot = scene.add.image(x, y, "ui/slot").setDisplaySize(w, h).setOrigin(0);
 		const zone = scene.add.zone(x, y, w, h)
 			.setPosition(x, y)
 			.setName("slot")
@@ -140,133 +132,46 @@ function renderBench(
 			.setData("slot", i)
 			.setOrigin(0)
 			.setRectangleDropZone(w, h);
-
-
-
 		parent.add([slot, zone]);
-
 		if (!state.options.debug) continue;
-
 		const dropZoneDisplay = scene.add.graphics();
 		dropZoneDisplay.lineStyle(2, 0xffff00);
 		dropZoneDisplay.fillStyle(0x00ffff, 0.3);
-		dropZoneDisplay.fillRect(
-			x, y,
-			w, h
-		);
-		dropZoneDisplay.strokeRect(
-			x, y,
-			w, h
-		);
-
+		dropZoneDisplay.fillRect(x, y, w, h);
+		dropZoneDisplay.strokeRect(x, y, w, h);
 		parent.add([dropZoneDisplay]);
 	}
 
-	state.gameData.player.bench
-		.forEach((unit, index) => {
-
-			if (!unit) return;
-
-			const chara = createCard(unit);
-
-			const x = 160 + (index % 3) * constants.TILE_WIDTH + ((index % 3) * 20) + 30;
-			const y = 250 + Math.floor(index / 5) * constants.TILE_HEIGHT + ((Math.floor(index / 5) * 20)) + 30;
-
-			chara.container.setPosition(x, y);
-
-			chara.zone.setInteractive({ draggable: true });
-
-			addTooltip(chara);
-
-			parent.add(chara.container);
-
-			const returnToPosition = () => {
-				tween({
-					targets: [chara.container],
-					x,
-					y
-				});
-			};
-
-			chara.zone.on("dragstart", () => {
-				Tooltip.hide();
+	state.gameData.player.bench.forEach((unit, index) => {
+		if (!unit) return;
+		const chara = createCard(unit);
+		const { x, y } = getBenchCardPosition(index);
+		chara.container.setPosition(x, y);
+		chara.zone.setInteractive({ draggable: true });
+		addTooltip(chara);
+		parent.add(chara.container);
+		chara.zone.on("dragstart", () => { Tooltip.hide(); });
+		chara.zone.on('dragend', (pointer: Phaser.Input.Pointer) => {
+			const result = handleUnitDrop({
+				chara,
+				pointer,
+				scene,
+				parent,
+				sellImage,
+				render,
+				getTileAt,
+				overlapsWithPlayerBoard
 			});
-
-			chara.zone.on('dragend', (
-				pointer: Phaser.Input.Pointer
-			) => {
-
-				const wasDrag = pointer.getDistance() > 10;
-				const inBoard = overlapsWithPlayerBoard(pointer);
-
-				if (wasDrag && Phaser.Geom.Intersects.RectangleToRectangle(
-					chara.container.getBounds(),
-					sellImage.getBounds()
-				)) {
-					handleUnitSell(chara);
-					return;
-				}
-
-				if (wasDrag && !inBoard) {
-					returnToPosition();
-					return;
-				}
-
-				const state = getState();
-
-				// The board will change: remove position bonuses for all units
-				state.gameData.player.units.forEach((unit) => {
-					unit.events.onLeavePosition.forEach(fn => fn(unit)());
-				});
-
-				const tile = getTileAt(pointer)!;
-
-				const position = vec2(tile.x, tile.y)!;
-
-				const maybeOccupier = state.gameData.player.units.find(u => eqVec2(u.position, position));
-
-				const benchIndex = state.gameData.player.bench.findIndex(u => u?.id === chara.id);
-				if (maybeOccupier) {
-
-					destroyChara(maybeOccupier.id);
-					state.gameData.player.units = state.gameData.player.units.filter(u => u.id !== maybeOccupier.id);
-					state.gameData.player.bench[benchIndex] = maybeOccupier;
-
-				} else {
-
-					state.gameData.player.bench[benchIndex] = null;
-
-					if (state.gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
-						displayError(`You can only have ${constants.MAX_PARTY_SIZE} units in your party.`);
-						returnToPosition();
-						return;
-					}
-				}
-
-				const unit = chara.unit;
-				unit.position = position;
-				state.gameData.player.units.push(unit);
-				state.battleData.units.push(unit);
-
-				chara.container.destroy();
-
-				summonChara(unit, true);
-
-				// The board has changed: calculate position bonuses for all units
-				state.gameData.player.units.forEach((unit) => {
-					unit.events.onEnterPosition.forEach(fn => fn(unit)());
-				});
-
-				render(scene, parent);
-
-			});
-
-			chara.zone.on("drag", (pointer: Phaser.Input.Pointer) => {
-				chara.container.x = pointer.x;
-				chara.container.y = pointer.y;
-			});
-
+			if (result === "sell") {
+				handleUnitSell(chara);
+				return;
+			}
 		});
+		chara.zone.on("drag", (pointer: Phaser.Input.Pointer) => {
+			chara.container.x = pointer.x;
+			chara.container.y = pointer.y;
+		});
+	});
 }
 
 
