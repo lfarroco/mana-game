@@ -8,6 +8,7 @@ import { equipItemInBoardUnit } from "../Item/EquipItem";
 import * as TooltipSytem from "../Tooltip";
 import { scene } from "./Chara";
 import { Unit } from "../../Models/Unit";
+import { sellImage } from "../../Scenes/Battleground/Systems/Guild";
 
 export function renderItemSlot(
 	unit: Unit,
@@ -18,8 +19,7 @@ export function renderItemSlot(
 		bgConstants.HALF_TILE_WIDTH - 40, -bgConstants.HALF_TILE_HEIGHT + 40,
 		"ui/slot")
 		.setOrigin(0.5, 0.5)
-		.setDisplaySize(80, 80)
-		.setAlpha(0);
+		.setDisplaySize(80, 80);
 	const item = scene.add.image(
 		bgConstants.HALF_TILE_WIDTH - 40, -bgConstants.HALF_TILE_HEIGHT + 40,
 		unit.equip?.icon || "empty"
@@ -53,13 +53,7 @@ export function renderItemSlot(
 
 		const chara = UnitManager.getChara(unit.id);
 
-		if (!closest) {
-			// back to chest
-			if (unit.equip) playerForce.items.push(unit.equip);
-
-			equipItemInBoardUnit({ chara, item: null });
-			Chest.updateChestIO();
-		} else {
+		if (closest) {
 			if (closest.unit.id === unit.id) { //self
 				equipItemInBoardUnit({ chara, item: unit.equip });
 			} else { //another
@@ -69,7 +63,28 @@ export function renderItemSlot(
 				equipItemInBoardUnit({ chara, item: currEquip });
 
 			}
+
+			return;
 		}
+
+		if (sellImage) {
+			const sells = Phaser.Geom.Intersects.RectangleToRectangle(
+				item.getBounds(), sellImage?.getBounds())
+
+			if (sells) {
+
+				scene.events.emit("itemSell", item, unit.equip);
+				equipItemInBoardUnit({ chara, item: null });
+				return;
+			}
+
+		}
+
+		// back to chest
+		if (unit.equip) playerForce.items.push(unit.equip);
+
+		equipItemInBoardUnit({ chara, item: null });
+		Chest.updateChestIO();
 	});
 
 	container.add([itemBorder, item]);
