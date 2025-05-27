@@ -1,6 +1,7 @@
 import { Item } from "../../../Models/Item";
 import { State } from "../../../Models/State";
 import * as Tooltip from "../../../Systems/Tooltip";
+import { titleTextConfig } from "../constants";
 import { overlap, getChara } from "./CharaManager";
 import { CHEST_TILE_SIZE, render } from "./Guild";
 
@@ -13,13 +14,20 @@ export const renderVault = (
 	benchSlots: Image[]
 ) => {
 	const baseX = 120;
-	const baseY = 530;
-	const gridWidth = 4;
+	const baseY = 570;
+	const gridWidth = 5;
 	const gridHeight = 2;
 	const spacing = 16;
 
 	const w = CHEST_TILE_SIZE + spacing;
 	const h = CHEST_TILE_SIZE + spacing;
+
+	const itemsTitle = scene.add.text(
+		50,
+		baseY - 130,
+		"Guild Vault",
+		titleTextConfig);
+	parent.add(itemsTitle);
 
 	// Build slots array: each slot has index, position, item, and slotImage
 	const slots: Array<{
