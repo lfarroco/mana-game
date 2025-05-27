@@ -186,6 +186,7 @@ export class BattlegroundScene extends Phaser.Scene {
           unit.slowed = 0;
           unit.hasted = 0;
           unit.hp = unit.maxHp;
+          unit.statuses = {};
         })
 
         state.gameData.player.units.forEach(unit => {

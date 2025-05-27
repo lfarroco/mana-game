@@ -9,7 +9,7 @@ import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
 import * as UnitManager from "../../Scenes/Battleground/Systems/CharaManager";
 import * as GridSystem from "../../Scenes/Battleground/Systems/GridSystem";
 import { BLUE_BONNET, VIVIRED_RED } from "../../Utils/colors";
-import { getState, State } from "../../Models/State";
+import { addStatus, getState, State } from "../../Models/State";
 import * as TooltipSytem from "../Tooltip";
 import { popText } from "./Animations/popText";
 import { criticalDamageDisplay } from "../../Effects";
@@ -357,13 +357,15 @@ export async function damageUnit(id: string, damage: number, isCritical = false)
 	if (
 		nextHp <= chara.unit.maxHp / 2 &&
 		chara.unit.equip?.type.key === "equipment" &&
-		chara.unit.equip.type.onHalfHP
+		chara.unit.equip.type.onHalfHP &&
+		!chara.unit.statuses["on-half-hp"]
 	) {
 		popText({
 			text: chara.unit.equip.name,
 			targetId: chara.id,
 		})
 		chara.unit.equip.type.onHalfHP(chara.unit)();
+		addStatus(chara.unit, "on-half-hp");
 	}
 
 }
