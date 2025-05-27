@@ -131,10 +131,9 @@ export function render(scene: Scene, parent: Container) {
 
 	sellImage = sellZone(scene, parent);
 
-	const benchSlots = renderBench(scene, parent, state);
+	const benchSlots = renderBench(scene, parent);
 
 	renderVault(scene, parent, state, sellImage, benchSlots);
-
 
 }
 
