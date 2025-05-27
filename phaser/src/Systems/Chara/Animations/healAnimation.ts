@@ -1,5 +1,4 @@
 import { getSkill, HEAL } from "../../../Models/Skill";
-import { getBattleUnit } from "../../../Models/State";
 import { healUnit } from "../Chara";
 import { Unit, unitLog } from "../../../Models/Unit";
 import { popText } from "./popText";
@@ -15,19 +14,17 @@ export async function healAnimation(
 
     const activeChara = UnitManager.getChara(unit.id);
 
-    const targetUnit = getBattleUnit(scene.state)(target.id);
-
-    const targetChara = UnitManager.getChara(targetUnit.id);
+    const targetChara = UnitManager.getChara(target.id);
 
     if (!activeChara) { throw new Error("no active unit\n" + unit.id); }
 
     const skill = getSkill(HEAL);
 
-    if (targetUnit.hp <= 0) {
+    if (target.hp <= 0) {
         throw new Error("target is dead");
     }
 
-    unitLog(unit, `will cast ${skill.name} on ${targetUnit.id}`);
+    unitLog(unit, `will cast ${skill.name} on ${target.id}`);
 
     await popText({ text: skill.name, targetId: unit.id });
 
@@ -100,12 +97,12 @@ export async function healAnimation(
         128, 128)
         .setOrigin(0.5, 0.5);
 
-    popText({ text: skill.power.toString(), targetId: targetUnit.id });
+    popText({ text: skill.power.toString(), targetId: target.id });
 
     await delay(scene, 500);
 
     shader.destroy();
 
-    healUnit(targetUnit, 50);
+    healUnit(target, 50);
 
 }

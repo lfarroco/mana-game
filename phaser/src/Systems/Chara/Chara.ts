@@ -324,6 +324,7 @@ export function updateAtkDisplay(id: string) {
 
 export function updateHpDisplay(id: string, hp: number) {
 	const chara = UnitManager.getChara(id);
+	if (!chara) return;
 	chara.hpDisplay.setText(hp.toString());
 }
 

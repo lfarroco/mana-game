@@ -138,12 +138,6 @@ export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container
 
 		const benchSlots = renderBench(scene, parent, state, sellImage);
 
-		const itemsTitle = scene.add.text(
-			50,
-			400,
-			"Guild Vault",
-			constants.titleTextConfig);
-		parent.add(itemsTitle);
 
 
 		renderVault(scene, parent, state, sellImage, benchSlots);
@@ -157,7 +151,7 @@ export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container
 function sellZone(scene: Scene, parent: Container) {
 
 	const sellImage = scene.add.image(
-		400, constants.SCREEN_HEIGHT - 200,
+		400, constants.SCREEN_HEIGHT - 150,
 		"icon/sell"
 	)
 		.setDisplaySize(400, 250)
