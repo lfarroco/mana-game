@@ -82,7 +82,6 @@ function onItemDroppedOnChara(targetChara: Chara, icon: Phaser.GameObjects.Image
 	}
 }
 
-
 export async function renderGuildButton(scene: Phaser.Scene) {
 	const flyout = await Flyout_.create(scene, "Your Guild")
 	const container = scene.add.container(0, 0);
@@ -124,27 +123,18 @@ const handleButtonClicked = (container: Container, flyout: Flyout_.Flyout) => as
 	await flyout.slideIn();
 }
 
-export function render(scene: Phaser.Scene, parent: Phaser.GameObjects.Container) {
-
-	parent.removeAll(true);
+export function render(scene: Scene, parent: Container) {
 
 	const state = getState();
 
-	const update = () => {
+	parent.removeAll(true);
 
-		parent.removeAll(true);
+	sellImage = sellZone(scene, parent);
 
-		sellImage = sellZone(scene, parent);
+	const benchSlots = renderBench(scene, parent, state);
 
-		const benchSlots = renderBench(scene, parent, state, sellImage);
+	renderVault(scene, parent, state, sellImage, benchSlots);
 
-
-
-		renderVault(scene, parent, state, sellImage, benchSlots);
-
-	}
-
-	update();
 
 }
 
