@@ -36,8 +36,14 @@ export const TINY_BLOB = "tiny_blob" as CardId;
 export const SKELETON = "skeleton" as CardId;
 export const SKELETON_MAGE = "skeleton_mage" as CardId;
 
+export const BANDIT = "bandit" as CardId;
+export const BANDIT_ARCHER = "bandit_archer" as CardId;
+export const BANDIT_MAGE = "bandit_mage" as CardId;
+export const BANDIT_LORD = "bandit_lord" as CardId;
+
 // Cards that the player is allowed to pick
 const HERO_CARDS = [ARCHER, CLERIC, APPRENTICE, KNIGHT, THIEF, DRUID, BARBARIAN, PIRATE, PALADIN, RANGER, NECROMANCER, BARD];
+export const BANDITS = [BANDIT, BANDIT_ARCHER, BANDIT_MAGE, BANDIT_LORD];
 
 const baseCards = `
 Id                | Name            | HP  | ATK  | CD   | Traits
@@ -60,6 +66,10 @@ ${BLOB_MAGE}      | Blob Mage       | 90  | 10   | 2000 | ${t.RANGED.id}, ${t.SP
 ${TINY_BLOB}      | Tiny Blob       | 20  | 10   | 2000 | ${t.MELEE.id}
 ${SKELETON}       | Skeleton        | 60  | 10   | 2200 | ${t.MELEE.id}, ${t.UNDEAD.id}
 ${SKELETON_MAGE}  | Skeleton Mage   | 50  | 5    | 4400 | ${t.RANGED.id}, ${t.UNDEAD.id}, ${t.ARCANE_MISSILES.id}
+${BANDIT}         | Bandit          | 350 | 25   | 2000 | ${t.MELEE.id}, ${t.STEALTH.id}
+${BANDIT_ARCHER}  | Bandit Archer   | 350 | 20   | 2000 | ${t.RANGED.id}, ${t.SNIPER.id} 
+${BANDIT_MAGE}    | Bandit Mage     | 350 | 10   | 3000 | ${t.RANGED.id}, ${t.ARCANE_MISSILES.id}
+${BANDIT_LORD}    | Bandit Lord     | 400 | 35   | 2000 | ${t.MELEE.id}, ${t.TAUNT.id}, ${t.PROTECTOR.id}
 `;
 
 function parseCardsTable(table: string) {

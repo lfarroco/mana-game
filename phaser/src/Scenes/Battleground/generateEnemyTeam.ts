@@ -1,4 +1,4 @@
-import { cards, Card } from "../../Models/Card";
+import { BANDITS, Card, getCard } from "../../Models/Card";
 import { cpuForce } from "../../Models/Force";
 import { vec2 } from "../../Models/Geometry";
 import { State } from "../../Models/State";
@@ -7,6 +7,8 @@ import { makeUnit } from "../../Models/Unit";
 import { pickOne } from "../../utils";
 
 export function generateEnemyTeam(state: State, count: number) {
+
+	const cards = BANDITS.map(getCard)
 
 	if (count < 2) {
 		console.warn("Enemy team count is less than 2, setting to 2");
