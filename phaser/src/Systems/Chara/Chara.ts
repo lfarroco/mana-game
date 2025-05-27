@@ -402,6 +402,8 @@ export async function killUnit(chara: Chara) {
 
 	UnitManager.destroyChara(chara.id);
 
+	state.battleData.units = state.battleData.units.filter(u => u.id !== chara.unit.id);
+
 	for (const ev of chara.unit.events.onDeath)
 		ev(chara.unit)()
 
