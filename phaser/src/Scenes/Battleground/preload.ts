@@ -1,7 +1,7 @@
 import Phaser from "phaser";
-import * as Job from "../../Models/Card";
+import * as Cards from "../../Models/Card";
 
-const jobs = Job.cards.map(j => j.id);
+const jobs = Cards.cards.map(j => j.id);
 
 export function preload(this: Phaser.Scene) {
 
