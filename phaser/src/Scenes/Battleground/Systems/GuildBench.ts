@@ -5,7 +5,6 @@ import * as constants from "../constants";
 import { render } from "./Guild";
 import { handleUnitDrop } from "./GuildDragHandlers";
 import { getBenchSlotPosition, getBenchCardPosition } from "./GuildRenderHelpers";
-import { getTileAt } from "./GridSystem";
 import { overlapsWithPlayerBoard } from "../../../Models/Board";
 import { destroyChara } from "./CharaManager";
 
@@ -17,7 +16,6 @@ export function renderBench(
 	scene: Phaser.Scene,
 	parent: Container,
 	state: State,
-	sellImage: Phaser.GameObjects.Image,
 ) {
 
 	guildBenchState.benchCharas.forEach(chara => {
@@ -77,9 +75,7 @@ export function renderBench(
 				pointer,
 				scene,
 				parent,
-				sellImage,
 				render,
-				getTileAt,
 				overlapsWithPlayerBoard,
 				slotIndex: index,
 				guildBenchState
