@@ -107,23 +107,27 @@ export const renderVault = (
 			}
 
 			// check if overlaps with charas in the bench
-			benchSlots.forEach((slot, i) => {
 
+			const droppedInBench = benchSlots.map((slot, i) => {
 				const intersects = Phaser.Geom.Intersects.RectangleToRectangle(
 					slot.getBounds(),
 					icon.getBounds()
 				);
-
-				if (intersects) {
-					const benchSlot = state.gameData.player.bench[i];
-					if (benchSlot && benchSlot.unit) {
-						const chara = getChara(benchSlot.unit.id);
-						scene.events.emit("itemDroppedOnBenchChara", chara, icon, item);
-						render(scene, parent);
-						return;
-					}
+				return {
+					intersects,
+					index: i
 				}
-			});
+			}).find(s => s.intersects);
+
+			if (droppedInBench) {
+				const benchSlot = state.gameData.player.bench[droppedInBench.index];
+				if (benchSlot && benchSlot.unit) {
+					const chara = getChara(benchSlot.unit.id);
+					scene.events.emit("itemDroppedOnBenchChara", chara, icon, item);
+					render(scene, parent);
+					return;
+				}
+			}
 
 			if (Phaser.Geom.Intersects.RectangleToRectangle(
 				icon.getBounds(),

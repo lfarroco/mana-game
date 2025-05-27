@@ -1,4 +1,3 @@
-import { State } from "../../../Models/State";
 import { createCard, addTooltip, Chara } from "../../../Systems/Chara/Chara";
 import * as Tooltip from "../../../Systems/Tooltip";
 import * as constants from "../constants";
@@ -7,16 +6,18 @@ import { handleUnitDrop } from "./GuildDragHandlers";
 import { getBenchSlotPosition, getBenchCardPosition } from "./GuildRenderHelpers";
 import { overlapsWithPlayerBoard } from "../../../Models/Board";
 import { destroyChara } from "./CharaManager";
+import { getState } from "../../../Models/State";
 
 const guildBenchState = {
 	benchCharas: [] as Chara[],
 };
 
 export function renderBench(
-	scene: Phaser.Scene,
+	scene: Scene,
 	parent: Container,
-	state: State,
 ) {
+
+	const state = getState();
 
 	guildBenchState.benchCharas.forEach(chara => {
 		destroyChara(chara.id);
