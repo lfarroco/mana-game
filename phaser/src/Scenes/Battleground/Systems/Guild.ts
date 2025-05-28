@@ -21,6 +21,7 @@ let initialized = false;
 // Module-scoped variable for flyout and container
 let guildFlyout: Flyout_.Flyout | null = null;
 let flyoutContainer: Container | null = null;
+let scene: Scene | null = null;
 
 // Event handler for unit dropped in bench slot
 function onUnitDroppedInBenchSlot(unit: Unit, index: number) {
@@ -81,17 +82,28 @@ function onItemDroppedOnChara(targetChara: Chara, icon: Phaser.GameObjects.Image
 		state.gameData.player.items.push(currentItem);
 	}
 }
+function handleItemDroppedOnVaultSlot(
+	item: Item,
+	index: number,
+) {
+	const state = getState();
 
-export async function renderGuildButton(scene: Phaser.Scene) {
-	const flyout = await Flyout_.create(scene, "Your Guild")
-	const container = scene.add.container(0, 0);
+	state.gameData.player.items[index] = item;
+
+	render(scene!, flyoutContainer!);
+
+}
+
+export async function renderGuildButton(sceneRef: Phaser.Scene) {
+	const flyout = await Flyout_.create(sceneRef, "Your Guild")
+	const container = sceneRef.add.container(0, 0);
 	flyout.add(container);
 
 	// Store references for event handlers in module scope
 	guildFlyout = flyout;
 	flyoutContainer = container;
 
-	scene.add.image(
+	sceneRef.add.image(
 		...[
 			constants.SCREEN_WIDTH - 120,
 			constants.SCREEN_HEIGHT - 560
@@ -103,12 +115,15 @@ export async function renderGuildButton(scene: Phaser.Scene) {
 		.on("pointerup", () => handleButtonClicked(container, flyout)());
 
 	if (initialized) return;
+	scene = sceneRef;
+
 	// Register event handlers only once
-	scene.events.on("unitDroppedInBenchSlot", onUnitDroppedInBenchSlot);
-	scene.events.on("unitSell", onUnitSell);
-	scene.events.on("itemSell", onItemSell);
-	scene.events.on("itemDroppedOnChara", onItemDroppedOnChara);
-	scene.events.on("itemDroppedOnBenchChara", onItemDroppedOnChara);
+	sceneRef.events.on("unitDroppedInBenchSlot", onUnitDroppedInBenchSlot);
+	sceneRef.events.on("unitSell", onUnitSell);
+	sceneRef.events.on("itemSell", onItemSell);
+	sceneRef.events.on("itemDroppedOnChara", onItemDroppedOnChara);
+	sceneRef.events.on("itemDroppedOnBenchChara", onItemDroppedOnChara);
+	sceneRef.events.on("itemDroppedOnVaultSlot", handleItemDroppedOnVaultSlot)
 
 	initialized = true;
 

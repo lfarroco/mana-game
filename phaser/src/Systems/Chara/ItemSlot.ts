@@ -2,13 +2,13 @@ import Phaser from "phaser";
 import { playerForce } from "../../Models/Force";
 import * as bgConstants from "../../Scenes/Battleground/constants";
 import { FORCE_ID_PLAYER } from "../../Scenes/Battleground/constants";
-import * as Chest from "../../Scenes/Battleground/Systems/Chest";
 import * as UnitManager from "../../Scenes/Battleground/Systems/CharaManager";
 import { equipItemInBoardUnit } from "../Item/EquipItem";
 import * as TooltipSytem from "../Tooltip";
 import { scene } from "./Chara";
 import { Unit } from "../../Models/Unit";
 import { sellImage } from "../../Scenes/Battleground/Systems/Guild";
+import { vaultState } from "../../Scenes/Battleground/Systems/GuildVault";
 
 export function renderItemSlot(
 	unit: Unit,
@@ -20,46 +20,51 @@ export function renderItemSlot(
 		"ui/slot")
 		.setOrigin(0.5, 0.5)
 		.setDisplaySize(80, 80);
-	const item = scene.add.image(
+
+	const itemIcon = scene.add.image(
 		bgConstants.HALF_TILE_WIDTH - 40, -bgConstants.HALF_TILE_HEIGHT + 40,
 		unit.equip?.icon || "empty"
-	).setDisplaySize(60, 60).setOrigin(0.5, 0.5);
+	).setDisplaySize(60, 60)
+		.setOrigin(0.5, 0.5);
+
+	container.add([itemBorder, itemIcon]);
 
 	if (unit.equip === null) {
-		item.alpha = 0;
+		itemIcon.alpha = 0;
 	}
-	item.setInteractive({ draggable: true });
-	item.on('dragstart', () => {
-		scene.children.bringToTop(container);
+
+	itemIcon.setInteractive({ draggable: true });
+	itemIcon.on('dragstart', () => {
+		container.remove(itemIcon)
 	});
-	item.on('drag', (pointer: Phaser.Input.Pointer) => {
+	itemIcon.on('drag', (pointer: Phaser.Input.Pointer) => {
 		if (unit.force !== FORCE_ID_PLAYER) return;
-		item.x = pointer.x - item.parentContainer.x;
-		item.y = pointer.y - item.parentContainer.y;
+		itemIcon.x = pointer.x;
+		itemIcon.y = pointer.y;
 	});
 
 	// TODO: move to Item module under "item tooltip"
-	item.on('pointerover', () => {
+	itemIcon.on('pointerover', () => {
 		if (!unit.equip) return;
 		TooltipSytem.render(
-			item.parentContainer.x + item.x + 300, item.parentContainer.y + item.y,
+			itemIcon.parentContainer.x + itemIcon.x + 300, itemIcon.parentContainer.y + itemIcon.y,
 			unit.equip.name,
 			unit.equip.description
 		);
 	});
 
-	item.on('dragend', (pointer: Phaser.Input.Pointer) => {
-		const closest = UnitManager.overlap(pointer);
+	itemIcon.on('dragend', (pointer: Phaser.Input.Pointer) => {
+		const droppedOnChara = UnitManager.overlap(pointer);
 
 		const chara = UnitManager.getChara(unit.id);
 
-		if (closest) {
-			if (closest.unit.id === unit.id) { //self
+		if (droppedOnChara) {
+			if (droppedOnChara.unit.id === unit.id) { //self
 				equipItemInBoardUnit({ chara, item: unit.equip });
 			} else { //another
-				const currEquip = closest.unit.equip;
+				const currEquip = droppedOnChara.unit.equip;
 
-				equipItemInBoardUnit({ chara: closest, item: unit.equip });
+				equipItemInBoardUnit({ chara: droppedOnChara, item: unit.equip });
 				equipItemInBoardUnit({ chara, item: currEquip });
 
 			}
@@ -69,14 +74,31 @@ export function renderItemSlot(
 
 		if (sellImage) {
 			const sells = Phaser.Geom.Intersects.RectangleToRectangle(
-				item.getBounds(), sellImage?.getBounds())
+				itemIcon.getBounds(), sellImage?.getBounds())
 
 			if (sells) {
 
-				scene.events.emit("itemSell", item, unit.equip);
+				scene.events.emit("itemSell", itemIcon, unit.equip);
 				equipItemInBoardUnit({ chara, item: null });
 				return;
 			}
+
+		}
+
+		const vaultSlot = vaultState.slots.find(({ position, size }) => Phaser.Geom.Intersects.RectangleToRectangle(
+			new Phaser.Geom.Rectangle(pointer.x, pointer.y, 1, 1),
+			new Phaser.Geom.Rectangle(...position, ...size),
+		));
+
+		if (vaultSlot) {
+
+			const { item, index } = vaultSlot
+
+			scene.events.emit("itemDroppedOnVaultSlot", unit.equip, index);
+
+			equipItemInBoardUnit({ chara, item });
+
+			return;
 
 		}
 
@@ -84,9 +106,9 @@ export function renderItemSlot(
 		if (unit.equip) playerForce.items.push(unit.equip);
 
 		equipItemInBoardUnit({ chara, item: null });
-		Chest.updateChestIO();
+		//update guild
+
 	});
 
-	container.add([itemBorder, item]);
-	return item;
+	return itemIcon;
 }
