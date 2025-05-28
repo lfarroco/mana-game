@@ -3,7 +3,7 @@ import { State } from "../../../Models/State";
 import * as Tooltip from "../../../Systems/Tooltip";
 import { titleTextConfig } from "../constants";
 import { overlap, getChara } from "./CharaManager";
-import { CHEST_TILE_SIZE, guildFlyout, render } from "./Guild";
+import { CHEST_TILE_SIZE, render } from "./Guild";
 
 
 export const renderVault = (
@@ -92,8 +92,7 @@ export const renderVault = (
 		});
 		icon.on("dragstart", () => {
 			Tooltip.hide();
-			parent.bringToTop(icon);
-			guildFlyout?.scene.children.bringToTop(guildFlyout);
+			parent.remove(icon);
 		});
 		icon.on("drag", (pointer: Phaser.Input.Pointer) => {
 			icon.x = pointer.x;
@@ -162,6 +161,7 @@ export const renderVault = (
 				return;
 			}
 			// nothing happened, return to original position
+			parent.add(icon);
 			icon.setPosition(...position);
 			return;
 		});
