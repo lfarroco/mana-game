@@ -19,7 +19,7 @@ export let sellImage: Phaser.GameObjects.Image | null = null;
 let initialized = false;
 
 // Module-scoped variable for flyout and container
-let guildFlyout: Flyout_.Flyout | null = null;
+export let guildFlyout: Flyout_.Flyout | null = null;
 let flyoutContainer: Container | null = null;
 
 // Event handler for unit dropped in bench slot
