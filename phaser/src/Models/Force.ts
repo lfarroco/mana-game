@@ -9,7 +9,7 @@ export type Force = {
 	color: string;
 	gold: number;
 	income: number;
-	items: (Item | null)[]; // todo: replace with map
+	items: (Item | null)[]; // todo: replace with slot objects
 	units: Unit[];
 	bench: Array<{ index: number; unit: Unit | null }>;
 };

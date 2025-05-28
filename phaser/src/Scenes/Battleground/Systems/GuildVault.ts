@@ -5,6 +5,18 @@ import { titleTextConfig } from "../constants";
 import { overlap, getChara } from "./CharaManager";
 import { CHEST_TILE_SIZE, render } from "./Guild";
 
+type Slot = {
+	index: number;
+	position: [number, number];
+	size: [number, number];
+	item: Item | null;
+	slotImage?: Image;
+	slotBg?: Image;
+}
+
+export const vaultState = {
+	slots: [] as Slot[]
+};
 
 export const renderVault = (
 	scene: Scene,
@@ -13,6 +25,7 @@ export const renderVault = (
 	sellImage: Image,
 	benchSlots: Image[]
 ) => {
+
 	const baseX = 120;
 	const baseY = 570;
 	const gridWidth = 5;
@@ -29,13 +42,9 @@ export const renderVault = (
 		titleTextConfig);
 	parent.add(itemsTitle);
 
+	vaultState.slots = [];
 	// Build slots array: each slot has index, position, item, and slotImage
-	const slots: Array<{
-		index: number;
-		position: [number, number];
-		item: Item | null;
-		slotImage?: Phaser.GameObjects.Image;
-	}> = new Array(gridWidth * gridHeight).fill(0).map((_, index) => {
+	vaultState.slots = new Array(gridWidth * gridHeight).fill(0).map((_, index) => {
 		const x = index % gridWidth;
 		const y = Math.floor(index / gridWidth);
 		const position: [number, number] = [
@@ -46,12 +55,11 @@ export const renderVault = (
 			index,
 			position,
 			item: state.gameData.player.items[index] || null,
-			w,
-			h
+			size: [w, h]
 		};
 	});
 
-	slots.forEach((slot, slotIdx) => {
+	vaultState.slots.forEach((slot, slotIdx) => {
 		const { position, item } = slot;
 		const slotImage = scene.add.image(0, 0, "ui/slot")
 			.setOrigin(0.5)
@@ -138,25 +146,26 @@ export const renderVault = (
 				return;
 			}
 			// check if dropped over another slot
-			const targetSlot = slots.find(s => s.slotImage && Phaser.Geom.Intersects.RectangleToRectangle(
+			const targetSlot = vaultState.slots.find(s => s.slotImage && Phaser.Geom.Intersects.RectangleToRectangle(
 				new Phaser.Geom.Rectangle(pointer.x, pointer.y, 1, 1),
 				s.slotImage.getBounds()
 			));
 			if (targetSlot) {
 				const fromIdx = slotIdx;
 				const toIdx = targetSlot.index;
-				if (slots[toIdx].item) {
+				if (vaultState.slots[toIdx].item) {
 					// swap
-					const temp = slots[toIdx].item;
-					slots[toIdx].item = slots[fromIdx].item;
-					slots[fromIdx].item = temp;
+					const temp = vaultState.slots[toIdx].item;
+					vaultState.slots[toIdx].item = vaultState.slots[fromIdx].item;
+					vaultState.slots[fromIdx].item = temp;
 				} else {
 					// move
-					slots[toIdx].item = slots[fromIdx].item;
-					slots[fromIdx].item = null;
+					vaultState.slots[toIdx].item = vaultState.slots[fromIdx].item;
+					vaultState.slots[fromIdx].item = null;
 				}
 				// update state items array
-				state.gameData.player.items = slots.map(s => s.item);
+				state.gameData.player.items = vaultState.slots.map(s => s.item);
+				icon.destroy();
 				render(scene, parent);
 				return;
 			}
