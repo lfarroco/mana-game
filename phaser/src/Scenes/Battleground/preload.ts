@@ -22,9 +22,6 @@ export function preload(this: Phaser.Scene) {
 
 	this.load.image('arrow', 'assets/equips/arrow.png');
 
-	['advance', 'explore', 'rest', 'merchant'].forEach(card => {
-		this.load.image(`cards/${card}`, `assets/cards/${card}.jpeg`);
-	});
 
 	[
 		'fireball',
