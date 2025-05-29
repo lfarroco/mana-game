@@ -182,3 +182,11 @@ prestige can be used to buy stuff or reroll
 -poison
 -burn
 1s ticks
+
+
+charge mechanics:
+healer: when an ally is attacked, charge 1 (heal)
+protector: when an ally is attacked, charge 1 (taunt)
+when an ally attacks, charge 1
+when an ally heals, charge 1
+when an ally crits, charge 1

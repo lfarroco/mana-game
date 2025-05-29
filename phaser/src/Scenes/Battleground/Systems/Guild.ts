@@ -82,6 +82,7 @@ function onItemDroppedOnChara(targetChara: Chara, icon: Phaser.GameObjects.Image
 		state.gameData.player.items.push(currentItem);
 	}
 }
+
 function handleItemDroppedOnVaultSlot(
 	item: Item,
 	index: number,
