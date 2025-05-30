@@ -11,25 +11,23 @@ permissions:
   id-token: write
 
 jobs:
-  # Build job
   build:
-    # Specify runner +  build & upload the static files as an artifact
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4  # ✅ Essential step!
+
       - name: Build static files
-        id: build
         working-directory: phaser
         run: |
-         npm install
-         npm run build
+          npm install
+          npm run build
 
       - name: Upload static files as artifact
-        id: deployment
-        uses: actions/upload-pages-artifact@v3 
+        uses: actions/upload-pages-artifact@v3
         with:
           path: phaser/dist
 
-  # Deployment job
   deploy:
     environment:
       name: github-pages
