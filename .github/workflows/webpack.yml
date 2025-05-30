@@ -11,34 +11,32 @@ permissions:
   id-token: write
 
 jobs:
+  # Build job
   build:
+    # Specify runner +  build & upload the static files as an artifact
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-
-      - name: Install dependencies and build
-        working-directory: ./phaser
+      - name: Build static files
+        id: build
         run: |
-          cd phaser
-          npm install
-          npm run build
+         cd phaser
+         npm install
+         npm run build
 
-      - uses: actions/upload-pages-artifact@v2
+      - name: Upload static files as artifact
+        id: deployment
+        uses: actions/upload-pages-artifact@v3 
         with:
-          path: ./phaser/dist
+          path: phaser/dist
 
+  # Deployment job
   deploy:
-    needs: build
-    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-
+    runs-on: ubuntu-latest
+    needs: build
     steps:
-      - uses: actions/deploy-pages@v3
+      - name: Deploy to GitHub Pages
         id: deployment
+        uses: actions/deploy-pages@v4
