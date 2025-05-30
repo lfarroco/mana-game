@@ -3,7 +3,7 @@ name: Build and Deploy Phaser App
 on:
   push:
     branches:
-      - main  # Or your default branch
+      - main
 
 permissions:
   contents: write
@@ -15,13 +15,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18  # or your project's version
+          node-version: 18
 
       - name: Install dependencies and build
         working-directory: ./phaser
@@ -30,8 +28,7 @@ jobs:
           npm install
           npm run build
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
+      - uses: actions/upload-pages-artifact@v2
         with:
           path: ./phaser/dist
 
@@ -43,6 +40,5 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Deploy to GitHub Pages
+      - uses: actions/deploy-pages@v3
         id: deployment
-        uses: actions/deploy-pages@v3
