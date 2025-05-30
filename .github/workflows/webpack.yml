@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: Build static files
         id: build
-        working-directory: ./phaser
+        working-directory: phaser
         run: |
          npm install
          npm run build
@@ -27,7 +27,7 @@ jobs:
         id: deployment
         uses: actions/upload-pages-artifact@v3 
         with:
-          path: ./phaser/dist
+          path: phaser/dist
 
   # Deployment job
   deploy:
