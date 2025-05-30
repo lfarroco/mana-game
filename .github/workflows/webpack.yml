@@ -27,7 +27,7 @@ jobs:
         id: deployment
         uses: actions/upload-pages-artifact@v3 
         with:
-          path: phaser/dist
+          path: ./phaser/dist
 
   # Deployment job
   deploy:
