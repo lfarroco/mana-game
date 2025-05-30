@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: Build static files
         id: build
-        working-directory: phaser
+        working-directory: ./phaser
         run: |
          npm install
          npm run build
