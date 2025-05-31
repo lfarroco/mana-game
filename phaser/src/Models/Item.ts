@@ -93,7 +93,6 @@ export const ITEMS: { [id: string]: () => Item } = {
 		icon: 'charas/skeleton',
 		cost: 1,
 		description: 'A bone from a skeleton',
-		quality: "common",
 		type: { key: "material", }
 	}),
 	MAGIC_WAND: () => equipmentItem('Magic Wand', 'items/magic_wand', 10, 'Increases attack by 5', attributeModifier('attackPower', 5)),
@@ -103,7 +102,6 @@ export const ITEMS: { [id: string]: () => Item } = {
 		icon: 'charas/skeleton',
 		cost: 1,
 		description: 'It contains magic power that can be fused into items',
-		quality: "common",
 		type: { key: "material", }
 	})
 }

@@ -39,14 +39,14 @@ export const tavern = (): Encounter => ({
 export const equipmentVendor = () => makeEncounter("equipment_vendor", "Equipment Vendor", "You have found an equipment vendor", images.equipment_vendor.key, {
 	type: "item-shop",
 	choices: () => [
-		ITEMS.IRON_SWORD_COMMON(),
-		ITEMS.GOLD_RING_COMMON(),
-		ITEMS.IRON_SWORD_COMMON(),
-		ITEMS.IRON_SWORD_COMMON(),
-		ITEMS.IRON_SWORD_COMMON(),
-		ITEMS.IRON_SWORD_COMMON(),
-		ITEMS.GOLD_RING_COMMON(),
-		ITEMS.GOLD_RING_COMMON(),
+		ITEMS.IRON_SWORD(),
+		ITEMS.GOLD_RING(),
+		ITEMS.IRON_SWORD(),
+		ITEMS.IRON_SWORD(),
+		ITEMS.IRON_SWORD(),
+		ITEMS.IRON_SWORD(),
+		ITEMS.GOLD_RING(),
+		ITEMS.GOLD_RING(),
 	]
 })
 
@@ -56,8 +56,8 @@ function potionVendor(): Encounter {
 	return makeEncounter("potion_vendor", "Potion Vendor", "You have found a potion vendor", images.potion_vendor.key, {
 		type: "item-shop",
 		choices: () => [
-			ITEMS.RED_POTION_COMMON(),
-			ITEMS.TOXIC_POTION_COMMON(),
+			ITEMS.RED_POTION(),
+			ITEMS.TOXIC_POTION(),
 		]
 	});
 }

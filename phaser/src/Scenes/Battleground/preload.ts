@@ -1,22 +1,11 @@
 import Phaser from "phaser";
-import * as Cards from "../../Models/Card";
 import { images } from "../../assets";
-
-const jobs = Cards.cards.map(j => j.id);
 
 export function preload(this: Phaser.Scene) {
 
 	Object.values(images).forEach((image) => {
 		this.load.image(image);
 	});
-
-
-
-	this.load.image("charas/nameless", "assets/charas/nameless.png");
-
-	jobs.forEach(job =>
-		this.load.image(`charas/${job}`, `assets/charas/${job}.png`)
-	);
 
 	// reference to loading json data
 	//this.load.json("archer-data", "assets/data/cards/archer/data.json");
@@ -26,8 +15,6 @@ export function preload(this: Phaser.Scene) {
 	loadAudio(this);
 
 }
-
-
 
 //gold round circle with black outline
 function coinTexture(scene: Scene) {

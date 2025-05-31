@@ -9,6 +9,7 @@ export type Unit = {
   id: string;
   name: string;
   job: CardId;
+  pic: string;
   force: string;
   position: Vec2;
 
