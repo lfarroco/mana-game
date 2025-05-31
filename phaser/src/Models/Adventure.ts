@@ -53,7 +53,7 @@ export const adventures: Record<string, Adventure> = {
 		waves: [
 			{
 				generate: ENCOUNTER_BLOBS,
-				icon: "ui/chest",
+				icon: "",
 				loot: () => [
 					ITEMS.IRON_SWORD_COMMON(),
 					ITEMS.TOXIC_POTION_COMMON(),
@@ -72,7 +72,7 @@ export const adventures: Record<string, Adventure> = {
 			},
 			{
 				generate: ENCOUNTER_BLOBS,
-				icon: "ui/chest",
+				icon: "",
 				loot: () => ([] as Item[]).concat(
 					Math.random() > 0.3 ? [ITEMS.TOXIC_POTION_COMMON()] : []
 				)
@@ -91,7 +91,7 @@ export const adventures: Record<string, Adventure> = {
 			},
 			{
 				generate: ENCOUNTER_CRYPT,
-				icon: "ui/chest",
+				icon: "",
 				loot: () => ([] as Item[]).concat(
 					Math.random() > 0.3 ? [ITEMS.TOXIC_POTION_COMMON()] : []
 				)

@@ -1,3 +1,4 @@
+import { images } from "../assets";
 import * as effects from "../Effects"
 
 export class DebugScene extends Phaser.Scene {
@@ -12,7 +13,7 @@ export class DebugScene extends Phaser.Scene {
 		this.load.image("beam", "assets/fx/beam.png");
 		this.load.image("white-dot", "assets/fx/white-dot.png");
 		this.load.image("light-pillar", "assets/fx/light-pillar.png");
-		this.load.image("damage_display", "assets/ui/damage_display.png");
+		this.load.image(images.ui.damage_display);
 	}
 
 	create() {

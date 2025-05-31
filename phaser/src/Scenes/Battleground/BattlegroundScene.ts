@@ -82,7 +82,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.sound.setVolume(0.05)
 
-    this.bgImage = this.add.image(0, 0, 'bg').setDisplaySize(constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT)
+    this.bgImage = this.add.image(0, 0, 'bgs/forest').setDisplaySize(constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT)
       .setPosition(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2);
 
     this.bgContainer = this.add.container(0, 0);

@@ -1,3 +1,4 @@
+import { images } from "../../../assets";
 import { updatePlayerGoldIO } from "../../../Models/Force";
 import { Item } from "../../../Models/Item";
 import { getState } from "../../../Models/State";
@@ -40,7 +41,9 @@ export const itemShop = async (
 
 		const spacing = 16;
 
-		const slot = scene.add.image(x, y, "ui/slot")
+		const slot = scene.add.image(x, y,
+			images.ui.slot.key
+		)
 			.setOrigin(0.5)
 			.setDisplaySize(SHOP_TILE_SIZE + spacing, SHOP_TILE_SIZE + spacing)
 

@@ -9,6 +9,7 @@ import { scene } from "./Chara";
 import { Unit } from "../../Models/Unit";
 import { sellImage } from "../../Scenes/Battleground/Systems/Guild";
 import { vaultState } from "../../Scenes/Battleground/Systems/GuildVault";
+import { images } from "../../assets";
 
 export function renderItemSlot(
 	unit: Unit,
@@ -17,7 +18,8 @@ export function renderItemSlot(
 
 	const itemBorder = scene.add.image(
 		bgConstants.HALF_TILE_WIDTH - 40, -bgConstants.HALF_TILE_HEIGHT + 40,
-		"ui/slot")
+		images.ui.slot.key
+	)
 		.setOrigin(0.5, 0.5)
 		.setDisplaySize(80, 80);
 
