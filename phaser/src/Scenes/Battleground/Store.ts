@@ -36,7 +36,7 @@ const renderUnit = (scene: BattlegroundScene) => (jobId: Job.CardId, i: number) 
 
 	const sprite = scene.add.image(
 		x, y,
-		job.id + "/portrait")
+		job.pic)
 		.setOrigin(0.5, 0.5)
 		.setDisplaySize(constants.TILE_WIDTH * 0.8, constants.TILE_HEIGHT * 0.8)
 		.setAlpha(player.gold >= constants.RECRUIT_UNIT_PRICE ? 1 : 0.5);

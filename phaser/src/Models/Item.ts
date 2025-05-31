@@ -2,6 +2,7 @@ import { v4 } from "uuid";
 import { healUnit, updateUnitAttribute } from "../Systems/Chara/Chara";
 import { Unit } from "./Unit";
 import { UnitEvent } from "./UnitEvents";
+import { images } from "../assets";
 
 type Equipment = {
 	key: "equipment",
@@ -54,18 +55,38 @@ export const equipmentItem = (name: string, icon: string, cost: number, descript
 
 
 export const ITEMS: { [id: string]: () => Item } = {
-	RED_POTION_COMMON: () => equipmentItem('Red Potion', 'items/red_potion', 4, 'Heals 30 HP when below 50% HP', {
+	RED_POTION: () => equipmentItem(
+		'Red Potion',
+		images.red_potion.key,
+		4,
+		'Heals 30 HP when below 50% HP', {
 		onHalfHP: (u) => async () => {
 			healUnit(u, 30);
 		}
 	}),
-	TOXIC_POTION_COMMON: () => equipmentItem('Toxic Potion', 'items/toxic_potion', 4, 'Increases attack by 5 until the end of the battle', {
+	TOXIC_POTION: () => equipmentItem(
+		'Toxic Potion',
+		images.toxic_potion.key,
+		4,
+		'Increases attack by 5 until the end of the battle', {
 		onCombatStart: (u) => async () => {
 			updateUnitAttribute(u, 'attackPower', 5);
 		}
 	}),
-	IRON_SWORD_COMMON: () => equipmentItem('Iron Sword', 'items/iron_sword', 10, 'Increases attack by 5', attributeModifier('attackPower', 5)),
-	GOLD_RING_COMMON: () => equipmentItem('Gold Ring', 'items/gold_ring', 10, 'Increases def by 5', attributeModifier('defense', 5)),
+	IRON_SWORD: () => equipmentItem(
+		'Iron Sword',
+		images.iron_sword.key,
+		10,
+		'Increases attack by 5',
+		attributeModifier('attackPower', 5),
+	),
+	GOLD_RING: () => equipmentItem(
+		'Gold Ring',
+		images.gold_ring.key,
+		10,
+		'Increases def by 5',
+		attributeModifier('defense', 5),
+	),
 	BONE: () => ({
 		id: v4(),
 		name: 'Bone',
@@ -75,7 +96,7 @@ export const ITEMS: { [id: string]: () => Item } = {
 		quality: "common",
 		type: { key: "material", }
 	}),
-	MAGIC_WAND_COMMON: () => equipmentItem('Magic Wand', 'items/magic_wand', 10, 'Increases attack by 5', attributeModifier('attackPower', 5)),
+	MAGIC_WAND: () => equipmentItem('Magic Wand', 'items/magic_wand', 10, 'Increases attack by 5', attributeModifier('attackPower', 5)),
 	MAGIC_DUST: () => ({
 		id: v4(),
 		name: 'Magic Dust',

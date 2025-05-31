@@ -10,33 +10,7 @@ export function preload(this: Phaser.Scene) {
 		this.load.image(image);
 	});
 
-	[
-		"forest",
-	].forEach((bg) => {
-		this.load.image(`bgs/${bg}`, `assets/bgs/${bg}.png`);
-	});
 
-	this.load.image('arrow', 'assets/equips/arrow.png');
-
-	[
-		'old_adventurer',
-		'potion_vendor',
-		'equipment_vendor',
-		'magic_store',
-		'combat_training',
-		'agility_training',
-		'forest_entrance',
-		'sell',
-		'exit',
-		'map',
-	].forEach(icon => {
-		this.load.image(`icon/${icon}`, `assets/icons/${icon}.png`);
-	});
-
-	['blue_potion', 'red_potion', 'toxic_potion', 'burn_potion', 'gold_ring', 'iron_sword'].forEach(item => {
-
-		this.load.image(`items/${item}`, `assets/items/${item}.png`);
-	});
 
 	this.load.image("charas/nameless", "assets/charas/nameless.png");
 

@@ -3,13 +3,17 @@ import { tween } from "../../../Utils/animation";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { physicalAttack } from "../Skills/physicalAttack";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
+import { images } from "../../../assets";
 
 export async function shootAnimation(scene: BattlegroundScene, unit: Unit, target: Unit) {
 
 	const activeChara = UnitManager.getChara(unit.id);
 	const targetChara = UnitManager.getChara(target.id);
 
-	const arrow = scene.add.image(activeChara.container.x, activeChara.container.y, "arrow");
+	const arrow = scene.add.image(
+		activeChara.container.x, activeChara.container.y,
+		images.arrow.key,
+	);
 
 	arrow.setScale(0.3);
 
