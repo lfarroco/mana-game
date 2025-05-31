@@ -165,7 +165,12 @@ const displayEvents = async (eventArray: Encounter[], _day: number) => {
 export const displayRandomEvents = (day: number) => displayEvents(randomEvents, day);
 export const displayMonsterEvents = (day: number) => displayEvents(monsterEvents(), day);
 
-const pickUnit = async (genChoices: () => Choice[], totalPicks: number, allowSkipping: boolean, title: string) => {
+const pickUnit = async (
+	genChoices: () => Choice[],
+	totalPicks: number,
+	allowSkipping: boolean,
+	title: string,
+) => {
 
 	const flyout = await Flyout.create(
 		scene,
@@ -317,7 +322,9 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number, allowSki
 					if (maybeOccupier) {
 						const occupierChara = UnitManager.getChara(maybeOccupier.id);
 
-						occupierChara.unit.position = { ...chara.unit.position };
+						const slot = getEmptySlot(playerForce.units, playerForce.id);
+
+						occupierChara.unit.position = slot!;
 
 						tween({
 							targets: [occupierChara.container],
@@ -335,11 +342,15 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number, allowSki
 
 				}
 
+				const dragStartHandler = () => {
+					flyout.remove(chara.container);
+					Tooltip.hide();
+				}
+
 				const dragHandler = (pointer: Phaser.Input.Pointer) => {
 
 					chara.container.x = pointer.x;
 					chara.container.y = pointer.y;
-					Tooltip.hide();
 				}
 
 				const dropHandler = (pointer: Pointer) => {
@@ -352,12 +363,14 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number, allowSki
 
 						chara.zone.off('drag', dragHandler);
 						chara.zone.off('pointerup', dropHandler);
+						chara.zone.off('dragstart', dragStartHandler);
 						return
 					}
 					if (inBoard && wasDrag) {
 						handleDrop(pointer);
 						chara.zone.off('drag', dragHandler);
 						chara.zone.off('pointerup', dropHandler);
+						chara.zone.off('dragstart', dragStartHandler);
 						return;
 					}
 
@@ -368,8 +381,11 @@ const pickUnit = async (genChoices: () => Choice[], totalPicks: number, allowSki
 						y: 500,
 					});
 
+					flyout.add(chara.container);
+
 				}
 
+				chara.zone.on('dragstart', dragStartHandler);
 				chara.zone.on('drag', dragHandler);
 				chara.zone.on('pointerup', dropHandler);
 
