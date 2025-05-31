@@ -6,6 +6,7 @@ import { COLOR_BLACK } from "../../../Utils/colors";
 import { getState, State } from "../../../Models/State";
 import * as Chest from "./Chest";
 import * as Guild from "./Guild";
+import * as assets from "../../../assets";
 
 export let ui: Phaser.GameObjects.Container | null = null;
 export let dropZone: Phaser.GameObjects.Zone | null = null;
@@ -30,7 +31,7 @@ export function createButton(
 ) {
 	const btnBg = scene.add.image(
 		x, y,
-		'ui/button'
+		assets.images.ui.button.key
 	)
 		.setOrigin(0.5)
 		.setDisplaySize(350, 100);

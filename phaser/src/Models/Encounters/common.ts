@@ -4,6 +4,7 @@ import { heroCards } from "../Card";
 import { Encounter, makeEncounter } from "./Encounter";
 import { pickRandom } from "../../utils";
 import { newChoice } from "../../Scenes/Battleground/Systems/Choice";
+import { images } from "../../assets";
 
 const commonEvents = (): Encounter[] => [
 	potionVendor(),
@@ -15,7 +16,7 @@ export const tavern = (): Encounter => ({
 	id: "2",
 	title: "The Tavern",
 	description: "Recruit new members for your guild",
-	pic: "ui/tavern",
+	pic: images.ui.tavern.key,
 	triggers: {
 		type: "pick-unit",
 		totalPicks: 1,

@@ -1,3 +1,4 @@
+import { images } from "../../../assets";
 import { Item } from "../../../Models/Item";
 import { State } from "../../../Models/State";
 import * as Tooltip from "../../../Systems/Tooltip";
@@ -61,7 +62,9 @@ export const renderVault = (
 
 	vaultState.slots.forEach((slot, slotIdx) => {
 		const { position, item } = slot;
-		const slotImage = scene.add.image(0, 0, "ui/slot")
+		const slotImage = scene.add.image(0, 0,
+			images.ui.slot.key
+		)
 			.setOrigin(0.5)
 			.setDisplaySize(w, h)
 			.setPosition(...position);

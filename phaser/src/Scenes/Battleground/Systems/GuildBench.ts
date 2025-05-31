@@ -10,6 +10,7 @@ import { getTileAt } from "./GridSystem";
 import { eqVec2, vec2 } from "../../../Models/Geometry";
 import { displayError } from "./UIManager";
 import { tween } from "../../../Utils/animation";
+import { images } from "../../../assets";
 
 const guildBenchState = {
 	benchCharas: [] as Chara[],
@@ -40,7 +41,9 @@ export function renderBench(
 		const { x, y } = getBenchSlotPosition(index);
 		const w = constants.TILE_WIDTH + 20;
 		const h = constants.TILE_HEIGHT + 20;
-		const slot = scene.add.image(x, y, "ui/slot").setDisplaySize(w, h).setOrigin(0);
+		const slot = scene.add.image(x, y,
+			images.ui.slot.key,
+		).setDisplaySize(w, h).setOrigin(0);
 		const zone = scene.add.zone(x, y, w, h)
 			.setPosition(x, y)
 			.setName("slot")

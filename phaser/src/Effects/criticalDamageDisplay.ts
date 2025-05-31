@@ -1,3 +1,4 @@
+import { images } from "../assets";
 import { tween } from "../Utils/animation";
 
 export async function criticalDamageDisplay(
@@ -7,7 +8,7 @@ export async function criticalDamageDisplay(
 ) {
 	const critBg = scene.add.image(
 		x, y,
-		'ui/damage_display'
+		images.ui.damage_display.key
 	);
 	critBg.setScale(0);
 

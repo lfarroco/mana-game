@@ -11,6 +11,7 @@ import { Unit } from "../../../Models/Unit";
 import { updatePlayerGoldIO } from "../../../Models/Force";
 import { renderBench } from "./GuildBench";
 import { renderVault } from "./GuildVault";
+import { images } from "../../../assets";
 
 export const CHEST_TILE_SIZE = constants.TILE_WIDTH / 2;
 
@@ -109,7 +110,7 @@ export async function renderGuildButton(sceneRef: Phaser.Scene) {
 			constants.SCREEN_WIDTH - 120,
 			constants.SCREEN_HEIGHT - 560
 		],
-		"ui/guild")
+		images.ui.guild.key)
 		.setOrigin(0.5)
 		.setDisplaySize(230, 230)
 		.setInteractive()

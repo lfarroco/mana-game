@@ -2,6 +2,7 @@
 // continue from here:
 // create undead units with deathrattle meachnics
 
+import { images } from "../assets";
 import { defaultTextConfig, SCREEN_HEIGHT, titleTextConfig } from "../Scenes/Battleground/constants";
 import { tween } from "../Utils/animation";
 
@@ -24,7 +25,9 @@ export class Flyout extends Phaser.GameObjects.Container {
 		scene.add.existing(this);
 		flyouts.push(this);
 
-		this.bg = scene.add.image(0, 0, "ui/wood_texture").setOrigin(0)
+		this.bg = scene.add.image(0, 0,
+			images.ui.wood_texture.key
+		).setOrigin(0)
 			.setDisplaySize(flyoutWidth, SCREEN_HEIGHT);
 
 		this.bg.setInteractive();

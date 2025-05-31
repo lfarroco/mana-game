@@ -1,16 +1,17 @@
 import Phaser from "phaser";
 import { tween } from "../../Utils/animation";
 import * as constants from "./constants";
+import * as assets from "../../assets";
 
 export async function battleResultAnimation(
 	scene: Scene,
 	result: "victory" | "defeat",
 ) {
+	const image = result === "defeat" ? assets.images.ui.defeat : assets.images.ui.victory;
 	const banner = scene.add.image(
 		constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2,
-		`ui/${result}`)
-		.setOrigin(0.5, 0.5)
-		.setScale(0.5);
+		image.key)
+		.setOrigin(0.5, 0.5);
 
 	const revealMask = scene.add.image(
 		0, constants.SCREEN_HEIGHT / 2,

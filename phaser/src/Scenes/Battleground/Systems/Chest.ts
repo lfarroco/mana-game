@@ -7,6 +7,7 @@ import * as Tooltip from "../../../Systems/Tooltip";
 import * as constants from "../constants";
 import * as UIManager from "./UIManager";
 import * as UnitManager from "./CharaManager";
+import { images } from "../../../assets";
 
 const CHEST_TILE_SIZE = constants.TILE_WIDTH / 2;
 
@@ -22,7 +23,8 @@ export async function renderChestButton(scene: Scene) {
 
 	const chest = scene.add.image(
 		...position,
-		"ui/chest")
+		images.ui.chest.key
+	)
 		.setOrigin(0.5)
 		.setDisplaySize(230, 230);
 
@@ -87,7 +89,9 @@ export const updateChestIO = async () => {
 				baseY + (y * CHEST_TILE_SIZE) + (y * spacing)
 			];
 
-			const slot = UIManager.scene.add.image(0, 0, "ui/slot")
+			const slot = UIManager.scene.add.image(0, 0,
+				images.ui.slot.key
+			)
 				.setOrigin(0.5)
 				.setDisplaySize(CHEST_TILE_SIZE + spacing, CHEST_TILE_SIZE + spacing)
 				.setPosition(...position);
