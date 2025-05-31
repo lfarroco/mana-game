@@ -1,3 +1,5 @@
+import { images } from "../assets";
+
 export class GlowingOrb extends Phaser.GameObjects.Container {
 
 	constructor(
@@ -14,42 +16,50 @@ export class GlowingOrb extends Phaser.GameObjects.Container {
 	create() {
 
 		// use particle emitter to create a glowing orb
-		const orb = this.scene.add.particles(0, 0, 'white-dot', {
-			speed: { min: 100, max: 100 },
-			scale: { start: 5, end: 1 },
-			alpha: { start: 0.8, end: 0 },
-			lifespan: 300,
-			frequency: 30,
-			maxAliveParticles: 30,
-			blendMode: 'ADD',
-			//golden tones 
-			tint: [0xffff00, 0xffffff]
-		});
+		const orb = this.scene.add.particles(
+			0, 0,
+			images.white_dot.key,
+			{
+				speed: { min: 100, max: 100 },
+				scale: { start: 5, end: 1 },
+				alpha: { start: 0.8, end: 0 },
+				lifespan: 300,
+				frequency: 30,
+				maxAliveParticles: 30,
+				blendMode: 'ADD',
+				//golden tones 
+				tint: [0xffff00, 0xffffff]
+			});
 
 		// radial rays of light that follow the orb
-		const rays = this.scene.add.particles(10, 5, 'light-pillar', {
-			speed: 100,
-			scaleX: { min: 0.02, max: 0.04 },
-			scaleY: { min: 0.4, max: 0.5 },
-			alpha: { start: 1, end: 0 },
-			rotate: { min: 0, max: 360 },
-			tint: [0xffff00, 0xffffff],
-			lifespan: 30,
-			frequency: 10,
-			blendMode: 'ADD'
-		});
+		const rays = this.scene.add.particles(
+			10, 5,
+			images.light_pillar.key,
+			{
+				speed: 100,
+				scaleX: { min: 0.02, max: 0.04 },
+				scaleY: { min: 0.4, max: 0.5 },
+				alpha: { start: 1, end: 0 },
+				rotate: { min: 0, max: 360 },
+				tint: [0xffff00, 0xffffff],
+				lifespan: 30,
+				frequency: 10,
+				blendMode: 'ADD'
+			});
 
 		// Create explosion emitter
-		const explosionEmitter = this.scene.add.particles(0, 0, 'white-dot', {
-			speed: { min: 200, max: 300 },
-			angle: { min: 0, max: 360 },
-			scale: { start: 8, end: 0 },
-			alpha: { start: 1, end: 0 },
-			lifespan: 500,
-			tint: [0xffff00, 0xffffff],
-			maxParticles: 10,
-			blendMode: 'ADD',
-		});
+		const explosionEmitter = this.scene.add.particles(0, 0,
+			images.white_dot.key,
+			{
+				speed: { min: 200, max: 300 },
+				angle: { min: 0, max: 360 },
+				scale: { start: 8, end: 0 },
+				alpha: { start: 1, end: 0 },
+				lifespan: 500,
+				tint: [0xffff00, 0xffffff],
+				maxParticles: 10,
+				blendMode: 'ADD',
+			});
 		explosionEmitter.stop();
 
 		// Movement tween

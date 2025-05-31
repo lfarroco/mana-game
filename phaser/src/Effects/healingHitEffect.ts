@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { delay } from "../Utils/animation";
+import { images } from "../assets";
 
 export async function healingHitEffect(
 	scene: Phaser.Scene,
@@ -8,8 +9,9 @@ export async function healingHitEffect(
 	speed: number,
 ): Promise<void> {
 
-	const particles = scene.add.particles(x, y,
-		'white-dot',
+	const particles = scene.add.particles(
+		x, y,
+		images.white_dot.key,
 		{
 			speed: 50 * speed,
 			//light green to golden tones

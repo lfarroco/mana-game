@@ -18,7 +18,7 @@ export function renderItemSlot(
 
 	const itemBorder = scene.add.image(
 		bgConstants.HALF_TILE_WIDTH - 40, -bgConstants.HALF_TILE_HEIGHT + 40,
-		images.ui.slot.key
+		images.slot.key
 	)
 		.setOrigin(0.5, 0.5)
 		.setDisplaySize(80, 80);

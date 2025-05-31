@@ -42,7 +42,7 @@ export const itemShop = async (
 		const spacing = 16;
 
 		const slot = scene.add.image(x, y,
-			images.ui.slot.key
+			images.slot.key
 		)
 			.setOrigin(0.5)
 			.setDisplaySize(SHOP_TILE_SIZE + spacing, SHOP_TILE_SIZE + spacing)

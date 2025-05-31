@@ -1,3 +1,4 @@
+import { images } from "../assets";
 import { asVec2, sumVec2, vec2 } from "../Models/Geometry";
 import { TILE_WIDTH } from "../Scenes/Battleground/constants";
 import { delay } from "../Utils/animation";
@@ -13,7 +14,7 @@ export async function explodeEffect(
 	const sparks = scene.add.particles(
 		source.x,
 		source.y,
-		'light-pillar',
+		images.light_pillar.key,
 		{
 			speed: 0,
 			tint: [0xff0000, 0xffff00, 0xffa500],
@@ -29,33 +30,36 @@ export async function explodeEffect(
 		});
 
 	// round particles moving towards the center
-	const energy = scene.add.particles(source.x, source.y, 'white-dot', {
-		lifespan: lifespan,
-		alpha: { start: 0.5, end: 0 },
-		scale: { start: 2, end: 0 },
-		blendMode: 'ADD',
-		frequency: 70,
-		emitZone: {
-			type: 'edge',
-			source: new Phaser.Geom.Circle(0, 0, 100),
-			stepRate: 0,
-			quantity: 7 // Increase quantity for smoother coverage
-		},
-		// Remove radial: true and control direction manually:
-		speed: 200 * speed,
-		maxAliveParticles: 20,
-		// Override velocity direction for ALL particles:
-		emitCallback: (particle: Phaser.GameObjects.Particles.Particle) => {
-			// Calculate direction from particle's position to center (0,0 relative to emitter)
-			const angleToCenter = Phaser.Math.Angle.Between(
-				particle.x, particle.y, // Particle's spawn position (on circle edge)
-				0, 0                    // Center of the emitter
-			);
+	const energy = scene.add.particles(
+		source.x, source.y,
+		images.white_dot.key,
+		{
+			lifespan: lifespan,
+			alpha: { start: 0.5, end: 0 },
+			scale: { start: 2, end: 0 },
+			blendMode: 'ADD',
+			frequency: 70,
+			emitZone: {
+				type: 'edge',
+				source: new Phaser.Geom.Circle(0, 0, 100),
+				stepRate: 0,
+				quantity: 7 // Increase quantity for smoother coverage
+			},
+			// Remove radial: true and control direction manually:
+			speed: 200 * speed,
+			maxAliveParticles: 20,
+			// Override velocity direction for ALL particles:
+			emitCallback: (particle: Phaser.GameObjects.Particles.Particle) => {
+				// Calculate direction from particle's position to center (0,0 relative to emitter)
+				const angleToCenter = Phaser.Math.Angle.Between(
+					particle.x, particle.y, // Particle's spawn position (on circle edge)
+					0, 0                    // Center of the emitter
+				);
 
-			particle.velocityX = Math.cos(angleToCenter) * 400;
-			particle.velocityY = Math.sin(angleToCenter) * 400;
-		}
-	});
+				particle.velocityX = Math.cos(angleToCenter) * 400;
+				particle.velocityY = Math.sin(angleToCenter) * 400;
+			}
+		});
 
 	await delay(scene, lifespan);
 
@@ -85,9 +89,8 @@ export async function explodeEffect(
 
 function impactEffect(scene: Phaser.Scene, target: { x: number; y: number; }, speed: number, lifespan: number) {
 	const particle = scene.add.particles(
-		target.x,
-		target.y,
-		'white-dot',
+		target.x, target.y,
+		images.white_dot.key,
 		{
 			speed: 300 * speed,
 			tint: [0xff0000, 0xffff00, 0xffa500],

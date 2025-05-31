@@ -4,6 +4,7 @@ import * as constants from "../constants";
 import { breakLines, pickRandom } from "../../../utils";
 import { getItem, Item } from "../../../Models/Item";
 import { playerForce } from "../../../Models/Force";
+import { images } from "../../../assets";
 
 export let scene: Phaser.Scene;
 
@@ -90,25 +91,28 @@ const renderChoiceCard = (
 	cardBg.lineStyle(STYLE_CONSTANTS.CARD_STROKE_WIDTH, STYLE_CONSTANTS.CARD_STROKE_COLOR);
 	cardBg.strokeRect(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height);
 
-	const emitter = scene.add.particles(0, 0, 'white-splash-fade', {
-		speed: 0,
-		lifespan: { min: CARD_DIMENSIONS.width, max: CARD_DIMENSIONS.height },
-		scale: { start: 0.0, end: 0.15 },
-		alpha: { start: 0.8, end: 0 },
-		blendMode: 'ADD',
-		tint: STYLE_CONSTANTS.PARTICLE_COLORS.DEFAULT,
-		frequency: 300,
-		rotate: {
-			min: 0,
-			max: 360
-		},
-		quantity: 64,
-		emitZone: {
-			type: 'edge',
-			source: new Phaser.Geom.Rectangle(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height),
-			quantity: 64
-		}
-	});
+	const emitter = scene.add.particles(
+		0, 0,
+		images.white_splash_fade.key,
+		{
+			speed: 0,
+			lifespan: { min: CARD_DIMENSIONS.width, max: CARD_DIMENSIONS.height },
+			scale: { start: 0.0, end: 0.15 },
+			alpha: { start: 0.8, end: 0 },
+			blendMode: 'ADD',
+			tint: STYLE_CONSTANTS.PARTICLE_COLORS.DEFAULT,
+			frequency: 300,
+			rotate: {
+				min: 0,
+				max: 360
+			},
+			quantity: 64,
+			emitZone: {
+				type: 'edge',
+				source: new Phaser.Geom.Rectangle(0, 0, CARD_DIMENSIONS.width, CARD_DIMENSIONS.height),
+				quantity: 64
+			}
+		});
 
 	const text = scene.add.text(
 		CARD_DIMENSIONS.height + 20, 20,

@@ -23,7 +23,7 @@ export async function renderChestButton(scene: Scene) {
 
 	const chest = scene.add.image(
 		...position,
-		images.ui.chest.key
+		images.chest.key
 	)
 		.setOrigin(0.5)
 		.setDisplaySize(230, 230);
@@ -90,7 +90,7 @@ export const updateChestIO = async () => {
 			];
 
 			const slot = UIManager.scene.add.image(0, 0,
-				images.ui.slot.key
+				images.slot.key
 			)
 				.setOrigin(0.5)
 				.setDisplaySize(CHEST_TILE_SIZE + spacing, CHEST_TILE_SIZE + spacing)
