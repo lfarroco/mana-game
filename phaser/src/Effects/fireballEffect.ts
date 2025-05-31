@@ -1,3 +1,4 @@
+import { images } from "../assets";
 import { asVec2, sumVec2, vec2 } from "../Models/Geometry";
 import { TILE_WIDTH } from "../Scenes/Battleground/constants";
 import { delay, tween } from "../Utils/animation";
@@ -49,9 +50,8 @@ export async function fireballEffect(
 }
 function impactEffect(scene: Phaser.Scene, target: { x: number; y: number; }, speed: number, lifespan: number) {
 	return scene.add.particles(
-		target.x,
-		target.y,
-		'white-dot',
+		target.x, target.y,
+		images.white_dot.key,
 		{
 			speed: 300 * speed,
 			tint: [0xff0000, 0xffff00, 0xffa500],
@@ -68,9 +68,8 @@ function impactEffect(scene: Phaser.Scene, target: { x: number; y: number; }, sp
 function fireball(source: { x: number; y: number; }, target: { x: number; y: number; }, scene: Phaser.Scene, speed: number, lifespan: number, travelDuration: number) {
 	const angle = Phaser.Math.Angle.BetweenPoints(source, target);
 	const particles = scene.add.particles(
-		source.x,
-		source.y,
-		'white-dot',
+		source.x, source.y,
+		images.white_dot.key,
 		{
 			// make particles move in the direction of the angle, using the speed
 			speedX: {

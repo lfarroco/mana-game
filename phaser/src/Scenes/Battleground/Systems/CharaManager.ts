@@ -5,6 +5,7 @@ import * as constants from "../constants";
 import { summonEffect } from "../../../Effects/summonEffect";
 import { tween } from "../../../Utils/animation";
 import { BattlegroundScene } from "../BattlegroundScene";
+import { images } from "../../../assets";
 
 let scene: BattlegroundScene;
 
@@ -105,7 +106,7 @@ export function createParticle(id: string, status: string) {
 
 	const particles = scene.add.particles(
 		0, 0,
-		'white-dot',
+		images.white_dot.key,
 		{
 			speed: 10,
 			lifespan: 700,

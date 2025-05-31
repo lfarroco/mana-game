@@ -1,3 +1,4 @@
+import { images } from "../assets";
 import { delay } from "../Utils/animation";
 import { EnergyBeam } from "./EnergyBeam";
 
@@ -25,9 +26,8 @@ export async function arcaneMissile(
 	beam.setVisible(false);
 
 	const particles = scene.add.particles(
-		0,
-		0,
-		'white-dot',
+		0, 0,
+		images.white_dot.key,
 		{
 			speed: 100 * speed,
 			// dark purple to blue tones
@@ -46,7 +46,11 @@ export async function arcaneMissile(
 		path.lineTo(point);
 	});
 
-	const follower = scene.add.follower(path, source.x, source.y, 'white-dot');
+	const follower = scene.add.follower(
+		path,
+		source.x, source.y,
+		images.white_dot.key,
+	);
 
 	const duration = (500 * Math.random() + 500);
 	follower.setVisible(false);
@@ -64,9 +68,8 @@ export async function arcaneMissile(
 
 	// impact effect
 	const impact = scene.add.particles(
-		target.x,
-		target.y,
-		'white-dot',
+		target.x, target.y,
+		images.white_dot.key,
 		{
 			speed: 300 * speed,
 			// purple to blue tones

@@ -8,7 +8,7 @@ export async function criticalDamageDisplay(
 ) {
 	const critBg = scene.add.image(
 		x, y,
-		images.ui.damage_display.key
+		images.damage_display.key
 	);
 	critBg.setScale(0);
 

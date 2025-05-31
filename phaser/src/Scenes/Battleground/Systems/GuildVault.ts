@@ -63,7 +63,7 @@ export const renderVault = (
 	vaultState.slots.forEach((slot, slotIdx) => {
 		const { position, item } = slot;
 		const slotImage = scene.add.image(0, 0,
-			images.ui.slot.key
+			images.slot.key
 		)
 			.setOrigin(0.5)
 			.setDisplaySize(w, h)

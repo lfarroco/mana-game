@@ -6,24 +6,12 @@ const jobs = Cards.cards.map(j => j.id);
 
 export function preload(this: Phaser.Scene) {
 
-	Object.values(images.ui).forEach((image) => {
+	Object.values(images).forEach((image) => {
 		this.load.image(image);
 	});
 
 	[
-		"reveal-mask",
-		"light",
-		"beam",
-		"white-dot",
-		"light-pillar",
-		"white-splash-fade",
-	].forEach((asset) => {
-		this.load.image(`fx/${asset}`, `assets/fx/${asset}.png`);
-	});
-
-	[
 		"forest",
-		"city"
 	].forEach((bg) => {
 		this.load.image(`bgs/${bg}`, `assets/bgs/${bg}.png`);
 	});

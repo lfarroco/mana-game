@@ -31,7 +31,7 @@ export function createButton(
 ) {
 	const btnBg = scene.add.image(
 		x, y,
-		assets.images.ui.button.key
+		assets.images.button.key
 	)
 		.setOrigin(0.5)
 		.setDisplaySize(350, 100);

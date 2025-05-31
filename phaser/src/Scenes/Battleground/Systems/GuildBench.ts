@@ -42,7 +42,7 @@ export function renderBench(
 		const w = constants.TILE_WIDTH + 20;
 		const h = constants.TILE_HEIGHT + 20;
 		const slot = scene.add.image(x, y,
-			images.ui.slot.key,
+			images.slot.key,
 		).setDisplaySize(w, h).setOrigin(0);
 		const zone = scene.add.zone(x, y, w, h)
 			.setPosition(x, y)

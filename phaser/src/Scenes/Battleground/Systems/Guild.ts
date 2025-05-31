@@ -110,7 +110,7 @@ export async function renderGuildButton(sceneRef: Phaser.Scene) {
 			constants.SCREEN_WIDTH - 120,
 			constants.SCREEN_HEIGHT - 560
 		],
-		images.ui.guild.key)
+		images.guild.key)
 		.setOrigin(0.5)
 		.setDisplaySize(230, 230)
 		.setInteractive()

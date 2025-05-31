@@ -7,7 +7,7 @@ export async function battleResultAnimation(
 	scene: Scene,
 	result: "victory" | "defeat",
 ) {
-	const image = result === "defeat" ? assets.images.ui.defeat : assets.images.ui.victory;
+	const image = result === "defeat" ? assets.images.defeat : assets.images.victory;
 	const banner = scene.add.image(
 		constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2,
 		image.key)
@@ -15,7 +15,7 @@ export async function battleResultAnimation(
 
 	const revealMask = scene.add.image(
 		0, constants.SCREEN_HEIGHT / 2,
-		'fx/reveal-mask')
+		assets.images.reveal_mask.key)
 		.setOrigin(0.5, 0.5)
 		.setScale(1);
 	revealMask.setVisible(false); // mask itself shouldn't be shown
