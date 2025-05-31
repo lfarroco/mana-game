@@ -5,20 +5,29 @@ const jobs = Cards.cards.map(j => j.id);
 
 export function preload(this: Phaser.Scene) {
 
-	this.load.image("ui/victory", "assets/ui/victory.png");
-	this.load.image("ui/defeat", "assets/ui/defeat.png");
-	this.load.image("ui/button", "assets/ui/button.png");
+	[
+		"victory",
+		"defeat",
+		"button",
+		"damage_display",
+		"tavern",
+		"chest",
+		"guild",
+		"slot",
+		"wood_texture"
+	].forEach((asset) => {
+		this.load.image(`ui/${asset}`, `assets/ui/${asset}.png`);
+	});
+
 	this.load.image("light", "assets/fx/light.png");
 	this.load.image("fx/reveal-mask", "assets/fx/reveal-mask.png");
 	this.load.image("beam", "assets/fx/beam.png");
 	this.load.image("white-dot", "assets/fx/white-dot.png");
 	this.load.image("light-pillar", "assets/fx/light-pillar.png");
 	this.load.image("white-splash-fade", "assets/fx/white-splash-fade.png");
-	this.load.image("damage_display", "assets/ui/damage_display.png");
 
 	this.load.image("bg", "assets/bgs/forest.png");
 	this.load.image("city", "assets/bgs/city.png");
-	this.load.image("cave_entrance", "assets/bgs/cave_entrance.jpeg");
 
 	this.load.image('arrow', 'assets/equips/arrow.png');
 
@@ -84,13 +93,7 @@ export function preload(this: Phaser.Scene) {
 	this.load.audio("audio/chip-lay-3", "assets/audio/chip-lay-3.ogg")
 
 	this.load.audio("ui/button_click", "assets/audio/button_click.ogg")
-	this.load.audio("ui/error", "assets/audio/error.ogg")
-
-	this.load.image("ui/tavern", "assets/ui/tavern.png")
-	this.load.image("ui/chest", "assets/ui/chest.png")
-	this.load.image("ui/guild", "assets/ui/guild.png")
-	this.load.image("ui/slot", "assets/ui/slot.png")
-	this.load.image("ui/wood_texture", "assets/ui/wood_texture.png");
+	this.load.audio("ui/error", "assets/audio/error.ogg");
 
 	['blue_potion', 'red_potion', 'toxic_potion', 'burn_potion', 'gold_ring', 'iron_sword'].forEach(item => {
 
@@ -102,7 +105,6 @@ export function preload(this: Phaser.Scene) {
 	jobs.forEach(job =>
 		this.load.image(`charas/${job}`, `assets/charas/${job}.png`)
 	);
-
 
 	this.load.spritesheet(
 		"pipo-light-pillar",
