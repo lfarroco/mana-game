@@ -17,8 +17,8 @@ export type Force = {
 export const makeForce = (id: string): Force => {
 
 	const items = [
-		ITEMS.RED_POTION_COMMON(),
-		ITEMS.IRON_SWORD_COMMON(),
+		ITEMS.RED_POTION(),
+		ITEMS.IRON_SWORD(),
 	];
 	return {
 		id,

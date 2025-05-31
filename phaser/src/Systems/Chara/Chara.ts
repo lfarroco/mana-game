@@ -14,6 +14,7 @@ import * as TooltipSytem from "../Tooltip";
 import { popText } from "./Animations/popText";
 import { criticalDamageDisplay } from "../../Effects";
 import { renderItemSlot } from "./ItemSlot";
+import { images } from "../../assets";
 
 export type Chara = {
 	id: string;
@@ -54,10 +55,7 @@ export function createCard(unit: Unit): Chara {
 		unit.position.y * bgConstants.TILE_HEIGHT + bgConstants.HALF_TILE_HEIGHT
 	)
 
-	const key = `charas/${unit.job}`
-	const fallbackKey = 'charas/nameless'
-	const textureKey = scene.textures.exists(key) ? key : fallbackKey;
-
+	const textureKey = scene.textures.exists(unit.pic) ? unit.pic : images.nameless.key;
 
 	const sprite = scene.add.image(0, 0, textureKey)
 		.setDisplaySize(bgConstants.TILE_WIDTH - borderWidth, bgConstants.TILE_HEIGHT - borderWidth)
