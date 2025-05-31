@@ -87,23 +87,6 @@ export const ITEMS: { [id: string]: () => Item } = {
 		'Increases def by 5',
 		attributeModifier('defense', 5),
 	),
-	BONE: () => ({
-		id: v4(),
-		name: 'Bone',
-		icon: 'charas/skeleton',
-		cost: 1,
-		description: 'A bone from a skeleton',
-		type: { key: "material", }
-	}),
-	MAGIC_WAND: () => equipmentItem('Magic Wand', 'items/magic_wand', 10, 'Increases attack by 5', attributeModifier('attackPower', 5)),
-	MAGIC_DUST: () => ({
-		id: v4(),
-		name: 'Magic Dust',
-		icon: 'charas/skeleton',
-		cost: 1,
-		description: 'It contains magic power that can be fused into items',
-		type: { key: "material", }
-	})
 }
 
 const attributeModifier = (attribute: keyof Unit, value: number) => (
