@@ -36,7 +36,7 @@ export const tavern = (): Encounter => ({
 	}
 });
 
-export const equipmentVendor = () => makeEncounter("equipment_vendor", "Equipment Vendor", "You have found an equipment vendor", "icon/equipment_vendor", {
+export const equipmentVendor = () => makeEncounter("equipment_vendor", "Equipment Vendor", "You have found an equipment vendor", images.equipment_vendor.key, {
 	type: "item-shop",
 	choices: () => [
 		ITEMS.IRON_SWORD_COMMON(),
@@ -53,7 +53,7 @@ export const equipmentVendor = () => makeEncounter("equipment_vendor", "Equipmen
 
 export default commonEvents;
 function potionVendor(): Encounter {
-	return makeEncounter("potion_vendor", "Potion Vendor", "You have found a potion vendor", "icon/potion_vendor", {
+	return makeEncounter("potion_vendor", "Potion Vendor", "You have found a potion vendor", images.potion_vendor.key, {
 		type: "item-shop",
 		choices: () => [
 			ITEMS.RED_POTION_COMMON(),

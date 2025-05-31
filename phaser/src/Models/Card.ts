@@ -5,6 +5,7 @@ export type CardId = string & { __cardId: true };
 
 export type Card = {
   id: CardId;
+  pic: string;
   name: string;
   description: string;
   hp: number;
@@ -79,6 +80,7 @@ function parseCardsTable(table: string) {
     return {
       id: d["Id"] as CardId,
       name: d["Name"],
+      pic: `charas/${d["Id"]}`,
       description: "",
       hp: parseInt(d["HP"]),
       attack: parseInt(d["ATK"]),

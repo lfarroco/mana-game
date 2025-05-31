@@ -227,7 +227,7 @@ function sellZone() {
 
 	const sellImage = UIManager.scene.add.image(
 		400, constants.SCREEN_HEIGHT - 200,
-		"icon/sell"
+		images.sell.key,
 	)
 		.setDisplaySize(400, 250)
 

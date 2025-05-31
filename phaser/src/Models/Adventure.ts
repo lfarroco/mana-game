@@ -3,6 +3,7 @@ import { pickOne } from "../utils";
 import { Item, ITEMS } from "./Item";
 import { NECROMANCER, SKELETON, SKELETON_MAGE } from "./Card";
 import { Unit } from "./Unit";
+import { images } from "../assets";
 
 export type Adventure = {
 	name: string;
@@ -47,7 +48,7 @@ const ENCOUNTER_CRYPT = () => {
 export const adventures: Record<string, Adventure> = {
 	forest_entrance: {
 		name: "Forest Entrance",
-		icon: "icon/forest_entrance",
+		icon: images.forest_entrance.key,
 		currentWave: 1,
 		description: "A dark and gloomy forest entrance.",
 		waves: [
