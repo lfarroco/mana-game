@@ -5,12 +5,9 @@ import * as constants from "../constants";
 import { destroyChara, summonChara } from "./CharaManager";
 import { coinDropIO } from "./UIManager";
 
-import { Item } from "../../../Models/Item";
-import { equipItemInBoardUnit } from "../../../Systems/Item/EquipItem";
 import { Unit } from "../../../Models/Unit";
 import { updatePlayerGoldIO } from "../../../Models/Force";
 import { renderBench } from "./GuildBench";
-import { renderVault } from "./GuildVault";
 import { images } from "../../../assets";
 
 export const CHEST_TILE_SIZE = constants.TILE_WIDTH / 2;
@@ -22,7 +19,6 @@ let initialized = false;
 // Module-scoped variable for flyout and container
 let guildFlyout: Flyout_.Flyout | null = null;
 let flyoutContainer: Container | null = null;
-let scene: Scene | null = null;
 
 // Event handler for unit dropped in bench slot
 function onUnitDroppedInBenchSlot(unit: Unit, index: number) {
@@ -63,39 +59,6 @@ function onUnitSell(chara: Chara) {
 	updatePlayerGoldIO(10);
 }
 
-// Event handler for item sell
-export function onItemSell(icon: Phaser.GameObjects.Image, item: Item) {
-	const state = getState();
-	icon.destroy();
-	state.gameData.player.items = state.gameData.player.items.filter(i => i?.id !== item.id);
-	coinDropIO(item.cost / 2, item.cost / 2, icon.x, icon.y);
-	updatePlayerGoldIO(item.cost / 2);
-}
-
-// Event handler for item dropped on chara
-function onItemDroppedOnChara(targetChara: Chara, icon: Phaser.GameObjects.Image, item: Item) {
-	const state = getState();
-	icon.destroy();
-	const currentItem = targetChara.unit.equip;
-	equipItemInBoardUnit({ chara: targetChara, item });
-	state.gameData.player.items = state.gameData.player.items.filter(i => i?.id !== item.id);
-	if (currentItem !== null) {
-		state.gameData.player.items.push(currentItem);
-	}
-}
-
-function handleItemDroppedOnVaultSlot(
-	item: Item,
-	index: number,
-) {
-	const state = getState();
-
-	state.gameData.player.items[index] = item;
-
-	render(scene!, flyoutContainer!);
-
-}
-
 export async function renderGuildButton(sceneRef: Phaser.Scene) {
 	const flyout = await Flyout_.create(sceneRef, "Your Guild")
 	const container = sceneRef.add.container(0, 0);
@@ -117,15 +80,10 @@ export async function renderGuildButton(sceneRef: Phaser.Scene) {
 		.on("pointerup", () => handleButtonClicked(container, flyout)());
 
 	if (initialized) return;
-	scene = sceneRef;
 
 	// Register event handlers only once
 	sceneRef.events.on("unitDroppedInBenchSlot", onUnitDroppedInBenchSlot);
 	sceneRef.events.on("unitSell", onUnitSell);
-	sceneRef.events.on("itemSell", onItemSell);
-	sceneRef.events.on("itemDroppedOnChara", onItemDroppedOnChara);
-	sceneRef.events.on("itemDroppedOnBenchChara", onItemDroppedOnChara);
-	sceneRef.events.on("itemDroppedOnVaultSlot", handleItemDroppedOnVaultSlot)
 
 	initialized = true;
 
@@ -142,15 +100,12 @@ const handleButtonClicked = (container: Container, flyout: Flyout_.Flyout) => as
 
 export function render(scene: Scene, parent: Container) {
 
-	const state = getState();
-
 	parent.removeAll(true);
 
 	sellImage = sellZone(scene, parent);
 
-	const benchSlots = renderBench(scene, parent);
+	renderBench(scene, parent);
 
-	renderVault(scene, parent, state, sellImage, benchSlots);
 
 }
 

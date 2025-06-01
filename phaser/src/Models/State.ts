@@ -9,7 +9,7 @@ import { UNIT_EVENT_NO_OP, UnitEvent } from "./UnitEvents";
 // TODO: make this not import things from phaser
 
 // get ?speed=x parameter from url
-let speed = 1;
+let speed = 2;
 
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.has("speed")) {

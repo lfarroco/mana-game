@@ -16,8 +16,7 @@ import commonEvents from "./common";
 import monsterEvents from "./monster";
 import * as Flyout from "../../Systems/Flyout";
 import { getTileAt } from "../../Scenes/Battleground/Systems/GridSystem";
-import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, MAX_BENCH_SIZE, MAX_PARTY_SIZE, REROLL_UNITS_PRICE, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
-import * as Chest from "../../Scenes/Battleground/Systems/Chest";
+import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, MAX_BENCH_SIZE, MAX_PARTY_SIZE, REROLL_UNITS_PRICE, SCREEN_HEIGHT, SCREEN_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
 import { createButton, disableButton, displayError, enableButton } from "../../Scenes/Battleground/Systems/UIManager";
 
 let scene: Phaser.Scene;
@@ -220,7 +219,8 @@ const pickUnit = async (
 					for (const c of charas) {
 						if (chara.id === c.id) {
 							const vec = vec2(
-								...Chest.position
+								SCREEN_WIDTH - 100,
+								SCREEN_HEIGHT - 100
 							);
 							tween({
 								targets: [c.container],
