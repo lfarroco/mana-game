@@ -13,7 +13,6 @@ import { addStatus, getState, State } from "../../Models/State";
 import * as TooltipSytem from "../Tooltip";
 import { popText } from "./Animations/popText";
 import { criticalDamageDisplay } from "../../Effects";
-import { renderItemSlot } from "./ItemSlot";
 import { images } from "../../assets";
 
 export type Chara = {
@@ -26,7 +25,6 @@ export type Chara = {
 	container: Phaser.GameObjects.Container,
 	atkDisplay: Phaser.GameObjects.Text,
 	hpDisplay: Phaser.GameObjects.Text,
-	equipDisplay: Phaser.GameObjects.Image,
 	zone: Phaser.GameObjects.Zone,
 	chargeBar: Phaser.GameObjects.Graphics,
 	cooldownBar: Phaser.GameObjects.Graphics,
@@ -129,8 +127,6 @@ export function createCard(unit: Unit): Chara {
 
 	container.add(zone);
 
-	const item = renderItemSlot(unit, container);
-
 	// a bar based on the unit.charge value
 	const chargeBar = scene.add.graphics();
 	const cooldownBar = scene.add.graphics();
@@ -149,7 +145,6 @@ export function createCard(unit: Unit): Chara {
 		atkDisplay: atk,
 		hpDisplay: hp,
 		zone,
-		equipDisplay: item,
 		cooldownBar,
 		chargeBar,
 		hpBar,

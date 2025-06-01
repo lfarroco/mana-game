@@ -4,7 +4,6 @@ import { BattlegroundScene } from "../BattlegroundScene";
 import { delay, tween } from "../../../Utils/animation";
 import { COLOR_BLACK } from "../../../Utils/colors";
 import { getState, State } from "../../../Models/State";
-import * as Chest from "./Chest";
 import * as Guild from "./Guild";
 import * as assets from "../../../assets";
 
@@ -213,7 +212,7 @@ export async function goldChangeAnimation(
 
 	const text = `${sign}${gold}`;
 
-	const goldAmount = scene.add.text(...Chest.position, text, constants.titleTextConfig)
+	const goldAmount = scene.add.text(constants.SCREEN_WIDTH - 100, 100, text, constants.titleTextConfig)
 		.setOrigin(0.5, 0.5)
 		.setAlpha(0)
 		.setScale(1);
