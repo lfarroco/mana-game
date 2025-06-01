@@ -208,7 +208,7 @@ export const SHARP_EYES: Trait = makeTrait({
 export const TAUNT: Trait = makeTrait({
 	id: "taunt" as TraitId,
 	name: "Taunt",
-	description: "If in range, enemies will attackthis unit",
+	description: "If in range, enemies will attack this unit",
 	categories: [TRAIT_CATEGORY_DEFENSIVE, TRAIT_CATEGORY_PERSONALITY],
 	events: {}
 });
