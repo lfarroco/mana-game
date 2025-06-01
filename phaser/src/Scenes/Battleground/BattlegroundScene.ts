@@ -23,7 +23,6 @@ import { battleResultAnimation } from "./battleResultAnimation";
 import { delay } from "../../Utils/animation";
 import { generateEnemyTeam } from "./generateEnemyTeam";
 import { tavern } from "../../Models/Encounters/common";
-import { Item, ITEMS } from "../../Models/Item";
 import { images } from "../../assets";
 
 export class BattlegroundScene extends Phaser.Scene {
@@ -65,7 +64,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     EventSystem.init(this);
 
-    TraitSystem.init(this, state)
+    TraitSystem.init(this, state);
 
     TooltipSystem.init(this);
 
@@ -196,10 +195,6 @@ export class BattlegroundScene extends Phaser.Scene {
         state.gameData.player.units.forEach(unit => {
           UnitManager.summonChara(unit);
         });
-
-        const pool = Object.entries(ITEMS).map(([key, value]) => [key, value()] as [string, Item]);
-
-        await ChoiceSystem.chooseItems(pool)
 
         const tavern_ = tavern();
 
