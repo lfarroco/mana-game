@@ -9,7 +9,6 @@ import { EnergyBeam } from "../../../Effects/EnergyBeam";
 import { healingHitEffect } from "../../../Effects/healingHitEffect";
 import { getSkill, HEALING_WAVE } from "../../../Models/Skill";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
-import { lightOrb } from "./lightOrb";
 
 /**
  * Performs a healing wave skill that targets allies with low health.
@@ -30,7 +29,6 @@ export async function healingWave(scene: BattlegroundScene, unit: Unit) {
 		.concat([unit]);
 
 	const hurtAllies = allies
-		.filter(u => u.hp < u.maxHp * 0.7)
 		.map(unit => {
 			const percentage = unit.hp / unit.maxHp;
 			return {
@@ -40,11 +38,6 @@ export async function healingWave(scene: BattlegroundScene, unit: Unit) {
 		})
 		.sort((a, b) => b.percentage - a.percentage)
 		.map(({ unit }) => unit);
-
-	if (hurtAllies.length === 0) {
-		await lightOrb(scene)(unit);
-		return;
-	}
 
 	const top3 = hurtAllies.slice(0, 3);
 
