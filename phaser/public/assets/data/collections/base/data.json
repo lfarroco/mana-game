@@ -7,8 +7,7 @@
 			"pic": "assets/cards/archer.png",
 			"hp": 150,
 			"attack": 25,
-			"cooldown": 2000,
-			"projectile": "arrow",
+			"cooldown": 1400,
 			"traits": [
 				{
 					"id": "ranged"
@@ -22,12 +21,14 @@
 			"name": "Cleric",
 			"pic": "assets/cards/cleric.png",
 			"hp": 150,
-			"cooldown": 2000,
-			"projectile": "arrow",
+			"cooldown": 2900,
 			"skill": "healing_wave",
 			"traits": [
 				{
 					"id": "support"
+				},
+				{
+					"id": "healing_wave"
 				}
 			]
 		},
@@ -36,8 +37,7 @@
 			"pic": "assets/cards/knight.png",
 			"hp": 150,
 			"attack": 25,
-			"cooldown": 2000,
-			"skill": "slash",
+			"cooldown": 1200,
 			"traits": [
 				{
 					"id": "melee"
@@ -49,8 +49,7 @@
 			"pic": "assets/cards/bandit.png",
 			"hp": 150,
 			"attack": 25,
-			"cooldown": 2000,
-			"projectile": "slash",
+			"cooldown": 4000,
 			"traits": [
 				{
 					"id": "melee"
@@ -62,8 +61,7 @@
 			"pic": "assets/cards/bandit_archer.png",
 			"hp": 150,
 			"attack": 25,
-			"cooldown": 2000,
-			"projectile": "slash",
+			"cooldown": 3000,
 			"traits": [
 				{
 					"id": "melee"
