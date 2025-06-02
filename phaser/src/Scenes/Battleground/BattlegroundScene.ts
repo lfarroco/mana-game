@@ -13,17 +13,15 @@ import * as ChoiceSystem from "./Systems/Choice";
 import * as EventSystem from "../../Models/Encounters/Encounter";
 import * as TraitSystem from "../../Models/Traits";
 import * as TooltipSystem from "../../Systems/Tooltip";
-import { makeUnit } from "../../Models/Unit";
-import { CardCollection, getAllCards, registerCollection } from "../../Models/Card";
+import { CardCollection, getCard, registerCollection } from "../../Models/Card";
 import runCombatIO from "./RunCombatIO";
 import { battleResultAnimation } from "./battleResultAnimation";
 import { delay } from "../../Utils/animation";
 import { tavern } from "../../Models/Encounters/common";
 import { images } from "../../assets";
-import { playerForce } from "../../Models/Force";
-import { vec2 } from "../../Models/Geometry";
-import { pickRandom } from "../../utils";
 import { generateEnemyTeam } from "./generateEnemyTeam";
+import { vignette } from "./Animations/vignette";
+import { pickOne } from "../../utils";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -105,6 +103,11 @@ export class BattlegroundScene extends Phaser.Scene {
 
   start = async () => {
 
+    //@ts-ignore
+    window.scene = this;
+
+    const { state } = this;
+
     this.sound.setVolume(0.05)
 
     this.bgImage = this.add.image(
@@ -122,109 +125,92 @@ export class BattlegroundScene extends Phaser.Scene {
     UIManager.createDropZone(this);
     UIManager.updateUI();
 
-    //@ts-ignore
-    window.scene = this;
+    await EventSystem.evalEvent(EventSystem.starterEvent);
 
-    const { state } = this;
+    //Infinite day loop
+    console.log("Day", this.state.gameData.day, "started");
 
-    if (state.options.debug) {
+    state.gameData.day = 1;
+    // Hours loop for each day
+    while (state.gameData.day < 5) {
+      state.battleData.units = [];
 
-      const cards = pickRandom(this.collection.cards, 3);
+      const possibleEnemies = this.collection.opponents.filter(enemy => enemy.level === state.gameData.day);
 
-      const units = cards.map((c, i) =>
-        makeUnit(
-          playerForce.id,
-          c.name,
-          vec2(5, 1 + i)
-        )
-      );
+      const enemyCards = pickOne(possibleEnemies).cards.map(getCard)
 
-      units.forEach(unit => {
-        this.state.gameData.player.units.push(unit);
+      generateEnemyTeam(state, state.gameData.player.units.length, enemyCards);
+      state.battleData.units = [...state.battleData.units, ...state.gameData.player.units];
+
+      UnitManager.clearCharas();
+
+      state.battleData.units.forEach(unit => {
+        UnitManager.summonChara(unit, false, false);
       });
 
-      this.state.gameData.player.units.forEach(unit => {
-        UnitManager.summonChara(unit)
+      await new Promise<void>(resolve => {
+        const start = UIManager.createButton("Start",
+          constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 50,
+          async () => {
+            start.destroy();
+            resolve();
+          });
       });
 
-    } else {
+      const result = await runCombatIO(this);
 
-      await EventSystem.evalEvent(EventSystem.starterEvent);
+      await delay(this, 500)
 
-      //Infinite day loop
-      console.log("Day", this.state.gameData.day, "started");
+      if (result === "player_won") {
+        await battleResultAnimation(this, "victory");
+      } else {
+        await battleResultAnimation(this, "defeat");
+      }
 
-      // Hours loop for each day
-      while (state.gameData.hour < 9) {
-        state.battleData.units = [];
+      console.log("Combat result", result);
 
-        generateEnemyTeam(state, state.gameData.player.units.length, getAllCards());
-        state.battleData.units = [...state.battleData.units, ...state.gameData.player.units];
+      await new Promise<void>(resolve => {
+        const start = UIManager.createButton("Continue",
+          constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 50,
+          async () => {
+            start.destroy();
+            resolve();
+          });
+      });
 
-        UnitManager.clearCharas();
+      UnitManager.clearCharas();
 
-        state.battleData.units.forEach(unit => {
-          UnitManager.summonChara(unit, false, false);
-        });
+      state.gameData.player.units.forEach(unit => {
+        unit.charge = 0;
+        unit.refresh = 0;
+        unit.slowed = 0;
+        unit.hasted = 0;
+        unit.hp = unit.maxHp;
+        unit.statuses = {};
+      })
 
-        await new Promise<void>(resolve => {
-          const start = UIManager.createButton("Start",
-            constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 50,
-            async () => {
-              start.destroy();
-              resolve();
-            });
-        });
+      state.gameData.player.units.forEach(unit => {
+        UnitManager.summonChara(unit);
+      });
 
-        const result = await runCombatIO(this);
+      const tavern_ = tavern();
 
-        await delay(this, 500)
+      await ChoiceSystem.displayChoices([
+        ChoiceSystem.newChoice(tavern_.pic, tavern_.title, tavern_.description, tavern_.id)
+      ])
 
-        if (result === "player_won") {
-          await battleResultAnimation(this, "victory");
-        } else {
-          await battleResultAnimation(this, "defeat");
-        }
+      await EventSystem.evalEvent(EventSystem.pickAHero);
 
-        console.log("Combat result", result);
+      state.gameData.hour += 1;
 
-        await new Promise<void>(resolve => {
-          const start = UIManager.createButton("Continue",
-            constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 50,
-            async () => {
-              start.destroy();
-              resolve();
-            });
-        });
-
-        UnitManager.clearCharas();
-
-        state.gameData.player.units.forEach(unit => {
-          unit.charge = 0;
-          unit.refresh = 0;
-          unit.slowed = 0;
-          unit.hasted = 0;
-          unit.hp = unit.maxHp;
-          unit.statuses = {};
-        })
-
-        state.gameData.player.units.forEach(unit => {
-          UnitManager.summonChara(unit);
-        });
-
-        const tavern_ = tavern();
-
-        await ChoiceSystem.displayChoices([
-          ChoiceSystem.newChoice(tavern_.pic, tavern_.title, tavern_.description, tavern_.id)
-        ])
-
-        await EventSystem.evalEvent(EventSystem.pickAHero);
-
-        state.gameData.hour += 1;
-
+      if (state.gameData.hour >= 12) {
+        state.gameData.day += 1;
+        state.gameData.hour = 1;
       }
 
     }
+
+    vignette(this, "Thanks for playing!")
 
   };
 

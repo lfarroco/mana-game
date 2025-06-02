@@ -28,16 +28,14 @@ export type CardCollection = {
   description: string;
   pic: string;
   cards: Card[];
-  opponents: Opponent
+  opponents: Opponent[]
+
 }
 
 type Opponent = {
   name: string;
   level: number;
-  board: {
-    layout: string[],
-    map: { [key: string]: string }
-  }
+  cards: string[];
 }
 
 export type CardData = {

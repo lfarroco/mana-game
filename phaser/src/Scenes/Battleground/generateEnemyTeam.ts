@@ -17,148 +17,80 @@ export function generateEnemyTeam(
 		count = 2;
 	}
 
-	if (count > 9) {
+	if (count > 5) {
 		console.warn("Enemy team count is greater than 9, setting to 9");
-		count = 9;
+		count = 5;
 	}
 
 	// t = tank
 	// r = ranged dps
 	// s = support
 	// m = melee dps
-	const templates: { [hour: number]: string[]; } = {
+	const templates: { [hour: number]: string[][]; } = {
 		2: [
-			`
-			xxx
-			sxm
-			xxx`,
-			`
-			xxm
-			xxx
-			xxm
-			`,
-			`
-			xxx
-			rxt
-			xxx
-			`,
+			[
+				"...",
+				"s.m",
+				"..."
+			],
+			[
+				"..m",
+				"...",
+				"..m"
+			],
+			[
+				"r..",
+				"...",
+				"r..",
+			]
 		],
 		3: [
-			`
-    xxx
-    rst
-    xxx
-    `,
-			`
-    xxm
-    xsx
-    xxm
-    `,
-			`
-    xxx
-    xxt
-    rxm
-    `
+			[
+				"..m",
+				"..m",
+				"..m"
+			],
+			[
+				"r..",
+				"r..",
+				"r.."
+
+			],
+			[
+				"..m",
+				"r.m",
+				"..."
+			]
 		],
 		4: [
-			`
-      rxm
-      xxx
-      rxm
-      `,
-			`
-      xxx
-      rsm
-      xxm
-      `,
-			`
-      xxm
-      sxm
-      xxm
-      `,
-			`
-      rxx
-      rxm
-      rxx
-      `
+			[
+				"r.m",
+				"...",
+				"r.m"
+			],
+			[
+				"r..",
+				"r.m",
+				"r.."
+			]
 		],
 		5: [
-			`
-      rxm
-      xxt
-      rxm
-      `,
-			`
-      rxt
-      rst
-      xxx
-      `,
-			`
-      xxm
-      rst
-      xxm
-      `,
-		],
-		6: [
-			`
-      rxm
-      rxm
-      rxm
-      `,
-			`
-      sxm
-      xxt
-      sxm
-      `,
-		],
-		7: [
-			`
-      rxm
-      rsm
-      rxm
-      `,
-			`
-      rxt
-      rsm
-      rxt
-      `,
-			`
-      sxt
-      rsm
-      sxt
-      `,
-		],
-		8: [
-			`
-      rxt
-      rsm
-      rst
-      `,
-			`
-      srt
-      sxt
-      srt
-      `,
-		],
-		9: [
-			`
-      rst
-      rst
-      rst
-      `,
-			`
-      rrm
-      sst
-      rrm
-      `,
-		],
+			[
+				"r.m",
+				"..m",
+				"r.m"
+			],
+			[
+				"r.m",
+				"r..",
+				"r.m"
+			]
+		]
 	};
 
 	const template = pickOne(templates[count]);
 
-	const parsed = template.split("\n")
-		.filter(line => line.trim() !== "")
-		.map(line => line.trim().split(""));
+	const parsed = template.map(row => row.split(""));
 
 	const getRanged = () => cards.filter(c => c.traits.some(t => t.id === TraitSystem.RANGED.id));
 	const getMelee = () => cards.filter(c => c.traits.some(t => t.id === TraitSystem.MELEE.id));
