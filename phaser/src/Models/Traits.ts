@@ -9,8 +9,6 @@ import { addStatus, endStatus, State } from "./State";
 import { makeUnit, Unit } from "./Unit";
 import { UNIT_EVENTS, UnitEvents } from "./UnitEvents";
 import { getChara, summonChara } from "../Scenes/Battleground/Systems/CharaManager";
-import { SKELETON, TINY_BLOB } from "./Card";
-import { asVec2 } from "./Geometry";
 import { getColumnNeighbors } from "./Board";
 import { slash } from "../Systems/Chara/Skills/slash";
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
@@ -19,7 +17,6 @@ import { healing } from "../Systems/Chara/Skills/healing";
 import { healingWave } from "../Systems/Chara/Skills/healingWave";
 import { arcaneMissiles } from "../Systems/Chara/Skills/arcaneMissiles";
 import { haste } from "../Systems/Chara/Skills/haste";
-import { summon } from "../Systems/Chara/Skills/summon";
 import { slow } from "../Systems/Chara/Skills/slow";
 
 let state: State;
@@ -86,6 +83,11 @@ export type Trait = {
 	categories: TraitCategory[];
 	events: UnitEvents
 };
+
+export type TraitData = {
+	id: TraitId;
+	[key: string]: any;
+}
 
 export const TRAIT_CATEGORY_PERSONALITY = "personality" as TraitCategory;
 export const TRAIT_CATEGORY_OFFENSIVE = "offensive" as TraitCategory;
@@ -567,11 +569,13 @@ export const SPLIT_BLOB = makeTrait({
 
 			for (const slot of targetSlots) {
 
-				const newUnit = makeUnit(unit.force, TINY_BLOB, asVec2(slot))
+				console.log(slot)
+				// TODO: mke this part of triat
+				// const newUnit = makeUnit(unit.force, , asVec2(slot))
 
-				console.log("SPLIT_BLOB:: newUnit", newUnit.id);
-				state.battleData.units.push(newUnit);
-				await summonChara(newUnit)
+				// console.log("SPLIT_BLOB:: newUnit", newUnit.id);
+				// state.battleData.units.push(newUnit);
+				// await summonChara(newUnit)
 			}
 
 		}]
@@ -637,23 +641,13 @@ export const SUMMON_SKELETON = makeTrait({
 	events: {
 		onAction: [unit => async () => {
 			const chara = getChara(unit.id);
-			summon(chara, SKELETON)
+			console.log(chara)
 		}]
 	}
 });
 
-export const getTrait = () => (id: TraitId): Trait => {
-	const trait = traits[id];
-	if (!trait) {
-		throw new Error(`Trait with id ${id} not found`);
-	}
-	return trait;
-}
-
-// Future traits: check docs/traits/md
-
 // TODO: remove this, use module import
-export const traits: { [id: TraitId]: Trait } = {
+export const traitSpecs: { [id: TraitId]: Trait } = {
 	[LONE_WOLF.id]: LONE_WOLF,
 	[VANGUARD.id]: VANGUARD,
 	[BATTLE_HUNGER.id]: BATTLE_HUNGER,
@@ -689,7 +683,7 @@ export const traits: { [id: TraitId]: Trait } = {
 };
 
 export const randomCategoryTrait = (category: TraitCategory): Trait => {
-	const traitsInCategory = Object.values(traits).filter(t => t.categories.includes(category));
+	const traitsInCategory = Object.values(traitSpecs).filter(t => t.categories.includes(category));
 	if (traitsInCategory.length === 0) {
 		throw new Error(`No traits found for category ${category}`);
 	}

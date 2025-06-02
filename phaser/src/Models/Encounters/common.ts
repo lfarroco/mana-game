@@ -1,9 +1,5 @@
-import { playerForce } from "../Force";
 import { ITEMS } from "../Item";
-import { heroCards } from "../Card";
 import { Encounter, makeEncounter } from "./Encounter";
-import { pickRandom } from "../../utils";
-import { newChoice } from "../../Scenes/Battleground/Systems/Choice";
 import { images } from "../../assets";
 
 const commonEvents = (): Encounter[] => [
@@ -23,15 +19,16 @@ export const tavern = (): Encounter => ({
 		title: "The Tavern",
 		allowSkipping: true,
 		choices: () => {
-			const playerJobs = playerForce.units.map(u => u.job);
-			const remaning = heroCards.filter(card => !playerJobs.includes(card.id));
-			const randomJobs = pickRandom(remaning, 3);
-			return randomJobs.map(job => newChoice(
-				`charas/${job.id}`,
-				job.name,
-				job.description,
-				job.id,
-			));
+			return [];
+			// const playerJobs = playerForce.units.map(u => u.job);
+			// const remaning = heroCards.filter(card => !playerJobs.includes(card.id));
+			// const randomJobs = pickRandom(remaning, 3);
+			// return randomJobs.map(job => newChoice(
+			// 	`charas/${job.id}`,
+			// 	job.name,
+			// 	job.description,
+			// 	job.id,
+			// ));
 		}
 	}
 });

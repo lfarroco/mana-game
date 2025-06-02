@@ -1,7 +1,6 @@
 import { Force, playerForce } from "./Force";
 import { eqVec2, Vec2 } from "./Geometry";
 import { Unit, makeUnit } from "./Unit";
-import { CardId } from "./Card";
 import { getChara } from "../Scenes/Battleground/Systems/CharaManager";
 import { getEmptySlot } from "./Board";
 import { UNIT_EVENT_NO_OP, UnitEvent } from "./UnitEvents";
@@ -121,7 +120,7 @@ export const getUnitAt = (units: Unit[]) => (position: Vec2) => {
   return units.find((u) => eqVec2(u.position, position));
 }
 
-export function addUnitToGuild(forceId: string, jobId: CardId) {
+export function addUnitToGuild(forceId: string, jobId: string) {
   const state = getState();
 
   const position = getEmptySlot(state.gameData.player.units, playerForce.id);

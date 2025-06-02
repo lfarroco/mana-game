@@ -8,7 +8,7 @@ import { delay, tween } from "../../Utils/animation";
 import { playerForce, updatePlayerGoldIO } from "../Force";
 import { eqVec2, Vec2, vec2 } from "../Geometry";
 import { Item } from "../Item";
-import { CardId, heroCards } from "../Card";
+import { getAllCards } from "../Card";
 import { getState, State } from "../State";
 import { getEmptySlot, overlapsWithPlayerBoard } from "../Board";
 import { makeUnit } from "../Unit";
@@ -75,15 +75,11 @@ export const starterEvent: Encounter = {
 		title: "Choose your starting members",
 		allowSkipping: false,
 		choices: () => {
-			const playerJobs = playerForce.units.map(u => u.job);
-			const remaning = heroCards.filter(j => !playerJobs.includes(j.id));
 
-			return pickRandom(remaning, 3).map(job => newChoice(
-				`charas/${job.id}`,
-				job.name,
-				job.description,
-				job.id,
-			));
+			const playerJobs = playerForce.units.map(u => u.job);
+			const remaning = getAllCards().filter(j => !playerJobs.includes(j.name));
+			return pickRandom(remaning, 3)
+				.map(card => newChoice(card.pic, card.name, "", card.name))
 		}
 	}
 }
@@ -101,17 +97,18 @@ export const pickAHero: Encounter = {
 		choices: () => {
 
 			const filtered =
-				heroCards.filter(card =>
-					!state.gameData.player.units.map(u => u.job).includes(card.id) &&
-					!state.gameData.player.bench.map(u => u?.unit?.job).includes(card.id)
+				getAllCards().filter(card =>
+					!state.gameData.player.units.map(u => u.job).includes(card.name) &&
+					!state.gameData.player.bench.map(u => u?.unit?.job).includes(card.name)
 				);
 
-			return pickRandom(filtered, 3).map(job => newChoice(
-				`charas/${job.id}`,
-				job.name,
-				job.description,
-				job.id,
-			));
+			return pickRandom(filtered, 3)
+				.map(card => newChoice(
+					card.pic,
+					card.name,
+					"",
+					card.name
+				));
 		}
 	}
 }
@@ -186,7 +183,7 @@ const pickUnit = async (
 			const charas = await Promise.all(
 				genChoices().map(choice => {
 					const chara = Chara.createCard(
-						makeUnit(playerForce.id, choice.value as CardId, vec2(0, 1)),
+						makeUnit(playerForce.id, choice.value, vec2(0, 1)),
 					);
 					chara.container.setPosition(chara.sprite.width * -1.2, 500);
 					flyout.add(chara.container);

@@ -1,10 +1,9 @@
 import { Unit } from "../../Models/Unit";
 import BattlegroundScene from "./BattlegroundScene";
 import { getAllActiveFoes } from "../../Models/State";
-import { getCard } from "../../Models/Card";
-import { getTrait } from "../../Models/Traits";
 import { highlightCardAnimation } from "../../Systems/Chara/Animations/highlightCardAnimation";
 import { getChara } from "./Systems/CharaManager";
+import { traitSpecs } from "../../Models/Traits";
 
 export const performAction = (scene: BattlegroundScene) => (unit: Unit) => async () => {
 
@@ -18,12 +17,11 @@ export const performAction = (scene: BattlegroundScene) => (unit: Unit) => async
 
 	if (unit.statuses.stun?.duration > 0) return;
 
-	const card = getCard(unit.job);
-
-	card.traits.forEach(t => {
-		const trait = getTrait()(t);
-		trait.events.onAction.forEach(e => {
-			e(unit)();
+	unit.traits.forEach(trait => {
+		const spec = traitSpecs[trait.id];
+		if (!spec) return;
+		spec.events.onAction.forEach(e => {
+			e(unit)(); // TODO: pass arguments from traitdata
 		});
 	});
 

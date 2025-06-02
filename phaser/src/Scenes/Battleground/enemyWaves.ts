@@ -1,35 +1,27 @@
 import { FORCE_ID_CPU } from "./constants";
 import { vec2 } from "../../Models/Geometry";
-import { BLOB, BLOB_MAGE, CardId, RED_BLOB, SKELETON } from "../../Models/Card";
 import { makeUnit, Unit } from "../../Models/Unit";
-import { pickOne } from "../../utils";
 
-const enemy = (job: CardId, x: number, y: number) => makeUnit(
+const enemy = (cardName: string, x: number, y: number) => makeUnit(
 	FORCE_ID_CPU,
-	job,
+	cardName,
 	vec2(x + 1, y + 1))
 
-const FRONTLINE = 3;
-const MIDDLE = 2;
+export const FRONTLINE = 3;
+export const MIDDLE = 2;
 
-const col = (job: CardId, size: number, x: number) =>
+export const col = (cardName: string, size: number, x: number) =>
 	new Array(size)
 		.fill(0)
-		.map((_, i) => enemy(job, x, i));
+		.map((_, i) => enemy(cardName, x, i));
 
 
 
-export const waves: { [idx: number]: Unit[] } = {
-	11: [
-		...col(BLOB, 3, MIDDLE),
-	],
-	13: [
-		enemy(BLOB_MAGE, 1, 1),
-		...col(BLOB, 3, FRONTLINE),
-	]
-};
 
-export const parseEncounter = (lines: string[], charToJob: Record<string, CardId>): Unit[] => {
+export const parseEncounter = (
+	lines: string[],
+	charaToCard: Record<string, string>,
+): Unit[] => {
 	const height = lines.length;
 	const width = lines[0].length;
 	const units: Unit[] = [];
@@ -38,8 +30,8 @@ export const parseEncounter = (lines: string[], charToJob: Record<string, CardId
 		const line = lines[y];
 		for (let x = 0; x < width; x++) {
 			const char = line[x];
-			if (char === 'x') continue;
-			const job = charToJob[char];
+			if (char === '.') continue;
+			const job = charaToCard[char];
 			if (!job) continue;
 			units.push(enemy(job, x, y));
 		}
@@ -48,33 +40,3 @@ export const parseEncounter = (lines: string[], charToJob: Record<string, CardId
 	return units;
 };
 
-export const ENCOUNTER_BLOBS = () => {
-	const templates = [
-		[
-			"xxx",
-			"x1x",
-			"xxx"
-		],
-		[
-			"xxx",
-			"x1x",
-			"xxx"
-		],
-		[
-			"xxx",
-			"1xx",
-			"xxx"
-		],
-
-	];
-	return parseEncounter(pickOne(templates), { '1': BLOB, '2': RED_BLOB })
-
-};
-
-export const ENCOUNTER_UNDEAD = () => parseEncounter(
-	[
-		"x11",
-		"xx1",
-		"x11"
-	]
-	, { '1': SKELETON });

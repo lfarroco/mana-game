@@ -1,14 +1,14 @@
 import { v4 } from "uuid";
 import { Vec2, vec2Zero } from "./Geometry";
 import { Item } from "./Item";
-import { getCard, CardId } from "./Card";
-import { getTrait, MELEE, RANGED, Trait } from "./Traits";
+import { getCard } from "./Card";
+import { MELEE, RANGED, TraitData, traitSpecs } from "./Traits";
 import { UnitEvent, UnitEvents, UNIT_EVENTS } from "./UnitEvents";
 
 export type Unit = {
   id: string;
   name: string;
-  job: CardId;
+  job: string;
   pic: string;
   force: string;
   position: Vec2;
@@ -28,7 +28,7 @@ export type Unit = {
 
   // Temporary status effects
   statuses: UnitStatusIndex;
-  traits: Trait[];
+  traits: TraitData[];
 
   equip: Item | null;
 
@@ -50,23 +50,21 @@ export type UnitStatusIndex = {
   }
 }
 
+export const makeUnit = (force: string, cardName: string, position = vec2Zero()): Unit => {
 
-export const makeUnit = (force: string, jobId: CardId, position = vec2Zero()): Unit => {
-
-  const card = getCard(jobId);
-  const keywords = card.traits.map(getTrait());
+  const card = getCard(cardName);
   const unit = {
     ...card,
     id: v4(),
-    job: jobId,
+    job: cardName,
     force,
     position,
     maxHp: card.hp,
     crit: 0,
     evade: 0,
-    attackType: keywords.some(k => k === RANGED) ? "ranged" :
-      keywords.some(t => t === MELEE) ? "melee" : "none",
-    attackPower: card.attack,
+    attackType: card.attack && card.traits.some(k => k.id === RANGED.id) ? "ranged" :
+      card.attack && card.traits.some(t => t.id === MELEE.id) ? "melee" : "none",
+    attackPower: card.attack || 0,
     defense: 0,
     magicDefense: 0,
     equip: null,
@@ -76,17 +74,21 @@ export const makeUnit = (force: string, jobId: CardId, position = vec2Zero()): U
     refresh: 0,
     hasted: 0,
     slowed: 0,
-    traits: keywords,
+    traits: card.traits,
     events: UNIT_EVENTS.reduce((eventsIndex, event) => {
       eventsIndex[event] = [];
 
       // Traits that have triggers for the current event (onTurnStart, onTurnEnd, etc)
-      const matchingTraits = keywords.filter(t => t.events[event])
+      const matchingTraits = card.traits.filter(t => {
+        const traitSpec = traitSpecs[t.id];
+        return traitSpec && traitSpec.events[event];
+      })
 
       if (matchingTraits.length < 1) return eventsIndex;
 
       matchingTraits.forEach((trait) => {
-        const traitEvents = trait.events[event];
+        const spec = traitSpecs[trait.id];
+        const traitEvents = spec.events[event];
         if (traitEvents) {
           // the type system doesn't know that the trait event will be of the same type
           //@ts-ignore

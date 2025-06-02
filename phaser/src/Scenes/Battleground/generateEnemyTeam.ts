@@ -1,4 +1,4 @@
-import { BANDITS, Card, getCard } from "../../Models/Card";
+import { Card } from "../../Models/Card";
 import { cpuForce } from "../../Models/Force";
 import { vec2 } from "../../Models/Geometry";
 import { State } from "../../Models/State";
@@ -6,9 +6,11 @@ import * as TraitSystem from "../../Models/Traits";
 import { makeUnit } from "../../Models/Unit";
 import { pickOne } from "../../utils";
 
-export function generateEnemyTeam(state: State, count: number) {
-
-	const cards = BANDITS.map(getCard)
+export function generateEnemyTeam(
+	state: State,
+	count: number,
+	cards: Card[],
+) {
 
 	if (count < 2) {
 		console.warn("Enemy team count is less than 2, setting to 2");
@@ -158,10 +160,10 @@ export function generateEnemyTeam(state: State, count: number) {
 		.filter(line => line.trim() !== "")
 		.map(line => line.trim().split(""));
 
-	const getRanged = () => cards.filter(c => c.traits.includes(TraitSystem.RANGED.id));
-	const getMelee = () => cards.filter(c => c.traits.includes(TraitSystem.MELEE.id));
-	const getSupport = () => cards.filter(c => c.traits.includes(TraitSystem.SUPPORT.id));
-	const getTank = () => cards.filter(c => c.traits.includes(TraitSystem.TAUNT.id));
+	const getRanged = () => cards.filter(c => c.traits.some(t => t.id === TraitSystem.RANGED.id));
+	const getMelee = () => cards.filter(c => c.traits.some(t => t.id === TraitSystem.MELEE.id));
+	const getSupport = () => cards.filter(c => c.traits.some(t => t.id === TraitSystem.SUPPORT.id));
+	const getTank = () => cards.filter(c => c.traits.some(t => t.id === TraitSystem.TAUNT.id));
 
 	for (let y = 0; y < parsed.length; y++) {
 		const row = parsed[y];
@@ -185,7 +187,9 @@ export function generateEnemyTeam(state: State, count: number) {
 					break;
 			}
 			if (card !== undefined) {
-				state.battleData.units.push(makeUnit(cpuForce.id, card.id, vec2(x + 1, y + 1)));
+
+				const unit = makeUnit(cpuForce.id, card.name, vec2(x + 1, y + 1))
+				state.battleData.units.push(unit);
 			}
 		}
 	}
