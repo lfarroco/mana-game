@@ -75,32 +75,10 @@
 		{
 			"name": "Bandits",
 			"level": 1,
-			"board": {
-				"layout": [
-					"...",
-					"a.b",
-					"..."
-				],
-				"map": {
-					"b": "Bandit",
-					"a": "Bandit Archer"
-				}
-			}
-		},
-		{
-			"name": "Bandits",
-			"level": 2,
-			"board": {
-				"layout": [
-					"..b",
-					"a.b",
-					"..b"
-				],
-				"map": {
-					"b": "Bandit",
-					"a": "Bandit Archer"
-				}
-			}
+			"cards": [
+				"Bandit",
+				"Bandit Archer"
+			]
 		}
 	]
 }
