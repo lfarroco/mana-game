@@ -30,7 +30,7 @@ export function generateEnemyTeam(
 		2: [
 			[
 				"...",
-				"s.m",
+				"r.m",
 				"..."
 			],
 			[
