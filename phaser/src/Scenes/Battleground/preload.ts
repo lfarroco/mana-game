@@ -8,7 +8,7 @@ export function preload(this: Phaser.Scene) {
 	});
 
 	// reference to loading json data
-	//this.load.json("archer-data", "assets/data/cards/archer/data.json");
+	this.load.json("base-collection", "assets/data/collections/base/data.json");
 
 	coinTexture(this);
 

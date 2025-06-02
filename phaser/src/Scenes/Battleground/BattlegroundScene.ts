@@ -8,22 +8,22 @@ import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import * as constants from "./constants";
 import * as UIManager from "./Systems/UIManager";
 import * as UnitManager from "./Systems/CharaManager";
-import * as WaveManager from "./Systems/WaveManager";
 import * as GridSystem from "./Systems/GridSystem";
 import * as ChoiceSystem from "./Systems/Choice";
 import * as EventSystem from "../../Models/Encounters/Encounter";
 import * as TraitSystem from "../../Models/Traits";
 import * as TooltipSystem from "../../Systems/Tooltip";
 import { makeUnit } from "../../Models/Unit";
-import { playerForce } from "../../Models/Force";
-import { ARCHER, CLERIC, KNIGHT } from "../../Models/Card";
-import { vec2 } from "../../Models/Geometry";
+import { CardCollection, getAllCards, registerCollection } from "../../Models/Card";
 import runCombatIO from "./RunCombatIO";
 import { battleResultAnimation } from "./battleResultAnimation";
 import { delay } from "../../Utils/animation";
-import { generateEnemyTeam } from "./generateEnemyTeam";
 import { tavern } from "../../Models/Encounters/common";
 import { images } from "../../assets";
+import { playerForce } from "../../Models/Force";
+import { vec2 } from "../../Models/Geometry";
+import { pickRandom } from "../../utils";
+import { generateEnemyTeam } from "./generateEnemyTeam";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -31,6 +31,7 @@ export class BattlegroundScene extends Phaser.Scene {
   speed: number;
   bgContainer!: Phaser.GameObjects.Container;
   bgImage!: Phaser.GameObjects.Image;
+  collection: CardCollection;
 
   cleanup() {
     UnitManager.clearCharas();
@@ -57,7 +58,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     UnitManager.init(this);
     UIManager.init(this);
-    WaveManager.init(this);
     GridSystem.init(this);
 
     ChoiceSystem.init(this);
@@ -79,6 +79,31 @@ export class BattlegroundScene extends Phaser.Scene {
      * It is important to NOT create new global listeners here
      * TODO: add test to confirm that global listeners are not created here
      */
+
+    const collection = this.cache.json.get("base-collection") as CardCollection;
+
+    registerCollection(collection);
+
+    this.collection = collection;
+
+    // Load the card images dynamically
+
+    collection.cards.forEach(card => {
+
+      console.log("loading card", card.name, card.pic);
+      this.load.image(card.name, card.pic);
+    });
+
+    this.load.once("complete", () => {
+      console.log("All cards loaded");
+      this.start();
+    });
+
+    this.load.start();
+
+  }
+
+  start = async () => {
 
     this.sound.setVolume(0.05)
 
@@ -104,24 +129,15 @@ export class BattlegroundScene extends Phaser.Scene {
 
     if (state.options.debug) {
 
-      const units = [
+      const cards = pickRandom(this.collection.cards, 3);
 
+      const units = cards.map((c, i) =>
         makeUnit(
           playerForce.id,
-          KNIGHT,
-          vec2(5, 1),
-        ),
-        makeUnit(
-          playerForce.id,
-          ARCHER,
-          vec2(5, 2),
-        ),
-        makeUnit(
-          playerForce.id,
-          CLERIC,
-          vec2(5, 3),
+          c.name,
+          vec2(5, 1 + i)
         )
-      ]
+      );
 
       units.forEach(unit => {
         this.state.gameData.player.units.push(unit);
@@ -142,7 +158,7 @@ export class BattlegroundScene extends Phaser.Scene {
       while (state.gameData.hour < 9) {
         state.battleData.units = [];
 
-        generateEnemyTeam(state, state.gameData.player.units.length);
+        generateEnemyTeam(state, state.gameData.player.units.length, getAllCards());
         state.battleData.units = [...state.battleData.units, ...state.gameData.player.units];
 
         UnitManager.clearCharas();

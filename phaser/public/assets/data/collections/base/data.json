@@ -1,0 +1,106 @@
+{
+	"id": "base",
+	"name": "Base Set",
+	"cards": [
+		{
+			"name": "Archer",
+			"pic": "assets/cards/archer.png",
+			"hp": 150,
+			"attack": 25,
+			"cooldown": 2000,
+			"projectile": "arrow",
+			"traits": [
+				{
+					"id": "ranged"
+				},
+				{
+					"id": "sniper"
+				}
+			]
+		},
+		{
+			"name": "Cleric",
+			"pic": "assets/cards/cleric.png",
+			"hp": 150,
+			"cooldown": 2000,
+			"projectile": "arrow",
+			"skill": "healing_wave",
+			"traits": [
+				{
+					"id": "support"
+				}
+			]
+		},
+		{
+			"name": "Knight",
+			"pic": "assets/cards/knight.png",
+			"hp": 150,
+			"attack": 25,
+			"cooldown": 2000,
+			"skill": "slash",
+			"traits": [
+				{
+					"id": "melee"
+				}
+			]
+		},
+		{
+			"name": "Bandit",
+			"pic": "assets/cards/bandit.png",
+			"hp": 150,
+			"attack": 25,
+			"cooldown": 2000,
+			"projectile": "slash",
+			"traits": [
+				{
+					"id": "melee"
+				}
+			]
+		},
+		{
+			"name": "Bandit Archer",
+			"pic": "assets/cards/bandit_archer.png",
+			"hp": 150,
+			"attack": 25,
+			"cooldown": 2000,
+			"projectile": "slash",
+			"traits": [
+				{
+					"id": "melee"
+				}
+			]
+		}
+	],
+	"opponents": [
+		{
+			"name": "Bandits",
+			"level": 1,
+			"board": {
+				"layout": [
+					"...",
+					"a.b",
+					"..."
+				],
+				"map": {
+					"b": "Bandit",
+					"a": "Bandit Archer"
+				}
+			}
+		},
+		{
+			"name": "Bandits",
+			"level": 2,
+			"board": {
+				"layout": [
+					"..b",
+					"a.b",
+					"..b"
+				],
+				"map": {
+					"b": "Bandit",
+					"a": "Bandit Archer"
+				}
+			}
+		}
+	]
+}

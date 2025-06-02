@@ -4,7 +4,6 @@ import * as bgConstants from "../../Scenes/Battleground/constants";
 import { eqVec2, vec2 } from "../../Models/Geometry";
 import { delay, tween } from "../../Utils/animation";
 import { FORCE_ID_PLAYER } from "../../Scenes/Battleground/constants";
-import { getCard, Card } from "../../Models/Card";
 import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
 import * as UnitManager from "../../Scenes/Battleground/Systems/CharaManager";
 import * as GridSystem from "../../Scenes/Battleground/Systems/GridSystem";
@@ -18,7 +17,6 @@ import { images } from "../../assets";
 export type Chara = {
 	id: string;
 	force: string;
-	job: Card;
 	sprite: Phaser.GameObjects.Image,
 	scene: Phaser.Scene,
 	unit: Unit,
@@ -53,7 +51,10 @@ export function createCard(unit: Unit): Chara {
 		unit.position.y * bgConstants.TILE_HEIGHT + bgConstants.HALF_TILE_HEIGHT
 	)
 
-	const textureKey = scene.textures.exists(unit.pic) ? unit.pic : images.nameless.key;
+	const textureKey = scene.textures.exists(unit.name) ? unit.name : images.nameless.key;
+
+	if (textureKey === images.nameless.key)
+		console.warn(`Creating unit ${unit.id} with default texture ${textureKey}`);
 
 	const sprite = scene.add.image(0, 0, textureKey)
 		.setDisplaySize(bgConstants.TILE_WIDTH - borderWidth, bgConstants.TILE_HEIGHT - borderWidth)
@@ -137,7 +138,6 @@ export function createCard(unit: Unit): Chara {
 	const chara: Chara = {
 		id: unit.id,
 		force: unit.force,
-		job: getCard(unit.job),
 		scene,
 		sprite,
 		container,
@@ -293,7 +293,7 @@ export function addTooltip(chara: Chara) {
 		TooltipSytem.render(
 			chara.zone.parentContainer.x + 340,
 			chara.zone.parentContainer.y,
-			chara.job.name,
+			chara.unit.name,
 			text,
 		);
 	});

@@ -1,11 +1,10 @@
 import { makeUnit } from "../../../Models/Unit";
-import { CardId } from "../../../Models/Card";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 import { Chara } from "../Chara";
 import { getState } from "../../../Models/State";
 import { getEmptySlot } from "../../../Models/Board";
 
-export async function summon(chara: Chara, jobId: CardId) {
+export async function summon(chara: Chara, jobId: string) {
 
 	const { unit } = chara;
 	const state = getState();
