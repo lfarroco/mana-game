@@ -3,7 +3,7 @@
 	"name": "Base Set",
 	"cards": [
 		{
-			"name": "Archer",
+			"name": "Bowsie McTwang",
 			"pic": "assets/cards/archer.png",
 			"hp": 150,
 			"attack": 25,
@@ -18,7 +18,7 @@
 			]
 		},
 		{
-			"name": "Cleric",
+			"name": "Bubblegum Blessings",
 			"pic": "assets/cards/cleric.png",
 			"hp": 150,
 			"cooldown": 2900,
@@ -33,7 +33,7 @@
 			]
 		},
 		{
-			"name": "Knight",
+			"name": "Sir Bumble the Unyielding",
 			"pic": "assets/cards/knight.png",
 			"hp": 150,
 			"attack": 25,
@@ -45,7 +45,7 @@
 			]
 		},
 		{
-			"name": "Bandit",
+			"name": "Swindler Stan",
 			"pic": "assets/cards/bandit.png",
 			"hp": 150,
 			"attack": 25,
@@ -57,7 +57,7 @@
 			]
 		},
 		{
-			"name": "Bandit Archer",
+			"name": "Hoodlum Hawkeye",
 			"pic": "assets/cards/bandit_archer.png",
 			"hp": 150,
 			"attack": 25,
@@ -74,8 +74,8 @@
 			"name": "Bandits",
 			"level": 1,
 			"cards": [
-				"Bandit",
-				"Bandit Archer"
+				"Swindler Stan",
+				"Hoodlum Hawkeye"
 			]
 		}
 	]

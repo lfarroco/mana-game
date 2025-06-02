@@ -190,3 +190,6 @@ protector: when an ally is attacked, charge 1 (taunt)
 when an ally attacks, charge 1
 when an ally heals, charge 1
 when an ally crits, charge 1
+
+deepseek conversation with name ideas:
+https://chat.deepseek.com/a/chat/s/6cd0f7f9-a35a-48c2-878e-07e5eb120a4c
