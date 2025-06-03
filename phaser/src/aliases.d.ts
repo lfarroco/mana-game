@@ -7,6 +7,7 @@ declare global {
 	type Text = Phaser.GameObjects.Text;
 	type Image = Phaser.GameObjects.Image;
 	type Pointer = Phaser.Input.Pointer;
+	type Point = { x: number, y: number }
 }
 
 export { };

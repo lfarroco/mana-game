@@ -1,12 +1,11 @@
 import { Unit } from "../../../Models/Unit";
 import * as Chara from "../../../Systems/Chara/Chara";
 import { vec2, Vec2, eqVec2 } from "../../../Models/Geometry";
-import * as constants from "../constants";
 import { summonEffect } from "../../../Effects/summonEffect";
 import { tween } from "../../../Utils/animation";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { images } from "../../../assets";
-import * as Board from "../../../Models/Board";
+import * as constants from "../constants";
 
 let scene: BattlegroundScene;
 
@@ -76,8 +75,8 @@ export function addCharaToState(chara: Chara.Chara) {
 
 export function getCharaPosition(unit: Unit) {
 
-	const offsetX = unit.force === constants.FORCE_ID_PLAYER ? Board.PLAYER_BOARD_X : Board.CPU_BOARD_X;
-	const offsetY = unit.force === constants.FORCE_ID_PLAYER ? Board.PLAYER_BOARD_Y : Board.CPU_BOARD_Y;
+	const offsetX = unit.force === constants.FORCE_ID_PLAYER ? constants.PLAYER_BOARD_X : constants.CPU_BOARD_X;
+	const offsetY = unit.force === constants.FORCE_ID_PLAYER ? constants.PLAYER_BOARD_Y : constants.CPU_BOARD_Y;
 
 	return vec2(
 		unit.position.x * constants.TILE_WIDTH + constants.HALF_TILE_WIDTH + offsetX,

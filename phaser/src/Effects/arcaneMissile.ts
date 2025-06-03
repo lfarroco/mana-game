@@ -2,13 +2,26 @@ import { images } from "../assets";
 import { delay } from "../Utils/animation";
 import { EnergyBeam } from "./EnergyBeam";
 
-export async function arcaneMissile(
-	scene: Phaser.Scene,
-	source: { x: number; y: number; },
-	target: { x: number; y: number; },
-	speed: number,
-	onHit: () => void = () => { }
-) {
+
+type ArcaneMissileAnimationArgs = {
+	scene: Scene;
+	source: Point;
+	target: Point;
+	speed: number;
+	onHit?: () => void;
+	colors?: number[];
+}
+
+export async function arcaneMissile({
+	scene,
+	source,
+	target,
+	speed,
+	onHit = () => { },
+	colors = [0xFF00FF, 0x0000FF, 0x000000]
+}: ArcaneMissileAnimationArgs) {
+
+	const distance = Phaser.Math.Distance.BetweenPoints(source, target)
 
 	const positiveOrNegative = Math.random() > 0.5 ? 1 : -1;
 
@@ -23,15 +36,15 @@ export async function arcaneMissile(
 	});
 
 	beam.updateBeam();
-	beam.setVisible(false);
+	//beam.setVisible(false);
 
 	const particles = scene.add.particles(
 		0, 0,
 		images.white_dot.key,
 		{
-			speed: 100 * speed,
+			speed: 50,
 			// dark purple to blue tones
-			tint: [0xFF00FF, 0x0000FF, 0x000000],
+			tint: colors,
 			lifespan: 200 / speed,
 			alpha: { start: 1, end: 0 },
 			scale: { start: 4, end: 0 },
@@ -52,7 +65,8 @@ export async function arcaneMissile(
 		images.white_dot.key,
 	);
 
-	const duration = (500 * Math.random() + 500);
+
+	const duration = distance;
 	follower.setVisible(false);
 	follower.startFollow({
 		positionOnPath: true,
@@ -62,7 +76,7 @@ export async function arcaneMissile(
 	//make particles follow follower
 	particles.startFollow(follower);
 
-	await delay(scene, duration);
+	await delay(scene, duration * 2);
 
 	particles.stop()
 
@@ -74,7 +88,7 @@ export async function arcaneMissile(
 			speed: 300 * speed,
 			// purple to blue tones
 			tint: [0x800080, 0x0000FF],
-			lifespan: 200 / speed,
+			lifespan: 400 / speed,
 			alpha: { start: 0.5, end: 0 },
 			scale: { start: 6, end: 0 },
 			blendMode: 'ADD',
@@ -87,7 +101,7 @@ export async function arcaneMissile(
 
 	impact.stop();
 
-	await delay(scene, 500);
+	await delay(scene, 400);
 
 	beam.destroy();
 	particles.destroy();
