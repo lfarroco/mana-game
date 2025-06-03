@@ -6,6 +6,7 @@ import { summonEffect } from "../../../Effects/summonEffect";
 import { tween } from "../../../Utils/animation";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { images } from "../../../assets";
+import * as Board from "../../../Models/Board";
 
 let scene: BattlegroundScene;
 
@@ -41,8 +42,11 @@ export function destroyChara(id: string) {
 		console.warn(`Chara with id ${id} not found`);
 	}
 }
-export async function summonChara(unit: Unit, useSummonEffect = true, fadeIn = true) {
-
+export async function summonChara(
+	unit: Unit,
+	useSummonEffect = true,
+	fadeIn = true,
+) {
 	const vec = getCharaPosition(unit);
 
 	if (useSummonEffect) summonEffect(scene, vec);
@@ -71,9 +75,13 @@ export function addCharaToState(chara: Chara.Chara) {
 }
 
 export function getCharaPosition(unit: Unit) {
+
+	const offsetX = unit.force === constants.FORCE_ID_PLAYER ? Board.PLAYER_BOARD_X : Board.CPU_BOARD_X;
+	const offsetY = unit.force === constants.FORCE_ID_PLAYER ? Board.PLAYER_BOARD_Y : Board.CPU_BOARD_Y;
+
 	return vec2(
-		unit.position.x * constants.TILE_WIDTH + constants.HALF_TILE_WIDTH,
-		unit.position.y * constants.TILE_HEIGHT + constants.HALF_TILE_HEIGHT
+		unit.position.x * constants.TILE_WIDTH + constants.HALF_TILE_WIDTH + offsetX,
+		unit.position.y * constants.TILE_HEIGHT + constants.HALF_TILE_HEIGHT + offsetY
 	);
 }
 

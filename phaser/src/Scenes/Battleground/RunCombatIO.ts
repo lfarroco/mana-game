@@ -10,6 +10,7 @@ import { tween } from "../../Utils/animation";
 export type WaveOutcome = "player_won" | "player_lost";
 
 async function setupWave(scene: BattlegroundScene) {
+
   UnitManager.clearCharas();
 
   scene.state.battleData.units.forEach(u => {

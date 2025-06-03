@@ -1,56 +1,39 @@
-import { FORCE_ID_PLAYER, TILE_HEIGHT, TILE_WIDTH } from "../Scenes/Battleground/constants";
+import * as constants from "../Scenes/Battleground/constants";
 import { pickOne, pickRandom } from "../utils";
 import { vec2, sortBySnakeDistance, snakeDistanceBetween } from "./Geometry";
 import { State, getActiveUnits, getUnitAt } from "./State";
 import { Unit } from "./Unit";
 
-export const cells = [
-	[1, 2, 3],
-	[1, 2, 3],
-	[1, 2, 3],
-]
+export const PLAYER_BOARD_X = 900;
+export const PLAYER_BOARD_Y = 200;
 
-const START_X = 1;
-const START_Y = 1;
+export const CPU_BOARD_X = 200;
+export const CPU_BOARD_Y = 400;
 
+// Looks for an empty slot in a 3x3 board
 export function getEmptySlot(units: Unit[], forceId: string) {
 
 	if (units.filter(u => u.force === forceId).length >= 9) {
-		console.warn("Party full. No empty slot available for summoning");
+		console.warn("Board full. No empty slot available");
 		return null;
 	}
 
-	let startX = START_X;
-	let endX = START_X + 3;
-	const startY = START_Y;
-	const endY = START_Y + 3;
-
-	console.log("force :: ", FORCE_ID_PLAYER)
-
-	if (forceId === FORCE_ID_PLAYER) {
-		startX += 3;
-		endX += 3;
-	}
+	const startX = 0;
+	const startY = 0;
+	const endX = 2;
+	const endY = 2;
 
 	// find an empty slot
 
-	let isValid = false;
-	let position = vec2(1, 1);
-
-	while (!isValid) {
-		for (let x = startX; x < endX; x++) {
-			for (let y = startY; y < endY; y++) {
-				if (!getUnitAt(units)(vec2(x, y))) {
-					isValid = true;
-					position = vec2(x, y);
-					break;
-				}
+	for (let x = startX; x <= endX; x++) {
+		for (let y = startY; y <= endY; y++) {
+			if (!getUnitAt(units)(vec2(x, y))) {
+				return vec2(x, y);
 			}
-			if (isValid) break;
 		}
 	}
 
-	return position;
+	return null;
 }
 
 export function getUnitsByProximity(state: State, unit: Unit, enemy: boolean, range: number): Unit[] {
@@ -144,11 +127,13 @@ export function getNeighbors(state: State, unit: Unit) {
 }
 
 // receives a screen position and returns if it overlaps with the player board
-export function overlapsWithPlayerBoard({ x, y }: { x: number, y: number }) {
+// TODO: this can be replaced with a overlap check with the drop zone
+export function overlapsWithPlayerBoard(pointer: Pointer) {
+	const { x, y } = pointer;
 	return (
-		x >= (1 + 3) * TILE_WIDTH &&
-		x <= (1 + 3 + 3) * TILE_WIDTH &&
-		y >= 1 * TILE_HEIGHT &&
-		y <= (1 + 3) * TILE_HEIGHT
+		x >= PLAYER_BOARD_X &&
+		x <= PLAYER_BOARD_X + constants.TILE_WIDTH * 3 &&
+		y >= PLAYER_BOARD_Y &&
+		y <= PLAYER_BOARD_Y + constants.TILE_HEIGHT * 3
 	)
 }

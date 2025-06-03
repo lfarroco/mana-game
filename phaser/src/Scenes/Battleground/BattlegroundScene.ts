@@ -120,9 +120,8 @@ export class BattlegroundScene extends Phaser.Scene {
 
     ControlsSystem.init(this);
 
-    const { tiles, hoverOutline } = GridSystem.createTileGrid();
-    this.bgContainer.add([this.bgImage, tiles, hoverOutline]);
-    UIManager.createDropZone(this);
+    this.bgContainer.add([this.bgImage]);
+    UIManager.createDropZone(this); // TODO: move to board module
     UIManager.updateUI();
 
     await EventSystem.evalEvent(EventSystem.starterEvent);
@@ -142,16 +141,16 @@ export class BattlegroundScene extends Phaser.Scene {
       generateEnemyTeam(state, state.gameData.player.units.length, enemyCards);
       state.battleData.units = [...state.battleData.units, ...state.gameData.player.units];
 
-      UnitManager.clearCharas();
-
-      state.battleData.units.forEach(unit => {
-        UnitManager.summonChara(unit, false, false);
-      });
+      state.battleData.units
+        .filter(u => u.force === constants.FORCE_ID_CPU)
+        .forEach(unit => {
+          UnitManager.summonChara(unit, false, false);
+        });
 
       await new Promise<void>(resolve => {
         const start = UIManager.createButton("Start",
           constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 50,
-          async () => {
+          () => {
             start.destroy();
             resolve();
           });
