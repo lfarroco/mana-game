@@ -7,7 +7,6 @@ import { FORCE_ID_PLAYER } from "../../Scenes/Battleground/constants";
 import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
 import * as UnitManager from "../../Scenes/Battleground/Systems/CharaManager";
 import * as Board from "../../Models/Board";
-import { BLUE_BONNET, VIVIRED_RED } from "../../Utils/colors";
 import { addStatus, getState, State } from "../../Models/State";
 import * as TooltipSytem from "../Tooltip";
 import { popText } from "./Animations/popText";
@@ -32,19 +31,10 @@ export type Chara = {
 export let scene: Phaser.Scene;
 let state: State;
 
-const borderWidth = 4
-const boxWidth = 60;
-const boxHeight = 50;
+const boxWidth = bgConstants.TILE_WIDTH * 0.4;
+const boxHeight = bgConstants.TILE_HEIGHT * 0.4;
 
 export function createCard(unit: Unit): Chara {
-
-	const borderColor = unit.force === FORCE_ID_PLAYER ? BLUE_BONNET : VIVIRED_RED;
-
-	const border = scene.add.rectangle(
-		0, 0,
-		bgConstants.TILE_WIDTH, bgConstants.TILE_HEIGHT,
-		borderColor, 1)
-		.setOrigin(0.5, 0.5);
 
 	const position = UnitManager.getCharaPosition(unit);
 	const container = scene.add.container(
@@ -58,19 +48,18 @@ export function createCard(unit: Unit): Chara {
 		console.warn(`Creating unit ${unit.id} with default texture ${textureKey}`);
 
 	const sprite = scene.add.image(0, 0, textureKey)
-		.setDisplaySize(bgConstants.TILE_WIDTH - borderWidth, bgConstants.TILE_HEIGHT - borderWidth)
+		.setDisplaySize(bgConstants.TILE_WIDTH, bgConstants.TILE_HEIGHT)
 		.setName(unit.id) // used for scene-level drop events
 
 	if (unit.force === bgConstants.FORCE_ID_CPU) {
 		sprite.flipX = true;
 	}
 
-	container.add([border, sprite]);
-
-	const textConfig = { ...bgConstants.titleTextConfig, fontSize: '24px' };
+	container.add([sprite]);
 
 	const atkPosition: [number, number] = [
-		-bgConstants.HALF_TILE_WIDTH + 10, bgConstants.HALF_TILE_HEIGHT - boxHeight - 10,
+		-bgConstants.HALF_TILE_WIDTH + (boxWidth * 0.1),
+		bgConstants.HALF_TILE_HEIGHT - boxHeight - (boxWidth * 0.1),
 	]
 
 	const atkBg = scene.add.graphics();
@@ -79,15 +68,16 @@ export function createCard(unit: Unit): Chara {
 	atkBg.fillRoundedRect(
 		...atkPosition,
 		boxWidth, boxHeight,
-		15
+		boxWidth * 0.1
 	);
 	const atkBgCenter: [number, number] = [
-		atkPosition[0] + boxWidth / 2, atkPosition[1] + boxHeight / 2,
+		atkPosition[0] + boxWidth / 2,
+		atkPosition[1] + boxHeight / 2,
 	]
 	const atk = scene.add.text(
 		...atkBgCenter,
 		unit.attackPower.toString(),
-		textConfig
+		bgConstants.defaultTextConfig
 	)
 		.setOrigin(0.5)
 		.setAlign('center');
@@ -100,21 +90,24 @@ export function createCard(unit: Unit): Chara {
 	container.add([atkBg, atk])
 
 	const hpPosition: [number, number] = [
-		bgConstants.HALF_TILE_WIDTH - boxWidth - 10, bgConstants.HALF_TILE_HEIGHT - boxHeight - 10,
+		bgConstants.HALF_TILE_WIDTH - boxWidth - (boxWidth * 0.1),
+		bgConstants.HALF_TILE_HEIGHT - boxHeight - (boxWidth * 0.1),
 	]
 	const hpBg = scene.add.graphics();
 	hpBg.fillStyle(0x327a0a, 1.0);
 	hpBg.fillRoundedRect(
 		...hpPosition,
 		boxWidth, boxHeight,
-		10
+		boxWidth * 0.1
 	);
 	const hpBgCenter: [number, number] = [
 		hpPosition[0] + boxWidth / 2, hpPosition[1] + boxHeight / 2,
 	]
 	const hp = scene.add.text(
 		...hpBgCenter,
-		unit.hp.toString(), textConfig)
+		unit.hp.toString(),
+		bgConstants.defaultTextConfig
+	)
 		.setOrigin(0.5)
 		.setAlign('center');
 

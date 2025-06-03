@@ -38,15 +38,12 @@ export const arcaneMissiles = (
 		const targetChara = UnitManager.getChara(target.id);
 
 		animation.arcaneMissile(
-			scene,
-			activeChara.container,
-			targetChara.container,
-			state.options.speed,
-			() => {
-				if (targetChara.unit.hp <= 0) return;
-				damageUnit(targetChara.id, skill.power)
-			}
-		);
+			{
+				scene, source: activeChara.container, target: targetChara.container, speed: state.options.speed, onHit: () => {
+					if (targetChara.unit.hp <= 0) return;
+					damageUnit(targetChara.id, skill.power);
+				}
+			});
 
 	}
 

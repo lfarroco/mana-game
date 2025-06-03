@@ -1,14 +1,9 @@
 import * as constants from "../Scenes/Battleground/constants";
+import { PLAYER_BOARD_X, PLAYER_BOARD_Y } from "../Scenes/Battleground/constants";
 import { pickOne, pickRandom } from "../utils";
 import { vec2, sortBySnakeDistance, snakeDistanceBetween, Vec2 } from "./Geometry";
 import { State, getActiveUnits, getUnitAt } from "./State";
 import { Unit } from "./Unit";
-
-export const PLAYER_BOARD_X = 900;
-export const PLAYER_BOARD_Y = 200;
-
-export const CPU_BOARD_X = 200;
-export const CPU_BOARD_Y = 400;
 
 // Looks for an empty slot in a 3x3 board
 export function getEmptySlot(units: Unit[], forceId: string) {
