@@ -8,7 +8,6 @@ import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import * as constants from "./constants";
 import * as UIManager from "./Systems/UIManager";
 import * as UnitManager from "./Systems/CharaManager";
-import * as GridSystem from "./Systems/GridSystem";
 import * as ChoiceSystem from "./Systems/Choice";
 import * as EventSystem from "../../Models/Encounters/Encounter";
 import * as TraitSystem from "../../Models/Traits";
@@ -34,7 +33,6 @@ export class BattlegroundScene extends Phaser.Scene {
   cleanup() {
     UnitManager.clearCharas();
     this.time.removeAllEvents();
-    GridSystem.resetGrid();
   }
 
   constructor() {
@@ -52,11 +50,9 @@ export class BattlegroundScene extends Phaser.Scene {
     AISystem.init(state);
     BattlegroundAudioSystem_init(state, this);
     CharaSystem.init(this);
-    //StoreSystem.init(this);
 
     UnitManager.init(this);
     UIManager.init(this);
-    GridSystem.init(this);
 
     ChoiceSystem.init(this);
 

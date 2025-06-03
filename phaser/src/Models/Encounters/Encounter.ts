@@ -15,7 +15,7 @@ import { makeUnit } from "../Unit";
 import commonEvents from "./common";
 import monsterEvents from "./monster";
 import * as Flyout from "../../Systems/Flyout";
-import { getTileAt } from "../../Scenes/Battleground/Systems/GridSystem";
+import { getTileAt } from "../Board";
 import * as constants from "../../Scenes/Battleground/constants";
 import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
 

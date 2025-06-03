@@ -6,7 +6,7 @@ import { delay, tween } from "../../Utils/animation";
 import { FORCE_ID_PLAYER } from "../../Scenes/Battleground/constants";
 import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
 import * as UnitManager from "../../Scenes/Battleground/Systems/CharaManager";
-import * as GridSystem from "../../Scenes/Battleground/Systems/GridSystem";
+import * as Board from "../../Models/Board";
 import { BLUE_BONNET, VIVIRED_RED } from "../../Utils/colors";
 import { addStatus, getState, State } from "../../Models/State";
 import * as TooltipSytem from "../Tooltip";
@@ -193,7 +193,7 @@ export const addBoardEvents = (chara: Chara) => {
 			unit.events.onLeavePosition.forEach(fn => fn(unit)());
 		});
 
-		const tile = GridSystem.getTileAt(pointer)!;
+		const tile = Board.getTileAt(pointer)!;
 
 		const position = vec2(tile.x, tile.y)!
 
