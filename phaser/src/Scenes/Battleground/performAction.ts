@@ -17,11 +17,11 @@ export const performAction = (scene: BattlegroundScene) => (unit: Unit) => async
 
 	if (unit.statuses.stun?.duration > 0) return;
 
-	unit.traits.forEach(trait => {
-		const spec = traitSpecs[trait.id];
+	unit.traits.forEach(traitData => {
+		const spec = traitSpecs[traitData.id];
 		if (!spec) return;
 		spec.events.onAction.forEach(e => {
-			e(unit)(); // TODO: pass arguments from traitdata
+			e(unit, traitData)(); // TODO: pass arguments from traitdata
 		});
 	});
 

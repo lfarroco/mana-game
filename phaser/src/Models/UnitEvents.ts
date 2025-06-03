@@ -1,10 +1,11 @@
+import { TraitData } from "./Traits";
 import { Unit } from "./Unit";
 
 // This module is isolated because some loops are formed when UNIT_EVENTS is used
 // in the UNits and Traits modules
 
 export type IO = () => Promise<void>;
-export type UnitEvent = ((u: Unit) => IO);
+export type UnitEvent = ((u: Unit, traitData?: TraitData ) => IO);
 type UnitEventWithTarget = ((u: Unit, target: Unit) => IO);
 type AttackEvent = ((u: Unit, target: Unit, damage: number, isCritical: boolean, evaded: boolean) => IO);
 

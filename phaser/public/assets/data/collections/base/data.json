@@ -52,7 +52,8 @@
 			"cooldown": 1200,
 			"traits": [
 				{
-					"id": "arcane_missiles"
+					"id": "arcane_missiles",
+					"projectiles": 3
 				}
 			]
 		},
