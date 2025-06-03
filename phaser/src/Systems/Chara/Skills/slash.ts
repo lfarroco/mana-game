@@ -4,7 +4,6 @@ import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { physicalAttack } from "./physicalAttack";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 import { Chara } from "../Chara";
-import { HALF_TILE_WIDTH, TILE_WIDTH } from "../../../Scenes/Battleground/constants";
 import { tween } from "../../../Utils/animation";
 import { getMeleeTarget } from "../../../Models/Board";
 
@@ -25,12 +24,12 @@ export async function slash(
 	await attack(activeChara, targetChara);
 
 	// return to the original position
+	const position = UnitManager.getCharaPosition(unit);
 	await tween({
 		targets: [activeChara.container],
-		x: activeChara.unit.position.x * TILE_WIDTH + HALF_TILE_WIDTH,
-		Y: activeChara.unit.position.y * TILE_WIDTH + HALF_TILE_WIDTH,
+		...position,
 		duration: 100,
-	})
+	});
 }
 
 

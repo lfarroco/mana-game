@@ -44,12 +44,13 @@ export function createCard(unit: Unit): Chara {
 		0, 0,
 		bgConstants.TILE_WIDTH, bgConstants.TILE_HEIGHT,
 		borderColor, 1)
-		.setOrigin(0.5, 0.5)
+		.setOrigin(0.5, 0.5);
 
+	const position = UnitManager.getCharaPosition(unit);
 	const container = scene.add.container(
-		unit.position.x * bgConstants.TILE_WIDTH + bgConstants.HALF_TILE_WIDTH,
-		unit.position.y * bgConstants.TILE_HEIGHT + bgConstants.HALF_TILE_HEIGHT
-	)
+		position.x,
+		position.y
+	);
 
 	const textureKey = scene.textures.exists(unit.name) ? unit.name : images.nameless.key;
 
@@ -157,7 +158,9 @@ export function createCard(unit: Unit): Chara {
 
 export const addBoardEvents = (chara: Chara) => {
 
-	chara.zone.setInteractive({ draggable: true })
+	chara.zone.setInteractive({
+		draggable: chara.unit.force === FORCE_ID_PLAYER
+	})
 
 	chara.zone.on('dragstart', () => {
 		chara.scene.children.bringToTop(chara.container);
@@ -203,8 +206,7 @@ export const addBoardEvents = (chara: Chara) => {
 
 			tween({
 				targets: [occupierChara.container],
-				x: occupierChara.unit.position.x * bgConstants.TILE_WIDTH + bgConstants.HALF_TILE_WIDTH,
-				y: occupierChara.unit.position.y * bgConstants.TILE_HEIGHT + bgConstants.HALF_TILE_HEIGHT,
+				...UnitManager.getCharaPosition(occupierChara.unit)
 			})
 		}
 
@@ -217,8 +219,7 @@ export const addBoardEvents = (chara: Chara) => {
 
 		tween({
 			targets: [chara.container],
-			x: position.x * bgConstants.TILE_WIDTH + bgConstants.HALF_TILE_WIDTH,
-			y: position.y * bgConstants.TILE_HEIGHT + bgConstants.HALF_TILE_HEIGHT,
+			...UnitManager.getCharaPosition(chara.unit)
 		})
 
 	});
@@ -231,8 +232,7 @@ export const addBoardEvents = (chara: Chara) => {
 		// return to original position if outside
 		tween({
 			targets: [chara.container],
-			x: chara.unit.position.x * bgConstants.TILE_WIDTH + bgConstants.HALF_TILE_WIDTH,
-			y: chara.unit.position.y * bgConstants.TILE_HEIGHT + bgConstants.HALF_TILE_HEIGHT,
+			...UnitManager.getCharaPosition(chara.unit)
 		})
 
 	})

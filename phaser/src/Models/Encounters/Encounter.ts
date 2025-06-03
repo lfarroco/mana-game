@@ -5,19 +5,19 @@ import * as Chara from "../../Systems/Chara/Chara";
 import * as Tooltip from "../../Systems/Tooltip";
 import { pickRandom } from "../../utils";
 import { delay, tween } from "../../Utils/animation";
-import { playerForce, updatePlayerGoldIO } from "../Force";
+import * as Force from "../Force";
 import { eqVec2, Vec2, vec2 } from "../Geometry";
 import { Item } from "../Item";
 import { getAllCards } from "../Card";
 import { getState, State } from "../State";
-import { getEmptySlot, overlapsWithPlayerBoard } from "../Board";
+import * as Board from "../Board";
 import { makeUnit } from "../Unit";
 import commonEvents from "./common";
 import monsterEvents from "./monster";
 import * as Flyout from "../../Systems/Flyout";
 import { getTileAt } from "../../Scenes/Battleground/Systems/GridSystem";
-import { HALF_TILE_HEIGHT, HALF_TILE_WIDTH, MAX_BENCH_SIZE, MAX_PARTY_SIZE, REROLL_UNITS_PRICE, SCREEN_HEIGHT, SCREEN_WIDTH, TILE_HEIGHT, TILE_WIDTH } from "../../Scenes/Battleground/constants";
-import { createButton, disableButton, displayError, enableButton } from "../../Scenes/Battleground/Systems/UIManager";
+import * as constants from "../../Scenes/Battleground/constants";
+import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
 
 let scene: Phaser.Scene;
 export let state: State;
@@ -76,7 +76,7 @@ export const starterEvent: Encounter = {
 		allowSkipping: false,
 		choices: () => {
 
-			const playerJobs = playerForce.units.map(u => u.job);
+			const playerJobs = Force.playerForce.units.map(u => u.job);
 			const remaning = getAllCards().filter(j => !playerJobs.includes(j.name));
 			return pickRandom(remaning, 3)
 				.map(card => newChoice(card.pic, card.name, "", card.name))
@@ -183,7 +183,7 @@ const pickUnit = async (
 			const charas = await Promise.all(
 				genChoices().map(choice => {
 					const chara = Chara.createCard(
-						makeUnit(playerForce.id, choice.value, vec2(0, 1)),
+						makeUnit(Force.playerForce.id, choice.value, vec2(0, 0)),
 					);
 					chara.container.setPosition(chara.sprite.width * -1.2, 500);
 					flyout.add(chara.container);
@@ -216,8 +216,8 @@ const pickUnit = async (
 					for (const c of charas) {
 						if (chara.id === c.id) {
 							const vec = vec2(
-								SCREEN_WIDTH - 100,
-								SCREEN_HEIGHT - 100
+								constants.SCREEN_WIDTH - 100,
+								constants.SCREEN_HEIGHT - 100
 							);
 							tween({
 								targets: [c.container],
@@ -249,17 +249,17 @@ const pickUnit = async (
 
 					Tooltip.hide();
 
-					if (state.gameData.player.units.length >= MAX_PARTY_SIZE) {
+					if (state.gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
 
-						if (state.gameData.player.bench.filter(b => b.unit).length >= MAX_BENCH_SIZE) {
-							displayError("Your party and bench are full! Discard a card or skip.");
+						if (state.gameData.player.bench.filter(b => b.unit).length >= constants.MAX_BENCH_SIZE) {
+							UIManager.displayError("Your party and bench are full! Discard a card or skip.");
 							return;
 						}
 						addToBench();
 						return;
 					}
 
-					const emptySlot = getEmptySlot(playerForce.units, playerForce.id);
+					const emptySlot = Board.getEmptySlot(Force.playerForce.units, Force.playerForce.id);
 
 					if (!emptySlot) throw new Error("No empty slot found");
 
@@ -300,7 +300,7 @@ const pickUnit = async (
 					pointer: Phaser.Input.Pointer,
 				) => {
 
-					if (state.gameData.player.units.length >= MAX_PARTY_SIZE) {
+					if (state.gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
 						addToBench();
 						return;
 					}
@@ -319,14 +319,13 @@ const pickUnit = async (
 					if (maybeOccupier) {
 						const occupierChara = UnitManager.getChara(maybeOccupier.id);
 
-						const slot = getEmptySlot(playerForce.units, playerForce.id);
+						const slot = Board.getEmptySlot(Force.playerForce.units, Force.playerForce.id);
 
 						occupierChara.unit.position = slot!;
 
 						tween({
 							targets: [occupierChara.container],
-							x: occupierChara.unit.position.x * TILE_WIDTH + HALF_TILE_WIDTH,
-							y: occupierChara.unit.position.y * TILE_HEIGHT + HALF_TILE_HEIGHT,
+							...UnitManager.getCharaPosition(occupierChara.unit)
 						})
 					}
 
@@ -353,7 +352,7 @@ const pickUnit = async (
 				const dropHandler = (pointer: Pointer) => {
 
 					const wasDrag = pointer.getDistance() > 10;
-					const inBoard = overlapsWithPlayerBoard(pointer);
+					const inBoard = Board.overlapsWithPlayerBoard(pointer);
 
 					if (!inBoard && !wasDrag) {
 						pick();
@@ -388,11 +387,11 @@ const pickUnit = async (
 
 			});
 
-			const rerollButton = createButton(
-				`Reroll (${REROLL_UNITS_PRICE})`,
+			const rerollButton = UIManager.createButton(
+				`Reroll (${constants.REROLL_UNITS_PRICE})`,
 				400, 700,
 				async () => {
-					updatePlayerGoldIO(- REROLL_UNITS_PRICE);
+					Force.updatePlayerGoldIO(- constants.REROLL_UNITS_PRICE);
 					charas.forEach(slideOutCard);
 
 					rerollButton.destroy();
@@ -403,10 +402,10 @@ const pickUnit = async (
 			flyout.add(rerollButton);
 
 			const updateButtonStatus = () => {
-				if (state.gameData.player.gold < REROLL_UNITS_PRICE) {
-					disableButton(rerollButton);
+				if (state.gameData.player.gold < constants.REROLL_UNITS_PRICE) {
+					UIManager.disableButton(rerollButton);
 				} else {
-					enableButton(rerollButton);
+					UIManager.enableButton(rerollButton);
 				}
 			}
 			updateButtonStatus();
@@ -418,7 +417,7 @@ const pickUnit = async (
 			});
 
 			if (allowSkipping) {
-				const skipButton = createButton("Skip", 400, 900, () => {
+				const skipButton = UIManager.createButton("Skip", 400, 900, () => {
 					charas.forEach(slideOutCard);
 					picks++;
 					resolve();

@@ -6,6 +6,7 @@ import { COLOR_BLACK } from "../../../Utils/colors";
 import { getState, State } from "../../../Models/State";
 import * as Guild from "./Guild";
 import * as assets from "../../../assets";
+import * as Board from "../../../Models/Board";
 
 export let ui: Phaser.GameObjects.Container | null = null;
 export let dropZone: Phaser.GameObjects.Zone | null = null;
@@ -157,8 +158,8 @@ export async function displayError(errorMessage: string) {
 }
 
 export function createDropZone(scene: BattlegroundScene) {
-	const x = constants.TILE_WIDTH * 4;
-	const y = constants.TILE_HEIGHT * 1;
+	const x = Board.PLAYER_BOARD_X;
+	const y = Board.PLAYER_BOARD_Y;
 	const w = constants.TILE_WIDTH * 3;
 	const h = constants.TILE_HEIGHT * 3;
 	const zone = scene.add.zone(x, y, w, h);
