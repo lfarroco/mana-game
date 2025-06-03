@@ -326,8 +326,8 @@ export const ARCANE_MISSILES = makeTrait({
 	description: "Shoots 3 missiles that deal 5 damage each",
 	categories: [],
 	events: {
-		onAction: [unit => async () => {
-			arcaneMissiles(scene)(unit)
+		onAction: [(unit, data) => async () => {
+			arcaneMissiles(scene)(unit, data!)
 		}]
 	}
 });
