@@ -23,29 +23,26 @@ export const arcaneMissiles = (
 	const activeChara = UnitManager.getChara(unit.id);
 
 	//pick 3 random indexes (can be repeated)
-	new Array(3)
-		.map(() => Math.floor(Math.random() * targets.length))
-		.forEach((index) => {
+	for (let i = 1; i <= 3; i++) {
 
-			const target = targets[index];
+		const randomIndex = Math.floor(Math.random() * targets.length);
 
-			const targetChara = UnitManager.getChara(target.id);
+		const target = targets[randomIndex];
 
-			animation.arcaneMissile(
-				scene,
-				activeChara.container,
-				targetChara.container,
-				state.options.speed,
-				() => {
+		const targetChara = UnitManager.getChara(target.id);
 
-					if (targetChara.unit.hp <= 0) return;
-					damageUnit(targetChara.id, skill.power)
+		animation.arcaneMissile(
+			scene,
+			activeChara.container,
+			targetChara.container,
+			state.options.speed,
+			() => {
+				if (targetChara.unit.hp <= 0) return;
+				damageUnit(targetChara.id, skill.power)
+			}
+		);
 
-				}
-
-			);
-
-		});
+	}
 
 
 }

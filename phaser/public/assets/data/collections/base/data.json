@@ -45,6 +45,18 @@
 			]
 		},
 		{
+			"name": "Wizzy McFizzfail",
+			"pic": "assets/cards/apprentice.png",
+			"hp": 150,
+			"attack": 25,
+			"cooldown": 1200,
+			"traits": [
+				{
+					"id": "arcane_missiles"
+				}
+			]
+		},
+		{
 			"name": "Swindler Stan",
 			"pic": "assets/cards/bandit.png",
 			"hp": 150,
@@ -64,7 +76,7 @@
 			"cooldown": 3000,
 			"traits": [
 				{
-					"id": "melee"
+					"id": "ranged"
 				}
 			]
 		}
