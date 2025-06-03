@@ -6,7 +6,7 @@ import { handleUnitDrop } from "./GuildDragHandlers";
 import { getBenchSlotPosition, getBenchCardPosition } from "./GuildRenderHelpers";
 import { destroyChara, summonChara } from "./CharaManager";
 import { getState } from "../../../Models/State";
-import { getTileAt } from "./GridSystem";
+import { getTileAt } from "../../../Models/Board";
 import { eqVec2, vec2 } from "../../../Models/Geometry";
 import { displayError } from "./UIManager";
 import { tween } from "../../../Utils/animation";

@@ -1,6 +1,6 @@
 import * as constants from "../Scenes/Battleground/constants";
 import { pickOne, pickRandom } from "../utils";
-import { vec2, sortBySnakeDistance, snakeDistanceBetween } from "./Geometry";
+import { vec2, sortBySnakeDistance, snakeDistanceBetween, Vec2 } from "./Geometry";
 import { State, getActiveUnits, getUnitAt } from "./State";
 import { Unit } from "./Unit";
 
@@ -137,3 +137,20 @@ export function overlapsWithPlayerBoard(pointer: Pointer) {
 		y <= PLAYER_BOARD_Y + constants.TILE_HEIGHT * 3
 	)
 }
+
+export function getTileAt({ x, y }: { x: number; y: number; }): Vec2 | null {
+
+	const isInBounds = x >= PLAYER_BOARD_X
+		&& x <= PLAYER_BOARD_X + constants.TILE_WIDTH * 3
+		&& y >= PLAYER_BOARD_Y
+		&& y <= PLAYER_BOARD_Y + constants.TILE_HEIGHT * 3;
+
+	if (!isInBounds) return null
+
+	return vec2(
+		Math.floor((x - PLAYER_BOARD_X) / constants.TILE_WIDTH),
+		Math.floor((y - PLAYER_BOARD_Y) / constants.TILE_HEIGHT)
+	);
+
+}
+
