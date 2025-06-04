@@ -144,8 +144,10 @@ export class BattlegroundScene extends Phaser.Scene {
         });
 
       await new Promise<void>(resolve => {
-        const start = UIManager.createButton("Start",
-          constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 50,
+        const start = UIManager.createButton(
+          "Start",
+          constants.SCREEN_WIDTH - constants.TILE_WIDTH,
+          constants.SCREEN_HEIGHT - constants.TILE_HEIGHT,
           () => {
             start.destroy();
             resolve();
@@ -165,8 +167,10 @@ export class BattlegroundScene extends Phaser.Scene {
       console.log("Combat result", result);
 
       await new Promise<void>(resolve => {
-        const start = UIManager.createButton("Continue",
-          constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 50,
+        const start = UIManager.createButton(
+          "Continue",
+          constants.SCREEN_WIDTH - constants.TILE_WIDTH,
+          constants.SCREEN_HEIGHT - 50,
           async () => {
             start.destroy();
             resolve();

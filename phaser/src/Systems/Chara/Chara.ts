@@ -32,7 +32,7 @@ export let scene: Phaser.Scene;
 let state: State;
 
 const boxWidth = bgConstants.TILE_WIDTH * 0.4;
-const boxHeight = bgConstants.TILE_HEIGHT * 0.4;
+const boxHeight = bgConstants.TILE_HEIGHT * 0.2;
 
 export function createCard(unit: Unit): Chara {
 
