@@ -3,10 +3,11 @@
 // create undead units with deathrattle meachnics
 
 import { images } from "../assets";
-import { defaultTextConfig, SCREEN_HEIGHT, titleTextConfig } from "../Scenes/Battleground/constants";
+import { defaultTextConfig, SCREEN_HEIGHT, SCREEN_WIDTH, TILE_HEIGHT, titleTextConfig } from "../Scenes/Battleground/constants";
 import { tween } from "../Utils/animation";
 
-const flyoutWidth = 900;
+const flyoutWidth = SCREEN_WIDTH;
+const flyoutHeight = SCREEN_HEIGHT / 2;
 
 let flyouts: Flyout[] = [];
 
@@ -25,22 +26,25 @@ export class Flyout extends Phaser.GameObjects.Container {
 		scene.add.existing(this);
 		flyouts.push(this);
 
-		this.bg = scene.add.image(0, 0,
+		this.bg = scene.add.image(
+			0, 0,
 			images.wood_texture.key
-		).setOrigin(0)
-			.setDisplaySize(flyoutWidth, SCREEN_HEIGHT);
+		)
+			.setOrigin(0)
+			.setDisplaySize(flyoutWidth, flyoutHeight);
 
 		this.bg.setInteractive();
 
 		this.titleText = scene.add.text(
-			400, 50,
+			SCREEN_WIDTH / 2,
+			TILE_HEIGHT / 2,
 			title,
 			titleTextConfig,
 		).setOrigin(0.5);
 
 		this.add([this.bg, this.titleText]);
 
-		this.setX(-flyoutWidth);
+		this.setY(-flyoutHeight);
 
 		this.on("destroy", () => {
 			flyouts = flyouts.filter(f => f !== this);
@@ -57,7 +61,7 @@ export class Flyout extends Phaser.GameObjects.Container {
 		this.scene.children.bringToTop(this);
 		await tween({
 			targets: [this],
-			x: 0,
+			y: 0,
 		});
 		this.isOpen = true;
 
@@ -67,7 +71,7 @@ export class Flyout extends Phaser.GameObjects.Container {
 	async slideOut() {
 		await tween({
 			targets: [this],
-			x: -flyoutWidth,
+			y: -flyoutHeight,
 		});
 		this.isOpen = false;
 	}
