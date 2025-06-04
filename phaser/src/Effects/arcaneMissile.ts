@@ -18,7 +18,7 @@ export async function arcaneMissile({
 	target,
 	speed,
 	onHit = () => { },
-	colors = [0xFF00FF, 0x0000FF, 0x000000]
+	colors = [0xFF00FF, 0x0000FF, 0x000000] //dark purple to blue
 }: ArcaneMissileAnimationArgs) {
 
 	const distance = Phaser.Math.Distance.BetweenPoints(source, target)
@@ -36,16 +36,15 @@ export async function arcaneMissile({
 	});
 
 	beam.updateBeam();
-	//beam.setVisible(false);
+	beam.setVisible(false);
 
 	const particles = scene.add.particles(
 		0, 0,
 		images.white_dot.key,
 		{
-			speed: 50,
-			// dark purple to blue tones
+			speed: 20,
 			tint: colors,
-			lifespan: 200 / speed,
+			lifespan: 600 / speed,
 			alpha: { start: 1, end: 0 },
 			scale: { start: 4, end: 0 },
 			blendMode: 'ADD',
