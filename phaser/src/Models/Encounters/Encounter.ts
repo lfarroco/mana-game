@@ -168,10 +168,7 @@ const pickUnit = async (
 	title: string,
 ) => {
 
-	const flyout = await Flyout.create(
-		scene,
-		title,
-	);
+	const flyout = await Flyout.create(scene, title);
 
 	flyout.slideIn();
 
@@ -181,11 +178,14 @@ const pickUnit = async (
 		await new Promise<void>(async (resolve) => {
 
 			const charas = await Promise.all(
-				genChoices().map(choice => {
+				genChoices().map((choice, index) => {
 					const chara = Chara.createCard(
 						makeUnit(Force.playerForce.id, choice.value, vec2(0, 0)),
 					);
-					chara.container.setPosition(chara.sprite.width * -1.2, 500);
+					chara.container.setPosition(
+						580 + 250 * index,
+						chara.sprite.height * -1.2,
+					);
 					flyout.add(chara.container);
 					return chara
 				})
@@ -196,7 +196,7 @@ const pickUnit = async (
 
 				await tween({
 					targets: [chara.container],
-					x: 180 + 250 * index,
+					y: 250,
 				});
 
 				chara.zone.setInteractive({ draggable: true });
@@ -389,7 +389,8 @@ const pickUnit = async (
 
 			const rerollButton = UIManager.createButton(
 				`Reroll (${constants.REROLL_UNITS_PRICE})`,
-				400, 700,
+				constants.SCREEN_WIDTH * 0.15,
+				constants.SCREEN_HEIGHT * 0.25,
 				async () => {
 					Force.updatePlayerGoldIO(- constants.REROLL_UNITS_PRICE);
 					charas.forEach(slideOutCard);
@@ -417,11 +418,15 @@ const pickUnit = async (
 			});
 
 			if (allowSkipping) {
-				const skipButton = UIManager.createButton("Skip", 400, 900, () => {
-					charas.forEach(slideOutCard);
-					picks++;
-					resolve();
-				});
+				const skipButton = UIManager.createButton(
+					"Skip",
+					constants.SCREEN_WIDTH * 0.75,
+					constants.SCREEN_HEIGHT * 0.25,
+					() => {
+						charas.forEach(slideOutCard);
+						picks++;
+						resolve();
+					});
 				flyout.add(skipButton);
 			}
 
@@ -437,7 +442,7 @@ const pickUnit = async (
 function slideOutCard(c: Chara.Chara) {
 	tween({
 		targets: [c.container],
-		x: -100,
+		y: -100,
 		onComplete: () => {
 			UnitManager.destroyChara(c.id);
 		}
