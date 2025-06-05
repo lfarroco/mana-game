@@ -18,6 +18,7 @@ import { healingWave } from "../Systems/Chara/Skills/healingWave";
 import { arcaneMissiles } from "../Systems/Chara/Skills/arcaneMissiles";
 import { haste } from "../Systems/Chara/Skills/haste";
 import { slow } from "../Systems/Chara/Skills/slow";
+import { updatePlayerGoldIO } from "./Force";
 
 let state: State;
 let scene: BattlegroundScene;
@@ -92,6 +93,7 @@ export type TraitData = {
 export const TRAIT_CATEGORY_PERSONALITY = "personality" as TraitCategory;
 export const TRAIT_CATEGORY_OFFENSIVE = "offensive" as TraitCategory;
 export const TRAIT_CATEGORY_DEFENSIVE = "defensive" as TraitCategory;
+export const TRAIT_CATEGORY_ECONOMY = "economy" as TraitCategory;
 export const TRAIT_CATEGORY_TRIBE = "tribe" as TraitCategory;
 export const TRAIT_CATEGORY_COMPANION = "companion" as TraitCategory;
 export const TRAIT_CATEGORY_VISION = "vision" as TraitCategory;
@@ -368,6 +370,21 @@ export const BERSERK = makeTrait({
 			await popText({ text: "On Half HP: Berserk", targetId: unit.id, speed: 2 });
 			updateUnitAttribute(unit, "attackPower", 15);
 			addStatus(unit, "berserk");
+		}]
+	}
+});
+
+export const PLUNDER = makeTrait({
+	id: "plunder" as TraitId,
+	name: "Plunder",
+	description: "When this unit attacks, gain 1 gold",
+	categories: [TRAIT_CATEGORY_ECONOMY],
+	events: {
+		onAttackByMe: [(unit) => async () => {
+			if (unit.force === FORCE_ID_PLAYER) {
+				await popText({ text: "Plunder: +1 gold", targetId: unit.id, speed: 2 });
+				updatePlayerGoldIO(1);
+			}
 		}]
 	}
 });
@@ -680,6 +697,7 @@ export const traitSpecs: { [id: TraitId]: Trait } = {
 	[INITIATIVE.id]: INITIATIVE,
 	[SUPPORT.id]: SUPPORT,
 	[SLOW.id]: SLOW,
+	[PLUNDER.id]: PLUNDER,
 };
 
 export const randomCategoryTrait = (category: TraitCategory): Trait => {

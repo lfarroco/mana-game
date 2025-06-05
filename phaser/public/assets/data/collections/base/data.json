@@ -66,6 +66,9 @@
 			"traits": [
 				{
 					"id": "melee"
+				},
+				{
+					"id": "plunder"
 				}
 			]
 		},
