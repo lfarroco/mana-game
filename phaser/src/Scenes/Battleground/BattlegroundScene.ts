@@ -145,17 +145,6 @@ export class BattlegroundScene extends Phaser.Scene {
           UnitManager.summonChara(unit, false, false);
         });
 
-      await new Promise<void>(resolve => {
-        const start = UIManager.createButton(
-          "Start",
-          constants.SCREEN_WIDTH - constants.TILE_WIDTH,
-          constants.SCREEN_HEIGHT - constants.TILE_HEIGHT,
-          () => {
-            start.destroy();
-            resolve();
-          });
-      });
-
       const result = await runCombatIO(this);
 
       await delay(this, 500)

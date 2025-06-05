@@ -17,7 +17,7 @@ window.flyouts = flyouts;
 export class Flyout extends Phaser.GameObjects.Container {
 
 	isOpen = false;
-	bg: Phaser.GameObjects.Image;
+	bg: Phaser.GameObjects.Graphics;
 	titleText: Phaser.GameObjects.Text;
 
 	constructor(scene: Phaser.Scene, title: string) {
@@ -26,12 +26,10 @@ export class Flyout extends Phaser.GameObjects.Container {
 		scene.add.existing(this);
 		flyouts.push(this);
 
-		this.bg = scene.add.image(
-			0, 0,
-			images.wood_texture.key
-		)
-			.setOrigin(0)
-			.setDisplaySize(flyoutWidth, flyoutHeight);
+		this.bg = scene.add.graphics()
+			.fillStyle(0x666666, 0.8)
+			.fillRect(0, 0, flyoutWidth, flyoutHeight)
+			.setPosition(0, 0);
 
 		this.bg.setInteractive();
 

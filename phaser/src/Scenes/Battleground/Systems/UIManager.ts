@@ -128,7 +128,7 @@ function createGoldText(parent: Container) {
 
 export async function displayError(errorMessage: string) {
 
-	scene.playFx('ui/error');
+	//scene.playFx('ui/error');
 
 	const text = scene.add.text(
 		constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100,

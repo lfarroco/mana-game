@@ -73,8 +73,8 @@ export const open = (scene: BattlegroundScene) => new Promise<void>(async (resol
 
 	const nextRoundBtn = createButton(
 		"Next Round",
-		SCREEN_WIDTH - 200,
-		400,
+		SCREEN_WIDTH - 180,
+		500,
 		async () => {
 			await flyout.slideOut();
 			flyout.destroy();
