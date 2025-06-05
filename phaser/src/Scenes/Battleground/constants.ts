@@ -10,7 +10,6 @@ export const HALF_TILE_WIDTH = TILE_WIDTH / 2;
 export const HALF_TILE_HEIGHT = TILE_HEIGHT / 2;
 
 export const MAX_PARTY_SIZE = 5;
-export const MAX_BENCH_SIZE = 3;
 
 export const REROLL_UNITS_PRICE = 2;
 

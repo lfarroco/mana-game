@@ -11,7 +11,6 @@ export type Force = {
 	income: number;
 	items: (Item | null)[]; // todo: replace with slot objects
 	units: Unit[];
-	bench: Array<{ index: number; unit: Unit | null }>;
 };
 
 export const makeForce = (id: string): Force => {
@@ -27,10 +26,6 @@ export const makeForce = (id: string): Force => {
 		gold: 10,
 		income: 5,
 		units: [],
-		bench: new Array(3).fill(null).map((_, index) => ({
-			index,
-			unit: null
-		})),
 		items
 	}
 };
