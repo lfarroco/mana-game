@@ -20,6 +20,7 @@ import { images } from "../../assets";
 import { generateEnemyTeam } from "./generateEnemyTeam";
 import { vignette } from "./Animations/vignette";
 import { pickOne } from "../../utils";
+import * as Shop from "./Systems/Shop";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -119,7 +120,9 @@ export class BattlegroundScene extends Phaser.Scene {
     UIManager.createDropZone(this); // TODO: move to board module
     UIManager.updateUI();
 
-    await EventSystem.evalEvent(EventSystem.starterEvent);
+    await Shop.open(this);
+
+    //await EventSystem.evalEvent(EventSystem.starterEvent);
 
     //Infinite day loop
     console.log("Day", this.state.gameData.day, "started");
@@ -180,7 +183,8 @@ export class BattlegroundScene extends Phaser.Scene {
         UnitManager.summonChara(unit);
       });
 
-      await EventSystem.evalEvent(EventSystem.pickAHero);
+      await Shop.open(this);
+      //await EventSystem.evalEvent(EventSystem.pickAHero);
 
       state.gameData.hour += 1;
 
