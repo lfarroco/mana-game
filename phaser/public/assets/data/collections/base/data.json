@@ -5,7 +5,7 @@
 		{
 			"name": "Bowsie McTwang",
 			"pic": "assets/cards/archer.png",
-			"hp": 150,
+			"hp": 120,
 			"attack": 25,
 			"cooldown": 1400,
 			"traits": [
@@ -35,9 +35,9 @@
 		{
 			"name": "Sir Bumble the Unyielding",
 			"pic": "assets/cards/knight.png",
-			"hp": 150,
-			"attack": 25,
-			"cooldown": 1200,
+			"hp": 250,
+			"attack": 14,
+			"cooldown": 2200,
 			"traits": [
 				{
 					"id": "melee"
@@ -60,7 +60,7 @@
 		{
 			"name": "Swindler Stan",
 			"pic": "assets/cards/bandit.png",
-			"hp": 150,
+			"hp": 110,
 			"attack": 25,
 			"cooldown": 4000,
 			"traits": [
@@ -75,7 +75,7 @@
 		{
 			"name": "Hoodlum Hawkeye",
 			"pic": "assets/cards/bandit_archer.png",
-			"hp": 150,
+			"hp": 120,
 			"attack": 25,
 			"cooldown": 3000,
 			"traits": [
