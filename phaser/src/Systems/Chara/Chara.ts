@@ -335,15 +335,9 @@ export async function damageUnit(id: string, damage: number, isCritical = false)
 
 	if (
 		nextHp <= chara.unit.maxHp / 2 &&
-		chara.unit.equip?.type.key === "equipment" &&
-		chara.unit.equip.type.onHalfHP &&
 		!chara.unit.statuses["on-half-hp"]
 	) {
-		popText({
-			text: chara.unit.equip.name,
-			targetId: chara.id,
-		})
-		chara.unit.equip.type.onHalfHP(chara.unit)();
+		chara.unit.events.onHalfHP.forEach(fn => fn(chara.unit)());
 		addStatus(chara.unit, "on-half-hp");
 	}
 

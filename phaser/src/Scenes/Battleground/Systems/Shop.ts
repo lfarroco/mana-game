@@ -28,7 +28,7 @@ export const open = (scene: BattlegroundScene) => new Promise<void>(async (resol
 			const unit = makeUnit(FORCE_ID_PLAYER, spec.name, vec2(0, 0));
 			const card = createCard(unit);
 
-			card.container.setPosition(600 + index * 200, 200);
+			card.container.setPosition(750 + index * 200, 250);
 
 			card.zone.setInteractive({ draggable: true });
 
