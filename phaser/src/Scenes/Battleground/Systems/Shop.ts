@@ -1,11 +1,11 @@
 import { getEmptySlot } from "../../../Models/Board";
 import { getAllCards } from "../../../Models/Card";
-import { playerForce } from "../../../Models/Force";
+import { playerForce, updatePlayerGoldIO } from "../../../Models/Force";
 import { vec2 } from "../../../Models/Geometry";
 import { makeUnit } from "../../../Models/Unit";
-import { addBoardEvents, createCard } from "../../../Systems/Chara/Chara";
+import { addBoardEvents, addTooltip, createCard } from "../../../Systems/Chara/Chara";
 import { Flyout } from "../../../Systems/Flyout";
-import { hide } from "../../../Systems/Tooltip";
+import * as Tooltip from "../../../Systems/Tooltip";
 import { pickRandom } from "../../../utils";
 import { tween } from "../../../Utils/animation";
 import BattlegroundScene from "../BattlegroundScene";
@@ -23,7 +23,7 @@ export const open = (scene: BattlegroundScene) => new Promise<void>(async (resol
 			!state.gameData.player.units.map(u => u.job).includes(card.name)
 		);
 
-	pickRandom(filtered, 3)
+	pickRandom(filtered, 5)
 		.forEach((spec, index) => {
 			const unit = makeUnit(FORCE_ID_PLAYER, spec.name, vec2(0, 0));
 			const card = createCard(unit);
@@ -32,10 +32,18 @@ export const open = (scene: BattlegroundScene) => new Promise<void>(async (resol
 
 			card.zone.setInteractive({ draggable: true });
 
+			addTooltip(card)
+
 			// TODO: replace with drag and drop
 			card.zone.on("pointerup", () => {
 
-				hide();
+				if (playerForce.gold < 3) {
+					displayError("You don't have enough gold!");
+					return;
+				}
+				updatePlayerGoldIO(-3);
+
+				Tooltip.hide();
 				flyout.remove(card.container);
 				card.zone.off("pointerup");
 
