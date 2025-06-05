@@ -33,6 +33,7 @@ export class BattlegroundScene extends Phaser.Scene {
   cleanup() {
     UnitManager.clearCharas();
     this.time.removeAllEvents();
+    this.children.removeAll(true);
   }
 
   constructor() {
@@ -104,6 +105,9 @@ export class BattlegroundScene extends Phaser.Scene {
 
     const { state } = this;
 
+    state.gameData.player.gold = 0;
+    updatePlayerGoldIO(10);
+
     this.sound.setVolume(0.05)
 
     this.bgImage = this.add.image(
@@ -160,7 +164,11 @@ export class BattlegroundScene extends Phaser.Scene {
         await battleResultAnimation(this, "defeat");
         isGameOver = true;
 
-        UIManager.createButton("new run", 300, 300, () => { this.scene.restart() })
+        UIManager.createButton("new run", 300, 300, () => {
+          this.cleanup();
+          this.start();
+
+        })
         UIManager.createButton("return to menu ", 300, 400, () => { this.scene.start("MainMenuScene") })
         break;
       }
