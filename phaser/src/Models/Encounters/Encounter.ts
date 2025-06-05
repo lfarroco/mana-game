@@ -215,6 +215,7 @@ const pickUnit = async (
 
 					for (const c of charas) {
 						if (chara.id === c.id) {
+							// TODO: get bench coord
 							const vec = vec2(
 								constants.SCREEN_WIDTH - 100,
 								constants.SCREEN_HEIGHT - 100
@@ -234,7 +235,7 @@ const pickUnit = async (
 
 						tween({
 							targets: [c.container],
-							x: -100,
+							y: -100,
 						});
 
 						UnitManager.destroyChara(c.id);
@@ -373,8 +374,8 @@ const pickUnit = async (
 					// go back to original position
 					tween({
 						targets: [chara.container],
-						x: 180 + 250 * index,
-						y: 500,
+						x: 580 + 250 * index,
+						y: 250
 					});
 
 					flyout.add(chara.container);

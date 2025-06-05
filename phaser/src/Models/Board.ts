@@ -1,6 +1,7 @@
 import * as constants from "../Scenes/Battleground/constants";
 import { PLAYER_BOARD_X, PLAYER_BOARD_Y } from "../Scenes/Battleground/constants";
 import { pickOne, pickRandom } from "../utils";
+import { playerForce } from "./Force";
 import { vec2, sortBySnakeDistance, snakeDistanceBetween, Vec2 } from "./Geometry";
 import { State, getActiveUnits, getUnitAt } from "./State";
 import { Unit } from "./Unit";
@@ -41,17 +42,21 @@ export function getUnitsByProximity(state: State, unit: Unit, enemy: boolean, ra
 
 export function getMeleeTarget(state: State, unit: Unit): Unit {
 
+	const source = vec2(
+		unit.position.x,
+		unit.position.y + unit.force === playerForce.id ? 3 : -3,
+	)
+
 	const enemies = getActiveUnits(state)
 		.filter(u => u.force !== unit.force);
 
-	// get all enemies in the same row, or neighoring row
+	// get all enemies in the same column, or neighoring column
 	const closeUnits = enemies
-		.filter(u => u.position.y >= unit.position.y - 1 && u.position.y <= unit.position.y + 1)
-		.filter(u => !u.statuses["stealth"])
-		.sort((a, b) => sortBySnakeDistance(unit.position)(a.position)(b.position))
+		.filter(u => u.position.x >= unit.position.x - 1 && u.position.x <= unit.position.x + 1)
+		.sort((a, b) => sortBySnakeDistance(source)(a.position)(b.position))
 		// keep 1 per row, as a far unit can be blocked by a closer unit
 		.reduce((acc, u) => {
-			if (acc.findIndex((a) => a.position.y === u.position.y) === -1) {
+			if (acc.findIndex((a) => a.position.x === u.position.x) === -1) {
 				acc.push(u);
 			}
 			return acc;
