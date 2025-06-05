@@ -21,6 +21,7 @@ import { generateEnemyTeam } from "./generateEnemyTeam";
 import { vignette } from "./Animations/vignette";
 import * as Shop from "./Systems/Shop";
 import { updatePlayerGoldIO } from "../../Models/Force";
+import { popText } from "../../Systems/Chara/Animations/popText";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -173,8 +174,6 @@ export class BattlegroundScene extends Phaser.Scene {
         break;
       }
 
-      UnitManager.clearCharas();
-
       state.gameData.player.units.forEach(unit => {
         unit.charge = 0;
         unit.refresh = 0;
@@ -182,11 +181,41 @@ export class BattlegroundScene extends Phaser.Scene {
         unit.hasted = 0;
         unit.hp = unit.maxHp;
         unit.statuses = {};
-      })
+      });
 
       state.gameData.player.units.forEach(unit => {
-        UnitManager.summonChara(unit);
+        popText({
+          text: `+15 xp`,
+          targetId: unit.id,
+        });
       });
+
+      await delay(this, 500);
+
+      const xp = enemies.length * 15;
+
+      let levelUp = false;
+      state.gameData.player.units.forEach(unit => {
+        unit.xp += xp;
+        const levels = Math.floor(unit.xp / 100);
+        if (levels > 0) {
+          popText({
+            text: `Level up!`,
+            targetId: unit.id,
+          });
+          unit.xp = unit.xp - levels * 100;
+          unit.maxHp = unit.maxHp * (1.1 * levels);
+          unit.hp = unit.maxHp;
+          unit.attackPower += (levels * unit.attackPower * 0.1);
+          levelUp = true;
+        }
+
+        CharaSystem.updateHpDisplay(unit.id, unit.maxHp);
+      });
+
+      if (levelUp) {
+        await delay(this, 1000);
+      }
 
       await Shop.open(this);
       //await EventSystem.evalEvent(EventSystem.pickAHero);
