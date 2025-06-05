@@ -16,7 +16,6 @@ import { CardCollection, getCard, registerCollection } from "../../Models/Card";
 import runCombatIO from "./RunCombatIO";
 import { battleResultAnimation } from "./battleResultAnimation";
 import { delay } from "../../Utils/animation";
-import { tavern } from "../../Models/Encounters/common";
 import { images } from "../../assets";
 import { generateEnemyTeam } from "./generateEnemyTeam";
 import { vignette } from "./Animations/vignette";
@@ -166,17 +165,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
       console.log("Combat result", result);
 
-      await new Promise<void>(resolve => {
-        const start = UIManager.createButton(
-          "Continue",
-          constants.SCREEN_WIDTH - constants.TILE_WIDTH,
-          constants.SCREEN_HEIGHT - 50,
-          async () => {
-            start.destroy();
-            resolve();
-          });
-      });
-
       UnitManager.clearCharas();
 
       state.gameData.player.units.forEach(unit => {
@@ -191,12 +179,6 @@ export class BattlegroundScene extends Phaser.Scene {
       state.gameData.player.units.forEach(unit => {
         UnitManager.summonChara(unit);
       });
-
-      const tavern_ = tavern();
-
-      await ChoiceSystem.displayChoices([
-        ChoiceSystem.newChoice(tavern_.pic, tavern_.title, tavern_.description, tavern_.id)
-      ])
 
       await EventSystem.evalEvent(EventSystem.pickAHero);
 
