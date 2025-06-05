@@ -11,14 +11,10 @@ export type WaveOutcome = "player_won" | "player_lost";
 
 async function setupWave(scene: BattlegroundScene) {
 
-  UnitManager.clearCharas();
-
   scene.state.battleData.units.forEach(u => {
     u.charge = 0;
     u.refresh = 0;
   });
-
-  scene.state.battleData.units.forEach(u => UnitManager.summonChara(u, false, false));
 
   const cpuCharas = UnitManager.getCPUCharas();
 

@@ -312,13 +312,13 @@ export function init(sceneRef: Phaser.Scene) {
 
 export function updateAtkDisplay(id: string) {
 	const chara = UnitManager.getChara(id);
-	chara.atkDisplay.setText(chara.unit.attackPower.toString());
+	chara.atkDisplay.setText(Math.floor(chara.unit.attackPower).toString());
 }
 
 export function updateHpDisplay(id: string, hp: number) {
 	const chara = UnitManager.getChara(id);
 	if (!chara) return;
-	chara.hpDisplay.setText(hp.toString());
+	chara.hpDisplay.setText(Math.floor(hp).toString());
 }
 
 export async function damageUnit(id: string, damage: number, isCritical = false) {
@@ -335,12 +335,12 @@ export async function damageUnit(id: string, damage: number, isCritical = false)
 	const hasDied = nextHp <= 0;
 
 	chara.unit.hp = nextHp <= 0 ? 0 : nextHp;
-	chara.hpDisplay.setText(chara.unit.hp.toString());
+	updateHpDisplay(chara.id, chara.unit.hp);
 
 	if (isCritical) {
-		criticalDamageDisplay(scene, chara.container, damage);
+		criticalDamageDisplay(scene, chara.container, parseInt(Math.floor(damage).toFixed(0)));
 	} else {
-		popText({ text: damage.toString(), targetId: chara.id, type: "damage" });
+		popText({ text: Math.floor(damage).toFixed(0).toString(), targetId: chara.id, type: "damage" });
 	}
 
 	if (hasDied) {
