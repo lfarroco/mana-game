@@ -4,7 +4,6 @@ import { BattlegroundScene } from "../BattlegroundScene";
 import { delay, tween } from "../../../Utils/animation";
 import { COLOR_BLACK } from "../../../Utils/colors";
 import { getState, State } from "../../../Models/State";
-import * as Guild from "./Guild";
 import * as assets from "../../../assets";
 
 export let ui: Phaser.GameObjects.Container | null = null;
@@ -115,15 +114,14 @@ export function updateUI() {
 
 	createGoldText(ui);
 
-	Guild.renderGuildButton(scene);
-
 }
 
 function createGoldText(parent: Container) {
 
 	const force = state.gameData.player;
 	goldText = scene.add.text(
-		constants.SCREEN_WIDTH - 200, 80,
+		constants.SCREEN_WIDTH - 120,
+		constants.SCREEN_HEIGHT - 100,
 		"Gold: " + force.gold, constants.defaultTextConfig);
 	parent.add(goldText);
 }

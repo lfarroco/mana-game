@@ -193,3 +193,6 @@ when an ally crits, charge 1
 
 deepseek conversation with name ideas:
 https://chat.deepseek.com/a/chat/s/6cd0f7f9-a35a-48c2-878e-07e5eb120a4c
+
+relic ideas:
+- enchant random card with x (multicast, fiery, cold, etc)

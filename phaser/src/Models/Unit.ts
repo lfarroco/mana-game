@@ -1,6 +1,5 @@
 import { v4 } from "uuid";
 import { Vec2, vec2Zero } from "./Geometry";
-import { Item } from "./Item";
 import { getCard } from "./Card";
 import { MELEE, RANGED, TraitData, traitSpecs } from "./Traits";
 import { UnitEvent, UnitEvents, UNIT_EVENTS } from "./UnitEvents";
@@ -29,8 +28,6 @@ export type Unit = {
   // Temporary status effects
   statuses: UnitStatusIndex;
   traits: TraitData[];
-
-  equip: Item | null;
 
   log: string[];
   events: UnitEvents
