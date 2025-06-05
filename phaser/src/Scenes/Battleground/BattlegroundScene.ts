@@ -125,14 +125,15 @@ export class BattlegroundScene extends Phaser.Scene {
     //await EventSystem.evalEvent(EventSystem.starterEvent);
 
     //Infinite day loop
-    console.log("Day", this.state.gameData.day, "started");
+    console.log("Round", this.state.gameData.round, "started");
 
-    state.gameData.day = 1;
+    state.gameData.round = 1;
+    let isGameOver = false;
     // Hours loop for each day
-    while (state.gameData.day < 5) {
+    while (!isGameOver) {
       state.battleData.units = [];
 
-      const possibleEnemies = this.collection.opponents.filter(enemy => enemy.level === state.gameData.day);
+      const possibleEnemies = this.collection.opponents.filter(enemy => enemy.level === state.gameData.round);
 
       const enemyCards = pickOne(possibleEnemies).cards.map(getCard)
 
@@ -153,6 +154,7 @@ export class BattlegroundScene extends Phaser.Scene {
         await battleResultAnimation(this, "victory");
       } else {
         await battleResultAnimation(this, "defeat");
+        isGameOver = true;
       }
 
       console.log("Combat result", result);
@@ -175,12 +177,7 @@ export class BattlegroundScene extends Phaser.Scene {
       await Shop.open(this);
       //await EventSystem.evalEvent(EventSystem.pickAHero);
 
-      state.gameData.hour += 1;
-
-      if (state.gameData.hour >= 12) {
-        state.gameData.day += 1;
-        state.gameData.hour = 1;
-      }
+      state.gameData.round += 1;
 
     }
 
