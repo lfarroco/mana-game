@@ -157,6 +157,13 @@ export const addBoardEvents = (chara: Chara) => {
 
 	chara.zone.on('dragstart', () => {
 		chara.scene.children.bringToTop(chara.container);
+		// rotate cards to indicate they are being dragged
+		tween({
+			targets: [chara.container],
+			angle: -10,
+			duration: 100,
+			ease: "Cubic.Out",
+		});
 	});
 
 	chara.zone.on('drag', (pointer: Phaser.Input.Pointer) => {
@@ -170,6 +177,7 @@ export const addBoardEvents = (chara: Chara) => {
 		pointer: Phaser.Input.Pointer,
 		zone: Phaser.GameObjects.GameObject,
 	) => {
+
 
 		if (zone.name !== "board") return;
 
@@ -210,6 +218,13 @@ export const addBoardEvents = (chara: Chara) => {
 	});
 
 	chara.zone.on('dragend', (pointer: Phaser.Input.Pointer) => {
+
+		tween({
+			targets: [chara.container],
+			angle: 0,
+			duration: 100,
+			ease: "Cubic.Out",
+		});
 
 		if (UIManager.isPointerInDropZone(pointer)) return
 
@@ -382,9 +397,12 @@ export async function killUnit(chara: Chara) {
 	for (const ev of chara.unit.events.onDeath)
 		ev(chara.unit)()
 
+	if (chara.unit.force === bgConstants.FORCE_ID_PLAYER)
+		state.gameData.player.units = state.gameData.player.units.filter(u => u.id !== chara.unit.id);
+
 }
 
-// Function to update an attributattribute, not applying it (not apply damage of heal)
+// Function to update an attribute, not applying it (not apply damage of heal)
 // This means changing the value of the card
 export async function updateUnitAttribute<K extends keyof Unit>(
 	unit: Unit,

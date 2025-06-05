@@ -24,12 +24,12 @@ async function setupWave(scene: BattlegroundScene) {
 
   await Promise.all(cpuCharas.map(async (chara, i) => {
 
-    const originalX = chara.container.x;
-    chara.container.x = chara.container.x - 1000;
+    const originalY = chara.container.y;
+    chara.container.y = -100;
 
     await tween({
       targets: [chara.container],
-      x: originalX,
+      y: originalY,
       delay: i * 100,
     })
   }));

@@ -12,15 +12,15 @@ import * as ChoiceSystem from "./Systems/Choice";
 import * as EventSystem from "../../Models/Encounters/Encounter";
 import * as TraitSystem from "../../Models/Traits";
 import * as TooltipSystem from "../../Systems/Tooltip";
-import { CardCollection, getCard, registerCollection } from "../../Models/Card";
+import { CardCollection, getAllCards, registerCollection } from "../../Models/Card";
 import runCombatIO from "./RunCombatIO";
 import { battleResultAnimation } from "./battleResultAnimation";
 import { delay } from "../../Utils/animation";
 import { images } from "../../assets";
 import { generateEnemyTeam } from "./generateEnemyTeam";
 import { vignette } from "./Animations/vignette";
-import { pickOne } from "../../utils";
 import * as Shop from "./Systems/Shop";
+import { updatePlayerGoldIO } from "../../Models/Force";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -133,12 +133,10 @@ export class BattlegroundScene extends Phaser.Scene {
     while (!isGameOver) {
       state.battleData.units = [];
 
-      const possibleEnemies = this.collection.opponents.filter(enemy => enemy.level === state.gameData.round);
+      const cardPool = getAllCards();
 
-      const enemyCards = pickOne(possibleEnemies).cards.map(getCard)
-
-      generateEnemyTeam(state, state.gameData.player.units.length, enemyCards);
-      state.battleData.units = [...state.battleData.units, ...state.gameData.player.units];
+      const enemies = generateEnemyTeam(state.gameData.round, cardPool);
+      state.battleData.units = [...enemies, ...state.gameData.player.units];
 
       state.battleData.units
         .filter(u => u.force === constants.FORCE_ID_CPU)
@@ -150,14 +148,22 @@ export class BattlegroundScene extends Phaser.Scene {
 
       await delay(this, 500)
 
+      console.log("Combat result", result);
+
       if (result === "player_won") {
+
         await battleResultAnimation(this, "victory");
+
+        updatePlayerGoldIO(5)
+
       } else {
         await battleResultAnimation(this, "defeat");
         isGameOver = true;
-      }
 
-      console.log("Combat result", result);
+        UIManager.createButton("new run", 300, 300, () => { this.scene.restart() })
+        UIManager.createButton("return to menu ", 300, 400, () => { this.scene.start("MainMenuScene") })
+        break;
+      }
 
       UnitManager.clearCharas();
 
