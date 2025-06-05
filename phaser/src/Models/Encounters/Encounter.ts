@@ -98,8 +98,7 @@ export const pickAHero: Encounter = {
 
 			const filtered =
 				getAllCards().filter(card =>
-					!state.gameData.player.units.map(u => u.job).includes(card.name) &&
-					!state.gameData.player.bench.map(u => u?.unit?.job).includes(card.name)
+					!state.gameData.player.units.map(u => u.job).includes(card.name)
 				);
 
 			return pickRandom(filtered, 3)
@@ -203,48 +202,6 @@ const pickUnit = async (
 
 				Chara.addTooltip(chara);
 
-				function addToBench() {
-					// Find the first empty bench slot (unit === null)
-					const firstEmptySlot = state.gameData.player.bench.find(slot => !slot.unit);
-					if (!firstEmptySlot) {
-						return;
-					}
-					firstEmptySlot.unit = chara.unit;
-
-					picks++;
-
-					for (const c of charas) {
-						if (chara.id === c.id) {
-							// TODO: get bench coord
-							const vec = vec2(
-								constants.SCREEN_WIDTH - 100,
-								constants.SCREEN_HEIGHT - 100
-							);
-							tween({
-								targets: [c.container],
-								x: vec.x,
-								y: vec.y,
-								scale: 0,
-								duration: 1000,
-								onComplete: () => {
-									UnitManager.destroyChara(c.id);
-								}
-							});
-							continue;
-						};
-
-						tween({
-							targets: [c.container],
-							y: -100,
-						});
-
-						UnitManager.destroyChara(c.id);
-
-					}
-
-
-					resolve();
-				}
 
 				const pick = async () => {
 
@@ -252,11 +209,7 @@ const pickUnit = async (
 
 					if (state.gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
 
-						if (state.gameData.player.bench.filter(b => b.unit).length >= constants.MAX_BENCH_SIZE) {
-							UIManager.displayError("Your party and bench are full! Discard a card or skip.");
-							return;
-						}
-						addToBench();
+						UIManager.displayError("Your party is full! Discard a card or skip.");
 						return;
 					}
 
@@ -302,7 +255,7 @@ const pickUnit = async (
 				) => {
 
 					if (state.gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
-						addToBench();
+						UIManager.displayError("Your party is full! Discard a card or skip.");
 						return;
 					}
 
