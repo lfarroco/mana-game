@@ -1,26 +1,24 @@
 import { Card } from "../../Models/Card";
 import { cpuForce } from "../../Models/Force";
 import { vec2 } from "../../Models/Geometry";
-import { State } from "../../Models/State";
 import * as TraitSystem from "../../Models/Traits";
 import { makeUnit } from "../../Models/Unit";
 import { pickOne } from "../../utils";
 
+// A function that receives a round and returns the enemy team size
+const getEnemyTeamSize = (round: number): number => {
+
+	const costPerUnit = 3;
+
+	const baseSize = Math.floor(round / 2) + 2; // Start with 2 units at round 0, increase by 1 every 2 rounds
+	const size = Math.min(5, baseSize + Math.floor(round / costPerUnit));
+	return size;
+}
+
 export function generateEnemyTeam(
-	state: State,
-	count: number,
-	cards: Card[],
+	round: number,
+	pool: Card[],
 ) {
-
-	if (count < 2) {
-		console.warn("Enemy team count is less than 2, setting to 2");
-		count = 2;
-	}
-
-	if (count > 5) {
-		console.warn("Enemy team count is greater than 9, setting to 9");
-		count = 5;
-	}
 
 	// t = tank
 	// r = ranged dps
@@ -88,14 +86,16 @@ export function generateEnemyTeam(
 		]
 	};
 
-	const template = pickOne(templates[count]);
+	const template = pickOne(templates[getEnemyTeamSize(round)]);
 
 	const parsed = template.map(row => row.split(""));
 
-	const getRanged = () => cards.filter(c => c.traits.some(t => t.id === TraitSystem.RANGED.id));
-	const getMelee = () => cards.filter(c => c.traits.some(t => t.id === TraitSystem.MELEE.id));
-	const getSupport = () => cards.filter(c => c.traits.some(t => t.id === TraitSystem.SUPPORT.id));
-	const getTank = () => cards.filter(c => c.traits.some(t => t.id === TraitSystem.TAUNT.id));
+	const getRanged = () => pool.filter(c => c.traits.some(t => t.id === TraitSystem.RANGED.id));
+	const getMelee = () => pool.filter(c => c.traits.some(t => t.id === TraitSystem.MELEE.id));
+	const getSupport = () => pool.filter(c => c.traits.some(t => t.id === TraitSystem.SUPPORT.id));
+	const getTank = () => pool.filter(c => c.traits.some(t => t.id === TraitSystem.TAUNT.id));
+
+	let units = [];
 
 	for (let y = 0; y < parsed.length; y++) {
 		const row = parsed[y];
@@ -121,9 +121,11 @@ export function generateEnemyTeam(
 			if (card !== undefined) {
 
 				const unit = makeUnit(cpuForce.id, card.name, vec2(x, y));
-				state.battleData.units.push(unit);
+				units.push(unit);
 			}
 		}
 	}
+
+	return units;
 
 }
