@@ -43,8 +43,7 @@ export const initialState = (): State => ({
   },
   savedGames: [],
   gameData: {
-    hour: 1,
-    day: 1,
+    round: 1,
     player: playerForce,
     choices: []
   },
@@ -75,8 +74,7 @@ export type State = {
 };
 
 export type GameData = {
-  hour: number;
-  day: number;
+  round: number;
   player: Force;
   choices: string[];
 }
