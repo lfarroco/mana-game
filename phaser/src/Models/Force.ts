@@ -1,7 +1,15 @@
+import { images } from "../assets";
 import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "../Scenes/Battleground/constants";
 import { goldChangeAnimation, scene } from "../Scenes/Battleground/Systems/UIManager";
-import { Item, ITEMS } from "./Item";
+import { popText } from "../Systems/Chara/Animations/popText";
 import { Unit } from "./Unit";
+
+type Relic = {
+	id: string,
+	pic: string,
+	events: { [key: string]: () => void }
+	position: Point
+}
 
 export type Force = {
 	id: string;
@@ -9,15 +17,29 @@ export type Force = {
 	color: string;
 	gold: number;
 	income: number;
-	items: (Item | null)[]; // todo: replace with slot objects
 	units: Unit[];
+	relics: Relic[];
 };
 
 export const makeForce = (id: string): Force => {
 
-	const items = [
-		ITEMS.RED_POTION(),
-		ITEMS.IRON_SWORD(),
+	const relics: Relic[] = [
+		{
+			id: "training_room",
+			pic: images.agility_training.key,
+			events: {
+				onBattleStart: () => {
+					popText({
+						text: "hello!",
+						targetId: ""
+					})
+				}
+			},
+			position: {
+				x: 1,
+				y: 1
+			}
+		}
 	];
 	return {
 		id,
@@ -26,7 +48,7 @@ export const makeForce = (id: string): Force => {
 		gold: 10,
 		income: 5,
 		units: [],
-		items
+		relics
 	}
 };
 
