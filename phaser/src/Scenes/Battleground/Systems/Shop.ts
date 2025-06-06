@@ -14,6 +14,7 @@ import BattlegroundScene from "../BattlegroundScene";
 import { FORCE_ID_PLAYER, MAX_PARTY_SIZE, SCREEN_WIDTH, titleTextConfig } from "../constants";
 import { getCharaPosition } from "./CharaManager";
 import { createButton, displayError } from "./UIManager";
+import { RelicIcon } from "./RelicIcon";
 
 export const open = (scene: BattlegroundScene) => new Promise<void>(async (resolve) => {
 
@@ -54,61 +55,14 @@ function relics(scene: BattlegroundScene, flyout: Flyout) {
 	flyout.add([bg, title]);
 
 	relics.forEach((relic, index) => {
-
 		const x = index * 210 + 180;
 		const y = 300;
-
 		const iconSize = 200;
 
 		const slot = scene.add
 			.image(x, y, images.slot.key)
 			.setDisplaySize(iconSize, iconSize);
-		const icon = scene.add
-			.image(x, y, relic)
-			.setDisplaySize(iconSize - 40, iconSize - 40);
-
-		icon.setInteractive({ draggable: true });
-
-		icon.on("drag", (p: Pointer) => {
-			icon.x = p.x;
-			icon.y = p.y;
-		});
-
-		icon.on("drop", (_p: Pointer, zone: Phaser.GameObjects.Zone) => {
-
-			if (!zone?.name.startsWith("slot")) {
-				tween({
-					targets: [icon],
-					x,
-					y
-				})
-				return;
-			}
-
-			const [_, x_, y_] = zone.name.split("-");
-
-			flyout.remove(icon);
-
-			icon.x = zone.x;
-			icon.y = zone.y;
-
-			playerForce.relics.push({
-				id: relic,
-				pic: relic,
-				position: { x: parseInt(x_), y: parseInt(y_), },
-				events: {
-					onBattleStart: () => {
-						tween({
-							targets: [icon],
-							scale: icon.scale * 1.2,
-							yoyo: true,
-							repeat: 0,
-						})
-					}
-				}
-			})
-
-		})
+		const icon = new RelicIcon(scene, x, y, relic, iconSize, flyout);
 
 		flyout.add([slot, icon]);
 	});
