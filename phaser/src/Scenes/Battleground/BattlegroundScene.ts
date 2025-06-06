@@ -204,9 +204,12 @@ export class BattlegroundScene extends Phaser.Scene {
             targetId: unit.id,
           });
           unit.xp = unit.xp - levels * 100;
-          unit.maxHp = unit.maxHp * (1.1 * levels);
-          unit.hp = unit.maxHp;
-          unit.attackPower += (levels * unit.attackPower * 0.1);
+
+          for (let i = 0; i < levels; i++) {
+            unit.maxHp = unit.maxHp * 1.1;
+            unit.hp = unit.maxHp;
+            unit.attackPower += unit.attackPower * 0.1;
+          }
           levelUp = true;
         }
 
