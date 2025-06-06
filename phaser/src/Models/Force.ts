@@ -1,7 +1,5 @@
-import { images } from "../assets";
 import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "../Scenes/Battleground/constants";
 import { goldChangeAnimation, scene } from "../Scenes/Battleground/Systems/UIManager";
-import { popText } from "../Systems/Chara/Animations/popText";
 import { Unit } from "./Unit";
 
 type Relic = {
@@ -22,25 +20,6 @@ export type Force = {
 };
 
 export const makeForce = (id: string): Force => {
-
-	const relics: Relic[] = [
-		{
-			id: "training_room",
-			pic: images.agility_training.key,
-			events: {
-				onBattleStart: () => {
-					popText({
-						text: "hello!",
-						targetId: ""
-					})
-				}
-			},
-			position: {
-				x: 1,
-				y: 1
-			}
-		}
-	];
 	return {
 		id,
 		name: "",
@@ -48,7 +27,7 @@ export const makeForce = (id: string): Force => {
 		gold: 10,
 		income: 5,
 		units: [],
-		relics
+		relics: []
 	}
 };
 

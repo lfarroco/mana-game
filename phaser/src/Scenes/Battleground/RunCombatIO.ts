@@ -30,6 +30,10 @@ async function setupWave(scene: BattlegroundScene) {
     })
   }));
 
+  scene.state.gameData.player.relics.forEach(r => {
+    r.events.onBattleStart && r.events.onBattleStart();
+  })
+
   scene.state.battleData.units
     .forEach(u =>
       u.events.onBattleStart.forEach(fn => fn(u))

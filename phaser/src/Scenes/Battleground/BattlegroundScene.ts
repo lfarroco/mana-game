@@ -125,15 +125,17 @@ export class BattlegroundScene extends Phaser.Scene {
     UIManager.createDropZone(this); // TODO: move to board module
     UIManager.updateUI();
 
-    [[0, 0], [0, 1], [1, 0], [1, 1]].forEach(([x, y]) => {
+
+    const relicSlots = [[0, 0], [0, 1], [1, 0], [1, 1]]
+    relicSlots.forEach(([x, y]) => {
 
 
-      const x_ = 150 + x * 200;
-      const y_ = 600 + y * 200;
+      const x_ = 200 + x * 200;
+      const y_ = 700 + y * 200;
       const w = 200;
       const h = 200;
       const zone = this.add.zone(x_, y_, w, h);
-      zone.setOrigin(0);
+      zone.setOrigin(0.5);
 
       zone.setName(`slot-${x}-${y}`);
 
@@ -143,18 +145,18 @@ export class BattlegroundScene extends Phaser.Scene {
       dropZoneDisplay.lineStyle(2, 0xffff00);
       dropZoneDisplay.fillStyle(0x00ffff, 0.3);
       dropZoneDisplay.fillRect(
-        x_, y_,
+        x_ - w / 2, y_ - h / 2,
         w, h
       );
       dropZoneDisplay.strokeRect(
-        x_, y_,
+        x_ - w / 2, y_ - h / 2,
         w, h
       );
 
       this.add.image(
         x_, y_,
         images.slot.key,
-      ).setOrigin(0)
+      ).setOrigin(0.5)
 
     })
 
