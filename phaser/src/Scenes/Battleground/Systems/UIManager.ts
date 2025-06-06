@@ -39,7 +39,7 @@ export function createButton(
 		text,
 		{
 			...constants.defaultTextConfig,
-			color: '#000000',
+			color: '#fff',
 			stroke: 'none',
 			strokeThickness: 0,
 		}).setOrigin(0.5);
@@ -48,15 +48,24 @@ export function createButton(
 
 	btnBg.on("pointerup", callback);
 	btnBg.on("pointerdown", () => {
-		buttonText.setShadow(0, 0, "#000000", 0, true, true);
+		buttonText.setShadow(0, 0, "#eaeaea", 0, true, true);
 	});
 	btnBg.on("pointerover", () => {
 		buttonText.setColor('#ffffff');
 		buttonText.setShadow(2, 2, "#000000", 2, true, true);
+
+		tween({
+			targets: [buttonText],
+			scale: 1.2,
+		})
 	});
 	btnBg.on("pointerout", () => {
-		buttonText.setColor('#000000');
+		buttonText.setColor('#fff');
 		buttonText.setShadow(0, 0, "#000000", 0, true, true);
+		tween({
+			targets: [buttonText],
+			scale: 1.0,
+		})
 	});
 
 	const container = scene.add.container(0, 0);
