@@ -125,6 +125,39 @@ export class BattlegroundScene extends Phaser.Scene {
     UIManager.createDropZone(this); // TODO: move to board module
     UIManager.updateUI();
 
+    [[0, 0], [0, 1], [1, 0], [1, 1]].forEach(([x, y]) => {
+
+
+      const x_ = 150 + x * 200;
+      const y_ = 600 + y * 200;
+      const w = 200;
+      const h = 200;
+      const zone = this.add.zone(x_, y_, w, h);
+      zone.setOrigin(0);
+
+      zone.setName(`slot-${x}-${y}`);
+
+      zone.setRectangleDropZone(w, h);
+
+      const dropZoneDisplay = this.add.graphics();
+      dropZoneDisplay.lineStyle(2, 0xffff00);
+      dropZoneDisplay.fillStyle(0x00ffff, 0.3);
+      dropZoneDisplay.fillRect(
+        x_, y_,
+        w, h
+      );
+      dropZoneDisplay.strokeRect(
+        x_, y_,
+        w, h
+      );
+
+      this.add.image(
+        x_, y_,
+        images.slot.key,
+      ).setOrigin(0)
+
+    })
+
     await Shop.open(this);
 
     //await EventSystem.evalEvent(EventSystem.starterEvent);

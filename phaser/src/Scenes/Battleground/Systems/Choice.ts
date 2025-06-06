@@ -2,8 +2,7 @@ import Phaser from "phaser";
 import { tween } from "../../../Utils/animation";
 import * as constants from "../constants";
 import { breakLines, pickRandom } from "../../../utils";
-import { getItem, Item } from "../../../Models/Item";
-import { playerForce } from "../../../Models/Force";
+import { Item } from "../../../Models/Item";
 import { images } from "../../../assets";
 
 export let scene: Phaser.Scene;
@@ -216,7 +215,6 @@ export const chooseItems = (pool: [key: string, Item][]) => new Promise<Choice>(
 
 			component.destroy();
 
-			playerForce.items.push(getItem(choice.value));
 
 			resolve(choice);
 		})

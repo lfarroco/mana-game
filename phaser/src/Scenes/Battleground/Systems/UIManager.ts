@@ -31,8 +31,8 @@ export function createButton(
 		x, y,
 		assets.images.button.key
 	)
-		.setOrigin(0.5)
-		.setDisplaySize(350, 100);
+		.setScale(0.2)
+		.setOrigin(0.5);
 
 	const buttonText = scene.add.text(
 		x, y,

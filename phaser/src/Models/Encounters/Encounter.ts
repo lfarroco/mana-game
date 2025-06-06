@@ -1,5 +1,4 @@
 import { Choice, displayChoices, newChoice } from "../../Scenes/Battleground/Systems/Choice";
-import { itemShop } from "../../Scenes/Battleground/Systems/ItemShop";
 import * as UnitManager from "../../Scenes/Battleground/Systems/CharaManager";
 import * as Chara from "../../Systems/Chara/Chara";
 import * as Tooltip from "../../Systems/Tooltip";
@@ -132,9 +131,6 @@ export const evalEvent = async (event: Encounter) => {
 			await pickUnit(event.triggers.choices, event.triggers.totalPicks, event.triggers.allowSkipping, event.triggers.title);
 			break;
 		case "item-shop":
-			await itemShop(
-				event.title,
-				event.triggers.choices());
 			break;
 		default:
 			const never_: never = event.triggers;

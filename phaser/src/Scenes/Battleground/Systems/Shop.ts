@@ -55,19 +55,50 @@ function relics(scene: BattlegroundScene, flyout: Flyout) {
 
 	relics.forEach((relic, index) => {
 
-		const x = index * 210 + 190;
-		const y = 300;
+		const x = index * 210 + 90;
+		const y = 200;
 
 		const iconSize = 200;
 
 		const slot = scene.add
 			.image(x, y, images.slot.key)
-			.setOrigin(0.5)
+			.setOrigin(0)
 			.setDisplaySize(iconSize, iconSize);
 		const icon = scene.add
-			.image(x, y, relic)
-			.setOrigin(0.5)
+			.image(x + 20, y + 20, relic)
+			.setOrigin(0)
 			.setDisplaySize(iconSize - 40, iconSize - 40);
+
+		icon.setInteractive({ draggable: true });
+
+		icon.on("dragstart", () => {
+			icon.setOrigin(0.5);
+		})
+		icon.on("drag", (p: Pointer) => {
+			icon.x = p.x;
+			icon.y = p.y;
+		});
+
+		icon.on("drop", (_p: Pointer, zone: Phaser.GameObjects.Zone) => {
+
+			icon.setOrigin(0);
+
+			if (!zone?.name.startsWith("slot")) {
+				tween({
+					targets: [icon],
+					x,
+					y
+				})
+				return;
+			}
+
+			const [_, x_, y_] = zone.name.split("-");
+
+			console.log(":::", x_, y_)
+			icon.x = zone.x + 20;
+			icon.y = zone.y + 20;
+
+		})
 
 		flyout.add([slot, icon]);
 	});
