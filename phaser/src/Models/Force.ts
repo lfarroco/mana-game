@@ -2,7 +2,7 @@ import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "../Scenes/Battleground/constants"
 import { goldChangeAnimation, scene } from "../Scenes/Battleground/Systems/UIManager";
 import { Unit } from "./Unit";
 
-type Relic = {
+export type Relic = {
 	id: string,
 	pic: string,
 	events: { [key: string]: () => void }

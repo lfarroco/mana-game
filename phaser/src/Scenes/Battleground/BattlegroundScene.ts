@@ -107,6 +107,9 @@ export class BattlegroundScene extends Phaser.Scene {
     const { state } = this;
 
     state.gameData.player.gold = 0;
+    state.gameData.player.units = [];
+    state.gameData.player.relics = [];
+    state.gameData.round = 1;
     updatePlayerGoldIO(10);
 
     this.sound.setVolume(0.05)
