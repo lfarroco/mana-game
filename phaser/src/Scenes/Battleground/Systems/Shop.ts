@@ -37,20 +37,22 @@ export const open = (scene: BattlegroundScene) => new Promise<void>(async (resol
 			// TODO: replace with drag and drop
 			card.zone.on("pointerup", () => {
 
+				if (state.gameData.player.units.length >= MAX_PARTY_SIZE) {
+					displayError("Your party is full! Discard a card or skip.");
+					return;
+				}
+
 				if (playerForce.gold < 3) {
 					displayError("You don't have enough gold!");
 					return;
 				}
+
 				updatePlayerGoldIO(-3);
 
 				Tooltip.hide();
 				flyout.remove(card.container);
 				card.zone.off("pointerup");
 
-				if (state.gameData.player.units.length >= MAX_PARTY_SIZE) {
-					displayError("Your party is full! Discard a card or skip.");
-					return;
-				}
 				const emptySlot = getEmptySlot(playerForce.units, playerForce.id);
 				if (!emptySlot) throw new Error("No empty slot found");
 
