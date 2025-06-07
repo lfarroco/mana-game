@@ -21,6 +21,7 @@ import { vignette } from "./Animations/vignette";
 import * as Shop from "./Systems/Shop";
 import { updatePlayerGoldIO } from "../../Models/Force";
 import { popText } from "../../Systems/Chara/Animations/popText";
+import * as RelicSlotSystem from "./Systems/RelicSlotSystem";
 
 export class BattlegroundScene extends Phaser.Scene {
 
@@ -125,41 +126,7 @@ export class BattlegroundScene extends Phaser.Scene {
     this.bgContainer.add([this.bgImage]);
     UIManager.createDropZone(this); // TODO: move to board module
     UIManager.updateUI();
-
-
-    const relicSlots = [[0, 0], [0, 1], [1, 0], [1, 1]]
-    relicSlots.forEach(([x, y]) => {
-
-
-      const x_ = 200 + x * 200;
-      const y_ = 700 + y * 200;
-      const w = 200;
-      const h = 200;
-      const zone = this.add.zone(x_, y_, w, h);
-      zone.setOrigin(0.5);
-
-      zone.setName(`slot-${x}-${y}`);
-
-      zone.setRectangleDropZone(w, h);
-
-      const dropZoneDisplay = this.add.graphics();
-      dropZoneDisplay.lineStyle(2, 0xffff00);
-      dropZoneDisplay.fillStyle(0x00ffff, 0.3);
-      dropZoneDisplay.fillRect(
-        x_ - w / 2, y_ - h / 2,
-        w, h
-      );
-      dropZoneDisplay.strokeRect(
-        x_ - w / 2, y_ - h / 2,
-        w, h
-      );
-
-      this.add.image(
-        x_, y_,
-        images.slot.key,
-      ).setOrigin(0.5)
-
-    })
+    RelicSlotSystem.setupRelicSlots(this);
 
     //Game loop
 
@@ -276,5 +243,3 @@ export class BattlegroundScene extends Phaser.Scene {
 }
 
 export default BattlegroundScene;
-
-
