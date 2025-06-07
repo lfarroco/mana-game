@@ -178,6 +178,7 @@ const pickUnit = async (
 						scene,
 						makeUnit(Force.playerForce.id, choice.value, vec2(0, 0)),
 					);
+					UnitManager.addCharaToState(chara);
 					chara.setPosition(
 						580 + 250 * index,
 						chara.height * -1.2,

@@ -50,7 +50,9 @@ export async function summonChara(
 
 	if (useSummonEffect) summonEffect(scene, vec);
 
-	const chara = new Chara.Chara(scene, unit)
+	const chara = new Chara.Chara(scene, unit);
+
+	addCharaToState(chara);
 
 	//Chara.addBoardEvents();
 
