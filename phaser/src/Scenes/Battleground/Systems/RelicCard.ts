@@ -6,7 +6,7 @@ import { tween } from "../../../Utils/animation";
 import BattlegroundScene from "../BattlegroundScene";
 import { displayError } from "./UIManager";
 
-export class RelicIcon extends Phaser.GameObjects.Image {
+export class RelicCard extends Phaser.GameObjects.Image {
 
 	id: string;
 	owned: boolean = false;
@@ -81,7 +81,7 @@ export class RelicIcon extends Phaser.GameObjects.Image {
 		if (occupier && this.owned) {
 			// switch bases
 			const occupierIcon = this.scene.children.list
-				.find((child) => child.name === occupier.id) as RelicIcon;
+				.find((child) => child.name === occupier.id) as RelicCard;
 
 			const thisRec = getState().gameData.player.relics.find(r => r.id === this.id)!;
 
