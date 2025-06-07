@@ -22,9 +22,18 @@ import * as Shop from "./Systems/Shop";
 import { updatePlayerGoldIO } from "../../Models/Force";
 import { popText } from "../../Systems/Chara/Animations/popText";
 import * as RelicSlotSystem from "./Systems/RelicSlotSystem";
+import { WaveOutcome } from "./RunCombatIO";
+import { Unit } from "../../Models/Unit";
+
+// Constants for BattlegroundScene specific game rules
+const INITIAL_PLAYER_GOLD = 10;
+const VICTORY_GOLD_REWARD = 5;
+const XP_PER_ENEMY = 15;
+const XP_FOR_LEVEL_UP = 100;
+const HP_MULTIPLIER_LEVEL_UP = 1.1;
+const ATTACK_POWER_MULTIPLIER_LEVEL_UP = 0.1; // Assuming this is a 10% increase
 
 export class BattlegroundScene extends Phaser.Scene {
-
   state: State;
   speed: number;
   bgContainer!: Phaser.GameObjects.Container;
@@ -98,21 +107,20 @@ export class BattlegroundScene extends Phaser.Scene {
 
   }
 
-  start = async () => {
-
+  private initializeNewGame(): void {
     //@ts-ignore
-    window.scene = this;
-
+    window.scene = this; // For debugging, consider removing for production
     const { state } = this;
-
     state.gameData.player.gold = 0;
     state.gameData.player.units = [];
     state.gameData.player.relics = [];
     state.gameData.round = 1;
-    updatePlayerGoldIO(10);
+    updatePlayerGoldIO(INITIAL_PLAYER_GOLD);
 
     this.sound.setVolume(0.05)
+  }
 
+  private setupSceneElements(): void {
     this.bgImage = this.add.image(
       0, 0,
       images.bg_forest.key,
@@ -120,7 +128,6 @@ export class BattlegroundScene extends Phaser.Scene {
       .setPosition(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2);
 
     this.bgContainer = this.add.container(0, 0);
-
     ControlsSystem.init(this);
 
     this.bgContainer.add([this.bgImage]);
@@ -128,102 +135,127 @@ export class BattlegroundScene extends Phaser.Scene {
     UIManager.updateUI();
     RelicSlotSystem.setupRelicSlots(this);
 
-    //Game loop
+  }
 
-    state.gameData.round = 1;
-    let isGameOver = false;
-    // Hours loop for each day
-    while (!isGameOver) {
+  private async handleShopPhase(): Promise<void> {
+    await Shop.open(this);
+  }
 
-      console.log("Round", this.state.gameData.round, "started");
+  private setupBattle(): { enemies: Unit[] } {
+    const { state } = this;
+    const cardPool = getAllCards();
+    const enemies = generateEnemyTeam(state.gameData.round, cardPool);
 
-      await Shop.open(this);
+    state.battleData.units = [...enemies, ...state.gameData.player.units];
 
-      const cardPool = getAllCards();
+    // Summon CPU units to the board
+    enemies.forEach(unit => {
+      UnitManager.summonChara(unit, false, false); // Assuming CPU units don't need summon/fade effects here
+    });
+    return { enemies };
+  }
 
-      const enemies = generateEnemyTeam(state.gameData.round, cardPool);
-      state.battleData.units = [...enemies, ...state.gameData.player.units];
+  private async executeCombat(): Promise<WaveOutcome> {
+    return runCombatIO(this);
+  }
 
-      state.battleData.units
-        .filter(u => u.force === constants.FORCE_ID_CPU)
-        .forEach(unit => {
-          UnitManager.summonChara(unit, false, false);
-        });
+  private resetPlayerUnitsForNewRound(): void {
+    this.state.gameData.player.units.forEach(unit => {
+      unit.charge = 0;
+      unit.refresh = 0;
+      unit.slowed = 0;
+      unit.hasted = 0;
+      unit.hp = unit.maxHp;
+      unit.statuses = {};
+    });
+  }
 
-      const result = await runCombatIO(this);
+  private async awardXPAndHandleLevelUps(enemiesDefeatedCount: number): Promise<void> {
+    const { state } = this;
+    const xpGained = enemiesDefeatedCount * XP_PER_ENEMY;
+    let anyUnitLeveledUp = false;
 
-      await delay(this, 500)
-
-      console.log("Combat result", result);
-
-      if (result === "player_won") {
-
-        await battleResultAnimation(this, "victory");
-
-        updatePlayerGoldIO(5)
-
-      } else {
-        await battleResultAnimation(this, "defeat");
-        isGameOver = true;
-
-        UIManager.createButton("new run", 300, 300, () => {
-          this.cleanup();
-          this.start();
-
-        })
-        UIManager.createButton("return to menu ", 300, 400, () => { this.scene.start("MainMenuScene") })
-        break;
-      }
-
-      state.gameData.player.units.forEach(unit => {
-        unit.charge = 0;
-        unit.refresh = 0;
-        unit.slowed = 0;
-        unit.hasted = 0;
-        unit.hp = unit.maxHp;
-        unit.statuses = {};
+    state.gameData.player.units.forEach(unit => {
+      popText({
+        text: `+${xpGained} XP`,
+        targetId: unit.id,
       });
+      unit.xp += xpGained;
+      const levelsGained = Math.floor(unit.xp / XP_FOR_LEVEL_UP);
 
-      state.gameData.player.units.forEach(unit => {
+      if (levelsGained > 0) {
+        anyUnitLeveledUp = true;
         popText({
-          text: `+15 xp`,
+          text: `Level up!`,
           targetId: unit.id,
         });
-      });
+        unit.xp -= levelsGained * XP_FOR_LEVEL_UP;
 
-      await delay(this, 500);
-
-      const xp = enemies.length * 15;
-
-      let levelUp = false;
-      state.gameData.player.units.forEach(unit => {
-        unit.xp += xp;
-        const levels = Math.floor(unit.xp / 100);
-        if (levels > 0) {
-          popText({
-            text: `Level up!`,
-            targetId: unit.id,
-          });
-          unit.xp = unit.xp - levels * 100;
-
-          for (let i = 0; i < levels; i++) {
-            unit.maxHp = unit.maxHp * 1.1;
-            unit.hp = unit.maxHp;
-            unit.attackPower += unit.attackPower * 0.1;
-          }
-          levelUp = true;
+        for (let i = 0; i < levelsGained; i++) {
+          unit.maxHp = Math.floor(unit.maxHp * HP_MULTIPLIER_LEVEL_UP);
+          unit.hp = unit.maxHp; // Refill HP on level up
+          unit.attackPower = Math.floor(unit.attackPower * (1 + ATTACK_POWER_MULTIPLIER_LEVEL_UP));
         }
-
-        UnitManager.getChara(unit.id).updateHpDisplay();
-      });
-
-      if (levelUp) {
-        await delay(this, 1000);
       }
+      UnitManager.getChara(unit.id).updateHpDisplay();
+    });
 
-      state.battleData.units = [];
+    if (anyUnitLeveledUp) {
+      await delay(this, 1000); // Delay to appreciate level up
+    }
+  }
 
-      await Shop.open(this);
+  private async handlePostCombat(combatResult: WaveOutcome, enemiesDefeated: Unit[]): Promise<boolean> {
+    const { state } = this;
+    let isGameOver = false;
+
+    await delay(this, 500); // Brief pause after combat ends
+    console.log("Combat result", combatResult);
+
+    if (combatResult === "player_won") {
+      await battleResultAnimation(this, "victory");
+      updatePlayerGoldIO(VICTORY_GOLD_REWARD);
+      this.resetPlayerUnitsForNewRound();
+      await this.awardXPAndHandleLevelUps(enemiesDefeated.length);
+    } else { // player_lost
+      await battleResultAnimation(this, "defeat");
+      isGameOver = true;
+      UIManager.createButton("new run", 300, 300, () => {
+        this.cleanup();
+        this.start(); // Restart the game
+      });
+      UIManager.createButton("return to menu", 300, 400, () => {
+        this.scene.start("MainMenuScene");
+      });
+    }
+
+    state.battleData.units = []; // Clear units from battle state for the next round
+    return isGameOver;
+  }
+
+  start = async () => {
+    this.initializeNewGame();
+    this.setupSceneElements();
+
+    const { state } = this;
+    state.gameData.round = 1;
+    let isGameOver = false;
+
+    while (!isGameOver) {
+      console.log("Round", this.state.gameData.round, "started");
+
+      await this.handleShopPhase();
+      const { enemies } = this.setupBattle();
+      const combatResult = await this.executeCombat();
+      isGameOver = await this.handlePostCombat(combatResult, enemies);
+
+      if (isGameOver) break;
+
+      // Potentially another shop phase or event before the next round starts
+      // For now, we'll assume one shop phase per round start as per original logic
+      // If you want a shop phase *after* combat and before the next round *officially* starts,
+      // you could call `await this.handleShopPhase();` here again.
+
       //await EventSystem.evalEvent(EventSystem.pickAHero);
 
       state.gameData.round += 1;
