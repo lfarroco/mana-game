@@ -21,7 +21,7 @@ import { vignette } from "./Animations/vignette";
 import * as Shop from "./Systems/Shop";
 import { updatePlayerGoldIO } from "../../Models/Force";
 import { popText } from "../../Systems/Chara/Animations/popText";
-import * as RelicSlotSystem from "./Systems/RelicSlotSystem";
+import * as Relic from "./Systems/Relic";
 import { WaveOutcome } from "./RunCombatIO";
 import { Unit } from "../../Models/Unit";
 
@@ -146,7 +146,7 @@ export class BattlegroundScene extends Phaser.Scene {
     this.bgContainer.add([this.bgImage]);
     UIManager.createDropZone(this); // TODO: move to board module
     UIManager.updateUI();
-    RelicSlotSystem.setupRelicSlots(this);
+    Relic.setupRelicSlots(this);
 
   }
 
