@@ -14,7 +14,7 @@ import BattlegroundScene from "../BattlegroundScene";
 import { FORCE_ID_PLAYER, MAX_PARTY_SIZE, SCREEN_WIDTH, titleTextConfig } from "../constants";
 import { getCharaPosition } from "./CharaManager";
 import { createButton, displayError } from "./UIManager";
-import { RelicIcon } from "./RelicIcon";
+import { RelicCard } from "./RelicCard";
 
 export const open = (scene: BattlegroundScene) => new Promise<void>(async (resolve) => {
 
@@ -62,7 +62,7 @@ function relics(scene: BattlegroundScene, flyout: Flyout) {
 		const slot = scene.add
 			.image(x, y, images.slot.key)
 			.setDisplaySize(iconSize, iconSize);
-		const icon = new RelicIcon(scene, x, y, relic, iconSize, flyout);
+		const icon = new RelicCard(scene, x, y, relic, iconSize, flyout);
 
 		flyout.add([slot, icon]);
 	});
