@@ -13,7 +13,7 @@ import BattlegroundScene from "../BattlegroundScene";
 import { FORCE_ID_PLAYER, MAX_PARTY_SIZE, SCREEN_WIDTH, titleTextConfig } from "../constants";
 import { addCharaToState, getCharaPosition } from "./CharaManager";
 import { createButton, displayError } from "./UIManager";
-import { RelicCard } from "./RelicCard";
+import { RelicCard } from "./Relic";
 import { Chara } from "../../../Systems/Chara/Chara";
 
 export const open = (scene: BattlegroundScene) => new Promise<void>(async (resolve) => {
