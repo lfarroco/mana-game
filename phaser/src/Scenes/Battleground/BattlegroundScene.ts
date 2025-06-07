@@ -31,7 +31,9 @@ const VICTORY_GOLD_REWARD = 5;
 const XP_PER_ENEMY = 15;
 const XP_FOR_LEVEL_UP = 100;
 const HP_MULTIPLIER_LEVEL_UP = 1.1;
-const ATTACK_POWER_MULTIPLIER_LEVEL_UP = 0.1; // Assuming this is a 10% increase
+const ATTACK_POWER_MULTIPLIER_LEVEL_UP = 0.1; // Represents a 10% increase factor (e.g., newAttack = oldAttack * (1 + 0.1))
+const DEFAULT_SCENE_SOUND_VOLUME = 0.05;
+const LEVEL_UP_APPRECIATION_DELAY = 1000; // ms
 
 export class BattlegroundScene extends Phaser.Scene {
   state: State;
@@ -72,8 +74,10 @@ export class BattlegroundScene extends Phaser.Scene {
 
     TooltipSystem.init(this);
 
-    //@ts-ignore
-    window.bg = this;
+    if (process.env.NODE_ENV === 'development') {
+      //@ts-ignore
+      window.bg = this;
+    }
 
   }
 
@@ -108,8 +112,12 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
   private initializeNewGame(): void {
-    //@ts-ignore
-    window.scene = this; // For debugging, consider removing for production
+
+    if (process.env.NODE_ENV === 'development') {
+      //@ts-ignore
+      window.scene = this;
+    }
+
     const { state } = this;
     state.gameData.player.gold = 0;
     state.gameData.player.units = [];
@@ -117,7 +125,7 @@ export class BattlegroundScene extends Phaser.Scene {
     state.gameData.round = 1;
     updatePlayerGoldIO(INITIAL_PLAYER_GOLD);
 
-    this.sound.setVolume(0.05)
+    this.sound.setVolume(this.state.options.soundVolume ?? DEFAULT_SCENE_SOUND_VOLUME);
   }
 
   private setupSceneElements(): void {
@@ -201,7 +209,7 @@ export class BattlegroundScene extends Phaser.Scene {
     });
 
     if (anyUnitLeveledUp) {
-      await delay(this, 1000); // Delay to appreciate level up
+      await delay(this, LEVEL_UP_APPRECIATION_DELAY); // Delay to appreciate level up
     }
   }
 
