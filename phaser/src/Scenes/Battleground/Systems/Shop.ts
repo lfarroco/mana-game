@@ -62,7 +62,9 @@ function relics(scene: BattlegroundScene, flyout: Flyout) {
 		const slot = scene.add
 			.image(x, y, images.slot.key)
 			.setDisplaySize(iconSize, iconSize);
-		const icon = new RelicCard(scene, x, y, relic, iconSize, flyout);
+		const icon = new RelicCard(scene, x, y, relic, 200 - 40, () => {
+			flyout.remove(icon)
+		});
 
 		flyout.add([slot, icon]);
 	});
