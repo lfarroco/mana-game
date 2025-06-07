@@ -11,7 +11,7 @@ import { pickRandom } from "../../../utils";
 import { tween } from "../../../Utils/animation";
 import BattlegroundScene from "../BattlegroundScene";
 import { FORCE_ID_PLAYER, MAX_PARTY_SIZE, SCREEN_WIDTH, titleTextConfig } from "../constants";
-import { getCharaPosition } from "./CharaManager";
+import { addCharaToState, getCharaPosition } from "./CharaManager";
 import { createButton, displayError } from "./UIManager";
 import { RelicCard } from "./RelicCard";
 import { Chara } from "../../../Systems/Chara/Chara";
@@ -87,16 +87,16 @@ function tavern(state: State, flyout: Flyout) {
 	pickRandom(filtered, 3)
 		.forEach((spec, index) => {
 			const unit = makeUnit(FORCE_ID_PLAYER, spec.name, vec2(0, 0));
-			const card = new Chara(flyout.scene, unit);
+			const chara = new Chara(flyout.scene, unit);
 
-			card.setPosition(950 + index * 200, 300);
+			addCharaToState(chara);
 
-			//card.zone.setInteractive({ draggable: true });
+			chara.setPosition(950 + index * 200, 300);
 
-			card.addTooltip();
+			chara.addTooltip();
 
 			// TODO: replace with drag and drop
-			card.on("pointerup", () => {
+			chara.on("pointerup", () => {
 
 				if (state.gameData.player.units.length >= MAX_PARTY_SIZE) {
 					displayError("Your party is full! Discard a card or skip.");
@@ -111,18 +111,18 @@ function tavern(state: State, flyout: Flyout) {
 				updatePlayerGoldIO(-3);
 
 				Tooltip.hide();
-				flyout.remove(card);
-				card.off("pointerup");
+				flyout.remove(chara);
+				chara.off("pointerup");
 
 				const emptySlot = getEmptySlot(playerForce.units, playerForce.id);
 				if (!emptySlot) throw new Error("No empty slot found");
 
-				card.unit.position = emptySlot;
-				state.gameData.player.units.push(card.unit);
+				chara.unit.position = emptySlot;
+				state.gameData.player.units.push(chara.unit);
 
-				const pos = getCharaPosition(card.unit);
+				const pos = getCharaPosition(chara.unit);
 				tween({
-					targets: [card],
+					targets: [chara],
 					...pos,
 					onComplete: () => {
 						//card.addBoardEvents();
@@ -131,7 +131,7 @@ function tavern(state: State, flyout: Flyout) {
 
 			});
 
-			flyout.add(card);
+			flyout.add(chara);
 		});
 }
 
