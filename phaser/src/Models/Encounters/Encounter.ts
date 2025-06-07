@@ -75,7 +75,7 @@ export const starterEvent: Encounter = {
 		allowSkipping: false,
 		choices: () => {
 
-			const playerJobs = Force.playerForce.units.map(u => u.job);
+			const playerJobs = Force.playerForce.units.map(u => u.cardId);
 			const remaning = getAllCards().filter(j => !playerJobs.includes(j.name));
 			return pickRandom(remaning, 3)
 				.map(card => newChoice(card.pic, card.name, "", card.name))
@@ -97,7 +97,7 @@ export const pickAHero: Encounter = {
 
 			const filtered =
 				getAllCards().filter(card =>
-					!state.gameData.player.units.map(u => u.job).includes(card.name)
+					!state.gameData.player.units.map(u => u.cardId).includes(card.name)
 				);
 
 			return pickRandom(filtered, 3)

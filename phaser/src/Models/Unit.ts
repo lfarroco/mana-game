@@ -4,10 +4,12 @@ import { getCard } from "./Card";
 import { MELEE, RANGED, TraitData, traitSpecs } from "./Traits";
 import { UnitEvent, UnitEvents, UNIT_EVENTS } from "./UnitEvents";
 
+// A Unit holds data about a game character
+// It is created based on a card "spec"
 export type Unit = {
   id: string;
+  cardId: string;
   name: string;
-  job: string;
   pic: string;
   force: string;
   position: Vec2;
@@ -54,7 +56,7 @@ export const makeUnit = (force: string, cardName: string, position = vec2Zero())
   const unit = {
     ...card,
     id: v4(),
-    job: cardName,
+    cardId: card.id,
     force,
     position,
     maxHp: card.hp,

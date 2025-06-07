@@ -2,8 +2,10 @@ import * as t from "./Traits";
 
 let cards = new Map<string, Card>();
 
-//@ts-ignore
-window.cards = cards;
+if (process.env.NODE_ENV === 'development') {
+  //@ts-ignore
+  window.cards = cards;
+}
 
 const registerCard = (card: Card): void => {
   if (cards.has(card.name)) {
@@ -29,7 +31,6 @@ export type CardCollection = {
   pic: string;
   cards: Card[];
   opponents: Opponent[]
-
 }
 
 type Opponent = {
@@ -49,6 +50,7 @@ export type CardData = {
 }
 
 export type Card = {
+  id: string;
   pic: string;
   name: string;
   description: string;

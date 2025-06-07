@@ -13,6 +13,7 @@ import { popText } from "./Animations/popText";
 import { criticalDamageDisplay } from "../../Effects";
 import { images } from "../../assets";
 
+// A Chara is the graphical representation of a Unit
 export class Chara extends Phaser.GameObjects.Container {
 	public unit: Unit;
 	public id: string; // Alias for unit.id for convenience if needed, or use this.unit.id directly

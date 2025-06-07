@@ -7,7 +7,7 @@ import { traitSpecs } from "../../Models/Traits";
 
 export const performAction = (scene: BattlegroundScene) => (unit: Unit) => async () => {
 
-	console.log("[action] :: ", unit.job, ":: start", unit.id)
+	console.log("[action] :: ", unit.cardId, ":: start", unit.id)
 
 	highlightCardAnimation(getChara(unit.id))
 
@@ -25,6 +25,6 @@ export const performAction = (scene: BattlegroundScene) => (unit: Unit) => async
 		});
 	});
 
-	console.log("[action] :: ", unit.job, ":: end")
+	console.log("[action] :: ", unit.cardId, ":: end")
 
 };
