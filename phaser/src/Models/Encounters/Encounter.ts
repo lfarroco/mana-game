@@ -174,14 +174,15 @@ const pickUnit = async (
 
 			const charas = await Promise.all(
 				genChoices().map((choice, index) => {
-					const chara = Chara.createCard(
+					const chara = new Chara.Chara(
+						scene,
 						makeUnit(Force.playerForce.id, choice.value, vec2(0, 0)),
 					);
-					chara.container.setPosition(
+					chara.setPosition(
 						580 + 250 * index,
-						chara.sprite.height * -1.2,
+						chara.height * -1.2,
 					);
-					flyout.add(chara.container);
+					flyout.add(chara);
 					return chara
 				})
 			);
@@ -190,13 +191,13 @@ const pickUnit = async (
 				await delay(scene, 100 + (150 * index));
 
 				await tween({
-					targets: [chara.container],
+					targets: [chara],
 					y: 250,
 				});
 
-				chara.zone.setInteractive({ draggable: true });
+				chara.setInteractive({ draggable: true });
 
-				Chara.addTooltip(chara);
+				chara.addTooltip();
 
 
 				const pick = async () => {
@@ -220,7 +221,7 @@ const pickUnit = async (
 				const addCardToBoard = async (slot: Vec2) => {
 
 					// Remove chara otherwise it will be slided out with the flyout as well
-					flyout.remove(chara.container);
+					flyout.remove(chara);
 
 					picks++;
 
@@ -232,10 +233,10 @@ const pickUnit = async (
 						if (chara.id === c.id) {
 							const vec = UnitManager.getCharaPosition(c.unit);
 							tween({
-								targets: [c.container],
+								targets: [c],
 								...vec,
 							});
-							Chara.addBoardEvents(c);
+							//Chara.addBoardEvents();
 							continue;
 						};
 
@@ -274,7 +275,7 @@ const pickUnit = async (
 						occupierChara.unit.position = slot!;
 
 						tween({
-							targets: [occupierChara.container],
+							targets: [occupierChara],
 							...UnitManager.getCharaPosition(occupierChara.unit)
 						})
 					}
@@ -289,14 +290,14 @@ const pickUnit = async (
 				}
 
 				const dragStartHandler = () => {
-					flyout.remove(chara.container);
+					flyout.remove(chara);
 					Tooltip.hide();
 				}
 
 				const dragHandler = (pointer: Phaser.Input.Pointer) => {
 
-					chara.container.x = pointer.x;
-					chara.container.y = pointer.y;
+					chara.x = pointer.x;
+					chara.y = pointer.y;
 				}
 
 				const dropHandler = (pointer: Pointer) => {
@@ -307,33 +308,33 @@ const pickUnit = async (
 					if (!inBoard && !wasDrag) {
 						pick();
 
-						chara.zone.off('drag', dragHandler);
-						chara.zone.off('pointerup', dropHandler);
-						chara.zone.off('dragstart', dragStartHandler);
+						chara.off('drag', dragHandler);
+						chara.off('pointerup', dropHandler);
+						chara.off('dragstart', dragStartHandler);
 						return
 					}
 					if (inBoard && wasDrag) {
 						handleDrop(pointer);
-						chara.zone.off('drag', dragHandler);
-						chara.zone.off('pointerup', dropHandler);
-						chara.zone.off('dragstart', dragStartHandler);
+						chara.off('drag', dragHandler);
+						chara.off('pointerup', dropHandler);
+						chara.off('dragstart', dragStartHandler);
 						return;
 					}
 
 					// go back to original position
 					tween({
-						targets: [chara.container],
+						targets: [chara],
 						x: 580 + 250 * index,
 						y: 250
 					});
 
-					flyout.add(chara.container);
+					flyout.add(chara);
 
 				}
 
-				chara.zone.on('dragstart', dragStartHandler);
-				chara.zone.on('drag', dragHandler);
-				chara.zone.on('pointerup', dropHandler);
+				chara.on('dragstart', dragStartHandler);
+				chara.on('drag', dragHandler);
+				chara.on('pointerup', dropHandler);
 
 			});
 
@@ -391,7 +392,7 @@ const pickUnit = async (
 
 function slideOutCard(c: Chara.Chara) {
 	tween({
-		targets: [c.container],
+		targets: [c],
 		y: -100,
 		onComplete: () => {
 			UnitManager.destroyChara(c.id);

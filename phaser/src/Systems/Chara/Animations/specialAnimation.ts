@@ -7,7 +7,7 @@ export async function specialAnimation(activeChara: Chara) {
 	const { scene, unit } = activeChara;
 
 	const pic = scene.add.image(
-		activeChara.container.x, activeChara.container.y,
+		activeChara.x, activeChara.y,
 		"charas/" + unit.job
 	)
 		.setDisplaySize(TILE_WIDTH, TILE_HEIGHT)

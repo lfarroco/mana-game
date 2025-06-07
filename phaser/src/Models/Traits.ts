@@ -2,7 +2,6 @@
 // feature like "taunt", "flying", "trample", etc.
 
 import { popText } from "../Systems/Chara/Animations/popText";
-import { damageUnit, healUnit, updateUnitAttribute } from "../Systems/Chara/Chara";
 import { pickRandom } from "../utils";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../Scenes/Battleground/constants";
 import { addStatus, endStatus, State } from "./State";
@@ -140,7 +139,7 @@ export const LONE_WOLF: Trait = makeTrait({
 				});
 			if (neighboringUnits.length === 0) {
 				await popText({ text: "+Shy", targetId: unit.id, speed: 2 });
-				updateUnitAttribute(unit, "maxHp", 30);
+				getChara(unit.id).updateUnitAttribute("maxHp", 30);
 			}
 		}],
 		onLeavePosition: [(unit) => async () => {
@@ -150,7 +149,7 @@ export const LONE_WOLF: Trait = makeTrait({
 				});
 			if (neighboringUnits.length === 0) {
 				await popText({ text: "-Shy", targetId: unit.id, speed: 2 });
-				updateUnitAttribute(unit, "maxHp", -30);
+				getChara(unit.id).updateUnitAttribute("maxHp", -30);
 			}
 		}]
 	}
@@ -167,14 +166,14 @@ export const VANGUARD: Trait = makeTrait({
 			if (unit.position.x !== frontline) return;
 
 			await popText({ text: "+Vanguard", targetId: unit.id });
-			await updateUnitAttribute(unit, "attackPower", 5);
+			getChara(unit.id).updateUnitAttribute("attackPower", 5);
 		}],
 		onLeavePosition: [(unit) => async () => {
 			const frontline = LINES[unit.force].FRONT;
 			if (unit.position.x !== frontline) return;
 
 			await popText({ text: "-Vanguard", targetId: unit.id });
-			await updateUnitAttribute(unit, "attackPower", -5);
+			getChara(unit.id).updateUnitAttribute("attackPower", -5);
 		}]
 	}
 });
@@ -187,7 +186,7 @@ export const BATTLE_HUNGER: Trait = makeTrait({
 	events: {
 		onAttackByMe: [(unit, _target) => async () => {
 			await popText({ text: "On attack: Battle Hunger", targetId: unit.id, speed: 2 });
-			await updateUnitAttribute(unit, "attackPower", 1);
+			getChara(unit.id).updateUnitAttribute("attackPower", 1);
 		}]
 	}
 });
@@ -200,11 +199,11 @@ export const SHARP_EYES: Trait = makeTrait({
 	events: {
 		onEnterPosition: [(unit) => async () => {
 			await popText({ text: "+Sharp Eyes", targetId: unit.id });
-			updateUnitAttribute(unit, "crit", 10);
+			getChara(unit.id).updateUnitAttribute("crit", 10);
 		}],
 		onLeavePosition: [(unit) => async () => {
 			await popText({ text: "-Sharp Eyes", targetId: unit.id });
-			updateUnitAttribute(unit, "crit", -10);
+			getChara(unit.id).updateUnitAttribute("crit", -10);
 		}]
 	}
 });
@@ -230,7 +229,8 @@ export const PROTECTOR: Trait = makeTrait({
 				})
 			if (neighboringUnits.length > 0) {
 				await popText({ text: "+Protector", targetId: unit.id, speed: 2 });
-				updateUnitAttribute(unit, "defense", 5);
+
+				getChara(unit.id).updateUnitAttribute("defense", 10);
 			}
 		}],
 		onLeavePosition: [(unit) => async () => {
@@ -240,7 +240,7 @@ export const PROTECTOR: Trait = makeTrait({
 				})
 			if (neighboringUnits.length > 0) {
 				await popText({ text: "-Protector", targetId: unit.id, speed: 2 });
-				updateUnitAttribute(unit, "defense", -5);
+				getChara(unit.id).updateUnitAttribute("defense", -10);
 			}
 		}]
 	}
@@ -256,13 +256,13 @@ export const SNIPER = makeTrait({
 			if (!isInBackline(unit)) return;
 
 			await popText({ text: "+Sniper", targetId: unit.id, speed: 2 });
-			updateUnitAttribute(unit, "attackPower", 10);
+			getChara(unit.id).updateUnitAttribute("attackPower", 10);
 		}],
 		onLeavePosition: [unit => async () => {
 			if (!isInBackline(unit)) return;
 
 			await popText({ text: "-Sniper", targetId: unit.id, speed: 2 });
-			updateUnitAttribute(unit, "attackPower", -10);
+			getChara(unit.id).updateUnitAttribute("attackPower", -10);
 		}]
 	}
 });
@@ -368,7 +368,7 @@ export const BERSERK = makeTrait({
 			const hasBerserk = unit.statuses["berserk"];
 			if (hasBerserk) return;
 			await popText({ text: "On Half HP: Berserk", targetId: unit.id, speed: 2 });
-			updateUnitAttribute(unit, "attackPower", 15);
+			getChara(unit.id).updateUnitAttribute("attackPower", 15);
 			addStatus(unit, "berserk");
 		}]
 	}
@@ -413,7 +413,7 @@ export const SPLASH = makeTrait({
 			const neighboringUnits = state.battleData.units
 				.filter(u => u.position.x === target.position.x && u.id !== unit.id);
 			for (const neighboringUnit of neighboringUnits) {
-				await damageUnit(neighboringUnit.id, damage * 0.4, isCritical);
+				await getChara(neighboringUnit.id).damageUnit(damage * 0.4, isCritical);
 			}
 		}]
 	}
@@ -457,7 +457,7 @@ export const RALLY = makeTrait({
 			const neighboringUnits = getColumnNeighbors(state, unit)
 			for (const neighboringUnit of neighboringUnits) {
 				await popText({ text: "+Rally", targetId: neighboringUnit.id, speed: 2 });
-				updateUnitAttribute(neighboringUnit, "attackPower", 5);
+				getChara(neighboringUnit.id).updateUnitAttribute("attackPower", 5)
 			}
 		}]
 	}
@@ -470,7 +470,7 @@ export const EVADE = makeTrait({
 	categories: [TRAIT_CATEGORY_DEFENSIVE],
 	events: {
 		onBattleStart: [(unit) => async () => {
-			updateUnitAttribute(unit, "evade", 20);
+			getChara(unit.id).updateUnitAttribute("evade", 20);
 		}]
 	}
 });
@@ -485,7 +485,7 @@ export const CURSE = makeTrait({
 			if (evaded) return;
 
 			await popText({ text: "Curse", targetId: target.id, speed: 2 });
-			updateUnitAttribute(target, "attackPower", -5);
+			getChara(target.id).updateUnitAttribute("defense", -5);
 		}]
 	}
 });
@@ -496,10 +496,10 @@ export const LIFESTEAL = makeTrait({
 	description: "Heals 50% of the damage dealt",
 	categories: [TRAIT_CATEGORY_DEFENSIVE],
 	events: {
-		onAfterAttackByMe: [(unit, _target, damage, _critical, evaded) => async () => {
+		onAfterAttackByMe: [(unit, _target, _damage, _critical, evaded) => async () => {
 			if (evaded) return;
 			await popText({ text: "Lifesteal", targetId: unit.id, speed: 2 });
-			healUnit(unit, damage * 0.5);
+			//healUnit(unit, damage * 0.5);
 		}]
 	}
 });
@@ -515,7 +515,7 @@ export const LACERATE = makeTrait({
 			await popText({ text: "Lacerate", targetId: target.id, speed: 2 });
 			addStatus(target, "lacerate", 2, u => async () => {
 				await popText({ text: "Lacerate", targetId: u.id, speed: 2 });
-				damageUnit(u.id, 10);
+				//damageUnit(u.id, 10);
 			});
 		}]
 	}
@@ -532,7 +532,7 @@ export const BURN = makeTrait({
 			await popText({ text: "Burn", targetId: target.id, speed: 2 });
 			addStatus(target, "burn", 2, u => async () => {
 				await popText({ text: "Burn", targetId: u.id, speed: 2 });
-				damageUnit(u.id, 5);
+				//damageUnit(u.id, 5);
 			});
 		}]
 	}
@@ -546,7 +546,7 @@ export const REGENERATE = makeTrait({
 	events: {
 		onTurnEnd: [(unit) => async () => {
 			await popText({ text: "Regenerate", targetId: unit.id, speed: 2 });
-			healUnit(unit, 15);
+			//healUnit(unit, 15);
 		}]
 	}
 });
@@ -643,8 +643,8 @@ export const UNDEAD_STRENGTH = makeTrait({
 			const undeadAllies = allies.filter(u => u.traits.some(t => t.id === UNDEAD.id));
 			for (const undead of undeadAllies) {
 				await popText({ text: "+Undead Strength", targetId: undead.id, speed: 2 });
-				updateUnitAttribute(undead, "attackPower", 20);
-				updateUnitAttribute(undead, "maxHp", 20);
+				// updateUnitAttribute(undead, "attackPower", 20);
+				// updateUnitAttribute(undead, "maxHp", 20);
 			}
 		}]
 	}

@@ -5,7 +5,6 @@ import { playerForce, updatePlayerGoldIO } from "../../../Models/Force";
 import { vec2 } from "../../../Models/Geometry";
 import { State } from "../../../Models/State";
 import { makeUnit } from "../../../Models/Unit";
-import { addBoardEvents, addTooltip, createCard } from "../../../Systems/Chara/Chara";
 import { Flyout } from "../../../Systems/Flyout";
 import * as Tooltip from "../../../Systems/Tooltip";
 import { pickRandom } from "../../../utils";
@@ -15,6 +14,7 @@ import { FORCE_ID_PLAYER, MAX_PARTY_SIZE, SCREEN_WIDTH, titleTextConfig } from "
 import { getCharaPosition } from "./CharaManager";
 import { createButton, displayError } from "./UIManager";
 import { RelicCard } from "./RelicCard";
+import { Chara } from "../../../Systems/Chara/Chara";
 
 export const open = (scene: BattlegroundScene) => new Promise<void>(async (resolve) => {
 
@@ -87,16 +87,16 @@ function tavern(state: State, flyout: Flyout) {
 	pickRandom(filtered, 3)
 		.forEach((spec, index) => {
 			const unit = makeUnit(FORCE_ID_PLAYER, spec.name, vec2(0, 0));
-			const card = createCard(unit);
+			const card = new Chara(flyout.scene, unit);
 
-			card.container.setPosition(950 + index * 200, 300);
+			card.setPosition(950 + index * 200, 300);
 
-			card.zone.setInteractive({ draggable: true });
+			//card.zone.setInteractive({ draggable: true });
 
-			addTooltip(card);
+			card.addTooltip();
 
 			// TODO: replace with drag and drop
-			card.zone.on("pointerup", () => {
+			card.on("pointerup", () => {
 
 				if (state.gameData.player.units.length >= MAX_PARTY_SIZE) {
 					displayError("Your party is full! Discard a card or skip.");
@@ -111,8 +111,8 @@ function tavern(state: State, flyout: Flyout) {
 				updatePlayerGoldIO(-3);
 
 				Tooltip.hide();
-				flyout.remove(card.container);
-				card.zone.off("pointerup");
+				flyout.remove(card);
+				card.off("pointerup");
 
 				const emptySlot = getEmptySlot(playerForce.units, playerForce.id);
 				if (!emptySlot) throw new Error("No empty slot found");
@@ -122,16 +122,16 @@ function tavern(state: State, flyout: Flyout) {
 
 				const pos = getCharaPosition(card.unit);
 				tween({
-					targets: [card.container],
+					targets: [card],
 					...pos,
 					onComplete: () => {
-						addBoardEvents(card);
+						//card.addBoardEvents();
 					}
 				});
 
 			});
 
-			flyout.add(card.container);
+			flyout.add(card);
 		});
 }
 

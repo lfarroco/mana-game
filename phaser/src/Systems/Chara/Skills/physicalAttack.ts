@@ -1,6 +1,6 @@
 import { impactEffect } from "../../../Effects";
 import { getState } from "../../../Models/State";
-import { Chara, damageUnit } from "../Chara";
+import { Chara } from "../Chara";
 
 export async function physicalAttack(
 	activeChara: Chara,
@@ -11,9 +11,9 @@ export async function physicalAttack(
 
 	impactEffect({
 		scene,
-		location: targetChara.container,
-		pointA: activeChara.container,
-		pointB: targetChara.container,
+		location: targetChara,
+		pointA: activeChara,
+		pointB: targetChara,
 		speed,
 	});
 
@@ -46,7 +46,7 @@ export async function physicalAttack(
 			.onEvadeByMe
 			.map(fn => fn(targetChara.unit, activeChara.unit)())
 	} else {
-		damageUnit(targetChara.id, damage, isCritical);
+		targetChara.damageUnit(damage, isCritical);
 	}
 
 	activeChara.unit.events

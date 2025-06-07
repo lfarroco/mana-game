@@ -6,12 +6,12 @@ export async function highlightCardAnimation(
 ) {
 
 	await tween({
-		targets: [activeChara.container],
+		targets: [activeChara],
 		scale: 1.1,
 	})
 
 	await tween({
-		targets: [activeChara.container],
+		targets: [activeChara],
 		scale: 1,
 	})
 

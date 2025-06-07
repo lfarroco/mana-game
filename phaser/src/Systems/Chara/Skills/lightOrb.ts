@@ -5,7 +5,6 @@ import { GlowingOrb } from "../../../Effects/GlowingOrb";
 import { delay } from "../../../Utils/animation";
 import { approach } from "../approach";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
-import { damageUnit } from "../Chara";
 
 export const lightOrb = (
 	scene: BattlegroundScene
@@ -23,14 +22,14 @@ export const lightOrb = (
 	const targetChara = UnitManager.getChara(target.id);
 
 	const orb = new GlowingOrb(scene,
-		activeChara.container.x, activeChara.container.y,
-		targetChara.container,
+		activeChara.x, activeChara.y,
+		targetChara,
 		500 / state.options.speed
 	).setScale(0.5);
 
 	await delay(scene, 500);
 
-	await damageUnit(targetChara.id, damage);
+	await targetChara.damageUnit(damage);
 
 	await delay(scene, 1000);
 

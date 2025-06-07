@@ -3,7 +3,6 @@ import { asVec2, Vec2 } from "../../../Models/Geometry";
 import { delay } from "../../../Utils/animation";
 import { Unit } from "../../../Models/Unit";
 import { getUnitsByProximity } from "../../../Models/Board";
-import { healUnit } from "../Chara";
 import { BattlegroundScene } from "../../../Scenes/Battleground/BattlegroundScene";
 import { EnergyBeam } from "../../../Effects/EnergyBeam";
 import { healingHitEffect } from "../../../Effects/healingHitEffect";
@@ -42,12 +41,12 @@ export async function healingWave(scene: BattlegroundScene, unit: Unit) {
 	const top3 = hurtAllies.slice(0, 3);
 
 	top3.forEach(ally => {
-		healUnit(ally, skill.power);
+		UnitManager.getChara(ally.id).healUnit(skill.power);
 	});
 
 	const charas = [UnitManager.getChara(unit.id)].concat(top3.map(u => UnitManager.getChara(u.id)))
 
-	await animation(scene, charas.map(c => asVec2(c.container)));
+	await animation(scene, charas.map(c => asVec2(c)));
 
 }
 

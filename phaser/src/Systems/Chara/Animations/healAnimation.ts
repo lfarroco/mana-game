@@ -1,5 +1,4 @@
 import { getSkill, HEAL } from "../../../Models/Skill";
-import { healUnit } from "../Chara";
 import { Unit, unitLog } from "../../../Models/Unit";
 import { popText } from "./popText";
 import { delay } from "../../../Utils/animation";
@@ -93,7 +92,7 @@ export async function healAnimation(
                `);
 
     const shader = scene.add.shader(effectShader,
-        targetChara.container.x, targetChara.container.y,
+        targetChara.x, targetChara.y,
         128, 128)
         .setOrigin(0.5, 0.5);
 
@@ -103,6 +102,6 @@ export async function healAnimation(
 
     shader.destroy();
 
-    healUnit(target, 50);
+    UnitManager.getChara(target.id).healUnit(50);
 
 }

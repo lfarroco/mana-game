@@ -26,7 +26,7 @@ export async function slash(
 	// return to the original position
 	const position = UnitManager.getCharaPosition(unit);
 	await tween({
-		targets: [activeChara.container],
+		targets: [activeChara],
 		...position,
 		duration: 100,
 	});
