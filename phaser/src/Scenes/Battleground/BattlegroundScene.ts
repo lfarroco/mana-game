@@ -161,18 +161,16 @@ export class BattlegroundScene extends Phaser.Scene {
 
     })
 
-    await Shop.open(this);
-
-    //await EventSystem.evalEvent(EventSystem.starterEvent);
-
-    //Infinite day loop
-    console.log("Round", this.state.gameData.round, "started");
+    //Game loop
 
     state.gameData.round = 1;
     let isGameOver = false;
     // Hours loop for each day
     while (!isGameOver) {
-      state.battleData.units = [];
+
+      console.log("Round", this.state.gameData.round, "started");
+
+      await Shop.open(this);
 
       const cardPool = getAllCards();
 
@@ -255,6 +253,8 @@ export class BattlegroundScene extends Phaser.Scene {
       if (levelUp) {
         await delay(this, 1000);
       }
+
+      state.battleData.units = [];
 
       await Shop.open(this);
       //await EventSystem.evalEvent(EventSystem.pickAHero);
