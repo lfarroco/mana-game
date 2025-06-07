@@ -1,7 +1,6 @@
 import * as uuid from "uuid";
-import { Relic, playerForce } from "../../../Models/Force";
+import { Relic, playerForce, updatePlayerGoldIO } from "../../../Models/Force";
 import { getState } from "../../../Models/State";
-import { Flyout } from "../../../Systems/Flyout";
 import { tween } from "../../../Utils/animation";
 import BattlegroundScene from "../BattlegroundScene";
 import { displayError } from "./UIManager";
@@ -11,6 +10,7 @@ export class RelicCard extends Phaser.GameObjects.Image {
 	id: string;
 	owned: boolean = false;
 	private wasDroppedOnZone = false;
+	private wasDragged = false;
 
 	constructor(
 		scene: BattlegroundScene,
@@ -18,10 +18,10 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		public baseY: number,
 		public relic: string,
 		public iconSize: number,
-		public flyout: Flyout
+		public onAcquire: () => void
 	) {
 		super(scene, baseX, baseY, relic);
-		this.setDisplaySize(iconSize - 40, iconSize - 40);
+		this.setDisplaySize(iconSize, iconSize);
 		scene.add.existing(this);
 
 		this.setInteractive({ draggable: true });
@@ -29,6 +29,8 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		this.on("drag", (p: Pointer) => {
 			this.x = p.x;
 			this.y = p.y;
+
+			this.wasDragged = true;
 		});
 
 		this.on("dragstart", () => {
@@ -37,12 +39,62 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		this.on("drop", this.handleDrop);
 		this.on("dragend", this.handleDragEnd);
 
+		this.on("pointerup", this.handlePointerUp)
+
 		this.id = uuid.v4();
 		this.setName(this.id);
+	}
+
+	handlePointerUp = () => {
+
+		if (this.wasDragged) {
+			this.wasDragged = false;
+			return;
+		}
+
+		this.wasDragged = false;
+
+		const state = getState();
+
+		if (state.gameData.player.gold < 3) {
+			displayError("Not enough gold")
+			return;
+		}
+
+		if (state.gameData.player.relics.length >= 4) {
+			displayError("No room for a new relic")
+			return;
+		}
+
+		updatePlayerGoldIO(-1);
+
+		const slots = [
+			[0, 0],
+			[0, 1],
+			[1, 0],
+			[1, 1],
+		];
+
+		const emptySlot = slots.find(([x, y]) => !state.gameData.player.relics
+			.some(r => {
+				return r.position.x === x && r.position.y === y
+			}));
+
+		if (!emptySlot) {
+			throw new Error("No empty slot available")
+		}
+
+		const [x, y] = emptySlot;
+		this.acquire(x, y)
+
+		const slot = this.scene.children.getByName(`slot-${x}-${y}`)! as Image;
+
+		this.tweenToSlot(slot.x, slot.y);
 
 	}
 
 	handleDrop = (_p: Pointer, zone: Phaser.GameObjects.Zone) => {
+
 		this.wasDroppedOnZone = true;
 
 		if (!zone?.name.startsWith("slot")) {
@@ -55,7 +107,10 @@ export class RelicCard extends Phaser.GameObjects.Image {
 	};
 
 	handleDragEnd = () => {
+
+		if (!this.wasDragged) return;
 		if (this.wasDroppedOnZone) return;
+
 		this.tweenToSlot();
 		this.wasDroppedOnZone = false;
 	};
@@ -64,8 +119,6 @@ export class RelicCard extends Phaser.GameObjects.Image {
 
 		const [_, x_, y_] = zone.name.split("-");
 
-		if (!this.owned)
-			this.flyout.remove(this);
 
 		const occupier = getState().gameData.player
 			.relics
@@ -76,7 +129,6 @@ export class RelicCard extends Phaser.GameObjects.Image {
 			this.tweenToSlot();
 			return;
 		}
-
 
 		if (occupier && this.owned) {
 			// switch bases
@@ -115,6 +167,10 @@ export class RelicCard extends Phaser.GameObjects.Image {
 	}
 
 	private acquire(x: number, y: number) {
+
+		if (!this.owned)
+			this.onAcquire();
+
 		this.owned = true;
 
 		this.baseX = this.x;
