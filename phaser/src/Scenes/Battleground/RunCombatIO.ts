@@ -2,7 +2,6 @@ import { BattlegroundScene } from "./BattlegroundScene";
 import { getActiveUnits, State, } from "../../Models/State";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER, MIN_COOLDOWN } from "./constants";
 import * as UnitManager from "./Systems/CharaManager";
-import { updateChargeBar } from "../../Systems/Chara/Chara";
 import { performAction } from "./performAction";
 import { Unit } from "../../Models/Unit";
 import { tween } from "../../Utils/animation";
@@ -20,11 +19,11 @@ async function setupWave(scene: BattlegroundScene) {
 
   await Promise.all(cpuCharas.map(async (chara, i) => {
 
-    const originalY = chara.container.y;
-    chara.container.y = -100;
+    const originalY = chara.y;
+    chara.y = -100;
 
     await tween({
-      targets: [chara.container],
+      targets: [chara],
       y: originalY,
       delay: i * 100,
     })
@@ -109,8 +108,7 @@ function chargeUnits(state: State, delta: number): Unit[] {
       performUnits.push(unit);
     }
 
-    const chara = UnitManager.getChara(unit.id);
-    updateChargeBar(chara);
+    UnitManager.getChara(unit.id).updateChargeBar();
 
   }
 

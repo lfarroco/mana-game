@@ -152,7 +152,7 @@ export function addStatus(
 export function endStatus(unitId: string, status: string) {
   const chara = getChara(unitId);
 
-  chara.container.getByName("status-" + status)?.destroy();
+  chara.getByName("status-" + status)?.destroy();
 
   delete chara.unit.statuses[status];
 

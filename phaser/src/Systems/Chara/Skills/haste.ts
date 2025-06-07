@@ -22,8 +22,8 @@ export async function haste(
 	allies.forEach(async ally => {
 
 		const beam = new EnergyBeam(scene, {
-			start: activeChara.container,
-			end: ally.container,
+			start: activeChara,
+			end: ally,
 			color: 0x3322ff,
 		})
 		const update = () => {

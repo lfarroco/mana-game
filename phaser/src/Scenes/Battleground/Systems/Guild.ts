@@ -18,8 +18,8 @@ function onUnitSell(chara: Chara) {
 	const unit = chara.unit;
 	state.gameData.player.units = state.gameData.player.units.filter(u => u.id !== unit.id);
 	state.battleData.units = state.battleData.units.filter(u => u.id !== unit.id);
-	chara.container.destroy();
-	coinDropIO(10, 10, chara.container.x, chara.container.y);
+	chara.destroy();
+	coinDropIO(10, 10, chara.x, chara.y);
 	updatePlayerGoldIO(10);
 }
 

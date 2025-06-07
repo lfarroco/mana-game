@@ -25,8 +25,8 @@ export async function slow(
 		.map(UnitManager.getChara).forEach(async enemy => {
 
 			const beam = new EnergyBeam(scene, {
-				start: activeChara.container,
-				end: enemy.container,
+				start: activeChara,
+				end: enemy,
 				color: 0x964B00,
 			})
 			const update = () => {

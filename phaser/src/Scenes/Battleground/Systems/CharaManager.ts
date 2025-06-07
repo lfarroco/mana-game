@@ -35,7 +35,7 @@ export function destroyChara(id: string) {
 	const chara = charaManagerState.charaIndex.find(chara => chara.id === id);
 
 	if (chara) {
-		chara.container.destroy();
+		chara.destroy();
 		charaManagerState.charaIndex = charaManagerState.charaIndex.filter(c => c.id !== id);
 	} else {
 		console.warn(`Chara with id ${id} not found`);
@@ -50,21 +50,21 @@ export async function summonChara(
 
 	if (useSummonEffect) summonEffect(scene, vec);
 
-	const chara = Chara.createCard(unit)
+	const chara = new Chara.Chara(scene, unit)
 
-	Chara.addBoardEvents(chara);
+	//Chara.addBoardEvents();
 
-	Chara.addTooltip(chara);
+	chara.addTooltip();
 
-	chara.container.setAlpha(0);
+	chara.setAlpha(0);
 
 	if (fadeIn)
 		tween({
-			targets: [chara.container],
+			targets: [chara],
 			alpha: 1,
 		});
 	else
-		chara.container.setAlpha(1);
+		chara.setAlpha(1);
 
 	return chara
 }
@@ -106,7 +106,7 @@ export function createParticle(id: string, status: string) {
 
 	const chara = getChara(id);
 
-	const alreadyExists = chara.container.getByName("status-" + status);
+	const alreadyExists = chara.getByName("status-" + status);
 	if (alreadyExists) {
 		alreadyExists.destroy();
 	}
@@ -128,7 +128,7 @@ export function createParticle(id: string, status: string) {
 				yoyo: false
 			}
 		}).setName("status-" + status);
-	chara.container.add(particles);
+	chara.add(particles);
 }
 
 // return any chara that contains the vec
@@ -136,8 +136,8 @@ export const overlap = (vec: { x: number, y: number }) => {
 	return charaManagerState.charaIndex.find(chara => {
 		return Phaser.Geom.Intersects.RectangleToRectangle(
 			new Phaser.Geom.Rectangle(
-				chara.container.x - constants.HALF_TILE_WIDTH,
-				chara.container.y - constants.HALF_TILE_HEIGHT,
+				chara.x - constants.HALF_TILE_WIDTH,
+				chara.y - constants.HALF_TILE_HEIGHT,
 				constants.TILE_WIDTH,
 				constants.TILE_HEIGHT
 			),

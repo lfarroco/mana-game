@@ -1,6 +1,5 @@
 import Phaser from "phaser";
 import { preload } from "./preload";
-import * as CharaSystem from "../../Systems/Chara/Chara";
 import { State, getState } from "../../Models/State";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
 import * as AISystem from "../../Systems/AI/AI";
@@ -51,7 +50,6 @@ export class BattlegroundScene extends Phaser.Scene {
     // TODO: separate scene-related listeners from state listeners
     AISystem.init(state);
     BattlegroundAudioSystem_init(state, this);
-    CharaSystem.init(this);
 
     UnitManager.init(this);
     UIManager.init(this);
@@ -251,7 +249,7 @@ export class BattlegroundScene extends Phaser.Scene {
           levelUp = true;
         }
 
-        CharaSystem.updateHpDisplay(unit.id, unit.maxHp);
+        UnitManager.getChara(unit.id).updateHpDisplay();
       });
 
       if (levelUp) {

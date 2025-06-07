@@ -11,22 +11,22 @@ export async function shootAnimation(scene: BattlegroundScene, unit: Unit, targe
 	const targetChara = UnitManager.getChara(target.id);
 
 	const arrow = scene.add.image(
-		activeChara.container.x, activeChara.container.y,
+		activeChara.x, activeChara.y,
 		images.arrow.key,
 	);
 
 	arrow.setScale(0.3);
 
 	const angle = Phaser.Math.Angle.Between(
-		activeChara.container.x, activeChara.container.y,
-		targetChara.container.x, targetChara.container.y
+		activeChara.x, activeChara.y,
+		targetChara.x, targetChara.y
 	);
 	arrow.setRotation(angle);
 
 	await tween({
 		targets: [arrow],
-		x: targetChara.container.x,
-		y: targetChara.container.y,
+		x: targetChara.x,
+		y: targetChara.y,
 		duration: 200,
 	});
 

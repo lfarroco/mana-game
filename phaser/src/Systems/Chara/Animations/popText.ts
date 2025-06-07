@@ -22,7 +22,7 @@ export async function popText({ text, targetId, type }: { text: string; targetId
 	}
 
 	const popText = scene.add.text(
-		chara.container.x, chara.container.y,
+		chara.x, chara.y,
 		text,
 		{
 			...titleTextConfig,
@@ -38,9 +38,9 @@ export async function popText({ text, targetId, type }: { text: string; targetId
 		targets: [popText],
 		scale: 1.4,
 		duration: 1000,
-		y: chara.container.y - 128,
+		y: chara.y - 128,
 		// in the angle direction
-		x: chara.container.x + Math.sin(angle * Math.PI / 180) * 60,
+		x: chara.x + Math.sin(angle * Math.PI / 180) * 60,
 	});
 	await tween({
 		targets: [popText],

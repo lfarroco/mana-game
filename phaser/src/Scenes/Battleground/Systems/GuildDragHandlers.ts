@@ -8,7 +8,7 @@ function isSelling(chara: Chara, pointer: Pointer): boolean {
 	return (
 		pointer.getDistance() > 10 &&
 		Phaser.Geom.Intersects.RectangleToRectangle(
-			chara.container.getBounds(),
+			chara.getBounds(),
 			sellImage!.getBounds()
 		)
 	);

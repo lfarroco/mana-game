@@ -1,8 +1,8 @@
 import { v4 } from "uuid";
-import { healUnit, updateUnitAttribute } from "../Systems/Chara/Chara";
 import { Unit } from "./Unit";
 import { UnitEvent } from "./UnitEvents";
 import { images } from "../assets";
+import { getChara } from "../Scenes/Battleground/Systems/CharaManager";
 
 type Equipment = {
 	key: "equipment",
@@ -61,7 +61,7 @@ export const ITEMS: { [id: string]: () => Item } = {
 		4,
 		'Heals 30 HP when below 50% HP', {
 		onHalfHP: (u) => async () => {
-			healUnit(u, 30);
+			getChara(u.id).healUnit(30);
 		}
 	}),
 	TOXIC_POTION: () => equipmentItem(
@@ -70,7 +70,7 @@ export const ITEMS: { [id: string]: () => Item } = {
 		4,
 		'Increases attack by 5 until the end of the battle', {
 		onCombatStart: (u) => async () => {
-			updateUnitAttribute(u, 'attackPower', 5);
+			getChara(u.id).updateUnitAttribute('attackPower', 5);
 		}
 	}),
 	IRON_SWORD: () => equipmentItem(
@@ -92,10 +92,10 @@ export const ITEMS: { [id: string]: () => Item } = {
 const attributeModifier = (attribute: keyof Unit, value: number) => (
 	{
 		onEquip: (u: Unit) => async () => {
-			updateUnitAttribute(u, attribute, value)
+			getChara(u.id).updateUnitAttribute(attribute, value)
 		},
 		onUnequip: (u: Unit) => async () => {
-			updateUnitAttribute(u, attribute, value * -1)
+			getChara(u.id).updateUnitAttribute(attribute, value * -1)
 		}
 	}
 )
