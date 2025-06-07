@@ -3,6 +3,7 @@
 	"name": "Base Set",
 	"cards": [
 		{
+			"id": "bowsie",
 			"name": "Bowsie McTwang",
 			"pic": "assets/cards/archer.png",
 			"hp": 120,
@@ -18,6 +19,7 @@
 			]
 		},
 		{
+			"id": "bubblugum",
 			"name": "Bubblegum Blessings",
 			"pic": "assets/cards/cleric.png",
 			"hp": 150,
@@ -33,6 +35,7 @@
 			]
 		},
 		{
+			"id": "bumble",
 			"name": "Sir Bumble the Unyielding",
 			"pic": "assets/cards/knight.png",
 			"hp": 250,
@@ -45,6 +48,7 @@
 			]
 		},
 		{
+			"id": "wizzy",
 			"name": "Wizzy McFizzfail",
 			"pic": "assets/cards/apprentice.png",
 			"hp": 150,
@@ -58,6 +62,7 @@
 			]
 		},
 		{
+			"id": "swindler",
 			"name": "Swindler Stan",
 			"pic": "assets/cards/bandit.png",
 			"hp": 110,
@@ -73,6 +78,7 @@
 			]
 		},
 		{
+			"id": "hoodlum",
 			"name": "Hoodlum Hawkeye",
 			"pic": "assets/cards/bandit_archer.png",
 			"hp": 120,
