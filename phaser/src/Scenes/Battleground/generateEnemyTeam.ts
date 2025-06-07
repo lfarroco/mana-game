@@ -1,4 +1,4 @@
-import { Card } from "../../Models/Card";
+import { CardDefinition } from "../../Models/Card";
 import { cpuForce } from "../../Models/Force";
 import { vec2 } from "../../Models/Geometry";
 import * as TraitSystem from "../../Models/Traits";
@@ -17,7 +17,7 @@ const getEnemyTeamSize = (round: number): number => {
 
 export function generateEnemyTeam(
 	round: number,
-	pool: Card[],
+	pool: CardDefinition[],
 ) {
 
 	// t = tank
@@ -101,7 +101,7 @@ export function generateEnemyTeam(
 		const row = parsed[y];
 		for (let x = 0; x < row.length; x++) {
 			const char = row[x];
-			let card: Card | undefined;
+			let card: CardDefinition | undefined;
 			switch (char) {
 				case "r":
 					card = pickOne(getRanged());

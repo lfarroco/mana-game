@@ -99,7 +99,12 @@ export class BattlegroundScene extends Phaser.Scene {
     collection.cards.forEach(card => {
 
       console.log("loading card", card.name, card.pic);
-      this.load.image(card.name, card.pic);
+      this.load.image(card.pic, card.pic);
+    });
+
+    collection.relics.forEach(relic => {
+      console.log("loading relic", relic.name, relic.pic);
+      this.load.image(relic.pic, relic.pic);
     });
 
     this.load.once("complete", () => {

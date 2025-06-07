@@ -71,11 +71,11 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.updateAtkDisplay();
 		//this.updateChargeBar();
 
-		// Note: UnitManager.addCharaToState(this) should be called by the code that *creates* this Chara instance.
 	}
 
 	private createSprite() {
-		const textureKey = this.scene.textures.exists(this.unit.name) ? this.unit.name : images.nameless.key;
+
+		const textureKey = this.scene.textures.exists(this.unit.pic) ? this.unit.pic : images.nameless.key;
 		if (textureKey === images.nameless.key) {
 			console.warn(`Chara ${this.unit.id} using default texture ${textureKey}`);
 		}

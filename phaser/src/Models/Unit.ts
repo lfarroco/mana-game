@@ -1,6 +1,6 @@
 import { v4 } from "uuid";
 import { Vec2, vec2Zero } from "./Geometry";
-import { getCard } from "./Card";
+import { getCardDefinition } from "./Card";
 import { MELEE, RANGED, TraitData, traitSpecs } from "./Traits";
 import { UnitEvent, UnitEvents, UNIT_EVENTS } from "./UnitEvents";
 
@@ -52,7 +52,7 @@ export type UnitStatusIndex = {
 
 export const makeUnit = (force: string, cardName: string, position = vec2Zero()): Unit => {
 
-  const card = getCard(cardName);
+  const card = getCardDefinition(cardName);
   const unit = {
     ...card,
     id: v4(),
