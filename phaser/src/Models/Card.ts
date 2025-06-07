@@ -1,17 +1,30 @@
 import * as t from "./Traits";
 
-let cards = new Map<string, Card>();
+let cards = new Map<string, CardDefinition>();
 
 if (process.env.NODE_ENV === 'development') {
   //@ts-ignore
   window.cards = cards;
 }
 
-const registerCard = (card: Card): void => {
+let relicDefinitions = new Map<string, RelicDefinition>();
+if (process.env.NODE_ENV === 'development') {
+  //@ts-ignore
+  window.relicDefinitions = relicDefinitions;
+}
+
+const registerCard = (card: CardDefinition): void => {
   if (cards.has(card.name)) {
     throw new Error(`Card with name ${card.name} already exists.`);
   }
   cards.set(card.name, card);
+};
+
+const registerRelicDefinition = (relicDef: RelicDefinition): void => {
+  if (relicDefinitions.has(relicDef.id)) {
+    throw new Error(`RelicDefinition with id ${relicDef.id} already exists.`);
+  }
+  relicDefinitions.set(relicDef.id, relicDef);
 };
 
 let collections = new Map<string, CardCollection>();
@@ -22,6 +35,9 @@ export const registerCollection = (collection: CardCollection): void => {
   collections.set(collection.id, collection);
 
   collection.cards.forEach(registerCard);
+
+  collection.relics.forEach(registerRelicDefinition);
+
 };
 
 export type CardCollection = {
@@ -29,7 +45,8 @@ export type CardCollection = {
   name: string;
   description: string;
   pic: string;
-  cards: Card[];
+  cards: CardDefinition[];
+  relics: RelicDefinition[];
   opponents: Opponent[]
 }
 
@@ -49,7 +66,7 @@ export type CardData = {
   traits: { id: string }[]
 }
 
-export type Card = {
+export type CardDefinition = {
   id: string;
   pic: string;
   name: string;
@@ -61,7 +78,15 @@ export type Card = {
   traits: t.TraitData[]
 };
 
-export const getCard = (name: string): Card => {
+export type RelicDefinition = {
+  id: string; // Unique identifier for the relic
+  name: string;
+  pic: string;
+  description: string;
+  cost: number; // Cost of the relic
+};
+
+export const getCardDefinition = (name: string): CardDefinition => {
   const card = cards.get(name);
   if (!card) {
     throw new Error(`Card with name ${name} not found.`);
@@ -77,6 +102,18 @@ export const getCollection = (id: string): CardCollection => {
   return collection;
 }
 
-export const getAllCards = (): Card[] => {
+export const getAllCards = (): CardDefinition[] => {
   return Array.from(cards.values());
+}
+
+export const getRelicDefinition = (id: string): RelicDefinition => {
+  const relicDef = relicDefinitions.get(id);
+  if (!relicDef) {
+    throw new Error(`RelicDefinition with id ${id} not found.`);
+  }
+  return relicDef;
+}
+
+export const getAllRelicDefinitions = (): RelicDefinition[] => {
+  return Array.from(relicDefinitions.values());
 }

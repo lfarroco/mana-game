@@ -1,6 +1,6 @@
 import { images } from "../../../assets";
 import { getEmptySlot } from "../../../Models/Board";
-import { getAllCards } from "../../../Models/Card";
+import { getAllCards, getAllRelicDefinitions } from "../../../Models/Card";
 import { playerForce, updatePlayerGoldIO } from "../../../Models/Force";
 import { vec2 } from "../../../Models/Geometry";
 import { State } from "../../../Models/State";
@@ -42,9 +42,8 @@ export const open = (scene: BattlegroundScene) => new Promise<void>(async (resol
 });
 
 function relics(scene: BattlegroundScene, flyout: Flyout) {
-	const relics = [
-		images.arrow.key, images.agility_training.key, images.chest.key
-	];
+
+	const relicData = pickRandom(getAllRelicDefinitions(), 3);
 
 	const bg = scene.add.graphics()
 		.fillStyle(0x000, 0.5)
@@ -54,7 +53,7 @@ function relics(scene: BattlegroundScene, flyout: Flyout) {
 	const title = scene.add.text(300, 70, "Relics", titleTextConfig);
 	flyout.add([bg, title]);
 
-	relics.forEach((relic, index) => {
+	relicData.forEach((relic, index) => {
 		const x = index * 210 + 180;
 		const y = 300;
 		const iconSize = 200;
@@ -62,7 +61,7 @@ function relics(scene: BattlegroundScene, flyout: Flyout) {
 		const slot = scene.add
 			.image(x, y, images.slot.key)
 			.setDisplaySize(iconSize, iconSize);
-		const icon = new RelicCard(scene, x, y, relic, 200 - 40, () => {
+		const icon = new RelicCard(scene, x, y, relic.pic, 200 - 40, () => {
 			flyout.remove(icon)
 		});
 

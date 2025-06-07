@@ -91,6 +91,22 @@
 			]
 		}
 	],
+	"relics": [
+		{
+			"id": "swift_boots",
+			"name": "Swift Boots",
+			"pic": "icon/agility_training",
+			"description": "Grants +10% movement speed.",
+			"cost": 50
+		},
+		{
+			"id": "amulet_of_vitality",
+			"name": "Amulet of Vitality",
+			"pic": "icon/combat_training",
+			"description": "Increases max HP by 20.",
+			"cost": 75
+		}
+	],
 	"opponents": [
 		{
 			"name": "Bandits",
