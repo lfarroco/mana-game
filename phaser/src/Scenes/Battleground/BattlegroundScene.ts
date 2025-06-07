@@ -183,6 +183,24 @@ export class BattlegroundScene extends Phaser.Scene {
     });
   }
 
+  private resetPlayerUnitChargeBars(): void {
+    this.state.gameData.player.units.forEach(unit => {
+      const chara = UnitManager.getChara(unit.id);
+      if (chara) {
+        chara.updateChargeBar();
+      }
+    });
+  }
+
+  private setAllPlayerUnitBarsVisibility(visible: boolean): void {
+    this.state.gameData.player.units.forEach(unit => {
+      const chara = UnitManager.getChara(unit.id);
+      if (chara) {
+        chara.setBarsVisibility(visible);
+      }
+    });
+  }
+
   private async awardXPAndHandleLevelUps(enemiesDefeatedCount: number): Promise<void> {
     const { state } = this;
     const xpGained = enemiesDefeatedCount * XP_PER_ENEMY;
@@ -229,9 +247,12 @@ export class BattlegroundScene extends Phaser.Scene {
       await battleResultAnimation(this, "victory");
       updatePlayerGoldIO(VICTORY_GOLD_REWARD);
       this.resetPlayerUnitsForNewRound();
+      this.resetPlayerUnitChargeBars(); // Reset visual charge bars
+      this.setAllPlayerUnitBarsVisibility(false); // Hide bars for player units
       await this.awardXPAndHandleLevelUps(enemiesDefeated.length);
     } else { // player_lost
       await battleResultAnimation(this, "defeat");
+      this.setAllPlayerUnitBarsVisibility(false); // Hide bars for player units even on defeat
       isGameOver = true;
       UIManager.createButton("new run", 300, 300, () => {
         this.cleanup();

@@ -13,6 +13,11 @@ async function setupWave(scene: BattlegroundScene) {
   scene.state.battleData.units.forEach(u => {
     u.charge = 0;
     u.refresh = 0;
+    // Make bars visible for all units starting combat
+    const chara = UnitManager.getChara(u.id);
+    if (chara) {
+      chara.setBarsVisibility(true);
+    }
   });
 
   const cpuCharas = UnitManager.getCPUCharas();

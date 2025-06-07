@@ -6,7 +6,7 @@ import { delay, tween } from "../../Utils/animation";
 import { FORCE_ID_PLAYER } from "../../Scenes/Battleground/constants";
 import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
 import * as UnitManager from "../../Scenes/Battleground/Systems/CharaManager";
-import * as Board from "../../Models/Board";
+import * as Board from "../../Models/Board"; // getState is used here
 import { addStatus, getState, } from "../../Models/State";
 import * as TooltipSytem from "../Tooltip";
 import { popText } from "./Animations/popText";
@@ -69,7 +69,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		// Initial update of displays
 		this.updateHpDisplay();
 		this.updateAtkDisplay();
-		//this.updateChargeBar();
+		this.updateChargeBar();
 
 	}
 
@@ -242,6 +242,15 @@ export class Chara extends Phaser.GameObjects.Container {
 
 	updateAtkDisplay = () => {
 		this.atkDisplay.setText(Math.floor(this.unit.attackPower).toString());
+	}
+
+	public setBarsVisibility(visible: boolean): void {
+		this.chargeBar.setVisible(visible);
+
+		// Debug bars should only be affected if debug mode is on
+		const debugMode = getState().options.debug;
+		this.cooldownBar.setVisible(visible && debugMode);
+		this.hpBar.setVisible(visible && debugMode);
 	}
 
 	addTooltip = () => {
