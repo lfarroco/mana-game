@@ -610,7 +610,7 @@ export const REBORN = makeTrait({
 			if (unit.statuses["reborn"]) return; // already reborn
 
 			// create a new unit with the same id and position
-			const newUnit = makeUnit(unit.force, unit.job, unit.position);
+			const newUnit = makeUnit(unit.force, unit.cardId, unit.position);
 			newUnit.hp = 1;
 			addStatus(newUnit, "reborn");
 

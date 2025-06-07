@@ -81,7 +81,7 @@ function tavern(state: State, flyout: Flyout) {
 	flyout.add([bg, title]);
 
 	const filtered = getAllCards()
-		.filter(card => !state.gameData.player.units.map(u => u.job).includes(card.name)
+		.filter(card => !state.gameData.player.units.map(u => u.cardId).includes(card.name)
 		);
 
 	pickRandom(filtered, 3)
