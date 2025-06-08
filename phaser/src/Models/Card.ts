@@ -14,10 +14,10 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 const registerCard = (card: CardDefinition): void => {
-  if (cards.has(card.name)) {
-    throw new Error(`Card with name ${card.name} already exists.`);
+  if (cards.has(card.id)) {
+    throw new Error(`Card with id ${card.id} already exists.`);
   }
-  cards.set(card.name, card);
+  cards.set(card.id, card);
 };
 
 const registerRelicDefinition = (relicDef: RelicDefinition): void => {
@@ -84,12 +84,16 @@ export type RelicDefinition = {
   pic: string;
   description: string;
   cost: number; // Cost of the relic
+  traits: {
+    id: t.TraitId;
+    [key: string]: any
+  }[]
 };
 
-export const getCardDefinition = (name: string): CardDefinition => {
-  const card = cards.get(name);
+export const getCardDefinition = (id: string): CardDefinition => {
+  const card = cards.get(id);
   if (!card) {
-    throw new Error(`Card with name ${name} not found.`);
+    throw new Error(`Card with id ${id} not found.`);
   }
   return card;
 }

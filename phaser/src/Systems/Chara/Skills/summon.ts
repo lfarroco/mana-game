@@ -4,7 +4,7 @@ import { Chara } from "../Chara";
 import { getState } from "../../../Models/State";
 import { getEmptySlot } from "../../../Models/Board";
 
-export async function summon(chara: Chara, jobId: string) {
+export async function summon(chara: Chara, cardId: string) {
 
 	const { unit } = chara;
 	const state = getState();
@@ -16,7 +16,7 @@ export async function summon(chara: Chara, jobId: string) {
 		return;
 	};
 
-	const summoned = makeUnit(unit.force, jobId, emptySlot);
+	const summoned = makeUnit(unit.force, cardId, emptySlot);
 	state.battleData.units.push(summoned);
 	UnitManager.summonChara(summoned);
 

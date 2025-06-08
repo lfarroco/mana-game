@@ -50,13 +50,13 @@ export type UnitStatusIndex = {
   }
 }
 
-export const makeUnit = (force: string, cardName: string, position = vec2Zero()): Unit => {
+export const makeUnit = (force: string, cardId: string, position = vec2Zero()): Unit => {
 
-  const card = getCardDefinition(cardName);
+  const card = getCardDefinition(cardId);
   const unit = {
     ...card,
     id: v4(),
-    cardId: card.id,
+    cardId,
     force,
     position,
     maxHp: card.hp,

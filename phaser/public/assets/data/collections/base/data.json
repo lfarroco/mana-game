@@ -96,15 +96,27 @@
 			"id": "swift_boots",
 			"name": "Swift Boots",
 			"pic": "icon/agility_training",
-			"description": "Grants +10% movement speed.",
-			"cost": 50
+			"description": "Reduces all heroes cooldown's by 20%",
+			"cost": 50,
+			"traits": [
+				{
+					"id": "reduce_cd",
+					"percent": 20
+				}
+			]
 		},
 		{
 			"id": "amulet_of_vitality",
 			"name": "Amulet of Vitality",
 			"pic": "icon/combat_training",
-			"description": "Increases max HP by 20.",
-			"cost": 75
+			"description": "Increases max HP by 20%",
+			"cost": 75,
+			"traits": [
+				{
+					"id": "increase_max_hp",
+					"percent": 20
+				}
+			]
 		}
 	],
 	"opponents": [
