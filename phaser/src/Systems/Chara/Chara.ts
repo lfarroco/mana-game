@@ -355,7 +355,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		});
 		if (this.wasDragSuccessful) {
 			// handleDrop (or handleShopItemClick) already positioned the Chara.
-			Board.hideBoardDropZone(); // Hide visual feedback on successful drop
+			this.parent.playerBoard.hide(); // Hide visual feedback on successful drop
 			return;
 		}
 
@@ -365,7 +365,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		} else { // Owned unit, or a shop item that failed purchase but its state might be complex
 			tween({ targets: [this], ...UnitManager.getCharaPosition(this.unit) });
 		}
-		Board.hideBoardDropZone(); // Also hide visual feedback on failed/reverted drop
+		this.parent.playerBoard.hide(); // Also hide visual feedback on failed/reverted drop
 	};
 
 	// --- UI Update Methods ---

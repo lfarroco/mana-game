@@ -22,7 +22,7 @@ import { popText } from "../../Systems/Chara/Animations/popText";
 import * as Relic from "./Systems/Relic";
 import { WaveOutcome } from "./RunCombatIO";
 import { Unit } from "../../Models/Unit";
-import * as Board from "../../Models/Board";
+import { PlayerBoard } from "../../Models/Board";
 
 // Constants for BattlegroundScene specific game rules
 const INITIAL_PLAYER_GOLD = 10;
@@ -41,12 +41,14 @@ export class BattlegroundScene extends Phaser.Scene {
   bgImage!: Phaser.GameObjects.Image;
   collection: CardCollection;
   uiManager: UIManager;
+  playerBoard!: PlayerBoard;
 
   cleanup() {
     UnitManager.clearCharas();
     this.time.removeAllEvents();
     this.children.removeAll(true);
   }
+
 
   constructor() {
     super("BattlegroundScene");
@@ -138,8 +140,10 @@ export class BattlegroundScene extends Phaser.Scene {
     ControlsSystem.init(this);
 
     this.bgContainer.add([this.bgImage]);
-    Board.initBoardGraphics(this);
-    Board.createBoardDropZone()
+
+    this.playerBoard = new PlayerBoard(this);
+    this.playerBoard.createDropZone();
+
     this.uiManager.createMainUI();
     Relic.setupRelicSlots(this);
 
@@ -287,6 +291,9 @@ export class BattlegroundScene extends Phaser.Scene {
       // For now, we'll assume one shop phase per round start as per original logic
       // If you want a shop phase *after* combat and before the next round *officially* starts,
       // you could call `await this.handleShopPhase();` here again.
+
+      // Ensure playerBoard resources are cleaned up if the game ends or scene restarts
+      this.playerBoard?.destroy();
 
       //await EventSystem.evalEvent(EventSystem.pickAHero);
 
