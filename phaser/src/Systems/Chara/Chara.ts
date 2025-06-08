@@ -13,6 +13,7 @@ import { criticalDamageDisplay } from "../../Effects";
 import { images } from "../../assets";
 import { runUnitEventTraits } from "../../Models/Traits";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
+import { updatePlayerGoldIO } from "../../Models/Force";
 
 // A Chara is the graphical representation of a Unit
 export class Chara extends Phaser.GameObjects.Container {
@@ -33,6 +34,11 @@ export class Chara extends Phaser.GameObjects.Container {
 	private static readonly STAT_BOX_MARGIN_RATIO = 0.1; // Ratio of boxWidth for margin
 	private static readonly DEBUG_BAR_PADDING = 10;
 	private static readonly DEBUG_BAR_HEIGHT = 10;
+
+	// Properties for drag-and-drop handling, especially for shop items
+	private dragStartX: number = 0;
+	private dragStartY: number = 0;
+	private wasDragSuccessful: boolean = false;
 
 	constructor(public parent: BattlegroundScene, unit: Unit) {
 		const position = UnitManager.getCharaPosition(unit);
@@ -72,11 +78,19 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.updateAtkDisplay();
 		this.updateChargeBar();
 
+		// Store initial visual position, useful for reverting shop items if drag fails
+		this.dragStartX = this.x;
+		this.dragStartY = this.y;
+
 	}
 
 	private createSprite() {
 
-		const textureKey = this.parent.textures.exists(this.unit.pic) ? this.unit.pic : images.nameless.key;
+		// Ensure unit.pic is a valid texture key, otherwise use a default
+		const textureKey = this.unit.pic && this.parent.textures.exists(this.unit.pic)
+			? this.unit.pic
+			: images.nameless.key;
+
 		if (textureKey === images.nameless.key) {
 			console.warn(`Chara ${this.unit.id} using default texture ${textureKey}`);
 		}
@@ -142,6 +156,10 @@ export class Chara extends Phaser.GameObjects.Container {
 
 	// --- Event Handlers ---
 	private handleDragStart = () => {
+		this.dragStartX = this.x;
+		this.dragStartY = this.y;
+		this.wasDragSuccessful = false; // Reset flag at the start of a new drag
+
 		this.parent.children.bringToTop(this);
 		tween({
 			targets: [this],
@@ -158,10 +176,18 @@ export class Chara extends Phaser.GameObjects.Container {
 		TooltipSytem.hide();
 	}
 
+	// Helper to check if this Chara's unit is already owned by the player
+	private isOwnedByPlayer(): boolean {
+		return getState().gameData.player.units.some(u => u.id === this.unit.id);
+	}
+
 	private handleDrop(
 		pointer: Phaser.Input.Pointer,
 		dropZoneTarget: Phaser.GameObjects.GameObject, // This is the GameObject it was dropped on
 	) {
+		// Default to unsuccessful, successful paths will set it to true
+		this.wasDragSuccessful = false;
+
 		if (!Board.getBoardDropZone() || dropZoneTarget !== Board.getBoardDropZone()) {
 			// Revert is handled by dragend if not on any valid zone.
 			// This check ensures we only process drops on the intended main board drop zone.
@@ -171,74 +197,103 @@ export class Chara extends Phaser.GameObjects.Container {
 		const state = getState();
 		const tile = Board.getTileAt(pointer); // From Board.ts
 
+		const revertToOriginalVisualPosition = () => {
+			tween({ targets: [this], x: this.dragStartX, y: this.dragStartY });
+		};
+
 		if (!tile) {
 			// Dropped on the board zone, but not on a specific tile. Revert.
-			tween({
-				targets: [this],
-				...UnitManager.getCharaPosition(this.unit) // Revert to current unit's model position
-			});
+			// If owned, revert to its model position. If not (shop item), revert to drag start.
+			if (this.isOwnedByPlayer()) {
+				tween({ targets: [this], ...UnitManager.getCharaPosition(this.unit) });
+			} else {
+				revertToOriginalVisualPosition();
+			}
 			return;
 		}
 
 		const newBoardModelPosition = vec2(tile.x, tile.y);
 		const unitToMove = this.unit;
 
-		// Call onLeavePosition for unitToMove (from its current/old position)
-		// This must happen BEFORE its model position is updated by Board.updateUnitPositionOnBoard
-		runUnitEventTraits("onLeavePosition")(unitToMove);
+		if (this.isOwnedByPlayer()) {
+			// --- Logic for moving an already owned unit ---
+			runUnitEventTraits("onLeavePosition")(unitToMove);
 
-		// If there's an occupier, it will also "leave" its current position.
-		// We need to find it before Board.updateUnitPositionOnBoard potentially moves it.
-		const occupierUnitIfAny = state.gameData.player.units.find(
-			u => u.id !== unitToMove.id && eqVec2(u.position, newBoardModelPosition)
-		);
-		if (occupierUnitIfAny) {
-			runUnitEventTraits("onLeavePosition")(occupierUnitIfAny);
-		}
+			const occupierUnitIfAny = state.gameData.player.units.find(
+				u => u.id !== unitToMove.id && eqVec2(u.position, newBoardModelPosition)
+			);
+			if (occupierUnitIfAny) {
+				runUnitEventTraits("onLeavePosition")(occupierUnitIfAny);
+			}
 
-		// Update the model positions using the new Board function
-		const moveResult = Board.updateUnitPositionOnBoard(
-			unitToMove,
-			newBoardModelPosition,
-			state.gameData.player.units // Operating on the player's unit list for the board
-		);
+			const moveResult = Board.updateUnitPositionOnBoard(
+				unitToMove,
+				newBoardModelPosition,
+				state.gameData.player.units
+			);
 
-		if (moveResult) {
-			// Model positions are now updated.
-			// unitToMove is at newBoardModelPosition.
-			// moveResult.swappedUnit (if any) is at moveResult.oldPositionOfMovedUnit.
+			if (moveResult) {
+				runUnitEventTraits("onEnterPosition")(unitToMove);
+				tween({ targets: [this], ...UnitManager.getCharaPosition(unitToMove) });
 
-			// Call onEnterPosition for unitToMove (at its new position)
-			runUnitEventTraits("onEnterPosition")(unitToMove);
-			tween({
-				targets: [this], // 'this' is the Chara for unitToMove
-				...UnitManager.getCharaPosition(unitToMove) // unitToMove.position is now newBoardModelPosition
-			});
-
-			if (moveResult.swappedUnit) {
-				const swappedUnit = moveResult.swappedUnit;
-				runUnitEventTraits("onEnterPosition")(swappedUnit); // Swapped unit enters its new position
-
-				const occupierChara = UnitManager.getChara(swappedUnit.id);
-				tween({
-					targets: [occupierChara],
-					...UnitManager.getCharaPosition(swappedUnit) // swappedUnit.position is now oldPositionOfMovedUnit
-				});
+				if (moveResult.swappedUnit) {
+					runUnitEventTraits("onEnterPosition")(moveResult.swappedUnit);
+					const occupierChara = UnitManager.getChara(moveResult.swappedUnit.id);
+					tween({ targets: [occupierChara], ...UnitManager.getCharaPosition(moveResult.swappedUnit) });
+				}
+				this.wasDragSuccessful = true;
+			} else {
+				// Move was not made (e.g., dropped on the same spot).
+				runUnitEventTraits("onEnterPosition")(unitToMove);
+				if (occupierUnitIfAny) runUnitEventTraits("onEnterPosition")(occupierUnitIfAny);
+				tween({ targets: [this], ...UnitManager.getCharaPosition(this.unit) });
+				// wasDragSuccessful remains false or could be true if same spot is "success"
+				if (eqVec2(unitToMove.position, newBoardModelPosition)) this.wasDragSuccessful = true;
 			}
 		} else {
-			// Move was not made (e.g., dropped on the same spot).
-			// Since onLeavePosition was called, we need to call onEnterPosition to restore state for traits.
-			runUnitEventTraits("onEnterPosition")(unitToMove);
-			if (occupierUnitIfAny) {
-				// If an occupier was involved in the onLeave call, it also needs to re-enter.
-				runUnitEventTraits("onEnterPosition")(occupierUnitIfAny);
+			// --- Logic for purchasing a new unit (e.g., from shop) ---
+			const purchaseCost = 3; // TODO: Make this configurable, e.g., from unit.cost or shop config
+
+			if (state.gameData.player.units.length >= bgConstants.MAX_PARTY_SIZE) {
+				this.parent.uiManager.displayError("Your party is full!");
+				revertToOriginalVisualPosition();
+				return;
+			}
+			if (state.gameData.player.gold < purchaseCost) {
+				this.parent.uiManager.displayError("You don't have enough gold!");
+				revertToOriginalVisualPosition();
+				return;
 			}
 
-			tween({ // Revert visually
-				targets: [this],
-				...UnitManager.getCharaPosition(this.unit)
-			});
+			const occupierOnBoard = state.gameData.player.units.find(u => eqVec2(u.position, newBoardModelPosition));
+			if (occupierOnBoard) {
+				this.parent.uiManager.displayError("Slot is occupied!");
+				revertToOriginalVisualPosition();
+				return;
+			}
+
+			// Process purchase
+			updatePlayerGoldIO(this.parent, -purchaseCost);
+
+			unitToMove.position = newBoardModelPosition; // Set model position
+			state.gameData.player.units.push(unitToMove); // Add to player's roster
+
+			// Visually place the Chara on the board
+			tween({ targets: [this], ...UnitManager.getCharaPosition(unitToMove) });
+
+			runUnitEventTraits("onEnterPosition")(unitToMove); // Call traits for entering board
+
+			this.parentContainer.remove(this); // True to destroy the Chara from flyout
+
+			// Remove the shop's specific 'pointerup' click-to-buy listener if it exists
+			// This is a bit of a hack; ideally, the shop manages its listeners.
+			// For now, we assume the shop might have added a 'pointerup'.
+			this.off('pointerup');
+
+			this.wasDragSuccessful = true;
 		}
+
+
 	}
 
 	private handleDragEnd = (pointer: Phaser.Input.Pointer) => {
@@ -280,14 +335,13 @@ export class Chara extends Phaser.GameObjects.Container {
 
 	addTooltip = () => {
 		this.on('pointerover', () => {
-
 			const text = [
 				`Attack: ${this.unit.attackPower} HP: ${this.unit.hp}`,
 				this.unit.traits.map((trait) => trait.description).join("\n"),
 			].join('\n');
 
 			TooltipSytem.render(
-				this.x + 340,
+				this.x + 340, // TODO: Adjust tooltip position based on Chara's screen position/side
 				this.y,
 				this.unit.name,
 				text
@@ -295,11 +349,12 @@ export class Chara extends Phaser.GameObjects.Container {
 		});
 
 		this.on('pointerout', () => {
-			TooltipSytem.hide()
-		})
+			TooltipSytem.hide();
+		});
 	}
-	updateChargeBar = () => {
 
+	// TODO: extract chargebar to isolated component
+	updateChargeBar = () => {
 		// This bar visually "drains": a full bar means 0% charge, an empty bar means 100% charged.
 		const { chargeBar, cooldownBar, hpBar, unit } = this;
 		const maxWidthForDebugBars = bgConstants.TILE_WIDTH - (2 * Chara.DEBUG_BAR_PADDING);
@@ -309,12 +364,9 @@ export class Chara extends Phaser.GameObjects.Container {
 
 		let color = 0x000;
 
-		if (unit.hasted > 0 && unit.slowed > 0)
-			color = 0x000;
-		else if (unit.hasted > 0)
-			color = 0x00ff00;
-		else if (unit.slowed > 0)
-			color = 0xff0000;
+		if (unit.hasted > 0 && unit.slowed > 0) color = 0x000;
+		else if (unit.hasted > 0) color = 0x00ff00;
+		else if (unit.slowed > 0) color = 0xff0000;
 
 		chargeBar.fillStyle(color, 0.2);
 		chargeBar.fillRect(
@@ -347,15 +399,11 @@ export class Chara extends Phaser.GameObjects.Container {
 			hpPercent * maxWidthForDebugBars,
 			Chara.DEBUG_BAR_HEIGHT
 		);
-
 	}
 
 	damageUnit = (damage: number, isCritical = false) => {
-
 		const chara = this;
-
 		const nextHp = chara.unit.hp - damage;
-
 		const hasDied = nextHp <= 0;
 
 		chara.unit.hp = nextHp <= 0 ? 0 : nextHp;
@@ -372,65 +420,38 @@ export class Chara extends Phaser.GameObjects.Container {
 			return;
 		}
 
-		if (
-			nextHp <= chara.unit.maxHp / 2 &&
-			!chara.unit.statuses["on-half-hp"]
-		) {
+		if (nextHp <= chara.unit.maxHp / 2 && !chara.unit.statuses["on-half-hp"]) {
 			runUnitEventTraits("onHalfHP")(chara.unit);
 			addStatus(chara.unit, "on-half-hp");
 		}
-
 	}
-	killUnit = async () => {
 
+	killUnit = async () => {
 		this.unit.hp = 0;
 
-		tween({
-			targets: [this],
-			alpha: 0,
-			duration: 1000,
-		});
+		tween({ targets: [this], alpha: 0, duration: 1000 });
 
 		const originalX = this.x;
-
 		for (let i = 0; i < 5; i++) {
-			await tween({
-				targets: [this],
-				x: originalX - 20,
-				duration: 100,
-				ease: "Cubic.Out",
-			});
-
-			await tween({
-				targets: [this],
-				x: originalX + 20,
-				duration: 100,
-				ease: "Cubic.Out",
-			});
-			// Note: this loop will leave the chara.x at originalX + 20
+			await tween({ targets: [this], x: originalX - 20, duration: 100, ease: "Cubic.Out" });
+			await tween({ targets: [this], x: originalX + 20, duration: 100, ease: "Cubic.Out" });
 		}
 
 		await delay(this.parent, 2000);
 
 		UnitManager.destroyChara(this.id);
 
-		getState().battleData.units = getState().battleData.units
-			.filter(u => u.id !== this.id);
+		getState().battleData.units = getState().battleData.units.filter(u => u.id !== this.id);
+		runUnitEventTraits("onDeath")(this.unit);
 
-		runUnitEventTraits("onDeath")(this.unit)
-
-		if (this.unit.force === bgConstants.FORCE_ID_PLAYER)
-			getState().gameData.player.units = getState().gameData.player.units
-				.filter(u => u.id !== this.id);
-
+		if (this.unit.force === bgConstants.FORCE_ID_PLAYER) {
+			getState().gameData.player.units = getState().gameData.player.units.filter(u => u.id !== this.id);
+		}
 	}
 
 	// Function to update an attribute, not applying it (not apply damage of heal)
 	// This means changing the value of the card
-	updateUnitAttribute = async <K extends keyof Unit>(
-		attribute: K,
-		num: number,
-	) => {
+	updateUnitAttribute = async <K extends keyof Unit>(attribute: K, num: number) => {
 		const { unit } = this;
 		const positive = num >= 0;
 		const text = `${positive ? "+" : "-"}${num} ${attribute}`;
@@ -444,7 +465,9 @@ export class Chara extends Phaser.GameObjects.Container {
 		if (attribute === "attackPower") {
 			this.updateAtkDisplay();
 		} else if (attribute === "maxHp") {
-			unit.hp = unit.maxHp;
+			unit.hp = unit.maxHp; // Also heal to new maxHp
+			this.updateHpDisplay();
+		} else if (attribute === "hp") {
 			this.updateHpDisplay();
 		}
 
@@ -452,13 +475,8 @@ export class Chara extends Phaser.GameObjects.Container {
 	}
 
 	healUnit = (amount: number) => {
-
 		const nextHp = this.unit.hp + amount;
-
 		this.unit.hp = nextHp > this.unit.maxHp ? this.unit.maxHp : nextHp;
-
 		this.updateHpDisplay();
 	}
-
-
 }
