@@ -98,8 +98,13 @@ function tavern(state: State, flyout: Flyout) {
 			chara.addTooltip();
 
 			// TODO: replace with drag and drop
-			chara.on("pointerup", () => {
+			chara.on("pointerup", (pointer: Phaser.Input.Pointer) => {
 
+				// If the pointer moved significantly, it was a drag, not a click.
+				// Drag-drop actions (buy/move) are handled by Chara's drag/drop events.
+				if (pointer.getDistance() > 10) { // 10 is a small threshold for drag
+					return;
+				}
 				if (state.gameData.player.units.length >= MAX_PARTY_SIZE) {
 					(flyout.parent as BattlegroundSceneWithUIManager).uiManager.displayError("Your party is full! Discard a card or skip.");
 					return;
