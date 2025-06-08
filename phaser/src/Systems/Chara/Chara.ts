@@ -162,57 +162,83 @@ export class Chara extends Phaser.GameObjects.Container {
 		pointer: Phaser.Input.Pointer,
 		dropZoneTarget: Phaser.GameObjects.GameObject, // This is the GameObject it was dropped on
 	) {
-		// Ensure it was dropped on the main board drop zone
-		// UIManager.dropZone is the main board drop zone.
-		if (!this.parent.uiManager.getDropZone() || dropZoneTarget !== this.parent.uiManager.getDropZone()) {
-			// If not dropped on the main board, revert (handled by dragend if not on any valid zone)
-			// This specific check might be redundant if dragend handles non-dropzone drops.
+		if (!Board.getBoardDropZone() || dropZoneTarget !== Board.getBoardDropZone()) {
+			// Revert is handled by dragend if not on any valid zone.
+			// This check ensures we only process drops on the intended main board drop zone.
 			return;
 		}
 
-		const state = getState(); // Required for accessing global unit list
-		// The board will change: remove position bonuses for all units
-		// TODO: This global iteration is not ideal here. A BoardManager should handle this.
-		state.gameData.player.units
-			.forEach(runUnitEventTraits("onLeavePosition"));
-
-		const tile = Board.getTileAt(pointer);
+		const state = getState();
+		const tile = Board.getTileAt(pointer); // From Board.ts
 
 		if (!tile) {
 			// Dropped on the board zone, but not on a specific tile. Revert.
 			tween({
 				targets: [this],
-				...UnitManager.getCharaPosition(this.unit)
+				...UnitManager.getCharaPosition(this.unit) // Revert to current unit's model position
 			});
 			return;
 		}
 
-		const position = vec2(tile.x, tile.y)!
+		const newBoardModelPosition = vec2(tile.x, tile.y);
+		const unitToMove = this.unit;
 
-		const maybeOccupier = state.gameData.player.units.find(u => eqVec2(u.position, position));
+		// Call onLeavePosition for unitToMove (from its current/old position)
+		// This must happen BEFORE its model position is updated by Board.updateUnitPositionOnBoard
+		runUnitEventTraits("onLeavePosition")(unitToMove);
 
-		if (maybeOccupier) {
-			const occupierChara = UnitManager.getChara(maybeOccupier.id);
-
-			occupierChara.unit.position = { ...this.unit.position };
-
-			tween({
-				targets: [occupierChara],
-				...UnitManager.getCharaPosition(occupierChara.unit)
-			})
+		// If there's an occupier, it will also "leave" its current position.
+		// We need to find it before Board.updateUnitPositionOnBoard potentially moves it.
+		const occupierUnitIfAny = state.gameData.player.units.find(
+			u => u.id !== unitToMove.id && eqVec2(u.position, newBoardModelPosition)
+		);
+		if (occupierUnitIfAny) {
+			runUnitEventTraits("onLeavePosition")(occupierUnitIfAny);
 		}
 
-		this.unit.position = position;
+		// Update the model positions using the new Board function
+		const moveResult = Board.updateUnitPositionOnBoard(
+			unitToMove,
+			newBoardModelPosition,
+			state.gameData.player.units // Operating on the player's unit list for the board
+		);
 
-		// The board has changed: calculate position bonuses for all units
-		state.gameData.player.units
-			.forEach(runUnitEventTraits("onEnterPosition"));
+		if (moveResult) {
+			// Model positions are now updated.
+			// unitToMove is at newBoardModelPosition.
+			// moveResult.swappedUnit (if any) is at moveResult.oldPositionOfMovedUnit.
 
-		tween({
-			targets: [this],
-			...UnitManager.getCharaPosition(this.unit)
-		})
+			// Call onEnterPosition for unitToMove (at its new position)
+			runUnitEventTraits("onEnterPosition")(unitToMove);
+			tween({
+				targets: [this], // 'this' is the Chara for unitToMove
+				...UnitManager.getCharaPosition(unitToMove) // unitToMove.position is now newBoardModelPosition
+			});
 
+			if (moveResult.swappedUnit) {
+				const swappedUnit = moveResult.swappedUnit;
+				runUnitEventTraits("onEnterPosition")(swappedUnit); // Swapped unit enters its new position
+
+				const occupierChara = UnitManager.getChara(swappedUnit.id);
+				tween({
+					targets: [occupierChara],
+					...UnitManager.getCharaPosition(swappedUnit) // swappedUnit.position is now oldPositionOfMovedUnit
+				});
+			}
+		} else {
+			// Move was not made (e.g., dropped on the same spot).
+			// Since onLeavePosition was called, we need to call onEnterPosition to restore state for traits.
+			runUnitEventTraits("onEnterPosition")(unitToMove);
+			if (occupierUnitIfAny) {
+				// If an occupier was involved in the onLeave call, it also needs to re-enter.
+				runUnitEventTraits("onEnterPosition")(occupierUnitIfAny);
+			}
+
+			tween({ // Revert visually
+				targets: [this],
+				...UnitManager.getCharaPosition(this.unit)
+			});
+		}
 	}
 
 	private handleDragEnd = (pointer: Phaser.Input.Pointer) => {
@@ -224,7 +250,7 @@ export class Chara extends Phaser.GameObjects.Container {
 			ease: "Cubic.Out",
 		});
 
-		if (this.parent.uiManager.isPointerInDropZone(pointer)) return
+		if (Board.isPointerInBoardDropZone(pointer)) return
 
 		// check if the drag ended inside or outside scene.dropZone
 		// return to original position if outside

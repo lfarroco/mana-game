@@ -1,10 +1,17 @@
+import Phaser from "phaser";
 import * as constants from "../Scenes/Battleground/constants";
 import { PLAYER_BOARD_X, PLAYER_BOARD_Y } from "../Scenes/Battleground/constants";
-import { pickOne, pickRandom } from "../utils";
+import { pickOne, pickRandom, } from "../utils";
 import { playerForce } from "./Force";
-import { vec2, sortBySnakeDistance, snakeDistanceBetween, Vec2 } from "./Geometry";
+import { vec2, sortBySnakeDistance, snakeDistanceBetween, Vec2, eqVec2 } from "./Geometry";
 import { State, getActiveUnits, getUnitAt } from "./State";
-import { Unit } from "./Unit";
+import { Unit } from "./Unit"; // Pointer type might be implicitly from Phaser or a custom type
+
+// Module-level state for board graphics
+let _scene: Phaser.Scene | null = null;
+let _boardDropZone: Phaser.GameObjects.Zone | null = null;
+let _boardDropZoneDisplay: Phaser.GameObjects.Graphics | null = null;
+let _boardDropZoneTween: Phaser.Tweens.Tween | null = null;
 
 // Looks for an empty slot in a 3x3 board
 export function getEmptySlot(units: Unit[], forceId: string) {
@@ -126,16 +133,11 @@ export function getNeighbors(state: State, unit: Unit) {
 		;
 }
 
-// receives a screen position and returns if it overlaps with the player board
-// TODO: this can be replaced with a overlap check with the drop zone
-export function overlapsWithPlayerBoard(pointer: Pointer) {
-	const { x, y } = pointer;
-	return (
-		x >= PLAYER_BOARD_X &&
-		x <= PLAYER_BOARD_X + constants.TILE_WIDTH * 3 &&
-		y >= PLAYER_BOARD_Y &&
-		y <= PLAYER_BOARD_Y + constants.TILE_HEIGHT * 3
-	)
+/**
+ * Checks if a given screen position overlaps with the player board's drop zone.
+ */
+export function overlapsWithPlayerBoard(pointer: { x: number; y: number; }): boolean {
+	return isPointerInBoardDropZone(pointer);
 }
 
 export function getTileAt({ x, y }: { x: number; y: number; }): Vec2 | null {
@@ -154,3 +156,120 @@ export function getTileAt({ x, y }: { x: number; y: number; }): Vec2 | null {
 
 }
 
+/**
+ * Updates the position of a unit on a given list of units (e.g., player's board).
+ * If the new position is occupied, it swaps the units.
+ * This function modifies the unit objects directly.
+ * @param unitToMove The unit that is being moved.
+ * @param newBoardPosition The target {x, y} position on the board grid.
+ * @param unitsOnBoard The array of units to check for collisions/swaps (e.g., state.gameData.player.units).
+ * @returns An object detailing the move, including any swapped unit, or null if no move was made (e.g., dropped on the same spot).
+ */
+export function updateUnitPositionOnBoard(
+	unitToMove: Unit,
+	newBoardPosition: Vec2,
+	unitsOnBoard: Unit[]
+): {
+	movedUnit: Unit; // This is unitToMove, returned for clarity
+	swappedUnit?: Unit;
+	oldPositionOfMovedUnit: Vec2;
+} | null {
+	const oldPositionOfMovedUnit = { ...unitToMove.position };
+
+	if (eqVec2(oldPositionOfMovedUnit, newBoardPosition)) {
+		return null; // No change in position
+	}
+
+	const occupierUnit = unitsOnBoard.find(u => u.id !== unitToMove.id && eqVec2(u.position, newBoardPosition));
+
+	if (occupierUnit) {
+		// Swap positions
+		occupierUnit.position = oldPositionOfMovedUnit;
+		unitToMove.position = newBoardPosition;
+		return { movedUnit: unitToMove, swappedUnit: occupierUnit, oldPositionOfMovedUnit };
+	} else {
+		// Move to empty slot
+		unitToMove.position = newBoardPosition;
+		return { movedUnit: unitToMove, oldPositionOfMovedUnit };
+	}
+}
+
+// --- Board Drop Zone Management ---
+
+/**
+ * Initializes the board graphics system with a scene reference.
+ * This must be called before creating or interacting with board-specific graphics.
+ * @param scene The Phaser scene instance.
+ */
+export function initBoardGraphics(scene: Phaser.Scene): void {
+	_scene = scene;
+}
+
+/**
+ * Creates the main player board drop zone and its visual representation.
+ * Requires `initBoardGraphics` to have been called.
+ */
+export function createBoardDropZone(): void {
+	if (!_scene) {
+		console.error("Board graphics not initialized. Call initBoardGraphics(scene) first.");
+		return;
+	}
+	// Destroy existing visuals if any, to prevent duplicates
+	destroyBoardDropZoneVisuals();
+
+	const x = PLAYER_BOARD_X;
+	const y = PLAYER_BOARD_Y;
+	const w = constants.TILE_WIDTH * 3;
+	const h = constants.TILE_HEIGHT * 3;
+
+	_boardDropZone = _scene.add.zone(x, y, w, h).setOrigin(0);
+	_boardDropZone.setName("board"); // Important for identifying the drop zone
+	_boardDropZone.setRectangleDropZone(w, h);
+
+	_boardDropZoneDisplay = _scene.add.graphics();
+	_boardDropZoneDisplay.lineStyle(2, 0xffff00); // Yellow border
+	_boardDropZoneDisplay.fillStyle(0x00ffff, 0.3); // Cyan fill with alpha
+	_boardDropZoneDisplay.fillRect(x, y, w, h);
+	_boardDropZoneDisplay.strokeRect(x, y, w, h);
+
+	_boardDropZoneTween = _scene.tweens.add({
+		targets: _boardDropZoneDisplay,
+		alpha: 0.1,
+		duration: 2000,
+		repeat: -1,
+		yoyo: true
+	});
+}
+
+export function getBoardDropZone(): Phaser.GameObjects.Zone | null {
+	return _boardDropZone;
+}
+
+export function isPointerInBoardDropZone(pointer: { x: number, y: number }): boolean {
+	return _boardDropZone?.getBounds().contains(pointer.x, pointer.y) || false;
+}
+
+export function displayBoardDropZone(): void {
+	_boardDropZoneDisplay?.setVisible(true);
+}
+
+export function hideBoardDropZone(): void {
+	_boardDropZoneDisplay?.setVisible(false);
+}
+
+export function destroyBoardDropZoneVisuals(): void {
+	_boardDropZoneTween?.stop();
+	_boardDropZoneTween = null;
+
+	_boardDropZoneDisplay?.destroy();
+	_boardDropZoneDisplay = null;
+
+	_boardDropZone?.destroy();
+	_boardDropZone = null;
+}
+
+/** Call this when the scene shuts down to clean up board graphics resources. */
+export function clearBoardGraphics(): void {
+	destroyBoardDropZoneVisuals();
+	_scene = null;
+}

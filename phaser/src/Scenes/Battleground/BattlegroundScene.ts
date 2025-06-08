@@ -22,6 +22,7 @@ import { popText } from "../../Systems/Chara/Animations/popText";
 import * as Relic from "./Systems/Relic";
 import { WaveOutcome } from "./RunCombatIO";
 import { Unit } from "../../Models/Unit";
+import * as Board from "../../Models/Board";
 
 // Constants for BattlegroundScene specific game rules
 const INITIAL_PLAYER_GOLD = 10;
@@ -137,7 +138,8 @@ export class BattlegroundScene extends Phaser.Scene {
     ControlsSystem.init(this);
 
     this.bgContainer.add([this.bgImage]);
-    this.uiManager.createDropZone(); // TODO: move to board module
+    Board.initBoardGraphics(this);
+    Board.createBoardDropZone()
     this.uiManager.createMainUI();
     Relic.setupRelicSlots(this);
 

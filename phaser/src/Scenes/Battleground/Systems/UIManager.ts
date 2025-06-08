@@ -6,6 +6,7 @@ import { COLOR_BLACK } from "../../../Utils/colors";
 import { State } from "../../../Models/State";
 import * as assets from "../../../assets";
 import { playerForce } from "../../../Models/Force";
+import * as Board from "../../../Models/Board";
 
 export class UIManager {
 	private scene: BattlegroundScene;
@@ -13,9 +14,6 @@ export class UIManager {
 
 	private uiContainer: Phaser.GameObjects.Container | null = null;
 	private goldTextElement: Phaser.GameObjects.Text | null = null;
-	private dropZone: Phaser.GameObjects.Zone | null = null;
-	private dropZoneDisplay: Phaser.GameObjects.Graphics | null = null;
-	private dropZoneTween: Phaser.Tweens.Tween | null = null;
 
 	constructor(scene: BattlegroundScene) {
 		this.scene = scene;
@@ -161,58 +159,6 @@ export class UIManager {
 		text.destroy();
 	}
 
-	public createDropZone(): void {
-		this._destroyDropZoneVisuals(); // Clean up existing drop zone visuals first
-
-		const x = constants.PLAYER_BOARD_X;
-		const y = constants.PLAYER_BOARD_Y;
-		const w = constants.TILE_WIDTH * 3;
-		const h = constants.TILE_HEIGHT * 3;
-
-		this.dropZone = this.scene.add.zone(x, y, w, h).setOrigin(0);
-		this.dropZone.setName("board");
-		this.dropZone.setRectangleDropZone(w, h);
-
-		this.dropZoneDisplay = this.scene.add.graphics();
-		this.dropZoneDisplay.lineStyle(2, 0xffff00);
-		this.dropZoneDisplay.fillStyle(0x00ffff, 0.3);
-		this.dropZoneDisplay.fillRect(x, y, w, h);
-		this.dropZoneDisplay.strokeRect(x, y, w, h);
-
-		this.dropZoneTween = this.scene.tweens.add({
-			targets: this.dropZoneDisplay,
-			alpha: 0.1,
-			duration: 2000,
-			repeat: -1,
-			yoyo: true
-		});
-	}
-
-	public displayDropZone(): void {
-		this.dropZoneDisplay?.setVisible(true);
-	}
-
-	public hideDropZone(): void {
-		this.dropZoneDisplay?.setVisible(false);
-	}
-
-	private _destroyDropZoneVisuals(): void {
-		if (this.dropZoneTween) {
-			this.dropZoneTween.stop();
-			this.dropZoneTween = null;
-		}
-		if (this.dropZoneDisplay) {
-			this.dropZoneDisplay.destroy();
-			this.dropZoneDisplay = null;
-		}
-		if (this.dropZone) {
-			// Note: Zones themselves don't have visuals to destroy beyond the graphics object
-			// If the zone itself needs to be removed from input handling, it should be destroyed.
-			this.dropZone.destroy();
-			this.dropZone = null;
-		}
-	}
-
 	public destroyMainUI(): void {
 		if (this.uiContainer) {
 			this.uiContainer.destroy(true); // true to destroy children
@@ -223,8 +169,6 @@ export class UIManager {
 
 	public destroy(): void { // Full cleanup for the UIManager
 		this.destroyMainUI();
-		this._destroyDropZoneVisuals();
-
 		this.scene.events.off("gold-changed", this._handleGoldChanged, this);
 	}
 
@@ -335,10 +279,6 @@ export class UIManager {
 	}
 
 	public isPointerInDropZone({ x, y }: { x: number, y: number }): boolean {
-		return this.dropZone?.getBounds().contains(x, y) || false;
-	}
-
-	public getDropZone(): Phaser.GameObjects.Zone | null {
-		return this.dropZone;
+		return Board.getBoardDropZone()?.getBounds().contains(x, y) || false;
 	}
 }
