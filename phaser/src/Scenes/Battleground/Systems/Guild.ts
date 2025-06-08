@@ -1,10 +1,14 @@
 import { getState } from "../../../Models/State";
 import { Chara } from "../../../Systems/Chara/Chara";
-import * as Flyout_ from "../../../Systems/Flyout";
+import { Flyout } from "../../../Systems/Flyout";
 import * as constants from "../constants";
-import { coinDropIO } from "./UIManager";
 import { updatePlayerGoldIO } from "../../../Models/Force";
 import { images } from "../../../assets";
+
+import { BattlegroundScene } from "../BattlegroundScene"; // Assuming this is your actual scene class
+interface BattlegroundSceneWithUIManager extends BattlegroundScene {
+	uiManager: import('./UIManager').UIManager; // Adjust path as needed
+}
 
 export const CHEST_TILE_SIZE = constants.TILE_WIDTH / 2;
 
@@ -19,12 +23,12 @@ function onUnitSell(chara: Chara) {
 	state.gameData.player.units = state.gameData.player.units.filter(u => u.id !== unit.id);
 	state.battleData.units = state.battleData.units.filter(u => u.id !== unit.id);
 	chara.destroy();
-	coinDropIO(10, 10, chara.x, chara.y);
-	updatePlayerGoldIO(10);
+	(chara.parent as BattlegroundSceneWithUIManager).uiManager.coinDropIO(10, 10, chara.x, chara.y);
+	updatePlayerGoldIO(chara.parent, 10);
 }
 
-export async function renderGuildButton(sceneRef: Phaser.Scene) {
-	const flyout = await Flyout_.create(sceneRef, "Your Guild")
+export async function renderGuildButton(sceneRef: BattlegroundSceneWithUIManager) {
+	const flyout = new Flyout(sceneRef, "Your Guild")
 	const container = sceneRef.add.container(0, 0);
 	flyout.add(container);
 
@@ -50,12 +54,12 @@ export async function renderGuildButton(sceneRef: Phaser.Scene) {
 
 }
 
-const handleButtonClicked = (container: Container, flyout: Flyout_.Flyout) => async () => {
+const handleButtonClicked = (container: Container, flyout: Flyout) => async () => {
 	if (flyout.isOpen) {
 		flyout.slideOut();
 		return;
 	}
-	render(container.scene, container);
+	render(container.parent, container);
 	await flyout.slideIn();
 }
 

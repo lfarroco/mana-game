@@ -12,7 +12,7 @@ export async function popText({ text, targetId, type }: { text: string; targetId
 		console.warn("Chara not found for popText", targetId);
 		return;
 	}
-	const { scene } = chara;
+	const { parent: scene } = chara;
 
 	let color = defaultTextConfig.color;
 	if (type === "heal") {

@@ -3,336 +3,342 @@ import * as constants from "../constants";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { delay, tween } from "../../../Utils/animation";
 import { COLOR_BLACK } from "../../../Utils/colors";
-import { getState, State } from "../../../Models/State";
+import { State } from "../../../Models/State";
 import * as assets from "../../../assets";
+import { playerForce } from "../../../Models/Force";
 
-export let ui: Phaser.GameObjects.Container | null = null;
-export let dropZone: Phaser.GameObjects.Zone | null = null;
-export let dropZoneDisplay: Phaser.GameObjects.Graphics | null = null;
-export let unitInfoContainer: Phaser.GameObjects.Container | null = null;
+export class UIManager {
+	private scene: BattlegroundScene;
+	private state: State;
 
-export let scene: BattlegroundScene;
-export let state: State;
+	private uiContainer: Phaser.GameObjects.Container | null = null;
+	private goldTextElement: Phaser.GameObjects.Text | null = null;
+	private dropZone: Phaser.GameObjects.Zone | null = null;
+	private dropZoneDisplay: Phaser.GameObjects.Graphics | null = null;
+	private dropZoneTween: Phaser.Tweens.Tween | null = null;
 
-let goldText: Phaser.GameObjects.Text | null = null;
+	constructor(scene: BattlegroundScene) {
+		this.scene = scene;
+		this.state = scene.state; // Or use getState() if preferred globally
+		this._setupGoldChangeListener();
+	}
 
-export function init(sceneRef: BattlegroundScene) {
-	scene = sceneRef;
-	state = scene.state;
-}
+	private _setupGoldChangeListener(): void {
+		this.scene.events.on("gold-changed", this._handleGoldChanged, this);
+	}
 
-export function createButton(
-	text: string,
-	x: number,
-	y: number,
-	callback: () => void
-) {
-	const btnBg = scene.add.image(
-		x, y,
-		assets.images.button.key
-	)
-		.setScale(0.2)
-		.setOrigin(0.5);
-
-	const buttonText = scene.add.text(
-		x, y,
-		text,
-		{
-			...constants.defaultTextConfig,
-			color: '#fff',
-			stroke: 'none',
-			strokeThickness: 0,
-		}).setOrigin(0.5);
-
-	btnBg.setInteractive();
-
-	btnBg.on("pointerup", callback);
-	btnBg.on("pointerdown", () => {
-		buttonText.setShadow(0, 0, "#eaeaea", 0, true, true);
-	});
-	btnBg.on("pointerover", () => {
-		buttonText.setColor('#ffffff');
-		buttonText.setShadow(2, 2, "#000000", 2, true, true);
-
-		tween({
-			targets: [buttonText],
-			scale: 1.2,
-		})
-	});
-	btnBg.on("pointerout", () => {
-		buttonText.setColor('#fff');
-		buttonText.setShadow(0, 0, "#000000", 0, true, true);
-		tween({
-			targets: [buttonText],
-			scale: 1.0,
-		})
-	});
-
-	const container = scene.add.container(0, 0);
-	container.add([btnBg, buttonText]);
-	return container;
-}
-
-export const disableButton = (button: Phaser.GameObjects.Container) => {
-	button.getAll().forEach((child) => {
-		if (child instanceof Phaser.GameObjects.Image) {
-			child.setAlpha(0.5);
-			child.disableInteractive();
+	private _handleGoldChanged(newTotalGold: number, goldDelta: number): void {
+		if (this.goldTextElement) {
+			this.goldTextElement.setText("Gold: " + newTotalGold);
 		}
-		if (child instanceof Phaser.GameObjects.Text) {
-			child.setAlpha(0.5);
-			child.disableInteractive();
+		if (goldDelta !== 0) { // Play animation only if there's a change
+			this.goldChangeAnimation(goldDelta);
 		}
-	});
-};
+	}
 
-export const enableButton = (button: Phaser.GameObjects.Container) => {
-	button.getAll().forEach((child) => {
-		if (child instanceof Phaser.GameObjects.Image) {
-			child.setAlpha(1);
-			child.setInteractive();
-		}
-		if (child instanceof Phaser.GameObjects.Text) {
-			child.setAlpha(1);
-			child.setInteractive();
-		}
-	});
-};
+	public createButton(
+		text: string,
+		x: number,
+		y: number,
+		callback: () => void
+	): Phaser.GameObjects.Container {
+		const btnBg = this.scene.add.image(
+			x, y,
+			assets.images.button.key
+		)
+			.setScale(0.2)
+			.setOrigin(0.5);
 
-export function updateUI() {
+		const buttonText = this.scene.add.text(
+			x, y,
+			text,
+			{
+				...constants.defaultTextConfig,
+				color: '#fff',
+				stroke: 'none',
+				strokeThickness: 0,
+			}).setOrigin(0.5);
 
-	if (!ui)
-		scene.events.on("gold-changed", (gold: number) => {
-			if (goldText) {
-				goldText.setText("Gold: " + gold);
-			}
+		btnBg.setInteractive();
+
+		btnBg.on(Phaser.Input.Events.POINTER_UP, callback);
+		btnBg.on(Phaser.Input.Events.POINTER_DOWN, () => {
+			buttonText.setShadow(0, 0, "#eaeaea", 0, true, true);
+		});
+		btnBg.on(Phaser.Input.Events.POINTER_OVER, () => {
+			buttonText.setColor('#ffffff');
+			buttonText.setShadow(2, 2, "#000000", 2, true, true);
+
+			tween({
+				targets: [buttonText],
+				scale: 1.2,
+			});
+		});
+		btnBg.on(Phaser.Input.Events.POINTER_OUT, () => {
+			buttonText.setColor('#fff');
+			buttonText.setShadow(0, 0, "#000000", 0, true, true);
+			tween({
+				targets: [buttonText],
+				scale: 1.0,
+			});
 		});
 
-	ui?.destroy(true);
-	ui = scene.add.container(0, 0);
+		const container = this.scene.add.container(0, 0);
+		container.add([btnBg, buttonText]);
+		return container;
+	}
 
-	const sidebarWidth = constants.TILE_WIDTH;
-
-	const sidebarBg = scene.add.graphics();
-	sidebarBg.fillStyle(COLOR_BLACK, 0.7);
-	sidebarBg.fillRect(
-		(scene.cameras.main.width - sidebarWidth)
-		, 0, sidebarWidth, scene.cameras.main.height);
-
-	ui?.add(sidebarBg);
-
-	createGoldText(ui);
-
-}
-
-function createGoldText(parent: Container) {
-
-	const force = state.gameData.player;
-	goldText = scene.add.text(
-		constants.SCREEN_WIDTH - 120,
-		constants.SCREEN_HEIGHT - 100,
-		"Gold: " + force.gold, constants.defaultTextConfig);
-	parent.add(goldText);
-}
-
-export async function displayError(errorMessage: string) {
-
-	//scene.playFx('ui/error');
-
-	const text = scene.add.text(
-		constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100,
-		errorMessage,
-		constants.titleTextConfig,
-	).setOrigin(0.5);
-
-	await tween({
-		targets: [text],
-		scaleX: 1.05,
-		scaleY: 1.05,
-		duration: 1000,
-		yoyo: true,
-		ease: "Sine.elastic",
-		repeat: 0,
-	});
-
-	await tween({
-		targets: [text],
-		alpha: 0,
-	})
-
-	text.destroy();
-}
-
-export function createDropZone(scene: BattlegroundScene) {
-	const x = constants.PLAYER_BOARD_X;
-	const y = constants.PLAYER_BOARD_Y;
-	const w = constants.TILE_WIDTH * 3;
-	const h = constants.TILE_HEIGHT * 3;
-	const zone = scene.add.zone(x, y, w, h);
-	zone.setOrigin(0);
-
-	zone.setName("board");
-
-	zone.setRectangleDropZone(w, h);
-
-	dropZoneDisplay = scene.add.graphics();
-	dropZoneDisplay.lineStyle(2, 0xffff00);
-	dropZoneDisplay.fillStyle(0x00ffff, 0.3);
-	dropZoneDisplay.fillRect(
-		x, y,
-		w, h
-	);
-	dropZoneDisplay.strokeRect(
-		x, y,
-		w, h
-	);
-	scene.tweens.add({
-		targets: dropZoneDisplay,
-		alpha: 0.1,
-		duration: 2000,
-		repeat: -1,
-		yoyo: true
-	});
-
-	dropZone = zone;
-
-	updateUI();
-}
-
-export function displayDropZone() {
-	dropZoneDisplay?.setVisible(true);
-}
-
-export function hideDropZone() {
-	dropZoneDisplay?.setVisible(false);
-}
-
-export function hideUI() {
-	ui?.destroy(false);
-}
-
-export async function goldChangeAnimation(
-	gold: number,
-) {
-
-	const sign = gold > 0 ? "+" : "";
-
-	const animationText = `${sign}${gold}`;
-
-	// Use goldText position if available, otherwise fallback to a default
-	const startX = goldText ? goldText.x + goldText.width / 2 : constants.SCREEN_WIDTH - 100;
-	const startY = goldText ? goldText.y + goldText.height / 2 : 100;
-
-	const goldAmountText = scene.add.text(
-		startX,
-		startY,
-		animationText, constants.titleTextConfig)
-		.setOrigin(0.5, 0.5)
-		.setAlpha(0)
-		.setScale(1);
-
-	await tween({
-		targets: [goldAmountText],
-		alpha: 1,
-		scale: goldText ? 1.2 : 1.5, // Slightly smaller pop if over existing text
-		y: startY - 30, // Move upwards from the goldText position
-	});
-
-	await tween({
-		targets: [goldAmountText],
-		alpha: 0,
-		scale: 1,
-		y: startY - 60, // Continue moving upwards
-		duration: 800,
-	});
-
-	goldAmountText.destroy();
-
-}
-
-export async function coinDropIO(
-	gold: number,
-	coins: number,
-	x: number, y: number,
-) {
-
-	const state = getState();
-
-	const chestPosition: [number, number] = [
-		scene.cameras.main.width - 150,
-		scene.cameras.main.height - 100
-	];
-
-	const [chestX, chestY] = chestPosition;
-
-	goldChangeAnimation(gold);
-
-	for (let i = 0; i < coins; i++) {
-		const coin = scene.add.image(0, 0, 'coin').setOrigin(0.5, 0.5)
-			.setPosition(x + Math.random() * 200, y + Math.random() * 150)
-			.setAlpha(0)
-			//random rotation
-			.setRotation(Math.random() * Math.PI * 2);
-
-		scene.add.tween({
-			targets: coin,
-			alpha: 1,
-			duration: (500 / state.options.speed) * Math.max(Math.random(), 0.5),
-		});
-
-		scene.add.tween({
-			targets: coin,
-			scaleY: 0.5,
-			duration: 100 / state.options.speed,
-			yoyo: true,
-			repeat: -1
-		});
-
-		scene.add.tween({
-			targets: coin,
-			y: coin.y - 150,
-			ease: "Quad.Out",
-			duration: 300 / state.options.speed,
-			onComplete: () => {
-				const distance = Phaser.Math.Distance.Between(coin.x, coin.y, chestX, chestY);
-				scene.add.tween({
-					targets: coin,
-					x: chestX,
-					y: chestY,
-					alpha: 0.5,
-					duration: distance / 3,
-					ease: "Quad.In",
-					onComplete: () => {
-						coin.destroy();
-					}
-				});
+	public disableButton(button: Phaser.GameObjects.Container): void {
+		button.getAll().forEach((child) => {
+			if (child instanceof Phaser.GameObjects.Image || child instanceof Phaser.GameObjects.Text) {
+				child.setAlpha(0.5);
+				if (child.input) child.disableInteractive();
 			}
 		});
 	}
 
-	// when coins hit target, emit coins around
-	await delay(scene, 1000);
+	public enableButton(button: Phaser.GameObjects.Container): void {
+		button.getAll().forEach((child) => {
+			if (child instanceof Phaser.GameObjects.Image || child instanceof Phaser.GameObjects.Text) {
+				child.setAlpha(1);
+				if (child.input) child.setInteractive(); else if (child instanceof Phaser.GameObjects.Image) child.setInteractive();
+			}
+		});
+	}
 
-	scene.add.particles(...chestPosition, 'coin', {
-		speed: { min: 100, max: 200, },
-		lifespan: 500,
-		alpha: { start: 1.4, end: 0 },
-		angle: { min: 0, max: 360 },
-		quantity: coins * 2,
-		frequency: 100,
-		maxParticles: coins * 2,
-		rotate: {
-			min: 0,
-			max: 360
-		},
-		scaleY: {
-			start: -1,
-			end: 1
+	public createMainUI(): void {
+		this.destroyMainUI(); // Clean up previous UI if any
+
+		this.uiContainer = this.scene.add.container(0, 0);
+
+		const sidebarWidth = constants.TILE_WIDTH;
+		const sidebarBg = this.scene.add.graphics();
+		sidebarBg.fillStyle(COLOR_BLACK, 0.7);
+		sidebarBg.fillRect(
+			(this.scene.cameras.main.width - sidebarWidth),
+			0, sidebarWidth, this.scene.cameras.main.height
+		);
+		this.uiContainer.add(sidebarBg);
+
+		this._createGoldText(this.uiContainer);
+	}
+
+	private _createGoldText(parent: Phaser.GameObjects.Container): void {
+		// Assuming playerForce is the correct way to get player's gold initially
+		const initialGold = playerForce.gold; // Or getState().gameData.player.gold;
+		this.goldTextElement = this.scene.add.text(
+			constants.SCREEN_WIDTH - 120,
+			constants.SCREEN_HEIGHT - 100,
+			"Gold: " + initialGold, constants.defaultTextConfig
+		);
+		parent.add(this.goldTextElement);
+	}
+
+	public async displayError(errorMessage: string): Promise<void> {
+		// this.scene.sound.play('ui/error'); // If you have an error sound
+
+		const text = this.scene.add.text(
+			constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100,
+			errorMessage,
+			constants.titleTextConfig,
+		).setOrigin(0.5);
+
+		await tween({
+			targets: [text],
+			scaleX: 1.05,
+			scaleY: 1.05,
+			duration: 1000,
+			yoyo: true,
+			ease: "Sine.elastic", // Phaser.Math.Easing.Sine.Elastic if using Phaser's easing
+			repeat: 0,
+		});
+
+		await tween({
+			targets: [text],
+			alpha: 0,
+		});
+
+		text.destroy();
+	}
+
+	public createDropZone(): void {
+		this._destroyDropZoneVisuals(); // Clean up existing drop zone visuals first
+
+		const x = constants.PLAYER_BOARD_X;
+		const y = constants.PLAYER_BOARD_Y;
+		const w = constants.TILE_WIDTH * 3;
+		const h = constants.TILE_HEIGHT * 3;
+
+		this.dropZone = this.scene.add.zone(x, y, w, h).setOrigin(0);
+		this.dropZone.setName("board");
+		this.dropZone.setRectangleDropZone(w, h);
+
+		this.dropZoneDisplay = this.scene.add.graphics();
+		this.dropZoneDisplay.lineStyle(2, 0xffff00);
+		this.dropZoneDisplay.fillStyle(0x00ffff, 0.3);
+		this.dropZoneDisplay.fillRect(x, y, w, h);
+		this.dropZoneDisplay.strokeRect(x, y, w, h);
+
+		this.dropZoneTween = this.scene.tweens.add({
+			targets: this.dropZoneDisplay,
+			alpha: 0.1,
+			duration: 2000,
+			repeat: -1,
+			yoyo: true
+		});
+	}
+
+	public displayDropZone(): void {
+		this.dropZoneDisplay?.setVisible(true);
+	}
+
+	public hideDropZone(): void {
+		this.dropZoneDisplay?.setVisible(false);
+	}
+
+	private _destroyDropZoneVisuals(): void {
+		if (this.dropZoneTween) {
+			this.dropZoneTween.stop();
+			this.dropZoneTween = null;
+		}
+		if (this.dropZoneDisplay) {
+			this.dropZoneDisplay.destroy();
+			this.dropZoneDisplay = null;
+		}
+		if (this.dropZone) {
+			// Note: Zones themselves don't have visuals to destroy beyond the graphics object
+			// If the zone itself needs to be removed from input handling, it should be destroyed.
+			this.dropZone.destroy();
+			this.dropZone = null;
+		}
+	}
+
+	public destroyMainUI(): void {
+		if (this.uiContainer) {
+			this.uiContainer.destroy(true); // true to destroy children
+			this.uiContainer = null;
+		}
+		this.goldTextElement = null; // Was a child of uiContainer
+	}
+
+	public destroy(): void { // Full cleanup for the UIManager
+		this.destroyMainUI();
+		this._destroyDropZoneVisuals();
+
+		this.scene.events.off("gold-changed", this._handleGoldChanged, this);
+	}
+
+
+	public async goldChangeAnimation(gold: number): Promise<void> {
+		const sign = gold > 0 ? "+" : "";
+		const animationText = `${sign}${gold}`;
+
+		const startX = this.goldTextElement ? this.goldTextElement.x + this.goldTextElement.width / 2 : constants.SCREEN_WIDTH - 100;
+		const startY = this.goldTextElement ? this.goldTextElement.y + this.goldTextElement.height / 2 : constants.SCREEN_HEIGHT - 150; // Adjusted default Y
+
+		const goldAmountText = this.scene.add.text(
+			startX,
+			startY,
+			animationText, constants.titleTextConfig)
+			.setOrigin(0.5, 0.5)
+			.setAlpha(0)
+			.setScale(1);
+
+		await tween({
+			targets: [goldAmountText],
+			alpha: 1,
+			scale: this.goldTextElement ? 1.2 : 1.5,
+			y: startY - 30, // Move upwards from the goldText position
+		});
+
+		await tween({
+			targets: [goldAmountText],
+			alpha: 0,
+			scale: 1,
+			y: startY - 60, // Continue moving upwards
+			duration: 800,
+		});
+
+		goldAmountText.destroy();
+	}
+
+	public async coinDropIO(
+		gold: number,
+		coins: number,
+		x: number, y: number,
+	): Promise<void> {
+		const currentSpeed = this.state.options.speed; // Use speed from UIManager's state
+
+		const chestPosition: [number, number] = [
+			this.scene.cameras.main.width - 150,
+			this.scene.cameras.main.height - 100
+		];
+		const [chestX, chestY] = chestPosition;
+
+		this.goldChangeAnimation(gold); // Call as a method
+
+		for (let i = 0; i < coins; i++) {
+			const coin = this.scene.add.image(0, 0, 'coin').setOrigin(0.5, 0.5)
+				.setPosition(x + Math.random() * 200, y + Math.random() * 150)
+				.setAlpha(0)
+				.setRotation(Math.random() * Math.PI * 2);
+
+			this.scene.tweens.add({
+				targets: coin,
+				alpha: 1,
+				duration: (500 / currentSpeed) * Math.max(Math.random(), 0.5),
+			});
+
+			this.scene.tweens.add({
+				targets: coin,
+				scaleY: 0.5,
+				duration: 100 / currentSpeed,
+				yoyo: true,
+				repeat: -1
+			});
+
+			this.scene.tweens.add({
+				targets: coin,
+				y: coin.y - 150,
+				ease: "Quad.Out", // Phaser.Math.Easing.Quadratic.Out
+				duration: 300 / currentSpeed,
+				onComplete: () => {
+					const distance = Phaser.Math.Distance.Between(coin.x, coin.y, chestX, chestY);
+					this.scene.tweens.add({
+						targets: coin,
+						x: chestX,
+						y: chestY,
+						alpha: 0.5,
+						duration: distance / (3 * currentSpeed), // Adjust speed effect
+						ease: "Quad.In", // Phaser.Math.Easing.Quadratic.In
+						onComplete: () => {
+							coin.destroy();
+						}
+					});
+				}
+			});
 		}
 
-	});
-}
+		await delay(this.scene, 1000 / currentSpeed);
 
-export function isPointerInDropZone({ x, y }: { x: number, y: number }) {
-	return dropZone?.getBounds().contains(x, y);
+		this.scene.add.particles(chestX, chestY, 'coin', { // Ensure texture key is correct
+			speed: { min: 100, max: 200 },
+			lifespan: 500,
+			alpha: { start: 1.4, end: 0 },
+			angle: { min: 0, max: 360 },
+			quantity: coins * 2,
+			frequency: 100,
+			maxParticles: coins * 2,
+			rotate: { min: 0, max: 360 },
+			scaleY: { start: -1, end: 1 }
+		});
+	}
+
+	public isPointerInDropZone({ x, y }: { x: number, y: number }): boolean {
+		return this.dropZone?.getBounds().contains(x, y) || false;
+	}
+
+	public getDropZone(): Phaser.GameObjects.Zone | null {
+		return this.dropZone;
+	}
 }

@@ -16,7 +16,7 @@ export class GlowingOrb extends Phaser.GameObjects.Container {
 	create() {
 
 		// use particle emitter to create a glowing orb
-		const orb = this.scene.add.particles(
+		const orb = this.parent.add.particles(
 			0, 0,
 			images.white_dot.key,
 			{
@@ -32,7 +32,7 @@ export class GlowingOrb extends Phaser.GameObjects.Container {
 			});
 
 		// radial rays of light that follow the orb
-		const rays = this.scene.add.particles(
+		const rays = this.parent.add.particles(
 			10, 5,
 			images.light_pillar.key,
 			{
@@ -48,7 +48,7 @@ export class GlowingOrb extends Phaser.GameObjects.Container {
 			});
 
 		// Create explosion emitter
-		const explosionEmitter = this.scene.add.particles(0, 0,
+		const explosionEmitter = this.parent.add.particles(0, 0,
 			images.white_dot.key,
 			{
 				speed: { min: 200, max: 300 },
@@ -63,7 +63,7 @@ export class GlowingOrb extends Phaser.GameObjects.Container {
 		explosionEmitter.stop();
 
 		// Movement tween
-		this.scene.tweens.add({
+		this.parent.tweens.add({
 			targets: this,
 			x: this.target.x,
 			y: this.target.y,
