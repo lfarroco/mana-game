@@ -5,16 +5,17 @@ import { vec2, Vec2, eqVec2, sortBySnakeDistance, snakeDistanceBetween } from ".
 import { Unit } from "./Unit"; // Pointer type might be implicitly from Phaser or a custom type
 import { getActiveUnits, getUnitAt, State } from "./State";
 import { pickOne, pickRandom } from "../utils";
-import { playerForce } from "./Force";
+import { playerForce } from "./Force"; // playerForce is used by getMeleeTarget, keep import
 
-/** Prefix for naming player board tile GameObjects */
-export const PLAYER_BOARD_TILE_ZONE_PREFIX = "player_board_tile_";
 
 export class PlayerBoard {
 	private scene: Phaser.Scene;
 	private tileDropZones: Phaser.GameObjects.Zone[] = [];
 	private boardDropZoneDisplay: Phaser.GameObjects.Graphics | null = null;
 	private boardDropZoneTween: Phaser.Tweens.Tween | null = null;
+
+	/** Prefix for naming player board tile GameObjects */
+	static readonly PLAYER_BOARD_TILE_ZONE_PREFIX = "player_board_tile_";
 
 	public readonly x: number = PLAYER_BOARD_X;
 	public readonly y: number = PLAYER_BOARD_Y;
@@ -36,7 +37,7 @@ export class PlayerBoard {
 				const zoneY = this.y + tileY * constants.TILE_HEIGHT;
 				const tileZone = this.scene.add.zone(zoneX, zoneY, constants.TILE_WIDTH, constants.TILE_HEIGHT)
 					.setOrigin(0)
-					.setName(`${PLAYER_BOARD_TILE_ZONE_PREFIX}${tileX}_${tileY}`)
+					.setName(`${PlayerBoard.PLAYER_BOARD_TILE_ZONE_PREFIX}${tileX}_${tileY}`)
 					.setRectangleDropZone(constants.TILE_WIDTH, constants.TILE_HEIGHT);
 				this.tileDropZones.push(tileZone);
 			}
@@ -98,6 +99,107 @@ export class PlayerBoard {
 		this.destroyVisuals();
 		// Any other cleanup specific to the PlayerBoard instance itself can go here
 	}
+
+	/**
+	 * Looks for an empty slot on the board.
+	 * @param units The list of units currently on a board (e.g., player's guild units).
+	 * @param forceId The forceId to check against for unit count (relevant if board has mixed forces, though typically used for one force).
+	 * @returns A Vec2 position if an empty slot is found, otherwise null.
+	 */
+	public getEmptySlot(units: Unit[], forceId: string): Vec2 | null {
+		const boardWidthInTiles = Math.floor(this.width / constants.TILE_WIDTH);
+		const boardHeightInTiles = Math.floor(this.height / constants.TILE_HEIGHT);
+		const maxSlots = boardWidthInTiles * boardHeightInTiles;
+
+		if (units.filter(u => u.force === forceId).length >= maxSlots) {
+			console.warn("Board full. No empty slot available for forceId:", forceId);
+			return null;
+		}
+
+		for (let y = 0; y < boardHeightInTiles; y++) {
+			for (let x = 0; x < boardWidthInTiles; x++) {
+				const currentPos = vec2(x, y);
+				// getUnitAt is a general utility function that finds a unit at a position in a given array.
+				if (!getUnitAt(units)(currentPos)) {
+					return currentPos;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Converts world coordinates to board tile coordinates.
+	 * @param pointer An object with x, y world coordinates.
+	 * @returns A Vec2 representing the tile coordinates (e.g., {x:0, y:0}), or null if outside board.
+	 */
+	public getTileAt(pointer: { x: number; y: number }): Vec2 | null {
+		// Check if the pointer is within the board's boundaries
+		// Consistent with Phaser.Geom.Rectangle.contains (exclusive upper bound)
+		if (pointer.x >= this.x && pointer.x < this.x + this.width &&
+			pointer.y >= this.y && pointer.y < this.y + this.height) {
+
+			return vec2(
+				Math.floor((pointer.x - this.x) / constants.TILE_WIDTH),
+				Math.floor((pointer.y - this.y) / constants.TILE_HEIGHT)
+			);
+		}
+		return null;
+	}
+
+	/**
+	 * Updates the position of a unit on a given list of units.
+	 * If the new position is occupied, it swaps the units.
+	 * This function modifies the unit objects directly.
+	 * @param unitToMove The unit that is being moved.
+	 * @param newBoardPosition The target {x, y} position on the board grid.
+	 * @param unitsOnBoard The array of units to check for collisions/swaps.
+	 * @returns An object detailing the move, or null if no move was made.
+	 */
+	public static updateUnitPosition(
+		unitToMove: Unit,
+		newBoardPosition: Vec2,
+		unitsOnBoard: Unit[]
+	): {
+		movedUnit: Unit;
+		swappedUnit?: Unit;
+		oldPositionOfMovedUnit: Vec2;
+	} | null {
+		const oldPositionOfMovedUnit = { ...unitToMove.position };
+
+		if (eqVec2(oldPositionOfMovedUnit, newBoardPosition)) {
+			return null; // No change in position
+		}
+
+		const occupierUnit = unitsOnBoard.find(u => u.id !== unitToMove.id && eqVec2(u.position, newBoardPosition));
+
+		if (occupierUnit) {
+			occupierUnit.position = oldPositionOfMovedUnit; // Swap
+			unitToMove.position = newBoardPosition;
+			return { movedUnit: unitToMove, swappedUnit: occupierUnit, oldPositionOfMovedUnit };
+		} else {
+			unitToMove.position = newBoardPosition; // Move to empty slot
+			return { movedUnit: unitToMove, oldPositionOfMovedUnit };
+		}
+	}
+
+	public static isTileZone(gameObject: Phaser.GameObjects.GameObject): boolean {
+		return gameObject && gameObject.name.startsWith(PlayerBoard.PLAYER_BOARD_TILE_ZONE_PREFIX);
+	}
+
+	public static getTileFromZone(zone: Phaser.GameObjects.GameObject): Vec2 | null {
+		if (PlayerBoard.isTileZone(zone)) {
+			const parts = zone.name.substring(PlayerBoard.PLAYER_BOARD_TILE_ZONE_PREFIX.length).split('_');
+			if (parts.length === 2) {
+				const x = parseInt(parts[0], 10);
+				const y = parseInt(parts[1], 10);
+				if (!isNaN(x) && !isNaN(y)) {
+					return vec2(x, y);
+				}
+			}
+		}
+		return null;
+	}
 }
 
 // --- Module-level singleton management for a shared PlayerBoard ---
@@ -149,32 +251,6 @@ export function createBoardDropZone(): void {
 
 // --- Functions operating on the shared PlayerBoard instance ---
 // These provide module-level access, similar to the previous API.
-
-// Looks for an empty slot in a 3x3 board
-export function getEmptySlot(units: Unit[], forceId: string) {
-
-	if (units.filter(u => u.force === forceId).length >= 9) {
-		console.warn("Board full. No empty slot available");
-		return null;
-	}
-
-	const startX = 0;
-	const startY = 0;
-	const endX = 2;
-	const endY = 2;
-
-	// find an empty slot
-
-	for (let x = startX; x <= endX; x++) {
-		for (let y = startY; y <= endY; y++) {
-			if (!getUnitAt(units)(vec2(x, y))) {
-				return vec2(x, y);
-			}
-		}
-	}
-
-	return null;
-}
 
 
 export function getUnitsByProximity(state: State, unit: Unit, enemy: boolean, range: number): Unit[] {
@@ -269,80 +345,4 @@ export function getNeighbors(state: State, unit: Unit) {
 		.filter(u => u.position.x >= unit.position.x - 1 && u.position.x <= unit.position.x + 1)
 		.filter(u => u.position.y >= unit.position.y - 1 && u.position.y <= unit.position.y + 1)
 		;
-}
-
-export function getTileAt({ x, y }: { x: number; y: number; }): Vec2 | null {
-
-	const isInBounds = x >= PLAYER_BOARD_X
-		&& x <= PLAYER_BOARD_X + constants.TILE_WIDTH * 3
-		&& y >= PLAYER_BOARD_Y
-		&& y <= PLAYER_BOARD_Y + constants.TILE_HEIGHT * 3;
-
-	if (!isInBounds) return null
-
-	return vec2(
-		Math.floor((x - PLAYER_BOARD_X) / constants.TILE_WIDTH),
-		Math.floor((y - PLAYER_BOARD_Y) / constants.TILE_HEIGHT)
-	);
-
-}
-
-/**
- * Updates the position of a unit on a given list of units (e.g., player's board or any collection).
- * If the new position is occupied, it swaps the units.
- * This function modifies the unit objects directly.
- * @param unitToMove The unit that is being moved.
- * @param newBoardPosition The target {x, y} position on the board grid.
- * @param unitsOnBoard The array of units to check for collisions/swaps (e.g., state.gameData.player.units).
- * @returns An object detailing the move, including any swapped unit, or null if no move was made (e.g., dropped on the same spot).
- */
-export function updateUnitPositionOnBoard(
-	unitToMove: Unit,
-	newBoardPosition: Vec2,
-	unitsOnBoard: Unit[]
-): {
-	movedUnit: Unit; // This is unitToMove, returned for clarity
-	swappedUnit?: Unit;
-	oldPositionOfMovedUnit: Vec2;
-} | null {
-	const oldPositionOfMovedUnit = { ...unitToMove.position };
-
-	if (eqVec2(oldPositionOfMovedUnit, newBoardPosition)) {
-		return null; // No change in position
-	}
-
-	const occupierUnit = unitsOnBoard.find(u => u.id !== unitToMove.id && eqVec2(u.position, newBoardPosition));
-
-	if (occupierUnit) {
-		// Swap positions
-		occupierUnit.position = oldPositionOfMovedUnit;
-		unitToMove.position = newBoardPosition;
-		return { movedUnit: unitToMove, swappedUnit: occupierUnit, oldPositionOfMovedUnit };
-	} else {
-		// Move to empty slot
-		unitToMove.position = newBoardPosition;
-		return { movedUnit: unitToMove, oldPositionOfMovedUnit };
-	}
-}
-
-export function isPlayerBoardTileZone(gameObject: Phaser.GameObjects.GameObject): boolean {
-	return gameObject && gameObject.name.startsWith(PLAYER_BOARD_TILE_ZONE_PREFIX);
-}
-
-export function getTileFromZone(zone: Phaser.GameObjects.GameObject): Vec2 | null {
-	if (isPlayerBoardTileZone(zone)) {
-		const parts = zone.name.substring(PLAYER_BOARD_TILE_ZONE_PREFIX.length).split('_');
-		if (parts.length === 2) {
-			const x = parseInt(parts[0], 10);
-			const y = parseInt(parts[1], 10);
-			if (!isNaN(x) && !isNaN(y)) {
-				return vec2(x, y);
-			}
-		}
-	}
-	return null;
-}
-export function isPointerInBoardDropZone(pointer: { x: number, y: number }): boolean {
-	const boardBounds = new Phaser.Geom.Rectangle(PLAYER_BOARD_X, PLAYER_BOARD_Y, constants.TILE_WIDTH * 3, constants.TILE_HEIGHT * 3);
-	return boardBounds.contains(pointer.x, pointer.y);
 }
