@@ -74,7 +74,7 @@ export async function summonChara(
 export function addCharaToState(chara: Chara.Chara) {
 	charaManagerState.charaIndex.push(chara);
 }
-
+// TODO: move to chara
 export function getCharaPosition(unit: Unit) {
 
 	const offsetX = unit.force === constants.FORCE_ID_PLAYER ? constants.PLAYER_BOARD_X : constants.CPU_BOARD_X;

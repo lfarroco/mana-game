@@ -1,20 +1,154 @@
 import Phaser from "phaser";
 import * as constants from "../Scenes/Battleground/constants";
 import { PLAYER_BOARD_X, PLAYER_BOARD_Y } from "../Scenes/Battleground/constants";
-import { pickOne, pickRandom, } from "../utils";
-import { playerForce } from "./Force";
-import { vec2, sortBySnakeDistance, snakeDistanceBetween, Vec2, eqVec2 } from "./Geometry";
-import { State, getActiveUnits, getUnitAt } from "./State";
+import { vec2, Vec2, eqVec2, sortBySnakeDistance, snakeDistanceBetween } from "./Geometry";
 import { Unit } from "./Unit"; // Pointer type might be implicitly from Phaser or a custom type
-
-// Module-level state for board graphics
-let _scene: Phaser.Scene | null = null;
-let _tileDropZones: Phaser.GameObjects.Zone[] = [];
-let _boardDropZoneDisplay: Phaser.GameObjects.Graphics | null = null;
-let _boardDropZoneTween: Phaser.Tweens.Tween | null = null;
+import { getActiveUnits, getUnitAt, State } from "./State";
+import { pickOne, pickRandom } from "../utils";
+import { playerForce } from "./Force";
 
 /** Prefix for naming player board tile GameObjects */
 export const PLAYER_BOARD_TILE_ZONE_PREFIX = "player_board_tile_";
+
+export class PlayerBoard {
+	private scene: Phaser.Scene;
+	private tileDropZones: Phaser.GameObjects.Zone[] = [];
+	private boardDropZoneDisplay: Phaser.GameObjects.Graphics | null = null;
+	private boardDropZoneTween: Phaser.Tweens.Tween | null = null;
+
+	public readonly x: number = PLAYER_BOARD_X;
+	public readonly y: number = PLAYER_BOARD_Y;
+	public readonly width: number = constants.TILE_WIDTH * 3;
+	public readonly height: number = constants.TILE_HEIGHT * 3;
+
+	constructor(scene: Phaser.Scene) {
+		this.scene = scene;
+	}
+
+	public createDropZone(): void {
+		// Clean up any existing graphical elements this instance created
+		this.destroyVisuals();
+
+		this.tileDropZones = [];
+		for (let tileY = 0; tileY < 3; tileY++) {
+			for (let tileX = 0; tileX < 3; tileX++) {
+				const zoneX = this.x + tileX * constants.TILE_WIDTH;
+				const zoneY = this.y + tileY * constants.TILE_HEIGHT;
+				const tileZone = this.scene.add.zone(zoneX, zoneY, constants.TILE_WIDTH, constants.TILE_HEIGHT)
+					.setOrigin(0)
+					.setName(`${PLAYER_BOARD_TILE_ZONE_PREFIX}${tileX}_${tileY}`)
+					.setRectangleDropZone(constants.TILE_WIDTH, constants.TILE_HEIGHT);
+				this.tileDropZones.push(tileZone);
+			}
+		}
+
+		this.boardDropZoneDisplay = this.scene.add.graphics();
+		this.boardDropZoneDisplay.lineStyle(2, 0xffff00); // Yellow border
+		this.boardDropZoneDisplay.fillStyle(0x00ffff, 0.3); // Cyan fill with alpha
+		this.boardDropZoneDisplay.fillRect(this.x, this.y, this.width, this.height);
+		this.boardDropZoneDisplay.strokeRect(this.x, this.y, this.width, this.height);
+
+		this.boardDropZoneTween = this.scene.tweens.add({
+			targets: this.boardDropZoneDisplay,
+			alpha: 0.1,
+			duration: 2000,
+			repeat: -1,
+			yoyo: true
+		});
+	}
+
+	public getTileDropZones(): Phaser.GameObjects.Zone[] {
+		return this.tileDropZones;
+	}
+
+	public isPointerInDropZone(pointer: { x: number, y: number }): boolean {
+		const boardBounds = new Phaser.Geom.Rectangle(this.x, this.y, this.width, this.height);
+		return boardBounds.contains(pointer.x, pointer.y);
+	}
+
+	public display(): void {
+		this.boardDropZoneDisplay?.setVisible(true);
+	}
+
+	public hide(): void {
+		this.boardDropZoneDisplay?.setVisible(false);
+	}
+
+	/**
+	 * Clears only the visual elements (graphics, tweens, zones) created by this board.
+	 * The PlayerBoard instance itself remains, allowing visuals to be recreated later.
+	 */
+	public clearVisuals(): void {
+		this.destroyVisuals();
+	}
+
+	private destroyVisuals(): void {
+		this.boardDropZoneTween?.stop();
+		this.boardDropZoneTween = null;
+
+		this.boardDropZoneDisplay?.destroy();
+		this.boardDropZoneDisplay = null;
+
+		this.tileDropZones.forEach(zone => zone.destroy());
+		this.tileDropZones = [];
+	}
+
+	/** Call this when the scene shuts down or the board is no longer needed. */
+	public destroy(): void {
+		this.destroyVisuals();
+		// Any other cleanup specific to the PlayerBoard instance itself can go here
+	}
+}
+
+// --- Module-level singleton management for a shared PlayerBoard ---
+let _sharedPlayerBoardInstance: PlayerBoard | null = null;
+
+/**
+ * Initializes or re-initializes the shared PlayerBoard instance.
+ * If an instance already exists, it's destroyed before a new one is created.
+ * After initialization, call `playerBoard.createDropZone()` on the instance or
+ * the module-level `createBoardDropZone()` to set up its visuals.
+ * @param scene The Phaser scene.
+ * @returns The newly created PlayerBoard instance.
+ */
+export function initializeSharedPlayerBoard(scene: Phaser.Scene): PlayerBoard {
+	if (_sharedPlayerBoardInstance) {
+		_sharedPlayerBoardInstance.destroy();
+	}
+	_sharedPlayerBoardInstance = new PlayerBoard(scene);
+	return _sharedPlayerBoardInstance;
+}
+
+/**
+ * Retrieves the shared PlayerBoard instance.
+ * @returns The PlayerBoard instance, or null if it hasn't been initialized.
+ */
+export function getSharedPlayerBoard(): PlayerBoard | null {
+	if (!_sharedPlayerBoardInstance) {
+		console.warn("Shared PlayerBoard accessed before initialization. Call initializeSharedPlayerBoard(scene) first.");
+	}
+	return _sharedPlayerBoardInstance;
+}
+
+/**
+ * Creates the drop zone visuals and interactive zones for the shared player board.
+ * This will also clear any previous visuals on the shared board before creating new ones.
+ * Requires `initializeSharedPlayerBoard` to have been called first.
+ */
+export function createBoardDropZone(): void {
+	const board = getSharedPlayerBoard();
+	if (board) {
+		board.createDropZone(); // This method internally handles cleanup of its previous visuals
+	} else {
+		console.error("Cannot create board drop zone: Shared PlayerBoard not initialized.");
+	}
+}
+
+// --- End Module-level singleton management ---
+
+
+// --- Functions operating on the shared PlayerBoard instance ---
+// These provide module-level access, similar to the previous API.
 
 // Looks for an empty slot in a 3x3 board
 export function getEmptySlot(units: Unit[], forceId: string) {
@@ -41,6 +175,7 @@ export function getEmptySlot(units: Unit[], forceId: string) {
 
 	return null;
 }
+
 
 export function getUnitsByProximity(state: State, unit: Unit, enemy: boolean, range: number): Unit[] {
 	return getActiveUnits(state)
@@ -136,13 +271,6 @@ export function getNeighbors(state: State, unit: Unit) {
 		;
 }
 
-/**
- * Checks if a given screen position overlaps with the player board's drop zone.
- */
-export function overlapsWithPlayerBoard(pointer: { x: number; y: number; }): boolean {
-	return isPointerInBoardDropZone(pointer);
-}
-
 export function getTileAt({ x, y }: { x: number; y: number; }): Vec2 | null {
 
 	const isInBounds = x >= PLAYER_BOARD_X
@@ -160,7 +288,7 @@ export function getTileAt({ x, y }: { x: number; y: number; }): Vec2 | null {
 }
 
 /**
- * Updates the position of a unit on a given list of units (e.g., player's board).
+ * Updates the position of a unit on a given list of units (e.g., player's board or any collection).
  * If the new position is occupied, it swaps the units.
  * This function modifies the unit objects directly.
  * @param unitToMove The unit that is being moved.
@@ -197,72 +325,6 @@ export function updateUnitPositionOnBoard(
 	}
 }
 
-// --- Board Drop Zone Management ---
-
-/**
- * Initializes the board graphics system with a scene reference.
- * This must be called before creating or interacting with board-specific graphics.
- * @param scene The Phaser scene instance.
- */
-export function initBoardGraphics(scene: Phaser.Scene): void {
-	_scene = scene;
-}
-
-/**
- * Creates the main player board drop zone and its visual representation.
- * Requires `initBoardGraphics` to have been called.
- */
-export function createBoardDropZone(): void {
-	if (!_scene || _tileDropZones.length > 0) { // Prevent re-creation if already initialized
-		console.error("Board graphics not initialized. Call initBoardGraphics(scene) first.");
-		return;
-	}
-	// Destroy existing visuals if any, to prevent duplicates
-	destroyBoardDropZoneVisuals();
-
-	const x = PLAYER_BOARD_X;
-	const y = PLAYER_BOARD_Y;
-	const w = constants.TILE_WIDTH * 3;
-	const h = constants.TILE_HEIGHT * 3;
-
-	// Create individual tile zones
-	_tileDropZones = [];
-	for (let tileY = 0; tileY < 3; tileY++) {
-		for (let tileX = 0; tileX < 3; tileX++) {
-			const zoneX = x + tileX * constants.TILE_WIDTH;
-			const zoneY = y + tileY * constants.TILE_HEIGHT;
-			const tileZone = _scene.add.zone(zoneX, zoneY, constants.TILE_WIDTH, constants.TILE_HEIGHT)
-				.setOrigin(0)
-				.setName(`${PLAYER_BOARD_TILE_ZONE_PREFIX}${tileX}_${tileY}`)
-				.setRectangleDropZone(constants.TILE_WIDTH, constants.TILE_HEIGHT);
-			_tileDropZones.push(tileZone);
-		}
-	}
-
-	// Create the visual display for the entire board area
-	_boardDropZoneDisplay = _scene.add.graphics();
-	_boardDropZoneDisplay.lineStyle(2, 0xffff00); // Yellow border
-	_boardDropZoneDisplay.fillStyle(0x00ffff, 0.3); // Cyan fill with alpha
-	_boardDropZoneDisplay.fillRect(x, y, w, h);
-	_boardDropZoneDisplay.strokeRect(x, y, w, h);
-
-	_boardDropZoneTween = _scene.tweens.add({
-		targets: _boardDropZoneDisplay,
-		alpha: 0.1,
-		duration: 2000,
-		repeat: -1,
-		yoyo: true
-	});
-}
-
-/**
- * Gets all individual tile drop zones.
- * @returns An array of Phaser.GameObjects.Zone for each tile.
- */
-export function getTileDropZones(): Phaser.GameObjects.Zone[] {
-	return _tileDropZones;
-}
-
 export function isPlayerBoardTileZone(gameObject: Phaser.GameObjects.GameObject): boolean {
 	return gameObject && gameObject.name.startsWith(PLAYER_BOARD_TILE_ZONE_PREFIX);
 }
@@ -280,33 +342,7 @@ export function getTileFromZone(zone: Phaser.GameObjects.GameObject): Vec2 | nul
 	}
 	return null;
 }
-
 export function isPointerInBoardDropZone(pointer: { x: number, y: number }): boolean {
 	const boardBounds = new Phaser.Geom.Rectangle(PLAYER_BOARD_X, PLAYER_BOARD_Y, constants.TILE_WIDTH * 3, constants.TILE_HEIGHT * 3);
 	return boardBounds.contains(pointer.x, pointer.y);
-}
-
-export function displayBoardDropZone(): void {
-	_boardDropZoneDisplay?.setVisible(true);
-}
-
-export function hideBoardDropZone(): void {
-	_boardDropZoneDisplay?.setVisible(false);
-}
-
-export function destroyBoardDropZoneVisuals(): void {
-	_boardDropZoneTween?.stop();
-	_boardDropZoneTween = null;
-
-	_boardDropZoneDisplay?.destroy();
-	_boardDropZoneDisplay = null;
-
-	_tileDropZones.forEach(zone => zone.destroy());
-	_tileDropZones = [];
-}
-
-/** Call this when the scene shuts down to clean up board graphics resources. */
-export function clearBoardGraphics(): void {
-	destroyBoardDropZoneVisuals();
-	_scene = null;
 }
