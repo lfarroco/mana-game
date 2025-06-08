@@ -282,18 +282,21 @@ export class BattlegroundScene extends Phaser.Scene {
 
       await this.handleShopPhase();
       const { enemies } = this.setupBattle();
+
+      // Hide the player board visuals before combat starts
+      if (this.playerBoard) {
+        this.playerBoard.hide();
+      }
+
       const combatResult = await this.executeCombat();
       isGameOver = await this.handlePostCombat(combatResult, enemies);
 
+      // If game is not over, display the player board visuals again for the next round/shop phase
+      if (!isGameOver && this.playerBoard) {
+        this.playerBoard.display();
+      }
+
       if (isGameOver) break;
-
-      // Potentially another shop phase or event before the next round starts
-      // For now, we'll assume one shop phase per round start as per original logic
-      // If you want a shop phase *after* combat and before the next round *officially* starts,
-      // you could call `await this.handleShopPhase();` here again.
-
-      // Ensure playerBoard resources are cleaned up if the game ends or scene restarts
-      this.playerBoard?.destroy();
 
       //await EventSystem.evalEvent(EventSystem.pickAHero);
 
