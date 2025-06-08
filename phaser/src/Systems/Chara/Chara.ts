@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { Unit } from "../../Models/Unit";
-import * as bgConstants from "../../Scenes/Battleground/constants";
+import * as constants from "../../Scenes/Battleground/constants";
 import { eqVec2, Vec2, vec2 } from "../../Models/Geometry";
 import { delay, tween } from "../../Utils/animation";
 import { FORCE_ID_PLAYER } from "../../Scenes/Battleground/constants";
@@ -59,10 +59,10 @@ export class Chara extends Phaser.GameObjects.Container {
 		// Setup interactivity and event listeners
 		this.setInteractive(
 			new Phaser.Geom.Rectangle(
-				-bgConstants.HALF_TILE_WIDTH,
-				-bgConstants.HALF_TILE_HEIGHT,
-				bgConstants.TILE_WIDTH,
-				bgConstants.TILE_HEIGHT
+				-constants.HALF_TILE_WIDTH,
+				-constants.HALF_TILE_HEIGHT,
+				constants.TILE_WIDTH,
+				constants.TILE_HEIGHT
 			),
 			Phaser.Geom.Rectangle.Contains
 		);
@@ -92,9 +92,9 @@ export class Chara extends Phaser.GameObjects.Container {
 
 	private attemptPurchase(targetBoardPos?: Vec2): boolean {
 		const state = getState();
-		const purchaseCost = 3; // TODO: Configurable
+		const purchaseCost = constants.SHOP_ITEM_PURCHASE_COST;
 
-		if (state.gameData.player.units.length >= bgConstants.MAX_PARTY_SIZE) {
+		if (state.gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
 			this.parent.uiManager.displayError("Your party is full!");
 			return false;
 		}
@@ -147,9 +147,9 @@ export class Chara extends Phaser.GameObjects.Container {
 			console.warn(`Chara ${this.unit.id} using default texture ${textureKey}`);
 		}
 		this.sprite = this.parent.add.image(0, 0, textureKey)
-			.setDisplaySize(bgConstants.TILE_WIDTH, bgConstants.TILE_HEIGHT);
+			.setDisplaySize(constants.TILE_WIDTH, constants.TILE_HEIGHT);
 
-		if (this.unit.force === bgConstants.FORCE_ID_CPU) {
+		if (this.unit.force === constants.FORCE_ID_CPU) {
 			this.sprite.flipX = true;
 		}
 		this.add(this.sprite);
@@ -180,8 +180,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	private handleShopItemClick = (pointer: Phaser.Input.Pointer) => {
 		if (!this.isShopItem) return;
 
-		// If the pointer moved significantly, it was a drag, not a click.
-		if (pointer.getDistance() > 10) {
+		if (pointer.getDistance() > constants.DRAG_CLICK_THRESHOLD) {
 			return;
 		}
 
@@ -197,10 +196,89 @@ export class Chara extends Phaser.GameObjects.Container {
 	private isOwnedByPlayer(): boolean {
 		return getState().gameData.player.units.some(u => u.id === this.unit.id);
 	}
+	private _revertShopItemToDragStartPosition() {
+		tween({ targets: [this], x: this.dragStartX, y: this.dragStartY });
+	}
+
+	private _handleDropOwnedUnit(tile: Vec2 | null) {
+		const unitToMove = this.unit;
+		const state = getState();
+
+		if (!tile) {
+			// Dropped on the board zone, but not on a specific tile. Revert to current model position.
+			tween({ targets: [this], ...UnitManager.getCharaPosition(unitToMove) });
+			// Consider if this should set wasDragSuccessful. If reverting to same spot is "no change", then false.
+			// If it's a valid "end" of a drag even if no change, then true.
+			// For now, let's assume no change means the specific drop action wasn't "successful" in changing state.
+			this.wasDragSuccessful = eqVec2(vec2(this.x, this.y), UnitManager.getCharaPosition(unitToMove)); // True if already there
+			return;
+		}
+
+		const newBoardModelPosition = vec2(tile.x, tile.y);
+		runUnitEventTraits("onLeavePosition")(unitToMove);
+
+		const occupierUnitIfAny = state.gameData.player.units.find(
+			u => u.id !== unitToMove.id && eqVec2(u.position, newBoardModelPosition)
+		);
+		if (occupierUnitIfAny) {
+			runUnitEventTraits("onLeavePosition")(occupierUnitIfAny);
+		}
+
+		const moveResult = Board.updateUnitPositionOnBoard(
+			unitToMove,
+			newBoardModelPosition,
+			state.gameData.player.units
+		);
+
+		if (moveResult) {
+			runUnitEventTraits("onEnterPosition")(unitToMove);
+			tween({ targets: [this], ...UnitManager.getCharaPosition(unitToMove) });
+
+			if (moveResult.swappedUnit) {
+				runUnitEventTraits("onEnterPosition")(moveResult.swappedUnit);
+				const occupierChara = UnitManager.getChara(moveResult.swappedUnit.id);
+				tween({ targets: [occupierChara], ...UnitManager.getCharaPosition(moveResult.swappedUnit) });
+			}
+			this.wasDragSuccessful = true;
+		} else {
+			// Move was not made (e.g., dropped on the same spot or invalid move that board logic prevented).
+			runUnitEventTraits("onEnterPosition")(unitToMove); // Re-trigger for the original spot
+			if (occupierUnitIfAny) runUnitEventTraits("onEnterPosition")(occupierUnitIfAny); // And for the occupier if it existed
+			tween({ targets: [this], ...UnitManager.getCharaPosition(unitToMove) });
+			// If dropped on the same spot, it's a "successful" drag in terms of completing the action.
+			if (eqVec2(unitToMove.position, newBoardModelPosition)) {
+				this.wasDragSuccessful = true;
+			} else {
+				this.wasDragSuccessful = false; // Move failed for other reasons
+			}
+		}
+	}
+
+	private _handleDropShopItem(tile: Vec2 | null) {
+		if (!tile) {
+			// Dropped on the board zone, but not on a specific tile. Revert shop item.
+			this._revertShopItemToDragStartPosition();
+			this.wasDragSuccessful = false;
+			return;
+		}
+
+		const newBoardModelPosition = vec2(tile.x, tile.y);
+		if (this.attemptPurchase(newBoardModelPosition)) {
+			// Purchase successful, model updated by attemptPurchase.
+			// Visually place the Chara on the board.
+			tween({ targets: [this], ...UnitManager.getCharaPosition(this.unit) });
+			this.wasDragSuccessful = true;
+		} else {
+			// Purchase failed (e.g., not enough gold, slot occupied).
+			// Error message handled by attemptPurchase. Revert visual position.
+			this._revertShopItemToDragStartPosition();
+			this.wasDragSuccessful = false;
+		}
+	}
 
 	private handleDrop(
-		pointer: Phaser.Input.Pointer,
-		dropZoneTarget: Phaser.GameObjects.GameObject, // This is the GameObject it was dropped on
+		_pointer: Phaser.Input.Pointer, // Renamed as pointer is used by Board.getTileAt
+		dropZoneTarget: Phaser.GameObjects.GameObject,
 	) {
 		// Default to unsuccessful, successful paths will set it to true
 		this.wasDragSuccessful = false;
@@ -211,77 +289,33 @@ export class Chara extends Phaser.GameObjects.Container {
 			return;
 		}
 
-		const state = getState();
-		const tile = Board.getTileAt(pointer); // From Board.ts
-
-		const revertToOriginalVisualPosition = () => {
-			tween({ targets: [this], x: this.dragStartX, y: this.dragStartY });
-		};
-
-		if (!tile) {
-			// Dropped on the board zone, but not on a specific tile. Revert.
-			// If owned, revert to its model position. If not (shop item), revert to drag start.
-			if (this.isOwnedByPlayer()) {
-				tween({ targets: [this], ...UnitManager.getCharaPosition(this.unit) });
-			} else {
-				revertToOriginalVisualPosition();
-			}
-			return;
-		}
-
-		const newBoardModelPosition = vec2(tile.x, tile.y);
-		const unitToMove = this.unit;
+		const tile = Board.getTileAt(_pointer);
 
 		if (this.isOwnedByPlayer()) {
-			// --- Logic for moving an already owned unit ---
-			runUnitEventTraits("onLeavePosition")(unitToMove);
-
-			const occupierUnitIfAny = state.gameData.player.units.find(
-				u => u.id !== unitToMove.id && eqVec2(u.position, newBoardModelPosition)
-			);
-			if (occupierUnitIfAny) {
-				runUnitEventTraits("onLeavePosition")(occupierUnitIfAny);
-			}
-
-			const moveResult = Board.updateUnitPositionOnBoard(
-				unitToMove,
-				newBoardModelPosition,
-				state.gameData.player.units
-			);
-
-			if (moveResult) {
-				runUnitEventTraits("onEnterPosition")(unitToMove);
-				tween({ targets: [this], ...UnitManager.getCharaPosition(unitToMove) });
-
-				if (moveResult.swappedUnit) {
-					runUnitEventTraits("onEnterPosition")(moveResult.swappedUnit);
-					const occupierChara = UnitManager.getChara(moveResult.swappedUnit.id);
-					tween({ targets: [occupierChara], ...UnitManager.getCharaPosition(moveResult.swappedUnit) });
-				}
-				this.wasDragSuccessful = true;
-			} else {
-				// Move was not made (e.g., dropped on the same spot).
-				runUnitEventTraits("onEnterPosition")(unitToMove);
-				if (occupierUnitIfAny) runUnitEventTraits("onEnterPosition")(occupierUnitIfAny);
-				tween({ targets: [this], ...UnitManager.getCharaPosition(this.unit) });
-				// wasDragSuccessful remains false or could be true if same spot is "success"
-				if (eqVec2(unitToMove.position, newBoardModelPosition)) this.wasDragSuccessful = true;
-			}
+			this._handleDropOwnedUnit(tile);
 		} else {
-			// --- Logic for purchasing a new unit (e.g., from shop) ---
-			if (this.attemptPurchase(newBoardModelPosition)) {
-				// Purchase successful, model updated by attemptPurchase.
-				// Visually place the Chara on the board.
-				tween({ targets: [this], ...UnitManager.getCharaPosition(this.unit) });
-				this.wasDragSuccessful = true;
-			} else {
-				// Purchase failed (e.g., not enough gold, slot occupied).
-				// Error message handled by attemptPurchase. Revert visual position.
-				revertToOriginalVisualPosition();
-			}
+			this._handleDropShopItem(tile);
 		}
 
 
+	}
+
+	private _revertDragEndPositionIfDroppedOutsideBoard(pointer: Phaser.Input.Pointer) {
+		const isOverBoardZone = Board.isPointerInBoardDropZone(pointer);
+
+		if (!isOverBoardZone) {
+			// Drag ended completely outside the player board drop zone. Revert to original position.
+			if (this.isShopItem && !this.isOwnedByPlayer()) { // Check if it's still a shop item
+				// It's a shop item, revert to its shop slot visual position (dragStartX/Y)
+				this._revertShopItemToDragStartPosition();
+			} else {
+				// It's an owned unit, revert to its last known valid model position
+				tween({ targets: [this], ...UnitManager.getCharaPosition(this.unit) });
+			}
+		}
+		// If isOverBoardZone is true BUT wasDragSuccessful is false,
+		// it implies that handleDrop was called, deemed the drop invalid, and already handled the reversion.
+		// So, no further action is needed here for that specific case.
 	}
 
 	private handleDragEnd = (pointer: Phaser.Input.Pointer) => {
@@ -294,33 +328,15 @@ export class Chara extends Phaser.GameObjects.Container {
 		});
 
 		if (this.wasDragSuccessful) {
-			// Drop was successful on a valid zone (e.g., the board),
-			// and handleDrop (or another specific drop handler) already positioned the Chara.
+			// Drop was successful (or reverted by handleDrop itself to a "final" state for that action).
+			// handleDrop (or handleShopItemClick) already positioned the Chara.
 			return;
 		}
 
-		// If wasDragSuccessful is false, it means either:
-		// 1. The Chara was dropped on a zone (like the main board), but the drop was invalid.
-		//    In this scenario, the `handleDrop` method should have already initiated a revert tween.
-		// 2. The Chara was dropped outside any valid drop zone.
-		//    In this scenario, we need to initiate the revert tween here.
+		// If wasDragSuccessful is false, it means the drop was not on a valid zone,
+		// or was on a valid zone but handleDrop determined it was an invalid action and did not set wasDragSuccessful = true.
+		this._revertDragEndPositionIfDroppedOutsideBoard(pointer);
 
-		// Check if the pointer is currently over the main board drop zone.
-		const isOverBoardZone = Board.isPointerInBoardDropZone(pointer);
-
-		if (!isOverBoardZone) {
-			// Drag ended completely outside the player board drop zone. Revert to original position.
-			if (this.isShopItem && !this.isOwnedByPlayer()) { // Check if it's still a shop item
-				// It's a shop item, revert to its shop slot visual position (dragStartX/Y)
-				tween({ targets: [this], x: this.dragStartX, y: this.dragStartY });
-			} else {
-				// It's an owned unit, revert to its last known valid model position
-				tween({ targets: [this], ...UnitManager.getCharaPosition(this.unit) });
-			}
-		}
-		// If isOverBoardZone is true BUT wasDragSuccessful is false,
-		// it implies that handleDrop was called, deemed the drop invalid, and already handled the reversion.
-		// So, no further action is needed here for that specific case.
 	}
 
 	updateHpDisplay = () => {
@@ -402,7 +418,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		getState().battleData.units = getState().battleData.units.filter(u => u.id !== this.id);
 		runUnitEventTraits("onDeath")(this.unit);
 
-		if (this.unit.force === bgConstants.FORCE_ID_PLAYER) {
+		if (this.unit.force === constants.FORCE_ID_PLAYER) {
 			getState().gameData.player.units = getState().gameData.player.units.filter(u => u.id !== this.id);
 		}
 	}
