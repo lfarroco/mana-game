@@ -1,0 +1,89 @@
+// src/Systems/Chara/CharaBarsDisplay.ts
+import Phaser from "phaser";
+import { Unit } from "../../Models/Unit";
+import * as bgConstants from "../../Scenes/Battleground/constants";
+import { getState } from "../../Models/State";
+
+export class CharaBarsDisplay {
+	private scene: Phaser.Scene;
+	private unit: Unit;
+
+	private chargeBar!: Phaser.GameObjects.Graphics;
+	private cooldownBar!: Phaser.GameObjects.Graphics;
+	private hpBar!: Phaser.GameObjects.Graphics;
+
+	private static readonly DEBUG_BAR_PADDING = 10;
+	private static readonly DEBUG_BAR_HEIGHT = 10;
+
+	constructor(scene: Phaser.Scene, unit: Unit) {
+		this.scene = scene;
+		this.unit = unit;
+		this.createElements();
+	}
+
+	private createElements(): void {
+		this.chargeBar = this.scene.add.graphics();
+		this.cooldownBar = this.scene.add.graphics();
+		this.hpBar = this.scene.add.graphics();
+	}
+
+	public addToContainer(container: Phaser.GameObjects.Container): void {
+		container.add([this.chargeBar, this.cooldownBar, this.hpBar]);
+	}
+
+	public updateBars(): void {
+		const { chargeBar, cooldownBar, hpBar, unit } = this;
+		const maxWidthForDebugBars = bgConstants.TILE_WIDTH - (2 * CharaBarsDisplay.DEBUG_BAR_PADDING);
+
+		// Charge Bar
+		chargeBar.clear();
+		const percent = unit.charge / unit.cooldown;
+		let color = 0x000;
+		if (unit.hasted > 0 && unit.slowed > 0) color = 0x000;
+		else if (unit.hasted > 0) color = 0x00ff00;
+		else if (unit.slowed > 0) color = 0xff0000;
+
+		chargeBar.fillStyle(color, 0.2);
+		chargeBar.fillRect(
+			-bgConstants.HALF_TILE_WIDTH,
+			-bgConstants.HALF_TILE_HEIGHT,
+			bgConstants.TILE_WIDTH,
+			bgConstants.TILE_HEIGHT - Math.min(percent * bgConstants.TILE_HEIGHT, bgConstants.TILE_HEIGHT)
+		);
+
+		if (!getState().options.debug) {
+			cooldownBar.clear();
+			hpBar.clear();
+			return;
+		}
+
+		// Cooldown Bar (Debug)
+		cooldownBar.clear();
+		const cooldownPercent = Math.min(unit.refresh / bgConstants.MIN_COOLDOWN, 1);
+		cooldownBar.fillStyle(0xff0000, 1);
+		cooldownBar.fillRect(
+			-bgConstants.HALF_TILE_WIDTH + CharaBarsDisplay.DEBUG_BAR_PADDING,
+			-bgConstants.HALF_TILE_HEIGHT + 30,
+			cooldownPercent * maxWidthForDebugBars,
+			CharaBarsDisplay.DEBUG_BAR_HEIGHT
+		);
+
+		// HP Bar (Debug)
+		hpBar.clear();
+		const hpPercent = Math.min(unit.hp / unit.maxHp, 1);
+		hpBar.fillStyle(0x00ff00, 1);
+		hpBar.fillRect(
+			-bgConstants.HALF_TILE_WIDTH + CharaBarsDisplay.DEBUG_BAR_PADDING,
+			-bgConstants.HALF_TILE_HEIGHT + 50,
+			hpPercent * maxWidthForDebugBars,
+			CharaBarsDisplay.DEBUG_BAR_HEIGHT
+		);
+	}
+
+	public setVisible(visible: boolean): void {
+		this.chargeBar.setVisible(visible);
+		const debugMode = getState().options.debug;
+		this.cooldownBar.setVisible(visible && debugMode);
+		this.hpBar.setVisible(visible && debugMode);
+	}
+}

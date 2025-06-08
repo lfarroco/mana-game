@@ -14,26 +14,19 @@ import { images } from "../../assets";
 import { runUnitEventTraits } from "../../Models/Traits";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { updatePlayerGoldIO } from "../../Models/Force";
+import { CharaStatsDisplay } from "./CharaStatsDisplay"; // +
+import { CharaBarsDisplay } from "./CharaBarsDisplay"; // +
 
 // A Chara is the graphical representation of a Unit
 export class Chara extends Phaser.GameObjects.Container {
 	public unit: Unit;
 	public id: string; // Alias for unit.id for convenience if needed, or use this.unit.id directly
 
-	private sprite!: Phaser.GameObjects.Image; // Definite assignment assertion
-	private atkDisplay!: Phaser.GameObjects.Text;
-	private hpDisplay!: Phaser.GameObjects.Text;
-	private chargeBar!: Phaser.GameObjects.Graphics;
-	private cooldownBar!: Phaser.GameObjects.Graphics;
-	private hpBar!: Phaser.GameObjects.Graphics;
+	private sprite!: Phaser.GameObjects.Image;
+	private statsDisplay!: CharaStatsDisplay; // +
+	private barsDisplay!: CharaBarsDisplay; // +
 	// The container itself will be the interactive zone.
 
-	private static readonly BOX_WIDTH_RATIO = 0.4;
-	private static readonly BOX_HEIGHT_RATIO = 0.2;
-	private static readonly STAT_BOX_CORNER_RADIUS_RATIO = 0.1; // Ratio of boxWidth for corner radius
-	private static readonly STAT_BOX_MARGIN_RATIO = 0.1; // Ratio of boxWidth for margin
-	private static readonly DEBUG_BAR_PADDING = 10;
-	private static readonly DEBUG_BAR_HEIGHT = 10;
 
 	// Properties for drag-and-drop handling, especially for shop items
 	private dragStartX: number = 0;
@@ -55,8 +48,11 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.name = unit.id; // For Phaser's GameObject name property, useful for lookups
 
 		this.createSprite();
-		this.createStatsDisplay();
-		this.createBars();
+		// Initialize and add new components
+		this.statsDisplay = new CharaStatsDisplay(this.parent, this.unit);
+		this.statsDisplay.addToContainer(this);
+		this.barsDisplay = new CharaBarsDisplay(this.parent, this.unit);
+		this.barsDisplay.addToContainer(this);
 
 		this.parent.add.existing(this); // Add this container to the scene
 
@@ -84,9 +80,9 @@ export class Chara extends Phaser.GameObjects.Container {
 		}
 
 		// Initial update of displays
-		this.updateHpDisplay();
-		this.updateAtkDisplay();
-		this.updateChargeBar();
+		this.statsDisplay.updateHp();
+		this.statsDisplay.updateAtk();
+		this.barsDisplay.updateBars();
 
 		// Store initial visual position, useful for reverting shop items if drag fails
 		this.dragStartX = this.x;
@@ -157,57 +153,6 @@ export class Chara extends Phaser.GameObjects.Container {
 			this.sprite.flipX = true;
 		}
 		this.add(this.sprite);
-	}
-
-	private createStatsDisplay() {
-		const boxWidth = bgConstants.TILE_WIDTH * Chara.BOX_WIDTH_RATIO;
-		const boxHeight = bgConstants.TILE_HEIGHT * Chara.BOX_HEIGHT_RATIO;
-		const cornerRadius = boxWidth * Chara.STAT_BOX_CORNER_RADIUS_RATIO;
-		const margin = boxWidth * Chara.STAT_BOX_MARGIN_RATIO;
-
-		// ATK Display
-		const atkPosition: [number, number] = [
-			-bgConstants.HALF_TILE_WIDTH + margin,
-			bgConstants.HALF_TILE_HEIGHT - boxHeight - margin,
-		];
-		const atkBg = this.parent.add.graphics();
-		atkBg.fillStyle(0xff0000, 1).fillRoundedRect(atkPosition[0], atkPosition[1], boxWidth, boxHeight, cornerRadius);
-
-		this.atkDisplay = this.parent.add.text(
-			atkPosition[0] + boxWidth / 2,
-			atkPosition[1] + boxHeight / 2,
-			this.unit.attackPower.toString(),
-			bgConstants.defaultTextConfig
-		).setOrigin(0.5).setAlign('center');
-
-		if (this.unit.attackType === "none") {
-			this.atkDisplay.setAlpha(0);
-			atkBg.setAlpha(0);
-		}
-		this.add([atkBg, this.atkDisplay]);
-
-		// HP Display
-		const hpPosition: [number, number] = [
-			bgConstants.HALF_TILE_WIDTH - boxWidth - margin,
-			bgConstants.HALF_TILE_HEIGHT - boxHeight - margin,
-		];
-		const hpBg = this.parent.add.graphics();
-		hpBg.fillStyle(0x327a0a, 1.0).fillRoundedRect(hpPosition[0], hpPosition[1], boxWidth, boxHeight, cornerRadius);
-
-		this.hpDisplay = this.parent.add.text(
-			hpPosition[0] + boxWidth / 2,
-			hpPosition[1] + boxHeight / 2,
-			this.unit.hp.toString(),
-			bgConstants.defaultTextConfig
-		).setOrigin(0.5).setAlign('center');
-		this.add([hpBg, this.hpDisplay]);
-	}
-
-	private createBars() {
-		this.chargeBar = this.parent.add.graphics();
-		this.cooldownBar = this.parent.add.graphics();
-		this.hpBar = this.parent.add.graphics();
-		this.add([this.chargeBar, this.cooldownBar, this.hpBar]);
 	}
 
 	// --- Event Handlers ---
@@ -379,20 +324,15 @@ export class Chara extends Phaser.GameObjects.Container {
 	}
 
 	updateHpDisplay = () => {
-		this.hpDisplay.setText(Math.floor(this.unit.hp).toString());
+		this.statsDisplay.updateHp();
 	}
 
 	updateAtkDisplay = () => {
-		this.atkDisplay.setText(Math.floor(this.unit.attackPower).toString());
+		this.statsDisplay.updateAtk();
 	}
 
 	public setBarsVisibility(visible: boolean): void {
-		this.chargeBar.setVisible(visible);
-
-		// Debug bars should only be affected if debug mode is on
-		const debugMode = getState().options.debug;
-		this.cooldownBar.setVisible(visible && debugMode);
-		this.hpBar.setVisible(visible && debugMode);
+		this.barsDisplay.setVisible(visible);
 	}
 
 	addTooltip = () => {
@@ -415,52 +355,8 @@ export class Chara extends Phaser.GameObjects.Container {
 		});
 	}
 
-	// TODO: extract chargebar to isolated component
 	updateChargeBar = () => {
-		// This bar visually "drains": a full bar means 0% charge, an empty bar means 100% charged.
-		const { chargeBar, cooldownBar, hpBar, unit } = this;
-		const maxWidthForDebugBars = bgConstants.TILE_WIDTH - (2 * Chara.DEBUG_BAR_PADDING);
-
-		chargeBar.clear(); // Clears previously drawn graphics on this Graphics object
-		const percent = unit.charge / unit.cooldown;
-
-		let color = 0x000;
-
-		if (unit.hasted > 0 && unit.slowed > 0) color = 0x000;
-		else if (unit.hasted > 0) color = 0x00ff00;
-		else if (unit.slowed > 0) color = 0xff0000;
-
-		chargeBar.fillStyle(color, 0.2);
-		chargeBar.fillRect(
-			-bgConstants.HALF_TILE_WIDTH, // x
-			-bgConstants.HALF_TILE_HEIGHT, // y
-			bgConstants.TILE_WIDTH,
-			// Height of the bar represents the portion yet to be charged (1 - progress)
-			bgConstants.TILE_HEIGHT - Math.min(percent * bgConstants.TILE_HEIGHT, bgConstants.TILE_HEIGHT)
-		);
-
-		if (!getState().options.debug) return;
-
-		cooldownBar.clear();
-		// Assuming unit.refresh is current cooldown value and MIN_COOLDOWN is the max/target for this bar
-		const cooldownPercent = Math.min(unit.refresh / bgConstants.MIN_COOLDOWN, 1);
-		cooldownBar.fillStyle(0xff0000, 1);
-		cooldownBar.fillRect(
-			-bgConstants.HALF_TILE_WIDTH + Chara.DEBUG_BAR_PADDING,
-			-bgConstants.HALF_TILE_HEIGHT + 30, // Y position for this debug bar
-			cooldownPercent * maxWidthForDebugBars,
-			Chara.DEBUG_BAR_HEIGHT
-		);
-
-		hpBar.clear();
-		const hpPercent = Math.min(unit.hp / unit.maxHp, 1);
-		hpBar.fillStyle(0x00ff00, 1);
-		hpBar.fillRect(
-			-bgConstants.HALF_TILE_WIDTH + Chara.DEBUG_BAR_PADDING,
-			-bgConstants.HALF_TILE_HEIGHT + 50, // Y position for this debug bar
-			hpPercent * maxWidthForDebugBars,
-			Chara.DEBUG_BAR_HEIGHT
-		);
+		this.barsDisplay.updateBars();
 	}
 
 	damageUnit = (damage: number, isCritical = false) => {
