@@ -1,4 +1,3 @@
-import * as uuid from "uuid";
 import { playerForce, updatePlayerGoldIO } from "../../../Models/Force";
 import { getState } from "../../../Models/State";
 import { tween } from "../../../Utils/animation";
@@ -7,6 +6,8 @@ import { displayError } from "./UIManager";
 import { images } from "../../../assets";
 import { RelicDefinition } from "../../../Models/Card";
 import { TraitData } from "../../../Models/Traits";
+import * as Tooltip from "../../../Systems/Tooltip";
+import { Vec2 } from "../../../Models/Geometry";
 
 export class RelicCard extends Phaser.GameObjects.Image {
 	// Constants for game rules and UI identifiers
@@ -49,14 +50,19 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		this.on("dragstart", () => {
 			this.wasDroppedOnZone = false;
 		});
+		this.on("dragstart", this.handleDragStart);
 		this.on("drop", this.handleDrop);
 		this.on("dragend", this.handleDragEnd);
 
 		this.on("pointerup", this.handlePointerUp)
+		this.on("pointerover", this.handlePointerOver);
+		this.on("pointerout", this.handlePointerOut);
 
-		this.id = uuid.v4();
+		this.id = this.relicData.id; // Use definition ID or uuid.v4() if instances need unique IDs from shop
 		this.setName(this.id);
 	}
+
+
 
 	// Checks if the player can afford the relic
 	private canAfford(): boolean {
@@ -82,7 +88,7 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		const relicData: Relic = {
 			id: this.id,
 			pic: this.relicData.pic,
-			position: { x: gridX, y: gridY },
+			position: { x: gridX, y: gridY } as Vec2, // Ensure type compatibility
 			traits: this.relicData.traits
 		};
 		playerForce.relics.push(relicData);
@@ -177,6 +183,10 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		this.wasDroppedOnZone = false;
 	};
 
+	private handleDragStart = () => {
+		Tooltip.hide();
+	}
+
 	private handleDropRelicIntoSlot(zone: Phaser.GameObjects.Zone) {
 
 		const [_, xStr, yStr] = zone.name.split("-");
@@ -264,6 +274,20 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		record.position.x = x;
 		record.position.y = y;
 	}
+
+	private handlePointerOver(_pointer: Pointer) {
+
+		const tooltipX = this.x + (this.displayWidth / 2) + 300;
+		Tooltip.render(
+			tooltipX,
+			this.y,
+			this.relicData.name,
+			this.relicData.description);
+	}
+
+	private handlePointerOut() {
+		Tooltip.hide();
+	}
 }
 // Constants for Relic Slot layout and appearance
 // These could also be moved to a more general UI constants file if shared
@@ -316,6 +340,5 @@ export type Relic = {
 	id: string;
 	pic: string;
 	traits: TraitData[];
-	position: Point;
+	position: Vec2;
 };
-
