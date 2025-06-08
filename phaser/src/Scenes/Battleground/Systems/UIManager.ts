@@ -6,7 +6,6 @@ import { COLOR_BLACK } from "../../../Utils/colors";
 import { State } from "../../../Models/State";
 import * as assets from "../../../assets";
 import { playerForce } from "../../../Models/Force";
-import * as Board from "../../../Models/Board";
 
 export class UIManager {
 	private scene: BattlegroundScene;
@@ -276,9 +275,5 @@ export class UIManager {
 			rotate: { min: 0, max: 360 },
 			scaleY: { start: -1, end: 1 }
 		});
-	}
-
-	public isPointerInDropZone({ x, y }: { x: number, y: number }): boolean {
-		return Board.getBoardDropZone()?.getBounds().contains(x, y) || false;
 	}
 }
