@@ -9,9 +9,12 @@ import { Unit } from "./Unit"; // Pointer type might be implicitly from Phaser o
 
 // Module-level state for board graphics
 let _scene: Phaser.Scene | null = null;
-let _boardDropZone: Phaser.GameObjects.Zone | null = null;
+let _tileDropZones: Phaser.GameObjects.Zone[] = [];
 let _boardDropZoneDisplay: Phaser.GameObjects.Graphics | null = null;
 let _boardDropZoneTween: Phaser.Tweens.Tween | null = null;
+
+/** Prefix for naming player board tile GameObjects */
+export const PLAYER_BOARD_TILE_ZONE_PREFIX = "player_board_tile_";
 
 // Looks for an empty slot in a 3x3 board
 export function getEmptySlot(units: Unit[], forceId: string) {
@@ -210,7 +213,7 @@ export function initBoardGraphics(scene: Phaser.Scene): void {
  * Requires `initBoardGraphics` to have been called.
  */
 export function createBoardDropZone(): void {
-	if (!_scene) {
+	if (!_scene || _tileDropZones.length > 0) { // Prevent re-creation if already initialized
 		console.error("Board graphics not initialized. Call initBoardGraphics(scene) first.");
 		return;
 	}
@@ -222,10 +225,21 @@ export function createBoardDropZone(): void {
 	const w = constants.TILE_WIDTH * 3;
 	const h = constants.TILE_HEIGHT * 3;
 
-	_boardDropZone = _scene.add.zone(x, y, w, h).setOrigin(0);
-	_boardDropZone.setName("board"); // Important for identifying the drop zone
-	_boardDropZone.setRectangleDropZone(w, h);
+	// Create individual tile zones
+	_tileDropZones = [];
+	for (let tileY = 0; tileY < 3; tileY++) {
+		for (let tileX = 0; tileX < 3; tileX++) {
+			const zoneX = x + tileX * constants.TILE_WIDTH;
+			const zoneY = y + tileY * constants.TILE_HEIGHT;
+			const tileZone = _scene.add.zone(zoneX, zoneY, constants.TILE_WIDTH, constants.TILE_HEIGHT)
+				.setOrigin(0)
+				.setName(`${PLAYER_BOARD_TILE_ZONE_PREFIX}${tileX}_${tileY}`)
+				.setRectangleDropZone(constants.TILE_WIDTH, constants.TILE_HEIGHT);
+			_tileDropZones.push(tileZone);
+		}
+	}
 
+	// Create the visual display for the entire board area
 	_boardDropZoneDisplay = _scene.add.graphics();
 	_boardDropZoneDisplay.lineStyle(2, 0xffff00); // Yellow border
 	_boardDropZoneDisplay.fillStyle(0x00ffff, 0.3); // Cyan fill with alpha
@@ -241,12 +255,43 @@ export function createBoardDropZone(): void {
 	});
 }
 
+/**
+ * Gets all individual tile drop zones.
+ * @returns An array of Phaser.GameObjects.Zone for each tile.
+ */
+export function getTileDropZones(): Phaser.GameObjects.Zone[] {
+	return _tileDropZones;
+}
+
+/**
+* @deprecated The board now consists of multiple tile zones. Use getTileDropZones() or specific checks.
+*/
 export function getBoardDropZone(): Phaser.GameObjects.Zone | null {
-	return _boardDropZone;
+	console.warn("getBoardDropZone() is deprecated. The board uses individual tile zones.");
+	return null; // Or handle as appropriate if some legacy single-zone concept remains
+}
+
+export function isPlayerBoardTileZone(gameObject: Phaser.GameObjects.GameObject): boolean {
+	return gameObject && gameObject.name.startsWith(PLAYER_BOARD_TILE_ZONE_PREFIX);
+}
+
+export function getTileFromZone(zone: Phaser.GameObjects.GameObject): Vec2 | null {
+	if (isPlayerBoardTileZone(zone)) {
+		const parts = zone.name.substring(PLAYER_BOARD_TILE_ZONE_PREFIX.length).split('_');
+		if (parts.length === 2) {
+			const x = parseInt(parts[0], 10);
+			const y = parseInt(parts[1], 10);
+			if (!isNaN(x) && !isNaN(y)) {
+				return vec2(x, y);
+			}
+		}
+	}
+	return null;
 }
 
 export function isPointerInBoardDropZone(pointer: { x: number, y: number }): boolean {
-	return _boardDropZone?.getBounds().contains(pointer.x, pointer.y) || false;
+	const boardBounds = new Phaser.Geom.Rectangle(PLAYER_BOARD_X, PLAYER_BOARD_Y, constants.TILE_WIDTH * 3, constants.TILE_HEIGHT * 3);
+	return boardBounds.contains(pointer.x, pointer.y);
 }
 
 export function displayBoardDropZone(): void {
@@ -264,8 +309,8 @@ export function destroyBoardDropZoneVisuals(): void {
 	_boardDropZoneDisplay?.destroy();
 	_boardDropZoneDisplay = null;
 
-	_boardDropZone?.destroy();
-	_boardDropZone = null;
+	_tileDropZones.forEach(zone => zone.destroy());
+	_tileDropZones = [];
 }
 
 /** Call this when the scene shuts down to clean up board graphics resources. */
