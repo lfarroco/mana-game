@@ -93,8 +93,7 @@ export class Chara extends Phaser.GameObjects.Container {
 			this.parent.input.setDraggable(this);
 			this.on('dragstart', this.handleDragStart);
 			this.on('drag', this.handleDrag);
-			// 'drop' event is emitted by the drop zone, not the draggable item itself.
-			// This Chara will listen for 'drop' if it *is* a drop zone, or handle logic when dropped *on* a zone.
+			this.on('drop', this.handleDrop);
 			this.on('dragend', this.handleDragEnd);
 		}
 		if (this.isShopItem) {
