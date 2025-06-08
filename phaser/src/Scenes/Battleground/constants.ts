@@ -9,6 +9,9 @@ export const TILE_HEIGHT = TILE_WIDTH
 export const HALF_TILE_WIDTH = TILE_WIDTH / 2;
 export const HALF_TILE_HEIGHT = TILE_HEIGHT / 2;
 
+export const SHOP_ITEM_PURCHASE_COST = 3;
+export const DRAG_CLICK_THRESHOLD = 10;
+
 export const MAX_PARTY_SIZE = 5;
 
 export const REROLL_UNITS_PRICE = 2;
