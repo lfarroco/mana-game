@@ -6,10 +6,7 @@ import BattlegroundScene from "../BattlegroundScene";
 import { displayError } from "./UIManager";
 import { images } from "../../../assets";
 import { RelicDefinition } from "../../../Models/Card";
-import { traitSpecs } from "../../../Models/Traits";
-import { makeUnit } from "../../../Models/Unit";
-import { FORCE_ID_PLAYER } from "../constants";
-import { vec2 } from "../../../Models/Geometry";
+import { TraitData } from "../../../Models/Traits";
 
 export class RelicCard extends Phaser.GameObjects.Image {
 	// Constants for game rules and UI identifiers
@@ -82,37 +79,11 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		this.baseX = this.x;
 		this.baseY = this.y;
 
-		let events = {} as { [key: string]: (() => void)[] };
-
-		this.relicData.traits
-			.forEach(trait => {
-				const traitSpec = traitSpecs[trait.id];
-
-				if (!traitSpec) throw new Error(`Relic with invalid trait id: ${trait.id}`)
-
-				Object.entries(traitSpec.events)
-					.forEach(([k, v]) => {
-
-						if (!events[k])
-							events[k] = [];
-
-						// Only push zero-argument functions, or wrap others
-						v.forEach(ev => {
-							if (ev.type === "unitEvent") {
-								events[k].push(() => {
-									const mockUnit = makeUnit(FORCE_ID_PLAYER, "bowsie", vec2(0, 0))
-									ev.fn(mockUnit)();
-								});
-							}
-						});
-					})
-			})
-
 		const relicData: Relic = {
 			id: this.id,
 			pic: this.relicData.pic,
 			position: { x: gridX, y: gridY },
-			events
+			traits: this.relicData.traits
 		};
 		playerForce.relics.push(relicData);
 	}
@@ -344,7 +315,7 @@ export function setupRelicSlots(scene: BattlegroundScene): void {
 export type Relic = {
 	id: string;
 	pic: string;
-	events: { [key: string]: (() => void)[]; };
+	traits: TraitData[];
 	position: Point;
 };
 

@@ -11,14 +11,14 @@ import { getChara, summonChara } from "../Scenes/Battleground/Systems/CharaManag
 import { getColumnNeighbors } from "./Board";
 import { slash } from "../Systems/Chara/Skills/slash";
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
-import { shoot } from "../Systems/Chara/Skills/shoot";
+import { shoot } from "../Systems/Chara/Skills/shoot"; // Assuming this import is correct
 import { healing } from "../Systems/Chara/Skills/healing";
 import { healingWave } from "../Systems/Chara/Skills/healingWave";
 import { arcaneMissiles } from "../Systems/Chara/Skills/arcaneMissiles";
 import { haste } from "../Systems/Chara/Skills/haste";
 import { slow } from "../Systems/Chara/Skills/slow";
 import { updatePlayerGoldIO } from "./Force";
-
+import { UnitEventKeys, AttackEventKeys, UnitEventWithTargetKeys, UnitEvent, AttackEvent, UnitEventWithTarget } from "./UnitEvents";
 let state: State;
 let scene: BattlegroundScene;
 
@@ -749,38 +749,32 @@ export const randomCategoryTrait = (category: TraitCategory): Trait => {
 	return randomTrait;
 };
 
-export const runUnitEventTraits = (id: keyof UnitEvents) => (u: Unit) => {
+export const runUnitEventTraits = (id: UnitEventKeys) => (u: Unit) => {
 	u.traits.forEach(t => {
 		const spec = traitSpecs[t.id];
-		spec.events[id].forEach(ev => {
-			if (ev.type === "unitEvent")
-				ev.fn(u, t)();
-			else
-				console.warn("invalid trait type ")
+		const events: UnitEvent[] = spec.events[id];
+		events.forEach(ev => {
+			ev.fn(u, t)();
 		});
 	});
 };
 
-export const runAttackEventTraits = (id: keyof UnitEvents, target: Unit, damage: number, isCritical: boolean, evaded: boolean) => (u: Unit) => {
+export const runAttackEventTraits = (id: AttackEventKeys, target: Unit, damage: number, isCritical: boolean, evaded: boolean) => (u: Unit) => {
 	u.traits.forEach(t => {
 		const spec = traitSpecs[t.id];
-		spec.events[id].forEach(ev => {
-			if (ev.type === "attackEvent")
-				ev.fn(u, target, damage, isCritical, evaded)();
-			else
-				console.warn("invalid trait type ")
+		const events: AttackEvent[] = spec.events[id];
+		events.forEach(ev => {
+			ev.fn(u, target, damage, isCritical, evaded)();
 		});
 	});
 };
 
-export const runUnitEventWithTargetTraits = (id: keyof UnitEvents, target: Unit) => (u: Unit) => {
+export const runUnitEventWithTargetTraits = (id: UnitEventWithTargetKeys, target: Unit) => (u: Unit) => {
 	u.traits.forEach(t => {
 		const spec = traitSpecs[t.id];
-		spec.events[id].forEach(ev => {
-			if (ev.type === "unitEventWithTarget")
-				ev.fn(u, target)();
-			else
-				console.warn("invalid trait type ")
+		const events: UnitEventWithTarget[] = spec.events[id];
+		events.forEach(ev => {
+			ev.fn(u, target)();
 		});
 	});
 };

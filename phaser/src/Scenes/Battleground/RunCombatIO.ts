@@ -5,7 +5,7 @@ import * as UnitManager from "./Systems/CharaManager";
 import { performAction } from "./performAction";
 import { Unit } from "../../Models/Unit";
 import { tween } from "../../Utils/animation";
-import { runUnitEventTraits } from "../../Models/Traits";
+import { runUnitEventTraits, traitSpecs } from "../../Models/Traits";
 
 export type WaveOutcome = "player_won" | "player_lost";
 
@@ -36,8 +36,13 @@ async function setupWave(scene: BattlegroundScene) {
   }));
 
   scene.state.gameData.player.relics.forEach(r => {
-    r.events.onBattleStart && r.events.onBattleStart.forEach(fn => fn())
-  })
+    r.traits.forEach(t => {
+      const spec = traitSpecs[t.id];
+      spec.events.relicBattleStart.forEach(ev => {
+        ev(t)
+      })
+    })
+  });
 
   scene.state.battleData.units
     .forEach(runUnitEventTraits("onBattleStart"));
