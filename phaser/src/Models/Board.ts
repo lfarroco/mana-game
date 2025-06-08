@@ -263,14 +263,6 @@ export function getTileDropZones(): Phaser.GameObjects.Zone[] {
 	return _tileDropZones;
 }
 
-/**
-* @deprecated The board now consists of multiple tile zones. Use getTileDropZones() or specific checks.
-*/
-export function getBoardDropZone(): Phaser.GameObjects.Zone | null {
-	console.warn("getBoardDropZone() is deprecated. The board uses individual tile zones.");
-	return null; // Or handle as appropriate if some legacy single-zone concept remains
-}
-
 export function isPlayerBoardTileZone(gameObject: Phaser.GameObjects.GameObject): boolean {
 	return gameObject && gameObject.name.startsWith(PLAYER_BOARD_TILE_ZONE_PREFIX);
 }
