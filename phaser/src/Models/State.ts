@@ -1,8 +1,7 @@
 import { Force, playerForce } from "./Force";
 import { eqVec2, Vec2 } from "./Geometry";
-import { Unit, makeUnit } from "./Unit";
+import { Unit } from "./Unit";
 import { getChara } from "../Scenes/Battleground/Systems/CharaManager";
-import { getEmptySlot } from "./Board";
 import { UNIT_EVENT_NO_OP, UnitEvent } from "./UnitEvents";
 
 // TODO: make this not import things from phaser
@@ -116,22 +115,6 @@ export const getGuildUnit = (state: State) => (id: string): Unit | undefined => 
 
 export const getUnitAt = (units: Unit[]) => (position: Vec2) => {
   return units.find((u) => eqVec2(u.position, position));
-}
-
-export function addUnitToGuild(forceId: string, jobId: string) {
-  const state = getState();
-
-  const position = getEmptySlot(state.gameData.player.units, playerForce.id);
-
-  if (!position) {
-    throw new Error("No empty slot available");
-  }
-
-  const unit = makeUnit(forceId, jobId, position);
-
-  state.gameData.player.units.push(unit);
-
-  return unit;
 }
 
 export function addStatus(

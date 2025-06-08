@@ -2,14 +2,13 @@ import { makeUnit } from "../../../Models/Unit";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 import { Chara } from "../Chara";
 import { getState } from "../../../Models/State";
-import { getEmptySlot } from "../../../Models/Board";
 
 export async function summon(chara: Chara, cardId: string) {
 
 	const { unit } = chara;
 	const state = getState();
 
-	const emptySlot = getEmptySlot(state.battleData.units, unit.force);
+	const emptySlot = chara.parent.playerBoard.getEmptySlot(state.battleData.units, unit.force);
 
 	if (!emptySlot) {
 		console.warn("No empty slot available for summoning");

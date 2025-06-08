@@ -133,7 +133,7 @@ export class Chara extends Phaser.GameObjects.Container {
 			}
 			this.unit.position = targetBoardPos;
 		} else { // Purchasing by click, find an empty slot
-			const emptySlot = Board.getEmptySlot(state.gameData.player.units, FORCE_ID_PLAYER); // TODO: Ensure this finds a slot on the *player's* board specifically if not already guaranteed
+			const emptySlot = this.parent.playerBoard.getEmptySlot(state.gameData.player.units, FORCE_ID_PLAYER); // TODO: Ensure this finds a slot on the *player's* board specifically if not already guaranteed
 			if (!emptySlot) {
 				this.parent.uiManager.displayError("No empty slot on board!");
 				return false;
@@ -262,7 +262,7 @@ export class Chara extends Phaser.GameObjects.Container {
 			runUnitEventTraits("onLeavePosition")(occupierUnitIfAny);
 		}
 
-		const moveResult = Board.updateUnitPositionOnBoard(
+		const moveResult = Board.PlayerBoard.updateUnitPosition(
 			unitToMove,
 			newBoardModelPosition,
 			state.gameData.player.units
@@ -321,13 +321,13 @@ export class Chara extends Phaser.GameObjects.Container {
 	) {
 		this.wasDragSuccessful = false;
 
-		if (!Board.isPlayerBoardTileZone(dropZoneTarget)) {
+		if (!Board.PlayerBoard.isTileZone(dropZoneTarget)) {
 			// Dropped outside a valid player board tile zone.
 			// handleDragEnd will take care of reverting if necessary.
 			return;
 		}
 
-		const tile = Board.getTileFromZone(dropZoneTarget);
+		const tile = Board.PlayerBoard.getTileFromZone(dropZoneTarget);
 
 		if (!tile) {
 			// Should not happen if isPlayerBoardTileZone passed and getTileFromZone is robust
