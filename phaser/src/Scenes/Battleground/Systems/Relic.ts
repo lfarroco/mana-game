@@ -1,13 +1,17 @@
 import { playerForce, updatePlayerGoldIO } from "../../../Models/Force";
 import { getState } from "../../../Models/State";
 import { tween } from "../../../Utils/animation";
-import BattlegroundScene from "../BattlegroundScene";
-import { displayError } from "./UIManager";
 import { images } from "../../../assets";
 import { RelicDefinition } from "../../../Models/Card";
 import { TraitData } from "../../../Models/Traits";
 import * as Tooltip from "../../../Systems/Tooltip";
 import { Vec2 } from "../../../Models/Geometry";
+
+// It's good practice to have a more specific type for your scene if it has custom properties like uiManager
+import { BattlegroundScene } from "../BattlegroundScene"; // Assuming this is your actual scene class
+interface BattlegroundSceneWithUIManager extends BattlegroundScene {
+	uiManager: import('./UIManager').UIManager; // Adjust path as needed
+}
 
 export class RelicCard extends Phaser.GameObjects.Image {
 	// Constants for game rules and UI identifiers
@@ -20,6 +24,7 @@ export class RelicCard extends Phaser.GameObjects.Image {
 	];
 	static readonly SLOT_NAME_PREFIX = "slot-";
 
+	static parent: BattlegroundSceneWithUIManager;
 
 	id: string;
 	owned: boolean = false;
@@ -27,16 +32,16 @@ export class RelicCard extends Phaser.GameObjects.Image {
 	private wasDragged = false;
 
 	constructor(
-		scene: BattlegroundScene,
+		public parent: BattlegroundScene,
 		public baseX: number,
 		public baseY: number,
 		public relicData: RelicDefinition,
 		public iconSize: number,
 		public onAcquire: () => void
 	) {
-		super(scene, baseX, baseY, relicData.pic);
+		super(parent, baseX, baseY, relicData.pic);
 		this.setDisplaySize(iconSize, iconSize);
-		scene.add.existing(this);
+		parent.add.existing(this);
 
 		this.setInteractive({ draggable: true });
 
@@ -102,15 +107,15 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		}
 
 		if (!this.canAfford()) {
-			displayError(`Not enough gold (cost: ${RelicCard.RELIC_COST})`);
+			this.parent.uiManager.displayError(`Not enough gold (cost: ${RelicCard.RELIC_COST})`);
 			return false;
 		}
 		if (!this.hasSpaceForNewRelic()) {
-			displayError("No room for a new relic");
+			this.parent.uiManager.displayError("No room for a new relic");
 			return false;
 		}
 
-		updatePlayerGoldIO(-RelicCard.RELIC_COST);
+		updatePlayerGoldIO(this.parent, -RelicCard.RELIC_COST);
 
 		// Set visual position before completing acquisition
 		this.x = targetVisualX;
@@ -139,16 +144,16 @@ export class RelicCard extends Phaser.GameObjects.Image {
 
 		if (!emptySlotGridPosition) {
 			// This should ideally be caught by hasSpaceForNewRelic, but as a fallback:
-			displayError("No empty slot available on board.");
+			this.parent.uiManager.displayError("No empty slot available on board.");
 			return;
 		}
 
 		const [slotGridX, slotGridY] = emptySlotGridPosition;
-		const targetSlotGameObject = this.scene.children.getByName(`${RelicCard.SLOT_NAME_PREFIX}${slotGridX}-${slotGridY}`) as Phaser.GameObjects.Image | undefined;
+		const targetSlotGameObject = this.parent.children.getByName(`${RelicCard.SLOT_NAME_PREFIX}${slotGridX}-${slotGridY}`) as Phaser.GameObjects.Image | undefined;
 
 		if (!targetSlotGameObject) {
 			console.error(`Slot GameObject ${RelicCard.SLOT_NAME_PREFIX}${slotGridX}-${slotGridY} not found!`);
-			displayError("Error placing relic."); // User-friendly message
+			this.parent.uiManager.displayError("Error placing relic."); // User-friendly message
 			return;
 		}
 
@@ -199,10 +204,10 @@ export class RelicCard extends Phaser.GameObjects.Image {
 
 		if (occupierData) { // Slot is occupied
 			if (!this.owned) { // Trying to buy and place on an occupied slot
-				displayError("This slot is already occupied!");
+				this.parent.uiManager.displayError("This slot is already occupied!");
 				this.tweenToSlot(); // Back to shop
 			} else { // Moving an owned relic to an occupied slot (SWAP)
-				const occupierIcon = this.scene.children.list.find(
+				const occupierIcon = this.parent.children.list.find(
 					(child) => child.name === occupierData.id
 				) as RelicCard | undefined;
 

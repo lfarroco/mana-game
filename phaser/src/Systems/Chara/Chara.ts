@@ -4,7 +4,6 @@ import * as bgConstants from "../../Scenes/Battleground/constants";
 import { eqVec2, vec2 } from "../../Models/Geometry";
 import { delay, tween } from "../../Utils/animation";
 import { FORCE_ID_PLAYER } from "../../Scenes/Battleground/constants";
-import * as UIManager from "../../Scenes/Battleground/Systems/UIManager";
 import * as UnitManager from "../../Scenes/Battleground/Systems/CharaManager";
 import * as Board from "../../Models/Board"; // getState is used here
 import { addStatus, getState, } from "../../Models/State";
@@ -13,6 +12,7 @@ import { popText } from "./Animations/popText";
 import { criticalDamageDisplay } from "../../Effects";
 import { images } from "../../assets";
 import { runUnitEventTraits } from "../../Models/Traits";
+import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 
 // A Chara is the graphical representation of a Unit
 export class Chara extends Phaser.GameObjects.Container {
@@ -34,9 +34,9 @@ export class Chara extends Phaser.GameObjects.Container {
 	private static readonly DEBUG_BAR_PADDING = 10;
 	private static readonly DEBUG_BAR_HEIGHT = 10;
 
-	constructor(scene: Phaser.Scene, unit: Unit) {
+	constructor(public parent: BattlegroundScene, unit: Unit) {
 		const position = UnitManager.getCharaPosition(unit);
-		super(scene, position.x, position.y);
+		super(parent, position.x, position.y);
 
 		this.unit = unit;
 		this.id = unit.id;
@@ -46,7 +46,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.createStatsDisplay();
 		this.createBars();
 
-		this.scene.add.existing(this); // Add this container to the scene
+		this.parent.add.existing(this); // Add this container to the scene
 
 		// Setup interactivity and event listeners
 		this.setInteractive(
@@ -60,7 +60,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		);
 
 		if (this.unit.force === FORCE_ID_PLAYER) {
-			this.scene.input.setDraggable(this);
+			this.parent.input.setDraggable(this);
 			this.on('dragstart', this.handleDragStart);
 			this.on('drag', this.handleDrag);
 			this.on('drop', this.handleDrop); // Note: drop target needs to be set up on potential drop zones
@@ -76,11 +76,11 @@ export class Chara extends Phaser.GameObjects.Container {
 
 	private createSprite() {
 
-		const textureKey = this.scene.textures.exists(this.unit.pic) ? this.unit.pic : images.nameless.key;
+		const textureKey = this.parent.textures.exists(this.unit.pic) ? this.unit.pic : images.nameless.key;
 		if (textureKey === images.nameless.key) {
 			console.warn(`Chara ${this.unit.id} using default texture ${textureKey}`);
 		}
-		this.sprite = this.scene.add.image(0, 0, textureKey)
+		this.sprite = this.parent.add.image(0, 0, textureKey)
 			.setDisplaySize(bgConstants.TILE_WIDTH, bgConstants.TILE_HEIGHT);
 
 		if (this.unit.force === bgConstants.FORCE_ID_CPU) {
@@ -100,10 +100,10 @@ export class Chara extends Phaser.GameObjects.Container {
 			-bgConstants.HALF_TILE_WIDTH + margin,
 			bgConstants.HALF_TILE_HEIGHT - boxHeight - margin,
 		];
-		const atkBg = this.scene.add.graphics();
+		const atkBg = this.parent.add.graphics();
 		atkBg.fillStyle(0xff0000, 1).fillRoundedRect(atkPosition[0], atkPosition[1], boxWidth, boxHeight, cornerRadius);
 
-		this.atkDisplay = this.scene.add.text(
+		this.atkDisplay = this.parent.add.text(
 			atkPosition[0] + boxWidth / 2,
 			atkPosition[1] + boxHeight / 2,
 			this.unit.attackPower.toString(),
@@ -121,10 +121,10 @@ export class Chara extends Phaser.GameObjects.Container {
 			bgConstants.HALF_TILE_WIDTH - boxWidth - margin,
 			bgConstants.HALF_TILE_HEIGHT - boxHeight - margin,
 		];
-		const hpBg = this.scene.add.graphics();
+		const hpBg = this.parent.add.graphics();
 		hpBg.fillStyle(0x327a0a, 1.0).fillRoundedRect(hpPosition[0], hpPosition[1], boxWidth, boxHeight, cornerRadius);
 
-		this.hpDisplay = this.scene.add.text(
+		this.hpDisplay = this.parent.add.text(
 			hpPosition[0] + boxWidth / 2,
 			hpPosition[1] + boxHeight / 2,
 			this.unit.hp.toString(),
@@ -134,15 +134,15 @@ export class Chara extends Phaser.GameObjects.Container {
 	}
 
 	private createBars() {
-		this.chargeBar = this.scene.add.graphics();
-		this.cooldownBar = this.scene.add.graphics();
-		this.hpBar = this.scene.add.graphics();
+		this.chargeBar = this.parent.add.graphics();
+		this.cooldownBar = this.parent.add.graphics();
+		this.hpBar = this.parent.add.graphics();
 		this.add([this.chargeBar, this.cooldownBar, this.hpBar]);
 	}
 
 	// --- Event Handlers ---
 	private handleDragStart = () => {
-		this.scene.children.bringToTop(this);
+		this.parent.children.bringToTop(this);
 		tween({
 			targets: [this],
 			angle: -10,
@@ -164,7 +164,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	) {
 		// Ensure it was dropped on the main board drop zone
 		// UIManager.dropZone is the main board drop zone.
-		if (!UIManager.dropZone || dropZoneTarget !== UIManager.dropZone) {
+		if (!this.parent.uiManager.getDropZone() || dropZoneTarget !== this.parent.uiManager.getDropZone()) {
 			// If not dropped on the main board, revert (handled by dragend if not on any valid zone)
 			// This specific check might be redundant if dragend handles non-dropzone drops.
 			return;
@@ -224,7 +224,7 @@ export class Chara extends Phaser.GameObjects.Container {
 			ease: "Cubic.Out",
 		});
 
-		if (UIManager.isPointerInDropZone(pointer)) return
+		if (this.parent.uiManager.isPointerInDropZone(pointer)) return
 
 		// check if the drag ended inside or outside scene.dropZone
 		// return to original position if outside
@@ -336,7 +336,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.updateHpDisplay();
 
 		if (isCritical) {
-			criticalDamageDisplay(this.scene, this, Math.floor(damage));
+			criticalDamageDisplay(this.parent, this, Math.floor(damage));
 		} else {
 			popText({ text: Math.floor(damage).toFixed(0).toString(), targetId: chara.id, type: "damage" });
 		}
@@ -384,7 +384,7 @@ export class Chara extends Phaser.GameObjects.Container {
 			// Note: this loop will leave the chara.x at originalX + 20
 		}
 
-		await delay(this.scene, 2000);
+		await delay(this.parent, 2000);
 
 		UnitManager.destroyChara(this.id);
 

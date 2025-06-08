@@ -4,7 +4,7 @@ import { TILE_HEIGHT, TILE_WIDTH } from "../../../Scenes/Battleground/constants"
 
 export async function specialAnimation(activeChara: Chara) {
 
-	const { scene, unit } = activeChara;
+	const { parent: scene, unit } = activeChara;
 
 	const pic = scene.add.image(
 		activeChara.x, activeChara.y,

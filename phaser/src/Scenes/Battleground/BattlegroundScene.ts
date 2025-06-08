@@ -5,7 +5,7 @@ import * as ControlsSystem from "../../Systems/Controls/Controls";
 import * as AISystem from "../../Systems/AI/AI";
 import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import * as constants from "./constants";
-import * as UIManager from "./Systems/UIManager";
+import { UIManager } from "./Systems/UIManager";
 import * as UnitManager from "./Systems/CharaManager";
 import * as TraitSystem from "../../Models/Traits";
 import * as TooltipSystem from "../../Systems/Tooltip";
@@ -39,6 +39,7 @@ export class BattlegroundScene extends Phaser.Scene {
   bgContainer!: Phaser.GameObjects.Container;
   bgImage!: Phaser.GameObjects.Image;
   collection: CardCollection;
+  uiManager: UIManager;
 
   cleanup() {
     UnitManager.clearCharas();
@@ -60,13 +61,11 @@ export class BattlegroundScene extends Phaser.Scene {
     // TODO: separate scene-related listeners from state listeners
     AISystem.init(state);
     BattlegroundAudioSystem_init(state, this);
-
     UnitManager.init(this);
-    UIManager.init(this);
-
     TraitSystem.init(this, state);
-
     TooltipSystem.init(this);
+
+    // UIManager will be initialized in the start() method
 
     if (process.env.NODE_ENV === 'development') {
       //@ts-ignore
@@ -122,7 +121,7 @@ export class BattlegroundScene extends Phaser.Scene {
     state.gameData.player.units = [];
     state.gameData.player.relics = [];
     state.gameData.round = 1;
-    updatePlayerGoldIO(INITIAL_PLAYER_GOLD);
+    updatePlayerGoldIO(this, INITIAL_PLAYER_GOLD);
 
     this.sound.setVolume(this.state.options.soundVolume ?? DEFAULT_SCENE_SOUND_VOLUME);
   }
@@ -138,8 +137,8 @@ export class BattlegroundScene extends Phaser.Scene {
     ControlsSystem.init(this);
 
     this.bgContainer.add([this.bgImage]);
-    UIManager.createDropZone(this); // TODO: move to board module
-    UIManager.updateUI();
+    this.uiManager.createDropZone(); // TODO: move to board module
+    this.uiManager.createMainUI();
     Relic.setupRelicSlots(this);
 
   }
@@ -239,7 +238,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     if (combatResult === "player_won") {
       await battleResultAnimation(this, "victory");
-      updatePlayerGoldIO(VICTORY_GOLD_REWARD);
+      updatePlayerGoldIO(this, VICTORY_GOLD_REWARD);
       this.resetPlayerUnitsForNewRound();
       this.resetPlayerUnitChargeBars(); // Reset visual charge bars
       this.setAllPlayerUnitBarsVisibility(false); // Hide bars for player units
@@ -248,11 +247,11 @@ export class BattlegroundScene extends Phaser.Scene {
       await battleResultAnimation(this, "defeat");
       this.setAllPlayerUnitBarsVisibility(false); // Hide bars for player units even on defeat
       isGameOver = true;
-      UIManager.createButton("new run", 300, 300, () => {
+      this.uiManager.createButton("new run", 300, 300, () => {
         this.cleanup();
         this.start(); // Restart the game
       });
-      UIManager.createButton("return to menu", 300, 400, () => {
+      this.uiManager.createButton("return to menu", 300, 400, () => {
         this.scene.start("MainMenuScene");
       });
     }
@@ -262,6 +261,9 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
   start = async () => {
+    // Initialize UIManager here, now that the scene is ready
+    this.uiManager = new UIManager(this);
+
     this.initializeNewGame();
     this.setupSceneElements();
 

@@ -419,7 +419,7 @@ export const PLUNDER = makeTraitSpec({
 				(unit) => async () => {
 					if (unit.force === FORCE_ID_PLAYER) {
 						await popText({ text: "Plunder: +1 gold", targetId: unit.id, speed: 2 });
-						updatePlayerGoldIO(1);
+						updatePlayerGoldIO(scene, 1); // Use the scene instance initialized in this module
 					}
 				})]
 	}

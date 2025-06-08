@@ -9,12 +9,15 @@ import { Flyout } from "../../../Systems/Flyout";
 import * as Tooltip from "../../../Systems/Tooltip";
 import { pickRandom } from "../../../utils";
 import { tween } from "../../../Utils/animation";
-import BattlegroundScene from "../BattlegroundScene";
 import { FORCE_ID_PLAYER, MAX_PARTY_SIZE, SCREEN_WIDTH, titleTextConfig } from "../constants";
 import { addCharaToState, getCharaPosition } from "./CharaManager";
-import { createButton, displayError } from "./UIManager";
 import { RelicCard } from "./Relic";
 import { Chara } from "../../../Systems/Chara/Chara";
+
+import { BattlegroundScene } from "../BattlegroundScene"; // Assuming this is your actual scene class
+interface BattlegroundSceneWithUIManager extends BattlegroundScene {
+	uiManager: import('./UIManager').UIManager; // Adjust path as needed
+}
 
 export const open = (scene: BattlegroundScene) => new Promise<void>(async (resolve) => {
 
@@ -25,7 +28,7 @@ export const open = (scene: BattlegroundScene) => new Promise<void>(async (resol
 
 	tavern(state, flyout);
 
-	const nextRoundBtn = createButton(
+	const nextRoundBtn = (scene as BattlegroundSceneWithUIManager).uiManager.createButton(
 		"Next Round",
 		SCREEN_WIDTH - 180,
 		500,
@@ -41,7 +44,7 @@ export const open = (scene: BattlegroundScene) => new Promise<void>(async (resol
 
 });
 
-function relics(scene: BattlegroundScene, flyout: Flyout) {
+function relics(scene: BattlegroundSceneWithUIManager, flyout: Flyout) {
 
 	const relicData = pickRandom(getAllRelicDefinitions(), 3);
 
@@ -71,12 +74,12 @@ function relics(scene: BattlegroundScene, flyout: Flyout) {
 
 function tavern(state: State, flyout: Flyout) {
 
-	const bg = flyout.scene.add.graphics()
+	const bg = flyout.parent.add.graphics()
 		.fillStyle(0x000, 0.5)
 		.fillRect(800, 0, 600, 400)
 		.setPosition(50, 50);
 
-	const title = flyout.scene.add.text(900, 60, "Tavern", titleTextConfig);
+	const title = flyout.parent.add.text(900, 60, "Tavern", titleTextConfig);
 	flyout.add([bg, title]);
 
 	const filtered = getAllCards()
@@ -86,7 +89,7 @@ function tavern(state: State, flyout: Flyout) {
 	pickRandom(filtered, 3)
 		.forEach((spec, index) => {
 			const unit = makeUnit(FORCE_ID_PLAYER, spec.id, vec2(0, 0));
-			const chara = new Chara(flyout.scene, unit);
+			const chara = new Chara(flyout.parent, unit);
 
 			addCharaToState(chara);
 
@@ -98,16 +101,16 @@ function tavern(state: State, flyout: Flyout) {
 			chara.on("pointerup", () => {
 
 				if (state.gameData.player.units.length >= MAX_PARTY_SIZE) {
-					displayError("Your party is full! Discard a card or skip.");
+					(flyout.parent as BattlegroundSceneWithUIManager).uiManager.displayError("Your party is full! Discard a card or skip.");
 					return;
 				}
 
 				if (playerForce.gold < 3) {
-					displayError("You don't have enough gold!");
+					(flyout.parent as BattlegroundSceneWithUIManager).uiManager.displayError("You don't have enough gold!");
 					return;
 				}
 
-				updatePlayerGoldIO(-3);
+				updatePlayerGoldIO(flyout.parent, -3);
 
 				Tooltip.hide();
 				flyout.remove(chara);
@@ -133,4 +136,3 @@ function tavern(state: State, flyout: Flyout) {
 			flyout.add(chara);
 		});
 }
-

@@ -7,7 +7,7 @@ export async function physicalAttack(
 	activeChara: Chara,
 	targetChara: Chara,
 ) {
-	const { scene } = activeChara;
+	const { parent: scene } = activeChara;
 	const { speed } = getState().options;
 
 	impactEffect({
