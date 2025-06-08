@@ -20,7 +20,7 @@ export const performAction = (scene: BattlegroundScene) => (unit: Unit) => async
 	unit.traits.forEach(traitData => {
 		const spec = traitSpecs[traitData.id];
 		if (!spec) return;
-		spec.events.onAction?.forEach(e => {
+		spec.unitEvents.onAction?.forEach(e => {
 			e.fn(unit, traitData)();
 		});
 	});

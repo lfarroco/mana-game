@@ -35,13 +35,16 @@ async function setupWave(scene: BattlegroundScene) {
     })
   }));
 
-  scene.state.gameData.player.relics.forEach(r => {
-    r.traits.forEach(t => {
-      const spec = traitSpecs[t.id];
-      spec.events.relicBattleStart.forEach(ev => {
-        ev(t)
-      })
-    })
+  // Trigger relic onBattleStart events
+  scene.state.gameData.player.relics.forEach(relicInstance => {
+    relicInstance.traits.forEach(relicTraitData => { // relicTraitData is TraitData
+      const spec = traitSpecs[relicTraitData.id]; // spec is TraitSpec
+      if (spec && spec.relicEvents.onBattleStart) {
+        spec.relicEvents.onBattleStart.forEach(eventDef => { // eventDef is RelicBattleStartEvent
+          eventDef.fn(relicTraitData); // Pass the specific TraitData for this relic's trait instance
+        });
+      }
+    });
   });
 
   scene.state.battleData.units

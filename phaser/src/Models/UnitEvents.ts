@@ -38,7 +38,6 @@ export type UnitEvents = {
 	onDeath: UnitEvent[];
 	onLeavePosition: UnitEvent[];
 	onEnterPosition: UnitEvent[];
-	relicBattleStart: ((data: TraitData) => void)[];
 };
 // TODO: add onDamageCalculation, onDodgeCalculation, onCriticalHitCalculation, onAttackCalculation
 // This allows adding buffs/debuffs to damage, dodge, critical hit and attack
@@ -61,7 +60,6 @@ export const UNIT_EVENTS: readonly (keyof UnitEvents)[] = [
 	"onDeath",
 	"onEnterPosition",
 	"onLeavePosition",
-	"relicBattleStart"
 ] as const;
 
 // Helper types for more specific event keys
