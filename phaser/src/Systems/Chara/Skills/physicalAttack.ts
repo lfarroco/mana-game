@@ -36,20 +36,21 @@ export async function physicalAttack(
 
 	activeChara.unit.events
 		.onAttackByMe
-		.map(fn => fn(activeChara.unit, targetChara.unit, damage, isCritical, evaded)())
+		.forEach(ev => ev.fn(activeChara.unit, targetChara.unit, damage, isCritical, evaded)())
 
 	targetChara.unit.events
-		.onDefendByMe.map(fn => fn(activeChara.unit, targetChara.unit)())
+		.onDefendByMe
+		.forEach(ev => ev.fn(activeChara.unit, targetChara.unit)())
 
 	if (evaded) {
 		targetChara.unit.events
 			.onEvadeByMe
-			.map(fn => fn(targetChara.unit, activeChara.unit)())
+			.map(ev => ev.fn(targetChara.unit, activeChara.unit)())
 	} else {
 		targetChara.damageUnit(damage, isCritical);
 	}
 
 	activeChara.unit.events
-		.onAfterAttackByMe.map(fn => fn(activeChara.unit, targetChara.unit, damage, isCritical, evaded)())
+		.onAfterAttackByMe.map(ev => ev.fn(activeChara.unit, targetChara.unit, damage, isCritical, evaded)())
 
 }

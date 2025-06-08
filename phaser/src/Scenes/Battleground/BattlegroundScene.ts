@@ -7,8 +7,6 @@ import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import * as constants from "./constants";
 import * as UIManager from "./Systems/UIManager";
 import * as UnitManager from "./Systems/CharaManager";
-import * as ChoiceSystem from "./Systems/Choice";
-import * as EventSystem from "../../Models/Encounters/Encounter";
 import * as TraitSystem from "../../Models/Traits";
 import * as TooltipSystem from "../../Systems/Tooltip";
 import { CardCollection, getAllCards, registerCollection } from "../../Models/Card";
@@ -65,10 +63,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     UnitManager.init(this);
     UIManager.init(this);
-
-    ChoiceSystem.init(this);
-
-    EventSystem.init(this);
 
     TraitSystem.init(this, state);
 

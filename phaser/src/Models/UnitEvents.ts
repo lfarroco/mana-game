@@ -5,11 +5,20 @@ import { Unit } from "./Unit";
 // in the UNits and Traits modules
 
 export type IO = () => Promise<void>;
-export type UnitEvent = ((u: Unit, traitData?: TraitData ) => IO);
-type UnitEventWithTarget = ((u: Unit, target: Unit) => IO);
-type AttackEvent = ((u: Unit, target: Unit, damage: number, isCritical: boolean, evaded: boolean) => IO);
 
-export const UNIT_EVENT_NO_OP: UnitEvent = () => async () => { };
+type UnitEventCallback = ((u: Unit, traitData?: TraitData) => IO)
+type UnitEventWithTargetCallback = ((u: Unit, target: Unit) => IO)
+type AttackEventCallback = ((u: Unit, target: Unit, damage: number, isCritical: boolean, evaded: boolean) => IO)
+
+export type UnitEvent = { type: "unitEvent", fn: UnitEventCallback };
+export type UnitEventWithTarget = { type: "unitEventWithTarget", fn: UnitEventWithTargetCallback };
+export type AttackEvent = { type: "attackEvent", fn: AttackEventCallback }
+
+export const makeUnitEvent = (fn: UnitEventCallback): UnitEvent => ({ type: "unitEvent", fn });
+export const makeUnitEventWithTarget = (fn: UnitEventWithTargetCallback): UnitEventWithTarget => ({ type: "unitEventWithTarget", fn });
+export const makeAttackEvent = (fn: AttackEventCallback): AttackEvent => ({ type: "attackEvent", fn });
+
+export const UNIT_EVENT_NO_OP: UnitEvent = { type: "unitEvent", fn: () => async () => { } };
 
 export type UnitEvents = {
 	onTurnStart: UnitEvent[];

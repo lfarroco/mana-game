@@ -120,7 +120,7 @@ export function generateEnemyTeam(
 			}
 			if (card !== undefined) {
 
-				const unit = makeUnit(cpuForce.id, card.name, vec2(x, y));
+				const unit = makeUnit(cpuForce.id, card.id, vec2(x, y));
 				units.push(unit);
 			}
 		}

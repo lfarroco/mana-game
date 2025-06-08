@@ -61,7 +61,7 @@ function relics(scene: BattlegroundScene, flyout: Flyout) {
 		const slot = scene.add
 			.image(x, y, images.slot.key)
 			.setDisplaySize(iconSize, iconSize);
-		const icon = new RelicCard(scene, x, y, relic.pic, 200 - 40, () => {
+		const icon = new RelicCard(scene, x, y, relic, 200 - 40, () => {
 			flyout.remove(icon)
 		});
 
@@ -85,7 +85,7 @@ function tavern(state: State, flyout: Flyout) {
 
 	pickRandom(filtered, 3)
 		.forEach((spec, index) => {
-			const unit = makeUnit(FORCE_ID_PLAYER, spec.name, vec2(0, 0));
+			const unit = makeUnit(FORCE_ID_PLAYER, spec.id, vec2(0, 0));
 			const chara = new Chara(flyout.scene, unit);
 
 			addCharaToState(chara);

@@ -4,9 +4,9 @@
 import { popText } from "../Systems/Chara/Animations/popText";
 import { pickRandom } from "../utils";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../Scenes/Battleground/constants";
-import { addStatus, endStatus, State } from "./State";
+import { addStatus, endStatus, getState, State } from "./State";
 import { makeUnit, Unit } from "./Unit";
-import { UNIT_EVENTS, UnitEvents } from "./UnitEvents";
+import { makeAttackEvent, makeUnitEvent, UNIT_EVENTS, UnitEvents } from "./UnitEvents";
 import { getChara, summonChara } from "../Scenes/Battleground/Systems/CharaManager";
 import { getColumnNeighbors } from "./Board";
 import { slash } from "../Systems/Chara/Skills/slash";
@@ -132,7 +132,7 @@ export const LONE_WOLF: Trait = makeTrait({
 	description: "+30 HP when alone in a row",
 	categories: [TRAIT_CATEGORY_DEFENSIVE, TRAIT_CATEGORY_PERSONALITY, TRAIT_CATEGORY_HP],
 	events: {
-		onEnterPosition: [(unit) => async () => {
+		onEnterPosition: [makeUnitEvent((unit) => async () => {
 			const neighboringUnits = state.battleData.units
 				.filter((u) => {
 					u.position.x === unit.position.x && u.id !== unit.id
@@ -141,8 +141,8 @@ export const LONE_WOLF: Trait = makeTrait({
 				await popText({ text: "+Shy", targetId: unit.id, speed: 2 });
 				getChara(unit.id).updateUnitAttribute("maxHp", 30);
 			}
-		}],
-		onLeavePosition: [(unit) => async () => {
+		})],
+		onLeavePosition: [makeUnitEvent((unit) => async () => {
 			const neighboringUnits = state.battleData.units
 				.filter((u) => {
 					u.position.x === unit.position.x && u.id !== unit.id
@@ -151,7 +151,7 @@ export const LONE_WOLF: Trait = makeTrait({
 				await popText({ text: "-Shy", targetId: unit.id, speed: 2 });
 				getChara(unit.id).updateUnitAttribute("maxHp", -30);
 			}
-		}]
+		})]
 	}
 })
 
@@ -161,20 +161,20 @@ export const VANGUARD: Trait = makeTrait({
 	description: "+10 attack when in the front row",
 	categories: [TRAIT_CATEGORY_ATTACK, TRAIT_CATEGORY_PERSONALITY, TRAIT_CATEGORY_OFFENSIVE],
 	events: {
-		onEnterPosition: [(unit) => async () => {
+		onEnterPosition: [makeUnitEvent((unit) => async () => {
 			const frontline = LINES[unit.force].FRONT;
 			if (unit.position.x !== frontline) return;
 
 			await popText({ text: "+Vanguard", targetId: unit.id });
 			getChara(unit.id).updateUnitAttribute("attackPower", 5);
-		}],
-		onLeavePosition: [(unit) => async () => {
+		})],
+		onLeavePosition: [makeUnitEvent((unit) => async () => {
 			const frontline = LINES[unit.force].FRONT;
 			if (unit.position.x !== frontline) return;
 
 			await popText({ text: "-Vanguard", targetId: unit.id });
 			getChara(unit.id).updateUnitAttribute("attackPower", -5);
-		}]
+		})]
 	}
 });
 
@@ -184,10 +184,10 @@ export const BATTLE_HUNGER: Trait = makeTrait({
 	categories: [TRAIT_CATEGORY_ATTACK, TRAIT_CATEGORY_PERSONALITY, TRAIT_CATEGORY_OFFENSIVE],
 	description: "+1 attack on each attack",
 	events: {
-		onAttackByMe: [(unit, _target) => async () => {
+		onAttackByMe: [makeAttackEvent((unit, _target) => async () => {
 			await popText({ text: "On attack: Battle Hunger", targetId: unit.id, speed: 2 });
 			getChara(unit.id).updateUnitAttribute("attackPower", 1);
-		}]
+		})]
 	}
 });
 
@@ -197,14 +197,14 @@ export const SHARP_EYES: Trait = makeTrait({
 	description: "Increases critical hit chance by 10%",
 	categories: [TRAIT_CATEGORY_ATTACK, TRAIT_CATEGORY_OFFENSIVE, TRAIT_CATEGORY_VISION],
 	events: {
-		onEnterPosition: [(unit) => async () => {
+		onEnterPosition: [makeUnitEvent((unit) => async () => {
 			await popText({ text: "+Sharp Eyes", targetId: unit.id });
 			getChara(unit.id).updateUnitAttribute("crit", 10);
-		}],
-		onLeavePosition: [(unit) => async () => {
+		})],
+		onLeavePosition: [makeUnitEvent((unit) => async () => {
 			await popText({ text: "-Sharp Eyes", targetId: unit.id });
 			getChara(unit.id).updateUnitAttribute("crit", -10);
-		}]
+		})]
 	}
 });
 
@@ -222,7 +222,7 @@ export const PROTECTOR: Trait = makeTrait({
 	description: "Units in the same column have +5 defense",
 	categories: [TRAIT_CATEGORY_DEFENSIVE, TRAIT_CATEGORY_PERSONALITY],
 	events: {
-		onEnterPosition: [(unit) => async () => {
+		onEnterPosition: [makeUnitEvent((unit) => async () => {
 			const neighboringUnits = state.battleData.units
 				.filter(u => {
 					u.position.x === unit.position.x
@@ -232,8 +232,8 @@ export const PROTECTOR: Trait = makeTrait({
 
 				getChara(unit.id).updateUnitAttribute("defense", 10);
 			}
-		}],
-		onLeavePosition: [(unit) => async () => {
+		})],
+		onLeavePosition: [makeUnitEvent((unit) => async () => {
 			const neighboringUnits = state.battleData.units
 				.filter(u => {
 					u.position.x === unit.position.x
@@ -242,7 +242,7 @@ export const PROTECTOR: Trait = makeTrait({
 				await popText({ text: "-Protector", targetId: unit.id, speed: 2 });
 				getChara(unit.id).updateUnitAttribute("defense", -10);
 			}
-		}]
+		})]
 	}
 });
 
@@ -252,18 +252,18 @@ export const SNIPER = makeTrait({
 	description: "When placed in the back row, this unit gains +10 attack",
 	categories: [TRAIT_CATEGORY_OFFENSIVE],
 	events: {
-		onEnterPosition: [unit => async () => {
+		onEnterPosition: [makeUnitEvent(unit => async () => {
 			if (!isInBackline(unit)) return;
 
 			await popText({ text: "+Sniper", targetId: unit.id, speed: 2 });
 			getChara(unit.id).updateUnitAttribute("attackPower", 10);
-		}],
-		onLeavePosition: [unit => async () => {
+		})],
+		onLeavePosition: [makeUnitEvent(unit => async () => {
 			if (!isInBackline(unit)) return;
 
 			await popText({ text: "-Sniper", targetId: unit.id, speed: 2 });
 			getChara(unit.id).updateUnitAttribute("attackPower", -10);
-		}]
+		})]
 	}
 });
 
@@ -281,9 +281,9 @@ export const RANGED = makeTrait({
 	description: "This unit has a ranged attack",
 	categories: [],
 	events: {
-		onAction: [unit => async () => {
+		onAction: [makeUnitEvent(unit => async () => {
 			shoot(scene)(unit)
-		}]
+		})]
 	}
 });
 
@@ -293,9 +293,9 @@ export const MELEE = makeTrait({
 	description: "This unit has a melee attack",
 	categories: [],
 	events: {
-		onAction: [unit => async () => {
+		onAction: [makeUnitEvent(unit => async () => {
 			slash(scene, unit)
-		}]
+		})]
 	}
 });
 
@@ -305,9 +305,9 @@ export const HEAL = makeTrait({
 	description: "This can heal an ally",
 	categories: [],
 	events: {
-		onAction: [unit => async () => {
+		onAction: [makeUnitEvent(unit => async () => {
 			healing(scene)(unit)
-		}]
+		})]
 	}
 });
 export const HEALING_WAVE = makeTrait({
@@ -316,9 +316,9 @@ export const HEALING_WAVE = makeTrait({
 	description: "Heals 3 allies",
 	categories: [],
 	events: {
-		onAction: [unit => async () => {
+		onAction: [makeUnitEvent(unit => async () => {
 			healingWave(scene, unit)
-		}]
+		})]
 	}
 });
 
@@ -328,9 +328,9 @@ export const ARCANE_MISSILES = makeTrait({
 	description: "Shoots 3 missiles that deal 5 damage each",
 	categories: [],
 	events: {
-		onAction: [(unit, data) => async () => {
+		onAction: [makeUnitEvent((unit, data) => async () => {
 			arcaneMissiles(scene)(unit, data!)
-		}]
+		})]
 	}
 });
 
@@ -340,9 +340,9 @@ export const HASTE = makeTrait({
 	description: "Hastes surrounding allies",
 	categories: [],
 	events: {
-		onAction: [unit => async () => {
+		onAction: [makeUnitEvent(unit => async () => {
 			haste(scene, unit); // TODO: create standard interface for skills (scene)(unit)
-		}]
+		})]
 	}
 });
 
@@ -352,9 +352,9 @@ export const SLOW = makeTrait({
 	description: "Slows an enemy for 2s",
 	categories: [],
 	events: {
-		onAction: [unit => async () => {
+		onAction: [makeUnitEvent(unit => async () => {
 			slow(scene, unit);
-		}]
+		})]
 	}
 });
 
@@ -364,13 +364,13 @@ export const BERSERK = makeTrait({
 	description: "When your health dropd below 50% HP for the first time, gain +15 Atk for the rest of combat",
 	categories: [TRAIT_CATEGORY_OFFENSIVE],
 	events: {
-		onHalfHP: [(unit) => async () => {
+		onHalfHP: [makeUnitEvent((unit) => async () => {
 			const hasBerserk = unit.statuses["berserk"];
 			if (hasBerserk) return;
 			await popText({ text: "On Half HP: Berserk", targetId: unit.id, speed: 2 });
 			getChara(unit.id).updateUnitAttribute("attackPower", 15);
 			addStatus(unit, "berserk");
-		}]
+		})]
 	}
 });
 
@@ -380,12 +380,14 @@ export const PLUNDER = makeTrait({
 	description: "When this unit attacks, gain 1 gold",
 	categories: [TRAIT_CATEGORY_ECONOMY],
 	events: {
-		onAttackByMe: [(unit) => async () => {
-			if (unit.force === FORCE_ID_PLAYER) {
-				await popText({ text: "Plunder: +1 gold", targetId: unit.id, speed: 2 });
-				updatePlayerGoldIO(1);
-			}
-		}]
+		onAttackByMe: [
+			makeAttackEvent(
+				(unit) => async () => {
+					if (unit.force === FORCE_ID_PLAYER) {
+						await popText({ text: "Plunder: +1 gold", targetId: unit.id, speed: 2 });
+						updatePlayerGoldIO(1);
+					}
+				})]
 	}
 });
 
@@ -395,11 +397,11 @@ export const INITIATIVE = makeTrait({
 	description: "Hastes for 3s when combat starts",
 	categories: [TRAIT_CATEGORY_OFFENSIVE],
 	events: {
-		onBattleStart: [(unit) => async () => {
-			// TODO: create haste fn to apply value and display effect
-			popText({ text: "Initiative", targetId: unit.id, speed: 2 });
-			unit.hasted = 3000;
-		}]
+		// onBattleStart: [(unit) => async () => {
+		// 	// TODO: create haste fn to apply value and display effect
+		// 	popText({ text: "Initiative", targetId: unit.id, speed: 2 });
+		// 	unit.hasted = 3000;
+		// }]
 	}
 })
 
@@ -409,13 +411,13 @@ export const SPLASH = makeTrait({
 	description: "40% of this unit’s Atk is dealt as damage to each adjacent enemy when you attack.",
 	categories: [TRAIT_CATEGORY_OFFENSIVE],
 	events: {
-		onAttackByMe: [(unit, target, damage, isCritical) => async () => {
-			const neighboringUnits = state.battleData.units
-				.filter(u => u.position.x === target.position.x && u.id !== unit.id);
-			for (const neighboringUnit of neighboringUnits) {
-				await getChara(neighboringUnit.id).damageUnit(damage * 0.4, isCritical);
-			}
-		}]
+		// onAttackByMe: [(unit, target, damage, isCritical) => async () => {
+		// 	const neighboringUnits = state.battleData.units
+		// 		.filter(u => u.position.x === target.position.x && u.id !== unit.id);
+		// 	for (const neighboringUnit of neighboringUnits) {
+		// 		await getChara(neighboringUnit.id).damageUnit(damage * 0.4, isCritical);
+		// 	}
+		// }]
 	}
 });
 
@@ -424,11 +426,7 @@ export const STEALTH = makeTrait({
 	name: "Stealth",
 	description: "After attacking, become untargetable for 1s",
 	categories: [TRAIT_CATEGORY_OFFENSIVE],
-	events: {
-		onAttackByMe: [(_unit) => async () => {
-			// TODO: implement
-		}]
-	}
+	events: {}
 });
 
 export const ASSASSIN = makeTrait({
@@ -437,13 +435,13 @@ export const ASSASSIN = makeTrait({
 	description: "First attack deals double damage",
 	categories: [TRAIT_CATEGORY_OFFENSIVE],
 	events: {
-		onBattleStart: [(unit) => async () => {
+		onBattleStart: [makeUnitEvent((unit) => async () => {
 			addStatus(unit, "double_damage");
-		}],
-		onAfterAttackByMe: [(unit) => async () => {
+		})],
+		onAfterAttackByMe: [makeAttackEvent((unit) => async () => {
 			if (!unit.statuses["double_damage"]) return;
 			endStatus(unit.id, "double_damage");
-		}]
+		})]
 	}
 });
 
@@ -453,13 +451,13 @@ export const RALLY = makeTrait({
 	description: "At the start of combat, grants +5 Atk to all allied units in the same column.",
 	categories: [TRAIT_CATEGORY_OFFENSIVE],
 	events: {
-		onBattleStart: [(unit) => async () => {
+		onBattleStart: [makeUnitEvent((unit) => async () => {
 			const neighboringUnits = getColumnNeighbors(state, unit)
 			for (const neighboringUnit of neighboringUnits) {
 				await popText({ text: "+Rally", targetId: neighboringUnit.id, speed: 2 });
 				getChara(neighboringUnit.id).updateUnitAttribute("attackPower", 5)
 			}
-		}]
+		})]
 	}
 });
 
@@ -469,9 +467,9 @@ export const EVADE = makeTrait({
 	description: "Adds a 20% chance to dodge an attack",
 	categories: [TRAIT_CATEGORY_DEFENSIVE],
 	events: {
-		onBattleStart: [(unit) => async () => {
+		onBattleStart: [makeUnitEvent((unit) => async () => {
 			getChara(unit.id).updateUnitAttribute("evade", 20);
-		}]
+		})]
 	}
 });
 
@@ -481,12 +479,15 @@ export const CURSE = makeTrait({
 	description: "Reduces the target's damage by 5 on each attack",
 	categories: [TRAIT_CATEGORY_DEFENSIVE],
 	events: {
-		onAfterAttackByMe: [(_unit, target, _damage, _critical, evaded) => async () => {
-			if (evaded) return;
+		onAfterAttackByMe: [
+			makeAttackEvent(
+				(_unit, target, _damage, _critical, evaded) => async () => {
+					if (evaded) return;
 
-			await popText({ text: "Curse", targetId: target.id, speed: 2 });
-			getChara(target.id).updateUnitAttribute("defense", -5);
-		}]
+					await popText({ text: "Curse", targetId: target.id, speed: 2 });
+					getChara(target.id).updateUnitAttribute("defense", -5);
+				})
+		]
 	}
 });
 
@@ -496,11 +497,12 @@ export const LIFESTEAL = makeTrait({
 	description: "Heals 50% of the damage dealt",
 	categories: [TRAIT_CATEGORY_DEFENSIVE],
 	events: {
-		onAfterAttackByMe: [(unit, _target, _damage, _critical, evaded) => async () => {
-			if (evaded) return;
-			await popText({ text: "Lifesteal", targetId: unit.id, speed: 2 });
-			//healUnit(unit, damage * 0.5);
-		}]
+		onAfterAttackByMe: [
+			makeAttackEvent((unit, _target, _damage, _critical, evaded) => async () => {
+				if (evaded) return;
+				await popText({ text: "Lifesteal", targetId: unit.id, speed: 2 });
+				//healUnit(unit, damage * 0.5);
+			})]
 	}
 });
 
@@ -510,14 +512,14 @@ export const LACERATE = makeTrait({
 	description: "For 2 turns: deals 10 damage to the target at the end of each turn",
 	categories: [TRAIT_CATEGORY_OFFENSIVE],
 	events: {
-		onAfterAttackByMe: [(_unit, target) => async () => {
+		onAfterAttackByMe: [makeAttackEvent((_unit, target) => async () => {
 			// TODO: implement status
 			await popText({ text: "Lacerate", targetId: target.id, speed: 2 });
-			addStatus(target, "lacerate", 2, u => async () => {
+			addStatus(target, "lacerate", 2, makeUnitEvent(u => async () => {
 				await popText({ text: "Lacerate", targetId: u.id, speed: 2 });
 				//damageUnit(u.id, 10);
-			});
-		}]
+			}));
+		})]
 	}
 });
 
@@ -527,14 +529,15 @@ export const BURN = makeTrait({
 	description: "For 2 turns: deals 5 damage to the target at the end of each turn",
 	categories: [TRAIT_CATEGORY_OFFENSIVE],
 	events: {
-		onAfterAttackByMe: [(_unit, target) => async () => {
-			// TODO: implement status
-			await popText({ text: "Burn", targetId: target.id, speed: 2 });
-			addStatus(target, "burn", 2, u => async () => {
-				await popText({ text: "Burn", targetId: u.id, speed: 2 });
-				//damageUnit(u.id, 5);
-			});
-		}]
+		onAfterAttackByMe:
+			[makeAttackEvent((_unit, target) => async () => {
+				// TODO: implement status
+				await popText({ text: "Burn", targetId: target.id, speed: 2 });
+				addStatus(target, "burn", 2, makeUnitEvent(u => async () => {
+					await popText({ text: "Burn", targetId: u.id, speed: 2 });
+					//damageUnit(u.id, 5);
+				}));
+			})]
 	}
 });
 
@@ -544,10 +547,10 @@ export const REGENERATE = makeTrait({
 	description: "Heals 15 HP at the end of each turn",
 	categories: [TRAIT_CATEGORY_DEFENSIVE],
 	events: {
-		onTurnEnd: [(unit) => async () => {
+		onTurnEnd: [makeUnitEvent((unit) => async () => {
 			await popText({ text: "Regenerate", targetId: unit.id, speed: 2 });
 			//healUnit(unit, 15);
-		}]
+		})]
 	}
 });
 
@@ -557,7 +560,7 @@ export const SPLIT_BLOB = makeTrait({
 	description: "When this unit dies, it splits into 2 Tiny Blobs",
 	categories: [TRAIT_CATEGORY_DEFENSIVE],
 	events: {
-		onDeath: [(unit) => async () => {
+		onDeath: [makeUnitEvent((unit) => async () => {
 
 			console.log("SPLIT_BLOB:: unit", unit.id);
 
@@ -595,7 +598,7 @@ export const SPLIT_BLOB = makeTrait({
 				// await summonChara(newUnit)
 			}
 
-		}]
+		})]
 	}
 });
 
@@ -605,7 +608,7 @@ export const REBORN = makeTrait({
 	description: "When this unit dies, it is revived with 1 HP",
 	categories: [TRAIT_CATEGORY_DEFENSIVE],
 	events: {
-		onDeath: [(unit) => async () => {
+		onDeath: [makeUnitEvent((unit) => async () => {
 
 			if (unit.statuses["reborn"]) return; // already reborn
 
@@ -620,7 +623,7 @@ export const REBORN = makeTrait({
 
 			summonChara(newUnit, false, false);
 
-		}]
+		})]
 	}
 });
 
@@ -638,7 +641,7 @@ export const UNDEAD_STRENGTH = makeTrait({
 	description: "Allied undead units gain +20 attack and HP",
 	categories: [TRAIT_CATEGORY_OFFENSIVE, TRAIT_CATEGORY_DEFENSIVE],
 	events: {
-		onBattleStart: [(unit) => async () => {
+		onBattleStart: [makeUnitEvent((unit) => async () => {
 			const allies = state.battleData.units.filter(u => u.force === unit.force && u.id !== unit.id);
 			const undeadAllies = allies.filter(u => u.traits.some(t => t.id === UNDEAD.id));
 			for (const undead of undeadAllies) {
@@ -646,7 +649,7 @@ export const UNDEAD_STRENGTH = makeTrait({
 				// updateUnitAttribute(undead, "attackPower", 20);
 				// updateUnitAttribute(undead, "maxHp", 20);
 			}
-		}]
+		})]
 	}
 });
 
@@ -656,10 +659,45 @@ export const SUMMON_SKELETON = makeTrait({
 	description: "Summons a skeleton to fight on your side",
 	categories: [TRAIT_CATEGORY_COMPANION],
 	events: {
-		onAction: [unit => async () => {
+		onAction: [makeUnitEvent(unit => async () => {
 			const chara = getChara(unit.id);
 			console.log(chara)
-		}]
+		})]
+	}
+});
+
+export const REDUCE_CD = makeTrait({
+	id: "reduce_cd" as TraitId,
+	name: "Reduce Cooldown",
+	description: "Reduces all heroes' cooldowns",
+	categories: [TRAIT_CATEGORY_COMPANION],
+	events: {
+		onBattleStart: [
+			makeUnitEvent(() => async () => {
+				getState().battleData.units.forEach(u => {
+					u.cooldown = u.cooldown * 1.2;
+				});
+			})
+		]
+	}
+});
+
+export const INCREASE_MAX_HP = makeTrait({
+	id: "increase_max_hp" as TraitId,
+	name: "Increase Max HP",
+	description: "Increases all heroes' max HP",
+	categories: [TRAIT_CATEGORY_COMPANION],
+	events: {
+		onBattleStart: [
+			makeUnitEvent(
+				() => async () => {
+					getState().battleData.units.forEach(u => {
+						u.maxHp = u.maxHp * 1.2;
+						u.hp = u.maxHp;
+						const chara = getChara(u.id);
+						chara.updateHpDisplay();
+					});
+				})]
 	}
 });
 
@@ -698,6 +736,8 @@ export const traitSpecs: { [id: TraitId]: Trait } = {
 	[SUPPORT.id]: SUPPORT,
 	[SLOW.id]: SLOW,
 	[PLUNDER.id]: PLUNDER,
+	[REDUCE_CD.id]: REDUCE_CD,
+	[INCREASE_MAX_HP.id]: INCREASE_MAX_HP,
 };
 
 export const randomCategoryTrait = (category: TraitCategory): Trait => {
