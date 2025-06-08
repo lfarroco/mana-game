@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { Unit } from "../../Models/Unit";
 import * as bgConstants from "../../Scenes/Battleground/constants";
-import { eqVec2, vec2 } from "../../Models/Geometry";
+import { eqVec2, Vec2, vec2 } from "../../Models/Geometry";
 import { delay, tween } from "../../Utils/animation";
 import { FORCE_ID_PLAYER } from "../../Scenes/Battleground/constants";
 import * as UnitManager from "../../Scenes/Battleground/Systems/CharaManager";
@@ -39,12 +39,18 @@ export class Chara extends Phaser.GameObjects.Container {
 	private dragStartX: number = 0;
 	private dragStartY: number = 0;
 	private wasDragSuccessful: boolean = false;
+	private isShopItem: boolean; // New flag
+	private onPurchasedCallback?: () => void; // New callback
 
-	constructor(public parent: BattlegroundScene, unit: Unit) {
+	constructor(public parent: BattlegroundScene, unit: Unit, options?: { isShopItem?: boolean, onPurchased?: () => void }) {
 		const position = UnitManager.getCharaPosition(unit);
 		super(parent, position.x, position.y);
 
 		this.unit = unit;
+		this.isShopItem = options?.isShopItem ?? false;
+		this.onPurchasedCallback = options?.onPurchased;
+
+
 		this.id = unit.id;
 		this.name = unit.id; // For Phaser's GameObject name property, useful for lookups
 
@@ -65,12 +71,16 @@ export class Chara extends Phaser.GameObjects.Container {
 			Phaser.Geom.Rectangle.Contains
 		);
 
-		if (this.unit.force === FORCE_ID_PLAYER) {
+		// Player units are draggable on board, shop items are draggable from shop
+		if (this.unit.force === FORCE_ID_PLAYER || this.isShopItem) {
 			this.parent.input.setDraggable(this);
 			this.on('dragstart', this.handleDragStart);
 			this.on('drag', this.handleDrag);
 			this.on('drop', this.handleDrop); // Note: drop target needs to be set up on potential drop zones
 			this.on('dragend', this.handleDragEnd);
+		}
+		if (this.isShopItem) {
+			this.on('pointerup', this.handleShopItemClick);
 		}
 
 		// Initial update of displays
@@ -82,6 +92,52 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.dragStartX = this.x;
 		this.dragStartY = this.y;
 
+	}
+
+	private attemptPurchase(targetBoardPos?: Vec2): boolean {
+		const state = getState();
+		const purchaseCost = 3; // TODO: Configurable
+
+		if (state.gameData.player.units.length >= bgConstants.MAX_PARTY_SIZE) {
+			this.parent.uiManager.displayError("Your party is full!");
+			return false;
+		}
+		if (state.gameData.player.gold < purchaseCost) {
+			this.parent.uiManager.displayError("You don't have enough gold!");
+			return false;
+		}
+
+		if (targetBoardPos) { // If purchasing by dragging to a specific slot
+			const occupierOnBoard = state.gameData.player.units.find(u => eqVec2(u.position, targetBoardPos));
+			if (occupierOnBoard) {
+				this.parent.uiManager.displayError("Slot is occupied!");
+				return false;
+			}
+			this.unit.position = targetBoardPos;
+		} else { // Purchasing by click, find an empty slot
+			const emptySlot = Board.getEmptySlot(state.gameData.player.units, FORCE_ID_PLAYER);
+			if (!emptySlot) {
+				this.parent.uiManager.displayError("No empty slot on board!");
+				return false;
+			}
+			this.unit.position = emptySlot;
+		}
+
+		updatePlayerGoldIO(this.parent, -purchaseCost);
+		state.gameData.player.units.push(this.unit);
+		runUnitEventTraits("onEnterPosition")(this.unit);
+
+		// Transition from shop item to owned item
+		this.isShopItem = false;
+		this.off('pointerup', this.handleShopItemClick); // Remove shop-specific click
+		// Add board-specific interactivity if needed, or rely on existing drag for owned units
+
+		if (this.onPurchasedCallback) {
+			this.onPurchasedCallback();
+		}
+		// The Chara is now "owned", its drag/drop will follow the owned unit logic.
+		// Visual tweening to the board position will be handled by the caller (handleShopItemClick or handleDrop)
+		return true;
 	}
 
 	private createSprite() {
@@ -176,6 +232,22 @@ export class Chara extends Phaser.GameObjects.Container {
 		TooltipSytem.hide();
 	}
 
+	private handleShopItemClick = (pointer: Phaser.Input.Pointer) => {
+		if (!this.isShopItem) return;
+
+		// If the pointer moved significantly, it was a drag, not a click.
+		if (pointer.getDistance() > 10) {
+			return;
+		}
+
+		if (this.attemptPurchase()) {
+			// Visually place the Chara on the board to its new model position
+			tween({ targets: [this], ...UnitManager.getCharaPosition(this.unit) });
+			this.wasDragSuccessful = true; // Mark as successful to prevent revert in dragEnd if it was a quick drag-release
+		}
+		// If attemptPurchase fails, error is displayed, Chara remains in shop.
+	}
+
 	// Helper to check if this Chara's unit is already owned by the player
 	private isOwnedByPlayer(): boolean {
 		return getState().gameData.player.units.some(u => u.id === this.unit.id);
@@ -252,45 +324,16 @@ export class Chara extends Phaser.GameObjects.Container {
 			}
 		} else {
 			// --- Logic for purchasing a new unit (e.g., from shop) ---
-			const purchaseCost = 3; // TODO: Make this configurable, e.g., from unit.cost or shop config
-
-			if (state.gameData.player.units.length >= bgConstants.MAX_PARTY_SIZE) {
-				this.parent.uiManager.displayError("Your party is full!");
+			if (this.attemptPurchase(newBoardModelPosition)) {
+				// Purchase successful, model updated by attemptPurchase.
+				// Visually place the Chara on the board.
+				tween({ targets: [this], ...UnitManager.getCharaPosition(this.unit) });
+				this.wasDragSuccessful = true;
+			} else {
+				// Purchase failed (e.g., not enough gold, slot occupied).
+				// Error message handled by attemptPurchase. Revert visual position.
 				revertToOriginalVisualPosition();
-				return;
 			}
-			if (state.gameData.player.gold < purchaseCost) {
-				this.parent.uiManager.displayError("You don't have enough gold!");
-				revertToOriginalVisualPosition();
-				return;
-			}
-
-			const occupierOnBoard = state.gameData.player.units.find(u => eqVec2(u.position, newBoardModelPosition));
-			if (occupierOnBoard) {
-				this.parent.uiManager.displayError("Slot is occupied!");
-				revertToOriginalVisualPosition();
-				return;
-			}
-
-			// Process purchase
-			updatePlayerGoldIO(this.parent, -purchaseCost);
-
-			unitToMove.position = newBoardModelPosition; // Set model position
-			state.gameData.player.units.push(unitToMove); // Add to player's roster
-
-			// Visually place the Chara on the board
-			tween({ targets: [this], ...UnitManager.getCharaPosition(unitToMove) });
-
-			runUnitEventTraits("onEnterPosition")(unitToMove); // Call traits for entering board
-
-			this.parentContainer.remove(this); // True to destroy the Chara from flyout
-
-			// Remove the shop's specific 'pointerup' click-to-buy listener if it exists
-			// This is a bit of a hack; ideally, the shop manages its listeners.
-			// For now, we assume the shop might have added a 'pointerup'.
-			this.off('pointerup');
-
-			this.wasDragSuccessful = true;
 		}
 
 
@@ -322,7 +365,7 @@ export class Chara extends Phaser.GameObjects.Container {
 
 		if (!isOverBoardZone) {
 			// Drag ended completely outside the player board drop zone. Revert to original position.
-			if (!this.isOwnedByPlayer()) {
+			if (this.isShopItem && !this.isOwnedByPlayer()) { // Check if it's still a shop item
 				// It's a shop item, revert to its shop slot visual position (dragStartX/Y)
 				tween({ targets: [this], x: this.dragStartX, y: this.dragStartY });
 			} else {
