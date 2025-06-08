@@ -245,19 +245,10 @@ export class Chara extends Phaser.GameObjects.Container {
 	 * This can result in moving the unit to an empty tile or swapping it with an existing unit.
 	 * @param tile The board tile (Vec2) where the unit was dropped, or null if not on a specific tile.
 	 */
-	private _handleDropOwnedUnit(tile: Vec2 | null) {
+	private _handleDropOwnedUnit(tile: Vec2) {
 		const unitToMove = this.unit;
 		const state = getState();
 
-		if (!tile) {
-			// Dropped within the board's general drop zone, but not on a specific grid tile; revert visual.
-			tween({ targets: [this], ...UnitManager.getCharaPosition(unitToMove) });
-			// Consider if this should set wasDragSuccessful. If reverting to same spot is "no change", then false.
-			// If it's a valid "end" of a drag even if no change, then true.
-			// For now, let's assume no change means the specific drop action wasn't "successful" in changing state.
-			this.wasDragSuccessful = eqVec2(vec2(this.x, this.y), UnitManager.getCharaPosition(unitToMove)); // True if already there
-			return;
-		}
 
 		const newBoardModelPosition = vec2(tile.x, tile.y);
 		// Trigger 'onLeavePosition' for the unit being moved *before* its position is updated in the model.
@@ -306,14 +297,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	 * This attempts to purchase and place the unit.
 	 * @param tile The board tile (Vec2) where the item was dropped, or null if not on a specific tile.
 	 */
-	private _handleDropShopItem(tile: Vec2 | null) {
-		if (!tile) {
-			// Dropped on board zone but not a specific tile; revert shop item.
-			this._revertShopItemToDragStartPosition();
-			this.wasDragSuccessful = false;
-			return;
-		}
-
+	private _handleDropShopItem(tile: Vec2) {
 		const newBoardModelPosition = vec2(tile.x, tile.y);
 		if (this.attemptPurchase(newBoardModelPosition)) {
 			tween({ targets: [this], ...UnitManager.getCharaPosition(this.unit) });
@@ -337,13 +321,19 @@ export class Chara extends Phaser.GameObjects.Container {
 	) {
 		this.wasDragSuccessful = false;
 
-		if (!Board.getBoardDropZone() || dropZoneTarget !== Board.getBoardDropZone()) {
-			// Revert is handled by dragend if not on any valid zone.
-			// This check ensures we only process drops on the intended main board drop zone.
+		if (!Board.isPlayerBoardTileZone(dropZoneTarget)) {
+			// Dropped outside a valid player board tile zone.
+			// handleDragEnd will take care of reverting if necessary.
 			return;
 		}
 
-		const tile = Board.getTileAt(_pointer);
+		const tile = Board.getTileFromZone(dropZoneTarget);
+
+		if (!tile) {
+			// Should not happen if isPlayerBoardTileZone passed and getTileFromZone is robust
+			console.warn("Chara.handleDrop: Dropped on a board tile zone, but could not derive tile coordinates.", dropZoneTarget.name);
+			return;
+		}
 
 		if (this.isOwnedByPlayer()) {
 			this._handleDropOwnedUnit(tile);
@@ -353,33 +343,11 @@ export class Chara extends Phaser.GameObjects.Container {
 	}
 
 	/**
-	 * Helper method called at the end of a drag operation if the Chara was not successfully dropped
-	 * on the player board. It reverts the Chara's visual position.
-	 * - Shop items revert to their original shop slot.
-	 * - Owned units revert to their last valid position on the board.
-	 * @param pointer The Phaser input pointer at the end of the drag.
-	 */
-	private _revertDragEndPositionIfDroppedOutsideBoard(pointer: Phaser.Input.Pointer) {
-		const isOverBoardZone = Board.isPointerInBoardDropZone(pointer);
-
-		if (!isOverBoardZone) {
-			if (this.isShopItem && !this.isOwnedByPlayer()) {
-				this._revertShopItemToDragStartPosition();
-			} else {
-				tween({ targets: [this], ...UnitManager.getCharaPosition(this.unit) });
-			}
-		}
-		// If isOverBoardZone is true BUT wasDragSuccessful is false,
-		// it implies that handleDrop was called, deemed the drop invalid, and already handled the reversion.
-		// So, no further action is needed here for that specific case.
-	}
-
-	/**
 	 * Handles the 'dragend' event. Finalizes the drag operation, reverting the Chara's position
 	 * if the drop was not successful or occurred outside a valid zone.
 	 */
-	private handleDragEnd = (pointer: Phaser.Input.Pointer) => {
-		tween({
+	private handleDragEnd = (_pointer: Phaser.Input.Pointer) => {
+		this.parent.tweens.add({ // Ensure using scene's tween manager if tween is a global util
 			targets: [this],
 			angle: 0,
 			duration: 100,
@@ -387,13 +355,18 @@ export class Chara extends Phaser.GameObjects.Container {
 		});
 		if (this.wasDragSuccessful) {
 			// handleDrop (or handleShopItemClick) already positioned the Chara.
+			Board.hideBoardDropZone(); // Hide visual feedback on successful drop
 			return;
 		}
 
-		// If wasDragSuccessful is false, it means the drop was not on a valid zone,
-		// or was on a valid zone but handleDrop determined it was an invalid action and did not set wasDragSuccessful = true.
-		this._revertDragEndPositionIfDroppedOutsideBoard(pointer);
-	}
+		// If wasDragSuccessful is false, the drop was not successful. Revert the Chara.
+		if (this.isShopItem && !this.isOwnedByPlayer()) {
+			this._revertShopItemToDragStartPosition();
+		} else { // Owned unit, or a shop item that failed purchase but its state might be complex
+			tween({ targets: [this], ...UnitManager.getCharaPosition(this.unit) });
+		}
+		Board.hideBoardDropZone(); // Also hide visual feedback on failed/reverted drop
+	};
 
 	// --- UI Update Methods ---
 
