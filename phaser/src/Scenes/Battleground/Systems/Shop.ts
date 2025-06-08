@@ -1,16 +1,13 @@
 import { images } from "../../../assets";
-import { getEmptySlot } from "../../../Models/Board";
 import { getAllCards, getAllRelicDefinitions } from "../../../Models/Card";
-import { playerForce, updatePlayerGoldIO } from "../../../Models/Force";
 import { vec2 } from "../../../Models/Geometry";
 import { State } from "../../../Models/State";
 import { makeUnit } from "../../../Models/Unit";
 import { Flyout } from "../../../Systems/Flyout";
 import * as Tooltip from "../../../Systems/Tooltip";
 import { pickRandom } from "../../../utils";
-import { tween } from "../../../Utils/animation";
-import { FORCE_ID_PLAYER, MAX_PARTY_SIZE, SCREEN_WIDTH, titleTextConfig } from "../constants";
-import { addCharaToState, getCharaPosition } from "./CharaManager";
+import { FORCE_ID_PLAYER, SCREEN_WIDTH, titleTextConfig } from "../constants";
+import { addCharaToState } from "./CharaManager";
 import { RelicCard } from "./Relic";
 import { Chara } from "../../../Systems/Chara/Chara";
 
@@ -89,54 +86,20 @@ function tavern(state: State, flyout: Flyout) {
 	pickRandom(filtered, 3)
 		.forEach((spec, index) => {
 			const unit = makeUnit(FORCE_ID_PLAYER, spec.id, vec2(0, 0));
-			const chara = new Chara(flyout.parent, unit);
+			const chara = new Chara(flyout.parent, unit, {
+				isShopItem: true,
+				onPurchased: () => {
+					Tooltip.hide(); // Hide tooltip on purchase
+					flyout.remove(chara); // Remove from shop display
+					// Gold update and adding to player units is now handled by Chara.attemptPurchase
+				}
+			});
 
 			addCharaToState(chara);
 
 			chara.setPosition(950 + index * 200, 300);
 
 			chara.addTooltip();
-
-			// TODO: replace with drag and drop
-			chara.on("pointerup", (pointer: Phaser.Input.Pointer) => {
-
-				// If the pointer moved significantly, it was a drag, not a click.
-				// Drag-drop actions (buy/move) are handled by Chara's drag/drop events.
-				if (pointer.getDistance() > 10) { // 10 is a small threshold for drag
-					return;
-				}
-				if (state.gameData.player.units.length >= MAX_PARTY_SIZE) {
-					(flyout.parent as BattlegroundSceneWithUIManager).uiManager.displayError("Your party is full! Discard a card or skip.");
-					return;
-				}
-
-				if (playerForce.gold < 3) {
-					(flyout.parent as BattlegroundSceneWithUIManager).uiManager.displayError("You don't have enough gold!");
-					return;
-				}
-
-				updatePlayerGoldIO(flyout.parent, -3);
-
-				Tooltip.hide();
-				flyout.remove(chara);
-				chara.off("pointerup");
-
-				const emptySlot = getEmptySlot(playerForce.units, playerForce.id);
-				if (!emptySlot) throw new Error("No empty slot found");
-
-				chara.unit.position = emptySlot;
-				state.gameData.player.units.push(chara.unit);
-
-				const pos = getCharaPosition(chara.unit);
-				tween({
-					targets: [chara],
-					...pos,
-					onComplete: () => {
-						//card.addBoardEvents();
-					}
-				});
-
-			});
 
 			flyout.add(chara);
 		});
