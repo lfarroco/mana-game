@@ -5,6 +5,7 @@ import * as UnitManager from "./Systems/CharaManager";
 import { performAction } from "./performAction";
 import { Unit } from "../../Models/Unit";
 import { tween } from "../../Utils/animation";
+import { runUnitEventTraits } from "../../Models/Traits";
 
 export type WaveOutcome = "player_won" | "player_lost";
 
@@ -39,9 +40,7 @@ async function setupWave(scene: BattlegroundScene) {
   })
 
   scene.state.battleData.units
-    .forEach(u =>
-      u.events.onBattleStart.forEach(ev => ev.fn(u))
-    );
+    .forEach(runUnitEventTraits("onBattleStart"));
 
 }
 

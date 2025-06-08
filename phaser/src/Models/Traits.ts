@@ -747,15 +747,40 @@ export const randomCategoryTrait = (category: TraitCategory): Trait => {
 	}
 	const [randomTrait] = pickRandom(traitsInCategory, 1)
 	return randomTrait;
-}
+};
 
-export function addUnitTrait(trait: Trait, unit: Unit) {
-
-	UNIT_EVENTS.forEach(event => {
-		// the type system doesn't capture that the events are the same
-		//@ts-ignore
-		unit.events[event].push(...trait.events[event]);
+export const runUnitEventTraits = (id: keyof UnitEvents) => (u: Unit) => {
+	u.traits.forEach(t => {
+		const spec = traitSpecs[t.id];
+		spec.events[id].forEach(ev => {
+			if (ev.type === "unitEvent")
+				ev.fn(u, t)();
+			else
+				console.warn("invalid trait type ")
+		});
 	});
+};
 
-	unit.traits.push(trait);
-}
+export const runAttackEventTraits = (id: keyof UnitEvents, target: Unit, damage: number, isCritical: boolean, evaded: boolean) => (u: Unit) => {
+	u.traits.forEach(t => {
+		const spec = traitSpecs[t.id];
+		spec.events[id].forEach(ev => {
+			if (ev.type === "attackEvent")
+				ev.fn(u, target, damage, isCritical, evaded)();
+			else
+				console.warn("invalid trait type ")
+		});
+	});
+};
+
+export const runUnitEventWithTargetTraits = (id: keyof UnitEvents, target: Unit) => (u: Unit) => {
+	u.traits.forEach(t => {
+		const spec = traitSpecs[t.id];
+		spec.events[id].forEach(ev => {
+			if (ev.type === "unitEventWithTarget")
+				ev.fn(u, target)();
+			else
+				console.warn("invalid trait type ")
+		});
+	});
+};

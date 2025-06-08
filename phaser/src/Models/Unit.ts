@@ -1,8 +1,8 @@
 import { v4 } from "uuid";
 import { Vec2, vec2Zero } from "./Geometry";
 import { getCardDefinition } from "./Card";
-import { MELEE, RANGED, TraitData, traitSpecs } from "./Traits";
-import { UnitEvent, UnitEvents, UNIT_EVENTS } from "./UnitEvents";
+import { MELEE, RANGED, TraitData } from "./Traits";
+import { UnitEvent, } from "./UnitEvents";
 
 // A Unit holds data about a game character
 // It is created based on a card "spec"
@@ -33,7 +33,6 @@ export type Unit = {
   traits: TraitData[];
 
   log: string[];
-  events: UnitEvents
 
   charge: number; // each tick the job's agi is added here. when it reaches 100, the job can act
   refresh: number; // the time it takes for the job to act again. Even if charged, this must be 0
@@ -76,31 +75,8 @@ export const makeUnit = (force: string, cardId: string, position = vec2Zero()): 
     hasted: 0,
     slowed: 0,
     traits: card.traits,
-    events: UNIT_EVENTS.reduce((eventsIndex, event) => {
-      eventsIndex[event] = [];
-
-      // Traits that have triggers for the current event (onTurnStart, onTurnEnd, etc)
-      const matchingTraits = card.traits.filter(t => {
-        const traitSpec = traitSpecs[t.id];
-        return traitSpec && traitSpec.events[event];
-      })
-
-      if (matchingTraits.length < 1) return eventsIndex;
-
-      matchingTraits.forEach((trait) => {
-        const spec = traitSpecs[trait.id];
-        const traitEvents = spec.events[event];
-        if (traitEvents) {
-          // the type system doesn't know that the trait event will be of the same type
-          //@ts-ignore
-          eventsIndex[event].push(...traitEvents);
-        }
-      });
-
-      return eventsIndex;
-    }, {} as UnitEvents),
-  } as Unit;
-  return unit
+  }
+  return unit as Unit
 };
 
 export const unitLog = (unit: Unit, log: string) => {

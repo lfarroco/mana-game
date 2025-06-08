@@ -12,6 +12,7 @@ import * as TooltipSytem from "../Tooltip";
 import { popText } from "./Animations/popText";
 import { criticalDamageDisplay } from "../../Effects";
 import { images } from "../../assets";
+import { runUnitEventTraits } from "../../Models/Traits";
 
 // A Chara is the graphical representation of a Unit
 export class Chara extends Phaser.GameObjects.Container {
@@ -172,9 +173,8 @@ export class Chara extends Phaser.GameObjects.Container {
 		const state = getState(); // Required for accessing global unit list
 		// The board will change: remove position bonuses for all units
 		// TODO: This global iteration is not ideal here. A BoardManager should handle this.
-		state.gameData.player.units.forEach((unit) => {
-			unit.events.onLeavePosition.forEach(ev => ev.fn(unit)());
-		});
+		state.gameData.player.units
+			.forEach(runUnitEventTraits("onLeavePosition"));
 
 		const tile = Board.getTileAt(pointer);
 
@@ -205,9 +205,8 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.unit.position = position;
 
 		// The board has changed: calculate position bonuses for all units
-		state.gameData.player.units.forEach((unit) => {
-			unit.events.onEnterPosition.forEach(ev => ev.fn(unit)());
-		});
+		state.gameData.player.units
+			.forEach(runUnitEventTraits("onEnterPosition"));
 
 		tween({
 			targets: [this],
@@ -351,7 +350,7 @@ export class Chara extends Phaser.GameObjects.Container {
 			nextHp <= chara.unit.maxHp / 2 &&
 			!chara.unit.statuses["on-half-hp"]
 		) {
-			chara.unit.events.onHalfHP.forEach(ev => ev.fn(chara.unit)());
+			runUnitEventTraits("onHalfHP")(chara.unit);
 			addStatus(chara.unit, "on-half-hp");
 		}
 
@@ -392,8 +391,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		getState().battleData.units = getState().battleData.units
 			.filter(u => u.id !== this.id);
 
-		for (const ev of this.unit.events.onDeath)
-			ev.fn(this.unit)()
+		runUnitEventTraits("onDeath")(this.unit)
 
 		if (this.unit.force === bgConstants.FORCE_ID_PLAYER)
 			getState().gameData.player.units = getState().gameData.player.units

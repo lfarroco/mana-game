@@ -1,5 +1,6 @@
 import { impactEffect } from "../../../Effects";
 import { getState } from "../../../Models/State";
+import { runAttackEventTraits, runUnitEventWithTargetTraits } from "../../../Models/Traits";
 import { Chara } from "../Chara";
 
 export async function physicalAttack(
@@ -34,23 +35,16 @@ export async function physicalAttack(
 	if (activeChara.unit.statuses["double_damage"])
 		damage *= 2;
 
-	activeChara.unit.events
-		.onAttackByMe
-		.forEach(ev => ev.fn(activeChara.unit, targetChara.unit, damage, isCritical, evaded)())
+	runAttackEventTraits("onAttackByMe", targetChara.unit, damage, isCritical, evaded)(activeChara.unit);
 
-	targetChara.unit.events
-		.onDefendByMe
-		.forEach(ev => ev.fn(activeChara.unit, targetChara.unit)())
+	runUnitEventWithTargetTraits("onDefendByMe", targetChara.unit)(activeChara.unit);
 
 	if (evaded) {
-		targetChara.unit.events
-			.onEvadeByMe
-			.map(ev => ev.fn(targetChara.unit, activeChara.unit)())
+		runUnitEventWithTargetTraits("onEvadeByMe", targetChara.unit)(activeChara.unit)
 	} else {
 		targetChara.damageUnit(damage, isCritical);
 	}
 
-	activeChara.unit.events
-		.onAfterAttackByMe.map(ev => ev.fn(activeChara.unit, targetChara.unit, damage, isCritical, evaded)())
+	runAttackEventTraits("onAfterAttackByMe", targetChara.unit, damage, isCritical, evaded)(activeChara.unit);
 
 }
