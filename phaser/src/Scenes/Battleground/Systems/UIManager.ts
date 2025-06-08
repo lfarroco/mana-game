@@ -217,29 +217,36 @@ export async function goldChangeAnimation(
 
 	const sign = gold > 0 ? "+" : "";
 
-	const text = `${sign}${gold}`;
+	const animationText = `${sign}${gold}`;
 
-	const goldAmount = scene.add.text(constants.SCREEN_WIDTH - 100, 100, text, constants.titleTextConfig)
+	// Use goldText position if available, otherwise fallback to a default
+	const startX = goldText ? goldText.x + goldText.width / 2 : constants.SCREEN_WIDTH - 100;
+	const startY = goldText ? goldText.y + goldText.height / 2 : 100;
+
+	const goldAmountText = scene.add.text(
+		startX,
+		startY,
+		animationText, constants.titleTextConfig)
 		.setOrigin(0.5, 0.5)
 		.setAlpha(0)
 		.setScale(1);
 
 	await tween({
-		targets: [goldAmount],
+		targets: [goldAmountText],
 		alpha: 1,
-		scale: 1.5,
-		y: goldAmount.y + (-50 * Math.sign(gold)),
+		scale: goldText ? 1.2 : 1.5, // Slightly smaller pop if over existing text
+		y: startY - 30, // Move upwards from the goldText position
 	});
 
 	await tween({
-		targets: [goldAmount],
+		targets: [goldAmountText],
 		alpha: 0,
 		scale: 1,
-		y: goldAmount.y + (-50 * Math.sign(gold)),
-		duration: 1000,
+		y: startY - 60, // Continue moving upwards
+		duration: 800,
 	});
 
-	goldAmount.destroy();
+	goldAmountText.destroy();
 
 }
 
