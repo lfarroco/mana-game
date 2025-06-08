@@ -298,22 +298,41 @@ export class Chara extends Phaser.GameObjects.Container {
 
 	private handleDragEnd = (pointer: Phaser.Input.Pointer) => {
 
-		tween({
+		tween({ // Always reset angle
 			targets: [this],
 			angle: 0,
 			duration: 100,
 			ease: "Cubic.Out",
 		});
 
-		if (Board.isPointerInBoardDropZone(pointer)) return
+		if (this.wasDragSuccessful) {
+			// Drop was successful on a valid zone (e.g., the board),
+			// and handleDrop (or another specific drop handler) already positioned the Chara.
+			return;
+		}
 
-		// check if the drag ended inside or outside scene.dropZone
-		// return to original position if outside
-		tween({
-			targets: [this],
-			...UnitManager.getCharaPosition(this.unit)
-		})
+		// If wasDragSuccessful is false, it means either:
+		// 1. The Chara was dropped on a zone (like the main board), but the drop was invalid.
+		//    In this scenario, the `handleDrop` method should have already initiated a revert tween.
+		// 2. The Chara was dropped outside any valid drop zone.
+		//    In this scenario, we need to initiate the revert tween here.
 
+		// Check if the pointer is currently over the main board drop zone.
+		const isOverBoardZone = Board.isPointerInBoardDropZone(pointer);
+
+		if (!isOverBoardZone) {
+			// Drag ended completely outside the player board drop zone. Revert to original position.
+			if (!this.isOwnedByPlayer()) {
+				// It's a shop item, revert to its shop slot visual position (dragStartX/Y)
+				tween({ targets: [this], x: this.dragStartX, y: this.dragStartY });
+			} else {
+				// It's an owned unit, revert to its last known valid model position
+				tween({ targets: [this], ...UnitManager.getCharaPosition(this.unit) });
+			}
+		}
+		// If isOverBoardZone is true BUT wasDragSuccessful is false,
+		// it implies that handleDrop was called, deemed the drop invalid, and already handled the reversion.
+		// So, no further action is needed here for that specific case.
 	}
 
 	updateHpDisplay = () => {
