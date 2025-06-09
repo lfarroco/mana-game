@@ -9,6 +9,7 @@ import { addCharaToState } from "./CharaManager";
 import { RelicCard } from "./Relic";
 import { Chara } from "../../../Systems/Chara/Chara";
 import { BattlegroundScene } from "../BattlegroundScene";
+import { UIButton } from "./UIButton";
 
 export class Shop {
 	// UI Layout Constants for Shop
@@ -63,7 +64,8 @@ export class Shop {
 			this.renderRelics();
 			this.renderTavern();
 
-			const nextRoundBtn = this.scene.uiManager.createButton(
+			const nextRoundBtn = new UIButton(
+				this.scene,
 				"Next Round",
 				shopPanelWidth - 180, // Position X relative to the shop panel's width
 				shopPanelHeight - 60,  // Position Y relative to the shop panel's height (for bottom-right)
