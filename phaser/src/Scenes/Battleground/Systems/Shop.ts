@@ -101,6 +101,8 @@ function tavern(state: State, flyout: Flyout) {
 
 			chara.addTooltip();
 
+			chara.setBarsVisibility(false);
+
 			flyout.add(chara);
 		});
 }
