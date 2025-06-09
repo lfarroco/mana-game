@@ -4,7 +4,6 @@ import { BattlegroundScene } from "../BattlegroundScene";
 import { delay, tween } from "../../../Utils/animation";
 import { COLOR_BLACK } from "../../../Utils/colors";
 import { State } from "../../../Models/State";
-import * as assets from "../../../assets";
 import { playerForce } from "../../../Models/Force";
 import { Tooltip } from "../../../Systems/Tooltip";
 
@@ -43,40 +42,61 @@ export class UIManager {
 		y: number,
 		callback: () => void
 	): Phaser.GameObjects.Container {
-		const btnBg = this.scene.add.image(
-			x, y,
-			assets.images.button.key
-		)
-			.setScale(0.2)
-			.setOrigin(0.5);
+		// Define button appearance properties
+		const buttonWidth = 180;
+		const buttonHeight = 50;
+		const cornerRadius = 10;
+		const fillColor = 0x2c3e50; // A dark slate blue, good contrast for white text
+		const lineColor = 0x000000; // Black outline
+		const lineWidth = 4;         // Thick outline
+
+		// Create the graphics object for the button background
+		const buttonGraphics = this.scene.add.graphics();
+
+		// Draw the button shape (filled rounded rectangle with an outline)
+		buttonGraphics.fillStyle(fillColor, 1);
+		buttonGraphics.fillRoundedRect(0, 0, buttonWidth, buttonHeight, cornerRadius);
+		buttonGraphics.lineStyle(lineWidth, lineColor, 1);
+		buttonGraphics.strokeRoundedRect(0, 0, buttonWidth, buttonHeight, cornerRadius);
+
+		// Position the graphics object so its visual center is at (x, y)
+		buttonGraphics.setPosition(x - buttonWidth / 2, y - buttonHeight / 2);
 
 		const buttonText = this.scene.add.text(
 			x, y,
 			text,
 			{
 				...constants.defaultTextConfig,
-				color: '#fff',
-				stroke: 'none',
+				color: '#ffffff', // White text
+				stroke: 'none', // No stroke for the text itself
 				strokeThickness: 0,
 			}).setOrigin(0.5);
 
-		btnBg.setInteractive();
+		// Make the graphics object interactive
+		// The hit area is relative to the graphics object's origin (top-left)
+		const hitArea = new Phaser.Geom.Rectangle(0, 0, buttonWidth, buttonHeight);
+		buttonGraphics.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
 
-		btnBg.on(Phaser.Input.Events.POINTER_UP, callback);
-		btnBg.on(Phaser.Input.Events.POINTER_DOWN, () => {
+		// Event handlers (attached to buttonGraphics now)
+		buttonGraphics.on(Phaser.Input.Events.POINTER_UP, () => {
+			// Reset text shadow from POINTER_DOWN state
+			buttonText.setShadow(0, 0, "#000000", 0, true, true);
+			callback();
+		});
+
+		buttonGraphics.on(Phaser.Input.Events.POINTER_DOWN, () => {
 			buttonText.setShadow(0, 0, "#eaeaea", 0, true, true);
 		});
-		btnBg.on(Phaser.Input.Events.POINTER_OVER, () => {
-			buttonText.setColor('#ffffff');
-			buttonText.setShadow(2, 2, "#000000", 2, true, true);
 
+		buttonGraphics.on(Phaser.Input.Events.POINTER_OVER, () => {
+			buttonText.setShadow(2, 2, "#000000", 2, true, true);
 			tween({
 				targets: [buttonText],
 				scale: 1.2,
 			});
 		});
-		btnBg.on(Phaser.Input.Events.POINTER_OUT, () => {
-			buttonText.setColor('#fff');
+
+		buttonGraphics.on(Phaser.Input.Events.POINTER_OUT, () => {
 			buttonText.setShadow(0, 0, "#000000", 0, true, true);
 			tween({
 				targets: [buttonText],
@@ -85,26 +105,34 @@ export class UIManager {
 		});
 
 		const container = this.scene.add.container(0, 0);
-		container.add([btnBg, buttonText]);
+		container.add([buttonGraphics, buttonText]); // Add graphics first, then text
 		return container;
 	}
 
 	public disableButton(button: Phaser.GameObjects.Container): void {
-		button.getAll().forEach((child) => {
-			if (child instanceof Phaser.GameObjects.Image || child instanceof Phaser.GameObjects.Text) {
-				child.setAlpha(0.5);
-				if (child.input) child.disableInteractive();
-			}
-		});
+		const buttonGraphics = button.getAt(0) as Phaser.GameObjects.Graphics;
+		const buttonText = button.getAt(1) as Phaser.GameObjects.Text;
+
+		if (buttonGraphics instanceof Phaser.GameObjects.Graphics) {
+			buttonGraphics.setAlpha(0.5);
+			buttonGraphics.disableInteractive();
+		}
+		if (buttonText instanceof Phaser.GameObjects.Text) { // Text might not be present in all generic containers
+			buttonText.setAlpha(0.5);
+		}
 	}
 
 	public enableButton(button: Phaser.GameObjects.Container): void {
-		button.getAll().forEach((child) => {
-			if (child instanceof Phaser.GameObjects.Image || child instanceof Phaser.GameObjects.Text) {
-				child.setAlpha(1);
-				if (child.input) child.setInteractive(); else if (child instanceof Phaser.GameObjects.Image) child.setInteractive();
-			}
-		});
+		const buttonGraphics = button.getAt(0) as Phaser.GameObjects.Graphics;
+		const buttonText = button.getAt(1) as Phaser.GameObjects.Text;
+
+		if (buttonGraphics instanceof Phaser.GameObjects.Graphics) {
+			buttonGraphics.setAlpha(1);
+			buttonGraphics.setInteractive(); // Re-enables with the previously set hit area
+		}
+		if (buttonText instanceof Phaser.GameObjects.Text) {
+			buttonText.setAlpha(1);
+		}
 	}
 
 	public createMainUI(): void {
