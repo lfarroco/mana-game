@@ -49,7 +49,6 @@ export class BattlegroundScene extends Phaser.Scene {
     this.children.removeAll(true);
   }
 
-
   constructor() {
     super("BattlegroundScene");
     console.log("BattlegroundScene constructor")
@@ -66,7 +65,6 @@ export class BattlegroundScene extends Phaser.Scene {
     BattlegroundAudioSystem_init(state, this);
     UnitManager.init(this);
     TraitSystem.init(this, state);
-    TooltipSystem.init(this);
 
     // UIManager will be initialized in the start() method
 
@@ -79,6 +77,8 @@ export class BattlegroundScene extends Phaser.Scene {
 
   preload = preload;
   create = async (_state: State) => {
+
+    TooltipSystem.init(this);
     /**
      * It is important to NOT create new global listeners here
      * TODO: add test to confirm that global listeners are not created here
