@@ -5,12 +5,7 @@ import { images } from "../../../assets";
 import { RelicDefinition } from "../../../Models/Card";
 import { TraitData } from "../../../Models/Traits";
 import { Vec2 } from "../../../Models/Geometry";
-
-// It's good practice to have a more specific type for your scene if it has custom properties like uiManager
-import { BattlegroundScene } from "../BattlegroundScene"; // Assuming this is your actual scene class
-interface BattlegroundSceneWithUIManager extends BattlegroundScene {
-	uiManager: import('./UIManager').UIManager; // Adjust path as needed
-}
+import BattlegroundScene from "../BattlegroundScene";
 
 export class RelicCard extends Phaser.GameObjects.Image {
 	// Constants for game rules and UI identifiers
@@ -23,8 +18,6 @@ export class RelicCard extends Phaser.GameObjects.Image {
 	];
 	static readonly SLOT_NAME_PREFIX = "slot-";
 
-	static parent: BattlegroundSceneWithUIManager;
-
 	id: string;
 	owned: boolean = false;
 	private wasDroppedOnZone = false;
@@ -32,16 +25,16 @@ export class RelicCard extends Phaser.GameObjects.Image {
 
 	constructor(
 		public parent: BattlegroundScene,
-		public baseX: number,
-		public baseY: number,
+		public initialX: number, // Renamed baseX to initialX for clarity
+		public initialY: number, // Renamed baseY to initialY for clarity
 		public relicData: RelicDefinition,
 		public iconSize: number,
 		public onAcquire: () => void
 	) {
-		super(parent, baseX, baseY, relicData.pic);
+		super(parent, initialX, initialY, relicData.pic);
 		this.setDisplaySize(iconSize, iconSize);
 		parent.add.existing(this);
-
+		// Note: if this object is added to another container later (e.g., a Flyout),
 		this.setInteractive({ draggable: true });
 
 		this.on("drag", (p: Pointer) => {
@@ -83,8 +76,8 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		}
 
 		// Assume this.x and this.y are already set to the target visual position
-		this.baseX = this.x;
-		this.baseY = this.y;
+		this.initialX = this.x; // Update initialX/Y to the new base position
+		this.initialY = this.y;
 
 		const relicData: Relic = {
 			id: this.id,
@@ -154,8 +147,7 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		}
 
 		if (this.attemptPurchaseAndPlace(slotGridX, slotGridY, targetSlotGameObject.x, targetSlotGameObject.y)) {
-			// Purchase successful, card is now at targetSlotGameObject's position.
-			// Animate it to the slot.
+			// Purchase successful, card is now at targetSlotGameObject's position via attemptPurchaseAndPlace.
 			this.tweenToSlot(targetSlotGameObject.x, targetSlotGameObject.y);
 		}
 		// If attemptPurchaseAndPlace fails, an error is displayed, and the card remains in the shop.
@@ -188,8 +180,12 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		this.wasDroppedOnZone = false;
 		this.parent.uiManager.tooltip.hide();
 
-		if (this.owned)
+		// Bring to top within its current rendering context
+		if (this.parentContainer) { // If the relic is in a Phaser.GameObjects.Container (e.g., the shop flyout)
+			this.parentContainer.bringToTop(this);
+		} else { // If the relic is a direct child of the scene's display list
 			this.parent.children.bringToTop(this);
+		}
 	}
 
 	private handleDropRelicIntoSlot(zone: Phaser.GameObjects.Zone) {
@@ -225,8 +221,8 @@ export class RelicCard extends Phaser.GameObjects.Image {
 				}
 
 				// Visual positions for tweening
-				const draggedRelicOriginalVisualX = this.baseX; // Dragged relic's current slot X (visual)
-				const draggedRelicOriginalVisualY = this.baseY; // Dragged relic's current slot Y (visual)
+				const draggedRelicOriginalVisualX = this.initialX; // Dragged relic's current slot X (visual)
+				const draggedRelicOriginalVisualY = this.initialY; // Dragged relic's current slot Y (visual)
 
 				// Grid positions
 				const draggedRelicOriginalGridX = draggedRelicData.position.x;
@@ -243,7 +239,7 @@ export class RelicCard extends Phaser.GameObjects.Image {
 			}
 		} else { // Slot is empty
 			if (this.owned) { // Moving an owned relic to an empty slot
-				this.tweenToSlot(zone.x, zone.y); // Visually move and update baseX/Y
+				this.tweenToSlot(zone.x, zone.y); // Visually move and update initialX/Y
 				this.updateDataPosition(targetGridX, targetGridY);
 			} else { // Buying a new relic by dragging to an empty slot
 				if (this.attemptPurchaseAndPlace(targetGridX, targetGridY, zone.x, zone.y)) {
@@ -258,14 +254,14 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		}
 	}
 
-	private async tweenToSlot(x: number = this.baseX, y: number = this.baseY) {
+	private async tweenToSlot(x: number = this.initialX, y: number = this.initialY) {
 		await tween({
 			targets: [this],
 			x,
 			y,
 		});
-		this.baseX = x;
-		this.baseY = y;
+		this.initialX = x; // Update the base position after tweening
+		this.initialY = y;
 	}
 
 	updateDataPosition(x: number, y: number) {
