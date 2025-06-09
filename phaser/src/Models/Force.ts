@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "../Scenes/Battleground/constants";
 import { Relic } from "../Scenes/Battleground/Systems/Relic";
 import { Unit } from "./Unit";
+import { GameEvents } from "../constants/events";
 
 export type Force = {
 	id: string;
@@ -35,5 +36,5 @@ export const updatePlayerGoldIO = (scene: Phaser.Scene, goldDelta: number) => {
 
 	// Emit an event with the new total gold and the delta amount
 	// The UIManager will listen to this to update text and play animations
-	scene.events.emit("gold-changed", playerForce.gold, changeAmount);
+	scene.events.emit(GameEvents.GOLD_CHANGED, playerForce.gold, changeAmount);
 }

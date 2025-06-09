@@ -6,6 +6,7 @@ import { COLOR_BLACK } from "../../../Utils/colors";
 import { playerForce } from "../../../Models/Force";
 import { Tooltip } from "../../../Systems/Tooltip";
 import { GoldCoinAnimator } from "./GoldCoinAnimator";
+import { GameEvents } from "../../../constants/events";
 
 /**
  * Manages the user interface elements within the BattlegroundScene.
@@ -38,15 +39,15 @@ export class UIManager {
 	}
 
 	/**
-	 * Sets up an event listener for "gold-changed" events emitted by the scene.
+	 * Sets up an event listener for "gold_changed" events emitted by the scene.
 	 * This allows the UIManager to react dynamically to updates in the player's gold.
 	 */
 	private _setupGoldChangeListener(): void {
-		this.scene.events.on("gold-changed", this._handleGoldChanged, this);
+		this.scene.events.on(GameEvents.GOLD_CHANGED, this._handleGoldChanged, this);
 	}
 
 	/**
-	 * Handles the "gold-changed" event.
+	 * Handles the "gold_changed" event.
 	 * @param newTotalGold The new total amount of gold the player has.
 	 * @param goldDelta The amount of gold that was gained or lost.
 	 */
@@ -148,7 +149,7 @@ export class UIManager {
 	 */
 	public destroy(): void { // Full cleanup for the UIManager
 		this.destroyMainUI();
-		this.scene.events.off("gold-changed", this._handleGoldChanged, this);
+		this.scene.events.off(GameEvents.GOLD_CHANGED, this._handleGoldChanged, this);
 	}
 
 	/**
