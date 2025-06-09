@@ -1,11 +1,12 @@
 import Phaser from "phaser";
 import * as constants from "../constants";
 import { BattlegroundScene } from "../BattlegroundScene";
-import { delay, tween } from "../../../Utils/animation";
+import { tween } from "../../../Utils/animation";
 import { COLOR_BLACK } from "../../../Utils/colors";
-import { State } from "../../../Models/State";
 import { playerForce } from "../../../Models/Force";
 import { Tooltip } from "../../../Systems/Tooltip";
+import { GoldCoinAnimator } from "./GoldCoinAnimator";
+
 /**
  * Manages the user interface elements within the BattlegroundScene.
  * This class is responsible for creating, updating, and destroying UI components
@@ -14,10 +15,10 @@ import { Tooltip } from "../../../Systems/Tooltip";
  */
 export class UIManager {
 	private scene: BattlegroundScene;
-	private state: State;
 
 	private uiContainer: Phaser.GameObjects.Container | null = null;
 	private goldTextElement: Phaser.GameObjects.Text | null = null;
+	private goldCoinAnimator: GoldCoinAnimator;
 	/**
 	 * Instance of the Tooltip system, used to display contextual information
 	 * when hovering over UI elements or game objects.
@@ -32,7 +33,6 @@ export class UIManager {
 	 */
 	constructor(scene: BattlegroundScene) {
 		this.scene = scene;
-		this.state = scene.state; // Or use getState() if preferred globally
 		this._setupGoldChangeListener();
 		this.tooltip = new Tooltip(scene)
 	}
@@ -202,70 +202,7 @@ export class UIManager {
 		coins: number,
 		x: number, y: number,
 	): Promise<void> {
-		const currentSpeed = this.state.options.speed; // Use speed from UIManager's state
-
-		const chestPosition: [number, number] = [
-			this.scene.cameras.main.width - 150,
-			this.scene.cameras.main.height - 100
-		];
-		const [chestX, chestY] = chestPosition;
-
-		this.goldChangeAnimation(gold); // Call as a method
-
-		for (let i = 0; i < coins; i++) {
-			const coin = this.scene.add.image(0, 0, 'coin').setOrigin(0.5, 0.5)
-				.setPosition(x + Math.random() * 200, y + Math.random() * 150)
-				.setAlpha(0)
-				.setRotation(Math.random() * Math.PI * 2);
-
-			this.scene.tweens.add({
-				targets: coin,
-				alpha: 1,
-				duration: (500 / currentSpeed) * Math.max(Math.random(), 0.5),
-			});
-
-			this.scene.tweens.add({
-				targets: coin,
-				scaleY: 0.5,
-				duration: 100 / currentSpeed,
-				yoyo: true,
-				repeat: -1
-			});
-
-			this.scene.tweens.add({
-				targets: coin,
-				y: coin.y - 150,
-				ease: "Quad.Out", // Phaser.Math.Easing.Quadratic.Out
-				duration: 300 / currentSpeed,
-				onComplete: () => {
-					const distance = Phaser.Math.Distance.Between(coin.x, coin.y, chestX, chestY);
-					this.scene.tweens.add({
-						targets: coin,
-						x: chestX,
-						y: chestY,
-						alpha: 0.5,
-						duration: distance / (3 * currentSpeed), // Adjust speed effect
-						ease: "Quad.In", // Phaser.Math.Easing.Quadratic.In
-						onComplete: () => {
-							coin.destroy();
-						}
-					});
-				}
-			});
-		}
-
-		await delay(this.scene, 1000 / currentSpeed);
-
-		this.scene.add.particles(chestX, chestY, 'coin', { // Ensure texture key is correct
-			speed: { min: 100, max: 200 },
-			lifespan: 500,
-			alpha: { start: 1.4, end: 0 },
-			angle: { min: 0, max: 360 },
-			quantity: coins * 2,
-			frequency: 100,
-			maxParticles: coins * 2,
-			rotate: { min: 0, max: 360 },
-			scaleY: { start: -1, end: 1 }
-		});
+		this.goldChangeAnimation(gold); // UI feedback
+		await this.goldCoinAnimator.animateCoinDrop(coins, x, y);
 	}
 }
