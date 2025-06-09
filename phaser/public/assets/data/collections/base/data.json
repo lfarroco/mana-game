@@ -117,6 +117,44 @@
 					"percent": 20
 				}
 			]
+		},
+		{
+			"id": "relic_ancient_hourglass",
+			"name": "Ancient Hourglass",
+			"pic": "icon/ancient_hourglass",
+			"description": "Reduces ability cooldowns for all your units by 15% at the start of battle.",
+			"cost": 60,
+			"traits": [
+				{
+					"id": "reduce_cd",
+					"percent": 15
+				}
+			]
+		},
+		{
+			"id": "relic_heartwood_talisman",
+			"name": "Heartwood Talisman",
+			"pic": "icon/heartwood_talisman",
+			"description": "Increases the maximum HP of all your units by 15% at the start of battle.",
+			"cost": 80,
+			"traits": [
+				{
+					"id": "increase_max_hp",
+					"percent": 15
+				}
+			]
+		},
+		{
+			"id": "relic_merchants_coin",
+			"name": "Merchant's Coin",
+			"pic": "icon/merchants_coin",
+			"description": "Grants you 5 gold at the start of each battle.",
+			"cost": 100,
+			"traits": [
+				{
+					"id": "golden_touch"
+				}
+			]
 		}
 	],
 	"opponents": [

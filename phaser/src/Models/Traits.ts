@@ -707,10 +707,15 @@ export const REDUCE_CD = makeTraitSpec({
 	categories: [TRAIT_CATEGORY_COMPANION],
 	relicEvents: { // Example: This trait's effect is for relics
 		onBattleStart: [
-			makeRelicBattleStartEvent((_traitData) => { // Assuming it doesn't need specific traitData for this effect
-				getState().battleData.units.forEach(u => {
-					u.cooldown = u.cooldown * 1.2;
-				});
+			makeRelicBattleStartEvent((traitData) => {
+				const percentReduction = traitData.percent || 0; // Default to 0 if not specified
+				if (percentReduction > 0 && percentReduction < 100) {
+					const multiplier = 1 - (percentReduction / 100);
+					getState().battleData.units.forEach(u => {
+						// Ensure cooldown doesn't go below a minimum, e.g., 100ms or 0
+						u.cooldown = Math.max(100, Math.round(u.cooldown * multiplier));
+					});
+				}
 			})
 		]
 	}
@@ -723,18 +728,42 @@ export const INCREASE_MAX_HP = makeTraitSpec({
 	categories: [TRAIT_CATEGORY_COMPANION],
 	relicEvents: { // Example: This trait's effect is for relics
 		onBattleStart: [
-			makeRelicBattleStartEvent(
-				(_traitData) => { // Assuming it doesn't need specific traitData for this effect
+			makeRelicBattleStartEvent((traitData) => {
+				const percentIncrease = traitData.percent || 0; // Default to 0 if not specified
+				if (percentIncrease > 0) {
+					const multiplier = 1 + (percentIncrease / 100);
 					getState().battleData.units.forEach(u => {
-						u.maxHp = u.maxHp * 1.2;
+						u.maxHp = Math.round(u.maxHp * multiplier);
 						u.hp = u.maxHp;
 						const chara = getChara(u.id);
-						chara.updateHpDisplay();
+						if (chara) { // Safety check
+							chara.updateHpDisplay();
+						}
 					});
-				})]
+				}
+			})]
 	}
 });
 
+export const GOLDEN_TOUCH = makeTraitSpec({
+	id: "golden_touch" as TraitId,
+	name: "Golden Touch",
+	description: "Grants 5 gold at the start of battle.",
+	categories: [TRAIT_CATEGORY_ECONOMY],
+	relicEvents: {
+		onBattleStart: [
+			makeRelicBattleStartEvent((_traitData) => {
+				// Ensure scene is initialized, similar to other parts of your codebase
+				if (scene) {
+					updatePlayerGoldIO(scene, 5); // Grant 5 gold
+					// You could add a popText here if you have a global way to show it
+					// e.g., popText({ text: "Relic: +5 Gold!", global: true });
+				} else {
+					console.warn("Golden Touch Relic: Scene not initialized for effect.");
+				}
+			})]
+	}
+});
 // TODO: remove this, use module import
 export const traitSpecs: { [id: TraitId]: TraitSpec } = {
 	[LONE_WOLF.id]: LONE_WOLF,
@@ -772,6 +801,7 @@ export const traitSpecs: { [id: TraitId]: TraitSpec } = {
 	[PLUNDER.id]: PLUNDER,
 	[REDUCE_CD.id]: REDUCE_CD,
 	[INCREASE_MAX_HP.id]: INCREASE_MAX_HP,
+	[GOLDEN_TOUCH.id]: GOLDEN_TOUCH,
 };
 
 export const randomCategoryTrait = (category: TraitCategory): TraitSpec => {
