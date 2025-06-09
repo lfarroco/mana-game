@@ -6,16 +6,30 @@ import { COLOR_BLACK } from "../../../Utils/colors";
 import { State } from "../../../Models/State";
 import { playerForce } from "../../../Models/Force";
 import { Tooltip } from "../../../Systems/Tooltip";
-
+/**
+ * Manages the user interface elements within the BattlegroundScene.
+ * This class is responsible for creating, updating, and destroying UI components
+ * such as buttons, text displays (like gold), and informational pop-ups (like errors or tooltips).
+ * It also handles UI-related animations and responses to game state changes (e.g., gold updates).
+ */
 export class UIManager {
 	private scene: BattlegroundScene;
 	private state: State;
 
 	private uiContainer: Phaser.GameObjects.Container | null = null;
 	private goldTextElement: Phaser.GameObjects.Text | null = null;
-
+	/**
+	 * Instance of the Tooltip system, used to display contextual information
+	 * when hovering over UI elements or game objects.
+	 */
 	public tooltip: Tooltip;
 
+	/**
+	 * Initializes the UIManager.
+	 * @param scene The `BattlegroundScene` instance this UIManager will be associated with.
+	 *              This provides context for adding UI elements and accessing scene-specific systems.
+	 * It sets up listeners for game events that affect the UI, such as changes in player gold.
+	 */
 	constructor(scene: BattlegroundScene) {
 		this.scene = scene;
 		this.state = scene.state; // Or use getState() if preferred globally
@@ -23,10 +37,19 @@ export class UIManager {
 		this.tooltip = new Tooltip(scene)
 	}
 
+	/**
+	 * Sets up an event listener for "gold-changed" events emitted by the scene.
+	 * This allows the UIManager to react dynamically to updates in the player's gold.
+	 */
 	private _setupGoldChangeListener(): void {
 		this.scene.events.on("gold-changed", this._handleGoldChanged, this);
 	}
 
+	/**
+	 * Handles the "gold-changed" event.
+	 * @param newTotalGold The new total amount of gold the player has.
+	 * @param goldDelta The amount of gold that was gained or lost.
+	 */
 	private _handleGoldChanged(newTotalGold: number, goldDelta: number): void {
 		if (this.goldTextElement) {
 			this.goldTextElement.setText("Gold: " + newTotalGold);
@@ -36,6 +59,18 @@ export class UIManager {
 		}
 	}
 
+	/**
+	 * Creates a standard interactive button with text.
+	 * This method encapsulates the visual styling and event handling for buttons,
+	 * ensuring a consistent look and feel across the UI.
+	 * @param text The text to display on the button.
+	 * @param x The x-coordinate for the center of the button.
+	 * @param y The y-coordinate for the center of the button.
+	 * @param callback The function to execute when the button is clicked.
+	 * @returns A `Phaser.GameObjects.Container` عشقrepresenting the button,
+	 *          which includes the button background and text label. This allows the button
+	 *          to be treated as a single entity for positioning and management.
+	 */
 	public createButton(
 		text: string,
 		x: number,
@@ -140,6 +175,11 @@ export class UIManager {
 		return container;
 	}
 
+	/**
+	 * Disables a button, making it visually appear inactive and non-interactive.
+	 * This is useful for preventing actions when certain conditions are not met.
+	 * @param button The button container (created by `createButton`) to disable.
+	 */
 	public disableButton(button: Phaser.GameObjects.Container): void {
 		const buttonGraphics = button.getByName("buttonBackground") as Phaser.GameObjects.Graphics | null;
 		const buttonText = button.getByName("buttonLabel") as Phaser.GameObjects.Text | null;
@@ -153,6 +193,11 @@ export class UIManager {
 		}
 	}
 
+	/**
+	 * Enables a previously disabled button, restoring its interactive state and appearance.
+	 * This allows the button to be used again.
+	 * @param button The button container (created by `createButton`) to enable.
+	 */
 	public enableButton(button: Phaser.GameObjects.Container): void {
 		const buttonGraphics = button.getByName("buttonBackground") as Phaser.GameObjects.Graphics | null;
 		const buttonText = button.getByName("buttonLabel") as Phaser.GameObjects.Text | null;
@@ -166,6 +211,10 @@ export class UIManager {
 		}
 	}
 
+	/**
+	 * Creates and displays the main persistent UI elements of the game,
+	 * such as a sidebar and the player's gold display.
+	 */
 	public createMainUI(): void {
 		this.destroyMainUI(); // Clean up previous UI if any
 
@@ -183,6 +232,11 @@ export class UIManager {
 		this._createGoldText(this.uiContainer);
 	}
 
+	/**
+	 * Creates the text element that displays the player's current gold.
+	 * This is a helper method typically called by `createMainUI`.
+	 * @param parent The `Phaser.GameObjects.Container` to which the gold text will be added.
+	 */
 	private _createGoldText(parent: Phaser.GameObjects.Container): void {
 		// Assuming playerForce is the correct way to get player's gold initially
 		const initialGold = playerForce.gold; // Or getState().gameData.player.gold;
@@ -194,6 +248,12 @@ export class UIManager {
 		parent.add(this.goldTextElement);
 	}
 
+	/**
+	 * Displays a temporary error message to the player.
+	 * The message appears, animates briefly for emphasis, and then fades out.
+	 * This is used to provide feedback for invalid actions or system errors.
+	 * @param errorMessage The error message string to display.
+	 */
 	public async displayError(errorMessage: string): Promise<void> {
 		// this.scene.sound.play('ui/error'); // If you have an error sound
 
@@ -221,6 +281,10 @@ export class UIManager {
 		text.destroy();
 	}
 
+	/**
+	 * Destroys the main UI container and its children.
+	 * This is used to clean up the UI, for example, when transitioning between scenes or game states.
+	 */
 	public destroyMainUI(): void {
 		if (this.uiContainer) {
 			this.uiContainer.destroy(true); // true to destroy children
@@ -229,12 +293,21 @@ export class UIManager {
 		this.goldTextElement = null; // Was a child of uiContainer
 	}
 
+	/**
+	 * Performs a full cleanup of the UIManager.
+	 * This includes destroying the main UI and removing any event listeners
+	 * to prevent memory leaks. Should be called when the UIManager is no longer needed.
+	 */
 	public destroy(): void { // Full cleanup for the UIManager
 		this.destroyMainUI();
 		this.scene.events.off("gold-changed", this._handleGoldChanged, this);
 	}
 
-
+	/**
+	 * Plays an animation indicating a change in the player's gold.
+	 * A text element showing the amount of gold gained or lost animates near the gold display.
+	 * @param gold The amount of gold that changed (positive for gain, negative for loss).
+	 */
 	public async goldChangeAnimation(gold: number): Promise<void> {
 		const sign = gold > 0 ? "+" : "";
 		const animationText = `${sign}${gold}`;
@@ -268,6 +341,14 @@ export class UIManager {
 		goldAmountText.destroy();
 	}
 
+	/**
+	 * Simulates coins dropping and flying towards the gold display area.
+	 * This provides a more visual and engaging way to show gold being acquired.
+	 * @param gold The total amount of gold being added (used for the `goldChangeAnimation`).
+	 * @param coins The number of visual coin sprites to animate.
+	 * @param x The starting x-coordinate for the coin animation (e.g., where an enemy was defeated).
+	 * @param y The starting y-coordinate for the coin animation.
+	 */
 	public async coinDropIO(
 		gold: number,
 		coins: number,
