@@ -46,20 +46,31 @@ export class UIManager {
 		const buttonWidth = 180;
 		const buttonHeight = 50;
 		const cornerRadius = 10;
-		const fillColor = 0x2c3e50; // A dark slate blue, good contrast for white text
+
+		const normalFillColor = 0x2c3e50; // Base dark slate blue
+		const hoverFillColor = 0x34495e;  // Slightly lighter slate blue for hover
+		const pressedFillColor = 0x273746; // Darker slate blue for pressed state
+
 		const lineColor = 0x000000; // Black outline
 		const lineWidth = 4;         // Thick outline
 
 		// Create the graphics object for the button background
 		const buttonGraphics = this.scene.add.graphics();
 
-		// Draw the button shape (filled rounded rectangle with an outline)
-		buttonGraphics.fillStyle(fillColor, 1);
-		buttonGraphics.fillRoundedRect(0, 0, buttonWidth, buttonHeight, cornerRadius);
-		buttonGraphics.lineStyle(lineWidth, lineColor, 1);
-		buttonGraphics.strokeRoundedRect(0, 0, buttonWidth, buttonHeight, cornerRadius);
+		// Helper function to draw the button state
+		const drawButtonState = (fill: number) => {
+			buttonGraphics.clear(); // Clear previous drawing
+			buttonGraphics.fillStyle(fill, 1);
+			buttonGraphics.fillRoundedRect(0, 0, buttonWidth, buttonHeight, cornerRadius);
+			buttonGraphics.lineStyle(lineWidth, lineColor, 1);
+			buttonGraphics.strokeRoundedRect(0, 0, buttonWidth, buttonHeight, cornerRadius);
+		};
+
+		// Initial draw of the button in its normal state
+		drawButtonState(normalFillColor);
 
 		// Position the graphics object so its visual center is at (x, y)
+		// The drawing within buttonGraphics is relative to (0,0) of the graphics object itself.
 		buttonGraphics.setPosition(x - buttonWidth / 2, y - buttonHeight / 2);
 
 		const buttonText = this.scene.add.text(
@@ -77,31 +88,53 @@ export class UIManager {
 		const hitArea = new Phaser.Geom.Rectangle(0, 0, buttonWidth, buttonHeight);
 		buttonGraphics.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
 
-		// Event handlers (attached to buttonGraphics now)
-		buttonGraphics.on(Phaser.Input.Events.POINTER_UP, () => {
-			// Reset text shadow from POINTER_DOWN state
-			buttonText.setShadow(0, 0, "#000000", 0, true, true);
-			callback();
-		});
+		let isPressed = false; // Flag to track if the button is currently pressed
 
 		buttonGraphics.on(Phaser.Input.Events.POINTER_DOWN, () => {
+			if (!buttonGraphics.input?.enabled) return;
+			isPressed = true;
+			drawButtonState(pressedFillColor);
 			buttonText.setShadow(0, 0, "#eaeaea", 0, true, true);
 		});
 
+		buttonGraphics.on(Phaser.Input.Events.POINTER_UP, () => {
+			if (!buttonGraphics.input?.enabled) return; // Should not happen if disabled, but good check
+
+			const wasPressed = isPressed; // Capture the pressed state before resetting
+			isPressed = false; // Reset pressed state immediately
+
+			if (wasPressed) { // Only trigger callback and visual change if it was actually pressed
+				// Determine final state based on pointer position
+				if (buttonGraphics.input.hitArea.contains(this.scene.input.activePointer.x, this.scene.input.activePointer.y)) {
+					drawButtonState(hoverFillColor);
+					buttonText.setShadow(2, 2, "#000000", 2, true, true); // Hover shadow
+					// Scale is likely already 1.2 from POINTER_OVER tween
+				} else {
+					drawButtonState(normalFillColor);
+					buttonText.setShadow(0, 0, "#000000", 0, true, true); // Normal shadow
+					// Scale is likely already 1.0 from POINTER_OUT tween
+				}
+				callback();
+			}
+		});
+
 		buttonGraphics.on(Phaser.Input.Events.POINTER_OVER, () => {
+			if (!buttonGraphics.input?.enabled) return;
+			if (!isPressed) { // Only apply hover effect if not currently pressed
+				drawButtonState(hoverFillColor);
+			}
 			buttonText.setShadow(2, 2, "#000000", 2, true, true);
-			tween({
-				targets: [buttonText],
-				scale: 1.2,
-			});
+			tween({ targets: [buttonText], scale: 1.2 });
 		});
 
 		buttonGraphics.on(Phaser.Input.Events.POINTER_OUT, () => {
+			if (!buttonGraphics.input?.enabled) return;
+			// If pointer moves out, revert to normal color, regardless of pressed state (visual unpress)
+			// The `isPressed` flag remains true if it was pressed, for POINTER_UP logic.
+			drawButtonState(normalFillColor);
+
 			buttonText.setShadow(0, 0, "#000000", 0, true, true);
-			tween({
-				targets: [buttonText],
-				scale: 1.0,
-			});
+			tween({ targets: [buttonText], scale: 1.0 });
 		});
 
 		const container = this.scene.add.container(0, 0);
