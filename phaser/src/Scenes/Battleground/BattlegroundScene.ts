@@ -22,6 +22,7 @@ import { WaveOutcome } from "./RunCombatIO";
 import { Unit } from "../../Models/Unit";
 import { PlayerBoard } from "../../Models/Board";
 import { Shop } from "./Systems/Shop";
+import { UIButton } from "./Systems/UIButton";
 
 // Constants for BattlegroundScene specific game rules
 const INITIAL_PLAYER_GOLD = 20;
@@ -247,11 +248,11 @@ export class BattlegroundScene extends Phaser.Scene {
       await battleResultAnimation(this, "defeat");
       this.setAllPlayerUnitBarsVisibility(false); // Hide bars for player units even on defeat
       isGameOver = true;
-      this.uiManager.createButton("new run", 300, 300, () => {
+      new UIButton(this, "new run", 300, 300, () => {
         this.cleanup();
         this.start(); // Restart the game
       });
-      this.uiManager.createButton("return to menu", 300, 400, () => {
+      new UIButton(this, "return to menu", 300, 400, () => {
         this.scene.start("MainMenuScene");
       });
     }
