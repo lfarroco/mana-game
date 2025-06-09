@@ -172,9 +172,6 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.sprite = this.parent.add.image(0, 0, textureKey)
 			.setDisplaySize(constants.TILE_WIDTH, constants.TILE_HEIGHT);
 
-		if (this.unit.force === constants.FORCE_ID_CPU) {
-			this.sprite.flipX = true;
-		}
 		this.add(this.sprite);
 	}
 

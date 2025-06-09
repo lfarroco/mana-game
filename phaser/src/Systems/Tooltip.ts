@@ -3,14 +3,70 @@ import { defaultTextConfig } from "../Scenes/Battleground/constants";
 // TODO: on mobile, use a long press to show the tooltip
 
 let scene: Phaser.Scene;
-
-let tooltip: Phaser.GameObjects.Container;
+let tooltipContainer: Phaser.GameObjects.Container | undefined;
+let tooltipBg: Phaser.GameObjects.Graphics | undefined;
+let titleTextObj: Phaser.GameObjects.Text | undefined;
+let descriptionTextObj: Phaser.GameObjects.Text | undefined;
 
 const TOOLTIP_WIDTH = 500;
 const TOOLTIP_HEIGHT = 300;
+const PADDING = 20;
+const TITLE_FONT_SIZE = 40;
+const DESCRIPTION_FONT_SIZE = 30;
+const BORDER_RADIUS = 10;
+const BACKGROUND_COLOR = 0x000000;
+const BACKGROUND_ALPHA = 0.8;
+const INTER_ELEMENT_PADDING = PADDING / 2;
 
 export function init(sceneRef: Phaser.Scene) {
 	scene = sceneRef;
+}
+
+function _createTooltipElements() {
+	if (!scene) {
+		console.error("Tooltip system not initialized. Call init(scene) first.");
+		return;
+	}
+	tooltipContainer = scene.add.container(0, 0);
+	tooltipContainer.setDepth(Phaser.Math.MAX_SAFE_INTEGER); // Ensure tooltip is on top
+
+	tooltipBg = scene.add.graphics();
+	tooltipBg.fillStyle(BACKGROUND_COLOR, BACKGROUND_ALPHA);
+	tooltipBg.fillRoundedRect(
+		-TOOLTIP_WIDTH / 2,
+		-TOOLTIP_HEIGHT / 2,
+		TOOLTIP_WIDTH,
+		TOOLTIP_HEIGHT,
+		BORDER_RADIUS
+	);
+	tooltipContainer.add(tooltipBg);
+
+	titleTextObj = scene.add.text(
+		-TOOLTIP_WIDTH / 2 + PADDING,
+		-TOOLTIP_HEIGHT / 2 + PADDING,
+		'', // Initial empty text
+		defaultTextConfig
+	)
+		.setOrigin(0)
+		.setFontSize(TITLE_FONT_SIZE)
+		.setFontFamily("Arial Black")
+		.setAlign("left");
+	tooltipContainer.add(titleTextObj);
+
+	descriptionTextObj = scene.add.text(
+		-TOOLTIP_WIDTH / 2 + PADDING,
+		// Positioned dynamically in render based on titleTextObj's height
+		-TOOLTIP_HEIGHT / 2 + PADDING + TITLE_FONT_SIZE + INTER_ELEMENT_PADDING,
+		'', // Initial empty text
+		defaultTextConfig
+	)
+		.setOrigin(0)
+		.setFontSize(DESCRIPTION_FONT_SIZE)
+		.setAlign("left")
+		.setWordWrapWidth(TOOLTIP_WIDTH - (2 * PADDING));
+	tooltipContainer.add(descriptionTextObj);
+
+	tooltipContainer.setVisible(false); // Initially hidden
 }
 
 export function render(
@@ -19,43 +75,34 @@ export function render(
 	title: string,
 	description: string,
 ) {
-	if (!tooltip) tooltip = scene.add.container(0, 0);
-	tooltip.removeAll(true);
-	scene.children.bringToTop(tooltip);
+	if (!tooltipContainer) {
+		_createTooltipElements();
+	}
+
+	if (!tooltipContainer || !titleTextObj || !descriptionTextObj || !tooltipBg) {
+		// Elements failed to initialize
+		return;
+	}
+
+	titleTextObj.setText(title);
+	descriptionTextObj.setText(description);
+
+	// Dynamically position description below title
+	descriptionTextObj.setY(titleTextObj.y + titleTextObj.displayHeight + INTER_ELEMENT_PADDING);
+
+	// Note: If TOOLTIP_HEIGHT needs to be dynamic based on content,
+	// tooltipBg and potentially getAdjustedPosition would need updates here.
+	// For now, assuming fixed TOOLTIP_HEIGHT.
 
 	const { x: adjustedX, y: adjustedY } = getAdjustedPosition(x, y);
-
-	tooltip.setPosition(adjustedX, adjustedY);
-	const tooltipBg = scene.add.graphics();
-	tooltipBg.fillStyle(0x000000, 0.8);
-	tooltipBg.fillRoundedRect(-TOOLTIP_WIDTH / 2, -TOOLTIP_HEIGHT / 2, TOOLTIP_WIDTH, TOOLTIP_HEIGHT, 10);
-
-	const titleText = scene.add.text(
-		-TOOLTIP_WIDTH / 2 + 20, -TOOLTIP_HEIGHT / 2 + 20,
-		title, defaultTextConfig)
-		.setOrigin(0)
-		.setFontSize(40)
-		.setFontFamily("Arial Black")
-		.setAlign("left");
-
-	const descriptionTextMaxWidth = TOOLTIP_WIDTH - 40; // 20px padding on each side
-
-	const tooltipText = scene.add.text(
-		-TOOLTIP_WIDTH / 2 + 20, -TOOLTIP_HEIGHT / 2 + 80,
-		description, defaultTextConfig)
-		.setOrigin(0)
-		.setFontSize(30)
-		.setAlign("left")
-		.setWordWrapWidth(descriptionTextMaxWidth);
-
-	tooltip.add([tooltipBg, titleText, tooltipText]);
+	tooltipContainer.setPosition(adjustedX, adjustedY);
+	tooltipContainer.setVisible(true);
 }
 
 /**
  * Adjusts coordinates to keep the tooltip within canvas bounds
  */
 function getAdjustedPosition(x: number, y: number): { x: number, y: number } {
-	// Get the canvas dimensions
 	const canvasWidth = scene.scale.width;
 	const canvasHeight = scene.scale.height;
 
@@ -87,17 +134,14 @@ function getAdjustedPosition(x: number, y: number): { x: number, y: number } {
  * Moves the existing tooltip to a new position
  */
 export function move(x: number, y: number) {
-	if (!tooltip) return;
+	if (!tooltipContainer || !tooltipContainer.visible) return;
 
-	// Get adjusted position
 	const { x: adjustedX, y: adjustedY } = getAdjustedPosition(x, y);
-
-	// Update the position of each child in the tooltip
-	tooltip.setPosition(adjustedX, adjustedY);
+	tooltipContainer.setPosition(adjustedX, adjustedY);
 }
 
 // hide tooltip
 export function hide() {
-	if (!tooltip) return;
-	tooltip.removeAll(true);
+	if (!tooltipContainer) return;
+	tooltipContainer.setVisible(false);
 }
