@@ -15,13 +15,13 @@ import { delay } from "../../Utils/animation";
 import { images } from "../../assets";
 import { generateEnemyTeam } from "./generateEnemyTeam";
 import { vignette } from "./Animations/vignette";
-import * as Shop from "./Systems/Shop";
 import { updatePlayerGoldIO } from "../../Models/Force";
 import { popText } from "../../Systems/Chara/Animations/popText";
 import * as Relic from "./Systems/Relic";
 import { WaveOutcome } from "./RunCombatIO";
 import { Unit } from "../../Models/Unit";
 import { PlayerBoard } from "../../Models/Board";
+import { Shop } from "./Systems/Shop";
 
 // Constants for BattlegroundScene specific game rules
 const INITIAL_PLAYER_GOLD = 20;
@@ -41,6 +41,7 @@ export class BattlegroundScene extends Phaser.Scene {
   collection: CardCollection;
   uiManager: UIManager;
   playerBoard!: PlayerBoard;
+  shop: Shop;
 
   cleanup() {
     UnitManager.clearCharas();
@@ -64,7 +65,6 @@ export class BattlegroundScene extends Phaser.Scene {
     BattlegroundAudioSystem_init(state, this);
     UnitManager.init(this);
     TraitSystem.init(this, state);
-
     // UIManager will be initialized in the start() method
 
     if (process.env.NODE_ENV === 'development') {
@@ -145,10 +145,6 @@ export class BattlegroundScene extends Phaser.Scene {
     this.uiManager.createMainUI();
     Relic.setupRelicSlots(this);
 
-  }
-
-  private async handleShopPhase(): Promise<void> {
-    await Shop.open(this);
   }
 
   private setupBattle(): { enemies: Unit[] } {
@@ -264,8 +260,13 @@ export class BattlegroundScene extends Phaser.Scene {
     return isGameOver;
   }
 
+  /**
+   * This is called each time the scene starts or is rebooted
+   */
   start = async () => {
-    // Initialize UIManager here, now that the scene is ready
+
+    this.shop = new Shop(this);
+
     this.uiManager = new UIManager(this);
 
     this.initializeNewGame();
@@ -278,7 +279,7 @@ export class BattlegroundScene extends Phaser.Scene {
     while (!isGameOver) {
       console.log("Round", this.state.gameData.round, "started");
 
-      await this.handleShopPhase();
+      await this.shop.open();
       const { enemies } = this.setupBattle();
 
       // Hide the player board visuals before combat starts
@@ -295,8 +296,6 @@ export class BattlegroundScene extends Phaser.Scene {
       }
 
       if (isGameOver) break;
-
-      //await EventSystem.evalEvent(EventSystem.pickAHero);
 
       state.gameData.round += 1;
 
