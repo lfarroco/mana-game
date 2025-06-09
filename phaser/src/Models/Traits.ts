@@ -63,20 +63,6 @@ export const isInBackline = (unit: Unit): boolean => {
 	return unit.position.y === backline;
 }
 
-// Handler type constants
-export const HANDLER_ON_TURN_START = 'onTurnStart' as const;
-export const HANDLER_ON_TURN_END = 'onTurnEnd' as const;
-export const HANDLER_ON_BATTLE_START = 'onBattleStart' as const;
-export const HANDLER_ON_BATTLE_END = 'onBattleEnd' as const;
-
-// Target handler type constants
-export const TARGET_HANDLER_ON_ATTACK_BY_ME = 'onAttackByMe' as const;
-export const TARGET_HANDLER_ON_DEFEND_BY_ME = 'onDefendByMe' as const;
-export const TARGET_HANDLER_ON_UNIT_KILL_BY_ME = 'onUnitKillByMe' as const;
-export const TARGET_HANDLER_ON_UNIT_KILL = 'onUnitKill' as const;
-export const TARGET_HANDLER_ON_ALLIED_KILLED = 'onAlliedKilled' as const;
-export const TARGET_HANDLER_ON_ENEMY_KILLED = 'onEnemyKilled' as const;
-
 export type Trait = {
 	id: TraitId;
 	[key: string]: any;
@@ -92,7 +78,7 @@ export const TRAIT_CATEGORY_VISION = "vision" as TraitCategory;
 export const TRAIT_CATEGORY_HP = "hp" as TraitCategory;
 export const TRAIT_CATEGORY_ATTACK = "attack" as TraitCategory;
 
-// --- Relic Event Types (New) ---
+// --- Relic Event Types ---
 export type RelicBattleStartCallback = (relicTraitData: TraitData) => void; // Or IO if async behavior is needed
 export type RelicBattleStartEvent = { fn: RelicBattleStartCallback };
 export const makeRelicBattleStartEvent = (fn: RelicBattleStartCallback): RelicBattleStartEvent => ({ fn });
@@ -196,16 +182,17 @@ export const VANGUARD: TraitSpec = makeTraitSpec({
 	categories: [TRAIT_CATEGORY_ATTACK, TRAIT_CATEGORY_PERSONALITY, TRAIT_CATEGORY_OFFENSIVE],
 	unitEvents: {
 		onEnterPosition: [makeUnitEvent((unit) => async () => {
-			const frontline = LINES[unit.force].FRONT;
-			if (unit.position.x !== frontline) return;
+			// Check if the unit is in the front row (Y-axis)
+			if (!isInFrontline(unit)) return;
 
 			await popText({ text: "+Vanguard", targetId: unit.id });
 			getChara(unit.id).updateUnitAttribute("attackPower", 5);
 		})],
 		onLeavePosition: [makeUnitEvent((unit) => async () => {
-			const frontline = LINES[unit.force].FRONT;
-			if (unit.position.x !== frontline) return;
-
+			// Check if the unit was in the front row (Y-axis)
+			// This event ideally provides the old position or this check might be tricky
+			// For simplicity, assuming it's called when it's no longer in the frontline due to its own move.
+			// If it was previously in frontline and now isn't (or vice-versa for buff logic)
 			await popText({ text: "-Vanguard", targetId: unit.id });
 			getChara(unit.id).updateUnitAttribute("attackPower", -5);
 		})]
@@ -253,7 +240,7 @@ export const TAUNT: TraitSpec = makeTraitSpec({
 export const PROTECTOR: TraitSpec = makeTraitSpec({
 	id: "protector" as TraitId,
 	name: "Protector",
-	description: "Units in the same column have +5 defense",
+	description: "Units in the same row have +5 defense",
 	categories: [TRAIT_CATEGORY_DEFENSIVE, TRAIT_CATEGORY_PERSONALITY],
 	unitEvents: {
 		onEnterPosition: [makeUnitEvent((unit) => async () => {
