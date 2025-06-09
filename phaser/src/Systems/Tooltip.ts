@@ -38,12 +38,15 @@ export function render(
 		.setFontFamily("Arial Black")
 		.setAlign("left");
 
+	const descriptionTextMaxWidth = TOOLTIP_WIDTH - 40; // 20px padding on each side
+
 	const tooltipText = scene.add.text(
 		-TOOLTIP_WIDTH / 2 + 20, -TOOLTIP_HEIGHT / 2 + 80,
 		description, defaultTextConfig)
 		.setOrigin(0)
 		.setFontSize(30)
-		.setAlign("left");
+		.setAlign("left")
+		.setWordWrapWidth(descriptionTextMaxWidth);
 
 	tooltip.add([tooltipBg, titleText, tooltipText]);
 }
