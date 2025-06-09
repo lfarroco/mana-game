@@ -7,7 +7,6 @@ import { FORCE_ID_PLAYER } from "../../Scenes/Battleground/constants";
 import * as UnitManager from "../../Scenes/Battleground/Systems/CharaManager";
 import * as Board from "../../Models/Board"; // getState is used here
 import { addStatus, getState, } from "../../Models/State";
-import * as TooltipSytem from "../Tooltip";
 import { popText } from "./Animations/popText";
 import { criticalDamageDisplay } from "../../Effects";
 import { images } from "../../assets";
@@ -201,7 +200,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	private handleDrag(pointer: Phaser.Input.Pointer) {
 		this.x = pointer.x;
 		this.y = pointer.y;
-		TooltipSytem.hide();
+		this.parent.uiManager.tooltip.hide();
 	}
 
 	/**
@@ -393,7 +392,7 @@ export class Chara extends Phaser.GameObjects.Container {
 				this.unit.traits.map((trait) => trait.description).join("\n"),
 			].join('\n');
 
-			TooltipSytem.render(
+			this.parent.uiManager.tooltip.render(
 				this.x + 340, // TODO: Adjust tooltip position based on Chara's screen position/side
 				this.y,
 				this.unit.name,
@@ -402,7 +401,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		});
 
 		this.on('pointerout', () => {
-			TooltipSytem.hide();
+			this.parent.uiManager.tooltip.hide();
 		});
 	}
 

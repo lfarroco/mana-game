@@ -4,7 +4,6 @@ import { tween } from "../../../Utils/animation";
 import { images } from "../../../assets";
 import { RelicDefinition } from "../../../Models/Card";
 import { TraitData } from "../../../Models/Traits";
-import * as Tooltip from "../../../Systems/Tooltip";
 import { Vec2 } from "../../../Models/Geometry";
 
 // It's good practice to have a more specific type for your scene if it has custom properties like uiManager
@@ -189,7 +188,7 @@ export class RelicCard extends Phaser.GameObjects.Image {
 	};
 
 	private handleDragStart = () => {
-		Tooltip.hide();
+		this.parent.uiManager.tooltip.hide();
 	}
 
 	private handleDropRelicIntoSlot(zone: Phaser.GameObjects.Zone) {
@@ -283,7 +282,7 @@ export class RelicCard extends Phaser.GameObjects.Image {
 	private handlePointerOver(_pointer: Pointer) {
 
 		const tooltipX = this.x + (this.displayWidth / 2) + 300;
-		Tooltip.render(
+		this.parent.uiManager.tooltip.render(
 			tooltipX,
 			this.y,
 			this.relicData.name,
@@ -291,7 +290,7 @@ export class RelicCard extends Phaser.GameObjects.Image {
 	}
 
 	private handlePointerOut() {
-		Tooltip.hide();
+		this.parent.uiManager.tooltip.hide();
 	}
 }
 // Constants for Relic Slot layout and appearance

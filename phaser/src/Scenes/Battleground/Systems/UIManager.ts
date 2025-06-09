@@ -6,6 +6,7 @@ import { COLOR_BLACK } from "../../../Utils/colors";
 import { State } from "../../../Models/State";
 import * as assets from "../../../assets";
 import { playerForce } from "../../../Models/Force";
+import { Tooltip } from "../../../Systems/Tooltip";
 
 export class UIManager {
 	private scene: BattlegroundScene;
@@ -14,10 +15,13 @@ export class UIManager {
 	private uiContainer: Phaser.GameObjects.Container | null = null;
 	private goldTextElement: Phaser.GameObjects.Text | null = null;
 
+	public tooltip: Tooltip;
+
 	constructor(scene: BattlegroundScene) {
 		this.scene = scene;
 		this.state = scene.state; // Or use getState() if preferred globally
 		this._setupGoldChangeListener();
+		this.tooltip = new Tooltip(scene)
 	}
 
 	private _setupGoldChangeListener(): void {

@@ -8,7 +8,6 @@ import * as constants from "./constants";
 import { UIManager } from "./Systems/UIManager";
 import * as UnitManager from "./Systems/CharaManager";
 import * as TraitSystem from "../../Models/Traits";
-import * as TooltipSystem from "../../Systems/Tooltip";
 import { CardCollection, getAllCards, registerCollection } from "../../Models/Card";
 import runCombatIO from "./RunCombatIO";
 import { battleResultAnimation } from "./battleResultAnimation";
@@ -78,7 +77,6 @@ export class BattlegroundScene extends Phaser.Scene {
   preload = preload;
   create = async (_state: State) => {
 
-    TooltipSystem.init(this);
     /**
      * It is important to NOT create new global listeners here
      * TODO: add test to confirm that global listeners are not created here

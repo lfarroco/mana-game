@@ -5,7 +5,7 @@ import { defaultTextConfig } from "../Scenes/Battleground/constants";
 const TOOLTIP_WIDTH = 500;
 const TOOLTIP_HEIGHT = 300;
 
-class Tooltip {
+export class Tooltip {
 	private scene: Phaser.Scene;
 	private container: Phaser.GameObjects.Container;
 	private bg: Phaser.GameObjects.Graphics;
@@ -117,62 +117,5 @@ class Tooltip {
 		}
 
 		return { x: adjustedX, y: adjustedY };
-	}
-}
-
-// --- Module interface to manage the singleton Tooltip instance ---
-let tooltipInstance: Tooltip | undefined;
-
-export function init(sceneRef: Phaser.Scene): void {
-	if (!tooltipInstance) {
-		tooltipInstance = new Tooltip(sceneRef);
-	} else {
-		// This case might occur if init is called multiple times,
-		// e.g., on scene restarts without proper cleanup.
-		// Consider if the existing instance should be destroyed and recreated,
-		// or if its scene reference should be updated.
-		// For now, we'll log a warning. A more robust solution might involve
-		// the scene explicitly destroying the tooltip via a `destroyTooltip` function.
-		console.warn("Tooltip system already initialized. If using multiple scenes or scene restarts, ensure proper lifecycle management for the tooltip.");
-		// Optionally, update the scene reference if it can change:
-		// tooltipInstance.scene = sceneRef; // (if scene was public or had a setter)
-	}
-}
-
-export function render(
-	x: number,
-	y: number,
-	title: string,
-	description: string,
-) {
-	if (!tooltipInstance) {
-		console.error("Tooltip system not initialized. Call init(scene) first.");
-		return;
-	}
-	tooltipInstance.render(x, y, title, description);
-}
-
-/**
- * Moves the existing tooltip to a new position
- */
-export function move(x: number, y: number) {
-	if (!tooltipInstance) {
-		// Silently return or log error if not initialized, consistent with render
-		return;
-	}
-	tooltipInstance.move(x, y);
-}
-
-// hide tooltip
-export function hide() {
-	if (!tooltipInstance) return;
-	tooltipInstance.hide();
-}
-
-// Optional: A function to explicitly destroy the tooltip, e.g., when a scene ends.
-export function destroyTooltip(): void {
-	if (tooltipInstance) {
-		tooltipInstance.destroy();
-		tooltipInstance = undefined;
 	}
 }

@@ -4,7 +4,6 @@ import { vec2 } from "../../../Models/Geometry";
 import { State } from "../../../Models/State";
 import { makeUnit } from "../../../Models/Unit";
 import { Flyout } from "../../../Systems/Flyout";
-import * as Tooltip from "../../../Systems/Tooltip";
 import { pickRandom } from "../../../utils";
 import { FORCE_ID_PLAYER, SCREEN_WIDTH, titleTextConfig } from "../constants";
 import { addCharaToState } from "./CharaManager";
@@ -89,7 +88,7 @@ function tavern(state: State, flyout: Flyout) {
 			const chara = new Chara(flyout.parent, unit, {
 				isShopItem: true,
 				onPurchased: () => {
-					Tooltip.hide(); // Hide tooltip on purchase
+					flyout.parent.uiManager.tooltip.hide(); // Hide tooltip on purchase
 					flyout.remove(chara); // Remove from shop display
 					// Gold update and adding to player units is now handled by Chara.attemptPurchase
 				}
