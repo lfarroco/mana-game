@@ -19,6 +19,7 @@ import { haste } from "../Systems/Chara/Skills/haste";
 import { slow } from "../Systems/Chara/Skills/slow";
 import { updatePlayerGoldIO } from "./Force";
 import * as UnitEvents_ from "./UnitEvents"; // Adjusted imports
+import { summon } from "../Systems/Chara/Skills/summon";
 
 let state: State;
 let scene: BattlegroundScene;
@@ -674,15 +675,25 @@ export const UNDEAD_STRENGTH = makeTraitSpec({
 	}
 });
 
-export const SUMMON_SKELETON = makeTraitSpec({
-	id: "summon_skeleton" as TraitId,
-	name: "Summon Skeleton",
-	description: "Summons a skeleton to fight on your side",
+export const SUMMON = makeTraitSpec({
+	id: "summon" as TraitId,
+	name: "Summon", // TODO: change based on summon data
+	description: "Summons a unit to fight on your side", // TODO: change based on summon data
 	categories: [TRAIT_CATEGORY_COMPANION],
 	unitEvents: {
-		onAction: [makeUnitEvent(unit => async () => {
+		onAction: [makeUnitEvent((unit, data) => async () => {
+			if (!data) {
+				throw new Error(`Invalid summon data: ${JSON.stringify(data)} `)
+			}
 			const chara = getChara(unit.id);
-			console.log(chara)
+			const slot = chara.parent.playerBoard.getEmptySlot(
+				state.battleData.units.filter(u => u.force === unit.force),
+				unit.force
+			);
+			if (!slot) return;
+
+			summon(chara, data.summonId)
+
 		})]
 	}
 });
@@ -773,7 +784,7 @@ export const traitSpecs: { [id: TraitId]: TraitSpec } = {
 	[REGENERATE.id]: REGENERATE,
 	[SPLIT_BLOB.id]: SPLIT_BLOB,
 	[REBORN.id]: REBORN,
-	[SUMMON_SKELETON.id]: SUMMON_SKELETON,
+	[SUMMON.id]: SUMMON,
 	[UNDEAD.id]: UNDEAD,
 	[UNDEAD_STRENGTH.id]: UNDEAD_STRENGTH,
 	[MELEE.id]: MELEE,
