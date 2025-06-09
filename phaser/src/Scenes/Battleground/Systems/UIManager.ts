@@ -72,6 +72,7 @@ export class UIManager {
 		// Position the graphics object so its visual center is at (x, y)
 		// The drawing within buttonGraphics is relative to (0,0) of the graphics object itself.
 		buttonGraphics.setPosition(x - buttonWidth / 2, y - buttonHeight / 2);
+		buttonGraphics.setName("buttonBackground"); // Name for later retrieval
 
 		const buttonText = this.scene.add.text(
 			x, y,
@@ -82,6 +83,7 @@ export class UIManager {
 				stroke: 'none', // No stroke for the text itself
 				strokeThickness: 0,
 			}).setOrigin(0.5);
+		buttonText.setName("buttonLabel"); // Name for later retrieval
 
 		// Make the graphics object interactive
 		// The hit area is relative to the graphics object's origin (top-left)
@@ -105,33 +107,29 @@ export class UIManager {
 
 			if (wasPressed) { // Only trigger callback and visual change if it was actually pressed
 				// Determine final state based on pointer position
-				if (buttonGraphics.input.hitArea.contains(this.scene.input.activePointer.x, this.scene.input.activePointer.y)) {
-					drawButtonState(hoverFillColor);
-					buttonText.setShadow(2, 2, "#000000", 2, true, true); // Hover shadow
-					// Scale is likely already 1.2 from POINTER_OVER tween
-				} else {
-					drawButtonState(normalFillColor);
-					buttonText.setShadow(0, 0, "#000000", 0, true, true); // Normal shadow
-					// Scale is likely already 1.0 from POINTER_OUT tween
-				}
+				// If POINTER_UP fires on buttonGraphics, the pointer is over it.
+				// Set to hover state as the pointer is up and over the button.
+				drawButtonState(hoverFillColor);
+				buttonText.setShadow(2, 2, "#000000", 2, true, true); // Hover shadow
 				callback();
 			}
 		});
 
 		buttonGraphics.on(Phaser.Input.Events.POINTER_OVER, () => {
 			if (!buttonGraphics.input?.enabled) return;
-			if (!isPressed) { // Only apply hover effect if not currently pressed
+			if (isPressed) { // If dragged back over while still pressed
+				drawButtonState(pressedFillColor);
+			} else { // Normal hover, not pressed
 				drawButtonState(hoverFillColor);
 			}
 			buttonText.setShadow(2, 2, "#000000", 2, true, true);
 			tween({ targets: [buttonText], scale: 1.2 });
 		});
-
 		buttonGraphics.on(Phaser.Input.Events.POINTER_OUT, () => {
 			if (!buttonGraphics.input?.enabled) return;
 			// If pointer moves out, revert to normal color, regardless of pressed state (visual unpress)
 			// The `isPressed` flag remains true if it was pressed, for POINTER_UP logic.
-			drawButtonState(normalFillColor);
+			drawButtonState(normalFillColor); // Revert to normal, even if pressed and dragged out.
 
 			buttonText.setShadow(0, 0, "#000000", 0, true, true);
 			tween({ targets: [buttonText], scale: 1.0 });
@@ -143,8 +141,8 @@ export class UIManager {
 	}
 
 	public disableButton(button: Phaser.GameObjects.Container): void {
-		const buttonGraphics = button.getAt(0) as Phaser.GameObjects.Graphics;
-		const buttonText = button.getAt(1) as Phaser.GameObjects.Text;
+		const buttonGraphics = button.getByName("buttonBackground") as Phaser.GameObjects.Graphics | null;
+		const buttonText = button.getByName("buttonLabel") as Phaser.GameObjects.Text | null;
 
 		if (buttonGraphics instanceof Phaser.GameObjects.Graphics) {
 			buttonGraphics.setAlpha(0.5);
@@ -156,8 +154,8 @@ export class UIManager {
 	}
 
 	public enableButton(button: Phaser.GameObjects.Container): void {
-		const buttonGraphics = button.getAt(0) as Phaser.GameObjects.Graphics;
-		const buttonText = button.getAt(1) as Phaser.GameObjects.Text;
+		const buttonGraphics = button.getByName("buttonBackground") as Phaser.GameObjects.Graphics | null;
+		const buttonText = button.getByName("buttonLabel") as Phaser.GameObjects.Text | null;
 
 		if (buttonGraphics instanceof Phaser.GameObjects.Graphics) {
 			buttonGraphics.setAlpha(1);
