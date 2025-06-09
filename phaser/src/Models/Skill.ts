@@ -30,7 +30,7 @@ export const HEAL = "heal" as SkillId;
 export const SHOOT = "shoot" as SkillId;
 export const FIREBALL = "fireball" as SkillId;
 export const SHIELDBASH = "shieldbash" as SkillId;
-export const SUMMON_BLOB = "summon_blob" as SkillId;
+export const SUMMON = "summon" as SkillId;
 export const MULTISHOT = "multishot" as SkillId;
 export const HEALING_WAVE = "healing-wave" as SkillId;
 export const FEINT = "feint" as SkillId;
@@ -40,7 +40,6 @@ export const EXPLODE = "explode" as SkillId;
 export const SHADOWSTEP = "shadowstep" as SkillId;
 export const HASTE = "haste" as SkillId;
 export const FROST_BOLT = 'frost_bolt' as SkillId;
-export const SUMMON_SKELETON = 'summon_skeleton' as SkillId;
 
 const skills = `
 id                     | name                | range | power | tooltip
@@ -50,14 +49,12 @@ ${HEAL}                | Heal                | 5     | 50    | Heals an ally uni
 ${SHOOT}               | Shoot               | 4     | 20    | Shoots an arrow
 ${FIREBALL}            | Fireball            | 5     | 80    | Deals 80 damage to the target and 40 damage enemies around it
 ${SHIELDBASH}          | Shield Bash         | 1     | 20    | Deals damage and stuns the enemy for 1 turn
-${SUMMON_BLOB}         | Summon Blobs        | 1     | 20    | Summons 4 blobs
+${SUMMON}              | Summon              | 1     | 20    | Summons a unit
 ${MULTISHOT}           | Multishot           | 5     | 20    | Shoots 4 arrows
 ${HEALING_WAVE}        | Healing Wave        | 5     | 20    | Heals 4 allied units for 20 HP
-${FEINT}               | Feint               | 1     | 20    | Dodges the next attack and deals a critical
 ${LIGHT_ORB}           | Light Orb           | 5     | 10    | Deals 10 damage to an enemy unit and heals 5 HP to close allies
 ${ARCANE_MISSILES}     | Arcane Missiles     | 5     | 10    | Deals 10 damage to 3 random enemy targets
 ${EXPLODE}             | Explode             | 1     | 100   | Deals 100 damage around the caster
-${SHADOWSTEP}          | Shadowstep          | 5     | 0     | If no enemy is nearby, teleports to the furthest enemy
 ${HASTE}               | Haste               | 5     | 0     | Surrounding allies are hasted for 2.0s
 ${FROST_BOLT}          | Frost Bolt          | 5     | 0     | Damages enemy by 10 and slows for 2s
 `.trim()

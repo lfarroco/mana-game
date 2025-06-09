@@ -3,7 +3,10 @@ import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager"
 import { Chara } from "../Chara";
 import { getState } from "../../../Models/State";
 
-export async function summon(chara: Chara, cardId: string) {
+export async function summon(
+	chara: Chara,
+	cardId: string,
+) {
 
 	const { unit } = chara;
 	const state = getState();
