@@ -51,9 +51,6 @@ export class RelicCard extends Phaser.GameObjects.Image {
 			this.wasDragged = true;
 		});
 
-		this.on("dragstart", () => {
-			this.wasDroppedOnZone = false;
-		});
 		this.on("dragstart", this.handleDragStart);
 		this.on("drop", this.handleDrop);
 		this.on("dragend", this.handleDragEnd);
@@ -188,7 +185,11 @@ export class RelicCard extends Phaser.GameObjects.Image {
 	};
 
 	private handleDragStart = () => {
+		this.wasDroppedOnZone = false;
 		this.parent.uiManager.tooltip.hide();
+
+		if (this.owned)
+			this.parent.children.bringToTop(this);
 	}
 
 	private handleDropRelicIntoSlot(zone: Phaser.GameObjects.Zone) {

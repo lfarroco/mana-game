@@ -24,7 +24,7 @@ import { Unit } from "../../Models/Unit";
 import { PlayerBoard } from "../../Models/Board";
 
 // Constants for BattlegroundScene specific game rules
-const INITIAL_PLAYER_GOLD = 10;
+const INITIAL_PLAYER_GOLD = 20;
 const VICTORY_GOLD_REWARD = 5;
 const XP_PER_ENEMY = 15;
 const XP_FOR_LEVEL_UP = 100;
