@@ -10,21 +10,40 @@ import { addCharaToState } from "./CharaManager";
 import { RelicCard } from "./Relic";
 import { Chara } from "../../../Systems/Chara/Chara";
 
-import { BattlegroundScene } from "../BattlegroundScene"; // Assuming this is your actual scene class
-interface BattlegroundSceneWithUIManager extends BattlegroundScene {
-	uiManager: import('./UIManager').UIManager; // Adjust path as needed
-}
+import { BattlegroundScene } from "../BattlegroundScene";
 
-export const open = (scene: BattlegroundScene) => new Promise<void>(async (resolve) => {
+// UI Layout Constants for Shop
+const RELIC_SECTION_X = 50;
+const RELIC_SECTION_Y = 50;
+const RELIC_BG_WIDTH = 700;
+const RELIC_BG_HEIGHT = 400;
+const RELIC_TITLE_X = RELIC_SECTION_X + 250; // Example: adjust as needed
+const RELIC_TITLE_Y = RELIC_SECTION_Y + 20;
+const RELIC_ICON_BASE_Y = RELIC_SECTION_Y + 250;
+const RELIC_ICON_SIZE = 200;
+const RELIC_ICON_SPACING = 210;
+const RELIC_FIRST_ICON_X = RELIC_SECTION_X + 130;
+
+const TAVERN_BG_OFFSET_X = 800; // Offset from section start or absolute
+const TAVERN_TITLE_X = RELIC_SECTION_X + TAVERN_BG_OFFSET_X + 100; // Example
+const TAVERN_TITLE_Y = RELIC_SECTION_Y + 10; // Example
+const TAVERN_CHARA_BASE_Y = RELIC_SECTION_Y + 250; // Example
+const TAVERN_CHARA_FIRST_X = RELIC_SECTION_X + TAVERN_BG_OFFSET_X + 150; // Example
+const TAVERN_CHARA_SPACING = 200;
+const TAVERN_BG_WIDTH = 600;
+const TAVERN_BG_HEIGHT = 400;
+
+
+export const open = (scene: BattlegroundScene): Promise<void> => new Promise((resolve) => {
 
 	const { state } = scene;
 	const flyout = new Flyout(scene, "");
 
 	relics(scene, flyout);
 
-	tavern(state, flyout);
+	tavern(scene, state, flyout);
 
-	const nextRoundBtn = (scene as BattlegroundSceneWithUIManager).uiManager.createButton(
+	const nextRoundBtn = scene.uiManager.createButton( // Assuming uiManager is now directly on scene
 		"Next Round",
 		SCREEN_WIDTH - 180,
 		500,
@@ -37,30 +56,28 @@ export const open = (scene: BattlegroundScene) => new Promise<void>(async (resol
 	flyout.add(nextRoundBtn);
 
 	flyout.slideIn();
-
 });
 
-function relics(scene: BattlegroundSceneWithUIManager, flyout: Flyout) {
+function relics(scene: BattlegroundScene, flyout: Flyout) {
 
 	const relicData = pickRandom(getAllRelicDefinitions(), 3);
 
 	const bg = scene.add.graphics()
 		.fillStyle(0x000, 0.5)
-		.fillRect(0, 0, 700, 400)
-		.setPosition(50, 50);
+		.fillRect(0, 0, RELIC_BG_WIDTH, RELIC_BG_HEIGHT)
+		.setPosition(RELIC_SECTION_X, RELIC_SECTION_Y);
 
-	const title = scene.add.text(300, 70, "Relics", titleTextConfig);
+	const title = scene.add.text(RELIC_TITLE_X, RELIC_TITLE_Y, "Relics", titleTextConfig);
 	flyout.add([bg, title]);
 
 	relicData.forEach((relic, index) => {
-		const x = index * 210 + 180;
-		const y = 300;
-		const iconSize = 200;
+		const x = RELIC_FIRST_ICON_X + (index * RELIC_ICON_SPACING);
+		const y = RELIC_ICON_BASE_Y;
 
 		const slot = scene.add
 			.image(x, y, images.slot.key)
-			.setDisplaySize(iconSize, iconSize);
-		const icon = new RelicCard(scene, x, y, relic, 200 - 40, () => {
+			.setDisplaySize(RELIC_ICON_SIZE, RELIC_ICON_SIZE);
+		const icon = new RelicCard(scene, x, y, relic, RELIC_ICON_SIZE - 40, () => { // Keep padding for icon
 			flyout.remove(icon)
 		});
 
@@ -68,14 +85,14 @@ function relics(scene: BattlegroundSceneWithUIManager, flyout: Flyout) {
 	});
 }
 
-function tavern(state: State, flyout: Flyout) {
+function tavern(scene: BattlegroundScene, state: State, flyout: Flyout) {
 
-	const bg = flyout.parent.add.graphics()
+	const bg = scene.add.graphics()
 		.fillStyle(0x000, 0.5)
-		.fillRect(800, 0, 600, 400)
-		.setPosition(50, 50);
+		.fillRect(TAVERN_BG_OFFSET_X, 0, TAVERN_BG_WIDTH, TAVERN_BG_HEIGHT) // Assuming TAVERN_BG_WIDTH, TAVERN_BG_HEIGHT are defined
+		.setPosition(RELIC_SECTION_X, RELIC_SECTION_Y); // Assuming tavern bg is relative to section start
 
-	const title = flyout.parent.add.text(900, 60, "Tavern", titleTextConfig);
+	const title = scene.add.text(TAVERN_TITLE_X, TAVERN_TITLE_Y, "Tavern", titleTextConfig);
 	flyout.add([bg, title]);
 
 	const filtered = getAllCards()
@@ -88,7 +105,7 @@ function tavern(state: State, flyout: Flyout) {
 			const chara = new Chara(flyout.parent, unit, {
 				isShopItem: true,
 				onPurchased: () => {
-					flyout.parent.uiManager.tooltip.hide(); // Hide tooltip on purchase
+					scene.uiManager.tooltip.hide(); // Hide tooltip on purchase
 					flyout.remove(chara); // Remove from shop display
 					// Gold update and adding to player units is now handled by Chara.attemptPurchase
 				}
@@ -96,7 +113,7 @@ function tavern(state: State, flyout: Flyout) {
 
 			addCharaToState(chara);
 
-			chara.setPosition(950 + index * 200, 300);
+			chara.setPosition(TAVERN_CHARA_FIRST_X + (index * TAVERN_CHARA_SPACING), TAVERN_CHARA_BASE_Y);
 
 			chara.addTooltip();
 
