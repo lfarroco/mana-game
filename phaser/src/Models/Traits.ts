@@ -79,6 +79,13 @@ export const TRAIT_CATEGORY_VISION = "vision" as TraitCategory;
 export const TRAIT_CATEGORY_HP = "hp" as TraitCategory;
 export const TRAIT_CATEGORY_ATTACK = "attack" as TraitCategory;
 
+// --- Generic Relic Effect Types ---
+export type RelicEffectType =
+	| "updatePlayerGoldOnBattleStart"
+	| "reduceAlliedCooldownsOnBattleStart"
+	| "increaseAlliedMaxHpOnBattleStart";
+// Add more generic relic effect types here as needed
+
 export type TraitData = { // Moved TraitData definition higher for visibility with RelicEvents
 	id: TraitId;
 	[key: string]: any;
@@ -90,6 +97,7 @@ export type TraitSpec = { // Renamed from Trait to TraitSpec
 	description: string;
 	categories: TraitCategory[];
 	unitEvents: UnitEvents;     // For when this trait is on a Unit (relic-specific event handling will be external)
+	relicEffect?: RelicEffectType; // Optional: specifies the generic relic effect type
 };
 
 const makeTraitSpec = ( // Renamed from makeTrait
@@ -98,13 +106,15 @@ const makeTraitSpec = ( // Renamed from makeTrait
 		name,
 		description,
 		categories,
-		unitEvents = {}
+		unitEvents = {},
+		relicEffect
 	}: {
 		id: TraitId;
 		name: string;
 		description: string;
 		categories: TraitCategory[];
 		unitEvents?: Partial<UnitEvents>;
+		relicEffect?: RelicEffectType;
 	}): TraitSpec => ({
 		id,
 		name,
@@ -116,7 +126,8 @@ const makeTraitSpec = ( // Renamed from makeTrait
 				return acc;
 			}, {} as UnitEvents)),
 			...unitEvents
-		}
+		},
+		relicEffect
 	});
 
 export const LONE_WOLF: TraitSpec = makeTraitSpec({
@@ -675,7 +686,7 @@ export const REDUCE_CD = makeTraitSpec({
 	name: "Reduce Cooldown",
 	description: "Reduces all heroes' cooldowns",
 	categories: [TRAIT_CATEGORY_COMPANION],
-	// Effect handled by external event listener
+	relicEffect: "reduceAlliedCooldownsOnBattleStart"
 });
 
 export const INCREASE_MAX_HP = makeTraitSpec({
@@ -683,7 +694,7 @@ export const INCREASE_MAX_HP = makeTraitSpec({
 	name: "Increase Max HP",
 	description: "Increases all heroes' max HP",
 	categories: [TRAIT_CATEGORY_COMPANION],
-	// Effect handled by external event listener
+	relicEffect: "increaseAlliedMaxHpOnBattleStart"
 });
 
 export const GOLDEN_TOUCH = makeTraitSpec({
@@ -691,32 +702,48 @@ export const GOLDEN_TOUCH = makeTraitSpec({
 	name: "Golden Touch",
 	description: "Grants 5 gold at the start of battle.",
 	categories: [TRAIT_CATEGORY_ECONOMY],
-	// Effect handled by external event listener
+	relicEffect: "updatePlayerGoldOnBattleStart"
 });
 
 // --- Relic Trait Effect Functions ---
 // These functions will be called by event listeners when a relic with the corresponding trait is active.
 
-export function applyGoldenTouchBattleStart(scene: BattlegroundScene, _traitData: TraitData) {
-	updatePlayerGoldIO(scene, 5);
+export function updatePlayerGoldEffect(scene: BattlegroundScene, traitData: TraitData) {
+	const amountToGrant = traitData.amount;
+	if (typeof amountToGrant !== 'number' || amountToGrant === 0) { // Allow negative for costs, though unlikely for battle start
+		console.warn(`Relic Effect (PlayerGoldUpdate): Invalid or missing 'amount' in traitData for trait ID ${traitData.id}. Expected a non-zero number.`, traitData);
+		return;
+	}
+	updatePlayerGoldIO(scene, amountToGrant);
 }
 
-export function applyReduceCooldownBattleStart(scene: BattlegroundScene, traitData: TraitData) {
-	const percentReduction = traitData.percent || 0; // Default to 0 if not specified
-	if (percentReduction > 0 && percentReduction < 100) {
-		const multiplier = 1 - (percentReduction / 100);
-		getState().battleData.units.forEach(u => {
+export function alliedCooldownReductionEffect(_scene: BattlegroundScene, forceId: string, traitData: TraitData) {
+	const percentReduction = traitData.percent;
+	if (typeof percentReduction !== 'number' || percentReduction <= 0 || percentReduction >= 100) {
+		console.warn(`Relic Effect (AlliedCooldownReduction): Invalid or missing 'percent' in traitData for trait ID ${traitData.id}. Expected a number > 0 and < 100.`, traitData);
+		return;
+	}
+	const multiplier = 1 - (percentReduction / 100);
+	// TODO: only allies
+	getState().battleData.units
+		.filter(u => u.force === forceId)
+		.forEach(u => { // Assuming this should affect all units in battle
 			u.cooldown = Math.max(100, Math.round(u.cooldown * multiplier));
 			// If a visual update for cooldown is needed (e.g., on a Chara bar), trigger it here.
 		});
-	}
 }
 
-export function applyIncreaseMaxHpBattleStart(scene: BattlegroundScene, traitData: TraitData) {
-	const percentIncrease = traitData.percent || 0; // Default to 0 if not specified
-	if (percentIncrease > 0) {
-		const multiplier = 1 + (percentIncrease / 100);
-		getState().battleData.units.forEach(u => {
+export function alliedMaxHpIncreaseEffect(_scene: BattlegroundScene, forceId: string, traitData: TraitData) {
+	const percentIncrease = traitData.percent;
+	if (typeof percentIncrease !== 'number' || percentIncrease <= 0) {
+		console.warn(`Relic Effect (AlliedMaxHpIncrease): Invalid or missing 'percent' in traitData for trait ID ${traitData.id}. Expected a positive number.`, traitData);
+		return;
+	}
+	const multiplier = 1 + (percentIncrease / 100);
+	// TODO: only allies
+	getState().battleData.units
+		.filter(u => u.force === forceId)
+		.forEach(u => { // Assuming this should affect all units in battle
 			u.maxHp = Math.round(u.maxHp * multiplier);
 			u.hp = u.maxHp; // Also refill HP to new max
 			const chara = getChara(u.id);
@@ -724,7 +751,6 @@ export function applyIncreaseMaxHpBattleStart(scene: BattlegroundScene, traitDat
 				chara.updateHpDisplay();
 			}
 		});
-	}
 }
 
 // TODO: remove this, use module import

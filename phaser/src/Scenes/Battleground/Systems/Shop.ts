@@ -10,6 +10,7 @@ import { RelicCard } from "./Relic";
 import { Chara } from "../../../Systems/Chara/Chara";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { UIButton } from "./UIButton";
+import { playerForce } from "../../../Models/Force";
 
 export class Shop {
 	// UI Layout Constants for Shop
@@ -100,9 +101,14 @@ export class Shop {
 			const slot = this.scene.add
 				.image(x, y, images.slot.key)
 				.setDisplaySize(Shop.RELIC_ICON_SIZE, Shop.RELIC_ICON_SIZE);
-			const icon = new RelicCard(this.scene, x, y, relic, Shop.RELIC_ICON_SIZE - 40, () => {
-				if (this.flyout) this.flyout.remove(icon);
-			});
+			const icon = new RelicCard(
+				this.scene,
+				x, y,
+				playerForce.id,
+				relic,
+				Shop.RELIC_ICON_SIZE - 40, () => {
+					if (this.flyout) this.flyout.remove(icon);
+				});
 
 			this.flyout.add([slot, icon]);
 		});

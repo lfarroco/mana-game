@@ -11,6 +11,7 @@ import BattlegroundScene from "../BattlegroundScene";
 export type Relic = {
 	id: string;
 	pic: string;
+	forceId: string;
 	traits: Traits.TraitData[];
 	position: Vec2;
 };
@@ -36,6 +37,7 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		public parent: BattlegroundScene,
 		public initialX: number, // Renamed baseX to initialX for clarity
 		public initialY: number, // Renamed baseY to initialY for clarity
+		public forceId: string,
 		public relicData: RelicDefinition,
 		public iconSize: number,
 		public onAcquire: () => void
@@ -90,6 +92,7 @@ export class RelicCard extends Phaser.GameObjects.Image {
 
 		const relicData: Relic = {
 			id: this.id,
+			forceId: this.forceId,
 			pic: this.relicData.pic,
 			position: { x: gridX, y: gridY } as Vec2, // Ensure type compatibility
 			traits: this.relicData.traits
@@ -100,16 +103,27 @@ export class RelicCard extends Phaser.GameObjects.Image {
 
 	private registerTraitEventListeners(): void {
 		this.relicData.traits.forEach(traitData => {
+			const spec = Traits.traitSpecs[traitData.id];
 			let listenerCallback: (() => void) | null = null;
 
-			if (traitData.id === Traits.GOLDEN_TOUCH.id) {
-				listenerCallback = () => Traits.applyGoldenTouchBattleStart(this.parent, traitData);
-			} else if (traitData.id === Traits.REDUCE_CD.id) {
-				listenerCallback = () => Traits.applyReduceCooldownBattleStart(this.parent, traitData);
-			} else if (traitData.id === Traits.INCREASE_MAX_HP.id) {
-				listenerCallback = () => Traits.applyIncreaseMaxHpBattleStart(this.parent, traitData);
+			if (!spec || !spec.relicEffect) return
+
+			switch (spec.relicEffect) {
+				case "updatePlayerGoldOnBattleStart":
+					listenerCallback = () => Traits.updatePlayerGoldEffect(this.parent, traitData);
+					break;
+				case "reduceAlliedCooldownsOnBattleStart":
+					listenerCallback = () => Traits.alliedCooldownReductionEffect(this.parent, this.forceId, traitData);
+					break;
+				case "increaseAlliedMaxHpOnBattleStart":
+					listenerCallback = () => Traits.alliedMaxHpIncreaseEffect(this.parent, this.forceId, traitData);
+					break;
+
 			}
-			if (listenerCallback) this.addSceneListener(GameEvents.BATTLE_START_SETUP_COMPLETE, listenerCallback);
+
+			if (!listenerCallback) return;
+
+			this.addSceneListener(GameEvents.BATTLE_START_SETUP_COMPLETE, listenerCallback);
 		});
 	}
 
