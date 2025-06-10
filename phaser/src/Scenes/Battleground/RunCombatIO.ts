@@ -5,7 +5,8 @@ import * as UnitManager from "./Systems/CharaManager";
 import { performAction } from "./performAction";
 import { Unit } from "../../Models/Unit";
 import { tween } from "../../Utils/animation";
-import { runUnitEventTraits, traitSpecs } from "../../Models/Traits";
+import { runUnitEventTraits } from "../../Models/Traits";
+import { GameEvents } from "../../constants/events";
 
 export type WaveOutcome = "player_won" | "player_lost";
 
@@ -35,20 +36,10 @@ async function setupWave(scene: BattlegroundScene) {
     })
   }));
 
-  // Trigger relic onBattleStart events
-  scene.state.gameData.player.relics.forEach(relicInstance => {
-    relicInstance.traits.forEach(relicTraitData => { // relicTraitData is TraitData
-      const spec = traitSpecs[relicTraitData.id]; // spec is TraitSpec
-      if (spec && spec.relicEvents.onBattleStart) {
-        spec.relicEvents.onBattleStart.forEach(eventDef => { // eventDef is RelicBattleStartEvent
-          eventDef.fn(relicTraitData); // Pass the specific TraitData for this relic's trait instance
-        });
-      }
-    });
-  });
-
   scene.state.battleData.units
     .forEach(runUnitEventTraits("onBattleStart"));
+
+  scene.events.emit(GameEvents.BATTLE_START_SETUP_COMPLETE);
 
 }
 
