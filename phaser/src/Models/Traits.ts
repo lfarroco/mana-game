@@ -1,6 +1,7 @@
 // traits are a way to add special abilities or characteristics to cards
 // feature like "taunt", "flying", "trample", etc.
 
+import { GameEvents } from "../constants/events";
 import { pickRandom } from "../utils";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../Scenes/Battleground/constants";
 import { State } from "./State";
@@ -16,15 +17,6 @@ import {
 	checkConditions,
 	registerTraitDefinition as registerNewTraitDefinition // Alias to avoid conflict if any
 } from "./TraitEffectSystem";
-
-// The global scene and state are problematic. Effects should get these via TraitEffectContext.
-// export let scene: BattlegroundScene;
-// export let state: State;
-
-// export const initTraits = (sceneRef: BattlegroundScene, stateRef: State) => {
-// 	scene = sceneRef;
-// 	state = stateRef;
-// }
 
 export type TraitId = string & { __traitId: never };
 export type TraitCategory = string & { __traitCategory: never };
@@ -74,19 +66,6 @@ export const TRAIT_CATEGORY_ATTACK = "attack" as TraitCategory;
 export type TraitData = { // This is an *instance* of a trait on a unit/relic
 	id: TraitId;
 	[key: string]: any;
-};
-
-export const randomCategoryTrait = (category: TraitCategory): TraitDefinition | undefined => {
-	// This will now use the new traitDefinitionRegistry from TraitEffectSystem
-	const allDefs = Array.from(getTraitDefinition(undefined as any) ? [getTraitDefinition(undefined as any)] : []); // Placeholder
-	// Correct way: import getAllTraitDefinitions from TraitEffectSystem
-	// const allDefs = getAllTraitDefinitions();
-	const traitsInCategory = allDefs.filter(t => t!.categories.includes(category));
-	if (traitsInCategory.length === 0) {
-		throw new Error(`No traits found for category ${category}`);
-	}
-	const [randomTrait] = pickRandom(traitsInCategory, 1)
-	return randomTrait;
 };
 
 async function processTraitEvent(
@@ -142,23 +121,98 @@ async function processTraitEvent(
 	}
 }
 
-export const runUnitEventTraits = (eventKey: UnitEvents_.UnitEventKeys, scene: BattlegroundScene, state: State) => async (unit: Unit) => {
+export const runUnitEventTraits = async (eventKey: UnitEvents_.UnitEventKeys, scene: BattlegroundScene, state: State, unit: Unit) => {
 	for (const traitData of unit.traits) {
 		await processTraitEvent(unit, traitData, eventKey, scene, state);
 	}
 };
 
-export const runAttackEventTraits = (eventKey: UnitEvents_.AttackEventKeys, scene: BattlegroundScene, state: State, target: Unit, damage: number, isCritical: boolean, evaded: boolean) => async (unit: Unit) => {
+export const runAttackEventTraits = async (eventKey: UnitEvents_.AttackEventKeys, scene: BattlegroundScene, state: State, unit: Unit, target: Unit, damage: number, isCritical: boolean, evaded: boolean) => {
 	for (const traitData of unit.traits) {
 		await processTraitEvent(unit, traitData, eventKey, scene, state, target, damage, isCritical, evaded);
 	}
 };
 
-export const runUnitEventWithTargetTraits = (eventKey: UnitEvents_.UnitEventWithTargetKeys, scene: BattlegroundScene, state: State, target: Unit) => async (unit: Unit) => {
+export const runUnitEventWithTargetTraits = async (eventKey: UnitEvents_.UnitEventWithTargetKeys, scene: BattlegroundScene, state: State, unit: Unit, target: Unit) => {
 	for (const traitData of unit.traits) {
 		await processTraitEvent(unit, traitData, eventKey, scene, state, target);
 	}
 };
+
+export function setupTraitEventListeners(scene: BattlegroundScene, state: State): void {
+	scene.events.on(GameEvents.TRAIT_EVAL_UNIT_ACTION, async (payload: { unit: Unit, scene: BattlegroundScene, state: State }) => {
+		await runUnitEventTraits("onAction", payload.scene, payload.state, payload.unit);
+	});
+
+	scene.events.on(GameEvents.TRAIT_EVAL_GLOBAL_BATTLE_START, async (payload: { scene: BattlegroundScene, state: State }) => {
+		// Iterate over all units for traits that trigger on this global event
+		for (const unit of payload.state.battleData.units) { // Consider only active units if appropriate
+			if (unit.hp > 0) { // Example: only for active units
+				await runUnitEventTraits("onBattleStart", payload.scene, payload.state, unit);
+			}
+		}
+		// Iterate over player relics
+		for (const relic of payload.state.gameData.player.relics) {
+			for (const traitData of relic.traits) {
+				// For relic effects, sourceUnit might be a conceptual player or null.
+				// Or, the effect implementation itself handles not needing a typical sourceUnit.
+				// Here, we create a dummy source unit representing the player owning the relic.
+				const dummySource: Unit = { // Partial Unit, ensure effect implementations handle this
+					id: `relic_source_${relic.id}`,
+					force: payload.state.gameData.player.id,
+					// Add other potentially required fields if effects access them, or ensure effects are robust
+				} as Unit;
+				await processTraitEvent(dummySource, traitData, "onBattleStart", payload.scene, payload.state, dummySource);
+			}
+		}
+	});
+
+	scene.events.on(GameEvents.TRAIT_EVAL_UNIT_ENTER_POSITION, async (payload: { unit: Unit, scene: BattlegroundScene, state: State }) => {
+		await runUnitEventTraits("onEnterPosition", payload.scene, payload.state, payload.unit);
+	});
+
+	scene.events.on(GameEvents.TRAIT_EVAL_UNIT_LEAVE_POSITION, async (payload: { unit: Unit, scene: BattlegroundScene, state: State }) => {
+		await runUnitEventTraits("onLeavePosition", payload.scene, payload.state, payload.unit);
+	});
+
+	scene.events.on(GameEvents.TRAIT_EVAL_UNIT_HALF_HP, async (payload: { unit: Unit, scene: BattlegroundScene, state: State }) => {
+		await runUnitEventTraits("onHalfHP", payload.scene, payload.state, payload.unit);
+	});
+
+	scene.events.on(GameEvents.TRAIT_EVAL_UNIT_DEATH, async (payload: { unit: Unit, scene: BattlegroundScene, state: State }) => {
+		await runUnitEventTraits("onDeath", payload.scene, payload.state, payload.unit);
+	});
+
+	scene.events.on(GameEvents.TRAIT_EVAL_ATTACK_BY_ME, async (payload: { unit: Unit, target: Unit, damage: number, isCritical: boolean, evaded: boolean, scene: BattlegroundScene, state: State }) => {
+		await runAttackEventTraits("onAttackByMe", payload.scene, payload.state, payload.unit, payload.target, payload.damage, payload.isCritical, payload.evaded);
+	});
+
+	scene.events.on(GameEvents.TRAIT_EVAL_DEFEND_BY_ME, async (payload: { unit: Unit, attacker: Unit, scene: BattlegroundScene, state: State }) => {
+		// In 'onDefendByMe', the 'unit' is the defender, 'attacker' is the source of the attack.
+		// The original 'runUnitEventWithTargetTraits' expects (eventKey, scene, state, sourceUnit, targetUnit)
+		// So, sourceUnit is payload.attacker, targetUnit is payload.unit
+		await runUnitEventWithTargetTraits("onDefendByMe", payload.scene, payload.state, payload.attacker, payload.unit);
+	});
+
+	scene.events.on(GameEvents.TRAIT_EVAL_EVADE_BY_ME, async (payload: { unit: Unit, attacker: Unit, scene: BattlegroundScene, state: State }) => {
+		// Similar to onDefendByMe, unit is evader, attacker is the source.
+		await runUnitEventWithTargetTraits("onEvadeByMe", payload.scene, payload.state, payload.attacker, payload.unit);
+	});
+
+	scene.events.on(GameEvents.TRAIT_EVAL_AFTER_ATTACK_BY_ME, async (payload: { unit: Unit, target: Unit, damage: number, isCritical: boolean, evaded: boolean, scene: BattlegroundScene, state: State }) => {
+		await runAttackEventTraits("onAfterAttackByMe", payload.scene, payload.state, payload.unit, payload.target, payload.damage, payload.isCritical, payload.evaded);
+	});
+
+	scene.events.on(GameEvents.TRAIT_EVAL_UNIT_KILL_BY_ME, async (payload: { unit: Unit, killedUnit: Unit, scene: BattlegroundScene, state: State }) => {
+		await runUnitEventWithTargetTraits("onUnitKillByMe", payload.scene, payload.state, payload.unit, payload.killedUnit);
+	});
+
+	// TODO: Add listeners for onUnitKill, onAlliedKilled, onEnemyKilled, onAlliedAction, onTurnStart, onTurnEnd, onBattleEnd
+	// These will require careful consideration of when their corresponding high-level game events are emitted.
+	// For example, onTurnStart might be part of a turn management system emitting an event.
+	// onAlliedKilled would need an event like GameEvents.ALLY_DIED with { killedUnit, killerUnit (optional), scene, state }
+	// and the listener would iterate all other allied units to trigger their "onAlliedKilled" traits.
+}
 
 // For global events like "onBattleStart", "onRoundStart"
 // These might be triggered differently, perhaps by iterating over all units with relevant traits,
@@ -172,8 +226,7 @@ export async function runGlobalEventTraits(
 	// Example: Iterate over all units for traits that trigger on this global event
 	for (const unit of state.battleData.units) {
 		for (const traitData of unit.traits) {
-			// Here, primaryTarget might be undefined or could be the unit itself if the effect is self-targeted
-			await processTraitEvent(unit, traitData, eventKey, scene, state, unit);
+			await runUnitEventTraits(eventKey as UnitEvents_.UnitEventKeys, scene, state, unit);
 		}
 	}
 

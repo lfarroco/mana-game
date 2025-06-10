@@ -6,7 +6,7 @@ import * as AISystem from "../../Systems/AI/AI";
 import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import * as constants from "./constants";
 import { UIManager } from "./Systems/UIManager";
-import * as UnitManager from "./Systems/CharaManager";
+import * as CharaManager from "./Systems/CharaManager";
 import * as TraitSystem from "../../Models/Traits";
 import { CardCollection, getAllCards, registerCollection } from "../../Models/Card";
 import runCombatIO from "./RunCombatIO";
@@ -23,6 +23,7 @@ import { Unit } from "../../Models/Unit";
 import { PlayerBoard } from "../../Models/Board";
 import { Shop } from "./Systems/Shop";
 import { UIButton } from "./Systems/UIButton";
+import * as TraitEffectsImpl from "../../Systems/TraitEffects/Implementations";
 
 // Constants for BattlegroundScene specific game rules
 const INITIAL_PLAYER_GOLD = 20;
@@ -45,7 +46,7 @@ export class BattlegroundScene extends Phaser.Scene {
   shop: Shop;
 
   cleanup() {
-    UnitManager.clearCharas();
+    CharaManager.clearCharas();
     this.time.removeAllEvents();
     this.children.removeAll(true);
   }
@@ -63,9 +64,12 @@ export class BattlegroundScene extends Phaser.Scene {
      */
     // TODO: separate scene-related listeners from state listeners
     AISystem.init(state);
-    BattlegroundAudioSystem_init(state, this);
-    UnitManager.init(this);
-    TraitSystem.init(this, state);
+    BattlegroundAudioSystem_init(state, this); // Assuming this doesn't need state passed if it's self-contained
+    CharaManager.init(this); // CharaManager needs the scene reference
+
+    // Initialize Trait Definitions and Effect Implementations (once)
+    TraitSystem.defineCoreTraits();
+    TraitEffectsImpl.registerAllTraitEffects();
     // UIManager will be initialized in the start() method
 
     if (process.env.NODE_ENV === 'development') {
@@ -157,7 +161,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     // Summon CPU units to the board
     enemies.forEach(unit => {
-      UnitManager.summonChara(unit, false, false); // Assuming CPU units don't need summon/fade effects here
+      CharaManager.summonChara(unit, false, false); // Assuming CPU units don't need summon/fade effects here
     });
     return { enemies };
   }
@@ -179,7 +183,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
   private resetPlayerUnitChargeBars(): void {
     this.state.gameData.player.units.forEach(unit => {
-      const chara = UnitManager.getChara(unit.id);
+      const chara = CharaManager.getChara(unit.id);
       if (chara) {
         chara.updateChargeBar();
       }
@@ -188,7 +192,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
   private setAllPlayerUnitBarsVisibility(visible: boolean): void {
     this.state.gameData.player.units.forEach(unit => {
-      const chara = UnitManager.getChara(unit.id);
+      const chara = CharaManager.getChara(unit.id);
       if (chara) {
         chara.setBarsVisibility(visible);
       }
@@ -222,7 +226,7 @@ export class BattlegroundScene extends Phaser.Scene {
           unit.attackPower = Math.floor(unit.attackPower * (1 + ATTACK_POWER_MULTIPLIER_LEVEL_UP));
         }
       }
-      UnitManager.getChara(unit.id).updateHpDisplay();
+      CharaManager.getChara(unit.id).updateHpDisplay();
     });
 
     if (anyUnitLeveledUp) {
@@ -272,6 +276,9 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.initializeNewGame();
     this.setupSceneElements();
+
+    // Setup Trait System event listeners
+    TraitSystem.setupTraitEventListeners(this, this.state);
 
     const { state } = this;
     state.gameData.round = 1;

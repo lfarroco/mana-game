@@ -2,16 +2,14 @@ import { BattlegroundScene } from "./BattlegroundScene";
 import { getActiveUnits, State, } from "../../Models/State";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER, MIN_COOLDOWN } from "./constants";
 import * as UnitManager from "./Systems/CharaManager";
-import { performAction } from "./performAction";
 import { Unit } from "../../Models/Unit";
-import { tween } from "../../Utils/animation";
-import { runUnitEventTraits } from "../../Models/Traits";
 import { GameEvents } from "../../constants/events";
 
 export type WaveOutcome = "player_won" | "player_lost";
 
 async function setupWave(scene: BattlegroundScene) {
 
+  // Initial setup for units (charge, refresh, bar visibility)
   scene.state.battleData.units.forEach(u => {
     u.charge = 0;
     u.refresh = 0;
@@ -22,22 +20,12 @@ async function setupWave(scene: BattlegroundScene) {
     }
   });
 
-  const cpuCharas = UnitManager.getCPUCharas();
+  // Animate CPU units appearing (if this was the intent of the removed tween block)
+  // This part can be kept if it's purely visual and doesn't interact with trait logic directly.
+  // For example, UnitManager.animateCPUUnitEntry(scene);
 
-  await Promise.all(cpuCharas.map(async (chara, i) => {
-
-    const originalY = chara.y;
-    chara.y = -100;
-
-    await tween({
-      targets: [chara],
-      y: originalY,
-      delay: i * 100,
-    })
-  }));
-
-  scene.state.battleData.units
-    .forEach(runUnitEventTraits("onBattleStart"));
+  // Emit event for Trait System to handle onBattleStart for units and relics
+  scene.events.emit(GameEvents.TRAIT_EVAL_GLOBAL_BATTLE_START, { scene, state: scene.state });
 
   scene.events.emit(GameEvents.BATTLE_START_SETUP_COMPLETE);
 
@@ -56,8 +44,9 @@ const runCombatIO = (
 
     const units = chargeUnits(state, delta);
 
-    for (const unit of units)
-      performAction(scene)(unit)();
+    for (const unit of units) {
+      scene.events.emit(GameEvents.TRAIT_EVAL_UNIT_ACTION, { unit, scene, state });
+    }
 
     // TODO: move this to on unit death
     const activeUnits = scene.state.battleData.units.filter(u => u.hp > 0)

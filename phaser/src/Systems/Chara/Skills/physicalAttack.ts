@@ -1,7 +1,7 @@
 import { impactEffect } from "../../../Effects";
 import { getState } from "../../../Models/State";
-import { runAttackEventTraits, runUnitEventWithTargetTraits } from "../../../Models/Traits";
 import { Chara } from "../Chara";
+import { GameEvents } from "../../../constants/events";
 
 export async function physicalAttack(
 	activeChara: Chara,
@@ -35,16 +35,45 @@ export async function physicalAttack(
 	if (activeChara.unit.statuses["double_damage"])
 		damage *= 2;
 
-	runAttackEventTraits("onAttackByMe", targetChara.unit, damage, isCritical, evaded)(activeChara.unit);
+	// Emit event for TRAIT_EVAL_ATTACK_BY_ME
+	scene.events.emit(GameEvents.TRAIT_EVAL_ATTACK_BY_ME, {
+		unit: activeChara.unit,
+		target: targetChara.unit,
+		damage,
+		isCritical,
+		evaded,
+		scene,
+		state: getState()
+	});
 
-	runUnitEventWithTargetTraits("onDefendByMe", targetChara.unit)(activeChara.unit);
+	// Emit event for TRAIT_EVAL_DEFEND_BY_ME
+	scene.events.emit(GameEvents.TRAIT_EVAL_DEFEND_BY_ME, {
+		unit: targetChara.unit, // The one defending
+		attacker: activeChara.unit, // The one attacking
+		scene,
+		state: getState()
+	});
 
 	if (evaded) {
-		runUnitEventWithTargetTraits("onEvadeByMe", targetChara.unit)(activeChara.unit)
+		// Emit event for TRAIT_EVAL_EVADE_BY_ME
+		scene.events.emit(GameEvents.TRAIT_EVAL_EVADE_BY_ME, {
+			unit: targetChara.unit, // The one evading
+			attacker: activeChara.unit, // The one attacking
+			scene,
+			state: getState()
+		});
 	} else {
 		targetChara.damageUnit(damage, isCritical);
 	}
 
-	runAttackEventTraits("onAfterAttackByMe", targetChara.unit, damage, isCritical, evaded)(activeChara.unit);
-
+	// Emit event for TRAIT_EVAL_AFTER_ATTACK_BY_ME
+	scene.events.emit(GameEvents.TRAIT_EVAL_AFTER_ATTACK_BY_ME, {
+		unit: activeChara.unit,
+		target: targetChara.unit,
+		damage,
+		isCritical,
+		evaded,
+		scene,
+		state: getState()
+	});
 }
