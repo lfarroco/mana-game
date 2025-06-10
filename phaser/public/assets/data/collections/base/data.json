@@ -152,7 +152,8 @@
 			"cost": 100,
 			"traits": [
 				{
-					"id": "golden_touch"
+					"id": "golden_touch",
+					"amount": 5
 				}
 			]
 		}
