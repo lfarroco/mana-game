@@ -2,14 +2,12 @@
 // feature like "taunt", "flying", "trample", etc.
 
 import { GameEvents } from "../constants/events";
-import { pickRandom } from "../utils";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../Scenes/Battleground/constants";
 import { State } from "./State";
 import { Unit } from "./Unit";
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene"; // Ensure BattlegroundSceneType for type annotation
 import * as UnitEvents_ from "./UnitEvents"; // Adjusted imports
 import {
-	TraitDefinition,
 	TraitEffectContext,
 	getTraitDefinition,
 	getTraitEffectImplementation,
@@ -139,7 +137,7 @@ export const runUnitEventWithTargetTraits = async (eventKey: UnitEvents_.UnitEve
 	}
 };
 
-export function setupTraitEventListeners(scene: BattlegroundScene, state: State): void {
+export function setupTraitEventListeners(scene: BattlegroundScene, _state: State): void {
 	scene.events.on(GameEvents.TRAIT_EVAL_UNIT_ACTION, async (payload: { unit: Unit, scene: BattlegroundScene, state: State }) => {
 		await runUnitEventTraits("onAction", payload.scene, payload.state, payload.unit);
 	});
@@ -157,10 +155,19 @@ export function setupTraitEventListeners(scene: BattlegroundScene, state: State)
 				// For relic effects, sourceUnit might be a conceptual player or null.
 				// Or, the effect implementation itself handles not needing a typical sourceUnit.
 				// Here, we create a dummy source unit representing the player owning the relic.
+				// TODO: Access relic definition name properly if available in state.gameData.cardData.relics
+				// For now, using relic.id if name isn't easily accessible.
+				// const relicDefinition = payload.state.cardData?.relics?.find(rDef => rDef.id === relic.id);
+				// const relicName = relicDefinition ? relicDefinition.name : relic.id;
 				const dummySource: Unit = { // Partial Unit, ensure effect implementations handle this
 					id: `relic_source_${relic.id}`,
 					force: payload.state.gameData.player.id,
-					// Add other potentially required fields if effects access them, or ensure effects are robust
+					name: `Relic: ${relic.id}`, // Simplified name, ideally use relic's actual name
+					pic: relic.pic, // from Relic instance
+					position: relic.position, // from Relic instance
+					hp: 1, maxHp: 1, attackPower: 0, attackType: "none", defense: 0, magicDefense: 0,
+					cooldown: 0, crit: 0, evade: 0, xp: 0, statuses: {}, traits: [], log: [],
+					charge: 0, refresh: 0, hasted: 0, slowed: 0, cardId: `relic_card_${relic.id}` // Placeholder cardId
 				} as Unit;
 				await processTraitEvent(dummySource, traitData, "onBattleStart", payload.scene, payload.state, dummySource);
 			}
@@ -212,35 +219,6 @@ export function setupTraitEventListeners(scene: BattlegroundScene, state: State)
 	// For example, onTurnStart might be part of a turn management system emitting an event.
 	// onAlliedKilled would need an event like GameEvents.ALLY_DIED with { killedUnit, killerUnit (optional), scene, state }
 	// and the listener would iterate all other allied units to trigger their "onAlliedKilled" traits.
-}
-
-// For global events like "onBattleStart", "onRoundStart"
-// These might be triggered differently, perhaps by iterating over all units with relevant traits,
-// or by iterating over active relics.
-export async function runGlobalEventTraits(
-	eventKey: string, // e.g., "onBattleStart"
-	scene: BattlegroundScene,
-	state: State,
-	// forceId?: string // Optional: to target effects for a specific force (e.g. player relics)
-) {
-	// Example: Iterate over all units for traits that trigger on this global event
-	for (const unit of state.battleData.units) {
-		for (const traitData of unit.traits) {
-			await runUnitEventTraits(eventKey as UnitEvents_.UnitEventKeys, scene, state, unit);
-		}
-	}
-
-	// Example: Iterate over player relics for traits that trigger on this global event
-	// (Assuming playerForce is accessible and has relics with TraitData)
-	// for (const relic of state.gameData.player.relics) { // Assuming Relic type has a 'traits: TraitData[]'
-	//   for (const traitData of relic.traits) {
-	//      // sourceUnit for relic effects could be a conceptual "player" or null,
-	//      // or effects might not need a sourceUnit if they are purely global.
-	//      // For now, let's assume a dummy source or handle it in effect implementation.
-	//      const dummySource = { id: "player_relic_source", force: state.gameData.player.id } as Unit;
-	//      await processTraitEvent(dummySource, traitData, eventKey, scene, state);
-	//   }
-	// }
 }
 
 

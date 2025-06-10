@@ -1,7 +1,6 @@
 import { CardDefinition } from "../../Models/Card";
 import { cpuForce } from "../../Models/Force";
 import { vec2 } from "../../Models/Geometry";
-import * as TraitSystem from "../../Models/Traits";
 import { makeUnit } from "../../Models/Unit";
 import { pickOne } from "../../utils";
 
@@ -90,10 +89,10 @@ export function generateEnemyTeam(
 
 	const parsed = template.map(row => row.split(""));
 
-	const getRanged = () => pool.filter(c => c.traits.some(t => t.id === TraitSystem.RANGED.id));
-	const getMelee = () => pool.filter(c => c.traits.some(t => t.id === TraitSystem.MELEE.id));
-	const getSupport = () => pool.filter(c => c.traits.some(t => t.id === TraitSystem.SUPPORT.id));
-	const getTank = () => pool.filter(c => c.traits.some(t => t.id === TraitSystem.TAUNT.id));
+	const getRanged = () => pool.filter(c => c.traits.some(t => t.id === "ranged"));
+	const getMelee = () => pool.filter(c => c.traits.some(t => t.id === "melee"));
+	const getSupport = () => pool.filter(c => c.traits.some(t => t.id === "support"));
+	const getTank = () => pool.filter(c => c.traits.some(t => t.id === "taunt"));
 
 	let units = [];
 

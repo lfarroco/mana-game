@@ -3,7 +3,6 @@ import { getState } from "../../../Models/State";
 import { tween } from "../../../Utils/animation";
 import { images } from "../../../assets";
 import { RelicDefinition } from "../../../Models/Card";
-import { GameEvents } from "../../../constants/events";
 import * as Traits from "../../../Models/Traits";
 import { Vec2 } from "../../../Models/Geometry";
 import BattlegroundScene from "../BattlegroundScene";
@@ -31,7 +30,6 @@ export class RelicCard extends Phaser.GameObjects.Image {
 	owned: boolean = false;
 	private wasDroppedOnZone = false;
 	private wasDragged = false;
-	private activeListeners: { event: string | symbol, listener: Function, context?: any }[] = [];
 
 	constructor(
 		public parent: BattlegroundScene,
@@ -98,36 +96,8 @@ export class RelicCard extends Phaser.GameObjects.Image {
 			traits: this.relicData.traits
 		};
 		playerForce.relics.push(relicData);
-		this.registerTraitEventListeners();
 	}
 
-	private registerTraitEventListeners(): void {
-		this.relicData.traits.forEach(traitData => {
-			const spec = Traits.traitSpecs[traitData.id];
-			let listenerCallback: (() => void) | null = null;
-
-			if (!spec || !spec.relicEffect) return
-
-			switch (spec.relicEffect) {
-				case "updatePlayerGoldOnBattleStart":
-					listenerCallback = () => Traits.updatePlayerGoldEffect(this.parent, traitData);
-					break;
-				case "reduceAlliedCooldownsOnBattleStart":
-					listenerCallback = () => Traits.alliedCooldownReductionEffect(this.parent, this.forceId, traitData);
-					break;
-				case "increaseAlliedMaxHpOnBattleStart":
-					listenerCallback = () => Traits.alliedMaxHpIncreaseEffect(this.parent, this.forceId, traitData);
-					break;
-
-			}
-
-			if (!listenerCallback) return;
-
-			this.addSceneListener(GameEvents.BATTLE_START_SETUP_COMPLETE, listenerCallback);
-		});
-	}
-
-	// Centralized method to attempt purchasing and placing a new relic
 	private attemptPurchaseAndPlace(gridX: number, gridY: number, targetVisualX: number, targetVisualY: number): boolean {
 		if (this.owned) { // Should not be called if already owned
 			console.error("Attempted to purchase an already owned relic.");
@@ -329,18 +299,6 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		this.parent.uiManager.tooltip.hide();
 	}
 
-	private addSceneListener(event: string | symbol, listener: Function, context?: any): void {
-		this.parent.events.on(event, listener, context || this);
-		this.activeListeners.push({ event, listener, context: context || this });
-	}
-
-	public cleanupListeners(): void {
-		this.activeListeners.forEach(({ event, listener, context }) => {
-			this.parent.events.off(event, listener, context);
-		});
-		this.activeListeners = [];
-	}
-
 	// Ensure to call cleanupListeners() if a relic is removed or the scene is destroyed.
 }
 // Constants for Relic Slot layout and appearance
@@ -390,5 +348,3 @@ export function setupRelicSlots(scene: BattlegroundScene): void {
 		// Add visuals to a container if needed, or directly to the scene
 	});
 }
-
-
