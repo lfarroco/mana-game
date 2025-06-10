@@ -3,9 +3,17 @@ import { getState } from "../../../Models/State";
 import { tween } from "../../../Utils/animation";
 import { images } from "../../../assets";
 import { RelicDefinition } from "../../../Models/Card";
-import { TraitData } from "../../../Models/Traits";
+import { GameEvents } from "../../../constants/events";
+import * as Traits from "../../../Models/Traits";
 import { Vec2 } from "../../../Models/Geometry";
 import BattlegroundScene from "../BattlegroundScene";
+
+export type Relic = {
+	id: string;
+	pic: string;
+	traits: Traits.TraitData[];
+	position: Vec2;
+};
 
 export class RelicCard extends Phaser.GameObjects.Image {
 	// Constants for game rules and UI identifiers
@@ -22,6 +30,7 @@ export class RelicCard extends Phaser.GameObjects.Image {
 	owned: boolean = false;
 	private wasDroppedOnZone = false;
 	private wasDragged = false;
+	private activeListeners: { event: string | symbol, listener: Function, context?: any }[] = [];
 
 	constructor(
 		public parent: BattlegroundScene,
@@ -86,6 +95,22 @@ export class RelicCard extends Phaser.GameObjects.Image {
 			traits: this.relicData.traits
 		};
 		playerForce.relics.push(relicData);
+		this.registerTraitEventListeners();
+	}
+
+	private registerTraitEventListeners(): void {
+		this.relicData.traits.forEach(traitData => {
+			let listenerCallback: (() => void) | null = null;
+
+			if (traitData.id === Traits.GOLDEN_TOUCH.id) {
+				listenerCallback = () => Traits.applyGoldenTouchBattleStart(this.parent, traitData);
+			} else if (traitData.id === Traits.REDUCE_CD.id) {
+				listenerCallback = () => Traits.applyReduceCooldownBattleStart(this.parent, traitData);
+			} else if (traitData.id === Traits.INCREASE_MAX_HP.id) {
+				listenerCallback = () => Traits.applyIncreaseMaxHpBattleStart(this.parent, traitData);
+			}
+			if (listenerCallback) this.addSceneListener(GameEvents.BATTLE_START_SETUP_COMPLETE, listenerCallback);
+		});
 	}
 
 	// Centralized method to attempt purchasing and placing a new relic
@@ -289,6 +314,20 @@ export class RelicCard extends Phaser.GameObjects.Image {
 	private handlePointerOut() {
 		this.parent.uiManager.tooltip.hide();
 	}
+
+	private addSceneListener(event: string | symbol, listener: Function, context?: any): void {
+		this.parent.events.on(event, listener, context || this);
+		this.activeListeners.push({ event, listener, context: context || this });
+	}
+
+	public cleanupListeners(): void {
+		this.activeListeners.forEach(({ event, listener, context }) => {
+			this.parent.events.off(event, listener, context);
+		});
+		this.activeListeners = [];
+	}
+
+	// Ensure to call cleanupListeners() if a relic is removed or the scene is destroyed.
 }
 // Constants for Relic Slot layout and appearance
 // These could also be moved to a more general UI constants file if shared
@@ -337,9 +376,5 @@ export function setupRelicSlots(scene: BattlegroundScene): void {
 		// Add visuals to a container if needed, or directly to the scene
 	});
 }
-export type Relic = {
-	id: string;
-	pic: string;
-	traits: TraitData[];
-	position: Vec2;
-};
+
+

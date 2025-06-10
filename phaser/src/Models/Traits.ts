@@ -10,7 +10,7 @@ import { makeAttackEvent, makeUnitEvent, UNIT_EVENTS, UnitEvents } from "./UnitE
 import { getChara, summonChara } from "../Scenes/Battleground/Systems/CharaManager";
 import { getColumnNeighbors } from "./Board";
 import { slash } from "../Systems/Chara/Skills/slash";
-import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
+import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene"; // Ensure BattlegroundSceneType for type annotation
 import { shoot } from "../Systems/Chara/Skills/shoot"; // Assuming this import is correct
 import { healing } from "../Systems/Chara/Skills/healing";
 import { healingWave } from "../Systems/Chara/Skills/healingWave";
@@ -79,27 +79,6 @@ export const TRAIT_CATEGORY_VISION = "vision" as TraitCategory;
 export const TRAIT_CATEGORY_HP = "hp" as TraitCategory;
 export const TRAIT_CATEGORY_ATTACK = "attack" as TraitCategory;
 
-// --- Relic Event Types ---
-export type RelicBattleStartCallback = (relicTraitData: TraitData) => void; // Or IO if async behavior is needed
-export type RelicBattleStartEvent = { fn: RelicBattleStartCallback };
-export const makeRelicBattleStartEvent = (fn: RelicBattleStartCallback): RelicBattleStartEvent => ({ fn });
-
-export type RelicEvents = {
-	onBattleStart: RelicBattleStartEvent[];
-	// Add other relic-specific events here if needed
-};
-
-export const RELIC_EVENT_KEYS: readonly (keyof RelicEvents)[] = ["onBattleStart"] as const;
-
-export const createEmptyRelicEvents = (): RelicEvents => {
-	const events = {} as RelicEvents;
-	(RELIC_EVENT_KEYS as Array<keyof RelicEvents>).forEach(key => {
-		events[key] = [];
-	});
-	return events;
-};
-// --- End Relic Event Types ---
-
 export type TraitData = { // Moved TraitData definition higher for visibility with RelicEvents
 	id: TraitId;
 	[key: string]: any;
@@ -110,8 +89,7 @@ export type TraitSpec = { // Renamed from Trait to TraitSpec
 	name: string;
 	description: string;
 	categories: TraitCategory[];
-	unitEvents: UnitEvents;     // For when this trait is on a Unit
-	relicEvents: RelicEvents;   // For when this trait is on a Relic
+	unitEvents: UnitEvents;     // For when this trait is on a Unit (relic-specific event handling will be external)
 };
 
 const makeTraitSpec = ( // Renamed from makeTrait
@@ -120,15 +98,13 @@ const makeTraitSpec = ( // Renamed from makeTrait
 		name,
 		description,
 		categories,
-		unitEvents = {},
-		relicEvents = {}
+		unitEvents = {}
 	}: {
 		id: TraitId;
 		name: string;
 		description: string;
 		categories: TraitCategory[];
 		unitEvents?: Partial<UnitEvents>;
-		relicEvents?: Partial<RelicEvents>;
 	}): TraitSpec => ({
 		id,
 		name,
@@ -140,10 +116,6 @@ const makeTraitSpec = ( // Renamed from makeTrait
 				return acc;
 			}, {} as UnitEvents)),
 			...unitEvents
-		},
-		relicEvents: {
-			...createEmptyRelicEvents(),
-			...relicEvents
 		}
 	});
 
@@ -703,20 +675,7 @@ export const REDUCE_CD = makeTraitSpec({
 	name: "Reduce Cooldown",
 	description: "Reduces all heroes' cooldowns",
 	categories: [TRAIT_CATEGORY_COMPANION],
-	relicEvents: { // Example: This trait's effect is for relics
-		onBattleStart: [
-			makeRelicBattleStartEvent((traitData) => {
-				const percentReduction = traitData.percent || 0; // Default to 0 if not specified
-				if (percentReduction > 0 && percentReduction < 100) {
-					const multiplier = 1 - (percentReduction / 100);
-					getState().battleData.units.forEach(u => {
-						// Ensure cooldown doesn't go below a minimum, e.g., 100ms or 0
-						u.cooldown = Math.max(100, Math.round(u.cooldown * multiplier));
-					});
-				}
-			})
-		]
-	}
+	// Effect handled by external event listener
 });
 
 export const INCREASE_MAX_HP = makeTraitSpec({
@@ -724,23 +683,7 @@ export const INCREASE_MAX_HP = makeTraitSpec({
 	name: "Increase Max HP",
 	description: "Increases all heroes' max HP",
 	categories: [TRAIT_CATEGORY_COMPANION],
-	relicEvents: { // Example: This trait's effect is for relics
-		onBattleStart: [
-			makeRelicBattleStartEvent((traitData) => {
-				const percentIncrease = traitData.percent || 0; // Default to 0 if not specified
-				if (percentIncrease > 0) {
-					const multiplier = 1 + (percentIncrease / 100);
-					getState().battleData.units.forEach(u => {
-						u.maxHp = Math.round(u.maxHp * multiplier);
-						u.hp = u.maxHp;
-						const chara = getChara(u.id);
-						if (chara) { // Safety check
-							chara.updateHpDisplay();
-						}
-					});
-				}
-			})]
-	}
+	// Effect handled by external event listener
 });
 
 export const GOLDEN_TOUCH = makeTraitSpec({
@@ -748,20 +691,42 @@ export const GOLDEN_TOUCH = makeTraitSpec({
 	name: "Golden Touch",
 	description: "Grants 5 gold at the start of battle.",
 	categories: [TRAIT_CATEGORY_ECONOMY],
-	relicEvents: {
-		onBattleStart: [
-			makeRelicBattleStartEvent((_traitData) => {
-				// Ensure scene is initialized, similar to other parts of your codebase
-				if (scene) {
-					updatePlayerGoldIO(scene, 5); // Grant 5 gold
-					// You could add a popText here if you have a global way to show it
-					// e.g., popText({ text: "Relic: +5 Gold!", global: true });
-				} else {
-					console.warn("Golden Touch Relic: Scene not initialized for effect.");
-				}
-			})]
-	}
+	// Effect handled by external event listener
 });
+
+// --- Relic Trait Effect Functions ---
+// These functions will be called by event listeners when a relic with the corresponding trait is active.
+
+export function applyGoldenTouchBattleStart(scene: BattlegroundScene, _traitData: TraitData) {
+	updatePlayerGoldIO(scene, 5);
+}
+
+export function applyReduceCooldownBattleStart(scene: BattlegroundScene, traitData: TraitData) {
+	const percentReduction = traitData.percent || 0; // Default to 0 if not specified
+	if (percentReduction > 0 && percentReduction < 100) {
+		const multiplier = 1 - (percentReduction / 100);
+		getState().battleData.units.forEach(u => {
+			u.cooldown = Math.max(100, Math.round(u.cooldown * multiplier));
+			// If a visual update for cooldown is needed (e.g., on a Chara bar), trigger it here.
+		});
+	}
+}
+
+export function applyIncreaseMaxHpBattleStart(scene: BattlegroundScene, traitData: TraitData) {
+	const percentIncrease = traitData.percent || 0; // Default to 0 if not specified
+	if (percentIncrease > 0) {
+		const multiplier = 1 + (percentIncrease / 100);
+		getState().battleData.units.forEach(u => {
+			u.maxHp = Math.round(u.maxHp * multiplier);
+			u.hp = u.maxHp; // Also refill HP to new max
+			const chara = getChara(u.id);
+			if (chara) {
+				chara.updateHpDisplay();
+			}
+		});
+	}
+}
+
 // TODO: remove this, use module import
 export const traitSpecs: { [id: TraitId]: TraitSpec } = {
 	[LONE_WOLF.id]: LONE_WOLF,
