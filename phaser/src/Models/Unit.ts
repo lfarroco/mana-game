@@ -1,7 +1,7 @@
 import { v4 } from "uuid";
 import { Vec2, vec2Zero } from "./Geometry";
 import { getCardDefinition } from "./Card";
-import { MELEE, RANGED, TraitData } from "./Traits";
+import { TraitData } from "./Traits";
 import { UnitEvent, } from "./UnitEvents";
 
 // A Unit holds data about a game character
@@ -62,8 +62,8 @@ export const makeUnit = (force: string, cardId: string, position = vec2Zero()): 
     crit: 0,
     evade: 0,
     xp: 0,
-    attackType: card.attack && card.traits.some(k => k.id === RANGED.id) ? "ranged" :
-      card.attack && card.traits.some(t => t.id === MELEE.id) ? "melee" : "none",
+    attackType: card.attack && card.traits.some(k => k.id === "ranged") ? "ranged" :
+      card.attack && card.traits.some(t => t.id === "melee") ? "melee" : "none",
     attackPower: card.attack || 0,
     defense: 0,
     magicDefense: 0,
