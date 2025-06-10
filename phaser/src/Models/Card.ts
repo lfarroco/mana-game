@@ -84,10 +84,7 @@ export type RelicDefinition = {
   pic: string;
   description: string;
   cost: number; // Cost of the relic
-  traits: {
-    id: t.TraitId;
-    [key: string]: any
-  }[]
+  traits: t.TraitData[]
 };
 
 export const getCardDefinition = (id: string): CardDefinition => {
