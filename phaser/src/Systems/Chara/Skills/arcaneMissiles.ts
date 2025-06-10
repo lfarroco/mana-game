@@ -4,16 +4,10 @@ import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { getRangedTargets } from "../../../Models/Board";
 import * as animation from "../../../Effects/arcaneMissile";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
-import { TraitData } from "../../../Models/Traits";
 
 export const arcaneMissiles = (
 	scene: BattlegroundScene
-) => async (unit: Unit, traitData: TraitData) => {
-
-	let projectiles = 3;
-
-	if (traitData?.projectiles)
-		projectiles = traitData.projectiles;
+) => async (unit: Unit, projectiles = 3) => {
 
 	const { state } = scene;
 	const skill = getSkill(ARCANE_MISSILES);

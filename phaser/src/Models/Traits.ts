@@ -1,32 +1,30 @@
 // traits are a way to add special abilities or characteristics to cards
 // feature like "taunt", "flying", "trample", etc.
 
-import { popText } from "../Systems/Chara/Animations/popText";
 import { pickRandom } from "../utils";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../Scenes/Battleground/constants";
-import { getState, State } from "./State";
+import { State } from "./State";
 import { Unit } from "./Unit";
-import { makeAttackEvent, makeUnitEvent, UNIT_EVENTS, UnitEvents } from "./UnitEvents";
-import { getChara } from "../Scenes/Battleground/Systems/CharaManager";
-import { slash } from "../Systems/Chara/Skills/slash";
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene"; // Ensure BattlegroundSceneType for type annotation
-import { shoot } from "../Systems/Chara/Skills/shoot"; // Assuming this import is correct
-import { healing } from "../Systems/Chara/Skills/healing";
-import { healingWave } from "../Systems/Chara/Skills/healingWave";
-import { arcaneMissiles } from "../Systems/Chara/Skills/arcaneMissiles";
-import { haste } from "../Systems/Chara/Skills/haste";
-import { slow } from "../Systems/Chara/Skills/slow";
-import { updatePlayerGoldIO } from "./Force";
 import * as UnitEvents_ from "./UnitEvents"; // Adjusted imports
-import { summon } from "../Systems/Chara/Skills/summon";
+import {
+	TraitDefinition,
+	TraitEffectContext,
+	getTraitDefinition,
+	getTraitEffectImplementation,
+	resolveTargets,
+	checkConditions,
+	registerTraitDefinition as registerNewTraitDefinition // Alias to avoid conflict if any
+} from "./TraitEffectSystem";
 
-let state: State;
-let scene: BattlegroundScene;
+// The global scene and state are problematic. Effects should get these via TraitEffectContext.
+// export let scene: BattlegroundScene;
+// export let state: State;
 
-export const init = (sceneRef: BattlegroundScene, stateRef: State) => {
-	state = stateRef;
-	scene = sceneRef;
-}
+// export const initTraits = (sceneRef: BattlegroundScene, stateRef: State) => {
+// 	scene = sceneRef;
+// 	state = stateRef;
+// }
 
 export type TraitId = string & { __traitId: never };
 export type TraitCategory = string & { __traitCategory: never };
@@ -63,13 +61,9 @@ export const isInBackline = (unit: Unit): boolean => {
 	return unit.position.y === backline;
 }
 
-export type Trait = {
-	id: TraitId;
-	[key: string]: any;
-}
-
 export const TRAIT_CATEGORY_PERSONALITY = "personality" as TraitCategory;
 export const TRAIT_CATEGORY_OFFENSIVE = "offensive" as TraitCategory;
+export const TRAIT_CATEGORY_SUPPORT = "support" as TraitCategory;
 export const TRAIT_CATEGORY_DEFENSIVE = "defensive" as TraitCategory;
 export const TRAIT_CATEGORY_ECONOMY = "economy" as TraitCategory;
 export const TRAIT_CATEGORY_TRIBE = "tribe" as TraitCategory;
@@ -77,290 +71,17 @@ export const TRAIT_CATEGORY_COMPANION = "companion" as TraitCategory;
 export const TRAIT_CATEGORY_VISION = "vision" as TraitCategory;
 export const TRAIT_CATEGORY_HP = "hp" as TraitCategory;
 export const TRAIT_CATEGORY_ATTACK = "attack" as TraitCategory;
-
-// --- Generic Relic Effect Types ---
-export type RelicEffectType =
-	| "updatePlayerGoldOnBattleStart"
-	| "reduceAlliedCooldownsOnBattleStart"
-	| "increaseAlliedMaxHpOnBattleStart";
-// Add more generic relic effect types here as needed
-
-export type TraitData = { // Moved TraitData definition higher for visibility with RelicEvents
+export type TraitData = { // This is an *instance* of a trait on a unit/relic
 	id: TraitId;
 	[key: string]: any;
 };
 
-export type TraitSpec = { // Renamed from Trait to TraitSpec
-	id: TraitId;
-	name: string;
-	description: string;
-	categories: TraitCategory[];
-	unitEvents: UnitEvents;     // For when this trait is on a Unit (relic-specific event handling will be external)
-	relicEffect?: RelicEffectType; // Optional: specifies the generic relic effect type
-};
-
-const makeTraitSpec = ( // Renamed from makeTrait
-	{
-		id,
-		name,
-		description,
-		categories,
-		unitEvents = {},
-		relicEffect
-	}: {
-		id: TraitId;
-		name: string;
-		description: string;
-		categories: TraitCategory[];
-		unitEvents?: Partial<UnitEvents>;
-		relicEffect?: RelicEffectType;
-	}): TraitSpec => ({
-		id,
-		name,
-		description,
-		categories,
-		unitEvents: {
-			... (UNIT_EVENTS.reduce((acc, event) => {
-				acc[event] = [];
-				return acc;
-			}, {} as UnitEvents)),
-			...unitEvents
-		},
-		relicEffect
-	});
-
-export const TAUNT: TraitSpec = makeTraitSpec({
-	id: "taunt" as TraitId,
-	name: "Taunt",
-	description: "If in range, enemies will attack this unit",
-	categories: [TRAIT_CATEGORY_DEFENSIVE, TRAIT_CATEGORY_PERSONALITY],
-	unitEvents: {}
-});
-
-export const SUPPORT = makeTraitSpec({
-	id: "support" as TraitId,
-	name: "Support",
-	description: "This unit helps other units",
-	categories: [],
-	unitEvents: {}
-});
-
-export const RANGED = makeTraitSpec({
-	id: "ranged" as TraitId,
-	name: "Ranged",
-	description: "This unit has a ranged attack",
-	categories: [],
-	unitEvents: {
-		onAction: [makeUnitEvent(unit => async () => {
-			shoot(scene)(unit)
-		})]
-	}
-});
-
-export const MELEE = makeTraitSpec({
-	id: "melee" as TraitId,
-	name: "Melee",
-	description: "This unit has a melee attack",
-	categories: [],
-	unitEvents: {
-		onAction: [makeUnitEvent(unit => async () => {
-			slash(scene, unit)
-		})]
-	}
-});
-
-export const HEAL = makeTraitSpec({
-	id: "heal" as TraitId,
-	name: "Heal",
-	description: "This can heal an ally",
-	categories: [],
-	unitEvents: {
-		onAction: [makeUnitEvent(unit => async () => {
-			healing(scene)(unit)
-		})]
-	}
-});
-export const HEALING_WAVE = makeTraitSpec({
-	id: "healing_wave" as TraitId,
-	name: "Healing",
-	description: "Heals 3 allies",
-	categories: [],
-	unitEvents: {
-		onAction: [makeUnitEvent(unit => async () => {
-			healingWave(scene, unit)
-		})]
-	}
-});
-
-export const ARCANE_MISSILES = makeTraitSpec({
-	id: "arcane_missiles" as TraitId,
-	name: "Arcane Missiles",
-	description: "Shoots 3 missiles that deal 5 damage each",
-	categories: [],
-	unitEvents: {
-		onAction: [makeUnitEvent((unit, data) => async () => {
-			arcaneMissiles(scene)(unit, data!)
-		})]
-	}
-});
-
-export const HASTE = makeTraitSpec({
-	id: "haste" as TraitId,
-	name: "Haste",
-	description: "Hastes surrounding allies",
-	categories: [],
-	unitEvents: {
-		onAction: [makeUnitEvent(unit => async () => {
-			haste(scene, unit); // TODO: create standard interface for skills (scene)(unit)
-		})]
-	}
-});
-
-export const SLOW = makeTraitSpec({
-	id: "slow" as TraitId,
-	name: "Slow",
-	description: "Slows an enemy for 2s",
-	categories: [],
-	unitEvents: {
-		onAction: [makeUnitEvent(unit => async () => {
-			slow(scene, unit);
-		})]
-	}
-});
-
-
-export const PLUNDER = makeTraitSpec({
-	id: "plunder" as TraitId,
-	name: "Plunder",
-	description: "When this unit attacks, gain 1 gold",
-	categories: [TRAIT_CATEGORY_ECONOMY],
-	unitEvents: {
-		onAttackByMe: [
-			makeAttackEvent(
-				(unit) => async () => {
-					if (unit.force === FORCE_ID_PLAYER) {
-						await popText({ text: "Plunder: +1 gold", targetId: unit.id, speed: 2 });
-						updatePlayerGoldIO(scene, 1);
-					}
-				})]
-	}
-});
-
-export const SUMMON = makeTraitSpec({
-	id: "summon" as TraitId,
-	name: "Summon", // TODO: change based on summon data
-	description: "Summons a unit to fight on your side", // TODO: change based on summon data
-	categories: [TRAIT_CATEGORY_COMPANION],
-	unitEvents: {
-		onAction: [makeUnitEvent((unit, data) => async () => {
-			if (!data) {
-				throw new Error(`Invalid summon data: ${JSON.stringify(data)} `)
-			}
-			const chara = getChara(unit.id);
-			const slot = chara.parent.playerBoard.getEmptySlot(
-				state.battleData.units.filter(u => u.force === unit.force),
-				unit.force
-			);
-			if (!slot) return;
-
-			summon(chara, data.summonId)
-
-		})]
-	}
-});
-
-export const REDUCE_CD = makeTraitSpec({
-	id: "reduce_cd" as TraitId,
-	name: "Reduce Cooldown",
-	description: "Reduces all heroes' cooldowns",
-	categories: [TRAIT_CATEGORY_COMPANION],
-	relicEffect: "reduceAlliedCooldownsOnBattleStart"
-});
-
-export const INCREASE_MAX_HP = makeTraitSpec({
-	id: "increase_max_hp" as TraitId,
-	name: "Increase Max HP",
-	description: "Increases all heroes' max HP",
-	categories: [TRAIT_CATEGORY_COMPANION],
-	relicEffect: "increaseAlliedMaxHpOnBattleStart"
-});
-
-export const GOLDEN_TOUCH = makeTraitSpec({
-	id: "golden_touch" as TraitId,
-	name: "Golden Touch",
-	description: "Grants 5 gold at the start of battle.",
-	categories: [TRAIT_CATEGORY_ECONOMY],
-	relicEffect: "updatePlayerGoldOnBattleStart"
-});
-
-// --- Relic Trait Effect Functions ---
-// These functions will be called by event listeners when a relic with the corresponding trait is active.
-
-export function updatePlayerGoldEffect(scene: BattlegroundScene, traitData: TraitData) {
-	const amountToGrant = traitData.amount;
-	if (typeof amountToGrant !== 'number' || amountToGrant === 0) { // Allow negative for costs, though unlikely for battle start
-		console.warn(`Relic Effect (PlayerGoldUpdate): Invalid or missing 'amount' in traitData for trait ID ${traitData.id}. Expected a non-zero number.`, traitData);
-		return;
-	}
-	updatePlayerGoldIO(scene, amountToGrant);
-}
-
-export function alliedCooldownReductionEffect(_scene: BattlegroundScene, forceId: string, traitData: TraitData) {
-	const percentReduction = traitData.percent;
-	if (typeof percentReduction !== 'number' || percentReduction <= 0 || percentReduction >= 100) {
-		console.warn(`Relic Effect (AlliedCooldownReduction): Invalid or missing 'percent' in traitData for trait ID ${traitData.id}. Expected a number > 0 and < 100.`, traitData);
-		return;
-	}
-	const multiplier = 1 - (percentReduction / 100);
-	// TODO: only allies
-	getState().battleData.units
-		.filter(u => u.force === forceId)
-		.forEach(u => { // Assuming this should affect all units in battle
-			u.cooldown = Math.max(100, Math.round(u.cooldown * multiplier));
-			// If a visual update for cooldown is needed (e.g., on a Chara bar), trigger it here.
-		});
-}
-
-export function alliedMaxHpIncreaseEffect(_scene: BattlegroundScene, forceId: string, traitData: TraitData) {
-	const percentIncrease = traitData.percent;
-	if (typeof percentIncrease !== 'number' || percentIncrease <= 0) {
-		console.warn(`Relic Effect (AlliedMaxHpIncrease): Invalid or missing 'percent' in traitData for trait ID ${traitData.id}. Expected a positive number.`, traitData);
-		return;
-	}
-	const multiplier = 1 + (percentIncrease / 100);
-	// TODO: only allies
-	getState().battleData.units
-		.filter(u => u.force === forceId)
-		.forEach(u => { // Assuming this should affect all units in battle
-			u.maxHp = Math.round(u.maxHp * multiplier);
-			u.hp = u.maxHp; // Also refill HP to new max
-			const chara = getChara(u.id);
-			if (chara) {
-				chara.updateHpDisplay();
-			}
-		});
-}
-
-// TODO: remove this, use module import
-export const traitSpecs: { [id: TraitId]: TraitSpec } = {
-	[TAUNT.id]: TAUNT,
-	[SUMMON.id]: SUMMON,
-	[MELEE.id]: MELEE,
-	[RANGED.id]: RANGED,
-	[HEAL.id]: HEAL,
-	[HEALING_WAVE.id]: HEALING_WAVE,
-	[ARCANE_MISSILES.id]: ARCANE_MISSILES,
-	[HASTE.id]: HASTE,
-	[SUPPORT.id]: SUPPORT,
-	[SLOW.id]: SLOW,
-	[PLUNDER.id]: PLUNDER,
-	[REDUCE_CD.id]: REDUCE_CD,
-	[INCREASE_MAX_HP.id]: INCREASE_MAX_HP,
-	[GOLDEN_TOUCH.id]: GOLDEN_TOUCH,
-};
-
-export const randomCategoryTrait = (category: TraitCategory): TraitSpec => {
-	const traitsInCategory = Object.values(traitSpecs).filter(t => t.categories.includes(category));
+export const randomCategoryTrait = (category: TraitCategory): TraitDefinition | undefined => {
+	// This will now use the new traitDefinitionRegistry from TraitEffectSystem
+	const allDefs = Array.from(getTraitDefinition(undefined as any) ? [getTraitDefinition(undefined as any)] : []); // Placeholder
+	// Correct way: import getAllTraitDefinitions from TraitEffectSystem
+	// const allDefs = getAllTraitDefinitions();
+	const traitsInCategory = allDefs.filter(t => t!.categories.includes(category));
 	if (traitsInCategory.length === 0) {
 		throw new Error(`No traits found for category ${category}`);
 	}
@@ -368,32 +89,243 @@ export const randomCategoryTrait = (category: TraitCategory): TraitSpec => {
 	return randomTrait;
 };
 
-export const runUnitEventTraits = (id: UnitEvents_.UnitEventKeys) => (u: Unit) => {
-	u.traits.forEach(t => {
-		const spec = traitSpecs[t.id];
-		const events: UnitEvents_.UnitEvent[] = spec.unitEvents[id];
-		events.forEach(ev => {
-			ev.fn(u, t)();
-		});
-	});
+async function processTraitEvent(
+	sourceUnit: Unit,
+	traitInstanceData: TraitData, // This is the { id, ...params } from unit.traits
+	eventKey: string,
+	scene: BattlegroundScene,
+	state: State,
+	// Optional context parameters
+	primaryTarget?: Unit,
+	attackDamage?: number,
+	isCritical?: boolean,
+	evaded?: boolean
+) {
+	const definition = getTraitDefinition(traitInstanceData.id);
+	if (!definition) {
+		// console.warn(`Trait definition not found for ID: ${traitInstanceData.id}`);
+		return;
+	}
+
+	for (const effectInstance of definition.effects) {
+		if (effectInstance.eventTrigger === eventKey) {
+			const targets = resolveTargets(sourceUnit, effectInstance.targetSelector, state, scene, primaryTarget);
+
+			const context: TraitEffectContext = {
+				sourceUnit,
+				targets,
+				effectInstance, // from TraitDefinition
+				traitInstanceParams: traitInstanceData, // from Unit.traits or Relic.traits
+				scene,
+				state,
+				primaryTarget,
+				attackDamage,
+				isCritical,
+				evaded,
+			};
+
+			if (!checkConditions(context, effectInstance.conditions)) {
+				continue; // Conditions not met for this effect
+			}
+
+			const implementation = getTraitEffectImplementation(effectInstance.effectId);
+			if (implementation) {
+				try {
+					await implementation(context);
+				} catch (error) {
+					console.error(`Error executing trait effect ${effectInstance.effectId} for trait ${definition.id}:`, error);
+				}
+			} else {
+				console.warn(`Implementation not found for effectId: ${effectInstance.effectId} in trait ${definition.id}`);
+			}
+		}
+	}
+}
+
+export const runUnitEventTraits = (eventKey: UnitEvents_.UnitEventKeys, scene: BattlegroundScene, state: State) => async (unit: Unit) => {
+	for (const traitData of unit.traits) {
+		await processTraitEvent(unit, traitData, eventKey, scene, state);
+	}
 };
 
-export const runAttackEventTraits = (id: UnitEvents_.AttackEventKeys, target: Unit, damage: number, isCritical: boolean, evaded: boolean) => (u: Unit) => {
-	u.traits.forEach(t => {
-		const spec = traitSpecs[t.id];
-		const events: UnitEvents_.AttackEvent[] = spec.unitEvents[id];
-		events.forEach(ev => {
-			ev.fn(u, target, damage, isCritical, evaded)();
-		});
-	});
+export const runAttackEventTraits = (eventKey: UnitEvents_.AttackEventKeys, scene: BattlegroundScene, state: State, target: Unit, damage: number, isCritical: boolean, evaded: boolean) => async (unit: Unit) => {
+	for (const traitData of unit.traits) {
+		await processTraitEvent(unit, traitData, eventKey, scene, state, target, damage, isCritical, evaded);
+	}
 };
 
-export const runUnitEventWithTargetTraits = (id: UnitEvents_.UnitEventWithTargetKeys, target: Unit) => (u: Unit) => {
-	u.traits.forEach(t => {
-		const spec = traitSpecs[t.id];
-		const events: UnitEvents_.UnitEventWithTarget[] = spec.unitEvents[id];
-		events.forEach(ev => {
-			ev.fn(u, target)();
-		});
-	});
+export const runUnitEventWithTargetTraits = (eventKey: UnitEvents_.UnitEventWithTargetKeys, scene: BattlegroundScene, state: State, target: Unit) => async (unit: Unit) => {
+	for (const traitData of unit.traits) {
+		await processTraitEvent(unit, traitData, eventKey, scene, state, target);
+	}
 };
+
+// For global events like "onBattleStart", "onRoundStart"
+// These might be triggered differently, perhaps by iterating over all units with relevant traits,
+// or by iterating over active relics.
+export async function runGlobalEventTraits(
+	eventKey: string, // e.g., "onBattleStart"
+	scene: BattlegroundScene,
+	state: State,
+	// forceId?: string // Optional: to target effects for a specific force (e.g. player relics)
+) {
+	// Example: Iterate over all units for traits that trigger on this global event
+	for (const unit of state.battleData.units) {
+		for (const traitData of unit.traits) {
+			// Here, primaryTarget might be undefined or could be the unit itself if the effect is self-targeted
+			await processTraitEvent(unit, traitData, eventKey, scene, state, unit);
+		}
+	}
+
+	// Example: Iterate over player relics for traits that trigger on this global event
+	// (Assuming playerForce is accessible and has relics with TraitData)
+	// for (const relic of state.gameData.player.relics) { // Assuming Relic type has a 'traits: TraitData[]'
+	//   for (const traitData of relic.traits) {
+	//      // sourceUnit for relic effects could be a conceptual "player" or null,
+	//      // or effects might not need a sourceUnit if they are purely global.
+	//      // For now, let's assume a dummy source or handle it in effect implementation.
+	//      const dummySource = { id: "player_relic_source", force: state.gameData.player.id } as Unit;
+	//      await processTraitEvent(dummySource, traitData, eventKey, scene, state);
+	//   }
+	// }
+}
+
+
+// --- Example Trait Definitions (to be moved to data or a registration file) ---
+
+export function defineCoreTraits() {
+	registerNewTraitDefinition({
+		id: "taunt" as TraitId,
+		name: "Taunt",
+		description: "If in range, enemies will attack this unit.",
+		categories: [TRAIT_CATEGORY_DEFENSIVE, TRAIT_CATEGORY_PERSONALITY],
+		effects: [
+			// Taunt is often implicit in targeting logic rather than an active effect.
+			// If it had an active component, e.g., "onBecomeTargeted: reduce_damage_taken_by_10_percent",
+			// it would be defined here. For now, it's a marker trait.
+		]
+	});
+
+	registerNewTraitDefinition({
+		id: "ranged" as TraitId,
+		name: "Ranged",
+		description: "This unit has a ranged attack.",
+		categories: [TRAIT_CATEGORY_OFFENSIVE],
+		effects: [{ effectId: "skill_shoot", eventTrigger: "onAction" }]
+	});
+
+	registerNewTraitDefinition({
+		id: "melee" as TraitId,
+		name: "Melee",
+		description: "This unit has a melee attack.",
+		categories: [TRAIT_CATEGORY_OFFENSIVE],
+		effects: [{ effectId: "skill_slash", eventTrigger: "onAction" }]
+	});
+
+	registerNewTraitDefinition({
+		id: "heal_action" as TraitId, // Renamed from "heal" to avoid conflict if "heal" is an effectId
+		name: "Heal Action",
+		description: "This unit can heal an ally.",
+		categories: [TRAIT_CATEGORY_SUPPORT],
+		effects: [{ effectId: "skill_heal", eventTrigger: "onAction" }]
+	});
+
+	registerNewTraitDefinition({
+		id: "healing_wave_action" as TraitId,
+		name: "Healing Wave Action",
+		description: "Heals multiple allies.",
+		categories: [TRAIT_CATEGORY_SUPPORT],
+		effects: [{ effectId: "skill_healing_wave", eventTrigger: "onAction" }]
+	});
+
+	registerNewTraitDefinition({
+		id: "arcane_missiles_action" as TraitId,
+		name: "Arcane Missiles Action",
+		description: "Shoots multiple arcane missiles.",
+		categories: [TRAIT_CATEGORY_OFFENSIVE],
+		effects: [{ effectId: "skill_arcane_missiles", eventTrigger: "onAction" }]
+		// If arcane_missiles skill needs params like 'missile_count', they'd be in TraitData on unit
+		// e.g. unit.traits = [{ id: "arcane_missiles_action", missile_count: 5 }]
+		// and skill_arcane_missiles effect would use context.traitInstanceParams.missile_count
+	});
+
+	registerNewTraitDefinition({
+		id: "haste_action" as TraitId,
+		name: "Haste Action",
+		description: "Hastes surrounding allies.",
+		categories: [TRAIT_CATEGORY_SUPPORT],
+		effects: [{ effectId: "skill_haste", eventTrigger: "onAction" }]
+	});
+
+	registerNewTraitDefinition({
+		id: "slow_action" as TraitId,
+		name: "Slow Action",
+		description: "Slows an enemy.",
+		categories: [TRAIT_CATEGORY_DEFENSIVE, TRAIT_CATEGORY_OFFENSIVE],
+		effects: [{ effectId: "skill_slow", eventTrigger: "onAction" }]
+	});
+
+	registerNewTraitDefinition({
+		id: "plunder" as TraitId,
+		name: "Plunder",
+		description: "When this unit attacks, gain 1 gold.",
+		categories: [TRAIT_CATEGORY_ECONOMY],
+		effects: [{
+			effectId: "grant_gold_to_player",
+			eventTrigger: "onAttackByMe", // This is an AttackEventKey
+			amount: 1, // Default amount
+			conditions: [{ type: "is_player_unit" }]
+		}]
+	});
+
+	registerNewTraitDefinition({
+		id: "summon_action" as TraitId,
+		name: "Summon Action",
+		description: "Summons a unit.",
+		categories: [TRAIT_CATEGORY_COMPANION],
+		effects: [{
+			effectId: "skill_summon", // This effect will look for 'cardIdToSummon' in traitInstanceParams
+			eventTrigger: "onAction"
+		}]
+		// Example usage on a unit: unit.traits = [{ id: "summon_action", cardIdToSummon: "imp" }]
+	});
+
+	// Relic-specific traits (often triggered on "onBattleStart")
+	registerNewTraitDefinition({
+		id: "relic_golden_touch" as TraitId,
+		name: "Golden Touch (Relic)",
+		description: "Grants gold at the start of battle.",
+		categories: [TRAIT_CATEGORY_ECONOMY],
+		effects: [{
+			effectId: "grant_gold_to_player",
+			eventTrigger: "onBattleStart", // Custom event key for battle start
+			amount: 5 // This can be overridden by relic's TraitData instance if needed
+		}]
+	});
+
+	registerNewTraitDefinition({
+		id: "relic_reduce_cooldowns" as TraitId,
+		name: "Reduce Cooldowns (Relic)",
+		description: "Reduces allied heroes' cooldowns at battle start.",
+		categories: [TRAIT_CATEGORY_SUPPORT],
+		effects: [{
+			effectId: "modify_unit_cooldowns",
+			eventTrigger: "onBattleStart",
+			targetSelector: "all_allies", // Assuming this targets allies of the relic owner
+			percent: 10 // Default percentage
+		}]
+	});
+
+	registerNewTraitDefinition({
+		id: "relic_increase_max_hp" as TraitId,
+		name: "Increase Max HP (Relic)",
+		description: "Increases allied heroes' max HP at battle start.",
+		categories: [TRAIT_CATEGORY_SUPPORT],
+		effects: [{
+			effectId: "modify_unit_max_hp",
+			eventTrigger: "onBattleStart",
+			targetSelector: "all_allies",
+			percent: 15 // Default percentage
+		}]
+	});
+}
