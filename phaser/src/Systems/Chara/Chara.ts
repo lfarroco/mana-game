@@ -116,25 +116,37 @@ export class Chara extends Phaser.GameObjects.Container {
 		const purchaseCost = constants.SHOP_ITEM_PURCHASE_COST;
 
 		if (state.gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
-			this.parent.uiManager.displayError("Your party is full!");
+			this.parent.events.emit(GameEvents.PURCHASE_FAILED, {
+				unitName: this.unit.name,
+				reason: "PARTY_FULL"
+			});
 			return false;
 		}
 		if (state.gameData.player.gold < purchaseCost) {
-			this.parent.uiManager.displayError("You don't have enough gold!");
+			this.parent.events.emit(GameEvents.PURCHASE_FAILED, {
+				unitName: this.unit.name,
+				reason: "INSUFFICIENT_GOLD", cost: purchaseCost
+			});
 			return false;
 		}
 
 		if (targetBoardPos) {
 			const occupierOnBoard = state.gameData.player.units.find(u => eqVec2(u.position, targetBoardPos));
 			if (occupierOnBoard) {
-				this.parent.uiManager.displayError("Slot is occupied!");
+				this.parent.events.emit(GameEvents.PURCHASE_FAILED, {
+					unitName: this.unit.name,
+					reason: "SLOT_OCCUPIED"
+				});
 				return false;
 			}
 			this.unit.position = targetBoardPos;
 		} else { // Purchasing by click, find an empty slot
 			const emptySlot = this.parent.playerBoard?.getEmptySlot(state.gameData.player.units, FORCE_ID_PLAYER); // TODO: Ensure this finds a slot on the *player's* board specifically if not already guaranteed
 			if (!emptySlot) {
-				this.parent.uiManager.displayError("No empty slot on board!");
+				this.parent.events.emit(GameEvents.PURCHASE_FAILED, {
+					unitName: this.unit.name,
+					reason: "NO_EMPTY_SLOT"
+				});
 				return false;
 			}
 			this.unit.position = emptySlot;
