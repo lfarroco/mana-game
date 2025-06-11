@@ -148,7 +148,7 @@
 			"id": "relic_merchants_coin",
 			"name": "Merchant's Coin",
 			"pic": "icon/merchants_coin",
-			"description": "Grants you [color=yellow]5 gold[/color] at the start of each battle.",
+			"description": "Grants you 5 gold at the start of each battle.",
 			"cost": 100,
 			"traits": [
 				{
