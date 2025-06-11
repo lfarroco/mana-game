@@ -5,7 +5,7 @@ graph TD
     subgraph SceneContext [BattlegroundScene]
         Scene;
         PlayerBoard;
-        Units[Character Units (Chara)];
+        Units["Character Units (Chara)"];
         Scene -- Manages --> PlayerBoard;
         Scene -- Manages --> Units;
         PlayerBoard -- Contains --> Units;
