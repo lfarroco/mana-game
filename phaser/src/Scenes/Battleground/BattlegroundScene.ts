@@ -24,6 +24,7 @@ import { PlayerBoard } from "../../Models/Board";
 import { Shop } from "./Systems/Shop";
 import { UIButton } from "./Systems/UIButton";
 import * as TraitEffectsImpl from "../../Systems/TraitEffects/Implementations";
+import { setupTraitEventListeners } from "../../Models/TraitSystemEventListeners";
 
 // Constants for BattlegroundScene specific game rules
 const INITIAL_PLAYER_GOLD = 20;
@@ -279,7 +280,7 @@ export class BattlegroundScene extends Phaser.Scene {
     this.setupSceneElements();
 
     // Setup Trait System event listeners
-    TraitSystem.setupTraitEventListeners(this, this.state);
+    setupTraitEventListeners(this, this.state);
 
     const { state } = this;
     state.gameData.round = 1;
