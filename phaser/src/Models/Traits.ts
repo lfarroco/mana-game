@@ -41,6 +41,16 @@ export type TraitData = { // This is an *instance* of a trait on a unit/relic
 	[key: string]: any;
 };
 
+/**
+ * Optional details specific to an event that might be needed for trait processing.
+ */
+interface TraitEventDetails {
+	primaryTarget?: Unit;
+	attackDamage?: number;
+	isCritical?: boolean;
+	evaded?: boolean;
+}
+
 async function processTraitEvent(
 	sourceUnit: Unit,
 	traitInstanceData: TraitData,
@@ -48,9 +58,7 @@ async function processTraitEvent(
 	scene: BattlegroundScene,
 	state: State,
 	primaryTarget?: Unit,
-	attackDamage?: number,
-	isCritical?: boolean,
-	evaded?: boolean
+	eventDetails?: TraitEventDetails
 ) {
 	const definition = getTraitDefinition(traitInstanceData.id);
 	if (!definition) {
@@ -59,7 +67,7 @@ async function processTraitEvent(
 
 	for (const effectInstance of definition.effects) {
 		if (effectInstance.eventTrigger === eventKey) {
-			const targets = resolveTargets(sourceUnit, effectInstance.targetSelector, state, scene, primaryTarget);
+			const targets = resolveTargets(sourceUnit, effectInstance.targetSelector, state, scene, eventDetails?.primaryTarget || primaryTarget); // Ensure primaryTarget from older calls is still respected if eventDetails is not used for it.
 
 			const context: TraitEffectContext = {
 				sourceUnit,
@@ -68,10 +76,10 @@ async function processTraitEvent(
 				traitInstanceParams: traitInstanceData,
 				scene,
 				state,
-				primaryTarget,
-				attackDamage,
-				isCritical,
-				evaded,
+				primaryTarget: eventDetails?.primaryTarget || primaryTarget,
+				attackDamage: eventDetails?.attackDamage,
+				isCritical: eventDetails?.isCritical,
+				evaded: eventDetails?.evaded,
 			};
 
 			if (!checkConditions(context, effectInstance.conditions)) {
@@ -93,6 +101,25 @@ async function processTraitEvent(
 }
 
 /**
+ * Internal helper to iterate over a unit's traits and process them for a given event.
+ */
+async function processUnitTraitsForEvent(
+	unit: Unit,
+	eventKey: string,
+	scene: BattlegroundScene,
+	state: State,
+	eventDetails?: TraitEventDetails
+) {
+	if (!unit.traits) return; // Guard against units with no traits array
+	for (const traitData of unit.traits) {
+		// Pass primaryTarget directly if it's the only detail for simpler events,
+		// otherwise pass the full eventDetails object.
+		// processTraitEvent will then use eventDetails if provided.
+		await processTraitEvent(unit, traitData, eventKey, scene, state, eventDetails?.primaryTarget, eventDetails);
+	}
+}
+
+/**
  * Processes traits for a unit that are triggered by general unit events.
  * @param eventKey - The specific unit event key (e.g., "onAction", "onDeath").
  * @param scene - The current BattlegroundScene instance.
@@ -100,9 +127,10 @@ async function processTraitEvent(
  * @param unit - The unit whose traits are being processed.
  */
 export const runUnitEventTraits = async (eventKey: UnitEvents_.UnitEventKeys, scene: BattlegroundScene, state: State, unit: Unit) => {
-	for (const traitData of unit.traits) {
-		await processTraitEvent(unit, traitData, eventKey, scene, state);
-	}
+	await processUnitTraitsForEvent(unit, eventKey, scene, state, {
+		// No specific details for simple unit events beyond the unit itself as source
+		// primaryTarget might be implicitly the unit itself if not specified by trait effect selectors
+	});
 };
 
 /**
@@ -117,9 +145,12 @@ export const runUnitEventTraits = async (eventKey: UnitEvents_.UnitEventKeys, sc
  * @param evaded - Whether the attack was evaded.
  */
 export const runAttackEventTraits = async (eventKey: UnitEvents_.AttackEventKeys, scene: BattlegroundScene, state: State, unit: Unit, target: Unit, damage: number, isCritical: boolean, evaded: boolean) => {
-	for (const traitData of unit.traits) {
-		await processTraitEvent(unit, traitData, eventKey, scene, state, target, damage, isCritical, evaded);
-	}
+	await processUnitTraitsForEvent(unit, eventKey, scene, state, {
+		primaryTarget: target,
+		attackDamage: damage,
+		isCritical,
+		evaded,
+	});
 };
 
 /**
@@ -131,9 +162,7 @@ export const runAttackEventTraits = async (eventKey: UnitEvents_.AttackEventKeys
  * @param target - The target unit involved in the event.
  */
 export const runUnitEventWithTargetTraits = async (eventKey: UnitEvents_.UnitEventWithTargetKeys, scene: BattlegroundScene, state: State, unit: Unit, target: Unit) => {
-	for (const traitData of unit.traits) {
-		await processTraitEvent(unit, traitData, eventKey, scene, state, target);
-	}
+	await processUnitTraitsForEvent(unit, eventKey, scene, state, { primaryTarget: target });
 };
 
 
@@ -153,4 +182,6 @@ export function initializeTraitsFromData(traitDefinitions: TraitDefinition[]): v
 
 // Export `processTraitEvent` for use in `TraitSystemEventListeners.ts` for relic handling.
 // This is generally an internal function, but relic event processing currently uses it directly.
+// The refactor above keeps processTraitEvent's signature mostly compatible for this direct use,
+// though the `eventDetails` parameter is new. Relic processing passes `dummySource` as `primaryTarget`.
 export { processTraitEvent };
