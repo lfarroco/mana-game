@@ -11,7 +11,7 @@ import {
 	runUnitEventTraits,
 	runAttackEventTraits,
 	runUnitEventWithTargetTraits,
-	processTraitEvent,
+	processTraitEvent, // Relies on TraitEventContext from Traits.ts
 	RelicStateObject // Import the new type for relic sources
 } from "./Traits";
 import { UnitEventKeys, AttackEventKeys, UnitEventWithTargetKeys } from "./UnitEvents";
@@ -93,7 +93,7 @@ async function processGlobalEventRelicTraits(
 					eventKey,
 					scene,
 					state: currentState,
-					eventDetails: undefined // Global events typically don't have specific details
+					eventDetails: { type: "none" } // Global events use NoEventPayloadDetails
 				});
 			}
 		} else if (process.env.NODE_ENV === 'development') {
