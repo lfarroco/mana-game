@@ -1,3 +1,4 @@
+import { TraitDefinition } from "./TraitEffectSystem";
 import * as t from "./Traits";
 
 let cards = new Map<string, CardDefinition>();
@@ -48,6 +49,7 @@ export type CardCollection = {
   cards: CardDefinition[];
   relics: RelicDefinition[];
   opponents: Opponent[]
+  traits: TraitDefinition[]
 }
 
 type Opponent = {

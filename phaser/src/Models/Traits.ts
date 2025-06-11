@@ -2,7 +2,6 @@
 // feature like "taunt", "flying", "trample", etc.
 
 import { GameEvents } from "../constants/events";
-import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../Scenes/Battleground/constants";
 import { State } from "./State";
 import { Unit } from "./Unit";
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene"; // Ensure BattlegroundSceneType for type annotation
@@ -13,41 +12,13 @@ import {
 	getTraitEffectImplementation,
 	resolveTargets,
 	checkConditions,
-	registerTraitDefinition as registerNewTraitDefinition // Alias to avoid conflict if any
+	registerTraitDefinition as registerNewTraitDefinition, // Alias to avoid conflict if any
+	TraitDefinition
 } from "./TraitEffectSystem";
 
 export type TraitId = string & { __traitId: never };
 export type TraitCategory = string & { __traitCategory: never };
 
-export const LINES: {
-	[force: string]: {
-		FRONT: number;
-		MIDDLE: number;
-		BACK: number;
-	}
-} = {
-	[FORCE_ID_PLAYER]: {
-		FRONT: 4,
-		MIDDLE: 5,
-		BACK: 6,
-	},
-	[FORCE_ID_CPU]: {
-		FRONT: 1,
-		MIDDLE: 2,
-		BACK: 3,
-	}
-}
-
-export const TRAIT_CATEGORY_PERSONALITY = "personality" as TraitCategory;
-export const TRAIT_CATEGORY_OFFENSIVE = "offensive" as TraitCategory;
-export const TRAIT_CATEGORY_SUPPORT = "support" as TraitCategory;
-export const TRAIT_CATEGORY_DEFENSIVE = "defensive" as TraitCategory;
-export const TRAIT_CATEGORY_ECONOMY = "economy" as TraitCategory;
-export const TRAIT_CATEGORY_TRIBE = "tribe" as TraitCategory;
-export const TRAIT_CATEGORY_COMPANION = "companion" as TraitCategory;
-export const TRAIT_CATEGORY_VISION = "vision" as TraitCategory;
-export const TRAIT_CATEGORY_HP = "hp" as TraitCategory;
-export const TRAIT_CATEGORY_ATTACK = "attack" as TraitCategory;
 export type TraitData = { // This is an *instance* of a trait on a unit/relic
 	id: TraitId;
 	[key: string]: any;
@@ -208,142 +179,15 @@ export function setupTraitEventListeners(scene: BattlegroundScene, _state: State
 	// and the listener would iterate all other allied units to trigger their "onAlliedKilled" traits.
 }
 
-
-// --- Example Trait Definitions (to be moved to data or a registration file) ---
-
-export function defineCoreTraits() {
-	registerNewTraitDefinition({
-		id: "taunt" as TraitId,
-		name: "Taunt",
-		description: "If in range, enemies will attack this unit.",
-		categories: [TRAIT_CATEGORY_DEFENSIVE, TRAIT_CATEGORY_PERSONALITY],
-		effects: [
-			// Taunt is often implicit in targeting logic rather than an active effect.
-			// If it had an active component, e.g., "onBecomeTargeted: reduce_damage_taken_by_10_percent",
-			// it would be defined here. For now, it's a marker trait.
-		]
-	});
-
-	registerNewTraitDefinition({
-		id: "ranged" as TraitId,
-		name: "Ranged",
-		description: "This unit has a ranged attack.",
-		categories: [TRAIT_CATEGORY_OFFENSIVE],
-		effects: [{ effectId: "skill_shoot", eventTrigger: "onAction" }]
-	});
-
-	registerNewTraitDefinition({
-		id: "melee" as TraitId,
-		name: "Melee",
-		description: "This unit has a melee attack.",
-		categories: [TRAIT_CATEGORY_OFFENSIVE],
-		effects: [{ effectId: "skill_slash", eventTrigger: "onAction" }]
-	});
-
-	registerNewTraitDefinition({
-		id: "heal_action" as TraitId, // Renamed from "heal" to avoid conflict if "heal" is an effectId
-		name: "Heal Action",
-		description: "This unit can heal an ally.",
-		categories: [TRAIT_CATEGORY_SUPPORT],
-		effects: [{ effectId: "skill_heal", eventTrigger: "onAction" }]
-	});
-
-	registerNewTraitDefinition({
-		id: "healing_wave_action" as TraitId,
-		name: "Healing Wave Action",
-		description: "Heals multiple allies.",
-		categories: [TRAIT_CATEGORY_SUPPORT],
-		effects: [{ effectId: "skill_healing_wave", eventTrigger: "onAction" }]
-	});
-
-	registerNewTraitDefinition({
-		id: "arcane_missiles_action" as TraitId,
-		name: "Arcane Missiles Action",
-		description: "Shoots multiple arcane missiles.",
-		categories: [TRAIT_CATEGORY_OFFENSIVE],
-		effects: [{ effectId: "skill_arcane_missiles", eventTrigger: "onAction" }]
-		// If arcane_missiles skill needs params like 'missile_count', they'd be in TraitData on unit
-		// e.g. unit.traits = [{ id: "arcane_missiles_action", missile_count: 5 }]
-		// and skill_arcane_missiles effect would use context.traitInstanceParams.missile_count
-	});
-
-	registerNewTraitDefinition({
-		id: "haste_action" as TraitId,
-		name: "Haste Action",
-		description: "Hastes surrounding allies.",
-		categories: [TRAIT_CATEGORY_SUPPORT],
-		effects: [{ effectId: "skill_haste", eventTrigger: "onAction" }]
-	});
-
-	registerNewTraitDefinition({
-		id: "slow_action" as TraitId,
-		name: "Slow Action",
-		description: "Slows an enemy.",
-		categories: [TRAIT_CATEGORY_DEFENSIVE, TRAIT_CATEGORY_OFFENSIVE],
-		effects: [{ effectId: "skill_slow", eventTrigger: "onAction" }]
-	});
-
-	registerNewTraitDefinition({
-		id: "plunder" as TraitId,
-		name: "Plunder",
-		description: "When this unit attacks, gain 1 gold.",
-		categories: [TRAIT_CATEGORY_ECONOMY],
-		effects: [{
-			effectId: "grant_gold_to_player",
-			eventTrigger: "onAttackByMe", // This is an AttackEventKey
-			amount: 1, // Default amount
-			conditions: [{ type: "is_player_unit" }]
-		}]
-	});
-
-	registerNewTraitDefinition({
-		id: "summon_action" as TraitId,
-		name: "Summon Action",
-		description: "Summons a unit.",
-		categories: [TRAIT_CATEGORY_COMPANION],
-		effects: [{
-			effectId: "skill_summon", // This effect will look for 'cardIdToSummon' in traitInstanceParams
-			eventTrigger: "onAction"
-		}]
-		// Example usage on a unit: unit.traits = [{ id: "summon_action", cardIdToSummon: "imp" }]
-	});
-
-	// Relic-specific traits (often triggered on "onBattleStart")
-	registerNewTraitDefinition({
-		id: "relic_golden_touch" as TraitId,
-		name: "Golden Touch (Relic)",
-		description: "Grants gold at the start of battle.",
-		categories: [TRAIT_CATEGORY_ECONOMY],
-		effects: [{
-			effectId: "grant_gold_to_player",
-			eventTrigger: "onBattleStart", // Custom event key for battle start
-			amount: 5 // This can be overridden by relic's TraitData instance if needed
-		}]
-	});
-
-	registerNewTraitDefinition({
-		id: "relic_reduce_cooldowns" as TraitId,
-		name: "Reduce Cooldowns (Relic)",
-		description: "Reduces allied heroes' cooldowns at battle start.",
-		categories: [TRAIT_CATEGORY_SUPPORT],
-		effects: [{
-			effectId: "modify_unit_cooldowns",
-			eventTrigger: "onBattleStart",
-			targetSelector: "all_allies", // Assuming this targets allies of the relic owner
-			percent: 10 // Default percentage
-		}]
-	});
-
-	registerNewTraitDefinition({
-		id: "relic_increase_max_hp" as TraitId,
-		name: "Increase Max HP (Relic)",
-		description: "Increases allied heroes' max HP at battle start.",
-		categories: [TRAIT_CATEGORY_SUPPORT],
-		effects: [{
-			effectId: "modify_unit_max_hp",
-			eventTrigger: "onBattleStart",
-			targetSelector: "all_allies",
-			percent: 15 // Default percentage
-		}]
+/**
+ * Initializes and registers trait definitions from a loaded data source.
+ * @param traitDefinitions An array of TraitDefinition objects.
+ */
+export function initializeTraitsFromData(traitDefinitions: TraitDefinition[]): void {
+	traitDefinitions.forEach(traitDef => {
+		// The TraitDefinition type expects `id` to be `TraitId`.
+		// When loaded from JSON, `id` is a string. Casting it here aligns with the type.
+		// The `registerNewTraitDefinition` function itself handles the `TraitDefinition` type.
+		registerNewTraitDefinition(traitDef as TraitDefinition);
 	});
 }

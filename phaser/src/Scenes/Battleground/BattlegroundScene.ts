@@ -68,7 +68,6 @@ export class BattlegroundScene extends Phaser.Scene {
     CharaManager.init(this); // CharaManager needs the scene reference
 
     // Initialize Trait Definitions and Effect Implementations (once)
-    TraitSystem.defineCoreTraits();
     TraitEffectsImpl.registerAllTraitEffects();
     // UIManager will be initialized in the start() method
 
@@ -94,6 +93,8 @@ export class BattlegroundScene extends Phaser.Scene {
     this.collection = collection;
 
     // Load the card images dynamically
+
+    TraitSystem.initializeTraitsFromData(collection.traits)
 
     collection.cards.forEach(card => {
 
