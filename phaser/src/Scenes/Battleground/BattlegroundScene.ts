@@ -35,16 +35,22 @@ const HP_MULTIPLIER_LEVEL_UP = 1.1;
 const ATTACK_POWER_MULTIPLIER_LEVEL_UP = 0.1; // Represents a 10% increase factor (e.g., newAttack = oldAttack * (1 + 0.1))
 const DEFAULT_SCENE_SOUND_VOLUME = 0.05;
 const LEVEL_UP_APPRECIATION_DELAY = 1000; // ms
-const POST_COMBAT_DELAY = 500;
+const POST_COMBAT_DELAY = 500; // ms
+
+// UI Positioning (example constants, adjust as needed)
+const UI_BUTTON_RESTART_X_OFFSET = 0;
+const UI_BUTTON_RESTART_Y_OFFSET = 50;
+const UI_BUTTON_MENU_X_OFFSET = 0;
+const UI_BUTTON_MENU_Y_OFFSET = 150;
 
 export class BattlegroundScene extends Phaser.Scene {
   state: State;
   speed: number;
   bgContainer!: Phaser.GameObjects.Container;
   bgImage!: Phaser.GameObjects.Image;
-  collection: CardCollection;
-  uiManager: UIManager;
-  playerBoard!: PlayerBoard;
+  collection!: CardCollection;
+  uiManager!: UIManager;
+  playerBoard: PlayerBoard | undefined; // Can be undefined before start/after cleanup
   runCombatSystem: RunCombatSystem;
   shop: Shop;
 
@@ -52,7 +58,20 @@ export class BattlegroundScene extends Phaser.Scene {
     CharaManager.clearCharas();
     this.time.removeAllEvents();
     this.children.removeAll(true);
+
+    this.playerBoard?.destroy();
+    this.playerBoard = undefined;
+
+    // If Shop or UIManager have their own complex cleanup (e.g., global listeners, non-Phaser resources)
+    // they would need destroy methods called here.
+    // For now, assuming their Phaser GameObjects are handled by scene.children.removeAll or new instances on restart.
+    // if (this.shop && typeof (this.shop as any).destroy === 'function') { (this.shop as any).destroy(); }
+    // if (this.uiManager && typeof (this.uiManager as any).destroy === 'function') { (this.uiManager as any).destroy(); }
   }
+
+  // Flag to ensure runtime data like card collections and traits are registered only once.
+  private static runtimeDataInitialized = false;
+
 
   constructor() {
     super("BattlegroundScene");
@@ -82,37 +101,41 @@ export class BattlegroundScene extends Phaser.Scene {
 
   }
 
+  shutdown() {
+    console.log("BattlegroundScene shutdown.");
+    this.cleanup(); // Call our custom cleanup
+  }
+
   preload = preload;
   create = async (_state: State) => {
-
     /**
      * It is important to NOT create new global listeners here
      * TODO: add test to confirm that global listeners are not created here
      */
 
-    const collection = this.cache.json.get("base-collection") as CardCollection;
+    this.collection = this.cache.json.get("base-collection") as CardCollection;
 
-    registerCollection(collection);
+    if (!BattlegroundScene.runtimeDataInitialized) {
+      console.log("Performing one-time runtime data initialization.");
+      registerCollection(this.collection);
+      TraitSystem.initializeTraitsFromData(this.collection.traits);
+      BattlegroundScene.runtimeDataInitialized = true;
+    }
 
-    this.collection = collection;
-
-    // Load the card images dynamically
-
-    TraitSystem.initializeTraitsFromData(collection.traits)
-
-    collection.cards.forEach(card => {
+    // Load card and relic images dynamically every time create is called (Phaser handles caching)
+    this.collection.cards.forEach(card => {
 
       console.log("loading card", card.name, card.pic);
       this.load.image(card.pic, card.pic);
     });
 
-    collection.relics.forEach(relic => {
+    this.collection.relics.forEach(relic => {
       console.log("loading relic", relic.name, relic.pic);
       this.load.image(relic.pic, relic.pic);
     });
 
     this.load.once("complete", () => {
-      console.log("All cards loaded");
+      console.log("Asset loading complete for BattlegroundScene.");
       this.start();
     });
 
@@ -154,7 +177,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.uiManager.createMainUI();
     Relic.setupRelicSlots(this);
-
   }
 
   private setupBattle(): { enemies: Unit[] } {
@@ -240,37 +262,6 @@ export class BattlegroundScene extends Phaser.Scene {
     }
   }
 
-  private async handlePostCombat(combatResult: WaveOutcome, enemiesDefeated: Unit[]): Promise<boolean> {
-    const { state } = this;
-    let isGameOver = false;
-
-    await delay(this, POST_COMBAT_DELAY); // Brief pause after combat ends
-    console.log("Combat result", combatResult);
-
-    if (combatResult === "player_won") {
-      await battleResultAnimation(this, "victory");
-      updatePlayerGoldIO(this, VICTORY_GOLD_REWARD);
-      this.resetPlayerUnitsForNewRound();
-      this.resetPlayerUnitChargeBars(); // Reset visual charge bars
-      this.setAllPlayerUnitBarsVisibility(false); // Hide bars for player units
-      await this.awardXPAndHandleLevelUps(enemiesDefeated.length);
-    } else { // player_lost
-      await battleResultAnimation(this, "defeat");
-      this.setAllPlayerUnitBarsVisibility(false); // Hide bars for player units even on defeat
-      isGameOver = true;
-      new UIButton(this, "new run", 300, 300, () => {
-        this.cleanup();
-        this.start(); // Restart the game
-      });
-      new UIButton(this, "return to menu", 300, 400, () => {
-        this.scene.start("MainMenuScene");
-      });
-    }
-
-    state.battleData.units = []; // Clear units from battle state for the next round
-    return isGameOver;
-  }
-
   private _setupGameEventListeners(): void {
     this.events.on(GameEvents.UNIT_DIED_IN_BATTLE, this.handleUnitDiedInBattle, this);
     // Listener for when the shop signals it's done
@@ -290,6 +281,7 @@ export class BattlegroundScene extends Phaser.Scene {
    * This is called each time the scene starts or is rebooted
    */
   start = async () => {
+    console.log("BattlegroundScene starting logic...");
 
     this.shop = new Shop(this);
 
@@ -299,6 +291,9 @@ export class BattlegroundScene extends Phaser.Scene {
     this.setupSceneElements();
 
     this._setupGameEventListeners();
+    // setupTraitEventListeners adds listeners to this.events.
+    // If this.scene.restart() is used, this.events is a new emitter, so no duplicates.
+    // If scene instance was reused with manual cleanup/start, this would need careful handling.
     setupTraitEventListeners(this);
 
     const { state } = this;
@@ -308,10 +303,25 @@ export class BattlegroundScene extends Phaser.Scene {
     this.openShopPhase();
   }
 
-  private async openShopPhase() {
-    console.log("Round", this.state.gameData.round, "Shop Phase");
+  private async openShopPhase(payload?: { enemiesDefeated: Unit[] }) {
+    // This method is called after victory or at the start of the game.
+    if (payload && payload.enemiesDefeated) { // Indicates coming from a victory
+      console.log("Round", this.state.gameData.round, "Processing Victory...");
+      await delay(this, POST_COMBAT_DELAY);
+      await battleResultAnimation(this, "victory");
+      updatePlayerGoldIO(this, VICTORY_GOLD_REWARD);
+      this.resetPlayerUnitsForNewRound();
+      this.resetPlayerUnitChargeBars();
+      this.setAllPlayerUnitBarsVisibility(false);
+      await this.awardXPAndHandleLevelUps(payload.enemiesDefeated.length);
+
+      this.state.battleData.units = []; // Clear units from battle state
+      this.state.gameData.round++; // Increment round after victory
+    }
+
+    console.log("Round", this.state.gameData.round, "Shop Phase Starting");
     if (this.playerBoard) this.playerBoard.display();
-    await this.shop.open(); // Shop now emits SHOP_PHASE_ENDED when done
+    await this.shop.open(); // Shop emits SHOP_PHASE_ENDED when done
   }
 
   private async startNextRound() {
@@ -319,7 +329,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     const { enemies } = this.setupBattle();
 
-    if (this.playerBoard) {
+    if (this.playerBoard) { // Ensure playerBoard is defined
       this.playerBoard.hide();
     }
 
@@ -335,13 +345,26 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
   private async handleGameOver() {
-    await this.handlePostCombat("player_lost", []);
-    // Game over logic (display buttons, etc.) is already in handlePostCombat
-    // No further rounds or shop phases.
-    // To restart, the buttons created in handlePostCombat will call `this.start()` or `this.scene.start("MainMenuScene")`
+    console.log("Round", this.state.gameData.round, "Processing Defeat...");
+    await delay(this, POST_COMBAT_DELAY);
+    await battleResultAnimation(this, "defeat");
+    this.setAllPlayerUnitBarsVisibility(false); // Hide bars for player units even on defeat
+
+    this.state.battleData.units = []; // Clear units from battle state
+
+    // Game over UI
+    new UIButton(this, "new run",
+      constants.SCREEN_WIDTH / 2 + UI_BUTTON_RESTART_X_OFFSET,
+      constants.SCREEN_HEIGHT / 2 + UI_BUTTON_RESTART_Y_OFFSET, () => {
+        this.scene.restart(); // Use Phaser's scene restart
+      });
+    new UIButton(this, "return to menu",
+      constants.SCREEN_WIDTH / 2 + UI_BUTTON_MENU_X_OFFSET,
+      constants.SCREEN_HEIGHT / 2 + UI_BUTTON_MENU_Y_OFFSET, () => {
+        this.scene.start("MainMenuScene");
+      });
 
     vignette(this, "Thanks for playing!")
-
   };
 
   playFx(key: string) {

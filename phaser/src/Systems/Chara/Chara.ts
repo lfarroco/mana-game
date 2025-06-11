@@ -132,7 +132,7 @@ export class Chara extends Phaser.GameObjects.Container {
 			}
 			this.unit.position = targetBoardPos;
 		} else { // Purchasing by click, find an empty slot
-			const emptySlot = this.parent.playerBoard.getEmptySlot(state.gameData.player.units, FORCE_ID_PLAYER); // TODO: Ensure this finds a slot on the *player's* board specifically if not already guaranteed
+			const emptySlot = this.parent.playerBoard?.getEmptySlot(state.gameData.player.units, FORCE_ID_PLAYER); // TODO: Ensure this finds a slot on the *player's* board specifically if not already guaranteed
 			if (!emptySlot) {
 				this.parent.uiManager.displayError("No empty slot on board!");
 				return false;
