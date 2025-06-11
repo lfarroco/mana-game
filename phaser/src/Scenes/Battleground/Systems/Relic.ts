@@ -5,6 +5,8 @@ import { images } from "../../../assets";
 import { RelicDefinition } from "../../../Models/Card";
 import * as Traits from "../../../Models/Traits";
 import { Vec2 } from "../../../Models/Geometry";
+import { GameEvents } from "../../../constants/events";
+import { UserMessagePayload } from "../../../Models/EventPayloads";
 import BattlegroundScene from "../BattlegroundScene";
 
 export type Relic = {
@@ -105,11 +107,17 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		}
 
 		if (!this.canAfford()) {
-			this.parent.uiManager.displayError(`Not enough gold (cost: ${RelicCard.RELIC_COST})`);
+			this.parent.events.emit(GameEvents.USER_MESSAGE_REQUESTED, {
+				text: `Not enough gold (cost: ${RelicCard.RELIC_COST})`,
+				type: 'error'
+			} as UserMessagePayload);
 			return false;
 		}
 		if (!this.hasSpaceForNewRelic()) {
-			this.parent.uiManager.displayError("No room for a new relic");
+			this.parent.events.emit(GameEvents.USER_MESSAGE_REQUESTED, {
+				text: "No room for a new relic",
+				type: 'error'
+			} as UserMessagePayload);
 			return false;
 		}
 
@@ -142,7 +150,10 @@ export class RelicCard extends Phaser.GameObjects.Image {
 
 		if (!emptySlotGridPosition) {
 			// This should ideally be caught by hasSpaceForNewRelic, but as a fallback:
-			this.parent.uiManager.displayError("No empty slot available on board.");
+			this.parent.events.emit(GameEvents.USER_MESSAGE_REQUESTED, {
+				text: "No empty slot available on board.",
+				type: 'error'
+			} as UserMessagePayload);
 			return;
 		}
 
@@ -151,7 +162,10 @@ export class RelicCard extends Phaser.GameObjects.Image {
 
 		if (!targetSlotGameObject) {
 			console.error(`Slot GameObject ${RelicCard.SLOT_NAME_PREFIX}${slotGridX}-${slotGridY} not found!`);
-			this.parent.uiManager.displayError("Error placing relic."); // User-friendly message
+			this.parent.events.emit(GameEvents.USER_MESSAGE_REQUESTED, {
+				text: "Error placing relic.",
+				type: 'error'
+			} as UserMessagePayload);
 			return;
 		}
 
@@ -209,7 +223,10 @@ export class RelicCard extends Phaser.GameObjects.Image {
 
 		if (occupierData) { // Slot is occupied
 			if (!this.owned) { // Trying to buy and place on an occupied slot
-				this.parent.uiManager.displayError("This slot is already occupied!");
+				this.parent.events.emit(GameEvents.USER_MESSAGE_REQUESTED, {
+					text: "This slot is already occupied!",
+					type: 'error'
+				} as UserMessagePayload);
 				this.tweenToSlot(); // Back to shop
 			} else { // Moving an owned relic to an occupied slot (SWAP)
 				const occupierIcon = this.parent.children.list.find(

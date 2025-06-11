@@ -65,3 +65,9 @@ export type UnitKillPayload = { // Generic base, specific events clarify roles
 	killedUnit?: Unit; // For TRAIT_EVAL_UNIT_KILL_BY_ME
 	killer?: Unit;     // For TRAIT_EVAL_UNIT_KILL, TRAIT_EVAL_ALLIED_KILLED, TRAIT_EVAL_ENEMY_KILLED
 };
+
+/** Payload for UI messages requested by various game systems. */
+export type UserMessagePayload = {
+	text: string;
+	type: 'error' | 'info' | 'warning' | 'success';
+};

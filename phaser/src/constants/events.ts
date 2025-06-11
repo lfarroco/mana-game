@@ -55,4 +55,7 @@ export const GameEvents = {
 	SHOP_OPEN_UI_TRIGGER: "shop_open_ui_trigger",
 	COMBAT_START_EXECUTION_TRIGGER: "combat_start_execution_trigger", // Payload: { enemies: Unit[] }
 	GAME_OVER_SHOW_UI_TRIGGER: "game_over_show_ui_trigger",
+
+	// UI System Events
+	USER_MESSAGE_REQUESTED: "user_message_requested", // Payload: UserMessagePayload
 };

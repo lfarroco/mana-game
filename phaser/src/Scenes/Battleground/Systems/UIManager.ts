@@ -6,6 +6,7 @@ import { COLOR_BLACK } from "../../../Utils/colors";
 import { Tooltip } from "../../../Systems/Tooltip";
 import { GoldCoinAnimator } from "./GoldCoinAnimator";
 import { GameEvents } from "../../../constants/events";
+import { UserMessagePayload } from "../../../Models/EventPayloads";
 
 /**
  * Manages the user interface elements within the BattlegroundScene.
@@ -36,6 +37,7 @@ export class UIManager {
 		this.goldCoinAnimator = new GoldCoinAnimator(this.scene, this.scene.state);
 		this._setupGoldChangeListener();
 		this._setupPurchaseFailedListener();
+		this._setupUserMessageListener();
 		this.tooltip = new Tooltip(scene)
 	}
 
@@ -49,6 +51,10 @@ export class UIManager {
 
 	private _setupPurchaseFailedListener(): void {
 		this.scene.events.on(GameEvents.PURCHASE_FAILED, this._handlePurchaseFailed, this);
+	}
+
+	private _setupUserMessageListener(): void {
+		this.scene.events.on(GameEvents.USER_MESSAGE_REQUESTED, this._handleUserMessageRequested, this);
 	}
 
 	private _handlePurchaseFailed(payload: { unitName: string, reason: string, cost?: number }): void {
@@ -65,7 +71,10 @@ export class UIManager {
 				break;
 			default: message += "Reason unknown.";
 		}
-		this.displayError(message);
+		this.scene.events.emit(GameEvents.USER_MESSAGE_REQUESTED, {
+			text: message,
+			type: 'error'
+		} as UserMessagePayload);
 	}
 
 	/**
@@ -121,18 +130,23 @@ export class UIManager {
 	}
 
 	/**
-	 * Displays a temporary error message to the player.
+	 * Handles requests to display a user message (e.g., error, info).
 	 * The message appears, animates briefly for emphasis, and then fades out.
-	 * This is used to provide feedback for invalid actions or system errors.
-	 * @param errorMessage The error message string to display.
+	 * @param payload The `UserMessagePayload` containing the message text and type.
 	 */
-	public async displayError(errorMessage: string): Promise<void> {
-		// this.scene.sound.play('ui/error'); // If you have an error sound
+	private async _handleUserMessageRequested(payload: UserMessagePayload): Promise<void> {
+		// For now, we only visually distinguish errors, but this can be expanded.
+		// if (payload.type === 'error') {
+		// 	this.scene.sound.play('ui/error'); // If you have an error sound
+		// }
+
+		// Determine text style based on payload.type if needed, for now, all use titleTextConfig
+		const textStyle = constants.titleTextConfig;
 
 		const text = this.scene.add.text(
 			constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100,
-			errorMessage,
-			constants.titleTextConfig,
+			payload.text,
+			textStyle,
 		).setOrigin(0.5);
 
 		await tween({
@@ -174,6 +188,7 @@ export class UIManager {
 		this.destroyMainUI();
 		this.scene.events.off(GameEvents.GOLD_CHANGED, this._handleGoldChanged, this);
 		this.scene.events.off(GameEvents.PURCHASE_FAILED, this._handlePurchaseFailed, this);
+		this.scene.events.off(GameEvents.USER_MESSAGE_REQUESTED, this._handleUserMessageRequested, this);
 	}
 
 	/**
