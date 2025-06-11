@@ -32,27 +32,27 @@ graph TD
     UIManager -- Manages --> UIComponents["Tooltip, Buttons, GoldAnimator"];
     UIManager -- Renders --> ShopSystemInterface["Shop UI"];
     UIManager -- Renders --> UnitDisplays["Unit Stats/Bars"];
-    ShopSystem --- ShopSystemInterface; %% ShopSystem provides data/logic for its UI part
+    ShopSystem --- ShopSystemInterface; %% "ShopSystem provides data/logic for its UI part"
 
     %% TraitSystem Details
     TraitSystem -- Affects --> Units;
-    TraitSystem -- Interacts with --> RelicSystem; %% e.g., Relics granting traits or modifying trait effects
+    TraitSystem -- Interacts with --> RelicSystem; %% "e.g., Relics granting traits or modifying trait effects"
     TraitSystem -- Uses/Listens to --> EventManager;
     TraitSystem -- Loads definitions from --> DataSystem;
-    Units -- Have/Trigger --> TraitSystem; %% Units possess traits that are processed by the TraitSystem
+    Units -- Have/Trigger --> TraitSystem; %% "Units possess traits that are processed by the TraitSystem"
 
     %% RelicSystem Details
     RelicSystem -- Manages --> PlayerRelics;
-    RelicSystem -- Interacts with --> ShopSystem; %% Relics can be acquired from the Shop
+    RelicSystem -- Interacts with --> ShopSystem; %% "Relics can be acquired from the Shop"
     RelicSystem -- Uses/Listens to --> EventManager;
     RelicSystem -- Loads definitions from --> DataSystem;
-    Units -- Affected by --> RelicSystem; %% Relics can apply effects to units
+    Units -- Affected by --> RelicSystem; %% "Relics can apply effects to units"
 
     %% ShopSystem Details
     ShopSystem -- Provides --> PurchasableUnits["Units for Purchase"];
     ShopSystem -- Provides --> PurchasableRelics["Relics for Purchase"];
-    ShopSystem --- UIManager; %% For rendering the shop interface
-    ShopSystem -- Uses/Listens to --> EventManager; %% e.g., for gold transactions, purchase events
+    ShopSystem --- UIManager; %% "For rendering the shop interface"
+    ShopSystem -- Uses/Listens to --> EventManager; %% "e.g., for gold transactions, purchase events"
     ShopSystem -- Loads item data from --> DataSystem;
 
     %% EventManager Details
@@ -67,11 +67,11 @@ graph TD
     DataSystem -- Provides Data to --> TraitSystem;
     DataSystem -- Provides Data to --> RelicSystem;
     DataSystem -- Provides Data to --> ShopSystem;
-    DataSystem -- Provides Data to --> Units; %% Base stats, definitions, etc.
-    DataSystem -- Provides Data to --> Scene; %% Level configurations, enemy waves, etc.
+    DataSystem -- Provides Data to --> Units; %% "Base stats, definitions, etc."
+    DataSystem -- Provides Data to --> Scene; %% "Level configurations, enemy waves, etc."
 
     %% Unit Interactions
-    Units -- Interact via --> EventManager; %% Units emit and respond to events
+    Units -- Interact via --> EventManager; %% "Units emit and respond to events"
 ```
 
 
