@@ -12,33 +12,11 @@ import {
 	runUnitEventTraits,
 	runAttackEventTraits,
 	runUnitEventWithTargetTraits,
-	processTraitEvent, // Imported for direct use with relics
-	TraitData
+	processTraitEvent,
+	TraitData,
+	RelicStateObject // Import the new type for relic sources
 } from "./Traits";
 import { UnitEventKeys, AttackEventKeys, UnitEventWithTargetKeys } from "./UnitEvents";
-import { Vec2 } from "./Geometry"; // Required for dummy source position
-
-// Minimal representation of a Relic needed for creating a dummy source unit.
-// Replace with the actual Relic type if available and suitable.
-interface RelicLike {
-	id: string;
-	pic: string;
-	traits: TraitData[];
-	position?: Vec2;
-}
-
-function createRelicDummySourceUnit(relic: RelicLike, playerId: string): Unit {
-	return {
-		id: `relic_source_${relic.id}`,
-		force: playerId,
-		name: "Relic Source", // Descriptive name for the dummy unit
-		pic: relic.pic,
-		position: relic.position || { x: -1, y: -1, tag: "_vec2" }, // Default position
-		hp: 1, maxHp: 1, attackPower: 0, attackType: "none", defense: 0, magicDefense: 0,
-		cooldown: 0, crit: 0, evade: 0, xp: 0, statuses: {}, traits: [], log: [],
-		charge: 0, refresh: 0, hasted: 0, slowed: 0, cardId: `relic_dummy_card_${relic.id}`
-	} as Unit; // Cast to Unit, acknowledging it's a simplified representation
-}
 
 /**
  * Sets up all necessary event listeners for the trait system.
@@ -61,11 +39,17 @@ export function setupTraitEventListeners(scene: BattlegroundScene): void {
 			}
 		}
 		// Iterate over player relics
+		// Ensure that the `Relic` type from `state.gameData.player.relics`
+		// is compatible with `RelicStateObject` (i.e., has an `id` field)
+		// and also contains a `traits: TraitData[]` field for iteration.
 		for (const relic of payload.state.gameData.player.relics) {
-			for (const traitData of relic.traits as TraitData[]) { // Cast to TraitData[]
-				// The actual Relic type from player.relics should be compatible with RelicLike
-				const dummySource = createRelicDummySourceUnit(relic as RelicLike, payload.state.gameData.player.id);
-				await processTraitEvent(dummySource, traitData, "onBattleStart" as UnitEventKeys, payload.scene, payload.state, dummySource);
+			// Assuming `relic` object has `id: string` and `traits: TraitData[]`
+			if (relic.traits && Array.isArray(relic.traits)) {
+				for (const traitData of relic.traits as TraitData[]) {
+					const relicSource = relic as RelicStateObject; // Cast the relic to the expected source type
+					const actingPlayerId = payload.state.gameData.player.id;
+					await processTraitEvent(relicSource, traitData, "onBattleStart" as UnitEventKeys, payload.scene, payload.state, actingPlayerId, undefined /* primaryTarget */);
+				}
 			}
 		}
 	});

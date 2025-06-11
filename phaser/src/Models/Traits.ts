@@ -42,6 +42,16 @@ export type TraitData = { // This is an *instance* of a trait on a unit/relic
 };
 
 /**
+ * Minimal representation of a Relic object as stored in the game state,
+ * sufficient for trait processing when a relic is the source.
+ * The actual Relic type from `state.gameData.player.relics` should conform to this.
+ */
+export interface RelicStateObject {
+	id: string; // Relic's unique ID
+	// pic?: string; // Optional: for context if needed by effects
+	// name?: string; // Optional: for context
+}
+/**
  * Optional details specific to an event that might be needed for trait processing.
  */
 interface TraitEventDetails {
@@ -51,12 +61,18 @@ interface TraitEventDetails {
 	evaded?: boolean;
 }
 
+/** Helper to check if the source is a Unit */
+function isUnitSource(source: Unit | RelicStateObject): source is Unit {
+	return (source as Unit).force !== undefined; // 'force' is a good differentiator for Unit
+}
+
 async function processTraitEvent(
-	sourceUnit: Unit,
+	source: Unit | RelicStateObject,
 	traitInstanceData: TraitData,
 	eventKey: string,
 	scene: BattlegroundScene,
 	state: State,
+	actingPlayerId: string, // ID of the player/force controlling the source
 	primaryTarget?: Unit,
 	eventDetails?: TraitEventDetails
 ) {
@@ -67,10 +83,12 @@ async function processTraitEvent(
 
 	for (const effectInstance of definition.effects) {
 		if (effectInstance.eventTrigger === eventKey) {
-			const targets = resolveTargets(sourceUnit, effectInstance.targetSelector, state, scene, eventDetails?.primaryTarget || primaryTarget); // Ensure primaryTarget from older calls is still respected if eventDetails is not used for it.
+			const targets = resolveTargets(source, actingPlayerId, effectInstance.targetSelector, state, scene, eventDetails?.primaryTarget || primaryTarget);
 
 			const context: TraitEffectContext = {
-				sourceUnit,
+				sourceUnit: isUnitSource(source) ? source as Unit : undefined,
+				sourceRelic: !isUnitSource(source) ? source as RelicStateObject : undefined,
+				actingPlayerId,
 				targets,
 				effectInstance,
 				traitInstanceParams: traitInstanceData,
@@ -112,10 +130,8 @@ async function processUnitTraitsForEvent(
 ) {
 	if (!unit.traits) return; // Guard against units with no traits array
 	for (const traitData of unit.traits) {
-		// Pass primaryTarget directly if it's the only detail for simpler events,
-		// otherwise pass the full eventDetails object.
-		// processTraitEvent will then use eventDetails if provided.
-		await processTraitEvent(unit, traitData, eventKey, scene, state, eventDetails?.primaryTarget, eventDetails);
+		// For units, the unit itself is the source, and its force is the actingPlayerId.
+		await processTraitEvent(unit, traitData, eventKey, scene, state, unit.force, eventDetails?.primaryTarget, eventDetails);
 	}
 }
 
