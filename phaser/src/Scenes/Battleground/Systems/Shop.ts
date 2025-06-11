@@ -11,6 +11,7 @@ import { Chara } from "../../../Systems/Chara/Chara";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { UIButton } from "./UIButton";
 import { playerForce } from "../../../Models/Force";
+import { GameEvents } from "../../../constants/events";
 
 export class Shop {
 	// UI Layout Constants for Shop
@@ -71,8 +72,8 @@ export class Shop {
 				shopPanelWidth - 180, // Position X relative to the shop panel's width
 				shopPanelHeight - 60,  // Position Y relative to the shop panel's height (for bottom-right)
 				async () => {
+					this.scene.events.emit(GameEvents.SHOP_PHASE_ENDED);
 					await this.flyout.slideOut();
-					// removeAll is handled by open() on the next call, so just resolve.
 					resolve();
 				}
 			);

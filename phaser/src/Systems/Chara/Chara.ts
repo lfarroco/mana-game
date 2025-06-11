@@ -464,10 +464,10 @@ export class Chara extends Phaser.GameObjects.Container {
 
 		await delay(this.parent, 2000);
 
-		UnitManager.destroyChara(this.id);
 		const state = getState();
-		state.battleData.units = state.battleData.units.filter(u => u.id !== this.id);
-		// Emit the unit death event BEFORE handling kill-related traits
+		// Emit a general unit death event. Other systems will handle cleanup.
+		this.parent.events.emit(GameEvents.UNIT_DIED_IN_BATTLE, { unit: this.unit, killerId });
+
 		this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_DEATH, { unit: this.unit });
 
 		const killer = state.battleData.units.find(u => u.id === killerId);
@@ -480,12 +480,6 @@ export class Chara extends Phaser.GameObjects.Container {
 		if (killer) {
 			// killer is the unit performing the kill, this.unit is the one killed
 			this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_KILL_BY_ME, { unit: killer, killedUnit: this.unit });
-		}
-
-
-
-		if (this.unit.force === constants.FORCE_ID_PLAYER) {
-			getState().gameData.player.units = getState().gameData.player.units.filter(u => u.id !== this.id);
 		}
 	}
 

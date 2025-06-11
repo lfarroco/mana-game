@@ -9,7 +9,6 @@ import { UIManager } from "./Systems/UIManager";
 import * as CharaManager from "./Systems/CharaManager";
 import * as TraitSystem from "../../Models/Traits";
 import { CardCollection, getAllCards, registerCollection } from "../../Models/Card";
-import runCombatIO from "./RunCombatIO";
 import { battleResultAnimation } from "./battleResultAnimation";
 import { delay } from "../../Utils/animation";
 import { images } from "../../assets";
@@ -18,13 +17,14 @@ import { vignette } from "./Animations/vignette";
 import { updatePlayerGoldIO } from "../../Models/Force";
 import { popText } from "../../Systems/Chara/Animations/popText";
 import * as Relic from "./Systems/Relic";
-import { WaveOutcome } from "./RunCombatIO";
+import { RunCombatSystem, WaveOutcome } from "./RunCombatIO"; // Modified import
 import { Unit } from "../../Models/Unit";
 import { PlayerBoard } from "../../Models/Board";
 import { Shop } from "./Systems/Shop";
 import { UIButton } from "./Systems/UIButton";
 import * as TraitEffectsImpl from "../../Systems/TraitEffects/Implementations";
 import { setupTraitEventListeners } from "../../Models/TraitSystemEventListeners";
+import { GameEvents } from "../../constants/events";
 
 // Constants for BattlegroundScene specific game rules
 const INITIAL_PLAYER_GOLD = 20;
@@ -35,6 +35,7 @@ const HP_MULTIPLIER_LEVEL_UP = 1.1;
 const ATTACK_POWER_MULTIPLIER_LEVEL_UP = 0.1; // Represents a 10% increase factor (e.g., newAttack = oldAttack * (1 + 0.1))
 const DEFAULT_SCENE_SOUND_VOLUME = 0.05;
 const LEVEL_UP_APPRECIATION_DELAY = 1000; // ms
+const POST_COMBAT_DELAY = 500;
 
 export class BattlegroundScene extends Phaser.Scene {
   state: State;
@@ -44,6 +45,7 @@ export class BattlegroundScene extends Phaser.Scene {
   collection: CardCollection;
   uiManager: UIManager;
   playerBoard!: PlayerBoard;
+  runCombatSystem: RunCombatSystem;
   shop: Shop;
 
   cleanup() {
@@ -59,6 +61,7 @@ export class BattlegroundScene extends Phaser.Scene {
     const state = getState();
     this.state = state;
     this.speed = state.options.speed;
+    this.runCombatSystem = new RunCombatSystem(this);
 
     /**
      * Global listeners can be created here because they are only created once
@@ -169,7 +172,8 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
   private async executeCombat(): Promise<WaveOutcome> {
-    return runCombatIO(this);
+    // Use the instance of RunCombatSystem
+    return this.runCombatSystem.runCombatIO();
   }
 
   private resetPlayerUnitsForNewRound(): void {
@@ -240,7 +244,7 @@ export class BattlegroundScene extends Phaser.Scene {
     const { state } = this;
     let isGameOver = false;
 
-    await delay(this, 500); // Brief pause after combat ends
+    await delay(this, POST_COMBAT_DELAY); // Brief pause after combat ends
     console.log("Combat result", combatResult);
 
     if (combatResult === "player_won") {
@@ -267,6 +271,21 @@ export class BattlegroundScene extends Phaser.Scene {
     return isGameOver;
   }
 
+  private _setupGameEventListeners(): void {
+    this.events.on(GameEvents.UNIT_DIED_IN_BATTLE, this.handleUnitDiedInBattle, this);
+    // Listener for when the shop signals it's done
+    this.events.on(GameEvents.SHOP_PHASE_ENDED, this.startNextRound, this);
+    // Listener for when combat ends with player victory, to open shop
+    this.events.on(GameEvents.COMBAT_ENDED_VICTORY, this.openShopPhase, this);
+    this.events.on(GameEvents.COMBAT_ENDED_DEFEAT, this.handleGameOver, this);
+  }
+
+  private handleUnitDiedInBattle(payload: { unit: Unit, killerId?: string }): void {
+    this.state.battleData.units = this.state.battleData.units.filter(u => u.id !== payload.unit.id);
+    CharaManager.destroyChara(payload.unit.id); // Visual cleanup
+    // Player unit removal from player.units is handled if they die and are not revived.
+  }
+
   /**
    * This is called each time the scene starts or is rebooted
    */
@@ -279,36 +298,47 @@ export class BattlegroundScene extends Phaser.Scene {
     this.initializeNewGame();
     this.setupSceneElements();
 
+    this._setupGameEventListeners();
     setupTraitEventListeners(this);
 
     const { state } = this;
     state.gameData.round = 1;
-    let isGameOver = false;
 
-    while (!isGameOver) {
-      console.log("Round", this.state.gameData.round, "started");
+    // Start the first round by opening the shop
+    this.openShopPhase();
+  }
 
-      await this.shop.open();
-      const { enemies } = this.setupBattle();
+  private async openShopPhase() {
+    console.log("Round", this.state.gameData.round, "Shop Phase");
+    if (this.playerBoard) this.playerBoard.display();
+    await this.shop.open(); // Shop now emits SHOP_PHASE_ENDED when done
+  }
 
-      // Hide the player board visuals before combat starts
-      if (this.playerBoard) {
-        this.playerBoard.hide();
-      }
+  private async startNextRound() {
+    console.log("Round", this.state.gameData.round, "Combat Phase");
 
-      const combatResult = await this.executeCombat();
-      isGameOver = await this.handlePostCombat(combatResult, enemies);
+    const { enemies } = this.setupBattle();
 
-      // If game is not over, display the player board visuals again for the next round/shop phase
-      if (!isGameOver && this.playerBoard) {
-        this.playerBoard.display();
-      }
-
-      if (isGameOver) break;
-
-      state.gameData.round += 1;
-
+    if (this.playerBoard) {
+      this.playerBoard.hide();
     }
+
+    const combatResult = await this.executeCombat();
+    // Combat system will now emit COMBAT_ENDED_VICTORY or COMBAT_ENDED_DEFEAT
+    // The listeners for these events will handle the next steps.
+    // We pass the enemies defeated for XP calculation if it's a victory.
+    if (combatResult === "player_won") {
+      this.events.emit(GameEvents.COMBAT_ENDED_VICTORY, { enemiesDefeated: enemies });
+    } else {
+      this.events.emit(GameEvents.COMBAT_ENDED_DEFEAT, {});
+    }
+  }
+
+  private async handleGameOver() {
+    await this.handlePostCombat("player_lost", []);
+    // Game over logic (display buttons, etc.) is already in handlePostCombat
+    // No further rounds or shop phases.
+    // To restart, the buttons created in handlePostCombat will call `this.start()` or `this.scene.start("MainMenuScene")`
 
     vignette(this, "Thanks for playing!")
 

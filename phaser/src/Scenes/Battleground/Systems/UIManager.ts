@@ -35,6 +35,7 @@ export class UIManager {
 	constructor(scene: BattlegroundScene) {
 		this.scene = scene;
 		this._setupGoldChangeListener();
+		this._setupPurchaseFailedListener();
 		this.tooltip = new Tooltip(scene)
 	}
 
@@ -44,6 +45,27 @@ export class UIManager {
 	 */
 	private _setupGoldChangeListener(): void {
 		this.scene.events.on(GameEvents.GOLD_CHANGED, this._handleGoldChanged, this);
+	}
+
+	private _setupPurchaseFailedListener(): void {
+		this.scene.events.on(GameEvents.PURCHASE_FAILED, this._handlePurchaseFailed, this);
+	}
+
+	private _handlePurchaseFailed(payload: { unitName: string, reason: string, cost?: number }): void {
+		let message = `Could not buy ${payload.unitName}. `;
+		switch (payload.reason) {
+			case "PARTY_FULL":
+				message += "Your party is full!";
+				break;
+			case "INSUFFICIENT_GOLD":
+				message += `Not enough gold! (Cost: ${payload.cost ?? 'N/A'})`;
+				break;
+			case "SLOT_OCCUPIED":
+				message += "That slot is already occupied.";
+				break;
+			default: message += "Reason unknown.";
+		}
+		this.displayError(message);
 	}
 
 	/**
@@ -150,6 +172,7 @@ export class UIManager {
 	public destroy(): void { // Full cleanup for the UIManager
 		this.destroyMainUI();
 		this.scene.events.off(GameEvents.GOLD_CHANGED, this._handleGoldChanged, this);
+		this.scene.events.off(GameEvents.PURCHASE_FAILED, this._handlePurchaseFailed, this);
 	}
 
 	/**
