@@ -66,8 +66,13 @@ export type UnitKillPayload = { // Generic base, specific events clarify roles
 	killer?: Unit;     // For TRAIT_EVAL_UNIT_KILL, TRAIT_EVAL_ALLIED_KILLED, TRAIT_EVAL_ENEMY_KILLED
 };
 
-/** Payload for UI messages requested by various game systems. */
+/**
+ * Defines the structure for payloads used when requesting the display of a user-facing message.
+ * These messages can be errors, informational pop-ups, warnings, or success notifications.
+ */
 export type UserMessagePayload = {
+	/** The content of the message to be displayed. */
 	text: string;
+	/** The type or category of the message, which can influence its presentation (e.g., color, icon) or associated sound. */
 	type: 'error' | 'info' | 'warning' | 'success';
 };
