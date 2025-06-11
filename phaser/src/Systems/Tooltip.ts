@@ -32,8 +32,6 @@ export class Tooltip {
 	private currentDescription: string = '';
 	/** The current dynamically calculated width of the tooltip. */
 	private currentDynamicWidth: number;
-	/** The default color for the description text, extracted from defaultTextConfig. */
-	private defaultDescriptionColor: string;
 	/** The current dynamically calculated height of the tooltip. */
 	private currentDynamicHeight: number;
 
@@ -74,8 +72,6 @@ export class Tooltip {
 	 */
 	constructor(scene: Phaser.Scene) {
 		this.scene = scene;
-
-		this.defaultDescriptionColor = (defaultTextConfig.color as string) || '#ffffff'; // Default to white if not specified
 
 		this.container = this.scene.add.container(0, 0);
 		this.container.setDepth(Phaser.Math.MAX_SAFE_INTEGER); // Ensure tooltip is on top
@@ -123,75 +119,6 @@ export class Tooltip {
 	}
 
 	/**
-	 * Parses a BBCode string into segments of text and color.
-	 * Example: "Hello [color=red]world[/color]!" becomes:
-	 * [{text: "Hello ", color: defaultColor}, {text: "world", color: "red"}, {text: "!", color: defaultColor}]
-	 * @param bbCodeText The string containing BBCode for colors.
-	 * @returns An array of segments, each with text and its color.
-	 */
-	private parseBBCodeIntoSegments(bbCodeText: string): Array<{ text: string, color: string }> {
-		const segments: Array<{ text: string, color: string }> = [];
-		const regex = /\[color=([^\]]+)\](.*?)\[\/color\]/gi;
-		let lastIndex = 0;
-		let match;
-
-		while ((match = regex.exec(bbCodeText)) !== null) {
-			const colorValue = match[1]; // Captured color (e.g., "red", "#FF0000")
-			const content = match[2];    // Captured text content within the tags
-
-			// Add text before this match (default color)
-			if (match.index > lastIndex) {
-				segments.push({
-					text: bbCodeText.substring(lastIndex, match.index),
-					color: this.defaultDescriptionColor,
-				});
-			}
-
-			// Add the colored text
-			segments.push({
-				text: content,
-				color: colorValue,
-			});
-
-			lastIndex = regex.lastIndex;
-		}
-
-		// Add any remaining text after the last match (default color)
-		if (lastIndex < bbCodeText.length) {
-			segments.push({
-				text: bbCodeText.substring(lastIndex),
-				color: this.defaultDescriptionColor,
-			});
-		}
-
-		// If the original string was not empty but produced no segments (e.g. no tags),
-		// treat the whole string as a single segment with the default color.
-		if (bbCodeText.length > 0 && segments.length === 0) {
-			segments.push({ text: bbCodeText, color: this.defaultDescriptionColor });
-		}
-
-		return segments;
-	}
-
-	/**
-	 * Updates the descriptionText object with parsed BBCode for colors.
-	 * @param bbCodeDescription The raw description string with BBCode.
-	 */
-	private updateDescriptionText(bbCodeDescription: string): void {
-		const parsedSegments = this.parseBBCodeIntoSegments(bbCodeDescription);
-		const cleanText = parsedSegments.map(segment => segment.text).join('');
-		this.descriptionText.setText(cleanText);
-
-		let currentIndex = 0;
-		for (const segment of parsedSegments) {
-			if (segment.text.length > 0) { // Only add color if there's text for this segment
-				this.descriptionText.setColor(segment.color);
-				currentIndex += segment.text.length;
-			}
-		}
-	}
-
-	/**
 	 * Renders or updates the tooltip with new content and position.
 	 * @param x The target x-coordinate for the tooltip (center).
 	 * @param y The target y-coordinate for the tooltip (center).
@@ -222,16 +149,12 @@ export class Tooltip {
 			descriptionWrapWidthChanged = true;
 		}
 
-		if (descriptionChanged) {
-			this.currentDescription = description;
-		}
-
-		// If the raw description string has changed, or if its wrap width has changed,
-		// we need to re-parse and re-render the description text.
 		if (descriptionChanged || descriptionWrapWidthChanged) {
-			this.updateDescriptionText(this.currentDescription); // Use the (potentially updated) this.currentDescription
+			this.descriptionText.setText(description);
+			this.currentDescription = description;
 			overallContentChanged = true; // Content has effectively changed if wrap width altered dimensions
 		}
+
 		const needsFullLayoutUpdate = overallContentChanged || !this.container.visible;
 
 		if (needsFullLayoutUpdate) {
