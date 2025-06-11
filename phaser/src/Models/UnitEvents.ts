@@ -15,24 +15,24 @@ export type IO = () => Promise<void>;
  * @param traitData Optional. The specific trait instance data if the event is being triggered by a trait effect.
  * @returns An `IO` function representing the action to take.
  */
-type UnitEventCallback = ((u: Unit, traitData?: TraitData) => IO)
+type UnitEventCallback = (u: Unit, traitData?: TraitData) => IO;
 /**
  * Callback signature for unit events that involve a target unit in addition to the subject unit.
  * @param u The unit that is the subject of the event.
  * @param target The target unit involved in the event.
  * @returns An `IO` function representing the action to take.
  */
-type UnitEventWithTargetCallback = ((u: Unit, target: Unit) => IO)
+type UnitEventWithTargetCallback = (u: Unit, target: Unit) => IO;
 /**
  * Callback signature for attack-related events, providing full context of the attack.
  * @param u The unit performing the attack.
  * @param target The unit being attacked.
  * @param damage The amount of damage dealt.
  * @param isCritical Whether the attack was a critical hit.
- * @param evaded Whether the attack was evaded.
+ * @param evaded Whether the attack was evaded by the target.
  * @returns An `IO` function representing the action to take.
  */
-type AttackEventCallback = ((u: Unit, target: Unit, damage: number, isCritical: boolean, evaded: boolean) => IO)
+type AttackEventCallback = (u: Unit, target: Unit, damage: number, isCritical: boolean, evaded: boolean) => IO;
 
 /** Represents a unit event with a corresponding callback function. */
 export type UnitEvent = { fn: UnitEventCallback };
@@ -74,6 +74,7 @@ export type UnitEvents = {
 
 /**
  * An array of all valid unit event keys. Used for iterating or validating event types.
+ * IMPORTANT: This array must be kept in sync manually with the keys of the `UnitEvents` type.
  */
 export const UNIT_EVENTS: readonly (keyof UnitEvents)[] = [
 	"onTurnStart",
