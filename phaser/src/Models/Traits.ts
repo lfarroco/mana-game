@@ -94,41 +94,64 @@ async function processTraitEvent(
 ) {
 	const definition = getTraitDefinition(traitInstanceData.id);
 	if (!definition) {
+		console.warn(`Trait definition not found for ID: ${traitInstanceData.id} on ${isUnitSource(source) ? `Unit ${(source as Unit).id}` : `Relic ${source.id}`}`);
 		return;
 	}
 
 	for (const effectInstance of definition.effects) {
 		if (effectInstance.eventTrigger === eventKey) {
-			const targets = resolveTargets(source, actingPlayerId, effectInstance.targetSelector, state, scene, eventDetails?.primaryTarget);
+			try {
+				const targets = resolveTargets(source, actingPlayerId, effectInstance.targetSelector, state, scene, eventDetails?.primaryTarget);
 
-			const context: TraitEffectContext = {
-				sourceUnit: isUnitSource(source) ? source as Unit : undefined,
-				sourceRelic: !isUnitSource(source) ? source as RelicStateObject : undefined,
-				actingPlayerId,
-				targets,
-				effectInstance,
-				traitInstanceParams: traitInstanceData,
-				scene,
-				state,
-				primaryTarget: eventDetails?.primaryTarget,
-				attackDamage: eventDetails?.attackDamage,
-				isCritical: eventDetails?.isCritical,
-				evaded: eventDetails?.evaded,
-			};
+				const context: TraitEffectContext = {
+					sourceUnit: isUnitSource(source) ? source as Unit : undefined,
+					sourceRelic: !isUnitSource(source) ? source as RelicStateObject : undefined,
+					actingPlayerId,
+					targets,
+					effectInstance,
+					traitInstanceParams: traitInstanceData,
+					scene,
+					state,
+					primaryTarget: eventDetails?.primaryTarget,
+					attackDamage: eventDetails?.attackDamage,
+					isCritical: eventDetails?.isCritical,
+					evaded: eventDetails?.evaded,
+				};
 
-			if (!checkConditions(context, effectInstance.conditions)) {
-				continue; // Conditions not met for this effect
-			}
-
-			const implementation = getTraitEffectImplementation(effectInstance.effectId);
-			if (implementation) {
-				try {
-					await implementation(context);
-				} catch (error) {
-					console.error(`Error executing trait effect ${effectInstance.effectId} for trait ${definition.id}:`, error);
+				if (!checkConditions(context, effectInstance.conditions)) {
+					if (process.env.NODE_ENV === 'development') {
+						console.debug(`Conditions not met for trait ${definition.id}, effect ${effectInstance.effectId}`);
+					}
+					continue;
 				}
-			} else {
-				console.warn(`Implementation not found for effectId: ${effectInstance.effectId} in trait ${definition.id}`);
+
+				const implementation = getTraitEffectImplementation(effectInstance.effectId);
+				if (implementation) {
+					try {
+						await implementation(context);
+					} catch (error) {
+						console.error(
+							`Error executing trait effect ${effectInstance.effectId} for trait ${definition.id}:`,
+							error,
+							`\nSource: ${isUnitSource(source) ? 'Unit' : 'Relic'} ${source.id}`,
+							`\nEvent: ${eventKey}`,
+							`\nContext:`, context
+						);
+					}
+				} else {
+					console.warn(
+						`Implementation not found for effectId: ${effectInstance.effectId} in trait ${definition.id}`,
+						`\nSource: ${isUnitSource(source) ? 'Unit' : 'Relic'} ${source.id}`
+					);
+				}
+			} catch (error) {
+				console.error(
+					`Error processing trait effect for ${definition.id}:`,
+					error,
+					`\nSource: ${isUnitSource(source) ? 'Unit' : 'Relic'} ${source.id}`,
+					`\nEvent: ${eventKey}`,
+					`\nEffect:`, effectInstance
+				);
 			}
 		}
 	}
@@ -158,6 +181,7 @@ async function processUnitTraitsForEvent(
  * @param state - The current game state.
  * @param unit - The unit whose traits are being processed.
  */
+/** @internal */
 export const runUnitEventTraits = async (eventKey: UnitEvents_.UnitEventKeys, scene: BattlegroundScene, state: State, unit: Unit) => {
 	await processUnitTraitsForEvent(unit, eventKey, scene, state, {
 		// No specific details for simple unit events beyond the unit itself as source
@@ -176,6 +200,7 @@ export const runUnitEventTraits = async (eventKey: UnitEvents_.UnitEventKeys, sc
  * @param isCritical - Whether the attack was a critical hit.
  * @param evaded - Whether the attack was evaded.
  */
+/** @internal */
 export const runAttackEventTraits = async (eventKey: UnitEvents_.AttackEventKeys, scene: BattlegroundScene, state: State, unit: Unit, target: Unit, damage: number, isCritical: boolean, evaded: boolean) => {
 	await processUnitTraitsForEvent(unit, eventKey, scene, state, {
 		primaryTarget: target,
@@ -193,6 +218,7 @@ export const runAttackEventTraits = async (eventKey: UnitEvents_.AttackEventKeys
  * @param unit - The unit whose traits are being processed (often the source of the event).
  * @param target - The target unit involved in the event.
  */
+/** @internal */
 export const runUnitEventWithTargetTraits = async (eventKey: UnitEvents_.UnitEventWithTargetKeys, scene: BattlegroundScene, state: State, unit: Unit, target: Unit) => {
 	await processUnitTraitsForEvent(unit, eventKey, scene, state, { primaryTarget: target });
 };
