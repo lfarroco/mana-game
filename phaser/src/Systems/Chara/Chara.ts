@@ -142,11 +142,7 @@ export class Chara extends Phaser.GameObjects.Container {
 
 		updatePlayerGoldIO(this.parent, -purchaseCost);
 		state.gameData.player.units.push(this.unit);
-		this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_ENTER_POSITION, {
-			unit: this.unit,
-			scene: this.parent,
-			state
-		});
+		this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_ENTER_POSITION, { unit: this.unit });
 
 		// Transition from shop item to owned item
 		this.isShopItem = false;
@@ -249,25 +245,16 @@ export class Chara extends Phaser.GameObjects.Container {
 		const unitToMove = this.unit;
 		const state = getState();
 
-
 		const newBoardModelPosition = vec2(tile.x, tile.y);
 		// Trigger 'onLeavePosition' for the unit being moved *before* its position is updated in the model.
-		this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_LEAVE_POSITION, {
-			unit: unitToMove,
-			scene: this.parent,
-			state
-		});
+		this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_LEAVE_POSITION, { unit: unitToMove });
 
 		const occupierUnitIfAny = state.gameData.player.units.find(
 			u => u.id !== unitToMove.id && eqVec2(u.position, newBoardModelPosition)
 		);
 		// If there's an occupier, trigger its 'onLeavePosition' before it's potentially moved.
 		if (occupierUnitIfAny) {
-			this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_LEAVE_POSITION, {
-				unit: occupierUnitIfAny,
-				scene: this.parent,
-				state
-			});
+			this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_LEAVE_POSITION, { unit: occupierUnitIfAny });
 		}
 
 		const moveResult = Board.PlayerBoard.updateUnitPosition(
@@ -278,31 +265,21 @@ export class Chara extends Phaser.GameObjects.Container {
 
 		if (moveResult) {
 			// Trigger 'onEnterPosition' for the moved unit at its new position.
-			this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_ENTER_POSITION, {
-				unit: unitToMove,
-				scene: this.parent,
-				state
-			});
+			this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_ENTER_POSITION, { unit: unitToMove });
 			tween({ targets: [this], ...UnitManager.getCharaPosition(unitToMove) });
 
 			if (moveResult.swappedUnit) {
-				this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_ENTER_POSITION, {
-					unit: moveResult.swappedUnit,
-					scene: this.parent,
-					state
-				});
+				this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_ENTER_POSITION, { unit: moveResult.swappedUnit });
 				const occupierChara = UnitManager.getChara(moveResult.swappedUnit.id);
 				tween({ targets: [occupierChara], ...UnitManager.getCharaPosition(moveResult.swappedUnit) });
 			}
 			this.wasDragSuccessful = true;
 		} else {
 			// Re-trigger for the original spot if move failed but unit didn't change tile
-			this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_ENTER_POSITION, {
-				unit: unitToMove,
-				scene: this.parent,
-				state
-			});
-			if (occupierUnitIfAny) this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_ENTER_POSITION, { unit: occupierUnitIfAny, scene: this.parent, state });
+			this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_ENTER_POSITION, { unit: unitToMove });
+			if (occupierUnitIfAny) {
+				this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_ENTER_POSITION, { unit: occupierUnitIfAny });
+			}
 			tween({ targets: [this], ...UnitManager.getCharaPosition(unitToMove) });
 			// If dropped on the same spot, it's a "successful" drag in terms of completing the action.
 			if (eqVec2(unitToMove.position, newBoardModelPosition)) {
@@ -465,12 +442,7 @@ export class Chara extends Phaser.GameObjects.Container {
 
 		if (nextHp <= chara.unit.maxHp / 2 && !chara.unit.statuses["on-half-hp"]) {
 			addStatus(chara.unit, "on-half-hp");
-			// Emit event for TRAIT_EVAL_UNIT_HALF_HP
-			this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_HALF_HP, {
-				unit: chara.unit,
-				scene: this.parent,
-				state: getState()
-			});
+			this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_HALF_HP, { unit: chara.unit });
 
 		}
 	}
@@ -496,26 +468,18 @@ export class Chara extends Phaser.GameObjects.Container {
 		const state = getState();
 		state.battleData.units = state.battleData.units.filter(u => u.id !== this.id);
 		// Emit the unit death event BEFORE handling kill-related traits
-		this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_DEATH, {
-			unit: this.unit,
-			scene: this.parent,
-			state
-		});
+		this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_DEATH, { unit: this.unit });
 
 		const killer = state.battleData.units.find(u => u.id === killerId);
 		// Determine if the unit was an ally or an enemy based on the force
 		const isAlly = this.unit.force === constants.FORCE_ID_PLAYER;
 		const killEvent = isAlly ? GameEvents.TRAIT_EVAL_ALLIED_KILLED : GameEvents.TRAIT_EVAL_ENEMY_KILLED;
-		this.parent.events.emit(killEvent, {
-			unit: this.unit,
-			killer,
-			scene: this.parent,
-			state
-		});
+		// Pass killer, it might be undefined if killed by environment or non-unit source
+		this.parent.events.emit(killEvent, { unit: this.unit, killer });
+
 		if (killer) {
-			this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_KILL_BY_ME, {
-				unit: killer, killedUnit: this.unit, scene: this.parent, state
-			})
+			// killer is the unit performing the kill, this.unit is the one killed
+			this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_KILL_BY_ME, { unit: killer, killedUnit: this.unit });
 		}
 
 
