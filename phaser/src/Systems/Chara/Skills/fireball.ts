@@ -29,10 +29,10 @@ export const fireball = (
 
 	// deal damage to all targets
 
-	targetChara.damageUnit(skill.power);
+	targetChara.damageUnit(unit.id, skill.power);
 
 	targets.forEach(target => {
-		UnitManager.getChara(target.id).damageUnit(skill.power / 2);
+		UnitManager.getChara(target.id).damageUnit(unit.id, skill.power / 2);
 		popText({ text: (skill.power / 2).toString(), targetId: target.id });
 	});
 

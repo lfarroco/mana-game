@@ -1,7 +1,7 @@
 import { BattlegroundScene } from "./BattlegroundScene";
-import { getActiveUnits, State, } from "../../Models/State";
+import { getActiveUnits, State } from "../../Models/State";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER, MIN_COOLDOWN } from "./constants";
-import * as UnitManager from "./Systems/CharaManager";
+import * as CharaManager from "./Systems/CharaManager";
 import { Unit } from "../../Models/Unit";
 import { GameEvents } from "../../constants/events";
 
@@ -14,7 +14,7 @@ async function setupWave(scene: BattlegroundScene) {
     u.charge = 0;
     u.refresh = 0;
     // Make bars visible for all units starting combat
-    const chara = UnitManager.getChara(u.id);
+    const chara = CharaManager.getChara(u.id);
     if (chara) {
       chara.setBarsVisibility(true);
     }
@@ -45,24 +45,31 @@ const runCombatIO = (
     const units = chargeUnits(state, delta);
 
     for (const unit of units) {
+      // Emit turn start event
+      scene.events.emit(GameEvents.TRAIT_EVAL_TURN_START, { unit, scene, state });
+      // Process unit action
       scene.events.emit(GameEvents.TRAIT_EVAL_UNIT_ACTION, { unit, scene, state });
+
+      // Emit turn end event
+      scene.events.emit(GameEvents.TRAIT_EVAL_TURN_END, { unit, scene, state });
+
     }
 
-    // TODO: move this to on unit death
     const activeUnits = scene.state.battleData.units.filter(u => u.hp > 0)
     const playerUnits = activeUnits.filter(u => u.force === FORCE_ID_PLAYER);
     const cpuUnits = activeUnits.filter(u => u.force === FORCE_ID_CPU);
 
-    if (playerUnits.length && cpuUnits.length)
-      return;
+    if (playerUnits.length === 0 || cpuUnits.length === 0) {
+      scene.events.off('update', updateHandler);
 
-    scene.events.off('update', updateHandler)
+      scene.events.emit(GameEvents.TRAIT_EVAL_BATTLE_END, { scene, state });
 
-    if (playerUnits.length === 0)
-      resolve("player_lost");
-
-    if (cpuUnits.length === 0)
-      resolve("player_won");
+      if (playerUnits.length === 0) {
+        resolve("player_lost");
+      } else {
+        resolve("player_won");
+      }
+    }
 
   }
 
@@ -100,7 +107,7 @@ function chargeUnits(state: State, delta: number): Unit[] {
       performUnits.push(unit);
     }
 
-    UnitManager.getChara(unit.id).updateChargeBar();
+    CharaManager.getChara(unit.id).updateChargeBar();
 
   }
 
