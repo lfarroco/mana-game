@@ -22,6 +22,12 @@ const grantGoldToPlayer: TraitEffectFn = async (context) => {
 	// Allow amount from effectInstance (definition) or traitInstanceParams (instance on unit/relic)
 	const amount = (traitInstanceParams.amount ?? effectInstance.amount ?? 0) as number;
 
+	if (!sourceUnit) {
+		if (process.env.NODE_ENV === "development")
+			console.error("No source unit in event context.", context)
+		return;
+	}
+
 	if (amount !== 0 && sourceUnit.force === playerForce.id) { // Ensure it's for the player
 		await popText({ text: `+${amount} Gold`, targetId: sourceUnit.id, speed: scene.state.options.speed });
 		updatePlayerGoldIO(scene, amount);
@@ -31,6 +37,11 @@ const grantGoldToPlayer: TraitEffectFn = async (context) => {
 const dealDamage: TraitEffectFn = async (context) => {
 	const { sourceUnit, targets, effectInstance, traitInstanceParams, scene } = context;
 	const baseAmount = (traitInstanceParams.amount ?? effectInstance.amount ?? 0) as number;
+	if (!sourceUnit) {
+		if (process.env.NODE_ENV === "development")
+			console.error("No source unit in event context.", context)
+		return;
+	}
 	// TODO: Implement actual damage calculation, considering sourceUnit.attackPower, target.defense, etc.
 	// For now, a simple popText
 	for (const target of targets) {
@@ -46,22 +57,42 @@ const dealDamage: TraitEffectFn = async (context) => {
 
 const performSkillSlash: TraitEffectFn = async (context) => {
 	const { sourceUnit, scene } = context;
+	if (!sourceUnit) {
+		if (process.env.NODE_ENV === "development")
+			console.error("No source unit in event context.", context)
+		return;
+	}
 	// Assuming 'slash' skill takes scene and unit
 	await slash(scene, sourceUnit);
 };
 
 const performSkillShoot: TraitEffectFn = async (context) => {
 	const { sourceUnit, scene } = context;
+	if (!sourceUnit) {
+		if (process.env.NODE_ENV === "development")
+			console.error("No source unit in event context.", context)
+		return;
+	}
 	await shoot(scene)(sourceUnit);
 };
 
 const performSkillHeal: TraitEffectFn = async (context) => {
 	const { sourceUnit, scene } = context;
+	if (!sourceUnit) {
+		if (process.env.NODE_ENV === "development")
+			console.error("No source unit in event context.", context)
+		return;
+	}
 	await healing(scene)(sourceUnit);
 };
 
 const performSkillHealingWave: TraitEffectFn = async (context) => {
 	const { sourceUnit, scene } = context;
+	if (!sourceUnit) {
+		if (process.env.NODE_ENV === "development")
+			console.error("No source unit in event context.", context)
+		return;
+	}
 	await healingWave(scene, sourceUnit);
 };
 
@@ -69,21 +100,38 @@ const performSkillArcaneMissiles: TraitEffectFn = async (context) => {
 	const { sourceUnit, scene, traitInstanceParams, effectInstance } = context;
 	// Arcane missiles might take specific data from the trait instance or effect definition
 	const projectiles = traitInstanceParams.projectiles ?? effectInstance.projectiles ?? 3;
+	if (!sourceUnit) {
+		if (process.env.NODE_ENV === "development")
+			console.error("No source unit in event context.", context)
+		return;
+	}
 	await arcaneMissiles(scene)(sourceUnit, projectiles);
 };
 
 const performSkillHaste: TraitEffectFn = async (context) => {
 	const { sourceUnit, scene } = context;
+	if (!sourceUnit) {
+		if (process.env.NODE_ENV === "development")
+			console.error("No source unit in event context.", context)
+		return;
+	}
 	await haste(scene, sourceUnit);
 };
 
 const performSkillSlow: TraitEffectFn = async (context) => {
 	const { sourceUnit, scene } = context;
+	if (!sourceUnit) return;
 	await slow(scene, sourceUnit);
 };
 
 const performSkillSummon: TraitEffectFn = async (context) => {
 	const { sourceUnit, traitInstanceParams, effectInstance } = context;
+	if (!sourceUnit) {
+		if (process.env.NODE_ENV === "development")
+			console.error("No source unit in event context.", context)
+		return;
+	}
+
 	const cardIdToSummon = traitInstanceParams.cardIdToSummon ?? effectInstance.cardIdToSummon as string;
 	const chara = getChara(sourceUnit.id);
 
@@ -116,6 +164,7 @@ const modifyUnitCooldowns: TraitEffectFn = async (context) => {
 const modifyUnitMaxHp: TraitEffectFn = async (context) => {
 	const { targets, effectInstance, traitInstanceParams } = context;
 	const percentIncrease = (traitInstanceParams.percent ?? effectInstance.percent ?? 0) as number;
+
 	if (percentIncrease <= 0) {
 		console.warn(`Relic Effect (AlliedMaxHpIncrease): Invalid 'percent'. Expected > 0.`);
 		return;

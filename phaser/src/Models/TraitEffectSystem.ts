@@ -1,9 +1,9 @@
 import { Unit } from "./Unit";
-import { TraitId } from "./Traits"; // We'll move TraitId here or make it global
+import { TraitId, TraitData, RelicStateObject } from "./Traits"; // Import RelicStateObject and TraitData
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
 import { State } from "./State";
-import { getActiveUnits, getAllActiveFoes } from "./State"; // For target resolution
-import { playerForce } from "./Force";
+import { getActiveUnits } from "./State"; // For target resolution
+import { FORCE_ID_PLAYER } from "../Scenes/Battleground/constants";
 
 // Forward declaration, will be fully defined in Traits.ts or a shared types file
 // For now, let's assume TraitId is accessible.
@@ -55,10 +55,12 @@ export type TraitConditionInstanceData = {
  * Context passed to every TraitEffectFn.
  */
 export type TraitEffectContext = {
-	sourceUnit: Unit;
+	sourceUnit?: Unit; // The unit that owns the trait, if applicable
+	sourceRelic?: RelicStateObject; // The relic that owns the trait, if applicable
+	actingPlayerId: string; // ID of the player/force controlling the source
 	targets: Unit[];
 	effectInstance: TraitEffectInstanceData; // The effect data from TraitDefinition
-	traitInstanceParams: { [key: string]: any }; // Instance-specific params from Unit.traits or Relic.traits
+	traitInstanceParams: TraitData; // Instance-specific params from Unit.traits or Relic.traits
 	scene: BattlegroundScene;
 	state: State;
 	// Optional, for attack-related events
@@ -126,38 +128,56 @@ export function getTraitConditionImplementation(conditionType: string): TraitCon
 
 // --- Target Resolution ---
 // (Simplified for now, can be expanded)
+
+/** Helper to check if the source is a Unit */
+function isUnitSource(source: Unit | RelicStateObject): source is Unit {
+	return (source as Unit).force !== undefined; // 'force' is a good differentiator for Unit
+}
+
 export function resolveTargets(
-	sourceUnit: Unit,
+	source: Unit | RelicStateObject,
+	actingPlayerId: string, // The player ID of the entity whose trait is firing
 	selector: string | undefined,
 	state: State,
 	_scene: BattlegroundScene, // May be needed for more complex selections (e.g., geometry checks)
 	primaryTarget?: Unit
 ): Unit[] {
-	if (!selector) return primaryTarget ? [primaryTarget] : [sourceUnit]; // Default to source or primary target
+	if (!selector) {
+		if (primaryTarget) return [primaryTarget];
+		if (isUnitSource(source)) return [source as Unit]; // Default to source if it's a unit
+		return []; // Relics don't default to "self" as a target unit
+	}
 
 	switch (selector) {
 		case "self":
-			return [sourceUnit];
+			if (isUnitSource(source)) return [source as Unit];
+			console.warn(`Target selector "self" used with a non-unit source (Relic ID: ${source.id}). Returning no targets.`);
+			return [];
 		case "action_target": // The direct target of an action, if applicable
 			return primaryTarget ? [primaryTarget] : [];
 		case "all_enemies":
-			return getAllActiveFoes(state)(sourceUnit.force);
+			return getActiveUnits(state).filter(u => u.force !== actingPlayerId);
 		case "all_allies":
-			return getActiveUnits(state).filter(u => u.force === sourceUnit.force);
+			return getActiveUnits(state).filter(u => u.force === actingPlayerId);
 		case "random_enemy":
 			{
-				const enemies = getAllActiveFoes(state)(sourceUnit.force);
+				const enemies = getActiveUnits(state).filter(u => u.force !== actingPlayerId);
 				return enemies.length > 0 ? [enemies[Math.floor(Math.random() * enemies.length)]] : [];
 			}
 		case "random_ally":
 			{
-				const allies = getActiveUnits(state).filter(u => u.force === sourceUnit.force && u.id !== sourceUnit.id);
+				const allies = getActiveUnits(state).filter(u =>
+					u.force === actingPlayerId &&
+					(!isUnitSource(source) || u.id !== (source as Unit).id) // Exclude self if source is a unit
+				);
 				return allies.length > 0 ? [allies[Math.floor(Math.random() * allies.length)]] : [];
 			}
 		// Add more selectors: "allies_in_row", "enemies_in_column", "units_in_area", etc.
 		default:
 			console.warn(`Unknown target selector: ${selector}`);
-			return primaryTarget ? [primaryTarget] : [sourceUnit];
+			if (primaryTarget) return [primaryTarget];
+			if (isUnitSource(source)) return [source as Unit];
+			return [];
 	}
 }
 
@@ -182,17 +202,18 @@ export function checkConditions(context: TraitEffectContext, conditions: TraitCo
 
 // --- Example Condition Implementations (to be moved to a dedicated file later) ---
 registerTraitConditionImplementation("is_player_unit", (context) => {
-	return context.sourceUnit.force === playerForce.id;
+	return context.sourceUnit ? context.sourceUnit.force === context.actingPlayerId : context.actingPlayerId === FORCE_ID_PLAYER;
 });
 
 registerTraitConditionImplementation("target_is_enemy", (context) => {
 	// Assumes targets are already resolved. Checks the first target.
 	// More robust checking might be needed for multi-target effects.
-	return context.targets.length > 0 && context.targets[0].force !== context.sourceUnit.force;
+	return context.targets.length > 0 && context.targets[0].force !== context.actingPlayerId;
 });
 
 registerTraitConditionImplementation("source_hp_below_percent", (context, conditionData) => {
 	const percent = conditionData.percent as number;
 	if (typeof percent !== 'number') return false;
+	if (!context.sourceUnit) return false;
 	return (context.sourceUnit.hp / context.sourceUnit.maxHp) * 100 < percent;
 });
