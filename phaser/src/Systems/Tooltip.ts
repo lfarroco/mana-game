@@ -11,6 +11,8 @@ export class Tooltip {
 	private bg: Phaser.GameObjects.Graphics;
 	private titleText: Phaser.GameObjects.Text;
 	private descriptionText: Phaser.GameObjects.Text;
+	private currentTitle: string = '';
+	private currentDescription: string = '';
 
 	// Style constants can be static members or remain module-level if preferred
 	private static readonly PADDING = 20;
@@ -67,24 +69,44 @@ export class Tooltip {
 	}
 
 	public render(x: number, y: number, title: string, description: string): void {
-		this.titleText.setText(title);
-		this.descriptionText.setText(description);
+		let contentChanged = false;
+		if (this.currentTitle !== title) {
+			this.titleText.setText(title);
+			this.currentTitle = title;
+			contentChanged = true;
+		}
+		if (this.currentDescription !== description) {
+			this.descriptionText.setText(description);
+			this.currentDescription = description;
+			contentChanged = true;
+		}
 
-		// Dynamically position description below title
-		this.descriptionText.setY(this.titleText.y + this.titleText.displayHeight + Tooltip.INTER_ELEMENT_PADDING);
+		const needsLayoutUpdate = contentChanged || !this.container.visible;
+
+		if (needsLayoutUpdate) {
+			// Dynamically position description below title
+			this.descriptionText.setY(this.titleText.y + this.titleText.displayHeight + Tooltip.INTER_ELEMENT_PADDING);
+		}
 
 		// Note: If TOOLTIP_HEIGHT needs to be dynamic based on content,
 		// this.bg and potentially _getAdjustedPosition would need updates here.
+		// If contentChanged and height is dynamic, bg would need to be redrawn.
 
 		const { x: adjustedX, y: adjustedY } = this._getAdjustedPosition(x, y);
-		this.container.setPosition(adjustedX, adjustedY);
-		this.container.setVisible(true);
+		if (this.container.x !== adjustedX || this.container.y !== adjustedY) {
+			this.container.setPosition(adjustedX, adjustedY);
+		}
+		if (!this.container.visible) {
+			this.container.setVisible(true);
+		}
 	}
 
 	public move(x: number, y: number): void {
 		if (!this.container.visible) return;
 		const { x: adjustedX, y: adjustedY } = this._getAdjustedPosition(x, y);
-		this.container.setPosition(adjustedX, adjustedY);
+		if (this.container.x !== adjustedX || this.container.y !== adjustedY) {
+			this.container.setPosition(adjustedX, adjustedY);
+		}
 	}
 
 	public hide(): void {
