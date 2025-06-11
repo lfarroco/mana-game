@@ -16,8 +16,8 @@ graph TD
         TraitSystem;
         RelicSystem;
         ShopSystem;
-        EventManager[EventManager (Global & Unit Events)];
-        DataSystem[Data Management (JSON, etc.)];
+        EventManager["EventManager (Global & Unit Events)"];
+        DataSystem["Data Management (JSON, etc.)"];
     end
 
     %% Scene to Systems Connections
@@ -29,9 +29,9 @@ graph TD
     Scene --- DataSystem;
 
     %% UIManager Details
-    UIManager -- Manages --> UIComponents[Tooltip, Buttons, GoldAnimator];
-    UIManager -- Renders --> ShopSystemInterface[Shop UI];
-    UIManager -- Renders --> UnitDisplays[Unit Stats/Bars];
+    UIManager -- Manages --> UIComponents["Tooltip, Buttons, GoldAnimator"];
+    UIManager -- Renders --> ShopSystemInterface["Shop UI"];
+    UIManager -- Renders --> UnitDisplays["Unit Stats/Bars"];
     ShopSystem --- ShopSystemInterface; %% ShopSystem provides data/logic for its UI part
 
     %% TraitSystem Details
@@ -49,8 +49,8 @@ graph TD
     Units -- Affected by --> RelicSystem; %% Relics can apply effects to units
 
     %% ShopSystem Details
-    ShopSystem -- Provides --> PurchasableUnits[Units for Purchase];
-    ShopSystem -- Provides --> PurchasableRelics[Relics for Purchase];
+    ShopSystem -- Provides --> PurchasableUnits["Units for Purchase"];
+    ShopSystem -- Provides --> PurchasableRelics["Relics for Purchase"];
     ShopSystem --- UIManager; %% For rendering the shop interface
     ShopSystem -- Uses/Listens to --> EventManager; %% e.g., for gold transactions, purchase events
     ShopSystem -- Loads item data from --> DataSystem;
