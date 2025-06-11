@@ -212,7 +212,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	private handleDrag(pointer: Phaser.Input.Pointer) {
 		this.x = pointer.x;
 		this.y = pointer.y;
-		this.parent.uiManager.tooltip.hide();
+		this.parent.events.emit(GameEvents.TOOLTIP_HIDE);
 	}
 
 	/**
@@ -406,16 +406,16 @@ export class Chara extends Phaser.GameObjects.Container {
 				this.unit.traits.map((trait) => trait.description).join("\n"),
 			].join('\n');
 
-			this.parent.uiManager.tooltip.render(
-				this.x + 340, // TODO: Adjust tooltip position based on Chara's screen position/side
-				this.y,
-				this.unit.name,
-				text
-			);
+			this.parent.events.emit(GameEvents.TOOLTIP_SHOW, {
+				x: this.x + 340, // TODO: Adjust tooltip position based on Chara's screen position/side
+				y: this.y,
+				title: this.unit.name,
+				description: text
+			});
 		});
 
 		this.on('pointerout', () => {
-			this.parent.uiManager.tooltip.hide();
+			this.parent.events.emit(GameEvents.TOOLTIP_HIDE);
 		});
 	}
 
