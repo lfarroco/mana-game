@@ -73,7 +73,6 @@ async function processTraitEvent(
 	scene: BattlegroundScene,
 	state: State,
 	actingPlayerId: string, // ID of the player/force controlling the source
-	primaryTarget?: Unit,
 	eventDetails?: TraitEventDetails
 ) {
 	const definition = getTraitDefinition(traitInstanceData.id);
@@ -83,7 +82,7 @@ async function processTraitEvent(
 
 	for (const effectInstance of definition.effects) {
 		if (effectInstance.eventTrigger === eventKey) {
-			const targets = resolveTargets(source, actingPlayerId, effectInstance.targetSelector, state, scene, eventDetails?.primaryTarget || primaryTarget);
+			const targets = resolveTargets(source, actingPlayerId, effectInstance.targetSelector, state, scene, eventDetails?.primaryTarget);
 
 			const context: TraitEffectContext = {
 				sourceUnit: isUnitSource(source) ? source as Unit : undefined,
@@ -94,7 +93,7 @@ async function processTraitEvent(
 				traitInstanceParams: traitInstanceData,
 				scene,
 				state,
-				primaryTarget: eventDetails?.primaryTarget || primaryTarget,
+				primaryTarget: eventDetails?.primaryTarget,
 				attackDamage: eventDetails?.attackDamage,
 				isCritical: eventDetails?.isCritical,
 				evaded: eventDetails?.evaded,
@@ -131,7 +130,7 @@ async function processUnitTraitsForEvent(
 	if (!unit.traits) return; // Guard against units with no traits array
 	for (const traitData of unit.traits) {
 		// For units, the unit itself is the source, and its force is the actingPlayerId.
-		await processTraitEvent(unit, traitData, eventKey, scene, state, unit.force, eventDetails?.primaryTarget, eventDetails);
+		await processTraitEvent(unit, traitData, eventKey, scene, state, unit.force, eventDetails);
 	}
 }
 
