@@ -83,15 +83,21 @@ function isUnitSource(source: Unit | RelicStateObject): source is Unit {
  *                      - evaded: Whether an attack was evaded
  * @returns A promise that resolves when all trait effects have been processed
  */
-async function processTraitEvent(
-	source: Unit | RelicStateObject,
-	traitInstanceData: TraitData,
-	eventKey: string,
-	scene: BattlegroundScene,
-	state: State,
-	actingPlayerId: string, // ID of the player/force controlling the source
-	eventDetails?: TraitEventDetails
-) {
+/**
+ * Context object containing all parameters needed for processing a trait event
+ */
+interface TraitEventContext {
+	source: Unit | RelicStateObject;
+	traitInstanceData: TraitData;
+	eventKey: string;
+	scene: BattlegroundScene;
+	state: State;
+	actingPlayerId: string;
+	eventDetails?: TraitEventDetails;
+}
+
+async function processTraitEvent(context: TraitEventContext) {
+	const { source, traitInstanceData, eventKey, scene, state, actingPlayerId, eventDetails } = context;
 	const definition = getTraitDefinition(traitInstanceData.id);
 	if (!definition) {
 		console.warn(`Trait definition not found for ID: ${traitInstanceData.id} on ${isUnitSource(source) ? `Unit ${(source as Unit).id}` : `Relic ${source.id}`}`);
@@ -170,7 +176,15 @@ async function processUnitTraitsForEvent(
 	if (!unit.traits) return; // Guard against units with no traits array
 	for (const traitData of unit.traits) {
 		// For units, the unit itself is the source, and its force is the actingPlayerId.
-		await processTraitEvent(unit, traitData, eventKey, scene, state, unit.force, eventDetails);
+		await processTraitEvent({
+			source: unit,
+			traitInstanceData: traitData,
+			eventKey,
+			scene,
+			state,
+			actingPlayerId: unit.force,
+			eventDetails
+		});
 	}
 }
 
