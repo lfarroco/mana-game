@@ -99,13 +99,7 @@ async function processGlobalEventRelicTraits(
  */
 export function setupTraitEventListeners(scene: BattlegroundScene): void {
 
-	registerTraitListener<UnitEventKeys, UnitPayload>(
-		scene,
-		GameEvents.TRAIT_EVAL_UNIT_ACTION,
-		"onAction",
-		runUnitEventTraits
-	);
-	
+	// --- Handlers for Global Battle Events (Start/End) ---
 	scene.events.on(GameEvents.TRAIT_EVAL_GLOBAL_BATTLE_START, async (_payload: EmptyPayload) => {
 		const currentState = getState();
 		// Process for units
@@ -118,59 +112,49 @@ export function setupTraitEventListeners(scene: BattlegroundScene): void {
 		await processGlobalEventRelicTraits(scene, currentState, "onBattleStart");
 	});
 
-	registerTraitListener<UnitEventKeys, UnitPayload>(
-		scene,
-		GameEvents.TRAIT_EVAL_UNIT_ENTER_POSITION,
-		"onEnterPosition",
-		runUnitEventTraits
-	);
-	registerTraitListener<UnitEventKeys, UnitPayload>(
-		scene,
-		GameEvents.TRAIT_EVAL_UNIT_LEAVE_POSITION,
-		"onLeavePosition",
-		runUnitEventTraits
-	);
-	registerTraitListener<UnitEventKeys, UnitPayload>(
-		scene,
-		GameEvents.TRAIT_EVAL_UNIT_HALF_HP,
-		"onHalfHP",
-		runUnitEventTraits
-	);
-	registerTraitListener<UnitEventKeys, UnitPayload>(
-		scene,
-		GameEvents.TRAIT_EVAL_UNIT_DEATH,
-		"onDeath",
-		runUnitEventTraits
-	);
+	scene.events.on(GameEvents.TRAIT_EVAL_BATTLE_END, async (_payload: EmptyPayload) => {
+		const currentState = getState();
+		// Process for units
+		for (const unit of currentState.battleData.units) {
+			// Note: Original onBattleEnd did not filter by unit.hp > 0, preserving that behavior.
+			await runUnitEventTraits("onBattleEnd" as UnitEventKeys, scene, currentState, { unit });
+		}
+		// Process for player relics (added for consistency with onBattleStart)
+		await processGlobalEventRelicTraits(scene, currentState, "onBattleEnd");
+	});
 
-	registerTraitListener<AttackEventKeys, AttackContextPayload>(
-		scene,
-		GameEvents.TRAIT_EVAL_ATTACK_BY_ME,
-		"onAttackByMe",
-		runAttackEventTraits
-	);
+	// --- Mappings for runUnitEventTraits ---
+	const unitEventMappings: { gameEvent: string, traitKey: UnitEventKeys }[] = [
+		{ gameEvent: GameEvents.TRAIT_EVAL_UNIT_ACTION, traitKey: "onAction" },
+		{ gameEvent: GameEvents.TRAIT_EVAL_UNIT_ENTER_POSITION, traitKey: "onEnterPosition" },
+		{ gameEvent: GameEvents.TRAIT_EVAL_UNIT_LEAVE_POSITION, traitKey: "onLeavePosition" },
+		{ gameEvent: GameEvents.TRAIT_EVAL_UNIT_HALF_HP, traitKey: "onHalfHP" },
+		{ gameEvent: GameEvents.TRAIT_EVAL_UNIT_DEATH, traitKey: "onDeath" },
+		{ gameEvent: GameEvents.TRAIT_EVAL_ALLIED_ACTION, traitKey: "onAlliedAction" },
+		{ gameEvent: GameEvents.TRAIT_EVAL_TURN_START, traitKey: "onTurnStart" },
+		{ gameEvent: GameEvents.TRAIT_EVAL_TURN_END, traitKey: "onTurnEnd" },
+	];
+	unitEventMappings.forEach(mapping => {
+		registerTraitListener<UnitEventKeys, UnitPayload>(
+			scene, mapping.gameEvent, mapping.traitKey, runUnitEventTraits
+		);
+	});
 
-	registerTraitListener<UnitEventWithTargetKeys, DefenderAttackerPayload | UnitKillPayload>(
-		scene,
-		GameEvents.TRAIT_EVAL_DEFEND_BY_ME,
-		"onDefendByMe",
-		runUnitEventWithTargetTraits
-	);
-	registerTraitListener<UnitEventWithTargetKeys, DefenderAttackerPayload | UnitKillPayload>(
-		scene,
-		GameEvents.TRAIT_EVAL_EVADE_BY_ME,
-		"onEvadeByMe",
-		runUnitEventWithTargetTraits
-	);
+	// --- Mappings for runAttackEventTraits ---
+	const attackEventMappings: { gameEvent: string, traitKey: AttackEventKeys }[] = [
+		{ gameEvent: GameEvents.TRAIT_EVAL_ATTACK_BY_ME, traitKey: "onAttackByMe" },
+		{ gameEvent: GameEvents.TRAIT_EVAL_AFTER_ATTACK_BY_ME, traitKey: "onAfterAttackByMe" },
+	];
+	attackEventMappings.forEach(mapping => {
+		registerTraitListener<AttackEventKeys, AttackContextPayload>(
+			scene, mapping.gameEvent, mapping.traitKey, runAttackEventTraits
+		);
+	});
 
-	registerTraitListener<AttackEventKeys, AttackContextPayload>(
-		scene,
-		GameEvents.TRAIT_EVAL_AFTER_ATTACK_BY_ME,
-		"onAfterAttackByMe",
-		runAttackEventTraits
-	);
-
+	// --- Mappings for runUnitEventWithTargetTraits ---
 	const unitEventWithTargetMappings: { gameEvent: string, traitKey: UnitEventWithTargetKeys }[] = [
+		{ gameEvent: GameEvents.TRAIT_EVAL_DEFEND_BY_ME, traitKey: "onDefendByMe" },
+		{ gameEvent: GameEvents.TRAIT_EVAL_EVADE_BY_ME, traitKey: "onEvadeByMe" },
 		{ gameEvent: GameEvents.TRAIT_EVAL_UNIT_KILL_BY_ME, traitKey: "onUnitKillByMe" },
 		{ gameEvent: GameEvents.TRAIT_EVAL_UNIT_KILL, traitKey: "onUnitKill" },
 		{ gameEvent: GameEvents.TRAIT_EVAL_ALLIED_KILLED, traitKey: "onAlliedKilled" },
@@ -183,20 +167,5 @@ export function setupTraitEventListeners(scene: BattlegroundScene): void {
 			mapping.traitKey,
 			runUnitEventWithTargetTraits
 		);
-	});
-
-	registerTraitListener<UnitEventKeys, UnitPayload>(scene, GameEvents.TRAIT_EVAL_ALLIED_ACTION, "onAlliedAction", runUnitEventTraits);
-	registerTraitListener<UnitEventKeys, UnitPayload>(scene, GameEvents.TRAIT_EVAL_TURN_START, "onTurnStart", runUnitEventTraits);
-	registerTraitListener<UnitEventKeys, UnitPayload>(scene, GameEvents.TRAIT_EVAL_TURN_END, "onTurnEnd", runUnitEventTraits);
-
-	scene.events.on(GameEvents.TRAIT_EVAL_BATTLE_END, async (_payload: EmptyPayload) => {
-		const currentState = getState();
-		// Process for units
-		for (const unit of currentState.battleData.units) {
-			// Note: Original onBattleEnd did not filter by unit.hp > 0, preserving that behavior.
-			await runUnitEventTraits("onBattleEnd" as UnitEventKeys, scene, currentState, { unit });
-		}
-		// Process for player relics (added for consistency with onBattleStart)
-		await processGlobalEventRelicTraits(scene, currentState, "onBattleEnd");
 	});
 }
