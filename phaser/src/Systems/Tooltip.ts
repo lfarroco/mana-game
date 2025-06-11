@@ -64,6 +64,8 @@ export class Tooltip {
 	 * Optional: Or adjust as needed based on typical content length.
 	 */
 	private static readonly MAX_TOOLTIP_HEIGHT = 400;
+	/** Minimum width for the description text's word wrapping. */
+	private static readonly MIN_CONTENT_WIDTH = 100; // Min width for description text wrap
 	/** Target character limit for breaking lines in the description. */
 	private static readonly DESCRIPTION_LINE_CHAR_LIMIT = 40;
 
@@ -236,6 +238,14 @@ export class Tooltip {
 		const titleActualWidth = this.titleText.width;
 		const titleActualHeight = this.titleText.height;
 
+		const maxContentAreaWidth = Tooltip.MAX_TOOLTIP_WIDTH - (2 * Tooltip.PADDING);
+
+		// This wrap width is the target for the entire description block
+		const newDescriptionWrapWidth = Phaser.Math.Clamp(
+			Math.max(titleActualWidth, Tooltip.MIN_CONTENT_WIDTH), // Ensure description has at least min_content_width or title width
+			Tooltip.MIN_CONTENT_WIDTH,
+			maxContentAreaWidth
+		);
 
 		// For simplicity, let's assume description content/layout changes if description string or its available width changes.
 		// A more sophisticated check could compare old wrap width with new.
@@ -254,33 +264,24 @@ export class Tooltip {
 
 		if (needsFullLayoutUpdate) {
 			// --- Layout Description Segments ---
-			// Segments in this.descriptionTextSegments are already pre-split by _rebuildDescriptionSegments
-			// to have a text length <= Tooltip.DESCRIPTION_LINE_CHAR_LIMIT (or less if word-broken).
-			// Now, we lay them out, forming lines based on character count.
-			let currentLineX = 0; // Tracks visual X position on the current line
-			let currentLineY = 0; // Tracks visual Y position (top of current line)
-			let currentLineMaxSegmentHeight = 0; // Max height of segments on current line
-			let currentLineCharCount = 0; // Tracks character count on current line
-
-			descActualWidth = 0; // Will store the maximum visual width encountered for any line
+			// This is a simplified layout: horizontally sequential, basic wrap.
+			// A full rich text layout is more complex.
+			let currentSegmentX = 0;
+			let currentSegmentY = 0;
+			let currentLineHeight = 0;
 
 			this.descriptionTextSegments.forEach(segment => {
-				const segmentCharLength = segment.text.length;
-
-				// If current line has content and adding this segment exceeds char limit, start new line.
-				if (currentLineCharCount > 0 && currentLineCharCount + segmentCharLength > Tooltip.DESCRIPTION_LINE_CHAR_LIMIT) {
-					currentLineX = 0;
-					currentLineY += currentLineMaxSegmentHeight;
-					currentLineMaxSegmentHeight = 0;
-					currentLineCharCount = 0;
+				if (currentSegmentX !== 0 && currentSegmentX + segment.width > newDescriptionWrapWidth) {
+					currentSegmentX = 0;
+					currentSegmentY += currentLineHeight;
+					currentLineHeight = 0;
 				}
-				segment.setPosition(currentLineX, currentLineY); // Position relative to description block's start
-				currentLineX += segment.width; // Advance X by visual width
-				currentLineMaxSegmentHeight = Math.max(currentLineMaxSegmentHeight, segment.height);
-				currentLineCharCount += segmentCharLength;
-				descActualWidth = Math.max(descActualWidth, currentLineX); // Update max line width
+				segment.setPosition(currentSegmentX, currentSegmentY); // Relative to description block's start
+				currentSegmentX += segment.width;
+				currentLineHeight = Math.max(currentLineHeight, segment.height);
+				descActualWidth = Math.max(descActualWidth, currentSegmentX);
 			});
-			descActualHeight = currentLineY + currentLineMaxSegmentHeight; // Total height of description block
+			descActualHeight = currentSegmentY + currentLineHeight;
 			// --- End Description Layout ---
 
 			const finalContentWidth = Math.max(titleActualWidth, descActualWidth);
