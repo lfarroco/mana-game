@@ -51,10 +51,15 @@ export type TraitData = { // This is an *instance* of a trait on a unit/relic
  * Minimal representation of a Relic object as stored in the game state,
  * sufficient for trait processing when a relic is the source.
  * The actual Relic type from `state.gameData.player.relics` should conform to this.
+ * This is used by `processTraitEvent` when the `source` is a relic.
  */
 export interface RelicStateObject {
+	/** The unique identifier of the relic. */
 	id: string; // Relic's unique ID
+	/** The force ID of the player who owns this relic. */
 	forceId: string; // Force/player ID that owns this relic
+	// Other properties like `name` or `pic` are not strictly required for trait processing itself
+	// but might be part of the full Relic object in the game state.
 	// pic?: string; // Optional: for context if needed by effects
 	// name?: string; // Optional: for context
 }
@@ -62,9 +67,13 @@ export interface RelicStateObject {
  * Optional details specific to an event that might be needed for trait processing.
  */
 interface TraitEventDetails {
+	/** The primary target unit of the event, if applicable (e.g., target of a skill). */
 	primaryTarget?: Unit;
+	/** The amount of damage dealt in an attack, if the event is attack-related. */
 	attackDamage?: number;
+	/** Whether an attack was critical, if the event is attack-related. */
 	isCritical?: boolean;
+	/** Whether an attack was evaded, if the event is attack-related. */
 	evaded?: boolean;
 }
 
@@ -75,26 +84,25 @@ function isUnitSource(source: Unit | RelicStateObject): source is Unit {
 
 /**
  * Processes a trait event for a given source (Unit or Relic) by executing any matching effects.
- * This function is the core of the trait system, handling the execution of trait effects based on triggered events.
- * 
- * @param source - The unit or relic that is the source of the trait effect
- * @param traitInstanceData - The specific instance data of the trait being processed
- * @param eventKey - The event that triggered this trait processing (e.g., "onAttack", "onDeath")
- * @param scene - The current BattlegroundScene instance for game state manipulation
- * @param state - The current game state
- * @param actingPlayerId - ID of the player/force controlling the source
- * @param eventDetails - Optional details specific to the triggering event:
- *                      - primaryTarget: The main target unit of the event
- *                      - attackDamage: The amount of damage dealt in an attack
- *                      - isCritical: Whether an attack was critical
- *                      - evaded: Whether an attack was evaded
- * @returns A promise that resolves when all trait effects have been processed
+ * This function is the heart of the trait system. It:
+ * 1. Retrieves the trait definition.
+ * 2. Iterates through the effects defined for that trait.
+ * 3. For each effect, checks if it matches the current `eventKey`.
+ * 4. If it matches, resolves the targets for the effect.
+ * 5. Creates a `TraitEffectContext` with all necessary information.
+ * 6. Checks any conditions defined for the effect.
+ * 7. If conditions pass, retrieves and executes the effect's implementation.
+ *
+ * @param context - An object containing all necessary parameters for processing the event.
+ * @returns A promise that resolves when all relevant trait effects for this event have been processed.
  */
 /**
- * Context object containing all parameters needed for processing a trait event
+ * Context object containing all parameters needed for processing a trait event via `processTraitEvent`.
  */
 interface TraitEventContext {
+	/** The unit or relic that is the source of the trait effect. */
 	source: Unit | RelicStateObject;
+	/** The specific instance data of the trait being processed (e.g., from `unit.traits` or `relic.traits`). */
 	traitInstanceData: TraitData;
 	eventKey: string;
 	scene: BattlegroundScene;
@@ -194,13 +202,10 @@ async function processUnitTraitsForEvent(
 }
 
 /**
- * Processes traits for a unit that are triggered by general unit events.
- * @param eventKey - The specific unit event key (e.g., "onAction", "onDeath").
- * @param scene - The current BattlegroundScene instance.
- * @param state - The current game state.
- * @param unit - The unit whose traits are being processed.
- */
-/**
+ * Processes traits for a unit based on a simple `UnitPayload`.
+ * These are typically events where the unit itself is the primary actor or subject.
+ *
+ * @param eventKey The specific `UnitEventKeys` (e.g., "onAction", "onDeath").
  * @internal
  * Processes traits for a unit based on a UnitPayload.
  */
@@ -215,17 +220,10 @@ export const runUnitEventTraits = async (eventKey: UnitEvents_.UnitEventKeys, sc
 	});
 };
 /**
- * Processes traits for a unit that are triggered by attack-related events.
- * @param eventKey - The specific attack event key (e.g., "onAttackByMe", "onAfterAttackByMe").
- * @param scene - The current BattlegroundScene instance.
- * @param state - The current game state.
- * @param unit - The attacking unit.
- * @param target - The target unit of the attack.
- * @param damage - The damage dealt by the attack.
- * @param isCritical - Whether the attack was a critical hit.
- * @param evaded - Whether the attack was evaded.
- */
-/**
+ * Processes traits for an attacking unit based on a full `AttackContextPayload`.
+ * These events provide detailed information about an attack.
+ *
+ * @param eventKey The specific `AttackEventKeys` (e.g., "onAttackByMe", "onAfterAttackByMe").
  * @internal
  * Processes traits for an attacking unit based on an AttackContextPayload.
  */
@@ -238,14 +236,6 @@ export const runAttackEventTraits = async (eventKey: UnitEvents_.AttackEventKeys
 	});
 };
 
-/**
- * Processes traits for a unit that are triggered by unit events involving a target.
- * @param eventKey - The specific unit event key with a target (e.g., "onDefendByMe", "onUnitKillByMe").
- * @param scene - The current BattlegroundScene instance.
- * @param state - The current game state.
- * @param unit - The unit whose traits are being processed (often the source of the event).
- * @param target - The target unit involved in the event.
- */
 
 /** @internal */
 export type UnitEventWithTargetPayload = DefenderAttackerPayload | UnitKillPayload;
@@ -254,7 +244,9 @@ export type UnitEventWithTargetPayload = DefenderAttackerPayload | UnitKillPaylo
  * @internal
  * Processes traits for a unit involved in an event with another target unit,
  * based on a UnitEventWithTargetPayload.
- * `payload.unit` is always the unit whose traits are being processed.
+ * `payload.unit` is always the unit whose traits are being processed (the "me" in "onDefendByMe" or "onUnitKillByMe").
+ * The `primaryTargetForEvent` is determined based on the specific event type and payload structure.
+ * @param eventKey The specific `UnitEventWithTargetKeys`.
  */
 export const runUnitEventWithTargetTraits = async (eventKey: UnitEvents_.UnitEventWithTargetKeys, scene: BattlegroundScene, state: State, payload: UnitEventWithTargetPayload) => {
 	let primaryTargetForEvent: Unit | undefined;

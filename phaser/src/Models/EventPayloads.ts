@@ -1,3 +1,7 @@
+/**
+ * @file Defines the data structures (payloads) for various game events,
+ * particularly those relevant to the Trait System.
+ */
 import { Unit } from "./Unit";
 
 /**

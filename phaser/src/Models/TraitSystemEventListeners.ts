@@ -26,6 +26,12 @@ import {
 
 /**
  * Generic type for the functions that run trait evaluations (e.g., runUnitEventTraits).
+ * @template K - The type of the event key (e.g., UnitEventKeys, AttackEventKeys).
+ * @template P - The type of the payload associated with the event.
+ * @param eventKey - The specific trait event key.
+ * @param scene - The BattlegroundScene instance.
+ * @param state - The current game state.
+ * @param payload - The event payload.
  */
 type TraitRunFunction<K, P> = (
 	eventKey: K,
@@ -36,10 +42,12 @@ type TraitRunFunction<K, P> = (
 
 /**
  * Generic helper to register a trait event listener.
+ * It connects a game event to a specific trait processing function.
+ *
  * @param scene The BattlegroundScene instance.
  * @param gameEvent The GameEvent constant from `GameEvents`.
  * @param traitEventKey The specific trait event key (e.g., "onAction", "onAttackByMe").
- * @param runTraitsFn The function to call to process the traits for this event.
+ * @param runTraitsFn The `TraitRunFunction` to call to process the traits for this event.
  */
 function registerTraitListener<K, P>(
 	scene: BattlegroundScene,
@@ -54,9 +62,12 @@ function registerTraitListener<K, P>(
 
 /**
  * Helper to process traits for all player relics for a given global event.
+ * This iterates through the player's active relics and triggers their traits
+  * based on the provided `eventKey`.
+ *
  * @param scene The BattlegroundScene instance.
  * @param currentState The current game state.
- * @param eventKey The specific trait event key (e.g., "onBattleStart", "onBattleEnd").
+ * @param eventKey The specific global trait event key (e.g., "onBattleStart", "onBattleEnd").
  */
 async function processGlobalEventRelicTraits(
 	scene: BattlegroundScene,

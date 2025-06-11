@@ -1,3 +1,8 @@
+/**
+ * @file Contains the actual implementations for various trait effects.
+ * Each function defined here corresponds to an `effectId` that can be used
+ * in `TraitDefinition`s. These functions are registered with the `TraitEffectSystem`.
+ */
 import {
 	TraitEffectFn,
 	registerTraitEffectImplementation,
@@ -20,13 +25,18 @@ import { RelicStateObject } from "../../Models/Traits";
 
 // --- Higher-Order Function for Source Unit Requirement ---
 
-// Type for effect functions that are guaranteed to have a sourceUnit
+/**
+ * Type for effect functions that are guaranteed to have `sourceUnit` in their context.
+ * This is used internally by `requireSourceUnit` for type safety.
+ */
 type SourceUnitGuaranteedEffectFn = (
 	context: TraitEffectContext & { sourceUnit: Unit }
 ) => Promise<void>;
 
 /**
  * Higher-order function to wrap TraitEffectFns that require a sourceUnit.
+ * It performs a runtime check for `context.sourceUnit`. If missing, it logs an error
+ * (in development) and prevents the wrapped function from executing.
  * It checks for sourceUnit and logs an error if it's missing.
  */
 function requireSourceUnit(effectFn: SourceUnitGuaranteedEffectFn): TraitEffectFn {
@@ -47,13 +57,18 @@ function requireSourceUnit(effectFn: SourceUnitGuaranteedEffectFn): TraitEffectF
 
 // --- Higher-Order Function for Source Relic Requirement ---
 
-// Type for effect functions that are guaranteed to have a sourceRelic
+/**
+ * Type for effect functions that are guaranteed to have `sourceRelic` in their context.
+ * This is used internally by `requireSourceRelic` for type safety.
+ */
 type SourceRelicGuaranteedEffectFn = (
 	context: TraitEffectContext & { sourceRelic: RelicStateObject }
 ) => Promise<void>;
 
 /**
  * Higher-order function to wrap TraitEffectFns that require a sourceRelic.
+ * It performs a runtime check for `context.sourceRelic`. If missing, it logs an error
+ * (in development) and prevents the wrapped function from executing.
  * It checks for sourceRelic and logs an error if it's missing.
  */
 function requireSourceRelic(effectFn: SourceRelicGuaranteedEffectFn): TraitEffectFn {
@@ -74,6 +89,10 @@ function requireSourceRelic(effectFn: SourceRelicGuaranteedEffectFn): TraitEffec
 
 // --- Effect Implementations ---
 
+/**
+ * Effect: Grants a specified amount of gold to the player.
+ * Requires `sourceUnit` to determine the player's force.
+ */
 const grantGoldToPlayerLogic: SourceUnitGuaranteedEffectFn = async (context) => {
 	const { sourceUnit, effectInstance, traitInstanceParams, scene } = context;
 	// Allow amount from effectInstance (definition) or traitInstanceParams (instance on unit/relic)
@@ -85,6 +104,10 @@ const grantGoldToPlayerLogic: SourceUnitGuaranteedEffectFn = async (context) => 
 	}
 };
 
+/**
+ * Effect: Deals damage to target units.
+ * Requires `sourceUnit`. The actual damage calculation might be more complex in a full implementation.
+ */
 const dealDamageLogic: SourceUnitGuaranteedEffectFn = async (context) => {
 	const { sourceUnit, targets, effectInstance, traitInstanceParams, scene } = context;
 	const baseAmount = (traitInstanceParams.amount ?? effectInstance.amount ?? 0) as number;
@@ -102,39 +125,65 @@ const dealDamageLogic: SourceUnitGuaranteedEffectFn = async (context) => {
 	}
 };
 
+/**
+ * Effect: Makes the source unit perform the "slash" skill.
+ * Requires `sourceUnit`.
+ */
 const performSkillSlashLogic: SourceUnitGuaranteedEffectFn = async (context) => {
 	const { sourceUnit, scene } = context;
 	// Assuming 'slash' skill takes scene and unit
 	await slash(scene, sourceUnit);
 };
 
+/**
+ * Effect: Makes the source unit perform the "shoot" skill.
+ * Requires `sourceUnit`.
+ */
 const performSkillShootLogic: SourceUnitGuaranteedEffectFn = async (context) => {
 	const { sourceUnit, scene } = context;
 	await shoot(scene)(sourceUnit);
 };
 
+/**
+ * Effect: Makes the source unit perform the "heal" skill.
+ * Requires `sourceUnit`.
+ */
 const performSkillHealLogic: SourceUnitGuaranteedEffectFn = async (context) => {
 	const { sourceUnit, scene } = context;
 	await healing(scene)(sourceUnit);
 };
 
+/**
+ * Effect: Makes the source unit perform the "healing wave" skill.
+ * Requires `sourceUnit`.
+ */
 const performSkillHealingWaveLogic: SourceUnitGuaranteedEffectFn = async (context) => {
 	const { sourceUnit, scene } = context;
 	await healingWave(scene, sourceUnit);
 };
 
+/**
+ * Effect: Makes the source unit perform the "arcane missiles" skill.
+ * Requires `sourceUnit`. Can take `projectiles` parameter from trait/effect data.
+ */
 const performSkillArcaneMissilesLogic: SourceUnitGuaranteedEffectFn = async (context) => {
 	const { sourceUnit, scene, traitInstanceParams, effectInstance } = context;
-	// Arcane missiles might take specific data from the trait instance or effect definition
 	const projectiles = traitInstanceParams.projectiles ?? effectInstance.projectiles ?? 3;
 	await arcaneMissiles(scene)(sourceUnit, projectiles);
 };
 
+/**
+ * Effect: Makes the source unit perform the "haste" skill.
+ * Requires `sourceUnit`.
+ */
 const performSkillHasteLogic: SourceUnitGuaranteedEffectFn = async (context) => {
 	const { sourceUnit, scene } = context;
 	await haste(scene, sourceUnit);
 };
-
+/**
+ * Effect: Makes the source unit perform the "slow" skill.
+ * Requires `sourceUnit`.
+ */
 const performSkillSlowLogic: SourceUnitGuaranteedEffectFn = async (context) => {
 	const { sourceUnit, scene } = context;
 	await slow(scene, sourceUnit);
@@ -142,13 +191,14 @@ const performSkillSlowLogic: SourceUnitGuaranteedEffectFn = async (context) => {
 
 const performSkillSummonLogic: SourceUnitGuaranteedEffectFn = async (context) => {
 	const { sourceUnit, traitInstanceParams, effectInstance } = context;
+	/**
+	 * Effect: Makes the source unit perform the "summon" skill.
+	 * Requires `sourceUnit` and a `cardIdToSummon` parameter from trait/effect data.
+	 */
 	const cardIdToSummon = traitInstanceParams.cardIdToSummon ?? effectInstance.cardIdToSummon as string;
 	const chara = getChara(sourceUnit.id);
 
 	if (chara && cardIdToSummon) {
-		// The summon skill needs the chara, and the cardId of what to summon.
-		// The original summon skill in Traits.ts took (chara, data.summonId)
-		// where data was the TraitData. So data.summonId is cardIdToSummon here.
 		await summon(chara, cardIdToSummon);
 	} else {
 		console.warn(`Summon effect: Chara for sourceUnit ${sourceUnit.id} not found, or cardIdToSummon missing. Card ID: ${cardIdToSummon}`);
@@ -156,6 +206,10 @@ const performSkillSummonLogic: SourceUnitGuaranteedEffectFn = async (context) =>
 };
 
 
+/**
+ * Effect: Modifies the cooldowns of target units by a percentage.
+ * Requires `sourceRelic`. Expects a `percent` parameter for reduction.
+ */
 const modifyUnitCooldownsLogic: SourceRelicGuaranteedEffectFn = async (context) => {
 	const { targets, effectInstance, traitInstanceParams, sourceRelic } = context;
 	const percentReduction = (traitInstanceParams.percent ?? effectInstance.percent ?? 0) as number;
@@ -171,6 +225,10 @@ const modifyUnitCooldownsLogic: SourceRelicGuaranteedEffectFn = async (context) 
 	});
 };
 
+/**
+ * Effect: Modifies the maximum HP of target units by a percentage.
+ * Requires `sourceRelic`. Expects a `percent` parameter for increase.
+ */
 const modifyUnitMaxHpLogic: SourceRelicGuaranteedEffectFn = async (context) => {
 	const { targets, effectInstance, traitInstanceParams, sourceRelic } = context;
 	const percentIncrease = (traitInstanceParams.percent ?? effectInstance.percent ?? 0) as number;
@@ -192,7 +250,10 @@ const modifyUnitMaxHpLogic: SourceRelicGuaranteedEffectFn = async (context) => {
 };
 
 
-// Register all effect implementations
+/**
+ * Registers all defined trait effect implementations with the TraitEffectSystem.
+ * This function should be called once during game initialization.
+ */
 export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("grant_gold_to_player", requireSourceUnit(grantGoldToPlayerLogic));
 	registerTraitEffectImplementation("deal_damage", requireSourceUnit(dealDamageLogic));
