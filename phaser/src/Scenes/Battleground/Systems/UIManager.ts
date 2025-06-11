@@ -3,7 +3,6 @@ import * as constants from "../constants";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { tween } from "../../../Utils/animation";
 import { COLOR_BLACK } from "../../../Utils/colors";
-import { playerForce } from "../../../Models/Force";
 import { Tooltip } from "../../../Systems/Tooltip";
 import { GoldCoinAnimator } from "./GoldCoinAnimator";
 import { GameEvents } from "../../../constants/events";
@@ -34,6 +33,7 @@ export class UIManager {
 	 */
 	constructor(scene: BattlegroundScene) {
 		this.scene = scene;
+		this.goldCoinAnimator = new GoldCoinAnimator(this.scene, this.scene.state);
 		this._setupGoldChangeListener();
 		this._setupPurchaseFailedListener();
 		this.tooltip = new Tooltip(scene)
@@ -76,10 +76,12 @@ export class UIManager {
 	private _handleGoldChanged(newTotalGold: number, goldDelta: number): void {
 		if (this.goldTextElement) {
 			this.goldTextElement.setText("Gold: " + newTotalGold);
+			if (goldDelta !== 0) { // Play animation only if there's a change
+				this.goldChangeAnimation(goldDelta);
+			}
 		}
-		if (goldDelta !== 0) { // Play animation only if there's a change
-			this.goldChangeAnimation(goldDelta);
-		}
+		// If goldTextElement is null, the text will be set when _createGoldText is called.
+		// The animation for this specific change is skipped.
 	}
 
 	/**
@@ -109,8 +111,7 @@ export class UIManager {
 	 * @param parent The `Phaser.GameObjects.Container` to which the gold text will be added.
 	 */
 	private _createGoldText(parent: Phaser.GameObjects.Container): void {
-		// Assuming playerForce is the correct way to get player's gold initially
-		const initialGold = playerForce.gold; // Or getState().gameData.player.gold;
+		const initialGold = this.scene.state.gameData.player.gold;
 		this.goldTextElement = this.scene.add.text(
 			constants.SCREEN_WIDTH - 120,
 			constants.SCREEN_HEIGHT - 100,
@@ -181,11 +182,12 @@ export class UIManager {
 	 * @param gold The amount of gold that changed (positive for gain, negative for loss).
 	 */
 	public async goldChangeAnimation(gold: number): Promise<void> {
+		// This method is now only called if this.goldTextElement is not null (see _handleGoldChanged).
 		const sign = gold > 0 ? "+" : "";
 		const animationText = `${sign}${gold}`;
 
-		const startX = this.goldTextElement ? this.goldTextElement.x + this.goldTextElement.width / 2 : constants.SCREEN_WIDTH - 100;
-		const startY = this.goldTextElement ? this.goldTextElement.y + this.goldTextElement.height / 2 : constants.SCREEN_HEIGHT - 150; // Adjusted default Y
+		const startX = this.goldTextElement!.x + this.goldTextElement!.width / 2;
+		const startY = this.goldTextElement!.y + this.goldTextElement!.height / 2;
 
 		const goldAmountText = this.scene.add.text(
 			startX,
@@ -198,7 +200,7 @@ export class UIManager {
 		await tween({
 			targets: [goldAmountText],
 			alpha: 1,
-			scale: this.goldTextElement ? 1.2 : 1.5,
+			scale: 1.2, // Was: this.goldTextElement ? 1.2 : 1.5
 			y: startY - 30, // Move upwards from the goldText position
 		});
 
@@ -227,6 +229,10 @@ export class UIManager {
 		x: number, y: number,
 	): Promise<void> {
 		this.goldChangeAnimation(gold); // UI feedback
+		if (!this.goldCoinAnimator) {
+			console.error("UIManager: GoldCoinAnimator not initialized. Cannot play coin drop animation.");
+			return;
+		}
 		await this.goldCoinAnimator.animateCoinDrop(coins, x, y);
 	}
 }
