@@ -38,19 +38,6 @@ export const LINES: {
 	}
 }
 
-export const isInFrontline = (unit: Unit): boolean => {
-	const frontline = LINES[unit.force].FRONT;
-	return unit.position.y === frontline;
-}
-export const isInMiddleline = (unit: Unit): boolean => {
-	const middleline = LINES[unit.force].MIDDLE;
-	return unit.position.y === middleline;
-}
-export const isInBackline = (unit: Unit): boolean => {
-	const backline = LINES[unit.force].BACK;
-	return unit.position.y === backline;
-}
-
 export const TRAIT_CATEGORY_PERSONALITY = "personality" as TraitCategory;
 export const TRAIT_CATEGORY_OFFENSIVE = "offensive" as TraitCategory;
 export const TRAIT_CATEGORY_SUPPORT = "support" as TraitCategory;
