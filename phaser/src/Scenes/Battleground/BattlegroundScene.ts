@@ -116,23 +116,24 @@ export class BattlegroundScene extends Phaser.Scene {
     this.collection = this.cache.json.get("base-collection") as CardCollection;
 
     if (!BattlegroundScene.runtimeDataInitialized) {
-      console.log("Performing one-time runtime data initialization.");
+      if (process.env.NODE_ENV === 'development') {
+        console.log("Performing one-time runtime data initialization.");
+      }
       registerCollection(this.collection);
       TraitSystem.initializeTraitsFromData(this.collection.traits);
       BattlegroundScene.runtimeDataInitialized = true;
     }
 
     // Load card and relic images dynamically every time create is called (Phaser handles caching)
-    this.collection.cards.forEach(card => {
+    const loadAsset = (asset: { name: string, pic: string }, type: string) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`Loading ${type} asset: ${asset.name} - ${asset.pic}`);
+      }
+      this.load.image(asset.pic, asset.pic); // Use asset.pic as key and path
+    };
 
-      console.log("loading card", card.name, card.pic);
-      this.load.image(card.pic, card.pic);
-    });
-
-    this.collection.relics.forEach(relic => {
-      console.log("loading relic", relic.name, relic.pic);
-      this.load.image(relic.pic, relic.pic);
-    });
+    this.collection.cards.forEach(card => loadAsset(card, "card"));
+    this.collection.relics.forEach(relic => loadAsset(relic, "relic"));
 
     this.load.once("complete", () => {
       console.log("Asset loading complete for BattlegroundScene.");
@@ -303,27 +304,30 @@ export class BattlegroundScene extends Phaser.Scene {
     this.openShopPhase();
   }
 
+  private async handleRoundVictory(enemiesDefeated: Unit[]): Promise<void> {
+    console.log("Round", this.state.gameData.round, "Processing Victory...");
+    await delay(this, POST_COMBAT_DELAY);
+    await battleResultAnimation(this, "victory");
+    updatePlayerGoldIO(this, VICTORY_GOLD_REWARD);
+    this.resetPlayerUnitsForNewRound();
+    this.resetPlayerUnitChargeBars();
+    this.setAllPlayerUnitBarsVisibility(false);
+    await this.awardXPAndHandleLevelUps(enemiesDefeated.length);
+
+    this.state.battleData.units = []; // Clear units from battle state
+    this.state.gameData.round++; // Increment round after victory
+  }
+
   private async openShopPhase(payload?: { enemiesDefeated: Unit[] }) {
     // This method is called after victory or at the start of the game.
     if (payload && payload.enemiesDefeated) { // Indicates coming from a victory
-      console.log("Round", this.state.gameData.round, "Processing Victory...");
-      await delay(this, POST_COMBAT_DELAY);
-      await battleResultAnimation(this, "victory");
-      updatePlayerGoldIO(this, VICTORY_GOLD_REWARD);
-      this.resetPlayerUnitsForNewRound();
-      this.resetPlayerUnitChargeBars();
-      this.setAllPlayerUnitBarsVisibility(false);
-      await this.awardXPAndHandleLevelUps(payload.enemiesDefeated.length);
-
-      this.state.battleData.units = []; // Clear units from battle state
-      this.state.gameData.round++; // Increment round after victory
+      await this.handleRoundVictory(payload.enemiesDefeated);
     }
-
-    console.log("Round", this.state.gameData.round, "Shop Phase Starting");
+    // Log current round for shop phase
+    console.log("Round", this.state.gameData.round, "Shop Phase Starting.");
     if (this.playerBoard) this.playerBoard.display();
     await this.shop.open(); // Shop emits SHOP_PHASE_ENDED when done
   }
-
   private async startNextRound() {
     console.log("Round", this.state.gameData.round, "Combat Phase");
 
