@@ -167,5 +167,197 @@
 				"Hoodlum Hawkeye"
 			]
 		}
+	],
+	"traits": [
+		{
+			"id": "taunt",
+			"name": "Taunt",
+			"description": "If in range, enemies will attack this unit.",
+			"categories": [
+				"defensive",
+				"personality"
+			],
+			"effects": []
+		},
+		{
+			"id": "ranged",
+			"name": "Ranged",
+			"description": "This unit has a ranged attack.",
+			"categories": [
+				"offensive"
+			],
+			"effects": [
+				{
+					"effectId": "skill_shoot",
+					"eventTrigger": "onAction"
+				}
+			]
+		},
+		{
+			"id": "melee",
+			"name": "Melee",
+			"description": "This unit has a melee attack.",
+			"categories": [
+				"offensive"
+			],
+			"effects": [
+				{
+					"effectId": "skill_slash",
+					"eventTrigger": "onAction"
+				}
+			]
+		},
+		{
+			"id": "heal_action",
+			"name": "Heal Action",
+			"description": "This unit can heal an ally.",
+			"categories": [
+				"support"
+			],
+			"effects": [
+				{
+					"effectId": "skill_heal",
+					"eventTrigger": "onAction"
+				}
+			]
+		},
+		{
+			"id": "healing_wave_action",
+			"name": "Healing Wave Action",
+			"description": "Heals multiple allies.",
+			"categories": [
+				"support"
+			],
+			"effects": [
+				{
+					"effectId": "skill_healing_wave",
+					"eventTrigger": "onAction"
+				}
+			]
+		},
+		{
+			"id": "arcane_missiles_action",
+			"name": "Arcane Missiles Action",
+			"description": "Shoots multiple arcane missiles.",
+			"categories": [
+				"offensive"
+			],
+			"effects": [
+				{
+					"effectId": "skill_arcane_missiles",
+					"eventTrigger": "onAction"
+				}
+			]
+		},
+		{
+			"id": "haste_action",
+			"name": "Haste Action",
+			"description": "Hastes surrounding allies.",
+			"categories": [
+				"support"
+			],
+			"effects": [
+				{
+					"effectId": "skill_haste",
+					"eventTrigger": "onAction"
+				}
+			]
+		},
+		{
+			"id": "slow_action",
+			"name": "Slow Action",
+			"description": "Slows an enemy.",
+			"categories": [
+				"defensive",
+				"offensive"
+			],
+			"effects": [
+				{
+					"effectId": "skill_slow",
+					"eventTrigger": "onAction"
+				}
+			]
+		},
+		{
+			"id": "plunder",
+			"name": "Plunder",
+			"description": "When this unit attacks, gain 1 gold.",
+			"categories": [
+				"economy"
+			],
+			"effects": [
+				{
+					"effectId": "grant_gold_to_player",
+					"eventTrigger": "onAttackByMe",
+					"amount": 1,
+					"conditions": [
+						{
+							"type": "is_player_unit"
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "summon_action",
+			"name": "Summon Action",
+			"description": "Summons a unit.",
+			"categories": [
+				"companion"
+			],
+			"effects": [
+				{
+					"effectId": "skill_summon",
+					"eventTrigger": "onAction"
+				}
+			]
+		},
+		{
+			"id": "relic_golden_touch",
+			"name": "Golden Touch (Relic)",
+			"description": "Grants gold at the start of battle.",
+			"categories": [
+				"economy"
+			],
+			"effects": [
+				{
+					"effectId": "grant_gold_to_player",
+					"eventTrigger": "onBattleStart",
+					"amount": 5
+				}
+			]
+		},
+		{
+			"id": "relic_reduce_cooldowns",
+			"name": "Reduce Cooldowns (Relic)",
+			"description": "Reduces allied heroes' cooldowns at battle start.",
+			"categories": [
+				"support"
+			],
+			"effects": [
+				{
+					"effectId": "modify_unit_cooldowns",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "all_allies",
+					"percent": 10
+				}
+			]
+		},
+		{
+			"id": "relic_increase_max_hp",
+			"name": "Increase Max HP (Relic)",
+			"description": "Increases allied heroes' max HP at battle start.",
+			"categories": [
+				"support"
+			],
+			"effects": [
+				{
+					"effectId": "modify_unit_max_hp",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "all_allies",
+					"percent": 15
+				}
+			]
+		}
 	]
 }

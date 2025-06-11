@@ -18,6 +18,9 @@ export type TraitEffectInstanceData = {
 	eventTrigger: string; // e.g., "onAction", "onAttackByMe", "onBattleStart"
 	targetSelector?: string; // e.g., "self", "action_target", "all_allies_in_row"
 	conditions?: TraitConditionInstanceData[]; // Conditions for this effect to run
+	// depending on the effect, some properties like
+	// the ones might be required
+	// the burden of testing is placed upon the trait designer
 	// Effect-specific parameters, e.g.:
 	// amount?: number;
 	// percent?: number;
