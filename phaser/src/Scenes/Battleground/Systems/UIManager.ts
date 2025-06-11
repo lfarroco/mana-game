@@ -16,10 +16,19 @@ import { UserMessagePayload } from "../../../Models/EventPayloads";
  */
 export class UIManager {
 	private scene: BattlegroundScene;
-
+	/** Container for main persistent UI elements like sidebar and gold display. */
 	private uiContainer: Phaser.GameObjects.Container | null = null;
+	/** Phaser.GameObjects.Text element for displaying player's gold. */
 	private goldTextElement: Phaser.GameObjects.Text | null = null;
+	/** Instance of GoldCoinAnimator for handling gold coin animations. */
 	private goldCoinAnimator: GoldCoinAnimator;
+
+	// TODO: consider moving tooltip to a more global UI manager if it's used across multiple scenes
+	// or if UIManager becomes too BattlegroundScene-specific.
+	// For now, its direct instantiation here is fine as it's primarily used within this scene's context.
+	// If Tooltip class itself needs to be scene-agnostic, it should not directly depend on BattlegroundScene
+	// but rather a generic Phaser.Scene.
+
 	/**
 	 * Instance of the Tooltip system, used to display contextual information
 	 * when hovering over UI elements or game objects.
@@ -43,20 +52,33 @@ export class UIManager {
 
 	/**
 	 * Sets up an event listener for "gold_changed" events emitted by the scene.
-	 * This allows the UIManager to react dynamically to updates in the player's gold.
+	 * This allows the UIManager to react dynamically to updates in the player's gold
+	 * by calling `_handleGoldChanged`.
 	 */
 	private _setupGoldChangeListener(): void {
 		this.scene.events.on(GameEvents.GOLD_CHANGED, this._handleGoldChanged, this);
 	}
 
+	/**
+	 * Sets up an event listener for "purchase_failed" events.
+	 * This allows the UIManager to display appropriate user messages when a purchase cannot be completed.
+	 */
 	private _setupPurchaseFailedListener(): void {
 		this.scene.events.on(GameEvents.PURCHASE_FAILED, this._handlePurchaseFailed, this);
 	}
 
+	/**
+	 * Sets up an event listener for "user_message_requested" events.
+	 * This allows other game systems to request the display of messages (errors, info, etc.) to the user.
+	 */
 	private _setupUserMessageListener(): void {
 		this.scene.events.on(GameEvents.USER_MESSAGE_REQUESTED, this._handleUserMessageRequested, this);
 	}
 
+	/**
+	 * Handles the `GameEvents.PURCHASE_FAILED` event by constructing and emitting a user message.
+	 * @param payload - The payload containing details about the failed purchase, including the unit name, reason, and optionally the cost.
+	 */
 	private _handlePurchaseFailed(payload: { unitName: string, reason: string, cost?: number }): void {
 		let message = `Could not buy ${payload.unitName}. `;
 		switch (payload.reason) {
@@ -79,7 +101,8 @@ export class UIManager {
 
 	/**
 	 * Handles the "gold_changed" event.
-	 * @param newTotalGold The new total amount of gold the player has.
+	 * It updates the displayed gold amount and triggers a visual animation if the gold amount has changed.
+	 * @param newTotalGold - The new total amount of gold the player has.
 	 * @param goldDelta The amount of gold that was gained or lost.
 	 */
 	private _handleGoldChanged(newTotalGold: number, goldDelta: number): void {
@@ -116,7 +139,8 @@ export class UIManager {
 
 	/**
 	 * Creates the text element that displays the player's current gold.
-	 * This is a helper method typically called by `createMainUI`.
+	 * This method is typically called by `createMainUI` to initialize the gold display.
+	 * It positions the text based on screen constants and sets its initial value from the game state.
 	 * @param parent The `Phaser.GameObjects.Container` to which the gold text will be added.
 	 */
 	private _createGoldText(parent: Phaser.GameObjects.Container): void {
@@ -132,6 +156,7 @@ export class UIManager {
 	/**
 	 * Handles requests to display a user message (e.g., error, info).
 	 * The message appears, animates briefly for emphasis, and then fades out.
+	 * This method is asynchronous and completes when the message animation finishes.
 	 * @param payload The `UserMessagePayload` containing the message text and type.
 	 */
 	private async _handleUserMessageRequested(payload: UserMessagePayload): Promise<void> {
@@ -194,7 +219,8 @@ export class UIManager {
 	/**
 	 * Plays an animation indicating a change in the player's gold.
 	 * A text element showing the amount of gold gained or lost animates near the gold display.
-	 * @param gold The amount of gold that changed (positive for gain, negative for loss).
+	 * This method is asynchronous and completes when the animation finishes.
+	 * @param gold - The amount of gold that changed (positive for gain, negative for loss).
 	 */
 	public async goldChangeAnimation(gold: number): Promise<void> {
 		// This method is now only called if this.goldTextElement is not null (see _handleGoldChanged).
@@ -233,10 +259,12 @@ export class UIManager {
 	/**
 	 * Simulates coins dropping and flying towards the gold display area.
 	 * This provides a more visual and engaging way to show gold being acquired.
-	 * @param gold The total amount of gold being added (used for the `goldChangeAnimation`).
-	 * @param coins The number of visual coin sprites to animate.
-	 * @param x The starting x-coordinate for the coin animation (e.g., where an enemy was defeated).
-	 * @param y The starting y-coordinate for the coin animation.
+	 * It internally calls `goldChangeAnimation` for the text update and uses `GoldCoinAnimator`
+	 * for the coin sprite animations. This method is asynchronous.
+	 * @param gold - The total amount of gold being added (used for the `goldChangeAnimation`).
+	 * @param coins - The number of visual coin sprites to animate.
+	 * @param x - The starting x-coordinate for the coin animation (e.g., where an enemy was defeated).
+	 * @param y - The starting y-coordinate for the coin animation.
 	 */
 	public async coinDropIO(
 		gold: number,

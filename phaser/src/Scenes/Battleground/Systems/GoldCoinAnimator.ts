@@ -3,19 +3,31 @@ import { delay } from "../../../Utils/animation";
 import { State } from "../../../Models/State";
 
 /**
- * Handles the gold coin drop and fly-to-chest animation.
+ * Manages the animation of gold coins, typically when gold is acquired by the player.
+ * This class encapsulates the logic for creating coin sprites, animating their drop,
+ * and their movement towards a target (e.g., a gold chest icon or UI element).
  */
 export class GoldCoinAnimator {
+	/** The Phaser.Scene instance where animations will be rendered. */
 	private scene: Phaser.Scene;
+	/** The current game state, used to access options like animation speed. */
 	private state: State;
 
+	/**
+	 * Initializes the GoldCoinAnimator.
+	 * @param scene - The Phaser.Scene instance to which animations will be added.
+	 * @param state - The current game state, primarily used for accessing animation speed settings.
+	 */
 	constructor(scene: Phaser.Scene, state: State) {
 		this.scene = scene;
 		this.state = state;
 	}
 
 	/**
-	 * Simulates coins dropping and flying towards the gold display area.
+	 * Creates and animates multiple coin sprites.
+	 * The animation involves coins appearing, dropping slightly, and then tweening
+	 * towards a predefined "chest" location on the screen, fading out upon arrival.
+	 * It also creates particle effects at the destination.
 	 * @param coins The number of visual coin sprites to animate.
 	 * @param x The starting x-coordinate for the coin animation.
 	 * @param y The starting y-coordinate for the coin animation.
