@@ -63,7 +63,7 @@ export async function physicalAttack(
 			state: getState()
 		});
 	} else {
-		targetChara.damageUnit(damage, isCritical);
+		targetChara.damageUnit(activeChara.unit.id, damage, isCritical);
 	}
 
 	// Emit event for TRAIT_EVAL_AFTER_ATTACK_BY_ME

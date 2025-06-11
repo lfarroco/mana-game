@@ -9,6 +9,14 @@ export const GameEvents = {
 	// Trait System Specific Triggers
 	TRAIT_EVAL_UNIT_ACTION: "trait_eval_unit_action",
 	TRAIT_EVAL_GLOBAL_BATTLE_START: "trait_eval_global_battle_start", // For all units & relics
+	TRAIT_EVAL_BATTLE_END: "trait_eval_battle_end",
+	TRAIT_EVAL_TURN_START: "trait_eval_turn_start",
+	TRAIT_EVAL_ALLIED_ACTION: "trait_eval_allied_action",
+	TRAIT_EVAL_TURN_END: "trait_eval_turn_end",
+	TRAIT_EVAL_ENEMY_KILLED: "trait_eval_enemy_killed",
+	TRAIT_EVAL_ALLIED_KILLED: "trait_eval_allied_killed",
+	TRAIT_EVAL_UNIT_KILLED: "trait_eval_unit_killed",
+	TRAIT_EVAL_UNIT_KILL: "trait_eval_unit_kil",
 	TRAIT_EVAL_UNIT_ENTER_POSITION: "trait_eval_unit_enter_position",
 	TRAIT_EVAL_UNIT_LEAVE_POSITION: "trait_eval_unit_leave_position",
 	TRAIT_EVAL_UNIT_HALF_HP: "trait_eval_unit_half_hp",

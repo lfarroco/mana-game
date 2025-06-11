@@ -440,10 +440,11 @@ export class Chara extends Phaser.GameObjects.Container {
 	/**
 	 * Applies damage to the Chara's unit. Updates HP display, shows damage pop-up text,
 	 * handles critical hit display, checks for death, and triggers 'onHalfHP' events.
+	 * @param sourceId The id of the character that inflicted the damage
 	 * @param damage The amount of damage to apply.
 	 * @param isCritical Whether the damage is a critical hit.
 	 */
-	damageUnit = (damage: number, isCritical = false) => {
+	damageUnit = (sourceId: string, damage: number, isCritical = false) => {
 		const chara = this;
 		const nextHp = chara.unit.hp - damage;
 		const hasDied = nextHp <= 0;
@@ -458,7 +459,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		}
 
 		if (hasDied) {
-			this.killUnit();
+			this.killUnit(sourceId);
 			return;
 		}
 
@@ -478,7 +479,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	 * Handles the death of the unit. Sets HP to 0, plays death animation,
 	 * removes the Chara from the game state and manager, and triggers 'onDeath' events.
 	 */
-	killUnit = async () => {
+	killUnit = async (killerId: string) => {
 		this.unit.hp = 0;
 
 		tween({ targets: [this], alpha: 0, duration: 1000 });
@@ -492,13 +493,31 @@ export class Chara extends Phaser.GameObjects.Container {
 		await delay(this.parent, 2000);
 
 		UnitManager.destroyChara(this.id);
-
-		getState().battleData.units = getState().battleData.units.filter(u => u.id !== this.id);
+		const state = getState();
+		state.battleData.units = state.battleData.units.filter(u => u.id !== this.id);
+		// Emit the unit death event BEFORE handling kill-related traits
 		this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_DEATH, {
 			unit: this.unit,
 			scene: this.parent,
-			state: getState()
+			state
 		});
+
+		const killer = state.battleData.units.find(u => u.id === killerId);
+		// Determine if the unit was an ally or an enemy based on the force
+		const isAlly = this.unit.force === constants.FORCE_ID_PLAYER;
+		const killEvent = isAlly ? GameEvents.TRAIT_EVAL_ALLIED_KILLED : GameEvents.TRAIT_EVAL_ENEMY_KILLED;
+		this.parent.events.emit(killEvent, {
+			unit: this.unit,
+			killer,
+			scene: this.parent,
+			state
+		});
+		if (killer) {
+			this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_KILL_BY_ME, {
+				unit: killer, killedUnit: this.unit, scene: this.parent, state
+			})
+		}
+
 
 
 		if (this.unit.force === constants.FORCE_ID_PLAYER) {
