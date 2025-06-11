@@ -25,7 +25,7 @@ async function setupWave(scene: BattlegroundScene) {
   // For example, UnitManager.animateCPUUnitEntry(scene);
 
   // Emit event for Trait System to handle onBattleStart for units and relics
-  scene.events.emit(GameEvents.TRAIT_EVAL_GLOBAL_BATTLE_START, { scene, state: scene.state });
+  scene.events.emit(GameEvents.TRAIT_EVAL_GLOBAL_BATTLE_START, {});
 
   scene.events.emit(GameEvents.BATTLE_START_SETUP_COMPLETE);
 
@@ -46,12 +46,12 @@ const runCombatIO = (
 
     for (const unit of units) {
       // Emit turn start event
-      scene.events.emit(GameEvents.TRAIT_EVAL_TURN_START, { unit, scene, state });
+      scene.events.emit(GameEvents.TRAIT_EVAL_TURN_START, { unit });
       // Process unit action
-      scene.events.emit(GameEvents.TRAIT_EVAL_UNIT_ACTION, { unit, scene, state });
+      scene.events.emit(GameEvents.TRAIT_EVAL_UNIT_ACTION, { unit });
 
       // Emit turn end event
-      scene.events.emit(GameEvents.TRAIT_EVAL_TURN_END, { unit, scene, state });
+      scene.events.emit(GameEvents.TRAIT_EVAL_TURN_END, { unit });
 
     }
 
@@ -62,7 +62,7 @@ const runCombatIO = (
     if (playerUnits.length === 0 || cpuUnits.length === 0) {
       scene.events.off('update', updateHandler);
 
-      scene.events.emit(GameEvents.TRAIT_EVAL_BATTLE_END, { scene, state });
+      scene.events.emit(GameEvents.TRAIT_EVAL_BATTLE_END, {});
 
       if (playerUnits.length === 0) {
         resolve("player_lost");
