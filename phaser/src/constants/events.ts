@@ -6,6 +6,17 @@ export const GameEvents = {
 	 */
 	BATTLE_START_SETUP_COMPLETE: "battle_start_setup_complete",
 
+	// Shop / Unit Acquisition Events
+	UNIT_PURCHASED: "unit_purchased",
+	PURCHASE_FAILED: "purchase_failed", // Payload: { unitName: string, reason: string, cost?: number }
+	SHOP_PHASE_ENDED: "shop_phase_ended",
+
+	// Combat Flow Events
+	COMBAT_ENDED_VICTORY: "combat_ended_victory", // Payload: { enemiesDefeated: Unit[] }
+	COMBAT_ENDED_DEFEAT: "combat_ended_defeat",
+
+	UNIT_DIED_IN_BATTLE: "unit_died_in_battle", // Payload: { unit: Unit, killerId?: string }
+
 	// Trait System Specific Triggers
 	TRAIT_EVAL_UNIT_ACTION: "trait_eval_unit_action",
 	TRAIT_EVAL_GLOBAL_BATTLE_START: "trait_eval_global_battle_start", // For all units & relics

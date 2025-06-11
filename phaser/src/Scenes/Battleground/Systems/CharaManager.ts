@@ -34,7 +34,9 @@ export function clearCharas() {
 export function destroyChara(id: string) {
 	const chara = charaManagerState.charaIndex.find(chara => chara.id === id);
 
-	if (chara) {
+	// Check if chara and its scene still exist, as it might be called during scene shutdown
+	if (chara && chara.parent) {
+		console.log(`Destroying chara ${id}`);
 		chara.destroy();
 		charaManagerState.charaIndex = charaManagerState.charaIndex.filter(c => c.id !== id);
 	} else {

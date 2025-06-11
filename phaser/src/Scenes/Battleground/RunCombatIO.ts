@@ -31,60 +31,64 @@ async function setupWave(scene: BattlegroundScene) {
 
 }
 
-const runCombatIO = (
-  scene: BattlegroundScene,
-) => new Promise<WaveOutcome>(async resolve => {
-  const { state } = scene;
+export class RunCombatSystem {
+  private scene: BattlegroundScene;
+  private updateHandler: ((time: number, delta: number) => Promise<void>) | null = null;
 
-  await setupWave(scene);
-
-  console.log("[runWaveIO]");
-
-  const updateHandler = async (_time: number, delta: number) => {
-
-    const units = chargeUnits(state, delta);
-
-    for (const unit of units) {
-      // Emit turn start event
-      scene.events.emit(GameEvents.TRAIT_EVAL_TURN_START, { unit });
-      // Process unit action
-      scene.events.emit(GameEvents.TRAIT_EVAL_UNIT_ACTION, { unit });
-
-      // Emit turn end event
-      scene.events.emit(GameEvents.TRAIT_EVAL_TURN_END, { unit });
-
-    }
-
-    const activeUnits = scene.state.battleData.units.filter(u => u.hp > 0)
-    const playerUnits = activeUnits.filter(u => u.force === FORCE_ID_PLAYER);
-    const cpuUnits = activeUnits.filter(u => u.force === FORCE_ID_CPU);
-
-    if (playerUnits.length === 0 || cpuUnits.length === 0) {
-      scene.events.off('update', updateHandler);
-
-      scene.events.emit(GameEvents.TRAIT_EVAL_BATTLE_END, {});
-
-      if (playerUnits.length === 0) {
-        resolve("player_lost");
-      } else {
-        resolve("player_won");
-      }
-    }
-
+  constructor(scene: BattlegroundScene) {
+    this.scene = scene;
   }
 
-  scene.events.on('update', updateHandler)
+  public runCombatIO = () => new Promise<WaveOutcome>(async resolve => {
+    const { state, events } = this.scene;
 
-});
+    await setupWave(this.scene);
+    console.log("[RunCombatSystem] Wave setup complete, starting combat loop.");
+
+    this.updateHandler = async (_time: number, delta: number) => {
+      const unitsReadyToAct = chargeUnits(state, delta);
+
+      for (const unit of unitsReadyToAct) {
+        if (unit.hp <= 0) continue; // Skip dead units that might have been charged
+
+        events.emit(GameEvents.TRAIT_EVAL_TURN_START, { unit });
+        // Assuming unit actions are triggered by TRAIT_EVAL_UNIT_ACTION
+        // and these actions are handled by listeners (e.g., AI system, skill execution system)
+        events.emit(GameEvents.TRAIT_EVAL_UNIT_ACTION, { unit });
+        events.emit(GameEvents.TRAIT_EVAL_TURN_END, { unit });
+      }
+
+      const activeBattleUnits = getActiveUnits(state); // Use getActiveUnits
+      const playerUnits = activeBattleUnits.filter(u => u.force === FORCE_ID_PLAYER);
+      const cpuUnits = activeBattleUnits.filter(u => u.force === FORCE_ID_CPU);
+
+      if (playerUnits.length === 0 || cpuUnits.length === 0) {
+        if (this.updateHandler) {
+          events.off('update', this.updateHandler);
+          this.updateHandler = null; // Clear the handler
+        }
+        
+        events.emit(GameEvents.TRAIT_EVAL_BATTLE_END, {});
+        console.log("[RunCombatSystem] Combat ended.");
+
+        if (playerUnits.length === 0) {
+          resolve("player_lost");
+        } else {
+          resolve("player_won");
+        }
+      }
+    };
+
+    events.on('update', this.updateHandler);
+  });
+}
 
 function chargeUnits(state: State, delta: number): Unit[] {
-
   const activeUnits = getActiveUnits(state);
-
   let performUnits: Unit[] = []; // units that are ready to perform an action
 
   for (const unit of activeUnits) {
-    if (unit.hp <= 0) continue;
+    if (unit.hp <= 0) continue; // Should be redundant if getActiveUnits is used, but good for safety
 
     // If the delta is too high, there's the risk of being hasted/slowed beyond the expected
     // It should be fine for now by having a delta for each frame (0.016)
@@ -106,13 +110,9 @@ function chargeUnits(state: State, delta: number): Unit[] {
       unit.refresh = MIN_COOLDOWN; // minimum space between actions 
       performUnits.push(unit);
     }
-
     CharaManager.getChara(unit.id).updateChargeBar();
-
   }
-
   return performUnits;
-
 }
 
-export default runCombatIO;
+export default RunCombatSystem; // Export the class
