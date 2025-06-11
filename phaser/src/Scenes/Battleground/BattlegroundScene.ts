@@ -8,39 +8,23 @@ import * as constants from "./constants";
 import { UIManager } from "./Systems/UIManager";
 import * as CharaManager from "./Systems/CharaManager";
 import * as TraitSystem from "../../Models/Traits";
-import { CardCollection, getAllCards, registerCollection } from "../../Models/Card";
+import { CardCollection, getAllCards, registerCollection, } from "../../Models/Card";
 import { battleResultAnimation } from "./battleResultAnimation";
-import { delay } from "../../Utils/animation";
 import { images } from "../../assets";
 import { generateEnemyTeam } from "./generateEnemyTeam";
 import { popText } from "../../Systems/Chara/Animations/popText";
 import * as Relic from "./Systems/Relic";
 import { RunCombatSystem, WaveOutcome } from "./RunCombatIO"; // Modified import
 import { Unit } from "../../Models/Unit";
-import { PlayerBoard } from "../../Models/Board";
+import { initializeSharedPlayerBoard, PlayerBoard, createBoardDropZone as createPlayerBoardDropZone } from "../../Models/Board";
 import { Shop } from "./Systems/Shop";
 import { UIButton } from "./Systems/UIButton";
 import * as TraitEffectsImpl from "../../Systems/TraitEffects/Implementations";
 import { setupTraitEventListeners } from "../../Models/TraitSystemEventListeners";
 import { GameEvents } from "../../constants/events";
 import { vignette } from "./Animations/vignette";
-
-// Constants for BattlegroundScene specific game rules
-const INITIAL_PLAYER_GOLD = 20;
-const VICTORY_GOLD_REWARD = 5;
-const XP_PER_ENEMY = 15;
-const XP_FOR_LEVEL_UP = 100;
-const HP_MULTIPLIER_LEVEL_UP = 1.1;
-const ATTACK_POWER_MULTIPLIER_LEVEL_UP = 0.1; // Represents a 10% increase factor (e.g., newAttack = oldAttack * (1 + 0.1))
-const DEFAULT_SCENE_SOUND_VOLUME = 0.05;
-const LEVEL_UP_APPRECIATION_DELAY = 1000; // ms
-const POST_COMBAT_DELAY = 500; // ms
-
-// UI Positioning (example constants, adjust as needed)
-const UI_BUTTON_RESTART_X_OFFSET = 0;
-const UI_BUTTON_RESTART_Y_OFFSET = 50;
-const UI_BUTTON_MENU_X_OFFSET = 0;
-const UI_BUTTON_MENU_Y_OFFSET = 150;
+import * as BG_CONSTANTS from "./battlegroundConstants";
+import { BattleProgressionSystem } from "./Systems/BattleProgressionSystem";
 
 export class BattlegroundScene extends Phaser.Scene {
   state: State;
@@ -49,8 +33,9 @@ export class BattlegroundScene extends Phaser.Scene {
   bgImage!: Phaser.GameObjects.Image;
   collection!: CardCollection;
   uiManager!: UIManager;
-  playerBoard: PlayerBoard | undefined; // Can be undefined before start/after cleanup
+  playerBoard!: PlayerBoard; // Initialized in create/start
   runCombatSystem: RunCombatSystem;
+  battleProgressionSystem: BattleProgressionSystem;
   shop: Shop;
 
   cleanup() {
@@ -58,8 +43,8 @@ export class BattlegroundScene extends Phaser.Scene {
     this.time.removeAllEvents();
     this.children.removeAll(true);
 
-    this.playerBoard?.destroy();
-    this.playerBoard = undefined;
+    // PlayerBoard is a singleton managed by its module, destroy visuals if needed
+    this.playerBoard.clearVisuals(); // Or playerBoard.destroy() if it's not a singleton instance tied to scene
 
     // If Shop or UIManager have their own complex cleanup (e.g., global listeners, non-Phaser resources)
     // they would need destroy methods called here.
@@ -80,6 +65,7 @@ export class BattlegroundScene extends Phaser.Scene {
     this.state = state;
     this.speed = state.options.speed;
     this.runCombatSystem = new RunCombatSystem(this);
+    this.battleProgressionSystem = new BattleProgressionSystem(this, this.state);
 
     /**
      * Global listeners can be created here because they are only created once
@@ -154,10 +140,10 @@ export class BattlegroundScene extends Phaser.Scene {
     state.gameData.player.gold = 0;
     state.gameData.player.units = [];
     state.gameData.player.relics = [];
-    state.gameData.round = 1;
-    this.events.emit("requestUpdatePlayerGold", INITIAL_PLAYER_GOLD);
+    state.gameData.round = 1; // Progression system will manage round increments
+    this.events.emit(GameEvents.PLAYER_GOLD_UPDATE_REQUEST, BG_CONSTANTS.INITIAL_PLAYER_GOLD);
 
-    this.sound.setVolume(this.state.options.soundVolume ?? DEFAULT_SCENE_SOUND_VOLUME);
+    this.sound.setVolume(this.state.options.soundVolume ?? BG_CONSTANTS.DEFAULT_SCENE_SOUND_VOLUME);
   }
 
   private setupSceneElements(): void {
@@ -170,16 +156,16 @@ export class BattlegroundScene extends Phaser.Scene {
     this.bgContainer = this.add.container(0, 0);
     ControlsSystem.init(this);
 
-    this.bgContainer.add([this.bgImage]);
+    this.bgContainer.add([this.bgImage]); // Add other static elements to bgContainer if needed
 
-    this.playerBoard = new PlayerBoard(this);
-    this.events.emit("createPlayerBoardDropZone");
+    this.playerBoard = initializeSharedPlayerBoard(this);
+    this.events.emit(GameEvents.PLAYER_BOARD_CREATE_DROP_ZONE);
 
-    this.events.emit("createMainUI");
-    this.events.emit("setupRelicSlots");
+    this.events.emit(GameEvents.UI_MAIN_CREATE);
+    this.events.emit(GameEvents.RELIC_SLOTS_SETUP);
   }
 
-  private setupBattle(): { enemies: Unit[] } {
+  public setupBattle(): { enemies: Unit[] } {
     const { state } = this;
     const cardPool = getAllCards();
     const enemies = generateEnemyTeam(state.gameData.round, cardPool);
@@ -188,158 +174,81 @@ export class BattlegroundScene extends Phaser.Scene {
 
     // Summon CPU units to the board
     enemies.forEach(unit => {
-      this.events.emit("summonCharaToBoard", { unit, animateAppear: false, playSound: false });
+      this.events.emit(GameEvents.CHARA_SUMMON_TO_BOARD, { unit, animateAppear: false, playSound: false });
     });
     return { enemies };
   }
 
   private async executeCombat(): Promise<WaveOutcome> {
-    // Use the instance of RunCombatSystem
-    // This method is now typically called by an event handler (_handleStartCombatExecution)
     return this.runCombatSystem.runCombatIO();
   }
 
-  private resetPlayerUnitsForNewRound(): void {
-    this.state.gameData.player.units.forEach(unit => {
-      unit.charge = 0;
-      unit.refresh = 0;
-      unit.slowed = 0;
-      unit.hasted = 0;
-      unit.hp = unit.maxHp;
-      unit.statuses = {};
-    });
-  }
-
-  private resetPlayerUnitChargeBars(): void {
-    this.state.gameData.player.units.forEach(unit => {
-      this.events.emit("updateCharaChargeBar", { unitId: unit.id });
-    });
-  }
-
-  private setAllPlayerUnitBarsVisibility(visible: boolean): void {
-    this.state.gameData.player.units.forEach(unit => {
-      this.events.emit("setCharaBarsVisibility", { unitId: unit.id, visible });
-    });
-  }
-
-  private async awardXPAndHandleLevelUps(enemiesDefeatedCount: number): Promise<void> {
-    const { state } = this;
-    const xpGained = enemiesDefeatedCount * XP_PER_ENEMY;
-    const levelUpPromises: Promise<void>[] = [];
-
-    state.gameData.player.units.forEach(unit => {
-      this.events.emit("showPopText", { text: `+${xpGained} XP`, targetId: unit.id });
-
-      unit.xp += xpGained;
-      const levelsGained = Math.floor(unit.xp / XP_FOR_LEVEL_UP);
-
-      if (levelsGained > 0) {
-        popText({
-          text: `Level up!`,
-          targetId: unit.id,
-        });
-        for (let i = 0; i < levelsGained; i++) {
-          unit.maxHp = Math.floor(unit.maxHp * HP_MULTIPLIER_LEVEL_UP);
-          unit.hp = unit.maxHp; // Refill HP on level up
-          unit.attackPower = Math.floor(unit.attackPower * (1 + ATTACK_POWER_MULTIPLIER_LEVEL_UP));
-        }
-      }
-      CharaManager.getChara(unit.id).updateHpDisplay();
-      this.events.emit("updateCharaHpDisplay", { unitId: unit.id });
-    });
-
-    state.gameData.player.units.forEach(unit => {
-      // unit.xp += xpGained; // XP already added if we are here post-check
-      const levelsGained = Math.floor(unit.xp / XP_FOR_LEVEL_UP);
-
-      if (levelsGained > 0) {
-        this.events.emit("showPopText", { text: `Level up!`, targetId: unit.id });
-        unit.xp -= levelsGained * XP_FOR_LEVEL_UP; // Consume XP for levels gained
-
-        for (let i = 0; i < levelsGained; i++) {
-          unit.maxHp = Math.floor(unit.maxHp * HP_MULTIPLIER_LEVEL_UP);
-          unit.hp = unit.maxHp; // Refill HP on level up
-          unit.attackPower = Math.floor(unit.attackPower * (1 + ATTACK_POWER_MULTIPLIER_LEVEL_UP));
-        }
-        levelUpPromises.push(delay(this, 0)); // Add a micro-delay or animation trigger
-        this.events.emit("updateCharaHpDisplay", { unitId: unit.id });
-      }
-    });
-
-    if (levelUpPromises.length > 0) {
-      await Promise.all(levelUpPromises);
-      await delay(this, LEVEL_UP_APPRECIATION_DELAY);
-    }
-  }
-
   // --- New Event Handlers ---
-  private _handleRequestUpdatePlayerGold(goldDelta: number): void {
+  private _onPlayerGoldUpdateRequest(goldDelta: number): void {
     const changeAmount = Math.floor(goldDelta);
     this.state.gameData.player.gold += changeAmount;
     this.events.emit(GameEvents.GOLD_CHANGED, this.state.gameData.player.gold, changeAmount);
   }
 
-  private _handleCreatePlayerBoardDropZone(): void { this.playerBoard?.createDropZone(); }
-  private _handleShowPlayerBoard(): void { this.playerBoard?.display(); }
-  private _handleHidePlayerBoard(): void { this.playerBoard?.hide(); }
-  private _handleCreateMainUI(): void { this.uiManager?.createMainUI(); }
-  private _handleSetupRelicSlots(): void { Relic.setupRelicSlots(this); }
-  private _handleSummonCharaToBoard(payload: { unit: Unit, animateAppear: boolean, playSound: boolean }): void {
+  private _onPlayerBoardCreateDropZone(): void { createPlayerBoardDropZone(); } // Use module function for singleton
+  private _onPlayerBoardShow(): void { this.playerBoard.display(); }
+  private _onPlayerBoardHide(): void { this.playerBoard.hide(); }
+  private _onUIMainCreate(): void { this.uiManager.createMainUI(); }
+  private _onRelicSlotsSetup(): void { Relic.setupRelicSlots(this); }
+  private _onCharaSummonToBoard(payload: { unit: Unit, animateAppear: boolean, playSound: boolean }): void {
     CharaManager.summonChara(payload.unit, payload.animateAppear, payload.playSound);
   }
-  private _handleDestroyCharaFromBoard(payload: { unitId: string }): void {
+  private _onCharaDestroyFromBoard(payload: { unitId: string }): void {
     CharaManager.destroyChara(payload.unitId);
   }
-  private _handleShowPopText(payload: { text: string, targetId: string, color?: string }): void {
+  private _onPopTextShow(payload: { text: string, targetId: string, color?: string }): void {
     popText(payload);
   }
-  private _handleUpdateCharaHpDisplay(payload: { unitId: string }): void {
+  private _onCharaHpDisplayUpdate(payload: { unitId: string }): void {
     CharaManager.getChara(payload.unitId)?.updateHpDisplay();
   }
-  private _handleUpdateCharaChargeBar(payload: { unitId: string }): void {
+  private _onCharaChargeBarUpdate(payload: { unitId: string }): void {
     CharaManager.getChara(payload.unitId)?.updateChargeBar();
   }
-  private _handleSetCharaBarsVisibility(payload: { unitId: string, visible: boolean }): void {
+  private _onCharaBarsVisibilitySet(payload: { unitId: string, visible: boolean }): void {
     CharaManager.getChara(payload.unitId)?.setBarsVisibility(payload.visible);
   }
-  private async _handleShowBattleResult(payload: { result: "victory" | "defeat" }): Promise<void> {
+  private async _onBattleResultShow(payload: { result: "victory" | "defeat" }): Promise<void> {
     await battleResultAnimation(this, payload.result);
   }
-  private _handleShowVignetteMessage(payload: { message: string }): void {
+  private _onVignetteMessageShow(payload: { message: string }): void {
     vignette(this, payload.message);
   }
 
   private _setupGameEventListeners(): void {
-    this.events.on("unitDiedInBattle", this.handleUnitDiedInBattle, this);
-    // Listener for when the shop signals it's done
-    this.events.on("shopPhaseEnded", this.startNextRound, this);
-    // Listener for when combat ends with player victory, to open shop
-    this.events.on("combatEndedVictory", this.openShopPhase, this);
-    this.events.on("combatEndedDefeat", this.handleGameOver, this);
-    this.events.on("triggerShopPhaseOpen", this.openShopPhase, this); // For starting game and after victory
+    this.events.on(GameEvents.UNIT_DIED_IN_BATTLE, this._onUnitDiedInBattle, this);
+    this.events.on(GameEvents.SHOP_PHASE_ENDED, this._onShopPhaseEnded, this);
+    this.events.on(GameEvents.COMBAT_ENDED_VICTORY, this._onCombatEndedVictory, this);
+    this.events.on(GameEvents.COMBAT_ENDED_DEFEAT, this._onCombatEndedDefeat, this);
+    this.events.on(GameEvents.GAME_OVER_SHOW_UI_TRIGGER, this._onGameOverShowUITrigger, this);
 
     // Register new handlers
-    this.events.on("requestUpdatePlayerGold", this._handleRequestUpdatePlayerGold, this);
-    this.events.on("createPlayerBoardDropZone", this._handleCreatePlayerBoardDropZone, this);
-    this.events.on("showPlayerBoard", this._handleShowPlayerBoard, this);
-    this.events.on("hidePlayerBoard", this._handleHidePlayerBoard, this);
-    this.events.on("createMainUI", this._handleCreateMainUI, this);
-    this.events.on("setupRelicSlots", this._handleSetupRelicSlots, this);
-    this.events.on("summonCharaToBoard", this._handleSummonCharaToBoard, this);
-    this.events.on("destroyCharaFromBoard", this._handleDestroyCharaFromBoard, this);
-    this.events.on("showPopText", this._handleShowPopText, this);
-    this.events.on("updateCharaHpDisplay", this._handleUpdateCharaHpDisplay, this);
-    this.events.on("updateCharaChargeBar", this._handleUpdateCharaChargeBar, this);
-    this.events.on("setCharaBarsVisibility", this._handleSetCharaBarsVisibility, this);
-    this.events.on("showBattleResult", this._handleShowBattleResult, this);
-    this.events.on("showVignetteMessage", this._handleShowVignetteMessage, this);
-    this.events.on("triggerOpenShopUI", this._handleOpenShopUI, this);
-    this.events.on("triggerStartCombatExecution", this._handleStartCombatExecution, this);
+    this.events.on(GameEvents.PLAYER_GOLD_UPDATE_REQUEST, this._onPlayerGoldUpdateRequest, this);
+    this.events.on(GameEvents.PLAYER_BOARD_CREATE_DROP_ZONE, this._onPlayerBoardCreateDropZone, this);
+    this.events.on(GameEvents.PLAYER_BOARD_SHOW, this._onPlayerBoardShow, this);
+    this.events.on(GameEvents.PLAYER_BOARD_HIDE, this._onPlayerBoardHide, this);
+    this.events.on(GameEvents.UI_MAIN_CREATE, this._onUIMainCreate, this);
+    this.events.on(GameEvents.RELIC_SLOTS_SETUP, this._onRelicSlotsSetup, this);
+    this.events.on(GameEvents.CHARA_SUMMON_TO_BOARD, this._onCharaSummonToBoard, this);
+    this.events.on(GameEvents.CHARA_DESTROY_FROM_BOARD, this._onCharaDestroyFromBoard, this);
+    this.events.on(GameEvents.POP_TEXT_SHOW, this._onPopTextShow, this);
+    this.events.on(GameEvents.CHARA_HP_DISPLAY_UPDATE, this._onCharaHpDisplayUpdate, this);
+    this.events.on(GameEvents.CHARA_CHARGE_BAR_UPDATE, this._onCharaChargeBarUpdate, this);
+    this.events.on(GameEvents.CHARA_BARS_VISIBILITY_SET, this._onCharaBarsVisibilitySet, this);
+    this.events.on(GameEvents.BATTLE_RESULT_SHOW, this._onBattleResultShow, this);
+    this.events.on(GameEvents.VIGNETTE_MESSAGE_SHOW, this._onVignetteMessageShow, this);
+    this.events.on(GameEvents.SHOP_OPEN_UI_TRIGGER, this._onShopOpenUITrigger, this);
+    this.events.on(GameEvents.COMBAT_START_EXECUTION_TRIGGER, this._onCombatStartExecutionTrigger, this);
   }
 
-  private handleUnitDiedInBattle(payload: { unit: Unit, killerId?: string }): void {
+  private _onUnitDiedInBattle(payload: { unit: Unit, killerId?: string }): void {
     this.state.battleData.units = this.state.battleData.units.filter(u => u.id !== payload.unit.id);
-    this.events.emit("destroyCharaFromBoard", { unitId: payload.unit.id });
+    this.events.emit(GameEvents.CHARA_DESTROY_FROM_BOARD, { unitId: payload.unit.id });
     // Player unit removal from player.units is handled if they die and are not revived.
   }
 
@@ -349,9 +258,8 @@ export class BattlegroundScene extends Phaser.Scene {
   start = async () => {
     console.log("BattlegroundScene starting logic...");
 
-    this.shop = new Shop(this);
-
-    this.uiManager = new UIManager(this);
+    this.shop = new Shop(this); // Shop might be needed by UIManager or ProgressionSystem indirectly
+    this.uiManager = new UIManager(this); // UIManager sets up UI listeners
 
     this.initializeNewGame();
     this.setupSceneElements();
@@ -362,14 +270,11 @@ export class BattlegroundScene extends Phaser.Scene {
     // If scene instance was reused with manual cleanup/start, this would need careful handling.
     setupTraitEventListeners(this);
 
-    const { state } = this;
-    state.gameData.round = 1;
-
     // Start the first round by opening the shop
-    this.events.emit("triggerShopPhaseOpen", {}); // Pass empty payload or initial round info if needed
+    this.battleProgressionSystem.transitionToShopPhase(); // Initial call, no enemies defeated
   }
 
-  private async _handleOpenShopUI(): Promise<void> {
+  private async _onShopOpenUITrigger(): Promise<void> {
     if (this.shop) {
       await this.shop.open(); // Shop internally emits "shopPhaseEnded"
     } else {
@@ -377,77 +282,44 @@ export class BattlegroundScene extends Phaser.Scene {
     }
   }
 
-  private async handleRoundVictory(enemiesDefeated: Unit[]): Promise<void> {
-    console.log("Round", this.state.gameData.round, "Processing Victory...");
-    await delay(this, POST_COMBAT_DELAY);
-    this.events.emit("showBattleResult", { result: "victory" });
-    await delay(this, 1500); // Wait for animation
-    this.events.emit("requestUpdatePlayerGold", VICTORY_GOLD_REWARD);
-    this.resetPlayerUnitsForNewRound();
-    this.resetPlayerUnitChargeBars();
-    this.setAllPlayerUnitBarsVisibility(false);
-    await this.awardXPAndHandleLevelUps(enemiesDefeated.length);
-
-    this.state.battleData.units = []; // Clear units from battle state
-    this.state.gameData.round++;
+  // Event handler for when the shop phase ends
+  private _onShopPhaseEnded(): void {
+    this.battleProgressionSystem.transitionToCombatPhase();
   }
 
-  private async openShopPhase(payload?: { enemiesDefeated?: Unit[] }): Promise<void> {
-    // This method is called after victory or at the start of the game.
-    if (payload && payload.enemiesDefeated) { // Indicates coming from a victory
-      await this.handleRoundVictory(payload.enemiesDefeated);
-    }
-    // Log current round for shop phase
-    console.log("Round", this.state.gameData.round, "Shop Phase Starting.");
-    this.events.emit("showPlayerBoard");
-    this.events.emit("triggerOpenShopUI");
-  }
-  private async startNextRound() {
-    console.log("Round", this.state.gameData.round, "Combat Phase");
-
-    const { enemies } = this.setupBattle();
-
-    if (this.playerBoard) { // Ensure playerBoard is defined
-      this.events.emit("hidePlayerBoard");
-    }
-
-    this.events.emit("triggerStartCombatExecution", { enemies });
+  // Event handler for when combat ends with player victory
+  private _onCombatEndedVictory(payload: { enemiesDefeated: Unit[] }): void {
+    this.battleProgressionSystem.transitionToShopPhase(payload);
   }
 
-  private async _handleStartCombatExecution(payload: { enemies: Unit[] }): Promise<void> {
+  // Event handler for when combat ends with player defeat
+  private _onCombatEndedDefeat(): void {
+    this.battleProgressionSystem.processGameOver();
+  }
+
+  // Event handler to actually start the combat execution
+  private async _onCombatStartExecutionTrigger(payload: { enemies: Unit[] }): Promise<void> {
     const combatResult = await this.executeCombat(); // Calls this.runCombatSystem.runCombatIO()
     if (combatResult === "player_won") {
-      this.events.emit("combatEndedVictory", { enemiesDefeated: payload.enemies });
+      this.events.emit(GameEvents.COMBAT_ENDED_VICTORY, { enemiesDefeated: payload.enemies });
     } else {
-      this.events.emit("combatEndedDefeat", {});
+      this.events.emit(GameEvents.COMBAT_ENDED_DEFEAT, {});
     }
   }
 
-  private async handleGameOver() {
-    console.log("Round", this.state.gameData.round, "Processing Defeat...");
-    await delay(this, POST_COMBAT_DELAY);
-    // await battleResultAnimation(this, "defeat");
-    this.events.emit("showBattleResult", { result: "defeat" });
-    await delay(this, 1500); // Wait for animation
-
-    this.setAllPlayerUnitBarsVisibility(false); // Hide bars for player units even on defeat
-
-    this.state.battleData.units = []; // Clear units from battle state
-
+  private _onGameOverShowUITrigger(): void {
     // Game over UI
     new UIButton(this, "new run",
-      constants.SCREEN_WIDTH / 2 + UI_BUTTON_RESTART_X_OFFSET,
-      constants.SCREEN_HEIGHT / 2 + UI_BUTTON_RESTART_Y_OFFSET, () => {
+      constants.SCREEN_WIDTH / 2 + BG_CONSTANTS.UI_BUTTON_RESTART_X_OFFSET,
+      constants.SCREEN_HEIGHT / 2 + BG_CONSTANTS.UI_BUTTON_RESTART_Y_OFFSET, () => {
         this.scene.restart(); // Use Phaser's scene restart
       });
     new UIButton(this, "return to menu",
-      constants.SCREEN_WIDTH / 2 + UI_BUTTON_MENU_X_OFFSET,
-      constants.SCREEN_HEIGHT / 2 + UI_BUTTON_MENU_Y_OFFSET, () => {
+      constants.SCREEN_WIDTH / 2 + BG_CONSTANTS.UI_BUTTON_MENU_X_OFFSET,
+      constants.SCREEN_HEIGHT / 2 + BG_CONSTANTS.UI_BUTTON_MENU_Y_OFFSET, () => {
         this.scene.start("MainMenuScene");
       });
-
-    this.events.emit("showVignetteMessage", { message: "Thanks for playing!" });
-  };
+  }
 
   playFx(key: string) {
     const audio = this.sound.add(key)
