@@ -1,3 +1,10 @@
+/**
+ * @file Implements a dynamic tooltip UI component for displaying information
+ * with a title and description. The tooltip automatically adjusts its size
+ * based on content and attempts to stay within the screen bounds.
+ */
+
+
 import { defaultTextConfig } from "../Scenes/Battleground/constants";
 
 // TODO: on mobile, use a long press to show the tooltip
