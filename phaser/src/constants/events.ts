@@ -58,4 +58,6 @@ export const GameEvents = {
 
 	// UI System Events
 	USER_MESSAGE_REQUESTED: "user_message_requested", // Payload: UserMessagePayload
+	TOOLTIP_SHOW: "tooltip_show", // Payload: { x: number, y: number, title: string, description: string }
+	TOOLTIP_HIDE: "tooltip_hide",
 };

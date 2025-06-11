@@ -201,7 +201,7 @@ export class RelicCard extends Phaser.GameObjects.Image {
 
 	private handleDragStart = () => {
 		this.wasDroppedOnZone = false;
-		this.parent.uiManager.tooltip.hide();
+		this.parent.events.emit(GameEvents.TOOLTIP_HIDE);
 
 		// Bring to top within its current rendering context
 		if (this.parentContainer) { // If the relic is in a Phaser.GameObjects.Container (e.g., the shop flyout)
@@ -305,15 +305,16 @@ export class RelicCard extends Phaser.GameObjects.Image {
 	private handlePointerOver(_pointer: Pointer) {
 
 		const tooltipX = this.x + (this.displayWidth / 2) + 300;
-		this.parent.uiManager.tooltip.render(
-			tooltipX,
-			this.y,
-			this.relicData.name,
-			this.relicData.description);
+		this.parent.events.emit(GameEvents.TOOLTIP_SHOW, {
+			x: tooltipX,
+			y: this.y,
+			title: this.relicData.name,
+			description: this.relicData.description
+		});
 	}
 
 	private handlePointerOut() {
-		this.parent.uiManager.tooltip.hide();
+		this.parent.events.emit(GameEvents.TOOLTIP_HIDE);
 	}
 
 	// Ensure to call cleanupListeners() if a relic is removed or the scene is destroyed.

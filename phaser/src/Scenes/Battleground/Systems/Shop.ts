@@ -135,7 +135,7 @@ export class Shop {
 				const chara = new Chara(this.scene, unit, { // Pass this.scene as parent
 					isShopItem: true,
 					onPurchased: () => {
-						this.scene.uiManager.tooltip.hide();
+						this.scene.events.emit(GameEvents.TOOLTIP_HIDE);
 						if (this.flyout) this.flyout.remove(chara);
 						// Gold update and adding to player units is handled by Chara.attemptPurchase
 					}

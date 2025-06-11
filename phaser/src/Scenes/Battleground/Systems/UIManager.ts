@@ -47,7 +47,9 @@ export class UIManager {
 		this._setupGoldChangeListener();
 		this._setupPurchaseFailedListener();
 		this._setupUserMessageListener();
-		this.tooltip = new Tooltip(scene)
+		this.tooltip = new Tooltip(scene);
+		this._setupTooltipShowListener();
+		this._setupTooltipHideListener();
 	}
 
 	/**
@@ -73,6 +75,24 @@ export class UIManager {
 	 */
 	private _setupUserMessageListener(): void {
 		this.scene.events.on(GameEvents.USER_MESSAGE_REQUESTED, this._handleUserMessageRequested, this);
+	}
+
+	/**
+	 * Sets up an event listener for "tooltip_show" events.
+	 * This allows other game systems to request the display of a tooltip.
+	 */
+	private _setupTooltipShowListener(): void {
+		this.scene.events.on(GameEvents.TOOLTIP_SHOW, (payload: { x: number, y: number, title: string, description: string }) => {
+			this.tooltip.render(payload.x, payload.y, payload.title, payload.description);
+		}, this);
+	}
+
+	/**
+	 * Sets up an event listener for "tooltip_hide" events.
+	 * This allows other game systems to request hiding the tooltip.
+	 */
+	private _setupTooltipHideListener(): void {
+		this.scene.events.on(GameEvents.TOOLTIP_HIDE, () => this.tooltip.hide(), this);
 	}
 
 	/**
@@ -214,6 +234,8 @@ export class UIManager {
 		this.scene.events.off(GameEvents.GOLD_CHANGED, this._handleGoldChanged, this);
 		this.scene.events.off(GameEvents.PURCHASE_FAILED, this._handlePurchaseFailed, this);
 		this.scene.events.off(GameEvents.USER_MESSAGE_REQUESTED, this._handleUserMessageRequested, this);
+		this.scene.events.off(GameEvents.TOOLTIP_SHOW);
+		this.scene.events.off(GameEvents.TOOLTIP_HIDE);
 	}
 
 	/**
