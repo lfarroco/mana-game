@@ -20,9 +20,10 @@ export class Tooltip {
 	private container: Phaser.GameObjects.Container;
 	/** The graphical background of the tooltip. */
 	private bg: Phaser.GameObjects.Graphics;
+	/** The text object for the tooltip's title. */
 	private titleText: Phaser.GameObjects.Text;
-	/** An array of text objects for each segment of the tooltip's description, allowing for multiple colors. */
-	private descriptionTextSegments: Phaser.GameObjects.Text[] = [];
+	/** The text object for the tooltip's description. */
+	private descriptionText: Phaser.GameObjects.Text;
 
 	// Cached content and dimensions
 	/** The last rendered title string, used to detect changes. */
@@ -66,8 +67,6 @@ export class Tooltip {
 	private static readonly MAX_TOOLTIP_HEIGHT = 400;
 	/** Minimum width for the description text's word wrapping. */
 	private static readonly MIN_CONTENT_WIDTH = 100; // Min width for description text wrap
-	/** Target character limit for breaking lines in the description. */
-	private static readonly DESCRIPTION_LINE_CHAR_LIMIT = 40;
 
 	/**
 	 * Creates an instance of the Tooltip.
@@ -107,7 +106,19 @@ export class Tooltip {
 			.setAlign("left");
 		this.container.add(this.titleText);
 
-		// Description text objects will be created dynamically
+		const initialDescriptionWrapWidth = Tooltip.MAX_TOOLTIP_WIDTH - (2 * Tooltip.PADDING);
+		this.descriptionText = this.scene.add.text(
+			-this.currentDynamicWidth / 2 + Tooltip.PADDING,
+			this.titleText.y + this.titleText.displayHeight + Tooltip.INTER_ELEMENT_PADDING, // Initial Y, will be updated
+			'', // Initial empty text
+			defaultTextConfig
+		)
+			.setOrigin(0)
+			.setFontSize(Tooltip.DESCRIPTION_FONT_SIZE)
+			.setAlign("left")
+			.setWordWrapWidth(initialDescriptionWrapWidth);
+		this.container.add(this.descriptionText);
+
 		this.container.setVisible(false); // Initially hidden
 	}
 
@@ -163,61 +174,23 @@ export class Tooltip {
 	}
 
 	/**
-	 * Clears existing description text objects and rebuilds them based on the BBCode string.
-	 * Each segment from the parsed BBCode will be a new Phaser.GameObjects.Text object.
+	 * Updates the descriptionText object with parsed BBCode for colors.
 	 * @param bbCodeDescription The raw description string with BBCode.
 	 */
-	private _rebuildDescriptionSegments(bbCodeDescription: string): void {
-		// Clear and destroy old segments
-		this.descriptionTextSegments.forEach(segment => segment.destroy());
-		this.descriptionTextSegments = [];
+	private updateDescriptionText(bbCodeDescription: string): void {
+		const parsedSegments = this.parseBBCodeIntoSegments(bbCodeDescription);
+		const cleanText = parsedSegments.map(segment => segment.text).join('');
+		this.descriptionText.setText(cleanText);
 
-		const parsedBBCodeSegments = this.parseBBCodeIntoSegments(bbCodeDescription);
-
-		for (const bbSegment of parsedBBCodeSegments) {
-			if (bbSegment.text.length === 0) {
-				continue; // Skip empty initial segments
-			}
-
-			let currentTextChunk = bbSegment.text;
-			while (currentTextChunk.length > 0) {
-				let lineText: string;
-				if (currentTextChunk.length > Tooltip.DESCRIPTION_LINE_CHAR_LIMIT) {
-					// Try to find a break point (space) at or before the limit.
-					// Search within the substring that could potentially be a line.
-					let potentialCutSubstring = currentTextChunk.substring(0, Tooltip.DESCRIPTION_LINE_CHAR_LIMIT + 1);
-					let breakAt = potentialCutSubstring.lastIndexOf(' ');
-
-					if (breakAt > 0) { // Found a space, and it's not at the beginning.
-						lineText = currentTextChunk.substring(0, breakAt);
-						currentTextChunk = currentTextChunk.substring(breakAt + 1); // +1 to skip the space
-					} else {
-						// No suitable space found (or space is at index 0). Hard break at the limit.
-						lineText = currentTextChunk.substring(0, Tooltip.DESCRIPTION_LINE_CHAR_LIMIT);
-						currentTextChunk = currentTextChunk.substring(Tooltip.DESCRIPTION_LINE_CHAR_LIMIT);
-					}
-				} else {
-					lineText = currentTextChunk;
-					currentTextChunk = "";
-				}
-
-				if (lineText.length > 0) { // Ensure we don't add empty text objects
-					const newTextSegment = this.scene.add.text(
-						0, 0, // Position will be set in render() during layout
-						lineText,
-						defaultTextConfig
-					)
-						.setOrigin(0)
-						.setFontSize(Tooltip.DESCRIPTION_FONT_SIZE)
-						.setAlign("left") // Individual segments are left-aligned
-						.setColor(bbSegment.color);
-
-					this.container.add(newTextSegment);
-					this.descriptionTextSegments.push(newTextSegment);
-				}
+		let currentIndex = 0;
+		for (const segment of parsedSegments) {
+			if (segment.text.length > 0) { // Only add color if there's text for this segment
+				this.descriptionText.setColor(segment.color);
+				currentIndex += segment.text.length;
 			}
 		}
 	}
+
 	/**
 	 * Renders or updates the tooltip with new content and position.
 	 * @param x The target x-coordinate for the tooltip (center).
@@ -236,61 +209,43 @@ export class Tooltip {
 		}
 
 		const titleActualWidth = this.titleText.width;
-		const titleActualHeight = this.titleText.height;
-
 		const maxContentAreaWidth = Tooltip.MAX_TOOLTIP_WIDTH - (2 * Tooltip.PADDING);
-
-		// This wrap width is the target for the entire description block
 		const newDescriptionWrapWidth = Phaser.Math.Clamp(
-			Math.max(titleActualWidth, Tooltip.MIN_CONTENT_WIDTH), // Ensure description has at least min_content_width or title width
+			titleActualWidth,
 			Tooltip.MIN_CONTENT_WIDTH,
 			maxContentAreaWidth
 		);
 
-		// For simplicity, let's assume description content/layout changes if description string or its available width changes.
-		// A more sophisticated check could compare old wrap width with new.
-		// For now, if description string changes, we rebuild.
+		let descriptionWrapWidthChanged = false;
+		if (this.descriptionText.style.wordWrapWidth !== newDescriptionWrapWidth) {
+			this.descriptionText.setWordWrapWidth(newDescriptionWrapWidth);
+			descriptionWrapWidthChanged = true;
+		}
 
 		if (descriptionChanged) {
 			this.currentDescription = description;
-			this._rebuildDescriptionSegments(this.currentDescription);
-			overallContentChanged = true; // Content has effectively changed if wrap width altered dimensions
 		}
 
+		// If the raw description string has changed, or if its wrap width has changed,
+		// we need to re-parse and re-render the description text.
+		if (descriptionChanged || descriptionWrapWidthChanged) {
+			this.updateDescriptionText(this.currentDescription); // Use the (potentially updated) this.currentDescription
+			overallContentChanged = true; // Content has effectively changed if wrap width altered dimensions
+		}
 		const needsFullLayoutUpdate = overallContentChanged || !this.container.visible;
 
-		let descActualWidth = 0;
-		let descActualHeight = 0;
-
 		if (needsFullLayoutUpdate) {
-			// --- Layout Description Segments ---
-			// This is a simplified layout: horizontally sequential, basic wrap.
-			// A full rich text layout is more complex.
-			let currentSegmentX = 0;
-			let currentSegmentY = 0;
-			let currentLineHeight = 0;
-
-			this.descriptionTextSegments.forEach(segment => {
-				if (currentSegmentX !== 0 && currentSegmentX + segment.width > newDescriptionWrapWidth) {
-					currentSegmentX = 0;
-					currentSegmentY += currentLineHeight;
-					currentLineHeight = 0;
-				}
-				segment.setPosition(currentSegmentX, currentSegmentY); // Relative to description block's start
-				currentSegmentX += segment.width;
-				currentLineHeight = Math.max(currentLineHeight, segment.height);
-				descActualWidth = Math.max(descActualWidth, currentSegmentX);
-			});
-			descActualHeight = currentSegmentY + currentLineHeight;
-			// --- End Description Layout ---
-
+			const descActualWidth = this.descriptionText.width;
 			const finalContentWidth = Math.max(titleActualWidth, descActualWidth);
+
 			this.currentDynamicWidth = Phaser.Math.Clamp(
 				finalContentWidth + (2 * Tooltip.PADDING),
 				Tooltip.MIN_TOOLTIP_WIDTH,
 				Tooltip.MAX_TOOLTIP_WIDTH
 			);
 
+			const titleActualHeight = this.titleText.height;
+			const descActualHeight = this.descriptionText.height;
 			const contentTotalHeight = titleActualHeight + Tooltip.INTER_ELEMENT_PADDING + descActualHeight;
 
 			this.currentDynamicHeight = Phaser.Math.Clamp(
@@ -299,7 +254,6 @@ export class Tooltip {
 				Tooltip.MAX_TOOLTIP_HEIGHT
 			);
 
-			// Now that final dimensions are known, redraw background
 			this.bg.clear();
 			this.bg.fillStyle(Tooltip.BACKGROUND_COLOR, Tooltip.BACKGROUND_ALPHA);
 			this.bg.fillRoundedRect(
@@ -308,19 +262,11 @@ export class Tooltip {
 				Tooltip.BORDER_RADIUS
 			);
 
-			// Position title
-			const titleX = -this.currentDynamicWidth / 2 + Tooltip.PADDING;
-			const titleY = -this.currentDynamicHeight / 2 + Tooltip.PADDING;
-			this.titleText.setPosition(titleX, titleY);
+			this.titleText.setX(-this.currentDynamicWidth / 2 + Tooltip.PADDING);
+			this.titleText.setY(-this.currentDynamicHeight / 2 + Tooltip.PADDING);
 
-			// Position description segments relative to the title and new tooltip dimensions
-			// Their internal x,y (set during the forEach loop above) are relative to the description block's (0,0)
-			const descriptionBlockStartX = titleX; // Align description block with title's X
-			const descriptionBlockStartY = titleY + titleActualHeight + Tooltip.INTER_ELEMENT_PADDING;
-			this.descriptionTextSegments.forEach(segment => {
-				// segment.x and segment.y are from the relative layout pass
-				segment.setPosition(descriptionBlockStartX + segment.x, descriptionBlockStartY + segment.y);
-			});
+			this.descriptionText.setX(-this.currentDynamicWidth / 2 + Tooltip.PADDING);
+			this.descriptionText.setY(this.titleText.y + titleActualHeight + Tooltip.INTER_ELEMENT_PADDING);
 		}
 
 		const { x: adjustedX, y: adjustedY } = this._getAdjustedPosition(x, y, this.currentDynamicWidth, this.currentDynamicHeight);
@@ -356,7 +302,6 @@ export class Tooltip {
 	 * Destroys the tooltip and its associated game objects, removing them from the scene.
 	 */
 	public destroy(): void {
-		this.descriptionTextSegments.forEach(segment => segment.destroy());
 		this.container.destroy(true); // true to destroy children as well
 	}
 
