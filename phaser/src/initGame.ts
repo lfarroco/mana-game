@@ -5,6 +5,9 @@ import { State } from "./Models/State";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "./Scenes/Battleground/constants";
 import { DebugScene } from "./Debug/DebugScene";
 import { SaveGameSystem_init } from "./Systems/SaveGame/SaveGame";
+import BBCodeTextPlugin from 'phaser3-rex-plugins/plugins/bbcodetext-plugin.js';
+
+
 
 export function initGame(state: State) {
 
@@ -24,6 +27,14 @@ export function initGame(state: State) {
 			arcade: {
 				debug: true,
 			}
+		},
+		plugins: {
+			global: [{
+				key: 'rexBBCodeTextPlugin',
+				plugin: BBCodeTextPlugin,
+				start: true
+			},
+			]
 		}
 	});
 

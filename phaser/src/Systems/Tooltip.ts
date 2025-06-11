@@ -5,6 +5,7 @@
  */
 
 
+import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import { defaultTextConfig } from "../Scenes/Battleground/constants";
 
 // TODO: on mobile, use a long press to show the tooltip
@@ -23,7 +24,7 @@ export class Tooltip {
 	/** The text object for the tooltip's title. */
 	private titleText: Phaser.GameObjects.Text;
 	/** The text object for the tooltip's description. */
-	private descriptionText: Phaser.GameObjects.Text;
+	private descriptionText: BBCodeText;
 
 	// Cached content and dimensions
 	/** The last rendered title string, used to detect changes. */
@@ -63,8 +64,6 @@ export class Tooltip {
 	 * Optional: Or adjust as needed based on typical content length.
 	 */
 	private static readonly MAX_TOOLTIP_HEIGHT = 400;
-	/** Minimum width for the description text's word wrapping. */
-	private static readonly MIN_CONTENT_WIDTH = 100; // Min width for description text wrap
 
 	/**
 	 * Creates an instance of the Tooltip.
@@ -103,15 +102,17 @@ export class Tooltip {
 		this.container.add(this.titleText);
 
 		const initialDescriptionWrapWidth = Tooltip.MAX_TOOLTIP_WIDTH - (2 * Tooltip.PADDING);
-		this.descriptionText = this.scene.add.text(
+		this.descriptionText = this.scene.add.rexBBCodeText(
 			-this.currentDynamicWidth / 2 + Tooltip.PADDING,
 			this.titleText.y + this.titleText.displayHeight + Tooltip.INTER_ELEMENT_PADDING, // Initial Y, will be updated
 			'', // Initial empty text
-			defaultTextConfig
 		)
 			.setOrigin(0)
 			.setFontSize(Tooltip.DESCRIPTION_FONT_SIZE)
 			.setAlign("left")
+			.setWrapMode(1)
+			.setWrapWidth(Tooltip.MAX_TOOLTIP_WIDTH)
+			.setFontFamily("Arial")
 			.setWordWrapWidth(initialDescriptionWrapWidth);
 		this.container.add(this.descriptionText);
 
@@ -136,24 +137,9 @@ export class Tooltip {
 		}
 
 		const titleActualWidth = this.titleText.width;
-		const maxContentAreaWidth = Tooltip.MAX_TOOLTIP_WIDTH - (2 * Tooltip.PADDING);
-		const newDescriptionWrapWidth = Phaser.Math.Clamp(
-			titleActualWidth,
-			Tooltip.MIN_CONTENT_WIDTH,
-			maxContentAreaWidth
-		);
 
-		let descriptionWrapWidthChanged = false;
-		if (this.descriptionText.style.wordWrapWidth !== newDescriptionWrapWidth) {
-			this.descriptionText.setWordWrapWidth(newDescriptionWrapWidth);
-			descriptionWrapWidthChanged = true;
-		}
-
-		if (descriptionChanged || descriptionWrapWidthChanged) {
-			this.descriptionText.setText(description);
-			this.currentDescription = description;
-			overallContentChanged = true; // Content has effectively changed if wrap width altered dimensions
-		}
+		this.descriptionText.setText(description);
+		this.currentDescription = description;
 
 		const needsFullLayoutUpdate = overallContentChanged || !this.container.visible;
 
