@@ -46,14 +46,16 @@ export function setupTraitEventListeners(scene: BattlegroundScene): void {
 			// Assuming `relic` object has `id: string` and `traits: TraitData[]`
 			if (relic.traits && Array.isArray(relic.traits)) {
 				for (const traitData of relic.traits as TraitData[]) {
-					const relicSource = relic as RelicStateObject; // Cast the relic to the expected source type
+					const relicSource: RelicStateObject = {
+						id: relic.id,
+						forceId: relic.forceId,
+					};
 					await processTraitEvent({
 						source: relicSource,
 						traitInstanceData: traitData,
 						eventKey: "onBattleStart" as UnitEventKeys,
 						scene: payload.scene,
 						state: payload.state,
-						actingPlayerId: payload.state.gameData.player.id,
 						eventDetails: undefined
 					});
 				}
