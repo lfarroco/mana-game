@@ -17,6 +17,14 @@ import {
 	RelicStateObject // Import the new type for relic sources
 } from "./Traits";
 import { UnitEventKeys, AttackEventKeys, UnitEventWithTargetKeys } from "./UnitEvents";
+import {
+	UnitPayload,
+	EmptyPayload,
+	AttackContextPayload,
+	DefenderAttackerPayload,
+	UnitKillPayload,
+} from "./EventPayloads";
+
 
 /**
  * Sets up all necessary event listeners for the trait system.
@@ -27,11 +35,11 @@ import { UnitEventKeys, AttackEventKeys, UnitEventWithTargetKeys } from "./UnitE
  */
 export function setupTraitEventListeners(scene: BattlegroundScene): void {
 
-	scene.events.on(GameEvents.TRAIT_EVAL_UNIT_ACTION, async (payload: { unit: Unit }) => {
+	scene.events.on(GameEvents.TRAIT_EVAL_UNIT_ACTION, async (payload: UnitPayload) => {
 		await runUnitEventTraits("onAction" as UnitEventKeys, scene, getState(), payload.unit);
 	});
 
-	scene.events.on(GameEvents.TRAIT_EVAL_GLOBAL_BATTLE_START, async (_payload: {}) => {
+	scene.events.on(GameEvents.TRAIT_EVAL_GLOBAL_BATTLE_START, async (_payload: EmptyPayload) => {
 		// Iterate over all units for traits that trigger on this global event
 		const currentState = getState();
 		for (const unit of currentState.battleData.units) {
@@ -64,73 +72,73 @@ export function setupTraitEventListeners(scene: BattlegroundScene): void {
 		}
 	});
 
-	scene.events.on(GameEvents.TRAIT_EVAL_UNIT_ENTER_POSITION, async (payload: { unit: Unit }) => {
+	scene.events.on(GameEvents.TRAIT_EVAL_UNIT_ENTER_POSITION, async (payload: UnitPayload) => {
 		await runUnitEventTraits("onEnterPosition" as UnitEventKeys, scene, getState(), payload.unit);
 	});
 
-	scene.events.on(GameEvents.TRAIT_EVAL_UNIT_LEAVE_POSITION, async (payload: { unit: Unit }) => {
+	scene.events.on(GameEvents.TRAIT_EVAL_UNIT_LEAVE_POSITION, async (payload: UnitPayload) => {
 		await runUnitEventTraits("onLeavePosition" as UnitEventKeys, scene, getState(), payload.unit);
 	});
 
-	scene.events.on(GameEvents.TRAIT_EVAL_UNIT_HALF_HP, async (payload: { unit: Unit }) => {
+	scene.events.on(GameEvents.TRAIT_EVAL_UNIT_HALF_HP, async (payload: UnitPayload) => {
 		await runUnitEventTraits("onHalfHP" as UnitEventKeys, scene, getState(), payload.unit);
 	});
 
-	scene.events.on(GameEvents.TRAIT_EVAL_UNIT_DEATH, async (payload: { unit: Unit }) => {
+	scene.events.on(GameEvents.TRAIT_EVAL_UNIT_DEATH, async (payload: UnitPayload) => {
 		await runUnitEventTraits("onDeath" as UnitEventKeys, scene, getState(), payload.unit);
 	});
 
-	scene.events.on(GameEvents.TRAIT_EVAL_ATTACK_BY_ME, async (payload: { unit: Unit, target: Unit, damage: number, isCritical: boolean, evaded: boolean }) => {
+	scene.events.on(GameEvents.TRAIT_EVAL_ATTACK_BY_ME, async (payload: AttackContextPayload) => {
 		await runAttackEventTraits("onAttackByMe" as AttackEventKeys, scene, getState(), payload.unit, payload.target, payload.damage, payload.isCritical, payload.evaded);
 	});
 
-	scene.events.on(GameEvents.TRAIT_EVAL_DEFEND_BY_ME, async (payload: { unit: Unit, attacker: Unit }) => {
+	scene.events.on(GameEvents.TRAIT_EVAL_DEFEND_BY_ME, async (payload: DefenderAttackerPayload) => {
 		// 'unit' is the defender, 'attacker' is the source of the attack.
 		// "onDefendByMe" implies traits on the defender (payload.unit) are triggered.
 		// The attacker (payload.attacker) is the target of this event context.
 		await runUnitEventWithTargetTraits("onDefendByMe" as UnitEventWithTargetKeys, scene, getState(), payload.unit, payload.attacker);
 	});
 
-	scene.events.on(GameEvents.TRAIT_EVAL_EVADE_BY_ME, async (payload: { unit: Unit, attacker: Unit }) => {
+	scene.events.on(GameEvents.TRAIT_EVAL_EVADE_BY_ME, async (payload: DefenderAttackerPayload) => {
 		// 'unit' is the evader, 'attacker' is the source of the attack.
 		// "onEvadeByMe" implies traits on the evader (payload.unit) are triggered.
 		// The attacker (payload.attacker) is the target of this event context.
 		await runUnitEventWithTargetTraits("onEvadeByMe" as UnitEventWithTargetKeys, scene, getState(), payload.unit, payload.attacker);
 	});
 
-	scene.events.on(GameEvents.TRAIT_EVAL_AFTER_ATTACK_BY_ME, async (payload: { unit: Unit, target: Unit, damage: number, isCritical: boolean, evaded: boolean }) => {
+	scene.events.on(GameEvents.TRAIT_EVAL_AFTER_ATTACK_BY_ME, async (payload: AttackContextPayload) => {
 		await runAttackEventTraits("onAfterAttackByMe" as AttackEventKeys, scene, getState(), payload.unit, payload.target, payload.damage, payload.isCritical, payload.evaded);
 	});
 
-	scene.events.on(GameEvents.TRAIT_EVAL_UNIT_KILL_BY_ME, async (payload: { unit: Unit, killedUnit: Unit }) => {
-		await runUnitEventWithTargetTraits("onUnitKillByMe" as UnitEventWithTargetKeys, scene, getState(), payload.unit, payload.killedUnit);
+	scene.events.on(GameEvents.TRAIT_EVAL_UNIT_KILL_BY_ME, async (payload: UnitKillPayload) => {
+		await runUnitEventWithTargetTraits("onUnitKillByMe" as UnitEventWithTargetKeys, scene, getState(), payload.unit, payload.killedUnit!);
 	});
 
-	scene.events.on(GameEvents.TRAIT_EVAL_UNIT_KILL, async (payload: { unit: Unit, killer: Unit }) => {
-		await runUnitEventWithTargetTraits("onUnitKill" as UnitEventWithTargetKeys, scene, getState(), payload.unit, payload.killer);
+	scene.events.on(GameEvents.TRAIT_EVAL_UNIT_KILL, async (payload: UnitKillPayload) => {
+		await runUnitEventWithTargetTraits("onUnitKill" as UnitEventWithTargetKeys, scene, getState(), payload.unit, payload.killer!);
 	});
 
-	scene.events.on(GameEvents.TRAIT_EVAL_ALLIED_KILLED, async (payload: { unit: Unit, killer?: Unit }) => {
-		await runUnitEventWithTargetTraits("onAlliedKilled" as UnitEventWithTargetKeys, scene, getState(), payload.unit, payload.killer as Unit); // killer can be undefined, handle in trait
+	scene.events.on(GameEvents.TRAIT_EVAL_ALLIED_KILLED, async (payload: UnitKillPayload) => {
+		await runUnitEventWithTargetTraits("onAlliedKilled" as UnitEventWithTargetKeys, scene, getState(), payload.unit, payload.killer as Unit); // killer can be undefined, trait/handler must be robust
 	});
 
-	scene.events.on(GameEvents.TRAIT_EVAL_ENEMY_KILLED, async (payload: { unit: Unit, killer?: Unit }) => {
-		await runUnitEventWithTargetTraits("onEnemyKilled" as UnitEventWithTargetKeys, scene, getState(), payload.unit, payload.killer as Unit); // killer can be undefined, handle in trait
+	scene.events.on(GameEvents.TRAIT_EVAL_ENEMY_KILLED, async (payload: UnitKillPayload) => {
+		await runUnitEventWithTargetTraits("onEnemyKilled" as UnitEventWithTargetKeys, scene, getState(), payload.unit, payload.killer as Unit); // killer can be undefined, trait/handler must be robust
 	});
 
-	scene.events.on(GameEvents.TRAIT_EVAL_ALLIED_ACTION, async (payload: { unit: Unit }) => {
+	scene.events.on(GameEvents.TRAIT_EVAL_ALLIED_ACTION, async (payload: UnitPayload) => {
 		await runUnitEventTraits("onAlliedAction" as UnitEventKeys, scene, getState(), payload.unit);
 	});
 
-	scene.events.on(GameEvents.TRAIT_EVAL_TURN_START, async (payload: { unit: Unit }) => {
+	scene.events.on(GameEvents.TRAIT_EVAL_TURN_START, async (payload: UnitPayload) => {
 		await runUnitEventTraits("onTurnStart" as UnitEventKeys, scene, getState(), payload.unit);
 	});
 
-	scene.events.on(GameEvents.TRAIT_EVAL_TURN_END, async (payload: { unit: Unit }) => {
+	scene.events.on(GameEvents.TRAIT_EVAL_TURN_END, async (payload: UnitPayload) => {
 		await runUnitEventTraits("onTurnEnd" as UnitEventKeys, scene, getState(), payload.unit);
 	});
 
-	scene.events.on(GameEvents.TRAIT_EVAL_BATTLE_END, async (_payload: {}) => {
+	scene.events.on(GameEvents.TRAIT_EVAL_BATTLE_END, async (_payload: EmptyPayload) => {
 		const currentState = getState();
 		for (const unit of currentState.battleData.units) {
 			await runUnitEventTraits("onBattleEnd" as UnitEventKeys, scene, currentState, unit);
