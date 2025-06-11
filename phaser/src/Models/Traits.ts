@@ -66,6 +66,23 @@ function isUnitSource(source: Unit | RelicStateObject): source is Unit {
 	return (source as Unit).force !== undefined; // 'force' is a good differentiator for Unit
 }
 
+/**
+ * Processes a trait event for a given source (Unit or Relic) by executing any matching effects.
+ * This function is the core of the trait system, handling the execution of trait effects based on triggered events.
+ * 
+ * @param source - The unit or relic that is the source of the trait effect
+ * @param traitInstanceData - The specific instance data of the trait being processed
+ * @param eventKey - The event that triggered this trait processing (e.g., "onAttack", "onDeath")
+ * @param scene - The current BattlegroundScene instance for game state manipulation
+ * @param state - The current game state
+ * @param actingPlayerId - ID of the player/force controlling the source
+ * @param eventDetails - Optional details specific to the triggering event:
+ *                      - primaryTarget: The main target unit of the event
+ *                      - attackDamage: The amount of damage dealt in an attack
+ *                      - isCritical: Whether an attack was critical
+ *                      - evaded: Whether an attack was evaded
+ * @returns A promise that resolves when all trait effects have been processed
+ */
 async function processTraitEvent(
 	source: Unit | RelicStateObject,
 	traitInstanceData: TraitData,
