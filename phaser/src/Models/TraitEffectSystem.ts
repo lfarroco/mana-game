@@ -57,7 +57,6 @@ export type TraitConditionInstanceData = {
 export type TraitEffectContext = {
 	sourceUnit?: Unit; // The unit that owns the trait, if applicable
 	sourceRelic?: RelicStateObject; // The relic that owns the trait, if applicable
-	actingPlayerId: string; // ID of the player/force controlling the source
 	targets: Unit[];
 	effectInstance: TraitEffectInstanceData; // The effect data from TraitDefinition
 	traitInstanceParams: TraitData; // Instance-specific params from Unit.traits or Relic.traits
@@ -136,7 +135,7 @@ function isUnitSource(source: Unit | RelicStateObject): source is Unit {
 
 export function resolveTargets(
 	source: Unit | RelicStateObject,
-	actingPlayerId: string, // The player ID of the entity whose trait is firing
+	sourceForce: string,
 	selector: string | undefined,
 	state: State,
 	_scene: BattlegroundScene, // May be needed for more complex selections (e.g., geometry checks)
@@ -156,18 +155,18 @@ export function resolveTargets(
 		case "action_target": // The direct target of an action, if applicable
 			return primaryTarget ? [primaryTarget] : [];
 		case "all_enemies":
-			return getActiveUnits(state).filter(u => u.force !== actingPlayerId);
+			return getActiveUnits(state).filter(u => u.force !== sourceForce);
 		case "all_allies":
-			return getActiveUnits(state).filter(u => u.force === actingPlayerId);
+			return getActiveUnits(state).filter(u => u.force === sourceForce);
 		case "random_enemy":
 			{
-				const enemies = getActiveUnits(state).filter(u => u.force !== actingPlayerId);
+				const enemies = getActiveUnits(state).filter(u => u.force !== sourceForce);
 				return enemies.length > 0 ? [enemies[Math.floor(Math.random() * enemies.length)]] : [];
 			}
 		case "random_ally":
 			{
 				const allies = getActiveUnits(state).filter(u =>
-					u.force === actingPlayerId &&
+					u.force === sourceForce &&
 					(!isUnitSource(source) || u.id !== (source as Unit).id) // Exclude self if source is a unit
 				);
 				return allies.length > 0 ? [allies[Math.floor(Math.random() * allies.length)]] : [];
@@ -202,13 +201,16 @@ export function checkConditions(context: TraitEffectContext, conditions: TraitCo
 
 // --- Example Condition Implementations (to be moved to a dedicated file later) ---
 registerTraitConditionImplementation("is_player_unit", (context) => {
-	return context.sourceUnit ? context.sourceUnit.force === context.actingPlayerId : context.actingPlayerId === FORCE_ID_PLAYER;
+	const sourceForce = context.sourceUnit ? context.sourceUnit.force : context.sourceRelic?.forceId;
+	return sourceForce === FORCE_ID_PLAYER;
 });
 
 registerTraitConditionImplementation("target_is_enemy", (context) => {
 	// Assumes targets are already resolved. Checks the first target.
 	// More robust checking might be needed for multi-target effects.
-	return context.targets.length > 0 && context.targets[0].force !== context.actingPlayerId;
+	const sourceForce = context.sourceUnit ? context.sourceUnit.force : context.sourceRelic?.forceId;
+	if (!sourceForce || context.targets.length === 0) return false;
+	return context.targets[0].force !== sourceForce;
 });
 
 registerTraitConditionImplementation("source_hp_below_percent", (context, conditionData) => {

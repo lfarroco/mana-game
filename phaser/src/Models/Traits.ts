@@ -48,6 +48,7 @@ export type TraitData = { // This is an *instance* of a trait on a unit/relic
  */
 export interface RelicStateObject {
 	id: string; // Relic's unique ID
+	forceId: string; // Force/player ID that owns this relic
 	// pic?: string; // Optional: for context if needed by effects
 	// name?: string; // Optional: for context
 }
@@ -63,7 +64,7 @@ interface TraitEventDetails {
 
 /** Helper to check if the source is a Unit */
 function isUnitSource(source: Unit | RelicStateObject): source is Unit {
-	return (source as Unit).force !== undefined; // 'force' is a good differentiator for Unit
+	return 'attackType' in source; // Use a Unit-specific property to differentiate
 }
 
 /**
@@ -92,12 +93,11 @@ interface TraitEventContext {
 	eventKey: string;
 	scene: BattlegroundScene;
 	state: State;
-	actingPlayerId: string;
 	eventDetails?: TraitEventDetails;
 }
 
 async function processTraitEvent(context: TraitEventContext) {
-	const { source, traitInstanceData, eventKey, scene, state, actingPlayerId, eventDetails } = context;
+	const { source, traitInstanceData, eventKey, scene, state, eventDetails } = context;
 	const definition = getTraitDefinition(traitInstanceData.id);
 	if (!definition) {
 		console.warn(`Trait definition not found for ID: ${traitInstanceData.id} on ${isUnitSource(source) ? `Unit ${(source as Unit).id}` : `Relic ${source.id}`}`);
@@ -107,12 +107,12 @@ async function processTraitEvent(context: TraitEventContext) {
 	for (const effectInstance of definition.effects) {
 		if (effectInstance.eventTrigger === eventKey) {
 			try {
-				const targets = resolveTargets(source, actingPlayerId, effectInstance.targetSelector, state, scene, eventDetails?.primaryTarget);
+				const sourceForce = isUnitSource(source) ? source.force : source.forceId;
+				const targets = resolveTargets(source, sourceForce, effectInstance.targetSelector, state, scene, eventDetails?.primaryTarget);
 
 				const context: TraitEffectContext = {
 					sourceUnit: isUnitSource(source) ? source as Unit : undefined,
 					sourceRelic: !isUnitSource(source) ? source as RelicStateObject : undefined,
-					actingPlayerId,
 					targets,
 					effectInstance,
 					traitInstanceParams: traitInstanceData,
@@ -182,7 +182,6 @@ async function processUnitTraitsForEvent(
 			eventKey,
 			scene,
 			state,
-			actingPlayerId: unit.force,
 			eventDetails
 		});
 	}
