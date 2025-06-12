@@ -1,4 +1,4 @@
-import { Unit } from "../../../Models/Unit";
+import { Unit } from "../../../Models/Entities/Unit";
 import * as Chara from "../../../Systems/Chara/Chara";
 import { vec2, Vec2, eqVec2 } from "../../../Models/Geometry";
 import { summonEffect } from "../../../Effects/summonEffect";

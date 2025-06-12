@@ -11,7 +11,7 @@ import {
 	getUnitAt
 } from './State';
 import { vec2 } from './Geometry';
-import { Unit } from './Unit';
+import { Unit } from './Entities/Unit';
 
 const mockUnits: Unit[] = [
 	{ id: 'u1', hp: 10, force: 'f1', position: vec2(0, 0), statuses: {} } as Unit,

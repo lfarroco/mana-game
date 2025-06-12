@@ -4,7 +4,7 @@
  */
 
 import { State } from "../Models/State";
-import { Unit } from "../Models/Unit";
+import { Unit } from "../Models/Entities/Unit";
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
 import * as UnitEvents_ from "../Models/UnitEvents";
 import {

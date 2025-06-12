@@ -4,7 +4,7 @@ import { BattlegroundScene } from "../Scenes/Battleground/BattlegroundScene";
 import { tween } from "../Utils/animation";
 import { COLOR_BLACK } from "../Utils/colors";
 import { Tooltip } from "./Tooltip";
-import { GoldCoinAnimator } from "../Scenes/Battleground/Systems/GoldCoinAnimator";
+import { GoldCoinAnimator } from "./GoldCoinAnimator";
 import { GameEvents } from "../constants/events";
 import { UserMessagePayload } from "../Models/EventPayloads";
 

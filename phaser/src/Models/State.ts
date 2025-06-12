@@ -1,6 +1,6 @@
-import { Force, playerForce } from "./Force";
+import { Force, playerForce } from "./Entities/Force";
 import { eqVec2, Vec2 } from "./Geometry";
-import { Unit } from "./Unit";
+import { Unit } from "./Entities/Unit";
 import { getChara } from "../Scenes/Battleground/Systems/CharaManager";
 import { UNIT_EVENT_NO_OP, UnitEvent } from "./UnitEvents";
 

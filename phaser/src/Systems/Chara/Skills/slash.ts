@@ -1,5 +1,5 @@
 import { getBattleUnit } from "../../../Models/State";
-import { Unit } from "../../../Models/Unit";
+import { Unit } from "../../../Models/Entities/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { physicalAttack } from "./physicalAttack";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";

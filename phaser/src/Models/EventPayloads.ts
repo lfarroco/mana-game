@@ -2,7 +2,7 @@
  * @file Defines the data structures (payloads) for various game events,
  * particularly those relevant to the Trait System.
  */
-import { Unit } from "./Unit";
+import { Unit } from "./Entities/Unit";
 
 /**
  * Payload for events that primarily concern a single unit.

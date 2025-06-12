@@ -8,14 +8,14 @@ import * as constants from "../../constants/constants";
 import { UIManager } from "../../UI/UIManager";
 import * as CharaManager from "./Systems/CharaManager";
 import * as TraitSystem from "../../TraitSystem/Traits";
-import { CardCollection, getAllCards, registerCollection, } from "../../Models/Card";
+import { CardCollection, getAllCards, registerCollection, } from "../../Models/Entities/Card";
 import { battleResultAnimation } from "./battleResultAnimation";
 import { images } from "../../assets";
 import { generateEnemyTeam } from "./generateEnemyTeam";
 import { popText } from "../../Systems/Chara/Animations/popText";
 import * as Relic from "./Systems/Relic";
-import { RunCombatSystem, WaveOutcome } from "./RunCombatIO"; // Modified import
-import { Unit } from "../../Models/Unit";
+import { RunCombatSystem, WaveOutcome } from "./RunCombatIO";
+import { Unit } from "../../Models/Entities/Unit";
 import { initializeSharedPlayerBoard, PlayerBoard, createBoardDropZone as createPlayerBoardDropZone } from "../../Models/Board";
 import { Shop } from "./Systems/Shop";
 import * as TraitEffectsImpl from "../../TraitSystem/TraitEffects/Implementations";

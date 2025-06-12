@@ -7,7 +7,7 @@
  * are implemented (TraitEffectFn), how effects are gated (TraitConditionFn),
  * and how targets for effects are determined.
  */
-import { Unit } from "../Models/Unit";
+import { Unit } from "../Models/Entities/Unit";
 import { TraitId, TraitData, RelicStateObject } from "./Traits"; // Import RelicStateObject and TraitData
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
 import { State } from "../Models/State";

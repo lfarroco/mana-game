@@ -1,6 +1,6 @@
 // src/Systems/Chara/CharaStatsDisplay.ts
 import Phaser from "phaser";
-import { Unit } from "../../Models/Unit";
+import { Unit } from "../../Models/Entities/Unit";
 import * as bgConstants from "../../constants/constants";
 
 export class CharaStatsDisplay {

@@ -2,7 +2,7 @@ import { BattlegroundScene } from "./BattlegroundScene";
 import { getActiveUnits, State } from "../../Models/State";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER, MIN_COOLDOWN } from "../../constants/constants";
 import * as CharaManager from "./Systems/CharaManager";
-import { Unit } from "../../Models/Unit";
+import { Unit } from "../../Models/Entities/Unit";
 import { GameEvents } from "../../constants/events";
 
 export type WaveOutcome = "player_won" | "player_lost";

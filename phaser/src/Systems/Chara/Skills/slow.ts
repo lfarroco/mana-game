@@ -1,6 +1,6 @@
 import { EnergyBeam } from "../../../Effects";
 import { getRangedTargets } from "../../../Models/Board";
-import { Unit } from "../../../Models/Unit";
+import { Unit } from "../../../Models/Entities/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 import { delay } from "../../../Utils/animation";

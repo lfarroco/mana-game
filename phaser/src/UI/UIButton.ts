@@ -1,6 +1,6 @@
 import Phaser from "phaser";
-import * as constants from "../constants";
-import { tween } from "../../../Utils/animation";
+import * as constants from "../constants/constants";
+import { tween } from "../Utils/animation";
 
 /**
  * A reusable, interactive button component for Phaser scenes.

@@ -1,5 +1,5 @@
 import { snakeDistanceBetween, sortBySnakeDistance } from "../../../Models/Geometry";
-import { Unit } from "../../../Models/Unit";
+import { Unit } from "../../../Models/Entities/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { getUnitsByProximity } from "../../../Models/Board";
 import { healAnimation } from "../Animations/healAnimation";

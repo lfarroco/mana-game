@@ -1,5 +1,5 @@
 import { getState } from "../../../Models/State";
-import { Unit } from "../../../Models/Unit";
+import { Unit } from "../../../Models/Entities/Unit";
 import { popText } from "../Animations/popText";
 import { shootAnimation } from "../Animations/shootAnimation";
 import { Chara } from "../Chara";

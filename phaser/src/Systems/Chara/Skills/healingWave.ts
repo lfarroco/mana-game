@@ -1,12 +1,12 @@
 import Phaser from "phaser";
 import { asVec2, Vec2 } from "../../../Models/Geometry";
 import { delay } from "../../../Utils/animation";
-import { Unit } from "../../../Models/Unit";
+import { Unit } from "../../../Models/Entities/Unit";
 import { getUnitsByProximity } from "../../../Models/Board";
 import { BattlegroundScene } from "../../../Scenes/Battleground/BattlegroundScene";
 import { EnergyBeam } from "../../../Effects/EnergyBeam";
 import { healingHitEffect } from "../../../Effects/healingHitEffect";
-import { getSkill, HEALING_WAVE } from "../../../Models/Skill";
+import { getSkill, HEALING_WAVE } from "../../../Models/Entities/Skill";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 
 /**

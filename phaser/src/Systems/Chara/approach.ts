@@ -1,4 +1,4 @@
-import { Unit } from "../../Models/Unit";
+import { Unit } from "../../Models/Entities/Unit";
 import { getState } from "../../Models/State";
 import { getUnitsByProximity } from "../../Models/Board";
 import { Chara } from "./Chara";
