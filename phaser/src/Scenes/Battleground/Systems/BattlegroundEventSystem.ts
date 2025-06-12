@@ -15,6 +15,8 @@ import { BattlegroundScene } from "../BattlegroundScene";
 import { UIButton } from "../../../UI/UIButton";
 import * as constants from "../../../constants/constants";
 import * as BG_CONSTANTS from "../battlegroundConstants";
+import { handleCharaDeath } from "../../../Systems/Chara/CharaDeathSequenceHandler";
+import { Chara } from "../../../Systems/Chara/Chara";
 
 export class BattlegroundEventSystem {
 	private scene: BattlegroundScene;
@@ -68,6 +70,7 @@ export class BattlegroundEventSystem {
 		events.on(GameEvents.VIGNETTE_MESSAGE_SHOW, this._onVignetteMessageShow, this);
 		events.on(GameEvents.SHOP_OPEN_UI_TRIGGER, this._onShopOpenUITrigger, this);
 		events.on(GameEvents.COMBAT_START_EXECUTION_TRIGGER, this._onCombatStartExecutionTrigger, this);
+		events.on(GameEvents.CHARA_FATALLY_WOUNDED, this._onCharaFatallyWounded, this);
 	}
 
 	public destroy(): void {
@@ -167,5 +170,9 @@ export class BattlegroundEventSystem {
 			constants.SCREEN_HEIGHT / 2 + BG_CONSTANTS.UI_BUTTON_MENU_Y_OFFSET, () => {
 				this.scene.scene.start("MainMenuScene");
 			});
+	}
+
+	private async _onCharaFatallyWounded(data: { chara: Chara, killerId: string }): Promise<void> {
+		await handleCharaDeath(this.scene, data);
 	}
 }
