@@ -8,6 +8,8 @@ export async function tween(
 	},
 ) {
 
+	const speed = getState().options.speed
+
 	const { scene } = attributes.targets[0];
 
 	if (!scene) {
@@ -16,12 +18,12 @@ export async function tween(
 	}
 
 	if (attributes.duration) {
-		attributes.duration = attributes.duration / scene.speed;
+		attributes.duration = attributes.duration / speed;
 	} else {
 		attributes.duration = 200;
 	}
 	if (attributes.delay) {
-		attributes.delay = attributes.delay / scene.speed;
+		attributes.delay = attributes.delay / speed;
 	}
 
 	return new Promise<void>((resolve, _reject) => {
