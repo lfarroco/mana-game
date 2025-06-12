@@ -28,7 +28,6 @@ import { UIButton } from "../../UI/UIButton";
 
 export class BattlegroundScene extends Phaser.Scene {
   state: State;
-  speed: number;
   bgContainer!: Phaser.GameObjects.Container;
   bgImage!: Phaser.GameObjects.Image;
   collection!: CardCollection;
@@ -46,11 +45,11 @@ export class BattlegroundScene extends Phaser.Scene {
     // PlayerBoard is a singleton managed by its module, destroy visuals if needed
     this.playerBoard.clearVisuals(); // Or playerBoard.destroy() if it's not a singleton instance tied to scene
 
-    // If Shop or UIManager have their own complex cleanup (e.g., global listeners, non-Phaser resources)
-    // they would need destroy methods called here.
-    // For now, assuming their Phaser GameObjects are handled by scene.children.removeAll or new instances on restart.
-    // if (this.shop && typeof (this.shop as any).destroy === 'function') { (this.shop as any).destroy(); }
-    // if (this.uiManager && typeof (this.uiManager as any).destroy === 'function') { (this.uiManager as any).destroy(); }
+    if (this.uiManager) {
+      this.uiManager.destroy();
+    }
+    // If Shop had a destroy method for similar reasons, it would be called here:
+    // if (this.shop && typeof this.shop.destroy === 'function') { this.shop.destroy(); }
   }
 
   // Flag to ensure runtime data like card collections and traits are registered only once.
@@ -63,7 +62,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     const state = getState();
     this.state = state;
-    this.speed = state.options.speed;
     this.runCombatSystem = new RunCombatSystem(this);
     this.battleProgressionSystem = new BattleProgressionSystem(this, this.state);
 
