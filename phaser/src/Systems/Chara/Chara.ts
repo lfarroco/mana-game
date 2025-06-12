@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { Unit } from "../../Models/Entities/Unit";
 import * as constants from "../../constants/constants";
 import { eqVec2, Vec2, vec2 } from "../../Models/Geometry";
-import { delay, tween } from "../../Utils/animation";
+import { tween } from "../../Utils/animation";
 import { FORCE_ID_PLAYER } from "../../constants/constants";
 import * as UnitManager from "../../Scenes/Battleground/Systems/CharaManager";
 import * as Board from "../../Models/Board"; // getState is used here
@@ -396,36 +396,17 @@ export class Chara extends Phaser.GameObjects.Container {
 	 * Handles the death of the unit. Sets HP to 0, plays death animation,
 	 * removes the Chara from the game state and manager, and triggers 'onDeath' events.
 	 */
-	killUnit = async (killerId: string) => {
+	killUnit = (killerId: string) => { // No longer async
 		this.unit.hp = 0;
+		this.updateHpDisplay(); // Update display to show 0 HP immediately
 
-		tween({ targets: [this], alpha: 0, duration: 1000 });
+		// Announce that this Chara has been fatally wounded.
+		// A separate handler (CharaDeathSequenceHandler) will manage the death sequence (animations, further events).
+		this.parent.events.emit(GameEvents.CHARA_FATALLY_WOUNDED, { chara: this, killerId });
 
-		const originalX = this.x;
-		for (let i = 0; i < 5; i++) {
-			await tween({ targets: [this], x: originalX - 20, duration: 100, ease: "Cubic.Out" });
-			await tween({ targets: [this], x: originalX + 20, duration: 100, ease: "Cubic.Out" });
-		}
-
-		await delay(this.parent, 2000);
-
-		const state = getState();
-		// Emit a general unit death event. Other systems will handle cleanup.
-		this.parent.events.emit(GameEvents.UNIT_DIED_IN_BATTLE, { unit: this.unit, killerId });
-
-		this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_DEATH, { unit: this.unit });
-
-		const killer = state.battleData.units.find(u => u.id === killerId);
-		// Determine if the unit was an ally or an enemy based on the force
-		const isAlly = this.unit.force === constants.FORCE_ID_PLAYER;
-		const killEvent = isAlly ? GameEvents.TRAIT_EVAL_ALLIED_KILLED : GameEvents.TRAIT_EVAL_ENEMY_KILLED;
-		// Pass killer, it might be undefined if killed by environment or non-unit source
-		this.parent.events.emit(killEvent, { unit: this.unit, killer });
-
-		if (killer) {
-			// killer is the unit performing the kill, this.unit is the one killed
-			this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_KILL_BY_ME, { unit: killer, killedUnit: this.unit });
-		}
+		// Note: The actual destruction of this Chara GameObject and its removal from managers
+		// should ideally occur after animations, triggered by an event like GameEvents.UNIT_DIED_IN_BATTLE
+		// (which is now emitted by CharaDeathSequenceHandler).
 	}
 
 	/**
