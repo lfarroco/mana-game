@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { Unit } from "../../Models/Unit";
+import { Unit } from "../../Models/Entities/Unit";
 import * as constants from "../../constants/constants";
 import { eqVec2, Vec2, vec2 } from "../../Models/Geometry";
 import { delay, tween } from "../../Utils/animation";
@@ -11,7 +11,7 @@ import { popText } from "./Animations/popText";
 import { criticalDamageDisplay } from "../../Effects";
 import { images } from "../../assets";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
-import { updatePlayerGoldIO } from "../../Models/Force";
+import { updatePlayerGoldIO } from "../../Models/Entities/Force";
 import { CharaStatsDisplay } from "./CharaStatsDisplay";
 import { CharaBarsDisplay } from "./CharaBarsDisplay";
 import { GameEvents } from "../../constants/events";

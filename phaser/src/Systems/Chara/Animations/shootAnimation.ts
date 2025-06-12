@@ -1,4 +1,4 @@
-import { Unit } from "../../../Models/Unit";
+import { Unit } from "../../../Models/Entities/Unit";
 import { tween } from "../../../Utils/animation";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { physicalAttack } from "../Skills/physicalAttack";

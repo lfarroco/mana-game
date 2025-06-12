@@ -2,10 +2,10 @@ import Phaser from "phaser";
 import * as constants from "../constants/constants";
 import { PLAYER_BOARD_X, PLAYER_BOARD_Y } from "../constants/constants";
 import { vec2, Vec2, eqVec2, sortBySnakeDistance, snakeDistanceBetween } from "./Geometry";
-import { Unit } from "./Unit"; // Pointer type might be implicitly from Phaser or a custom type
+import { Unit } from "./Entities/Unit"; // Pointer type might be implicitly from Phaser or a custom type
 import { getActiveUnits, getUnitAt, State } from "./State";
 import { pickOne, pickRandom } from "../utils";
-import { playerForce } from "./Force"; // playerForce is used by getMeleeTarget, keep import
+import { playerForce } from "./Entities/Force"; // playerForce is used by getMeleeTarget, keep import
 
 
 export class PlayerBoard {

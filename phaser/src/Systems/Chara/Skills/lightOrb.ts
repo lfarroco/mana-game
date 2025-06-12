@@ -1,5 +1,5 @@
-import { getSkill, LIGHT_ORB } from "../../../Models/Skill";
-import { Unit } from "../../../Models/Unit";
+import { getSkill, LIGHT_ORB } from "../../../Models/Entities/Skill";
+import { Unit } from "../../../Models/Entities/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { GlowingOrb } from "../../../Effects/GlowingOrb";
 import { delay } from "../../../Utils/animation";

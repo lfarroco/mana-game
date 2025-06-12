@@ -1,8 +1,8 @@
-import { playerForce, updatePlayerGoldIO } from "../../../Models/Force";
+import { playerForce, updatePlayerGoldIO } from "../../../Models/Entities/Force";
 import { getState } from "../../../Models/State";
 import { tween } from "../../../Utils/animation";
 import { images } from "../../../assets";
-import { RelicDefinition } from "../../../Models/Card";
+import { RelicDefinition } from "../../../Models/Entities/Card";
 import * as Traits from "../../../TraitSystem/Traits";
 import { Vec2 } from "../../../Models/Geometry";
 import { GameEvents } from "../../../constants/events";

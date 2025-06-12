@@ -1,5 +1,5 @@
 import { State } from "../../../Models/State";
-import { Unit } from "../../../Models/Unit";
+import { Unit } from "../../../Models/Entities/Unit";
 import { delay } from "../../../Utils/animation";
 import { BattlegroundScene } from "../BattlegroundScene";
 import * as BG_CONSTANTS from "../battlegroundConstants";

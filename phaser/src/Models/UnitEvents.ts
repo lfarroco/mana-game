@@ -4,7 +4,7 @@
  * `Unit.ts` and `Traits.ts` both need to refer to event types.
  */
 import { TraitData } from "../TraitSystem/Traits";
-import { Unit } from "./Unit";
+import { Unit } from "./Entities/Unit";
 
 /** Represents an I/O-bound operation, typically an animation or a sequence of game logic steps. */
 export type IO = () => Promise<void>;

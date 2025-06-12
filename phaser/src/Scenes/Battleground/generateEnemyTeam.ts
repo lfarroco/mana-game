@@ -1,7 +1,7 @@
-import { CardDefinition } from "../../Models/Card";
-import { cpuForce } from "../../Models/Force";
+import { CardDefinition } from "../..//Models/Entities/Card";
+import { cpuForce } from "../../Models/Entities/Force";
 import { vec2 } from "../../Models/Geometry";
-import { makeUnit } from "../../Models/Unit";
+import { makeUnit } from "../../Models/Entities/Unit";
 import { pickOne } from "../../utils";
 
 // A function that receives a round and returns the enemy team size

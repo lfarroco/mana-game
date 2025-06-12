@@ -1,4 +1,4 @@
-import { Unit } from "../../../Models/Unit";
+import { Unit } from "../../../Models/Entities/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 import { shootAnimation } from "../Animations/shootAnimation";

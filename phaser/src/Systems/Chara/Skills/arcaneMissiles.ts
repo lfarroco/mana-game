@@ -1,5 +1,5 @@
-import { ARCANE_MISSILES, getSkill } from "../../../Models/Skill";
-import { Unit } from "../../../Models/Unit";
+import { ARCANE_MISSILES, getSkill } from "../../../Models/Entities/Skill";
+import { Unit } from "../../../Models/Entities/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { getRangedTargets } from "../../../Models/Board";
 import * as animation from "../../../Effects/arcaneMissile";

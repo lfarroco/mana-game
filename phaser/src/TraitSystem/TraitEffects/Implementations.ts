@@ -8,7 +8,7 @@ import {
 	registerTraitEffectImplementation,
 	TraitEffectContext,
 } from "../TraitEffectSystem";
-import { playerForce, updatePlayerGoldIO } from "../../Models/Force";
+import { playerForce, updatePlayerGoldIO } from "../../Models/Entities/Force";
 import { popText } from "../../Systems/Chara/Animations/popText";
 import { getChara } from "../../Scenes/Battleground/Systems/CharaManager";
 import { slash } from "../../Systems/Chara/Skills/slash";
@@ -19,7 +19,7 @@ import { arcaneMissiles } from "../../Systems/Chara/Skills/arcaneMissiles";
 import { haste } from "../../Systems/Chara/Skills/haste";
 import { slow } from "../../Systems/Chara/Skills/slow";
 import { summon } from "../../Systems/Chara/Skills/summon";
-import { Unit } from "../../Models/Unit";
+import { Unit } from "../../Models/Entities/Unit";
 import { RelicStateObject } from "../Traits";
 
 

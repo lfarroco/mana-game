@@ -1,8 +1,8 @@
 import Phaser from "phaser";
-import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "../constants/constants";
-import { Relic } from "../Scenes/Battleground/Systems/Relic";
+import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "../../constants/constants";
+import { Relic } from "../../Scenes/Battleground/Systems/Relic";
 import { Unit } from "./Unit";
-import { GameEvents } from "../constants/events";
+import { GameEvents } from "../../constants/events";
 
 export type Force = {
 	id: string;

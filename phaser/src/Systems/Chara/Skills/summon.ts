@@ -1,4 +1,4 @@
-import { makeUnit } from "../../../Models/Unit";
+import { makeUnit } from "../../../Models/Entities/Unit";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 import { Chara } from "../Chara";
 import { getState } from "../../../Models/State";

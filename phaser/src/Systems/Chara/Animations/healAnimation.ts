@@ -1,5 +1,5 @@
-import { getSkill, HEAL } from "../../../Models/Skill";
-import { Unit, unitLog } from "../../../Models/Unit";
+import { getSkill, HEAL } from "../../../Models/Entities/Skill";
+import { Unit, unitLog } from "../../../Models/Entities/Unit";
 import { popText } from "./popText";
 import { delay } from "../../../Utils/animation";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
