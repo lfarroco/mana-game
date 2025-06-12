@@ -1,7 +1,7 @@
 import { tween } from "../../../Utils/animation";
 import { COLOR_BLACK } from "../../../Utils/colors";
 import BattlegroundScene from "../BattlegroundScene";
-import { defaultTextConfig } from "../constants";
+import { defaultTextConfig } from "../../../constants/constants";
 
 // display a text in the center of the screen, with a fading gradient rect behind it
 export async function vignette(scene: BattlegroundScene, text: string) {

@@ -12,7 +12,7 @@ import { TraitId, TraitData, RelicStateObject } from "./Traits"; // Import Relic
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
 import { State } from "../Models/State";
 import { getActiveUnits } from "../Models/State"; // For target resolution
-import { FORCE_ID_PLAYER } from "../Scenes/Battleground/constants";
+import { FORCE_ID_PLAYER } from "../constants/constants";
 
 /**
  * Data for a specific instance of an effect within a TraitDefinition.

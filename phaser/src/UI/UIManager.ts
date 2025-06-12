@@ -1,12 +1,12 @@
 import Phaser from "phaser";
-import * as constants from "../constants";
-import { BattlegroundScene } from "../BattlegroundScene";
-import { tween } from "../../../Utils/animation";
-import { COLOR_BLACK } from "../../../Utils/colors";
-import { Tooltip } from "../../../Systems/Tooltip";
-import { GoldCoinAnimator } from "./GoldCoinAnimator";
-import { GameEvents } from "../../../constants/events";
-import { UserMessagePayload } from "../../../Models/EventPayloads";
+import * as constants from "../constants/constants";
+import { BattlegroundScene } from "../Scenes/Battleground/BattlegroundScene";
+import { tween } from "../Utils/animation";
+import { COLOR_BLACK } from "../Utils/colors";
+import { Tooltip } from "./Tooltip";
+import { GoldCoinAnimator } from "../Scenes/Battleground/Systems/GoldCoinAnimator";
+import { GameEvents } from "../constants/events";
+import { UserMessagePayload } from "../Models/EventPayloads";
 
 /**
  * Manages the user interface elements within the BattlegroundScene.

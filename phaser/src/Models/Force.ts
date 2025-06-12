@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "../Scenes/Battleground/constants";
+import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "../constants/constants";
 import { Relic } from "../Scenes/Battleground/Systems/Relic";
 import { Unit } from "./Unit";
 import { GameEvents } from "../constants/events";

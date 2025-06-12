@@ -1,6 +1,6 @@
 import { Chara } from "../Chara";
 import { tween } from "../../../Utils/animation";
-import { TILE_HEIGHT, TILE_WIDTH } from "../../../Scenes/Battleground/constants";
+import { TILE_HEIGHT, TILE_WIDTH } from "../../../constants/constants";
 
 export async function specialAnimation(activeChara: Chara) {
 

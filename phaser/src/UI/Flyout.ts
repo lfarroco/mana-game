@@ -4,7 +4,7 @@
 
 import { images } from "../assets";
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
-import { defaultTextConfig, SCREEN_HEIGHT, SCREEN_WIDTH, TILE_HEIGHT, titleTextConfig } from "../Scenes/Battleground/constants";
+import { defaultTextConfig, SCREEN_HEIGHT, SCREEN_WIDTH, TILE_HEIGHT, titleTextConfig } from "../constants/constants";
 import { tween } from "../Utils/animation";
 
 const flyoutWidth = SCREEN_WIDTH;

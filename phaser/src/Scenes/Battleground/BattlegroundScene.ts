@@ -4,8 +4,8 @@ import { State, getState } from "../../Models/State";
 import * as ControlsSystem from "../../Systems/Controls/Controls";
 import * as AISystem from "../../Systems/AI/AI";
 import { BattlegroundAudioSystem_init } from "./Systems/Audio";
-import * as constants from "./constants";
-import { UIManager } from "./Systems/UIManager";
+import * as constants from "../../constants/constants";
+import { UIManager } from "../../UI/UIManager";
 import * as CharaManager from "./Systems/CharaManager";
 import * as TraitSystem from "../../TraitSystem/Traits";
 import { CardCollection, getAllCards, registerCollection, } from "../../Models/Card";
@@ -18,13 +18,13 @@ import { RunCombatSystem, WaveOutcome } from "./RunCombatIO"; // Modified import
 import { Unit } from "../../Models/Unit";
 import { initializeSharedPlayerBoard, PlayerBoard, createBoardDropZone as createPlayerBoardDropZone } from "../../Models/Board";
 import { Shop } from "./Systems/Shop";
-import { UIButton } from "./Systems/UIButton";
-import * as TraitEffectsImpl from "../../Systems/TraitEffects/Implementations";
+import * as TraitEffectsImpl from "../../TraitSystem/TraitEffects/Implementations";
 import { setupTraitEventListeners } from "../../TraitSystem/TraitSystemEventListeners";
 import { GameEvents } from "../../constants/events";
 import { vignette } from "./Animations/vignette";
 import * as BG_CONSTANTS from "./battlegroundConstants";
 import { BattleProgressionSystem } from "./Systems/BattleProgressionSystem";
+import { UIButton } from "../../UI/UIButton";
 
 export class BattlegroundScene extends Phaser.Scene {
   state: State;

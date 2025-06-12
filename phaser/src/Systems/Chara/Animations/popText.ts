@@ -1,5 +1,5 @@
 import { tween } from "../../../Utils/animation";
-import { defaultTextConfig, titleTextConfig } from "../../../Scenes/Battleground/constants";
+import { defaultTextConfig, titleTextConfig } from "../../../constants/constants";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 
 // TODO: add color option (heals: green, damage: yellow, etc)

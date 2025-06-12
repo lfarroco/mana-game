@@ -1,6 +1,6 @@
 import { BattlegroundScene } from "./BattlegroundScene";
 import { getActiveUnits, State } from "../../Models/State";
-import { FORCE_ID_CPU, FORCE_ID_PLAYER, MIN_COOLDOWN } from "./constants";
+import { FORCE_ID_CPU, FORCE_ID_PLAYER, MIN_COOLDOWN } from "../../constants/constants";
 import * as CharaManager from "./Systems/CharaManager";
 import { Unit } from "../../Models/Unit";
 import { GameEvents } from "../../constants/events";
@@ -67,7 +67,7 @@ export class RunCombatSystem {
           events.off('update', this.updateHandler);
           this.updateHandler = null; // Clear the handler
         }
-        
+
         events.emit(GameEvents.TRAIT_EVAL_BATTLE_END, {});
         console.log("[RunCombatSystem] Combat ended.");
 
