@@ -1,6 +1,6 @@
 import Phaser from "phaser";
-import * as constants from "../Scenes/Battleground/constants";
-import { PLAYER_BOARD_X, PLAYER_BOARD_Y } from "../Scenes/Battleground/constants";
+import * as constants from "../constants/constants";
+import { PLAYER_BOARD_X, PLAYER_BOARD_Y } from "../constants/constants";
 import { vec2, Vec2, eqVec2, sortBySnakeDistance, snakeDistanceBetween } from "./Geometry";
 import { Unit } from "./Unit"; // Pointer type might be implicitly from Phaser or a custom type
 import { getActiveUnits, getUnitAt, State } from "./State";

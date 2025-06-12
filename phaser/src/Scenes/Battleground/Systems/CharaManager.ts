@@ -5,7 +5,7 @@ import { summonEffect } from "../../../Effects/summonEffect";
 import { tween } from "../../../Utils/animation";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { images } from "../../../assets";
-import * as constants from "../constants";
+import * as constants from "../../../constants/constants";
 
 let scene: BattlegroundScene;
 

@@ -2,7 +2,7 @@ import * as Phaser from "phaser";
 import BattlegroundScene from "./Scenes/Battleground/BattlegroundScene";
 import Core from "./Scenes/Core/Core";
 import { State } from "./Models/State";
-import { SCREEN_HEIGHT, SCREEN_WIDTH } from "./Scenes/Battleground/constants";
+import { SCREEN_HEIGHT, SCREEN_WIDTH } from "./constants/constants";
 import { DebugScene } from "./Debug/DebugScene";
 import { SaveGameSystem_init } from "./Systems/SaveGame/SaveGame";
 import BBCodeTextPlugin from 'phaser3-rex-plugins/plugins/bbcodetext-plugin.js';

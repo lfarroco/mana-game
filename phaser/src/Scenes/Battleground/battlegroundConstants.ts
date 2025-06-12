@@ -13,7 +13,7 @@ export const DEFAULT_SCENE_SOUND_VOLUME = 0.05;
 export const LEVEL_UP_APPRECIATION_DELAY = 1000; // ms
 export const POST_COMBAT_DELAY = 500; // ms
 
-// UI Positioning Constants (example, adjust as needed)
+// UI Positioning Constants
 export const UI_BUTTON_RESTART_X_OFFSET = 0;
 export const UI_BUTTON_RESTART_Y_OFFSET = 50;
 export const UI_BUTTON_MENU_X_OFFSET = 0;

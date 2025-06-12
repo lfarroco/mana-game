@@ -1,6 +1,6 @@
 import { images } from "../assets";
 import { asVec2, sumVec2, vec2 } from "../Models/Geometry";
-import { TILE_WIDTH } from "../Scenes/Battleground/constants";
+import { TILE_WIDTH } from "../constants/constants";
 import { delay, tween } from "../Utils/animation";
 
 export async function fireballEffect(

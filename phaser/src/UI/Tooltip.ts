@@ -6,7 +6,7 @@
 
 
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
-import { defaultTextConfig } from "../Scenes/Battleground/constants";
+import { defaultTextConfig } from "../constants/constants";
 
 // TODO: on mobile, use a long press to show the tooltip
 

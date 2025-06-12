@@ -7,20 +7,20 @@ import {
 	TraitEffectFn,
 	registerTraitEffectImplementation,
 	TraitEffectContext,
-} from "../../TraitSystem/TraitEffectSystem";
+} from "../TraitEffectSystem";
 import { playerForce, updatePlayerGoldIO } from "../../Models/Force";
-import { popText } from "../Chara/Animations/popText";
+import { popText } from "../../Systems/Chara/Animations/popText";
 import { getChara } from "../../Scenes/Battleground/Systems/CharaManager";
-import { slash } from "../Chara/Skills/slash";
-import { shoot } from "../Chara/Skills/shoot";
-import { healing } from "../Chara/Skills/healing";
-import { healingWave } from "../Chara/Skills/healingWave";
-import { arcaneMissiles } from "../Chara/Skills/arcaneMissiles";
-import { haste } from "../Chara/Skills/haste";
-import { slow } from "../Chara/Skills/slow";
-import { summon } from "../Chara/Skills/summon";
+import { slash } from "../../Systems/Chara/Skills/slash";
+import { shoot } from "../../Systems/Chara/Skills/shoot";
+import { healing } from "../../Systems/Chara/Skills/healing";
+import { healingWave } from "../../Systems/Chara/Skills/healingWave";
+import { arcaneMissiles } from "../../Systems/Chara/Skills/arcaneMissiles";
+import { haste } from "../../Systems/Chara/Skills/haste";
+import { slow } from "../../Systems/Chara/Skills/slow";
+import { summon } from "../../Systems/Chara/Skills/summon";
 import { Unit } from "../../Models/Unit";
-import { RelicStateObject } from "../../TraitSystem/Traits";
+import { RelicStateObject } from "../Traits";
 
 
 // --- Higher-Order Function for Source Unit Requirement ---

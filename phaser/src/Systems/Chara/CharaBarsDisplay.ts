@@ -1,7 +1,7 @@
 // src/Systems/Chara/CharaBarsDisplay.ts
 import Phaser from "phaser";
 import { Unit } from "../../Models/Unit";
-import * as bgConstants from "../../Scenes/Battleground/constants";
+import * as bgConstants from "../../constants/constants";
 import { getState } from "../../Models/State";
 
 export class CharaBarsDisplay {

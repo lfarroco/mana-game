@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { tween } from "../../Utils/animation";
-import * as constants from "./constants";
+import * as constants from "../../constants/constants";
 import * as assets from "../../assets";
 
 export async function battleResultAnimation(

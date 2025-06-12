@@ -2,16 +2,16 @@ import { images } from "../../../assets";
 import { getAllCards, getAllRelicDefinitions } from "../../../Models/Card";
 import { vec2 } from "../../../Models/Geometry";
 import { makeUnit } from "../../../Models/Unit";
-import { Flyout } from "../../../Systems/Flyout";
+import { Flyout } from "../../../UI/Flyout";
 import { pickRandom } from "../../../utils";
-import { FORCE_ID_PLAYER, titleTextConfig } from "../constants";
+import { FORCE_ID_PLAYER, titleTextConfig } from "../../../constants/constants";
 import { addCharaToState } from "./CharaManager";
 import { RelicCard } from "./Relic";
 import { Chara } from "../../../Systems/Chara/Chara";
 import { BattlegroundScene } from "../BattlegroundScene";
-import { UIButton } from "./UIButton";
 import { playerForce } from "../../../Models/Force";
 import { GameEvents } from "../../../constants/events";
+import { UIButton } from "../../../UI/UIButton";
 
 export class Shop {
 	// UI Layout Constants for Shop

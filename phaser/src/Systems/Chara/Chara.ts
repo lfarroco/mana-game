@@ -1,9 +1,9 @@
 import Phaser from "phaser";
 import { Unit } from "../../Models/Unit";
-import * as constants from "../../Scenes/Battleground/constants";
+import * as constants from "../../constants/constants";
 import { eqVec2, Vec2, vec2 } from "../../Models/Geometry";
 import { delay, tween } from "../../Utils/animation";
-import { FORCE_ID_PLAYER } from "../../Scenes/Battleground/constants";
+import { FORCE_ID_PLAYER } from "../../constants/constants";
 import * as UnitManager from "../../Scenes/Battleground/Systems/CharaManager";
 import * as Board from "../../Models/Board"; // getState is used here
 import { addStatus, getState, } from "../../Models/State";
