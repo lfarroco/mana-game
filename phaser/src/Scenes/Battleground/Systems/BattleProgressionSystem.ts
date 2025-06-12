@@ -4,6 +4,8 @@ import { delay } from "../../../Utils/animation";
 import { BattlegroundScene } from "../BattlegroundScene";
 import * as BG_CONSTANTS from "../battlegroundConstants";
 import { GameEvents } from "../../../constants/events";
+import { getAllCards } from "../../../Models/Entities/Card";
+import { generateEnemyTeam } from "../generateEnemyTeam";
 
 /**
  * Manages the overall progression of the battle, including transitions
@@ -36,7 +38,7 @@ export class BattleProgressionSystem {
 	 */
 	public transitionToCombatPhase(): void {
 		console.log("Round", this.state.gameData.round, "Combat Phase Starting.");
-		const { enemies } = this.scene.setupBattle(); // setupBattle remains in Scene
+		const { enemies } = this.setupBattle();
 
 		this.scene.events.emit(GameEvents.PLAYER_BOARD_HIDE);
 		this.scene.events.emit(GameEvents.COMBAT_START_EXECUTION_TRIGGER, { enemies });
@@ -129,5 +131,23 @@ export class BattleProgressionSystem {
 			// A small delay to let player appreciate level ups, if desired
 			await delay(this.scene, BG_CONSTANTS.LEVEL_UP_APPRECIATION_DELAY);
 		}
+	}
+
+	/**
+	 * Sets up the battle by generating the enemy team and adding all units (player and enemy)
+	 * to the battle data. Also summons CPU units to the board.
+	 * @returns An object containing the array of enemy units.
+	 */
+	public setupBattle(): { enemies: Unit[] } {
+		const cardPool = getAllCards();
+		const enemies = generateEnemyTeam(this.state.gameData.round, cardPool);
+
+		this.state.battleData.units = [...enemies, ...this.state.gameData.player.units];
+
+		// Summon CPU units to the board
+		enemies.forEach(unit => {
+			this.scene.events.emit(GameEvents.CHARA_SUMMON_TO_BOARD, { unit, animateAppear: false, playSound: false });
+		});
+		return { enemies };
 	}
 }
