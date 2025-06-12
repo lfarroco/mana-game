@@ -144,7 +144,6 @@ export class Shop {
 				addCharaToState(chara);
 
 				chara.setPosition(Shop.TAVERN_CHARA_FIRST_X + (index * Shop.TAVERN_CHARA_SPACING), Shop.TAVERN_CHARA_BASE_Y);
-				chara.addTooltip();
 				chara.setBarsVisibility(false);
 
 				this.flyout.add(chara);

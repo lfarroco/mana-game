@@ -17,6 +17,7 @@ import * as constants from "../../../constants/constants";
 import * as BG_CONSTANTS from "../battlegroundConstants";
 import { handleCharaDeath } from "../../../Systems/Chara/CharaDeathSequenceHandler";
 import { Chara } from "../../../Systems/Chara/Chara";
+import * as CharaTooltip from "../../../Systems/Chara/CharaTooltip";
 
 export class BattlegroundEventSystem {
 	private scene: BattlegroundScene;
@@ -71,6 +72,8 @@ export class BattlegroundEventSystem {
 		events.on(GameEvents.SHOP_OPEN_UI_TRIGGER, this._onShopOpenUITrigger, this);
 		events.on(GameEvents.COMBAT_START_EXECUTION_TRIGGER, this._onCombatStartExecutionTrigger, this);
 		events.on(GameEvents.CHARA_FATALLY_WOUNDED, this._onCharaFatallyWounded, this);
+		events.on(GameEvents.CHARA_POINTER_OVER, CharaTooltip.onCharaPointerOver, this);
+		events.on(GameEvents.CHARA_POINTER_OUT, CharaTooltip.onCharaPointerOut, this);
 	}
 
 	public destroy(): void {
