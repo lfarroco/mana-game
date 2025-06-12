@@ -83,6 +83,14 @@ export class Chara extends Phaser.GameObjects.Container {
 		// Setup input handling
 		this.inputHandler = new CharaInputHandler(this);
 
+		// Emit events for tooltip handling by BattlegroundEventSystem
+		this.on(Phaser.Input.Events.POINTER_OVER, () => {
+			this.parent.events.emit(GameEvents.CHARA_POINTER_OVER, { chara: this });
+		});
+		this.on(Phaser.Input.Events.POINTER_OUT, () => {
+			this.parent.events.emit(GameEvents.CHARA_POINTER_OUT, { chara: this });
+		});
+
 		this.statsDisplay.updateHp();
 		this.statsDisplay.updateAtk();
 		this.barsDisplay.updateBars();
@@ -329,29 +337,6 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.barsDisplay.setVisible(visible);
 	}
 
-	/**
-	 * Sets up tooltip display for this Chara on pointer hover.
-	 */
-	addTooltip = () => {
-		this.on('pointerover', () => {
-			const text = [
-				`Attack: ${this.unit.attackPower} HP: ${this.unit.hp}`,
-				this.unit.traits.map((trait) => trait.description).join("\n"),
-			].join('\n');
-
-			this.parent.events.emit(GameEvents.TOOLTIP_SHOW, {
-				x: this.x + 340, // TODO: Adjust tooltip position based on Chara's screen position/side
-				y: this.y,
-				title: this.unit.name,
-				description: text
-			});
-		});
-
-		this.on('pointerout', () => {
-			this.parent.events.emit(GameEvents.TOOLTIP_HIDE);
-		});
-	}
-
 	/** Updates the charge bar and other debug bars via the `barsDisplay` component. */
 	updateChargeBar = () => {
 		this.barsDisplay.updateBars();
@@ -456,6 +441,8 @@ export class Chara extends Phaser.GameObjects.Container {
 		if (this.inputHandler) {
 			this.inputHandler.destroy();
 		}
+		this.off(Phaser.Input.Events.POINTER_OVER);
+		this.off(Phaser.Input.Events.POINTER_OUT);
 		super.destroy(fromScene);
 	}
 }

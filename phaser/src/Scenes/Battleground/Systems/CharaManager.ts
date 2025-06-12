@@ -58,8 +58,6 @@ export async function summonChara(
 
 	//Chara.addBoardEvents();
 
-	chara.addTooltip();
-
 	chara.setAlpha(0);
 
 	if (fadeIn)

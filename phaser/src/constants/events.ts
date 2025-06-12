@@ -51,6 +51,8 @@ export const GameEvents = {
 	CHARA_CHARGE_BAR_UPDATE: "chara_charge_bar_update", // Payload: { unitId: string }
 	CHARA_BARS_VISIBILITY_SET: "chara_bars_visibility_set", // Payload: { unitId: string, visible: boolean }
 	BATTLE_RESULT_SHOW: "battle_result_show", // Payload: { result: "victory" | "defeat" }
+	CHARA_POINTER_OVER: "chara_pointer_over", // Payload: { charaId: string }
+	CHARA_POINTER_OUT: "chara_pointer_out", // Payload: { charaId: string }
 	VIGNETTE_MESSAGE_SHOW: "vignette_message_show", // Payload: { message: string }
 	SHOP_OPEN_UI_TRIGGER: "shop_open_ui_trigger",
 	COMBAT_START_EXECUTION_TRIGGER: "combat_start_execution_trigger", // Payload: { enemies: Unit[] }
