@@ -7,11 +7,11 @@
  * are implemented (TraitEffectFn), how effects are gated (TraitConditionFn),
  * and how targets for effects are determined.
  */
-import { Unit } from "./Unit";
+import { Unit } from "../Models/Unit";
 import { TraitId, TraitData, RelicStateObject } from "./Traits"; // Import RelicStateObject and TraitData
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
-import { State } from "./State";
-import { getActiveUnits } from "./State"; // For target resolution
+import { State } from "../Models/State";
+import { getActiveUnits } from "../Models/State"; // For target resolution
 import { FORCE_ID_PLAYER } from "../Scenes/Battleground/constants";
 
 /**

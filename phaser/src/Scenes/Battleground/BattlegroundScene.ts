@@ -7,7 +7,7 @@ import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import * as constants from "./constants";
 import { UIManager } from "./Systems/UIManager";
 import * as CharaManager from "./Systems/CharaManager";
-import * as TraitSystem from "../../Models/Traits";
+import * as TraitSystem from "../../TraitSystem/Traits";
 import { CardCollection, getAllCards, registerCollection, } from "../../Models/Card";
 import { battleResultAnimation } from "./battleResultAnimation";
 import { images } from "../../assets";
@@ -20,7 +20,7 @@ import { initializeSharedPlayerBoard, PlayerBoard, createBoardDropZone as create
 import { Shop } from "./Systems/Shop";
 import { UIButton } from "./Systems/UIButton";
 import * as TraitEffectsImpl from "../../Systems/TraitEffects/Implementations";
-import { setupTraitEventListeners } from "../../Models/TraitSystemEventListeners";
+import { setupTraitEventListeners } from "../../TraitSystem/TraitSystemEventListeners";
 import { GameEvents } from "../../constants/events";
 import { vignette } from "./Animations/vignette";
 import * as BG_CONSTANTS from "./battlegroundConstants";

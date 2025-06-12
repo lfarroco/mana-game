@@ -1,5 +1,5 @@
-import { TraitDefinition } from "./TraitEffectSystem";
-import * as t from "./Traits";
+import { TraitDefinition } from "../TraitSystem/TraitEffectSystem";
+import * as t from "../TraitSystem/Traits";
 
 let cards = new Map<string, CardDefinition>();
 

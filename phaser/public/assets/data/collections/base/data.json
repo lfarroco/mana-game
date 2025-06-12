@@ -96,7 +96,7 @@
 			"id": "swift_boots",
 			"name": "Swift Boots",
 			"pic": "icon/agility_training",
-			"description": "Reduces all heroes cooldown's by 20%",
+			"description": "Party: reduces [color=rgb(0,255,200)]cooldowns[/color] by 20%",
 			"cost": 50,
 			"traits": [
 				{
@@ -238,7 +238,7 @@
 		{
 			"id": "arcane_missiles_action",
 			"name": "Arcane Missiles Action",
-			"description": "Shoots multiple arcane missiles.",
+			"description": "Shoots multiple [color=purple]arcane missiles[/purple].",
 			"categories": [
 				"offensive"
 			],
@@ -252,7 +252,7 @@
 		{
 			"id": "haste_action",
 			"name": "Haste Action",
-			"description": "Hastes surrounding allies.",
+			"description": "[color=rgb(255,200,0)Hastes[/color] surrounding allies.",
 			"categories": [
 				"support"
 			],
@@ -266,7 +266,7 @@
 		{
 			"id": "slow_action",
 			"name": "Slow Action",
-			"description": "Slows an enemy.",
+			"description": "[color=brown]Slows[/color] an enemy.",
 			"categories": [
 				"defensive",
 				"offensive"
@@ -281,7 +281,7 @@
 		{
 			"id": "plunder",
 			"name": "Plunder",
-			"description": "When this unit attacks, gain 1 gold.",
+			"description": "When this unit attacks, gain [color=yellow]1 gold[/color].",
 			"categories": [
 				"economy"
 			],
@@ -315,7 +315,7 @@
 		{
 			"id": "relic_golden_touch",
 			"name": "Golden Touch (Relic)",
-			"description": "Grants gold at the start of battle.",
+			"description": "Grants [color=yellow]gold[/gold] at the start of battle.",
 			"categories": [
 				"economy"
 			],
@@ -330,7 +330,7 @@
 		{
 			"id": "relic_reduce_cooldowns",
 			"name": "Reduce Cooldowns (Relic)",
-			"description": "Reduces allied heroes' cooldowns at battle start.",
+			"description": "Reduces allied heroes' [color=rgb(255,200,0)]cooldowns[/color] at battle start.",
 			"categories": [
 				"support"
 			],
@@ -346,7 +346,7 @@
 		{
 			"id": "relic_increase_max_hp",
 			"name": "Increase Max HP (Relic)",
-			"description": "Increases allied heroes' max HP at battle start.",
+			"description": "Increases allied heroes' [color=green]max HP[/color] at battle start.",
 			"categories": [
 				"support"
 			],
