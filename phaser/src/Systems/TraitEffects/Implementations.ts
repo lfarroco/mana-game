@@ -7,7 +7,7 @@ import {
 	TraitEffectFn,
 	registerTraitEffectImplementation,
 	TraitEffectContext,
-} from "../../Models/TraitEffectSystem";
+} from "../../TraitSystem/TraitEffectSystem";
 import { playerForce, updatePlayerGoldIO } from "../../Models/Force";
 import { popText } from "../Chara/Animations/popText";
 import { getChara } from "../../Scenes/Battleground/Systems/CharaManager";
@@ -20,7 +20,7 @@ import { haste } from "../Chara/Skills/haste";
 import { slow } from "../Chara/Skills/slow";
 import { summon } from "../Chara/Skills/summon";
 import { Unit } from "../../Models/Unit";
-import { RelicStateObject } from "../../Models/Traits";
+import { RelicStateObject } from "../../TraitSystem/Traits";
 
 
 // --- Higher-Order Function for Source Unit Requirement ---

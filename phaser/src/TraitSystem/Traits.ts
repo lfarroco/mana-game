@@ -3,10 +3,10 @@
  * Traits provide special abilities or characteristics to units and relics.
  */
 
-import { State } from "./State";
-import { Unit } from "./Unit";
+import { State } from "../Models/State";
+import { Unit } from "../Models/Unit";
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
-import * as UnitEvents_ from "./UnitEvents";
+import * as UnitEvents_ from "../Models/UnitEvents";
 import {
 	TraitEffectContext,
 	getTraitDefinition,
@@ -21,7 +21,7 @@ import {
 	DefenderAttackerPayload,
 	UnitKillPayload,
 	UnitPayload
-} from "./EventPayloads"; // Import necessary payload types
+} from "../Models/EventPayloads"; // Import necessary payload types
 
 /**
  * A unique identifier for a trait.

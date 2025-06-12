@@ -1,7 +1,7 @@
 import { v4 } from "uuid";
 import { Vec2, vec2Zero } from "./Geometry";
 import { getCardDefinition } from "./Card";
-import { TraitData } from "./Traits";
+import { TraitData } from "../TraitSystem/Traits";
 import { UnitEvent, } from "./UnitEvents";
 
 // A Unit holds data about a game character

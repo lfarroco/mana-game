@@ -3,7 +3,7 @@ import { getState } from "../../../Models/State";
 import { tween } from "../../../Utils/animation";
 import { images } from "../../../assets";
 import { RelicDefinition } from "../../../Models/Card";
-import * as Traits from "../../../Models/Traits";
+import * as Traits from "../../../TraitSystem/Traits";
 import { Vec2 } from "../../../Models/Geometry";
 import { GameEvents } from "../../../constants/events";
 import { UserMessagePayload } from "../../../Models/EventPayloads";

@@ -5,7 +5,7 @@
  */
 
 import { GameEvents } from "../constants/events";
-import { getState, State } from "./State";
+import { getState, State } from "../Models/State";
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
 import {
 	runUnitEventTraits,
@@ -14,14 +14,14 @@ import {
 	processTraitEvent, // Relies on TraitEventContext from Traits.ts
 	RelicStateObject // Import the new type for relic sources
 } from "./Traits";
-import { UnitEventKeys, AttackEventKeys, UnitEventWithTargetKeys } from "./UnitEvents";
+import { UnitEventKeys, AttackEventKeys, UnitEventWithTargetKeys } from "../Models/UnitEvents";
 import {
 	UnitPayload,
 	EmptyPayload,
 	AttackContextPayload,
 	DefenderAttackerPayload,
 	UnitKillPayload,
-} from "./EventPayloads";
+} from "../Models/EventPayloads";
 
 
 /**
