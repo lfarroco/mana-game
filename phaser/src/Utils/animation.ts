@@ -35,7 +35,7 @@ export async function tween(
 	const firstTarget = targets[0];
 
 	//@ts-ignore
-	const scene: Phaser.Scene = firstTarget;
+	const scene: Phaser.Scene = firstTarget.scene;
 
 	if (!scene) {
 		console.warn("Tween: First target is missing a scene. Aborting tween.", firstTarget);
