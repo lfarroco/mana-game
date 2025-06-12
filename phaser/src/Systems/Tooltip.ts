@@ -25,16 +25,8 @@ export class Tooltip {
 	private titleText: Phaser.GameObjects.Text;
 	/** The text object for the tooltip's description. */
 	private descriptionText: BBCodeText;
-
-	// Cached content and dimensions
-	/** The last rendered title string, used to detect changes. */
 	private currentTitle: string = '';
-	/** The last rendered description string, used to detect changes. */
 	private currentDescription: string = '';
-	/** The current dynamically calculated width of the tooltip. */
-	private currentDynamicWidth: number;
-	/** The current dynamically calculated height of the tooltip. */
-	private currentDynamicHeight: number;
 
 	// Style constants can be static members or remain module-level if preferred
 	/** Padding around the content within the tooltip. */
@@ -52,18 +44,11 @@ export class Tooltip {
 	/** Padding between the title and description text. */
 	private static readonly INTER_ELEMENT_PADDING = Tooltip.PADDING / 2;
 
-	// Dynamic sizing constants
-	/** Minimum width the tooltip can have. */
-	private static readonly MIN_TOOLTIP_WIDTH = 150;
-	/** Minimum height the tooltip can have. */
-	private static readonly MIN_TOOLTIP_HEIGHT = 80;
-	/** Maximum width the tooltip can have. */
-	private static readonly MAX_TOOLTIP_WIDTH = 500;
-	/**
-	 * Maximum height the tooltip can have.
-	 * Optional: Or adjust as needed based on typical content length.
-	 */
-	private static readonly MAX_TOOLTIP_HEIGHT = 400;
+	// Fixed sizing constants
+	/** Fixed width for the tooltip. */
+	private static readonly FIXED_TOOLTIP_WIDTH = 600;
+	/** Fixed height for the tooltip. */
+	private static readonly FIXED_TOOLTIP_HEIGHT = 300;
 
 	/**
 	 * Creates an instance of the Tooltip.
@@ -75,23 +60,20 @@ export class Tooltip {
 		this.container = this.scene.add.container(0, 0);
 		this.container.setDepth(Phaser.Math.MAX_SAFE_INTEGER); // Ensure tooltip is on top
 
-		this.currentDynamicWidth = Tooltip.MIN_TOOLTIP_WIDTH;
-		this.currentDynamicHeight = Tooltip.MIN_TOOLTIP_HEIGHT;
-
 		this.bg = this.scene.add.graphics();
 		this.bg.fillStyle(Tooltip.BACKGROUND_COLOR, Tooltip.BACKGROUND_ALPHA);
 		this.bg.fillRoundedRect(
-			-this.currentDynamicWidth / 2,
-			-this.currentDynamicHeight / 2,
-			this.currentDynamicWidth,
-			this.currentDynamicHeight,
+			-Tooltip.FIXED_TOOLTIP_WIDTH / 2,
+			-Tooltip.FIXED_TOOLTIP_HEIGHT / 2,
+			Tooltip.FIXED_TOOLTIP_WIDTH,
+			Tooltip.FIXED_TOOLTIP_HEIGHT,
 			Tooltip.BORDER_RADIUS
 		);
 		this.container.add(this.bg);
 
 		this.titleText = this.scene.add.text(
-			-this.currentDynamicWidth / 2 + Tooltip.PADDING,
-			-this.currentDynamicHeight / 2 + Tooltip.PADDING,
+			-Tooltip.FIXED_TOOLTIP_WIDTH / 2 + Tooltip.PADDING,
+			-Tooltip.FIXED_TOOLTIP_HEIGHT / 2 + Tooltip.PADDING,
 			'', // Initial empty text
 			defaultTextConfig
 		)
@@ -101,9 +83,9 @@ export class Tooltip {
 			.setAlign("left");
 		this.container.add(this.titleText);
 
-		const initialDescriptionWrapWidth = Tooltip.MAX_TOOLTIP_WIDTH - (2 * Tooltip.PADDING);
+		const descriptionWrapWidth = Tooltip.FIXED_TOOLTIP_WIDTH - (2 * Tooltip.PADDING);
 		this.descriptionText = this.scene.add.rexBBCodeText(
-			-this.currentDynamicWidth / 2 + Tooltip.PADDING,
+			-Tooltip.FIXED_TOOLTIP_WIDTH / 2 + Tooltip.PADDING,
 			this.titleText.y + this.titleText.displayHeight + Tooltip.INTER_ELEMENT_PADDING, // Initial Y, will be updated
 			'', // Initial empty text
 		)
@@ -111,9 +93,8 @@ export class Tooltip {
 			.setFontSize(Tooltip.DESCRIPTION_FONT_SIZE)
 			.setAlign("left")
 			.setWrapMode(1)
-			.setWrapWidth(Tooltip.MAX_TOOLTIP_WIDTH)
 			.setFontFamily("Arial")
-			.setWordWrapWidth(initialDescriptionWrapWidth);
+			.setWordWrapWidth(descriptionWrapWidth);
 		this.container.add(this.descriptionText);
 
 		this.container.setVisible(false); // Initially hidden
@@ -141,61 +122,31 @@ export class Tooltip {
 			this.currentDescription = description;
 		}
 
-		const needsFullLayoutUpdate = contentChanged || !this.container.visible;
+		if (contentChanged || !this.container.visible) {
+			// Background is fixed and drawn in constructor.
+			// If background style could change, it would need to be redrawn here.
 
-		if (needsFullLayoutUpdate) {
-			// Phase 1: Determine content natural dimensions and calculate tooltip width
-			const titleActualWidth = this.titleText.width;
-
-			// Temporarily set description wrap width to max to get its natural width within constraints.
-			// This helps determine how wide the content *wants* to be.
-			const maxPossibleDescWrapWidth = Tooltip.MAX_TOOLTIP_WIDTH - (2 * Tooltip.PADDING);
-			if (this.descriptionText.style.wrapWidth !== maxPossibleDescWrapWidth) {
-				this.descriptionText.setWordWrapWidth(maxPossibleDescWrapWidth);
-			}
-			const descNaturalWidth = this.descriptionText.width; // Width after wrapping at maxPossibleDescWrapWidth
-
-			const finalContentWidth = Math.max(titleActualWidth, descNaturalWidth);
-			this.currentDynamicWidth = Phaser.Math.Clamp(
-				finalContentWidth + (2 * Tooltip.PADDING),
-				Tooltip.MIN_TOOLTIP_WIDTH,
-				Tooltip.MAX_TOOLTIP_WIDTH
+			// Position title text
+			this.titleText.setPosition(
+				-Tooltip.FIXED_TOOLTIP_WIDTH / 2 + Tooltip.PADDING,
+				-Tooltip.FIXED_TOOLTIP_HEIGHT / 2 + Tooltip.PADDING
 			);
 
-			// Phase 2: Refine description wrap width based on calculated tooltip width
-			// and then determine actual content heights.
-			const actualDescWrapWidth = this.currentDynamicWidth - (2 * Tooltip.PADDING);
-			if (this.descriptionText.style.wrapWidth !== actualDescWrapWidth) {
-				this.descriptionText.setWordWrapWidth(actualDescWrapWidth);
+			// Set description wrap width (it's fixed)
+			const descriptionWrapWidth = Tooltip.FIXED_TOOLTIP_WIDTH - (2 * Tooltip.PADDING);
+			if (this.descriptionText.style.wrapWidth !== descriptionWrapWidth) {
+				this.descriptionText.setWordWrapWidth(descriptionWrapWidth);
 			}
 
-			const titleActualHeight = this.titleText.height;
-			const descActualHeight = this.descriptionText.height; // Height after wrapping at actualDescWrapWidth
-
-			const contentTotalHeight = titleActualHeight + Tooltip.INTER_ELEMENT_PADDING + descActualHeight;
-			this.currentDynamicHeight = Phaser.Math.Clamp(
-				contentTotalHeight + (2 * Tooltip.PADDING),
-				Tooltip.MIN_TOOLTIP_HEIGHT,
-				Tooltip.MAX_TOOLTIP_HEIGHT
-			);
-
-			// Phase 3: Draw background and position elements
-			this.bg.clear();
-			this.bg.fillStyle(Tooltip.BACKGROUND_COLOR, Tooltip.BACKGROUND_ALPHA);
-			this.bg.fillRoundedRect(
-				-this.currentDynamicWidth / 2, -this.currentDynamicHeight / 2,
-				this.currentDynamicWidth, this.currentDynamicHeight,
-				Tooltip.BORDER_RADIUS
-			);
-
-			this.titleText.setPosition(-this.currentDynamicWidth / 2 + Tooltip.PADDING, -this.currentDynamicHeight / 2 + Tooltip.PADDING);
+			// Position description text relative to title
+			// Using .height for actual text height after potential wrapping and content update.
 			this.descriptionText.setPosition(
-				-this.currentDynamicWidth / 2 + Tooltip.PADDING,
-				this.titleText.y + titleActualHeight + Tooltip.INTER_ELEMENT_PADDING
+				-Tooltip.FIXED_TOOLTIP_WIDTH / 2 + Tooltip.PADDING,
+				this.titleText.y + this.titleText.height + Tooltip.INTER_ELEMENT_PADDING
 			);
 		}
 
-		const { x: adjustedX, y: adjustedY } = this._getAdjustedPosition(x, y, this.currentDynamicWidth, this.currentDynamicHeight);
+		const { x: adjustedX, y: adjustedY } = this._getAdjustedPosition(x, y, Tooltip.FIXED_TOOLTIP_WIDTH, Tooltip.FIXED_TOOLTIP_HEIGHT);
 		if (this.container.x !== adjustedX || this.container.y !== adjustedY) {
 			this.container.setPosition(adjustedX, adjustedY);
 		}
@@ -211,7 +162,7 @@ export class Tooltip {
 	 */
 	public move(x: number, y: number): void {
 		if (!this.container.visible) return;
-		const { x: adjustedX, y: adjustedY } = this._getAdjustedPosition(x, y, this.currentDynamicWidth, this.currentDynamicHeight);
+		const { x: adjustedX, y: adjustedY } = this._getAdjustedPosition(x, y, Tooltip.FIXED_TOOLTIP_WIDTH, Tooltip.FIXED_TOOLTIP_HEIGHT);
 		if (this.container.x !== adjustedX || this.container.y !== adjustedY) {
 			this.container.setPosition(adjustedX, adjustedY);
 		}
