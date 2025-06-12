@@ -15,6 +15,7 @@ import { updatePlayerGoldIO } from "../../Models/Entities/Force";
 import { CharaStatsDisplay } from "./CharaStatsDisplay";
 import { CharaBarsDisplay } from "./CharaBarsDisplay";
 import { GameEvents } from "../../constants/events";
+import { CharaInputHandler } from "./CharaInputHandler"; // +++ NEW IMPORT
 
 /**
  * Represents the visual and interactive game object for a `Unit` on the battlefield or in the shop.
@@ -35,13 +36,8 @@ export class Chara extends Phaser.GameObjects.Container {
 	/** Component responsible for displaying HP, charge, and cooldown bars. */
 	private barsDisplay!: CharaBarsDisplay;
 
-	// --- Drag-and-Drop Properties ---
-	/** Initial X position when a drag operation starts. Used for reverting position. */
-	private dragStartX: number = 0;
-	/** Initial Y position when a drag operation starts. Used for reverting position. */
-	private dragStartY: number = 0;
-	/** Flag to track if the current drag-and-drop operation concluded successfully (e.g., valid placement or purchase). */
-	private wasDragSuccessful: boolean = false;
+	/** Handles all input interactions for this Chara. */
+	private inputHandler!: CharaInputHandler; // +++ NEW PROPERTY
 	/** Indicates if this Chara instance represents an item currently in the shop. */
 	private isShopItem: boolean;
 	/** Optional callback function to execute after a shop item is successfully purchased. */
@@ -84,25 +80,14 @@ export class Chara extends Phaser.GameObjects.Container {
 			Phaser.Geom.Rectangle.Contains
 		);
 
-		if (this.unit.force === FORCE_ID_PLAYER || this.isShopItem) {
-			this.parent.input.setDraggable(this);
-			this.on('dragstart', this.handleDragStart);
-			this.on('drag', this.handleDrag);
-			this.on('drop', this.handleDrop);
-			this.on('dragend', this.handleDragEnd);
-		}
-		if (this.isShopItem) {
-			this.on('pointerup', this.handleShopItemClick);
-		}
+		// Setup input handling
+		this.inputHandler = new CharaInputHandler(this);
 
 		this.statsDisplay.updateHp();
 		this.statsDisplay.updateAtk();
 		this.barsDisplay.updateBars();
-
-		// Store initial visual position, useful for reverting shop items if drag fails
-		this.dragStartX = this.x;
-		this.dragStartY = this.y;
 	}
+
 
 	/**
 	 * Attempts to purchase this Chara if it's a shop item.
@@ -158,7 +143,7 @@ export class Chara extends Phaser.GameObjects.Container {
 
 		// Transition from shop item to owned item
 		this.isShopItem = false;
-		this.off('pointerup', this.handleShopItemClick);
+		this.inputHandler.updateShopItemStatus(false); // Notify handler
 
 		if (this.onPurchasedCallback) {
 			this.onPurchasedCallback();
@@ -186,51 +171,13 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.add(this.sprite);
 	}
 
-	// --- Drag-and-Drop Event Handlers ---
-
-	/**
-	 * Handles the 'dragstart' event. Sets initial drag state and provides visual feedback.
-	 */
-	private handleDragStart = () => {
-		this.dragStartX = this.x;
-		this.dragStartY = this.y;
-		this.wasDragSuccessful = false;
-
-		this.parent.children.bringToTop(this);
-		tween({
-			targets: [this],
-			angle: -10,
-			duration: 100,
-			ease: "Cubic.Out",
-		});
-	}
-
-	/**
-	 * Handles the 'drag' event. Updates the Chara's position to follow the pointer.
-	 * @param pointer The Phaser input pointer.
-	 */
-	private handleDrag(pointer: Phaser.Input.Pointer) {
-		this.x = pointer.x;
-		this.y = pointer.y;
-		this.parent.events.emit(GameEvents.TOOLTIP_HIDE);
-	}
-
-	/**
-	 * Handles the 'pointerup' event specifically for shop items, interpreting it as a click-to-buy action.
-	 */
-
-	private handleShopItemClick = (pointer: Phaser.Input.Pointer) => {
-		if (!this.isShopItem) return;
-
-		if (pointer.getDistance() > constants.DRAG_CLICK_THRESHOLD) {
-			return;
-		}
-
+	// --- Methods called by CharaInputHandler ---
+	public processShopItemClick(): boolean {
 		if (this.attemptPurchase()) {
 			tween({ targets: [this], ...UnitManager.getCharaPosition(this.unit) });
-			this.wasDragSuccessful = true; // Mark as successful to prevent revert in dragEnd if it was a quick drag-release
+			return true;
 		}
-		// If attemptPurchase fails, error is displayed, Chara remains in shop.
+		return false;
 	}
 
 	/**
@@ -244,8 +191,8 @@ export class Chara extends Phaser.GameObjects.Container {
 	/**
 	 * Helper to visually revert a shop item Chara to its original drag start position (its shop slot).
 	 */
-	private _revertShopItemToDragStartPosition() {
-		tween({ targets: [this], x: this.dragStartX, y: this.dragStartY });
+	private _revertShopItemToPosition(x: number, y: number) {
+		tween({ targets: [this], x, y });
 	}
 
 	/**
@@ -253,7 +200,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	 * This can result in moving the unit to an empty tile or swapping it with an existing unit.
 	 * @param tile The board tile (Vec2) where the unit was dropped, or null if not on a specific tile.
 	 */
-	private _handleDropOwnedUnit(tile: Vec2) {
+	private _handleDropOwnedUnit(tile: Vec2): boolean {
 		const unitToMove = this.unit;
 		const state = getState();
 
@@ -285,19 +232,19 @@ export class Chara extends Phaser.GameObjects.Container {
 				const occupierChara = UnitManager.getChara(moveResult.swappedUnit.id);
 				tween({ targets: [occupierChara], ...UnitManager.getCharaPosition(moveResult.swappedUnit) });
 			}
-			this.wasDragSuccessful = true;
+			return true;
 		} else {
 			// Re-trigger for the original spot if move failed but unit didn't change tile
 			this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_ENTER_POSITION, { unit: unitToMove });
 			if (occupierUnitIfAny) {
 				this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_ENTER_POSITION, { unit: occupierUnitIfAny });
 			}
-			tween({ targets: [this], ...UnitManager.getCharaPosition(unitToMove) });
+			tween({ targets: [this], ...UnitManager.getCharaPosition(unitToMove) }); // Revert to current model position
 			// If dropped on the same spot, it's a "successful" drag in terms of completing the action.
 			if (eqVec2(unitToMove.position, newBoardModelPosition)) {
-				this.wasDragSuccessful = true;
+				return true;
 			} else {
-				this.wasDragSuccessful = false; // Move failed for other reasons
+				return false; // Move failed for other reasons
 			}
 		}
 	}
@@ -307,76 +254,62 @@ export class Chara extends Phaser.GameObjects.Container {
 	 * This attempts to purchase and place the unit.
 	 * @param tile The board tile (Vec2) where the item was dropped, or null if not on a specific tile.
 	 */
-	private _handleDropShopItem(tile: Vec2) {
+	private _handleDropShopItem(tile: Vec2): boolean {
 		const newBoardModelPosition = vec2(tile.x, tile.y);
 		if (this.attemptPurchase(newBoardModelPosition)) {
 			tween({ targets: [this], ...UnitManager.getCharaPosition(this.unit) });
-			this.wasDragSuccessful = true;
+			return true;
 		} else {
 			// Purchase failed (e.g., not enough gold, slot occupied); error handled by attemptPurchase. Revert visual.
-			this._revertShopItemToDragStartPosition();
-			this.wasDragSuccessful = false;
+			// Reversion will be handled by revertDragOrFailedPurchase using dragStartX/Y from handler
+			return false;
 		}
 	}
 
 	/**
-	 * Handles the 'drop' event, which is emitted by a drop zone when this Chara is dropped onto it.
+	 * Processes a drop action onto a game object, typically a board tile zone.
 	 * Determines if the Chara is an owned unit or a shop item and delegates to the appropriate handler.
-	 * @param _pointer The Phaser input pointer.
 	 * @param dropZoneTarget The GameObject that is the drop zone.
+	 * @returns `true` if the drop was successful, `false` otherwise.
 	 */
-	private handleDrop(
-		_pointer: Phaser.Input.Pointer, // _pointer to avoid conflict with Board.getTileAt which uses pointer
-		dropZoneTarget: Phaser.GameObjects.GameObject,
-	) {
-		this.wasDragSuccessful = false;
-
+	public processDrop(dropZoneTarget: Phaser.GameObjects.GameObject): boolean {
 		if (!Board.PlayerBoard.isTileZone(dropZoneTarget)) {
 			// Dropped outside a valid player board tile zone.
-			// handleDragEnd will take care of reverting if necessary.
-			return;
+			return false;
 		}
 
 		const tile = Board.PlayerBoard.getTileFromZone(dropZoneTarget);
-
 		if (!tile) {
-			// Should not happen if isPlayerBoardTileZone passed and getTileFromZone is robust
 			console.warn("Chara.handleDrop: Dropped on a board tile zone, but could not derive tile coordinates.", dropZoneTarget.name);
-			return;
+			return false;
 		}
 
 		if (this.isOwnedByPlayer()) {
-			this._handleDropOwnedUnit(tile);
+			return this._handleDropOwnedUnit(tile);
 		} else { // Assumed to be a shop item
-			this._handleDropShopItem(tile);
+			return this._handleDropShopItem(tile);
 		}
 	}
 
 	/**
-	 * Handles the 'dragend' event. Finalizes the drag operation, reverting the Chara's position
-	 * if the drop was not successful or occurred outside a valid zone.
+	 * Reverts the Chara's visual position after an unsuccessful drag or failed purchase.
+	 * @param originalX The X position to revert to.
+	 * @param originalY The Y position to revert to.
 	 */
-	private handleDragEnd = (_pointer: Phaser.Input.Pointer) => {
-		this.parent.tweens.add({ // Ensure using scene's tween manager if tween is a global util
-			targets: [this],
-			angle: 0,
-			duration: 100,
-			ease: "Cubic.Out",
-		});
-		if (this.wasDragSuccessful) {
-			// handleDrop (or handleShopItemClick) already positioned the Chara.
-			return;
-		}
-
-		// If wasDragSuccessful is false, the drop was not successful. Revert the Chara.
+	public revertDragOrFailedPurchase(originalX: number, originalY: number): void {
 		if (this.isShopItem && !this.isOwnedByPlayer()) {
-			this._revertShopItemToDragStartPosition();
+			this._revertShopItemToPosition(originalX, originalY);
 		} else { // Owned unit, or a shop item that failed purchase but its state might be complex
 			tween({ targets: [this], ...UnitManager.getCharaPosition(this.unit) });
 		}
 	};
 
 	// --- UI Update Methods ---
+
+	/** Accessor for the input handler to know if this is a shop item. */
+	public getIsShopItem(): boolean {
+		return this.isShopItem;
+	}
 
 	/** Updates the displayed HP value via the `statsDisplay` component. */
 	updateHpDisplay = () => {
@@ -535,5 +468,13 @@ export class Chara extends Phaser.GameObjects.Container {
 		const nextHp = this.unit.hp + amount;
 		this.unit.hp = nextHp > this.unit.maxHp ? this.unit.maxHp : nextHp;
 		this.updateHpDisplay();
+	}
+
+	/** Overridden destroy method to also clean up the input handler. */
+	destroy(fromScene?: boolean) {
+		if (this.inputHandler) {
+			this.inputHandler.destroy();
+		}
+		super.destroy(fromScene);
 	}
 }
