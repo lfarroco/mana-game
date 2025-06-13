@@ -123,12 +123,18 @@ export class Chara extends Phaser.GameObjects.Container {
  * Emits an event to request a purchase attempt.
  * @param dragStartX The X coordinate where the potential drag started (or click position).
  * @param dragStartY The Y coordinate where the potential drag started (or click position).
+ *                   For click purchases, these parameters from CharaInputHandler are the click coordinates.
+ *                   However, for the purpose of reverting a failed purchase, we need the Chara's
+ *                   actual current position (its shop slot position).
  */
-	public processShopItemClick(dragStartX: number, dragStartY: number): void {
+	public processShopItemClick(_clickX: number, _clickY: number): void {
 		// For a click purchase, targetBoardPos is undefined; the ShopSystem will find an empty slot.
 		// We pass a copy of unit data as the shop Chara's unit shouldn't be mutated directly
 		// until purchase is confirmed and a new unit is officially created.
-		this.parent.events.emit(GameEvents.SHOP_ITEM_CLICK_PURCHASE_REQUESTED, { shopUnitData: { ...this.unit }, shopCharaId: this.id, dragStartX, dragStartY });
+		// The dragStartX/Y here MUST be the Chara's current position in the shop,
+		// so it can revert correctly if the purchase fails.
+		// _clickX and _clickY (the actual pointer coordinates) are not used for the revert logic.
+		this.parent.events.emit(GameEvents.SHOP_ITEM_CLICK_PURCHASE_REQUESTED, { shopUnitData: { ...this.unit }, shopCharaId: this.id, dragStartX: this.x, dragStartY: this.y });
 	}
 
 	/**
