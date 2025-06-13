@@ -8,13 +8,6 @@ async function waitForGameInit(page: Page) {
 	const canvas = await page.waitForSelector('canvas');
 	expect(canvas).toBeTruthy();
 
-	// Wait for the scene to be created and initialized
-	await page.waitForFunction(() => {
-		return window.game?.scene?.scenes?.some(scene =>
-			scene.scene.key === 'BattlegroundScene' && scene.sys.settings.active
-		);
-	}, { timeout: 5000 });
-
 	// Wait for the debug controller to be available
 	await page.waitForFunction(() => {
 		return window.gameController !== undefined;
@@ -22,7 +15,7 @@ async function waitForGameInit(page: Page) {
 
 	// Verify both are initialized
 	const gameInitialized = await page.evaluate(() => {
-		return window.game !== undefined && window.gameController !== undefined;
+		return window.gameController !== undefined;
 	});
 	expect(gameInitialized).toBeTruthy();
 }

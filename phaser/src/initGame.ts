@@ -40,6 +40,12 @@ export function initGame(state: State) {
 
 	SaveGameSystem_init(state, game);
 
+	if (process.env.NODE_ENV === "development") {
+		// necessary for e2e tests
+		//@ts-ignore
+		window.game = game;
+	}
+
 	// get query params, check for DEBUG param
 	const urlParams = new URLSearchParams(window.location.search);
 	const debug = urlParams.get('DEBUG');
@@ -49,5 +55,4 @@ export function initGame(state: State) {
 		console.log("START_NEW_GAME");
 		game.scene.start("BattlegroundScene", state);
 	}
-
 }
