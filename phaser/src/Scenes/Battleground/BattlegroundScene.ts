@@ -15,6 +15,7 @@ import { setupTraitEventListeners } from "../../TraitSystem/TraitSystemEventList
 import { BattlegroundSetupSystem } from "./Systems/BattlegroundSetupSystem";
 import { BattlegroundEventSystem } from "./Systems/BattlegroundEventSystem";
 import { BattleProgressionSystem } from "./Systems/BattleProgressionSystem";
+import { GameEvents } from "../../constants/events";
 
 /**
  * The main scene for the battleground, handling game logic, UI, and progression.
@@ -149,6 +150,9 @@ export class BattlegroundScene extends Phaser.Scene {
       this.runCombatSystem
     );
     this.eventSystem.registerEventHandlers();
+
+    // NOW emit the event to create the drop zone visuals
+    this.events.emit(GameEvents.PLAYER_BOARD_CREATE_DROP_ZONE);
 
     // 6. Setup Trait System event listeners
     setupTraitEventListeners(this);
