@@ -193,16 +193,19 @@ export class BattlegroundEventSystem {
 
 		if (this.state.gameData.player.gold < SHOP_ITEM_PURCHASE_COST) {
 			this.scene.events.emit(GameEvents.SHOP_PURCHASE_FAILED, { originalShopCharaId: shopCharaId, reason: "INSUFFICIENT_GOLD", dragStartX, dragStartY });
+			this.scene.events.emit(GameEvents.PURCHASE_FAILED, { unitName: shopUnitData.name, reason: "INSUFFICIENT_GOLD", cost: SHOP_ITEM_PURCHASE_COST });
 			return;
 		}
 		if (this.state.gameData.player.units.length >= MAX_PARTY_SIZE) {
 			this.scene.events.emit(GameEvents.SHOP_PURCHASE_FAILED, { originalShopCharaId: shopCharaId, reason: "PARTY_FULL", dragStartX, dragStartY });
+			this.scene.events.emit(GameEvents.PURCHASE_FAILED, { unitName: shopUnitData.name, reason: "PARTY_FULL" });
 			return;
 		}
 
 		const targetTile = this.playerBoard.getEmptySlot(this.state.gameData.player.units, FORCE_ID_PLAYER);
 		if (!targetTile) {
 			this.scene.events.emit(GameEvents.SHOP_PURCHASE_FAILED, { originalShopCharaId: shopCharaId, reason: "NO_EMPTY_SLOT", dragStartX, dragStartY });
+			this.scene.events.emit(GameEvents.PURCHASE_FAILED, { unitName: shopUnitData.name, reason: "NO_EMPTY_SLOT" });
 			return;
 		}
 
@@ -221,16 +224,19 @@ export class BattlegroundEventSystem {
 
 		if (this.state.gameData.player.gold < SHOP_ITEM_PURCHASE_COST) {
 			this.scene.events.emit(GameEvents.SHOP_PURCHASE_FAILED, { originalShopCharaId: shopCharaId, reason: "INSUFFICIENT_GOLD", dragStartX, dragStartY });
+			this.scene.events.emit(GameEvents.PURCHASE_FAILED, { unitName: shopUnitData.name, reason: "INSUFFICIENT_GOLD", cost: SHOP_ITEM_PURCHASE_COST });
 			return;
 		}
 		if (this.state.gameData.player.units.length >= MAX_PARTY_SIZE) {
 			this.scene.events.emit(GameEvents.SHOP_PURCHASE_FAILED, { originalShopCharaId: shopCharaId, reason: "PARTY_FULL", dragStartX, dragStartY });
+			this.scene.events.emit(GameEvents.PURCHASE_FAILED, { unitName: shopUnitData.name, reason: "PARTY_FULL" });
 			return;
 		}
 
 		const occupier = getUnitAt(this.state.gameData.player.units)(targetTile);
 		if (occupier) {
 			this.scene.events.emit(GameEvents.SHOP_PURCHASE_FAILED, { originalShopCharaId: shopCharaId, reason: "SLOT_OCCUPIED", dragStartX, dragStartY });
+			this.scene.events.emit(GameEvents.PURCHASE_FAILED, { unitName: shopUnitData.name, reason: "SLOT_OCCUPIED" });
 			return;
 		}
 
