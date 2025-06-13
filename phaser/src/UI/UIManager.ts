@@ -164,6 +164,7 @@ export class UIManager {
 	 * @param parent The `Phaser.GameObjects.Container` to which the gold text will be added.
 	 */
 	private _createGoldText(parent: Phaser.GameObjects.Container): void {
+
 		const initialGold = this.scene.state.gameData.player.gold;
 		this.goldTextElement = this.scene.add.text(
 			constants.SCREEN_WIDTH - 120,

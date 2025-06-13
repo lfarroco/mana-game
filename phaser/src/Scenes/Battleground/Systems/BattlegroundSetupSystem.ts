@@ -76,9 +76,6 @@ export class BattlegroundSetupSystem {
 		this.scene.bgContainer.add([this.scene.bgImage]);
 
 		const playerBoard = initializeSharedPlayerBoard(this.scene);
-		this.scene.events.emit(GameEvents.PLAYER_BOARD_CREATE_DROP_ZONE);
-		this.scene.events.emit(GameEvents.UI_MAIN_CREATE);
-		this.scene.events.emit(GameEvents.RELIC_SLOTS_SETUP);
 		return playerBoard;
 	}
 }

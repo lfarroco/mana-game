@@ -139,7 +139,7 @@ export class BattlegroundScene extends Phaser.Scene {
     // 4. Setup static scene elements (background, player board, initial UI)
     this.playerBoard = this.setupSystem.setupSceneElements(this.state);
 
-    // 5. Initialize and register game event listeners
+    // 5. Initialize and register core game event listeners
     this.eventSystem = new BattlegroundEventSystem(
       this,
       this.state,
@@ -151,13 +151,15 @@ export class BattlegroundScene extends Phaser.Scene {
     );
     this.eventSystem.registerEventHandlers();
 
-    // NOW emit the event to create the drop zone visuals
-    this.events.emit(GameEvents.PLAYER_BOARD_CREATE_DROP_ZONE);
+    // 6. Emit events for initial UI and board setup now that listeners are active
+    this.events.emit(GameEvents.PLAYER_BOARD_CREATE_DROP_ZONE); // For drop zone visuals
+    this.events.emit(GameEvents.UI_MAIN_CREATE);               // For main UI (sidebar, gold, etc.)
+    this.events.emit(GameEvents.RELIC_SLOTS_SETUP);           // For relic slots UI
 
-    // 6. Setup Trait System event listeners
+    // 7. Setup Trait System event listeners
     setupTraitEventListeners(this);
 
-    // 7. Start the game flow
+    // 8. Start the game flow
     this.battleProgressionSystem.transitionToShopPhase(); // Initial call, no enemies defeated
   }
 
