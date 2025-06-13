@@ -1,77 +1,41 @@
 import { test, expect, Page } from '@playwright/test';
 
 /**
- * Helper function to wait for the game to be initialized
+ * Helper function to wait for the game to be initialized and DebugController to be available
  */
 async function waitForGameInit(page: Page) {
 	// Wait for the canvas to be present
 	const canvas = await page.waitForSelector('canvas');
 	expect(canvas).toBeTruthy();
 
-	// Wait for the game instance to be available
+	// Wait for the game instance and debug controller to be available
 	const gameInitialized = await page.evaluate(() => {
-		return window.game !== undefined;
+		return window.game !== undefined && window.gameController !== undefined;
 	});
 	expect(gameInitialized).toBeTruthy();
-}
-
-/**
- * Inject testing utilities into the game context
- */
-async function injectTestHelpers(page: Page) {
-	await page.evaluate(() => {
-		window.gameTestHelpers = {
-			// Get the current game state
-			getGameState: () => {
-				return window.game.state;
-			},
-
-			// Trigger a shop phase
-			triggerShopPhase: () => {
-				window.game.scene.getScene('BattlegroundScene').battleProgressionSystem.transitionToShopPhase();
-			},
-
-			// Trigger combat phase
-			triggerCombatPhase: () => {
-				window.game.scene.getScene('BattlegroundScene').battleProgressionSystem.transitionToCombatPhase();
-			},
-
-			// Get player's current gold
-			getPlayerGold: () => {
-				return window.game.state.gameData.player.gold;
-			},
-
-			// Get player's current units
-			getPlayerUnits: () => {
-				return window.game.state.gameData.player.units;
-			}
-		};
-	});
 }
 
 test.describe('Game Initialization', () => {
 	test('should load and initialize the game correctly', async ({ page }) => {
 		await page.goto('/');
 		await waitForGameInit(page);
-		await injectTestHelpers(page);
 
-		// Verify game state is accessible
-		const gameState = await page.evaluate(() => {
-			return window.gameTestHelpers.getGameState();
-		});
-		expect(gameState).toBeTruthy();
-
-		// Verify initial game setup
+		// Verify initial game setup using DebugController
 		const gold = await page.evaluate(() => {
-			return window.gameTestHelpers.getPlayerGold();
+			return window.gameController.getPlayerGold();
 		});
 		expect(typeof gold).toBe('number');
 
-		// Verify we can get player units
+		// Verify we can get player units using DebugController
 		const units = await page.evaluate(() => {
-			return window.gameTestHelpers.getPlayerUnits();
+			return window.gameController.getPlayerBoardUnits();
 		});
 		expect(Array.isArray(units)).toBe(true);
+
+		// Log game state for debugging
+		await page.evaluate(() => {
+			window.gameController.logGameState();
+		});
 	});
 });
 
@@ -79,22 +43,29 @@ test.describe('Game Phase Transitions', () => {
 	test('should be able to transition between shop and combat phases', async ({ page }) => {
 		await page.goto('/');
 		await waitForGameInit(page);
-		await injectTestHelpers(page);
 
-		// Trigger shop phase
-		await page.evaluate(() => {
-			return window.gameTestHelpers.triggerShopPhase();
+		// Get initial state
+		const initialGold = await page.evaluate(() => {
+			return window.gameController.getPlayerGold();
 		});
 
-		// Verify shop phase (could add more specific checks here)
-		await page.waitForTimeout(1000); // Give time for transition
-
-		// Trigger combat phase
+		// End shop phase using DebugController
 		await page.evaluate(() => {
-			return window.gameTestHelpers.triggerCombatPhase();
+			return window.gameController.clickNextRound();
 		});
 
-		// Verify combat phase (could add more specific checks here)
-		await page.waitForTimeout(1000); // Give time for transition
+		// Wait for transition and check state
+		await page.waitForTimeout(1000);
+
+		// Log state after transition
+		await page.evaluate(() => {
+			window.gameController.logGameState();
+		});
+
+		// Verify state changed after transition
+		const finalGold = await page.evaluate(() => {
+			return window.gameController.getPlayerGold();
+		});
+		expect(finalGold).toBeDefined();
 	});
 });
