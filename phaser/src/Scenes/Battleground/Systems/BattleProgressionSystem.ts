@@ -14,10 +14,15 @@ import { generateEnemyTeam } from "../generateEnemyTeam";
 export class BattleProgressionSystem {
 	private scene: BattlegroundScene;
 	private state: State;
+	private _isInShopPhase: boolean = false;
 
 	constructor(scene: BattlegroundScene, state: State) {
 		this.scene = scene;
 		this.state = state;
+	}
+
+	public get isInShopPhase(): boolean {
+		return this._isInShopPhase;
 	}
 
 	/**
@@ -25,11 +30,13 @@ export class BattleProgressionSystem {
 	 * If called after a victory, processes round victory rewards first.
 	 */
 	public async transitionToShopPhase(payload?: { enemiesDefeated?: Unit[] }): Promise<void> {
+		this._isInShopPhase = true;
 		if (payload && payload.enemiesDefeated) {
 			await this.processRoundVictory(payload.enemiesDefeated);
 		}
 		console.log("Round", this.state.gameData.round, "Shop Phase Starting.");
 		this.scene.events.emit(GameEvents.PLAYER_BOARD_SHOW);
+		this.setAllPlayerUnitBarsVisibility(false); // Hide bars for player units in shop
 		this.scene.events.emit(GameEvents.SHOP_OPEN_UI_TRIGGER);
 	}
 
@@ -37,9 +44,11 @@ export class BattleProgressionSystem {
 	 * Transitions the game to the combat phase for the current round.
 	 */
 	public transitionToCombatPhase(): void {
+		this._isInShopPhase = false;
 		console.log("Round", this.state.gameData.round, "Combat Phase Starting.");
 		const { enemies } = this.setupBattle();
 
+		this.setAllPlayerUnitBarsVisibility(true); // Show bars for player units in combat
 		this.scene.events.emit(GameEvents.PLAYER_BOARD_HIDE);
 		this.scene.events.emit(GameEvents.COMBAT_START_EXECUTION_TRIGGER, { enemies });
 	}
