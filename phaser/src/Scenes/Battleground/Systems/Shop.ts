@@ -1,5 +1,5 @@
 import { images } from "../../../assets";
-import { getAllCards, getAllRelicDefinitions } from "../../../Models/Entities/Card";
+import { CardDefinition, getAllCards, getAllRelicDefinitions, getCardDefinition, getRelicDefinition, RelicDefinition } from "../../../Models/Entities/Card";
 import { vec2 } from "../../../Models/Geometry";
 import { makeUnit } from "../../../Models/Entities/Unit";
 import { Flyout } from "../../../UI/Flyout";
@@ -7,7 +7,7 @@ import { pickRandom } from "../../../utils";
 import { FORCE_ID_PLAYER, titleTextConfig } from "../../../constants/constants";
 import { registerChara } from "./CharaManager";
 import { RelicCard } from "./Relic";
-import { Chara } from "../../../Systems/Chara/Chara";
+import { Chara, CharaOptions } from "../../../Systems/Chara/Chara";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { playerForce } from "../../../Models/Entities/Force";
 import { GameEvents } from "../../../constants/events";
@@ -38,10 +38,16 @@ export class Shop {
 	private scene: BattlegroundScene;
 	private flyout: Flyout;
 
+	// To store references for DebugController and potentially other systems
+	private currentShopCharas: Chara[] = [];
+	private currentShopRelicCards: RelicCard[] = [];
+
 	constructor(scene: BattlegroundScene) {
 		this.scene = scene;
 		this.flyout = new Flyout(this.scene, "");
 	}
+
+
 
 	public open(): Promise<void> {
 		return new Promise((resolve) => {
@@ -56,6 +62,10 @@ export class Shop {
 			const contentHeight = Shop.RELIC_SECTION_Y + Shop.RELIC_BG_HEIGHT;
 			const buttonAreaHeight = 100; // Space for the button and some padding
 			const shopPanelHeight = contentHeight + buttonAreaHeight + panelPadding;
+
+			// Clear previous shop items
+			this.currentShopCharas = [];
+			this.currentShopRelicCards = [];
 
 			// Add a background panel for the entire shop UI within the flyout
 			const shopBackground = this.scene.add.graphics()
@@ -112,7 +122,9 @@ export class Shop {
 				});
 
 			this.flyout.add([slot, icon]);
+			this.currentShopRelicCards.push(icon);
 		});
+
 	}
 
 	private renderTavern(): void {
@@ -132,14 +144,15 @@ export class Shop {
 		pickRandom(filtered, 3)
 			.forEach((spec, index) => {
 				const unit = makeUnit(FORCE_ID_PLAYER, spec.id, vec2(0, 0));
-				const chara = new Chara(this.scene, unit, { // Pass this.scene as parent
+				const charaOptions: CharaOptions = {
 					isShopItem: true,
 					onPurchased: () => {
 						this.scene.events.emit(GameEvents.TOOLTIP_HIDE);
 						if (this.flyout) this.flyout.remove(chara);
 						// Gold update and adding to player units is handled by Chara.attemptPurchase
 					}
-				});
+				};
+				const chara = new Chara(this.scene, unit, charaOptions);
 
 				registerChara(chara);
 
@@ -147,6 +160,33 @@ export class Shop {
 				chara.setBarsVisibility(false);
 
 				this.flyout.add(chara);
+				this.currentShopCharas.push(chara);
 			});
+	}
+
+	// --- Methods for DebugController ---
+
+	public getShopCharaBySlot(slotIndex: number): Chara | null {
+		return this.currentShopCharas[slotIndex] || null;
+	}
+
+	public getShopRelicCardBySlot(slotIndex: number): RelicCard | null {
+		return this.currentShopRelicCards[slotIndex] || null;
+	}
+
+	/**
+	 * Used by DebugController for inspection.
+	 */
+	public getDisplayedHeroCardDefinitions(): CardDefinition[] {
+		return this.currentShopCharas.map(chara => chara.unit.cardId)
+			.map(getCardDefinition);
+	}
+
+	/**
+	 * Used by DebugController for inspection. Assumes RelicCard has a 'relicDefinition' property.
+	 */
+	public getDisplayedRelicDefinitions(): RelicDefinition[] {
+		return this.currentShopRelicCards.map(rc => rc.id)
+			.map(getRelicDefinition);
 	}
 }

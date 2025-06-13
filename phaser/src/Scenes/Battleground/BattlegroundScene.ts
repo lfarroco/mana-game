@@ -16,6 +16,7 @@ import { BattlegroundSetupSystem } from "./Systems/BattlegroundSetupSystem";
 import { BattlegroundEventSystem } from "./Systems/BattlegroundEventSystem";
 import { BattleProgressionSystem } from "./Systems/BattleProgressionSystem";
 import { GameEvents } from "../../constants/events";
+import { DebugController } from "../Debug/DebugController";
 
 /**
  * The main scene for the battleground, handling game logic, UI, and progression.
@@ -83,10 +84,7 @@ export class BattlegroundScene extends Phaser.Scene {
     CharaManager.init(this);
     TraitEffectsImpl.registerAllTraitEffects(); // This is truly global and idempotent
 
-    if (process.env.NODE_ENV === 'development') {
-      //@ts-ignore
-      window.bg = this;
-    }
+
 
   }
 
@@ -161,6 +159,15 @@ export class BattlegroundScene extends Phaser.Scene {
 
     // 8. Start the game flow
     this.battleProgressionSystem.transitionToShopPhase(); // Initial call, no enemies defeated
+
+    // Initialize DebugController after all systems are set up
+    if (process.env.NODE_ENV === 'development') {
+      //@ts-ignore
+      window.bg = this;
+      // @ts-ignore
+      window.gameController = new DebugController(this);
+      console.log("BattlegroundScene: DebugController initialized and attached to window.gameController.");
+    }
   }
 
   /**

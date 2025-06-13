@@ -68,6 +68,7 @@ export const GameEvents = {
 	// Shop Interaction Requests (emitted by Chara when it's a shop item)
 	SHOP_ITEM_CLICK_PURCHASE_REQUESTED: "shop_item_click_purchase_requested", // Payload: { shopUnitData: Unit, shopCharaId: string, dragStartX: number, dragStartY: number }
 	SHOP_ITEM_DRAG_PURCHASE_REQUESTED: "shop_item_drag_purchase_requested",   // Payload: { shopUnitData: Unit, shopCharaId: string, targetTile: Vec2, dragStartX: number, dragStartY: number }
+	SHOP_RELIC_CLICK_PURCHASE_REQUESTED: "shop_relic_click_purchase_requested", // Payload: { relicDefinition: RelicDefinition, shopRelicCardId: string }
 
 	// Owned Unit Move Requests (emitted by Chara when it's an owned unit)
 	OWNED_UNIT_MOVE_REQUESTED: "owned_unit_move_requested", // Payload: { unitId: string, targetTile: Vec2, dragStartX: number, dragStartY: number }

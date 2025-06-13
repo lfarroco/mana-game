@@ -15,6 +15,11 @@ import { CharaBarsDisplay } from "./CharaBarsDisplay";
 import { GameEvents } from "../../constants/events";
 import { CharaInputHandler } from "./CharaInputHandler"; // +++ NEW IMPORT
 
+export type CharaOptions = {
+	isShopItem?: boolean;
+	onPurchased?: () => void;
+};
+
 /**
  * Represents the visual and interactive game object for a `Unit` on the battlefield or in the shop.
  * It extends `Phaser.GameObjects.Container` to group various visual elements like sprite, stats, and bars.
@@ -50,7 +55,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	 *                `onPurchased`: Callback executed upon successful purchase from the shop.
 	 *                               This is typically used to update the shop's display (e.g., remove the item).
 	 */
-	constructor(public parent: BattlegroundScene, unit: Unit, options?: { isShopItem?: boolean, onPurchased?: () => void }) {
+	constructor(public parent: BattlegroundScene, unit: Unit, options?: CharaOptions) {
 		const position = UnitManager.getCharaPosition(unit);
 		super(parent, position.x, position.y);
 
