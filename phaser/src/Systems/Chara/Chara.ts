@@ -1,17 +1,15 @@
 import Phaser from "phaser";
 import { Unit } from "../../Models/Entities/Unit";
 import * as constants from "../../constants/constants";
-import { eqVec2, Vec2, vec2 } from "../../Models/Geometry";
+import { Vec2 } from "../../Models/Geometry";
 import { tween } from "../../Utils/animation";
-import { FORCE_ID_PLAYER } from "../../constants/constants";
 import * as UnitManager from "../../Scenes/Battleground/Systems/CharaManager";
 import * as Board from "../../Models/Board"; // getState is used here
-import { addStatus, getState, } from "../../Models/State";
+import { addStatus, } from "../../Models/State";
 import { popText } from "./Animations/popText";
 import { criticalDamageDisplay } from "../../Effects";
 import { images } from "../../assets";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
-import { updatePlayerGoldIO } from "../../Models/Entities/Force";
 import { CharaStatsDisplay } from "./CharaStatsDisplay";
 import { CharaBarsDisplay } from "./CharaBarsDisplay";
 import { GameEvents } from "../../constants/events";
@@ -96,70 +94,6 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.barsDisplay.updateBars();
 	}
 
-
-	/**
-	 * Attempts to purchase this Chara if it's a shop item.
-	 * Validates player's gold, party size, and target slot availability.
-	 * Updates player's gold and unit list upon successful purchase.
-	 * @param targetBoardPos Optional. If provided, attempts to place the unit at this specific board position. Otherwise, finds an empty slot.
-	 * @returns `true` if the purchase was successful, `false` otherwise.
-	 */
-	private attemptPurchase(targetBoardPos?: Vec2): boolean {
-		const state = getState();
-		const purchaseCost = constants.SHOP_ITEM_PURCHASE_COST;
-
-		if (state.gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
-			this.parent.events.emit(GameEvents.PURCHASE_FAILED, {
-				unitName: this.unit.name,
-				reason: "PARTY_FULL"
-			});
-			return false;
-		}
-		if (state.gameData.player.gold < purchaseCost) {
-			this.parent.events.emit(GameEvents.PURCHASE_FAILED, {
-				unitName: this.unit.name,
-				reason: "INSUFFICIENT_GOLD", cost: purchaseCost
-			});
-			return false;
-		}
-
-		if (targetBoardPos) {
-			const occupierOnBoard = state.gameData.player.units.find(u => eqVec2(u.position, targetBoardPos));
-			if (occupierOnBoard) {
-				this.parent.events.emit(GameEvents.PURCHASE_FAILED, {
-					unitName: this.unit.name,
-					reason: "SLOT_OCCUPIED"
-				});
-				return false;
-			}
-			this.unit.position = targetBoardPos;
-		} else { // Purchasing by click, find an empty slot
-			const emptySlot = this.parent.playerBoard?.getEmptySlot(state.gameData.player.units, FORCE_ID_PLAYER); // TODO: Ensure this finds a slot on the *player's* board specifically if not already guaranteed
-			if (!emptySlot) {
-				this.parent.events.emit(GameEvents.PURCHASE_FAILED, {
-					unitName: this.unit.name,
-					reason: "NO_EMPTY_SLOT"
-				});
-				return false;
-			}
-			this.unit.position = emptySlot;
-		}
-
-		updatePlayerGoldIO(this.parent, -purchaseCost);
-		state.gameData.player.units.push(this.unit);
-		this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_ENTER_POSITION, { unit: this.unit });
-
-		// Transition from shop item to owned item
-		this.isShopItem = false;
-		this.inputHandler.updateShopItemStatus(false); // Notify handler
-
-		if (this.onPurchasedCallback) {
-			this.onPurchasedCallback();
-		}
-		// Visual tweening to the board position is handled by the calling method (handleShopItemClick or handleDrop).
-		return true;
-	}
-
 	/**
 	 * Creates the main sprite for the Chara based on `unit.pic`.
 	 * Uses a default "nameless" image if the specified picture key doesn't exist.
@@ -179,21 +113,17 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.add(this.sprite);
 	}
 
-	// --- Methods called by CharaInputHandler ---
-	public processShopItemClick(): boolean {
-		if (this.attemptPurchase()) {
-			tween({ targets: [this], ...UnitManager.getCharaPosition(this.unit) });
-			return true;
-		}
-		return false;
-	}
-
 	/**
-	 * Helper to check if this Chara's underlying unit is already owned by the player.
-	 * @returns `true` if the unit is in the player's `gameData.units` list, `false` otherwise.
-	 */
-	private isOwnedByPlayer(): boolean {
-		return getState().gameData.player.units.some(u => u.id === this.unit.id);
+ * Called by CharaInputHandler when a shop item is clicked.
+ * Emits an event to request a purchase attempt.
+ * @param dragStartX The X coordinate where the potential drag started (or click position).
+ * @param dragStartY The Y coordinate where the potential drag started (or click position).
+ */
+	public processShopItemClick(dragStartX: number, dragStartY: number): void {
+		// For a click purchase, targetBoardPos is undefined; the ShopSystem will find an empty slot.
+		// We pass a copy of unit data as the shop Chara's unit shouldn't be mutated directly
+		// until purchase is confirmed and a new unit is officially created.
+		this.parent.events.emit(GameEvents.SHOP_ITEM_CLICK_PURCHASE_REQUESTED, { shopUnitData: { ...this.unit }, shopCharaId: this.id, dragStartX, dragStartY });
 	}
 
 	/**
@@ -207,80 +137,47 @@ export class Chara extends Phaser.GameObjects.Container {
 	 * Handles the logic when an already owned unit is dropped onto the player's board.
 	 * This can result in moving the unit to an empty tile or swapping it with an existing unit.
 	 * @param tile The board tile (Vec2) where the unit was dropped, or null if not on a specific tile.
+	 * 	 * @param dragStartX The X coordinate where the drag started.
+	 * @param dragStartY The Y coordinate where the drag started.
 	 */
-	private _handleDropOwnedUnit(tile: Vec2): boolean {
-		const unitToMove = this.unit;
-		const state = getState();
-
-		const newBoardModelPosition = vec2(tile.x, tile.y);
-		// Trigger 'onLeavePosition' for the unit being moved *before* its position is updated in the model.
-		this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_LEAVE_POSITION, { unit: unitToMove });
-
-		const occupierUnitIfAny = state.gameData.player.units.find(
-			u => u.id !== unitToMove.id && eqVec2(u.position, newBoardModelPosition)
-		);
-		// If there's an occupier, trigger its 'onLeavePosition' before it's potentially moved.
-		if (occupierUnitIfAny) {
-			this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_LEAVE_POSITION, { unit: occupierUnitIfAny });
-		}
-
-		const moveResult = Board.PlayerBoard.updateUnitPosition(
-			unitToMove,
-			newBoardModelPosition,
-			state.gameData.player.units
-		);
-
-		if (moveResult) {
-			// Trigger 'onEnterPosition' for the moved unit at its new position.
-			this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_ENTER_POSITION, { unit: unitToMove });
-			tween({ targets: [this], ...UnitManager.getCharaPosition(unitToMove) });
-
-			if (moveResult.swappedUnit) {
-				this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_ENTER_POSITION, { unit: moveResult.swappedUnit });
-				const occupierChara = UnitManager.getChara(moveResult.swappedUnit.id);
-				tween({ targets: [occupierChara], ...UnitManager.getCharaPosition(moveResult.swappedUnit) });
-			}
-			return true;
-		} else {
-			// Re-trigger for the original spot if move failed but unit didn't change tile
-			this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_ENTER_POSITION, { unit: unitToMove });
-			if (occupierUnitIfAny) {
-				this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_ENTER_POSITION, { unit: occupierUnitIfAny });
-			}
-			tween({ targets: [this], ...UnitManager.getCharaPosition(unitToMove) }); // Revert to current model position
-			// If dropped on the same spot, it's a "successful" drag in terms of completing the action.
-			if (eqVec2(unitToMove.position, newBoardModelPosition)) {
-				return true;
-			} else {
-				return false; // Move failed for other reasons
-			}
-		}
+	private _handleDropOwnedUnit(tile: Vec2, dragStartX: number, dragStartY: number): void {
+		this.parent.events.emit(GameEvents.OWNED_UNIT_MOVE_REQUESTED, {
+			unitId: this.unit.id,
+			targetTile: tile,
+			dragStartX,
+			dragStartY
+		});
+		// The success/failure and visual update will be handled by listeners to OWNED_UNIT_MOVE_ACCEPTED/REJECTED/SWAP_ACCEPTED
 	}
+
 
 	/**
 	 * Handles the logic when a shop item is dropped onto the player's board.
 	 * This attempts to purchase and place the unit.
 	 * @param tile The board tile (Vec2) where the item was dropped, or null if not on a specific tile.
+	 * @param dragStartX The X coordinate where the drag started.
+	 * @param dragStartY The Y coordinate where the drag started.
 	 */
-	private _handleDropShopItem(tile: Vec2): boolean {
-		const newBoardModelPosition = vec2(tile.x, tile.y);
-		if (this.attemptPurchase(newBoardModelPosition)) {
-			tween({ targets: [this], ...UnitManager.getCharaPosition(this.unit) });
-			return true;
-		} else {
-			// Purchase failed (e.g., not enough gold, slot occupied); error handled by attemptPurchase. Revert visual.
-			// Reversion will be handled by revertDragOrFailedPurchase using dragStartX/Y from handler
-			return false;
-		}
+	private _handleDropShopItem(tile: Vec2, dragStartX: number, dragStartY: number): void {
+		// We pass a copy of unit data as the shop Chara's unit shouldn't be mutated directly
+		// until purchase is confirmed and a new unit is officially created.
+		this.parent.events.emit(GameEvents.SHOP_ITEM_DRAG_PURCHASE_REQUESTED, {
+			shopUnitData: { ...this.unit }, // Pass a copy
+			shopCharaId: this.id,
+			targetTile: tile,
+			dragStartX,
+			dragStartY
+		});
+		// The success/failure and visual update will be handled by listeners to SHOP_PURCHASE_SUCCESSFUL/FAILED
 	}
 
 	/**
 	 * Processes a drop action onto a game object, typically a board tile zone.
 	 * Determines if the Chara is an owned unit or a shop item and delegates to the appropriate handler.
-	 * @param dropZoneTarget The GameObject that is the drop zone.
-	 * @returns `true` if the drop was successful, `false` otherwise.
+	 * @param dragStartX The X coordinate where the drag started.
+	 * @param dragStartY The Y coordinate where the drag started.
 	 */
-	public processDrop(dropZoneTarget: Phaser.GameObjects.GameObject): boolean {
+	public processDrop(dropZoneTarget: Phaser.GameObjects.GameObject, dragStartX: number, dragStartY: number): boolean {
 		if (!Board.PlayerBoard.isTileZone(dropZoneTarget)) {
 			// Dropped outside a valid player board tile zone.
 			return false;
@@ -292,10 +189,12 @@ export class Chara extends Phaser.GameObjects.Container {
 			return false;
 		}
 
-		if (this.isOwnedByPlayer()) {
-			return this._handleDropOwnedUnit(tile);
+		if (!this.isShopItem) { // It's an owned unit
+			this._handleDropOwnedUnit(tile, dragStartX, dragStartY);
+			return true; // Assume the request was successfully emitted. Outcome handled by events.
 		} else { // Assumed to be a shop item
-			return this._handleDropShopItem(tile);
+			this._handleDropShopItem(tile, dragStartX, dragStartY);
+			return true; // Assume the request was successfully emitted. Outcome handled by events.
 		}
 	}
 
@@ -305,11 +204,20 @@ export class Chara extends Phaser.GameObjects.Container {
 	 * @param originalY The Y position to revert to.
 	 */
 	public revertDragOrFailedPurchase(originalX: number, originalY: number): void {
-		if (this.isShopItem && !this.isOwnedByPlayer()) {
+		if (this.isShopItem) { // If it's still a shop item (purchase failed or invalid drop for shop item)
 			this._revertShopItemToPosition(originalX, originalY);
-		} else { // Owned unit, or a shop item that failed purchase but its state might be complex
+		} else { // Owned unit that failed to move
 			tween({ targets: [this], ...UnitManager.getCharaPosition(this.unit) });
 		}
+	};
+
+	/**
+	 * Called when this Chara, as a shop item, has been successfully purchased.
+	 * Invokes the onPurchasedCallback if it exists.
+	 */
+	public finalizePurchase(): void {
+		this.isShopItem = false; // No longer a shop item
+		if (this.onPurchasedCallback) this.onPurchasedCallback();
 	};
 
 	// --- UI Update Methods ---
@@ -441,6 +349,9 @@ export class Chara extends Phaser.GameObjects.Container {
 		if (this.inputHandler) {
 			this.inputHandler.destroy();
 		}
+		// Remove event listeners this Chara instance might have set up on scene.events
+		// For example, if Chara listens to SHOP_PURCHASE_FAILED, OWNED_UNIT_MOVE_ACCEPTED etc.
+		// This is important to prevent memory leaks if Charas are frequently created/destroyed.
 		this.off(Phaser.Input.Events.POINTER_OVER);
 		this.off(Phaser.Input.Events.POINTER_OUT);
 		super.destroy(fromScene);

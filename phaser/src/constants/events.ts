@@ -64,4 +64,22 @@ export const GameEvents = {
 	TOOLTIP_HIDE: "tooltip_hide",
 
 	CHARA_FATALLY_WOUNDED: "charaFatallyWounded",
+
+	// Shop Interaction Requests (emitted by Chara when it's a shop item)
+	SHOP_ITEM_CLICK_PURCHASE_REQUESTED: "shop_item_click_purchase_requested", // Payload: { shopUnitData: Unit, shopCharaId: string, dragStartX: number, dragStartY: number }
+	SHOP_ITEM_DRAG_PURCHASE_REQUESTED: "shop_item_drag_purchase_requested",   // Payload: { shopUnitData: Unit, shopCharaId: string, targetTile: Vec2, dragStartX: number, dragStartY: number }
+
+	// Owned Unit Move Requests (emitted by Chara when it's an owned unit)
+	OWNED_UNIT_MOVE_REQUESTED: "owned_unit_move_requested", // Payload: { unitId: string, targetTile: Vec2, dragStartX: number, dragStartY: number }
+
+	// Outcome Events (emitted by the system handling the request)
+	SHOP_PURCHASE_SUCCESSFUL: "shop_purchase_successful", // Payload: { purchasedUnit: Unit, originalShopCharaId: string }
+	SHOP_PURCHASE_FAILED: "shop_purchase_failed",         // Payload: { originalShopCharaId: string, reason: string, dragStartX: number, dragStartY: number } (also updates existing PURCHASE_FAILED)
+
+	OWNED_UNIT_MOVE_ACCEPTED: "owned_unit_move_accepted", // Payload: { unitId: string, newPosition: Vec2, newVisualPosition: {x,y} }
+	OWNED_UNIT_SWAP_ACCEPTED: "owned_unit_swap_accepted",   // Payload: { movedUnitId: string, movedUnitNewPos: Vec2, movedUnitVisualPos: {x,y}, swappedUnitId: string, swappedUnitNewPos: Vec2, swappedUnitVisualPos: {x,y} }
+	OWNED_UNIT_MOVE_REJECTED: "owned_unit_move_rejected", // Payload: { unitId: string, reason: string, dragStartX: number, dragStartY: number }
+
+	// Event for CharaManager to spawn a new Chara on the board
+	BOARD_CHARA_CREATE_REQUESTED: "board_chara_create_requested", // Payload: { unit: Unit }
 };
