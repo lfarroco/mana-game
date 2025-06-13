@@ -53,13 +53,17 @@ export class BattlegroundSetupSystem {
 			//@ts-ignore
 			window.scene = this.scene;
 		}
-
-		state.gameData.player.gold = 0;
 		state.gameData.player.units = [];
 		state.gameData.player.relics = [];
 		state.gameData.round = 1;
-		this.scene.events.emit(GameEvents.PLAYER_GOLD_UPDATE_REQUEST, BG_CONSTANTS.INITIAL_PLAYER_GOLD);
 
+		// Directly set the initial gold from the constant
+		const initialGold = BG_CONSTANTS.INITIAL_PLAYER_GOLD;
+		state.gameData.player.gold = initialGold;
+
+		// Emit GOLD_CHANGED so UI and other systems can react to the initial gold value.
+		// The delta is the full initial amount, signifying the change from a conceptual zero or previous state.
+		this.scene.events.emit(GameEvents.GOLD_CHANGED, initialGold, initialGold);
 		this.scene.sound.setVolume(state.options.soundVolume ?? BG_CONSTANTS.DEFAULT_SCENE_SOUND_VOLUME);
 	}
 
