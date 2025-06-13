@@ -1,163 +1,104 @@
-# Phaser Webpack TypeScript Template
+# Project Improvement Points
 
-This is a Phaser 3 project template that uses webpack for bundling. It supports hot-reloading for quick development workflow, includes TypeScript support and scripts to generate production-ready builds.
+This document outlines potential areas for improvement and refactoring within the Mana Game project.
 
-**[This Template is also available as a JavaScript version.](https://github.com/phaserjs/template-webpack)**
+## 1. Code Structure and Design Patterns
 
-### Versions
+*   **Effect Invocation Consistency (`DebugScene.ts`, `Effects/`):**
+    *   In `DebugScene.ts`, some effects are instantiated (`new effects.GlowingOrb()`) while others are called as functions (`effects.fireballEffect()`). Consider standardizing the invocation pattern for effects if a consistent API is desired. This could involve making all effects classes or all effects functions, or providing a clear distinction for when to use which.
+*   **`DebugScene.ts` Effect Dispatch:**
+    *   The `create` method in `DebugScene.ts` uses a long `if/else if` chain to trigger different effects based on URL parameters. This can become unwieldy as more effects are added.
+    *   **Suggestion:** Refactor this to use an object/map lookup where the effect name (from the URL parameter) maps directly to a function that creates/triggers the effect. This would be more scalable and readable.
+        ```typescript
+        // Example structure in DebugScene.ts
+        const effectRunners: Record<string, () => void> = {
+            "arcanemissile": () => { /* ... arcane missile logic ... */ },
+            "criticaldamagedisplay": () => { /* ... critical damage display logic ... */ },
+            // ... other effects
+        };
 
-This template has been updated for:
+        const effectRunner = effectRunners[effect];
+        if (effectRunner) {
+            effectRunner();
+        } else {
+            console.warn(`Unknown effect: ${effect}`);
+        }
+        ```
+*   **Global State (`Models/State.ts`):**
+    *   The game previously relied more heavily on a global `window.state` object. An initial step towards more structured state management has been taken by introducing `Models/OptionsStore.ts` to manage game configuration options (sound, debug, speed, etc.), removing them from the main global state.
+    *   The core game data (e.g., `gameData`, `battleData`) still resides in `window.state`, accessed via `getState()` and `setState()`. While convenient for Phaser development and debugging, direct global state modification can make state changes harder to track and debug in larger applications.
+    *   **Suggestion:** For future scalability, continue to ensure that mutations to the remaining global state (`gameData`, `battleData`) are predictable, ideally through events or dedicated state update functions. For very large projects, a more formal state management library or further modularization of state (similar to `OptionsStore`) could be considered. The current approach with centralized accessors in `State.ts` for the main game data is an intermediate step.
+*  
+*   **Singleton Management (`Models/Board.ts`):**
+    *   The `PlayerBoard` uses a module-level singleton pattern (`_sharedPlayerBoardInstance`). This is a common and acceptable pattern. Ensure `initializeSharedPlayerBoard` is consistently called at the correct lifecycle point (e.g., scene initialization).
 
-- [Phaser 3.88.2](https://github.com/phaserjs/phaser)
-- [Webpack 5.91.0](https://github.com/webpack/webpack)
-- [TypeScript 5.4.5](https://github.com/microsoft/TypeScript)
+## 2. Refactoring and DRY (Don't Repeat Yourself)
 
-![screenshot](screenshot.png)
+*   **`impactEffect` Duplication (`Effects/explodeEffect.ts`, `Effects/fireballEffect.ts`):**
+    *   The `impactEffect` helper function was duplicated. It appears `/Users/<redacted>/dev/mana-game/phaser/src/Effects/impactEffect.ts` is intended as the single source of truth.
+    *   **Action:** Ensure all usages of `impactEffect` point to this centralized version and remove the local copies from `explodeEffect.ts` and `fireballEffect.ts`.
+*   **Explosion Offset Vectors (`Effects/explodeEffect.ts`, `Effects/fireballEffect.ts`):**
+    *   The array of `Vec2` objects used for positioning secondary impact effects in `explodeEffect` and `fireballEffect` is identical.
+    *   **Suggestion:** Define this array as a shared constant in a relevant constants file or a utility module to avoid duplication and ensure consistency.
+*   **Purchase Validation Logic (`Scenes/Battleground/Systems/BattlegroundEventSystem.ts`):**
+    *   The methods `_onShopItemClickPurchaseRequested` and `_onShopItemDragPurchaseRequested` contain similar validation logic (checking gold, party size, slot availability).
+    *   **Suggestion:** Refactor this common validation logic into a separate private method within `BattlegroundEventSystem` or a dedicated `ShopPurchaseValidator` service to reduce redundancy.
 
-## Requirements
+## 3. Configuration and Magic Numbers
 
-[Node.js](https://nodejs.org) is required to install dependencies and run scripts via `npm`.
+*   **Effect/Animation Timings:**
+    *   Several effects and animations use hardcoded numerical values for durations, delays, or other parameters (e.g., `delay(scene, 600)` in `Effects/impactEffect.ts`, various particle emitter settings).
+    *   **Suggestion:** Review these "magic numbers." If they represent configurable game design choices, move them to `constants.ts` or a relevant constants file. If they should scale with game speed, ensure they are divided by `state.options.speed` (as is done in the `tween` utility).
+*   **Particle Emitter Settings (`Effects/summonEffect.ts`):**
+    *   The `summonEffect` has `frequency: lifespan / 10` and `quantity: 4`, but a comment suggests "Emit all at once." This is contradictory.
+    *   **Suggestion:** Clarify the intended emission behavior. For "all at once," consider setting `frequency` to 0 or a very small value and `quantity` to the total number of particles, or use the particle emitter's `explode` method if suitable.
 
-## Available Commands
+## 4. Error Handling and Robustness
 
-| Command | Description |
-|---------|-------------|
-| `npm install` | Install project dependencies |
-| `npm run dev` | Launch a development web server |
-| `npm run build` | Create a production build in the `dist` folder |
-| `npm run dev-nolog` | Launch a development web server without sending anonymous data (see "About log.js" below) |
-| `npm run build-nolog` | Create a production build in the `dist` folder without sending anonymous data (see "About log.js" below) |
+*   **Non-Null Assertions (`!`):**
+    *   The codebase uses non-null assertions (e.g., `getSkill()!`, `getChara()!`) in several places. While this can be acceptable if the developer is certain the value will exist, it bypasses TypeScript's null checks.
+    *   **Suggestion:** In critical paths or where data integrity is paramount, consider replacing assertions with explicit checks and error handling (e.g., throwing an error, returning `null`/`undefined` and handling it gracefully, or logging a warning). This can make the code more robust to unexpected states.
+*   **`UNIT_EVENTS` Array (`Models/UnitEvents.ts`):**
+    *   The `UNIT_EVENTS` array is manually maintained and must be kept in sync with the `UnitEvents` type definition. This is prone to error.
+    *   **Suggestion:** Explore ways to generate this array programmatically from the `UnitEvents` type at build time or runtime to ensure consistency, or use a pattern that doesn't require a separate array if possible (though often such arrays are useful for iteration).
 
-## Writing Code
+## 5. Input Handling
 
-After cloning the repo, run `npm install` from your project directory. Then, you can start the local development server by running `npm run dev`.
+*   **DOM Interaction (`Systems/Controls/Controls.ts`):**
+    *   The `Controls.ts` system binds keyboard inputs to click events on DOM elements (`document.querySelector(selector)?.click()`).
+    *   **Suggestion:** If these controls are intended for in-game actions within the Phaser canvas, it's generally more idiomatic and robust to use Phaser's built-in keyboard input system (`this.input.keyboard.on('keydown-KEY', ...)`). If these are for HTML UI elements outside the canvas, the current approach is fine, but ensure the selectors are stable.
 
-The local development server runs on `http://localhost:8080` by default. Please see the webpack documentation if you wish to change this, or add SSL support.
+## 6. System Enhancements
 
-Once the server is running you can edit any of the files in the `src` folder. Webpack will automatically recompile your code and then reload the browser.
+*   **AI System (`Systems/AI/AI.ts`):**
+    *   The `AI.ts` system is currently a placeholder.
+    *   **Action:** Implement AI logic for CPU-controlled units.
+*   **Audio System (`Scenes/Battleground/Systems/Audio.ts`, `preload.ts`):**
+    *   Audio loading in `preload.ts` is mostly commented out, and `BattlegroundAudioSystem_init` is empty.
+    *   **Action:** Fully integrate audio assets and implement playback logic within the audio system.
+*   **Tooltip Sizing (`UI/Tooltip.ts`):**
+    *   The `Tooltip` class currently uses `FIXED_TOOLTIP_WIDTH` and `FIXED_TOOLTIP_HEIGHT`.
+    *   **Suggestion:** If more flexibility is needed, consider re-implementing dynamic sizing based on the title and description content, while still respecting screen boundaries. This would involve calculating text dimensions after setting the content.
+*   **`CharaManager.getSurroundingAllies` (`Scenes/Battleground/Systems/CharaManager.ts`):**
+    *   This function uses `Phaser.Math.Distance.BetweenPoints` (Euclidean distance). For grid-based games, if only cardinal or diagonal neighbors are required, a simpler check based on coordinate differences (`Math.abs(dx) <= 1 && Math.abs(dy) <= 1`) might be more direct and performant than calculating square roots.
 
-## Template Project Structure
+## 7. Testing
 
-We have provided a default project structure to get you started. This is as follows:
+*   **Coverage:** The project includes unit tests for `StateSelectors` and `utils`, which is excellent.
+*   **Suggestion:** Continue to expand test coverage, particularly for:
+    *   Core game logic (e.g., combat resolution, damage calculation).
+    *   `TraitSystem` evaluation.
+    *   State mutation functions.
+    *   Boundary conditions in various systems.
 
-- `index.html` - A basic HTML page to contain the game.
-- `src` - Contains the game source code.
-- `src/main.ts` - The main **entry** point. This contains the game configuration and starts the game.
-- `src/global.d.ts` - Global TypeScript declarations, provide types information.
-- `src/scenes/` - The Phaser Scenes are in this folder.
-- `public/style.css` - Some simple CSS rules to help with page layout.
-- `public/assets` - Contains the static assets used by the game.
+## 8. Minor Optimizations and Code Clarity
 
-## Handling Assets
+*   **`EnergyBeam.updateBeam` (`Effects/EnergyBeam.ts`):**
+    *   The method recalculates vectors (`vec`, `normalized`, `normal`) on every call. If a beam's start/end points are static after creation, these could be cached. (This is a minor point and depends on usage patterns).
+*   **`arcaneMissile` Effect (`Effects/arcaneMissile.ts`):**
+    *   The `duration * 2` for the delay seems arbitrary without explicit reasoning. Clarify or link to a constant if it has a specific meaning.
+    *   The default `colors` array includes black (`0x000000`), which might make particles invisible if alpha is also fading. Review if this is intended.
+*   **`isInside` in `Models/Geometry.ts`:**
+    *   Creates a new `Phaser.Geom.Rectangle` on every call. If used in a very high-frequency loop, and the rectangle dimensions are stable, consider caching the Rectangle object. For typical UI or infrequent checks, it's fine.
 
-Webpack supports loading assets via JavaScript module `import` statements.
-
-This template provides support for both embedding assets and also loading them from a static folder. To embed an asset, you can import it at the top of the JavaScript file you are using it in:
-
-```js
-import logoImg from './assets/logo.png'
-```
-
-To load static files such as audio files, videos, etc place them into the `public/assets` folder. Then you can use this path in the Loader calls within Phaser:
-
-```js
-preload ()
-{
-    //  This is an example of an imported bundled image.
-    //  Remember to import it at the top of this file
-    this.load.image('logo', logoImg);
-
-    //  This is an example of loading a static image
-    //  from the public/assets folder:
-    this.load.image('background', 'assets/bg.png');
-}
-```
-
-When you issue the `npm run build` command, all static assets are automatically copied to the `dist/assets` folder.
-
-## Deploying to Production
-
-After you run the `npm run build` command, your code will be built into a single bundle and saved to the `dist` folder, along with any other assets your project imported, or stored in the public assets folder.
-
-In order to deploy your game, you will need to upload *all* of the contents of the `dist` folder to a public facing web server.
-
-## Customizing the Template
-
-### Babel
-
-You can write modern ES6+ JavaScript and Babel will transpile it to a version of JavaScript that you want your project to support. The targeted browsers are set in the `.babelrc` file and the default currently targets all browsers with total usage over "0.25%" but excludes IE11 and Opera Mini.
-
- ```
-"browsers": [
-  ">0.25%",
-  "not ie 11",
-  "not op_mini all"
-]
- ```
-
-### Webpack
-
-If you want to customize your build, such as adding a new webpack loader or plugin (i.e. for loading CSS or fonts), you can modify the `webpack/config.*.js` file for cross-project changes, or you can modify and/or create new configuration files and target them in specific npm tasks inside of `package.json`. Please see the [Webpack documentation](https://webpack.js.org/) for more information.
-
-## About log.js
-
-If you inspect our node scripts you will see there is a file called `log.js`. This file makes a single silent API call to a domain called `gryzor.co`. This domain is owned by Phaser Studio Inc. The domain name is a homage to one of our favorite retro games.
-
-We send the following 3 pieces of data to this API: The name of the template being used (vue, react, etc). If the build was 'dev' or 'prod' and finally the version of Phaser being used.
-
-At no point is any personal data collected or sent. We don't know about your project files, device, browser or anything else. Feel free to inspect the `log.js` file to confirm this.
-
-Why do we do this? Because being open source means we have no visible metrics about which of our templates are being used. We work hard to maintain a large and diverse set of templates for Phaser developers and this is our small anonymous way to determine if that work is actually paying off, or not. In short, it helps us ensure we're building the tools for you.
-
-However, if you don't want to send any data, you can use these commands instead:
-
-Dev:
-
-```bash
-npm run dev-nolog
-```
-
-Build:
-
-```bash
-npm run build-nolog
-```
-
-Or, to disable the log entirely, simply delete the file `log.js` and remove the call to it in the `scripts` section of `package.json`:
-
-Before:
-
-```json
-"scripts": {
-    "dev": "node log.js dev & dev-template-script",
-    "build": "node log.js build & build-template-script"
-},
-```
-
-After:
-
-```json
-"scripts": {
-    "dev": "dev-template-script",
-    "build": "build-template-script"
-},
-```
-
-Either of these will stop `log.js` from running. If you do decide to do this, please could you at least join our Discord and tell us which template you're using! Or send us a quick email. Either will be super-helpful, thank you.
-
-## Join the Phaser Community!
-
-We love to see what developers like you create with Phaser! It really motivates us to keep improving. So please join our community and show-off your work 😄
-
-**Visit:** The [Phaser website](https://phaser.io) and follow on [Phaser Twitter](https://twitter.com/phaser_)<br />
-**Play:** Some of the amazing games [#madewithphaser](https://twitter.com/search?q=%23madewithphaser&src=typed_query&f=live)<br />
-**Learn:** [API Docs](https://newdocs.phaser.io), [Support Forum](https://phaser.discourse.group/) and [StackOverflow](https://stackoverflow.com/questions/tagged/phaser-framework)<br />
-**Discord:** Join us on [Discord](https://discord.gg/phaser)<br />
-**Code:** 2000+ [Examples](https://labs.phaser.io)<br />
-**Read:** The [Phaser World](https://phaser.io/community/newsletter) Newsletter<br />
-
-Created by [Phaser Studio](mailto:support@phaser.io). Powered by coffee, anime, pixels and love.
-
-The Phaser logo and characters are &copy; 2011 - 2024 Phaser Studio Inc.
-
-All rights reserved.
+By addressing these points, the project can become even more robust, maintainable, and easier to extend.

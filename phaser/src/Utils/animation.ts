@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { getState } from "../Models/State";
+import { getOption } from "../Models/OptionsStore";
 
 /**
  * Defines the properties for our custom tween wrapper.
@@ -22,7 +22,7 @@ type CustomTweenProps =
 export async function tween(
 	attributes: CustomTweenProps,
 ): Promise<void> {
-	const speed = getState().options.speed;
+	const speed = getOption('speed');
 
 	const { targets, onComplete: userOnCompleteCallback, ...restOfConfig } = attributes;
 
@@ -98,7 +98,7 @@ export const delay = (
 ) => new Promise<void>((resolve, _reject) => {
 	scene.time.addEvent(
 		{
-			delay: duration / getState().options.speed,
+			delay: duration / getOption('speed'),
 			callback: () => {
 				resolve();
 			}

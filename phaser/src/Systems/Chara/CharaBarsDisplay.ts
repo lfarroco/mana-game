@@ -2,7 +2,7 @@
 import Phaser from "phaser";
 import { Unit } from "../../Models/Entities/Unit";
 import * as bgConstants from "../../constants/constants";
-import { getState } from "../../Models/State";
+import { getOption } from "../../Models/OptionsStore";
 
 export class CharaBarsDisplay {
 	private scene: Phaser.Scene;
@@ -51,7 +51,7 @@ export class CharaBarsDisplay {
 			bgConstants.TILE_HEIGHT - Math.min(percent * bgConstants.TILE_HEIGHT, bgConstants.TILE_HEIGHT)
 		);
 
-		if (!getState().options.debug) {
+		if (!getOption('debug')) {
 			cooldownBar.clear();
 			hpBar.clear();
 			return;
@@ -82,7 +82,7 @@ export class CharaBarsDisplay {
 
 	public setVisible(visible: boolean): void {
 		this.chargeBar.setVisible(visible);
-		const debugMode = getState().options.debug;
+		const debugMode = getOption('debug');
 		this.cooldownBar.setVisible(visible && debugMode);
 		this.hpBar.setVisible(visible && debugMode);
 	}

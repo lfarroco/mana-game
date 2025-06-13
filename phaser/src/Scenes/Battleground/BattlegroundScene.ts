@@ -17,6 +17,7 @@ import { BattlegroundEventSystem } from "./Systems/BattlegroundEventSystem";
 import { BattleProgressionSystem } from "./Systems/BattleProgressionSystem";
 import { GameEvents } from "../../constants/events";
 import { DebugController } from "../Debug/DebugController";
+import { getOption } from "../../Models/OptionsStore";
 
 /**
  * The main scene for the battleground, handling game logic, UI, and progression.
@@ -176,7 +177,7 @@ export class BattlegroundScene extends Phaser.Scene {
    */
   playFx(key: string) {
     const audio = this.sound.add(key)
-    audio.volume = this.state.options.soundVolume;
+    audio.volume = getOption('soundVolume');
     audio.play();
   }
 

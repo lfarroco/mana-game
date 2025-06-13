@@ -5,12 +5,11 @@ import { GlowingOrb } from "../../../Effects/GlowingOrb";
 import { delay } from "../../../Utils/animation";
 import { approach } from "../approach";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
+import { getOption } from "../../../Models/OptionsStore";
 
 export const lightOrb = (
 	scene: BattlegroundScene
 ) => async (unit: Unit) => {
-
-	const { state } = scene;
 
 	const skill = getSkill(LIGHT_ORB);
 
@@ -24,7 +23,7 @@ export const lightOrb = (
 	const orb = new GlowingOrb(scene,
 		activeChara.x, activeChara.y,
 		targetChara,
-		500 / state.options.speed
+		500 / getOption('speed')
 	).setScale(0.5);
 
 	await delay(scene, 500);
@@ -35,5 +34,3 @@ export const lightOrb = (
 
 	orb.destroy();
 }
-
-

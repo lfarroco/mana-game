@@ -8,7 +8,7 @@ import { EnergyBeam } from "../../../Effects/EnergyBeam";
 import { healingHitEffect } from "../../../Effects/healingHitEffect";
 import { getSkill, HEALING_WAVE } from "../../../Models/Entities/Skill";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
-import { getState } from "../../../Models/State";
+import { getOption } from "../../../Models/OptionsStore";
 
 /**
  * Performs a healing wave skill that targets allies with low health.
@@ -120,7 +120,7 @@ async function animation(scene: BattlegroundScene, targets: Vec2[]) {
 
 	scene.events.on(Phaser.Scenes.Events.UPDATE, update);
 
-	targets.forEach(t => healingHitEffect(scene, t, lifespan, getState().options.speed));
+	targets.forEach(t => healingHitEffect(scene, t, lifespan, getOption('speed')));
 
 	await (delay(scene, lifespan));
 

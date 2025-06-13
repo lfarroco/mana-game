@@ -8,6 +8,7 @@ import { initializeSharedPlayerBoard, PlayerBoard } from "../../../Models/Board"
 import * as BG_CONSTANTS from "../battlegroundConstants";
 import { GameEvents } from "../../../constants/events";
 import { BattlegroundScene } from "../BattlegroundScene";
+import { getOption } from "../../../Models/OptionsStore";
 
 let runtimeDataInitialized = false;
 
@@ -64,7 +65,7 @@ export class BattlegroundSetupSystem {
 		// Emit GOLD_CHANGED so UI and other systems can react to the initial gold value.
 		// The delta is the full initial amount, signifying the change from a conceptual zero or previous state.
 		this.scene.events.emit(GameEvents.GOLD_CHANGED, initialGold, initialGold);
-		this.scene.sound.setVolume(state.options.soundVolume ?? BG_CONSTANTS.DEFAULT_SCENE_SOUND_VOLUME);
+		this.scene.sound.setVolume(getOption('soundVolume') ?? BG_CONSTANTS.DEFAULT_SCENE_SOUND_VOLUME);
 	}
 
 	public setupSceneElements(_state: State): PlayerBoard {
