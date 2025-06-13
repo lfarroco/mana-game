@@ -5,7 +5,7 @@ import { makeUnit } from "../../../Models/Entities/Unit";
 import { Flyout } from "../../../UI/Flyout";
 import { pickRandom } from "../../../utils";
 import { FORCE_ID_PLAYER, titleTextConfig } from "../../../constants/constants";
-import { addCharaToState } from "./CharaManager";
+import { registerChara } from "./CharaManager";
 import { RelicCard } from "./Relic";
 import { Chara } from "../../../Systems/Chara/Chara";
 import { BattlegroundScene } from "../BattlegroundScene";
@@ -141,7 +141,7 @@ export class Shop {
 					}
 				});
 
-				addCharaToState(chara);
+				registerChara(chara);
 
 				chara.setPosition(Shop.TAVERN_CHARA_FIRST_X + (index * Shop.TAVERN_CHARA_SPACING), Shop.TAVERN_CHARA_BASE_Y);
 				chara.setBarsVisibility(false);

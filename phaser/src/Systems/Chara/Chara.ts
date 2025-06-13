@@ -119,14 +119,14 @@ export class Chara extends Phaser.GameObjects.Container {
 	}
 
 	/**
- * Called by CharaInputHandler when a shop item is clicked.
- * Emits an event to request a purchase attempt.
- * @param dragStartX The X coordinate where the potential drag started (or click position).
- * @param dragStartY The Y coordinate where the potential drag started (or click position).
- *                   For click purchases, these parameters from CharaInputHandler are the click coordinates.
- *                   However, for the purpose of reverting a failed purchase, we need the Chara's
- *                   actual current position (its shop slot position).
- */
+	 * Called by CharaInputHandler when a shop item is clicked.
+	 * Emits an event to request a purchase attempt.
+	 * @param dragStartX The X coordinate where the potential drag started (or click position).
+	 * @param dragStartY The Y coordinate where the potential drag started (or click position).
+	 *                   For click purchases, these parameters from CharaInputHandler are the click coordinates.
+	 *                   However, for the purpose of reverting a failed purchase, we need the Chara's
+	 *                   actual current position (its shop slot position).
+	 */
 	public processShopItemClick(_clickX: number, _clickY: number): void {
 		// For a click purchase, targetBoardPos is undefined; the ShopSystem will find an empty slot.
 		// We pass a copy of unit data as the shop Chara's unit shouldn't be mutated directly
@@ -234,7 +234,8 @@ export class Chara extends Phaser.GameObjects.Container {
 	private _onShopPurchaseSuccessful(payload: { purchasedUnit: Unit, originalShopCharaId: string }): void {
 		if (this.isShopItem && payload.originalShopCharaId === this.id) {
 			this.finalizePurchase(); // This calls the onPurchasedCallback which should handle removal from flyout
-			this.destroy(); // Destroy the shop Chara instance itself
+			// The CharaManager is responsible for the actual destruction and removal from its index.
+			UnitManager.destroyChara(this.id);
 		}
 	}
 
