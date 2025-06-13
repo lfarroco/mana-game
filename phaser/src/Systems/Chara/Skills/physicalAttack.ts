@@ -1,14 +1,14 @@
 import { impactEffect } from "../../../Effects";
-import { getState } from "../../../Models/State";
 import { Chara } from "../Chara";
 import { GameEvents } from "../../../constants/events";
+import { getOption } from "../../../Models/OptionsStore";
 
 export async function physicalAttack(
 	activeChara: Chara,
 	targetChara: Chara,
 ) {
 	const { parent: scene } = activeChara;
-	const { speed } = getState().options;
+	const speed = getOption('speed');
 
 	impactEffect({
 		scene,

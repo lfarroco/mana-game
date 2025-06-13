@@ -43,7 +43,7 @@ export class UIManager {
 	 */
 	constructor(scene: BattlegroundScene) {
 		this.scene = scene;
-		this.goldCoinAnimator = new GoldCoinAnimator(this.scene, this.scene.state);
+		this.goldCoinAnimator = new GoldCoinAnimator(this.scene);
 		this._setupGoldChangeListener();
 		this._setupPurchaseFailedListener();
 		this._setupUserMessageListener();

@@ -4,42 +4,7 @@ import { Unit } from "./Entities/Unit";
 import { getChara } from "../Scenes/Battleground/Systems/CharaManager";
 import { UNIT_EVENT_NO_OP, UnitEvent } from "./UnitEvents";
 
-// TODO: make this not import things from phaser
-
-// get ?speed=x parameter from url
-let speed = 2;
-
-const urlParams = new URLSearchParams(window.location.search);
-if (urlParams.has("speed")) {
-  const paramSpeed = urlParams.get("speed");
-  if (paramSpeed) {
-    const parsedSpeed = parseFloat(paramSpeed);
-    if (!isNaN(parsedSpeed)) {
-      speed = parsedSpeed;
-    }
-  }
-}
-
-let debug = false;
-if (urlParams.has("debug")) {
-  const paramDebug = urlParams.get("debug");
-  if (paramDebug) {
-    const parsedDebug = paramDebug === "true";
-    if (parsedDebug) {
-      debug = parsedDebug;
-    }
-  }
-}
-
 export const initialState = (): State => ({
-  options: {
-    sound: true,
-    soundVolume: 0.4,
-    music: true,
-    musicVolume: 0.2,
-    debug,
-    speed, // TODO: remove references from non-animation code
-  },
   savedGames: [],
   gameData: {
     round: 1,
@@ -55,14 +20,6 @@ export const initialState = (): State => ({
 
 // todo: make it a type that describes an ioref
 export type State = {
-  options: {
-    sound: boolean;
-    soundVolume: number;
-    music: boolean;
-    musicVolume: number;
-    debug: boolean;
-    speed: number;
-  };
   savedGames: string[];
   gameData: GameData;
   battleData: {

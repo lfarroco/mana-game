@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { delay } from "../Utils/animation";
-import { State } from "../Models/State";
+import { getOption } from "../Models/OptionsStore";
 
 /**
  * Manages the animation of gold coins, typically when gold is acquired by the player.
@@ -10,17 +10,13 @@ import { State } from "../Models/State";
 export class GoldCoinAnimator {
 	/** The Phaser.Scene instance where animations will be rendered. */
 	private scene: Phaser.Scene;
-	/** The current game state, used to access options like animation speed. */
-	private state: State;
 
 	/**
 	 * Initializes the GoldCoinAnimator.
 	 * @param scene - The Phaser.Scene instance to which animations will be added.
-	 * @param state - The current game state, primarily used for accessing animation speed settings.
 	 */
-	constructor(scene: Phaser.Scene, state: State) {
+	constructor(scene: Phaser.Scene) {
 		this.scene = scene;
-		this.state = state;
 	}
 
 	/**
@@ -39,7 +35,7 @@ export class GoldCoinAnimator {
 		y: number,
 		onGoldArrive?: () => void
 	): Promise<void> {
-		const currentSpeed = this.state.options.speed;
+		const currentSpeed = getOption('speed');
 		const chestX = this.scene.cameras.main.width - 150;
 		const chestY = this.scene.cameras.main.height - 100;
 

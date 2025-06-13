@@ -4,6 +4,7 @@ import { FORCE_ID_CPU, FORCE_ID_PLAYER, MIN_COOLDOWN } from "../../constants/con
 import * as CharaManager from "./Systems/CharaManager";
 import { Unit } from "../../Models/Entities/Unit";
 import { GameEvents } from "../../constants/events";
+import { getOption } from "../../Models/OptionsStore";
 
 export type WaveOutcome = "player_won" | "player_lost";
 
@@ -101,7 +102,7 @@ function chargeUnits(state: State, delta: number): Unit[] {
       unit.slowed = Math.max(0, unit.slowed - delta);
       modifier = modifier / 2;
     }
-    unit.charge += delta * state.options.speed * modifier;
+    unit.charge += delta * getOption('speed') * modifier;
 
     unit.refresh = Math.max(0, unit.refresh - delta);
 
