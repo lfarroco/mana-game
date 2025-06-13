@@ -95,7 +95,6 @@ export class BattleProgressionSystem {
 			unit.slowed = 0;
 			unit.hasted = 0;
 			unit.hp = unit.maxHp;
-			unit.statuses = {};
 		});
 	}
 

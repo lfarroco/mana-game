@@ -25,15 +25,7 @@ export async function physicalAttack(
 	const isCritical = dice <= activeChara.unit.crit;
 
 	const rawDmg = isCritical ? activeChara.unit.attackPower * 2 : activeChara.unit.attackPower;
-	let damage = Math.max(1, rawDmg - targetChara.unit.defense);
-
-	// TODO: use a hook for this
-	// hook: onbeforeAttackByMe
-	// receive base damage (without other modifiers)
-	// returns new damage, or attack cancel
-	// then, sum with all the other modifiers
-	if (activeChara.unit.statuses["double_damage"])
-		damage *= 2;
+	const damage = rawDmg; // future dmg calculations enter here
 
 	// Emit event for TRAIT_EVAL_ATTACK_BY_ME
 	scene.events.emit(GameEvents.TRAIT_EVAL_ATTACK_BY_ME, { unit: activeChara.unit, target: targetChara.unit, damage, isCritical, evaded });

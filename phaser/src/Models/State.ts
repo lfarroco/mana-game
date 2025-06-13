@@ -1,8 +1,6 @@
 import { Force, playerForce } from "./Entities/Force";
 import { eqVec2, Vec2 } from "./Geometry";
 import { Unit } from "./Entities/Unit";
-import { getChara } from "../Scenes/Battleground/Systems/CharaManager";
-import { UNIT_EVENT_NO_OP, UnitEvent } from "./UnitEvents";
 
 // Module-scoped variable to hold the state, similar to currentOptions in OptionsStore
 let _currentState: State;
@@ -36,7 +34,7 @@ export const initialState = (): State => ({
  * This function should be called once at the beginning of the application, similar to initializeOptionsStore.
  */
 export function initializeGlobalState(): void {
-	_currentState = initialState();
+  _currentState = initialState();
 }
 
 // todo: make it a type that describes an ioref
@@ -63,9 +61,9 @@ export type GameData = {
  */
 export const getState = (): State => {
   if (!_currentState) {
-		console.warn("Global state not initialized. Calling initializeGlobalState() first. Returning defaults.");
-		initializeGlobalState();
-	}
+    console.warn("Global state not initialized. Calling initializeGlobalState() first. Returning defaults.");
+    initializeGlobalState();
+  }
   return { ..._currentState }; // Return a shallow copy to prevent direct external mutation
 };
 
@@ -108,26 +106,3 @@ export const getUnitAt = (units: Unit[]) => (position: Vec2) => {
   return units.find((u) => eqVec2(u.position, position));
 }
 
-export function addStatus(
-  unit: Unit,
-  status: string,
-  duration: number = Infinity,
-  effect: UnitEvent = UNIT_EVENT_NO_OP,
-  onEnd: UnitEvent = UNIT_EVENT_NO_OP,
-) {
-  unit.statuses[status] = {
-    effect,
-    onEnd,
-    duration
-  }
-}
-
-// TODO: add "on status removed" to unit events
-export function endStatus(unitId: string, status: string) {
-  const chara = getChara(unitId);
-
-  chara.getByName("status-" + status)?.destroy();
-
-  delete chara.unit.statuses[status];
-
-}

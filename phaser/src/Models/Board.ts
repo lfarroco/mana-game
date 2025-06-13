@@ -302,7 +302,6 @@ export function getMeleeTarget(state: State, unit: Unit): Unit {
 
 export function getRangedTargets(state: State, unit: Unit, amount = 1): Unit[] {
 	const enemies = getActiveUnits(state)
-		.filter(u => !u.statuses["stealth"])
 		.filter(u => u.force !== unit.force);
 
 	// get all enemies in the same row, or neighoring row

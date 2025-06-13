@@ -21,18 +21,11 @@ export type Unit = {
   attackPower: number;
   attackType: "melee" | "ranged" | "none";
 
-  defense: number;
-  magicDefense: number;
-
   cooldown: number;
   crit: number;
   evade: number;
 
-  // Temporary status effects
-  statuses: UnitStatusIndex;
   traits: TraitData[];
-
-  log: string[];
 
   charge: number; // each tick the job's agi is added here. when it reaches 100, the job can act
   refresh: number; // the time it takes for the job to act again. Even if charged, this must be 0
@@ -67,9 +60,6 @@ export const makeUnit = (force: string, cardId: string, position = vec2Zero()): 
     attackPower: card.attack || 0,
     defense: 0,
     magicDefense: 0,
-    equip: null,
-    log: [],
-    statuses: {},
     charge: 0,
     refresh: 0,
     hasted: 0,
@@ -78,9 +68,3 @@ export const makeUnit = (force: string, cardId: string, position = vec2Zero()): 
   }
   return unit as Unit
 };
-
-export const unitLog = (unit: Unit, log: string) => {
-  unit.log = [log, ...unit.log];
-  console.log(unit.id, log);
-}
-
