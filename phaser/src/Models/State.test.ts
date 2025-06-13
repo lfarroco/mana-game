@@ -14,9 +14,9 @@ import { vec2 } from './Geometry';
 import { Unit } from './Entities/Unit';
 
 const mockUnits: Unit[] = [
-	{ id: 'u1', hp: 10, force: 'f1', position: vec2(0, 0), statuses: {} } as Unit,
-	{ id: 'u2', hp: 0, force: 'f2', position: vec2(1, 1), statuses: {} } as Unit,
-	{ id: 'u3', hp: 5, force: 'f2', position: vec2(2, 2), statuses: {} } as Unit,
+	{ id: 'u1', hp: 10, force: 'f1', position: vec2(0, 0), } as Unit,
+	{ id: 'u2', hp: 0, force: 'f2', position: vec2(1, 1), } as Unit,
+	{ id: 'u3', hp: 5, force: 'f2', position: vec2(2, 2), } as Unit,
 ];
 
 const mockState: any = {
@@ -26,8 +26,8 @@ const mockState: any = {
 	gameData: {
 		player: {
 			units: [
-				{ id: 'g1', position: vec2(3, 3), statuses: {} } as Unit,
-				{ id: 'g2', position: vec2(4, 4), statuses: {} } as Unit,
+				{ id: 'g1', position: vec2(3, 3), } as Unit,
+				{ id: 'g2', position: vec2(4, 4), } as Unit,
 			],
 		},
 	},

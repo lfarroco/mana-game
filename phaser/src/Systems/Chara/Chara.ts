@@ -5,7 +5,6 @@ import { Vec2 } from "../../Models/Geometry";
 import { tween } from "../../Utils/animation";
 import * as UnitManager from "../../Scenes/Battleground/Systems/CharaManager";
 import * as Board from "../../Models/Board"; // getState is used here
-import { addStatus, } from "../../Models/State";
 import { popText } from "./Animations/popText";
 import { criticalDamageDisplay } from "../../Effects";
 import { images } from "../../assets";
@@ -312,11 +311,6 @@ export class Chara extends Phaser.GameObjects.Container {
 			return;
 		}
 
-		if (nextHp <= chara.unit.maxHp / 2 && !chara.unit.statuses["on-half-hp"]) {
-			addStatus(chara.unit, "on-half-hp");
-			this.parent.events.emit(GameEvents.TRAIT_EVAL_UNIT_HALF_HP, { unit: chara.unit });
-
-		}
 	}
 
 	/**

@@ -280,7 +280,4 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("modify_unit_cooldowns", requireSourceRelic(modifyUnitCooldownsLogic));
 	registerTraitEffectImplementation("modify_unit_max_hp", requireSourceRelic(modifyUnitMaxHpLogic));
 
-	// Add more registrations here
-	// e.g., registerTraitEffectImplementation("apply_status", applyStatusEffect);
-	// e.g., registerTraitEffectImplementation("heal_targets", healTargetsEffect);
 }

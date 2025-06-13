@@ -1,5 +1,5 @@
 import { getSkill, HEAL } from "../../../Models/Entities/Skill";
-import { Unit, unitLog } from "../../../Models/Entities/Unit";
+import { Unit, } from "../../../Models/Entities/Unit";
 import { popText } from "./popText";
 import { delay } from "../../../Utils/animation";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
@@ -22,8 +22,6 @@ export async function healAnimation(
     if (target.hp <= 0) {
         throw new Error("target is dead");
     }
-
-    unitLog(unit, `will cast ${skill.name} on ${target.id}`);
 
     await popText({ text: skill.name, targetId: unit.id });
 
