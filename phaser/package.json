@@ -8,7 +8,10 @@
         "dev-nolog": "webpack-dev-server --config webpack/config.dev.js --open",
         "build-nolog": "webpack --config webpack/config.prod.js",
         "electron": "electron electron.js",
-        "test": "jest"
+        "test": "jest",
+        "test:e2e": "playwright test",
+        "test:e2e:ui": "playwright test --ui",
+        "test:e2e:debug": "playwright test --debug"
     },
     "repository": {
         "type": "git",
@@ -25,6 +28,7 @@
         "@babel/core": "^7.24.5",
         "@babel/preset-env": "^7.24.5",
         "@babel/preset-typescript": "^7.27.1",
+        "@playwright/test": "^1.53.0",
         "@types/jest": "^29.5.14",
         "babel-loader": "^9.1.3",
         "clean-webpack-plugin": "^4.0.0",
