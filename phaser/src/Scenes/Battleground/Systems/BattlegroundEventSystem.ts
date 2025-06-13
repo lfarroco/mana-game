@@ -253,7 +253,10 @@ export class BattlegroundEventSystem {
 	private _onBoardCharaCreateRequested(payload: { unit: Unit }): void {
 		// When a new Chara is requested for the board (e.g., after a purchase),
 		// tell CharaManager to summon it. Default to animating its appearance.
-		CharaManager.summonChara(payload.unit, true, true);
+		CharaManager.summonChara(payload.unit, true, true); // summonChara is async, but we don't need to await its completion for this logic
+		if (this.battleProgressionSystem.isInShopPhase && payload.unit.force === constants.FORCE_ID_PLAYER) {
+			// Ensure the newly summoned player unit also has its bars hidden during shop phase
+			this.scene.events.emit(GameEvents.CHARA_BARS_VISIBILITY_SET, { unitId: payload.unit.id, visible: false });
+		}
 	}
-
 }
