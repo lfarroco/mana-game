@@ -92,6 +92,11 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.statsDisplay.updateHp();
 		this.statsDisplay.updateAtk();
 		this.barsDisplay.updateBars();
+
+		if (this.isShopItem) {
+			this.parent.events.on(GameEvents.SHOP_PURCHASE_SUCCESSFUL, this._onShopPurchaseSuccessful, this);
+			this.parent.events.on(GameEvents.SHOP_PURCHASE_FAILED, this._onShopPurchaseFailed, this);
+		}
 	}
 
 	/**
@@ -219,6 +224,23 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.isShopItem = false; // No longer a shop item
 		if (this.onPurchasedCallback) this.onPurchasedCallback();
 	};
+
+	private _onShopPurchaseSuccessful(payload: { purchasedUnit: Unit, originalShopCharaId: string }): void {
+		if (this.isShopItem && payload.originalShopCharaId === this.id) {
+			this.finalizePurchase(); // This calls the onPurchasedCallback which should handle removal from flyout
+			this.destroy(); // Destroy the shop Chara instance itself
+		}
+	}
+
+	private _onShopPurchaseFailed(payload: { originalShopCharaId: string, reason: string, dragStartX: number, dragStartY: number }): void {
+		if (this.isShopItem && payload.originalShopCharaId === this.id) {
+			// Ensure tooltip is hidden before reverting, as pointer might not naturally move out
+			this.parent.events.emit(GameEvents.TOOLTIP_HIDE);
+			this.revertDragOrFailedPurchase(payload.dragStartX, payload.dragStartY);
+			// Optionally, re-enable input if it was disabled during purchase attempt, though current logic doesn't show it being disabled.
+			// this.input.enabled = true;
+		}
+	}
 
 	// --- UI Update Methods ---
 
@@ -354,6 +376,11 @@ export class Chara extends Phaser.GameObjects.Container {
 		// This is important to prevent memory leaks if Charas are frequently created/destroyed.
 		this.off(Phaser.Input.Events.POINTER_OVER);
 		this.off(Phaser.Input.Events.POINTER_OUT);
+
+		if (this.isShopItem) { // Clean up shop-specific listeners
+			this.parent.events.off(GameEvents.SHOP_PURCHASE_SUCCESSFUL, this._onShopPurchaseSuccessful, this);
+			this.parent.events.off(GameEvents.SHOP_PURCHASE_FAILED, this._onShopPurchaseFailed, this);
+		}
 		super.destroy(fromScene);
 	}
 }
