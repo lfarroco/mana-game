@@ -18,6 +18,10 @@ import * as BG_CONSTANTS from "../battlegroundConstants";
 import { handleCharaDeath } from "../../../Systems/Chara/CharaDeathSequenceHandler";
 import { Chara } from "../../../Systems/Chara/Chara";
 import * as CharaTooltip from "../../../Systems/Chara/CharaTooltip";
+import { makeUnit } from "../../../Models/Entities/Unit";
+import { FORCE_ID_PLAYER, MAX_PARTY_SIZE, SHOP_ITEM_PURCHASE_COST } from "../../../constants/constants";
+import { getUnitAt } from "../../../Models/State";
+import { Vec2 } from "../../../Models/Geometry";
 
 export class BattlegroundEventSystem {
 	private scene: BattlegroundScene;
@@ -74,6 +78,11 @@ export class BattlegroundEventSystem {
 		events.on(GameEvents.CHARA_FATALLY_WOUNDED, this._onCharaFatallyWounded, this);
 		events.on(GameEvents.CHARA_POINTER_OVER, CharaTooltip.onCharaPointerOver, this);
 		events.on(GameEvents.CHARA_POINTER_OUT, CharaTooltip.onCharaPointerOut, this);
+
+		// Shop Purchase Request Handlers
+		events.on(GameEvents.SHOP_ITEM_CLICK_PURCHASE_REQUESTED, this._onShopItemClickPurchaseRequested, this);
+		events.on(GameEvents.SHOP_ITEM_DRAG_PURCHASE_REQUESTED, this._onShopItemDragPurchaseRequested, this);
+		events.on(GameEvents.BOARD_CHARA_CREATE_REQUESTED, this._onBoardCharaCreateRequested, this);
 	}
 
 	public destroy(): void {
@@ -178,4 +187,67 @@ export class BattlegroundEventSystem {
 	private async _onCharaFatallyWounded(data: { chara: Chara, killerId: string }): Promise<void> {
 		await handleCharaDeath(this.scene, data);
 	}
+
+	private _onShopItemClickPurchaseRequested(payload: { shopUnitData: Unit, shopCharaId: string, dragStartX: number, dragStartY: number }): void {
+		const { shopUnitData, shopCharaId, dragStartX, dragStartY } = payload;
+
+		if (this.state.gameData.player.gold < SHOP_ITEM_PURCHASE_COST) {
+			this.scene.events.emit(GameEvents.SHOP_PURCHASE_FAILED, { originalShopCharaId: shopCharaId, reason: "INSUFFICIENT_GOLD", dragStartX, dragStartY });
+			return;
+		}
+		if (this.state.gameData.player.units.length >= MAX_PARTY_SIZE) {
+			this.scene.events.emit(GameEvents.SHOP_PURCHASE_FAILED, { originalShopCharaId: shopCharaId, reason: "PARTY_FULL", dragStartX, dragStartY });
+			return;
+		}
+
+		const targetTile = this.playerBoard.getEmptySlot(this.state.gameData.player.units, FORCE_ID_PLAYER);
+		if (!targetTile) {
+			this.scene.events.emit(GameEvents.SHOP_PURCHASE_FAILED, { originalShopCharaId: shopCharaId, reason: "NO_EMPTY_SLOT", dragStartX, dragStartY });
+			return;
+		}
+
+		// Proceed with purchase
+		this.scene.events.emit(GameEvents.PLAYER_GOLD_UPDATE_REQUEST, -SHOP_ITEM_PURCHASE_COST);
+
+		const newUnit = makeUnit(FORCE_ID_PLAYER, shopUnitData.cardId, targetTile);
+		this.state.gameData.player.units.push(newUnit);
+
+		this.scene.events.emit(GameEvents.BOARD_CHARA_CREATE_REQUESTED, { unit: newUnit });
+		this.scene.events.emit(GameEvents.SHOP_PURCHASE_SUCCESSFUL, { purchasedUnit: newUnit, originalShopCharaId: shopCharaId });
+	}
+
+	private _onShopItemDragPurchaseRequested(payload: { shopUnitData: Unit, shopCharaId: string, targetTile: Vec2, dragStartX: number, dragStartY: number }): void {
+		const { shopUnitData, shopCharaId, targetTile, dragStartX, dragStartY } = payload;
+
+		if (this.state.gameData.player.gold < SHOP_ITEM_PURCHASE_COST) {
+			this.scene.events.emit(GameEvents.SHOP_PURCHASE_FAILED, { originalShopCharaId: shopCharaId, reason: "INSUFFICIENT_GOLD", dragStartX, dragStartY });
+			return;
+		}
+		if (this.state.gameData.player.units.length >= MAX_PARTY_SIZE) {
+			this.scene.events.emit(GameEvents.SHOP_PURCHASE_FAILED, { originalShopCharaId: shopCharaId, reason: "PARTY_FULL", dragStartX, dragStartY });
+			return;
+		}
+
+		const occupier = getUnitAt(this.state.gameData.player.units)(targetTile);
+		if (occupier) {
+			this.scene.events.emit(GameEvents.SHOP_PURCHASE_FAILED, { originalShopCharaId: shopCharaId, reason: "SLOT_OCCUPIED", dragStartX, dragStartY });
+			return;
+		}
+
+		// Proceed with purchase
+		this.scene.events.emit(GameEvents.PLAYER_GOLD_UPDATE_REQUEST, -SHOP_ITEM_PURCHASE_COST);
+
+		const newUnit = makeUnit(FORCE_ID_PLAYER, shopUnitData.cardId, targetTile);
+		this.state.gameData.player.units.push(newUnit);
+
+		this.scene.events.emit(GameEvents.BOARD_CHARA_CREATE_REQUESTED, { unit: newUnit });
+		this.scene.events.emit(GameEvents.SHOP_PURCHASE_SUCCESSFUL, { purchasedUnit: newUnit, originalShopCharaId: shopCharaId });
+	}
+
+	private _onBoardCharaCreateRequested(payload: { unit: Unit }): void {
+		// When a new Chara is requested for the board (e.g., after a purchase),
+		// tell CharaManager to summon it. Default to animating its appearance.
+		CharaManager.summonChara(payload.unit, true, true);
+	}
+
 }
