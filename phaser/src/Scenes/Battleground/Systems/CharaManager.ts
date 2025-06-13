@@ -1,46 +1,60 @@
 import { Unit } from "../../../Models/Entities/Unit";
 import * as Chara from "../../../Systems/Chara/Chara";
-import { vec2, Vec2, eqVec2 } from "../../../Models/Geometry";
+import { vec2 } from "../../../Models/Geometry";
 import { summonEffect } from "../../../Effects/summonEffect";
 import { tween } from "../../../Utils/animation";
 import { BattlegroundScene } from "../BattlegroundScene";
-import { images } from "../../../assets";
 import * as constants from "../../../constants/constants";
 
 let scene: BattlegroundScene;
 
-type CharaManagerState = {
-	charaIndex: Chara.Chara[]
-}
+// This was previously part of an exported CharaManagerState.
+// It's now an internal variable, managed solely by this module.
+const charaIndex: Chara.Chara[] = [];
 
 export function init(sceneRef: BattlegroundScene) {
 	scene = sceneRef;
+	if (process.env.NODE_ENV === 'development') {
+		//@ts-ignore
+		window.debug_getAllManagedCharas = () => [...charaIndex]; // Provide a controlled way to inspect for debugging
+	}
 }
-
-export const charaManagerState: CharaManagerState = {
-	charaIndex: [],
-}
-
-//@ts-ignore
-window.charas = charaManagerState;
 
 export function clearCharas() {
-	charaManagerState.charaIndex.forEach(chara => {
-		destroyChara(chara.id)
+	// Iterate over a copy as destroyChara modifies the charaIndex
+	[...charaIndex].forEach(chara => {
+		destroyChara(chara.id); // destroyChara will remove it from the charaIndex
 	});
-	charaManagerState.charaIndex = [];
+	// Defensive clear, though the loop should empty it.
+	if (charaIndex.length > 0) {
+		console.warn("CharaManager: charaIndex not empty after clearCharas loop. Forcibly clearing.");
+		charaIndex.length = 0;
+	}
 }
 
 export function destroyChara(id: string) {
-	const chara = charaManagerState.charaIndex.find(chara => chara.id === id);
+	const charaIndexPos = charaIndex.findIndex(chara => chara.id === id);
 
-	// Check if chara and its scene still exist, as it might be called during scene shutdown
-	if (chara && chara.parent) {
-		console.log(`Destroying chara ${id}`);
-		chara.destroy();
-		charaManagerState.charaIndex = charaManagerState.charaIndex.filter(c => c.id !== id);
+	if (charaIndexPos !== -1) {
+		const charaInstance = charaIndex[charaIndexPos];
+
+		// Remove from our manager's index *before* calling destroy on the instance.
+		// This prevents potential issues if charaInstance.destroy() triggers logic
+		// that might try to re-access or re-modify charaIndex for this same ID.
+		charaIndex.splice(charaIndexPos, 1);
+
+		// Now, destroy the Phaser GameObject if it's still active and part of a scene.
+		// A GameObject is considered active if 'charaInstance.scene' is not null.
+		if (charaInstance.parent) {
+			// console.log(`CharaManager: Destroying Chara GameObject ${id}.`); // Uncomment for verbose logging
+			charaInstance.destroy(); // Phaser's destroy handles scene removal, event cleanup, etc.
+		} else {
+			// This Chara instance was already destroyed or detached from the scene.
+			// console.warn(`CharaManager: Chara GameObject ${id} was already detached from scene when its destruction was processed.`); // Uncomment for verbose logging
+		}
 	} else {
-		console.warn(`Chara with id ${id} not found`);
+		// Uncomment below for verbose logging
+		// console.warn(`CharaManager: Chara with id ${id} not found in index for destruction. This might indicate a double-destroy attempt or an issue with registration.`);
 	}
 }
 export async function summonChara(
@@ -54,7 +68,7 @@ export async function summonChara(
 
 	const chara = new Chara.Chara(scene, unit);
 
-	addCharaToState(chara);
+	registerChara(chara); // Changed from addCharaToState to use the public registration function
 
 	//Chara.addBoardEvents();
 
@@ -71,8 +85,14 @@ export async function summonChara(
 	return chara
 }
 
-export function addCharaToState(chara: Chara.Chara) {
-	charaManagerState.charaIndex.push(chara);
+// Renamed from addCharaToState for clarity and to reflect it's now adding to the internal index.
+// This function is exported because Shop.ts uses it to register Chara instances created for shop items.
+export function registerChara(chara: Chara.Chara) {
+	if (!charaIndex.some(c => c.id === chara.id)) {
+		charaIndex.push(chara);
+	} else {
+		console.warn(`CharaManager: Attempted to register chara with id ${chara.id} which is already registered.`);
+	}
 }
 // TODO: move to chara
 export function getCharaPosition(unit: Unit) {
@@ -87,70 +107,15 @@ export function getCharaPosition(unit: Unit) {
 }
 
 export function getChara(id: string) {
-	return charaManagerState.charaIndex.find((chara) => chara.id === id)!;
+	const maybeChara = charaIndex.find((chara) => chara.id === id);
+	if (!maybeChara) throw new Error(`Chara with id ${id} not found in index.`)
+	return maybeChara
 }
 
-export function getCPUCharas() {
-	return charaManagerState.charaIndex.filter((chara) => chara.unit.force === constants.FORCE_ID_CPU)
-}
-
-export function getAllCharas() {
-	return charaManagerState.charaIndex.filter((chara) => chara.unit.hp > 0)
-}
-
-export function getCharaAt(vec: Vec2) {
-	return charaManagerState.charaIndex
-		.filter(chara => chara.unit.hp > 0)
-		.find((chara) => eqVec2(chara.unit.position, vec));
-}
-
-export function createParticle(id: string, status: string) {
-
-	const chara = getChara(id);
-
-	const alreadyExists = chara.getByName("status-" + status);
-	if (alreadyExists) {
-		alreadyExists.destroy();
-	}
-
-	const particles = scene.add.particles(
-		0, 0,
-		images.white_dot.key,
-		{
-			speed: 10,
-			lifespan: 700,
-			scale: { start: 1, end: 0 },
-			alpha: { start: 1, end: 0 },
-			quantity: 1,
-			frequency: 100,
-			emitZone: {
-				type: 'edge',
-				source: new Phaser.Geom.Circle(0, 0, 20),
-				quantity: 10,
-				yoyo: false
-			}
-		}).setName("status-" + status);
-	chara.add(particles);
-}
-
-// return any chara that contains the vec
-export const overlap = (vec: { x: number, y: number }) => {
-	return charaManagerState.charaIndex.find(chara => {
-		return Phaser.Geom.Intersects.RectangleToRectangle(
-			new Phaser.Geom.Rectangle(
-				chara.x - constants.HALF_TILE_WIDTH,
-				chara.y - constants.HALF_TILE_HEIGHT,
-				constants.TILE_WIDTH,
-				constants.TILE_HEIGHT
-			),
-			new Phaser.Geom.Rectangle(vec.x, vec.y, 1, 1)
-		)
-	})
-}
 
 // TODO: move this to the unit model?
 export const getSurroundingAllies = (unit: Unit) => {
-	return charaManagerState.charaIndex
+	return charaIndex
 		.filter(chara => chara.unit.hp > 0)
 		.filter(chara => chara.unit.force === unit.force)
 		.filter(chara => chara.id !== unit.id)
