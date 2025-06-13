@@ -59,7 +59,7 @@ export class CharaInputHandler {
 	private onDrop = (_pointer: Phaser.Input.Pointer, dropZoneTarget: Phaser.GameObjects.GameObject): void => {
 		// This flag is set by the Chara's internal logic after processing the drop.
 		// Here, we just forward the event.
-		this.wasDragSuccessful = this.chara.processDrop(dropZoneTarget);
+		this.wasDragSuccessful = this.chara.processDrop(dropZoneTarget, this.dragStartX, this.dragStartY);
 	}
 
 	private onDragEnd = (_pointer: Phaser.Input.Pointer): void => {
@@ -85,12 +85,10 @@ export class CharaInputHandler {
 			return; // This was likely a drag, onDragEnd will handle it.
 		}
 
-		const purchaseSuccess = this.chara.processShopItemClick();
-		if (purchaseSuccess) {
-			// If a click purchase is successful, it's a "successful drag" in terms of outcome.
-			// This helps if a very short drag-like click happened.
-			this.wasDragSuccessful = true;
-		}
+		// Pass pointer.x and pointer.y as the dragStartX/Y for a click.
+		// Chara.processShopItemClick now returns void and emits an event.
+		// Reversion for a failed click-purchase is handled by the Chara instance listening to SHOP_PURCHASE_FAILED.
+		this.chara.processShopItemClick(pointer.x, pointer.y);
 	}
 
 	public updateShopItemStatus(isShopItem: boolean): void {
