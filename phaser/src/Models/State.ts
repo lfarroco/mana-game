@@ -4,11 +4,24 @@ import { Unit } from "./Entities/Unit";
 import { getChara } from "../Scenes/Battleground/Systems/CharaManager";
 import { UNIT_EVENT_NO_OP, UnitEvent } from "./UnitEvents";
 
+// Module-scoped variable to hold the state, similar to currentOptions in OptionsStore
+let _currentState: State;
+
+// Define a more specific type for the player object within GameData
+// This ensures 'units' property is recognized by TypeScript for type safety.
+export type PlayerWithUnits = Force & { units: Unit[] };
+
 export const initialState = (): State => ({
   savedGames: [],
   gameData: {
     round: 1,
-    player: playerForce,
+    // Ensure the player object conforms to PlayerWithUnits, especially the 'units' array.
+    // This safely handles if playerForce (of type Force) might not have 'units' defined,
+    // or if it does, it uses them.
+    player: {
+      ...playerForce,
+      units: (playerForce as Partial<PlayerWithUnits>).units || [],
+    },
     choices: []
   },
   battleData: {
@@ -17,6 +30,14 @@ export const initialState = (): State => ({
     units: []
   }
 });
+
+/**
+ * Initializes the global state.
+ * This function should be called once at the beginning of the application, similar to initializeOptionsStore.
+ */
+export function initializeGlobalState(): void {
+	_currentState = initialState();
+}
 
 // todo: make it a type that describes an ioref
 export type State = {
@@ -31,24 +52,37 @@ export type State = {
 
 export type GameData = {
   round: number;
-  player: Force;
+  player: PlayerWithUnits; // Use the more specific type for player
   choices: string[];
 }
 
+/**
+ * Retrieves a copy of the current global game state.
+ * If the state is not initialized, it initializes it first.
+ * @returns A shallow copy of the State object.
+ */
 export const getState = (): State => {
-  //@ts-ignore
-  return window.state;
+  if (!_currentState) {
+		console.warn("Global state not initialized. Calling initializeGlobalState() first. Returning defaults.");
+		initializeGlobalState();
+	}
+  return { ..._currentState }; // Return a shallow copy to prevent direct external mutation
 };
 
-export const setState = (state: State) => {
-  //@ts-ignore
-  window.state = state;
+/**
+ * Sets the global game state.
+ * @param newState The new state to set.
+ */
+export const setState = (newState: State): void => {
+  _currentState = newState; // Replace the entire state object
 };
-
-
 
 export const getBattleUnit = (state: State) => (id: string): Unit => {
-  return state.battleData.units.find((u) => u.id === id)!;
+  const unit = state.battleData.units.find((u) => u.id === id);
+  if (!unit) {
+    throw new Error(`Battle unit with id "${id}" not found.`);
+  }
+  return unit;
 }
 
 export const getActiveUnits = (state: State): Unit[] => state.battleData.units
