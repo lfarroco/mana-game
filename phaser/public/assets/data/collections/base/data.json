@@ -30,7 +30,7 @@
 					"id": "support"
 				},
 				{
-					"id": "healing_wave"
+					"id": "healing_wave_action"
 				}
 			]
 		},
@@ -56,7 +56,7 @@
 			"cooldown": 1200,
 			"traits": [
 				{
-					"id": "arcane_missiles",
+					"id": "arcane_missiles_action",
 					"projectiles": 3
 				}
 			]
@@ -158,16 +158,6 @@
 			]
 		}
 	],
-	"opponents": [
-		{
-			"name": "Bandits",
-			"level": 1,
-			"cards": [
-				"Swindler Stan",
-				"Hoodlum Hawkeye"
-			]
-		}
-	],
 	"traits": [
 		{
 			"id": "taunt",
@@ -230,7 +220,7 @@
 			],
 			"effects": [
 				{
-					"effectId": "skill_healing_wave",
+					"effectId": "healing_wave",
 					"eventTrigger": "onAction"
 				}
 			]

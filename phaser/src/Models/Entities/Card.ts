@@ -40,7 +40,6 @@ export type CardCollection = {
   pic: string;
   cards: CardDefinition[];
   relics: RelicDefinition[];
-  opponents: Opponent[]
   traits: TraitDefinition[]
 }
 
@@ -70,12 +69,6 @@ export type RelicDefinition = {
   cost: number; // Cost of the relic
   traits: t.TraitData[]
 };
-
-type Opponent = {
-  name: string;
-  level: number;
-  cards: string[];
-}
 
 export const getCardDefinition = (id: string): CardDefinition => {
   const card = cards.get(id);
