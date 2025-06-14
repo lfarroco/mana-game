@@ -18,16 +18,13 @@ export class UIManager {
 	private scene: BattlegroundScene;
 	/** Container for main persistent UI elements like sidebar and gold display. */
 	private uiContainer: Phaser.GameObjects.Container | null = null;
-	/** Phaser.GameObjects.Text element for displaying player's gold. */
+	/** Phaser text element for displaying player's gold. */
 	private goldTextElement: Phaser.GameObjects.Text | null = null;
+	/** Phaser text element for displaying player's prestige. */
+	private prestigeTextElement: Phaser.GameObjects.Text | null = null;
 	/** Instance of GoldCoinAnimator for handling gold coin animations. */
 	private goldCoinAnimator: GoldCoinAnimator;
 
-	// TODO: consider moving tooltip to a more global UI manager if it's used across multiple scenes
-	// or if UIManager becomes too BattlegroundScene-specific.
-	// For now, its direct instantiation here is fine as it's primarily used within this scene's context.
-	// If Tooltip class itself needs to be scene-agnostic, it should not directly depend on BattlegroundScene
-	// but rather a generic Phaser.Scene.
 
 	/**
 	 * Instance of the Tooltip system, used to display contextual information
@@ -45,11 +42,20 @@ export class UIManager {
 		this.scene = scene;
 		this.goldCoinAnimator = new GoldCoinAnimator(this.scene);
 		this._setupGoldChangeListener();
+		this._setupPrestigeChangeListener(); // Add listener for prestige
 		this._setupPurchaseFailedListener();
 		this._setupUserMessageListener();
 		this.tooltip = new Tooltip(scene);
 		this._setupTooltipShowListener();
 		this._setupTooltipHideListener();
+	}
+
+	/**
+	 * Sets up an event listener for "prestige_changed" events.
+	 * This allows the UIManager to react to updates in the player's prestige.
+	 */
+	private _setupPrestigeChangeListener(): void {
+		this.scene.events.on(GameEvents.PRESTIGE_CHANGED, this._handlePrestigeChanged, this);
 	}
 
 	/**
@@ -137,6 +143,18 @@ export class UIManager {
 	}
 
 	/**
+	 * Handles the "prestige_changed" event.
+	 * It updates the displayed prestige amount.
+	 * @param newTotalPrestige - The new total amount of prestige the player has.
+	 * @param _prestigeDelta - The amount of prestige that was gained or lost (can be used for animations later).
+	 */
+	private _handlePrestigeChanged(newTotalPrestige: number, _prestigeDelta: number): void {
+		if (this.prestigeTextElement) {
+			this.prestigeTextElement.setText("Prestige: " + newTotalPrestige);
+		}
+	}
+
+	/**
 	 * Creates and displays the main persistent UI elements of the game,
 	 * such as a sidebar and the player's gold display.
 	 */
@@ -155,6 +173,7 @@ export class UIManager {
 		this.uiContainer.add(sidebarBg);
 
 		this._createGoldText(this.uiContainer);
+		this._createPrestigeText(this.uiContainer); // Create prestige display
 	}
 
 	/**
@@ -173,6 +192,23 @@ export class UIManager {
 		);
 		parent.add(this.goldTextElement);
 	}
+
+	/**
+	 * Creates the text element that displays the player's current prestige.
+	 * @param parent The `Phaser.GameObjects.Container` to which the prestige text will be added.
+	 */
+	private _createPrestigeText(parent: Phaser.GameObjects.Container): void {
+		const initialPrestige = this.scene.state.gameData.player.prestige;
+		this.prestigeTextElement = this.scene.add.text(
+			constants.SCREEN_WIDTH - 120, // Same X as gold text
+			constants.SCREEN_HEIGHT - 100 + 30, // Positioned below gold text
+			"Prestige: " + initialPrestige,
+			constants.defaultTextConfig
+		);
+		parent.add(this.prestigeTextElement);
+	}
+
+
 
 	/**
 	 * Handles requests to display a user message (e.g., error, info).
@@ -219,6 +255,7 @@ export class UIManager {
 			this.uiContainer = null;
 		}
 		this.goldTextElement = null; // Was a child of uiContainer
+		this.prestigeTextElement = null; // Was a child of uiContainer
 	}
 
 	/**
@@ -229,6 +266,7 @@ export class UIManager {
 	public destroy(): void { // Full cleanup for the UIManager
 		this.destroyMainUI();
 		this.scene.events.off(GameEvents.GOLD_CHANGED, this._handleGoldChanged, this);
+		this.scene.events.off(GameEvents.PRESTIGE_CHANGED, this._handlePrestigeChanged, this);
 		this.scene.events.off(GameEvents.PURCHASE_FAILED, this._handlePurchaseFailed, this);
 		this.scene.events.off(GameEvents.USER_MESSAGE_REQUESTED, this._handleUserMessageRequested, this);
 		this.scene.events.off(GameEvents.TOOLTIP_SHOW);

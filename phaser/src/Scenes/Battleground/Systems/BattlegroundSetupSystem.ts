@@ -57,10 +57,14 @@ export class BattlegroundSetupSystem {
 		state.gameData.player.units = [];
 		state.gameData.player.relics = [];
 		state.gameData.round = 1;
+		state.gameData.player.prestige = 0; // Initialize prestige for a new game
 
 		// Directly set the initial gold from the constant
 		const initialGold = BG_CONSTANTS.INITIAL_PLAYER_GOLD;
 		state.gameData.player.gold = initialGold;
+
+		// Emit PRESTIGE_CHANGED so UI can display the initial value. Delta is 0.
+		this.scene.events.emit(GameEvents.PRESTIGE_CHANGED, state.gameData.player.prestige, 0);
 
 		// Emit GOLD_CHANGED so UI and other systems can react to the initial gold value.
 		// The delta is the full initial amount, signifying the change from a conceptual zero or previous state.
