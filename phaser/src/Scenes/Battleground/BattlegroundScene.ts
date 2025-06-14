@@ -80,11 +80,21 @@ export class BattlegroundScene extends Phaser.Scene {
     BattlegroundAudioSystem_init(this.state, this);
     CharaManager.init(this);
 
+    // Ensure cleanup logic fires for both shutdown and destroy lifecycle events
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.shutdown, this);
+    this.events.once(Phaser.Scenes.Events.DESTROY, this.destroy, this);
+
   }
 
   /** Phaser scene lifecycle method called when the scene is shut down. */
   shutdown() {
     console.log("BattlegroundScene shutdown.");
+    this.cleanup();
+  }
+
+  /** Phaser scene lifecycle method called when the scene is destroyed (never to be resumed). */
+  destroy() {
+    console.log("BattlegroundScene destroy.");
     this.cleanup();
   }
 
@@ -120,10 +130,19 @@ export class BattlegroundScene extends Phaser.Scene {
     this.setupSystem.performOneTimeRuntimeInitialization(this.collection);
 
     // 2. Load dynamic assets (card/relic images based on the collection)
-    await new Promise<void>(resolve => {
-      this.setupSystem.loadDynamicAssets(this.collection, resolve);
-    });
-    console.log("Dynamic assets loaded, proceeding with scene start.");
+    try {
+      await new Promise<void>((resolve, reject) => {
+        try {
+          this.setupSystem.loadDynamicAssets(this.collection, resolve);
+        } catch (e) {
+          reject(e);
+        }
+      });
+      console.log("Dynamic assets loaded, proceeding with scene start.");
+    } catch (e) {
+      console.error("BattlegroundScene: failed to load dynamic assets", e);
+      // Optionally, you could show a user-facing error or fallback art here.
+    }
 
     // 3. Initialize game state for a new game
     this.setupSystem.initializeNewGame(this.state);
@@ -156,9 +175,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     // Initialize DebugController after all systems are set up
     if (process.env.NODE_ENV === 'development') {
-      //@ts-ignore
-      window.bg = this;
-      // @ts-ignore
       window.gameController = new DebugController(this);
       console.log("BattlegroundScene: DebugController initialized and attached to window.gameController.");
     }
@@ -169,9 +185,9 @@ export class BattlegroundScene extends Phaser.Scene {
    * @param key - The key of the sound effect to play.
    */
   playFx(key: string) {
-    const audio = this.sound.add(key)
-    audio.volume = getOption('soundVolume');
-    audio.play();
+    const volume = getOption('soundVolume');
+    // Reuse Phaser's internal sound pool rather than adding a new instance every call
+    this.sound.play(key, { volume });
   }
 
 }
