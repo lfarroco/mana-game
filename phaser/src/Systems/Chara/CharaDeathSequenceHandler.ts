@@ -3,13 +3,12 @@ import { Chara } from "./Chara";
 import { GameEvents } from "../../constants/events";
 import { tween, delay } from "../../Utils/animation";
 import { getState } from "../../Models/State";
-import * as constants from "../../constants/constants";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 
 export const handleCharaDeath = async (scene: BattlegroundScene, data: { chara: Chara, killerId: string }): Promise<void> => {
 	const { chara, killerId } = data;
 
-	// Death Animations (moved from Chara.killUnit)
+	// Death Animations
 	tween({ targets: [chara], alpha: 0, duration: 1000 });
 
 	const originalX = chara.x;
@@ -20,9 +19,6 @@ export const handleCharaDeath = async (scene: BattlegroundScene, data: { chara: 
 			await tween({ targets: [chara], x: originalX + 20, duration: 100, ease: "Cubic.Out" });
 		}
 		await delay(scene, 2000); // Use scene for delay context
-	} else {
-		// Fallback if chara scene is gone, skip animations/delay that depend on it
-		console.warn("CharaDeathSequenceHandler: Chara scene context lost, skipping animations.");
 	}
 
 
@@ -32,9 +28,13 @@ export const handleCharaDeath = async (scene: BattlegroundScene, data: { chara: 
 	scene.events.emit(GameEvents.TRAIT_EVAL_UNIT_DEATH, { unit: chara.unit });
 
 	const killer = state.battleData.units.find(u => u.id === killerId);
-	const isAlly = chara.unit.force === constants.FORCE_ID_PLAYER;
-	const killEvent = isAlly ? GameEvents.TRAIT_EVAL_ALLIED_KILLED : GameEvents.TRAIT_EVAL_ENEMY_KILLED;
-	scene.events.emit(killEvent, { unit: chara.unit, killer });
+	scene.events.emit(GameEvents.TRAIT_EVAL_ENEMY_KILLED, { unit: chara.unit, killer });
+
+	state.battleData.units
+		.filter(u => u.force === chara.unit.force && u.id !== chara.unit.id)
+		.forEach(ally => {
+			scene.events.emit(GameEvents.TRAIT_EVAL_ALLIED_KILLED, { unit: chara.unit, killer: ally });
+		});
 
 	if (killer) {
 		scene.events.emit(GameEvents.TRAIT_EVAL_UNIT_KILL_BY_ME, { unit: killer, killedUnit: chara.unit });

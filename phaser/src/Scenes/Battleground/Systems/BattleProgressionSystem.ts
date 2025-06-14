@@ -63,6 +63,9 @@ export class BattleProgressionSystem {
 		await delay(this.scene, 1500); // Wait for animation
 
 		this.scene.events.emit(GameEvents.PLAYER_GOLD_UPDATE_REQUEST, BG_CONSTANTS.VICTORY_GOLD_REWARD);
+		this.state.gameData.player.prestige += 1;
+		this.scene.events.emit(GameEvents.PRESTIGE_CHANGED, this.state.gameData.player.prestige, 1);
+
 		this.resetPlayerUnitsForNewRound();
 		this.resetPlayerUnitChargeBars();
 		this.setAllPlayerUnitBarsVisibility(false);
@@ -80,6 +83,9 @@ export class BattleProgressionSystem {
 		await delay(this.scene, BG_CONSTANTS.POST_COMBAT_DELAY);
 		this.scene.events.emit(GameEvents.BATTLE_RESULT_SHOW, { result: "defeat" });
 		await delay(this.scene, 1500); // Wait for animation
+
+		this.state.gameData.player.prestige -= 2;
+		this.scene.events.emit(GameEvents.PRESTIGE_CHANGED, this.state.gameData.player.prestige, -2);
 
 		this.setAllPlayerUnitBarsVisibility(false); // Hide bars for player units
 		this.state.battleData.units = []; // Clear units from battle state

@@ -83,4 +83,7 @@ export const GameEvents = {
 
 	// Event for CharaManager to spawn a new Chara on the board
 	BOARD_CHARA_CREATE_REQUESTED: "board_chara_create_requested", // Payload: { unit: Unit }
+
+	// Prestige System Events
+	PRESTIGE_CHANGED: "prestige_changed", // Payload: newTotalPrestige: number, prestigeDelta: number
 };
