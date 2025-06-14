@@ -42,7 +42,7 @@ export function destroyChara(id: string) {
 		// This prevents potential issues if charaInstance.destroy() triggers logic
 		// that might try to re-access or re-modify charaIndex for this same ID.
 		charaIndex.splice(charaIndexPos, 1);
-		if (charaInstance.parent) {
+		if (charaInstance.scene) {
 			charaInstance.destroy(); // Phaser's destroy handles scene removal, event cleanup, etc.
 		}
 	}

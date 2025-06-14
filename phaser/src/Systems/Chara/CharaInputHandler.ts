@@ -19,7 +19,7 @@ export class CharaInputHandler {
 		// This handler attaches the listeners.
 
 		if (this.chara.unit.force === FORCE_ID_PLAYER || this.chara.getIsShopItem()) {
-			this.chara.parent.input.setDraggable(this.chara, true); // Pass `true` to use top-level input manager for drag events
+			this.chara.scene.input.setDraggable(this.chara, true); // Pass `true` to use top-level input manager for drag events
 
 			this.chara.on(Phaser.Input.Events.DRAG_START, this.onDragStart);
 			this.chara.on(Phaser.Input.Events.DRAG, this.onDrag);
@@ -40,14 +40,14 @@ export class CharaInputHandler {
 		this.dragStartY = this.chara.y;
 		this.wasDragSuccessful = false;
 
-		this.chara.parent.children.bringToTop(this.chara);
+		this.chara.scene.children.bringToTop(this.chara);
 		tween({
 			targets: [this.chara],
 			angle: -10,
 			duration: 100,
 			ease: "Cubic.Out",
 		});
-		this.chara.parent.events.emit(GameEvents.TOOLTIP_HIDE);
+		this.chara.scene.events.emit(GameEvents.TOOLTIP_HIDE);
 	}
 
 	private onDrag = (_pointer: Phaser.Input.Pointer, dragX: number, dragY: number): void => {
@@ -63,7 +63,7 @@ export class CharaInputHandler {
 	}
 
 	private onDragEnd = (_pointer: Phaser.Input.Pointer): void => {
-		this.chara.parent.tweens.add({
+		this.chara.scene.tweens.add({
 			targets: [this.chara],
 			angle: 0,
 			duration: 100,

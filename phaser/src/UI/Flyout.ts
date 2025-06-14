@@ -17,20 +17,20 @@ export class Flyout extends Phaser.GameObjects.Container {
 	bg: Phaser.GameObjects.Graphics;
 	titleText: Phaser.GameObjects.Text;
 
-	constructor(public parent: BattlegroundScene, title: string) {
-		super(parent);
+	constructor(public scene: BattlegroundScene, title: string) {
+		super(scene);
 		this.setName(title);
-		parent.add.existing(this);
+		scene.add.existing(this);
 		flyouts.push(this);
 
-		this.bg = parent.add.graphics()
+		this.bg = scene.add.graphics()
 			.fillStyle(0x666666, 0.8)
 			.fillRect(0, 0, flyoutWidth, flyoutHeight)
 			.setPosition(0, 0);
 
 		this.bg.setInteractive();
 
-		this.titleText = parent.add.text(
+		this.titleText = scene.add.text(
 			SCREEN_WIDTH / 2,
 			TILE_HEIGHT / 2,
 			title,
@@ -49,7 +49,7 @@ export class Flyout extends Phaser.GameObjects.Container {
 
 	async slideIn() {
 
-		this.parent.children.bringToTop(this);
+		this.scene.children.bringToTop(this);
 		await tween({
 			targets: [this],
 			y: 0,
@@ -69,19 +69,19 @@ export class Flyout extends Phaser.GameObjects.Container {
 }
 
 export function addExitButton(flyout: Flyout, onExit: () => void) {
-	const exit = flyout.parent.add.image(
+	const exit = flyout.scene.add.image(
 		0, 0,
 		images.exit.key)
 		.setDisplaySize(200, 200)
 		.setOrigin(0.5)
 		.setInteractive()
-		.setPosition(780, flyout.parent.cameras.main.height - 100)
+		.setPosition(780, flyout.scene.cameras.main.height - 100)
 		.on("pointerup", async () => {
 			await flyout.slideOut();
 			onExit();
 		});
 
-	const exitText = flyout.parent.add.text(
+	const exitText = flyout.scene.add.text(
 		exit.x, exit.y,
 		"Exit",
 		defaultTextConfig,

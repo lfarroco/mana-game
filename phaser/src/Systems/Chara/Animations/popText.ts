@@ -20,7 +20,7 @@ export async function popText({
 		console.warn("Chara not found for popText", targetId);
 		return;
 	}
-	const { parent: scene } = chara;
+	const { scene: scene } = chara;
 
 	let textColor = defaultTextConfig.color;
 	if (type === "heal") {

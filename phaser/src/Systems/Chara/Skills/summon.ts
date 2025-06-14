@@ -11,7 +11,7 @@ export async function summon(
 	const { unit } = chara;
 	const state = getState();
 
-	const emptySlot = chara.parent.playerBoard?.getEmptySlot(state.battleData.units, unit.force);
+	const emptySlot = chara.scene.playerBoard?.getEmptySlot(state.battleData.units, unit.force);
 
 	if (!emptySlot) {
 		console.warn("No empty slot available for summoning");

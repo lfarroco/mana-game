@@ -49,8 +49,6 @@ export class Shop {
 		this.flyout = new Flyout(this.scene, "");
 	}
 
-
-
 	public open(): Promise<void> {
 		return new Promise((resolve) => {
 

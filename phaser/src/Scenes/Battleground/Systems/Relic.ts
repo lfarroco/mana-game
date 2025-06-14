@@ -34,7 +34,7 @@ export class RelicCard extends Phaser.GameObjects.Image {
 	private wasDragged = false;
 
 	constructor(
-		public parent: BattlegroundScene,
+		public scene: BattlegroundScene,
 		public initialX: number, // Renamed baseX to initialX for clarity
 		public initialY: number, // Renamed baseY to initialY for clarity
 		public forceId: string,
@@ -42,9 +42,9 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		public iconSize: number,
 		public onAcquire: () => void
 	) {
-		super(parent, initialX, initialY, relicData.pic);
+		super(scene, initialX, initialY, relicData.pic);
 		this.setDisplaySize(iconSize, iconSize);
-		parent.add.existing(this);
+		scene.add.existing(this);
 		// Note: if this object is added to another container later (e.g., a Flyout),
 		this.setInteractive({ draggable: true });
 
@@ -107,21 +107,21 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		}
 
 		if (!this.canAfford()) {
-			this.parent.events.emit(GameEvents.USER_MESSAGE_REQUESTED, {
+			this.scene.events.emit(GameEvents.USER_MESSAGE_REQUESTED, {
 				text: `Not enough gold (cost: ${RelicCard.RELIC_COST})`,
 				type: 'error'
 			} as UserMessagePayload);
 			return false;
 		}
 		if (!this.hasSpaceForNewRelic()) {
-			this.parent.events.emit(GameEvents.USER_MESSAGE_REQUESTED, {
+			this.scene.events.emit(GameEvents.USER_MESSAGE_REQUESTED, {
 				text: "No room for a new relic",
 				type: 'error'
 			} as UserMessagePayload);
 			return false;
 		}
 
-		updatePlayerGoldIO(this.parent, -RelicCard.RELIC_COST);
+		updatePlayerGoldIO(this.scene, -RelicCard.RELIC_COST);
 
 		// Set visual position before completing acquisition
 		this.x = targetVisualX;
@@ -150,7 +150,7 @@ export class RelicCard extends Phaser.GameObjects.Image {
 
 		if (!emptySlotGridPosition) {
 			// This should ideally be caught by hasSpaceForNewRelic, but as a fallback:
-			this.parent.events.emit(GameEvents.USER_MESSAGE_REQUESTED, {
+			this.scene.events.emit(GameEvents.USER_MESSAGE_REQUESTED, {
 				text: "No empty slot available on board.",
 				type: 'error'
 			} as UserMessagePayload);
@@ -158,11 +158,11 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		}
 
 		const [slotGridX, slotGridY] = emptySlotGridPosition;
-		const targetSlotGameObject = this.parent.children.getByName(`${RelicCard.SLOT_NAME_PREFIX}${slotGridX}-${slotGridY}`) as Phaser.GameObjects.Image | undefined;
+		const targetSlotGameObject = this.scene.children.getByName(`${RelicCard.SLOT_NAME_PREFIX}${slotGridX}-${slotGridY}`) as Phaser.GameObjects.Image | undefined;
 
 		if (!targetSlotGameObject) {
 			console.error(`Slot GameObject ${RelicCard.SLOT_NAME_PREFIX}${slotGridX}-${slotGridY} not found!`);
-			this.parent.events.emit(GameEvents.USER_MESSAGE_REQUESTED, {
+			this.scene.events.emit(GameEvents.USER_MESSAGE_REQUESTED, {
 				text: "Error placing relic.",
 				type: 'error'
 			} as UserMessagePayload);
@@ -201,13 +201,13 @@ export class RelicCard extends Phaser.GameObjects.Image {
 
 	private handleDragStart = () => {
 		this.wasDroppedOnZone = false;
-		this.parent.events.emit(GameEvents.TOOLTIP_HIDE);
+		this.scene.events.emit(GameEvents.TOOLTIP_HIDE);
 
 		// Bring to top within its current rendering context
 		if (this.parentContainer) { // If the relic is in a Phaser.GameObjects.Container (e.g., the shop flyout)
 			this.parentContainer.bringToTop(this);
 		} else { // If the relic is a direct child of the scene's display list
-			this.parent.children.bringToTop(this);
+			this.scene.children.bringToTop(this);
 		}
 	}
 
@@ -223,13 +223,13 @@ export class RelicCard extends Phaser.GameObjects.Image {
 
 		if (occupierData) { // Slot is occupied
 			if (!this.owned) { // Trying to buy and place on an occupied slot
-				this.parent.events.emit(GameEvents.USER_MESSAGE_REQUESTED, {
+				this.scene.events.emit(GameEvents.USER_MESSAGE_REQUESTED, {
 					text: "This slot is already occupied!",
 					type: 'error'
 				} as UserMessagePayload);
 				this.tweenToSlot(); // Back to shop
 			} else { // Moving an owned relic to an occupied slot (SWAP)
-				const occupierIcon = this.parent.children.list.find(
+				const occupierIcon = this.scene.children.list.find(
 					(child) => child.name === occupierData.id
 				) as RelicCard | undefined;
 
@@ -305,7 +305,7 @@ export class RelicCard extends Phaser.GameObjects.Image {
 	private handlePointerOver(_pointer: Pointer) {
 
 		const tooltipX = this.x + (this.displayWidth / 2) + 300;
-		this.parent.events.emit(GameEvents.TOOLTIP_SHOW, {
+		this.scene.events.emit(GameEvents.TOOLTIP_SHOW, {
 			x: tooltipX,
 			y: this.y,
 			title: this.relicData.name,
@@ -314,7 +314,7 @@ export class RelicCard extends Phaser.GameObjects.Image {
 	}
 
 	private handlePointerOut() {
-		this.parent.events.emit(GameEvents.TOOLTIP_HIDE);
+		this.scene.events.emit(GameEvents.TOOLTIP_HIDE);
 	}
 
 	// Ensure to call cleanupListeners() if a relic is removed or the scene is destroyed.

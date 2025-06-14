@@ -26,7 +26,7 @@ export const onCharaPointerOver = ({ chara }: { chara: Chara }): void => {
 	const tooltipX = charaWorldX + (chara.displayWidth / 2) + TOOLTIP_OFFSET_X;
 	const tooltipY = charaWorldY; // Align with chara's vertical center
 
-	chara.parent.events.emit(GameEvents.TOOLTIP_SHOW, {
+	chara.scene.events.emit(GameEvents.TOOLTIP_SHOW, {
 		x: tooltipX,
 		y: tooltipY,
 		title: title,
@@ -35,5 +35,5 @@ export const onCharaPointerOver = ({ chara }: { chara: Chara }): void => {
 }
 
 export const onCharaPointerOut = ({ chara }: { chara: Chara }): void => {
-	chara.parent.events.emit(GameEvents.TOOLTIP_HIDE);
+	chara.scene.events.emit(GameEvents.TOOLTIP_HIDE);
 }

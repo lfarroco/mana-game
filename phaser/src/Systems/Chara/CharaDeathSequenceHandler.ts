@@ -13,7 +13,7 @@ export const handleCharaDeath = async (scene: BattlegroundScene, data: { chara: 
 
 	const originalX = chara.x;
 	// Ensure the chara is still valid and has a scene context for tweens
-	if (chara.parent) {
+	if (chara.scene) {
 		for (let i = 0; i < 5; i++) {
 			await tween({ targets: [chara], x: originalX - 20, duration: 100, ease: "Cubic.Out" });
 			await tween({ targets: [chara], x: originalX + 20, duration: 100, ease: "Cubic.Out" });
