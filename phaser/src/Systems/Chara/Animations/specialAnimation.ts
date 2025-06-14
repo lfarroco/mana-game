@@ -4,7 +4,7 @@ import { TILE_HEIGHT, TILE_WIDTH } from "../../../constants/constants";
 
 export async function specialAnimation(activeChara: Chara) {
 
-	const { parent: scene, unit } = activeChara;
+	const { scene: scene, unit } = activeChara;
 
 	const pic = scene.add.image(
 		activeChara.x, activeChara.y,

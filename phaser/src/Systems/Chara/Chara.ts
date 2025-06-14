@@ -50,16 +50,16 @@ export class Chara extends Phaser.GameObjects.Container {
 
 	/**
 	 * Creates an instance of a Chara.
-	 * @param parent The `BattlegroundScene` this Chara belongs to.
+	 * @param scene The `BattlegroundScene` this Chara belongs to.
 	 * @param unit The `Unit` data object this Chara represents.
 	 * @param options Optional configuration, primarily for shop items.
 	 *                `isShopItem`: Marks the Chara as a shop item.
 	 *                `onPurchased`: Callback executed upon successful purchase from the shop.
 	 *                               This is typically used to update the shop's display (e.g., remove the item).
 	 */
-	constructor(public parent: BattlegroundScene, unit: Unit, options?: CharaOptions) {
+	constructor(public scene: BattlegroundScene, unit: Unit, options?: CharaOptions) {
 		const position = UnitManager.getCharaPosition(unit);
-		super(parent, position.x, position.y);
+		super(scene, position.x, position.y);
 
 		this.unit = unit;
 		this.isShopItem = options?.isShopItem ?? false;
@@ -68,12 +68,12 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.id = unit.id;
 		this.name = unit.id; // For Phaser's GameObject name property, useful for lookups
 		this.createSprite();
-		this.statsDisplay = new CharaStatsDisplay(this.parent, this.unit);
+		this.statsDisplay = new CharaStatsDisplay(this.scene, this.unit);
 		this.statsDisplay.addToContainer(this);
-		this.barsDisplay = new CharaBarsDisplay(this.parent, this.unit);
+		this.barsDisplay = new CharaBarsDisplay(this.scene, this.unit);
 		this.barsDisplay.addToContainer(this);
 
-		this.parent.add.existing(this);
+		this.scene.add.existing(this);
 
 		this.setInteractive(
 			new Phaser.Geom.Rectangle(
@@ -90,10 +90,10 @@ export class Chara extends Phaser.GameObjects.Container {
 
 		// Emit events for tooltip handling by BattlegroundEventSystem
 		this.on(Phaser.Input.Events.POINTER_OVER, () => {
-			this.parent.events.emit(GameEvents.CHARA_POINTER_OVER, { chara: this });
+			this.scene.events.emit(GameEvents.CHARA_POINTER_OVER, { chara: this });
 		});
 		this.on(Phaser.Input.Events.POINTER_OUT, () => {
-			this.parent.events.emit(GameEvents.CHARA_POINTER_OUT, { chara: this });
+			this.scene.events.emit(GameEvents.CHARA_POINTER_OUT, { chara: this });
 		});
 
 		this.statsDisplay.updateHp();
@@ -101,15 +101,15 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.barsDisplay.updateBars();
 
 		if (this.isShopItem) {
-			this.parent.events.on(GameEvents.SHOP_PURCHASE_SUCCESSFUL, this._onShopPurchaseSuccessful, this);
-			this.parent.events.on(GameEvents.SHOP_PURCHASE_FAILED, this._onShopPurchaseFailed, this);
+			this.scene.events.on(GameEvents.SHOP_PURCHASE_SUCCESSFUL, this._onShopPurchaseSuccessful, this);
+			this.scene.events.on(GameEvents.SHOP_PURCHASE_FAILED, this._onShopPurchaseFailed, this);
 		}
 		// Listen for move/swap outcomes if it's an owned unit (or becomes one)
 		// These listeners are safe even if the Chara starts as a shop item,
 		// as they'll only react if the IDs match after it's owned.
-		this.parent.events.on(GameEvents.OWNED_UNIT_MOVE_ACCEPTED, this._onOwnedUnitMoveAccepted, this);
-		this.parent.events.on(GameEvents.OWNED_UNIT_SWAP_ACCEPTED, this._onOwnedUnitSwapAccepted, this);
-		this.parent.events.on(GameEvents.OWNED_UNIT_MOVE_REJECTED, this._onOwnedUnitMoveRejected, this);
+		this.scene.events.on(GameEvents.OWNED_UNIT_MOVE_ACCEPTED, this._onOwnedUnitMoveAccepted, this);
+		this.scene.events.on(GameEvents.OWNED_UNIT_SWAP_ACCEPTED, this._onOwnedUnitSwapAccepted, this);
+		this.scene.events.on(GameEvents.OWNED_UNIT_MOVE_REJECTED, this._onOwnedUnitMoveRejected, this);
 	}
 
 	/**
@@ -118,14 +118,14 @@ export class Chara extends Phaser.GameObjects.Container {
 	 */
 	private createSprite() {
 		// Use unit.pic if valid, otherwise default to "nameless"
-		const textureKey = this.unit.pic && this.parent.textures.exists(this.unit.pic)
+		const textureKey = this.unit.pic && this.scene.textures.exists(this.unit.pic)
 			? this.unit.pic
 			: images.nameless.key;
 
 		if (textureKey === images.nameless.key) {
 			console.warn(`Chara ${this.unit.id} using default texture ${textureKey}`);
 		}
-		this.sprite = this.parent.add.image(0, 0, textureKey)
+		this.sprite = this.scene.add.image(0, 0, textureKey)
 			.setDisplaySize(constants.TILE_WIDTH, constants.TILE_HEIGHT);
 
 		this.add(this.sprite);
@@ -147,7 +147,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		// The dragStartX/Y here MUST be the Chara's current position in the shop,
 		// so it can revert correctly if the purchase fails.
 		// _clickX and _clickY (the actual pointer coordinates) are not used for the revert logic.
-		this.parent.events.emit(GameEvents.SHOP_ITEM_CLICK_PURCHASE_REQUESTED, { shopUnitData: { ...this.unit }, shopCharaId: this.id, dragStartX: this.x, dragStartY: this.y });
+		this.scene.events.emit(GameEvents.SHOP_ITEM_CLICK_PURCHASE_REQUESTED, { shopUnitData: { ...this.unit }, shopCharaId: this.id, dragStartX: this.x, dragStartY: this.y });
 	}
 
 	/**
@@ -165,7 +165,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	 * @param dragStartY The Y coordinate where the drag started.
 	 */
 	private _handleDropOwnedUnit(tile: Vec2, dragStartX: number, dragStartY: number): void {
-		this.parent.events.emit(GameEvents.OWNED_UNIT_MOVE_REQUESTED, {
+		this.scene.events.emit(GameEvents.OWNED_UNIT_MOVE_REQUESTED, {
 			unitId: this.unit.id,
 			targetTile: tile,
 			dragStartX,
@@ -185,7 +185,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	private _handleDropShopItem(tile: Vec2, dragStartX: number, dragStartY: number): void {
 		// We pass a copy of unit data as the shop Chara's unit shouldn't be mutated directly
 		// until purchase is confirmed and a new unit is officially created.
-		this.parent.events.emit(GameEvents.SHOP_ITEM_DRAG_PURCHASE_REQUESTED, {
+		this.scene.events.emit(GameEvents.SHOP_ITEM_DRAG_PURCHASE_REQUESTED, {
 			shopUnitData: { ...this.unit }, // Pass a copy
 			shopCharaId: this.id,
 			targetTile: tile,
@@ -256,7 +256,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	private _onShopPurchaseFailed(payload: { originalShopCharaId: string, reason: string, dragStartX: number, dragStartY: number }): void {
 		if (this.isShopItem && payload.originalShopCharaId === this.id) {
 			// Ensure tooltip is hidden before reverting, as pointer might not naturally move out
-			this.parent.events.emit(GameEvents.TOOLTIP_HIDE);
+			this.scene.events.emit(GameEvents.TOOLTIP_HIDE);
 			this.revertDragOrFailedPurchase(payload.dragStartX, payload.dragStartY);
 			// Optionally, re-enable input if it was disabled during purchase attempt, though current logic doesn't show it being disabled.
 			// this.input.enabled = true;
@@ -282,7 +282,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	private _onOwnedUnitMoveRejected(payload: { unitId: string, dragStartX: number, dragStartY: number }): void {
 		if (!this.isShopItem && payload.unitId === this.id) {
 			// Ensure tooltip is hidden before reverting, as pointer might not naturally move out
-			this.parent.events.emit(GameEvents.TOOLTIP_HIDE);
+			this.scene.events.emit(GameEvents.TOOLTIP_HIDE);
 			this.revertDragOrFailedPurchase(payload.dragStartX, payload.dragStartY);
 		}
 	}
@@ -340,7 +340,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.updateHpDisplay();
 
 		if (isCritical) {
-			criticalDamageDisplay(this.parent, this, Math.floor(damage));
+			criticalDamageDisplay(this.scene, this, Math.floor(damage));
 		} else {
 			popText({ text: Math.floor(damage).toFixed(0).toString(), targetId: chara.id, type: "damage" });
 		}
@@ -361,7 +361,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.unit.hp = 0;
 		this.updateHpDisplay(); // Update display to show 0 HP immediately
 
-		this.parent.events.emit(GameEvents.CHARA_FATALLY_WOUNDED, { chara: this, killerId });
+		this.scene.events.emit(GameEvents.CHARA_FATALLY_WOUNDED, { chara: this, killerId });
 
 	}
 
@@ -419,13 +419,13 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.off(Phaser.Input.Events.POINTER_OUT);
 
 		if (this.isShopItem) { // Clean up shop-specific listeners
-			this.parent.events.off(GameEvents.SHOP_PURCHASE_SUCCESSFUL, this._onShopPurchaseSuccessful, this);
-			this.parent.events.off(GameEvents.SHOP_PURCHASE_FAILED, this._onShopPurchaseFailed, this);
+			this.scene.events.off(GameEvents.SHOP_PURCHASE_SUCCESSFUL, this._onShopPurchaseSuccessful, this);
+			this.scene.events.off(GameEvents.SHOP_PURCHASE_FAILED, this._onShopPurchaseFailed, this);
 		}
 		// Clean up owned unit move listeners
-		this.parent.events.off(GameEvents.OWNED_UNIT_MOVE_ACCEPTED, this._onOwnedUnitMoveAccepted, this);
-		this.parent.events.off(GameEvents.OWNED_UNIT_SWAP_ACCEPTED, this._onOwnedUnitSwapAccepted, this);
-		this.parent.events.off(GameEvents.OWNED_UNIT_MOVE_REJECTED, this._onOwnedUnitMoveRejected, this);
+		this.scene.events.off(GameEvents.OWNED_UNIT_MOVE_ACCEPTED, this._onOwnedUnitMoveAccepted, this);
+		this.scene.events.off(GameEvents.OWNED_UNIT_SWAP_ACCEPTED, this._onOwnedUnitSwapAccepted, this);
+		this.scene.events.off(GameEvents.OWNED_UNIT_MOVE_REJECTED, this._onOwnedUnitMoveRejected, this);
 
 		super.destroy(fromScene);
 	}
