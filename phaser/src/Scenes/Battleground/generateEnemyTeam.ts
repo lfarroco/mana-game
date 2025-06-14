@@ -26,6 +26,49 @@ type Row = string;
 type Formation = Row[];
 type FormationTemplates = Record<number, Formation[]>;
 
+/** Constants for formation validation */
+const FORMATION_WIDTH = 3;
+const FORMATION_HEIGHT = 3;
+const VALID_ROLES = new Set(Object.values(UnitRole));
+
+/**
+ * Validates all formation templates for a given team size.
+ * @throws {Error} If any template is invalid
+ */
+const validateFormationTemplates = (templates: Formation[], teamSize: number): boolean => {
+	for (const template of templates) {
+		let unitCount = 0;
+
+		// Check dimensions
+		if (template.length !== FORMATION_HEIGHT) {
+			throw new Error(`Formation must have exactly ${FORMATION_HEIGHT} rows`);
+		}
+
+		// Check each row
+		for (const row of template) {
+			if (row.length !== FORMATION_WIDTH) {
+				throw new Error(`Each row must have exactly ${FORMATION_WIDTH} positions`);
+			}
+
+			// Count units and validate characters
+			for (const char of row) {
+				if (!VALID_ROLES.has(char as UnitRole)) {
+					throw new Error(`Invalid role character: ${char}`);
+				}
+				if (char !== UnitRole.Empty) {
+					unitCount++;
+				}
+			}
+		}
+
+		// Verify unit count
+		if (unitCount !== teamSize) {
+			throw new Error(`Formation must contain exactly ${teamSize} units, found ${unitCount}`);
+		}
+	}
+	return true;
+};
+
 /** Trait IDs corresponding to unit roles */
 const ROLE_TRAITS: Record<UnitRole, string> = {
 	[UnitRole.Tank]: 'taunt',
@@ -153,6 +196,14 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 	const availableTemplates = templates[enemyTeamSize];
 	if (!availableTemplates?.length) {
 		console.warn(`No templates available for enemy team size: ${enemyTeamSize}. Defaulting to empty team.`);
+		return [];
+	}
+
+	// Validate formation templates
+	try {
+		validateFormationTemplates(availableTemplates, enemyTeamSize);
+	} catch (error) {
+		console.error(error);
 		return [];
 	}
 
