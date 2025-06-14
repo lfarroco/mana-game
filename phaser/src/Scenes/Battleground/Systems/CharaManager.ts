@@ -115,3 +115,23 @@ export const getSurroundingAllies = (unit: Unit) => {
 			return distance === 1;
 		});
 }
+
+export function handleSummonCharaToBoardEvent(payload: { unit: Unit, animateAppear: boolean, playSound: boolean }): void {
+	summonChara(payload.unit, payload.animateAppear, payload.playSound);
+}
+
+export function handleDestroyCharaFromBoardEvent(payload: { unitId: string }): void {
+	destroyChara(payload.unitId);
+}
+
+export function handleCharaHpDisplayUpdateEvent(payload: { unitId: string }): void {
+	getChara(payload.unitId)?.updateHpDisplay();
+}
+
+export function handleCharaChargeBarUpdateEvent(payload: { unitId: string }): void {
+	getChara(payload.unitId)?.updateChargeBar();
+}
+
+export function handleCharaBarsVisibilitySetEvent(payload: { unitId: string, visible: boolean }): void {
+	getChara(payload.unitId)?.setBarsVisibility(payload.visible);
+}

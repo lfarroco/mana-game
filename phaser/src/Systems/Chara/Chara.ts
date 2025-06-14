@@ -357,18 +357,12 @@ export class Chara extends Phaser.GameObjects.Container {
 	 * removes the Chara from the game state and manager, and triggers 'onDeath' events.
 	 */
 	killUnit = (killerId: string) => { // No longer async
-		if (this.unit.hp <= 0) return; // Already dead
 
 		this.unit.hp = 0;
 		this.updateHpDisplay(); // Update display to show 0 HP immediately
 
-		// Announce that this Chara has been fatally wounded.
-		// A separate handler (CharaDeathSequenceHandler) will manage the death sequence (animations, further events).
 		this.parent.events.emit(GameEvents.CHARA_FATALLY_WOUNDED, { chara: this, killerId });
 
-		// Note: The actual destruction of this Chara GameObject and its removal from managers
-		// should ideally occur after animations, triggered by an event like GameEvents.UNIT_DIED_IN_BATTLE
-		// (which is now emitted by CharaDeathSequenceHandler).
 	}
 
 	/**
