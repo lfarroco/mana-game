@@ -1,19 +1,17 @@
 import Phaser from "phaser";
 import { preload } from "./preload";
 import { State, getState } from "../../Models/State";
-import * as AISystem from "../../Systems/AI/AI";
 import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import { UIManager } from "../../UI/UIManager";
 import * as CharaManager from "./Systems/CharaManager";
 import { CardCollection } from "../../Models/Entities/Card";
-import { RunCombatSystem } from "./RunCombatIO";
 import { PlayerBoard } from "../../Models/Board";
 import { Shop } from "./Systems/Shop";
-import * as TraitEffectsImpl from "../../TraitSystem/TraitEffects/Implementations";
 import { setupTraitEventListeners } from "../../TraitSystem/TraitSystemEventListeners";
 
 import { BattlegroundSetupSystem } from "./Systems/BattlegroundSetupSystem";
 import { BattlegroundEventSystem } from "./Systems/BattlegroundEventSystem";
+import { RunCombatSystem } from "./RunCombatIO";
 import { BattleProgressionSystem } from "./Systems/BattleProgressionSystem";
 import { GameEvents } from "../../constants/events";
 import { DebugController } from "../Debug/DebugController";
@@ -79,13 +77,8 @@ export class BattlegroundScene extends Phaser.Scene {
     this.battleProgressionSystem = new BattleProgressionSystem(this, this.state);
     // this.shop, this.uiManager, this.setupSystem, this.eventSystem will be initialized in start()
 
-    // Global, one-time initializations
-    AISystem.init(this.state);
     BattlegroundAudioSystem_init(this.state, this);
     CharaManager.init(this);
-    TraitEffectsImpl.registerAllTraitEffects(); // This is truly global and idempotent
-
-
 
   }
 
