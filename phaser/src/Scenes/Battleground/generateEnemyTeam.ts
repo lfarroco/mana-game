@@ -5,11 +5,35 @@ import { makeUnit } from "../../Models/Entities/Unit";
 import { pickOne } from "../../utils";
 import { getState } from "../../Models/State";
 
+/** Constants for team size and difficulty calculation */
 const BASE_ENEMY_COUNT = 2;
 const MIN_ENEMY_COUNT = 2; // Minimum number of enemies, regardless of low prestige
 const MAX_ENEMY_COUNT = 5; // Maximum number of enemies
 const ROUND_DIFFICULTY_CONTRIBUTION = 0.5; // e.g., 0.5 points per round
 const PRESTIGE_DIFFICULTY_CONTRIBUTION = 0.25; // e.g., 0.25 points per prestige point
+
+/** Unit role types in formation templates */
+enum UnitRole {
+	Tank = 't',
+	Ranged = 'r',
+	Support = 's',
+	Melee = 'm',
+	Empty = '.'
+}
+
+/** Type definition for formation template */
+type Row = string;
+type Formation = Row[];
+type FormationTemplates = Record<number, Formation[]>;
+
+/** Trait IDs corresponding to unit roles */
+const ROLE_TRAITS: Record<UnitRole, string> = {
+	[UnitRole.Tank]: 'taunt',
+	[UnitRole.Ranged]: 'ranged',
+	[UnitRole.Support]: 'support',
+	[UnitRole.Melee]: 'melee',
+	[UnitRole.Empty]: ''
+};
 
 /**
  * Calculates the enemy team size based on the current round and player prestige.
@@ -48,12 +72,22 @@ const calculateEnemyTeamSize = (round: number, playerPrestige: number): number =
  * @param pool An array of `CardDefinition` objects from which enemy units will be selected.
  * @returns An array of `Unit` objects representing the generated enemy team.
  */
+/**
+ * Generates an enemy team based on the current round and a pool of available card definitions.
+ * @param round The current game round, used for difficulty calculation.
+ * @param pool An array of CardDefinition objects from which enemy units will be selected.
+ * @throws {Error} If round is negative or pool is empty
+ * @returns An array of Unit objects representing the generated enemy team.
+ */
 export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
-	// t = tank
-	// r = ranged dps
-	// s = support
-	// m = melee dps
-	const templates: { [hour: number]: string[][]; } = {
+	if (round < 0) {
+		throw new Error('Round must be a non-negative number');
+	}
+	if (pool.length === 0) {
+		throw new Error('Card pool cannot be empty');
+	}
+
+	const templates: FormationTemplates = {
 		2: [
 			// Example Formations for 2 enemies:
 			// .r.  (One ranged unit in the back-middle)
@@ -122,73 +156,44 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 	const enemyTeamSize = calculateEnemyTeamSize(round, playerPrestige);
 
 	const availableTemplates = templates[enemyTeamSize];
-	if (!availableTemplates || availableTemplates.length === 0) {
+	if (!availableTemplates?.length) {
 		console.warn(`No templates available for enemy team size: ${enemyTeamSize}. Defaulting to empty team.`);
 		return [];
 	}
-	const template = pickOne(availableTemplates);
 
+	const template = pickOne(availableTemplates);
 	const parsed = template.map(row => row.split(""));
 
-	// Helper functions to filter the card pool by role-defining traits.
-	// These ensure that if a specific role is requested, we try to pick a card with that trait.
-	const getRanged = () => pool.filter(c => c.traits.some(t => t.id === "ranged"));
-	const getMelee = () => pool.filter(c => c.traits.some(t => t.id === "melee"));
-	const getSupport = () => pool.filter(c => c.traits.some(t => t.id === "support"));
-	const getTank = () => pool.filter(c => c.traits.some(t => t.id === "taunt"));
+	if (!parsed.length || !parsed[0].length) {
+		console.warn('Invalid formation template dimensions');
+		return [];
+	}
 
 	const units = [];
+	const getCardsByTrait = (traitId: string): CardDefinition[] =>
+		pool.filter(card => card.traits.some(trait => trait.id === traitId));
 
 	for (let y = 0; y < parsed.length; y++) {
-		const row = parsed[y];
-		for (let x = 0; x < row.length; x++) {
-			const char = row[x];
-			let card: CardDefinition | undefined;
-			let potentialCards: CardDefinition[] = [];
+		for (let x = 0; x < parsed[y].length; x++) {
+			const role = parsed[y][x] as UnitRole;
+			if (role === UnitRole.Empty) continue;
 
-			switch (char) {
-				case "r":
-					potentialCards = getRanged();
-					if (potentialCards.length > 0) {
-						card = pickOne(potentialCards);
-					} else {
-						console.warn(`No 'ranged' cards available in the pool for template. Skipping unit at (${x},${y}).`);
-					}
-					break;
-				case "m":
-					potentialCards = getMelee();
-					if (potentialCards.length > 0) {
-						card = pickOne(potentialCards);
-					} else {
-						console.warn(`No 'melee' cards available in the pool for template. Skipping unit at (${x},${y}).`);
-					}
-					break;
-				case "s":
-					potentialCards = getSupport();
-					if (potentialCards.length > 0) {
-						card = pickOne(potentialCards);
-					} else {
-						console.warn(`No 'support' cards available in the pool for template. Skipping unit at (${x},${y}).`);
-					}
-					break;
-				case "t":
-					potentialCards = getTank();
-					if (potentialCards.length > 0) {
-						card = pickOne(potentialCards);
-					} else {
-						console.warn(`No 'taunt' (tank) cards available in the pool for template. Skipping unit at (${x},${y}).`);
-					}
-					break;
-				default:
-					break;
-			}
-			if (card !== undefined) {
+			const traitId = ROLE_TRAITS[role];
+			if (!traitId) continue;
 
-				const unit = makeUnit(cpuForce.id, card.id, vec2(x, y));
-				units.push(unit);
+			const potentialCards = getCardsByTrait(traitId);
+			if (!potentialCards.length) {
+				console.warn(`No '${traitId}' cards available in the pool for template. Skipping unit at (${x},${y}).`);
+				continue;
 			}
+
+			const card = pickOne(potentialCards);
+			const unit = makeUnit(cpuForce.id, card.id, vec2(x, y));
+			units.push(unit);
 		}
 	}
+
+	return units;
 
 	return units;
 }
