@@ -3,6 +3,7 @@ import { GameEvents } from "../../constants/events";
 import { Unit } from "../../Models/Entities/Unit"; // Ensure Unit is exported from its module
 import { vec2 } from "../../Models/Geometry";
 import { CardDefinition, RelicDefinition } from "../../Models/Entities/Card"; // For type safety
+import * as constants from "../../constants/constants";
 
 export class DebugController {
 	private scene: BattlegroundScene;
@@ -93,6 +94,26 @@ export class DebugController {
 	clickNextRound(): string {
 		this.scene.events.emit(GameEvents.SHOP_PHASE_ENDED);
 		return "Emitted SHOP_PHASE_ENDED. Current shop phase should end, leading to combat or next round's shop.";
+	}
+
+	// --- State Manipulation for Testing ---
+	setPlayerGold(newAmount: number): string {
+		const currentGold = this.scene.state.gameData.player.gold;
+		const delta = newAmount - currentGold;
+		// This emits an event that BattlegroundEventSystem listens to,
+		// which then updates the state and emits GOLD_CHANGED.
+		this.scene.events.emit(GameEvents.PLAYER_GOLD_UPDATE_REQUEST, delta);
+		// The actual gold value will be updated asynchronously by the event handler.
+		return `Player gold update requested to ${newAmount}. (Delta: ${delta}).`;
+	}
+
+	// --- Game Constants Accessors ---
+	getShopItemCost(): number {
+		return constants.SHOP_ITEM_PURCHASE_COST;
+	}
+
+	getMaxPartySize(): number {
+		return constants.MAX_PARTY_SIZE;
 	}
 
 	// --- Utility / State Inspection ---
