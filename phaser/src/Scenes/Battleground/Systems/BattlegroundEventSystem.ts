@@ -4,8 +4,8 @@ import { PlayerBoard, createBoardDropZone } from "../../../Models/Board";
 import { Shop } from "./Shop";
 import { BattleProgressionSystem } from "./BattleProgressionSystem";
 import { RunCombatSystem } from "../RunCombatIO";
-import { Unit } from "../../../Models/Entities/Unit";
-import * as CharaManager from "./CharaManager";
+import { Unit, makeUnit } from "../../../Models/Entities/Unit";
+import * as CharaManager from "./CharaManager"; // Keep CharaManager import
 import * as Relic from "./Relic";
 import { popText } from "../../../Systems/Chara/Animations/popText";
 import { battleResultAnimation } from "../battleResultAnimation";
@@ -18,7 +18,6 @@ import * as BG_CONSTANTS from "../battlegroundConstants";
 import { handleCharaDeath } from "../../../Systems/Chara/CharaDeathSequenceHandler";
 import { Chara } from "../../../Systems/Chara/Chara";
 import * as CharaTooltip from "../../../Systems/Chara/CharaTooltip";
-import { makeUnit } from "../../../Models/Entities/Unit";
 import { FORCE_ID_PLAYER, MAX_PARTY_SIZE, SHOP_ITEM_PURCHASE_COST } from "../../../constants/constants";
 import { getUnitAt } from "../../../Models/State";
 import { Vec2 } from "../../../Models/Geometry";
@@ -82,6 +81,7 @@ export class BattlegroundEventSystem {
 		// Shop Purchase Request Handlers
 		events.on(GameEvents.SHOP_ITEM_CLICK_PURCHASE_REQUESTED, this._onShopItemClickPurchaseRequested, this);
 		events.on(GameEvents.SHOP_ITEM_DRAG_PURCHASE_REQUESTED, this._onShopItemDragPurchaseRequested, this);
+		events.on(GameEvents.OWNED_UNIT_MOVE_REQUESTED, this._onOwnedUnitMoveRequested, this);
 		events.on(GameEvents.BOARD_CHARA_CREATE_REQUESTED, this._onBoardCharaCreateRequested, this);
 	}
 
@@ -259,4 +259,48 @@ export class BattlegroundEventSystem {
 			this.scene.events.emit(GameEvents.CHARA_BARS_VISIBILITY_SET, { unitId: payload.unit.id, visible: false });
 		}
 	}
+
+	private _onOwnedUnitMoveRequested(payload: { unitId: string, targetTile: Vec2, dragStartX: number, dragStartY: number }): void {
+		const { unitId, targetTile, dragStartX, dragStartY } = payload;
+		const unitToMove = this.state.gameData.player.units.find(u => u.id === unitId);
+
+		if (!unitToMove) {
+			console.error(`[BattlegroundEventSystem] Unit with ID ${unitId} not found for move request.`);
+			this.scene.events.emit(GameEvents.OWNED_UNIT_MOVE_REJECTED, { unitId, reason: "UNIT_NOT_FOUND", dragStartX, dragStartY });
+			return;
+		}
+
+		const moveResult = PlayerBoard.updateUnitPosition(unitToMove, targetTile, this.state.gameData.player.units);
+
+		if (!moveResult) {
+			// No change in position, or invalid move (e.g., trying to move to the same spot without a swap)
+			this.scene.events.emit(GameEvents.OWNED_UNIT_MOVE_REJECTED, { unitId, reason: "NO_CHANGE_OR_INVALID", dragStartX, dragStartY });
+			return;
+		}
+
+		// Successfully moved or swapped
+		const movedUnitVisualPosition = CharaManager.getCharaPosition(moveResult.movedUnit);
+
+		if (moveResult.swappedUnit) {
+			const swappedUnitVisualPosition = CharaManager.getCharaPosition(moveResult.swappedUnit);
+			this.scene.events.emit(GameEvents.OWNED_UNIT_SWAP_ACCEPTED, {
+				movedUnitId: moveResult.movedUnit.id,
+				movedUnitNewLogicalPosition: moveResult.movedUnit.position,
+				movedUnitVisualPosition: { x: movedUnitVisualPosition.x, y: movedUnitVisualPosition.y },
+				swappedUnitId: moveResult.swappedUnit.id,
+				swappedUnitNewLogicalPosition: moveResult.swappedUnit.position,
+				swappedUnitVisualPosition: { x: swappedUnitVisualPosition.x, y: swappedUnitVisualPosition.y },
+			});
+		} else {
+			this.scene.events.emit(GameEvents.OWNED_UNIT_MOVE_ACCEPTED, {
+				unitId: moveResult.movedUnit.id,
+				newLogicalPosition: moveResult.movedUnit.position,
+				newVisualPosition: { x: movedUnitVisualPosition.x, y: movedUnitVisualPosition.y },
+			});
+		}
+	}
+
+
+
+
 }
