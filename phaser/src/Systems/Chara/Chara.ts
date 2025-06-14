@@ -101,6 +101,12 @@ export class Chara extends Phaser.GameObjects.Container {
 			this.parent.events.on(GameEvents.SHOP_PURCHASE_SUCCESSFUL, this._onShopPurchaseSuccessful, this);
 			this.parent.events.on(GameEvents.SHOP_PURCHASE_FAILED, this._onShopPurchaseFailed, this);
 		}
+		// Listen for move/swap outcomes if it's an owned unit (or becomes one)
+		// These listeners are safe even if the Chara starts as a shop item,
+		// as they'll only react if the IDs match after it's owned.
+		this.parent.events.on(GameEvents.OWNED_UNIT_MOVE_ACCEPTED, this._onOwnedUnitMoveAccepted, this);
+		this.parent.events.on(GameEvents.OWNED_UNIT_SWAP_ACCEPTED, this._onOwnedUnitSwapAccepted, this);
+		this.parent.events.on(GameEvents.OWNED_UNIT_MOVE_REJECTED, this._onOwnedUnitMoveRejected, this);
 	}
 
 	/**
@@ -152,7 +158,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	 * Handles the logic when an already owned unit is dropped onto the player's board.
 	 * This can result in moving the unit to an empty tile or swapping it with an existing unit.
 	 * @param tile The board tile (Vec2) where the unit was dropped, or null if not on a specific tile.
-	 * 	 * @param dragStartX The X coordinate where the drag started.
+	 * @param dragStartX The X coordinate where the drag started.
 	 * @param dragStartY The Y coordinate where the drag started.
 	 */
 	private _handleDropOwnedUnit(tile: Vec2, dragStartX: number, dragStartY: number): void {
@@ -218,11 +224,12 @@ export class Chara extends Phaser.GameObjects.Container {
 	 * @param originalX The X position to revert to.
 	 * @param originalY The Y position to revert to.
 	 */
-	public revertDragOrFailedPurchase(originalX: number, originalY: number): void {
+	public revertDragOrFailedPurchase(revertToX: number, revertToY: number): void {
 		if (this.isShopItem) { // If it's still a shop item (purchase failed or invalid drop for shop item)
-			this._revertShopItemToPosition(originalX, originalY);
+			this._revertShopItemToPosition(revertToX, revertToY);
 		} else { // Owned unit that failed to move
-			tween({ targets: [this], ...UnitManager.getCharaPosition(this.unit) });
+			// Revert to the actual screen coordinates from before the drag started.
+			tween({ targets: [this], x: revertToX, y: revertToY, duration: 150 });
 		}
 	};
 
@@ -252,6 +259,35 @@ export class Chara extends Phaser.GameObjects.Container {
 			// this.input.enabled = true;
 		}
 	}
+
+	private _onOwnedUnitMoveAccepted(payload: { unitId: string, newVisualPosition: { x: number, y: number } }): void {
+		if (!this.isShopItem && payload.unitId === this.id) {
+			tween({ targets: [this], x: payload.newVisualPosition.x, y: payload.newVisualPosition.y, duration: 150 });
+		}
+	}
+
+	private _onOwnedUnitSwapAccepted(payload: { movedUnitId: string, movedUnitVisualPosition: { x: number, y: number }, swappedUnitId: string, swappedUnitVisualPosition: { x: number, y: number } }): void {
+		if (!this.isShopItem) {
+			if (payload.movedUnitId === this.id) {
+				tween({ targets: [this], x: payload.movedUnitVisualPosition.x, y: payload.movedUnitVisualPosition.y, duration: 150 });
+			} else if (payload.swappedUnitId === this.id) {
+				tween({ targets: [this], x: payload.swappedUnitVisualPosition.x, y: payload.swappedUnitVisualPosition.y, duration: 150 });
+			}
+		}
+	}
+
+	private _onOwnedUnitMoveRejected(payload: { unitId: string, dragStartX: number, dragStartY: number }): void {
+		if (!this.isShopItem && payload.unitId === this.id) {
+			// Ensure tooltip is hidden before reverting, as pointer might not naturally move out
+			this.parent.events.emit(GameEvents.TOOLTIP_HIDE);
+			this.revertDragOrFailedPurchase(payload.dragStartX, payload.dragStartY);
+		}
+	}
+
+
+
+
+
 
 	// --- UI Update Methods ---
 
@@ -387,6 +423,11 @@ export class Chara extends Phaser.GameObjects.Container {
 			this.parent.events.off(GameEvents.SHOP_PURCHASE_SUCCESSFUL, this._onShopPurchaseSuccessful, this);
 			this.parent.events.off(GameEvents.SHOP_PURCHASE_FAILED, this._onShopPurchaseFailed, this);
 		}
+		// Clean up owned unit move listeners
+		this.parent.events.off(GameEvents.OWNED_UNIT_MOVE_ACCEPTED, this._onOwnedUnitMoveAccepted, this);
+		this.parent.events.off(GameEvents.OWNED_UNIT_SWAP_ACCEPTED, this._onOwnedUnitSwapAccepted, this);
+		this.parent.events.off(GameEvents.OWNED_UNIT_MOVE_REJECTED, this._onOwnedUnitMoveRejected, this);
+
 		super.destroy(fromScene);
 	}
 }
