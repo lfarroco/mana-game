@@ -20,10 +20,10 @@ export class Shop {
 	private static readonly RELIC_SECTION_X = 50;
 	private static readonly RELIC_SECTION_Y = 50;
 	private static readonly RELIC_BG_WIDTH = 700;
-	private static readonly RELIC_BG_HEIGHT = 400;
+	private static readonly RELIC_BG_HEIGHT = 300;
 	private static readonly RELIC_TITLE_X = Shop.RELIC_SECTION_X + 250;
 	private static readonly RELIC_TITLE_Y = Shop.RELIC_SECTION_Y + 20;
-	private static readonly RELIC_ICON_BASE_Y = Shop.RELIC_SECTION_Y + 250;
+	private static readonly RELIC_ICON_BASE_Y = Shop.RELIC_SECTION_Y + 180;
 	private static readonly RELIC_ICON_SIZE = 200;
 	private static readonly RELIC_ICON_SPACING = 210;
 	private static readonly RELIC_FIRST_ICON_X = Shop.RELIC_SECTION_X + 130;
@@ -51,51 +51,48 @@ export class Shop {
 
 	constructor(scene: BattlegroundScene) {
 		this.scene = scene;
-		this.flyout = new Flyout(this.scene, "");
+		this.flyout = new Flyout(this.scene)
 	}
 
-	public open(): Promise<void> {
-		return new Promise((resolve) => {
+	public open() {
 
-			this.flyout.removeAll(true); // Clear any previous content from the flyout
+		this.flyout.removeAll(true); // Clear any previous content from the flyout
 
-			// Define the shop panel's dimensions based on its content.
-			// These dimensions are relative to the flyout's origin.
-			const panelPadding = 25; // Padding around the main content areas
-			const shopPanelWidth = Shop.RELIC_SECTION_X + Shop.TAVERN_BG_OFFSET_X + Shop.TAVERN_BG_WIDTH + panelPadding;
-			// Height needs to accommodate relic/tavern sections and the button below them.
-			const contentHeight = Shop.RELIC_SECTION_Y + Shop.RELIC_BG_HEIGHT;
-			const buttonAreaHeight = 100; // Space for the button and some padding
-			const shopPanelHeight = contentHeight + buttonAreaHeight + panelPadding;
+		// Define the shop panel's dimensions based on its content.
+		// These dimensions are relative to the flyout's origin.
+		const panelPadding = 25; // Padding around the main content areas
+		const shopPanelWidth = Shop.RELIC_SECTION_X + Shop.TAVERN_BG_OFFSET_X + Shop.TAVERN_BG_WIDTH + panelPadding;
+		// Height needs to accommodate relic/tavern sections and the button below them.
+		const contentHeight = Shop.RELIC_SECTION_Y + Shop.RELIC_BG_HEIGHT;
+		const buttonAreaHeight = 100; // Space for the button and some padding
+		const shopPanelHeight = contentHeight + buttonAreaHeight + panelPadding;
 
-			// Clear previous shop items
-			this.currentShopCharas = [];
-			this.currentShopRelicCards = [];
+		// Clear previous shop items
+		this.currentShopCharas = [];
+		this.currentShopRelicCards = [];
 
-			// Add a background panel for the entire shop UI within the flyout
-			const shopBackground = this.scene.add.graphics()
-				.fillStyle(Shop.PANEL_BG_COLOR, Shop.PANEL_BG_OPACITY)
-				.fillRoundedRect(Shop.PANEL_X, Shop.PANEL_Y, shopPanelWidth, shopPanelHeight, 20); // Rounded rectangle
-			this.flyout.add(shopBackground);
+		// Add a background panel for the entire shop UI within the flyout
+		const shopBackground = this.scene.add.graphics()
+			.fillStyle(Shop.PANEL_BG_COLOR, Shop.PANEL_BG_OPACITY)
+			.fillRoundedRect(Shop.PANEL_X, Shop.PANEL_Y, shopPanelWidth, shopPanelHeight, 20); // Rounded rectangle
+		this.flyout.add(shopBackground);
 
-			this.renderRelics();
-			this.renderTavern();
+		this.renderRelics();
+		this.renderTavern();
 
-			const nextRoundBtn = new UIButton(
-				this.scene,
-				"Next Round",
-				shopPanelWidth - 180, // Position X relative to the shop panel's width
-				shopPanelHeight - 60,  // Position Y relative to the shop panel's height (for bottom-right)
-				async () => {
-					this.scene.events.emit(GameEvents.SHOP_PHASE_ENDED);
-					await this.flyout.slideOut();
-					resolve();
-				}
-			);
-			this.flyout.add(nextRoundBtn);
+		const nextRoundBtn = new UIButton(
+			this.scene,
+			"Next Round",
+			Shop.PANEL_X + shopPanelWidth - 100,
+			Shop.PANEL_Y + shopPanelHeight - 40,
+			async () => {
+				this.scene.events.emit(GameEvents.SHOP_PHASE_ENDED);
+				this.flyout.slideOut();
+			}
+		);
+		this.flyout.add(nextRoundBtn);
 
-			this.flyout.slideIn();
-		});
+		this.flyout.slideIn();
 	}
 
 	private renderRelics(): void {
@@ -198,7 +195,7 @@ export class Shop {
 	// --- Event Handlers Moved from BattlegroundEventSystem ---
 
 	public async handleShopOpenUITrigger(): Promise<void> {
-		await this.open();
+		this.open();
 	}
 
 	public handleShopItemClickPurchaseRequested(payload: { shopUnitData: Unit, shopCharaId: string, dragStartX: number, dragStartY: number }): void {
