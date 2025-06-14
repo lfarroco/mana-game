@@ -13,7 +13,7 @@ const ROUND_DIFFICULTY_CONTRIBUTION = 0.5; // e.g., 0.5 points per round
 const PRESTIGE_DIFFICULTY_CONTRIBUTION = 0.25; // e.g., 0.25 points per prestige point
 
 /** Unit role types in formation templates */
-enum UnitRole {
+export enum UnitRole {
 	Tank = 't',
 	Ranged = 'r',
 	Support = 's',
@@ -21,10 +21,8 @@ enum UnitRole {
 	Empty = '.'
 }
 
-/** Type definition for formation template */
-type Row = string;
-type Formation = Row[];
-type FormationTemplates = Record<number, Formation[]>;
+/** Import formation templates and types */
+import { FORMATION_TEMPLATES, FormationTemplate, FormationCollection } from './formations';
 
 /** Constants for formation validation */
 const FORMATION_WIDTH = 3;
@@ -32,40 +30,40 @@ const FORMATION_HEIGHT = 3;
 const VALID_ROLES = new Set(Object.values(UnitRole));
 
 /**
- * Validates all formation templates for a given team size.
- * @throws {Error} If any template is invalid
+ * Validates a formation template.
+ * @throws {Error} If template is invalid
  */
-const validateFormationTemplates = (templates: Formation[], teamSize: number): boolean => {
-	for (const template of templates) {
-		let unitCount = 0;
+const validateFormation = (template: FormationTemplate, teamSize: number): boolean => {
+	let unitCount = 0;
+	const pattern = template.pattern;
 
-		// Check dimensions
-		if (template.length !== FORMATION_HEIGHT) {
-			throw new Error(`Formation must have exactly ${FORMATION_HEIGHT} rows`);
+	// Check dimensions
+	if (pattern.length !== FORMATION_HEIGHT) {
+		throw new Error(`Formation "${template.metadata.name}" must have exactly ${FORMATION_HEIGHT} rows`);
+	}
+
+	// Check each row
+	for (const row of pattern) {
+		if (row.length !== FORMATION_WIDTH) {
+			throw new Error(`Formation "${template.metadata.name}" must have exactly ${FORMATION_WIDTH} positions per row`);
 		}
 
-		// Check each row
-		for (const row of template) {
-			if (row.length !== FORMATION_WIDTH) {
-				throw new Error(`Each row must have exactly ${FORMATION_WIDTH} positions`);
+		// Count units and validate characters
+		for (const char of row) {
+			if (!VALID_ROLES.has(char as UnitRole)) {
+				throw new Error(`Formation "${template.metadata.name}" has invalid role character: ${char}`);
 			}
-
-			// Count units and validate characters
-			for (const char of row) {
-				if (!VALID_ROLES.has(char as UnitRole)) {
-					throw new Error(`Invalid role character: ${char}`);
-				}
-				if (char !== UnitRole.Empty) {
-					unitCount++;
-				}
+			if (char !== UnitRole.Empty) {
+				unitCount++;
 			}
-		}
-
-		// Verify unit count
-		if (unitCount !== teamSize) {
-			throw new Error(`Formation must contain exactly ${teamSize} units, found ${unitCount}`);
 		}
 	}
+
+	// Verify unit count
+	if (unitCount !== teamSize) {
+		throw new Error(`Formation "${template.metadata.name}" must contain exactly ${teamSize} units, found ${unitCount}`);
+	}
+
 	return true;
 };
 
@@ -125,90 +123,36 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 		throw new Error('Card pool cannot be empty');
 	}
 
-	const templates: FormationTemplates = {
-		2: [
-			// Example Formations for 2 enemies:
-			// .r.  (One ranged unit in the back-middle)
-			// ...
-			// .m.  (One melee unit in the front-middle)
-			[
-				".r.",
-				"...",
-				".m."
-			],
-			[
-				"...",
-				"...",
-				"m.m"
-			], // Two melee units in the front corners
-			[
-				"r.r",
-				"...",
-				"...",
-			] // Two ranged units in the back corners
-			// ... (other templates for size 2)
-		],
-		3: [
-			[
-				"...",
-				"...",
-				"mmm"
-			],
-			// ... (other templates for size 3)
-			["r.r", ".r.", "..."],
-			["...", ".t.", "m.m"], // Example with a tank
-			["r.r", "...", ".s."], // Example with support
-			[
-				"...",
-				".r.",
-				"m.m"
-			]
-		],
-		4: [
-			[
-				"r.r",
-				"...",
-				"m.m"
-			],
-			[
-				"rrr",
-				"...",
-				".m."
-			]
-		],
-		5: [
-			[
-				"r.m",
-				"..m",
-				"r.m"
-			],
-			[
-				"r.m",
-				"r..",
-				"r.m"
-			]
-		]
-	};
-
 	const playerPrestige = getState().gameData.player.prestige;
 	const enemyTeamSize = calculateEnemyTeamSize(round, playerPrestige);
 
-	const availableTemplates = templates[enemyTeamSize];
+	// Get formations for the current team size
+	const availableTemplates = FORMATION_TEMPLATES[enemyTeamSize];
 	if (!availableTemplates?.length) {
-		console.warn(`No templates available for enemy team size: ${enemyTeamSize}. Defaulting to empty team.`);
+		console.warn(`No formations available for team size: ${enemyTeamSize}. Defaulting to empty team.`);
 		return [];
 	}
 
-	// Validate formation templates
+	// Filter formations based on current round
+	const validTemplates = availableTemplates.filter(template =>
+		!template.metadata.minRound || template.metadata.minRound <= round
+	);
+
+	if (!validTemplates.length) {
+		console.warn(`No formations available for round ${round}. Defaulting to empty team.`);
+		return [];
+	}
+
+	// Validate chosen formation
+	const template = pickOne(validTemplates);
 	try {
-		validateFormationTemplates(availableTemplates, enemyTeamSize);
+		validateFormation(template, enemyTeamSize);
 	} catch (error) {
 		console.error(error);
 		return [];
 	}
 
-	const template = pickOne(availableTemplates);
-	const parsed = template.map(row => row.split(""));
+	const parsed = template.pattern.map(row => row.split(""));
 
 	if (!parsed.length || !parsed[0].length) {
 		console.warn('Invalid formation template dimensions');
