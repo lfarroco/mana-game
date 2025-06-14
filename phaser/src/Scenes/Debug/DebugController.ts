@@ -3,6 +3,7 @@ import { GameEvents } from "../../constants/events";
 import { Unit } from "../../Models/Entities/Unit"; // Ensure Unit is exported from its module
 import { vec2 } from "../../Models/Geometry";
 import { CardDefinition, RelicDefinition } from "../../Models/Entities/Card"; // For type safety
+import * as CharaManager from "../Battleground/Systems/CharaManager";
 import { makeUnit } from "../../Models/Entities/Unit";
 import * as constants from "../../constants/constants";
 
@@ -110,6 +111,45 @@ export class DebugController {
 		const newUnit = makeUnit(constants.FORCE_ID_PLAYER, cardId, vec2(boardX, boardY));
 		this.scene.state.gameData.player.units.push(newUnit);
 		return `Added unit ${newUnit.id} (Card ID: ${cardId}) to player board state at (${boardX}, ${boardY}).`;
+	}
+
+	/**
+	 * Simulates dragging an owned unit on the player's board to a new tile.
+	 * Emits OWNED_UNIT_MOVE_REQUESTED.
+	 * @param unitId The ID of the unit to move.
+	 * @param targetBoardX The target X coordinate on the board grid.
+	 * @param targetBoardY The target Y coordinate on the board grid.
+	 */
+	moveUnitOnBoard(unitId: string, targetBoardX: number, targetBoardY: number): string {
+		const unit = this.scene.state.gameData.player.units.find(u => u.id === unitId);
+		if (!unit) {
+			return `Error: Unit with ID ${unitId} not found on player board.`;
+		}
+
+		// Get the Chara instance to find its current visual position for dragStartX/Y
+		// This is important for the Chara's revertDragOrFailedPurchase method if the move is rejected.
+		// If the Chara doesn't exist (e.g. unit added directly to state), fallback to logical position.
+		let dragStartX = 0;
+		let dragStartY = 0;
+		try {
+			const chara = CharaManager.getChara(unitId);
+			dragStartX = chara.x;
+			dragStartY = chara.y;
+		} catch (e) {
+			const visualPos = CharaManager.getCharaPosition(unit); // Calculates visual center from logical
+			dragStartX = visualPos.x;
+			dragStartY = visualPos.y;
+			console.warn(`DebugController.moveUnitOnBoard: Chara for unit ${unitId} not found. Using logical position for dragStart. Error: ${e}`);
+		}
+
+		this.scene.events.emit(GameEvents.OWNED_UNIT_MOVE_REQUESTED, {
+			unitId: unitId,
+			targetTile: vec2(targetBoardX, targetBoardY),
+			dragStartX: dragStartX, // Current visual X of the chara
+			dragStartY: dragStartY  // Current visual Y of the chara
+		});
+
+		return `Emitted OWNED_UNIT_MOVE_REQUESTED for unit ${unitId} to board (${targetBoardX},${targetBoardY}). Move/swap processing is asynchronous.`;
 	}
 
 	// --- State Manipulation for Testing ---
