@@ -21,7 +21,6 @@ import { slow } from "../../Systems/Chara/Skills/slow";
 import { summon } from "../../Systems/Chara/Skills/summon";
 import { Unit } from "../../Models/Entities/Unit";
 import { RelicStateObject } from "../Traits";
-import { getOption } from "../../Models/OptionsStore";
 
 
 // --- Higher-Order Function for Source Unit Requirement ---
@@ -103,7 +102,6 @@ const grantGoldToPlayerLogic: SourceUnitGuaranteedEffectFn = async (context) => 
 		await popText({
 			text: `+${amount} Gold`,
 			targetId: sourceUnit.id,
-			speed: getOption("speed")
 		});
 		updatePlayerGoldIO(scene, amount);
 	}
@@ -114,22 +112,16 @@ const grantGoldToPlayerLogic: SourceUnitGuaranteedEffectFn = async (context) => 
  * Requires `sourceUnit`. The actual damage calculation might be more complex in a full implementation.
  */
 const dealDamageLogic: SourceUnitGuaranteedEffectFn = async (context) => {
-	const { sourceUnit, targets, effectInstance, traitInstanceParams } = context;
+	const { targets, effectInstance, traitInstanceParams } = context;
 	const baseAmount = (traitInstanceParams.amount ?? effectInstance.amount ?? 0) as number;
 
-	// TODO: Implement actual damage calculation, considering sourceUnit.attackPower, target.defense, etc.
-	// For now, a simple popText
 	for (const target of targets) {
 		const charaTarget = getChara(target.id);
 		if (charaTarget) {
-			// This is where you'd call a proper damage dealing function
-			// charaTarget.takeDamage(baseAmount, sourceUnit);
 			await popText({
 				text: `-${baseAmount} Dmg`,
 				targetId: target.id, type: "damage",
-				speed: getOption("speed")
 			});
-			console.log(`${sourceUnit.name} (Trait: ${context.traitInstanceParams.id}) deals ${baseAmount} damage to ${target.name} via effect ${effectInstance.effectId}`);
 		}
 	}
 };

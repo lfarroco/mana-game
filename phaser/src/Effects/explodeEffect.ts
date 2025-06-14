@@ -107,12 +107,8 @@ function impactEffect(scene: Phaser.Scene, target: { x: number; y: number; }, sp
 		delay: lifespan / 2,
 		callback: () => {
 			particle.stop()
-		}
-	});
-	scene.time.addEvent({
-		delay: lifespan + lifespan / 2,
-		callback: () => {
-			particle.stop()
+			// Destroy after a delay to let existing particles fade out
+			scene.time.delayedCall(lifespan, () => particle.destroy());
 		}
 	});
 

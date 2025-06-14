@@ -8,12 +8,11 @@ import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager"
 export async function popText({
 	text,
 	targetId,
-	type
+	type // "heal", "damage", or undefined for default
 }: {
 	text: string;
 	targetId: string;
-	type?: string;
-	speed?: number
+	type?: "heal" | "damage";
 }) {
 
 	const chara = UnitManager.getChara(targetId);
@@ -23,12 +22,13 @@ export async function popText({
 	}
 	const { parent: scene } = chara;
 
-	let color = defaultTextConfig.color;
+	let textColor = defaultTextConfig.color;
 	if (type === "heal") {
-		color = "green";
+		textColor = "green";
 	} else if (type === "damage") {
-		color = "red";
+		textColor = "red";
 	}
+
 
 	const popText = scene.add.text(
 		chara.x, chara.y,
@@ -37,8 +37,8 @@ export async function popText({
 			...titleTextConfig,
 		}
 	)
-		.setOrigin(0.5, 0.5)
-		.setColor(color || defaultTextConfig.color as string)
+		.setOrigin(0.5, 0.5);
+	if (textColor) popText.setColor(textColor);
 
 	// random angle upwards
 	const angle = Math.random() * 30 * (Math.random() < 0.5 ? -1 : 1);

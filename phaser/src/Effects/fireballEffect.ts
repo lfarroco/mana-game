@@ -87,7 +87,6 @@ function fireball(source: { x: number; y: number; }, target: { x: number; y: num
 			scale: { start: 8, end: 0 },
 			blendMode: 'ADD',
 			radial: true,
-			stopAfter: travelDuration
 		}
 	);
 
@@ -101,4 +100,3 @@ function fireball(source: { x: number; y: number; }, target: { x: number; y: num
 
 	return particles;
 }
-

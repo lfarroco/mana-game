@@ -21,9 +21,6 @@ async function setupWave(scene: BattlegroundScene) {
     }
   });
 
-  // Animate CPU units appearing (if this was the intent of the removed tween block)
-  // This part can be kept if it's purely visual and doesn't interact with trait logic directly.
-  // For example, UnitManager.animateCPUUnitEntry(scene);
 
   // Emit event for Trait System to handle onBattleStart for units and relics
   scene.events.emit(GameEvents.TRAIT_EVAL_GLOBAL_BATTLE_START, {});

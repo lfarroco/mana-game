@@ -42,19 +42,9 @@ export function destroyChara(id: string) {
 		// This prevents potential issues if charaInstance.destroy() triggers logic
 		// that might try to re-access or re-modify charaIndex for this same ID.
 		charaIndex.splice(charaIndexPos, 1);
-
-		// Now, destroy the Phaser GameObject if it's still active and part of a scene.
-		// A GameObject is considered active if 'charaInstance.scene' is not null.
 		if (charaInstance.parent) {
-			// console.log(`CharaManager: Destroying Chara GameObject ${id}.`); // Uncomment for verbose logging
 			charaInstance.destroy(); // Phaser's destroy handles scene removal, event cleanup, etc.
-		} else {
-			// This Chara instance was already destroyed or detached from the scene.
-			// console.warn(`CharaManager: Chara GameObject ${id} was already detached from scene when its destruction was processed.`); // Uncomment for verbose logging
 		}
-	} else {
-		// Uncomment below for verbose logging
-		// console.warn(`CharaManager: Chara with id ${id} not found in index for destruction. This might indicate a double-destroy attempt or an issue with registration.`);
 	}
 }
 export async function summonChara(
@@ -69,8 +59,6 @@ export async function summonChara(
 	const chara = new Chara.Chara(scene, unit);
 
 	registerChara(chara); // Changed from addCharaToState to use the public registration function
-
-	//Chara.addBoardEvents();
 
 	chara.setAlpha(0);
 

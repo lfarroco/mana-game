@@ -358,7 +358,7 @@ export class Chara extends Phaser.GameObjects.Container {
 			this.updateHpDisplay();
 		}
 
-		await popText({ text, targetId: unit.id, speed: 2 });
+		await popText({ text, targetId: unit.id, });
 	}
 
 	/**
