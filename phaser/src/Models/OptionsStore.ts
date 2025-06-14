@@ -77,11 +77,3 @@ export function getOption<K extends keyof Options>(key: K): Options[K] {
 	}
 	return currentOptions[key];
 }
-
-// Future: Add updateOption function if options need to be changed at runtime
-// export function updateOption<K extends keyof Options>(key: K, value: Options[K]): void {
-//   if (!currentOptions) initializeOptionsStore(); // Should not happen if used correctly
-//   currentOptions[key] = value;
-//   // Optionally, emit an event here if other systems need to react to option changes.
-//   // e.g., scene.events.emit(`option_changed_${key}`, value);
-// }

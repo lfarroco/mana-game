@@ -1,7 +1,3 @@
-
-// continue from here:
-// create undead units with deathrattle meachnics
-
 import { images } from "../assets";
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
 import { defaultTextConfig, SCREEN_HEIGHT, SCREEN_WIDTH, TILE_HEIGHT, titleTextConfig } from "../constants/constants";
@@ -52,10 +48,6 @@ export class Flyout extends Phaser.GameObjects.Container {
 	}
 
 	async slideIn() {
-
-		// flyouts
-		// 	.filter(f => f.isOpen)
-		// 	.forEach(f => f.slideOut())
 
 		this.parent.children.bringToTop(this);
 		await tween({

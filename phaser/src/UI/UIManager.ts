@@ -181,10 +181,6 @@ export class UIManager {
 	 * @param payload The `UserMessagePayload` containing the message text and type.
 	 */
 	private async _handleUserMessageRequested(payload: UserMessagePayload): Promise<void> {
-		// For now, we only visually distinguish errors, but this can be expanded.
-		// if (payload.type === 'error') {
-		// 	this.scene.sound.play('ui/error'); // If you have an error sound
-		// }
 
 		// Determine text style based on payload.type if needed, for now, all use titleTextConfig
 		const textStyle = constants.titleTextConfig;

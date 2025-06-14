@@ -48,8 +48,6 @@ export class EnergyBeam extends Phaser.GameObjects.Graphics {
 	updateBeam() {
 		this.clear();
 
-		// const hueShift = (Math.sin(this.phase) + 1) * 0.1;
-		// this.color = Phaser.Display.Color.HSLToColor(hueShift, 1, 0.5).color;
 		// Calculate beam vector
 		const vec = new Phaser.Math.Vector2(
 			this.end.x - this.start.x,
@@ -92,4 +90,3 @@ export class EnergyBeam extends Phaser.GameObjects.Graphics {
 
 	}
 }
-

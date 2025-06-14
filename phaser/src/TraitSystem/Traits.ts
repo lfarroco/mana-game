@@ -30,12 +30,6 @@ import {
 export type TraitId = string & { __traitId: never };
 
 /**
- * A unique identifier for a trait.
- * The `__traitId` property is a nominal typing marker and does not exist at runtime.
- */
-export type TraitCategory = string & { __traitCategory: never };
-
-/**
  * Represents an instance of a trait attached to a unit or relic.
  * It includes the trait's ID and any instance-specific parameters.
  * @property id - The unique identifier of the trait definition.
