@@ -6,6 +6,7 @@ import * as BG_CONSTANTS from "../battlegroundConstants";
 import { GameEvents } from "../../../constants/events";
 import { getAllCards } from "../../../Models/Entities/Card";
 import { generateEnemyTeam } from "../generateEnemyTeam";
+import { PrestigeSystem } from "../../../Systems/PrestigeSystem";
 
 /**
  * Manages the overall progression of the battle, including transitions
@@ -15,10 +16,12 @@ export class BattleProgressionSystem {
 	private scene: BattlegroundScene;
 	private state: State;
 	private _isInShopPhase: boolean = false;
+	private prestigeSystem: PrestigeSystem;
 
 	constructor(scene: BattlegroundScene, state: State) {
 		this.scene = scene;
 		this.state = state;
+		this.prestigeSystem = new PrestigeSystem(scene, state);
 	}
 
 	public get isInShopPhase(): boolean {
@@ -63,8 +66,7 @@ export class BattleProgressionSystem {
 		await delay(this.scene, 1500); // Wait for animation
 
 		this.scene.events.emit(GameEvents.PLAYER_GOLD_UPDATE_REQUEST, BG_CONSTANTS.VICTORY_GOLD_REWARD);
-		this.state.gameData.player.prestige += 1;
-		this.scene.events.emit(GameEvents.PRESTIGE_CHANGED, this.state.gameData.player.prestige, 1);
+		this.prestigeSystem.processVictory();
 
 		this.resetPlayerUnitsForNewRound();
 		this.resetPlayerUnitChargeBars();
@@ -84,8 +86,7 @@ export class BattleProgressionSystem {
 		this.scene.events.emit(GameEvents.BATTLE_RESULT_SHOW, { result: "defeat" });
 		await delay(this.scene, 1500); // Wait for animation
 
-		this.state.gameData.player.prestige -= 2;
-		this.scene.events.emit(GameEvents.PRESTIGE_CHANGED, this.state.gameData.player.prestige, -2);
+		this.prestigeSystem.processDefeat();
 
 		this.setAllPlayerUnitBarsVisibility(false); // Hide bars for player units
 		this.state.battleData.units = []; // Clear units from battle state
