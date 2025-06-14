@@ -22,6 +22,21 @@ import { FORCE_ID_PLAYER, MAX_PARTY_SIZE, SHOP_ITEM_PURCHASE_COST } from "../../
 import { getUnitAt } from "../../../Models/State";
 import { Vec2 } from "../../../Models/Geometry";
 
+/**
+ * @class BattlegroundEventSystem
+ * @description
+ * Manages and centralizes the handling of game-specific events within the BattlegroundScene.
+ *
+ * **Goal:**
+ * To act as the primary dispatcher for `GameEvents`, ensuring that different game systems
+ * and UI components react appropriately to in-game occurrences, thereby decoupling event
+ * emitters from direct knowledge of event consumers.
+ *
+ * **Purpose:**
+ * - Subscribes to a wide array of `GameEvents` (e.g., unit death, phase transitions, UI updates, player actions).
+ * - Delegates event handling to appropriate systems (`BattleProgressionSystem`, `CharaManager`, `UIManager`, `Shop`, etc.) or handles them directly.
+ * - Manages the lifecycle of its event listeners, registering them on creation and unregistering them on destruction.
+ */
 export class BattlegroundEventSystem {
 	private scene: BattlegroundScene;
 	private state: State;
@@ -31,22 +46,14 @@ export class BattlegroundEventSystem {
 	private battleProgressionSystem: BattleProgressionSystem;
 	private runCombatSystem: RunCombatSystem;
 
-	constructor(
-		scene: BattlegroundScene,
-		state: State,
-		uiManager: UIManager,
-		playerBoard: PlayerBoard,
-		shop: Shop,
-		battleProgressionSystem: BattleProgressionSystem,
-		runCombatSystem: RunCombatSystem
-	) {
+	constructor(scene: BattlegroundScene) {
 		this.scene = scene;
-		this.state = state;
-		this.uiManager = uiManager;
-		this.playerBoard = playerBoard;
-		this.shop = shop;
-		this.battleProgressionSystem = battleProgressionSystem;
-		this.runCombatSystem = runCombatSystem;
+		this.state = scene.state;
+		this.uiManager = scene.uiManager;
+		this.playerBoard = scene.playerBoard;
+		this.shop = scene.shop;
+		this.battleProgressionSystem = scene.battleProgressionSystem;
+		this.runCombatSystem = scene.runCombatSystem;
 	}
 
 	public registerEventHandlers(): void {

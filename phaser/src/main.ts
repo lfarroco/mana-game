@@ -6,8 +6,8 @@ import * as TraitEffectsImpl from "./TraitSystem/TraitEffects/Implementations";
 // Global, one-time registration systems
 initializeOptionsStore();
 TraitEffectsImpl.registerAllTraitEffects();
+// TODO: move more global systems that are started in BattlegroundScene here
 
 const state = initialState();
-window.state = state; // The global state now excludes options
 
 initGame(state);

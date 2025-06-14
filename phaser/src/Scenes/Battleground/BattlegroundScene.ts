@@ -79,9 +79,6 @@ export class BattlegroundScene extends Phaser.Scene {
     BattlegroundAudioSystem_init(this.state, this);
     CharaManager.init(this);
 
-    // Ensure cleanup logic fires for both shutdown and destroy lifecycle events
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.shutdown, this);
-    this.events.once(Phaser.Scenes.Events.DESTROY, this.destroy, this);
 
   }
 
@@ -108,6 +105,10 @@ export class BattlegroundScene extends Phaser.Scene {
     console.log("BattlegroundScene create: primary logic deferred to start().");
     this.collection = this.cache.json.get("base-collection") as CardCollection;
 
+    // Ensure cleanup logic fires for both shutdown and destroy lifecycle events
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.shutdown, this);
+    this.events.once(Phaser.Scenes.Events.DESTROY, this.destroy, this);
+
     this.start();
 
   }
@@ -128,20 +129,9 @@ export class BattlegroundScene extends Phaser.Scene {
     // 1. Perform one-time runtime data initialization
     this.setupSystem.performOneTimeRuntimeInitialization(this.collection);
 
-    // 2. Load dynamic assets (card/relic images based on the collection)
-    try {
-      await new Promise<void>((resolve, reject) => {
-        try {
-          this.setupSystem.loadDynamicAssets(this.collection, resolve);
-        } catch (e) {
-          reject(e);
-        }
-      });
-      console.log("Dynamic assets loaded, proceeding with scene start.");
-    } catch (e) {
-      console.error("BattlegroundScene: failed to load dynamic assets", e);
-      // Optionally, you could show a user-facing error or fallback art here.
-    }
+    // 2. Load dynamic assets (card/relic images defined on the collection)
+    await this.setupSystem.loadDynamicAssets(this.collection)
+    console.log("Dynamic assets loaded, proceeding with scene start.");
 
     // 3. Initialize game state for a new game
     this.setupSystem.initializeNewGame(this.state);
@@ -150,15 +140,7 @@ export class BattlegroundScene extends Phaser.Scene {
     this.playerBoard = this.setupSystem.setupSceneElements(this.state);
 
     // 5. Initialize and register core game event listeners
-    this.eventSystem = new BattlegroundEventSystem(
-      this,
-      this.state,
-      this.uiManager,
-      this.playerBoard,
-      this.shop,
-      this.battleProgressionSystem,
-      this.runCombatSystem
-    );
+    this.eventSystem = new BattlegroundEventSystem(this);
     this.eventSystem.registerEventHandlers();
 
     // 6. Emit events for initial UI and board setup now that listeners are active

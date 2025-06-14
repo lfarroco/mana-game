@@ -1,4 +1,5 @@
 
+// Co
 export default class Core extends Phaser.Scene {
 
 	constructor() {

@@ -7,8 +7,6 @@ import { DebugScene } from "./Debug/DebugScene";
 import { SaveGameSystem_init } from "./Systems/SaveGame/SaveGame";
 import BBCodeTextPlugin from 'phaser3-rex-plugins/plugins/bbcodetext-plugin.js';
 
-
-
 export function initGame(state: State) {
 
 	const game = new Phaser.Game({
@@ -38,21 +36,18 @@ export function initGame(state: State) {
 		}
 	});
 
+	// TODO: move this up, as a global system
 	SaveGameSystem_init(state, game);
-
-	if (process.env.NODE_ENV === "development") {
-		// necessary for e2e tests
-		//@ts-ignore
-		window.game = game;
-	}
 
 	// get query params, check for DEBUG param
 	const urlParams = new URLSearchParams(window.location.search);
+	// TODO: define query param keys
 	const debug = urlParams.get('DEBUG');
 	if (debug) {
+		// TODO: use scene keys
 		game.scene.start("DebugScene");
 	} else {
-		console.log("START_NEW_GAME");
+		// TODO: use scene keys
 		game.scene.start("BattlegroundScene", state);
 	}
 }
