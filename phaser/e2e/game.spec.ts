@@ -1,4 +1,10 @@
 import { test, expect, Page } from '@playwright/test';
+import "../src/globals";
+
+// Guideline for when adding tests to this file:
+// To trigger actions in game, create methods in gameController that
+// fire game events. This way we can control the game without performing
+// actual clicks and drags
 
 /**
  * Helper function to wait for the game to be initialized and DebugController to be available
@@ -72,5 +78,125 @@ test.describe('Game Phase Transitions', () => {
 			return window.gameController.getPlayerGold();
 		});
 		expect(finalGold).toBeDefined();
+	});
+});
+
+test.describe('Shop Interactions', () => {
+	test('should successfully buy a hero by clicking', async ({ page }) => {
+		await page.goto('/');
+		await waitForGameInit(page);
+
+		const shopItemCost = await page.evaluate(() => window.gameController.getShopItemCost());
+		await page.evaluate((cost) => window.gameController.setPlayerGold(cost + 5), shopItemCost);
+		await page.waitForTimeout(200); // Wait for gold update to propagate
+
+		const initialGold = await page.evaluate(() => window.gameController.getPlayerGold());
+		const initialUnits = await page.evaluate(() => window.gameController.getPlayerBoardUnits());
+
+		await page.evaluate(() => window.gameController.clickHeroInShop(0));
+		await page.waitForTimeout(500); // Wait for purchase to process
+
+		const finalGold = await page.evaluate(() => window.gameController.getPlayerGold());
+		const finalUnits = await page.evaluate(() => window.gameController.getPlayerBoardUnits());
+
+		expect(finalGold).toBe(initialGold - shopItemCost);
+		expect(finalUnits.length).toBe(initialUnits.length + 1);
+		const newUnit = finalUnits.find(u => !initialUnits.some(iu => iu.id === u.id));
+		expect(newUnit).toBeDefined();
+		if (newUnit) {
+			// Check if it's on an actual board slot (0,0), (0,1) etc.
+			expect(newUnit.position.x).toBeGreaterThanOrEqual(0);
+			expect(newUnit.position.y).toBeGreaterThanOrEqual(0);
+		}
+	});
+
+	test('should successfully buy and place a hero by dragging', async ({ page }) => {
+		await page.goto('/');
+		await waitForGameInit(page);
+
+		const shopItemCost = await page.evaluate(() => window.gameController.getShopItemCost());
+		await page.evaluate((cost) => window.gameController.setPlayerGold(cost + 5), shopItemCost);
+		await page.waitForTimeout(200);
+
+		const initialGold = await page.evaluate(() => window.gameController.getPlayerGold());
+		const initialUnits = await page.evaluate(() => window.gameController.getPlayerBoardUnits());
+
+		const targetBoardX = 0;
+		const targetBoardY = 1;
+
+		await page.evaluate(({ slot, x, y }) => window.gameController.buyAndPlaceHero(slot, x, y), { slot: 1, x: targetBoardX, y: targetBoardY });
+		await page.waitForTimeout(500);
+
+		const finalGold = await page.evaluate(() => window.gameController.getPlayerGold());
+		const finalUnits = await page.evaluate(() => window.gameController.getPlayerBoardUnits());
+
+		expect(finalGold).toBe(initialGold - shopItemCost);
+		expect(finalUnits.length).toBe(initialUnits.length + 1);
+
+		const newUnit = finalUnits.find(u => !initialUnits.some(iu => iu.id === u.id));
+		expect(newUnit).toBeDefined();
+		if (newUnit) {
+			expect(newUnit.position.x).toBe(targetBoardX);
+			expect(newUnit.position.y).toBe(targetBoardY);
+		}
+	});
+
+	test('should fail to buy a hero if insufficient gold', async ({ page }) => {
+		await page.goto('/');
+		await waitForGameInit(page);
+
+		const shopItemCost = await page.evaluate(() => window.gameController.getShopItemCost());
+		await page.evaluate((cost) => window.gameController.setPlayerGold(cost - 1), shopItemCost); // Set gold to less than item cost
+		await page.waitForTimeout(200);
+
+		const initialGold = await page.evaluate(() => window.gameController.getPlayerGold());
+		const initialUnits = await page.evaluate(() => window.gameController.getPlayerBoardUnits());
+
+		await page.evaluate(() => window.gameController.clickHeroInShop(0));
+		await page.waitForTimeout(500);
+
+		const finalGold = await page.evaluate(() => window.gameController.getPlayerGold());
+		const finalUnits = await page.evaluate(() => window.gameController.getPlayerBoardUnits());
+
+		expect(finalGold).toBe(initialGold); // Gold should not change
+		expect(finalUnits.length).toBe(initialUnits.length); // Unit count should not change
+	});
+
+	test('should fail to buy a hero if party is full', async ({ page }) => {
+		await page.goto('/');
+		await waitForGameInit(page);
+
+		const maxPartySize = await page.evaluate(() => window.gameController.getMaxPartySize());
+		const shopItemCost = await page.evaluate(() => window.gameController.getShopItemCost());
+
+		// Set enough gold to buy maxPartySize + 1 units
+		await page.evaluate(({ mps, cost }) => window.gameController.setPlayerGold((mps + 1) * cost), { mps: maxPartySize, cost: shopItemCost });
+		await page.waitForTimeout(200);
+
+		// Fill the party
+		for (let i = 0; i < maxPartySize; i++) {
+			// Assuming shop has at least 3 distinct items or buying same card multiple times is fine for this test
+			await page.evaluate((slot) => window.gameController.clickHeroInShop(slot), i % 3);
+			await page.waitForTimeout(500); // Wait for each purchase
+			const unitsCount = (await page.evaluate(() => window.gameController.getPlayerBoardUnits())).length;
+			if (unitsCount < i + 1) {
+				throw new Error(`Failed to fill party for test setup. Expected ${i + 1} units, got ${unitsCount}.`);
+			}
+		}
+
+		const unitsBeforeAttempt = await page.evaluate(() => window.gameController.getPlayerBoardUnits());
+		expect(unitsBeforeAttempt.length).toBe(maxPartySize);
+
+		const goldBeforeAttempt = await page.evaluate(() => window.gameController.getPlayerGold());
+
+		// Attempt to buy one more hero
+		await page.evaluate(() => window.gameController.clickHeroInShop(0));
+		await page.waitForTimeout(500);
+
+		const finalGold = await page.evaluate(() => window.gameController.getPlayerGold());
+		const finalUnits = await page.evaluate(() => window.gameController.getPlayerBoardUnits());
+
+		expect(finalGold).toBe(goldBeforeAttempt); // Gold should not change
+		expect(finalUnits.length).toBe(maxPartySize); // Unit count should not change
 	});
 });
