@@ -104,13 +104,22 @@ export class DebugController {
 	 * or emit the necessary events for visual representation. Use with caution,
 	 * primarily for state-based test setups like filling the party.
 	 * @param cardId The ID of the card definition for the unit.
-	 * @param boardX The target X coordinate on the board grid.
-	 * @param boardY The target Y coordinate on the board grid.
+	 * @param boardX The X coordinate on the board grid.
+	 * @param boardY The Y coordinate on the board grid.
+	 * @param summonCharaVisual If true, also emits an event to create the visual Chara. Defaults to false.
 	 */
-	addUnitToPlayerBoard(cardId: string, boardX: number, boardY: number): string {
+	addUnitToPlayerBoard(cardId: string, boardX: number, boardY: number, summonCharaVisual: boolean = false): string {
 		const newUnit = makeUnit(constants.FORCE_ID_PLAYER, cardId, vec2(boardX, boardY));
 		this.scene.state.gameData.player.units.push(newUnit);
-		return `Added unit ${newUnit.id} (Card ID: ${cardId}) to player board state at (${boardX}, ${boardY}).`;
+
+		let message = `Added unit ${newUnit.id} (Card ID: ${cardId}) to player board state at (${boardX}, ${boardY}).`;
+
+		if (summonCharaVisual) {
+			// This event is handled by BattlegroundEventSystem, which calls CharaManager.summonChara
+			this.scene.events.emit(GameEvents.BOARD_CHARA_CREATE_REQUESTED, { unit: newUnit });
+			message += ` Event ${GameEvents.BOARD_CHARA_CREATE_REQUESTED} emitted for visual summoning.`;
+		}
+		return message;
 	}
 
 	/**
