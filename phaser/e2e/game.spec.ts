@@ -173,16 +173,16 @@ test.describe('Shop Interactions', () => {
 		await page.evaluate(({ mps, cost }) => window.gameController.setPlayerGold((mps + 1) * cost), { mps: maxPartySize, cost: shopItemCost });
 		await page.waitForTimeout(200);
 
-		// Fill the party
+		// --- PRE-FILL THE PARTY ---
+		// Add MAX_PARTY_SIZE - 1 units directly to the state
+		const unitsToAdd = maxPartySize - 1;
+		const cardIdToUse = 'bowsie'; // Assuming 'nameless' is a valid card ID
 		for (let i = 0; i < maxPartySize; i++) {
-			// Assuming shop has at least 3 distinct items or buying same card multiple times is fine for this test
-			await page.evaluate((slot) => window.gameController.clickHeroInShop(slot), i % 3);
-			await page.waitForTimeout(500); // Wait for each purchase
-			const unitsCount = (await page.evaluate(() => window.gameController.getPlayerBoardUnits())).length;
-			if (unitsCount < i + 1) {
-				throw new Error(`Failed to fill party for test setup. Expected ${i + 1} units, got ${unitsCount}.`);
-			}
+			const boardX = i % 3;
+			const boardY = Math.floor(i / 3);
+			await page.evaluate(({ cardId, x, y }) => window.gameController.addUnitToPlayerBoard(cardId, x, y), { cardId: cardIdToUse, x: boardX, y: boardY });
 		}
+		// --- END PRE-FILL ---
 
 		const unitsBeforeAttempt = await page.evaluate(() => window.gameController.getPlayerBoardUnits());
 		expect(unitsBeforeAttempt.length).toBe(maxPartySize);
@@ -190,7 +190,8 @@ test.describe('Shop Interactions', () => {
 		const goldBeforeAttempt = await page.evaluate(() => window.gameController.getPlayerGold());
 
 		// Attempt to buy one more hero
-		await page.evaluate(() => window.gameController.clickHeroInShop(0));
+		// We don't care which hero it is, just that we try to buy *a* hero from the shop.
+		await page.evaluate(() => window.gameController.clickHeroInShop(0)); // Assuming shop slot 0 exists
 		await page.waitForTimeout(500);
 
 		const finalGold = await page.evaluate(() => window.gameController.getPlayerGold());

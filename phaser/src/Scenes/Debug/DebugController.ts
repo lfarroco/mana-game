@@ -3,6 +3,7 @@ import { GameEvents } from "../../constants/events";
 import { Unit } from "../../Models/Entities/Unit"; // Ensure Unit is exported from its module
 import { vec2 } from "../../Models/Geometry";
 import { CardDefinition, RelicDefinition } from "../../Models/Entities/Card"; // For type safety
+import { makeUnit } from "../../Models/Entities/Unit";
 import * as constants from "../../constants/constants";
 
 export class DebugController {
@@ -94,6 +95,21 @@ export class DebugController {
 	clickNextRound(): string {
 		this.scene.events.emit(GameEvents.SHOP_PHASE_ENDED);
 		return "Emitted SHOP_PHASE_ENDED. Current shop phase should end, leading to combat or next round's shop.";
+	}
+
+	/**
+	 * Directly adds a unit to the player's board state at a specific tile position.
+	 * Note: This only updates the state data and does NOT create a Chara GameObject
+	 * or emit the necessary events for visual representation. Use with caution,
+	 * primarily for state-based test setups like filling the party.
+	 * @param cardId The ID of the card definition for the unit.
+	 * @param boardX The target X coordinate on the board grid.
+	 * @param boardY The target Y coordinate on the board grid.
+	 */
+	addUnitToPlayerBoard(cardId: string, boardX: number, boardY: number): string {
+		const newUnit = makeUnit(constants.FORCE_ID_PLAYER, cardId, vec2(boardX, boardY));
+		this.scene.state.gameData.player.units.push(newUnit);
+		return `Added unit ${newUnit.id} (Card ID: ${cardId}) to player board state at (${boardX}, ${boardY}).`;
 	}
 
 	// --- State Manipulation for Testing ---
