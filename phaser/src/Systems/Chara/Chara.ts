@@ -20,10 +20,13 @@ export type CharaOptions = {
 };
 
 /**
- * Represents the visual and interactive game object for a `Unit` on the battlefield or in the shop.
+ * Represents the visual and interactive game object for a `Unit` on the battlefield or in the shop (as a `Chara` instance).
  * It extends `Phaser.GameObjects.Container` to group various visual elements like sprite, stats, and bars.
  * Handles unit appearance, drag-and-drop interactions (for board placement and shop purchases),
  * and visual feedback for actions like taking damage or being healed.
+ *
+ * The `Chara` acts as the "View" and part of the "Controller" for a `Unit` (the "Model"),
+ * linking the logical game state of the `Unit` to its graphical representation and player interaction within the Phaser scene.
  */
 export class Chara extends Phaser.GameObjects.Container {
 	/** The underlying data model for this character, containing all its stats and state. */
