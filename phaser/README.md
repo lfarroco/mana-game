@@ -70,9 +70,6 @@ This document outlines potential areas for improvement and refactoring within th
 
 ## 6. System Enhancements
 
-*   **AI System (`Systems/AI/AI.ts`):**
-    *   The `AI.ts` system is currently a placeholder.
-    *   **Action:** Implement AI logic for CPU-controlled units.
 *   **Audio System (`Scenes/Battleground/Systems/Audio.ts`, `preload.ts`):**
     *   Audio loading in `preload.ts` is mostly commented out, and `BattlegroundAudioSystem_init` is empty.
     *   **Action:** Fully integrate audio assets and implement playback logic within the audio system.

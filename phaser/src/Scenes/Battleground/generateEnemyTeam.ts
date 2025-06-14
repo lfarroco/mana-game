@@ -22,7 +22,7 @@ export enum UnitRole {
 }
 
 /** Import formation templates and types */
-import { FORMATION_TEMPLATES, FormationTemplate, FormationCollection } from './formations';
+import { FORMATION_TEMPLATES, FormationTemplate } from './formations';
 
 /** Constants for formation validation */
 const FORMATION_WIDTH = 3;

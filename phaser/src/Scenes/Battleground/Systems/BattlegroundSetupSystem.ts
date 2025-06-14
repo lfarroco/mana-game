@@ -30,7 +30,7 @@ export class BattlegroundSetupSystem {
 		}
 	}
 
-	public loadDynamicAssets(collection: CardCollection, onComplete: () => void): void {
+	public loadDynamicAssets = (collection: CardCollection): Promise<void> => new Promise((resolve) => {
 		const loadAsset = (asset: { name: string, pic: string }, type: string) => {
 			if (process.env.NODE_ENV === 'development') {
 				console.log(`Loading ${type} asset: ${asset.name} - ${asset.pic}`);
@@ -43,17 +43,15 @@ export class BattlegroundSetupSystem {
 
 		this.scene.load.once("complete", () => {
 			console.log("Dynamic asset loading complete for BattlegroundScene.");
-			onComplete();
+			resolve();
 		});
 
 		this.scene.load.start();
-	}
+	});
+
 
 	public initializeNewGame(state: State): void {
-		if (process.env.NODE_ENV === 'development') {
-			//@ts-ignore
-			window.scene = this.scene;
-		}
+
 		state.gameData.player.units = [];
 		state.gameData.player.relics = [];
 		state.gameData.round = 1;
