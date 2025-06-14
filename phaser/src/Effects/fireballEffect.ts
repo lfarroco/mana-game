@@ -1,6 +1,5 @@
 import { images } from "../assets";
-import { asVec2, sumVec2, vec2 } from "../Models/Geometry";
-import { TILE_WIDTH } from "../constants/constants";
+import { asVec2, sumVec2, } from "../Models/Geometry";
 import { delay, tween } from "../Utils/animation";
 import { IMPACT_OFFSETS } from "./effectConstants";
 
