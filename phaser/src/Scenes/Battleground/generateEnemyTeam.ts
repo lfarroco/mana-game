@@ -68,12 +68,7 @@ const calculateEnemyTeamSize = (round: number, playerPrestige: number): number =
  * The size of the team is determined by `calculateEnemyTeamSize`.
  * A formation template is chosen based on the team size, and units are picked from the pool
  * to fill the roles specified in the template (tank, ranged, melee, support).
- * @param round The current game round, used for difficulty calculation.
- * @param pool An array of `CardDefinition` objects from which enemy units will be selected.
- * @returns An array of `Unit` objects representing the generated enemy team.
- */
-/**
- * Generates an enemy team based on the current round and a pool of available card definitions.
+ * 
  * @param round The current game round, used for difficulty calculation.
  * @param pool An array of CardDefinition objects from which enemy units will be selected.
  * @throws {Error} If round is negative or pool is empty
@@ -192,8 +187,6 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 			units.push(unit);
 		}
 	}
-
-	return units;
 
 	return units;
 }
