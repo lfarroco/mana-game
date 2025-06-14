@@ -2,9 +2,14 @@ import { v4 } from "uuid";
 import { Vec2, vec2Zero } from "../Geometry";
 import { TraitData } from "../../TraitSystem/Traits";
 import { getCardDefinition } from "./Card";
-
-// A Unit holds data about a game character
-// It is created based on a card "spec"
+/**
+ * Represents an "instance" of a `CardDefinition` within the game's logical state.
+ * A `Unit` is an actual character or entity participating in the game, holding mutable data
+ * that can change during gameplay, such as current HP, position on the board, experience points (xp),
+ * status effects (like hasted, slowed), and current charge/cooldown for actions.
+ * Game logic and systems primarily interact with `Unit` objects.
+ * It is visually represented in the scene by a `Chara` object.
+ */
 export type Unit = {
   id: string;
   cardId: string;

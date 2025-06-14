@@ -3,16 +3,8 @@ import * as t from "../../TraitSystem/Traits";
 
 let cards = new Map<string, CardDefinition>();
 
-if (process.env.NODE_ENV === 'development') {
-  //@ts-ignore
-  window.cards = cards;
-}
 
 let relicDefinitions = new Map<string, RelicDefinition>();
-if (process.env.NODE_ENV === 'development') {
-  //@ts-ignore
-  window.relicDefinitions = relicDefinitions;
-}
 
 const registerCard = (card: CardDefinition): void => {
   if (cards.has(card.id)) {
@@ -52,6 +44,12 @@ export type CardCollection = {
   traits: TraitDefinition[]
 }
 
+/**
+ * Defines the "blueprint" or "specification" for a game entity (often a character or creature).
+ * It holds all the static, inherent properties of a type of unit, such as its name,
+ * visual appearance (pic), base stats (hp, attack, defense, cooldown), and default traits.
+ * A `CardDefinition` is used to create `Unit` instances.
+ */
 export type CardDefinition = {
   id: string;
   pic: string;
