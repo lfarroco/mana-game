@@ -4,7 +4,7 @@ import { defaultTextConfig, SCREEN_HEIGHT, SCREEN_WIDTH, TILE_HEIGHT, titleTextC
 import { tween } from "../Utils/animation";
 
 const flyoutWidth = SCREEN_WIDTH;
-const flyoutHeight = SCREEN_HEIGHT / 2;
+const flyoutHeight = SCREEN_HEIGHT / 1.5;
 
 let flyouts: Flyout[] = [];
 

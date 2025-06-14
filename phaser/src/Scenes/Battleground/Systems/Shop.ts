@@ -34,8 +34,13 @@ export class Shop {
 	private static readonly TAVERN_CHARA_BASE_Y = Shop.RELIC_SECTION_Y + 250;
 	private static readonly TAVERN_CHARA_FIRST_X = Shop.RELIC_SECTION_X + Shop.TAVERN_BG_OFFSET_X + 150;
 	private static readonly TAVERN_CHARA_SPACING = 200;
-	private static readonly TAVERN_BG_WIDTH = 600;
+	private static readonly TAVERN_BG_WIDTH = 900;
 	private static readonly TAVERN_BG_HEIGHT = 400;
+
+	private static readonly PANEL_BG_COLOR = 0x2c3e50; // Dark slate blue
+	private static readonly PANEL_BG_OPACITY = 0.95; // Mostly opaque
+	private static readonly PANEL_X = 20;
+	private static readonly PANEL_Y = 20;
 
 	private scene: BattlegroundScene;
 	private flyout: Flyout;
@@ -69,8 +74,8 @@ export class Shop {
 
 			// Add a background panel for the entire shop UI within the flyout
 			const shopBackground = this.scene.add.graphics()
-				.fillStyle(0x2c3e50, 0.95) // A dark slate blue, mostly opaque
-				.fillRoundedRect(0, 0, shopPanelWidth, shopPanelHeight, 20); // Rounded rectangle
+				.fillStyle(Shop.PANEL_BG_COLOR, Shop.PANEL_BG_OPACITY)
+				.fillRoundedRect(Shop.PANEL_X, Shop.PANEL_Y, shopPanelWidth, shopPanelHeight, 20); // Rounded rectangle
 			this.flyout.add(shopBackground);
 
 			this.renderRelics();
