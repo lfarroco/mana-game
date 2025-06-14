@@ -14,7 +14,6 @@ import { BattlegroundEventSystem } from "./Systems/BattlegroundEventSystem";
 import { RunCombatSystem } from "./RunCombatIO";
 import { BattleProgressionSystem } from "./Systems/BattleProgressionSystem";
 import { GameEvents } from "../../constants/events";
-import { DebugController } from "../Debug/DebugController";
 import { getOption } from "../../Models/OptionsStore";
 
 /**
@@ -175,8 +174,13 @@ export class BattlegroundScene extends Phaser.Scene {
 
     // Initialize DebugController after all systems are set up
     if (process.env.NODE_ENV === 'development') {
-      window.gameController = new DebugController(this);
-      console.log("BattlegroundScene: DebugController initialized and attached to window.gameController.");
+      // Dynamically import DebugController only in development
+      import("../Debug/DebugController").then(({ DebugController }) => {
+        window.gameController = new DebugController(this);
+        console.log("BattlegroundScene: DebugController dynamically loaded and initialized.");
+      }).catch(error => {
+        console.error("BattlegroundScene: Failed to load DebugController", error);
+      });
     }
   }
 
