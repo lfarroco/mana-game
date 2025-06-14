@@ -7,6 +7,7 @@ import { GameEvents } from "../../../constants/events";
 import { getAllCards } from "../../../Models/Entities/Card";
 import { generateEnemyTeam } from "../generateEnemyTeam";
 import { PrestigeSystem } from "../../../Systems/PrestigeSystem";
+import * as CharaManager from "./CharaManager";
 
 /**
  * Manages the overall progression of the battle, including transitions
@@ -88,7 +89,7 @@ export class BattleProgressionSystem {
 
 		this.prestigeSystem.processDefeat();
 
-		this.setAllPlayerUnitBarsVisibility(false); // Hide bars for player units
+		CharaManager.clearCharas();
 		this.state.battleData.units = []; // Clear units from battle state
 
 		this.scene.events.emit(GameEvents.GAME_OVER_SHOW_UI_TRIGGER);
