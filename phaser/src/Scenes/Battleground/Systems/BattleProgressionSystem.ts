@@ -165,4 +165,32 @@ export class BattleProgressionSystem {
 		});
 		return { enemies };
 	}
+
+	// --- Event Handlers Moved from BattlegroundEventSystem ---
+
+	public handleUnitDiedInBattle(payload: { unit: Unit, killerId?: string }): void {
+		this.state.battleData.units = this.state.battleData.units.filter(u => u.id !== payload.unit.id);
+		this.scene.events.emit(GameEvents.CHARA_DESTROY_FROM_BOARD, { unitId: payload.unit.id });
+	}
+
+	public handleShopPhaseEnded(): void {
+		this.transitionToCombatPhase();
+	}
+
+	public handleCombatEndedVictory(payload: { enemiesDefeated: Unit[] }): void {
+		this.transitionToShopPhase(payload);
+	}
+
+	public handleCombatEndedDefeat(): void {
+		this.processGameOver();
+	}
+
+	public async handleCombatStartExecution(payload: { enemies: Unit[] }): Promise<void> {
+		const combatResult = await this.scene.runCombatSystem.runCombatIO(); // runCombatSystem is on BattlegroundScene
+		if (combatResult === "player_won") {
+			this.scene.events.emit(GameEvents.COMBAT_ENDED_VICTORY, { enemiesDefeated: payload.enemies });
+		} else {
+			this.scene.events.emit(GameEvents.COMBAT_ENDED_DEFEAT, {});
+		}
+	}
 }

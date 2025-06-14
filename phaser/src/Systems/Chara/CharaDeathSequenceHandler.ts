@@ -40,6 +40,4 @@ export const handleCharaDeath = async (scene: BattlegroundScene, data: { chara: 
 		scene.events.emit(GameEvents.TRAIT_EVAL_UNIT_KILL_BY_ME, { unit: killer, killedUnit: chara.unit });
 	}
 
-	// Note: The actual Chara.destroy() and removal from managers would typically be
-	// handled by a system listening to GameEvents.UNIT_DIED_IN_BATTLE.
 }

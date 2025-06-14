@@ -8,13 +8,17 @@ import { CardCollection } from "../../Models/Entities/Card";
 import { PlayerBoard } from "../../Models/Board";
 import { Shop } from "./Systems/Shop";
 import { setupTraitEventListeners } from "../../TraitSystem/TraitSystemEventListeners";
-
 import { BattlegroundSetupSystem } from "./Systems/BattlegroundSetupSystem";
 import { BattlegroundEventSystem } from "./Systems/BattlegroundEventSystem";
 import { RunCombatSystem } from "./RunCombatIO";
 import { BattleProgressionSystem } from "./Systems/BattleProgressionSystem";
 import { GameEvents } from "../../constants/events";
 import { getOption } from "../../Models/OptionsStore";
+import { FORCE_ID_PLAYER } from "../../constants/constants";
+import { Unit } from "../../Models/Entities/Unit";
+import { Vec2 } from "../../Models/Geometry";
+import { battleResultAnimation } from "./battleResultAnimation";
+import { vignette } from "./Animations/vignette";
 
 /**
  * The main scene for the battleground, handling game logic, UI, and progression.
@@ -176,6 +180,79 @@ export class BattlegroundScene extends Phaser.Scene {
     this.sound.play(key, { volume });
   }
 
+  // --- Event Handlers Moved from BattlegroundEventSystem ---
+
+  public updatePlayerGold(goldDelta: number): void {
+    const changeAmount = Math.floor(goldDelta);
+    this.state.gameData.player.gold += changeAmount;
+    this.events.emit(GameEvents.GOLD_CHANGED, this.state.gameData.player.gold, changeAmount);
+  }
+
+  public handleBoardCharaCreateRequest(payload: { unit: Unit }): void {
+    // When a new Chara is requested for the board (e.g., after a purchase),
+    // tell CharaManager to summon it. Default to animating its appearance.
+    CharaManager.summonChara(payload.unit, true, true); // summonChara is async, but we don't need to await its completion for this logic
+    if (this.battleProgressionSystem.isInShopPhase && payload.unit.force === FORCE_ID_PLAYER) {
+      // Ensure the newly summoned player unit also has its bars hidden during shop phase
+      this.events.emit(GameEvents.CHARA_BARS_VISIBILITY_SET, { unitId: payload.unit.id, visible: false });
+    }
+  }
+
+  public handleOwnedUnitMoveRequest(payload: { unitId: string, targetTile: Vec2, dragStartX: number, dragStartY: number }): void {
+    const { unitId, targetTile, dragStartX, dragStartY } = payload;
+    const unitToMove = this.state.gameData.player.units.find(u => u.id === unitId);
+
+    if (!unitToMove) {
+      console.error(`[BattlegroundScene] Unit with ID ${unitId} not found for move request.`);
+      this.events.emit(GameEvents.OWNED_UNIT_MOVE_REJECTED, { unitId, reason: "UNIT_NOT_FOUND", dragStartX, dragStartY });
+      return;
+    }
+
+    // Note: PlayerBoard.updateUnitPosition is static and modifies units directly.
+    const moveResult = PlayerBoard.updateUnitPosition(unitToMove, targetTile, this.state.gameData.player.units);
+
+    if (!moveResult) {
+      // No change in position, or invalid move (e.g., trying to move to the same spot without a swap)
+      this.events.emit(GameEvents.OWNED_UNIT_MOVE_REJECTED, { unitId, reason: "NO_CHANGE_OR_INVALID", dragStartX, dragStartY });
+      return;
+    }
+
+    // Successfully moved or swapped
+    // CharaManager.getCharaPosition needs the scene, which CharaManager has via init.
+    const movedUnitVisualPosition = CharaManager.getCharaPosition(moveResult.movedUnit);
+
+    if (moveResult.swappedUnit) {
+      const swappedUnitVisualPosition = CharaManager.getCharaPosition(moveResult.swappedUnit);
+      this.events.emit(GameEvents.OWNED_UNIT_SWAP_ACCEPTED, {
+        movedUnitId: moveResult.movedUnit.id,
+        movedUnitNewLogicalPosition: moveResult.movedUnit.position,
+        movedUnitVisualPosition: { x: movedUnitVisualPosition.x, y: movedUnitVisualPosition.y },
+        swappedUnitId: moveResult.swappedUnit.id,
+        swappedUnitNewLogicalPosition: moveResult.swappedUnit.position,
+        swappedUnitVisualPosition: { x: swappedUnitVisualPosition.x, y: swappedUnitVisualPosition.y },
+      });
+    } else {
+      this.events.emit(GameEvents.OWNED_UNIT_MOVE_ACCEPTED, {
+        unitId: moveResult.movedUnit.id,
+        newLogicalPosition: moveResult.movedUnit.position,
+        newVisualPosition: { x: movedUnitVisualPosition.x, y: movedUnitVisualPosition.y },
+      });
+    }
+  }
+
+  public handlePlayerGoldUpdateRequest(goldDelta: number): void {
+    const changeAmount = Math.floor(goldDelta);
+    this.state.gameData.player.gold += changeAmount;
+    this.events.emit(GameEvents.GOLD_CHANGED, this.state.gameData.player.gold, changeAmount);
+  }
+
+  public handleBattleResultShow(payload: { result: "victory" | "defeat" }): void {
+    battleResultAnimation(this, payload.result); // battleResultAnimation is async, but event handler is sync
+  }
+
+  public handleVignetteMessageShow(payload: { message: string }): void {
+    vignette(this, payload.message);
+  }
 }
 
 export default BattlegroundScene;
