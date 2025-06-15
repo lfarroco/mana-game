@@ -8,14 +8,15 @@ import { RelicCard } from "./Relic";
 import { Chara, CharaOptions } from "../../../Systems/Chara/Chara";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { playerForce } from "../../../Models/Entities/Force";
-import { GameEvents as evs } from "../../../constants/events";
-import * as c from "../../../constants/constants";
+import { GameEvents } from "../../../constants/events";
+import * as constants from "../../../constants/constants";
 import { Vec2 } from "../../../Models/Geometry";
 import { UIButton } from "../../../UI/UIButton";
 import { makeUnit, Unit } from "../../../Models/Entities/Unit";
 import { getUnitAt } from "../../../Models/State";
 
 export class Shop {
+	// UI Layout Constants for Shop
 	private static readonly RELIC_SECTION_X = 50;
 	private static readonly RELIC_SECTION_Y = 50;
 	private static readonly RELIC_BG_WIDTH = 700;
@@ -85,7 +86,7 @@ export class Shop {
 			Shop.PANEL_X + shopPanelWidth - 100,
 			Shop.PANEL_Y + shopPanelHeight - 40,
 			async () => {
-				this.scene.events.emit(evs.SHOP_PHASE_ENDED);
+				this.scene.events.emit(GameEvents.SHOP_PHASE_ENDED);
 				this.flyout.slideOut();
 			}
 		);
@@ -103,11 +104,7 @@ export class Shop {
 			.fillRect(0, 0, Shop.RELIC_BG_WIDTH, Shop.RELIC_BG_HEIGHT)
 			.setPosition(Shop.RELIC_SECTION_X, Shop.RELIC_SECTION_Y);
 
-		const title = this.scene.add.text(
-			Shop.RELIC_TITLE_X, Shop.RELIC_TITLE_Y,
-			"Relics",
-			c.titleTextConfig,
-		);
+		const title = this.scene.add.text(Shop.RELIC_TITLE_X, Shop.RELIC_TITLE_Y, "Relics", constants.titleTextConfig);
 		this.flyout.add([bg, title]);
 
 		relicData.forEach((relic, index) => {
@@ -140,33 +137,36 @@ export class Shop {
 			.fillRect(Shop.TAVERN_BG_OFFSET_X, 0, Shop.TAVERN_BG_WIDTH, Shop.TAVERN_BG_HEIGHT)
 			.setPosition(Shop.RELIC_SECTION_X, Shop.RELIC_SECTION_Y);
 
-		const title = this.scene.add.text(Shop.TAVERN_TITLE_X, Shop.TAVERN_TITLE_Y, "Tavern", c.titleTextConfig);
+		const title = this.scene.add.text(Shop.TAVERN_TITLE_X, Shop.TAVERN_TITLE_Y, "Tavern", constants.titleTextConfig);
 		this.flyout.add([bg, title]);
 
 		const filtered = Card.getAllCards()
 			.filter(card => !state.gameData.player.units.map(u => u.cardId).includes(card.name));
 
-		pickRandom(filtered, 3).forEach((spec, index) => {
-			const unit = makeUnit(c.FORCE_ID_PLAYER, spec.id, vec2(0, 0));
-			const charaOptions: CharaOptions = {
-				isShopItem: true,
-				onPurchased: () => {
-					this.scene.events.emit(evs.TOOLTIP_HIDE);
-					if (this.flyout) this.flyout.remove(chara);
-					// Gold update and adding to player units is handled by Chara.attemptPurchase
-				}
-			};
-			const chara = new Chara(this.scene, unit, charaOptions);
+		pickRandom(filtered, 3)
+			.forEach((spec, index) => {
+				const unit = makeUnit(constants.FORCE_ID_PLAYER, spec.id, vec2(0, 0));
+				const charaOptions: CharaOptions = {
+					isShopItem: true,
+					onPurchased: () => {
+						this.scene.events.emit(GameEvents.TOOLTIP_HIDE);
+						if (this.flyout) this.flyout.remove(chara);
+						// Gold update and adding to player units is handled by Chara.attemptPurchase
+					}
+				};
+				const chara = new Chara(this.scene, unit, charaOptions);
 
-			registerChara(chara);
+				registerChara(chara);
 
-			chara.setPosition(Shop.TAVERN_CHARA_FIRST_X + (index * Shop.TAVERN_CHARA_SPACING), Shop.TAVERN_CHARA_BASE_Y);
-			chara.setBarsVisibility(false);
+				chara.setPosition(Shop.TAVERN_CHARA_FIRST_X + (index * Shop.TAVERN_CHARA_SPACING), Shop.TAVERN_CHARA_BASE_Y);
+				chara.setBarsVisibility(false);
 
-			this.flyout.add(chara);
-			this.currentShopCharas.push(chara);
-		});
+				this.flyout.add(chara);
+				this.currentShopCharas.push(chara);
+			});
 	}
+
+	// --- Methods for DebugController ---
 
 	public getShopCharaBySlot(slotIndex: number): Chara | null {
 		return this.currentShopCharas[slotIndex] || null;
@@ -176,15 +176,23 @@ export class Shop {
 		return this.currentShopRelicCards[slotIndex] || null;
 	}
 
+	/**
+	 * Used by DebugController for inspection.
+	 */
 	public getDisplayedHeroCardDefinitions(): Card.CardDefinition[] {
 		return this.currentShopCharas.map(chara => chara.unit.cardId)
 			.map(Card.getCardDefinition);
 	}
 
+	/**
+	 * Used by DebugController for inspection. Assumes RelicCard has a 'relicDefinition' property.
+	 */
 	public getDisplayedRelicDefinitions(): Card.RelicDefinition[] {
 		return this.currentShopRelicCards.map(rc => rc.id)
 			.map(Card.getRelicDefinition);
 	}
+
+	// --- Event Handlers Moved from BattlegroundEventSystem ---
 
 	public async handleShopOpenUITrigger(): Promise<void> {
 		this.open();
@@ -192,100 +200,58 @@ export class Shop {
 
 	public handleShopItemClickPurchaseRequested(payload: { shopUnitData: Unit, shopCharaId: string, dragStartX: number, dragStartY: number }): void {
 		const { shopUnitData, shopCharaId, dragStartX, dragStartY } = payload;
-		const { player } = this.scene.state.gameData
-		const { emit } = this.scene.events;
 
-		const playerHasNoGold = player.gold < c.SHOP_ITEM_PURCHASE_COST
-		if (playerHasNoGold) {
-			emit(
-				evs.SHOP_PURCHASE_FAILED,
-				{
-					originalShopCharaId: shopCharaId,
-					reason: "INSUFFICIENT_GOLD",
-					dragStartX, dragStartY
-				});
-			emit(
-				evs.PURCHASE_FAILED,
-				{
-					unitName: shopUnitData.name,
-					reason: "INSUFFICIENT_GOLD",
-					cost: c.SHOP_ITEM_PURCHASE_COST,
-				});
+		if (this.scene.state.gameData.player.gold < constants.SHOP_ITEM_PURCHASE_COST) {
+			this.scene.events.emit(GameEvents.SHOP_PURCHASE_FAILED, { originalShopCharaId: shopCharaId, reason: "INSUFFICIENT_GOLD", dragStartX, dragStartY });
+			this.scene.events.emit(GameEvents.PURCHASE_FAILED, { unitName: shopUnitData.name, reason: "INSUFFICIENT_GOLD", cost: constants.SHOP_ITEM_PURCHASE_COST });
+			return;
+		}
+		if (this.scene.state.gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
+			this.scene.events.emit(GameEvents.SHOP_PURCHASE_FAILED, { originalShopCharaId: shopCharaId, reason: "PARTY_FULL", dragStartX, dragStartY });
+			this.scene.events.emit(GameEvents.PURCHASE_FAILED, { unitName: shopUnitData.name, reason: "PARTY_FULL" });
 			return;
 		}
 
-		const boardIsFull = player.units.length >= c.MAX_PARTY_SIZE
-		if (boardIsFull) {
-			emit(
-				evs.SHOP_PURCHASE_FAILED,
-				{
-					originalShopCharaId: shopCharaId,
-					reason: "PARTY_FULL",
-					dragStartX,
-					dragStartY,
-				});
-			emit(
-				evs.PURCHASE_FAILED,
-				{
-					unitName: shopUnitData.name,
-					reason: "PARTY_FULL",
-				});
-			return;
-		}
-
-		const targetTile = this.scene.playerBoard.getEmptySlot(player.units, c.FORCE_ID_PLAYER);
+		const targetTile = this.scene.playerBoard.getEmptySlot(this.scene.state.gameData.player.units, constants.FORCE_ID_PLAYER);
 		if (!targetTile) {
-			emit(
-				evs.SHOP_PURCHASE_FAILED,
-				{
-					originalShopCharaId: shopCharaId,
-					reason: "NO_EMPTY_SLOT",
-					dragStartX, dragStartY
-				});
-			emit(
-				evs.PURCHASE_FAILED,
-				{
-					unitName: shopUnitData.name,
-					reason: "NO_EMPTY_SLOT"
-				});
+			this.scene.events.emit(GameEvents.SHOP_PURCHASE_FAILED, { originalShopCharaId: shopCharaId, reason: "NO_EMPTY_SLOT", dragStartX, dragStartY });
+			this.scene.events.emit(GameEvents.PURCHASE_FAILED, { unitName: shopUnitData.name, reason: "NO_EMPTY_SLOT" });
 			return;
 		}
 
-		emit(evs.PLAYER_GOLD_UPDATE_REQUEST, -c.SHOP_ITEM_PURCHASE_COST);
-		const newUnit = makeUnit(c.FORCE_ID_PLAYER, shopUnitData.cardId, targetTile);
-		player.units.push(newUnit); // TODO: create event
+		this.scene.events.emit(GameEvents.PLAYER_GOLD_UPDATE_REQUEST, -constants.SHOP_ITEM_PURCHASE_COST);
+		const newUnit = makeUnit(constants.FORCE_ID_PLAYER, shopUnitData.cardId, targetTile);
+		this.scene.state.gameData.player.units.push(newUnit);
 
-		emit(evs.BOARD_CHARA_CREATE_REQUESTED, { unit: newUnit });
-		emit(evs.SHOP_PURCHASE_SUCCESSFUL, { purchasedUnit: newUnit, originalShopCharaId: shopCharaId });
+		this.scene.events.emit(GameEvents.BOARD_CHARA_CREATE_REQUESTED, { unit: newUnit });
+		this.scene.events.emit(GameEvents.SHOP_PURCHASE_SUCCESSFUL, { purchasedUnit: newUnit, originalShopCharaId: shopCharaId });
 	}
 
 	public handleShopItemDragPurchaseRequested(payload: { shopUnitData: Unit, shopCharaId: string, targetTile: Vec2, dragStartX: number, dragStartY: number }): void {
 		const { shopUnitData, shopCharaId, targetTile, dragStartX, dragStartY } = payload;
-		const { player } = this.scene.state.gameData;
-		const { emit } = this.scene.events;
 
-		if (player.gold < c.SHOP_ITEM_PURCHASE_COST) {
-			emit(evs.SHOP_PURCHASE_FAILED, { originalShopCharaId: shopCharaId, reason: "INSUFFICIENT_GOLD", dragStartX, dragStartY });
-			emit(evs.PURCHASE_FAILED, { unitName: shopUnitData.name, reason: "INSUFFICIENT_GOLD", cost: c.SHOP_ITEM_PURCHASE_COST });
+		if (this.scene.state.gameData.player.gold < constants.SHOP_ITEM_PURCHASE_COST) {
+			this.scene.events.emit(GameEvents.SHOP_PURCHASE_FAILED, { originalShopCharaId: shopCharaId, reason: "INSUFFICIENT_GOLD", dragStartX, dragStartY });
+			this.scene.events.emit(GameEvents.PURCHASE_FAILED, { unitName: shopUnitData.name, reason: "INSUFFICIENT_GOLD", cost: constants.SHOP_ITEM_PURCHASE_COST });
 			return;
 		}
-		if (player.units.length >= c.MAX_PARTY_SIZE) {
-			emit(evs.SHOP_PURCHASE_FAILED, { originalShopCharaId: shopCharaId, reason: "PARTY_FULL", dragStartX, dragStartY });
-			emit(evs.PURCHASE_FAILED, { unitName: shopUnitData.name, reason: "PARTY_FULL" });
+		if (this.scene.state.gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
+			this.scene.events.emit(GameEvents.SHOP_PURCHASE_FAILED, { originalShopCharaId: shopCharaId, reason: "PARTY_FULL", dragStartX, dragStartY });
+			this.scene.events.emit(GameEvents.PURCHASE_FAILED, { unitName: shopUnitData.name, reason: "PARTY_FULL" });
 			return;
 		}
 
-		const occupier = getUnitAt(player.units)(targetTile);
+		const occupier = getUnitAt(this.scene.state.gameData.player.units)(targetTile);
 		if (occupier) {
-			emit(evs.SHOP_PURCHASE_FAILED, { originalShopCharaId: shopCharaId, reason: "SLOT_OCCUPIED", dragStartX, dragStartY });
-			emit(evs.PURCHASE_FAILED, { unitName: shopUnitData.name, reason: "SLOT_OCCUPIED" });
+			this.scene.events.emit(GameEvents.SHOP_PURCHASE_FAILED, { originalShopCharaId: shopCharaId, reason: "SLOT_OCCUPIED", dragStartX, dragStartY });
+			this.scene.events.emit(GameEvents.PURCHASE_FAILED, { unitName: shopUnitData.name, reason: "SLOT_OCCUPIED" });
 			return;
 		}
 
-		emit(evs.PLAYER_GOLD_UPDATE_REQUEST, -c.SHOP_ITEM_PURCHASE_COST);
-		const newUnit = makeUnit(c.FORCE_ID_PLAYER, shopUnitData.cardId, targetTile);
-		player.units.push(newUnit); // TOOD: use event
-		emit(evs.BOARD_CHARA_CREATE_REQUESTED, { unit: newUnit });
-		emit(evs.SHOP_PURCHASE_SUCCESSFUL, { purchasedUnit: newUnit, originalShopCharaId: shopCharaId });
+		this.scene.events.emit(GameEvents.PLAYER_GOLD_UPDATE_REQUEST, -constants.SHOP_ITEM_PURCHASE_COST);
+		const newUnit = makeUnit(constants.FORCE_ID_PLAYER, shopUnitData.cardId, targetTile);
+		this.scene.state.gameData.player.units.push(newUnit);
+		this.scene.events.emit(GameEvents.BOARD_CHARA_CREATE_REQUESTED, { unit: newUnit });
+		this.scene.events.emit(GameEvents.SHOP_PURCHASE_SUCCESSFUL, { purchasedUnit: newUnit, originalShopCharaId: shopCharaId });
 	}
 }
