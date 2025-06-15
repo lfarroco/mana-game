@@ -12,21 +12,48 @@ import { shopOpenUITriggerHandler } from "./handlers/shopOpenUITriggerHandler";
 import { shopItemClickPurchaseRequestedHandler } from "./handlers/shopItemClickPurchaseHandler";
 import { shopItemDragPurchaseRequestedHandler } from "./handlers/shopItemDragPurchaseHandler";
 
+/**
+ * @class Shop
+ * @description Manages the in-game shop system, allowing players to purchase characters (Charas) and acquire relics.
+ * It interfaces with {@link ShopUI} to display the shop, handles purchase logic via external handlers,
+ * and manages the state of available items.
+ */
 export class Shop {
 
 	private scene: BattlegroundScene;
 	private flyout: Flyout;
 	private shopUI: ShopUI;
 
+	/**
+	 * @private
+	 * @type {Chara[]}
+	 * @description Array of Chara instances currently available for purchase in the shop. These are the interactive GameObjects.
+	 */
 	private currentShopCharas: Chara[] = [];
+	/**
+	 * @private
+	 * @type {RelicCard[]}
+	 * @description Array of RelicCard instances currently available for acquisition in the shop. These are the interactive GameObjects.
+	 */
 	private currentShopRelicCards: RelicCard[] = [];
 
+	/**
+	 * Creates an instance of the Shop.
+	 * @param {BattlegroundScene} scene - The main battleground scene instance.
+	 */
 	constructor(scene: BattlegroundScene) {
 		this.scene = scene;
 		this.flyout = new Flyout(this.scene);
 		this.shopUI = new ShopUI(this.scene, this.flyout);
 	}
 
+	/**
+	 * @public
+	 * @method open
+	 * @description Opens the shop interface. It clears previously displayed shop items,
+	 * fetches new random characters and relics (ensuring characters offered are not already owned by the player),
+	 * and then instructs {@link ShopUI} to render them. Finally, it slides the shop {@link Flyout} into view.
+	 */
 	public open() {
 		// Clear previous shop items
 		this.currentShopCharas = [];
@@ -34,7 +61,10 @@ export class Shop {
 
 		// Prepare data for the shop UI
 		const filteredCards = Card.getAllCards()
-			.filter(card => !this.scene.state.gameData.player.units.map(u => u.cardId).includes(card.name));
+			.filter(card =>
+				!this.scene.state.gameData.player.units
+					.map(u => u.cardId).includes(card.id)
+			);
 		const tavernCardData = pickRandom(filteredCards, 3);
 		const relicData = pickRandom(Card.getAllRelicDefinitions(), 3);
 
