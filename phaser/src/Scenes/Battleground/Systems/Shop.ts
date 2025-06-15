@@ -1,144 +1,70 @@
-import { images } from "../../../assets";
 import * as Card from "../../../Models/Entities/Card";
-import { vec2 } from "../../../Models/Geometry";
 import { Flyout } from "../../../UI/Flyout";
 import { pickRandom } from "../../../utils";
-import { registerChara } from "./CharaManager";
 import { RelicCard } from "./Relic";
-import { Chara, CharaOptions } from "../../../Systems/Chara/Chara";
+import { Chara } from "../../../Systems/Chara/Chara";
 import { BattlegroundScene } from "../BattlegroundScene";
-import { playerForce } from "../../../Models/Entities/Force";
 import { GameEvents } from "../../../constants/events";
 import * as constants from "../../../constants/constants";
 import { Vec2 } from "../../../Models/Geometry";
-import { UIButton } from "../../../UI/UIButton";
 import { makeUnit, Unit } from "../../../Models/Entities/Unit";
 import { getUnitAt } from "../../../Models/State";
-import * as sc from "./ShopConstants";
+import { ShopUI } from "./ShopUI";
 
 export class Shop {
 
 	private scene: BattlegroundScene;
 	private flyout: Flyout;
+	private shopUI: ShopUI;
 
 	private currentShopCharas: Chara[] = [];
 	private currentShopRelicCards: RelicCard[] = [];
 
 	constructor(scene: BattlegroundScene) {
 		this.scene = scene;
-		this.flyout = new Flyout(this.scene)
+		this.flyout = new Flyout(this.scene);
+		this.shopUI = new ShopUI(this.scene, this.flyout);
 	}
 
 	public open() {
-
-		this.flyout.removeAll(true); // Clear any previous content from the flyout
-
-		// Define the shop panel's dimensions based on its content.
-		// These dimensions are relative to the flyout's origin.
-		const panelPadding = 25; // Padding around the main content areas
-		const shopPanelWidth = sc.RELIC_SECTION_X + sc.TAVERN_BG_OFFSET_X + sc.TAVERN_BG_WIDTH + panelPadding;
-		// Height needs to accommodate relic/tavern sections and the button below them.
-		const contentHeight = sc.RELIC_SECTION_Y + sc.RELIC_BG_HEIGHT;
-		const buttonAreaHeight = 100; // Space for the button and some padding
-		const shopPanelHeight = contentHeight + buttonAreaHeight + panelPadding;
-
 		// Clear previous shop items
 		this.currentShopCharas = [];
 		this.currentShopRelicCards = [];
 
-		// Add a background panel for the entire shop UI within the flyout
-		const shopBackground = this.scene.add.graphics()
-			.fillStyle(sc.PANEL_BG_COLOR, sc.PANEL_BG_OPACITY)
-			.fillRoundedRect(sc.PANEL_X, sc.PANEL_Y, shopPanelWidth, shopPanelHeight, 20); // Rounded rectangle
-		this.flyout.add(shopBackground);
-
-		this.renderRelics();
-		this.renderTavern();
-
-		const nextRoundBtn = new UIButton(
-			this.scene,
-			"Next Round",
-			sc.PANEL_X + shopPanelWidth - 100,
-			sc.PANEL_Y + shopPanelHeight - 40,
-			async () => {
-				this.scene.events.emit(GameEvents.SHOP_PHASE_ENDED);
-				this.flyout.slideOut();
-			}
-		);
-		this.flyout.add(nextRoundBtn);
-
-		this.flyout.slideIn();
-	}
-
-	private renderRelics(): void {
-
+		// Prepare data for the shop UI
+		const filteredCards = Card.getAllCards()
+			.filter(card => !this.scene.state.gameData.player.units.map(u => u.cardId).includes(card.name));
+		const tavernCardData = pickRandom(filteredCards, 3);
 		const relicData = pickRandom(Card.getAllRelicDefinitions(), 3);
 
-		const bg = this.scene.add.graphics()
-			.fillStyle(0x000, 0.5)
-			.fillRect(0, 0, sc.RELIC_BG_WIDTH, sc.RELIC_BG_HEIGHT)
-			.setPosition(sc.RELIC_SECTION_X, sc.RELIC_SECTION_Y);
+		// Define callbacks for the UI
+		const nextRoundCallback = () => {
+			this.scene.events.emit(GameEvents.SHOP_PHASE_ENDED);
+			this.flyout.slideOut();
+		};
 
-		const title = this.scene.add.text(sc.RELIC_TITLE_X, sc.RELIC_TITLE_Y, "Relics", constants.titleTextConfig);
-		this.flyout.add([bg, title]);
+		const charaPurchaseFinalizedCallback = (purchasedChara: Chara) => {
+			// Chara is already removed from flyout by its onPurchased handler (via ShopUI)
+			// Chara instance will be destroyed by CharaManager.
+			// Update our list of available shop charas.
+			this.currentShopCharas = this.currentShopCharas.filter(c => c.id !== purchasedChara.id);
+		};
 
-		relicData.forEach((relic, index) => {
-			const x = sc.RELIC_FIRST_ICON_X + (index * sc.RELIC_ICON_SPACING);
-			const y = sc.RELIC_ICON_BASE_Y;
+		const relicAcquisitionFinalizedCallback = (acquiredRelic: RelicCard) => {
+			// RelicCard is already removed from flyout by its onAcquire handler (via ShopUI)
+			// Update our list of available shop relics.
+			this.currentShopRelicCards = this.currentShopRelicCards.filter(rc => rc.id !== acquiredRelic.id);
+		};
 
-			const slot = this.scene.add
-				.image(x, y, images.slot.key)
-				.setDisplaySize(sc.RELIC_ICON_SIZE, sc.RELIC_ICON_SIZE);
-			const icon = new RelicCard(
-				this.scene,
-				x, y,
-				playerForce.id,
-				relic,
-				sc.RELIC_ICON_SIZE - 40, () => {
-					if (this.flyout) this.flyout.remove(icon);
-				});
+		const { charas, relicCards } = this.shopUI.displayShop(
+			relicData, tavernCardData,
+			nextRoundCallback, charaPurchaseFinalizedCallback, relicAcquisitionFinalizedCallback
+		);
 
-			this.flyout.add([slot, icon]);
-			this.currentShopRelicCards.push(icon);
-		});
+		this.currentShopCharas = charas;
+		this.currentShopRelicCards = relicCards;
 
-	}
-
-	private renderTavern(): void {
-		const { state } = this.scene; // Access state via scene
-
-		const bg = this.scene.add.graphics()
-			.fillStyle(0x000, 0.5)
-			.fillRect(sc.TAVERN_BG_OFFSET_X, 0, sc.TAVERN_BG_WIDTH, sc.TAVERN_BG_HEIGHT)
-			.setPosition(sc.RELIC_SECTION_X, sc.RELIC_SECTION_Y);
-
-		const title = this.scene.add.text(sc.TAVERN_TITLE_X, sc.TAVERN_TITLE_Y, "Tavern", constants.titleTextConfig);
-		this.flyout.add([bg, title]);
-
-		const filtered = Card.getAllCards()
-			.filter(card => !state.gameData.player.units.map(u => u.cardId).includes(card.name));
-
-		pickRandom(filtered, 3)
-			.forEach((spec, index) => {
-				const unit = makeUnit(constants.FORCE_ID_PLAYER, spec.id, vec2(0, 0));
-				const charaOptions: CharaOptions = {
-					isShopItem: true,
-					onPurchased: () => {
-						this.scene.events.emit(GameEvents.TOOLTIP_HIDE);
-						if (this.flyout) this.flyout.remove(chara);
-						// Gold update and adding to player units is handled by Chara.attemptPurchase
-					}
-				};
-				const chara = new Chara(this.scene, unit, charaOptions);
-
-				registerChara(chara);
-
-				chara.setPosition(sc.TAVERN_CHARA_FIRST_X + (index * sc.TAVERN_CHARA_SPACING), sc.TAVERN_CHARA_BASE_Y);
-				chara.setBarsVisibility(false);
-
-				this.flyout.add(chara);
-				this.currentShopCharas.push(chara);
-			});
+		this.flyout.slideIn();
 	}
 
 	public getShopCharaBySlot(slotIndex: number): Chara | null {
