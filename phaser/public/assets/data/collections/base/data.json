@@ -122,6 +122,99 @@
 					"id": "ranged"
 				}
 			]
+		},
+		{
+			"id": "goblin_scavenger",
+			"pic": "charas/goblin_scavenger.png",
+			"name": "Goblin Scavenger",
+			"description": "Weak but resourceful. Gains 1 gold when it lands the killing blow on an enemy.",
+			"hp": 35,
+			"attack": 7,
+			"defense": 2,
+			"cooldown": 450,
+			"traits": [
+				{
+					"id": "melee"
+				},
+				{
+					"id": "scavenge_gold"
+				}
+			]
+		},
+		{
+			"id": "orc_warrior",
+			"pic": "charas/orc_warrior.png",
+			"name": "Orc Warrior",
+			"description": "A fierce melee combatant that uses its brute strength to slash foes.",
+			"hp": 75,
+			"attack": 16,
+			"defense": 4,
+			"cooldown": 500,
+			"traits": [
+				{
+					"id": "melee"
+				},
+				{
+					"id": "use_skill_slash"
+				}
+			]
+		},
+		{
+			"id": "sprite_archer",
+			"pic": "charas/sprite_archer.png",
+			"name": "Sprite Archer",
+			"description": "A nimble archer from the deep woods, quick to fire arrows.",
+			"hp": 40,
+			"attack": 12,
+			"defense": 1,
+			"cooldown": 350,
+			"traits": [
+				{
+					"id": "ranged"
+				},
+				{
+					"id": "use_skill_shoot"
+				}
+			]
+		},
+		{
+			"id": "stone_guardian",
+			"pic": "charas/stone_guardian.png",
+			"name": "Stone Guardian",
+			"description": "An ancient sentinel with immense fortitude, drawing enemy attacks.",
+			"hp": 100,
+			"attack": 10,
+			"defense": 8,
+			"cooldown": 600,
+			"traits": [
+				{
+					"id": "melee"
+				},
+				{
+					"id": "taunt"
+				}
+			]
+		},
+		{
+			"id": "lava_spawn",
+			"pic": "charas/lava_spawn.png",
+			"name": "Lava Spawn",
+			"description": "A volatile creature of fire. Hurls fireballs and explodes upon death.",
+			"hp": 55,
+			"attack": 13,
+			"defense": 3,
+			"cooldown": 550,
+			"traits": [
+				{
+					"id": "melee"
+				},
+				{
+					"id": "use_skill_fireball"
+				},
+				{
+					"id": "volatile_demise"
+				}
+			]
 		}
 	],
 	"relics": [
@@ -187,6 +280,45 @@
 				{
 					"id": "golden_touch",
 					"amount": 5
+				}
+			]
+		},
+		{
+			"id": "amulet_of_fortitude",
+			"name": "Amulet of Fortitude",
+			"pic": "items/amulet_fortitude.png",
+			"description": "At the start of battle, increases the Max HP of all allied units by 10%.",
+			"cost": 5,
+			"traits": [
+				{
+					"id": "aura_max_hp_increase",
+					"percent": 10
+				}
+			]
+		},
+		{
+			"id": "ancient_chronometer",
+			"name": "Ancient Chronometer",
+			"pic": "items/ancient_chronometer.png",
+			"description": "At the start of battle, reduces the action cooldown of all allied units by 10%.",
+			"cost": 6,
+			"traits": [
+				{
+					"id": "aura_cooldown_reduction",
+					"percent": 10
+				}
+			]
+		},
+		{
+			"id": "banner_of_command",
+			"name": "Banner of Command",
+			"pic": "items/banner_of_command.png",
+			"description": "At the start of battle, increases the Attack Power of all allied units by 2.",
+			"cost": 5,
+			"traits": [
+				{
+					"id": "aura_attack_increase",
+					"amount": 2
 				}
 			]
 		}
@@ -393,6 +525,136 @@
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "all_allies",
 					"percent": 15
+				}
+			]
+		},
+		{
+			"id": "scavenge_gold",
+			"name": "Scavenge Gold",
+			"description": "Gains gold when this unit kills an enemy.",
+			"categories": [
+				"utility",
+				"gold_generation"
+			],
+			"effects": [
+				{
+					"effectId": "grant_gold_to_player",
+					"eventTrigger": "onUnitKillByMe",
+					"amount": 1
+				}
+			]
+		},
+		{
+			"id": "use_skill_slash",
+			"name": "Use Skill: Slash",
+			"description": "This unit uses the Slash skill for its action.",
+			"categories": [
+				"skill_activation",
+				"offensive"
+			],
+			"effects": [
+				{
+					"effectId": "skill_slash",
+					"eventTrigger": "onAction"
+				}
+			]
+		},
+		{
+			"id": "use_skill_shoot",
+			"name": "Use Skill: Shoot",
+			"description": "This unit uses the Shoot skill for its action.",
+			"categories": [
+				"skill_activation",
+				"offensive"
+			],
+			"effects": [
+				{
+					"effectId": "skill_shoot",
+					"eventTrigger": "onAction"
+				}
+			]
+		},
+		{
+			"id": "use_skill_fireball",
+			"name": "Use Skill: Fireball",
+			"description": "This unit uses the Fireball skill for its action.",
+			"categories": [
+				"skill_activation",
+				"offensive",
+				"area_damage"
+			],
+			"effects": [
+				{
+					"effectId": "skill_fireball",
+					"eventTrigger": "onAction"
+				}
+			]
+		},
+		{
+			"id": "volatile_demise",
+			"name": "Volatile Demise",
+			"description": "Explodes upon death, dealing 25 damage to adjacent enemies.",
+			"categories": [
+				"on_death_effect",
+				"area_damage"
+			],
+			"effects": [
+				{
+					"effectId": "explode_on_death_effect",
+					"eventTrigger": "onDeath",
+					"amount": 25
+				}
+			]
+		},
+		{
+			"id": "aura_max_hp_increase",
+			"name": "Aura: Max HP Increase",
+			"description": "Increases Max HP of all allied units by a percentage at the start of battle.",
+			"categories": [
+				"aura",
+				"defensive",
+				"stat_modification"
+			],
+			"effects": [
+				{
+					"effectId": "modify_unit_max_hp",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "all_allies"
+				}
+			]
+		},
+		{
+			"id": "aura_cooldown_reduction",
+			"name": "Aura: Cooldown Reduction",
+			"description": "Reduces action cooldown of all allied units by a percentage at the start of battle.",
+			"categories": [
+				"aura",
+				"utility",
+				"stat_modification"
+			],
+			"effects": [
+				{
+					"effectId": "modify_unit_cooldowns",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "all_allies"
+				}
+			]
+		},
+		{
+			"id": "aura_attack_increase",
+			"name": "Aura: Attack Increase",
+			"description": "Increases Attack Power of all allied units by a flat amount at the start of battle.",
+			"categories": [
+				"aura",
+				"offensive",
+				"stat_modification"
+			],
+			"effects": [
+				{
+					"effectId": "modify_attribute_relic",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "all_allies",
+					"attribute": "attackPower"
 				}
 			]
 		}

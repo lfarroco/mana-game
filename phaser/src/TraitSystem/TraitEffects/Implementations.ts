@@ -21,6 +21,8 @@ import { slow } from "../../Systems/Chara/Skills/slow";
 import { summon } from "../../Systems/Chara/Skills/summon";
 import { Unit } from "../../Models/Entities/Unit";
 import { RelicStateObject } from "../Traits";
+import { fireball as fireballSkillFn } from "../../Systems/Chara/Skills/fireball";
+import { explodeEffect as gameExplodeEffect } from "../../Effects/explodeEffect"; // Adjust path
 
 
 /**
@@ -281,6 +283,44 @@ const traitSniperLogic: SourceUnitGuaranteedEffectFn = async (context) => {
 	}
 };
 
+const modifyUnitAttributeRelicLogic: SourceRelicGuaranteedEffectFn = async (context) => {
+	const { targets, effectInstance, traitInstanceParams, sourceRelic } = context;
+
+	const attributeToModify = traitInstanceParams.attribute ?? effectInstance.attribute as unknown as keyof Unit;
+	const flatAmount = (traitInstanceParams.amount ?? effectInstance.amount ?? 0) as number;
+
+	if (!attributeToModify || typeof flatAmount !== 'number') {
+		console.warn(`Relic Effect (ID: ${sourceRelic.id}, Effect: ${context.effectInstance.effectId}): Invalid 'attribute' or 'amount'. Got: ${attributeToModify}, ${flatAmount}`);
+		return;
+	}
+
+	targets.forEach(u => {
+		if (typeof u[attributeToModify as keyof Unit] === 'number') {
+			(u[attributeToModify as keyof Unit] as unknown as number) += flatAmount;
+			const chara = getChara(u.id); // Assumes getChara is accessible
+			if (chara) {
+				if (attributeToModify === "attackPower") chara.updateAtkDisplay();
+				else if (attributeToModify === "maxHp") { u.hp = u.maxHp; chara.updateHpDisplay(); }
+				// Add other stat updates if necessary
+			}
+			console.log(`Unit ${u.name}'s ${attributeToModify} modified by ${flatAmount} to ${u[attributeToModify as keyof Unit]} by relic ${sourceRelic.id}`);
+		} else {
+			console.warn(`Relic Effect (ID: ${sourceRelic.id}, Effect: ${context.effectInstance.effectId}): Attribute ${attributeToModify} is not a number for unit ${u.id}.`);
+		}
+	});
+};
+
+const performSkillFireballLogic: SourceUnitGuaranteedEffectFn = async (context) => {
+	const { sourceUnit, scene } = context;
+	await fireballSkillFn(scene)(sourceUnit);
+};
+
+const explodeOnDeathLogic: SourceUnitGuaranteedEffectFn = async (context) => {
+	const { sourceUnit, scene } = context;
+	// TODO: apply damage as well (the below is just effect)
+	await gameExplodeEffect(scene, 1, sourceUnit.position);
+};
+
 /**
  * Registers all defined trait effect implementations with the TraitEffectSystem.
  * This function should be called once during game initialization.
@@ -301,6 +341,9 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("skill_haste", requireSourceUnit(performSkillHasteLogic));
 	registerTraitEffectImplementation("skill_slow", requireSourceUnit(performSkillSlowLogic));
 	registerTraitEffectImplementation("skill_summon", requireSourceUnit(performSkillSummonLogic));
+	registerTraitEffectImplementation("skill_fireball", requireSourceUnit(performSkillFireballLogic));
+	registerTraitEffectImplementation("explode_on_death_effect", requireSourceUnit(explodeOnDeathLogic));
+	registerTraitEffectImplementation("modify_attribute_relic", requireSourceRelic(modifyUnitAttributeRelicLogic));
 
 	registerTraitEffectImplementation("modify_unit_cooldowns", requireSourceRelic(modifyUnitCooldownsLogic));
 	registerTraitEffectImplementation("modify_unit_max_hp", requireSourceRelic(modifyUnitMaxHpLogic));
