@@ -21,7 +21,6 @@ export class Shop {
 	private scene: BattlegroundScene;
 	private flyout: Flyout;
 
-	// To store references for DebugController and potentially other systems
 	private currentShopCharas: Chara[] = [];
 	private currentShopRelicCards: RelicCard[] = [];
 
@@ -142,8 +141,6 @@ export class Shop {
 			});
 	}
 
-	// --- Methods for DebugController ---
-
 	public getShopCharaBySlot(slotIndex: number): Chara | null {
 		return this.currentShopCharas[slotIndex] || null;
 	}
@@ -152,23 +149,15 @@ export class Shop {
 		return this.currentShopRelicCards[slotIndex] || null;
 	}
 
-	/**
-	 * Used by DebugController for inspection.
-	 */
 	public getDisplayedHeroCardDefinitions(): Card.CardDefinition[] {
 		return this.currentShopCharas.map(chara => chara.unit.cardId)
 			.map(Card.getCardDefinition);
 	}
 
-	/**
-	 * Used by DebugController for inspection. Assumes RelicCard has a 'relicDefinition' property.
-	 */
 	public getDisplayedRelicDefinitions(): Card.RelicDefinition[] {
 		return this.currentShopRelicCards.map(rc => rc.id)
 			.map(Card.getRelicDefinition);
 	}
-
-	// --- Event Handlers Moved from BattlegroundEventSystem ---
 
 	public async handleShopOpenUITrigger(): Promise<void> {
 		this.open();
