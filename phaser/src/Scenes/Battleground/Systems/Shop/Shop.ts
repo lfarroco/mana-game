@@ -60,10 +60,10 @@ export class Shop {
 		this.currentShopRelicCards = [];
 
 		// Prepare data for the shop UI
+		const ownedCardIds = new Set(this.scene.state.gameData.player.units.map(u => u.cardId));
 		const filteredCards = Card.getAllCards()
 			.filter(card =>
-				!this.scene.state.gameData.player.units
-					.map(u => u.cardId).includes(card.id)
+				!ownedCardIds.has(card.id)
 			);
 		const tavernCardData = pickRandom(filteredCards, 3);
 		const relicData = pickRandom(Card.getAllRelicDefinitions(), 3);
