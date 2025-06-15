@@ -6,7 +6,7 @@ import { UIManager } from "../../UI/UIManager";
 import * as CharaManager from "./Systems/CharaManager";
 import { CardCollection } from "../../Models/Entities/Card";
 import { PlayerBoard } from "../../Models/Board";
-import { Shop } from "./Systems/Shop";
+import { Shop } from "./Systems/Shop/Shop";
 import { setupTraitEventListeners } from "../../TraitSystem/TraitSystemEventListeners";
 import { BattlegroundSetupSystem } from "./Systems/BattlegroundSetupSystem";
 import { BattlegroundEventSystem } from "./Systems/BattlegroundEventSystem";

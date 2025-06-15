@@ -1,6 +1,6 @@
 import { UIManager } from "../../../UI/UIManager";
 import { PlayerBoard, createBoardDropZone } from "../../../Models/Board";
-import { Shop } from "./Shop";
+import { Shop } from "./Shop/Shop";
 import { BattleProgressionSystem } from "./BattleProgressionSystem";
 import * as CharaManager from "./CharaManager"; // Keep CharaManager import
 import * as Relic from "./Relic";
