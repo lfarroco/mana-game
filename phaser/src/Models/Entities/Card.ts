@@ -62,11 +62,11 @@ export type CardDefinition = {
 };
 
 export type RelicDefinition = {
-  id: string; // Unique identifier for the relic
+  id: string;
   name: string;
   pic: string;
   description: string;
-  cost: number; // Cost of the relic
+  cost: number;
   traits: t.TraitData[]
 };
 
