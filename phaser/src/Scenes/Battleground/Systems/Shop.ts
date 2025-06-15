@@ -14,33 +14,9 @@ import { Vec2 } from "../../../Models/Geometry";
 import { UIButton } from "../../../UI/UIButton";
 import { makeUnit, Unit } from "../../../Models/Entities/Unit";
 import { getUnitAt } from "../../../Models/State";
+import * as sc from "./ShopConstants";
 
 export class Shop {
-	// UI Layout Constants for Shop
-	private static readonly RELIC_SECTION_X = 50;
-	private static readonly RELIC_SECTION_Y = 50;
-	private static readonly RELIC_BG_WIDTH = 700;
-	private static readonly RELIC_BG_HEIGHT = 300;
-	private static readonly RELIC_TITLE_X = Shop.RELIC_SECTION_X + 250;
-	private static readonly RELIC_TITLE_Y = Shop.RELIC_SECTION_Y + 20;
-	private static readonly RELIC_ICON_BASE_Y = Shop.RELIC_SECTION_Y + 180;
-	private static readonly RELIC_ICON_SIZE = 200;
-	private static readonly RELIC_ICON_SPACING = 210;
-	private static readonly RELIC_FIRST_ICON_X = Shop.RELIC_SECTION_X + 130;
-
-	private static readonly TAVERN_BG_OFFSET_X = 800;
-	private static readonly TAVERN_TITLE_X = Shop.RELIC_SECTION_X + Shop.TAVERN_BG_OFFSET_X + 100;
-	private static readonly TAVERN_TITLE_Y = Shop.RELIC_SECTION_Y + 10;
-	private static readonly TAVERN_CHARA_BASE_Y = Shop.RELIC_SECTION_Y + 250;
-	private static readonly TAVERN_CHARA_FIRST_X = Shop.RELIC_SECTION_X + Shop.TAVERN_BG_OFFSET_X + 150;
-	private static readonly TAVERN_CHARA_SPACING = 200;
-	private static readonly TAVERN_BG_WIDTH = 900;
-	private static readonly TAVERN_BG_HEIGHT = 400;
-
-	private static readonly PANEL_BG_COLOR = 0x2c3e50; // Dark slate blue
-	private static readonly PANEL_BG_OPACITY = 0.95; // Mostly opaque
-	private static readonly PANEL_X = 20;
-	private static readonly PANEL_Y = 20;
 
 	private scene: BattlegroundScene;
 	private flyout: Flyout;
@@ -61,9 +37,9 @@ export class Shop {
 		// Define the shop panel's dimensions based on its content.
 		// These dimensions are relative to the flyout's origin.
 		const panelPadding = 25; // Padding around the main content areas
-		const shopPanelWidth = Shop.RELIC_SECTION_X + Shop.TAVERN_BG_OFFSET_X + Shop.TAVERN_BG_WIDTH + panelPadding;
+		const shopPanelWidth = sc.RELIC_SECTION_X + sc.TAVERN_BG_OFFSET_X + sc.TAVERN_BG_WIDTH + panelPadding;
 		// Height needs to accommodate relic/tavern sections and the button below them.
-		const contentHeight = Shop.RELIC_SECTION_Y + Shop.RELIC_BG_HEIGHT;
+		const contentHeight = sc.RELIC_SECTION_Y + sc.RELIC_BG_HEIGHT;
 		const buttonAreaHeight = 100; // Space for the button and some padding
 		const shopPanelHeight = contentHeight + buttonAreaHeight + panelPadding;
 
@@ -73,8 +49,8 @@ export class Shop {
 
 		// Add a background panel for the entire shop UI within the flyout
 		const shopBackground = this.scene.add.graphics()
-			.fillStyle(Shop.PANEL_BG_COLOR, Shop.PANEL_BG_OPACITY)
-			.fillRoundedRect(Shop.PANEL_X, Shop.PANEL_Y, shopPanelWidth, shopPanelHeight, 20); // Rounded rectangle
+			.fillStyle(sc.PANEL_BG_COLOR, sc.PANEL_BG_OPACITY)
+			.fillRoundedRect(sc.PANEL_X, sc.PANEL_Y, shopPanelWidth, shopPanelHeight, 20); // Rounded rectangle
 		this.flyout.add(shopBackground);
 
 		this.renderRelics();
@@ -83,8 +59,8 @@ export class Shop {
 		const nextRoundBtn = new UIButton(
 			this.scene,
 			"Next Round",
-			Shop.PANEL_X + shopPanelWidth - 100,
-			Shop.PANEL_Y + shopPanelHeight - 40,
+			sc.PANEL_X + shopPanelWidth - 100,
+			sc.PANEL_Y + shopPanelHeight - 40,
 			async () => {
 				this.scene.events.emit(GameEvents.SHOP_PHASE_ENDED);
 				this.flyout.slideOut();
@@ -101,25 +77,25 @@ export class Shop {
 
 		const bg = this.scene.add.graphics()
 			.fillStyle(0x000, 0.5)
-			.fillRect(0, 0, Shop.RELIC_BG_WIDTH, Shop.RELIC_BG_HEIGHT)
-			.setPosition(Shop.RELIC_SECTION_X, Shop.RELIC_SECTION_Y);
+			.fillRect(0, 0, sc.RELIC_BG_WIDTH, sc.RELIC_BG_HEIGHT)
+			.setPosition(sc.RELIC_SECTION_X, sc.RELIC_SECTION_Y);
 
-		const title = this.scene.add.text(Shop.RELIC_TITLE_X, Shop.RELIC_TITLE_Y, "Relics", constants.titleTextConfig);
+		const title = this.scene.add.text(sc.RELIC_TITLE_X, sc.RELIC_TITLE_Y, "Relics", constants.titleTextConfig);
 		this.flyout.add([bg, title]);
 
 		relicData.forEach((relic, index) => {
-			const x = Shop.RELIC_FIRST_ICON_X + (index * Shop.RELIC_ICON_SPACING);
-			const y = Shop.RELIC_ICON_BASE_Y;
+			const x = sc.RELIC_FIRST_ICON_X + (index * sc.RELIC_ICON_SPACING);
+			const y = sc.RELIC_ICON_BASE_Y;
 
 			const slot = this.scene.add
 				.image(x, y, images.slot.key)
-				.setDisplaySize(Shop.RELIC_ICON_SIZE, Shop.RELIC_ICON_SIZE);
+				.setDisplaySize(sc.RELIC_ICON_SIZE, sc.RELIC_ICON_SIZE);
 			const icon = new RelicCard(
 				this.scene,
 				x, y,
 				playerForce.id,
 				relic,
-				Shop.RELIC_ICON_SIZE - 40, () => {
+				sc.RELIC_ICON_SIZE - 40, () => {
 					if (this.flyout) this.flyout.remove(icon);
 				});
 
@@ -134,10 +110,10 @@ export class Shop {
 
 		const bg = this.scene.add.graphics()
 			.fillStyle(0x000, 0.5)
-			.fillRect(Shop.TAVERN_BG_OFFSET_X, 0, Shop.TAVERN_BG_WIDTH, Shop.TAVERN_BG_HEIGHT)
-			.setPosition(Shop.RELIC_SECTION_X, Shop.RELIC_SECTION_Y);
+			.fillRect(sc.TAVERN_BG_OFFSET_X, 0, sc.TAVERN_BG_WIDTH, sc.TAVERN_BG_HEIGHT)
+			.setPosition(sc.RELIC_SECTION_X, sc.RELIC_SECTION_Y);
 
-		const title = this.scene.add.text(Shop.TAVERN_TITLE_X, Shop.TAVERN_TITLE_Y, "Tavern", constants.titleTextConfig);
+		const title = this.scene.add.text(sc.TAVERN_TITLE_X, sc.TAVERN_TITLE_Y, "Tavern", constants.titleTextConfig);
 		this.flyout.add([bg, title]);
 
 		const filtered = Card.getAllCards()
@@ -158,7 +134,7 @@ export class Shop {
 
 				registerChara(chara);
 
-				chara.setPosition(Shop.TAVERN_CHARA_FIRST_X + (index * Shop.TAVERN_CHARA_SPACING), Shop.TAVERN_CHARA_BASE_Y);
+				chara.setPosition(sc.TAVERN_CHARA_FIRST_X + (index * sc.TAVERN_CHARA_SPACING), sc.TAVERN_CHARA_BASE_Y);
 				chara.setBarsVisibility(false);
 
 				this.flyout.add(chara);
