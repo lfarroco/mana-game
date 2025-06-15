@@ -23,8 +23,6 @@ import { Unit } from "../../Models/Entities/Unit";
 import { RelicStateObject } from "../Traits";
 
 
-// --- Higher-Order Function for Source Unit Requirement ---
-
 /**
  * Type for effect functions that are guaranteed to have `sourceUnit` in their context.
  * This is used internally by `requireSourceUnit` for type safety.
@@ -250,6 +248,38 @@ const modifyUnitMaxHpLogic: SourceRelicGuaranteedEffectFn = async (context) => {
 	});
 };
 
+/**
+ * Effect: If the source unit is in the back row, it gains an attack bonus.
+ * Requires `sourceUnit`. The attack bonus amount can be specified in `effectInstance.amount`
+ * or `traitInstanceParams.amount`, defaulting to 10.
+ */
+const traitSniperLogic: SourceUnitGuaranteedEffectFn = async (context) => {
+	const { sourceUnit, effectInstance, traitInstanceParams } = context;
+
+	// Determine the attack bonus amount, defaulting to 10
+	const attackBonus = (traitInstanceParams.amount ?? effectInstance.amount ?? 10) as number;
+
+	let isBackRow = false;
+	const boardHeightInTiles = 3; // Standard board height
+
+	if (sourceUnit.force === playerForce.id) {
+		// Player's back row is the highest y-index (e.g., 2 for a 0,1,2 indexed board)
+		if (sourceUnit.position.y === boardHeightInTiles - 1) {
+			isBackRow = true;
+		}
+	} else {
+		// CPU's back row (relative to their board, furthest from player) is y-index 0
+		if (sourceUnit.position.y === 0) {
+			isBackRow = true;
+		}
+	}
+
+	if (isBackRow) {
+		const chara = getChara(sourceUnit.id);
+		// updateUnitAttribute handles data update, display refresh, and popText
+		await chara.updateUnitAttribute("attackPower", attackBonus);
+	}
+};
 
 /**
  * Registers all defined trait effect implementations with the TraitEffectSystem.
@@ -258,6 +288,9 @@ const modifyUnitMaxHpLogic: SourceRelicGuaranteedEffectFn = async (context) => {
 export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("grant_gold_to_player", requireSourceUnit(grantGoldToPlayerLogic));
 	registerTraitEffectImplementation("deal_damage", requireSourceUnit(dealDamageLogic));
+
+	// Trait-based effects
+	registerTraitEffectImplementation("trait_sniper", requireSourceUnit(traitSniperLogic)); // TODO: generic position check effect
 
 	// Skill-based effects
 	registerTraitEffectImplementation("skill_slash", requireSourceUnit(performSkillSlashLogic));

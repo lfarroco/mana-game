@@ -7,14 +7,19 @@
 			"name": "Bowsie McTwang",
 			"pic": "assets/cards/archer.png",
 			"hp": 120,
+			"tags": [
+				"human",
+				"archer",
+				"ranged_dps"
+			],
 			"attack": 25,
 			"cooldown": 1400,
 			"traits": [
 				{
-					"id": "ranged"
+					"id": "sniper"
 				},
 				{
-					"id": "sniper"
+					"id": "ranged"
 				}
 			]
 		},
@@ -23,12 +28,14 @@
 			"name": "Bubblegum Blessings",
 			"pic": "assets/cards/cleric.png",
 			"hp": 150,
+			"tags": [
+				"human",
+				"cleric",
+				"support",
+				"healer"
+			],
 			"cooldown": 2900,
-			"skill": "healing_wave",
 			"traits": [
-				{
-					"id": "support"
-				},
 				{
 					"id": "healing_wave_action"
 				}
@@ -39,6 +46,11 @@
 			"name": "Sir Bumble the Unyielding",
 			"pic": "assets/cards/knight.png",
 			"hp": 250,
+			"tags": [
+				"human",
+				"knight",
+				"tank"
+			],
 			"attack": 14,
 			"cooldown": 2200,
 			"traits": [
@@ -52,6 +64,12 @@
 			"name": "Wizzy McFizzfail",
 			"pic": "assets/cards/apprentice.png",
 			"hp": 150,
+			"tags": [
+				"human",
+				"mage",
+				"caster",
+				"ranged_dps"
+			],
 			"attack": 25,
 			"cooldown": 1200,
 			"traits": [
@@ -66,6 +84,12 @@
 			"name": "Swindler Stan",
 			"pic": "assets/cards/bandit.png",
 			"hp": 110,
+			"tags": [
+				"human",
+				"bandit",
+				"melee_dps",
+				"economy"
+			],
 			"attack": 25,
 			"cooldown": 4000,
 			"traits": [
@@ -82,9 +106,18 @@
 			"name": "Hoodlum Hawkeye",
 			"pic": "assets/cards/bandit_archer.png",
 			"hp": 120,
+			"tags": [
+				"human",
+				"bandit",
+				"archer",
+				"ranged_dps"
+			],
 			"attack": 25,
 			"cooldown": 3000,
 			"traits": [
+				{
+					"id": "sniper"
+				},
 				{
 					"id": "ranged"
 				}
@@ -220,7 +253,7 @@
 			],
 			"effects": [
 				{
-					"effectId": "healing_wave",
+					"effectId": "skill_healing_wave",
 					"eventTrigger": "onAction"
 				}
 			]
@@ -285,6 +318,20 @@
 							"type": "is_player_unit"
 						}
 					]
+				}
+			]
+		},
+		{
+			"id": "sniper",
+			"name": "Sniper",
+			"description": "This unit gains [color=red]10 atk[/color] when in the back row",
+			"categories": [
+				"offensive"
+			],
+			"effects": [
+				{
+					"effectId": "trait_sniper",
+					"eventTrigger": "onBattleStart"
 				}
 			]
 		},
