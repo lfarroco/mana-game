@@ -1,7 +1,30 @@
 import { images } from "../assets";
-import { asVec2, sumVec2, } from "../Models/Geometry";
 import { delay, tween } from "../Utils/animation";
-import { IMPACT_OFFSETS } from "./effectConstants";
+
+// --- Effect Configuration Constants ---
+const FIREBALL_TRAVEL_DURATION = 500; // ms
+const FIREBALL_MAIN_LIFESPAN = 400; // ms
+const FIREBALL_INITIAL_SCALE = 1.4;
+
+const SHARED_FIRE_TINT_COLORS = [0xff0000, 0xffff00, 0xffa500]; // Red, Yellow, Orange
+
+// Constants for the primary impact effect
+const IMPACT_EFFECT_BASE_SPEED_MULTIPLIER = 300;
+const IMPACT_EFFECT_ALPHA = { start: 0.5, end: 0 };
+const IMPACT_EFFECT_SCALE = { start: 8, end: 4 };
+const IMPACT_EFFECT_FREQUENCY = 5;
+const IMPACT_EFFECT_STOP_AFTER = 15;
+
+// Constants for the fireball particle system
+const FIREBALL_PARTICLE_ALPHA = { start: 1, end: 0 };
+const FIREBALL_PARTICLE_SCALE = { start: 4, end: 2 };
+const FIREBALL_PARTICLE_ANGLE_OFFSET = 0.2; // Radians for spread
+const FIREBALL_PARTICLE_MIN_SPEED_MULTIPLIER = 200;
+const FIREBALL_PARTICLE_MAX_SPEED_MULTIPLIER = 400;
+
+const PARTICLE_CLEANUP_DELAY_FACTOR = 2; // Multiplier for lifespan to schedule destruction
+const ZERO_COORDINATE_VALUE = 0;
+const WARN_ZERO_COORDINATE_PREFIX = "[fireballEffect] Aborting: Source or target is at (0,0).";
 
 export async function fireballEffect(
 	scene: Phaser.Scene,
@@ -10,33 +33,27 @@ export async function fireballEffect(
 	target: { x: number; y: number; },
 ) {
 
-	if ((source.x === 0 && source.y === 0) || (target.x === 0 && target.y === 0)) {
-		console.warn(`[fireballEffect] Aborting: Source or target is at (0,0). Source: (${source.x},${source.y}), Target: (${target.x},${target.y})`);
+	if ((source.x === ZERO_COORDINATE_VALUE && source.y === ZERO_COORDINATE_VALUE) || (target.x === ZERO_COORDINATE_VALUE && target.y === ZERO_COORDINATE_VALUE)) {
+		console.warn(`${WARN_ZERO_COORDINATE_PREFIX} Source: (${source.x},${source.y}), Target: (${target.x},${target.y})`);
 		return;
 	}
 
-	const travelDuration = 500;
-	const lifespan = 400;
+	const particles = fireball(source, target, scene, speed, FIREBALL_MAIN_LIFESPAN, FIREBALL_TRAVEL_DURATION);
+	particles.setScale(FIREBALL_INITIAL_SCALE);
 
-	const particles = fireball(source, target, scene, speed, lifespan, travelDuration);
-	particles.setScale(2.4)
+	await delay(scene, FIREBALL_TRAVEL_DURATION);
 
-	await delay(scene, travelDuration);
-
-	const impact = impactEffect(scene, target, speed, lifespan);
+	const impact = impactEffect(scene, target, speed, FIREBALL_MAIN_LIFESPAN);
 
 	scene.time.addEvent({
-		delay: lifespan,
+		delay: FIREBALL_MAIN_LIFESPAN,
 		callback: () => {
 			impact.stop();
 		}
 	});
 
-	IMPACT_OFFSETS
-		.map(v => impactEffect(scene, sumVec2(asVec2(target))(v), speed, lifespan / 3))
-
 	scene.time.addEvent({
-		delay: lifespan * 2,
+		delay: FIREBALL_MAIN_LIFESPAN * PARTICLE_CLEANUP_DELAY_FACTOR,
 		callback: () => {
 			particles.destroy();
 			impact.destroy();
@@ -48,14 +65,14 @@ function impactEffect(scene: Phaser.Scene, target: { x: number; y: number; }, sp
 		target.x, target.y,
 		images.white_dot.key,
 		{
-			speed: 300 * speed,
-			tint: [0xff0000, 0xffff00, 0xffa500],
+			speed: IMPACT_EFFECT_BASE_SPEED_MULTIPLIER * speed,
+			tint: SHARED_FIRE_TINT_COLORS,
 			lifespan: lifespan,
-			alpha: { start: 0.5, end: 0 },
-			scale: { start: 4, end: 8 },
+			alpha: IMPACT_EFFECT_ALPHA,
+			scale: IMPACT_EFFECT_SCALE,
 			blendMode: 'ADD',
-			frequency: 5,
-			stopAfter: 15
+			frequency: IMPACT_EFFECT_FREQUENCY,
+			stopAfter: IMPACT_EFFECT_STOP_AFTER
 		}
 	);
 }
@@ -68,18 +85,18 @@ function fireball(source: { x: number; y: number; }, target: { x: number; y: num
 		{
 			// make particles move in the direction of the angle, using the speed
 			speedX: {
-				min: -Math.cos(angle - 0.2) * 200 * speed,
-				max: -Math.cos(angle + 0.2) * 400 * speed
+				min: -Math.cos(angle - FIREBALL_PARTICLE_ANGLE_OFFSET) * FIREBALL_PARTICLE_MIN_SPEED_MULTIPLIER * speed,
+				max: -Math.cos(angle + FIREBALL_PARTICLE_ANGLE_OFFSET) * FIREBALL_PARTICLE_MAX_SPEED_MULTIPLIER * speed
 			},
 			speedY: {
-				min: -Math.sin(angle - 0.2) * 200 * speed,
-				max: -Math.sin(angle + 0.2) * 400 * speed
+				min: -Math.sin(angle - FIREBALL_PARTICLE_ANGLE_OFFSET) * FIREBALL_PARTICLE_MIN_SPEED_MULTIPLIER * speed,
+				max: -Math.sin(angle + FIREBALL_PARTICLE_ANGLE_OFFSET) * FIREBALL_PARTICLE_MAX_SPEED_MULTIPLIER * speed
 			},
 			//red, yellow and orage tones
-			tint: [0xff0000, 0xffff00, 0xffa500],
+			tint: SHARED_FIRE_TINT_COLORS,
 			lifespan,
-			alpha: { start: 1, end: 0 },
-			scale: { start: 8, end: 0 },
+			alpha: FIREBALL_PARTICLE_ALPHA,
+			scale: FIREBALL_PARTICLE_SCALE,
 			blendMode: 'ADD',
 			radial: true,
 		}
