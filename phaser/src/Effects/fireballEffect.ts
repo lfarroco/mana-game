@@ -10,6 +10,11 @@ export async function fireballEffect(
 	target: { x: number; y: number; },
 ) {
 
+	if ((source.x === 0 && source.y === 0) || (target.x === 0 && target.y === 0)) {
+		console.warn(`[fireballEffect] Aborting: Source or target is at (0,0). Source: (${source.x},${source.y}), Target: (${target.x},${target.y})`);
+		return;
+	}
+
 	const travelDuration = 500;
 	const lifespan = 400;
 
