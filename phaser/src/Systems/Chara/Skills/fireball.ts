@@ -11,13 +11,17 @@ export const fireball = (
 	scene: BattlegroundScene
 ) => async (unit: Unit) => {
 
+	console.log("fireball!")
+
 	const { state } = scene;
 
 	const activeChara = UnitManager.getChara(unit.id);
+	if (!activeChara) return;
 
 	const target = await approach(activeChara);
 
 	const targetChara = UnitManager.getChara(target.id);
+	if (!targetChara) return;
 
 	popText({ text: "Fireball", targetId: unit.id });
 
@@ -31,7 +35,7 @@ export const fireball = (
 	targetChara.damageUnit(unit.id, unit.attackPower);
 
 	targets.forEach(target => {
-		UnitManager.getChara(target.id).damageUnit(unit.id, unit.attackPower / 2);
+		UnitManager.getChara(target.id)?.damageUnit(unit.id, unit.attackPower / 2);
 	});
 
 }

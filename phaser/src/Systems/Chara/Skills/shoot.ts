@@ -8,7 +8,10 @@ export function shoot(scene: BattlegroundScene) {
 
 	return async (unit: Unit) => {
 
-		const target = await approach(UnitManager.getChara(unit.id));
+		const activeChara = UnitManager.getChara(unit.id)
+		if (!activeChara) return;
+
+		const target = await approach(activeChara);
 
 		shootAnimation(scene, unit, target);
 	};

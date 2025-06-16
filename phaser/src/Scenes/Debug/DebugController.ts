@@ -142,6 +142,9 @@ export class DebugController {
 		let dragStartY = 0;
 		try {
 			const chara = CharaManager.getChara(unitId);
+			if (!chara) {
+				throw new Error(`Chara for unit ${unitId} not found.`);
+			}
 			dragStartX = chara.x;
 			dragStartY = chara.y;
 		} catch (e) {

@@ -12,6 +12,7 @@ export async function slash(
 	unit: Unit,
 ) {
 	const activeChara = UnitManager.getChara(unit.id);
+	if (!activeChara) return;
 
 	const target = getMeleeTarget(scene.state, unit);
 	if (!target) {
@@ -20,6 +21,8 @@ export async function slash(
 	}
 	const targetUnit = getBattleUnit(scene.state)(target.id);
 	const targetChara = UnitManager.getChara(targetUnit.id);
+
+	if (!targetChara) return;
 
 	await attack(activeChara, targetChara);
 

@@ -31,6 +31,8 @@ export const arcaneMissiles = (
 
 		const targetChara = UnitManager.getChara(target.id);
 
+		if (!activeChara || !targetChara) return;
+
 		animation.arcaneMissile(
 			{
 				scene, source: activeChara, target: targetChara, speed: getOption('speed'), onHit: () => {
