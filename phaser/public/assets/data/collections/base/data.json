@@ -131,7 +131,7 @@
 			"hp": 35,
 			"attack": 7,
 			"defense": 2,
-			"cooldown": 450,
+			"cooldown": 1000,
 			"traits": [
 				{
 					"id": "melee"
@@ -149,7 +149,7 @@
 			"hp": 75,
 			"attack": 16,
 			"defense": 4,
-			"cooldown": 500,
+			"cooldown": 1500,
 			"traits": [
 				{
 					"id": "melee"
@@ -167,7 +167,7 @@
 			"hp": 40,
 			"attack": 12,
 			"defense": 1,
-			"cooldown": 350,
+			"cooldown": 1350,
 			"traits": [
 				{
 					"id": "ranged"
@@ -183,9 +183,9 @@
 			"name": "Stone Guardian",
 			"description": "An ancient sentinel with immense fortitude, drawing enemy attacks.",
 			"hp": 100,
-			"attack": 10,
+			"attack": 20,
 			"defense": 8,
-			"cooldown": 600,
+			"cooldown": 2600,
 			"traits": [
 				{
 					"id": "melee"
@@ -203,7 +203,7 @@
 			"hp": 55,
 			"attack": 13,
 			"defense": 3,
-			"cooldown": 550,
+			"cooldown": 1250,
 			"traits": [
 				{
 					"id": "melee"
