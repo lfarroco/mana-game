@@ -11,31 +11,36 @@ export const fireball = (
 	scene: BattlegroundScene
 ) => async (unit: Unit) => {
 
-	console.log("fireball!")
-
 	const { state } = scene;
 
 	const activeChara = UnitManager.getChara(unit.id);
-	if (!activeChara) return;
+	if (!activeChara) {
+		console.warn(`[fireball] Active Chara not found for unit ID: ${unit.id}`);
+		return;
+	}
 
-	const target = await approach(activeChara);
+	const targetUnit = await approach(activeChara); // approach returns the target Unit
+	if (!targetUnit) {
+		console.warn(`[fireball] No target Unit found by approach for Chara: ${activeChara.unit.name} (ID: ${activeChara.unit.id})`);
+		return;
+	}
 
-	const targetChara = UnitManager.getChara(target.id);
-	if (!targetChara) return;
+	const targetChara = UnitManager.getChara(targetUnit.id);
+	if (!targetChara) {
+		console.warn(`[fireball] Target Chara not found for target Unit ID: ${targetUnit.id}`);
+		return;
+	}
 
 	popText({ text: "Fireball", targetId: unit.id });
 
 	await fireballEffect(scene, getOption('speed'), activeChara, targetChara);
 
 	// pick enemies in the cell and around the cell
-	const targets = getUnitsByProximity(state, target, false, 2)
+	const splashTargets = getUnitsByProximity(state, targetUnit, false, 2);
 
 	// deal damage to all targets
-
 	targetChara.damageUnit(unit.id, unit.attackPower);
-
-	targets.forEach(target => {
-		UnitManager.getChara(target.id)?.damageUnit(unit.id, unit.attackPower / 2);
+	splashTargets.forEach(splashAffectedUnit => {
+		UnitManager.getChara(splashAffectedUnit.id)?.damageUnit(unit.id, unit.attackPower / 2);
 	});
-
 }
