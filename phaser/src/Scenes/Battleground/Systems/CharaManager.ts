@@ -5,6 +5,7 @@ import { summonEffect } from "../../../Effects/summonEffect";
 import { tween } from "../../../Utils/animation";
 import { BattlegroundScene } from "../BattlegroundScene";
 import * as constants from "../../../constants/constants";
+import { devlog } from "../../../utils";
 
 let scene: BattlegroundScene;
 
@@ -95,11 +96,13 @@ export function getCharaPosition(unit: Unit) {
 }
 
 export function getChara(id: string) {
+
 	const maybeChara = charaIndex.find((chara) => chara.id === id);
-	if (!maybeChara) throw new Error(`Chara with id ${id} not found in index.`)
+
+	devlog(`Chara with id ${id} not found.`);
+
 	return maybeChara
 }
-
 
 // TODO: move this to the unit model?
 export const getSurroundingAllies = (unit: Unit) => {

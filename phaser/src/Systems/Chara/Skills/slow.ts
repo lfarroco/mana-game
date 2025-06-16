@@ -11,6 +11,7 @@ export async function slow(
 	unit: Unit,
 ) {
 	const activeChara = UnitManager.getChara(unit.id);
+	if (!activeChara) return;
 
 	popText({
 		text: "Slow",
@@ -23,6 +24,8 @@ export async function slow(
 	enemies
 		.map(e => e.id)
 		.map(UnitManager.getChara).forEach(async enemy => {
+
+			if (!enemy) return;
 
 			const beam = new EnergyBeam(scene, {
 				start: activeChara,

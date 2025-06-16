@@ -15,10 +15,12 @@ export const lightOrb = (
 
 	const damage = skill.power;
 
-	const target = await approach(UnitManager.getChara(unit.id));
-
 	const activeChara = UnitManager.getChara(unit.id);
+	if (!activeChara) return;
+
+	const target = await approach(activeChara);
 	const targetChara = UnitManager.getChara(target.id);
+	if (!targetChara) return;
 
 	const orb = new GlowingOrb(scene,
 		activeChara.x, activeChara.y,

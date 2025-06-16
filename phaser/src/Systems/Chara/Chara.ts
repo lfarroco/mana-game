@@ -110,7 +110,11 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.scene.events.on(GameEvents.OWNED_UNIT_MOVE_ACCEPTED, this._onOwnedUnitMoveAccepted, this);
 		this.scene.events.on(GameEvents.OWNED_UNIT_SWAP_ACCEPTED, this._onOwnedUnitSwapAccepted, this);
 		this.scene.events.on(GameEvents.OWNED_UNIT_MOVE_REJECTED, this._onOwnedUnitMoveRejected, this);
+
+		this.scene.events.on(GameEvents.TRAIT_EVAL_UNIT_ACTION, this.onAction, this);
 	}
+
+
 
 	/**
 	 * Creates the main sprite for the Chara based on `unit.pic`.
@@ -426,7 +430,17 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.scene.events.off(GameEvents.OWNED_UNIT_MOVE_ACCEPTED, this._onOwnedUnitMoveAccepted, this);
 		this.scene.events.off(GameEvents.OWNED_UNIT_SWAP_ACCEPTED, this._onOwnedUnitSwapAccepted, this);
 		this.scene.events.off(GameEvents.OWNED_UNIT_MOVE_REJECTED, this._onOwnedUnitMoveRejected, this);
+		this.scene.events.off(GameEvents.TRAIT_EVAL_UNIT_ACTION, this.onAction, this);
 
 		super.destroy(fromScene);
+	}
+
+	onAction() {
+		tween({
+			targets: [this],
+			scale: 1.1,
+			yoyo: true,
+			repeat: 0
+		})
 	}
 }

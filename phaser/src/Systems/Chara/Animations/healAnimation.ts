@@ -15,7 +15,7 @@ export async function healAnimation(
 
     const targetChara = UnitManager.getChara(target.id);
 
-    if (!activeChara) { throw new Error("no active unit\n" + unit.id); }
+    if (!activeChara || !targetChara) return;
 
     const skill = getSkill(HEAL);
 
@@ -100,6 +100,6 @@ export async function healAnimation(
 
     shader.destroy();
 
-    UnitManager.getChara(target.id).healUnit(50);
+    UnitManager.getChara(target.id)?.healUnit(50);
 
 }

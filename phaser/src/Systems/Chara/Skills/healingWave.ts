@@ -9,6 +9,7 @@ import { healingHitEffect } from "../../../Effects/healingHitEffect";
 import { getSkill, HEALING_WAVE } from "../../../Models/Entities/Skill";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 import { getOption } from "../../../Models/OptionsStore";
+import { Chara } from "../Chara";
 
 /**
  * Performs a healing wave skill that targets allies with low health.
@@ -42,10 +43,12 @@ export async function healingWave(scene: BattlegroundScene, unit: Unit) {
 	const top3 = hurtAllies.slice(0, 3);
 
 	top3.forEach(ally => {
-		UnitManager.getChara(ally.id).healUnit(skill.power);
+		UnitManager.getChara(ally.id)?.healUnit(skill.power);
 	});
 
-	const charas = [UnitManager.getChara(unit.id)].concat(top3.map(u => UnitManager.getChara(u.id)))
+	const charas = [UnitManager.getChara(unit.id)]
+		.concat(top3.map(u => UnitManager.getChara(u.id)))
+		.filter(a => a) as Chara[]
 
 	await animation(scene, charas.map(c => asVec2(c)));
 

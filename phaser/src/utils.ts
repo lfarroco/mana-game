@@ -54,3 +54,9 @@ export function parseTable(table: string) {
 	});
 	return data;
 }
+
+export function devlog(msg: string) {
+	if (process.env.NODE_ENV === 'development') {
+		console.log(msg);
+	}
+}

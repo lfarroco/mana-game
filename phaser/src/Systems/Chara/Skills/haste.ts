@@ -10,6 +10,8 @@ export async function haste(
 	unit: Unit,
 ) {
 	const activeChara = UnitManager.getChara(unit.id);
+	if (!activeChara)
+		return;
 
 	popText({
 		text: "Haste",

@@ -21,6 +21,7 @@ export async function multishot(
 	const targets = enemyUnits.slice(0, 4);
 
 	const chara = UnitManager.getChara(unit.id);
+	if (!chara) return;
 	const target = await approach(chara)
 
 	if (!target) {

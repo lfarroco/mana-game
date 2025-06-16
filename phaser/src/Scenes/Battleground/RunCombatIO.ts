@@ -131,7 +131,7 @@ function chargeUnits(state: State, delta: number): Unit[] {
       unit.refresh = MIN_COOLDOWN; // minimum space between actions 
       performingUnits.push(unit);
     }
-    CharaManager.getChara(unit.id).updateChargeBar();
+    CharaManager.getChara(unit.id)?.updateChargeBar();
   }
   return performingUnits;
 }
