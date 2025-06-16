@@ -1,4 +1,3 @@
-import { FIREBALL, getSkill } from "../../../Models/Entities/Skill";
 import { Unit } from "../../../Models/Entities/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { getUnitsByProximity } from "../../../Models/Board";
@@ -14,14 +13,13 @@ export const fireball = (
 
 	const { state } = scene;
 
-	const skill = getSkill(FIREBALL);
 	const activeChara = UnitManager.getChara(unit.id);
 
 	const target = await approach(activeChara);
 
 	const targetChara = UnitManager.getChara(target.id);
 
-	popText({ text: skill.name, targetId: unit.id });
+	popText({ text: "Fireball", targetId: unit.id });
 
 	await fireballEffect(scene, getOption('speed'), activeChara, targetChara);
 
@@ -30,11 +28,10 @@ export const fireball = (
 
 	// deal damage to all targets
 
-	targetChara.damageUnit(unit.id, skill.power);
+	targetChara.damageUnit(unit.id, unit.attackPower);
 
 	targets.forEach(target => {
-		UnitManager.getChara(target.id).damageUnit(unit.id, skill.power / 2);
-		popText({ text: (skill.power / 2).toString(), targetId: target.id });
+		UnitManager.getChara(target.id).damageUnit(unit.id, unit.attackPower / 2);
 	});
 
 }
