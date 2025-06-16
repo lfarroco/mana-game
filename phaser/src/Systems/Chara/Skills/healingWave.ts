@@ -6,7 +6,6 @@ import { getUnitsByProximity } from "../../../Models/Board";
 import { BattlegroundScene } from "../../../Scenes/Battleground/BattlegroundScene";
 import { EnergyBeam } from "../../../Effects/EnergyBeam";
 import { healingHitEffect } from "../../../Effects/healingHitEffect";
-import { getSkill, HEALING_WAVE } from "../../../Models/Entities/Skill";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 import { getOption } from "../../../Models/OptionsStore";
 import { Chara } from "../Chara";
@@ -23,8 +22,6 @@ import { Chara } from "../Chara";
  * @param unit - The unit casting the healing wave skill
  */
 export async function healingWave(scene: BattlegroundScene, unit: Unit) {
-
-	const skill = getSkill(HEALING_WAVE);
 
 	const allies = getUnitsByProximity(scene.state, unit, false, 5)
 		.concat([unit]);
@@ -43,7 +40,7 @@ export async function healingWave(scene: BattlegroundScene, unit: Unit) {
 	const top3 = hurtAllies.slice(0, 3);
 
 	top3.forEach(ally => {
-		UnitManager.getChara(ally.id)?.healUnit(skill.power);
+		UnitManager.getChara(ally.id)?.healUnit(unit.attackPower);
 	});
 
 	const charas = [UnitManager.getChara(unit.id)]

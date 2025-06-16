@@ -1,27 +1,18 @@
-
 export type SkillId = string & { __skillId: never };
 
 export type Skill = {
 	id: SkillId;
 	name: string;
-	pic: string;
-	range: number;
-	power: number;
 	tooltip: string;
 };
 
 const skill = (
 	id: string,
 	name: string,
-	range: number,
-	power: number,
 	tooltip: string,
 ): Skill => ({
 	id: id as SkillId,
 	name,
-	pic: "icon/fireball",
-	range,
-	power,
 	tooltip,
 });
 
@@ -42,28 +33,28 @@ export const HASTE = "haste" as SkillId;
 export const FROST_BOLT = 'frost_bolt' as SkillId;
 
 const skills = `
-id                     | name                | range | power | tooltip
------------------------|---------------------|-------|-------|----------------------------------------------
-${SLASH}               | Slash               | 1     | 20    | Attack with a sword
-${HEAL}                | Heal                | 5     | 50    | Heals an ally unit for 50 HP
-${SHOOT}               | Shoot               | 4     | 20    | Shoots an arrow
-${FIREBALL}            | Fireball            | 5     | 80    | Deals 80 damage to the target and 40 damage enemies around it
-${SHIELDBASH}          | Shield Bash         | 1     | 20    | Deals damage and stuns the enemy for 1 turn
-${SUMMON}              | Summon              | 1     | 20    | Summons a unit
-${MULTISHOT}           | Multishot           | 5     | 20    | Shoots 4 arrows
-${HEALING_WAVE}        | Healing Wave        | 5     | 20    | Heals 4 allied units for 20 HP
-${LIGHT_ORB}           | Light Orb           | 5     | 10    | Deals 10 damage to an enemy unit and heals 5 HP to close allies
-${ARCANE_MISSILES}     | Arcane Missiles     | 5     | 10    | Deals 10 damage to 3 random enemy targets
-${EXPLODE}             | Explode             | 1     | 100   | Deals 100 damage around the caster
-${HASTE}               | Haste               | 5     | 0     | Surrounding allies are hasted for 2.0s
-${FROST_BOLT}          | Frost Bolt          | 5     | 0     | Damages enemy by 10 and slows for 2s
+id                     | name            | tooltip
+-----------------------|-----------------|----------------------------------------------
+${SLASH}               | Slash           | Attack with a sword
+${HEAL}                | Heal            | Heals an ally unit for 50 HP
+${SHOOT}               | Shoot           | Shoots an arrow
+${FIREBALL}            | Fireball        | Deals 80 damage to the target and 40 damage enemies around it
+${SHIELDBASH}          | Shield Bash     | Deals damage and stuns the enemy for 1 turn
+${SUMMON}              | Summon          | Summons a unit
+${MULTISHOT}           | Multishot       | Shoots 4 arrows
+${HEALING_WAVE}        | Healing Wave    | Heals 4 allied units for 20 HP
+${LIGHT_ORB}           | Light Orb       | Deals 10 damage to an enemy unit and heals 5 HP to close allies
+${ARCANE_MISSILES}     | Arcane Missiles | Deals 10 damage to 3 random enemy targets
+${EXPLODE}             | Explode         | Deals 100 damage around the caster
+${HASTE}               | Haste           | Surrounding allies are hasted for 2.0s
+${FROST_BOLT}          | Frost Bolt      | Damages enemy by 10 and slows for 2s
 `.trim()
 	.split("\n")
 	.slice(2)
 	.map(row => row.split("|").map(x => x.trim()))
 	.map(row => {
-		const [id, name, range, power, tooltip] = row;
-		return skill(id, name, parseInt(range), parseInt(power), tooltip);
+		const [id, name, tooltip] = row;
+		return skill(id, name, tooltip);
 	});
 
 export const getSkill = (id: SkillId): Skill =>

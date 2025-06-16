@@ -1,4 +1,3 @@
-import { getSkill, LIGHT_ORB } from "../../../Models/Entities/Skill";
 import { Unit } from "../../../Models/Entities/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { GlowingOrb } from "../../../Effects/GlowingOrb";
@@ -11,9 +10,7 @@ export const lightOrb = (
 	scene: BattlegroundScene
 ) => async (unit: Unit) => {
 
-	const skill = getSkill(LIGHT_ORB);
-
-	const damage = skill.power;
+	const damage = Math.floor(unit.attackPower / 2);
 
 	const activeChara = UnitManager.getChara(unit.id);
 	if (!activeChara) return;

@@ -25,6 +25,8 @@ export async function healAnimation(
 
     await popText({ text: skill.name, targetId: unit.id });
 
+    const power = Math.floor(unit.attackPower)
+
     scene.playFx("audio/curemagic");
 
     const effectShader = new Phaser.Display.BaseShader('healingShader', `
@@ -94,12 +96,10 @@ export async function healAnimation(
         128, 128)
         .setOrigin(0.5, 0.5);
 
-    popText({ text: skill.power.toString(), targetId: target.id });
-
     await delay(scene, 500);
 
     shader.destroy();
 
-    UnitManager.getChara(target.id)?.healUnit(50);
+    UnitManager.getChara(target.id)?.healUnit(power);
 
 }
