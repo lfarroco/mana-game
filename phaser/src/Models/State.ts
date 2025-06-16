@@ -7,7 +7,12 @@ let _currentState: State;
 
 // Define a more specific type for the player object within GameData
 // This ensures 'units' property is recognized by TypeScript for type safety.
-export type PlayerWithUnits = Force & { units: Unit[], prestige: number };
+export type PlayerWithUnits = Force & {
+  units: Unit[],
+  prestige: number,
+  winStreak: number,
+  lossStreak: number,
+  totalRoundsPlayed: number };
 
 export const initialState = (): State => ({
   savedGames: [],
@@ -20,6 +25,9 @@ export const initialState = (): State => ({
       ...playerForce,
       units: (playerForce as Partial<PlayerWithUnits>).units || [],
       prestige: 0,
+      winStreak: 0,
+      lossStreak: 0,
+      totalRoundsPlayed: 0,
     },
     choices: []
   },

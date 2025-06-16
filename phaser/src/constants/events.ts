@@ -86,4 +86,8 @@ export const GameEvents = {
 
 	// Prestige System Events
 	PRESTIGE_CHANGED: "prestige_changed", // Payload: newTotalPrestige: number, prestigeDelta: number
+
+	ROUND_ENDED_UPDATE_STATS: "round_ended_update_stats",// Payload: {totalRounds: number, currentPrestige: number }
+	PLAYER_WON_GAME: "player_won_game",
+
 };

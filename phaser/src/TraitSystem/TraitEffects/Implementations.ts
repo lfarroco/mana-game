@@ -132,7 +132,6 @@ const dealDamageLogic: SourceUnitGuaranteedEffectFn = async (context) => {
  */
 const performSkillSlashLogic: SourceUnitGuaranteedEffectFn = async (context) => {
 	const { sourceUnit, scene } = context;
-	// Assuming 'slash' skill takes scene and unit
 	await slash(scene, sourceUnit);
 };
 

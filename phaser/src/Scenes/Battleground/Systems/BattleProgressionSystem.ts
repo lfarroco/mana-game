@@ -68,6 +68,7 @@ export class BattleProgressionSystem {
 
 		this.scene.events.emit(GameEvents.PLAYER_GOLD_UPDATE_REQUEST, BG_CONSTANTS.VICTORY_GOLD_REWARD);
 		this.prestigeSystem.processVictory();
+		this.prestigeSystem.finalizeRound();
 
 		this.resetPlayerUnitsForNewRound();
 		this.resetPlayerUnitChargeBars();
@@ -88,12 +89,25 @@ export class BattleProgressionSystem {
 		await delay(this.scene, 1500); // Wait for animation
 
 		this.prestigeSystem.processDefeat();
+		this.prestigeSystem.finalizeRound();
 
 		CharaManager.clearCharas();
 		this.state.battleData.units = []; // Clear units from battle state
 
 		this.scene.events.emit(GameEvents.GAME_OVER_SHOW_UI_TRIGGER);
 		this.scene.events.emit(GameEvents.VIGNETTE_MESSAGE_SHOW, { message: "Thanks for playing!" });
+	}
+
+	/**
+	 * Handles the event when the player achieves the ultimate win condition (30 prestige).
+	 */
+	public async handlePlayerWonGame(): Promise<void> {
+		this._isInShopPhase = false; // Stop normal game flow
+		console.log(`PLAYER HAS WON THE GAME! Prestige: ${this.state.gameData.player.prestige}, Total Rounds: ${this.state.gameData.player.totalRoundsPlayed}`);
+
+		// Display a unique victory message/screen
+		this.scene.events.emit(GameEvents.VIGNETTE_MESSAGE_SHOW, { message: `Victory! You reached Champion status in ${this.state.gameData.player.totalRoundsPlayed} rounds!` });
+		// Here you could transition to a dedicated "Game Won" scene or show a special UI.
 	}
 
 	private resetPlayerUnitsForNewRound(): void {
@@ -193,5 +207,10 @@ export class BattleProgressionSystem {
 		} else {
 			this.scene.events.emit(GameEvents.COMBAT_ENDED_DEFEAT, {});
 		}
+	}
+
+	public destroy(): void {
+		this.scene.events.off(GameEvents.PLAYER_WON_GAME, this.handlePlayerWonGame, this);
+		// any other event cleanup specific to this system
 	}
 }

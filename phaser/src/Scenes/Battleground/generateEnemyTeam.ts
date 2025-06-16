@@ -11,6 +11,10 @@ const MIN_ENEMY_COUNT = 2; // Minimum number of enemies, regardless of low prest
 const MAX_ENEMY_COUNT = 5; // Maximum number of enemies
 const ROUND_DIFFICULTY_CONTRIBUTION = 0.5; // e.g., 0.5 points per round
 const PRESTIGE_DIFFICULTY_CONTRIBUTION = 0.25; // e.g., 0.25 points per prestige point
+const WIN_STREAK_DIFFICULTY_BONUS = 0.15; // Extra points per win in a streak
+const LOSS_STREAK_DIFFICULTY_REDUCTION = 0.20; // Points reduced per loss in a streak
+const MAX_STREAK_EFFECT_POINTS = 2.0; // Max points added/subtracted due to streaks
+
 
 /** Unit role types in formation templates */
 export enum UnitRole {
@@ -76,32 +80,60 @@ const ROLE_TRAITS: Record<UnitRole, string> = {
 	[UnitRole.Empty]: ''
 };
 
+export enum DifficultyTier {
+	Challenger = 'Challenger', // Prestige 0-9
+	Veteran = 'Veteran',     // Prestige 10-19
+	Elite = 'Elite'          // Prestige 20+
+}
+
+interface EnemyTeamParameters {
+	teamSize: number;
+	powerBudgetOverflow: number; // Points left after determining team size, for buffs/upgrades
+	difficultyTier: DifficultyTier;
+}
+
 /**
- * Calculates the enemy team size based on the current round and player prestige.
+ * Calculates enemy team parameters based on round, prestige, and win/loss streaks.
  * @param round The current game round.
  * @param playerPrestige The player's current prestige level.
- * @returns The calculated number of enemies for the upcoming battle.
+ * @param winStreak Current player win streak.
+ * @param lossStreak Current player loss streak.
+ * @returns Parameters for generating the enemy team.
  */
-const calculateEnemyTeamSize = (round: number, playerPrestige: number): number => {
-	const additionalUnitPoints =
+const calculateEnemyTeamParameters = (
+	round: number,
+	playerPrestige: number,
+	winStreak: number,
+	lossStreak: number
+): EnemyTeamParameters => {
+	let difficultyTier: DifficultyTier;
+	if (playerPrestige < 10) difficultyTier = DifficultyTier.Challenger;
+	else if (playerPrestige < 20) difficultyTier = DifficultyTier.Veteran;
+	else difficultyTier = DifficultyTier.Elite;
+
+	let difficultyPoints =
 		(round * ROUND_DIFFICULTY_CONTRIBUTION) +
 		(playerPrestige * PRESTIGE_DIFFICULTY_CONTRIBUTION);
 
+	// Apply streak modifiers
+	difficultyPoints += Math.min(winStreak * WIN_STREAK_DIFFICULTY_BONUS, MAX_STREAK_EFFECT_POINTS);
+	difficultyPoints -= Math.min(lossStreak * LOSS_STREAK_DIFFICULTY_REDUCTION, MAX_STREAK_EFFECT_POINTS);
+	difficultyPoints = Math.max(0, difficultyPoints); // Ensure points don't go negative
+
 	// Calculate how many additional units can be afforded based on the points.
 	// Math.floor ensures we only add whole units.
-	const numberOfAdditionalUnits = Math.floor(additionalUnitPoints);
+	const numberOfAdditionalUnits = Math.floor(difficultyPoints);
 
 	// Determine the desired team size before applying constraints.
 	const desiredTeamSize = BASE_ENEMY_COUNT + numberOfAdditionalUnits;
 
 	// Clamp the team size to be within the defined MIN_ENEMY_COUNT and MAX_ENEMY_COUNT.
-	const finalTeamSize = Math.max(MIN_ENEMY_COUNT, Math.min(MAX_ENEMY_COUNT, desiredTeamSize));
+	const teamSize = Math.max(MIN_ENEMY_COUNT, Math.min(MAX_ENEMY_COUNT, desiredTeamSize));
 
-	// For future use: These are fractional points not enough for a full unit,
-	// could be used for enemy buffs, relics, etc.
-	// const spareDifficultyPoints = additionalUnitPoints - numberOfAdditionalUnits;
+	// Fractional points not enough for a full unit, can be used for enemy buffs, relics, etc.
+	const powerBudgetOverflow = difficultyPoints - numberOfAdditionalUnits;
 
-	return finalTeamSize;
+	return { teamSize, powerBudgetOverflow, difficultyTier };
 };
 
 /**
@@ -123,23 +155,34 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 		throw new Error('Card pool cannot be empty');
 	}
 
-	const playerPrestige = getState().gameData.player.prestige;
-	const enemyTeamSize = calculateEnemyTeamSize(round, playerPrestige);
+	const playerState = getState().gameData.player;
+	const { teamSize: enemyTeamSize, powerBudgetOverflow, difficultyTier } = calculateEnemyTeamParameters(
+		round,
+		playerState.prestige,
+		playerState.winStreak,
+		playerState.lossStreak
+	);
+
+	console.log(`Generating enemy team for Round ${round}, Prestige ${playerState.prestige}, Tier ${difficultyTier}. Size: ${enemyTeamSize}, Overflow: ${powerBudgetOverflow.toFixed(2)}`);
 
 	// Get formations for the current team size
 	const availableTemplates = FORMATION_TEMPLATES[enemyTeamSize];
 	if (!availableTemplates?.length) {
-		console.warn(`No formations available for team size: ${enemyTeamSize}. Defaulting to empty team.`);
+		console.warn(`No formations available for team size: ${enemyTeamSize} (Tier: ${difficultyTier}). Defaulting to empty team.`);
 		return [];
 	}
 
-	// Filter formations based on current round
-	const validTemplates = availableTemplates.filter(template =>
-		!template.metadata.minRound || template.metadata.minRound <= round
-	);
+	// Filter formations based on current round and potentially difficultyTier
+	const validTemplates = availableTemplates.filter(template => {
+		const roundCheck = !template.metadata.minRound || template.metadata.minRound <= round;
+		// Optional: Add difficulty tier check for formations if desired
+		// const tierCheck = !template.metadata.minTier || template.metadata.minTier === difficultyTier;
+		// return roundCheck && tierCheck;
+		return roundCheck;
+	});
 
 	if (!validTemplates.length) {
-		console.warn(`No formations available for round ${round}. Defaulting to empty team.`);
+		console.warn(`No valid formations available for team size ${enemyTeamSize}, round ${round} (Tier: ${difficultyTier}). Defaulting to empty team.`);
 		return [];
 	}
 
@@ -182,6 +225,22 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 			units.push(unit);
 		}
 	}
+
+	// --- Placeholder for using powerBudgetOverflow and difficultyTier ---
+	// This is where you'd implement logic to make enemies stronger or give them buffs.
+	// Example:
+	// if (difficultyTier === DifficultyTier.Elite && powerBudgetOverflow > 0.5) {
+	//   units.forEach(unit => {
+	//     unit.maxHp = Math.floor(unit.maxHp * 1.15); // 15% HP buff for Elite tier
+	//     unit.hp = unit.maxHp;
+	//     unit.attackPower = Math.floor(unit.attackPower * 1.1); // 10% Attack buff
+	//   });
+	//   console.log("Applied Elite tier stat buffs to enemy team.");
+	// } else if (difficultyTier === DifficultyTier.Veteran && powerBudgetOverflow > 0.3) {
+	//   const randomUnit = pickOne(units);
+	//   randomUnit.traits.push({ id: "temporary_fast_attack_trait" as any, description: "Attacks faster this battle."}); // Example
+	//   console.log(`Gave ${randomUnit.name} a temporary buff.`);
+	// }
 
 	return units;
 }
