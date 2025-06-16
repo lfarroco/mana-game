@@ -110,7 +110,6 @@ async function processGlobalEventRelicTraits(
  */
 export function setupTraitEventListeners(scene: BattlegroundScene): void {
 
-	// --- Handlers for Global Battle Events (Start/End) ---
 	scene.events.on(GameEvents.TRAIT_EVAL_GLOBAL_BATTLE_START, async (_payload: EmptyPayload) => {
 		const currentState = getState();
 		// Process for units
@@ -134,7 +133,6 @@ export function setupTraitEventListeners(scene: BattlegroundScene): void {
 		await processGlobalEventRelicTraits(scene, currentState, "onBattleEnd");
 	});
 
-	// --- Mappings for runUnitEventTraits ---
 	const unitEventMappings: { gameEvent: string, traitKey: UnitEventKeys }[] = [
 		{ gameEvent: GameEvents.TRAIT_EVAL_UNIT_ACTION, traitKey: "onAction" },
 		{ gameEvent: GameEvents.TRAIT_EVAL_UNIT_ENTER_POSITION, traitKey: "onEnterPosition" },
@@ -151,7 +149,6 @@ export function setupTraitEventListeners(scene: BattlegroundScene): void {
 		);
 	});
 
-	// --- Mappings for runAttackEventTraits ---
 	const attackEventMappings: { gameEvent: string, traitKey: AttackEventKeys }[] = [
 		{ gameEvent: GameEvents.TRAIT_EVAL_ATTACK_BY_ME, traitKey: "onAttackByMe" },
 		{ gameEvent: GameEvents.TRAIT_EVAL_AFTER_ATTACK_BY_ME, traitKey: "onAfterAttackByMe" },
@@ -162,7 +159,6 @@ export function setupTraitEventListeners(scene: BattlegroundScene): void {
 		);
 	});
 
-	// --- Mappings for runUnitEventWithTargetTraits ---
 	const unitEventWithTargetMappings: { gameEvent: string, traitKey: UnitEventWithTargetKeys }[] = [
 		{ gameEvent: GameEvents.TRAIT_EVAL_DEFEND_BY_ME, traitKey: "onDefendByMe" },
 		{ gameEvent: GameEvents.TRAIT_EVAL_EVADE_BY_ME, traitKey: "onEvadeByMe" },

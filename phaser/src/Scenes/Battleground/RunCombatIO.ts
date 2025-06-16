@@ -6,8 +6,18 @@ import { Unit } from "../../Models/Entities/Unit";
 import { GameEvents } from "../../constants/events";
 import { getOption } from "../../Models/OptionsStore";
 
+/**
+ * Represents the possible outcomes of a combat wave.
+ * @typedef {('player_won' | 'player_lost')} WaveOutcome
+ */
 export type WaveOutcome = "player_won" | "player_lost";
 
+/**
+ * Sets up the wave by initializing unit charge, refresh, and bar visibility.
+ * Emits events for trait and battle start setup.
+ * @param {BattlegroundScene} scene - The current battleground scene.
+ * @returns {Promise<void>} Resolves when setup is complete.
+ */
 async function setupWave(scene: BattlegroundScene) {
 
   // Initial setup for units (charge, refresh, bar visibility)
@@ -21,7 +31,6 @@ async function setupWave(scene: BattlegroundScene) {
     }
   });
 
-
   // Emit event for Trait System to handle onBattleStart for units and relics
   scene.events.emit(GameEvents.TRAIT_EVAL_GLOBAL_BATTLE_START, {});
 
@@ -29,6 +38,9 @@ async function setupWave(scene: BattlegroundScene) {
 
 }
 
+/**
+ * System to run the combat input/output loop for a battleground scene.
+ */
 export class RunCombatSystem {
   private scene: BattlegroundScene;
   private updateHandler: ((time: number, delta: number) => Promise<void>) | null = null;
@@ -37,6 +49,10 @@ export class RunCombatSystem {
     this.scene = scene;
   }
 
+  /**
+   * Starts the combat IO loop and resolves with the wave outcome when combat ends.
+   * @returns {Promise<WaveOutcome>} Resolves with the outcome of the wave.
+   */
   public runCombatIO = () => new Promise<WaveOutcome>(async resolve => {
     const { state, events } = this.scene;
 
@@ -81,9 +97,16 @@ export class RunCombatSystem {
   });
 }
 
+/**
+ * Charges units based on delta time, speed modifiers, and cooldowns.
+ * Returns units that are ready to act this frame.
+ * @param {State} state - The current game state.
+ * @param {number} delta - The time delta since last update.
+ * @returns {Unit[]} Array of units ready to perform an action.
+ */
 function chargeUnits(state: State, delta: number): Unit[] {
   const activeUnits = getActiveUnits(state);
-  let performUnits: Unit[] = []; // units that are ready to perform an action
+  let performingUnits: Unit[] = []; // units that are ready to perform an action
 
   for (const unit of activeUnits) {
     if (unit.hp <= 0) continue; // Should be redundant if getActiveUnits is used, but good for safety
@@ -106,11 +129,11 @@ function chargeUnits(state: State, delta: number): Unit[] {
     if (unit.charge >= unit.cooldown && unit.refresh === 0) {
       unit.charge = unit.charge - unit.cooldown;
       unit.refresh = MIN_COOLDOWN; // minimum space between actions 
-      performUnits.push(unit);
+      performingUnits.push(unit);
     }
     CharaManager.getChara(unit.id).updateChargeBar();
   }
-  return performUnits;
+  return performingUnits;
 }
 
-export default RunCombatSystem; // Export the class
+export default RunCombatSystem;
