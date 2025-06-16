@@ -55,23 +55,27 @@ export async function summonChara(
 ) {
 	const vec = getCharaPosition(unit);
 
-	if (useSummonEffect) summonEffect(scene, vec);
+	if (useSummonEffect) {
+		await summonEffect(scene, vec); // Ensure summon effect completes
+	}
 
 	const chara = new Chara.Chara(scene, unit);
 
 	registerChara(chara); // Changed from addCharaToState to use the public registration function
 
-	chara.setAlpha(0);
+	// Set initial alpha based on whether fadeIn is used.
+	// If fadeIn is true, it starts at 0 and tweens to 1.
+	// If fadeIn is false, it starts directly at 1.
+	chara.setAlpha(fadeIn ? 0 : 1);
 
-	if (fadeIn)
-		tween({
+	if (fadeIn) {
+		await tween({ // Await the fade-in animation
 			targets: [chara],
 			alpha: 1,
 		});
-	else
-		chara.setAlpha(1);
+	}
 
-	return chara
+	return chara;
 }
 
 // Renamed from addCharaToState for clarity and to reflect it's now adding to the internal index.

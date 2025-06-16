@@ -34,13 +34,29 @@ export class BattleProgressionSystem {
 	 * If called after a victory, processes round victory rewards first.
 	 */
 	public async transitionToShopPhase(payload?: { enemiesDefeated?: Unit[] }): Promise<void> {
+
+		await delay(this.scene, 1000);
+		// cleanup
+		CharaManager.clearCharas();
+		this.state.battleData.units = []; // Clear units from battle state
+
+		this.resetPlayerUnitsForNewRound();
+
+		const summonPromises = this.state.gameData.player.units.map(unit =>
+			CharaManager.summonChara(unit, true, true) // explicitly pass fadeIn = true
+		);
+		await Promise.all(summonPromises); // Wait for all Charas to be summoned and faded in
+
+		this.resetPlayerUnitChargeBars();
+		this.setAllPlayerUnitBarsVisibility(false); // Ensure bars are hidden as we enter shop phase logic
+		this.state.gameData.round++;
+
 		this._isInShopPhase = true;
 		if (payload && payload.enemiesDefeated) {
 			await this.processRoundVictory(payload.enemiesDefeated);
 		}
 		console.log("Round", this.state.gameData.round, "Shop Phase Starting.");
 		this.scene.events.emit(GameEvents.PLAYER_BOARD_SHOW);
-		this.setAllPlayerUnitBarsVisibility(false); // Hide bars for player units in shop
 		this.scene.events.emit(GameEvents.SHOP_OPEN_UI_TRIGGER);
 	}
 
@@ -70,32 +86,25 @@ export class BattleProgressionSystem {
 		this.prestigeSystem.processVictory();
 		this.prestigeSystem.finalizeRound();
 
-		this.resetPlayerUnitsForNewRound();
-		this.resetPlayerUnitChargeBars();
-		this.setAllPlayerUnitBarsVisibility(false);
+
 		await this.awardXPAndHandleLevelUps(enemiesDefeated.length);
 
-		this.state.battleData.units = []; // Clear units from battle state
-		this.state.gameData.round++;
 	}
 
 	/**
 	 * Handles the game over sequence.
 	 */
-	public async processGameOver(): Promise<void> {
+	public async handleCombatEndedDefeat(): Promise<void> {
 		console.log("Round", this.state.gameData.round, "Processing Defeat...");
 		await delay(this.scene, BG_CONSTANTS.POST_COMBAT_DELAY);
 		this.scene.events.emit(GameEvents.BATTLE_RESULT_SHOW, { result: "defeat" });
 		await delay(this.scene, 1500); // Wait for animation
 
 		this.prestigeSystem.processDefeat();
-		this.prestigeSystem.finalizeRound();
 
-		CharaManager.clearCharas();
-		this.state.battleData.units = []; // Clear units from battle state
+		// Instead of game over, lose prestige and return to shop
+		this.transitionToShopPhase();
 
-		this.scene.events.emit(GameEvents.GAME_OVER_SHOW_UI_TRIGGER);
-		this.scene.events.emit(GameEvents.VIGNETTE_MESSAGE_SHOW, { message: "Thanks for playing!" });
 	}
 
 	/**
@@ -194,10 +203,6 @@ export class BattleProgressionSystem {
 
 	public handleCombatEndedVictory(payload: { enemiesDefeated: Unit[] }): void {
 		this.transitionToShopPhase(payload);
-	}
-
-	public handleCombatEndedDefeat(): void {
-		this.processGameOver();
 	}
 
 	public async handleCombatStartExecution(payload: { enemies: Unit[] }): Promise<void> {
