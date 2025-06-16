@@ -1,6 +1,4 @@
-import { getSkill, HEAL } from "../../../Models/Entities/Skill";
 import { Unit, } from "../../../Models/Entities/Unit";
-import { popText } from "./popText";
 import { delay } from "../../../Utils/animation";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
@@ -17,13 +15,9 @@ export async function healAnimation(
 
     if (!activeChara || !targetChara) return;
 
-    const skill = getSkill(HEAL);
-
     if (target.hp <= 0) {
         throw new Error("target is dead");
     }
-
-    await popText({ text: skill.name, targetId: unit.id });
 
     const power = Math.floor(unit.attackPower)
 
