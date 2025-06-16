@@ -38,17 +38,18 @@ export class BattleProgressionSystem {
 		await delay(this.scene, 1000);
 		// cleanup
 		CharaManager.clearCharas();
-		this.state.battleData.units = []; // Clear units from battle state
+		this.state.battleData.units = [];
 
 		this.resetPlayerUnitsForNewRound();
 
-		const summonPromises = this.state.gameData.player.units.map(unit =>
-			CharaManager.summonChara(unit, true, true) // explicitly pass fadeIn = true
-		);
-		await Promise.all(summonPromises); // Wait for all Charas to be summoned and faded in
+		const summonPromises = this.state.gameData.player.units.map(async (unit, index) => {
+			await delay(this.scene, index * 200)
+			await CharaManager.summonChara(unit, true)
+		});
+		await Promise.all(summonPromises);
 
 		this.resetPlayerUnitChargeBars();
-		this.setAllPlayerUnitBarsVisibility(false); // Ensure bars are hidden as we enter shop phase logic
+		this.setAllPlayerUnitBarsVisibility(false);
 		this.state.gameData.round++;
 
 		this._isInShopPhase = true;

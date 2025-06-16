@@ -14,7 +14,6 @@ import { RunCombatSystem } from "./RunCombatIO";
 import { BattleProgressionSystem } from "./Systems/BattleProgressionSystem";
 import { GameEvents } from "../../constants/events";
 import { getOption } from "../../Models/OptionsStore";
-import { FORCE_ID_PLAYER } from "../../constants/constants";
 import { Unit } from "../../Models/Entities/Unit";
 import { Vec2 } from "../../Models/Geometry";
 import { battleResultAnimation } from "./battleResultAnimation";
@@ -188,11 +187,11 @@ export class BattlegroundScene extends Phaser.Scene {
     this.events.emit(GameEvents.GOLD_CHANGED, this.state.gameData.player.gold, changeAmount);
   }
 
-  public handleBoardCharaCreateRequest(payload: { unit: Unit }): void {
+  public async handleBoardCharaCreateRequest(payload: { unit: Unit }): Promise<void> {
     // When a new Chara is requested for the board (e.g., after a purchase),
     // tell CharaManager to summon it. Default to animating its appearance.
-    CharaManager.summonChara(payload.unit, true, true); // summonChara is async, but we don't need to await its completion for this logic
-    if (this.battleProgressionSystem.isInShopPhase && payload.unit.force === FORCE_ID_PLAYER) {
+    await CharaManager.summonChara(payload.unit, true); // summonChara is async, but we don't need to await its completion for this logic
+    if (this.battleProgressionSystem.isInShopPhase) {
       // Ensure the newly summoned player unit also has its bars hidden during shop phase
       this.events.emit(GameEvents.CHARA_BARS_VISIBILITY_SET, { unitId: payload.unit.id, visible: false });
     }

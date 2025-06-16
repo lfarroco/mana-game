@@ -2,10 +2,10 @@ import { Unit } from "../../../Models/Entities/Unit";
 import * as Chara from "../../../Systems/Chara/Chara";
 import { vec2 } from "../../../Models/Geometry";
 import { summonEffect } from "../../../Effects/summonEffect";
-import { tween } from "../../../Utils/animation";
 import { BattlegroundScene } from "../BattlegroundScene";
 import * as constants from "../../../constants/constants";
 import { devlog } from "../../../utils";
+import { tween } from "../../../Utils/animation";
 
 let scene: BattlegroundScene;
 
@@ -51,29 +51,29 @@ export function destroyChara(id: string) {
 export async function summonChara(
 	unit: Unit,
 	useSummonEffect = true,
-	fadeIn = true,
 ) {
 	const vec = getCharaPosition(unit);
 
 	if (useSummonEffect) {
-		await summonEffect(scene, vec); // Ensure summon effect completes
+		summonEffect(scene, vec);
 	}
 
 	const chara = new Chara.Chara(scene, unit);
 
-	registerChara(chara); // Changed from addCharaToState to use the public registration function
 
-	// Set initial alpha based on whether fadeIn is used.
-	// If fadeIn is true, it starts at 0 and tweens to 1.
-	// If fadeIn is false, it starts directly at 1.
-	chara.setAlpha(fadeIn ? 0 : 1);
+	chara.setBarsVisibility(false);
+	chara.setScale(0);
+	chara.setAngle(-10);
+	await tween({
+		targets: [chara],
+		scale: 1,
+		angle: 0,
+		ease: "Back.easeOut",
+		duration: 500,
+	});
+	chara.setBarsVisibility(true);
 
-	if (fadeIn) {
-		await tween({ // Await the fade-in animation
-			targets: [chara],
-			alpha: 1,
-		});
-	}
+	registerChara(chara);
 
 	return chara;
 }
@@ -124,7 +124,7 @@ export const getSurroundingAllies = (unit: Unit) => {
 }
 
 export function handleSummonCharaToBoardEvent(payload: { unit: Unit, animateAppear: boolean, playSound: boolean }): void {
-	summonChara(payload.unit, payload.animateAppear, payload.playSound);
+	summonChara(payload.unit, payload.animateAppear);
 }
 
 export function handleDestroyCharaFromBoardEvent(payload: { unitId: string }): void {
