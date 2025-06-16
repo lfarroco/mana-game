@@ -5,6 +5,7 @@ import * as CharaManager from "./Systems/CharaManager";
 import { Unit } from "../../Models/Entities/Unit";
 import { GameEvents } from "../../constants/events";
 import { getOption } from "../../Models/OptionsStore";
+import { delay } from "../../Utils/animation";
 
 /**
  * Represents the possible outcomes of a combat wave.
@@ -20,18 +21,14 @@ export type WaveOutcome = "player_won" | "player_lost";
  */
 async function setupWave(scene: BattlegroundScene) {
 
-  // Initial setup for units (charge, refresh, bar visibility)
-  scene.state.battleData.units.forEach(u => {
-    u.charge = 0;
-    u.refresh = 0;
-    // Make bars visible for all units starting combat
-    const chara = CharaManager.getChara(u.id);
-    if (chara) {
-      chara.setBarsVisibility(true);
-    }
-  });
+  CharaManager
+    .getAllCharas()
+    .forEach(chara => {
+      scene.events.emit(GameEvents.CHARA_BARS_VISIBILITY_SET, { unitId: chara.id, visible: true });
+    });
 
-  // Emit event for Trait System to handle onBattleStart for units and relics
+  await delay(scene, 2000); // wait until everyone is summoned
+
   scene.events.emit(GameEvents.TRAIT_EVAL_GLOBAL_BATTLE_START, {});
 
   scene.events.emit(GameEvents.BATTLE_START_SETUP_COMPLETE);

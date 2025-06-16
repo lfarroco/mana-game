@@ -20,7 +20,6 @@ export type Unit = {
 
   hp: number;
   maxHp: number;
-  xp: number;
 
   attackPower: number;
   attackType: "melee" | "ranged" | "none";
