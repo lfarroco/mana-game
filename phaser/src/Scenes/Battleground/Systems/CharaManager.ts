@@ -4,7 +4,6 @@ import { vec2 } from "../../../Models/Geometry";
 import { summonEffect } from "../../../Effects/summonEffect";
 import { BattlegroundScene } from "../BattlegroundScene";
 import * as constants from "../../../constants/constants";
-import { devlog } from "../../../utils";
 import { tween } from "../../../Utils/animation";
 
 let scene: BattlegroundScene;
@@ -12,6 +11,9 @@ let scene: BattlegroundScene;
 // This was previously part of an exported CharaManagerState.
 // It's now an internal variable, managed solely by this module.
 const charaIndex: Chara.Chara[] = [];
+
+//@ts-ignore
+window.index = charaIndex;
 
 export function init(sceneRef: BattlegroundScene) {
 	scene = sceneRef;
@@ -60,7 +62,6 @@ export async function summonChara(
 
 	const chara = new Chara.Chara(scene, unit);
 
-
 	chara.setBarsVisibility(false);
 	chara.setScale(0);
 	chara.setAngle(-10);
@@ -103,9 +104,14 @@ export function getChara(id: string) {
 
 	const maybeChara = charaIndex.find((chara) => chara.id === id);
 
-	devlog(`Chara with id ${id} not found.`);
+	if (!maybeChara)
+		throw new Error(`Chara with id ${id} not found.`);
 
 	return maybeChara
+}
+
+export function getAllCharas() {
+	return charaIndex;
 }
 
 // TODO: move this to the unit model?

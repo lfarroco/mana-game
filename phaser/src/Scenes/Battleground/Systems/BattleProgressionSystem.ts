@@ -77,7 +77,7 @@ export class BattleProgressionSystem {
 	/**
 	 * Processes the logic for a player's victory in a round.
 	 */
-	private async processRoundVictory(enemiesDefeated: Unit[]): Promise<void> {
+	private async processRoundVictory(_enemiesDefeated: Unit[]): Promise<void> {
 		console.log("Round", this.state.gameData.round, "Processing Victory...");
 		await delay(this.scene, BG_CONSTANTS.POST_COMBAT_DELAY);
 		this.scene.events.emit(GameEvents.BATTLE_RESULT_SHOW, { result: "victory" });
@@ -86,10 +86,6 @@ export class BattleProgressionSystem {
 		this.scene.events.emit(GameEvents.PLAYER_GOLD_UPDATE_REQUEST, BG_CONSTANTS.VICTORY_GOLD_REWARD);
 		this.prestigeSystem.processVictory();
 		this.prestigeSystem.finalizeRound();
-
-
-		await this.awardXPAndHandleLevelUps(enemiesDefeated.length);
-
 	}
 
 	/**
@@ -131,46 +127,15 @@ export class BattleProgressionSystem {
 	}
 
 	private resetPlayerUnitChargeBars(): void {
-		this.state.gameData.player.units.forEach(unit => {
-			this.scene.events.emit(GameEvents.CHARA_CHARGE_BAR_UPDATE, { unitId: unit.id });
+		CharaManager.getAllCharas().forEach(chara => {
+			this.scene.events.emit(GameEvents.CHARA_CHARGE_BAR_UPDATE, { unitId: chara.id });
 		});
 	}
 
 	private setAllPlayerUnitBarsVisibility(visible: boolean): void {
-		this.state.gameData.player.units.forEach(unit => {
-			this.scene.events.emit(GameEvents.CHARA_BARS_VISIBILITY_SET, { unitId: unit.id, visible });
+		CharaManager.getAllCharas().forEach(chara => {
+			this.scene.events.emit(GameEvents.CHARA_BARS_VISIBILITY_SET, { unitId: chara.id, visible });
 		});
-	}
-
-	private async awardXPAndHandleLevelUps(enemiesDefeatedCount: number): Promise<void> {
-		const xpGained = enemiesDefeatedCount * BG_CONSTANTS.XP_PER_ENEMY;
-		const levelUpPromises: Promise<void>[] = [];
-
-		this.state.gameData.player.units.forEach(unit => {
-			this.scene.events.emit(GameEvents.POP_TEXT_SHOW, { text: `+${xpGained} XP`, targetId: unit.id });
-			unit.xp += xpGained;
-
-			const levelsGained = Math.floor(unit.xp / BG_CONSTANTS.XP_FOR_LEVEL_UP);
-
-			if (levelsGained > 0) {
-				this.scene.events.emit(GameEvents.POP_TEXT_SHOW, { text: `Level up!`, targetId: unit.id });
-				unit.xp -= levelsGained * BG_CONSTANTS.XP_FOR_LEVEL_UP; // Consume XP
-
-				for (let i = 0; i < levelsGained; i++) {
-					unit.maxHp = Math.floor(unit.maxHp * BG_CONSTANTS.HP_MULTIPLIER_LEVEL_UP);
-					unit.hp = unit.maxHp; // Refill HP
-					unit.attackPower = Math.floor(unit.attackPower * (1 + BG_CONSTANTS.ATTACK_POWER_MULTIPLIER_LEVEL_UP));
-				}
-				levelUpPromises.push(delay(this.scene, 0)); // Micro-delay or animation trigger
-				this.scene.events.emit(GameEvents.CHARA_HP_DISPLAY_UPDATE, { unitId: unit.id });
-			}
-		});
-
-		if (levelUpPromises.length > 0) {
-			await Promise.all(levelUpPromises);
-			// A small delay to let player appreciate level ups, if desired
-			await delay(this.scene, BG_CONSTANTS.LEVEL_UP_APPRECIATION_DELAY);
-		}
 	}
 
 	/**
