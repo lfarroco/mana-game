@@ -66,6 +66,8 @@ export class BattlegroundEventSystem {
 		// Player State
 		this.addListener(GameEvents.PLAYER_GOLD_UPDATE_REQUEST, this.scene.handlePlayerGoldUpdateRequest, this.scene);
 
+		this.addListener(GameEvents.PLAYER_WON_GAME, this.battleProgressionSystem.handlePlayerWonGame, this);
+
 		// Board & UI Setup/Visibility
 		this.addListener(GameEvents.PLAYER_BOARD_CREATE_DROP_ZONE, createBoardDropZone); // No context needed
 		this.addListener(GameEvents.PLAYER_BOARD_SHOW, this.playerBoard.display, this.playerBoard);
@@ -95,8 +97,6 @@ export class BattlegroundEventSystem {
 		// Unit Placement & Movement
 		this.addListener(GameEvents.OWNED_UNIT_MOVE_REQUESTED, this.scene.handleOwnedUnitMoveRequest, this.scene);
 		this.addListener(GameEvents.BOARD_CHARA_CREATE_REQUESTED, this.scene.handleBoardCharaCreateRequest, this.scene);
-
-		// Shop Purchase Request Handlers
 
 		// Tooltips (keeping direct calls as they are simple and UI related)
 		this.addListener(GameEvents.CHARA_POINTER_OVER, CharaTooltip.onCharaPointerOver, this); // Context `this` is fine if onCharaPointerOver doesn't rely on CharaTooltip's `this`

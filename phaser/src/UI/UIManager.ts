@@ -8,6 +8,7 @@ import { GoldCoinAnimator } from "./GoldCoinAnimator";
 import { GameEvents } from "../constants/events";
 import { UserMessagePayload } from "../Models/EventPayloads";
 
+const SIDEBAR_TEXT_BASE_X = 150;
 /**
  * Manages the user interface elements within the BattlegroundScene.
  * This class is responsible for creating, updating, and destroying UI components
@@ -24,6 +25,13 @@ export class UIManager {
 	private prestigeTextElement: Phaser.GameObjects.Text | null = null;
 	/** Instance of GoldCoinAnimator for handling gold coin animations. */
 	private goldCoinAnimator: GoldCoinAnimator;
+	/** Phaser text element for displaying player's win streak. */
+	private winStreakTextElement: Phaser.GameObjects.Text | null = null;
+	/** Phaser text element for displaying player's loss streak. */
+	private lossStreakTextElement: Phaser.GameObjects.Text | null = null;
+	/** Phaser text element for displaying total rounds played. */
+	private totalRoundsTextElement: Phaser.GameObjects.Text | null = null;
+
 
 
 	/**
@@ -42,7 +50,8 @@ export class UIManager {
 		this.scene = scene;
 		this.goldCoinAnimator = new GoldCoinAnimator(this.scene);
 		this._setupGoldChangeListener();
-		this._setupPrestigeChangeListener(); // Add listener for prestige
+		this._setupPrestigeChangeListener();
+		this._setupRoundStatsListener();
 		this._setupPurchaseFailedListener();
 		this._setupUserMessageListener();
 		this.tooltip = new Tooltip(scene);
@@ -56,6 +65,14 @@ export class UIManager {
 	 */
 	private _setupPrestigeChangeListener(): void {
 		this.scene.events.on(GameEvents.PRESTIGE_CHANGED, this._handlePrestigeChanged, this);
+	}
+
+	/**
+	 * Sets up an event listener for "round_ended_update_stats" events.
+	 * This allows the UIManager to react to updates in round-end stats.
+	 */
+	private _setupRoundStatsListener(): void {
+		this.scene.events.on(GameEvents.ROUND_ENDED_UPDATE_STATS, this._handleRoundStatsUpdate, this);
 	}
 
 	/**
@@ -143,6 +160,17 @@ export class UIManager {
 	}
 
 	/**
+	 * Handles the "round_ended_update_stats" event.
+	 * It updates the displayed total rounds, win streak, and loss streak.
+	 * @param payload - The payload containing total rounds and current prestige.
+	 */
+	private _handleRoundStatsUpdate(payload: { totalRounds: number, currentPrestige: number }): void {
+		if (this.totalRoundsTextElement) this.totalRoundsTextElement.setText(`Rounds: ${payload.totalRounds}`);
+		if (this.winStreakTextElement) this.winStreakTextElement.setText(`Win Streak: ${this.scene.state.gameData.player.winStreak}`);
+		if (this.lossStreakTextElement) this.lossStreakTextElement.setText(`Loss Streak: ${this.scene.state.gameData.player.lossStreak}`);
+	}
+
+	/**
 	 * Handles the "prestige_changed" event.
 	 * It updates the displayed prestige amount.
 	 * @param newTotalPrestige - The new total amount of prestige the player has.
@@ -173,7 +201,11 @@ export class UIManager {
 		this.uiContainer.add(sidebarBg);
 
 		this._createGoldText(this.uiContainer);
-		this._createPrestigeText(this.uiContainer); // Create prestige display
+		this._createPrestigeText(this.uiContainer);
+		this._createTotalRoundsText(this.uiContainer);
+		this._createWinStreakText(this.uiContainer);
+		this._createLossStreakText(this.uiContainer);
+
 	}
 
 	/**
@@ -186,9 +218,9 @@ export class UIManager {
 
 		const initialGold = this.scene.state.gameData.player.gold;
 		this.goldTextElement = this.scene.add.text(
-			constants.SCREEN_WIDTH - 120,
+			constants.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
 			constants.SCREEN_HEIGHT - 100,
-			"Gold: " + initialGold, constants.defaultTextConfig
+			`Gold: ${initialGold}`, constants.defaultTextConfig
 		);
 		parent.add(this.goldTextElement);
 	}
@@ -200,14 +232,58 @@ export class UIManager {
 	private _createPrestigeText(parent: Phaser.GameObjects.Container): void {
 		const initialPrestige = this.scene.state.gameData.player.prestige;
 		this.prestigeTextElement = this.scene.add.text(
-			constants.SCREEN_WIDTH - 120, // Same X as gold text
-			constants.SCREEN_HEIGHT - 100 + 30, // Positioned below gold text
-			"Prestige: " + initialPrestige,
+			constants.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X, // Same X as gold text
+			constants.SCREEN_HEIGHT - 100 + 25, // Positioned below gold text
+			`Prestige: ${initialPrestige}`,
 			constants.defaultTextConfig
 		);
 		parent.add(this.prestigeTextElement);
 	}
 
+	/**
+	 * Creates the text element that displays the total rounds played.
+	 * @param parent The `Phaser.GameObjects.Container` to which the text will be added.
+	 */
+	private _createTotalRoundsText(parent: Phaser.GameObjects.Container): void {
+		const initialRounds = this.scene.state.gameData.player.totalRoundsPlayed;
+		this.totalRoundsTextElement = this.scene.add.text(
+			constants.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
+			constants.SCREEN_HEIGHT - 100 + 50, // Positioned below prestige text
+			`Rounds: ${initialRounds}`,
+			constants.defaultTextConfig
+		);
+		parent.add(this.totalRoundsTextElement);
+	}
+
+	/**
+	 * Creates the text element that displays the player's current win streak.
+	 * @param parent The `Phaser.GameObjects.Container` to which the text will be added.
+	 */
+	private _createWinStreakText(parent: Phaser.GameObjects.Container): void {
+		const initialStreak = this.scene.state.gameData.player.winStreak;
+		this.winStreakTextElement = this.scene.add.text(
+			constants.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
+			constants.SCREEN_HEIGHT - 100 + 75, // Positioned below total rounds text
+			`Win Streak: ${initialStreak}`,
+			constants.defaultTextConfig
+		);
+		parent.add(this.winStreakTextElement);
+	}
+
+	/**
+	 * Creates the text element that displays the player's current loss streak.
+	 * @param parent The `Phaser.GameObjects.Container` to which the text will be added.
+	 */
+	private _createLossStreakText(parent: Phaser.GameObjects.Container): void {
+		const initialStreak = this.scene.state.gameData.player.lossStreak;
+		this.lossStreakTextElement = this.scene.add.text(
+			constants.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
+			constants.SCREEN_HEIGHT - 100 + 100, // Positioned below win streak text
+			`Loss Streak: ${initialStreak}`,
+			constants.defaultTextConfig
+		);
+		parent.add(this.lossStreakTextElement);
+	}
 
 
 	/**
@@ -254,8 +330,13 @@ export class UIManager {
 			this.uiContainer.destroy(true); // true to destroy children
 			this.uiContainer = null;
 		}
-		this.goldTextElement = null; // Was a child of uiContainer
-		this.prestigeTextElement = null; // Was a child of uiContainer
+		// These elements were chiildren of uiContainer
+		this.goldTextElement = null;
+		this.prestigeTextElement = null;
+		this.totalRoundsTextElement = null;
+		this.winStreakTextElement = null;
+		this.lossStreakTextElement = null;
+
 	}
 
 	/**
@@ -271,6 +352,8 @@ export class UIManager {
 		this.scene.events.off(GameEvents.USER_MESSAGE_REQUESTED, this._handleUserMessageRequested, this);
 		this.scene.events.off(GameEvents.TOOLTIP_SHOW);
 		this.scene.events.off(GameEvents.TOOLTIP_HIDE);
+		this.scene.events.off(GameEvents.ROUND_ENDED_UPDATE_STATS, this._handleRoundStatsUpdate, this);
+
 	}
 
 	/**

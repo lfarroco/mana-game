@@ -18,15 +18,46 @@ export class PrestigeSystem {
 	 * Processes the prestige change when the player wins a battle.
 	 */
 	public processVictory(): void {
-		this.state.gameData.player.prestige += 1;
-		this.scene.events.emit(GameEvents.PRESTIGE_CHANGED, this.state.gameData.player.prestige, 1);
+		const playerState = this.state.gameData.player;
+		const prestigeGain = 1;
+		playerState.prestige += prestigeGain;
+		playerState.winStreak += 1;
+		playerState.lossStreak = 0;
+
+		this.scene.events.emit(GameEvents.PRESTIGE_CHANGED, playerState.prestige, prestigeGain);
+
+		if (playerState.prestige >= 30) {
+			this.scene.events.emit(GameEvents.PLAYER_WON_GAME);
+		}
 	}
 
 	/**
 	 * Processes the prestige change when the player loses a battle.
 	 */
 	public processDefeat(): void {
-		this.state.gameData.player.prestige -= 2;
-		this.scene.events.emit(GameEvents.PRESTIGE_CHANGED, this.state.gameData.player.prestige, -2);
+		const playerState = this.state.gameData.player;
+		const oldPrestige = playerState.prestige;
+		const prestigeLoss = 1; // Reduced from 2 to be less punitive
+
+		playerState.prestige -= prestigeLoss;
+		playerState.prestige = Math.max(0, playerState.prestige); // Prestige cannot go below 0
+
+		playerState.lossStreak += 1;
+		playerState.winStreak = 0;
+
+		const actualPrestigeChange = playerState.prestige - oldPrestige;
+		this.scene.events.emit(GameEvents.PRESTIGE_CHANGED, playerState.prestige, actualPrestigeChange);
+	}
+
+	/**
+	 * Finalizes round-specific statistics like total rounds played.
+	 * Should be called after every battle.
+	 */
+	public finalizeRound(): void {
+		this.state.gameData.player.totalRoundsPlayed += 1;
+		this.scene.events.emit(GameEvents.ROUND_ENDED_UPDATE_STATS, {
+			totalRounds: this.state.gameData.player.totalRoundsPlayed,
+			currentPrestige: this.state.gameData.player.prestige
+		});
 	}
 }
