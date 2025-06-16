@@ -70,7 +70,7 @@
 				"caster",
 				"ranged_dps"
 			],
-			"attack": 25,
+			"attack": 15,
 			"cooldown": 1200,
 			"traits": [
 				{
@@ -91,7 +91,7 @@
 				"economy"
 			],
 			"attack": 25,
-			"cooldown": 4000,
+			"cooldown": 3000,
 			"traits": [
 				{
 					"id": "melee"
@@ -113,7 +113,7 @@
 				"ranged_dps"
 			],
 			"attack": 25,
-			"cooldown": 3000,
+			"cooldown": 1800,
 			"traits": [
 				{
 					"id": "sniper"
@@ -222,12 +222,12 @@
 			"id": "swift_boots",
 			"name": "Swift Boots",
 			"pic": "icon/agility_training",
-			"description": "Party: reduces [color=rgb(0,255,200)]cooldowns[/color] by 20%",
-			"cost": 50,
+			"description": "Party: reduces [color=rgb(0,255,200)]cooldowns[/color] by 15%",
+			"cost": 75,
 			"traits": [
 				{
-					"id": "reduce_cd",
-					"percent": 20
+					"id": "aura_cooldown_reduction",
+					"percent": 15
 				}
 			]
 		},
@@ -235,11 +235,11 @@
 			"id": "amulet_of_vitality",
 			"name": "Amulet of Vitality",
 			"pic": "icon/combat_training",
-			"description": "Increases max HP by 20%",
-			"cost": 75,
+			"description": "Increases max HP of all allied units by 20% at the start of battle.",
+			"cost": 100,
 			"traits": [
 				{
-					"id": "increase_max_hp",
+					"id": "aura_max_hp_increase",
 					"percent": 20
 				}
 			]
@@ -248,12 +248,12 @@
 			"id": "relic_ancient_hourglass",
 			"name": "Ancient Hourglass",
 			"pic": "items/gold_ring",
-			"description": "Reduces ability cooldowns for all your units by 15% at the start of battle.",
-			"cost": 60,
+			"description": "Reduces ability cooldowns for all your units by 20% at the start of battle.",
+			"cost": 100,
 			"traits": [
 				{
-					"id": "reduce_cd",
-					"percent": 15
+					"id": "aura_cooldown_reduction",
+					"percent": 20
 				}
 			]
 		},
@@ -262,10 +262,10 @@
 			"name": "Heartwood Talisman",
 			"pic": "items/gold_ring",
 			"description": "Increases the maximum HP of all your units by 15% at the start of battle.",
-			"cost": 80,
+			"cost": 75,
 			"traits": [
 				{
-					"id": "increase_max_hp",
+					"id": "aura_max_hp_increase",
 					"percent": 15
 				}
 			]
@@ -288,7 +288,7 @@
 			"name": "Amulet of Fortitude",
 			"pic": "items/amulet_fortitude.png",
 			"description": "At the start of battle, increases the Max HP of all allied units by 10%.",
-			"cost": 5,
+			"cost": 50,
 			"traits": [
 				{
 					"id": "aura_max_hp_increase",
@@ -301,7 +301,7 @@
 			"name": "Ancient Chronometer",
 			"pic": "items/ancient_chronometer.png",
 			"description": "At the start of battle, reduces the action cooldown of all allied units by 10%.",
-			"cost": 6,
+			"cost": 50,
 			"traits": [
 				{
 					"id": "aura_cooldown_reduction",
@@ -313,12 +313,12 @@
 			"id": "banner_of_command",
 			"name": "Banner of Command",
 			"pic": "items/banner_of_command.png",
-			"description": "At the start of battle, increases the Attack Power of all allied units by 2.",
-			"cost": 5,
+			"description": "At the start of battle, increases the Attack Power of all allied units by 3.",
+			"cost": 60,
 			"traits": [
 				{
 					"id": "aura_attack_increase",
-					"amount": 2
+					"amount": 3
 				}
 			]
 		}
