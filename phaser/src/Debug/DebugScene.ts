@@ -18,7 +18,7 @@ export class DebugScene extends Phaser.Scene {
 	create() {
 
 		const urlParams = new URLSearchParams(window.location.search);
-		const effect = urlParams.get('EFFECT')?.toLowerCase();
+		const effect = urlParams.get('effect')?.toLowerCase();
 
 		if (effect) {
 
