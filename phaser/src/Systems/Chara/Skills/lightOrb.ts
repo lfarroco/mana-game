@@ -2,9 +2,9 @@ import { Unit } from "../../../Models/Entities/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { GlowingOrb } from "../../../Effects/GlowingOrb";
 import { delay } from "../../../Utils/animation";
-import { approach } from "../approach";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 import { getOption } from "../../../Models/OptionsStore";
+import { getUnitsByProximity } from "../../../Models/Board";
 
 export const lightOrb = (
 	scene: BattlegroundScene
@@ -15,7 +15,9 @@ export const lightOrb = (
 	const activeChara = UnitManager.getChara(unit.id);
 	if (!activeChara) return;
 
-	const target = await approach(activeChara);
+	const [target] = getUnitsByProximity(scene.state, unit, true, Infinity);
+	if (!target) return;
+
 	const targetChara = UnitManager.getChara(target.id);
 	if (!targetChara) return;
 
