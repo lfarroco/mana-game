@@ -1,7 +1,5 @@
 import { images } from "../assets";
-import { asVec2, sumVec2 } from "../Models/Geometry";
 import { delay } from "../Utils/animation";
-import { IMPACT_OFFSETS } from "./effectConstants";
 
 export async function explodeEffect(
 	scene: Phaser.Scene,
@@ -68,11 +66,6 @@ export async function explodeEffect(
 
 	impactEffect(scene, source, speed, lifespan);
 
-	await delay(scene, lifespan / 4);
-
-	IMPACT_OFFSETS
-		.map(v => impactEffect(scene, sumVec2(asVec2(source))(v), speed, lifespan / 3))
-
 
 }
 
@@ -82,9 +75,9 @@ function impactEffect(scene: Phaser.Scene, target: { x: number; y: number; }, sp
 		target.x, target.y,
 		images.white_dot.key,
 		{
-			speed: 300 * speed,
+			speed: 200 * speed,
 			tint: [0xff0000, 0xffff00, 0xffa500],
-			lifespan: lifespan,
+			lifespan: lifespan / 2,
 			alpha: { start: 0.5, end: 0 },
 			scale: { start: 4, end: 8 },
 			blendMode: 'ADD',

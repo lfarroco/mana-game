@@ -2,24 +2,25 @@ import { images } from "../assets";
 import { delay, tween } from "../Utils/animation";
 
 // --- Effect Configuration Constants ---
+const FIREBALL_TRACE_LIFESPAN = 200;
 const FIREBALL_TRAVEL_DURATION = 500; // ms
-const FIREBALL_MAIN_LIFESPAN = 400; // ms
+const EXPLOSION_MAIN_LIFESPAN = 400; // ms
 const FIREBALL_INITIAL_SCALE = 1.4;
 
 const SHARED_FIRE_TINT_COLORS = [0xff0000, 0xffff00, 0xffa500]; // Red, Yellow, Orange
 
 // Constants for the primary impact effect
-const IMPACT_EFFECT_BASE_SPEED_MULTIPLIER = 300;
-const IMPACT_EFFECT_ALPHA = { start: 0.5, end: 0 };
-const IMPACT_EFFECT_SCALE = { start: 8, end: 4 };
+const IMPACT_EFFECT_BASE_SPEED_MULTIPLIER = 200;
+const IMPACT_EFFECT_ALPHA = { start: 0.8, end: 0 };
+const IMPACT_EFFECT_SCALE = { start: 4, end: 8 };
 const IMPACT_EFFECT_FREQUENCY = 5;
-const IMPACT_EFFECT_STOP_AFTER = 15;
+const IMPACT_EFFECT_STOP_AFTER = 9;
 
 // Constants for the fireball particle system
 const FIREBALL_PARTICLE_ALPHA = { start: 1, end: 0 };
 const FIREBALL_PARTICLE_SCALE = { start: 4, end: 2 };
 const FIREBALL_PARTICLE_ANGLE_OFFSET = 0.2; // Radians for spread
-const FIREBALL_PARTICLE_MIN_SPEED_MULTIPLIER = 200;
+const FIREBALL_PARTICLE_MIN_SPEED_MULTIPLIER = 10;
 const FIREBALL_PARTICLE_MAX_SPEED_MULTIPLIER = 400;
 
 const PARTICLE_CLEANUP_DELAY_FACTOR = 2; // Multiplier for lifespan to schedule destruction
@@ -38,22 +39,22 @@ export async function fireballEffect(
 		return;
 	}
 
-	const particles = fireball(source, target, scene, speed, FIREBALL_MAIN_LIFESPAN, FIREBALL_TRAVEL_DURATION);
+	const particles = fireball(source, target, scene, speed, FIREBALL_TRACE_LIFESPAN, FIREBALL_TRAVEL_DURATION);
 	particles.setScale(FIREBALL_INITIAL_SCALE);
 
-	await delay(scene, FIREBALL_TRAVEL_DURATION);
+	await delay(scene, FIREBALL_TRAVEL_DURATION / 2);
 
-	const impact = impactEffect(scene, target, speed, FIREBALL_MAIN_LIFESPAN);
+	const impact = impactEffect(scene, target, speed, EXPLOSION_MAIN_LIFESPAN);
 
 	scene.time.addEvent({
-		delay: FIREBALL_MAIN_LIFESPAN,
+		delay: EXPLOSION_MAIN_LIFESPAN,
 		callback: () => {
 			impact.stop();
 		}
 	});
 
 	scene.time.addEvent({
-		delay: FIREBALL_MAIN_LIFESPAN * PARTICLE_CLEANUP_DELAY_FACTOR,
+		delay: EXPLOSION_MAIN_LIFESPAN * PARTICLE_CLEANUP_DELAY_FACTOR,
 		callback: () => {
 			particles.destroy();
 			impact.destroy();

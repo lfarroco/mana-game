@@ -10,7 +10,7 @@ import {
 } from "../TraitEffectSystem";
 import { playerForce, updatePlayerGoldIO } from "../../Models/Entities/Force";
 import { popText } from "../../Systems/Chara/Animations/popText";
-import { getChara } from "../../Scenes/Battleground/Systems/CharaManager";
+import { getChara, getCharaPosition } from "../../Scenes/Battleground/Systems/CharaManager";
 import { slash } from "../../Systems/Chara/Skills/slash";
 import { shoot } from "../../Systems/Chara/Skills/shoot";
 import { healing } from "../../Systems/Chara/Skills/healing";
@@ -23,6 +23,7 @@ import { Unit } from "../../Models/Entities/Unit";
 import { RelicStateObject } from "../Traits";
 import { fireball as fireballSkillFn } from "../../Systems/Chara/Skills/fireball";
 import { explodeEffect as gameExplodeEffect } from "../../Effects/explodeEffect"; // Adjust path
+import { getOption } from "../../Models/OptionsStore";
 
 
 /**
@@ -318,7 +319,7 @@ const performSkillFireballLogic: SourceUnitGuaranteedEffectFn = async (context) 
 const explodeOnDeathLogic: SourceUnitGuaranteedEffectFn = async (context) => {
 	const { sourceUnit, scene } = context;
 	// TODO: apply damage as well (the below is just effect)
-	await gameExplodeEffect(scene, 1, sourceUnit.position);
+	await gameExplodeEffect(scene, getOption("speed"), getCharaPosition(sourceUnit))
 };
 
 /**

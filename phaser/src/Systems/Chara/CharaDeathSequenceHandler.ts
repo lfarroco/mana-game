@@ -1,7 +1,7 @@
 // src/Systems/Chara/CharaDeathSequenceHandler.ts
 import { Chara } from "./Chara";
 import { GameEvents } from "../../constants/events";
-import { tween, delay } from "../../Utils/animation";
+import { tween } from "../../Utils/animation";
 import { getState } from "../../Models/State";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 
@@ -9,18 +9,15 @@ export const handleCharaDeath = async (scene: BattlegroundScene, data: { chara: 
 	const { chara, killerId } = data;
 
 	// Death Animations
-	tween({ targets: [chara], alpha: 0, duration: 1000 });
-
 	const originalX = chara.x;
 	// Ensure the chara is still valid and has a scene context for tweens
-	if (chara.scene) {
-		for (let i = 0; i < 5; i++) {
-			await tween({ targets: [chara], x: originalX - 20, duration: 100, ease: "Cubic.Out" });
-			await tween({ targets: [chara], x: originalX + 20, duration: 100, ease: "Cubic.Out" });
-		}
-		await delay(scene, 2000); // Use scene for delay context
-	}
 
+	tween({ targets: [chara], alpha: 0, duration: 500 })
+	await tween({ targets: [chara], x: originalX - 10, duration: 100 });
+	await tween({ targets: [chara], x: originalX + 10, duration: 100 });
+	await tween({ targets: [chara], x: originalX - 6, duration: 100 });
+	await tween({ targets: [chara], x: originalX + 6, duration: 100 });
+	await tween({ targets: [chara], x: originalX, duration: 100 });
 
 	// Post-animation/delay event emissions (moved from Chara.killUnit)
 	const state = getState();

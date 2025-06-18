@@ -18,7 +18,7 @@ export class DebugScene extends Phaser.Scene {
 	create() {
 
 		const urlParams = new URLSearchParams(window.location.search);
-		const effect = urlParams.get('effect')?.toLowerCase();
+		const effect = urlParams.get('vieweffect')?.toLowerCase();
 
 		if (effect) {
 
@@ -67,7 +67,7 @@ export class DebugScene extends Phaser.Scene {
 					beam.updateBeam();
 					beam2.updateBeam();
 				});
-			} else if (effect === "fireballeffect") {
+			} else if (effect === "fireball") {
 				this.time.addEvent({
 					delay: 1200,
 					callback: () => {

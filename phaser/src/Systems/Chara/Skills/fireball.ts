@@ -6,6 +6,7 @@ import { fireballEffect } from "../../../Effects/fireballEffect";
 import { approach } from "../approach";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 import { getOption } from "../../../Models/OptionsStore";
+import { asVec2 } from "../../../Models/Geometry";
 
 export const fireball = (
 	scene: BattlegroundScene
@@ -33,7 +34,7 @@ export const fireball = (
 
 	popText({ text: "Fireball", targetId: unit.id });
 
-	await fireballEffect(scene, getOption('speed'), activeChara, targetChara);
+	await fireballEffect(scene, getOption('speed'), asVec2(activeChara), asVec2(targetChara));
 
 	// pick enemies in the cell and around the cell
 	const splashTargets = getUnitsByProximity(state, targetUnit, false, 2);
