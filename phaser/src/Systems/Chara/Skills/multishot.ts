@@ -6,7 +6,6 @@ import { Chara } from "../Chara";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { getUnitsByProximity } from "../../../Models/Board";
 import { delay } from "../../../Utils/animation";
-import { approach } from "../approach";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 
 export async function multishot(
@@ -22,12 +21,9 @@ export async function multishot(
 
 	const chara = UnitManager.getChara(unit.id);
 	if (!chara) return;
-	const target = await approach(chara)
 
-	if (!target) {
-		console.log("no target found");
-		return;
-	}
+	const [target] = getUnitsByProximity(scene.state, unit, true, Infinity);
+	if (!target) return;
 
 	popText({ text: "Multishot", targetId: activeChara.id });
 

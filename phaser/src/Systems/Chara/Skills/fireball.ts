@@ -3,7 +3,6 @@ import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { getUnitsByProximity } from "../../../Models/Board";
 import { popText } from "../Animations/popText";
 import { fireballEffect } from "../../../Effects/fireballEffect";
-import { approach } from "../approach";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 import { getOption } from "../../../Models/OptionsStore";
 import { asVec2 } from "../../../Models/Geometry";
@@ -20,11 +19,8 @@ export const fireball = (
 		return;
 	}
 
-	const targetUnit = await approach(activeChara); // approach returns the target Unit
-	if (!targetUnit) {
-		console.warn(`[fireball] No target Unit found by approach for Chara: ${activeChara.unit.name} (ID: ${activeChara.unit.id})`);
-		return;
-	}
+	const [targetUnit] = getUnitsByProximity(state, unit, true, Infinity);
+	if (!targetUnit) return;
 
 	const targetChara = UnitManager.getChara(targetUnit.id);
 	if (!targetChara) {
