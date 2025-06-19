@@ -7,6 +7,7 @@ import * as Traits from "../../../TraitSystem/Traits";
 import { Vec2 } from "../../../Models/Geometry";
 import { GameEvents } from "../../../constants/events";
 import { UserMessagePayload } from "../../../Models/EventPayloads";
+import * as sc from "./Shop/ShopConstants";
 import BattlegroundScene from "../BattlegroundScene";
 
 export type Relic = {
@@ -182,6 +183,8 @@ export class RelicCard extends Phaser.GameObjects.Image {
 
 		if (zone?.name?.startsWith(RelicCard.SLOT_NAME_PREFIX)) {
 			this.handleDropRelicIntoSlot(zone);
+		} else if (zone?.name === sc.SHOP_SELL_ZONE_NAME && this.owned) {
+			this._handleSellRelic();
 		} else {
 			// Dropped on something that isn't a relic slot
 			this.tweenToSlot();
@@ -190,17 +193,40 @@ export class RelicCard extends Phaser.GameObjects.Image {
 
 	handleDragEnd = () => {
 		if (!this.wasDragged) return;
+
+		// Reset visual tilt, ensure this happens even if the relic is destroyed shortly after
+		if (this.active) { // Check if the GameObject is still active
+			this.scene.tweens.add({
+				targets: [this],
+				angle: 0,
+				duration: 100,
+				ease: "Cubic.Out",
+			});
+		}
+
+		// If it was an owned relic, ensure the sell zone is hidden
+		// This acts as a fallback if _handleSellRelic didn't run or if the drop was elsewhere.
+		if (this.owned && this.active) { // Check 'active' in case it was sold and destroyed
+			this.scene.shop.shopUI.hideSellZone();
+		}
+
 		if (this.wasDroppedOnZone) {
 			this.wasDroppedOnZone = false; // Reset for next drag
+			// If dropped on sell zone and sold, _handleSellRelic destroyed 'this'.
+			// If dropped on a slot, handleDropRelicIntoSlot tweened it.
+			// No further action needed here for these cases.
 			return;
 		}
 
+		// If not dropped on a valid zone, revert to its original position (initialX/Y).
 		this.tweenToSlot();
 		this.wasDroppedOnZone = false;
+		this.wasDragged = false; // Reset wasDragged as well
 	};
 
 	private handleDragStart = () => {
 		this.wasDroppedOnZone = false;
+		this.wasDragged = false; // Reset wasDragged at the start of a new drag
 		this.scene.events.emit(GameEvents.TOOLTIP_HIDE);
 
 		// Bring to top within its current rendering context
@@ -208,6 +234,18 @@ export class RelicCard extends Phaser.GameObjects.Image {
 			this.parentContainer.bringToTop(this);
 		} else { // If the relic is a direct child of the scene's display list
 			this.scene.children.bringToTop(this);
+		}
+
+		// Show sell zone only if the relic is owned by the player
+		if (this.owned) {
+			this.scene.shop.shopUI.showSellZone();
+			// Tilt animation for owned relics being dragged
+			this.scene.tweens.add({
+				targets: [this],
+				angle: -5, // Slight tilt
+				duration: 100,
+				ease: "Cubic.Out",
+			});
 		}
 	}
 
@@ -288,6 +326,42 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		});
 		this.initialX = x; // Update the base position after tweening
 		this.initialY = y;
+	}
+
+	private _handleSellRelic(): void {
+		if (!this.owned) {
+			// Should not happen if sell zone is only shown for owned relics
+			console.warn("Attempted to sell a relic that is not owned.");
+			this.tweenToSlot(); // Revert to its last known position
+			this.scene.shop.shopUI.hideSellZone();
+			return;
+		}
+
+		const sellPrice = Math.floor(RelicCard.RELIC_COST / 2);
+
+		// TODO: this is not working because poptext only accepts chara ids
+		// 1. Visual feedback (pop text for gold)
+		this.scene.events.emit(GameEvents.POP_TEXT_SHOW, {
+			text: `+${sellPrice}G`,
+			target: this, // Pass the RelicCard instance itself
+			type: "heal" // Green color for gold gain
+		});
+
+		// 2. Update player gold
+		this.scene.events.emit(GameEvents.PLAYER_GOLD_DELTA_REQUEST, sellPrice);
+
+		// 3. Remove relic from player's state
+		const relicIndex = playerForce.relics.findIndex(r => r.id === this.id);
+		if (relicIndex > -1) {
+			playerForce.relics.splice(relicIndex, 1);
+		} else {
+			console.warn(`Relic with ID ${this.id} not found in playerForce.relics during selling.`);
+		}
+
+		// 4. Hide the sell zone (immediately, as the action is confirmed) & Destroy GameObject
+		this.scene.shop.shopUI.hideSellZone();
+		this.scene.events.emit(GameEvents.TOOLTIP_HIDE); // Ensure tooltip is hidden
+		this.destroy();
 	}
 
 	updateDataPosition(x: number, y: number) {
