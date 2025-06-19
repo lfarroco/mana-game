@@ -55,7 +55,7 @@ export function shopItemClickPurchaseRequestedHandler(
 		return;
 	}
 
-	emit(GameEvents.PLAYER_GOLD_UPDATE_REQUEST, -constants.SHOP_ITEM_PURCHASE_COST);
+	emit(GameEvents.PLAYER_GOLD_DELTA_REQUEST, -constants.SHOP_ITEM_PURCHASE_COST);
 	const newUnit = makeUnit(constants.FORCE_ID_PLAYER, shopUnitData.cardId, targetTile);
 	state.gameData.player.units.push(newUnit);
 

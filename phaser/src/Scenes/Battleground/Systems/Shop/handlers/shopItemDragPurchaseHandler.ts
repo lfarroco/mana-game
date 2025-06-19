@@ -29,7 +29,7 @@ export function shopItemDragPurchaseRequestedHandler(
 		return;
 	}
 
-	scene.events.emit(GameEvents.PLAYER_GOLD_UPDATE_REQUEST, -constants.SHOP_ITEM_PURCHASE_COST);
+	scene.events.emit(GameEvents.PLAYER_GOLD_DELTA_REQUEST, -constants.SHOP_ITEM_PURCHASE_COST);
 	const newUnit = makeUnit(constants.FORCE_ID_PLAYER, shopUnitData.cardId, targetTile);
 	scene.state.gameData.player.units.push(newUnit);
 	scene.events.emit(GameEvents.BOARD_CHARA_CREATE_REQUESTED, { unit: newUnit });

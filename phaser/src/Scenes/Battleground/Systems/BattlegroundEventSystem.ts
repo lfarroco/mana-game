@@ -64,7 +64,7 @@ export class BattlegroundEventSystem {
 		}, this.uiManager);
 
 		// Player State
-		this.addListener(GameEvents.PLAYER_GOLD_UPDATE_REQUEST, this.scene.handlePlayerGoldUpdateRequest, this.scene);
+		this.addListener(GameEvents.PLAYER_GOLD_DELTA_REQUEST, this.scene.handlePlayerGoldUpdateRequest, this.scene);
 
 		this.addListener(GameEvents.PLAYER_WON_GAME, this.battleProgressionSystem.handlePlayerWonGame, this);
 

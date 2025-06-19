@@ -83,7 +83,7 @@ export class BattleProgressionSystem {
 		this.scene.events.emit(GameEvents.BATTLE_RESULT_SHOW, { result: "victory" });
 		await delay(this.scene, 1500); // Wait for animation
 
-		this.scene.events.emit(GameEvents.PLAYER_GOLD_UPDATE_REQUEST, BG_CONSTANTS.VICTORY_GOLD_REWARD);
+		this.scene.events.emit(GameEvents.PLAYER_GOLD_DELTA_REQUEST, BG_CONSTANTS.VICTORY_GOLD_REWARD);
 		this.prestigeSystem.processVictory();
 		this.prestigeSystem.finalizeRound();
 	}
