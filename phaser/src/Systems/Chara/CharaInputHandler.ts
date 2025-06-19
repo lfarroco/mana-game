@@ -47,6 +47,9 @@ export class CharaInputHandler {
 			duration: 100,
 			ease: "Cubic.Out",
 		});
+		if (!this.chara.getIsShopItem()) {
+			this.chara.scene.shop.shopUI.showSellZone();
+		}
 		this.chara.scene.events.emit(GameEvents.TOOLTIP_HIDE);
 	}
 
@@ -70,6 +73,10 @@ export class CharaInputHandler {
 			ease: "Cubic.Out",
 		});
 
+		// Always hide the sell zone when a drag ends
+		if (!this.chara.getIsShopItem()) {
+			this.chara.scene.shop.shopUI.hideSellZone();
+		}
 		if (!this.wasDragSuccessful) {
 			this.chara.revertDragOrFailedPurchase(this.dragStartX, this.dragStartY);
 		}

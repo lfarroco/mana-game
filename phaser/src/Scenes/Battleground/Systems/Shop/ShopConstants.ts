@@ -24,3 +24,13 @@ export const PANEL_BG_OPACITY = 0.95; // Mostly opaque
 export const PANEL_X = 20;
 export const PANEL_Y = 20;
 export const SUB_PANEL_CORNER_RADIUS = 15;
+
+export const SELL_ZONE_WIDTH = 500;
+export const SELL_ZONE_HEIGHT = 380;
+export const SELL_ZONE_Y_OFFSET_FROM_BOTTOM = 180; // Distance from the bottom of the shop panel to the top of the sell zone
+export const SELL_ZONE_BG_COLOR = 0xffa500; // Orange
+export const SELL_ZONE_BG_ALPHA = 0.7;
+export const SELL_ZONE_TEXT = "SELL UNIT";
+export const SELL_ZONE_TEXT_STYLE = { fontSize: '32px', color: '#000000', fontStyle: 'bold' };
+export const SELL_ZONE_CORNER_RADIUS = 10;
+export const SHOP_SELL_ZONE_NAME = "shop_sell_zone";
