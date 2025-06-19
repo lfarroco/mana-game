@@ -46,7 +46,7 @@ export const GameEvents = {
 	RELIC_SLOTS_SETUP: "relic_slots_setup",
 	CHARA_SUMMON_TO_BOARD: "chara_summon_to_board", // Payload: { unit: Unit, animateAppear: boolean, playSound: boolean }
 	CHARA_DESTROY_FROM_BOARD: "chara_destroy_from_board", // Payload: { unitId: string }
-	POP_TEXT_SHOW: "pop_text_show", // Payload: { text: string, targetId: string, color?: string }
+	POP_TEXT_SHOW: "pop_text_show", // Payload: PopTextPayload from EventPayloads.ts
 	CHARA_HP_DISPLAY_UPDATE: "chara_hp_display_update", // Payload: { unitId: string }
 	CHARA_CHARGE_BAR_UPDATE: "chara_charge_bar_update", // Payload: { unitId: string }
 	CHARA_BARS_VISIBILITY_SET: "chara_bars_visibility_set", // Payload: { unitId: string, visible: boolean }

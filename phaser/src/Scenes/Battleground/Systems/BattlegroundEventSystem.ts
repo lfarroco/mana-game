@@ -8,6 +8,8 @@ import { GameEvents } from "../../../constants/events";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { handleCharaDeath } from "../../../Systems/Chara/CharaDeathSequenceHandler";
 import { Chara } from "../../../Systems/Chara/Chara";
+import { popText } from "../../../Systems/Chara/Animations/popText";
+import { PopTextPayload } from "../../../Models/EventPayloads";
 import * as CharaTooltip from "../../../Systems/Chara/CharaTooltip";
 
 type Listener = {
@@ -84,7 +86,9 @@ export class BattlegroundEventSystem {
 		this.addListener(GameEvents.CHARA_FATALLY_WOUNDED, (data: { chara: Chara, killerId: string }) => handleCharaDeath(this.scene, data), this);
 
 		// Visual Effects & Feedback
-		//this.addListener(GameEvents.POP_TEXT_SHOW, (payload: any) => popText(this.scene, payload), this);
+		this.addListener(GameEvents.POP_TEXT_SHOW, (payload: PopTextPayload) => {
+			popText({ scene: this.scene, x: payload.x, y: payload.y, text: payload.text, type: payload.type });
+		}, this);
 		this.addListener(GameEvents.BATTLE_RESULT_SHOW, this.scene.handleBattleResultShow, this.scene);
 		this.addListener(GameEvents.VIGNETTE_MESSAGE_SHOW, this.scene.handleVignetteMessageShow, this.scene);
 

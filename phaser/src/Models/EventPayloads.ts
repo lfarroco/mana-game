@@ -76,3 +76,13 @@ export type UserMessagePayload = {
 	/** The type or category of the message, which can influence its presentation (e.g., color, icon) or associated sound. */
 	type: 'error' | 'info' | 'warning' | 'success';
 };
+
+/**
+ * Defines the structure for payloads used when requesting the display of a pop-up text at specific coordinates.
+ */
+export type PopTextPayload = {
+	text: string;
+	x: number;
+	y: number;
+	type?: "heal" | "damage"; // Corresponds to popText function's type parameter
+};
