@@ -4,7 +4,6 @@ import Core from "./Scenes/Core/Core";
 import { State } from "./Models/State";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "./constants/constants";
 import { DebugScene } from "./Debug/DebugScene";
-import { SaveGameSystem_init } from "./Systems/SaveGame/SaveGame";
 import BBCodeTextPlugin from 'phaser3-rex-plugins/plugins/bbcodetext-plugin.js';
 
 export function initGame(state: State) {
@@ -35,9 +34,6 @@ export function initGame(state: State) {
 			]
 		}
 	});
-
-	// TODO: move this up, as a global system
-	SaveGameSystem_init(state, game);
 
 	// get query params, check for DEBUG param
 	const urlParams = new URLSearchParams(window.location.search);
