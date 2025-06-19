@@ -173,7 +173,7 @@ export class Shop {
 			tween({
 				targets: [c],
 				scale: 1,
-				duration: 500
+				duration: 400
 			})
 			//shake card left and right
 			await tween({
@@ -181,14 +181,14 @@ export class Shop {
 				angle: -10,
 				yoyo: true,
 				repeat: 0,
-				duration: 500
+				duration: 100
 			});
 			await tween({
 				targets: [c],
 				angle: 10,
 				yoyo: true,
 				repeat: 0,
-				duration: 500
+				duration: 100
 			});
 		})
 	}
