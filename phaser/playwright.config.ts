@@ -17,7 +17,7 @@ export default defineConfig({
 		screenshot: 'only-on-failure',
 	},
 	webServer: {
-		command: 'npm run start',
+		command: 'npm run dev',
 		url: 'http://localhost:8080',
 		reuseExistingServer: !process.env.CI,
 		timeout: 120 * 1000,
