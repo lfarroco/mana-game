@@ -62,8 +62,8 @@ export class BattlegroundScene extends Phaser.Scene {
       this.uiManager.destroy();
     }
     if (this.shop && this.shop.shopUI) {
-			this.shop.shopUI.destroy();
-		}
+      this.shop.shopUI.destroy();
+    }
     if (this.eventSystem) {
       this.eventSystem.destroy();
     }
@@ -261,9 +261,13 @@ export class BattlegroundScene extends Phaser.Scene {
     if (unitIndex > -1) {
       // const soldUnit = this.state.gameData.player.units[unitIndex]; // Name already shown by Chara popText
       this.state.gameData.player.units.splice(unitIndex, 1);
-      
+
       // Emit event to destroy the Chara visual
       this.events.emit(GameEvents.CHARA_DESTROY_FROM_BOARD, { unitId: payload.unitId });
+      // Hide the sell zone in the shop UI
+      if (this.shop && this.shop.shopUI) {
+        this.shop.shopUI.hideSellZone();
+      }
       // this.playFx("sell_sound"); // If you have a sell sound
     } else {
       console.warn(`[BattlegroundScene] Unit with ID ${payload.unitId} not found for selling.`);
