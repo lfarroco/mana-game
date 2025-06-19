@@ -30,23 +30,23 @@ export type CharaOptions = {
  */
 export class Chara extends Phaser.GameObjects.Container {
 	/** The underlying data model for this character, containing all its stats and state. */
-	public unit: Unit;
+	unit: Unit;
 	/** A direct alias to `unit.id` for convenience and for Phaser's GameObject naming. */
-	public id: string;
+	id: string;
 
 	/** The main visual image/sprite for the character. */
-	private sprite!: Phaser.GameObjects.Image;
+	sprite!: Phaser.GameObjects.Image;
 	/** Component responsible for displaying ATK/HP numerical stats. */
-	private statsDisplay!: CharaStatsDisplay;
+	statsDisplay!: CharaStatsDisplay;
 	/** Component responsible for displaying HP, charge, and cooldown bars. */
-	private barsDisplay!: CharaBarsDisplay;
+	barsDisplay!: CharaBarsDisplay;
 
 	/** Handles all input interactions for this Chara. */
-	private inputHandler!: CharaInputHandler; // +++ NEW PROPERTY
+	inputHandler!: CharaInputHandler; // +++ NEW PROPERTY
 	/** Indicates if this Chara instance represents an item currently in the shop. */
-	private isShopItem: boolean;
+	isShopItem: boolean;
 	/** Optional callback function to execute after a shop item is successfully purchased. */
-	private onPurchasedCallback?: () => void;
+	onPurchasedCallback?: () => void;
 
 	/**
 	 * Creates an instance of a Chara.
@@ -120,7 +120,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	 * Creates the main sprite for the Chara based on `unit.pic`.
 	 * Uses a default "nameless" image if the specified picture key doesn't exist.
 	 */
-	private createSprite() {
+	createSprite() {
 		// Use unit.pic if valid, otherwise default to "nameless"
 		const textureKey = this.unit.pic && this.scene.textures.exists(this.unit.pic)
 			? this.unit.pic
@@ -144,7 +144,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	 *                   However, for the purpose of reverting a failed purchase, we need the Chara's
 	 *                   actual current position (its shop slot position).
 	 */
-	public processShopItemClick(_clickX: number, _clickY: number): void {
+	processShopItemClick(_clickX: number, _clickY: number): void {
 		// For a click purchase, targetBoardPos is undefined; the ShopSystem will find an empty slot.
 		// We pass a copy of unit data as the shop Chara's unit shouldn't be mutated directly
 		// until purchase is confirmed and a new unit is officially created.
@@ -157,7 +157,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	/**
 	 * Helper to visually revert a shop item Chara to its original drag start position (its shop slot).
 	 */
-	private _revertShopItemToPosition(x: number, y: number) {
+	_revertShopItemToPosition(x: number, y: number) {
 		tween({ targets: [this], x, y });
 	}
 
@@ -168,7 +168,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	 * @param dragStartX The X coordinate where the drag started.
 	 * @param dragStartY The Y coordinate where the drag started.
 	 */
-	private _handleDropOwnedUnit(tile: Vec2, dragStartX: number, dragStartY: number): void {
+	_handleDropOwnedUnit(tile: Vec2, dragStartX: number, dragStartY: number): void {
 		this.scene.events.emit(GameEvents.OWNED_UNIT_MOVE_REQUESTED, {
 			unitId: this.unit.id,
 			targetTile: tile,
@@ -186,7 +186,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	 * @param dragStartX The X coordinate where the drag started.
 	 * @param dragStartY The Y coordinate where the drag started.
 	 */
-	private _handleDropShopItem(tile: Vec2, dragStartX: number, dragStartY: number): void {
+	_handleDropShopItem(tile: Vec2, dragStartX: number, dragStartY: number): void {
 		// We pass a copy of unit data as the shop Chara's unit shouldn't be mutated directly
 		// until purchase is confirmed and a new unit is officially created.
 		this.scene.events.emit(GameEvents.SHOP_ITEM_DRAG_PURCHASE_REQUESTED, {
@@ -205,7 +205,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	 * @param dragStartX The X coordinate where the drag started.
 	 * @param dragStartY The Y coordinate where the drag started.
 	 */
-	public processDrop(dropZoneTarget: Phaser.GameObjects.GameObject, dragStartX: number, dragStartY: number): boolean {
+	processDrop(dropZoneTarget: Phaser.GameObjects.GameObject, dragStartX: number, dragStartY: number): boolean {
 		if (!Board.PlayerBoard.isTileZone(dropZoneTarget)) {
 			// Dropped outside a valid player board tile zone.
 			return false;
@@ -231,7 +231,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	 * @param originalX The X position to revert to.
 	 * @param originalY The Y position to revert to.
 	 */
-	public revertDragOrFailedPurchase(revertToX: number, revertToY: number): void {
+	revertDragOrFailedPurchase(revertToX: number, revertToY: number): void {
 		if (this.isShopItem) { // If it's still a shop item (purchase failed or invalid drop for shop item)
 			this._revertShopItemToPosition(revertToX, revertToY);
 		} else { // Owned unit that failed to move
@@ -244,12 +244,12 @@ export class Chara extends Phaser.GameObjects.Container {
 	 * Called when this Chara, as a shop item, has been successfully purchased.
 	 * Invokes the onPurchasedCallback if it exists.
 	 */
-	public finalizePurchase(): void {
+	finalizePurchase(): void {
 		this.isShopItem = false; // No longer a shop item
 		if (this.onPurchasedCallback) this.onPurchasedCallback();
 	};
 
-	private _onShopPurchaseSuccessful(payload: { purchasedUnit: Unit, originalShopCharaId: string }): void {
+	_onShopPurchaseSuccessful(payload: { purchasedUnit: Unit, originalShopCharaId: string }): void {
 		if (this.isShopItem && payload.originalShopCharaId === this.id) {
 			this.finalizePurchase(); // This calls the onPurchasedCallback which should handle removal from flyout
 			// The CharaManager is responsible for the actual destruction and removal from its index.
@@ -257,7 +257,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		}
 	}
 
-	private _onShopPurchaseFailed(payload: { originalShopCharaId: string, reason: string, dragStartX: number, dragStartY: number }): void {
+	_onShopPurchaseFailed(payload: { originalShopCharaId: string, reason: string, dragStartX: number, dragStartY: number }): void {
 		if (this.isShopItem && payload.originalShopCharaId === this.id) {
 			// Ensure tooltip is hidden before reverting, as pointer might not naturally move out
 			this.scene.events.emit(GameEvents.TOOLTIP_HIDE);
@@ -267,13 +267,13 @@ export class Chara extends Phaser.GameObjects.Container {
 		}
 	}
 
-	private _onOwnedUnitMoveAccepted(payload: { unitId: string, newVisualPosition: { x: number, y: number } }): void {
+	_onOwnedUnitMoveAccepted(payload: { unitId: string, newVisualPosition: { x: number, y: number } }): void {
 		if (!this.isShopItem && payload.unitId === this.id) {
 			tween({ targets: [this], x: payload.newVisualPosition.x, y: payload.newVisualPosition.y, duration: 150 });
 		}
 	}
 
-	private _onOwnedUnitSwapAccepted(payload: { movedUnitId: string, movedUnitVisualPosition: { x: number, y: number }, swappedUnitId: string, swappedUnitVisualPosition: { x: number, y: number } }): void {
+	_onOwnedUnitSwapAccepted(payload: { movedUnitId: string, movedUnitVisualPosition: { x: number, y: number }, swappedUnitId: string, swappedUnitVisualPosition: { x: number, y: number } }): void {
 		if (!this.isShopItem) {
 			if (payload.movedUnitId === this.id) {
 				tween({ targets: [this], x: payload.movedUnitVisualPosition.x, y: payload.movedUnitVisualPosition.y, duration: 150 });
@@ -283,7 +283,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		}
 	}
 
-	private _onOwnedUnitMoveRejected(payload: { unitId: string, dragStartX: number, dragStartY: number }): void {
+	_onOwnedUnitMoveRejected(payload: { unitId: string, dragStartX: number, dragStartY: number }): void {
 		if (!this.isShopItem && payload.unitId === this.id) {
 			// Ensure tooltip is hidden before reverting, as pointer might not naturally move out
 			this.scene.events.emit(GameEvents.TOOLTIP_HIDE);
@@ -299,7 +299,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	// --- UI Update Methods ---
 
 	/** Accessor for the input handler to know if this is a shop item. */
-	public getIsShopItem(): boolean {
+	getIsShopItem(): boolean {
 		return this.isShopItem;
 	}
 
@@ -317,7 +317,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	 * Sets the visibility of the HP, charge, and cooldown bars.
 	 * @param visible `true` to show bars, `false` to hide.
 	 */
-	public setBarsVisibility(visible: boolean): void {
+	setBarsVisibility(visible: boolean): void {
 		this.barsDisplay.setVisible(visible);
 	}
 

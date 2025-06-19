@@ -100,7 +100,11 @@ export class ShopUI {
 
 		const bg = this.scene.add.graphics()
 			.fillStyle(0x000, 0.5)
-			.fillRect(0, 0, sc.RELIC_BG_WIDTH, sc.RELIC_BG_HEIGHT)
+			.fillRoundedRect(
+				0, 0,
+				sc.RELIC_BG_WIDTH, sc.RELIC_BG_HEIGHT,
+				sc.SUB_PANEL_CORNER_RADIUS,
+			)
 			.setPosition(sc.RELIC_SECTION_X, sc.RELIC_SECTION_Y);
 
 		const title = this.scene.add.text(sc.RELIC_TITLE_X, sc.RELIC_TITLE_Y, "Relics", c.titleTextConfig);
@@ -147,30 +151,18 @@ export class ShopUI {
 
 	_renderTavernSectionBackgroundAndTitle(): void {
 
-		const position = [
-			sc.RELIC_SECTION_X, sc.RELIC_SECTION_Y
-		] as [number, number];
-		const bgOffset = [
-			sc.TAVERN_BG_OFFSET_X, 0,
-		] as [number, number];
-		const size = [
-			sc.TAVERN_BG_WIDTH, sc.TAVERN_BG_HEIGHT
-		] as [number, number];
-
 		const bg = this.scene.add.graphics()
 			.fillStyle(0x000, 0.5)
-			.fillRect(
-				...bgOffset,
-				...size,
-			)
-			.setPosition(...position);
+			.fillRoundedRect(
 
-		const titlePositon = [
-			sc.TAVERN_TITLE_X, sc.TAVERN_TITLE_Y
-		] as [number, number];
+				sc.TAVERN_BG_OFFSET_X, 0,
+				sc.TAVERN_BG_WIDTH, sc.TAVERN_BG_HEIGHT,
+				sc.SUB_PANEL_CORNER_RADIUS
+			)
+			.setPosition(sc.RELIC_SECTION_X, sc.RELIC_SECTION_Y);
 
 		const title = this.scene.add.text(
-			...titlePositon,
+			sc.TAVERN_TITLE_X, sc.TAVERN_TITLE_Y,
 			"Tavern",
 			c.titleTextConfig
 		);
