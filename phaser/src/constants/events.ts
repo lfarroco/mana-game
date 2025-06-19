@@ -38,7 +38,7 @@ export const GameEvents = {
 	TRAIT_EVAL_UNIT_KILL_BY_ME: "trait_eval_unit_kill_by_me",
 
 	// BattlegroundScene specific UI and System Triggers
-	PLAYER_GOLD_UPDATE_REQUEST: "player_gold_update_request", // Payload: number (goldDelta)
+	PLAYER_GOLD_DELTA_REQUEST: "player_delta_update_request", // Payload: number (goldDelta)
 	PLAYER_BOARD_CREATE_DROP_ZONE: "player_board_create_drop_zone",
 	PLAYER_BOARD_SHOW: "player_board_show",
 	PLAYER_BOARD_HIDE: "player_board_hide",

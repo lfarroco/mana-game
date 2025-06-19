@@ -165,14 +165,13 @@ export class DebugController {
 	}
 
 	// --- State Manipulation for Testing ---
-	setPlayerGold(newAmount: number): string {
-		const currentGold = this.scene.state.gameData.player.gold;
-		const delta = newAmount - currentGold;
-		// This emits an event that BattlegroundEventSystem listens to,
-		// which then updates the state and emits GOLD_CHANGED.
-		this.scene.events.emit(GameEvents.PLAYER_GOLD_UPDATE_REQUEST, delta);
-		// The actual gold value will be updated asynchronously by the event handler.
-		return `Player gold update requested to ${newAmount}. (Delta: ${delta}).`;
+	playerGoldDelta(delta: number): string {
+		this.scene.events.emit(GameEvents.PLAYER_GOLD_DELTA_REQUEST, delta);
+		return `Player gold update requested to ${delta}. (Delta: ${delta}).`;
+	}
+
+	isShopVisible() {
+		return this.scene.shop.flyout.isOpen;
 	}
 
 	// --- Game Constants Accessors ---
@@ -186,7 +185,7 @@ export class DebugController {
 
 	// --- Utility / State Inspection ---
 	getPlayerGold(): number {
-		return this.scene.state.gameData.player?.gold ?? 0;
+		return this.scene.state.gameData.player.gold;
 	}
 
 	getShopHeroes(): CardDefinition[] {

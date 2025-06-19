@@ -16,10 +16,6 @@ export const MAX_PARTY_SIZE = 5;
 
 export const REROLL_UNITS_PRICE = 3;
 
-export const RECRUIT_UNIT_PRICE = 3;
-export const PROMOTE_UNIT_PRICE = 5;
-export const GOLD_PER_WAVE = 3;
-
 export const MIN_COOLDOWN = 200;
 
 export const PLAYER_BOARD_X = SCREEN_WIDTH / 2 - (TILE_WIDTH * 3 / 2)
