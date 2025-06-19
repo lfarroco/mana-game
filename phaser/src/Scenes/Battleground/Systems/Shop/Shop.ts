@@ -101,12 +101,9 @@ export class Shop {
 		this.currentShopCharas = charas;
 		this.currentShopRelicCards = relicCards;
 
-		charas.forEach(c => c.setScale(0))
-
 		await this.flyout.slideIn();
-		// Animate the appearance of newly added charas
-		this.currentShopCharas.forEach(chara => this._animateCharaAppearance(chara));
-		// Potentially animate relic cards too, if desired
+		this.currentShopCharas.forEach(chara => this._animateItemAppearance(chara as Phaser.GameObjects.Container & { angle: number }));
+		this.currentShopRelicCards.forEach(relicCard => this._animateItemAppearance(relicCard as RelicCard & { angle: number }));
 	}
 
 	// TODO: add tests
@@ -146,26 +143,36 @@ export class Shop {
 	}
 
 	/**
-	 * Animates the appearance of a Chara card in the shop.
+	 * Animates the appearance of a shop item (Chara or RelicCard).
 	 * The animation involves scaling up and a slight "wiggle".
-	 * @param chara The Chara instance to animate.
+	 * @param item The Phaser.GameObjects.GameObject (e.g., Chara (Container) or RelicCard (Image)) to animate.
+	 *             It must have scaleX, scaleY, angle properties and a setScale method.
 	 */
-	private async _animateCharaAppearance(chara: Chara): Promise<void> {
-		chara.scale = 0;
+	private async _animateItemAppearance(
+		item: Phaser.GameObjects.GameObject & { scaleX: number; scaleY: number; angle: number; setScale: (x: number, y?: number) => unknown }
+	): Promise<void> {
+		const targetScaleX = item.scaleX;
+		const targetScaleY = item.scaleY;
+
+		item.setScale(0); // Start animation from scale 0
+
 		tween({
-			targets: [chara],
-			scale: 1,
+			targets: [item],
+			scaleX: targetScaleX,
+			scaleY: targetScaleY,
 			duration: 400
 		});
+
 		//shake card left and right
-		await tween({
-			targets: [chara],
-			angle: -10,
-			yoyo: true,
-			repeat: 0,
-			duration: 100
+		// Using a sequence for cleaner chained tweens
+		this.scene.tweens.chain({
+			targets: item,
+			tweens: [
+				{ angle: -10, duration: 100, yoyo: true, ease: 'Quad.easeInOut' },
+				{ angle: 10, duration: 100, yoyo: true, ease: 'Quad.easeInOut' },
+				{ angle: 0, duration: 50, ease: 'Quad.easeIn' } // Return to 0 angle smoothly
+			]
 		});
-		await tween({ targets: [chara], angle: 10, yoyo: true, repeat: 0, duration: 100 });
 	}
 
 	/**
@@ -198,6 +205,6 @@ export class Shop {
 		this.currentShopCharas = newShopCharas;
 
 		// Animate the appearance of newly rerolled charas
-		newShopCharas.forEach(chara => this._animateCharaAppearance(chara));
+		newShopCharas.forEach(chara => this._animateItemAppearance(chara as Phaser.GameObjects.Container & { angle: number }));
 	}
 }
