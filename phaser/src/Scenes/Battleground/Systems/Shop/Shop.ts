@@ -4,13 +4,16 @@ import { pickRandom } from "../../../../utils";
 import { RelicCard } from "../Relic";
 import { Chara } from "../../../../Systems/Chara/Chara";
 import { BattlegroundScene } from "../../BattlegroundScene";
-import { GameEvents } from "../../../../constants/events";
+import { GameEvents } from "../../../../constants/events"; // Corrected import path if needed
 import { Vec2 } from "../../../../Models/Geometry";
 import { Unit } from "../../../../Models/Entities/Unit";
 import { ShopUI } from "./ShopUI";
 import { shopOpenUITriggerHandler } from "./handlers/shopOpenUITriggerHandler";
 import { shopItemClickPurchaseRequestedHandler } from "./handlers/shopItemClickPurchaseHandler";
 import { shopItemDragPurchaseRequestedHandler } from "./handlers/shopItemDragPurchaseHandler";
+import { shopRerollTavernHandler } from "./handlers/shopRerollTavernHandler";
+import * as CharaManager from "../CharaManager";
+import { State } from "../../../../Models/State";
 
 /**
  * @class Shop
@@ -20,22 +23,21 @@ import { shopItemDragPurchaseRequestedHandler } from "./handlers/shopItemDragPur
  */
 export class Shop {
 
-	private scene: BattlegroundScene;
-	private flyout: Flyout;
-	private shopUI: ShopUI;
+	scene: BattlegroundScene;
+	state: State;
+	flyout: Flyout;
+	shopUI: ShopUI;
 
 	/**
-	 * @private
 	 * @type {Chara[]}
 	 * @description Array of Chara instances currently available for purchase in the shop. These are the interactive GameObjects.
 	 */
-	private currentShopCharas: Chara[] = [];
+	currentShopCharas: Chara[] = [];
 	/**
-	 * @private
 	 * @type {RelicCard[]}
 	 * @description Array of RelicCard instances currently available for acquisition in the shop. These are the interactive GameObjects.
 	 */
-	private currentShopRelicCards: RelicCard[] = [];
+	currentShopRelicCards: RelicCard[] = [];
 
 	/**
 	 * Creates an instance of the Shop.
@@ -43,18 +45,18 @@ export class Shop {
 	 */
 	constructor(scene: BattlegroundScene) {
 		this.scene = scene;
+		this.state = scene.state;
 		this.flyout = new Flyout(this.scene);
 		this.shopUI = new ShopUI(this.scene, this.flyout);
 	}
 
 	/**
-	 * @public
 	 * @method open
 	 * @description Opens the shop interface. It clears previously displayed shop items,
 	 * fetches new random characters and relics (ensuring characters offered are not already owned by the player),
 	 * and then instructs {@link ShopUI} to render them. Finally, it slides the shop {@link Flyout} into view.
 	 */
-	public open() {
+	open() {
 		// Clear previous shop items
 		this.currentShopCharas = [];
 		this.currentShopRelicCards = [];
@@ -89,7 +91,10 @@ export class Shop {
 
 		const { charas, relicCards } = this.shopUI.displayShop(
 			relicData, tavernCardData,
-			nextRoundCallback, charaPurchaseFinalizedCallback, relicAcquisitionFinalizedCallback
+			nextRoundCallback,
+			this.handleShopRerollTavern.bind(this),
+			charaPurchaseFinalizedCallback,
+			relicAcquisitionFinalizedCallback
 		);
 
 		this.currentShopCharas = charas;
@@ -98,33 +103,69 @@ export class Shop {
 		this.flyout.slideIn();
 	}
 
-	public getShopCharaBySlot(slotIndex: number): Chara | null {
+	// TODO: add tests
+	// TODO: add animation for reroll
+
+	getShopCharaBySlot(slotIndex: number): Chara | null {
 		return this.currentShopCharas[slotIndex] || null;
 	}
 
-	public getShopRelicCardBySlot(slotIndex: number): RelicCard | null {
+	getShopRelicCardBySlot(slotIndex: number): RelicCard | null {
 		return this.currentShopRelicCards[slotIndex] || null;
 	}
 
-	public getDisplayedHeroCardDefinitions(): Card.CardDefinition[] {
+	getDisplayedHeroCardDefinitions(): Card.CardDefinition[] {
 		return this.currentShopCharas.map(chara => chara.unit.cardId)
 			.map(Card.getCardDefinition);
 	}
 
-	public getDisplayedRelicDefinitions(): Card.RelicDefinition[] {
+	getDisplayedRelicDefinitions(): Card.RelicDefinition[] {
 		return this.currentShopRelicCards.map(rc => rc.id)
 			.map(Card.getRelicDefinition);
 	}
 
-	public async handleShopOpenUITrigger(): Promise<void> {
+	async handleShopOpenUITrigger(): Promise<void> {
 		await shopOpenUITriggerHandler(this);
 	}
 
-	public handleShopItemClickPurchaseRequested(payload: { shopUnitData: Unit, shopCharaId: string, dragStartX: number, dragStartY: number }): void {
+	handleShopItemClickPurchaseRequested(payload: { shopUnitData: Unit, shopCharaId: string, dragStartX: number, dragStartY: number }): void {
 		shopItemClickPurchaseRequestedHandler(this.scene, payload);
 	}
 
-	public handleShopItemDragPurchaseRequested(payload: { shopUnitData: Unit, shopCharaId: string, targetTile: Vec2, dragStartX: number, dragStartY: number }): void {
+	handleShopItemDragPurchaseRequested(payload: { shopUnitData: Unit, shopCharaId: string, targetTile: Vec2, dragStartX: number, dragStartY: number }): void {
 		shopItemDragPurchaseRequestedHandler(this.scene, payload);
+	}
+	handleShopRerollTavern(): void {
+		shopRerollTavernHandler(this);
+	}
+
+	/**
+	 * Rerolls the characters available in the tavern.
+	 * This method clears the current tavern characters, fetches a new set,
+	 * and updates the UI to display them. Relics and shop buttons remain unchanged.
+	 * The gold deduction for this action is handled by `shopRerollTavernHandler`.
+	 */
+	rerollTavern(): void {
+		// 1. Clear existing shop charas from UI and manager
+		this.currentShopCharas.forEach(chara => {
+			this.flyout.remove(chara, false); // Remove from flyout container, don't destroy Phaser GameObject yet
+			CharaManager.destroyChara(chara.id); // This will call chara.destroy() and unregister from CharaManager
+		});
+		this.currentShopCharas = [];
+
+		// 2. Prepare new card data for the tavern
+		const ownedCardIds = new Set(this.scene.state.gameData.player.units.map(u => u.cardId));
+		const filteredCards = Card.getAllCards().filter(card => !ownedCardIds.has(card.id));
+		// TODO: Make the number of tavern slots a constant
+		const newTavernCardData = pickRandom(filteredCards, 3);
+
+		// 3. Define the charaPurchaseFinalizedCallback (same as in open())
+		const charaPurchaseFinalizedCallback = (purchasedChara: Chara) => {
+			this.currentShopCharas = this.currentShopCharas.filter(c => c.id !== purchasedChara.id);
+		};
+
+		// 4. Update the ShopUI with new characters
+		const newShopCharas = this.shopUI.rerenderTavernCharas(newTavernCardData, charaPurchaseFinalizedCallback);
+		this.currentShopCharas = newShopCharas;
 	}
 }

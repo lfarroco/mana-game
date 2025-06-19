@@ -14,42 +14,77 @@ import { makeUnit } from "../../../../Models/Entities/Unit";
 import * as sc from "./ShopConstants";
 
 export class ShopUI {
-	private scene: BattlegroundScene;
-	private flyout: Flyout;
+	scene: BattlegroundScene;
+	flyout: Flyout;
 
 	constructor(scene: BattlegroundScene, flyout: Flyout) {
 		this.scene = scene;
 		this.flyout = flyout;
 	}
 
-	public displayShop(
+	/**
+	 * Clears and re-renders only the character cards in the tavern section of the shop.
+	 * Assumes the tavern background and title are already present and should not be recreated.
+	 * This method is called when the player rerolls the tavern.
+	 * @param cardDefs The new card definitions to display in the tavern.
+	 * @param charaPurchaseFinalized Callback function invoked when a character is successfully purchased from the tavern.
+	 *                               This allows the `Shop` class to update its list of `currentShopCharas`.
+	 * @returns An array of the newly created `Chara` instances that are now displayed in the tavern.
+	 */
+	rerenderTavernCharas(
+		cardDefs: Card.CardDefinition[],
+		charaPurchaseFinalized: (purchasedChara: Chara) => void
+	): Chara[] {
+		const newCharas = this._renderTavernCharas(cardDefs, charaPurchaseFinalized);
+		return newCharas;
+	}
+	displayShop(
 		relicDefsToDisplay: Card.RelicDefinition[],
 		cardsToDisplay: Card.CardDefinition[],
 		nextRoundCallback: () => void,
+		rerollCallback: () => void,
 		charaPurchaseFinalized: (purchasedChara: Chara) => void,
 		relicAcquisitionFinalized: (acquiredRelicCard: RelicCard) => void
 	): { charas: Chara[], relicCards: RelicCard[] } {
 		this.flyout.removeAll(true); // Clear any previous content
 
 		const panelPadding = 25;
+		// Calculate width based on combined relic and tavern sections plus padding
 		const shopPanelWidth = sc.RELIC_SECTION_X + sc.TAVERN_BG_OFFSET_X + sc.TAVERN_BG_WIDTH + panelPadding;
-		const contentHeight = sc.RELIC_SECTION_Y + sc.RELIC_BG_HEIGHT;
+		// Calculate height based on the taller of the relic or tavern content areas
+		const contentMaxY = Math.max(
+			sc.RELIC_SECTION_Y + sc.RELIC_BG_HEIGHT, // Bottom of relic content
+			sc.RELIC_SECTION_Y + sc.TAVERN_BG_HEIGHT // Bottom of tavern content (assuming same Y start for logical grouping)
+		);
 		const buttonAreaHeight = 100;
-		const shopPanelHeight = contentHeight + buttonAreaHeight + panelPadding;
+		const shopPanelHeight = contentMaxY + buttonAreaHeight + panelPadding;
 
 		const shopBackground = this.scene.add.graphics()
 			.fillStyle(sc.PANEL_BG_COLOR, sc.PANEL_BG_OPACITY)
 			.fillRoundedRect(sc.PANEL_X, sc.PANEL_Y, shopPanelWidth, shopPanelHeight, 20);
 		this.flyout.add(shopBackground);
-
 		const displayedRelics = this._renderRelicsUI(relicDefsToDisplay, relicAcquisitionFinalized);
 		const displayedCharas = this._renderTavernUI(cardsToDisplay, charaPurchaseFinalized);
+
+		const buttonY = sc.PANEL_Y + shopPanelHeight - 40;
+		const nextRoundButtonX = sc.PANEL_X + shopPanelWidth - 100; // Assuming this positions center of button 100px from right
+		// Estimate button width + spacing to position reroll button to the left
+		const rerollButtonX = nextRoundButtonX - 170; // Adjust this offset as needed for desired spacing and button width
+
+		const rerollBtn = new UIButton(
+			this.scene,
+			"Reroll (3 Gold)",
+			rerollButtonX,
+			buttonY,
+			rerollCallback
+		);
+		this.flyout.add(rerollBtn);
 
 		const nextRoundBtn = new UIButton(
 			this.scene,
 			"Next Round",
-			sc.PANEL_X + shopPanelWidth - 100,
-			sc.PANEL_Y + shopPanelHeight - 40,
+			nextRoundButtonX,
+			buttonY,
 			nextRoundCallback
 		);
 		this.flyout.add(nextRoundBtn);
@@ -57,7 +92,7 @@ export class ShopUI {
 		return { charas: displayedCharas, relicCards: displayedRelics };
 	}
 
-	private _renderRelicsUI(
+	_renderRelicsUI(
 		relicDefs: Card.RelicDefinition[],
 		relicAcquisitionFinalized: (acquiredRelicCard: RelicCard) => void
 	): RelicCard[] {
@@ -95,20 +130,35 @@ export class ShopUI {
 		return createdRelicCards;
 	}
 
-	private _renderTavernUI(
+	/**
+	 * Renders the tavern section of the shop, including its background, title, and character cards.
+	 * This method is called during the initial display of the shop.
+	 * @param cardDefs An array of `Card.CardDefinition` objects representing the characters to display.
+	 * @param charaPurchaseFinalized Callback function invoked when a character is successfully purchased.
+	 * @returns An array of the created `Chara` instances.
+	 */
+	_renderTavernUI(
 		cardDefs: Card.CardDefinition[],
 		charaPurchaseFinalized: (purchasedChara: Chara) => void
 	): Chara[] {
-		const createdCharas: Chara[] = [];
+		this._renderTavernSectionBackgroundAndTitle();
+		return this._renderTavernCharas(cardDefs, charaPurchaseFinalized);
+	}
 
+	_renderTavernSectionBackgroundAndTitle(): void {
 		const bg = this.scene.add.graphics()
 			.fillStyle(0x000, 0.5)
 			.fillRect(sc.TAVERN_BG_OFFSET_X, 0, sc.TAVERN_BG_WIDTH, sc.TAVERN_BG_HEIGHT)
 			.setPosition(sc.RELIC_SECTION_X, sc.RELIC_SECTION_Y);
-
 		const title = this.scene.add.text(sc.TAVERN_TITLE_X, sc.TAVERN_TITLE_Y, "Tavern", constants.titleTextConfig);
 		this.flyout.add([bg, title]);
+	}
 
+	_renderTavernCharas(
+		cardDefs: Card.CardDefinition[],
+		charaPurchaseFinalized: (purchasedChara: Chara) => void
+	): Chara[] {
+		const createdCharas: Chara[] = [];
 		cardDefs.forEach((spec, index) => {
 			const unit = makeUnit(constants.FORCE_ID_PLAYER, spec.id, vec2(0, 0)); // Position is relative to flyout, set later
 			const charaOptions: CharaOptions = {

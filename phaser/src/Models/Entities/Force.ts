@@ -12,6 +12,10 @@ export type Force = {
 	income: number;
 	units: Unit[];
 	relics: Relic[];
+	prestige: number,
+	winStreak: number,
+	lossStreak: number,
+	totalRoundsPlayed: number
 };
 
 export const makeForce = (id: string): Force => {
@@ -22,7 +26,11 @@ export const makeForce = (id: string): Force => {
 		gold: 10,
 		income: 5,
 		units: [],
-		relics: []
+		relics: [],
+		prestige: 0,
+		winStreak: 0,
+		lossStreak: 0,
+		totalRoundsPlayed: 0
 	}
 };
 
