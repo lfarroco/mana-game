@@ -14,7 +14,7 @@ export const DRAG_CLICK_THRESHOLD = 10;
 
 export const MAX_PARTY_SIZE = 5;
 
-export const REROLL_UNITS_PRICE = 2;
+export const REROLL_UNITS_PRICE = 3;
 
 export const RECRUIT_UNIT_PRICE = 3;
 export const PROMOTE_UNIT_PRICE = 5;
@@ -49,4 +49,3 @@ export const GRID_FILL_COLOR = 0x000000; export const MAX_GRID_HEIGHT = 32;
 export const MAX_GRID_WIDTH = 32;
 export const FORCE_ID_PLAYER = "PLAYER";
 export const FORCE_ID_CPU = "CPU";
-

@@ -5,30 +5,11 @@ import { Unit } from "./Entities/Unit";
 // Module-scoped variable to hold the state, similar to currentOptions in OptionsStore
 let _currentState: State;
 
-// Define a more specific type for the player object within GameData
-// This ensures 'units' property is recognized by TypeScript for type safety.
-export type PlayerWithUnits = Force & {
-  units: Unit[],
-  prestige: number,
-  winStreak: number,
-  lossStreak: number,
-  totalRoundsPlayed: number };
-
 export const initialState = (): State => ({
   savedGames: [],
   gameData: {
     round: 1,
-    // Ensure the player object conforms to PlayerWithUnits, especially the 'units' array.
-    // This safely handles if playerForce (of type Force) might not have 'units' defined,
-    // or if it does, it uses them.
-    player: {
-      ...playerForce,
-      units: (playerForce as Partial<PlayerWithUnits>).units || [],
-      prestige: 0,
-      winStreak: 0,
-      lossStreak: 0,
-      totalRoundsPlayed: 0,
-    },
+    player: playerForce,
     choices: []
   },
   battleData: {
@@ -59,7 +40,7 @@ export type State = {
 
 export type GameData = {
   round: number;
-  player: PlayerWithUnits; // Use the more specific type for player
+  player: Force; // Use the more specific type for player
   choices: string[];
 }
 
