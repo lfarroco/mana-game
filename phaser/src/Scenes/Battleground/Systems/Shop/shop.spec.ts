@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
+import "../../../../globals";
 
 const isShopVisible = (page: Page) => page.waitForFunction(() => {
 	return window.gameController.isShopVisible();
