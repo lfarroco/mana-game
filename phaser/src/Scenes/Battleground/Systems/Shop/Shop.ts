@@ -13,6 +13,7 @@ import { shopItemClickPurchaseRequestedHandler } from "./handlers/shopItemClickP
 import { shopItemDragPurchaseRequestedHandler } from "./handlers/shopItemDragPurchaseHandler";
 import { shopRerollTavernHandler } from "./handlers/shopRerollTavernHandler";
 import * as CharaManager from "../CharaManager";
+import * as sc from "./ShopConstants";
 import { State } from "../../../../Models/State";
 import { tween } from "../../../../Utils/animation";
 
@@ -51,6 +52,19 @@ export class Shop {
 		this.shopUI = new ShopUI(this.scene, this.flyout);
 	}
 
+	private _handleCharaPurchaseFinalized(purchasedChara: Chara): void {
+		// Chara is already removed from flyout by its onPurchased handler (via ShopUI)
+		// Chara instance will be destroyed by CharaManager.
+		// Update our list of available shop charas.
+		this.currentShopCharas = this.currentShopCharas.filter(c => c.id !== purchasedChara.id);
+	}
+
+	private _handleRelicAcquisitionFinalized(acquiredRelic: RelicCard): void {
+		// RelicCard is already removed from flyout by its onAcquire handler (via ShopUI)
+		// Update our list of available shop relics.
+		this.currentShopRelicCards = this.currentShopRelicCards.filter(rc => rc.id !== acquiredRelic.id);
+	}
+
 	/**
 	 * @method open
 	 * @description Opens the shop interface. It clears previously displayed shop items,
@@ -58,52 +72,35 @@ export class Shop {
 	 * and then instructs {@link ShopUI} to render them. Finally, it slides the shop {@link Flyout} into view.
 	 */
 	async open() {
-		// Clear previous shop items
 		this.currentShopCharas = [];
 		this.currentShopRelicCards = [];
 
-		// Prepare data for the shop UI
-		const ownedCardIds = new Set(this.scene.state.gameData.player.units.map(u => u.cardId));
-		const filteredCards = Card.getAllCards()
-			.filter(card =>
-				!ownedCardIds.has(card.id)
-			);
-		const tavernCardData = pickRandom(filteredCards, 3);
-		const relicData = pickRandom(Card.getAllRelicDefinitions(), 3);
+		const tavernCardData = this._getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
+		const relicData = pickRandom(Card.getAllRelicDefinitions(), sc.NUM_RELIC_SLOTS);
 
-		// Define callbacks for the UI
+		// Define the nextRoundCallback, which was missing
 		const nextRoundCallback = () => {
 			this.scene.events.emit(GameEvents.SHOP_PHASE_ENDED);
 			this.flyout.slideOut();
 		};
 
-		const charaPurchaseFinalizedCallback = (purchasedChara: Chara) => {
-			// Chara is already removed from flyout by its onPurchased handler (via ShopUI)
-			// Chara instance will be destroyed by CharaManager.
-			// Update our list of available shop charas.
-			this.currentShopCharas = this.currentShopCharas.filter(c => c.id !== purchasedChara.id);
-		};
-
-		const relicAcquisitionFinalizedCallback = (acquiredRelic: RelicCard) => {
-			// RelicCard is already removed from flyout by its onAcquire handler (via ShopUI)
-			// Update our list of available shop relics.
-			this.currentShopRelicCards = this.currentShopRelicCards.filter(rc => rc.id !== acquiredRelic.id);
-		};
-
+		// Correctly call shopUI.displayShop and destructure its result
 		const { charas, relicCards } = this.shopUI.displayShop(
-			relicData, tavernCardData,
-			nextRoundCallback,
+			relicData, // relicDefsToDisplay
+			tavernCardData, // cardsToDisplay
+			nextRoundCallback, // nextRoundCallback
 			this.handleShopRerollTavern.bind(this),
-			charaPurchaseFinalizedCallback,
-			relicAcquisitionFinalizedCallback
+			this._handleCharaPurchaseFinalized.bind(this),
+			this._handleRelicAcquisitionFinalized.bind(this)
 		);
+
 
 		this.currentShopCharas = charas;
 		this.currentShopRelicCards = relicCards;
 
 		await this.flyout.slideIn();
-		this.currentShopCharas.forEach(chara => this._animateItemAppearance(chara as Phaser.GameObjects.Container & { angle: number }));
-		this.currentShopRelicCards.forEach(relicCard => this._animateItemAppearance(relicCard as RelicCard & { angle: number }));
+		this.currentShopCharas.forEach(chara => this._animateItemAppearance(chara));
+		this.currentShopRelicCards.forEach(relicCard => this._animateItemAppearance(relicCard));
 	}
 
 	// TODO: add tests
@@ -149,7 +146,7 @@ export class Shop {
 	 *             It must have scaleX, scaleY, angle properties and a setScale method.
 	 */
 	private async _animateItemAppearance(
-		item: Phaser.GameObjects.GameObject & { scaleX: number; scaleY: number; angle: number; setScale: (x: number, y?: number) => unknown }
+		item: Chara | RelicCard
 	): Promise<void> {
 		const targetScaleX = item.scaleX;
 		const targetScaleY = item.scaleY;
@@ -160,7 +157,7 @@ export class Shop {
 			targets: [item],
 			scaleX: targetScaleX,
 			scaleY: targetScaleY,
-			duration: 400
+			duration: sc.SHOP_ITEM_APPEAR_SCALE_DURATION
 		});
 
 		//shake card left and right
@@ -168,11 +165,21 @@ export class Shop {
 		this.scene.tweens.chain({
 			targets: item,
 			tweens: [
-				{ angle: -10, duration: 100, yoyo: true, ease: 'Quad.easeInOut' },
-				{ angle: 10, duration: 100, yoyo: true, ease: 'Quad.easeInOut' },
-				{ angle: 0, duration: 50, ease: 'Quad.easeIn' } // Return to 0 angle smoothly
+				{ angle: -sc.SHOP_ITEM_APPEAR_WIGGLE_ANGLE, duration: sc.SHOP_ITEM_APPEAR_WIGGLE_DURATION_1, yoyo: true, ease: 'Quad.easeInOut' },
+				{ angle: sc.SHOP_ITEM_APPEAR_WIGGLE_ANGLE, duration: sc.SHOP_ITEM_APPEAR_WIGGLE_DURATION_2, yoyo: true, ease: 'Quad.easeInOut' },
+				{ angle: 0, duration: sc.SHOP_ITEM_APPEAR_WIGGLE_RETURN_DURATION, ease: 'Quad.easeIn' } // Return to 0 angle smoothly
 			]
 		});
+	}
+
+	private _getAvailableCardsForTavern(count: number): Card.CardDefinition[] {
+		const ownedCardIds = new Set(this.state.gameData.player.units.map(u => u.cardId));
+		const allCards = Card.getAllCards();
+		// Filter out cards the player already owns (based on cardId, not unit instance id)
+		// and also filter out cards that might be unique and already present on the board if that's a game rule.
+		// For now, just filtering by owned cardId.
+		const filteredCards = allCards.filter(card => !ownedCardIds.has(card.id));
+		return pickRandom(filteredCards, count);
 	}
 
 	/**
@@ -190,21 +197,16 @@ export class Shop {
 		this.currentShopCharas = [];
 
 		// 2. Prepare new card data for the tavern
-		const ownedCardIds = new Set(this.scene.state.gameData.player.units.map(u => u.cardId));
-		const filteredCards = Card.getAllCards().filter(card => !ownedCardIds.has(card.id));
-		// TODO: Make the number of tavern slots a constant
-		const newTavernCardData = pickRandom(filteredCards, 3);
-
-		// 3. Define the charaPurchaseFinalizedCallback (same as in open())
-		const charaPurchaseFinalizedCallback = (purchasedChara: Chara) => {
-			this.currentShopCharas = this.currentShopCharas.filter(c => c.id !== purchasedChara.id);
-		};
+		const newTavernCardData = this._getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
 
 		// 4. Update the ShopUI with new characters
-		const newShopCharas = this.shopUI.rerenderTavernCharas(newTavernCardData, charaPurchaseFinalizedCallback);
+		const newShopCharas = this.shopUI.rerenderTavernCharas(
+			newTavernCardData,
+			this._handleCharaPurchaseFinalized.bind(this)
+		);
 		this.currentShopCharas = newShopCharas;
 
 		// Animate the appearance of newly rerolled charas
-		newShopCharas.forEach(chara => this._animateItemAppearance(chara as Phaser.GameObjects.Container & { angle: number }));
+		newShopCharas.forEach(chara => this._animateItemAppearance(chara));
 	}
 }
