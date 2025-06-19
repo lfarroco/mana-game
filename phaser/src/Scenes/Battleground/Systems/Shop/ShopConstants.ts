@@ -34,3 +34,14 @@ export const SELL_ZONE_TEXT = "SELL";
 export const SELL_ZONE_TEXT_STYLE = { fontSize: '32px', color: '#000000', fontStyle: 'bold' };
 export const SELL_ZONE_CORNER_RADIUS = 10;
 export const SHOP_SELL_ZONE_NAME = "shop_sell_zone";
+
+// Number of items in the shop
+export const NUM_TAVERN_SLOTS = 3;
+export const NUM_RELIC_SLOTS = 3;
+
+// Animation constants for shop items
+export const SHOP_ITEM_APPEAR_SCALE_DURATION = 400;
+export const SHOP_ITEM_APPEAR_WIGGLE_ANGLE = 10;
+export const SHOP_ITEM_APPEAR_WIGGLE_DURATION_1 = 100;
+export const SHOP_ITEM_APPEAR_WIGGLE_DURATION_2 = 100;
+export const SHOP_ITEM_APPEAR_WIGGLE_RETURN_DURATION = 50;
