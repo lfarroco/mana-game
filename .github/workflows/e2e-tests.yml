@@ -37,7 +37,7 @@ jobs:
       # you could use: npm run test:e2e
       # The path to e2e/game.spec.ts is now relative to the phaser/ directory.
       # If e2e/ is at the root, you might need ../e2e/game.spec.ts
-      run: npx playwright test e2e/game.spec.ts # Adjust path if e2e tests are not within phaser/
+      run: npm run test:e2e # Adjust path if e2e tests are not within phaser/
 
     - name: Upload Playwright report
       # This step runs even if the tests fail, to help with debugging.
