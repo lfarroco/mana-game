@@ -253,8 +253,9 @@ export class Chara extends Phaser.GameObjects.Container {
 		// Emit pop text *before* events that lead to destruction
 		this.scene.events.emit(GameEvents.POP_TEXT_SHOW, {
 			text: `+${sellPrice}G`,
-			targetId: this.id,
-			type: "heal" // Green color for gold gain
+			x: this.x,
+			y: this.y, // Pop from Chara's origin
+			type: "heal"
 		});
 
 		this.scene.events.emit(GameEvents.PLAYER_GOLD_DELTA_REQUEST, sellPrice);

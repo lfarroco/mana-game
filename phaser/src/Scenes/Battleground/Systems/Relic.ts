@@ -5,7 +5,7 @@ import { images } from "../../../assets";
 import { RelicDefinition } from "../../../Models/Entities/Card";
 import * as Traits from "../../../TraitSystem/Traits";
 import { Vec2 } from "../../../Models/Geometry";
-import { GameEvents } from "../../../constants/events";
+import { GameEvents, } from "../../../constants/events";
 import { UserMessagePayload } from "../../../Models/EventPayloads";
 import * as sc from "./Shop/ShopConstants";
 import BattlegroundScene from "../BattlegroundScene";
@@ -339,12 +339,12 @@ export class RelicCard extends Phaser.GameObjects.Image {
 
 		const sellPrice = Math.floor(RelicCard.RELIC_COST / 2);
 
-		// TODO: this is not working because poptext only accepts chara ids
 		// 1. Visual feedback (pop text for gold)
 		this.scene.events.emit(GameEvents.POP_TEXT_SHOW, {
 			text: `+${sellPrice}G`,
-			target: this, // Pass the RelicCard instance itself
-			type: "heal" // Green color for gold gain
+			x: this.x,
+			y: this.y - (this.displayHeight / 2), // Pop from top of relic
+			type: "heal" // "heal" type for green color
 		});
 
 		// 2. Update player gold
