@@ -8,7 +8,7 @@ import { Chara, CharaOptions } from "../../../../Systems/Chara/Chara";
 import { BattlegroundScene } from "../../BattlegroundScene";
 import { playerForce } from "../../../../Models/Entities/Force";
 import { GameEvents } from "../../../../constants/events";
-import * as constants from "../../../../constants/constants";
+import * as c from "../../../../constants/constants";
 import { UIButton } from "../../../../UI/UIButton";
 import { makeUnit } from "../../../../Models/Entities/Unit";
 import * as sc from "./ShopConstants";
@@ -66,14 +66,14 @@ export class ShopUI {
 		const displayedRelics = this._renderRelicsUI(relicDefsToDisplay, relicAcquisitionFinalized);
 		const displayedCharas = this._renderTavernUI(cardsToDisplay, charaPurchaseFinalized);
 
-		const buttonY = sc.PANEL_Y + shopPanelHeight - 40;
-		const nextRoundButtonX = sc.PANEL_X + shopPanelWidth - 100; // Assuming this positions center of button 100px from right
+		const buttonY = sc.PANEL_Y + shopPanelHeight - 100;
+		const nextRoundButtonX = sc.PANEL_X + shopPanelWidth - 130; // Assuming this positions center of button 100px from right
 		// Estimate button width + spacing to position reroll button to the left
-		const rerollButtonX = nextRoundButtonX - 170; // Adjust this offset as needed for desired spacing and button width
+		const rerollButtonX = nextRoundButtonX - 270; // Adjust this offset as needed for desired spacing and button width
 
 		const rerollBtn = new UIButton(
 			this.scene,
-			"Reroll (3 Gold)",
+			`Reroll $${c.SHOP_ITEM_PURCHASE_COST}`,
 			rerollButtonX,
 			buttonY,
 			rerollCallback
@@ -103,7 +103,7 @@ export class ShopUI {
 			.fillRect(0, 0, sc.RELIC_BG_WIDTH, sc.RELIC_BG_HEIGHT)
 			.setPosition(sc.RELIC_SECTION_X, sc.RELIC_SECTION_Y);
 
-		const title = this.scene.add.text(sc.RELIC_TITLE_X, sc.RELIC_TITLE_Y, "Relics", constants.titleTextConfig);
+		const title = this.scene.add.text(sc.RELIC_TITLE_X, sc.RELIC_TITLE_Y, "Relics", c.titleTextConfig);
 		this.flyout.add([bg, title]);
 
 		relicDefs.forEach((relic, index) => {
@@ -146,11 +146,35 @@ export class ShopUI {
 	}
 
 	_renderTavernSectionBackgroundAndTitle(): void {
+
+		const position = [
+			sc.RELIC_SECTION_X, sc.RELIC_SECTION_Y
+		] as [number, number];
+		const bgOffset = [
+			sc.TAVERN_BG_OFFSET_X, 0,
+		] as [number, number];
+		const size = [
+			sc.TAVERN_BG_WIDTH, sc.TAVERN_BG_HEIGHT
+		] as [number, number];
+
 		const bg = this.scene.add.graphics()
 			.fillStyle(0x000, 0.5)
-			.fillRect(sc.TAVERN_BG_OFFSET_X, 0, sc.TAVERN_BG_WIDTH, sc.TAVERN_BG_HEIGHT)
-			.setPosition(sc.RELIC_SECTION_X, sc.RELIC_SECTION_Y);
-		const title = this.scene.add.text(sc.TAVERN_TITLE_X, sc.TAVERN_TITLE_Y, "Tavern", constants.titleTextConfig);
+			.fillRect(
+				...bgOffset,
+				...size,
+			)
+			.setPosition(...position);
+
+		const titlePositon = [
+			sc.TAVERN_TITLE_X, sc.TAVERN_TITLE_Y
+		] as [number, number];
+
+		const title = this.scene.add.text(
+			...titlePositon,
+			"Tavern",
+			c.titleTextConfig
+		);
+
 		this.flyout.add([bg, title]);
 	}
 
@@ -160,7 +184,7 @@ export class ShopUI {
 	): Chara[] {
 		const createdCharas: Chara[] = [];
 		cardDefs.forEach((spec, index) => {
-			const unit = makeUnit(constants.FORCE_ID_PLAYER, spec.id, vec2(0, 0)); // Position is relative to flyout, set later
+			const unit = makeUnit(c.FORCE_ID_PLAYER, spec.id, vec2(0, 0)); // Position is relative to flyout, set later
 			const charaOptions: CharaOptions = {
 				isShopItem: true,
 				onPurchased: () => { // Called by Chara.finalizePurchase
