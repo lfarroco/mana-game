@@ -57,7 +57,7 @@ export class Shop {
 	 * fetches new random characters and relics (ensuring characters offered are not already owned by the player),
 	 * and then instructs {@link ShopUI} to render them. Finally, it slides the shop {@link Flyout} into view.
 	 */
-	open() {
+	async open() {
 		// Clear previous shop items
 		this.currentShopCharas = [];
 		this.currentShopRelicCards = [];
@@ -101,7 +101,12 @@ export class Shop {
 		this.currentShopCharas = charas;
 		this.currentShopRelicCards = relicCards;
 
-		this.flyout.slideIn();
+		charas.forEach(c => c.setScale(0))
+
+		await this.flyout.slideIn();
+		// Animate the appearance of newly added charas
+		this.currentShopCharas.forEach(chara => this._animateCharaAppearance(chara));
+		// Potentially animate relic cards too, if desired
 	}
 
 	// TODO: add tests
@@ -141,6 +146,29 @@ export class Shop {
 	}
 
 	/**
+	 * Animates the appearance of a Chara card in the shop.
+	 * The animation involves scaling up and a slight "wiggle".
+	 * @param chara The Chara instance to animate.
+	 */
+	private async _animateCharaAppearance(chara: Chara): Promise<void> {
+		chara.scale = 0;
+		tween({
+			targets: [chara],
+			scale: 1,
+			duration: 400
+		});
+		//shake card left and right
+		await tween({
+			targets: [chara],
+			angle: -10,
+			yoyo: true,
+			repeat: 0,
+			duration: 100
+		});
+		await tween({ targets: [chara], angle: 10, yoyo: true, repeat: 0, duration: 100 });
+	}
+
+	/**
 	 * Rerolls the characters available in the tavern.
 	 * This method clears the current tavern characters, fetches a new set,
 	 * and updates the UI to display them. Relics and shop buttons remain unchanged.
@@ -168,28 +196,8 @@ export class Shop {
 		// 4. Update the ShopUI with new characters
 		const newShopCharas = this.shopUI.rerenderTavernCharas(newTavernCardData, charaPurchaseFinalizedCallback);
 		this.currentShopCharas = newShopCharas;
-		newShopCharas.forEach(async (c) => {
-			c.scale = 0;
-			tween({
-				targets: [c],
-				scale: 1,
-				duration: 400
-			})
-			//shake card left and right
-			await tween({
-				targets: [c],
-				angle: -10,
-				yoyo: true,
-				repeat: 0,
-				duration: 100
-			});
-			await tween({
-				targets: [c],
-				angle: 10,
-				yoyo: true,
-				repeat: 0,
-				duration: 100
-			});
-		})
+
+		// Animate the appearance of newly rerolled charas
+		newShopCharas.forEach(chara => this._animateCharaAppearance(chara));
 	}
 }
