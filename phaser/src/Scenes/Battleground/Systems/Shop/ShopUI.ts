@@ -16,11 +16,16 @@ import * as sc from "./ShopConstants";
 export class ShopUI {
 	scene: BattlegroundScene;
 	flyout: Flyout;
+	private sellZoneContainer: Phaser.GameObjects.Container | null = null;
+	private sellZone: Phaser.GameObjects.Zone | null = null;
+	private sellZoneText: Phaser.GameObjects.Text | null = null;
+	sellZoneGraphics: any;
 
 	constructor(scene: BattlegroundScene, flyout: Flyout) {
 		this.scene = scene;
 		this.flyout = flyout;
 	}
+
 
 	/**
 	 * Clears and re-renders only the character cards in the tavern section of the shop.
@@ -88,6 +93,8 @@ export class ShopUI {
 			nextRoundCallback
 		);
 		this.flyout.add(nextRoundBtn);
+
+		this._createSellZone(shopPanelWidth, shopPanelHeight);
 
 		return { charas: displayedCharas, relicCards: displayedRelics };
 	}
@@ -197,5 +204,59 @@ export class ShopUI {
 			createdCharas.push(chara);
 		});
 		return createdCharas;
+	}
+
+	private _createSellZone(shopPanelWidth: number, shopPanelHeight: number): void {
+		if (this.sellZoneContainer) {
+			this.sellZoneContainer.destroy(true);
+		}
+
+		this.sellZoneContainer = this.scene.add.container(0, 0);
+		this.sellZoneContainer.setVisible(false); // Initially hidden
+
+		const sellZoneX = sc.PANEL_X + (shopPanelWidth - sc.SELL_ZONE_WIDTH) / 2;
+		const sellZoneY = sc.PANEL_Y + shopPanelHeight - sc.SELL_ZONE_Y_OFFSET_FROM_BOTTOM - sc.SELL_ZONE_HEIGHT;
+
+		// Create the zone with its center aligned with the visual graphics' center
+		this.sellZone = this.scene.add.zone(
+			sellZoneX + sc.SELL_ZONE_WIDTH / 2,
+			sellZoneY + sc.SELL_ZONE_HEIGHT / 2,
+			sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT
+		);
+		this.sellZone.setName(sc.SHOP_SELL_ZONE_NAME); // Set name for drop target identification
+
+		this.sellZoneGraphics = this.scene.add.graphics({ x: sellZoneX, y: sellZoneY });
+		this.sellZoneGraphics.fillStyle(sc.SELL_ZONE_BG_COLOR, sc.SELL_ZONE_BG_ALPHA);
+		this.sellZoneGraphics.fillRoundedRect(0, 0, sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT, sc.SELL_ZONE_CORNER_RADIUS);
+
+		// Make the graphics object the drop zone
+		//this.sellZone.setInteractive();
+		this.sellZone.setRectangleDropZone(sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT);
+
+		this.sellZoneText = this.scene.add.text(
+			sellZoneX + sc.SELL_ZONE_WIDTH / 2,
+			sellZoneY + sc.SELL_ZONE_HEIGHT / 2,
+			sc.SELL_ZONE_TEXT,
+			{ ...c.defaultTextConfig, ...sc.SELL_ZONE_TEXT_STYLE }
+		).setOrigin(0.5);
+
+		this.sellZoneContainer.add([this.sellZone, this.sellZoneGraphics, this.sellZoneText]);
+		this.flyout.add(this.sellZoneContainer);
+	}
+
+	public showSellZone(): void {
+		if (this.sellZoneContainer) {
+			this.flyout.bringToTop(this.sellZoneContainer); // Ensure it's visible above other shop items
+			this.sellZoneContainer.setVisible(true);
+		}
+	}
+
+	public hideSellZone(): void {
+		this.sellZoneContainer?.setVisible(false);
+	}
+
+	public destroy() {
+		this.sellZoneContainer?.destroy(true);
+		this.sellZoneContainer = null;
 	}
 }

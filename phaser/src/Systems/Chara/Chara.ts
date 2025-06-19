@@ -13,6 +13,7 @@ import { CharaStatsDisplay } from "./CharaStatsDisplay";
 import { CharaBarsDisplay } from "./CharaBarsDisplay";
 import { GameEvents } from "../../constants/events";
 import { CharaInputHandler } from "./CharaInputHandler"; // +++ NEW IMPORT
+import * as sc from "../../Scenes/Battleground/Systems/Shop/ShopConstants";
 
 export type CharaOptions = {
 	isShopItem?: boolean;
@@ -206,12 +207,32 @@ export class Chara extends Phaser.GameObjects.Container {
 	 * @param dragStartY The Y coordinate where the drag started.
 	 */
 	processDrop(dropZoneTarget: Phaser.GameObjects.GameObject, dragStartX: number, dragStartY: number): boolean {
-		if (!Board.PlayerBoard.isTileZone(dropZoneTarget)) {
-			// Dropped outside a valid player board tile zone.
+		if (dropZoneTarget.name === sc.SHOP_SELL_ZONE_NAME) {
+			if (!this.isShopItem) { // Can only sell owned units
+				this._handleSellUnit();
+				return true; // Drop handled
+			} else {
+				// Shop item dropped on sell zone - invalid action, revert.
+				return false;
+			}
+		}
+
+		if (!Board.PlayerBoard.isTileZone(dropZoneTarget) ) {
+			// Dropped outside a valid player board tile zone or the sell zone.
 			return false;
 		}
 
 		const tile = Board.PlayerBoard.getTileFromZone(dropZoneTarget);
+		// The following check is technically redundant if the first 'if' handles SHOP_SELL_ZONE_NAME
+		// and the second 'if' ensures it's a PlayerBoard tile zone.
+		// However, it's a good safeguard.
+		if (!tile && Board.PlayerBoard.isTileZone(dropZoneTarget)) {
+			console.warn("Chara.processDrop: Dropped on a player board tile zone, but could not derive tile coordinates.", dropZoneTarget.name);
+			return false;
+		}
+
+		// If execution reaches here, it must be a player board tile zone, and 'tile' should be valid.
+		// This explicit check on 'tile' handles the case where getTileFromZone might return null for some reason.
 		if (!tile) {
 			console.warn("Chara.handleDrop: Dropped on a board tile zone, but could not derive tile coordinates.", dropZoneTarget.name);
 			return false;
@@ -224,6 +245,20 @@ export class Chara extends Phaser.GameObjects.Container {
 			this._handleDropShopItem(tile, dragStartX, dragStartY);
 			return true; // Assume the request was successfully emitted. Outcome handled by events.
 		}
+	}
+
+	private _handleSellUnit(): void {
+		const sellPrice = Math.floor(constants.SHOP_ITEM_PURCHASE_COST / 2);
+
+		// Emit pop text *before* events that lead to destruction
+		this.scene.events.emit(GameEvents.POP_TEXT_SHOW, {
+			text: `+${sellPrice}G`,
+			targetId: this.id,
+			type: "heal" // Green color for gold gain
+		});
+
+		this.scene.events.emit(GameEvents.PLAYER_GOLD_DELTA_REQUEST, sellPrice);
+		this.scene.events.emit(GameEvents.OWNED_UNIT_SOLD, { unitId: this.unit.id, soldForGold: sellPrice });
 	}
 
 	/**
