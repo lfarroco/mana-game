@@ -14,6 +14,7 @@ import { shopItemDragPurchaseRequestedHandler } from "./handlers/shopItemDragPur
 import { shopRerollTavernHandler } from "./handlers/shopRerollTavernHandler";
 import * as CharaManager from "../CharaManager";
 import { State } from "../../../../Models/State";
+import { tween } from "../../../../Utils/animation";
 
 /**
  * @class Shop
@@ -167,5 +168,28 @@ export class Shop {
 		// 4. Update the ShopUI with new characters
 		const newShopCharas = this.shopUI.rerenderTavernCharas(newTavernCardData, charaPurchaseFinalizedCallback);
 		this.currentShopCharas = newShopCharas;
+		newShopCharas.forEach(async (c) => {
+			c.scale = 0;
+			tween({
+				targets: [c],
+				scale: 1,
+				duration: 500
+			})
+			//shake card left and right
+			await tween({
+				targets: [c],
+				angle: -10,
+				yoyo: true,
+				repeat: 0,
+				duration: 500
+			});
+			await tween({
+				targets: [c],
+				angle: 10,
+				yoyo: true,
+				repeat: 0,
+				duration: 500
+			});
+		})
 	}
 }
