@@ -1,7 +1,6 @@
 import { Unit } from "../../../Models/Entities/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { getUnitsByProximity } from "../../../Models/Board";
-import { popText } from "../Animations/popText";
 import { fireballEffect } from "../../../Effects/fireballEffect";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 import { getOption } from "../../../Models/OptionsStore";
@@ -28,7 +27,7 @@ export const fireball = (
 		return;
 	}
 
-	popText({ text: "Fireball", targetId: unit.id });
+	activeChara.showPopText("Fireball");
 
 	await fireballEffect(scene, getOption('speed'), asVec2(activeChara), asVec2(targetChara));
 

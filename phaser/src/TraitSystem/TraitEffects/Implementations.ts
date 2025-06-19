@@ -4,15 +4,12 @@
  * in `TraitDefinition`s. These functions are registered with the `TraitEffectSystem`.
  */
 import {
-	TraitEffectFn,
 	registerTraitEffectImplementation,
 	TraitEffectContext,
 } from "../TraitEffectSystem";
 import { playerForce, updatePlayerGoldIO } from "../../Models/Entities/Force";
-import { popText } from "../../Systems/Chara/Animations/popText";
 import { getChara, getCharaPosition } from "../../Scenes/Battleground/Systems/CharaManager";
 import { slash } from "../../Systems/Chara/Skills/slash";
-import { shoot } from "../../Systems/Chara/Skills/shoot";
 import { healing } from "../../Systems/Chara/Skills/healing";
 import { healingWave } from "../../Systems/Chara/Skills/healingWave";
 import { arcaneMissiles } from "../../Systems/Chara/Skills/arcaneMissiles";
@@ -24,6 +21,7 @@ import { RelicStateObject } from "../Traits";
 import { fireball as fireballSkillFn } from "../../Systems/Chara/Skills/fireball";
 import { explodeEffect as gameExplodeEffect } from "../../Effects/explodeEffect"; // Adjust path
 import { getOption } from "../../Models/OptionsStore";
+import { shoot as shootSkillFn } from "../../Systems/Chara/Skills/shoot";
 
 
 /**
@@ -39,7 +37,7 @@ type SourceUnitGuaranteedEffectFn = (
  * It performs a runtime check for `context.sourceUnit`. If missing, it logs an error
  * (in development) and prevents the wrapped function from executing.
  * It checks for sourceUnit and logs an error if it's missing.
- */
+ */type TraitEffectFn = (context: TraitEffectContext) => Promise<void>;
 function requireSourceUnit(effectFn: SourceUnitGuaranteedEffectFn): TraitEffectFn {
 	return async (context: TraitEffectContext) => {
 		if (!context.sourceUnit) {
@@ -100,10 +98,8 @@ const grantGoldToPlayerLogic: SourceUnitGuaranteedEffectFn = async (context) => 
 	const amount = (traitInstanceParams.amount ?? effectInstance.amount ?? 0) as number;
 
 	if (amount !== 0 && sourceUnit.force === playerForce.id) { // Ensure it's for the player
-		await popText({
-			text: `+${amount} Gold`,
-			targetId: sourceUnit.id,
-		});
+		const chara = getChara(sourceUnit.id);
+		await chara?.showPopText(`+${amount} Gold`);
 		updatePlayerGoldIO(scene, amount);
 	}
 };
@@ -118,12 +114,7 @@ const dealDamageLogic: SourceUnitGuaranteedEffectFn = async (context) => {
 
 	for (const target of targets) {
 		const charaTarget = getChara(target.id);
-		if (charaTarget) {
-			await popText({
-				text: `-${baseAmount} Dmg`,
-				targetId: target.id, type: "damage",
-			});
-		}
+		await charaTarget?.showPopText(`-${baseAmount} Dmg`, "damage");
 	}
 };
 
@@ -142,7 +133,7 @@ const performSkillSlashLogic: SourceUnitGuaranteedEffectFn = async (context) => 
  */
 const performSkillShootLogic: SourceUnitGuaranteedEffectFn = async (context) => {
 	const { sourceUnit, scene } = context;
-	await shoot(scene)(sourceUnit);
+	await shootSkillFn(scene)(sourceUnit);
 };
 
 /**

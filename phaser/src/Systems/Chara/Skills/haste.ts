@@ -3,7 +3,6 @@ import { Unit } from "../../../Models/Entities/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 import { delay } from "../../../Utils/animation";
-import { popText } from "../Animations/popText";
 
 export async function haste(
 	scene: BattlegroundScene,
@@ -13,11 +12,7 @@ export async function haste(
 	if (!activeChara)
 		return;
 
-	popText({
-		text: "Haste",
-		targetId: unit.id,
-		type: "heal",
-	})
+	activeChara.showPopText("Haste", "heal");
 
 	const allies = UnitManager.getSurroundingAllies(activeChara.unit);
 
@@ -37,11 +32,8 @@ export async function haste(
 		await delay(scene, 200);
 
 		ally.unit.hasted += 2000;
-		popText({
-			text: "Hasted",
-			targetId: ally.id,
-			type: "heal",
-		})
+		const allyChara = UnitManager.getChara(ally.id);
+		allyChara?.showPopText("Hasted", "heal");
 
 		await delay(scene, 700)
 		scene.events.off(Phaser.Scenes.Events.UPDATE, update);
@@ -50,4 +42,3 @@ export async function haste(
 	});
 
 }
-

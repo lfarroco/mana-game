@@ -4,7 +4,7 @@ import * as constants from "../../constants/constants";
 import { Vec2 } from "../../Models/Geometry";
 import { tween } from "../../Utils/animation";
 import * as UnitManager from "../../Scenes/Battleground/Systems/CharaManager";
-import * as Board from "../../Models/Board"; // getState is used here
+import * as Board from "../../Models/Board";
 import { popText } from "./Animations/popText";
 import { criticalDamageDisplay } from "../../Effects";
 import { images } from "../../assets";
@@ -381,7 +381,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		if (isCritical) {
 			criticalDamageDisplay(this.scene, this, Math.floor(damage));
 		} else {
-			popText({ text: Math.floor(damage).toFixed(0).toString(), targetId: chara.id, type: "damage" });
+			this.showPopText(Math.floor(damage).toFixed(0).toString(), "damage");
 		}
 
 		if (hasDied) {
@@ -432,7 +432,7 @@ export class Chara extends Phaser.GameObjects.Container {
 			this.updateHpDisplay();
 		}
 
-		await popText({ text, targetId: unit.id, });
+		await this.showPopText(text);
 	}
 
 	/**
@@ -444,6 +444,15 @@ export class Chara extends Phaser.GameObjects.Container {
 		const nextHp = this.unit.hp + amount;
 		this.unit.hp = nextHp > this.unit.maxHp ? this.unit.maxHp : nextHp;
 		this.updateHpDisplay();
+	}
+
+	/**
+	 * Displays pop-up text originating from this Chara's position.
+	 * @param text The text to display.
+	 * @param type Optional type for styling (e.g., "heal", "damage").
+	 */
+	public async showPopText(text: string, type?: "heal" | "damage"): Promise<void> {
+		await popText({ scene: this.scene, x: this.x, y: this.y, text, type });
 	}
 
 	/** Overridden destroy method to also clean up the input handler. */

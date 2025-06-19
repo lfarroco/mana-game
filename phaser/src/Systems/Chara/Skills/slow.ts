@@ -4,7 +4,6 @@ import { Unit } from "../../../Models/Entities/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 import { delay } from "../../../Utils/animation";
-import { popText } from "../Animations/popText";
 
 export async function slow(
 	scene: BattlegroundScene,
@@ -13,11 +12,7 @@ export async function slow(
 	const activeChara = UnitManager.getChara(unit.id);
 	if (!activeChara) return;
 
-	popText({
-		text: "Slow",
-		targetId: unit.id,
-		type: "damage",
-	})
+	activeChara.showPopText("Slow", "damage");
 
 	const enemies = getRangedTargets(scene.state, unit, 1)
 
@@ -41,11 +36,7 @@ export async function slow(
 			await delay(scene, 200);
 
 			enemy.unit.slowed += 2000;
-			popText({
-				text: "Slowed",
-				targetId: enemy.id,
-				type: "heal",
-			})
+			enemy.showPopText("Slowed", "heal");
 
 			await delay(scene, 700)
 			scene.events.off(Phaser.Scenes.Events.UPDATE, update);
@@ -54,4 +45,3 @@ export async function slow(
 		});
 
 }
-
