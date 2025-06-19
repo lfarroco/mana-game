@@ -1,28 +1,22 @@
 import { tween } from "../../../Utils/animation";
 import { defaultTextConfig, titleTextConfig } from "../../../constants/constants";
-import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 
 // TODO: add color option (heals: green, damage: yellow, etc)
 // TODO: move this to the chara system, as it always uses the chara container
 // TODO: for skills, use elastic pop. for damage, move the numbers
-// TODO: accept a coordinate instead
 export async function popText({
+	scene,
+	x,
+	y,
 	text,
-	targetId,
 	type // "heal", "damage", or undefined for default
 }: {
+	scene: Phaser.Scene;
+	x: number;
+	y: number;
 	text: string;
-	targetId: string;
 	type?: "heal" | "damage";
 }) {
-
-	const chara = UnitManager.getChara(targetId);
-	if (!chara) {
-		console.warn("Chara not found for popText", targetId);
-		return;
-	}
-	const { scene: scene } = chara;
-
 	let textColor = defaultTextConfig.color;
 	if (type === "heal") {
 		textColor = "green";
@@ -30,9 +24,8 @@ export async function popText({
 		textColor = "red";
 	}
 
-
 	const popText = scene.add.text(
-		chara.x, chara.y,
+		x, y,
 		text,
 		{
 			...titleTextConfig,
@@ -48,9 +41,9 @@ export async function popText({
 		targets: [popText],
 		scale: 1.4,
 		duration: 1000,
-		y: chara.y - 128,
+		y: y - 128,
 		// in the angle direction
-		x: chara.x + Math.sin(angle * Math.PI / 180) * 60,
+		x: x + Math.sin(angle * Math.PI / 180) * 60,
 	});
 	await tween({
 		targets: [popText],

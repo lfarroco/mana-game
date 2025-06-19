@@ -1,6 +1,5 @@
 import { getState } from "../../../Models/State";
 import { Unit } from "../../../Models/Entities/Unit";
-import { popText } from "../Animations/popText";
 import { shootAnimation } from "../Animations/shootAnimation";
 import { Chara } from "../Chara";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
@@ -25,7 +24,7 @@ export async function multishot(
 	const [target] = getUnitsByProximity(scene.state, unit, true, Infinity);
 	if (!target) return;
 
-	popText({ text: "Multishot", targetId: activeChara.id });
+	activeChara.showPopText("Multishot");
 
 	targets.forEach(async (target, i) => {
 
