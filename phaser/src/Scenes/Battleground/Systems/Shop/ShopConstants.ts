@@ -23,3 +23,4 @@ export const PANEL_BG_COLOR = 0x2c3e50; // Dark slate blue
 export const PANEL_BG_OPACITY = 0.95; // Mostly opaque
 export const PANEL_X = 20;
 export const PANEL_Y = 20;
+export const SUB_PANEL_CORNER_RADIUS = 15;
