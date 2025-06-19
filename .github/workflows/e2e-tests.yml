@@ -19,19 +19,25 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20.x' # Specify your project's Node.js version
-        cache: 'npm' # Enable caching for npm dependencies (uses package-lock.json)
+        cache: 'npm'
+        cache-dependency-path: phaser/package-lock.json # Path to package-lock.json within phaser/
 
     - name: Install dependencies
-      run: npm ci # 'ci' is generally faster and more reliable for CI environments
+      working-directory: ./phaser
+      run: npm ci
 
     - name: Install Playwright browsers and OS dependencies
-      run: npx playwright install --with-deps
+      working-directory: ./phaser
+      run: npx playwright install --with-deps # Installs browsers relative to the phaser/node_modules
 
     - name: Run Playwright tests
+      working-directory: ./phaser
       # This command runs your specific e2e test file.
       # If you have a script in your package.json (e.g., "test:e2e": "playwright test e2e/game.spec.ts"),
       # you could use: npm run test:e2e
-      run: npx playwright test e2e/game.spec.ts 
+      # The path to e2e/game.spec.ts is now relative to the phaser/ directory.
+      # If e2e/ is at the root, you might need ../e2e/game.spec.ts
+      run: npx playwright test e2e/game.spec.ts # Adjust path if e2e tests are not within phaser/
 
     - name: Upload Playwright report
       # This step runs even if the tests fail, to help with debugging.
@@ -39,5 +45,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: playwright-report
-        path: playwright-report/ # Default path for Playwright HTML report
+        path: phaser/playwright-report/ # Path to report, now inside phaser/
         retention-days: 7 # How long to keep the report
