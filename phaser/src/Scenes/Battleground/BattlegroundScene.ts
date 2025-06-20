@@ -258,18 +258,36 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
   public handleOwnedUnitSold(payload: { unitId: string, soldForGold: number }): void {
+    const { unitId, soldForGold } = payload;
+
+    // 1. Update player gold
+    this.updatePlayerGold(soldForGold); // Or emit PLAYER_GOLD_DELTA_REQUEST if preferred
+
+    // Attempt to get Chara instance for position before it's potentially destroyed
+    let popTextX = this.sys.game.config.width as number / 2; // Fallback X
+    let popTextY = this.sys.game.config.height as number / 2; // Fallback Y
+    try {
+      const charaVisual = CharaManager.getChara(unitId); // CharaManager is imported
+      if (charaVisual) {
+        popTextX = charaVisual.x;
+        popTextY = charaVisual.y;
+      }
+    } catch (e) {
+      console.warn(`[BattlegroundScene] Chara with ID ${unitId} not found for PopText positioning during sell. Using fallback. Error: ${e}`);
+    }
+
+    // 2. Emit PopText for gold gain
+    this.events.emit(GameEvents.POP_TEXT_SHOW, {
+      text: `+${soldForGold}G`,
+      x: popTextX,
+      y: popTextY,
+      type: "success" // Using "success" (green) like relics, or "heal"
+    });
+
+    // 3. Remove unit from player's state
     const unitIndex = this.state.gameData.player.units.findIndex(u => u.id === payload.unitId);
     if (unitIndex > -1) {
-      // const soldUnit = this.state.gameData.player.units[unitIndex]; // Name already shown by Chara popText
       this.state.gameData.player.units.splice(unitIndex, 1);
-
-      // Emit event to destroy the Chara visual
-      this.events.emit(GameEvents.CHARA_DESTROY_FROM_BOARD, { unitId: payload.unitId });
-      // Hide the sell zone in the shop UI
-      if (this.shop && this.shop.shopUI) {
-        this.shop.shopUI.hideSellZone();
-      }
-      // this.playFx("sell_sound"); // If you have a sell sound
     } else {
       console.warn(`[BattlegroundScene] Unit with ID ${payload.unitId} not found for selling.`);
     }
@@ -301,12 +319,11 @@ export class BattlegroundScene extends Phaser.Scene {
         text: `+${soldForGold}G`,
         x: relicCardVisual.x,
         y: relicCardVisual.y - (relicCardVisual.displayHeight / 2),
-        type: "heal"
+        type: "success"
       });
       relicCardVisual.destroy();
     }
 
-    // 4. Ensure sell zone is hidden (can be called multiple times, it's safe)
     this.shop?.shopUI?.hideSellZone();
   }
 }

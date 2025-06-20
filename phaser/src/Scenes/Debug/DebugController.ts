@@ -180,9 +180,8 @@ export class DebugController {
 
 		const sellPrice = Math.floor(constants.SHOP_ITEM_PURCHASE_COST / 2);
 
-		// Emit events similar to Chara.ts _handleSellUnit
-		this.scene.events.emit(GameEvents.PLAYER_GOLD_DELTA_REQUEST, sellPrice);
-		// BattlegroundScene listens to OWNED_UNIT_SOLD to remove unit from state and destroy Chara visual
+		// Emit the OWNED_UNIT_SOLD event. The BattlegroundScene handler will
+		// manage gold update, pop text, state removal, visual cleanup, and sell zone.
 		this.scene.events.emit(GameEvents.OWNED_UNIT_SOLD, { unitId: unitId, soldForGold: sellPrice });
 
 		return `Sell request processed for unit ${unitId}. Sold for ${sellPrice} gold. State and visuals will update asynchronously.`;
