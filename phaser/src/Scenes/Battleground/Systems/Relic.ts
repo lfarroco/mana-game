@@ -339,26 +339,18 @@ export class RelicCard extends Phaser.GameObjects.Image {
 
 		const sellPrice = Math.floor(RelicCard.RELIC_COST / 2);
 
-		// 1. Visual feedback (pop text for gold)
+		// 1. Emit pop text for visual feedback
 		this.scene.events.emit(GameEvents.POP_TEXT_SHOW, {
 			text: `+${sellPrice}G`,
 			x: this.x,
 			y: this.y - (this.displayHeight / 2), // Pop from top of relic
-			type: "heal" // "heal" type for green color
-		});
+			type: "success" // "heal" type for green color
+		} as UserMessagePayload); // Cast to UserMessagePayload if PopTextPayload is a subset or compatible
 
-		// 2. Update player gold
-		this.scene.events.emit(GameEvents.PLAYER_GOLD_DELTA_REQUEST, sellPrice);
+		// 2. Emit event for game state changes (gold, relic removal from state)
+		this.scene.events.emit(GameEvents.OWNED_RELIC_SOLD, { relicId: this.id, soldForGold: sellPrice });
 
-		// 3. Remove relic from player's state
-		const relicIndex = playerForce.relics.findIndex(r => r.id === this.id);
-		if (relicIndex > -1) {
-			playerForce.relics.splice(relicIndex, 1);
-		} else {
-			console.warn(`Relic with ID ${this.id} not found in playerForce.relics during selling.`);
-		}
-
-		// 4. Hide the sell zone (immediately, as the action is confirmed) & Destroy GameObject
+		// 3. Hide the sell zone (immediately, as the action is confirmed) & Destroy GameObject
 		this.scene.shop.shopUI.hideSellZone();
 		this.scene.events.emit(GameEvents.TOOLTIP_HIDE); // Ensure tooltip is hidden
 		this.destroy();

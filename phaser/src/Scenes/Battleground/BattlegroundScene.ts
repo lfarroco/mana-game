@@ -15,6 +15,7 @@ import { BattleProgressionSystem } from "./Systems/BattleProgressionSystem";
 import { GameEvents } from "../../constants/events";
 import { getOption } from "../../Models/OptionsStore";
 import { Unit } from "../../Models/Entities/Unit";
+import { RelicCard } from "./Systems/Relic"; // Added for type checking
 import { Vec2 } from "../../Models/Geometry";
 import { battleResultAnimation } from "./battleResultAnimation";
 import { vignette } from "./Animations/vignette";
@@ -272,6 +273,41 @@ export class BattlegroundScene extends Phaser.Scene {
     } else {
       console.warn(`[BattlegroundScene] Unit with ID ${payload.unitId} not found for selling.`);
     }
+  }
+
+  public handleOwnedRelicSold(payload: { relicId: string, soldForGold: number }): void {
+    const { relicId, soldForGold } = payload;
+
+    // 1. Update player gold
+    this.updatePlayerGold(soldForGold); // Or emit PLAYER_GOLD_DELTA_REQUEST if preferred
+
+    // 2. Remove relic from player's state
+    const relicIndex = this.state.gameData.player.relics.findIndex(r => r.id === relicId);
+    if (relicIndex > -1) {
+      this.state.gameData.player.relics.splice(relicIndex, 1);
+    } else {
+      console.warn(`[BattlegroundScene] Relic with ID ${relicId} not found in player state during selling.`);
+      // Potentially return early if relic not in state, though gold might have been added.
+      // For robustness, continue to attempt visual cleanup.
+    }
+
+    // 3. Handle visual cleanup if the event was not from RelicCard self-destructing
+    //    (e.g., if triggered by DebugController)
+    const relicCardVisual = this.children.getByName(relicId) as RelicCard | undefined;
+    if (relicCardVisual && relicCardVisual.active) { // Check if it's still an active GameObject
+      // If the RelicCard is still here, it means it didn't trigger its own sell sequence.
+      // So, we should emit pop text and destroy it.
+      this.events.emit(GameEvents.POP_TEXT_SHOW, {
+        text: `+${soldForGold}G`,
+        x: relicCardVisual.x,
+        y: relicCardVisual.y - (relicCardVisual.displayHeight / 2),
+        type: "heal"
+      });
+      relicCardVisual.destroy();
+    }
+
+    // 4. Ensure sell zone is hidden (can be called multiple times, it's safe)
+    this.shop?.shopUI?.hideSellZone();
   }
 }
 

@@ -101,6 +101,7 @@ export class BattlegroundEventSystem {
 		this.addListener(GameEvents.OWNED_UNIT_MOVE_REQUESTED, this.scene.handleOwnedUnitMoveRequest, this.scene);
 		this.addListener(GameEvents.BOARD_CHARA_CREATE_REQUESTED, this.scene.handleBoardCharaCreateRequest, this.scene);
 		this.addListener(GameEvents.OWNED_UNIT_SOLD, this.scene.handleOwnedUnitSold, this.scene);
+		this.addListener(GameEvents.OWNED_RELIC_SOLD, this.scene.handleOwnedRelicSold, this.scene);
 
 		// Tooltips (keeping direct calls as they are simple and UI related)
 		this.addListener(GameEvents.CHARA_POINTER_OVER, CharaTooltip.onCharaPointerOver, this); // Context `this` is fine if onCharaPointerOver doesn't rely on CharaTooltip's `this`
