@@ -250,15 +250,8 @@ export class Chara extends Phaser.GameObjects.Container {
 	private _handleSellUnit(): void {
 		const sellPrice = Math.floor(constants.SHOP_ITEM_PURCHASE_COST / 2);
 
-		// Emit pop text *before* events that lead to destruction
-		this.scene.events.emit(GameEvents.POP_TEXT_SHOW, {
-			text: `+${sellPrice}G`,
-			x: this.x,
-			y: this.y, // Pop from Chara's origin
-			type: "heal"
-		});
-
-		this.scene.events.emit(GameEvents.PLAYER_GOLD_DELTA_REQUEST, sellPrice);
+		// Emit the OWNED_UNIT_SOLD event. The BattlegroundScene handler will
+		// manage gold update, pop text, state removal, visual cleanup, and sell zone.
 		this.scene.events.emit(GameEvents.OWNED_UNIT_SOLD, { unitId: this.unit.id, soldForGold: sellPrice });
 	}
 
