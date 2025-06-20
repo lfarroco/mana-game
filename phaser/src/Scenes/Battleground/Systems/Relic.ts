@@ -341,19 +341,19 @@ export class RelicCard extends Phaser.GameObjects.Image {
 
 		// 1. Emit pop text for visual feedback
 		this.scene.events.emit(GameEvents.POP_TEXT_SHOW, {
-			text: `+${sellPrice}G`,
+			text: `+${sellPrice}G`, // Ensure this text is appropriate
 			x: this.x,
 			y: this.y - (this.displayHeight / 2), // Pop from top of relic
 			type: "success" // "heal" type for green color
 		} as UserMessagePayload); // Cast to UserMessagePayload if PopTextPayload is a subset or compatible
 
-		// 2. Emit event for game state changes (gold, relic removal from state)
-		this.scene.events.emit(GameEvents.OWNED_RELIC_SOLD, { relicId: this.id, soldForGold: sellPrice });
-
-		// 3. Hide the sell zone (immediately, as the action is confirmed) & Destroy GameObject
+		// 2. Perform other necessary scene interactions BEFORE emitting the event that might destroy this instance
 		this.scene.shop.shopUI.hideSellZone();
 		this.scene.events.emit(GameEvents.TOOLTIP_HIDE); // Ensure tooltip is hidden
-		this.destroy();
+
+		// 3. Emit event for game state changes (gold, relic removal from state).
+		// The BattlegroundScene handler for this event will destroy this RelicCard visual.
+		this.scene.events.emit(GameEvents.OWNED_RELIC_SOLD, { relicId: this.id, soldForGold: sellPrice });
 	}
 
 	updateDataPosition(x: number, y: number) {
