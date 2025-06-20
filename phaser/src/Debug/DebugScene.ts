@@ -81,9 +81,9 @@ export class DebugScene extends Phaser.Scene {
 				this.time.addEvent({
 					delay: 1200,
 					callback: () => {
-						new effects.GlowingOrb(this, 100, 100, { x: 400, y: 100 }, 1000);
-						new effects.GlowingOrb(this, 200, 200, { x: 300, y: 300 }, 1000);
-						const orb = new effects.GlowingOrb(this, 500, 400, { x: 900, y: 400 }, 1000);
+						effects.glowingOrb.create(this, 100, 100, { x: 400, y: 100 }, 1000);
+						effects.glowingOrb.create(this, 200, 200, { x: 300, y: 300 }, 1000);
+						const orb = effects.glowingOrb.create(this, 500, 400, { x: 900, y: 400 }, 1000);
 						orb.setScale(3)
 					},
 					repeat: -1
