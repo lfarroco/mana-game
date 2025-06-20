@@ -1,3 +1,5 @@
+import { SCREEN_HEIGHT, SCREEN_WIDTH } from "../../../../constants/constants";
+
 // /Users/<redacted>/dev/mana-game/phaser/src/Scenes/Battleground/Systems/ShopConstants.ts
 export const RELIC_SECTION_X = 50;
 export const RELIC_SECTION_Y = 50;
@@ -25,9 +27,9 @@ export const PANEL_X = 20;
 export const PANEL_Y = 20;
 export const SUB_PANEL_CORNER_RADIUS = 15;
 
-export const SELL_ZONE_WIDTH = 500;
-export const SELL_ZONE_HEIGHT = 380;
-export const SELL_ZONE_Y_OFFSET_FROM_BOTTOM = 180; // Distance from the bottom of the shop panel to the top of the sell zone
+export const SELL_ZONE_WIDTH = SCREEN_WIDTH - 100;
+export const SELL_ZONE_HEIGHT = SCREEN_HEIGHT / 2;
+export const SELL_ZONE_Y_OFFSET_FROM_BOTTOM = 0; // Distance from the bottom of the shop panel to the top of the sell zone
 export const SELL_ZONE_BG_COLOR = 0xffa500; // Orange
 export const SELL_ZONE_BG_ALPHA = 0.7;
 export const SELL_ZONE_TEXT = "SELL";

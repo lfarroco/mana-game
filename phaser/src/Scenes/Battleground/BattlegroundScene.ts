@@ -266,16 +266,12 @@ export class BattlegroundScene extends Phaser.Scene {
     // Attempt to get Chara instance for position before it's destroyed
     let popTextX = this.sys.game.config.width as number / 2; // Fallback X
     let popTextY = this.sys.game.config.height as number / 2; // Fallback Y
-    try {
-      const charaVisual = CharaManager.getChara(unitId); // CharaManager is imported
-      if (charaVisual) {
-        popTextX = charaVisual.x;
-        popTextY = charaVisual.y;
-      }
-      charaVisual.destroy();
-    } catch (e) {
-      console.warn(`[BattlegroundScene] Chara with ID ${unitId} not found for PopText positioning during sell. Using fallback. Error: ${e}`);
+    const chara = CharaManager.getChara(unitId); // CharaManager is imported
+    if (chara) {
+      popTextX = chara.x;
+      popTextY = chara.y;
     }
+    chara.destroy();
 
     // 2. Emit PopText for gold gain
     this.events.emit(GameEvents.POP_TEXT_SHOW, {
@@ -292,6 +288,8 @@ export class BattlegroundScene extends Phaser.Scene {
     } else {
       console.warn(`[BattlegroundScene] Unit with ID ${payload.unitId} not found for selling.`);
     }
+
+    this.shop.shopUI.hideSellZone();
 
   }
 
