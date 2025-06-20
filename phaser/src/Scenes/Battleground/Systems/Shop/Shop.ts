@@ -52,14 +52,14 @@ export class Shop {
 		this.shopUI = new ShopUI(this.scene, this.flyout);
 	}
 
-	private _handleCharaPurchaseFinalized(purchasedChara: Chara): void {
+	_handleCharaPurchaseFinalized(purchasedChara: Chara): void {
 		// Chara is already removed from flyout by its onPurchased handler (via ShopUI)
 		// Chara instance will be destroyed by CharaManager.
 		// Update our list of available shop charas.
 		this.currentShopCharas = this.currentShopCharas.filter(c => c.id !== purchasedChara.id);
 	}
 
-	private _handleRelicAcquisitionFinalized(acquiredRelic: RelicCard): void {
+	_handleRelicAcquisitionFinalized(acquiredRelic: RelicCard): void {
 		// RelicCard is already removed from flyout by its onAcquire handler (via ShopUI)
 		// Update our list of available shop relics.
 		this.currentShopRelicCards = this.currentShopRelicCards.filter(rc => rc.id !== acquiredRelic.id);
@@ -145,7 +145,7 @@ export class Shop {
 	 * @param item The Phaser.GameObjects.GameObject (e.g., Chara (Container) or RelicCard (Image)) to animate.
 	 *             It must have scaleX, scaleY, angle properties and a setScale method.
 	 */
-	private async _animateItemAppearance(
+	async _animateItemAppearance(
 		item: Chara | RelicCard
 	): Promise<void> {
 		const targetScaleX = item.scaleX;
@@ -172,7 +172,7 @@ export class Shop {
 		});
 	}
 
-	private _getAvailableCardsForTavern(count: number): Card.CardDefinition[] {
+	_getAvailableCardsForTavern(count: number): Card.CardDefinition[] {
 		const ownedCardIds = new Set(this.state.gameData.player.units.map(u => u.cardId));
 		const allCards = Card.getAllCards();
 		// Filter out cards the player already owns (based on cardId, not unit instance id)

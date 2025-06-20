@@ -6,15 +6,17 @@ import { tween } from "../../Utils/animation";
 import { GameEvents } from "../../constants/events";
 
 export class CharaInputHandler {
-	private dragStartX: number = 0;
-	private dragStartY: number = 0;
-	private wasDragSuccessful: boolean = false;
+	dragStartX: number = 0;
+	dragStartY: number = 0;
+	wasDragSuccessful: boolean = false;
+	chara: Chara;
 
-	constructor(private chara: Chara) {
+	constructor(chara: Chara) {
+		this.chara = chara;
 		this.setupInteractions();
 	}
 
-	private setupInteractions(): void {
+	setupInteractions(): void {
 		// Chara's constructor should have already called setInteractive.
 		// This handler attaches the listeners.
 
@@ -35,7 +37,7 @@ export class CharaInputHandler {
 		}
 	}
 
-	private onDragStart = (_pointer: Phaser.Input.Pointer, _dragX: number, _dragY: number): void => {
+	onDragStart = (_pointer: Phaser.Input.Pointer, _dragX: number, _dragY: number): void => {
 		this.dragStartX = this.chara.x;
 		this.dragStartY = this.chara.y;
 		this.wasDragSuccessful = false;
@@ -48,24 +50,24 @@ export class CharaInputHandler {
 			ease: "Cubic.Out",
 		});
 		if (!this.chara.getIsShopItem()) {
-			this.chara.scene.shop.shopUI.showSellZone();
+			this.chara.shop.shopUI.showSellZone();
 		}
 		this.chara.scene.events.emit(GameEvents.TOOLTIP_HIDE);
 	}
 
-	private onDrag = (_pointer: Phaser.Input.Pointer, dragX: number, dragY: number): void => {
+	onDrag = (_pointer: Phaser.Input.Pointer, dragX: number, dragY: number): void => {
 		this.chara.x = dragX;
 		this.chara.y = dragY;
 		// Potentially emit an event if other systems need to react to dragging over areas
 	}
 
-	private onDrop = (_pointer: Phaser.Input.Pointer, dropZoneTarget: Phaser.GameObjects.GameObject): void => {
+	onDrop = (_pointer: Phaser.Input.Pointer, dropZoneTarget: Phaser.GameObjects.GameObject): void => {
 		// This flag is set by the Chara's internal logic after processing the drop.
 		// Here, we just forward the event.
 		this.wasDragSuccessful = this.chara.processDrop(dropZoneTarget, this.dragStartX, this.dragStartY);
 	}
 
-	private onDragEnd = (_pointer: Phaser.Input.Pointer): void => {
+	onDragEnd = (_pointer: Phaser.Input.Pointer): void => {
 		this.chara.scene.tweens.add({
 			targets: [this.chara],
 			angle: 0,
@@ -75,7 +77,7 @@ export class CharaInputHandler {
 
 		// Always hide the sell zone when a drag ends
 		if (!this.chara.getIsShopItem()) {
-			this.chara.scene.shop.shopUI.hideSellZone();
+			this.chara.shop.shopUI.hideSellZone();
 		}
 		if (!this.wasDragSuccessful) {
 			this.chara.revertDragOrFailedPurchase(this.dragStartX, this.dragStartY);
@@ -84,7 +86,7 @@ export class CharaInputHandler {
 		// this.wasDragSuccessful = false; // Not strictly needed here as it's reset on drag_start
 	}
 
-	private onPointerUpShopItem = (pointer: Phaser.Input.Pointer): void => {
+	onPointerUpShopItem = (pointer: Phaser.Input.Pointer): void => {
 		if (!this.chara.getIsShopItem() || !this.chara.input?.enabled) return;
 
 		// Only process as a click if it wasn't a drag
@@ -98,7 +100,7 @@ export class CharaInputHandler {
 		this.chara.processShopItemClick(pointer.x, pointer.y);
 	}
 
-	public updateShopItemStatus(isShopItem: boolean): void {
+	updateShopItemStatus(isShopItem: boolean): void {
 		// If it's no longer a shop item, remove the pointerup listener for clicks
 		if (!isShopItem) {
 			this.chara.off(Phaser.Input.Events.POINTER_UP, this.onPointerUpShopItem);
@@ -107,7 +109,7 @@ export class CharaInputHandler {
 		// though current flow is one-way (shop -> owned).
 	}
 
-	public destroy(): void {
+	destroy(): void {
 		this.chara.off(Phaser.Input.Events.DRAG_START, this.onDragStart);
 		this.chara.off(Phaser.Input.Events.DRAG, this.onDrag);
 		this.chara.off(Phaser.Input.Events.DROP, this.onDrop);

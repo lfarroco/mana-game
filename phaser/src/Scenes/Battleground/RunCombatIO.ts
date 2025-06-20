@@ -39,8 +39,8 @@ async function setupWave(scene: BattlegroundScene) {
  * System to run the combat input/output loop for a battleground scene.
  */
 export class RunCombatSystem {
-  private scene: BattlegroundScene;
-  private updateHandler: ((time: number, delta: number) => Promise<void>) | null = null;
+  scene: BattlegroundScene;
+  updateHandler: ((time: number, delta: number) => Promise<void>) | null = null;
 
   constructor(scene: BattlegroundScene) {
     this.scene = scene;
@@ -50,7 +50,7 @@ export class RunCombatSystem {
    * Starts the combat IO loop and resolves with the wave outcome when combat ends.
    * @returns {Promise<WaveOutcome>} Resolves with the outcome of the wave.
    */
-  public runCombatIO = () => new Promise<WaveOutcome>(async resolve => {
+  runCombatIO = () => new Promise<WaveOutcome>(async resolve => {
     const { state, events } = this.scene;
 
     await setupWave(this.scene);

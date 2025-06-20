@@ -14,10 +14,10 @@ import * as CharaManager from "./CharaManager";
  * between shop and combat phases, round victories, and game over.
  */
 export class BattleProgressionSystem {
-	private scene: BattlegroundScene;
-	private state: State;
-	private _isInShopPhase: boolean = false;
-	private prestigeSystem: PrestigeSystem;
+	scene: BattlegroundScene;
+	state: State;
+	_isInShopPhase: boolean = false;
+	prestigeSystem: PrestigeSystem;
 
 	constructor(scene: BattlegroundScene, state: State) {
 		this.scene = scene;
@@ -25,7 +25,7 @@ export class BattleProgressionSystem {
 		this.prestigeSystem = new PrestigeSystem(scene, state);
 	}
 
-	public get isInShopPhase(): boolean {
+	get isInShopPhase(): boolean {
 		return this._isInShopPhase;
 	}
 
@@ -33,7 +33,7 @@ export class BattleProgressionSystem {
 	 * Transitions the game to the shop phase.
 	 * If called after a victory, processes round victory rewards first.
 	 */
-	public async transitionToShopPhase(payload?: { enemiesDefeated?: Unit[] }): Promise<void> {
+	async transitionToShopPhase(payload?: { enemiesDefeated?: Unit[] }): Promise<void> {
 
 		await delay(this.scene, 1000);
 		// cleanup
@@ -64,7 +64,7 @@ export class BattleProgressionSystem {
 	/**
 	 * Transitions the game to the combat phase for the current round.
 	 */
-	public transitionToCombatPhase(): void {
+	transitionToCombatPhase(): void {
 		this._isInShopPhase = false;
 		console.log("Round", this.state.gameData.round, "Combat Phase Starting.");
 		const { enemies } = this.setupBattle();
@@ -77,7 +77,7 @@ export class BattleProgressionSystem {
 	/**
 	 * Processes the logic for a player's victory in a round.
 	 */
-	private async processRoundVictory(_enemiesDefeated: Unit[]): Promise<void> {
+	async processRoundVictory(_enemiesDefeated: Unit[]): Promise<void> {
 		console.log("Round", this.state.gameData.round, "Processing Victory...");
 		await delay(this.scene, BG_CONSTANTS.POST_COMBAT_DELAY);
 		this.scene.events.emit(GameEvents.BATTLE_RESULT_SHOW, { result: "victory" });
@@ -91,7 +91,7 @@ export class BattleProgressionSystem {
 	/**
 	 * Handles the game over sequence.
 	 */
-	public async handleCombatEndedDefeat(): Promise<void> {
+	async handleCombatEndedDefeat(): Promise<void> {
 		console.log("Round", this.state.gameData.round, "Processing Defeat...");
 		await delay(this.scene, BG_CONSTANTS.POST_COMBAT_DELAY);
 		this.scene.events.emit(GameEvents.BATTLE_RESULT_SHOW, { result: "defeat" });
@@ -107,7 +107,7 @@ export class BattleProgressionSystem {
 	/**
 	 * Handles the event when the player achieves the ultimate win condition (30 prestige).
 	 */
-	public async handlePlayerWonGame(): Promise<void> {
+	async handlePlayerWonGame(): Promise<void> {
 		this._isInShopPhase = false; // Stop normal game flow
 		console.log(`PLAYER HAS WON THE GAME! Prestige: ${this.state.gameData.player.prestige}, Total Rounds: ${this.state.gameData.player.totalRoundsPlayed}`);
 
@@ -116,7 +116,7 @@ export class BattleProgressionSystem {
 		// Here you could transition to a dedicated "Game Won" scene or show a special UI.
 	}
 
-	private resetPlayerUnitsForNewRound(): void {
+	resetPlayerUnitsForNewRound(): void {
 		this.state.gameData.player.units.forEach(unit => {
 			unit.charge = 0;
 			unit.refresh = 0;
@@ -126,13 +126,13 @@ export class BattleProgressionSystem {
 		});
 	}
 
-	private resetPlayerUnitChargeBars(): void {
+	resetPlayerUnitChargeBars(): void {
 		CharaManager.getAllCharas().forEach(chara => {
 			this.scene.events.emit(GameEvents.CHARA_CHARGE_BAR_UPDATE, { unitId: chara.id });
 		});
 	}
 
-	private setAllPlayerUnitBarsVisibility(visible: boolean): void {
+	setAllPlayerUnitBarsVisibility(visible: boolean): void {
 		CharaManager.getAllCharas().forEach(chara => {
 			this.scene.events.emit(GameEvents.CHARA_BARS_VISIBILITY_SET, { unitId: chara.id, visible });
 		});
@@ -143,7 +143,7 @@ export class BattleProgressionSystem {
 	 * to the battle data. Also summons CPU units to the board.
 	 * @returns An object containing the array of enemy units.
 	 */
-	public setupBattle(): { enemies: Unit[] } {
+	setupBattle(): { enemies: Unit[] } {
 		const cardPool = getAllCards();
 		const enemies = generateEnemyTeam(this.state.gameData.round, cardPool);
 
@@ -158,20 +158,20 @@ export class BattleProgressionSystem {
 
 	// --- Event Handlers Moved from BattlegroundEventSystem ---
 
-	public handleUnitDiedInBattle(payload: { unit: Unit, killerId?: string }): void {
+	handleUnitDiedInBattle(payload: { unit: Unit, killerId?: string }): void {
 		this.state.battleData.units = this.state.battleData.units.filter(u => u.id !== payload.unit.id);
 		this.scene.events.emit(GameEvents.CHARA_DESTROY_FROM_BOARD, { unitId: payload.unit.id });
 	}
 
-	public handleShopPhaseEnded(): void {
+	handleShopPhaseEnded(): void {
 		this.transitionToCombatPhase();
 	}
 
-	public handleCombatEndedVictory(payload: { enemiesDefeated: Unit[] }): void {
+	handleCombatEndedVictory(payload: { enemiesDefeated: Unit[] }): void {
 		this.transitionToShopPhase(payload);
 	}
 
-	public async handleCombatStartExecution(payload: { enemies: Unit[] }): Promise<void> {
+	async handleCombatStartExecution(payload: { enemies: Unit[] }): Promise<void> {
 		const combatResult = await this.scene.runCombatSystem.runCombatIO(); // runCombatSystem is on BattlegroundScene
 		if (combatResult === "player_won") {
 			this.scene.events.emit(GameEvents.COMBAT_ENDED_VICTORY, { enemiesDefeated: payload.enemies });
@@ -180,7 +180,7 @@ export class BattleProgressionSystem {
 		}
 	}
 
-	public destroy(): void {
+	destroy(): void {
 		this.scene.events.off(GameEvents.PLAYER_WON_GAME, this.handlePlayerWonGame, this);
 		// any other event cleanup specific to this system
 	}

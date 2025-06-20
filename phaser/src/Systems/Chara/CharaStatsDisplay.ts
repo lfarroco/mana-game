@@ -4,18 +4,18 @@ import { Unit } from "../../Models/Entities/Unit";
 import * as bgConstants from "../../constants/constants";
 
 export class CharaStatsDisplay {
-	private scene: Phaser.Scene;
-	private unit: Unit;
+	scene: Phaser.Scene;
+	unit: Unit;
 
-	private atkBg!: Phaser.GameObjects.Graphics;
-	private atkDisplay!: Phaser.GameObjects.Text;
-	private hpBg!: Phaser.GameObjects.Graphics;
-	private hpDisplay!: Phaser.GameObjects.Text;
+	atkBg!: Phaser.GameObjects.Graphics;
+	atkDisplay!: Phaser.GameObjects.Text;
+	hpBg!: Phaser.GameObjects.Graphics;
+	hpDisplay!: Phaser.GameObjects.Text;
 
-	private static readonly BOX_WIDTH_RATIO = 0.4;
-	private static readonly BOX_HEIGHT_RATIO = 0.2;
-	private static readonly STAT_BOX_CORNER_RADIUS_RATIO = 0.1; // Ratio of boxWidth for corner radius
-	private static readonly STAT_BOX_MARGIN_RATIO = 0.1; // Ratio of boxWidth for margin
+	static readonly BOX_WIDTH_RATIO = 0.4;
+	static readonly BOX_HEIGHT_RATIO = 0.2;
+	static readonly STAT_BOX_CORNER_RADIUS_RATIO = 0.1; // Ratio of boxWidth for corner radius
+	static readonly STAT_BOX_MARGIN_RATIO = 0.1; // Ratio of boxWidth for margin
 
 	constructor(scene: Phaser.Scene, unit: Unit) {
 		this.scene = scene;
@@ -23,7 +23,7 @@ export class CharaStatsDisplay {
 		this.createElements();
 	}
 
-	private createElements(): void {
+	createElements(): void {
 		const boxWidth = bgConstants.TILE_WIDTH * CharaStatsDisplay.BOX_WIDTH_RATIO;
 		const boxHeight = bgConstants.TILE_HEIGHT * CharaStatsDisplay.BOX_HEIGHT_RATIO;
 		const cornerRadius = boxWidth * CharaStatsDisplay.STAT_BOX_CORNER_RADIUS_RATIO;
@@ -65,19 +65,19 @@ export class CharaStatsDisplay {
 		).setOrigin(0.5).setAlign('center');
 	}
 
-	public addToContainer(container: Phaser.GameObjects.Container): void {
+	addToContainer(container: Phaser.GameObjects.Container): void {
 		container.add([this.atkBg, this.atkDisplay, this.hpBg, this.hpDisplay]);
 	}
 
-	public updateHp(): void {
+	updateHp(): void {
 		this.hpDisplay.setText(Math.floor(this.unit.hp).toString());
 	}
 
-	public updateAtk(): void {
+	updateAtk(): void {
 		this.atkDisplay.setText(Math.floor(this.unit.attackPower).toString());
 	}
 
-	public setVisible(visible: boolean): void {
+	setVisible(visible: boolean): void {
 		this.atkBg.setVisible(visible);
 		this.atkDisplay.setVisible(visible && this.unit.attackType !== "none");
 		this.hpBg.setVisible(visible);

@@ -16,9 +16,9 @@ import * as sc from "./ShopConstants";
 export class ShopUI {
 	scene: BattlegroundScene;
 	flyout: Flyout;
-	private sellZoneContainer: Phaser.GameObjects.Container | null = null;
-	private sellZone: Phaser.GameObjects.Zone | null = null;
-	private sellZoneText: Phaser.GameObjects.Text | null = null;
+	sellZoneContainer: Phaser.GameObjects.Container | null = null;
+	sellZone: Phaser.GameObjects.Zone | null = null;
+	sellZoneText: Phaser.GameObjects.Text | null = null;
 	sellZoneGraphics: any;
 
 	constructor(scene: BattlegroundScene, flyout: Flyout) {
@@ -206,7 +206,7 @@ export class ShopUI {
 		return createdCharas;
 	}
 
-	private _createSellZone(shopPanelWidth: number, shopPanelHeight: number): void {
+	_createSellZone(shopPanelWidth: number, shopPanelHeight: number): void {
 		if (this.sellZoneContainer) {
 			this.sellZoneContainer.destroy(true);
 		}
@@ -244,18 +244,18 @@ export class ShopUI {
 		this.flyout.add(this.sellZoneContainer);
 	}
 
-	public showSellZone(): void {
+	showSellZone(): void {
 		if (this.sellZoneContainer) {
 			this.flyout.bringToTop(this.sellZoneContainer); // Ensure it's visible above other shop items
 			this.sellZoneContainer.setVisible(true);
 		}
 	}
 
-	public hideSellZone(): void {
+	hideSellZone(): void {
 		this.sellZoneContainer?.setVisible(false);
 	}
 
-	public destroy() {
+	destroy() {
 		this.sellZoneContainer?.destroy(true);
 		this.sellZoneContainer = null;
 	}

@@ -1,14 +1,18 @@
 import { images } from "../assets";
 
 export class GlowingOrb extends Phaser.GameObjects.Container {
+	target: { x: number; y: number; };
+	duration: number;
 
 	constructor(
 		scene: Phaser.Scene,
 		x: number, y: number,
-		public target: { x: number; y: number; },
-		public duration: number
+		target: { x: number; y: number; },
+		duration: number
 	) {
 		super(scene, x, y);
+		this.target = target;
+		this.duration = duration;
 		scene.add.existing(this);
 		this.create();
 	}

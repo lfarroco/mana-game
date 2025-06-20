@@ -45,8 +45,8 @@ export class BattlegroundScene extends Phaser.Scene {
   shop: Shop;
 
   // New Systems
-  private setupSystem!: BattlegroundSetupSystem;
-  private eventSystem!: BattlegroundEventSystem;
+  setupSystem!: BattlegroundSetupSystem;
+  eventSystem!: BattlegroundEventSystem;
 
 
   /** Cleans up resources and event listeners. */
@@ -185,13 +185,13 @@ export class BattlegroundScene extends Phaser.Scene {
 
   // --- Event Handlers Moved from BattlegroundEventSystem ---
 
-  public updatePlayerGold(goldDelta: number): void {
+  updatePlayerGold(goldDelta: number): void {
     const changeAmount = Math.floor(goldDelta);
     this.state.gameData.player.gold += changeAmount;
     this.events.emit(GameEvents.GOLD_CHANGED, this.state.gameData.player.gold, changeAmount);
   }
 
-  public async handleBoardCharaCreateRequest(payload: { unit: Unit }): Promise<void> {
+  async handleBoardCharaCreateRequest(payload: { unit: Unit }): Promise<void> {
     // When a new Chara is requested for the board (e.g., after a purchase),
     // tell CharaManager to summon it. Default to animating its appearance.
     await CharaManager.summonChara(payload.unit, true); // summonChara is async, but we don't need to await its completion for this logic
@@ -201,7 +201,7 @@ export class BattlegroundScene extends Phaser.Scene {
     }
   }
 
-  public handleOwnedUnitMoveRequest(payload: { unitId: string, targetTile: Vec2, dragStartX: number, dragStartY: number }): void {
+  handleOwnedUnitMoveRequest(payload: { unitId: string, targetTile: Vec2, dragStartX: number, dragStartY: number }): void {
     const { unitId, targetTile, dragStartX, dragStartY } = payload;
     const unitToMove = this.state.gameData.player.units.find(u => u.id === unitId);
 
@@ -243,21 +243,21 @@ export class BattlegroundScene extends Phaser.Scene {
     }
   }
 
-  public handlePlayerGoldUpdateRequest(goldDelta: number): void {
+  handlePlayerGoldUpdateRequest(goldDelta: number): void {
     const changeAmount = Math.floor(goldDelta);
     this.state.gameData.player.gold += changeAmount;
     this.events.emit(GameEvents.GOLD_CHANGED, this.state.gameData.player.gold, changeAmount);
   }
 
-  public handleBattleResultShow(payload: { result: "victory" | "defeat" }): void {
+  handleBattleResultShow(payload: { result: "victory" | "defeat" }): void {
     battleResultAnimation(this, payload.result); // battleResultAnimation is async, but event handler is sync
   }
 
-  public handleVignetteMessageShow(payload: { message: string }): void {
+  handleVignetteMessageShow(payload: { message: string }): void {
     vignette(this, payload.message);
   }
 
-  public handleOwnedUnitSold(payload: { unitId: string, soldForGold: number }): void {
+  handleOwnedUnitSold(payload: { unitId: string, soldForGold: number }): void {
     const { unitId, soldForGold } = payload;
 
     // 1. Update player gold
@@ -293,7 +293,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
   }
 
-  public handleOwnedRelicSold(payload: { relicId: string, soldForGold: number }): void {
+  handleOwnedRelicSold(payload: { relicId: string, soldForGold: number }): void {
     const { relicId, soldForGold } = payload;
 
     // 1. Update player gold

@@ -9,7 +9,7 @@ import * as constants from "../../constants/constants";
 import { Relic, RelicCard } from "../Battleground/Systems/Relic"; // Added Relic and RelicCard
 
 export class DebugController {
-	private scene: BattlegroundScene;
+	scene: BattlegroundScene;
 
 	constructor(scene: BattlegroundScene) {
 		this.scene = scene;
@@ -193,11 +193,11 @@ export class DebugController {
 	 */
 	sellPlayerRelic(relicId: string): string {
 		const playerRelics = this.scene.state.gameData.player.relics;
-        // Check if the relic exists in the player's inventory (optional, for more robust error handling)
-        const relicExists = playerRelics.some(r => r.id === relicId);
-        if (!relicExists) {
-            return `Error: Relic with ID ${relicId} not found in player's possession. Cannot sell.`;
-        }
+		// Check if the relic exists in the player's inventory (optional, for more robust error handling)
+		const relicExists = playerRelics.some(r => r.id === relicId);
+		if (!relicExists) {
+			return `Error: Relic with ID ${relicId} not found in player's possession. Cannot sell.`;
+		}
 
 		const sellPrice = Math.floor(RelicCard.RELIC_COST / 2);
 

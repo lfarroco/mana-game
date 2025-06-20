@@ -13,13 +13,13 @@ import { getOption } from "../../../Models/OptionsStore";
 let runtimeDataInitialized = false;
 
 export class BattlegroundSetupSystem {
-	private scene: BattlegroundScene;
+	scene: BattlegroundScene;
 
 	constructor(scene: BattlegroundScene) {
 		this.scene = scene;
 	}
 
-	public performOneTimeRuntimeInitialization(collection: CardCollection): void {
+	performOneTimeRuntimeInitialization(collection: CardCollection): void {
 		if (!runtimeDataInitialized) {
 			if (process.env.NODE_ENV === 'development') {
 				console.log("Performing one-time runtime data initialization.");
@@ -30,7 +30,7 @@ export class BattlegroundSetupSystem {
 		}
 	}
 
-	public loadDynamicAssets = (collection: CardCollection): Promise<void> => new Promise((resolve) => {
+	loadDynamicAssets = (collection: CardCollection): Promise<void> => new Promise((resolve) => {
 		const loadAsset = (asset: { name: string, pic: string }, type: string) => {
 			if (process.env.NODE_ENV === 'development') {
 				console.log(`Loading ${type} asset: ${asset.name} - ${asset.pic}`);
@@ -50,7 +50,7 @@ export class BattlegroundSetupSystem {
 	});
 
 
-	public initializeNewGame(state: State): void {
+	initializeNewGame(state: State): void {
 
 		state.gameData.player.units = [];
 		state.gameData.player.relics = [];
@@ -70,7 +70,7 @@ export class BattlegroundSetupSystem {
 		this.scene.sound.setVolume(getOption('soundVolume') ?? BG_CONSTANTS.DEFAULT_SCENE_SOUND_VOLUME);
 	}
 
-	public setupSceneElements(_state: State): PlayerBoard {
+	setupSceneElements(_state: State): PlayerBoard {
 		this.scene.bgImage = this.scene.add.image(
 			0, 0,
 			images.bg_forest.key,
