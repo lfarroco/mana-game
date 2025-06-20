@@ -1,6 +1,6 @@
 import { Unit } from "../../../Models/Entities/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
-import { GlowingOrb } from "../../../Effects/GlowingOrb";
+import * as glowingOrb from "../../../Effects/GlowingOrb";
 import { delay } from "../../../Utils/animation";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 import { getOption } from "../../../Models/OptionsStore";
@@ -21,7 +21,8 @@ export const lightOrb = (
 	const targetChara = UnitManager.getChara(target.id);
 	if (!targetChara) return;
 
-	const orb = new GlowingOrb(scene,
+	const orb = glowingOrb.create(
+		scene,
 		activeChara.x, activeChara.y,
 		targetChara,
 		500 / getOption('speed')

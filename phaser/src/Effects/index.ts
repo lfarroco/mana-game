@@ -1,7 +1,7 @@
 export * from './criticalDamageDisplay';
 export * from './EnergyBeam';
 export * from './fireballEffect';
-export * from './GlowingOrb';
+export * as glowingOrb from './GlowingOrb';
 export * from './healingHitEffect';
 export * from './impactEffect';
 export * from './summonEffect';
