@@ -6,8 +6,8 @@ import { BattlegroundScene } from "../Scenes/Battleground/BattlegroundScene";
  * Manages the player's prestige level, updating it based on battle outcomes.
  */
 export class PrestigeSystem {
-	private scene: BattlegroundScene;
-	private state: State;
+	scene: BattlegroundScene;
+	state: State;
 
 	constructor(scene: BattlegroundScene, state: State) {
 		this.scene = scene;
@@ -17,7 +17,7 @@ export class PrestigeSystem {
 	/**
 	 * Processes the prestige change when the player wins a battle.
 	 */
-	public processVictory(): void {
+	processVictory(): void {
 		const playerState = this.state.gameData.player;
 		const prestigeGain = 1;
 		playerState.prestige += prestigeGain;
@@ -34,7 +34,7 @@ export class PrestigeSystem {
 	/**
 	 * Processes the prestige change when the player loses a battle.
 	 */
-	public processDefeat(): void {
+	processDefeat(): void {
 		const playerState = this.state.gameData.player;
 		const oldPrestige = playerState.prestige;
 		const prestigeLoss = 1; // Reduced from 2 to be less punitive
@@ -53,7 +53,7 @@ export class PrestigeSystem {
 	 * Finalizes round-specific statistics like total rounds played.
 	 * Should be called after every battle.
 	 */
-	public finalizeRound(): void {
+	finalizeRound(): void {
 		this.state.gameData.player.totalRoundsPlayed += 1;
 		this.scene.events.emit(GameEvents.ROUND_ENDED_UPDATE_STATS, {
 			totalRounds: this.state.gameData.player.totalRoundsPlayed,

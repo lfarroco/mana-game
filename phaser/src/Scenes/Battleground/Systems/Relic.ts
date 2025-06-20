@@ -31,19 +31,36 @@ export class RelicCard extends Phaser.GameObjects.Image {
 
 	id: string;
 	owned: boolean = false;
-	private wasDroppedOnZone = false;
-	private wasDragged = false;
+	wasDroppedOnZone = false;
+	wasDragged = false;
+	forceId: string;
+	relicData: RelicDefinition;
+	onAcquire: () => void;
+	initialX: number;
+	initialY: number;
+	iconSize: number;
+	shop: import("/Users/<redacted>/dev/mana-game/phaser/src/Scenes/Battleground/Systems/Shop/Shop").Shop;
 
 	constructor(
-		public scene: BattlegroundScene,
-		public initialX: number, // Renamed baseX to initialX for clarity
-		public initialY: number, // Renamed baseY to initialY for clarity
-		public forceId: string,
-		public relicData: RelicDefinition,
-		public iconSize: number,
-		public onAcquire: () => void
+		scene: BattlegroundScene,
+		initialX: number, // Renamed baseX to initialX for clarity
+		initialY: number, // Renamed baseY to initialY for clarity
+		forceId: string,
+		relicData: RelicDefinition,
+		iconSize: number,
+		onAcquire: () => void
 	) {
 		super(scene, initialX, initialY, relicData.pic);
+
+		this.scene = scene;
+		this.shop = scene.shop;
+		this.forceId = forceId;
+		this.relicData = relicData;
+		this.onAcquire = onAcquire;
+		this.initialX = initialX;
+		this.initialY = initialY;
+		this.iconSize = iconSize;
+
 		this.setDisplaySize(iconSize, iconSize);
 		scene.add.existing(this);
 		// Note: if this object is added to another container later (e.g., a Flyout),
@@ -71,17 +88,17 @@ export class RelicCard extends Phaser.GameObjects.Image {
 
 
 	// Checks if the player can afford the relic
-	private canAfford(): boolean {
+	canAfford(): boolean {
 		return getState().gameData.player.gold >= RelicCard.RELIC_COST;
 	}
 
 	// Checks if the player has space for a new relic
-	private hasSpaceForNewRelic(): boolean {
+	hasSpaceForNewRelic(): boolean {
 		return getState().gameData.player.relics.length < RelicCard.MAX_RELICS;
 	}
 
 	// Handles the actual acquisition process once checks are passed
-	private completeAcquisition(gridX: number, gridY: number): void {
+	completeAcquisition(gridX: number, gridY: number): void {
 		if (!this.owned) { // Ensure this is only done once for a new relic
 			this.onAcquire(); // Callback (e.g., to refresh shop)
 			this.owned = true;
@@ -101,7 +118,7 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		playerForce.relics.push(relicData);
 	}
 
-	private attemptPurchaseAndPlace(gridX: number, gridY: number, targetVisualX: number, targetVisualY: number): boolean {
+	attemptPurchaseAndPlace(gridX: number, gridY: number, targetVisualX: number, targetVisualY: number): boolean {
 		if (this.owned) { // Should not be called if already owned
 			console.error("Attempted to purchase an already owned relic.");
 			return false;
@@ -207,7 +224,7 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		// If it was an owned relic, ensure the sell zone is hidden
 		// This acts as a fallback if _handleSellRelic didn't run or if the drop was elsewhere.
 		if (this.owned && this.active) { // Check 'active' in case it was sold and destroyed
-			this.scene.shop.shopUI.hideSellZone();
+			this.shop.shopUI.hideSellZone();
 		}
 
 		if (this.wasDroppedOnZone) {
@@ -224,7 +241,7 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		this.wasDragged = false; // Reset wasDragged as well
 	};
 
-	private handleDragStart = () => {
+	handleDragStart = () => {
 		this.wasDroppedOnZone = false;
 		this.wasDragged = false; // Reset wasDragged at the start of a new drag
 		this.scene.events.emit(GameEvents.TOOLTIP_HIDE);
@@ -238,7 +255,7 @@ export class RelicCard extends Phaser.GameObjects.Image {
 
 		// Show sell zone only if the relic is owned by the player
 		if (this.owned) {
-			this.scene.shop.shopUI.showSellZone();
+			this.shop.shopUI.showSellZone();
 			// Tilt animation for owned relics being dragged
 			this.scene.tweens.add({
 				targets: [this],
@@ -249,7 +266,7 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		}
 	}
 
-	private handleDropRelicIntoSlot(zone: Phaser.GameObjects.Zone) {
+	handleDropRelicIntoSlot(zone: Phaser.GameObjects.Zone) {
 
 		const [_, xStr, yStr] = zone.name.split("-");
 		const targetGridX = parseInt(xStr);
@@ -318,7 +335,7 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		}
 	}
 
-	private async tweenToSlot(x: number = this.initialX, y: number = this.initialY) {
+	async tweenToSlot(x: number = this.initialX, y: number = this.initialY) {
 		await tween({
 			targets: [this],
 			x,
@@ -328,12 +345,12 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		this.initialY = y;
 	}
 
-	private _handleSellRelic(): void {
+	_handleSellRelic(): void {
 		if (!this.owned) {
 			// Should not happen if sell zone is only shown for owned relics
 			console.warn("Attempted to sell a relic that is not owned.");
 			this.tweenToSlot(); // Revert to its last known position
-			this.scene.shop.shopUI.hideSellZone();
+			this.shop.shopUI.hideSellZone();
 			return;
 		}
 
@@ -348,7 +365,7 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		} as UserMessagePayload); // Cast to UserMessagePayload if PopTextPayload is a subset or compatible
 
 		// 2. Perform other necessary scene interactions BEFORE emitting the event that might destroy this instance
-		this.scene.shop.shopUI.hideSellZone();
+		this.shop.shopUI.hideSellZone();
 		this.scene.events.emit(GameEvents.TOOLTIP_HIDE); // Ensure tooltip is hidden
 
 		// 3. Emit event for game state changes (gold, relic removal from state).
@@ -368,7 +385,7 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		record.position.y = y;
 	}
 
-	private handlePointerOver(_pointer: Pointer) {
+	handlePointerOver(_pointer: Pointer) {
 
 		const tooltipX = this.x + (this.displayWidth / 2) + 300;
 		this.scene.events.emit(GameEvents.TOOLTIP_SHOW, {
@@ -379,7 +396,7 @@ export class RelicCard extends Phaser.GameObjects.Image {
 		});
 	}
 
-	private handlePointerOut() {
+	handlePointerOut() {
 		this.scene.events.emit(GameEvents.TOOLTIP_HIDE);
 	}
 

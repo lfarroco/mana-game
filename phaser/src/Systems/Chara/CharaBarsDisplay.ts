@@ -5,15 +5,15 @@ import * as bgConstants from "../../constants/constants";
 import { getOption } from "../../Models/OptionsStore";
 
 export class CharaBarsDisplay {
-	private scene: Phaser.Scene;
-	private unit: Unit;
+	scene: Phaser.Scene;
+	unit: Unit;
 
-	private chargeBar!: Phaser.GameObjects.Graphics;
-	private cooldownBar!: Phaser.GameObjects.Graphics;
-	private hpBar!: Phaser.GameObjects.Graphics;
+	chargeBar!: Phaser.GameObjects.Graphics;
+	cooldownBar!: Phaser.GameObjects.Graphics;
+	hpBar!: Phaser.GameObjects.Graphics;
 
-	private static readonly DEBUG_BAR_PADDING = 10;
-	private static readonly DEBUG_BAR_HEIGHT = 10;
+	static readonly DEBUG_BAR_PADDING = 10;
+	static readonly DEBUG_BAR_HEIGHT = 10;
 
 	constructor(scene: Phaser.Scene, unit: Unit) {
 		this.scene = scene;
@@ -21,17 +21,17 @@ export class CharaBarsDisplay {
 		this.createElements();
 	}
 
-	private createElements(): void {
+	createElements(): void {
 		this.chargeBar = this.scene.add.graphics();
 		this.cooldownBar = this.scene.add.graphics();
 		this.hpBar = this.scene.add.graphics();
 	}
 
-	public addToContainer(container: Phaser.GameObjects.Container): void {
+	addToContainer(container: Phaser.GameObjects.Container): void {
 		container.add([this.chargeBar, this.cooldownBar, this.hpBar]);
 	}
 
-	public updateBars(): void {
+	updateBars(): void {
 		const { chargeBar, cooldownBar, hpBar, unit } = this;
 		const maxWidthForDebugBars = bgConstants.TILE_WIDTH - (2 * CharaBarsDisplay.DEBUG_BAR_PADDING);
 
@@ -80,7 +80,7 @@ export class CharaBarsDisplay {
 		);
 	}
 
-	public setVisible(visible: boolean): void {
+	setVisible(visible: boolean): void {
 		this.chargeBar.setVisible(visible);
 		const debugMode = getOption('debug');
 		this.cooldownBar.setVisible(visible && debugMode);

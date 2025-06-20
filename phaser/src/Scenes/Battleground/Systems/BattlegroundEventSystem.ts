@@ -34,12 +34,12 @@ type Listener = {
  * - Manages the lifecycle of its event listeners, registering them on creation and unregistering them on destruction.
  */
 export class BattlegroundEventSystem {
-	private scene: BattlegroundScene;
-	private uiManager: UIManager;
-	private playerBoard: PlayerBoard;
-	private shop: Shop;
-	private battleProgressionSystem: BattleProgressionSystem;
-	private listeners: Listener[] = [];
+	scene: BattlegroundScene;
+	uiManager: UIManager;
+	playerBoard: PlayerBoard;
+	shop: Shop;
+	battleProgressionSystem: BattleProgressionSystem;
+	listeners: Listener[] = [];
 
 	constructor(scene: BattlegroundScene) {
 		this.scene = scene;
@@ -49,12 +49,12 @@ export class BattlegroundEventSystem {
 		this.battleProgressionSystem = scene.battleProgressionSystem;
 	}
 
-	private addListener(event: string, handler: (...args: any[]) => void, context?: any): void {
+	addListener(event: string, handler: (...args: any[]) => void, context?: any): void {
 		this.scene.events.on(event, handler, context);
 		this.listeners.push({ event, handler, context });
 	}
 
-	public registerEventHandlers(): void {
+	registerEventHandlers(): void {
 		// Game Lifecycle & Phase Transitions
 		this.addListener(GameEvents.SHOP_PHASE_ENDED, this.battleProgressionSystem.handleShopPhaseEnded, this.battleProgressionSystem);
 		this.addListener(GameEvents.COMBAT_ENDED_VICTORY, this.battleProgressionSystem.handleCombatEndedVictory, this.battleProgressionSystem);
@@ -108,7 +108,7 @@ export class BattlegroundEventSystem {
 		this.addListener(GameEvents.CHARA_POINTER_OUT, CharaTooltip.onCharaPointerOut, this); // Same as above
 	}
 
-	public destroy(): void {
+	destroy(): void {
 		this.listeners.forEach(listener => {
 			this.scene.events.off(listener.event, listener.handler, listener.context);
 		});

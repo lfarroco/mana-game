@@ -48,6 +48,8 @@ export class Chara extends Phaser.GameObjects.Container {
 	isShopItem: boolean;
 	/** Optional callback function to execute after a shop item is successfully purchased. */
 	onPurchasedCallback?: () => void;
+	playerBoard: Board.PlayerBoard;
+	shop: import("/Users/<redacted>/dev/mana-game/phaser/src/Scenes/Battleground/Systems/Shop/Shop").Shop;
 
 	/**
 	 * Creates an instance of a Chara.
@@ -58,10 +60,13 @@ export class Chara extends Phaser.GameObjects.Container {
 	 *                `onPurchased`: Callback executed upon successful purchase from the shop.
 	 *                               This is typically used to update the shop's display (e.g., remove the item).
 	 */
-	constructor(public scene: BattlegroundScene, unit: Unit, options?: CharaOptions) {
+	constructor(scene: BattlegroundScene, unit: Unit, options?: CharaOptions) {
 		const position = UnitManager.getCharaPosition(unit);
 		super(scene, position.x, position.y);
 
+		this.scene = scene;
+		this.playerBoard = scene.playerBoard;
+		this.shop = scene.shop;
 		this.unit = unit;
 		this.isShopItem = options?.isShopItem ?? false;
 		this.onPurchasedCallback = options?.onPurchased;
@@ -217,7 +222,7 @@ export class Chara extends Phaser.GameObjects.Container {
 			}
 		}
 
-		if (!Board.PlayerBoard.isTileZone(dropZoneTarget) ) {
+		if (!Board.PlayerBoard.isTileZone(dropZoneTarget)) {
 			// Dropped outside a valid player board tile zone or the sell zone.
 			return false;
 		}
@@ -247,7 +252,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		}
 	}
 
-	private _handleSellUnit(): void {
+	_handleSellUnit(): void {
 		const sellPrice = Math.floor(constants.SHOP_ITEM_PURCHASE_COST / 2);
 
 		// Emit the OWNED_UNIT_SOLD event. The BattlegroundScene handler will
@@ -445,7 +450,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	 * @param text The text to display.
 	 * @param type Optional type for styling (e.g., "heal", "damage").
 	 */
-	public async showPopText(text: string, type?: "heal" | "damage"): Promise<void> {
+	async showPopText(text: string, type?: "heal" | "damage"): Promise<void> {
 		await popText({ scene: this.scene, x: this.x, y: this.y, text, type });
 	}
 

@@ -9,14 +9,11 @@ export class Flyout extends Phaser.GameObjects.Container {
 
 	isOpen = false;
 
-	constructor(public scene: BattlegroundScene) {
+	constructor(scene: BattlegroundScene) {
 		super(scene);
+		this.scene = scene;
 		scene.add.existing(this);
 		flyouts.push(this);
-
-
-
-
 
 		this.setY(-SCREEN_HEIGHT);
 

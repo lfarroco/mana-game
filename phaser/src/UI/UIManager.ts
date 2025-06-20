@@ -16,21 +16,21 @@ const SIDEBAR_TEXT_BASE_X = 150;
  * It also handles UI-related animations and responses to game state changes (e.g., gold updates).
  */
 export class UIManager {
-	private scene: BattlegroundScene;
+	scene: BattlegroundScene;
 	/** Container for main persistent UI elements like sidebar and gold display. */
-	private uiContainer: Phaser.GameObjects.Container | null = null;
+	uiContainer: Phaser.GameObjects.Container | null = null;
 	/** Phaser text element for displaying player's gold. */
-	private goldTextElement: Phaser.GameObjects.Text | null = null;
+	goldTextElement: Phaser.GameObjects.Text | null = null;
 	/** Phaser text element for displaying player's prestige. */
-	private prestigeTextElement: Phaser.GameObjects.Text | null = null;
+	prestigeTextElement: Phaser.GameObjects.Text | null = null;
 	/** Instance of GoldCoinAnimator for handling gold coin animations. */
-	private goldCoinAnimator: GoldCoinAnimator;
+	goldCoinAnimator: GoldCoinAnimator;
 	/** Phaser text element for displaying player's win streak. */
-	private winStreakTextElement: Phaser.GameObjects.Text | null = null;
+	winStreakTextElement: Phaser.GameObjects.Text | null = null;
 	/** Phaser text element for displaying player's loss streak. */
-	private lossStreakTextElement: Phaser.GameObjects.Text | null = null;
+	lossStreakTextElement: Phaser.GameObjects.Text | null = null;
 	/** Phaser text element for displaying total rounds played. */
-	private totalRoundsTextElement: Phaser.GameObjects.Text | null = null;
+	totalRoundsTextElement: Phaser.GameObjects.Text | null = null;
 
 
 
@@ -38,7 +38,7 @@ export class UIManager {
 	 * Instance of the Tooltip system, used to display contextual information
 	 * when hovering over UI elements or game objects.
 	 */
-	public tooltip: Tooltip;
+	tooltip: Tooltip;
 
 	/**
 	 * Initializes the UIManager.
@@ -63,7 +63,7 @@ export class UIManager {
 	 * Sets up an event listener for "prestige_changed" events.
 	 * This allows the UIManager to react to updates in the player's prestige.
 	 */
-	private _setupPrestigeChangeListener(): void {
+	_setupPrestigeChangeListener(): void {
 		this.scene.events.on(GameEvents.PRESTIGE_CHANGED, this._handlePrestigeChanged, this);
 	}
 
@@ -71,7 +71,7 @@ export class UIManager {
 	 * Sets up an event listener for "round_ended_update_stats" events.
 	 * This allows the UIManager to react to updates in round-end stats.
 	 */
-	private _setupRoundStatsListener(): void {
+	_setupRoundStatsListener(): void {
 		this.scene.events.on(GameEvents.ROUND_ENDED_UPDATE_STATS, this._handleRoundStatsUpdate, this);
 	}
 
@@ -80,7 +80,7 @@ export class UIManager {
 	 * This allows the UIManager to react dynamically to updates in the player's gold
 	 * by calling `_handleGoldChanged`.
 	 */
-	private _setupGoldChangeListener(): void {
+	_setupGoldChangeListener(): void {
 		this.scene.events.on(GameEvents.GOLD_CHANGED, this._handleGoldChanged, this);
 	}
 
@@ -88,7 +88,7 @@ export class UIManager {
 	 * Sets up an event listener for "purchase_failed" events.
 	 * This allows the UIManager to display appropriate user messages when a purchase cannot be completed.
 	 */
-	private _setupPurchaseFailedListener(): void {
+	_setupPurchaseFailedListener(): void {
 		this.scene.events.on(GameEvents.PURCHASE_FAILED, this._handlePurchaseFailed, this);
 	}
 
@@ -96,7 +96,7 @@ export class UIManager {
 	 * Sets up an event listener for "user_message_requested" events.
 	 * This allows other game systems to request the display of messages (errors, info, etc.) to the user.
 	 */
-	private _setupUserMessageListener(): void {
+	_setupUserMessageListener(): void {
 		this.scene.events.on(GameEvents.USER_MESSAGE_REQUESTED, this._handleUserMessageRequested, this);
 	}
 
@@ -104,7 +104,7 @@ export class UIManager {
 	 * Sets up an event listener for "tooltip_show" events.
 	 * This allows other game systems to request the display of a tooltip.
 	 */
-	private _setupTooltipShowListener(): void {
+	_setupTooltipShowListener(): void {
 		this.scene.events.on(GameEvents.TOOLTIP_SHOW, (payload: { x: number, y: number, title: string, description: string }) => {
 			this.tooltip.render(payload.x, payload.y, payload.title, payload.description);
 		}, this);
@@ -114,7 +114,7 @@ export class UIManager {
 	 * Sets up an event listener for "tooltip_hide" events.
 	 * This allows other game systems to request hiding the tooltip.
 	 */
-	private _setupTooltipHideListener(): void {
+	_setupTooltipHideListener(): void {
 		this.scene.events.on(GameEvents.TOOLTIP_HIDE, () => this.tooltip.hide(), this);
 	}
 
@@ -122,7 +122,7 @@ export class UIManager {
 	 * Handles the `GameEvents.PURCHASE_FAILED` event by constructing and emitting a user message.
 	 * @param payload - The payload containing details about the failed purchase, including the unit name, reason, and optionally the cost.
 	 */
-	private _handlePurchaseFailed(payload: { unitName: string, reason: string, cost?: number }): void {
+	_handlePurchaseFailed(payload: { unitName: string, reason: string, cost?: number }): void {
 		let message = `Could not buy ${payload.unitName}. `;
 		switch (payload.reason) {
 			case "PARTY_FULL":
@@ -148,7 +148,7 @@ export class UIManager {
 	 * @param newTotalGold - The new total amount of gold the player has.
 	 * @param goldDelta The amount of gold that was gained or lost.
 	 */
-	private _handleGoldChanged(newTotalGold: number, goldDelta: number): void {
+	_handleGoldChanged(newTotalGold: number, goldDelta: number): void {
 		if (this.goldTextElement) {
 			this.goldTextElement.setText("Gold: " + newTotalGold);
 			if (goldDelta !== 0) { // Play animation only if there's a change
@@ -164,7 +164,7 @@ export class UIManager {
 	 * It updates the displayed total rounds, win streak, and loss streak.
 	 * @param payload - The payload containing total rounds and current prestige.
 	 */
-	private _handleRoundStatsUpdate(payload: { totalRounds: number, currentPrestige: number }): void {
+	_handleRoundStatsUpdate(payload: { totalRounds: number, currentPrestige: number }): void {
 		if (this.totalRoundsTextElement) this.totalRoundsTextElement.setText(`Rounds: ${payload.totalRounds}`);
 		if (this.winStreakTextElement) this.winStreakTextElement.setText(`Win Streak: ${this.scene.state.gameData.player.winStreak}`);
 		if (this.lossStreakTextElement) this.lossStreakTextElement.setText(`Loss Streak: ${this.scene.state.gameData.player.lossStreak}`);
@@ -176,7 +176,7 @@ export class UIManager {
 	 * @param newTotalPrestige - The new total amount of prestige the player has.
 	 * @param _prestigeDelta - The amount of prestige that was gained or lost (can be used for animations later).
 	 */
-	private _handlePrestigeChanged(newTotalPrestige: number, _prestigeDelta: number): void {
+	_handlePrestigeChanged(newTotalPrestige: number, _prestigeDelta: number): void {
 		if (this.prestigeTextElement) {
 			this.prestigeTextElement.setText("Prestige: " + newTotalPrestige);
 		}
@@ -186,7 +186,7 @@ export class UIManager {
 	 * Creates and displays the main persistent UI elements of the game,
 	 * such as a sidebar and the player's gold display.
 	 */
-	public createMainUI(): void {
+	createMainUI(): void {
 		this.destroyMainUI(); // Clean up previous UI if any
 
 		this.uiContainer = this.scene.add.container(0, 0);
@@ -214,7 +214,7 @@ export class UIManager {
 	 * It positions the text based on screen constants and sets its initial value from the game state.
 	 * @param parent The `Phaser.GameObjects.Container` to which the gold text will be added.
 	 */
-	private _createGoldText(parent: Phaser.GameObjects.Container): void {
+	_createGoldText(parent: Phaser.GameObjects.Container): void {
 
 		const initialGold = this.scene.state.gameData.player.gold;
 		this.goldTextElement = this.scene.add.text(
@@ -229,7 +229,7 @@ export class UIManager {
 	 * Creates the text element that displays the player's current prestige.
 	 * @param parent The `Phaser.GameObjects.Container` to which the prestige text will be added.
 	 */
-	private _createPrestigeText(parent: Phaser.GameObjects.Container): void {
+	_createPrestigeText(parent: Phaser.GameObjects.Container): void {
 		const initialPrestige = this.scene.state.gameData.player.prestige;
 		this.prestigeTextElement = this.scene.add.text(
 			constants.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X, // Same X as gold text
@@ -244,7 +244,7 @@ export class UIManager {
 	 * Creates the text element that displays the total rounds played.
 	 * @param parent The `Phaser.GameObjects.Container` to which the text will be added.
 	 */
-	private _createTotalRoundsText(parent: Phaser.GameObjects.Container): void {
+	_createTotalRoundsText(parent: Phaser.GameObjects.Container): void {
 		const initialRounds = this.scene.state.gameData.player.totalRoundsPlayed;
 		this.totalRoundsTextElement = this.scene.add.text(
 			constants.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
@@ -259,7 +259,7 @@ export class UIManager {
 	 * Creates the text element that displays the player's current win streak.
 	 * @param parent The `Phaser.GameObjects.Container` to which the text will be added.
 	 */
-	private _createWinStreakText(parent: Phaser.GameObjects.Container): void {
+	_createWinStreakText(parent: Phaser.GameObjects.Container): void {
 		const initialStreak = this.scene.state.gameData.player.winStreak;
 		this.winStreakTextElement = this.scene.add.text(
 			constants.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
@@ -274,7 +274,7 @@ export class UIManager {
 	 * Creates the text element that displays the player's current loss streak.
 	 * @param parent The `Phaser.GameObjects.Container` to which the text will be added.
 	 */
-	private _createLossStreakText(parent: Phaser.GameObjects.Container): void {
+	_createLossStreakText(parent: Phaser.GameObjects.Container): void {
 		const initialStreak = this.scene.state.gameData.player.lossStreak;
 		this.lossStreakTextElement = this.scene.add.text(
 			constants.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
@@ -292,7 +292,7 @@ export class UIManager {
 	 * This method is asynchronous and completes when the message animation finishes.
 	 * @param payload The `UserMessagePayload` containing the message text and type.
 	 */
-	private async _handleUserMessageRequested(payload: UserMessagePayload): Promise<void> {
+	async _handleUserMessageRequested(payload: UserMessagePayload): Promise<void> {
 
 		// Determine text style based on payload.type if needed, for now, all use titleTextConfig
 		const textStyle = constants.titleTextConfig;
@@ -325,7 +325,7 @@ export class UIManager {
 	 * Destroys the main UI container and its children.
 	 * This is used to clean up the UI, for example, when transitioning between scenes or game states.
 	 */
-	public destroyMainUI(): void {
+	destroyMainUI(): void {
 		if (this.uiContainer) {
 			this.uiContainer.destroy(true); // true to destroy children
 			this.uiContainer = null;
@@ -344,7 +344,7 @@ export class UIManager {
 	 * This includes destroying the main UI and removing any event listeners
 	 * to prevent memory leaks. Should be called when the UIManager is no longer needed.
 	 */
-	public destroy(): void { // Full cleanup for the UIManager
+	destroy(): void { // Full cleanup for the UIManager
 		this.destroyMainUI();
 		this.scene.events.off(GameEvents.GOLD_CHANGED, this._handleGoldChanged, this);
 		this.scene.events.off(GameEvents.PRESTIGE_CHANGED, this._handlePrestigeChanged, this);
@@ -362,7 +362,7 @@ export class UIManager {
 	 * This method is asynchronous and completes when the animation finishes.
 	 * @param gold - The amount of gold that changed (positive for gain, negative for loss).
 	 */
-	public async goldChangeAnimation(gold: number): Promise<void> {
+	async goldChangeAnimation(gold: number): Promise<void> {
 		// This method is now only called if this.goldTextElement is not null (see _handleGoldChanged).
 		const sign = gold > 0 ? "+" : "";
 		const animationText = `${sign}${gold}`;
@@ -406,7 +406,7 @@ export class UIManager {
 	 * @param x - The starting x-coordinate for the coin animation (e.g., where an enemy was defeated).
 	 * @param y - The starting y-coordinate for the coin animation.
 	 */
-	public async coinDropIO(
+	async coinDropIO(
 		gold: number,
 		coins: number,
 		x: number, y: number,

@@ -9,7 +9,7 @@ import { getOption } from "../Models/OptionsStore";
  */
 export class GoldCoinAnimator {
 	/** The Phaser.Scene instance where animations will be rendered. */
-	private scene: Phaser.Scene;
+	scene: Phaser.Scene;
 
 	/**
 	 * Initializes the GoldCoinAnimator.
@@ -29,7 +29,7 @@ export class GoldCoinAnimator {
 	 * @param y The starting y-coordinate for the coin animation.
 	 * @param onGoldArrive Optional callback when coins reach the chest.
 	 */
-	public async animateCoinDrop(
+	async animateCoinDrop(
 		coins: number,
 		x: number,
 		y: number,
