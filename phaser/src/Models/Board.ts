@@ -9,24 +9,24 @@ import { playerForce } from "./Entities/Force"; // playerForce is used by getMel
 
 
 export class PlayerBoard {
-	private scene: Phaser.Scene;
-	private tileDropZones: Phaser.GameObjects.Zone[] = [];
-	private boardDropZoneDisplay: Phaser.GameObjects.Graphics | null = null;
-	private boardDropZoneTween: Phaser.Tweens.Tween | null = null;
+	scene: Phaser.Scene;
+	tileDropZones: Phaser.GameObjects.Zone[] = [];
+	boardDropZoneDisplay: Phaser.GameObjects.Graphics | null = null;
+	boardDropZoneTween: Phaser.Tweens.Tween | null = null;
 
 	/** Prefix for naming player board tile GameObjects */
 	static readonly PLAYER_BOARD_TILE_ZONE_PREFIX = "player_board_tile_";
 
-	public readonly x: number = PLAYER_BOARD_X;
-	public readonly y: number = PLAYER_BOARD_Y;
-	public readonly width: number = constants.TILE_WIDTH * 3;
-	public readonly height: number = constants.TILE_HEIGHT * 3;
+	readonly x: number = PLAYER_BOARD_X;
+	readonly y: number = PLAYER_BOARD_Y;
+	readonly width: number = constants.TILE_WIDTH * 3;
+	readonly height: number = constants.TILE_HEIGHT * 3;
 
 	constructor(scene: Phaser.Scene) {
 		this.scene = scene;
 	}
 
-	public createDropZone(): void {
+	createDropZone(): void {
 		// Clean up any existing graphical elements this instance created
 		this.destroyVisuals();
 
@@ -58,20 +58,20 @@ export class PlayerBoard {
 		});
 	}
 
-	public getTileDropZones(): Phaser.GameObjects.Zone[] {
+	getTileDropZones(): Phaser.GameObjects.Zone[] {
 		return this.tileDropZones;
 	}
 
-	public isPointerInDropZone(pointer: { x: number, y: number }): boolean {
+	isPointerInDropZone(pointer: { x: number, y: number }): boolean {
 		const boardBounds = new Phaser.Geom.Rectangle(this.x, this.y, this.width, this.height);
 		return boardBounds.contains(pointer.x, pointer.y);
 	}
 
-	public display(): void {
+	display(): void {
 		this.boardDropZoneDisplay?.setVisible(true);
 	}
 
-	public hide(): void {
+	hide(): void {
 		this.boardDropZoneDisplay?.setVisible(false);
 	}
 
@@ -79,11 +79,11 @@ export class PlayerBoard {
 	 * Clears only the visual elements (graphics, tweens, zones) created by this board.
 	 * The PlayerBoard instance itself remains, allowing visuals to be recreated later.
 	 */
-	public clearVisuals(): void {
+	clearVisuals(): void {
 		this.destroyVisuals();
 	}
 
-	private destroyVisuals(): void {
+	destroyVisuals(): void {
 		this.boardDropZoneTween?.stop();
 		this.boardDropZoneTween = null;
 
@@ -95,7 +95,7 @@ export class PlayerBoard {
 	}
 
 	/** Call this when the scene shuts down or the board is no longer needed. */
-	public destroy(): void {
+	destroy(): void {
 		this.destroyVisuals();
 		// Any other cleanup specific to the PlayerBoard instance itself can go here
 	}
@@ -106,7 +106,7 @@ export class PlayerBoard {
 	 * @param forceId The forceId to check against for unit count (relevant if board has mixed forces, though typically used for one force).
 	 * @returns A Vec2 position if an empty slot is found, otherwise null.
 	 */
-	public getEmptySlot(units: Unit[], forceId: string): Vec2 | null {
+	getEmptySlot(units: Unit[], forceId: string): Vec2 | null {
 		const boardWidthInTiles = Math.floor(this.width / constants.TILE_WIDTH);
 		const boardHeightInTiles = Math.floor(this.height / constants.TILE_HEIGHT);
 		const maxSlots = boardWidthInTiles * boardHeightInTiles;
@@ -133,7 +133,7 @@ export class PlayerBoard {
 	 * @param pointer An object with x, y world coordinates.
 	 * @returns A Vec2 representing the tile coordinates (e.g., {x:0, y:0}), or null if outside board.
 	 */
-	public getTileAt(pointer: { x: number; y: number }): Vec2 | null {
+	getTileAt(pointer: { x: number; y: number }): Vec2 | null {
 		// Check if the pointer is within the board's boundaries
 		// Consistent with Phaser.Geom.Rectangle.contains (exclusive upper bound)
 		if (pointer.x >= this.x && pointer.x < this.x + this.width &&
@@ -156,7 +156,7 @@ export class PlayerBoard {
 	 * @param unitsOnBoard The array of units to check for collisions/swaps.
 	 * @returns An object detailing the move, or null if no move was made.
 	 */
-	public static updateUnitPosition(
+	static updateUnitPosition(
 		unitToMove: Unit,
 		newBoardPosition: Vec2,
 		unitsOnBoard: Unit[]
@@ -183,11 +183,11 @@ export class PlayerBoard {
 		}
 	}
 
-	public static isTileZone(gameObject: Phaser.GameObjects.GameObject): boolean {
+	static isTileZone(gameObject: Phaser.GameObjects.GameObject): boolean {
 		return gameObject && gameObject.name.startsWith(PlayerBoard.PLAYER_BOARD_TILE_ZONE_PREFIX);
 	}
 
-	public static getTileFromZone(zone: Phaser.GameObjects.GameObject): Vec2 | null {
+	static getTileFromZone(zone: Phaser.GameObjects.GameObject): Vec2 | null {
 		if (PlayerBoard.isTileZone(zone)) {
 			const parts = zone.name.substring(PlayerBoard.PLAYER_BOARD_TILE_ZONE_PREFIX.length).split('_');
 			if (parts.length === 2) {
