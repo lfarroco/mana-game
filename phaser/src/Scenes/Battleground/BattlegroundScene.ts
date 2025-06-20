@@ -263,7 +263,7 @@ export class BattlegroundScene extends Phaser.Scene {
     // 1. Update player gold
     this.updatePlayerGold(soldForGold); // Or emit PLAYER_GOLD_DELTA_REQUEST if preferred
 
-    // Attempt to get Chara instance for position before it's potentially destroyed
+    // Attempt to get Chara instance for position before it's destroyed
     let popTextX = this.sys.game.config.width as number / 2; // Fallback X
     let popTextY = this.sys.game.config.height as number / 2; // Fallback Y
     try {
@@ -272,6 +272,7 @@ export class BattlegroundScene extends Phaser.Scene {
         popTextX = charaVisual.x;
         popTextY = charaVisual.y;
       }
+      charaVisual.destroy();
     } catch (e) {
       console.warn(`[BattlegroundScene] Chara with ID ${unitId} not found for PopText positioning during sell. Using fallback. Error: ${e}`);
     }
@@ -291,6 +292,7 @@ export class BattlegroundScene extends Phaser.Scene {
     } else {
       console.warn(`[BattlegroundScene] Unit with ID ${payload.unitId} not found for selling.`);
     }
+
   }
 
   public handleOwnedRelicSold(payload: { relicId: string, soldForGold: number }): void {
