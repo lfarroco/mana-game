@@ -4,11 +4,18 @@
  * based on content and attempts to stay within the screen bounds.
  */
 
-
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import { defaultTextConfig } from "../constants/constants";
 
-// TODO: on mobile, use a long press to show the tooltip
+const PADDING = 20;
+const TITLE_FONT_SIZE = 40;
+const DESCRIPTION_FONT_SIZE = 30;
+const BORDER_RADIUS = 10;
+const BACKGROUND_COLOR = 0x000000;
+const BACKGROUND_ALPHA = 0.8;
+const INTER_ELEMENT_PADDING = PADDING / 2;
+const FIXED_TOOLTIP_WIDTH = 600;
+const FIXED_TOOLTIP_HEIGHT = 300;
 
 /**
  * Represents a tooltip UI element that can display a title and description.
@@ -16,39 +23,17 @@ import { defaultTextConfig } from "../constants/constants";
  */
 export class Tooltip {
 	/** The Phaser scene this tooltip belongs to. */
-	private scene: Phaser.Scene;
+	scene: Phaser.Scene;
 	/** The main container for all tooltip game objects. */
-	private container: Phaser.GameObjects.Container;
+	container: Phaser.GameObjects.Container;
 	/** The graphical background of the tooltip. */
-	private bg: Phaser.GameObjects.Graphics;
+	bg: Phaser.GameObjects.Graphics;
 	/** The text object for the tooltip's title. */
-	private titleText: Phaser.GameObjects.Text;
+	titleText: Phaser.GameObjects.Text;
 	/** The text object for the tooltip's description. */
-	private descriptionText: BBCodeText;
-	private currentTitle: string = '';
-	private currentDescription: string = '';
-
-	// Style constants can be static members or remain module-level if preferred
-	/** Padding around the content within the tooltip. */
-	private static readonly PADDING = 20;
-	/** Font size for the title text. */
-	private static readonly TITLE_FONT_SIZE = 40;
-	/** Font size for the description text. */
-	private static readonly DESCRIPTION_FONT_SIZE = 30;
-	/** Border radius for the tooltip's background. */
-	private static readonly BORDER_RADIUS = 10;
-	/** Background color of the tooltip. */
-	private static readonly BACKGROUND_COLOR = 0x000000;
-	/** Alpha transparency of the tooltip's background. */
-	private static readonly BACKGROUND_ALPHA = 0.8;
-	/** Padding between the title and description text. */
-	private static readonly INTER_ELEMENT_PADDING = Tooltip.PADDING / 2;
-
-	// Fixed sizing constants
-	/** Fixed width for the tooltip. */
-	private static readonly FIXED_TOOLTIP_WIDTH = 600;
-	/** Fixed height for the tooltip. */
-	private static readonly FIXED_TOOLTIP_HEIGHT = 300;
+	descriptionText: BBCodeText;
+	currentTitle: string = '';
+	currentDescription: string = '';
 
 	/**
 	 * Creates an instance of the Tooltip.
@@ -61,36 +46,36 @@ export class Tooltip {
 		this.container.setDepth(Phaser.Math.MAX_SAFE_INTEGER); // Ensure tooltip is on top
 
 		this.bg = this.scene.add.graphics();
-		this.bg.fillStyle(Tooltip.BACKGROUND_COLOR, Tooltip.BACKGROUND_ALPHA);
+		this.bg.fillStyle(BACKGROUND_COLOR, BACKGROUND_ALPHA);
 		this.bg.fillRoundedRect(
-			-Tooltip.FIXED_TOOLTIP_WIDTH / 2,
-			-Tooltip.FIXED_TOOLTIP_HEIGHT / 2,
-			Tooltip.FIXED_TOOLTIP_WIDTH,
-			Tooltip.FIXED_TOOLTIP_HEIGHT,
-			Tooltip.BORDER_RADIUS
+			-FIXED_TOOLTIP_WIDTH / 2,
+			-FIXED_TOOLTIP_HEIGHT / 2,
+			FIXED_TOOLTIP_WIDTH,
+			FIXED_TOOLTIP_HEIGHT,
+			BORDER_RADIUS
 		);
 		this.container.add(this.bg);
 
 		this.titleText = this.scene.add.text(
-			-Tooltip.FIXED_TOOLTIP_WIDTH / 2 + Tooltip.PADDING,
-			-Tooltip.FIXED_TOOLTIP_HEIGHT / 2 + Tooltip.PADDING,
+			-FIXED_TOOLTIP_WIDTH / 2 + PADDING,
+			-FIXED_TOOLTIP_HEIGHT / 2 + PADDING,
 			'', // Initial empty text
 			defaultTextConfig
 		)
 			.setOrigin(0)
-			.setFontSize(Tooltip.TITLE_FONT_SIZE)
+			.setFontSize(TITLE_FONT_SIZE)
 			.setFontFamily("Arial Black")
 			.setAlign("left");
 		this.container.add(this.titleText);
 
-		const descriptionWrapWidth = Tooltip.FIXED_TOOLTIP_WIDTH - (2 * Tooltip.PADDING);
+		const descriptionWrapWidth = FIXED_TOOLTIP_WIDTH - (2 * PADDING);
 		this.descriptionText = this.scene.add.rexBBCodeText(
-			-Tooltip.FIXED_TOOLTIP_WIDTH / 2 + Tooltip.PADDING,
-			this.titleText.y + this.titleText.displayHeight + Tooltip.INTER_ELEMENT_PADDING, // Initial Y, will be updated
+			-FIXED_TOOLTIP_WIDTH / 2 + PADDING,
+			this.titleText.y + this.titleText.displayHeight + INTER_ELEMENT_PADDING, // Initial Y, will be updated
 			'', // Initial empty text
 		)
 			.setOrigin(0)
-			.setFontSize(Tooltip.DESCRIPTION_FONT_SIZE)
+			.setFontSize(DESCRIPTION_FONT_SIZE)
 			.setAlign("left")
 			.setWrapMode(1)
 			.setFontFamily("Arial")
@@ -107,7 +92,7 @@ export class Tooltip {
 	 * @param title The title text to display.
 	 * @param description The description text to display.
 	 */
-	public render(x: number, y: number, title: string, description: string): void {
+	render(x: number, y: number, title: string, description: string): void {
 		let titleChanged = this.currentTitle !== title;
 		let descriptionChanged = this.currentDescription !== description;
 		let contentChanged = titleChanged || descriptionChanged;
@@ -128,12 +113,12 @@ export class Tooltip {
 
 			// Position title text
 			this.titleText.setPosition(
-				-Tooltip.FIXED_TOOLTIP_WIDTH / 2 + Tooltip.PADDING,
-				-Tooltip.FIXED_TOOLTIP_HEIGHT / 2 + Tooltip.PADDING
+				-FIXED_TOOLTIP_WIDTH / 2 + PADDING,
+				-FIXED_TOOLTIP_HEIGHT / 2 + PADDING
 			);
 
 			// Set description wrap width (it's fixed)
-			const descriptionWrapWidth = Tooltip.FIXED_TOOLTIP_WIDTH - (2 * Tooltip.PADDING);
+			const descriptionWrapWidth = FIXED_TOOLTIP_WIDTH - (2 * PADDING);
 			if (this.descriptionText.style.wrapWidth !== descriptionWrapWidth) {
 				this.descriptionText.setWordWrapWidth(descriptionWrapWidth);
 			}
@@ -141,17 +126,18 @@ export class Tooltip {
 			// Position description text relative to title
 			// Using .height for actual text height after potential wrapping and content update.
 			this.descriptionText.setPosition(
-				-Tooltip.FIXED_TOOLTIP_WIDTH / 2 + Tooltip.PADDING,
-				this.titleText.y + this.titleText.height + Tooltip.INTER_ELEMENT_PADDING
+				-FIXED_TOOLTIP_WIDTH / 2 + PADDING,
+				this.titleText.y + this.titleText.height + INTER_ELEMENT_PADDING
 			);
 		}
 
-		const { x: adjustedX, y: adjustedY } = this._getAdjustedPosition(x, y, Tooltip.FIXED_TOOLTIP_WIDTH, Tooltip.FIXED_TOOLTIP_HEIGHT);
+		const { x: adjustedX, y: adjustedY } = this._getAdjustedPosition(x, y, FIXED_TOOLTIP_WIDTH, FIXED_TOOLTIP_HEIGHT);
 		if (this.container.x !== adjustedX || this.container.y !== adjustedY) {
 			this.container.setPosition(adjustedX, adjustedY);
 		}
 		if (!this.container.visible) {
 			this.container.setVisible(true);
+			this.scene.children.bringToTop(this.container)
 		}
 	}
 
@@ -160,9 +146,9 @@ export class Tooltip {
 	 * @param x The new target x-coordinate for the tooltip (center).
 	 * @param y The new target y-coordinate for the tooltip (center).
 	 */
-	public move(x: number, y: number): void {
+	move(x: number, y: number): void {
 		if (!this.container.visible) return;
-		const { x: adjustedX, y: adjustedY } = this._getAdjustedPosition(x, y, Tooltip.FIXED_TOOLTIP_WIDTH, Tooltip.FIXED_TOOLTIP_HEIGHT);
+		const { x: adjustedX, y: adjustedY } = this._getAdjustedPosition(x, y, FIXED_TOOLTIP_WIDTH, FIXED_TOOLTIP_HEIGHT);
 		if (this.container.x !== adjustedX || this.container.y !== adjustedY) {
 			this.container.setPosition(adjustedX, adjustedY);
 		}
@@ -171,14 +157,14 @@ export class Tooltip {
 	/**
 	 * Hides the tooltip.
 	 */
-	public hide(): void {
+	hide(): void {
 		this.container.setVisible(false);
 	}
 
 	/**
 	 * Destroys the tooltip and its associated game objects, removing them from the scene.
 	 */
-	public destroy(): void {
+	destroy(): void {
 		this.container.destroy(true); // true to destroy children as well
 	}
 
@@ -191,7 +177,7 @@ export class Tooltip {
 	 * @param tooltipHeight The current height of the tooltip.
 	 * @returns An object containing the adjusted x and y coordinates.
 	 */
-	private _getAdjustedPosition(x: number, y: number, tooltipWidth: number, tooltipHeight: number): { x: number, y: number } {
+	_getAdjustedPosition(x: number, y: number, tooltipWidth: number, tooltipHeight: number): { x: number, y: number } {
 		const canvasWidth = this.scene.scale.width;
 		const canvasHeight = this.scene.scale.height;
 		const halfTooltipWidth = tooltipWidth / 2;
