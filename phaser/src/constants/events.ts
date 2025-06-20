@@ -88,6 +88,7 @@ export const GameEvents = {
 	PRESTIGE_CHANGED: "prestige_changed", // Payload: newTotalPrestige: number, prestigeDelta: number
 
 	OWNED_UNIT_SOLD: "owned_unit_sold", // Payload: { unitId: string, soldForGold: number }
+	OWNED_RELIC_SOLD: "owned_relic_sold", // Payload: { relicId: string, soldForGold: number }
 	ROUND_ENDED_UPDATE_STATS: "round_ended_update_stats",// Payload: {totalRounds: number, currentPrestige: number }
 	PLAYER_WON_GAME: "player_won_game",
 

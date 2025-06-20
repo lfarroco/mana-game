@@ -140,5 +140,93 @@ export default function (waitForGameInit: (p: Page) => Promise<void>) {
 			expect(finalGold).toBe(goldBeforeAttempt); // Gold should not change
 			expect(finalUnits.length).toBe(maxPartySize); // Unit count should not change
 		});
+
+		test('should successfully sell an owned hero', async ({ page }) => {
+			await page.goto('/');
+			await waitForGameInit(page);
+			await isShopVisible(page);
+
+			const shopItemCost = await page.evaluate(() => window.gameController.getShopItemCost());
+			await page.evaluate((cost) => window.gameController.playerGoldDelta(cost + 10), shopItemCost); // Ensure enough gold
+			await page.waitForTimeout(200);
+
+			const initialBoardUnits = await page.evaluate(() => window.gameController.getPlayerBoardUnits());
+			const goldBeforePurchase = await page.evaluate(() => window.gameController.getPlayerGold());
+
+			// Buy a hero
+			await page.evaluate(() => window.gameController.clickHeroInShop(0));
+			await page.waitForTimeout(300); // Allow purchase and board update
+
+			const unitsAfterPurchase = await page.evaluate(() => window.gameController.getPlayerBoardUnits());
+			const goldAfterPurchase = await page.evaluate(() => window.gameController.getPlayerGold());
+
+			expect(unitsAfterPurchase.length).toBe(initialBoardUnits.length + 1);
+			expect(goldAfterPurchase).toBe(goldBeforePurchase - shopItemCost);
+
+			const newUnit = unitsAfterPurchase.find(u => !initialBoardUnits.some(iu => iu.id === u.id));
+			expect(newUnit).toBeDefined();
+
+			if (!newUnit) throw new Error("New unit not found after purchase");
+			const unitToSellId = newUnit.id;
+
+			// Sell the hero
+			await page.evaluate((id) => window.gameController.sellUnitFromBoard(id), unitToSellId);
+			await page.waitForTimeout(300); // Allow sell and board update
+
+			const finalUnits = await page.evaluate(() => window.gameController.getPlayerBoardUnits());
+			const finalGold = await page.evaluate(() => window.gameController.getPlayerGold());
+
+			const expectedSellPrice = Math.floor(shopItemCost / 2);
+			expect(finalGold).toBe(goldAfterPurchase + expectedSellPrice);
+			expect(finalUnits.length).toBe(initialBoardUnits.length);
+			expect(finalUnits.find(u => u.id === unitToSellId)).toBeUndefined();
+		});
+
+		test('should successfully sell an owned relic', async ({ page }) => {
+			await page.goto('/');
+			await waitForGameInit(page);
+			await isShopVisible(page);
+
+			const relicCost = await page.evaluate(() => window.gameController.getRelicCost());
+			await page.evaluate((cost) => window.gameController.playerGoldDelta(cost + 10), relicCost); // Ensure enough gold
+			await page.waitForTimeout(200);
+
+			const initialPlayerRelics = await page.evaluate(() => window.gameController.getPlayerRelics());
+			const goldBeforePurchase = await page.evaluate(() => window.gameController.getPlayerGold());
+
+			const shopRelics = await page.evaluate(() => window.gameController.getShopRelicDefinitions());
+			expect(shopRelics.length).toBeGreaterThan(0); // Make sure shop has relics
+
+			// Buy a relic by clicking it in the shop
+			await page.evaluate(() => window.gameController.clickRelicInShop(0));
+			await page.waitForTimeout(300); // Allow purchase and state update
+
+			const relicsAfterPurchase = await page.evaluate(() => window.gameController.getPlayerRelics());
+			const goldAfterPurchase = await page.evaluate(() => window.gameController.getPlayerGold());
+
+			expect(relicsAfterPurchase.length).toBe(initialPlayerRelics.length + 1);
+			expect(goldAfterPurchase).toBe(goldBeforePurchase - relicCost);
+
+			const newRelic = relicsAfterPurchase.find(r => !initialPlayerRelics.some(ir => ir.id === r.id));
+			expect(newRelic).toBeDefined();
+
+			if (!newRelic) throw new Error("New relic not found after purchase");
+			const relicToSellId = newRelic.id;
+
+			// Sell the relic
+			await page.evaluate((id) => window.gameController.sellPlayerRelic(id), relicToSellId);
+			await page.waitForTimeout(300); // Allow sell and state update
+
+			const finalRelics = await page.evaluate(() => window.gameController.getPlayerRelics());
+			const finalGold = await page.evaluate(() => window.gameController.getPlayerGold());
+
+			const expectedSellPrice = Math.floor(relicCost / 2);
+			expect(finalGold).toBe(goldAfterPurchase + expectedSellPrice);
+			expect(finalRelics.length).toBe(initialPlayerRelics.length);
+			expect(finalRelics.find(r => r.id === relicToSellId)).toBeUndefined();
+		});
+
+		// TODO: Add test for failing to sell a non-existent unit/relic
+		// TODO: Add test to ensure sell zone appears when dragging an owned unit/relic (more complex, might need visual testing)
 	});
 }
