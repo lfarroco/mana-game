@@ -16,6 +16,7 @@ export const GameEvents = {
 	COMBAT_ENDED_DEFEAT: "combat_ended_defeat",
 
 	UNIT_DIED_IN_BATTLE: "unit_died_in_battle", // Payload: { unit: Unit, killerId?: string }
+	UNIT_TOOK_DAMAGE: "unit_took_damage", // Payload: { unit: Unit, damage: number }
 
 	// Trait System Specific Triggers
 	TRAIT_EVAL_UNIT_ACTION: "trait_eval_unit_action",
@@ -55,6 +56,9 @@ export const GameEvents = {
 	CHARA_POINTER_OUT: "chara_pointer_out", // Payload: { charaId: string }
 	VIGNETTE_MESSAGE_SHOW: "vignette_message_show", // Payload: { message: string }
 	SHOP_OPEN_UI_TRIGGER: "shop_open_ui_trigger",
+	MORALE_BARS_SHOW: "morale_bars_show",
+	MORALE_BARS_HIDE: "morale_bars_hide",
+	MORALE_UPDATED: "morale_updated", // Payload: { forceId: string, newMorale: number, maxMorale: number }
 	COMBAT_START_EXECUTION_TRIGGER: "combat_start_execution_trigger", // Payload: { enemies: Unit[] }
 	GAME_OVER_SHOW_UI_TRIGGER: "game_over_show_ui_trigger",
 

@@ -9,6 +9,7 @@ import { BattlegroundScene } from "../BattlegroundScene";
 import { handleCharaDeath } from "../../../Systems/Chara/CharaDeathSequenceHandler";
 import { Chara } from "../../../Systems/Chara/Chara";
 import { popText } from "../../../Systems/Chara/Animations/popText";
+import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
 import { PopTextPayload } from "../../../Models/EventPayloads";
 import * as CharaTooltip from "../../../Systems/Chara/CharaTooltip";
 
@@ -106,6 +107,29 @@ export class BattlegroundEventSystem {
 		// Tooltips (keeping direct calls as they are simple and UI related)
 		this.addListener(GameEvents.CHARA_POINTER_OVER, CharaTooltip.onCharaPointerOver, this); // Context `this` is fine if onCharaPointerOver doesn't rely on CharaTooltip's `this`
 		this.addListener(GameEvents.CHARA_POINTER_OUT, CharaTooltip.onCharaPointerOut, this); // Same as above
+
+		// Morale UI
+		this.addListener(GameEvents.MORALE_BARS_SHOW, this.handleMoraleBarsShow, this);
+		this.addListener(GameEvents.MORALE_BARS_HIDE, this.handleMoraleBarsHide, this);
+		this.addListener(GameEvents.MORALE_UPDATED, this.handleMoraleUpdated, this);
+	}
+
+	private handleMoraleBarsShow(): void {
+		this.scene.playerMoraleBar?.setVisible(true);
+		this.scene.cpuMoraleBar?.setVisible(true);
+	}
+
+	private handleMoraleBarsHide(): void {
+		this.scene.playerMoraleBar?.setVisible(false);
+		this.scene.cpuMoraleBar?.setVisible(false);
+	}
+
+	private handleMoraleUpdated(payload: { forceId: string, newMorale: number, maxMorale: number }): void {
+		if (payload.forceId === FORCE_ID_PLAYER) {
+			this.scene.playerMoraleBar?.updateMorale(payload.newMorale, payload.maxMorale);
+		} else if (payload.forceId === FORCE_ID_CPU) {
+			this.scene.cpuMoraleBar?.updateMorale(payload.newMorale, payload.maxMorale);
+		}
 	}
 
 	destroy(): void {
