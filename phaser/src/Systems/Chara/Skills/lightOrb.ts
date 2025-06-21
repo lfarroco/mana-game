@@ -3,7 +3,6 @@ import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import * as glowingOrb from "../../../Effects/GlowingOrb";
 import { delay } from "../../../Utils/animation";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
-import { getOption } from "../../../Models/OptionsStore";
 import { getUnitsByProximity } from "../../../Models/Board";
 
 export const lightOrb = (
