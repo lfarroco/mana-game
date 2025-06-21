@@ -6,14 +6,13 @@ export async function healingHitEffect(
 	scene: Phaser.Scene,
 	{ x, y }: { x: number, y: number },
 	lifespan: number,
-	speed: number,
 ): Promise<void> {
 
 	const particles = scene.add.particles(
 		x, y,
 		images.white_dot.key,
 		{
-			speed: 50 * speed,
+			speed: 50,
 			//light green to golden tones
 			tint: [0x00ff00, 0x32cd32, 0x3cb371, 0x2e8b57, 0x228b22, 0x556b2f, 0x6b8e23, 0x8b4513, 0xcd853f, 0xdaa520, 0xffd700],
 			lifespan: lifespan,

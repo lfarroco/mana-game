@@ -3,7 +3,6 @@ import { delay } from "../Utils/animation";
 
 export async function explodeEffect(
 	scene: Phaser.Scene,
-	speed: number,
 	source: { x: number; y: number; },
 ) {
 
@@ -44,7 +43,7 @@ export async function explodeEffect(
 				quantity: 7 // Increase quantity for smoother coverage
 			},
 			// Remove radial: true and control direction manually:
-			speed: 200 * speed,
+			speed: 200,
 			maxAliveParticles: 20,
 			// Override velocity direction for ALL particles:
 			emitCallback: (particle: Phaser.GameObjects.Particles.Particle) => {
@@ -64,18 +63,21 @@ export async function explodeEffect(
 	sparks.destroy();
 	energy.destroy();
 
-	impactEffect(scene, source, speed, lifespan);
-
+	impactEffect(scene, source, lifespan);
 
 }
 
 
-function impactEffect(scene: Phaser.Scene, target: { x: number; y: number; }, speed: number, lifespan: number) {
+function impactEffect(
+	scene: Phaser.Scene,
+	target: { x: number; y: number; },
+	lifespan: number,
+) {
 	const particle = scene.add.particles(
 		target.x, target.y,
 		images.white_dot.key,
 		{
-			speed: 200 * speed,
+			speed: 200,
 			tint: [0xff0000, 0xffff00, 0xffa500],
 			lifespan: lifespan / 2,
 			alpha: { start: 0.5, end: 0 },

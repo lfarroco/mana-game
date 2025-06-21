@@ -6,10 +6,14 @@ type ImpactEffctProps = {
 	location: { x: number; y: number; };
 	pointA: { x: number; y: number; };
 	pointB: { x: number; y: number; };
-	speed: number;
 };
 
-export async function impactEffect({ scene, location, pointA, pointB, speed }: ImpactEffctProps) {
+export async function impactEffect({
+	scene,
+	location,
+	pointA,
+	pointB
+}: ImpactEffctProps) {
 
 	const angle = Phaser.Math.Angle.BetweenPoints(pointA, pointB);
 
@@ -17,8 +21,8 @@ export async function impactEffect({ scene, location, pointA, pointB, speed }: I
 		location.x, location.y,
 		images.white_dot.key,
 		{
-			speed: 200 * speed,
-			lifespan: 600 / speed,
+			speed: 200,
+			lifespan: 600,
 			angle: {
 				min: Phaser.Math.RadToDeg(angle) - 40,
 				max: Phaser.Math.RadToDeg(angle) + 40

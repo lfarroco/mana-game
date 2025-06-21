@@ -125,6 +125,9 @@ export class BattlegroundScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.shutdown, this);
     this.events.once(Phaser.Scenes.Events.DESTROY, this.destroy, this);
 
+    this.time.timeScale = getOption("speed");
+    this.tweens.timeScale = getOption("speed");
+
     this.start();
 
   }

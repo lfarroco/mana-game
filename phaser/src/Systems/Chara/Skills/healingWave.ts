@@ -7,7 +7,6 @@ import { BattlegroundScene } from "../../../Scenes/Battleground/BattlegroundScen
 import { EnergyBeam } from "../../../Effects/EnergyBeam";
 import { healingHitEffect } from "../../../Effects/healingHitEffect";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
-import { getOption } from "../../../Models/OptionsStore";
 import { Chara } from "../Chara";
 
 /**
@@ -120,7 +119,7 @@ async function animation(scene: BattlegroundScene, targets: Vec2[]) {
 
 	scene.events.on(Phaser.Scenes.Events.UPDATE, update);
 
-	targets.forEach(t => healingHitEffect(scene, t, lifespan, getOption('speed')));
+	targets.forEach(t => healingHitEffect(scene, t, lifespan));
 
 	await (delay(scene, lifespan));
 
