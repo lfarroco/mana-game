@@ -5,55 +5,80 @@ const BAR_WIDTH = 250;
 const BAR_HEIGHT = 20;
 const BORDER_THICKNESS = 2;
 
-export class MoraleDisplay extends Phaser.GameObjects.Container {
-	private backgroundBar: Phaser.GameObjects.Graphics;
-	private foregroundBar: Phaser.GameObjects.Graphics;
-	private barFill: Phaser.GameObjects.Graphics;
-	private label: Phaser.GameObjects.Text;
+export type MoraleDisplay = {
+	container: Container;
+	backgroundBar: Graphics;
+	foregroundBar: Graphics;
+	barFill: Graphics;
+	label: Phaser.GameObjects.Text;
+}
 
-	constructor(
-		scene: Phaser.Scene,
-		x: number, y: number,
-		forceId: string,
-		labelText: string,
-	) {
-		super(scene, x, y);
+export function create(
+	scene: Phaser.Scene,
+	x: number, y: number,
+	forceId: string,
+	labelText: string,
+): MoraleDisplay {
+	const container = scene.add.container(x, y);
+	// Background
+	const backgroundBar = scene.add.graphics();
+	backgroundBar.fillStyle(0x000000, 0.5);
+	backgroundBar.fillRect(0, 0, BAR_WIDTH, BAR_HEIGHT);
+	backgroundBar.lineStyle(BORDER_THICKNESS, 0xffffff, 0.8);
+	backgroundBar.strokeRect(0, 0, BAR_WIDTH, BAR_HEIGHT);
+	container.add(backgroundBar);
 
-		// Background
-		this.backgroundBar = this.scene.add.graphics();
-		this.backgroundBar.fillStyle(0x000000, 0.5);
-		this.backgroundBar.fillRect(0, 0, BAR_WIDTH, BAR_HEIGHT);
-		this.backgroundBar.lineStyle(BORDER_THICKNESS, 0xffffff, 0.8);
-		this.backgroundBar.strokeRect(0, 0, BAR_WIDTH, BAR_HEIGHT);
-		this.add(this.backgroundBar);
+	// Foreground
+	const foregroundBar = scene.add.graphics();
+	const barColor = forceId === FORCE_ID_PLAYER ? 0x4e9de0 : 0xe04e4e; // Blue for player, Red for CPU
+	foregroundBar.fillStyle(barColor, 1);
+	foregroundBar.fillRect(0, 0, BAR_WIDTH, BAR_HEIGHT);
+	container.add(foregroundBar);
 
-		// Foreground
-		this.foregroundBar = this.scene.add.graphics();
-		const barColor = forceId === FORCE_ID_PLAYER ? 0x4e9de0 : 0xe04e4e; // Blue for player, Red for CPU
-		this.foregroundBar.fillStyle(barColor, 1);
-		this.foregroundBar.fillRect(0, 0, BAR_WIDTH, BAR_HEIGHT);
-		this.add(this.foregroundBar);
+	// Shape to "fill" of the foreground bar
+	const barFill = scene.add.graphics();
+	barFill.fillStyle(0xffffff);
+	barFill.fillRect(0, 0, BAR_WIDTH, BAR_HEIGHT);
+	container.add(barFill);
 
-		// Shape to "fill" of the foreground bar
-		this.barFill = this.scene.add.graphics();
-		this.barFill.fillStyle(0xffffff);
-		this.barFill.fillRect(0, 0, BAR_WIDTH, BAR_HEIGHT);
-		this.add(this.barFill);
+	// Label
+	const label = scene.add.text(
+		BAR_WIDTH / 2, BAR_HEIGHT / 2,
+		labelText, defaultTextConfig
+	).setOrigin(0.5);
+	container.add(label);
 
-		// Label
-		this.label = this.scene.add.text(
-			BAR_WIDTH / 2, BAR_HEIGHT / 2,
-			labelText, defaultTextConfig
-		).setOrigin(0.5);
-		this.add(this.label);
+	container.setVisible(false); // Initially hidden
 
-		this.scene.add.existing(this);
-		this.setVisible(false); // Initially hidden
+	return {
+		container,
+		backgroundBar,
+		foregroundBar,
+		barFill,
+		label,
 	}
+}
 
-	public updateMorale(currentMorale: number, maxMorale: number = 100): void {
-		const percentage = Math.max(0, currentMorale) / maxMorale;
-		// Animate the mask's horizontal scale to reveal the bar
-		this.scene.tweens.add({ targets: this.barFill, scaleX: percentage, duration: 200, ease: 'Power1' });
-	}
+export function show({ container }: MoraleDisplay): void {
+	container.setVisible(true);
+}
+
+export function hide({ container }: MoraleDisplay): void {
+	container.setVisible(false);
+}
+
+export function updateBar(
+	{ barFill }: MoraleDisplay,
+	currentMorale: number,
+	maxMorale: number = 100,
+): void {
+	const percentage = Math.max(0, currentMorale) / maxMorale;
+	// Animate the mask's horizontal scale to reveal the bar
+	barFill.scene.tweens.add(
+		{
+			targets: barFill,
+			scaleX: percentage,
+			duration: 200,
+		}
+	);
 }

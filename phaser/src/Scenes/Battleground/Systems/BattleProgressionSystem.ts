@@ -102,7 +102,6 @@ export class BattleProgressionSystem {
 
 		// Instead of game over, lose prestige and return to shop
 		this.transitionToShopPhase();
-
 	}
 
 	/**

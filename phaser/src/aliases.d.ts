@@ -3,6 +3,7 @@ import type * as Phaser from 'phaser';
 declare global {
 	type Scene = Phaser.Scene;
 	type Container = Phaser.GameObjects.Container;
+	type Graphics = Phaser.GameObjects.Graphics;
 	type Sprite = Phaser.GameObjects.Sprite;
 	type Text = Phaser.GameObjects.Text;
 	type Image = Phaser.GameObjects.Image;

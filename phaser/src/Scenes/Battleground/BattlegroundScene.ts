@@ -19,7 +19,7 @@ import { RelicCard } from "./Systems/Relic"; // Added for type checking
 import { Vec2 } from "../../Models/Geometry";
 import { battleResultAnimation } from "./battleResultAnimation";
 import { vignette } from "./Animations/vignette";
-import { MoraleDisplay } from "./MoraleDisplay";
+import * as MoraleDisplay from "./MoraleDisplay";
 import * as MoraleSystem from "./MoraleSystem";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER, SCREEN_HEIGHT, SCREEN_WIDTH } from "../../constants/constants";
 
@@ -48,8 +48,9 @@ export class BattlegroundScene extends Phaser.Scene {
   shop: Shop;
 
   // Morale System and UI
-  playerMoraleBar!: MoraleDisplay;
-  cpuMoraleBar!: MoraleDisplay;
+  // TODO: these can live inside the system
+  playerMoraleBar!: MoraleDisplay.MoraleDisplay;
+  cpuMoraleBar!: MoraleDisplay.MoraleDisplay;
 
   // New Systems
   setupSystem!: BattlegroundSetupSystem;
@@ -187,11 +188,11 @@ export class BattlegroundScene extends Phaser.Scene {
   setupMoraleBars(): void {
     const playerBarX = SCREEN_WIDTH / 2;
     const playerBarY = SCREEN_HEIGHT - 50;
-    this.playerMoraleBar = new MoraleDisplay(this, playerBarX, playerBarY, FORCE_ID_PLAYER, "Player Morale");
+    this.playerMoraleBar = MoraleDisplay.create(this, playerBarX, playerBarY, FORCE_ID_PLAYER, "Player Morale");
 
     const cpuBarX = SCREEN_WIDTH / 2;
     const cpuBarY = 50;
-    this.cpuMoraleBar = new MoraleDisplay(this, cpuBarX, cpuBarY, FORCE_ID_CPU, "Enemy Morale");
+    this.cpuMoraleBar = MoraleDisplay.create(this, cpuBarX, cpuBarY, FORCE_ID_CPU, "Enemy Morale");
   }
 
   /**

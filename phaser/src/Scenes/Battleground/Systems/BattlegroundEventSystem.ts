@@ -12,6 +12,7 @@ import { popText } from "../../../Systems/Chara/Animations/popText";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
 import { PopTextPayload } from "../../../Models/EventPayloads";
 import * as CharaTooltip from "../../../Systems/Chara/CharaTooltip";
+import * as MoraleDisplay from "../MoraleDisplay";
 
 type Listener = {
 	event: string;
@@ -115,20 +116,28 @@ export class BattlegroundEventSystem {
 	}
 
 	private handleMoraleBarsShow(): void {
-		this.scene.playerMoraleBar?.setVisible(true);
-		this.scene.cpuMoraleBar?.setVisible(true);
+		MoraleDisplay.show(this.scene.playerMoraleBar);
+		MoraleDisplay.show(this.scene.cpuMoraleBar);
 	}
 
 	private handleMoraleBarsHide(): void {
-		this.scene.playerMoraleBar?.setVisible(false);
-		this.scene.cpuMoraleBar?.setVisible(false);
+		MoraleDisplay.hide(this.scene.playerMoraleBar);
+		MoraleDisplay.hide(this.scene.cpuMoraleBar);
 	}
 
 	private handleMoraleUpdated(payload: { forceId: string, newMorale: number, maxMorale: number }): void {
 		if (payload.forceId === FORCE_ID_PLAYER) {
-			this.scene.playerMoraleBar?.updateMorale(payload.newMorale, payload.maxMorale);
+			MoraleDisplay.updateBar(
+				this.scene.playerMoraleBar,
+				payload.newMorale,
+				payload.maxMorale,
+			);
 		} else if (payload.forceId === FORCE_ID_CPU) {
-			this.scene.cpuMoraleBar?.updateMorale(payload.newMorale, payload.maxMorale);
+			MoraleDisplay.updateBar(
+				this.scene.cpuMoraleBar,
+				payload.newMorale,
+				payload.maxMorale,
+			);
 		}
 	}
 
