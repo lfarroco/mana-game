@@ -1,21 +1,18 @@
 import { impactEffect } from "../../../Effects";
 import { Chara } from "../Chara";
 import { GameEvents } from "../../../constants/events";
-import { getOption } from "../../../Models/OptionsStore";
 
 export async function physicalAttack(
 	activeChara: Chara,
 	targetChara: Chara,
 ) {
 	const { scene: scene } = activeChara;
-	const speed = getOption('speed');
 
 	impactEffect({
 		scene,
 		location: targetChara,
 		pointA: activeChara,
 		pointB: targetChara,
-		speed,
 	});
 
 	const dice = Math.floor(Math.random() * 100);

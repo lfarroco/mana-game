@@ -71,8 +71,8 @@ export class DebugScene extends Phaser.Scene {
 				this.time.addEvent({
 					delay: 1200,
 					callback: () => {
-						effects.fireballEffect(this, 1, { x: 100, y: 100 }, { x: 400, y: 100 });
-						effects.fireballEffect(this, 1, { x: 200, y: 200 }, { x: 400, y: 400 });
+						effects.fireballEffect(this, { x: 100, y: 100 }, { x: 400, y: 100 });
+						effects.fireballEffect(this, { x: 200, y: 200 }, { x: 400, y: 400 });
 					},
 					repeat: -1
 				})
@@ -92,8 +92,8 @@ export class DebugScene extends Phaser.Scene {
 				this.time.addEvent({
 					delay: 1200,
 					callback: () => {
-						effects.healingHitEffect(this, { x: 100, y: 100 }, 1000, 1);
-						effects.healingHitEffect(this, { x: 200, y: 200 }, 1000, 1);
+						effects.healingHitEffect(this, { x: 100, y: 100 }, 1000);
+						effects.healingHitEffect(this, { x: 200, y: 200 }, 1000);
 					},
 					repeat: -1
 				})
@@ -101,8 +101,8 @@ export class DebugScene extends Phaser.Scene {
 				this.time.addEvent({
 					delay: 1200,
 					callback: () => {
-						effects.impactEffect({ scene: this, location: { x: 100, y: 100 }, pointA: { x: 100, y: 100 }, pointB: { x: 400, y: 100 }, speed: 1 });
-						effects.impactEffect({ scene: this, location: { x: 200, y: 200 }, pointA: { x: 200, y: 200 }, pointB: { x: 400, y: 400 }, speed: 1 });
+						effects.impactEffect({ scene: this, location: { x: 100, y: 100 }, pointA: { x: 100, y: 100 }, pointB: { x: 400, y: 100 } });
+						effects.impactEffect({ scene: this, location: { x: 200, y: 200 }, pointA: { x: 200, y: 200 }, pointB: { x: 400, y: 400 } });
 					},
 					repeat: -1
 				})
@@ -119,8 +119,8 @@ export class DebugScene extends Phaser.Scene {
 				this.time.addEvent({
 					delay: 2500,
 					callback: () => {
-						effects.explodeEffect(this, 1, { x: 100, y: 100 });
-						effects.explodeEffect(this, 1, { x: 400, y: 400 });
+						effects.explodeEffect(this, { x: 100, y: 100 });
+						effects.explodeEffect(this, { x: 400, y: 400 });
 					},
 					repeat: -1
 				})

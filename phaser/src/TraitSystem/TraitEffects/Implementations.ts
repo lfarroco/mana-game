@@ -20,7 +20,6 @@ import { Unit } from "../../Models/Entities/Unit";
 import { RelicStateObject } from "../Traits";
 import { fireball as fireballSkillFn } from "../../Systems/Chara/Skills/fireball";
 import { explodeEffect as gameExplodeEffect } from "../../Effects/explodeEffect"; // Adjust path
-import { getOption } from "../../Models/OptionsStore";
 import { shoot as shootSkillFn } from "../../Systems/Chara/Skills/shoot";
 
 
@@ -310,7 +309,7 @@ const performSkillFireballLogic: SourceUnitGuaranteedEffectFn = async (context) 
 const explodeOnDeathLogic: SourceUnitGuaranteedEffectFn = async (context) => {
 	const { sourceUnit, scene } = context;
 	// TODO: apply damage as well (the below is just effect)
-	await gameExplodeEffect(scene, getOption("speed"), getCharaPosition(sourceUnit))
+	await gameExplodeEffect(scene, getCharaPosition(sourceUnit))
 };
 
 /**

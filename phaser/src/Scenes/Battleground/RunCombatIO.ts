@@ -5,7 +5,6 @@ import { playerForce, cpuForce } from "../../Models/Entities/Force";
 import * as CharaManager from "./Systems/CharaManager";
 import { Unit } from "../../Models/Entities/Unit";
 import { GameEvents } from "../../constants/events";
-import { getOption } from "../../Models/OptionsStore";
 import { delay } from "../../Utils/animation";
 
 /**
@@ -125,7 +124,7 @@ function chargeUnits(state: State, delta: number): Unit[] {
       unit.slowed = Math.max(0, unit.slowed - delta);
       modifier = modifier / 2;
     }
-    unit.charge += delta * getOption('speed') * modifier;
+    unit.charge += delta * modifier;
 
     unit.refresh = Math.max(0, unit.refresh - delta);
 

@@ -1,6 +1,5 @@
 import Phaser from "phaser";
 import { delay } from "../Utils/animation";
-import { getOption } from "../Models/OptionsStore";
 
 /**
  * Manages the animation of gold coins, typically when gold is acquired by the player.
@@ -35,7 +34,6 @@ export class GoldCoinAnimator {
 		y: number,
 		onGoldArrive?: () => void
 	): Promise<void> {
-		const currentSpeed = getOption('speed');
 		const chestX = this.scene.cameras.main.width - 150;
 		const chestY = this.scene.cameras.main.height - 100;
 
@@ -48,13 +46,13 @@ export class GoldCoinAnimator {
 			this.scene.tweens.add({
 				targets: coin,
 				alpha: 1,
-				duration: (500 / currentSpeed) * Math.max(Math.random(), 0.5),
+				duration: (500) * Math.max(Math.random(), 0.5),
 			});
 
 			this.scene.tweens.add({
 				targets: coin,
 				scaleY: 0.5,
-				duration: 100 / currentSpeed,
+				duration: 100,
 				yoyo: true,
 				repeat: -1
 			});
@@ -63,7 +61,7 @@ export class GoldCoinAnimator {
 				targets: coin,
 				y: coin.y - 150,
 				ease: "Quad.Out",
-				duration: 300 / currentSpeed,
+				duration: 300,
 				onComplete: () => {
 					const distance = Phaser.Math.Distance.Between(coin.x, coin.y, chestX, chestY);
 					this.scene.tweens.add({
@@ -71,7 +69,7 @@ export class GoldCoinAnimator {
 						x: chestX,
 						y: chestY,
 						alpha: 0.5,
-						duration: distance / (3 * currentSpeed),
+						duration: distance / (3),
 						ease: "Quad.In",
 						onComplete: () => {
 							coin.destroy();
@@ -82,7 +80,7 @@ export class GoldCoinAnimator {
 			});
 		}
 
-		await delay(this.scene, 1000 / currentSpeed);
+		await delay(this.scene, 1000);
 
 		this.scene.add.particles(chestX, chestY, 'coin', {
 			speed: { min: 100, max: 200 },

@@ -1,5 +1,4 @@
 import Phaser from "phaser";
-import { getOption } from "../Models/OptionsStore";
 
 /**
  * Defines the properties for our custom tween wrapper.
@@ -22,8 +21,6 @@ type CustomTweenProps =
 export async function tween(
 	attributes: CustomTweenProps,
 ): Promise<void> {
-	const speed = getOption('speed');
-
 	const { targets, onComplete: userOnCompleteCallback, ...restOfConfig } = attributes;
 
 	// Check if there are any targets and if the first target is valid
@@ -44,7 +41,7 @@ export async function tween(
 
 	// Build the configuration for Phaser's tween manager
 	const phaserTweenConfig: Phaser.Types.Tweens.TweenBuilderConfig = {
-		...restOfConfig, // Spread other config properties (like x, y, alpha, etc.)
+		...restOfConfig,
 		targets: targets, // Pass the original targets (single or array)
 	};
 
@@ -53,21 +50,9 @@ export async function tween(
 		phaserTweenConfig.ease = "Power2";
 	}
 
-	// Adjust duration based on speed, applying a default if none is provided
-	if (typeof phaserTweenConfig.duration === 'number') {
-		phaserTweenConfig.duration /= speed;
-	} else if (typeof phaserTweenConfig.duration === 'function') {
-		// Duration can be a function, scaling it isn't straightforward here.
-		console.warn("Tween: Duration as a function is not automatically scaled by speed.");
-	} else { // duration is undefined or not a number/function
-		phaserTweenConfig.duration = (restOfConfig.duration === undefined ? 200 : Number(restOfConfig.duration) || 200) / speed;
-	}
-
-	// Adjust delay based on speed
-	if (typeof phaserTweenConfig.delay === 'number') {
-		phaserTweenConfig.delay /= speed;
-	} else if (typeof phaserTweenConfig.delay === 'function') {
-		console.warn("Tween: Delay as a function is not automatically scaled by speed.");
+	// Apply default duration if not specified
+	if (phaserTweenConfig.duration === undefined) {
+		phaserTweenConfig.duration = 200;
 	}
 
 	return new Promise<void>((resolve, _reject) => {
@@ -98,7 +83,7 @@ export const delay = (
 ) => new Promise<void>((resolve, _reject) => {
 	scene.time.addEvent(
 		{
-			delay: duration / getOption('speed'),
+			delay: duration,
 			callback: () => {
 				resolve();
 			}

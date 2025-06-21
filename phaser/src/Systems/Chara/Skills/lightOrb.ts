@@ -25,7 +25,7 @@ export const lightOrb = (
 		scene,
 		activeChara.x, activeChara.y,
 		targetChara,
-		500 / getOption('speed')
+		500
 	).setScale(0.5);
 
 	await delay(scene, 500);

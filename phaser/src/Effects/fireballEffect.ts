@@ -29,7 +29,6 @@ const WARN_ZERO_COORDINATE_PREFIX = "[fireballEffect] Aborting: Source or target
 
 export async function fireballEffect(
 	scene: Phaser.Scene,
-	speed: number,
 	source: { x: number; y: number; },
 	target: { x: number; y: number; },
 ) {
@@ -39,12 +38,12 @@ export async function fireballEffect(
 		return;
 	}
 
-	const particles = fireball(source, target, scene, speed, FIREBALL_TRACE_LIFESPAN, FIREBALL_TRAVEL_DURATION);
+	const particles = fireball(source, target, scene, FIREBALL_TRACE_LIFESPAN, FIREBALL_TRAVEL_DURATION);
 	particles.setScale(FIREBALL_INITIAL_SCALE);
 
 	await delay(scene, FIREBALL_TRAVEL_DURATION / 2);
 
-	const impact = impactEffect(scene, target, speed, EXPLOSION_MAIN_LIFESPAN);
+	const impact = impactEffect(scene, target, EXPLOSION_MAIN_LIFESPAN);
 
 	scene.time.addEvent({
 		delay: EXPLOSION_MAIN_LIFESPAN,
@@ -61,12 +60,16 @@ export async function fireballEffect(
 		}
 	});
 }
-function impactEffect(scene: Phaser.Scene, target: { x: number; y: number; }, speed: number, lifespan: number) {
+function impactEffect(
+	scene: Scene,
+	target: Point,
+	lifespan: number,
+) {
 	return scene.add.particles(
 		target.x, target.y,
 		images.white_dot.key,
 		{
-			speed: IMPACT_EFFECT_BASE_SPEED_MULTIPLIER * speed,
+			speed: IMPACT_EFFECT_BASE_SPEED_MULTIPLIER,
 			tint: SHARED_FIRE_TINT_COLORS,
 			lifespan: lifespan,
 			alpha: IMPACT_EFFECT_ALPHA,
@@ -78,7 +81,13 @@ function impactEffect(scene: Phaser.Scene, target: { x: number; y: number; }, sp
 	);
 }
 
-function fireball(source: { x: number; y: number; }, target: { x: number; y: number; }, scene: Phaser.Scene, speed: number, lifespan: number, travelDuration: number) {
+function fireball(
+	source: Point,
+	target: Point,
+	scene: Scene,
+	lifespan: number,
+	travelDuration: number,
+) {
 	const angle = Phaser.Math.Angle.BetweenPoints(source, target);
 	const particles = scene.add.particles(
 		source.x, source.y,
@@ -86,12 +95,12 @@ function fireball(source: { x: number; y: number; }, target: { x: number; y: num
 		{
 			// make particles move in the direction of the angle, using the speed
 			speedX: {
-				min: -Math.cos(angle - FIREBALL_PARTICLE_ANGLE_OFFSET) * FIREBALL_PARTICLE_MIN_SPEED_MULTIPLIER * speed,
-				max: -Math.cos(angle + FIREBALL_PARTICLE_ANGLE_OFFSET) * FIREBALL_PARTICLE_MAX_SPEED_MULTIPLIER * speed
+				min: -Math.cos(angle - FIREBALL_PARTICLE_ANGLE_OFFSET) * FIREBALL_PARTICLE_MIN_SPEED_MULTIPLIER,
+				max: -Math.cos(angle + FIREBALL_PARTICLE_ANGLE_OFFSET) * FIREBALL_PARTICLE_MAX_SPEED_MULTIPLIER
 			},
 			speedY: {
-				min: -Math.sin(angle - FIREBALL_PARTICLE_ANGLE_OFFSET) * FIREBALL_PARTICLE_MIN_SPEED_MULTIPLIER * speed,
-				max: -Math.sin(angle + FIREBALL_PARTICLE_ANGLE_OFFSET) * FIREBALL_PARTICLE_MAX_SPEED_MULTIPLIER * speed
+				min: -Math.sin(angle - FIREBALL_PARTICLE_ANGLE_OFFSET) * FIREBALL_PARTICLE_MIN_SPEED_MULTIPLIER,
+				max: -Math.sin(angle + FIREBALL_PARTICLE_ANGLE_OFFSET) * FIREBALL_PARTICLE_MAX_SPEED_MULTIPLIER
 			},
 			//red, yellow and orage tones
 			tint: SHARED_FIRE_TINT_COLORS,

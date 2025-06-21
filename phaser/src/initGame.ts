@@ -46,4 +46,6 @@ export function initGame(state: State) {
 		// TODO: use scene keys
 		game.scene.start("BattlegroundScene", state);
 	}
+
+	return game;
 }
