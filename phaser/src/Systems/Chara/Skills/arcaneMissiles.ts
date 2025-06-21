@@ -3,7 +3,6 @@ import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { getRangedTargets } from "../../../Models/Board";
 import * as animation from "../../../Effects/arcaneMissile";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
-import { getOption } from "../../../Models/OptionsStore";
 
 export const arcaneMissiles = (
 	scene: BattlegroundScene
@@ -33,8 +32,11 @@ export const arcaneMissiles = (
 
 		animation.arcaneMissile(
 			{
-				scene, source: activeChara, target: targetChara, speed: getOption('speed'), onHit: () => {
-					if (targetChara.unit.hp <= 0) return;
+				scene,
+				source: activeChara,
+				target: targetChara,
+				onHit: () => {
+					if (targetChara.unit.hp <= 0 || !targetChara.active) return;
 					targetChara.damageUnit(unit.id, unit.attackPower);
 				}
 			});

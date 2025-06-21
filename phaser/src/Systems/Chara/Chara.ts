@@ -35,6 +35,9 @@ export class Chara extends Phaser.GameObjects.Container {
 	/** A direct alias to `unit.id` for convenience and for Phaser's GameObject naming. */
 	id: string;
 
+	/** Used to check if there is an ongoing tween involving this chara */
+	isAnimating: boolean;
+
 	/** The main visual image/sprite for the character. */
 	sprite!: Phaser.GameObjects.Image;
 	/** Component responsible for displaying ATK/HP numerical stats. */
@@ -371,8 +374,10 @@ export class Chara extends Phaser.GameObjects.Container {
 	 */
 	damageUnit = (_sourceId: string, damage: number, isCritical = false) => {
 
+		if (!this.active) {
+			throw new Error("Tried to apply damage to inactive Chara.")
+		}
 		this.scene.events.emit(GameEvents.UNIT_TOOK_DAMAGE, { unit: this.unit, damage });
-
 
 		if (isCritical) {
 			criticalDamageDisplay(this.scene, this, Math.floor(damage));
@@ -471,14 +476,17 @@ export class Chara extends Phaser.GameObjects.Container {
 		super.destroy(fromScene);
 	}
 
-	onAction(payload: { unit: Unit }) {
+	async onAction(payload: { unit: Unit }) {
 		if (payload.unit.id !== this.id) return;
-		tween({
+		if (this.isAnimating) return;
+		this.isAnimating = true;
+		await tween({
 			targets: [this],
 			scale: 1.1,
 			yoyo: true,
 			duration: 200,
 			repeat: 0,
-		})
+		});
+		this.isAnimating = false;
 	}
 }
