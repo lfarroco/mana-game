@@ -1,6 +1,7 @@
 import { BattlegroundScene } from "./BattlegroundScene";
 import { getActiveUnits, State } from "../../Models/State";
-import { FORCE_ID_CPU, FORCE_ID_PLAYER, MIN_COOLDOWN } from "../../constants/constants";
+import { MIN_COOLDOWN } from "../../constants/constants";
+import { playerForce, cpuForce } from "../../Models/Entities/Force";
 import * as CharaManager from "./Systems/CharaManager";
 import { Unit } from "../../Models/Entities/Unit";
 import { GameEvents } from "../../constants/events";
@@ -69,24 +70,29 @@ export class RunCombatSystem {
         events.emit(GameEvents.TRAIT_EVAL_TURN_END, { unit });
       }
 
-      const activeBattleUnits = getActiveUnits(state); // Use getActiveUnits
-      const playerUnits = activeBattleUnits.filter(u => u.force === FORCE_ID_PLAYER);
-      const cpuUnits = activeBattleUnits.filter(u => u.force === FORCE_ID_CPU);
+      const playerMoraleZero = playerForce.morale <= 0;
+      const cpuMoraleZero = cpuForce.morale <= 0;
 
-      if (playerUnits.length === 0 || cpuUnits.length === 0) {
+      let combatEnded = false;
+      let outcome: WaveOutcome | null = null;
+
+      if (playerMoraleZero) {
+        combatEnded = true;
+        outcome = "player_lost";
+      } else if (cpuMoraleZero) {
+        combatEnded = true;
+        outcome = "player_won";
+      }
+
+      if (combatEnded) {
         if (this.updateHandler) {
           events.off('update', this.updateHandler);
           this.updateHandler = null; // Clear the handler
         }
 
         events.emit(GameEvents.TRAIT_EVAL_BATTLE_END, {});
-        console.log("[RunCombatSystem] Combat ended.");
-
-        if (playerUnits.length === 0) {
-          resolve("player_lost");
-        } else {
-          resolve("player_won");
-        }
+        console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);
+        resolve(outcome!);
       }
     };
 
