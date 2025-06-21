@@ -11,6 +11,7 @@ export type Force = {
 	gold: number;
 	income: number;
 	morale: number;
+	maxMorale: number;
 	units: Unit[];
 	relics: Relic[];
 	prestige: number,
@@ -29,6 +30,7 @@ export const makeForce = (id: string): Force => {
 		units: [],
 		relics: [],
 		morale: 100,
+		maxMorale: 100,
 		prestige: 0,
 		winStreak: 0,
 		lossStreak: 0,

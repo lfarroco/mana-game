@@ -1,61 +1,97 @@
-import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../constants/constants";
-import { GameEvents } from "../../constants/events";
-import { cpuForce, playerForce } from "../../Models/Entities/Force";
-import { Unit } from "../../Models/Entities/Unit";
-import { BattlegroundScene } from "./BattlegroundScene";
-
-const MORALE_DAMAGE_MULTIPLIER = 0.05; // Morale lost per point of damage
-const MAX_MORALE = 100;
-
 /**
  * Manages the morale of each force during combat.
  * - Resets morale at the start of combat.
  * - Reduces morale when units take damage.
  * - Emits events to show, hide, and update morale bar UI.
  */
-export class MoraleSystem {
-	private scene: BattlegroundScene;
 
-	constructor(scene: BattlegroundScene) {
-		this.scene = scene;
-		this.registerEventListeners();
-	}
+import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../constants/constants";
+import { GameEvents } from "../../constants/events";
+import { cpuForce, playerForce } from "../../Models/Entities/Force";
+import { Unit } from "../../Models/Entities/Unit";
+import { BattlegroundScene } from "./BattlegroundScene";
 
-	private registerEventListeners(): void {
-		this.scene.events.on(GameEvents.UNIT_TOOK_DAMAGE, this.handleUnitTookDamage, this);
-		this.scene.events.on(GameEvents.COMBAT_START_EXECUTION_TRIGGER, this.handleCombatStart, this);
-		this.scene.events.on(GameEvents.COMBAT_ENDED_VICTORY, this.handleCombatEnd, this);
-		this.scene.events.on(GameEvents.COMBAT_ENDED_DEFEAT, this.handleCombatEnd, this);
-	}
+const MORALE_DAMAGE_MULTIPLIER = 0.2; // Morale lost per point of damage
 
-	private handleCombatStart(): void {
-		playerForce.morale = MAX_MORALE;
-		cpuForce.morale = MAX_MORALE;
+let scene: BattlegroundScene;
 
-		this.scene.events.emit(GameEvents.MORALE_BARS_SHOW);
-		this.scene.events.emit(GameEvents.MORALE_UPDATED, { forceId: FORCE_ID_PLAYER, newMorale: playerForce.morale, maxMorale: MAX_MORALE });
-		this.scene.events.emit(GameEvents.MORALE_UPDATED, { forceId: FORCE_ID_CPU, newMorale: cpuForce.morale, maxMorale: MAX_MORALE });
-	}
+export const init = (sceneRef: BattlegroundScene) => {
+	scene = sceneRef;
+	registerEventListeners();
+}
 
-	private handleCombatEnd(): void {
-		this.scene.events.emit(GameEvents.MORALE_BARS_HIDE);
-	}
+function registerEventListeners() {
+	scene.events.on(GameEvents.UNIT_TOOK_DAMAGE, handleUnitTookDamage);
+	scene.events.on(GameEvents.COMBAT_START_EXECUTION_TRIGGER, handleCombatStart);
+	scene.events.on(GameEvents.COMBAT_ENDED_VICTORY, handleCombatEnd);
+	scene.events.on(GameEvents.COMBAT_ENDED_DEFEAT, handleCombatEnd);
+}
 
-	private handleUnitTookDamage(payload: { unit: Unit, damage: number }): void {
-		const { unit, damage } = payload;
-		const moraleLoss = damage * MORALE_DAMAGE_MULTIPLIER;
+function calculateForceMorale(forceId: string): number {
+	return scene.state.battleData.units
+		.filter(u => u.force === forceId)
+		.map(u => u.maxHp)
+		.reduce((a, b) => a + b, 0);
+}
 
-		const targetForce = unit.force === FORCE_ID_PLAYER ? playerForce : unit.force === FORCE_ID_CPU ? cpuForce : null;
-		if (!targetForce) return;
+function handleCombatStart() {
 
-		targetForce.morale = Math.max(0, targetForce.morale - moraleLoss);
-		this.scene.events.emit(GameEvents.MORALE_UPDATED, { forceId: targetForce.id, newMorale: targetForce.morale, maxMorale: MAX_MORALE });
-	}
+	const playerMorale = calculateForceMorale(FORCE_ID_PLAYER);
+	const cpuMorale = calculateForceMorale(FORCE_ID_CPU)
 
-	public destroy(): void {
-		this.scene.events.off(GameEvents.UNIT_TOOK_DAMAGE, this.handleUnitTookDamage, this);
-		this.scene.events.off(GameEvents.COMBAT_START_EXECUTION_TRIGGER, this.handleCombatStart, this);
-		this.scene.events.off(GameEvents.COMBAT_ENDED_VICTORY, this.handleCombatEnd, this);
-		this.scene.events.off(GameEvents.COMBAT_ENDED_DEFEAT, this.handleCombatEnd, this);
-	}
+	playerForce.morale = playerMorale;
+	playerForce.maxMorale = playerMorale;
+
+	cpuForce.morale = cpuMorale;
+	cpuForce.maxMorale = cpuMorale;
+
+	scene.events.emit(GameEvents.MORALE_BARS_SHOW);
+	scene.events.emit(
+		GameEvents.MORALE_UPDATED,
+		{
+			forceId: FORCE_ID_PLAYER,
+			newMorale: playerForce.morale,
+			maxMorale: playerForce.morale,
+		}
+	);
+	scene.events.emit(
+		GameEvents.MORALE_UPDATED,
+		{
+			forceId: FORCE_ID_CPU,
+			newMorale: cpuForce.morale,
+			maxMorale: cpuForce.morale
+		}
+	);
+}
+
+function handleCombatEnd() {
+	scene.events.emit(GameEvents.MORALE_BARS_HIDE);
+}
+
+function handleUnitTookDamage(payload: { unit: Unit, damage: number }) {
+	const { unit, damage } = payload;
+	const moraleLoss = damage * MORALE_DAMAGE_MULTIPLIER;
+
+	const targetForce = unit.force === FORCE_ID_PLAYER ?
+		playerForce : unit.force === FORCE_ID_CPU ?
+			cpuForce : null;
+
+	if (!targetForce) return;
+
+	targetForce.morale = Math.max(0, targetForce.morale - moraleLoss);
+	scene.events.emit(
+		GameEvents.MORALE_UPDATED,
+		{
+			forceId: targetForce.id,
+			newMorale: targetForce.morale,
+			maxMorale: targetForce.maxMorale,
+		}
+	);
+}
+
+export function destroy() {
+	scene.events.off(GameEvents.UNIT_TOOK_DAMAGE, handleUnitTookDamage);
+	scene.events.off(GameEvents.COMBAT_START_EXECUTION_TRIGGER, handleCombatStart);
+	scene.events.off(GameEvents.COMBAT_ENDED_VICTORY, handleCombatEnd);
+	scene.events.off(GameEvents.COMBAT_ENDED_DEFEAT, handleCombatEnd);
 }

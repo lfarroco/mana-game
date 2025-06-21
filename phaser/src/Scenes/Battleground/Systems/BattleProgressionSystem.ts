@@ -8,6 +8,7 @@ import { getAllCards } from "../../../Models/Entities/Card";
 import { generateEnemyTeam } from "../generateEnemyTeam";
 import { PrestigeSystem } from "../../../Systems/PrestigeSystem";
 import * as CharaManager from "./CharaManager";
+import { cpuForce, playerForce } from "../../../Models/Entities/Force";
 
 /**
  * Manages the overall progression of the battle, including transitions
@@ -147,11 +148,22 @@ export class BattleProgressionSystem {
 		const cardPool = getAllCards();
 		const enemies = generateEnemyTeam(this.state.gameData.round, cardPool);
 
+		this.state.battleData.forces = [
+			cpuForce,
+			playerForce
+		];
 		this.state.battleData.units = [...enemies, ...this.state.gameData.player.units];
 
 		// Summon CPU units to the board
 		enemies.forEach(unit => {
-			this.scene.events.emit(GameEvents.CHARA_SUMMON_TO_BOARD, { unit, animateAppear: false, playSound: false });
+			this.scene.events.emit(
+				GameEvents.CHARA_SUMMON_TO_BOARD,
+				{
+					unit,
+					animateAppear: false,
+					playSound: false,
+				}
+			);
 		});
 		return { enemies };
 	}

@@ -20,7 +20,7 @@ import { Vec2 } from "../../Models/Geometry";
 import { battleResultAnimation } from "./battleResultAnimation";
 import { vignette } from "./Animations/vignette";
 import { MoraleDisplay } from "./MoraleDisplay";
-import { MoraleSystem } from "./MoraleSystem";
+import * as MoraleSystem from "./MoraleSystem";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER, SCREEN_HEIGHT, SCREEN_WIDTH } from "../../constants/constants";
 
 /**
@@ -48,7 +48,6 @@ export class BattlegroundScene extends Phaser.Scene {
   shop: Shop;
 
   // Morale System and UI
-  moraleSystem!: MoraleSystem;
   playerMoraleBar!: MoraleDisplay;
   cpuMoraleBar!: MoraleDisplay;
 
@@ -76,9 +75,7 @@ export class BattlegroundScene extends Phaser.Scene {
     if (this.eventSystem) {
       this.eventSystem.destroy();
     }
-    if (this.moraleSystem) {
-      this.moraleSystem.destroy();
-    }
+    MoraleSystem.destroy();
     // Note: Shop, RunCombatSystem, BattleProgressionSystem, SetupSystem might need destroy methods
     // if they acquire resources or set up listeners not tied to scene.events.
   }
@@ -143,7 +140,7 @@ export class BattlegroundScene extends Phaser.Scene {
     this.setupSystem = new BattlegroundSetupSystem(this);
     this.shop = new Shop(this);
     this.uiManager = new UIManager(this); // UIManager sets up its own UI event listeners
-    this.moraleSystem = new MoraleSystem(this);
+    MoraleSystem.init(this);
 
     // 1. Perform one-time runtime data initialization
     this.setupSystem.performOneTimeRuntimeInitialization(this.collection);
