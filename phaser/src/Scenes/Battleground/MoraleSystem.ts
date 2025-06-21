@@ -4,7 +4,7 @@ import { cpuForce, playerForce } from "../../Models/Entities/Force";
 import { Unit } from "../../Models/Entities/Unit";
 import { BattlegroundScene } from "./BattlegroundScene";
 
-const MORALE_DAMAGE_MULTIPLIER = 0.25; // Morale lost per point of damage
+const MORALE_DAMAGE_MULTIPLIER = 0.05; // Morale lost per point of damage
 const MAX_MORALE = 100;
 
 /**
