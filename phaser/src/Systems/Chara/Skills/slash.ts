@@ -38,9 +38,18 @@ export async function slash(
 
 async function attack(activeChara: Chara, targetChara: Chara) {
 
-	// TODO: bash piece animation gets out of sync with the physical attack logic.
-	// should make it accept the physical attack function as a callback
-	// currently, one's tweens interferes with the other
+	const distanceX = targetChara.x - activeChara.x;
+	const distanceY = targetChara.y - activeChara.y;
+
+	const lungeDistanceX = distanceX * 0.2;
+	const lungeDistanceY = distanceY * 0.2;
+
+	await tween({
+		targets: [activeChara],
+		x: activeChara.x + lungeDistanceX,
+		y: activeChara.y + lungeDistanceY,
+		duration: 100,
+	});
 
 	await physicalAttack(activeChara, targetChara);
 }
