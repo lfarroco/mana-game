@@ -477,7 +477,7 @@ export class Chara extends Phaser.GameObjects.Container {
 			targets: [this],
 			scale: 1.1,
 			yoyo: true,
-			duration: 100,
+			duration: 200,
 			repeat: 0,
 		})
 	}
