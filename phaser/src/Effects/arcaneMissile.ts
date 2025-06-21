@@ -1,4 +1,5 @@
 import { images } from "../assets";
+import { getOption } from "../Models/OptionsStore";
 import { delay } from "../Utils/animation";
 import { EnergyBeam } from "./EnergyBeam";
 
@@ -7,7 +8,6 @@ type ArcaneMissileAnimationArgs = {
 	scene: Scene;
 	source: Point;
 	target: Point;
-	speed: number;
 	onHit?: () => void;
 	colors?: number[];
 }
@@ -16,10 +16,11 @@ export async function arcaneMissile({
 	scene,
 	source,
 	target,
-	speed,
 	onHit = () => { },
 	colors = [0xFF00FF, 0x0000FF, 0x000000] //dark purple to blue
 }: ArcaneMissileAnimationArgs) {
+
+	const speed = getOption("speed");
 
 	const distance = Phaser.Math.Distance.BetweenPoints(source, target)
 
