@@ -19,6 +19,9 @@ import { RelicCard } from "./Systems/Relic"; // Added for type checking
 import { Vec2 } from "../../Models/Geometry";
 import { battleResultAnimation } from "./battleResultAnimation";
 import { vignette } from "./Animations/vignette";
+import { MoraleDisplay } from "./MoraleDisplay";
+import { MoraleSystem } from "./MoraleSystem";
+import { FORCE_ID_CPU, FORCE_ID_PLAYER, SCREEN_HEIGHT, SCREEN_WIDTH } from "../../constants/constants";
 
 /**
  * The main scene for the battleground, handling game logic, UI, and progression.
@@ -44,6 +47,11 @@ export class BattlegroundScene extends Phaser.Scene {
   /** The shop system, allowing players to buy units and relics. */
   shop: Shop;
 
+  // Morale System and UI
+  moraleSystem!: MoraleSystem;
+  playerMoraleBar!: MoraleDisplay;
+  cpuMoraleBar!: MoraleDisplay;
+
   // New Systems
   setupSystem!: BattlegroundSetupSystem;
   eventSystem!: BattlegroundEventSystem;
@@ -67,6 +75,9 @@ export class BattlegroundScene extends Phaser.Scene {
     }
     if (this.eventSystem) {
       this.eventSystem.destroy();
+    }
+    if (this.moraleSystem) {
+      this.moraleSystem.destroy();
     }
     // Note: Shop, RunCombatSystem, BattleProgressionSystem, SetupSystem might need destroy methods
     // if they acquire resources or set up listeners not tied to scene.events.
@@ -132,6 +143,7 @@ export class BattlegroundScene extends Phaser.Scene {
     this.setupSystem = new BattlegroundSetupSystem(this);
     this.shop = new Shop(this);
     this.uiManager = new UIManager(this); // UIManager sets up its own UI event listeners
+    this.moraleSystem = new MoraleSystem(this);
 
     // 1. Perform one-time runtime data initialization
     this.setupSystem.performOneTimeRuntimeInitialization(this.collection);
@@ -145,6 +157,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     // 4. Setup static scene elements (background, player board, initial UI)
     this.playerBoard = this.setupSystem.setupSceneElements(this.state);
+    this.setupMoraleBars();
 
     // 5. Initialize and register core game event listeners
     this.eventSystem = new BattlegroundEventSystem(this);
@@ -171,6 +184,17 @@ export class BattlegroundScene extends Phaser.Scene {
         console.error("BattlegroundScene: Failed to load DebugController", error);
       });
     }
+  }
+
+  /** Sets up the morale bars for both player and CPU forces. */
+  setupMoraleBars(): void {
+    const playerBarX = SCREEN_WIDTH / 2;
+    const playerBarY = SCREEN_HEIGHT - 50;
+    this.playerMoraleBar = new MoraleDisplay(this, playerBarX, playerBarY, FORCE_ID_PLAYER, "Player Morale");
+
+    const cpuBarX = SCREEN_WIDTH / 2;
+    const cpuBarY = 50;
+    this.cpuMoraleBar = new MoraleDisplay(this, cpuBarX, cpuBarY, FORCE_ID_CPU, "Enemy Morale");
   }
 
   /**

@@ -369,13 +369,10 @@ export class Chara extends Phaser.GameObjects.Container {
 	 * @param damage The amount of damage to apply.
 	 * @param isCritical Whether the damage is a critical hit.
 	 */
-	damageUnit = (sourceId: string, damage: number, isCritical = false) => {
-		const chara = this;
-		const nextHp = chara.unit.hp - damage;
-		const hasDied = nextHp <= 0;
+	damageUnit = (_sourceId: string, damage: number, isCritical = false) => {
 
-		chara.unit.hp = nextHp <= 0 ? 0 : nextHp;
-		this.updateHpDisplay();
+		this.scene.events.emit(GameEvents.UNIT_TOOK_DAMAGE, { unit: this.unit, damage });
+
 
 		if (isCritical) {
 			criticalDamageDisplay(this.scene, this, Math.floor(damage));
@@ -383,10 +380,6 @@ export class Chara extends Phaser.GameObjects.Container {
 			this.showPopText(Math.floor(damage).toFixed(0).toString(), "damage");
 		}
 
-		if (hasDied) {
-			this.killUnit(sourceId);
-			return;
-		}
 
 	}
 
