@@ -471,12 +471,14 @@ export class Chara extends Phaser.GameObjects.Container {
 		super.destroy(fromScene);
 	}
 
-	onAction() {
+	onAction(payload: { unit: Unit }) {
+		if (payload.unit.id !== this.id) return;
 		tween({
 			targets: [this],
 			scale: 1.1,
 			yoyo: true,
-			repeat: 0
+			duration: 100,
+			repeat: 0,
 		})
 	}
 }
