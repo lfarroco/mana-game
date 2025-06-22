@@ -3,10 +3,7 @@
  * Each function defined here corresponds to an `effectId` that can be used
  * in `TraitDefinition`s. These functions are registered with the `TraitEffectSystem`.
  */
-import {
-	registerTraitEffectImplementation,
-	TraitEffectContext,
-} from "../TraitEffectSystem";
+import { registerTraitEffectImplementation, } from "../TraitEffectSystem";
 import { playerForce, updatePlayerGoldIO } from "../../Models/Entities/Force";
 import { getChara } from "../../Scenes/Battleground/Systems/CharaManager";
 import { slash } from "../../Systems/Chara/Skills/slash";
@@ -20,45 +17,15 @@ import { Unit } from "../../Models/Entities/Unit";
 import { fireball as fireballSkillFn } from "../../Systems/Chara/Skills/fireball";
 import { explodeEffect as gameExplodeEffect } from "../../Effects/explodeEffect"; // Adjust path
 import { shoot as shootSkillFn } from "../../Systems/Chara/Skills/shoot";
-
-
-/**
- * Type for effect functions that are guaranteed to have `sourceUnit` in their context.
- * This is used internally by `requireSourceUnit` for type safety.
- */
-type SourceUnitGuaranteedEffectFn = (
-	context: TraitEffectContext & { sourceUnit: Unit }
-) => Promise<void>;
-
-/**
- * Higher-order function to wrap TraitEffectFns that require a sourceUnit.
- * It performs a runtime check for `context.sourceUnit`. If missing, it logs an error
- * (in development) and prevents the wrapped function from executing.
- * It checks for sourceUnit and logs an error if it's missing.
- */type TraitEffectFn = (context: TraitEffectContext) => Promise<void>;
-function requireSourceUnit(effectFn: SourceUnitGuaranteedEffectFn): TraitEffectFn {
-	return async (context: TraitEffectContext) => {
-		if (!context.sourceUnit) {
-			if (process.env.NODE_ENV === "development") {
-				console.error(
-					`Effect ${context.effectInstance.effectId} requires a sourceUnit, but it was not provided. Context:`,
-					context
-				);
-			}
-			return;
-		}
-		// Now sourceUnit is guaranteed to exist, so we can cast the context type.
-		await effectFn(context as TraitEffectContext & { sourceUnit: Unit });
-	};
-}
+import { TraitEffectFn } from "../TraitEffectSystem";
 
 // --- Effect Implementations ---
 
 /**
  * Effect: Grants a specified amount of gold to the player.
- * Requires `sourceUnit` to determine the player's force.
+ * The source unit must belong to the player.
  */
-const grantGoldToPlayerLogic: SourceUnitGuaranteedEffectFn = async (context) => {
+const grantGoldToPlayerLogic: TraitEffectFn = async (context) => {
 	const { sourceUnit, effectInstance, traitInstanceParams, scene } = context;
 	// Allow amount from effectInstance (definition) or traitInstanceParams (instance on unit)
 	const amount = (traitInstanceParams.amount ?? effectInstance.amount ?? 0) as number;
@@ -72,9 +39,9 @@ const grantGoldToPlayerLogic: SourceUnitGuaranteedEffectFn = async (context) => 
 
 /**
  * Effect: Deals damage to target units.
- * Requires `sourceUnit`. The actual damage calculation might be more complex in a full implementation.
+ * The actual damage calculation might be more complex in a full implementation.
  */
-const dealDamageLogic: SourceUnitGuaranteedEffectFn = async (context) => {
+const dealDamageLogic: TraitEffectFn = async (context) => {
 	const { targets, effectInstance, traitInstanceParams } = context;
 	const baseAmount = (traitInstanceParams.amount ?? effectInstance.amount ?? 0) as number;
 
@@ -86,45 +53,41 @@ const dealDamageLogic: SourceUnitGuaranteedEffectFn = async (context) => {
 
 /**
  * Effect: Makes the source unit perform the "slash" skill.
- * Requires `sourceUnit`.
  */
-const performSkillSlashLogic: SourceUnitGuaranteedEffectFn = async (context) => {
+const performSkillSlashLogic: TraitEffectFn = async (context) => {
 	const { sourceUnit, scene } = context;
 	await slash(scene, sourceUnit);
 };
 
 /**
  * Effect: Makes the source unit perform the "shoot" skill.
- * Requires `sourceUnit`.
  */
-const performSkillShootLogic: SourceUnitGuaranteedEffectFn = async (context) => {
+const performSkillShootLogic: TraitEffectFn = async (context) => {
 	const { sourceUnit, scene } = context;
 	await shootSkillFn(scene)(sourceUnit);
 };
 
 /**
  * Effect: Makes the source unit perform the "heal" skill.
- * Requires `sourceUnit`.
  */
-const performSkillHealLogic: SourceUnitGuaranteedEffectFn = async (context) => {
+const performSkillHealLogic: TraitEffectFn = async (context) => {
 	const { sourceUnit, scene } = context;
 	await healing(scene)(sourceUnit);
 };
 
 /**
  * Effect: Makes the source unit perform the "healing wave" skill.
- * Requires `sourceUnit`.
  */
-const performSkillHealingWaveLogic: SourceUnitGuaranteedEffectFn = async (context) => {
+const performSkillHealingWaveLogic: TraitEffectFn = async (context) => {
 	const { sourceUnit, scene } = context;
 	await healingWave(scene, sourceUnit);
 };
 
 /**
  * Effect: Makes the source unit perform the "arcane missiles" skill.
- * Requires `sourceUnit`. Can take `projectiles` parameter from trait/effect data.
+ * Can take `projectiles` parameter from trait/effect data.
  */
-const performSkillArcaneMissilesLogic: SourceUnitGuaranteedEffectFn = async (context) => {
+const performSkillArcaneMissilesLogic: TraitEffectFn = async (context) => {
 	const { sourceUnit, scene, traitInstanceParams, effectInstance } = context;
 	const projectiles = traitInstanceParams.projectiles ?? effectInstance.projectiles ?? 3;
 	await arcaneMissiles(scene)(sourceUnit, projectiles);
@@ -132,22 +95,20 @@ const performSkillArcaneMissilesLogic: SourceUnitGuaranteedEffectFn = async (con
 
 /**
  * Effect: Makes the source unit perform the "haste" skill.
- * Requires `sourceUnit`.
  */
-const performSkillHasteLogic: SourceUnitGuaranteedEffectFn = async (context) => {
+const performSkillHasteLogic: TraitEffectFn = async (context) => {
 	const { sourceUnit, scene } = context;
 	await haste(scene, sourceUnit);
 };
 /**
  * Effect: Makes the source unit perform the "slow" skill.
- * Requires `sourceUnit`.
  */
-const performSkillSlowLogic: SourceUnitGuaranteedEffectFn = async (context) => {
+const performSkillSlowLogic: TraitEffectFn = async (context) => {
 	const { sourceUnit, scene } = context;
 	await slow(scene, sourceUnit);
 };
 
-const performSkillSummonLogic: SourceUnitGuaranteedEffectFn = async (context) => {
+const performSkillSummonLogic: TraitEffectFn = async (context) => {
 	const { sourceUnit, traitInstanceParams, effectInstance } = context;
 	/**
 	 * Effect: Makes the source unit perform the "summon" skill.
@@ -165,10 +126,10 @@ const performSkillSummonLogic: SourceUnitGuaranteedEffectFn = async (context) =>
 
 /**
  * Effect: If the source unit is in the back row, it gains an attack bonus.
- * Requires `sourceUnit`. The attack bonus amount can be specified in `effectInstance.amount`
+ * The attack bonus amount can be specified in `effectInstance.amount`
  * or `traitInstanceParams.amount`, defaulting to 10.
  */
-const traitSniperLogic: SourceUnitGuaranteedEffectFn = async (context) => {
+const traitSniperLogic: TraitEffectFn = async (context) => {
 	const { sourceUnit, effectInstance, traitInstanceParams } = context;
 
 	// Determine the attack bonus amount, defaulting to 10
@@ -197,12 +158,12 @@ const traitSniperLogic: SourceUnitGuaranteedEffectFn = async (context) => {
 	}
 };
 
-const performSkillFireballLogic: SourceUnitGuaranteedEffectFn = async (context) => {
+const performSkillFireballLogic: TraitEffectFn = async (context) => {
 	const { sourceUnit, scene } = context;
 	await fireballSkillFn(scene)(sourceUnit);
 };
 
-const explodeOnDeathLogic: SourceUnitGuaranteedEffectFn = async (context) => {
+const explodeOnDeathLogic: TraitEffectFn = async (context) => {
 	const { sourceUnit, scene } = context;
 	// TODO: apply damage as well (the below is just effect)
 	const chara = getChara(sourceUnit.id);
@@ -211,7 +172,7 @@ const explodeOnDeathLogic: SourceUnitGuaranteedEffectFn = async (context) => {
 	}
 };
 
-const positionalBonusLogic: SourceUnitGuaranteedEffectFn = async (context) => {
+const positionalBonusLogic: TraitEffectFn = async (context) => {
 	const { sourceUnit, effectInstance, traitInstanceParams } = context;
 
 	// Configurable parameters from trait data
@@ -257,24 +218,24 @@ const positionalBonusLogic: SourceUnitGuaranteedEffectFn = async (context) => {
  * This function should be called once during game initialization.
  */
 export function registerAllTraitEffects() {
-	registerTraitEffectImplementation("grant_gold_to_player", requireSourceUnit(grantGoldToPlayerLogic));
-	registerTraitEffectImplementation("deal_damage", requireSourceUnit(dealDamageLogic));
+	registerTraitEffectImplementation("grant_gold_to_player", grantGoldToPlayerLogic);
+	registerTraitEffectImplementation("deal_damage", dealDamageLogic);
 
 	// Trait-based effects
-	registerTraitEffectImplementation("trait_sniper", requireSourceUnit(traitSniperLogic)); // TODO: generic position check effect
+	registerTraitEffectImplementation("trait_sniper", traitSniperLogic); // TODO: generic position check effect
 
 	// Skill-based effects
-	registerTraitEffectImplementation("skill_slash", requireSourceUnit(performSkillSlashLogic));
-	registerTraitEffectImplementation("skill_shoot", requireSourceUnit(performSkillShootLogic));
-	registerTraitEffectImplementation("skill_heal", requireSourceUnit(performSkillHealLogic));
-	registerTraitEffectImplementation("skill_healing_wave", requireSourceUnit(performSkillHealingWaveLogic));
-	registerTraitEffectImplementation("skill_arcane_missiles", requireSourceUnit(performSkillArcaneMissilesLogic));
-	registerTraitEffectImplementation("skill_haste", requireSourceUnit(performSkillHasteLogic));
-	registerTraitEffectImplementation("skill_slow", requireSourceUnit(performSkillSlowLogic));
-	registerTraitEffectImplementation("skill_summon", requireSourceUnit(performSkillSummonLogic));
-	registerTraitEffectImplementation("skill_fireball", requireSourceUnit(performSkillFireballLogic));
-	registerTraitEffectImplementation("explode_on_death_effect", requireSourceUnit(explodeOnDeathLogic));
-	registerTraitEffectImplementation("positional_bonus", requireSourceUnit(positionalBonusLogic));
+	registerTraitEffectImplementation("skill_slash", performSkillSlashLogic);
+	registerTraitEffectImplementation("skill_shoot", performSkillShootLogic);
+	registerTraitEffectImplementation("skill_heal", performSkillHealLogic);
+	registerTraitEffectImplementation("skill_healing_wave", performSkillHealingWaveLogic);
+	registerTraitEffectImplementation("skill_arcane_missiles", performSkillArcaneMissilesLogic);
+	registerTraitEffectImplementation("skill_haste", performSkillHasteLogic);
+	registerTraitEffectImplementation("skill_slow", performSkillSlowLogic);
+	registerTraitEffectImplementation("skill_summon", performSkillSummonLogic);
+	registerTraitEffectImplementation("skill_fireball", performSkillFireballLogic);
+	registerTraitEffectImplementation("explode_on_death_effect", explodeOnDeathLogic);
+	registerTraitEffectImplementation("positional_bonus", positionalBonusLogic);
 
 
 }

@@ -67,7 +67,7 @@ export type TraitConditionInstanceData = {
  * to understand its source, targets, and the broader game state.
  */
 export type TraitEffectContext = {
-	sourceUnit?: Unit; // The unit that owns the trait, if applicable
+	sourceUnit: Unit; // The unit that owns the trait.
 	targets: Unit[];
 	effectInstance: TraitEffectInstanceData; // The effect data from TraitDefinition
 	traitInstanceParams: TraitData; // Instance-specific params from Unit.traits
@@ -177,11 +177,6 @@ export function getTraitConditionImplementation(conditionType: string): TraitCon
 
 // --- Target Resolution ---
 
-/** Helper to check if the source is a Unit */
-function isUnitSource(source: Unit): source is Unit {
-	return (source as Unit).force !== undefined; // 'force' is a good differentiator for Unit
-}
-
 export function resolveTargets(
 	/** The source of the trait (a Unit). */
 	source: Unit,
@@ -220,8 +215,7 @@ export function resolveTargets(
 		case "random_ally":
 			{
 				const allies = getActiveUnits(state).filter(u =>
-					u.force === sourceForce &&
-					(!isUnitSource(source) || u.id !== (source as Unit).id) // Exclude self if source is a unit
+					u.force === sourceForce && u.id !== source.id // Exclude self
 				);
 				return allies.length > 0 ? [allies[Math.floor(Math.random() * allies.length)]] : [];
 			}
@@ -229,8 +223,7 @@ export function resolveTargets(
 		default:
 			console.warn(`Unknown target selector: ${selector}`);
 			if (primaryTarget) return [primaryTarget];
-			if (isUnitSource(source)) return [source as Unit];
-			return [];
+			return [source]; // Default to source if selector is unknown
 	}
 }
 
@@ -265,7 +258,7 @@ export function checkConditions(context: TraitEffectContext, conditions: TraitCo
  * Condition: Checks if the source of the trait effect belongs to the player.
  */
 registerTraitConditionImplementation("is_player_unit", (context) => {
-	return context.sourceUnit?.force === FORCE_ID_PLAYER;
+	return context.sourceUnit.force === FORCE_ID_PLAYER;
 });
 
 /**
@@ -276,9 +269,8 @@ registerTraitConditionImplementation("is_player_unit", (context) => {
 registerTraitConditionImplementation("target_is_enemy", (context) => {
 	// Assumes targets are already resolved. Checks the first target.
 	// More robust checking might be needed for multi-target effects.
-	const sourceForce = context.sourceUnit?.force;
-	if (!sourceForce || context.targets.length === 0) return false;
-	return context.targets[0].force !== sourceForce;
+	if (context.targets.length === 0) return false;
+	return context.targets[0].force !== context.sourceUnit.force;
 });
 
 /**
@@ -288,7 +280,6 @@ registerTraitConditionImplementation("target_is_enemy", (context) => {
 registerTraitConditionImplementation("source_hp_below_percent", (context, conditionData) => {
 	const percent = conditionData.percent as number;
 	if (typeof percent !== 'number') return false;
-	if (!context.sourceUnit) return false;
 	return (context.sourceUnit.hp / context.sourceUnit.maxHp) * 100 < percent;
 });
 
@@ -300,7 +291,7 @@ registerTraitConditionImplementation("is_in_row", (context, conditionData) => {
 	const { sourceUnit } = context;
 	const row = conditionData.row as 'front' | 'mid' | 'back';
 
-	if (!sourceUnit || !row) {
+	if (!row) {
 		if (process.env.NODE_ENV === 'development') {
 			console.error(`'is_in_row' condition is missing sourceUnit or 'row' parameter.`, { sourceUnit, row });
 		}
