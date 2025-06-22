@@ -4,6 +4,9 @@ import { FORCE_ID_PLAYER } from "../../constants/constants";
 import * as constants from "../../constants/constants";
 import { tween } from "../../Utils/animation";
 import { GameEvents } from "../../constants/events";
+import { Vec2 } from "../../Models/Geometry";
+import * as Board from "../../Models/Board";
+import * as sc from "../../Scenes/Battleground/Systems/Shop/ShopConstants";
 
 export class CharaInputHandler {
 	dragStartX: number = 0;
@@ -62,9 +65,7 @@ export class CharaInputHandler {
 	}
 
 	onDrop = (_pointer: Phaser.Input.Pointer, dropZoneTarget: Phaser.GameObjects.GameObject): void => {
-		// This flag is set by the Chara's internal logic after processing the drop.
-		// Here, we just forward the event.
-		this.wasDragSuccessful = this.chara.processDrop(dropZoneTarget, this.dragStartX, this.dragStartY);
+		this.wasDragSuccessful = this.processDrop(dropZoneTarget, this.dragStartX, this.dragStartY);
 	}
 
 	onDragEnd = (_pointer: Phaser.Input.Pointer): void => {
@@ -97,7 +98,7 @@ export class CharaInputHandler {
 		// Pass pointer.x and pointer.y as the dragStartX/Y for a click.
 		// Chara.processShopItemClick now returns void and emits an event.
 		// Reversion for a failed click-purchase is handled by the Chara instance listening to SHOP_PURCHASE_FAILED.
-		this.chara.processShopItemClick(pointer.x, pointer.y);
+		this.processShopItemClick(pointer.x, pointer.y);
 	}
 
 	updateShopItemStatus(isShopItem: boolean): void {
@@ -115,5 +116,88 @@ export class CharaInputHandler {
 		this.chara.off(Phaser.Input.Events.DROP, this.onDrop);
 		this.chara.off(Phaser.Input.Events.DRAG_END, this.onDragEnd);
 		this.chara.off(Phaser.Input.Events.POINTER_UP, this.onPointerUpShopItem);
+	}
+
+	/**
+	 * Called when a shop item is clicked. Emits an event to request a purchase attempt.
+	 */
+	processShopItemClick(_clickX: number, _clickY: number): void {
+		this.chara.scene.events.emit(
+			GameEvents.SHOP_ITEM_CLICK_PURCHASE_REQUESTED,
+			{
+				shopUnitData: { ...this.chara.unit },
+				shopCharaId: this.chara.id,
+				dragStartX: this.chara.x,
+				dragStartY: this.chara.y
+			}
+		);
+	}
+
+	/**
+	 * Processes a drop action onto a game object, typically a board tile zone or sell zone.
+	 * Determines if the Chara is an owned unit or a shop item and delegates to the appropriate handler.
+	 */
+	processDrop(dropZoneTarget: Phaser.GameObjects.GameObject, dragStartX: number, dragStartY: number): boolean {
+		if (dropZoneTarget.name === sc.SHOP_SELL_ZONE_NAME) {
+			if (!this.chara.getIsShopItem()) { // Can only sell owned units
+				this._handleSellUnit();
+				return true; // Drop handled
+			} else {
+				// Shop item dropped on sell zone - invalid action, revert.
+				return false;
+			}
+		}
+
+		if (!Board.PlayerBoard.isTileZone(dropZoneTarget)) {
+			// Dropped outside a valid player board tile zone or the sell zone.
+			return false;
+		}
+
+		const tile = Board.PlayerBoard.getTileFromZone(dropZoneTarget);
+		if (!tile) {
+			console.warn("CharaInputHandler.processDrop: Dropped on a player board tile zone, but could not derive tile coordinates.", dropZoneTarget.name);
+			return false;
+		}
+
+		if (!this.chara.getIsShopItem()) { // It's an owned unit
+			this._handleDropOwnedUnit(tile, dragStartX, dragStartY);
+			return true; // Assume the request was successfully emitted. Outcome handled by events.
+		} else { // Assumed to be a shop item
+			this._handleDropShopItem(tile, dragStartX, dragStartY);
+			return true; // Assume the request was successfully emitted. Outcome handled by events.
+		}
+	}
+
+	/**
+	 * Handles dropping an owned unit onto the board, emitting a move request.
+	 */
+	private _handleDropOwnedUnit(tile: Vec2, dragStartX: number, dragStartY: number): void {
+		this.chara.scene.events.emit(GameEvents.OWNED_UNIT_MOVE_REQUESTED, {
+			unitId: this.chara.unit.id,
+			targetTile: tile,
+			dragStartX,
+			dragStartY
+		});
+	}
+
+	/**
+	 * Handles dropping a shop item onto the board, emitting a purchase request.
+	 */
+	private _handleDropShopItem(tile: Vec2, dragStartX: number, dragStartY: number): void {
+		this.chara.scene.events.emit(GameEvents.SHOP_ITEM_DRAG_PURCHASE_REQUESTED, {
+			shopUnitData: { ...this.chara.unit }, // Pass a copy
+			shopCharaId: this.chara.id,
+			targetTile: tile,
+			dragStartX,
+			dragStartY
+		});
+	}
+
+	/**
+	 * Handles selling an owned unit by emitting an event.
+	 */
+	private _handleSellUnit(): void {
+		const sellPrice = Math.floor(constants.SHOP_ITEM_PURCHASE_COST / 2);
+		this.chara.scene.events.emit(GameEvents.OWNED_UNIT_SOLD, { unitId: this.chara.unit.id, soldForGold: sellPrice });
 	}
 }

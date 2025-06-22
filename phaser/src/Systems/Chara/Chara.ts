@@ -1,7 +1,6 @@
 import Phaser from "phaser";
 import { Unit } from "../../Models/Entities/Unit";
 import * as constants from "../../constants/constants";
-import { Vec2 } from "../../Models/Geometry";
 import { tween } from "../../Utils/animation";
 import * as UnitManager from "../../Scenes/Battleground/Systems/CharaManager";
 import * as Board from "../../Models/Board";
@@ -12,8 +11,7 @@ import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { CharaStatsDisplay } from "./CharaStatsDisplay";
 import { CharaBarsDisplay } from "./CharaBarsDisplay";
 import { GameEvents } from "../../constants/events";
-import { CharaInputHandler } from "./CharaInputHandler"; // +++ NEW IMPORT
-import * as sc from "../../Scenes/Battleground/Systems/Shop/ShopConstants";
+import { CharaInputHandler } from "./CharaInputHandler";
 
 export type CharaOptions = {
 	isShopItem?: boolean;
@@ -123,7 +121,28 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.scene.events.on(GameEvents.TRAIT_EVAL_UNIT_ACTION, this.onAction, this);
 	}
 
+	/**
+	 * Reverts the Chara's visual position after an unsuccessful drag or failed purchase.
+	 * @param originalX The X position to revert to.
+	 * @param originalY The Y position to revert to.
+	 */
+	revertDragOrFailedPurchase(revertToX: number, revertToY: number): void {
+		if (this.isShopItem) { // If it's still a shop item (purchase failed or invalid drop for shop item)
+			tween({ targets: [this], x: revertToX, y: revertToY });
+		} else { // Owned unit that failed to move
+			// Revert to the actual screen coordinates from before the drag started.
+			tween({ targets: [this], x: revertToX, y: revertToY, duration: 150 });
+		}
+	};
 
+	/**
+	 * Called when this Chara, as a shop item, has been successfully purchased.
+	 * Invokes the onPurchasedCallback if it exists.
+	 */
+	finalizePurchase(): void {
+		this.isShopItem = false; // No longer a shop item
+		if (this.onPurchasedCallback) this.onPurchasedCallback();
+	};
 
 	/**
 	 * Creates the main sprite for the Chara based on `unit.pic`.
@@ -143,148 +162,6 @@ export class Chara extends Phaser.GameObjects.Container {
 
 		this.add(this.sprite);
 	}
-
-	/**
-	 * Called by CharaInputHandler when a shop item is clicked.
-	 * Emits an event to request a purchase attempt.
-	 * @param dragStartX The X coordinate where the potential drag started (or click position).
-	 * @param dragStartY The Y coordinate where the potential drag started (or click position).
-	 *                   For click purchases, these parameters from CharaInputHandler are the click coordinates.
-	 *                   However, for the purpose of reverting a failed purchase, we need the Chara's
-	 *                   actual current position (its shop slot position).
-	 */
-	processShopItemClick(_clickX: number, _clickY: number): void {
-		// For a click purchase, targetBoardPos is undefined; the ShopSystem will find an empty slot.
-		// We pass a copy of unit data as the shop Chara's unit shouldn't be mutated directly
-		// until purchase is confirmed and a new unit is officially created.
-		// The dragStartX/Y here MUST be the Chara's current position in the shop,
-		// so it can revert correctly if the purchase fails.
-		// _clickX and _clickY (the actual pointer coordinates) are not used for the revert logic.
-		this.scene.events.emit(GameEvents.SHOP_ITEM_CLICK_PURCHASE_REQUESTED, { shopUnitData: { ...this.unit }, shopCharaId: this.id, dragStartX: this.x, dragStartY: this.y });
-	}
-
-	/**
-	 * Helper to visually revert a shop item Chara to its original drag start position (its shop slot).
-	 */
-	_revertShopItemToPosition(x: number, y: number) {
-		tween({ targets: [this], x, y });
-	}
-
-	/**
-	 * Handles the logic when an already owned unit is dropped onto the player's board.
-	 * This can result in moving the unit to an empty tile or swapping it with an existing unit.
-	 * @param tile The board tile (Vec2) where the unit was dropped, or null if not on a specific tile.
-	 * @param dragStartX The X coordinate where the drag started.
-	 * @param dragStartY The Y coordinate where the drag started.
-	 */
-	_handleDropOwnedUnit(tile: Vec2, dragStartX: number, dragStartY: number): void {
-		this.scene.events.emit(GameEvents.OWNED_UNIT_MOVE_REQUESTED, {
-			unitId: this.unit.id,
-			targetTile: tile,
-			dragStartX,
-			dragStartY
-		});
-		// The success/failure and visual update will be handled by listeners to OWNED_UNIT_MOVE_ACCEPTED/REJECTED/SWAP_ACCEPTED
-	}
-
-
-	/**
-	 * Handles the logic when a shop item is dropped onto the player's board.
-	 * This attempts to purchase and place the unit.
-	 * @param tile The board tile (Vec2) where the item was dropped, or null if not on a specific tile.
-	 * @param dragStartX The X coordinate where the drag started.
-	 * @param dragStartY The Y coordinate where the drag started.
-	 */
-	_handleDropShopItem(tile: Vec2, dragStartX: number, dragStartY: number): void {
-		// We pass a copy of unit data as the shop Chara's unit shouldn't be mutated directly
-		// until purchase is confirmed and a new unit is officially created.
-		this.scene.events.emit(GameEvents.SHOP_ITEM_DRAG_PURCHASE_REQUESTED, {
-			shopUnitData: { ...this.unit }, // Pass a copy
-			shopCharaId: this.id,
-			targetTile: tile,
-			dragStartX,
-			dragStartY
-		});
-		// The success/failure and visual update will be handled by listeners to SHOP_PURCHASE_SUCCESSFUL/FAILED
-	}
-
-	/**
-	 * Processes a drop action onto a game object, typically a board tile zone.
-	 * Determines if the Chara is an owned unit or a shop item and delegates to the appropriate handler.
-	 * @param dragStartX The X coordinate where the drag started.
-	 * @param dragStartY The Y coordinate where the drag started.
-	 */
-	processDrop(dropZoneTarget: Phaser.GameObjects.GameObject, dragStartX: number, dragStartY: number): boolean {
-		if (dropZoneTarget.name === sc.SHOP_SELL_ZONE_NAME) {
-			if (!this.isShopItem) { // Can only sell owned units
-				this._handleSellUnit();
-				return true; // Drop handled
-			} else {
-				// Shop item dropped on sell zone - invalid action, revert.
-				return false;
-			}
-		}
-
-		if (!Board.PlayerBoard.isTileZone(dropZoneTarget)) {
-			// Dropped outside a valid player board tile zone or the sell zone.
-			return false;
-		}
-
-		const tile = Board.PlayerBoard.getTileFromZone(dropZoneTarget);
-		// The following check is technically redundant if the first 'if' handles SHOP_SELL_ZONE_NAME
-		// and the second 'if' ensures it's a PlayerBoard tile zone.
-		// However, it's a good safeguard.
-		if (!tile && Board.PlayerBoard.isTileZone(dropZoneTarget)) {
-			console.warn("Chara.processDrop: Dropped on a player board tile zone, but could not derive tile coordinates.", dropZoneTarget.name);
-			return false;
-		}
-
-		// If execution reaches here, it must be a player board tile zone, and 'tile' should be valid.
-		// This explicit check on 'tile' handles the case where getTileFromZone might return null for some reason.
-		if (!tile) {
-			console.warn("Chara.handleDrop: Dropped on a board tile zone, but could not derive tile coordinates.", dropZoneTarget.name);
-			return false;
-		}
-
-		if (!this.isShopItem) { // It's an owned unit
-			this._handleDropOwnedUnit(tile, dragStartX, dragStartY);
-			return true; // Assume the request was successfully emitted. Outcome handled by events.
-		} else { // Assumed to be a shop item
-			this._handleDropShopItem(tile, dragStartX, dragStartY);
-			return true; // Assume the request was successfully emitted. Outcome handled by events.
-		}
-	}
-
-	_handleSellUnit(): void {
-		const sellPrice = Math.floor(constants.SHOP_ITEM_PURCHASE_COST / 2);
-
-		// Emit the OWNED_UNIT_SOLD event. The BattlegroundScene handler will
-		// manage gold update, pop text, state removal, visual cleanup, and sell zone.
-		this.scene.events.emit(GameEvents.OWNED_UNIT_SOLD, { unitId: this.unit.id, soldForGold: sellPrice });
-	}
-
-	/**
-	 * Reverts the Chara's visual position after an unsuccessful drag or failed purchase.
-	 * @param originalX The X position to revert to.
-	 * @param originalY The Y position to revert to.
-	 */
-	revertDragOrFailedPurchase(revertToX: number, revertToY: number): void {
-		if (this.isShopItem) { // If it's still a shop item (purchase failed or invalid drop for shop item)
-			this._revertShopItemToPosition(revertToX, revertToY);
-		} else { // Owned unit that failed to move
-			// Revert to the actual screen coordinates from before the drag started.
-			tween({ targets: [this], x: revertToX, y: revertToY, duration: 150 });
-		}
-	};
-
-	/**
-	 * Called when this Chara, as a shop item, has been successfully purchased.
-	 * Invokes the onPurchasedCallback if it exists.
-	 */
-	finalizePurchase(): void {
-		this.isShopItem = false; // No longer a shop item
-		if (this.onPurchasedCallback) this.onPurchasedCallback();
-	};
 
 	_onShopPurchaseSuccessful(payload: { purchasedUnit: Unit, originalShopCharaId: string }): void {
 		if (this.isShopItem && payload.originalShopCharaId === this.id) {
