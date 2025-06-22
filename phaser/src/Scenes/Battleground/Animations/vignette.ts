@@ -1,38 +1,41 @@
 import { tween } from "../../../Utils/animation";
 import { COLOR_BLACK } from "../../../Utils/colors";
 import BattlegroundScene from "../BattlegroundScene";
-import { defaultTextConfig } from "../../../constants/constants";
+import * as c from "../../../constants/constants";
+import { GameEvents } from "../../../constants/events";
+
+export function init(scene: BattlegroundScene) {
+	scene.events.addListener(GameEvents.VIGNETTE_MESSAGE_SHOW, render(scene))
+}
 
 // display a text in the center of the screen, with a fading gradient rect behind it
-export async function vignette(scene: BattlegroundScene, text: string) {
+const render = (scene: BattlegroundScene) => async ({ message }: { message: string }) => {
 
 	const rect = scene.add.rectangle(
-		0, scene.scale.height / 2,
-		scene.scale.width, 100,
-		COLOR_BLACK)
+		0, c.MIDDLE_SCREEN_Y,
+		c.MIDDLE_SCREEN_X, 100,
+		COLOR_BLACK
+	)
 		.setOrigin(0, 0)
 		.setAlpha(0)
 		.setScrollFactor(0);
 
 	const textObj = scene.add.text(
-		-300, scene.scale.height / 2 + 50,
-		text,
-		defaultTextConfig
+		-c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y + 50,
+		message,
+		c.defaultTextConfig
 	).setOrigin(0.5, 0.5).setScrollFactor(0);
 
 	tween({
 		targets: [textObj],
-		x: scene.scale.width / 2,
+		x: c.MIDDLE_SCREEN_X,
 		onComplete: () => {
 			tween({
 				targets: [textObj],
 				ease: "Expo.easeIn",
-				x: scene.scale.width + 300,
+				x: c.SCREEN_WIDTH + c.MIDDLE_SCREEN_X,
 				delay: 500,
 				duration: 250,
-				onComplete: () => {
-					textObj.destroy();
-				}
 			});
 		}
 	});
@@ -42,7 +45,8 @@ export async function vignette(scene: BattlegroundScene, text: string) {
 		alpha: 0.5,
 		duration: 1000,
 		yoyo: true,
-		onComplete: () => rect.destroy()
 	});
 
+	rect.destroy()
+	textObj.destroy();
 }

@@ -2,6 +2,9 @@
 export const SCREEN_WIDTH = 1920;
 export const SCREEN_HEIGHT = 1080;
 
+export const MIDDLE_SCREEN_X = SCREEN_WIDTH / 2;
+export const MIDDLE_SCREEN_Y = SCREEN_HEIGHT / 2;
+
 export const TICK_DURATION = 100;
 
 export const TILE_WIDTH = SCREEN_WIDTH / 12;
