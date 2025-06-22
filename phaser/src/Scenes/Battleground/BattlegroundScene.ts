@@ -89,7 +89,6 @@ export class BattlegroundScene extends Phaser.Scene {
     this.state = getState();
     // Initialize systems that are core to the scene's operation or have early dependencies
     this.runCombatSystem = new RunCombatSystem(this);
-    this.battleProgressionSystem = new BattleProgressionSystem(this, this.state);
     // this.shop, this.uiManager, this.setupSystem, this.eventSystem will be initialized in start()
 
     BattlegroundAudioSystem_init(this.state, this);
@@ -119,6 +118,7 @@ export class BattlegroundScene extends Phaser.Scene {
    */
   create = async () => {
     console.log("BattlegroundScene create: primary logic deferred to start().");
+    this.battleProgressionSystem = new BattleProgressionSystem(this, this.state);
     this.collection = this.cache.json.get("base-collection") as CardCollection;
 
     // Ensure cleanup logic fires for both shutdown and destroy lifecycle events
