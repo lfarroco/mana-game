@@ -137,13 +137,19 @@ export class BattleProgressionSystem {
 
 	resetPlayerUnitChargeBars(): void {
 		CharaManager.getAllCharas().forEach(chara => {
-			this.scene.events.emit(GameEvents.CHARA_CHARGE_BAR_UPDATE, { unitId: chara.id });
+			this.scene.events.emit(
+				GameEvents.CHARA_CHARGE_BAR_UPDATE,
+				{ unitId: chara.id }
+			);
 		});
 	}
 
 	setAllPlayerUnitBarsVisibility(visible: boolean): void {
 		CharaManager.getAllCharas().forEach(chara => {
-			this.scene.events.emit(GameEvents.CHARA_BARS_VISIBILITY_SET, { unitId: chara.id, visible });
+			this.scene.events.emit(
+				GameEvents.CHARA_BARS_VISIBILITY_SET,
+				{ unitId: chara.id, visible },
+			);
 		});
 	}
 
