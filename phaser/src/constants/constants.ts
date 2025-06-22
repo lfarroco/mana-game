@@ -48,3 +48,10 @@ export const GRID_FILL_COLOR = 0x000000; export const MAX_GRID_HEIGHT = 32;
 export const MAX_GRID_WIDTH = 32;
 export const FORCE_ID_PLAYER = "PLAYER";
 export const FORCE_ID_CPU = "CPU";
+
+// Morale Bar UI Constants
+export const PLAYER_MORALE_BAR_BOTTOM_OFFSET = 50; // Distance from the bottom of the screen
+export const CPU_MORALE_BAR_TOP_OFFSET = 20;    // Distance from the top of the screen
+
+export const PLAYER_MORALE_BAR_COLOR = 0x4e9de0; // Blue for player
+export const CPU_MORALE_BAR_COLOR = 0xe04e4e;   // Red for CPU

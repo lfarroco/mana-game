@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { defaultTextConfig, FORCE_ID_CPU, FORCE_ID_PLAYER, SCREEN_HEIGHT } from '../../constants/constants';
+import * as c from '../../constants/constants';
 
 const BAR_HEIGHT = 20;
 const BORDER_THICKNESS = 2;
@@ -36,8 +36,8 @@ function create(
 	container.add(backgroundBar);
 
 	// Foreground
-	const foregroundBar = scene.add.graphics();
-	const barColor = forceId === FORCE_ID_PLAYER ? 0x4e9de0 : 0xe04e4e; // Blue for player, Red for CPU
+	const foregroundBar = scene.add.graphics(); // Blue for player, Red for CPU
+	const barColor = forceId === c.FORCE_ID_PLAYER ? c.PLAYER_MORALE_BAR_COLOR : c.CPU_MORALE_BAR_COLOR;
 	foregroundBar.fillStyle(barColor, 1);
 	foregroundBar.fillRect(0, 0, barWidth, BAR_HEIGHT);
 	container.add(foregroundBar);
@@ -51,7 +51,7 @@ function create(
 	// Label
 	const label = scene.add.text(
 		barWidth / 2, BAR_HEIGHT / 2,
-		labelText, defaultTextConfig
+		labelText, c.defaultTextConfig
 	).setOrigin(0.5);
 	container.add(label);
 
@@ -70,11 +70,11 @@ export function init(scene: Phaser.Scene): void {
 	// Clean up existing bars if re-initializing
 	destroy();
 
-	const playerBarY = SCREEN_HEIGHT - 50;
-	playerMoraleBar = create(scene, playerBarY, FORCE_ID_PLAYER, "Player Morale");
+	const playerBarY = c.SCREEN_HEIGHT - c.PLAYER_MORALE_BAR_BOTTOM_OFFSET;
+	playerMoraleBar = create(scene, playerBarY, c.FORCE_ID_PLAYER, "Player Morale");
 
-	const cpuBarY = 50;
-	cpuMoraleBar = create(scene, cpuBarY, FORCE_ID_CPU, "Enemy Morale");
+	const cpuBarY = c.CPU_MORALE_BAR_TOP_OFFSET;
+	cpuMoraleBar = create(scene, cpuBarY, c.FORCE_ID_CPU, "Enemy Morale");
 }
 
 export function showBars(): void {
@@ -92,7 +92,7 @@ export function updateMoraleBar(
 	currentMorale: number,
 	maxMorale: number = 100,
 ): void {
-	const targetBar = forceId === FORCE_ID_PLAYER ? playerMoraleBar : cpuMoraleBar;
+	const targetBar = forceId === c.FORCE_ID_PLAYER ? playerMoraleBar : cpuMoraleBar;
 	if (!targetBar) return;
 
 	const percentage = Math.max(0, currentMorale) / maxMorale;
