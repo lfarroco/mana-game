@@ -57,7 +57,7 @@ export class RunCombatSystem {
     console.log("[RunCombatSystem] Wave setup complete, starting combat loop.");
 
     this.updateHandler = async (_time: number, delta: number) => {
-      const unitsReadyToAct = chargeUnits(state, delta);
+      const unitsReadyToAct = chargeUnits(state, delta * this.scene.time.timeScale);
 
       for (const unit of unitsReadyToAct) {
         if (unit.hp <= 0) continue; // Skip dead units that might have been charged
