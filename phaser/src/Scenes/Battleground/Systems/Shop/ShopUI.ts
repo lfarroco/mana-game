@@ -48,25 +48,14 @@ export class ShopUI {
 	): { charas: Chara[] } {
 		this.flyout.removeAll(true); // Clear any previous content
 
-		const panelPadding = 25;
-		// Calculate width based on combined tavern sections plus padding
-		const shopPanelWidth = sc.TAVERN_BG_OFFSET_X + sc.TAVERN_BG_WIDTH + panelPadding;
-		// Calculate height based on the taller of the tavern content area
-		const contentMaxY = Math.max(
-			0,
-			sc.TAVERN_BG_HEIGHT // Bottom of tavern content (assuming same Y start for logical grouping)
-		);
-		const buttonAreaHeight = 100;
-		const shopPanelHeight = contentMaxY + buttonAreaHeight + panelPadding;
-
 		const shopBackground = this.scene.add.graphics()
 			.fillStyle(sc.PANEL_BG_COLOR, sc.PANEL_BG_OPACITY)
-			.fillRoundedRect(sc.PANEL_X, sc.PANEL_Y, shopPanelWidth, shopPanelHeight, 20);
+			.fillRoundedRect(sc.PANEL_X, sc.PANEL_Y, sc.SHOP_PANEL_WIDTH, sc.SHOP_PANEL_HEIGHT, 20);
 		this.flyout.add(shopBackground);
 		const displayedCharas = this._renderTavernUI(cardsToDisplay, charaPurchaseFinalized);
 
-		const buttonY = sc.PANEL_Y + shopPanelHeight - 100;
-		const nextRoundButtonX = sc.PANEL_X + shopPanelWidth - 130; // Assuming this positions center of button 100px from right
+		const buttonY = sc.PANEL_Y + sc.SHOP_PANEL_HEIGHT - 100;
+		const nextRoundButtonX = sc.PANEL_X + sc.SHOP_PANEL_WIDTH - 130; // Assuming this positions center of button 100px from right
 		// Estimate button width + spacing to position reroll button to the left
 		const rerollButtonX = nextRoundButtonX - 270; // Adjust this offset as needed for desired spacing and button width
 
@@ -88,7 +77,7 @@ export class ShopUI {
 		);
 		this.flyout.add(nextRoundBtn);
 
-		this._createSellZone(shopPanelWidth, shopPanelHeight);
+		this._createSellZone(sc.SHOP_PANEL_WIDTH, sc.SHOP_PANEL_HEIGHT);
 
 		return { charas: displayedCharas };
 	}
@@ -113,8 +102,7 @@ export class ShopUI {
 		const bg = this.scene.add.graphics()
 			.fillStyle(0x000, 0.5)
 			.fillRoundedRect(
-
-				sc.TAVERN_BG_OFFSET_X, 0,
+				0, 0,
 				sc.TAVERN_BG_WIDTH, sc.TAVERN_BG_HEIGHT,
 				sc.SUB_PANEL_CORNER_RADIUS
 			)

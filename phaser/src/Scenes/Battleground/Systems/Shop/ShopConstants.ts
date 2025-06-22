@@ -1,24 +1,54 @@
-import { SCREEN_HEIGHT, SCREEN_WIDTH } from "../../../../constants/constants";
+import { SCREEN_HEIGHT, SCREEN_WIDTH, TILE_WIDTH } from "../../../../constants/constants";
 
+// --- Sizing & Layout ---
+export const NUM_TAVERN_SLOTS = 3;
+const PANEL_PADDING = 40;
+const TAVERN_PADDING = 20;
+export const TAVERN_CHARA_SPACING = 200; // Spacing between centers of charas
+const BUTTON_AREA_HEIGHT = 100;
 
-export const TAVERN_BASE_X = 50;
-export const TAVERN_BASE_Y = 50;
+// --- Calculated Dimensions ---
 
-export const TAVERN_BG_OFFSET_X = 800;
-export const TAVERN_TITLE_X = 50 + TAVERN_BG_OFFSET_X + 100;
-export const TAVERN_TITLE_Y = 10;
-export const TAVERN_CHARA_BASE_Y = 180;
-export const TAVERN_CHARA_FIRST_X = 50 + TAVERN_BG_OFFSET_X + 150;
-export const TAVERN_CHARA_SPACING = 200;
-export const TAVERN_BG_WIDTH = 900;
+// Width required for all character cards, from the left edge of the first to the right edge of the last.
+const TAVERN_CHARAS_TOTAL_WIDTH = (NUM_TAVERN_SLOTS - 1) * TAVERN_CHARA_SPACING + TILE_WIDTH;
+
+// The tavern background panel must be wide enough to hold the characters plus padding.
+export const TAVERN_BG_WIDTH = TAVERN_CHARAS_TOTAL_WIDTH + (TAVERN_PADDING * 2);
 export const TAVERN_BG_HEIGHT = 300;
 
+// The main shop panel must be wide enough for the tavern plus its own padding.
+export const SHOP_PANEL_WIDTH = TAVERN_BG_WIDTH + (PANEL_PADDING * 2);
+// The main shop panel height is the tavern height, plus button area, plus padding.
+export const SHOP_PANEL_HEIGHT = TAVERN_BG_HEIGHT + BUTTON_AREA_HEIGHT + (PANEL_PADDING * 2);
+
+// --- Positioning ---
+
+// Main panel position (centered horizontally, near the top vertically)
+export const PANEL_X = (SCREEN_WIDTH - SHOP_PANEL_WIDTH) / 2;
+export const PANEL_Y = 40;
+
+// --- Child Element Positions (calculated from PANEL_X, PANEL_Y) ---
+
+// Tavern background position
+export const TAVERN_BASE_X = PANEL_X + PANEL_PADDING;
+export const TAVERN_BASE_Y = PANEL_Y + PANEL_PADDING;
+
+// Tavern title position
+export const TAVERN_TITLE_X = TAVERN_BASE_X + TAVERN_PADDING;
+export const TAVERN_TITLE_Y = TAVERN_BASE_Y + 15; // A small offset from the top of the tavern bg
+
+// Tavern character positions
+export const TAVERN_CHARA_FIRST_X = TAVERN_BASE_X + TAVERN_PADDING + (TILE_WIDTH / 2);
+export const TAVERN_CHARA_BASE_Y = TAVERN_BASE_Y + 180; // Vertical position for charas within the tavern
+
+// --- Styling ---
 export const PANEL_BG_COLOR = 0x2c3e50; // Dark slate blue
 export const PANEL_BG_OPACITY = 0.95; // Mostly opaque
-export const PANEL_X = 20;
-export const PANEL_Y = 20;
 export const SUB_PANEL_CORNER_RADIUS = 15;
 
+// --- Sell Zone ---
+// The sell zone seems to be a large overlay. Its positioning logic is different.
+// Let's keep it as is for now, but it might need review if it's not aligned as intended.
 export const SELL_ZONE_WIDTH = SCREEN_WIDTH - 100;
 export const SELL_ZONE_HEIGHT = SCREEN_HEIGHT / 2;
 export const SELL_ZONE_Y_OFFSET_FROM_BOTTOM = 0; // Distance from the bottom of the shop panel to the top of the sell zone
@@ -29,10 +59,7 @@ export const SELL_ZONE_TEXT_STYLE = { fontSize: '32px', color: '#000000', fontSt
 export const SELL_ZONE_CORNER_RADIUS = 10;
 export const SHOP_SELL_ZONE_NAME = "shop_sell_zone";
 
-// Number of items in the shop
-export const NUM_TAVERN_SLOTS = 3;
-
-// Animation constants for shop items
+// --- Animation ---
 export const SHOP_ITEM_APPEAR_SCALE_DURATION = 400;
 export const SHOP_ITEM_APPEAR_WIGGLE_ANGLE = 10;
 export const SHOP_ITEM_APPEAR_WIGGLE_DURATION_1 = 100;
