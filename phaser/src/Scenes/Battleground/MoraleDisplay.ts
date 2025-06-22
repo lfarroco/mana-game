@@ -1,10 +1,11 @@
 import Phaser from 'phaser';
-import { defaultTextConfig, FORCE_ID_PLAYER } from '../../constants/constants';
+import { defaultTextConfig, FORCE_ID_CPU, FORCE_ID_PLAYER, SCREEN_HEIGHT } from '../../constants/constants';
 
 const BAR_HEIGHT = 20;
 const BORDER_THICKNESS = 2;
 
-export type MoraleDisplay = {
+// This type represents the components of a single morale bar
+type MoraleBar = {
 	container: Container;
 	backgroundBar: Graphics;
 	foregroundBar: Graphics;
@@ -12,12 +13,16 @@ export type MoraleDisplay = {
 	label: Phaser.GameObjects.Text;
 }
 
-export function create(
+// Module-level variables to hold the two bars
+let playerMoraleBar: MoraleBar | null = null;
+let cpuMoraleBar: MoraleBar | null = null;
+
+function create(
 	scene: Phaser.Scene,
-	_x: number, y: number,
+	y: number,
 	forceId: string,
 	labelText: string,
-): MoraleDisplay {
+): MoraleBar {
 	const barWidth = scene.scale.width / 4;
 	const centeredX = (scene.scale.width - barWidth) / 2;
 
@@ -61,26 +66,53 @@ export function create(
 	}
 }
 
-export function show({ container }: MoraleDisplay): void {
-	container.setVisible(true);
+export function init(scene: Phaser.Scene): void {
+	// Clean up existing bars if re-initializing
+	destroy();
+
+	const playerBarY = SCREEN_HEIGHT - 50;
+	playerMoraleBar = create(scene, playerBarY, FORCE_ID_PLAYER, "Player Morale");
+
+	const cpuBarY = 50;
+	cpuMoraleBar = create(scene, cpuBarY, FORCE_ID_CPU, "Enemy Morale");
 }
 
-export function hide({ container }: MoraleDisplay): void {
-	container.setVisible(false);
+export function showBars(): void {
+	if (playerMoraleBar) playerMoraleBar.container.setVisible(true);
+	if (cpuMoraleBar) cpuMoraleBar.container.setVisible(true);
 }
 
-export function updateBar(
-	{ barFill }: MoraleDisplay,
+export function hideBars(): void {
+	if (playerMoraleBar) playerMoraleBar.container.setVisible(false);
+	if (cpuMoraleBar) cpuMoraleBar.container.setVisible(false);
+}
+
+export function updateMoraleBar(
+	forceId: string,
 	currentMorale: number,
 	maxMorale: number = 100,
 ): void {
+	const targetBar = forceId === FORCE_ID_PLAYER ? playerMoraleBar : cpuMoraleBar;
+	if (!targetBar) return;
+
 	const percentage = Math.max(0, currentMorale) / maxMorale;
 	// Animate the mask's horizontal scale to reveal the bar
-	barFill.scene.tweens.add(
+	targetBar.barFill.scene.tweens.add(
 		{
-			targets: barFill,
+			targets: targetBar.barFill,
 			scaleX: percentage,
 			duration: 200,
 		}
 	);
+}
+
+export function destroy(): void {
+	if (playerMoraleBar) {
+		playerMoraleBar.container.destroy();
+		playerMoraleBar = null;
+	}
+	if (cpuMoraleBar) {
+		cpuMoraleBar.container.destroy();
+		cpuMoraleBar = null;
+	}
 }
