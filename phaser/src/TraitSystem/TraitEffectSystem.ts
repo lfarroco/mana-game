@@ -297,3 +297,38 @@ registerTraitConditionImplementation("source_hp_below_percent", (context, condit
 	if (!context.sourceUnit) return false;
 	return (context.sourceUnit.hp / context.sourceUnit.maxHp) * 100 < percent;
 });
+
+/**
+ * Condition: Checks if the source unit is in a specific row.
+ * Requires `row` parameter in `conditionData` ('front', 'mid', or 'back').
+ */
+registerTraitConditionImplementation("is_in_row", (context, conditionData) => {
+	const { sourceUnit } = context;
+	const row = conditionData.row as 'front' | 'mid' | 'back';
+
+	if (!sourceUnit || !row) {
+		if (process.env.NODE_ENV === 'development') {
+			console.error(`'is_in_row' condition is missing sourceUnit or 'row' parameter.`, { sourceUnit, row });
+		}
+		return false;
+	}
+
+	const boardHeightInTiles = 3; // Standard 3x3 board
+	const backRowY = boardHeightInTiles - 1;
+	const midRowY = 1;
+	const frontRowY = 0;
+
+	const unitY = sourceUnit.position.y;
+
+	if (sourceUnit.force === FORCE_ID_PLAYER) {
+		if (row === 'back' && unitY === backRowY) return true;
+		if (row === 'mid' && unitY === midRowY) return true;
+		if (row === 'front' && unitY === frontRowY) return true;
+	} else { // CPU force
+		if (row === 'back' && unitY === frontRowY) return true; // CPU back is at y=0
+		if (row === 'mid' && unitY === midRowY) return true;
+		if (row === 'front' && unitY === backRowY) return true; // CPU front is at y=2
+	}
+
+	return false;
+});

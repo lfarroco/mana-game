@@ -8,7 +8,7 @@ import {
 	TraitEffectContext,
 } from "../TraitEffectSystem";
 import { playerForce, updatePlayerGoldIO } from "../../Models/Entities/Force";
-import { getChara, getCharaPosition } from "../../Scenes/Battleground/Systems/CharaManager";
+import { getChara } from "../../Scenes/Battleground/Systems/CharaManager";
 import { slash } from "../../Systems/Chara/Skills/slash";
 import { healing } from "../../Systems/Chara/Skills/healing";
 import { healingWave } from "../../Systems/Chara/Skills/healingWave";
@@ -309,7 +309,51 @@ const performSkillFireballLogic: SourceUnitGuaranteedEffectFn = async (context) 
 const explodeOnDeathLogic: SourceUnitGuaranteedEffectFn = async (context) => {
 	const { sourceUnit, scene } = context;
 	// TODO: apply damage as well (the below is just effect)
-	await gameExplodeEffect(scene, getCharaPosition(sourceUnit))
+	const chara = getChara(sourceUnit.id);
+	if (chara) {
+		await gameExplodeEffect(scene, chara);
+	}
+};
+
+const positionalBonusLogic: SourceUnitGuaranteedEffectFn = async (context) => {
+	const { sourceUnit, effectInstance, traitInstanceParams } = context;
+
+	// Configurable parameters from trait data
+	const attribute = (traitInstanceParams.attribute ?? effectInstance.attribute) as keyof Unit;
+	const amount = (traitInstanceParams.amount ?? effectInstance.amount ?? 0) as number;
+	const row = (traitInstanceParams.row ?? effectInstance.row) as 'front' | 'mid' | 'back';
+
+	if (!attribute || amount === 0 || !row) {
+		if (process.env.NODE_ENV === 'development') {
+			console.error(`Positional bonus effect for unit ${sourceUnit.id} is missing required parameters (attribute, amount, row).`, { attribute, amount, row });
+		}
+		return;
+	}
+
+	const boardHeightInTiles = 3; // Standard 3x3 board
+	const backRowY = boardHeightInTiles - 1;
+	const midRowY = 1;
+	const frontRowY = 0;
+
+	let isCorrectRow = false;
+	const unitY = sourceUnit.position.y;
+
+	if (sourceUnit.force === playerForce.id) {
+		if (row === 'back' && unitY === backRowY) isCorrectRow = true;
+		if (row === 'mid' && unitY === midRowY) isCorrectRow = true;
+		if (row === 'front' && unitY === frontRowY) isCorrectRow = true;
+	} else { // CPU force
+		if (row === 'back' && unitY === frontRowY) isCorrectRow = true; // CPU back is at y=0
+		if (row === 'mid' && unitY === midRowY) isCorrectRow = true;
+		if (row === 'front' && unitY === backRowY) isCorrectRow = true; // CPU front is at y=2
+	}
+
+	if (isCorrectRow) {
+		const chara = getChara(sourceUnit.id);
+		if (!chara) return;
+		// updateUnitAttribute handles data update, display refresh, and popText
+		await chara.updateUnitAttribute(attribute, amount);
+	}
 };
 
 /**
@@ -334,6 +378,7 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("skill_summon", requireSourceUnit(performSkillSummonLogic));
 	registerTraitEffectImplementation("skill_fireball", requireSourceUnit(performSkillFireballLogic));
 	registerTraitEffectImplementation("explode_on_death_effect", requireSourceUnit(explodeOnDeathLogic));
+	registerTraitEffectImplementation("positional_bonus", requireSourceUnit(positionalBonusLogic));
 	registerTraitEffectImplementation("modify_attribute_relic", requireSourceRelic(modifyUnitAttributeRelicLogic));
 
 	registerTraitEffectImplementation("modify_unit_cooldowns", requireSourceRelic(modifyUnitCooldownsLogic));
