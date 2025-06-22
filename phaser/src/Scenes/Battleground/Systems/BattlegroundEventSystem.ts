@@ -12,6 +12,7 @@ import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
 import { PopTextPayload } from "../../../Models/EventPayloads";
 import * as CharaTooltip from "../../../Systems/Chara/CharaTooltip";
 import * as MoraleDisplay from "../MoraleDisplay";
+import * as VignetteSystem from "../Animations/vignette";
 
 type Listener = {
 	event: string;
@@ -82,7 +83,7 @@ export class BattlegroundEventSystem {
 			popText({ scene: this.scene, x: payload.x, y: payload.y, text: payload.text, type: payload.type });
 		}, this);
 		this.addListener(GameEvents.BATTLE_RESULT_SHOW, this.scene.handleBattleResultShow, this.scene);
-		this.addListener(GameEvents.VIGNETTE_MESSAGE_SHOW, this.scene.handleVignetteMessageShow, this.scene);
+		VignetteSystem.init(this.scene);
 
 		// Shop Interactions
 		this.addListener(GameEvents.SHOP_OPEN_UI_TRIGGER, this.shop.handleShopOpenUITrigger, this.shop);

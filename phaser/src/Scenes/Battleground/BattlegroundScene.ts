@@ -18,7 +18,6 @@ import { Unit } from "../../Models/Entities/Unit";
 import { RelicCard } from "./Systems/Relic"; // Added for type checking
 import { Vec2 } from "../../Models/Geometry";
 import { battleResultAnimation } from "./battleResultAnimation";
-import { vignette } from "./Animations/vignette";
 import * as MoraleDisplay from "./MoraleDisplay";
 import * as MoraleSystem from "./MoraleSystem";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER, SCREEN_HEIGHT, SCREEN_WIDTH } from "../../constants/constants";
@@ -276,10 +275,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
   handleBattleResultShow(payload: { result: "victory" | "defeat" }): void {
     battleResultAnimation(this, payload.result); // battleResultAnimation is async, but event handler is sync
-  }
-
-  handleVignetteMessageShow(payload: { message: string }): void {
-    vignette(this, payload.message);
   }
 
   handleOwnedUnitSold(payload: { unitId: string, soldForGold: number }): void {

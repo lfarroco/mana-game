@@ -118,7 +118,10 @@ export class BattleProgressionSystem {
 		console.log(`PLAYER HAS WON THE GAME! Prestige: ${this.state.gameData.player.prestige}, Total Rounds: ${this.state.gameData.player.totalRoundsPlayed}`);
 
 		// Display a unique victory message/screen
-		this.scene.events.emit(GameEvents.VIGNETTE_MESSAGE_SHOW, { message: `Victory! You reached Champion status in ${this.state.gameData.player.totalRoundsPlayed} rounds!` });
+		this.scene.events.emit(
+			GameEvents.VIGNETTE_MESSAGE_SHOW,
+			{ message: `Victory! You reached Champion status in ${this.state.gameData.player.totalRoundsPlayed} rounds!` }
+		);
 		// Here you could transition to a dedicated "Game Won" scene or show a special UI.
 	}
 
