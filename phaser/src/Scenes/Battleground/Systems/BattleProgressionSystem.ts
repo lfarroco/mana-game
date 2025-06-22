@@ -19,11 +19,29 @@ export class BattleProgressionSystem {
 	state: State;
 	_isInShopPhase: boolean = false;
 	prestigeSystem: PrestigeSystem;
+	listeners: any[] = [];
+
+	addListener(event: string, handler: (...args: any[]) => void,): void {
+		this.scene.events.on(event, handler, this);
+		this.listeners.push({ event, handler, context: this })
+	}
 
 	constructor(scene: BattlegroundScene, state: State) {
 		this.scene = scene;
 		this.state = state;
 		this.prestigeSystem = new PrestigeSystem(scene, state);
+
+		// Shop Phase
+		this.addListener(GameEvents.SHOP_PHASE_ENDED, this.handleShopPhaseEnded);
+
+		// Combat Phase
+		this.addListener(GameEvents.COMBAT_START_EXECUTION_TRIGGER, this.handleCombatStartExecution);
+		this.addListener(GameEvents.COMBAT_ENDED_VICTORY, this.handleCombatEndedVictory);
+		this.addListener(GameEvents.COMBAT_ENDED_DEFEAT, this.handleCombatEndedDefeat);
+		this.addListener(GameEvents.UNIT_DIED_IN_BATTLE, this.handleUnitDiedInBattle);
+
+		// Game Over
+		this.addListener(GameEvents.PLAYER_WON_GAME, this.handlePlayerWonGame);
 	}
 
 	get isInShopPhase(): boolean {
@@ -192,7 +210,9 @@ export class BattleProgressionSystem {
 	}
 
 	destroy(): void {
-		this.scene.events.off(GameEvents.PLAYER_WON_GAME, this.handlePlayerWonGame, this);
-		// any other event cleanup specific to this system
+		this.listeners.forEach(listener => {
+			this.scene.events.off(listener.event, listener.handler, listener.context);
+		});
+		this.listeners = [];
 	}
 }

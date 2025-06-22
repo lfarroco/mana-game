@@ -1,7 +1,6 @@
 import { UIManager } from "../../../UI/UIManager";
 import { PlayerBoard, createBoardDropZone } from "../../../Models/Board";
 import { Shop } from "./Shop/Shop";
-import { BattleProgressionSystem } from "./BattleProgressionSystem";
 import * as CharaManager from "./CharaManager"; // Keep CharaManager import
 import * as Relic from "./Relic";
 import { GameEvents } from "../../../constants/events";
@@ -40,7 +39,6 @@ export class BattlegroundEventSystem {
 	uiManager: UIManager;
 	playerBoard: PlayerBoard;
 	shop: Shop;
-	battleProgressionSystem: BattleProgressionSystem;
 	listeners: Listener[] = [];
 
 	constructor(scene: BattlegroundScene) {
@@ -48,7 +46,6 @@ export class BattlegroundEventSystem {
 		this.uiManager = scene.uiManager;
 		this.playerBoard = scene.playerBoard;
 		this.shop = scene.shop;
-		this.battleProgressionSystem = scene.battleProgressionSystem;
 	}
 
 	addListener(event: string, handler: (...args: any[]) => void, context?: any): void {
@@ -58,18 +55,12 @@ export class BattlegroundEventSystem {
 
 	registerEventHandlers(): void {
 		// Game Lifecycle & Phase Transitions
-		this.addListener(GameEvents.SHOP_PHASE_ENDED, this.battleProgressionSystem.handleShopPhaseEnded, this.battleProgressionSystem);
-		this.addListener(GameEvents.COMBAT_ENDED_VICTORY, this.battleProgressionSystem.handleCombatEndedVictory, this.battleProgressionSystem);
-		this.addListener(GameEvents.COMBAT_ENDED_DEFEAT, this.battleProgressionSystem.handleCombatEndedDefeat, this.battleProgressionSystem);
-		this.addListener(GameEvents.COMBAT_START_EXECUTION_TRIGGER, this.battleProgressionSystem.handleCombatStartExecution, this.battleProgressionSystem);
 		this.addListener(GameEvents.GAME_OVER_SHOW_UI_TRIGGER, () => {
 			console.warn("Not implemented")
 		}, this.uiManager);
 
 		// Player State
 		this.addListener(GameEvents.PLAYER_GOLD_DELTA_REQUEST, this.scene.handlePlayerGoldUpdateRequest, this.scene);
-
-		this.addListener(GameEvents.PLAYER_WON_GAME, this.battleProgressionSystem.handlePlayerWonGame, this);
 
 		// Board & UI Setup/Visibility
 		this.addListener(GameEvents.PLAYER_BOARD_CREATE_DROP_ZONE, createBoardDropZone); // No context needed
@@ -84,7 +75,6 @@ export class BattlegroundEventSystem {
 		this.addListener(GameEvents.CHARA_HP_DISPLAY_UPDATE, CharaManager.handleCharaHpDisplayUpdateEvent);
 		this.addListener(GameEvents.CHARA_CHARGE_BAR_UPDATE, CharaManager.handleCharaChargeBarUpdateEvent);
 		this.addListener(GameEvents.CHARA_BARS_VISIBILITY_SET, CharaManager.handleCharaBarsVisibilitySetEvent);
-		this.addListener(GameEvents.UNIT_DIED_IN_BATTLE, this.battleProgressionSystem.handleUnitDiedInBattle, this.battleProgressionSystem);
 		this.addListener(GameEvents.CHARA_FATALLY_WOUNDED, (data: { chara: Chara, killerId: string }) => handleCharaDeath(this.scene, data), this);
 
 		// Visual Effects & Feedback
