@@ -1,6 +1,5 @@
 import Phaser from "phaser";
 import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "../../constants/constants";
-import { Relic } from "../../Scenes/Battleground/Systems/Relic";
 import { Unit } from "./Unit";
 import { GameEvents } from "../../constants/events";
 
@@ -13,7 +12,6 @@ export type Force = {
 	morale: number;
 	maxMorale: number;
 	units: Unit[];
-	relics: Relic[];
 	prestige: number,
 	winStreak: number,
 	lossStreak: number,
@@ -28,7 +26,6 @@ export const makeForce = (id: string): Force => {
 		gold: 10,
 		income: 5,
 		units: [],
-		relics: [],
 		morale: 100,
 		maxMorale: 100,
 		prestige: 0,

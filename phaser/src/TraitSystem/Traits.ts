@@ -1,6 +1,6 @@
 /**
  * @file Manages the core logic for traits, including their definition, processing, and event handling.
- * Traits provide special abilities or characteristics to units and relics.
+ * Traits provide special abilities or characteristics to units.
  */
 
 import { State } from "../Models/State";
@@ -30,33 +30,17 @@ import {
 export type TraitId = string & { __traitId: never };
 
 /**
- * Represents an instance of a trait attached to a unit or relic.
+ * Represents an instance of a trait attached to a unit.
  * It includes the trait's ID and any instance-specific parameters.
  * @property id - The unique identifier of the trait definition.
  * @property [key: string] - Additional parameters specific to this trait instance,
  *                           which can override or supplement defaults from the TraitDefinition.
  */
-export type TraitData = { // This is an *instance* of a trait on a unit/relic
+export type TraitData = { // This is an *instance* of a trait on a unit
 	id: TraitId;
 	[key: string]: any;
 };
 
-/**
- * Minimal representation of a Relic object as stored in the game state,
- * sufficient for trait processing when a relic is the source.
- * The actual Relic type from `state.gameData.player.relics` should conform to this.
- * This is used by `processTraitEvent` when the `source` is a relic.
- */
-export interface RelicStateObject {
-	/** The unique identifier of the relic. */
-	id: string; // Relic's unique ID
-	/** The force ID of the player who owns this relic. */
-	forceId: string; // Force/player ID that owns this relic
-	// Other properties like `name` or `pic` are not strictly required for trait processing itself
-	// but might be part of the full Relic object in the game state.
-	// pic?: string; // Optional: for context if needed by effects
-	// name?: string; // Optional: for context
-}
 /**
  * Discriminated union for TraitEventDetails.
  * Defines the specific payload for different kinds of trait-triggering events.
@@ -84,13 +68,8 @@ export type TraitEventDetails =
 	| AttackEventPayloadDetails
 	| TargetEventPayloadDetails;
 
-/** Helper to check if the source is a Unit */
-function isUnitSource(source: Unit | RelicStateObject): source is Unit {
-	return 'attackType' in source; // Use a Unit-specific property to differentiate
-}
-
 /**
- * Processes a trait event for a given source (Unit or Relic) by executing any matching effects.
+ * Processes a trait event for a given source (Unit) by executing any matching effects.
  * This function is the heart of the trait system. It:
  * 1. Retrieves the trait definition.
  * 2. Iterates through the effects defined for that trait.
@@ -107,9 +86,9 @@ function isUnitSource(source: Unit | RelicStateObject): source is Unit {
  * Context object containing all parameters needed for processing a trait event via `processTraitEvent`.
  */
 interface TraitEventContext {
-	/** The unit or relic that is the source of the trait effect. */
-	source: Unit | RelicStateObject;
-	/** The specific instance data of the trait being processed (e.g., from `unit.traits` or `relic.traits`). */
+	/** The unit that is the source of the trait effect. */
+	source: Unit;
+	/** The specific instance data of the trait being processed (e.g., from `unit.traits`). */
 	traitInstanceData: TraitData;
 	eventKey: string;
 	scene: BattlegroundScene;
@@ -121,7 +100,7 @@ async function processTraitEvent(context: TraitEventContext) {
 	const { source, traitInstanceData, eventKey, scene, state, eventDetails } = context;
 	const definition = getTraitDefinition(traitInstanceData.id);
 	if (!definition) {
-		console.warn(`Trait definition not found for ID: ${traitInstanceData.id} on ${isUnitSource(source) ? `Unit ${(source as Unit).id}` : `Relic ${source.id}`}`);
+		console.warn(`Trait definition not found for ID: ${traitInstanceData.id} on Unit ${source.id}`);
 		return;
 	}
 
@@ -148,12 +127,11 @@ async function processTraitEvent(context: TraitEventContext) {
 			}
 
 			try {
-				const sourceForce = isUnitSource(source) ? source.force : source.forceId;
+				const sourceForce = source.force;
 				const targets = resolveTargets(source, sourceForce, effectInstance.targetSelector, state, scene, primaryTargetForEffectContext);
 
 				const context: TraitEffectContext = {
-					sourceUnit: isUnitSource(source) ? source as Unit : undefined,
-					sourceRelic: !isUnitSource(source) ? source as RelicStateObject : undefined,
+					sourceUnit: source,
 					targets,
 					effectInstance,
 					traitInstanceParams: traitInstanceData,
@@ -180,7 +158,7 @@ async function processTraitEvent(context: TraitEventContext) {
 						console.error(
 							`Error executing trait effect ${effectInstance.effectId} for trait ${definition.id}:`,
 							error,
-							`\nSource: ${isUnitSource(source) ? 'Unit' : 'Relic'} ${source.id}`,
+							`\nSource Unit: ${source.id}`,
 							`\nEvent: ${eventKey}`,
 							`\nContext:`, context
 						);
@@ -188,14 +166,14 @@ async function processTraitEvent(context: TraitEventContext) {
 				} else {
 					console.warn(
 						`Implementation not found for effectId: ${effectInstance.effectId} in trait ${definition.id}`,
-						`\nSource: ${isUnitSource(source) ? 'Unit' : 'Relic'} ${source.id}`
+						`\nSource: Unit: ${source.id}`
 					);
 				}
 			} catch (error) {
 				console.error(
 					`Error processing trait effect for ${definition.id}:`,
 					error,
-					`\nSource: ${isUnitSource(source) ? 'Unit' : 'Relic'} ${source.id}`,
+					`\nSource Unit: ${source.id}`,
 					`\nEvent: ${eventKey}`,
 					`\nEffect:`, effectInstance
 				);
@@ -305,9 +283,3 @@ export function initializeTraitsFromData(traitDefinitions: TraitDefinition[]): v
 		registerTraitDefinition(traitDef as TraitDefinition);
 	});
 }
-
-// Export `processTraitEvent` for use in `TraitSystemEventListeners.ts` for relic handling.
-// This is generally an internal function, but relic event processing currently uses it directly.
-// The refactor above keeps processTraitEvent's signature mostly compatible for this direct use,
-// though the `eventDetails` parameter is new. Relic processing passes `dummySource` as `primaryTarget`.
-export { processTraitEvent };

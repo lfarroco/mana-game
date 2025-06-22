@@ -17,7 +17,6 @@ import { haste } from "../../Systems/Chara/Skills/haste";
 import { slow } from "../../Systems/Chara/Skills/slow";
 import { summon } from "../../Systems/Chara/Skills/summon";
 import { Unit } from "../../Models/Entities/Unit";
-import { RelicStateObject } from "../Traits";
 import { fireball as fireballSkillFn } from "../../Systems/Chara/Skills/fireball";
 import { explodeEffect as gameExplodeEffect } from "../../Effects/explodeEffect"; // Adjust path
 import { shoot as shootSkillFn } from "../../Systems/Chara/Skills/shoot";
@@ -53,38 +52,6 @@ function requireSourceUnit(effectFn: SourceUnitGuaranteedEffectFn): TraitEffectF
 	};
 }
 
-// --- Higher-Order Function for Source Relic Requirement ---
-
-/**
- * Type for effect functions that are guaranteed to have `sourceRelic` in their context.
- * This is used internally by `requireSourceRelic` for type safety.
- */
-type SourceRelicGuaranteedEffectFn = (
-	context: TraitEffectContext & { sourceRelic: RelicStateObject }
-) => Promise<void>;
-
-/**
- * Higher-order function to wrap TraitEffectFns that require a sourceRelic.
- * It performs a runtime check for `context.sourceRelic`. If missing, it logs an error
- * (in development) and prevents the wrapped function from executing.
- * It checks for sourceRelic and logs an error if it's missing.
- */
-function requireSourceRelic(effectFn: SourceRelicGuaranteedEffectFn): TraitEffectFn {
-	return async (context: TraitEffectContext) => {
-		if (!context.sourceRelic) {
-			if (process.env.NODE_ENV === "development") {
-				console.error(
-					`Effect ${context.effectInstance.effectId} requires a sourceRelic, but it was not provided. Context:`,
-					context
-				);
-			}
-			return;
-		}
-		// Now sourceRelic is guaranteed to exist, so we can cast the context type.
-		await effectFn(context as TraitEffectContext & { sourceRelic: RelicStateObject });
-	};
-}
-
 // --- Effect Implementations ---
 
 /**
@@ -93,7 +60,7 @@ function requireSourceRelic(effectFn: SourceRelicGuaranteedEffectFn): TraitEffec
  */
 const grantGoldToPlayerLogic: SourceUnitGuaranteedEffectFn = async (context) => {
 	const { sourceUnit, effectInstance, traitInstanceParams, scene } = context;
-	// Allow amount from effectInstance (definition) or traitInstanceParams (instance on unit/relic)
+	// Allow amount from effectInstance (definition) or traitInstanceParams (instance on unit)
 	const amount = (traitInstanceParams.amount ?? effectInstance.amount ?? 0) as number;
 
 	if (amount !== 0 && sourceUnit.force === playerForce.id) { // Ensure it's for the player
@@ -196,50 +163,6 @@ const performSkillSummonLogic: SourceUnitGuaranteedEffectFn = async (context) =>
 	}
 };
 
-
-/**
- * Effect: Modifies the cooldowns of target units by a percentage.
- * Requires `sourceRelic`. Expects a `percent` parameter for reduction.
- */
-const modifyUnitCooldownsLogic: SourceRelicGuaranteedEffectFn = async (context) => {
-	const { targets, effectInstance, traitInstanceParams, sourceRelic } = context;
-	const percentReduction = (traitInstanceParams.percent ?? effectInstance.percent ?? 0) as number;
-	if (percentReduction <= 0 || percentReduction >= 100) {
-		console.warn(`Relic Effect (ID: ${sourceRelic.id}, Effect: ${context.effectInstance.effectId}): Invalid 'percent' for cooldown reduction. Expected > 0 and < 100. Got: ${percentReduction}`);
-		return;
-	}
-	const multiplier = 1 - (percentReduction / 100);
-	targets.forEach(u => {
-		u.cooldown = Math.max(100, Math.round(u.cooldown * multiplier));
-		// TODO: Visual update if needed
-		console.log(`Unit ${u.name} cooldown reduced by ${percentReduction}% to ${u.cooldown}`);
-	});
-};
-
-/**
- * Effect: Modifies the maximum HP of target units by a percentage.
- * Requires `sourceRelic`. Expects a `percent` parameter for increase.
- */
-const modifyUnitMaxHpLogic: SourceRelicGuaranteedEffectFn = async (context) => {
-	const { targets, effectInstance, traitInstanceParams, sourceRelic } = context;
-	const percentIncrease = (traitInstanceParams.percent ?? effectInstance.percent ?? 0) as number;
-
-	if (percentIncrease <= 0) {
-		console.warn(`Relic Effect (ID: ${sourceRelic.id}, Effect: ${context.effectInstance.effectId}): Invalid 'percent' for Max HP increase. Expected > 0. Got: ${percentIncrease}`);
-		return;
-	}
-	const multiplier = 1 + (percentIncrease / 100);
-	targets.forEach(u => {
-		u.maxHp = Math.round(u.maxHp * multiplier);
-		u.hp = u.maxHp; // Also refill HP to new max
-		const chara = getChara(u.id);
-		if (chara) {
-			chara.updateHpDisplay();
-		}
-		console.log(`Unit ${u.name} Max HP increased by ${percentIncrease}% to ${u.maxHp}`);
-	});
-};
-
 /**
  * Effect: If the source unit is in the back row, it gains an attack bonus.
  * Requires `sourceUnit`. The attack bonus amount can be specified in `effectInstance.amount`
@@ -272,33 +195,6 @@ const traitSniperLogic: SourceUnitGuaranteedEffectFn = async (context) => {
 		// updateUnitAttribute handles data update, display refresh, and popText
 		await chara.updateUnitAttribute("attackPower", attackBonus);
 	}
-};
-
-const modifyUnitAttributeRelicLogic: SourceRelicGuaranteedEffectFn = async (context) => {
-	const { targets, effectInstance, traitInstanceParams, sourceRelic } = context;
-
-	const attributeToModify = traitInstanceParams.attribute ?? effectInstance.attribute as unknown as keyof Unit;
-	const flatAmount = (traitInstanceParams.amount ?? effectInstance.amount ?? 0) as number;
-
-	if (!attributeToModify || typeof flatAmount !== 'number') {
-		console.warn(`Relic Effect (ID: ${sourceRelic.id}, Effect: ${context.effectInstance.effectId}): Invalid 'attribute' or 'amount'. Got: ${attributeToModify}, ${flatAmount}`);
-		return;
-	}
-
-	targets.forEach(u => {
-		if (typeof u[attributeToModify as keyof Unit] === 'number') {
-			(u[attributeToModify as keyof Unit] as unknown as number) += flatAmount;
-			const chara = getChara(u.id); // Assumes getChara is accessible
-			if (chara) {
-				if (attributeToModify === "attackPower") chara.updateAtkDisplay();
-				else if (attributeToModify === "maxHp") { u.hp = u.maxHp; chara.updateHpDisplay(); }
-				// Add other stat updates if necessary
-			}
-			console.log(`Unit ${u.name}'s ${attributeToModify} modified by ${flatAmount} to ${u[attributeToModify as keyof Unit]} by relic ${sourceRelic.id}`);
-		} else {
-			console.warn(`Relic Effect (ID: ${sourceRelic.id}, Effect: ${context.effectInstance.effectId}): Attribute ${attributeToModify} is not a number for unit ${u.id}.`);
-		}
-	});
 };
 
 const performSkillFireballLogic: SourceUnitGuaranteedEffectFn = async (context) => {
@@ -379,9 +275,6 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("skill_fireball", requireSourceUnit(performSkillFireballLogic));
 	registerTraitEffectImplementation("explode_on_death_effect", requireSourceUnit(explodeOnDeathLogic));
 	registerTraitEffectImplementation("positional_bonus", requireSourceUnit(positionalBonusLogic));
-	registerTraitEffectImplementation("modify_attribute_relic", requireSourceRelic(modifyUnitAttributeRelicLogic));
 
-	registerTraitEffectImplementation("modify_unit_cooldowns", requireSourceRelic(modifyUnitCooldownsLogic));
-	registerTraitEffectImplementation("modify_unit_max_hp", requireSourceRelic(modifyUnitMaxHpLogic));
 
 }

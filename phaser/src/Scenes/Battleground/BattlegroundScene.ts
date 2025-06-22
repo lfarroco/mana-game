@@ -15,7 +15,6 @@ import { BattleProgressionSystem } from "./Systems/BattleProgressionSystem";
 import { GameEvents } from "../../constants/events";
 import { getOption } from "../../Models/OptionsStore";
 import { Unit } from "../../Models/Entities/Unit";
-import { RelicCard } from "./Systems/Relic"; // Added for type checking
 import { Vec2 } from "../../Models/Geometry";
 import { battleResultAnimation } from "./battleResultAnimation";
 import * as MoraleDisplay from "./MoraleDisplay";
@@ -43,7 +42,7 @@ export class BattlegroundScene extends Phaser.Scene {
   runCombatSystem: RunCombatSystem;
   /** System responsible for managing battle progression (shop, combat, game over). */
   battleProgressionSystem: BattleProgressionSystem;
-  /** The shop system, allowing players to buy units and relics. */
+  /** The shop system, allowing players to buy units */
   shop: Shop;
 
   // Morale System and UI
@@ -148,7 +147,7 @@ export class BattlegroundScene extends Phaser.Scene {
     // 1. Perform one-time runtime data initialization
     this.setupSystem.performOneTimeRuntimeInitialization(this.collection);
 
-    // 2. Load dynamic assets (card/relic images defined on the collection)
+    // 2. Load dynamic assets (card images defined on the collection)
     await this.setupSystem.loadDynamicAssets(this.collection)
     console.log("Dynamic assets loaded, proceeding with scene start.");
 
@@ -166,7 +165,6 @@ export class BattlegroundScene extends Phaser.Scene {
     // 6. Emit events for initial UI and board setup now that listeners are active
     this.events.emit(GameEvents.PLAYER_BOARD_CREATE_DROP_ZONE); // For drop zone visuals
     this.events.emit(GameEvents.UI_MAIN_CREATE);               // For main UI (sidebar, gold, etc.)
-    this.events.emit(GameEvents.RELIC_SLOTS_SETUP);           // For relic slots UI
 
     // 7. Setup Trait System event listeners
     setupTraitEventListeners(this);
@@ -298,7 +296,7 @@ export class BattlegroundScene extends Phaser.Scene {
       text: `+${soldForGold}G`,
       x: popTextX,
       y: popTextY,
-      type: "success" // Using "success" (green) like relics, or "heal"
+      type: "success" // Using "success" (green) or "heal"
     });
 
     // 3. Remove unit from player's state
@@ -311,40 +309,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.shop.shopUI.hideSellZone();
 
-  }
-
-  handleOwnedRelicSold(payload: { relicId: string, soldForGold: number }): void {
-    const { relicId, soldForGold } = payload;
-
-    // 1. Update player gold
-    this.updatePlayerGold(soldForGold); // Or emit PLAYER_GOLD_DELTA_REQUEST if preferred
-
-    // 2. Remove relic from player's state
-    const relicIndex = this.state.gameData.player.relics.findIndex(r => r.id === relicId);
-    if (relicIndex > -1) {
-      this.state.gameData.player.relics.splice(relicIndex, 1);
-    } else {
-      console.warn(`[BattlegroundScene] Relic with ID ${relicId} not found in player state during selling.`);
-      // Potentially return early if relic not in state, though gold might have been added.
-      // For robustness, continue to attempt visual cleanup.
-    }
-
-    // 3. Handle visual cleanup if the event was not from RelicCard self-destructing
-    //    (e.g., if triggered by DebugController)
-    const relicCardVisual = this.children.getByName(relicId) as RelicCard | undefined;
-    if (relicCardVisual && relicCardVisual.active) { // Check if it's still an active GameObject
-      // If the RelicCard is still here, it means it didn't trigger its own sell sequence.
-      // So, we should emit pop text and destroy it.
-      this.events.emit(GameEvents.POP_TEXT_SHOW, {
-        text: `+${soldForGold}G`,
-        x: relicCardVisual.x,
-        y: relicCardVisual.y - (relicCardVisual.displayHeight / 2),
-        type: "success"
-      });
-      relicCardVisual.destroy();
-    }
-
-    this.shop?.shopUI?.hideSellZone();
   }
 }
 

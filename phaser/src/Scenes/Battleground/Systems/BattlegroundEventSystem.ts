@@ -2,7 +2,6 @@ import { UIManager } from "../../../UI/UIManager";
 import { PlayerBoard, createBoardDropZone } from "../../../Models/Board";
 import { Shop } from "./Shop/Shop";
 import * as CharaManager from "./CharaManager"; // Keep CharaManager import
-import * as Relic from "./Relic";
 import { GameEvents } from "../../../constants/events";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { handleCharaDeath } from "../../../Systems/Chara/CharaDeathSequenceHandler";
@@ -68,7 +67,6 @@ export class BattlegroundEventSystem {
 		this.addListener(GameEvents.PLAYER_BOARD_SHOW, this.playerBoard.display, this.playerBoard);
 		this.addListener(GameEvents.PLAYER_BOARD_HIDE, this.playerBoard.hide, this.playerBoard);
 		this.addListener(GameEvents.UI_MAIN_CREATE, this.uiManager.createMainUI, this.uiManager);
-		this.addListener(GameEvents.RELIC_SLOTS_SETUP, () => Relic.setupRelicSlots(this.scene), this);
 
 		// Chara Lifecycle & Visuals
 		this.addListener(GameEvents.CHARA_SUMMON_TO_BOARD, CharaManager.handleSummonCharaToBoardEvent);
@@ -94,7 +92,6 @@ export class BattlegroundEventSystem {
 		this.addListener(GameEvents.OWNED_UNIT_MOVE_REQUESTED, this.scene.handleOwnedUnitMoveRequest, this.scene);
 		this.addListener(GameEvents.BOARD_CHARA_CREATE_REQUESTED, this.scene.handleBoardCharaCreateRequest, this.scene);
 		this.addListener(GameEvents.OWNED_UNIT_SOLD, this.scene.handleOwnedUnitSold, this.scene);
-		this.addListener(GameEvents.OWNED_RELIC_SOLD, this.scene.handleOwnedRelicSold, this.scene);
 
 		// Tooltips (keeping direct calls as they are simple and UI related)
 		this.addListener(GameEvents.CHARA_POINTER_OVER, CharaTooltip.onCharaPointerOver, this); // Context `this` is fine if onCharaPointerOver doesn't rely on CharaTooltip's `this`

@@ -130,7 +130,7 @@ const calculateEnemyTeamParameters = (
 	// Clamp the team size to be within the defined MIN_ENEMY_COUNT and MAX_ENEMY_COUNT.
 	const teamSize = Math.max(MIN_ENEMY_COUNT, Math.min(MAX_ENEMY_COUNT, desiredTeamSize));
 
-	// Fractional points not enough for a full unit, can be used for enemy buffs, relics, etc.
+	// Fractional points not enough for a full unit, can be used for enemy buffs etc.
 	const powerBudgetOverflow = difficultyPoints - numberOfAdditionalUnits;
 
 	return { teamSize, powerBudgetOverflow, difficultyTier };

@@ -19,9 +19,7 @@ export const onCharaPointerOver = ({ chara }: { chara: Chara }): void => {
 	const charaWorldX = worldMatrix.tx;
 	const charaWorldY = worldMatrix.ty;
 
-	// Tooltip positioning similar to RelicCard
 	// Position tooltip to the right of the Chara.
-	// The value 300 is used in Relic.ts, consider making this a shared constant.
 	const TOOLTIP_OFFSET_X = 300;
 	const tooltipX = charaWorldX + (chara.displayWidth / 2) + TOOLTIP_OFFSET_X;
 	const tooltipY = charaWorldY; // Align with chara's vertical center
