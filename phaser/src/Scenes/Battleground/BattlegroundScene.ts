@@ -19,7 +19,6 @@ import { Vec2 } from "../../Models/Geometry";
 import { battleResultAnimation } from "./battleResultAnimation";
 import * as MoraleDisplay from "./MoraleDisplay";
 import * as MoraleSystem from "./MoraleSystem";
-import { FORCE_ID_CPU, FORCE_ID_PLAYER, SCREEN_HEIGHT, SCREEN_WIDTH } from "../../constants/constants";
 
 /**
  * The main scene for the battleground, handling game logic, UI, and progression.
@@ -42,13 +41,8 @@ export class BattlegroundScene extends Phaser.Scene {
   runCombatSystem: RunCombatSystem;
   /** System responsible for managing battle progression (shop, combat, game over). */
   battleProgressionSystem: BattleProgressionSystem;
-  /** The shop system, allowing players to buy units */
-  shop: Shop;
-
-  // Morale System and UI
-  // TODO: these can live inside the system
-  playerMoraleBar!: MoraleDisplay.MoraleDisplay;
-  cpuMoraleBar!: MoraleDisplay.MoraleDisplay;
+	/** The shop system, allowing players to buy units */
+	shop: Shop;
 
   // New Systems
   setupSystem!: BattlegroundSetupSystem;
@@ -156,7 +150,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     // 4. Setup static scene elements (background, player board, initial UI)
     this.playerBoard = this.setupSystem.setupSceneElements(this.state);
-    this.setupMoraleBars();
+    MoraleDisplay.init(this);
 
     // 5. Initialize and register core game event listeners
     this.eventSystem = new BattlegroundEventSystem(this);
@@ -182,17 +176,6 @@ export class BattlegroundScene extends Phaser.Scene {
         console.error("BattlegroundScene: Failed to load DebugController", error);
       });
     }
-  }
-
-  /** Sets up the morale bars for both player and CPU forces. */
-  setupMoraleBars(): void {
-    const playerBarX = SCREEN_WIDTH / 2;
-    const playerBarY = SCREEN_HEIGHT - 50;
-    this.playerMoraleBar = MoraleDisplay.create(this, playerBarX, playerBarY, FORCE_ID_PLAYER, "Player Morale");
-
-    const cpuBarX = SCREEN_WIDTH / 2;
-    const cpuBarY = 50;
-    this.cpuMoraleBar = MoraleDisplay.create(this, cpuBarX, cpuBarY, FORCE_ID_CPU, "Enemy Morale");
   }
 
   /**

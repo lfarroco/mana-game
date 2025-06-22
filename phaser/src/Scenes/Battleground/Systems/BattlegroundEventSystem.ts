@@ -7,7 +7,6 @@ import { BattlegroundScene } from "../BattlegroundScene";
 import { handleCharaDeath } from "../../../Systems/Chara/CharaDeathSequenceHandler";
 import { Chara } from "../../../Systems/Chara/Chara";
 import { popText } from "../../../Systems/Chara/Animations/popText";
-import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
 import { PopTextPayload } from "../../../Models/EventPayloads";
 import * as CharaTooltip from "../../../Systems/Chara/CharaTooltip";
 import * as MoraleDisplay from "../MoraleDisplay";
@@ -98,35 +97,11 @@ export class BattlegroundEventSystem {
 		this.addListener(GameEvents.CHARA_POINTER_OUT, CharaTooltip.onCharaPointerOut, this); // Same as above
 
 		// Morale UI
-		this.addListener(GameEvents.MORALE_BARS_SHOW, this.handleMoraleBarsShow, this);
-		this.addListener(GameEvents.MORALE_BARS_HIDE, this.handleMoraleBarsHide, this);
-		this.addListener(GameEvents.MORALE_UPDATED, this.handleMoraleUpdated, this);
-	}
-
-	private handleMoraleBarsShow(): void {
-		MoraleDisplay.show(this.scene.playerMoraleBar);
-		MoraleDisplay.show(this.scene.cpuMoraleBar);
-	}
-
-	private handleMoraleBarsHide(): void {
-		MoraleDisplay.hide(this.scene.playerMoraleBar);
-		MoraleDisplay.hide(this.scene.cpuMoraleBar);
-	}
-
-	private handleMoraleUpdated(payload: { forceId: string, newMorale: number, maxMorale: number }): void {
-		if (payload.forceId === FORCE_ID_PLAYER) {
-			MoraleDisplay.updateBar(
-				this.scene.playerMoraleBar,
-				payload.newMorale,
-				payload.maxMorale,
-			);
-		} else if (payload.forceId === FORCE_ID_CPU) {
-			MoraleDisplay.updateBar(
-				this.scene.cpuMoraleBar,
-				payload.newMorale,
-				payload.maxMorale,
-			);
-		}
+		this.addListener(GameEvents.MORALE_BARS_SHOW, MoraleDisplay.showBars);
+		this.addListener(GameEvents.MORALE_BARS_HIDE, MoraleDisplay.hideBars);
+		this.addListener(GameEvents.MORALE_UPDATED, (payload: { forceId: string, newMorale: number, maxMorale: number }) => {
+			MoraleDisplay.updateMoraleBar(payload.forceId, payload.newMorale, payload.maxMorale);
+		});
 	}
 
 	destroy(): void {

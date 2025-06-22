@@ -10,6 +10,7 @@ import { GameEvents } from "../../constants/events";
 import { cpuForce, playerForce } from "../../Models/Entities/Force";
 import { Unit } from "../../Models/Entities/Unit";
 import { BattlegroundScene } from "./BattlegroundScene";
+import * as MoraleDisplay from "./MoraleDisplay";
 
 const MORALE_DAMAGE_MULTIPLIER = 0.2; // Morale lost per point of damage
 
@@ -94,4 +95,5 @@ export function destroy() {
 	scene.events.off(GameEvents.COMBAT_START_EXECUTION_TRIGGER, handleCombatStart);
 	scene.events.off(GameEvents.COMBAT_ENDED_VICTORY, handleCombatEnd);
 	scene.events.off(GameEvents.COMBAT_ENDED_DEFEAT, handleCombatEnd);
+	MoraleDisplay.destroy();
 }
