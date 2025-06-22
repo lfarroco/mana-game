@@ -63,7 +63,7 @@
 			"id": "wizzy",
 			"name": "Wizzy McFizzfail",
 			"pic": "assets/cards/apprentice.png",
-			"hp": 150,
+			"hp": 110,
 			"tags": [
 				"human",
 				"mage",
@@ -90,8 +90,8 @@
 				"melee_dps",
 				"economy"
 			],
-			"attack": 25,
-			"cooldown": 4000,
+			"attack": 15,
+			"cooldown": 2000,
 			"traits": [
 				{
 					"id": "melee"
@@ -112,12 +112,27 @@
 				"archer",
 				"ranged_dps"
 			],
-			"attack": 25,
-			"cooldown": 3000,
+			"attack": 22,
+			"cooldown": 1800,
 			"traits": [
 				{
-					"id": "sniper"
-				},
+					"id": "ranged"
+				}
+			]
+		},
+		{
+			"id": "enchanter",
+			"name": "Runic Enchanter",
+			"pic": "assets/cards/enchanter.png",
+			"hp": 130,
+			"tags": [
+				"human",
+				"mage",
+				"support",
+				"buffer"
+			],
+			"cooldown": 3500,
+			"traits": [
 				{
 					"id": "ranged"
 				}
@@ -183,7 +198,7 @@
 			"name": "Stone Guardian",
 			"description": "An ancient sentinel with immense fortitude, drawing enemy attacks.",
 			"hp": 100,
-			"attack": 20,
+			"attack": 8,
 			"defense": 8,
 			"cooldown": 2600,
 			"traits": [
@@ -206,13 +221,50 @@
 			"cooldown": 1250,
 			"traits": [
 				{
-					"id": "melee"
-				},
-				{
 					"id": "use_skill_fireball"
 				},
 				{
 					"id": "volatile_demise"
+				}
+			]
+		},
+		{
+			"id": "paladin_protector",
+			"name": "Paladin Protector",
+			"pic": "assets/cards/paladin.png",
+			"hp": 220,
+			"tags": [
+				"human",
+				"paladin",
+				"tank",
+				"healer"
+			],
+			"attack": 10,
+			"cooldown": 2500,
+			"traits": [
+				{
+					"id": "melee"
+				},
+				{
+					"id": "protector_action"
+				}
+			]
+		},
+		{
+			"id": "shadow_assassin",
+			"name": "Shadow Assassin",
+			"pic": "assets/cards/assassin.png",
+			"hp": 90,
+			"tags": [
+				"human",
+				"assassin",
+				"melee_dps"
+			],
+			"attack": 35,
+			"cooldown": 1500,
+			"traits": [
+				{
+					"id": "melee"
 				}
 			]
 		}
@@ -547,6 +599,38 @@
 							"row": "back"
 						}
 					]
+				}
+			]
+		},
+		{
+			"id": "protector_action",
+			"name": "Protector",
+			"description": "On action, heals the most wounded ally.",
+			"categories": [
+				"support",
+				"healing"
+			],
+			"effects": [
+				{
+					"effectId": "skill_heal",
+					"eventTrigger": "onAction"
+				}
+			]
+		},
+		{
+			"id": "assassinate",
+			"name": "Assassinate",
+			"description": "This unit has a 25% increased critical strike chance.",
+			"categories": [
+				"offensive"
+			],
+			"effects": [
+				{
+					"effectId": "modify_stat_passive",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "self",
+					"attribute": "critChance",
+					"amount": 25
 				}
 			]
 		}
