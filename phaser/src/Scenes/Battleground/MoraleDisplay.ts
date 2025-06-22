@@ -1,7 +1,6 @@
 import Phaser from 'phaser';
 import { defaultTextConfig, FORCE_ID_PLAYER } from '../../constants/constants';
 
-const BAR_WIDTH = 250;
 const BAR_HEIGHT = 20;
 const BORDER_THICKNESS = 2;
 
@@ -15,35 +14,38 @@ export type MoraleDisplay = {
 
 export function create(
 	scene: Phaser.Scene,
-	x: number, y: number,
+	_x: number, y: number,
 	forceId: string,
 	labelText: string,
 ): MoraleDisplay {
-	const container = scene.add.container(x, y);
+	const barWidth = scene.scale.width / 4;
+	const centeredX = (scene.scale.width - barWidth) / 2;
+
+	const container = scene.add.container(centeredX, y);
 	// Background
 	const backgroundBar = scene.add.graphics();
 	backgroundBar.fillStyle(0x000000, 0.5);
-	backgroundBar.fillRect(0, 0, BAR_WIDTH, BAR_HEIGHT);
+	backgroundBar.fillRect(0, 0, barWidth, BAR_HEIGHT);
 	backgroundBar.lineStyle(BORDER_THICKNESS, 0xffffff, 0.8);
-	backgroundBar.strokeRect(0, 0, BAR_WIDTH, BAR_HEIGHT);
+	backgroundBar.strokeRect(0, 0, barWidth, BAR_HEIGHT);
 	container.add(backgroundBar);
 
 	// Foreground
 	const foregroundBar = scene.add.graphics();
 	const barColor = forceId === FORCE_ID_PLAYER ? 0x4e9de0 : 0xe04e4e; // Blue for player, Red for CPU
 	foregroundBar.fillStyle(barColor, 1);
-	foregroundBar.fillRect(0, 0, BAR_WIDTH, BAR_HEIGHT);
+	foregroundBar.fillRect(0, 0, barWidth, BAR_HEIGHT);
 	container.add(foregroundBar);
 
 	// Shape to "fill" of the foreground bar
 	const barFill = scene.add.graphics();
 	barFill.fillStyle(0xffffff);
-	barFill.fillRect(0, 0, BAR_WIDTH, BAR_HEIGHT);
+	barFill.fillRect(0, 0, barWidth, BAR_HEIGHT);
 	container.add(barFill);
 
 	// Label
 	const label = scene.add.text(
-		BAR_WIDTH / 2, BAR_HEIGHT / 2,
+		barWidth / 2, BAR_HEIGHT / 2,
 		labelText, defaultTextConfig
 	).setOrigin(0.5);
 	container.add(label);
