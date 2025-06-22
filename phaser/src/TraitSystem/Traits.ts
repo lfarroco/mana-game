@@ -114,7 +114,7 @@ interface TraitEventContext {
 	eventKey: string;
 	scene: BattlegroundScene;
 	state: State;
-	eventDetails: TraitEventDetails; // Now non-optional and uses the discriminated union
+	eventDetails: TraitEventDetails;
 }
 
 async function processTraitEvent(context: TraitEventContext) {

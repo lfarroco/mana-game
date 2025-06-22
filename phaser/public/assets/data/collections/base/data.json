@@ -657,6 +657,69 @@
 					"attribute": "attackPower"
 				}
 			]
+		},
+		{
+			"id": "backline_bulwark",
+			"name": "Backline Bulwark",
+			"description": "Gains +50 Max HP when in the back row.",
+			"categories": [
+				"positional",
+				"defensive"
+			],
+			"effects": [
+				{
+					"effectId": "positional_bonus",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "self",
+					"attribute": "maxHp",
+					"amount": 50,
+					"row": "back"
+				}
+			]
+		},
+		{
+			"id": "versatile_fighter",
+			"name": "Formation Tactics",
+			"description": "Uses a different skill based on row position. Front: Slash, Mid: Shoot, Back: Arcane Missiles.",
+			"categories": [
+				"versatile",
+				"offensive",
+				"support"
+			],
+			"effects": [
+				{
+					"effectId": "skill_slash",
+					"eventTrigger": "onAction",
+					"targetSelector": "self",
+					"conditions": [
+						{
+							"type": "is_in_row",
+							"row": "front"
+						}
+					]
+				},
+				{
+					"effectId": "skill_shoot",
+					"eventTrigger": "onAction",
+					"targetSelector": "self",
+					"conditions": [
+						{
+							"type": "is_in_row",
+							"row": "mid"
+						}
+					]
+				},
+				{
+					"effectId": "skill_arcane_missiles",
+					"eventTrigger": "onAction",
+					"conditions": [
+						{
+							"type": "is_in_row",
+							"row": "back"
+						}
+					]
+				}
+			]
 		}
 	]
 }
