@@ -73,7 +73,9 @@ export class BattleProgressionSystem {
 
 		this._isInShopPhase = true;
 		if (payload && payload.enemiesDefeated) {
-			await this.processRoundVictory(payload.enemiesDefeated);
+			this.scene.events.emit(GameEvents.PLAYER_GOLD_DELTA_REQUEST, BG_CONSTANTS.VICTORY_GOLD_REWARD);
+			this.prestigeSystem.processVictory();
+			this.prestigeSystem.finalizeRound();
 		}
 		console.log("Round", this.state.gameData.round, "Shop Phase Starting.");
 		this.scene.events.emit(GameEvents.PLAYER_BOARD_SHOW);
@@ -91,20 +93,6 @@ export class BattleProgressionSystem {
 		this.setAllPlayerUnitBarsVisibility(true); // Show bars for player units in combat
 		this.scene.events.emit(GameEvents.PLAYER_BOARD_HIDE);
 		this.scene.events.emit(GameEvents.COMBAT_START_EXECUTION_TRIGGER, { enemies });
-	}
-
-	/**
-	 * Processes the logic for a player's victory in a round.
-	 */
-	async processRoundVictory(_enemiesDefeated: Unit[]): Promise<void> {
-		console.log("Round", this.state.gameData.round, "Processing Victory...");
-		await delay(this.scene, BG_CONSTANTS.POST_COMBAT_DELAY);
-		this.scene.events.emit(GameEvents.BATTLE_RESULT_SHOW, { result: "victory" });
-		await delay(this.scene, 1500); // Wait for animation
-
-		this.scene.events.emit(GameEvents.PLAYER_GOLD_DELTA_REQUEST, BG_CONSTANTS.VICTORY_GOLD_REWARD);
-		this.prestigeSystem.processVictory();
-		this.prestigeSystem.finalizeRound();
 	}
 
 	/**
@@ -196,7 +184,12 @@ export class BattleProgressionSystem {
 		this.transitionToCombatPhase();
 	}
 
-	handleCombatEndedVictory(payload: { enemiesDefeated: Unit[] }): void {
+	async handleCombatEndedVictory(payload: { enemiesDefeated: Unit[] }): Promise<void> {
+		console.log("Round", this.state.gameData.round, "Processing Victory...");
+		await delay(this.scene, BG_CONSTANTS.POST_COMBAT_DELAY);
+		this.scene.events.emit(GameEvents.BATTLE_RESULT_SHOW, { result: "victory" });
+		await delay(this.scene, 1500); // Wait for animation
+
 		this.transitionToShopPhase(payload);
 	}
 

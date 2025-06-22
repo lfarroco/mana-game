@@ -50,7 +50,7 @@ export class RunCombatSystem {
    * Starts the combat IO loop and resolves with the wave outcome when combat ends.
    * @returns {Promise<WaveOutcome>} Resolves with the outcome of the wave.
    */
-  runCombatIO = () => new Promise<WaveOutcome>(async resolve => {
+  runCombatIO = (): Promise<WaveOutcome> => new Promise(async resolve => {
     const { state, events } = this.scene;
 
     await setupWave(this.scene);
