@@ -8,7 +8,7 @@
  * and how targets for effects are determined.
  */
 import { Unit } from "../Models/Entities/Unit";
-import { TraitId, TraitData, RelicStateObject } from "./Traits"; // Import RelicStateObject and TraitData
+import { TraitId, TraitData } from "./Traits";
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
 import { State } from "../Models/State";
 import { getActiveUnits } from "../Models/State"; // For target resolution
@@ -68,10 +68,9 @@ export type TraitConditionInstanceData = {
  */
 export type TraitEffectContext = {
 	sourceUnit?: Unit; // The unit that owns the trait, if applicable
-	sourceRelic?: RelicStateObject; // The relic that owns the trait, if applicable
 	targets: Unit[];
 	effectInstance: TraitEffectInstanceData; // The effect data from TraitDefinition
-	traitInstanceParams: TraitData; // Instance-specific params from Unit.traits or Relic.traits
+	traitInstanceParams: TraitData; // Instance-specific params from Unit.traits
 	scene: BattlegroundScene;
 	state: State;
 	/** Optional. The damage amount from an attack, if the event is attack-related. */
@@ -179,13 +178,13 @@ export function getTraitConditionImplementation(conditionType: string): TraitCon
 // --- Target Resolution ---
 
 /** Helper to check if the source is a Unit */
-function isUnitSource(source: Unit | RelicStateObject): source is Unit {
+function isUnitSource(source: Unit): source is Unit {
 	return (source as Unit).force !== undefined; // 'force' is a good differentiator for Unit
 }
 
 export function resolveTargets(
-	/** The source of the trait (either a Unit or a Relic). */
-	source: Unit | RelicStateObject,
+	/** The source of the trait (a Unit). */
+	source: Unit,
 	/** The force ID of the source. */
 	sourceForce: string,
 	/** The target selector string (e.g., "self", "all_enemies"). If undefined, defaults to primaryTarget or sourceUnit. */
@@ -199,18 +198,14 @@ export function resolveTargets(
 ): Unit[] {
 	// If no selector is provided, the default target is the primary target of the event (if available).
 	// If there's no primary target, and the source is a unit, the source unit itself becomes the target.
-	// Relics do not default to "self" as a target unit if no selector or primary target is specified.
 	if (!selector) {
 		if (primaryTarget) return [primaryTarget];
-		if (isUnitSource(source)) return [source as Unit]; // Default to source if it's a unit
-		return []; // Relics don't default to "self" as a target unit
+		return [source]; // Default to "self" as target
 	}
 
 	switch (selector) {
 		case "self":
-			if (isUnitSource(source)) return [source as Unit];
-			console.warn(`Target selector "self" used with a non-unit source (Relic ID: ${source.id}). Returning no targets.`);
-			return [];
+			return [source];
 		case "action_target": // The direct target of an action, if applicable
 			return primaryTarget ? [primaryTarget] : [];
 		case "all_enemies":
@@ -270,8 +265,7 @@ export function checkConditions(context: TraitEffectContext, conditions: TraitCo
  * Condition: Checks if the source of the trait effect belongs to the player.
  */
 registerTraitConditionImplementation("is_player_unit", (context) => {
-	const sourceForce = context.sourceUnit ? context.sourceUnit.force : context.sourceRelic?.forceId;
-	return sourceForce === FORCE_ID_PLAYER;
+	return context.sourceUnit?.force === FORCE_ID_PLAYER;
 });
 
 /**
@@ -282,7 +276,7 @@ registerTraitConditionImplementation("is_player_unit", (context) => {
 registerTraitConditionImplementation("target_is_enemy", (context) => {
 	// Assumes targets are already resolved. Checks the first target.
 	// More robust checking might be needed for multi-target effects.
-	const sourceForce = context.sourceUnit ? context.sourceUnit.force : context.sourceRelic?.forceId;
+	const sourceForce = context.sourceUnit?.force;
 	if (!sourceForce || context.targets.length === 0) return false;
 	return context.targets[0].force !== sourceForce;
 });

@@ -1,7 +1,6 @@
 import * as Card from "../../../../Models/Entities/Card";
 import { Flyout } from "../../../../UI/Flyout";
 import { pickRandom } from "../../../../utils";
-import { RelicCard } from "../Relic";
 import { Chara } from "../../../../Systems/Chara/Chara";
 import { BattlegroundScene } from "../../BattlegroundScene";
 import { GameEvents } from "../../../../constants/events"; // Corrected import path if needed
@@ -19,7 +18,7 @@ import { tween } from "../../../../Utils/animation";
 
 /**
  * @class Shop
- * @description Manages the in-game shop system, allowing players to purchase characters (Charas) and acquire relics.
+ * @description Manages the in-game shop system, allowing players to purchase characters (Charas).
  * It interfaces with {@link ShopUI} to display the shop, handles purchase logic via external handlers,
  * and manages the state of available items.
  */
@@ -35,11 +34,6 @@ export class Shop {
 	 * @description Array of Chara instances currently available for purchase in the shop. These are the interactive GameObjects.
 	 */
 	currentShopCharas: Chara[] = [];
-	/**
-	 * @type {RelicCard[]}
-	 * @description Array of RelicCard instances currently available for acquisition in the shop. These are the interactive GameObjects.
-	 */
-	currentShopRelicCards: RelicCard[] = [];
 
 	/**
 	 * Creates an instance of the Shop.
@@ -59,24 +53,16 @@ export class Shop {
 		this.currentShopCharas = this.currentShopCharas.filter(c => c.id !== purchasedChara.id);
 	}
 
-	_handleRelicAcquisitionFinalized(acquiredRelic: RelicCard): void {
-		// RelicCard is already removed from flyout by its onAcquire handler (via ShopUI)
-		// Update our list of available shop relics.
-		this.currentShopRelicCards = this.currentShopRelicCards.filter(rc => rc.id !== acquiredRelic.id);
-	}
-
 	/**
 	 * @method open
 	 * @description Opens the shop interface. It clears previously displayed shop items,
-	 * fetches new random characters and relics (ensuring characters offered are not already owned by the player),
+	 * fetches new random characters (ensuring characters offered are not already owned by the player),
 	 * and then instructs {@link ShopUI} to render them. Finally, it slides the shop {@link Flyout} into view.
 	 */
 	async open() {
 		this.currentShopCharas = [];
-		this.currentShopRelicCards = [];
 
 		const tavernCardData = this._getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
-		const relicData = pickRandom(Card.getAllRelicDefinitions(), sc.NUM_RELIC_SLOTS);
 
 		// Define the nextRoundCallback, which was missing
 		const nextRoundCallback = () => {
@@ -85,22 +71,18 @@ export class Shop {
 		};
 
 		// Correctly call shopUI.displayShop and destructure its result
-		const { charas, relicCards } = this.shopUI.displayShop(
-			relicData, // relicDefsToDisplay
+		const { charas } = this.shopUI.displayShop(
 			tavernCardData, // cardsToDisplay
 			nextRoundCallback, // nextRoundCallback
 			this.handleShopRerollTavern.bind(this),
 			this._handleCharaPurchaseFinalized.bind(this),
-			this._handleRelicAcquisitionFinalized.bind(this)
 		);
 
 
 		this.currentShopCharas = charas;
-		this.currentShopRelicCards = relicCards;
 
 		await this.flyout.slideIn();
 		this.currentShopCharas.forEach(chara => this._animateItemAppearance(chara));
-		this.currentShopRelicCards.forEach(relicCard => this._animateItemAppearance(relicCard));
 	}
 
 	// TODO: add tests
@@ -110,18 +92,9 @@ export class Shop {
 		return this.currentShopCharas[slotIndex] || null;
 	}
 
-	getShopRelicCardBySlot(slotIndex: number): RelicCard | null {
-		return this.currentShopRelicCards[slotIndex] || null;
-	}
-
 	getDisplayedHeroCardDefinitions(): Card.CardDefinition[] {
 		return this.currentShopCharas.map(chara => chara.unit.cardId)
 			.map(Card.getCardDefinition);
-	}
-
-	getDisplayedRelicDefinitions(): Card.RelicDefinition[] {
-		return this.currentShopRelicCards.map(rc => rc.id)
-			.map(Card.getRelicDefinition);
 	}
 
 	async handleShopOpenUITrigger(): Promise<void> {
@@ -140,13 +113,13 @@ export class Shop {
 	}
 
 	/**
-	 * Animates the appearance of a shop item (Chara or RelicCard).
+	 * Animates the appearance of a shop item (Chara).
 	 * The animation involves scaling up and a slight "wiggle".
-	 * @param item The Phaser.GameObjects.GameObject (e.g., Chara (Container) or RelicCard (Image)) to animate.
+	 * @param item The Phaser.GameObjects.GameObject (e.g., Chara (Container) to animate.
 	 *             It must have scaleX, scaleY, angle properties and a setScale method.
 	 */
 	async _animateItemAppearance(
-		item: Chara | RelicCard
+		item: Chara
 	): Promise<void> {
 		const targetScaleX = item.scaleX;
 		const targetScaleY = item.scaleY;
@@ -185,7 +158,7 @@ export class Shop {
 	/**
 	 * Rerolls the characters available in the tavern.
 	 * This method clears the current tavern characters, fetches a new set,
-	 * and updates the UI to display them. Relics and shop buttons remain unchanged.
+	 * and updates the UI to display them.
 	 * The gold deduction for this action is handled by `shopRerollTavernHandler`.
 	 */
 	rerollTavern(): void {

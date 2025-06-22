@@ -2,11 +2,10 @@ import { BattlegroundScene } from "../Battleground/BattlegroundScene";
 import { GameEvents } from "../../constants/events";
 import { Unit } from "../../Models/Entities/Unit"; // Ensure Unit is exported from its module
 import { vec2 } from "../../Models/Geometry";
-import { CardDefinition, RelicDefinition } from "../../Models/Entities/Card";
+import { CardDefinition } from "../../Models/Entities/Card";
 import * as CharaManager from "../Battleground/Systems/CharaManager";
 import { makeUnit } from "../../Models/Entities/Unit";
 import * as constants from "../../constants/constants";
-import { Relic, RelicCard } from "../Battleground/Systems/Relic"; // Added Relic and RelicCard
 
 export class DebugController {
 	scene: BattlegroundScene;
@@ -40,31 +39,6 @@ export class DebugController {
 
 		return `Emitted SHOP_ITEM_CLICK_PURCHASE_REQUESTED for hero in shop slot ${slotIndex} (Card ID: ${unitToPurchase.cardId}, Chara ID: ${chara.id}). Purchase processing is asynchronous.`;
 	}
-
-	/**
-	 * Simulates clicking a relic card in the shop.
-	 * This should trigger the relic acquisition logic.
-	 * @param slotIndex 0-based index of the relic slot in the shop.
-	 */
-	clickRelicInShop(slotIndex: number): string {
-		const relicCard = this.scene.shop.getShopRelicCardBySlot(slotIndex);
-		if (!relicCard) {
-			return `Error: No RelicCard found in shop slot ${slotIndex}.`;
-		}
-
-		if (relicCard.owned) {
-			return `Error: Relic in slot ${slotIndex} (ID: ${relicCard.id}) is already owned. Cannot click to buy.`;
-		}
-
-		// Directly call the method that handles click purchase logic on the RelicCard instance
-		// This will internally handle purchase checks, gold deduction, adding to player state,
-		// and calling its onAcquire callback (which updates shop UI and Shop's internal list).
-		relicCard.handlePointerUp();
-
-		return `Called handlePointerUp() for relic in shop slot ${slotIndex} (ID: ${relicCard.id}). Purchase processing initiated.`;
-	}
-
-
 
 	/**
 	 * Convenience function to buy a hero from the shop and immediately place it.
@@ -187,27 +161,6 @@ export class DebugController {
 		return `Sell request processed for unit ${unitId}. Sold for ${sellPrice} gold. State and visuals will update asynchronously.`;
 	}
 
-	/**
-	 * Simulates selling an owned relic from the player's possession.
-	 * @param relicId The ID of the relic to sell.
-	 */
-	sellPlayerRelic(relicId: string): string {
-		const playerRelics = this.scene.state.gameData.player.relics;
-		// Check if the relic exists in the player's inventory (optional, for more robust error handling)
-		const relicExists = playerRelics.some(r => r.id === relicId);
-		if (!relicExists) {
-			return `Error: Relic with ID ${relicId} not found in player's possession. Cannot sell.`;
-		}
-
-		const sellPrice = Math.floor(RelicCard.RELIC_COST / 2);
-
-		// Emit the OWNED_RELIC_SOLD event. The BattlegroundScene handler will
-		// manage gold update, state removal, and visual cleanup if the RelicCard didn't self-destruct.
-		this.scene.events.emit(GameEvents.OWNED_RELIC_SOLD, { relicId: relicId, soldForGold: sellPrice });
-
-		return `Sell request processed for relic ${relicId} for ${sellPrice} gold. Emitted ${GameEvents.OWNED_RELIC_SOLD}. State and visuals will update asynchronously.`;
-	}
-
 	// --- State Manipulation for Testing ---
 	playerGoldDelta(delta: number): string {
 		this.scene.events.emit(GameEvents.PLAYER_GOLD_DELTA_REQUEST, delta);
@@ -227,10 +180,6 @@ export class DebugController {
 		return constants.MAX_PARTY_SIZE;
 	}
 
-	getRelicCost(): number {
-		return RelicCard.RELIC_COST;
-	}
-
 	// --- Utility / State Inspection ---
 	getPlayerGold(): number {
 		return this.scene.state.gameData.player.gold;
@@ -240,25 +189,15 @@ export class DebugController {
 		return this.scene.shop.getDisplayedHeroCardDefinitions ? this.scene.shop.getDisplayedHeroCardDefinitions() : []; // TODO: rename to getDisplayedShopHeroDefinitions
 	}
 
-	getShopRelicDefinitions(): RelicDefinition[] {
-		return this.scene.shop.getDisplayedRelicDefinitions ? this.scene.shop.getDisplayedRelicDefinitions() : [];
-	}
-
 	getPlayerBoardUnits(): Unit[] {
 		return this.scene.state.gameData.player?.units || [];
-	}
-
-	getPlayerRelics(): Relic[] {
-		return this.scene.state.gameData.player?.relics || [];
 	}
 
 	logGameState(): void {
 		console.log("Current Game State (DebugController):", {
 			playerGold: this.getPlayerGold(),
 			shopHeroes: this.getShopHeroes().map(c => c?.id),
-			shopRelics: this.getShopRelicDefinitions().map(r => r?.id),
 			playerUnits: this.getPlayerBoardUnits().map(u => ({ id: u.id, cardId: u.cardId, x: u.position.x, y: u.position.y })),
-			playerRelics: this.getPlayerRelics().map(r => ({ id: r.id, position: r.position })),
 			currentRound: this.scene.state.gameData?.round,
 			// Add other relevant state parts
 		});

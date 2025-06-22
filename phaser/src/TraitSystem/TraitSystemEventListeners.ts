@@ -11,8 +11,6 @@ import {
 	runUnitEventTraits,
 	runAttackEventTraits,
 	runUnitEventWithTargetTraits,
-	processTraitEvent, // Relies on TraitEventContext from Traits.ts
-	RelicStateObject // Import the new type for relic sources
 } from "./Traits";
 import { UnitEventKeys, AttackEventKeys, UnitEventWithTargetKeys } from "../Models/UnitEvents";
 import {
@@ -61,47 +59,6 @@ function registerTraitListener<K, P>(
 }
 
 /**
- * Helper to process traits for all player relics for a given global event.
- * This iterates through the player's active relics and triggers their traits
-  * based on the provided `eventKey`.
- *
- * @param scene The BattlegroundScene instance.
- * @param currentState The current game state.
- * @param eventKey The specific global trait event key (e.g., "onBattleStart", "onBattleEnd").
- */
-async function processGlobalEventRelicTraits(
-	scene: BattlegroundScene,
-	currentState: State,
-	eventKey: UnitEventKeys // Changed from string for better type safety
-) {
-	// This loop assumes `relic` objects in `currentState.gameData.player.relics`
-	// (typed as `Relic[]` via `Force.ts` from `../Scenes/Battleground/Systems/Relic.ts`)
-	// include `id: string`, `forceId: string`, and `traits: TraitData[]`.
-	// `RelicDefinition` (from Card.ts) provides `traits: TraitData[]`.
-	// `forceId` should be assigned when the relic instance is created for a player.
-	for (const relic of currentState.gameData.player.relics) {
-		// Robust check for necessary properties on the relic object.
-		if (relic && relic.id && relic.forceId && relic.traits && Array.isArray(relic.traits)) {
-			for (const traitData of relic.traits) { // Assuming relic.traits is TraitData[]
-				const relicSource: RelicStateObject = {
-					id: relic.id,
-					forceId: relic.forceId,
-				};
-				await processTraitEvent({
-					source: relicSource,
-					traitInstanceData: traitData,
-					eventKey,
-					scene,
-					state: currentState,
-					eventDetails: { type: "none" } // Global events use NoEventPayloadDetails
-				});
-			}
-		} else if (process.env.NODE_ENV === 'development') {
-			console.warn(`Relic (ID: ${relic?.id || 'unknown'}) is missing expected properties (id, forceId, or traits array), skipping for event ${eventKey}. Relic data:`, relic);
-		}
-	}
-}
-/**
  * Sets up all necessary event listeners for the trait system.
  * This function should be called once when the battle scene is created or initialized.
  * It listens for various `GameEvents` and triggers the appropriate trait processing functions.
@@ -118,8 +75,6 @@ export function setupTraitEventListeners(scene: BattlegroundScene): void {
 				await runUnitEventTraits("onBattleStart" as UnitEventKeys, scene, currentState, { unit });
 			}
 		}
-		// Process for player relics
-		await processGlobalEventRelicTraits(scene, currentState, "onBattleStart");
 	});
 
 	scene.events.on(GameEvents.TRAIT_EVAL_BATTLE_END, async (_payload: EmptyPayload) => {
@@ -129,8 +84,6 @@ export function setupTraitEventListeners(scene: BattlegroundScene): void {
 			// Note: Original onBattleEnd did not filter by unit.hp > 0, preserving that behavior.
 			await runUnitEventTraits("onBattleEnd" as UnitEventKeys, scene, currentState, { unit });
 		}
-		// Process for player relics (added for consistency with onBattleStart)
-		await processGlobalEventRelicTraits(scene, currentState, "onBattleEnd");
 	});
 
 	const unitEventMappings: { gameEvent: string, traitKey: UnitEventKeys }[] = [

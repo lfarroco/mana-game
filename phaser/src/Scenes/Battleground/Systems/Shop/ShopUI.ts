@@ -1,12 +1,9 @@
-import { images } from "../../../../assets";
 import * as Card from "../../../../Models/Entities/Card";
 import { vec2 } from "../../../../Models/Geometry";
 import { Flyout } from "../../../../UI/Flyout";
 import { registerChara } from "../CharaManager";
-import { RelicCard } from "../Relic";
 import { Chara, CharaOptions } from "../../../../Systems/Chara/Chara";
 import { BattlegroundScene } from "../../BattlegroundScene";
-import { playerForce } from "../../../../Models/Entities/Force";
 import { GameEvents } from "../../../../constants/events";
 import * as c from "../../../../constants/constants";
 import { UIButton } from "../../../../UI/UIButton";
@@ -44,22 +41,20 @@ export class ShopUI {
 		return newCharas;
 	}
 	displayShop(
-		relicDefsToDisplay: Card.RelicDefinition[],
 		cardsToDisplay: Card.CardDefinition[],
 		nextRoundCallback: () => void,
 		rerollCallback: () => void,
 		charaPurchaseFinalized: (purchasedChara: Chara) => void,
-		relicAcquisitionFinalized: (acquiredRelicCard: RelicCard) => void
-	): { charas: Chara[], relicCards: RelicCard[] } {
+	): { charas: Chara[] } {
 		this.flyout.removeAll(true); // Clear any previous content
 
 		const panelPadding = 25;
-		// Calculate width based on combined relic and tavern sections plus padding
-		const shopPanelWidth = sc.RELIC_SECTION_X + sc.TAVERN_BG_OFFSET_X + sc.TAVERN_BG_WIDTH + panelPadding;
-		// Calculate height based on the taller of the relic or tavern content areas
+		// Calculate width based on combined tavern sections plus padding
+		const shopPanelWidth = sc.TAVERN_BG_OFFSET_X + sc.TAVERN_BG_WIDTH + panelPadding;
+		// Calculate height based on the taller of the tavern content area
 		const contentMaxY = Math.max(
-			sc.RELIC_SECTION_Y + sc.RELIC_BG_HEIGHT, // Bottom of relic content
-			sc.RELIC_SECTION_Y + sc.TAVERN_BG_HEIGHT // Bottom of tavern content (assuming same Y start for logical grouping)
+			0,
+			sc.TAVERN_BG_HEIGHT // Bottom of tavern content (assuming same Y start for logical grouping)
 		);
 		const buttonAreaHeight = 100;
 		const shopPanelHeight = contentMaxY + buttonAreaHeight + panelPadding;
@@ -68,7 +63,6 @@ export class ShopUI {
 			.fillStyle(sc.PANEL_BG_COLOR, sc.PANEL_BG_OPACITY)
 			.fillRoundedRect(sc.PANEL_X, sc.PANEL_Y, shopPanelWidth, shopPanelHeight, 20);
 		this.flyout.add(shopBackground);
-		const displayedRelics = this._renderRelicsUI(relicDefsToDisplay, relicAcquisitionFinalized);
 		const displayedCharas = this._renderTavernUI(cardsToDisplay, charaPurchaseFinalized);
 
 		const buttonY = sc.PANEL_Y + shopPanelHeight - 100;
@@ -96,49 +90,7 @@ export class ShopUI {
 
 		this._createSellZone(shopPanelWidth, shopPanelHeight);
 
-		return { charas: displayedCharas, relicCards: displayedRelics };
-	}
-
-	_renderRelicsUI(
-		relicDefs: Card.RelicDefinition[],
-		relicAcquisitionFinalized: (acquiredRelicCard: RelicCard) => void
-	): RelicCard[] {
-		const createdRelicCards: RelicCard[] = [];
-
-		const bg = this.scene.add.graphics()
-			.fillStyle(0x000, 0.5)
-			.fillRoundedRect(
-				0, 0,
-				sc.RELIC_BG_WIDTH, sc.RELIC_BG_HEIGHT,
-				sc.SUB_PANEL_CORNER_RADIUS,
-			)
-			.setPosition(sc.RELIC_SECTION_X, sc.RELIC_SECTION_Y);
-
-		const title = this.scene.add.text(sc.RELIC_TITLE_X, sc.RELIC_TITLE_Y, "Relics", c.titleTextConfig);
-		this.flyout.add([bg, title]);
-
-		relicDefs.forEach((relic, index) => {
-			const x = sc.RELIC_FIRST_ICON_X + (index * sc.RELIC_ICON_SPACING);
-			const y = sc.RELIC_ICON_BASE_Y;
-
-			const slot = this.scene.add
-				.image(x, y, images.slot.key)
-				.setDisplaySize(sc.RELIC_ICON_SIZE, sc.RELIC_ICON_SIZE);
-
-			const icon = new RelicCard(
-				this.scene, x, y,
-				playerForce.id, relic,
-				sc.RELIC_ICON_SIZE - 40,
-				() => { // onAcquire callback
-					this.flyout.remove(icon); // Remove from flyout display
-					relicAcquisitionFinalized(icon); // Notify Shop class
-				}
-			);
-
-			this.flyout.add([slot, icon]);
-			createdRelicCards.push(icon);
-		});
-		return createdRelicCards;
+		return { charas: displayedCharas };
 	}
 
 	/**
@@ -166,7 +118,7 @@ export class ShopUI {
 				sc.TAVERN_BG_WIDTH, sc.TAVERN_BG_HEIGHT,
 				sc.SUB_PANEL_CORNER_RADIUS
 			)
-			.setPosition(sc.RELIC_SECTION_X, sc.RELIC_SECTION_Y);
+			.setPosition(sc.TAVERN_BASE_X, sc.TAVERN_BASE_Y);
 
 		const title = this.scene.add.text(
 			sc.TAVERN_TITLE_X, sc.TAVERN_TITLE_Y,

@@ -14,7 +14,6 @@ sequenceDiagram
     participant ShopSys as Shop
     participant BES as BattlegroundEventSystem
     participant PB as PlayerBoard
-    participant RelicSys as RelicSystem (from Systems/Relic)
     participant TraitSysEL as TraitSystemEventListeners
     participant Flyout as Flyout (UI)
     participant ShopUI as ShopUI (UI)

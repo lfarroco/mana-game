@@ -1,3 +1,5 @@
+update: relics were removed (focusing on characters for now)
+
 # Shop System
 
 The Shop system manages the player's ability to acquire new characters (Charas) and Relics during the shop phase of the game. It interacts closely with the `ShopUI` for presentation, game state for data, and various event handlers for purchase logic.

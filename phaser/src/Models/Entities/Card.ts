@@ -4,8 +4,6 @@ import * as t from "../../TraitSystem/Traits";
 let cards = new Map<string, CardDefinition>();
 
 
-let relicDefinitions = new Map<string, RelicDefinition>();
-
 const registerCard = (card: CardDefinition): void => {
   if (cards.has(card.id)) {
     throw new Error(`Card with id ${card.id} already exists.`);
@@ -13,12 +11,6 @@ const registerCard = (card: CardDefinition): void => {
   cards.set(card.id, card);
 };
 
-const registerRelicDefinition = (relicDef: RelicDefinition): void => {
-  if (relicDefinitions.has(relicDef.id)) {
-    throw new Error(`RelicDefinition with id ${relicDef.id} already exists.`);
-  }
-  relicDefinitions.set(relicDef.id, relicDef);
-};
 
 let collections = new Map<string, CardCollection>();
 export const registerCollection = (collection: CardCollection): void => {
@@ -29,8 +21,6 @@ export const registerCollection = (collection: CardCollection): void => {
 
   collection.cards.forEach(registerCard);
 
-  collection.relics.forEach(registerRelicDefinition);
-
 };
 
 export type CardCollection = {
@@ -39,7 +29,6 @@ export type CardCollection = {
   description: string;
   pic: string;
   cards: CardDefinition[];
-  relics: RelicDefinition[];
   traits: TraitDefinition[]
 }
 
@@ -61,15 +50,6 @@ export type CardDefinition = {
   traits: t.TraitData[]
 };
 
-export type RelicDefinition = {
-  id: string;
-  name: string;
-  pic: string;
-  description: string;
-  cost: number;
-  traits: t.TraitData[]
-};
-
 export const getCardDefinition = (id: string): CardDefinition => {
   const card = cards.get(id);
   if (!card) {
@@ -88,16 +68,4 @@ export const getCollection = (id: string): CardCollection => {
 
 export const getAllCards = (): CardDefinition[] => {
   return Array.from(cards.values());
-}
-
-export const getRelicDefinition = (id: string): RelicDefinition => {
-  const relicDef = relicDefinitions.get(id);
-  if (!relicDef) {
-    throw new Error(`RelicDefinition with id ${id} not found.`);
-  }
-  return relicDef;
-}
-
-export const getAllRelicDefinitions = (): RelicDefinition[] => {
-  return Array.from(relicDefinitions.values());
 }

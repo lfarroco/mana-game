@@ -2,7 +2,7 @@ export const GameEvents = {
 	GOLD_CHANGED: "gold_changed",
 	/**
 	 * Emitted when the battle wave setup is complete, before the first tick of combat.
-	 * Units, relics and other systems can listen to this to apply battle-start effects.
+	 * Units and other systems can listen to this to apply battle-start effects.
 	 */
 	BATTLE_START_SETUP_COMPLETE: "battle_start_setup_complete",
 
@@ -20,7 +20,7 @@ export const GameEvents = {
 
 	// Trait System Specific Triggers
 	TRAIT_EVAL_UNIT_ACTION: "trait_eval_unit_action",
-	TRAIT_EVAL_GLOBAL_BATTLE_START: "trait_eval_global_battle_start", // For all units & relics
+	TRAIT_EVAL_GLOBAL_BATTLE_START: "trait_eval_global_battle_start", // For all units
 	TRAIT_EVAL_BATTLE_END: "trait_eval_battle_end",
 	TRAIT_EVAL_TURN_START: "trait_eval_turn_start",
 	TRAIT_EVAL_ALLIED_ACTION: "trait_eval_allied_action",
@@ -44,7 +44,6 @@ export const GameEvents = {
 	PLAYER_BOARD_SHOW: "player_board_show",
 	PLAYER_BOARD_HIDE: "player_board_hide",
 	UI_MAIN_CREATE: "ui_main_create",
-	RELIC_SLOTS_SETUP: "relic_slots_setup",
 	CHARA_SUMMON_TO_BOARD: "chara_summon_to_board", // Payload: { unit: Unit, animateAppear: boolean, playSound: boolean }
 	CHARA_DESTROY_FROM_BOARD: "chara_destroy_from_board", // Payload: { unitId: string }
 	POP_TEXT_SHOW: "pop_text_show", // Payload: PopTextPayload from EventPayloads.ts
@@ -72,7 +71,6 @@ export const GameEvents = {
 	// Shop Interaction Requests (emitted by Chara when it's a shop item)
 	SHOP_ITEM_CLICK_PURCHASE_REQUESTED: "shop_item_click_purchase_requested", // Payload: { shopUnitData: Unit, shopCharaId: string, dragStartX: number, dragStartY: number }
 	SHOP_ITEM_DRAG_PURCHASE_REQUESTED: "shop_item_drag_purchase_requested",   // Payload: { shopUnitData: Unit, shopCharaId: string, targetTile: Vec2, dragStartX: number, dragStartY: number }
-	SHOP_RELIC_CLICK_PURCHASE_REQUESTED: "shop_relic_click_purchase_requested", // Payload: { relicDefinition: RelicDefinition, shopRelicCardId: string }
 
 	// Owned Unit Move Requests (emitted by Chara when it's an owned unit)
 	OWNED_UNIT_MOVE_REQUESTED: "owned_unit_move_requested", // Payload: { unitId: string, targetTile: Vec2, dragStartX: number, dragStartY: number }
@@ -92,7 +90,6 @@ export const GameEvents = {
 	PRESTIGE_CHANGED: "prestige_changed", // Payload: newTotalPrestige: number, prestigeDelta: number
 
 	OWNED_UNIT_SOLD: "owned_unit_sold", // Payload: { unitId: string, soldForGold: number }
-	OWNED_RELIC_SOLD: "owned_relic_sold", // Payload: { relicId: string, soldForGold: number }
 	ROUND_ENDED_UPDATE_STATS: "round_ended_update_stats",// Payload: {totalRounds: number, currentPrestige: number }
 	PLAYER_WON_GAME: "player_won_game",
 

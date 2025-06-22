@@ -39,7 +39,6 @@ export class BattlegroundSetupSystem {
 		};
 
 		collection.cards.forEach(card => loadAsset(card, "card"));
-		collection.relics.forEach(relic => loadAsset(relic, "relic"));
 
 		this.scene.load.once("complete", () => {
 			console.log("Dynamic asset loading complete for BattlegroundScene.");
@@ -53,7 +52,6 @@ export class BattlegroundSetupSystem {
 	initializeNewGame(state: State): void {
 
 		state.gameData.player.units = [];
-		state.gameData.player.relics = [];
 		state.gameData.round = 1;
 		state.gameData.player.prestige = 0; // Initialize prestige for a new game
 
