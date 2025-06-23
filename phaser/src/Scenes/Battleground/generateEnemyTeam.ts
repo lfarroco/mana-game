@@ -228,21 +228,53 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 		}
 	}
 
-	// --- Placeholder for using powerBudgetOverflow and difficultyTier ---
-	// This is where you'd implement logic to make enemies stronger or give them buffs.
-	// Example:
-	// if (difficultyTier === DifficultyTier.Elite && powerBudgetOverflow > 0.5) {
-	//   units.forEach(unit => {
-	//     unit.maxHp = Math.floor(unit.maxHp * 1.15); // 15% HP buff for Elite tier
-	//     unit.hp = unit.maxHp;
-	//     unit.attackPower = Math.floor(unit.attackPower * 1.1); // 10% Attack buff
-	//   });
-	//   console.log("Applied Elite tier stat buffs to enemy team.");
-	// } else if (difficultyTier === DifficultyTier.Veteran && powerBudgetOverflow > 0.3) {
-	//   const randomUnit = pickOne(units);
-	//   randomUnit.traits.push({ id: "temporary_fast_attack_trait" as any, description: "Attacks faster this battle."}); // Example
-	//   console.log(`Gave ${randomUnit.name} a temporary buff.`);
-	// }
+
+	// Apply buffs based on difficulty tier and power budget overflow
+	if (units.length > 0) { // Only apply buffs if there are units to buff
+		switch (difficultyTier) {
+			case DifficultyTier.Elite:
+				units.forEach(unit => {
+					unit.maxHp = Math.floor(unit.maxHp * 1.15); // +15% HP
+					unit.hp = unit.maxHp; // Restore HP to new max
+					unit.attackPower = Math.floor(unit.attackPower * 1.10); // +10% Attack
+				});
+				console.log("Applied Elite tier stat buffs to enemy team.");
+				if (powerBudgetOverflow >= 0.5) {
+					const randomUnit = pickOne(units);
+					randomUnit.hasted += 3000; // 3 seconds of haste
+					console.log(`Elite tier: ${randomUnit.name} gained 3s of haste.`);
+				}
+				break;
+			case DifficultyTier.Veteran:
+				units.forEach(unit => {
+					unit.maxHp = Math.floor(unit.maxHp * 1.10); // +10% HP
+					unit.hp = unit.maxHp; // Restore HP to new max
+					unit.attackPower = Math.floor(unit.attackPower * 1.05); // +5% Attack
+				});
+				console.log("Applied Veteran tier stat buffs to enemy team.");
+				if (powerBudgetOverflow >= 0.3) {
+					const randomUnit = pickOne(units);
+					randomUnit.crit += 5; // +5% crit chance
+					console.log(`Veteran tier: ${randomUnit.name} gained +5% crit chance.`);
+				}
+				break;
+			case DifficultyTier.Challenger:
+				units.forEach(unit => {
+					unit.maxHp = Math.floor(unit.maxHp * 1.05); // +5% HP
+					unit.hp = unit.maxHp; // Restore HP to new max
+				});
+				console.log("Applied Challenger tier stat buffs to enemy team.");
+				if (powerBudgetOverflow >= 0.7) {
+					const randomUnit = pickOne(units);
+					randomUnit.attackPower = Math.floor(randomUnit.attackPower * 1.05); // +5% Attack
+					console.log(`Challenger tier: ${randomUnit.name} gained +5% attack.`);
+				}
+				break;
+			default:
+				console.log("No specific difficulty tier buffs applied.");
+				break;
+		}
+	}
 
 	return units;
 }
