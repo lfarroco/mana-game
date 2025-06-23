@@ -166,14 +166,14 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 	console.log(`Generating enemy team for Round ${round}, Prestige ${playerState.prestige}, Tier ${difficultyTier}. Size: ${enemyTeamSize}, Overflow: ${powerBudgetOverflow.toFixed(2)}`);
 
 	// Get formations for the current team size
-	const availableTemplates = FORMATION_TEMPLATES[enemyTeamSize];
+	let availableTemplates = FORMATION_TEMPLATES[enemyTeamSize];
 	if (!availableTemplates?.length) {
 		console.warn(`No formations available for team size: ${enemyTeamSize} (Tier: ${difficultyTier}). Defaulting to empty team.`);
 		return [];
 	}
 
 	// Filter formations based on current round and potentially difficultyTier
-	const validTemplates = availableTemplates.filter(template => {
+	let validTemplates = availableTemplates.filter(template => {
 		const roundCheck = !template.metadata.minRound || template.metadata.minRound <= round;
 		// Optional: Add difficulty tier check for formations if desired
 		// const tierCheck = !template.metadata.minTier || template.metadata.minTier === difficultyTier;
@@ -181,9 +181,11 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 		return roundCheck;
 	});
 
-	if (!validTemplates.length) {
-		console.warn(`No valid formations available for team size ${enemyTeamSize}, round ${round} (Tier: ${difficultyTier}). Defaulting to empty team.`);
-		return [];
+	// If no templates are valid for the current round, fall back to using any available template for that size.
+	// This prevents getting an empty enemy team if the difficulty scales faster than the available formations for the round.
+	if (validTemplates.length === 0) {
+		console.warn(`No formations for team size ${enemyTeamSize} are valid for round ${round}. Falling back to all available templates for this size.`);
+		validTemplates = availableTemplates;
 	}
 
 	// Validate chosen formation
