@@ -93,4 +93,7 @@ export const GameEvents = {
 	ROUND_ENDED_UPDATE_STATS: "round_ended_update_stats",// Payload: {totalRounds: number, currentPrestige: number }
 	PLAYER_WON_GAME: "player_won_game",
 
+	DIFFICULTY_TIER_CHANGED: "difficulty_tier_changed", // Payload: { difficultyTier: DifficultyTier }
+
+
 };

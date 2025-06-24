@@ -2,13 +2,14 @@ import Phaser from "phaser";
 import * as constants from "../constants/constants";
 import { BattlegroundScene } from "../Scenes/Battleground/BattlegroundScene";
 import { tween } from "../Utils/animation";
-import { COLOR_BLACK } from "../Utils/colors";
 import { Tooltip } from "./Tooltip";
 import { GoldCoinAnimator } from "./GoldCoinAnimator";
 import { GameEvents } from "../constants/events";
+import { DifficultyTier } from "../Scenes/Battleground/generateEnemyTeam";
 import { UserMessagePayload } from "../Models/EventPayloads";
 
-const SIDEBAR_TEXT_BASE_X = 150;
+const SIDEBAR_TEXT_BASE_X = 300;
+const SIDEBAR_TEXT_BASE_Y = -400;
 /**
  * Manages the user interface elements within the BattlegroundScene.
  * This class is responsible for creating, updating, and destroying UI components
@@ -31,6 +32,8 @@ export class UIManager {
 	lossStreakTextElement: Phaser.GameObjects.Text | null = null;
 	/** Phaser text element for displaying total rounds played. */
 	totalRoundsTextElement: Phaser.GameObjects.Text | null = null;
+	/** Phaser text element for displaying the current difficulty tier. */
+	difficultyTierTextElement: Phaser.GameObjects.Text | null = null;
 
 
 
@@ -54,6 +57,7 @@ export class UIManager {
 		this._setupRoundStatsListener();
 		this._setupPurchaseFailedListener();
 		this._setupUserMessageListener();
+		this._setupDifficultyTierChangeListener();
 		this.tooltip = new Tooltip(scene);
 		this._setupTooltipShowListener();
 		this._setupTooltipHideListener();
@@ -116,6 +120,14 @@ export class UIManager {
 	 */
 	_setupTooltipHideListener(): void {
 		this.scene.events.on(GameEvents.TOOLTIP_HIDE, () => this.tooltip.hide(), this);
+	}
+
+	/**
+	 * Sets up an event listener for "difficulty_tier_changed" events.
+	 * This allows the UIManager to react to updates in the current difficulty tier.
+	 */
+	_setupDifficultyTierChangeListener(): void {
+		this.scene.events.on(GameEvents.DIFFICULTY_TIER_CHANGED, this._handleDifficultyTierChanged, this);
 	}
 
 	/**
@@ -183,6 +195,17 @@ export class UIManager {
 	}
 
 	/**
+	 * Handles the "difficulty_tier_changed" event.
+	 * It updates the displayed difficulty tier.
+	 * @param payload - The payload containing the new difficulty tier.
+	 */
+	_handleDifficultyTierChanged(payload: { difficultyTier: DifficultyTier }): void {
+		if (this.difficultyTierTextElement) {
+			this.difficultyTierTextElement.setText(`Tier: ${payload.difficultyTier}`);
+		}
+	}
+
+	/**
 	 * Creates and displays the main persistent UI elements of the game,
 	 * such as a sidebar and the player's gold display.
 	 */
@@ -191,20 +214,12 @@ export class UIManager {
 
 		this.uiContainer = this.scene.add.container(0, 0);
 
-		const sidebarWidth = constants.TILE_WIDTH;
-		const sidebarBg = this.scene.add.graphics();
-		sidebarBg.fillStyle(COLOR_BLACK, 0.7);
-		sidebarBg.fillRect(
-			(this.scene.cameras.main.width - sidebarWidth),
-			0, sidebarWidth, this.scene.cameras.main.height
-		);
-		this.uiContainer.add(sidebarBg);
-
 		this._createGoldText(this.uiContainer);
 		this._createPrestigeText(this.uiContainer);
 		this._createTotalRoundsText(this.uiContainer);
 		this._createWinStreakText(this.uiContainer);
 		this._createLossStreakText(this.uiContainer);
+		this._createDifficultyTierText(this.uiContainer);
 
 	}
 
@@ -219,8 +234,9 @@ export class UIManager {
 		const initialGold = this.scene.state.gameData.player.gold;
 		this.goldTextElement = this.scene.add.text(
 			constants.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
-			constants.SCREEN_HEIGHT - 100,
-			`Gold: ${initialGold}`, constants.defaultTextConfig
+			constants.SCREEN_HEIGHT + SIDEBAR_TEXT_BASE_Y,
+			`Gold: ${initialGold}`,
+			constants.titleTextConfig
 		);
 		parent.add(this.goldTextElement);
 	}
@@ -232,10 +248,10 @@ export class UIManager {
 	_createPrestigeText(parent: Phaser.GameObjects.Container): void {
 		const initialPrestige = this.scene.state.gameData.player.prestige;
 		this.prestigeTextElement = this.scene.add.text(
-			constants.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X, // Same X as gold text
-			constants.SCREEN_HEIGHT - 100 + 25, // Positioned below gold text
+			constants.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
+			constants.SCREEN_HEIGHT + SIDEBAR_TEXT_BASE_Y + 50,
 			`Prestige: ${initialPrestige}`,
-			constants.defaultTextConfig
+			constants.titleTextConfig
 		);
 		parent.add(this.prestigeTextElement);
 	}
@@ -248,9 +264,9 @@ export class UIManager {
 		const initialRounds = this.scene.state.gameData.player.totalRoundsPlayed;
 		this.totalRoundsTextElement = this.scene.add.text(
 			constants.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
-			constants.SCREEN_HEIGHT - 100 + 50, // Positioned below prestige text
+			constants.SCREEN_HEIGHT + SIDEBAR_TEXT_BASE_Y + 100,
 			`Rounds: ${initialRounds}`,
-			constants.defaultTextConfig
+			constants.titleTextConfig
 		);
 		parent.add(this.totalRoundsTextElement);
 	}
@@ -263,9 +279,9 @@ export class UIManager {
 		const initialStreak = this.scene.state.gameData.player.winStreak;
 		this.winStreakTextElement = this.scene.add.text(
 			constants.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
-			constants.SCREEN_HEIGHT - 100 + 75, // Positioned below total rounds text
+			constants.SCREEN_HEIGHT + SIDEBAR_TEXT_BASE_Y + 150,
 			`Win Streak: ${initialStreak}`,
-			constants.defaultTextConfig
+			constants.titleTextConfig
 		);
 		parent.add(this.winStreakTextElement);
 	}
@@ -278,13 +294,28 @@ export class UIManager {
 		const initialStreak = this.scene.state.gameData.player.lossStreak;
 		this.lossStreakTextElement = this.scene.add.text(
 			constants.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
-			constants.SCREEN_HEIGHT - 100 + 100, // Positioned below win streak text
+			constants.SCREEN_HEIGHT + SIDEBAR_TEXT_BASE_Y + 200,
 			`Loss Streak: ${initialStreak}`,
-			constants.defaultTextConfig
+			constants.titleTextConfig
 		);
 		parent.add(this.lossStreakTextElement);
 	}
 
+	/**
+	 * Creates the text element that displays the current difficulty tier.
+	 * @param parent The `Phaser.GameObjects.Container` to which the text will be added.
+	 */
+	_createDifficultyTierText(parent: Phaser.GameObjects.Container): void {
+		// Initial text based on player prestige, will be updated by event
+		const initialTier = this.scene.state.gameData.player.prestige < 10 ? "Challenger" : (this.scene.state.gameData.player.prestige < 20 ? "Veteran" : "Elite");
+		this.difficultyTierTextElement = this.scene.add.text(
+			constants.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
+			constants.SCREEN_HEIGHT + SIDEBAR_TEXT_BASE_Y + 250,
+			`Tier: ${initialTier}`,
+			constants.titleTextConfig
+		);
+		parent.add(this.difficultyTierTextElement);
+	}
 
 	/**
 	 * Handles requests to display a user message (e.g., error, info).
@@ -336,6 +367,7 @@ export class UIManager {
 		this.totalRoundsTextElement = null;
 		this.winStreakTextElement = null;
 		this.lossStreakTextElement = null;
+		this.difficultyTierTextElement = null;
 
 	}
 
@@ -352,6 +384,7 @@ export class UIManager {
 		this.scene.events.off(GameEvents.USER_MESSAGE_REQUESTED, this._handleUserMessageRequested, this);
 		this.scene.events.off(GameEvents.TOOLTIP_SHOW);
 		this.scene.events.off(GameEvents.TOOLTIP_HIDE);
+		this.scene.events.off(GameEvents.DIFFICULTY_TIER_CHANGED, this._handleDifficultyTierChanged, this);
 		this.scene.events.off(GameEvents.ROUND_ENDED_UPDATE_STATS, this._handleRoundStatsUpdate, this);
 
 	}
