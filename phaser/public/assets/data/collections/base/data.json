@@ -212,7 +212,7 @@
 		},
 		{
 			"id": "lava_spawn",
-			"pic": "charas/lava_spawn.png",
+			"pic": "assets/cards/lava_spawn.png",
 			"name": "Lava Spawn",
 			"description": "A volatile creature of fire. Hurls fireballs and explodes upon death.",
 			"hp": 55,
