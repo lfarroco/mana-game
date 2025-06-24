@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import * as constants from "../constants/constants";
 import { BattlegroundScene } from "../Scenes/Battleground/BattlegroundScene";
 import { tween } from "../Utils/animation";
-import { Tooltip } from "./Tooltip";
+import * as Tooltip from "./Tooltip";
 import { GoldCoinAnimator } from "./GoldCoinAnimator";
 import { GameEvents } from "../constants/events";
 import { DifficultyTier } from "../Scenes/Battleground/generateEnemyTeam";
@@ -36,13 +36,6 @@ export class UIManager {
 	difficultyTierTextElement: Phaser.GameObjects.Text | null = null;
 
 
-
-	/**
-	 * Instance of the Tooltip system, used to display contextual information
-	 * when hovering over UI elements or game objects.
-	 */
-	tooltip: Tooltip;
-
 	/**
 	 * Initializes the UIManager.
 	 * @param scene The `BattlegroundScene` instance this UIManager will be associated with.
@@ -58,7 +51,7 @@ export class UIManager {
 		this._setupPurchaseFailedListener();
 		this._setupUserMessageListener();
 		this._setupDifficultyTierChangeListener();
-		this.tooltip = new Tooltip(scene);
+		Tooltip.initializeTooltip(scene);
 		this._setupTooltipShowListener();
 		this._setupTooltipHideListener();
 	}
@@ -110,7 +103,7 @@ export class UIManager {
 	 */
 	_setupTooltipShowListener(): void {
 		this.scene.events.on(GameEvents.TOOLTIP_SHOW, (payload: { x: number, y: number, title: string, description: string }) => {
-			this.tooltip.render(payload.x, payload.y, payload.title, payload.description);
+			Tooltip.renderTooltip(payload.x, payload.y, payload.title, payload.description);
 		}, this);
 	}
 
@@ -119,7 +112,7 @@ export class UIManager {
 	 * This allows other game systems to request hiding the tooltip.
 	 */
 	_setupTooltipHideListener(): void {
-		this.scene.events.on(GameEvents.TOOLTIP_HIDE, () => this.tooltip.hide(), this);
+		this.scene.events.on(GameEvents.TOOLTIP_HIDE, () => Tooltip.hideTooltip(), this);
 	}
 
 	/**
@@ -378,6 +371,7 @@ export class UIManager {
 	 */
 	destroy(): void { // Full cleanup for the UIManager
 		this.destroyMainUI();
+		Tooltip.destroyTooltip();
 		this.scene.events.off(GameEvents.GOLD_CHANGED, this._handleGoldChanged, this);
 		this.scene.events.off(GameEvents.PRESTIGE_CHANGED, this._handlePrestigeChanged, this);
 		this.scene.events.off(GameEvents.PURCHASE_FAILED, this._handlePurchaseFailed, this);
