@@ -169,7 +169,10 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 	let availableTemplates = FORMATION_TEMPLATES[enemyTeamSize];
 	if (!availableTemplates?.length) {
 		console.warn(`No formations available for team size: ${enemyTeamSize} (Tier: ${difficultyTier}). Defaulting to empty team.`);
-		return [];
+		return {
+			units: [],
+			difficultyTier
+		};
 	}
 
 	// Filter formations based on current round and potentially difficultyTier
@@ -194,14 +197,20 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 		validateFormation(template, enemyTeamSize);
 	} catch (error) {
 		console.error(error);
-		return [];
+		return {
+			units: [],
+			difficultyTier
+		}
 	}
 
 	const parsed = template.pattern.map(row => row.split(""));
 
 	if (!parsed.length || !parsed[0].length) {
 		console.warn('Invalid formation template dimensions');
-		return [];
+		return {
+			units: [],
+			difficultyTier
+		}
 	}
 
 	const units = [];
@@ -276,5 +285,5 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 		}
 	}
 
-	return units;
+	return { units, difficultyTier };
 }

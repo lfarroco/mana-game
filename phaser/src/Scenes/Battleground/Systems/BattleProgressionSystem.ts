@@ -160,16 +160,16 @@ export class BattleProgressionSystem {
 	 */
 	setupBattle(): { enemies: Unit[] } {
 		const cardPool = getAllCards();
-		const enemies = generateEnemyTeam(this.state.gameData.round, cardPool);
+		const enemy = generateEnemyTeam(this.state.gameData.round, cardPool);
 
 		this.state.battleData.forces = [
 			cpuForce,
 			playerForce
 		];
-		this.state.battleData.units = [...enemies, ...this.state.gameData.player.units];
+		this.state.battleData.units = [...enemy.units, ...this.state.gameData.player.units];
 
 		// Summon CPU units to the board
-		enemies.forEach(unit => {
+		enemy.units.forEach(unit => {
 			this.scene.events.emit(
 				GameEvents.CHARA_SUMMON_TO_BOARD,
 				{
@@ -179,7 +179,8 @@ export class BattleProgressionSystem {
 				}
 			);
 		});
-		return { enemies };
+		this.scene.events.emit(GameEvents.DIFFICULTY_TIER_CHANGED, { difficultyTier: enemy.difficultyTier });
+		return { enemies: enemy.units };
 	}
 
 	// --- Event Handlers Moved from BattlegroundEventSystem ---
