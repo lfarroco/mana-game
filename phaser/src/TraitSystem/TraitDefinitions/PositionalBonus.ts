@@ -1,11 +1,11 @@
 import { TraitDefinition } from "../TraitEffectSystem";
 import { TraitId } from "../Traits";
 
-// these are examples
+// these are example traits
 export const frontlineMightTrait: TraitDefinition = {
 	id: "frontline_might" as TraitId,
 	name: "Frontline Might",
-	description: "Gains +20 Attack Power when in the front row.",
+	description: "Gains +{amount} Attack Power when in the {row} row.",
 	categories: ["positional", "offensive"],
 	effects: [
 		{
@@ -22,7 +22,7 @@ export const frontlineMightTrait: TraitDefinition = {
 export const backlineBulwarkTrait: TraitDefinition = {
 	id: "backline_bulwark" as TraitId,
 	name: "Backline Bulwark",
-	description: "Gains +50 Max HP when in the back row.",
+	description: "Gains +{amount} Max HP when in the {row} row.",
 	categories: ["positional", "defensive"],
 	effects: [
 		{
@@ -35,7 +35,3 @@ export const backlineBulwarkTrait: TraitDefinition = {
 		}
 	]
 };
-
-// To use these, you would register them (e.g., in `TraitSystem.initializeTraitsFromData`)
-// and then add them to a card's `traits` array in your card definitions JSON, like:
-// { "id": "some_card_id", ..., "traits": [{ "id": "frontline_might" }] }

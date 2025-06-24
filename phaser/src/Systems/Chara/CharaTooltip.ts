@@ -1,5 +1,7 @@
 import { GameEvents } from "../../constants/events";
+import { getTraitDefinition } from "../../TraitSystem/TraitEffectSystem";
 import { Chara } from "./Chara";
+import { formatTraitDescription } from "./TraitTooltipFormatter";
 
 export const onCharaPointerOver = ({ chara }: { chara: Chara }): void => {
 
@@ -7,10 +9,15 @@ export const onCharaPointerOver = ({ chara }: { chara: Chara }): void => {
 
 	const title = chara.unit.name; // Or cardDef.name
 
-	const description = [
-		`Attack: ${chara.unit.attackPower} HP: ${chara.unit.hp}`,
-		chara.unit.traits.map((trait) => trait.description).join("\n"),
-	].join('\n');
+	const traitDescriptions = chara.unit.traits.map(traitData => {
+		const definition = getTraitDefinition(traitData.id);
+		if (!definition) {
+			return `[b]Unknown Trait:[/b] ${traitData.id}`;
+		}
+		return formatTraitDescription(definition, traitData);
+	}).join('\n\n'); // Use double newline for better separation between traits
+
+	const description = `Attack: ${chara.unit.attackPower} | HP: ${chara.unit.hp}\n\n${traitDescriptions}`;
 
 	// Calculate absolute position of the Chara
 	// Chara's x,y is its center relative to its parent (scene or a container like flyout).
