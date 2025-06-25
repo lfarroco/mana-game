@@ -250,10 +250,13 @@ export class Chara extends Phaser.GameObjects.Container {
 	 * @param isCritical Whether the damage is a critical hit.
 	 */
 	damageUnit = (_sourceId: string, damage: number, isCritical = false) => {
-
 		if (!this.active) {
 			throw new Error("Tried to apply damage to inactive Chara.")
 		}
+		// Apply damage to the unit's HP data model and update its visual display
+		this.unit.hp -= damage;
+		this.updateHpDisplay();
+
 		this.scene.events.emit(GameEvents.UNIT_TOOK_DAMAGE, { unit: this.unit, damage });
 
 		if (isCritical) {
@@ -262,7 +265,9 @@ export class Chara extends Phaser.GameObjects.Container {
 			this.showPopText(Math.floor(damage).toFixed(0).toString(), "damage");
 		}
 
-
+		if (this.unit.hp <= 0) {
+			this.killUnit(_sourceId);
+		}
 	}
 
 	/**

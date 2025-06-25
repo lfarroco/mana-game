@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import * as constants from "../constants/constants";
+import * as c from "../constants/constants";
 import { BattlegroundScene } from "../Scenes/Battleground/BattlegroundScene";
 import { tween } from "../Utils/animation";
 import * as Tooltip from "./Tooltip";
@@ -34,6 +34,14 @@ export class UIManager {
 	totalRoundsTextElement: Phaser.GameObjects.Text | null = null;
 	/** Phaser text element for displaying the current difficulty tier. */
 	difficultyTierTextElement: Phaser.GameObjects.Text | null = null;
+	/** Phaser text element for displaying player's team morale (total HP). */
+	playerTeamMoraleTextElement: Phaser.GameObjects.Text | null = null;
+	/** Phaser text element for displaying player's team total DPS. */
+	playerTeamDPSTextElement: Phaser.GameObjects.Text | null = null;
+	/** Phaser text element for displaying enemy's team morale (total HP). */
+	enemyTeamMoraleTextElement: Phaser.GameObjects.Text | null = null;
+	/** Phaser text element for displaying enemy's team total DPS. */
+	enemyTeamDPSTextElement: Phaser.GameObjects.Text | null = null;
 
 
 	/**
@@ -54,6 +62,7 @@ export class UIManager {
 		Tooltip.initializeTooltip(scene);
 		this._setupTooltipShowListener();
 		this._setupTooltipHideListener();
+		this._setupCombatStatListeners();
 	}
 
 	/**
@@ -121,6 +130,16 @@ export class UIManager {
 	 */
 	_setupDifficultyTierChangeListener(): void {
 		this.scene.events.on(GameEvents.DIFFICULTY_TIER_CHANGED, this._handleDifficultyTierChanged, this);
+	}
+
+	/**
+	 * Sets up event listeners for combat-related stats that need to be displayed on the UI.
+	 */
+	_setupCombatStatListeners(): void {
+		this.scene.events.on(GameEvents.COMBAT_START_EXECUTION_TRIGGER, this._handleCombatStart, this); // To show and calculate initial stats
+		this.scene.events.on(GameEvents.MORALE_UPDATED, this._handleMoraleUpdated, this); // To update stats during combat
+		this.scene.events.on(GameEvents.COMBAT_ENDED_VICTORY, this._handleCombatEnd, this);
+		this.scene.events.on(GameEvents.COMBAT_ENDED_DEFEAT, this._handleCombatEnd, this);
 	}
 
 	/**
@@ -199,6 +218,85 @@ export class UIManager {
 	}
 
 	/**
+	 * Handles the MORALE_UPDATED event by updating the stats display for the affected force.
+	 * @param payload The event payload containing the force ID and new morale value.
+	 */
+	_handleMoraleUpdated(_payload: { forceId: string, newMorale: number, maxMorale: number }): void {
+		if (!this.playerTeamMoraleTextElement || !this.enemyTeamMoraleTextElement) {
+			return; // UI not ready
+		}
+		// Recalculate all stats from the source of truth (the state) to ensure UI is always in sync.
+		this._updateAllTeamStats();
+	}
+
+	/**
+	 * Handles the start of combat by showing and calculating initial team stats.
+	 */
+	_handleCombatStart(): void {
+		this.setTeamStatsVisibility(true);
+		this._updateAllTeamStats();
+	}
+
+	/**
+	 * Handles the end of combat by hiding team stats.
+	 */
+	_handleCombatEnd(): void {
+		this.setTeamStatsVisibility(false);
+	}
+
+	/**
+	 * Updates the displayed stats (Morale and DPS) for a single force.
+	 * @param forceId The ID of the force to update ('PLAYER' or 'CPU').
+	 * @param morale The new morale value to display.
+	 */
+	_updateForceStats(forceId: string, morale: number): void {
+		const units = this.scene.state.battleData.units.filter(u => u.force === forceId);
+		const totalDPS = units.reduce((sum, unit) => {
+			const cooldownInSeconds = unit.cooldown > 0 ? unit.cooldown / 1000 : 1;
+			return sum + (unit.attackPower / cooldownInSeconds);
+		}, 0);
+
+		if (forceId === c.FORCE_ID_PLAYER) {
+			this.playerTeamMoraleTextElement?.setText(`Morale: ${Math.floor(morale)}`);
+			this.playerTeamDPSTextElement?.setText(`DPS: ${totalDPS.toFixed(1)}`);
+		} else {
+			this.enemyTeamMoraleTextElement?.setText(`Morale: ${Math.floor(morale)}`);
+			this.enemyTeamDPSTextElement?.setText(`DPS: ${totalDPS.toFixed(1)}`);
+		}
+	}
+
+	/**
+	 * Calculates and updates the displayed team stats (Total HP and DPS) for both player and enemy.
+	 */
+	_updateAllTeamStats(): void {
+		if (!this.playerTeamMoraleTextElement) {
+			// Not initialized yet, do nothing.
+			return;
+		}
+
+		const allUnits = this.scene.state.battleData.units;
+
+		// Player Stats
+		const playerTotalMorale = allUnits.filter(u => u.force === c.FORCE_ID_PLAYER).reduce((sum, unit) => sum + Math.max(0, unit.hp), 0);
+		this._updateForceStats(c.FORCE_ID_PLAYER, playerTotalMorale);
+
+		// Enemy Stats
+		const enemyTotalMorale = allUnits.filter(u => u.force === c.FORCE_ID_CPU).reduce((sum, unit) => sum + Math.max(0, unit.hp), 0);
+		this._updateForceStats(c.FORCE_ID_CPU, enemyTotalMorale);
+	}
+
+	/**
+	 * Sets the visibility of the team stat displays.
+	 * @param visible - True to show, false to hide.
+	 */
+	setTeamStatsVisibility(visible: boolean): void {
+		this.playerTeamMoraleTextElement?.setVisible(visible);
+		this.playerTeamDPSTextElement?.setVisible(visible);
+		this.enemyTeamMoraleTextElement?.setVisible(visible);
+		this.enemyTeamDPSTextElement?.setVisible(visible);
+	}
+
+	/**
 	 * Creates and displays the main persistent UI elements of the game,
 	 * such as a sidebar and the player's gold display.
 	 */
@@ -213,7 +311,7 @@ export class UIManager {
 		this._createWinStreakText(this.uiContainer);
 		this._createLossStreakText(this.uiContainer);
 		this._createDifficultyTierText(this.uiContainer);
-
+		this._createTeamStats(this.uiContainer);
 	}
 
 	/**
@@ -226,10 +324,10 @@ export class UIManager {
 
 		const initialGold = this.scene.state.gameData.player.gold;
 		this.goldTextElement = this.scene.add.text(
-			constants.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
-			constants.SCREEN_HEIGHT + SIDEBAR_TEXT_BASE_Y,
+			c.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
+			c.SCREEN_HEIGHT + SIDEBAR_TEXT_BASE_Y,
 			`Gold: ${initialGold}`,
-			constants.titleTextConfig
+			c.titleTextConfig
 		);
 		parent.add(this.goldTextElement);
 	}
@@ -241,10 +339,10 @@ export class UIManager {
 	_createPrestigeText(parent: Phaser.GameObjects.Container): void {
 		const initialPrestige = this.scene.state.gameData.player.prestige;
 		this.prestigeTextElement = this.scene.add.text(
-			constants.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
-			constants.SCREEN_HEIGHT + SIDEBAR_TEXT_BASE_Y + 50,
+			c.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
+			c.SCREEN_HEIGHT + SIDEBAR_TEXT_BASE_Y + 50,
 			`Prestige: ${initialPrestige}`,
-			constants.titleTextConfig
+			c.titleTextConfig
 		);
 		parent.add(this.prestigeTextElement);
 	}
@@ -256,10 +354,10 @@ export class UIManager {
 	_createTotalRoundsText(parent: Phaser.GameObjects.Container): void {
 		const initialRounds = this.scene.state.gameData.player.totalRoundsPlayed;
 		this.totalRoundsTextElement = this.scene.add.text(
-			constants.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
-			constants.SCREEN_HEIGHT + SIDEBAR_TEXT_BASE_Y + 100,
+			c.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
+			c.SCREEN_HEIGHT + SIDEBAR_TEXT_BASE_Y + 100,
 			`Rounds: ${initialRounds}`,
-			constants.titleTextConfig
+			c.titleTextConfig
 		);
 		parent.add(this.totalRoundsTextElement);
 	}
@@ -271,10 +369,10 @@ export class UIManager {
 	_createWinStreakText(parent: Phaser.GameObjects.Container): void {
 		const initialStreak = this.scene.state.gameData.player.winStreak;
 		this.winStreakTextElement = this.scene.add.text(
-			constants.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
-			constants.SCREEN_HEIGHT + SIDEBAR_TEXT_BASE_Y + 150,
+			c.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
+			c.SCREEN_HEIGHT + SIDEBAR_TEXT_BASE_Y + 150,
 			`Win Streak: ${initialStreak}`,
-			constants.titleTextConfig
+			c.titleTextConfig
 		);
 		parent.add(this.winStreakTextElement);
 	}
@@ -286,10 +384,10 @@ export class UIManager {
 	_createLossStreakText(parent: Phaser.GameObjects.Container): void {
 		const initialStreak = this.scene.state.gameData.player.lossStreak;
 		this.lossStreakTextElement = this.scene.add.text(
-			constants.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
-			constants.SCREEN_HEIGHT + SIDEBAR_TEXT_BASE_Y + 200,
+			c.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
+			c.SCREEN_HEIGHT + SIDEBAR_TEXT_BASE_Y + 200,
 			`Loss Streak: ${initialStreak}`,
-			constants.titleTextConfig
+			c.titleTextConfig
 		);
 		parent.add(this.lossStreakTextElement);
 	}
@@ -302,12 +400,61 @@ export class UIManager {
 		// Initial text based on player prestige, will be updated by event
 		const initialTier = this.scene.state.gameData.player.prestige < 10 ? "Challenger" : (this.scene.state.gameData.player.prestige < 20 ? "Veteran" : "Elite");
 		this.difficultyTierTextElement = this.scene.add.text(
-			constants.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
-			constants.SCREEN_HEIGHT + SIDEBAR_TEXT_BASE_Y + 250,
+			c.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
+			c.SCREEN_HEIGHT + SIDEBAR_TEXT_BASE_Y + 250,
 			`Tier: ${initialTier}`,
-			constants.titleTextConfig
+			c.titleTextConfig
 		);
 		parent.add(this.difficultyTierTextElement);
+	}
+
+	/**
+	 * Creates the text elements for team stats (Morale and DPS) for both teams.
+	 * @param parent The `Phaser.GameObjects.Container` to which the text will be added.
+	 */
+	_createTeamStats(parent: Phaser.GameObjects.Container): void {
+		const boardWidth = 3 * c.TILE_WIDTH;
+		const rightOfBoardX = c.PLAYER_BOARD_X + boardWidth + 40; // Same X for both as boards are aligned
+
+		const playerBoardCenterY = c.PLAYER_BOARD_Y + (3 * c.TILE_HEIGHT / 2);
+		const cpuBoardCenterY = c.CPU_BOARD_Y + (3 * c.TILE_HEIGHT / 2);
+
+		const statTextStyle = { ...c.defaultTextConfig, fontSize: '28px', color: '#ffffff' };
+		const yOffset = 25; // vertical separation between the two stat texts
+
+		// Player Stats
+		this.playerTeamMoraleTextElement = this.scene.add.text(
+			rightOfBoardX,
+			playerBoardCenterY - yOffset,
+			'Morale: 0',
+			statTextStyle
+		).setOrigin(0, 0.5);
+
+		this.playerTeamDPSTextElement = this.scene.add.text(
+			rightOfBoardX,
+			playerBoardCenterY + yOffset,
+			'DPS: 0.0',
+			statTextStyle
+		).setOrigin(0, 0.5);
+
+		// Enemy Stats
+		this.enemyTeamMoraleTextElement = this.scene.add.text(
+			rightOfBoardX,
+			cpuBoardCenterY - yOffset,
+			'Morale: 0',
+			statTextStyle
+		).setOrigin(0, 0.5);
+
+		this.enemyTeamDPSTextElement = this.scene.add.text(
+			rightOfBoardX,
+			cpuBoardCenterY + yOffset,
+			'DPS: 0.0',
+			statTextStyle
+		).setOrigin(0, 0.5);
+
+		parent.add([this.playerTeamMoraleTextElement, this.playerTeamDPSTextElement, this.enemyTeamMoraleTextElement, this.enemyTeamDPSTextElement]);
+
+		this.setTeamStatsVisibility(false); // Initially hidden
 	}
 
 	/**
@@ -319,10 +466,10 @@ export class UIManager {
 	async _handleUserMessageRequested(payload: UserMessagePayload): Promise<void> {
 
 		// Determine text style based on payload.type if needed, for now, all use titleTextConfig
-		const textStyle = constants.titleTextConfig;
+		const textStyle = c.titleTextConfig;
 
 		const text = this.scene.add.text(
-			constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100,
+			c.SCREEN_WIDTH / 2, c.SCREEN_HEIGHT - 100,
 			payload.text,
 			textStyle,
 		).setOrigin(0.5);
@@ -361,7 +508,10 @@ export class UIManager {
 		this.winStreakTextElement = null;
 		this.lossStreakTextElement = null;
 		this.difficultyTierTextElement = null;
-
+		this.playerTeamMoraleTextElement = null;
+		this.playerTeamDPSTextElement = null;
+		this.enemyTeamMoraleTextElement = null;
+		this.enemyTeamDPSTextElement = null;
 	}
 
 	/**
@@ -380,7 +530,10 @@ export class UIManager {
 		this.scene.events.off(GameEvents.TOOLTIP_HIDE);
 		this.scene.events.off(GameEvents.DIFFICULTY_TIER_CHANGED, this._handleDifficultyTierChanged, this);
 		this.scene.events.off(GameEvents.ROUND_ENDED_UPDATE_STATS, this._handleRoundStatsUpdate, this);
-
+		this.scene.events.off(GameEvents.COMBAT_START_EXECUTION_TRIGGER, this._handleCombatStart, this);
+		this.scene.events.off(GameEvents.MORALE_UPDATED, this._handleMoraleUpdated, this);
+		this.scene.events.off(GameEvents.COMBAT_ENDED_VICTORY, this._handleCombatEnd, this);
+		this.scene.events.off(GameEvents.COMBAT_ENDED_DEFEAT, this._handleCombatEnd, this);
 	}
 
 	/**
@@ -400,7 +553,7 @@ export class UIManager {
 		const goldAmountText = this.scene.add.text(
 			startX,
 			startY,
-			animationText, constants.titleTextConfig)
+			animationText, c.titleTextConfig)
 			.setOrigin(0.5, 0.5)
 			.setAlpha(0)
 			.setScale(1);

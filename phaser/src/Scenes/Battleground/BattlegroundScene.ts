@@ -17,8 +17,6 @@ import { getOption } from "../../Models/OptionsStore";
 import { Unit } from "../../Models/Entities/Unit";
 import { Vec2 } from "../../Models/Geometry";
 import { battleResultAnimation } from "./battleResultAnimation";
-import * as MoraleDisplay from "./MoraleDisplay";
-import * as MoraleSystem from "./MoraleSystem";
 
 /**
  * The main scene for the battleground, handling game logic, UI, and progression.
@@ -68,7 +66,6 @@ export class BattlegroundScene extends Phaser.Scene {
     if (this.eventSystem) {
       this.eventSystem.destroy();
     }
-    MoraleSystem.destroy();
     // Note: Shop, RunCombatSystem, BattleProgressionSystem, SetupSystem might need destroy methods
     // if they acquire resources or set up listeners not tied to scene.events.
   }
@@ -136,21 +133,18 @@ export class BattlegroundScene extends Phaser.Scene {
     this.setupSystem = new BattlegroundSetupSystem(this);
     this.shop = new Shop(this);
     this.uiManager = new UIManager(this); // UIManager sets up its own UI event listeners
-    MoraleSystem.init(this);
 
     // 1. Perform one-time runtime data initialization
     this.setupSystem.performOneTimeRuntimeInitialization(this.collection);
 
     // 2. Load dynamic assets (card images defined on the collection)
     await this.setupSystem.loadDynamicAssets(this.collection)
-    console.log("Dynamic assets loaded, proceeding with scene start.");
 
     // 3. Initialize game state for a new game
     this.setupSystem.initializeNewGame(this.state);
 
     // 4. Setup static scene elements (background, player board, initial UI)
     this.playerBoard = this.setupSystem.setupSceneElements(this.state);
-    MoraleDisplay.init(this);
 
     // 5. Initialize and register core game event listeners
     this.eventSystem = new BattlegroundEventSystem(this);

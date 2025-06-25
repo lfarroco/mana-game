@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import * as c from '../../constants/constants';
+import { GameEvents } from '../../constants/events';
 
 const BAR_HEIGHT = 20;
 const BORDER_THICKNESS = 2;
@@ -16,6 +17,15 @@ type MoraleBar = {
 // Module-level variables to hold the two bars
 let playerMoraleBar: MoraleBar | null = null;
 let cpuMoraleBar: MoraleBar | null = null;
+let scene: Phaser.Scene | null = null;
+
+/**
+ * Handles the MORALE_UPDATED event by calling the bar update function.
+ * @param payload The event payload with forceId, newMorale, and maxMorale.
+ */
+function handleMoraleUpdated(payload: { forceId: string, newMorale: number, maxMorale: number }) {
+	updateMoraleBar(payload.forceId, payload.newMorale, payload.maxMorale);
+}
 
 function create(
 	scene: Phaser.Scene,
@@ -66,15 +76,19 @@ function create(
 	}
 }
 
-export function init(scene: Phaser.Scene): void {
+export function init(sceneRef: Phaser.Scene): void {
 	// Clean up existing bars if re-initializing
 	destroy();
 
+	scene = sceneRef;
+
 	const playerBarY = c.SCREEN_HEIGHT - c.PLAYER_MORALE_BAR_BOTTOM_OFFSET;
-	playerMoraleBar = create(scene, playerBarY, c.FORCE_ID_PLAYER, "Player Morale");
+	playerMoraleBar = create(sceneRef, playerBarY, c.FORCE_ID_PLAYER, "Player Morale");
 
 	const cpuBarY = c.CPU_MORALE_BAR_TOP_OFFSET;
-	cpuMoraleBar = create(scene, cpuBarY, c.FORCE_ID_CPU, "Enemy Morale");
+	cpuMoraleBar = create(sceneRef, cpuBarY, c.FORCE_ID_CPU, "Enemy Morale");
+
+	scene.events.on(GameEvents.MORALE_UPDATED, handleMoraleUpdated);
 }
 
 export function showBars(): void {
@@ -90,7 +104,7 @@ export function hideBars(): void {
 export function updateMoraleBar(
 	forceId: string,
 	currentMorale: number,
-	maxMorale: number = 100,
+	maxMorale: number,
 ): void {
 	const targetBar = forceId === c.FORCE_ID_PLAYER ? playerMoraleBar : cpuMoraleBar;
 	if (!targetBar) return;
@@ -107,6 +121,10 @@ export function updateMoraleBar(
 }
 
 export function destroy(): void {
+	if (scene) {
+		scene.events.off(GameEvents.MORALE_UPDATED, handleMoraleUpdated);
+		scene = null;
+	}
 	if (playerMoraleBar) {
 		playerMoraleBar.container.destroy();
 		playerMoraleBar = null;

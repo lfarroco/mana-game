@@ -140,7 +140,7 @@
 		},
 		{
 			"id": "goblin_scavenger",
-			"pic": "charas/goblin_scavenger.png",
+			"pic": "assets/cards/goblin_scavenger.png",
 			"name": "Goblin Scavenger",
 			"description": "Weak but resourceful. Gains 1 gold when it lands the killing blow on an enemy.",
 			"hp": 35,

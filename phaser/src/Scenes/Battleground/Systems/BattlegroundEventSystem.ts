@@ -99,9 +99,6 @@ export class BattlegroundEventSystem {
 		// Morale UI
 		this.addListener(GameEvents.MORALE_BARS_SHOW, MoraleDisplay.showBars);
 		this.addListener(GameEvents.MORALE_BARS_HIDE, MoraleDisplay.hideBars);
-		this.addListener(GameEvents.MORALE_UPDATED, (payload: { forceId: string, newMorale: number, maxMorale: number }) => {
-			MoraleDisplay.updateMoraleBar(payload.forceId, payload.newMorale, payload.maxMorale);
-		});
 	}
 
 	destroy(): void {
