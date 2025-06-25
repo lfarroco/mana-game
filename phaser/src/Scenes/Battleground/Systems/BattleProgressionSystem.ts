@@ -8,7 +8,8 @@ import { getAllCards } from "../../../Models/Entities/Card";
 import { generateEnemyTeam } from "../generateEnemyTeam";
 import { PrestigeSystem } from "../../../Systems/PrestigeSystem";
 import * as CharaManager from "./CharaManager";
-import { cpuForce, playerForce } from "../../../Models/Entities/Force";
+import { cpuForce, playerForce, } from "../../../Models/Entities/Force";
+import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
 
 /**
  * Manages the overall progression of the battle, including transitions
@@ -39,6 +40,7 @@ export class BattleProgressionSystem {
 		this.addListener(GameEvents.COMBAT_ENDED_VICTORY, this.handleCombatEndedVictory);
 		this.addListener(GameEvents.COMBAT_ENDED_DEFEAT, this.handleCombatEndedDefeat);
 		this.addListener(GameEvents.UNIT_DIED_IN_BATTLE, this.handleUnitDiedInBattle);
+		this.addListener(GameEvents.UNIT_TOOK_DAMAGE, this._handleUnitDamageForMoraleUpdate);
 
 		// Game Over
 		this.addListener(GameEvents.PLAYER_WON_GAME, this.handlePlayerWonGame);
@@ -99,6 +101,7 @@ export class BattleProgressionSystem {
 	 * Handles the game over sequence.
 	 */
 	async handleCombatEndedDefeat(): Promise<void> {
+		this._hideMoraleBars();
 		console.log("Round", this.state.gameData.round, "Processing Defeat...");
 		await delay(this.scene, BG_CONSTANTS.POST_COMBAT_DELAY);
 		this.scene.events.emit(GameEvents.BATTLE_RESULT_SHOW, { result: "defeat" });
@@ -185,16 +188,29 @@ export class BattleProgressionSystem {
 
 	// --- Event Handlers Moved from BattlegroundEventSystem ---
 
+	/**
+	 * When a unit dies, it's removed from the battle state, its character is destroyed,
+	 * and the morale is updated.
+	 */
 	handleUnitDiedInBattle(payload: { unit: Unit, killerId?: string }): void {
 		this.state.battleData.units = this.state.battleData.units.filter(u => u.id !== payload.unit.id);
 		this.scene.events.emit(GameEvents.CHARA_DESTROY_FROM_BOARD, { unitId: payload.unit.id });
+		// A unit dying is a form of taking damage, so we can reuse the same morale update logic.
+		this._handleUnitDamageForMoraleUpdate(payload);
 	}
 
+	/**
+	 * When the shop phase ends, transition to the combat phase.
+	 */
 	handleShopPhaseEnded(): void {
 		this.transitionToCombatPhase();
 	}
 
+	/**
+	 * Handles the end of a victorious combat, hiding morale bars and transitioning to the shop phase.
+	 */
 	async handleCombatEndedVictory(payload: { enemiesDefeated: Unit[] }): Promise<void> {
+		this._hideMoraleBars();
 		console.log("Round", this.state.gameData.round, "Processing Victory...");
 		await delay(this.scene, BG_CONSTANTS.POST_COMBAT_DELAY);
 		this.scene.events.emit(GameEvents.BATTLE_RESULT_SHOW, { result: "victory" });
@@ -203,7 +219,12 @@ export class BattleProgressionSystem {
 		this.transitionToShopPhase(payload);
 	}
 
+	/**
+	 * Kicks off the combat sequence. This initializes morale and starts the combat simulation.
+	 * @param payload Contains the enemy units for this combat.
+	 */
 	async handleCombatStartExecution(payload: { enemies: Unit[] }): Promise<void> {
+		this._initializeMorale();
 		const combatResult = await this.scene.runCombatSystem.runCombatIO(); // runCombatSystem is on BattlegroundScene
 		if (combatResult === "player_won") {
 			this.scene.events.emit(GameEvents.COMBAT_ENDED_VICTORY, { enemiesDefeated: payload.enemies });
@@ -211,6 +232,75 @@ export class BattleProgressionSystem {
 			this.scene.events.emit(GameEvents.COMBAT_ENDED_DEFEAT, {});
 		}
 	}
+
+	// --- Morale Management ---
+
+	_calculateForceMaxMorale(forceId: string): number {
+		return this.state.battleData.units
+			.filter(u => u.force === forceId)
+			.map(u => u.maxHp)
+			.reduce((a, b) => a + b, 0);
+	}
+
+	_calculateForceCurrentMorale(forceId: string): number {
+		return this.state.battleData.units
+			.filter(u => u.force === forceId)
+			.map(u => Math.max(0, u.hp)) // Use current HP, ensure it's not negative
+			.reduce((a, b) => a + b, 0);
+	}
+
+	/**
+	 * Sets the initial morale for both forces at the start of combat and shows the bars.
+	 */
+	_initializeMorale(): void {
+		const playerMorale = this._calculateForceMaxMorale(FORCE_ID_PLAYER);
+		const cpuMorale = this._calculateForceMaxMorale(FORCE_ID_CPU)
+
+		playerForce.morale = playerMorale;
+		playerForce.maxMorale = playerMorale;
+
+		cpuForce.morale = cpuMorale;
+		cpuForce.maxMorale = cpuMorale;
+
+		this.scene.events.emit(GameEvents.MORALE_BARS_SHOW);
+		this.scene.events.emit(
+			GameEvents.MORALE_UPDATED,
+			{
+				forceId: FORCE_ID_PLAYER,
+				newMorale: playerForce.morale,
+				maxMorale: playerForce.maxMorale,
+			}
+		);
+		this.scene.events.emit(
+			GameEvents.MORALE_UPDATED,
+			{
+				forceId: FORCE_ID_CPU,
+				newMorale: cpuForce.morale,
+				maxMorale: cpuForce.maxMorale
+			}
+		);
+	}
+
+	_hideMoraleBars(): void {
+		this.scene.events.emit(GameEvents.MORALE_BARS_HIDE);
+	}
+
+	/**
+	 * Recalculates and emits the new morale value for a force when one of its units takes damage.
+	 */
+	_handleUnitDamageForMoraleUpdate(payload: { unit: Unit }): void {
+		const { unit } = payload;
+		const targetForce = unit.force === FORCE_ID_PLAYER ? playerForce : (unit.force === FORCE_ID_CPU ? cpuForce : null);
+
+		if (!targetForce) return;
+
+		targetForce.morale = this._calculateForceCurrentMorale(targetForce.id);
+		this.scene.events.emit(
+			GameEvents.MORALE_UPDATED,
+			{ forceId: targetForce.id, newMorale: targetForce.morale, maxMorale: targetForce.maxMorale, }
+		);
+	}
+
 
 	destroy(): void {
 		this.listeners.forEach(listener => {
