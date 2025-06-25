@@ -257,10 +257,14 @@ export class UIManager {
 		}, 0);
 
 		if (forceId === c.FORCE_ID_PLAYER) {
-			this.playerTeamMoraleTextElement?.setText(`Morale: ${Math.floor(morale)}`);
+			if (this.playerTeamMoraleTextElement) {
+				this._updateMoraleTextWithAnimation(this.playerTeamMoraleTextElement, morale);
+			}
 			this.playerTeamDPSTextElement?.setText(`DPS: ${totalDPS.toFixed(1)}`);
 		} else {
-			this.enemyTeamMoraleTextElement?.setText(`Morale: ${Math.floor(morale)}`);
+			if (this.enemyTeamMoraleTextElement) {
+				this._updateMoraleTextWithAnimation(this.enemyTeamMoraleTextElement, morale);
+			}
 			this.enemyTeamDPSTextElement?.setText(`DPS: ${totalDPS.toFixed(1)}`);
 		}
 	}
@@ -283,6 +287,51 @@ export class UIManager {
 		// Enemy Stats
 		const enemyTotalMorale = allUnits.filter(u => u.force === c.FORCE_ID_CPU).reduce((sum, unit) => sum + Math.max(0, unit.hp), 0);
 		this._updateForceStats(c.FORCE_ID_CPU, enemyTotalMorale);
+	}
+
+	/**
+	 * Updates a morale text element with a new value and plays a wiggle animation.
+	 * If an animation is already playing on the element, it's stopped and reset before the new one starts.
+	 * @param textElement The Phaser.GameObjects.Text element to update.
+	 * @param newMorale The new morale value.
+	 */
+	_updateMoraleTextWithAnimation(textElement: Phaser.GameObjects.Text, newMorale: number): void {
+		// Stop any currently running tweens on this text element to prevent conflicts.
+		this.scene.tweens.killTweensOf(textElement);
+
+		// Reset to base state before starting the new animation.
+		textElement.setRotation(0);
+
+		// Update the text content.
+		textElement.setText(`Morale: ${Math.floor(newMorale)}`);
+
+		// Create and play the wiggle animation timeline using the 'tweens' array pattern.
+		const timeline = this.scene.add.timeline([{
+			at: 0,
+			tween: {
+				targets: textElement,
+				rotation: 0.08, // A small positive rotation
+				duration: 80,
+				ease: 'Power1'
+			}
+		}, {
+			at: 80,
+			tween: {
+				targets: textElement,
+				rotation: -0.08, // A small negative rotation
+				duration: 160,
+				ease: 'Power1'
+			}
+		}, {
+			at: 160,
+			tween: {
+				targets: textElement,
+				rotation: 0, // Return to base rotation
+				duration: 80,
+				ease: 'Power1'
+			}
+		}]);
+		timeline.play();
 	}
 
 	/**
@@ -419,8 +468,8 @@ export class UIManager {
 		const playerBoardCenterY = c.PLAYER_BOARD_Y + (3 * c.TILE_HEIGHT / 2);
 		const cpuBoardCenterY = c.CPU_BOARD_Y + (3 * c.TILE_HEIGHT / 2);
 
-		const statTextStyle = { ...c.defaultTextConfig, fontSize: '28px', color: '#ffffff' };
-		const yOffset = 25; // vertical separation between the two stat texts
+		const statTextStyle = { ...c.defaultTextConfig, fontSize: '34px', color: '#ffffff' };
+		const yOffset = 30; // vertical separation between the two stat texts
 
 		// Player Stats
 		this.playerTeamMoraleTextElement = this.scene.add.text(
