@@ -39,7 +39,7 @@ export class BattleProgressionSystem {
 		this.addListener(GameEvents.COMBAT_START_EXECUTION_TRIGGER, this.handleCombatStartExecution);
 		this.addListener(GameEvents.COMBAT_ENDED_VICTORY, this.handleCombatEndedVictory);
 		this.addListener(GameEvents.COMBAT_ENDED_DEFEAT, this.handleCombatEndedDefeat);
-		this.addListener(GameEvents.UNIT_DIED_IN_BATTLE, this.handleUnitDiedInBattle);
+
 		this.addListener(GameEvents.UNIT_TOOK_DAMAGE, this._handleUnitDamageForMoraleUpdate);
 
 		// Game Over
@@ -186,19 +186,6 @@ export class BattleProgressionSystem {
 		return { enemies: enemy.units };
 	}
 
-	// --- Event Handlers Moved from BattlegroundEventSystem ---
-
-	/**
-	 * When a unit dies, it's removed from the battle state, its character is destroyed,
-	 * and the morale is updated.
-	 */
-	handleUnitDiedInBattle(payload: { unit: Unit, killerId?: string }): void {
-		this.state.battleData.units = this.state.battleData.units.filter(u => u.id !== payload.unit.id);
-		this.scene.events.emit(GameEvents.CHARA_DESTROY_FROM_BOARD, { unitId: payload.unit.id });
-		// A unit dying is a form of taking damage, so we can reuse the same morale update logic.
-		this._handleUnitDamageForMoraleUpdate(payload);
-	}
-
 	/**
 	 * When the shop phase ends, transition to the combat phase.
 	 */
@@ -288,13 +275,16 @@ export class BattleProgressionSystem {
 	/**
 	 * Recalculates and emits the new morale value for a force when one of its units takes damage.
 	 */
-	_handleUnitDamageForMoraleUpdate(payload: { unit: Unit }): void {
-		const { unit } = payload;
+	_handleUnitDamageForMoraleUpdate(payload: { unit: Unit, damage: number }): void {
+		const { unit, damage } = payload;
 		const targetForce = unit.force === FORCE_ID_PLAYER ? playerForce : (unit.force === FORCE_ID_CPU ? cpuForce : null);
 
 		if (!targetForce) return;
 
-		targetForce.morale = this._calculateForceCurrentMorale(targetForce.id);
+		// In this mode, morale is always the sum of current HPs.
+		// This works for both damage and death (as unit is removed before call on death).
+		targetForce.morale -= damage;
+
 		this.scene.events.emit(
 			GameEvents.MORALE_UPDATED,
 			{ forceId: targetForce.id, newMorale: targetForce.morale, maxMorale: targetForce.maxMorale, }

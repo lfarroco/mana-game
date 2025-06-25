@@ -7,6 +7,7 @@ import { GoldCoinAnimator } from "./GoldCoinAnimator";
 import { GameEvents } from "../constants/events";
 import { DifficultyTier } from "../Scenes/Battleground/generateEnemyTeam";
 import { UserMessagePayload } from "../Models/EventPayloads";
+import { cpuForce, playerForce } from "../Models/Entities/Force";
 
 const SIDEBAR_TEXT_BASE_X = 300;
 const SIDEBAR_TEXT_BASE_Y = -400;
@@ -278,15 +279,11 @@ export class UIManager {
 			return;
 		}
 
-		const allUnits = this.scene.state.battleData.units;
-
 		// Player Stats
-		const playerTotalMorale = allUnits.filter(u => u.force === c.FORCE_ID_PLAYER).reduce((sum, unit) => sum + Math.max(0, unit.hp), 0);
-		this._updateForceStats(c.FORCE_ID_PLAYER, playerTotalMorale);
+		this._updateForceStats(c.FORCE_ID_PLAYER, playerForce.morale);
 
 		// Enemy Stats
-		const enemyTotalMorale = allUnits.filter(u => u.force === c.FORCE_ID_CPU).reduce((sum, unit) => sum + Math.max(0, unit.hp), 0);
-		this._updateForceStats(c.FORCE_ID_CPU, enemyTotalMorale);
+		this._updateForceStats(c.FORCE_ID_CPU, cpuForce.morale);
 	}
 
 	/**
