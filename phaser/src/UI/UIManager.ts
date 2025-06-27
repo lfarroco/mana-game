@@ -474,14 +474,14 @@ export class UIManager {
 			playerBoardCenterY - yOffset,
 			'Morale: 0',
 			statTextStyle
-		).setOrigin(0, 0.5);
+		).setOrigin(0.5);
 
 		this.playerTeamDPSTextElement = this.scene.add.text(
 			rightOfBoardX,
 			playerBoardCenterY + yOffset,
 			'DPS: 0.0',
 			statTextStyle
-		).setOrigin(0, 0.5);
+		).setOrigin(0.5);
 
 		// Enemy Stats
 		this.enemyTeamMoraleTextElement = this.scene.add.text(
@@ -489,14 +489,14 @@ export class UIManager {
 			cpuBoardCenterY - yOffset,
 			'Morale: 0',
 			statTextStyle
-		).setOrigin(0, 0.5);
+		).setOrigin(0.5);
 
 		this.enemyTeamDPSTextElement = this.scene.add.text(
 			rightOfBoardX,
 			cpuBoardCenterY + yOffset,
 			'DPS: 0.0',
 			statTextStyle
-		).setOrigin(0, 0.5);
+		).setOrigin(0.5);
 
 		parent.add([this.playerTeamMoraleTextElement, this.playerTeamDPSTextElement, this.enemyTeamMoraleTextElement, this.enemyTeamDPSTextElement]);
 
