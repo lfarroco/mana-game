@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "../../constants/constants";
+import { FORCE_ID_PLAYER, FORCE_ID_CPU, INITIAL_MORALE } from "../../constants/constants";
 import { Unit } from "./Unit";
 import { GameEvents } from "../../constants/events";
 
@@ -26,8 +26,8 @@ export const makeForce = (id: string): Force => {
 		gold: 10,
 		income: 5,
 		units: [],
-		morale: 100,
-		maxMorale: 100,
+		morale: INITIAL_MORALE,
+		maxMorale: INITIAL_MORALE,
 		prestige: 0,
 		winStreak: 0,
 		lossStreak: 0,
