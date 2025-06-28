@@ -253,7 +253,7 @@
 		{
 			"id": "shadow_assassin",
 			"name": "Shadow Assassin",
-			"pic": "assets/cards/assassin.png",
+			"pic": "assets/cards/shadow_assassin.png",
 			"hp": 90,
 			"tags": [
 				"human",
