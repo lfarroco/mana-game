@@ -68,7 +68,6 @@ export class BattlegroundEventSystem {
 		// Chara Lifecycle & Visuals
 		this.addListener(GameEvents.CHARA_SUMMON_TO_BOARD, CharaManager.handleSummonCharaToBoardEvent);
 		this.addListener(GameEvents.CHARA_DESTROY_FROM_BOARD, CharaManager.handleDestroyCharaFromBoardEvent);
-		this.addListener(GameEvents.CHARA_HP_DISPLAY_UPDATE, CharaManager.handleCharaHpDisplayUpdateEvent);
 		this.addListener(GameEvents.CHARA_CHARGE_BAR_UPDATE, CharaManager.handleCharaChargeBarUpdateEvent);
 		this.addListener(GameEvents.CHARA_BARS_VISIBILITY_SET, CharaManager.handleCharaBarsVisibilitySetEvent);
 

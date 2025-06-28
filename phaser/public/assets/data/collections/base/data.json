@@ -339,7 +339,7 @@
 		{
 			"id": "arcane_missiles_action",
 			"name": "Arcane Missiles Action",
-			"description": "Shoots multiple [color=purple]arcane missiles[/purple].",
+			"description": "Shoots multiple [color=purple]arcane missiles[/color].",
 			"categories": [
 				"offensive"
 			],
@@ -353,7 +353,7 @@
 		{
 			"id": "haste_action",
 			"name": "Haste Action",
-			"description": "[color=rgb(255,200,0)Hastes[/color] surrounding allies.",
+			"description": "[color=rgb(255,200,0)]Hastes[/color] surrounding allies.",
 			"categories": [
 				"support"
 			],

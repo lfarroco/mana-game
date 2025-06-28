@@ -137,10 +137,6 @@ export function handleDestroyCharaFromBoardEvent(payload: { unitId: string }): v
 	destroyChara(payload.unitId);
 }
 
-export function handleCharaHpDisplayUpdateEvent(payload: { unitId: string }): void {
-	getChara(payload.unitId)?.updateHpDisplay();
-}
-
 export function handleCharaChargeBarUpdateEvent(payload: { unitId: string }): void {
 	getChara(payload.unitId)?.updateChargeBar();
 }

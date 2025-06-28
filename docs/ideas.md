@@ -199,3 +199,7 @@ relic ideas:
 
 - cards that get stronger when another card is sold
 - cads that consume other cards (like HS demons)
+
+- Flanking Bonus. If two melee units attack the same target from columns C–1 and C+1, grant them each +10% Attack vs that target.
+- this helps with melee units alone in the front. They take extra damage from the sideways units.
+keyword brainstorming session: https://chatgpt.com/c/685e9b20-7698-8004-9b7b-dd36b947842c

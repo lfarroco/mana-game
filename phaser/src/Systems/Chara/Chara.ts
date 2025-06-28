@@ -5,7 +5,6 @@ import { tween } from "../../Utils/animation";
 import * as UnitManager from "../../Scenes/Battleground/Systems/CharaManager";
 import * as Board from "../../Models/Board";
 import { popText } from "./Animations/popText";
-import { criticalDamageDisplay } from "../../Effects";
 import { images } from "../../assets";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { CharaStatsDisplay } from "./CharaStatsDisplay";
@@ -103,7 +102,6 @@ export class Chara extends Phaser.GameObjects.Container {
 			this.scene.events.emit(GameEvents.CHARA_POINTER_OUT, { chara: this });
 		});
 
-		this.statsDisplay.updateHp();
 		this.statsDisplay.updateAtk();
 		this.barsDisplay.updateBars();
 
@@ -217,11 +215,6 @@ export class Chara extends Phaser.GameObjects.Container {
 		return this.isShopItem;
 	}
 
-	/** Updates the displayed HP value via the `statsDisplay` component. */
-	updateHpDisplay = () => {
-		this.statsDisplay.updateHp();
-	}
-
 	/** Updates the displayed Attack Power value via the `statsDisplay` component. */
 	updateAtkDisplay = () => {
 		this.statsDisplay.updateAtk();
@@ -243,40 +236,16 @@ export class Chara extends Phaser.GameObjects.Container {
 	// --- Unit Action and State Methods ---
 
 	/**
-	 * Applies damage to the Chara's unit. Updates HP display, shows damage pop-up text,
-	 * handles critical hit display, checks for death, and triggers 'onHalfHP' events.
-	 * @param sourceId The id of the character that inflicted the damage
-	 * @param damage The amount of damage to apply.
-	 * @param isCritical Whether the damage is a critical hit.
+	 * Used to signal that an unit was attack, and damage can be applied to the team's morale
+	 * @param damage The amount of damage to apply. Negative to heal.
 	 */
-	damageUnit = (_sourceId: string, damage: number, isCritical = false): void => {
+	unitHit = (damage: number): void => {
 		if (!this.active) {
-			throw new Error("Tried to apply damage to inactive Chara.")
+			throw new Error("Tried to hit an inactive Chara.")
 		}
 
 		// Apply damage to the unit's HP data model and update its visual display
-		this.unit.hp -= damage;
-		this.updateHpDisplay();
-
-		this.scene.events.emit(GameEvents.UNIT_TOOK_DAMAGE, { unit: this.unit, damage });
-
-		if (isCritical) {
-			criticalDamageDisplay(this.scene, this, Math.floor(damage));
-		} else {
-			this.showPopText(Math.floor(damage).toString(), "damage");
-		}
-	}
-
-	/**
-	 * Handles the death of the unit. Sets HP to 0, plays death animation,
-	 * removes the Chara from the game state and manager, and triggers 'onDeath' events.
-	 */
-	killUnit = (killerId: string) => { // No longer async
-
-		this.unit.hp = 0;
-		this.updateHpDisplay(); // Update display to show 0 HP immediately
-
-		this.scene.events.emit(GameEvents.CHARA_FATALLY_WOUNDED, { chara: this, killerId });
+		this.scene.events.emit(GameEvents.UNIT_TOOK_HIT, { unit: this.unit, damage });
 
 	}
 
@@ -301,25 +270,13 @@ export class Chara extends Phaser.GameObjects.Container {
 
 		if (attribute === "attackPower") {
 			this.updateAtkDisplay();
-		} else if (attribute === "maxHp") {
-			unit.hp = unit.maxHp; // Also heal to new maxHp when maxHp increases
-			this.updateHpDisplay();
-		} else if (attribute === "hp") {
-			this.updateHpDisplay();
 		}
 
 		await this.showPopText(text);
 	}
 
-	/**
-	 * Heals the Chara's unit by a specified amount, up to its maximum HP.
-	 * Updates the HP display.
-	 * @param amount The amount of HP to restore.
-	 */
 	healUnit = (amount: number) => {
-		const nextHp = this.unit.hp + amount;
-		this.unit.hp = nextHp > this.unit.maxHp ? this.unit.maxHp : nextHp;
-		this.updateHpDisplay();
+		this.unitHit(-amount)
 	}
 
 	/**

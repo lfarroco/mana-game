@@ -15,7 +15,7 @@ export const GameEvents = {
 	COMBAT_ENDED_VICTORY: "combat_ended_victory", // Payload: { enemiesDefeated: Unit[] }
 	COMBAT_ENDED_DEFEAT: "combat_ended_defeat",
 
-	UNIT_TOOK_DAMAGE: "unit_took_damage", // Payload: { unit: Unit, damage: number }
+	UNIT_TOOK_HIT: "unit_took_hit", // Payload: { unit: Unit, damage: number }
 
 	// Trait System Specific Triggers
 	TRAIT_EVAL_UNIT_ACTION: "trait_eval_unit_action",
@@ -46,7 +46,6 @@ export const GameEvents = {
 	CHARA_SUMMON_TO_BOARD: "chara_summon_to_board", // Payload: { unit: Unit, animateAppear: boolean, playSound: boolean }
 	CHARA_DESTROY_FROM_BOARD: "chara_destroy_from_board", // Payload: { unitId: string }
 	POP_TEXT_SHOW: "pop_text_show", // Payload: PopTextPayload from EventPayloads.ts
-	CHARA_HP_DISPLAY_UPDATE: "chara_hp_display_update", // Payload: { unitId: string }
 	CHARA_CHARGE_BAR_UPDATE: "chara_charge_bar_update", // Payload: { unitId: string }
 	CHARA_BARS_VISIBILITY_SET: "chara_bars_visibility_set", // Payload: { unitId: string, visible: boolean }
 	BATTLE_RESULT_SHOW: "battle_result_show", // Payload: { result: "victory" | "defeat" }
@@ -64,8 +63,6 @@ export const GameEvents = {
 	USER_MESSAGE_REQUESTED: "user_message_requested", // Payload: UserMessagePayload
 	TOOLTIP_SHOW: "tooltip_show", // Payload: { x: number, y: number, title: string, description: string }
 	TOOLTIP_HIDE: "tooltip_hide",
-
-	CHARA_FATALLY_WOUNDED: "charaFatallyWounded",
 
 	// Shop Interaction Requests (emitted by Chara when it's a shop item)
 	SHOP_ITEM_CLICK_PURCHASE_REQUESTED: "shop_item_click_purchase_requested", // Payload: { shopUnitData: Unit, shopCharaId: string, dragStartX: number, dragStartY: number }
