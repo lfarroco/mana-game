@@ -9,7 +9,7 @@ export default defineConfig({
 	workers: process.env.CI ? 1 : undefined,
 	reporter: 'html',
 	use: {
-		baseURL: 'http://localhost:8080',
+		baseURL: 'http://localhost:8080?speed=4',
 		trace: 'on-first-retry',
 		// Record video for failed tests
 		video: 'retain-on-failure',
