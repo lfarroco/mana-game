@@ -56,7 +56,6 @@ export class BattleProgressionSystem {
 	 */
 	async transitionToShopPhase(payload?: { enemiesDefeated?: Unit[] }): Promise<void> {
 
-		await delay(this.scene, 1000);
 		// cleanup
 		CharaManager.clearCharas();
 		this.state.battleData.units = [];
