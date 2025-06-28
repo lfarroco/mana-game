@@ -261,12 +261,12 @@ export class UIManager {
 			if (this.playerTeamMoraleTextElement) {
 				this._updateMoraleTextWithAnimation(this.playerTeamMoraleTextElement, morale);
 			}
-			this.playerTeamDPSTextElement?.setText(`DPS: ${totalDPS.toFixed(1)}`);
+			this.playerTeamDPSTextElement?.setText(`${totalDPS.toFixed(1)}`);
 		} else {
 			if (this.enemyTeamMoraleTextElement) {
 				this._updateMoraleTextWithAnimation(this.enemyTeamMoraleTextElement, morale);
 			}
-			this.enemyTeamDPSTextElement?.setText(`DPS: ${totalDPS.toFixed(1)}`);
+			this.enemyTeamDPSTextElement?.setText(`${totalDPS.toFixed(1)}`);
 		}
 	}
 
@@ -300,7 +300,7 @@ export class UIManager {
 		textElement.setRotation(0);
 
 		// Update the text content.
-		textElement.setText(`Morale: ${Math.floor(newMorale)}`);
+		textElement.setText(`${Math.floor(newMorale)}`);
 
 		// Create and play the wiggle animation timeline using the 'tweens' array pattern.
 		const timeline = this.scene.add.timeline([{
@@ -460,42 +460,47 @@ export class UIManager {
 	 */
 	_createTeamStats(parent: Phaser.GameObjects.Container): void {
 		const boardWidth = 3 * c.TILE_WIDTH;
-		const rightOfBoardX = c.PLAYER_BOARD_X + boardWidth + 40; // Same X for both as boards are aligned
+		const rightOfBoardX = c.PLAYER_BOARD_X + boardWidth + 210; // Same X for both as boards are aligned
 
 		const playerBoardCenterY = c.PLAYER_BOARD_Y + (3 * c.TILE_HEIGHT / 2);
 		const cpuBoardCenterY = c.CPU_BOARD_Y + (3 * c.TILE_HEIGHT / 2);
 
-		const statTextStyle = { ...c.defaultTextConfig, fontSize: '34px', color: '#ffffff' };
-		const yOffset = 30; // vertical separation between the two stat texts
+		const statTextStyle = {
+			...c.defaultTextConfig,
+			fontSize: '64px',
+			stroke: "white",
+			strokeThickness: 4,
+		};
+		const yOffset = 70; // vertical separation between the two stat texts
 
 		// Player Stats
 		this.playerTeamMoraleTextElement = this.scene.add.text(
 			rightOfBoardX,
 			playerBoardCenterY - yOffset,
-			'Morale: 0',
-			statTextStyle
+			'0',
+			{ ...statTextStyle, color: "#00ff00" }
 		).setOrigin(0.5);
 
 		this.playerTeamDPSTextElement = this.scene.add.text(
 			rightOfBoardX,
 			playerBoardCenterY + yOffset,
-			'DPS: 0.0',
-			statTextStyle
+			'0.0',
+			{ ...statTextStyle, color: "#ff0000" }
 		).setOrigin(0.5);
 
 		// Enemy Stats
 		this.enemyTeamMoraleTextElement = this.scene.add.text(
 			rightOfBoardX,
 			cpuBoardCenterY - yOffset,
-			'Morale: 0',
-			statTextStyle
+			'0',
+			{ ...statTextStyle, color: "#00ff00" }
 		).setOrigin(0.5);
 
 		this.enemyTeamDPSTextElement = this.scene.add.text(
 			rightOfBoardX,
 			cpuBoardCenterY + yOffset,
-			'DPS: 0.0',
-			statTextStyle
+			' 0.0',
+			{ ...statTextStyle, color: "#ff0000" }
 		).setOrigin(0.5);
 
 		parent.add([this.playerTeamMoraleTextElement, this.playerTeamDPSTextElement, this.enemyTeamMoraleTextElement, this.enemyTeamDPSTextElement]);
