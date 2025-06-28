@@ -26,12 +26,10 @@ export const fireball = (
 		return;
 	}
 
-	activeChara.showPopText("Fireball");
-
 	await fireballEffect(scene, asVec2(activeChara), asVec2(targetChara));
 
 	// pick enemies in the cell and around the cell
-	const splashTargets = getUnitsByProximity(state, targetUnit, false, 2);
+	const splashTargets = getUnitsByProximity(state, targetUnit, true, 2);
 
 	// deal damage to all targets
 	targetChara.unitHit(unit.attackPower);
