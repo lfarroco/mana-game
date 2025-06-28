@@ -29,7 +29,7 @@ export const lightOrb = (
 
 	await delay(scene, 500);
 
-	await targetChara.damageUnit(unit.id, damage);
+	await targetChara.unitHit(damage);
 
 	await delay(scene, 1000);
 

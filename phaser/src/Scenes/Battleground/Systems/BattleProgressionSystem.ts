@@ -40,7 +40,7 @@ export class BattleProgressionSystem {
 		this.addListener(GameEvents.COMBAT_ENDED_VICTORY, this.handleCombatEndedVictory);
 		this.addListener(GameEvents.COMBAT_ENDED_DEFEAT, this.handleCombatEndedDefeat);
 
-		this.addListener(GameEvents.UNIT_TOOK_DAMAGE, this._handleUnitDamageForMoraleUpdate);
+		this.addListener(GameEvents.UNIT_TOOK_HIT, this._handleUnitDamageForMoraleUpdate);
 
 		// Game Over
 		this.addListener(GameEvents.PLAYER_WON_GAME, this.handlePlayerWonGame);

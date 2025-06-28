@@ -36,7 +36,7 @@ export async function physicalAttack(
 		// unit is the evader, attacker is the one attacking
 		scene.events.emit(GameEvents.TRAIT_EVAL_EVADE_BY_ME, { unit: targetChara.unit, attacker: activeChara.unit });
 	} else {
-		targetChara.damageUnit(activeChara.unit.id, damage, isCritical);
+		targetChara.unitHit(damage);
 	}
 
 	// Emit event for TRAIT_EVAL_AFTER_ATTACK_BY_ME

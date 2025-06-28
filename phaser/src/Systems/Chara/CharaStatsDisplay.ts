@@ -9,8 +9,6 @@ export class CharaStatsDisplay {
 
 	atkBg!: Phaser.GameObjects.Graphics;
 	atkDisplay!: Phaser.GameObjects.Text;
-	hpBg!: Phaser.GameObjects.Graphics;
-	hpDisplay!: Phaser.GameObjects.Text;
 
 	static readonly BOX_WIDTH_RATIO = 0.4;
 	static readonly BOX_HEIGHT_RATIO = 0.2;
@@ -31,7 +29,7 @@ export class CharaStatsDisplay {
 
 		// ATK Display
 		const atkPosition: [number, number] = [
-			-bgConstants.HALF_TILE_WIDTH + margin,
+			0,
 			bgConstants.HALF_TILE_HEIGHT - boxHeight - margin,
 		];
 		this.atkBg = this.scene.add.graphics();
@@ -48,29 +46,10 @@ export class CharaStatsDisplay {
 			this.atkDisplay.setAlpha(0);
 			this.atkBg.setAlpha(0);
 		}
-
-		// HP Display
-		const hpPosition: [number, number] = [
-			bgConstants.HALF_TILE_WIDTH - boxWidth - margin,
-			bgConstants.HALF_TILE_HEIGHT - boxHeight - margin,
-		];
-		this.hpBg = this.scene.add.graphics();
-		this.hpBg.fillStyle(0x327a0a, 1.0).fillRoundedRect(hpPosition[0], hpPosition[1], boxWidth, boxHeight, cornerRadius);
-
-		this.hpDisplay = this.scene.add.text(
-			hpPosition[0] + boxWidth / 2,
-			hpPosition[1] + boxHeight / 2,
-			this.unit.hp.toString(),
-			bgConstants.defaultTextConfig
-		).setOrigin(0.5).setAlign('center');
 	}
 
 	addToContainer(container: Phaser.GameObjects.Container): void {
-		container.add([this.atkBg, this.atkDisplay, this.hpBg, this.hpDisplay]);
-	}
-
-	updateHp(): void {
-		this.hpDisplay.setText(Math.floor(this.unit.hp).toString());
+		container.add([this.atkBg, this.atkDisplay]);
 	}
 
 	updateAtk(): void {
@@ -80,7 +59,5 @@ export class CharaStatsDisplay {
 	setVisible(visible: boolean): void {
 		this.atkBg.setVisible(visible);
 		this.atkDisplay.setVisible(visible && this.unit.attackType !== "none");
-		this.hpBg.setVisible(visible);
-		this.hpDisplay.setVisible(visible);
 	}
 }
