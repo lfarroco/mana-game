@@ -222,32 +222,16 @@ export class BattleProgressionSystem {
 
 	// --- Morale Management ---
 
-	_calculateForceMaxMorale(forceId: string): number {
-		return this.state.battleData.units
-			.filter(u => u.force === forceId)
-			.map(u => u.maxHp)
-			.reduce((a, b) => a + b, 0);
-	}
-
-	_calculateForceCurrentMorale(forceId: string): number {
-		return this.state.battleData.units
-			.filter(u => u.force === forceId)
-			.map(u => Math.max(0, u.hp)) // Use current HP, ensure it's not negative
-			.reduce((a, b) => a + b, 0);
-	}
-
 	/**
 	 * Sets the initial morale for both forces at the start of combat and shows the bars.
+	 * Morale is reset to maxMorale, but maxMorale itself is not recalculated from unit HP.
 	 */
 	_initializeMorale(): void {
-		const playerMorale = this._calculateForceMaxMorale(FORCE_ID_PLAYER);
-		const cpuMorale = this._calculateForceMaxMorale(FORCE_ID_CPU)
-
-		playerForce.morale = playerMorale;
-		playerForce.maxMorale = playerMorale;
-
-		cpuForce.morale = cpuMorale;
-		cpuForce.maxMorale = cpuMorale;
+		// With the new system, maxMorale is a fixed value that can be upgraded.
+		// We just need to reset the current morale to the max at the start of each combat.
+		// The maxMorale value itself is NOT recalculated based on unit HP anymore.
+		playerForce.morale = playerForce.maxMorale;
+		cpuForce.morale = cpuForce.maxMorale;
 
 		this.scene.events.emit(GameEvents.MORALE_BARS_SHOW);
 		this.scene.events.emit(
@@ -281,9 +265,8 @@ export class BattleProgressionSystem {
 
 		if (!targetForce) return;
 
-		// In this mode, morale is always the sum of current HPs.
-		// This works for both damage and death (as unit is removed before call on death).
-		targetForce.morale -= damage;
+		// Morale is a resource pool that is depleted by damage taken by units.
+		targetForce.morale -= Math.max(0, damage); // Ensure morale doesn't increase from negative damage (healing)
 
 		this.scene.events.emit(
 			GameEvents.MORALE_UPDATED,

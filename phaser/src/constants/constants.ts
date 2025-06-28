@@ -53,5 +53,7 @@ export const FORCE_ID_CPU = "CPU";
 export const PLAYER_MORALE_BAR_BOTTOM_OFFSET = 50; // Distance from the bottom of the screen
 export const CPU_MORALE_BAR_TOP_OFFSET = 20;    // Distance from the top of the screen
 
+export const INITIAL_MORALE = 500;
+
 export const PLAYER_MORALE_BAR_COLOR = 0x4e9de0; // Blue for player
 export const CPU_MORALE_BAR_COLOR = 0xe04e4e;   // Red for CPU
