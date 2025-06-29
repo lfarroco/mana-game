@@ -414,6 +414,16 @@ const modifyStatPassiveLogic: TraitEffectFn = async (context) => {
 	}
 };
 
+/**
+ * Effect: Permanently increases power of targets
+ */
+const increasePowerLogic: TraitEffectFn = createAttributeModificationEffect('power', false);
+
+/**
+ * Effect: Temporarily increases HP of targets
+ */
+const temporaryHpBoostLogic: TraitEffectFn = createAttributeModificationEffect('hp', true);
+
 const splashDamageToRandomAdjacentAllyLogic: TraitEffectFn = async (context) => {
 	const { sourceUnit, effectInstance, traitInstanceParams, state, scene } = context;
 	const percent = (traitInstanceParams.percent ?? effectInstance.percent ?? 50) as number;
@@ -776,5 +786,9 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("reduce_enemy_damage", reduceEnemyDamageLogic);
 	registerTraitEffectImplementation("fortress_mode_passive", fortressModePassiveLogic);
 	registerTraitEffectImplementation("reduce_ally_damage_taken", reduceAllyDamageTakenLogic);
+
+	// Simple attribute modification effects (using the helper factory)
+	registerTraitEffectImplementation("increase_power", increasePowerLogic);
+	registerTraitEffectImplementation("temporary_hp_boost", temporaryHpBoostLogic);
 
 }
