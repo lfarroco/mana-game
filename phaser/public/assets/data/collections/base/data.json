@@ -213,6 +213,9 @@
 				},
 				{
 					"id": "protector_action"
+				},
+				{
+					"id": "inspiring_presence"
 				}
 			]
 		},
@@ -566,6 +569,23 @@
 					"targetSelector": "self",
 					"attribute": "critChance",
 					"amount": 25
+				}
+			]
+		},
+		{
+			"id": "inspiring_presence",
+			"name": "Inspiring Presence",
+			"description": "At the start of battle, your force gains +{amount} max morale.",
+			"categories": [
+				"aura",
+				"support",
+				"morale"
+			],
+			"effects": [
+				{
+					"effectId": "increase_force_max_morale",
+					"eventTrigger": "onBattleStart",
+					"amount": 100
 				}
 			]
 		}
