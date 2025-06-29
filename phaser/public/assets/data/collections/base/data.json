@@ -270,7 +270,7 @@
 			],
 			"effects": [
 				{
-					"effectId": "skill_slash",
+					"effectId": "skill_melee",
 					"eventTrigger": "onAction"
 				}
 			]
@@ -505,9 +505,8 @@
 			],
 			"effects": [
 				{
-					"effectId": "skill_slash",
+					"effectId": "skill_melee",
 					"eventTrigger": "onAction",
-					"targetSelector": "self",
 					"conditions": [
 						{
 							"type": "is_in_row",

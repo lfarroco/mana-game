@@ -9,7 +9,7 @@ import { TraitId } from "../Traits";
  *
  * How it works:
  * - The trait has multiple effects, all triggered by the same event ("onAction").
- * - Each effect corresponds to a different skill (e.g., "skill_slash", "skill_shoot").
+ * - Each effect corresponds to a different skill (e.g., "skill_melee", "skill_shoot").
  * - Each effect has a condition ("is_in_row") that checks the unit's position.
  * - When the "onAction" event fires, the Trait System evaluates all effects.
  * - Only the effect whose condition is met will execute, effectively "dispatching"
@@ -22,7 +22,7 @@ export const versatileFighterTrait: TraitDefinition = {
 	categories: ["versatile", "offensive", "support"],
 	effects: [
 		{
-			effectId: "skill_slash",
+			effectId: "skill_melee",
 			eventTrigger: "onAction",
 			targetSelector: "self", // Target is determined by the skill logic itself
 			conditions: [
