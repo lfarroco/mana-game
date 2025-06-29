@@ -102,7 +102,7 @@ export class Chara extends Phaser.GameObjects.Container {
 			this.scene.events.emit(GameEvents.CHARA_POINTER_OUT, { chara: this });
 		});
 
-		this.statsDisplay.updateAtk();
+		this.statsDisplay.updatePower();
 		this.barsDisplay.updateBars();
 
 		if (this.isShopItem) {
@@ -216,8 +216,8 @@ export class Chara extends Phaser.GameObjects.Container {
 	}
 
 	/** Updates the displayed Attack Power value via the `statsDisplay` component. */
-	updateAtkDisplay = () => {
-		this.statsDisplay.updateAtk();
+	updatePowerDisplay = () => {
+		this.statsDisplay.updatePower();
 	}
 
 	/**
@@ -269,7 +269,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		}
 
 		if (attribute === "power") {
-			this.updateAtkDisplay();
+			this.updatePowerDisplay();
 		}
 
 		await this.showPopText(text);

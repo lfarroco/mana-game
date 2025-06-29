@@ -13,6 +13,7 @@
 				"ranged_dps"
 			],
 			"power": 25,
+			"powerType": "damage",
 			"cooldown": 1400,
 			"traits": [
 				{
@@ -28,6 +29,8 @@
 			"name": "Bubblegum Blessings",
 			"pic": "assets/cards/cleric.png",
 			"hp": 150,
+			"power": 30,
+			"powerType": "heal",
 			"tags": [
 				"human",
 				"cleric",
@@ -52,6 +55,7 @@
 				"tank"
 			],
 			"power": 14,
+			"powerType": "armor",
 			"cooldown": 2200,
 			"traits": [
 				{
@@ -71,6 +75,7 @@
 				"ranged_dps"
 			],
 			"power": 25,
+			"powerType": "damage",
 			"cooldown": 1200,
 			"traits": [
 				{
@@ -91,6 +96,7 @@
 				"economy"
 			],
 			"power": 15,
+			"powerType": "damage",
 			"cooldown": 2000,
 			"traits": [
 				{
@@ -113,6 +119,7 @@
 				"ranged_dps"
 			],
 			"power": 22,
+			"powerType": "damage",
 			"cooldown": 1800,
 			"traits": [
 				{
@@ -145,6 +152,7 @@
 			"description": "Weak but resourceful. Gains 1 gold when it lands the killing blow on an enemy.",
 			"hp": 35,
 			"power": 7,
+			"powerType": "damage",
 			"cooldown": 1000,
 			"traits": [
 				{
@@ -162,6 +170,7 @@
 			"description": "A fierce melee combatant that uses its brute strength to slash foes.",
 			"hp": 75,
 			"power": 16,
+			"powerType": "damage",
 			"cooldown": 1500,
 			"traits": [
 				{
@@ -235,6 +244,7 @@
 				"healer"
 			],
 			"power": 10,
+			"powerType": "heal",
 			"cooldown": 2500,
 			"traits": [
 				{
@@ -481,22 +491,6 @@
 				{
 					"effectId": "skill_fireball",
 					"eventTrigger": "onAction"
-				}
-			]
-		},
-		{
-			"id": "volatile_demise",
-			"name": "Volatile Demise",
-			"description": "Explodes upon death, dealing 25 damage to adjacent enemies.",
-			"categories": [
-				"on_death_effect",
-				"area_damage"
-			],
-			"effects": [
-				{
-					"effectId": "explode_on_death_effect",
-					"eventTrigger": "onDeath",
-					"amount": 25
 				}
 			]
 		},

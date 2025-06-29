@@ -15,11 +15,8 @@ import { slow } from "../../Systems/Chara/Skills/slow";
 import { summon } from "../../Systems/Chara/Skills/summon";
 import { Unit } from "../../Models/Entities/Unit";
 import { fireball as fireballSkillFn } from "../../Systems/Chara/Skills/fireball";
-import { explodeEffect as gameExplodeEffect } from "../../Effects/explodeEffect"; // Adjust path
 import { shoot as shootSkillFn } from "../../Systems/Chara/Skills/shoot";
 import { TraitEffectFn } from "../TraitEffectSystem";
-
-// --- Effect Implementations ---
 
 /**
  * Effect: Grants a specified amount of gold to the player.
@@ -163,14 +160,6 @@ const performSkillFireballLogic: TraitEffectFn = async (context) => {
 	await fireballSkillFn(scene)(sourceUnit);
 };
 
-const explodeOnDeathLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, scene } = context;
-	// TODO: apply damage as well (the below is just effect)
-	const chara = getChara(sourceUnit.id);
-	if (chara) {
-		await gameExplodeEffect(scene, chara);
-	}
-};
 
 const positionalBonusLogic: TraitEffectFn = async (context) => {
 	const { sourceUnit, effectInstance, traitInstanceParams } = context;
@@ -234,7 +223,6 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("skill_slow", performSkillSlowLogic);
 	registerTraitEffectImplementation("skill_summon", performSkillSummonLogic);
 	registerTraitEffectImplementation("skill_fireball", performSkillFireballLogic);
-	registerTraitEffectImplementation("explode_on_death_effect", explodeOnDeathLogic);
 	registerTraitEffectImplementation("positional_bonus", positionalBonusLogic);
 
 
