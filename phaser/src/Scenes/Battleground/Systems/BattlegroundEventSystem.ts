@@ -95,6 +95,7 @@ export class BattlegroundEventSystem {
 		// Morale UI
 		this.addListener(GameEvents.MORALE_BARS_SHOW, MoraleDisplay.showBars);
 		this.addListener(GameEvents.MORALE_BARS_HIDE, MoraleDisplay.hideBars);
+		MoraleDisplay.init(this.scene);
 	}
 
 	destroy(): void {
@@ -102,5 +103,6 @@ export class BattlegroundEventSystem {
 			this.scene.events.off(listener.event, listener.handler, listener.context);
 		});
 		this.listeners = [];
+		MoraleDisplay.destroy();
 	}
 }

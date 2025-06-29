@@ -7,7 +7,6 @@ import { GoldCoinAnimator } from "./GoldCoinAnimator";
 import { GameEvents } from "../constants/events";
 import { DifficultyTier } from "../Scenes/Battleground/generateEnemyTeam";
 import { UserMessagePayload } from "../Models/EventPayloads";
-import { cpuForce, playerForce } from "../Models/Entities/Force";
 
 const SIDEBAR_TEXT_BASE_X = 300;
 const SIDEBAR_TEXT_BASE_Y = -400;
@@ -35,10 +34,6 @@ export class UIManager {
 	totalRoundsTextElement: Phaser.GameObjects.Text | null = null;
 	/** Phaser text element for displaying the current difficulty tier. */
 	difficultyTierTextElement: Phaser.GameObjects.Text | null = null;
-	/** Phaser text element for displaying player's team morale (total HP). */
-	playerTeamMoraleTextElement: Phaser.GameObjects.Text | null = null;
-	/** Phaser text element for displaying enemy's team morale (total HP). */
-	enemyTeamMoraleTextElement: Phaser.GameObjects.Text | null = null;
 
 	/**
 	 * Initializes the UIManager.
@@ -58,7 +53,6 @@ export class UIManager {
 		Tooltip.initializeTooltip(scene);
 		this._setupTooltipShowListener();
 		this._setupTooltipHideListener();
-		this._setupCombatStatListeners();
 	}
 
 	/**
@@ -126,16 +120,6 @@ export class UIManager {
 	 */
 	_setupDifficultyTierChangeListener(): void {
 		this.scene.events.on(GameEvents.DIFFICULTY_TIER_CHANGED, this._handleDifficultyTierChanged, this);
-	}
-
-	/**
-	 * Sets up event listeners for combat-related stats that need to be displayed on the UI.
-	 */
-	_setupCombatStatListeners(): void {
-		this.scene.events.on(GameEvents.COMBAT_START_EXECUTION_TRIGGER, this._handleCombatStart, this); // To show and calculate initial stats
-		this.scene.events.on(GameEvents.MORALE_UPDATED, this._handleMoraleUpdated, this); // To update stats during combat
-		this.scene.events.on(GameEvents.COMBAT_ENDED_VICTORY, this._handleCombatEnd, this);
-		this.scene.events.on(GameEvents.COMBAT_ENDED_DEFEAT, this._handleCombatEnd, this);
 	}
 
 	/**
@@ -214,67 +198,6 @@ export class UIManager {
 	}
 
 	/**
-	 * Handles the MORALE_UPDATED event by updating the stats display for the affected force.
-	 * @param payload The event payload containing the force ID and new morale value.
-	 */
-	_handleMoraleUpdated(_payload: { forceId: string, newMorale: number, maxMorale: number }): void {
-		if (!this.playerTeamMoraleTextElement || !this.enemyTeamMoraleTextElement) {
-			return; // UI not ready
-		}
-		// Recalculate all stats from the source of truth (the state) to ensure UI is always in sync.
-		this._updateAllTeamStats();
-	}
-
-	/**
-	 * Handles the start of combat by showing and calculating initial team stats.
-	 */
-	_handleCombatStart(): void {
-		this.setTeamStatsVisibility(true);
-		this._updateAllTeamStats();
-	}
-
-	/**
-	 * Handles the end of combat by hiding team stats.
-	 */
-	_handleCombatEnd(): void {
-		this.setTeamStatsVisibility(false);
-	}
-
-	/**
-	 * Updates the displayed stats (Morale) for a single force.
-	 * @param forceId The ID of the force to update ('PLAYER' or 'CPU').
-	 * @param morale The new morale value to display.
-	 */
-	_updateForceStats(forceId: string, morale: number): void {
-
-		if (forceId === c.FORCE_ID_PLAYER) {
-			if (this.playerTeamMoraleTextElement) {
-				this._updateMoraleTextWithAnimation(this.playerTeamMoraleTextElement, morale);
-			}
-		} else {
-			if (this.enemyTeamMoraleTextElement) {
-				this._updateMoraleTextWithAnimation(this.enemyTeamMoraleTextElement, morale);
-			}
-		}
-	}
-
-	/**
-	 * Calculates and updates the displayed team stats (Total HP) for both player and enemy.
-	 */
-	_updateAllTeamStats(): void {
-		if (!this.playerTeamMoraleTextElement) {
-			// Not initialized yet, do nothing.
-			return;
-		}
-
-		// Player Stats
-		this._updateForceStats(c.FORCE_ID_PLAYER, playerForce.morale);
-
-		// Enemy Stats
-		this._updateForceStats(c.FORCE_ID_CPU, cpuForce.morale);
-	}
-
-	/**
 	 * Updates a morale text element with a new value and plays a wiggle animation.
 	 * If an animation is already playing on the element, it's stopped and reset before the new one starts.
 	 * @param textElement The Phaser.GameObjects.Text element to update.
@@ -320,15 +243,6 @@ export class UIManager {
 	}
 
 	/**
-	 * Sets the visibility of the team stat displays.
-	 * @param visible - True to show, false to hide.
-	 */
-	setTeamStatsVisibility(visible: boolean): void {
-		this.playerTeamMoraleTextElement?.setVisible(visible);
-		this.enemyTeamMoraleTextElement?.setVisible(visible);
-	}
-
-	/**
 	 * Creates and displays the main persistent UI elements of the game,
 	 * such as a sidebar and the player's gold display.
 	 */
@@ -343,7 +257,6 @@ export class UIManager {
 		this._createWinStreakText(this.uiContainer);
 		this._createLossStreakText(this.uiContainer);
 		this._createDifficultyTierText(this.uiContainer);
-		this._createTeamStats(this.uiContainer);
 	}
 
 	/**
@@ -441,46 +354,6 @@ export class UIManager {
 	}
 
 	/**
-	 * Creates the text elements for team stats (Morale) for both teams.
-	 * @param parent The `Phaser.GameObjects.Container` to which the text will be added.
-	 */
-	_createTeamStats(parent: Phaser.GameObjects.Container): void {
-		const boardWidth = 3 * c.TILE_WIDTH;
-		const rightOfBoardX = c.PLAYER_BOARD_X + boardWidth + 210; // Same X for both as boards are aligned
-
-		const playerBoardCenterY = c.PLAYER_BOARD_Y + (3 * c.TILE_HEIGHT / 2);
-		const cpuBoardCenterY = c.CPU_BOARD_Y + (3 * c.TILE_HEIGHT / 2);
-
-		const statTextStyle = {
-			...c.defaultTextConfig,
-			fontSize: '64px',
-			stroke: "white",
-			strokeThickness: 4,
-		};
-		const yOffset = 70; // vertical separation between the two stat texts
-
-		// Player Stats
-		this.playerTeamMoraleTextElement = this.scene.add.text(
-			rightOfBoardX,
-			playerBoardCenterY - yOffset,
-			'0',
-			{ ...statTextStyle, color: "#00ff00" }
-		).setOrigin(0.5);
-
-		// Enemy Stats
-		this.enemyTeamMoraleTextElement = this.scene.add.text(
-			rightOfBoardX,
-			cpuBoardCenterY - yOffset,
-			'0',
-			{ ...statTextStyle, color: "#00ff00" }
-		).setOrigin(0.5);
-
-		parent.add([this.playerTeamMoraleTextElement, this.enemyTeamMoraleTextElement]);
-
-		this.setTeamStatsVisibility(false); // Initially hidden
-	}
-
-	/**
 	 * Handles requests to display a user message (e.g., error, info).
 	 * The message appears, animates briefly for emphasis, and then fades out.
 	 * This method is asynchronous and completes when the message animation finishes.
@@ -531,8 +404,6 @@ export class UIManager {
 		this.winStreakTextElement = null;
 		this.lossStreakTextElement = null;
 		this.difficultyTierTextElement = null;
-		this.playerTeamMoraleTextElement = null;
-		this.enemyTeamMoraleTextElement = null;
 	}
 
 	/**
@@ -551,10 +422,6 @@ export class UIManager {
 		this.scene.events.off(GameEvents.TOOLTIP_HIDE);
 		this.scene.events.off(GameEvents.DIFFICULTY_TIER_CHANGED, this._handleDifficultyTierChanged, this);
 		this.scene.events.off(GameEvents.ROUND_ENDED_UPDATE_STATS, this._handleRoundStatsUpdate, this);
-		this.scene.events.off(GameEvents.COMBAT_START_EXECUTION_TRIGGER, this._handleCombatStart, this);
-		this.scene.events.off(GameEvents.MORALE_UPDATED, this._handleMoraleUpdated, this);
-		this.scene.events.off(GameEvents.COMBAT_ENDED_VICTORY, this._handleCombatEnd, this);
-		this.scene.events.off(GameEvents.COMBAT_ENDED_DEFEAT, this._handleCombatEnd, this);
 	}
 
 	/**
