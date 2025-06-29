@@ -207,18 +207,6 @@ export function resolveTargets(
 			return getActiveUnits(state).filter(u => u.force !== sourceForce);
 		case "all_allies":
 			return getActiveUnits(state).filter(u => u.force === sourceForce);
-		case "random_enemy":
-			{
-				const enemies = getActiveUnits(state).filter(u => u.force !== sourceForce);
-				return enemies.length > 0 ? [enemies[Math.floor(Math.random() * enemies.length)]] : [];
-			}
-		case "random_ally":
-			{
-				const allies = getActiveUnits(state).filter(u =>
-					u.force === sourceForce && u.id !== source.id // Exclude self
-				);
-				return allies.length > 0 ? [allies[Math.floor(Math.random() * allies.length)]] : [];
-			}
 		// Add more selectors: "allies_in_row", "enemies_in_column", "units_in_area", etc.
 		default:
 			console.warn(`Unknown target selector: ${selector}`);

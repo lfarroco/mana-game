@@ -4,6 +4,7 @@
  * in `TraitDefinition`s. These functions are registered with the `TraitEffectSystem`.
  */
 import { registerTraitEffectImplementation, } from "../TraitEffectSystem";
+import { GameEvents } from "../../constants/events";
 import { playerForce, updatePlayerGoldIO } from "../../Models/Entities/Force";
 import { getChara } from "../../Scenes/Battleground/Systems/CharaManager";
 import { slash } from "../../Systems/Chara/Skills/slash";
@@ -203,6 +204,36 @@ const positionalBonusLogic: TraitEffectFn = async (context) => {
 };
 
 /**
+ * Effect: Increases the max and current morale of the source unit's force.
+ */
+const increaseForceMaxMoraleLogic: TraitEffectFn = async (context) => {
+	const { sourceUnit, effectInstance, traitInstanceParams, scene, state } = context;
+	const amount = (traitInstanceParams.amount ?? effectInstance.amount ?? 100) as number;
+
+	// In battle, the forces are in `battleData.forces`.
+	const targetForce = state.battleData.forces.find(f => f.id === sourceUnit.force);
+
+	if (targetForce) {
+		targetForce.maxMorale += amount;
+		// At the start of battle, morale is typically set to maxMorale.
+		// So we should increase both.
+		targetForce.morale += amount;
+
+		// Emit event for UI update. The MoraleDisplay listens to this.
+		scene.events.emit(GameEvents.MORALE_UPDATED, {
+			forceId: targetForce.id,
+			newMorale: targetForce.morale,
+			maxMorale: targetForce.maxMorale,
+		});
+
+		const chara = getChara(sourceUnit.id);
+		if (chara) {
+			await chara.showPopText(`+${amount} Max Morale`);
+		}
+	}
+};
+
+/**
  * Registers all defined trait effect implementations with the TraitEffectSystem.
  * This function should be called once during game initialization.
  */
@@ -224,6 +255,7 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("skill_summon", performSkillSummonLogic);
 	registerTraitEffectImplementation("skill_fireball", performSkillFireballLogic);
 	registerTraitEffectImplementation("positional_bonus", positionalBonusLogic);
+	registerTraitEffectImplementation("increase_force_max_morale", increaseForceMaxMoraleLogic);
 
 
 }
