@@ -7,8 +7,8 @@ export class CharaStatsDisplay {
 	scene: Phaser.Scene;
 	unit: Unit;
 
-	atkBg!: Phaser.GameObjects.Graphics;
-	atkDisplay!: Phaser.GameObjects.Text;
+	powerDisplayBg!: Phaser.GameObjects.Graphics;
+	powerDisplay!: Phaser.GameObjects.Text;
 
 	static readonly BOX_WIDTH_RATIO = 0.4;
 	static readonly BOX_HEIGHT_RATIO = 0.2;
@@ -27,43 +27,49 @@ export class CharaStatsDisplay {
 		const cornerRadius = boxWidth * CharaStatsDisplay.STAT_BOX_CORNER_RADIUS_RATIO;
 		const margin = boxWidth * CharaStatsDisplay.STAT_BOX_MARGIN_RATIO;
 
-		// ATK Display
-		const atkPosition: [number, number] = [
+		// Power Display
+		const powerDisplayPosition: [number, number] = [
 			-boxWidth / 2,
 			bgConstants.HALF_TILE_HEIGHT - boxHeight - margin,
 		];
-		this.atkBg = this.scene.add.graphics();
-		this.atkBg
-			.fillStyle(0xff0000, 1)
+		this.powerDisplayBg = this.scene.add.graphics();
+		const bgColorMap = {
+			damage: 0xff0000,
+			heal: 0x23a423,
+			armor: 0x666666,
+		}
+		const bgColor = !this.unit.attackType ? 0x000000 : bgColorMap[this.unit.attackType];
+		this.powerDisplayBg
+			.fillStyle(bgColor, 1)
 			.fillRoundedRect(
-				atkPosition[0], atkPosition[1],
+				powerDisplayPosition[0], powerDisplayPosition[1],
 				boxWidth, boxHeight,
 				cornerRadius
 			);
 
-		this.atkDisplay = this.scene.add.text(
-			atkPosition[0] + boxWidth / 2,
-			atkPosition[1] + boxHeight / 2,
+		this.powerDisplay = this.scene.add.text(
+			powerDisplayPosition[0] + boxWidth / 2,
+			powerDisplayPosition[1] + boxHeight / 2,
 			this.unit.power.toString(),
 			bgConstants.defaultTextConfig
 		).setOrigin(0.5).setAlign('center');
 
-		if (this.unit.attackType === "none") {
-			this.atkDisplay.setAlpha(0);
-			this.atkBg.setAlpha(0);
+		if (!this.unit.attackType) {
+			this.powerDisplay.setAlpha(0);
+			this.powerDisplayBg.setAlpha(0);
 		}
 	}
 
 	addToContainer(container: Phaser.GameObjects.Container): void {
-		container.add([this.atkBg, this.atkDisplay]);
+		container.add([this.powerDisplayBg, this.powerDisplay]);
 	}
 
-	updateAtk(): void {
-		this.atkDisplay.setText(Math.floor(this.unit.power).toString());
+	updatePower(): void {
+		this.powerDisplay.setText(Math.floor(this.unit.power).toString());
 	}
 
 	setVisible(visible: boolean): void {
-		this.atkBg.setVisible(visible);
-		this.atkDisplay.setVisible(visible && this.unit.attackType !== "none");
+		this.powerDisplayBg.setVisible(visible);
+		this.powerDisplay.setVisible(visible && !!this.unit.attackType);
 	}
 }

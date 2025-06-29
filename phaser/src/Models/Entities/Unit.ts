@@ -22,7 +22,7 @@ export type Unit = {
   maxHp: number;
 
   power: number;
-  attackType: "melee" | "ranged" | "none";
+  attackType: "damage" | "heal" | "armor" | null;
 
   cooldown: number;
   crit: number;
@@ -50,8 +50,7 @@ export const makeUnit = (force: string, cardId: string, position = vec2Zero()): 
     crit: 0,
     evade: 0,
     xp: 0,
-    attackType: card.power && card.traits.some(k => k.id === "ranged") ? "ranged" :
-      card.power && card.traits.some(t => t.id === "melee") ? "melee" : "none",
+    attackType: card.powerType,
     power: card.power || 0,
     charge: 0,
     refresh: 0,
