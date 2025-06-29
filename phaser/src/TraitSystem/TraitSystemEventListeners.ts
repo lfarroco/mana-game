@@ -10,15 +10,12 @@ import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
 import {
 	runUnitEventTraits,
 	runAttackEventTraits,
-	runUnitEventWithTargetTraits,
 } from "./Traits";
-import { UnitEventKeys, AttackEventKeys, UnitEventWithTargetKeys } from "../Models/UnitEvents";
+import { UnitEventKeys, AttackEventKeys } from "../Models/UnitEvents";
 import {
 	UnitPayload,
 	EmptyPayload,
 	AttackContextPayload,
-	DefenderAttackerPayload,
-	UnitKillPayload,
 } from "../Models/EventPayloads";
 
 
@@ -88,10 +85,6 @@ export function setupTraitEventListeners(scene: BattlegroundScene): void {
 
 	const unitEventMappings: { gameEvent: string, traitKey: UnitEventKeys }[] = [
 		{ gameEvent: GameEvents.TRAIT_EVAL_UNIT_ACTION, traitKey: "onAction" },
-		{ gameEvent: GameEvents.TRAIT_EVAL_UNIT_ENTER_POSITION, traitKey: "onEnterPosition" },
-		{ gameEvent: GameEvents.TRAIT_EVAL_UNIT_LEAVE_POSITION, traitKey: "onLeavePosition" },
-		{ gameEvent: GameEvents.TRAIT_EVAL_UNIT_HALF_HP, traitKey: "onHalfHP" },
-		{ gameEvent: GameEvents.TRAIT_EVAL_UNIT_DEATH, traitKey: "onDeath" },
 		{ gameEvent: GameEvents.TRAIT_EVAL_ALLIED_ACTION, traitKey: "onAlliedAction" },
 		{ gameEvent: GameEvents.TRAIT_EVAL_TURN_START, traitKey: "onTurnStart" },
 		{ gameEvent: GameEvents.TRAIT_EVAL_TURN_END, traitKey: "onTurnEnd" },
@@ -104,7 +97,6 @@ export function setupTraitEventListeners(scene: BattlegroundScene): void {
 
 	const attackEventMappings: { gameEvent: string, traitKey: AttackEventKeys }[] = [
 		{ gameEvent: GameEvents.TRAIT_EVAL_ATTACK_BY_ME, traitKey: "onAttackByMe" },
-		{ gameEvent: GameEvents.TRAIT_EVAL_AFTER_ATTACK_BY_ME, traitKey: "onAfterAttackByMe" },
 	];
 	attackEventMappings.forEach(mapping => {
 		registerTraitListener<AttackEventKeys, AttackContextPayload>(
@@ -112,20 +104,5 @@ export function setupTraitEventListeners(scene: BattlegroundScene): void {
 		);
 	});
 
-	const unitEventWithTargetMappings: { gameEvent: string, traitKey: UnitEventWithTargetKeys }[] = [
-		{ gameEvent: GameEvents.TRAIT_EVAL_DEFEND_BY_ME, traitKey: "onDefendByMe" },
-		{ gameEvent: GameEvents.TRAIT_EVAL_EVADE_BY_ME, traitKey: "onEvadeByMe" },
-		{ gameEvent: GameEvents.TRAIT_EVAL_UNIT_KILL_BY_ME, traitKey: "onUnitKillByMe" },
-		{ gameEvent: GameEvents.TRAIT_EVAL_UNIT_KILL, traitKey: "onUnitKill" },
-		{ gameEvent: GameEvents.TRAIT_EVAL_ALLIED_KILLED, traitKey: "onAlliedKilled" },
-		{ gameEvent: GameEvents.TRAIT_EVAL_ENEMY_KILLED, traitKey: "onEnemyKilled" },
-	];
-	unitEventWithTargetMappings.forEach(mapping => {
-		registerTraitListener<UnitEventWithTargetKeys, DefenderAttackerPayload | UnitKillPayload>(
-			scene,
-			mapping.gameEvent,
-			mapping.traitKey,
-			runUnitEventWithTargetTraits
-		);
-	});
+
 }

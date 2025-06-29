@@ -24,18 +24,7 @@ export const GameEvents = {
 	TRAIT_EVAL_TURN_START: "trait_eval_turn_start",
 	TRAIT_EVAL_ALLIED_ACTION: "trait_eval_allied_action",
 	TRAIT_EVAL_TURN_END: "trait_eval_turn_end",
-	TRAIT_EVAL_ENEMY_KILLED: "trait_eval_enemy_killed",
-	TRAIT_EVAL_ALLIED_KILLED: "trait_eval_allied_killed",
-	TRAIT_EVAL_UNIT_KILL: "trait_eval_unit_kill", // Corrected typo from _kil to _kill
-	TRAIT_EVAL_UNIT_ENTER_POSITION: "trait_eval_unit_enter_position",
-	TRAIT_EVAL_UNIT_LEAVE_POSITION: "trait_eval_unit_leave_position",
-	TRAIT_EVAL_UNIT_HALF_HP: "trait_eval_unit_half_hp",
-	TRAIT_EVAL_UNIT_DEATH: "trait_eval_unit_death",
 	TRAIT_EVAL_ATTACK_BY_ME: "trait_eval_attack_by_me",
-	TRAIT_EVAL_DEFEND_BY_ME: "trait_eval_defend_by_me",
-	TRAIT_EVAL_EVADE_BY_ME: "trait_eval_evade_by_me",
-	TRAIT_EVAL_AFTER_ATTACK_BY_ME: "trait_eval_after_attack_by_me",
-	TRAIT_EVAL_UNIT_KILL_BY_ME: "trait_eval_unit_kill_by_me",
 
 	// BattlegroundScene specific UI and System Triggers
 	PLAYER_GOLD_DELTA_REQUEST: "player_delta_update_request", // Payload: number (goldDelta)

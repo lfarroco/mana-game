@@ -18,8 +18,6 @@ import {
 } from "./TraitEffectSystem";
 import {
 	AttackContextPayload,
-	DefenderAttackerPayload,
-	UnitKillPayload,
 	UnitPayload
 } from "../Models/EventPayloads"; // Import necessary payload types
 
@@ -210,7 +208,7 @@ async function processUnitTraitsForEvent(
  * Processes traits for a unit based on a simple `UnitPayload`.
  * These are typically events where the unit itself is the primary actor or subject.
  *
- * @param eventKey The specific `UnitEventKeys` (e.g., "onAction", "onDeath").
+ * @param eventKey The specific `UnitEventKeys` (e.g., "onAction").
  * @internal
  * Processes traits for a unit based on a UnitPayload.
  */
@@ -235,40 +233,6 @@ export const runAttackEventTraits = async (eventKey: UnitEvents_.AttackEventKeys
 	};
 	await processUnitTraitsForEvent(payload.unit, eventKey, scene, state, eventDetails);
 };
-
-
-/** @internal */
-export type UnitEventWithTargetPayload = DefenderAttackerPayload | UnitKillPayload;
-
-/**
- * @internal
- * Processes traits for a unit involved in an event with another target unit,
- * based on a UnitEventWithTargetPayload.
- * `payload.unit` is always the unit whose traits are being processed (the "me" in "onDefendByMe" or "onUnitKillByMe").
- * The `primaryTargetForEvent` is determined based on the specific event type and payload structure.
- * @param eventKey The specific `UnitEventWithTargetKeys`.
- */
-export const runUnitEventWithTargetTraits = async (eventKey: UnitEvents_.UnitEventWithTargetKeys, scene: BattlegroundScene, state: State, payload: UnitEventWithTargetPayload) => {
-	let primaryTargetForEvent: Unit | undefined;
-
-	if ('attacker' in payload) { // DefenderAttackerPayload
-		primaryTargetForEvent = payload.attacker;
-	} else { // UnitKillPayload
-		// payload.unit is the unit whose traits are processed.
-		// The "other" unit in the payload is the primary target for the event context.
-		if (eventKey === "onUnitKillByMe" && 'killedUnit' in payload) {
-			primaryTargetForEvent = payload.killedUnit;
-		} else if ('killer' in payload && (eventKey === "onUnitKill" || eventKey === "onAlliedKilled" || eventKey === "onEnemyKilled")) {
-			primaryTargetForEvent = payload.killer;
-		}
-	}
-
-	const eventDetails: TraitEventDetails = primaryTargetForEvent
-		? { type: "target_event", primaryTarget: primaryTargetForEvent }
-		: { type: "none" };
-	await processUnitTraitsForEvent(payload.unit, eventKey, scene, state, eventDetails);
-};
-
 
 /**
  * Initializes and registers trait definitions from a loaded data source.
