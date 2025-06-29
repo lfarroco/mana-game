@@ -233,6 +233,28 @@ const increaseForceMaxMoraleLogic: TraitEffectFn = async (context) => {
 	}
 };
 
+const modifyStatPassiveLogic: TraitEffectFn = async (context) => {
+	const { targets, effectInstance, traitInstanceParams } = context;
+
+	const attribute = (traitInstanceParams.attribute ?? effectInstance.attribute) as keyof Unit;
+	const amount = (traitInstanceParams.amount ?? effectInstance.amount ?? 0) as number;
+
+	if (!attribute || amount === 0) {
+		if (process.env.NODE_ENV === 'development') {
+			console.error(`Modify stat effect is missing required parameters (attribute, amount).`, { attribute, amount });
+		}
+		return;
+	}
+
+	for (const target of targets) {
+		const chara = getChara(target.id);
+		if (chara) {
+			// updateUnitAttribute handles data update, display refresh, and popText
+			await chara.updateUnitAttribute(attribute, amount);
+		}
+	}
+};
+
 /**
  * Registers all defined trait effect implementations with the TraitEffectSystem.
  * This function should be called once during game initialization.
@@ -256,6 +278,7 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("skill_fireball", performSkillFireballLogic);
 	registerTraitEffectImplementation("positional_bonus", positionalBonusLogic);
 	registerTraitEffectImplementation("increase_force_max_morale", increaseForceMaxMoraleLogic);
+	registerTraitEffectImplementation("modify_stat_passive", modifyStatPassiveLogic);
 
 
 }

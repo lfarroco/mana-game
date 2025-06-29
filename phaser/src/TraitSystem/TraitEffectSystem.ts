@@ -207,6 +207,28 @@ export function resolveTargets(
 			return getActiveUnits(state).filter(u => u.force !== sourceForce);
 		case "all_allies":
 			return getActiveUnits(state).filter(u => u.force === sourceForce);
+		case "all_allies_in_row":
+			return getActiveUnits(state).filter(u => u.force === sourceForce && u.id !== source.id && u.position.y === source.position.y);
+		case "all_allies_in_column":
+			return getActiveUnits(state).filter(u => u.force === sourceForce && u.id !== source.id && u.position.x === source.position.x);
+		case "ally_left": {
+			const targetPos = { x: source.position.x - 1, y: source.position.y };
+			return getActiveUnits(state).filter(u => u.force === sourceForce && u.position.x === targetPos.x && u.position.y === targetPos.y);
+		}
+		case "ally_right": {
+			const targetPos = { x: source.position.x + 1, y: source.position.y };
+			return getActiveUnits(state).filter(u => u.force === sourceForce && u.position.x === targetPos.x && u.position.y === targetPos.y);
+		}
+		case "ally_front": {
+			const yOffset = source.force === FORCE_ID_PLAYER ? -1 : 1;
+			const targetPos = { x: source.position.x, y: source.position.y + yOffset };
+			return getActiveUnits(state).filter(u => u.force === sourceForce && u.position.x === targetPos.x && u.position.y === targetPos.y);
+		}
+		case "ally_back": {
+			const yOffset = source.force === FORCE_ID_PLAYER ? 1 : -1;
+			const targetPos = { x: source.position.x, y: source.position.y + yOffset };
+			return getActiveUnits(state).filter(u => u.force === sourceForce && u.position.x === targetPos.x && u.position.y === targetPos.y);
+		}
 		// Add more selectors: "allies_in_row", "enemies_in_column", "units_in_area", etc.
 		default:
 			console.warn(`Unknown target selector: ${selector}`);
@@ -302,6 +324,34 @@ registerTraitConditionImplementation("is_in_row", (context, conditionData) => {
 		if (row === 'mid' && unitY === midRowY) return true;
 		if (row === 'front' && unitY === backRowY) return true; // CPU front is at y=2
 	}
+
+	return false;
+});
+
+/**
+ * Condition: Checks if the source unit is in a specific column.
+ * Requires `column` parameter in `conditionData` ('left', 'mid', or 'right').
+ */
+registerTraitConditionImplementation("is_in_column", (context, conditionData) => {
+	const { sourceUnit } = context;
+	const column = conditionData.column as 'left' | 'mid' | 'right';
+
+	if (!column) {
+		if (process.env.NODE_ENV === 'development') {
+			console.error(`'is_in_column' condition is missing 'column' parameter.`, { sourceUnit, column });
+		}
+		return false;
+	}
+
+	const leftColX = 0;
+	const midColX = 1;
+	const rightColX = 2;
+
+	const unitX = sourceUnit.position.x;
+
+	if (column === 'left' && unitX === leftColX) return true;
+	if (column === 'mid' && unitX === midColX) return true;
+	if (column === 'right' && unitX === rightColX) return true;
 
 	return false;
 });
