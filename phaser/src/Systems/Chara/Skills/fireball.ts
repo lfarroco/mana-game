@@ -32,8 +32,8 @@ export const fireball = (
 	const splashTargets = getUnitsByProximity(state, targetUnit, true, 2);
 
 	// deal damage to all targets
-	targetChara.unitHit(unit.attackPower);
+	targetChara.unitHit(unit.power);
 	splashTargets.forEach(splashAffectedUnit => {
-		UnitManager.getChara(splashAffectedUnit.id)?.unitHit(unit.attackPower / 2);
+		UnitManager.getChara(splashAffectedUnit.id)?.unitHit(unit.power / 2);
 	});
 }

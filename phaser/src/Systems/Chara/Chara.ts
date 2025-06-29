@@ -268,7 +268,7 @@ export class Chara extends Phaser.GameObjects.Container {
 			console.error(`Cannot add number to non-numeric attribute: ${attribute}`);
 		}
 
-		if (attribute === "attackPower") {
+		if (attribute === "power") {
 			this.updateAtkDisplay();
 		}
 

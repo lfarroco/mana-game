@@ -39,7 +39,7 @@ export async function healingWave(scene: BattlegroundScene, unit: Unit) {
 	const top3 = hurtAllies.slice(0, 3);
 
 	top3.forEach(ally => {
-		UnitManager.getChara(ally.id)?.healUnit(unit.attackPower);
+		UnitManager.getChara(ally.id)?.healUnit(unit.power);
 	});
 
 	const charas = [UnitManager.getChara(unit.id)]

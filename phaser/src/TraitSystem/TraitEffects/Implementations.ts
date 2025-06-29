@@ -154,7 +154,7 @@ const traitSniperLogic: TraitEffectFn = async (context) => {
 		const chara = getChara(sourceUnit.id);
 		if (!chara) return;
 		// updateUnitAttribute handles data update, display refresh, and popText
-		await chara.updateUnitAttribute("attackPower", attackBonus);
+		await chara.updateUnitAttribute("power", attackBonus);
 	}
 };
 

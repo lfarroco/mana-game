@@ -9,7 +9,7 @@ export const lightOrb = (
 	scene: BattlegroundScene
 ) => async (unit: Unit) => {
 
-	const damage = Math.floor(unit.attackPower / 2);
+	const damage = Math.floor(unit.power / 2);
 
 	const activeChara = UnitManager.getChara(unit.id);
 	if (!activeChara) return;
