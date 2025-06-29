@@ -41,6 +41,9 @@
 			"traits": [
 				{
 					"id": "healing_wave_action"
+				},
+				{
+					"id": "vanguard_boost"
 				}
 			]
 		},
@@ -630,6 +633,87 @@
 							"column": "mid"
 						}
 					]
+				}
+			]
+		},
+		{
+			"id": "row_haste",
+			"name": "Row Haste",
+			"description": "On action, grants allies in the same row Haste for {amount}ms.",
+			"categories": [
+				"support",
+				"aura"
+			],
+			"effects": [
+				{
+					"effectId": "modify_stat_passive",
+					"eventTrigger": "onAction",
+					"targetSelector": "all_allies_in_row",
+					"attribute": "hasted",
+					"amount": 2000
+				}
+			]
+		},
+		{
+			"id": "vanguard_boost",
+			"name": "Vanguard Boost",
+			"description": "When the battle starts, increases the power of the ally in front by {amount}.",
+			"categories": [
+				"support",
+				"aura",
+				"offensive"
+			],
+			"effects": [
+				{
+					"effectId": "modify_stat_passive",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "ally_front",
+					"attribute": "power",
+					"amount": 10
+				}
+			]
+		},
+		{
+			"id": "bull_in_a_china_shop",
+			"name": "Bull in a China Shop",
+			"description": "He's strong, but a bit of a klutz. Increases own power by {self_amount}, but decreases adjacent allies' power by {ally_amount}.",
+			"categories": [
+				"offensive",
+				"aura",
+				"drawback"
+			],
+			"effects": [
+				{
+					"effectId": "modify_stat_passive",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "self",
+					"attribute": "power",
+					"amount": 30,
+					"self_amount": 30
+				},
+				{
+					"effectId": "modify_stat_passive",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "allies_adjacent",
+					"attribute": "power",
+					"amount": -10,
+					"ally_amount": 10
+				}
+			]
+		},
+		{
+			"id": "unbalanced_swing",
+			"name": "Unbalanced Swing",
+			"description": "When attacking, deals {percent}% of his power as damage to a random adjacent ally.",
+			"categories": [
+				"offensive",
+				"drawback"
+			],
+			"effects": [
+				{
+					"effectId": "splash_damage_to_random_adjacent_ally",
+					"eventTrigger": "onAttackByMe",
+					"percent": 50
 				}
 			]
 		}
