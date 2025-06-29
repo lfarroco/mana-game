@@ -51,7 +51,7 @@ const dealDamageLogic: TraitEffectFn = async (context) => {
 /**
  * Effect: Makes the source unit perform the "slash" skill.
  */
-const performSkillSlashLogic: TraitEffectFn = async (context) => {
+const performSkillMeleeLogic: TraitEffectFn = async (context) => {
 	const { sourceUnit, scene } = context;
 	await slash(scene, sourceUnit);
 };
@@ -214,7 +214,7 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("trait_sniper", traitSniperLogic); // TODO: generic position check effect
 
 	// Skill-based effects
-	registerTraitEffectImplementation("skill_slash", performSkillSlashLogic);
+	registerTraitEffectImplementation("skill_melee", performSkillMeleeLogic);
 	registerTraitEffectImplementation("skill_shoot", performSkillShootLogic);
 	registerTraitEffectImplementation("skill_heal", performSkillHealLogic);
 	registerTraitEffectImplementation("skill_healing_wave", performSkillHealingWaveLogic);
