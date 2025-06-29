@@ -14,8 +14,8 @@ const BORDER_RADIUS = 10;
 const BACKGROUND_COLOR = 0x000000;
 const BACKGROUND_ALPHA = 0.8;
 const INTER_ELEMENT_PADDING = PADDING / 2;
-const FIXED_TOOLTIP_WIDTH = 600;
-const FIXED_TOOLTIP_HEIGHT = 300;
+const MIN_TOOLTIP_WIDTH = 600;
+const MIN_TOOLTIP_HEIGHT = 300;
 
 // Module-level state for the singleton tooltip
 let scene: Phaser.Scene | null = null;
@@ -94,40 +94,21 @@ export function initializeTooltip(newScene: Phaser.Scene): void {
 	container.setDepth(Phaser.Math.MAX_SAFE_INTEGER); // Ensure tooltip is on top
 
 	bg = scene.add.graphics();
-	bg.fillStyle(BACKGROUND_COLOR, BACKGROUND_ALPHA);
-	bg.fillRoundedRect(
-		-FIXED_TOOLTIP_WIDTH / 2,
-		-FIXED_TOOLTIP_HEIGHT / 2,
-		FIXED_TOOLTIP_WIDTH,
-		FIXED_TOOLTIP_HEIGHT,
-		BORDER_RADIUS
-	);
 	container.add(bg);
 
-	titleText = scene.add.text(
-		-FIXED_TOOLTIP_WIDTH / 2 + PADDING,
-		-FIXED_TOOLTIP_HEIGHT / 2 + PADDING,
-		'', // Initial empty text
-		defaultTextConfig
-	)
+	titleText = scene.add.text(0, 0, '', defaultTextConfig)
 		.setOrigin(0)
 		.setFontSize(TITLE_FONT_SIZE)
 		.setFontFamily("Arial Black")
 		.setAlign("left");
 	container.add(titleText);
 
-	const descriptionWrapWidth = FIXED_TOOLTIP_WIDTH - (2 * PADDING);
-	descriptionText = scene.add.rexBBCodeText(
-		-FIXED_TOOLTIP_WIDTH / 2 + PADDING,
-		titleText.y + titleText.displayHeight + INTER_ELEMENT_PADDING, // Initial Y, will be updated
-		'', // Initial empty text
-	)
+	descriptionText = scene.add.rexBBCodeText(0, 0, '')
 		.setOrigin(0)
 		.setFontSize(DESCRIPTION_FONT_SIZE)
 		.setAlign("left")
 		.setWrapMode(1)
-		.setFontFamily("Arial")
-		.setWordWrapWidth(descriptionWrapWidth);
+		.setFontFamily("Arial");
 	container.add(descriptionText);
 
 	container.setVisible(false); // Initially hidden
@@ -161,30 +142,58 @@ export function renderTooltip(x: number, y: number, title: string, description: 
 	}
 
 	if (contentChanged || !container.visible) {
-		// Background is fixed and drawn in constructor.
-		// If background style could change, it would need to be redrawn here.
+		// Calculate content sizes
+		titleText.setFontSize(TITLE_FONT_SIZE);
+		descriptionText.setFontSize(DESCRIPTION_FONT_SIZE);
 
-		// Position title text
-		titleText.setPosition(
-			-FIXED_TOOLTIP_WIDTH / 2,
-			-FIXED_TOOLTIP_HEIGHT / 2 + PADDING
-		);
+		// Set max wrap width for description (so it doesn't get too wide)
+		const maxWrapWidth = 800 - 2 * PADDING;
+		descriptionText.setWordWrapWidth(maxWrapWidth);
 
-		// Set description wrap width (it's fixed)
-		const descriptionWrapWidth = FIXED_TOOLTIP_WIDTH - (2 * PADDING);
-		if (descriptionText.style.wrapWidth !== descriptionWrapWidth) {
-			descriptionText.setWordWrapWidth(descriptionWrapWidth);
+		// Position title
+		titleText.setPosition(0, 0);
+		// Position description below title
+		descriptionText.setPosition(0, titleText.height + INTER_ELEMENT_PADDING);
+
+		// Calculate required width and height
+		const contentWidth = Math.max(titleText.width, descriptionText.width);
+		const tooltipWidth = Math.max(MIN_TOOLTIP_WIDTH, Math.min(contentWidth + 2 * PADDING, 800));
+		const descriptionWrapWidth = tooltipWidth - 2 * PADDING;
+		descriptionText.setWordWrapWidth(descriptionWrapWidth);
+		// Re-measure after wrap
+		descriptionText.setPosition(0, titleText.height + INTER_ELEMENT_PADDING);
+
+		const totalHeight = titleText.height + INTER_ELEMENT_PADDING + descriptionText.height + PADDING;
+		const tooltipHeight = Math.max(MIN_TOOLTIP_HEIGHT, totalHeight + PADDING);
+
+		// Redraw background
+		if (bg) {
+			bg.clear();
+			bg.fillStyle(BACKGROUND_COLOR, BACKGROUND_ALPHA);
+			bg.fillRoundedRect(
+				-tooltipWidth / 2,
+				-tooltipHeight / 2,
+				tooltipWidth,
+				tooltipHeight,
+				BORDER_RADIUS
+			);
 		}
 
-		// Position description text relative to title
-		// Using .height for actual text height after potential wrapping and content update.
+		// Reposition text objects
+		titleText.setPosition(-tooltipWidth / 2 + PADDING, -tooltipHeight / 2 + PADDING);
 		descriptionText.setPosition(
-			-FIXED_TOOLTIP_WIDTH / 2 + PADDING,
+			-tooltipWidth / 2 + PADDING,
 			titleText.y + titleText.height + INTER_ELEMENT_PADDING
 		);
+
+		// Store for later use
+		(container as any)._tooltipWidth = tooltipWidth;
+		(container as any)._tooltipHeight = tooltipHeight;
 	}
 
-	const { x: adjustedX, y: adjustedY } = getAdjustedPosition(x, y, FIXED_TOOLTIP_WIDTH, FIXED_TOOLTIP_HEIGHT);
+	const tooltipWidth = (container as any)._tooltipWidth || MIN_TOOLTIP_WIDTH;
+	const tooltipHeight = (container as any)._tooltipHeight || MIN_TOOLTIP_HEIGHT;
+	const { x: adjustedX, y: adjustedY } = getAdjustedPosition(x, y, tooltipWidth, tooltipHeight);
 	if (container.x !== adjustedX || container.y !== adjustedY) {
 		container.setPosition(adjustedX, adjustedY);
 	}
@@ -201,7 +210,9 @@ export function renderTooltip(x: number, y: number, title: string, description: 
  */
 export function moveTooltip(x: number, y: number): void {
 	if (!container || !container.visible) return;
-	const { x: adjustedX, y: adjustedY } = getAdjustedPosition(x, y, FIXED_TOOLTIP_WIDTH, FIXED_TOOLTIP_HEIGHT);
+	const tooltipWidth = (container as any)._tooltipWidth || MIN_TOOLTIP_WIDTH;
+	const tooltipHeight = (container as any)._tooltipHeight || MIN_TOOLTIP_HEIGHT;
+	const { x: adjustedX, y: adjustedY } = getAdjustedPosition(x, y, tooltipWidth, tooltipHeight);
 	if (container.x !== adjustedX || container.y !== adjustedY) {
 		container.setPosition(adjustedX, adjustedY);
 	}
