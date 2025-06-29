@@ -128,24 +128,6 @@
 			]
 		},
 		{
-			"id": "enchanter",
-			"name": "Runic Enchanter",
-			"pic": "assets/cards/enchanter.png",
-			"hp": 130,
-			"tags": [
-				"human",
-				"mage",
-				"support",
-				"buffer"
-			],
-			"cooldown": 3500,
-			"traits": [
-				{
-					"id": "ranged"
-				}
-			]
-		},
-		{
 			"id": "goblin_scavenger",
 			"pic": "assets/cards/goblin_scavenger.png",
 			"name": "Goblin Scavenger",
@@ -175,26 +157,6 @@
 			"traits": [
 				{
 					"id": "melee"
-				},
-				{
-					"id": "use_skill_slash"
-				}
-			]
-		},
-		{
-			"id": "sprite_archer",
-			"pic": "charas/sprite_archer.png",
-			"name": "Sprite Archer",
-			"description": "A nimble archer from the deep woods, quick to fire arrows.",
-			"hp": 40,
-			"power": 12,
-			"cooldown": 1350,
-			"traits": [
-				{
-					"id": "ranged"
-				},
-				{
-					"id": "use_skill_shoot"
 				}
 			]
 		},
@@ -205,6 +167,7 @@
 			"description": "An ancient sentinel with immense fortitude, drawing enemy attacks.",
 			"hp": 100,
 			"power": 8,
+			"powerType": "armor",
 			"cooldown": 2600,
 			"traits": [
 				{
@@ -222,6 +185,7 @@
 			"description": "A volatile creature of fire. Hurls fireballs and explodes upon death.",
 			"hp": 55,
 			"power": 13,
+			"powerType": "damage",
 			"cooldown": 1250,
 			"traits": [
 				{
@@ -263,6 +227,7 @@
 				"melee_dps"
 			],
 			"power": 35,
+			"powerType": "damage",
 			"cooldown": 1500,
 			"traits": [
 				{
@@ -442,21 +407,6 @@
 					"effectId": "grant_gold_to_player",
 					"eventTrigger": "onUnitKillByMe",
 					"amount": 1
-				}
-			]
-		},
-		{
-			"id": "use_skill_slash",
-			"name": "Use Skill: Slash",
-			"description": "This unit uses the Slash skill for its action.",
-			"categories": [
-				"skill_activation",
-				"offensive"
-			],
-			"effects": [
-				{
-					"effectId": "skill_slash",
-					"eventTrigger": "onAction"
 				}
 			]
 		},
