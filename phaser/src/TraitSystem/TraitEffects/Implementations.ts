@@ -339,7 +339,7 @@ const reduceEnemyMoraleLogic: TraitEffectFn = async (context) => {
  * Effect: Boosts ally damage temporarily
  */
 const boostAllyDamageLogic: TraitEffectFn = async (context) => {
-	const { targets, effectInstance, traitInstanceParams } = context;
+	const { targets, effectInstance, traitInstanceParams, scene } = context;
 	const amount = (traitInstanceParams.amount ?? effectInstance.amount ?? 15) as number;
 	const duration = (traitInstanceParams.duration ?? effectInstance.duration ?? 3000) as number;
 
@@ -349,10 +349,13 @@ const boostAllyDamageLogic: TraitEffectFn = async (context) => {
 			await chara.updateUnitAttribute("power", amount);
 			await chara.showPopText(`+${amount} Damage!`);
 
-			// Set a timeout to remove the buff after duration
-			setTimeout(async () => {
-				await chara.updateUnitAttribute("power", -amount);
-			}, duration);
+			// Use Phaser's time management to remove the buff after duration
+			scene.time.addEvent({
+				delay: duration,
+				callback: async () => {
+					await chara.updateUnitAttribute("power", -amount);
+				}
+			});
 		}
 	}
 };
@@ -367,17 +370,19 @@ const hasteAllAlliesLogic: TraitEffectFn = async (context) => {
 	const allies = resolveTargets(sourceUnit, sourceUnit.force, "all_allies", state, scene);
 
 	for (const ally of allies) {
-		const chara = getChara(ally.id);
-		if (chara) {
+		const chara = getChara(ally.id); if (chara) {
 			// Apply haste effect (increase action speed)
 			const originalCooldown = ally.cooldown;
 			ally.cooldown = Math.floor(ally.cooldown * 0.5); // 50% faster
 			await chara.showPopText("Hasted!");
 
-			// Remove haste after duration
-			setTimeout(() => {
-				ally.cooldown = originalCooldown;
-			}, duration);
+			// Use Phaser's time management to remove haste after duration
+			scene.time.addEvent({
+				delay: duration,
+				callback: () => {
+					ally.cooldown = originalCooldown;
+				}
+			});
 		}
 	}
 };
@@ -392,17 +397,19 @@ const slowAllEnemiesLogic: TraitEffectFn = async (context) => {
 	const enemies = resolveTargets(sourceUnit, sourceUnit.force, "all_enemies", state, scene);
 
 	for (const enemy of enemies) {
-		const chara = getChara(enemy.id);
-		if (chara) {
+		const chara = getChara(enemy.id); if (chara) {
 			// Apply slow effect (decrease action speed)
 			const originalCooldown = enemy.cooldown;
 			enemy.cooldown = Math.floor(enemy.cooldown * 1.5); // 50% slower
 			await chara.showPopText("Slowed!", "damage");
 
-			// Remove slow after duration
-			setTimeout(() => {
-				enemy.cooldown = originalCooldown;
-			}, duration);
+			// Use Phaser's time management to remove slow after duration
+			scene.time.addEvent({
+				delay: duration,
+				callback: () => {
+					enemy.cooldown = originalCooldown;
+				}
+			});
 		}
 	}
 };
@@ -417,17 +424,19 @@ const freezeAllEnemiesLogic: TraitEffectFn = async (context) => {
 	const enemies = resolveTargets(sourceUnit, sourceUnit.force, "all_enemies", state, scene);
 
 	for (const enemy of enemies) {
-		const chara = getChara(enemy.id);
-		if (chara) {
+		const chara = getChara(enemy.id); if (chara) {
 			// Freeze enemy (prevent actions)
 			const originalCooldown = enemy.cooldown;
 			enemy.cooldown = Number.MAX_SAFE_INTEGER; // Effectively infinite cooldown
 			await chara.showPopText("Frozen!", "damage");
 
-			// Unfreeze after duration
-			setTimeout(() => {
-				enemy.cooldown = originalCooldown;
-			}, duration);
+			// Use Phaser's time management to unfreeze after duration
+			scene.time.addEvent({
+				delay: duration,
+				callback: () => {
+					enemy.cooldown = originalCooldown;
+				}
+			});
 		}
 	}
 };
@@ -482,17 +491,19 @@ const stunAllEnemiesLogic: TraitEffectFn = async (context) => {
 	const enemies = resolveTargets(sourceUnit, sourceUnit.force, "all_enemies", state, scene);
 
 	for (const enemy of enemies) {
-		const chara = getChara(enemy.id);
-		if (chara) {
+		const chara = getChara(enemy.id); if (chara) {
 			// Stun enemy (prevent actions and movement)
 			const originalCooldown = enemy.cooldown;
 			enemy.cooldown = Number.MAX_SAFE_INTEGER;
 			await chara.showPopText("Stunned!", "damage");
 
-			// Remove stun after duration
-			setTimeout(() => {
-				enemy.cooldown = originalCooldown;
-			}, duration);
+			// Use Phaser's time management to remove stun after duration
+			scene.time.addEvent({
+				delay: duration,
+				callback: () => {
+					enemy.cooldown = originalCooldown;
+				}
+			});
 		}
 	}
 };
@@ -608,19 +619,21 @@ const applyPoisonToEnemiesLogic: TraitEffectFn = async (context) => {
 	const enemies = resolveTargets(sourceUnit, sourceUnit.force, "all_enemies", state, scene);
 
 	for (const enemy of enemies) {
-		const chara = getChara(enemy.id);
-		if (chara) {
+		const chara = getChara(enemy.id); if (chara) {
 			await chara.showPopText("Poisoned!", "damage");
 
-			// Apply poison damage over time
+			// Apply poison damage over time using Phaser's time management
 			const poisonTicks = Math.floor(duration / tickInterval);
 			for (let i = 0; i < poisonTicks; i++) {
-				setTimeout(async () => {
-					if (chara && enemy.hp > 0) {
-						await chara.showPopText(`-${damagePerTick} Poison`, "damage");
-						chara.unitHit(damagePerTick);
+				scene.time.addEvent({
+					delay: tickInterval * (i + 1),
+					callback: async () => {
+						if (chara && enemy.hp > 0) {
+							await chara.showPopText(`-${damagePerTick} Poison`, "damage");
+							chara.unitHit(damagePerTick);
+						}
 					}
-				}, tickInterval * (i + 1));
+				});
 			}
 		}
 	}
@@ -637,15 +650,17 @@ const reduceEnemyDamageLogic: TraitEffectFn = async (context) => {
 	const enemies = resolveTargets(sourceUnit, sourceUnit.force, "all_enemies", state, scene);
 
 	for (const enemy of enemies) {
-		const chara = getChara(enemy.id);
-		if (chara) {
+		const chara = getChara(enemy.id); if (chara) {
 			await chara.updateUnitAttribute("power", -amount);
 			await chara.showPopText(`-${amount} Damage`, "damage");
 
-			// Restore damage after duration
-			setTimeout(async () => {
-				await chara.updateUnitAttribute("power", amount);
-			}, duration);
+			// Use Phaser's time management to restore damage after duration
+			scene.time.addEvent({
+				delay: duration,
+				callback: async () => {
+					await chara.updateUnitAttribute("power", amount);
+				}
+			});
 		}
 	}
 };
