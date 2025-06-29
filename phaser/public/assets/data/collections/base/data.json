@@ -29,7 +29,7 @@
 			"name": "Bubblegum Blessings",
 			"pic": "assets/cards/cleric.png",
 			"hp": 150,
-			"power": 30,
+			"power": 35,
 			"powerType": "heal",
 			"tags": [
 				"human",
@@ -37,13 +37,16 @@
 				"support",
 				"healer"
 			],
-			"cooldown": 2900,
+			"cooldown": 2500,
 			"traits": [
 				{
 					"id": "healing_wave_action"
 				},
 				{
 					"id": "vanguard_boost"
+				},
+				{
+					"id": "morale_restoration"
 				}
 			]
 		},
@@ -57,12 +60,15 @@
 				"knight",
 				"tank"
 			],
-			"power": 14,
+			"power": 16,
 			"powerType": "armor",
 			"cooldown": 2200,
 			"traits": [
 				{
 					"id": "melee"
+				},
+				{
+					"id": "protective_cover"
 				}
 			]
 		},
@@ -98,15 +104,18 @@
 				"melee_dps",
 				"economy"
 			],
-			"power": 15,
+			"power": 18,
 			"powerType": "damage",
-			"cooldown": 2000,
+			"cooldown": 1800,
 			"traits": [
 				{
 					"id": "melee"
 				},
 				{
 					"id": "plunder"
+				},
+				{
+					"id": "flanking_support"
 				}
 			]
 		},
@@ -135,10 +144,10 @@
 			"pic": "assets/cards/goblin_scavenger.png",
 			"name": "Goblin Scavenger",
 			"description": "Weak but resourceful. Gains 1 gold when it lands the killing blow on an enemy.",
-			"hp": 35,
-			"power": 7,
+			"hp": 40,
+			"power": 9,
 			"powerType": "damage",
-			"cooldown": 1000,
+			"cooldown": 900,
 			"traits": [
 				{
 					"id": "melee"
@@ -232,12 +241,188 @@
 				"assassin",
 				"melee_dps"
 			],
-			"power": 35,
+			"power": 28,
 			"powerType": "damage",
-			"cooldown": 1500,
+			"cooldown": 1800,
 			"traits": [
 				{
 					"id": "melee"
+				},
+				{
+					"id": "assassinate"
+				}
+			]
+		},
+		{
+			"id": "dread_captain",
+			"name": "Dread Captain Blackheart",
+			"pic": "assets/cards/dread_captain.png",
+			"hp": 180,
+			"tags": [
+				"human",
+				"pirate",
+				"leader",
+				"morale_control"
+			],
+			"power": 20,
+			"powerType": "damage",
+			"cooldown": 2800,
+			"traits": [
+				{
+					"id": "melee"
+				},
+				{
+					"id": "intimidating_presence"
+				},
+				{
+					"id": "battle_cry"
+				}
+			]
+		},
+		{
+			"id": "time_mage",
+			"name": "Chronos the Timekeeper",
+			"pic": "assets/cards/time_mage.png",
+			"hp": 100,
+			"tags": [
+				"human",
+				"mage",
+				"time_control",
+				"support"
+			],
+			"power": 15,
+			"powerType": "damage",
+			"cooldown": 3000,
+			"traits": [
+				{
+					"id": "temporal_manipulation"
+				},
+				{
+					"id": "time_stop"
+				}
+			]
+		},
+		{
+			"id": "berserker",
+			"name": "Ragnar the Berserker",
+			"pic": "assets/cards/berserker.png",
+			"hp": 140,
+			"tags": [
+				"human",
+				"berserker",
+				"melee_dps",
+				"risky"
+			],
+			"power": 18,
+			"powerType": "damage",
+			"cooldown": 1600,
+			"traits": [
+				{
+					"id": "melee"
+				},
+				{
+					"id": "berserker_rage"
+				},
+				{
+					"id": "reckless_abandon"
+				}
+			]
+		},
+		{
+			"id": "war_elephant",
+			"name": "Tusker the War Elephant",
+			"pic": "assets/cards/war_elephant.png",
+			"hp": 300,
+			"tags": [
+				"beast",
+				"elephant",
+				"tank",
+				"disruptor"
+			],
+			"power": 25,
+			"powerType": "damage",
+			"cooldown": 3500,
+			"traits": [
+				{
+					"id": "melee"
+				},
+				{
+					"id": "earthquake_stomp"
+				},
+				{
+					"id": "intimidating_size"
+				}
+			]
+		},
+		{
+			"id": "spirit_dancer",
+			"name": "Luna the Spirit Dancer",
+			"pic": "assets/cards/spirit_dancer.png",
+			"hp": 95,
+			"tags": [
+				"elf",
+				"dancer",
+				"support",
+				"morale"
+			],
+			"power": 12,
+			"powerType": "heal",
+			"cooldown": 2200,
+			"traits": [
+				{
+					"id": "spirit_dance"
+				},
+				{
+					"id": "ethereal_form"
+				}
+			]
+		},
+		{
+			"id": "plague_doctor",
+			"name": "Dr. Mortis",
+			"pic": "assets/cards/plague_doctor.png",
+			"hp": 130,
+			"tags": [
+				"human",
+				"doctor",
+				"debuffer",
+				"dark_magic"
+			],
+			"power": 8,
+			"powerType": "damage",
+			"cooldown": 2600,
+			"traits": [
+				{
+					"id": "poison_cloud"
+				},
+				{
+					"id": "curse_of_weakness"
+				}
+			]
+		},
+		{
+			"id": "fortress_golem",
+			"name": "Ironclad Fortress",
+			"pic": "assets/cards/fortress_golem.png",
+			"hp": 280,
+			"tags": [
+				"construct",
+				"golem",
+				"tank",
+				"fortress"
+			],
+			"power": 12,
+			"powerType": "armor",
+			"cooldown": 4000,
+			"traits": [
+				{
+					"id": "melee"
+				},
+				{
+					"id": "fortress_mode"
+				},
+				{
+					"id": "defensive_matrix"
 				}
 			]
 		}
@@ -283,7 +468,7 @@
 		},
 		{
 			"id": "heal_action",
-			"name": "Heal Action",
+			"name": "Heal",
 			"description": "This unit can heal an ally.",
 			"categories": [
 				"support"
@@ -297,7 +482,7 @@
 		},
 		{
 			"id": "healing_wave_action",
-			"name": "Healing Wave Action",
+			"name": "Healing Wave",
 			"description": "Heals multiple allies.",
 			"categories": [
 				"support"
@@ -311,7 +496,7 @@
 		},
 		{
 			"id": "arcane_missiles_action",
-			"name": "Arcane Missiles Action",
+			"name": "Arcane Missiles",
 			"description": "Shoots multiple [color=purple]arcane missiles[/color].",
 			"categories": [
 				"offensive"
@@ -325,7 +510,7 @@
 		},
 		{
 			"id": "haste_action",
-			"name": "Haste Action",
+			"name": "Haste",
 			"description": "[color=rgb(255,200,0)]Hastes[/color] surrounding allies.",
 			"categories": [
 				"support"
@@ -339,7 +524,7 @@
 		},
 		{
 			"id": "slow_action",
-			"name": "Slow Action",
+			"name": "Slow",
 			"description": "[color=brown]Slows[/color] an enemy.",
 			"categories": [
 				"defensive",
@@ -388,7 +573,7 @@
 		},
 		{
 			"id": "summon_action",
-			"name": "Summon Action",
+			"name": "Summon",
 			"description": "Summons a unit.",
 			"categories": [
 				"companion"
@@ -714,6 +899,293 @@
 					"effectId": "splash_damage_to_random_adjacent_ally",
 					"eventTrigger": "onAttackByMe",
 					"percent": 50
+				}
+			]
+		},
+		{
+			"id": "morale_restoration",
+			"name": "Morale Restoration",
+			"description": "On action, restores morale to your force.",
+			"categories": [
+				"support",
+				"morale"
+			],
+			"effects": [
+				{
+					"effectId": "restore_force_morale",
+					"eventTrigger": "onAction",
+					"amount": 50
+				}
+			]
+		},
+		{
+			"id": "intimidating_presence",
+			"name": "Intimidating Presence",
+			"description": "At battle start, reduces enemy morale by {amount}.",
+			"categories": [
+				"debuff",
+				"morale",
+				"aura"
+			],
+			"effects": [
+				{
+					"effectId": "reduce_enemy_morale",
+					"eventTrigger": "onBattleStart",
+					"amount": 75
+				}
+			]
+		},
+		{
+			"id": "battle_cry",
+			"name": "Battle Cry",
+			"description": "On action, boosts ally damage by {amount} for {duration}ms.",
+			"categories": [
+				"support",
+				"buff"
+			],
+			"effects": [
+				{
+					"effectId": "boost_ally_damage",
+					"eventTrigger": "onAction",
+					"targetSelector": "all_allies",
+					"amount": 15,
+					"duration": 3000
+				}
+			]
+		},
+		{
+			"id": "temporal_manipulation",
+			"name": "Temporal Manipulation",
+			"description": "On action, hastes all allies and slows all enemies for {duration}ms.",
+			"categories": [
+				"support",
+				"debuff",
+				"time_control"
+			],
+			"effects": [
+				{
+					"effectId": "haste_all_allies",
+					"eventTrigger": "onAction",
+					"duration": 2500
+				},
+				{
+					"effectId": "slow_all_enemies",
+					"eventTrigger": "onAction",
+					"duration": 2500
+				}
+			]
+		},
+		{
+			"id": "time_stop",
+			"name": "Time Stop",
+			"description": "On low HP, freezes all enemies for {duration}ms.",
+			"categories": [
+				"defensive",
+				"time_control"
+			],
+			"effects": [
+				{
+					"effectId": "freeze_all_enemies",
+					"eventTrigger": "onLowHp",
+					"duration": 1500,
+					"conditions": [
+						{
+							"type": "hp_below_percent",
+							"value": 30
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "berserker_rage",
+			"name": "Berserker Rage",
+			"description": "Gains {damage_per_missing_hp} damage for every {hp_threshold} HP missing.",
+			"categories": [
+				"offensive",
+				"scaling"
+			],
+			"effects": [
+				{
+					"effectId": "damage_scales_with_missing_hp",
+					"eventTrigger": "onAction",
+					"damage_per_missing_hp": 2,
+					"hp_threshold": 10
+				}
+			]
+		},
+		{
+			"id": "reckless_abandon",
+			"name": "Reckless Abandon",
+			"description": "Each attack reduces own max HP by {hp_loss} but increases damage by {damage_bonus}.",
+			"categories": [
+				"offensive",
+				"risky",
+				"scaling"
+			],
+			"effects": [
+				{
+					"effectId": "sacrifice_hp_for_damage",
+					"eventTrigger": "onAttackByMe",
+					"hp_loss": 8,
+					"damage_bonus": 4
+				}
+			]
+		},
+		{
+			"id": "earthquake_stomp",
+			"name": "Earthquake Stomp",
+			"description": "On action, stuns all enemies for {duration}ms and deals area damage.",
+			"categories": [
+				"offensive",
+				"crowd_control",
+				"area_effect"
+			],
+			"effects": [
+				{
+					"effectId": "stun_all_enemies",
+					"eventTrigger": "onAction",
+					"duration": 1200
+				},
+				{
+					"effectId": "area_damage_enemies",
+					"eventTrigger": "onAction",
+					"damage": 15
+				}
+			]
+		},
+		{
+			"id": "intimidating_size",
+			"name": "Intimidating Size",
+			"description": "Enemy units deal {reduction}% less damage when this unit is alive.",
+			"categories": [
+				"aura",
+				"defensive",
+				"debuff"
+			],
+			"effects": [
+				{
+					"effectId": "reduce_enemy_damage_global",
+					"eventTrigger": "onBattleStart",
+					"reduction": 15
+				}
+			]
+		},
+		{
+			"id": "spirit_dance",
+			"name": "Spirit Dance",
+			"description": "On action, grants all allies {morale} morale and removes debuffs.",
+			"categories": [
+				"support",
+				"morale",
+				"cleanse"
+			],
+			"effects": [
+				{
+					"effectId": "grant_morale_to_allies",
+					"eventTrigger": "onAction",
+					"targetSelector": "all_allies",
+					"morale": 40
+				},
+				{
+					"effectId": "cleanse_ally_debuffs",
+					"eventTrigger": "onAction",
+					"targetSelector": "all_allies"
+				}
+			]
+		},
+		{
+			"id": "ethereal_form",
+			"name": "Ethereal Form",
+			"description": "Has {dodge_chance}% chance to avoid damage entirely.",
+			"categories": [
+				"defensive",
+				"evasion"
+			],
+			"effects": [
+				{
+					"effectId": "chance_to_dodge",
+					"eventTrigger": "onTakeDamage",
+					"dodge_chance": 30
+				}
+			]
+		},
+		{
+			"id": "poison_cloud",
+			"name": "Poison Cloud",
+			"description": "On action, applies poison to all enemies for {duration}ms.",
+			"categories": [
+				"debuff",
+				"damage_over_time",
+				"area_effect"
+			],
+			"effects": [
+				{
+					"effectId": "apply_poison_to_enemies",
+					"eventTrigger": "onAction",
+					"targetSelector": "all_enemies",
+					"damage_per_tick": 3,
+					"duration": 5000,
+					"tick_interval": 1000
+				}
+			]
+		},
+		{
+			"id": "curse_of_weakness",
+			"name": "Curse of Weakness",
+			"description": "On action, reduces enemy damage by {amount} for {duration}ms.",
+			"categories": [
+				"debuff",
+				"defensive"
+			],
+			"effects": [
+				{
+					"effectId": "reduce_enemy_damage",
+					"eventTrigger": "onAction",
+					"targetSelector": "all_enemies",
+					"amount": 8,
+					"duration": 4000
+				}
+			]
+		},
+		{
+			"id": "fortress_mode",
+			"name": "Fortress Mode",
+			"description": "When not moving, gains {armor_bonus} armor and reflects {reflect_percent}% damage.",
+			"categories": [
+				"defensive",
+				"conditional",
+				"reflect"
+			],
+			"effects": [
+				{
+					"effectId": "fortress_mode_passive",
+					"eventTrigger": "onBattleStart",
+					"armor_bonus": 20,
+					"reflect_percent": 25,
+					"conditions": [
+						{
+							"type": "is_stationary"
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "defensive_matrix",
+			"name": "Defensive Matrix",
+			"description": "Reduces damage taken by all allies by {reduction}%.",
+			"categories": [
+				"aura",
+				"defensive",
+				"support"
+			],
+			"effects": [
+				{
+					"effectId": "reduce_ally_damage_taken",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "all_allies",
+					"reduction": 12
 				}
 			]
 		}
