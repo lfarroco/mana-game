@@ -3,7 +3,7 @@
  * Each function defined here corresponds to an `effectId` that can be used
  * in `TraitDefinition`s. These functions are registered with the `TraitEffectSystem`.
  */
-import { registerTraitEffectImplementation, } from "../TraitEffectSystem";
+import { registerTraitEffectImplementation, resolveTargets, } from "../TraitEffectSystem";
 import { GameEvents } from "../../constants/events";
 import { playerForce, updatePlayerGoldIO } from "../../Models/Entities/Force";
 import { getChara } from "../../Scenes/Battleground/Systems/CharaManager";
@@ -17,7 +17,9 @@ import { summon } from "../../Systems/Chara/Skills/summon";
 import { Unit } from "../../Models/Entities/Unit";
 import { fireball as fireballSkillFn } from "../../Systems/Chara/Skills/fireball";
 import { shoot as shootSkillFn } from "../../Systems/Chara/Skills/shoot";
-import { TraitEffectFn } from "../TraitEffectSystem";
+import { TraitEffectFn, } from "../TraitEffectSystem";
+import { pickRandom } from "../../utils";
+import { impactEffect } from "../../Effects";
 
 /**
  * Effect: Grants a specified amount of gold to the player.
@@ -255,6 +257,28 @@ const modifyStatPassiveLogic: TraitEffectFn = async (context) => {
 	}
 };
 
+const splashDamageToRandomAdjacentAllyLogic: TraitEffectFn = async (context) => {
+	const { sourceUnit, effectInstance, traitInstanceParams, state, scene } = context;
+	const percent = (traitInstanceParams.percent ?? effectInstance.percent ?? 50) as number;
+	const damage = Math.floor(sourceUnit.power * (percent / 100));
+
+	if (damage <= 0) return;
+
+	// Use the 'allies_adjacent' selector to find potential targets
+	const adjacentAllies = resolveTargets(sourceUnit, sourceUnit.force, "allies_adjacent", state, scene);
+
+	if (adjacentAllies.length > 0) {
+		const randomAlly = pickRandom(adjacentAllies, 1)[0];
+		const chara = getChara(randomAlly.id);
+		const sourceChara = getChara(sourceUnit.id);
+		if (chara && sourceChara) {
+			await chara.showPopText(`-${damage} Dmg`, "damage");
+			chara.unitHit(damage);
+			impactEffect({ scene, location: chara, pointA: sourceChara, pointB: chara });
+		}
+	}
+};
+
 /**
  * Registers all defined trait effect implementations with the TraitEffectSystem.
  * This function should be called once during game initialization.
@@ -279,6 +303,7 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("positional_bonus", positionalBonusLogic);
 	registerTraitEffectImplementation("increase_force_max_morale", increaseForceMaxMoraleLogic);
 	registerTraitEffectImplementation("modify_stat_passive", modifyStatPassiveLogic);
+	registerTraitEffectImplementation("splash_damage_to_random_adjacent_ally", splashDamageToRandomAdjacentAllyLogic);
 
 
 }
