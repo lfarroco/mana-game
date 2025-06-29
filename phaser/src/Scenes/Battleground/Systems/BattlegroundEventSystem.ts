@@ -27,7 +27,7 @@ type Listener = {
  * emitters from direct knowledge of event consumers.
  *
  * **Purpose:**
- * - Subscribes to a wide array of `GameEvents` (e.g., unit death, phase transitions, UI updates, player actions).
+ * - Subscribes to a wide array of `GameEvents` (e.g., unit attacks, phase transitions, UI updates, player actions).
  * - Delegates event handling to appropriate systems (`BattleProgressionSystem`, `CharaManager`, `UIManager`, `Shop`, etc.) or handles them directly.
  * - Manages the lifecycle of its event listeners, registering them on creation and unregistering them on destruction.
  */

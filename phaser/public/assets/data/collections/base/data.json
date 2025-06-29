@@ -182,7 +182,7 @@
 			"id": "lava_spawn",
 			"pic": "assets/cards/lava_spawn.png",
 			"name": "Lava Spawn",
-			"description": "A volatile creature of fire. Hurls fireballs and explodes upon death.",
+			"description": "A volatile creature of fire that hurls fireballs.",
 			"hp": 55,
 			"power": 13,
 			"powerType": "damage",
@@ -475,25 +475,6 @@
 					"effectId": "modify_unit_cooldowns",
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "all_allies"
-				}
-			]
-		},
-		{
-			"id": "backline_bulwark",
-			"name": "Backline Bulwark",
-			"description": "Gains +50 Max HP when in the back row.",
-			"categories": [
-				"positional",
-				"defensive"
-			],
-			"effects": [
-				{
-					"effectId": "positional_bonus",
-					"eventTrigger": "onBattleStart",
-					"targetSelector": "self",
-					"attribute": "maxHp",
-					"amount": 50,
-					"row": "back"
 				}
 			]
 		},

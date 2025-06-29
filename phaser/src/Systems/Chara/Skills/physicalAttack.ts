@@ -22,23 +22,11 @@ export async function physicalAttack(
 	const isCritical = dice <= activeChara.unit.crit;
 
 	const rawDmg = isCritical ? activeChara.unit.power * 2 : activeChara.unit.power;
-	const damage = rawDmg; // future dmg calculations enter here
+	const damage = rawDmg;
 
 	// Emit event for TRAIT_EVAL_ATTACK_BY_ME
 	scene.events.emit(GameEvents.TRAIT_EVAL_ATTACK_BY_ME, { unit: activeChara.unit, target: targetChara.unit, damage, isCritical, evaded });
 
-	// Emit event for TRAIT_EVAL_DEFEND_BY_ME
-	// unit is the defender, attacker is the one attacking
-	scene.events.emit(GameEvents.TRAIT_EVAL_DEFEND_BY_ME, { unit: targetChara.unit, attacker: activeChara.unit });
+	targetChara.unitHit(damage);
 
-	if (evaded) {
-		// Emit event for TRAIT_EVAL_EVADE_BY_ME
-		// unit is the evader, attacker is the one attacking
-		scene.events.emit(GameEvents.TRAIT_EVAL_EVADE_BY_ME, { unit: targetChara.unit, attacker: activeChara.unit });
-	} else {
-		targetChara.unitHit(damage);
-	}
-
-	// Emit event for TRAIT_EVAL_AFTER_ATTACK_BY_ME
-	scene.events.emit(GameEvents.TRAIT_EVAL_AFTER_ATTACK_BY_ME, { unit: activeChara.unit, target: targetChara.unit, damage, isCritical, evaded });
 }
