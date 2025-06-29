@@ -22,8 +22,11 @@ const TITLE_FONT_SIZE = 40;
 const DESCRIPTION_FONT_SIZE = 30;
 
 // Style Constants
-const BACKGROUND_COLOR = 0x000000;
-const BACKGROUND_ALPHA = 0.8;
+const BACKGROUND_COLOR = 0x1a3635; // Dark teal background
+const BACKGROUND_ALPHA = 1;
+const BORDER_COLOR = 0xc8a355; // Golden color
+const BORDER_WIDTH = 4;
+const CORNER_SIZE = 30; // Size of corner decorations
 
 // Module-level state for the singleton tooltip
 let scene: Phaser.Scene | null = null;
@@ -182,8 +185,12 @@ export function renderTooltip(x: number, y: number, title: string, description: 
 		const totalHeight = titleText.height + INTER_ELEMENT_PADDING + descriptionText.height + PADDING;
 		tooltipHeight = Math.max(MIN_TOOLTIP_HEIGHT, totalHeight + PADDING);
 
-		// Redraw background
+		// Redraw background and decorations
+		if (!bg) return;
+
 		bg.clear();
+
+		// Main background
 		bg.fillStyle(BACKGROUND_COLOR, BACKGROUND_ALPHA);
 		bg.fillRoundedRect(
 			-tooltipWidth / 2,
@@ -192,6 +199,50 @@ export function renderTooltip(x: number, y: number, title: string, description: 
 			tooltipHeight,
 			BORDER_RADIUS
 		);
+
+		// Golden border
+		bg.lineStyle(BORDER_WIDTH, BORDER_COLOR);
+		bg.strokeRoundedRect(
+			-tooltipWidth / 2,
+			-tooltipHeight / 2,
+			tooltipWidth,
+			tooltipHeight,
+			BORDER_RADIUS
+		);
+
+		// Corner decorations
+		const drawCorner = (x: number, y: number, rotation: number) => {
+			if (!bg) return;
+
+			bg.save();
+			bg.translateCanvas(x, y);
+			bg.rotateCanvas(rotation);
+
+			// Draw corner decoration
+			bg.beginPath();
+			bg.lineStyle(BORDER_WIDTH, BORDER_COLOR);
+			bg.moveTo(0, 0);
+			bg.lineTo(CORNER_SIZE, 0);
+			bg.moveTo(0, 0);
+			bg.lineTo(0, CORNER_SIZE);
+			bg.stroke();
+
+			bg.restore();
+		};
+
+		// Draw corners
+		const halfWidth = tooltipWidth / 2;
+		const halfHeight = tooltipHeight / 2;
+		const offset = BORDER_WIDTH;
+
+		// Top-left corner
+		drawCorner(-halfWidth + offset, -halfHeight + offset, 0);
+		// Top-right corner
+		drawCorner(halfWidth - offset, -halfHeight + offset, Math.PI / 2);
+		// Bottom-right corner
+		drawCorner(halfWidth - offset, halfHeight - offset, Math.PI);
+		// Bottom-left corner
+		drawCorner(-halfWidth + offset, halfHeight - offset, -Math.PI / 2);
 
 		// Position text elements
 		titleText.setPosition(-tooltipWidth / 2 + PADDING, -tooltipHeight / 2 + PADDING);
