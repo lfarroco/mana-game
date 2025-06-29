@@ -158,7 +158,7 @@
 		},
 		{
 			"id": "orc_warrior",
-			"pic": "charas/orc_warrior.png",
+			"pic": "assets/cards/orc_warrior.png",
 			"name": "Orc Warrior",
 			"description": "A fierce melee combatant that uses its brute strength to slash foes.",
 			"hp": 75,
