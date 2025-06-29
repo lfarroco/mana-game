@@ -33,8 +33,13 @@ export class CharaStatsDisplay {
 			bgConstants.HALF_TILE_HEIGHT - boxHeight - margin,
 		];
 		this.atkBg = this.scene.add.graphics();
-		this.atkBg.fillStyle(0xff0000, 1)
-			.fillRoundedRect(atkPosition[0], atkPosition[1], boxWidth, boxHeight, cornerRadius);
+		this.atkBg
+			.fillStyle(0xff0000, 1)
+			.fillRoundedRect(
+				atkPosition[0], atkPosition[1],
+				boxWidth, boxHeight,
+				cornerRadius
+			);
 
 		this.atkDisplay = this.scene.add.text(
 			atkPosition[0] + boxWidth / 2,
