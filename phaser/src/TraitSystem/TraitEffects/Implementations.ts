@@ -17,20 +17,212 @@ import { summon } from "../../Systems/Chara/Skills/summon";
 import { Unit } from "../../Models/Entities/Unit";
 import { fireball as fireballSkillFn } from "../../Systems/Chara/Skills/fireball";
 import { shoot as shootSkillFn } from "../../Systems/Chara/Skills/shoot";
-import { TraitEffectFn, } from "../TraitEffectSystem";
+import { TraitEffectFn, TraitEffectContext } from "../TraitEffectSystem";
 import { pickRandom } from "../../utils";
 import { impactEffect } from "../../Effects";
+import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
+
+// ===== HELPER FUNCTIONS TO REDUCE REPETITION =====
+
+/**
+ * Helper function to apply a temporary attribute modification to targets
+ */
+async function applyTemporaryAttributeModification(
+	targets: Unit[],
+	attribute: keyof Unit,
+	amount: number,
+	duration: number,
+	scene: BattlegroundScene,
+	popTextOverride?: string
+): Promise<void> {
+	for (const target of targets) {
+		const chara = getChara(target.id);
+		if (chara) {
+			await chara.updateUnitAttribute(attribute, amount);
+			await chara.showPopText(popTextOverride || `${amount > 0 ? '+' : ''}${amount} ${attribute}`);
+
+			// Use Phaser's time management to revert the change after duration
+			scene.time.addEvent({
+				delay: duration,
+				callback: async () => {
+					await chara.updateUnitAttribute(attribute, -amount);
+				}
+			});
+		}
+	}
+}
+
+/**
+ * Helper function to apply temporary cooldown modifications (haste/slow effects)
+ */
+async function applyTemporaryCooldownModification(
+	targets: Unit[],
+	multiplier: number,
+	duration: number,
+	scene: BattlegroundScene,
+	popText: string
+): Promise<void> {
+	for (const target of targets) {
+		const chara = getChara(target.id);
+		if (chara) {
+			const originalCooldown = target.cooldown;
+			target.cooldown = Math.floor(target.cooldown * multiplier);
+			await chara.showPopText(popText);
+
+			scene.time.addEvent({
+				delay: duration,
+				callback: () => {
+					target.cooldown = originalCooldown;
+				}
+			});
+		}
+	}
+}
+
+/**
+ * Helper function to manipulate force morale with proper event emission
+ */
+async function manipulateForceMorele(
+	forceId: string,
+	amount: number,
+	context: TraitEffectContext,
+	popTextPrefix: string = ""
+): Promise<void> {
+	const { scene, state, sourceUnit } = context;
+	const targetForce = state.battleData.forces.find(f => f.id === forceId);
+
+	if (targetForce) {
+		const oldMorale = targetForce.morale;
+		if (amount > 0) {
+			targetForce.morale = Math.min(targetForce.maxMorale, targetForce.morale + amount);
+		} else {
+			targetForce.morale = Math.max(0, targetForce.morale + amount);
+		}
+		const actualChange = targetForce.morale - oldMorale;
+
+		if (actualChange !== 0) {
+			scene.events.emit(GameEvents.MORALE_UPDATED, {
+				forceId: targetForce.id,
+				newMorale: targetForce.morale,
+				maxMorale: targetForce.maxMorale,
+			});
+
+			const chara = getChara(sourceUnit.id);
+			if (chara) {
+				const sign = actualChange > 0 ? '+' : '';
+				await chara.showPopText(`${popTextPrefix}${sign}${actualChange} Morale`, actualChange > 0 ? "heal" : "damage");
+			}
+		}
+	}
+}
+
+/**
+ * Helper function to apply damage over time effects using Phaser's timer
+ */
+async function applyDamageOverTime(
+	targets: Unit[],
+	damagePerTick: number,
+	duration: number,
+	tickInterval: number,
+	scene: BattlegroundScene,
+	effectName: string = "DoT"
+): Promise<void> {
+	const poisonTicks = Math.floor(duration / tickInterval);
+
+	for (const target of targets) {
+		const chara = getChara(target.id);
+		if (chara) {
+			await chara.showPopText(`${effectName}!`, "damage");
+
+			for (let i = 0; i < poisonTicks; i++) {
+				scene.time.addEvent({
+					delay: tickInterval * (i + 1),
+					callback: async () => {
+						if (chara && target.hp > 0) {
+							await chara.showPopText(`-${damagePerTick} ${effectName}`, "damage");
+							chara.unitHit(damagePerTick);
+						}
+					}
+				});
+			}
+		}
+	}
+}
+
+/**
+ * Helper function to get effect parameters with fallbacks
+ */
+function getEffectParams<T>(
+	traitInstanceParams: any,
+	effectInstance: any,
+	paramName: string,
+	defaultValue: T
+): T {
+	return (traitInstanceParams[paramName] ?? effectInstance[paramName] ?? defaultValue) as T;
+}
+
+/**
+ * Helper function to create skill-based effects
+ */
+function createSkillEffect(skillFunction: (scene: BattlegroundScene, unit: Unit) => Promise<void>): TraitEffectFn {
+	return async (context) => {
+		const { sourceUnit, scene } = context;
+		await skillFunction(scene, sourceUnit);
+	};
+}
+
+/**
+ * Helper function to create parameterized skill effects
+ */
+function createParameterizedSkillEffect(
+	skillFunction: (scene: BattlegroundScene) => (unit: Unit, ...args: any[]) => Promise<void>,
+	paramName?: string,
+	defaultValue?: any
+): TraitEffectFn {
+	return async (context) => {
+		const { sourceUnit, scene } = context;
+		if (paramName) {
+			const param = getEffectParams(context.traitInstanceParams, context.effectInstance, paramName, defaultValue);
+			await skillFunction(scene)(sourceUnit, param);
+		} else {
+			await skillFunction(scene)(sourceUnit);
+		}
+	};
+}
+
+/**
+ * Helper function to create simple attribute modification effects
+ */
+function createAttributeModificationEffect(attribute: keyof Unit, isTemporary: boolean = false): TraitEffectFn {
+	return async (context) => {
+		const { targets, scene } = context;
+		const amount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 0);
+
+		if (isTemporary) {
+			const duration = getEffectParams(context.traitInstanceParams, context.effectInstance, 'duration', 3000);
+			await applyTemporaryAttributeModification(targets, attribute, amount, duration, scene);
+		} else {
+			for (const target of targets) {
+				const chara = getChara(target.id);
+				if (chara) {
+					await chara.updateUnitAttribute(attribute, amount);
+				}
+			}
+		}
+	};
+}
+
+// ===== EFFECT IMPLEMENTATIONS =====
 
 /**
  * Effect: Grants a specified amount of gold to the player.
  * The source unit must belong to the player.
  */
 const grantGoldToPlayerLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, effectInstance, traitInstanceParams, scene } = context;
-	// Allow amount from effectInstance (definition) or traitInstanceParams (instance on unit)
-	const amount = (traitInstanceParams.amount ?? effectInstance.amount ?? 0) as number;
+	const { sourceUnit, scene } = context;
+	const amount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 0);
 
-	if (amount !== 0 && sourceUnit.force === playerForce.id) { // Ensure it's for the player
+	if (amount !== 0 && sourceUnit.force === playerForce.id) {
 		const chara = getChara(sourceUnit.id);
 		await chara?.showPopText(`+${amount} Gold`);
 		updatePlayerGoldIO(scene, amount);
@@ -39,82 +231,65 @@ const grantGoldToPlayerLogic: TraitEffectFn = async (context) => {
 
 /**
  * Effect: Deals damage to target units.
- * The actual damage calculation might be more complex in a full implementation.
  */
 const dealDamageLogic: TraitEffectFn = async (context) => {
-	const { targets, effectInstance, traitInstanceParams } = context;
-	const baseAmount = (traitInstanceParams.amount ?? effectInstance.amount ?? 0) as number;
+	const { targets } = context;
+	const amount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 0);
 
 	for (const target of targets) {
 		const charaTarget = getChara(target.id);
-		await charaTarget?.showPopText(`-${baseAmount} Dmg`, "damage");
+		await charaTarget?.showPopText(`-${amount} Dmg`, "damage");
 	}
 };
 
 /**
  * Effect: Makes the source unit perform the "slash" skill.
  */
-const performSkillMeleeLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, scene } = context;
-	await slash(scene, sourceUnit);
-};
+const performSkillMeleeLogic: TraitEffectFn = createSkillEffect(slash);
 
 /**
  * Effect: Makes the source unit perform the "shoot" skill.
  */
-const performSkillShootLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, scene } = context;
-	await shootSkillFn(scene)(sourceUnit);
-};
+const performSkillShootLogic: TraitEffectFn = createParameterizedSkillEffect(shootSkillFn);
 
 /**
  * Effect: Makes the source unit perform the "heal" skill.
  */
-const performSkillHealLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, scene } = context;
-	await healing(scene)(sourceUnit);
-};
+const performSkillHealLogic: TraitEffectFn = createParameterizedSkillEffect(healing);
 
 /**
  * Effect: Makes the source unit perform the "healing wave" skill.
  */
-const performSkillHealingWaveLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, scene } = context;
-	await healingWave(scene, sourceUnit);
-};
+const performSkillHealingWaveLogic: TraitEffectFn = createSkillEffect(healingWave);
 
 /**
  * Effect: Makes the source unit perform the "arcane missiles" skill.
  * Can take `projectiles` parameter from trait/effect data.
  */
-const performSkillArcaneMissilesLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, scene, traitInstanceParams, effectInstance } = context;
-	const projectiles = traitInstanceParams.projectiles ?? effectInstance.projectiles ?? 3;
-	await arcaneMissiles(scene)(sourceUnit, projectiles);
-};
+const performSkillArcaneMissilesLogic: TraitEffectFn = createParameterizedSkillEffect(arcaneMissiles, 'projectiles', 3);
 
 /**
  * Effect: Makes the source unit perform the "haste" skill.
  */
-const performSkillHasteLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, scene } = context;
-	await haste(scene, sourceUnit);
-};
+const performSkillHasteLogic: TraitEffectFn = createSkillEffect(haste);
+
 /**
  * Effect: Makes the source unit perform the "slow" skill.
  */
-const performSkillSlowLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, scene } = context;
-	await slow(scene, sourceUnit);
-};
+const performSkillSlowLogic: TraitEffectFn = createSkillEffect(slow);
 
+/**
+ * Effect: Makes the source unit perform the "fireball" skill.
+ */
+const performSkillFireballLogic: TraitEffectFn = createParameterizedSkillEffect(fireballSkillFn);
+
+/**
+ * Effect: Makes the source unit perform the "summon" skill.
+ * Requires `cardIdToSummon` parameter from trait/effect data.
+ */
 const performSkillSummonLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, traitInstanceParams, effectInstance } = context;
-	/**
-	 * Effect: Makes the source unit perform the "summon" skill.
-	 * Requires `sourceUnit` and a `cardIdToSummon` parameter from trait/effect data.
-	 */
-	const cardIdToSummon = traitInstanceParams.cardIdToSummon ?? effectInstance.cardIdToSummon as string;
+	const { sourceUnit } = context;
+	const cardIdToSummon = getEffectParams(context.traitInstanceParams, context.effectInstance, 'cardIdToSummon', '');
 	const chara = getChara(sourceUnit.id);
 
 	if (chara && cardIdToSummon) {
@@ -126,41 +301,25 @@ const performSkillSummonLogic: TraitEffectFn = async (context) => {
 
 /**
  * Effect: If the source unit is in the back row, it gains an attack bonus.
- * The attack bonus amount can be specified in `effectInstance.amount`
- * or `traitInstanceParams.amount`, defaulting to 10.
  */
 const traitSniperLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, effectInstance, traitInstanceParams } = context;
-
-	// Determine the attack bonus amount, defaulting to 10
-	const attackBonus = (traitInstanceParams.amount ?? effectInstance.amount ?? 10) as number;
+	const { sourceUnit } = context;
+	const attackBonus = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 10);
 
 	let isBackRow = false;
-	const boardHeightInTiles = 3; // Standard board height
+	const boardHeightInTiles = 3;
 
 	if (sourceUnit.force === playerForce.id) {
-		// Player's back row is the highest y-index (e.g., 2 for a 0,1,2 indexed board)
-		if (sourceUnit.position.y === boardHeightInTiles - 1) {
-			isBackRow = true;
-		}
+		isBackRow = sourceUnit.position.y === boardHeightInTiles - 1;
 	} else {
-		// CPU's back row (relative to their board, furthest from player) is y-index 0
-		if (sourceUnit.position.y === 0) {
-			isBackRow = true;
-		}
+		isBackRow = sourceUnit.position.y === 0;
 	}
 
 	if (isBackRow) {
 		const chara = getChara(sourceUnit.id);
 		if (!chara) return;
-		// updateUnitAttribute handles data update, display refresh, and popText
 		await chara.updateUnitAttribute("power", attackBonus);
 	}
-};
-
-const performSkillFireballLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, scene } = context;
-	await fireballSkillFn(scene)(sourceUnit);
 };
 
 
@@ -236,10 +395,9 @@ const increaseForceMaxMoraleLogic: TraitEffectFn = async (context) => {
 };
 
 const modifyStatPassiveLogic: TraitEffectFn = async (context) => {
-	const { targets, effectInstance, traitInstanceParams } = context;
-
-	const attribute = (traitInstanceParams.attribute ?? effectInstance.attribute) as keyof Unit;
-	const amount = (traitInstanceParams.amount ?? effectInstance.amount ?? 0) as number;
+	const { targets } = context;
+	const attribute = getEffectParams(context.traitInstanceParams, context.effectInstance, 'attribute', 'power') as keyof Unit;
+	const amount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 0);
 
 	if (!attribute || amount === 0) {
 		if (process.env.NODE_ENV === 'development') {
@@ -251,7 +409,6 @@ const modifyStatPassiveLogic: TraitEffectFn = async (context) => {
 	for (const target of targets) {
 		const chara = getChara(target.id);
 		if (chara) {
-			// updateUnitAttribute handles data update, display refresh, and popText
 			await chara.updateUnitAttribute(attribute, amount);
 		}
 	}
@@ -283,55 +440,19 @@ const splashDamageToRandomAdjacentAllyLogic: TraitEffectFn = async (context) => 
  * Effect: Restores morale to the unit's force
  */
 const restoreForceMoraleLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, effectInstance, traitInstanceParams, scene, state } = context;
-	const amount = (traitInstanceParams.amount ?? effectInstance.amount ?? 50) as number;
-
-	const targetForce = state.battleData.forces.find(f => f.id === sourceUnit.force);
-	if (targetForce) {
-		const oldMorale = targetForce.morale;
-		targetForce.morale = Math.min(targetForce.maxMorale, targetForce.morale + amount);
-		const actualRestore = targetForce.morale - oldMorale;
-
-		if (actualRestore > 0) {
-			scene.events.emit(GameEvents.MORALE_UPDATED, {
-				forceId: targetForce.id,
-				newMorale: targetForce.morale,
-				maxMorale: targetForce.maxMorale,
-			});
-
-			const chara = getChara(sourceUnit.id);
-			if (chara) {
-				await chara.showPopText(`+${actualRestore} Morale`, "heal");
-			}
-		}
-	}
+	const amount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 50);
+	await manipulateForceMorele(context.sourceUnit.force, amount, context);
 };
 
 /**
  * Effect: Reduces enemy force morale
  */
 const reduceEnemyMoraleLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, effectInstance, traitInstanceParams, scene, state } = context;
-	const amount = (traitInstanceParams.amount ?? effectInstance.amount ?? 75) as number;
+	const amount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 75);
+	const enemyForceId = context.state.battleData.forces.find(f => f.id !== context.sourceUnit.force)?.id;
 
-	const enemyForce = state.battleData.forces.find(f => f.id !== sourceUnit.force);
-	if (enemyForce) {
-		const oldMorale = enemyForce.morale;
-		enemyForce.morale = Math.max(0, enemyForce.morale - amount);
-		const actualReduction = oldMorale - enemyForce.morale;
-
-		if (actualReduction > 0) {
-			scene.events.emit(GameEvents.MORALE_UPDATED, {
-				forceId: enemyForce.id,
-				newMorale: enemyForce.morale,
-				maxMorale: enemyForce.maxMorale,
-			});
-
-			const chara = getChara(sourceUnit.id);
-			if (chara) {
-				await chara.showPopText(`-${actualReduction} Enemy Morale`, "damage");
-			}
-		}
+	if (enemyForceId) {
+		await manipulateForceMorele(enemyForceId, -amount, context, "Enemy ");
 	}
 };
 
@@ -339,77 +460,31 @@ const reduceEnemyMoraleLogic: TraitEffectFn = async (context) => {
  * Effect: Boosts ally damage temporarily
  */
 const boostAllyDamageLogic: TraitEffectFn = async (context) => {
-	const { targets, effectInstance, traitInstanceParams, scene } = context;
-	const amount = (traitInstanceParams.amount ?? effectInstance.amount ?? 15) as number;
-	const duration = (traitInstanceParams.duration ?? effectInstance.duration ?? 3000) as number;
+	const { targets, scene } = context;
+	const amount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 15);
+	const duration = getEffectParams(context.traitInstanceParams, context.effectInstance, 'duration', 3000);
 
-	for (const target of targets) {
-		const chara = getChara(target.id);
-		if (chara) {
-			await chara.updateUnitAttribute("power", amount);
-			await chara.showPopText(`+${amount} Damage!`);
-
-			// Use Phaser's time management to remove the buff after duration
-			scene.time.addEvent({
-				delay: duration,
-				callback: async () => {
-					await chara.updateUnitAttribute("power", -amount);
-				}
-			});
-		}
-	}
+	await applyTemporaryAttributeModification(targets, "power", amount, duration, scene, `+${amount} Damage!`);
 };
 
 /**
  * Effect: Hastes all allies
  */
 const hasteAllAlliesLogic: TraitEffectFn = async (context) => {
-	const { targets, scene, effectInstance, traitInstanceParams } = context;
-	const duration = (traitInstanceParams.duration ?? effectInstance.duration ?? 2500) as number;
+	const { targets, scene } = context;
+	const duration = getEffectParams(context.traitInstanceParams, context.effectInstance, 'duration', 2500);
 
-	for (const ally of targets) {
-		const chara = getChara(ally.id);
-		if (chara) {
-			// Apply haste effect (increase action speed)
-			const originalCooldown = ally.cooldown;
-			ally.cooldown = Math.floor(ally.cooldown * 0.5); // 50% faster
-			await chara.showPopText("Hasted!");
-
-			// Use Phaser's time management to remove haste after duration
-			scene.time.addEvent({
-				delay: duration,
-				callback: () => {
-					ally.cooldown = originalCooldown;
-				}
-			});
-		}
-	}
+	await applyTemporaryCooldownModification(targets, 0.5, duration, scene, "Hasted!");
 };
 
 /**
  * Effect: Slows all enemies
  */
 const slowAllEnemiesLogic: TraitEffectFn = async (context) => {
-	const { targets, scene, effectInstance, traitInstanceParams } = context;
-	const duration = (traitInstanceParams.duration ?? effectInstance.duration ?? 2500) as number;
+	const { targets, scene } = context;
+	const duration = getEffectParams(context.traitInstanceParams, context.effectInstance, 'duration', 2500);
 
-	for (const enemy of targets) {
-		const chara = getChara(enemy.id);
-		if (chara) {
-			// Apply slow effect (decrease action speed)
-			const originalCooldown = enemy.cooldown;
-			enemy.cooldown = Math.floor(enemy.cooldown * 1.5); // 50% slower
-			await chara.showPopText("Slowed!", "damage");
-
-			// Use Phaser's time management to remove slow after duration
-			scene.time.addEvent({
-				delay: duration,
-				callback: () => {
-					enemy.cooldown = originalCooldown;
-				}
-			});
-		}
-	}
+	await applyTemporaryCooldownModification(targets, 1.5, duration, scene, "Slowed!");
 };
 
 /**
@@ -602,56 +677,23 @@ const chanceToDodgeLogic: TraitEffectFn = async (context) => {
  * Effect: Applies poison to enemies
  */
 const applyPoisonToEnemiesLogic: TraitEffectFn = async (context) => {
-	const { targets, scene, effectInstance, traitInstanceParams } = context;
-	const damagePerTick = (traitInstanceParams.damage_per_tick ?? effectInstance.damage_per_tick ?? 3) as number;
-	const duration = (traitInstanceParams.duration ?? effectInstance.duration ?? 5000) as number;
-	const tickInterval = (traitInstanceParams.tick_interval ?? effectInstance.tick_interval ?? 1000) as number;
+	const { targets, scene } = context;
+	const damagePerTick = getEffectParams(context.traitInstanceParams, context.effectInstance, 'damage_per_tick', 3);
+	const duration = getEffectParams(context.traitInstanceParams, context.effectInstance, 'duration', 5000);
+	const tickInterval = getEffectParams(context.traitInstanceParams, context.effectInstance, 'tick_interval', 1000);
 
-	for (const enemy of targets) {
-		const chara = getChara(enemy.id);
-		if (chara) {
-			await chara.showPopText("Poisoned!", "damage");
-
-			// Apply poison damage over time using Phaser's time management
-			const poisonTicks = Math.floor(duration / tickInterval);
-			for (let i = 0; i < poisonTicks; i++) {
-				scene.time.addEvent({
-					delay: tickInterval * (i + 1),
-					callback: async () => {
-						if (chara && enemy.hp > 0) {
-							await chara.showPopText(`-${damagePerTick} Poison`, "damage");
-							chara.unitHit(damagePerTick);
-						}
-					}
-				});
-			}
-		}
-	}
+	await applyDamageOverTime(targets, damagePerTick, duration, tickInterval, scene, "Poison");
 };
 
 /**
  * Effect: Reduces enemy damage temporarily
  */
 const reduceEnemyDamageLogic: TraitEffectFn = async (context) => {
-	const { targets, scene, effectInstance, traitInstanceParams } = context;
-	const amount = (traitInstanceParams.amount ?? effectInstance.amount ?? 8) as number;
-	const duration = (traitInstanceParams.duration ?? effectInstance.duration ?? 4000) as number;
+	const { targets, scene } = context;
+	const amount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 8);
+	const duration = getEffectParams(context.traitInstanceParams, context.effectInstance, 'duration', 4000);
 
-	for (const enemy of targets) {
-		const chara = getChara(enemy.id);
-		if (chara) {
-			await chara.updateUnitAttribute("power", -amount);
-			await chara.showPopText(`-${amount} Damage`, "damage");
-
-			// Use Phaser's time management to restore damage after duration
-			scene.time.addEvent({
-				delay: duration,
-				callback: async () => {
-					await chara.updateUnitAttribute("power", amount);
-				}
-			});
-		}
-	}
+	await applyTemporaryAttributeModification(targets, "power", -amount, duration, scene, `-${amount} Damage`);
 };
 
 /**
