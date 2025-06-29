@@ -44,7 +44,7 @@ export class CharaStatsDisplay {
 		this.atkDisplay = this.scene.add.text(
 			atkPosition[0] + boxWidth / 2,
 			atkPosition[1] + boxHeight / 2,
-			this.unit.attackPower.toString(),
+			this.unit.power.toString(),
 			bgConstants.defaultTextConfig
 		).setOrigin(0.5).setAlign('center');
 
@@ -59,7 +59,7 @@ export class CharaStatsDisplay {
 	}
 
 	updateAtk(): void {
-		this.atkDisplay.setText(Math.floor(this.unit.attackPower).toString());
+		this.atkDisplay.setText(Math.floor(this.unit.power).toString());
 	}
 
 	setVisible(visible: boolean): void {

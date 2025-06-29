@@ -245,7 +245,7 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 				units.forEach(unit => {
 					unit.maxHp = Math.floor(unit.maxHp * 1.15); // +15% HP
 					unit.hp = unit.maxHp; // Restore HP to new max
-					unit.attackPower = Math.floor(unit.attackPower * 1.10); // +10% Attack
+					unit.power = Math.floor(unit.power * 1.10); // +10% Attack
 				});
 				console.log("Applied Elite tier stat buffs to enemy team.");
 				if (powerBudgetOverflow >= 0.5) {
@@ -258,7 +258,7 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 				units.forEach(unit => {
 					unit.maxHp = Math.floor(unit.maxHp * 1.10); // +10% HP
 					unit.hp = unit.maxHp; // Restore HP to new max
-					unit.attackPower = Math.floor(unit.attackPower * 1.05); // +5% Attack
+					unit.power = Math.floor(unit.power * 1.05); // +5% Attack
 				});
 				console.log("Applied Veteran tier stat buffs to enemy team.");
 				if (powerBudgetOverflow >= 0.3) {
@@ -275,7 +275,7 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 				console.log("Applied Challenger tier stat buffs to enemy team.");
 				if (powerBudgetOverflow >= 0.7) {
 					const randomUnit = pickOne(units);
-					randomUnit.attackPower = Math.floor(randomUnit.attackPower * 1.05); // +5% Attack
+					randomUnit.power = Math.floor(randomUnit.power * 1.05); // +5% Attack
 					console.log(`Challenger tier: ${randomUnit.name} gained +5% attack.`);
 				}
 				break;

@@ -12,7 +12,7 @@
 				"archer",
 				"ranged_dps"
 			],
-			"attack": 25,
+			"power": 25,
 			"cooldown": 1400,
 			"traits": [
 				{
@@ -51,7 +51,7 @@
 				"knight",
 				"tank"
 			],
-			"attack": 14,
+			"power": 14,
 			"cooldown": 2200,
 			"traits": [
 				{
@@ -70,7 +70,7 @@
 				"caster",
 				"ranged_dps"
 			],
-			"attack": 25,
+			"power": 25,
 			"cooldown": 1200,
 			"traits": [
 				{
@@ -90,7 +90,7 @@
 				"melee_dps",
 				"economy"
 			],
-			"attack": 15,
+			"power": 15,
 			"cooldown": 2000,
 			"traits": [
 				{
@@ -112,7 +112,7 @@
 				"archer",
 				"ranged_dps"
 			],
-			"attack": 22,
+			"power": 22,
 			"cooldown": 1800,
 			"traits": [
 				{
@@ -144,8 +144,7 @@
 			"name": "Goblin Scavenger",
 			"description": "Weak but resourceful. Gains 1 gold when it lands the killing blow on an enemy.",
 			"hp": 35,
-			"attack": 7,
-			"defense": 2,
+			"power": 7,
 			"cooldown": 1000,
 			"traits": [
 				{
@@ -162,8 +161,7 @@
 			"name": "Orc Warrior",
 			"description": "A fierce melee combatant that uses its brute strength to slash foes.",
 			"hp": 75,
-			"attack": 16,
-			"defense": 4,
+			"power": 16,
 			"cooldown": 1500,
 			"traits": [
 				{
@@ -180,8 +178,7 @@
 			"name": "Sprite Archer",
 			"description": "A nimble archer from the deep woods, quick to fire arrows.",
 			"hp": 40,
-			"attack": 12,
-			"defense": 1,
+			"power": 12,
 			"cooldown": 1350,
 			"traits": [
 				{
@@ -198,8 +195,7 @@
 			"name": "Stone Guardian",
 			"description": "An ancient sentinel with immense fortitude, drawing enemy attacks.",
 			"hp": 100,
-			"attack": 8,
-			"defense": 8,
+			"power": 8,
 			"cooldown": 2600,
 			"traits": [
 				{
@@ -216,8 +212,7 @@
 			"name": "Lava Spawn",
 			"description": "A volatile creature of fire. Hurls fireballs and explodes upon death.",
 			"hp": 55,
-			"attack": 13,
-			"defense": 3,
+			"power": 13,
 			"cooldown": 1250,
 			"traits": [
 				{
@@ -239,7 +234,7 @@
 				"tank",
 				"healer"
 			],
-			"attack": 10,
+			"power": 10,
 			"cooldown": 2500,
 			"traits": [
 				{
@@ -260,7 +255,7 @@
 				"assassin",
 				"melee_dps"
 			],
-			"attack": 35,
+			"power": 35,
 			"cooldown": 1500,
 			"traits": [
 				{

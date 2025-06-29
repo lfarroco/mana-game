@@ -21,7 +21,7 @@ export async function physicalAttack(
 
 	const isCritical = dice <= activeChara.unit.crit;
 
-	const rawDmg = isCritical ? activeChara.unit.attackPower * 2 : activeChara.unit.attackPower;
+	const rawDmg = isCritical ? activeChara.unit.power * 2 : activeChara.unit.power;
 	const damage = rawDmg; // future dmg calculations enter here
 
 	// Emit event for TRAIT_EVAL_ATTACK_BY_ME

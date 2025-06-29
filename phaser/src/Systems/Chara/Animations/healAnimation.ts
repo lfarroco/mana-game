@@ -19,7 +19,7 @@ export async function healAnimation(
         throw new Error("target is dead");
     }
 
-    const power = Math.floor(unit.attackPower)
+    const power = Math.floor(unit.power)
 
     scene.playFx("audio/curemagic");
 

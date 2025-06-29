@@ -44,8 +44,7 @@ export type CardDefinition = {
   name: string;
   description: string;
   hp: number;
-  attack: number;
-  defense: number;
+  power: number;
   cooldown: number;
   traits: t.TraitData[]
 };
