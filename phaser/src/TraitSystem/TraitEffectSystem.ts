@@ -229,6 +229,19 @@ export function resolveTargets(
 			const targetPos = { x: source.position.x, y: source.position.y + yOffset };
 			return getActiveUnits(state).filter(u => u.force === sourceForce && u.position.x === targetPos.x && u.position.y === targetPos.y);
 		}
+		case "allies_adjacent": {
+			const adjacentPositions = [
+				{ x: source.position.x - 1, y: source.position.y },     // left
+				{ x: source.position.x + 1, y: source.position.y },     // right
+				{ x: source.position.x, y: source.position.y - 1 },     // above
+				{ x: source.position.x, y: source.position.y + 1 }      // below
+			];
+			return getActiveUnits(state).filter(u =>
+				u.force === sourceForce &&
+				u.id !== source.id &&
+				adjacentPositions.some(pos => u.position.x === pos.x && u.position.y === pos.y)
+			);
+		}
 		// Add more selectors: "allies_in_row", "enemies_in_column", "units_in_area", etc.
 		default:
 			console.warn(`Unknown target selector: ${selector}`);
