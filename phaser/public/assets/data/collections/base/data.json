@@ -569,6 +569,69 @@
 					"amount": 100
 				}
 			]
+		},
+		{
+			"id": "flanking_support",
+			"name": "Flanking Support",
+			"description": "Increases the power of the ally to the right by {amount}.",
+			"categories": [
+				"aura",
+				"support",
+				"offensive"
+			],
+			"effects": [
+				{
+					"effectId": "modify_stat_passive",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "ally_right",
+					"attribute": "power",
+					"amount": 20
+				}
+			]
+		},
+		{
+			"id": "protective_cover",
+			"name": "Protective Cover",
+			"description": "Increases the max HP of the ally to the left by {amount}.",
+			"categories": [
+				"aura",
+				"support",
+				"defensive"
+			],
+			"effects": [
+				{
+					"effectId": "modify_stat_passive",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "ally_left",
+					"attribute": "maxHp",
+					"amount": 30
+				}
+			]
+		},
+		{
+			"id": "central_commander",
+			"name": "Central Commander",
+			"description": "Allies in the same column gain +{amount} power.",
+			"categories": [
+				"aura",
+				"support",
+				"offensive"
+			],
+			"effects": [
+				{
+					"effectId": "modify_stat_passive",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "all_allies_in_column",
+					"attribute": "power",
+					"amount": 15,
+					"conditions": [
+						{
+							"type": "is_in_column",
+							"column": "mid"
+						}
+					]
+				}
+			]
 		}
 	]
 }
