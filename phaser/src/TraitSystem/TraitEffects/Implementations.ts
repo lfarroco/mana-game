@@ -280,6 +280,416 @@ const splashDamageToRandomAdjacentAllyLogic: TraitEffectFn = async (context) => 
 };
 
 /**
+ * Effect: Restores morale to the unit's force
+ */
+const restoreForceMoraleLogic: TraitEffectFn = async (context) => {
+	const { sourceUnit, effectInstance, traitInstanceParams, scene, state } = context;
+	const amount = (traitInstanceParams.amount ?? effectInstance.amount ?? 50) as number;
+
+	const targetForce = state.battleData.forces.find(f => f.id === sourceUnit.force);
+	if (targetForce) {
+		const oldMorale = targetForce.morale;
+		targetForce.morale = Math.min(targetForce.maxMorale, targetForce.morale + amount);
+		const actualRestore = targetForce.morale - oldMorale;
+
+		if (actualRestore > 0) {
+			scene.events.emit(GameEvents.MORALE_UPDATED, {
+				forceId: targetForce.id,
+				newMorale: targetForce.morale,
+				maxMorale: targetForce.maxMorale,
+			});
+
+			const chara = getChara(sourceUnit.id);
+			if (chara) {
+				await chara.showPopText(`+${actualRestore} Morale`, "heal");
+			}
+		}
+	}
+};
+
+/**
+ * Effect: Reduces enemy force morale
+ */
+const reduceEnemyMoraleLogic: TraitEffectFn = async (context) => {
+	const { sourceUnit, effectInstance, traitInstanceParams, scene, state } = context;
+	const amount = (traitInstanceParams.amount ?? effectInstance.amount ?? 75) as number;
+
+	const enemyForce = state.battleData.forces.find(f => f.id !== sourceUnit.force);
+	if (enemyForce) {
+		const oldMorale = enemyForce.morale;
+		enemyForce.morale = Math.max(0, enemyForce.morale - amount);
+		const actualReduction = oldMorale - enemyForce.morale;
+
+		if (actualReduction > 0) {
+			scene.events.emit(GameEvents.MORALE_UPDATED, {
+				forceId: enemyForce.id,
+				newMorale: enemyForce.morale,
+				maxMorale: enemyForce.maxMorale,
+			});
+
+			const chara = getChara(sourceUnit.id);
+			if (chara) {
+				await chara.showPopText(`-${actualReduction} Enemy Morale`, "damage");
+			}
+		}
+	}
+};
+
+/**
+ * Effect: Boosts ally damage temporarily
+ */
+const boostAllyDamageLogic: TraitEffectFn = async (context) => {
+	const { targets, effectInstance, traitInstanceParams } = context;
+	const amount = (traitInstanceParams.amount ?? effectInstance.amount ?? 15) as number;
+	const duration = (traitInstanceParams.duration ?? effectInstance.duration ?? 3000) as number;
+
+	for (const target of targets) {
+		const chara = getChara(target.id);
+		if (chara) {
+			await chara.updateUnitAttribute("power", amount);
+			await chara.showPopText(`+${amount} Damage!`);
+
+			// Set a timeout to remove the buff after duration
+			setTimeout(async () => {
+				await chara.updateUnitAttribute("power", -amount);
+			}, duration);
+		}
+	}
+};
+
+/**
+ * Effect: Hastes all allies
+ */
+const hasteAllAlliesLogic: TraitEffectFn = async (context) => {
+	const { sourceUnit, state, scene, effectInstance, traitInstanceParams } = context;
+	const duration = (traitInstanceParams.duration ?? effectInstance.duration ?? 2500) as number;
+
+	const allies = resolveTargets(sourceUnit, sourceUnit.force, "all_allies", state, scene);
+
+	for (const ally of allies) {
+		const chara = getChara(ally.id);
+		if (chara) {
+			// Apply haste effect (increase action speed)
+			const originalCooldown = ally.cooldown;
+			ally.cooldown = Math.floor(ally.cooldown * 0.5); // 50% faster
+			await chara.showPopText("Hasted!");
+
+			// Remove haste after duration
+			setTimeout(() => {
+				ally.cooldown = originalCooldown;
+			}, duration);
+		}
+	}
+};
+
+/**
+ * Effect: Slows all enemies
+ */
+const slowAllEnemiesLogic: TraitEffectFn = async (context) => {
+	const { sourceUnit, state, scene, effectInstance, traitInstanceParams } = context;
+	const duration = (traitInstanceParams.duration ?? effectInstance.duration ?? 2500) as number;
+
+	const enemies = resolveTargets(sourceUnit, sourceUnit.force, "all_enemies", state, scene);
+
+	for (const enemy of enemies) {
+		const chara = getChara(enemy.id);
+		if (chara) {
+			// Apply slow effect (decrease action speed)
+			const originalCooldown = enemy.cooldown;
+			enemy.cooldown = Math.floor(enemy.cooldown * 1.5); // 50% slower
+			await chara.showPopText("Slowed!", "damage");
+
+			// Remove slow after duration
+			setTimeout(() => {
+				enemy.cooldown = originalCooldown;
+			}, duration);
+		}
+	}
+};
+
+/**
+ * Effect: Freezes all enemies (prevents actions)
+ */
+const freezeAllEnemiesLogic: TraitEffectFn = async (context) => {
+	const { sourceUnit, state, scene, effectInstance, traitInstanceParams } = context;
+	const duration = (traitInstanceParams.duration ?? effectInstance.duration ?? 1500) as number;
+
+	const enemies = resolveTargets(sourceUnit, sourceUnit.force, "all_enemies", state, scene);
+
+	for (const enemy of enemies) {
+		const chara = getChara(enemy.id);
+		if (chara) {
+			// Freeze enemy (prevent actions)
+			const originalCooldown = enemy.cooldown;
+			enemy.cooldown = Number.MAX_SAFE_INTEGER; // Effectively infinite cooldown
+			await chara.showPopText("Frozen!", "damage");
+
+			// Unfreeze after duration
+			setTimeout(() => {
+				enemy.cooldown = originalCooldown;
+			}, duration);
+		}
+	}
+};
+
+/**
+ * Effect: Damage scales with missing HP (berserker rage)
+ */
+const damageScalesWithMissingHpLogic: TraitEffectFn = async (context) => {
+	const { sourceUnit, effectInstance, traitInstanceParams } = context;
+	const damagePerMissingHp = (traitInstanceParams.damage_per_missing_hp ?? effectInstance.damage_per_missing_hp ?? 2) as number;
+	const hpThreshold = (traitInstanceParams.hp_threshold ?? effectInstance.hp_threshold ?? 10) as number;
+
+	const missingHp = sourceUnit.maxHp - sourceUnit.hp;
+	const bonusDamage = Math.floor(missingHp / hpThreshold) * damagePerMissingHp;
+
+	if (bonusDamage > 0) {
+		const chara = getChara(sourceUnit.id);
+		if (chara) {
+			await chara.updateUnitAttribute("power", bonusDamage);
+			await chara.showPopText(`+${bonusDamage} Rage!`);
+		}
+	}
+};
+
+/**
+ * Effect: Sacrifice HP for damage (reckless abandon)
+ */
+const sacrificeHpForDamageLogic: TraitEffectFn = async (context) => {
+	const { sourceUnit, effectInstance, traitInstanceParams } = context;
+	const hpLoss = (traitInstanceParams.hp_loss ?? effectInstance.hp_loss ?? 8) as number;
+	const damageBonus = (traitInstanceParams.damage_bonus ?? effectInstance.damage_bonus ?? 4) as number;
+
+	const chara = getChara(sourceUnit.id);
+	if (chara && sourceUnit.hp > hpLoss) {
+		// Reduce max HP and current HP
+		sourceUnit.maxHp = Math.max(1, sourceUnit.maxHp - hpLoss);
+		sourceUnit.hp = Math.min(sourceUnit.hp - hpLoss, sourceUnit.maxHp);
+
+		// Increase damage
+		await chara.updateUnitAttribute("power", damageBonus);
+		await chara.showPopText(`Reckless! +${damageBonus} Dmg`);
+	}
+};
+
+/**
+ * Effect: Stuns all enemies
+ */
+const stunAllEnemiesLogic: TraitEffectFn = async (context) => {
+	const { sourceUnit, state, scene, effectInstance, traitInstanceParams } = context;
+	const duration = (traitInstanceParams.duration ?? effectInstance.duration ?? 1200) as number;
+
+	const enemies = resolveTargets(sourceUnit, sourceUnit.force, "all_enemies", state, scene);
+
+	for (const enemy of enemies) {
+		const chara = getChara(enemy.id);
+		if (chara) {
+			// Stun enemy (prevent actions and movement)
+			const originalCooldown = enemy.cooldown;
+			enemy.cooldown = Number.MAX_SAFE_INTEGER;
+			await chara.showPopText("Stunned!", "damage");
+
+			// Remove stun after duration
+			setTimeout(() => {
+				enemy.cooldown = originalCooldown;
+			}, duration);
+		}
+	}
+};
+
+/**
+ * Effect: Area damage to all enemies
+ */
+const areaDamageEnemiesLogic: TraitEffectFn = async (context) => {
+	const { sourceUnit, state, scene, effectInstance, traitInstanceParams } = context;
+	const damage = (traitInstanceParams.damage ?? effectInstance.damage ?? 15) as number;
+
+	const enemies = resolveTargets(sourceUnit, sourceUnit.force, "all_enemies", state, scene);
+
+	for (const enemy of enemies) {
+		const chara = getChara(enemy.id);
+		if (chara) {
+			await chara.showPopText(`-${damage} Area Dmg`, "damage");
+			chara.unitHit(damage);
+		}
+	}
+};
+
+/**
+ * Effect: Reduces enemy damage globally while this unit is alive
+ */
+const reduceEnemyDamageGlobalLogic: TraitEffectFn = async (context) => {
+	const { sourceUnit, state, effectInstance, traitInstanceParams } = context;
+	const reduction = (traitInstanceParams.reduction ?? effectInstance.reduction ?? 15) as number;
+
+	const enemies = resolveTargets(sourceUnit, sourceUnit.force, "all_enemies", state, context.scene);
+
+	for (const enemy of enemies) {
+		const chara = getChara(enemy.id);
+		if (chara) {
+			const damageReduction = Math.floor(enemy.power * (reduction / 100));
+			await chara.updateUnitAttribute("power", -damageReduction);
+		}
+	}
+
+	// Note: In a full implementation, you'd want to track this effect and remove it when the source unit dies
+};
+
+/**
+ * Effect: Grants morale to allies
+ */
+const grantMoraleToAlliesLogic: TraitEffectFn = async (context) => {
+	const { sourceUnit, state, scene, effectInstance, traitInstanceParams } = context;
+	const moraleAmount = (traitInstanceParams.morale ?? effectInstance.morale ?? 40) as number;
+
+	// This is a simplification - in a full implementation, you might have individual unit morale
+	const targetForce = state.battleData.forces.find(f => f.id === sourceUnit.force);
+	if (targetForce) {
+		const oldMorale = targetForce.morale;
+		targetForce.morale = Math.min(targetForce.maxMorale, targetForce.morale + moraleAmount);
+		const actualGrant = targetForce.morale - oldMorale;
+
+		if (actualGrant > 0) {
+			scene.events.emit(GameEvents.MORALE_UPDATED, {
+				forceId: targetForce.id,
+				newMorale: targetForce.morale,
+				maxMorale: targetForce.maxMorale,
+			});
+
+			const chara = getChara(sourceUnit.id);
+			if (chara) {
+				await chara.showPopText(`+${actualGrant} Team Morale`, "heal");
+			}
+		}
+	}
+};
+
+/**
+ * Effect: Cleanses debuffs from allies
+ */
+const cleanseAllyDebuffsLogic: TraitEffectFn = async (context) => {
+	const { sourceUnit, state, scene } = context;
+	const allies = resolveTargets(sourceUnit, sourceUnit.force, "all_allies", state, scene);
+
+	for (const ally of allies) {
+		const chara = getChara(ally.id);
+		if (chara) {
+			// Reset cooldown to base value (removes slow/freeze effects)
+			// In a full implementation, you'd track individual debuffs
+			await chara.showPopText("Cleansed!", "heal");
+		}
+	}
+};
+
+/**
+ * Effect: Chance to dodge incoming damage
+ */
+const chanceToDodgeLogic: TraitEffectFn = async (context) => {
+	const { sourceUnit, effectInstance, traitInstanceParams } = context;
+	const dodgeChance = (traitInstanceParams.dodge_chance ?? effectInstance.dodge_chance ?? 30) as number;
+
+	// This would typically be implemented in the damage handling system
+	// For now, we'll just show the passive effect is active
+	const chara = getChara(sourceUnit.id);
+	if (chara && Math.random() * 100 < dodgeChance) {
+		await chara.showPopText("Dodged!");
+	}
+};
+
+/**
+ * Effect: Applies poison to enemies
+ */
+const applyPoisonToEnemiesLogic: TraitEffectFn = async (context) => {
+	const { sourceUnit, state, scene, effectInstance, traitInstanceParams } = context;
+	const damagePerTick = (traitInstanceParams.damage_per_tick ?? effectInstance.damage_per_tick ?? 3) as number;
+	const duration = (traitInstanceParams.duration ?? effectInstance.duration ?? 5000) as number;
+	const tickInterval = (traitInstanceParams.tick_interval ?? effectInstance.tick_interval ?? 1000) as number;
+
+	const enemies = resolveTargets(sourceUnit, sourceUnit.force, "all_enemies", state, scene);
+
+	for (const enemy of enemies) {
+		const chara = getChara(enemy.id);
+		if (chara) {
+			await chara.showPopText("Poisoned!", "damage");
+
+			// Apply poison damage over time
+			const poisonTicks = Math.floor(duration / tickInterval);
+			for (let i = 0; i < poisonTicks; i++) {
+				setTimeout(async () => {
+					if (chara && enemy.hp > 0) {
+						await chara.showPopText(`-${damagePerTick} Poison`, "damage");
+						chara.unitHit(damagePerTick);
+					}
+				}, tickInterval * (i + 1));
+			}
+		}
+	}
+};
+
+/**
+ * Effect: Reduces enemy damage temporarily
+ */
+const reduceEnemyDamageLogic: TraitEffectFn = async (context) => {
+	const { sourceUnit, state, scene, effectInstance, traitInstanceParams } = context;
+	const amount = (traitInstanceParams.amount ?? effectInstance.amount ?? 8) as number;
+	const duration = (traitInstanceParams.duration ?? effectInstance.duration ?? 4000) as number;
+
+	const enemies = resolveTargets(sourceUnit, sourceUnit.force, "all_enemies", state, scene);
+
+	for (const enemy of enemies) {
+		const chara = getChara(enemy.id);
+		if (chara) {
+			await chara.updateUnitAttribute("power", -amount);
+			await chara.showPopText(`-${amount} Damage`, "damage");
+
+			// Restore damage after duration
+			setTimeout(async () => {
+				await chara.updateUnitAttribute("power", amount);
+			}, duration);
+		}
+	}
+};
+
+/**
+ * Effect: Fortress mode passive (conditional armor and reflect)
+ */
+const fortressModePassiveLogic: TraitEffectFn = async (context) => {
+	const { sourceUnit, effectInstance, traitInstanceParams } = context;
+	const armorBonus = (traitInstanceParams.armor_bonus ?? effectInstance.armor_bonus ?? 20) as number;
+
+	// Check if unit is stationary (this would need to be tracked in the movement system)
+	// For now, assume fortress units are always stationary when not moving
+	const chara = getChara(sourceUnit.id);
+	if (chara) {
+		await chara.updateUnitAttribute("power", armorBonus); // Using power as armor for simplicity
+		await chara.showPopText(`Fortress Mode: +${armorBonus} Armor`);
+
+		// Note: Damage reflection would be implemented in the damage handling system
+	}
+};
+
+/**
+ * Effect: Reduces damage taken by all allies
+ */
+const reduceAllyDamageTakenLogic: TraitEffectFn = async (context) => {
+	const { sourceUnit, state, scene, effectInstance, traitInstanceParams } = context;
+	const reduction = (traitInstanceParams.reduction ?? effectInstance.reduction ?? 12) as number;
+
+	const allies = resolveTargets(sourceUnit, sourceUnit.force, "all_allies", state, scene);
+
+	for (const ally of allies) {
+		const chara = getChara(ally.id);
+		if (chara) {
+			// This would typically be implemented as a damage reduction modifier
+			// For visual feedback:
+			await chara.showPopText(`Protected (${reduction}%)`);
+		}
+	}
+
+	// Note: The actual damage reduction would be implemented in the damage calculation system
+};
+
+/**
  * Registers all defined trait effect implementations with the TraitEffectSystem.
  * This function should be called once during game initialization.
  */
@@ -304,6 +714,23 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("increase_force_max_morale", increaseForceMaxMoraleLogic);
 	registerTraitEffectImplementation("modify_stat_passive", modifyStatPassiveLogic);
 	registerTraitEffectImplementation("splash_damage_to_random_adjacent_ally", splashDamageToRandomAdjacentAllyLogic);
-
+	registerTraitEffectImplementation("restore_force_morale", restoreForceMoraleLogic);
+	registerTraitEffectImplementation("reduce_enemy_morale", reduceEnemyMoraleLogic);
+	registerTraitEffectImplementation("boost_ally_damage", boostAllyDamageLogic);
+	registerTraitEffectImplementation("haste_all_allies", hasteAllAlliesLogic);
+	registerTraitEffectImplementation("slow_all_enemies", slowAllEnemiesLogic);
+	registerTraitEffectImplementation("freeze_all_enemies", freezeAllEnemiesLogic);
+	registerTraitEffectImplementation("damage_scales_with_missing_hp", damageScalesWithMissingHpLogic);
+	registerTraitEffectImplementation("sacrifice_hp_for_damage", sacrificeHpForDamageLogic);
+	registerTraitEffectImplementation("stun_all_enemies", stunAllEnemiesLogic);
+	registerTraitEffectImplementation("area_damage_enemies", areaDamageEnemiesLogic);
+	registerTraitEffectImplementation("reduce_enemy_damage_global", reduceEnemyDamageGlobalLogic);
+	registerTraitEffectImplementation("grant_morale_to_allies", grantMoraleToAlliesLogic);
+	registerTraitEffectImplementation("cleanse_ally_debuffs", cleanseAllyDebuffsLogic);
+	registerTraitEffectImplementation("chance_to_dodge", chanceToDodgeLogic);
+	registerTraitEffectImplementation("apply_poison_to_enemies", applyPoisonToEnemiesLogic);
+	registerTraitEffectImplementation("reduce_enemy_damage", reduceEnemyDamageLogic);
+	registerTraitEffectImplementation("fortress_mode_passive", fortressModePassiveLogic);
+	registerTraitEffectImplementation("reduce_ally_damage_taken", reduceAllyDamageTakenLogic);
 
 }

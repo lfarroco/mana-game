@@ -108,10 +108,50 @@ export class UIButton extends Phaser.GameObjects.Container {
 	 */
 	_drawButtonState(fill: number) {
 		this.buttonGraphics.clear();
+
+		// --- Drop shadow ---
+		const shadowOffset = 4;
+		this.buttonGraphics.fillStyle(0x1a2327, 0.7); // dark shadow color
+		this.buttonGraphics.fillRoundedRect(
+			shadowOffset,
+			shadowOffset,
+			this.buttonWidth,
+			this.buttonHeight,
+			this.cornerRadius + 2
+		);
+
+		// --- Outer border (black) ---
+		const outerBorder = 4;
+		this.buttonGraphics.lineStyle(outerBorder, 0x000000, 1);
+		this.buttonGraphics.strokeRoundedRect(
+			0,
+			0,
+			this.buttonWidth,
+			this.buttonHeight,
+			this.cornerRadius + 1
+		);
+
+		// --- Inner border (gold) ---
+		const gold = 0xc9a14a;
+		const innerBorder = 3;
+		this.buttonGraphics.lineStyle(innerBorder, gold, 1);
+		this.buttonGraphics.strokeRoundedRect(
+			outerBorder,
+			outerBorder,
+			this.buttonWidth - 2 * outerBorder,
+			this.buttonHeight - 2 * outerBorder,
+			this.cornerRadius
+		);
+
+		// --- Button fill (dark green/blue) ---
 		this.buttonGraphics.fillStyle(fill, 1);
-		this.buttonGraphics.fillRoundedRect(0, 0, this.buttonWidth, this.buttonHeight, this.cornerRadius);
-		this.buttonGraphics.lineStyle(this.lineWidth, this.lineColor, 1);
-		this.buttonGraphics.strokeRoundedRect(0, 0, this.buttonWidth, this.buttonHeight, this.cornerRadius);
+		this.buttonGraphics.fillRoundedRect(
+			outerBorder + 1.5,
+			outerBorder + 1.5,
+			this.buttonWidth - 2 * (outerBorder + 1.5),
+			this.buttonHeight - 2 * (outerBorder + 1.5),
+			this.cornerRadius - 1
+		);
 	}
 
 	/** Disables the button visually and functionally. */
