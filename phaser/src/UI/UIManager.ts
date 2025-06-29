@@ -37,13 +37,8 @@ export class UIManager {
 	difficultyTierTextElement: Phaser.GameObjects.Text | null = null;
 	/** Phaser text element for displaying player's team morale (total HP). */
 	playerTeamMoraleTextElement: Phaser.GameObjects.Text | null = null;
-	/** Phaser text element for displaying player's team total DPS. */
-	playerTeamDPSTextElement: Phaser.GameObjects.Text | null = null;
 	/** Phaser text element for displaying enemy's team morale (total HP). */
 	enemyTeamMoraleTextElement: Phaser.GameObjects.Text | null = null;
-	/** Phaser text element for displaying enemy's team total DPS. */
-	enemyTeamDPSTextElement: Phaser.GameObjects.Text | null = null;
-
 
 	/**
 	 * Initializes the UIManager.
@@ -246,32 +241,25 @@ export class UIManager {
 	}
 
 	/**
-	 * Updates the displayed stats (Morale and DPS) for a single force.
+	 * Updates the displayed stats (Morale) for a single force.
 	 * @param forceId The ID of the force to update ('PLAYER' or 'CPU').
 	 * @param morale The new morale value to display.
 	 */
 	_updateForceStats(forceId: string, morale: number): void {
-		const units = this.scene.state.battleData.units.filter(u => u.force === forceId);
-		const totalDPS = units.reduce((sum, unit) => {
-			const cooldownInSeconds = unit.cooldown > 0 ? unit.cooldown / 1000 : 1;
-			return sum + (unit.attackPower / cooldownInSeconds);
-		}, 0);
 
 		if (forceId === c.FORCE_ID_PLAYER) {
 			if (this.playerTeamMoraleTextElement) {
 				this._updateMoraleTextWithAnimation(this.playerTeamMoraleTextElement, morale);
 			}
-			this.playerTeamDPSTextElement?.setText(`${totalDPS.toFixed(1)}`);
 		} else {
 			if (this.enemyTeamMoraleTextElement) {
 				this._updateMoraleTextWithAnimation(this.enemyTeamMoraleTextElement, morale);
 			}
-			this.enemyTeamDPSTextElement?.setText(`${totalDPS.toFixed(1)}`);
 		}
 	}
 
 	/**
-	 * Calculates and updates the displayed team stats (Total HP and DPS) for both player and enemy.
+	 * Calculates and updates the displayed team stats (Total HP) for both player and enemy.
 	 */
 	_updateAllTeamStats(): void {
 		if (!this.playerTeamMoraleTextElement) {
@@ -337,9 +325,7 @@ export class UIManager {
 	 */
 	setTeamStatsVisibility(visible: boolean): void {
 		this.playerTeamMoraleTextElement?.setVisible(visible);
-		this.playerTeamDPSTextElement?.setVisible(visible);
 		this.enemyTeamMoraleTextElement?.setVisible(visible);
-		this.enemyTeamDPSTextElement?.setVisible(visible);
 	}
 
 	/**
@@ -455,7 +441,7 @@ export class UIManager {
 	}
 
 	/**
-	 * Creates the text elements for team stats (Morale and DPS) for both teams.
+	 * Creates the text elements for team stats (Morale) for both teams.
 	 * @param parent The `Phaser.GameObjects.Container` to which the text will be added.
 	 */
 	_createTeamStats(parent: Phaser.GameObjects.Container): void {
@@ -481,13 +467,6 @@ export class UIManager {
 			{ ...statTextStyle, color: "#00ff00" }
 		).setOrigin(0.5);
 
-		this.playerTeamDPSTextElement = this.scene.add.text(
-			rightOfBoardX,
-			playerBoardCenterY + yOffset,
-			'0.0',
-			{ ...statTextStyle, color: "#ff0000" }
-		).setOrigin(0.5);
-
 		// Enemy Stats
 		this.enemyTeamMoraleTextElement = this.scene.add.text(
 			rightOfBoardX,
@@ -496,14 +475,7 @@ export class UIManager {
 			{ ...statTextStyle, color: "#00ff00" }
 		).setOrigin(0.5);
 
-		this.enemyTeamDPSTextElement = this.scene.add.text(
-			rightOfBoardX,
-			cpuBoardCenterY + yOffset,
-			' 0.0',
-			{ ...statTextStyle, color: "#ff0000" }
-		).setOrigin(0.5);
-
-		parent.add([this.playerTeamMoraleTextElement, this.playerTeamDPSTextElement, this.enemyTeamMoraleTextElement, this.enemyTeamDPSTextElement]);
+		parent.add([this.playerTeamMoraleTextElement, this.enemyTeamMoraleTextElement]);
 
 		this.setTeamStatsVisibility(false); // Initially hidden
 	}
@@ -560,9 +532,7 @@ export class UIManager {
 		this.lossStreakTextElement = null;
 		this.difficultyTierTextElement = null;
 		this.playerTeamMoraleTextElement = null;
-		this.playerTeamDPSTextElement = null;
 		this.enemyTeamMoraleTextElement = null;
-		this.enemyTeamDPSTextElement = null;
 	}
 
 	/**
