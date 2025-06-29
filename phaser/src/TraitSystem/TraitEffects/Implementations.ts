@@ -364,13 +364,12 @@ const boostAllyDamageLogic: TraitEffectFn = async (context) => {
  * Effect: Hastes all allies
  */
 const hasteAllAlliesLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, state, scene, effectInstance, traitInstanceParams } = context;
+	const { targets, scene, effectInstance, traitInstanceParams } = context;
 	const duration = (traitInstanceParams.duration ?? effectInstance.duration ?? 2500) as number;
 
-	const allies = resolveTargets(sourceUnit, sourceUnit.force, "all_allies", state, scene);
-
-	for (const ally of allies) {
-		const chara = getChara(ally.id); if (chara) {
+	for (const ally of targets) {
+		const chara = getChara(ally.id);
+		if (chara) {
 			// Apply haste effect (increase action speed)
 			const originalCooldown = ally.cooldown;
 			ally.cooldown = Math.floor(ally.cooldown * 0.5); // 50% faster
@@ -391,13 +390,12 @@ const hasteAllAlliesLogic: TraitEffectFn = async (context) => {
  * Effect: Slows all enemies
  */
 const slowAllEnemiesLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, state, scene, effectInstance, traitInstanceParams } = context;
+	const { targets, scene, effectInstance, traitInstanceParams } = context;
 	const duration = (traitInstanceParams.duration ?? effectInstance.duration ?? 2500) as number;
 
-	const enemies = resolveTargets(sourceUnit, sourceUnit.force, "all_enemies", state, scene);
-
-	for (const enemy of enemies) {
-		const chara = getChara(enemy.id); if (chara) {
+	for (const enemy of targets) {
+		const chara = getChara(enemy.id);
+		if (chara) {
 			// Apply slow effect (decrease action speed)
 			const originalCooldown = enemy.cooldown;
 			enemy.cooldown = Math.floor(enemy.cooldown * 1.5); // 50% slower
@@ -418,13 +416,12 @@ const slowAllEnemiesLogic: TraitEffectFn = async (context) => {
  * Effect: Freezes all enemies (prevents actions)
  */
 const freezeAllEnemiesLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, state, scene, effectInstance, traitInstanceParams } = context;
+	const { targets, scene, effectInstance, traitInstanceParams } = context;
 	const duration = (traitInstanceParams.duration ?? effectInstance.duration ?? 1500) as number;
 
-	const enemies = resolveTargets(sourceUnit, sourceUnit.force, "all_enemies", state, scene);
-
-	for (const enemy of enemies) {
-		const chara = getChara(enemy.id); if (chara) {
+	for (const enemy of targets) {
+		const chara = getChara(enemy.id);
+		if (chara) {
 			// Freeze enemy (prevent actions)
 			const originalCooldown = enemy.cooldown;
 			enemy.cooldown = Number.MAX_SAFE_INTEGER; // Effectively infinite cooldown
@@ -485,13 +482,12 @@ const sacrificeHpForDamageLogic: TraitEffectFn = async (context) => {
  * Effect: Stuns all enemies
  */
 const stunAllEnemiesLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, state, scene, effectInstance, traitInstanceParams } = context;
+	const { targets, scene, effectInstance, traitInstanceParams } = context;
 	const duration = (traitInstanceParams.duration ?? effectInstance.duration ?? 1200) as number;
 
-	const enemies = resolveTargets(sourceUnit, sourceUnit.force, "all_enemies", state, scene);
-
-	for (const enemy of enemies) {
-		const chara = getChara(enemy.id); if (chara) {
+	for (const enemy of targets) {
+		const chara = getChara(enemy.id);
+		if (chara) {
 			// Stun enemy (prevent actions and movement)
 			const originalCooldown = enemy.cooldown;
 			enemy.cooldown = Number.MAX_SAFE_INTEGER;
@@ -512,12 +508,10 @@ const stunAllEnemiesLogic: TraitEffectFn = async (context) => {
  * Effect: Area damage to all enemies
  */
 const areaDamageEnemiesLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, state, scene, effectInstance, traitInstanceParams } = context;
+	const { targets, effectInstance, traitInstanceParams } = context;
 	const damage = (traitInstanceParams.damage ?? effectInstance.damage ?? 15) as number;
 
-	const enemies = resolveTargets(sourceUnit, sourceUnit.force, "all_enemies", state, scene);
-
-	for (const enemy of enemies) {
+	for (const enemy of targets) {
 		const chara = getChara(enemy.id);
 		if (chara) {
 			await chara.showPopText(`-${damage} Area Dmg`, "damage");
@@ -530,12 +524,10 @@ const areaDamageEnemiesLogic: TraitEffectFn = async (context) => {
  * Effect: Reduces enemy damage globally while this unit is alive
  */
 const reduceEnemyDamageGlobalLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, state, effectInstance, traitInstanceParams } = context;
+	const { targets, effectInstance, traitInstanceParams } = context;
 	const reduction = (traitInstanceParams.reduction ?? effectInstance.reduction ?? 15) as number;
 
-	const enemies = resolveTargets(sourceUnit, sourceUnit.force, "all_enemies", state, context.scene);
-
-	for (const enemy of enemies) {
+	for (const enemy of targets) {
 		const chara = getChara(enemy.id);
 		if (chara) {
 			const damageReduction = Math.floor(enemy.power * (reduction / 100));
@@ -579,10 +571,9 @@ const grantMoraleToAlliesLogic: TraitEffectFn = async (context) => {
  * Effect: Cleanses debuffs from allies
  */
 const cleanseAllyDebuffsLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, state, scene } = context;
-	const allies = resolveTargets(sourceUnit, sourceUnit.force, "all_allies", state, scene);
+	const { targets } = context;
 
-	for (const ally of allies) {
+	for (const ally of targets) {
 		const chara = getChara(ally.id);
 		if (chara) {
 			// Reset cooldown to base value (removes slow/freeze effects)
@@ -611,15 +602,14 @@ const chanceToDodgeLogic: TraitEffectFn = async (context) => {
  * Effect: Applies poison to enemies
  */
 const applyPoisonToEnemiesLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, state, scene, effectInstance, traitInstanceParams } = context;
+	const { targets, scene, effectInstance, traitInstanceParams } = context;
 	const damagePerTick = (traitInstanceParams.damage_per_tick ?? effectInstance.damage_per_tick ?? 3) as number;
 	const duration = (traitInstanceParams.duration ?? effectInstance.duration ?? 5000) as number;
 	const tickInterval = (traitInstanceParams.tick_interval ?? effectInstance.tick_interval ?? 1000) as number;
 
-	const enemies = resolveTargets(sourceUnit, sourceUnit.force, "all_enemies", state, scene);
-
-	for (const enemy of enemies) {
-		const chara = getChara(enemy.id); if (chara) {
+	for (const enemy of targets) {
+		const chara = getChara(enemy.id);
+		if (chara) {
 			await chara.showPopText("Poisoned!", "damage");
 
 			// Apply poison damage over time using Phaser's time management
@@ -643,14 +633,13 @@ const applyPoisonToEnemiesLogic: TraitEffectFn = async (context) => {
  * Effect: Reduces enemy damage temporarily
  */
 const reduceEnemyDamageLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, state, scene, effectInstance, traitInstanceParams } = context;
+	const { targets, scene, effectInstance, traitInstanceParams } = context;
 	const amount = (traitInstanceParams.amount ?? effectInstance.amount ?? 8) as number;
 	const duration = (traitInstanceParams.duration ?? effectInstance.duration ?? 4000) as number;
 
-	const enemies = resolveTargets(sourceUnit, sourceUnit.force, "all_enemies", state, scene);
-
-	for (const enemy of enemies) {
-		const chara = getChara(enemy.id); if (chara) {
+	for (const enemy of targets) {
+		const chara = getChara(enemy.id);
+		if (chara) {
 			await chara.updateUnitAttribute("power", -amount);
 			await chara.showPopText(`-${amount} Damage`, "damage");
 
@@ -687,12 +676,10 @@ const fortressModePassiveLogic: TraitEffectFn = async (context) => {
  * Effect: Reduces damage taken by all allies
  */
 const reduceAllyDamageTakenLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, state, scene, effectInstance, traitInstanceParams } = context;
+	const { targets, effectInstance, traitInstanceParams } = context;
 	const reduction = (traitInstanceParams.reduction ?? effectInstance.reduction ?? 12) as number;
 
-	const allies = resolveTargets(sourceUnit, sourceUnit.force, "all_allies", state, scene);
-
-	for (const ally of allies) {
+	for (const ally of targets) {
 		const chara = getChara(ally.id);
 		if (chara) {
 			// This would typically be implemented as a damage reduction modifier
