@@ -7,15 +7,23 @@
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import { defaultTextConfig } from "../constants/constants";
 
+// UI Constants
 const PADDING = 20;
-const TITLE_FONT_SIZE = 40;
-const DESCRIPTION_FONT_SIZE = 30;
-const BORDER_RADIUS = 10;
-const BACKGROUND_COLOR = 0x000000;
-const BACKGROUND_ALPHA = 0.8;
 const INTER_ELEMENT_PADDING = PADDING / 2;
+const BORDER_RADIUS = 10;
+
+// Sizing Constants
 const MIN_TOOLTIP_WIDTH = 600;
 const MIN_TOOLTIP_HEIGHT = 300;
+const MAX_TOOLTIP_WIDTH = 800;
+
+// Font Constants
+const TITLE_FONT_SIZE = 40;
+const DESCRIPTION_FONT_SIZE = 30;
+
+// Style Constants
+const BACKGROUND_COLOR = 0x000000;
+const BACKGROUND_ALPHA = 0.8;
 
 // Module-level state for the singleton tooltip
 let scene: Phaser.Scene | null = null;
@@ -26,37 +34,42 @@ let descriptionText: BBCodeText | null = null;
 let currentTitle: string = '';
 let currentDescription: string = '';
 
+// Tooltip dimensions
+let tooltipWidth: number = MIN_TOOLTIP_WIDTH;
+let tooltipHeight: number = MIN_TOOLTIP_HEIGHT;
+let lastAdjustedX: number | undefined;
+let lastAdjustedY: number | undefined;
+
 /**
  * Calculates the adjusted position for the tooltip to ensure it stays within the canvas bounds.
  * The tooltip is centered on the provided x, y coordinates unless it would go off-screen.
  * @param x The desired x-coordinate (center of the tooltip).
  * @param y The desired y-coordinate (center of the tooltip).
- * @param tooltipWidth The current width of the tooltip.
- * @param tooltipHeight The current height of the tooltip.
  * @returns An object containing the adjusted x and y coordinates.
  */
-function getAdjustedPosition(x: number, y: number, tooltipWidth: number, tooltipHeight: number): { x: number, y: number } {
-	if (!scene) return { x, y };
+function getAdjustedPosition(x: number, y: number): { x: number, y: number } {
+	if (!scene || !container) return { x, y };
+
+	// Check if we can use cached position
+	if (lastAdjustedX !== undefined &&
+		lastAdjustedY !== undefined &&
+		Math.abs(x - container.x) < 1 &&
+		Math.abs(y - container.y) < 1) {
+		return { x: lastAdjustedX, y: lastAdjustedY };
+	}
 
 	const canvasWidth = scene.scale.width;
 	const canvasHeight = scene.scale.height;
 	const halfTooltipWidth = tooltipWidth / 2;
 	const halfTooltipHeight = tooltipHeight / 2;
 
-	let adjustedX = x;
-	let adjustedY = y;
+	// Calculate adjusted position
+	const adjustedX = Math.max(halfTooltipWidth, Math.min(x, canvasWidth - halfTooltipWidth));
+	const adjustedY = Math.max(halfTooltipHeight, Math.min(y, canvasHeight - halfTooltipHeight));
 
-	if (adjustedX - halfTooltipWidth < 0) {
-		adjustedX = halfTooltipWidth;
-	} else if (adjustedX + halfTooltipWidth > canvasWidth) {
-		adjustedX = canvasWidth - halfTooltipWidth;
-	}
-
-	if (adjustedY - halfTooltipHeight < 0) {
-		adjustedY = halfTooltipHeight;
-	} else if (adjustedY + halfTooltipHeight > canvasHeight) {
-		adjustedY = canvasHeight - halfTooltipHeight;
-	}
+	// Cache the result
+	lastAdjustedX = adjustedX;
+	lastAdjustedY = adjustedY;
 
 	return { x: adjustedX, y: adjustedY };
 }
@@ -76,6 +89,10 @@ export function destroyTooltip(): void {
 	descriptionText = null;
 	currentTitle = '';
 	currentDescription = '';
+	tooltipWidth = MIN_TOOLTIP_WIDTH;
+	tooltipHeight = MIN_TOOLTIP_HEIGHT;
+	lastAdjustedX = undefined;
+	lastAdjustedY = undefined;
 }
 
 /**
@@ -92,6 +109,8 @@ export function initializeTooltip(newScene: Phaser.Scene): void {
 
 	container = scene.add.container(0, 0);
 	container.setDepth(Phaser.Math.MAX_SAFE_INTEGER); // Ensure tooltip is on top
+	tooltipWidth = MIN_TOOLTIP_WIDTH;
+	tooltipHeight = MIN_TOOLTIP_HEIGHT;
 
 	bg = scene.add.graphics();
 	container.add(bg);
@@ -122,15 +141,16 @@ export function initializeTooltip(newScene: Phaser.Scene): void {
  * @param description The description text to display.
  */
 export function renderTooltip(x: number, y: number, title: string, description: string): void {
-	if (!container || !titleText || !descriptionText || !scene) {
+	if (!container || !titleText || !descriptionText || !scene || !bg) {
 		console.warn("Tooltip not initialized. Call initializeTooltip(scene) first.");
 		return;
 	}
 
-	let titleChanged = currentTitle !== title;
-	let descriptionChanged = currentDescription !== description;
-	let contentChanged = titleChanged || descriptionChanged;
+	const titleChanged = currentTitle !== title;
+	const descriptionChanged = currentDescription !== description;
+	const contentChanged = titleChanged || descriptionChanged;
 
+	// Update text content if changed
 	if (titleChanged) {
 		titleText.setText(title);
 		currentTitle = title;
@@ -141,65 +161,55 @@ export function renderTooltip(x: number, y: number, title: string, description: 
 		currentDescription = description;
 	}
 
+	// Recalculate layout only if content changed or tooltip was hidden
 	if (contentChanged || !container.visible) {
-		// Calculate content sizes
-		titleText.setFontSize(TITLE_FONT_SIZE);
-		descriptionText.setFontSize(DESCRIPTION_FONT_SIZE);
-
-		// Set max wrap width for description (so it doesn't get too wide)
-		const maxWrapWidth = 800 - 2 * PADDING;
+		// Calculate max wrap width
+		const maxWrapWidth = MAX_TOOLTIP_WIDTH - 2 * PADDING;
 		descriptionText.setWordWrapWidth(maxWrapWidth);
 
-		// Position title
+		// Position elements and calculate sizes
 		titleText.setPosition(0, 0);
-		// Position description below title
 		descriptionText.setPosition(0, titleText.height + INTER_ELEMENT_PADDING);
 
-		// Calculate required width and height
 		const contentWidth = Math.max(titleText.width, descriptionText.width);
-		const tooltipWidth = Math.max(MIN_TOOLTIP_WIDTH, Math.min(contentWidth + 2 * PADDING, 800));
+		tooltipWidth = Math.max(MIN_TOOLTIP_WIDTH, Math.min(contentWidth + 2 * PADDING, MAX_TOOLTIP_WIDTH));
+
+		// Adjust description wrap if needed
 		const descriptionWrapWidth = tooltipWidth - 2 * PADDING;
 		descriptionText.setWordWrapWidth(descriptionWrapWidth);
-		// Re-measure after wrap
 		descriptionText.setPosition(0, titleText.height + INTER_ELEMENT_PADDING);
 
 		const totalHeight = titleText.height + INTER_ELEMENT_PADDING + descriptionText.height + PADDING;
-		const tooltipHeight = Math.max(MIN_TOOLTIP_HEIGHT, totalHeight + PADDING);
+		tooltipHeight = Math.max(MIN_TOOLTIP_HEIGHT, totalHeight + PADDING);
 
 		// Redraw background
-		if (bg) {
-			bg.clear();
-			bg.fillStyle(BACKGROUND_COLOR, BACKGROUND_ALPHA);
-			bg.fillRoundedRect(
-				-tooltipWidth / 2,
-				-tooltipHeight / 2,
-				tooltipWidth,
-				tooltipHeight,
-				BORDER_RADIUS
-			);
-		}
+		bg.clear();
+		bg.fillStyle(BACKGROUND_COLOR, BACKGROUND_ALPHA);
+		bg.fillRoundedRect(
+			-tooltipWidth / 2,
+			-tooltipHeight / 2,
+			tooltipWidth,
+			tooltipHeight,
+			BORDER_RADIUS
+		);
 
-		// Reposition text objects
+		// Position text elements
 		titleText.setPosition(-tooltipWidth / 2 + PADDING, -tooltipHeight / 2 + PADDING);
 		descriptionText.setPosition(
 			-tooltipWidth / 2 + PADDING,
 			titleText.y + titleText.height + INTER_ELEMENT_PADDING
 		);
-
-		// Store for later use
-		(container as any)._tooltipWidth = tooltipWidth;
-		(container as any)._tooltipHeight = tooltipHeight;
 	}
 
-	const tooltipWidth = (container as any)._tooltipWidth || MIN_TOOLTIP_WIDTH;
-	const tooltipHeight = (container as any)._tooltipHeight || MIN_TOOLTIP_HEIGHT;
-	const { x: adjustedX, y: adjustedY } = getAdjustedPosition(x, y, tooltipWidth, tooltipHeight);
+	// Update position
+	const { x: adjustedX, y: adjustedY } = getAdjustedPosition(x, y);
 	if (container.x !== adjustedX || container.y !== adjustedY) {
 		container.setPosition(adjustedX, adjustedY);
 	}
+
 	if (!container.visible) {
 		container.setVisible(true);
-		scene.children.bringToTop(container)
+		scene.children.bringToTop(container);
 	}
 }
 
@@ -210,9 +220,8 @@ export function renderTooltip(x: number, y: number, title: string, description: 
  */
 export function moveTooltip(x: number, y: number): void {
 	if (!container || !container.visible) return;
-	const tooltipWidth = (container as any)._tooltipWidth || MIN_TOOLTIP_WIDTH;
-	const tooltipHeight = (container as any)._tooltipHeight || MIN_TOOLTIP_HEIGHT;
-	const { x: adjustedX, y: adjustedY } = getAdjustedPosition(x, y, tooltipWidth, tooltipHeight);
+
+	const { x: adjustedX, y: adjustedY } = getAdjustedPosition(x, y);
 	if (container.x !== adjustedX || container.y !== adjustedY) {
 		container.setPosition(adjustedX, adjustedY);
 	}
