@@ -194,7 +194,7 @@
 		},
 		{
 			"id": "stone_guardian",
-			"pic": "charas/stone_guardian.png",
+			"pic": "assets/cards/stone_guardian.png",
 			"name": "Stone Guardian",
 			"description": "An ancient sentinel with immense fortitude, drawing enemy attacks.",
 			"hp": 100,
