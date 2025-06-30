@@ -1,8 +1,8 @@
 // Pure implementation for utils
-export function pickRandom(array: any[]) {
+export function pickRandom(_array: any[]) {
 	// Add pure logic here
 }
 
-export function devlog(message: string) {
+export function devlog(_message: string) {
 	// Add pure logic here
 }

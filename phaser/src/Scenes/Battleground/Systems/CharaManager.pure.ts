@@ -1,4 +1,4 @@
 // Pure implementation for CharaManager
-export function getChara(id: string) {
+export function getChara(_id: string) {
 	// Add pure logic here
 }

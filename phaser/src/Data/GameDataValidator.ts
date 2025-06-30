@@ -291,7 +291,7 @@ export function validateEffectDefinition(effect: EffectDefinition, traitId: stri
 export function validateTraitParameters(card: CardData, traitDefinitions: Map<string, TraitDefinition>): ValidationError[] {
 	const errors: ValidationError[] = [];
 
-	card.traits.forEach((traitRef, index) => {
+	card.traits.forEach((traitRef) => {
 		const traitDef = traitDefinitions.get(traitRef.id);
 		if (!traitDef) return; // Already caught by other validation
 

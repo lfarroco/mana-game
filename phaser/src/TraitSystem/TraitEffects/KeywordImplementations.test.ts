@@ -81,7 +81,7 @@ jest.mock('../../Systems/Chara/Skills/summon', () => ({
 // Import the mocked functions
 import { getChara } from '../../Scenes/Battleground/Systems/CharaManager';
 import { applyStatusEffect } from '../../Systems/StatusEffects/StatusEffectManager';
-import { pickRandom } from '../../utils';
+// import { pickRandom } from '../../utils'; // Unused
 import { updatePlayerGoldIO, manipulateForceMoreale } from '../../Models/Entities/Force';
 import { slash } from '../../Systems/Chara/Skills/slash';
 import { healing } from '../../Systems/Chara/Skills/healing';
@@ -89,14 +89,14 @@ import { healingWave } from '../../Systems/Chara/Skills/healingWave';
 import { shoot } from '../../Systems/Chara/Skills/shoot';
 import { fireball } from '../../Systems/Chara/Skills/fireball';
 import { arcaneMissiles } from '../../Systems/Chara/Skills/arcaneMissiles';
-import { haste } from '../../Systems/Chara/Skills/haste';
-import { slow } from '../../Systems/Chara/Skills/slow';
+// import { haste } from '../../Systems/Chara/Skills/haste'; // Unused
+// import { slow } from '../../Systems/Chara/Skills/slow'; // Unused
 import { summon } from '../../Systems/Chara/Skills/summon';
 
 // Cast to mocked functions for better type safety
 const mockGetChara = getChara as jest.MockedFunction<typeof getChara>;
 const mockApplyStatusEffect = applyStatusEffect as jest.MockedFunction<typeof applyStatusEffect>;
-const mockPickRandom = pickRandom as jest.MockedFunction<typeof pickRandom>;
+// const mockPickRandom = pickRandom as jest.MockedFunction<typeof pickRandom>; // Unused
 const mockUpdatePlayerGoldIO = updatePlayerGoldIO as jest.MockedFunction<typeof updatePlayerGoldIO>;
 const mockManipulateForceMoreale = manipulateForceMoreale as jest.MockedFunction<typeof manipulateForceMoreale>;
 const mockSlash = slash as jest.MockedFunction<typeof slash>;
@@ -105,8 +105,8 @@ const mockHealingWave = healingWave as jest.MockedFunction<typeof healingWave>;
 const mockShoot = shoot as jest.MockedFunction<typeof shoot>;
 const mockFireball = fireball as jest.MockedFunction<typeof fireball>;
 const mockArcaneMissiles = arcaneMissiles as jest.MockedFunction<typeof arcaneMissiles>;
-const mockHaste = haste as jest.MockedFunction<typeof haste>;
-const mockSlow = slow as jest.MockedFunction<typeof slow>;
+// const mockHaste = haste as jest.MockedFunction<typeof haste>; // Unused
+// const mockSlow = slow as jest.MockedFunction<typeof slow>; // Unused
 const mockSummon = summon as jest.MockedFunction<typeof summon>;
 
 // Helper function to create a Vec2 compatible with the Unit type
