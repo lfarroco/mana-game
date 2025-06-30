@@ -17,7 +17,7 @@ import { getOption } from "../../Models/OptionsStore";
 import { Unit } from "../../Models/Entities/Unit";
 import { Vec2 } from "../../Models/Geometry";
 import { battleResultAnimation } from "./battleResultAnimation";
-import { handleOwnedUnitSold as handleOwnedUnitSoldPure, updatePlayerGold as updatePlayerGoldPure } from "./BattlegroundScene.pure";
+import { handleOwnedUnitSold as handleOwnedUnitSoldPure, updatePlayerGold as updatePlayerGoldPure, handleUnitMoveRequestPure } from "./BattlegroundScene.pure";
 
 /**
  * The main scene for the battleground, handling game logic, UI, and progression.
@@ -205,50 +205,22 @@ export class BattlegroundScene extends Phaser.Scene {
 
   handleOwnedUnitMoveRequest(payload: { unitId: string, targetTile: Vec2, dragStartX: number, dragStartY: number }): void {
     const { unitId, targetTile, dragStartX, dragStartY } = payload;
-    const unitToMove = this.state.gameData.player.units.find(u => u.id === unitId);
 
-    if (!unitToMove) {
-      console.error(`[BattlegroundScene] Unit with ID ${unitId} not found for move request.`);
-      this.events.emit(GameEvents.OWNED_UNIT_MOVE_REJECTED, { unitId, reason: "UNIT_NOT_FOUND", dragStartX, dragStartY });
-      return;
-    }
-
-    // Note: PlayerBoard.updateUnitPosition is static and modifies units directly.
-    const moveResult = PlayerBoard.updateUnitPosition(unitToMove, targetTile, this.state.gameData.player.units);
-
-    if (!moveResult) {
-      // No change in position, or invalid move (e.g., trying to move to the same spot without a swap)
-      this.events.emit(GameEvents.OWNED_UNIT_MOVE_REJECTED, { unitId, reason: "NO_CHANGE_OR_INVALID", dragStartX, dragStartY });
-      return;
-    }
-
-    // Successfully moved or swapped
-    // CharaManager.getCharaPosition needs the scene, which CharaManager has via init.
-    const movedUnitVisualPosition = CharaManager.getCharaPosition(moveResult.movedUnit);
-
-    if (moveResult.swappedUnit) {
-      const swappedUnitVisualPosition = CharaManager.getCharaPosition(moveResult.swappedUnit);
-      this.events.emit(GameEvents.OWNED_UNIT_SWAP_ACCEPTED, {
-        movedUnitId: moveResult.movedUnit.id,
-        movedUnitNewLogicalPosition: moveResult.movedUnit.position,
-        movedUnitVisualPosition: { x: movedUnitVisualPosition.x, y: movedUnitVisualPosition.y },
-        swappedUnitId: moveResult.swappedUnit.id,
-        swappedUnitNewLogicalPosition: moveResult.swappedUnit.position,
-        swappedUnitVisualPosition: { x: swappedUnitVisualPosition.x, y: swappedUnitVisualPosition.y },
-      });
-    } else {
-      this.events.emit(GameEvents.OWNED_UNIT_MOVE_ACCEPTED, {
-        unitId: moveResult.movedUnit.id,
-        newLogicalPosition: moveResult.movedUnit.position,
-        newVisualPosition: { x: movedUnitVisualPosition.x, y: movedUnitVisualPosition.y },
-      });
-    }
+    handleUnitMoveRequestPure(
+      this.state.gameData.player.units,
+      unitId,
+      targetTile,
+      dragStartX,
+      dragStartY,
+      (unit: Unit, target: Vec2, units: Unit[]) => PlayerBoard.updateUnitPosition(unit, target, units),
+      (unit: Unit) => CharaManager.getCharaPosition(unit),
+      (message: string) => console.error(message),
+      (eventType: string, payload: any) => this.events.emit(eventType, payload)
+    );
   }
 
   handlePlayerGoldUpdateRequest(goldDelta: number): void {
-    const changeAmount = Math.floor(goldDelta);
-    this.state.gameData.player.gold += changeAmount;
-    this.events.emit(GameEvents.GOLD_CHANGED, this.state.gameData.player.gold, changeAmount);
+    this.updatePlayerGold(goldDelta);
   }
 
   handleBattleResultShow(payload: { result: "victory" | "defeat" }): void {
