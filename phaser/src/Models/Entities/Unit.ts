@@ -23,7 +23,7 @@ export type MoraleReductionStack = {
  * Represents a temporary effect that will be reverted after a duration.
  */
 export type TemporaryEffect = {
-  effectType: 'attribute_modification' | 'cooldown_modification' | 'poison_tick' | 'freeze' | 'stun';
+  effectType: 'attribute_modification' | 'cooldown_modification' | 'poison_tick' | 'freeze' | 'stun' | 'fury_scaling';
   attribute?: keyof Unit;
   amount?: number;
   remainingDuration: number;

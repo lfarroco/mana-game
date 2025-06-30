@@ -25,14 +25,15 @@ import { TraitEffectFn, TraitEffectContext } from "../TraitEffectSystem";
 import { pickRandom } from "../../utils";
 import { impactEffect } from "../../Effects";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
+import { Chara } from "../../Systems/Chara/Chara";
 
 // ===== HELPER FUNCTIONS TO REDUCE REPETITION =====
 
 /**
- * Helper function to safely show pop text only when the scene is active
+ * Helper function to safely show pop text only when the scene and chara are active
  */
-async function safeShowPopText(chara: any, text: string, type?: string, scene?: BattlegroundScene): Promise<void> {
-	if (chara && (!scene || (scene.scene && scene.scene.isActive()))) {
+async function safeShowPopText(chara: Chara, text: string, type?: "heal" | "damage", scene?: BattlegroundScene): Promise<void> {
+	if (chara && chara.active && (!scene || (scene.scene && scene.scene.isActive()))) {
 		await chara.showPopText(text, type);
 	}
 }
@@ -729,39 +730,70 @@ const reduceAllyDamageTakenLogic: TraitEffectFn = async (context) => {
 
 /**
  * Effect: Damage scales with time in battle (growing fury)
+ * This provides a temporary boost that scales with time, replacing any previous fury effect
  */
 const damageScalesWithTimeLogic: TraitEffectFn = async (context) => {
 	const { sourceUnit, effectInstance, traitInstanceParams, scene } = context;
-	const damagePerSecond = getEffectParams(traitInstanceParams, effectInstance, 'damage_per_second', 1);
-	const timeInBattle = scene.time.now / 1000; // Convert to seconds
+	const damagePerTime = getEffectParams(traitInstanceParams, effectInstance, 'damage_per_time', 1);
+	const timeThreshold = getEffectParams(traitInstanceParams, effectInstance, 'time_threshold', 1000);
 
-	const bonusDamage = Math.floor(timeInBattle * damagePerSecond);
+	const timeInBattle = scene.time.now; // Keep in milliseconds
+	const timeSegments = Math.floor(timeInBattle / timeThreshold);
+	const currentFuryBonus = timeSegments * damagePerTime;
 
-	if (bonusDamage > 0) {
+	// Initialize temporaryEffects if needed
+	if (!sourceUnit.temporaryEffects) {
+		sourceUnit.temporaryEffects = [];
+	}
+
+	// Remove any existing fury scaling effect to prevent stacking
+	const existingFuryIndex = sourceUnit.temporaryEffects.findIndex(effect => effect.effectType === 'fury_scaling');
+	if (existingFuryIndex !== -1) {
+		// Revert the old fury effect first
+		const oldEffect = sourceUnit.temporaryEffects[existingFuryIndex];
+		if (oldEffect.attribute === 'power' && oldEffect.amount !== undefined) {
+			sourceUnit.power -= oldEffect.amount;
+		}
+		sourceUnit.temporaryEffects.splice(existingFuryIndex, 1);
+	}
+
+	// Add the new fury scaling effect if there's a bonus
+	if (currentFuryBonus > 0) {
 		const chara = getChara(sourceUnit.id);
 		if (chara) {
-			await chara.updateUnitAttribute("power", bonusDamage);
-			await safeShowPopText(chara, `+${bonusDamage} Fury!`, undefined, context.scene);
+			// Add the new fury effect
+			sourceUnit.temporaryEffects.push({
+				effectType: 'fury_scaling',
+				attribute: 'power',
+				amount: currentFuryBonus,
+				remainingDuration: Number.MAX_SAFE_INTEGER // Lasts until battle ends
+			});
+
+			// Apply the power increase
+			sourceUnit.power += currentFuryBonus;
+			chara.updatePowerDisplay(); // Update UI display
+			await safeShowPopText(chara, `Fury: ${currentFuryBonus} bonus!`, undefined, context.scene);
 		}
 	}
 };
 
 /**
  * Effect: Sacrifice cooldown for damage (reckless haste)
+ * Each attack permanently increases damage but also permanently increases cooldown
  */
 const sacrificeCooldownForDamageLogic: TraitEffectFn = async (context) => {
 	const { sourceUnit, effectInstance, traitInstanceParams } = context;
-	const cooldownIncrease = getEffectParams(traitInstanceParams, effectInstance, 'cooldown_increase', 500);
-	const damageBonus = getEffectParams(traitInstanceParams, effectInstance, 'damage_bonus', 8);
+	const cooldownPenalty = getEffectParams(traitInstanceParams, effectInstance, 'cooldown_penalty', 500);
+	const damageBonus = getEffectParams(traitInstanceParams, effectInstance, 'damage_bonus', 4);
 
 	const chara = getChara(sourceUnit.id);
 	if (chara) {
-		// Increase cooldown (slower actions)
-		sourceUnit.cooldown += cooldownIncrease;
+		// Increase cooldown (slower actions) - this is permanent
+		sourceUnit.cooldown += cooldownPenalty;
 
-		// Increase damage
+		// Increase damage permanently
 		await chara.updateUnitAttribute("power", damageBonus);
-		await safeShowPopText(chara, `Reckless! +${damageBonus} Dmg`, undefined, context.scene);
+		await safeShowPopText(chara, `Reckless! +${damageBonus} Dmg, +${cooldownPenalty}ms cooldown`, undefined, context.scene);
 	}
 };
 
