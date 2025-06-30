@@ -115,7 +115,7 @@ async function applyTemporaryCooldownModification(
 /**
  * Helper function to manipulate force morale with proper event emission and pop text
  */
-async function manipulateForceMorele(
+async function manipulateForceMorealeWrapper(
 	forceId: string,
 	amount: number,
 	context: TraitEffectContext,
@@ -470,7 +470,7 @@ const splashDamageToRandomAdjacentAllyLogic: TraitEffectFn = async (context) => 
  */
 const restoreForceMoraleLogic: TraitEffectFn = async (context) => {
 	const amount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 50);
-	await manipulateForceMorele(context.sourceUnit.force, amount, context);
+	await manipulateForceMorealeWrapper(context.sourceUnit.force, amount, context);
 };
 
 /**
@@ -481,7 +481,7 @@ const reduceEnemyMoraleLogic: TraitEffectFn = async (context) => {
 	const enemyForceId = context.state.battleData.forces.find(f => f.id !== context.sourceUnit.force)?.id;
 
 	if (enemyForceId) {
-		await manipulateForceMorele(enemyForceId, -amount, context, "Enemy ");
+		await manipulateForceMorealeWrapper(enemyForceId, -amount, context, "Enemy ");
 	}
 };
 
@@ -609,7 +609,7 @@ const reduceEnemyDamageGlobalLogic: TraitEffectFn = createGuildWideEnemyEffect(a
  */
 const grantMoraleToAlliesLogic: TraitEffectFn = async (context) => {
 	const moraleAmount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'morale', 40);
-	await manipulateForceMorele(context.sourceUnit.force, moraleAmount, context, "Team ");
+	await manipulateForceMorealeWrapper(context.sourceUnit.force, moraleAmount, context, "Team ");
 };
 
 /**

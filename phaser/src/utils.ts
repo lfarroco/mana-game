@@ -26,21 +26,22 @@ export function breakLines(text: string, width: number) {
 			acc[acc.length - 1] += ` ${word}`;
 		}
 		return acc;
-	}
-		, ['']).map(line => line.trim());
+	}, ['']).map(line => line.trim());
 }
 
-export function follows(a: { x: any; y: any; scene: { on: (arg0: string, arg1: () => void) => void; off: (arg0: string, arg1: () => void) => void; }; }, b: { x: any; y: any; on: (arg0: string, arg1: () => void) => void; }) {
-
+export function follows(
+	follower: { x: number; y: number; scene: { on: (event: string, callback: () => void) => void; off: (event: string, callback: () => void) => void; }; }, 
+	target: { x: number; y: number; on: (event: string, callback: () => void) => void; }
+) {
 	const follow = () => {
-		a.x = b.x;
-		a.y = b.y;
-	}
-	a.scene.on('update', follow);
-	b.on('destroy', () => {
-		a.scene.off('update', follow);
+		follower.x = target.x;
+		follower.y = target.y;
+	};
+	
+	follower.scene.on('update', follow);
+	target.on('destroy', () => {
+		follower.scene.off('update', follow);
 	});
-
 }
 export function parseTable(table: string) {
 	const rows = table.trim().split("\n").map((r) => r.trim());
@@ -50,7 +51,7 @@ export function parseTable(table: string) {
 		return header.reduce((acc, h, i) => {
 			acc[h] = cells[i];
 			return acc;
-		}, {} as { [key: string]: string; });
+		}, {} as { [key: string]: string });
 	});
 	return data;
 }
