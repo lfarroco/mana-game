@@ -113,6 +113,55 @@ function chargeUnits(state: State, delta: number): Unit[] {
   for (const unit of activeUnits) {
     if (unit.hp <= 0) continue; // Should be redundant if getActiveUnits is used, but good for safety
 
+    // Process temporary effects
+    if (unit.temporaryEffects) {
+      unit.temporaryEffects = unit.temporaryEffects.filter(effect => {
+        effect.remainingDuration -= delta;
+
+        if (effect.remainingDuration <= 0) {
+          // Effect has expired, revert it
+          const chara = CharaManager.getChara(unit.id);
+          switch (effect.effectType) {
+            case 'attribute_modification':
+              if (effect.attribute && effect.amount !== undefined && chara) {
+                chara.updateUnitAttribute(effect.attribute, effect.amount);
+              }
+              break;
+            case 'cooldown_modification':
+              if (effect.originalCooldown !== undefined) {
+                unit.cooldown = effect.originalCooldown;
+              }
+              break;
+            case 'freeze':
+            case 'stun':
+              if (effect.originalCooldown !== undefined) {
+                unit.cooldown = effect.originalCooldown;
+              }
+              break;
+            case 'poison_tick':
+              // DoT effect expired, no revert needed
+              break;
+          }
+          return false; // Remove expired effect
+        }
+
+        // Handle poison/DoT tick effects
+        if (effect.effectType === 'poison_tick' && effect.tickInterval && effect.damagePerTick) {
+          effect.timeSinceLastTick = (effect.timeSinceLastTick || 0) + delta;
+          if (effect.timeSinceLastTick >= effect.tickInterval) {
+            effect.timeSinceLastTick -= effect.tickInterval;
+            const chara = CharaManager.getChara(unit.id);
+            if (chara) {
+              chara.showPopText(`-${effect.damagePerTick} ${effect.effectName || 'DoT'}`, "damage");
+              chara.unitHit(effect.damagePerTick);
+            }
+          }
+        }
+
+        return true; // Keep active effect
+      });
+    }
+
     // If the delta is too high, there's the risk of being hasted/slowed beyond the expected
     // It should be fine for now by having a delta for each frame (0.016)
     let modifier = 1;
