@@ -30,7 +30,7 @@ import { Chara } from "../../Systems/Chara/Chara";
 import { applyStatusEffect } from "../../Systems/StatusEffects/StatusEffectManager";
 
 // Import extracted implementations
-import { dealDamageLogic, grantGoldLogic, restoreForceMoraleLogic, reduceEnemyMoraleLogic, guildWideDamageLogic, boostAllyDamageLogic, hasteAllAlliesLogic, applyPoisonToEnemiesLogic } from "./implementations/index";
+import { dealDamageLogic, grantGoldLogic, restoreForceMoraleLogic, reduceEnemyMoraleLogic, guildWideDamageLogic, boostAllyDamageLogic, hasteAllAlliesLogic, applyPoisonToEnemiesLogic, slowAllEnemies } from "./implementations/index";
 
 // ===== HELPER FUNCTIONS TO REDUCE REPETITION =====
 
@@ -438,12 +438,7 @@ const splashDamageToRandomAdjacentAllyLogic: TraitEffectFn = async (context) => 
 /**
  * Effect: Slows all enemies
  */
-const slowAllEnemiesLogic: TraitEffectFn = async (context) => {
-	const { targets, scene } = context;
-	const duration = getEffectParams(context.traitInstanceParams, context.effectInstance, 'duration', 2500);
-
-	await applyTemporaryCooldownModification(targets, 1.5, duration, scene, "Slowed!");
-};
+// slowAllEnemiesLogic implementation moved to ./implementations/slowAllEnemies.ts
 
 /**
  * Effect: Freezes all enemies (prevents actions)
@@ -718,7 +713,7 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("reduce_enemy_morale", reduceEnemyMoraleLogic);
 	registerTraitEffectImplementation("boost_ally_damage", boostAllyDamageLogic);
 	registerTraitEffectImplementation("haste_all_allies", hasteAllAlliesLogic);
-	registerTraitEffectImplementation("slow_all_enemies", slowAllEnemiesLogic);
+	registerTraitEffectImplementation("slow_all_enemies", slowAllEnemies);
 	registerTraitEffectImplementation("freeze_all_enemies", freezeAllEnemiesLogic);
 	registerTraitEffectImplementation("stun_all_enemies", stunAllEnemiesLogic);
 	registerTraitEffectImplementation("guild_wide_damage", guildWideDamageLogic);
