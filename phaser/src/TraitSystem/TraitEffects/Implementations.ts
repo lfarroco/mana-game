@@ -9,7 +9,6 @@
  */
 import { registerTraitEffectImplementation } from "../TraitEffectSystem";
 import { getEffectParams } from "../TraitSystem.pure"; // Use our tested pure function
-import { GameEvents } from "../../constants/events";
 import { playerForce, manipulateForceMoreale } from "../../Models/Entities/Force";
 import { getChara } from "../../Scenes/Battleground/Systems/CharaManager";
 import { Unit } from "../../Models/Entities/Unit";
@@ -227,35 +226,7 @@ function createGuildWideEnemyEffect(effectLogic: (targets: Unit[], context: Trai
 // All implementations that have been migrated to ./implementations/ are now imported above.
 // Remove any duplicate or leftover implementations here.
 
-/**
- * Effect: Increases the max and current morale of the source unit's force.
- */
-const increaseForceMaxMoraleLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, effectInstance, traitInstanceParams, scene, state } = context;
-	const amount = (traitInstanceParams.amount ?? effectInstance.amount ?? 100) as number;
 
-	// In battle, the forces are in `battleData.forces`.
-	const targetForce = state.battleData.forces.find(f => f.id === sourceUnit.force);
-
-	if (targetForce) {
-		targetForce.maxMorale += amount;
-		// At the start of battle, morale is typically set to maxMorale.
-		// So we should increase both.
-		targetForce.morale += amount;
-
-		// Emit event for UI update. The MoraleDisplay listens to this.
-		scene.events.emit(GameEvents.MORALE_UPDATED, {
-			forceId: targetForce.id,
-			newMorale: targetForce.morale,
-			maxMorale: targetForce.maxMorale,
-		});
-
-		const chara = getChara(sourceUnit.id);
-		if (chara) {
-			await safeShowPopText(chara, `+${amount} Max Morale`, undefined, scene);
-		}
-	}
-};
 
 const modifyStatPassiveLogic: TraitEffectFn = async (context) => {
 	const { targets } = context;
@@ -572,7 +543,7 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("skill_summon", implementations.performSkillSummon);
 	registerTraitEffectImplementation("skill_fireball", implementations.performSkillFireball);
 	registerTraitEffectImplementation("positional_bonus", implementations.positionalBonusLogic);
-	registerTraitEffectImplementation("increase_force_max_morale", increaseForceMaxMoraleLogic);
+	registerTraitEffectImplementation("increase_force_max_morale", implementations.increaseForceMaxMoraleLogic);
 	registerTraitEffectImplementation("modify_stat_passive", modifyStatPassiveLogic);
 	registerTraitEffectImplementation("splash_damage_to_random_adjacent_ally", splashDamageToRandomAdjacentAllyLogic);
 	registerTraitEffectImplementation("restore_force_morale", implementations.restoreForceMoraleLogic);
