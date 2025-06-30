@@ -12,7 +12,7 @@ import * as VignetteSystem from "../Animations/vignette";
 type Listener = {
 	event: string;
 	handler: (...args: any[]) => void;
-	context?: any;
+	context?: UIManager | PlayerBoard | Shop | BattlegroundEventSystem | undefined;
 };
 
 /**
@@ -45,24 +45,50 @@ export class BattlegroundEventSystem {
 	}
 
 	addListener(event: string, handler: (...args: any[]) => void, context?: any): void {
-		this.scene.events.on(event, handler, context);
-		this.listeners.push({ event, handler, context });
+		// Check for duplicate listeners before adding
+		const isDuplicate = this.listeners.some(
+			listener => listener.event === event && listener.handler === handler && listener.context === context
+		);
+
+		if (!isDuplicate) {
+			this.scene.events.on(event, handler, context);
+			this.listeners.push({ event, handler, context });
+		} else {
+			console.warn(`Duplicate listener detected for event: ${event}`);
+		}
 	}
 
 	private initializeMoraleDisplay(): void {
-		MoraleDisplay.init(this.scene);
-		this.addListener(GameEvents.MORALE_BARS_SHOW, MoraleDisplay.showBars);
-		this.addListener(GameEvents.MORALE_BARS_HIDE, MoraleDisplay.hideBars);
+		try {
+			MoraleDisplay.init(this.scene);
+			this.addListener(GameEvents.MORALE_BARS_SHOW, MoraleDisplay.showBars);
+			this.addListener(GameEvents.MORALE_BARS_HIDE, MoraleDisplay.hideBars);
+		} catch (error) {
+			console.error("Failed to initialize MoraleDisplay:", error);
+		}
 	}
 
 	private initializeVignetteSystem(): void {
-		VignetteSystem.init(this.scene);
+		try {
+			VignetteSystem.init(this.scene);
+		} catch (error) {
+			console.error("Failed to initialize VignetteSystem:", error);
+		}
+	}
+
+	private initializeSystems(): void {
+		this.initializeMoraleDisplay();
+		this.initializeVignetteSystem();
+	}
+
+	private handleGameOverShowUITrigger(): void {
+		console.warn("Game over UI trigger handler is not implemented yet.");
 	}
 
 	registerEventHandlers(): void {
 		const eventMappings = [
 			// Game Lifecycle & Phase Transitions
-			{ event: GameEvents.GAME_OVER_SHOW_UI_TRIGGER, handler: () => console.warn("Not implemented"), context: this.uiManager },
+			{ event: GameEvents.GAME_OVER_SHOW_UI_TRIGGER, handler: this.handleGameOverShowUITrigger, context: this.uiManager },
 
 			// Player State
 			{ event: GameEvents.PLAYER_GOLD_DELTA_REQUEST, handler: this.scene.handlePlayerGoldUpdateRequest, context: this.scene },
@@ -91,15 +117,25 @@ export class BattlegroundEventSystem {
 			this.addListener(event, handler, context);
 		});
 
-		this.initializeMoraleDisplay();
-		this.initializeVignetteSystem();
+		this.initializeSystems();
 	}
 
 	destroy(): void {
-		this.listeners.forEach(listener => {
-			this.scene.events.off(listener.event, listener.handler, listener.context);
-		});
-		this.listeners = [];
-		MoraleDisplay.destroy();
+		try {
+			// Unregister all event listeners
+			this.listeners.forEach(({ event, handler, context }) => {
+				this.scene.events.off(event, handler, context);
+			});
+
+			// Clear the listeners array
+			this.listeners.length = 0;
+
+			// Clean up MoraleDisplay resources
+			MoraleDisplay.destroy();
+
+			// Additional cleanup logic can be added here if needed
+		} catch (error) {
+			console.error("Error during BattlegroundEventSystem destruction:", error);
+		}
 	}
 }
