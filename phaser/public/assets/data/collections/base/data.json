@@ -623,7 +623,7 @@
 			"categories": [
 				"skill_activation",
 				"offensive",
-				"area_damage"
+				"guild_wide"
 			],
 			"effects": [
 				{
@@ -1035,11 +1035,11 @@
 		{
 			"id": "earthquake_stomp",
 			"name": "Earthquake Stomp",
-			"description": "On action, stuns all enemies for {duration}ms and deals area damage.",
+			"description": "On action, stuns all enemies for {duration}ms and deals guild-wide damage.",
 			"categories": [
 				"offensive",
 				"crowd_control",
-				"area_effect"
+				"guild_wide"
 			],
 			"effects": [
 				{
@@ -1048,7 +1048,7 @@
 					"duration": 1200
 				},
 				{
-					"effectId": "area_damage_enemies",
+					"effectId": "guild_wide_damage",
 					"eventTrigger": "onAction",
 					"damage": 15
 				}
@@ -1117,7 +1117,7 @@
 			"categories": [
 				"debuff",
 				"damage_over_time",
-				"area_effect"
+				"guild_wide"
 			],
 			"effects": [
 				{

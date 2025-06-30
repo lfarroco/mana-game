@@ -562,19 +562,20 @@ const stunAllEnemiesLogic: TraitEffectFn = async (context) => {
 };
 
 /**
- * Effect: Area damage to all enemies (guild-wide)
+ * Effect: Guild-wide damage to all enemies
  */
-const areaDamageEnemiesLogic: TraitEffectFn = createGuildWideEnemyEffect(async (enemies, context) => {
+const guildWideDamageLogic: TraitEffectFn = async (context) => {
+	const { targets } = context;
 	const damage = getEffectParams(context.traitInstanceParams, context.effectInstance, 'damage', 15);
 
-	for (const enemy of enemies) {
+	for (const enemy of targets) {
 		const chara = getChara(enemy.id);
 		if (chara) {
-			await chara.showPopText(`-${damage} Area Dmg`, "damage");
+			await chara.showPopText(`-${damage} Dmg`, "damage");
 			chara.unitHit(damage);
 		}
 	}
-});
+};
 
 /**
  * Effect: Applies poison to enemies (closest enemy)
@@ -762,7 +763,7 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("slow_all_enemies", slowAllEnemiesLogic);
 	registerTraitEffectImplementation("freeze_all_enemies", freezeAllEnemiesLogic);
 	registerTraitEffectImplementation("stun_all_enemies", stunAllEnemiesLogic);
-	registerTraitEffectImplementation("area_damage_enemies", areaDamageEnemiesLogic);
+	registerTraitEffectImplementation("guild_wide_damage", guildWideDamageLogic);
 	registerTraitEffectImplementation("reduce_enemy_damage_global", reduceEnemyDamageGlobalLogic);
 	registerTraitEffectImplementation("grant_morale_to_allies", grantMoraleToAlliesLogic);
 	registerTraitEffectImplementation("cleanse_ally_debuffs", cleanseAllyDebuffsLogic);
