@@ -1,7 +1,7 @@
 // src/Systems/Chara/CharaStatsDisplay.ts
 import Phaser from "phaser";
 import { Unit } from "../../Models/Entities/Unit";
-import * as bgConstants from "../../constants/constants";
+import * as constants from "../../constants/constants";
 
 export class CharaStatsDisplay {
 	scene: Phaser.Scene;
@@ -22,15 +22,15 @@ export class CharaStatsDisplay {
 	}
 
 	createElements(): void {
-		const boxWidth = bgConstants.TILE_WIDTH * CharaStatsDisplay.BOX_WIDTH_RATIO;
-		const boxHeight = bgConstants.TILE_HEIGHT * CharaStatsDisplay.BOX_HEIGHT_RATIO;
+		const boxWidth = constants.TILE_WIDTH * CharaStatsDisplay.BOX_WIDTH_RATIO;
+		const boxHeight = constants.TILE_HEIGHT * CharaStatsDisplay.BOX_HEIGHT_RATIO;
 		const cornerRadius = boxWidth * CharaStatsDisplay.STAT_BOX_CORNER_RADIUS_RATIO;
 		const margin = boxWidth * CharaStatsDisplay.STAT_BOX_MARGIN_RATIO;
 
 		// Power Display
 		const powerDisplayPosition: [number, number] = [
 			-boxWidth / 2,
-			bgConstants.HALF_TILE_HEIGHT - boxHeight - margin,
+			constants.HALF_TILE_HEIGHT - boxHeight - margin,
 		];
 		this.powerDisplayBg = this.scene.add.graphics();
 		const bgColorMap = {
@@ -51,7 +51,7 @@ export class CharaStatsDisplay {
 			powerDisplayPosition[0] + boxWidth / 2,
 			powerDisplayPosition[1] + boxHeight / 2,
 			this.unit.power.toString(),
-			bgConstants.defaultTextConfig
+			constants.defaultTextConfig
 		).setOrigin(0.5).setAlign('center');
 
 		if (!this.unit.attackType) {

@@ -22,7 +22,7 @@ import { Unit } from "../../Models/Entities/Unit";
 import { fireball as fireballSkillFn } from "../../Systems/Chara/Skills/fireball";
 import { shoot as shootSkillFn } from "../../Systems/Chara/Skills/shoot";
 import { TraitEffectFn, TraitEffectContext } from "../TraitEffectSystem";
-import { pickRandom } from "../../utils";
+import { pickRandom, devlog } from "../../utils";
 import { impactEffect } from "../../Effects";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { Chara } from "../../Systems/Chara/Chara";
@@ -43,8 +43,8 @@ async function safeShowPopText(chara: Chara, text: string, type?: "heal" | "dama
  * Helper function to get effect parameters with fallbacks
  */
 function getEffectParams<T>(
-	traitInstanceParams: any,
-	effectInstance: any,
+	traitInstanceParams: Record<string, unknown>,
+	effectInstance: Record<string, unknown>,
 	paramName: string,
 	defaultValue: T
 ): T {
@@ -698,7 +698,7 @@ const reduceAllyDamageTakenLogic: TraitEffectFn = async (context) => {
 		}
 	}
 
-	console.log(`[Defensive Matrix] ${sourceUnit.name} is protecting ${targets.length} allies with ${reduction}% damage reduction`);
+	devlog(`[Defensive Matrix] ${sourceUnit.name} is protecting ${targets.length} allies with ${reduction}% damage reduction`);
 };
 
 /**
@@ -784,7 +784,7 @@ const moraleDamageReductionLogic: TraitEffectFn = async (context) => {
 		await safeShowPopText(chara, `Morale Guardian Active`, "heal", context.scene);
 	}
 
-	console.log(`[Morale Guardian] ${sourceUnit.name} is protecting force ${sourceForce.id} with ${reductionPercent}% morale damage reduction`);
+	devlog(`[Morale Guardian] ${sourceUnit.name} is protecting force ${sourceForce.id} with ${reductionPercent}% morale damage reduction`);
 };
 
 // ===== EFFECT REGISTRATIONS =====

@@ -16,7 +16,7 @@ export class ShopUI {
 	sellZoneContainer: Phaser.GameObjects.Container | null = null;
 	sellZone: Phaser.GameObjects.Zone | null = null;
 	sellZoneText: Phaser.GameObjects.Text | null = null;
-	sellZoneGraphics: any;
+	sellZoneGraphics: Phaser.GameObjects.Graphics | null = null;
 
 	constructor(scene: BattlegroundScene, flyout: Flyout) {
 		this.scene = scene;

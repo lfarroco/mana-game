@@ -1,20 +1,29 @@
-// goes from green (100) to yellow (50) to red (0), in a gradient
-export const hpColor = (hp: number, maxHp: number) => {
-	const ratio = hp / maxHp;
-	if (ratio > 0.5) {
-		return `0x${Math.floor(255 - 255 * (ratio * 2 - 1)).toString(16)}ff00`
+// Color constants for HP display
+const HP_COLOR_CONSTANTS = {
+	MAX_COLOR_VALUE: 255,
+	HEALTH_THRESHOLD: 0.5,
+	FULL_ALPHA: 1
+} as const;
 
+// goes from green (100) to yellow (50) to red (0), in a gradient
+export const hpColor = (hp: number, maxHp: number): string => {
+	const ratio = hp / maxHp;
+	const { MAX_COLOR_VALUE, HEALTH_THRESHOLD } = HP_COLOR_CONSTANTS;
+	
+	if (ratio > HEALTH_THRESHOLD) {
+		return `0x${Math.floor(MAX_COLOR_VALUE - MAX_COLOR_VALUE * (ratio * 2 - 1)).toString(16)}ff00`;
 	} else {
-		return `0xff${Math.floor(255 * (ratio * 2)).toString(16)}00`
+		return `0xff${Math.floor(MAX_COLOR_VALUE * (ratio * 2)).toString(16)}00`;
 	}
 };
 
-export const hpColorRgba = (hp: number, maxHp: number) => {
+export const hpColorRgba = (hp: number, maxHp: number): string => {
 	const ratio = hp / maxHp;
-	if (ratio > 0.5) {
-		return `rgba(${Math.floor(255 - 255 * (ratio * 2 - 1))}, 255, 0, 1)`
-
+	const { MAX_COLOR_VALUE, HEALTH_THRESHOLD, FULL_ALPHA } = HP_COLOR_CONSTANTS;
+	
+	if (ratio > HEALTH_THRESHOLD) {
+		return `rgba(${Math.floor(MAX_COLOR_VALUE - MAX_COLOR_VALUE * (ratio * 2 - 1))}, ${MAX_COLOR_VALUE}, 0, ${FULL_ALPHA})`;
 	} else {
-		return `rgba(255, ${Math.floor(255 * (ratio * 2))}, 0, 1)`
+		return `rgba(${MAX_COLOR_VALUE}, ${Math.floor(MAX_COLOR_VALUE * (ratio * 2))}, 0, ${FULL_ALPHA})`;
 	}
-}
+};

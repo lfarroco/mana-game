@@ -1,7 +1,7 @@
 // src/Systems/Chara/CharaBarsDisplay.ts
 import Phaser from "phaser";
 import { Unit } from "../../Models/Entities/Unit";
-import * as bgConstants from "../../constants/constants";
+import * as constants from "../../constants/constants";
 import { getOption } from "../../Models/OptionsStore";
 import { hasStatusEffect } from "../../Systems/StatusEffects/StatusEffectManager";
 
@@ -34,7 +34,7 @@ export class CharaBarsDisplay {
 
 	updateBars(): void {
 		const { chargeBar, cooldownBar, hpBar, unit } = this;
-		const maxWidthForDebugBars = bgConstants.TILE_WIDTH - (2 * CharaBarsDisplay.DEBUG_BAR_PADDING);
+		const maxWidthForDebugBars = constants.TILE_WIDTH - (2 * CharaBarsDisplay.DEBUG_BAR_PADDING);
 
 		// Charge Bar
 		chargeBar.clear();
@@ -53,10 +53,10 @@ export class CharaBarsDisplay {
 
 		chargeBar.fillStyle(color, 0.2);
 		chargeBar.fillRect(
-			-bgConstants.HALF_TILE_WIDTH,
-			-bgConstants.HALF_TILE_HEIGHT,
-			bgConstants.TILE_WIDTH,
-			bgConstants.TILE_HEIGHT - Math.min(percent * bgConstants.TILE_HEIGHT, bgConstants.TILE_HEIGHT)
+			-constants.HALF_TILE_WIDTH,
+			-constants.HALF_TILE_HEIGHT,
+			constants.TILE_WIDTH,
+			constants.TILE_HEIGHT - Math.min(percent * constants.TILE_HEIGHT, constants.TILE_HEIGHT)
 		);
 
 		if (!getOption('debug')) {
@@ -67,11 +67,11 @@ export class CharaBarsDisplay {
 
 		// Cooldown Bar (Debug)
 		cooldownBar.clear();
-		const cooldownPercent = Math.min(unit.refresh / bgConstants.MIN_COOLDOWN, 1);
+		const cooldownPercent = Math.min(unit.refresh / constants.MIN_COOLDOWN, 1);
 		cooldownBar.fillStyle(0xff0000, 1);
 		cooldownBar.fillRect(
-			-bgConstants.HALF_TILE_WIDTH + CharaBarsDisplay.DEBUG_BAR_PADDING,
-			-bgConstants.HALF_TILE_HEIGHT + 30,
+			-constants.HALF_TILE_WIDTH + CharaBarsDisplay.DEBUG_BAR_PADDING,
+			-constants.HALF_TILE_HEIGHT + 30,
 			cooldownPercent * maxWidthForDebugBars,
 			CharaBarsDisplay.DEBUG_BAR_HEIGHT
 		);
@@ -81,8 +81,8 @@ export class CharaBarsDisplay {
 		const hpPercent = Math.min(unit.hp / unit.maxHp, 1);
 		hpBar.fillStyle(0x00ff00, 1);
 		hpBar.fillRect(
-			-bgConstants.HALF_TILE_WIDTH + CharaBarsDisplay.DEBUG_BAR_PADDING,
-			-bgConstants.HALF_TILE_HEIGHT + 50,
+			-constants.HALF_TILE_WIDTH + CharaBarsDisplay.DEBUG_BAR_PADDING,
+			-constants.HALF_TILE_HEIGHT + 50,
 			hpPercent * maxWidthForDebugBars,
 			CharaBarsDisplay.DEBUG_BAR_HEIGHT
 		);
