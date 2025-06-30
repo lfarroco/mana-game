@@ -18,6 +18,9 @@ Created `BattlegroundScene.pure.ts` containing pure functions with dependency in
 - `updatePlayerGold()` - Updates gold with event emission via dependency injection
 - `handleOwnedUnitSold()` - Complete unit selling logic with all side effects injected
 - `updateUnitPosition()` - Unit movement and swapping logic
+- `findUnitById()` - Pure unit lookup by ID
+- `createMoveEventPayload()` - Pure event payload generation for moves/swaps
+- `handleUnitMoveRequestPure()` - Complete move request validation and event handling
 
 #### Benefits:
 - **Pure functions**: No side effects, predictable outputs
@@ -41,7 +44,7 @@ Updated `BattlegroundScene.ts` to:
 - Maintain existing API while using tested logic underneath
 
 ### 4. **Comprehensive Test Suite**
-Created `BattlegroundScene.pure.test.ts` with 26 tests covering:
+Created `BattlegroundScene.pure.test.ts` with 36 tests covering:
 
 #### `removeUnitFromPlayerState` (4 tests)
 - Basic unit removal
@@ -75,6 +78,23 @@ Created `BattlegroundScene.pure.test.ts` with 26 tests covering:
 - Complex multi-unit scenarios
 - Edge cases
 
+#### `findUnitById` (3 tests)
+- Successful unit lookup
+- Missing unit handling
+- Empty array edge case
+
+#### `createMoveEventPayload` (2 tests)
+- Swap event payload generation
+- Move event payload generation
+- Visual position integration
+
+#### `handleUnitMoveRequestPure` (5 tests)
+- Unit not found error handling
+- Invalid move rejection
+- Successful move acceptance
+- Successful swap acceptance
+- Empty units array handling
+
 ## Key Achievements
 
 ### ✅ **No Phaser Dependencies in Tests**
@@ -84,7 +104,7 @@ Tests run in standard Jest environment without browser emulation or Phaser mocki
 Tests complete in ~1.2 seconds vs potential timeouts/crashes with Phaser imports.
 
 ### ✅ **High Test Coverage**
-26 comprehensive tests covering edge cases, error conditions, and complex scenarios.
+36 comprehensive tests covering edge cases, error conditions, and complex scenarios.
 
 ### ✅ **Maintainable Architecture**
 - Clear separation between pure logic and side effects

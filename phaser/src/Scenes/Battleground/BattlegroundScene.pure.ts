@@ -130,3 +130,111 @@ export function updateUnitPosition(
 		return { movedUnit, oldPositionOfMovedUnit };
 	}
 }
+
+/**
+ * Pure function to find a unit by ID in the units array
+ * @param units - Array of units to search through
+ * @param unitId - ID of the unit to find
+ * @returns The unit if found, undefined otherwise
+ */
+export function findUnitById(units: Unit[], unitId: string): Unit | undefined {
+	return units.find(u => u.id === unitId);
+}
+
+/**
+ * Pure function to create event payloads for move/swap results
+ * @param moveResult - Result from PlayerBoard.updateUnitPosition
+ * @param getVisualPosition - Function to get visual position for a unit
+ * @returns Object with event type and payload to emit
+ */
+export function createMoveEventPayload(
+	moveResult: {
+		movedUnit: Unit;
+		swappedUnit?: Unit;
+		oldPositionOfMovedUnit: Vec2;
+	},
+	getVisualPosition: (unit: Unit) => Vec2
+): {
+	eventType: string;
+	payload: any;
+} {
+	const movedUnitVisualPosition = getVisualPosition(moveResult.movedUnit);
+
+	if (moveResult.swappedUnit) {
+		const swappedUnitVisualPosition = getVisualPosition(moveResult.swappedUnit);
+		return {
+			eventType: GameEvents.OWNED_UNIT_SWAP_ACCEPTED,
+			payload: {
+				movedUnitId: moveResult.movedUnit.id,
+				movedUnitNewLogicalPosition: moveResult.movedUnit.position,
+				movedUnitVisualPosition: { x: movedUnitVisualPosition.x, y: movedUnitVisualPosition.y },
+				swappedUnitId: moveResult.swappedUnit.id,
+				swappedUnitNewLogicalPosition: moveResult.swappedUnit.position,
+				swappedUnitVisualPosition: { x: swappedUnitVisualPosition.x, y: swappedUnitVisualPosition.y },
+			}
+		};
+	} else {
+		return {
+			eventType: GameEvents.OWNED_UNIT_MOVE_ACCEPTED,
+			payload: {
+				unitId: moveResult.movedUnit.id,
+				newLogicalPosition: moveResult.movedUnit.position,
+				newVisualPosition: { x: movedUnitVisualPosition.x, y: movedUnitVisualPosition.y },
+			}
+		};
+	}
+}
+
+/**
+ * Pure function to handle unit move request logic with dependency injection
+ * @param units - Array of player units
+ * @param unitId - ID of unit to move
+ * @param targetTile - Target position
+ * @param dragStartX - X coordinate where drag started
+ * @param dragStartY - Y coordinate where drag started
+ * @param updateUnitPosition - Function to update unit position (from PlayerBoard)
+ * @param getVisualPosition - Function to get visual position for a unit
+ * @param logError - Function to log errors
+ * @param emitEvent - Function to emit events
+ * @returns void (side effects through injected functions)
+ */
+export function handleUnitMoveRequestPure(
+	units: Unit[],
+	unitId: string,
+	targetTile: any, // Accept any Vec2-like object (with x, y properties)
+	dragStartX: number,
+	dragStartY: number,
+	updateUnitPosition: (unit: Unit, target: any, units: Unit[]) => any,
+	getVisualPosition: (unit: Unit) => Vec2,
+	logError: (message: string) => void,
+	emitEvent: (eventType: string, payload: any) => void
+): void {
+	const unitToMove = findUnitById(units, unitId);
+
+	if (!unitToMove) {
+		logError(`[BattlegroundScene] Unit with ID ${unitId} not found for move request.`);
+		emitEvent(GameEvents.OWNED_UNIT_MOVE_REJECTED, {
+			unitId,
+			reason: "UNIT_NOT_FOUND",
+			dragStartX,
+			dragStartY
+		});
+		return;
+	}
+
+	const moveResult = updateUnitPosition(unitToMove, targetTile, units);
+
+	if (!moveResult) {
+		emitEvent(GameEvents.OWNED_UNIT_MOVE_REJECTED, {
+			unitId,
+			reason: "NO_CHANGE_OR_INVALID",
+			dragStartX,
+			dragStartY
+		});
+		return;
+	}
+
+	// Successfully moved or swapped
+	const eventData = createMoveEventPayload(moveResult, getVisualPosition);
+	emitEvent(eventData.eventType, eventData.payload);
+}
