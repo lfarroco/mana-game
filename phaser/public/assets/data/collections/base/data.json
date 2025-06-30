@@ -69,6 +69,9 @@
 				},
 				{
 					"id": "protective_cover"
+				},
+				{
+					"id": "morale_guardian"
 				}
 			]
 		},
@@ -187,6 +190,9 @@
 				},
 				{
 					"id": "taunt"
+				},
+				{
+					"id": "morale_guardian"
 				}
 			]
 		},
@@ -228,6 +234,9 @@
 				},
 				{
 					"id": "inspiring_presence"
+				},
+				{
+					"id": "stalwart_protector"
 				}
 			]
 		},
@@ -423,6 +432,9 @@
 				},
 				{
 					"id": "defensive_matrix"
+				},
+				{
+					"id": "morale_guardian"
 				}
 			]
 		}
@@ -1186,6 +1198,41 @@
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "all_allies",
 					"reduction": 12
+				}
+			]
+		},
+		{
+			"id": "morale_guardian",
+			"name": "Morale Guardian",
+			"description": "Reduces morale loss for your force by {reduction_percent}%.",
+			"categories": [
+				"defensive",
+				"morale",
+				"aura"
+			],
+			"effects": [
+				{
+					"effectId": "morale_damage_reduction",
+					"eventTrigger": "onBattleStart",
+					"reduction_percent": 10
+				}
+			]
+		},
+		{
+			"id": "stalwart_protector",
+			"name": "Stalwart Protector",
+			"description": "Greatly reduces morale loss for your force by {reduction_percent}%.",
+			"categories": [
+				"defensive",
+				"morale",
+				"aura",
+				"elite"
+			],
+			"effects": [
+				{
+					"effectId": "morale_damage_reduction",
+					"eventTrigger": "onBattleStart",
+					"reduction_percent": 20
 				}
 			]
 		}

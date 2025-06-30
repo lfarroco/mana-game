@@ -104,11 +104,40 @@ async function manipulateForceMorele(
 	const targetForce = state.battleData.forces.find(f => f.id === forceId);
 
 	if (targetForce) {
+		let finalAmount = amount;
+
+		// Apply morale damage reduction if this is a negative morale change (damage)
+		if (amount < 0 && targetForce.moraleReductionStacks) {
+			const reductionStacks = targetForce.moraleReductionStacks;
+			let totalReduction = 0;
+
+			// Sum all active reductions (multiple units can provide protection)
+			for (const stack of reductionStacks) {
+				// Check if the unit is still alive
+				const protectorUnit = targetForce.units.find(u => u.id === stack.unitId);
+				if (protectorUnit) {
+					totalReduction += stack.reductionPercent;
+				}
+			}
+
+			// Cap total reduction at 50% to prevent making forces invulnerable
+			totalReduction = Math.min(totalReduction, 50);
+
+			if (totalReduction > 0) {
+				const originalAmount = Math.abs(amount);
+				const reducedAmount = originalAmount * (1 - totalReduction / 100);
+				finalAmount = -reducedAmount;
+
+				const moraleProtected = originalAmount - reducedAmount;
+				console.log(`[Morale Guardian] Protected ${moraleProtected.toFixed(1)} morale (${totalReduction}% reduction)`);
+			}
+		}
+
 		const oldMorale = targetForce.morale;
-		if (amount > 0) {
-			targetForce.morale = Math.min(targetForce.maxMorale, targetForce.morale + amount);
+		if (finalAmount > 0) {
+			targetForce.morale = Math.min(targetForce.maxMorale, targetForce.morale + finalAmount);
 		} else {
-			targetForce.morale = Math.max(0, targetForce.morale + amount);
+			targetForce.morale = Math.max(0, targetForce.morale + finalAmount);
 		}
 		const actualChange = targetForce.morale - oldMorale;
 
@@ -677,19 +706,29 @@ const fortressModePassiveLogic: TraitEffectFn = async (context) => {
  * Effect: Reduces damage taken by all allies
  */
 const reduceAllyDamageTakenLogic: TraitEffectFn = async (context) => {
-	const { targets, effectInstance, traitInstanceParams } = context;
+	const { targets, effectInstance, traitInstanceParams, sourceUnit } = context;
 	const reduction = (traitInstanceParams.reduction ?? effectInstance.reduction ?? 12) as number;
 
+	// Add damage reduction tracking to each ally
 	for (const ally of targets) {
+		// Initialize damage reduction stacks if not present
+		if (!ally.damageReductionStacks) {
+			ally.damageReductionStacks = [];
+		}
+
+		// Add this source's reduction to the stack
+		ally.damageReductionStacks.push({
+			sourceUnitId: sourceUnit.id,
+			reductionPercent: reduction
+		});
+
 		const chara = getChara(ally.id);
 		if (chara) {
-			// This would typically be implemented as a damage reduction modifier
-			// For visual feedback:
 			await chara.showPopText(`Protected (${reduction}%)`);
 		}
 	}
 
-	// Note: The actual damage reduction would be implemented in the damage calculation system
+	console.log(`[Defensive Matrix] ${sourceUnit.name} is protecting ${targets.length} allies with ${reduction}% damage reduction`);
 };
 
 /**
@@ -728,6 +767,41 @@ const sacrificeCooldownForDamageLogic: TraitEffectFn = async (context) => {
 		await chara.updateUnitAttribute("power", damageBonus);
 		await chara.showPopText(`Reckless! +${damageBonus} Dmg`);
 	}
+};
+
+/**
+ * Effect: Reduces morale loss by a percentage for the unit's force.
+ * This creates a passive protective effect that makes tank units more valuable.
+ */
+const moraleDamageReductionLogic: TraitEffectFn = async (context) => {
+	const { sourceUnit, effectInstance } = context;
+	const reductionPercent = effectInstance.reduction_percent || 10;
+
+	// Get the source unit's force
+	const sourceForce = context.state.battleData.forces.find(force =>
+		force.units.some(unit => unit.id === sourceUnit.id)
+	);
+
+	if (!sourceForce) return;
+
+	// Initialize morale reduction stacks if not present
+	if (!sourceForce.moraleReductionStacks) {
+		sourceForce.moraleReductionStacks = [];
+	}
+
+	// Add this unit's reduction to the stack
+	sourceForce.moraleReductionStacks.push({
+		unitId: sourceUnit.id,
+		reductionPercent: reductionPercent
+	});
+
+	// Show activation feedback
+	const chara = getChara(sourceUnit.id);
+	if (chara) {
+		await chara.showPopText(`Morale Guardian Active`, "heal");
+	}
+
+	console.log(`[Morale Guardian] ${sourceUnit.name} is protecting force ${sourceForce.id} with ${reductionPercent}% morale damage reduction`);
 };
 
 // ===== EFFECT REGISTRATIONS =====
@@ -772,6 +846,7 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("reduce_enemy_damage", reduceEnemyDamageLogic);
 	registerTraitEffectImplementation("fortress_mode_passive", fortressModePassiveLogic);
 	registerTraitEffectImplementation("reduce_ally_damage_taken", reduceAllyDamageTakenLogic);
+	registerTraitEffectImplementation("morale_damage_reduction", moraleDamageReductionLogic);
 
 	// Time-based and alternative mechanics
 	registerTraitEffectImplementation("damage_scales_with_time", damageScalesWithTimeLogic);

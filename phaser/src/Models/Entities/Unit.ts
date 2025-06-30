@@ -2,6 +2,22 @@ import { v4 } from "uuid";
 import { Vec2, vec2Zero } from "../Geometry";
 import { TraitData } from "../../TraitSystem/Traits";
 import { getCardDefinition } from "./Card";
+
+/**
+ * Represents a damage reduction effect applied by another unit.
+ */
+export type DamageReductionStack = {
+  sourceUnitId: string;
+  reductionPercent: number;
+};
+
+/**
+ * Represents a morale damage reduction effect applied by a unit.
+ */
+export type MoraleReductionStack = {
+  unitId: string;
+  reductionPercent: number;
+};
 /**
  * Represents an "instance" of a `CardDefinition` within the game's logical state.
  * A `Unit` is an actual character or entity participating in the game, holding mutable data
@@ -35,6 +51,9 @@ export type Unit = {
 
   hasted: number;
   slowed: number;
+
+  // Defensive trait effects
+  damageReductionStacks?: DamageReductionStack[];
 };
 
 export const makeUnit = (force: string, cardId: string, position = vec2Zero()): Unit => {

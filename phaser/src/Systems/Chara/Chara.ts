@@ -244,8 +244,42 @@ export class Chara extends Phaser.GameObjects.Container {
 			throw new Error("Tried to hit an inactive Chara.")
 		}
 
+		let finalDamage = damage;
+
+		// Apply damage reduction if the unit has damage reduction stacks
+		if (damage > 0 && this.unit.damageReductionStacks) {
+			const reductionStacks = this.unit.damageReductionStacks;
+			let totalReduction = 0;
+
+			// Sum all active damage reductions
+			for (const stack of reductionStacks) {
+				// Verify the source unit is still alive (damage reduction should only work while protector is alive)
+				const battlegroundScene = this.scene as BattlegroundScene;
+				const sourceUnit = battlegroundScene.state.battleData.units.find((u: any) => u.id === stack.sourceUnitId && u.hp > 0);
+				if (sourceUnit) {
+					totalReduction += stack.reductionPercent;
+				}
+			}
+
+			// Cap total reduction at 75% to prevent invulnerability
+			totalReduction = Math.min(totalReduction, 75);
+
+			if (totalReduction > 0) {
+				const originalDamage = damage;
+				finalDamage = originalDamage * (1 - totalReduction / 100);
+				const damageReduced = originalDamage - finalDamage;
+
+				// Show feedback for damage reduction
+				if (damageReduced > 0) {
+					this.showPopText(`-${damageReduced.toFixed(1)} Protected`, "heal");
+				}
+
+				console.log(`[Damage Reduction] ${this.unit.name} took ${finalDamage.toFixed(1)} damage instead of ${originalDamage} (${totalReduction}% reduction)`);
+			}
+		}
+
 		// Apply damage to the unit's HP data model and update its visual display
-		this.scene.events.emit(GameEvents.UNIT_TOOK_HIT, { unit: this.unit, damage });
+		this.scene.events.emit(GameEvents.UNIT_TOOK_HIT, { unit: this.unit, damage: finalDamage });
 
 	}
 
