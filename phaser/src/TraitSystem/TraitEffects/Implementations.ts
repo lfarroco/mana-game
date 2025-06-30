@@ -3,7 +3,7 @@
  * Each function defined here corresponds to an `effectId` that can be used
  * in `TraitDefinition`s. These functions are registered with the `TraitEffectSystem`.
  */
-import { registerTraitEffectImplementation, resolveTargets, } from "../TraitEffectSystem";
+import { registerTraitEffectImplementation } from "../TraitEffectSystem";
 import { GameEvents } from "../../constants/events";
 import { playerForce, updatePlayerGoldIO } from "../../Models/Entities/Force";
 import { getChara } from "../../Scenes/Battleground/Systems/CharaManager";
@@ -23,6 +23,18 @@ import { impactEffect } from "../../Effects";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 
 // ===== HELPER FUNCTIONS TO REDUCE REPETITION =====
+
+/**
+ * Helper function to get effect parameters with fallbacks
+ */
+function getEffectParams<T>(
+	traitInstanceParams: any,
+	effectInstance: any,
+	paramName: string,
+	defaultValue: T
+): T {
+	return (traitInstanceParams[paramName] ?? effectInstance[paramName] ?? defaultValue) as T;
+}
 
 /**
  * Helper function to apply a temporary attribute modification to targets
@@ -150,18 +162,6 @@ async function applyDamageOverTime(
 }
 
 /**
- * Helper function to get effect parameters with fallbacks
- */
-function getEffectParams<T>(
-	traitInstanceParams: any,
-	effectInstance: any,
-	paramName: string,
-	defaultValue: T
-): T {
-	return (traitInstanceParams[paramName] ?? effectInstance[paramName] ?? defaultValue) as T;
-}
-
-/**
  * Helper function to create skill-based effects
  */
 function createSkillEffect(skillFunction: (scene: BattlegroundScene, unit: Unit) => Promise<void>): TraitEffectFn {
@@ -209,6 +209,30 @@ function createAttributeModificationEffect(attribute: keyof Unit, isTemporary: b
 				}
 			}
 		}
+	};
+}
+
+/**
+ * Helper function to create effects that target the closest enemy (simplified targeting)
+ * Uses pre-resolved targets from context.targets for consistency
+ */
+function createSimpleEnemyEffect(effectLogic: (target: Unit, context: TraitEffectContext) => Promise<void>): TraitEffectFn {
+	return async (context) => {
+		// Use pre-resolved targets from the trait system
+		for (const target of context.targets) {
+			await effectLogic(target, context);
+		}
+	};
+}
+
+/**
+ * Helper function to create effects that affect the entire enemy guild
+ * Uses pre-resolved targets from context.targets for consistency
+ */
+function createGuildWideEnemyEffect(effectLogic: (targets: Unit[], context: TraitEffectContext) => Promise<void>): TraitEffectFn {
+	return async (context) => {
+		// Use pre-resolved targets from the trait system
+		await effectLogic(context.targets, context);
 	};
 }
 
@@ -425,17 +449,15 @@ const increasePowerLogic: TraitEffectFn = createAttributeModificationEffect('pow
 const temporaryHpBoostLogic: TraitEffectFn = createAttributeModificationEffect('hp', true);
 
 const splashDamageToRandomAdjacentAllyLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, effectInstance, traitInstanceParams, state, scene } = context;
+	const { sourceUnit, effectInstance, traitInstanceParams, scene } = context;
 	const percent = (traitInstanceParams.percent ?? effectInstance.percent ?? 50) as number;
 	const damage = Math.floor(sourceUnit.power * (percent / 100));
 
 	if (damage <= 0) return;
 
-	// Use the 'allies_adjacent' selector to find potential targets
-	const adjacentAllies = resolveTargets(sourceUnit, sourceUnit.force, "allies_adjacent", state, scene);
-
-	if (adjacentAllies.length > 0) {
-		const randomAlly = pickRandom(adjacentAllies, 1)[0];
+	// Use pre-resolved adjacent allies targets (assumes targetSelector is "allies_adjacent")
+	if (context.targets.length > 0) {
+		const randomAlly = pickRandom(context.targets, 1)[0];
 		const chara = getChara(randomAlly.id);
 		const sourceChara = getChara(sourceUnit.id);
 		if (chara && sourceChara) {
@@ -484,6 +506,7 @@ const hasteAllAlliesLogic: TraitEffectFn = async (context) => {
 	const { targets, scene } = context;
 	const duration = getEffectParams(context.traitInstanceParams, context.effectInstance, 'duration', 2500);
 
+	// Use pre-resolved targets (assumes targetSelector is "all_allies")
 	await applyTemporaryCooldownModification(targets, 0.5, duration, scene, "Hasted!");
 };
 
@@ -494,6 +517,7 @@ const slowAllEnemiesLogic: TraitEffectFn = async (context) => {
 	const { targets, scene } = context;
 	const duration = getEffectParams(context.traitInstanceParams, context.effectInstance, 'duration', 2500);
 
+	// Use pre-resolved targets (assumes targetSelector is "enemy_guild" for guild-wide effects)
 	await applyTemporaryCooldownModification(targets, 1.5, duration, scene, "Slowed!");
 };
 
@@ -590,66 +614,54 @@ const stunAllEnemiesLogic: TraitEffectFn = async (context) => {
 };
 
 /**
- * Effect: Area damage to all enemies
+ * Effect: Area damage to all enemies (guild-wide)
  */
-const areaDamageEnemiesLogic: TraitEffectFn = async (context) => {
-	const { targets, effectInstance, traitInstanceParams } = context;
-	const damage = (traitInstanceParams.damage ?? effectInstance.damage ?? 15) as number;
+const areaDamageEnemiesLogic: TraitEffectFn = createGuildWideEnemyEffect(async (enemies, context) => {
+	const damage = getEffectParams(context.traitInstanceParams, context.effectInstance, 'damage', 15);
 
-	for (const enemy of targets) {
+	for (const enemy of enemies) {
 		const chara = getChara(enemy.id);
 		if (chara) {
 			await chara.showPopText(`-${damage} Area Dmg`, "damage");
 			chara.unitHit(damage);
 		}
 	}
-};
+});
+
+/**
+ * Effect: Applies poison to enemies (closest enemy)
+ */
+const applyPoisonToEnemiesLogic: TraitEffectFn = createSimpleEnemyEffect(async (enemy, context) => {
+	const { scene } = context;
+	const damagePerTick = getEffectParams(context.traitInstanceParams, context.effectInstance, 'damage_per_tick', 3);
+	const duration = getEffectParams(context.traitInstanceParams, context.effectInstance, 'duration', 5000);
+	const tickInterval = getEffectParams(context.traitInstanceParams, context.effectInstance, 'tick_interval', 1000);
+
+	await applyDamageOverTime([enemy], damagePerTick, duration, tickInterval, scene, "Poison");
+});
 
 /**
  * Effect: Reduces enemy damage globally while this unit is alive
  */
-const reduceEnemyDamageGlobalLogic: TraitEffectFn = async (context) => {
-	const { targets, effectInstance, traitInstanceParams } = context;
-	const reduction = (traitInstanceParams.reduction ?? effectInstance.reduction ?? 15) as number;
+const reduceEnemyDamageGlobalLogic: TraitEffectFn = createGuildWideEnemyEffect(async (enemies, context) => {
+	const reduction = getEffectParams(context.traitInstanceParams, context.effectInstance, 'reduction', 15);
 
-	for (const enemy of targets) {
+	for (const enemy of enemies) {
 		const chara = getChara(enemy.id);
 		if (chara) {
 			const damageReduction = Math.floor(enemy.power * (reduction / 100));
 			await chara.updateUnitAttribute("power", -damageReduction);
 		}
 	}
-
 	// Note: In a full implementation, you'd want to track this effect and remove it when the source unit dies
-};
+});
 
 /**
  * Effect: Grants morale to allies
  */
 const grantMoraleToAlliesLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, state, scene, effectInstance, traitInstanceParams } = context;
-	const moraleAmount = (traitInstanceParams.morale ?? effectInstance.morale ?? 40) as number;
-
-	// This is a simplification - in a full implementation, you might have individual unit morale
-	const targetForce = state.battleData.forces.find(f => f.id === sourceUnit.force);
-	if (targetForce) {
-		const oldMorale = targetForce.morale;
-		targetForce.morale = Math.min(targetForce.maxMorale, targetForce.morale + moraleAmount);
-		const actualGrant = targetForce.morale - oldMorale;
-
-		if (actualGrant > 0) {
-			scene.events.emit(GameEvents.MORALE_UPDATED, {
-				forceId: targetForce.id,
-				newMorale: targetForce.morale,
-				maxMorale: targetForce.maxMorale,
-			});
-
-			const chara = getChara(sourceUnit.id);
-			if (chara) {
-				await chara.showPopText(`+${actualGrant} Team Morale`, "heal");
-			}
-		}
-	}
+	const moraleAmount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'morale', 40);
+	await manipulateForceMorele(context.sourceUnit.force, moraleAmount, context, "Team ");
 };
 
 /**
@@ -658,6 +670,7 @@ const grantMoraleToAlliesLogic: TraitEffectFn = async (context) => {
 const cleanseAllyDebuffsLogic: TraitEffectFn = async (context) => {
 	const { targets } = context;
 
+	// Use pre-resolved targets (assumes targetSelector is "all_allies")
 	for (const ally of targets) {
 		const chara = getChara(ally.id);
 		if (chara) {
@@ -672,8 +685,8 @@ const cleanseAllyDebuffsLogic: TraitEffectFn = async (context) => {
  * Effect: Chance to dodge incoming damage
  */
 const chanceToDodgeLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, effectInstance, traitInstanceParams } = context;
-	const dodgeChance = (traitInstanceParams.dodge_chance ?? effectInstance.dodge_chance ?? 30) as number;
+	const { sourceUnit } = context;
+	const dodgeChance = getEffectParams(context.traitInstanceParams, context.effectInstance, 'dodge_chance', 30);
 
 	// This would typically be implemented in the damage handling system
 	// For now, we'll just show the passive effect is active
@@ -681,18 +694,6 @@ const chanceToDodgeLogic: TraitEffectFn = async (context) => {
 	if (chara && Math.random() * 100 < dodgeChance) {
 		await chara.showPopText("Dodged!");
 	}
-};
-
-/**
- * Effect: Applies poison to enemies
- */
-const applyPoisonToEnemiesLogic: TraitEffectFn = async (context) => {
-	const { targets, scene } = context;
-	const damagePerTick = getEffectParams(context.traitInstanceParams, context.effectInstance, 'damage_per_tick', 3);
-	const duration = getEffectParams(context.traitInstanceParams, context.effectInstance, 'duration', 5000);
-	const tickInterval = getEffectParams(context.traitInstanceParams, context.effectInstance, 'tick_interval', 1000);
-
-	await applyDamageOverTime(targets, damagePerTick, duration, tickInterval, scene, "Poison");
 };
 
 /**
