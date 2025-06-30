@@ -337,16 +337,6 @@ registerTraitConditionImplementation("target_is_enemy", (context) => {
 });
 
 /**
- * Condition: Checks if the source unit's current HP is below a specified percentage of its maximum HP.
- * Requires `percent` parameter in `conditionData`.
- */
-registerTraitConditionImplementation("source_hp_below_percent", (context, conditionData) => {
-	const percent = conditionData.percent as number;
-	if (typeof percent !== 'number') return false;
-	return (context.sourceUnit.hp / context.sourceUnit.maxHp) * 100 < percent;
-});
-
-/**
  * Condition: Checks if the source unit is in a specific row.
  * Requires `row` parameter in `conditionData` ('front', 'mid', or 'back').
  */
@@ -407,4 +397,16 @@ registerTraitConditionImplementation("is_in_column", (context, conditionData) =>
 	if (column === 'right' && unitX === rightColX) return true;
 
 	return false;
+});
+
+/**
+ * Condition: Checks if enough time has passed in battle.
+ * Alternative to HP-based conditions - time-based activation.
+ * Requires `seconds` parameter in `conditionData`.
+ */
+registerTraitConditionImplementation("battle_time_elapsed", (context, conditionData) => {
+	const requiredSeconds = conditionData.seconds as number;
+	if (typeof requiredSeconds !== 'number') return false;
+	const battleTimeSeconds = context.scene.time.now / 1000;
+	return battleTimeSeconds >= requiredSeconds;
 });
