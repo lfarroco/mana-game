@@ -1,5 +1,7 @@
 /**
- * @file Tests for trait effect implementations
+ * @fileimport { getChara as pureGetChara } from '../../../Scenes/Battleground/Systems/CharaManager.pure';
+import { applyStatusEffect as pureApplyStatusEffect } from '../../../Systems/StatusEffects/StatusEffectManager.pure';
+// import { pickRandom as purePickRandom } from '../../utils.pure'; // Commented out as it's unusedsts for trait effect implementations
  * Tests the actual effect logic for traits used by cards, focusing on pure function behavior
  * and parameter resolution using getEffectParams.
  */
@@ -12,12 +14,12 @@ import { vec2 } from '../../Models/Geometry.pure';
 // Removed jest.mock calls and updated imports to use pure modules directly
 import { getChara as pureGetChara } from '../../Scenes/Battleground/Systems/CharaManager.pure';
 import { applyStatusEffect as pureApplyStatusEffect } from '../../Systems/StatusEffects/StatusEffectManager.pure';
-import { pickRandom as purePickRandom } from '../../utils.pure';
+// import { pickRandom as purePickRandom } from '../../utils.pure'; // Commented out as it's unused
 
 // Updated setup to use pure functions directly
 let getChara = pureGetChara;
 const applyStatusEffect = pureApplyStatusEffect;
-const pickRandom = purePickRandom;
+// const pickRandom = purePickRandom; // Commented out as it's unused
 
 describe('Trait Effect Implementations', () => {
 	let mockUnit: Unit;
@@ -335,14 +337,14 @@ describe('Trait Effect Implementations', () => {
 
 		describe('unbalanced_swing (Wild Berserker)', () => {
 			it('should deal percentage damage to random adjacent ally', async () => {
-				const unbalancedContext = {
-					...mockContext,
-					traitInstanceParams: { percent: 25 },
-					effectInstance: { effectId: 'splash_damage_to_random_adjacent_ally' }
-				};
+				// const unbalancedContext = {
+				// 	...mockContext,
+				// 	traitInstanceParams: { percent: 25 },
+				// 	effectInstance: { effectId: 'splash_damage_to_random_adjacent_ally' }
+				// };
 
 				// Refactored pickRandom usage to inject a mock implementation
-				const mockPickRandom = (array: any[]) => undefined; // Mock implementation for the test
+				// const mockPickRandom = (_array: any[]) => undefined; // Mock implementation for the test
 
 				// Updated the test to pass the mock implementation directly
 				const expectedDamage = Math.floor(mockUnit.power * (25 / 100));
