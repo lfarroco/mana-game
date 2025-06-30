@@ -177,12 +177,25 @@ export function getTraitConditionImplementation(conditionType: string): TraitCon
 
 // --- Target Resolution ---
 
+/**
+ * SIMPLIFIED TARGETING STRATEGY:
+ * 
+ * Enemy Targeting: All enemy selectors now return the closest enemy for simplicity.
+ * This includes "enemy", "closest_enemy", and "all_enemies" (legacy).
+ * The game no longer has complex individual enemy targeting.
+ * 
+ * Exception: "enemy_guild" returns ALL enemies for guild-wide effects (morale, etc.)
+ * 
+ * Allied Targeting: Retains full positional logic to maintain formation strategy.
+ * Players can still use positioning for tactical advantages with ally buffs.
+ */
+
 export function resolveTargets(
 	/** The source of the trait (a Unit). */
 	source: Unit,
 	/** The force ID of the source. */
 	sourceForce: string,
-	/** The target selector string (e.g., "self", "all_enemies"). If undefined, defaults to primaryTarget or sourceUnit. */
+	/** The target selector string (e.g., "self", "all_allies", "enemy"). If undefined, defaults to primaryTarget or sourceUnit. */
 	selector: string | undefined,
 	/** The current game state. */
 	state: State,
@@ -198,15 +211,38 @@ export function resolveTargets(
 		return [source]; // Default to "self" as target
 	}
 
+	// Helper function to find closest enemy
+	const findClosestEnemy = (): Unit[] => {
+		const enemies = getActiveUnits(state).filter(u => u.force !== sourceForce);
+		if (enemies.length === 0) return [];
+
+		// Calculate distance and find closest
+		const closestEnemy = enemies.reduce((closest, enemy) => {
+			const distToEnemy = Math.abs(enemy.position.x - source.position.x) + Math.abs(enemy.position.y - source.position.y);
+			const distToClosest = Math.abs(closest.position.x - source.position.x) + Math.abs(closest.position.y - source.position.y);
+			return distToEnemy < distToClosest ? enemy : closest;
+		});
+
+		return [closestEnemy];
+	};
+
 	switch (selector) {
 		case "self":
 			return [source];
 		case "action_target": // The direct target of an action, if applicable
 			return primaryTarget ? [primaryTarget] : [];
-		case "all_enemies":
-			return getActiveUnits(state).filter(u => u.force !== sourceForce);
+
+		// === SIMPLIFIED ENEMY TARGETING ===
+		// All enemy targeting now uses closest enemy for simplicity
+		case "enemy":
+		case "closest_enemy":
+		case "all_enemies": // Legacy support - now returns closest enemy for simplicity
+			return findClosestEnemy();
+
+		// === POSITIONAL ALLIED TARGETING ===
+		// Allied targeting retains positional logic for formation strategy
 		case "all_allies":
-			return getActiveUnits(state).filter(u => u.force === sourceForce);
+			return getActiveUnits(state).filter(u => u.force === sourceForce && u.id !== source.id);
 		case "all_allies_in_row":
 			return getActiveUnits(state).filter(u => u.force === sourceForce && u.id !== source.id && u.position.y === source.position.y);
 		case "all_allies_in_column":
@@ -242,11 +278,15 @@ export function resolveTargets(
 				adjacentPositions.some(pos => u.position.x === pos.x && u.position.y === pos.y)
 			);
 		}
-		// Add more selectors: "allies_in_row", "enemies_in_column", "units_in_area", etc.
+
+		// === GUILD-WIDE EFFECTS ===
+		// Special case: when you need ALL enemies (for guild-wide effects like morale)
+		case "enemy_guild":
+			return getActiveUnits(state).filter(u => u.force !== sourceForce);
+
 		default:
-			console.warn(`Unknown target selector: ${selector}`);
-			if (primaryTarget) return [primaryTarget];
-			return [source]; // Default to source if selector is unknown
+			console.warn(`Unknown target selector: ${selector}. Using closest enemy as fallback.`);
+			return findClosestEnemy();
 	}
 }
 
