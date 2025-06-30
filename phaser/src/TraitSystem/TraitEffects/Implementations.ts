@@ -30,7 +30,7 @@ import { Chara } from "../../Systems/Chara/Chara";
 import { applyStatusEffect } from "../../Systems/StatusEffects/StatusEffectManager";
 
 // Import extracted implementations
-import { dealDamageLogic, grantGoldLogic, restoreForceMoraleLogic, reduceEnemyMoraleLogic, guildWideDamageLogic, boostAllyDamageLogic, hasteAllAlliesLogic } from "./implementations/index";
+import { dealDamageLogic, grantGoldLogic, restoreForceMoraleLogic, reduceEnemyMoraleLogic, guildWideDamageLogic, boostAllyDamageLogic, hasteAllAlliesLogic, applyPoisonToEnemiesLogic } from "./implementations/index";
 
 // ===== HELPER FUNCTIONS TO REDUCE REPETITION =====
 
@@ -488,18 +488,6 @@ const stunAllEnemiesLogic: TraitEffectFn = async (context) => {
 		}
 	}
 };
-
-/**
- * Effect: Applies poison to enemies (closest enemy)
- */
-const applyPoisonToEnemiesLogic: TraitEffectFn = createSimpleEnemyEffect(async (enemy, context) => {
-	const { scene } = context;
-	const damagePerTick = getEffectParams(context.traitInstanceParams, context.effectInstance, 'damage_per_tick', 3);
-	const duration = getEffectParams(context.traitInstanceParams, context.effectInstance, 'duration', 5000);
-	const tickInterval = getEffectParams(context.traitInstanceParams, context.effectInstance, 'tick_interval', 1000);
-
-	await applyDamageOverTime([enemy], damagePerTick, duration, tickInterval, scene, "Poison");
-});
 
 /**
  * Effect: Reduces enemy damage globally while this unit is alive

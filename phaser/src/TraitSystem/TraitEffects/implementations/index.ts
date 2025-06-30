@@ -10,3 +10,4 @@ export { reduceEnemyMoraleLogic, reduceEnemyMoralePure } from './reduceEnemyMora
 export { guildWideDamageLogic, guildWideDamagePure } from './guildWideDamage';
 export { boostAllyDamageLogic, boostAllyDamagePure } from './boostAllyDamage';
 export { hasteAllAlliesLogic, hasteAllAlliesPure } from './hasteAllAllies';
+export { applyPoisonToEnemiesLogic, applyPoisonToEnemiesPure } from './applyPoison';
