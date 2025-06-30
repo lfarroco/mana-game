@@ -14,7 +14,7 @@ describe('applyPoisonToEnemiesPure', () => {
 
 	it('should calculate correct poison effect for multiple targets', () => {
 		const result = applyPoisonToEnemiesPure(3, 5000, 1000, mockTargets);
-		
+
 		expect(result).toEqual({
 			damagePerTick: 3,
 			duration: 5000,
@@ -32,7 +32,7 @@ describe('applyPoisonToEnemiesPure', () => {
 
 	it('should handle zero damage per tick', () => {
 		const result = applyPoisonToEnemiesPure(0, 3000, 500, mockTargets);
-		
+
 		expect(result.damagePerTick).toBe(0);
 		expect(result.totalDamagePerTarget).toBe(0);
 		expect(result.calculations.every(calc => calc.damagePerTick === 0)).toBe(true);
@@ -41,7 +41,7 @@ describe('applyPoisonToEnemiesPure', () => {
 
 	it('should ensure non-negative damage per tick', () => {
 		const result = applyPoisonToEnemiesPure(-5, 2000, 400, mockTargets);
-		
+
 		expect(result.damagePerTick).toBe(0); // Should clamp negative damage to 0
 		expect(result.totalDamagePerTarget).toBe(0);
 		expect(result.calculations.every(calc => calc.damagePerTick === 0)).toBe(true);
@@ -49,7 +49,7 @@ describe('applyPoisonToEnemiesPure', () => {
 
 	it('should ensure non-negative duration', () => {
 		const result = applyPoisonToEnemiesPure(4, -1000, 500, mockTargets);
-		
+
 		expect(result.duration).toBe(0); // Should clamp negative duration to 0
 		expect(result.totalTicks).toBe(0);
 		expect(result.totalDamagePerTarget).toBe(0);
@@ -57,7 +57,7 @@ describe('applyPoisonToEnemiesPure', () => {
 
 	it('should enforce minimum tick interval', () => {
 		const result = applyPoisonToEnemiesPure(2, 1000, 50, mockTargets); // Try 50ms interval
-		
+
 		expect(result.tickInterval).toBe(100); // Should clamp to minimum 100ms
 		expect(result.totalTicks).toBe(10); // 1000ms / 100ms = 10 ticks
 		expect(result.totalDamagePerTarget).toBe(20); // 10 ticks * 2 damage = 20
@@ -65,7 +65,7 @@ describe('applyPoisonToEnemiesPure', () => {
 
 	it('should handle empty target array', () => {
 		const result = applyPoisonToEnemiesPure(5, 3000, 750, []);
-		
+
 		expect(result).toEqual({
 			damagePerTick: 5,
 			duration: 3000,
@@ -80,7 +80,7 @@ describe('applyPoisonToEnemiesPure', () => {
 	it('should handle single target', () => {
 		const singleTarget = [mockTargets[0]];
 		const result = applyPoisonToEnemiesPure(6, 4000, 800, singleTarget);
-		
+
 		expect(result).toEqual({
 			damagePerTick: 6,
 			duration: 4000,
@@ -112,7 +112,7 @@ describe('applyPoisonToEnemiesPure', () => {
 
 	it('should handle large damage and duration values', () => {
 		const result = applyPoisonToEnemiesPure(100, 60000, 2000, mockTargets);
-		
+
 		expect(result.totalTicks).toBe(30); // 60000ms / 2000ms = 30 ticks
 		expect(result.totalDamagePerTarget).toBe(3000); // 30 ticks * 100 damage = 3000
 		expect(result.calculations.every(calc => calc.estimatedTotalDamage === 3000)).toBe(true);
@@ -123,9 +123,9 @@ describe('applyPoisonToEnemiesPure', () => {
 			{ id: 'poison-target-1' } as unknown as Unit,
 			{ id: 'poison-target-2' } as unknown as Unit
 		];
-		
+
 		const result = applyPoisonToEnemiesPure(4, 2000, 500, differentTargets);
-		
+
 		expect(result.calculations).toEqual([
 			{ unitId: 'poison-target-1', damagePerTick: 4, duration: 2000, tickInterval: 500, estimatedTotalDamage: 16 },
 			{ unitId: 'poison-target-2', damagePerTick: 4, duration: 2000, tickInterval: 500, estimatedTotalDamage: 16 }
@@ -135,7 +135,7 @@ describe('applyPoisonToEnemiesPure', () => {
 
 	it('should handle zero duration', () => {
 		const result = applyPoisonToEnemiesPure(10, 0, 1000, mockTargets);
-		
+
 		expect(result.duration).toBe(0);
 		expect(result.totalTicks).toBe(0);
 		expect(result.totalDamagePerTarget).toBe(0);
@@ -146,7 +146,7 @@ describe('applyPoisonToEnemiesPure', () => {
 	it('should handle fractional tick calculations correctly', () => {
 		// Test case where duration doesn't divide evenly by tick interval
 		const result = applyPoisonToEnemiesPure(7, 3300, 1000, mockTargets);
-		
+
 		expect(result.totalTicks).toBe(3); // Math.floor(3300 / 1000) = 3
 		expect(result.totalDamagePerTarget).toBe(21); // 3 ticks * 7 damage = 21
 	});

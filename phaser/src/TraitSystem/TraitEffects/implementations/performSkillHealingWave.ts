@@ -12,15 +12,15 @@ import { TraitEffectContext, TraitEffectFn } from "../../TraitEffectSystem";
  * Makes the source unit perform the "healing wave" skill.
  */
 export function performSkillHealingWaveLogic(context: TraitEffectContext): {
-  sourceUnit: Unit;
-  scene: BattlegroundScene;
+	sourceUnit: Unit;
+	scene: BattlegroundScene;
 } {
-  const { sourceUnit, scene } = context;
-  
-  return {
-    sourceUnit,
-    scene
-  };
+	const { sourceUnit, scene } = context;
+
+	return {
+		sourceUnit,
+		scene
+	};
 }
 
 /**
@@ -28,10 +28,10 @@ export function performSkillHealingWaveLogic(context: TraitEffectContext): {
  * Handles actual skill execution with proper async handling.
  */
 export const performSkillHealingWave: TraitEffectFn = async (context) => {
-  const { sourceUnit, scene } = performSkillHealingWaveLogic(context);
-  
-  // Dynamic import to avoid circular dependencies in tests
-  const { healingWave } = await import("../../../Systems/Chara/Skills/healingWave");
-  
-  await healingWave(scene, sourceUnit);
+	const { sourceUnit, scene } = performSkillHealingWaveLogic(context);
+
+	// Dynamic import to avoid circular dependencies in tests
+	const { healingWave } = await import("../../../Systems/Chara/Skills/healingWave");
+
+	await healingWave(scene, sourceUnit);
 };

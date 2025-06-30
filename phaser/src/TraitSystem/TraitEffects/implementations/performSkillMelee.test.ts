@@ -50,7 +50,7 @@ describe('performSkillMeleeLogic', () => {
 
 	it('should call slash skill with correct parameters', async () => {
 		const { slash } = await import('../../../Systems/Chara/Skills/slash');
-		
+
 		await performSkillMeleeLogic(mockContext);
 
 		expect(slash).toHaveBeenCalledWith(mockScene, mockSourceUnit);

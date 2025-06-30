@@ -28,10 +28,10 @@ export function applyPoisonToEnemiesPure(
 	targetCount: number;
 	totalTicks: number;
 	totalDamagePerTarget: number;
-	calculations: Array<{ 
-		unitId: string; 
-		damagePerTick: number; 
-		duration: number; 
+	calculations: Array<{
+		unitId: string;
+		damagePerTick: number;
+		duration: number;
 		tickInterval: number;
 		estimatedTotalDamage: number;
 	}>;
