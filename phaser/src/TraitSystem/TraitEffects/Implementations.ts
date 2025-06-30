@@ -228,25 +228,7 @@ function createGuildWideEnemyEffect(effectLogic: (targets: Unit[], context: Trai
 
 
 
-const modifyStatPassiveLogic: TraitEffectFn = async (context) => {
-	const { targets } = context;
-	const attribute = getEffectParams(context.traitInstanceParams, context.effectInstance, 'attribute', 'power') as keyof Unit;
-	const amount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 0);
 
-	if (!attribute || amount === 0) {
-		if (process.env.NODE_ENV === 'development') {
-			console.error(`Modify stat effect is missing required parameters (attribute, amount).`, { attribute, amount });
-		}
-		return;
-	}
-
-	for (const target of targets) {
-		const chara = getChara(target.id);
-		if (chara) {
-			await chara.updateUnitAttribute(attribute, amount);
-		}
-	}
-};
 
 /**
  * Effect: Permanently increases power of targets
@@ -544,7 +526,7 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("skill_fireball", implementations.performSkillFireball);
 	registerTraitEffectImplementation("positional_bonus", implementations.positionalBonusLogic);
 	registerTraitEffectImplementation("increase_force_max_morale", implementations.increaseForceMaxMoraleLogic);
-	registerTraitEffectImplementation("modify_stat_passive", modifyStatPassiveLogic);
+	registerTraitEffectImplementation("modify_stat_passive", implementations.modifyStatPassiveLogic);
 	registerTraitEffectImplementation("splash_damage_to_random_adjacent_ally", splashDamageToRandomAdjacentAllyLogic);
 	registerTraitEffectImplementation("restore_force_morale", implementations.restoreForceMoraleLogic);
 	registerTraitEffectImplementation("reduce_enemy_morale", implementations.reduceEnemyMoraleLogic);
