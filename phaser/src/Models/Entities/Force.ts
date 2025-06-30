@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { FORCE_ID_PLAYER, FORCE_ID_CPU, INITIAL_MORALE } from "../../constants/constants";
-import { Unit } from "./Unit";
+import { Unit, MoraleReductionStack } from "./Unit";
 import { GameEvents } from "../../constants/events";
 
 export type Force = {
@@ -15,7 +15,10 @@ export type Force = {
 	prestige: number,
 	winStreak: number,
 	lossStreak: number,
-	totalRoundsPlayed: number
+	totalRoundsPlayed: number;
+
+	// Defensive trait effects
+	moraleReductionStacks?: MoraleReductionStack[];
 };
 
 export const makeForce = (id: string): Force => {
