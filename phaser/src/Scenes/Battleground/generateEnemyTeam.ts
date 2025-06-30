@@ -4,6 +4,7 @@ import { vec2 } from "../../Models/Geometry";
 import { makeUnit } from "../../Models/Entities/Unit";
 import { pickOne } from "../../utils";
 import { getState } from "../../Models/State";
+import { applyStatusEffect } from "../../Systems/StatusEffects/StatusEffectManager";
 
 /** Constants for team size and difficulty calculation */
 const BASE_ENEMY_COUNT = 2;
@@ -250,7 +251,13 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 				console.log("Applied Elite tier stat buffs to enemy team.");
 				if (powerBudgetOverflow >= 0.5) {
 					const randomUnit = pickOne(units);
-					randomUnit.hasted += 3000; // 3 seconds of haste
+					// Apply haste status effect instead of direct field manipulation
+					applyStatusEffect(randomUnit, {
+						type: 'haste',
+						remainingDuration: 3000,
+						cooldownMultiplier: 0.5,
+						displayName: 'Hasted'
+					});
 					console.log(`Elite tier: ${randomUnit.name} gained 3s of haste.`);
 				}
 				break;

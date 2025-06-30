@@ -4,6 +4,7 @@ import { Unit } from "../../../Models/Entities/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 import { delay } from "../../../Utils/animation";
+import { applyStatusEffect } from "../../../Systems/StatusEffects/StatusEffectManager";
 
 export async function slow(
 	scene: BattlegroundScene,
@@ -35,7 +36,14 @@ export async function slow(
 
 			await delay(scene, 200);
 
-			enemy.unit.slowed += 2000;
+			// Apply slow status effect (2 seconds)
+			applyStatusEffect(enemy.unit, {
+				type: 'slow',
+				remainingDuration: 2000,
+				cooldownMultiplier: 1.5,
+				displayName: 'Slowed'
+			});
+
 			enemy.showPopText("Slowed", "heal");
 
 			await delay(scene, 700)

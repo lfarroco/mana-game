@@ -3,6 +3,7 @@ import { Unit } from "../../../Models/Entities/Unit";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 import { delay } from "../../../Utils/animation";
+import { applyStatusEffect } from "../../../Systems/StatusEffects/StatusEffectManager";
 
 export async function haste(
 	scene: BattlegroundScene,
@@ -31,7 +32,14 @@ export async function haste(
 
 		await delay(scene, 200);
 
-		ally.unit.hasted += 2000;
+		// Apply haste status effect (2 seconds)
+		applyStatusEffect(ally.unit, {
+			type: 'haste',
+			remainingDuration: 2000,
+			cooldownMultiplier: 0.5,
+			displayName: 'Hasted'
+		});
+
 		const allyChara = UnitManager.getChara(ally.id);
 		allyChara?.showPopText("Hasted", "heal");
 

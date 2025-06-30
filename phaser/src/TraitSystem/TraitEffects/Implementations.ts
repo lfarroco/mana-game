@@ -26,6 +26,7 @@ import { pickRandom } from "../../utils";
 import { impactEffect } from "../../Effects";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { Chara } from "../../Systems/Chara/Chara";
+import { applyStatusEffect } from "../../Systems/StatusEffects/StatusEffectManager";
 
 // ===== HELPER FUNCTIONS TO REDUCE REPETITION =====
 
@@ -52,7 +53,7 @@ function getEffectParams<T>(
 
 /**
  * Helper function to apply a temporary attribute modification to targets
- * Uses frame-based countdown similar to hasted/slowed instead of scene.time.addEvent
+ * Uses the new unified status effect system
  */
 async function applyTemporaryAttributeModification(
 	targets: Unit[],
@@ -65,29 +66,25 @@ async function applyTemporaryAttributeModification(
 	for (const target of targets) {
 		const chara = getChara(target.id);
 		if (chara) {
-			await chara.updateUnitAttribute(attribute, amount);
+			const effectType = amount > 0 ? 'power_buff' : 'power_debuff';
+
+			applyStatusEffect(target, {
+				type: effectType,
+				remainingDuration: duration,
+				attribute,
+				amount,
+				displayName: popTextOverride || `${amount > 0 ? '+' : ''}${amount} ${attribute}`
+			});
 
 			// Only show pop text if the scene is still active (battle hasn't ended)
 			await safeShowPopText(chara, popTextOverride || `${amount > 0 ? '+' : ''}${amount} ${attribute}`, undefined, scene);
-
-			// Track the temporary effect using frame-based countdown
-			// We'll add this to a new property on the unit that gets processed in chargeUnits
-			if (!target.temporaryEffects) {
-				target.temporaryEffects = [];
-			}
-			target.temporaryEffects.push({
-				attribute,
-				amount: -amount, // Store the revert amount
-				remainingDuration: duration,
-				effectType: 'attribute_modification'
-			});
 		}
 	}
 }
 
 /**
  * Helper function to apply temporary cooldown modifications (haste/slow effects)
- * Uses frame-based countdown instead of scene.time.addEvent
+ * Uses the new unified status effect system
  */
 async function applyTemporaryCooldownModification(
 	targets: Unit[],
@@ -99,21 +96,18 @@ async function applyTemporaryCooldownModification(
 	for (const target of targets) {
 		const chara = getChara(target.id);
 		if (chara) {
-			const originalCooldown = target.cooldown;
-			target.cooldown = Math.floor(target.cooldown * multiplier);
+			// Determine the effect type based on multiplier
+			const effectType = multiplier < 1.0 ? 'haste' : 'slow';
+
+			applyStatusEffect(target, {
+				type: effectType,
+				remainingDuration: duration,
+				cooldownMultiplier: multiplier,
+				displayName: effectType === 'haste' ? 'Hasted' : 'Slowed'
+			});
 
 			// Only show pop text if the scene is still active
 			await safeShowPopText(chara, popText, undefined, scene);
-
-			// Track the temporary effect using frame-based countdown
-			if (!target.temporaryEffects) {
-				target.temporaryEffects = [];
-			}
-			target.temporaryEffects.push({
-				effectType: 'cooldown_modification',
-				originalCooldown,
-				remainingDuration: duration
-			});
 		}
 	}
 }
@@ -146,8 +140,7 @@ async function manipulateForceMorele(
 }
 
 /**
- * Helper function to apply damage over time effects using frame-based countdown
- * instead of scene.time.addEvent
+ * Helper function to apply damage over time effects using the new status system
  */
 async function applyDamageOverTime(
 	targets: Unit[],
@@ -160,21 +153,17 @@ async function applyDamageOverTime(
 	for (const target of targets) {
 		const chara = getChara(target.id);
 		if (chara) {
-			// Only show pop text if the scene is still active
-			await safeShowPopText(chara, `${effectName}!`, "damage", scene);
-
-			// Track the DoT effect using frame-based countdown
-			if (!target.temporaryEffects) {
-				target.temporaryEffects = [];
-			}
-			target.temporaryEffects.push({
-				effectType: 'poison_tick',
-				damagePerTick,
+			applyStatusEffect(target, {
+				type: 'poison',
 				remainingDuration: duration,
+				damagePerTick,
 				tickInterval,
 				timeSinceLastTick: 0,
-				effectName
+				displayName: effectName
 			});
+
+			// Only show pop text if the scene is still active
+			await safeShowPopText(chara, `${effectName}!`, "damage", scene);
 		}
 	}
 }
@@ -537,22 +526,14 @@ const freezeAllEnemiesLogic: TraitEffectFn = async (context) => {
 	for (const enemy of targets) {
 		const chara = getChara(enemy.id);
 		if (chara) {
-			// Freeze enemy (prevent actions)
-			const originalCooldown = enemy.cooldown;
-			enemy.cooldown = Number.MAX_SAFE_INTEGER; // Effectively infinite cooldown
+			applyStatusEffect(enemy, {
+				type: 'freeze',
+				remainingDuration: duration,
+				displayName: 'Frozen'
+			});
 
 			// Only show pop text if the scene is still active
 			await safeShowPopText(chara, "Frozen!", "damage", scene);
-
-			// Track the freeze effect using frame-based countdown
-			if (!enemy.temporaryEffects) {
-				enemy.temporaryEffects = [];
-			}
-			enemy.temporaryEffects.push({
-				effectType: 'freeze',
-				originalCooldown,
-				remainingDuration: duration
-			});
 		}
 	}
 };
@@ -567,22 +548,14 @@ const stunAllEnemiesLogic: TraitEffectFn = async (context) => {
 	for (const enemy of targets) {
 		const chara = getChara(enemy.id);
 		if (chara) {
-			// Stun enemy (prevent actions and movement)
-			const originalCooldown = enemy.cooldown;
-			enemy.cooldown = Number.MAX_SAFE_INTEGER;
+			applyStatusEffect(enemy, {
+				type: 'stun',
+				remainingDuration: duration,
+				displayName: 'Stunned'
+			});
 
 			// Only show pop text if the scene is still active
 			await safeShowPopText(chara, "Stunned!", "damage", scene);
-
-			// Track the stun effect using frame-based countdown
-			if (!enemy.temporaryEffects) {
-				enemy.temporaryEffects = [];
-			}
-			enemy.temporaryEffects.push({
-				effectType: 'stun',
-				originalCooldown,
-				remainingDuration: duration
-			});
 		}
 	}
 };
@@ -741,37 +714,19 @@ const damageScalesWithTimeLogic: TraitEffectFn = async (context) => {
 	const timeSegments = Math.floor(timeInBattle / timeThreshold);
 	const currentFuryBonus = timeSegments * damagePerTime;
 
-	// Initialize temporaryEffects if needed
-	if (!sourceUnit.temporaryEffects) {
-		sourceUnit.temporaryEffects = [];
-	}
-
-	// Remove any existing fury scaling effect to prevent stacking
-	const existingFuryIndex = sourceUnit.temporaryEffects.findIndex(effect => effect.effectType === 'fury_scaling');
-	if (existingFuryIndex !== -1) {
-		// Revert the old fury effect first
-		const oldEffect = sourceUnit.temporaryEffects[existingFuryIndex];
-		if (oldEffect.attribute === 'power' && oldEffect.amount !== undefined) {
-			sourceUnit.power -= oldEffect.amount;
-		}
-		sourceUnit.temporaryEffects.splice(existingFuryIndex, 1);
-	}
-
-	// Add the new fury scaling effect if there's a bonus
+	// Apply fury scaling effect (this will automatically replace any existing fury effect)
 	if (currentFuryBonus > 0) {
 		const chara = getChara(sourceUnit.id);
 		if (chara) {
-			// Add the new fury effect
-			sourceUnit.temporaryEffects.push({
-				effectType: 'fury_scaling',
+			applyStatusEffect(sourceUnit, {
+				type: 'fury_scaling',
+				remainingDuration: Number.MAX_SAFE_INTEGER, // Lasts until battle ends
 				attribute: 'power',
 				amount: currentFuryBonus,
-				remainingDuration: Number.MAX_SAFE_INTEGER // Lasts until battle ends
+				stackId: 'berserker_fury', // Prevents stacking
+				displayName: `Fury: ${currentFuryBonus}`
 			});
 
-			// Apply the power increase
-			sourceUnit.power += currentFuryBonus;
-			chara.updatePowerDisplay(); // Update UI display
 			await safeShowPopText(chara, `Fury: ${currentFuryBonus} bonus!`, undefined, context.scene);
 		}
 	}
