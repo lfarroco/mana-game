@@ -12,3 +12,4 @@ export { boostAllyDamageLogic, boostAllyDamagePure } from './boostAllyDamage';
 export { hasteAllAlliesLogic, hasteAllAlliesPure } from './hasteAllAllies';
 export { applyPoisonToEnemiesLogic, applyPoisonToEnemiesPure } from './applyPoison';
 export { slowAllEnemies, slowAllEnemiesLogic } from './slowAllEnemies';
+export { traitSniper } from './traitSniper';

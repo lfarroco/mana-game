@@ -30,7 +30,7 @@ import { Chara } from "../../Systems/Chara/Chara";
 import { applyStatusEffect } from "../../Systems/StatusEffects/StatusEffectManager";
 
 // Import extracted implementations
-import { dealDamageLogic, grantGoldLogic, restoreForceMoraleLogic, reduceEnemyMoraleLogic, guildWideDamageLogic, boostAllyDamageLogic, hasteAllAlliesLogic, applyPoisonToEnemiesLogic, slowAllEnemies } from "./implementations/index";
+import { dealDamageLogic, grantGoldLogic, restoreForceMoraleLogic, reduceEnemyMoraleLogic, guildWideDamageLogic, boostAllyDamageLogic, hasteAllAlliesLogic, applyPoisonToEnemiesLogic, slowAllEnemies, traitSniper } from "./implementations/index";
 
 // ===== HELPER FUNCTIONS TO REDUCE REPETITION =====
 
@@ -295,30 +295,6 @@ const performSkillSummonLogic: TraitEffectFn = async (context) => {
 		console.warn(`Summon effect: Chara for sourceUnit ${sourceUnit.id} not found, or cardIdToSummon missing. Card ID: ${cardIdToSummon}`);
 	}
 };
-
-/**
- * Effect: If the source unit is in the back row, it gains an attack bonus.
- */
-const traitSniperLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit } = context;
-	const attackBonus = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 10);
-
-	let isBackRow = false;
-	const boardHeightInTiles = 3;
-
-	if (sourceUnit.force === playerForce.id) {
-		isBackRow = sourceUnit.position.y === boardHeightInTiles - 1;
-	} else {
-		isBackRow = sourceUnit.position.y === 0;
-	}
-
-	if (isBackRow) {
-		const chara = getChara(sourceUnit.id);
-		if (!chara) return;
-		await chara.updateUnitAttribute("power", attackBonus);
-	}
-};
-
 
 const positionalBonusLogic: TraitEffectFn = async (context) => {
 	const { sourceUnit, effectInstance, traitInstanceParams } = context;
@@ -693,7 +669,7 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("deal_damage", dealDamageLogic);
 
 	// Trait-based effects
-	registerTraitEffectImplementation("trait_sniper", traitSniperLogic);
+	registerTraitEffectImplementation("trait_sniper", traitSniper);
 
 	// Skill-based effects
 	registerTraitEffectImplementation("skill_melee", performSkillMeleeLogic);
