@@ -10,7 +10,7 @@
 import { registerTraitEffectImplementation } from "../TraitEffectSystem";
 import { getEffectParams } from "../TraitSystem.pure"; // Use our tested pure function
 import { GameEvents } from "../../constants/events";
-import { playerForce, updatePlayerGoldIO, manipulateForceMoreale } from "../../Models/Entities/Force";
+import { playerForce, manipulateForceMoreale } from "../../Models/Entities/Force";
 import { getChara } from "../../Scenes/Battleground/Systems/CharaManager";
 import { slash } from "../../Systems/Chara/Skills/slash";
 import { healing } from "../../Systems/Chara/Skills/healing";
@@ -28,6 +28,9 @@ import { impactEffect } from "../../Effects";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { Chara } from "../../Systems/Chara/Chara";
 import { applyStatusEffect } from "../../Systems/StatusEffects/StatusEffectManager";
+
+// Import extracted implementations
+import { dealDamageLogic, grantGoldLogic, restoreForceMoraleLogic } from "./implementations/index";
 
 // ===== HELPER FUNCTIONS TO REDUCE REPETITION =====
 
@@ -234,29 +237,7 @@ function createGuildWideEnemyEffect(effectLogic: (targets: Unit[], context: Trai
  * Effect: Grants a specified amount of gold to the player.
  * The source unit must belong to the player.
  */
-const grantGoldToPlayerLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, scene } = context;
-	const amount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 0);
-
-	if (amount !== 0 && sourceUnit.force === playerForce.id) {
-		const chara = getChara(sourceUnit.id);
-		await chara?.showPopText(`+${amount} Gold`);
-		updatePlayerGoldIO(scene, amount);
-	}
-};
-
-/**
- * Effect: Deals damage to target units.
- */
-const dealDamageLogic: TraitEffectFn = async (context) => {
-	const { targets } = context;
-	const amount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 0);
-
-	for (const target of targets) {
-		const charaTarget = getChara(target.id);
-		await charaTarget?.showPopText(`-${amount} Dmg`, "damage");
-	}
-};
+// grantGoldToPlayerLogic implementation moved to ./implementations/grantGold.ts
 
 /**
  * Effect: Makes the source unit perform the "slash" skill.
@@ -452,14 +433,6 @@ const splashDamageToRandomAdjacentAllyLogic: TraitEffectFn = async (context) => 
 			impactEffect({ scene, location: chara, pointA: sourceChara, pointB: chara });
 		}
 	}
-};
-
-/**
- * Effect: Restores morale to the unit's force
- */
-const restoreForceMoraleLogic: TraitEffectFn = async (context) => {
-	const amount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 50);
-	await manipulateForceMorealeWrapper(context.sourceUnit.force, amount, context);
 };
 
 /**
@@ -782,7 +755,7 @@ const moraleDamageReductionLogic: TraitEffectFn = async (context) => {
  * This function should be called once during game initialization.
  */
 export function registerAllTraitEffects() {
-	registerTraitEffectImplementation("grant_gold_to_player", grantGoldToPlayerLogic);
+	registerTraitEffectImplementation("grant_gold_to_player", grantGoldLogic);
 	registerTraitEffectImplementation("deal_damage", dealDamageLogic);
 
 	// Trait-based effects
