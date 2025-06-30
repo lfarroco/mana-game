@@ -295,70 +295,78 @@ export function validateTraitParameters(card: CardData, traitDefinitions: Map<st
 		const traitDef = traitDefinitions.get(traitRef.id);
 		if (!traitDef) return; // Already caught by other validation
 
-		// Use our pure function to resolve parameters
-		traitDef.effects.forEach((effect, effectIndex) => {
-			try {
-				// Create a consolidated parameters object that mimics the original getEffectParams behavior
-				const resolvedParams: Record<string, unknown> = {};
+		// First, check for parameters mentioned in the trait description
+		const requiredParams: string[] = [];
+		if (traitDef.description.includes('{') && traitDef.description.includes('}')) {
+			const paramMatches = traitDef.description.match(/\{(\w+)\}/g);
+			if (paramMatches) {
+				paramMatches.forEach(match => {
+					const paramName = match.slice(1, -1); // Remove { }
+					requiredParams.push(paramName);
+				});
+			}
+		}
 
-				// Common parameters to check
-				const commonParams = ['amount', 'duration', 'reduction', 'reduction_percent', 'damage_per_time',
-					'cooldown_penalty', 'armor_bonus', 'morale', 'dodge_chance', 'damage_per_tick',
-					'tick_interval', 'attribute', 'cardIdToSummon'];
+		// Collect all available parameters from all effects of this trait
+		const resolvedParams: Record<string, unknown> = {};
 
-				commonParams.forEach(paramName => {
+		// Common parameters to check (in addition to description parameters)
+		const commonParams = ['amount', 'duration', 'reduction', 'reduction_percent', 'damage_per_time',
+			'cooldown_penalty', 'armor_bonus', 'morale', 'dodge_chance', 'damage_per_tick',
+			'tick_interval', 'attribute', 'cardIdToSummon', 'time_threshold', 'damage_bonus'];
+
+		// Combine required and common parameters
+		const allParamsToCheck = [...new Set([...requiredParams, ...commonParams])];
+
+		// Check all effects to gather available parameters
+		traitDef.effects.forEach((effect) => {
+			allParamsToCheck.forEach(paramName => {
+				try {
 					const value = getEffectParams(traitRef, effect, paramName, undefined);
 					if (value !== undefined) {
 						resolvedParams[paramName] = value;
 					}
-				});
-
-				// Check for missing required parameters based on effect description
-				if (traitDef.description.includes('{') && traitDef.description.includes('}')) {
-					const paramMatches = traitDef.description.match(/\{(\w+)\}/g);
-					if (paramMatches) {
-						paramMatches.forEach(match => {
-							const paramName = match.slice(1, -1); // Remove { }
-							if (!(paramName in resolvedParams)) {
-								errors.push({
-									type: 'warning',
-									category: 'parameter_missing',
-									message: `Card "${card.id}" trait "${traitRef.id}" missing parameter: ${paramName}`,
-									context: { card, traitRef, traitDef, paramName }
-								});
-							}
-						});
-					}
-				}
-
-				// Validate parameter types for common parameters
-				if ('amount' in resolvedParams && typeof resolvedParams.amount !== 'number') {
+				} catch (error: any) {
 					errors.push({
 						type: 'error',
-						category: 'parameter_type',
-						message: `Card "${card.id}" trait "${traitRef.id}" parameter 'amount' must be a number`,
-						context: { card, traitRef, resolvedParams }
+						category: 'parameter_resolution',
+						message: `Card "${card.id}" trait "${traitRef.id}" parameter resolution error for "${paramName}": ${error?.message || 'Unknown error'}`,
+						context: { card, traitRef, traitDef, paramName, error }
 					});
 				}
+			});
+		});
 
-				if ('duration' in resolvedParams && typeof resolvedParams.duration !== 'number') {
-					errors.push({
-						type: 'error',
-						category: 'parameter_type',
-						message: `Card "${card.id}" trait "${traitRef.id}" parameter 'duration' must be a number`,
-						context: { card, traitRef, resolvedParams }
-					});
-				}
-
-			} catch (error: any) {
+		// Check for missing required parameters based on effect description
+		requiredParams.forEach(paramName => {
+			if (!(paramName in resolvedParams)) {
 				errors.push({
-					type: 'error',
-					category: 'parameter_resolution',
-					message: `Card "${card.id}" trait "${traitRef.id}" parameter resolution failed: ${error?.message || 'Unknown error'}`,
-					context: { card, traitRef, effect, error }
+					type: 'warning',
+					category: 'parameter_missing',
+					message: `Card "${card.id}" trait "${traitRef.id}" missing parameter: ${paramName}`,
+					context: { card, traitRef, traitDef, paramName }
 				});
 			}
 		});
+
+		// Validate parameter types for common parameters
+		if ('amount' in resolvedParams && typeof resolvedParams.amount !== 'number') {
+			errors.push({
+				type: 'error',
+				category: 'parameter_type',
+				message: `Card "${card.id}" trait "${traitRef.id}" parameter 'amount' must be a number`,
+				context: { card, traitRef, resolvedParams }
+			});
+		}
+
+		if ('duration' in resolvedParams && typeof resolvedParams.duration !== 'number') {
+			errors.push({
+				type: 'error',
+				category: 'parameter_type',
+				message: `Card "${card.id}" trait "${traitRef.id}" parameter 'duration' must be a number`,
+				context: { card, traitRef, resolvedParams }
+			});
+		}
 	});
 
 	return errors;

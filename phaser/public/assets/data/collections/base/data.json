@@ -375,7 +375,7 @@
 				"morale"
 			],
 			"power": 12,
-			"powerType": "heal",
+			"powerType": "damage",
 			"cooldown": 2200,
 			"traits": [
 				{
