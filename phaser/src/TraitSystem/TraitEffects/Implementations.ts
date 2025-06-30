@@ -230,25 +230,9 @@ function createGuildWideEnemyEffect(effectLogic: (targets: Unit[], context: Trai
 
 
 /**
- * Effect: Permanently increases power of targets
- */
-const increasePowerLogic: TraitEffectFn = createAttributeModificationEffect('power', false);
-
-/**
  * Effect: Slows all enemies
  */
 // slowAllEnemiesLogic implementation moved to ./implementations/slowAllEnemies.ts
-
-/**
- * Effect: Reduces enemy damage temporarily
- */
-const reduceEnemyDamageLogic: TraitEffectFn = async (context) => {
-	const { targets, scene } = context;
-	const amount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 8);
-	const duration = getEffectParams(context.traitInstanceParams, context.effectInstance, 'duration', 4000);
-
-	await applyTemporaryAttributeModification(targets, "power", -amount, duration, scene, `-${amount} Damage`);
-};
 
 /**
  * Effect: Fortress mode passive (conditional armor and reflect)
@@ -422,7 +406,7 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("cleanse_ally_debuffs", implementations.cleanseAllyDebuffsLogic);
 	registerTraitEffectImplementation("chance_to_dodge", implementations.chanceToDodgeLogic);
 	registerTraitEffectImplementation("apply_poison_to_enemies", implementations.applyPoisonToEnemiesLogic);
-	registerTraitEffectImplementation("reduce_enemy_damage", reduceEnemyDamageLogic);
+	registerTraitEffectImplementation("reduce_enemy_damage", implementations.reduceEnemyDamageLogic);
 	registerTraitEffectImplementation("fortress_mode_passive", fortressModePassiveLogic);
 	registerTraitEffectImplementation("reduce_ally_damage_taken", reduceAllyDamageTakenLogic);
 	registerTraitEffectImplementation("morale_damage_reduction", moraleDamageReductionLogic);
@@ -432,6 +416,6 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("sacrifice_cooldown_for_damage", sacrificeCooldownForDamageLogic);
 
 	// Simple attribute modification effects
-	registerTraitEffectImplementation("increase_power", increasePowerLogic);
+	registerTraitEffectImplementation("increase_power", implementations.increasePowerLogic);
 
 }
