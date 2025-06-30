@@ -143,7 +143,7 @@
 			"id": "goblin_scavenger",
 			"pic": "assets/cards/goblin_scavenger.png",
 			"name": "Goblin Scavenger",
-			"description": "Weak but resourceful. Gains 1 gold when it lands the killing blow on an enemy.",
+			"description": "Weak but resourceful. Gains 1 gold when attacking enemies.",
 			"hp": 40,
 			"power": 9,
 			"powerType": "damage",
@@ -588,7 +588,7 @@
 		{
 			"id": "scavenge_gold",
 			"name": "Scavenge Gold",
-			"description": "Gains gold when this unit kills an enemy.",
+			"description": "Gains gold when this unit attacks enemies.",
 			"categories": [
 				"utility",
 				"gold_generation"
@@ -596,7 +596,7 @@
 			"effects": [
 				{
 					"effectId": "grant_gold_to_player",
-					"eventTrigger": "onUnitKillByMe",
+					"eventTrigger": "onAttackByMe",
 					"amount": 1
 				}
 			]
@@ -633,17 +633,17 @@
 			]
 		},
 		{
-			"id": "aura_max_hp_increase",
-			"name": "Aura: Max HP Increase",
-			"description": "Increases Max HP of all allied units by a percentage at the start of battle.",
+			"id": "aura_power_increase",
+			"name": "Aura: Power Increase",
+			"description": "Increases power of all allied units by a percentage at the start of battle.",
 			"categories": [
 				"aura",
-				"defensive",
+				"offensive",
 				"stat_modification"
 			],
 			"effects": [
 				{
-					"effectId": "modify_unit_max_hp",
+					"effectId": "modify_unit_power",
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "all_allies"
 				}
@@ -780,19 +780,19 @@
 		{
 			"id": "protective_cover",
 			"name": "Protective Cover",
-			"description": "Increases the max HP of the ally to the left by {amount}.",
+			"description": "Increases the power of the ally to the left by {amount}.",
 			"categories": [
 				"aura",
 				"support",
-				"defensive"
+				"offensive"
 			],
 			"effects": [
 				{
 					"effectId": "modify_stat_passive",
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "ally_left",
-					"attribute": "maxHp",
-					"amount": 30
+					"attribute": "power",
+					"amount": 15
 				}
 			]
 		},
@@ -978,7 +978,7 @@
 		{
 			"id": "time_stop",
 			"name": "Time Stop",
-			"description": "On low HP, freezes all enemies for {duration}ms.",
+			"description": "When morale is low, freezes all enemies for {duration}ms.",
 			"categories": [
 				"defensive",
 				"time_control"
@@ -986,11 +986,11 @@
 			"effects": [
 				{
 					"effectId": "freeze_all_enemies",
-					"eventTrigger": "onLowHp",
+					"eventTrigger": "onLowMorale",
 					"duration": 1500,
 					"conditions": [
 						{
-							"type": "hp_below_percent",
+							"type": "morale_below_percent",
 							"value": 30
 						}
 					]
