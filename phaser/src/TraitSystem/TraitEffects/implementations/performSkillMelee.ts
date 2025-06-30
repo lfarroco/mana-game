@@ -10,7 +10,7 @@ import { TraitEffectFn, TraitEffectContext } from "../../TraitEffectSystem";
  */
 export function performSkillMeleeLogic(context: TraitEffectContext): Promise<void> {
 	const { sourceUnit, scene } = context;
-	
+
 	// We'll use dynamic import to avoid circular dependencies in tests
 	return import("../../../Systems/Chara/Skills/slash")
 		.then(({ slash }) => slash(scene, sourceUnit));

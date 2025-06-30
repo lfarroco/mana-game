@@ -9,55 +9,55 @@ import { TraitEffectContext, TraitEffectFn } from "../../TraitEffectSystem";
 import { getEffectParams } from "../../TraitSystem.pure";
 
 export interface TraitSniperLogicParams {
-  amount: number;
+	amount: number;
 }
 
 export interface TraitSniperLogicState {
-  sourceUnit: Unit;
-  boardHeightInTiles?: number;
+	sourceUnit: Unit;
+	boardHeightInTiles?: number;
 }
 
 /**
  * Pure function to determine if a unit is in the back row and should receive sniper bonus
  */
 export function traitSniperLogic(
-  params: TraitSniperLogicParams,
-  state: TraitSniperLogicState
+	params: TraitSniperLogicParams,
+	state: TraitSniperLogicState
 ): { shouldApplyBonus: boolean; attackBonus: number } {
-  const { amount } = params;
-  const { sourceUnit, boardHeightInTiles = 3 } = state;
+	const { amount } = params;
+	const { sourceUnit, boardHeightInTiles = 3 } = state;
 
-  let isBackRow = false;
+	let isBackRow = false;
 
-  if (sourceUnit.force === playerForce.id) {
-    isBackRow = sourceUnit.position.y === boardHeightInTiles - 1;
-  } else {
-    isBackRow = sourceUnit.position.y === 0;
-  }
+	if (sourceUnit.force === playerForce.id) {
+		isBackRow = sourceUnit.position.y === boardHeightInTiles - 1;
+	} else {
+		isBackRow = sourceUnit.position.y === 0;
+	}
 
-  return {
-    shouldApplyBonus: isBackRow,
-    attackBonus: amount
-  };
+	return {
+		shouldApplyBonus: isBackRow,
+		attackBonus: amount
+	};
 }
 
 /**
  * Runtime wrapper for trait sniper effect
  */
 export const traitSniper: TraitEffectFn = async (context: TraitEffectContext) => {
-  const { getChara } = await import("../../../Scenes/Battleground/Systems/CharaManager");
-  
-  const { sourceUnit } = context;
-  const amount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 10);
+	const { getChara } = await import("../../../Scenes/Battleground/Systems/CharaManager");
 
-  const result = traitSniperLogic(
-    { amount },
-    { sourceUnit }
-  );
+	const { sourceUnit } = context;
+	const amount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 10);
 
-  if (result.shouldApplyBonus) {
-    const chara = getChara(sourceUnit.id);
-    if (!chara) return;
-    await chara.updateUnitAttribute("power", result.attackBonus);
-  }
+	const result = traitSniperLogic(
+		{ amount },
+		{ sourceUnit }
+	);
+
+	if (result.shouldApplyBonus) {
+		const chara = getChara(sourceUnit.id);
+		if (!chara) return;
+		await chara.updateUnitAttribute("power", result.attackBonus);
+	}
 };

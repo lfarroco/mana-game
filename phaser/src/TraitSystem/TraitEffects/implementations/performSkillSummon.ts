@@ -14,20 +14,20 @@ import { getEffectParams } from "../../TraitSystem.pure";
  * Requires `cardIdToSummon` parameter from trait/effect data.
  */
 export function performSkillSummonLogic(context: TraitEffectContext): {
-  sourceUnit: Unit;
-  scene: BattlegroundScene;
-  cardIdToSummon: string;
-  shouldExecute: boolean;
+	sourceUnit: Unit;
+	scene: BattlegroundScene;
+	cardIdToSummon: string;
+	shouldExecute: boolean;
 } {
-  const { sourceUnit, scene } = context;
-  const cardIdToSummon = getEffectParams(context.traitInstanceParams, context.effectInstance, 'cardIdToSummon', '');
-  
-  return {
-    sourceUnit,
-    scene,
-    cardIdToSummon,
-    shouldExecute: !!cardIdToSummon
-  };
+	const { sourceUnit, scene } = context;
+	const cardIdToSummon = getEffectParams(context.traitInstanceParams, context.effectInstance, 'cardIdToSummon', '');
+
+	return {
+		sourceUnit,
+		scene,
+		cardIdToSummon,
+		shouldExecute: !!cardIdToSummon
+	};
 }
 
 /**
@@ -35,21 +35,21 @@ export function performSkillSummonLogic(context: TraitEffectContext): {
  * Handles actual skill execution with proper async handling.
  */
 export const performSkillSummon: TraitEffectFn = async (context) => {
-  const { sourceUnit, cardIdToSummon, shouldExecute } = performSkillSummonLogic(context);
-  
-  if (!shouldExecute) {
-    console.warn(`Summon effect: Chara for sourceUnit ${sourceUnit.id} not found, or cardIdToSummon missing. Card ID: ${cardIdToSummon}`);
-    return;
-  }
-  
-  // Dynamic import to avoid circular dependencies in tests
-  const { getChara } = await import("../../../Scenes/Battleground/Systems/CharaManager");
-  const { summon } = await import("../../../Systems/Chara/Skills/summon");
-  
-  const chara = getChara(sourceUnit.id);
-  if (chara) {
-    await summon(chara, cardIdToSummon);
-  } else {
-    console.warn(`Summon effect: Chara for sourceUnit ${sourceUnit.id} not found, or cardIdToSummon missing. Card ID: ${cardIdToSummon}`);
-  }
+	const { sourceUnit, cardIdToSummon, shouldExecute } = performSkillSummonLogic(context);
+
+	if (!shouldExecute) {
+		console.warn(`Summon effect: Chara for sourceUnit ${sourceUnit.id} not found, or cardIdToSummon missing. Card ID: ${cardIdToSummon}`);
+		return;
+	}
+
+	// Dynamic import to avoid circular dependencies in tests
+	const { getChara } = await import("../../../Scenes/Battleground/Systems/CharaManager");
+	const { summon } = await import("../../../Systems/Chara/Skills/summon");
+
+	const chara = getChara(sourceUnit.id);
+	if (chara) {
+		await summon(chara, cardIdToSummon);
+	} else {
+		console.warn(`Summon effect: Chara for sourceUnit ${sourceUnit.id} not found, or cardIdToSummon missing. Card ID: ${cardIdToSummon}`);
+	}
 };

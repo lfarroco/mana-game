@@ -14,18 +14,18 @@ import { getEffectParams } from "../../TraitSystem.pure";
  * Can take `projectiles` parameter from trait/effect data.
  */
 export function performSkillArcaneMissilesLogic(context: TraitEffectContext): {
-  sourceUnit: Unit;
-  scene: BattlegroundScene;
-  projectiles: number;
+	sourceUnit: Unit;
+	scene: BattlegroundScene;
+	projectiles: number;
 } {
-  const { sourceUnit, scene } = context;
-  const projectiles = getEffectParams(context.traitInstanceParams, context.effectInstance, 'projectiles', 3);
-  
-  return {
-    sourceUnit,
-    scene,
-    projectiles
-  };
+	const { sourceUnit, scene } = context;
+	const projectiles = getEffectParams(context.traitInstanceParams, context.effectInstance, 'projectiles', 3);
+
+	return {
+		sourceUnit,
+		scene,
+		projectiles
+	};
 }
 
 /**
@@ -33,10 +33,10 @@ export function performSkillArcaneMissilesLogic(context: TraitEffectContext): {
  * Handles actual skill execution with proper async handling.
  */
 export const performSkillArcaneMissiles: TraitEffectFn = async (context) => {
-  const { sourceUnit, scene, projectiles } = performSkillArcaneMissilesLogic(context);
-  
-  // Dynamic import to avoid circular dependencies in tests
-  const { arcaneMissiles } = await import("../../../Systems/Chara/Skills/arcaneMissiles");
-  
-  await arcaneMissiles(scene)(sourceUnit, projectiles);
+	const { sourceUnit, scene, projectiles } = performSkillArcaneMissilesLogic(context);
+
+	// Dynamic import to avoid circular dependencies in tests
+	const { arcaneMissiles } = await import("../../../Systems/Chara/Skills/arcaneMissiles");
+
+	await arcaneMissiles(scene)(sourceUnit, projectiles);
 };
