@@ -12,16 +12,7 @@ import { getEffectParams } from "../TraitSystem.pure"; // Use our tested pure fu
 import { GameEvents } from "../../constants/events";
 import { playerForce, manipulateForceMoreale } from "../../Models/Entities/Force";
 import { getChara } from "../../Scenes/Battleground/Systems/CharaManager";
-import { slash } from "../../Systems/Chara/Skills/slash";
-import { healing } from "../../Systems/Chara/Skills/healing";
-import { healingWave } from "../../Systems/Chara/Skills/healingWave";
-import { arcaneMissiles } from "../../Systems/Chara/Skills/arcaneMissiles";
-import { haste } from "../../Systems/Chara/Skills/haste";
-import { slow } from "../../Systems/Chara/Skills/slow";
-import { summon } from "../../Systems/Chara/Skills/summon";
 import { Unit } from "../../Models/Entities/Unit";
-import { fireball as fireballSkillFn } from "../../Systems/Chara/Skills/fireball";
-import { shoot as shootSkillFn } from "../../Systems/Chara/Skills/shoot";
 import { TraitEffectFn, TraitEffectContext } from "../TraitEffectSystem";
 import { pickRandom, devlog } from "../../utils";
 import { impactEffect } from "../../Effects";
@@ -30,7 +21,7 @@ import { Chara } from "../../Systems/Chara/Chara";
 import { applyStatusEffect } from "../../Systems/StatusEffects/StatusEffectManager";
 
 // Import extracted implementations
-import { dealDamageLogic, grantGoldLogic, restoreForceMoraleLogic, reduceEnemyMoraleLogic, guildWideDamageLogic, boostAllyDamageLogic, hasteAllAlliesLogic, applyPoisonToEnemiesLogic, slowAllEnemies, traitSniper } from "./implementations/index";
+import { dealDamageLogic, grantGoldLogic, restoreForceMoraleLogic, reduceEnemyMoraleLogic, guildWideDamageLogic, boostAllyDamageLogic, hasteAllAlliesLogic, applyPoisonToEnemiesLogic, slowAllEnemies, traitSniper, performSkillMelee, performSkillShoot, performSkillHeal, performSkillHealingWave, performSkillArcaneMissiles, performSkillHaste, performSkillSlow, performSkillFireball, performSkillSummon } from "./implementations/index";
 
 // ===== HELPER FUNCTIONS TO REDUCE REPETITION =====
 
@@ -242,59 +233,44 @@ function createGuildWideEnemyEffect(effectLogic: (targets: Unit[], context: Trai
 /**
  * Effect: Makes the source unit perform the "slash" skill.
  */
-const performSkillMeleeLogic: TraitEffectFn = createSkillEffect(slash);
-
-/**
- * Effect: Makes the source unit perform the "shoot" skill.
- */
-const performSkillShootLogic: TraitEffectFn = createParameterizedSkillEffect(shootSkillFn);
+// performSkillMeleeLogic implementation moved to ./implementations/performSkillMelee.ts
 
 /**
  * Effect: Makes the source unit perform the "heal" skill.
  */
-const performSkillHealLogic: TraitEffectFn = createParameterizedSkillEffect(healing);
+// performSkillHealLogic implementation moved to ./implementations/performSkillHeal.ts
 
 /**
  * Effect: Makes the source unit perform the "healing wave" skill.
  */
-const performSkillHealingWaveLogic: TraitEffectFn = createSkillEffect(healingWave);
+// performSkillHealingWaveLogic implementation moved to ./implementations/performSkillHealingWave.ts
 
 /**
  * Effect: Makes the source unit perform the "arcane missiles" skill.
  * Can take `projectiles` parameter from trait/effect data.
  */
-const performSkillArcaneMissilesLogic: TraitEffectFn = createParameterizedSkillEffect(arcaneMissiles, 'projectiles', 3);
+// performSkillArcaneMissilesLogic implementation moved to ./implementations/performSkillArcaneMissiles.ts
 
 /**
  * Effect: Makes the source unit perform the "haste" skill.
  */
-const performSkillHasteLogic: TraitEffectFn = createSkillEffect(haste);
+// performSkillHasteLogic implementation moved to ./implementations/performSkillHaste.ts
 
 /**
  * Effect: Makes the source unit perform the "slow" skill.
  */
-const performSkillSlowLogic: TraitEffectFn = createSkillEffect(slow);
+// performSkillSlowLogic implementation moved to ./implementations/performSkillSlow.ts
 
 /**
  * Effect: Makes the source unit perform the "fireball" skill.
  */
-const performSkillFireballLogic: TraitEffectFn = createParameterizedSkillEffect(fireballSkillFn);
+// performSkillFireballLogic implementation moved to ./implementations/performSkillFireball.ts
 
 /**
  * Effect: Makes the source unit perform the "summon" skill.
  * Requires `cardIdToSummon` parameter from trait/effect data.
  */
-const performSkillSummonLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit } = context;
-	const cardIdToSummon = getEffectParams(context.traitInstanceParams, context.effectInstance, 'cardIdToSummon', '');
-	const chara = getChara(sourceUnit.id);
-
-	if (chara && cardIdToSummon) {
-		await summon(chara, cardIdToSummon);
-	} else {
-		console.warn(`Summon effect: Chara for sourceUnit ${sourceUnit.id} not found, or cardIdToSummon missing. Card ID: ${cardIdToSummon}`);
-	}
-};
+// performSkillSummonLogic implementation moved to ./implementations/performSkillSummon.ts
 
 const positionalBonusLogic: TraitEffectFn = async (context) => {
 	const { sourceUnit, effectInstance, traitInstanceParams } = context;
@@ -672,15 +648,15 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("trait_sniper", traitSniper);
 
 	// Skill-based effects
-	registerTraitEffectImplementation("skill_melee", performSkillMeleeLogic);
-	registerTraitEffectImplementation("skill_shoot", performSkillShootLogic);
-	registerTraitEffectImplementation("skill_heal", performSkillHealLogic);
-	registerTraitEffectImplementation("skill_healing_wave", performSkillHealingWaveLogic);
-	registerTraitEffectImplementation("skill_arcane_missiles", performSkillArcaneMissilesLogic);
-	registerTraitEffectImplementation("skill_haste", performSkillHasteLogic);
-	registerTraitEffectImplementation("skill_slow", performSkillSlowLogic);
-	registerTraitEffectImplementation("skill_summon", performSkillSummonLogic);
-	registerTraitEffectImplementation("skill_fireball", performSkillFireballLogic);
+	registerTraitEffectImplementation("skill_melee", performSkillMelee);
+	registerTraitEffectImplementation("skill_shoot", performSkillShoot);
+	registerTraitEffectImplementation("skill_heal", performSkillHeal);
+	registerTraitEffectImplementation("skill_healing_wave", performSkillHealingWave);
+	registerTraitEffectImplementation("skill_arcane_missiles", performSkillArcaneMissiles);
+	registerTraitEffectImplementation("skill_haste", performSkillHaste);
+	registerTraitEffectImplementation("skill_slow", performSkillSlow);
+	registerTraitEffectImplementation("skill_summon", performSkillSummon);
+	registerTraitEffectImplementation("skill_fireball", performSkillFireball);
 	registerTraitEffectImplementation("positional_bonus", positionalBonusLogic);
 	registerTraitEffectImplementation("increase_force_max_morale", increaseForceMaxMoraleLogic);
 	registerTraitEffectImplementation("modify_stat_passive", modifyStatPassiveLogic);
