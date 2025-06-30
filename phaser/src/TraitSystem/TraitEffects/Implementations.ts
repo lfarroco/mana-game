@@ -2,6 +2,19 @@
  * @file Contains the actual implementations for various trait effects.
  * Each function defined here corresponds to an `effectId` that can be used
  * in `TraitDefinition`s. These functions are registered with the `TraitEffectSystem`.
+ * 
+ * NOTE: HP-based traits have been removed as the game no longer uses HP mechanics.
+ * Removed traits include:
+ * - "temporary_hp_boost" (temporary HP increase)
+ * - "damage_scales_with_missing_hp" (berserker rage based on missing HP)
+ * - "sacrifice_hp_for_damage" (reckless abandon trading HP for power)
+ * - "source_hp_below_percent" condition (HP threshold checks)
+ * 
+ * Alternative mechanics can focus on:
+ * - Time-based effects (duration, cooldowns)
+ * - Position-based bonuses (formation strategy)
+ * - Resource management (morale, gold)
+ * - Turn-based mechanics (action economy)
  */
 import { registerTraitEffectImplementation } from "../TraitEffectSystem";
 import { GameEvents } from "../../constants/events";
@@ -150,7 +163,7 @@ async function applyDamageOverTime(
 				scene.time.addEvent({
 					delay: tickInterval * (i + 1),
 					callback: async () => {
-						if (chara && target.hp > 0) {
+						if (chara) {
 							await chara.showPopText(`-${damagePerTick} ${effectName}`, "damage");
 							chara.unitHit(damagePerTick);
 						}
@@ -443,11 +456,6 @@ const modifyStatPassiveLogic: TraitEffectFn = async (context) => {
  */
 const increasePowerLogic: TraitEffectFn = createAttributeModificationEffect('power', false);
 
-/**
- * Effect: Temporarily increases HP of targets
- */
-const temporaryHpBoostLogic: TraitEffectFn = createAttributeModificationEffect('hp', true);
-
 const splashDamageToRandomAdjacentAllyLogic: TraitEffectFn = async (context) => {
 	const { sourceUnit, effectInstance, traitInstanceParams, scene } = context;
 	const percent = (traitInstanceParams.percent ?? effectInstance.percent ?? 50) as number;
@@ -544,46 +552,6 @@ const freezeAllEnemiesLogic: TraitEffectFn = async (context) => {
 				}
 			});
 		}
-	}
-};
-
-/**
- * Effect: Damage scales with missing HP (berserker rage)
- */
-const damageScalesWithMissingHpLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, effectInstance, traitInstanceParams } = context;
-	const damagePerMissingHp = (traitInstanceParams.damage_per_missing_hp ?? effectInstance.damage_per_missing_hp ?? 2) as number;
-	const hpThreshold = (traitInstanceParams.hp_threshold ?? effectInstance.hp_threshold ?? 10) as number;
-
-	const missingHp = sourceUnit.maxHp - sourceUnit.hp;
-	const bonusDamage = Math.floor(missingHp / hpThreshold) * damagePerMissingHp;
-
-	if (bonusDamage > 0) {
-		const chara = getChara(sourceUnit.id);
-		if (chara) {
-			await chara.updateUnitAttribute("power", bonusDamage);
-			await chara.showPopText(`+${bonusDamage} Rage!`);
-		}
-	}
-};
-
-/**
- * Effect: Sacrifice HP for damage (reckless abandon)
- */
-const sacrificeHpForDamageLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, effectInstance, traitInstanceParams } = context;
-	const hpLoss = (traitInstanceParams.hp_loss ?? effectInstance.hp_loss ?? 8) as number;
-	const damageBonus = (traitInstanceParams.damage_bonus ?? effectInstance.damage_bonus ?? 4) as number;
-
-	const chara = getChara(sourceUnit.id);
-	if (chara && sourceUnit.hp > hpLoss) {
-		// Reduce max HP and current HP
-		sourceUnit.maxHp = Math.max(1, sourceUnit.maxHp - hpLoss);
-		sourceUnit.hp = Math.min(sourceUnit.hp - hpLoss, sourceUnit.maxHp);
-
-		// Increase damage
-		await chara.updateUnitAttribute("power", damageBonus);
-		await chara.showPopText(`Reckless! +${damageBonus} Dmg`);
 	}
 };
 
@@ -745,6 +713,47 @@ const reduceAllyDamageTakenLogic: TraitEffectFn = async (context) => {
 };
 
 /**
+ * Effect: Damage scales with time in battle (growing fury)
+ * Alternative to HP-based berserker rage
+ */
+const damageScalesWithTimeLogic: TraitEffectFn = async (context) => {
+	const { sourceUnit, effectInstance, traitInstanceParams, scene } = context;
+	const damagePerSecond = getEffectParams(traitInstanceParams, effectInstance, 'damage_per_second', 1);
+	const timeInBattle = scene.time.now / 1000; // Convert to seconds
+
+	const bonusDamage = Math.floor(timeInBattle * damagePerSecond);
+
+	if (bonusDamage > 0) {
+		const chara = getChara(sourceUnit.id);
+		if (chara) {
+			await chara.updateUnitAttribute("power", bonusDamage);
+			await chara.showPopText(`+${bonusDamage} Fury!`);
+		}
+	}
+};
+
+/**
+ * Effect: Sacrifice cooldown for damage (reckless haste)
+ * Alternative to HP sacrifice - trades action speed for power
+ */
+const sacrificeCooldownForDamageLogic: TraitEffectFn = async (context) => {
+	const { sourceUnit, effectInstance, traitInstanceParams } = context;
+	const cooldownIncrease = getEffectParams(traitInstanceParams, effectInstance, 'cooldown_increase', 500);
+	const damageBonus = getEffectParams(traitInstanceParams, effectInstance, 'damage_bonus', 8);
+
+	const chara = getChara(sourceUnit.id);
+	if (chara) {
+		// Increase cooldown (slower actions)
+		sourceUnit.cooldown += cooldownIncrease;
+
+		// Increase damage
+		await chara.updateUnitAttribute("power", damageBonus);
+		await chara.showPopText(`Reckless! +${damageBonus} Dmg`);
+	}
+};
+
+// ===== EFFECT REGISTRATIONS =====
+/**
  * Registers all defined trait effect implementations with the TraitEffectSystem.
  * This function should be called once during game initialization.
  */
@@ -775,8 +784,6 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("haste_all_allies", hasteAllAlliesLogic);
 	registerTraitEffectImplementation("slow_all_enemies", slowAllEnemiesLogic);
 	registerTraitEffectImplementation("freeze_all_enemies", freezeAllEnemiesLogic);
-	registerTraitEffectImplementation("damage_scales_with_missing_hp", damageScalesWithMissingHpLogic);
-	registerTraitEffectImplementation("sacrifice_hp_for_damage", sacrificeHpForDamageLogic);
 	registerTraitEffectImplementation("stun_all_enemies", stunAllEnemiesLogic);
 	registerTraitEffectImplementation("area_damage_enemies", areaDamageEnemiesLogic);
 	registerTraitEffectImplementation("reduce_enemy_damage_global", reduceEnemyDamageGlobalLogic);
@@ -788,8 +795,14 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("fortress_mode_passive", fortressModePassiveLogic);
 	registerTraitEffectImplementation("reduce_ally_damage_taken", reduceAllyDamageTakenLogic);
 
+	// Alternative mechanics (replacing removed HP-based traits)
+	registerTraitEffectImplementation("damage_scales_with_time", damageScalesWithTimeLogic);
+	registerTraitEffectImplementation("sacrifice_cooldown_for_damage", sacrificeCooldownForDamageLogic);
+
 	// Simple attribute modification effects (using the helper factory)
 	registerTraitEffectImplementation("increase_power", increasePowerLogic);
-	registerTraitEffectImplementation("temporary_hp_boost", temporaryHpBoostLogic);
 
+	// Alternative effects replacing HP-based traits
+	registerTraitEffectImplementation("damage_scales_with_time", damageScalesWithTimeLogic);
+	registerTraitEffectImplementation("sacrifice_cooldown_for_damage", sacrificeCooldownForDamageLogic);
 }
