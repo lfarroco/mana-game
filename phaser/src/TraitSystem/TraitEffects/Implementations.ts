@@ -21,7 +21,7 @@ import { Chara } from "../../Systems/Chara/Chara";
 import { applyStatusEffect } from "../../Systems/StatusEffects/StatusEffectManager";
 
 // Import extracted implementations
-import { dealDamageLogic, grantGoldLogic, restoreForceMoraleLogic, reduceEnemyMoraleLogic, guildWideDamageLogic, boostAllyDamageLogic, hasteAllAlliesLogic, applyPoisonToEnemiesLogic, slowAllEnemies, traitSniper, performSkillMelee, performSkillShoot, performSkillHeal, performSkillHealingWave, performSkillArcaneMissiles, performSkillHaste, performSkillSlow, performSkillFireball, performSkillSummon } from "./implementations/index";
+import * as implementations from "./implementations/index";
 
 // ===== HELPER FUNCTIONS TO REDUCE REPETITION =====
 
@@ -596,39 +596,39 @@ const moraleDamageReductionLogic: TraitEffectFn = async (context) => {
  * This function should be called once during game initialization.
  */
 export function registerAllTraitEffects() {
-	registerTraitEffectImplementation("grant_gold_to_player", grantGoldLogic);
-	registerTraitEffectImplementation("deal_damage", dealDamageLogic);
+	registerTraitEffectImplementation("grant_gold_to_player", implementations.grantGoldLogic);
+	registerTraitEffectImplementation("deal_damage", implementations.dealDamageLogic);
 
 	// Trait-based effects
-	registerTraitEffectImplementation("trait_sniper", traitSniper);
+	registerTraitEffectImplementation("trait_sniper", implementations.traitSniper);
 
 	// Skill-based effects
-	registerTraitEffectImplementation("skill_melee", performSkillMelee);
-	registerTraitEffectImplementation("skill_shoot", performSkillShoot);
-	registerTraitEffectImplementation("skill_heal", performSkillHeal);
-	registerTraitEffectImplementation("skill_healing_wave", performSkillHealingWave);
-	registerTraitEffectImplementation("skill_arcane_missiles", performSkillArcaneMissiles);
-	registerTraitEffectImplementation("skill_haste", performSkillHaste);
-	registerTraitEffectImplementation("skill_slow", performSkillSlow);
-	registerTraitEffectImplementation("skill_summon", performSkillSummon);
-	registerTraitEffectImplementation("skill_fireball", performSkillFireball);
+	registerTraitEffectImplementation("skill_melee", implementations.performSkillMelee);
+	registerTraitEffectImplementation("skill_shoot", implementations.performSkillShoot);
+	registerTraitEffectImplementation("skill_heal", implementations.performSkillHeal);
+	registerTraitEffectImplementation("skill_healing_wave", implementations.performSkillHealingWave);
+	registerTraitEffectImplementation("skill_arcane_missiles", implementations.performSkillArcaneMissiles);
+	registerTraitEffectImplementation("skill_haste", implementations.performSkillHaste);
+	registerTraitEffectImplementation("skill_slow", implementations.performSkillSlow);
+	registerTraitEffectImplementation("skill_summon", implementations.performSkillSummon);
+	registerTraitEffectImplementation("skill_fireball", implementations.performSkillFireball);
 	registerTraitEffectImplementation("positional_bonus", positionalBonusLogic);
 	registerTraitEffectImplementation("increase_force_max_morale", increaseForceMaxMoraleLogic);
 	registerTraitEffectImplementation("modify_stat_passive", modifyStatPassiveLogic);
 	registerTraitEffectImplementation("splash_damage_to_random_adjacent_ally", splashDamageToRandomAdjacentAllyLogic);
-	registerTraitEffectImplementation("restore_force_morale", restoreForceMoraleLogic);
-	registerTraitEffectImplementation("reduce_enemy_morale", reduceEnemyMoraleLogic);
-	registerTraitEffectImplementation("boost_ally_damage", boostAllyDamageLogic);
-	registerTraitEffectImplementation("haste_all_allies", hasteAllAlliesLogic);
-	registerTraitEffectImplementation("slow_all_enemies", slowAllEnemies);
+	registerTraitEffectImplementation("restore_force_morale", implementations.restoreForceMoraleLogic);
+	registerTraitEffectImplementation("reduce_enemy_morale", implementations.reduceEnemyMoraleLogic);
+	registerTraitEffectImplementation("boost_ally_damage", implementations.boostAllyDamageLogic);
+	registerTraitEffectImplementation("haste_all_allies", implementations.hasteAllAlliesLogic);
+	registerTraitEffectImplementation("slow_all_enemies", implementations.slowAllEnemies);
 	registerTraitEffectImplementation("freeze_all_enemies", freezeAllEnemiesLogic);
 	registerTraitEffectImplementation("stun_all_enemies", stunAllEnemiesLogic);
-	registerTraitEffectImplementation("guild_wide_damage", guildWideDamageLogic);
+	registerTraitEffectImplementation("guild_wide_damage", implementations.guildWideDamageLogic);
 	registerTraitEffectImplementation("reduce_enemy_damage_global", reduceEnemyDamageGlobalLogic);
 	registerTraitEffectImplementation("grant_morale_to_allies", grantMoraleToAlliesLogic);
 	registerTraitEffectImplementation("cleanse_ally_debuffs", cleanseAllyDebuffsLogic);
 	registerTraitEffectImplementation("chance_to_dodge", chanceToDodgeLogic);
-	registerTraitEffectImplementation("apply_poison_to_enemies", applyPoisonToEnemiesLogic);
+	registerTraitEffectImplementation("apply_poison_to_enemies", implementations.applyPoisonToEnemiesLogic);
 	registerTraitEffectImplementation("reduce_enemy_damage", reduceEnemyDamageLogic);
 	registerTraitEffectImplementation("fortress_mode_passive", fortressModePassiveLogic);
 	registerTraitEffectImplementation("reduce_ally_damage_taken", reduceAllyDamageTakenLogic);
