@@ -2,7 +2,7 @@ import { CardDefinition } from "../../Models/Entities/Card";
 import { cpuForce } from "../../Models/Entities/Force";
 import { vec2 } from "../../Models/Geometry";
 import { makeUnit } from "../../Models/Entities/Unit";
-import { pickOne } from "../../utils";
+import { pickOne, devlog } from "../../utils";
 import { getState } from "../../Models/State";
 import { applyStatusEffect } from "../../Systems/StatusEffects/StatusEffectManager";
 
@@ -164,7 +164,7 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 		playerState.lossStreak
 	);
 
-	console.log(`Generating enemy team for Round ${round}, Prestige ${playerState.prestige}, Tier ${difficultyTier}. Size: ${enemyTeamSize}, Overflow: ${powerBudgetOverflow.toFixed(2)}`);
+	devlog(`Generating enemy team for Round ${round}, Prestige ${playerState.prestige}, Tier ${difficultyTier}. Size: ${enemyTeamSize}, Overflow: ${powerBudgetOverflow.toFixed(2)}`);
 
 	// Get formations for the current team size
 	let availableTemplates = FORMATION_TEMPLATES[enemyTeamSize];
@@ -248,7 +248,7 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 					unit.hp = unit.maxHp; // Restore HP to new max
 					unit.power = Math.floor(unit.power * 1.10); // +10% Attack
 				});
-				console.log("Applied Elite tier stat buffs to enemy team.");
+				devlog("Applied Elite tier stat buffs to enemy team.");
 				if (powerBudgetOverflow >= 0.5) {
 					const randomUnit = pickOne(units);
 					// Apply haste status effect instead of direct field manipulation
@@ -258,7 +258,7 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 						cooldownMultiplier: 0.5,
 						displayName: 'Hasted'
 					});
-					console.log(`Elite tier: ${randomUnit.name} gained 3s of haste.`);
+					devlog(`Elite tier: ${randomUnit.name} gained 3s of haste.`);
 				}
 				break;
 			case DifficultyTier.Veteran:
@@ -267,11 +267,11 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 					unit.hp = unit.maxHp; // Restore HP to new max
 					unit.power = Math.floor(unit.power * 1.05); // +5% Attack
 				});
-				console.log("Applied Veteran tier stat buffs to enemy team.");
+				devlog("Applied Veteran tier stat buffs to enemy team.");
 				if (powerBudgetOverflow >= 0.3) {
 					const randomUnit = pickOne(units);
 					randomUnit.crit += 5; // +5% crit chance
-					console.log(`Veteran tier: ${randomUnit.name} gained +5% crit chance.`);
+					devlog(`Veteran tier: ${randomUnit.name} gained +5% crit chance.`);
 				}
 				break;
 			case DifficultyTier.Challenger:
@@ -279,15 +279,15 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 					unit.maxHp = Math.floor(unit.maxHp * 1.05); // +5% HP
 					unit.hp = unit.maxHp; // Restore HP to new max
 				});
-				console.log("Applied Challenger tier stat buffs to enemy team.");
+				devlog("Applied Challenger tier stat buffs to enemy team.");
 				if (powerBudgetOverflow >= 0.7) {
 					const randomUnit = pickOne(units);
 					randomUnit.power = Math.floor(randomUnit.power * 1.05); // +5% Attack
-					console.log(`Challenger tier: ${randomUnit.name} gained +5% attack.`);
+					devlog(`Challenger tier: ${randomUnit.name} gained +5% attack.`);
 				}
 				break;
 			default:
-				console.log("No specific difficulty tier buffs applied.");
+				devlog("No specific difficulty tier buffs applied.");
 				break;
 		}
 	}

@@ -9,6 +9,7 @@ import * as BG_CONSTANTS from "../battlegroundConstants";
 import { GameEvents } from "../../../constants/events";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { getOption } from "../../../Models/OptionsStore";
+import { devlog } from "../../../utils";
 
 let runtimeDataInitialized = false;
 
@@ -21,9 +22,7 @@ export class BattlegroundSetupSystem {
 
 	performOneTimeRuntimeInitialization(collection: CardCollection): void {
 		if (!runtimeDataInitialized) {
-			if (process.env.NODE_ENV === 'development') {
-				console.log("Performing one-time runtime data initialization.");
-			}
+			devlog("Performing one-time runtime data initialization.");
 			registerCollection(collection);
 			TraitSystem.initializeTraitsFromData(collection.traits);
 			runtimeDataInitialized = true;
@@ -32,16 +31,14 @@ export class BattlegroundSetupSystem {
 
 	loadDynamicAssets = (collection: CardCollection): Promise<void> => new Promise((resolve) => {
 		const loadAsset = (asset: { name: string, pic: string }, type: string) => {
-			if (process.env.NODE_ENV === 'development') {
-				console.log(`Loading ${type} asset: ${asset.name} - ${asset.pic}`);
-			}
+			devlog(`Loading ${type} asset: ${asset.name} - ${asset.pic}`);
 			this.scene.load.image(asset.pic, asset.pic);
 		};
 
 		collection.cards.forEach(card => loadAsset(card, "card"));
 
 		this.scene.load.once("complete", () => {
-			console.log("Dynamic asset loading complete for BattlegroundScene.");
+			devlog("Dynamic asset loading complete for BattlegroundScene.");
 			resolve();
 		});
 

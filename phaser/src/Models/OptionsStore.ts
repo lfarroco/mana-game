@@ -116,5 +116,8 @@ function setGameSpeed(speed: number) {
 	});
 }
 
-//@ts-ignore
-window.settt = setGameSpeed
+// Debug helper - only exposed in development mode
+if (process.env.NODE_ENV === 'development') {
+	//@ts-ignore
+	window.setGameSpeed = setGameSpeed;
+}

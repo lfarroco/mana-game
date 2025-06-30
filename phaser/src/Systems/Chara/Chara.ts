@@ -11,6 +11,7 @@ import { CharaStatsDisplay } from "./CharaStatsDisplay";
 import { CharaBarsDisplay } from "./CharaBarsDisplay";
 import { GameEvents } from "../../constants/events";
 import { CharaInputHandler } from "./CharaInputHandler";
+import { devlog } from "../../utils";
 
 export type CharaOptions = {
 	isShopItem?: boolean;
@@ -274,7 +275,7 @@ export class Chara extends Phaser.GameObjects.Container {
 					this.showPopText(`-${damageReduced.toFixed(1)} Protected`, "heal");
 				}
 
-				console.log(`[Damage Reduction] ${this.unit.name} took ${finalDamage.toFixed(1)} damage instead of ${originalDamage} (${totalReduction}% reduction)`);
+				devlog(`[Damage Reduction] ${this.unit.name} took ${finalDamage.toFixed(1)} damage instead of ${originalDamage} (${totalReduction}% reduction)`);
 			}
 		}
 

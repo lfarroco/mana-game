@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { delay } from "../Utils/animation";
 import { images } from "../assets";
+import { HEALING_HIT_EFFECT_CONFIG } from "../constants/constants";
 
 export async function healingHitEffect(
 	scene: Phaser.Scene,
@@ -12,19 +13,19 @@ export async function healingHitEffect(
 		x, y,
 		images.white_dot.key,
 		{
-			speed: 50,
+			speed: HEALING_HIT_EFFECT_CONFIG.PARTICLE_SPEED,
 			//light green to golden tones
-			tint: [0x00ff00, 0x32cd32, 0x3cb371, 0x2e8b57, 0x228b22, 0x556b2f, 0x6b8e23, 0x8b4513, 0xcd853f, 0xdaa520, 0xffd700],
+			tint: HEALING_HIT_EFFECT_CONFIG.HEALING_COLORS,
 			lifespan: lifespan,
 			alpha: { start: 1, end: 0 },
-			scale: { start: 3, end: 0 },
+			scale: { start: HEALING_HIT_EFFECT_CONFIG.PARTICLE_SCALE_START, end: HEALING_HIT_EFFECT_CONFIG.PARTICLE_SCALE_END },
 			radial: true,
 			blendMode: 'ADD',
-			quantity: 5,
-			frequency: 100,
+			quantity: HEALING_HIT_EFFECT_CONFIG.PARTICLE_QUANTITY,
+			frequency: HEALING_HIT_EFFECT_CONFIG.PARTICLE_FREQUENCY,
 		});
 
-	await delay(scene, lifespan / 2);
+	await delay(scene, lifespan * HEALING_HIT_EFFECT_CONFIG.LIFESPAN_RATIO);
 
 	particles.stop();
 

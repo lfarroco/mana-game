@@ -37,7 +37,7 @@ export function follows(
 		follower.x = target.x;
 		follower.y = target.y;
 	};
-	
+
 	follower.scene.on('update', follow);
 	target.on('destroy', () => {
 		follower.scene.off('update', follow);
