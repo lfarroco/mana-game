@@ -7,6 +7,7 @@ export { dealDamageLogic, createDealDamageLogic } from './dealDamage';
 export { grantGoldLogic } from './grantGold';
 export { increaseForceMaxMoraleLogic } from './increaseForceMaxMorale';
 export { modifyStatPassiveLogic } from './modifyStatPassive';
+export { splashDamageToRandomAdjacentAllyLogic } from './splashDamageToRandomAdjacentAlly';
 export { restoreForceMoraleLogic, restoreForceMoralePure } from './restoreMorale';
 export { reduceEnemyMoraleLogic, reduceEnemyMoralePure } from './reduceEnemyMorale';
 export { guildWideDamageLogic, guildWideDamagePure } from './guildWideDamage';

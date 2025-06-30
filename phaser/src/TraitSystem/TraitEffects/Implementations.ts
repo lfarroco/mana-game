@@ -13,8 +13,7 @@ import { playerForce, manipulateForceMoreale } from "../../Models/Entities/Force
 import { getChara } from "../../Scenes/Battleground/Systems/CharaManager";
 import { Unit } from "../../Models/Entities/Unit";
 import { TraitEffectFn, TraitEffectContext } from "../TraitEffectSystem";
-import { pickRandom, devlog } from "../../utils";
-import { impactEffect } from "../../Effects";
+import { devlog } from "../../utils";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { Chara } from "../../Systems/Chara/Chara";
 import { applyStatusEffect } from "../../Systems/StatusEffects/StatusEffectManager";
@@ -234,25 +233,6 @@ function createGuildWideEnemyEffect(effectLogic: (targets: Unit[], context: Trai
  * Effect: Permanently increases power of targets
  */
 const increasePowerLogic: TraitEffectFn = createAttributeModificationEffect('power', false);
-
-const splashDamageToRandomAdjacentAllyLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit, effectInstance, traitInstanceParams, scene } = context;
-	const percent = (traitInstanceParams.percent ?? effectInstance.percent ?? 50) as number;
-	const damage = Math.floor(sourceUnit.power * (percent / 100));
-
-	if (damage <= 0) return;
-
-	if (context.targets.length > 0) {
-		const randomAlly = pickRandom(context.targets, 1)[0];
-		const chara = getChara(randomAlly.id);
-		const sourceChara = getChara(sourceUnit.id);
-		if (chara && sourceChara) {
-			await safeShowPopText(chara, `-${damage} Dmg`, "damage", scene);
-			chara.unitHit(damage);
-			impactEffect({ scene, location: chara, pointA: sourceChara, pointB: chara });
-		}
-	}
-};
 
 /**
  * Effect: Slows all enemies
@@ -527,7 +507,7 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("positional_bonus", implementations.positionalBonusLogic);
 	registerTraitEffectImplementation("increase_force_max_morale", implementations.increaseForceMaxMoraleLogic);
 	registerTraitEffectImplementation("modify_stat_passive", implementations.modifyStatPassiveLogic);
-	registerTraitEffectImplementation("splash_damage_to_random_adjacent_ally", splashDamageToRandomAdjacentAllyLogic);
+	registerTraitEffectImplementation("splash_damage_to_random_adjacent_ally", implementations.splashDamageToRandomAdjacentAllyLogic);
 	registerTraitEffectImplementation("restore_force_morale", implementations.restoreForceMoraleLogic);
 	registerTraitEffectImplementation("reduce_enemy_morale", implementations.reduceEnemyMoraleLogic);
 	registerTraitEffectImplementation("boost_ally_damage", implementations.boostAllyDamageLogic);
