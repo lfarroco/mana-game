@@ -64,11 +64,11 @@ export async function explodeEffect(
 	sparks.destroy();
 	energy.destroy();
 
-	await impactEffect({ 
-		scene, 
-		location: source, 
-		pointA: source, 
-		pointB: source 
+	await impactEffect({
+		scene,
+		location: source,
+		pointA: source,
+		pointB: source
 	});
 
 }

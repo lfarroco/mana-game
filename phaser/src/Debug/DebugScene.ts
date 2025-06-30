@@ -17,7 +17,7 @@ const EFFECT_REGISTRY: Record<string, EffectFactory> = {
 			repeat: -1
 		});
 	},
-	
+
 	criticaldamagedisplay: (scene) => {
 		scene.time.addEvent({
 			delay: 1200,
@@ -27,7 +27,7 @@ const EFFECT_REGISTRY: Record<string, EffectFactory> = {
 			repeat: -1
 		});
 	},
-	
+
 	energybeam: (scene) => {
 		const beam = new effects.EnergyBeam(scene, {
 			start: { x: 100, y: 100 },
@@ -52,7 +52,7 @@ const EFFECT_REGISTRY: Record<string, EffectFactory> = {
 			beam2.updateBeam();
 		});
 	},
-	
+
 	fireball: (scene) => {
 		scene.time.addEvent({
 			delay: 1200,
@@ -63,7 +63,7 @@ const EFFECT_REGISTRY: Record<string, EffectFactory> = {
 			repeat: -1
 		});
 	},
-	
+
 	glowingorb: (scene) => {
 		scene.time.addEvent({
 			delay: 1200,
@@ -76,7 +76,7 @@ const EFFECT_REGISTRY: Record<string, EffectFactory> = {
 			repeat: -1
 		});
 	},
-	
+
 	healinghiteffect: (scene) => {
 		scene.time.addEvent({
 			delay: 1200,
@@ -87,7 +87,7 @@ const EFFECT_REGISTRY: Record<string, EffectFactory> = {
 			repeat: -1
 		});
 	},
-	
+
 	impacteffect: (scene) => {
 		scene.time.addEvent({
 			delay: 1200,
@@ -98,7 +98,7 @@ const EFFECT_REGISTRY: Record<string, EffectFactory> = {
 			repeat: -1
 		});
 	},
-	
+
 	summoneffect: (scene) => {
 		scene.time.addEvent({
 			delay: 1200,
@@ -109,7 +109,7 @@ const EFFECT_REGISTRY: Record<string, EffectFactory> = {
 			repeat: -1
 		});
 	},
-	
+
 	explodeeffect: (scene) => {
 		scene.time.addEvent({
 			delay: 2500,
