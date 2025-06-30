@@ -2,6 +2,7 @@
 import Phaser from "phaser";
 import { Unit } from "../../Models/Entities/Unit";
 import * as constants from "../../constants/constants";
+import { CHARA_STATS_COLORS } from "../../constants/constants";
 
 export class CharaStatsDisplay {
 	scene: Phaser.Scene;
@@ -34,11 +35,11 @@ export class CharaStatsDisplay {
 		];
 		this.powerDisplayBg = this.scene.add.graphics();
 		const bgColorMap = {
-			damage: 0xff0000,
-			heal: 0x23a423,
-			armor: 0x666666,
+			damage: CHARA_STATS_COLORS.DAMAGE_BG,
+			heal: CHARA_STATS_COLORS.HEAL_BG,
+			armor: CHARA_STATS_COLORS.ARMOR_BG,
 		}
-		const bgColor = !this.unit.attackType ? 0x000000 : bgColorMap[this.unit.attackType];
+		const bgColor = !this.unit.attackType ? CHARA_STATS_COLORS.DEFAULT_BG : bgColorMap[this.unit.attackType];
 		this.powerDisplayBg
 			.fillStyle(bgColor, 1)
 			.fillRoundedRect(

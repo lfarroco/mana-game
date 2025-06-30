@@ -5,6 +5,7 @@ import { makeUnit } from "../../Models/Entities/Unit";
 import { pickOne, devlog } from "../../utils";
 import { getState } from "../../Models/State";
 import { applyStatusEffect } from "../../Systems/StatusEffects/StatusEffectManager";
+import { DIFFICULTY_TIER_CONFIG } from "../../constants/constants";
 
 /** Constants for team size and difficulty calculation */
 const BASE_ENEMY_COUNT = 2;
@@ -244,18 +245,18 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 		switch (difficultyTier) {
 			case DifficultyTier.Elite:
 				units.forEach(unit => {
-					unit.maxHp = Math.floor(unit.maxHp * 1.15); // +15% HP
+					unit.maxHp = Math.floor(unit.maxHp * DIFFICULTY_TIER_CONFIG.ELITE.HP_MULTIPLIER);
 					unit.hp = unit.maxHp; // Restore HP to new max
-					unit.power = Math.floor(unit.power * 1.10); // +10% Attack
+					unit.power = Math.floor(unit.power * DIFFICULTY_TIER_CONFIG.ELITE.POWER_MULTIPLIER);
 				});
 				devlog("Applied Elite tier stat buffs to enemy team.");
-				if (powerBudgetOverflow >= 0.5) {
+				if (powerBudgetOverflow >= DIFFICULTY_TIER_CONFIG.ELITE.OVERFLOW_THRESHOLD) {
 					const randomUnit = pickOne(units);
 					// Apply haste status effect instead of direct field manipulation
 					applyStatusEffect(randomUnit, {
 						type: 'haste',
-						remainingDuration: 3000,
-						cooldownMultiplier: 0.5,
+						remainingDuration: DIFFICULTY_TIER_CONFIG.ELITE.HASTE_DURATION,
+						cooldownMultiplier: DIFFICULTY_TIER_CONFIG.ELITE.HASTE_COOLDOWN_MULTIPLIER,
 						displayName: 'Hasted'
 					});
 					devlog(`Elite tier: ${randomUnit.name} gained 3s of haste.`);
@@ -263,26 +264,26 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 				break;
 			case DifficultyTier.Veteran:
 				units.forEach(unit => {
-					unit.maxHp = Math.floor(unit.maxHp * 1.10); // +10% HP
+					unit.maxHp = Math.floor(unit.maxHp * DIFFICULTY_TIER_CONFIG.VETERAN.HP_MULTIPLIER);
 					unit.hp = unit.maxHp; // Restore HP to new max
-					unit.power = Math.floor(unit.power * 1.05); // +5% Attack
+					unit.power = Math.floor(unit.power * DIFFICULTY_TIER_CONFIG.VETERAN.POWER_MULTIPLIER);
 				});
 				devlog("Applied Veteran tier stat buffs to enemy team.");
-				if (powerBudgetOverflow >= 0.3) {
+				if (powerBudgetOverflow >= DIFFICULTY_TIER_CONFIG.VETERAN.OVERFLOW_THRESHOLD) {
 					const randomUnit = pickOne(units);
-					randomUnit.crit += 5; // +5% crit chance
+					randomUnit.crit += DIFFICULTY_TIER_CONFIG.VETERAN.CRIT_BONUS;
 					devlog(`Veteran tier: ${randomUnit.name} gained +5% crit chance.`);
 				}
 				break;
 			case DifficultyTier.Challenger:
 				units.forEach(unit => {
-					unit.maxHp = Math.floor(unit.maxHp * 1.05); // +5% HP
+					unit.maxHp = Math.floor(unit.maxHp * DIFFICULTY_TIER_CONFIG.CHALLENGER.HP_MULTIPLIER);
 					unit.hp = unit.maxHp; // Restore HP to new max
 				});
 				devlog("Applied Challenger tier stat buffs to enemy team.");
-				if (powerBudgetOverflow >= 0.7) {
+				if (powerBudgetOverflow >= DIFFICULTY_TIER_CONFIG.CHALLENGER.OVERFLOW_THRESHOLD) {
 					const randomUnit = pickOne(units);
-					randomUnit.power = Math.floor(randomUnit.power * 1.05); // +5% Attack
+					randomUnit.power = Math.floor(randomUnit.power * DIFFICULTY_TIER_CONFIG.CHALLENGER.POWER_MULTIPLIER);
 					devlog(`Challenger tier: ${randomUnit.name} gained +5% attack.`);
 				}
 				break;
