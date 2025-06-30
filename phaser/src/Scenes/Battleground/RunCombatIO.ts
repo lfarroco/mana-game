@@ -6,6 +6,7 @@ import * as CharaManager from "./Systems/CharaManager";
 import { Unit } from "../../Models/Entities/Unit";
 import { GameEvents } from "../../constants/events";
 import { delay } from "../../Utils/animation";
+import { processStatusEffects, getCooldownMultiplier } from "../../Systems/StatusEffects/StatusEffectManager";
 
 /**
  * Represents the possible outcomes of a combat wave.
@@ -113,76 +114,14 @@ function chargeUnits(state: State, delta: number): Unit[] {
   for (const unit of activeUnits) {
     if (unit.hp <= 0) continue; // Should be redundant if getActiveUnits is used, but good for safety
 
-    // Process temporary effects
-    if (unit.temporaryEffects) {
-      unit.temporaryEffects = unit.temporaryEffects.filter(effect => {
-        effect.remainingDuration -= delta;
+    // Process status effects using the new unified system
+    processStatusEffects(unit, delta);
 
-        if (effect.remainingDuration <= 0) {
-          // Effect has expired, revert it
-          const chara = CharaManager.getChara(unit.id);
-          switch (effect.effectType) {
-            case 'attribute_modification':
-              if (effect.attribute && effect.amount !== undefined && chara) {
-                chara.updateUnitAttribute(effect.attribute, effect.amount);
-              }
-              break;
-            case 'cooldown_modification':
-              if (effect.originalCooldown !== undefined) {
-                unit.cooldown = effect.originalCooldown;
-              }
-              break;
-            case 'freeze':
-            case 'stun':
-              if (effect.originalCooldown !== undefined) {
-                unit.cooldown = effect.originalCooldown;
-              }
-              break;
-            case 'fury_scaling':
-              // Revert the fury scaling effect by subtracting the amount
-              if (effect.attribute === 'power' && effect.amount !== undefined) {
-                unit.power -= effect.amount;
-                if (chara) {
-                  chara.updatePowerDisplay();
-                }
-              }
-              break;
-            case 'poison_tick':
-              // DoT effect expired, no revert needed
-              break;
-          }
-          return false; // Remove expired effect
-        }
+    // Calculate cooldown modifier from status effects
+    const cooldownMultiplier = getCooldownMultiplier(unit);
+    const chargeRate = cooldownMultiplier === Number.MAX_SAFE_INTEGER ? 0 : 1 / cooldownMultiplier;
 
-        // Handle poison/DoT tick effects
-        if (effect.effectType === 'poison_tick' && effect.tickInterval && effect.damagePerTick) {
-          effect.timeSinceLastTick = (effect.timeSinceLastTick || 0) + delta;
-          if (effect.timeSinceLastTick >= effect.tickInterval) {
-            effect.timeSinceLastTick -= effect.tickInterval;
-            const chara = CharaManager.getChara(unit.id);
-            if (chara) {
-              chara.showPopText(`-${effect.damagePerTick} ${effect.effectName || 'DoT'}`, "damage");
-              chara.unitHit(effect.damagePerTick);
-            }
-          }
-        }
-
-        return true; // Keep active effect
-      });
-    }
-
-    // If the delta is too high, there's the risk of being hasted/slowed beyond the expected
-    // It should be fine for now by having a delta for each frame (0.016)
-    let modifier = 1;
-    if (unit.hasted > 0) {
-      unit.hasted = Math.max(0, unit.hasted - delta);
-      modifier = 2;
-    }
-    if (unit.slowed > 0) {
-      unit.slowed = Math.max(0, unit.slowed - delta);
-      modifier = modifier / 2;
-    }
-    unit.charge += delta * modifier;
+    unit.charge += delta * chargeRate;
 
     unit.refresh = Math.max(0, unit.refresh - delta);
 

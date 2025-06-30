@@ -3,6 +3,7 @@ import Phaser from "phaser";
 import { Unit } from "../../Models/Entities/Unit";
 import * as bgConstants from "../../constants/constants";
 import { getOption } from "../../Models/OptionsStore";
+import { hasStatusEffect } from "../../Systems/StatusEffects/StatusEffectManager";
 
 export class CharaBarsDisplay {
 	scene: Phaser.Scene;
@@ -39,9 +40,16 @@ export class CharaBarsDisplay {
 		chargeBar.clear();
 		const percent = unit.charge / unit.cooldown;
 		let color = 0x000;
-		if (unit.hasted > 0 && unit.slowed > 0) color = 0x000;
-		else if (unit.hasted > 0) color = 0x00ff00;
-		else if (unit.slowed > 0) color = 0xff0000;
+
+		// Check status effects using the new system
+		const isHasted = hasStatusEffect(unit, 'haste');
+		const isSlowed = hasStatusEffect(unit, 'slow');
+		const isFrozen = hasStatusEffect(unit, 'freeze') || hasStatusEffect(unit, 'stun');
+
+		if (isFrozen) color = 0x87ceeb; // Light blue for frozen/stunned
+		else if (isHasted && isSlowed) color = 0x000;
+		else if (isHasted) color = 0x00ff00;
+		else if (isSlowed) color = 0xff0000;
 
 		chargeBar.fillStyle(color, 0.2);
 		chargeBar.fillRect(

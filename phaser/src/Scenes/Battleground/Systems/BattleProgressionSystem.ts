@@ -8,6 +8,7 @@ import { getAllCards } from "../../../Models/Entities/Card";
 import { generateEnemyTeam } from "../generateEnemyTeam";
 import { PrestigeSystem } from "../../../Systems/PrestigeSystem";
 import * as CharaManager from "./CharaManager";
+import { clearAllStatusEffects } from "../../../Systems/StatusEffects/StatusEffectManager";
 import { cpuForce, playerForce, manipulateForceMoreale } from "../../../Models/Entities/Force";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
 
@@ -131,15 +132,13 @@ export class BattleProgressionSystem {
 		this.state.gameData.player.units.forEach(unit => {
 			unit.charge = 0;
 			unit.refresh = 0;
-			unit.slowed = 0;
-			unit.hasted = 0;
 			unit.hp = unit.maxHp;
+
+			// Clear all status effects using the new unified system
+			clearAllStatusEffects(unit);
 
 			// Clear defensive trait effects
 			unit.damageReductionStacks = undefined;
-
-			// Clear temporary effects from traits
-			unit.temporaryEffects = undefined;
 		});
 
 		// Clear force-level defensive effects
@@ -177,7 +176,7 @@ export class BattleProgressionSystem {
 		// Clear any existing defensive trait effects from previous battles
 		enemy.units.forEach(unit => {
 			unit.damageReductionStacks = undefined;
-			unit.temporaryEffects = undefined;
+			// Status effects are now managed through the unified system and cleared automatically
 		});
 
 		this.state.battleData.forces = [

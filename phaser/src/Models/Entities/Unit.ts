@@ -22,6 +22,32 @@ export type MoraleReductionStack = {
 /**
  * Represents a temporary effect that will be reverted after a duration.
  */
+export type StatusEffect = {
+  type: 'haste' | 'slow' | 'freeze' | 'stun' | 'poison' | 'power_buff' | 'power_debuff' | 'fury_scaling' | 'cooldown_increase';
+  remainingDuration: number;
+
+  // For attribute modifications (power buffs/debuffs, fury scaling)
+  attribute?: keyof Unit;
+  amount?: number;
+
+  // For cooldown modifications (haste/slow/freeze/stun)
+  cooldownMultiplier?: number;
+  originalCooldown?: number; // For freeze/stun restoration
+
+  // For poison/DoT effects
+  damagePerTick?: number;
+  tickInterval?: number;
+  timeSinceLastTick?: number;
+
+  // For display and stacking
+  displayName?: string;
+  stackId?: string; // For effects that shouldn't stack (like fury)
+  source?: string; // ID of the unit/trait that applied this effect
+};
+
+/**
+ * @deprecated Use StatusEffect instead. Will be removed after migration is complete.
+ */
 export type TemporaryEffect = {
   effectType: 'attribute_modification' | 'cooldown_modification' | 'poison_tick' | 'freeze' | 'stun' | 'fury_scaling';
   attribute?: keyof Unit;
@@ -64,13 +90,17 @@ export type Unit = {
   charge: number; // each tick the job's agi is added here. when it reaches 100, the job can act
   refresh: number; // the time it takes for the job to act again. Even if charged, this must be 0
 
+  // @deprecated - these will be moved to statusEffects
   hasted: number;
   slowed: number;
 
   // Defensive trait effects
   damageReductionStacks?: DamageReductionStack[];
 
-  // Temporary effects that get processed frame-by-frame
+  // New unified status effect system
+  statusEffects?: StatusEffect[];
+
+  // @deprecated - Use statusEffects instead. Will be removed after migration.
   temporaryEffects?: TemporaryEffect[];
 };
 
