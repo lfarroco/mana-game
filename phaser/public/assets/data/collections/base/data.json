@@ -1000,24 +1000,24 @@
 		{
 			"id": "berserker_rage",
 			"name": "Berserker Rage",
-			"description": "Gains {damage_per_missing_hp} damage for every {hp_threshold} HP missing.",
+			"description": "Gains {damage_per_time} damage for every {time_threshold}ms in combat.",
 			"categories": [
 				"offensive",
 				"scaling"
 			],
 			"effects": [
 				{
-					"effectId": "damage_scales_with_missing_hp",
+					"effectId": "damage_scales_with_time",
 					"eventTrigger": "onAction",
-					"damage_per_missing_hp": 2,
-					"hp_threshold": 10
+					"damage_per_time": 2,
+					"time_threshold": 1000
 				}
 			]
 		},
 		{
 			"id": "reckless_abandon",
 			"name": "Reckless Abandon",
-			"description": "Each attack reduces own max HP by {hp_loss} but increases damage by {damage_bonus}.",
+			"description": "Each attack increases cooldowns by {cooldown_penalty}ms but increases damage by {damage_bonus}.",
 			"categories": [
 				"offensive",
 				"risky",
@@ -1025,9 +1025,9 @@
 			],
 			"effects": [
 				{
-					"effectId": "sacrifice_hp_for_damage",
+					"effectId": "sacrifice_cooldown_for_damage",
 					"eventTrigger": "onAttackByMe",
-					"hp_loss": 8,
+					"cooldown_penalty": 500,
 					"damage_bonus": 4
 				}
 			]
