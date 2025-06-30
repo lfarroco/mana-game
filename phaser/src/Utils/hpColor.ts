@@ -9,7 +9,7 @@ const HP_COLOR_CONSTANTS = {
 export const hpColor = (hp: number, maxHp: number): string => {
 	const ratio = hp / maxHp;
 	const { MAX_COLOR_VALUE, HEALTH_THRESHOLD } = HP_COLOR_CONSTANTS;
-	
+
 	if (ratio > HEALTH_THRESHOLD) {
 		return `0x${Math.floor(MAX_COLOR_VALUE - MAX_COLOR_VALUE * (ratio * 2 - 1)).toString(16)}ff00`;
 	} else {
@@ -20,7 +20,7 @@ export const hpColor = (hp: number, maxHp: number): string => {
 export const hpColorRgba = (hp: number, maxHp: number): string => {
 	const ratio = hp / maxHp;
 	const { MAX_COLOR_VALUE, HEALTH_THRESHOLD, FULL_ALPHA } = HP_COLOR_CONSTANTS;
-	
+
 	if (ratio > HEALTH_THRESHOLD) {
 		return `rgba(${Math.floor(MAX_COLOR_VALUE - MAX_COLOR_VALUE * (ratio * 2 - 1))}, ${MAX_COLOR_VALUE}, 0, ${FULL_ALPHA})`;
 	} else {

@@ -35,11 +35,11 @@ export async function fireballEffect(
 
 	await delay(scene, FIREBALL_TRAVEL_DURATION / 2);
 
-	await impactEffect({ 
-		scene, 
-		location: target, 
-		pointA: source, 
-		pointB: target 
+	await impactEffect({
+		scene,
+		location: target,
+		pointA: source,
+		pointB: target
 	});
 
 	// Note: The centralized impactEffect handles its own cleanup
