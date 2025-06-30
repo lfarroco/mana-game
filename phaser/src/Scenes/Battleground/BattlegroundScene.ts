@@ -17,6 +17,7 @@ import { getOption } from "../../Models/OptionsStore";
 import { Unit } from "../../Models/Entities/Unit";
 import { Vec2 } from "../../Models/Geometry";
 import { battleResultAnimation } from "./battleResultAnimation";
+import { handleOwnedUnitSold as handleOwnedUnitSoldPure, updatePlayerGold as updatePlayerGoldPure } from "./BattlegroundScene.pure";
 
 /**
  * The main scene for the battleground, handling game logic, UI, and progression.
@@ -185,9 +186,11 @@ export class BattlegroundScene extends Phaser.Scene {
   // --- Event Handlers Moved from BattlegroundEventSystem ---
 
   updatePlayerGold(goldDelta: number): void {
-    const changeAmount = Math.floor(goldDelta);
-    this.state.gameData.player.gold += changeAmount;
-    this.events.emit(GameEvents.GOLD_CHANGED, this.state.gameData.player.gold, changeAmount);
+    this.state.gameData.player.gold = updatePlayerGoldPure(
+      this.state.gameData.player.gold,
+      goldDelta,
+      (event: string, newGold: number, changeAmount: number) => this.events.emit(event, newGold, changeAmount)
+    );
   }
 
   async handleBoardCharaCreateRequest(payload: { unit: Unit }): Promise<void> {
@@ -255,37 +258,19 @@ export class BattlegroundScene extends Phaser.Scene {
   handleOwnedUnitSold(payload: { unitId: string, soldForGold: number }): void {
     const { unitId, soldForGold } = payload;
 
-    // Update player gold
-    this.updatePlayerGold(soldForGold);
-
-    // Get Chara instance and destroy it
+    // Get Chara instance for position and destruction
     const chara = CharaManager.getChara(unitId);
-    const popTextX = chara?.x ?? (this.sys.game.config.width as number) / 2;
-    const popTextY = chara?.y ?? (this.sys.game.config.height as number) / 2;
-    chara?.destroy();
 
-    // Emit PopText for gold gain
-    this.events.emit(GameEvents.POP_TEXT_SHOW, {
-      text: `+${soldForGold}G`,
-      x: popTextX,
-      y: popTextY,
-      type: "success",
-    });
-
-    // Remove unit from player's state
-    this.removeUnitFromPlayerState(unitId);
-
-    // Hide the sell zone
-    this.shop.shopUI.hideSellZone();
-  }
-
-  private removeUnitFromPlayerState(unitId: string): void {
-    const unitIndex = this.state.gameData.player.units.findIndex(u => u.id === unitId);
-    if (unitIndex > -1) {
-      this.state.gameData.player.units.splice(unitIndex, 1);
-    } else {
-      console.warn(`[BattlegroundScene] Unit with ID ${unitId} not found for selling.`);
-    }
+    // Use the pure function with dependency injection
+    this.state.gameData.player.units = handleOwnedUnitSoldPure(
+      (amount: number) => this.updatePlayerGold(amount),
+      (event: string, eventPayload: any) => this.events.emit(event, eventPayload),
+      () => this.shop.shopUI.hideSellZone(),
+      this.state.gameData.player.units,
+      unitId,
+      soldForGold,
+      chara
+    );
   }
 }
 
