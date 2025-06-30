@@ -8,6 +8,7 @@
  * processes these effects each frame and automatically cleans them up when combat ends.
  */
 import { registerTraitEffectImplementation } from "../TraitEffectSystem";
+import { getEffectParams } from "../TraitSystem.pure"; // Use our tested pure function
 import { GameEvents } from "../../constants/events";
 import { playerForce, updatePlayerGoldIO, manipulateForceMoreale } from "../../Models/Entities/Force";
 import { getChara } from "../../Scenes/Battleground/Systems/CharaManager";
@@ -37,18 +38,6 @@ async function safeShowPopText(chara: Chara, text: string, type?: "heal" | "dama
 	if (chara && chara.active && (!scene || (scene.scene && scene.scene.isActive()))) {
 		await chara.showPopText(text, type);
 	}
-}
-
-/**
- * Helper function to get effect parameters with fallbacks
- */
-function getEffectParams<T>(
-	traitInstanceParams: Record<string, unknown>,
-	effectInstance: Record<string, unknown>,
-	paramName: string,
-	defaultValue: T
-): T {
-	return (traitInstanceParams[paramName] ?? effectInstance[paramName] ?? defaultValue) as T;
 }
 
 /**
