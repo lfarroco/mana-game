@@ -137,6 +137,9 @@ export class BattleProgressionSystem {
 
 			// Clear defensive trait effects
 			unit.damageReductionStacks = undefined;
+
+			// Clear temporary effects from traits
+			unit.temporaryEffects = undefined;
 		});
 
 		// Clear force-level defensive effects
@@ -174,6 +177,7 @@ export class BattleProgressionSystem {
 		// Clear any existing defensive trait effects from previous battles
 		enemy.units.forEach(unit => {
 			unit.damageReductionStacks = undefined;
+			unit.temporaryEffects = undefined;
 		});
 
 		this.state.battleData.forces = [

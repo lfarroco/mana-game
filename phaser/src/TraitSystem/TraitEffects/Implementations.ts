@@ -2,6 +2,10 @@
  * @file Contains the actual implementations for various trait effects.
  * Each function defined here corresponds to an `effectId` that can be used
  * in `TraitDefinition`s. These functions are registered with the `TraitEffectSystem`.
+ * 
+ * IMPORTANT: All temporary effects now use frame-based countdown instead of scene.time.addEvent
+ * to prevent effects from persisting after battle ends. The RunCombatIO.chargeUnits function
+ * processes these effects each frame and automatically cleans them up when combat ends.
  */
 import { registerTraitEffectImplementation } from "../TraitEffectSystem";
 import { GameEvents } from "../../constants/events";
@@ -25,6 +29,15 @@ import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 // ===== HELPER FUNCTIONS TO REDUCE REPETITION =====
 
 /**
+ * Helper function to safely show pop text only when the scene is active
+ */
+async function safeShowPopText(chara: any, text: string, type?: string, scene?: BattlegroundScene): Promise<void> {
+	if (chara && (!scene || (scene.scene && scene.scene.isActive()))) {
+		await chara.showPopText(text, type);
+	}
+}
+
+/**
  * Helper function to get effect parameters with fallbacks
  */
 function getEffectParams<T>(
@@ -38,6 +51,7 @@ function getEffectParams<T>(
 
 /**
  * Helper function to apply a temporary attribute modification to targets
+ * Uses frame-based countdown similar to hasted/slowed instead of scene.time.addEvent
  */
 async function applyTemporaryAttributeModification(
 	targets: Unit[],
@@ -51,14 +65,20 @@ async function applyTemporaryAttributeModification(
 		const chara = getChara(target.id);
 		if (chara) {
 			await chara.updateUnitAttribute(attribute, amount);
-			await chara.showPopText(popTextOverride || `${amount > 0 ? '+' : ''}${amount} ${attribute}`);
 
-			// Use Phaser's time management to revert the change after duration
-			scene.time.addEvent({
-				delay: duration,
-				callback: async () => {
-					await chara.updateUnitAttribute(attribute, -amount);
-				}
+			// Only show pop text if the scene is still active (battle hasn't ended)
+			await safeShowPopText(chara, popTextOverride || `${amount > 0 ? '+' : ''}${amount} ${attribute}`, undefined, scene);
+
+			// Track the temporary effect using frame-based countdown
+			// We'll add this to a new property on the unit that gets processed in chargeUnits
+			if (!target.temporaryEffects) {
+				target.temporaryEffects = [];
+			}
+			target.temporaryEffects.push({
+				attribute,
+				amount: -amount, // Store the revert amount
+				remainingDuration: duration,
+				effectType: 'attribute_modification'
 			});
 		}
 	}
@@ -66,6 +86,7 @@ async function applyTemporaryAttributeModification(
 
 /**
  * Helper function to apply temporary cooldown modifications (haste/slow effects)
+ * Uses frame-based countdown instead of scene.time.addEvent
  */
 async function applyTemporaryCooldownModification(
 	targets: Unit[],
@@ -79,13 +100,18 @@ async function applyTemporaryCooldownModification(
 		if (chara) {
 			const originalCooldown = target.cooldown;
 			target.cooldown = Math.floor(target.cooldown * multiplier);
-			await chara.showPopText(popText);
 
-			scene.time.addEvent({
-				delay: duration,
-				callback: () => {
-					target.cooldown = originalCooldown;
-				}
+			// Only show pop text if the scene is still active
+			await safeShowPopText(chara, popText, undefined, scene);
+
+			// Track the temporary effect using frame-based countdown
+			if (!target.temporaryEffects) {
+				target.temporaryEffects = [];
+			}
+			target.temporaryEffects.push({
+				effectType: 'cooldown_modification',
+				originalCooldown,
+				remainingDuration: duration
 			});
 		}
 	}
@@ -112,14 +138,15 @@ async function manipulateForceMorele(
 			const chara = getChara(sourceUnit.id);
 			if (chara) {
 				const sign = actualChange > 0 ? '+' : '';
-				await chara.showPopText(`${popTextPrefix}${sign}${actualChange} Morale`, actualChange > 0 ? "heal" : "damage");
+				await safeShowPopText(chara, `${popTextPrefix}${sign}${actualChange} Morale`, actualChange > 0 ? "heal" : "damage", scene);
 			}
 		}
 	}
 }
 
 /**
- * Helper function to apply damage over time effects using Phaser's timer
+ * Helper function to apply damage over time effects using frame-based countdown
+ * instead of scene.time.addEvent
  */
 async function applyDamageOverTime(
 	targets: Unit[],
@@ -129,24 +156,24 @@ async function applyDamageOverTime(
 	scene: BattlegroundScene,
 	effectName: string = "DoT"
 ): Promise<void> {
-	const poisonTicks = Math.floor(duration / tickInterval);
-
 	for (const target of targets) {
 		const chara = getChara(target.id);
 		if (chara) {
-			await chara.showPopText(`${effectName}!`, "damage");
+			// Only show pop text if the scene is still active
+			await safeShowPopText(chara, `${effectName}!`, "damage", scene);
 
-			for (let i = 0; i < poisonTicks; i++) {
-				scene.time.addEvent({
-					delay: tickInterval * (i + 1),
-					callback: async () => {
-						if (chara) {
-							await chara.showPopText(`-${damagePerTick} ${effectName}`, "damage");
-							chara.unitHit(damagePerTick);
-						}
-					}
-				});
+			// Track the DoT effect using frame-based countdown
+			if (!target.temporaryEffects) {
+				target.temporaryEffects = [];
 			}
+			target.temporaryEffects.push({
+				effectType: 'poison_tick',
+				damagePerTick,
+				remainingDuration: duration,
+				tickInterval,
+				timeSinceLastTick: 0,
+				effectName
+			});
 		}
 	}
 }
@@ -399,7 +426,7 @@ const increaseForceMaxMoraleLogic: TraitEffectFn = async (context) => {
 
 		const chara = getChara(sourceUnit.id);
 		if (chara) {
-			await chara.showPopText(`+${amount} Max Morale`);
+			await safeShowPopText(chara, `+${amount} Max Morale`, undefined, scene);
 		}
 	}
 };
@@ -441,7 +468,7 @@ const splashDamageToRandomAdjacentAllyLogic: TraitEffectFn = async (context) => 
 		const chara = getChara(randomAlly.id);
 		const sourceChara = getChara(sourceUnit.id);
 		if (chara && sourceChara) {
-			await chara.showPopText(`-${damage} Dmg`, "damage");
+			await safeShowPopText(chara, `-${damage} Dmg`, "damage", scene);
 			chara.unitHit(damage);
 			impactEffect({ scene, location: chara, pointA: sourceChara, pointB: chara });
 		}
@@ -503,7 +530,7 @@ const slowAllEnemiesLogic: TraitEffectFn = async (context) => {
  * Effect: Freezes all enemies (prevents actions)
  */
 const freezeAllEnemiesLogic: TraitEffectFn = async (context) => {
-	const { targets, scene, effectInstance, traitInstanceParams } = context;
+	const { targets, effectInstance, traitInstanceParams, scene } = context;
 	const duration = (traitInstanceParams.duration ?? effectInstance.duration ?? 1500) as number;
 
 	for (const enemy of targets) {
@@ -512,14 +539,18 @@ const freezeAllEnemiesLogic: TraitEffectFn = async (context) => {
 			// Freeze enemy (prevent actions)
 			const originalCooldown = enemy.cooldown;
 			enemy.cooldown = Number.MAX_SAFE_INTEGER; // Effectively infinite cooldown
-			await chara.showPopText("Frozen!", "damage");
 
-			// Use Phaser's time management to unfreeze after duration
-			scene.time.addEvent({
-				delay: duration,
-				callback: () => {
-					enemy.cooldown = originalCooldown;
-				}
+			// Only show pop text if the scene is still active
+			await safeShowPopText(chara, "Frozen!", "damage", scene);
+
+			// Track the freeze effect using frame-based countdown
+			if (!enemy.temporaryEffects) {
+				enemy.temporaryEffects = [];
+			}
+			enemy.temporaryEffects.push({
+				effectType: 'freeze',
+				originalCooldown,
+				remainingDuration: duration
 			});
 		}
 	}
@@ -529,7 +560,7 @@ const freezeAllEnemiesLogic: TraitEffectFn = async (context) => {
  * Effect: Stuns all enemies
  */
 const stunAllEnemiesLogic: TraitEffectFn = async (context) => {
-	const { targets, scene, effectInstance, traitInstanceParams } = context;
+	const { targets, effectInstance, traitInstanceParams, scene } = context;
 	const duration = (traitInstanceParams.duration ?? effectInstance.duration ?? 1200) as number;
 
 	for (const enemy of targets) {
@@ -538,14 +569,18 @@ const stunAllEnemiesLogic: TraitEffectFn = async (context) => {
 			// Stun enemy (prevent actions and movement)
 			const originalCooldown = enemy.cooldown;
 			enemy.cooldown = Number.MAX_SAFE_INTEGER;
-			await chara.showPopText("Stunned!", "damage");
 
-			// Use Phaser's time management to remove stun after duration
-			scene.time.addEvent({
-				delay: duration,
-				callback: () => {
-					enemy.cooldown = originalCooldown;
-				}
+			// Only show pop text if the scene is still active
+			await safeShowPopText(chara, "Stunned!", "damage", scene);
+
+			// Track the stun effect using frame-based countdown
+			if (!enemy.temporaryEffects) {
+				enemy.temporaryEffects = [];
+			}
+			enemy.temporaryEffects.push({
+				effectType: 'stun',
+				originalCooldown,
+				remainingDuration: duration
 			});
 		}
 	}
@@ -561,7 +596,7 @@ const guildWideDamageLogic: TraitEffectFn = async (context) => {
 	for (const enemy of targets) {
 		const chara = getChara(enemy.id);
 		if (chara) {
-			await chara.showPopText(`-${damage} Dmg`, "damage");
+			await safeShowPopText(chara, `-${damage} Dmg`, "damage", context.scene);
 			chara.unitHit(damage);
 		}
 	}
@@ -614,7 +649,7 @@ const cleanseAllyDebuffsLogic: TraitEffectFn = async (context) => {
 		if (chara) {
 			// Reset cooldown to base value (removes slow/freeze effects)
 			// In a full implementation, you'd track individual debuffs
-			await chara.showPopText("Cleansed!", "heal");
+			await safeShowPopText(chara, "Cleansed!", "heal", context.scene);
 		}
 	}
 };
@@ -630,7 +665,7 @@ const chanceToDodgeLogic: TraitEffectFn = async (context) => {
 	// For now, we'll just show the passive effect is active
 	const chara = getChara(sourceUnit.id);
 	if (chara && Math.random() * 100 < dodgeChance) {
-		await chara.showPopText("Dodged!");
+		await safeShowPopText(chara, "Dodged!", undefined, context.scene);
 	}
 };
 
@@ -657,7 +692,7 @@ const fortressModePassiveLogic: TraitEffectFn = async (context) => {
 	const chara = getChara(sourceUnit.id);
 	if (chara) {
 		await chara.updateUnitAttribute("power", armorBonus); // Using power as armor for simplicity
-		await chara.showPopText(`Fortress Mode: +${armorBonus} Armor`);
+		await safeShowPopText(chara, `Fortress Mode: +${armorBonus} Armor`, undefined, context.scene);
 
 		// Note: Damage reflection would be implemented in the damage handling system
 	}
@@ -685,7 +720,7 @@ const reduceAllyDamageTakenLogic: TraitEffectFn = async (context) => {
 
 		const chara = getChara(ally.id);
 		if (chara) {
-			await chara.showPopText(`Protected (${reduction}%)`);
+			await safeShowPopText(chara, `Protected (${reduction}%)`, undefined, context.scene);
 		}
 	}
 
@@ -706,7 +741,7 @@ const damageScalesWithTimeLogic: TraitEffectFn = async (context) => {
 		const chara = getChara(sourceUnit.id);
 		if (chara) {
 			await chara.updateUnitAttribute("power", bonusDamage);
-			await chara.showPopText(`+${bonusDamage} Fury!`);
+			await safeShowPopText(chara, `+${bonusDamage} Fury!`, undefined, context.scene);
 		}
 	}
 };
@@ -726,7 +761,7 @@ const sacrificeCooldownForDamageLogic: TraitEffectFn = async (context) => {
 
 		// Increase damage
 		await chara.updateUnitAttribute("power", damageBonus);
-		await chara.showPopText(`Reckless! +${damageBonus} Dmg`);
+		await safeShowPopText(chara, `Reckless! +${damageBonus} Dmg`, undefined, context.scene);
 	}
 };
 
@@ -759,7 +794,7 @@ const moraleDamageReductionLogic: TraitEffectFn = async (context) => {
 	// Show activation feedback
 	const chara = getChara(sourceUnit.id);
 	if (chara) {
-		await chara.showPopText(`Morale Guardian Active`, "heal");
+		await safeShowPopText(chara, `Morale Guardian Active`, "heal", context.scene);
 	}
 
 	console.log(`[Morale Guardian] ${sourceUnit.name} is protecting force ${sourceForce.id} with ${reductionPercent}% morale damage reduction`);

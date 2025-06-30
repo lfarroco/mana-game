@@ -18,6 +18,21 @@ export type MoraleReductionStack = {
   unitId: string;
   reductionPercent: number;
 };
+
+/**
+ * Represents a temporary effect that will be reverted after a duration.
+ */
+export type TemporaryEffect = {
+  effectType: 'attribute_modification' | 'cooldown_modification' | 'poison_tick' | 'freeze' | 'stun';
+  attribute?: keyof Unit;
+  amount?: number;
+  remainingDuration: number;
+  tickInterval?: number; // For DoT effects
+  timeSinceLastTick?: number; // For DoT effects
+  originalCooldown?: number; // For freeze/stun effects
+  damagePerTick?: number; // For poison effects
+  effectName?: string; // For display purposes
+};
 /**
  * Represents an "instance" of a `CardDefinition` within the game's logical state.
  * A `Unit` is an actual character or entity participating in the game, holding mutable data
@@ -54,6 +69,9 @@ export type Unit = {
 
   // Defensive trait effects
   damageReductionStacks?: DamageReductionStack[];
+
+  // Temporary effects that get processed frame-by-frame
+  temporaryEffects?: TemporaryEffect[];
 };
 
 export const makeUnit = (force: string, cardId: string, position = vec2Zero()): Unit => {
