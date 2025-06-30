@@ -240,83 +240,6 @@ const increasePowerLogic: TraitEffectFn = createAttributeModificationEffect('pow
 // slowAllEnemiesLogic implementation moved to ./implementations/slowAllEnemies.ts
 
 /**
- * Effect: Stuns all enemies
- */
-const stunAllEnemiesLogic: TraitEffectFn = async (context) => {
-	const { targets, effectInstance, traitInstanceParams, scene } = context;
-	const duration = (traitInstanceParams.duration ?? effectInstance.duration ?? 1200) as number;
-
-	for (const enemy of targets) {
-		const chara = getChara(enemy.id);
-		if (chara) {
-			applyStatusEffect(enemy, {
-				type: 'stun',
-				remainingDuration: duration,
-				displayName: 'Stunned'
-			});
-
-			// Only show pop text if the scene is still active
-			await safeShowPopText(chara, "Stunned!", "damage", scene);
-		}
-	}
-};
-
-/**
- * Effect: Reduces enemy damage globally while this unit is alive
- */
-const reduceEnemyDamageGlobalLogic: TraitEffectFn = createGuildWideEnemyEffect(async (enemies, context) => {
-	const reduction = getEffectParams(context.traitInstanceParams, context.effectInstance, 'reduction', 15);
-
-	for (const enemy of enemies) {
-		const chara = getChara(enemy.id);
-		if (chara) {
-			const damageReduction = Math.floor(enemy.power * (reduction / 100));
-			await chara.updateUnitAttribute("power", -damageReduction);
-		}
-	}
-	// Note: In a full implementation, you'd want to track this effect and remove it when the source unit dies
-});
-
-/**
- * Effect: Grants morale to allies
- */
-const grantMoraleToAlliesLogic: TraitEffectFn = async (context) => {
-	const moraleAmount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'morale', 40);
-	await manipulateForceMorealeWrapper(context.sourceUnit.force, moraleAmount, context, "Team ");
-};
-
-/**
- * Effect: Cleanses debuffs from allies
- */
-const cleanseAllyDebuffsLogic: TraitEffectFn = async (context) => {
-	const { targets } = context;
-
-	for (const ally of targets) {
-		const chara = getChara(ally.id);
-		if (chara) {
-			// Reset cooldown to base value (removes slow/freeze effects)
-			// In a full implementation, you'd track individual debuffs
-			await safeShowPopText(chara, "Cleansed!", "heal", context.scene);
-		}
-	}
-};
-
-/**
- * Effect: Chance to dodge incoming damage
- */
-const chanceToDodgeLogic: TraitEffectFn = async (context) => {
-	const { sourceUnit } = context;
-	const dodgeChance = getEffectParams(context.traitInstanceParams, context.effectInstance, 'dodge_chance', 30);
-
-	// This would typically be implemented in the damage handling system
-	// For now, we'll just show the passive effect is active
-	const chara = getChara(sourceUnit.id);
-	if (chara && Math.random() * 100 < dodgeChance) {
-		await safeShowPopText(chara, "Dodged!", undefined, context.scene);
-	}
-};
-
-/**
  * Effect: Reduces enemy damage temporarily
  */
 const reduceEnemyDamageLogic: TraitEffectFn = async (context) => {
@@ -492,12 +415,12 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("haste_all_allies", implementations.hasteAllAlliesLogic);
 	registerTraitEffectImplementation("slow_all_enemies", implementations.slowAllEnemies);
 	registerTraitEffectImplementation("freeze_all_enemies", implementations.freezeAllEnemiesLogic);
-	registerTraitEffectImplementation("stun_all_enemies", stunAllEnemiesLogic);
+	registerTraitEffectImplementation("stun_all_enemies", implementations.stunAllEnemiesLogic);
 	registerTraitEffectImplementation("guild_wide_damage", implementations.guildWideDamageLogic);
-	registerTraitEffectImplementation("reduce_enemy_damage_global", reduceEnemyDamageGlobalLogic);
-	registerTraitEffectImplementation("grant_morale_to_allies", grantMoraleToAlliesLogic);
-	registerTraitEffectImplementation("cleanse_ally_debuffs", cleanseAllyDebuffsLogic);
-	registerTraitEffectImplementation("chance_to_dodge", chanceToDodgeLogic);
+	registerTraitEffectImplementation("reduce_enemy_damage_global", implementations.reduceEnemyDamageGlobalLogic);
+	registerTraitEffectImplementation("grant_morale_to_allies", implementations.grantMoraleToAlliesLogic);
+	registerTraitEffectImplementation("cleanse_ally_debuffs", implementations.cleanseAllyDebuffsLogic);
+	registerTraitEffectImplementation("chance_to_dodge", implementations.chanceToDodgeLogic);
 	registerTraitEffectImplementation("apply_poison_to_enemies", implementations.applyPoisonToEnemiesLogic);
 	registerTraitEffectImplementation("reduce_enemy_damage", reduceEnemyDamageLogic);
 	registerTraitEffectImplementation("fortress_mode_passive", fortressModePassiveLogic);
