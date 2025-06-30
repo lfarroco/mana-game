@@ -1,7 +1,6 @@
 import { tween } from "../../../Utils/animation";
-import { defaultTextConfig, titleTextConfig } from "../../../constants/constants";
+import { defaultTextConfig, titleTextConfig, POP_TEXT_CONFIG } from "../../../constants/constants";
 
-// TODO: add color option (heals: green, damage: yellow, etc)
 // TODO: move this to the chara system, as it always uses the chara container
 // TODO: for skills, use elastic pop. for damage, move the numbers
 export async function popText({
@@ -19,9 +18,9 @@ export async function popText({
 }) {
 	let textColor = defaultTextConfig.color;
 	if (type === "heal") {
-		textColor = "green";
+		textColor = POP_TEXT_CONFIG.COLORS.HEAL;
 	} else if (type === "damage") {
-		textColor = "red";
+		textColor = POP_TEXT_CONFIG.COLORS.DAMAGE;
 	}
 
 	const popText = scene.add.text(
@@ -35,21 +34,21 @@ export async function popText({
 	if (textColor) popText.setColor(textColor);
 
 	// random angle upwards
-	const angle = Math.random() * 30 * (Math.random() < 0.5 ? -1 : 1);
+	const angle = Math.random() * POP_TEXT_CONFIG.MAX_ANGLE * (Math.random() < 0.5 ? -1 : 1);
 
 	tween({
 		targets: [popText],
-		scale: 1.4,
-		duration: 1000,
-		y: y - 128,
+		scale: POP_TEXT_CONFIG.SCALE_TARGET,
+		duration: POP_TEXT_CONFIG.MOVE_DURATION,
+		y: y - POP_TEXT_CONFIG.VERTICAL_DISTANCE,
 		// in the angle direction
-		x: x + Math.sin(angle * Math.PI / 180) * 60,
+		x: x + Math.sin(angle * Math.PI / 180) * POP_TEXT_CONFIG.HORIZONTAL_SPREAD,
 	});
 	await tween({
 		targets: [popText],
-		delay: 500,
+		delay: POP_TEXT_CONFIG.FADE_DELAY,
 		alpha: 0,
-		duration: 1000
+		duration: POP_TEXT_CONFIG.FADE_DURATION
 	});
 
 	popText.destroy();

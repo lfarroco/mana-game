@@ -30,7 +30,7 @@ export function breakLines(text: string, width: number) {
 }
 
 export function follows(
-	follower: { x: number; y: number; scene: { on: (event: string, callback: () => void) => void; off: (event: string, callback: () => void) => void; }; }, 
+	follower: { x: number; y: number; scene: { on: (event: string, callback: () => void) => void; off: (event: string, callback: () => void) => void; }; },
 	target: { x: number; y: number; on: (event: string, callback: () => void) => void; }
 ) {
 	const follow = () => {

@@ -5,6 +5,7 @@ import { Chara } from "../Chara";
 import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
 import { getUnitsByProximity } from "../../../Models/Board";
 import { delay } from "../../../Utils/animation";
+import { devlog } from "../../../utils";
 import * as UnitManager from "../../../Scenes/Battleground/Systems/CharaManager";
 
 export async function multishot(
@@ -12,7 +13,7 @@ export async function multishot(
 	activeChara: Chara,
 	scene: BattlegroundScene,
 ) {
-	console.log("[skill] :: multishot :: start");
+	devlog("[skill] :: multishot :: start");
 
 	const enemyUnits = getUnitsByProximity(getState(), unit, true, 5);
 
@@ -34,6 +35,6 @@ export async function multishot(
 
 	await delay(scene, 450 + ((targets.length * 200)));
 
-	console.log("[skill] :: multishot :: end");
+	devlog("[skill] :: multishot :: end");
 
 }

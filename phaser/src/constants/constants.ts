@@ -64,3 +64,29 @@ export const SCENE_KEYS = {
 	BATTLEGROUND: "BattlegroundScene",
 	CORE: "Core"
 } as const;
+
+// Pop Text Animation Constants
+export const POP_TEXT_CONFIG = {
+	MAX_ANGLE: 30,
+	SCALE_TARGET: 1.4,
+	MOVE_DURATION: 1000,
+	FADE_DELAY: 500,
+	FADE_DURATION: 1000,
+	VERTICAL_DISTANCE: 128,
+	HORIZONTAL_SPREAD: 60,
+	COLORS: {
+		HEAL: "green",
+		DAMAGE: "red",
+	}
+} as const;
+
+// Impact Effect Constants
+export const IMPACT_EFFECT_CONFIG = {
+	PARTICLE_SPEED: 200,
+	PARTICLE_LIFESPAN: 600,
+	ANGLE_SPREAD: 40,
+	MAX_ALIVE_PARTICLES: 5,
+	SCALE_MIN: 1,
+	SCALE_MAX: 6,
+	STOP_AFTER: 5
+} as const;

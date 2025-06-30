@@ -255,7 +255,7 @@ export class Chara extends Phaser.GameObjects.Container {
 			for (const stack of reductionStacks) {
 				// Verify the source unit is still alive (damage reduction should only work while protector is alive)
 				const battlegroundScene = this.scene as BattlegroundScene;
-				const sourceUnit = battlegroundScene.state.battleData.units.find((u: any) => u.id === stack.sourceUnitId && u.hp > 0);
+				const sourceUnit = battlegroundScene.state.battleData.units.find(u => u.id === stack.sourceUnitId && u.hp > 0);
 				if (sourceUnit) {
 					totalReduction += stack.reductionPercent;
 				}
