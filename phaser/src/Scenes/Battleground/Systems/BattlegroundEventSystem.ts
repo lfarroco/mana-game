@@ -8,6 +8,7 @@ import { popText } from "../../../Systems/Chara/Animations/popText";
 import { PopTextPayload } from "../../../Models/EventPayloads";
 import * as MoraleDisplay from "../MoraleDisplay";
 import * as VignetteSystem from "../Animations/vignette";
+import { onCharaPointerOver, onCharaPointerOut } from "../../../Systems/Chara/CharaTooltip";
 
 type Listener = {
 	event: string;
@@ -107,6 +108,8 @@ export class BattlegroundEventSystem {
 			{ event: GameEvents.CHARA_DESTROY_FROM_BOARD, handler: CharaManager.handleDestroyCharaFromBoardEvent },
 			{ event: GameEvents.CHARA_CHARGE_BAR_UPDATE, handler: CharaManager.handleCharaChargeBarUpdateEvent },
 			{ event: GameEvents.CHARA_BARS_VISIBILITY_SET, handler: CharaManager.handleCharaBarsVisibilitySetEvent },
+			{ event: GameEvents.CHARA_POINTER_OVER, handler: onCharaPointerOver },
+			{ event: GameEvents.CHARA_POINTER_OUT, handler: onCharaPointerOut },
 
 			// Visual Effects & Feedback
 			{ event: GameEvents.POP_TEXT_SHOW, handler: (payload: PopTextPayload) => popText({ scene: this.scene, x: payload.x, y: payload.y, text: payload.text, type: payload.type }), context: this },
