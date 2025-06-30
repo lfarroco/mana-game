@@ -5,7 +5,7 @@
  */
 import { registerTraitEffectImplementation } from "../TraitEffectSystem";
 import { GameEvents } from "../../constants/events";
-import { playerForce, updatePlayerGoldIO } from "../../Models/Entities/Force";
+import { playerForce, updatePlayerGoldIO, manipulateForceMoreale } from "../../Models/Entities/Force";
 import { getChara } from "../../Scenes/Battleground/Systems/CharaManager";
 import { slash } from "../../Systems/Chara/Skills/slash";
 import { healing } from "../../Systems/Chara/Skills/healing";
@@ -92,7 +92,7 @@ async function applyTemporaryCooldownModification(
 }
 
 /**
- * Helper function to manipulate force morale with proper event emission
+ * Helper function to manipulate force morale with proper event emission and pop text
  */
 async function manipulateForceMorele(
 	forceId: string,
@@ -104,50 +104,11 @@ async function manipulateForceMorele(
 	const targetForce = state.battleData.forces.find(f => f.id === forceId);
 
 	if (targetForce) {
-		let finalAmount = amount;
+		// Use the shared utility function that handles morale damage reduction
+		const actualChange = manipulateForceMoreale(targetForce, amount, scene);
 
-		// Apply morale damage reduction if this is a negative morale change (damage)
-		if (amount < 0 && targetForce.moraleReductionStacks) {
-			const reductionStacks = targetForce.moraleReductionStacks;
-			let totalReduction = 0;
-
-			// Sum all active reductions (multiple units can provide protection)
-			for (const stack of reductionStacks) {
-				// Check if the unit is still alive
-				const protectorUnit = targetForce.units.find(u => u.id === stack.unitId);
-				if (protectorUnit) {
-					totalReduction += stack.reductionPercent;
-				}
-			}
-
-			// Cap total reduction at 50% to prevent making forces invulnerable
-			totalReduction = Math.min(totalReduction, 50);
-
-			if (totalReduction > 0) {
-				const originalAmount = Math.abs(amount);
-				const reducedAmount = originalAmount * (1 - totalReduction / 100);
-				finalAmount = -reducedAmount;
-
-				const moraleProtected = originalAmount - reducedAmount;
-				console.log(`[Morale Guardian] Protected ${moraleProtected.toFixed(1)} morale (${totalReduction}% reduction)`);
-			}
-		}
-
-		const oldMorale = targetForce.morale;
-		if (finalAmount > 0) {
-			targetForce.morale = Math.min(targetForce.maxMorale, targetForce.morale + finalAmount);
-		} else {
-			targetForce.morale = Math.max(0, targetForce.morale + finalAmount);
-		}
-		const actualChange = targetForce.morale - oldMorale;
-
+		// Show pop text for the source unit
 		if (actualChange !== 0) {
-			scene.events.emit(GameEvents.MORALE_UPDATED, {
-				forceId: targetForce.id,
-				newMorale: targetForce.morale,
-				maxMorale: targetForce.maxMorale,
-			});
-
 			const chara = getChara(sourceUnit.id);
 			if (chara) {
 				const sign = actualChange > 0 ? '+' : '';
