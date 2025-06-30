@@ -17,8 +17,8 @@ export async function haste(
 
 	const allies = UnitManager.getSurroundingAllies(activeChara.unit);
 
-	allies.forEach(async ally => {
-
+	// Process allies sequentially to avoid race conditions
+	for (const ally of allies) {
 		const beam = new EnergyBeam(scene, {
 			start: activeChara,
 			end: ally,
@@ -40,13 +40,11 @@ export async function haste(
 			displayName: 'Hasted'
 		});
 
-		const allyChara = UnitManager.getChara(ally.id);
-		allyChara?.showPopText("Hasted", "heal");
+		ally.showPopText("Hasted", "heal");
 
 		await delay(scene, 700)
 		scene.events.off(Phaser.Scenes.Events.UPDATE, update);
 		beam.destroy();
-
-	});
+	}
 
 }

@@ -17,39 +17,37 @@ export async function slow(
 
 	const enemies = getRangedTargets(scene.state, unit, 1)
 
-	enemies
-		.map(e => e.id)
-		.map(UnitManager.getChara).forEach(async enemy => {
+	// Process enemies sequentially to avoid race conditions
+	for (const enemyUnit of enemies) {
+		const enemy = UnitManager.getChara(enemyUnit.id);
+		if (!enemy) continue;
 
-			if (!enemy) return;
+		const beam = new EnergyBeam(scene, {
+			start: activeChara,
+			end: enemy,
+			color: 0x964B00,
+		})
+		const update = () => {
+			beam.updateBeam()
+		}
 
-			const beam = new EnergyBeam(scene, {
-				start: activeChara,
-				end: enemy,
-				color: 0x964B00,
-			})
-			const update = () => {
-				beam.updateBeam()
-			}
+		scene.events.on(Phaser.Scenes.Events.UPDATE, update);
 
-			scene.events.on(Phaser.Scenes.Events.UPDATE, update);
+		await delay(scene, 200);
 
-			await delay(scene, 200);
-
-			// Apply slow status effect (2 seconds)
-			applyStatusEffect(enemy.unit, {
-				type: 'slow',
-				remainingDuration: 2000,
-				cooldownMultiplier: 1.5,
-				displayName: 'Slowed'
-			});
-
-			enemy.showPopText("Slowed", "heal");
-
-			await delay(scene, 700)
-			scene.events.off(Phaser.Scenes.Events.UPDATE, update);
-			beam.destroy();
-
+		// Apply slow status effect (2 seconds)
+		applyStatusEffect(enemy.unit, {
+			type: 'slow',
+			remainingDuration: 2000,
+			cooldownMultiplier: 1.5,
+			displayName: 'Slowed'
 		});
+
+		enemy.showPopText("Slowed", "damage");
+
+		await delay(scene, 700)
+		scene.events.off(Phaser.Scenes.Events.UPDATE, update);
+		beam.destroy();
+	}
 
 }
