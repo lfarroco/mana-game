@@ -15,6 +15,7 @@ export { grantMoraleToAlliesLogic } from './grantMoraleToAllies';
 export { cleanseAllyDebuffsLogic } from './cleanseAllyDebuffs';
 export { chanceToDodgeLogic } from './chanceToDodge';
 export { increasePowerLogic } from './increasePower';
+export { reduceEnemyDamageLogic } from './reduceEnemyDamage';
 export { restoreForceMoraleLogic, restoreForceMoralePure } from './restoreMorale';
 export { reduceEnemyMoraleLogic, reduceEnemyMoralePure } from './reduceEnemyMorale';
 export { guildWideDamageLogic, guildWideDamagePure } from './guildWideDamage';
