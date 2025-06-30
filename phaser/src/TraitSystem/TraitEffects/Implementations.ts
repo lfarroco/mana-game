@@ -224,53 +224,8 @@ function createGuildWideEnemyEffect(effectLogic: (targets: Unit[], context: Trai
 
 // ===== EFFECT IMPLEMENTATIONS =====
 
-/**
- * Effect: Grants a specified amount of gold to the player.
- * The source unit must belong to the player.
- */
-// grantGoldToPlayerLogic implementation moved to ./implementations/grantGold.ts
-
-/**
- * Effect: Makes the source unit perform the "slash" skill.
- */
-// performSkillMeleeLogic implementation moved to ./implementations/performSkillMelee.ts
-
-/**
- * Effect: Makes the source unit perform the "heal" skill.
- */
-// performSkillHealLogic implementation moved to ./implementations/performSkillHeal.ts
-
-/**
- * Effect: Makes the source unit perform the "healing wave" skill.
- */
-// performSkillHealingWaveLogic implementation moved to ./implementations/performSkillHealingWave.ts
-
-/**
- * Effect: Makes the source unit perform the "arcane missiles" skill.
- * Can take `projectiles` parameter from trait/effect data.
- */
-// performSkillArcaneMissilesLogic implementation moved to ./implementations/performSkillArcaneMissiles.ts
-
-/**
- * Effect: Makes the source unit perform the "haste" skill.
- */
-// performSkillHasteLogic implementation moved to ./implementations/performSkillHaste.ts
-
-/**
- * Effect: Makes the source unit perform the "slow" skill.
- */
-// performSkillSlowLogic implementation moved to ./implementations/performSkillSlow.ts
-
-/**
- * Effect: Makes the source unit perform the "fireball" skill.
- */
-// performSkillFireballLogic implementation moved to ./implementations/performSkillFireball.ts
-
-/**
- * Effect: Makes the source unit perform the "summon" skill.
- * Requires `cardIdToSummon` parameter from trait/effect data.
- */
-// performSkillSummonLogic implementation moved to ./implementations/performSkillSummon.ts
+// All implementations that have been migrated to ./implementations/ are now imported above.
+// Remove any duplicate or leftover implementations here.
 
 const positionalBonusLogic: TraitEffectFn = async (context) => {
 	const { sourceUnit, effectInstance, traitInstanceParams } = context;
