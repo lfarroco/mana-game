@@ -15,7 +15,7 @@ import { Unit } from "../../../Models/Entities/Unit";
  * @returns Array of damage calculations for each target
  */
 export function guildWideDamagePure(
-	damage: number, 
+	damage: number,
 	targets: Unit[]
 ): {
 	damage: number;

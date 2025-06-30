@@ -86,7 +86,7 @@ describe('Deal Damage Implementation', () => {
 	describe('createDealDamageLogic', () => {
 		it('should create a function that deals damage to targets', async () => {
 			const dealDamageEffect = createDealDamageLogic(mockGetChara);
-			
+
 			const contextWithDamage = {
 				...mockContext,
 				traitInstanceParams: { id: 'test-trait' as any, amount: 25 }
@@ -100,7 +100,7 @@ describe('Deal Damage Implementation', () => {
 
 		it('should use default damage amount when not specified', async () => {
 			const dealDamageEffect = createDealDamageLogic(mockGetChara);
-			
+
 			// Context without amount specified
 			const contextWithoutAmount = {
 				...mockContext,
@@ -114,14 +114,14 @@ describe('Deal Damage Implementation', () => {
 
 		it('should resolve damage amount from effect instance params', async () => {
 			const dealDamageEffect = createDealDamageLogic(mockGetChara);
-			
+
 			const contextWithEffectAmount = {
 				...mockContext,
 				traitInstanceParams: { id: 'test-trait' as any },
-				effectInstance: { 
-					effectId: 'deal_damage', 
+				effectInstance: {
+					effectId: 'deal_damage',
 					eventTrigger: 'onAction',
-					amount: 50 
+					amount: 50
 				}
 			};
 
@@ -132,12 +132,12 @@ describe('Deal Damage Implementation', () => {
 
 		it('should prioritize effect instance params over trait params', async () => {
 			const dealDamageEffect = createDealDamageLogic(mockGetChara);
-			
+
 			const contextWithBothAmounts = {
 				...mockContext,
 				traitInstanceParams: { id: 'test-trait' as any, amount: 25 },
-				effectInstance: { 
-					effectId: 'deal_damage', 
+				effectInstance: {
+					effectId: 'deal_damage',
 					eventTrigger: 'onAction',
 					amount: 75 // This should override trait amount
 				}
@@ -168,7 +168,7 @@ describe('Deal Damage Implementation', () => {
 			});
 
 			const dealDamageEffect = createDealDamageLogic(mockGetChara);
-			
+
 			const contextWithMultipleTargets = {
 				...mockContext,
 				targets: [mockTargetUnit, secondTargetUnit],
@@ -187,7 +187,7 @@ describe('Deal Damage Implementation', () => {
 			// Mock getChara to return undefined (chara not found)
 			const mockGetCharaFailing = jest.fn().mockReturnValue(undefined);
 			const dealDamageEffect = createDealDamageLogic(mockGetCharaFailing);
-			
+
 			const contextWithDamage = {
 				...mockContext,
 				traitInstanceParams: { id: 'test-trait' as any, amount: 25 }
@@ -195,7 +195,7 @@ describe('Deal Damage Implementation', () => {
 
 			// Should not throw an error
 			await expect(dealDamageEffect(contextWithDamage)).resolves.toBeUndefined();
-			
+
 			expect(mockGetCharaFailing).toHaveBeenCalledWith('test-target-1');
 		});
 	});

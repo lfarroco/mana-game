@@ -14,7 +14,7 @@ describe('boostAllyDamagePure', () => {
 
 	it('should calculate correct damage boost for multiple targets', () => {
 		const result = boostAllyDamagePure(15, 3000, mockTargets);
-		
+
 		expect(result).toEqual({
 			amount: 15,
 			duration: 3000,
@@ -29,7 +29,7 @@ describe('boostAllyDamagePure', () => {
 
 	it('should handle zero damage boost', () => {
 		const result = boostAllyDamagePure(0, 2000, mockTargets);
-		
+
 		expect(result).toEqual({
 			amount: 0,
 			duration: 2000,
@@ -44,7 +44,7 @@ describe('boostAllyDamagePure', () => {
 
 	it('should ensure non-negative damage boost', () => {
 		const result = boostAllyDamagePure(-10, 1500, mockTargets);
-		
+
 		expect(result).toEqual({
 			amount: 0, // Should clamp negative values to 0
 			duration: 1500,
@@ -59,7 +59,7 @@ describe('boostAllyDamagePure', () => {
 
 	it('should ensure non-negative duration', () => {
 		const result = boostAllyDamagePure(20, -1000, mockTargets);
-		
+
 		expect(result).toEqual({
 			amount: 20,
 			duration: 0, // Should clamp negative duration to 0
@@ -74,7 +74,7 @@ describe('boostAllyDamagePure', () => {
 
 	it('should handle empty target array', () => {
 		const result = boostAllyDamagePure(25, 4000, []);
-		
+
 		expect(result).toEqual({
 			amount: 25,
 			duration: 4000,
@@ -86,7 +86,7 @@ describe('boostAllyDamagePure', () => {
 	it('should handle single target', () => {
 		const singleTarget = [mockTargets[0]];
 		const result = boostAllyDamagePure(30, 5000, singleTarget);
-		
+
 		expect(result).toEqual({
 			amount: 30,
 			duration: 5000,
@@ -99,7 +99,7 @@ describe('boostAllyDamagePure', () => {
 
 	it('should handle large damage and duration values', () => {
 		const result = boostAllyDamagePure(1000, 60000, mockTargets);
-		
+
 		expect(result).toEqual({
 			amount: 1000,
 			duration: 60000,
@@ -117,9 +117,9 @@ describe('boostAllyDamagePure', () => {
 			{ id: 'warrior-1' } as unknown as Unit,
 			{ id: 'mage-1' } as unknown as Unit
 		];
-		
+
 		const result = boostAllyDamagePure(12, 2500, differentTargets);
-		
+
 		expect(result.calculations).toEqual([
 			{ unitId: 'warrior-1', damageBoost: 12, duration: 2500 },
 			{ unitId: 'mage-1', damageBoost: 12, duration: 2500 }
@@ -129,7 +129,7 @@ describe('boostAllyDamagePure', () => {
 
 	it('should handle zero duration', () => {
 		const result = boostAllyDamagePure(15, 0, mockTargets);
-		
+
 		expect(result.duration).toBe(0);
 		expect(result.calculations.every(calc => calc.duration === 0)).toBe(true);
 	});
