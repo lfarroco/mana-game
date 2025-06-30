@@ -138,6 +138,15 @@ function chargeUnits(state: State, delta: number): Unit[] {
                 unit.cooldown = effect.originalCooldown;
               }
               break;
+            case 'fury_scaling':
+              // Revert the fury scaling effect by subtracting the amount
+              if (effect.attribute === 'power' && effect.amount !== undefined) {
+                unit.power -= effect.amount;
+                if (chara) {
+                  chara.updatePowerDisplay();
+                }
+              }
+              break;
             case 'poison_tick':
               // DoT effect expired, no revert needed
               break;
