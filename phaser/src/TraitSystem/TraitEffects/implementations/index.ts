@@ -7,3 +7,4 @@ export { dealDamageLogic, createDealDamageLogic } from './dealDamage';
 export { grantGoldLogic } from './grantGold';
 export { restoreForceMoraleLogic, restoreForceMoralePure } from './restoreMorale';
 export { reduceEnemyMoraleLogic, reduceEnemyMoralePure } from './reduceEnemyMorale';
+export { guildWideDamageLogic, guildWideDamagePure } from './guildWideDamage';

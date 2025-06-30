@@ -30,7 +30,7 @@ import { Chara } from "../../Systems/Chara/Chara";
 import { applyStatusEffect } from "../../Systems/StatusEffects/StatusEffectManager";
 
 // Import extracted implementations
-import { dealDamageLogic, grantGoldLogic, restoreForceMoraleLogic, reduceEnemyMoraleLogic } from "./implementations/index";
+import { dealDamageLogic, grantGoldLogic, restoreForceMoraleLogic, reduceEnemyMoraleLogic, guildWideDamageLogic } from "./implementations/index";
 
 // ===== HELPER FUNCTIONS TO REDUCE REPETITION =====
 
@@ -506,22 +506,6 @@ const stunAllEnemiesLogic: TraitEffectFn = async (context) => {
 
 			// Only show pop text if the scene is still active
 			await safeShowPopText(chara, "Stunned!", "damage", scene);
-		}
-	}
-};
-
-/**
- * Effect: Guild-wide damage to all enemies
- */
-const guildWideDamageLogic: TraitEffectFn = async (context) => {
-	const { targets } = context;
-	const damage = getEffectParams(context.traitInstanceParams, context.effectInstance, 'damage', 15);
-
-	for (const enemy of targets) {
-		const chara = getChara(enemy.id);
-		if (chara) {
-			await safeShowPopText(chara, `-${damage} Dmg`, "damage", context.scene);
-			chara.unitHit(damage);
 		}
 	}
 };
