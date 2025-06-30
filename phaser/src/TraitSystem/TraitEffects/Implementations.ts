@@ -30,7 +30,7 @@ import { Chara } from "../../Systems/Chara/Chara";
 import { applyStatusEffect } from "../../Systems/StatusEffects/StatusEffectManager";
 
 // Import extracted implementations
-import { dealDamageLogic, grantGoldLogic, restoreForceMoraleLogic } from "./implementations/index";
+import { dealDamageLogic, grantGoldLogic, restoreForceMoraleLogic, reduceEnemyMoraleLogic } from "./implementations/index";
 
 // ===== HELPER FUNCTIONS TO REDUCE REPETITION =====
 
@@ -432,18 +432,6 @@ const splashDamageToRandomAdjacentAllyLogic: TraitEffectFn = async (context) => 
 			chara.unitHit(damage);
 			impactEffect({ scene, location: chara, pointA: sourceChara, pointB: chara });
 		}
-	}
-};
-
-/**
- * Effect: Reduces enemy force morale
- */
-const reduceEnemyMoraleLogic: TraitEffectFn = async (context) => {
-	const amount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 75);
-	const enemyForceId = context.state.battleData.forces.find(f => f.id !== context.sourceUnit.force)?.id;
-
-	if (enemyForceId) {
-		await manipulateForceMorealeWrapper(enemyForceId, -amount, context, "Enemy ");
 	}
 };
 
