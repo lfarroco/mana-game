@@ -25,11 +25,14 @@ Created `BattlegroundScene.pure.ts` containing pure functions with dependency in
 - **Immutable**: Functions return new objects/arrays instead of mutating inputs
 - **Testable**: Can be tested in isolation without browser environment
 
-### 2. **Type Safety Without Phaser**
-Created `types.pure.ts` with minimal types:
-- `Vec2Pure` - Position type without Phaser dependencies
-- `vec2Pure()` - Constructor function  
-- `eqVec2Pure()` - Equality comparison
+### 2. **Type Safety Without Dependencies**
+Originally created `types.pure.ts` with minimal types, but simplified further by creating `Utils/Vec2.ts`:
+- `Vec2` - Simple position type without external dependencies  
+- `vec2()` - Constructor function
+- `eqVec2()` - Equality comparison
+- Additional utility functions (`addVec2`, `subVec2`, `distance`, etc.)
+
+The `types.pure.ts` file has been removed in favor of this more general solution.
 
 ### 3. **Scene Integration**
 Updated `BattlegroundScene.ts` to:

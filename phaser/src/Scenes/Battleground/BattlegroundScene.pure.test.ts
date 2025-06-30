@@ -1,7 +1,7 @@
 import { removeUnitFromPlayerState, handleOwnedUnitSold, calculateGoldUpdate, updatePlayerGold, updateUnitPosition } from "./BattlegroundScene.pure";
 import { GameEvents } from "../../constants/events";
 import { Unit } from "../../Models/Entities/Unit";
-import { vec2Pure } from "./types.pure";
+import { vec2 } from "../../Utils/Vec2";
 
 describe("removeUnitFromPlayerState", () => {
 	it("should remove a unit from the player's state if it exists", () => {
@@ -265,7 +265,7 @@ describe("updateUnitPosition", () => {
 		const unit = createMockUnit("unit1", 1, 1);
 		const units = [unit];
 
-		const result = updateUnitPosition(unit, vec2Pure(1, 1), units);
+		const result = updateUnitPosition(unit, vec2(1, 1), units);
 
 		expect(result).toBeNull();
 	});
@@ -274,12 +274,12 @@ describe("updateUnitPosition", () => {
 		const unit = createMockUnit("unit1", 0, 0);
 		const units = [unit];
 
-		const result = updateUnitPosition(unit, vec2Pure(1, 1), units);
+		const result = updateUnitPosition(unit, vec2(1, 1), units);
 
 		expect(result).not.toBeNull();
 		expect(result!.movedUnit.position.x).toBe(1);
 		expect(result!.movedUnit.position.y).toBe(1);
-		expect(result!.oldPositionOfMovedUnit).toEqual(vec2Pure(0, 0));
+		expect(result!.oldPositionOfMovedUnit).toEqual(vec2(0, 0));
 		expect(result!.swappedUnit).toBeUndefined();
 	});
 
@@ -288,7 +288,7 @@ describe("updateUnitPosition", () => {
 		const unit2 = createMockUnit("unit2", 1, 1);
 		const units = [unit1, unit2];
 
-		const result = updateUnitPosition(unit1, vec2Pure(1, 1), units);
+		const result = updateUnitPosition(unit1, vec2(1, 1), units);
 
 		expect(result).not.toBeNull();
 		expect(result!.movedUnit.id).toBe("unit1");
@@ -297,7 +297,7 @@ describe("updateUnitPosition", () => {
 		expect(result!.swappedUnit!.id).toBe("unit2");
 		expect(result!.swappedUnit!.position.x).toBe(0);
 		expect(result!.swappedUnit!.position.y).toBe(0);
-		expect(result!.oldPositionOfMovedUnit).toEqual(vec2Pure(0, 0));
+		expect(result!.oldPositionOfMovedUnit).toEqual(vec2(0, 0));
 	});
 
 	it("should not mutate the original units array or units", () => {
@@ -307,7 +307,7 @@ describe("updateUnitPosition", () => {
 		const originalUnit1Position = { ...unit1.position };
 		const originalUnit2Position = { ...unit2.position };
 
-		updateUnitPosition(unit1, vec2Pure(1, 1), units);
+		updateUnitPosition(unit1, vec2(1, 1), units);
 
 		// Original units should be unchanged
 		expect(unit1.position).toEqual(originalUnit1Position);
@@ -321,7 +321,7 @@ describe("updateUnitPosition", () => {
 		const nonExistentUnit = createMockUnit("unit3", 2, 2);
 		const units = [unit1, unit2];
 
-		const result = updateUnitPosition(nonExistentUnit, vec2Pure(1, 0), units);
+		const result = updateUnitPosition(nonExistentUnit, vec2(1, 0), units);
 
 		expect(result).toBeNull();
 	});
@@ -334,7 +334,7 @@ describe("updateUnitPosition", () => {
 		const units = [unit1, unit2, unit3, unit4];
 
 		// Move unit1 to unit3's position (should swap)
-		const result = updateUnitPosition(unit1, vec2Pure(2, 0), units);
+		const result = updateUnitPosition(unit1, vec2(2, 0), units);
 
 		expect(result).not.toBeNull();
 		expect(result!.movedUnit.id).toBe("unit1");
@@ -355,7 +355,7 @@ describe("updateUnitPosition", () => {
 		const unit2 = createMockUnit("unit2", 1, 1); // Same position
 		const units = [unit1, unit2];
 
-		const result = updateUnitPosition(unit1, vec2Pure(2, 2), units);
+		const result = updateUnitPosition(unit1, vec2(2, 2), units);
 
 		expect(result).not.toBeNull();
 		expect(result!.movedUnit.position.x).toBe(2);

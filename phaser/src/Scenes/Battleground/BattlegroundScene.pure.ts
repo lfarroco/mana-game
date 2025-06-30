@@ -1,6 +1,6 @@
 import { Unit } from "../../Models/Entities/Unit";
 import { GameEvents } from "../../constants/events";
-import { Vec2Pure, eqVec2Pure } from "./types.pure";
+import { Vec2, eqVec2 } from "../../Utils/Vec2";
 
 /**
  * Pure function to remove a unit from the player's units array
@@ -99,16 +99,16 @@ export function handleOwnedUnitSold(
  */
 export function updateUnitPosition(
 	unitToMove: Unit,
-	newBoardPosition: Vec2Pure,
+	newBoardPosition: Vec2,
 	unitsOnBoard: Unit[]
 ): {
 	movedUnit: Unit;
 	swappedUnit?: Unit;
-	oldPositionOfMovedUnit: Vec2Pure;
+	oldPositionOfMovedUnit: Vec2;
 } | null {
 	const oldPositionOfMovedUnit = { x: unitToMove.position.x, y: unitToMove.position.y };
 
-	if (eqVec2Pure(oldPositionOfMovedUnit, newBoardPosition)) {
+	if (eqVec2(oldPositionOfMovedUnit, newBoardPosition)) {
 		return null; // No change in position
 	}
 
@@ -117,7 +117,7 @@ export function updateUnitPosition(
 	const movedUnit = updatedUnits.find(u => u.id === unitToMove.id);
 	if (!movedUnit) return null;
 
-	const occupierUnit = updatedUnits.find(u => u.id !== unitToMove.id && eqVec2Pure(u.position, newBoardPosition));
+	const occupierUnit = updatedUnits.find(u => u.id !== unitToMove.id && eqVec2(u.position, newBoardPosition));
 
 	if (occupierUnit) {
 		// Swap positions - need to preserve the tag property for Unit's Vec2
