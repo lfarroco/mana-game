@@ -273,14 +273,19 @@ export class BattlegroundScene extends Phaser.Scene {
     });
 
     // Remove unit from player's state
+    this.removeUnitFromPlayerState(unitId);
+
+    // Hide the sell zone
+    this.shop.shopUI.hideSellZone();
+  }
+
+  private removeUnitFromPlayerState(unitId: string): void {
     const unitIndex = this.state.gameData.player.units.findIndex(u => u.id === unitId);
     if (unitIndex > -1) {
       this.state.gameData.player.units.splice(unitIndex, 1);
     } else {
       console.warn(`[BattlegroundScene] Unit with ID ${unitId} not found for selling.`);
     }
-
-    this.shop.shopUI.hideSellZone();
   }
 }
 
