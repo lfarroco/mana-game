@@ -41,7 +41,7 @@ export function getEffectParams<T>(
  */
 export function calculateDamageAmount(
 	baseAmount: number,
-	sourceUnit: Unit,
+	_sourceUnit: Unit,
 	multiplier: number = 1.0,
 	flatBonus: number = 0
 ): number {
@@ -61,7 +61,7 @@ export function calculateDamageAmount(
  */
 export function calculateHealingAmount(
 	baseAmount: number,
-	sourceUnit: Unit,
+	_sourceUnit: Unit,
 	multiplier: number = 1.0,
 	flatBonus: number = 0
 ): number {
@@ -162,7 +162,7 @@ export function filterValidTargets(
  */
 export function calculateEffectDuration(
 	baseDuration: number,
-	sourceUnit: Unit,
+	_sourceUnit: Unit,
 	durationMultiplier: number = 1.0,
 	flatDurationBonus: number = 0
 ): number {
@@ -178,7 +178,7 @@ export function calculateEffectDuration(
  * @returns Whether the trait has the specified effect
  */
 export function traitHasEffect(
-	traitData: TraitData,
+	_traitData: TraitData,
 	effectId: string,
 	traitDefinition: { effects: Array<{ effectId: string }> }
 ): boolean {
@@ -195,7 +195,7 @@ export function traitHasEffect(
  */
 export function calculateGoldReward(
 	baseGold: number,
-	sourceUnit: Unit,
+	_sourceUnit: Unit,
 	goldMultiplier: number = 1.0,
 	flatGoldBonus: number = 0
 ): number {
