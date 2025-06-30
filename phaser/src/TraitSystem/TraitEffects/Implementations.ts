@@ -30,7 +30,7 @@ import { Chara } from "../../Systems/Chara/Chara";
 import { applyStatusEffect } from "../../Systems/StatusEffects/StatusEffectManager";
 
 // Import extracted implementations
-import { dealDamageLogic, grantGoldLogic, restoreForceMoraleLogic, reduceEnemyMoraleLogic, guildWideDamageLogic } from "./implementations/index";
+import { dealDamageLogic, grantGoldLogic, restoreForceMoraleLogic, reduceEnemyMoraleLogic, guildWideDamageLogic, boostAllyDamageLogic, hasteAllAlliesLogic } from "./implementations/index";
 
 // ===== HELPER FUNCTIONS TO REDUCE REPETITION =====
 
@@ -433,27 +433,6 @@ const splashDamageToRandomAdjacentAllyLogic: TraitEffectFn = async (context) => 
 			impactEffect({ scene, location: chara, pointA: sourceChara, pointB: chara });
 		}
 	}
-};
-
-/**
- * Effect: Boosts ally damage temporarily
- */
-const boostAllyDamageLogic: TraitEffectFn = async (context) => {
-	const { targets, scene } = context;
-	const amount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 15);
-	const duration = getEffectParams(context.traitInstanceParams, context.effectInstance, 'duration', 3000);
-
-	await applyTemporaryAttributeModification(targets, "power", amount, duration, scene, `+${amount} Damage!`);
-};
-
-/**
- * Effect: Hastes all allies
- */
-const hasteAllAlliesLogic: TraitEffectFn = async (context) => {
-	const { targets, scene } = context;
-	const duration = getEffectParams(context.traitInstanceParams, context.effectInstance, 'duration', 2500);
-
-	await applyTemporaryCooldownModification(targets, 0.5, duration, scene, "Hasted!");
 };
 
 /**
