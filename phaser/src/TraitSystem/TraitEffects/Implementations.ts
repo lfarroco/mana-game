@@ -2,19 +2,6 @@
  * @file Contains the actual implementations for various trait effects.
  * Each function defined here corresponds to an `effectId` that can be used
  * in `TraitDefinition`s. These functions are registered with the `TraitEffectSystem`.
- * 
- * NOTE: HP-based traits have been removed as the game no longer uses HP mechanics.
- * Removed traits include:
- * - "temporary_hp_boost" (temporary HP increase)
- * - "damage_scales_with_missing_hp" (berserker rage based on missing HP)
- * - "sacrifice_hp_for_damage" (reckless abandon trading HP for power)
- * - "source_hp_below_percent" condition (HP threshold checks)
- * 
- * Alternative mechanics can focus on:
- * - Time-based effects (duration, cooldowns)
- * - Position-based bonuses (formation strategy)
- * - Resource management (morale, gold)
- * - Turn-based mechanics (action economy)
  */
 import { registerTraitEffectImplementation } from "../TraitEffectSystem";
 import { GameEvents } from "../../constants/events";
@@ -226,12 +213,10 @@ function createAttributeModificationEffect(attribute: keyof Unit, isTemporary: b
 }
 
 /**
- * Helper function to create effects that target the closest enemy (simplified targeting)
- * Uses pre-resolved targets from context.targets for consistency
+ * Helper function to create effects that target the closest enemy
  */
 function createSimpleEnemyEffect(effectLogic: (target: Unit, context: TraitEffectContext) => Promise<void>): TraitEffectFn {
 	return async (context) => {
-		// Use pre-resolved targets from the trait system
 		for (const target of context.targets) {
 			await effectLogic(target, context);
 		}
@@ -240,11 +225,9 @@ function createSimpleEnemyEffect(effectLogic: (target: Unit, context: TraitEffec
 
 /**
  * Helper function to create effects that affect the entire enemy guild
- * Uses pre-resolved targets from context.targets for consistency
  */
 function createGuildWideEnemyEffect(effectLogic: (targets: Unit[], context: TraitEffectContext) => Promise<void>): TraitEffectFn {
 	return async (context) => {
-		// Use pre-resolved targets from the trait system
 		await effectLogic(context.targets, context);
 	};
 }
@@ -463,7 +446,6 @@ const splashDamageToRandomAdjacentAllyLogic: TraitEffectFn = async (context) => 
 
 	if (damage <= 0) return;
 
-	// Use pre-resolved adjacent allies targets (assumes targetSelector is "allies_adjacent")
 	if (context.targets.length > 0) {
 		const randomAlly = pickRandom(context.targets, 1)[0];
 		const chara = getChara(randomAlly.id);
@@ -514,7 +496,6 @@ const hasteAllAlliesLogic: TraitEffectFn = async (context) => {
 	const { targets, scene } = context;
 	const duration = getEffectParams(context.traitInstanceParams, context.effectInstance, 'duration', 2500);
 
-	// Use pre-resolved targets (assumes targetSelector is "all_allies")
 	await applyTemporaryCooldownModification(targets, 0.5, duration, scene, "Hasted!");
 };
 
@@ -525,7 +506,6 @@ const slowAllEnemiesLogic: TraitEffectFn = async (context) => {
 	const { targets, scene } = context;
 	const duration = getEffectParams(context.traitInstanceParams, context.effectInstance, 'duration', 2500);
 
-	// Use pre-resolved targets (assumes targetSelector is "enemy_guild" for guild-wide effects)
 	await applyTemporaryCooldownModification(targets, 1.5, duration, scene, "Slowed!");
 };
 
@@ -638,7 +618,6 @@ const grantMoraleToAlliesLogic: TraitEffectFn = async (context) => {
 const cleanseAllyDebuffsLogic: TraitEffectFn = async (context) => {
 	const { targets } = context;
 
-	// Use pre-resolved targets (assumes targetSelector is "all_allies")
 	for (const ally of targets) {
 		const chara = getChara(ally.id);
 		if (chara) {
@@ -714,7 +693,6 @@ const reduceAllyDamageTakenLogic: TraitEffectFn = async (context) => {
 
 /**
  * Effect: Damage scales with time in battle (growing fury)
- * Alternative to HP-based berserker rage
  */
 const damageScalesWithTimeLogic: TraitEffectFn = async (context) => {
 	const { sourceUnit, effectInstance, traitInstanceParams, scene } = context;
@@ -734,7 +712,6 @@ const damageScalesWithTimeLogic: TraitEffectFn = async (context) => {
 
 /**
  * Effect: Sacrifice cooldown for damage (reckless haste)
- * Alternative to HP sacrifice - trades action speed for power
  */
 const sacrificeCooldownForDamageLogic: TraitEffectFn = async (context) => {
 	const { sourceUnit, effectInstance, traitInstanceParams } = context;
@@ -762,7 +739,7 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("deal_damage", dealDamageLogic);
 
 	// Trait-based effects
-	registerTraitEffectImplementation("trait_sniper", traitSniperLogic); // TODO: generic position check effect
+	registerTraitEffectImplementation("trait_sniper", traitSniperLogic);
 
 	// Skill-based effects
 	registerTraitEffectImplementation("skill_melee", performSkillMeleeLogic);
@@ -795,14 +772,11 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("fortress_mode_passive", fortressModePassiveLogic);
 	registerTraitEffectImplementation("reduce_ally_damage_taken", reduceAllyDamageTakenLogic);
 
-	// Alternative mechanics (replacing removed HP-based traits)
+	// Time-based and alternative mechanics
 	registerTraitEffectImplementation("damage_scales_with_time", damageScalesWithTimeLogic);
 	registerTraitEffectImplementation("sacrifice_cooldown_for_damage", sacrificeCooldownForDamageLogic);
 
-	// Simple attribute modification effects (using the helper factory)
+	// Simple attribute modification effects
 	registerTraitEffectImplementation("increase_power", increasePowerLogic);
 
-	// Alternative effects replacing HP-based traits
-	registerTraitEffectImplementation("damage_scales_with_time", damageScalesWithTimeLogic);
-	registerTraitEffectImplementation("sacrifice_cooldown_for_damage", sacrificeCooldownForDamageLogic);
 }
