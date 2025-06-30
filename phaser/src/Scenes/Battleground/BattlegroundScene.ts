@@ -39,8 +39,8 @@ export class BattlegroundScene extends Phaser.Scene {
   runCombatSystem: RunCombatSystem;
   /** System responsible for managing battle progression (shop, combat, game over). */
   battleProgressionSystem: BattleProgressionSystem;
-	/** The shop system, allowing players to buy units */
-	shop: Shop;
+  /** The shop system, allowing players to buy units */
+  shop: Shop;
 
   // New Systems
   setupSystem!: BattlegroundSetupSystem;
@@ -255,37 +255,32 @@ export class BattlegroundScene extends Phaser.Scene {
   handleOwnedUnitSold(payload: { unitId: string, soldForGold: number }): void {
     const { unitId, soldForGold } = payload;
 
-    // 1. Update player gold
-    this.updatePlayerGold(soldForGold); // Or emit PLAYER_GOLD_DELTA_REQUEST if preferred
+    // Update player gold
+    this.updatePlayerGold(soldForGold);
 
-    // Attempt to get Chara instance for position before it's destroyed
-    let popTextX = this.sys.game.config.width as number / 2; // Fallback X
-    let popTextY = this.sys.game.config.height as number / 2; // Fallback Y
-    const chara = CharaManager.getChara(unitId); // CharaManager is imported
-    if (chara) {
-      popTextX = chara.x;
-      popTextY = chara.y;
-    }
-    chara.destroy();
+    // Get Chara instance and destroy it
+    const chara = CharaManager.getChara(unitId);
+    const popTextX = chara?.x ?? (this.sys.game.config.width as number) / 2;
+    const popTextY = chara?.y ?? (this.sys.game.config.height as number) / 2;
+    chara?.destroy();
 
-    // 2. Emit PopText for gold gain
+    // Emit PopText for gold gain
     this.events.emit(GameEvents.POP_TEXT_SHOW, {
       text: `+${soldForGold}G`,
       x: popTextX,
       y: popTextY,
-      type: "success" // Using "success" (green) or "heal"
+      type: "success",
     });
 
-    // 3. Remove unit from player's state
-    const unitIndex = this.state.gameData.player.units.findIndex(u => u.id === payload.unitId);
+    // Remove unit from player's state
+    const unitIndex = this.state.gameData.player.units.findIndex(u => u.id === unitId);
     if (unitIndex > -1) {
       this.state.gameData.player.units.splice(unitIndex, 1);
     } else {
-      console.warn(`[BattlegroundScene] Unit with ID ${payload.unitId} not found for selling.`);
+      console.warn(`[BattlegroundScene] Unit with ID ${unitId} not found for selling.`);
     }
 
     this.shop.shopUI.hideSellZone();
-
   }
 }
 

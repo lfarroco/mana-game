@@ -6,7 +6,6 @@ import { GameEvents } from "../../../constants/events";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { popText } from "../../../Systems/Chara/Animations/popText";
 import { PopTextPayload } from "../../../Models/EventPayloads";
-import * as CharaTooltip from "../../../Systems/Chara/CharaTooltip";
 import * as MoraleDisplay from "../MoraleDisplay";
 import * as VignetteSystem from "../Animations/vignette";
 
@@ -50,52 +49,50 @@ export class BattlegroundEventSystem {
 		this.listeners.push({ event, handler, context });
 	}
 
-	registerEventHandlers(): void {
-		// Game Lifecycle & Phase Transitions
-		this.addListener(GameEvents.GAME_OVER_SHOW_UI_TRIGGER, () => {
-			console.warn("Not implemented")
-		}, this.uiManager);
-
-		// Player State
-		this.addListener(GameEvents.PLAYER_GOLD_DELTA_REQUEST, this.scene.handlePlayerGoldUpdateRequest, this.scene);
-
-		// Board & UI Setup/Visibility
-		this.addListener(GameEvents.PLAYER_BOARD_CREATE_DROP_ZONE, createBoardDropZone); // No context needed
-		this.addListener(GameEvents.PLAYER_BOARD_SHOW, this.playerBoard.display, this.playerBoard);
-		this.addListener(GameEvents.PLAYER_BOARD_HIDE, this.playerBoard.hide, this.playerBoard);
-		this.addListener(GameEvents.UI_MAIN_CREATE, this.uiManager.createMainUI, this.uiManager);
-
-		// Chara Lifecycle & Visuals
-		this.addListener(GameEvents.CHARA_SUMMON_TO_BOARD, CharaManager.handleSummonCharaToBoardEvent);
-		this.addListener(GameEvents.CHARA_DESTROY_FROM_BOARD, CharaManager.handleDestroyCharaFromBoardEvent);
-		this.addListener(GameEvents.CHARA_CHARGE_BAR_UPDATE, CharaManager.handleCharaChargeBarUpdateEvent);
-		this.addListener(GameEvents.CHARA_BARS_VISIBILITY_SET, CharaManager.handleCharaBarsVisibilitySetEvent);
-
-		// Visual Effects & Feedback
-		this.addListener(GameEvents.POP_TEXT_SHOW, (payload: PopTextPayload) => {
-			popText({ scene: this.scene, x: payload.x, y: payload.y, text: payload.text, type: payload.type });
-		}, this);
-		this.addListener(GameEvents.BATTLE_RESULT_SHOW, this.scene.handleBattleResultShow, this.scene);
-		VignetteSystem.init(this.scene);
-
-		// Shop Interactions
-		this.addListener(GameEvents.SHOP_OPEN_UI_TRIGGER, this.shop.handleShopOpenUITrigger, this.shop);
-		this.addListener(GameEvents.SHOP_ITEM_CLICK_PURCHASE_REQUESTED, this.shop.handleShopItemClickPurchaseRequested, this.shop);
-		this.addListener(GameEvents.SHOP_ITEM_DRAG_PURCHASE_REQUESTED, this.shop.handleShopItemDragPurchaseRequested, this.shop);
-
-		// Unit Placement & Movement
-		this.addListener(GameEvents.OWNED_UNIT_MOVE_REQUESTED, this.scene.handleOwnedUnitMoveRequest, this.scene);
-		this.addListener(GameEvents.BOARD_CHARA_CREATE_REQUESTED, this.scene.handleBoardCharaCreateRequest, this.scene);
-		this.addListener(GameEvents.OWNED_UNIT_SOLD, this.scene.handleOwnedUnitSold, this.scene);
-
-		// Tooltips (keeping direct calls as they are simple and UI related)
-		this.addListener(GameEvents.CHARA_POINTER_OVER, CharaTooltip.onCharaPointerOver, this); // Context `this` is fine if onCharaPointerOver doesn't rely on CharaTooltip's `this`
-		this.addListener(GameEvents.CHARA_POINTER_OUT, CharaTooltip.onCharaPointerOut, this); // Same as above
-
-		// Morale UI
+	private initializeMoraleDisplay(): void {
+		MoraleDisplay.init(this.scene);
 		this.addListener(GameEvents.MORALE_BARS_SHOW, MoraleDisplay.showBars);
 		this.addListener(GameEvents.MORALE_BARS_HIDE, MoraleDisplay.hideBars);
-		MoraleDisplay.init(this.scene);
+	}
+
+	private initializeVignetteSystem(): void {
+		VignetteSystem.init(this.scene);
+	}
+
+	registerEventHandlers(): void {
+		const eventMappings = [
+			// Game Lifecycle & Phase Transitions
+			{ event: GameEvents.GAME_OVER_SHOW_UI_TRIGGER, handler: () => console.warn("Not implemented"), context: this.uiManager },
+
+			// Player State
+			{ event: GameEvents.PLAYER_GOLD_DELTA_REQUEST, handler: this.scene.handlePlayerGoldUpdateRequest, context: this.scene },
+
+			// Board & UI Setup/Visibility
+			{ event: GameEvents.PLAYER_BOARD_CREATE_DROP_ZONE, handler: createBoardDropZone },
+			{ event: GameEvents.PLAYER_BOARD_SHOW, handler: this.playerBoard.display, context: this.playerBoard },
+			{ event: GameEvents.PLAYER_BOARD_HIDE, handler: this.playerBoard.hide, context: this.playerBoard },
+			{ event: GameEvents.UI_MAIN_CREATE, handler: this.uiManager.createMainUI, context: this.uiManager },
+
+			// Chara Lifecycle & Visuals
+			{ event: GameEvents.CHARA_SUMMON_TO_BOARD, handler: CharaManager.handleSummonCharaToBoardEvent },
+			{ event: GameEvents.CHARA_DESTROY_FROM_BOARD, handler: CharaManager.handleDestroyCharaFromBoardEvent },
+			{ event: GameEvents.CHARA_CHARGE_BAR_UPDATE, handler: CharaManager.handleCharaChargeBarUpdateEvent },
+			{ event: GameEvents.CHARA_BARS_VISIBILITY_SET, handler: CharaManager.handleCharaBarsVisibilitySetEvent },
+
+			// Visual Effects & Feedback
+			{ event: GameEvents.POP_TEXT_SHOW, handler: (payload: PopTextPayload) => popText({ scene: this.scene, x: payload.x, y: payload.y, text: payload.text, type: payload.type }), context: this },
+			{ event: GameEvents.BATTLE_RESULT_SHOW, handler: this.scene.handleBattleResultShow, context: this.scene },
+
+			// Shop Interactions
+			{ event: GameEvents.SHOP_OPEN_UI_TRIGGER, handler: this.shop.handleShopOpenUITrigger, context: this.shop },
+		];
+
+		eventMappings.forEach(({ event, handler, context }) => {
+			this.addListener(event, handler, context);
+		});
+
+		this.initializeMoraleDisplay();
+		this.initializeVignetteSystem();
 	}
 
 	destroy(): void {
