@@ -8,7 +8,7 @@ import { getAllCards } from "../../../Models/Entities/Card";
 import { generateEnemyTeam } from "../generateEnemyTeam";
 import { PrestigeSystem } from "../../../Systems/PrestigeSystem";
 import * as CharaManager from "./CharaManager";
-import { cpuForce, playerForce, } from "../../../Models/Entities/Force";
+import { cpuForce, playerForce, manipulateForceMoreale } from "../../../Models/Entities/Force";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
 
 /**
@@ -134,7 +134,14 @@ export class BattleProgressionSystem {
 			unit.slowed = 0;
 			unit.hasted = 0;
 			unit.hp = unit.maxHp;
+
+			// Clear defensive trait effects
+			unit.damageReductionStacks = undefined;
 		});
+
+		// Clear force-level defensive effects
+		playerForce.moraleReductionStacks = undefined;
+		cpuForce.moraleReductionStacks = undefined;
 	}
 
 	resetPlayerUnitChargeBars(): void {
@@ -163,6 +170,11 @@ export class BattleProgressionSystem {
 	setupBattle(): { enemies: Unit[] } {
 		const cardPool = getAllCards();
 		const enemy = generateEnemyTeam(this.state.gameData.round, cardPool);
+
+		// Clear any existing defensive trait effects from previous battles
+		enemy.units.forEach(unit => {
+			unit.damageReductionStacks = undefined;
+		});
 
 		this.state.battleData.forces = [
 			cpuForce,
@@ -264,13 +276,8 @@ export class BattleProgressionSystem {
 
 		if (!targetForce) return;
 
-		// Morale is a resource pool that is depleted by damage taken by units.
-		targetForce.morale -= Math.max(0, damage); // Ensure morale doesn't increase from negative damage (healing)
+		manipulateForceMoreale(targetForce, -Math.max(0, damage), this.scene);
 
-		this.scene.events.emit(
-			GameEvents.MORALE_UPDATED,
-			{ forceId: targetForce.id, newMorale: targetForce.morale, maxMorale: targetForce.maxMorale, }
-		);
 	}
 
 
