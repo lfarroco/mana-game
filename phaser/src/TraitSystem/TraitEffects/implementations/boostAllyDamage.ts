@@ -16,8 +16,8 @@ import { Unit } from "../../../Models/Entities/Unit";
  * @returns Calculation details for the boost effect
  */
 export function boostAllyDamagePure(
-	amount: number, 
-	duration: number, 
+	amount: number,
+	duration: number,
 	targets: Unit[]
 ): {
 	amount: number;

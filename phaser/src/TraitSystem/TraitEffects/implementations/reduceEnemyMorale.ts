@@ -15,15 +15,15 @@ import { getEffectParams } from "../../TraitSystem.pure";
  * @returns The enemy force ID and reduction amount
  */
 export function reduceEnemyMoralePure(
-	amount: number, 
-	sourceForceId: string, 
+	amount: number,
+	sourceForceId: string,
 	allForces: { id: string }[]
 ): {
 	amount: number;
 	enemyForceId: string | null;
 } {
 	const enemyForce = allForces.find(f => f.id !== sourceForceId);
-	
+
 	return {
 		amount: Math.max(0, amount), // Ensure positive reduction
 		enemyForceId: enemyForce?.id || null
@@ -36,7 +36,7 @@ export function reduceEnemyMoralePure(
  */
 export const reduceEnemyMoraleLogic: TraitEffectFn = async (context: TraitEffectContext) => {
 	const amount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 75);
-	
+
 	// Use dynamic imports to avoid circular dependencies in tests
 	const { manipulateForceMoreale } = await import("../../../Models/Entities/Force");
 	const { getChara } = await import("../../../Scenes/Battleground/Systems/CharaManager");
@@ -46,7 +46,7 @@ export const reduceEnemyMoraleLogic: TraitEffectFn = async (context: TraitEffect
 
 	if (enemyForceId) {
 		const targetForce = state.battleData.forces.find(f => f.id === enemyForceId);
-		
+
 		if (targetForce) {
 			// Use the shared utility function that handles morale damage reduction
 			const actualChange = manipulateForceMoreale(targetForce, -amount, scene);

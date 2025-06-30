@@ -29,7 +29,7 @@ export function restoreForceMoralePure(amount: number, sourceForceId: string): {
  */
 export const restoreForceMoraleLogic: TraitEffectFn = async (context: TraitEffectContext) => {
 	const amount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 50);
-	
+
 	// Use dynamic imports to avoid circular dependencies in tests
 	const [
 		{ manipulateForceMoreale },

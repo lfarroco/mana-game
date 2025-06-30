@@ -16,7 +16,7 @@ import { Unit } from "../../../Models/Entities/Unit";
  * @returns Calculation details for the haste effect
  */
 export function hasteAllAlliesPure(
-	duration: number, 
+	duration: number,
 	targets: Unit[],
 	multiplier: number = 0.5
 ): {

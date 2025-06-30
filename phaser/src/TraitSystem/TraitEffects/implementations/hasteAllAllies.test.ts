@@ -14,7 +14,7 @@ describe('hasteAllAlliesPure', () => {
 
 	it('should calculate correct haste effect for multiple targets', () => {
 		const result = hasteAllAlliesPure(2500, mockTargets, 0.5);
-		
+
 		expect(result).toEqual({
 			duration: 2500,
 			multiplier: 0.5,
@@ -29,14 +29,14 @@ describe('hasteAllAlliesPure', () => {
 
 	it('should use default multiplier when not provided', () => {
 		const result = hasteAllAlliesPure(3000, mockTargets);
-		
+
 		expect(result.multiplier).toBe(0.5);
 		expect(result.calculations.every(calc => calc.cooldownMultiplier === 0.5)).toBe(true);
 	});
 
 	it('should ensure non-negative duration', () => {
 		const result = hasteAllAlliesPure(-1000, mockTargets, 0.5);
-		
+
 		expect(result).toEqual({
 			duration: 0, // Should clamp negative duration to 0
 			multiplier: 0.5,
@@ -63,7 +63,7 @@ describe('hasteAllAlliesPure', () => {
 
 	it('should handle empty target array', () => {
 		const result = hasteAllAlliesPure(4000, [], 0.3);
-		
+
 		expect(result).toEqual({
 			duration: 4000,
 			multiplier: 0.3,
@@ -75,7 +75,7 @@ describe('hasteAllAlliesPure', () => {
 	it('should handle single target', () => {
 		const singleTarget = [mockTargets[0]];
 		const result = hasteAllAlliesPure(1500, singleTarget, 0.7);
-		
+
 		expect(result).toEqual({
 			duration: 1500,
 			multiplier: 0.7,
@@ -88,7 +88,7 @@ describe('hasteAllAlliesPure', () => {
 
 	it('should handle zero duration', () => {
 		const result = hasteAllAlliesPure(0, mockTargets, 0.5);
-		
+
 		expect(result.duration).toBe(0);
 		expect(result.calculations.every(calc => calc.duration === 0)).toBe(true);
 	});
@@ -116,9 +116,9 @@ describe('hasteAllAlliesPure', () => {
 			{ id: 'warrior-1' } as unknown as Unit,
 			{ id: 'mage-1' } as unknown as Unit
 		];
-		
+
 		const result = hasteAllAlliesPure(3500, differentTargets, 0.4);
-		
+
 		expect(result.calculations).toEqual([
 			{ unitId: 'warrior-1', duration: 3500, cooldownMultiplier: 0.4 },
 			{ unitId: 'mage-1', duration: 3500, cooldownMultiplier: 0.4 }
@@ -128,7 +128,7 @@ describe('hasteAllAlliesPure', () => {
 
 	it('should handle large duration values', () => {
 		const result = hasteAllAlliesPure(60000, mockTargets, 0.5);
-		
+
 		expect(result.duration).toBe(60000);
 		expect(result.calculations.every(calc => calc.duration === 60000)).toBe(true);
 	});
