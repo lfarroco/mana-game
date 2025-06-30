@@ -153,13 +153,14 @@ The Trait System is designed to provide special abilities, characteristics, and 
     *   `sacrifice_cooldown_for_damage` - Trading action speed for power
     *   `battle_time_elapsed` condition - Time-based activation
 *   **Simplified Targeting:** Enemy targeting simplified to always use closest enemy, while allied targeting retains positional complexity for formation strategy.
+*   **Guild-Wide Skills:** All skills now target the entire enemy guild by default, eliminating the need for separate "area damage" mechanics.
 
 ## 9. Future Considerations / Potential Improvements
 
 *   **Dynamic Trait Modification:** Allow effects to add/remove/modify traits on units during gameplay.
 *   **Stacking/Duration:** Formalize how multiple instances of the same trait or status effects stack or manage durations.
 *   **Trait Priorities:** If multiple traits trigger on the same event, define an order of execution.
-*   **More Sophisticated Target Selectors:** Implement selectors based on geometry (area of effect), specific unit properties, etc.
+*   **More Sophisticated Target Selectors:** Implement selectors based on geometry, specific unit properties, etc. (Note: Area effects are now handled at the skill level rather than targeting level.)
 *   **Debugging Tools:** Visualizers or loggers specifically for trait activations and effect executions.
 *   **Declarative Effect Definitions:** Move toward more data-driven effect composition for designers.
 *   **Effect Builder Pattern:** Simplify effect creation with a fluent API for common patterns.
