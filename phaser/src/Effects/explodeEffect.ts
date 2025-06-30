@@ -1,5 +1,6 @@
 import { images } from "../assets";
 import { delay } from "../Utils/animation";
+import { impactEffect } from "./impactEffect";
 
 export async function explodeEffect(
 	scene: Phaser.Scene,
@@ -63,39 +64,11 @@ export async function explodeEffect(
 	sparks.destroy();
 	energy.destroy();
 
-	impactEffect(scene, source, lifespan);
-
-}
-
-
-function impactEffect(
-	scene: Phaser.Scene,
-	target: { x: number; y: number; },
-	lifespan: number,
-) {
-	const particle = scene.add.particles(
-		target.x, target.y,
-		images.white_dot.key,
-		{
-			speed: 200,
-			tint: [0xff0000, 0xffff00, 0xffa500],
-			lifespan: lifespan / 2,
-			alpha: { start: 0.5, end: 0 },
-			scale: { start: 4, end: 8 },
-			blendMode: 'ADD',
-			frequency: 5,
-			stopAfter: 30
-		}
-	);
-
-	scene.time.addEvent({
-		delay: lifespan / 2,
-		callback: () => {
-			particle.stop()
-			// Destroy after a delay to let existing particles fade out
-			scene.time.delayedCall(lifespan, () => particle.destroy());
-		}
+	await impactEffect({ 
+		scene, 
+		location: source, 
+		pointA: source, 
+		pointB: source 
 	});
 
-	return particle
 }

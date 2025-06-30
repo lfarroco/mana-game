@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { FORCE_ID_PLAYER, FORCE_ID_CPU, INITIAL_MORALE } from "../../constants/constants";
 import { Unit, MoraleReductionStack } from "./Unit";
 import { GameEvents } from "../../constants/events";
+import { devlog } from "../../utils";
 
 export type Force = {
 	id: string;
@@ -84,7 +85,7 @@ export const manipulateForceMoreale = (
 			finalAmount = -reducedAmount;
 
 			const moraleProtected = originalAmount - reducedAmount;
-			console.log(`[Morale Guardian] Protected ${moraleProtected.toFixed(1)} morale (${totalReduction}% reduction)`);
+			devlog(`[Morale Guardian] Protected ${moraleProtected.toFixed(1)} morale (${totalReduction}% reduction)`);
 		}
 	}
 

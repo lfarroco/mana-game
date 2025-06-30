@@ -1,6 +1,7 @@
 import { images } from "../assets";
 import { delay } from "../Utils/animation";
 import { EnergyBeam } from "./EnergyBeam";
+import { ARCANE_MISSILE_CONFIG } from "../constants/constants";
 
 
 type ArcaneMissileAnimationArgs = {
@@ -16,7 +17,7 @@ export async function arcaneMissile({
 	source,
 	target,
 	onHit = () => { },
-	colors = [0xFF00FF, 0x0000FF, 0x000000] //dark purple to blue
+	colors = ARCANE_MISSILE_CONFIG.DEFAULT_COLORS
 }: ArcaneMissileAnimationArgs) {
 
 	const distance = Phaser.Math.Distance.BetweenPoints(source, target)
@@ -27,10 +28,10 @@ export async function arcaneMissile({
 		start: source,
 		end: target,
 		thickness: 1,
-		amplitude: (100 * Math.random() + 30) * positiveOrNegative,
-		frequency: Math.floor(Math.random() * 3 + 1),
-		segments: 20,
-		color: 0x00FFFF,
+		amplitude: (ARCANE_MISSILE_CONFIG.BEAM_AMPLITUDE_RANDOM * Math.random() + ARCANE_MISSILE_CONFIG.BEAM_AMPLITUDE_BASE) * positiveOrNegative,
+		frequency: Math.floor(Math.random() * ARCANE_MISSILE_CONFIG.BEAM_FREQUENCY_MAX + ARCANE_MISSILE_CONFIG.BEAM_FREQUENCY_MIN),
+		segments: ARCANE_MISSILE_CONFIG.BEAM_SEGMENTS,
+		color: ARCANE_MISSILE_CONFIG.BEAM_COLOR,
 	});
 
 	beam.updateBeam();
@@ -40,11 +41,11 @@ export async function arcaneMissile({
 		0, 0,
 		images.white_dot.key,
 		{
-			speed: 20,
+			speed: ARCANE_MISSILE_CONFIG.PARTICLE_SPEED,
 			tint: colors,
-			lifespan: 600,
+			lifespan: ARCANE_MISSILE_CONFIG.PARTICLE_LIFESPAN,
 			alpha: { start: 1, end: 0 },
-			scale: { start: 4, end: 0 },
+			scale: { start: ARCANE_MISSILE_CONFIG.PARTICLE_SCALE_START, end: ARCANE_MISSILE_CONFIG.PARTICLE_SCALE_END },
 			blendMode: 'ADD',
 			radial: true,
 		}
@@ -73,7 +74,7 @@ export async function arcaneMissile({
 	//make particles follow follower
 	particles.startFollow(follower);
 
-	await delay(scene, duration * 2);
+	await delay(scene, distance * ARCANE_MISSILE_CONFIG.DURATION_MULTIPLIER);
 
 	particles.stop()
 
@@ -82,23 +83,22 @@ export async function arcaneMissile({
 		target.x, target.y,
 		images.white_dot.key,
 		{
-			speed: 300,
-			// purple to blue tones
-			tint: [0x800080, 0x0000FF],
-			lifespan: 400,
-			alpha: { start: 0.5, end: 0 },
-			scale: { start: 6, end: 0 },
+			speed: ARCANE_MISSILE_CONFIG.IMPACT_SPEED,
+			tint: ARCANE_MISSILE_CONFIG.IMPACT_COLORS,
+			lifespan: ARCANE_MISSILE_CONFIG.IMPACT_LIFESPAN,
+			alpha: { start: ARCANE_MISSILE_CONFIG.IMPACT_ALPHA_START, end: 0 },
+			scale: { start: ARCANE_MISSILE_CONFIG.IMPACT_SCALE_START, end: ARCANE_MISSILE_CONFIG.IMPACT_SCALE_END },
 			blendMode: 'ADD',
 		}
 	);
 
 	onHit();
 
-	await delay(scene, 300);
+	await delay(scene, ARCANE_MISSILE_CONFIG.IMPACT_DELAY);
 
 	impact.stop();
 
-	await delay(scene, 400);
+	await delay(scene, ARCANE_MISSILE_CONFIG.IMPACT_LIFESPAN);
 
 	beam.destroy();
 	particles.destroy();
