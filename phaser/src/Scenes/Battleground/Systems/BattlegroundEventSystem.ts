@@ -92,6 +92,8 @@ export class BattlegroundEventSystem {
 
 			// Player State
 			{ event: GameEvents.PLAYER_GOLD_DELTA_REQUEST, handler: this.scene.handlePlayerGoldUpdateRequest, context: this.scene },
+			{ event: GameEvents.OWNED_UNIT_MOVE_REQUESTED, handler: this.scene.handleOwnedUnitMoveRequest, context: this.scene },
+			{ event: GameEvents.OWNED_UNIT_SOLD, handler: this.scene.handleOwnedUnitSold, context: this.scene },
 
 			// Board & UI Setup/Visibility
 			{ event: GameEvents.PLAYER_BOARD_CREATE_DROP_ZONE, handler: createBoardDropZone },
@@ -100,6 +102,7 @@ export class BattlegroundEventSystem {
 			{ event: GameEvents.UI_MAIN_CREATE, handler: this.uiManager.createMainUI, context: this.uiManager },
 
 			// Chara Lifecycle & Visuals
+			{ event: GameEvents.BOARD_CHARA_CREATE_REQUESTED, handler: this.scene.handleBoardCharaCreateRequest, context: this.scene },
 			{ event: GameEvents.CHARA_SUMMON_TO_BOARD, handler: CharaManager.handleSummonCharaToBoardEvent },
 			{ event: GameEvents.CHARA_DESTROY_FROM_BOARD, handler: CharaManager.handleDestroyCharaFromBoardEvent },
 			{ event: GameEvents.CHARA_CHARGE_BAR_UPDATE, handler: CharaManager.handleCharaChargeBarUpdateEvent },
@@ -111,6 +114,8 @@ export class BattlegroundEventSystem {
 
 			// Shop Interactions
 			{ event: GameEvents.SHOP_OPEN_UI_TRIGGER, handler: this.shop.handleShopOpenUITrigger, context: this.shop },
+			{ event: GameEvents.SHOP_ITEM_CLICK_PURCHASE_REQUESTED, handler: this.shop.handleShopItemClickPurchaseRequested, context: this.shop },
+			{ event: GameEvents.SHOP_ITEM_DRAG_PURCHASE_REQUESTED, handler: this.shop.handleShopItemDragPurchaseRequested, context: this.shop },
 		];
 
 		eventMappings.forEach(({ event, handler, context }) => {
