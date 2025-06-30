@@ -240,28 +240,6 @@ const increasePowerLogic: TraitEffectFn = createAttributeModificationEffect('pow
 // slowAllEnemiesLogic implementation moved to ./implementations/slowAllEnemies.ts
 
 /**
- * Effect: Freezes all enemies (prevents actions)
- */
-const freezeAllEnemiesLogic: TraitEffectFn = async (context) => {
-	const { targets, effectInstance, traitInstanceParams, scene } = context;
-	const duration = (traitInstanceParams.duration ?? effectInstance.duration ?? 1500) as number;
-
-	for (const enemy of targets) {
-		const chara = getChara(enemy.id);
-		if (chara) {
-			applyStatusEffect(enemy, {
-				type: 'freeze',
-				remainingDuration: duration,
-				displayName: 'Frozen'
-			});
-
-			// Only show pop text if the scene is still active
-			await safeShowPopText(chara, "Frozen!", "damage", scene);
-		}
-	}
-};
-
-/**
  * Effect: Stuns all enemies
  */
 const stunAllEnemiesLogic: TraitEffectFn = async (context) => {
@@ -513,7 +491,7 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("boost_ally_damage", implementations.boostAllyDamageLogic);
 	registerTraitEffectImplementation("haste_all_allies", implementations.hasteAllAlliesLogic);
 	registerTraitEffectImplementation("slow_all_enemies", implementations.slowAllEnemies);
-	registerTraitEffectImplementation("freeze_all_enemies", freezeAllEnemiesLogic);
+	registerTraitEffectImplementation("freeze_all_enemies", implementations.freezeAllEnemiesLogic);
 	registerTraitEffectImplementation("stun_all_enemies", stunAllEnemiesLogic);
 	registerTraitEffectImplementation("guild_wide_damage", implementations.guildWideDamageLogic);
 	registerTraitEffectImplementation("reduce_enemy_damage_global", reduceEnemyDamageGlobalLogic);
