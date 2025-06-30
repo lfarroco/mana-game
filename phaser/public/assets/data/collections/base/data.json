@@ -437,6 +437,265 @@
 					"id": "morale_guardian"
 				}
 			]
+		},
+		{
+			"id": "village_healer",
+			"name": "Village Healer",
+			"pic": "assets/cards/healer.png",
+			"hp": 100,
+			"tags": [
+				"human",
+				"healer",
+				"support"
+			],
+			"power": 20,
+			"powerType": "heal",
+			"cooldown": 2000,
+			"traits": [
+				{
+					"id": "heal_action"
+				}
+			]
+		},
+		{
+			"id": "wind_dancer",
+			"name": "Wind Dancer",
+			"pic": "assets/cards/wind_dancer.png",
+			"hp": 85,
+			"tags": [
+				"elf",
+				"dancer",
+				"support",
+				"speed"
+			],
+			"power": 8,
+			"powerType": "damage",
+			"cooldown": 1800,
+			"traits": [
+				{
+					"id": "haste_action"
+				},
+				{
+					"id": "ethereal_form"
+				}
+			]
+		},
+		{
+			"id": "frost_mage",
+			"name": "Frost Mage",
+			"pic": "assets/cards/frost_mage.png",
+			"hp": 110,
+			"tags": [
+				"human",
+				"mage",
+				"caster",
+				"control"
+			],
+			"power": 15,
+			"powerType": "damage",
+			"cooldown": 2200,
+			"traits": [
+				{
+					"id": "slow_action"
+				},
+				{
+					"id": "ranged"
+				}
+			]
+		},
+		{
+			"id": "necromancer",
+			"name": "Dark Necromancer",
+			"pic": "assets/cards/necromancer.png",
+			"hp": 95,
+			"tags": [
+				"human",
+				"necromancer",
+				"caster",
+				"summoner"
+			],
+			"power": 12,
+			"powerType": "damage",
+			"cooldown": 3000,
+			"traits": [
+				{
+					"id": "summon_action"
+				}
+			]
+		},
+		{
+			"id": "master_archer",
+			"name": "Master Archer",
+			"pic": "assets/cards/master_archer.png",
+			"hp": 105,
+			"tags": [
+				"human",
+				"archer",
+				"ranged_dps",
+				"elite"
+			],
+			"power": 30,
+			"powerType": "damage",
+			"cooldown": 1600,
+			"traits": [
+				{
+					"id": "use_skill_shoot"
+				},
+				{
+					"id": "sniper"
+				}
+			]
+		},
+		{
+			"id": "war_banner",
+			"name": "War Banner Bearer",
+			"pic": "assets/cards/banner_bearer.png",
+			"hp": 130,
+			"tags": [
+				"human",
+				"support",
+				"aura",
+				"leader"
+			],
+			"power": 15,
+			"powerType": "damage",
+			"cooldown": 2500,
+			"traits": [
+				{
+					"id": "aura_power_increase"
+				}
+			]
+		},
+		{
+			"id": "time_keeper",
+			"name": "Time Keeper",
+			"pic": "assets/cards/time_keeper.png",
+			"hp": 120,
+			"tags": [
+				"human",
+				"support",
+				"aura",
+				"utility"
+			],
+			"power": 10,
+			"powerType": "damage",
+			"cooldown": 2800,
+			"traits": [
+				{
+					"id": "aura_cooldown_reduction"
+				}
+			]
+		},
+		{
+			"id": "tactical_officer",
+			"name": "Tactical Officer",
+			"pic": "assets/cards/tactical_officer.png",
+			"hp": 115,
+			"tags": [
+				"human",
+				"versatile",
+				"tactical",
+				"elite"
+			],
+			"power": 20,
+			"powerType": "damage",
+			"cooldown": 2000,
+			"traits": [
+				{
+					"id": "versatile_fighter"
+				}
+			]
+		},
+		{
+			"id": "field_commander",
+			"name": "Field Commander",
+			"pic": "assets/cards/commander.png",
+			"hp": 140,
+			"tags": [
+				"human",
+				"commander",
+				"aura",
+				"leader"
+			],
+			"power": 18,
+			"powerType": "damage",
+			"cooldown": 2400,
+			"traits": [
+				{
+					"id": "central_commander",
+					"amount": 5
+				}
+			]
+		},
+		{
+			"id": "squad_leader",
+			"name": "Squad Leader",
+			"pic": "assets/cards/squad_leader.png",
+			"hp": 125,
+			"tags": [
+				"human",
+				"leader",
+				"support",
+				"speed"
+			],
+			"power": 16,
+			"powerType": "damage",
+			"cooldown": 2100,
+			"traits": [
+				{
+					"id": "row_haste",
+					"amount": 2000
+				}
+			]
+		},
+		{
+			"id": "raging_minotaur",
+			"name": "Raging Minotaur",
+			"pic": "assets/cards/minotaur.png",
+			"hp": 180,
+			"tags": [
+				"beast",
+				"minotaur",
+				"tank",
+				"risky"
+			],
+			"power": 28,
+			"powerType": "damage",
+			"cooldown": 1800,
+			"traits": [
+				{
+					"id": "bull_in_a_china_shop",
+					"self_amount": 8,
+					"ally_amount": 3
+				},
+				{
+					"id": "melee"
+				}
+			]
+		},
+		{
+			"id": "wild_berserker",
+			"name": "Wild Berserker",
+			"pic": "assets/cards/wild_berserker.png",
+			"hp": 125,
+			"tags": [
+				"human",
+				"berserker",
+				"melee_dps",
+				"risky"
+			],
+			"power": 22,
+			"powerType": "damage",
+			"cooldown": 1500,
+			"traits": [
+				{
+					"id": "unbalanced_swing",
+					"percent": 25
+				},
+				{
+					"id": "melee"
+				}
+			]
 		}
 	],
 	"traits": [
