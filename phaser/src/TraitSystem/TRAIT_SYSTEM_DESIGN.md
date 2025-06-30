@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-The Trait System is designed to provide special abilities, characteristics, and passive or reactive behaviors to game entities, primarily `Units` and `Relics`. It is an event-driven system that allows for modular and extensible creation of complex game mechanics.
+The Trait System is designed to provide special abilities, characteristics, and passive or reactive behaviors to game entities. It is an event-driven system that allows for modular and extensible creation of complex game mechanics.
 
 ## 2. Guiding Principles
 
@@ -52,7 +52,10 @@ The Trait System is designed to provide special abilities, characteristics, and 
     *   `TraitConditionFn` is the function that evaluates the condition.
     *   Managed by `TraitEffectSystem.ts`.
 *   **Target Selector (`targetSelector` in `TraitEffectInstanceData`):**
-    *   A string that defines how to determine the `Unit`(s) an effect should apply to (e.g., "self", "all_enemies", "action_target").
+    *   A string that defines how to determine the `Unit`(s) an effect should apply to.
+    *   **Simplified Enemy Targeting:** All enemy selectors ("enemy", "closest_enemy", "all_enemies") now return the closest enemy for gameplay simplicity.
+    *   **Positional Allied Targeting:** Allied selectors retain full positional logic for formation strategy (e.g., "allies_adjacent", "ally_left", "all_allies_in_row").
+    *   **Guild-Wide Effects:** Use "enemy_guild" for effects that need ALL enemies (morale, area damage).
     *   Resolved by `resolveTargets` in `TraitEffectSystem.ts`.
 *   **Source (`sourceUnit` or `sourceRelic` in `TraitEffectContext`):**
     *   The `Unit` or `Relic` that possesses the trait being processed.
@@ -136,11 +139,27 @@ The Trait System is designed to provide special abilities, characteristics, and 
 *   **Adding a new Target Selector:**
     1.  Modify the `resolveTargets` function in `TraitEffectSystem.ts` to include a new `case` for your selector string.
     2.  Implement the logic to determine and return the array of target `Unit`s.
+    3.  **Note:** Enemy selectors should generally return the closest enemy for consistency, unless implementing guild-wide effects.
 
-## 7. Future Considerations / Potential Improvements
+## 8. Design Evolution & Removed Features
+
+*   **HP-Based Mechanics (Removed):** The game no longer uses HP systems. The following trait effects and conditions have been removed:
+    *   `temporary_hp_boost` - Temporary HP increases
+    *   `damage_scales_with_missing_hp` - Berserker rage based on missing HP
+    *   `sacrifice_hp_for_damage` - Trading HP for damage
+    *   `source_hp_below_percent` condition - HP threshold checks
+*   **Alternative Mechanics:** Focus shifted to time-based effects, position strategy, morale management, and action economy:
+    *   `damage_scales_with_time` - Growing fury over battle duration
+    *   `sacrifice_cooldown_for_damage` - Trading action speed for power
+    *   `battle_time_elapsed` condition - Time-based activation
+*   **Simplified Targeting:** Enemy targeting simplified to always use closest enemy, while allied targeting retains positional complexity for formation strategy.
+
+## 9. Future Considerations / Potential Improvements
 
 *   **Dynamic Trait Modification:** Allow effects to add/remove/modify traits on units during gameplay.
 *   **Stacking/Duration:** Formalize how multiple instances of the same trait or status effects stack or manage durations.
 *   **Trait Priorities:** If multiple traits trigger on the same event, define an order of execution.
 *   **More Sophisticated Target Selectors:** Implement selectors based on geometry (area of effect), specific unit properties, etc.
 *   **Debugging Tools:** Visualizers or loggers specifically for trait activations and effect executions.
+*   **Declarative Effect Definitions:** Move toward more data-driven effect composition for designers.
+*   **Effect Builder Pattern:** Simplify effect creation with a fluent API for common patterns.
