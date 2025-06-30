@@ -23,3 +23,4 @@ export { performSkillSlow } from './performSkillSlow';
 export { performSkillFireball } from './performSkillFireball';
 export { performSkillSummon } from './performSkillSummon';
 export { positionalBonusLogic } from './positionalBonus';
+export { increaseForceMaxMoraleLogic } from './increaseForceMaxMorale';
