@@ -2,7 +2,7 @@ import * as Phaser from "phaser";
 import BattlegroundScene from "./Scenes/Battleground/BattlegroundScene";
 import Core from "./Scenes/Core/Core";
 import { State } from "./Models/State";
-import { SCREEN_HEIGHT, SCREEN_WIDTH } from "./constants/constants";
+import { SCREEN_HEIGHT, SCREEN_WIDTH, SCENE_KEYS } from "./constants/constants";
 import { DebugScene } from "./Debug/DebugScene";
 import BBCodeTextPlugin from 'phaser3-rex-plugins/plugins/bbcodetext-plugin.js';
 
@@ -30,21 +30,17 @@ export function initGame(state: State) {
 				key: 'rexBBCodeTextPlugin',
 				plugin: BBCodeTextPlugin,
 				start: true
-			},
-			]
+			}]
 		}
 	});
 
 	// get query params, check for DEBUG param
 	const urlParams = new URLSearchParams(window.location.search);
-	// TODO: define query param keys
 	const debug = urlParams.get('DEBUG');
 	if (debug) {
-		// TODO: use scene keys
-		game.scene.start("DebugScene");
+		game.scene.start(SCENE_KEYS.DEBUG);
 	} else {
-		// TODO: use scene keys
-		game.scene.start("BattlegroundScene", state);
+		game.scene.start(SCENE_KEYS.BATTLEGROUND, state);
 	}
 
 	return game;

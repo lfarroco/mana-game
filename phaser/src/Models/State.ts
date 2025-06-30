@@ -1,4 +1,4 @@
-import { Force, playerForce, } from "./Entities/Force";
+import { Force, playerForce } from "./Entities/Force";
 import { eqVec2, Vec2 } from "./Geometry";
 import { Unit } from "./Entities/Unit";
 

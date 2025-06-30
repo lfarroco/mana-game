@@ -1,5 +1,5 @@
 import { Chara } from "../Chara";
-import { tween, } from "../../../Utils/animation";
+import { tween } from "../../../Utils/animation";
 
 export async function highlightCardAnimation(
 	activeChara: Chara,

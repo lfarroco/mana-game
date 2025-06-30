@@ -1,4 +1,4 @@
-import { initialState, } from "./Models/State";
+import { initialState } from "./Models/State";
 import { initGame } from "./initGame";
 import { initializeOptionsStore } from "./Models/OptionsStore";
 import * as TraitEffectsImpl from "./TraitSystem/TraitEffects/Implementations";
