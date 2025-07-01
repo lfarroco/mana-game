@@ -28,7 +28,6 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("skill_melee", implementations.performSkillMelee);
 	registerTraitEffectImplementation("skill_shoot", implementations.performSkillShoot);
 	registerTraitEffectImplementation("skill_heal", implementations.performSkillHeal);
-	registerTraitEffectImplementation("skill_healing_wave", implementations.performSkillHealingWave);
 	registerTraitEffectImplementation("skill_arcane_missiles", implementations.performSkillArcaneMissiles);
 	registerTraitEffectImplementation("skill_haste", implementations.performSkillHaste);
 	registerTraitEffectImplementation("skill_slow", implementations.performSkillSlow);

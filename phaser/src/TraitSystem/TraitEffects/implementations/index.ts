@@ -32,7 +32,6 @@ export { traitSniper } from './traitSniper';
 export { performSkillMelee } from './performSkillMelee';
 export { performSkillShoot } from './performSkillShoot';
 export { performSkillHeal } from './performSkillHeal';
-export { performSkillHealingWave } from './performSkillHealingWave';
 export { performSkillArcaneMissiles } from './performSkillArcaneMissiles';
 export { performSkillHaste } from './performSkillHaste';
 export { performSkillSlow } from './performSkillSlow';
