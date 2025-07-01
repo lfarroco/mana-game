@@ -44,7 +44,8 @@
 					"id": "heal_action"
 				},
 				{
-					"id": "ally_right"
+					"id": "ally_right",
+					"amount": 6
 				}
 			]
 		},
@@ -66,7 +67,8 @@
 					"id": "melee"
 				},
 				{
-					"id": "frontline_warrior"
+					"id": "frontline_warrior",
+					"amount": 4
 				}
 			]
 		},
@@ -89,7 +91,8 @@
 					"id": "magic_action"
 				},
 				{
-					"id": "midline_support"
+					"id": "midline_support",
+					"amount": 3
 				}
 			]
 		},
@@ -112,7 +115,8 @@
 					"id": "melee"
 				},
 				{
-					"id": "ally_left"
+					"id": "ally_left",
+					"amount": 5
 				}
 			]
 		},
@@ -135,7 +139,8 @@
 					"id": "ranged"
 				},
 				{
-					"id": "corner_bonus"
+					"id": "corner_bonus",
+					"amount": 7
 				}
 			]
 		},
@@ -153,7 +158,8 @@
 					"id": "melee"
 				},
 				{
-					"id": "isolated_bonus"
+					"id": "isolated_bonus",
+					"amount": 6
 				}
 			]
 		},
@@ -171,7 +177,8 @@
 					"id": "melee"
 				},
 				{
-					"id": "ally_boost"
+					"id": "ally_boost",
+					"amount": 6
 				}
 			]
 		},
@@ -189,7 +196,8 @@
 					"id": "melee"
 				},
 				{
-					"id": "ally_back"
+					"id": "ally_back",
+					"amount": 8
 				}
 			]
 		},
@@ -207,7 +215,8 @@
 					"id": "magic_action"
 				},
 				{
-					"id": "center_bonus"
+					"id": "center_bonus",
+					"amount": 7
 				}
 			]
 		},
@@ -230,7 +239,8 @@
 					"id": "heal_action"
 				},
 				{
-					"id": "frontline_warrior"
+					"id": "frontline_warrior",
+					"amount": 5
 				}
 			]
 		},
@@ -252,7 +262,8 @@
 					"id": "melee"
 				},
 				{
-					"id": "isolated_bonus"
+					"id": "isolated_bonus",
+					"amount": 8
 				}
 			]
 		},
@@ -275,7 +286,8 @@
 					"id": "melee"
 				},
 				{
-					"id": "boost_column"
+					"id": "boost_column",
+					"amount": 3
 				}
 			]
 		},
@@ -298,7 +310,8 @@
 					"id": "support_action"
 				},
 				{
-					"id": "boost_row"
+					"id": "boost_row",
+					"amount": 2
 				}
 			]
 		},
@@ -321,7 +334,8 @@
 					"id": "melee"
 				},
 				{
-					"id": "corner_bonus"
+					"id": "corner_bonus",
+					"amount": 8
 				}
 			]
 		},
@@ -367,7 +381,8 @@
 					"id": "support_action"
 				},
 				{
-					"id": "diagonal_boost"
+					"id": "diagonal_boost",
+					"amount": 4
 				}
 			]
 		},
@@ -459,7 +474,8 @@
 					"id": "support_action"
 				},
 				{
-					"id": "edge_boost"
+					"id": "edge_boost",
+					"amount": 5
 				}
 			]
 		},
@@ -575,7 +591,8 @@
 					"id": "support_action"
 				},
 				{
-					"id": "boost_adjacent"
+					"id": "boost_adjacent",
+					"amount": 4
 				}
 			]
 		},
@@ -598,7 +615,8 @@
 					"id": "melee"
 				},
 				{
-					"id": "midline_support"
+					"id": "midline_support",
+					"amount": 4
 				}
 			]
 		},
@@ -621,7 +639,8 @@
 					"id": "melee"
 				},
 				{
-					"id": "boost_formation"
+					"id": "boost_formation",
+					"amount": 2
 				}
 			]
 		},
@@ -667,7 +686,8 @@
 					"id": "melee"
 				},
 				{
-					"id": "frontline_warrior"
+					"id": "frontline_warrior",
+					"amount": 6
 				}
 			]
 		},
@@ -690,7 +710,8 @@
 					"id": "melee"
 				},
 				{
-					"id": "isolated_bonus"
+					"id": "isolated_bonus",
+					"amount": 5
 				}
 			]
 		}
@@ -778,8 +799,7 @@
 					"effectId": "modify_stat_passive",
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "self",
-					"attribute": "power",
-					"amount": 5
+					"attribute": "power"
 				}
 			]
 		},
@@ -795,8 +815,7 @@
 					"effectId": "modify_stat_passive",
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "self",
-					"attribute": "cooldown_reduction",
-					"amount": 15
+					"attribute": "cooldown_reduction"
 				}
 			]
 		},
@@ -812,8 +831,7 @@
 					"effectId": "modify_stat_passive",
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "self",
-					"attribute": "damage_reduction",
-					"amount": 12
+					"attribute": "damage_reduction"
 				}
 			]
 		},
@@ -829,8 +847,7 @@
 					"effectId": "modify_stat_passive",
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "allies_adjacent",
-					"attribute": "power",
-					"amount": 8
+					"attribute": "power"
 				}
 			]
 		},
@@ -847,7 +864,6 @@
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "self",
 					"attribute": "power",
-					"amount": 5,
 					"conditions": [
 						{
 							"type": "is_in_row",
@@ -870,7 +886,6 @@
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "self",
 					"attribute": "power",
-					"amount": 3,
 					"conditions": [
 						{
 							"type": "is_in_row",
@@ -914,8 +929,7 @@
 					"effectId": "modify_stat_passive",
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "ally_left",
-					"attribute": "power",
-					"amount": 6
+					"attribute": "power"
 				}
 			]
 		},
@@ -931,8 +945,7 @@
 					"effectId": "modify_stat_passive",
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "ally_right",
-					"attribute": "power",
-					"amount": 6
+					"attribute": "power"
 				}
 			]
 		},
@@ -948,8 +961,7 @@
 					"effectId": "modify_stat_passive",
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "ally_back",
-					"attribute": "power",
-					"amount": 6
+					"attribute": "power"
 				}
 			]
 		},
@@ -966,7 +978,6 @@
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "self",
 					"attribute": "power",
-					"amount": 8,
 					"conditions": [
 						{
 							"type": "is_in_corner"
@@ -988,7 +999,6 @@
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "self",
 					"attribute": "power",
-					"amount": 6,
 					"conditions": [
 						{
 							"type": "has_no_adjacent_allies"
@@ -1010,7 +1020,6 @@
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "self",
 					"attribute": "power",
-					"amount": 7,
 					"conditions": [
 						{
 							"type": "is_in_center"
@@ -1031,8 +1040,7 @@
 					"effectId": "modify_stat_passive",
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "all_allies_in_column",
-					"attribute": "power",
-					"amount": 4
+					"attribute": "power"
 				}
 			]
 		},
@@ -1048,8 +1056,7 @@
 					"effectId": "modify_stat_passive",
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "all_allies_in_row",
-					"attribute": "power",
-					"amount": 4
+					"attribute": "power"
 				}
 			]
 		},
@@ -1082,8 +1089,7 @@
 					"effectId": "modify_stat_passive",
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "allies_diagonal",
-					"attribute": "power",
-					"amount": 5
+					"attribute": "power"
 				}
 			]
 		},
@@ -1133,7 +1139,6 @@
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "self",
 					"attribute": "power",
-					"amount": 6,
 					"conditions": [
 						{
 							"type": "is_on_edge"
@@ -1202,8 +1207,7 @@
 					"effectId": "modify_stat_passive",
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "allies_adjacent",
-					"attribute": "power",
-					"amount": 5
+					"attribute": "power"
 				}
 			]
 		},
@@ -1220,7 +1224,6 @@
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "all_allies",
 					"attribute": "power",
-					"amount": 3,
 					"conditions": [
 						{
 							"type": "formation_bonus"
