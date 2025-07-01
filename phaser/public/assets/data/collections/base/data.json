@@ -20,7 +20,7 @@
 					"id": "ranged"
 				},
 				{
-					"id": "sniper"
+					"id": "power_boost"
 				}
 			]
 		},
@@ -40,10 +40,10 @@
 			"cooldown": 2400,
 			"traits": [
 				{
-					"id": "healing_wave_action"
+					"id": "heal_action"
 				},
 				{
-					"id": "vanguard_boost"
+					"id": "ally_boost"
 				}
 			]
 		},
@@ -65,7 +65,7 @@
 					"id": "melee"
 				},
 				{
-					"id": "protective_cover"
+					"id": "ally_boost"
 				}
 			]
 		},
@@ -85,7 +85,7 @@
 			"cooldown": 1400,
 			"traits": [
 				{
-					"id": "arcane_missiles_action"
+					"id": "magic_action"
 				},
 				{
 					"id": "backline_caster"
@@ -111,7 +111,7 @@
 					"id": "melee"
 				},
 				{
-					"id": "plunder"
+					"id": "speed_boost"
 				}
 			]
 		},
@@ -134,7 +134,7 @@
 					"id": "ranged"
 				},
 				{
-					"id": "flanking_support"
+					"id": "ally_boost"
 				}
 			]
 		},
@@ -152,7 +152,7 @@
 					"id": "melee"
 				},
 				{
-					"id": "scavenge_gold"
+					"id": "speed_boost"
 				}
 			]
 		},
@@ -188,7 +188,7 @@
 					"id": "melee"
 				},
 				{
-					"id": "taunt"
+					"id": "armor"
 				}
 			]
 		},
@@ -203,7 +203,7 @@
 			"cooldown": 1500,
 			"traits": [
 				{
-					"id": "use_skill_fireball"
+					"id": "magic_action"
 				},
 				{
 					"id": "backline_caster"
@@ -226,10 +226,10 @@
 			"cooldown": 2200,
 			"traits": [
 				{
-					"id": "protector_action"
+					"id": "heal_action"
 				},
 				{
-					"id": "inspiring_presence"
+					"id": "ally_boost"
 				}
 			]
 		},
@@ -251,7 +251,7 @@
 					"id": "melee"
 				},
 				{
-					"id": "assassinate"
+					"id": "power_boost"
 				}
 			]
 		},
@@ -274,7 +274,7 @@
 					"id": "melee"
 				},
 				{
-					"id": "intimidating_presence"
+					"id": "ally_boost"
 				}
 			]
 		},
@@ -294,7 +294,7 @@
 			"cooldown": 2400,
 			"traits": [
 				{
-					"id": "temporal_manipulation"
+					"id": "support_action"
 				},
 				{
 					"id": "midline_support"
@@ -320,7 +320,7 @@
 					"id": "melee"
 				},
 				{
-					"id": "berserker_rage"
+					"id": "power_boost"
 				}
 			]
 		},
@@ -343,7 +343,7 @@
 					"id": "melee"
 				},
 				{
-					"id": "earthquake_stomp"
+					"id": "ally_boost"
 				}
 			]
 		},
@@ -363,10 +363,10 @@
 			"cooldown": 2100,
 			"traits": [
 				{
-					"id": "spirit_dance"
+					"id": "support_action"
 				},
 				{
-					"id": "ethereal_form"
+					"id": "speed_boost"
 				}
 			]
 		},
@@ -386,7 +386,7 @@
 			"cooldown": 2200,
 			"traits": [
 				{
-					"id": "poison_cloud"
+					"id": "magic_action"
 				},
 				{
 					"id": "midline_support"
@@ -412,7 +412,7 @@
 					"id": "melee"
 				},
 				{
-					"id": "fortress_mode"
+					"id": "armor"
 				}
 			]
 		},
@@ -454,10 +454,10 @@
 			"cooldown": 1800,
 			"traits": [
 				{
-					"id": "haste_action"
+					"id": "support_action"
 				},
 				{
-					"id": "ethereal_form"
+					"id": "speed_boost"
 				}
 			]
 		},
@@ -477,10 +477,10 @@
 			"cooldown": 2000,
 			"traits": [
 				{
-					"id": "slow_action"
+					"id": "magic_action"
 				},
 				{
-					"id": "ranged"
+					"id": "backline_caster"
 				}
 			]
 		},
@@ -500,7 +500,7 @@
 			"cooldown": 2800,
 			"traits": [
 				{
-					"id": "summon_action"
+					"id": "magic_action"
 				},
 				{
 					"id": "backline_caster"
@@ -523,10 +523,10 @@
 			"cooldown": 1600,
 			"traits": [
 				{
-					"id": "use_skill_shoot"
+					"id": "ranged"
 				},
 				{
-					"id": "sniper"
+					"id": "power_boost"
 				}
 			]
 		},
@@ -546,7 +546,7 @@
 			"cooldown": 2200,
 			"traits": [
 				{
-					"id": "aura_power_increase"
+					"id": "ally_boost"
 				},
 				{
 					"id": "midline_support"
@@ -569,7 +569,7 @@
 			"cooldown": 2400,
 			"traits": [
 				{
-					"id": "aura_cooldown_reduction"
+					"id": "support_action"
 				},
 				{
 					"id": "midline_support"
@@ -592,7 +592,7 @@
 			"cooldown": 1900,
 			"traits": [
 				{
-					"id": "versatile_fighter"
+					"id": "melee"
 				},
 				{
 					"id": "midline_support"
@@ -615,7 +615,10 @@
 			"cooldown": 2200,
 			"traits": [
 				{
-					"id": "central_commander"
+					"id": "ally_boost"
+				},
+				{
+					"id": "midline_support"
 				}
 			]
 		},
@@ -635,7 +638,7 @@
 			"cooldown": 2000,
 			"traits": [
 				{
-					"id": "row_haste"
+					"id": "support_action"
 				},
 				{
 					"id": "midline_support"
@@ -658,10 +661,10 @@
 			"cooldown": 1800,
 			"traits": [
 				{
-					"id": "bull_in_a_china_shop"
+					"id": "melee"
 				},
 				{
-					"id": "melee"
+					"id": "power_boost"
 				}
 			]
 		},
@@ -681,49 +684,39 @@
 			"cooldown": 1600,
 			"traits": [
 				{
-					"id": "unbalanced_swing"
+					"id": "melee"
 				},
 				{
-					"id": "melee"
+					"id": "speed_boost"
 				}
 			]
 		}
 	],
 	"traits": [
 		{
-			"id": "taunt",
-			"name": "Taunt",
-			"description": "If in range, enemies will attack this unit.",
+			"id": "melee",
+			"name": "Melee",
+			"description": "This unit has a melee attack.",
 			"categories": [
-				"defensive",
-				"personality"
+				"action"
 			],
-			"effects": []
+			"effects": [
+				{
+					"effectId": "skill_melee",
+					"eventTrigger": "onAction"
+				}
+			]
 		},
 		{
 			"id": "ranged",
 			"name": "Ranged",
 			"description": "This unit has a ranged attack.",
 			"categories": [
-				"offensive"
+				"action"
 			],
 			"effects": [
 				{
 					"effectId": "skill_shoot",
-					"eventTrigger": "onAction"
-				}
-			]
-		},
-		{
-			"id": "melee",
-			"name": "Melee",
-			"description": "This unit has a melee attack.",
-			"categories": [
-				"offensive"
-			],
-			"effects": [
-				{
-					"effectId": "skill_melee",
 					"eventTrigger": "onAction"
 				}
 			]
@@ -733,7 +726,7 @@
 			"name": "Heal",
 			"description": "This unit can heal an ally.",
 			"categories": [
-				"support"
+				"action"
 			],
 			"effects": [
 				{
@@ -743,25 +736,11 @@
 			]
 		},
 		{
-			"id": "healing_wave_action",
-			"name": "Healing Wave",
-			"description": "Heals multiple allies.",
+			"id": "magic_action",
+			"name": "Magic",
+			"description": "This unit uses magical abilities.",
 			"categories": [
-				"support"
-			],
-			"effects": [
-				{
-					"effectId": "skill_healing_wave",
-					"eventTrigger": "onAction"
-				}
-			]
-		},
-		{
-			"id": "arcane_missiles_action",
-			"name": "Arcane Missiles",
-			"description": "Shoots multiple [color=purple]arcane missiles[/color].",
-			"categories": [
-				"offensive"
+				"action"
 			],
 			"effects": [
 				{
@@ -771,11 +750,11 @@
 			]
 		},
 		{
-			"id": "haste_action",
-			"name": "Haste",
-			"description": "[color=rgb(255,200,0)]Hastes[/color] surrounding allies.",
+			"id": "support_action",
+			"name": "Support",
+			"description": "This unit provides support to allies.",
 			"categories": [
-				"support"
+				"action"
 			],
 			"effects": [
 				{
@@ -785,349 +764,11 @@
 			]
 		},
 		{
-			"id": "slow_action",
-			"name": "Slow",
-			"description": "[color=brown]Slows[/color] an enemy.",
+			"id": "power_boost",
+			"name": "Power Boost",
+			"description": "Increases power by {amount}.",
 			"categories": [
-				"defensive",
-				"offensive"
-			],
-			"effects": [
-				{
-					"effectId": "skill_slow",
-					"eventTrigger": "onAction"
-				}
-			]
-		},
-		{
-			"id": "plunder",
-			"name": "Plunder",
-			"description": "When this unit attacks, gain [color=yellow]1 gold[/color].",
-			"categories": [
-				"economy"
-			],
-			"effects": [
-				{
-					"effectId": "grant_gold_to_player",
-					"eventTrigger": "onAttackByMe",
-					"amount": 1,
-					"conditions": [
-						{
-							"type": "is_player_unit"
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "sniper",
-			"name": "Sniper",
-			"description": "This unit gains [color=red]10 atk[/color] when in the back row",
-			"categories": [
-				"offensive"
-			],
-			"effects": [
-				{
-					"effectId": "trait_sniper",
-					"eventTrigger": "onBattleStart"
-				}
-			]
-		},
-		{
-			"id": "summon_action",
-			"name": "Summon",
-			"description": "Summons a unit.",
-			"categories": [
-				"companion"
-			],
-			"effects": [
-				{
-					"effectId": "skill_summon",
-					"eventTrigger": "onAction"
-				}
-			]
-		},
-		{
-			"id": "scavenge_gold",
-			"name": "Scavenge Gold",
-			"description": "Gains gold when this unit attacks enemies.",
-			"categories": [
-				"utility",
-				"gold_generation"
-			],
-			"effects": [
-				{
-					"effectId": "grant_gold_to_player",
-					"eventTrigger": "onAttackByMe",
-					"amount": 1
-				}
-			]
-		},
-		{
-			"id": "use_skill_shoot",
-			"name": "Use Skill: Shoot",
-			"description": "This unit uses the Shoot skill for its action.",
-			"categories": [
-				"skill_activation",
-				"offensive"
-			],
-			"effects": [
-				{
-					"effectId": "skill_shoot",
-					"eventTrigger": "onAction"
-				}
-			]
-		},
-		{
-			"id": "use_skill_fireball",
-			"name": "Use Skill: Fireball",
-			"description": "This unit uses the Fireball skill for its action.",
-			"categories": [
-				"skill_activation",
-				"offensive",
-				"guild_wide"
-			],
-			"effects": [
-				{
-					"effectId": "skill_fireball",
-					"eventTrigger": "onAction"
-				}
-			]
-		},
-		{
-			"id": "aura_power_increase",
-			"name": "Aura: Power Increase",
-			"description": "Increases power of all allied units by a percentage at the start of battle.",
-			"categories": [
-				"aura",
-				"offensive",
-				"stat_modification"
-			],
-			"effects": [
-				{
-					"effectId": "modify_unit_power",
-					"eventTrigger": "onBattleStart",
-					"targetSelector": "all_allies"
-				}
-			]
-		},
-		{
-			"id": "aura_cooldown_reduction",
-			"name": "Aura: Cooldown Reduction",
-			"description": "Reduces action cooldown of all allied units by a percentage at the start of battle.",
-			"categories": [
-				"aura",
-				"utility",
-				"stat_modification"
-			],
-			"effects": [
-				{
-					"effectId": "modify_unit_cooldowns",
-					"eventTrigger": "onBattleStart",
-					"targetSelector": "all_allies"
-				}
-			]
-		},
-		{
-			"id": "versatile_fighter",
-			"name": "Formation Tactics",
-			"description": "Uses a different skill based on row position. Front: Slash, Mid: Shoot, Back: Arcane Missiles.",
-			"categories": [
-				"versatile",
-				"offensive",
-				"support"
-			],
-			"effects": [
-				{
-					"effectId": "skill_melee",
-					"eventTrigger": "onAction",
-					"conditions": [
-						{
-							"type": "is_in_row",
-							"row": "front"
-						}
-					]
-				},
-				{
-					"effectId": "skill_shoot",
-					"eventTrigger": "onAction",
-					"targetSelector": "self",
-					"conditions": [
-						{
-							"type": "is_in_row",
-							"row": "mid"
-						}
-					]
-				},
-				{
-					"effectId": "skill_arcane_missiles",
-					"eventTrigger": "onAction",
-					"conditions": [
-						{
-							"type": "is_in_row",
-							"row": "back"
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "protector_action",
-			"name": "Protector",
-			"description": "On action, heals the most wounded ally.",
-			"categories": [
-				"support",
-				"healing"
-			],
-			"effects": [
-				{
-					"effectId": "skill_heal",
-					"eventTrigger": "onAction"
-				}
-			]
-		},
-		{
-			"id": "assassinate",
-			"name": "Assassinate",
-			"description": "This unit has a 25% increased critical strike chance.",
-			"categories": [
-				"offensive"
-			],
-			"effects": [
-				{
-					"effectId": "modify_stat_passive",
-					"eventTrigger": "onBattleStart",
-					"targetSelector": "self",
-					"attribute": "critChance",
-					"amount": 25
-				}
-			]
-		},
-		{
-			"id": "inspiring_presence",
-			"name": "Inspiring Presence",
-			"description": "At the start of battle, your force gains +{amount} max morale.",
-			"categories": [
-				"aura",
-				"support",
-				"morale"
-			],
-			"effects": [
-				{
-					"effectId": "increase_force_max_morale",
-					"eventTrigger": "onBattleStart",
-					"amount": 100
-				}
-			]
-		},
-		{
-			"id": "flanking_support",
-			"name": "Flanking Support",
-			"description": "Increases the power of the ally to the right by {amount}.",
-			"categories": [
-				"aura",
-				"support",
-				"offensive"
-			],
-			"effects": [
-				{
-					"effectId": "modify_stat_passive",
-					"eventTrigger": "onBattleStart",
-					"targetSelector": "ally_right",
-					"attribute": "power",
-					"amount": 20
-				}
-			]
-		},
-		{
-			"id": "protective_cover",
-			"name": "Protective Cover",
-			"description": "Increases the power of the ally to the left by {amount}.",
-			"categories": [
-				"aura",
-				"support",
-				"offensive"
-			],
-			"effects": [
-				{
-					"effectId": "modify_stat_passive",
-					"eventTrigger": "onBattleStart",
-					"targetSelector": "ally_left",
-					"attribute": "power",
-					"amount": 15
-				}
-			]
-		},
-		{
-			"id": "central_commander",
-			"name": "Central Commander",
-			"description": "Allies in the same column gain +{amount} power.",
-			"categories": [
-				"aura",
-				"support",
-				"offensive"
-			],
-			"effects": [
-				{
-					"effectId": "modify_stat_passive",
-					"eventTrigger": "onBattleStart",
-					"targetSelector": "all_allies_in_column",
-					"attribute": "power",
-					"amount": 15,
-					"conditions": [
-						{
-							"type": "is_in_column",
-							"column": "mid"
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "row_haste",
-			"name": "Row Haste",
-			"description": "On action, grants allies in the same row Haste for {amount}ms.",
-			"categories": [
-				"support",
-				"aura"
-			],
-			"effects": [
-				{
-					"effectId": "modify_stat_passive",
-					"eventTrigger": "onAction",
-					"targetSelector": "all_allies_in_row",
-					"attribute": "hasted",
-					"amount": 2000
-				}
-			]
-		},
-		{
-			"id": "vanguard_boost",
-			"name": "Vanguard Boost",
-			"description": "When the battle starts, increases the power of the ally in front by {amount}.",
-			"categories": [
-				"support",
-				"aura",
-				"offensive"
-			],
-			"effects": [
-				{
-					"effectId": "modify_stat_passive",
-					"eventTrigger": "onBattleStart",
-					"targetSelector": "ally_front",
-					"attribute": "power",
-					"amount": 10
-				}
-			]
-		},
-		{
-			"id": "bull_in_a_china_shop",
-			"name": "Bull in a China Shop",
-			"description": "He's strong, but a bit of a klutz. Increases own power by {self_amount}, but decreases adjacent allies' power by {ally_amount}.",
-			"categories": [
-				"offensive",
-				"aura",
-				"drawback"
+				"passive"
 			],
 			"effects": [
 				{
@@ -1135,364 +776,16 @@
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "self",
 					"attribute": "power",
-					"amount": 30,
-					"self_amount": 30
-				},
-				{
-					"effectId": "modify_stat_passive",
-					"eventTrigger": "onBattleStart",
-					"targetSelector": "allies_adjacent",
-					"attribute": "power",
-					"amount": -10,
-					"ally_amount": 10
+					"amount": 5
 				}
 			]
 		},
 		{
-			"id": "unbalanced_swing",
-			"name": "Unbalanced Swing",
-			"description": "When attacking, deals {percent}% of his power as damage to a random adjacent ally.",
+			"id": "speed_boost",
+			"name": "Speed Boost",
+			"description": "Attacks {amount}% faster.",
 			"categories": [
-				"offensive",
-				"drawback"
-			],
-			"effects": [
-				{
-					"effectId": "splash_damage_to_random_adjacent_ally",
-					"eventTrigger": "onAttackByMe",
-					"percent": 50
-				}
-			]
-		},
-		{
-			"id": "morale_restoration",
-			"name": "Morale Restoration",
-			"description": "On action, restores morale to your force.",
-			"categories": [
-				"support",
-				"morale"
-			],
-			"effects": [
-				{
-					"effectId": "restore_force_morale",
-					"eventTrigger": "onAction",
-					"amount": 50
-				}
-			]
-		},
-		{
-			"id": "intimidating_presence",
-			"name": "Intimidating Presence",
-			"description": "At battle start, reduces enemy morale by {amount}.",
-			"categories": [
-				"debuff",
-				"morale",
-				"aura"
-			],
-			"effects": [
-				{
-					"effectId": "reduce_enemy_morale",
-					"eventTrigger": "onBattleStart",
-					"amount": 75
-				}
-			]
-		},
-		{
-			"id": "battle_cry",
-			"name": "Battle Cry",
-			"description": "On action, boosts ally damage by {amount} for {duration}ms.",
-			"categories": [
-				"support",
-				"buff"
-			],
-			"effects": [
-				{
-					"effectId": "boost_ally_damage",
-					"eventTrigger": "onAction",
-					"targetSelector": "all_allies",
-					"amount": 15,
-					"duration": 3000
-				}
-			]
-		},
-		{
-			"id": "temporal_manipulation",
-			"name": "Temporal Manipulation",
-			"description": "On action, hastes all allies and slows all enemies for {duration}ms.",
-			"categories": [
-				"support",
-				"debuff",
-				"time_control"
-			],
-			"effects": [
-				{
-					"effectId": "haste_all_allies",
-					"eventTrigger": "onAction",
-					"duration": 2500
-				},
-				{
-					"effectId": "slow_all_enemies",
-					"eventTrigger": "onAction",
-					"duration": 2500
-				}
-			]
-		},
-		{
-			"id": "time_stop",
-			"name": "Time Stop",
-			"description": "When morale is low, freezes all enemies for {duration}ms.",
-			"categories": [
-				"defensive",
-				"time_control"
-			],
-			"effects": [
-				{
-					"effectId": "freeze_all_enemies",
-					"eventTrigger": "onLowMorale",
-					"duration": 1500,
-					"conditions": [
-						{
-							"type": "morale_below_percent",
-							"value": 30
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "berserker_rage",
-			"name": "Berserker Rage",
-			"description": "Gains {damage_per_time} damage for every {time_threshold}ms in combat.",
-			"categories": [
-				"offensive",
-				"scaling"
-			],
-			"effects": [
-				{
-					"effectId": "damage_scales_with_time",
-					"eventTrigger": "onAction",
-					"damage_per_time": 2,
-					"time_threshold": 1000
-				}
-			]
-		},
-		{
-			"id": "reckless_abandon",
-			"name": "Reckless Abandon",
-			"description": "Each attack increases cooldowns by {cooldown_penalty}ms but increases damage by {damage_bonus}.",
-			"categories": [
-				"offensive",
-				"risky",
-				"scaling"
-			],
-			"effects": [
-				{
-					"effectId": "sacrifice_cooldown_for_damage",
-					"eventTrigger": "onAttackByMe",
-					"cooldown_penalty": 500,
-					"damage_bonus": 4
-				}
-			]
-		},
-		{
-			"id": "earthquake_stomp",
-			"name": "Earthquake Stomp",
-			"description": "On action, stuns all enemies for {duration}ms and deals guild-wide damage.",
-			"categories": [
-				"offensive",
-				"crowd_control",
-				"guild_wide"
-			],
-			"effects": [
-				{
-					"effectId": "stun_all_enemies",
-					"eventTrigger": "onAction",
-					"duration": 1200
-				},
-				{
-					"effectId": "guild_wide_damage",
-					"eventTrigger": "onAction",
-					"damage": 15
-				}
-			]
-		},
-		{
-			"id": "intimidating_size",
-			"name": "Intimidating Size",
-			"description": "Enemy units deal {reduction}% less damage when this unit is alive.",
-			"categories": [
-				"aura",
-				"defensive",
-				"debuff"
-			],
-			"effects": [
-				{
-					"effectId": "reduce_enemy_damage_global",
-					"eventTrigger": "onBattleStart",
-					"reduction": 15
-				}
-			]
-		},
-		{
-			"id": "spirit_dance",
-			"name": "Spirit Dance",
-			"description": "On action, grants all allies {morale} morale and removes debuffs.",
-			"categories": [
-				"support",
-				"morale",
-				"cleanse"
-			],
-			"effects": [
-				{
-					"effectId": "grant_morale_to_allies",
-					"eventTrigger": "onAction",
-					"targetSelector": "all_allies",
-					"morale": 40
-				},
-				{
-					"effectId": "cleanse_ally_debuffs",
-					"eventTrigger": "onAction",
-					"targetSelector": "all_allies"
-				}
-			]
-		},
-		{
-			"id": "ethereal_form",
-			"name": "Ethereal Form",
-			"description": "Has {dodge_chance}% chance to avoid damage entirely.",
-			"categories": [
-				"defensive",
-				"evasion"
-			],
-			"effects": [
-				{
-					"effectId": "chance_to_dodge",
-					"eventTrigger": "onTakeDamage",
-					"dodge_chance": 30
-				}
-			]
-		},
-		{
-			"id": "poison_cloud",
-			"name": "Poison Cloud",
-			"description": "On action, applies poison to all enemies for {duration}ms.",
-			"categories": [
-				"debuff",
-				"damage_over_time",
-				"guild_wide"
-			],
-			"effects": [
-				{
-					"effectId": "apply_poison_to_enemies",
-					"eventTrigger": "onAction",
-					"targetSelector": "all_enemies",
-					"damage_per_tick": 3,
-					"duration": 5000,
-					"tick_interval": 1000
-				}
-			]
-		},
-		{
-			"id": "curse_of_weakness",
-			"name": "Curse of Weakness",
-			"description": "On action, reduces enemy damage by {amount} for {duration}ms.",
-			"categories": [
-				"debuff",
-				"defensive"
-			],
-			"effects": [
-				{
-					"effectId": "reduce_enemy_damage",
-					"eventTrigger": "onAction",
-					"targetSelector": "all_enemies",
-					"amount": 8,
-					"duration": 4000
-				}
-			]
-		},
-		{
-			"id": "fortress_mode",
-			"name": "Fortress Mode",
-			"description": "When not moving, gains {armor_bonus} armor and reflects {reflect_percent}% damage.",
-			"categories": [
-				"defensive",
-				"conditional",
-				"reflect"
-			],
-			"effects": [
-				{
-					"effectId": "fortress_mode_passive",
-					"eventTrigger": "onBattleStart",
-					"armor_bonus": 20,
-					"reflect_percent": 25,
-					"conditions": [
-						{
-							"type": "is_stationary"
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "defensive_matrix",
-			"name": "Defensive Matrix",
-			"description": "Reduces damage taken by all allies by {reduction}%.",
-			"categories": [
-				"aura",
-				"defensive",
-				"support"
-			],
-			"effects": [
-				{
-					"effectId": "reduce_ally_damage_taken",
-					"eventTrigger": "onBattleStart",
-					"targetSelector": "all_allies",
-					"reduction": 12
-				}
-			]
-		},
-		{
-			"id": "morale_guardian",
-			"name": "Morale Guardian",
-			"description": "Reduces morale loss for your force by 15%.",
-			"categories": [
-				"defensive",
-				"morale",
-				"aura"
-			],
-			"effects": [
-				{
-					"effectId": "morale_damage_reduction",
-					"eventTrigger": "onBattleStart",
-					"reduction_percent": 15
-				}
-			]
-		},
-		{
-			"id": "stalwart_protector",
-			"name": "Stalwart Protector",
-			"description": "Greatly reduces morale loss for your force by 25%.",
-			"categories": [
-				"defensive",
-				"morale",
-				"aura",
-				"elite"
-			],
-			"effects": [
-				{
-					"effectId": "morale_damage_reduction",
-					"eventTrigger": "onBattleStart",
-					"reduction_percent": 25
-				}
-			]
-		},
-		{
-			"id": "swift_strike",
-			"name": "Swift Strike",
-			"description": "This unit attacks 20% faster.",
-			"categories": [
-				"offensive",
-				"speed"
+				"passive"
 			],
 			"effects": [
 				{
@@ -1500,16 +793,16 @@
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "self",
 					"attribute": "cooldown_reduction",
-					"amount": 20
+					"amount": 15
 				}
 			]
 		},
 		{
-			"id": "heavy_armor",
-			"name": "Heavy Armor",
-			"description": "Reduces incoming damage by 15%.",
+			"id": "armor",
+			"name": "Armor",
+			"description": "Reduces incoming damage by {amount}%.",
 			"categories": [
-				"defensive"
+				"passive"
 			],
 			"effects": [
 				{
@@ -1517,35 +810,33 @@
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "self",
 					"attribute": "damage_reduction",
-					"amount": 15
+					"amount": 12
 				}
 			]
 		},
 		{
-			"id": "battle_fury",
-			"name": "Battle Fury",
-			"description": "Gains +3 power at the start of battle.",
+			"id": "ally_boost",
+			"name": "Ally Boost",
+			"description": "Increases nearby allies' power by {amount}.",
 			"categories": [
-				"offensive",
-				"scaling"
+				"aura"
 			],
 			"effects": [
 				{
 					"effectId": "modify_stat_passive",
 					"eventTrigger": "onBattleStart",
-					"targetSelector": "self",
+					"targetSelector": "allies_adjacent",
 					"attribute": "power",
-					"amount": 3
+					"amount": 8
 				}
 			]
 		},
 		{
 			"id": "frontline_warrior",
 			"name": "Frontline Warrior",
-			"description": "Gains +5 power when positioned in the front row.",
+			"description": "Gains +{amount} power when positioned in the front row.",
 			"categories": [
-				"positional",
-				"offensive"
+				"positional"
 			],
 			"effects": [
 				{
@@ -1566,10 +857,9 @@
 		{
 			"id": "midline_support",
 			"name": "Midline Support",
-			"description": "Gains +3 power when positioned in the middle row.",
+			"description": "Gains +{amount} power when positioned in the middle row.",
 			"categories": [
-				"positional",
-				"support"
+				"positional"
 			],
 			"effects": [
 				{
@@ -1590,10 +880,9 @@
 		{
 			"id": "backline_caster",
 			"name": "Backline Caster",
-			"description": "Gains +4 power when positioned in the back row.",
+			"description": "Gains +{amount} power when positioned in the back row.",
 			"categories": [
-				"positional",
-				"offensive"
+				"positional"
 			],
 			"effects": [
 				{
