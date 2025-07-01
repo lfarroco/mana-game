@@ -297,7 +297,7 @@
 					"id": "support_action"
 				},
 				{
-					"id": "midline_support"
+					"id": "ally_right"
 				}
 			]
 		},
@@ -366,7 +366,7 @@
 					"id": "support_action"
 				},
 				{
-					"id": "speed_boost"
+					"id": "ally_left"
 				}
 			]
 		},
@@ -389,7 +389,7 @@
 					"id": "magic_action"
 				},
 				{
-					"id": "midline_support"
+					"id": "ally_back"
 				}
 			]
 		},
@@ -434,7 +434,7 @@
 					"id": "heal_action"
 				},
 				{
-					"id": "midline_support"
+					"id": "ally_back"
 				}
 			]
 		},
@@ -457,7 +457,7 @@
 					"id": "support_action"
 				},
 				{
-					"id": "speed_boost"
+					"id": "ally_left"
 				}
 			]
 		},
@@ -572,7 +572,7 @@
 					"id": "support_action"
 				},
 				{
-					"id": "midline_support"
+					"id": "ally_right"
 				}
 			]
 		},
@@ -641,7 +641,7 @@
 					"id": "support_action"
 				},
 				{
-					"id": "midline_support"
+					"id": "ally_back"
 				}
 			]
 		},
@@ -897,6 +897,57 @@
 							"row": "back"
 						}
 					]
+				}
+			]
+		},
+		{
+			"id": "ally_left",
+			"name": "Left Support",
+			"description": "Left ally +{amount} power.",
+			"categories": [
+				"aura"
+			],
+			"effects": [
+				{
+					"effectId": "modify_stat_passive",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "ally_left",
+					"attribute": "power",
+					"amount": 6
+				}
+			]
+		},
+		{
+			"id": "ally_right",
+			"name": "Right Support",
+			"description": "Right ally +{amount} power.",
+			"categories": [
+				"aura"
+			],
+			"effects": [
+				{
+					"effectId": "modify_stat_passive",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "ally_right",
+					"attribute": "power",
+					"amount": 6
+				}
+			]
+		},
+		{
+			"id": "ally_back",
+			"name": "Back Support",
+			"description": "Behind ally +{amount} power.",
+			"categories": [
+				"aura"
+			],
+			"effects": [
+				{
+					"effectId": "modify_stat_passive",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "ally_back",
+					"attribute": "power",
+					"amount": 6
 				}
 			]
 		}

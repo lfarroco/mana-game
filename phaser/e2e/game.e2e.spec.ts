@@ -1,8 +1,8 @@
 import { test, expect, Page } from '@playwright/test';
 import "../src/globals";
-import shopSpec from '../src/Scenes/Battleground/Systems/Shop/shop.spec';
+import shopSpec from '../src/Scenes/Battleground/Systems/Shop/shop.e2e.spec';
 import boardSpec from '../src/Scenes/Battleground/Systems/Board/board.spec';
-import battlegroundSpec from '../src/Scenes/Battleground/Systems/battleground.spec';
+import battlegroundSpec from '../src/Scenes/Battleground/Systems/battleground.e2e.spec';
 
 // Guideline for when adding tests to this file:
 // To trigger actions in game, create methods in gameController that
