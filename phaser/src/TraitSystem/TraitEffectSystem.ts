@@ -216,7 +216,7 @@ export function resolveTargets(
 		const enemies = getActiveUnits(state).filter(u => u.force !== sourceForce);
 		if (enemies.length === 0) return [];
 
-		// Calculate distance and find closest
+		// Calculate Manhattan distance and find closest
 		const closestEnemy = enemies.reduce((closest, enemy) => {
 			const distToEnemy = Math.abs(enemy.position.x - source.position.x) + Math.abs(enemy.position.y - source.position.y);
 			const distToClosest = Math.abs(closest.position.x - source.position.x) + Math.abs(closest.position.y - source.position.y);
@@ -292,6 +292,8 @@ export function resolveTargets(
 			);
 		}
 		case "enemies_adjacent": {
+			// Note: Since enemies are on separate boards, adjacent enemies can only exist 
+			// if there are units from different forces on the same board (which shouldn't happen in normal gameplay)
 			const adjacentPositions = [
 				{ x: source.position.x - 1, y: source.position.y },     // left
 				{ x: source.position.x + 1, y: source.position.y },     // right
@@ -506,7 +508,7 @@ registerTraitConditionImplementation("formation_bonus", (context) => {
 		u.force === sourceUnit.force && u.id !== sourceUnit.id
 	);
 
-	// Simple formation: at least 3 allies in a line (row or column)
+	// Simple formation: at least 2 allies in a line (row or column) with the source unit
 	const sameRow = allies.filter(u => u.position.y === sourceUnit.position.y);
 	const sameCol = allies.filter(u => u.position.x === sourceUnit.position.x);
 
