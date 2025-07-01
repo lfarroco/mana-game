@@ -6,13 +6,13 @@
 			"id": "bowsie",
 			"name": "Bowsie McTwang",
 			"pic": "assets/cards/archer.png",
-			"hp": 100,
+			"hp": 90,
 			"tags": [
 				"human",
 				"archer",
 				"ranged_dps"
 			],
-			"power": 20,
+			"power": 18,
 			"powerType": "damage",
 			"cooldown": 1600,
 			"traits": [
@@ -20,7 +20,7 @@
 					"id": "ranged"
 				},
 				{
-					"id": "power_boost"
+					"id": "backline_caster"
 				}
 			]
 		},
@@ -28,8 +28,8 @@
 			"id": "bubblegum",
 			"name": "Bubblegum Blessings",
 			"pic": "assets/cards/cleric.png",
-			"hp": 130,
-			"power": 30,
+			"hp": 120,
+			"power": 28,
 			"powerType": "heal",
 			"tags": [
 				"human",
@@ -43,7 +43,7 @@
 					"id": "heal_action"
 				},
 				{
-					"id": "ally_boost"
+					"id": "ally_right"
 				}
 			]
 		},
@@ -51,120 +51,15 @@
 			"id": "bumble",
 			"name": "Sir Bumble the Unyielding",
 			"pic": "assets/cards/knight.png",
-			"hp": 200,
+			"hp": 180,
 			"tags": [
 				"human",
 				"knight",
 				"tank"
 			],
-			"power": 12,
-			"powerType": "armor",
+			"power": 14,
+			"powerType": "damage",
 			"cooldown": 2000,
-			"traits": [
-				{
-					"id": "melee"
-				},
-				{
-					"id": "ally_boost"
-				}
-			]
-		},
-		{
-			"id": "wizzy",
-			"name": "Wizzy McFizzfail",
-			"pic": "assets/cards/apprentice.png",
-			"hp": 90,
-			"tags": [
-				"human",
-				"mage",
-				"caster",
-				"ranged_dps"
-			],
-			"power": 18,
-			"powerType": "damage",
-			"cooldown": 1400,
-			"traits": [
-				{
-					"id": "magic_action"
-				},
-				{
-					"id": "backline_caster"
-				}
-			]
-		},
-		{
-			"id": "swindler",
-			"name": "Swindler Stan",
-			"pic": "assets/cards/bandit.png",
-			"hp": 110,
-			"tags": [
-				"human",
-				"bandit",
-				"melee_dps",
-				"economy"
-			],
-			"power": 16,
-			"powerType": "damage",
-			"cooldown": 1800,
-			"traits": [
-				{
-					"id": "melee"
-				},
-				{
-					"id": "speed_boost"
-				}
-			]
-		},
-		{
-			"id": "hoodlum",
-			"name": "Hoodlum Hawkeye",
-			"pic": "assets/cards/bandit_archer.png",
-			"hp": 100,
-			"tags": [
-				"human",
-				"bandit",
-				"archer",
-				"ranged_dps"
-			],
-			"power": 18,
-			"powerType": "damage",
-			"cooldown": 1700,
-			"traits": [
-				{
-					"id": "ranged"
-				},
-				{
-					"id": "ally_boost"
-				}
-			]
-		},
-		{
-			"id": "goblin_scavenger",
-			"pic": "assets/cards/goblin_scavenger.png",
-			"name": "Goblin Scavenger",
-			"description": "Weak but resourceful. Gains 1 gold when attacking enemies.",
-			"hp": 60,
-			"power": 12,
-			"powerType": "damage",
-			"cooldown": 1200,
-			"traits": [
-				{
-					"id": "melee"
-				},
-				{
-					"id": "speed_boost"
-				}
-			]
-		},
-		{
-			"id": "orc_warrior",
-			"pic": "assets/cards/orc_warrior.png",
-			"name": "Orc Warrior",
-			"description": "A fierce melee combatant that uses its brute strength to slash foes.",
-			"hp": 110,
-			"power": 20,
-			"powerType": "damage",
-			"cooldown": 1800,
 			"traits": [
 				{
 					"id": "melee"
@@ -175,20 +70,125 @@
 			]
 		},
 		{
+			"id": "wizzy",
+			"name": "Wizzy McFizzfail",
+			"pic": "assets/cards/apprentice.png",
+			"hp": 85,
+			"tags": [
+				"human",
+				"mage",
+				"caster",
+				"ranged_dps"
+			],
+			"power": 16,
+			"powerType": "damage",
+			"cooldown": 1400,
+			"traits": [
+				{
+					"id": "magic_action"
+				},
+				{
+					"id": "midline_support"
+				}
+			]
+		},
+		{
+			"id": "swindler",
+			"name": "Swindler Stan",
+			"pic": "assets/cards/bandit.png",
+			"hp": 100,
+			"tags": [
+				"human",
+				"bandit",
+				"melee_dps",
+				"economy"
+			],
+			"power": 15,
+			"powerType": "damage",
+			"cooldown": 1500,
+			"traits": [
+				{
+					"id": "melee"
+				},
+				{
+					"id": "ally_left"
+				}
+			]
+		},
+		{
+			"id": "hoodlum",
+			"name": "Hoodlum Hawkeye",
+			"pic": "assets/cards/bandit_archer.png",
+			"hp": 95,
+			"tags": [
+				"human",
+				"bandit",
+				"archer",
+				"ranged_dps"
+			],
+			"power": 17,
+			"powerType": "damage",
+			"cooldown": 1700,
+			"traits": [
+				{
+					"id": "ranged"
+				},
+				{
+					"id": "corner_bonus"
+				}
+			]
+		},
+		{
+			"id": "goblin_scavenger",
+			"pic": "assets/cards/goblin_scavenger.png",
+			"name": "Goblin Scavenger",
+			"description": "Fast striker who works better alone.",
+			"hp": 70,
+			"power": 14,
+			"powerType": "damage",
+			"cooldown": 1200,
+			"traits": [
+				{
+					"id": "melee"
+				},
+				{
+					"id": "isolated_bonus"
+				}
+			]
+		},
+		{
+			"id": "orc_warrior",
+			"pic": "assets/cards/orc_warrior.png",
+			"name": "Orc Warrior",
+			"description": "Fierce warrior who gets stronger with allies nearby.",
+			"hp": 120,
+			"power": 18,
+			"powerType": "damage",
+			"cooldown": 1800,
+			"traits": [
+				{
+					"id": "melee"
+				},
+				{
+					"id": "ally_boost"
+				}
+			]
+		},
+		{
 			"id": "stone_guardian",
 			"pic": "assets/cards/stone_guardian.png",
 			"name": "Stone Guardian",
-			"description": "An ancient sentinel with immense fortitude, drawing enemy attacks.",
-			"hp": 150,
-			"power": 10,
-			"powerType": "armor",
+			"description": "Protects the unit directly behind it.",
+			"hp": 160,
+			"power": 8,
+			"powerType": "damage",
 			"cooldown": 2200,
 			"traits": [
 				{
 					"id": "melee"
 				},
 				{
-					"id": "armor"
+					"id": "ally_back"
 				}
 			]
 		},
@@ -196,8 +196,8 @@
 			"id": "lava_spawn",
 			"pic": "assets/cards/lava_spawn.png",
 			"name": "Lava Spawn",
-			"description": "A volatile creature of fire that hurls fireballs.",
-			"hp": 80,
+			"description": "Magic caster best positioned in the center.",
+			"hp": 85,
 			"power": 15,
 			"powerType": "damage",
 			"cooldown": 1500,
@@ -206,7 +206,7 @@
 					"id": "magic_action"
 				},
 				{
-					"id": "backline_caster"
+					"id": "center_bonus"
 				}
 			]
 		},
@@ -214,14 +214,14 @@
 			"id": "paladin_protector",
 			"name": "Paladin Protector",
 			"pic": "assets/cards/paladin.png",
-			"hp": 180,
+			"hp": 150,
 			"tags": [
 				"human",
 				"paladin",
 				"tank",
 				"healer"
 			],
-			"power": 15,
+			"power": 16,
 			"powerType": "heal",
 			"cooldown": 2200,
 			"traits": [
@@ -229,7 +229,7 @@
 					"id": "heal_action"
 				},
 				{
-					"id": "ally_boost"
+					"id": "frontline_warrior"
 				}
 			]
 		},
@@ -237,21 +237,21 @@
 			"id": "shadow_assassin",
 			"name": "Shadow Assassin",
 			"pic": "assets/cards/shadow_assassin.png",
-			"hp": 85,
+			"hp": 75,
 			"tags": [
 				"human",
 				"assassin",
 				"melee_dps"
 			],
-			"power": 22,
+			"power": 20,
 			"powerType": "damage",
-			"cooldown": 1600,
+			"cooldown": 1400,
 			"traits": [
 				{
 					"id": "melee"
 				},
 				{
-					"id": "power_boost"
+					"id": "isolated_bonus"
 				}
 			]
 		},
@@ -259,14 +259,14 @@
 			"id": "dread_captain",
 			"name": "Dread Captain Blackheart",
 			"pic": "assets/cards/dread_captain.png",
-			"hp": 140,
+			"hp": 130,
 			"tags": [
 				"human",
 				"pirate",
 				"leader",
 				"morale_control"
 			],
-			"power": 18,
+			"power": 10,
 			"powerType": "damage",
 			"cooldown": 2000,
 			"traits": [
@@ -274,7 +274,7 @@
 					"id": "melee"
 				},
 				{
-					"id": "ally_boost"
+					"id": "boost_column"
 				}
 			]
 		},
@@ -282,14 +282,14 @@
 			"id": "time_mage",
 			"name": "Chronos the Timekeeper",
 			"pic": "assets/cards/time_mage.png",
-			"hp": 90,
+			"hp": 85,
 			"tags": [
 				"human",
 				"mage",
 				"time_control",
 				"support"
 			],
-			"power": 12,
+			"power": 8,
 			"powerType": "damage",
 			"cooldown": 2400,
 			"traits": [
@@ -297,7 +297,7 @@
 					"id": "support_action"
 				},
 				{
-					"id": "ally_right"
+					"id": "boost_row"
 				}
 			]
 		},
@@ -305,14 +305,14 @@
 			"id": "berserker",
 			"name": "Ragnar the Berserker",
 			"pic": "assets/cards/berserker.png",
-			"hp": 120,
+			"hp": 110,
 			"tags": [
 				"human",
 				"berserker",
 				"melee_dps",
 				"risky"
 			],
-			"power": 16,
+			"power": 18,
 			"powerType": "damage",
 			"cooldown": 1700,
 			"traits": [
@@ -320,7 +320,7 @@
 					"id": "melee"
 				},
 				{
-					"id": "power_boost"
+					"id": "corner_bonus"
 				}
 			]
 		},
@@ -328,14 +328,14 @@
 			"id": "war_elephant",
 			"name": "Tusker the War Elephant",
 			"pic": "assets/cards/war_elephant.png",
-			"hp": 250,
+			"hp": 220,
 			"tags": [
 				"beast",
 				"elephant",
 				"tank",
 				"disruptor"
 			],
-			"power": 20,
+			"power": 12,
 			"powerType": "damage",
 			"cooldown": 3000,
 			"traits": [
@@ -343,7 +343,7 @@
 					"id": "melee"
 				},
 				{
-					"id": "ally_boost"
+					"id": "reduce_enemy_column"
 				}
 			]
 		},
@@ -351,14 +351,14 @@
 			"id": "spirit_dancer",
 			"name": "Luna the Spirit Dancer",
 			"pic": "assets/cards/spirit_dancer.png",
-			"hp": 95,
+			"hp": 90,
 			"tags": [
 				"elf",
 				"dancer",
 				"support",
 				"morale"
 			],
-			"power": 10,
+			"power": 6,
 			"powerType": "damage",
 			"cooldown": 2100,
 			"traits": [
@@ -366,7 +366,7 @@
 					"id": "support_action"
 				},
 				{
-					"id": "ally_left"
+					"id": "diagonal_boost"
 				}
 			]
 		},
@@ -374,14 +374,14 @@
 			"id": "plague_doctor",
 			"name": "Dr. Mortis",
 			"pic": "assets/cards/plague_doctor.png",
-			"hp": 110,
+			"hp": 100,
 			"tags": [
 				"human",
 				"doctor",
 				"debuffer",
 				"dark_magic"
 			],
-			"power": 8,
+			"power": 10,
 			"powerType": "damage",
 			"cooldown": 2200,
 			"traits": [
@@ -389,7 +389,7 @@
 					"id": "magic_action"
 				},
 				{
-					"id": "ally_back"
+					"id": "reduce_enemy_adjacent"
 				}
 			]
 		},
@@ -397,22 +397,22 @@
 			"id": "fortress_golem",
 			"name": "Ironclad Fortress",
 			"pic": "assets/cards/fortress_golem.png",
-			"hp": 220,
+			"hp": 200,
 			"tags": [
 				"construct",
 				"golem",
 				"tank",
 				"fortress"
 			],
-			"power": 8,
-			"powerType": "armor",
+			"power": 6,
+			"powerType": "damage",
 			"cooldown": 3200,
 			"traits": [
 				{
 					"id": "melee"
 				},
 				{
-					"id": "armor"
+					"id": "protect_all_allies"
 				}
 			]
 		},
@@ -420,13 +420,13 @@
 			"id": "village_healer",
 			"name": "Village Healer",
 			"pic": "assets/cards/healer.png",
-			"hp": 90,
+			"hp": 80,
 			"tags": [
 				"human",
 				"healer",
 				"support"
 			],
-			"power": 18,
+			"power": 20,
 			"powerType": "heal",
 			"cooldown": 1900,
 			"traits": [
@@ -434,7 +434,7 @@
 					"id": "heal_action"
 				},
 				{
-					"id": "ally_back"
+					"id": "backline_caster"
 				}
 			]
 		},
@@ -442,14 +442,14 @@
 			"id": "wind_dancer",
 			"name": "Wind Dancer",
 			"pic": "assets/cards/wind_dancer.png",
-			"hp": 85,
+			"hp": 75,
 			"tags": [
 				"elf",
 				"dancer",
 				"support",
 				"speed"
 			],
-			"power": 8,
+			"power": 5,
 			"powerType": "damage",
 			"cooldown": 1800,
 			"traits": [
@@ -457,7 +457,7 @@
 					"id": "support_action"
 				},
 				{
-					"id": "ally_left"
+					"id": "edge_boost"
 				}
 			]
 		},
@@ -465,14 +465,14 @@
 			"id": "frost_mage",
 			"name": "Frost Mage",
 			"pic": "assets/cards/frost_mage.png",
-			"hp": 100,
+			"hp": 90,
 			"tags": [
 				"human",
 				"mage",
 				"caster",
 				"control"
 			],
-			"power": 14,
+			"power": 12,
 			"powerType": "damage",
 			"cooldown": 2000,
 			"traits": [
@@ -480,7 +480,7 @@
 					"id": "magic_action"
 				},
 				{
-					"id": "backline_caster"
+					"id": "slow_enemy_column"
 				}
 			]
 		},
@@ -488,14 +488,14 @@
 			"id": "necromancer",
 			"name": "Dark Necromancer",
 			"pic": "assets/cards/necromancer.png",
-			"hp": 95,
+			"hp": 85,
 			"tags": [
 				"human",
 				"necromancer",
 				"caster",
 				"summoner"
 			],
-			"power": 10,
+			"power": 8,
 			"powerType": "damage",
 			"cooldown": 2800,
 			"traits": [
@@ -503,7 +503,7 @@
 					"id": "magic_action"
 				},
 				{
-					"id": "backline_caster"
+					"id": "reduce_enemy_morale_global"
 				}
 			]
 		},
@@ -511,14 +511,14 @@
 			"id": "master_archer",
 			"name": "Master Archer",
 			"pic": "assets/cards/master_archer.png",
-			"hp": 95,
+			"hp": 85,
 			"tags": [
 				"human",
 				"archer",
 				"ranged_dps",
 				"elite"
 			],
-			"power": 24,
+			"power": 22,
 			"powerType": "damage",
 			"cooldown": 1600,
 			"traits": [
@@ -526,7 +526,7 @@
 					"id": "ranged"
 				},
 				{
-					"id": "power_boost"
+					"id": "backline_caster"
 				}
 			]
 		},
@@ -534,22 +534,22 @@
 			"id": "war_banner",
 			"name": "War Banner Bearer",
 			"pic": "assets/cards/banner_bearer.png",
-			"hp": 120,
+			"hp": 110,
 			"tags": [
 				"human",
 				"support",
 				"aura",
 				"leader"
 			],
-			"power": 12,
+			"power": 8,
 			"powerType": "damage",
 			"cooldown": 2200,
 			"traits": [
 				{
-					"id": "ally_boost"
+					"id": "melee"
 				},
 				{
-					"id": "midline_support"
+					"id": "morale_boost_all"
 				}
 			]
 		},
@@ -557,14 +557,14 @@
 			"id": "time_keeper",
 			"name": "Time Keeper",
 			"pic": "assets/cards/time_keeper.png",
-			"hp": 110,
+			"hp": 100,
 			"tags": [
 				"human",
 				"support",
 				"aura",
 				"utility"
 			],
-			"power": 8,
+			"power": 6,
 			"powerType": "damage",
 			"cooldown": 2400,
 			"traits": [
@@ -572,7 +572,7 @@
 					"id": "support_action"
 				},
 				{
-					"id": "ally_right"
+					"id": "boost_adjacent"
 				}
 			]
 		},
@@ -580,14 +580,14 @@
 			"id": "tactical_officer",
 			"name": "Tactical Officer",
 			"pic": "assets/cards/tactical_officer.png",
-			"hp": 105,
+			"hp": 95,
 			"tags": [
 				"human",
 				"versatile",
 				"tactical",
 				"elite"
 			],
-			"power": 16,
+			"power": 14,
 			"powerType": "damage",
 			"cooldown": 1900,
 			"traits": [
@@ -603,22 +603,22 @@
 			"id": "field_commander",
 			"name": "Field Commander",
 			"pic": "assets/cards/commander.png",
-			"hp": 130,
+			"hp": 120,
 			"tags": [
 				"human",
 				"commander",
 				"aura",
 				"leader"
 			],
-			"power": 14,
+			"power": 10,
 			"powerType": "damage",
 			"cooldown": 2200,
 			"traits": [
 				{
-					"id": "ally_boost"
+					"id": "melee"
 				},
 				{
-					"id": "midline_support"
+					"id": "boost_formation"
 				}
 			]
 		},
@@ -626,14 +626,14 @@
 			"id": "squad_leader",
 			"name": "Squad Leader",
 			"pic": "assets/cards/squad_leader.png",
-			"hp": 115,
+			"hp": 105,
 			"tags": [
 				"human",
 				"leader",
 				"support",
 				"speed"
 			],
-			"power": 14,
+			"power": 8,
 			"powerType": "damage",
 			"cooldown": 2000,
 			"traits": [
@@ -641,7 +641,7 @@
 					"id": "support_action"
 				},
 				{
-					"id": "ally_back"
+					"id": "haste_column"
 				}
 			]
 		},
@@ -649,14 +649,14 @@
 			"id": "raging_minotaur",
 			"name": "Raging Minotaur",
 			"pic": "assets/cards/minotaur.png",
-			"hp": 160,
+			"hp": 140,
 			"tags": [
 				"beast",
 				"minotaur",
 				"tank",
 				"risky"
 			],
-			"power": 22,
+			"power": 20,
 			"powerType": "damage",
 			"cooldown": 1800,
 			"traits": [
@@ -664,7 +664,7 @@
 					"id": "melee"
 				},
 				{
-					"id": "power_boost"
+					"id": "frontline_warrior"
 				}
 			]
 		},
@@ -672,14 +672,14 @@
 			"id": "wild_berserker",
 			"name": "Wild Berserker",
 			"pic": "assets/cards/wild_berserker.png",
-			"hp": 105,
+			"hp": 95,
 			"tags": [
 				"human",
 				"berserker",
 				"melee_dps",
 				"risky"
 			],
-			"power": 18,
+			"power": 16,
 			"powerType": "damage",
 			"cooldown": 1600,
 			"traits": [
@@ -687,7 +687,7 @@
 					"id": "melee"
 				},
 				{
-					"id": "speed_boost"
+					"id": "isolated_bonus"
 				}
 			]
 		}
@@ -948,6 +948,300 @@
 					"targetSelector": "ally_back",
 					"attribute": "power",
 					"amount": 6
+				}
+			]
+		},
+		{
+			"id": "corner_bonus",
+			"name": "Corner Fighter",
+			"description": "+{amount} power in corners.",
+			"categories": [
+				"positional"
+			],
+			"effects": [
+				{
+					"effectId": "modify_stat_passive",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "self",
+					"attribute": "power",
+					"amount": 8,
+					"conditions": [
+						{
+							"type": "is_in_corner"
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "isolated_bonus",
+			"name": "Lone Wolf",
+			"description": "+{amount} power when no adjacent allies.",
+			"categories": [
+				"positional"
+			],
+			"effects": [
+				{
+					"effectId": "modify_stat_passive",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "self",
+					"attribute": "power",
+					"amount": 6,
+					"conditions": [
+						{
+							"type": "has_no_adjacent_allies"
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "center_bonus",
+			"name": "Center Focus",
+			"description": "+{amount} power in center position.",
+			"categories": [
+				"positional"
+			],
+			"effects": [
+				{
+					"effectId": "modify_stat_passive",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "self",
+					"attribute": "power",
+					"amount": 7,
+					"conditions": [
+						{
+							"type": "is_in_center"
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "boost_column",
+			"name": "Column Leader",
+			"description": "All allies in column +{amount} power.",
+			"categories": [
+				"aura"
+			],
+			"effects": [
+				{
+					"effectId": "modify_stat_passive",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "all_allies_in_column",
+					"attribute": "power",
+					"amount": 4
+				}
+			]
+		},
+		{
+			"id": "boost_row",
+			"name": "Row Commander",
+			"description": "All allies in row +{amount} power.",
+			"categories": [
+				"aura"
+			],
+			"effects": [
+				{
+					"effectId": "modify_stat_passive",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "all_allies_in_row",
+					"attribute": "power",
+					"amount": 4
+				}
+			]
+		},
+		{
+			"id": "reduce_enemy_column",
+			"name": "Column Disruption",
+			"description": "Enemies in column -{amount} power.",
+			"categories": [
+				"debuff"
+			],
+			"effects": [
+				{
+					"effectId": "reduce_enemy_damage",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "all_enemies_in_column",
+					"amount": 6,
+					"duration": 999999
+				}
+			]
+		},
+		{
+			"id": "diagonal_boost",
+			"name": "Diagonal Support",
+			"description": "Diagonal allies +{amount} power.",
+			"categories": [
+				"aura"
+			],
+			"effects": [
+				{
+					"effectId": "modify_stat_passive",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "allies_diagonal",
+					"attribute": "power",
+					"amount": 5
+				}
+			]
+		},
+		{
+			"id": "reduce_enemy_adjacent",
+			"name": "Intimidation",
+			"description": "Adjacent enemies -{amount} power.",
+			"categories": [
+				"debuff"
+			],
+			"effects": [
+				{
+					"effectId": "reduce_enemy_damage",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "enemies_adjacent",
+					"amount": 4,
+					"duration": 999999
+				}
+			]
+		},
+		{
+			"id": "protect_all_allies",
+			"name": "Fortress Shield",
+			"description": "All allies +{amount}% damage reduction.",
+			"categories": [
+				"aura"
+			],
+			"effects": [
+				{
+					"effectId": "reduce_ally_damage_taken",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "all_allies",
+					"reduction": 15
+				}
+			]
+		},
+		{
+			"id": "edge_boost",
+			"name": "Edge Fighter",
+			"description": "+{amount} power on board edges.",
+			"categories": [
+				"positional"
+			],
+			"effects": [
+				{
+					"effectId": "modify_stat_passive",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "self",
+					"attribute": "power",
+					"amount": 6,
+					"conditions": [
+						{
+							"type": "is_on_edge"
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "slow_enemy_column",
+			"name": "Frost Column",
+			"description": "Slows enemies in same column.",
+			"categories": [
+				"debuff"
+			],
+			"effects": [
+				{
+					"effectId": "slow_all_enemies",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "all_enemies_in_column",
+					"duration": 999999
+				}
+			]
+		},
+		{
+			"id": "reduce_enemy_morale_global",
+			"name": "Terror Aura",
+			"description": "All enemies -{amount} morale.",
+			"categories": [
+				"debuff"
+			],
+			"effects": [
+				{
+					"effectId": "reduce_enemy_morale",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "enemy_guild",
+					"amount": 15
+				}
+			]
+		},
+		{
+			"id": "morale_boost_all",
+			"name": "War Banner",
+			"description": "All allies +{amount} morale.",
+			"categories": [
+				"aura"
+			],
+			"effects": [
+				{
+					"effectId": "grant_morale_to_allies",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "all_allies",
+					"amount": 20
+				}
+			]
+		},
+		{
+			"id": "boost_adjacent",
+			"name": "Adjacent Support",
+			"description": "Adjacent allies +{amount} power.",
+			"categories": [
+				"aura"
+			],
+			"effects": [
+				{
+					"effectId": "modify_stat_passive",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "allies_adjacent",
+					"attribute": "power",
+					"amount": 5
+				}
+			]
+		},
+		{
+			"id": "boost_formation",
+			"name": "Formation Master",
+			"description": "Allies in formation +{amount} power.",
+			"categories": [
+				"aura"
+			],
+			"effects": [
+				{
+					"effectId": "modify_stat_passive",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "all_allies",
+					"attribute": "power",
+					"amount": 3,
+					"conditions": [
+						{
+							"type": "formation_bonus"
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "haste_column",
+			"name": "Column Rush",
+			"description": "Allies in column +{amount}% speed.",
+			"categories": [
+				"aura"
+			],
+			"effects": [
+				{
+					"effectId": "boostAllyDamage",
+					"eventTrigger": "onBattleStart",
+					"targetSelector": "all_allies_in_column",
+					"attribute": "cooldown_reduction",
+					"amount": 20,
+					"duration": 999999
 				}
 			]
 		}
