@@ -68,7 +68,7 @@ export const positionalBonusLogic: TraitEffectFn = async (context: TraitEffectCo
 	const { playerForce } = await import("../../../Models/Entities/Force");
 
 	const { sourceUnit } = context;
-	
+
 	// Extract parameters using the getEffectParams utility
 	const attribute = getEffectParams(context.traitInstanceParams, context.effectInstance, 'attribute', 'power') as keyof Unit;
 	const amount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 0);
