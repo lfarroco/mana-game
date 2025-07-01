@@ -10,8 +10,8 @@ import {
 	getGuildUnit,
 	getUnitAt
 } from './State';
-import { vec2 } from './Geometry';
 import { Unit } from './Entities/Unit';
+import { vec2 } from './Geometry.pure';
 
 const mockUnits: Unit[] = [
 	{ id: 'u1', hp: 10, force: 'f1', position: vec2(0, 0), } as Unit,
