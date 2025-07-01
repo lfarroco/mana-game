@@ -788,18 +788,23 @@
 			]
 		},
 		{
-			"id": "power_boost",
-			"name": "Power Boost",
-			"description": "+{amount} power.",
+			"id": "formation_fighter",
+			"name": "Formation Fighter",
+			"description": "+{amount} power when in tactical formation.",
 			"categories": [
-				"passive"
+				"positional"
 			],
 			"effects": [
 				{
 					"effectId": "modify_stat_passive",
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "self",
-					"attribute": "power"
+					"attribute": "power",
+					"conditions": [
+						{
+							"type": "formation_bonus"
+						}
+					]
 				}
 			]
 		},
