@@ -9,6 +9,7 @@
         "build-nolog": "webpack --config webpack/config.prod.js",
         "electron": "electron electron.js",
         "test": "jest",
+        "test:unit": "jest --testPathIgnorePatterns=e2e",
         "test:e2e": "playwright test",
         "test:e2e:ui": "playwright test --ui",
         "test:e2e:debug": "playwright test --debug"
