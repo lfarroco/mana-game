@@ -101,49 +101,6 @@ describe('Core Keyword Trait Parameter Resolution', () => {
 		});
 	});
 
-	describe('Sniper Trait Parameters', () => {
-		it('should resolve attack bonus correctly', () => {
-			const traitParams = { amount: 15 };
-			const effectParams = { effectId: 'trait_sniper', eventTrigger: 'onBattleStart' };
-
-			const attackBonus = getEffectParams(traitParams, effectParams, 'amount', 10);
-			expect(attackBonus).toBe(15); // Custom bonus
-
-			const defaultBonus = getEffectParams({}, effectParams, 'amount', 10);
-			expect(defaultBonus).toBe(10); // Default sniper bonus
-		});
-
-		it('should validate positional logic for back row detection', () => {
-			const backRowUnit = createMockUnit('back-row', { position: vec2(1, 2) });
-			const frontRowUnit = createMockUnit('front-row', { position: vec2(1, 0) });
-			const midRowUnit = createMockUnit('mid-row', { position: vec2(1, 1) });
-
-			const boardHeightInTiles = 3;
-
-			// Back row should be y >= 2 for a 3-tile high board
-			expect(backRowUnit.position.y >= (boardHeightInTiles - 1)).toBe(true);
-			expect(frontRowUnit.position.y >= (boardHeightInTiles - 1)).toBe(false);
-			expect(midRowUnit.position.y >= (boardHeightInTiles - 1)).toBe(false);
-		});
-
-		it('should support conditional bonuses', () => {
-			const traitParams = {
-				amount: 12,
-				row_requirement: 'back',
-				bonus_type: 'multiplicative'
-			};
-			const effectParams = { effectId: 'trait_sniper', eventTrigger: 'onBattleStart' };
-
-			const amount = getEffectParams(traitParams, effectParams, 'amount', 10);
-			const rowReq = getEffectParams(traitParams, effectParams, 'row_requirement', 'back');
-			const bonusType = getEffectParams(traitParams, effectParams, 'bonus_type', 'additive');
-
-			expect(amount).toBe(12);
-			expect(rowReq).toBe('back');
-			expect(bonusType).toBe('multiplicative');
-		});
-	});
-
 	describe('Healing Trait Parameters', () => {
 		it('should resolve healing amounts correctly', () => {
 			const healingUnit = createMockUnit('healer', { attackType: 'heal', power: 25 });

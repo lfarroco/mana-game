@@ -13,6 +13,7 @@
 				"ranged_dps"
 			],
 			"power": 18,
+			"reviewed": true,
 			"powerType": "damage",
 			"cooldown": 1600,
 			"traits": [
@@ -748,7 +749,7 @@
 		{
 			"id": "heal_action",
 			"name": "Heal",
-			"description": "Heals allies.",
+			"description": "Restores party morale.",
 			"categories": [
 				"action"
 			],
