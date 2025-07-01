@@ -20,7 +20,8 @@
 					"id": "ranged"
 				},
 				{
-					"id": "backline_caster"
+					"id": "backline_boost",
+					"amount": 6
 				}
 			]
 		},
@@ -434,7 +435,8 @@
 					"id": "heal_action"
 				},
 				{
-					"id": "backline_caster"
+					"id": "backline_boost",
+					"amount": 8
 				}
 			]
 		},
@@ -526,7 +528,8 @@
 					"id": "ranged"
 				},
 				{
-					"id": "backline_caster"
+					"id": "backline_boost",
+					"amount": 5
 				}
 			]
 		},
@@ -878,8 +881,8 @@
 			]
 		},
 		{
-			"id": "backline_caster",
-			"name": "Backline Caster",
+			"id": "backline_boost",
+			"name": "Backline Boost",
 			"description": "+{amount} power in back row.",
 			"categories": [
 				"positional"
@@ -890,7 +893,6 @@
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "self",
 					"attribute": "power",
-					"amount": 4,
 					"conditions": [
 						{
 							"type": "is_in_row",
