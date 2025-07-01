@@ -278,6 +278,37 @@ export function resolveTargets(
 				adjacentPositions.some(pos => u.position.x === pos.x && u.position.y === pos.y)
 			);
 		}
+		case "allies_diagonal": {
+			const diagonalPositions = [
+				{ x: source.position.x - 1, y: source.position.y - 1 },     // top-left
+				{ x: source.position.x + 1, y: source.position.y - 1 },     // top-right
+				{ x: source.position.x - 1, y: source.position.y + 1 },     // bottom-left
+				{ x: source.position.x + 1, y: source.position.y + 1 }      // bottom-right
+			];
+			return getActiveUnits(state).filter(u =>
+				u.force === sourceForce &&
+				u.id !== source.id &&
+				diagonalPositions.some(pos => u.position.x === pos.x && u.position.y === pos.y)
+			);
+		}
+		case "enemies_adjacent": {
+			const adjacentPositions = [
+				{ x: source.position.x - 1, y: source.position.y },     // left
+				{ x: source.position.x + 1, y: source.position.y },     // right
+				{ x: source.position.x, y: source.position.y - 1 },     // above
+				{ x: source.position.x, y: source.position.y + 1 }      // below
+			];
+			return getActiveUnits(state).filter(u =>
+				u.force !== sourceForce &&
+				adjacentPositions.some(pos => u.position.x === pos.x && u.position.y === pos.y)
+			);
+		}
+		case "all_enemies_in_column":
+			return getActiveUnits(state).filter(u => u.force !== sourceForce && u.position.x === source.position.x);
+		case "enemies_in_row":
+			// Note: Since enemies are on separate boards, they can't be in the same row as player units
+			// This selector will always return empty array for cross-board targeting
+			return [];
 
 		// === GUILD-WIDE EFFECTS ===
 		// Special case: when you need ALL enemies (for guild-wide effects like morale)
@@ -409,4 +440,75 @@ registerTraitConditionImplementation("battle_time_elapsed", (context, conditionD
 	if (typeof requiredSeconds !== 'number') return false;
 	const battleTimeSeconds = context.scene.time.now / 1000;
 	return battleTimeSeconds >= requiredSeconds;
+});
+
+/**
+ * Condition: Checks if the source unit is in a corner position.
+ */
+registerTraitConditionImplementation("is_in_corner", (context) => {
+	const { sourceUnit } = context;
+	const x = sourceUnit.position.x;
+	const y = sourceUnit.position.y;
+
+	// Corner positions in a 3x3 grid: (0,0), (0,2), (2,0), (2,2)
+	return (x === 0 || x === 2) && (y === 0 || y === 2);
+});
+
+/**
+ * Condition: Checks if the source unit has no adjacent allies.
+ */
+registerTraitConditionImplementation("has_no_adjacent_allies", (context) => {
+	const { sourceUnit, state } = context;
+	const adjacentPositions = [
+		{ x: sourceUnit.position.x - 1, y: sourceUnit.position.y },
+		{ x: sourceUnit.position.x + 1, y: sourceUnit.position.y },
+		{ x: sourceUnit.position.x, y: sourceUnit.position.y - 1 },
+		{ x: sourceUnit.position.x, y: sourceUnit.position.y + 1 }
+	];
+
+	const allies = getActiveUnits(state).filter(u =>
+		u.force === sourceUnit.force &&
+		u.id !== sourceUnit.id &&
+		adjacentPositions.some(pos => u.position.x === pos.x && u.position.y === pos.y)
+	);
+
+	return allies.length === 0;
+});
+
+/**
+ * Condition: Checks if the source unit is in the center position.
+ */
+registerTraitConditionImplementation("is_in_center", (context) => {
+	const { sourceUnit } = context;
+	// Center of 3x3 grid is (1,1)
+	return sourceUnit.position.x === 1 && sourceUnit.position.y === 1;
+});
+
+/**
+ * Condition: Checks if the source unit is on the edge of the board.
+ */
+registerTraitConditionImplementation("is_on_edge", (context) => {
+	const { sourceUnit } = context;
+	const x = sourceUnit.position.x;
+	const y = sourceUnit.position.y;
+
+	// Edge positions: x=0, x=2, y=0, or y=2 in a 3x3 grid
+	return x === 0 || x === 2 || y === 0 || y === 2;
+});
+
+/**
+ * Condition: Checks if allies are in a formation pattern.
+ * This is a simplified formation check - can be expanded later.
+ */
+registerTraitConditionImplementation("formation_bonus", (context) => {
+	const { sourceUnit, state } = context;
+	const allies = getActiveUnits(state).filter(u =>
+		u.force === sourceUnit.force && u.id !== sourceUnit.id
+	);
+
+	// Simple formation: at least 3 allies in a line (row or column)
+	const sameRow = allies.filter(u => u.position.y === sourceUnit.position.y);
+	const sameCol = allies.filter(u => u.position.x === sourceUnit.position.x);
+
+	return sameRow.length >= 2 || sameCol.length >= 2;
 });
