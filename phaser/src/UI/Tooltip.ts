@@ -170,6 +170,9 @@ export function renderTooltip(x: number, y: number, title: string, description: 
 		const maxWrapWidth = MAX_TOOLTIP_WIDTH - 2 * PADDING;
 		descriptionText.setWordWrapWidth(maxWrapWidth);
 
+		// Force text layout update for BBCodeText
+		descriptionText.updateText();
+
 		// Position elements and calculate sizes
 		titleText.setPosition(0, 0);
 		descriptionText.setPosition(0, titleText.height + INTER_ELEMENT_PADDING);
@@ -180,6 +183,9 @@ export function renderTooltip(x: number, y: number, title: string, description: 
 		// Adjust description wrap if needed
 		const descriptionWrapWidth = tooltipWidth - 2 * PADDING;
 		descriptionText.setWordWrapWidth(descriptionWrapWidth);
+
+		// Force another layout update after final wrap width adjustment
+		descriptionText.updateText();
 		descriptionText.setPosition(0, titleText.height + INTER_ELEMENT_PADDING);
 
 		const totalHeight = titleText.height + INTER_ELEMENT_PADDING + descriptionText.height + PADDING;
