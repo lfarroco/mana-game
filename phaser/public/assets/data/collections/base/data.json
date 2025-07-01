@@ -696,7 +696,7 @@
 		{
 			"id": "melee",
 			"name": "Melee",
-			"description": "This unit has a melee attack.",
+			"description": "Melee attack.",
 			"categories": [
 				"action"
 			],
@@ -710,7 +710,7 @@
 		{
 			"id": "ranged",
 			"name": "Ranged",
-			"description": "This unit has a ranged attack.",
+			"description": "Ranged attack.",
 			"categories": [
 				"action"
 			],
@@ -724,7 +724,7 @@
 		{
 			"id": "heal_action",
 			"name": "Heal",
-			"description": "This unit can heal an ally.",
+			"description": "Heals allies.",
 			"categories": [
 				"action"
 			],
@@ -738,7 +738,7 @@
 		{
 			"id": "magic_action",
 			"name": "Magic",
-			"description": "This unit uses magical abilities.",
+			"description": "Magic attack.",
 			"categories": [
 				"action"
 			],
@@ -752,7 +752,7 @@
 		{
 			"id": "support_action",
 			"name": "Support",
-			"description": "This unit provides support to allies.",
+			"description": "Buffs allies.",
 			"categories": [
 				"action"
 			],
@@ -766,7 +766,7 @@
 		{
 			"id": "power_boost",
 			"name": "Power Boost",
-			"description": "Increases power by {amount}.",
+			"description": "+{amount} power.",
 			"categories": [
 				"passive"
 			],
@@ -783,7 +783,7 @@
 		{
 			"id": "speed_boost",
 			"name": "Speed Boost",
-			"description": "Attacks {amount}% faster.",
+			"description": "{amount}% faster attacks.",
 			"categories": [
 				"passive"
 			],
@@ -800,7 +800,7 @@
 		{
 			"id": "armor",
 			"name": "Armor",
-			"description": "Reduces incoming damage by {amount}%.",
+			"description": "{amount}% damage reduction.",
 			"categories": [
 				"passive"
 			],
@@ -817,7 +817,7 @@
 		{
 			"id": "ally_boost",
 			"name": "Ally Boost",
-			"description": "Increases nearby allies' power by {amount}.",
+			"description": "Nearby allies +{amount} power.",
 			"categories": [
 				"aura"
 			],
@@ -834,7 +834,7 @@
 		{
 			"id": "frontline_warrior",
 			"name": "Frontline Warrior",
-			"description": "Gains +{amount} power when positioned in the front row.",
+			"description": "+{amount} power in front row.",
 			"categories": [
 				"positional"
 			],
@@ -857,7 +857,7 @@
 		{
 			"id": "midline_support",
 			"name": "Midline Support",
-			"description": "Gains +{amount} power when positioned in the middle row.",
+			"description": "+{amount} power in middle row.",
 			"categories": [
 				"positional"
 			],
@@ -880,7 +880,7 @@
 		{
 			"id": "backline_caster",
 			"name": "Backline Caster",
-			"description": "Gains +{amount} power when positioned in the back row.",
+			"description": "+{amount} power in back row.",
 			"categories": [
 				"positional"
 			],
