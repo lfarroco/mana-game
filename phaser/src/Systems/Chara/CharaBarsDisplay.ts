@@ -88,6 +88,11 @@ export class CharaBarsDisplay {
 		);
 	}
 
+	updateUnit(newUnit: Unit): void {
+		this.unit = newUnit;
+		this.updateBars();
+	}
+
 	setVisible(visible: boolean): void {
 		this.chargeBar.setVisible(visible);
 		const debugMode = getOption('debug');

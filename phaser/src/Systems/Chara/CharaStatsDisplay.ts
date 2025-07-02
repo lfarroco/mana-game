@@ -69,6 +69,11 @@ export class CharaStatsDisplay {
 		this.powerDisplay.setText(Math.floor(this.unit.power).toString());
 	}
 
+	updateUnit(newUnit: Unit): void {
+		this.unit = newUnit;
+		this.updatePower();
+	}
+
 	setVisible(visible: boolean): void {
 		this.powerDisplayBg.setVisible(visible);
 		this.powerDisplay.setVisible(visible && !!this.unit.attackType);
