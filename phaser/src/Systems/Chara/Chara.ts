@@ -216,6 +216,13 @@ export class Chara extends Phaser.GameObjects.Container {
 		return this.isShopItem;
 	}
 
+	/** Updates the unit reference and refreshes all display components */
+	updateUnit(newUnit: Unit): void {
+		this.unit = newUnit;
+		this.statsDisplay.updateUnit(newUnit);
+		this.barsDisplay.updateUnit(newUnit);
+	}
+
 	/** Updates the displayed Attack Power value via the `statsDisplay` component. */
 	updatePowerDisplay = () => {
 		this.statsDisplay.updatePower();

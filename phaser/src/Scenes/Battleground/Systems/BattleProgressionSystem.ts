@@ -209,7 +209,7 @@ export class BattleProgressionSystem {
 		playerUnitsForBattle.forEach(battleCopy => {
 			const chara = CharaManager.getChara(battleCopy.id);
 			if (chara) {
-				chara.unit = battleCopy; // Update the Chara to reference the battle copy
+				chara.updateUnit(battleCopy); // Update the Chara and its display components to reference the battle copy
 			}
 		});
 
