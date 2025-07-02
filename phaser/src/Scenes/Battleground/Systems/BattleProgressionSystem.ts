@@ -13,6 +13,23 @@ import { cpuForce, playerForce, manipulateForceMoreale } from "../../../Models/E
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
 
 /**
+ * Creates a deep copy of a unit for battle purposes.
+ * This ensures that any modifications during battle don't affect the persistent game data.
+ */
+function createUnitCopy(unit: Unit): Unit {
+	return {
+		...unit,
+		// Deep copy nested objects
+		position: { ...unit.position },
+		traits: unit.traits.map(trait => ({ ...trait })),
+		// Copy arrays and other nested structures
+		statusEffects: unit.statusEffects ? [...unit.statusEffects] : undefined,
+		damageReductionStacks: unit.damageReductionStacks ? [...unit.damageReductionStacks] : undefined,
+		temporaryEffects: unit.temporaryEffects ? [...unit.temporaryEffects] : undefined
+	};
+}
+
+/**
  * Manages the overall progression of the battle, including transitions
  * between shop and combat phases, round victories, and game over.
  */
@@ -179,11 +196,22 @@ export class BattleProgressionSystem {
 			// Status effects are now managed through the unified system and cleared automatically
 		});
 
+		// Create deep copies of player units for the battle
+		const playerUnitsForBattle = this.state.gameData.player.units.map(unit => createUnitCopy(unit));
+
 		this.state.battleData.forces = [
 			cpuForce,
 			playerForce
 		];
-		this.state.battleData.units = [...enemy.units, ...this.state.gameData.player.units];
+		this.state.battleData.units = [...enemy.units, ...playerUnitsForBattle];
+
+		// Update existing player Chara objects to reference the battle copies
+		playerUnitsForBattle.forEach(battleCopy => {
+			const chara = CharaManager.getChara(battleCopy.id);
+			if (chara) {
+				chara.unit = battleCopy; // Update the Chara to reference the battle copy
+			}
+		});
 
 		// Summon CPU units to the board
 		enemy.units.forEach(unit => {
