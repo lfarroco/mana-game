@@ -280,6 +280,6 @@ function handlePoisonTick(unit: Unit, effect: StatusEffect): void {
 	const chara = getChara(unit.id);
 	if (chara && chara.active) {
 		chara.showPopText(`-${effect.damagePerTick} ${effect.displayName || 'Poison'}`, "damage");
-		chara.unitHit(effect.damagePerTick);
+		//chara.unitHit(effect.damagePerTick);
 	}
 }

@@ -9,7 +9,7 @@ export const lightOrb = (
 	scene: BattlegroundScene
 ) => async (unit: Unit) => {
 
-	const damage = Math.floor(unit.power / 2);
+	//const damage = Math.floor(unit.power / 2);
 
 	const activeChara = UnitManager.getChara(unit.id);
 	if (!activeChara) return;
@@ -29,7 +29,7 @@ export const lightOrb = (
 
 	await delay(scene, 500);
 
-	await targetChara.unitHit(damage);
+	//await targetChara.unitHit(damage);
 
 	await delay(scene, 1000);
 

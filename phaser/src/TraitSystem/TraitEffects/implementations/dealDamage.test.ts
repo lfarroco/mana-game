@@ -415,23 +415,6 @@ describe('Deal Damage Implementation', () => {
 			expect(moraleDeductCalls[1]).toEqual({ force: mockEnemyForce, damage: 15 });
 		});
 
-		it('should handle forces with morale reduction stacks', async () => {
-			// Arrange
-			mockEnemyForce.moraleReductionStacks = [
-				{ unitId: 'test-unit', reductionPercent: 0.1 } // 10% reduction
-			];
-
-			// Act
-			await dealDamageLogicIO(mockContext);
-
-			// Assert
-			const mockEmit = mockScene.events.emit as jest.Mock;
-			expect(mockEmit).toHaveBeenCalledWith(
-				GameEvents.UNIT_ATTACK,
-				{ unit: mockUnit }
-			);
-		});
-
 		it('should work with units having different power values', async () => {
 			// Arrange
 			const highPowerUnit = createTestUnit('high-power-unit', 'player', vec2(0, 0)) as Unit;

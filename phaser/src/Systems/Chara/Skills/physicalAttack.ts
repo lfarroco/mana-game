@@ -27,6 +27,4 @@ export async function physicalAttack(
 	// Emit event for TRAIT_EVAL_ATTACK_BY_ME
 	scene.events.emit(GameEvents.TRAIT_EVAL_ATTACK_BY_ME, { unit: activeChara.unit, target: targetChara.unit, damage, isCritical, evaded });
 
-	targetChara.unitHit(damage);
-
 }

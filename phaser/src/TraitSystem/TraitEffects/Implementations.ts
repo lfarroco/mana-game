@@ -47,7 +47,7 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("reduce_enemy_damage", implementations.reduceEnemyDamageLogic);
 	registerTraitEffectImplementation("fortress_mode_passive", implementations.fortressModePassiveLogic);
 	//registerTraitEffectImplementation("reduce_ally_damage_taken", implementations.reduceAllyDamageTakenLogic);
-	registerTraitEffectImplementation("morale_damage_reduction", implementations.moraleDamageReductionLogic);
+	//registerTraitEffectImplementation("morale_damage_reduction", implementations.moraleDamageReductionLogic);
 
 	// Time-based and alternative mechanics
 	registerTraitEffectImplementation("damage_scales_with_time", implementations.damageScalesWithTimeLogic);

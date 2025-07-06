@@ -4,22 +4,6 @@ import { TraitData } from "../../TraitSystem/Traits";
 import { getCardDefinition } from "./Card";
 
 /**
- * Represents a damage reduction effect applied by another unit.
- */
-export type DamageReductionStack = {
-  sourceUnitId: string;
-  reductionPercent: number;
-};
-
-/**
- * Represents a morale damage reduction effect applied by a unit.
- */
-export type MoraleReductionStack = {
-  unitId: string;
-  reductionPercent: number;
-};
-
-/**
  * Represents a temporary effect that will be reverted after a duration.
  */
 export type StatusEffect = {
@@ -93,9 +77,6 @@ export type Unit = {
   // @deprecated - these will be moved to statusEffects
   hasted: number;
   slowed: number;
-
-  // Defensive trait effects
-  damageReductionStacks?: DamageReductionStack[];
 
   // New unified status effect system
   statusEffects?: StatusEffect[];
