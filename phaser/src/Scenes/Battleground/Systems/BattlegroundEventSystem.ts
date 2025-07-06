@@ -7,7 +7,7 @@ import { BattlegroundScene } from "../BattlegroundScene";
 import { popText } from "../../../Systems/Chara/Animations/popText";
 import { PopTextPayload } from "../../../Models/EventPayloads";
 import * as MoraleDisplay from "../MoraleDisplay";
-import * as ModifiersDisplay from "../ModifiersDisplay";
+import * as ModifiersDisplay from "../ModifiersDisplay/ModifiersDisplay";
 import * as VignetteSystem from "../Animations/vignette";
 import { onCharaPointerOver, onCharaPointerOut } from "../../../Systems/Chara/CharaTooltip";
 
