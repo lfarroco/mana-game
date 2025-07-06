@@ -270,6 +270,7 @@ export class BattleProgressionSystem {
 		cpuForce.morale = cpuForce.maxMorale;
 
 		this.scene.events.emit(GameEvents.MORALE_BARS_SHOW);
+		this.scene.events.emit(GameEvents.MODIFIERS_DISPLAYS_SHOW);
 		this.scene.events.emit(
 			GameEvents.MORALE_UPDATED,
 			{
