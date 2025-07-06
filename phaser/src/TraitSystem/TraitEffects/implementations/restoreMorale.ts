@@ -32,7 +32,7 @@ export const restoreForceMoraleLogic: TraitEffectFn = async (context: TraitEffec
 
 	// Use dynamic imports to avoid circular dependencies in tests
 	const [
-		{ manipulateForceMoreale },
+		{ manipulateForceMorale: manipulateForceMoreale },
 		{ getChara }
 	] = await Promise.all([
 		import("../../../Models/Entities/Force"),

@@ -117,7 +117,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.scene.events.on(GameEvents.OWNED_UNIT_SWAP_ACCEPTED, this._onOwnedUnitSwapAccepted, this);
 		this.scene.events.on(GameEvents.OWNED_UNIT_MOVE_REJECTED, this._onOwnedUnitMoveRejected, this);
 
-		this.scene.events.on(GameEvents.TRAIT_EVAL_UNIT_ACTION, this.onAction, this);
+		this.scene.events.on(GameEvents.TRAIT_EVAL_UNIT_ACTION, this.pop, this);
 	}
 
 	/**
@@ -287,7 +287,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		}
 
 		// Apply damage to the unit's HP data model and update its visual display
-		this.scene.events.emit(GameEvents.UNIT_TOOK_HIT, { unit: this.unit, damage: finalDamage });
+		//this.scene.events.emit(GameEvents.UNIT_TOOK_HIT, { unit: this.unit, damage: finalDamage });
 
 	}
 
@@ -349,12 +349,12 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.scene.events.off(GameEvents.OWNED_UNIT_MOVE_ACCEPTED, this._onOwnedUnitMoveAccepted, this);
 		this.scene.events.off(GameEvents.OWNED_UNIT_SWAP_ACCEPTED, this._onOwnedUnitSwapAccepted, this);
 		this.scene.events.off(GameEvents.OWNED_UNIT_MOVE_REJECTED, this._onOwnedUnitMoveRejected, this);
-		this.scene.events.off(GameEvents.TRAIT_EVAL_UNIT_ACTION, this.onAction, this);
+		this.scene.events.off(GameEvents.TRAIT_EVAL_UNIT_ACTION, this.pop, this);
 
 		super.destroy(fromScene);
 	}
 
-	async onAction(payload: { unit: Unit }) {
+	async pop(payload: { unit: Unit }) {
 		if (payload.unit.id !== this.id) return;
 		if (this.isAnimating) return;
 		this.isAnimating = true;

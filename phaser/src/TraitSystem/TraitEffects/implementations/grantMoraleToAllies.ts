@@ -1,7 +1,7 @@
 import { TraitEffectFn } from "../../TraitEffectSystem";
 import { getEffectParams } from "../../TraitSystem.pure";
 import { getChara } from "../../../Scenes/Battleground/Systems/CharaManager";
-import { manipulateForceMoreale } from "../../../Models/Entities/Force";
+import { manipulateForceMorale } from "../../../Models/Entities/Force";
 
 /**
  * Helper function to manipulate force morale with proper event emission and pop text
@@ -17,7 +17,7 @@ async function manipulateForceMorealeWrapper(
 
 	if (targetForce) {
 		// Use the shared utility function that handles morale damage reduction
-		const actualChange = manipulateForceMoreale(targetForce, amount, scene);
+		const actualChange = manipulateForceMorale(targetForce, amount, scene);
 
 		// Show pop text for the source unit
 		if (actualChange !== 0) {

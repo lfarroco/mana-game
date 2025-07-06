@@ -1,5 +1,5 @@
 import { v4 } from "uuid";
-import { Vec2, vec2Zero } from "../Geometry";
+import { Vec2, vec2Zero } from "../Geometry.pure";
 import { TraitData } from "../../TraitSystem/Traits";
 import { getCardDefinition } from "./Card";
 
@@ -105,25 +105,192 @@ export type Unit = {
 };
 
 export const makeUnit = (force: string, cardId: string, position = vec2Zero()): Unit => {
-
   const card = getCardDefinition(cardId);
-  const unit = {
-    ...card,
-    id: v4(),
-    cardId,
+
+  // Use pure function with runtime-specific ID generation
+  const pureUnit = createUnitFromCard(
+    force,
+    {
+      id: card.id,
+      name: card.name,
+      pic: card.pic,
+      hp: card.hp,
+      power: card.power,
+      powerType: card.powerType,
+      cooldown: card.cooldown,
+      traits: card.traits
+    },
+    position,
+    v4() // Generate unique ID for runtime
+  );
+
+  return pureUnit as Unit;
+};
+
+/**
+ * Minimal card-like definition for unit creation
+ */
+export type CardDefinition = {
+  id: string;
+  name: string;
+  pic: string;
+  hp: number;
+  power: number;
+  powerType: "damage" | "heal" | "armor" | null;
+  cooldown: number;
+  traits: TraitData[];
+};
+
+/**
+ * All the required properties for a Unit, extracted for pure creation
+ */
+export type PureUnitData = {
+  id: string;
+  cardId: string;
+  name: string;
+  pic: string;
+  force: string;
+  position: Vec2;
+  hp: number;
+  maxHp: number;
+  power: number;
+  attackType: "damage" | "heal" | "armor" | null;
+  cooldown: number;
+  crit: number;
+  evade: number;
+  traits: TraitData[];
+  charge: number;
+  refresh: number;
+  hasted: number;
+  slowed: number;
+};
+
+/**
+ * Pure function to create a unit from a card definition
+ * @param force The force/team the unit belongs to
+ * @param cardDef The card definition to base the unit on
+ * @param position The position to place the unit at
+ * @param id Optional custom ID, if not provided will use cardDef.id
+ * @returns A unit object with all required properties
+ */
+export function createUnitFromCard(
+  force: string,
+  cardDef: CardDefinition,
+  position: Vec2 = vec2Zero(),
+  id?: string
+): PureUnitData {
+  return {
+    id: id || cardDef.id,
+    cardId: cardDef.id,
+    name: cardDef.name,
+    pic: cardDef.pic,
     force,
     position,
-    maxHp: card.hp,
+    hp: cardDef.hp,
+    maxHp: cardDef.hp,
+    power: cardDef.power || 0,
+    attackType: cardDef.powerType,
+    cooldown: cardDef.cooldown,
     crit: 0,
     evade: 0,
-    xp: 0,
-    attackType: card.powerType,
-    power: card.power || 0,
+    traits: cardDef.traits || [],
     charge: 0,
     refresh: 0,
     hasted: 0,
-    slowed: 0,
-    traits: card.traits,
+    slowed: 0
+  };
+}
+
+/**
+ * Pure function to create a unit with custom properties
+ * Useful for testing where you want full control over unit properties
+ * @param baseProps Basic required properties
+ * @param overrides Optional property overrides
+ * @returns A unit object with all required properties
+ */
+export function createCustomUnit(
+  baseProps: {
+    id: string;
+    force: string;
+    position?: Vec2;
+  },
+  overrides: Partial<Omit<PureUnitData, 'id' | 'force' | 'position'>> = {}
+): PureUnitData {
+  const defaults: Omit<PureUnitData, 'id' | 'force' | 'position'> = {
+    cardId: `${baseProps.id}-card`,
+    name: `Unit ${baseProps.id}`,
+    pic: `${baseProps.id}.png`,
+    hp: 100,
+    maxHp: 100,
+    power: 25,
+    attackType: 'damage',
+    cooldown: 100,
+    crit: 10,
+    evade: 5,
+    traits: [],
+    charge: 0,
+    refresh: 0,
+    hasted: 0,
+    slowed: 0
+  };
+
+  return {
+    id: baseProps.id,
+    force: baseProps.force,
+    position: baseProps.position || vec2Zero(),
+    ...defaults,
+    ...overrides
+  };
+}
+
+/**
+ * Pure function to create a test unit with sensible defaults
+ * This is specifically designed for testing scenarios
+ * @param id The unit ID
+ * @param force The force/team
+ * @param position Optional position (defaults to 0,0)
+ * @returns A unit suitable for testing
+ */
+export function createTestUnit(
+  id: string,
+  force: string,
+  position: Vec2 = vec2Zero()
+): PureUnitData {
+  return createCustomUnit({ id, force, position });
+}
+
+/**
+ * Common card definitions for testing
+ */
+export const testCardDefinitions = {
+  basicWarrior: {
+    id: 'basic-warrior',
+    name: 'Basic Warrior',
+    pic: 'warrior.png',
+    hp: 120,
+    power: 30,
+    powerType: 'damage' as const,
+    cooldown: 100,
+    traits: []
+  },
+  basicHealer: {
+    id: 'basic-healer',
+    name: 'Basic Healer',
+    pic: 'healer.png',
+    hp: 80,
+    power: 20,
+    powerType: 'heal' as const,
+    cooldown: 120,
+    traits: []
+  },
+  basicTank: {
+    id: 'basic-tank',
+    name: 'Basic Tank',
+    pic: 'tank.png',
+    hp: 200,
+    power: 15,
+    powerType: 'armor' as const,
+    cooldown: 80,
+    traits: []
   }
-  return unit as Unit
-};
+} as const;

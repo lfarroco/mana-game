@@ -15,7 +15,8 @@ export const GameEvents = {
 	COMBAT_ENDED_VICTORY: "combat_ended_victory", // Payload: { enemiesDefeated: Unit[] }
 	COMBAT_ENDED_DEFEAT: "combat_ended_defeat",
 
-	UNIT_TOOK_HIT: "unit_took_hit", // Payload: { unit: Unit, damage: number }
+	//UNIT_TOOK_HIT: "unit_took_hit", // Payload: { unit: Unit, damage: number }
+	UNIT_ATTACK: "unit_attack", // Payload: { unit: Unit }
 
 	// Trait System Specific Triggers
 	TRAIT_EVAL_UNIT_ACTION: "trait_eval_unit_action",

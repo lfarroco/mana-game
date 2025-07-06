@@ -3,7 +3,7 @@
  * Exports all individual implementation modules for easy import.
  */
 
-export { dealDamageLogic, createDealDamageLogic } from './dealDamage';
+export { dealDamageLogicIO, createDealDamageLogic } from './dealDamage';
 export { grantGoldLogic } from './grantGold';
 export { increaseForceMaxMoraleLogic } from './increaseForceMaxMorale';
 export { modifyStatPassiveLogic } from './modifyStatPassive';

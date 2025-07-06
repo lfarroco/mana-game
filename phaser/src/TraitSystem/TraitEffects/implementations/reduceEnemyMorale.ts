@@ -38,7 +38,7 @@ export const reduceEnemyMoraleLogic: TraitEffectFn = async (context: TraitEffect
 	const amount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 75);
 
 	// Use dynamic imports to avoid circular dependencies in tests
-	const { manipulateForceMoreale } = await import("../../../Models/Entities/Force");
+	const { manipulateForceMorale: manipulateForceMoreale } = await import("../../../Models/Entities/Force");
 	const { getChara } = await import("../../../Scenes/Battleground/Systems/CharaManager");
 
 	const { scene, state, sourceUnit } = context;

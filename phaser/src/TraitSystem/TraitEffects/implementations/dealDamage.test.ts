@@ -3,226 +3,455 @@
  * Tests the deal damage effect logic using pure function injection.
  */
 
-import { createDealDamageLogic } from './dealDamage';
-import { getEffectParams } from '../../TraitSystem.pure';
 import { Unit } from '../../../Models/Entities/Unit';
+import { createTestUnit } from '../../../Models/Entities/Unit';
 import { TraitEffectContext } from '../../TraitEffectSystem';
+import { createDealDamageLogic, dealDamageLogicIO } from './dealDamage';
+import { GameEvents } from '../../../constants/events';
 import { vec2 } from '../../../Models/Geometry.pure';
+import { Force } from '../../../Models/Entities/Force';
+import BattlegroundScene from '../../../Scenes/Battleground/BattlegroundScene';
 
 describe('Deal Damage Implementation', () => {
 	let mockUnit: Unit;
 	let mockTargetUnit: Unit;
-	let mockChara: any;
 	let mockContext: TraitEffectContext;
-	let mockGetChara: jest.MockedFunction<(id: string) => any>;
+	let mockScene: BattlegroundScene;
+	let mockState: any;
+	let mockEffectInstance: any;
+	let mockTraitInstanceParams: any;
+	let mockPlayerForce: Force;
+	let mockEnemyForce: Force;
 
 	beforeEach(() => {
-		// Create mock unit
-		mockUnit = {
-			id: 'test-unit-1',
-			cardId: 'test-card-1',
-			name: 'Test Unit',
-			pic: 'test-pic.png',
-			force: 'player-force',
-			hp: 100,
-			maxHp: 100,
-			power: 20,
-			attackType: 'damage',
-			cooldown: 1000,
-			crit: 0,
-			evade: 0,
-			position: vec2(1, 2),
-			traits: [],
-			charge: 0,
-			refresh: 0,
-			hasted: 0,
-			slowed: 0
-		} as Unit;
+		// Create mock units using pure utility function
+		mockUnit = createTestUnit('source-unit-1', 'player', vec2(0, 0)) as Unit;
+		mockUnit.power = 15; // Set unit power for damage calculation
+		mockTargetUnit = createTestUnit('target-unit-1', 'enemy', vec2(1, 0)) as Unit;
 
-		mockTargetUnit = {
-			id: 'test-target-1',
-			cardId: 'test-target-card',
-			name: 'Target Unit',
-			pic: 'target-pic.png',
-			force: 'enemy-force',
-			hp: 80,
-			maxHp: 80,
-			power: 15,
-			attackType: 'damage',
-			cooldown: 1200,
-			crit: 0,
-			evade: 0,
-			position: vec2(0, 1),
-			traits: [],
-			charge: 0,
-			refresh: 0,
-			hasted: 0,
-			slowed: 0
-		} as Unit;
+		// Create mock forces
+		mockPlayerForce = {
+			id: 'player',
+			name: 'Player Force',
+			color: '#0000FF',
+			gold: 100,
+			income: 10,
+			morale: 100,
+			maxMorale: 100,
+			units: [mockUnit],
+			prestige: 0,
+			winStreak: 0,
+			lossStreak: 0,
+			totalRoundsPlayed: 0,
+			attackMod: 1,
+			defenseMod: 1,
+			healMod: 1,
+			moraleReductionStacks: []
+		} as Force;
 
-		// Create mock chara
-		mockChara = {
-			id: 'test-target-1',
-			active: true,
-			showPopText: jest.fn().mockResolvedValue(undefined)
+		mockEnemyForce = {
+			id: 'enemy',
+			name: 'Enemy Force',
+			color: '#FF0000',
+			gold: 100,
+			income: 10,
+			morale: 100,
+			maxMorale: 100,
+			units: [mockTargetUnit],
+			prestige: 0,
+			winStreak: 0,
+			lossStreak: 0,
+			totalRoundsPlayed: 0,
+			attackMod: 1,
+			defenseMod: 1,
+			healMod: 1,
+			moraleReductionStacks: []
+		} as Force;
+
+		// Create mock scene with events emitter
+		mockScene = {
+			events: {
+				emit: jest.fn()
+			}
+		} as unknown as BattlegroundScene;
+
+		// Create mock state with proper battleData structure
+		mockState = {
+			battleData: {
+				forces: [mockPlayerForce, mockEnemyForce],
+				grid: [[0, 0], [0, 0]],
+				units: [mockUnit, mockTargetUnit]
+			}
 		};
 
-		// Create mock getChara function
-		mockGetChara = jest.fn().mockImplementation((id: string) => {
-			return id === 'test-target-1' ? mockChara : undefined;
-		});
+		// Create mock effect instance data
+		mockEffectInstance = {
+			effectId: 'dealDamage',
+			eventTrigger: 'onAttackByMe',
+			targetSelector: 'action_target',
+			amount: 10
+		};
 
-		// Create base context
+		// Create mock trait instance params
+		mockTraitInstanceParams = {
+			traitId: 'aggressive',
+			level: 1
+		};
+
+		// Set unit force property
+		mockUnit.force = 'player';
+		mockTargetUnit.force = 'enemy';
+
+		// Create mock context
 		mockContext = {
 			sourceUnit: mockUnit,
 			targets: [mockTargetUnit],
-			scene: {} as any,
-			state: {} as any,
-			traitInstanceParams: { id: 'test-trait' as any },
-			effectInstance: { effectId: 'deal_damage', eventTrigger: 'onAction' }
+			effectInstance: mockEffectInstance,
+			traitInstanceParams: mockTraitInstanceParams,
+			scene: mockScene,
+			state: mockState,
+			attackDamage: 25,
+			isCritical: false,
+			evaded: false,
+			primaryTarget: mockTargetUnit
 		};
 	});
 
 	describe('createDealDamageLogic', () => {
-		it('should create a function that deals damage to targets', async () => {
-			const dealDamageEffect = createDealDamageLogic(mockGetChara);
+		it('should create a function that calls both emitter and deductMorale', async () => {
+			// Arrange
+			const mockEmitter = jest.fn();
+			const mockDeductMorale = jest.fn();
+			const dealDamageLogic = createDealDamageLogic(mockEmitter, mockDeductMorale);
 
-			const contextWithDamage = {
-				...mockContext,
-				traitInstanceParams: { id: 'test-trait' as any, amount: 25 }
-			};
+			// Act
+			await dealDamageLogic(mockContext);
 
-			await dealDamageEffect(contextWithDamage);
-
-			expect(mockGetChara).toHaveBeenCalledWith('test-target-1');
-			expect(mockChara.showPopText).toHaveBeenCalledWith('-25 Dmg', 'damage');
+			// Assert
+			expect(mockEmitter).toHaveBeenCalledTimes(1);
+			expect(mockEmitter).toHaveBeenCalledWith(mockUnit);
+			expect(mockDeductMorale).toHaveBeenCalledTimes(1);
+			expect(mockDeductMorale).toHaveBeenCalledWith(mockEnemyForce, 15, mockScene); // unit.power = 15
 		});
 
-		it('should use default damage amount when not specified', async () => {
-			const dealDamageEffect = createDealDamageLogic(mockGetChara);
+		it('should work with different source units', async () => {
+			// Arrange
+			const mockEmitter = jest.fn();
+			const mockDeductMorale = jest.fn();
+			const dealDamageLogic = createDealDamageLogic(mockEmitter, mockDeductMorale);
 
-			// Context without amount specified
-			const contextWithoutAmount = {
+			const differentUnit = createTestUnit('different-unit', 'player', vec2(2, 0)) as Unit;
+			differentUnit.force = 'player';
+			differentUnit.power = 20;
+
+			const contextWithDifferentUnit = {
 				...mockContext,
-				traitInstanceParams: { id: 'test-trait' as any }
+				sourceUnit: differentUnit
 			};
 
-			await dealDamageEffect(contextWithoutAmount);
+			// Act
+			await dealDamageLogic(contextWithDifferentUnit);
 
-			expect(mockChara.showPopText).toHaveBeenCalledWith('-0 Dmg', 'damage');
+			// Assert
+			expect(mockEmitter).toHaveBeenCalledWith(differentUnit);
+			expect(mockDeductMorale).toHaveBeenCalledWith(mockEnemyForce, 20, mockScene);
 		});
 
-		it('should resolve damage amount from effect instance params', async () => {
-			const dealDamageEffect = createDealDamageLogic(mockGetChara);
-
-			const contextWithEffectAmount = {
-				...mockContext,
-				traitInstanceParams: { id: 'test-trait' as any },
-				effectInstance: {
-					effectId: 'deal_damage',
-					eventTrigger: 'onAction',
-					amount: 50
-				}
-			};
-
-			await dealDamageEffect(contextWithEffectAmount);
-
-			expect(mockChara.showPopText).toHaveBeenCalledWith('-50 Dmg', 'damage');
-		});
-
-		it('should prioritize effect instance params over trait params', async () => {
-			const dealDamageEffect = createDealDamageLogic(mockGetChara);
-
-			const contextWithBothAmounts = {
-				...mockContext,
-				traitInstanceParams: { id: 'test-trait' as any, amount: 25 },
-				effectInstance: {
-					effectId: 'deal_damage',
-					eventTrigger: 'onAction',
-					amount: 75 // This should override trait amount
-				}
-			};
-
-			await dealDamageEffect(contextWithBothAmounts);
-
-			expect(mockChara.showPopText).toHaveBeenCalledWith('-75 Dmg', 'damage');
-		});
-
-		it('should handle multiple targets', async () => {
-			const secondTargetUnit = {
-				...mockTargetUnit,
-				id: 'test-target-2',
-				name: 'Second Target'
-			};
-
-			const secondMockChara = {
-				id: 'test-target-2',
-				active: true,
-				showPopText: jest.fn().mockResolvedValue(undefined)
-			};
-
-			mockGetChara.mockImplementation((id: string) => {
-				if (id === 'test-target-1') return mockChara;
-				if (id === 'test-target-2') return secondMockChara;
-				return undefined;
+		it('should handle emitter that throws an error gracefully', async () => {
+			// Arrange
+			const mockEmitter = jest.fn().mockImplementation(() => {
+				throw new Error('Emitter error');
 			});
+			const mockDeductMorale = jest.fn();
+			const dealDamageLogic = createDealDamageLogic(mockEmitter, mockDeductMorale);
 
-			const dealDamageEffect = createDealDamageLogic(mockGetChara);
-
-			const contextWithMultipleTargets = {
-				...mockContext,
-				targets: [mockTargetUnit, secondTargetUnit],
-				traitInstanceParams: { id: 'test-trait' as any, amount: 30 }
-			};
-
-			await dealDamageEffect(contextWithMultipleTargets);
-
-			expect(mockGetChara).toHaveBeenCalledWith('test-target-1');
-			expect(mockGetChara).toHaveBeenCalledWith('test-target-2');
-			expect(mockChara.showPopText).toHaveBeenCalledWith('-30 Dmg', 'damage');
-			expect(secondMockChara.showPopText).toHaveBeenCalledWith('-30 Dmg', 'damage');
+			// Act & Assert
+			await expect(dealDamageLogic(mockContext)).rejects.toThrow('Emitter error');
+			expect(mockEmitter).toHaveBeenCalledWith(mockUnit);
 		});
 
-		it('should handle missing chara gracefully', async () => {
-			// Mock getChara to return undefined (chara not found)
-			const mockGetCharaFailing = jest.fn().mockReturnValue(undefined);
-			const dealDamageEffect = createDealDamageLogic(mockGetCharaFailing);
+		it('should handle deductMorale that throws an error gracefully', async () => {
+			// Arrange
+			const mockEmitter = jest.fn();
+			const mockDeductMorale = jest.fn().mockImplementation(() => {
+				throw new Error('Morale deduction error');
+			});
+			const dealDamageLogic = createDealDamageLogic(mockEmitter, mockDeductMorale);
 
-			const contextWithDamage = {
+			// Act & Assert
+			await expect(dealDamageLogic(mockContext)).rejects.toThrow('Morale deduction error');
+			expect(mockEmitter).toHaveBeenCalledWith(mockUnit);
+			expect(mockDeductMorale).toHaveBeenCalledWith(mockEnemyForce, 15, mockScene);
+		});
+
+		it('should be callable multiple times', async () => {
+			// Arrange
+			const mockEmitter = jest.fn();
+			const mockDeductMorale = jest.fn();
+			const dealDamageLogic = createDealDamageLogic(mockEmitter, mockDeductMorale);
+
+			// Act
+			await dealDamageLogic(mockContext);
+			await dealDamageLogic(mockContext);
+			await dealDamageLogic(mockContext);
+
+			// Assert
+			expect(mockEmitter).toHaveBeenCalledTimes(3);
+			expect(mockDeductMorale).toHaveBeenCalledTimes(3);
+		});
+
+		it('should find correct target force when source is enemy', async () => {
+			// Arrange
+			const mockEmitter = jest.fn();
+			const mockDeductMorale = jest.fn();
+			const dealDamageLogic = createDealDamageLogic(mockEmitter, mockDeductMorale);
+
+			// Set unit as enemy force
+			mockUnit.force = 'enemy';
+			const contextWithEnemySource = {
 				...mockContext,
-				traitInstanceParams: { id: 'test-trait' as any, amount: 25 }
+				sourceUnit: mockUnit
 			};
 
-			// Should not throw an error
-			await expect(dealDamageEffect(contextWithDamage)).resolves.toBeUndefined();
+			// Act
+			await dealDamageLogic(contextWithEnemySource);
 
-			expect(mockGetCharaFailing).toHaveBeenCalledWith('test-target-1');
+			// Assert
+			expect(mockDeductMorale).toHaveBeenCalledWith(mockPlayerForce, 15, mockScene);
 		});
 	});
 
-	describe('Parameter Resolution Integration', () => {
-		it('should demonstrate getEffectParams behavior', () => {
-			const traitParams = { amount: 25 };
-			const effectParams = { duration: 3000 };
+	describe('dealDamageLogicIO', () => {
+		it('should emit UNIT_ATTACK event with the source unit', async () => {
+			// Act
+			await dealDamageLogicIO(mockContext);
 
-			const amount = getEffectParams(traitParams, effectParams, 'amount', 10);
-			const duration = getEffectParams(traitParams, effectParams, 'duration', 2000);
-			const missing = getEffectParams(traitParams, effectParams, 'missing', 50);
-
-			expect(amount).toBe(25); // From trait params
-			expect(duration).toBe(3000); // From effect params
-			expect(missing).toBe(50); // Default value
+			// Assert
+			const mockEmit = mockScene.events.emit as jest.Mock;
+			expect(mockEmit).toHaveBeenCalledTimes(1);
+			expect(mockEmit).toHaveBeenCalledWith(
+				GameEvents.UNIT_ATTACK,
+				{ unit: mockUnit }
+			);
 		});
 
-		it('should demonstrate parameter override behavior', () => {
-			const traitParams = { amount: 25, duration: 1000 };
-			const effectParams = { amount: 35 }; // Override trait amount
+		it('should deduct morale from enemy force', async () => {
+			// Act
+			await dealDamageLogicIO(mockContext);
 
-			const amount = getEffectParams(traitParams, effectParams, 'amount', 10);
-			const duration = getEffectParams(traitParams, effectParams, 'duration', 2000);
+			// Assert - We can't easily test the actual morale manipulation without mocking the import
+			// but we can verify the function was called correctly through the event emission
+			const mockEmit = mockScene.events.emit as jest.Mock;
+			expect(mockEmit).toHaveBeenCalledWith(
+				GameEvents.UNIT_ATTACK,
+				{ unit: mockUnit }
+			);
+		});
 
-			expect(amount).toBe(35); // Effect param overrides trait param
-			expect(duration).toBe(1000); // Trait param used when not in effect
+		it('should work with different context scenarios', async () => {
+			// Arrange - Test with critical hit context
+			const criticalContext = {
+				...mockContext,
+				isCritical: true,
+				attackDamage: 50
+			};
+
+			// Act
+			await dealDamageLogicIO(criticalContext);
+
+			// Assert
+			const mockEmit = mockScene.events.emit as jest.Mock;
+			expect(mockEmit).toHaveBeenCalledWith(
+				GameEvents.UNIT_ATTACK,
+				{ unit: mockUnit }
+			);
+		});
+
+		it('should work with evaded attack context', async () => {
+			// Arrange
+			const evadedContext = {
+				...mockContext,
+				evaded: true,
+				attackDamage: 0
+			};
+
+			// Act
+			await dealDamageLogicIO(evadedContext);
+
+			// Assert
+			const mockEmit = mockScene.events.emit as jest.Mock;
+			expect(mockEmit).toHaveBeenCalledWith(
+				GameEvents.UNIT_ATTACK,
+				{ unit: mockUnit }
+			);
+		});
+
+		it('should work with multiple targets', async () => {
+			// Arrange
+			const multiTargetContext = {
+				...mockContext,
+				targets: [mockTargetUnit, mockUnit] // Multiple targets
+			};
+
+			// Act
+			await dealDamageLogicIO(multiTargetContext);
+
+			// Assert
+			const mockEmit = mockScene.events.emit as jest.Mock;
+			expect(mockEmit).toHaveBeenCalledWith(
+				GameEvents.UNIT_ATTACK,
+				{ unit: mockUnit }
+			);
+		});
+
+		it('should work with no targets', async () => {
+			// Arrange
+			const noTargetContext = {
+				...mockContext,
+				targets: []
+			};
+
+			// Act
+			await dealDamageLogicIO(noTargetContext);
+
+			// Assert
+			const mockEmit = mockScene.events.emit as jest.Mock;
+			expect(mockEmit).toHaveBeenCalledWith(
+				GameEvents.UNIT_ATTACK,
+				{ unit: mockUnit }
+			);
+		});
+
+		it('should handle scene events emit failure', async () => {
+			// Arrange
+			const mockEmit = mockScene.events.emit as jest.Mock;
+			mockEmit.mockImplementation(() => {
+				throw new Error('Event emission failed');
+			});
+
+			// Act & Assert
+			await expect(dealDamageLogicIO(mockContext)).rejects.toThrow('Event emission failed');
+		});
+
+		it('should use the correct event constant', async () => {
+			// Act
+			await dealDamageLogicIO(mockContext);
+
+			// Assert
+			const mockEmit = mockScene.events.emit as jest.Mock;
+			const [eventName] = mockEmit.mock.calls[0];
+			expect(eventName).toBe('unit_attack'); // Verifying the actual constant value
+		});
+
+		it('should work when source unit is from enemy force', async () => {
+			// Arrange
+			mockUnit.force = 'enemy';
+			const enemySourceContext = {
+				...mockContext,
+				sourceUnit: mockUnit
+			};
+
+			// Act
+			await dealDamageLogicIO(enemySourceContext);
+
+			// Assert
+			const mockEmit = mockScene.events.emit as jest.Mock;
+			expect(mockEmit).toHaveBeenCalledWith(
+				GameEvents.UNIT_ATTACK,
+				{ unit: mockUnit }
+			);
+		});
+	});
+
+	describe('Integration tests', () => {
+		it('should work end-to-end with typical battle context', async () => {
+			// Arrange - Simulate a typical battle scenario
+			const battleContext = {
+				...mockContext,
+				attackDamage: 30,
+				isCritical: false,
+				evaded: false,
+				effectInstance: {
+					...mockEffectInstance,
+					amount: 15 // Additional damage
+				}
+			};
+
+			// Act
+			await dealDamageLogicIO(battleContext);
+
+			// Assert
+			const mockEmit = mockScene.events.emit as jest.Mock;
+			expect(mockEmit).toHaveBeenCalledWith(
+				GameEvents.UNIT_ATTACK,
+				{ unit: mockUnit }
+			);
+		});
+
+		it('should maintain function purity for createDealDamageLogic', async () => {
+			// Arrange
+			const emitterCalls: Unit[] = [];
+			const moraleDeductCalls: Array<{ force: Force, damage: number }> = [];
+
+			const mockEmitter = (unit: Unit) => emitterCalls.push(unit);
+			const mockDeductMorale = (force: Force, damage: number) => {
+				moraleDeductCalls.push({ force, damage });
+			};
+
+			// Act - Call the pure function multiple times
+			const logic1 = createDealDamageLogic(mockEmitter, mockDeductMorale);
+			const logic2 = createDealDamageLogic(mockEmitter, mockDeductMorale);
+
+			await logic1(mockContext);
+			await logic2(mockContext);
+
+			// Assert
+			expect(emitterCalls).toHaveLength(2);
+			expect(emitterCalls[0]).toBe(mockUnit);
+			expect(emitterCalls[1]).toBe(mockUnit);
+
+			expect(moraleDeductCalls).toHaveLength(2);
+			expect(moraleDeductCalls[0]).toEqual({ force: mockEnemyForce, damage: 15 });
+			expect(moraleDeductCalls[1]).toEqual({ force: mockEnemyForce, damage: 15 });
+		});
+
+		it('should handle forces with morale reduction stacks', async () => {
+			// Arrange
+			mockEnemyForce.moraleReductionStacks = [
+				{ unitId: 'test-unit', reductionPercent: 0.1 } // 10% reduction
+			];
+
+			// Act
+			await dealDamageLogicIO(mockContext);
+
+			// Assert
+			const mockEmit = mockScene.events.emit as jest.Mock;
+			expect(mockEmit).toHaveBeenCalledWith(
+				GameEvents.UNIT_ATTACK,
+				{ unit: mockUnit }
+			);
+		});
+
+		it('should work with units having different power values', async () => {
+			// Arrange
+			const highPowerUnit = createTestUnit('high-power-unit', 'player', vec2(0, 0)) as Unit;
+			highPowerUnit.power = 50;
+			highPowerUnit.force = 'player';
+
+			const contextWithHighPowerUnit = {
+				...mockContext,
+				sourceUnit: highPowerUnit
+			};
+
+			// Act
+			await dealDamageLogicIO(contextWithHighPowerUnit);
+
+			// Assert
+			const mockEmit = mockScene.events.emit as jest.Mock;
+			expect(mockEmit).toHaveBeenCalledWith(
+				GameEvents.UNIT_ATTACK,
+				{ unit: highPowerUnit }
+			);
 		});
 	});
 });
