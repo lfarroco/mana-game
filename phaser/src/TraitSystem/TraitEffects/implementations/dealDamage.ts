@@ -3,25 +3,28 @@
  * This effect deals direct damage to targets and shows damage pop text.
  */
 
+import { GameEvents } from '../../../constants/events';
+import { Force, manipulateForceMorale } from '../../../Models/Entities/Force';
+import { Unit } from '../../../Models/Entities/Unit';
 import { TraitEffectFn } from '../../TraitEffectSystem';
-import { getEffectParams } from '../../TraitSystem.pure';
 
 /**
  * Pure function to create the deal damage effect implementation
- * @param getCharaFn - Pure function to get character by ID
  * @returns The trait effect function
  */
 export function createDealDamageLogic(
-	getCharaFn: (id: string) => any
+	emitter: (unit: Unit) => void,
+	deductMorale: (targetForce: Force, damage: number, scene: Phaser.Scene) => void
 ): TraitEffectFn {
 	return async (context) => {
-		const { targets } = context;
-		const amount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 0);
+		const { sourceUnit } = context;
+		emitter(sourceUnit);
 
-		for (const target of targets) {
-			const charaTarget = getCharaFn(target.id);
-			await charaTarget?.showPopText(`-${amount} Dmg`, "damage");
-		}
+		const targetForce = context.state.battleData.forces.find(
+			(force) => force.id !== sourceUnit.force
+		)!;
+
+		deductMorale(targetForce, sourceUnit.power, context.scene);
 	};
 }
 
@@ -29,9 +32,18 @@ export function createDealDamageLogic(
  * Deal damage effect implementation for runtime use
  * This is the actual implementation registered with the TraitEffectSystem
  */
-export const dealDamageLogic: TraitEffectFn = async (context) => {
-	// In runtime, we import the actual getChara function
-	const { getChara } = await import('../../../Scenes/Battleground/Systems/CharaManager');
-	const impl = createDealDamageLogic(getChara);
+export const dealDamageLogicIO: TraitEffectFn = async (context) => {
+
+	const { scene } = context;
+
+	const emitter = (unit: Unit) => {
+		scene.events.emit(
+			GameEvents.UNIT_ATTACK,
+			{ unit }
+		);
+	}
+
+
+	const impl = createDealDamageLogic(emitter, manipulateForceMorale);
 	return impl(context);
 };

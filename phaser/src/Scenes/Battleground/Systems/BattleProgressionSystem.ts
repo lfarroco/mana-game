@@ -9,7 +9,7 @@ import { generateEnemyTeam } from "../generateEnemyTeam";
 import { PrestigeSystem } from "../../../Systems/PrestigeSystem";
 import * as CharaManager from "./CharaManager";
 import { clearAllStatusEffects } from "../../../Systems/StatusEffects/StatusEffectManager";
-import { cpuForce, playerForce, manipulateForceMoreale } from "../../../Models/Entities/Force";
+import { cpuForce, playerForce, manipulateForceMorale } from "../../../Models/Entities/Force";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
 
 /**
@@ -58,7 +58,7 @@ export class BattleProgressionSystem {
 		this.addListener(GameEvents.COMBAT_ENDED_VICTORY, this.handleCombatEndedVictory);
 		this.addListener(GameEvents.COMBAT_ENDED_DEFEAT, this.handleCombatEndedDefeat);
 
-		this.addListener(GameEvents.UNIT_TOOK_HIT, this._handleUnitDamageForMoraleUpdate);
+		this.addListener(GameEvents.UNIT_ATTACK, this.handleUnitAttackOnMorale);
 
 		// Game Over
 		this.addListener(GameEvents.PLAYER_WON_GAME, this.handlePlayerWonGame);
@@ -299,18 +299,17 @@ export class BattleProgressionSystem {
 	}
 
 	/**
-	 * Recalculates and emits the new morale value for a force when one of its units takes damage.
+	 * Damages enemy morale when a unit attacks
 	 */
-	_handleUnitDamageForMoraleUpdate(payload: { unit: Unit, damage: number }): void {
-		const { unit, damage } = payload;
+	handleUnitAttackOnMorale(payload: { unit: Unit }): void {
+		const { unit } = payload;
 		const targetForce = unit.force === FORCE_ID_PLAYER ? playerForce : (unit.force === FORCE_ID_CPU ? cpuForce : null);
 
 		if (!targetForce) return;
 
-		manipulateForceMoreale(targetForce, -Math.max(0, damage), this.scene);
+		manipulateForceMorale(targetForce, -Math.max(0, unit.power), this.scene);
 
 	}
-
 
 	destroy(): void {
 		this.listeners.forEach(listener => {

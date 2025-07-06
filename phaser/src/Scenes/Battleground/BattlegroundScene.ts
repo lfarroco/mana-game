@@ -227,6 +227,8 @@ export class BattlegroundScene extends Phaser.Scene {
     battleResultAnimation(this, payload.result); // battleResultAnimation is async, but event handler is sync
   }
 
+
+
   handleOwnedUnitSold(payload: { unitId: string, soldForGold: number }): void {
     const { unitId, soldForGold } = payload;
 

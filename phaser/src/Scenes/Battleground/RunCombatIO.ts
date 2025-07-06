@@ -61,7 +61,7 @@ export class RunCombatSystem {
       const unitsReadyToAct = chargeUnits(state, delta * this.scene.time.timeScale);
 
       for (const unit of unitsReadyToAct) {
-        if (unit.hp <= 0) continue; // Skip dead units that might have been charged
+        if (unit.hp <= 0) continue;
 
         events.emit(GameEvents.TRAIT_EVAL_TURN_START, { unit });
         // Assuming unit actions are triggered by TRAIT_EVAL_UNIT_ACTION

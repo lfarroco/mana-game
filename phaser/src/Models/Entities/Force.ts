@@ -61,7 +61,7 @@ export const updatePlayerGoldIO = (scene: Phaser.Scene, goldDelta: number) => {
 /**
  * Utility function to manipulate force morale with morale damage reduction effects
  */
-export const manipulateForceMoreale = (
+export const manipulateForceMorale = (
 	targetForce: Force,
 	amount: number,
 	scene?: Phaser.Scene

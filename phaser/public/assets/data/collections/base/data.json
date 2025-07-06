@@ -8,12 +8,15 @@
 			"pic": "assets/cards/archer.png",
 			"hp": 90,
 			"tags": [
-				"ranged_dps"
+				"ranged"
 			],
 			"power": 18,
 			"powerType": "damage",
 			"cooldown": 1600,
 			"traits": [
+				{
+					"id": "damage"
+				},
 				{
 					"id": "backline_boost",
 					"amount": 6
@@ -33,7 +36,7 @@
 			"cooldown": 2400,
 			"traits": [
 				{
-					"id": "heal_action"
+					"id": "heal"
 				},
 				{
 					"id": "ally_right",
@@ -54,6 +57,9 @@
 			"cooldown": 2000,
 			"traits": [
 				{
+					"id": "defense"
+				},
+				{
 					"id": "frontline_warrior",
 					"amount": 4
 				}
@@ -65,12 +71,15 @@
 			"pic": "assets/cards/apprentice.png",
 			"hp": 85,
 			"tags": [
-				"ranged_dps"
+				"ranged"
 			],
 			"power": 16,
 			"powerType": "damage",
 			"cooldown": 1400,
 			"traits": [
+				{
+					"id": "damage"
+				},
 				{
 					"id": "midline_boost",
 					"amount": 3
@@ -80,7 +89,7 @@
 		{
 			"id": "sally",
 			"name": "Sally the Swift",
-			"pic": "assets/cards/rogue.png",
+			"pic": "assets/cards/goblin_scavenger.png",
 			"hp": 100,
 			"tags": [
 				"melee"
@@ -97,6 +106,20 @@
 		}
 	],
 	"traits": [
+		{
+			"id": "damage",
+			"name": "Damage Dealer",
+			"description": "+{amount} damage.",
+			"categories": [
+				"offensive"
+			],
+			"effects": [
+				{
+					"eventTrigger": "onAction",
+					"effectId": "deal_damage"
+				}
+			]
+		},
 		{
 			"id": "frontline_warrior",
 			"name": "Frontline Warrior",
