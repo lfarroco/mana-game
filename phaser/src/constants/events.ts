@@ -46,6 +46,9 @@ export const GameEvents = {
 	MORALE_BARS_SHOW: "morale_bars_show",
 	MORALE_BARS_HIDE: "morale_bars_hide",
 	MORALE_UPDATED: "morale_updated", // Payload: { forceId: string, newMorale: number, maxMorale: number }
+	MODIFIERS_UPDATED: "modifiers_updated", // Payload: { forceId: string, atkMod: number, defMod: number, healMod: number }
+	MODIFIERS_DISPLAYS_SHOW: "modifiers_displays_show",
+	MODIFIERS_DISPLAYS_HIDE: "modifiers_displays_hide",
 	COMBAT_START_EXECUTION_TRIGGER: "combat_start_execution_trigger", // Payload: { enemies: Unit[] }
 	GAME_OVER_SHOW_UI_TRIGGER: "game_over_show_ui_trigger",
 
