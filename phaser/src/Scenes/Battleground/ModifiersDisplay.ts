@@ -19,12 +19,81 @@ let playerModifiersDisplay: ModifiersDisplay | null = null;
 let cpuModifiersDisplay: ModifiersDisplay | null = null;
 let scene: Phaser.Scene | null = null;
 
+// Track current modifier values for each force
+let playerModifiers = { atk: 0, def: 0, heal: 0 };
+let cpuModifiers = { atk: 0, def: 0, heal: 0 };
+
 /**
  * Handles the MODIFIERS_UPDATED event by calling the display update function.
  * @param payload The event payload with forceId, atkMod, defMod, and healMod.
  */
 function handleModifiersUpdated(payload: { forceId: string, atkMod: number, defMod: number, healMod: number }) {
-	updateModifiersDisplay(payload.forceId, payload.atkMod, payload.defMod, payload.healMod);
+	setModifierValues(payload.forceId, payload.atkMod, payload.defMod, payload.healMod);
+}
+
+/**
+ * Handles individual modifier change events
+ */
+function handleAttackChanged(payload: { forceId: string, newValue: number }) {
+	const current = getModifiers(payload.forceId);
+	setModifierValues(payload.forceId, payload.newValue, current.def, current.heal);
+}
+
+function handleDefenseChanged(payload: { forceId: string, newValue: number }) {
+	const current = getModifiers(payload.forceId);
+	setModifierValues(payload.forceId, current.atk, payload.newValue, current.heal);
+}
+
+function handleHealChanged(payload: { forceId: string, newValue: number }) {
+	const current = getModifiers(payload.forceId);
+	setModifierValues(payload.forceId, current.atk, current.def, payload.newValue);
+}
+
+/**
+ * Handles delta modifier change events (relative changes)
+ */
+function handleAttackDelta(payload: { forceId: string, delta: number }) {
+	const current = getModifiers(payload.forceId);
+	setModifierValues(payload.forceId, current.atk + payload.delta, current.def, current.heal);
+}
+
+function handleDefenseDelta(payload: { forceId: string, delta: number }) {
+	const current = getModifiers(payload.forceId);
+	setModifierValues(payload.forceId, current.atk, current.def + payload.delta, current.heal);
+}
+
+function handleHealDelta(payload: { forceId: string, delta: number }) {
+	const current = getModifiers(payload.forceId);
+	setModifierValues(payload.forceId, current.atk, current.def, current.heal + payload.delta);
+}
+
+/**
+ * Handles reset all modifiers event
+ */
+function handleResetAll(payload: { forceId: string }) {
+	setModifierValues(payload.forceId, 0, 0, 0);
+}
+
+/**
+ * Helper function to get current modifiers for a force
+ */
+function getModifiers(forceId: string): { atk: number, def: number, heal: number } {
+	return forceId === c.FORCE_ID_PLAYER ? playerModifiers : cpuModifiers;
+}
+
+/**
+ * Helper function to set modifier values and update the display
+ */
+function setModifierValues(forceId: string, atkMod: number, defMod: number, healMod: number): void {
+	// Update internal state
+	if (forceId === c.FORCE_ID_PLAYER) {
+		playerModifiers = { atk: atkMod, def: defMod, heal: healMod };
+	} else {
+		cpuModifiers = { atk: atkMod, def: defMod, heal: healMod };
+	}
+
+	// Update the display
+	updateModifiersDisplay(forceId, atkMod, defMod, healMod);
 }
 
 function create(
@@ -105,6 +174,13 @@ export function init(sceneRef: Phaser.Scene): void {
 
 	// Listen for modifier updates
 	scene.events.on(GameEvents.MODIFIERS_UPDATED, handleModifiersUpdated);
+	scene.events.on(GameEvents.MODIFIER_ATTACK_CHANGED, handleAttackChanged);
+	scene.events.on(GameEvents.MODIFIER_DEFENSE_CHANGED, handleDefenseChanged);
+	scene.events.on(GameEvents.MODIFIER_HEAL_CHANGED, handleHealChanged);
+	scene.events.on(GameEvents.MODIFIER_DELTA_ATTACK, handleAttackDelta);
+	scene.events.on(GameEvents.MODIFIER_DELTA_DEFENSE, handleDefenseDelta);
+	scene.events.on(GameEvents.MODIFIER_DELTA_HEAL, handleHealDelta);
+	scene.events.on(GameEvents.MODIFIER_RESET_ALL, handleResetAll);
 }
 
 export function showDisplays(): void {
@@ -154,6 +230,13 @@ function animateValueChange(textObject: Phaser.GameObjects.Text, newValue: strin
 export function destroy(): void {
 	if (scene) {
 		scene.events.off(GameEvents.MODIFIERS_UPDATED, handleModifiersUpdated);
+		scene.events.off(GameEvents.MODIFIER_ATTACK_CHANGED, handleAttackChanged);
+		scene.events.off(GameEvents.MODIFIER_DEFENSE_CHANGED, handleDefenseChanged);
+		scene.events.off(GameEvents.MODIFIER_HEAL_CHANGED, handleHealChanged);
+		scene.events.off(GameEvents.MODIFIER_DELTA_ATTACK, handleAttackDelta);
+		scene.events.off(GameEvents.MODIFIER_DELTA_DEFENSE, handleDefenseDelta);
+		scene.events.off(GameEvents.MODIFIER_DELTA_HEAL, handleHealDelta);
+		scene.events.off(GameEvents.MODIFIER_RESET_ALL, handleResetAll);
 		scene = null;
 	}
 	if (playerModifiersDisplay) {
@@ -164,4 +247,22 @@ export function destroy(): void {
 		cpuModifiersDisplay.container.destroy();
 		cpuModifiersDisplay = null;
 	}
+	// Reset modifier values
+	playerModifiers = { atk: 0, def: 0, heal: 0 };
+	cpuModifiers = { atk: 0, def: 0, heal: 0 };
+}
+
+/**
+ * Public API functions for other parts of the game to query current modifier values
+ */
+export function getCurrentModifiers(forceId: string): { atk: number, def: number, heal: number } {
+	return getModifiers(forceId);
+}
+
+export function getPlayerModifiers(): { atk: number, def: number, heal: number } {
+	return { ...playerModifiers };
+}
+
+export function getCpuModifiers(): { atk: number, def: number, heal: number } {
+	return { ...cpuModifiers };
 }

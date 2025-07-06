@@ -49,6 +49,13 @@ export const GameEvents = {
 	MODIFIERS_UPDATED: "modifiers_updated", // Payload: { forceId: string, atkMod: number, defMod: number, healMod: number }
 	MODIFIERS_DISPLAYS_SHOW: "modifiers_displays_show",
 	MODIFIERS_DISPLAYS_HIDE: "modifiers_displays_hide",
+	MODIFIER_ATTACK_CHANGED: "modifier_attack_changed", // Payload: { forceId: string, newValue: number }
+	MODIFIER_DEFENSE_CHANGED: "modifier_defense_changed", // Payload: { forceId: string, newValue: number }
+	MODIFIER_HEAL_CHANGED: "modifier_heal_changed", // Payload: { forceId: string, newValue: number }
+	MODIFIER_RESET_ALL: "modifier_reset_all", // Payload: { forceId: string }
+	MODIFIER_DELTA_ATTACK: "modifier_delta_attack", // Payload: { forceId: string, delta: number }
+	MODIFIER_DELTA_DEFENSE: "modifier_delta_defense", // Payload: { forceId: string, delta: number }
+	MODIFIER_DELTA_HEAL: "modifier_delta_heal", // Payload: { forceId: string, delta: number }
 	COMBAT_START_EXECUTION_TRIGGER: "combat_start_execution_trigger", // Payload: { enemies: Unit[] }
 	GAME_OVER_SHOW_UI_TRIGGER: "game_over_show_ui_trigger",
 
