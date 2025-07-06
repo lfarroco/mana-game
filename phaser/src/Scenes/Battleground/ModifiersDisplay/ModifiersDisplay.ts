@@ -1,6 +1,15 @@
 import Phaser from 'phaser';
-import * as c from '../../constants/constants';
-import { GameEvents } from '../../constants/events';
+import * as c from '../../../constants/constants';
+import { GameEvents } from '../../../constants/events';
+import {
+	createInitialStates,
+	processModifierEvent,
+	formatModifierValue,
+	createDisplayConfig,
+	calculateTextPositions,
+	type ModifierStates,
+	type ModifierEvent
+} from './ModifiersDisplay.pure';
 
 // This type represents the components of a single modifiers display
 type ModifiersDisplay = {
@@ -19,81 +28,101 @@ let playerModifiersDisplay: ModifiersDisplay | null = null;
 let cpuModifiersDisplay: ModifiersDisplay | null = null;
 let scene: Phaser.Scene | null = null;
 
-// Track current modifier values for each force
-let playerModifiers = { atk: 0, def: 0, heal: 0 };
-let cpuModifiers = { atk: 0, def: 0, heal: 0 };
+// Track current modifier values using pure state
+let modifierStates: ModifierStates = createInitialStates();
 
 /**
- * Handles the MODIFIERS_UPDATED event by calling the display update function.
- * @param payload The event payload with forceId, atkMod, defMod, and healMod.
+ * Generic event handler that processes all modifier events using pure functions
+ */
+function handleModifierEvent(event: ModifierEvent): void {
+	const result = processModifierEvent(modifierStates, event);
+	modifierStates = result.newStates;
+
+	if (result.displayUpdate) {
+		updateModifiersDisplay(
+			result.displayUpdate.forceId,
+			result.displayUpdate.atkMod,
+			result.displayUpdate.defMod,
+			result.displayUpdate.healMod
+		);
+	}
+}
+
+/**
+ * Handles the MODIFIERS_UPDATED event
  */
 function handleModifiersUpdated(payload: { forceId: string, atkMod: number, defMod: number, healMod: number }) {
-	setModifierValues(payload.forceId, payload.atkMod, payload.defMod, payload.healMod);
+	handleModifierEvent({
+		type: 'MODIFIERS_UPDATED',
+		forceId: payload.forceId,
+		atkMod: payload.atkMod,
+		defMod: payload.defMod,
+		healMod: payload.healMod
+	});
 }
 
 /**
  * Handles individual modifier change events
  */
 function handleAttackChanged(payload: { forceId: string, newValue: number }) {
-	const current = getModifiers(payload.forceId);
-	setModifierValues(payload.forceId, payload.newValue, current.def, current.heal);
+	handleModifierEvent({
+		type: 'MODIFIER_ATTACK_CHANGED',
+		forceId: payload.forceId,
+		newValue: payload.newValue
+	});
 }
 
 function handleDefenseChanged(payload: { forceId: string, newValue: number }) {
-	const current = getModifiers(payload.forceId);
-	setModifierValues(payload.forceId, current.atk, payload.newValue, current.heal);
+	handleModifierEvent({
+		type: 'MODIFIER_DEFENSE_CHANGED',
+		forceId: payload.forceId,
+		newValue: payload.newValue
+	});
 }
 
 function handleHealChanged(payload: { forceId: string, newValue: number }) {
-	const current = getModifiers(payload.forceId);
-	setModifierValues(payload.forceId, current.atk, current.def, payload.newValue);
+	handleModifierEvent({
+		type: 'MODIFIER_HEAL_CHANGED',
+		forceId: payload.forceId,
+		newValue: payload.newValue
+	});
 }
 
 /**
- * Handles delta modifier change events (relative changes)
+ * Handles delta modifier change events
  */
 function handleAttackDelta(payload: { forceId: string, delta: number }) {
-	const current = getModifiers(payload.forceId);
-	setModifierValues(payload.forceId, current.atk + payload.delta, current.def, current.heal);
+	handleModifierEvent({
+		type: 'MODIFIER_DELTA_ATTACK',
+		forceId: payload.forceId,
+		delta: payload.delta
+	});
 }
 
 function handleDefenseDelta(payload: { forceId: string, delta: number }) {
-	const current = getModifiers(payload.forceId);
-	setModifierValues(payload.forceId, current.atk, current.def + payload.delta, current.heal);
+	handleModifierEvent({
+		type: 'MODIFIER_DELTA_DEFENSE',
+		forceId: payload.forceId,
+		delta: payload.delta
+	});
 }
 
 function handleHealDelta(payload: { forceId: string, delta: number }) {
-	const current = getModifiers(payload.forceId);
-	setModifierValues(payload.forceId, current.atk, current.def, current.heal + payload.delta);
+	handleModifierEvent({
+		type: 'MODIFIER_DELTA_HEAL',
+		forceId: payload.forceId,
+		delta: payload.delta
+	});
 }
 
 /**
  * Handles reset all modifiers event
  */
 function handleResetAll(payload: { forceId: string }) {
-	setModifierValues(payload.forceId, 0, 0, 0);
-}
-
-/**
- * Helper function to get current modifiers for a force
- */
-function getModifiers(forceId: string): { atk: number, def: number, heal: number } {
-	return forceId === c.FORCE_ID_PLAYER ? playerModifiers : cpuModifiers;
-}
-
-/**
- * Helper function to set modifier values and update the display
- */
-function setModifierValues(forceId: string, atkMod: number, defMod: number, healMod: number): void {
-	// Update internal state
-	if (forceId === c.FORCE_ID_PLAYER) {
-		playerModifiers = { atk: atkMod, def: defMod, heal: healMod };
-	} else {
-		cpuModifiers = { atk: atkMod, def: defMod, heal: healMod };
-	}
-
-	// Update the display
-	updateModifiersDisplay(forceId, atkMod, defMod, healMod);
+	handleModifierEvent({
+		type: 'MODIFIER_RESET_ALL',
+		forceId: payload.forceId
+	});
 }
 
 function create(
@@ -102,44 +131,43 @@ function create(
 	y: number,
 	forceId: string,
 ): ModifiersDisplay {
-	const displayWidth = 360;
-	const displayHeight = 240;
-	const padding = 24;
-	const lineHeight = 54;
+	const config = createDisplayConfig(forceId);
+	const positions = calculateTextPositions(config);
+	const { width, height } = config.dimensions;
 
 	const container = scene.add.container(x, y);
 
 	// Background
 	const background = scene.add.graphics();
-	background.fillStyle(0x000000, 0.7);
-	background.lineStyle(2, 0xffffff, 0.5);
-	background.fillRoundedRect(0, 0, displayWidth, displayHeight, 4);
-	background.strokeRoundedRect(0, 0, displayWidth, displayHeight, 4);
+	background.fillStyle(config.colors.background, 0.7);
+	background.lineStyle(2, config.colors.border, 0.5);
+	background.fillRoundedRect(0, 0, width, height, 4);
+	background.strokeRoundedRect(0, 0, width, height, 4);
 	container.add(background);
 
 	// Text configuration for labels
 	const labelConfig = {
 		...c.defaultTextConfig,
 		fontSize: '42px',
-		color: '#ffffff'
+		color: config.colors.label
 	};
 
 	// Text configuration for values
 	const valueConfig = {
 		...c.defaultTextConfig,
 		fontSize: '42px',
-		color: forceId === c.FORCE_ID_PLAYER ? '#00ff00' : '#ff4444'
+		color: config.colors.value
 	};
 
-	// Create text elements
-	const atkText = scene.add.text(padding, padding, 'Atk:', labelConfig);
-	const atkValue = scene.add.text(padding + 105, padding, '+0', valueConfig);
+	// Create text elements using calculated positions
+	const atkText = scene.add.text(positions.atkLabel.x, positions.atkLabel.y, 'Atk:', labelConfig);
+	const atkValue = scene.add.text(positions.atkValue.x, positions.atkValue.y, '+0', valueConfig);
 
-	const defText = scene.add.text(padding, padding + lineHeight, 'Def:', labelConfig);
-	const defValue = scene.add.text(padding + 105, padding + lineHeight, '+0', valueConfig);
+	const defText = scene.add.text(positions.defLabel.x, positions.defLabel.y, 'Def:', labelConfig);
+	const defValue = scene.add.text(positions.defValue.x, positions.defValue.y, '+0', valueConfig);
 
-	const healText = scene.add.text(padding, padding + lineHeight * 2, 'Heal:', labelConfig);
-	const healValue = scene.add.text(padding + 120, padding + lineHeight * 2, '+0', valueConfig);
+	const healText = scene.add.text(positions.healLabel.x, positions.healLabel.y, 'Heal:', labelConfig);
+	const healValue = scene.add.text(positions.healValue.x, positions.healValue.y, '+0', valueConfig);
 
 	container.add([atkText, atkValue, defText, defValue, healText, healValue]);
 	container.setVisible(false); // Initially hidden
@@ -162,15 +190,12 @@ export function init(sceneRef: Phaser.Scene): void {
 
 	scene = sceneRef;
 
-	// Position player display in bottom-left corner
-	const playerDisplayX = 20;
-	const playerDisplayY = c.SCREEN_HEIGHT - 260;
-	playerModifiersDisplay = create(sceneRef, playerDisplayX, playerDisplayY, c.FORCE_ID_PLAYER);
+	// Create displays using pure configuration functions
+	const playerConfig = createDisplayConfig(c.FORCE_ID_PLAYER);
+	const cpuConfig = createDisplayConfig(c.FORCE_ID_CPU);
 
-	// Position CPU display in top-right corner
-	const cpuDisplayX = c.SCREEN_WIDTH - 380;
-	const cpuDisplayY = 20;
-	cpuModifiersDisplay = create(sceneRef, cpuDisplayX, cpuDisplayY, c.FORCE_ID_CPU);
+	playerModifiersDisplay = create(sceneRef, playerConfig.position.x, playerConfig.position.y, c.FORCE_ID_PLAYER);
+	cpuModifiersDisplay = create(sceneRef, cpuConfig.position.x, cpuConfig.position.y, c.FORCE_ID_CPU);
 
 	// Listen for modifier updates
 	scene.events.on(GameEvents.MODIFIERS_UPDATED, handleModifiersUpdated);
@@ -202,15 +227,10 @@ export function updateModifiersDisplay(
 	const targetDisplay = forceId === c.FORCE_ID_PLAYER ? playerModifiersDisplay : cpuModifiersDisplay;
 	if (!targetDisplay) return;
 
-	// Format modifier values with + or - prefix
-	const formatMod = (value: number): string => {
-		return value >= 0 ? `+${value}` : `${value}`;
-	};
-
-	// Update text values with animation
-	animateValueChange(targetDisplay.atkValue, formatMod(atkMod));
-	animateValueChange(targetDisplay.defValue, formatMod(defMod));
-	animateValueChange(targetDisplay.healValue, formatMod(healMod));
+	// Update text values with animation using pure formatting function
+	animateValueChange(targetDisplay.atkValue, formatModifierValue(atkMod));
+	animateValueChange(targetDisplay.defValue, formatModifierValue(defMod));
+	animateValueChange(targetDisplay.healValue, formatModifierValue(healMod));
 }
 
 function animateValueChange(textObject: Phaser.GameObjects.Text, newValue: string): void {
@@ -247,22 +267,21 @@ export function destroy(): void {
 		cpuModifiersDisplay.container.destroy();
 		cpuModifiersDisplay = null;
 	}
-	// Reset modifier values
-	playerModifiers = { atk: 0, def: 0, heal: 0 };
-	cpuModifiers = { atk: 0, def: 0, heal: 0 };
+	// Reset modifier values using pure functions
+	modifierStates = createInitialStates();
 }
 
 /**
  * Public API functions for other parts of the game to query current modifier values
  */
 export function getCurrentModifiers(forceId: string): { atk: number, def: number, heal: number } {
-	return getModifiers(forceId);
+	return forceId === c.FORCE_ID_PLAYER ? modifierStates.player : modifierStates.cpu;
 }
 
 export function getPlayerModifiers(): { atk: number, def: number, heal: number } {
-	return { ...playerModifiers };
+	return { ...modifierStates.player };
 }
 
 export function getCpuModifiers(): { atk: number, def: number, heal: number } {
-	return { ...cpuModifiers };
+	return { ...modifierStates.cpu };
 }
