@@ -48,6 +48,7 @@ export type CardDefinition = {
   powerType: "damage" | "heal" | "armor" | null;
   cooldown: number;
   traits: t.TraitData[]
+  tags: string[];
 };
 
 export const getCardDefinition = (id: string): CardDefinition => {

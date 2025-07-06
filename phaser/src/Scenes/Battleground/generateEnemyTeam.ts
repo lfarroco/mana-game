@@ -75,7 +75,7 @@ const validateFormation = (template: FormationTemplate, teamSize: number): boole
 
 /** Trait IDs corresponding to unit roles */
 const ROLE_TRAITS: Record<UnitRole, string> = {
-	[UnitRole.Tank]: 'taunt',
+	[UnitRole.Tank]: 'tank',
 	[UnitRole.Ranged]: 'ranged',
 	[UnitRole.Support]: 'support',
 	[UnitRole.Melee]: 'melee',
@@ -216,20 +216,23 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 	}
 
 	const units = [];
-	const getCardsByTrait = (traitId: string): CardDefinition[] =>
-		pool.filter(card => card.traits.some(trait => trait.id === traitId));
+	const getCardsByTag = (tagId: string): CardDefinition[] =>
+		pool.filter(card => card.tags.includes(tagId));
 
 	for (let y = 0; y < parsed.length; y++) {
 		for (let x = 0; x < parsed[y].length; x++) {
 			const role = parsed[y][x] as UnitRole;
 			if (role === UnitRole.Empty) continue;
 
-			const traitId = ROLE_TRAITS[role];
-			if (!traitId) continue;
+			const tagId = ROLE_TRAITS[role];
+			if (!tagId) {
+				console.warn(`No tag defined for role '${role}' at position (${x},${y}). Skipping unit.`);
+				continue;
+			}
 
-			const potentialCards = getCardsByTrait(traitId);
+			const potentialCards = getCardsByTag(tagId);
 			if (!potentialCards.length) {
-				console.warn(`No '${traitId}' cards available in the pool for template. Skipping unit at (${x},${y}).`);
+				console.warn(`No '${tagId}' cards available in the pool for template. Skipping unit at (${x},${y}).`);
 				continue;
 			}
 

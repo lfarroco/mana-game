@@ -18,18 +18,16 @@ import * as implementations from "./implementations/index";
  * This function should be called once during game initialization.
  */
 export function registerAllTraitEffects() {
+	//unused
 	registerTraitEffectImplementation("grant_gold_to_player", implementations.grantGoldLogic);
+
 	registerTraitEffectImplementation("deal_damage", implementations.dealDamageLogic);
 
 	// Skill-based effects
 	registerTraitEffectImplementation("skill_melee", implementations.performSkillMelee);
-	registerTraitEffectImplementation("skill_shoot", implementations.performSkillShoot);
 	registerTraitEffectImplementation("skill_heal", implementations.performSkillHeal);
-	registerTraitEffectImplementation("skill_arcane_missiles", implementations.performSkillArcaneMissiles);
 	registerTraitEffectImplementation("skill_haste", implementations.performSkillHaste);
 	registerTraitEffectImplementation("skill_slow", implementations.performSkillSlow);
-	registerTraitEffectImplementation("skill_summon", implementations.performSkillSummon);
-	registerTraitEffectImplementation("skill_fireball", implementations.performSkillFireball);
 	registerTraitEffectImplementation("positional_bonus", implementations.positionalBonusLogic);
 	registerTraitEffectImplementation("increase_force_max_morale", implementations.increaseForceMaxMoraleLogic);
 	registerTraitEffectImplementation("modify_stat_passive", implementations.modifyStatPassiveLogic);
@@ -45,11 +43,10 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("reduce_enemy_damage_global", implementations.reduceEnemyDamageGlobalLogic);
 	registerTraitEffectImplementation("grant_morale_to_allies", implementations.grantMoraleToAlliesLogic);
 	registerTraitEffectImplementation("cleanse_ally_debuffs", implementations.cleanseAllyDebuffsLogic);
-	registerTraitEffectImplementation("chance_to_dodge", implementations.chanceToDodgeLogic);
-	registerTraitEffectImplementation("apply_poison_to_enemies", implementations.applyPoisonToEnemiesLogic);
+	//registerTraitEffectImplementation("apply_poison_to_enemies", implementations.applyPoisonToEnemiesLogic);
 	registerTraitEffectImplementation("reduce_enemy_damage", implementations.reduceEnemyDamageLogic);
 	registerTraitEffectImplementation("fortress_mode_passive", implementations.fortressModePassiveLogic);
-	registerTraitEffectImplementation("reduce_ally_damage_taken", implementations.reduceAllyDamageTakenLogic);
+	//registerTraitEffectImplementation("reduce_ally_damage_taken", implementations.reduceAllyDamageTakenLogic);
 	registerTraitEffectImplementation("morale_damage_reduction", implementations.moraleDamageReductionLogic);
 
 	// Time-based and alternative mechanics

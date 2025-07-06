@@ -17,6 +17,9 @@ export type Force = {
 	winStreak: number,
 	lossStreak: number,
 	totalRoundsPlayed: number;
+	attackMod: number; // Used for damage scaling in combat
+	defenseMod: number; // Used for damage scaling in combat
+	healMod: number; // Used for healing scaling in combat
 
 	// Defensive trait effects
 	moraleReductionStacks?: MoraleReductionStack[];
@@ -35,7 +38,10 @@ export const makeForce = (id: string): Force => {
 		prestige: 0,
 		winStreak: 0,
 		lossStreak: 0,
-		totalRoundsPlayed: 0
+		totalRoundsPlayed: 0,
+		attackMod: 1.0, // Default attack modifier
+		defenseMod: 1.0, // Default defense modifier
+		healMod: 1.0, // Default heal modifier
 	}
 };
 
