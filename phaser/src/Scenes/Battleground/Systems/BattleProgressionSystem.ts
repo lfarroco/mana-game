@@ -24,7 +24,6 @@ function createUnitCopy(unit: Unit): Unit {
 		traits: unit.traits.map(trait => ({ ...trait })),
 		// Copy arrays and other nested structures
 		statusEffects: unit.statusEffects ? [...unit.statusEffects] : undefined,
-		damageReductionStacks: unit.damageReductionStacks ? [...unit.damageReductionStacks] : undefined,
 		temporaryEffects: unit.temporaryEffects ? [...unit.temporaryEffects] : undefined
 	};
 }
@@ -152,15 +151,10 @@ export class BattleProgressionSystem {
 			unit.hp = unit.maxHp;
 
 			// Clear all status effects using the new unified system
+			// TOOD: remove for now
 			clearAllStatusEffects(unit);
-
-			// Clear defensive trait effects
-			unit.damageReductionStacks = undefined;
 		});
 
-		// Clear force-level defensive effects
-		playerForce.moraleReductionStacks = undefined;
-		cpuForce.moraleReductionStacks = undefined;
 	}
 
 	resetPlayerUnitChargeBars(): void {
@@ -191,10 +185,10 @@ export class BattleProgressionSystem {
 		const enemy = generateEnemyTeam(this.state.gameData.round, cardPool);
 
 		// Clear any existing defensive trait effects from previous battles
-		enemy.units.forEach(unit => {
-			unit.damageReductionStacks = undefined;
-			// Status effects are now managed through the unified system and cleared automatically
-		});
+		// enemy.units.forEach(unit => {
+		// 	//unit.damageReductionStacks = undefined;
+		// 	// Status effects are now managed through the unified system and cleared automatically
+		// });
 
 		// Create deep copies of player units for the battle
 		const playerUnitsForBattle = this.state.gameData.player.units.map(unit => createUnitCopy(unit));

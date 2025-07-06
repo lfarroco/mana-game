@@ -11,7 +11,6 @@ import { CharaStatsDisplay } from "./CharaStatsDisplay";
 import { CharaBarsDisplay } from "./CharaBarsDisplay";
 import { GameEvents } from "../../constants/events";
 import { CharaInputHandler } from "./CharaInputHandler";
-import { devlog } from "../../utils";
 
 export type CharaOptions = {
 	isShopItem?: boolean;
@@ -244,54 +243,6 @@ export class Chara extends Phaser.GameObjects.Container {
 	// --- Unit Action and State Methods ---
 
 	/**
-	 * Used to signal that an unit was attack, and damage can be applied to the team's morale
-	 * @param damage The amount of damage to apply. Negative to heal.
-	 */
-	unitHit = (damage: number): void => {
-		if (!this.active) {
-			throw new Error("Tried to hit an inactive Chara.")
-		}
-
-		let finalDamage = damage;
-
-		// Apply damage reduction if the unit has damage reduction stacks
-		if (damage > 0 && this.unit.damageReductionStacks) {
-			const reductionStacks = this.unit.damageReductionStacks;
-			let totalReduction = 0;
-
-			// Sum all active damage reductions
-			for (const stack of reductionStacks) {
-				// Verify the source unit is still alive (damage reduction should only work while protector is alive)
-				const battlegroundScene = this.scene as BattlegroundScene;
-				const sourceUnit = battlegroundScene.state.battleData.units.find(u => u.id === stack.sourceUnitId && u.hp > 0);
-				if (sourceUnit) {
-					totalReduction += stack.reductionPercent;
-				}
-			}
-
-			// Cap total reduction at 75% to prevent invulnerability
-			totalReduction = Math.min(totalReduction, 75);
-
-			if (totalReduction > 0) {
-				const originalDamage = damage;
-				finalDamage = originalDamage * (1 - totalReduction / 100);
-				const damageReduced = originalDamage - finalDamage;
-
-				// Show feedback for damage reduction
-				if (damageReduced > 0) {
-					this.showPopText(`-${damageReduced.toFixed(1)} Protected`, "heal");
-				}
-
-				devlog(`[Damage Reduction] ${this.unit.name} took ${finalDamage.toFixed(1)} damage instead of ${originalDamage} (${totalReduction}% reduction)`);
-			}
-		}
-
-		// Apply damage to the unit's HP data model and update its visual display
-		//this.scene.events.emit(GameEvents.UNIT_TOOK_HIT, { unit: this.unit, damage: finalDamage });
-
-	}
-
-	/**
 	 * Updates a specified attribute of the Chara's unit by a numerical amount.
 	 * This directly modifies the unit's data (e.g., base attackPower, maxHp).
 	 * It also handles updating relevant UI displays and shows a pop-up text for the change.
@@ -315,10 +266,6 @@ export class Chara extends Phaser.GameObjects.Container {
 		}
 
 		await this.showPopText(text);
-	}
-
-	healUnit = (amount: number) => {
-		this.unitHit(-amount)
 	}
 
 	/**

@@ -1,8 +1,7 @@
 import Phaser from "phaser";
 import { FORCE_ID_PLAYER, FORCE_ID_CPU, INITIAL_MORALE } from "../../constants/constants";
-import { Unit, MoraleReductionStack } from "./Unit";
+import { Unit } from "./Unit";
 import { GameEvents } from "../../constants/events";
-import { devlog } from "../../utils";
 
 export type Force = {
 	id: string;
@@ -20,9 +19,6 @@ export type Force = {
 	attackMod: number; // Used for damage scaling in combat
 	defenseMod: number; // Used for damage scaling in combat
 	healMod: number; // Used for healing scaling in combat
-
-	// Defensive trait effects
-	moraleReductionStacks?: MoraleReductionStack[];
 };
 
 export const makeForce = (id: string): Force => {
@@ -67,33 +63,6 @@ export const manipulateForceMorale = (
 	scene?: Phaser.Scene
 ): number => {
 	let finalAmount = amount;
-
-	// Apply morale damage reduction if this is a negative morale change (damage)
-	if (amount < 0 && targetForce.moraleReductionStacks) {
-		const reductionStacks = targetForce.moraleReductionStacks;
-		let totalReduction = 0;
-
-		// Sum all active reductions (multiple units can provide protection)
-		for (const stack of reductionStacks) {
-			// Check if the unit is still alive
-			const protectorUnit = targetForce.units.find(u => u.id === stack.unitId);
-			if (protectorUnit && protectorUnit.hp > 0) {
-				totalReduction += stack.reductionPercent;
-			}
-		}
-
-		// Cap total reduction at 50% to prevent making forces invulnerable
-		totalReduction = Math.min(totalReduction, 50);
-
-		if (totalReduction > 0) {
-			const originalAmount = Math.abs(amount);
-			const reducedAmount = originalAmount * (1 - totalReduction / 100);
-			finalAmount = -reducedAmount;
-
-			const moraleProtected = originalAmount - reducedAmount;
-			devlog(`[Morale Guardian] Protected ${moraleProtected.toFixed(1)} morale (${totalReduction}% reduction)`);
-		}
-	}
 
 	const oldMorale = targetForce.morale;
 	if (finalAmount > 0) {

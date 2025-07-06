@@ -22,7 +22,7 @@ export const splashDamageToRandomAdjacentAllyLogic: TraitEffectFn = async (conte
 			if (chara && chara.active && scene && scene.scene && scene.scene.isActive()) {
 				await chara.showPopText(`-${damage} Dmg`, "damage");
 			}
-			chara.unitHit(damage);
+			//chara.unitHit(damage);
 			impactEffect({ scene, location: chara, pointA: sourceChara, pointB: chara });
 		}
 	}

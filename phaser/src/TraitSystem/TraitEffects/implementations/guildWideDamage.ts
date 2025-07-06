@@ -49,7 +49,7 @@ export const guildWideDamageLogic: TraitEffectFn = async (context: TraitEffectCo
 		const chara = getChara(enemy.id);
 		if (chara && chara.active && (!scene || (scene.scene && scene.scene.isActive()))) {
 			await chara.showPopText(`-${damage} Dmg`, "damage");
-			chara.unitHit(damage);
+			//chara.unitHit(damage);
 		}
 	}
 };
