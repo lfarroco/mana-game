@@ -43,7 +43,6 @@ export const dealDamageLogicIO: TraitEffectFn = async (context) => {
 		);
 	}
 
-
 	const impl = createDealDamageLogic(emitter, manipulateForceMorale);
 	return impl(context);
 };

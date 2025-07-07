@@ -99,6 +99,9 @@
 			"cooldown": 1800,
 			"traits": [
 				{
+					"id": "damage"
+				},
+				{
 					"id": "corner_bonus",
 					"amount": 5
 				}
