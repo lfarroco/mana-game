@@ -103,7 +103,7 @@ describe('Game Data Validation', () => {
 				if (errors.length > 0) {
 					console.error(`Trait ${index} (${trait.id || 'unknown'}) validation errors:`, errors);
 				}
-				expect(errors.length).toBe(0);
+				expect(errors).toEqual([]);
 			});
 		});
 

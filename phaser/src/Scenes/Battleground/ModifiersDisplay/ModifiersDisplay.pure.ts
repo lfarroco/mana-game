@@ -32,6 +32,7 @@ export type DisplayUpdate = {
 	atkMod: number;
 	defMod: number;
 	healMod: number;
+	changedFields: { atk: boolean, def: boolean, heal: boolean };
 };
 
 /**
@@ -73,10 +74,13 @@ export function setModifiersForForce(
 }
 
 /**
- * Formats a modifier value with appropriate prefix
+ * Formats a modifier value with appropriate prefix and up to 1 decimal place
  */
 export function formatModifierValue(value: number): string {
-	return value >= 0 ? `+${value}` : `${value}`;
+	// Round to 1 decimal place and remove trailing zeros
+	const rounded = Math.round(value * 10) / 10;
+	const formatted = rounded % 1 === 0 ? rounded.toString() : rounded.toFixed(1);
+	return rounded >= 0 ? `+${formatted}` : formatted;
 }
 
 /**
@@ -88,6 +92,7 @@ export function processModifierEvent(
 ): { newStates: ModifierStates; displayUpdate?: DisplayUpdate } {
 	const currentModifiers = getModifiersForForce(currentStates, event.forceId);
 	let newModifiers: ModifierState;
+	let changedFields = { atk: false, def: false, heal: false };
 
 	switch (event.type) {
 		case 'MODIFIERS_UPDATED':
@@ -96,6 +101,8 @@ export function processModifierEvent(
 				def: event.defMod,
 				heal: event.healMod
 			};
+			// For full updates, mark all fields as changed
+			changedFields = { atk: true, def: true, heal: true };
 			break;
 
 		case 'MODIFIER_ATTACK_CHANGED':
@@ -103,6 +110,7 @@ export function processModifierEvent(
 				...currentModifiers,
 				atk: event.newValue
 			};
+			changedFields.atk = true;
 			break;
 
 		case 'MODIFIER_DEFENSE_CHANGED':
@@ -110,6 +118,7 @@ export function processModifierEvent(
 				...currentModifiers,
 				def: event.newValue
 			};
+			changedFields.def = true;
 			break;
 
 		case 'MODIFIER_HEAL_CHANGED':
@@ -117,6 +126,7 @@ export function processModifierEvent(
 				...currentModifiers,
 				heal: event.newValue
 			};
+			changedFields.heal = true;
 			break;
 
 		case 'MODIFIER_DELTA_ATTACK':
@@ -124,6 +134,7 @@ export function processModifierEvent(
 				...currentModifiers,
 				atk: currentModifiers.atk + event.delta
 			};
+			changedFields.atk = true;
 			break;
 
 		case 'MODIFIER_DELTA_DEFENSE':
@@ -131,6 +142,7 @@ export function processModifierEvent(
 				...currentModifiers,
 				def: currentModifiers.def + event.delta
 			};
+			changedFields.def = true;
 			break;
 
 		case 'MODIFIER_DELTA_HEAL':
@@ -138,10 +150,13 @@ export function processModifierEvent(
 				...currentModifiers,
 				heal: currentModifiers.heal + event.delta
 			};
+			changedFields.heal = true;
 			break;
 
 		case 'MODIFIER_RESET_ALL':
 			newModifiers = { atk: 0, def: 0, heal: 0 };
+			// For reset, mark all fields as changed
+			changedFields = { atk: true, def: true, heal: true };
 			break;
 
 		default:
@@ -156,7 +171,8 @@ export function processModifierEvent(
 		forceId: event.forceId,
 		atkMod: newModifiers.atk,
 		defMod: newModifiers.def,
-		healMod: newModifiers.heal
+		healMod: newModifiers.heal,
+		changedFields
 	};
 
 	return { newStates, displayUpdate };

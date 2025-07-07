@@ -43,7 +43,8 @@ function handleModifierEvent(event: ModifierEvent): void {
 			result.displayUpdate.forceId,
 			result.displayUpdate.atkMod,
 			result.displayUpdate.defMod,
-			result.displayUpdate.healMod
+			result.displayUpdate.healMod,
+			result.displayUpdate.changedFields
 		);
 	}
 }
@@ -156,18 +157,18 @@ function create(
 	const valueConfig = {
 		...c.defaultTextConfig,
 		fontSize: '42px',
-		color: config.colors.value
+		color: config.colors.value,
 	};
 
 	// Create text elements using calculated positions
-	const atkText = scene.add.text(positions.atkLabel.x, positions.atkLabel.y, 'Atk:', labelConfig);
-	const atkValue = scene.add.text(positions.atkValue.x, positions.atkValue.y, '+0', valueConfig);
+	const atkText = scene.add.text(positions.atkLabel.x, positions.atkLabel.y, 'Atk:', labelConfig).setOrigin(0.5);
+	const atkValue = scene.add.text(positions.atkValue.x, positions.atkValue.y, '+0', valueConfig).setOrigin(0.5);
 
-	const defText = scene.add.text(positions.defLabel.x, positions.defLabel.y, 'Def:', labelConfig);
-	const defValue = scene.add.text(positions.defValue.x, positions.defValue.y, '+0', valueConfig);
+	const defText = scene.add.text(positions.defLabel.x, positions.defLabel.y, 'Def:', labelConfig).setOrigin(0.5);
+	const defValue = scene.add.text(positions.defValue.x, positions.defValue.y, '+0', valueConfig).setOrigin(0.5);
 
-	const healText = scene.add.text(positions.healLabel.x, positions.healLabel.y, 'Heal:', labelConfig);
-	const healValue = scene.add.text(positions.healValue.x, positions.healValue.y, '+0', valueConfig);
+	const healText = scene.add.text(positions.healLabel.x, positions.healLabel.y, 'Heal:', labelConfig).setOrigin(0.5);
+	const healValue = scene.add.text(positions.healValue.x, positions.healValue.y, '+0', valueConfig).setOrigin(0.5);
 
 	container.add([atkText, atkValue, defText, defValue, healText, healValue]);
 	container.setVisible(false); // Initially hidden
@@ -223,14 +224,36 @@ export function updateModifiersDisplay(
 	atkMod: number,
 	defMod: number,
 	healMod: number,
+	changedFields?: { atk?: boolean, def?: boolean, heal?: boolean }
 ): void {
 	const targetDisplay = forceId === c.FORCE_ID_PLAYER ? playerModifiersDisplay : cpuModifiersDisplay;
 	if (!targetDisplay) return;
 
-	// Update text values with animation using pure formatting function
-	animateValueChange(targetDisplay.atkValue, formatModifierValue(atkMod));
-	animateValueChange(targetDisplay.defValue, formatModifierValue(defMod));
-	animateValueChange(targetDisplay.healValue, formatModifierValue(healMod));
+	// If no specific fields are marked as changed, animate all (for backward compatibility)
+	if (!changedFields) {
+		animateValueChange(targetDisplay.atkValue, formatModifierValue(atkMod));
+		animateValueChange(targetDisplay.defValue, formatModifierValue(defMod));
+		animateValueChange(targetDisplay.healValue, formatModifierValue(healMod));
+	} else {
+		// Only animate the fields that actually changed
+		if (changedFields.atk) {
+			animateValueChange(targetDisplay.atkValue, formatModifierValue(atkMod));
+		} else {
+			targetDisplay.atkValue.setText(formatModifierValue(atkMod));
+		}
+
+		if (changedFields.def) {
+			animateValueChange(targetDisplay.defValue, formatModifierValue(defMod));
+		} else {
+			targetDisplay.defValue.setText(formatModifierValue(defMod));
+		}
+
+		if (changedFields.heal) {
+			animateValueChange(targetDisplay.healValue, formatModifierValue(healMod));
+		} else {
+			targetDisplay.healValue.setText(formatModifierValue(healMod));
+		}
+	}
 }
 
 function animateValueChange(textObject: Phaser.GameObjects.Text, newValue: string): void {
