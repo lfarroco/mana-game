@@ -206,7 +206,8 @@ export function createDisplayConfig(forceId: string) {
 		dimensions: {
 			width: MODIFIERS_DISPLAY.WIDTH,
 			height: MODIFIERS_DISPLAY.HEIGHT,
-			padding: MODIFIERS_DISPLAY.PADDING,
+			paddingX: MODIFIERS_DISPLAY.PADDING_X,
+			paddingY: MODIFIERS_DISPLAY.PADDING_Y,
 			lineHeight: MODIFIERS_DISPLAY.LINE_HEIGHT
 		}
 	};
@@ -216,14 +217,14 @@ export function createDisplayConfig(forceId: string) {
  * Calculates text positions for display elements
  */
 export function calculateTextPositions(config: ReturnType<typeof createDisplayConfig>) {
-	const { padding, lineHeight } = config.dimensions;
+	const { paddingX, paddingY, lineHeight } = config.dimensions;
 
 	return {
-		atkLabel: { x: padding, y: padding },
-		atkValue: { x: padding + MODIFIERS_DISPLAY.ATK_VALUE_OFFSET, y: padding },
-		defLabel: { x: padding, y: padding + lineHeight },
-		defValue: { x: padding + MODIFIERS_DISPLAY.DEF_VALUE_OFFSET, y: padding + lineHeight },
-		healLabel: { x: padding, y: padding + lineHeight * 2 },
-		healValue: { x: padding + MODIFIERS_DISPLAY.HEAL_VALUE_OFFSET, y: padding + lineHeight * 2 }
+		atkLabel: { x: paddingX, y: paddingY },
+		atkValue: { x: paddingX + MODIFIERS_DISPLAY.ATK_VALUE_OFFSET, y: paddingY },
+		defLabel: { x: paddingX, y: paddingY + lineHeight },
+		defValue: { x: paddingX + MODIFIERS_DISPLAY.DEF_VALUE_OFFSET, y: paddingY + lineHeight },
+		healLabel: { x: paddingX, y: paddingY + lineHeight * 2 },
+		healValue: { x: paddingX + MODIFIERS_DISPLAY.HEAL_VALUE_OFFSET, y: paddingY + lineHeight * 2 }
 	};
 }
