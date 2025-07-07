@@ -4,6 +4,7 @@
  */
 
 import * as c from '../../../constants/constants';
+import { MODIFIERS_DISPLAY } from './ModifiersDisplay.constants';
 
 // Types for the pure functions
 export type ModifierState = {
@@ -194,19 +195,19 @@ export function createDisplayConfig(forceId: string) {
 	return {
 		forceId,
 		position: isPlayer
-			? { x: 20, y: c.SCREEN_HEIGHT - 260 }
-			: { x: c.SCREEN_WIDTH - 380, y: 20 },
+			? { x: MODIFIERS_DISPLAY.PLAYER_OFFSET_X, y: c.SCREEN_HEIGHT - MODIFIERS_DISPLAY.PLAYER_OFFSET_Y }
+			: { x: c.SCREEN_WIDTH - MODIFIERS_DISPLAY.CPU_OFFSET_X, y: MODIFIERS_DISPLAY.CPU_OFFSET_Y },
 		colors: {
-			value: isPlayer ? '#00ff00' : '#ff4444',
-			label: '#ffffff',
-			background: 0x000000,
-			border: 0xffffff
+			value: isPlayer ? MODIFIERS_DISPLAY.PLAYER_VALUE_COLOR : MODIFIERS_DISPLAY.CPU_VALUE_COLOR,
+			label: MODIFIERS_DISPLAY.LABEL_COLOR,
+			background: MODIFIERS_DISPLAY.BACKGROUND_COLOR,
+			border: MODIFIERS_DISPLAY.BORDER_COLOR
 		},
 		dimensions: {
-			width: 360,
-			height: 240,
-			padding: 24,
-			lineHeight: 54
+			width: MODIFIERS_DISPLAY.WIDTH,
+			height: MODIFIERS_DISPLAY.HEIGHT,
+			padding: MODIFIERS_DISPLAY.PADDING,
+			lineHeight: MODIFIERS_DISPLAY.LINE_HEIGHT
 		}
 	};
 }
@@ -219,10 +220,10 @@ export function calculateTextPositions(config: ReturnType<typeof createDisplayCo
 
 	return {
 		atkLabel: { x: padding, y: padding },
-		atkValue: { x: padding + 105, y: padding },
+		atkValue: { x: padding + MODIFIERS_DISPLAY.ATK_VALUE_OFFSET, y: padding },
 		defLabel: { x: padding, y: padding + lineHeight },
-		defValue: { x: padding + 105, y: padding + lineHeight },
+		defValue: { x: padding + MODIFIERS_DISPLAY.DEF_VALUE_OFFSET, y: padding + lineHeight },
 		healLabel: { x: padding, y: padding + lineHeight * 2 },
-		healValue: { x: padding + 120, y: padding + lineHeight * 2 }
+		healValue: { x: padding + MODIFIERS_DISPLAY.HEAL_VALUE_OFFSET, y: padding + lineHeight * 2 }
 	};
 }

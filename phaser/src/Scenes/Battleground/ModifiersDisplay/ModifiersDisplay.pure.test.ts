@@ -11,6 +11,7 @@ import {
 	type ModifierStates,
 	type ModifierEvent
 } from './ModifiersDisplay.pure';
+import { MODIFIERS_DISPLAY } from './ModifiersDisplay.constants';
 import * as c from '../../../constants/constants';
 
 describe('ModifiersDisplay Pure Functions', () => {
@@ -268,18 +269,24 @@ describe('ModifiersDisplay Pure Functions', () => {
 			const config = createDisplayConfig(c.FORCE_ID_PLAYER);
 
 			expect(config.forceId).toBe(c.FORCE_ID_PLAYER);
-			expect(config.position).toEqual({ x: 20, y: c.SCREEN_HEIGHT - 260 });
-			expect(config.colors.value).toBe('#00ff00');
-			expect(config.dimensions.width).toBe(360);
+			expect(config.position).toEqual({
+				x: MODIFIERS_DISPLAY.PLAYER_OFFSET_X,
+				y: c.SCREEN_HEIGHT - MODIFIERS_DISPLAY.PLAYER_OFFSET_Y
+			});
+			expect(config.colors.value).toBe(MODIFIERS_DISPLAY.PLAYER_VALUE_COLOR);
+			expect(config.dimensions.width).toBe(MODIFIERS_DISPLAY.WIDTH);
 		});
 
 		it('should create correct config for CPU', () => {
 			const config = createDisplayConfig(c.FORCE_ID_CPU);
 
 			expect(config.forceId).toBe(c.FORCE_ID_CPU);
-			expect(config.position).toEqual({ x: c.SCREEN_WIDTH - 380, y: 20 });
-			expect(config.colors.value).toBe('#ff4444');
-			expect(config.dimensions.width).toBe(360);
+			expect(config.position).toEqual({
+				x: c.SCREEN_WIDTH - MODIFIERS_DISPLAY.CPU_OFFSET_X,
+				y: MODIFIERS_DISPLAY.CPU_OFFSET_Y
+			});
+			expect(config.colors.value).toBe(MODIFIERS_DISPLAY.CPU_VALUE_COLOR);
+			expect(config.dimensions.width).toBe(MODIFIERS_DISPLAY.WIDTH);
 		});
 	});
 
@@ -288,12 +295,14 @@ describe('ModifiersDisplay Pure Functions', () => {
 			const config = createDisplayConfig(c.FORCE_ID_PLAYER);
 			const positions = calculateTextPositions(config);
 
-			expect(positions.atkLabel).toEqual({ x: 24, y: 24 });
-			expect(positions.atkValue).toEqual({ x: 129, y: 24 }); // 24 + 105
-			expect(positions.defLabel).toEqual({ x: 24, y: 78 }); // 24 + 54
-			expect(positions.defValue).toEqual({ x: 129, y: 78 });
-			expect(positions.healLabel).toEqual({ x: 24, y: 132 }); // 24 + 54 * 2
-			expect(positions.healValue).toEqual({ x: 144, y: 132 }); // 24 + 120
+			const { PADDING, LINE_HEIGHT, ATK_VALUE_OFFSET, DEF_VALUE_OFFSET, HEAL_VALUE_OFFSET } = MODIFIERS_DISPLAY;
+
+			expect(positions.atkLabel).toEqual({ x: PADDING, y: PADDING });
+			expect(positions.atkValue).toEqual({ x: PADDING + ATK_VALUE_OFFSET, y: PADDING });
+			expect(positions.defLabel).toEqual({ x: PADDING, y: PADDING + LINE_HEIGHT });
+			expect(positions.defValue).toEqual({ x: PADDING + DEF_VALUE_OFFSET, y: PADDING + LINE_HEIGHT });
+			expect(positions.healLabel).toEqual({ x: PADDING, y: PADDING + LINE_HEIGHT * 2 });
+			expect(positions.healValue).toEqual({ x: PADDING + HEAL_VALUE_OFFSET, y: PADDING + LINE_HEIGHT * 2 });
 		});
 	});
 });
