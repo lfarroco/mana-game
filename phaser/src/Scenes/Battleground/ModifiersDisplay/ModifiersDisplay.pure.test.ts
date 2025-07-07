@@ -295,14 +295,14 @@ describe('ModifiersDisplay Pure Functions', () => {
 			const config = createDisplayConfig(c.FORCE_ID_PLAYER);
 			const positions = calculateTextPositions(config);
 
-			const { PADDING, LINE_HEIGHT, ATK_VALUE_OFFSET, DEF_VALUE_OFFSET, HEAL_VALUE_OFFSET } = MODIFIERS_DISPLAY;
+			const { PADDING_X, PADDING_Y, LINE_HEIGHT, ATK_VALUE_OFFSET, DEF_VALUE_OFFSET, HEAL_VALUE_OFFSET } = MODIFIERS_DISPLAY;
 
-			expect(positions.atkLabel).toEqual({ x: PADDING, y: PADDING });
-			expect(positions.atkValue).toEqual({ x: PADDING + ATK_VALUE_OFFSET, y: PADDING });
-			expect(positions.defLabel).toEqual({ x: PADDING, y: PADDING + LINE_HEIGHT });
-			expect(positions.defValue).toEqual({ x: PADDING + DEF_VALUE_OFFSET, y: PADDING + LINE_HEIGHT });
-			expect(positions.healLabel).toEqual({ x: PADDING, y: PADDING + LINE_HEIGHT * 2 });
-			expect(positions.healValue).toEqual({ x: PADDING + HEAL_VALUE_OFFSET, y: PADDING + LINE_HEIGHT * 2 });
+			expect(positions.atkLabel).toEqual({ x: PADDING_X, y: PADDING_Y });
+			expect(positions.atkValue).toEqual({ x: PADDING_X + ATK_VALUE_OFFSET, y: PADDING_Y });
+			expect(positions.defLabel).toEqual({ x: PADDING_X, y: PADDING_Y + LINE_HEIGHT });
+			expect(positions.defValue).toEqual({ x: PADDING_X + DEF_VALUE_OFFSET, y: PADDING_Y + LINE_HEIGHT });
+			expect(positions.healLabel).toEqual({ x: PADDING_X, y: PADDING_Y + LINE_HEIGHT * 2 });
+			expect(positions.healValue).toEqual({ x: PADDING_X + HEAL_VALUE_OFFSET, y: PADDING_Y + LINE_HEIGHT * 2 });
 		});
 	});
 });

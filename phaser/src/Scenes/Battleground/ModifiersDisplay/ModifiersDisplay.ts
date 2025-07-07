@@ -161,14 +161,14 @@ function create(
 	};
 
 	// Create text elements using calculated positions
-	const atkText = scene.add.text(positions.atkLabel.x, positions.atkLabel.y, 'Atk:', labelConfig).setOrigin(0.5);
+	const atkText = scene.add.text(positions.atkLabel.x - 10, positions.atkLabel.y, 'Atk:', labelConfig).setOrigin(0.5);
 	const atkValue = scene.add.text(positions.atkValue.x, positions.atkValue.y, '+0', valueConfig).setOrigin(0.5);
 
-	const defText = scene.add.text(positions.defLabel.x, positions.defLabel.y, 'Def:', labelConfig).setOrigin(0.5);
+	const defText = scene.add.text(positions.defLabel.x - 10, positions.defLabel.y, 'Def:', labelConfig).setOrigin(0.5);
 	const defValue = scene.add.text(positions.defValue.x, positions.defValue.y, '+0', valueConfig).setOrigin(0.5);
 
 	const healText = scene.add.text(positions.healLabel.x, positions.healLabel.y, 'Heal:', labelConfig).setOrigin(0.5);
-	const healValue = scene.add.text(positions.healValue.x, positions.healValue.y, '+0', valueConfig).setOrigin(0.5);
+	const healValue = scene.add.text(positions.healValue.x - 15, positions.healValue.y, '+0', valueConfig).setOrigin(0.5);
 
 	container.add([atkText, atkValue, defText, defValue, healText, healValue]);
 	container.setVisible(false); // Initially hidden

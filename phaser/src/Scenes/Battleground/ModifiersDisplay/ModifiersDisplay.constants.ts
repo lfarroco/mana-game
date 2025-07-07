@@ -6,7 +6,8 @@ export const MODIFIERS_DISPLAY = {
 	// Dimensions
 	WIDTH: 360,
 	HEIGHT: 240,
-	PADDING: 24,
+	PADDING_X: 100,
+	PADDING_Y: 50,
 	LINE_HEIGHT: 54,
 
 	// Text offsets from padding
@@ -26,4 +27,4 @@ export const MODIFIERS_DISPLAY = {
 	CPU_OFFSET_X: 380, // This will be subtracted from SCREEN_WIDTH
 	PLAYER_OFFSET_Y: 260, // This will be subtracted from SCREEN_HEIGHT
 	CPU_OFFSET_Y: 20
-} as const;
+} as const; 2
