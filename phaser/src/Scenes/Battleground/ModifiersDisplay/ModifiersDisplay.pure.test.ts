@@ -82,6 +82,26 @@ describe('ModifiersDisplay Pure Functions', () => {
 			expect(formatModifierValue(-3)).toBe('-3');
 			expect(formatModifierValue(-10)).toBe('-10');
 		});
+
+		it('should format decimal values to 1 decimal place', () => {
+			expect(formatModifierValue(2.5)).toBe('+2.5');
+			expect(formatModifierValue(-1.5)).toBe('-1.5');
+			expect(formatModifierValue(0.1)).toBe('+0.1');
+			expect(formatModifierValue(-0.9)).toBe('-0.9');
+		});
+
+		it('should round long decimals to 1 decimal place', () => {
+			expect(formatModifierValue(0.222222)).toBe('+0.2');
+			expect(formatModifierValue(1.666666)).toBe('+1.7');
+			expect(formatModifierValue(-2.333333)).toBe('-2.3');
+			expect(formatModifierValue(0.95)).toBe('+1');
+		});
+
+		it('should remove trailing zeros for whole numbers', () => {
+			expect(formatModifierValue(3.0)).toBe('+3');
+			expect(formatModifierValue(-4.0)).toBe('-4');
+			expect(formatModifierValue(1.00000)).toBe('+1');
+		});
 	});
 
 	describe('processModifierEvent', () => {
@@ -112,7 +132,8 @@ describe('ModifiersDisplay Pure Functions', () => {
 					forceId: c.FORCE_ID_PLAYER,
 					atkMod: 5,
 					defMod: 3,
-					healMod: 1
+					healMod: 1,
+					changedFields: { atk: true, def: true, heal: true }
 				});
 			});
 		});
@@ -129,6 +150,7 @@ describe('ModifiersDisplay Pure Functions', () => {
 
 				expect(result.newStates.player).toEqual({ atk: 10, def: 1, heal: 0 });
 				expect(result.displayUpdate?.atkMod).toBe(10);
+				expect(result.displayUpdate?.changedFields).toEqual({ atk: true, def: false, heal: false });
 			});
 
 			it('should handle MODIFIER_DEFENSE_CHANGED', () => {
@@ -142,6 +164,7 @@ describe('ModifiersDisplay Pure Functions', () => {
 
 				expect(result.newStates.cpu).toEqual({ atk: -1, def: 7, heal: 2 });
 				expect(result.displayUpdate?.defMod).toBe(7);
+				expect(result.displayUpdate?.changedFields).toEqual({ atk: false, def: true, heal: false });
 			});
 
 			it('should handle MODIFIER_HEAL_CHANGED', () => {
@@ -155,6 +178,7 @@ describe('ModifiersDisplay Pure Functions', () => {
 
 				expect(result.newStates.player).toEqual({ atk: 2, def: 1, heal: -2 });
 				expect(result.displayUpdate?.healMod).toBe(-2);
+				expect(result.displayUpdate?.changedFields).toEqual({ atk: false, def: false, heal: true });
 			});
 		});
 
@@ -207,6 +231,7 @@ describe('ModifiersDisplay Pure Functions', () => {
 
 				expect(result.newStates.player).toEqual({ atk: 0, def: 0, heal: 0 });
 				expect(result.newStates.cpu).toEqual({ atk: -1, def: 3, heal: 2 }); // unchanged
+				expect(result.displayUpdate?.changedFields).toEqual({ atk: true, def: true, heal: true });
 			});
 		});
 

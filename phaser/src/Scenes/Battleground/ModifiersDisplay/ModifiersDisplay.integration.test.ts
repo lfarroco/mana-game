@@ -34,7 +34,12 @@ describe('ModifiersDisplay Integration Example', () => {
 			forceId: c.FORCE_ID_PLAYER,
 			atkMod: 3,
 			defMod: 1,
-			healMod: 2
+			healMod: 2,
+			changedFields: {
+				atk: true,
+				def: true,
+				heal: true
+			}
 		});
 
 		// 3. Player's attack gets a boost
@@ -122,5 +127,28 @@ describe('ModifiersDisplay Integration Example', () => {
 		expect(formatModifierValue(999)).toBe('+999');
 		expect(formatModifierValue(-999)).toBe('-999');
 		expect(formatModifierValue(0)).toBe('+0');
+	});
+
+	it('should handle decimal modifier values correctly', () => {
+		let state = createInitialStates();
+
+		// Test decimal values like the original problem (0.222222...)
+		const decimalEvent: ModifierEvent = {
+			type: 'MODIFIERS_UPDATED',
+			forceId: c.FORCE_ID_PLAYER,
+			atkMod: 0.222222,
+			defMod: 1.666666,
+			healMod: -2.888888
+		};
+
+		const result = processModifierEvent(state, decimalEvent);
+		state = result.newStates;
+
+		expect(state.player).toEqual({ atk: 0.222222, def: 1.666666, heal: -2.888888 });
+
+		// But the formatted values should be rounded to 1 decimal place
+		expect(formatModifierValue(0.222222)).toBe('+0.2');
+		expect(formatModifierValue(1.666666)).toBe('+1.7');
+		expect(formatModifierValue(-2.888888)).toBe('-2.9');
 	});
 });
