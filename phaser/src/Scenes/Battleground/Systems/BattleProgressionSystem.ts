@@ -9,7 +9,7 @@ import { generateEnemyTeam } from "../generateEnemyTeam";
 import { PrestigeSystem } from "../../../Systems/PrestigeSystem";
 import * as CharaManager from "./CharaManager";
 import { clearAllStatusEffects } from "../../../Systems/StatusEffects/StatusEffectManager";
-import { cpuForce, playerForce, manipulateForceMorale } from "../../../Models/Entities/Force";
+import { cpuForce, playerForce, applyDamageToForce } from "../../../Models/Entities/Force";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
 
 /**
@@ -117,7 +117,7 @@ export class BattleProgressionSystem {
 	 * Handles the game over sequence.
 	 */
 	async handleCombatEndedDefeat(): Promise<void> {
-		this._hideMoraleBars();
+		this._hideDisplayBars();
 		console.log("Round", this.state.gameData.round, "Processing Defeat...");
 		await delay(this.scene, BG_CONSTANTS.POST_COMBAT_DELAY);
 		this.scene.events.emit(GameEvents.BATTLE_RESULT_SHOW, { result: "defeat" });
@@ -233,7 +233,7 @@ export class BattleProgressionSystem {
 	 * Handles the end of a victorious combat, hiding morale bars and transitioning to the shop phase.
 	 */
 	async handleCombatEndedVictory(payload: { enemiesDefeated: Unit[] }): Promise<void> {
-		this._hideMoraleBars();
+		this._hideDisplayBars();
 		console.log("Round", this.state.gameData.round, "Processing Victory...");
 		await delay(this.scene, BG_CONSTANTS.POST_COMBAT_DELAY);
 		this.scene.events.emit(GameEvents.BATTLE_RESULT_SHOW, { result: "victory" });
@@ -269,7 +269,12 @@ export class BattleProgressionSystem {
 		playerForce.morale = playerForce.maxMorale;
 		cpuForce.morale = cpuForce.maxMorale;
 
+		// Reset shields to 0 at battle start
+		playerForce.shield = 0;
+		cpuForce.shield = 0;
+
 		this.scene.events.emit(GameEvents.MORALE_BARS_SHOW);
+		this.scene.events.emit(GameEvents.SHIELD_BARS_SHOW);
 		this.scene.events.emit(GameEvents.MODIFIERS_DISPLAYS_SHOW);
 		this.scene.events.emit(
 			GameEvents.MORALE_UPDATED,
@@ -287,23 +292,40 @@ export class BattleProgressionSystem {
 				maxMorale: cpuForce.maxMorale
 			}
 		);
+		this.scene.events.emit(
+			GameEvents.SHIELD_UPDATED,
+			{
+				forceId: FORCE_ID_PLAYER,
+				newShield: playerForce.shield,
+				maxShield: playerForce.morale, // maxShield for display = current morale
+			}
+		);
+		this.scene.events.emit(
+			GameEvents.SHIELD_UPDATED,
+			{
+				forceId: FORCE_ID_CPU,
+				newShield: cpuForce.shield,
+				maxShield: cpuForce.morale // maxShield for display = current morale
+			}
+		);
 	}
 
-	_hideMoraleBars(): void {
+	_hideDisplayBars(): void {
 		this.scene.events.emit(GameEvents.MORALE_BARS_HIDE);
+		this.scene.events.emit(GameEvents.SHIELD_BARS_HIDE);
 	}
 
 	/**
-	 * Damages enemy morale when a unit attacks
+	 * Damages enemy force when a unit attacks (shields absorb damage first)
 	 */
 	handleUnitAttackOnMorale(payload: { unit: Unit }): void {
 		const { unit } = payload;
-		const targetForce = unit.force === FORCE_ID_PLAYER ? playerForce : (unit.force === FORCE_ID_CPU ? cpuForce : null);
+		const targetForce = unit.force === FORCE_ID_PLAYER ? cpuForce : playerForce; // Attacking the opposite force
 
 		if (!targetForce) return;
 
-		manipulateForceMorale(targetForce, -Math.max(0, unit.power), this.scene);
-
+		// Apply damage to shields first, then morale
+		applyDamageToForce(targetForce, Math.max(0, unit.power), this.scene);
 	}
 
 	destroy(): void {
