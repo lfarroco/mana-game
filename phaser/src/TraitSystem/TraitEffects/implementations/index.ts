@@ -4,6 +4,7 @@
  */
 
 export { dealDamageLogicIO, createDealDamageLogic } from './dealDamage';
+export { addShieldLogicIO, createAddShieldLogic } from './addShield';
 export { grantGoldLogic } from './grantGold';
 export { increaseForceMaxMoraleLogic } from './increaseForceMaxMorale';
 export { modifyStatPassiveLogic } from './modifyStatPassive';
