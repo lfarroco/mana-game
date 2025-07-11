@@ -81,12 +81,6 @@ export const manipulateForceMorale = (
 			newMorale: targetForce.morale,
 			maxMorale: targetForce.maxMorale,
 		});
-
-		scene.events.emit(GameEvents.MODIFIER_DELTA_ATTACK, {
-			delta: 0.1,
-			forceId: targetForce.id
-		});
-
 	}
 
 	return actualChange;

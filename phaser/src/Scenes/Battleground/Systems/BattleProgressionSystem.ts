@@ -275,7 +275,6 @@ export class BattleProgressionSystem {
 
 		this.scene.events.emit(GameEvents.MORALE_BARS_SHOW);
 		this.scene.events.emit(GameEvents.SHIELD_BARS_SHOW);
-		this.scene.events.emit(GameEvents.MODIFIERS_DISPLAYS_SHOW);
 		this.scene.events.emit(
 			GameEvents.MORALE_UPDATED,
 			{
