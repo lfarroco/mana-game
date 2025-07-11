@@ -45,22 +45,15 @@ export const GameEvents = {
 	CHARA_POINTER_OUT: "chara_pointer_out", // Payload: { charaId: string }
 	VIGNETTE_MESSAGE_SHOW: "vignette_message_show", // Payload: { message: string }
 	SHOP_OPEN_UI_TRIGGER: "shop_open_ui_trigger",
+
 	MORALE_BARS_SHOW: "morale_bars_show",
 	MORALE_BARS_HIDE: "morale_bars_hide",
 	MORALE_UPDATED: "morale_updated", // Payload: { forceId: string, newMorale: number, maxMorale: number }
+
 	SHIELD_BARS_SHOW: "shield_bars_show",
 	SHIELD_BARS_HIDE: "shield_bars_hide",
 	SHIELD_UPDATED: "shield_updated", // Payload: { forceId: string, newShield: number, maxShield: number }
-	MODIFIERS_UPDATED: "modifiers_updated", // Payload: { forceId: string, atkMod: number, defMod: number, healMod: number }
-	MODIFIERS_DISPLAYS_SHOW: "modifiers_displays_show",
-	MODIFIERS_DISPLAYS_HIDE: "modifiers_displays_hide",
-	MODIFIER_ATTACK_CHANGED: "modifier_attack_changed", // Payload: { forceId: string, newValue: number }
-	MODIFIER_DEFENSE_CHANGED: "modifier_defense_changed", // Payload: { forceId: string, newValue: number }
-	MODIFIER_HEAL_CHANGED: "modifier_heal_changed", // Payload: { forceId: string, newValue: number }
-	MODIFIER_RESET_ALL: "modifier_reset_all", // Payload: { forceId: string }
-	MODIFIER_DELTA_ATTACK: "modifier_delta_attack", // Payload: { forceId: string, delta: number }
-	MODIFIER_DELTA_DEFENSE: "modifier_delta_defense", // Payload: { forceId: string, delta: number }
-	MODIFIER_DELTA_HEAL: "modifier_delta_heal", // Payload: { forceId: string, delta: number }
+
 	COMBAT_START_EXECUTION_TRIGGER: "combat_start_execution_trigger", // Payload: { enemies: Unit[] }
 	GAME_OVER_SHOW_UI_TRIGGER: "game_over_show_ui_trigger",
 

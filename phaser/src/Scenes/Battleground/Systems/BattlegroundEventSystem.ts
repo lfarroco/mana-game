@@ -8,7 +8,6 @@ import { popText } from "../../../Systems/Chara/Animations/popText";
 import { PopTextPayload } from "../../../Models/EventPayloads";
 import * as MoraleDisplay from "../MoraleDisplay";
 import * as ShieldDisplay from "../ShieldDisplay";
-import * as ModifiersDisplay from "../ModifiersDisplay/ModifiersDisplay";
 import * as VignetteSystem from "../Animations/vignette";
 import { onCharaPointerOver, onCharaPointerOut } from "../../../Systems/Chara/CharaTooltip";
 
@@ -81,16 +80,6 @@ export class BattlegroundEventSystem {
 		}
 	}
 
-	private initializeModifiersDisplay(): void {
-		try {
-			ModifiersDisplay.init(this.scene);
-			this.addListener(GameEvents.MODIFIERS_DISPLAYS_SHOW, ModifiersDisplay.showDisplays);
-			this.addListener(GameEvents.MODIFIERS_DISPLAYS_HIDE, ModifiersDisplay.hideDisplays);
-		} catch (error) {
-			console.error("Failed to initialize ModifiersDisplay:", error);
-		}
-	}
-
 	private initializeVignetteSystem(): void {
 		try {
 			VignetteSystem.init(this.scene);
@@ -102,7 +91,6 @@ export class BattlegroundEventSystem {
 	private initializeSystems(): void {
 		this.initializeMoraleDisplay();
 		this.initializeShieldDisplay();
-		this.initializeModifiersDisplay();
 		this.initializeVignetteSystem();
 	}
 
@@ -167,9 +155,6 @@ export class BattlegroundEventSystem {
 
 			// Clean up ShieldDisplay resources
 			ShieldDisplay.destroy();
-
-			// Clean up ModifiersDisplay resources
-			ModifiersDisplay.destroy();
 
 			// Additional cleanup logic can be added here if needed
 		} catch (error) {
