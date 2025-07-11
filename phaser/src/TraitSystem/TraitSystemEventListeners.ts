@@ -66,21 +66,22 @@ export function setupTraitEventListeners(scene: BattlegroundScene): void {
 
 	scene.events.on(GameEvents.TRAIT_EVAL_GLOBAL_BATTLE_START, async (_payload: EmptyPayload) => {
 		const currentState = getState();
-		// Process for units
-		for (const unit of currentState.battleData.units) {
-			if (unit.hp > 0) {
-				await runUnitEventTraits("onBattleStart" as UnitEventKeys, scene, currentState, { unit });
-			}
-		}
+		// Process for units in parallel instead of sequentially
+		const traitPromises = currentState.battleData.units
+			.filter(unit => unit.hp > 0)
+			.map(unit => runUnitEventTraits("onBattleStart" as UnitEventKeys, scene, currentState, { unit }));
+
+		await Promise.all(traitPromises);
 	});
 
 	scene.events.on(GameEvents.TRAIT_EVAL_BATTLE_END, async (_payload: EmptyPayload) => {
 		const currentState = getState();
-		// Process for units
-		for (const unit of currentState.battleData.units) {
-			// Note: Original onBattleEnd did not filter by unit.hp > 0, preserving that behavior.
-			await runUnitEventTraits("onBattleEnd" as UnitEventKeys, scene, currentState, { unit });
-		}
+		// Process for units in parallel instead of sequentially
+		// Note: Original onBattleEnd did not filter by unit.hp > 0, preserving that behavior.
+		const traitPromises = currentState.battleData.units
+			.map(unit => runUnitEventTraits("onBattleEnd" as UnitEventKeys, scene, currentState, { unit }));
+
+		await Promise.all(traitPromises);
 	});
 
 	const unitEventMappings: { gameEvent: string, traitKey: UnitEventKeys }[] = [
