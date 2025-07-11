@@ -34,6 +34,7 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("modify_stat_passive", implementations.modifyStatPassiveLogic);
 	registerTraitEffectImplementation("splash_damage_to_random_adjacent_ally", implementations.splashDamageToRandomAdjacentAllyLogic);
 	registerTraitEffectImplementation("restore_force_morale", implementations.restoreForceMoraleLogic);
+	registerTraitEffectImplementation("restore_morale", implementations.restoreMoraleLogicIO);
 	registerTraitEffectImplementation("reduce_enemy_morale", implementations.reduceEnemyMoraleLogic);
 	registerTraitEffectImplementation("boost_ally_damage", implementations.boostAllyDamageLogic);
 	registerTraitEffectImplementation("haste_all_allies", implementations.hasteAllAlliesLogic);

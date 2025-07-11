@@ -2,7 +2,18 @@
  * @file Tests for the restore force morale implementation.
  */
 
-import { restoreForceMoralePure } from './restoreMorale';
+import { restoreForceMoralePure, createRestoreMoraleLogic, restoreMoraleLogicIO } from './restoreMorale';
+import { makeForce } from '../../../Models/Entities/Force';
+import { GameEvents } from '../../../constants/events';
+import { Unit } from '../../../Models/Entities/Unit';
+import { vec2 } from '../../../Models/Geometry.pure';
+
+// Mock Phaser scene for testing event emission
+const mockScene = {
+	events: {
+		emit: jest.fn()
+	}
+} as any;
 
 describe('restoreForceMoralePure', () => {
 	it('should return correct values for basic morale restoration', () => {
@@ -51,6 +62,107 @@ describe('restoreForceMoralePure', () => {
 		testCases.forEach(({ amount, forceId }) => {
 			const result = restoreForceMoralePure(amount, forceId);
 			expect(result).toEqual({ amount, forceId });
+		});
+	});
+});
+
+describe('Restore Morale Effect (New Pattern)', () => {
+	let mockUnit: Unit;
+	let mockForce: any;
+	let mockContext: any;
+
+	beforeEach(() => {
+		jest.clearAllMocks();
+
+		// Create mock unit
+		mockUnit = {
+			id: 'test-unit-1',
+			cardId: 'test-card-1',
+			name: 'Test Unit',
+			pic: 'test-pic.png',
+			force: 'player-force',
+			hp: 100,
+			maxHp: 100,
+			power: 20,
+			attackType: 'damage',
+			cooldown: 1000,
+			crit: 0,
+			evade: 0,
+			position: vec2(1, 2),
+			traits: [],
+			charge: 0,
+			refresh: 0,
+			hasted: 0,
+			slowed: 0
+		} as Unit;
+
+		// Create mock force
+		mockForce = makeForce('player-force');
+		mockForce.morale = 50; // Set to half health
+		mockForce.maxMorale = 100;
+		mockForce.shield = 0;
+
+		// Create mock context
+		mockContext = {
+			sourceUnit: mockUnit,
+			scene: mockScene,
+			state: {
+				battleData: {
+					forces: [mockForce]
+				}
+			},
+			traitInstanceParams: {},
+			effectInstance: {}
+		};
+	});
+
+	describe('createRestoreMoraleLogic', () => {
+		it('should create logic that restores morale to source force', async () => {
+			const mockEmitter = jest.fn();
+			const mockHealMorale = jest.fn();
+			
+			const logic = createRestoreMoraleLogic(mockEmitter, mockHealMorale);
+			
+			mockContext.traitInstanceParams = { amount: 30 };
+			
+			await logic(mockContext);
+			
+			expect(mockEmitter).toHaveBeenCalledWith(mockUnit, 30);
+			expect(mockHealMorale).toHaveBeenCalledWith(mockForce, 30, mockScene);
+		});
+
+		it('should use default amount of 20 when not specified', async () => {
+			const mockEmitter = jest.fn();
+			const mockHealMorale = jest.fn();
+			
+			const logic = createRestoreMoraleLogic(mockEmitter, mockHealMorale);
+			
+			await logic(mockContext);
+			
+			expect(mockEmitter).toHaveBeenCalledWith(mockUnit, 20);
+			expect(mockHealMorale).toHaveBeenCalledWith(mockForce, 20, mockScene);
+		});
+	});
+
+	describe('restoreMoraleLogicIO', () => {
+		it('should emit UNIT_MORALE_RESTORED event', async () => {
+			mockContext.traitInstanceParams = { amount: 35 };
+			
+			await restoreMoraleLogicIO(mockContext);
+			
+			expect(mockScene.events.emit).toHaveBeenCalledWith(
+				GameEvents.UNIT_MORALE_RESTORED,
+				{ unit: mockUnit, amount: 35 }
+			);
+		});
+
+		it('should work with default amount when no parameters provided', async () => {
+			await restoreMoraleLogicIO(mockContext);
+			
+			expect(mockScene.events.emit).toHaveBeenCalledWith(
+				GameEvents.UNIT_MORALE_RESTORED,
+				{ unit: mockUnit, amount: 20 }
+			);
 		});
 	});
 });
