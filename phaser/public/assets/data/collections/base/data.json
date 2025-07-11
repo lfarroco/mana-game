@@ -46,7 +46,7 @@
 		},
 		{
 			"id": "bumble",
-			"name": "Sir Bumble the Unyielding",
+			"name": "Alyssa the Champion",
 			"pic": "assets/cards/knight.png",
 			"hp": 180,
 			"tags": [
@@ -113,7 +113,7 @@
 		{
 			"id": "damage",
 			"name": "Damage Dealer",
-			"description": "+{amount} damage.",
+			"description": "Deal [color=red]{amount} damage[/color]",
 			"categories": [
 				"offensive"
 			],
@@ -127,7 +127,7 @@
 		{
 			"id": "shield",
 			"name": "Add Shield",
-			"description": "Adds +{amount} shield for your party",
+			"description": "Shield {amount}",
 			"categories": [
 				"defensive"
 			],
@@ -141,7 +141,7 @@
 		{
 			"id": "heal",
 			"name": "Heal",
-			"description": "Heals +{amount} morale to the party",
+			"description": "Heal +{amount}",
 			"categories": [
 				"support"
 			],
