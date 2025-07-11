@@ -14,7 +14,7 @@ export const onCharaPointerOver = ({ chara }: { chara: Chara }): void => {
 		if (!definition) {
 			return `[b]Unknown Trait:[/b] ${traitData.id}`;
 		}
-		return formatTraitDescription(definition, traitData);
+		return formatTraitDescription(definition, traitData, chara.unit);
 	}).join('\n\n'); // Use double newline for better separation between traits
 
 	const description = `Attack: ${chara.unit.power} | HP: ${chara.unit.hp}\n\n${traitDescriptions}`;
