@@ -11,6 +11,7 @@ export type Force = {
 	income: number;
 	morale: number;
 	maxMorale: number;
+	shield: number;
 	units: Unit[];
 	prestige: number,
 	winStreak: number,
@@ -31,6 +32,7 @@ export const makeForce = (id: string): Force => {
 		units: [],
 		morale: INITIAL_MORALE,
 		maxMorale: INITIAL_MORALE,
+		shield: 0,
 		prestige: 0,
 		winStreak: 0,
 		lossStreak: 0,
@@ -88,4 +90,63 @@ export const manipulateForceMorale = (
 	}
 
 	return actualChange;
+};
+
+/**
+ * Utility function to manipulate force shield with shield change events
+ * Shield can exceed morale - morale is just used as the scale for display
+ */
+export const manipulateForceShield = (
+	targetForce: Force,
+	amount: number,
+	scene?: Phaser.Scene
+): number => {
+	const oldShield = targetForce.shield;
+	if (amount > 0) {
+		// Shield can grow beyond morale value
+		targetForce.shield = targetForce.shield + amount;
+	} else {
+		targetForce.shield = Math.max(0, targetForce.shield + amount);
+	}
+	const actualChange = targetForce.shield - oldShield;
+
+	// Emit shield update event if scene is provided
+	if (scene && actualChange !== 0) {
+		scene.events.emit(GameEvents.SHIELD_UPDATED, {
+			forceId: targetForce.id,
+			newShield: targetForce.shield,
+			maxShield: targetForce.morale, // maxShield for display = current morale
+		});
+	}
+
+	return actualChange;
+};
+
+/**
+ * Utility function to apply damage to a force, reducing shield first, then morale
+ * Returns the actual damage applied to morale after shield absorption
+ */
+export const applyDamageToForce = (
+	targetForce: Force,
+	damage: number,
+	scene?: Phaser.Scene
+): number => {
+	if (damage <= 0) return 0;
+
+	let remainingDamage = damage;
+
+	// Shield absorbs damage first
+	if (targetForce.shield > 0) {
+		const shieldAbsorbed = Math.min(remainingDamage, targetForce.shield);
+		manipulateForceShield(targetForce, -shieldAbsorbed, scene);
+		remainingDamage -= shieldAbsorbed;
+	}
+
+	// Apply remaining damage to morale
+	if (remainingDamage > 0) {
+		const moraleChange = manipulateForceMorale(targetForce, -remainingDamage, scene);
+		return Math.abs(moraleChange);
+	}
+
+	return 0;
 };

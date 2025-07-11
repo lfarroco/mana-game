@@ -46,6 +46,9 @@ export const GameEvents = {
 	MORALE_BARS_SHOW: "morale_bars_show",
 	MORALE_BARS_HIDE: "morale_bars_hide",
 	MORALE_UPDATED: "morale_updated", // Payload: { forceId: string, newMorale: number, maxMorale: number }
+	SHIELD_BARS_SHOW: "shield_bars_show",
+	SHIELD_BARS_HIDE: "shield_bars_hide",
+	SHIELD_UPDATED: "shield_updated", // Payload: { forceId: string, newShield: number, maxShield: number }
 	MODIFIERS_UPDATED: "modifiers_updated", // Payload: { forceId: string, atkMod: number, defMod: number, healMod: number }
 	MODIFIERS_DISPLAYS_SHOW: "modifiers_displays_show",
 	MODIFIERS_DISPLAYS_HIDE: "modifiers_displays_hide",

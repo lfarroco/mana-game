@@ -106,12 +106,14 @@ describe('Trait Effect Implementations', () => {
 						id: 'player-force',
 						morale: 100,
 						maxMorale: 100,
+						shield: 0,
 						units: [mockUnit]
 					},
 					{
 						id: 'enemy-force',
 						morale: 100,
 						maxMorale: 100,
+						shield: 0,
 						units: [mockTargetUnit]
 					}
 				]

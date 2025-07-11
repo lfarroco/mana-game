@@ -1,7 +1,6 @@
 import { BattlegroundScene } from "./BattlegroundScene";
 import { getActiveUnits, State } from "../../Models/State";
 import { MIN_COOLDOWN } from "../../constants/constants";
-import { playerForce, cpuForce } from "../../Models/Entities/Force";
 import * as CharaManager from "./Systems/CharaManager";
 import { Unit } from "../../Models/Entities/Unit";
 import { GameEvents } from "../../constants/events";
@@ -56,6 +55,9 @@ export class RunCombatSystem {
 
     await setupWave(this.scene);
     console.log("[RunCombatSystem] Wave setup complete, starting combat loop.");
+
+    const playerForce = state.battleData.forces.find(force => force.id === state.gameData.player.id)!;
+    const cpuForce = state.battleData.forces.find(force => force.id !== state.gameData.player.id)!;
 
     this.updateHandler = async (_time: number, delta: number) => {
       const unitsReadyToAct = chargeUnits(state, delta * this.scene.time.timeScale);
