@@ -60,93 +60,75 @@ describe('Add Shield Effect', () => {
 			effectInstance: {}
 		};
 	});
-
 	describe('createAddShieldLogic', () => {
-		it('should create logic that adds shield to source force', async () => {
+		it('should create logic that adds shield to source force using unit power', async () => {
 			const mockEmitter = jest.fn();
 			const mockAddShield = jest.fn();
 
 			const logic = createAddShieldLogic(mockEmitter, mockAddShield);
 
-			mockContext.traitInstanceParams = { amount: 50 };
-
 			await logic(mockContext);
 
-			expect(mockEmitter).toHaveBeenCalledWith(mockUnit, 50);
-			expect(mockAddShield).toHaveBeenCalledWith(mockForce, 50, mockScene);
+			expect(mockEmitter).toHaveBeenCalledWith(mockUnit, 20); // Uses unit.power
+			expect(mockAddShield).toHaveBeenCalledWith(mockForce, 20, mockScene);
 		});
 
-		it('should use default amount of 10 when not specified', async () => {
+		it('should use unit power regardless of trait params', async () => {
 			const mockEmitter = jest.fn();
 			const mockAddShield = jest.fn();
 
 			const logic = createAddShieldLogic(mockEmitter, mockAddShield);
 
-			await logic(mockContext);
-
-			expect(mockEmitter).toHaveBeenCalledWith(mockUnit, 10);
-			expect(mockAddShield).toHaveBeenCalledWith(mockForce, 10, mockScene);
-		});
-
-		it('should prioritize effectInstance params over traitInstanceParams', async () => {
-			const mockEmitter = jest.fn();
-			const mockAddShield = jest.fn();
-
-			const logic = createAddShieldLogic(mockEmitter, mockAddShield);
-
-			mockContext.traitInstanceParams = { amount: 30 };
-			mockContext.effectInstance = { amount: 75 };
+			// These should be ignored now
+			mockContext.traitInstanceParams = { amount: 999 };
+			mockContext.effectInstance = { amount: 888 };
 
 			await logic(mockContext);
 
-			expect(mockEmitter).toHaveBeenCalledWith(mockUnit, 75);
-			expect(mockAddShield).toHaveBeenCalledWith(mockForce, 75, mockScene);
+			expect(mockEmitter).toHaveBeenCalledWith(mockUnit, 20); // Still uses unit.power
+			expect(mockAddShield).toHaveBeenCalledWith(mockForce, 20, mockScene);
 		});
 	});
-
 	describe('addShieldLogicIO', () => {
-		it('should emit UNIT_SHIELD_GAINED event and call manipulateForceShield', async () => {
-			mockContext.traitInstanceParams = { amount: 25 };
-
+		it('should emit UNIT_SHIELD_GAINED event using unit power', async () => {
 			await addShieldLogicIO(mockContext);
 
 			expect(mockScene.events.emit).toHaveBeenCalledWith(
 				GameEvents.UNIT_SHIELD_GAINED,
-				{ unit: mockUnit, amount: 25 }
+				{ unit: mockUnit, amount: 20 } // Uses unit.power
 			);
 		});
 
-		it('should add shield to the force correctly', async () => {
-			mockContext.traitInstanceParams = { amount: 40 };
+		it('should add shield using unit power regardless of trait params', async () => {
+			// These should be ignored now
+			mockContext.traitInstanceParams = { amount: 999 };
 
 			await addShieldLogicIO(mockContext);
 
-			// The actual manipulateForceShield function should be called
-			// We can verify this by checking that the event was emitted
 			expect(mockScene.events.emit).toHaveBeenCalledWith(
 				GameEvents.UNIT_SHIELD_GAINED,
-				{ unit: mockUnit, amount: 40 }
+				{ unit: mockUnit, amount: 20 } // Still uses unit.power
 			);
 		});
 
-		it('should work with default amount when no parameters provided', async () => {
+		it('should use unit power when no parameters provided', async () => {
 			await addShieldLogicIO(mockContext);
 
 			expect(mockScene.events.emit).toHaveBeenCalledWith(
 				GameEvents.UNIT_SHIELD_GAINED,
-				{ unit: mockUnit, amount: 10 }
+				{ unit: mockUnit, amount: 20 } // Uses unit.power
 			);
 		});
 	});
 
 	describe('Integration with shield system', () => {
 		it('should be compatible with cumulative shield additions', async () => {
-			// First shield addition
-			mockContext.traitInstanceParams = { amount: 30 };
+			// First shield addition - parameters ignored, uses unit.power
+			mockContext.traitInstanceParams = { amount: 999 };
 			await addShieldLogicIO(mockContext);
 
-			// Second shield addition
-			mockContext.traitInstanceParams = { amount: 20 };
+			// Second shield addition - parameters ignored, uses unit.power
+			mockContext.traitInstanceParams = { amount: 888 };
 			await addShieldLogicIO(mockContext);
 
 			// Should emit 4 total events: 2 UNIT_SHIELD_GAINED + 2 SHIELD_UPDATED
@@ -155,23 +137,23 @@ describe('Add Shield Effect', () => {
 			// Check that the UNIT_SHIELD_GAINED events were emitted correctly
 			expect(mockScene.events.emit).toHaveBeenCalledWith(
 				GameEvents.UNIT_SHIELD_GAINED,
-				{ unit: mockUnit, amount: 30 }
+				{ unit: mockUnit, amount: 20 } // Uses unit.power
 			);
 			expect(mockScene.events.emit).toHaveBeenCalledWith(
 				GameEvents.UNIT_SHIELD_GAINED,
-				{ unit: mockUnit, amount: 20 }
+				{ unit: mockUnit, amount: 20 } // Uses unit.power
 			);
 		});
 
 		it('should allow shield to exceed morale value', async () => {
 			mockForce.morale = 50; // Set lower morale
-			mockContext.traitInstanceParams = { amount: 100 }; // Add more shield than morale
+			mockContext.traitInstanceParams = { amount: 999 }; // This is ignored
 
 			await addShieldLogicIO(mockContext);
 
 			expect(mockScene.events.emit).toHaveBeenCalledWith(
 				GameEvents.UNIT_SHIELD_GAINED,
-				{ unit: mockUnit, amount: 100 }
+				{ unit: mockUnit, amount: 20 } // Uses unit.power
 			);
 		});
 	});

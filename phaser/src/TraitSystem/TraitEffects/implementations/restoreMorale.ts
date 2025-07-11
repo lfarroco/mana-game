@@ -7,7 +7,6 @@ import { GameEvents } from '../../../constants/events';
 import { Force, manipulateForceMorale } from '../../../Models/Entities/Force';
 import { Unit } from '../../../Models/Entities/Unit';
 import { TraitEffectFn } from '../../TraitEffectSystem';
-import { getEffectParams } from '../../TraitSystem.pure';
 
 /**
  * Pure function to create the restore morale effect implementation
@@ -18,10 +17,10 @@ export function createRestoreMoraleLogic(
 	healMorale: (targetForce: Force, amount: number, scene: Phaser.Scene) => void
 ): TraitEffectFn {
 	return async (context) => {
-		const { sourceUnit, traitInstanceParams, effectInstance } = context;
+		const { sourceUnit } = context;
 
-		// Get heal amount from parameters, default to 20 if not specified
-		const healAmount = getEffectParams(traitInstanceParams, effectInstance, 'amount', 20);
+		// Use unit's power as heal amount
+		const healAmount = sourceUnit.power;
 
 		emitter(sourceUnit, healAmount);
 
@@ -74,7 +73,8 @@ export function restoreForceMoralePure(amount: number, sourceForceId: string): {
  * This wrapper handles the Phaser scene integration and UI updates.
  */
 export const restoreForceMoraleLogic: TraitEffectFn = async (context) => {
-	const amount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 50);
+	// Use unit's power as amount instead of configurable parameters
+	const amount = context.sourceUnit.power;
 
 	// Use dynamic imports to avoid circular dependencies in tests
 	const [

@@ -13,18 +13,22 @@ import { TraitEffectFn } from '../../TraitEffectSystem';
  * @returns The trait effect function
  */
 export function createDealDamageLogic(
-	emitter: (unit: Unit) => void,
+	emitter: (unit: Unit, amount: number) => void,
 	dealDamage: (targetForce: Force, damage: number, scene: Phaser.Scene) => void
 ): TraitEffectFn {
 	return async (context) => {
 		const { sourceUnit } = context;
-		emitter(sourceUnit);
+
+		// Use unit's power as damage amount
+		const damageAmount = sourceUnit.power;
+
+		emitter(sourceUnit, damageAmount);
 
 		const targetForce = context.state.battleData.forces.find(
 			(force) => force.id !== sourceUnit.force
 		)!;
 
-		dealDamage(targetForce, sourceUnit.power, context.scene);
+		dealDamage(targetForce, damageAmount, context.scene);
 	};
 }
 
@@ -36,10 +40,10 @@ export const dealDamageLogicIO: TraitEffectFn = async (context) => {
 
 	const { scene } = context;
 
-	const emitter = (unit: Unit) => {
+	const emitter = (unit: Unit, amount: number) => {
 		scene.events.emit(
 			GameEvents.UNIT_ATTACK,
-			{ unit }
+			{ unit, amount }
 		);
 	}
 

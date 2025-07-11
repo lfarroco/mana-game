@@ -7,7 +7,6 @@ import { GameEvents } from '../../../constants/events';
 import { Force, manipulateForceShield } from '../../../Models/Entities/Force';
 import { Unit } from '../../../Models/Entities/Unit';
 import { TraitEffectFn } from '../../TraitEffectSystem';
-import { getEffectParams } from '../../TraitSystem.pure';
 
 /**
  * Pure function to create the add shield effect implementation
@@ -18,10 +17,10 @@ export function createAddShieldLogic(
 	addShield: (targetForce: Force, amount: number, scene: Phaser.Scene) => void
 ): TraitEffectFn {
 	return async (context) => {
-		const { sourceUnit, traitInstanceParams, effectInstance } = context;
+		const { sourceUnit } = context;
 
-		// Get shield amount from parameters, default to 10 if not specified
-		const shieldAmount = getEffectParams(traitInstanceParams, effectInstance, 'amount', 10);
+		// Use unit's power as shield amount
+		const shieldAmount = sourceUnit.power;
 
 		emitter(sourceUnit, shieldAmount);
 
