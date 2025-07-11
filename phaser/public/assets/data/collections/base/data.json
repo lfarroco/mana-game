@@ -28,12 +28,12 @@
 			"name": "Bubblegum Blessings",
 			"pic": "assets/cards/cleric.png",
 			"hp": 120,
-			"power": 28,
+			"power": 38,
 			"powerType": "heal",
 			"tags": [
 				"support"
 			],
-			"cooldown": 2400,
+			"cooldown": 1800,
 			"traits": [
 				{
 					"id": "heal"
