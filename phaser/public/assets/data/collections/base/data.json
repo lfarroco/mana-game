@@ -36,7 +36,8 @@
 			"cooldown": 2400,
 			"traits": [
 				{
-					"id": "heal"
+					"id": "heal",
+					"amount": 150
 				},
 				{
 					"id": "ally_right",
@@ -95,9 +96,9 @@
 			"tags": [
 				"melee"
 			],
-			"power": 20,
+			"power": 60,
 			"powerType": "damage",
-			"cooldown": 1800,
+			"cooldown": 800,
 			"traits": [
 				{
 					"id": "damage"
@@ -135,6 +136,20 @@
 				{
 					"eventTrigger": "onAction",
 					"effectId": "add_shield"
+				}
+			]
+		},
+		{
+			"id": "heal",
+			"name": "Heal",
+			"description": "Heals +{amount} morale to the party",
+			"categories": [
+				"support"
+			],
+			"effects": [
+				{
+					"effectId": "restore_morale",
+					"eventTrigger": "onAction"
 				}
 			]
 		},

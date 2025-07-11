@@ -20,7 +20,7 @@ export { reduceEnemyDamageLogic } from './reduceEnemyDamage';
 export { fortressModePassiveLogic } from './fortressModePassive';
 export { damageScalesWithTimeLogic } from './damageScalesWithTime';
 export { sacrificeCooldownForDamageLogic } from './sacrificeCooldownForDamage';
-export { restoreForceMoraleLogic, restoreForceMoralePure } from './restoreMorale';
+export { restoreForceMoraleLogic, restoreForceMoralePure, restoreMoraleLogicIO, createRestoreMoraleLogic } from './restoreMorale';
 export { reduceEnemyMoraleLogic, reduceEnemyMoralePure } from './reduceEnemyMorale';
 export { guildWideDamageLogic, guildWideDamagePure } from './guildWideDamage';
 export { boostAllyDamageLogic, boostAllyDamagePure } from './boostAllyDamage';
