@@ -112,8 +112,8 @@
 	"traits": [
 		{
 			"id": "damage",
-			"name": "Damage Dealer",
-			"description": "Deal [color=red]{amount} damage[/color]",
+			"name": "Damage",
+			"description": "[color=red]{amount}[/color]",
 			"categories": [
 				"offensive"
 			],
@@ -126,8 +126,8 @@
 		},
 		{
 			"id": "shield",
-			"name": "Add Shield",
-			"description": "Shield {amount}",
+			"name": "Shield",
+			"description": "[color=yellow]{amount}[/color]",
 			"categories": [
 				"defensive"
 			],
@@ -141,7 +141,7 @@
 		{
 			"id": "heal",
 			"name": "Heal",
-			"description": "Heal +{amount}",
+			"description": "[color=green]{amount}[/color]",
 			"categories": [
 				"support"
 			],
