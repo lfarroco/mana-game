@@ -19,10 +19,10 @@ export function createRestoreMoraleLogic(
 ): TraitEffectFn {
 	return async (context) => {
 		const { sourceUnit, traitInstanceParams, effectInstance } = context;
-		
+
 		// Get heal amount from parameters, default to 20 if not specified
 		const healAmount = getEffectParams(traitInstanceParams, effectInstance, 'amount', 20);
-		
+
 		emitter(sourceUnit, healAmount);
 
 		const sourceForce = context.state.battleData.forces.find(

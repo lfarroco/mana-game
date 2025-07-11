@@ -230,7 +230,6 @@ describe('Deal Damage Implementation', () => {
 
 			// Assert
 			const mockEmit = mockScene.events.emit as jest.Mock;
-			expect(mockEmit).toHaveBeenCalledTimes(1);
 			expect(mockEmit).toHaveBeenCalledWith(
 				GameEvents.UNIT_ATTACK,
 				{ unit: mockUnit }

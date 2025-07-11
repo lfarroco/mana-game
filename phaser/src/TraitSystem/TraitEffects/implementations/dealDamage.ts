@@ -4,7 +4,7 @@
  */
 
 import { GameEvents } from '../../../constants/events';
-import { Force, manipulateForceMorale } from '../../../Models/Entities/Force';
+import { Force, applyDamageToForce } from '../../../Models/Entities/Force';
 import { Unit } from '../../../Models/Entities/Unit';
 import { TraitEffectFn } from '../../TraitEffectSystem';
 
@@ -14,7 +14,7 @@ import { TraitEffectFn } from '../../TraitEffectSystem';
  */
 export function createDealDamageLogic(
 	emitter: (unit: Unit) => void,
-	deductMorale: (targetForce: Force, damage: number, scene: Phaser.Scene) => void
+	dealDamage: (targetForce: Force, damage: number, scene: Phaser.Scene) => void
 ): TraitEffectFn {
 	return async (context) => {
 		const { sourceUnit } = context;
@@ -24,7 +24,7 @@ export function createDealDamageLogic(
 			(force) => force.id !== sourceUnit.force
 		)!;
 
-		deductMorale(targetForce, sourceUnit.power, context.scene);
+		dealDamage(targetForce, sourceUnit.power, context.scene);
 	};
 }
 
@@ -43,6 +43,6 @@ export const dealDamageLogicIO: TraitEffectFn = async (context) => {
 		);
 	}
 
-	const impl = createDealDamageLogic(emitter, manipulateForceMorale);
+	const impl = createDealDamageLogic(emitter, applyDamageToForce);
 	return impl(context);
 };
