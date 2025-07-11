@@ -134,21 +134,21 @@ export const restoreMoraleExampleUsage = {
 		eventTrigger: "onAction",
 		amount: 25
 	},
-	
+
 	// Battle start boost
 	battleStartHeal: {
 		effectId: "restore_morale",
 		eventTrigger: "onBattleStart",
 		amount: 50
 	},
-	
+
 	// Variable amount (from trait instance params)
 	variableHeal: {
 		effectId: "restore_morale",
 		eventTrigger: "onAction"
 		// amount comes from traitInstanceParams
 	},
-	
+
 	// Small frequent healing
 	continuousHealing: {
 		effectId: "restore_morale",

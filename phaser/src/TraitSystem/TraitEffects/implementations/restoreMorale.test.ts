@@ -120,13 +120,13 @@ describe('Restore Morale Effect (New Pattern)', () => {
 		it('should create logic that restores morale to source force', async () => {
 			const mockEmitter = jest.fn();
 			const mockHealMorale = jest.fn();
-			
+
 			const logic = createRestoreMoraleLogic(mockEmitter, mockHealMorale);
-			
+
 			mockContext.traitInstanceParams = { amount: 30 };
-			
+
 			await logic(mockContext);
-			
+
 			expect(mockEmitter).toHaveBeenCalledWith(mockUnit, 30);
 			expect(mockHealMorale).toHaveBeenCalledWith(mockForce, 30, mockScene);
 		});
@@ -134,11 +134,11 @@ describe('Restore Morale Effect (New Pattern)', () => {
 		it('should use default amount of 20 when not specified', async () => {
 			const mockEmitter = jest.fn();
 			const mockHealMorale = jest.fn();
-			
+
 			const logic = createRestoreMoraleLogic(mockEmitter, mockHealMorale);
-			
+
 			await logic(mockContext);
-			
+
 			expect(mockEmitter).toHaveBeenCalledWith(mockUnit, 20);
 			expect(mockHealMorale).toHaveBeenCalledWith(mockForce, 20, mockScene);
 		});
@@ -147,9 +147,9 @@ describe('Restore Morale Effect (New Pattern)', () => {
 	describe('restoreMoraleLogicIO', () => {
 		it('should emit UNIT_MORALE_RESTORED event', async () => {
 			mockContext.traitInstanceParams = { amount: 35 };
-			
+
 			await restoreMoraleLogicIO(mockContext);
-			
+
 			expect(mockScene.events.emit).toHaveBeenCalledWith(
 				GameEvents.UNIT_MORALE_RESTORED,
 				{ unit: mockUnit, amount: 35 }
@@ -158,7 +158,7 @@ describe('Restore Morale Effect (New Pattern)', () => {
 
 		it('should work with default amount when no parameters provided', async () => {
 			await restoreMoraleLogicIO(mockContext);
-			
+
 			expect(mockScene.events.emit).toHaveBeenCalledWith(
 				GameEvents.UNIT_MORALE_RESTORED,
 				{ unit: mockUnit, amount: 20 }
