@@ -10,7 +10,7 @@
 			"tags": [
 				"ranged"
 			],
-			"power": 18,
+			"power": 38,
 			"powerType": "damage",
 			"cooldown": 1600,
 			"traits": [
@@ -57,7 +57,8 @@
 			"cooldown": 2000,
 			"traits": [
 				{
-					"id": "defense"
+					"id": "shield",
+					"amount": 130
 				},
 				{
 					"id": "frontline_warrior",
@@ -120,6 +121,20 @@
 				{
 					"eventTrigger": "onAction",
 					"effectId": "deal_damage"
+				}
+			]
+		},
+		{
+			"id": "shield",
+			"name": "Add Shield",
+			"description": "Adds +{amount} shield for your party",
+			"categories": [
+				"defensive"
+			],
+			"effects": [
+				{
+					"eventTrigger": "onAction",
+					"effectId": "add_shield"
 				}
 			]
 		},

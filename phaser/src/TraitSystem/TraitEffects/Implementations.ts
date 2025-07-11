@@ -22,6 +22,7 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("grant_gold_to_player", implementations.grantGoldLogic);
 
 	registerTraitEffectImplementation("deal_damage", implementations.dealDamageLogicIO);
+	registerTraitEffectImplementation("add_shield", implementations.addShieldLogicIO);
 
 	// Skill-based effects
 	registerTraitEffectImplementation("skill_melee", implementations.performSkillMelee);
