@@ -131,7 +131,7 @@ describe('Deal Damage Implementation', () => {
 
 			// Assert
 			expect(mockEmitter).toHaveBeenCalledTimes(1);
-			expect(mockEmitter).toHaveBeenCalledWith(mockUnit);
+			expect(mockEmitter).toHaveBeenCalledWith(mockUnit, 15); // Now includes amount parameter
 			expect(mockDeductMorale).toHaveBeenCalledTimes(1);
 			expect(mockDeductMorale).toHaveBeenCalledWith(mockEnemyForce, 15, mockScene); // unit.power = 15
 		});
@@ -155,7 +155,7 @@ describe('Deal Damage Implementation', () => {
 			await dealDamageLogic(contextWithDifferentUnit);
 
 			// Assert
-			expect(mockEmitter).toHaveBeenCalledWith(differentUnit);
+			expect(mockEmitter).toHaveBeenCalledWith(differentUnit, 20); // Now includes amount parameter
 			expect(mockDeductMorale).toHaveBeenCalledWith(mockEnemyForce, 20, mockScene);
 		});
 
@@ -169,7 +169,7 @@ describe('Deal Damage Implementation', () => {
 
 			// Act & Assert
 			await expect(dealDamageLogic(mockContext)).rejects.toThrow('Emitter error');
-			expect(mockEmitter).toHaveBeenCalledWith(mockUnit);
+			expect(mockEmitter).toHaveBeenCalledWith(mockUnit, 15); // Now includes amount parameter
 		});
 
 		it('should handle deductMorale that throws an error gracefully', async () => {
@@ -182,7 +182,7 @@ describe('Deal Damage Implementation', () => {
 
 			// Act & Assert
 			await expect(dealDamageLogic(mockContext)).rejects.toThrow('Morale deduction error');
-			expect(mockEmitter).toHaveBeenCalledWith(mockUnit);
+			expect(mockEmitter).toHaveBeenCalledWith(mockUnit, 15); // Now includes amount parameter
 			expect(mockDeductMorale).toHaveBeenCalledWith(mockEnemyForce, 15, mockScene);
 		});
 
@@ -224,7 +224,7 @@ describe('Deal Damage Implementation', () => {
 	});
 
 	describe('dealDamageLogicIO', () => {
-		it('should emit UNIT_ATTACK event with the source unit', async () => {
+		it('should emit UNIT_ATTACK event with the source unit and amount', async () => {
 			// Act
 			await dealDamageLogicIO(mockContext);
 
@@ -232,7 +232,7 @@ describe('Deal Damage Implementation', () => {
 			const mockEmit = mockScene.events.emit as jest.Mock;
 			expect(mockEmit).toHaveBeenCalledWith(
 				GameEvents.UNIT_ATTACK,
-				{ unit: mockUnit }
+				{ unit: mockUnit, amount: 15 } // Now includes amount
 			);
 		});
 
@@ -245,7 +245,7 @@ describe('Deal Damage Implementation', () => {
 			const mockEmit = mockScene.events.emit as jest.Mock;
 			expect(mockEmit).toHaveBeenCalledWith(
 				GameEvents.UNIT_ATTACK,
-				{ unit: mockUnit }
+				{ unit: mockUnit, amount: 15 } // Now includes amount
 			);
 		});
 
@@ -264,7 +264,7 @@ describe('Deal Damage Implementation', () => {
 			const mockEmit = mockScene.events.emit as jest.Mock;
 			expect(mockEmit).toHaveBeenCalledWith(
 				GameEvents.UNIT_ATTACK,
-				{ unit: mockUnit }
+				{ unit: mockUnit, amount: 15 } // Now includes amount
 			);
 		});
 
@@ -283,7 +283,7 @@ describe('Deal Damage Implementation', () => {
 			const mockEmit = mockScene.events.emit as jest.Mock;
 			expect(mockEmit).toHaveBeenCalledWith(
 				GameEvents.UNIT_ATTACK,
-				{ unit: mockUnit }
+				{ unit: mockUnit, amount: 15 } // Now includes amount
 			);
 		});
 
@@ -301,7 +301,7 @@ describe('Deal Damage Implementation', () => {
 			const mockEmit = mockScene.events.emit as jest.Mock;
 			expect(mockEmit).toHaveBeenCalledWith(
 				GameEvents.UNIT_ATTACK,
-				{ unit: mockUnit }
+				{ unit: mockUnit, amount: 15 } // Now includes amount
 			);
 		});
 
@@ -319,7 +319,7 @@ describe('Deal Damage Implementation', () => {
 			const mockEmit = mockScene.events.emit as jest.Mock;
 			expect(mockEmit).toHaveBeenCalledWith(
 				GameEvents.UNIT_ATTACK,
-				{ unit: mockUnit }
+				{ unit: mockUnit, amount: 15 } // Now includes amount
 			);
 		});
 
@@ -359,7 +359,7 @@ describe('Deal Damage Implementation', () => {
 			const mockEmit = mockScene.events.emit as jest.Mock;
 			expect(mockEmit).toHaveBeenCalledWith(
 				GameEvents.UNIT_ATTACK,
-				{ unit: mockUnit }
+				{ unit: mockUnit, amount: 15 } // Now includes amount
 			);
 		});
 	});
@@ -385,16 +385,16 @@ describe('Deal Damage Implementation', () => {
 			const mockEmit = mockScene.events.emit as jest.Mock;
 			expect(mockEmit).toHaveBeenCalledWith(
 				GameEvents.UNIT_ATTACK,
-				{ unit: mockUnit }
+				{ unit: mockUnit, amount: 15 } // Now includes amount
 			);
 		});
 
 		it('should maintain function purity for createDealDamageLogic', async () => {
 			// Arrange
-			const emitterCalls: Unit[] = [];
+			const emitterCalls: Array<{ unit: Unit, amount: number }> = [];
 			const moraleDeductCalls: Array<{ force: Force, damage: number }> = [];
 
-			const mockEmitter = (unit: Unit) => emitterCalls.push(unit);
+			const mockEmitter = (unit: Unit, amount: number) => emitterCalls.push({ unit, amount });
 			const mockDeductMorale = (force: Force, damage: number) => {
 				moraleDeductCalls.push({ force, damage });
 			};
@@ -408,8 +408,8 @@ describe('Deal Damage Implementation', () => {
 
 			// Assert
 			expect(emitterCalls).toHaveLength(2);
-			expect(emitterCalls[0]).toBe(mockUnit);
-			expect(emitterCalls[1]).toBe(mockUnit);
+			expect(emitterCalls[0]).toEqual({ unit: mockUnit, amount: 15 });
+			expect(emitterCalls[1]).toEqual({ unit: mockUnit, amount: 15 });
 
 			expect(moraleDeductCalls).toHaveLength(2);
 			expect(moraleDeductCalls[0]).toEqual({ force: mockEnemyForce, damage: 15 });
@@ -434,7 +434,7 @@ describe('Deal Damage Implementation', () => {
 			const mockEmit = mockScene.events.emit as jest.Mock;
 			expect(mockEmit).toHaveBeenCalledWith(
 				GameEvents.UNIT_ATTACK,
-				{ unit: highPowerUnit }
+				{ unit: highPowerUnit, amount: 50 } // Now includes amount (high power unit has 50)
 			);
 		});
 	});

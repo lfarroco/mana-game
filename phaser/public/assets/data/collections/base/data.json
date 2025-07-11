@@ -36,8 +36,7 @@
 			"cooldown": 2400,
 			"traits": [
 				{
-					"id": "heal",
-					"amount": 150
+					"id": "heal"
 				},
 				{
 					"id": "ally_right",
@@ -96,7 +95,7 @@
 			"tags": [
 				"melee"
 			],
-			"power": 60,
+			"power": 20,
 			"powerType": "damage",
 			"cooldown": 800,
 			"traits": [

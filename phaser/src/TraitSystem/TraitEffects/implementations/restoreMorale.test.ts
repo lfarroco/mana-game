@@ -117,21 +117,22 @@ describe('Restore Morale Effect (New Pattern)', () => {
 	});
 
 	describe('createRestoreMoraleLogic', () => {
-		it('should create logic that restores morale to source force', async () => {
+		it('should create logic that restores morale using unit power', async () => {
 			const mockEmitter = jest.fn();
 			const mockHealMorale = jest.fn();
 
 			const logic = createRestoreMoraleLogic(mockEmitter, mockHealMorale);
 
-			mockContext.traitInstanceParams = { amount: 30 };
+			// These should be ignored now
+			mockContext.traitInstanceParams = { amount: 999 };
 
 			await logic(mockContext);
 
-			expect(mockEmitter).toHaveBeenCalledWith(mockUnit, 30);
-			expect(mockHealMorale).toHaveBeenCalledWith(mockForce, 30, mockScene);
+			expect(mockEmitter).toHaveBeenCalledWith(mockUnit, 20); // Uses unit.power
+			expect(mockHealMorale).toHaveBeenCalledWith(mockForce, 20, mockScene);
 		});
 
-		it('should use default amount of 20 when not specified', async () => {
+		it('should use unit power regardless of parameters', async () => {
 			const mockEmitter = jest.fn();
 			const mockHealMorale = jest.fn();
 
@@ -139,29 +140,30 @@ describe('Restore Morale Effect (New Pattern)', () => {
 
 			await logic(mockContext);
 
-			expect(mockEmitter).toHaveBeenCalledWith(mockUnit, 20);
+			expect(mockEmitter).toHaveBeenCalledWith(mockUnit, 20); // Uses unit.power
 			expect(mockHealMorale).toHaveBeenCalledWith(mockForce, 20, mockScene);
 		});
 	});
 
 	describe('restoreMoraleLogicIO', () => {
-		it('should emit UNIT_MORALE_RESTORED event', async () => {
-			mockContext.traitInstanceParams = { amount: 35 };
+		it('should emit UNIT_MORALE_RESTORED event using unit power', async () => {
+			// These should be ignored now
+			mockContext.traitInstanceParams = { amount: 999 };
 
 			await restoreMoraleLogicIO(mockContext);
 
 			expect(mockScene.events.emit).toHaveBeenCalledWith(
 				GameEvents.UNIT_MORALE_RESTORED,
-				{ unit: mockUnit, amount: 35 }
+				{ unit: mockUnit, amount: 20 } // Uses unit.power
 			);
 		});
 
-		it('should work with default amount when no parameters provided', async () => {
+		it('should use unit power when no parameters provided', async () => {
 			await restoreMoraleLogicIO(mockContext);
 
 			expect(mockScene.events.emit).toHaveBeenCalledWith(
 				GameEvents.UNIT_MORALE_RESTORED,
-				{ unit: mockUnit, amount: 20 }
+				{ unit: mockUnit, amount: 20 } // Uses unit.power
 			);
 		});
 	});
