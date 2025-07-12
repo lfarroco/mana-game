@@ -116,7 +116,7 @@ function create(
 	// We'll use the foregroundBar itself for animation, no need for a separate barFill
 	const barFill = foregroundBar; // Just reference the same object
 
-	// Inner highlight (subtle top highlight)
+	// Inner highlight (subtle top highlight) - should scale with the bar
 	const innerHighlight = scene.add.graphics();
 	innerHighlight.fillStyle(0xffffff, 0.3);
 	innerHighlight.fillRoundedRect(INNER_PADDING + 1, INNER_PADDING + 1, barWidth - (INNER_PADDING * 2) - 2, (BAR_HEIGHT - (INNER_PADDING * 2)) / 3, 2);
@@ -185,10 +185,10 @@ export function updateMoraleBar(
 	if (!targetBar) return;
 
 	const percentage = Math.max(0, currentMorale) / maxMorale;
-	// Animate the mask's horizontal scale to reveal the bar
+	// Animate both the bar and highlight's horizontal scale
 	targetBar.barFill.scene.tweens.add(
 		{
-			targets: targetBar.barFill,
+			targets: [targetBar.barFill, targetBar.innerHighlight],
 			scaleX: percentage,
 			duration: 200,
 		}
