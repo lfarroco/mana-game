@@ -1,20 +1,10 @@
 import Phaser from 'phaser';
 import * as c from '../../constants/constants';
 import { GameEvents } from '../../constants/events';
-
-const BAR_HEIGHT = 32;
-const INNER_PADDING = 3;
+import { StylizedBar, createStylizedBar, updateStylizedBar } from './StylizedBar';
 
 // This type represents the components of a single morale bar
-type MoraleBar = {
-	container: Phaser.GameObjects.Container;
-	outerBorder: Phaser.GameObjects.Graphics;
-	backgroundBar: Phaser.GameObjects.Graphics;
-	foregroundBar: Phaser.GameObjects.Graphics;
-	barFill: Phaser.GameObjects.Graphics;
-	innerHighlight: Phaser.GameObjects.Graphics;
-	label: Phaser.GameObjects.Text;
-}
+type MoraleBar = StylizedBar;
 
 // Module-level variables to hold the two bars
 let playerMoraleBar: MoraleBar | null = null;
@@ -92,61 +82,8 @@ function create(
 	// Position both bars on the right side of the screen
 	const xPosition = scene.scale.width - barWidth - 20; // Right side with padding
 
-	const container = scene.add.container(xPosition, y);
-
-	// Outer border (dark)
-	const outerBorder = scene.add.graphics();
-	outerBorder.fillStyle(0x2a2a2a, 1);
-	outerBorder.fillRoundedRect(0, 0, barWidth, BAR_HEIGHT, 6);
-	container.add(outerBorder);
-
-	// Inner background (transparent black)
-	const backgroundBar = scene.add.graphics();
-	backgroundBar.fillStyle(0x000000, 0.6);
-	backgroundBar.fillRoundedRect(INNER_PADDING, INNER_PADDING, barWidth - (INNER_PADDING * 2), BAR_HEIGHT - (INNER_PADDING * 2), 3);
-	container.add(backgroundBar);
-
-	// Foreground bar (the fill color - this will be animated to show current percentage)
-	const foregroundBar = scene.add.graphics();
 	const barColor = forceId === c.FORCE_ID_PLAYER ? 0x4CAF50 : 0xF44336; // Bright green for player, red for CPU
-	foregroundBar.fillStyle(barColor, 1);
-	foregroundBar.fillRoundedRect(INNER_PADDING, INNER_PADDING, barWidth - (INNER_PADDING * 2), BAR_HEIGHT - (INNER_PADDING * 2), 3);
-	container.add(foregroundBar);
-
-	// We'll use the foregroundBar itself for animation, no need for a separate barFill
-	const barFill = foregroundBar; // Just reference the same object
-
-	// Inner highlight (subtle top highlight) - should scale with the bar
-	const innerHighlight = scene.add.graphics();
-	innerHighlight.fillStyle(0xffffff, 0.3);
-	innerHighlight.fillRoundedRect(INNER_PADDING + 1, INNER_PADDING + 1, barWidth - (INNER_PADDING * 2) - 2, (BAR_HEIGHT - (INNER_PADDING * 2)) / 3, 2);
-	container.add(innerHighlight);
-
-	// Label with stroke for better readability
-	const label = scene.add.text(
-		barWidth / 2, BAR_HEIGHT / 2,
-		labelText, {
-		...c.defaultTextConfig,
-		fontSize: '14px',
-		fontStyle: 'bold',
-		color: '#ffffff',
-		stroke: '#000000',
-		strokeThickness: 3
-	}
-	).setOrigin(0.5);
-	container.add(label);
-
-	container.setVisible(false); // Initially hidden
-
-	return {
-		container,
-		outerBorder,
-		backgroundBar,
-		foregroundBar,
-		barFill,
-		innerHighlight,
-		label,
-	}
+	return createStylizedBar(scene, xPosition, y, barWidth, barColor, labelText, c.defaultTextConfig);
 }
 
 export function init(sceneRef: Phaser.Scene): void {
@@ -184,15 +121,7 @@ export function updateMoraleBar(
 	const targetBar = forceId === c.FORCE_ID_PLAYER ? playerMoraleBar : cpuMoraleBar;
 	if (!targetBar) return;
 
-	const percentage = Math.max(0, currentMorale) / maxMorale;
-	// Animate both the bar and highlight's horizontal scale
-	targetBar.barFill.scene.tweens.add(
-		{
-			targets: [targetBar.barFill, targetBar.innerHighlight],
-			scaleX: percentage,
-			duration: 200,
-		}
-	);
+	updateStylizedBar(targetBar, currentMorale, maxMorale);
 }
 
 export function destroy(): void {
