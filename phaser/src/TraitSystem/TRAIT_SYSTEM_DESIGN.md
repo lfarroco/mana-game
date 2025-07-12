@@ -60,7 +60,6 @@ The Trait System is designed to provide special abilities, characteristics, and 
 *   **Source (`sourceUnit` or `sourceRelic` in `TraitEffectContext`):**
     *   The `Unit` or `Relic` that possesses the trait being processed.
 *   **Context Objects:**
-    *   `TraitEventContext` (in `Traits.ts`): Used by `processTraitEvent` for the overall event handling.
     *   `TraitEffectContext` (in `TraitEffectSystem.ts`): Passed to individual `TraitEffectFn` and `TraitConditionFn` implementations.
 
 ## 4. Architecture & Data Flow
@@ -76,10 +75,10 @@ The Trait System is designed to provide special abilities, characteristics, and 
 
 3.  **Event Listener Triggered (`TraitSystemEventListeners.ts`):**
     *   The corresponding event listener catches the `GameEvent`.
-    *   It calls one of the `run...Traits` functions (e.g., `runUnitEventTraits`, `runAttackEventTraits`) from `Traits.ts`, passing the event key, scene, state, and payload.
+    *   It calls `processUnitTraitsForEvent` from `Traits.ts`, passing the unit, event key, scene, and state.
 
 4.  **Trait Processing (`Traits.ts` - `processUnitTraitsForEvent` & `processTraitEvent`):**
-    *   The `run...Traits` function iterates through the traits of the relevant `Unit`(s) or `Relic`(s).
+    *   `processUnitTraitsForEvent` iterates through the traits of the relevant `Unit`.
     *   For each trait instance (`TraitData`), `processTraitEvent` is called.
     *   `processTraitEvent`:
         *   Retrieves the `TraitDefinition` for the current trait.
