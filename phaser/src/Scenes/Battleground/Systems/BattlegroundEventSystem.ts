@@ -124,7 +124,7 @@ export class BattlegroundEventSystem {
 			{ event: GameEvents.CHARA_POINTER_OUT, handler: onCharaPointerOut },
 
 			// Visual Effects & Feedback
-			{ event: GameEvents.POP_TEXT_SHOW, handler: (payload: PopTextPayload) => popText({ scene: this.scene, x: payload.x, y: payload.y, text: payload.text, type: payload.type }), context: this },
+			{ event: GameEvents.POP_TEXT_SHOW, handler: (payload: PopTextPayload) => popText({ scene: this.scene, x: payload.x, y: payload.y, text: payload.text, type: payload.type, direction: payload.direction }), context: this },
 			{ event: GameEvents.BATTLE_RESULT_SHOW, handler: this.scene.handleBattleResultShow, context: this.scene },
 
 			// Shop Interactions

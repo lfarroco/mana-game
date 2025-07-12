@@ -8,13 +8,15 @@ export async function popText({
 	x,
 	y,
 	text,
-	type // "heal", "damage", or undefined for default
+	type, // "heal", "damage", or undefined for default
+	direction = "up" // Direction for animation: "up" or "down"
 }: {
 	scene: Phaser.Scene;
 	x: number;
 	y: number;
 	text: string;
 	type?: "heal" | "damage";
+	direction?: "up" | "down";
 }) {
 	let textColor = defaultTextConfig.color;
 	if (type === "heal") {
@@ -33,14 +35,19 @@ export async function popText({
 		.setOrigin(0.5, 0.5);
 	if (textColor) popText.setColor(textColor);
 
-	// random angle upwards
+	// random angle upwards or downwards based on direction
 	const angle = Math.random() * POP_TEXT_CONFIG.MAX_ANGLE * (Math.random() < 0.5 ? -1 : 1);
+
+	// Calculate vertical movement based on direction
+	const verticalMovement = direction === "down"
+		? POP_TEXT_CONFIG.VERTICAL_DISTANCE  // Move down (positive Y)
+		: -POP_TEXT_CONFIG.VERTICAL_DISTANCE; // Move up (negative Y)
 
 	tween({
 		targets: [popText],
 		scale: POP_TEXT_CONFIG.SCALE_TARGET,
 		duration: POP_TEXT_CONFIG.MOVE_DURATION,
-		y: y - POP_TEXT_CONFIG.VERTICAL_DISTANCE,
+		y: y + verticalMovement,
 		// in the angle direction
 		x: x + Math.sin(angle * Math.PI / 180) * POP_TEXT_CONFIG.HORIZONTAL_SPREAD,
 	});
