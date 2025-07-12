@@ -63,7 +63,7 @@ export class RunCombatSystem {
       const unitsReadyToAct = chargeUnits(state, delta * this.scene.time.timeScale);
 
       for (const unit of unitsReadyToAct) {
-        if (unit.hp <= 0) continue;
+        // Units no longer have HP, so no need to check if alive
 
         events.emit(GameEvents.TRAIT_EVAL_TURN_START, { unit });
         // Assuming unit actions are triggered by TRAIT_EVAL_UNIT_ACTION
@@ -114,7 +114,7 @@ function chargeUnits(state: State, delta: number): Unit[] {
   let performingUnits: Unit[] = []; // units that are ready to perform an action
 
   for (const unit of activeUnits) {
-    if (unit.hp <= 0) continue; // Should be redundant if getActiveUnits is used, but good for safety
+    // Units no longer have HP, so no need to check if alive
 
     // Process status effects using the new unified system
     processStatusEffects(unit, delta);

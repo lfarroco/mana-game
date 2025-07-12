@@ -1,6 +1,7 @@
 import * as Phaser from "phaser";
 import BattlegroundScene from "./Scenes/Battleground/BattlegroundScene";
 import Core from "./Scenes/Core/Core";
+import TitleScene from "./Scenes/Title/TitleScene";
 import { State } from "./Models/State";
 import { SCREEN_HEIGHT, SCREEN_WIDTH, SCENE_KEYS } from "./constants/constants";
 import { DebugScene } from "./Debug/DebugScene";
@@ -18,7 +19,7 @@ export function initGame(state: State) {
 			autoCenter: Phaser.Scale.CENTER_BOTH
 		},
 		parent: "game-container",
-		scene: [Core, DebugScene, BattlegroundScene],
+		scene: [Core, DebugScene, BattlegroundScene, TitleScene],
 		physics: {
 			default: 'arcade',
 			arcade: {
@@ -40,7 +41,8 @@ export function initGame(state: State) {
 	if (debug) {
 		game.scene.start(SCENE_KEYS.DEBUG);
 	} else {
-		game.scene.start(SCENE_KEYS.BATTLEGROUND, state);
+		// Start with the title scene, pass the state so it can be forwarded to battleground
+		game.scene.start(SCENE_KEYS.TITLE, { state });
 	}
 
 	return game;

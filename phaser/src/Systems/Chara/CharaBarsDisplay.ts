@@ -76,16 +76,7 @@ export class CharaBarsDisplay {
 			CharaBarsDisplay.DEBUG_BAR_HEIGHT
 		);
 
-		// HP Bar (Debug)
-		hpBar.clear();
-		const hpPercent = Math.min(unit.hp / unit.maxHp, 1);
-		hpBar.fillStyle(0x00ff00, 1);
-		hpBar.fillRect(
-			-constants.HALF_TILE_WIDTH + CharaBarsDisplay.DEBUG_BAR_PADDING,
-			-constants.HALF_TILE_HEIGHT + 50,
-			hpPercent * maxWidthForDebugBars,
-			CharaBarsDisplay.DEBUG_BAR_HEIGHT
-		);
+		// HP Bar removed since units no longer have HP
 	}
 
 	updateUnit(newUnit: Unit): void {
@@ -97,6 +88,6 @@ export class CharaBarsDisplay {
 		this.chargeBar.setVisible(visible);
 		const debugMode = getOption('debug');
 		this.cooldownBar.setVisible(visible && debugMode);
-		this.hpBar.setVisible(visible && debugMode);
+		this.hpBar.setVisible(false); // HP bar disabled since units no longer have HP
 	}
 }

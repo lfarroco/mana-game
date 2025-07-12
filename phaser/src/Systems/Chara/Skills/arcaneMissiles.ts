@@ -36,7 +36,7 @@ export const arcaneMissiles = (
 				source: activeChara,
 				target: targetChara,
 				onHit: () => {
-					if (targetChara.unit.hp <= 0 || !targetChara.active) return;
+					if (!targetChara.active) return;
 					//targetChara.unitHit(unit.power);
 				}
 			});

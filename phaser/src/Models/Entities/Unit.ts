@@ -46,7 +46,7 @@ export type TemporaryEffect = {
 /**
  * Represents an "instance" of a `CardDefinition` within the game's logical state.
  * A `Unit` is an actual character or entity participating in the game, holding mutable data
- * that can change during gameplay, such as current HP, position on the board, experience points (xp),
+ * that can change during gameplay, such as position on the board, experience points (xp),
  * status effects (like hasted, slowed), and current charge/cooldown for actions.
  * Game logic and systems primarily interact with `Unit` objects.
  * It is visually represented in the scene by a `Chara` object.
@@ -58,9 +58,6 @@ export type Unit = {
   pic: string;
   force: string;
   position: Vec2;
-
-  hp: number;
-  maxHp: number;
 
   power: number;
   attackType: "damage" | "heal" | "armor" | null;
@@ -95,7 +92,6 @@ export const makeUnit = (force: string, cardId: string, position = vec2Zero()): 
       id: card.id,
       name: card.name,
       pic: card.pic,
-      hp: card.hp,
       power: card.power,
       powerType: card.powerType,
       cooldown: card.cooldown,
@@ -115,7 +111,6 @@ export type CardDefinition = {
   id: string;
   name: string;
   pic: string;
-  hp: number;
   power: number;
   powerType: "damage" | "heal" | "armor" | null;
   cooldown: number;
@@ -132,8 +127,6 @@ export type PureUnitData = {
   pic: string;
   force: string;
   position: Vec2;
-  hp: number;
-  maxHp: number;
   power: number;
   attackType: "damage" | "heal" | "armor" | null;
   cooldown: number;
@@ -167,8 +160,6 @@ export function createUnitFromCard(
     pic: cardDef.pic,
     force,
     position,
-    hp: cardDef.hp,
-    maxHp: cardDef.hp,
     power: cardDef.power || 0,
     attackType: cardDef.powerType,
     cooldown: cardDef.cooldown,
@@ -201,8 +192,6 @@ export function createCustomUnit(
     cardId: `${baseProps.id}-card`,
     name: `Unit ${baseProps.id}`,
     pic: `${baseProps.id}.png`,
-    hp: 100,
-    maxHp: 100,
     power: 25,
     attackType: 'damage',
     cooldown: 100,
@@ -248,7 +237,6 @@ export const testCardDefinitions = {
     id: 'basic-warrior',
     name: 'Basic Warrior',
     pic: 'warrior.png',
-    hp: 120,
     power: 30,
     powerType: 'damage' as const,
     cooldown: 100,
@@ -258,7 +246,6 @@ export const testCardDefinitions = {
     id: 'basic-healer',
     name: 'Basic Healer',
     pic: 'healer.png',
-    hp: 80,
     power: 20,
     powerType: 'heal' as const,
     cooldown: 120,
@@ -268,7 +255,6 @@ export const testCardDefinitions = {
     id: 'basic-tank',
     name: 'Basic Tank',
     pic: 'tank.png',
-    hp: 200,
     power: 15,
     powerType: 'armor' as const,
     cooldown: 80,

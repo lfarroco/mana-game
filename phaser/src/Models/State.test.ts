@@ -10,13 +10,13 @@ import {
 	getGuildUnit,
 	getUnitAt
 } from './State';
-import { Unit } from './Entities/Unit';
+import { Unit, createTestUnit } from './Entities/Unit';
 import { vec2 } from './Geometry.pure';
 
 const mockUnits: Unit[] = [
-	{ id: 'u1', hp: 10, force: 'f1', position: vec2(0, 0), } as Unit,
-	{ id: 'u2', hp: 0, force: 'f2', position: vec2(1, 1), } as Unit,
-	{ id: 'u3', hp: 5, force: 'f2', position: vec2(2, 2), } as Unit,
+	createTestUnit('u1', 'f1', vec2(0, 0)) as Unit,
+	createTestUnit('u2', 'f2', vec2(1, 1)) as Unit,
+	createTestUnit('u3', 'f2', vec2(2, 2)) as Unit,
 ];
 
 const mockState: any = {
@@ -26,8 +26,8 @@ const mockState: any = {
 	gameData: {
 		player: {
 			units: [
-				{ id: 'g1', position: vec2(3, 3), } as Unit,
-				{ id: 'g2', position: vec2(4, 4), } as Unit,
+				createTestUnit('g1', 'player', vec2(3, 3)) as Unit,
+				createTestUnit('g2', 'player', vec2(4, 4)) as Unit,
 			],
 		},
 	},
@@ -39,21 +39,22 @@ describe('State selectors', () => {
 		expect(getBattleUnit(mockState)('u3')).toEqual(mockUnits[2]);
 	});
 
-	test('getActiveUnits returns only units with hp > 0', () => {
+	test('getActiveUnits returns all units', () => {
 		const result = getActiveUnits(mockState);
-		expect(result).toHaveLength(2);
-		expect(result).toEqual([mockUnits[0], mockUnits[2]]);
+		expect(result).toHaveLength(3);
+		expect(result).toEqual(mockUnits);
 	});
 
 	test('getAllActiveFoes returns active units not matching forceId', () => {
 		const foes = getAllActiveFoes(mockState)('f1');
-		expect(foes).toEqual([mockUnits[2]]);
+		expect(foes).toEqual([mockUnits[1], mockUnits[2]]);
 	});
 
 	test('getBattleUnitAt returns unit at given position', () => {
 		expect(getBattleUnitAt(mockState)(vec2(0, 0))).toEqual(mockUnits[0]);
+		expect(getBattleUnitAt(mockState)(vec2(1, 1))).toEqual(mockUnits[1]);
 		expect(getBattleUnitAt(mockState)(vec2(2, 2))).toEqual(mockUnits[2]);
-		expect(getBattleUnitAt(mockState)(vec2(1, 1))).toBeUndefined(); // hp = 0
+		expect(getBattleUnitAt(mockState)(vec2(5, 5))).toBeUndefined();
 	});
 
 	test('getGuildUnitAt returns player unit at position', () => {
@@ -70,8 +71,8 @@ describe('State selectors', () => {
 
 	test('getUnitAt returns unit at position from given array', () => {
 		const arr = [
-			{ id: 'a', position: vec2(1, 2) } as Unit,
-			{ id: 'b', position: vec2(2, 3) } as Unit,
+			createTestUnit('a', 'test', vec2(1, 2)) as Unit,
+			createTestUnit('b', 'test', vec2(2, 3)) as Unit,
 		];
 		expect(getUnitAt(arr)(vec2(1, 2))).toEqual(arr[0]);
 		expect(getUnitAt(arr)(vec2(2, 3))).toEqual(arr[1]);

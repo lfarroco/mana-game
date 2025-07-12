@@ -69,7 +69,8 @@ export const CPU_SHIELD_BAR_COLOR = 0xe0a04e;   // Orange for CPU
 export const SCENE_KEYS = {
 	DEBUG: "DebugScene",
 	BATTLEGROUND: "BattlegroundScene",
-	CORE: "Core"
+	CORE: "Core",
+	TITLE: "TitleScene"
 } as const;
 
 // Pop Text Animation Constants

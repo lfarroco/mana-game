@@ -35,7 +35,7 @@ export type CardCollection = {
 /**
  * Defines the "blueprint" or "specification" for a game entity (often a character or creature).
  * It holds all the static, inherent properties of a type of unit, such as its name,
- * visual appearance (pic), base stats (hp, attack, defense, cooldown), and default traits.
+ * visual appearance (pic), base stats (attack, defense, cooldown), and default traits.
  * A `CardDefinition` is used to create `Unit` instances.
  */
 export type CardDefinition = {
@@ -43,7 +43,6 @@ export type CardDefinition = {
   pic: string;
   name: string;
   description: string;
-  hp: number;
   power: number;
   powerType: "damage" | "heal" | "armor" | null;
   cooldown: number;

@@ -9,31 +9,12 @@ import {
 	calculateGoldReward,
 	validateEffectParameters
 } from "./TraitSystem.pure";
-import { Unit } from "../Models/Entities/Unit";
+import { Unit, createTestUnit } from "../Models/Entities/Unit";
 import { TraitData } from "./Traits";
 
 // Helper function to create mock units
-function createMockUnit(id: string, hp: number = 100, force: string = "player"): Unit {
-	return {
-		id,
-		cardId: "test-card",
-		name: "Test Unit",
-		pic: "test.png",
-		hp,
-		maxHp: hp,
-		force,
-		power: 15,
-		attackType: "damage",
-		cooldown: 100,
-		crit: 5,
-		evade: 10,
-		position: { tag: "_vec2" as const, x: 0, y: 0 },
-		traits: [],
-		charge: 0,
-		refresh: 0,
-		hasted: 0,
-		slowed: 0
-	} as Unit;
+function createMockUnit(id: string, force: string = "player"): Unit {
+	return createTestUnit(id, force);
 }
 
 describe("getEffectParams", () => {
@@ -149,23 +130,22 @@ describe("calculateHealingAmount", () => {
 });
 
 describe("isValidTarget", () => {
-	const sourceUnit = createMockUnit("source", 100, "player");
-	const aliveAlly = createMockUnit("ally", 50, "player");
-	const deadAlly = createMockUnit("deadAlly", 0, "player");
-	const aliveEnemy = createMockUnit("enemy", 75, "enemy");
-	const deadEnemy = createMockUnit("deadEnemy", 0, "enemy");
+	const sourceUnit = createMockUnit("source", "player");
+	const aliveAlly = createMockUnit("ally", "player");
+	const deadAlly = createMockUnit("deadAlly", "player"); // Note: no longer actually "dead" since no HP
+	const aliveEnemy = createMockUnit("enemy", "enemy");
+	const deadEnemy = createMockUnit("deadEnemy", "enemy"); // Note: no longer actually "dead" since no HP
 
-	it("should allow targeting alive units by default", () => {
+	it("should allow targeting all units by default (no HP concept)", () => {
 		expect(isValidTarget(sourceUnit, aliveAlly)).toBe(true);
 		expect(isValidTarget(sourceUnit, aliveEnemy)).toBe(true);
+		expect(isValidTarget(sourceUnit, deadAlly)).toBe(true);
+		expect(isValidTarget(sourceUnit, deadEnemy)).toBe(true);
 	});
 
-	it("should reject dead units when requiresAlive is true", () => {
-		expect(isValidTarget(sourceUnit, deadAlly, true)).toBe(false);
-		expect(isValidTarget(sourceUnit, deadEnemy, true)).toBe(false);
-	});
-
-	it("should allow dead units when requiresAlive is false", () => {
+	it("should allow all units regardless of requiresAlive parameter (no HP concept)", () => {
+		expect(isValidTarget(sourceUnit, deadAlly, true)).toBe(true);
+		expect(isValidTarget(sourceUnit, deadEnemy, true)).toBe(true);
 		expect(isValidTarget(sourceUnit, deadAlly, false)).toBe(true);
 		expect(isValidTarget(sourceUnit, deadEnemy, false)).toBe(true);
 	});
@@ -189,20 +169,20 @@ describe("isValidTarget", () => {
 });
 
 describe("filterValidTargets", () => {
-	const sourceUnit = createMockUnit("source", 100, "player");
-	const aliveAlly1 = createMockUnit("ally1", 50, "player");
-	const aliveAlly2 = createMockUnit("ally2", 30, "player");
-	const deadAlly = createMockUnit("deadAlly", 0, "player");
-	const aliveEnemy1 = createMockUnit("enemy1", 75, "enemy");
-	const aliveEnemy2 = createMockUnit("enemy2", 40, "enemy");
+	const sourceUnit = createMockUnit("source", "player");
+	const aliveAlly1 = createMockUnit("ally1", "player");
+	const aliveAlly2 = createMockUnit("ally2", "player");
+	const deadAlly = createMockUnit("deadAlly", "player"); // Note: no longer actually "dead" since no HP
+	const aliveEnemy1 = createMockUnit("enemy1", "enemy");
+	const aliveEnemy2 = createMockUnit("enemy2", "enemy");
 
 	const allUnits = [sourceUnit, aliveAlly1, aliveAlly2, deadAlly, aliveEnemy1, aliveEnemy2];
 
-	it("should filter alive units by default", () => {
+	it("should include all units (no HP filtering)", () => {
 		const result = filterValidTargets(sourceUnit, allUnits);
 
-		expect(result).toHaveLength(5); // All except deadAlly
-		expect(result.map(u => u.id)).not.toContain("deadAlly");
+		expect(result).toHaveLength(6); // All units since no HP filtering
+		expect(result.map(u => u.id)).toContain("deadAlly");
 	});
 
 	it("should filter same force units", () => {

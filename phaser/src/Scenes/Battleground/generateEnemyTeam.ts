@@ -248,8 +248,6 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 		switch (difficultyTier) {
 			case DifficultyTier.Elite:
 				units.forEach(unit => {
-					unit.maxHp = Math.floor(unit.maxHp * DIFFICULTY_TIER_CONFIG.ELITE.HP_MULTIPLIER);
-					unit.hp = unit.maxHp; // Restore HP to new max
 					unit.power = Math.floor(unit.power * DIFFICULTY_TIER_CONFIG.ELITE.POWER_MULTIPLIER);
 				});
 				devlog("Applied Elite tier stat buffs to enemy team.");
@@ -267,8 +265,6 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 				break;
 			case DifficultyTier.Veteran:
 				units.forEach(unit => {
-					unit.maxHp = Math.floor(unit.maxHp * DIFFICULTY_TIER_CONFIG.VETERAN.HP_MULTIPLIER);
-					unit.hp = unit.maxHp; // Restore HP to new max
 					unit.power = Math.floor(unit.power * DIFFICULTY_TIER_CONFIG.VETERAN.POWER_MULTIPLIER);
 				});
 				devlog("Applied Veteran tier stat buffs to enemy team.");
@@ -279,10 +275,7 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 				}
 				break;
 			case DifficultyTier.Challenger:
-				units.forEach(unit => {
-					unit.maxHp = Math.floor(unit.maxHp * DIFFICULTY_TIER_CONFIG.CHALLENGER.HP_MULTIPLIER);
-					unit.hp = unit.maxHp; // Restore HP to new max
-				});
+				// Challenger tier doesn't modify base stats, only applies special effects
 				devlog("Applied Challenger tier stat buffs to enemy team.");
 				if (powerBudgetOverflow >= DIFFICULTY_TIER_CONFIG.CHALLENGER.OVERFLOW_THRESHOLD) {
 					const randomUnit = pickOne(units);

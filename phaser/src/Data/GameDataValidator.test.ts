@@ -56,9 +56,7 @@ describe('Game Data Validation', () => {
 				expect(typeof card.name).toBe('string');
 				expect(card.name.length).toBeGreaterThan(0);
 
-				expect(card.hp).toBeDefined();
-				expect(typeof card.hp).toBe('number');
-				expect(card.hp).toBeGreaterThan(0);
+				// HP properties removed since cards no longer have HP
 
 				expect(card.power).toBeDefined();
 				expect(typeof card.power).toBe('number');
@@ -261,9 +259,7 @@ describe('Game Data Validation', () => {
 			const cards = gameData.cards;
 
 			cards.forEach(card => {
-				// HP should be within reasonable bounds
-				expect(card.hp).toBeGreaterThanOrEqual(10);
-				expect(card.hp).toBeLessThanOrEqual(500);
+				// HP validation removed since cards no longer have HP
 
 				// Power should be within reasonable bounds
 				expect(card.power).toBeGreaterThanOrEqual(1);
@@ -329,9 +325,9 @@ describe('Game Data Validation', () => {
 			cards.forEach(card => {
 				const traitIds = card.traits.map(t => t.id);
 
-				// Cards with 'tank' tag should have higher HP
+				// Cards with 'tank' tag validation (HP-based checks removed)
 				if (card.tags && card.tags.includes('tank')) {
-					expect(card.hp).toBeGreaterThanOrEqual(150);
+					// Could add other tank-specific validations here if needed
 				}
 
 				// Cards with ranged trait should have ranged tag or appropriate power
