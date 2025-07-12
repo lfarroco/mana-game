@@ -6,7 +6,6 @@
 import { State } from "../Models/State";
 import { Unit } from "../Models/Entities/Unit";
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
-import * as UnitEvents_ from "../Models/UnitEvents";
 import {
 	TraitEffectContext,
 	getTraitDefinition,
@@ -16,9 +15,6 @@ import {
 	registerTraitDefinition, // Alias to avoid conflict if any
 	TraitDefinition
 } from "./TraitEffectSystem";
-import {
-	UnitPayload
-} from "../Models/EventPayloads"; // Import necessary payload types
 
 /**
  * A unique identifier for a trait.
@@ -39,34 +35,15 @@ export type TraitData = { // This is an *instance* of a trait on a unit
 };
 
 /**
- * Processes a trait event for a given source (Unit) by executing any matching effects.
- * This function is the heart of the trait system. It:
- * 1. Retrieves the trait definition.
- * 2. Iterates through the effects defined for that trait.
- * 3. For each effect, checks if it matches the current `eventKey`.
- * 4. If it matches, resolves the targets for the effect.
- * 5. Creates a `TraitEffectContext` with all necessary information.
- * 6. Checks any conditions defined for the effect.
- * 7. If conditions pass, retrieves and executes the effect's implementation.
- *
- * @param context - An object containing all necessary parameters for processing the event.
- * @returns A promise that resolves when all relevant trait effects for this event have been processed.
+ * Processes a single trait event for a unit by executing matching effects.
  */
-/**
- * Context object containing all parameters needed for processing a trait event via `processTraitEvent`.
- */
-interface TraitEventContext {
-	/** The unit that is the source of the trait effect. */
-	source: Unit;
-	/** The specific instance data of the trait being processed (e.g., from `unit.traits`). */
-	traitInstanceData: TraitData;
-	eventKey: string;
-	scene: BattlegroundScene;
-	state: State;
-}
-
-async function processTraitEvent(context: TraitEventContext) {
-	const { source, traitInstanceData, eventKey, scene, state } = context;
+async function processTraitEvent(
+	source: Unit,
+	traitInstanceData: TraitData,
+	eventKey: string,
+	scene: BattlegroundScene,
+	state: State
+) {
 	const definition = getTraitDefinition(traitInstanceData.id);
 	if (!definition) {
 		console.warn(`Trait definition not found for ID: ${traitInstanceData.id} on Unit ${source.id}`);
@@ -129,37 +106,20 @@ async function processTraitEvent(context: TraitEventContext) {
 }
 
 /**
- * Internal helper to iterate over a unit's traits and process them for a given event.
+ * Processes all traits for a unit for a given event.
  */
-function processUnitTraitsForEvent(
+export async function processUnitTraitsForEvent(
 	unit: Unit,
 	eventKey: string,
 	scene: BattlegroundScene,
 	state: State,
 ) {
-	for (const traitData of unit.traits) {
-		// For units, the unit itself is the source, and its force is the actingPlayerId.
-		processTraitEvent({
-			source: unit,
-			traitInstanceData: traitData,
-			eventKey,
-			scene,
-			state,
-		});
-	}
+	const traitPromises = unit.traits.map(traitData =>
+		processTraitEvent(unit, traitData, eventKey, scene, state)
+	);
+	await Promise.all(traitPromises);
 }
 
-/**
- * Processes traits for a unit based on a simple `UnitPayload`.
- * These are typically events where the unit itself is the primary actor or subject.
- *
- * @param eventKey The specific `UnitEventKeys` (e.g., "onAction").
- * @internal
- * Processes traits for a unit based on a UnitPayload.
- */
-export const runUnitEventTraits = async (eventKey: UnitEvents_.UnitEventKeys, scene: BattlegroundScene, state: State, payload: UnitPayload) => {
-	await processUnitTraitsForEvent(payload.unit, eventKey, scene, state);
-};
 /**
  * Initializes and registers trait definitions from a loaded data source.
  * This function should be called once during game setup with the trait definitions
