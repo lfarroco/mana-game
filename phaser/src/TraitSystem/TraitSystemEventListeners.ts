@@ -29,10 +29,9 @@ export function setupTraitEventListeners(scene: BattlegroundScene): void {
 	scene.events.on(GameEvents.TRAIT_EVAL_GLOBAL_BATTLE_START, async (_payload: EmptyPayload) => {
 		const currentState = getState();
 		// Process for units in parallel instead of sequentially
-		const traitPromises = currentState.battleData.units
-			.map(unit => processUnitTraitsForEvent(unit, "onBattleStart", scene, currentState));
+		currentState.battleData.units
+			.forEach(unit => processUnitTraitsForEvent(unit, "onBattleStart", scene, currentState));
 
-		await Promise.all(traitPromises);
 	});
 
 	scene.events.on(GameEvents.TRAIT_EVAL_BATTLE_END, async (_payload: EmptyPayload) => {
@@ -53,8 +52,8 @@ export function setupTraitEventListeners(scene: BattlegroundScene): void {
 	];
 
 	unitEventMappings.forEach(mapping => {
-		scene.events.on(mapping.gameEvent, async (payload: UnitPayload) => {
-			await processUnitTraitsForEvent(payload.unit, mapping.traitKey, scene, getState());
+		scene.events.on(mapping.gameEvent, (payload: UnitPayload) => {
+			processUnitTraitsForEvent(payload.unit, mapping.traitKey, scene, getState());
 		});
 	});
 
