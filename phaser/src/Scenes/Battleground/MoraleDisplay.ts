@@ -95,10 +95,10 @@ export function init(sceneRef: Phaser.Scene): void {
 
 	// Position bars on the right side with different vertical positions
 	const centerY = scene.scale.height / 2;
-	const playerBarY = centerY + 30; // Player bar lower (below center)
+	const playerBarY = centerY + 50; // Player bar lower (below center) - increased spacing for larger bars
 	playerMoraleBar = create(sceneRef, playerBarY, c.FORCE_ID_PLAYER, "Player Morale");
 
-	const cpuBarY = centerY - 30; // Enemy bar higher (above center)
+	const cpuBarY = centerY - 50; // Enemy bar higher (above center) - increased spacing for larger bars
 	cpuMoraleBar = create(sceneRef, cpuBarY, c.FORCE_ID_CPU, "Enemy Morale");
 
 	scene.events.on(GameEvents.MORALE_UPDATED, handleMoraleUpdated);
