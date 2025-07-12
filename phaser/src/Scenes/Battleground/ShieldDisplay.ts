@@ -89,7 +89,8 @@ function create(
 
 	// Always yellow for shields (both player and enemy)
 	const barColor = 0xFFD700; // Gold/Yellow color
-	return createStylizedBar(scene, xPosition, y, barWidth, barColor, labelText, c.defaultTextConfig);
+	const backgroundColor = 0x000000; // Black background for shield bars
+	return createStylizedBar(scene, xPosition, y, barWidth, barColor, backgroundColor, labelText, c.defaultTextConfig);
 }
 
 export function init(sceneRef: Phaser.Scene): void {
