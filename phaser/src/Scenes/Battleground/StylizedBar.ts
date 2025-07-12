@@ -20,6 +20,7 @@ export function createStylizedBar(
 	y: number,
 	width: number,
 	barColor: number,
+	backgroundColor: number,
 	labelText: string,
 	textConfig: any
 ): StylizedBar {
@@ -31,9 +32,9 @@ export function createStylizedBar(
 	outerBorder.fillRoundedRect(0, 0, width, BAR_HEIGHT, 6);
 	container.add(outerBorder);
 
-	// Inner background (transparent black)
+	// Inner background (customizable color)
 	const backgroundBar = scene.add.graphics();
-	backgroundBar.fillStyle(0x000000, 0.6);
+	backgroundBar.fillStyle(backgroundColor, 0.6);
 	backgroundBar.fillRoundedRect(INNER_PADDING, INNER_PADDING, width - (INNER_PADDING * 2), BAR_HEIGHT - (INNER_PADDING * 2), 3);
 	container.add(backgroundBar);
 

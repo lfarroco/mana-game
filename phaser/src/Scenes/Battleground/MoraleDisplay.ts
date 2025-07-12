@@ -83,7 +83,8 @@ function create(
 	const xPosition = scene.scale.width - barWidth - 20; // Right side with padding
 
 	const barColor = forceId === c.FORCE_ID_PLAYER ? 0x4CAF50 : 0xF44336; // Bright green for player, red for CPU
-	return createStylizedBar(scene, xPosition, y, barWidth, barColor, labelText, c.defaultTextConfig);
+	const backgroundColor = 0x000000; // Black background for morale bars
+	return createStylizedBar(scene, xPosition, y, barWidth, barColor, backgroundColor, labelText, c.defaultTextConfig);
 }
 
 export function init(sceneRef: Phaser.Scene): void {
