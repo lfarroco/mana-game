@@ -128,19 +128,44 @@ export const applyDamageToForce = (
 	if (damage <= 0) return 0;
 
 	let remainingDamage = damage;
+	const originalShield = targetForce.shield;
+	const originalMorale = targetForce.morale;
 
-	// Shield absorbs damage first
+	// Shield absorbs damage first (without emitting events)
 	if (targetForce.shield > 0) {
 		const shieldAbsorbed = Math.min(remainingDamage, targetForce.shield);
-		manipulateForceShield(targetForce, -shieldAbsorbed, scene);
+		manipulateForceShield(targetForce, -shieldAbsorbed); // No scene = no event
 		remainingDamage -= shieldAbsorbed;
 	}
 
-	// Apply remaining damage to morale
+	// Apply remaining damage to morale (without emitting events)
+	let moraleChange = 0;
 	if (remainingDamage > 0) {
-		const moraleChange = manipulateForceMorale(targetForce, -remainingDamage, scene);
-		return Math.abs(moraleChange);
+		moraleChange = manipulateForceMorale(targetForce, -remainingDamage); // No scene = no event
 	}
 
-	return 0;
+	// Emit events for both shield and morale updates, but only show pop text for total damage
+	if (scene) {
+		// Emit shield update if shield changed
+		if (targetForce.shield !== originalShield) {
+			scene.events.emit(GameEvents.SHIELD_UPDATED, {
+				forceId: targetForce.id,
+				newShield: targetForce.shield,
+				maxShield: targetForce.morale, // Use current morale as maxShield for display
+				suppressPopText: true, // Flag to suppress individual pop text
+			});
+		}
+
+		// Emit morale update if morale changed, and show total damage as pop text
+		if (targetForce.morale !== originalMorale) {
+			scene.events.emit(GameEvents.MORALE_UPDATED, {
+				forceId: targetForce.id,
+				newMorale: targetForce.morale,
+				maxMorale: targetForce.maxMorale,
+				totalDamage: damage, // Include total damage for pop text display
+			});
+		}
+	}
+
+	return Math.abs(moraleChange);
 };

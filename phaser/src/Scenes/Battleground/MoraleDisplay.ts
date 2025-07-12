@@ -25,9 +25,9 @@ let previousCpuMorale: number | null = null;
 
 /**
  * Handles the MORALE_UPDATED event by calling the bar update function.
- * @param payload The event payload with forceId, newMorale, and maxMorale.
+ * @param payload The event payload with forceId, newMorale, maxMorale, and optional totalDamage.
  */
-function handleMoraleUpdated(payload: { forceId: string, newMorale: number, maxMorale: number }) {
+function handleMoraleUpdated(payload: { forceId: string, newMorale: number, maxMorale: number, totalDamage?: number }) {
 	updateMoraleBar(payload.forceId, payload.newMorale, payload.maxMorale);
 
 	// Calculate morale delta and show pop text
@@ -38,31 +38,15 @@ function handleMoraleUpdated(payload: { forceId: string, newMorale: number, maxM
 	const isPlayer = payload.forceId === c.FORCE_ID_PLAYER;
 	const previousMorale = isPlayer ? previousPlayerMorale : previousCpuMorale;
 
-	// Calculate delta if we have a previous value
-	if (previousMorale !== null) {
-		const delta = payload.newMorale - previousMorale;
-
-		if (delta !== 0) {
-			// Calculate random position over the morale bar area
-			const barWidth = scene.scale.width / 4;
-			const randomOffsetX = Math.random() * barWidth; // Random position across bar width
-			const randomOffsetY = (Math.random() - 0.5) * 40; // Random vertical offset (-20 to +20 pixels)
-
-			const popTextX = targetBar.container.x + randomOffsetX;
-			const popTextY = targetBar.container.y + randomOffsetY;
-
-			const deltaText = delta > 0 ? `+${delta}` : `${delta}`;
-			const textType = delta > 0 ? "heal" : "damage"; // Green for positive, red for negative
-			const textDirection = isPlayer ? "down" : "up"; // Player text flows down, enemy text flows up
-
-			scene.events.emit(GameEvents.POP_TEXT_SHOW, {
-				text: deltaText,
-				x: popTextX,
-				y: popTextY,
-				type: textType,
-				direction: textDirection,
-			});
-		}
+	// Use totalDamage if provided (for damage that affects both shield and morale)
+	// Otherwise calculate delta as usual
+	let displayValue: number;
+	if (payload.totalDamage !== undefined && payload.totalDamage > 0) {
+		displayValue = -payload.totalDamage; // Show total damage as negative
+	} else if (previousMorale !== null) {
+		displayValue = payload.newMorale - previousMorale; // Normal delta calculation
+	} else {
+		displayValue = 0; // No previous value to compare
 	}
 
 	// Update the stored previous value
@@ -70,6 +54,29 @@ function handleMoraleUpdated(payload: { forceId: string, newMorale: number, maxM
 		previousPlayerMorale = payload.newMorale;
 	} else {
 		previousCpuMorale = payload.newMorale;
+	}
+
+	// Show pop text if there's a meaningful change
+	if (displayValue !== 0) {
+		// Calculate random position over the morale bar area
+		const barWidth = scene.scale.width / 4;
+		const randomOffsetX = Math.random() * barWidth; // Random position across bar width
+		const randomOffsetY = (Math.random() - 0.5) * 40; // Random vertical offset (-20 to +20 pixels)
+
+		const popTextX = targetBar.container.x + randomOffsetX;
+		const popTextY = targetBar.container.y + randomOffsetY;
+
+		const deltaText = displayValue > 0 ? `+${displayValue}` : `${displayValue}`;
+		const textType = displayValue > 0 ? "heal" : "damage"; // Green for positive, red for negative
+		const textDirection = isPlayer ? "down" : "up"; // Player text flows down, enemy text flows up
+
+		scene.events.emit(GameEvents.POP_TEXT_SHOW, {
+			text: deltaText,
+			x: popTextX,
+			y: popTextY,
+			type: textType,
+			direction: textDirection,
+		});
 	}
 }
 

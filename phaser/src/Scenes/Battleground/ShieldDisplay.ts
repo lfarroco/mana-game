@@ -25,10 +25,22 @@ let previousCpuShield: number | null = null;
 
 /**
  * Handles the SHIELD_UPDATED event by calling the bar update function.
- * @param payload The event payload with forceId, newShield, and maxShield.
+ * @param payload The event payload with forceId, newShield, maxShield, and optional suppressPopText.
  */
-function handleShieldUpdated(payload: { forceId: string, newShield: number, maxShield: number }) {
+function handleShieldUpdated(payload: { forceId: string, newShield: number, maxShield: number, suppressPopText?: boolean }) {
 	updateShieldBar(payload.forceId, payload.newShield, payload.maxShield);
+
+	// Skip pop text if suppressed (e.g., when damage affects both shield and morale)
+	if (payload.suppressPopText) {
+		// Still update previous values for future calculations
+		const isPlayer = payload.forceId === c.FORCE_ID_PLAYER;
+		if (isPlayer) {
+			previousPlayerShield = payload.newShield;
+		} else {
+			previousCpuShield = payload.newShield;
+		}
+		return;
+	}
 
 	// Calculate shield delta and show pop text
 	const targetBar = payload.forceId === c.FORCE_ID_PLAYER ? playerShieldBar : cpuShieldBar;
