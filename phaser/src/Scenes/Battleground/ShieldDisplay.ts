@@ -19,12 +19,58 @@ let playerShieldBar: ShieldBar | null = null;
 let cpuShieldBar: ShieldBar | null = null;
 let scene: Phaser.Scene | null = null;
 
+// Track previous shield values to calculate deltas
+let previousPlayerShield: number | null = null;
+let previousCpuShield: number | null = null;
+
 /**
  * Handles the SHIELD_UPDATED event by calling the bar update function.
  * @param payload The event payload with forceId, newShield, and maxShield.
  */
 function handleShieldUpdated(payload: { forceId: string, newShield: number, maxShield: number }) {
 	updateShieldBar(payload.forceId, payload.newShield, payload.maxShield);
+
+	// Calculate shield delta and show pop text
+	const targetBar = payload.forceId === c.FORCE_ID_PLAYER ? playerShieldBar : cpuShieldBar;
+	if (!targetBar || !scene) return;
+
+	// Get previous shield value
+	const isPlayer = payload.forceId === c.FORCE_ID_PLAYER;
+	const previousShield = isPlayer ? previousPlayerShield : previousCpuShield;
+
+	// Calculate delta if we have a previous value
+	if (previousShield !== null) {
+		const delta = payload.newShield - previousShield;
+
+		if (delta !== 0) {
+			// Calculate random position over the shield bar area
+			const barWidth = scene.scale.width / 4;
+			const randomOffsetX = Math.random() * barWidth; // Random position across bar width
+			const randomOffsetY = (Math.random() - 0.5) * 40; // Random vertical offset (-20 to +20 pixels)
+
+			const popTextX = targetBar.container.x + randomOffsetX;
+			const popTextY = targetBar.container.y + randomOffsetY;
+
+			const deltaText = delta > 0 ? `+${delta}` : `${delta}`;
+			const textType = delta > 0 ? "heal" : "damage"; // Green for positive, red for negative
+			const textDirection = isPlayer ? "down" : "up"; // Player text flows down, enemy text flows up
+
+			scene.events.emit(GameEvents.POP_TEXT_SHOW, {
+				text: deltaText,
+				x: popTextX,
+				y: popTextY,
+				type: textType,
+				direction: textDirection,
+			});
+		}
+	}
+
+	// Update the stored previous value
+	if (isPlayer) {
+		previousPlayerShield = payload.newShield;
+	} else {
+		previousCpuShield = payload.newShield;
+	}
 }
 
 function create(
@@ -146,4 +192,8 @@ export function destroy(): void {
 		cpuShieldBar.container.destroy();
 		cpuShieldBar = null;
 	}
+
+	// Reset previous shield values
+	previousPlayerShield = null;
+	previousCpuShield = null;
 }

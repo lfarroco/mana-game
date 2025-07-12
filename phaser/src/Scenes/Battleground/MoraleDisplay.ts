@@ -43,18 +43,24 @@ function handleMoraleUpdated(payload: { forceId: string, newMorale: number, maxM
 		const delta = payload.newMorale - previousMorale;
 
 		if (delta !== 0) {
-			// Calculate position at the center of the morale bar
-			const popTextX = targetBar.container.x + (scene.scale.width / 4) / 2;
-			const popTextY = targetBar.container.y;
+			// Calculate random position over the morale bar area
+			const barWidth = scene.scale.width / 4;
+			const randomOffsetX = Math.random() * barWidth; // Random position across bar width
+			const randomOffsetY = (Math.random() - 0.5) * 40; // Random vertical offset (-20 to +20 pixels)
+
+			const popTextX = targetBar.container.x + randomOffsetX;
+			const popTextY = targetBar.container.y + randomOffsetY;
 
 			const deltaText = delta > 0 ? `+${delta}` : `${delta}`;
 			const textType = delta > 0 ? "heal" : "damage"; // Green for positive, red for negative
+			const textDirection = isPlayer ? "down" : "up"; // Player text flows down, enemy text flows up
 
 			scene.events.emit(GameEvents.POP_TEXT_SHOW, {
 				text: deltaText,
 				x: popTextX,
 				y: popTextY,
 				type: textType,
+				direction: textDirection,
 			});
 		}
 	}
