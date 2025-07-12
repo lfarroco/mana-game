@@ -17,7 +17,10 @@ export const onCharaPointerOver = ({ chara }: { chara: Chara }): void => {
 		return formatTraitDescription(definition, traitData, chara.unit);
 	}).join('\n\n'); // Use double newline for better separation between traits
 
-	const description = `Attack: ${chara.unit.power}\n\n${traitDescriptions}`;
+	// 1100 -> 1.1s
+	const cdAsSeconds = (chara.unit.cooldown / 1000).toFixed(1);
+
+	const description = `Attack: ${chara.unit.power} | Cooldown: ${cdAsSeconds}s\n\n${traitDescriptions}`;
 
 	// Calculate absolute position of the Chara
 	// Chara's x,y is its center relative to its parent (scene or a container like flyout).

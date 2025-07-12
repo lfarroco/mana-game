@@ -6,11 +6,10 @@
 			"id": "bowsie",
 			"name": "Bowsie McTwang",
 			"pic": "assets/cards/archer.png",
-			"hp": 90,
 			"tags": [
 				"ranged"
 			],
-			"power": 38,
+			"power": 12,
 			"powerType": "damage",
 			"cooldown": 1600,
 			"traits": [
@@ -19,7 +18,7 @@
 				},
 				{
 					"id": "backline_boost",
-					"amount": 6
+					"amount": 4
 				}
 			]
 		},
@@ -27,8 +26,7 @@
 			"id": "bubblegum",
 			"name": "Bubblegum Blessings",
 			"pic": "assets/cards/cleric.png",
-			"hp": 120,
-			"power": 38,
+			"power": 10,
 			"powerType": "heal",
 			"tags": [
 				"support"
@@ -40,25 +38,23 @@
 				},
 				{
 					"id": "ally_right",
-					"amount": 6
+					"amount": 3
 				}
 			]
 		},
 		{
-			"id": "bumble",
-			"name": "Alyssa the Champion",
+			"id": "alyssa",
+			"name": "Alyssa",
 			"pic": "assets/cards/knight.png",
-			"hp": 180,
 			"tags": [
 				"tank"
 			],
 			"power": 14,
 			"powerType": "defense",
-			"cooldown": 2000,
+			"cooldown": 1000,
 			"traits": [
 				{
-					"id": "shield",
-					"amount": 130
+					"id": "shield"
 				},
 				{
 					"id": "frontline_warrior",
@@ -70,20 +66,19 @@
 			"id": "wizzy",
 			"name": "Wizzy McFizzfail",
 			"pic": "assets/cards/apprentice.png",
-			"hp": 85,
 			"tags": [
 				"ranged"
 			],
-			"power": 16,
+			"power": 18,
 			"powerType": "damage",
-			"cooldown": 1400,
+			"cooldown": 1900,
 			"traits": [
 				{
 					"id": "damage"
 				},
 				{
 					"id": "midline_boost",
-					"amount": 3
+					"amount": 4
 				}
 			]
 		},
@@ -91,20 +86,19 @@
 			"id": "sally",
 			"name": "Sally the Swift",
 			"pic": "assets/cards/goblin_scavenger.png",
-			"hp": 100,
 			"tags": [
 				"melee"
 			],
-			"power": 20,
+			"power": 8,
 			"powerType": "damage",
-			"cooldown": 800,
+			"cooldown": 1100,
 			"traits": [
 				{
 					"id": "damage"
 				},
 				{
 					"id": "corner_bonus",
-					"amount": 5
+					"amount": 2
 				}
 			]
 		}
