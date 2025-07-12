@@ -9,7 +9,7 @@ import { generateEnemyTeam } from "../generateEnemyTeam";
 import { PrestigeSystem } from "../../../Systems/PrestigeSystem";
 import * as CharaManager from "./CharaManager";
 import { clearAllStatusEffects } from "../../../Systems/StatusEffects/StatusEffectManager";
-import { cpuForce, playerForce, applyDamageToForce } from "../../../Models/Entities/Force";
+import { cpuForce, playerForce } from "../../../Models/Entities/Force";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
 
 /**
@@ -317,14 +317,13 @@ export class BattleProgressionSystem {
 	/**
 	 * Damages enemy force when a unit attacks (shields absorb damage first)
 	 */
-	handleUnitAttackOnMorale(payload: { unit: Unit }): void {
-		const { unit } = payload;
-		const targetForce = unit.force === FORCE_ID_PLAYER ? cpuForce : playerForce; // Attacking the opposite force
+	handleUnitAttackOnMorale(_payload: { unit: Unit }): void {
+		// This method now only handles the attack event for other purposes
+		// Damage application is handled by the trait system in dealDamage.ts
+		// to avoid duplicate damage application
 
-		if (!targetForce) return;
-
-		// Apply damage to shields first, then morale
-		applyDamageToForce(targetForce, Math.max(0, unit.power), this.scene);
+		// Any additional attack processing logic can go here
+		// (e.g., sound effects, visual effects, logging, etc.)
 	}
 
 	destroy(): void {
