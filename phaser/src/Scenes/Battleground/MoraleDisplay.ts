@@ -7,10 +7,10 @@ const BORDER_THICKNESS = 2;
 
 // This type represents the components of a single morale bar
 type MoraleBar = {
-	container: Container;
-	backgroundBar: Graphics;
-	foregroundBar: Graphics;
-	barFill: Graphics;
+	container: Phaser.GameObjects.Container;
+	backgroundBar: Phaser.GameObjects.Graphics;
+	foregroundBar: Phaser.GameObjects.Graphics;
+	barFill: Phaser.GameObjects.Graphics;
 	label: Phaser.GameObjects.Text;
 }
 
@@ -74,9 +74,10 @@ function create(
 	labelText: string,
 ): MoraleBar {
 	const barWidth = scene.scale.width / 4;
-	const centeredX = (scene.scale.width - barWidth) / 2;
+	// Position both bars on the right side of the screen
+	const xPosition = scene.scale.width - barWidth - 20; // Right side with padding
 
-	const container = scene.add.container(centeredX, y);
+	const container = scene.add.container(xPosition, y);
 	// Background
 	const backgroundBar = scene.add.graphics();
 	backgroundBar.fillStyle(0x000000, 0.5);
@@ -122,10 +123,12 @@ export function init(sceneRef: Phaser.Scene): void {
 
 	scene = sceneRef;
 
-	const playerBarY = c.SCREEN_HEIGHT - c.PLAYER_MORALE_BAR_BOTTOM_OFFSET;
+	// Position bars on the right side with different vertical positions
+	const centerY = scene.scale.height / 2;
+	const playerBarY = centerY + 30; // Player bar lower (below center)
 	playerMoraleBar = create(sceneRef, playerBarY, c.FORCE_ID_PLAYER, "Player Morale");
 
-	const cpuBarY = c.CPU_MORALE_BAR_TOP_OFFSET;
+	const cpuBarY = centerY - 30; // Enemy bar higher (above center)
 	cpuMoraleBar = create(sceneRef, cpuBarY, c.FORCE_ID_CPU, "Enemy Morale");
 
 	scene.events.on(GameEvents.MORALE_UPDATED, handleMoraleUpdated);

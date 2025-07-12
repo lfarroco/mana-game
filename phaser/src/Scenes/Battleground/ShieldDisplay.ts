@@ -34,9 +34,10 @@ function create(
 	labelText: string,
 ): ShieldBar {
 	const barWidth = scene.scale.width / 4;
-	const centeredX = (scene.scale.width - barWidth) / 2;
+	// Position both bars on the right side of the screen
+	const xPosition = scene.scale.width - barWidth - 20; // Right side with padding
 
-	const container = scene.add.container(centeredX, y);
+	const container = scene.add.container(xPosition, y);
 	// Background
 	const backgroundBar = scene.add.graphics();
 	backgroundBar.fillStyle(0x000000, 0.5);
@@ -82,10 +83,12 @@ export function init(sceneRef: Phaser.Scene): void {
 
 	scene = sceneRef;
 
-	const playerBarY = c.SCREEN_HEIGHT - c.PLAYER_SHIELD_BAR_BOTTOM_OFFSET;
+	// Position shield bars on the right side with different vertical positions (above morale bars)
+	const centerY = scene.scale.height / 2;
+	const playerBarY = centerY + 10; // Player shield bar lower (but still above player morale bar)
 	playerShieldBar = create(sceneRef, playerBarY, c.FORCE_ID_PLAYER, "Player Shield");
 
-	const cpuBarY = c.CPU_SHIELD_BAR_TOP_OFFSET;
+	const cpuBarY = centerY - 50; // Enemy shield bar higher (above enemy morale bar)
 	cpuShieldBar = create(sceneRef, cpuBarY, c.FORCE_ID_CPU, "Enemy Shield");
 
 	scene.events.on(GameEvents.SHIELD_UPDATED, handleShieldUpdated);
