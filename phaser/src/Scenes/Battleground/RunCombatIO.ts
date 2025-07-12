@@ -6,7 +6,7 @@ import { Unit } from "../../Models/Entities/Unit";
 import { GameEvents } from "../../constants/events";
 import { delay } from "../../Utils/animation";
 import { processStatusEffects, getCooldownMultiplier } from "../../Systems/StatusEffects/StatusEffectManager";
-import { applyDamageToForce, Force } from "../../Models/Entities/Force";
+import { TimeoutDamageSystem } from "./Systems/TimeoutDamageSystem";
 
 /**
  * Represents the possible outcomes of a combat wave.
@@ -43,14 +43,12 @@ export class RunCombatSystem {
   scene: BattlegroundScene;
   updateHandler: ((time: number, delta: number) => Promise<void>) | null = null;
 
-  // Timeout damage system properties
-  private timeoutDamageStartTime: number = 10000; // 10 seconds in milliseconds
-  private timeoutDamageInterval: number = 1000; // 1 second between damage ticks
-  private lastTimeoutDamageTick: number = 0;
-  private combatStartTime: number = 0;
+  // Timeout damage system
+  private timeoutDamageSystem: TimeoutDamageSystem;
 
   constructor(scene: BattlegroundScene) {
     this.scene = scene;
+    this.timeoutDamageSystem = new TimeoutDamageSystem(scene);
   }
 
   /**
@@ -64,8 +62,7 @@ export class RunCombatSystem {
     console.log("[RunCombatSystem] Wave setup complete, starting combat loop.");
 
     // Initialize timeout damage system
-    this.combatStartTime = this.scene.time.now;
-    this.lastTimeoutDamageTick = 0;
+    this.timeoutDamageSystem.initialize();
 
     const playerForce = state.battleData.forces.find(force => force.id === state.gameData.player.id)!;
     const cpuForce = state.battleData.forces.find(force => force.id !== state.gameData.player.id)!;
@@ -84,7 +81,7 @@ export class RunCombatSystem {
       }
 
       // Check for timeout damage (after 10 seconds of combat)
-      this.checkTimeoutDamage(playerForce, cpuForce);
+      this.timeoutDamageSystem.update(playerForce, cpuForce);
 
       const playerMoraleZero = playerForce.morale <= 0;
       const cpuMoraleZero = cpuForce.morale <= 0;
@@ -114,37 +111,6 @@ export class RunCombatSystem {
 
     events.on('update', this.updateHandler);
   });
-
-  /**
-   * Checks if timeout damage should be applied and applies escalating damage to both forces.
-   * @param playerForce The player's force
-   * @param cpuForce The CPU's force
-   */
-  private checkTimeoutDamage(playerForce: Force, cpuForce: Force): void {
-    const currentTime = this.scene.time.now;
-    const combatElapsed = currentTime - this.combatStartTime;
-
-    // Check if we've passed the 10-second mark
-    if (combatElapsed >= this.timeoutDamageStartTime) {
-      const timeSinceTimeoutStarted = combatElapsed - this.timeoutDamageStartTime;
-      const timeSinceLastTick = currentTime - this.lastTimeoutDamageTick;
-
-      // Apply damage every second
-      if (timeSinceLastTick >= this.timeoutDamageInterval) {
-        // Calculate current damage amount (starts at 1, increases each tick)
-        const tickCount = Math.floor(timeSinceTimeoutStarted / this.timeoutDamageInterval) + 1;
-        const currentDamage = tickCount;
-
-        // Apply damage to both forces (shields absorb damage first)
-        console.log(`[RunCombatSystem] Timeout damage tick ${tickCount}: ${currentDamage} damage to both forces`);
-
-        applyDamageToForce(playerForce, currentDamage, this.scene);
-        applyDamageToForce(cpuForce, currentDamage, this.scene);
-
-        this.lastTimeoutDamageTick = currentTime;
-      }
-    }
-  }
 }
 
 /**
