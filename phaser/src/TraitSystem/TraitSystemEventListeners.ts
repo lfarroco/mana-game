@@ -9,13 +9,11 @@ import { getState, State } from "../Models/State";
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
 import {
 	runUnitEventTraits,
-	runAttackEventTraits,
 } from "./Traits";
-import { UnitEventKeys, AttackEventKeys } from "../Models/UnitEvents";
+import { UnitEventKeys } from "../Models/UnitEvents";
 import {
 	UnitPayload,
 	EmptyPayload,
-	AttackContextPayload,
 } from "../Models/EventPayloads";
 
 
@@ -92,15 +90,6 @@ export function setupTraitEventListeners(scene: BattlegroundScene): void {
 	unitEventMappings.forEach(mapping => {
 		registerTraitListener<UnitEventKeys, UnitPayload>(
 			scene, mapping.gameEvent, mapping.traitKey, runUnitEventTraits
-		);
-	});
-
-	const attackEventMappings: { gameEvent: string, traitKey: AttackEventKeys }[] = [
-		{ gameEvent: GameEvents.TRAIT_EVAL_ATTACK_BY_ME, traitKey: "onAttackByMe" },
-	];
-	attackEventMappings.forEach(mapping => {
-		registerTraitListener<AttackEventKeys, AttackContextPayload>(
-			scene, mapping.gameEvent, mapping.traitKey, runAttackEventTraits
 		);
 	});
 
