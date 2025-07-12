@@ -101,10 +101,10 @@ export function init(sceneRef: Phaser.Scene): void {
 
 	// Position shield bars on the right side with different vertical positions (above morale bars)
 	const centerY = scene.scale.height / 2;
-	const playerBarY = centerY + 10; // Player shield bar lower (but still above player morale bar)
+	const playerBarY = centerY + 90; // Player shield bar lower (but above player morale bar) - adjusted for larger bars
 	playerShieldBar = create(sceneRef, playerBarY, c.FORCE_ID_PLAYER, "Player Shield");
 
-	const cpuBarY = centerY - 50; // Enemy shield bar higher (above enemy morale bar)
+	const cpuBarY = centerY - 90; // Enemy shield bar higher (above enemy morale bar) - adjusted for larger bars
 	cpuShieldBar = create(sceneRef, cpuBarY, c.FORCE_ID_CPU, "Enemy Shield");
 
 	scene.events.on(GameEvents.SHIELD_UPDATED, handleShieldUpdated);
