@@ -37,7 +37,7 @@ export type TraitData = { // This is an *instance* of a trait on a unit
 /**
  * Processes a single trait event for a unit by executing matching effects.
  */
-async function processTraitEvent(
+function processTraitEvent(
 	source: Unit,
 	traitInstanceData: TraitData,
 	eventKey: string,
@@ -76,7 +76,7 @@ async function processTraitEvent(
 				const implementation = getTraitEffectImplementation(effectInstance.effectId);
 				if (implementation) {
 					try {
-						await implementation(context);
+						implementation(context);
 					} catch (error) {
 						console.error(
 							`Error executing trait effect ${effectInstance.effectId} for trait ${definition.id}:`,
@@ -108,16 +108,15 @@ async function processTraitEvent(
 /**
  * Processes all traits for a unit for a given event.
  */
-export async function processUnitTraitsForEvent(
+export function processUnitTraitsForEvent(
 	unit: Unit,
 	eventKey: string,
 	scene: BattlegroundScene,
 	state: State,
 ) {
-	const traitPromises = unit.traits.map(traitData =>
+	unit.traits.forEach(traitData =>
 		processTraitEvent(unit, traitData, eventKey, scene, state)
 	);
-	await Promise.all(traitPromises);
 }
 
 /**
