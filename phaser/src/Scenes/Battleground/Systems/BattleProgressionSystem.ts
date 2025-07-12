@@ -148,7 +148,7 @@ export class BattleProgressionSystem {
 		this.state.gameData.player.units.forEach(unit => {
 			unit.charge = 0;
 			unit.refresh = 0;
-			unit.hp = unit.maxHp;
+			// Units no longer have HP to reset
 
 			// Clear all status effects using the new unified system
 			// TOOD: remove for now

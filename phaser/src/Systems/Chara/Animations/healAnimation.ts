@@ -15,9 +15,8 @@ export async function healAnimation(
 
     if (!activeChara || !targetChara) return;
 
-    if (target.hp <= 0) {
-        throw new Error("target is dead");
-    }
+    // Units no longer have HP to check
+    // Note: Consider implementing a different way to check if target is valid for healing
 
     //const power = Math.floor(unit.power)
 

@@ -5,7 +5,6 @@ export interface CardData {
 	id: string;
 	name: string;
 	pic?: string;
-	hp: number;
 	power: number;
 	powerType: string;
 	cooldown: number;
@@ -83,14 +82,7 @@ export function validateCardData(card: CardData, availableTraits: Set<string>): 
 		});
 	}
 
-	if (typeof card.hp !== 'number' || card.hp <= 0) {
-		errors.push({
-			type: 'error',
-			category: 'card_stats',
-			message: `Card "${card.id}" has invalid hp: ${card.hp}`,
-			context: { card }
-		});
-	}
+	// HP validation removed since cards no longer have HP
 
 	if (typeof card.power !== 'number' || card.power < 0) {
 		errors.push({

@@ -83,14 +83,12 @@ export function calculateHealingAmount(
 export function isValidTarget(
 	sourceUnit: Unit,
 	targetUnit: Unit,
-	requiresAlive: boolean = true,
+	_requiresAlive: boolean = true, // Unused since units no longer have HP
 	requiresSameForce: boolean = false,
 	requiresDifferentForce: boolean = false
 ): boolean {
-	// Check if target is alive when required
-	if (requiresAlive && targetUnit.hp <= 0) {
-		return false;
-	}
+	// Since units no longer have HP, all units are considered "alive"
+	// The requiresAlive parameter is kept for backward compatibility but ignored
 
 	// Check force requirements
 	if (requiresSameForce && sourceUnit.force !== targetUnit.force) {

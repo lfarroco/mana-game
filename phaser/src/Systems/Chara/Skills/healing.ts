@@ -9,33 +9,30 @@ export const healing = (
 ) => async (unit: Unit) => {
 
 	const allies = getUnitsByProximity(scene.state, unit, false, 5);
-	const hurtAllies = allies
-		.filter(u => u.hp < u.maxHp)
+	// Since units no longer have HP, we'll just target all allies
+	const targetAllies = allies
 		.map(unit => {
-			const percentage = unit.hp / unit.maxHp;
 			return {
 				unit,
-				percentage
+				percentage: 1 // No HP to calculate percentage, use full effectiveness
 			}
 		})
-		.sort((a, b) => b.percentage - a.percentage)
-		.map(({ unit }) => unit);
+		.sort((a, b) => b.percentage - a.percentage);
 
-	const [hurtAndClose] = hurtAllies
-		.filter((a) => snakeDistanceBetween(a.position)(unit.position) <= 3);
+	const hurtAndClose = targetAllies
+		.find((a) => snakeDistanceBetween(a.unit.position)(unit.position) <= 3);
 
 	if (hurtAndClose) {
-		await healAnimation(scene, unit, hurtAndClose);
+		await healAnimation(scene, unit, hurtAndClose.unit);
 		return;
 	}
 
-	const [closerHurt] = hurtAllies.sort((a, b) => sortBySnakeDistance(unit.position)(a.position)(b.position));
+	const [closerHurt] = targetAllies
+		.sort((a, b) => sortBySnakeDistance(unit.position)(a.unit.position)(b.unit.position));
 
 	// TODO: use approach instead
 	if (closerHurt) {
-
-		await healAnimation(scene, unit, closerHurt);
-
+		await healAnimation(scene, unit, closerHurt.unit);
 	}
 
 };

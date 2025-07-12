@@ -68,7 +68,6 @@ export function setupTraitEventListeners(scene: BattlegroundScene): void {
 		const currentState = getState();
 		// Process for units in parallel instead of sequentially
 		const traitPromises = currentState.battleData.units
-			.filter(unit => unit.hp > 0)
 			.map(unit => runUnitEventTraits("onBattleStart" as UnitEventKeys, scene, currentState, { unit }));
 
 		await Promise.all(traitPromises);

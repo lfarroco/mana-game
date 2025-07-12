@@ -73,8 +73,7 @@ export const getBattleUnit = (state: State) => (id: string): Unit => {
   return unit;
 }
 
-export const getActiveUnits = (state: State): Unit[] => state.battleData.units
-  .filter(u => u.hp > 0)
+export const getActiveUnits = (state: State): Unit[] => state.battleData.units;
 
 export const getAllActiveFoes = (state: State) => (forceId: string): Unit[] => {
   return getActiveUnits(state).filter(u => u.force !== forceId);

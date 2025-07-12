@@ -117,7 +117,6 @@ export function getAllCharas() {
 // TODO: move this to the unit model?
 export const getSurroundingAllies = (unit: Unit) => {
 	return charaIndex
-		.filter(chara => chara.unit.hp > 0)
 		.filter(chara => chara.unit.force === unit.force)
 		.filter(chara => chara.id !== unit.id)
 		.filter(chara => {
