@@ -27,21 +27,18 @@ import {
 export function setupTraitEventListeners(scene: BattlegroundScene): void {
 
 	scene.events.on(GameEvents.TRAIT_EVAL_GLOBAL_BATTLE_START, async (_payload: EmptyPayload) => {
-		const currentState = getState();
 		// Process for units in parallel instead of sequentially
-		currentState.battleData.units
-			.forEach(unit => processUnitTraitsForEvent(unit, "onBattleStart", scene, currentState));
+		getState().battleData.units
+			.forEach(unit => processUnitTraitsForEvent(unit, "onBattleStart", scene, getState()));
 
 	});
 
 	scene.events.on(GameEvents.TRAIT_EVAL_BATTLE_END, async (_payload: EmptyPayload) => {
-		const currentState = getState();
 		// Process for units in parallel instead of sequentially
 		// Note: Original onBattleEnd did not filter by unit.hp > 0, preserving that behavior.
-		const traitPromises = currentState.battleData.units
-			.map(unit => processUnitTraitsForEvent(unit, "onBattleEnd", scene, currentState));
+		getState().battleData.units
+			.forEach(unit => processUnitTraitsForEvent(unit, "onBattleEnd", scene, getState()));
 
-		await Promise.all(traitPromises);
 	});
 
 	const unitEventMappings: { gameEvent: string, traitKey: UnitEventKeys }[] = [
