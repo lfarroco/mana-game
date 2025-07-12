@@ -17,7 +17,6 @@ import {
 	TraitDefinition
 } from "./TraitEffectSystem";
 import {
-	AttackContextPayload,
 	UnitPayload
 } from "../Models/EventPayloads"; // Import necessary payload types
 
@@ -38,33 +37,6 @@ export type TraitData = { // This is an *instance* of a trait on a unit
 	id: TraitId;
 	[key: string]: any;
 };
-
-/**
- * Discriminated union for TraitEventDetails.
- * Defines the specific payload for different kinds of trait-triggering events.
- */
-export type NoEventPayloadDetails = {
-	type: 'none';
-};
-
-export type AttackEventPayloadDetails = {
-	type: 'attack';
-	primaryTarget: Unit;
-	attackDamage: number;
-	isCritical: boolean;
-	evaded: boolean;
-};
-
-export type TargetEventPayloadDetails = {
-	type: 'target_event';
-	primaryTarget: Unit;
-};
-
-// Union of all possible event detail types
-export type TraitEventDetails =
-	| NoEventPayloadDetails
-	| AttackEventPayloadDetails
-	| TargetEventPayloadDetails;
 
 /**
  * Processes a trait event for a given source (Unit) by executing any matching effects.
@@ -91,11 +63,10 @@ interface TraitEventContext {
 	eventKey: string;
 	scene: BattlegroundScene;
 	state: State;
-	eventDetails: TraitEventDetails;
 }
 
 async function processTraitEvent(context: TraitEventContext) {
-	const { source, traitInstanceData, eventKey, scene, state, eventDetails } = context;
+	const { source, traitInstanceData, eventKey, scene, state } = context;
 	const definition = getTraitDefinition(traitInstanceData.id);
 	if (!definition) {
 		console.warn(`Trait definition not found for ID: ${traitInstanceData.id} on Unit ${source.id}`);
@@ -104,29 +75,10 @@ async function processTraitEvent(context: TraitEventContext) {
 
 	for (const effectInstance of definition.effects) {
 		if (effectInstance.eventTrigger === eventKey) {
-			let primaryTargetForEffectContext: Unit | undefined;
-			let attackDamageForEffectContext: number | undefined;
-			let isCriticalForEffectContext: boolean | undefined;
-			let evadedForEffectContext: boolean | undefined;
-
-			switch (eventDetails.type) {
-				case "attack":
-					primaryTargetForEffectContext = eventDetails.primaryTarget;
-					attackDamageForEffectContext = eventDetails.attackDamage;
-					isCriticalForEffectContext = eventDetails.isCritical;
-					evadedForEffectContext = eventDetails.evaded;
-					break;
-				case "target_event":
-					primaryTargetForEffectContext = eventDetails.primaryTarget;
-					break;
-				case "none":
-					// No specific details to extract
-					break;
-			}
 
 			try {
 				const sourceForce = source.force;
-				const targets = resolveTargets(source, sourceForce, effectInstance.targetSelector, state, scene, primaryTargetForEffectContext);
+				const targets = resolveTargets(source, sourceForce, effectInstance.targetSelector, state, scene);
 
 				const context: TraitEffectContext = {
 					sourceUnit: source,
@@ -135,10 +87,6 @@ async function processTraitEvent(context: TraitEventContext) {
 					traitInstanceParams: traitInstanceData,
 					scene,
 					state,
-					primaryTarget: primaryTargetForEffectContext,
-					attackDamage: attackDamageForEffectContext,
-					isCritical: isCriticalForEffectContext,
-					evaded: evadedForEffectContext,
 				};
 
 				if (!checkConditions(context, effectInstance.conditions)) {
@@ -183,23 +131,20 @@ async function processTraitEvent(context: TraitEventContext) {
 /**
  * Internal helper to iterate over a unit's traits and process them for a given event.
  */
-async function processUnitTraitsForEvent(
+function processUnitTraitsForEvent(
 	unit: Unit,
 	eventKey: string,
 	scene: BattlegroundScene,
 	state: State,
-	eventDetails: TraitEventDetails // Updated type
 ) {
-	if (!unit.traits) return; // Guard against units with no traits array
 	for (const traitData of unit.traits) {
 		// For units, the unit itself is the source, and its force is the actingPlayerId.
-		await processTraitEvent({
+		processTraitEvent({
 			source: unit,
 			traitInstanceData: traitData,
 			eventKey,
 			scene,
 			state,
-			eventDetails
 		});
 	}
 }
@@ -213,27 +158,8 @@ async function processUnitTraitsForEvent(
  * Processes traits for a unit based on a UnitPayload.
  */
 export const runUnitEventTraits = async (eventKey: UnitEvents_.UnitEventKeys, scene: BattlegroundScene, state: State, payload: UnitPayload) => {
-	await processUnitTraitsForEvent(payload.unit, eventKey, scene, state, { type: "none" });
+	await processUnitTraitsForEvent(payload.unit, eventKey, scene, state);
 };
-/**
- * Processes traits for an attacking unit based on a full `AttackContextPayload`.
- * These events provide detailed information about an attack.
- *
- * @param eventKey The specific `AttackEventKeys` (e.g., "onAttackByMe", "onAfterAttackByMe").
- * @internal
- * Processes traits for an attacking unit based on an AttackContextPayload.
- */
-export const runAttackEventTraits = async (eventKey: UnitEvents_.AttackEventKeys, scene: BattlegroundScene, state: State, payload: AttackContextPayload) => {
-	const eventDetails: AttackEventPayloadDetails = {
-		type: "attack",
-		primaryTarget: payload.target,
-		attackDamage: payload.damage,
-		isCritical: payload.isCritical,
-		evaded: payload.evaded,
-	};
-	await processUnitTraitsForEvent(payload.unit, eventKey, scene, state, eventDetails);
-};
-
 /**
  * Initializes and registers trait definitions from a loaded data source.
  * This function should be called once during game setup with the trait definitions

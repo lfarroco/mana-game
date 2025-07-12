@@ -112,10 +112,6 @@ describe('Deal Damage Implementation', () => {
 			traitInstanceParams: mockTraitInstanceParams,
 			scene: mockScene,
 			state: mockState,
-			attackDamage: 25,
-			isCritical: false,
-			evaded: false,
-			primaryTarget: mockTargetUnit
 		};
 	});
 

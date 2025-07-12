@@ -73,14 +73,6 @@ export type TraitEffectContext = {
 	traitInstanceParams: TraitData; // Instance-specific params from Unit.traits
 	scene: BattlegroundScene;
 	state: State;
-	/** Optional. The damage amount from an attack, if the event is attack-related. */
-	attackDamage?: number;
-	/** Optional. Whether an attack was critical, if the event is attack-related. */
-	isCritical?: boolean;
-	/** Optional. Whether an attack was evaded, if the event is attack-related. */
-	evaded?: boolean;
-	/** Optional. The primary target of the action that triggered the event (e.g., the target of a skill). */
-	primaryTarget?: Unit;
 };
 
 /**
@@ -201,16 +193,7 @@ export function resolveTargets(
 	state: State,
 	/** The current battle scene instance. */
 	_scene: BattlegroundScene, // May be needed for more complex selections (e.g., geometry checks)
-	/** The primary target of the action that triggered the event, if any. */
-	primaryTarget?: Unit
 ): Unit[] {
-	// If no selector is provided, the default target is the primary target of the event (if available).
-	// If there's no primary target, and the source is a unit, the source unit itself becomes the target.
-	if (!selector) {
-		if (primaryTarget) return [primaryTarget];
-		return [source]; // Default to "self" as target
-	}
-
 	// Helper function to find closest enemy
 	const findClosestEnemy = (): Unit[] => {
 		const enemies = getActiveUnits(state).filter(u => u.force !== sourceForce);
@@ -227,11 +210,10 @@ export function resolveTargets(
 	};
 
 	switch (selector) {
+		case undefined:
+			return [source];
 		case "self":
 			return [source];
-		case "action_target": // The direct target of an action, if applicable
-			return primaryTarget ? [primaryTarget] : [];
-
 		// === SIMPLIFIED ENEMY TARGETING ===
 		// All enemy targeting now uses closest enemy for simplicity
 		case "enemy":

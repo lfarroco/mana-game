@@ -25,20 +25,6 @@ export type UnitPayload = {
 export type EmptyPayload = {};
 
 /**
- * Payload for attack-related events providing full context of an attack.
- * Used by:
- * - TRAIT_EVAL_ATTACK_BY_ME
- * - TRAIT_EVAL_AFTER_ATTACK_BY_ME
- */
-export type AttackContextPayload = {
-	unit: Unit; // The attacker
-	target: Unit;
-	damage: number;
-	isCritical: boolean;
-	evaded: boolean;
-};
-
-/**
  * Defines the structure for payloads used when requesting the display of a user-facing message.
  * These messages can be errors, informational pop-ups, warnings, or success notifications.
  */
