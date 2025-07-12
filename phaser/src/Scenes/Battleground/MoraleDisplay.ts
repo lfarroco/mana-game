@@ -2,15 +2,17 @@ import Phaser from 'phaser';
 import * as c from '../../constants/constants';
 import { GameEvents } from '../../constants/events';
 
-const BAR_HEIGHT = 20;
-const BORDER_THICKNESS = 2;
+const BAR_HEIGHT = 32;
+const INNER_PADDING = 3;
 
 // This type represents the components of a single morale bar
 type MoraleBar = {
 	container: Phaser.GameObjects.Container;
+	outerBorder: Phaser.GameObjects.Graphics;
 	backgroundBar: Phaser.GameObjects.Graphics;
 	foregroundBar: Phaser.GameObjects.Graphics;
 	barFill: Phaser.GameObjects.Graphics;
+	innerHighlight: Phaser.GameObjects.Graphics;
 	label: Phaser.GameObjects.Text;
 }
 
@@ -91,31 +93,46 @@ function create(
 	const xPosition = scene.scale.width - barWidth - 20; // Right side with padding
 
 	const container = scene.add.container(xPosition, y);
-	// Background
+
+	// Outer border (dark)
+	const outerBorder = scene.add.graphics();
+	outerBorder.fillStyle(0x2a2a2a, 1);
+	outerBorder.fillRoundedRect(0, 0, barWidth, BAR_HEIGHT, 6);
+	container.add(outerBorder);
+
+	// Inner background (transparent black)
 	const backgroundBar = scene.add.graphics();
-	backgroundBar.fillStyle(0x000000, 0.5);
-	backgroundBar.fillRect(0, 0, barWidth, BAR_HEIGHT);
-	backgroundBar.lineStyle(BORDER_THICKNESS, 0xffffff, 0.8);
-	backgroundBar.strokeRect(0, 0, barWidth, BAR_HEIGHT);
+	backgroundBar.fillStyle(0x000000, 0.6);
+	backgroundBar.fillRoundedRect(INNER_PADDING, INNER_PADDING, barWidth - (INNER_PADDING * 2), BAR_HEIGHT - (INNER_PADDING * 2), 3);
 	container.add(backgroundBar);
 
-	// Foreground
-	const foregroundBar = scene.add.graphics(); // Blue for player, Red for CPU
-	const barColor = forceId === c.FORCE_ID_PLAYER ? c.PLAYER_MORALE_BAR_COLOR : c.CPU_MORALE_BAR_COLOR;
+	// Foreground bar (the fill color - this will be animated to show current percentage)
+	const foregroundBar = scene.add.graphics();
+	const barColor = forceId === c.FORCE_ID_PLAYER ? 0x4CAF50 : 0xF44336; // Bright green for player, red for CPU
 	foregroundBar.fillStyle(barColor, 1);
-	foregroundBar.fillRect(0, 0, barWidth, BAR_HEIGHT);
+	foregroundBar.fillRoundedRect(INNER_PADDING, INNER_PADDING, barWidth - (INNER_PADDING * 2), BAR_HEIGHT - (INNER_PADDING * 2), 3);
 	container.add(foregroundBar);
 
-	// Shape to "fill" of the foreground bar
-	const barFill = scene.add.graphics();
-	barFill.fillStyle(0xffffff);
-	barFill.fillRect(0, 0, barWidth, BAR_HEIGHT);
-	container.add(barFill);
+	// We'll use the foregroundBar itself for animation, no need for a separate barFill
+	const barFill = foregroundBar; // Just reference the same object
 
-	// Label
+	// Inner highlight (subtle top highlight)
+	const innerHighlight = scene.add.graphics();
+	innerHighlight.fillStyle(0xffffff, 0.3);
+	innerHighlight.fillRoundedRect(INNER_PADDING + 1, INNER_PADDING + 1, barWidth - (INNER_PADDING * 2) - 2, (BAR_HEIGHT - (INNER_PADDING * 2)) / 3, 2);
+	container.add(innerHighlight);
+
+	// Label with stroke for better readability
 	const label = scene.add.text(
 		barWidth / 2, BAR_HEIGHT / 2,
-		labelText, c.defaultTextConfig
+		labelText, {
+		...c.defaultTextConfig,
+		fontSize: '14px',
+		fontStyle: 'bold',
+		color: '#ffffff',
+		stroke: '#000000',
+		strokeThickness: 3
+	}
 	).setOrigin(0.5);
 	container.add(label);
 
@@ -123,9 +140,11 @@ function create(
 
 	return {
 		container,
+		outerBorder,
 		backgroundBar,
 		foregroundBar,
 		barFill,
+		innerHighlight,
 		label,
 	}
 }
