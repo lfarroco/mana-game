@@ -19,12 +19,52 @@ let playerMoraleBar: MoraleBar | null = null;
 let cpuMoraleBar: MoraleBar | null = null;
 let scene: Phaser.Scene | null = null;
 
+// Track previous morale values to calculate deltas
+let previousPlayerMorale: number | null = null;
+let previousCpuMorale: number | null = null;
+
 /**
  * Handles the MORALE_UPDATED event by calling the bar update function.
  * @param payload The event payload with forceId, newMorale, and maxMorale.
  */
 function handleMoraleUpdated(payload: { forceId: string, newMorale: number, maxMorale: number }) {
 	updateMoraleBar(payload.forceId, payload.newMorale, payload.maxMorale);
+
+	// Calculate morale delta and show pop text
+	const targetBar = payload.forceId === c.FORCE_ID_PLAYER ? playerMoraleBar : cpuMoraleBar;
+	if (!targetBar || !scene) return;
+
+	// Get previous morale value
+	const isPlayer = payload.forceId === c.FORCE_ID_PLAYER;
+	const previousMorale = isPlayer ? previousPlayerMorale : previousCpuMorale;
+
+	// Calculate delta if we have a previous value
+	if (previousMorale !== null) {
+		const delta = payload.newMorale - previousMorale;
+
+		if (delta !== 0) {
+			// Calculate position at the center of the morale bar
+			const popTextX = targetBar.container.x + (scene.scale.width / 4) / 2;
+			const popTextY = targetBar.container.y;
+
+			const deltaText = delta > 0 ? `+${delta}` : `${delta}`;
+			const textType = delta > 0 ? "heal" : "damage"; // Green for positive, red for negative
+
+			scene.events.emit(GameEvents.POP_TEXT_SHOW, {
+				text: deltaText,
+				x: popTextX,
+				y: popTextY,
+				type: textType,
+			});
+		}
+	}
+
+	// Update the stored previous value
+	if (isPlayer) {
+		previousPlayerMorale = payload.newMorale;
+	} else {
+		previousCpuMorale = payload.newMorale;
+	}
 }
 
 function create(
@@ -133,4 +173,8 @@ export function destroy(): void {
 		cpuMoraleBar.container.destroy();
 		cpuMoraleBar = null;
 	}
+
+	// Reset previous morale values
+	previousPlayerMorale = null;
+	previousCpuMorale = null;
 }
