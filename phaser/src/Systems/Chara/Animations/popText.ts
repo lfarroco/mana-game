@@ -8,14 +8,14 @@ export async function popText({
 	x,
 	y,
 	text,
-	type, // "heal", "damage", or undefined for default
+	type, // "heal", "damage", "shield", or undefined for default
 	direction = "up" // Direction for animation: "up" or "down"
 }: {
 	scene: Phaser.Scene;
 	x: number;
 	y: number;
 	text: string;
-	type?: "heal" | "damage";
+	type?: "heal" | "damage" | "shield";
 	direction?: "up" | "down";
 }) {
 	let textColor = defaultTextConfig.color;
@@ -23,6 +23,8 @@ export async function popText({
 		textColor = POP_TEXT_CONFIG.COLORS.HEAL;
 	} else if (type === "damage") {
 		textColor = POP_TEXT_CONFIG.COLORS.DAMAGE;
+	} else if (type === "shield") {
+		textColor = POP_TEXT_CONFIG.COLORS.SHIELD;
 	}
 
 	const popText = scene.add.text(
