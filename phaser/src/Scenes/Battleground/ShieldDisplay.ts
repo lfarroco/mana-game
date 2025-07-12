@@ -64,7 +64,7 @@ function handleShieldUpdated(payload: { forceId: string, newShield: number, maxS
 			const popTextY = targetBar.container.y + randomOffsetY;
 
 			const deltaText = delta > 0 ? `+${delta}` : `${delta}`;
-			const textType = delta > 0 ? "heal" : "damage"; // Green for positive, red for negative
+			const textType = delta > 0 ? "shield" : "damage"; // Yellow for positive shield gain, red for negative
 			const textDirection = isPlayer ? "down" : "up"; // Player text flows down, enemy text flows up
 
 			scene.events.emit(GameEvents.POP_TEXT_SHOW, {

@@ -85,6 +85,7 @@ export const POP_TEXT_CONFIG = {
 	COLORS: {
 		HEAL: "green",
 		DAMAGE: "red",
+		SHIELD: "yellow",
 	}
 } as const;
 

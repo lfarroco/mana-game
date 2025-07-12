@@ -271,9 +271,9 @@ export class Chara extends Phaser.GameObjects.Container {
 	/**
 	 * Displays pop-up text originating from this Chara's position.
 	 * @param text The text to display.
-	 * @param type Optional type for styling (e.g., "heal", "damage").
+	 * @param type Optional type for styling (e.g., "heal", "damage", "shield").
 	 */
-	async showPopText(text: string, type?: "heal" | "damage"): Promise<void> {
+	async showPopText(text: string, type?: "heal" | "damage" | "shield"): Promise<void> {
 		await popText({ scene: this.scene, x: this.x, y: this.y, text, type });
 	}
 
