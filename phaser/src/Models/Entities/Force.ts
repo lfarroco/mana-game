@@ -109,7 +109,7 @@ export const manipulateForceShield = (
 		scene.events.emit(GameEvents.SHIELD_UPDATED, {
 			forceId: targetForce.id,
 			newShield: targetForce.shield,
-			maxShield: targetForce.morale, // maxShield for display = current morale
+			maxShield: targetForce.maxMorale, // maxShield for display = max morale
 		});
 	}
 
@@ -151,7 +151,7 @@ export const applyDamageToForce = (
 			scene.events.emit(GameEvents.SHIELD_UPDATED, {
 				forceId: targetForce.id,
 				newShield: targetForce.shield,
-				maxShield: targetForce.morale, // Use current morale as maxShield for display
+				maxShield: targetForce.maxMorale, // Use max morale as maxShield for display
 				suppressPopText: true, // Flag to suppress individual pop text
 			});
 		}
