@@ -52,7 +52,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	isShopItem: boolean;
 	/** Optional callback function to execute after a shop item is successfully purchased. */
 	onPurchasedCallback?: () => void;
-	playerBoard: Board.PlayerBoard;
+	playerBoard: Board.PartyBoard;
 	shop: Shop;
 
 	/**

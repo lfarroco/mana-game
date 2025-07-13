@@ -1,5 +1,5 @@
 import { UIManager } from "../../../UI/UIManager";
-import { PlayerBoard } from "../../../Models/Board";
+import { PartyBoard } from "../../../Models/Board";
 import { Shop } from "./Shop/Shop";
 import * as CharaManager from "./CharaManager"; // Keep CharaManager import
 import { GameEvents } from "../../../constants/events";
@@ -14,7 +14,7 @@ import { onCharaPointerOver, onCharaPointerOut } from "../../../Systems/Chara/Ch
 type Listener = {
 	event: string;
 	handler: (...args: any[]) => void;
-	context?: UIManager | PlayerBoard | Shop | BattlegroundEventSystem | undefined;
+	context?: UIManager | PartyBoard | Shop | BattlegroundEventSystem | undefined;
 };
 
 /**
@@ -35,7 +35,7 @@ type Listener = {
 export class BattlegroundEventSystem {
 	scene: BattlegroundScene;
 	uiManager: UIManager;
-	playerBoard: PlayerBoard;
+	playerBoard: PartyBoard;
 	shop: Shop;
 	listeners: Listener[] = [];
 

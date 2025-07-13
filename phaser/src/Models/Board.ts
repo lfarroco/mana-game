@@ -10,7 +10,7 @@ import { images } from "../assets";
 
 
 
-export class PlayerBoard {
+export class PartyBoard {
 	scene: Phaser.Scene;
 	slotImages: Phaser.GameObjects.Image[] = [];
 	dropZones: Phaser.GameObjects.Zone[] = []; // Add drop zones array
@@ -178,7 +178,7 @@ export class PlayerBoard {
 }
 
 // --- Module-level singleton management for a shared PlayerBoard ---
-let _sharedPlayerBoardInstance: PlayerBoard | null = null;
+let _sharedPlayerBoardInstance: PartyBoard | null = null;
 
 /**
  * Initializes or re-initializes the shared PlayerBoard instance.
@@ -188,11 +188,11 @@ let _sharedPlayerBoardInstance: PlayerBoard | null = null;
  * @param scene The Phaser scene.
  * @returns The newly created PlayerBoard instance.
  */
-export function initializeSharedPlayerBoard(scene: Phaser.Scene): PlayerBoard {
+export function initializeSharedPlayerBoard(scene: Phaser.Scene): PartyBoard {
 	if (_sharedPlayerBoardInstance) {
 		_sharedPlayerBoardInstance.destroy();
 	}
-	_sharedPlayerBoardInstance = new PlayerBoard(scene);
+	_sharedPlayerBoardInstance = new PartyBoard(scene);
 	return _sharedPlayerBoardInstance;
 }
 
@@ -200,7 +200,7 @@ export function initializeSharedPlayerBoard(scene: Phaser.Scene): PlayerBoard {
  * Retrieves the shared PlayerBoard instance.
  * @returns The PlayerBoard instance, or null if it hasn't been initialized.
  */
-export function getSharedPlayerBoard(): PlayerBoard | null {
+export function getSharedPlayerBoard(): PartyBoard | null {
 	if (!_sharedPlayerBoardInstance) {
 		console.warn("Shared PlayerBoard accessed before initialization. Call initializeSharedPlayerBoard(scene) first.");
 	}
