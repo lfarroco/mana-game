@@ -149,13 +149,13 @@ export class CharaInputHandler {
 			}
 		}
 
-		// Check if the drop target is a slot image from the player board
+		// Check if the drop target is a drop zone from the player board
 		const playerBoard = Board.getSharedPlayerBoard();
 		if (!playerBoard) {
 			console.warn("CharaInputHandler.processDrop: No shared player board instance.");
 			return false;
 		}
-		const slotIndex = playerBoard.slotImages.indexOf(dropTarget as Phaser.GameObjects.Image);
+		const slotIndex = playerBoard.dropZones.indexOf(dropTarget as Phaser.GameObjects.Zone);
 		if (slotIndex === -1) {
 			// Dropped outside a valid player board slot or the sell zone.
 			return false;

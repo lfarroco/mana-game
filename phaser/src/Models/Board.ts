@@ -13,6 +13,7 @@ import { images } from "../assets";
 export class PlayerBoard {
 	scene: Phaser.Scene;
 	slotImages: Phaser.GameObjects.Image[] = [];
+	dropZones: Phaser.GameObjects.Zone[] = []; // Add drop zones array
 
 	readonly x: number = PLAYER_BOARD_X;
 	readonly y: number = PLAYER_BOARD_Y;
@@ -27,10 +28,12 @@ export class PlayerBoard {
 		this.destroyVisuals();
 
 		this.slotImages = [];
+		this.dropZones = [];
 		for (let tileY = 0; tileY < 3; tileY++) {
 			for (let tileX = 0; tileX < 3; tileX++) {
 				const zoneX = this.x + tileX * constants.TILE_WIDTH;
 				const zoneY = this.y + tileY * constants.TILE_HEIGHT;
+
 				// Add slot image to each cell
 				const slotImg = this.scene.add.image(
 					zoneX + constants.TILE_WIDTH / 2,
@@ -39,6 +42,16 @@ export class PlayerBoard {
 				);
 				slotImg.setDisplaySize(constants.TILE_WIDTH, constants.TILE_HEIGHT);
 				this.slotImages.push(slotImg);
+
+				// Create an invisible drop zone over the slot image
+				const dropZone = this.scene.add.zone(
+					zoneX + constants.TILE_WIDTH / 2,
+					zoneY + constants.TILE_HEIGHT / 2,
+					constants.TILE_WIDTH,
+					constants.TILE_HEIGHT
+				);
+				dropZone.setRectangleDropZone(constants.TILE_WIDTH, constants.TILE_HEIGHT);
+				this.dropZones.push(dropZone);
 			}
 		}
 	}
@@ -50,6 +63,8 @@ export class PlayerBoard {
 	destroyVisuals(): void {
 		this.slotImages.forEach(img => img.destroy());
 		this.slotImages = [];
+		this.dropZones.forEach(zone => zone.destroy());
+		this.dropZones = [];
 	}
 
 	/** Call this when the scene shuts down or the board is no longer needed. */
