@@ -6,13 +6,13 @@ import { Unit } from "./Entities/Unit"; // Pointer type might be implicitly from
 import { getActiveUnits, getUnitAt, State } from "./State";
 import { pickOne, pickRandom } from "../utils";
 import { playerForce } from "./Entities/Force"; // playerForce is used by getMeleeTarget, keep import
+import { images } from "../assets";
 
 
 export class PlayerBoard {
 	scene: Phaser.Scene;
 	tileDropZones: Phaser.GameObjects.Zone[] = [];
-	boardDropZoneDisplay: Phaser.GameObjects.Graphics | null = null;
-	boardDropZoneTween: Phaser.Tweens.Tween | null = null;
+	slotImages: Phaser.GameObjects.Image[] = [];
 
 	/** Prefix for naming player board tile GameObjects */
 	static readonly PLAYER_BOARD_TILE_ZONE_PREFIX = "player_board_tile_";
@@ -31,6 +31,7 @@ export class PlayerBoard {
 		this.destroyVisuals();
 
 		this.tileDropZones = [];
+		this.slotImages = [];
 		for (let tileY = 0; tileY < 3; tileY++) {
 			for (let tileX = 0; tileX < 3; tileX++) {
 				const zoneX = this.x + tileX * constants.TILE_WIDTH;
@@ -40,22 +41,17 @@ export class PlayerBoard {
 					.setName(`${PlayerBoard.PLAYER_BOARD_TILE_ZONE_PREFIX}${tileX}_${tileY}`)
 					.setRectangleDropZone(constants.TILE_WIDTH, constants.TILE_HEIGHT);
 				this.tileDropZones.push(tileZone);
+
+				// Add slot image to each cell
+				const slotImg = this.scene.add.image(
+					zoneX + constants.TILE_WIDTH / 2,
+					zoneY + constants.TILE_HEIGHT / 2,
+					images.slot_round.key,
+				);
+				slotImg.setDisplaySize(constants.TILE_WIDTH, constants.TILE_HEIGHT);
+				this.slotImages.push(slotImg);
 			}
 		}
-
-		this.boardDropZoneDisplay = this.scene.add.graphics();
-		this.boardDropZoneDisplay.lineStyle(2, 0xffff00); // Yellow border
-		this.boardDropZoneDisplay.fillStyle(0x00ffff, 0.3); // Cyan fill with alpha
-		this.boardDropZoneDisplay.fillRect(this.x, this.y, this.width, this.height);
-		this.boardDropZoneDisplay.strokeRect(this.x, this.y, this.width, this.height);
-
-		this.boardDropZoneTween = this.scene.tweens.add({
-			targets: this.boardDropZoneDisplay,
-			alpha: 0.1,
-			duration: 2000,
-			repeat: -1,
-			yoyo: true
-		});
 	}
 
 	getTileDropZones(): Phaser.GameObjects.Zone[] {
@@ -68,11 +64,11 @@ export class PlayerBoard {
 	}
 
 	display(): void {
-		this.boardDropZoneDisplay?.setVisible(true);
+		this.slotImages.forEach(img => img.setVisible(true));
 	}
 
 	hide(): void {
-		this.boardDropZoneDisplay?.setVisible(false);
+		this.slotImages.forEach(img => img.setVisible(false));
 	}
 
 	/**
@@ -84,12 +80,8 @@ export class PlayerBoard {
 	}
 
 	destroyVisuals(): void {
-		this.boardDropZoneTween?.stop();
-		this.boardDropZoneTween = null;
-
-		this.boardDropZoneDisplay?.destroy();
-		this.boardDropZoneDisplay = null;
-
+		this.slotImages.forEach(img => img.destroy());
+		this.slotImages = [];
 		this.tileDropZones.forEach(zone => zone.destroy());
 		this.tileDropZones = [];
 	}

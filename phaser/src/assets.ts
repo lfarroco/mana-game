@@ -31,6 +31,10 @@ export const images = {
 		key: 'ui/slot',
 		url: 'assets/ui/slot.png',
 	},
+	slot_round: {
+		key: 'ui/slot-round',
+		url: 'assets/ui/slot-round.png',
+	},
 	wood_texture: {
 		key: 'ui/wood_texture',
 		url: 'assets/ui/wood_texture.png',
