@@ -1,9 +1,9 @@
 import * as Phaser from "phaser";
 import { SCENE_KEYS, SCREEN_WIDTH, SCREEN_HEIGHT, MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y, titleTextConfig, defaultTextConfig } from "../../constants/constants";
 import { State } from "../../Models/State";
+import { UIButton } from "../../UI/UIButton";
 
 export default class TitleScene extends Phaser.Scene {
-	private startButton!: Phaser.GameObjects.Text;
 	private gameTitle!: Phaser.GameObjects.Text;
 	private state?: State;
 
@@ -58,43 +58,16 @@ export default class TitleScene extends Phaser.Scene {
 			}
 		).setOrigin(0.5);
 
-		// Create start button
-		this.startButton = this.add.text(
+		// Create start button using UIButton component
+		new UIButton(
+			this,
+			'START GAME',
 			MIDDLE_SCREEN_X,
 			MIDDLE_SCREEN_Y + 100,
-			'START GAME',
-			{
-				...defaultTextConfig,
-				fontSize: '48px',
-				color: '#00FF00',
-				stroke: '#004400',
-				strokeThickness: 6
+			() => {
+				this.startGame();
 			}
-		).setOrigin(0.5);
-
-		// Make the start button interactive
-		this.startButton.setInteractive({ useHandCursor: true });
-
-		// Add hover effects
-		this.startButton.on('pointerover', () => {
-			this.startButton.setScale(1.1);
-			this.startButton.setTint(0xdddddd);
-		});
-
-		this.startButton.on('pointerout', () => {
-			this.startButton.setScale(1);
-			this.startButton.clearTint();
-		});
-
-		// Handle click to start the game
-		this.startButton.on('pointerdown', () => {
-			this.startButton.setScale(0.95);
-		});
-
-		this.startButton.on('pointerup', () => {
-			this.startButton.setScale(1.1);
-			this.startGame();
-		});
+		);
 
 		// Add some visual flair - pulsing effect on title
 		this.tweens.add({
