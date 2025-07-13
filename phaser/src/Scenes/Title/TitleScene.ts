@@ -3,10 +3,14 @@ import { SCENE_KEYS, SCREEN_WIDTH, SCREEN_HEIGHT, MIDDLE_SCREEN_X, MIDDLE_SCREEN
 import { State } from "../../Models/State";
 import { UIButton } from "../../UI/UIButton";
 import { cloudsBackgroundShader } from "../../Shaders/CloudsBackground";
+import { colorPresets } from "../../constants/colorPresets";
 
 export default class TitleScene extends Phaser.Scene {
 	private gameTitle!: Phaser.GameObjects.Text;
 	private state?: State;
+	private shader!: Phaser.GameObjects.Shader;
+	private presetKeys!: string[];
+	private currentPresetIndex: number = 0;
 
 	constructor() {
 		super(SCENE_KEYS.TITLE);
@@ -22,16 +26,19 @@ export default class TitleScene extends Phaser.Scene {
 	}
 
 	create() {
+		this.presetKeys = Object.keys(colorPresets);
+		const initialPreset = colorPresets[this.presetKeys[this.currentPresetIndex]];
+
 		// Create animated shader background with clouds and swirls
 		const backgroundShader = new Phaser.Display.BaseShader('cloudsBackground', cloudsBackgroundShader, undefined, {
-			color1: { type: '3f', value: { x: 0.05, y: 0.1, z: 0.25 } },
-			color2: { type: '3f', value: { x: 0.1, y: 0.2, z: 0.4 } },
-			color3: { type: '3f', value: { x: 0.2, y: 0.35, z: 0.6 } },
-			color4: { type: '3f', value: { x: 0.15, y: 0.1, z: 0.3 } },
-			color5: { type: '3f', value: { x: 0.4, y: 0.3, z: 0.1 } }
+			color1: { type: '3f', value: initialPreset.color1 },
+			color2: { type: '3f', value: initialPreset.color2 },
+			color3: { type: '3f', value: initialPreset.color3 },
+			color4: { type: '3f', value: initialPreset.color4 },
+			color5: { type: '3f', value: initialPreset.color5 }
 		});
 
-		this.add.shader(backgroundShader, MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y, SCREEN_WIDTH, SCREEN_HEIGHT)
+		this.shader = this.add.shader(backgroundShader, MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y, SCREEN_WIDTH, SCREEN_HEIGHT)
 			.setOrigin(0.5, 0.5);
 
 		// Create the main title
@@ -91,6 +98,26 @@ export default class TitleScene extends Phaser.Scene {
 		this.input.keyboard?.on('keydown-ENTER', () => {
 			this.startGame();
 		});
+
+		// Add a timer to cycle through color presets
+		this.time.addEvent({
+			delay: 5000, // 5 seconds
+			callback: this.changePreset,
+			callbackScope: this,
+			loop: true
+		});
+	}
+
+	private changePreset() {
+		this.currentPresetIndex = (this.currentPresetIndex + 1) % this.presetKeys.length;
+		const presetKey = this.presetKeys[this.currentPresetIndex];
+		const preset = colorPresets[presetKey];
+
+		this.shader.setUniform('color1.value', preset.color1);
+		this.shader.setUniform('color2.value', preset.color2);
+		this.shader.setUniform('color3.value', preset.color3);
+		this.shader.setUniform('color4.value', preset.color4);
+		this.shader.setUniform('color5.value', preset.color5);
 	}
 
 	private createParticles() {
