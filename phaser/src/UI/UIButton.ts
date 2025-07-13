@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { tween } from "../Utils/animation";
+import { titleTextConfig } from "../constants/constants";
 
 /**
  * A reusable, interactive button component for Phaser scenes.
@@ -17,8 +18,8 @@ export class UIButton extends Phaser.GameObjects.Container {
 	isPressed: boolean = false;
 
 	// These could be parameterized in the constructor or a config object for more flexibility.
-	readonly buttonWidth = 180;
-	readonly buttonHeight = 50;
+	readonly buttonWidth = 280;
+	readonly buttonHeight = 60;
 	readonly cornerRadius = 10;
 	/** Fill color for the button in its normal, non-interactive state. */
 	readonly normalFillColor = 0x2c3e50;
@@ -52,8 +53,8 @@ export class UIButton extends Phaser.GameObjects.Container {
 			x, y,
 			text,
 			{
+				...titleTextConfig,
 				fontSize: '24px',
-				fontStyle: 'bold',
 				color: '#ffffff',
 				stroke: '#000000',
 				strokeThickness: 3
