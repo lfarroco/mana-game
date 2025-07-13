@@ -17,8 +17,8 @@ export class PlayerBoard {
 
 	readonly x: number = PLAYER_BOARD_X;
 	readonly y: number = PLAYER_BOARD_Y;
-	readonly width: number = constants.TILE_WIDTH * 3;
-	readonly height: number = constants.TILE_HEIGHT * 3;
+	readonly width: number = constants.TILE_WIDTH * 3 + 8 * 2; // Account for spacing between 3 tiles (2 gaps)
+	readonly height: number = constants.TILE_HEIGHT * 3 + 8 * 2; // Account for spacing between 3 tiles (2 gaps)
 
 	constructor(scene: Phaser.Scene) {
 		this.scene = scene;
@@ -27,12 +27,13 @@ export class PlayerBoard {
 	renderSlots(): void {
 		this.destroyVisuals();
 
+		const slotSpacing = 8; // Add 8 pixels spacing between slots
 		this.slotImages = [];
 		this.dropZones = [];
 		for (let tileY = 0; tileY < 3; tileY++) {
 			for (let tileX = 0; tileX < 3; tileX++) {
-				const zoneX = this.x + tileX * constants.TILE_WIDTH;
-				const zoneY = this.y + tileY * constants.TILE_HEIGHT;
+				const zoneX = this.x + tileX * (constants.TILE_WIDTH + slotSpacing);
+				const zoneY = this.y + tileY * (constants.TILE_HEIGHT + slotSpacing);
 
 				// Add slot image to each cell
 				const slotImg = this.scene.add.image(
@@ -107,15 +108,21 @@ export class PlayerBoard {
 	 * @returns A Vec2 representing the tile coordinates (e.g., {x:0, y:0}), or null if outside board.
 	 */
 	getTileAt(pointer: { x: number; y: number }): Vec2 | null {
+		const slotSpacing = 8; // Must match the spacing used in renderSlots()
+		const tileWithSpacing = constants.TILE_WIDTH + slotSpacing;
+		const heightWithSpacing = constants.TILE_HEIGHT + slotSpacing;
+
 		// Check if the pointer is within the board's boundaries
-		// Consistent with Phaser.Geom.Rectangle.contains (exclusive upper bound)
 		if (pointer.x >= this.x && pointer.x < this.x + this.width &&
 			pointer.y >= this.y && pointer.y < this.y + this.height) {
 
-			return vec2(
-				Math.floor((pointer.x - this.x) / constants.TILE_WIDTH),
-				Math.floor((pointer.y - this.y) / constants.TILE_HEIGHT)
-			);
+			const tileX = Math.floor((pointer.x - this.x) / tileWithSpacing);
+			const tileY = Math.floor((pointer.y - this.y) / heightWithSpacing);
+
+			// Ensure we're within the 3x3 grid
+			if (tileX >= 0 && tileX < 3 && tileY >= 0 && tileY < 3) {
+				return vec2(tileX, tileY);
+			}
 		}
 		return null;
 	}
