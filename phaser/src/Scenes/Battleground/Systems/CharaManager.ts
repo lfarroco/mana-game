@@ -90,13 +90,13 @@ export function registerChara(chara: Chara.Chara) {
 }
 // TODO: move to chara
 export function getCharaPosition(unit: Unit) {
-
+	const slotSpacing = 8; // Must match the spacing used in Board.ts renderSlots()
 	const offsetX = unit.force === constants.FORCE_ID_PLAYER ? constants.PLAYER_BOARD_X : constants.CPU_BOARD_X;
 	const offsetY = unit.force === constants.FORCE_ID_PLAYER ? constants.PLAYER_BOARD_Y : constants.CPU_BOARD_Y;
 
 	return vec2(
-		unit.position.x * constants.TILE_WIDTH + constants.HALF_TILE_WIDTH + offsetX,
-		unit.position.y * constants.TILE_HEIGHT + constants.HALF_TILE_HEIGHT + offsetY
+		unit.position.x * (constants.TILE_WIDTH + slotSpacing) + constants.HALF_TILE_WIDTH + offsetX,
+		unit.position.y * (constants.TILE_HEIGHT + slotSpacing) + constants.HALF_TILE_HEIGHT + offsetY
 	);
 }
 
