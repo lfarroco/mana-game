@@ -48,10 +48,12 @@ export const GameEvents = {
 
 	MORALE_BARS_SHOW: "morale_bars_show",
 	MORALE_BARS_HIDE: "morale_bars_hide",
+	MORALE_BARS_FADE_OUT: "morale_bars_fade_out",
 	MORALE_UPDATED: "morale_updated", // Payload: { forceId: string, newMorale: number, maxMorale: number }
 
 	SHIELD_BARS_SHOW: "shield_bars_show",
 	SHIELD_BARS_HIDE: "shield_bars_hide",
+	SHIELD_BARS_FADE_OUT: "shield_bars_fade_out",
 	SHIELD_UPDATED: "shield_updated", // Payload: { forceId: string, newShield: number, maxShield: number }
 
 	COMBAT_START_EXECUTION_TRIGGER: "combat_start_execution_trigger", // Payload: { enemies: Unit[] }
