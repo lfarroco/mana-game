@@ -11,6 +11,8 @@ import { CharaStatsDisplay } from "./CharaStatsDisplay";
 import { CharaBarsDisplay } from "./CharaBarsDisplay";
 import { GameEvents } from "../../constants/events";
 import { CharaInputHandler } from "./CharaInputHandler";
+import CircleMaskImage from "phaser3-rex-plugins/plugins/gameobjects/canvas/circlemaskimage/CircleMaskImage";
+import { Shop } from "../../Scenes/Battleground/Systems/Shop/Shop";
 
 export type CharaOptions = {
 	isShopItem?: boolean;
@@ -36,7 +38,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	isAnimating: boolean;
 
 	/** The main visual image/sprite for the character. */
-	sprite!: Phaser.GameObjects.Image;
+	sprite!: CircleMaskImage;
 	/** Component responsible for displaying ATK/HP numerical stats. */
 	statsDisplay!: CharaStatsDisplay;
 	/** Component responsible for displaying HP, charge, and cooldown bars. */
@@ -49,7 +51,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	/** Optional callback function to execute after a shop item is successfully purchased. */
 	onPurchasedCallback?: () => void;
 	playerBoard: Board.PlayerBoard;
-	shop: import("/Users/momo/dev/mana-game/phaser/src/Scenes/Battleground/Systems/Shop/Shop").Shop;
+	shop: Shop;
 
 	/**
 	 * Creates an instance of a Chara.
@@ -155,9 +157,9 @@ export class Chara extends Phaser.GameObjects.Container {
 		if (textureKey === images.nameless.key) {
 			console.warn(`Chara ${this.unit.id} using default texture ${textureKey}`);
 		}
-		this.sprite = this.scene.add.image(0, 0, textureKey)
-			.setDisplaySize(constants.TILE_WIDTH, constants.TILE_HEIGHT);
-
+		// Use rexCircleMaskImage for a circular sprite
+		this.sprite = this.scene.add.rexCircleMaskImage(0, 0, textureKey)
+		this.sprite.setDisplaySize(constants.TILE_WIDTH * 0.8, constants.TILE_HEIGHT * 0.8);
 		this.add(this.sprite);
 	}
 
