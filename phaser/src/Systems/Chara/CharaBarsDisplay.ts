@@ -36,10 +36,11 @@ export class CharaBarsDisplay {
 		const { chargeBar, cooldownBar, hpBar, unit } = this;
 		const maxWidthForDebugBars = constants.TILE_WIDTH - (2 * CharaBarsDisplay.DEBUG_BAR_PADDING);
 
-		// Charge Bar
+
+		// Charge Bar as a circular arc
 		chargeBar.clear();
-		const percent = unit.charge / unit.cooldown;
-		let color = 0x000;
+		const percent = Math.max(0, Math.min(unit.charge / unit.cooldown, 1));
+		let color = 0x000000;
 
 		// Check status effects using the new system
 		const isHasted = hasStatusEffect(unit, 'haste');
@@ -47,17 +48,22 @@ export class CharaBarsDisplay {
 		const isFrozen = hasStatusEffect(unit, 'freeze') || hasStatusEffect(unit, 'stun');
 
 		if (isFrozen) color = 0x87ceeb; // Light blue for frozen/stunned
-		else if (isHasted && isSlowed) color = 0x000;
+		else if (isHasted && isSlowed) color = 0x000000;
 		else if (isHasted) color = 0x00ff00;
 		else if (isSlowed) color = 0xff0000;
 
-		chargeBar.fillStyle(color, 0.2);
-		chargeBar.fillRect(
-			-constants.HALF_TILE_WIDTH,
-			-constants.HALF_TILE_HEIGHT,
-			constants.TILE_WIDTH,
-			constants.TILE_HEIGHT - Math.min(percent * constants.TILE_HEIGHT, constants.TILE_HEIGHT)
-		);
+		// Draw a circular arc (outline only) around the chara
+		const centerX = 0;
+		const centerY = 0;
+		const radius = constants.TILE_WIDTH * 0.48; // slightly inside the sprite border
+		const startAngle = Phaser.Math.DegToRad(-90); // Start at top
+		const endAngle = startAngle + Phaser.Math.DegToRad(360 * percent);
+		chargeBar.lineStyle(4, color, 1);
+		if (percent > 0) {
+			chargeBar.beginPath();
+			chargeBar.arc(centerX, centerY, radius, startAngle, endAngle, false);
+			chargeBar.strokePath();
+		}
 
 		if (!getOption('debug')) {
 			cooldownBar.clear();
