@@ -94,18 +94,6 @@ export class BattlegroundEventSystem {
 		this.initializeVignetteSystem();
 	}
 
-	/**
-	 * Handler for UNIT_SHIELD_GAINED events to show shield pop text on units
-	 * @param payload - The event payload containing unit and shield amount
-	 */
-	private handleUnitShieldGained(payload: { unit: { id: string }, amount: number }): void {
-		const chara = CharaManager.getChara(payload.unit.id);
-		if (chara && chara.active) {
-			// Show shield pop text with yellow color
-			chara.showPopText(`+${payload.amount} Shield`, "shield");
-		}
-	}
-
 	private handleGameOverShowUITrigger(): void {
 		console.warn("Game over UI trigger handler is not implemented yet.");
 	}
@@ -138,7 +126,6 @@ export class BattlegroundEventSystem {
 			// Visual Effects & Feedback
 			{ event: GameEvents.POP_TEXT_SHOW, handler: (payload: PopTextPayload) => popText({ scene: this.scene, x: payload.x, y: payload.y, text: payload.text, type: payload.type, direction: payload.direction }), context: this },
 			{ event: GameEvents.BATTLE_RESULT_SHOW, handler: this.scene.handleBattleResultShow, context: this.scene },
-			{ event: GameEvents.UNIT_SHIELD_GAINED, handler: this.handleUnitShieldGained, context: this },
 
 			// Shop Interactions
 			{ event: GameEvents.SHOP_OPEN_UI_TRIGGER, handler: this.shop.handleShopOpenUITrigger, context: this.shop },
