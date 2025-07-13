@@ -9,13 +9,10 @@ import { playerForce } from "./Entities/Force"; // playerForce is used by getMel
 import { images } from "../assets";
 
 
+
 export class PlayerBoard {
 	scene: Phaser.Scene;
-	tileDropZones: Phaser.GameObjects.Zone[] = [];
 	slotImages: Phaser.GameObjects.Image[] = [];
-
-	/** Prefix for naming player board tile GameObjects */
-	static readonly PLAYER_BOARD_TILE_ZONE_PREFIX = "player_board_tile_";
 
 	readonly x: number = PLAYER_BOARD_X;
 	readonly y: number = PLAYER_BOARD_Y;
@@ -26,22 +23,14 @@ export class PlayerBoard {
 		this.scene = scene;
 	}
 
-	createDropZone(): void {
-		// Clean up any existing graphical elements this instance created
+	renderSlots(): void {
 		this.destroyVisuals();
 
-		this.tileDropZones = [];
 		this.slotImages = [];
 		for (let tileY = 0; tileY < 3; tileY++) {
 			for (let tileX = 0; tileX < 3; tileX++) {
 				const zoneX = this.x + tileX * constants.TILE_WIDTH;
 				const zoneY = this.y + tileY * constants.TILE_HEIGHT;
-				const tileZone = this.scene.add.zone(zoneX, zoneY, constants.TILE_WIDTH, constants.TILE_HEIGHT)
-					.setOrigin(0)
-					.setName(`${PlayerBoard.PLAYER_BOARD_TILE_ZONE_PREFIX}${tileX}_${tileY}`)
-					.setRectangleDropZone(constants.TILE_WIDTH, constants.TILE_HEIGHT);
-				this.tileDropZones.push(tileZone);
-
 				// Add slot image to each cell
 				const slotImg = this.scene.add.image(
 					zoneX + constants.TILE_WIDTH / 2,
@@ -54,36 +43,13 @@ export class PlayerBoard {
 		}
 	}
 
-	getTileDropZones(): Phaser.GameObjects.Zone[] {
-		return this.tileDropZones;
-	}
-
-	isPointerInDropZone(pointer: { x: number, y: number }): boolean {
-		const boardBounds = new Phaser.Geom.Rectangle(this.x, this.y, this.width, this.height);
-		return boardBounds.contains(pointer.x, pointer.y);
-	}
-
 	display(): void {
 		this.slotImages.forEach(img => img.setVisible(true));
-	}
-
-	hide(): void {
-		this.slotImages.forEach(img => img.setVisible(false));
-	}
-
-	/**
-	 * Clears only the visual elements (graphics, tweens, zones) created by this board.
-	 * The PlayerBoard instance itself remains, allowing visuals to be recreated later.
-	 */
-	clearVisuals(): void {
-		this.destroyVisuals();
 	}
 
 	destroyVisuals(): void {
 		this.slotImages.forEach(img => img.destroy());
 		this.slotImages = [];
-		this.tileDropZones.forEach(zone => zone.destroy());
-		this.tileDropZones = [];
 	}
 
 	/** Call this when the scene shuts down or the board is no longer needed. */
@@ -175,23 +141,7 @@ export class PlayerBoard {
 		}
 	}
 
-	static isTileZone(gameObject: Phaser.GameObjects.GameObject): boolean {
-		return gameObject && gameObject.name.startsWith(PlayerBoard.PLAYER_BOARD_TILE_ZONE_PREFIX);
-	}
 
-	static getTileFromZone(zone: Phaser.GameObjects.GameObject): Vec2 | null {
-		if (PlayerBoard.isTileZone(zone)) {
-			const parts = zone.name.substring(PlayerBoard.PLAYER_BOARD_TILE_ZONE_PREFIX.length).split('_');
-			if (parts.length === 2) {
-				const x = parseInt(parts[0], 10);
-				const y = parseInt(parts[1], 10);
-				if (!isNaN(x) && !isNaN(y)) {
-					return vec2(x, y);
-				}
-			}
-		}
-		return null;
-	}
 }
 
 // --- Module-level singleton management for a shared PlayerBoard ---
@@ -232,7 +182,7 @@ export function getSharedPlayerBoard(): PlayerBoard | null {
 export function createBoardDropZone(): void {
 	const board = getSharedPlayerBoard();
 	if (board) {
-		board.createDropZone(); // This method internally handles cleanup of its previous visuals
+		board.renderSlots(); // This method internally handles cleanup of its previous visuals
 	} else {
 		console.error("Cannot create board drop zone: Shared PlayerBoard not initialized.");
 	}

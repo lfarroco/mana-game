@@ -6,6 +6,7 @@ import { tween } from "../../Utils/animation";
 import { GameEvents } from "../../constants/events";
 import { Vec2 } from "../../Models/Geometry";
 import * as Board from "../../Models/Board";
+import { vec2 } from "../../Models/Geometry";
 import * as sc from "../../Scenes/Battleground/Systems/Shop/ShopConstants";
 
 export class CharaInputHandler {
@@ -137,8 +138,8 @@ export class CharaInputHandler {
 	 * Processes a drop action onto a game object, typically a board tile zone or sell zone.
 	 * Determines if the Chara is an owned unit or a shop item and delegates to the appropriate handler.
 	 */
-	processDrop(dropZoneTarget: Phaser.GameObjects.GameObject, dragStartX: number, dragStartY: number): boolean {
-		if (dropZoneTarget.name === sc.SHOP_SELL_ZONE_NAME) {
+	processDrop(dropTarget: Phaser.GameObjects.GameObject, dragStartX: number, dragStartY: number): boolean {
+		if (dropTarget.name === sc.SHOP_SELL_ZONE_NAME) {
 			if (!this.chara.getIsShopItem()) { // Can only sell owned units
 				this._handleSellUnit();
 				return true; // Drop handled
@@ -148,16 +149,21 @@ export class CharaInputHandler {
 			}
 		}
 
-		if (!Board.PlayerBoard.isTileZone(dropZoneTarget)) {
-			// Dropped outside a valid player board tile zone or the sell zone.
+		// Check if the drop target is a slot image from the player board
+		const playerBoard = Board.getSharedPlayerBoard();
+		if (!playerBoard) {
+			console.warn("CharaInputHandler.processDrop: No shared player board instance.");
 			return false;
 		}
-
-		const tile = Board.PlayerBoard.getTileFromZone(dropZoneTarget);
-		if (!tile) {
-			console.warn("CharaInputHandler.processDrop: Dropped on a player board tile zone, but could not derive tile coordinates.", dropZoneTarget.name);
+		const slotIndex = playerBoard.slotImages.indexOf(dropTarget as Phaser.GameObjects.Image);
+		if (slotIndex === -1) {
+			// Dropped outside a valid player board slot or the sell zone.
 			return false;
 		}
+		// Calculate tile coordinates from slot index (3x3 board)
+		const tileX = slotIndex % 3;
+		const tileY = Math.floor(slotIndex / 3);
+		const tile = vec2(tileX, tileY);
 
 		if (!this.chara.getIsShopItem()) { // It's an owned unit
 			this._handleDropOwnedUnit(tile, dragStartX, dragStartY);

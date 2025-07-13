@@ -54,10 +54,6 @@ export class BattlegroundScene extends Phaser.Scene {
     this.time.removeAllEvents();
     this.children.removeAll(true);
 
-    if (this.playerBoard) {
-      this.playerBoard.clearVisuals();
-    }
-
     if (this.uiManager) {
       this.uiManager.destroy();
     }
@@ -152,7 +148,6 @@ export class BattlegroundScene extends Phaser.Scene {
     this.eventSystem.registerEventHandlers();
 
     // 6. Emit events for initial UI and board setup now that listeners are active
-    this.events.emit(GameEvents.PLAYER_BOARD_CREATE_DROP_ZONE); // For drop zone visuals
     this.events.emit(GameEvents.UI_MAIN_CREATE);               // For main UI (sidebar, gold, etc.)
 
     // 7. Setup Trait System event listeners
