@@ -7,6 +7,8 @@ import { GoldCoinAnimator } from "./GoldCoinAnimator";
 import { GameEvents } from "../constants/events";
 import { DifficultyTier } from "../Scenes/Battleground/generateEnemyTeam";
 import { UserMessagePayload } from "../Models/EventPayloads";
+import { TypedEventEmitter } from "../Systems/Events/TypedEventEmitter";
+import { GoldSystemEventPayloads, GoldSystemEvents } from "../Systems/GoldSystem/events";
 
 const SIDEBAR_TEXT_BASE_X = 300;
 const SIDEBAR_TEXT_BASE_Y = -400;
@@ -34,6 +36,8 @@ export class UIManager {
 	totalRoundsTextElement: Phaser.GameObjects.Text | null = null;
 	/** Phaser text element for displaying the current difficulty tier. */
 	difficultyTierTextElement: Phaser.GameObjects.Text | null = null;
+	/** Typed event emitter for gold system events. */
+	private goldEvents: TypedEventEmitter<GoldSystemEventPayloads>;
 
 	/**
 	 * Initializes the UIManager.
@@ -44,6 +48,7 @@ export class UIManager {
 	constructor(scene: BattlegroundScene) {
 		this.scene = scene;
 		this.goldCoinAnimator = new GoldCoinAnimator(this.scene);
+		this.goldEvents = new TypedEventEmitter<GoldSystemEventPayloads>(this.scene.events);
 		this._setupGoldChangeListener();
 		this._setupPrestigeChangeListener();
 		this._setupRoundStatsListener();
@@ -77,7 +82,7 @@ export class UIManager {
 	 * by calling `_handleGoldChanged`.
 	 */
 	_setupGoldChangeListener(): void {
-		this.scene.events.on(GameEvents.GOLD_CHANGED, this._handleGoldChanged, this);
+		this.goldEvents.on(GoldSystemEvents.GOLD_CHANGED, this._handleGoldChanged.bind(this));
 	}
 
 	/**
@@ -414,7 +419,7 @@ export class UIManager {
 	destroy(): void { // Full cleanup for the UIManager
 		this.destroyMainUI();
 		Tooltip.destroyTooltip();
-		this.scene.events.off(GameEvents.GOLD_CHANGED, this._handleGoldChanged, this);
+		this.goldEvents.off(GoldSystemEvents.GOLD_CHANGED, this._handleGoldChanged.bind(this));
 		this.scene.events.off(GameEvents.PRESTIGE_CHANGED, this._handlePrestigeChanged, this);
 		this.scene.events.off(GameEvents.PURCHASE_FAILED, this._handlePurchaseFailed, this);
 		this.scene.events.off(GameEvents.USER_MESSAGE_REQUESTED, this._handleUserMessageRequested, this);

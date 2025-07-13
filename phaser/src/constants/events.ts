@@ -1,5 +1,27 @@
+import { GoldSystemEvents } from "./EventRegistry";
+
+/**
+ * ⚠️  LEGACY EVENT SYSTEM - Consider Using Typed Events Instead
+ * 
+ * This file contains the old string-based event system. For new events, please consider
+ * using the new typed event system for better type safety and modularity:
+ * 
+ * 1. Create events in `/src/Systems/[SystemName]/events.ts` with:
+ *    - Interface defining event payloads with proper TypeScript types
+ *    - Constants object with event names (using `as const`)
+ * 
+ * 2. Use `TypedEventEmitter<SystemEventPayloads>` for type-safe emission/listening
+ * 
+ * 3. Add to `/src/constants/EventRegistry.ts` for global type awareness
+ * 
+ * Philosophy: Each system owns its events, making them easier to maintain and remove.
+ * When removing a feature, you only need to delete its folder and remove the import
+ * from EventRegistry.ts - the compiler will catch any remaining references.
+ * 
+ * Example migration: GOLD_CHANGED has been moved to `/src/Systems/GoldSystem/events.ts`
+ */
 export const GameEvents = {
-	GOLD_CHANGED: "gold_changed",
+	GOLD_CHANGED: GoldSystemEvents.GOLD_CHANGED,
 	/**
 	 * Emitted when the battle wave setup is complete, before the first tick of combat.
 	 * Units and other systems can listen to this to apply battle-start effects.

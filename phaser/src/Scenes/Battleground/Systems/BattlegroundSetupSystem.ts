@@ -8,6 +8,8 @@ import { initializeSharedPlayerBoard, PlayerBoard } from "../../../Models/Board"
 import * as BG_CONSTANTS from "../battlegroundConstants";
 import { GameEvents } from "../../../constants/events";
 import { BattlegroundScene } from "../BattlegroundScene";
+import { TypedEventEmitter } from "../../../Systems/Events/TypedEventEmitter";
+import { GoldSystemEventPayloads, GoldSystemEvents } from "../../../Systems/GoldSystem/events";
 import { getOption } from "../../../Models/OptionsStore";
 import { devlog } from "../../../utils";
 
@@ -59,9 +61,12 @@ export class BattlegroundSetupSystem {
 		// Emit PRESTIGE_CHANGED so UI can display the initial value. Delta is 0.
 		this.scene.events.emit(GameEvents.PRESTIGE_CHANGED, state.gameData.player.prestige, 0);
 
+		// Create typed event emitter for gold system events
+		const goldEvents = new TypedEventEmitter<GoldSystemEventPayloads>(this.scene.events);
+
 		// Emit GOLD_CHANGED so UI and other systems can react to the initial gold value.
 		// The delta is the full initial amount, signifying the change from a conceptual zero or previous state.
-		this.scene.events.emit(GameEvents.GOLD_CHANGED, initialGold, initialGold);
+		goldEvents.emit(GoldSystemEvents.GOLD_CHANGED, initialGold, initialGold);
 		this.scene.sound.setVolume(getOption('soundVolume') ?? BG_CONSTANTS.DEFAULT_SCENE_SOUND_VOLUME);
 	}
 
