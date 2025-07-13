@@ -33,14 +33,12 @@ export class CharaBarsDisplay {
 	}
 
 	updateBars(): void {
-		const { chargeBar, cooldownBar, hpBar, unit } = this;
-		const maxWidthForDebugBars = constants.TILE_WIDTH - (2 * CharaBarsDisplay.DEBUG_BAR_PADDING);
-
+		const { chargeBar, unit } = this;
 
 		// Charge Bar as a circular arc
 		chargeBar.clear();
 		const percent = Math.max(0, Math.min(unit.charge / unit.cooldown, 1));
-		let color = 0x000000;
+		let color = 0x33ff33;
 
 		// Check status effects using the new system
 		const isHasted = hasStatusEffect(unit, 'haste');
@@ -49,40 +47,23 @@ export class CharaBarsDisplay {
 
 		if (isFrozen) color = 0x87ceeb; // Light blue for frozen/stunned
 		else if (isHasted && isSlowed) color = 0x000000;
-		else if (isHasted) color = 0x00ff00;
+		else if (isHasted) color = 0x00eaff;
 		else if (isSlowed) color = 0xff0000;
 
-		// Draw a circular arc (outline only) around the chara
+		// Draw a circular arc (outline only) exactly over the chara border
 		const centerX = 0;
 		const centerY = 0;
-		const radius = constants.TILE_WIDTH * 0.48; // slightly inside the sprite border
+		// The border in Chara.ts uses: (constants.TILE_WIDTH * 0.8) / 2
+		const borderRadius = (constants.TILE_WIDTH * 0.8) / 2;
+		const arcRadius = borderRadius; // match border exactly
 		const startAngle = Phaser.Math.DegToRad(-90); // Start at top
 		const endAngle = startAngle + Phaser.Math.DegToRad(360 * percent);
-		chargeBar.lineStyle(4, color, 1);
+		chargeBar.lineStyle(3, color, 1); // match border width (border is 3)
 		if (percent > 0) {
 			chargeBar.beginPath();
-			chargeBar.arc(centerX, centerY, radius, startAngle, endAngle, false);
+			chargeBar.arc(centerX, centerY, arcRadius, startAngle, endAngle, false);
 			chargeBar.strokePath();
 		}
-
-		if (!getOption('debug')) {
-			cooldownBar.clear();
-			hpBar.clear();
-			return;
-		}
-
-		// Cooldown Bar (Debug)
-		cooldownBar.clear();
-		const cooldownPercent = Math.min(unit.refresh / constants.MIN_COOLDOWN, 1);
-		cooldownBar.fillStyle(0xff0000, 1);
-		cooldownBar.fillRect(
-			-constants.HALF_TILE_WIDTH + CharaBarsDisplay.DEBUG_BAR_PADDING,
-			-constants.HALF_TILE_HEIGHT + 30,
-			cooldownPercent * maxWidthForDebugBars,
-			CharaBarsDisplay.DEBUG_BAR_HEIGHT
-		);
-
-		// HP Bar removed since units no longer have HP
 	}
 
 	updateUnit(newUnit: Unit): void {
