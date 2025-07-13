@@ -39,6 +39,8 @@ export class Chara extends Phaser.GameObjects.Container {
 
 	/** The main visual image/sprite for the character. */
 	sprite!: CircleMaskImage;
+	/** The border graphics object for the sprite. */
+	spriteBorder?: Phaser.GameObjects.Graphics;
 	/** Component responsible for displaying ATK/HP numerical stats. */
 	statsDisplay!: CharaStatsDisplay;
 	/** Component responsible for displaying HP, charge, and cooldown bars. */
@@ -147,8 +149,11 @@ export class Chara extends Phaser.GameObjects.Container {
 	/**
 	 * Creates the main sprite for the Chara based on `unit.pic`.
 	 * Uses a default "nameless" image if the specified picture key doesn't exist.
+	 * Adds a circular border around the sprite.
+	 * @param borderWidth The width of the border in pixels (default 3).
+	 * @param borderColor The color of the border (default 0xffffff).
 	 */
-	createSprite() {
+	createSprite(borderWidth: number = 3, borderColor: number = 0xffffff) {
 		// Use unit.pic if valid, otherwise default to "nameless"
 		const textureKey = this.unit.pic && this.scene.textures.exists(this.unit.pic)
 			? this.unit.pic
@@ -158,9 +163,18 @@ export class Chara extends Phaser.GameObjects.Container {
 			console.warn(`Chara ${this.unit.id} using default texture ${textureKey}`);
 		}
 		// Use rexCircleMaskImage for a circular sprite
-		this.sprite = this.scene.add.rexCircleMaskImage(0, 0, textureKey)
+		this.sprite = this.scene.add.rexCircleMaskImage(0, 0, textureKey);
 		this.sprite.setDisplaySize(constants.TILE_WIDTH * 0.8, constants.TILE_HEIGHT * 0.8);
 		this.add(this.sprite);
+
+		// Add a circular border using Phaser.GameObjects.Graphics
+		const radius = (constants.TILE_WIDTH * 0.8) / 2;
+		const border = this.scene.add.graphics({ x: 0, y: 0 });
+		border.lineStyle(borderWidth, borderColor, 1);
+		border.strokeCircle(0, 0, radius);
+		// Ensure border is above the sprite
+		this.add(border);
+		this.spriteBorder = border;
 	}
 
 	_onShopPurchaseSuccessful(payload: { purchasedUnit: Unit, originalShopCharaId: string }): void {
