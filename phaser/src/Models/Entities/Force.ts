@@ -2,6 +2,8 @@ import Phaser from "phaser";
 import { FORCE_ID_PLAYER, FORCE_ID_CPU, INITIAL_MORALE } from "../../constants/constants";
 import { Unit } from "./Unit";
 import { GameEvents } from "../../constants/events";
+import { TypedEventEmitter } from "../../Systems/Events/TypedEventEmitter";
+import { GoldSystemEventPayloads, GoldSystemEvents } from "../../Systems/GoldSystem/events";
 
 export type Force = {
 	id: string;
@@ -51,9 +53,12 @@ export const updatePlayerGoldIO = (scene: Phaser.Scene, goldDelta: number) => {
 	const changeAmount = Math.floor(goldDelta);
 	playerForce.gold += changeAmount;
 
-	// Emit an event with the new total gold and the delta amount
+	// Create typed event emitter for gold system events
+	const typedEvents = new TypedEventEmitter<GoldSystemEventPayloads>(scene.events);
+
+	// Emit typed event with the new total gold and the delta amount
 	// The UIManager will listen to this to update text and play animations
-	scene.events.emit(GameEvents.GOLD_CHANGED, playerForce.gold, changeAmount);
+	typedEvents.emit(GoldSystemEvents.GOLD_CHANGED, playerForce.gold, changeAmount);
 }
 
 /**
