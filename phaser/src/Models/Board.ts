@@ -1,14 +1,10 @@
 import Phaser from "phaser";
 import * as constants from "../constants/constants";
 import { PLAYER_BOARD_X, PLAYER_BOARD_Y, CPU_BOARD_X, CPU_BOARD_Y } from "../constants/constants";
-import { vec2, Vec2, eqVec2, sortBySnakeDistance, snakeDistanceBetween } from "./Geometry";
+import { vec2, Vec2, eqVec2 } from "./Geometry";
 import { Unit } from "./Entities/Unit"; // Pointer type might be implicitly from Phaser or a custom type
-import { getActiveUnits, getUnitAt, State } from "./State";
-import { pickOne, pickRandom } from "../utils";
-import { playerForce } from "./Entities/Force"; // playerForce is used by getMeleeTarget, keep import
+import { getUnitAt, State } from "./State";
 import { images } from "../assets";
-
-
 
 export class PartyBoard {
 	scene: Phaser.Scene;
@@ -224,81 +220,6 @@ export function createBoardDropZone(): void {
 // --- End Module-level singleton management ---
 
 
-// --- Functions operating on the shared PlayerBoard instance ---
-// These provide module-level access, similar to the previous API.
-
-
-export function getUnitsByProximity(state: State, unit: Unit, enemy: boolean, range: number): Unit[] {
-	return getActiveUnits(state)
-		.filter(u => enemy ? u.force !== unit.force : u.force === unit.force)
-		.filter(u => u.id !== unit.id)
-		.sort((a, b) => sortBySnakeDistance(unit.position)(a.position)(b.position))
-		.filter(u => snakeDistanceBetween(unit.position)(u.position) <= range);
-}
-
-export function getMeleeTarget(state: State, unit: Unit): Unit {
-
-	const source = vec2(
-		unit.position.x,
-		unit.position.y + unit.force === playerForce.id ? 3 : -3,
-	)
-
-	const enemies = getActiveUnits(state)
-		.filter(u => u.force !== unit.force);
-
-	// get all enemies in the same column, or neighoring column
-	const closeUnits = enemies
-		.filter(u => u.position.x >= unit.position.x - 1 && u.position.x <= unit.position.x + 1)
-		.sort((a, b) => sortBySnakeDistance(source)(a.position)(b.position))
-		// keep 1 per row, as a far unit can be blocked by a closer unit
-		.reduce((acc, u) => {
-			if (acc.findIndex((a) => a.position.x === u.position.x) === -1) {
-				acc.push(u);
-			}
-			return acc;
-		}, [] as Unit[]);
-
-	// any of them has the tratt "taunt"?
-	const taunting = closeUnits
-		.filter(u => u.traits.find(t => t.id === "taunt"));
-
-	if (taunting.length > 0) {
-		return pickOne(taunting);
-	}
-
-	if (closeUnits.length > 0) {
-		return pickOne(closeUnits);
-	}
-
-	// pick random from remaining
-	return pickOne(enemies);
-
-}
-
-export function getRangedTargets(state: State, unit: Unit, amount = 1): Unit[] {
-	const enemies = getActiveUnits(state)
-		.filter(u => u.force !== unit.force);
-
-	// get all enemies in the same row, or neighoring row
-	const closeUnits = enemies
-		.filter(u => u.position.y >= unit.position.y - 1 && u.position.y <= unit.position.y + 1);
-
-	// any of them has the trait "taunt"?
-	const taunting = closeUnits
-		.filter(u => u.traits.find(t => t.id === "taunt"));
-
-	if (taunting.length > 0) {
-		return pickRandom(taunting, amount);
-	}
-
-	if (closeUnits.length > 0) {
-		return pickRandom(closeUnits, amount);
-	}
-
-	// pick random from remaining
-	return pickRandom(enemies, amount);
-
-}
 
 export function getColumnNeighbors(state: State, unit: Unit) {
 	return state.battleData.units
