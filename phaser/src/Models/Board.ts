@@ -27,6 +27,11 @@ export class PartyBoard {
 		this.slotImages = [];
 		this.dropZones = [];
 
+		let cells = []
+		for (let tileY = 0; tileY < 3; tileY++)
+			for (let tileX = 0; tileX < 3; tileX++)
+				cells.push(vec2(tileX, tileY));
+
 		// Render slots for both player and CPU boards
 		const boards = [
 			{ x: PLAYER_BOARD_X, y: PLAYER_BOARD_Y, isPlayer: true },
@@ -34,33 +39,32 @@ export class PartyBoard {
 		];
 
 		boards.forEach(board => {
-			for (let tileY = 0; tileY < 3; tileY++) {
-				for (let tileX = 0; tileX < 3; tileX++) {
-					const zoneX = board.x + tileX * (constants.TILE_WIDTH + slotSpacing);
-					const zoneY = board.y + tileY * (constants.TILE_HEIGHT + slotSpacing);
+			cells.forEach((cell) => {
+				const zoneX = board.x + cell.x * (constants.TILE_WIDTH + slotSpacing);
+				const zoneY = board.y + cell.y * (constants.TILE_HEIGHT + slotSpacing);
 
-					// Add slot image to each cell
-					const slotImg = this.scene.add.image(
+				// Add slot image to each cell
+				const slotImg = this.scene.add.image(
+					zoneX + constants.TILE_WIDTH / 2,
+					zoneY + constants.TILE_HEIGHT / 2,
+					images.slot_round.key,
+				);
+				slotImg.setDisplaySize(constants.TILE_WIDTH, constants.TILE_HEIGHT);
+				this.slotImages.push(slotImg);
+
+				// Only create drop zones for player board (enemy units can't be dragged)
+				if (board.isPlayer) {
+					const dropZone = this.scene.add.zone(
 						zoneX + constants.TILE_WIDTH / 2,
 						zoneY + constants.TILE_HEIGHT / 2,
-						images.slot_round.key,
+						constants.TILE_WIDTH,
+						constants.TILE_HEIGHT
 					);
-					slotImg.setDisplaySize(constants.TILE_WIDTH, constants.TILE_HEIGHT);
-					this.slotImages.push(slotImg);
-
-					// Only create drop zones for player board (enemy units can't be dragged)
-					if (board.isPlayer) {
-						const dropZone = this.scene.add.zone(
-							zoneX + constants.TILE_WIDTH / 2,
-							zoneY + constants.TILE_HEIGHT / 2,
-							constants.TILE_WIDTH,
-							constants.TILE_HEIGHT
-						);
-						dropZone.setRectangleDropZone(constants.TILE_WIDTH, constants.TILE_HEIGHT);
-						this.dropZones.push(dropZone);
-					}
+					dropZone.setRectangleDropZone(constants.TILE_WIDTH, constants.TILE_HEIGHT);
+					this.dropZones.push(dropZone);
 				}
-			}
+
+			})
 		});
 	}
 
@@ -173,8 +177,7 @@ export class PartyBoard {
 
 }
 
-// --- Module-level singleton management for a shared PlayerBoard ---
-let _sharedPlayerBoardInstance: PartyBoard | null = null;
+let _playerBoardInstance: PartyBoard | null = null;
 
 /**
  * Initializes or re-initializes the shared PlayerBoard instance.
@@ -184,12 +187,12 @@ let _sharedPlayerBoardInstance: PartyBoard | null = null;
  * @param scene The Phaser scene.
  * @returns The newly created PlayerBoard instance.
  */
-export function initializeSharedPlayerBoard(scene: Phaser.Scene): PartyBoard {
-	if (_sharedPlayerBoardInstance) {
-		_sharedPlayerBoardInstance.destroy();
+export function initializePlayerBoard(scene: Phaser.Scene): PartyBoard {
+	if (_playerBoardInstance) {
+		_playerBoardInstance.destroy();
 	}
-	_sharedPlayerBoardInstance = new PartyBoard(scene);
-	return _sharedPlayerBoardInstance;
+	_playerBoardInstance = new PartyBoard(scene);
+	return _playerBoardInstance;
 }
 
 /**
@@ -197,10 +200,10 @@ export function initializeSharedPlayerBoard(scene: Phaser.Scene): PartyBoard {
  * @returns The PlayerBoard instance, or null if it hasn't been initialized.
  */
 export function getSharedPlayerBoard(): PartyBoard | null {
-	if (!_sharedPlayerBoardInstance) {
+	if (!_playerBoardInstance) {
 		console.warn("Shared PlayerBoard accessed before initialization. Call initializeSharedPlayerBoard(scene) first.");
 	}
-	return _sharedPlayerBoardInstance;
+	return _playerBoardInstance;
 }
 
 /**
