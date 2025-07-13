@@ -21,10 +21,10 @@ export const REROLL_UNITS_PRICE = 3;
 export const MIN_COOLDOWN = 200;
 
 export const PLAYER_BOARD_X = SCREEN_WIDTH / 2 - (TILE_WIDTH * 3 / 2);
-export const PLAYER_BOARD_Y = SCREEN_HEIGHT / 2;
+export const PLAYER_BOARD_Y = SCREEN_HEIGHT / 2 + 40;
 
 export const CPU_BOARD_X = PLAYER_BOARD_X;
-export const CPU_BOARD_Y = PLAYER_BOARD_Y - (TILE_HEIGHT * 3);
+export const CPU_BOARD_Y = 20;
 
 export const defaultTextConfig: Phaser.Types.GameObjects.Text.TextStyle = {
 	fontSize: (TILE_HEIGHT * 0.15) + "px",

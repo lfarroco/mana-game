@@ -4,7 +4,7 @@ import * as TraitSystem from "../../../TraitSystem/Traits";
 import * as constants from "../../../constants/constants";
 import { images } from "../../../assets";
 import * as ControlsSystem from "../../../Systems/Controls/Controls";
-import { initializeSharedPlayerBoard, PartyBoard, createBoardDropZone } from "../../../Models/Board";
+import { initializePlayerBoard, PartyBoard, createBoardDropZone } from "../../../Models/Board";
 import * as BG_CONSTANTS from "../battlegroundConstants";
 import { GameEvents } from "../../../constants/events";
 import { BattlegroundScene } from "../BattlegroundScene";
@@ -82,7 +82,7 @@ export class BattlegroundSetupSystem {
 
 		this.scene.bgContainer.add([this.scene.bgImage]);
 
-		const playerBoard = initializeSharedPlayerBoard(this.scene);
+		const playerBoard = initializePlayerBoard(this.scene);
 		createBoardDropZone(); // Actually render the board slots
 		return playerBoard;
 	}

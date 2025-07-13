@@ -55,10 +55,8 @@ export class ShopUI {
 		const displayedCharas = this._renderTavernUI(cardsToDisplay, charaPurchaseFinalized);
 
 		const buttonY = sc.PANEL_Y + sc.SHOP_PANEL_HEIGHT - 100;
-		const nextRoundButtonX = sc.PANEL_X + sc.SHOP_PANEL_WIDTH - 130; // Assuming this positions center of button 100px from right
 		// Estimate button width + spacing to position reroll button to the left
-		const rerollButtonX = nextRoundButtonX - 270; // Adjust this offset as needed for desired spacing and button width
-
+		const rerollButtonX = sc.PANEL_X + 160; // Adjust this offset as needed for desired spacing and button width
 		const rerollBtn = new UIButton(
 			this.scene,
 			`Reroll $${c.SHOP_ITEM_PURCHASE_COST}`,
@@ -68,6 +66,7 @@ export class ShopUI {
 		);
 		this.flyout.add(rerollBtn);
 
+		const nextRoundButtonX = rerollButtonX + rerollBtn.buttonWidth + 20; // 20px spacing after reroll button
 		const nextRoundBtn = new UIButton(
 			this.scene,
 			"Next Round",
