@@ -1,5 +1,4 @@
 import Phaser from "phaser";
-import * as constants from "../constants/constants";
 import { tween } from "../Utils/animation";
 
 /**
@@ -48,15 +47,16 @@ export class UIButton extends Phaser.GameObjects.Container {
 		this._drawButtonState(this.normalFillColor);
 		this.buttonGraphics.setPosition(x - this.buttonWidth / 2, y - this.buttonHeight / 2);
 
-		// Button label
+		// Button label (using same font style as stylized bars)
 		this.buttonText = scene.add.text(
 			x, y,
 			text,
 			{
-				...constants.defaultTextConfig,
+				fontSize: '24px',
+				fontStyle: 'bold',
 				color: '#ffffff',
-				stroke: 'none',
-				strokeThickness: 0,
+				stroke: '#000000',
+				strokeThickness: 3
 			}
 		).setOrigin(0.5);
 		this.buttonText.setName("buttonLabel");
@@ -109,7 +109,7 @@ export class UIButton extends Phaser.GameObjects.Container {
 	_drawButtonState(fill: number) {
 		this.buttonGraphics.clear();
 
-		// --- Drop shadow ---
+		// --- Drop shadow (similar to stylized bar) ---
 		const shadowOffset = 4;
 		this.buttonGraphics.fillStyle(0x1a2327, 0.7); // dark shadow color
 		this.buttonGraphics.fillRoundedRect(
@@ -117,40 +117,59 @@ export class UIButton extends Phaser.GameObjects.Container {
 			shadowOffset,
 			this.buttonWidth,
 			this.buttonHeight,
-			this.cornerRadius + 2
+			this.cornerRadius
 		);
 
-		// --- Outer border (black) ---
-		const outerBorder = 4;
-		this.buttonGraphics.lineStyle(outerBorder, 0x000000, 1);
-		this.buttonGraphics.strokeRoundedRect(
+		// --- Outer border (dark like stylized bar) ---
+		this.buttonGraphics.fillStyle(0x2a2a2a, 1); // Dark border similar to stylized bar
+		this.buttonGraphics.fillRoundedRect(
 			0,
 			0,
 			this.buttonWidth,
 			this.buttonHeight,
-			this.cornerRadius + 1
-		);
-
-		// --- Inner border (gold) ---
-		const gold = 0xc9a14a;
-		const innerBorder = 3;
-		this.buttonGraphics.lineStyle(innerBorder, gold, 1);
-		this.buttonGraphics.strokeRoundedRect(
-			outerBorder,
-			outerBorder,
-			this.buttonWidth - 2 * outerBorder,
-			this.buttonHeight - 2 * outerBorder,
 			this.cornerRadius
 		);
 
-		// --- Button fill (dark green/blue) ---
+		// --- Inner background/border area ---
+		const innerPadding = 3;
+		this.buttonGraphics.fillStyle(0x000000, 0.6); // Semi-transparent background
+		this.buttonGraphics.fillRoundedRect(
+			innerPadding,
+			innerPadding,
+			this.buttonWidth - (innerPadding * 2),
+			this.buttonHeight - (innerPadding * 2),
+			this.cornerRadius - 2
+		);
+
+		// --- Button main fill (preserving original colors) ---
 		this.buttonGraphics.fillStyle(fill, 1);
 		this.buttonGraphics.fillRoundedRect(
-			outerBorder + 1.5,
-			outerBorder + 1.5,
-			this.buttonWidth - 2 * (outerBorder + 1.5),
-			this.buttonHeight - 2 * (outerBorder + 1.5),
-			this.cornerRadius - 1
+			innerPadding,
+			innerPadding,
+			this.buttonWidth - (innerPadding * 2),
+			this.buttonHeight - (innerPadding * 2),
+			this.cornerRadius - 2
+		);
+
+		// --- Inner highlight (top shine effect like stylized bar) ---
+		this.buttonGraphics.fillStyle(0xffffff, 0.3); // White highlight with transparency
+		this.buttonGraphics.fillRoundedRect(
+			innerPadding + 1,
+			innerPadding + 1,
+			this.buttonWidth - (innerPadding * 2) - 2,
+			(this.buttonHeight - (innerPadding * 2)) / 3, // Top third for highlight
+			this.cornerRadius - 3
+		);
+
+		// --- Gold accent border (preserving original gold accent) ---
+		const gold = 0xc9a14a;
+		this.buttonGraphics.lineStyle(2, gold, 0.8);
+		this.buttonGraphics.strokeRoundedRect(
+			innerPadding + 0.5,
+			innerPadding + 0.5,
+			this.buttonWidth - (innerPadding * 2) - 1,
+			this.buttonHeight - (innerPadding * 2) - 1,
+			this.cornerRadius - 2
 		);
 	}
 
