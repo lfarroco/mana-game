@@ -22,6 +22,7 @@ export interface StylizedBarOptions {
 	barColor?: number;
 	backgroundColor?: number;
 	backgroundOpacity?: number;
+	borderOpacity?: number;
 	textConfig?: any;
 }
 
@@ -37,13 +38,14 @@ export function createStylizedBar(
 		barColor = 0x00ff00, // Default green
 		backgroundColor = 0x000000, // Default black
 		backgroundOpacity = 0.6, // Default semi-transparent
+		borderOpacity = 1.0, // Default fully opaque border
 		textConfig = {}
 	} = options;
 	const container = scene.add.container(x, y);
 
 	// Outer border (dark)
 	const outerBorder = scene.add.graphics();
-	outerBorder.fillStyle(0x2a2a2a, 1);
+	outerBorder.fillStyle(0x2a2a2a, borderOpacity);
 	outerBorder.fillRoundedRect(0, 0, width, BAR_HEIGHT, 6);
 	container.add(outerBorder);
 

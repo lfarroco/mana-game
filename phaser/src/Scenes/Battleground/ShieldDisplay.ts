@@ -89,18 +89,23 @@ function create(
 
 	// Always yellow for shields (both player and enemy)
 	const barColor = 0xFFD700; // Gold/Yellow color
-	const backgroundColor = 0x000000; // Black background for shield bars
 
-	return createStylizedBar(scene, {
+	const shieldBar = createStylizedBar(scene, {
 		x: xPosition,
 		y: y,
 		width: barWidth,
 		labelText: labelText,
 		barColor: barColor,
-		backgroundColor: backgroundColor,
-		backgroundOpacity: 0.8, // Slightly more opaque for shields
+		backgroundColor: 0x000000, // This won't be visible due to backgroundOpacity: 0
+		backgroundOpacity: 0, // No background
+		borderOpacity: 0, // No border
 		textConfig: c.defaultTextConfig
 	});
+
+	// Make the entire shield bar semi-transparent
+	shieldBar.container.setAlpha(0.5);
+
+	return shieldBar;
 }
 
 export function init(sceneRef: Phaser.Scene): void {
@@ -109,12 +114,12 @@ export function init(sceneRef: Phaser.Scene): void {
 
 	scene = sceneRef;
 
-	// Position shield bars on the right side with different vertical positions (above morale bars)
+	// Position shield bars over the morale bars (same Y positions as morale bars)
 	const centerY = scene.scale.height / 2;
-	const playerBarY = centerY + 90; // Player shield bar lower (but above player morale bar) - adjusted for larger bars
+	const playerBarY = centerY + 50; // Same as player morale bar position
 	playerShieldBar = create(sceneRef, playerBarY, c.FORCE_ID_PLAYER, "Player Shield");
 
-	const cpuBarY = centerY - 90; // Enemy shield bar higher (above enemy morale bar) - adjusted for larger bars
+	const cpuBarY = centerY - 50; // Same as enemy morale bar position
 	cpuShieldBar = create(sceneRef, cpuBarY, c.FORCE_ID_CPU, "Enemy Shield");
 
 	scene.events.on(GameEvents.SHIELD_UPDATED, handleShieldUpdated);
