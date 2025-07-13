@@ -6,6 +6,7 @@ import { State } from "./Models/State";
 import { SCREEN_HEIGHT, SCREEN_WIDTH, SCENE_KEYS } from "./constants/constants";
 import { DebugScene } from "./Debug/DebugScene";
 import BBCodeTextPlugin from 'phaser3-rex-plugins/plugins/bbcodetext-plugin.js';
+import CircleMaskImagePlugin from 'phaser3-rex-plugins/plugins/circlemaskimage-plugin.js';
 
 export function initGame(state: State) {
 
@@ -31,7 +32,13 @@ export function initGame(state: State) {
 				key: 'rexBBCodeTextPlugin',
 				plugin: BBCodeTextPlugin,
 				start: true
-			}]
+			},
+			{
+				key: 'rexCircleMaskImagePlugin',
+				plugin: CircleMaskImagePlugin,
+				start: true
+			},
+			]
 		}
 	});
 
