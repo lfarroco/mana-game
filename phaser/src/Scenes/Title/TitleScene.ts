@@ -23,7 +23,13 @@ export default class TitleScene extends Phaser.Scene {
 
 	create() {
 		// Create animated shader background with clouds and swirls
-		const backgroundShader = new Phaser.Display.BaseShader('cloudsBackground', cloudsBackgroundShader);
+		const backgroundShader = new Phaser.Display.BaseShader('cloudsBackground', cloudsBackgroundShader, undefined, {
+			color1: { type: '3f', value: { x: 0.05, y: 0.1, z: 0.25 } },
+			color2: { type: '3f', value: { x: 0.1, y: 0.2, z: 0.4 } },
+			color3: { type: '3f', value: { x: 0.2, y: 0.35, z: 0.6 } },
+			color4: { type: '3f', value: { x: 0.15, y: 0.1, z: 0.3 } },
+			color5: { type: '3f', value: { x: 0.4, y: 0.3, z: 0.1 } }
+		});
 
 		this.add.shader(backgroundShader, MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y, SCREEN_WIDTH, SCREEN_HEIGHT)
 			.setOrigin(0.5, 0.5);

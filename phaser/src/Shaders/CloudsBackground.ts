@@ -3,6 +3,11 @@ precision mediump float;
 
 uniform float time;
 uniform vec2 resolution;
+uniform vec3 color1;
+uniform vec3 color2;
+uniform vec3 color3;
+uniform vec3 color4;
+uniform vec3 color5;
 varying vec2 fragCoord;
 
 // Noise function for procedural generation
@@ -89,28 +94,11 @@ void main() {
     // Add some subtle color variation
     float colorVariation = fbm(uv * 6.0 + time * 0.15, 3);
     
-    // Create a mystical color palette
-    vec3 deepBlue = vec3(0.05, 0.1, 0.25);
-    vec3 mediumBlue = vec3(0.1, 0.2, 0.4);
-    vec3 lightBlue = vec3(0.2, 0.35, 0.6);
-    vec3 purple = vec3(0.15, 0.1, 0.3);
-    vec3 gold = vec3(0.4, 0.3, 0.1);
-    
     // Mix colors based on cloud density and variation
-    vec3 color = mix(deepBlue, mediumBlue, finalClouds);
-    color = mix(color, lightBlue, smoothstep(0.4, 0.8, finalClouds));
-    color = mix(color, purple, colorVariation * 0.3);
-    
-    // Add some golden highlights in dense cloud areas
-    color = mix(color, gold, smoothstep(0.7, 1.0, finalClouds) * colorVariation);
-    
-    // Add subtle pulsing effect
-    float pulse = sin(time * 0.8) * 0.1 + 0.9;
-    color *= pulse;
-    
-    // Add vignette effect
-    float vignette = 1.0 - length(uv - vec2(0.5 * resolution.x / resolution.y, 0.5)) * 0.5;
-    color *= vignette;
+    vec3 color = mix(color1, color2, finalClouds);
+    color = mix(color, color3, smoothstep(0.6, 0.8, finalClouds));
+    color = mix(color, color4, colorVariation * 0.3);
+    color = mix(color, color5, smoothstep(0.75, 0.9, finalClouds) * 0.4);
     
     gl_FragColor = vec4(color, 1.0);
 }
