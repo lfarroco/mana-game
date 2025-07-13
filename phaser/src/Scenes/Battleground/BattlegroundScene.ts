@@ -5,7 +5,7 @@ import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import { UIManager } from "../../UI/UIManager";
 import * as CharaManager from "./Systems/CharaManager";
 import { CardCollection } from "../../Models/Entities/Card";
-import { PlayerBoard } from "../../Models/Board";
+import { PartyBoard } from "../../Models/Board";
 import { Shop } from "./Systems/Shop/Shop";
 import { setupTraitEventListeners } from "../../TraitSystem/TraitSystemEventListeners";
 import { BattlegroundSetupSystem } from "./Systems/BattlegroundSetupSystem";
@@ -35,7 +35,7 @@ export class BattlegroundScene extends Phaser.Scene {
   /** Manages UI elements within the scene. */
   uiManager!: UIManager;
   /** Represents the player's board and handles unit placement. */
-  playerBoard!: PlayerBoard; // Initialized in create/start
+  playerBoard!: PartyBoard; // Initialized in create/start
   /** System responsible for running the combat simulation. */
   runCombatSystem: RunCombatSystem;
   /** System responsible for managing battle progression (shop, combat, game over). */
@@ -207,7 +207,7 @@ export class BattlegroundScene extends Phaser.Scene {
       targetTile,
       dragStartX,
       dragStartY,
-      (unit: Unit, target: Vec2, units: Unit[]) => PlayerBoard.updateUnitPosition(unit, target, units),
+      (unit: Unit, target: Vec2, units: Unit[]) => PartyBoard.updateUnitPosition(unit, target, units),
       (unit: Unit) => CharaManager.getCharaPosition(unit),
       (message: string) => console.error(message),
       (eventType: string, payload: any) => this.events.emit(eventType, payload)

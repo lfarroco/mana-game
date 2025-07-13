@@ -4,7 +4,7 @@ import * as TraitSystem from "../../../TraitSystem/Traits";
 import * as constants from "../../../constants/constants";
 import { images } from "../../../assets";
 import * as ControlsSystem from "../../../Systems/Controls/Controls";
-import { initializeSharedPlayerBoard, PlayerBoard, createBoardDropZone } from "../../../Models/Board";
+import { initializeSharedPlayerBoard, PartyBoard, createBoardDropZone } from "../../../Models/Board";
 import * as BG_CONSTANTS from "../battlegroundConstants";
 import { GameEvents } from "../../../constants/events";
 import { BattlegroundScene } from "../BattlegroundScene";
@@ -70,7 +70,7 @@ export class BattlegroundSetupSystem {
 		this.scene.sound.setVolume(getOption('soundVolume') ?? BG_CONSTANTS.DEFAULT_SCENE_SOUND_VOLUME);
 	}
 
-	setupSceneElements(_state: State): PlayerBoard {
+	setupSceneElements(_state: State): PartyBoard {
 		this.scene.bgImage = this.scene.add.image(
 			0, 0,
 			images.bg_forest.key,
