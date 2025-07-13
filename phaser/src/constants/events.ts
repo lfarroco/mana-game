@@ -53,9 +53,6 @@ export const GameEvents = {
 
 	// BattlegroundScene specific UI and System Triggers
 	PLAYER_GOLD_DELTA_REQUEST: "player_delta_update_request", // Payload: number (goldDelta)
-	PLAYER_BOARD_CREATE_DROP_ZONE: "player_board_create_drop_zone",
-	PLAYER_BOARD_SHOW: "player_board_show",
-	PLAYER_BOARD_HIDE: "player_board_hide",
 	UI_MAIN_CREATE: "ui_main_create",
 	CHARA_SUMMON_TO_BOARD: "chara_summon_to_board", // Payload: { unit: Unit, animateAppear: boolean, playSound: boolean }
 	CHARA_DESTROY_FROM_BOARD: "chara_destroy_from_board", // Payload: { unitId: string }

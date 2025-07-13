@@ -1,5 +1,5 @@
 import { UIManager } from "../../../UI/UIManager";
-import { PlayerBoard, createBoardDropZone } from "../../../Models/Board";
+import { PlayerBoard } from "../../../Models/Board";
 import { Shop } from "./Shop/Shop";
 import * as CharaManager from "./CharaManager"; // Keep CharaManager import
 import { GameEvents } from "../../../constants/events";
@@ -111,9 +111,6 @@ export class BattlegroundEventSystem {
 			{ event: GameEvents.OWNED_UNIT_SOLD, handler: this.scene.handleOwnedUnitSold, context: this.scene },
 
 			// Board & UI Setup/Visibility
-			{ event: GameEvents.PLAYER_BOARD_CREATE_DROP_ZONE, handler: createBoardDropZone },
-			{ event: GameEvents.PLAYER_BOARD_SHOW, handler: this.playerBoard.display, context: this.playerBoard },
-			{ event: GameEvents.PLAYER_BOARD_HIDE, handler: this.playerBoard.hide, context: this.playerBoard },
 			{ event: GameEvents.UI_MAIN_CREATE, handler: this.uiManager.createMainUI, context: this.uiManager },
 
 			// Chara Lifecycle & Visuals

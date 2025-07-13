@@ -96,7 +96,6 @@ export class BattleProgressionSystem {
 			this.prestigeSystem.finalizeRound();
 		}
 		console.log("Round", this.state.gameData.round, "Shop Phase Starting.");
-		this.scene.events.emit(GameEvents.PLAYER_BOARD_SHOW);
 		this.scene.events.emit(GameEvents.SHOP_OPEN_UI_TRIGGER);
 	}
 
@@ -109,7 +108,6 @@ export class BattleProgressionSystem {
 		const { enemies } = this.setupBattle();
 
 		this.setAllPlayerUnitBarsVisibility(true); // Show bars for player units in combat
-		this.scene.events.emit(GameEvents.PLAYER_BOARD_HIDE);
 		this.scene.events.emit(GameEvents.COMBAT_START_EXECUTION_TRIGGER, { enemies });
 	}
 
