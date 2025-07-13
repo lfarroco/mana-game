@@ -81,7 +81,7 @@ function create(
 ): MoraleBar {
 	const barWidth = scene.scale.width / 4;
 	// Position both bars on the right side of the screen
-	const xPosition = scene.scale.width - barWidth - 20; // Right side with padding
+	const xPosition = scene.scale.width - barWidth - 120; // Right side with padding
 
 	const barColor = forceId === c.FORCE_ID_PLAYER ? 0x4CAF50 : 0xF44336; // Bright green for player, red for CPU
 	const backgroundColor = 0x000000; // Black background for morale bars
