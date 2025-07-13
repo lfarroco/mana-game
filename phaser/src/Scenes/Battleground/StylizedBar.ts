@@ -14,16 +14,31 @@ export type StylizedBar = {
 	label: Phaser.GameObjects.Text;
 }
 
+export interface StylizedBarOptions {
+	x: number;
+	y: number;
+	width: number;
+	labelText: string;
+	barColor?: number;
+	backgroundColor?: number;
+	backgroundOpacity?: number;
+	textConfig?: any;
+}
+
 export function createStylizedBar(
 	scene: Phaser.Scene,
-	x: number,
-	y: number,
-	width: number,
-	barColor: number,
-	backgroundColor: number,
-	labelText: string,
-	textConfig: any
+	options: StylizedBarOptions
 ): StylizedBar {
+	const {
+		x,
+		y,
+		width,
+		labelText,
+		barColor = 0x00ff00, // Default green
+		backgroundColor = 0x000000, // Default black
+		backgroundOpacity = 0.6, // Default semi-transparent
+		textConfig = {}
+	} = options;
 	const container = scene.add.container(x, y);
 
 	// Outer border (dark)
@@ -34,7 +49,7 @@ export function createStylizedBar(
 
 	// Inner background (customizable color)
 	const backgroundBar = scene.add.graphics();
-	backgroundBar.fillStyle(backgroundColor, 0.6);
+	backgroundBar.fillStyle(backgroundColor, backgroundOpacity);
 	backgroundBar.fillRoundedRect(INNER_PADDING, INNER_PADDING, width - (INNER_PADDING * 2), BAR_HEIGHT - (INNER_PADDING * 2), 3);
 	container.add(backgroundBar);
 

@@ -84,7 +84,17 @@ function create(
 
 	const barColor = forceId === c.FORCE_ID_PLAYER ? 0x4CAF50 : 0xF44336; // Bright green for player, red for CPU
 	const backgroundColor = 0x000000; // Black background for morale bars
-	return createStylizedBar(scene, xPosition, y, barWidth, barColor, backgroundColor, labelText, c.defaultTextConfig);
+
+	return createStylizedBar(scene, {
+		x: xPosition,
+		y: y,
+		width: barWidth,
+		labelText: labelText,
+		barColor: barColor,
+		backgroundColor: backgroundColor,
+		backgroundOpacity: 0.7, // Slightly more opaque for morale bars
+		textConfig: c.defaultTextConfig
+	});
 }
 
 export function init(sceneRef: Phaser.Scene): void {
