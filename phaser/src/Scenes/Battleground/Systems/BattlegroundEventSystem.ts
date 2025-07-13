@@ -65,6 +65,7 @@ export class BattlegroundEventSystem {
 			MoraleDisplay.init(this.scene);
 			this.addListener(GameEvents.MORALE_BARS_SHOW, MoraleDisplay.showBars);
 			this.addListener(GameEvents.MORALE_BARS_HIDE, MoraleDisplay.hideBars);
+			this.addListener(GameEvents.MORALE_BARS_FADE_OUT, MoraleDisplay.fadeOutBars);
 		} catch (error) {
 			console.error("Failed to initialize MoraleDisplay:", error);
 		}
@@ -75,6 +76,7 @@ export class BattlegroundEventSystem {
 			ShieldDisplay.init(this.scene);
 			this.addListener(GameEvents.SHIELD_BARS_SHOW, ShieldDisplay.showBars);
 			this.addListener(GameEvents.SHIELD_BARS_HIDE, ShieldDisplay.hideBars);
+			this.addListener(GameEvents.SHIELD_BARS_FADE_OUT, ShieldDisplay.fadeOutBars);
 		} catch (error) {
 			console.error("Failed to initialize ShieldDisplay:", error);
 		}

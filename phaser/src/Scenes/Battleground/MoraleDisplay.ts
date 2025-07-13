@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import * as c from '../../constants/constants';
 import { GameEvents } from '../../constants/events';
 import { StylizedBar, createStylizedBar, updateStylizedBar } from './StylizedBar';
+import { tween } from '../../Utils/animation';
 
 // This type represents the components of a single morale bar
 type MoraleBar = StylizedBar;
@@ -122,6 +123,26 @@ export function showBars(): void {
 export function hideBars(): void {
 	if (playerMoraleBar) playerMoraleBar.container.setVisible(false);
 	if (cpuMoraleBar) cpuMoraleBar.container.setVisible(false);
+}
+
+export async function fadeOutBars(): Promise<void> {
+	const bars = [playerMoraleBar, cpuMoraleBar].filter(bar => bar !== null);
+	if (bars.length === 0) return;
+
+	// Fade out all bars simultaneously
+	await tween({
+		targets: bars.map(bar => bar!.container),
+		alpha: 0,
+		duration: 500,
+	});
+
+	// Hide them after fading
+	hideBars();
+
+	// Reset alpha for next time
+	bars.forEach(bar => {
+		if (bar) bar.container.setAlpha(1);
+	});
 }
 
 export function updateMoraleBar(

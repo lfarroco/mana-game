@@ -117,9 +117,11 @@ export class BattleProgressionSystem {
 	 * Handles the game over sequence.
 	 */
 	async handleCombatEndedDefeat(): Promise<void> {
-		this._hideDisplayBars();
 		console.log("Round", this.state.gameData.round, "Processing Defeat...");
-		await delay(this.scene, BG_CONSTANTS.POST_COMBAT_DELAY);
+		// Wait 1 second for current animations to complete
+		await delay(this.scene, 1000);
+		// Fade out the bars smoothly before hiding them
+		await this._fadeOutDisplayBars();
 		this.scene.events.emit(GameEvents.BATTLE_RESULT_SHOW, { result: "defeat" });
 		await delay(this.scene, 1500); // Wait for animation
 
@@ -233,9 +235,11 @@ export class BattleProgressionSystem {
 	 * Handles the end of a victorious combat, hiding morale bars and transitioning to the shop phase.
 	 */
 	async handleCombatEndedVictory(payload: { enemiesDefeated: Unit[] }): Promise<void> {
-		this._hideDisplayBars();
 		console.log("Round", this.state.gameData.round, "Processing Victory...");
-		await delay(this.scene, BG_CONSTANTS.POST_COMBAT_DELAY);
+		// Wait 1 second for current animations to complete
+		await delay(this.scene, 1000);
+		// Fade out the bars smoothly before hiding them
+		await this._fadeOutDisplayBars();
 		this.scene.events.emit(GameEvents.BATTLE_RESULT_SHOW, { result: "victory" });
 		await delay(this.scene, 1500); // Wait for animation
 
@@ -312,6 +316,25 @@ export class BattleProgressionSystem {
 	_hideDisplayBars(): void {
 		this.scene.events.emit(GameEvents.MORALE_BARS_HIDE);
 		this.scene.events.emit(GameEvents.SHIELD_BARS_HIDE);
+	}
+
+	/**
+	 * Fades out display bars smoothly before hiding them.
+	 */
+	async _fadeOutDisplayBars(): Promise<void> {
+		// Run both fade outs in parallel
+		await Promise.all([
+			new Promise<void>((resolve) => {
+				this.scene.events.emit(GameEvents.MORALE_BARS_FADE_OUT);
+				// Wait for fade out to complete
+				setTimeout(resolve, 500); // Match the fade duration
+			}),
+			new Promise<void>((resolve) => {
+				this.scene.events.emit(GameEvents.SHIELD_BARS_FADE_OUT);
+				// Wait for fade out to complete  
+				setTimeout(resolve, 500); // Match the fade duration
+			})
+		]);
 	}
 
 	/**
