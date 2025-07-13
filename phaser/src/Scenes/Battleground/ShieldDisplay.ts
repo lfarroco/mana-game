@@ -81,7 +81,6 @@ function create(
 	scene: Phaser.Scene,
 	y: number,
 	_forceId: string, // Not used since shields are always yellow
-	labelText: string,
 ): ShieldBar {
 	const barWidth = scene.scale.width / 4;
 	// Position both bars on the right side of the screen
@@ -94,7 +93,7 @@ function create(
 		x: xPosition,
 		y: y,
 		width: barWidth,
-		labelText: labelText,
+		labelText: "",
 		barColor: barColor,
 		backgroundColor: 0x000000, // This won't be visible due to backgroundOpacity: 0
 		backgroundOpacity: 0, // No background
@@ -117,10 +116,10 @@ export function init(sceneRef: Phaser.Scene): void {
 	// Position shield bars over the morale bars (same Y positions as morale bars)
 	const centerY = scene.scale.height / 2;
 	const playerBarY = centerY + 50; // Same as player morale bar position
-	playerShieldBar = create(sceneRef, playerBarY, c.FORCE_ID_PLAYER, "Player Shield");
+	playerShieldBar = create(sceneRef, playerBarY, c.FORCE_ID_PLAYER);
 
 	const cpuBarY = centerY - 50; // Same as enemy morale bar position
-	cpuShieldBar = create(sceneRef, cpuBarY, c.FORCE_ID_CPU, "Enemy Shield");
+	cpuShieldBar = create(sceneRef, cpuBarY, c.FORCE_ID_CPU);
 
 	scene.events.on(GameEvents.SHIELD_UPDATED, handleShieldUpdated);
 }
