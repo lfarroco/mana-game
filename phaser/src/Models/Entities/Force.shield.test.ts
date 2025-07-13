@@ -46,6 +46,7 @@ describe('Force Shield System', () => {
 		it('should emit SHIELD_UPDATED event when shield changes', () => {
 			const force = makeForce('test-force');
 			force.morale = 100;
+			force.maxMorale = 100;
 
 			manipulateForceShield(force, 50, mockScene);
 
@@ -54,7 +55,7 @@ describe('Force Shield System', () => {
 				{
 					forceId: force.id,
 					newShield: 50,
-					maxShield: 100, // Uses morale as maxShield for display
+					maxShield: 100, // Uses maxMorale as maxShield for display
 				}
 			);
 		});
@@ -190,7 +191,7 @@ describe('Force Shield System', () => {
 				{
 					forceId: force.id,
 					newShield: 150,
-					maxShield: 100, // Display scale still based on morale
+					maxShield: 100, // Display scale based on max morale
 				}
 			);
 		});

@@ -296,7 +296,7 @@ export class BattleProgressionSystem {
 			{
 				forceId: FORCE_ID_PLAYER,
 				newShield: playerForce.shield,
-				maxShield: playerForce.morale, // maxShield for display = current morale
+				maxShield: playerForce.maxMorale, // maxShield for display = max morale
 			}
 		);
 		this.scene.events.emit(
@@ -304,7 +304,7 @@ export class BattleProgressionSystem {
 			{
 				forceId: FORCE_ID_CPU,
 				newShield: cpuForce.shield,
-				maxShield: cpuForce.morale // maxShield for display = current morale
+				maxShield: cpuForce.maxMorale // maxShield for display = max morale
 			}
 		);
 	}
