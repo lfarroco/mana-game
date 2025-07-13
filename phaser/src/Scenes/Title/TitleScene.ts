@@ -2,6 +2,7 @@ import * as Phaser from "phaser";
 import { SCENE_KEYS, SCREEN_WIDTH, SCREEN_HEIGHT, MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y, titleTextConfig, defaultTextConfig } from "../../constants/constants";
 import { State } from "../../Models/State";
 import { UIButton } from "../../UI/UIButton";
+import { cloudsBackgroundShader } from "../../Shaders/CloudsBackground";
 
 export default class TitleScene extends Phaser.Scene {
 	private gameTitle!: Phaser.GameObjects.Text;
@@ -21,14 +22,11 @@ export default class TitleScene extends Phaser.Scene {
 	}
 
 	create() {
-		// Create a dark background
-		this.add.rectangle(
-			MIDDLE_SCREEN_X,
-			MIDDLE_SCREEN_Y,
-			SCREEN_WIDTH,
-			SCREEN_HEIGHT,
-			0x001122
-		);
+		// Create animated shader background with clouds and swirls
+		const backgroundShader = new Phaser.Display.BaseShader('cloudsBackground', cloudsBackgroundShader);
+
+		this.add.shader(backgroundShader, MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y, SCREEN_WIDTH, SCREEN_HEIGHT)
+			.setOrigin(0.5, 0.5);
 
 		// Create the main title
 		this.gameTitle = this.add.text(
@@ -38,9 +36,9 @@ export default class TitleScene extends Phaser.Scene {
 			{
 				...titleTextConfig,
 				fontSize: '72px',
-				color: '#FFD700',
-				stroke: '#8B4513',
-				strokeThickness: 8
+				color: '#FFE55C',
+				stroke: '#2D1810',
+				strokeThickness: 12
 			}
 		).setOrigin(0.5);
 
@@ -52,9 +50,9 @@ export default class TitleScene extends Phaser.Scene {
 			{
 				...defaultTextConfig,
 				fontSize: '32px',
-				color: '#CCCCCC',
-				stroke: '#333333',
-				strokeThickness: 4
+				color: '#E8E8E8',
+				stroke: '#1A1A2E',
+				strokeThickness: 6
 			}
 		).setOrigin(0.5);
 
@@ -90,27 +88,40 @@ export default class TitleScene extends Phaser.Scene {
 	}
 
 	private createParticles() {
-		// Create some simple floating particles for atmosphere
-		for (let i = 0; i < 50; i++) {
+		// Create magical floating particles that complement the shader background
+		for (let i = 0; i < 30; i++) {
+			// Vary particle colors to match the mystical theme
+			const colors = [0x6699FF, 0x9966FF, 0xFFAA44, 0x44AAFF, 0xFF6699];
+			const color = colors[Math.floor(Math.random() * colors.length)];
+
 			const particle = this.add.circle(
 				Phaser.Math.Between(0, SCREEN_WIDTH),
 				Phaser.Math.Between(0, SCREEN_HEIGHT),
-				Phaser.Math.Between(2, 6),
-				0x444444,
-				0.3
+				Phaser.Math.Between(1, 4),
+				color,
+				Phaser.Math.Between(0.1, 0.4)
 			);
+
+			// Add a subtle glow effect
+			particle.setBlendMode(Phaser.BlendModes.ADD);
 
 			this.tweens.add({
 				targets: particle,
-				y: particle.y - Phaser.Math.Between(100, 300),
+				y: particle.y - Phaser.Math.Between(150, 400),
+				x: particle.x + Phaser.Math.Between(-50, 50),
 				alpha: 0,
-				duration: Phaser.Math.Between(3000, 6000),
-				delay: Phaser.Math.Between(0, 3000),
+				scaleX: Phaser.Math.Between(0.5, 2.0),
+				scaleY: Phaser.Math.Between(0.5, 2.0),
+				duration: Phaser.Math.Between(4000, 8000),
+				delay: Phaser.Math.Between(0, 5000),
 				repeat: -1,
+				ease: 'Sine.easeOut',
 				onRepeat: () => {
 					particle.y = SCREEN_HEIGHT + 10;
 					particle.x = Phaser.Math.Between(0, SCREEN_WIDTH);
-					particle.alpha = 0.3;
+					particle.alpha = Phaser.Math.Between(0.1, 0.4);
+					particle.scaleX = 1;
+					particle.scaleY = 1;
 				}
 			});
 		}
