@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import * as constants from "../constants/constants";
-import { PLAYER_BOARD_X, PLAYER_BOARD_Y } from "../constants/constants";
+import { PLAYER_BOARD_X, PLAYER_BOARD_Y, CPU_BOARD_X, CPU_BOARD_Y } from "../constants/constants";
 import { vec2, Vec2, eqVec2, sortBySnakeDistance, snakeDistanceBetween } from "./Geometry";
 import { Unit } from "./Entities/Unit"; // Pointer type might be implicitly from Phaser or a custom type
 import { getActiveUnits, getUnitAt, State } from "./State";
@@ -30,31 +30,42 @@ export class PlayerBoard {
 		const slotSpacing = 8; // Add 8 pixels spacing between slots
 		this.slotImages = [];
 		this.dropZones = [];
-		for (let tileY = 0; tileY < 3; tileY++) {
-			for (let tileX = 0; tileX < 3; tileX++) {
-				const zoneX = this.x + tileX * (constants.TILE_WIDTH + slotSpacing);
-				const zoneY = this.y + tileY * (constants.TILE_HEIGHT + slotSpacing);
 
-				// Add slot image to each cell
-				const slotImg = this.scene.add.image(
-					zoneX + constants.TILE_WIDTH / 2,
-					zoneY + constants.TILE_HEIGHT / 2,
-					images.slot_round.key,
-				);
-				slotImg.setDisplaySize(constants.TILE_WIDTH, constants.TILE_HEIGHT);
-				this.slotImages.push(slotImg);
+		// Render slots for both player and CPU boards
+		const boards = [
+			{ x: PLAYER_BOARD_X, y: PLAYER_BOARD_Y, isPlayer: true },
+			{ x: CPU_BOARD_X, y: CPU_BOARD_Y, isPlayer: false }
+		];
 
-				// Create an invisible drop zone over the slot image
-				const dropZone = this.scene.add.zone(
-					zoneX + constants.TILE_WIDTH / 2,
-					zoneY + constants.TILE_HEIGHT / 2,
-					constants.TILE_WIDTH,
-					constants.TILE_HEIGHT
-				);
-				dropZone.setRectangleDropZone(constants.TILE_WIDTH, constants.TILE_HEIGHT);
-				this.dropZones.push(dropZone);
+		boards.forEach(board => {
+			for (let tileY = 0; tileY < 3; tileY++) {
+				for (let tileX = 0; tileX < 3; tileX++) {
+					const zoneX = board.x + tileX * (constants.TILE_WIDTH + slotSpacing);
+					const zoneY = board.y + tileY * (constants.TILE_HEIGHT + slotSpacing);
+
+					// Add slot image to each cell
+					const slotImg = this.scene.add.image(
+						zoneX + constants.TILE_WIDTH / 2,
+						zoneY + constants.TILE_HEIGHT / 2,
+						images.slot_round.key,
+					);
+					slotImg.setDisplaySize(constants.TILE_WIDTH, constants.TILE_HEIGHT);
+					this.slotImages.push(slotImg);
+
+					// Only create drop zones for player board (enemy units can't be dragged)
+					if (board.isPlayer) {
+						const dropZone = this.scene.add.zone(
+							zoneX + constants.TILE_WIDTH / 2,
+							zoneY + constants.TILE_HEIGHT / 2,
+							constants.TILE_WIDTH,
+							constants.TILE_HEIGHT
+						);
+						dropZone.setRectangleDropZone(constants.TILE_WIDTH, constants.TILE_HEIGHT);
+						this.dropZones.push(dropZone);
+					}
+				}
 			}
-		}
+		});
 	}
 
 	display(): void {
