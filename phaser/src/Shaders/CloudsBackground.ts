@@ -179,26 +179,35 @@ void main() {
     vec2 animatedUV = uv;
     animatedUV += vec2(scaledTime * 0.005, scaledTime * 0.004); // Half speed: was 0.01, 0.008
 
+
     // Swirl and warp for nebula shapes
     vec2 swirl1 = swirl(animatedUV, 0.5, vec2(0.4, 0.7));
     vec2 swirl2 = swirl(animatedUV, -0.4, vec2(0.7, 0.3));
     vec2 swirl3 = swirl(animatedUV, 0.7, vec2(0.5, 0.2));
 
-    // Nebula noise layers - Reduced octaves for better performance
-    float nebula1 = fbm(swirl1 * 3.5 + scaledTime * 0.06, 5); // Reduced from 7 to 5 octaves
-    float nebula2 = fbm(swirl2 * 2.7 + scaledTime * 0.035, 4); // Reduced from 6 to 4 octaves
-    float nebula3 = fbm(swirl3 * 4.2 + scaledTime * 0.045, 4); // Reduced from 5 to 4 octaves
+    // Make particleQuality affect nebula complexity (octave count)
+    int nebulaOctaves1 = int(5.0 + particleQuality * 1.0); // 5 (low), 6 (med), 7 (high)
+    int nebulaOctaves2 = int(4.0 + particleQuality * 1.0); // 4, 5, 6
+    int nebulaOctaves3 = int(4.0 + particleQuality * 1.0); // 4, 5, 6
+    int glowOctaves1 = int(3.0 + particleQuality * 1.0);   // 3, 4, 5
+    int glowOctaves2 = int(4.0 + particleQuality * 1.0);   // 4, 5, 6
+    int colorVarOctaves = int(4.0 + particleQuality * 1.0);// 4, 5, 6
+
+    // Nebula noise layers - octave count based on quality
+    float nebula1 = fbm(swirl1 * 3.5 + scaledTime * 0.06, nebulaOctaves1);
+    float nebula2 = fbm(swirl2 * 2.7 + scaledTime * 0.035, nebulaOctaves2);
+    float nebula3 = fbm(swirl3 * 4.2 + scaledTime * 0.045, nebulaOctaves3);
 
     // Combine nebula layers for depth
     float nebulaPattern = nebula1 * 0.5 + nebula2 * 0.35 + nebula3 * 0.25;
 
-    // Add more depth and glow - Reduced octaves for better performance
-    float glow1 = fbm(uv * 2.0 + scaledTime * 0.02, 3); // Reduced from 4 to 3 octaves
-    float glow2 = fbm(uv * 3.5 + scaledTime * 0.015, 4); // Reduced from 5 to 4 octaves
+    // Add more depth and glow - octave count based on quality
+    float glow1 = fbm(uv * 2.0 + scaledTime * 0.02, glowOctaves1);
+    float glow2 = fbm(uv * 3.5 + scaledTime * 0.015, glowOctaves2);
     float glow = glow1 * 0.5 + glow2 * 0.5;
 
     // Color variation for nebula
-    float colorVar = fbm(uv * 7.0 + scaledTime * 0.09, 4); // Half speed: was 0.18
+    float colorVar = fbm(uv * 7.0 + scaledTime * 0.09, colorVarOctaves);
 
     // Star field - Quality-based density
     float starDensityMultiplier = 1.0 + (particleQuality * 0.3); // Low: 1.0x, Medium: 1.3x, High: 1.6x
