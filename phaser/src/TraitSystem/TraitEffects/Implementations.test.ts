@@ -13,12 +13,9 @@ import { vec2 } from '../../Models/Geometry.pure';
 
 // Removed jest.mock calls and updated imports to use pure modules directly
 import { getChara as pureGetChara } from '../../Scenes/Battleground/Systems/CharaManager.pure';
-import { applyStatusEffect as pureApplyStatusEffect } from '../../Systems/StatusEffects/StatusEffectManager.pure';
-// import { pickRandom as purePickRandom } from '../../utils.pure'; // Commented out as it's unused
 
 // Updated setup to use pure functions directly
 let getChara = pureGetChara;
-const applyStatusEffect = pureApplyStatusEffect;
 // const pickRandom = purePickRandom; // Commented out as it's unused
 
 describe('Trait Effect Implementations', () => {
@@ -573,9 +570,6 @@ describe('Trait Effect Implementations', () => {
 
 				expect(duration).toBe(3000);
 				expect(amount).toBe(5);
-
-				// Verify mocks are available for testing status effect calls
-				expect(applyStatusEffect).toBeDefined();
 			});
 		});
 

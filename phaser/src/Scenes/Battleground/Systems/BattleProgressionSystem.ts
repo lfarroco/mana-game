@@ -8,7 +8,6 @@ import { getAllCards } from "../../../Models/Entities/Card";
 import { generateEnemyTeam } from "../generateEnemyTeam";
 import { PrestigeSystem } from "../../../Systems/PrestigeSystem";
 import * as CharaManager from "./CharaManager";
-import { clearAllStatusEffects } from "../../../Systems/StatusEffects/StatusEffectManager";
 import { cpuForce, playerForce } from "../../../Models/Entities/Force";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
 
@@ -23,7 +22,6 @@ function createUnitCopy(unit: Unit): Unit {
 		position: { ...unit.position },
 		traits: unit.traits.map(trait => ({ ...trait })),
 		// Copy arrays and other nested structures
-		statusEffects: unit.statusEffects ? [...unit.statusEffects] : undefined,
 		temporaryEffects: unit.temporaryEffects ? [...unit.temporaryEffects] : undefined
 	};
 }
@@ -148,11 +146,8 @@ export class BattleProgressionSystem {
 		this.state.gameData.player.units.forEach(unit => {
 			unit.charge = 0;
 			unit.refresh = 0;
-			// Units no longer have HP to reset
-
-			// Clear all status effects using the new unified system
-			// TOOD: remove for now
-			clearAllStatusEffects(unit);
+			unit.hasted = 0;
+			unit.slowed = 0;
 		});
 
 	}

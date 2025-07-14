@@ -3,7 +3,6 @@ import Phaser from "phaser";
 import { Unit } from "../../Models/Entities/Unit";
 import * as constants from "../../constants/constants";
 import { getOption } from "../../Models/OptionsStore";
-import { hasStatusEffect } from "../../Systems/StatusEffects/StatusEffectManager";
 
 export class CharaBarsDisplay {
 	scene: Phaser.Scene;
@@ -41,14 +40,14 @@ export class CharaBarsDisplay {
 		let color = 0x33ff33;
 
 		// Check status effects using the new system
-		const isHasted = hasStatusEffect(unit, 'haste');
-		const isSlowed = hasStatusEffect(unit, 'slow');
-		const isFrozen = hasStatusEffect(unit, 'freeze') || hasStatusEffect(unit, 'stun');
+		const isHasted = unit.hasted > 0;
+		// const isSlowed = hasStatusEffect(unit, 'slow');
+		// const isFrozen = hasStatusEffect(unit, 'freeze') || hasStatusEffect(unit, 'stun');
 
-		if (isFrozen) color = 0x87ceeb; // Light blue for frozen/stunned
-		else if (isHasted && isSlowed) color = 0x000000;
-		else if (isHasted) color = 0x00eaff;
-		else if (isSlowed) color = 0xff0000;
+		if (isHasted) color = 0x00eaff;
+		//if (isFrozen) color = 0x87ceeb; // Light blue for frozen/stunned
+		//else if (isHasted && isSlowed) color = 0x000000;
+		//else if (isSlowed) color = 0xff0000;
 
 		// Draw a circular arc (outline only) exactly over the chara border
 		const centerX = 0;

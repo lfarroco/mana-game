@@ -5,7 +5,6 @@ import * as CharaManager from "./Systems/CharaManager";
 import { Unit } from "../../Models/Entities/Unit";
 import { GameEvents } from "../../constants/events";
 import { delay } from "../../Utils/animation";
-import { processStatusEffects, getCooldownMultiplier } from "../../Systems/StatusEffects/StatusEffectManager";
 import { TimeoutDamageSystem } from "./Systems/TimeoutDamageSystem";
 
 /**
@@ -127,14 +126,19 @@ function chargeUnits(state: State, delta: number): Unit[] {
   for (const unit of activeUnits) {
     // Units no longer have HP, so no need to check if alive
 
-    // Process status effects using the new unified system
-    processStatusEffects(unit, delta);
 
     // Calculate cooldown modifier from status effects
-    const cooldownMultiplier = getCooldownMultiplier(unit);
+    const cooldownMultiplier = unit.hasted > 0 ? 0.5 : unit.slowed > 0 ? 2 : 1;
     const chargeRate = cooldownMultiplier === Number.MAX_SAFE_INTEGER ? 0 : 1 / cooldownMultiplier;
 
     unit.charge += delta * chargeRate;
+
+    if (unit.hasted > 0) {
+      unit.hasted = Math.max(0, unit.hasted - delta);
+    }
+    if (unit.slowed > 0) {
+      unit.slowed = Math.max(0, unit.slowed - delta);
+    }
 
     unit.refresh = Math.max(0, unit.refresh - delta);
 
