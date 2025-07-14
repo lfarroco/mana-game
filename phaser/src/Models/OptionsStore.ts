@@ -16,6 +16,8 @@ export type Options = {
 let currentOptions: Options;
 let game: Phaser.Game;
 
+const STORAGE_KEY = 'mana-game-options';
+
 /**
  * Initializes the OptionsStore.
  * Reads 'speed' and 'debug' from URL parameters and sets defaults for other options.
@@ -46,6 +48,7 @@ export function initializeOptionsStore(gameRef: Phaser.Game): void {
 		}
 	}
 
+	// Start with default options
 	currentOptions = {
 		sound: true,
 		soundVolume: 0.4,
@@ -56,7 +59,22 @@ export function initializeOptionsStore(gameRef: Phaser.Game): void {
 		particles: 'medium',
 	};
 
-	setGameSpeed(speed);
+	// Load saved options from localStorage and merge with defaults
+	const savedOptions = loadOptionsFromStorage();
+	if (savedOptions) {
+		// Merge saved options with defaults, but preserve URL parameters
+		Object.assign(currentOptions, savedOptions);
+
+		// URL parameters take precedence over saved options
+		if (urlParams.has("speed")) {
+			currentOptions.speed = speed;
+		}
+		if (urlParams.has("debug")) {
+			currentOptions.debug = debug;
+		}
+	}
+
+	setGameSpeed(currentOptions.speed);
 }
 
 /**
@@ -84,6 +102,9 @@ export function getOption<K extends keyof Options>(key: K): Options[K] {
 export function setOption<K extends keyof Options>(key: K, value: Options[K]): void {
 	currentOptions[key] = value;
 
+	// Save to localStorage whenever an option changes
+	saveOptionsToStorage();
+
 	// Special handling for certain options that require immediate application
 	if (key === 'speed') {
 		setGameSpeed(value as number);
@@ -99,6 +120,55 @@ export function setOption<K extends keyof Options>(key: K, value: Options[K]): v
 		return;
 	}
 }
+
+/**
+ * Manually save current options to localStorage
+ * This is automatically called by setOption, but can be called manually if needed
+ */
+export function saveOptions(): void {
+	saveOptionsToStorage();
+}
+
+/**
+ * Reset all options to default values and save to localStorage
+ */
+export function resetOptionsToDefaults(): void {
+	const urlParams = new URLSearchParams(window.location.search);
+	let speed = 1;
+	let debug = false;
+
+	// Preserve URL parameters
+	if (urlParams.has("speed")) {
+		const paramSpeed = urlParams.get("speed");
+		if (paramSpeed) {
+			const parsedSpeed = parseFloat(paramSpeed);
+			if (!isNaN(parsedSpeed)) {
+				speed = parsedSpeed;
+			}
+		}
+	}
+
+	if (urlParams.has("debug")) {
+		const paramDebug = urlParams.get("debug");
+		if (paramDebug) {
+			debug = paramDebug === "true";
+		}
+	}
+
+	currentOptions = {
+		sound: true,
+		soundVolume: 0.4,
+		music: true,
+		musicVolume: 0.2,
+		debug,
+		speed,
+		particles: 'medium',
+	};
+
+	saveOptionsToStorage();
+	setGameSpeed(currentOptions.speed);
+}
+
 /**
  * Sets the global game speed for all active scenes.
  * This function should be called whenever the user changes the speed setting.
@@ -118,8 +188,76 @@ function setGameSpeed(speed: number) {
 	});
 }
 
+/**
+ * Load options from localStorage
+ * @returns Saved options or null if not found or invalid
+ */
+function loadOptionsFromStorage(): Partial<Options> | null {
+	try {
+		const savedOptions = localStorage.getItem(STORAGE_KEY);
+		if (!savedOptions) {
+			return null;
+		}
+
+		const parsed = JSON.parse(savedOptions);
+
+		// Validate the parsed options structure
+		if (typeof parsed !== 'object' || parsed === null) {
+			return null;
+		}
+
+		// Return only valid option keys to avoid potential issues
+		const validOptions: Partial<Options> = {};
+
+		if (typeof parsed.sound === 'boolean') validOptions.sound = parsed.sound;
+		if (typeof parsed.soundVolume === 'number' && parsed.soundVolume >= 0 && parsed.soundVolume <= 1) {
+			validOptions.soundVolume = parsed.soundVolume;
+		}
+		if (typeof parsed.music === 'boolean') validOptions.music = parsed.music;
+		if (typeof parsed.musicVolume === 'number' && parsed.musicVolume >= 0 && parsed.musicVolume <= 1) {
+			validOptions.musicVolume = parsed.musicVolume;
+		}
+		if (typeof parsed.debug === 'boolean') validOptions.debug = parsed.debug;
+		if (typeof parsed.speed === 'number' && parsed.speed > 0) validOptions.speed = parsed.speed;
+		if (['low', 'medium', 'high'].includes(parsed.particles)) {
+			validOptions.particles = parsed.particles;
+		}
+
+		return validOptions;
+	} catch (error) {
+		console.warn('Failed to load options from localStorage:', error);
+		return null;
+	}
+}
+
+/**
+ * Save current options to localStorage
+ */
+function saveOptionsToStorage(): void {
+	try {
+		localStorage.setItem(STORAGE_KEY, JSON.stringify(currentOptions));
+	} catch (error) {
+		console.warn('Failed to save options to localStorage:', error);
+	}
+}
+
 // Debug helper - only exposed in development mode
 if (process.env.NODE_ENV === 'development') {
 	//@ts-ignore
 	window.setGameSpeed = setGameSpeed;
+	//@ts-ignore
+	window.getGameOptions = getOptions;
+	//@ts-ignore
+	window.saveGameOptions = saveOptions;
+	//@ts-ignore
+	window.resetGameOptions = resetOptionsToDefaults;
+	//@ts-ignore
+	window.clearGameOptionsStorage = () => {
+		try {
+			localStorage.removeItem(STORAGE_KEY);
+			console.log('Game options cleared from localStorage');
+		} catch (error) {
+			console.error('Failed to clear options from localStorage:', error);
+		}
+	};
 }
