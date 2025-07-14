@@ -238,9 +238,9 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.barsDisplay.updateUnit(newUnit);
 	}
 
-	/** Updates the displayed Attack Power value via the `statsDisplay` component. */
+	/** Updates the displayed Attack Power value via the `statsDisplay` component, with animation. */
 	updatePowerDisplay = () => {
-		this.statsDisplay.updatePower();
+		this.statsDisplay.animatePowerChange(this.unit.power);
 	}
 
 	/**

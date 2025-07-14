@@ -1,8 +1,9 @@
-// src/Systems/Chara/CharaStatsDisplay.ts
+
 import Phaser from "phaser";
 import { Unit } from "../../Models/Entities/Unit";
 import * as constants from "../../constants/constants";
 import { CHARA_STATS_COLORS } from "../../constants/constants";
+
 
 export class CharaStatsDisplay {
 	scene: Phaser.Scene;
@@ -10,6 +11,11 @@ export class CharaStatsDisplay {
 
 	powerDisplayBg!: Phaser.GameObjects.Graphics;
 	powerDisplay!: Phaser.GameObjects.Text;
+
+	// Animation state fields
+	private powerTween?: Phaser.Tweens.Tween;
+	private odometerTween?: Phaser.Tweens.Tween;
+	private displayedPower: number = 0;
 
 	static readonly BOX_WIDTH_RATIO = 0.4;
 	static readonly BOX_HEIGHT_RATIO = 0.2;
@@ -19,6 +25,7 @@ export class CharaStatsDisplay {
 	constructor(scene: Phaser.Scene, unit: Unit) {
 		this.scene = scene;
 		this.unit = unit;
+		this.displayedPower = Math.floor(unit.power);
 		this.createElements();
 	}
 
@@ -51,7 +58,7 @@ export class CharaStatsDisplay {
 		this.powerDisplay = this.scene.add.text(
 			powerDisplayPosition[0] + boxWidth / 2,
 			powerDisplayPosition[1] + boxHeight / 2,
-			this.unit.power.toString(),
+			Math.floor(this.unit.power).toString(),
 			constants.defaultTextConfig
 		).setOrigin(0.5).setAlign('center');
 
@@ -66,7 +73,61 @@ export class CharaStatsDisplay {
 	}
 
 	updatePower(): void {
-		this.powerDisplay.setText(Math.floor(this.unit.power).toString());
+		// For legacy calls, just update instantly
+		this.displayedPower = Math.floor(this.unit.power);
+		this.powerDisplay.setText(this.displayedPower.toString());
+	}
+
+	/**
+	 * Animates the power number like an odometer and pulses the text.
+	 * If called again during animation, restarts with new value.
+	 * @param newValue The new power value to animate to.
+	 */
+	animatePowerChange(newValue: number) {
+		const startValue = this.displayedPower;
+		const endValue = Math.floor(newValue);
+		if (startValue === endValue) return;
+
+		// Stop any previous tweens
+		if (this.powerTween) this.powerTween.stop();
+		if (this.odometerTween) this.odometerTween.stop();
+
+		// Pulse animation (scale up then down)
+		this.powerTween = this.scene.tweens.add({
+			targets: this.powerDisplay,
+			scale: 1.3,
+			duration: 100,
+			yoyo: true,
+			ease: 'Quad.easeOut',
+			onStart: () => {
+				this.powerDisplay.setScale(1);
+			},
+			onComplete: () => {
+				this.powerDisplay.setScale(1);
+			}
+		});
+
+		// Odometer animation
+		const duration = 200;
+		let lastValue = startValue;
+		this.odometerTween = this.scene.tweens.addCounter({
+			from: startValue,
+			to: endValue,
+			duration,
+			ease: 'Cubic.easeOut',
+			onUpdate: tween => {
+				const val = Math.round(tween.getValue());
+				if (val !== lastValue) {
+					this.displayedPower = val;
+					this.powerDisplay.setText(val.toString());
+					lastValue = val;
+				}
+			},
+			onComplete: () => {
+				this.displayedPower = endValue;
+				this.powerDisplay.setText(endValue.toString());
+			}
+		});
 	}
 
 	updateUnit(newUnit: Unit): void {
