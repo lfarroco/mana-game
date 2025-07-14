@@ -77,7 +77,8 @@ export class CloudsBackground {
 				color3: { type: '3f', value: colors.color3 },
 				color4: { type: '3f', value: colors.color4 },
 				color5: { type: '3f', value: colors.color5 },
-				timeScale: { type: '1f', value: this.timeScale }
+				timeScale: { type: '1f', value: this.timeScale },
+				particleQuality: { type: '1f', value: this.getParticleQualityValue() }
 			}
 		);
 
@@ -209,6 +210,36 @@ export class CloudsBackground {
 	public setTimeScale(timeScale: number): void {
 		this.timeScale = timeScale;
 		this.shader.setUniform('timeScale.value', timeScale);
+	}
+
+	/**
+	 * Get the numeric value for particle quality based on options
+	 */
+	private getParticleQualityValue(): number {
+		try {
+			// Import getOption here to avoid circular dependencies
+			const { getOption } = require('../../Models/OptionsStore');
+			const particles = getOption('particles');
+
+			switch (particles) {
+				case 'low': return 0.0;
+				case 'medium': return 1.0;
+				case 'high': return 2.0;
+				default: return 1.0; // Default to medium
+			}
+		} catch (error) {
+			// Fallback to medium quality if OptionsStore is not available
+			console.warn('Could not access OptionsStore, defaulting to medium particle quality');
+			return 1.0;
+		}
+	}
+
+	/**
+	 * Update the particle quality based on the current options
+	 */
+	public updateParticleQuality(): void {
+		const qualityValue = this.getParticleQualityValue();
+		this.shader.setUniform('particleQuality.value', qualityValue);
 	}
 
 	/**
