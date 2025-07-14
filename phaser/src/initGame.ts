@@ -2,6 +2,7 @@ import * as Phaser from "phaser";
 import BattlegroundScene from "./Scenes/Battleground/BattlegroundScene";
 import Core from "./Scenes/Core/Core";
 import TitleScene from "./Scenes/Title/TitleScene";
+import OptionsScene from "./Scenes/Options/OptionsScene";
 import { State } from "./Models/State";
 import { SCREEN_HEIGHT, SCREEN_WIDTH, SCENE_KEYS } from "./constants/constants";
 import { DebugScene } from "./Debug/DebugScene";
@@ -20,7 +21,7 @@ export function initGame(state: State) {
 			autoCenter: Phaser.Scale.CENTER_BOTH
 		},
 		parent: "game-container",
-		scene: [Core, DebugScene, BattlegroundScene, TitleScene],
+		scene: [Core, DebugScene, BattlegroundScene, TitleScene, OptionsScene],
 		physics: {
 			default: 'arcade',
 			arcade: {
