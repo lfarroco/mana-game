@@ -93,7 +93,7 @@ function create(
 		labelText: labelText,
 		barColor: barColor,
 		backgroundColor: backgroundColor,
-		backgroundOpacity: 0.7, // Slightly more opaque for morale bars
+		backgroundOpacity: 0.2, // Slightly more opaque for morale bars
 		textConfig: c.defaultTextConfig
 	});
 }
