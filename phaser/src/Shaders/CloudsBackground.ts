@@ -214,14 +214,11 @@ void main() {
     // Color variation for nebula
     float colorVar = fbm(uv * 7.0 + scaledTime * 0.09, 4); // Half speed: was 0.18
 
-    // Star field - sparse, discrete stars that don't flicker
+    // Star field - Reduced layers for better performance
     float stars = starField(uv, 20.0, 1.0);        // Main star layer
     stars += starField(uv + 0.5, 15.0, 0.8);       // Secondary layer with offset
-    stars += starField(uv + 0.25, 25.0, 0.6);      // Finer stars
     
-    // Add a few very bright stars
-    float brightStars = starField(uv + 0.75, 8.0, 1.2); // Reduced brightness: was 2.0
-    stars += brightStars;
+    // Removed finer stars and bright stars layers for performance
     
     stars = clamp(stars, 0.0, 1.0);
 
