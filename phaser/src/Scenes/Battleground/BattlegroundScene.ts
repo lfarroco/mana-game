@@ -63,7 +63,10 @@ export class BattlegroundScene extends Phaser.Scene {
     if (this.eventSystem) {
       this.eventSystem.destroy();
     }
-    // Note: Shop, RunCombatSystem, BattleProgressionSystem, SetupSystem might need destroy methods
+    if (this.setupSystem) {
+      this.setupSystem.destroy();
+    }
+    // Note: Shop, RunCombatSystem, BattleProgressionSystem might need destroy methods
     // if they acquire resources or set up listeners not tied to scene.events.
   }
 
@@ -221,8 +224,6 @@ export class BattlegroundScene extends Phaser.Scene {
   handleBattleResultShow(payload: { result: "victory" | "defeat" }): void {
     battleResultAnimation(this, payload.result); // battleResultAnimation is async, but event handler is sync
   }
-
-
 
   handleOwnedUnitSold(payload: { unitId: string, soldForGold: number }): void {
     const { unitId, soldForGold } = payload;

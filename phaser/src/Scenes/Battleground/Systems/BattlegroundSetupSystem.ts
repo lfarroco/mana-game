@@ -1,8 +1,6 @@
 import { State } from "../../../Models/State";
 import { CardCollection, registerCollection } from "../../../Models/Entities/Card";
 import * as TraitSystem from "../../../TraitSystem/Traits";
-import * as constants from "../../../constants/constants";
-import { images } from "../../../assets";
 import * as ControlsSystem from "../../../Systems/Controls/Controls";
 import { initializePlayerBoard, PartyBoard, createBoardDropZone } from "../../../Models/Board";
 import * as BG_CONSTANTS from "../battlegroundConstants";
@@ -12,11 +10,13 @@ import { TypedEventEmitter } from "../../../Systems/Events/TypedEventEmitter";
 import { GoldSystemEventPayloads, GoldSystemEvents } from "../../../Systems/GoldSystem/events";
 import { getOption } from "../../../Models/OptionsStore";
 import { devlog } from "../../../utils";
+import { CloudsBackground } from "../../../components/cloudBackground/CloudsBackground";
 
 let runtimeDataInitialized = false;
 
 export class BattlegroundSetupSystem {
 	scene: BattlegroundScene;
+	private cloudsBackground?: CloudsBackground;
 
 	constructor(scene: BattlegroundScene) {
 		this.scene = scene;
@@ -71,19 +71,36 @@ export class BattlegroundSetupSystem {
 	}
 
 	setupSceneElements(_state: State): PartyBoard {
-		this.scene.bgImage = this.scene.add.image(
-			0, 0,
-			images.bg_forest.key,
-		).setDisplaySize(constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT)
-			.setPosition(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2);
+		// Create the animated clouds background instead of a static forest image
+		this.cloudsBackground = new CloudsBackground(this.scene, {
+			preset: 'forest', // Use forest preset to match the original theme
+			depth: -2000, // Ensure it's behind everything else
+			autoChangePresets: false // Keep it stable for gameplay
+		});
+
+		// Store the shader as bgImage for compatibility with existing code
+		// Note: This might require type casting since shader is not exactly an Image
+		this.scene.bgImage = this.cloudsBackground.getShader() as any;
 
 		this.scene.bgContainer = this.scene.add.container(0, 0);
 		ControlsSystem.init(this.scene);
 
+		// Add the shader to the container (the shader is already added to the scene)
+		// Note: Container.add() expects GameObject, shader should work but might need adjustment
 		this.scene.bgContainer.add([this.scene.bgImage]);
 
 		const playerBoard = initializePlayerBoard(this.scene);
 		createBoardDropZone(); // Actually render the board slots
 		return playerBoard;
+	}
+
+	/**
+	 * Clean up the clouds background when the scene is destroyed
+	 */
+	destroy(): void {
+		if (this.cloudsBackground) {
+			this.cloudsBackground.destroy();
+			this.cloudsBackground = undefined;
+		}
 	}
 }
