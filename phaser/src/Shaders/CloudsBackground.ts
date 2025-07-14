@@ -198,17 +198,17 @@ void main() {
     vec2 swirl2 = swirl(animatedUV, -0.4, vec2(0.7, 0.3));
     vec2 swirl3 = swirl(animatedUV, 0.7, vec2(0.5, 0.2));
 
-    // Nebula noise layers
-    float nebula1 = fbm(swirl1 * 3.5 + scaledTime * 0.06, 7); // Half speed: was 0.12
-    float nebula2 = fbm(swirl2 * 2.7 + scaledTime * 0.035, 6); // Half speed: was 0.07
-    float nebula3 = fbm(swirl3 * 4.2 + scaledTime * 0.045, 5); // Half speed: was 0.09
+    // Nebula noise layers - Reduced octaves for better performance
+    float nebula1 = fbm(swirl1 * 3.5 + scaledTime * 0.06, 5); // Reduced from 7 to 5 octaves
+    float nebula2 = fbm(swirl2 * 2.7 + scaledTime * 0.035, 4); // Reduced from 6 to 4 octaves
+    float nebula3 = fbm(swirl3 * 4.2 + scaledTime * 0.045, 4); // Reduced from 5 to 4 octaves
 
     // Combine nebula layers for depth
     float nebulaPattern = nebula1 * 0.5 + nebula2 * 0.35 + nebula3 * 0.25;
 
-    // Add more depth and glow
-    float glow1 = fbm(uv * 2.0 + scaledTime * 0.02, 4); // Half speed: was 0.04
-    float glow2 = fbm(uv * 3.5 + scaledTime * 0.015, 5); // Half speed: was 0.03
+    // Add more depth and glow - Reduced octaves for better performance
+    float glow1 = fbm(uv * 2.0 + scaledTime * 0.02, 3); // Reduced from 4 to 3 octaves
+    float glow2 = fbm(uv * 3.5 + scaledTime * 0.015, 4); // Reduced from 5 to 4 octaves
     float glow = glow1 * 0.5 + glow2 * 0.5;
 
     // Color variation for nebula
