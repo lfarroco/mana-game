@@ -72,44 +72,7 @@ float starField(vec2 uv, float density, float brightness) {
     return star;
 }
 
-// Shooting stars function
-float shootingStars(vec2 uv, float scaledTime) {
-    float shootingStar = 0.0;
-    
-    // Create multiple shooting star lanes at different heights and times
-    for (int i = 0; i < 3; i++) {
-        float laneOffset = float(i) * 0.333; // Spread lanes across screen
-        float laneY = 0.2 + laneOffset * 0.6; // Y position of this lane
-        
-        // Each shooting star has a random start time and duration
-        float starPeriod = 8.0 + float(i) * 3.0; // Different periods for each lane
-        float starPhase = fract(scaledTime * 0.1 / starPeriod + laneOffset);
-        
-        // Only show shooting star during a small portion of the cycle
-        float starDuration = 0.15; // 15% of the cycle
-        float starActive = smoothstep(0.0, 0.02, starPhase) * smoothstep(starDuration, starDuration - 0.02, starPhase);
-        
-        if (starActive > 0.0) {
-            // Shooting star position and direction
-            float starProgress = starPhase / starDuration; // 0 to 1 during active period
-            
-            // Start from left side, move diagonally down-right
-            vec2 starStart = vec2(-0.2, laneY + 0.1);
-            vec2 starEnd = vec2(1.4, laneY - 0.15);
-            vec2 starPos = mix(starStart, starEnd, starProgress);
-            
-            // Main glowing orb
-            float distToStar = length(uv - starPos);
-            float orbSize = 0.02;
-            float glow = 1.0 - smoothstep(0.0, orbSize, distToStar);
-            glow = pow(glow, 1.5); // More concentrated glow
-            
-            shootingStar += glow * starActive * 1.5; // Bright core
-        }
-    }
-    
-    return clamp(shootingStar, 0.0, 1.0);
-}
+
 
 // Animated dust particles function
 float dustParticles(vec2 uv, float scaledTime) {
@@ -202,11 +165,6 @@ void main() {
     
     stars = clamp(stars, 0.0, 1.0);
 
-    // Add shooting stars
-    float shootingStarBrightness = shootingStars(uv, scaledTime);
-    stars += shootingStarBrightness;
-    stars = clamp(stars, 0.0, 1.0);
-
     // Dust particles
     float dust = dustParticles(uv, scaledTime);
 
@@ -223,23 +181,10 @@ void main() {
     vec3 dustColor = mix(vec3(0.8, 0.6, 0.4), vec3(1.0, 0.8, 0.6), dust);
     nebulaColor = mix(nebulaColor, dustColor, dust * 0.3);
 
-    // Add stars with random colors (additive blending)
+    // Add stars (additive blending)
     if (stars > 0.0) {
-        // Use the star brightness as a seed for color variation
-        float colorSeed = stars * 100.0;
-        float hue = fract(colorSeed * 0.618034); // Golden ratio for good distribution
-        
-        // Convert hue to RGB (simplified HSV to RGB)
-        vec3 starHue = vec3(
-            abs(hue * 6.0 - 3.0) - 1.0,
-            2.0 - abs(hue * 6.0 - 2.0),
-            2.0 - abs(hue * 6.0 - 4.0)
-        );
-        starHue = clamp(starHue, 0.0, 1.0);
-        
-        // Mix between white and colored stars (some stars stay white)
-        float colorIntensity = smoothstep(0.3, 1.0, stars) * 0.6; // Brighter stars get more color
-        vec3 starColor = mix(vec3(1.0), starHue, colorIntensity);
+        // Use white stars
+        vec3 starColor = vec3(1.0);
         
         // Additive blending - add star light to the background
         nebulaColor += starColor * stars;
