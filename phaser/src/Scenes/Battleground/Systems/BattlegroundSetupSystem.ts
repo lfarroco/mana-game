@@ -75,7 +75,6 @@ export class BattlegroundSetupSystem {
 		this.cloudsBackground = new CloudsBackground(this.scene, {
 			preset: 'forest', // Use forest preset to match the original theme
 			depth: -2000, // Ensure it's behind everything else
-			autoChangePresets: false, // Keep it stable for gameplay
 			timeScale: 0.3 // Slow down the animation to be less distracting (30% of normal speed)
 		});
 
