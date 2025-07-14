@@ -51,7 +51,7 @@ float starField(vec2 uv, float density, float brightness) {
     float dist = length(gridLocal - starPos);
     
     // Create a round star with smooth falloff
-    float starSize = (noise(gridID + 30.0) * 0.5 + 0.5) * 0.15 + 0.05; // Much larger: 0.05 to 0.2
+    float starSize = (noise(gridID + 30.0) * 0.3 + 0.4) * 0.1 + 0.03; // Smaller: 0.03 to 0.1 (was 0.05 to 0.2)
     float star = 1.0 - smoothstep(0.0, starSize, dist);
     star = pow(star, 2.0); // Less aggressive falloff for larger visible area
     
@@ -64,8 +64,8 @@ float starField(vec2 uv, float density, float brightness) {
     float glow = sin((time * timeScale * glowSpeed) + phase + timeOffset) * 0.5 + 0.5; // 0.0 to 1.0
     
     // Make some stars glow more dramatically than others
-    float glowIntensity = noise(gridID + 50.0) * 0.7 + 0.3; // 0.3 to 1.0
-    glow = mix(0.1, 1.2, pow(glow, 2.0 - glowIntensity)); // Much wider range: 0.1 to 1.2
+    float glowIntensity = noise(gridID + 50.0) * 0.5 + 0.3; // Reduced: 0.3 to 0.8 (was 0.3 to 1.0)
+    glow = mix(0.1, 0.8, pow(glow, 2.0 - glowIntensity)); // Reduced max: 0.1 to 0.8 (was 0.1 to 1.2)
     
     star *= glow * brightness;
     
@@ -220,7 +220,7 @@ void main() {
     stars += starField(uv + 0.25, 25.0, 0.6);      // Finer stars
     
     // Add a few very bright stars
-    float brightStars = starField(uv + 0.75, 8.0, 2.0);
+    float brightStars = starField(uv + 0.75, 8.0, 1.2); // Reduced brightness: was 2.0
     stars += brightStars;
     
     stars = clamp(stars, 0.0, 1.0);
