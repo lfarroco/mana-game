@@ -34,6 +34,27 @@ float starField(vec2 uv, float density, float brightness) {
     return star;
 }
 
+// Animated dust particles function
+float dustParticles(vec2 uv, float scaledTime) {
+    float dust = 0.0;
+    
+    // Multiple layers of dust with different speeds and scales
+    vec2 dustUV1 = uv * 15.0 + vec2(scaledTime * 0.02, scaledTime * 0.015);
+    vec2 dustUV2 = uv * 25.0 + vec2(scaledTime * -0.01, scaledTime * 0.03);
+    vec2 dustUV3 = uv * 40.0 + vec2(scaledTime * 0.025, scaledTime * -0.02);
+    
+    // Create floating dust particles
+    dust += pow(noise(dustUV1), 15.0) * 0.4;
+    dust += pow(noise(dustUV2), 20.0) * 0.3;
+    dust += pow(noise(dustUV3), 25.0) * 0.2;
+    
+    // Add some larger, slower moving dust clouds
+    vec2 cloudDustUV = uv * 8.0 + vec2(scaledTime * 0.005, scaledTime * 0.008);
+    dust += smoothstep(0.6, 0.8, noise(cloudDustUV)) * 0.15;
+    
+    return clamp(dust, 0.0, 1.0);
+}
+
 // Fractal Brownian Motion for nebula-like patterns
 float fbm(vec2 p, int octaves) {
     float value = 0.0;
@@ -98,6 +119,9 @@ void main() {
     stars += starField(uv + 0.25, 200.0, 0.8);
     stars = clamp(stars, 0.0, 1.0);
 
+    // Dust particles
+    float dust = dustParticles(uv, scaledTime);
+
     // Mix nebula colors (use more vibrant, cosmic colors)
     vec3 nebulaColor = mix(color1, color2, nebulaPattern);
     nebulaColor = mix(nebulaColor, color3, smoothstep(0.5, 0.8, nebulaPattern));
@@ -106,6 +130,10 @@ void main() {
 
     // Add glow
     nebulaColor += vec3(0.15, 0.08, 0.18) * pow(glow, 2.0);
+
+    // Add dust particles with warm color tint
+    vec3 dustColor = mix(vec3(0.8, 0.6, 0.4), vec3(1.0, 0.8, 0.6), dust);
+    nebulaColor = mix(nebulaColor, dustColor, dust * 0.3);
 
     // Add stars (white, with a slight blue tint)
     vec3 starColor = mix(vec3(1.0, 1.0, 1.0), vec3(0.7, 0.8, 1.0), 0.3);
