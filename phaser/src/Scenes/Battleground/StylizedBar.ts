@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 
-const BAR_HEIGHT = 32;
+const BAR_HEIGHT = 40;
 const INNER_PADDING = 3;
 
 // This type represents the components of a stylized bar

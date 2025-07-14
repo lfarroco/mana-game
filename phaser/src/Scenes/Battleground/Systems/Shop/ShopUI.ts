@@ -56,7 +56,7 @@ export class ShopUI {
 
 		const buttonY = sc.PANEL_Y + sc.SHOP_PANEL_HEIGHT - 100;
 		// Estimate button width + spacing to position reroll button to the left
-		const rerollButtonX = sc.PANEL_X + 160; // Adjust this offset as needed for desired spacing and button width
+		const rerollButtonX = sc.PANEL_X + 190; // Adjust this offset as needed for desired spacing and button width
 		const rerollBtn = new UIButton(
 			this.scene,
 			`Reroll $${c.SHOP_ITEM_PURCHASE_COST}`,

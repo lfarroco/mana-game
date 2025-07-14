@@ -85,7 +85,7 @@ function create(
 ): ShieldBar {
 	const barWidth = scene.scale.width / 4;
 	// Position both bars on the right side of the screen
-	const xPosition = scene.scale.width - barWidth - 20; // Right side with padding
+	const xPosition = scene.scale.width - barWidth - 118; // Right side with padding
 
 	// Always yellow for shields (both player and enemy)
 	const barColor = 0xFFD700; // Gold/Yellow color
