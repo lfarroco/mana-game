@@ -76,7 +76,7 @@ export class ShopUI {
 		);
 		this.flyout.add(nextRoundBtn);
 
-		this._createSellZone(sc.SHOP_PANEL_WIDTH, sc.SHOP_PANEL_HEIGHT);
+		this._createSellZone();
 
 		return { charas: displayedCharas };
 	}
@@ -145,7 +145,7 @@ export class ShopUI {
 		return createdCharas;
 	}
 
-	_createSellZone(shopPanelWidth: number, shopPanelHeight: number): void {
+	_createSellZone(): void {
 		if (this.sellZoneContainer) {
 			this.sellZoneContainer.destroy(true);
 		}
@@ -153,8 +153,9 @@ export class ShopUI {
 		this.sellZoneContainer = this.scene.add.container(0, 0);
 		this.sellZoneContainer.setVisible(false); // Initially hidden
 
-		const sellZoneX = sc.PANEL_X + (shopPanelWidth - sc.SELL_ZONE_WIDTH) / 2;
-		const sellZoneY = sc.PANEL_Y + shopPanelHeight - sc.SELL_ZONE_Y_OFFSET_FROM_BOTTOM - sc.SELL_ZONE_HEIGHT;
+		// Position sell zone in the lower left of the screen
+		const sellZoneX = 20; // Small margin from left edge
+		const sellZoneY = this.scene.cameras.main.height - sc.SELL_ZONE_HEIGHT - 20; // Small margin from bottom
 
 		// Create the zone with its center aligned with the visual graphics' center
 		this.sellZone = this.scene.add.zone(
