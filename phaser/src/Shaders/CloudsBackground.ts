@@ -102,15 +102,13 @@ vec2 swirl(vec2 uv, float intensity, vec2 center) {
 
 // Dust particles function - creates golden shining particles that follow cloud motion
 float dustParticles(vec2 uv, float scaledTime) {
-    // Create multiple layers of dust particles with different densities
-    vec2 dustUV1 = uv * 25.0; // Slightly lower density
-    vec2 dustUV2 = uv * 18.0; // Lower density
-    vec2 dustUV3 = uv * 12.0; // Much lower density for larger particles
+    // Create multiple layers of dust particles with different densities - Reduced to 2 layers for performance
+    vec2 dustUV1 = uv * 25.0; // Higher density small particles
+    vec2 dustUV2 = uv * 15.0; // Lower density larger particles (combined medium and large)
     
     // Apply cloud motion to dust particles - much more visible movement
     dustUV1 += vec2(scaledTime * 0.025, scaledTime * 0.02) + fbm(uv * 2.0 + scaledTime * 0.05, 3) * 0.6; // Half speed
     dustUV2 += vec2(scaledTime * 0.02, scaledTime * 0.0175) + fbm(uv * 1.5 + scaledTime * 0.04, 3) * 0.7; // Half speed
-    dustUV3 += vec2(scaledTime * 0.0175, scaledTime * 0.015) + fbm(uv * 1.0 + scaledTime * 0.03, 3) * 0.8; // Half speed
     
     float dust = 0.0;
     
@@ -136,46 +134,25 @@ float dustParticles(vec2 uv, float scaledTime) {
         dust += particle1 * glow1 * 0.7; // More intensity
     }
     
-    // Layer 2: Medium particles
+    // Layer 2: Larger particles (combined medium and large for better performance)
     vec2 gridID2 = floor(dustUV2);
     vec2 gridLocal2 = fract(dustUV2);
     float dustNoise2 = noise(gridID2);
     if (dustNoise2 > 0.90) { // Fewer particles: 10% of cells get particles
         vec2 dustOffset2 = vec2(noise(gridID2 + 10.0), noise(gridID2 + 20.0)) * 0.6 + 0.2;
         float dist2 = length(gridLocal2 - dustOffset2);
-        float particleSize2 = (noise(gridID2 + 30.0) * 0.4 + 0.6) * 0.09; // Half size: 0.054 to 0.09
+        float particleSize2 = (noise(gridID2 + 30.0) * 0.4 + 0.6) * 0.1; // Slightly larger: 0.06 to 0.1
         float particle2 = 1.0 - smoothstep(0.0, particleSize2, dist2);
-        particle2 = pow(particle2, 1.2);
+        particle2 = pow(particle2, 1.1); // Less aggressive falloff
         
         float phase2 = dustNoise2 * 6.28318;
-        float glowSpeed2 = 0.6 + noise(gridID2 + 40.0) * 1.0;
+        float glowSpeed2 = 0.5 + noise(gridID2 + 40.0) * 1.0; // Slightly slower glow
         float timeOffset2 = noise(gridID2 + 60.0) * 50.0;
         float glow2 = sin((scaledTime * glowSpeed2) + phase2 + timeOffset2) * 0.5 + 0.5;
         float glowIntensity2 = noise(gridID2 + 50.0) * 0.5 + 0.5;
         glow2 = mix(0.3, 1.4, pow(glow2, 2.0 - glowIntensity2)); // Brighter glow
         
-        dust += particle2 * glow2 * 0.8; // More intensity
-    }
-    
-    // Layer 3: Larger particles (fewer but more visible)
-    vec2 gridID3 = floor(dustUV3);
-    vec2 gridLocal3 = fract(dustUV3);
-    float dustNoise3 = noise(gridID3);
-    if (dustNoise3 > 0.94) { // Much fewer particles: 6% of cells get particles
-        vec2 dustOffset3 = vec2(noise(gridID3 + 10.0), noise(gridID3 + 20.0)) * 0.6 + 0.2;
-        float dist3 = length(gridLocal3 - dustOffset3);
-        float particleSize3 = (noise(gridID3 + 30.0) * 0.4 + 0.6) * 0.125; // Half size: 0.075 to 0.125
-        float particle3 = 1.0 - smoothstep(0.0, particleSize3, dist3);
-        particle3 = pow(particle3, 1.0); // Even less aggressive falloff
-        
-        float phase3 = dustNoise3 * 6.28318;
-        float glowSpeed3 = 0.4 + noise(gridID3 + 40.0) * 0.8;
-        float timeOffset3 = noise(gridID3 + 60.0) * 50.0;
-        float glow3 = sin((scaledTime * glowSpeed3) + phase3 + timeOffset3) * 0.5 + 0.5;
-        float glowIntensity3 = noise(gridID3 + 50.0) * 0.5 + 0.5;
-        glow3 = mix(0.2, 1.5, pow(glow3, 2.0 - glowIntensity3)); // Much brighter glow
-        
-        dust += particle3 * glow3 * 1.0; // Maximum intensity
+        dust += particle2 * glow2 * 0.9; // Higher intensity to compensate for removed layer
     }
     
     return clamp(dust, 0.0, 1.0);
