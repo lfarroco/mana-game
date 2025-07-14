@@ -9,6 +9,7 @@ uniform vec3 color3;
 uniform vec3 color4;
 uniform vec3 color5;
 uniform float timeScale;
+uniform float particleQuality; // 0.0 = low, 1.0 = medium, 2.0 = high
 varying vec2 fragCoord;
 
 // Noise function for procedural generation
@@ -102,57 +103,65 @@ vec2 swirl(vec2 uv, float intensity, vec2 center) {
 
 // Dust particles function - creates golden shining particles that follow cloud motion
 float dustParticles(vec2 uv, float scaledTime) {
-    // Create multiple layers of dust particles with different densities - Reduced to 2 layers for performance
-    vec2 dustUV1 = uv * 25.0; // Higher density small particles
-    vec2 dustUV2 = uv * 15.0; // Lower density larger particles (combined medium and large)
+    // Quality-based particle thresholds
+    // Low (0.0): fewer particles, Medium (1.0): moderate particles, High (2.0): most particles
+    float threshold1 = 0.92 - (particleQuality * 0.02); // Low: 0.92, Medium: 0.90, High: 0.88
+    float threshold2 = 0.94 - (particleQuality * 0.02); // Low: 0.94, Medium: 0.92, High: 0.90
+    
+    // Adjust density based on quality (higher quality = more particles)
+    float densityMultiplier = 1.0 + (particleQuality * 0.25); // Low: 1.0x, Medium: 1.25x, High: 1.5x
+    
+    // Create multiple layers of dust particles with different densities - Quality-based scaling
+    vec2 dustUV1 = uv * (25.0 * densityMultiplier); // Higher density small particles
+    vec2 dustUV2 = uv * (15.0 * densityMultiplier); // Lower density larger particles
     
     // Apply cloud motion to dust particles - much more visible movement
-    dustUV1 += vec2(scaledTime * 0.025, scaledTime * 0.02) + fbm(uv * 2.0 + scaledTime * 0.05, 3) * 0.6; // Half speed
-    dustUV2 += vec2(scaledTime * 0.02, scaledTime * 0.0175) + fbm(uv * 1.5 + scaledTime * 0.04, 3) * 0.7; // Half speed
+    dustUV1 += vec2(scaledTime * 0.025, scaledTime * 0.02) + fbm(uv * 2.0 + scaledTime * 0.05, 3) * 0.6;
+    dustUV2 += vec2(scaledTime * 0.02, scaledTime * 0.0175) + fbm(uv * 1.5 + scaledTime * 0.04, 3) * 0.7;
     
     float dust = 0.0;
     
-    // Layer 1: Small particles
+    // Layer 1: Small particles - Quality-based threshold
     vec2 gridID1 = floor(dustUV1);
     vec2 gridLocal1 = fract(dustUV1);
     float dustNoise1 = noise(gridID1);
-    if (dustNoise1 > 0.88) { // Fewer particles: 12% of cells get particles
+    if (dustNoise1 > threshold1) {
         vec2 dustOffset1 = vec2(noise(gridID1 + 10.0), noise(gridID1 + 20.0)) * 0.6 + 0.2;
         float dist1 = length(gridLocal1 - dustOffset1);
-        float particleSize1 = (noise(gridID1 + 30.0) * 0.4 + 0.6) * 0.06; // Half size: 0.036 to 0.06
+        float particleSize1 = (noise(gridID1 + 30.0) * 0.4 + 0.6) * 0.06;
         float particle1 = 1.0 - smoothstep(0.0, particleSize1, dist1);
-        particle1 = pow(particle1, 1.2); // Less aggressive falloff for more visibility
+        particle1 = pow(particle1, 1.2);
         
         // Glow effect similar to stars but faster
         float phase1 = dustNoise1 * 6.28318;
-        float glowSpeed1 = 0.8 + noise(gridID1 + 40.0) * 1.2; // Faster glow: 0.8 to 2.0
+        float glowSpeed1 = 0.8 + noise(gridID1 + 40.0) * 1.2;
         float timeOffset1 = noise(gridID1 + 60.0) * 50.0;
         float glow1 = sin((scaledTime * glowSpeed1) + phase1 + timeOffset1) * 0.5 + 0.5;
-        float glowIntensity1 = noise(gridID1 + 50.0) * 0.5 + 0.5; // 0.5 to 1.0
-        glow1 = mix(0.4, 1.3, pow(glow1, 2.0 - glowIntensity1)); // Brighter glow
+        float glowIntensity1 = noise(gridID1 + 50.0) * 0.5 + 0.5;
+        glow1 = mix(0.4, 1.3, pow(glow1, 2.0 - glowIntensity1));
         
-        dust += particle1 * glow1 * 0.7; // More intensity
+        dust += particle1 * glow1 * 0.7;
     }
     
-    // Layer 2: Larger particles (combined medium and large for better performance)
+    // Layer 2: Larger particles - Quality-based threshold
     vec2 gridID2 = floor(dustUV2);
     vec2 gridLocal2 = fract(dustUV2);
     float dustNoise2 = noise(gridID2);
-    if (dustNoise2 > 0.90) { // Fewer particles: 10% of cells get particles
+    if (dustNoise2 > threshold2) {
         vec2 dustOffset2 = vec2(noise(gridID2 + 10.0), noise(gridID2 + 20.0)) * 0.6 + 0.2;
         float dist2 = length(gridLocal2 - dustOffset2);
-        float particleSize2 = (noise(gridID2 + 30.0) * 0.4 + 0.6) * 0.1; // Slightly larger: 0.06 to 0.1
+        float particleSize2 = (noise(gridID2 + 30.0) * 0.4 + 0.6) * 0.1;
         float particle2 = 1.0 - smoothstep(0.0, particleSize2, dist2);
-        particle2 = pow(particle2, 1.1); // Less aggressive falloff
+        particle2 = pow(particle2, 1.1);
         
         float phase2 = dustNoise2 * 6.28318;
-        float glowSpeed2 = 0.5 + noise(gridID2 + 40.0) * 1.0; // Slightly slower glow
+        float glowSpeed2 = 0.5 + noise(gridID2 + 40.0) * 1.0;
         float timeOffset2 = noise(gridID2 + 60.0) * 50.0;
         float glow2 = sin((scaledTime * glowSpeed2) + phase2 + timeOffset2) * 0.5 + 0.5;
         float glowIntensity2 = noise(gridID2 + 50.0) * 0.5 + 0.5;
-        glow2 = mix(0.3, 1.4, pow(glow2, 2.0 - glowIntensity2)); // Brighter glow
+        glow2 = mix(0.3, 1.4, pow(glow2, 2.0 - glowIntensity2));
         
-        dust += particle2 * glow2 * 0.9; // Higher intensity to compensate for removed layer
+        dust += particle2 * glow2 * 0.9;
     }
     
     return clamp(dust, 0.0, 1.0);
@@ -191,11 +200,17 @@ void main() {
     // Color variation for nebula
     float colorVar = fbm(uv * 7.0 + scaledTime * 0.09, 4); // Half speed: was 0.18
 
-    // Star field - Reduced layers for better performance
-    float stars = starField(uv, 20.0, 1.0);        // Main star layer
-    stars += starField(uv + 0.5, 15.0, 0.8);       // Secondary layer with offset
+    // Star field - Quality-based density
+    float starDensityMultiplier = 1.0 + (particleQuality * 0.3); // Low: 1.0x, Medium: 1.3x, High: 1.6x
+    float starThresholdAdjust = particleQuality * 0.01; // Slightly more stars on higher quality
     
-    // Removed finer stars and bright stars layers for performance
+    float stars = starField(uv, 20.0 * starDensityMultiplier, 1.0);
+    stars += starField(uv + 0.5, 15.0 * starDensityMultiplier, 0.8);
+    
+    // Add extra star layer only on high quality
+    if (particleQuality >= 1.5) {
+        stars += starField(uv + 0.25, 25.0 * starDensityMultiplier, 0.6);
+    }
     
     stars = clamp(stars, 0.0, 1.0);
 
