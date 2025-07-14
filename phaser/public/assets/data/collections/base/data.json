@@ -133,11 +133,11 @@
 			],
 			"power": 6,
 			"powerType": "support",
-			"cooldown": 1800,
+			"cooldown": 5000,
 			"traits": [
 				{
 					"id": "haste",
-					"duration": 1000
+					"duration": 2000
 				},
 				{
 					"id": "backline_boost",

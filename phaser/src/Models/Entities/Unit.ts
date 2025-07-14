@@ -75,9 +75,6 @@ export type Unit = {
   hasted: number;
   slowed: number;
 
-  // New unified status effect system
-  statusEffects?: StatusEffect[];
-
   // @deprecated - Use statusEffects instead. Will be removed after migration.
   temporaryEffects?: TemporaryEffect[];
 };

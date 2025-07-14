@@ -21,9 +21,6 @@ export function createApplyHasteLogic(
 		for (const target of targets) {
 			// Add haste duration to the unit's hasted property
 			target.hasted += duration;
-
-			// Show visual feedback
-			await showPopText(target, 'Hasted');
 		}
 	};
 }
@@ -39,7 +36,7 @@ export const applyHasteLogicIO: TraitEffectFn = async (context) => {
 	const showPopText = async (unit: Unit, text: string) => {
 		const chara = getChara(unit.id);
 		if (chara && chara.active) {
-			await chara.showPopText(text, "heal");
+			chara.showPopText(text, "heal");
 		}
 	};
 

@@ -4,7 +4,6 @@ import { vec2 } from "../../Models/Geometry";
 import { makeUnit } from "../../Models/Entities/Unit";
 import { pickOne, devlog } from "../../utils";
 import { getState } from "../../Models/State";
-import { applyStatusEffect } from "../../Systems/StatusEffects/StatusEffectManager";
 import { DIFFICULTY_TIER_CONFIG } from "../../constants/constants";
 
 /** Constants for team size and difficulty calculation */
@@ -254,12 +253,8 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 				if (powerBudgetOverflow >= DIFFICULTY_TIER_CONFIG.ELITE.OVERFLOW_THRESHOLD) {
 					const randomUnit = pickOne(units);
 					// Apply haste status effect instead of direct field manipulation
-					applyStatusEffect(randomUnit, {
-						type: 'haste',
-						remainingDuration: DIFFICULTY_TIER_CONFIG.ELITE.HASTE_DURATION,
-						cooldownMultiplier: DIFFICULTY_TIER_CONFIG.ELITE.HASTE_COOLDOWN_MULTIPLIER,
-						displayName: 'Hasted'
-					});
+
+					randomUnit.hasted = 3000;
 					devlog(`Elite tier: ${randomUnit.name} gained 3s of haste.`);
 				}
 				break;
