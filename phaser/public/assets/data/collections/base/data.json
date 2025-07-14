@@ -23,6 +23,27 @@
 			]
 		},
 		{
+			"id": "medic",
+			"name": "Medic Mouse",
+			"pic": "assets/cards/medic_mouse.png",
+			"tags": [
+				"support"
+			],
+			"power": 7,
+			"powerType": "heal",
+			"cooldown": 1500,
+			"traits": [
+				{
+					"id": "heal",
+					"amount": 3
+				},
+				{
+					"id": "right_boost_on_action",
+					"amount": 2
+				}
+			]
+		},
+		{
 			"id": "bubblegum",
 			"name": "Bubblegum Blessings",
 			"pic": "assets/cards/cleric.png",
@@ -104,6 +125,22 @@
 		}
 	],
 	"traits": [
+		{
+			"id": "right_boost_on_action",
+			"name": "Right Action Boost",
+			"description": "Right ally +{amount} power each time this acts.",
+			"categories": [
+				"aura"
+			],
+			"effects": [
+				{
+					"effectId": "modify_stat_passive",
+					"eventTrigger": "onAction",
+					"targetSelector": "ally_right",
+					"attribute": "power"
+				}
+			]
+		},
 		{
 			"id": "damage",
 			"name": "Damage",
