@@ -18,4 +18,7 @@ export function registerAllTraitEffects() {
 	// Power-increasing effects
 	registerTraitEffectImplementation("modify_stat_passive", implementations.modifyStatPassiveLogic);
 
+	// Status effect applications
+	registerTraitEffectImplementation("apply_haste", implementations.applyHasteLogicIO);
+
 }

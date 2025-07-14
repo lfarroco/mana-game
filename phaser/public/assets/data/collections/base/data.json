@@ -122,6 +122,28 @@
 					"amount": 2
 				}
 			]
+		},
+		{
+			"id": "tempo_mage",
+			"name": "Tempo Mage",
+			"pic": "assets/cards/apprentice.png",
+			"tags": [
+				"support",
+				"magical"
+			],
+			"power": 6,
+			"powerType": "support",
+			"cooldown": 1800,
+			"traits": [
+				{
+					"id": "haste",
+					"duration": 1000
+				},
+				{
+					"id": "backline_boost",
+					"amount": 2
+				}
+			]
 		}
 	],
 	"traits": [
@@ -463,6 +485,22 @@
 							"type": "formation_bonus"
 						}
 					]
+				}
+			]
+		},
+		{
+			"id": "haste",
+			"name": "Haste",
+			"description": "Grants targets haste for {duration}ms, increasing action speed.",
+			"categories": [
+				"buff",
+				"support"
+			],
+			"effects": [
+				{
+					"effectId": "apply_haste",
+					"eventTrigger": "onAction",
+					"targetSelector": "allies_adjacent"
 				}
 			]
 		}

@@ -8,3 +8,4 @@ export * from './addShield';
 export * from './restoreMorale';
 export * from './modifyStatPassive';
 export * from './grantGold';
+export * from './applyHaste';
