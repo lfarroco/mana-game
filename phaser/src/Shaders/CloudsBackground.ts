@@ -28,9 +28,44 @@ float smoothNoise(vec2 p) {
     return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
 }
 
-// Star field function
+// Star field function - creates discrete, round stars
 float starField(vec2 uv, float density, float brightness) {
-    float star = pow(noise(uv * density + time * timeScale * 0.05), 40.0) * brightness;
+    // Create a grid for star positions
+    vec2 gridUV = uv * density;
+    vec2 gridID = floor(gridUV);
+    vec2 gridLocal = fract(gridUV);
+    
+    // Check if this grid cell should have a star
+    float starNoise = noise(gridID);
+    float starThreshold = 0.95; // Only 5% of grid cells get stars
+    
+    if (starNoise < starThreshold) {
+        return 0.0; // No star in this cell
+    }
+    
+    // Position the star randomly within the grid cell
+    vec2 starOffset = vec2(noise(gridID + 10.0), noise(gridID + 20.0)) * 0.8 + 0.1;
+    vec2 starPos = starOffset;
+    
+    // Calculate distance from current pixel to star center
+    float dist = length(gridLocal - starPos);
+    
+    // Create a round star with smooth falloff
+    float starSize = (noise(gridID + 30.0) * 0.5 + 0.5) * 0.15 + 0.05; // Much larger: 0.05 to 0.2
+    float star = 1.0 - smoothstep(0.0, starSize, dist);
+    star = pow(star, 2.0); // Less aggressive falloff for larger visible area
+    
+    // Enhanced glow up and down effect
+    float phase = starNoise * 6.28318; // Random phase offset for each star
+    float glowSpeed = 0.3 + noise(gridID + 40.0) * 0.4; // Random glow speed per star
+    float glow = sin(time * timeScale * glowSpeed + phase) * 0.5 + 0.5; // 0.0 to 1.0
+    
+    // Make some stars glow more dramatically than others
+    float glowIntensity = noise(gridID + 50.0) * 0.7 + 0.3; // 0.3 to 1.0
+    glow = mix(0.4, 1.0, pow(glow, 2.0 - glowIntensity)); // Smooth glow curve
+    
+    star *= glow * brightness;
+    
     return star;
 }
 
@@ -114,9 +149,15 @@ void main() {
     // Color variation for nebula
     float colorVar = fbm(uv * 7.0 + scaledTime * 0.18, 4);
 
-    // Star field
-    float stars = starField(uv, 120.0, 1.2) + starField(uv + 0.1, 80.0, 0.7);
-    stars += starField(uv + 0.25, 200.0, 0.8);
+    // Star field - sparse, discrete stars that don't flicker
+    float stars = starField(uv, 20.0, 1.0);        // Main star layer
+    stars += starField(uv + 0.5, 15.0, 0.8);       // Secondary layer with offset
+    stars += starField(uv + 0.25, 25.0, 0.6);      // Finer stars
+    
+    // Add a few very bright stars
+    float brightStars = starField(uv + 0.75, 8.0, 2.0);
+    stars += brightStars;
+    
     stars = clamp(stars, 0.0, 1.0);
 
     // Dust particles
