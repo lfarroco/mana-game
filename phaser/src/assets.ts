@@ -11,6 +11,10 @@ export const images = {
 		key: 'ui/button',
 		url: 'assets/ui/button.png',
 	},
+	logo: {
+		key: 'ui/logo',
+		url: 'assets/ui/logo.png',
+	},
 	damage_display: {
 		key: 'ui/damage_display',
 		url: 'assets/ui/damage_display.png',

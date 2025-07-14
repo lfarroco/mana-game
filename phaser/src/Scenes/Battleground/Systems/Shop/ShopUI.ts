@@ -166,8 +166,17 @@ export class ShopUI {
 		this.sellZone.setName(sc.SHOP_SELL_ZONE_NAME); // Set name for drop target identification
 
 		this.sellZoneGraphics = this.scene.add.graphics({ x: sellZoneX, y: sellZoneY });
+		// Draw drop shadow
+		this.sellZoneGraphics.save();
+		this.sellZoneGraphics.fillStyle(0x000000, 0.25); // Shadow color and alpha
+		this.sellZoneGraphics.fillRoundedRect(6, 6, sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT, sc.SELL_ZONE_CORNER_RADIUS);
+		this.sellZoneGraphics.restore();
+
+		// Draw main background
+		this.sellZoneGraphics.lineStyle(4, 0xffffff, 0.8); // White border
 		this.sellZoneGraphics.fillStyle(sc.SELL_ZONE_BG_COLOR, sc.SELL_ZONE_BG_ALPHA);
 		this.sellZoneGraphics.fillRoundedRect(0, 0, sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT, sc.SELL_ZONE_CORNER_RADIUS);
+		this.sellZoneGraphics.strokeRoundedRect(0, 0, sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT, sc.SELL_ZONE_CORNER_RADIUS);
 
 		// Make the graphics object the drop zone
 		//this.sellZone.setInteractive();
@@ -177,7 +186,22 @@ export class ShopUI {
 			sellZoneX + sc.SELL_ZONE_WIDTH / 2,
 			sellZoneY + sc.SELL_ZONE_HEIGHT / 2,
 			sc.SELL_ZONE_TEXT,
-			{ ...c.defaultTextConfig, ...sc.SELL_ZONE_TEXT_STYLE }
+			{
+				...c.defaultTextConfig,
+				...sc.SELL_ZONE_TEXT_STYLE,
+				fontSize: '40px', // Larger text
+				fontStyle: 'bold',
+				color: '#fff',
+				stroke: '#222',
+				strokeThickness: 6,
+				shadow: {
+					offsetX: 2,
+					offsetY: 2,
+					color: '#000',
+					blur: 4,
+					fill: true
+				}
+			}
 		).setOrigin(0.5);
 
 		this.sellZoneContainer.add([this.sellZone, this.sellZoneGraphics, this.sellZoneText]);

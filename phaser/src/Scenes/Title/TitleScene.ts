@@ -3,9 +3,10 @@ import * as constants from "../../constants/constants";
 import { State } from "../../Models/State";
 import { UIButton } from "../../UI/UIButton";
 import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
+import { images } from "../../assets";
 
 export default class TitleScene extends Phaser.Scene {
-	private gameTitle!: Phaser.GameObjects.Text;
+	private gameTitle!: Phaser.GameObjects.Image;
 	private state?: State;
 	private cloudsBackground!: CloudsBackground; // Stored for potential future manipulation
 
@@ -18,8 +19,7 @@ export default class TitleScene extends Phaser.Scene {
 	}
 
 	preload() {
-		// Add any assets you want to load for the title screen here
-		// For now, we'll use simple text and shapes
+		this.load.image(images.logo);
 	}
 
 	create() {
@@ -29,32 +29,12 @@ export default class TitleScene extends Phaser.Scene {
 		});
 
 		// Create the main title
-		this.gameTitle = this.add.text(
+		this.gameTitle = this.add.image(
 			constants.MIDDLE_SCREEN_X,
 			constants.MIDDLE_SCREEN_Y - 200,
-			'MANA GAME',
-			{
-				...constants.titleTextConfig,
-				fontSize: '72px',
-				color: '#FFE55C',
-				stroke: '#2D1810',
-				strokeThickness: 12
-			}
+			images.logo.key
 		).setOrigin(0.5);
 
-		// Add a subtitle
-		this.add.text(
-			constants.MIDDLE_SCREEN_X,
-			constants.MIDDLE_SCREEN_Y - 100,
-			'A Strategic Battle Experience',
-			{
-				...constants.defaultTextConfig,
-				fontSize: '32px',
-				color: '#E8E8E8',
-				stroke: '#1A1A2E',
-				strokeThickness: 6
-			}
-		).setOrigin(0.5);
 
 		// Create start button using UIButton component
 		new UIButton(
@@ -62,6 +42,33 @@ export default class TitleScene extends Phaser.Scene {
 			'START GAME',
 			constants.MIDDLE_SCREEN_X,
 			constants.MIDDLE_SCREEN_Y + 100,
+			() => {
+				this.startGame();
+			}
+		);
+		new UIButton(
+			this,
+			'OPTIONS',
+			constants.MIDDLE_SCREEN_X,
+			constants.MIDDLE_SCREEN_Y + 180,
+			() => {
+				this.startGame();
+			}
+		);
+		new UIButton(
+			this,
+			'COLLECTION',
+			constants.MIDDLE_SCREEN_X,
+			constants.MIDDLE_SCREEN_Y + 260,
+			() => {
+				this.startGame();
+			}
+		);
+		new UIButton(
+			this,
+			'CREDITS',
+			constants.MIDDLE_SCREEN_X,
+			constants.MIDDLE_SCREEN_Y + 340,
 			() => {
 				this.startGame();
 			}

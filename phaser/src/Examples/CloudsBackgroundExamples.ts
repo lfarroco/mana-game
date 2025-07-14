@@ -42,8 +42,6 @@ export function createCustomColorBackground(scene: Phaser.Scene): CloudsBackgrou
 export function createDynamicBackground(scene: Phaser.Scene): CloudsBackground {
 	return new CloudsBackground(scene, {
 		preset: 'aurora',
-		autoChangePresets: true,
-		presetChangeInterval: 3000, // Change every 3 seconds
 		depth: -1000
 	});
 }
@@ -75,8 +73,6 @@ export class CloudsBackgroundExampleScene extends Phaser.Scene {
 		// Example 1: Full screen background
 		const mainBackground = new CloudsBackground(this, {
 			preset: 'nebula',
-			autoChangePresets: true,
-			presetChangeInterval: 4000
 		});
 		this.backgrounds.push(mainBackground);
 
@@ -187,8 +183,6 @@ export const CloudsBackgroundPresets = {
 	titleScreen: (scene: Phaser.Scene): CloudsBackground => {
 		return new CloudsBackground(scene, {
 			preset: 'nebula',
-			autoChangePresets: true,
-			presetChangeInterval: 5000,
 			depth: -1000
 		});
 	},
@@ -225,7 +219,6 @@ export const CloudsBackgroundPresets = {
 	battleBackground: (scene: Phaser.Scene): CloudsBackground => {
 		return new CloudsBackground(scene, {
 			preset: 'sunset',
-			autoChangePresets: false,
 			depth: -1500
 		});
 	}
