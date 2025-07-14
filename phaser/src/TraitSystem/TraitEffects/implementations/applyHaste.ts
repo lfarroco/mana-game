@@ -3,7 +3,6 @@
  * This effect applies haste to targets by adding duration to their hasted property.
  */
 
-import { Unit } from '../../../Models/Entities/Unit';
 import { TraitEffectFn } from '../../TraitEffectSystem';
 import { getEffectParams } from '../../TraitSystem.pure';
 
@@ -11,9 +10,7 @@ import { getEffectParams } from '../../TraitSystem.pure';
  * Pure function to create the apply haste effect implementation
  * @returns The trait effect function
  */
-export function createApplyHasteLogic(
-	showPopText: (unit: Unit, text: string) => Promise<void>
-): TraitEffectFn {
+export function createApplyHasteLogic(): TraitEffectFn {
 	return async (context) => {
 		const { targets } = context;
 		const duration = getEffectParams(context.traitInstanceParams, context.effectInstance, 'duration', 2000);
@@ -31,15 +28,7 @@ export function createApplyHasteLogic(
  */
 export const applyHasteLogicIO: TraitEffectFn = async (context) => {
 	// Dynamically import to avoid circular dependencies
-	const { getChara } = await import('../../../Scenes/Battleground/Systems/CharaManager');
 
-	const showPopText = async (unit: Unit, text: string) => {
-		const chara = getChara(unit.id);
-		if (chara && chara.active) {
-			chara.showPopText(text, "heal");
-		}
-	};
-
-	const impl = createApplyHasteLogic(showPopText);
+	const impl = createApplyHasteLogic();
 	return impl(context);
 };

@@ -34,7 +34,6 @@ describe('Apply Haste Effect Implementation', () => {
 	let mockUnit: Unit;
 	let mockTargetUnit: Unit;
 	let mockContext: TraitEffectContext;
-	let popTextCalls: Array<{ unit: Unit; text: string }>;
 
 	beforeEach(() => {
 		jest.clearAllMocks();
@@ -42,9 +41,6 @@ describe('Apply Haste Effect Implementation', () => {
 		// Create mock units
 		mockUnit = createTestUnit('source-unit', 'player', { x: 1, y: 1 });
 		mockTargetUnit = createTestUnit('target-unit', 'player', { x: 2, y: 1 });
-
-		// Track pop text calls
-		popTextCalls = [];
 
 		// Create mock context
 		mockContext = {
@@ -65,24 +61,18 @@ describe('Apply Haste Effect Implementation', () => {
 	describe('createApplyHasteLogic', () => {
 		it('should add haste duration to target units', async () => {
 			// Arrange
-			const mockShowPopText = jest.fn(async (unit: Unit, text: string) => {
-				popTextCalls.push({ unit, text });
-			});
 
-			const applyHasteLogic = createApplyHasteLogic(mockShowPopText);
+			const applyHasteLogic = createApplyHasteLogic();
 
 			// Act
 			await applyHasteLogic(mockContext);
 
 			// Assert
 			expect(mockTargetUnit.hasted).toBe(2000); // Default duration
-			expect(mockShowPopText).toHaveBeenCalledTimes(1);
-			expect(mockShowPopText).toHaveBeenCalledWith(mockTargetUnit, 'Hasted');
 		});
 
 		it('should use custom duration from parameters', async () => {
 			// Arrange
-			const mockShowPopText = jest.fn();
 
 			const customContext = {
 				...mockContext,
@@ -92,7 +82,7 @@ describe('Apply Haste Effect Implementation', () => {
 				}
 			};
 
-			const applyHasteLogic = createApplyHasteLogic(mockShowPopText);
+			const applyHasteLogic = createApplyHasteLogic();
 
 			// Act
 			await applyHasteLogic(customContext);
@@ -103,7 +93,6 @@ describe('Apply Haste Effect Implementation', () => {
 
 		it('should use effect instance parameters over trait parameters', async () => {
 			// Arrange
-			const mockShowPopText = jest.fn();
 
 			const customContext = {
 				...mockContext,
@@ -118,7 +107,7 @@ describe('Apply Haste Effect Implementation', () => {
 				}
 			};
 
-			const applyHasteLogic = createApplyHasteLogic(mockShowPopText);
+			const applyHasteLogic = createApplyHasteLogic();
 
 			// Act
 			await applyHasteLogic(customContext);
@@ -130,14 +119,13 @@ describe('Apply Haste Effect Implementation', () => {
 		it('should handle multiple targets', async () => {
 			// Arrange
 			const mockTarget2 = createTestUnit('target-2', 'player', { x: 0, y: 1 });
-			const mockShowPopText = jest.fn();
 
 			const multiTargetContext = {
 				...mockContext,
 				targets: [mockTargetUnit, mockTarget2]
 			};
 
-			const applyHasteLogic = createApplyHasteLogic(mockShowPopText);
+			const applyHasteLogic = createApplyHasteLogic();
 
 			// Act
 			await applyHasteLogic(multiTargetContext);
@@ -145,18 +133,14 @@ describe('Apply Haste Effect Implementation', () => {
 			// Assert
 			expect(mockTargetUnit.hasted).toBe(2000);
 			expect(mockTarget2.hasted).toBe(2000);
-			expect(mockShowPopText).toHaveBeenCalledTimes(2);
 
-			expect(mockShowPopText).toHaveBeenCalledWith(mockTargetUnit, 'Hasted');
-			expect(mockShowPopText).toHaveBeenCalledWith(mockTarget2, 'Hasted');
 		});
 
 		it('should stack haste duration on units that already have haste', async () => {
 			// Arrange
-			const mockShowPopText = jest.fn();
 			mockTargetUnit.hasted = 1000; // Unit already has some haste
 
-			const applyHasteLogic = createApplyHasteLogic(mockShowPopText);
+			const applyHasteLogic = createApplyHasteLogic();
 
 			// Act
 			await applyHasteLogic(mockContext);
@@ -165,23 +149,9 @@ describe('Apply Haste Effect Implementation', () => {
 			expect(mockTargetUnit.hasted).toBe(3000); // 1000 + 2000 (default duration)
 		});
 
-		it('should handle errors gracefully', async () => {
-			// Arrange
-			const mockShowPopText = jest.fn(() => {
-				throw new Error('Pop text failed');
-			});
-
-			const applyHasteLogic = createApplyHasteLogic(mockShowPopText);
-
-			// Act & Assert
-			await expect(applyHasteLogic(mockContext)).rejects.toThrow('Pop text failed');
-			expect(mockTargetUnit.hasted).toBe(2000); // Should still apply the haste even if pop text fails
-		});
-
 		it('should be reusable across multiple calls', async () => {
 			// Arrange
-			const mockShowPopText = jest.fn();
-			const applyHasteLogic = createApplyHasteLogic(mockShowPopText);
+			const applyHasteLogic = createApplyHasteLogic();
 
 			// Act
 			await applyHasteLogic(mockContext);
@@ -189,7 +159,6 @@ describe('Apply Haste Effect Implementation', () => {
 
 			// Assert
 			expect(mockTargetUnit.hasted).toBe(4000); // 2000 + 2000 (stacks)
-			expect(mockShowPopText).toHaveBeenCalledTimes(2);
 		});
 	});
 });

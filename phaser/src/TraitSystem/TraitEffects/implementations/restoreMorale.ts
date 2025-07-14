@@ -6,6 +6,7 @@
 import { GameEvents } from '../../../constants/events';
 import { Force, manipulateForceMorale } from '../../../Models/Entities/Force';
 import { Unit } from '../../../Models/Entities/Unit';
+import { getChara } from '../../../Scenes/Battleground/Systems/CharaManager';
 import { TraitEffectFn } from '../../TraitEffectSystem';
 
 /**
@@ -76,21 +77,12 @@ export const restoreForceMoraleLogic: TraitEffectFn = async (context) => {
 	// Use unit's power as amount instead of configurable parameters
 	const amount = context.sourceUnit.power;
 
-	// Use dynamic imports to avoid circular dependencies in tests
-	const [
-		{ manipulateForceMorale: manipulateForceMoreale },
-		{ getChara }
-	] = await Promise.all([
-		import("../../../Models/Entities/Force"),
-		import("../../../Scenes/Battleground/Systems/CharaManager")
-	]);
-
 	const { scene, state, sourceUnit } = context;
 	const targetForce = state.battleData.forces.find(f => f.id === sourceUnit.force);
 
 	if (targetForce) {
 		// Use the shared utility function that handles morale damage reduction
-		const actualChange = manipulateForceMoreale(targetForce, amount, scene);
+		const actualChange = manipulateForceMorale(targetForce, amount, scene);
 
 		// Show pop text for the source unit
 		if (actualChange !== 0) {
