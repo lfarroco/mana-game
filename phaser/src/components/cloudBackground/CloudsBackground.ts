@@ -23,6 +23,8 @@ export interface CloudsBackgroundConfig {
 	depth?: number;
 	/** Alpha/opacity of the background (0-1) */
 	alpha?: number;
+	/** Animation speed multiplier (default: 1.0, lower values = slower animation) */
+	timeScale?: number;
 }
 
 export class CloudsBackground {
@@ -38,10 +40,10 @@ export class CloudsBackground {
 	private presetChangeInterval: number;
 	private depth: number;
 	private alpha: number;
+	private timeScale: number;
 	private presetKeys: string[];
 	private currentPresetIndex: number = 0;
 	private presetTimer?: Phaser.Time.TimerEvent;
-
 	constructor(scene: Phaser.Scene, config: CloudsBackgroundConfig = {}) {
 		this.scene = scene;
 
@@ -56,6 +58,7 @@ export class CloudsBackground {
 		this.presetChangeInterval = config.presetChangeInterval || 5000;
 		this.depth = config.depth !== undefined ? config.depth : -1000;
 		this.alpha = config.alpha !== undefined ? config.alpha : 1;
+		this.timeScale = config.timeScale !== undefined ? config.timeScale : 1.0;
 
 		this.presetKeys = Object.keys(colorPresets);
 
@@ -82,7 +85,8 @@ export class CloudsBackground {
 				color2: { type: '3f', value: colors.color2 },
 				color3: { type: '3f', value: colors.color3 },
 				color4: { type: '3f', value: colors.color4 },
-				color5: { type: '3f', value: colors.color5 }
+				color5: { type: '3f', value: colors.color5 },
+				timeScale: { type: '1f', value: this.timeScale }
 			}
 		);
 
@@ -237,6 +241,14 @@ export class CloudsBackground {
 		this.alpha = alpha;
 		// Directly set the alpha property since setAlpha method might not exist
 		(this.shader as any).alpha = alpha;
+	}
+
+	/**
+	 * Set the animation speed scale (lower values = slower animation)
+	 */
+	public setTimeScale(timeScale: number): void {
+		this.timeScale = timeScale;
+		this.shader.setUniform('timeScale.value', timeScale);
 	}
 
 	/**

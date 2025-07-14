@@ -8,6 +8,7 @@ uniform vec3 color2;
 uniform vec3 color3;
 uniform vec3 color4;
 uniform vec3 color5;
+uniform float timeScale;
 varying vec2 fragCoord;
 
 // Noise function for procedural generation
@@ -29,7 +30,7 @@ float smoothNoise(vec2 p) {
 
 // Star field function
 float starField(vec2 uv, float density, float brightness) {
-    float star = pow(noise(uv * density + time * 0.05), 40.0) * brightness;
+    float star = pow(noise(uv * density + time * timeScale * 0.05), 40.0) * brightness;
     return star;
 }
 
@@ -53,8 +54,8 @@ vec2 swirl(vec2 uv, float intensity, vec2 center) {
     float dist = length(delta);
     float angle = atan(delta.y, delta.x);
     
-    // Create swirl effect
-    angle += intensity * sin(time * 0.5) * (1.0 - dist);
+    // Create swirl effect using scaled time
+    angle += intensity * sin(time * timeScale * 0.5) * (1.0 - dist);
     
     return center + dist * vec2(cos(angle), sin(angle));
 }
@@ -64,9 +65,12 @@ void main() {
     vec2 uv = fragCoord.xy / resolution.xy;
     uv.x *= resolution.x / resolution.y;
 
+    // Apply time scaling to all time-based animations
+    float scaledTime = time * timeScale;
+
     // Animate the coordinates
     vec2 animatedUV = uv;
-    animatedUV += vec2(time * 0.01, time * 0.008);
+    animatedUV += vec2(scaledTime * 0.01, scaledTime * 0.008);
 
     // Swirl and warp for nebula shapes
     vec2 swirl1 = swirl(animatedUV, 0.5, vec2(0.4, 0.7));
@@ -74,20 +78,20 @@ void main() {
     vec2 swirl3 = swirl(animatedUV, 0.7, vec2(0.5, 0.2));
 
     // Nebula noise layers
-    float nebula1 = fbm(swirl1 * 3.5 + time * 0.12, 7);
-    float nebula2 = fbm(swirl2 * 2.7 + time * 0.07, 6);
-    float nebula3 = fbm(swirl3 * 4.2 + time * 0.09, 5);
+    float nebula1 = fbm(swirl1 * 3.5 + scaledTime * 0.12, 7);
+    float nebula2 = fbm(swirl2 * 2.7 + scaledTime * 0.07, 6);
+    float nebula3 = fbm(swirl3 * 4.2 + scaledTime * 0.09, 5);
 
     // Combine nebula layers for depth
     float nebulaPattern = nebula1 * 0.5 + nebula2 * 0.35 + nebula3 * 0.25;
 
     // Add more depth and glow
-    float glow1 = fbm(uv * 2.0 + time * 0.04, 4);
-    float glow2 = fbm(uv * 3.5 + time * 0.03, 5);
+    float glow1 = fbm(uv * 2.0 + scaledTime * 0.04, 4);
+    float glow2 = fbm(uv * 3.5 + scaledTime * 0.03, 5);
     float glow = glow1 * 0.5 + glow2 * 0.5;
 
     // Color variation for nebula
-    float colorVar = fbm(uv * 7.0 + time * 0.18, 4);
+    float colorVar = fbm(uv * 7.0 + scaledTime * 0.18, 4);
 
     // Star field
     float stars = starField(uv, 120.0, 1.2) + starField(uv + 0.1, 80.0, 0.7);

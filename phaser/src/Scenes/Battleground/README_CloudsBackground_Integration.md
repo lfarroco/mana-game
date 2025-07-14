@@ -23,7 +23,8 @@ The battleground now uses these settings for the animated background:
 new CloudsBackground(this.scene, {
     preset: 'forest',           // Use forest preset to match the original theme
     depth: -2000,              // Ensure it's behind everything else
-    autoChangePresets: false   // Keep it stable for gameplay
+    autoChangePresets: false,   // Keep it stable for gameplay
+    timeScale: 0.3             // Slow down the animation to 30% speed to be less distracting
 });
 ```
 
@@ -93,6 +94,21 @@ new CloudsBackground(this.scene, {
     preset: 'forest',
     depth: -2000,
     alpha: 0.6,               // Semi-transparent
+    timeScale: 0.2,           // Very slow animation (20% speed)
+    autoChangePresets: false
+});
+```
+
+### Animation Speed Control
+
+```typescript
+// Different animation speeds for different contexts
+new CloudsBackground(this.scene, {
+    preset: 'nebula',
+    timeScale: 0.1,           // Very slow (10% speed) - for focus-intensive scenes
+    // timeScale: 0.5,        // Moderate speed (50%) - for casual gameplay
+    // timeScale: 1.0,        // Normal speed - for title/menu screens
+    // timeScale: 2.0,        // Fast speed (200%) - for action sequences
     autoChangePresets: false
 });
 ```

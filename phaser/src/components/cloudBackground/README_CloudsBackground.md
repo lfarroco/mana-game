@@ -36,6 +36,7 @@ interface CloudsBackgroundConfig {
   presetChangeInterval?: number; // Interval in ms (default: 5000)
   depth?: number;                // Rendering depth (default: -1000)
   alpha?: number;                // Opacity 0-1 (default: 1)
+  timeScale?: number;            // Animation speed multiplier (default: 1.0)
 }
 ```
 
@@ -72,6 +73,27 @@ const customBg = new CloudsBackground(this, {
     color4: { x: 0.8, y: 0.6, z: 0.2 },    // Gold
     color5: { x: 1.0, y: 0.9, z: 0.9 }     // White
   }
+});
+```
+
+### Animation Speed Control
+```typescript
+// Very slow for strategy/puzzle games (less distracting)
+const slowBg = new CloudsBackground(this, {
+  preset: 'forest',
+  timeScale: 0.2
+});
+
+// Normal speed for menus/title screens
+const normalBg = new CloudsBackground(this, {
+  preset: 'nebula',
+  timeScale: 1.0
+});
+
+// Fast speed for action sequences
+const fastBg = new CloudsBackground(this, {
+  preset: 'sunset',
+  timeScale: 2.0
 });
 ```
 
@@ -131,6 +153,13 @@ Change opacity:
 background.setAlpha(0.5);
 ```
 
+### setTimeScale(timeScale)
+Change animation speed:
+```typescript
+background.setTimeScale(0.3);  // 30% of normal speed (slower)
+background.setTimeScale(2.0);  // 200% of normal speed (faster)
+```
+
 ### getCurrentPresetName()
 Get current preset name:
 ```typescript
@@ -159,6 +188,7 @@ const titleBg = new CloudsBackground(this, {
 const gameBg = new CloudsBackground(this, {
   preset: 'forest',
   alpha: 0.3,
+  timeScale: 0.3,  // Slower animation to avoid distraction
   depth: -2000
 });
 ```
