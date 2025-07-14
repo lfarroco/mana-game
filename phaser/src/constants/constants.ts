@@ -70,7 +70,8 @@ export const SCENE_KEYS = {
 	DEBUG: "DebugScene",
 	BATTLEGROUND: "BattlegroundScene",
 	CORE: "Core",
-	TITLE: "TitleScene"
+	TITLE: "TitleScene",
+	OPTIONS: "OptionsScene"
 } as const;
 
 // Pop Text Animation Constants

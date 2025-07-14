@@ -18,7 +18,7 @@ export class UIButton extends Phaser.GameObjects.Container {
 	isPressed: boolean = false;
 
 	// These could be parameterized in the constructor or a config object for more flexibility.
-	readonly buttonWidth = 280;
+	readonly buttonWidth: number;
 	readonly buttonHeight = 60;
 	readonly cornerRadius = 10;
 	/** Fill color for the button in its normal, non-interactive state. */
@@ -37,10 +37,14 @@ export class UIButton extends Phaser.GameObjects.Container {
 		text: string,
 		x: number, // Center X position for the button
 		y: number, // Center Y position for the button
-		callback: () => void
+		callback: () => void,
+		width?: number // Optional width parameter (defaults to 280)
 	) {
 		super(scene, 0, 0);
 		scene.add.existing(this);
+
+		// Set button width (use provided width or default to 280)
+		(this as any).buttonWidth = width || 280;
 
 		// Button background
 		this.buttonGraphics = scene.add.graphics();

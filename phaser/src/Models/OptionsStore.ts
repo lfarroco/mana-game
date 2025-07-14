@@ -10,6 +10,7 @@ export type Options = {
 	musicVolume: number;
 	debug: boolean;
 	speed: number;
+	particles: 'low' | 'medium' | 'high';
 };
 
 let currentOptions: Options;
@@ -52,6 +53,7 @@ export function initializeOptionsStore(gameRef: Phaser.Game): void {
 		musicVolume: 0.2,
 		debug,
 		speed,
+		particles: 'medium',
 	};
 
 	setGameSpeed(speed);

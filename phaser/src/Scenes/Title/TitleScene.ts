@@ -52,7 +52,7 @@ export default class TitleScene extends Phaser.Scene {
 			constants.MIDDLE_SCREEN_X,
 			constants.MIDDLE_SCREEN_Y + 180,
 			() => {
-				this.startGame();
+				this.openOptions();
 			}
 		);
 		new UIButton(
@@ -91,6 +91,14 @@ export default class TitleScene extends Phaser.Scene {
 		});
 
 		// Note: Preset changing is now handled automatically by the CloudsBackground component
+	}
+
+	private openOptions() {
+		// Transition to the options scene
+		this.cameras.main.fade(500, 0, 0, 0);
+		this.cameras.main.once('camerafadeoutcomplete', () => {
+			this.scene.start(constants.SCENE_KEYS.OPTIONS);
+		});
 	}
 
 	private startGame() {
