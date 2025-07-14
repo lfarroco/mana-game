@@ -15,10 +15,7 @@ export interface CloudsBackgroundConfig {
 	width?: number;
 	/** Height of the background */
 	height?: number;
-	/** Whether to automatically cycle through presets */
-	autoChangePresets?: boolean;
-	/** Interval in milliseconds to change presets (default: 5000) */
-	presetChangeInterval?: number;
+
 	/** Depth/z-index of the background */
 	depth?: number;
 	/** Alpha/opacity of the background (0-1) */
@@ -36,14 +33,11 @@ export class CloudsBackground {
 	private y: number;
 	private width: number;
 	private height: number;
-	private autoChangePresets: boolean;
-	private presetChangeInterval: number;
 	private depth: number;
 	private alpha: number;
 	private timeScale: number;
 	private presetKeys: string[];
 	private currentPresetIndex: number = 0;
-	private presetTimer?: Phaser.Time.TimerEvent;
 	constructor(scene: Phaser.Scene, config: CloudsBackgroundConfig = {}) {
 		this.scene = scene;
 
@@ -54,8 +48,6 @@ export class CloudsBackground {
 		this.y = config.y !== undefined ? config.y : scene.scale.height / 2;
 		this.width = config.width !== undefined ? config.width : scene.scale.width;
 		this.height = config.height !== undefined ? config.height : scene.scale.height;
-		this.autoChangePresets = config.autoChangePresets || false;
-		this.presetChangeInterval = config.presetChangeInterval || 5000;
 		this.depth = config.depth !== undefined ? config.depth : -1000;
 		this.alpha = config.alpha !== undefined ? config.alpha : 1;
 		this.timeScale = config.timeScale !== undefined ? config.timeScale : 1.0;
@@ -69,7 +61,6 @@ export class CloudsBackground {
 		}
 
 		this.createShader();
-		this.setupAutoChange();
 	}
 
 	private createShader(): void {
@@ -111,17 +102,6 @@ export class CloudsBackground {
 
 		const presetKey = this.presetKeys[this.currentPresetIndex];
 		return colorPresets[presetKey];
-	}
-
-	private setupAutoChange(): void {
-		if (this.autoChangePresets && !this.customColors) {
-			this.presetTimer = this.scene.time.addEvent({
-				delay: this.presetChangeInterval,
-				callback: this.changePreset,
-				callbackScope: this,
-				loop: true
-			});
-		}
 	}
 
 	/**
@@ -189,26 +169,6 @@ export class CloudsBackground {
 	}
 
 	/**
-	 * Enable or disable automatic preset changing
-	 */
-	public setAutoChange(enabled: boolean, interval?: number): void {
-		this.autoChangePresets = enabled;
-
-		if (interval) {
-			this.presetChangeInterval = interval;
-		}
-
-		if (this.presetTimer) {
-			this.presetTimer.destroy();
-			this.presetTimer = undefined;
-		}
-
-		if (enabled && !this.customColors) {
-			this.setupAutoChange();
-		}
-	}
-
-	/**
 	 * Set the position of the background
 	 */
 	public setPosition(x: number, y: number): void {
@@ -262,9 +222,6 @@ export class CloudsBackground {
 	 * Destroy the background and clean up resources
 	 */
 	public destroy(): void {
-		if (this.presetTimer) {
-			this.presetTimer.destroy();
-		}
 		this.shader.destroy();
 	}
 }

@@ -26,8 +26,6 @@ export default class TitleScene extends Phaser.Scene {
 		// Create the clouds background with auto-changing presets
 		this.cloudsBackground = new CloudsBackground(this, {
 			preset: 'nebula',
-			autoChangePresets: true,
-			presetChangeInterval: 5000
 		});
 
 		// Create the main title
