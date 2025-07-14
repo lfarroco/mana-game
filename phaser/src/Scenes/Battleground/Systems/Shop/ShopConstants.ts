@@ -47,9 +47,8 @@ export const PANEL_BG_OPACITY = 0.95; // Mostly opaque
 export const SUB_PANEL_CORNER_RADIUS = 15;
 
 // --- Sell Zone ---
-// The sell zone seems to be a large overlay. Its positioning logic is different.
-// Let's keep it as is for now, but it might need review if it's not aligned as intended.
-export const SELL_ZONE_WIDTH = SCREEN_WIDTH - 100;
+// The sell zone is positioned in the lower left corner of the screen.
+export const SELL_ZONE_WIDTH = SCREEN_WIDTH * 0.3;
 export const SELL_ZONE_HEIGHT = SCREEN_HEIGHT / 2;
 export const SELL_ZONE_Y_OFFSET_FROM_BOTTOM = 0; // Distance from the bottom of the shop panel to the top of the sell zone
 export const SELL_ZONE_BG_COLOR = 0xffa500; // Orange
