@@ -19,32 +19,31 @@ float noise(vec2 p) {
 float smoothNoise(vec2 p) {
     vec2 i = floor(p);
     vec2 f = fract(p);
-    
-    // Four corners in 2D of a tile
     float a = noise(i);
     float b = noise(i + vec2(1.0, 0.0));
     float c = noise(i + vec2(0.0, 1.0));
     float d = noise(i + vec2(1.0, 1.0));
-    
-    // Smooth interpolation
     vec2 u = f * f * (3.0 - 2.0 * f);
-    
     return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
 }
 
-// Fractal Brownian Motion for cloud-like patterns
+// Star field function
+float starField(vec2 uv, float density, float brightness) {
+    float star = pow(noise(uv * density + time * 0.05), 40.0) * brightness;
+    return star;
+}
+
+// Fractal Brownian Motion for nebula-like patterns
 float fbm(vec2 p, int octaves) {
     float value = 0.0;
     float amplitude = 0.5;
     float frequency = 1.0;
-    
     for (int i = 0; i < 8; i++) {
         if (i >= octaves) break;
         value += amplitude * smoothNoise(p * frequency);
-        amplitude *= 0.5;
-        frequency *= 2.0;
+        amplitude *= 0.6; // More persistence for wispier look
+        frequency *= 2.1; // Slightly more frequency for detail
     }
-    
     return value;
 }
 
@@ -63,43 +62,52 @@ vec2 swirl(vec2 uv, float intensity, vec2 center) {
 void main() {
     // Normalize coordinates
     vec2 uv = fragCoord.xy / resolution.xy;
-    
-    // Adjust for aspect ratio
     uv.x *= resolution.x / resolution.y;
-    
+
     // Animate the coordinates
     vec2 animatedUV = uv;
-    animatedUV += vec2(time * 0.02, time * 0.01);
-    
-    // Create multiple swirl centers
-    vec2 swirl1 = swirl(animatedUV, 0.3, vec2(0.3, 0.7));
-    vec2 swirl2 = swirl(animatedUV, -0.2, vec2(0.8, 0.3));
-    vec2 swirl3 = swirl(animatedUV, 0.4, vec2(0.5, 0.1));
-    
-    // Generate cloud patterns using FBM
-    float clouds1 = fbm(swirl1 * 3.0 + time * 0.1, 6);
-    float clouds2 = fbm(swirl2 * 2.5 + time * 0.05, 5);
-    float clouds3 = fbm(swirl3 * 4.0 + time * 0.08, 4);
-    
-    // Combine cloud layers
-    float cloudPattern = clouds1 * 0.5 + clouds2 * 0.3 + clouds3 * 0.2;
-    
-    // Create depth with different cloud layers
-    float depth1 = fbm(uv * 1.5 + time * 0.03, 3);
-    float depth2 = fbm(uv * 2.8 + time * 0.02, 4);
-    
-    // Combine all patterns
-    float finalClouds = cloudPattern + depth1 * 0.4 + depth2 * 0.3;
-    
-    // Add some subtle color variation
-    float colorVariation = fbm(uv * 6.0 + time * 0.15, 3);
-    
-    // Mix colors based on cloud density and variation
-    vec3 color = mix(color1, color2, finalClouds);
-    color = mix(color, color3, smoothstep(0.6, 0.8, finalClouds));
-    color = mix(color, color4, colorVariation * 0.3);
-    color = mix(color, color5, smoothstep(0.75, 0.9, finalClouds) * 0.4);
-    
-    gl_FragColor = vec4(color, 1.0);
+    animatedUV += vec2(time * 0.01, time * 0.008);
+
+    // Swirl and warp for nebula shapes
+    vec2 swirl1 = swirl(animatedUV, 0.5, vec2(0.4, 0.7));
+    vec2 swirl2 = swirl(animatedUV, -0.4, vec2(0.7, 0.3));
+    vec2 swirl3 = swirl(animatedUV, 0.7, vec2(0.5, 0.2));
+
+    // Nebula noise layers
+    float nebula1 = fbm(swirl1 * 3.5 + time * 0.12, 7);
+    float nebula2 = fbm(swirl2 * 2.7 + time * 0.07, 6);
+    float nebula3 = fbm(swirl3 * 4.2 + time * 0.09, 5);
+
+    // Combine nebula layers for depth
+    float nebulaPattern = nebula1 * 0.5 + nebula2 * 0.35 + nebula3 * 0.25;
+
+    // Add more depth and glow
+    float glow1 = fbm(uv * 2.0 + time * 0.04, 4);
+    float glow2 = fbm(uv * 3.5 + time * 0.03, 5);
+    float glow = glow1 * 0.5 + glow2 * 0.5;
+
+    // Color variation for nebula
+    float colorVar = fbm(uv * 7.0 + time * 0.18, 4);
+
+    // Star field
+    float stars = starField(uv, 120.0, 1.2) + starField(uv + 0.1, 80.0, 0.7);
+    stars += starField(uv + 0.25, 200.0, 0.8);
+    stars = clamp(stars, 0.0, 1.0);
+
+    // Mix nebula colors (use more vibrant, cosmic colors)
+    vec3 nebulaColor = mix(color1, color2, nebulaPattern);
+    nebulaColor = mix(nebulaColor, color3, smoothstep(0.5, 0.8, nebulaPattern));
+    nebulaColor = mix(nebulaColor, color4, colorVar * 0.5);
+    nebulaColor = mix(nebulaColor, color5, smoothstep(0.7, 0.95, nebulaPattern) * 0.7);
+
+    // Add glow
+    nebulaColor += vec3(0.15, 0.08, 0.18) * pow(glow, 2.0);
+
+    // Add stars (white, with a slight blue tint)
+    vec3 starColor = mix(vec3(1.0, 1.0, 1.0), vec3(0.7, 0.8, 1.0), 0.3);
+    nebulaColor = mix(nebulaColor, starColor, stars);
+
+    // Final output
+    gl_FragColor = vec4(nebulaColor, 1.0);
 }
 `;
