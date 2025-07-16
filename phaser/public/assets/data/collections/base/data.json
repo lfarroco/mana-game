@@ -131,9 +131,9 @@
 			]
 		},
 		{
-			"id": "tempo_mage",
-			"name": "Tempo Mage",
-			"pic": "assets/cards/apprentice.png",
+			"id": "ramon_bard",
+			"name": "Ramon, the Bard",
+			"pic": "assets/cards/bard.png",
 			"tags": [
 				"support",
 				"magical"
@@ -232,7 +232,7 @@
 		{
 			"id": "haste",
 			"name": "Haste",
-			"description": "Grants {targets} haste for {duration}ms, increasing action speed.",
+			"description": "Hastes {targets} for {duration}ms",
 			"categories": [
 				"buff",
 				"support"
