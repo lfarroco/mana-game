@@ -21,5 +21,6 @@ export function registerAllTraitEffects() {
 	// Status effect applications
 	registerTraitEffectImplementation("apply_haste", implementations.applyHasteLogicIO);
 	registerTraitEffectImplementation("apply_slow", implementations.applySlowLogicIO);
+	registerTraitEffectImplementation("apply_charge", implementations.applyChargeLogicIO);
 
 }

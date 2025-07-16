@@ -10,3 +10,4 @@ export * from './modifyStatPassive';
 export * from './grantGold';
 export * from './applyHaste';
 export * from './applySlow';
+export * from './applyCharge';
