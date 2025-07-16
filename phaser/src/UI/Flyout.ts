@@ -23,6 +23,13 @@ export class Flyout extends Phaser.GameObjects.Container {
 
 	}
 
+	/**
+	 * Brings a specific child to the top of this flyout container
+	 */
+	bringChildToTop(child: Phaser.GameObjects.GameObject): void {
+		this.bringToTop(child);
+	}
+
 	async slideIn() {
 
 		this.scene.children.bringToTop(this);

@@ -46,7 +46,14 @@ export class CharaInputHandler {
 		this.dragStartY = this.chara.y;
 		this.wasDragSuccessful = false;
 
-		this.chara.scene.children.bringToTop(this.chara);
+		// If it's a shop item, bring it to top within the shop flyout
+		// Otherwise, bring it to top of the scene
+		if (this.chara.getIsShopItem()) {
+			this.chara.shop.flyout.bringChildToTop(this.chara);
+		} else {
+			this.chara.scene.children.bringToTop(this.chara);
+		}
+
 		tween({
 			targets: [this.chara],
 			angle: -10,
