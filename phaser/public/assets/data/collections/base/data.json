@@ -151,6 +151,33 @@
 					"position": "back"
 				}
 			]
+		},
+		{
+			"id": "tempo_mage",
+			"name": "Tempo Mage",
+			"pic": "assets/cards/tempo_mage.png",
+			"tags": [
+				"ranged",
+				"magical"
+			],
+			"power": 5,
+			"powerType": "damage",
+			"cooldown": 3000,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "haste",
+					"duration": 1000,
+					"targets": "random_ally"
+				},
+				{
+					"id": "slow",
+					"duration": 1000,
+					"targets": "random_enemy"
+				}
+			]
 		}
 	],
 	"traits": [
@@ -238,6 +265,21 @@
 			"effects": [
 				{
 					"effectId": "apply_haste",
+					"eventTrigger": "onAction"
+				}
+			]
+		},
+		{
+			"id": "slow",
+			"name": "Slow",
+			"description": "Slows {targets} for {duration}ms",
+			"categories": [
+				"debuff",
+				"control"
+			],
+			"effects": [
+				{
+					"effectId": "apply_slow",
 					"eventTrigger": "onAction"
 				}
 			]
