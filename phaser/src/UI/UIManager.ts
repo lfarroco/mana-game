@@ -22,6 +22,8 @@ export class UIManager {
 	scene: BattlegroundScene;
 	/** Container for main persistent UI elements like sidebar and gold display. */
 	uiContainer: Phaser.GameObjects.Container | null = null;
+	/** Container for the gold display UI. */
+	goldContainer: Phaser.GameObjects.Container | null = null;
 	/** Phaser text element for displaying player's gold. */
 	goldTextElement: Phaser.GameObjects.Text | null = null;
 	/** Phaser text element for displaying player's prestige. */
@@ -159,7 +161,7 @@ export class UIManager {
 	 */
 	_handleGoldChanged(newTotalGold: number, goldDelta: number): void {
 		if (this.goldTextElement) {
-			this.goldTextElement.setText("Gold: " + newTotalGold);
+			this.goldTextElement.setText(`${newTotalGold}`);
 			if (goldDelta !== 0) { // Play animation only if there's a change
 				this.goldChangeAnimation(goldDelta);
 			}
@@ -265,21 +267,46 @@ export class UIManager {
 	}
 
 	/**
-	 * Creates the text element that displays the player's current gold.
+	 * Creates the gold display UI element with a coin icon and rounded background.
 	 * This method is typically called by `createMainUI` to initialize the gold display.
-	 * It positions the text based on screen constants and sets its initial value from the game state.
-	 * @param parent The `Phaser.GameObjects.Container` to which the gold text will be added.
+	 * It positions the display in the upper right corner and sets its initial value from the game state.
+	 * @param parent The `Phaser.GameObjects.Container` to which the gold display will be added.
 	 */
 	_createGoldText(parent: Phaser.GameObjects.Container): void {
-
 		const initialGold = this.scene.state.gameData.player.gold;
+
+		// Position in upper right corner
+		const displayX = c.SCREEN_WIDTH - 120;
+		const displayY = 30;
+
+		// Create a container for the gold display
+		this.goldContainer = this.scene.add.container(displayX, displayY);
+
+		// Create rounded rectangle background
+		const background = this.scene.add.graphics();
+		background.fillStyle(0x2d3d1a, 0.8); // Darker green color with transparency
+		background.lineStyle(3, 0x1a2610, 1); // Even darker border
+		background.fillRoundedRect(-50, -20, 100, 40, 20);
+		background.strokeRoundedRect(-50, -20, 100, 40, 20);
+		this.goldContainer.add(background);
+
+		// Create coin icon on the left
+		const coinIcon = this.scene.add.image(-25, 0, 'coin').setScale(0.8);
+		this.goldContainer.add(coinIcon);
+
+		// Create text for the gold amount
 		this.goldTextElement = this.scene.add.text(
-			c.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
-			c.SCREEN_HEIGHT + SIDEBAR_TEXT_BASE_Y,
-			`Gold: ${initialGold}`,
-			c.titleTextConfig
-		);
-		parent.add(this.goldTextElement);
+			0, 0,
+			`${initialGold}`,
+			{
+				...c.titleTextConfig,
+				fontSize: '24px',
+				color: '#ffffff'
+			}
+		).setOrigin(0, 0.5);
+		this.goldContainer.add(this.goldTextElement);
+
+		parent.add(this.goldContainer);
 	}
 
 	/**
@@ -402,7 +429,8 @@ export class UIManager {
 			this.uiContainer.destroy(true); // true to destroy children
 			this.uiContainer = null;
 		}
-		// These elements were chiildren of uiContainer
+		// These elements were children of uiContainer
+		this.goldContainer = null;
 		this.goldTextElement = null;
 		this.prestigeTextElement = null;
 		this.totalRoundsTextElement = null;
