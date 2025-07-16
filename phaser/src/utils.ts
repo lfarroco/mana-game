@@ -5,10 +5,15 @@ export async function runPromisesInOrder(promiseFunctions: (() => Promise<any>)[
 	return promiseFunctions;
 }
 
-// picks n random elements from an array
+// picks n random elements from an array using Fisher-Yates shuffle
 export function pickRandom<T>(arr: T[], n: number): T[] {
-	const shuffled = arr.sort(() => 0.5 - Math.random());
-	return shuffled.slice(0, n);
+	const copy = [...arr]; // Don't mutate the original array
+	// Fisher-Yates shuffle
+	for (let i = copy.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[copy[i], copy[j]] = [copy[j], copy[i]];
+	}
+	return copy.slice(0, n);
 }
 
 export function pickOne<a>(arr: a[]): a {
