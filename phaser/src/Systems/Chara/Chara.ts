@@ -13,6 +13,7 @@ import { GameEvents } from "../../constants/events";
 import { CharaInputHandler } from "./CharaInputHandler";
 import CircleMaskImage from "phaser3-rex-plugins/plugins/gameobjects/canvas/circlemaskimage/CircleMaskImage";
 import { Shop } from "../../Scenes/Battleground/Systems/Shop/Shop";
+import { createContinuousHasteEffect } from "../../Effects/hasteEffect";
 
 export type CharaOptions = {
 	isShopItem?: boolean;
@@ -52,6 +53,13 @@ export class Chara extends Phaser.GameObjects.Container {
 	isShopItem: boolean;
 	/** Optional callback function to execute after a shop item is successfully purchased. */
 	onPurchasedCallback?: () => void;
+
+	// Status effect visual tracking
+	/** Active haste effect particles and cleanup function */
+	private hasteEffect?: { particles: Phaser.GameObjects.Particles.ParticleEmitter; cleanup: () => void };
+	/** Previous haste state for change detection */
+	private previousHasteState: number = 0;
+
 	playerBoard: Board.PartyBoard;
 	shop: Shop;
 
@@ -108,6 +116,9 @@ export class Chara extends Phaser.GameObjects.Container {
 
 		this.statsDisplay.updatePower();
 		this.barsDisplay.updateBars();
+
+		// Initialize status effects based on unit state
+		this.updateStatusEffects();
 
 		if (this.isShopItem) {
 			this.scene.events.on(GameEvents.SHOP_PURCHASE_SUCCESSFUL, this._onShopPurchaseSuccessful, this);
@@ -219,11 +230,6 @@ export class Chara extends Phaser.GameObjects.Container {
 		}
 	}
 
-
-
-
-
-
 	// --- UI Update Methods ---
 
 	/** Accessor for the input handler to know if this is a shop item. */
@@ -236,6 +242,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.unit = newUnit;
 		this.statsDisplay.updateUnit(newUnit);
 		this.barsDisplay.updateUnit(newUnit);
+		this.updateStatusEffects();
 	}
 
 	/** Updates the displayed Attack Power value via the `statsDisplay` component, with animation. */
@@ -298,6 +305,10 @@ export class Chara extends Phaser.GameObjects.Container {
 		if (this.inputHandler) {
 			this.inputHandler.destroy();
 		}
+
+		// Clean up status effects
+		this.removeHasteEffect();
+
 		// Remove event listeners this Chara instance might have set up on scene.events
 		// For example, if Chara listens to SHOP_PURCHASE_FAILED, OWNED_UNIT_MOVE_ACCEPTED etc.
 		// This is important to prevent memory leaks if Charas are frequently created/destroyed.
@@ -329,5 +340,57 @@ export class Chara extends Phaser.GameObjects.Container {
 			repeat: 0,
 		});
 		this.isAnimating = false;
+	}
+
+	// --- Status Effects ---
+
+	/**
+	 * Updates the visual state of the Chara based on current status effects.
+	 * This includes showing or hiding particles for effects like haste.
+	 */
+	updateStatusEffects(): void {
+		// Haste effect: Shows particles when hasted > 0
+		if (this.unit.hasted > 0 && this.previousHasteState === 0) {
+			// Haste just got applied
+			this.showHasteEffect();
+		} else if (this.unit.hasted === 0 && this.previousHasteState > 0) {
+			// Haste just wore off
+			this.removeHasteEffect();
+		}
+		this.previousHasteState = this.unit.hasted;
+	}
+
+	/**
+	 * Shows the visual effect for haste with light-blue droplets moving upward.
+	 */
+	private showHasteEffect(): void {
+		if (this.hasteEffect) return; // Already have haste effect active
+
+		// Create continuous haste effect centered on this chara
+		this.hasteEffect = createContinuousHasteEffect(
+			this.scene,
+			{ x: this.x, y: this.y },
+			{
+				intensity: 1.0,
+				color: 0x00eaff // Light blue color matching the charge bar
+			}
+		);
+
+		// Add the particles to this container so they follow the chara
+		this.add(this.hasteEffect.particles);
+
+		// Reset position since it's now relative to the container
+		this.hasteEffect.particles.setPosition(0, 0);
+	}
+
+	/**
+	 * Removes the visual effect for haste.
+	 */
+	private removeHasteEffect(): void {
+		if (!this.hasteEffect) return; // No haste effect to remove
+
+		// Clean up the haste effect
+		this.hasteEffect.cleanup();
+		this.hasteEffect = undefined;
 	}
 }
