@@ -41,10 +41,14 @@ export class CharaBarsDisplay {
 
 		// Check status effects using the new system
 		const isHasted = unit.hasted > 0;
+		const isSlowed = unit.slowed > 0;
+		const isNormal = (!isHasted && !isSlowed) || (isHasted && isSlowed);
 		// const isSlowed = hasStatusEffect(unit, 'slow');
 		// const isFrozen = hasStatusEffect(unit, 'freeze') || hasStatusEffect(unit, 'stun');
 
-		if (isHasted) color = 0x00eaff;
+		if (isHasted && !isNormal) color = 0x00eaff;
+		if (isSlowed && !isNormal) color = 0xff0000;
+		if (isNormal) color = 0x33ff33; // Default green for normal state
 		//if (isFrozen) color = 0x87ceeb; // Light blue for frozen/stunned
 		//else if (isHasted && isSlowed) color = 0x000000;
 		//else if (isSlowed) color = 0xff0000;
