@@ -13,7 +13,9 @@ import {
 	resolveTargets,
 	checkConditions,
 	registerTraitDefinition, // Alias to avoid conflict if any
-	TraitDefinition
+	TraitDefinition,
+	resolveTargetSelectorFromParams,
+	resolveConditionsFromParams
 } from "./TraitEffectSystem";
 
 /**
@@ -51,11 +53,19 @@ function processTraitEvent(
 	}
 
 	for (const effectInstance of definition.effects) {
-		if (effectInstance.eventTrigger === eventKey) {
+		// Check for custom trigger parameter, fallback to effect's eventTrigger
+		const triggerToMatch = traitInstanceData.trigger || effectInstance.eventTrigger;
+
+		if (triggerToMatch === eventKey) {
 
 			try {
 				const sourceForce = source.force;
-				const targets = resolveTargets(source, sourceForce, effectInstance.targetSelector, state, scene);
+
+				// Use the new parameter resolution system for dynamic targeting and conditions
+				const targetSelector = resolveTargetSelectorFromParams(traitInstanceData, effectInstance);
+				const dynamicConditions = resolveConditionsFromParams(traitInstanceData, effectInstance);
+
+				const targets = resolveTargets(source, sourceForce, targetSelector, state, scene);
 
 				const context: TraitEffectContext = {
 					sourceUnit: source,
@@ -66,7 +76,7 @@ function processTraitEvent(
 					state,
 				};
 
-				if (!checkConditions(context, effectInstance.conditions)) {
+				if (!checkConditions(context, dynamicConditions)) {
 					if (process.env.NODE_ENV === 'development') {
 						console.debug(`Conditions not met for trait ${definition.id}, effect ${effectInstance.effectId}`);
 					}

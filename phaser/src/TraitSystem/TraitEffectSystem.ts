@@ -496,3 +496,120 @@ registerTraitConditionImplementation("formation_bonus", (context) => {
 
 	return sameRow.length >= 2 || sameCol.length >= 2;
 });
+
+// --- Parameter-to-Effect Resolution ---
+
+/**
+ * Converts trait instance parameters to a target selector string.
+ * This enables the simplified parametric trait system where instead of having separate
+ * trait definitions like "ally_left", "ally_right", etc., we have a single "boost_power"
+ * trait that accepts a "targets" parameter.
+ */
+export function resolveTargetSelectorFromParams(
+	traitInstanceParams: TraitData,
+	effectInstance: TraitEffectInstanceData
+): string {
+	// If effect instance has explicit targetSelector, use it (backward compatibility)
+	if (effectInstance.targetSelector) {
+		return effectInstance.targetSelector;
+	}
+
+	// Check trait instance parameters for target specification
+	const targets = traitInstanceParams.targets;
+	if (typeof targets === 'string') {
+		// Map simplified target names to full selector strings
+		switch (targets) {
+			case 'left':
+				return 'ally_left';
+			case 'right':
+				return 'ally_right';
+			case 'back':
+			case 'behind':
+				return 'ally_back';
+			case 'front':
+				return 'ally_front';
+			case 'adjacent':
+				return 'allies_adjacent';
+			case 'diagonal':
+				return 'allies_diagonal';
+			case 'row':
+				return 'all_allies_in_row';
+			case 'column':
+				return 'all_allies_in_column';
+			case 'all_allies':
+			case 'all':
+				return 'all_allies';
+			case 'enemy':
+			case 'closest_enemy':
+				return 'closest_enemy';
+			case 'all_enemies':
+				return 'enemy_guild';
+			default:
+				return targets; // Assume it's already a valid selector
+		}
+	}
+
+	// Default to self if no targets specified
+	return 'self';
+}
+
+/**
+ * Converts trait instance parameters to condition instances.
+ * This enables the simplified parametric trait system where instead of having separate
+ * trait definitions with hardcoded conditions, we use parameters to dynamically create conditions.
+ */
+export function resolveConditionsFromParams(
+	traitInstanceParams: TraitData,
+	effectInstance: TraitEffectInstanceData
+): TraitConditionInstanceData[] {
+	const conditions: TraitConditionInstanceData[] = [];
+
+	// Start with any explicit conditions from the effect instance (backward compatibility)
+	if (effectInstance.conditions) {
+		conditions.push(...effectInstance.conditions);
+	}
+
+	// Add conditions based on trait instance parameters
+	const position = traitInstanceParams.position;
+	if (typeof position === 'string') {
+		switch (position) {
+			case 'front':
+			case 'mid':
+			case 'back':
+				conditions.push({
+					type: 'is_in_row',
+					row: position
+				});
+				break;
+			case 'left':
+			case 'right':
+				conditions.push({
+					type: 'is_in_column',
+					column: position
+				});
+				break;
+			case 'center':
+				conditions.push({
+					type: 'is_in_center'
+				});
+				break;
+			case 'corner':
+				conditions.push({
+					type: 'is_in_corner'
+				});
+				break;
+			case 'edge':
+				conditions.push({
+					type: 'is_on_edge'
+				});
+				break;
+			case 'isolated':
+				conditions.push({
+					type: 'has_no_adjacent_allies'
+				});
+				break;
+		}
+	}
+
+	return conditions;
+}

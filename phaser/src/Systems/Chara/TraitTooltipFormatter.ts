@@ -31,6 +31,18 @@ export function formatTraitDescription(definition: TraitDefinition, data: TraitD
 				value = unit.power;
 			}
 
+			// Special handling for parametric traits with {targets} and {position}
+			if (value === undefined) {
+				switch (key) {
+					case 'targets':
+						value = formatTargetName(data.targets);
+						break;
+					case 'position':
+						value = formatPositionName(data.position);
+						break;
+				}
+			}
+
 			if (value !== undefined) {
 				// Replace placeholder with a bolded, yellow value.
 				const replacement = `[b][color=yellow]${value}[/color][/b]`;
@@ -41,4 +53,49 @@ export function formatTraitDescription(definition: TraitDefinition, data: TraitD
 
 	// Return the formatted string with the trait name in bold.
 	return `[b]${definition.name}:[/b] ${desc}`;
+}
+
+/**
+ * Converts a target parameter into a user-friendly description
+ */
+function formatTargetName(targets: any): string {
+	if (typeof targets !== 'string') return 'unknown targets';
+
+	switch (targets) {
+		case 'left': return 'left ally';
+		case 'right': return 'right ally';
+		case 'back':
+		case 'behind': return 'ally behind';
+		case 'front': return 'ally in front';
+		case 'adjacent': return 'adjacent allies';
+		case 'diagonal': return 'diagonal allies';
+		case 'row': return 'allies in row';
+		case 'column': return 'allies in column';
+		case 'all_allies':
+		case 'all': return 'all allies';
+		case 'enemy':
+		case 'closest_enemy': return 'closest enemy';
+		case 'all_enemies': return 'all enemies';
+		default: return targets;
+	}
+}
+
+/**
+ * Converts a position parameter into a user-friendly description
+ */
+function formatPositionName(position: any): string {
+	if (typeof position !== 'string') return 'unknown position';
+
+	switch (position) {
+		case 'front': return 'front row';
+		case 'mid': return 'middle row';
+		case 'back': return 'back row';
+		case 'left': return 'left column';
+		case 'right': return 'right column';
+		case 'center': return 'center';
+		case 'corner': return 'corners';
+		case 'edge': return 'board edges';
+		case 'isolated': return 'when isolated';
+		default: return position;
+	}
 }
