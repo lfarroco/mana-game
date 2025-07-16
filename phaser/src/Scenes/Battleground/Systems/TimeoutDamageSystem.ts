@@ -13,8 +13,8 @@ export class TimeoutDamageSystem {
 	private readonly timeoutDamageInterval: number = 1000; // 1 second between damage ticks
 
 	// State tracking
-	private lastTimeoutDamageTick: number = 0;
-	private combatStartTime: number = 0;
+	private combatElapsedTime: number = 0; // Track elapsed time using deltas
+	private timeSinceLastTick: number = 0; // Time since last damage tick
 	private isActive: boolean = false;
 
 	constructor(scene: BattlegroundScene) {
@@ -25,8 +25,8 @@ export class TimeoutDamageSystem {
 	 * Initializes the timeout damage system for a new combat.
 	 */
 	initialize(): void {
-		this.combatStartTime = this.scene.time.now;
-		this.lastTimeoutDamageTick = 0;
+		this.combatElapsedTime = 0;
+		this.timeSinceLastTick = 0;
 		this.isActive = true;
 	}
 
@@ -34,22 +34,23 @@ export class TimeoutDamageSystem {
 	 * Updates the timeout damage system. Should be called every frame during combat.
 	 * @param playerForce The player's force
 	 * @param cpuForce The CPU's force
+	 * @param delta The time delta since last update in milliseconds
 	 */
-	update(playerForce: Force, cpuForce: Force): void {
+	update(playerForce: Force, cpuForce: Force, delta: number): void {
 		if (!this.isActive) return;
 
-		const currentTime = this.scene.time.now;
-		const combatElapsed = currentTime - this.combatStartTime;
+		// Update elapsed time using delta
+		this.combatElapsedTime += delta;
+		this.timeSinceLastTick += delta;
 
 		// Check if we've passed the timeout threshold
-		if (combatElapsed >= this.timeoutDamageStartTime) {
-			const timeSinceTimeoutStarted = combatElapsed - this.timeoutDamageStartTime;
-			const timeSinceLastTick = currentTime - this.lastTimeoutDamageTick;
+		if (this.combatElapsedTime >= this.timeoutDamageStartTime) {
+			const timeSinceTimeoutStarted = this.combatElapsedTime - this.timeoutDamageStartTime;
 
-			// Apply damage every second
-			if (timeSinceLastTick >= this.timeoutDamageInterval) {
+			// Apply damage every interval
+			if (this.timeSinceLastTick >= this.timeoutDamageInterval) {
 				this.applyTimeoutDamage(playerForce, cpuForce, timeSinceTimeoutStarted);
-				this.lastTimeoutDamageTick = currentTime;
+				this.timeSinceLastTick = 0; // Reset the tick timer
 			}
 		}
 	}
@@ -87,7 +88,7 @@ export class TimeoutDamageSystem {
 			timeoutDamageStartTime: this.timeoutDamageStartTime,
 			timeoutDamageInterval: this.timeoutDamageInterval,
 			isActive: this.isActive,
-			combatElapsed: this.isActive ? this.scene.time.now - this.combatStartTime : 0,
+			combatElapsed: this.combatElapsedTime,
 		};
 	}
 }

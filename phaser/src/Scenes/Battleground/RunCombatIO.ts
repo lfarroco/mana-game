@@ -80,7 +80,7 @@ export class RunCombatSystem {
       }
 
       // Check for timeout damage (after 10 seconds of combat)
-      this.timeoutDamageSystem.update(playerForce, cpuForce);
+      this.timeoutDamageSystem.update(playerForce, cpuForce, delta * this.scene.time.timeScale);
 
       const playerMoraleZero = playerForce.morale <= 0;
       const cpuMoraleZero = cpuForce.morale <= 0;
