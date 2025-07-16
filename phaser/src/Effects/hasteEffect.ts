@@ -25,8 +25,8 @@ export async function hasteEffect(
 	options: HasteEffectOptions = {}
 ): Promise<void> {
 	const {
-		duration = 1000,
-		intensity = 1.0,
+		duration = 500,
+		intensity = 2.0,
 		color = 0x00eaff
 	} = options;
 
@@ -36,25 +36,24 @@ export async function hasteEffect(
 		images.white_dot.key,
 		{
 			// Movement configuration - droplets rise upward
-			speedY: { min: -80 * intensity, max: -120 * intensity },
+			speedY: { min: -20 * intensity, max: -60 * intensity },
 			speedX: { min: -10 * intensity, max: 10 * intensity }, // Slight horizontal drift
-
-			// Visual properties
+			// Visual properties - remove the general scale since we're using scaleX/Y
 			tint: color,
-			scale: { start: 2.5 * intensity, end: 0.5 * intensity },
 			alpha: { start: 0.8, end: 0 },
-
 			// Timing and behavior
 			lifespan: duration,
-			frequency: 80 / intensity, // More frequent with higher intensity
-			quantity: Math.max(1, Math.floor(2 * intensity)),
+			frequency: 250 / intensity, // Much less frequent for wider spacing
+			quantity: Math.max(1, Math.floor(1 * intensity)),
 
-			// Visual effects
+			// Visual effects - very thin oval droplet shape
+			scaleX: { start: 0.8 * intensity, end: 0.0 }, // Much thinner width
+			scaleY: { start: 2.5 * intensity, end: 4.7 * intensity }, // Taller height for droplet shape
 			blendMode: 'ADD',
 
-			// Emit zone - small area around the unit
+			// Emit zone - character sprite area coverage
 			emitZone: {
-				source: new Phaser.Geom.Circle(0, 0, 15),
+				source: new Phaser.Geom.Circle(0, 0, 40),
 				type: 'random'
 			} as Phaser.Types.GameObjects.Particles.EmitZoneData,
 
@@ -97,23 +96,23 @@ export function createContinuousHasteEffect(
 			// Movement configuration - droplets rise upward
 			speedY: { min: -60 * intensity, max: -100 * intensity },
 			speedX: { min: -8 * intensity, max: 8 * intensity },
-
-			// Visual properties
+			// Visual properties - very thin oval droplet shape for continuous effect
 			tint: color,
-			scale: { start: 2.0 * intensity, end: 0.3 * intensity },
+			scaleX: { start: 0.6 * intensity, end: 0.08 * intensity }, // Very thin width
+			scaleY: { start: 3.0 * intensity, end: 0.6 * intensity }, // Taller height for droplet shape
 			alpha: { start: 0.7, end: 0 },
 
 			// Timing and behavior for continuous effect
 			lifespan: 800,
-			frequency: 120 / intensity,
+			frequency: 300 / intensity, // Much less frequent for wider spacing
 			quantity: 1,
 
 			// Visual effects
 			blendMode: 'ADD',
 
-			// Emit zone
+			// Emit zone - character sprite area coverage
 			emitZone: {
-				source: new Phaser.Geom.Circle(0, 0, 12),
+				source: new Phaser.Geom.Circle(0, 0, 35),
 				type: 'random'
 			} as Phaser.Types.GameObjects.Particles.EmitZoneData,
 
