@@ -206,3 +206,5 @@ keyword brainstorming session: https://chatgpt.com/c/685e9b20-7698-8004-9b7b-dd3
 
 
 sacrifice cooldown for damage: add damage, but increaases cooldown
+
+damage display: aim to the center, randomize away from last 5 hits
