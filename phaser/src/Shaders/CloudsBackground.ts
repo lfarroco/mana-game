@@ -29,14 +29,14 @@ float smoothNoise(vec2 p) {
     return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
 }
 
-// Star field function - creates discrete, round stars
+// Optimized star field function - reduced noise calls and simplified calculations
 float starField(vec2 uv, float density, float brightness) {
     // Create a grid for star positions
     vec2 gridUV = uv * density;
     vec2 gridID = floor(gridUV);
     vec2 gridLocal = fract(gridUV);
     
-    // Check if this grid cell should have a star
+    // Single noise call to determine star presence and properties
     float starNoise = noise(gridID);
     float starThreshold = 0.95; // Only 5% of grid cells get stars
     
@@ -44,29 +44,30 @@ float starField(vec2 uv, float density, float brightness) {
         return 0.0; // No star in this cell
     }
     
-    // Position the star randomly within the grid cell
-    vec2 starOffset = vec2(noise(gridID + 10.0), noise(gridID + 20.0)) * 0.8 + 0.1;
-    vec2 starPos = starOffset;
+    // Use single noise value to derive multiple properties (more efficient)
+    float derivedNoise1 = fract(starNoise * 43.7584); // Derive offset x
+    float derivedNoise2 = fract(starNoise * 67.3912); // Derive offset y
+    float derivedNoise3 = fract(starNoise * 91.8475); // Derive size
+    float derivedNoise4 = fract(starNoise * 23.1492); // Derive glow properties
+    
+    // Position the star using derived values
+    vec2 starOffset = vec2(derivedNoise1, derivedNoise2) * 0.8 + 0.1;
     
     // Calculate distance from current pixel to star center
-    float dist = length(gridLocal - starPos);
+    float dist = length(gridLocal - starOffset);
     
     // Create a round star with smooth falloff
-    float starSize = (noise(gridID + 30.0) * 0.3 + 0.4) * 0.1 + 0.03; // Smaller: 0.03 to 0.1 (was 0.05 to 0.2)
+    float starSize = (derivedNoise3 * 0.3 + 0.4) * 0.1 + 0.03;
     float star = 1.0 - smoothstep(0.0, starSize, dist);
-    star = pow(star, 2.0); // Less aggressive falloff for larger visible area
+    star = pow(star, 2.0);
     
-    // Enhanced glow up and down effect
-    float phase = starNoise * 6.28318; // Random phase offset for each star
-    float glowSpeed = 0.2 + noise(gridID + 40.0) * 0.6; // More varied speed: 0.2 to 0.8
-    
-    // Use gridID to create unique timing for each star
-    float timeOffset = noise(gridID + 60.0) * 100.0; // Random time offset per star
-    float glow = sin((time * timeScale * glowSpeed) + phase + timeOffset) * 0.5 + 0.5; // 0.0 to 1.0
-    
-    // Make some stars glow more dramatically than others
-    float glowIntensity = noise(gridID + 50.0) * 0.5 + 0.3; // Reduced: 0.3 to 0.8 (was 0.3 to 1.0)
-    glow = mix(0.1, 0.8, pow(glow, 2.0 - glowIntensity)); // Reduced max: 0.1 to 0.8 (was 0.1 to 1.2)
+    // Simplified glow calculation using derived values
+    float phase = starNoise * 6.28318;
+    float glowSpeed = 0.2 + derivedNoise4 * 0.6;
+    float timeOffset = derivedNoise1 * 100.0; // Reuse derived value
+    float glow = sin((time * timeScale * glowSpeed) + phase + timeOffset) * 0.5 + 0.5;
+    float glowIntensity = derivedNoise2 * 0.5 + 0.3; // Reuse derived value
+    glow = mix(0.1, 0.8, pow(glow, 2.0 - glowIntensity));
     
     star *= glow * brightness;
     
@@ -101,65 +102,72 @@ vec2 swirl(vec2 uv, float intensity, vec2 center) {
     return center + dist * vec2(cos(angle), sin(angle));
 }
 
-// Dust particles function - creates golden shining particles that follow cloud motion
+// Optimized dust particles function - significantly reduced noise calls
 float dustParticles(vec2 uv, float scaledTime) {
     // Quality-based particle thresholds
-    // Low (0.0): fewer particles, Medium (1.0): moderate particles, High (2.0): most particles
-    float threshold1 = 0.92 - (particleQuality * 0.02); // Low: 0.92, Medium: 0.90, High: 0.88
-    float threshold2 = 0.94 - (particleQuality * 0.02); // Low: 0.94, Medium: 0.92, High: 0.90
+    float threshold1 = 0.92 - (particleQuality * 0.02);
+    float threshold2 = 0.94 - (particleQuality * 0.02);
     
-    // Adjust density based on quality (higher quality = more particles)
-    float densityMultiplier = 1.0 + (particleQuality * 0.25); // Low: 1.0x, Medium: 1.25x, High: 1.5x
+    // Adjust density based on quality
+    float densityMultiplier = 1.0 + (particleQuality * 0.25);
     
-    // Create multiple layers of dust particles with different densities - Quality-based scaling
-    vec2 dustUV1 = uv * (25.0 * densityMultiplier); // Higher density small particles
-    vec2 dustUV2 = uv * (15.0 * densityMultiplier); // Lower density larger particles
+    // Create multiple layers of dust particles - reduced FBM octaves for motion
+    vec2 dustUV1 = uv * (25.0 * densityMultiplier);
+    vec2 dustUV2 = uv * (15.0 * densityMultiplier);
     
-    // Apply cloud motion to dust particles - much more visible movement
-    dustUV1 += vec2(scaledTime * 0.025, scaledTime * 0.02) + fbm(uv * 2.0 + scaledTime * 0.05, 3) * 0.6;
-    dustUV2 += vec2(scaledTime * 0.02, scaledTime * 0.0175) + fbm(uv * 1.5 + scaledTime * 0.04, 3) * 0.7;
+    // Simplified cloud motion using reduced octaves
+    dustUV1 += vec2(scaledTime * 0.025, scaledTime * 0.02) + fbm(uv * 2.0 + scaledTime * 0.05, 2) * 0.6;
+    dustUV2 += vec2(scaledTime * 0.02, scaledTime * 0.0175) + fbm(uv * 1.5 + scaledTime * 0.04, 2) * 0.7;
     
     float dust = 0.0;
     
-    // Layer 1: Small particles - Quality-based threshold
+    // Layer 1: Small particles - optimized with derived noise values
     vec2 gridID1 = floor(dustUV1);
     vec2 gridLocal1 = fract(dustUV1);
     float dustNoise1 = noise(gridID1);
     if (dustNoise1 > threshold1) {
-        vec2 dustOffset1 = vec2(noise(gridID1 + 10.0), noise(gridID1 + 20.0)) * 0.6 + 0.2;
+        // Derive multiple values from single noise call
+        float derived1 = fract(dustNoise1 * 37.684);
+        float derived2 = fract(dustNoise1 * 83.291);
+        float derived3 = fract(dustNoise1 * 51.847);
+        
+        vec2 dustOffset1 = vec2(derived1, derived2) * 0.6 + 0.2;
         float dist1 = length(gridLocal1 - dustOffset1);
-        float particleSize1 = (noise(gridID1 + 30.0) * 0.4 + 0.6) * 0.06;
+        float particleSize1 = (derived3 * 0.4 + 0.6) * 0.06;
         float particle1 = 1.0 - smoothstep(0.0, particleSize1, dist1);
         particle1 = pow(particle1, 1.2);
         
-        // Glow effect similar to stars but faster
+        // Simplified glow effect
         float phase1 = dustNoise1 * 6.28318;
-        float glowSpeed1 = 0.8 + noise(gridID1 + 40.0) * 1.2;
-        float timeOffset1 = noise(gridID1 + 60.0) * 50.0;
+        float glowSpeed1 = 0.8 + derived1 * 1.2;
+        float timeOffset1 = derived2 * 50.0;
         float glow1 = sin((scaledTime * glowSpeed1) + phase1 + timeOffset1) * 0.5 + 0.5;
-        float glowIntensity1 = noise(gridID1 + 50.0) * 0.5 + 0.5;
-        glow1 = mix(0.4, 1.3, pow(glow1, 2.0 - glowIntensity1));
+        glow1 = mix(0.4, 1.3, pow(glow1, 2.0 - derived3));
         
         dust += particle1 * glow1 * 0.7;
     }
     
-    // Layer 2: Larger particles - Quality-based threshold
+    // Layer 2: Larger particles - optimized with derived noise values
     vec2 gridID2 = floor(dustUV2);
     vec2 gridLocal2 = fract(dustUV2);
     float dustNoise2 = noise(gridID2);
     if (dustNoise2 > threshold2) {
-        vec2 dustOffset2 = vec2(noise(gridID2 + 10.0), noise(gridID2 + 20.0)) * 0.6 + 0.2;
+        // Derive multiple values from single noise call
+        float derived4 = fract(dustNoise2 * 47.123);
+        float derived5 = fract(dustNoise2 * 73.569);
+        float derived6 = fract(dustNoise2 * 92.431);
+        
+        vec2 dustOffset2 = vec2(derived4, derived5) * 0.6 + 0.2;
         float dist2 = length(gridLocal2 - dustOffset2);
-        float particleSize2 = (noise(gridID2 + 30.0) * 0.4 + 0.6) * 0.1;
+        float particleSize2 = (derived6 * 0.4 + 0.6) * 0.1;
         float particle2 = 1.0 - smoothstep(0.0, particleSize2, dist2);
         particle2 = pow(particle2, 1.1);
         
         float phase2 = dustNoise2 * 6.28318;
-        float glowSpeed2 = 0.5 + noise(gridID2 + 40.0) * 1.0;
-        float timeOffset2 = noise(gridID2 + 60.0) * 50.0;
+        float glowSpeed2 = 0.5 + derived4 * 1.0;
+        float timeOffset2 = derived5 * 50.0;
         float glow2 = sin((scaledTime * glowSpeed2) + phase2 + timeOffset2) * 0.5 + 0.5;
-        float glowIntensity2 = noise(gridID2 + 50.0) * 0.5 + 0.5;
-        glow2 = mix(0.3, 1.4, pow(glow2, 2.0 - glowIntensity2));
+        glow2 = mix(0.3, 1.4, pow(glow2, 2.0 - derived6));
         
         dust += particle2 * glow2 * 0.9;
     }
