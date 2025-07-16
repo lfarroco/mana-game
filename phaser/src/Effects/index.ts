@@ -8,4 +8,5 @@ export * from './slowEffect';
 export * from './impactEffect';
 export * from './summonEffect';
 export * from './arcaneMissile';
+export * from './arcaneMissileTargeted';
 export * from './explodeEffect';
