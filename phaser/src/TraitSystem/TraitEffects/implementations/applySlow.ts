@@ -1,10 +1,12 @@
 /**
  * @file Apply Slow trait effect implementation
- * This effect applies slow to targets by adding duration to their slowed property.
+ * Uses the new arcaneMissileTargeted effect to shoot a projectile from source to target.
+ * When the projectile hits, it applies slow duration and displays the original slow visual effect.
  */
 
 import { TraitEffectFn } from '../../TraitEffectSystem';
 import { getEffectParams } from '../../TraitSystem.pure';
+import { arcaneMissileTargeted } from '../../../Effects/arcaneMissileTargeted';
 import { slowEffect } from '../../../Effects/slowEffect';
 import * as CharaManager from '../../../Scenes/Battleground/Systems/CharaManager';
 
@@ -14,24 +16,52 @@ import * as CharaManager from '../../../Scenes/Battleground/Systems/CharaManager
  */
 export function createApplySlowLogic(): TraitEffectFn {
 	return async (context) => {
-		const { targets, scene } = context;
+		const { targets, scene, sourceUnit } = context;
 		const duration = getEffectParams(context.traitInstanceParams, context.effectInstance, 'duration', 2000);
 
-		for (const target of targets) {
-			// Add slow duration to the unit's slowed property
-			target.slowed += duration;
+		// Get source character position for arcane missile effect
+		const sourceChara = CharaManager.getChara(sourceUnit.id);
 
-			// Show a brief visual effect when slow is applied
-			if (scene) {
-				const chara = CharaManager.getChara(target.id);
-				if (chara) {
-					// Show a burst effect when slow is applied
-					await slowEffect(scene, { x: chara.x, y: chara.y }, {
-						duration: 1000,
-						intensity: 1.5,
-						color: 0xD2691E // Orange-brownish color
-					});
+		for (const target of targets) {
+			// Show a targeted arcane missile effect from source to target
+			if (scene && sourceChara) {
+				const targetChara = CharaManager.getChara(target.id);
+				if (targetChara) {
+					// Use the new targeted arcane missile effect with slow callback
+					await arcaneMissileTargeted(
+						scene,
+						{ x: sourceChara.x, y: sourceChara.y },
+						{ x: targetChara.x, y: targetChara.y },
+						{
+							colors: [0xD2691E, 0xCD853F, 0xF4A460], // Orange-brownish colors: saddle brown, peru, sandy brown
+							amplitudeMin: 5,
+							amplitudeMax: 15,
+							particleScale: 1.5,
+							impact: {
+								colors: [0xD2691E, 0xCD853F],
+								scale: 2,
+								speed: 200,
+								lifespan: 300,
+								alpha: 0.4
+							},
+							onHit: async () => {
+								// THIS IS THE MOMENT OF IMPACT - Apply slow mutation and show slow effect
+								// Add slow duration to the unit's slowed property
+								target.slowed += duration;
+
+								// Show the original slow effect at the target location
+								await slowEffect(scene, { x: targetChara.x, y: targetChara.y }, {
+									duration: 1000,
+									intensity: 1.5,
+									color: 0xD2691E // Orange-brownish color matching the projectile
+								});
+							}
+						}
+					);
 				}
+			} else {
+				// Fallback: if no scene or character visual, just apply the slow directly
+				target.slowed += duration;
 			}
 		}
 	};
