@@ -52,7 +52,9 @@ export class ShopUI {
 			.fillStyle(sc.PANEL_BG_COLOR, sc.PANEL_BG_OPACITY)
 			.fillRoundedRect(sc.PANEL_X, sc.PANEL_Y, sc.SHOP_PANEL_WIDTH, sc.SHOP_PANEL_HEIGHT, 20);
 		this.flyout.add(shopBackground);
-		const displayedCharas = this._renderTavernUI(cardsToDisplay, charaPurchaseFinalized);
+
+		// Render tavern background and title first
+		this._renderTavernSectionBackgroundAndTitle();
 
 		const buttonY = sc.PANEL_Y + sc.SHOP_PANEL_HEIGHT - 100;
 		// Estimate button width + spacing to position reroll button to the left
@@ -77,6 +79,9 @@ export class ShopUI {
 		this.flyout.add(nextRoundBtn);
 
 		this._createSellZone();
+
+		// Render characters AFTER buttons to ensure they appear on top
+		const displayedCharas = this._renderTavernCharas(cardsToDisplay, charaPurchaseFinalized);
 
 		return { charas: displayedCharas };
 	}
