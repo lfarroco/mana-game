@@ -30,13 +30,12 @@
 			"tags": [
 				"support"
 			],
-			"power": 6,
+			"power": 2,
 			"powerType": "heal",
 			"cooldown": 2200,
 			"traits": [
 				{
-					"id": "heal",
-					"amount": 2
+					"id": "heal"
 				},
 				{
 					"id": "boost_power",
