@@ -178,6 +178,28 @@
 					"targets": "random_enemy"
 				}
 			]
+		},
+		{
+			"id": "lightning_mage",
+			"name": "Lightning Mage",
+			"pic": "assets/cards/lava_spawn.png",
+			"tags": [
+				"ranged",
+				"magical"
+			],
+			"power": 6,
+			"powerType": "damage",
+			"cooldown": 3200,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "charge",
+					"amount": 2000,
+					"targets": "random_ally"
+				}
+			]
 		}
 	],
 	"traits": [
@@ -280,6 +302,21 @@
 			"effects": [
 				{
 					"effectId": "apply_slow",
+					"eventTrigger": "onAction"
+				}
+			]
+		},
+		{
+			"id": "charge",
+			"name": "Charge",
+			"description": "Charges {targets} for {duration}ms",
+			"categories": [
+				"buff",
+				"support"
+			],
+			"effects": [
+				{
+					"effectId": "apply_charge",
 					"eventTrigger": "onAction"
 				}
 			]
