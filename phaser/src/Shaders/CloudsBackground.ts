@@ -90,16 +90,24 @@ float fbm(vec2 p, int octaves) {
     return value;
 }
 
-// Function to create swirling patterns
+// Function to create swirling patterns - optimized trigonometric operations
 vec2 swirl(vec2 uv, float intensity, vec2 center) {
     vec2 delta = uv - center;
     float dist = length(delta);
-    float angle = atan(delta.y, delta.x);
     
-    // Create swirl effect using scaled time
-    angle += intensity * sin(time * timeScale * 0.5) * (1.0 - dist);
+    // Pre-calculate time-based swirl factor to avoid repeated calculations
+    float swirlFactor = intensity * sin(time * timeScale * 0.5) * (1.0 - dist);
     
-    return center + dist * vec2(cos(angle), sin(angle));
+    // Optimize: avoid atan2 when possible, use approximation for small angles
+    if (abs(swirlFactor) < 0.1) {
+        // For small swirl amounts, use linear approximation (much faster)
+        vec2 perpendicular = vec2(-delta.y, delta.x);
+        return center + delta + perpendicular * swirlFactor;
+    } else {
+        // Only use expensive atan2 for larger swirls
+        float angle = atan(delta.y, delta.x) + swirlFactor;
+        return center + dist * vec2(cos(angle), sin(angle));
+    }
 }
 
 // Optimized dust particles function - significantly reduced noise calls
@@ -212,24 +220,34 @@ void main() {
     // Simplified color variation using reduced octaves
     float colorVar = fbm(uv * 7.0 + scaledTime * 0.09, detailOctaves);
 
-    // Star field - Quality-based density
-    float starDensityMultiplier = 1.0 + (particleQuality * 0.3); // Low: 1.0x, Medium: 1.3x, High: 1.6x
-    float starThresholdAdjust = particleQuality * 0.01; // Slightly more stars on higher quality
+    // Optimized star field - reduced layers and early exit optimizations
+    float starDensityMultiplier = 1.0 + (particleQuality * 0.3);
     
-    float stars = starField(uv, 20.0 * starDensityMultiplier, 1.0);
-    stars += starField(uv + 0.5, 15.0 * starDensityMultiplier, 0.8);
+    // Quality-based star layer optimization
+    float stars = 0.0;
     
-    // Add extra star layer only on high quality
+    // Always render base star layer
+    stars = starField(uv, 20.0 * starDensityMultiplier, 1.0);
+    
+    // Only add second layer on medium+ quality
+    if (particleQuality >= 0.5) {
+        stars += starField(uv + 0.5, 15.0 * starDensityMultiplier, 0.8);
+    }
+    
+    // Only add third layer on high quality
     if (particleQuality >= 1.5) {
         stars += starField(uv + 0.25, 25.0 * starDensityMultiplier, 0.6);
     }
     
     stars = clamp(stars, 0.0, 1.0);
 
-    // Dust particles - golden shining particles that follow cloud motion
-    float dust = dustParticles(uv, scaledTime);
+    // Early exit optimization for dust particles on low quality
+    float dust = 0.0;
+    if (particleQuality >= 0.3) {
+        dust = dustParticles(uv, scaledTime);
+    }
 
-    // Mix nebula colors (use more vibrant, cosmic colors)
+    // Optimized final composition - reduced conditional branches
     vec3 nebulaColor = mix(color1, color2, nebulaPattern);
     nebulaColor = mix(nebulaColor, color3, smoothstep(0.5, 0.8, nebulaPattern));
     nebulaColor = mix(nebulaColor, color4, colorVar * 0.5);
@@ -238,21 +256,12 @@ void main() {
     // Add glow
     nebulaColor += vec3(0.15, 0.08, 0.18) * pow(glow, 2.0);
 
-    // Add golden dust particles
-    if (dust > 0.0) {
-        vec3 dustColor = vec3(1.0, 0.8, 0.4); // Golden color
-        // Use additive blending for more visible particles
-        nebulaColor += dustColor * dust * 1.2;
-    }
-
-    // Add stars (additive blending)
-    if (stars > 0.0) {
-        // Use white stars
-        vec3 starColor = vec3(1.0);
-        
-        // Additive blending - add star light to the background
-        nebulaColor += starColor * stars;
-    }
+    // Optimized additive blending - avoid conditionals
+    vec3 dustColor = vec3(1.0, 0.8, 0.4);
+    nebulaColor += dustColor * dust * 1.2;
+    
+    vec3 starColor = vec3(1.0);
+    nebulaColor += starColor * stars;
 
     // Final output
     gl_FragColor = vec4(nebulaColor, 1.0);
