@@ -17,8 +17,9 @@
 					"id": "damage"
 				},
 				{
-					"id": "backline_boost",
-					"amount": 2
+					"id": "positional_boost",
+					"amount": 2,
+					"position": "back"
 				}
 			]
 		},
@@ -38,8 +39,10 @@
 					"amount": 2
 				},
 				{
-					"id": "right_boost_on_action",
-					"amount": 1
+					"id": "boost_power",
+					"amount": 1,
+					"targets": "right",
+					"trigger": "onAction"
 				}
 			]
 		},
@@ -58,8 +61,9 @@
 					"id": "heal"
 				},
 				{
-					"id": "ally_right",
-					"amount": 2
+					"id": "boost_power",
+					"amount": 2,
+					"targets": "right"
 				}
 			]
 		},
@@ -71,15 +75,16 @@
 				"tank"
 			],
 			"power": 9,
-			"powerType": "defense",
+			"powerType": "armor",
 			"cooldown": 2000,
 			"traits": [
 				{
 					"id": "shield"
 				},
 				{
-					"id": "frontline_warrior",
-					"amount": 2
+					"id": "positional_boost",
+					"amount": 2,
+					"position": "front"
 				}
 			]
 		},
@@ -98,8 +103,9 @@
 					"id": "damage"
 				},
 				{
-					"id": "midline_boost",
-					"amount": 2
+					"id": "positional_boost",
+					"amount": 2,
+					"position": "mid"
 				}
 			]
 		},
@@ -118,8 +124,9 @@
 					"id": "damage"
 				},
 				{
-					"id": "corner_bonus",
-					"amount": 2
+					"id": "positional_boost",
+					"amount": 2,
+					"position": "corner"
 				}
 			]
 		},
@@ -132,33 +139,34 @@
 				"magical"
 			],
 			"power": 4,
-			"powerType": "support",
+			"powerType": "heal",
 			"cooldown": 4000,
 			"traits": [
 				{
 					"id": "haste",
-					"duration": 3000
+					"duration": 3000,
+					"targets": "adjacent"
 				},
 				{
-					"id": "backline_boost",
-					"amount": 2
+					"id": "positional_boost",
+					"amount": 2,
+					"position": "back"
 				}
 			]
 		}
 	],
 	"traits": [
 		{
-			"id": "right_boost_on_action",
-			"name": "Right Action Boost",
-			"description": "Right ally +{amount} power each time this acts.",
+			"id": "boost_power",
+			"name": "Power Boost",
+			"description": "+{amount} power to {targets}.",
 			"categories": [
 				"aura"
 			],
 			"effects": [
 				{
 					"effectId": "modify_stat_passive",
-					"eventTrigger": "onAction",
-					"targetSelector": "ally_right",
+					"eventTrigger": "onBattleStart",
 					"attribute": "power"
 				}
 			]
@@ -206,9 +214,9 @@
 			]
 		},
 		{
-			"id": "frontline_warrior",
-			"name": "Frontline Warrior",
-			"description": "+{amount} power in front row.",
+			"id": "positional_boost",
+			"name": "Positional Fighter",
+			"description": "+{amount} power in {position}.",
 			"categories": [
 				"positional"
 			],
@@ -217,281 +225,14 @@
 					"effectId": "modify_stat_passive",
 					"eventTrigger": "onBattleStart",
 					"targetSelector": "self",
-					"attribute": "power",
-					"conditions": [
-						{
-							"type": "is_in_row",
-							"row": "front"
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "midline_boost",
-			"name": "Midline Boost",
-			"description": "+{amount} power in middle row.",
-			"categories": [
-				"positional"
-			],
-			"effects": [
-				{
-					"effectId": "modify_stat_passive",
-					"eventTrigger": "onBattleStart",
-					"targetSelector": "self",
-					"attribute": "power",
-					"conditions": [
-						{
-							"type": "is_in_row",
-							"row": "mid"
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "backline_boost",
-			"name": "Backline Boost",
-			"description": "+{amount} power in back row.",
-			"categories": [
-				"positional"
-			],
-			"effects": [
-				{
-					"effectId": "modify_stat_passive",
-					"eventTrigger": "onBattleStart",
-					"targetSelector": "self",
-					"attribute": "power",
-					"conditions": [
-						{
-							"type": "is_in_row",
-							"row": "back"
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "ally_left",
-			"name": "Left Support",
-			"description": "Left ally +{amount} power.",
-			"categories": [
-				"aura"
-			],
-			"effects": [
-				{
-					"effectId": "modify_stat_passive",
-					"eventTrigger": "onBattleStart",
-					"targetSelector": "ally_left",
 					"attribute": "power"
-				}
-			]
-		},
-		{
-			"id": "ally_right",
-			"name": "Right Support",
-			"description": "Right ally +{amount} power.",
-			"categories": [
-				"aura"
-			],
-			"effects": [
-				{
-					"effectId": "modify_stat_passive",
-					"eventTrigger": "onBattleStart",
-					"targetSelector": "ally_right",
-					"attribute": "power"
-				}
-			]
-		},
-		{
-			"id": "ally_back",
-			"name": "Back Support",
-			"description": "Behind ally +{amount} power.",
-			"categories": [
-				"aura"
-			],
-			"effects": [
-				{
-					"effectId": "modify_stat_passive",
-					"eventTrigger": "onBattleStart",
-					"targetSelector": "ally_back",
-					"attribute": "power"
-				}
-			]
-		},
-		{
-			"id": "corner_bonus",
-			"name": "Corner Fighter",
-			"description": "+{amount} power in corners.",
-			"categories": [
-				"positional"
-			],
-			"effects": [
-				{
-					"effectId": "modify_stat_passive",
-					"eventTrigger": "onBattleStart",
-					"targetSelector": "self",
-					"attribute": "power",
-					"conditions": [
-						{
-							"type": "is_in_corner"
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "isolated_bonus",
-			"name": "Lone Wolf",
-			"description": "+{amount} power when no adjacent allies.",
-			"categories": [
-				"positional"
-			],
-			"effects": [
-				{
-					"effectId": "modify_stat_passive",
-					"eventTrigger": "onBattleStart",
-					"targetSelector": "self",
-					"attribute": "power",
-					"conditions": [
-						{
-							"type": "has_no_adjacent_allies"
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "center_bonus",
-			"name": "Center Focus",
-			"description": "+{amount} power in center position.",
-			"categories": [
-				"positional"
-			],
-			"effects": [
-				{
-					"effectId": "modify_stat_passive",
-					"eventTrigger": "onBattleStart",
-					"targetSelector": "self",
-					"attribute": "power",
-					"conditions": [
-						{
-							"type": "is_in_center"
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "boost_column",
-			"name": "Column Leader",
-			"description": "All allies in column +{amount} power.",
-			"categories": [
-				"aura"
-			],
-			"effects": [
-				{
-					"effectId": "modify_stat_passive",
-					"eventTrigger": "onBattleStart",
-					"targetSelector": "all_allies_in_column",
-					"attribute": "power"
-				}
-			]
-		},
-		{
-			"id": "boost_row",
-			"name": "Row Commander",
-			"description": "All allies in row +{amount} power.",
-			"categories": [
-				"aura"
-			],
-			"effects": [
-				{
-					"effectId": "modify_stat_passive",
-					"eventTrigger": "onBattleStart",
-					"targetSelector": "all_allies_in_row",
-					"attribute": "power"
-				}
-			]
-		},
-		{
-			"id": "diagonal_boost",
-			"name": "Diagonal Support",
-			"description": "Diagonal allies +{amount} power.",
-			"categories": [
-				"aura"
-			],
-			"effects": [
-				{
-					"effectId": "modify_stat_passive",
-					"eventTrigger": "onBattleStart",
-					"targetSelector": "allies_diagonal",
-					"attribute": "power"
-				}
-			]
-		},
-		{
-			"id": "edge_boost",
-			"name": "Edge Fighter",
-			"description": "+{amount} power on board edges.",
-			"categories": [
-				"positional"
-			],
-			"effects": [
-				{
-					"effectId": "modify_stat_passive",
-					"eventTrigger": "onBattleStart",
-					"targetSelector": "self",
-					"attribute": "power",
-					"conditions": [
-						{
-							"type": "is_on_edge"
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "boost_adjacent",
-			"name": "Adjacent Support",
-			"description": "Adjacent allies +{amount} power.",
-			"categories": [
-				"aura"
-			],
-			"effects": [
-				{
-					"effectId": "modify_stat_passive",
-					"eventTrigger": "onBattleStart",
-					"targetSelector": "allies_adjacent",
-					"attribute": "power"
-				}
-			]
-		},
-		{
-			"id": "boost_formation",
-			"name": "Formation Master",
-			"description": "Allies in formation +{amount} power.",
-			"categories": [
-				"aura"
-			],
-			"effects": [
-				{
-					"effectId": "modify_stat_passive",
-					"eventTrigger": "onBattleStart",
-					"targetSelector": "all_allies",
-					"attribute": "power",
-					"conditions": [
-						{
-							"type": "formation_bonus"
-						}
-					]
 				}
 			]
 		},
 		{
 			"id": "haste",
 			"name": "Haste",
-			"description": "Grants targets haste for {duration}ms, increasing action speed.",
+			"description": "Grants {targets} haste for {duration}ms, increasing action speed.",
 			"categories": [
 				"buff",
 				"support"
@@ -499,8 +240,7 @@
 			"effects": [
 				{
 					"effectId": "apply_haste",
-					"eventTrigger": "onAction",
-					"targetSelector": "allies_adjacent"
+					"eventTrigger": "onAction"
 				}
 			]
 		}

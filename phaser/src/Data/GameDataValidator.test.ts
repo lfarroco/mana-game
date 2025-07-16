@@ -279,7 +279,7 @@ describe('Game Data Validation', () => {
 				'skill_activation', 'guild_wide', 'stat_modification', 'versatile',
 				'scaling', 'risky', 'crowd_control', 'time_control', 'damage_over_time',
 				'cleanse', 'evasion', 'conditional', 'reflect', 'elite', 'drawback',
-				'gold_generation'
+				'gold_generation', 'positional'
 			];
 
 			traits.forEach(trait => {
