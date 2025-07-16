@@ -47,7 +47,7 @@ export default class OptionsScene extends Phaser.Scene {
 		// Create title
 		this.add.text(
 			constants.MIDDLE_SCREEN_X,
-			constants.MIDDLE_SCREEN_Y - 300,
+			40,
 			'OPTIONS',
 			{
 				...constants.titleTextConfig,
@@ -55,10 +55,10 @@ export default class OptionsScene extends Phaser.Scene {
 			}
 		).setOrigin(0.5);
 
-		let yOffset = -150; // Starting Y position for options
+		const lineHeight = 130;
 
 		// Sound On/Off
-		this.createBooleanOption('Sound:', yOffset,
+		this.createBooleanOption('Sound', lineHeight * 1,
 			() => this.currentSoundSetting,
 			(value: boolean) => {
 				this.currentSoundSetting = value;
@@ -67,10 +67,9 @@ export default class OptionsScene extends Phaser.Scene {
 			},
 			(text: Phaser.GameObjects.Text) => this.soundValueText = text
 		);
-		yOffset += 80;
 
 		// Sound Volume
-		this.createVolumeOption('Sound Volume:', yOffset,
+		this.createVolumeOption('Sound Volume', lineHeight * 2,
 			() => this.currentSoundVolume,
 			(value: number) => {
 				this.currentSoundVolume = value;
@@ -79,10 +78,9 @@ export default class OptionsScene extends Phaser.Scene {
 			},
 			(text: Phaser.GameObjects.Text) => this.soundVolumeValueText = text
 		);
-		yOffset += 80;
 
 		// Music On/Off
-		this.createBooleanOption('Music:', yOffset,
+		this.createBooleanOption('Music', lineHeight * 3,
 			() => this.currentMusicSetting,
 			(value: boolean) => {
 				this.currentMusicSetting = value;
@@ -91,10 +89,9 @@ export default class OptionsScene extends Phaser.Scene {
 			},
 			(text: Phaser.GameObjects.Text) => this.musicValueText = text
 		);
-		yOffset += 80;
 
 		// Music Volume
-		this.createVolumeOption('Music Volume:', yOffset,
+		this.createVolumeOption('Music Volume', lineHeight * 4,
 			() => this.currentMusicVolume,
 			(value: number) => {
 				this.currentMusicVolume = value;
@@ -103,10 +100,9 @@ export default class OptionsScene extends Phaser.Scene {
 			},
 			(text: Phaser.GameObjects.Text) => this.musicVolumeValueText = text
 		);
-		yOffset += 80;
 
 		// Particles
-		this.createMultiChoiceOption('Particles:', yOffset,
+		this.createMultiChoiceOption('Particles', lineHeight * 5,
 			['low', 'medium', 'high'],
 			() => this.currentParticlesSetting,
 			(value: string) => {
@@ -118,10 +114,9 @@ export default class OptionsScene extends Phaser.Scene {
 			},
 			(text: Phaser.GameObjects.Text) => this.particlesValueText = text
 		);
-		yOffset += 80;
 
 		// Debug Mode
-		this.createBooleanOption('Debug:', yOffset,
+		this.createBooleanOption('Debug', lineHeight * 6,
 			() => this.currentDebugSetting,
 			(value: boolean) => {
 				this.currentDebugSetting = value;
@@ -130,10 +125,9 @@ export default class OptionsScene extends Phaser.Scene {
 			},
 			(text: Phaser.GameObjects.Text) => this.debugValueText = text
 		);
-		yOffset += 80;
 
 		// Game Speed
-		this.createSpeedOption('Speed:', yOffset,
+		this.createSpeedOption('Speed', lineHeight * 7,
 			() => this.currentSpeedSetting,
 			(value: number) => {
 				this.currentSpeedSetting = value;
@@ -148,7 +142,7 @@ export default class OptionsScene extends Phaser.Scene {
 			this,
 			'BACK',
 			constants.MIDDLE_SCREEN_X,
-			constants.MIDDLE_SCREEN_Y + 350,
+			lineHeight * 8 + 20,
 			() => {
 				this.returnToTitle();
 			}
@@ -169,32 +163,34 @@ export default class OptionsScene extends Phaser.Scene {
 		// Create label
 		this.add.text(
 			constants.MIDDLE_SCREEN_X,
-			yPos - 25,
+			yPos,
 			label,
 			constants.titleTextConfig
 		).setOrigin(0.5);
 
-		// Create value display
+		// Create value display (hidden, kept for compatibility)
 		const valueText = this.add.text(
 			constants.MIDDLE_SCREEN_X,
-			yPos + 10,
+			yPos + 60,
 			getValue() ? 'ON' : 'OFF',
 			{
 				...constants.titleTextConfig,
 				color: '#FFD700'
 			}
-		).setOrigin(0.5);
+		).setOrigin(0.5).setAlpha(0); // Hide the separate value display
 		setTextRef(valueText);
 
-		// Create toggle button
-		new UIButton(
+		// Create toggle button with current value as text
+		const toggleButton = new UIButton(
 			this,
-			'TOGGLE',
+			getValue() ? 'ON' : 'OFF',
 			constants.MIDDLE_SCREEN_X,
-			yPos + 35,
+			yPos + 60,
 			() => {
 				const newValue = !getValue();
 				setValue(newValue);
+				// Update button text when value changes
+				toggleButton.buttonText.setText(newValue ? 'ON' : 'OFF');
 			},
 			120
 		);
@@ -210,7 +206,7 @@ export default class OptionsScene extends Phaser.Scene {
 		// Create label
 		this.add.text(
 			constants.MIDDLE_SCREEN_X,
-			yPos - 25,
+			yPos,
 			label,
 			constants.titleTextConfig
 		).setOrigin(0.5);
@@ -220,7 +216,7 @@ export default class OptionsScene extends Phaser.Scene {
 			this,
 			'-',
 			constants.MIDDLE_SCREEN_X - 120,
-			yPos + 10,
+			yPos + 60,
 			() => {
 				const newValue = Math.max(0, getValue() - 0.1);
 				setValue(newValue);
@@ -231,7 +227,7 @@ export default class OptionsScene extends Phaser.Scene {
 		// Create value display
 		const valueText = this.add.text(
 			constants.MIDDLE_SCREEN_X,
-			yPos + 10,
+			yPos + 60,
 			(Math.round(getValue() * 100)) + '%',
 			{
 				...constants.titleTextConfig,
@@ -245,7 +241,7 @@ export default class OptionsScene extends Phaser.Scene {
 			this,
 			'+',
 			constants.MIDDLE_SCREEN_X + 120,
-			yPos + 10,
+			yPos + 60,
 			() => {
 				const newValue = Math.min(1, getValue() + 0.1);
 				setValue(newValue);
@@ -265,7 +261,7 @@ export default class OptionsScene extends Phaser.Scene {
 		// Create label
 		this.add.text(
 			constants.MIDDLE_SCREEN_X,
-			yPos - 25,
+			yPos,
 			label,
 			constants.titleTextConfig
 		).setOrigin(0.5);
@@ -275,7 +271,7 @@ export default class OptionsScene extends Phaser.Scene {
 			this,
 			'<',
 			constants.MIDDLE_SCREEN_X - 150,
-			yPos + 10,
+			yPos + 50,
 			() => {
 				const currentIndex = choices.indexOf(getValue());
 				const newIndex = currentIndex > 0 ? currentIndex - 1 : choices.length - 1;
@@ -287,7 +283,7 @@ export default class OptionsScene extends Phaser.Scene {
 		// Create value display
 		const valueText = this.add.text(
 			constants.MIDDLE_SCREEN_X,
-			yPos + 10,
+			yPos + 50,
 			getValue().toUpperCase(),
 			{
 				...constants.titleTextConfig,
@@ -301,7 +297,7 @@ export default class OptionsScene extends Phaser.Scene {
 			this,
 			'>',
 			constants.MIDDLE_SCREEN_X + 150,
-			yPos + 10,
+			yPos + 50,
 			() => {
 				const currentIndex = choices.indexOf(getValue());
 				const newIndex = currentIndex < choices.length - 1 ? currentIndex + 1 : 0;
@@ -321,7 +317,7 @@ export default class OptionsScene extends Phaser.Scene {
 		// Create label
 		this.add.text(
 			constants.MIDDLE_SCREEN_X,
-			yPos - 25,
+			yPos,
 			label,
 			constants.titleTextConfig
 		).setOrigin(0.5);
@@ -331,7 +327,7 @@ export default class OptionsScene extends Phaser.Scene {
 			this,
 			'-',
 			constants.MIDDLE_SCREEN_X - 120,
-			yPos + 10,
+			yPos + 50,
 			() => {
 				const newValue = Math.max(0.1, getValue() - 0.1);
 				setValue(newValue);
@@ -342,7 +338,7 @@ export default class OptionsScene extends Phaser.Scene {
 		// Create value display
 		const valueText = this.add.text(
 			constants.MIDDLE_SCREEN_X,
-			yPos + 10,
+			yPos + 50,
 			getValue().toFixed(1) + 'x',
 			{
 				...constants.titleTextConfig,
@@ -356,7 +352,7 @@ export default class OptionsScene extends Phaser.Scene {
 			this,
 			'+',
 			constants.MIDDLE_SCREEN_X + 120,
-			yPos + 10,
+			yPos + 50,
 			() => {
 				const newValue = Math.min(3.0, getValue() + 0.1);
 				setValue(newValue);

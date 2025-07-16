@@ -215,7 +215,7 @@
 		},
 		{
 			"id": "positional_boost",
-			"name": "Positional Fighter",
+			"name": "Position Boost",
 			"description": "+{amount} power in {position}.",
 			"categories": [
 				"positional"
