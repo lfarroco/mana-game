@@ -123,9 +123,9 @@ float dustParticles(vec2 uv, float scaledTime) {
     vec2 dustUV1 = uv * (25.0 * densityMultiplier);
     vec2 dustUV2 = uv * (15.0 * densityMultiplier);
     
-    // Simplified cloud motion using reduced octaves
-    dustUV1 += vec2(scaledTime * 0.025, scaledTime * 0.02) + fbm(uv * 2.0 + scaledTime * 0.05, 2) * 0.6;
-    dustUV2 += vec2(scaledTime * 0.02, scaledTime * 0.0175) + fbm(uv * 1.5 + scaledTime * 0.04, 2) * 0.7;
+    // Faster dust motion - increased speed multipliers for more dynamic movement
+    dustUV1 += vec2(scaledTime * 0.08, scaledTime * 0.06) + fbm(uv * 2.0 + scaledTime * 0.12, 2) * 0.8;
+    dustUV2 += vec2(scaledTime * 0.065, scaledTime * 0.05) + fbm(uv * 1.5 + scaledTime * 0.1, 2) * 0.9;
     
     float dust = 0.0;
     
@@ -145,9 +145,9 @@ float dustParticles(vec2 uv, float scaledTime) {
         float particle1 = 1.0 - smoothstep(0.0, particleSize1, dist1);
         particle1 = pow(particle1, 1.2);
         
-        // Simplified glow effect
+        // Faster glow effect for more dynamic dust particles
         float phase1 = dustNoise1 * 6.28318;
-        float glowSpeed1 = 0.8 + derived1 * 1.2;
+        float glowSpeed1 = 1.5 + derived1 * 2.0; // Increased from 0.8 + 1.2
         float timeOffset1 = derived2 * 50.0;
         float glow1 = sin((scaledTime * glowSpeed1) + phase1 + timeOffset1) * 0.5 + 0.5;
         glow1 = mix(0.4, 1.3, pow(glow1, 2.0 - derived3));
@@ -172,7 +172,7 @@ float dustParticles(vec2 uv, float scaledTime) {
         particle2 = pow(particle2, 1.1);
         
         float phase2 = dustNoise2 * 6.28318;
-        float glowSpeed2 = 0.5 + derived4 * 1.0;
+        float glowSpeed2 = 1.2 + derived4 * 1.8; // Increased from 0.5 + 1.0
         float timeOffset2 = derived5 * 50.0;
         float glow2 = sin((scaledTime * glowSpeed2) + phase2 + timeOffset2) * 0.5 + 0.5;
         glow2 = mix(0.3, 1.4, pow(glow2, 2.0 - derived6));
