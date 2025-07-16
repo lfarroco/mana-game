@@ -13,6 +13,7 @@ import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
 import { State } from "../Models/State";
 import { getActiveUnits } from "../Models/State"; // For target resolution
 import { FORCE_ID_PLAYER } from "../constants/constants";
+import { pickRandom, pickOne } from "../utils";
 
 /**
  * Data for a specific instance of an effect within a TraitDefinition.
@@ -220,11 +221,29 @@ export function resolveTargets(
 		case "closest_enemy":
 		case "all_enemies": // Legacy support - now returns closest enemy for simplicity
 			return findClosestEnemy();
+		case "random_enemies": {
+			const enemies = getActiveUnits(state).filter(u => u.force !== sourceForce);
+			return pickRandom(enemies, enemies.length); // Return all enemies in random order
+		}
+		case "random_enemy": {
+			const enemies = getActiveUnits(state).filter(u => u.force !== sourceForce);
+			if (enemies.length === 0) return [];
+			return [pickOne(enemies)]; // Return a single random enemy
+		}
 
 		// === POSITIONAL ALLIED TARGETING ===
 		// Allied targeting retains positional logic for formation strategy
 		case "all_allies":
 			return getActiveUnits(state).filter(u => u.force === sourceForce && u.id !== source.id);
+		case "random_allies": {
+			const allies = getActiveUnits(state).filter(u => u.force === sourceForce && u.id !== source.id);
+			return pickRandom(allies, allies.length); // Return all allies in random order
+		}
+		case "random_ally": {
+			const allies = getActiveUnits(state).filter(u => u.force === sourceForce && u.id !== source.id);
+			if (allies.length === 0) return [];
+			return [pickOne(allies)]; // Return a single random ally
+		}
 		case "all_allies_in_row":
 			return getActiveUnits(state).filter(u => u.force === sourceForce && u.id !== source.id && u.position.y === source.position.y);
 		case "all_allies_in_column":
@@ -298,6 +317,18 @@ export function resolveTargets(
 		// Special case: when you need ALL enemies (for guild-wide effects like morale)
 		case "enemy_guild":
 			return getActiveUnits(state).filter(u => u.force !== sourceForce);
+
+		// === RANDOM UNIT TARGETING ===
+		// Targets any unit on the battlefield (allies and enemies)
+		case "random_units": {
+			const allUnits = getActiveUnits(state).filter(u => u.id !== source.id);
+			return pickRandom(allUnits, allUnits.length); // Return all units in random order
+		}
+		case "random_unit": {
+			const allUnits = getActiveUnits(state).filter(u => u.id !== source.id);
+			if (allUnits.length === 0) return [];
+			return [pickOne(allUnits)]; // Return a single random unit
+		}
 
 		default:
 			console.warn(`Unknown target selector: ${selector}. Using closest enemy as fallback.`);
