@@ -9,16 +9,16 @@
 			"tags": [
 				"ranged"
 			],
-			"power": 12,
+			"power": 7,
 			"powerType": "damage",
-			"cooldown": 1600,
+			"cooldown": 2500,
 			"traits": [
 				{
 					"id": "damage"
 				},
 				{
 					"id": "backline_boost",
-					"amount": 4
+					"amount": 2
 				}
 			]
 		},
@@ -29,17 +29,17 @@
 			"tags": [
 				"support"
 			],
-			"power": 7,
+			"power": 6,
 			"powerType": "heal",
-			"cooldown": 1500,
+			"cooldown": 2200,
 			"traits": [
 				{
 					"id": "heal",
-					"amount": 3
+					"amount": 2
 				},
 				{
 					"id": "right_boost_on_action",
-					"amount": 2
+					"amount": 1
 				}
 			]
 		},
@@ -47,19 +47,19 @@
 			"id": "bubblegum",
 			"name": "Bubblegum Blessings",
 			"pic": "assets/cards/cleric.png",
-			"power": 10,
+			"power": 7,
 			"powerType": "heal",
 			"tags": [
 				"support"
 			],
-			"cooldown": 1800,
+			"cooldown": 2800,
 			"traits": [
 				{
 					"id": "heal"
 				},
 				{
 					"id": "ally_right",
-					"amount": 3
+					"amount": 2
 				}
 			]
 		},
@@ -70,16 +70,16 @@
 			"tags": [
 				"tank"
 			],
-			"power": 14,
+			"power": 9,
 			"powerType": "defense",
-			"cooldown": 1000,
+			"cooldown": 2000,
 			"traits": [
 				{
 					"id": "shield"
 				},
 				{
 					"id": "frontline_warrior",
-					"amount": 4
+					"amount": 2
 				}
 			]
 		},
@@ -90,16 +90,16 @@
 			"tags": [
 				"ranged"
 			],
-			"power": 18,
+			"power": 8,
 			"powerType": "damage",
-			"cooldown": 1900,
+			"cooldown": 3500,
 			"traits": [
 				{
 					"id": "damage"
 				},
 				{
 					"id": "midline_boost",
-					"amount": 4
+					"amount": 2
 				}
 			]
 		},
@@ -110,9 +110,9 @@
 			"tags": [
 				"melee"
 			],
-			"power": 8,
+			"power": 6,
 			"powerType": "damage",
-			"cooldown": 1100,
+			"cooldown": 1800,
 			"traits": [
 				{
 					"id": "damage"
@@ -131,13 +131,13 @@
 				"support",
 				"magical"
 			],
-			"power": 6,
+			"power": 4,
 			"powerType": "support",
-			"cooldown": 5000,
+			"cooldown": 4000,
 			"traits": [
 				{
 					"id": "haste",
-					"duration": 2000
+					"duration": 3000
 				},
 				{
 					"id": "backline_boost",
