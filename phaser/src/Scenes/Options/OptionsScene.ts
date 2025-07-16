@@ -4,6 +4,8 @@ import { UIButton } from "../../UI/UIButton";
 import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
 import { getOption, setOption } from "../../Models/OptionsStore";
 
+type TabType = 'audio' | 'graphics' | 'game';
+
 export default class OptionsScene extends Phaser.Scene {
 	private cloudsBackground!: CloudsBackground;
 
@@ -15,6 +17,11 @@ export default class OptionsScene extends Phaser.Scene {
 	private musicVolumeValueText!: Phaser.GameObjects.Text;
 	private debugValueText!: Phaser.GameObjects.Text;
 	private speedValueText!: Phaser.GameObjects.Text;
+
+	// Tab system
+	private currentTab: TabType = 'audio';
+	private tabButtons: { [key in TabType]: UIButton } = {} as any;
+	private optionElements: Phaser.GameObjects.GameObject[] = [];
 
 	// Current settings
 	private currentParticlesSetting: 'low' | 'medium' | 'high' = 'medium';
@@ -55,94 +62,18 @@ export default class OptionsScene extends Phaser.Scene {
 			}
 		).setOrigin(0.5);
 
-		const lineHeight = 130;
+		// Create tab buttons
+		this.createTabButtons();
 
-		// Sound On/Off
-		this.createBooleanOption('Sound', lineHeight * 1,
-			() => this.currentSoundSetting,
-			(value: boolean) => {
-				this.currentSoundSetting = value;
-				setOption('sound', value);
-				this.soundValueText.setText(value ? 'ON' : 'OFF');
-			},
-			(text: Phaser.GameObjects.Text) => this.soundValueText = text
-		);
-
-		// Sound Volume
-		this.createVolumeOption('Sound Volume', lineHeight * 2,
-			() => this.currentSoundVolume,
-			(value: number) => {
-				this.currentSoundVolume = value;
-				setOption('soundVolume', value);
-				this.soundVolumeValueText.setText((Math.round(value * 100)) + '%');
-			},
-			(text: Phaser.GameObjects.Text) => this.soundVolumeValueText = text
-		);
-
-		// Music On/Off
-		this.createBooleanOption('Music', lineHeight * 3,
-			() => this.currentMusicSetting,
-			(value: boolean) => {
-				this.currentMusicSetting = value;
-				setOption('music', value);
-				this.musicValueText.setText(value ? 'ON' : 'OFF');
-			},
-			(text: Phaser.GameObjects.Text) => this.musicValueText = text
-		);
-
-		// Music Volume
-		this.createVolumeOption('Music Volume', lineHeight * 4,
-			() => this.currentMusicVolume,
-			(value: number) => {
-				this.currentMusicVolume = value;
-				setOption('musicVolume', value);
-				this.musicVolumeValueText.setText((Math.round(value * 100)) + '%');
-			},
-			(text: Phaser.GameObjects.Text) => this.musicVolumeValueText = text
-		);
-
-		// Particles
-		this.createMultiChoiceOption('Particles', lineHeight * 5,
-			['low', 'medium', 'high'],
-			() => this.currentParticlesSetting,
-			(value: string) => {
-				this.currentParticlesSetting = value as 'low' | 'medium' | 'high';
-				setOption('particles', this.currentParticlesSetting);
-				this.particlesValueText.setText(value.toUpperCase());
-				// Update all active CloudsBackground instances
-				this.updateAllCloudsBackgrounds();
-			},
-			(text: Phaser.GameObjects.Text) => this.particlesValueText = text
-		);
-
-		// Debug Mode
-		this.createBooleanOption('Debug', lineHeight * 6,
-			() => this.currentDebugSetting,
-			(value: boolean) => {
-				this.currentDebugSetting = value;
-				setOption('debug', value);
-				this.debugValueText.setText(value ? 'ON' : 'OFF');
-			},
-			(text: Phaser.GameObjects.Text) => this.debugValueText = text
-		);
-
-		// Game Speed
-		this.createSpeedOption('Speed', lineHeight * 7,
-			() => this.currentSpeedSetting,
-			(value: number) => {
-				this.currentSpeedSetting = value;
-				setOption('speed', value);
-				this.speedValueText.setText(value.toFixed(1) + 'x');
-			},
-			(text: Phaser.GameObjects.Text) => this.speedValueText = text
-		);
+		// Create initial tab content
+		this.showTab(this.currentTab);
 
 		// Create back button
 		new UIButton(
 			this,
 			'BACK',
 			constants.MIDDLE_SCREEN_X,
-			lineHeight * 8 + 20,
+			750,
 			() => {
 				this.returnToTitle();
 			}
@@ -161,12 +92,13 @@ export default class OptionsScene extends Phaser.Scene {
 		setTextRef: (text: Phaser.GameObjects.Text) => void
 	) {
 		// Create label
-		this.add.text(
+		const labelText = this.add.text(
 			constants.MIDDLE_SCREEN_X,
 			yPos,
 			label,
 			constants.titleTextConfig
 		).setOrigin(0.5);
+		this.optionElements.push(labelText);
 
 		// Create value display (hidden, kept for compatibility)
 		const valueText = this.add.text(
@@ -179,6 +111,7 @@ export default class OptionsScene extends Phaser.Scene {
 			}
 		).setOrigin(0.5).setAlpha(0); // Hide the separate value display
 		setTextRef(valueText);
+		this.optionElements.push(valueText);
 
 		// Create toggle button with current value as text
 		const toggleButton = new UIButton(
@@ -194,6 +127,7 @@ export default class OptionsScene extends Phaser.Scene {
 			},
 			120
 		);
+		this.optionElements.push(toggleButton);
 	}
 
 	private createVolumeOption(
@@ -204,15 +138,16 @@ export default class OptionsScene extends Phaser.Scene {
 		setTextRef: (text: Phaser.GameObjects.Text) => void
 	) {
 		// Create label
-		this.add.text(
+		const labelText = this.add.text(
 			constants.MIDDLE_SCREEN_X,
 			yPos,
 			label,
 			constants.titleTextConfig
 		).setOrigin(0.5);
+		this.optionElements.push(labelText);
 
 		// Create decrease button
-		new UIButton(
+		const decreaseButton = new UIButton(
 			this,
 			'-',
 			constants.MIDDLE_SCREEN_X - 120,
@@ -223,6 +158,7 @@ export default class OptionsScene extends Phaser.Scene {
 			},
 			60
 		);
+		this.optionElements.push(decreaseButton);
 
 		// Create value display
 		const valueText = this.add.text(
@@ -235,9 +171,10 @@ export default class OptionsScene extends Phaser.Scene {
 			}
 		).setOrigin(0.5);
 		setTextRef(valueText);
+		this.optionElements.push(valueText);
 
 		// Create increase button
-		new UIButton(
+		const increaseButton = new UIButton(
 			this,
 			'+',
 			constants.MIDDLE_SCREEN_X + 120,
@@ -248,6 +185,7 @@ export default class OptionsScene extends Phaser.Scene {
 			},
 			60
 		);
+		this.optionElements.push(increaseButton);
 	}
 
 	private createMultiChoiceOption(
@@ -259,15 +197,16 @@ export default class OptionsScene extends Phaser.Scene {
 		setTextRef: (text: Phaser.GameObjects.Text) => void
 	) {
 		// Create label
-		this.add.text(
+		const labelText = this.add.text(
 			constants.MIDDLE_SCREEN_X,
 			yPos,
 			label,
 			constants.titleTextConfig
 		).setOrigin(0.5);
+		this.optionElements.push(labelText);
 
 		// Create decrease button
-		new UIButton(
+		const decreaseButton = new UIButton(
 			this,
 			'<',
 			constants.MIDDLE_SCREEN_X - 150,
@@ -279,6 +218,7 @@ export default class OptionsScene extends Phaser.Scene {
 			},
 			80
 		);
+		this.optionElements.push(decreaseButton);
 
 		// Create value display
 		const valueText = this.add.text(
@@ -291,9 +231,10 @@ export default class OptionsScene extends Phaser.Scene {
 			}
 		).setOrigin(0.5);
 		setTextRef(valueText);
+		this.optionElements.push(valueText);
 
 		// Create increase button
-		new UIButton(
+		const increaseButton = new UIButton(
 			this,
 			'>',
 			constants.MIDDLE_SCREEN_X + 150,
@@ -305,6 +246,7 @@ export default class OptionsScene extends Phaser.Scene {
 			},
 			80
 		);
+		this.optionElements.push(increaseButton);
 	}
 
 	private createSpeedOption(
@@ -315,15 +257,16 @@ export default class OptionsScene extends Phaser.Scene {
 		setTextRef: (text: Phaser.GameObjects.Text) => void
 	) {
 		// Create label
-		this.add.text(
+		const labelText = this.add.text(
 			constants.MIDDLE_SCREEN_X,
 			yPos,
 			label,
 			constants.titleTextConfig
 		).setOrigin(0.5);
+		this.optionElements.push(labelText);
 
 		// Create decrease button
-		new UIButton(
+		const decreaseButton = new UIButton(
 			this,
 			'-',
 			constants.MIDDLE_SCREEN_X - 120,
@@ -334,6 +277,7 @@ export default class OptionsScene extends Phaser.Scene {
 			},
 			60
 		);
+		this.optionElements.push(decreaseButton);
 
 		// Create value display
 		const valueText = this.add.text(
@@ -346,9 +290,10 @@ export default class OptionsScene extends Phaser.Scene {
 			}
 		).setOrigin(0.5);
 		setTextRef(valueText);
+		this.optionElements.push(valueText);
 
 		// Create increase button
-		new UIButton(
+		const increaseButton = new UIButton(
 			this,
 			'+',
 			constants.MIDDLE_SCREEN_X + 120,
@@ -359,6 +304,7 @@ export default class OptionsScene extends Phaser.Scene {
 			},
 			60
 		);
+		this.optionElements.push(increaseButton);
 	}
 
 	/**
@@ -397,5 +343,175 @@ export default class OptionsScene extends Phaser.Scene {
 		if (this.cloudsBackground) {
 			this.cloudsBackground.destroy();
 		}
+	}
+
+	private createTabButtons() {
+		const tabButtonY = 120;
+		const buttonSpacing = 160;
+		const startX = constants.MIDDLE_SCREEN_X - buttonSpacing;
+
+		// Audio Tab
+		this.tabButtons.audio = new UIButton(
+			this,
+			'AUDIO',
+			startX,
+			tabButtonY,
+			() => this.showTab('audio'),
+			140
+		);
+
+		// Graphics Tab
+		this.tabButtons.graphics = new UIButton(
+			this,
+			'GRAPHICS',
+			startX + buttonSpacing,
+			tabButtonY,
+			() => this.showTab('graphics'),
+			140
+		);
+
+		// Game Tab
+		this.tabButtons.game = new UIButton(
+			this,
+			'GAME',
+			startX + buttonSpacing * 2,
+			tabButtonY,
+			() => this.showTab('game'),
+			140
+		);
+
+		this.updateTabButtonStates();
+	}
+
+	private updateTabButtonStates() {
+		// Update button colors based on selected tab
+		Object.keys(this.tabButtons).forEach(tabKey => {
+			const tab = tabKey as TabType;
+			const button = this.tabButtons[tab];
+
+			if (tab === this.currentTab) {
+				// Selected tab - gold color
+				button.buttonText.setColor('#FFD700');
+				button.buttonText.setStroke('#000000', 4);
+			} else {
+				// Unselected tab - white color
+				button.buttonText.setColor('#FFFFFF');
+				button.buttonText.setStroke('#000000', 3);
+			}
+		});
+	}
+
+	private showTab(tabType: TabType) {
+		this.currentTab = tabType;
+		this.clearOptionElements();
+		this.updateTabButtonStates();
+
+		const startY = 220;
+		const lineHeight = 130;
+
+		switch (tabType) {
+			case 'audio':
+				this.createAudioOptions(startY, lineHeight);
+				break;
+			case 'graphics':
+				this.createGraphicsOptions(startY);
+				break;
+			case 'game':
+				this.createGameOptions(startY, lineHeight);
+				break;
+		}
+	}
+
+	private clearOptionElements() {
+		this.optionElements.forEach(element => {
+			element.destroy();
+		});
+		this.optionElements = [];
+	}
+
+	private createAudioOptions(startY: number, lineHeight: number) {
+		// Sound On/Off
+		this.createBooleanOption('Sound', startY,
+			() => this.currentSoundSetting,
+			(value: boolean) => {
+				this.currentSoundSetting = value;
+				setOption('sound', value);
+				this.soundValueText.setText(value ? 'ON' : 'OFF');
+			},
+			(text: Phaser.GameObjects.Text) => this.soundValueText = text
+		);
+
+		// Sound Volume
+		this.createVolumeOption('Sound Volume', startY + lineHeight,
+			() => this.currentSoundVolume,
+			(value: number) => {
+				this.currentSoundVolume = value;
+				setOption('soundVolume', value);
+				this.soundVolumeValueText.setText((Math.round(value * 100)) + '%');
+			},
+			(text: Phaser.GameObjects.Text) => this.soundVolumeValueText = text
+		);
+
+		// Music On/Off
+		this.createBooleanOption('Music', startY + lineHeight * 2,
+			() => this.currentMusicSetting,
+			(value: boolean) => {
+				this.currentMusicSetting = value;
+				setOption('music', value);
+				this.musicValueText.setText(value ? 'ON' : 'OFF');
+			},
+			(text: Phaser.GameObjects.Text) => this.musicValueText = text
+		);
+
+		// Music Volume
+		this.createVolumeOption('Music Volume', startY + lineHeight * 3,
+			() => this.currentMusicVolume,
+			(value: number) => {
+				this.currentMusicVolume = value;
+				setOption('musicVolume', value);
+				this.musicVolumeValueText.setText((Math.round(value * 100)) + '%');
+			},
+			(text: Phaser.GameObjects.Text) => this.musicVolumeValueText = text
+		);
+	}
+
+	private createGraphicsOptions(startY: number) {
+		// Particles
+		this.createMultiChoiceOption('Particles', startY,
+			['low', 'medium', 'high'],
+			() => this.currentParticlesSetting,
+			(value: string) => {
+				this.currentParticlesSetting = value as 'low' | 'medium' | 'high';
+				setOption('particles', this.currentParticlesSetting);
+				this.particlesValueText.setText(value.toUpperCase());
+				// Update all active CloudsBackground instances
+				this.updateAllCloudsBackgrounds();
+			},
+			(text: Phaser.GameObjects.Text) => this.particlesValueText = text
+		);
+	}
+
+	private createGameOptions(startY: number, lineHeight: number) {
+		// Debug Mode
+		this.createBooleanOption('Debug', startY,
+			() => this.currentDebugSetting,
+			(value: boolean) => {
+				this.currentDebugSetting = value;
+				setOption('debug', value);
+				this.debugValueText.setText(value ? 'ON' : 'OFF');
+			},
+			(text: Phaser.GameObjects.Text) => this.debugValueText = text
+		);
+
+		// Game Speed
+		this.createSpeedOption('Speed', startY + lineHeight,
+			() => this.currentSpeedSetting,
+			(value: number) => {
+				this.currentSpeedSetting = value;
+				setOption('speed', value);
+				this.speedValueText.setText(value.toFixed(1) + 'x');
+			},
+			(text: Phaser.GameObjects.Text) => this.speedValueText = text
+		);
 	}
 }
