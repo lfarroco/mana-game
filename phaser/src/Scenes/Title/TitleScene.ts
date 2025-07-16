@@ -73,6 +73,15 @@ export default class TitleScene extends Phaser.Scene {
 				this.startGame();
 			}
 		);
+		new UIButton(
+			this,
+			'GO FULLSCREEN',
+			constants.MIDDLE_SCREEN_X,
+			constants.MIDDLE_SCREEN_Y + 420,
+			() => {
+				this.toggleFullscreen();
+			}
+		);
 
 		// Add some visual flair - pulsing effect on title
 		this.tweens.add({
@@ -113,6 +122,14 @@ export default class TitleScene extends Phaser.Scene {
 				this.scene.start(constants.SCENE_KEYS.BATTLEGROUND);
 			}
 		});
+	}
+
+	toggleFullscreen() {
+		if (this.scale.isFullscreen) {
+			this.scale.stopFullscreen();
+		} else {
+			this.scale.startFullscreen();
+		}
 	}
 
 	destroy() {
