@@ -100,6 +100,18 @@ const EFFECT_REGISTRY: Record<string, EffectFactory> = {
 		});
 	},
 
+	sloweffect: (scene) => {
+		scene.time.addEvent({
+			delay: 1500,
+			callback: () => {
+				effects.slowEffect(scene, { x: 150, y: 350 }, { duration: 1000, intensity: 1.0 });
+				effects.slowEffect(scene, { x: 300, y: 500 }, { duration: 1000, intensity: 1.5 });
+				effects.slowEffect(scene, { x: 450, y: 350 }, { duration: 1000, intensity: 0.7 });
+			},
+			repeat: -1
+		});
+	},
+
 	impacteffect: (scene) => {
 		scene.time.addEvent({
 			delay: 1200,
