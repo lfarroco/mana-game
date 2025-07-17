@@ -180,9 +180,9 @@
 			]
 		},
 		{
-			"id": "lightning_mage",
-			"name": "Lightning Mage",
-			"pic": "assets/cards/lava_spawn.png",
+			"id": "thunder_mage",
+			"name": "Thunder Mage",
+			"pic": "assets/cards/thunder_mage.png",
 			"tags": [
 				"ranged",
 				"magical"
