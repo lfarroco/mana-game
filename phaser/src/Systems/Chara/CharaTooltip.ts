@@ -30,8 +30,8 @@ export const onCharaPointerOver = ({ chara }: { chara: Chara }): void => {
 	const charaWorldY = worldMatrix.ty;
 
 	// Position tooltip to the right of the Chara.
-	const TOOLTIP_OFFSET_X = 300;
-	const tooltipX = charaWorldX + (chara.displayWidth / 2) + TOOLTIP_OFFSET_X;
+	const TOOLTIP_OFFSET_X = 400;
+	const tooltipX = charaWorldX + chara.displayWidth + TOOLTIP_OFFSET_X;
 	const tooltipY = charaWorldY; // Align with chara's vertical center
 
 	chara.scene.events.emit(GameEvents.TOOLTIP_SHOW, {
