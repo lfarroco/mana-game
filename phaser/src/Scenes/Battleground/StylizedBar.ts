@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { titleTextConfig } from '../../constants/constants';
 
 const BAR_HEIGHT = 40;
 const INNER_PADDING = 3;
@@ -18,7 +19,6 @@ export interface StylizedBarOptions {
 	x: number;
 	y: number;
 	width: number;
-	labelText: string;
 	barColor?: number;
 	backgroundColor?: number;
 	backgroundOpacity?: number;
@@ -34,12 +34,10 @@ export function createStylizedBar(
 		x,
 		y,
 		width,
-		labelText,
 		barColor = 0x00ff00, // Default green
 		backgroundColor = 0x000000, // Default black
 		backgroundOpacity = 0.6, // Default semi-transparent
 		borderOpacity = 1.0, // Default fully opaque border
-		textConfig = {}
 	} = options;
 	const container = scene.add.container(x, y);
 
@@ -52,13 +50,21 @@ export function createStylizedBar(
 	// Inner background (customizable color)
 	const backgroundBar = scene.add.graphics();
 	backgroundBar.fillStyle(backgroundColor, backgroundOpacity);
-	backgroundBar.fillRoundedRect(INNER_PADDING, INNER_PADDING, width - (INNER_PADDING * 2), BAR_HEIGHT - (INNER_PADDING * 2), 3);
+	backgroundBar.fillRoundedRect(
+		INNER_PADDING, INNER_PADDING,
+		width - (INNER_PADDING * 2), BAR_HEIGHT - (INNER_PADDING * 2),
+		3
+	);
 	container.add(backgroundBar);
 
 	// Foreground bar (the fill color - this will be animated to show current percentage)
 	const foregroundBar = scene.add.graphics();
 	foregroundBar.fillStyle(barColor, 1);
-	foregroundBar.fillRoundedRect(INNER_PADDING, INNER_PADDING, width - (INNER_PADDING * 2), BAR_HEIGHT - (INNER_PADDING * 2), 3);
+	foregroundBar.fillRoundedRect(
+		INNER_PADDING, INNER_PADDING,
+		width - (INNER_PADDING * 2), BAR_HEIGHT - (INNER_PADDING * 2),
+		3
+	);
 	container.add(foregroundBar);
 
 	// We'll use the foregroundBar itself for animation, no need for a separate barFill
@@ -73,13 +79,8 @@ export function createStylizedBar(
 	// Label with stroke for better readability
 	const label = scene.add.text(
 		width / 2, BAR_HEIGHT / 2,
-		labelText, {
-		...textConfig,
-		fontSize: '14px',
-		fontStyle: 'bold',
-		color: '#ffffff',
-		stroke: '#000000',
-		strokeThickness: 3
+		'', {
+		...titleTextConfig,
 	}
 	).setOrigin(0.5);
 	container.add(label);
