@@ -96,6 +96,22 @@ function formatPositionName(position: any): string {
 		case 'corner': return 'corners';
 		case 'edge': return 'board edges';
 		case 'isolated': return 'when isolated';
+		case 'random_ally': return 'random ally';
+		case 'random_enemy': return 'random enemy';
+		case 'random_unit': return 'random unit';
+		case 'self': return 'self';
+		case 'allies_adjacent': return 'adjacent allies';
+		case 'allies_diagonal': return 'diagonal allies';
+		case 'all_allies_in_row': return 'allies in row';
+		case 'all_allies_in_column': return 'allies in column';
+		case 'ally_front': return 'ally in front';
+		case 'ally_back': return 'ally behind';
+		case 'ally_left': return 'left ally';
+		case 'ally_right': return 'right ally';
+		case 'enemies_adjacent': return 'adjacent enemies';
+		case 'enemies_diagonal': return 'diagonal enemies';
+		case 'all_enemies_in_row': return 'enemies in row';
+		case 'all_enemies_in_column': return 'enemies in column';
 		default: return position;
 	}
 }
