@@ -3,6 +3,7 @@ import * as c from '../../constants/constants';
 import { GameEvents } from '../../constants/events';
 import { StylizedBar, createStylizedBar, updateStylizedBar } from './StylizedBar';
 import { tween } from '../../Utils/animation';
+import { cpuForce, playerForce } from '../../Models/Entities/Force';
 
 // This type represents the components of a single morale bar
 type MoraleBar = StylizedBar;
@@ -21,7 +22,7 @@ let previousCpuMorale: number | null = null;
  * @param payload The event payload with forceId, newMorale, maxMorale, and optional totalDamage.
  */
 function handleMoraleUpdated(payload: { forceId: string, newMorale: number, maxMorale: number, totalDamage?: number }) {
-	updateMoraleBar(payload.forceId, payload.newMorale, payload.maxMorale);
+	updateMoraleBar(payload.forceId);
 
 	// Calculate morale delta and show pop text
 	const targetBar = payload.forceId === c.FORCE_ID_PLAYER ? playerMoraleBar : cpuMoraleBar;
@@ -106,6 +107,8 @@ export function init(sceneRef: Phaser.Scene): void {
 	const centerY = scene.scale.height / 2;
 	const playerBarY = centerY + 50; // Player bar lower (below center) - increased spacing for larger bars
 	playerMoraleBar = create(sceneRef, playerBarY, c.FORCE_ID_PLAYER); // Initial value will be set on first update
+	if (playerMoraleBar) playerMoraleBar.container.setVisible(true); // Always visible
+	updateMoraleBar(playerForce.id); // Initialize with max morale
 
 	const cpuBarY = centerY - 50; // Enemy bar higher (above center) - increased spacing for larger bars
 	cpuMoraleBar = create(sceneRef, cpuBarY, c.FORCE_ID_CPU);
@@ -119,19 +122,19 @@ export function showBars(): void {
 }
 
 export function hideBars(): void {
-	if (playerMoraleBar) playerMoraleBar.container.setVisible(false);
+	// playerbar: always visible
+	//if (playerMoraleBar) playerMoraleBar.container.setVisible(false);
 	if (cpuMoraleBar) cpuMoraleBar.container.setVisible(false);
 }
 
 export async function fadeOutBars(): Promise<void> {
-	const bars = [playerMoraleBar, cpuMoraleBar].filter(bar => bar !== null);
+	const bars = [cpuMoraleBar].filter(bar => bar !== null);
 	if (bars.length === 0) return;
 
 	// Fade out all bars simultaneously
 	await tween({
 		targets: bars.map(bar => bar!.container),
 		alpha: 0,
-		duration: 500,
 	});
 
 	// Hide them after fading
@@ -145,15 +148,16 @@ export async function fadeOutBars(): Promise<void> {
 
 export function updateMoraleBar(
 	forceId: string,
-	currentMorale: number,
-	maxMorale: number,
 ): void {
 	const targetBar = forceId === c.FORCE_ID_PLAYER ? playerMoraleBar : cpuMoraleBar;
 	if (!targetBar) return;
 
-	updateStylizedBar(targetBar, currentMorale, maxMorale);
+	const force = forceId === c.FORCE_ID_PLAYER ? playerForce : cpuForce;
+	updateStylizedBar(targetBar, force.morale, force.maxMorale);
 
-	targetBar.label.setText(currentMorale.toString());
+	const shieldText = force.shield > 0 ? `(${force.shield})` : '';
+
+	targetBar.label.setText(`${force.morale}${shieldText}`);
 }
 
 export function destroy(): void {
