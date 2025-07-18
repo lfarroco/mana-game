@@ -28,7 +28,7 @@ export function createApplyHasteLogic(): TraitEffectFn {
 				const targetChara = CharaManager.getChara(target.id);
 				if (targetChara) {
 					// Use the new targeted arcane missile effect with haste callback
-					await arcaneMissileTargeted(
+					arcaneMissileTargeted(
 						scene,
 						{ x: sourceChara.x, y: sourceChara.y },
 						{ x: targetChara.x, y: targetChara.y },

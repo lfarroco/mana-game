@@ -10,6 +10,7 @@ import { PrestigeSystem } from "../../../Systems/PrestigeSystem";
 import * as CharaManager from "./CharaManager";
 import { cpuForce, playerForce } from "../../../Models/Entities/Force";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
+import { updateMoraleBar } from "../MoraleDisplay";
 
 /**
  * Creates a deep copy of a unit for battle purposes.
@@ -74,6 +75,9 @@ export class BattleProgressionSystem {
 		// cleanup
 		CharaManager.clearCharas();
 		this.state.battleData.units = [];
+
+		playerForce.morale = playerForce.maxMorale;
+		updateMoraleBar(playerForce.id);
 
 		this.resetPlayerUnitsForNewRound();
 
@@ -304,11 +308,6 @@ export class BattleProgressionSystem {
 				maxShield: cpuForce.maxMorale // maxShield for display = max morale
 			}
 		);
-	}
-
-	_hideDisplayBars(): void {
-		this.scene.events.emit(GameEvents.MORALE_BARS_HIDE);
-		this.scene.events.emit(GameEvents.SHIELD_BARS_HIDE);
 	}
 
 	/**
