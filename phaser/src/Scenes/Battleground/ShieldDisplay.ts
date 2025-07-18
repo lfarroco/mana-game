@@ -94,7 +94,6 @@ function create(
 		x: xPosition,
 		y: y,
 		width: barWidth,
-		labelText: "",
 		barColor: barColor,
 		backgroundColor: 0x000000, // This won't be visible due to backgroundOpacity: 0
 		backgroundOpacity: 0, // No background

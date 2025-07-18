@@ -77,7 +77,6 @@ function create(
 	scene: Phaser.Scene,
 	y: number,
 	forceId: string,
-	labelText: string,
 ): MoraleBar {
 	const barWidth = scene.scale.width / 4;
 	// Position both bars on the right side of the screen
@@ -90,7 +89,6 @@ function create(
 		x: xPosition,
 		y: y,
 		width: barWidth,
-		labelText: labelText,
 		barColor: barColor,
 		backgroundColor: backgroundColor,
 		backgroundOpacity: 0.2, // Slightly more opaque for morale bars
@@ -107,10 +105,10 @@ export function init(sceneRef: Phaser.Scene): void {
 	// Position bars on the right side with different vertical positions
 	const centerY = scene.scale.height / 2;
 	const playerBarY = centerY + 50; // Player bar lower (below center) - increased spacing for larger bars
-	playerMoraleBar = create(sceneRef, playerBarY, c.FORCE_ID_PLAYER, "Player Morale");
+	playerMoraleBar = create(sceneRef, playerBarY, c.FORCE_ID_PLAYER); // Initial value will be set on first update
 
 	const cpuBarY = centerY - 50; // Enemy bar higher (above center) - increased spacing for larger bars
-	cpuMoraleBar = create(sceneRef, cpuBarY, c.FORCE_ID_CPU, "Enemy Morale");
+	cpuMoraleBar = create(sceneRef, cpuBarY, c.FORCE_ID_CPU);
 
 	scene.events.on(GameEvents.MORALE_UPDATED, handleMoraleUpdated);
 }
@@ -154,6 +152,8 @@ export function updateMoraleBar(
 	if (!targetBar) return;
 
 	updateStylizedBar(targetBar, currentMorale, maxMorale);
+
+	targetBar.label.setText(currentMorale.toString());
 }
 
 export function destroy(): void {
