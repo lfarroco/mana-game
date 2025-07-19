@@ -5,12 +5,14 @@ import { GameEvents } from "../../constants/events";
 import { TypedEventEmitter } from "../../Systems/Events/TypedEventEmitter";
 import { GoldSystemEventPayloads, GoldSystemEvents } from "../../Systems/GoldSystem/events";
 
+// A "force" represents a party of heroes (units)
 export type Force = {
 	id: string;
 	name: string;
 	color: string;
 	gold: number;
-	income: number;
+	level: number;
+	xp: number;
 	morale: number;
 	maxMorale: number;
 	shield: number;
@@ -19,9 +21,6 @@ export type Force = {
 	winStreak: number,
 	lossStreak: number,
 	totalRoundsPlayed: number;
-	attackMod: number; // Used for damage scaling in combat
-	defenseMod: number; // Used for damage scaling in combat
-	healMod: number; // Used for healing scaling in combat
 };
 
 export const makeForce = (id: string): Force => {
@@ -30,7 +29,8 @@ export const makeForce = (id: string): Force => {
 		name: "",
 		color: "",
 		gold: 10,
-		income: 5,
+		level: 1,
+		xp: 0,
 		units: [],
 		morale: INITIAL_MORALE,
 		maxMorale: INITIAL_MORALE,
@@ -39,9 +39,6 @@ export const makeForce = (id: string): Force => {
 		winStreak: 0,
 		lossStreak: 0,
 		totalRoundsPlayed: 0,
-		attackMod: 1.0, // Default attack modifier
-		defenseMod: 1.0, // Default defense modifier
-		healMod: 1.0, // Default heal modifier
 	}
 };
 
