@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { titleTextConfig } from '../../constants/constants';
 
-const BAR_HEIGHT = 40;
+const BAR_HEIGHT = 50;
 const INNER_PADDING = 3;
 
 // This type represents the components of a stylized bar

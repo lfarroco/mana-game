@@ -9,7 +9,7 @@ import { TraitEffectContext } from '../../TraitEffectSystem';
 import { createDealDamageLogic, dealDamageLogicIO } from './dealDamage';
 import { GameEvents } from '../../../constants/events';
 import { vec2 } from '../../../Models/Geometry.pure';
-import { Force } from '../../../Models/Entities/Force';
+import { Force, makeForce } from '../../../Models/Entities/Force';
 import BattlegroundScene from '../../../Scenes/Battleground/BattlegroundScene';
 
 describe('Deal Damage Implementation', () => {
@@ -29,46 +29,8 @@ describe('Deal Damage Implementation', () => {
 		mockUnit.power = 15; // Set unit power for damage calculation
 		mockTargetUnit = createTestUnit('target-unit-1', 'enemy', vec2(1, 0)) as Unit;
 
-		// Create mock forces
-		mockPlayerForce = {
-			id: 'player',
-			name: 'Player Force',
-			color: '#0000FF',
-			gold: 100,
-			income: 10,
-			morale: 100,
-			maxMorale: 100,
-			shield: 0,
-			units: [mockUnit],
-			prestige: 0,
-			winStreak: 0,
-			lossStreak: 0,
-			totalRoundsPlayed: 0,
-			attackMod: 1,
-			defenseMod: 1,
-			healMod: 1,
-			moraleReductionStacks: []
-		} as Force;
-
-		mockEnemyForce = {
-			id: 'enemy',
-			name: 'Enemy Force',
-			color: '#FF0000',
-			gold: 100,
-			income: 10,
-			morale: 100,
-			maxMorale: 100,
-			shield: 0,
-			units: [mockTargetUnit],
-			prestige: 0,
-			winStreak: 0,
-			lossStreak: 0,
-			totalRoundsPlayed: 0,
-			attackMod: 1,
-			defenseMod: 1,
-			healMod: 1,
-			moraleReductionStacks: []
-		} as Force;
+		mockPlayerForce = makeForce('player');
+		mockEnemyForce = makeForce('enemy');
 
 		// Create mock scene with events emitter
 		mockScene = {
