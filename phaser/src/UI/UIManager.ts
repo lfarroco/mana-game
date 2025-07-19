@@ -189,8 +189,10 @@ export class UIManager {
 	 */
 	_handlePrestigeChanged(newTotalPrestige: number, _prestigeDelta: number): void {
 		if (this.prestigeTextElement) {
-			this.prestigeTextElement.setText("Prestige: " + newTotalPrestige);
+			this.prestigeTextElement.setText(`${newTotalPrestige}`);
 		}
+		// Also update the prestige number in the gold display container if it exists
+		// (already handled by prestigeTextElement, which is the one in the gold display)
 	}
 
 	/**
@@ -259,10 +261,6 @@ export class UIManager {
 		this.uiContainer = this.scene.add.container(0, 0);
 
 		this._createGoldText(this.uiContainer);
-		this._createPrestigeText(this.uiContainer);
-		this._createTotalRoundsText(this.uiContainer);
-		this._createWinStreakText(this.uiContainer);
-		this._createLossStreakText(this.uiContainer);
 		this._createDifficultyTierText(this.uiContainer);
 	}
 
@@ -306,67 +304,39 @@ export class UIManager {
 		).setOrigin(0, 0.5);
 		this.goldContainer.add(this.goldTextElement);
 
-		parent.add(this.goldContainer);
-	}
-
-	/**
-	 * Creates the text element that displays the player's current prestige.
-	 * @param parent The `Phaser.GameObjects.Container` to which the prestige text will be added.
-	 */
-	_createPrestigeText(parent: Phaser.GameObjects.Container): void {
+		// Create prestige display styled like gold display, below goldTextElement
 		const initialPrestige = this.scene.state.gameData.player.prestige;
+		// Container for prestige display
+		const prestigeContainer = this.scene.add.container(0, 28); // 28px below goldTextElement
+
+		// Rounded rectangle background for prestige
+		const prestigeBg = this.scene.add.graphics();
+		prestigeBg.fillStyle(0x3a2d1a, 0.8); // Brownish color with transparency
+		prestigeBg.lineStyle(3, 0x261a10, 1); // Dark border
+		prestigeBg.fillRoundedRect(-50, -20, 100, 40, 20);
+		prestigeBg.strokeRoundedRect(-50, -20, 100, 40, 20);
+		prestigeContainer.add(prestigeBg);
+
+		// Icon for prestige (use coin image, but tint blue)
+		const prestigeIcon = this.scene.add.image(-25, 0, 'coin').setScale(0.8);
+		prestigeIcon.setTint(0x4a90e2); // Blue tint
+		prestigeContainer.add(prestigeIcon);
+
+		// Text for prestige amount
 		this.prestigeTextElement = this.scene.add.text(
-			c.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
-			c.SCREEN_HEIGHT + SIDEBAR_TEXT_BASE_Y + 50,
-			`Prestige: ${initialPrestige}`,
-			c.titleTextConfig
-		);
-		parent.add(this.prestigeTextElement);
-	}
+			0, 0,
+			`${initialPrestige}`,
+			{
+				...c.titleTextConfig,
+				fontSize: '18px',
+				color: '#e6c36b'
+			}
+		).setOrigin(0, 0.5);
+		prestigeContainer.add(this.prestigeTextElement);
 
-	/**
-	 * Creates the text element that displays the total rounds played.
-	 * @param parent The `Phaser.GameObjects.Container` to which the text will be added.
-	 */
-	_createTotalRoundsText(parent: Phaser.GameObjects.Container): void {
-		const initialRounds = this.scene.state.gameData.player.totalRoundsPlayed;
-		this.totalRoundsTextElement = this.scene.add.text(
-			c.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
-			c.SCREEN_HEIGHT + SIDEBAR_TEXT_BASE_Y + 100,
-			`Rounds: ${initialRounds}`,
-			c.titleTextConfig
-		);
-		parent.add(this.totalRoundsTextElement);
-	}
+		this.goldContainer.add(prestigeContainer);
 
-	/**
-	 * Creates the text element that displays the player's current win streak.
-	 * @param parent The `Phaser.GameObjects.Container` to which the text will be added.
-	 */
-	_createWinStreakText(parent: Phaser.GameObjects.Container): void {
-		const initialStreak = this.scene.state.gameData.player.winStreak;
-		this.winStreakTextElement = this.scene.add.text(
-			c.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
-			c.SCREEN_HEIGHT + SIDEBAR_TEXT_BASE_Y + 150,
-			`Win Streak: ${initialStreak}`,
-			c.titleTextConfig
-		);
-		parent.add(this.winStreakTextElement);
-	}
-
-	/**
-	 * Creates the text element that displays the player's current loss streak.
-	 * @param parent The `Phaser.GameObjects.Container` to which the text will be added.
-	 */
-	_createLossStreakText(parent: Phaser.GameObjects.Container): void {
-		const initialStreak = this.scene.state.gameData.player.lossStreak;
-		this.lossStreakTextElement = this.scene.add.text(
-			c.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
-			c.SCREEN_HEIGHT + SIDEBAR_TEXT_BASE_Y + 200,
-			`Loss Streak: ${initialStreak}`,
-			c.titleTextConfig
-		);
-		parent.add(this.lossStreakTextElement);
+		parent.add(this.goldContainer);
 	}
 
 	/**
