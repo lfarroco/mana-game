@@ -76,6 +76,9 @@ function formatTargetName(targets: any): string {
 		case 'enemy':
 		case 'closest_enemy': return 'closest enemy';
 		case 'all_enemies': return 'all enemies';
+		case 'random_ally': return 'random ally';
+		case 'random_enemy': return 'random enemy';
+		case 'random_unit': return 'random unit';
 		default: return targets;
 	}
 }
