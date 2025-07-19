@@ -30,12 +30,6 @@ export class UIManager {
 	prestigeTextElement: Phaser.GameObjects.Text | null = null;
 	/** Instance of GoldCoinAnimator for handling gold coin animations. */
 	goldCoinAnimator: GoldCoinAnimator;
-	/** Phaser text element for displaying player's win streak. */
-	winStreakTextElement: Phaser.GameObjects.Text | null = null;
-	/** Phaser text element for displaying player's loss streak. */
-	lossStreakTextElement: Phaser.GameObjects.Text | null = null;
-	/** Phaser text element for displaying total rounds played. */
-	totalRoundsTextElement: Phaser.GameObjects.Text | null = null;
 	/** Phaser text element for displaying the current difficulty tier. */
 	difficultyTierTextElement: Phaser.GameObjects.Text | null = null;
 	/** Typed event emitter for gold system events. */
@@ -53,7 +47,6 @@ export class UIManager {
 		this.goldEvents = new TypedEventEmitter<GoldSystemEventPayloads>(this.scene.events);
 		this._setupGoldChangeListener();
 		this._setupPrestigeChangeListener();
-		this._setupRoundStatsListener();
 		this._setupPurchaseFailedListener();
 		this._setupUserMessageListener();
 		this._setupDifficultyTierChangeListener();
@@ -68,14 +61,6 @@ export class UIManager {
 	 */
 	_setupPrestigeChangeListener(): void {
 		this.scene.events.on(GameEvents.PRESTIGE_CHANGED, this._handlePrestigeChanged, this);
-	}
-
-	/**
-	 * Sets up an event listener for "round_ended_update_stats" events.
-	 * This allows the UIManager to react to updates in round-end stats.
-	 */
-	_setupRoundStatsListener(): void {
-		this.scene.events.on(GameEvents.ROUND_ENDED_UPDATE_STATS, this._handleRoundStatsUpdate, this);
 	}
 
 	/**
@@ -171,17 +156,6 @@ export class UIManager {
 	}
 
 	/**
-	 * Handles the "round_ended_update_stats" event.
-	 * It updates the displayed total rounds, win streak, and loss streak.
-	 * @param payload - The payload containing total rounds and current prestige.
-	 */
-	_handleRoundStatsUpdate(payload: { totalRounds: number, currentPrestige: number }): void {
-		if (this.totalRoundsTextElement) this.totalRoundsTextElement.setText(`Rounds: ${payload.totalRounds}`);
-		if (this.winStreakTextElement) this.winStreakTextElement.setText(`Win Streak: ${this.scene.state.gameData.player.winStreak}`);
-		if (this.lossStreakTextElement) this.lossStreakTextElement.setText(`Loss Streak: ${this.scene.state.gameData.player.lossStreak}`);
-	}
-
-	/**
 	 * Handles the "prestige_changed" event.
 	 * It updates the displayed prestige amount.
 	 * @param newTotalPrestige - The new total amount of prestige the player has.
@@ -262,6 +236,11 @@ export class UIManager {
 
 		this._createGoldText(this.uiContainer);
 		this._createDifficultyTierText(this.uiContainer);
+
+		// Ensure prestige text is updated to current value after recreation
+		if (this.prestigeTextElement) {
+			this.prestigeTextElement.setText(`${this.scene.state.gameData.player.prestige}`);
+		}
 	}
 
 	/**
@@ -307,7 +286,7 @@ export class UIManager {
 		// Create prestige display styled like gold display, below goldTextElement
 		const initialPrestige = this.scene.state.gameData.player.prestige;
 		// Container for prestige display
-		const prestigeContainer = this.scene.add.container(0, 28); // 28px below goldTextElement
+		const prestigeContainer = this.scene.add.container(0, 44); // 44px below goldTextElement (was 28)
 
 		// Rounded rectangle background for prestige
 		const prestigeBg = this.scene.add.graphics();
@@ -319,7 +298,7 @@ export class UIManager {
 
 		// Icon for prestige (use coin image, but tint blue)
 		const prestigeIcon = this.scene.add.image(-25, 0, 'coin').setScale(0.8);
-		prestigeIcon.setTint(0x4a90e2); // Blue tint
+		prestigeIcon.setTint(0x4a90ff); // Blue tint
 		prestigeContainer.add(prestigeIcon);
 
 		// Text for prestige amount
@@ -328,8 +307,8 @@ export class UIManager {
 			`${initialPrestige}`,
 			{
 				...c.titleTextConfig,
-				fontSize: '18px',
-				color: '#e6c36b'
+				fontSize: '24px', // Match gold text font size
+				color: '#ffffff'   // Match gold text color
 			}
 		).setOrigin(0, 0.5);
 		prestigeContainer.add(this.prestigeTextElement);
@@ -403,9 +382,6 @@ export class UIManager {
 		this.goldContainer = null;
 		this.goldTextElement = null;
 		this.prestigeTextElement = null;
-		this.totalRoundsTextElement = null;
-		this.winStreakTextElement = null;
-		this.lossStreakTextElement = null;
 		this.difficultyTierTextElement = null;
 	}
 
@@ -424,7 +400,6 @@ export class UIManager {
 		this.scene.events.off(GameEvents.TOOLTIP_SHOW);
 		this.scene.events.off(GameEvents.TOOLTIP_HIDE);
 		this.scene.events.off(GameEvents.DIFFICULTY_TIER_CHANGED, this._handleDifficultyTierChanged, this);
-		this.scene.events.off(GameEvents.ROUND_ENDED_UPDATE_STATS, this._handleRoundStatsUpdate, this);
 	}
 
 	/**
