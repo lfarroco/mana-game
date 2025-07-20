@@ -62,9 +62,6 @@ describe('Game Data Validation', () => {
 				expect(typeof card.power).toBe('number');
 				expect(card.power).toBeGreaterThan(0);
 
-				expect(card.powerType).toBeDefined();
-				expect(['damage', 'heal', 'armor']).toContain(card.powerType);
-
 				expect(card.cooldown).toBeDefined();
 				expect(typeof card.cooldown).toBe('number');
 				expect(card.cooldown).toBeGreaterThan(0);
@@ -341,13 +338,7 @@ describe('Game Data Validation', () => {
 					expect(hasRangedTag || card.power >= 15).toBe(true);
 				}
 
-				// Healing units should have heal power type or healing traits
-				if (card.powerType === 'heal') {
-					const hasHealingTraits = traitIds.some(id =>
-						id.includes('heal') || id.includes('protector') || id.includes('morale')
-					);
-					expect(hasHealingTraits || card.tags?.includes('healer')).toBe(true);
-				}
+
 			});
 		});
 	});

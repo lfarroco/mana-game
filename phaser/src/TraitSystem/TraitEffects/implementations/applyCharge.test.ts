@@ -30,7 +30,6 @@ function createTestUnit(id: string, force: string, position: { x: number; y: num
 		hp: 100,
 		maxHp: 100,
 		power: 15,
-		attackType: 'damage',
 		cooldown: 1000,
 		crit: 0,
 		evade: 0,
