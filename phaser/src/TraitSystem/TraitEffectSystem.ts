@@ -578,6 +578,31 @@ registerTraitConditionImplementation("allied_action_type_is", (context, conditio
 	return triggerContext.triggeringAction === expectedAction;
 });
 
+/**
+ * Condition: Checks if the triggering action was a specific action ID.
+ * This allows traits to react only to specific action IDs like "damage", "heal", "shield", etc.
+ * Requires `actionId` parameter in `conditionData`.
+ * 
+ * Example usage: React only when an ally uses "damage" action vs "heal" action.
+ */
+registerTraitConditionImplementation("allied_action_id_is", (context, conditionData) => {
+	const expectedActionId = conditionData.actionId as string;
+	if (!expectedActionId) {
+		if (process.env.NODE_ENV === 'development') {
+			console.error(`'allied_action_id_is' condition is missing 'actionId' parameter.`, { conditionData });
+		}
+		return false;
+	}
+
+	// Check for triggering action context stored temporarily in the scene
+	const triggerContext = (context.scene as any)._currentTriggerContext;
+	if (!triggerContext) {
+		return false; // No trigger context available
+	}
+
+	return triggerContext.triggeringActionId === expectedActionId;
+});
+
 // --- Parameter-to-Effect Resolution ---
 
 /**

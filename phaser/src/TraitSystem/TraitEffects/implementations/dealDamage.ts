@@ -42,7 +42,8 @@ export function createDealDamageLogic(
 			(context.scene as any)._currentTriggerContext = {
 				triggeringTraitId: context.traitInstanceParams.id,
 				triggeringUnitId: sourceUnit.id,
-				triggeringAction: 'attack'
+				triggeringAction: 'attack',
+				triggeringActionId: 'damage'
 			};
 
 			processUnitTraitsForEvent(unit, "onAlliedAction", context.scene, context.state);
