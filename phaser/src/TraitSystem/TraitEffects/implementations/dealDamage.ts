@@ -8,7 +8,6 @@ import { Force, applyDamageToForce } from '../../../Models/Entities/Force';
 import { Unit } from '../../../Models/Entities/Unit';
 import { TraitEffectFn, setupAlliedReactions } from '../../TraitEffectSystem';
 import { processUnitTraitsForEvent } from '../../Traits';
-import { getEffectParams } from '../../TraitSystem.pure';
 
 /**
  * Pure function to create the deal damage effect implementation
@@ -33,8 +32,8 @@ export function createDealDamageLogic(
 		dealDamage(targetForce, damageAmount, context.scene);
 
 		// Process ally traits that trigger on "onAlliedAction" when this unit attacks
-		// Get source_selector parameter to determine which allies can react (defaults to 'all_allies')
-		const sourceSelector = getEffectParams(context.traitInstanceParams, context.effectInstance, 'source_selector', 'all_allies');
+		// Get source_selector parameter from trait instance to determine which allies can react (defaults to 'all_allies')
+		const sourceSelector = context.traitInstanceParams.source_selector || 'all_allies';
 
 		// Use the helper function to set up allied reactions with configurable source targeting
 		const processReactions = setupAlliedReactions(

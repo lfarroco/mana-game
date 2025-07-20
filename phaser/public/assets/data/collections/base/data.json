@@ -329,7 +329,6 @@
 					"effect_type": "charge",
 					"amount": 1,
 					"actionId": "damage",
-					"source_selector": "all_allies",
 					"conditions": [
 						{
 							"type": "allied_action_id_is",
