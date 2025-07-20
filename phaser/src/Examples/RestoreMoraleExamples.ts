@@ -101,7 +101,6 @@ export const emergencyHealerTrait: TraitDefinition = {
  *   "name": "Village Cleric",
  *   "hp": 80,
  *   "power": 15,
- *   "powerType": "heal",
  *   "traits": [
  *     {
  *       "id": "healer",
@@ -117,7 +116,6 @@ export const emergencyHealerTrait: TraitDefinition = {
  *   "name": "High Priest",
  *   "hp": 120,
  *   "power": 10,
- *   "powerType": "heal",
  *   "traits": [
  *     {
  *       "id": "variable_healer",

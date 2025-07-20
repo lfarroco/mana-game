@@ -10,7 +10,6 @@
 				"ranged"
 			],
 			"power": 7,
-			"powerType": "damage",
 			"cooldown": 2500,
 			"traits": [
 				{
@@ -31,7 +30,6 @@
 				"support"
 			],
 			"power": 2,
-			"powerType": "heal",
 			"cooldown": 2200,
 			"traits": [
 				{
@@ -50,7 +48,6 @@
 			"name": "Bubblegum Blessings",
 			"pic": "assets/cards/cleric.png",
 			"power": 7,
-			"powerType": "heal",
 			"tags": [
 				"support"
 			],
@@ -73,7 +70,6 @@
 				"tank"
 			],
 			"power": 9,
-			"powerType": "armor",
 			"cooldown": 2000,
 			"traits": [
 				{
@@ -94,7 +90,6 @@
 				"ranged"
 			],
 			"power": 8,
-			"powerType": "damage",
 			"cooldown": 3500,
 			"traits": [
 				{
@@ -115,7 +110,6 @@
 				"melee"
 			],
 			"power": 6,
-			"powerType": "damage",
 			"cooldown": 1800,
 			"traits": [
 				{
@@ -137,18 +131,15 @@
 				"magical"
 			],
 			"power": 4,
-			"powerType": "heal",
 			"cooldown": 4000,
 			"traits": [
 				{
-					"id": "haste",
-					"duration": 3000,
-					"targets": "adjacent"
+					"id": "heal"
 				},
 				{
-					"id": "positional_boost",
-					"amount": 2,
-					"position": "back"
+					"id": "haste",
+					"duration": 1000,
+					"targets": "adjacent"
 				}
 			]
 		},
@@ -160,13 +151,8 @@
 				"ranged",
 				"magical"
 			],
-			"power": 5,
-			"powerType": "damage",
 			"cooldown": 3000,
 			"traits": [
-				{
-					"id": "damage"
-				},
 				{
 					"id": "haste",
 					"duration": 1000,
@@ -188,7 +174,6 @@
 				"magical"
 			],
 			"power": 6,
-			"powerType": "damage",
 			"cooldown": 3200,
 			"traits": [
 				{

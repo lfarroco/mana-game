@@ -60,7 +60,6 @@ export type Unit = {
   position: Vec2;
 
   power: number;
-  attackType: "damage" | "heal" | "armor" | null;
 
   cooldown: number;
   crit: number;
@@ -90,7 +89,6 @@ export const makeUnit = (force: string, cardId: string, position = vec2Zero()): 
       name: card.name,
       pic: card.pic,
       power: card.power,
-      powerType: card.powerType,
       cooldown: card.cooldown,
       traits: card.traits
     },
@@ -109,7 +107,6 @@ export type CardDefinition = {
   name: string;
   pic: string;
   power: number;
-  powerType: "damage" | "heal" | "armor" | null;
   cooldown: number;
   traits: TraitData[];
 };
@@ -125,7 +122,6 @@ export type PureUnitData = {
   force: string;
   position: Vec2;
   power: number;
-  attackType: "damage" | "heal" | "armor" | null;
   cooldown: number;
   crit: number;
   evade: number;
@@ -158,7 +154,6 @@ export function createUnitFromCard(
     force,
     position,
     power: cardDef.power || 0,
-    attackType: cardDef.powerType,
     cooldown: cardDef.cooldown,
     crit: 0,
     evade: 0,
@@ -190,7 +185,6 @@ export function createCustomUnit(
     name: `Unit ${baseProps.id}`,
     pic: `${baseProps.id}.png`,
     power: 25,
-    attackType: 'damage',
     cooldown: 100,
     crit: 10,
     evade: 5,
@@ -235,7 +229,6 @@ export const testCardDefinitions = {
     name: 'Basic Warrior',
     pic: 'warrior.png',
     power: 30,
-    powerType: 'damage' as const,
     cooldown: 100,
     traits: []
   },
@@ -244,7 +237,6 @@ export const testCardDefinitions = {
     name: 'Basic Healer',
     pic: 'healer.png',
     power: 20,
-    powerType: 'heal' as const,
     cooldown: 120,
     traits: []
   },
@@ -253,7 +245,6 @@ export const testCardDefinitions = {
     name: 'Basic Tank',
     pic: 'tank.png',
     power: 15,
-    powerType: 'armor' as const,
     cooldown: 80,
     traits: []
   }

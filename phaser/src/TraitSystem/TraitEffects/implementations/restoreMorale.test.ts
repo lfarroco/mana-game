@@ -84,7 +84,6 @@ describe('Restore Morale Effect (New Pattern)', () => {
 			hp: 100,
 			maxHp: 100,
 			power: 20,
-			attackType: 'damage',
 			cooldown: 1000,
 			crit: 0,
 			evade: 0,

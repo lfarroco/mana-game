@@ -68,7 +68,6 @@ export const shieldBearerCardExample = {
 	hp: 80,
 	maxHp: 80,
 	power: 15,
-	attackType: "damage" as const,
 	cooldown: 1200,
 	traits: [
 		{

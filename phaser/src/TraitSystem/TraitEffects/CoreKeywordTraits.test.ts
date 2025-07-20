@@ -23,7 +23,6 @@ function createMockUnit(id: string, overrides: Partial<Unit> = {}): Unit {
 		cooldown: 1000,
 		position: vec2(1, 2),
 		traits: [],
-		attackType: 'damage',
 		crit: 0,
 		evade: 0,
 		charge: 0,
@@ -51,16 +50,6 @@ describe('Core Keyword Trait Parameter Resolution', () => {
 
 			const defaultDamage = getEffectParams({}, effectParams, 'damage', mockUnit.power);
 			expect(defaultDamage).toBe(mockUnit.power); // Default to unit power
-		});
-
-		it('should handle melee units with different attack types', () => {
-			const armorUnit = createMockUnit('armor-unit', { attackType: 'armor' });
-			const healUnit = createMockUnit('heal-unit', { attackType: 'heal' });
-
-			expect(armorUnit.attackType).toBe('armor');
-			expect(healUnit.attackType).toBe('heal');
-			expect(armorUnit.power).toBeGreaterThan(0);
-			expect(healUnit.power).toBeGreaterThan(0);
 		});
 
 		it('should support melee range parameters', () => {
@@ -102,17 +91,6 @@ describe('Core Keyword Trait Parameter Resolution', () => {
 	});
 
 	describe('Healing Trait Parameters', () => {
-		it('should resolve healing amounts correctly', () => {
-			const healingUnit = createMockUnit('healer', { attackType: 'heal', power: 25 });
-			const traitParams = { amount: 30 };
-			const effectParams = { effectId: 'skill_heal', eventTrigger: 'onAction' };
-
-			const healAmount = getEffectParams(traitParams, effectParams, 'amount', healingUnit.power);
-			expect(healAmount).toBe(30); // Custom heal amount
-
-			const defaultHeal = getEffectParams({}, effectParams, 'amount', healingUnit.power);
-			expect(defaultHeal).toBe(healingUnit.power); // Default to unit power
-		});
 
 		it('should support healing wave parameters', () => {
 			const traitParams = {

@@ -6,7 +6,6 @@ export interface CardData {
 	name: string;
 	pic?: string;
 	power: number;
-	powerType: string;
 	cooldown: number;
 	tags?: string[];
 	traits: TraitReference[];
@@ -99,17 +98,6 @@ export function validateCardData(card: CardData, availableTraits: Set<string>): 
 			category: 'card_stats',
 			message: `Card "${card.id}" has invalid cooldown: ${card.cooldown}`,
 			context: { card }
-		});
-	}
-
-	// PowerType validation
-	const validPowerTypes = ['damage', 'heal', 'armor', 'shield'];
-	if (!validPowerTypes.includes(card.powerType)) {
-		errors.push({
-			type: 'error',
-			category: 'card_stats',
-			message: `Card "${card.id}" has invalid powerType: ${card.powerType}`,
-			context: { card, validPowerTypes }
 		});
 	}
 

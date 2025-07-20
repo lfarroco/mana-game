@@ -9,8 +9,8 @@ export class CharaStatsDisplay {
 	scene: Phaser.Scene;
 	unit: Unit;
 
-	powerDisplayBg!: Phaser.GameObjects.Graphics;
-	powerDisplay!: Phaser.GameObjects.Text;
+	powerDisplayBg: Phaser.GameObjects.Graphics | null = null;
+	powerDisplay: Phaser.GameObjects.Text | null = null;
 
 	// Animation state fields
 	private powerTween?: Phaser.Tweens.Tween;
@@ -30,23 +30,34 @@ export class CharaStatsDisplay {
 	}
 
 	createElements(): void {
+
+		const displayableTraits = ["heal", "damage", "shield"];
+
+		// TODO: list powers here
+		const trait = this.unit.traits.find(trait => displayableTraits.includes(trait.id));
+
+		if (!trait) {
+			return; // No displayable trait found, skip creating display
+		}
+
 		const boxWidth = constants.TILE_WIDTH * CharaStatsDisplay.BOX_WIDTH_RATIO;
 		const boxHeight = constants.TILE_HEIGHT * CharaStatsDisplay.BOX_HEIGHT_RATIO;
 		const cornerRadius = boxWidth * CharaStatsDisplay.STAT_BOX_CORNER_RADIUS_RATIO;
 		const margin = boxWidth * CharaStatsDisplay.STAT_BOX_MARGIN_RATIO;
-
 		// Power Display
 		const powerDisplayPosition: [number, number] = [
 			-boxWidth / 2,
 			constants.HALF_TILE_HEIGHT - boxHeight - margin,
 		];
-		this.powerDisplayBg = this.scene.add.graphics();
-		const bgColorMap = {
+
+		const colorMap = {
 			damage: CHARA_STATS_COLORS.DAMAGE_BG,
 			heal: CHARA_STATS_COLORS.HEAL_BG,
-			armor: CHARA_STATS_COLORS.ARMOR_BG,
+			shield: CHARA_STATS_COLORS.ARMOR_BG,
 		}
-		const bgColor = !this.unit.attackType ? CHARA_STATS_COLORS.DEFAULT_BG : bgColorMap[this.unit.attackType];
+		const bgColor = colorMap[trait.id as keyof typeof colorMap];
+
+		this.powerDisplayBg = this.scene.add.graphics();
 		this.powerDisplayBg
 			.fillStyle(bgColor, 1)
 			.fillRoundedRect(
@@ -62,20 +73,19 @@ export class CharaStatsDisplay {
 			constants.defaultTextConfig
 		).setOrigin(0.5).setAlign('center');
 
-		if (!this.unit.attackType) {
-			this.powerDisplay.setAlpha(0);
-			this.powerDisplayBg.setAlpha(0);
-		}
 	}
 
 	addToContainer(container: Phaser.GameObjects.Container): void {
+		if (!this.powerDisplayBg || !this.powerDisplay) {
+			return;
+		}
 		container.add([this.powerDisplayBg, this.powerDisplay]);
 	}
 
 	updatePower(): void {
 		// For legacy calls, just update instantly
 		this.displayedPower = Math.floor(this.unit.power);
-		this.powerDisplay.setText(this.displayedPower.toString());
+		this.powerDisplay?.setText(this.displayedPower.toString());
 	}
 
 	/**
@@ -100,10 +110,10 @@ export class CharaStatsDisplay {
 			yoyo: true,
 			ease: 'Quad.easeOut',
 			onStart: () => {
-				this.powerDisplay.setScale(1);
+				this.powerDisplay?.setScale(1);
 			},
 			onComplete: () => {
-				this.powerDisplay.setScale(1);
+				this.powerDisplay?.setScale(1);
 			}
 		});
 
@@ -119,13 +129,13 @@ export class CharaStatsDisplay {
 				const val = Math.round(tween.getValue());
 				if (val !== lastValue) {
 					this.displayedPower = val;
-					this.powerDisplay.setText(val.toString());
+					this.powerDisplay?.setText(val.toString());
 					lastValue = val;
 				}
 			},
 			onComplete: () => {
 				this.displayedPower = endValue;
-				this.powerDisplay.setText(endValue.toString());
+				this.powerDisplay?.setText(endValue.toString());
 			}
 		});
 	}
@@ -136,7 +146,7 @@ export class CharaStatsDisplay {
 	}
 
 	setVisible(visible: boolean): void {
-		this.powerDisplayBg.setVisible(visible);
-		this.powerDisplay.setVisible(visible && !!this.unit.attackType);
+		this.powerDisplayBg?.setVisible(visible);
+		this.powerDisplay?.setVisible(visible);
 	}
 }
