@@ -23,4 +23,7 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("apply_slow", implementations.applySlowLogicIO);
 	registerTraitEffectImplementation("apply_charge", implementations.applyChargeLogicIO);
 
+	// Dynamic effect dispatcher
+	registerTraitEffectImplementation("DYNAMIC", implementations.dynamicEffectLogic);
+
 }
