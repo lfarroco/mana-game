@@ -142,7 +142,9 @@
 					"targets": "adjacent"
 				},
 				{
-					"id": "battle_inspiration"
+					"id": "battle_inspiration",
+					"effect_type": "charge",
+					"amount": 1000
 				}
 			]
 		},
@@ -312,17 +314,18 @@
 		{
 			"id": "battle_inspiration",
 			"name": "Battle Inspiration",
-			"description": "When an ally attacks, gain 1000 charge",
+			"description": "When an ally attacks, apply {effect_type} ({amount})",
 			"categories": [
 				"support",
 				"reactive"
 			],
 			"effects": [
 				{
-					"effectId": "apply_charge",
+					"effectId": "DYNAMIC",
 					"eventTrigger": "onAlliedAction",
 					"targetSelector": "self",
-					"amount": 1000,
+					"effect_type": "charge",
+					"amount": 1,
 					"conditions": [
 						{
 							"type": "allied_action_type_is",
