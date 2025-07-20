@@ -119,6 +119,13 @@
 					"id": "positional_boost",
 					"amount": 2,
 					"position": "corner"
+				},
+				{
+					"id": "battle_inspiration",
+					"effect_type": "charge",
+					"amount": 300,
+					"actionId": "damage",
+					"source_selector": "all_enemies"
 				}
 			]
 		},
