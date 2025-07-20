@@ -145,7 +145,8 @@
 					"id": "battle_inspiration",
 					"effect_type": "charge",
 					"amount": 1000,
-					"actionId": "damage"
+					"actionId": "damage",
+					"source_selector": "allies_adjacent"
 				}
 			]
 		},
@@ -315,7 +316,7 @@
 		{
 			"id": "battle_inspiration",
 			"name": "Battle Inspiration",
-			"description": "When an ally uses {actionId}, apply {effect_type} ({amount})",
+			"description": "When {source_selector} ally uses {actionId}, apply {effect_type} ({amount})",
 			"categories": [
 				"support",
 				"reactive"
@@ -328,6 +329,7 @@
 					"effect_type": "charge",
 					"amount": 1,
 					"actionId": "damage",
+					"source_selector": "all_allies",
 					"conditions": [
 						{
 							"type": "allied_action_id_is",

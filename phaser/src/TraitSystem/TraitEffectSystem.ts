@@ -603,6 +603,63 @@ registerTraitConditionImplementation("allied_action_id_is", (context, conditionD
 	return triggerContext.triggeringActionId === expectedActionId;
 });
 
+// --- Helper Functions for Allied Reaction Processing ---
+
+// --- Helper Functions for Allied Reaction Processing ---
+
+/**
+ * Determines which units should react to an action and sets up trigger context.
+ * Returns a function that can be called to process each reactor's traits.
+ * This avoids circular dependency issues by not directly importing processUnitTraitsForEvent.
+ * 
+ * @param actionUnit The unit performing the action that might trigger reactions
+ * @param actionTraitId The ID of the trait being executed
+ * @param actionType The type of action ('attack', 'heal', 'buff', etc.)
+ * @param actionId The specific action ID ('damage', 'heal', 'shield', etc.)
+ * @param sourceSelector The selector determining which allies can react (defaults to 'all_allies')
+ * @param scene The battle scene
+ * @param state The game state
+ * @returns A function that takes processUnitTraitsForEvent and executes the reactions
+ */
+export function setupAlliedReactions(
+	actionUnit: Unit,
+	actionTraitId: string,
+	actionType: string,
+	actionId: string,
+	sourceSelector: string = 'all_allies',
+	scene: BattlegroundScene,
+	state: State
+): (processTraits: (unit: Unit, event: string, scene: BattlegroundScene, state: State) => void) => void {
+	// Use the existing target resolution system to determine which units should react
+	const potentialReactors = resolveTargets(
+		actionUnit,
+		actionUnit.force,
+		sourceSelector,
+		state,
+		scene
+	);
+
+	return (processUnitTraitsForEvent) => {
+		// Process traits for each potential reactor
+		potentialReactors.forEach((reactorUnit) => {
+			// Set up trigger context for condition checking
+			const originalTriggerContext = (scene as any)._currentTriggerContext;
+			(scene as any)._currentTriggerContext = {
+				triggeringTraitId: actionTraitId,
+				triggeringUnitId: actionUnit.id,
+				triggeringAction: actionType,
+				triggeringActionId: actionId
+			};
+
+			// Process the reactor's traits that respond to allied actions
+			processUnitTraitsForEvent(reactorUnit, "onAlliedAction", scene, state);
+
+			// Restore original context
+			(scene as any)._currentTriggerContext = originalTriggerContext;
+		});
+	};
+}
+
 // --- Parameter-to-Effect Resolution ---
 
 /**
