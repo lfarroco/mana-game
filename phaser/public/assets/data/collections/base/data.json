@@ -140,6 +140,9 @@
 					"id": "haste",
 					"duration": 1000,
 					"targets": "adjacent"
+				},
+				{
+					"id": "battle_inspiration"
 				}
 			]
 		},
@@ -303,6 +306,29 @@
 				{
 					"effectId": "apply_charge",
 					"eventTrigger": "onAction"
+				}
+			]
+		},
+		{
+			"id": "battle_inspiration",
+			"name": "Battle Inspiration",
+			"description": "When an ally attacks, gain 1000 charge",
+			"categories": [
+				"support",
+				"reactive"
+			],
+			"effects": [
+				{
+					"effectId": "apply_charge",
+					"eventTrigger": "onAlliedAction",
+					"targetSelector": "self",
+					"amount": 1000,
+					"conditions": [
+						{
+							"type": "allied_action_type_is",
+							"action": "attack"
+						}
+					]
 				}
 			]
 		}

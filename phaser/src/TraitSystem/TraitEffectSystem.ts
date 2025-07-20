@@ -528,6 +528,56 @@ registerTraitConditionImplementation("formation_bonus", (context) => {
 	return sameRow.length >= 2 || sameCol.length >= 2;
 });
 
+/**
+ * Condition: Checks if the triggering action came from a specific trait type.
+ * This allows traits to react only to specific types of allied actions.
+ * Requires `traitId` parameter in `conditionData`.
+ * 
+ * Example usage: React only when an ally uses a "deal_damage" trait vs a "heal" trait.
+ */
+registerTraitConditionImplementation("allied_action_trait_is", (context, conditionData) => {
+	const expectedTraitId = conditionData.traitId as string;
+	if (!expectedTraitId) {
+		if (process.env.NODE_ENV === 'development') {
+			console.error(`'allied_action_trait_is' condition is missing 'traitId' parameter.`, { conditionData });
+		}
+		return false;
+	}
+
+	// Check for triggering trait context stored temporarily in the scene
+	const triggerContext = (context.scene as any)._currentTriggerContext;
+	if (!triggerContext) {
+		return false; // No trigger context available
+	}
+
+	return triggerContext.triggeringTraitId === expectedTraitId;
+});
+
+/**
+ * Condition: Checks if the triggering action was a specific type of action.
+ * This allows traits to react only to specific types of allied actions.
+ * Requires `action` parameter in `conditionData` ('attack', 'heal', 'buff', etc.).
+ * 
+ * Example usage: React only when an ally attacks vs when they heal.
+ */
+registerTraitConditionImplementation("allied_action_type_is", (context, conditionData) => {
+	const expectedAction = conditionData.action as string;
+	if (!expectedAction) {
+		if (process.env.NODE_ENV === 'development') {
+			console.error(`'allied_action_type_is' condition is missing 'action' parameter.`, { conditionData });
+		}
+		return false;
+	}
+
+	// Check for triggering action context stored temporarily in the scene
+	const triggerContext = (context.scene as any)._currentTriggerContext;
+	if (!triggerContext) {
+		return false; // No trigger context available
+	}
+
+	return triggerContext.triggeringAction === expectedAction;
+});
+
 // --- Parameter-to-Effect Resolution ---
 
 /**
