@@ -224,7 +224,7 @@ export function validateEffectDefinition(effect: EffectDefinition, traitId: stri
 	// Validate known event triggers
 	const validEventTriggers = [
 		'onAction', 'onBattleStart', 'onAttackByMe', 'onTakeDamage',
-		'onLowMorale', 'onDeath', 'onSpawn'
+		'onLowMorale', 'onDeath', 'onSpawn', 'onAlliedAction', 'onEnemyAction'
 	];
 	if (effect.eventTrigger && !validEventTriggers.includes(effect.eventTrigger)) {
 		errors.push({
@@ -239,7 +239,8 @@ export function validateEffectDefinition(effect: EffectDefinition, traitId: stri
 	if (effect.targetSelector) {
 		const validTargetSelectors = [
 			'self', 'all_allies', 'all_enemies', 'ally_left', 'ally_right',
-			'ally_front', 'allies_adjacent', 'all_allies_in_row', 'all_allies_in_column'
+			'ally_front', 'allies_adjacent', 'all_allies_in_row', 'all_allies_in_column',
+			'same_row', 'same_column', 'random_ally', 'random_enemy'
 		];
 		if (!validTargetSelectors.includes(effect.targetSelector)) {
 			errors.push({
@@ -274,6 +275,18 @@ export function validateTraitParameters(card: CardData, traitDefinitions: Map<st
 	card.traits.forEach((traitRef) => {
 		const traitDef = traitDefinitions.get(traitRef.id);
 		if (!traitDef) return; // Already caught by other validation
+
+		// Check for duration vs cooldown issues first
+		if ('duration' in traitRef && typeof traitRef.duration === 'number') {
+			if (traitRef.duration > card.cooldown) {
+				errors.push({
+					type: 'error',
+					category: 'duration_balance',
+					message: `Card "${card.id}" trait "${traitRef.id}" has duration (${traitRef.duration}ms) longer than cooldown (${card.cooldown}ms), creating infinite effect`,
+					context: { card, traitRef, duration: traitRef.duration, cooldown: card.cooldown }
+				});
+			}
+		}
 
 		// First, check for parameters mentioned in the trait description
 		const requiredParams: string[] = [];
