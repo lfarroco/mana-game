@@ -9,8 +9,8 @@
 			"tags": [
 				"ranged"
 			],
-			"power": 7,
-			"cooldown": 2500,
+			"power": 6,
+			"cooldown": 2400,
 			"traits": [
 				{
 					"id": "damage"
@@ -23,14 +23,14 @@
 			]
 		},
 		{
-			"id": "medic",
-			"name": "Medic Mouse",
+			"id": "dr_bandaid",
+			"name": "Dr. Bandaid",
 			"pic": "assets/cards/medic_mouse.png",
 			"tags": [
 				"support"
 			],
-			"power": 2,
-			"cooldown": 2200,
+			"power": 3,
+			"cooldown": 2000,
 			"traits": [
 				{
 					"id": "heal"
@@ -38,284 +38,62 @@
 				{
 					"id": "boost_power",
 					"amount": 1,
-					"targets": "right",
-					"trigger": "onAction"
+					"targets": "same_row"
 				}
 			]
 		},
 		{
-			"id": "bubblegum",
-			"name": "Bubblegum Blessings",
+			"id": "bubblegum_betty",
+			"name": "Bubblegum Betty",
 			"pic": "assets/cards/cleric.png",
-			"power": 5,
+			"power": 4,
 			"tags": [
 				"support"
 			],
-			"cooldown": 2800,
+			"cooldown": 2600,
 			"traits": [
 				{
 					"id": "heal"
 				},
 				{
-					"id": "haste",
-					"duration": 1000,
-					"targets": "random_ally"
+					"id": "battle_reaction",
+					"effect_type": "heal",
+					"amount": 2,
+					"actionId": "heal",
+					"source_selector": "same_column"
 				}
 			]
 		},
 		{
-			"id": "alyssa",
-			"name": "Alyssa",
+			"id": "sir_clanksalot",
+			"name": "Sir Clanks-a-Lot",
 			"pic": "assets/cards/knight.png",
 			"tags": [
 				"tank"
 			],
-			"power": 9,
-			"cooldown": 2000,
+			"power": 8,
+			"cooldown": 3000,
 			"traits": [
 				{
 					"id": "shield"
 				},
 				{
 					"id": "positional_boost",
-					"amount": 2,
+					"amount": 3,
 					"position": "front"
 				}
 			]
 		},
 		{
-			"id": "wizzy",
-			"name": "Wizzy McFizzfail",
+			"id": "professor_oops",
+			"name": "Professor Oops-a-Daisy",
 			"pic": "assets/cards/apprentice.png",
 			"tags": [
-				"ranged"
-			],
-			"power": 8,
-			"cooldown": 3500,
-			"traits": [
-				{
-					"id": "damage"
-				},
-				{
-					"id": "positional_boost",
-					"amount": 2,
-					"position": "mid"
-				}
-			]
-		},
-		{
-			"id": "sally",
-			"name": "Sally the Swift",
-			"pic": "assets/cards/goblin_scavenger.png",
-			"tags": [
-				"melee"
-			],
-			"power": 6,
-			"cooldown": 1800,
-			"traits": [
-				{
-					"id": "damage"
-				},
-				{
-					"id": "positional_boost",
-					"amount": 2,
-					"position": "corner"
-				},
-				{
-					"id": "battle_reaction",
-					"effect_type": "charge",
-					"amount": 300,
-					"actionId": "damage",
-					"source_selector": "all_enemies"
-				}
-			]
-		},
-		{
-			"id": "ramon_bard",
-			"name": "Ramon, the Bard",
-			"pic": "assets/cards/bard.png",
-			"tags": [
-				"support",
-				"magical"
-			],
-			"power": 4,
-			"cooldown": 4000,
-			"traits": [
-				{
-					"id": "heal"
-				},
-				{
-					"id": "haste",
-					"duration": 1000,
-					"targets": "adjacent"
-				},
-				{
-					"id": "battle_reaction",
-					"effect_type": "charge",
-					"amount": 1000,
-					"actionId": "damage",
-					"source_selector": "allies_adjacent"
-				}
-			]
-		},
-		{
-			"id": "tempo_mage",
-			"name": "Tempo Mage",
-			"pic": "assets/cards/tempo_mage.png",
-			"tags": [
 				"ranged",
 				"magical"
 			],
-			"cooldown": 3000,
-			"traits": [
-				{
-					"id": "haste",
-					"duration": 1000,
-					"targets": "random_ally"
-				},
-				{
-					"id": "slow",
-					"duration": 1000,
-					"targets": "random_enemy"
-				}
-			]
-		},
-		{
-			"id": "thunder_mage",
-			"name": "Thunder Mage",
-			"pic": "assets/cards/thunder_mage.png",
-			"tags": [
-				"ranged",
-				"magical"
-			],
-			"power": 6,
+			"power": 7,
 			"cooldown": 3200,
-			"traits": [
-				{
-					"id": "damage"
-				},
-				{
-					"id": "charge",
-					"amount": 2000,
-					"targets": "random_ally"
-				}
-			]
-		},
-		{
-			"id": "frost_guardian",
-			"name": "Frost Guardian",
-			"pic": "assets/cards/frost_guardian.png",
-			"tags": [
-				"tank",
-				"magical"
-			],
-			"power": 5,
-			"cooldown": 2600,
-			"traits": [
-				{
-					"id": "shield"
-				},
-				{
-					"id": "slow",
-					"duration": 1500,
-					"targets": "all_enemies"
-				}
-			]
-		},
-		{
-			"id": "shadow_assassin",
-			"name": "Shadow Assassin",
-			"pic": "assets/cards/shadow_assassin.png",
-			"tags": [
-				"melee",
-				"magical"
-			],
-			"power": 8,
-			"cooldown": 3800,
-			"traits": [
-				{
-					"id": "damage"
-				},
-				{
-					"id": "positional_boost",
-					"amount": 3,
-					"position": "corner"
-				}
-			]
-		},
-		{
-			"id": "chaos_scholar",
-			"name": "Chaos Scholar",
-			"pic": "assets/cards/chaos_scholar.png",
-			"tags": [
-				"support",
-				"magical"
-			],
-			"cooldown": 3200,
-			"traits": [
-				{
-					"id": "haste",
-					"duration": 1200,
-					"targets": "random_ally"
-				},
-				{
-					"id": "slow",
-					"duration": 1200,
-					"targets": "random_enemy"
-				}
-			]
-		},
-		{
-			"id": "berserker",
-			"name": "Berserker Brute",
-			"pic": "assets/cards/berserker.png",
-			"tags": [
-				"melee"
-			],
-			"power": 10,
-			"cooldown": 4200,
-			"traits": [
-				{
-					"id": "damage"
-				},
-				{
-					"id": "battle_reaction",
-					"effect_type": "haste",
-					"amount": 800,
-					"actionId": "damage",
-					"source_selector": "self"
-				}
-			]
-		},
-		{
-			"id": "divine_protector",
-			"name": "Divine Protector",
-			"pic": "assets/cards/divine_protector.png",
-			"tags": [
-				"tank",
-				"support"
-			],
-			"power": 3,
-			"cooldown": 3000,
-			"traits": [
-				{
-					"id": "shield"
-				},
-				{
-					"id": "heal"
-				}
-			]
-		},
-		{
-			"id": "arcane_trickster",
-			"name": "Arcane Trickster",
-			"pic": "assets/cards/arcane_trickster.png",
-			"tags": [
-				"ranged",
-				"magical"
-			],
-			"power": 4,
-			"cooldown": 2800,
 			"traits": [
 				{
 					"id": "damage"
@@ -323,125 +101,140 @@
 				{
 					"id": "battle_reaction",
 					"effect_type": "slow",
-					"amount": 1000,
+					"amount": 800,
 					"actionId": "damage",
-					"source_selector": "all_enemies"
+					"source_selector": "self"
 				}
 			]
 		},
 		{
-			"id": "storm_caller",
-			"name": "Storm Caller",
-			"pic": "assets/cards/storm_caller.png",
+			"id": "coffee_monk",
+			"name": "Coffee Monk",
+			"pic": "assets/cards/bard.png",
+			"tags": [
+				"support"
+			],
+			"power": 3,
+			"cooldown": 2800,
+			"traits": [
+				{
+					"id": "heal"
+				},
+				{
+					"id": "haste",
+					"duration": 1500,
+					"targets": "same_row"
+				}
+			]
+		},
+		{
+			"id": "disco_wizard",
+			"name": "Disco Wizard Dan",
+			"pic": "assets/cards/tempo_mage.png",
+			"tags": [
+				"ranged",
+				"magical"
+			],
+			"power": 5,
+			"cooldown": 3000,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "haste",
+					"duration": 1200,
+					"targets": "random_ally"
+				},
+				{
+					"id": "slow",
+					"duration": 800,
+					"targets": "random_enemy"
+				}
+			]
+		},
+		{
+			"id": "granny_lightning",
+			"name": "Granny Lightning",
+			"pic": "assets/cards/thunder_mage.png",
 			"tags": [
 				"ranged",
 				"magical"
 			],
 			"power": 6,
-			"cooldown": 3600,
+			"cooldown": 2800,
 			"traits": [
 				{
 					"id": "damage"
 				},
 				{
 					"id": "charge",
-					"amount": 1500,
-					"targets": "adjacent"
+					"amount": 1000,
+					"targets": "same_column"
 				}
 			]
 		},
 		{
-			"id": "iron_sentinel",
-			"name": "Iron Sentinel",
-			"pic": "assets/cards/iron_sentinel.png",
+			"id": "captain_snuggles",
+			"name": "Captain Snuggles",
+			"pic": "assets/cards/frost_guardian.png",
 			"tags": [
-				"tank"
+				"tank",
+				"support"
 			],
-			"power": 6,
+			"power": 4,
 			"cooldown": 2400,
 			"traits": [
 				{
 					"id": "shield"
 				},
 				{
-					"id": "positional_boost",
-					"amount": 3,
-					"position": "front"
+					"id": "heal"
+				},
+				{
+					"id": "slow",
+					"duration": 1000,
+					"targets": "random_enemy"
 				}
 			]
 		},
 		{
-			"id": "vampire_lord",
-			"name": "Vampire Lord",
-			"pic": "assets/cards/vampire_lord.png",
+			"id": "ninja_cat",
+			"name": "Ninja Cat",
+			"pic": "assets/cards/shadow_assassin.png",
 			"tags": [
-				"melee",
-				"magical"
+				"melee"
 			],
-			"power": 7,
-			"cooldown": 3400,
+			"power": 8,
+			"cooldown": 2200,
 			"traits": [
 				{
 					"id": "damage"
 				},
 				{
-					"id": "heal"
-				}
-			]
-		},
-		{
-			"id": "wind_dancer",
-			"name": "Wind Dancer",
-			"pic": "assets/cards/wind_dancer.png",
-			"tags": [
-				"support",
-				"melee"
-			],
-			"cooldown": 2600,
-			"traits": [
-				{
 					"id": "haste",
-					"duration": 1500,
-					"targets": "adjacent"
+					"duration": 800,
+					"targets": "self"
 				},
 				{
-					"id": "positional_boost",
-					"amount": 2,
-					"position": "mid"
-				}
-			]
-		},
-		{
-			"id": "crystal_sage",
-			"name": "Crystal Sage",
-			"pic": "assets/cards/crystal_sage.png",
-			"tags": [
-				"ranged",
-				"magical"
-			],
-			"cooldown": 3800,
-			"traits": [
-				{
-					"id": "slow",
-					"duration": 2000,
+					"id": "battle_reaction",
+					"effect_type": "slow",
+					"amount": 600,
+					"actionId": "damage",
+					"source_selector": "self",
 					"targets": "random_enemy"
-				},
-				{
-					"id": "boost_power",
-					"amount": 2,
-					"targets": "random_ally"
 				}
 			]
 		},
 		{
-			"id": "plague_doctor",
-			"name": "Plague Doctor",
-			"pic": "assets/cards/plague_doctor.png",
+			"id": "mad_professor_pickle",
+			"name": "Mad Professor Pickle",
+			"pic": "assets/cards/chaos_scholar.png",
 			"tags": [
 				"support",
 				"magical"
 			],
-			"power": 3,
+			"power": 4,
 			"cooldown": 3600,
 			"traits": [
 				{
@@ -449,108 +242,86 @@
 				},
 				{
 					"id": "slow",
-					"duration": 1200,
-					"targets": "all_enemies"
-				}
-			]
-		},
-		{
-			"id": "flame_knight",
-			"name": "Flame Knight",
-			"pic": "assets/cards/flame_knight.png",
-			"tags": [
-				"tank",
-				"magical"
-			],
-			"power": 8,
-			"cooldown": 3200,
-			"traits": [
-				{
-					"id": "damage"
-				},
-				{
-					"id": "battle_reaction",
-					"effect_type": "damage",
-					"amount": 3,
-					"actionId": "damage",
-					"source_selector": "all_enemies"
-				}
-			]
-		},
-		{
-			"id": "spirit_guide",
-			"name": "Spirit Guide",
-			"pic": "assets/cards/spirit_guide.png",
-			"tags": [
-				"support"
-			],
-			"cooldown": 2000,
-			"traits": [
-				{
-					"id": "charge",
-					"amount": 2000,
-					"targets": "random_ally"
-				},
-				{
-					"id": "haste",
-					"duration": 800,
-					"targets": "self"
-				}
-			]
-		},
-		{
-			"id": "void_archer",
-			"name": "Void Archer",
-			"pic": "assets/cards/void_archer.png",
-			"tags": [
-				"ranged",
-				"magical"
-			],
-			"power": 9,
-			"cooldown": 4000,
-			"traits": [
-				{
-					"id": "damage"
-				},
-				{
-					"id": "slow",
-					"duration": 1800,
+					"duration": 1500,
 					"targets": "random_enemy"
 				}
 			]
 		},
 		{
-			"id": "clockwork_golem",
-			"name": "Clockwork Golem",
-			"pic": "assets/cards/clockwork_golem.png",
+			"id": "rage_hamster",
+			"name": "Rage Hamster",
+			"pic": "assets/cards/berserker.png",
+			"tags": [
+				"melee"
+			],
+			"power": 9,
+			"cooldown": 3800,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "haste",
+					"amount": 1000,
+					"actionId": "damage",
+					"source_selector": "self"
+				}
+			]
+		},
+		{
+			"id": "sister_mercy_3000",
+			"name": "Sister Mercy 3000",
+			"pic": "assets/cards/divine_protector.png",
+			"tags": [
+				"tank",
+				"support"
+			],
+			"power": 2,
+			"cooldown": 2800,
+			"traits": [
+				{
+					"id": "heal"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "heal",
+					"amount": 3,
+					"actionId": "heal",
+					"source_selector": "all_allies"
+				}
+			]
+		},
+		{
+			"id": "bob_the_fixer",
+			"name": "Bob the Fixer",
+			"pic": "assets/cards/iron_sentinel.png",
 			"tags": [
 				"tank"
 			],
 			"power": 7,
-			"cooldown": 4200,
+			"cooldown": 3200,
 			"traits": [
 				{
 					"id": "shield"
 				},
 				{
-					"id": "battle_reaction",
-					"effect_type": "charge",
-					"amount": 1000,
-					"actionId": "damage",
-					"source_selector": "allies_adjacent"
+					"id": "boost_power",
+					"amount": 1,
+					"targets": "same_row"
 				}
 			]
 		},
 		{
-			"id": "blood_reaper",
-			"name": "Blood Reaper",
-			"pic": "assets/cards/blood_reaper.png",
+			"id": "vampire_dentist",
+			"name": "Vampire Dentist",
+			"pic": "assets/cards/vampire_lord.png",
 			"tags": [
 				"melee",
 				"magical"
 			],
-			"power": 11,
-			"cooldown": 4800,
+			"power": 6,
+			"cooldown": 3000,
 			"traits": [
 				{
 					"id": "damage"
@@ -565,269 +336,147 @@
 			]
 		},
 		{
-			"id": "nature_priest",
-			"name": "Nature Priest",
-			"pic": "assets/cards/nature_priest.png",
-			"tags": [
-				"support",
-				"magical"
-			],
-			"power": 4,
-			"cooldown": 3200,
-			"traits": [
-				{
-					"id": "heal"
-				},
-				{
-					"id": "charge",
-					"amount": 1200,
-					"targets": "adjacent"
-				}
-			]
-		},
-		{
-			"id": "ice_elemental",
-			"name": "Ice Elemental",
-			"pic": "assets/cards/ice_elemental.png",
-			"tags": [
-				"ranged",
-				"magical"
-			],
-			"power": 6,
-			"cooldown": 3400,
-			"traits": [
-				{
-					"id": "damage"
-				},
-				{
-					"id": "slow",
-					"duration": 2500,
-					"targets": "adjacent_enemies"
-				}
-			]
-		},
-		{
-			"id": "battle_chef",
-			"name": "Battle Chef",
-			"pic": "assets/cards/battle_chef.png",
+			"id": "ballet_warrior",
+			"name": "Ballet Warrior",
+			"pic": "assets/cards/wind_dancer.png",
 			"tags": [
 				"support",
 				"melee"
 			],
-			"power": 6,
-			"cooldown": 2800,
-			"traits": [
-				{
-					"id": "heal"
-				},
-				{
-					"id": "boost_power",
-					"amount": 1,
-					"targets": "adjacent"
-				}
-			]
-		},
-		{
-			"id": "lightning_rod",
-			"name": "Lightning Rod",
-			"pic": "assets/cards/lightning_rod.png",
-			"tags": [
-				"ranged",
-				"magical"
-			],
-			"power": 5,
-			"cooldown": 2200,
+			"power": 4,
+			"cooldown": 2600,
 			"traits": [
 				{
 					"id": "damage"
 				},
 				{
 					"id": "haste",
-					"duration": 600,
-					"targets": "self"
+					"duration": 1200,
+					"targets": "same_column"
 				}
 			]
 		},
 		{
-			"id": "dark_paladin",
-			"name": "Dark Paladin",
-			"pic": "assets/cards/dark_paladin.png",
-			"tags": [
-				"tank",
-				"magical"
-			],
-			"power": 6,
-			"cooldown": 3600,
-			"traits": [
-				{
-					"id": "shield"
-				},
-				{
-					"id": "charge",
-					"amount": 1800,
-					"targets": "self"
-				}
-			]
-		},
-		{
-			"id": "mystic_scholar",
-			"name": "Mystic Scholar",
-			"pic": "assets/cards/mystic_scholar.png",
+			"id": "fortune_teller_fred",
+			"name": "Fortune Teller Fred",
+			"pic": "assets/cards/crystal_sage.png",
 			"tags": [
 				"support",
 				"magical"
 			],
-			"cooldown": 4000,
-			"traits": [
-				{
-					"id": "charge",
-					"amount": 2500,
-					"targets": "all_allies"
-				},
-				{
-					"id": "slow",
-					"duration": 800,
-					"targets": "random_enemy"
-				}
-			]
-		},
-		{
-			"id": "steel_warden",
-			"name": "Steel Warden",
-			"pic": "assets/cards/steel_warden.png",
-			"tags": [
-				"tank"
-			],
-			"power": 8,
-			"cooldown": 3800,
-			"traits": [
-				{
-					"id": "shield"
-				},
-				{
-					"id": "positional_boost",
-					"amount": 1,
-					"position": "mid"
-				}
-			]
-		},
-		{
-			"id": "phantom_striker",
-			"name": "Phantom Striker",
-			"pic": "assets/cards/phantom_striker.png",
-			"tags": [
-				"melee",
-				"magical"
-			],
-			"power": 7,
-			"cooldown": 2400,
-			"traits": [
-				{
-					"id": "damage"
-				},
-				{
-					"id": "haste",
-					"duration": 1000,
-					"targets": "self"
-				}
-			]
-		},
-		{
-			"id": "forest_guardian",
-			"name": "Forest Guardian",
-			"pic": "assets/cards/forest_guardian.png",
-			"tags": [
-				"tank",
-				"support"
-			],
-			"power": 5,
+			"power": 3,
 			"cooldown": 3400,
 			"traits": [
 				{
 					"id": "heal"
 				},
 				{
-					"id": "positional_boost",
-					"amount": 2,
-					"position": "back"
+					"id": "charge",
+					"amount": 2000,
+					"targets": "random_ally"
 				}
 			]
 		},
 		{
-			"id": "arcane_bomber",
-			"name": "Arcane Bomber",
-			"pic": "assets/cards/arcane_bomber.png",
-			"tags": [
-				"ranged",
-				"magical"
-			],
-			"power": 9,
-			"cooldown": 4600,
-			"traits": [
-				{
-					"id": "damage"
-				},
-				{
-					"id": "slow",
-					"duration": 1000,
-					"targets": "all_enemies"
-				}
-			]
-		},
-		{
-			"id": "war_commander",
-			"name": "War Commander",
-			"pic": "assets/cards/war_commander.png",
+			"id": "dr_giggles",
+			"name": "Dr. Giggles",
+			"pic": "assets/cards/plague_doctor.png",
 			"tags": [
 				"support",
-				"melee"
+				"magical"
 			],
 			"power": 5,
-			"cooldown": 3600,
+			"cooldown": 3000,
 			"traits": [
 				{
-					"id": "damage"
-				},
-				{
-					"id": "boost_power",
-					"amount": 2,
-					"targets": "all_allies"
-				}
-			]
-		},
-		{
-			"id": "battle_scholar",
-			"name": "Battle Scholar",
-			"pic": "assets/cards/battle_scholar.png",
-			"tags": [
-				"support",
-				"magical"
-			],
-			"power": 4,
-			"cooldown": 3400,
-			"traits": [
-				{
-					"id": "damage"
+					"id": "heal"
 				},
 				{
 					"id": "battle_reaction",
 					"effect_type": "charge",
 					"amount": 800,
-					"actionId": "damage",
-					"source_selector": "all_allies"
+					"actionId": "heal",
+					"source_selector": "same_row"
 				}
 			]
 		},
 		{
-			"id": "life_warden",
-			"name": "Life Warden",
-			"pic": "assets/cards/life_warden.png",
+			"id": "toasty_mcburnface",
+			"name": "Toasty McBurnface",
+			"pic": "assets/cards/flame_knight.png",
 			"tags": [
-				"support",
+				"tank",
+				"magical"
+			],
+			"power": 8,
+			"cooldown": 3400,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "positional_boost",
+					"amount": 2,
+					"position": "front"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "damage",
+					"amount": 3,
+					"actionId": "damage",
+					"source_selector": "all_enemies"
+				}
+			]
+		},
+		{
+			"id": "ghost_therapist",
+			"name": "Ghost Therapist",
+			"pic": "assets/cards/spirit_guide.png",
+			"tags": [
+				"support"
+			],
+			"power": 2,
+			"cooldown": 2400,
+			"traits": [
+				{
+					"id": "heal"
+				},
+				{
+					"id": "charge",
+					"amount": 1500,
+					"targets": "random_ally"
+				}
+			]
+		},
+		{
+			"id": "emo_archer",
+			"name": "Emo Archer",
+			"pic": "assets/cards/void_archer.png",
+			"tags": [
+				"ranged"
+			],
+			"power": 7,
+			"cooldown": 3600,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "slow",
+					"duration": 2000,
+					"targets": "random_enemy"
+				}
+			]
+		},
+		{
+			"id": "clockwork_betty",
+			"name": "Clockwork Betty",
+			"pic": "assets/cards/clockwork_golem.png",
+			"tags": [
 				"tank"
 			],
 			"power": 6,
-			"cooldown": 3200,
+			"cooldown": 3800,
 			"traits": [
 				{
 					"id": "shield"
@@ -836,100 +485,261 @@
 					"id": "battle_reaction",
 					"effect_type": "charge",
 					"amount": 1000,
-					"actionId": "heal",
-					"source_selector": "all_allies"
+					"actionId": "shield",
+					"source_selector": "same_column"
 				}
 			]
 		},
 		{
-			"id": "aegis_keeper",
-			"name": "Aegis Keeper",
-			"pic": "assets/cards/aegis_keeper.png",
+			"id": "tree_hugger_tim",
+			"name": "Tree Hugger Tim",
+			"pic": "assets/cards/nature_priest.png",
 			"tags": [
-				"tank",
-				"support"
+				"support",
+				"magical"
+			],
+			"power": 4,
+			"cooldown": 2800,
+			"traits": [
+				{
+					"id": "heal"
+				},
+				{
+					"id": "charge",
+					"amount": 1200,
+					"targets": "same_row"
+				}
+			]
+		},
+		{
+			"id": "chef_ramsey",
+			"name": "Chef Ramsey",
+			"pic": "assets/cards/battle_chef.png",
+			"tags": [
+				"support",
+				"melee"
 			],
 			"power": 5,
-			"cooldown": 2800,
+			"cooldown": 2600,
+			"traits": [
+				{
+					"id": "heal"
+				},
+				{
+					"id": "boost_power",
+					"amount": 2,
+					"targets": "same_column"
+				}
+			]
+		},
+		{
+			"id": "zappy_mcdoodle",
+			"name": "Zappy McDoodle",
+			"pic": "assets/cards/lightning_rod.png",
+			"tags": [
+				"ranged",
+				"magical"
+			],
+			"power": 6,
+			"cooldown": 2400,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "haste",
+					"duration": 800,
+					"targets": "self"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "damage",
+					"amount": 2,
+					"actionId": "haste",
+					"source_selector": "all_allies",
+					"targets": "random_enemy"
+				}
+			]
+		},
+		{
+			"id": "mystical_janitor",
+			"name": "Mystical Janitor",
+			"pic": "assets/cards/mystic_scholar.png",
+			"tags": [
+				"support",
+				"magical"
+			],
+			"power": 3,
+			"cooldown": 3600,
+			"traits": [
+				{
+					"id": "heal"
+				},
+				{
+					"id": "charge",
+					"amount": 2000,
+					"targets": "all_allies"
+				}
+			]
+		},
+		{
+			"id": "sergeant_snugglebottom",
+			"name": "Sergeant Snugglebottom",
+			"pic": "assets/cards/steel_warden.png",
+			"tags": [
+				"tank"
+			],
+			"power": 7,
+			"cooldown": 3400,
+			"traits": [
+				{
+					"id": "shield"
+				},
+				{
+					"id": "positional_boost",
+					"amount": 2,
+					"position": "mid"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "slow",
+					"amount": 1200,
+					"actionId": "shield",
+					"source_selector": "all_allies",
+					"targets": "random_enemy"
+				}
+			]
+		},
+		{
+			"id": "sir_trips_a_lot",
+			"name": "Sir Trips-a-Lot",
+			"pic": "assets/cards/phantom_striker.png",
+			"tags": [
+				"melee"
+			],
+			"power": 6,
+			"cooldown": 2000,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "slow",
+					"amount": 500,
+					"actionId": "damage",
+					"source_selector": "self"
+				}
+			]
+		},
+		{
+			"id": "disco_ball_wizard",
+			"name": "Disco Ball Wizard",
+			"pic": "assets/cards/arcane_bomber.png",
+			"tags": [
+				"ranged",
+				"magical"
+			],
+			"power": 8,
+			"cooldown": 4000,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "haste",
+					"duration": 1500,
+					"targets": "all_allies"
+				}
+			]
+		},
+		{
+			"id": "fortress_frank",
+			"name": "Fortress Frank",
+			"pic": "assets/cards/aegis_keeper.png",
+			"tags": [
+				"tank"
+			],
+			"power": 5,
+			"cooldown": 3200,
 			"traits": [
 				{
 					"id": "shield"
 				},
 				{
 					"id": "battle_reaction",
-					"effect_type": "charge",
-					"amount": 600,
+					"effect_type": "shield",
+					"amount": 4,
 					"actionId": "shield",
-					"source_selector": "all_allies"
+					"source_selector": "same_row"
 				}
 			]
 		},
 		{
-			"id": "vengeful_reaper",
-			"name": "Vengeful Reaper",
-			"pic": "assets/cards/vengeful_reaper.png",
+			"id": "shield_maiden_sally",
+			"name": "Shield Maiden Sally",
+			"pic": "assets/cards/life_warden.png",
 			"tags": [
-				"melee",
-				"magical"
-			],
-			"power": 8,
-			"cooldown": 3800,
-			"traits": [
-				{
-					"id": "damage"
-				},
-				{
-					"id": "battle_reaction",
-					"effect_type": "charge",
-					"amount": 1200,
-					"actionId": "damage",
-					"source_selector": "all_enemies"
-				}
-			]
-		},
-		{
-			"id": "shadow_feeder",
-			"name": "Shadow Feeder",
-			"pic": "assets/cards/shadow_feeder.png",
-			"tags": [
-				"ranged",
-				"magical"
+				"tank",
+				"support"
 			],
 			"power": 6,
-			"cooldown": 3600,
+			"cooldown": 2800,
 			"traits": [
 				{
-					"id": "damage"
+					"id": "shield"
 				},
 				{
-					"id": "battle_reaction",
-					"effect_type": "charge",
-					"amount": 900,
-					"actionId": "heal",
-					"source_selector": "all_enemies"
+					"id": "charge",
+					"amount": 1000,
+					"targets": "same_column"
 				}
 			]
 		},
 		{
-			"id": "ward_breaker",
-			"name": "Ward Breaker",
-			"pic": "assets/cards/ward_breaker.png",
+			"id": "speedy_sam",
+			"name": "Speedy Sam",
+			"pic": "assets/cards/wind_dancer.png",
 			"tags": [
-				"melee",
-				"ranged"
+				"support"
 			],
-			"power": 7,
+			"power": 4,
+			"cooldown": 1800,
+			"traits": [
+				{
+					"id": "haste",
+					"duration": 1500,
+					"targets": "all_allies"
+				},
+				{
+					"id": "slow",
+					"duration": 1000,
+					"targets": "random_enemy"
+				}
+			]
+		},
+		{
+			"id": "lucky_larry",
+			"name": "Lucky Larry",
+			"pic": "assets/cards/chaos_scholar.png",
+			"tags": [
+				"support"
+			],
+			"power": 3,
 			"cooldown": 3000,
 			"traits": [
 				{
-					"id": "damage"
+					"id": "charge",
+					"amount": 1500,
+					"targets": "random_ally"
 				},
 				{
 					"id": "battle_reaction",
-					"effect_type": "charge",
-					"amount": 700,
-					"actionId": "shield",
-					"source_selector": "all_enemies"
+					"effect_type": "haste",
+					"amount": 800,
+					"actionId": "charge",
+					"source_selector": "all_allies",
+					"targets": "random_ally"
 				}
 			]
 		}
