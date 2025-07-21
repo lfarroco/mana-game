@@ -36,7 +36,7 @@
 					"id": "heal"
 				},
 				{
-					"id": "boost_power",
+					"id": "boost_power_on_battle_start",
 					"amount": 1,
 					"targets": "same_row"
 				}
@@ -311,7 +311,7 @@
 					"id": "shield"
 				},
 				{
-					"id": "boost_power",
+					"id": "boost_power_on_battle_start",
 					"amount": 1,
 					"targets": "same_row"
 				}
@@ -543,7 +543,7 @@
 					"id": "heal"
 				},
 				{
-					"id": "boost_power",
+					"id": "boost_power_on_battle_start",
 					"amount": 2,
 					"targets": "same_column"
 				}
@@ -759,11 +759,180 @@
 					"targets": "random_ally"
 				}
 			]
+		},
+		{
+			"id": "battle_commander",
+			"name": "Battle Commander",
+			"pic": "assets/cards/war_general.png",
+			"tags": [
+				"support",
+				"melee"
+			],
+			"power": 4,
+			"cooldown": 5800,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "power_boost",
+					"attribute": "power",
+					"amount": 2,
+					"actionId": "damage",
+					"source_selector": "all_allies",
+					"targets": "self"
+				}
+			]
+		},
+		{
+			"id": "left_wing_guardian",
+			"name": "Left Wing Guardian",
+			"pic": "assets/cards/sentinel.png",
+			"tags": [
+				"tank",
+				"support"
+			],
+			"power": 5,
+			"cooldown": 3200,
+			"traits": [
+				{
+					"id": "shield"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "haste",
+					"amount": 1000,
+					"actionId": "heal",
+					"source_selector": "left_ally",
+					"targets": "self"
+				}
+			]
+		},
+		{
+			"id": "right_flank_striker",
+			"name": "Right Flank Striker",
+			"pic": "assets/cards/ranger.png",
+			"tags": [
+				"melee",
+				"support"
+			],
+			"power": 6,
+			"cooldown": 2800,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "charge",
+					"amount": 800,
+					"actionId": "damage",
+					"source_selector": "right_ally",
+					"targets": "self"
+				}
+			]
+		},
+		{
+			"id": "sacred_healer",
+			"name": "Sacred Healer",
+			"pic": "assets/cards/divine_monk.png",
+			"tags": [
+				"support",
+				"magical"
+			],
+			"power": 3,
+			"cooldown": 2600,
+			"traits": [
+				{
+					"id": "heal"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "power_boost",
+					"amount": 1,
+					"actionId": "heal",
+					"source_selector": "all_allies",
+					"targets": "self"
+				}
+			]
+		},
+		{
+			"id": "aegis_warden",
+			"name": "Aegis Warden",
+			"pic": "assets/cards/shield_bearer.png",
+			"tags": [
+				"tank",
+				"support"
+			],
+			"power": 4,
+			"cooldown": 3400,
+			"traits": [
+				{
+					"id": "shield"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "power_boost",
+					"amount": 1,
+					"actionId": "shield",
+					"source_selector": "all_allies",
+					"targets": "self"
+				}
+			]
+		},
+		{
+			"id": "left_guard_captain",
+			"name": "Left Guard Captain",
+			"pic": "assets/cards/guard_captain.png",
+			"tags": [
+				"tank",
+				"melee"
+			],
+			"power": 6,
+			"cooldown": 3600,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "shield",
+					"amount": 3,
+					"actionId": "shield",
+					"source_selector": "left_ally",
+					"targets": "self"
+				}
+			]
+		},
+		{
+			"id": "right_medic_support",
+			"name": "Right Medic Support",
+			"pic": "assets/cards/field_medic.png",
+			"tags": [
+				"support",
+				"ranged"
+			],
+			"power": 4,
+			"cooldown": 2400,
+			"traits": [
+				{
+					"id": "heal"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "heal",
+					"amount": 2,
+					"actionId": "damage",
+					"source_selector": "right_ally",
+					"targets": "random_ally"
+				}
+			]
 		}
 	],
 	"traits": [
 		{
-			"id": "boost_power",
+			"id": "boost_power_on_battle_start",
 			"name": "Power Boost",
 			"description": "+{amount} power to {targets}.",
 			"categories": [

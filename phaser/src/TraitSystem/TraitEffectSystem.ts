@@ -691,7 +691,7 @@ export function setupAlliedReactions(
 /**
  * Converts trait instance parameters to a target selector string.
  * This enables the simplified parametric trait system where instead of having separate
- * trait definitions like "ally_left", "ally_right", etc., we have a single "boost_power"
+ * trait definitions like "ally_left", "ally_right", etc., we have a single "boost_power_on_battle_start"
  * trait that accepts a "targets" parameter.
  */
 export function resolveTargetSelectorFromParams(
