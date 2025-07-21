@@ -60,7 +60,8 @@
 					"effect_type": "heal",
 					"amount": 2,
 					"actionId": "heal",
-					"source_selector": "same_column"
+					"source_selector": "same_column",
+					"description": "When a column ally [color=green]heals[/color], [color=green]heal 2[/color]"
 				}
 			]
 		},
@@ -103,7 +104,8 @@
 					"effect_type": "slow",
 					"amount": 800,
 					"actionId": "damage",
-					"source_selector": "self"
+					"source_selector": "self",
+					"description": "When this unit deals [color=red]damage[/color], [color=purple]slow self 800ms[/color]"
 				}
 			]
 		},
@@ -266,7 +268,8 @@
 					"effect_type": "haste",
 					"amount": 1000,
 					"actionId": "damage",
-					"source_selector": "self"
+					"source_selector": "self",
+					"description": "When this unit deals [color=red]damage[/color], gain [color=blue]haste 1000ms[/color]"
 				},
 				{
 					"id": "shield_piercing",
@@ -293,7 +296,8 @@
 					"effect_type": "heal",
 					"amount": 3,
 					"actionId": "heal",
-					"source_selector": "all_allies"
+					"source_selector": "all_allies",
+					"description": "When any ally [color=green]heals[/color], [color=green]heal 3[/color]"
 				}
 			]
 		},
@@ -336,7 +340,8 @@
 					"effect_type": "heal",
 					"amount": 2,
 					"actionId": "damage",
-					"source_selector": "self"
+					"source_selector": "self",
+					"description": "When this unit deals [color=red]damage[/color], [color=green]heal 2[/color]"
 				},
 				{
 					"id": "shield_piercing",
@@ -405,7 +410,8 @@
 					"effect_type": "charge",
 					"amount": 800,
 					"actionId": "heal",
-					"source_selector": "same_row"
+					"source_selector": "same_row",
+					"description": "When a row ally [color=green]heals[/color], [color=orange]charge 800ms[/color]"
 				}
 			]
 		},
@@ -433,7 +439,8 @@
 					"effect_type": "damage",
 					"amount": 3,
 					"actionId": "damage",
-					"source_selector": "all_enemies"
+					"source_selector": "all_enemies",
+					"description": "When any enemy deals [color=red]damage[/color], deal [color=red]3 damage[/color]"
 				},
 				{
 					"id": "shield_piercing",
@@ -503,7 +510,8 @@
 					"effect_type": "charge",
 					"amount": 1000,
 					"actionId": "shield",
-					"source_selector": "same_column"
+					"source_selector": "same_column",
+					"description": "When a column ally gains [color=yellow]shield[/color], [color=orange]charge 1000ms[/color]"
 				}
 			]
 		},
@@ -574,7 +582,8 @@
 					"amount": 2,
 					"actionId": "haste",
 					"source_selector": "all_allies",
-					"targets": "random_enemy"
+					"targets": "random_enemy",
+					"description": "When any ally gains [color=blue]haste[/color], deal [color=red]2 damage[/color] to a random enemy"
 				}
 			]
 		},
@@ -623,7 +632,8 @@
 					"amount": 1200,
 					"actionId": "shield",
 					"source_selector": "all_allies",
-					"targets": "random_enemy"
+					"targets": "random_enemy",
+					"description": "When any ally gains [color=yellow]shield[/color], [color=purple]slow[/color] a random enemy for [color=purple]1200ms[/color]"
 				}
 			]
 		},
@@ -645,7 +655,8 @@
 					"effect_type": "slow",
 					"amount": 500,
 					"actionId": "damage",
-					"source_selector": "self"
+					"source_selector": "self",
+					"description": "When this unit deals [color=red]damage[/color], [color=purple]slow self 500ms[/color]"
 				}
 			]
 		},
@@ -688,7 +699,8 @@
 					"effect_type": "shield",
 					"amount": 4,
 					"actionId": "shield",
-					"source_selector": "same_row"
+					"source_selector": "same_row",
+					"description": "When a row ally gains [color=yellow]shield[/color], gain [color=yellow]4 shield[/color]"
 				}
 			]
 		},
@@ -756,7 +768,8 @@
 					"amount": 800,
 					"actionId": "charge",
 					"source_selector": "all_allies",
-					"targets": "random_ally"
+					"targets": "random_ally",
+					"description": "When any ally gains [color=orange]charge[/color], give a random ally [color=blue]haste 800ms[/color]"
 				}
 			]
 		},
@@ -781,7 +794,8 @@
 					"amount": 2,
 					"actionId": "damage",
 					"source_selector": "all_allies",
-					"targets": "self"
+					"targets": "self",
+					"description": "When any ally deals [color=red]damage[/color], gain [color=white]+2 power[/color]"
 				}
 			]
 		},
@@ -805,7 +819,8 @@
 					"amount": 1000,
 					"actionId": "heal",
 					"source_selector": "left_ally",
-					"targets": "self"
+					"targets": "self",
+					"description": "When left ally [color=green]heals[/color], gain [color=blue]haste 1000ms[/color]"
 				}
 			]
 		},
@@ -829,7 +844,8 @@
 					"amount": 800,
 					"actionId": "damage",
 					"source_selector": "right_ally",
-					"targets": "self"
+					"targets": "self",
+					"description": "When right ally deals [color=red]damage[/color], gain [color=orange]charge 800ms[/color]"
 				}
 			]
 		},
@@ -853,7 +869,8 @@
 					"amount": 1,
 					"actionId": "heal",
 					"source_selector": "all_allies",
-					"targets": "self"
+					"targets": "self",
+					"description": "When any ally [color=green]heals[/color], gain [color=white]+1 power[/color]"
 				}
 			]
 		},
@@ -877,7 +894,8 @@
 					"amount": 1,
 					"actionId": "shield",
 					"source_selector": "all_allies",
-					"targets": "self"
+					"targets": "self",
+					"description": "When any ally gains [color=yellow]shield[/color], gain [color=white]+1 power[/color]"
 				}
 			]
 		},
@@ -901,7 +919,8 @@
 					"amount": 3,
 					"actionId": "shield",
 					"source_selector": "left_ally",
-					"targets": "self"
+					"targets": "self",
+					"description": "When left ally gains [color=yellow]shield[/color], gain [color=yellow]3 shield[/color]"
 				}
 			]
 		},
@@ -925,7 +944,8 @@
 					"amount": 2,
 					"actionId": "damage",
 					"source_selector": "right_ally",
-					"targets": "random_ally"
+					"targets": "random_ally",
+					"description": "When right ally deals [color=red]damage[/color], [color=green]heal 2[/color] to a random ally"
 				}
 			]
 		}
