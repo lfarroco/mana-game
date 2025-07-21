@@ -8,6 +8,7 @@ import { Force, applyDamageToForce } from '../../../Models/Entities/Force';
 import { Unit } from '../../../Models/Entities/Unit';
 import { TraitEffectFn, setupAlliedReactions } from '../../TraitEffectSystem';
 import { processUnitTraitsForEvent } from '../../Traits';
+import { getEffectParams } from '../../TraitSystem.pure';
 
 /**
  * Pure function to create the deal damage effect implementation
@@ -15,7 +16,7 @@ import { processUnitTraitsForEvent } from '../../Traits';
  */
 export function createDealDamageLogic(
 	emitter: (unit: Unit, amount: number) => void,
-	dealDamage: (targetForce: Force, damage: number, scene: Phaser.Scene) => void
+	dealDamage: (targetForce: Force, damage: number, scene: Phaser.Scene, shieldPiercingPercentage?: number) => void
 ): TraitEffectFn {
 	return async (context) => {
 		const { sourceUnit } = context;
@@ -29,7 +30,14 @@ export function createDealDamageLogic(
 			(force) => force.id !== sourceUnit.force
 		)!;
 
-		dealDamage(targetForce, damageAmount, context.scene);
+		// Check if the unit has shield piercing trait
+		let shieldPiercingPercentage = 0;
+		const shieldPiercingTrait = sourceUnit.traits.find(trait => trait.id === 'shield_piercing');
+		if (shieldPiercingTrait) {
+			shieldPiercingPercentage = getEffectParams(shieldPiercingTrait, {}, 'percentage', 0);
+		}
+
+		dealDamage(targetForce, damageAmount, context.scene, shieldPiercingPercentage);
 
 		// Process ally traits that trigger on "onAlliedAction" when this unit attacks
 		// Get source_selector parameter from trait instance to determine which allies can react (defaults to 'all_allies')
