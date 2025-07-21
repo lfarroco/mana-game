@@ -773,6 +773,165 @@
 					"targets": "all_enemies"
 				}
 			]
+		},
+		{
+			"id": "war_commander",
+			"name": "War Commander",
+			"pic": "assets/cards/war_commander.png",
+			"tags": [
+				"support",
+				"melee"
+			],
+			"power": 5,
+			"cooldown": 3600,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "boost_power",
+					"amount": 2,
+					"targets": "all_allies"
+				}
+			]
+		},
+		{
+			"id": "battle_scholar",
+			"name": "Battle Scholar",
+			"pic": "assets/cards/battle_scholar.png",
+			"tags": [
+				"support",
+				"magical"
+			],
+			"power": 4,
+			"cooldown": 3400,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "charge",
+					"amount": 800,
+					"actionId": "damage",
+					"source_selector": "all_allies"
+				}
+			]
+		},
+		{
+			"id": "life_warden",
+			"name": "Life Warden",
+			"pic": "assets/cards/life_warden.png",
+			"tags": [
+				"support",
+				"tank"
+			],
+			"power": 6,
+			"cooldown": 3200,
+			"traits": [
+				{
+					"id": "shield"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "charge",
+					"amount": 1000,
+					"actionId": "heal",
+					"source_selector": "all_allies"
+				}
+			]
+		},
+		{
+			"id": "aegis_keeper",
+			"name": "Aegis Keeper",
+			"pic": "assets/cards/aegis_keeper.png",
+			"tags": [
+				"tank",
+				"support"
+			],
+			"power": 5,
+			"cooldown": 2800,
+			"traits": [
+				{
+					"id": "shield"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "charge",
+					"amount": 600,
+					"actionId": "shield",
+					"source_selector": "all_allies"
+				}
+			]
+		},
+		{
+			"id": "vengeful_reaper",
+			"name": "Vengeful Reaper",
+			"pic": "assets/cards/vengeful_reaper.png",
+			"tags": [
+				"melee",
+				"magical"
+			],
+			"power": 8,
+			"cooldown": 3800,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "charge",
+					"amount": 1200,
+					"actionId": "damage",
+					"source_selector": "all_enemies"
+				}
+			]
+		},
+		{
+			"id": "shadow_feeder",
+			"name": "Shadow Feeder",
+			"pic": "assets/cards/shadow_feeder.png",
+			"tags": [
+				"ranged",
+				"magical"
+			],
+			"power": 6,
+			"cooldown": 3600,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "charge",
+					"amount": 900,
+					"actionId": "heal",
+					"source_selector": "all_enemies"
+				}
+			]
+		},
+		{
+			"id": "ward_breaker",
+			"name": "Ward Breaker",
+			"pic": "assets/cards/ward_breaker.png",
+			"tags": [
+				"melee",
+				"ranged"
+			],
+			"power": 7,
+			"cooldown": 3000,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "charge",
+					"amount": 700,
+					"actionId": "shield",
+					"source_selector": "all_enemies"
+				}
+			]
 		}
 	],
 	"traits": [
