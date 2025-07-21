@@ -288,7 +288,7 @@ export class Chara extends Phaser.GameObjects.Container {
 			this.updatePowerDisplay();
 		}
 
-		await this.showPopText(text);
+		this.showPopText(text);
 	}
 
 	/**

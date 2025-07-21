@@ -18,10 +18,15 @@ export const modifyStatPassiveLogic: TraitEffectFn = async (context) => {
 		return;
 	}
 
+	if (targets.length === 0) {
+		throw new Error(`Modify stat effect has no valid targets: ${JSON.stringify(context.traitInstanceParams)}`);
+	}
+
 	for (const target of targets) {
+		console.log(`Modifying ${attribute} of ${target.id} by ${amount}`);
 		const chara = getChara(target.id);
 		if (chara) {
-			await chara.updateUnitAttribute(attribute, amount);
+			chara.updateUnitAttribute(attribute, amount);
 		}
 	}
 };
