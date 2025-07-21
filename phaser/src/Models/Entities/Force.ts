@@ -125,7 +125,8 @@ export const manipulateForceShield = (
 export const applyDamageToForce = (
 	targetForce: Force,
 	damage: number,
-	scene?: Phaser.Scene
+	scene?: Phaser.Scene,
+	shieldPiercingPercentage: number = 0
 ): number => {
 	if (damage <= 0) return 0;
 
@@ -133,9 +134,16 @@ export const applyDamageToForce = (
 	const originalShield = targetForce.shield;
 	const originalMorale = targetForce.morale;
 
-	// Shield absorbs damage first (without emitting events)
-	if (targetForce.shield > 0) {
-		const shieldAbsorbed = Math.min(remainingDamage, targetForce.shield);
+	// Calculate effective shield after piercing
+	let effectiveShield = targetForce.shield;
+	if (shieldPiercingPercentage > 0 && targetForce.shield > 0) {
+		const piercedShield = Math.floor(targetForce.shield * (shieldPiercingPercentage / 100));
+		effectiveShield = Math.max(0, targetForce.shield - piercedShield);
+	}
+
+	// Shield absorbs damage first (without emitting events), using effective shield
+	if (effectiveShield > 0) {
+		const shieldAbsorbed = Math.min(remainingDamage, effectiveShield);
 		manipulateForceShield(targetForce, -shieldAbsorbed); // No scene = no event
 		remainingDamage -= shieldAbsorbed;
 	}
