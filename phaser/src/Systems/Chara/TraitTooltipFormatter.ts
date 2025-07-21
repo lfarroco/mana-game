@@ -13,7 +13,8 @@ import { Unit } from "../../Models/Entities/Unit";
  * @returns A formatted string with BBCode for the tooltip.
  */
 export function formatTraitDescription(definition: TraitDefinition, data: TraitData, unit?: Unit): string {
-	let desc = definition.description;
+	// Use data.description if present, otherwise fall back to definition.description
+	let desc = typeof data.description === 'string' ? data.description : definition.description;
 
 	// Find all placeholders like {key}
 	const placeholders = desc.match(/\{(\w+)\}/g);
