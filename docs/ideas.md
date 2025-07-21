@@ -208,3 +208,32 @@ keyword brainstorming session: https://chatgpt.com/c/685e9b20-7698-8004-9b7b-dd3
 sacrifice cooldown for damage: add damage, but increaases cooldown
 
 damage display: aim to the center, randomize away from last 5 hits
+
+
+vanessa weapons
+
+bayonet - when left wp used, deal 10,15... (piggyback)
+blowgun - 2, + poison = dmg, 9s
+bolas - 40, slow 1 for 2s, 5s, 2 ammo
+butterfly - 5 , multicast - 8s
+calico - 10, use another weap +10 crit, 7s
+dagger - 30, 1g - 9s
+hook - 12, slow 1 - 7s
+granade - 50, 25% crit, 5s, 1 ammo
+handaxe - 10, weapons have + 6, 8s
+honing steel - the right wp gains 8, 12
+ice pick - 25, freeze 1s, when you freeze +15
+illusoray - slow 1, for each surrounding friend or ray, +1 multi
+jitte - 10, slow 1, when slow +10, 6s
+lighter, burn 2 , 3s
+shrimp - 20, burn 2, when slow +10 and +2 burn, 9s
+mr richardson - shield 10, when haste or slow, +5shield
+narwhal - 10, 4s
+old saltclaw - 10, when haste or slow, +5
+pearl - shield 10, when use aqua, charge 1, 5s
+pesky pete - burn 4, each adjc (tribe1,2) +1 multicast
+pet rock - 8, only friend, 10 crit - 6s
+piranha - 6, 20 crit, double crit, 6s
+shoe blade - 20, 15 crit, 7s
+switchblade - 30, use adj weap, it gains +3 - 9s
+throwing knife - 33, when crit, charge 1, 4s - 3 ammo

@@ -1064,17 +1064,11 @@
 			"effects": [
 				{
 					"effectId": "DYNAMIC",
-					"eventTrigger": "onAlliedAction",
-					"targetSelector": "self",
-					"effect_type": "charge",
-					"amount": 1,
-					"actionId": "damage",
-					"conditions": [
-						{
-							"type": "allied_action_id_is",
-							"actionId": "damage"
-						}
-					]
+					"eventTrigger": "onAlliedAction"
+				},
+				{
+					"effectId": "DYNAMIC",
+					"eventTrigger": "onEnemyAction"
 				}
 			]
 		}
