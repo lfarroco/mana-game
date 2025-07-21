@@ -166,7 +166,6 @@
 				"ranged",
 				"magical"
 			],
-			"power": 4,
 			"cooldown": 3000,
 			"traits": [
 				{
@@ -252,7 +251,6 @@
 				"support",
 				"magical"
 			],
-			"power": 2,
 			"cooldown": 3200,
 			"traits": [
 				{
@@ -349,6 +347,430 @@
 					"id": "charge",
 					"amount": 1500,
 					"targets": "adjacent"
+				}
+			]
+		},
+		{
+			"id": "iron_sentinel",
+			"name": "Iron Sentinel",
+			"pic": "assets/cards/iron_sentinel.png",
+			"tags": [
+				"tank"
+			],
+			"power": 6,
+			"cooldown": 2400,
+			"traits": [
+				{
+					"id": "shield"
+				},
+				{
+					"id": "positional_boost",
+					"amount": 3,
+					"position": "front"
+				}
+			]
+		},
+		{
+			"id": "vampire_lord",
+			"name": "Vampire Lord",
+			"pic": "assets/cards/vampire_lord.png",
+			"tags": [
+				"melee",
+				"magical"
+			],
+			"power": 7,
+			"cooldown": 3400,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "heal"
+				}
+			]
+		},
+		{
+			"id": "wind_dancer",
+			"name": "Wind Dancer",
+			"pic": "assets/cards/wind_dancer.png",
+			"tags": [
+				"support",
+				"melee"
+			],
+			"cooldown": 2600,
+			"traits": [
+				{
+					"id": "haste",
+					"duration": 1500,
+					"targets": "adjacent"
+				},
+				{
+					"id": "positional_boost",
+					"amount": 2,
+					"position": "mid"
+				}
+			]
+		},
+		{
+			"id": "crystal_sage",
+			"name": "Crystal Sage",
+			"pic": "assets/cards/crystal_sage.png",
+			"tags": [
+				"ranged",
+				"magical"
+			],
+			"cooldown": 3800,
+			"traits": [
+				{
+					"id": "slow",
+					"duration": 2000,
+					"targets": "random_enemy"
+				},
+				{
+					"id": "boost_power",
+					"amount": 2,
+					"targets": "random_ally"
+				}
+			]
+		},
+		{
+			"id": "plague_doctor",
+			"name": "Plague Doctor",
+			"pic": "assets/cards/plague_doctor.png",
+			"tags": [
+				"support",
+				"magical"
+			],
+			"power": 3,
+			"cooldown": 3600,
+			"traits": [
+				{
+					"id": "heal"
+				},
+				{
+					"id": "slow",
+					"duration": 1200,
+					"targets": "all_enemies"
+				}
+			]
+		},
+		{
+			"id": "flame_knight",
+			"name": "Flame Knight",
+			"pic": "assets/cards/flame_knight.png",
+			"tags": [
+				"tank",
+				"magical"
+			],
+			"power": 8,
+			"cooldown": 3200,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "damage",
+					"amount": 3,
+					"actionId": "damage",
+					"source_selector": "all_enemies"
+				}
+			]
+		},
+		{
+			"id": "spirit_guide",
+			"name": "Spirit Guide",
+			"pic": "assets/cards/spirit_guide.png",
+			"tags": [
+				"support"
+			],
+			"cooldown": 2000,
+			"traits": [
+				{
+					"id": "charge",
+					"amount": 2000,
+					"targets": "random_ally"
+				},
+				{
+					"id": "haste",
+					"duration": 800,
+					"targets": "self"
+				}
+			]
+		},
+		{
+			"id": "void_archer",
+			"name": "Void Archer",
+			"pic": "assets/cards/void_archer.png",
+			"tags": [
+				"ranged",
+				"magical"
+			],
+			"power": 9,
+			"cooldown": 4000,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "slow",
+					"duration": 1800,
+					"targets": "random_enemy"
+				}
+			]
+		},
+		{
+			"id": "clockwork_golem",
+			"name": "Clockwork Golem",
+			"pic": "assets/cards/clockwork_golem.png",
+			"tags": [
+				"tank"
+			],
+			"power": 7,
+			"cooldown": 4200,
+			"traits": [
+				{
+					"id": "shield"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "charge",
+					"amount": 1000,
+					"actionId": "damage",
+					"source_selector": "allies_adjacent"
+				}
+			]
+		},
+		{
+			"id": "blood_reaper",
+			"name": "Blood Reaper",
+			"pic": "assets/cards/blood_reaper.png",
+			"tags": [
+				"melee",
+				"magical"
+			],
+			"power": 11,
+			"cooldown": 4800,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "heal",
+					"amount": 2,
+					"actionId": "damage",
+					"source_selector": "self"
+				}
+			]
+		},
+		{
+			"id": "nature_priest",
+			"name": "Nature Priest",
+			"pic": "assets/cards/nature_priest.png",
+			"tags": [
+				"support",
+				"magical"
+			],
+			"power": 4,
+			"cooldown": 3200,
+			"traits": [
+				{
+					"id": "heal"
+				},
+				{
+					"id": "charge",
+					"amount": 1200,
+					"targets": "adjacent"
+				}
+			]
+		},
+		{
+			"id": "ice_elemental",
+			"name": "Ice Elemental",
+			"pic": "assets/cards/ice_elemental.png",
+			"tags": [
+				"ranged",
+				"magical"
+			],
+			"power": 6,
+			"cooldown": 3400,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "slow",
+					"duration": 2500,
+					"targets": "adjacent_enemies"
+				}
+			]
+		},
+		{
+			"id": "battle_chef",
+			"name": "Battle Chef",
+			"pic": "assets/cards/battle_chef.png",
+			"tags": [
+				"support",
+				"melee"
+			],
+			"power": 6,
+			"cooldown": 2800,
+			"traits": [
+				{
+					"id": "heal"
+				},
+				{
+					"id": "boost_power",
+					"amount": 1,
+					"targets": "adjacent"
+				}
+			]
+		},
+		{
+			"id": "lightning_rod",
+			"name": "Lightning Rod",
+			"pic": "assets/cards/lightning_rod.png",
+			"tags": [
+				"ranged",
+				"magical"
+			],
+			"power": 5,
+			"cooldown": 2200,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "haste",
+					"duration": 600,
+					"targets": "self"
+				}
+			]
+		},
+		{
+			"id": "dark_paladin",
+			"name": "Dark Paladin",
+			"pic": "assets/cards/dark_paladin.png",
+			"tags": [
+				"tank",
+				"magical"
+			],
+			"power": 6,
+			"cooldown": 3600,
+			"traits": [
+				{
+					"id": "shield"
+				},
+				{
+					"id": "charge",
+					"amount": 1800,
+					"targets": "self"
+				}
+			]
+		},
+		{
+			"id": "mystic_scholar",
+			"name": "Mystic Scholar",
+			"pic": "assets/cards/mystic_scholar.png",
+			"tags": [
+				"support",
+				"magical"
+			],
+			"cooldown": 4000,
+			"traits": [
+				{
+					"id": "charge",
+					"amount": 2500,
+					"targets": "all_allies"
+				},
+				{
+					"id": "slow",
+					"duration": 800,
+					"targets": "random_enemy"
+				}
+			]
+		},
+		{
+			"id": "steel_warden",
+			"name": "Steel Warden",
+			"pic": "assets/cards/steel_warden.png",
+			"tags": [
+				"tank"
+			],
+			"power": 8,
+			"cooldown": 3800,
+			"traits": [
+				{
+					"id": "shield"
+				},
+				{
+					"id": "positional_boost",
+					"amount": 1,
+					"position": "mid"
+				}
+			]
+		},
+		{
+			"id": "phantom_striker",
+			"name": "Phantom Striker",
+			"pic": "assets/cards/phantom_striker.png",
+			"tags": [
+				"melee",
+				"magical"
+			],
+			"power": 7,
+			"cooldown": 2400,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "haste",
+					"duration": 1000,
+					"targets": "self"
+				}
+			]
+		},
+		{
+			"id": "forest_guardian",
+			"name": "Forest Guardian",
+			"pic": "assets/cards/forest_guardian.png",
+			"tags": [
+				"tank",
+				"support"
+			],
+			"power": 5,
+			"cooldown": 3400,
+			"traits": [
+				{
+					"id": "heal"
+				},
+				{
+					"id": "positional_boost",
+					"amount": 2,
+					"position": "back"
+				}
+			]
+		},
+		{
+			"id": "arcane_bomber",
+			"name": "Arcane Bomber",
+			"pic": "assets/cards/arcane_bomber.png",
+			"tags": [
+				"ranged",
+				"magical"
+			],
+			"power": 9,
+			"cooldown": 4600,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "slow",
+					"duration": 1000,
+					"targets": "all_enemies"
 				}
 			]
 		}
