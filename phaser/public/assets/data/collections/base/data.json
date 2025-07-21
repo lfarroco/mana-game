@@ -47,7 +47,7 @@
 			"id": "bubblegum",
 			"name": "Bubblegum Blessings",
 			"pic": "assets/cards/cleric.png",
-			"power": 7,
+			"power": 5,
 			"tags": [
 				"support"
 			],
@@ -58,6 +58,7 @@
 				},
 				{
 					"id": "haste",
+					"duration": 1000,
 					"targets": "random_ally"
 				}
 			]
@@ -121,7 +122,7 @@
 					"position": "corner"
 				},
 				{
-					"id": "battle_inspiration",
+					"id": "battle_reaction",
 					"effect_type": "charge",
 					"amount": 300,
 					"actionId": "damage",
@@ -149,7 +150,7 @@
 					"targets": "adjacent"
 				},
 				{
-					"id": "battle_inspiration",
+					"id": "battle_reaction",
 					"effect_type": "charge",
 					"amount": 1000,
 					"actionId": "damage",
@@ -165,6 +166,7 @@
 				"ranged",
 				"magical"
 			],
+			"power": 4,
 			"cooldown": 3000,
 			"traits": [
 				{
@@ -197,6 +199,156 @@
 					"id": "charge",
 					"amount": 2000,
 					"targets": "random_ally"
+				}
+			]
+		},
+		{
+			"id": "frost_guardian",
+			"name": "Frost Guardian",
+			"pic": "assets/cards/frost_guardian.png",
+			"tags": [
+				"tank",
+				"magical"
+			],
+			"power": 5,
+			"cooldown": 2600,
+			"traits": [
+				{
+					"id": "shield"
+				},
+				{
+					"id": "slow",
+					"duration": 1500,
+					"targets": "all_enemies"
+				}
+			]
+		},
+		{
+			"id": "shadow_assassin",
+			"name": "Shadow Assassin",
+			"pic": "assets/cards/shadow_assassin.png",
+			"tags": [
+				"melee",
+				"magical"
+			],
+			"power": 8,
+			"cooldown": 3800,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "positional_boost",
+					"amount": 3,
+					"position": "corner"
+				}
+			]
+		},
+		{
+			"id": "chaos_scholar",
+			"name": "Chaos Scholar",
+			"pic": "assets/cards/chaos_scholar.png",
+			"tags": [
+				"support",
+				"magical"
+			],
+			"power": 2,
+			"cooldown": 3200,
+			"traits": [
+				{
+					"id": "haste",
+					"duration": 1200,
+					"targets": "random_ally"
+				},
+				{
+					"id": "slow",
+					"duration": 1200,
+					"targets": "random_enemy"
+				}
+			]
+		},
+		{
+			"id": "berserker",
+			"name": "Berserker Brute",
+			"pic": "assets/cards/berserker.png",
+			"tags": [
+				"melee"
+			],
+			"power": 10,
+			"cooldown": 4200,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "haste",
+					"amount": 800,
+					"actionId": "damage",
+					"source_selector": "self"
+				}
+			]
+		},
+		{
+			"id": "divine_protector",
+			"name": "Divine Protector",
+			"pic": "assets/cards/divine_protector.png",
+			"tags": [
+				"tank",
+				"support"
+			],
+			"power": 3,
+			"cooldown": 3000,
+			"traits": [
+				{
+					"id": "shield"
+				},
+				{
+					"id": "heal"
+				}
+			]
+		},
+		{
+			"id": "arcane_trickster",
+			"name": "Arcane Trickster",
+			"pic": "assets/cards/arcane_trickster.png",
+			"tags": [
+				"ranged",
+				"magical"
+			],
+			"power": 4,
+			"cooldown": 2800,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "slow",
+					"amount": 1000,
+					"actionId": "damage",
+					"source_selector": "all_enemies"
+				}
+			]
+		},
+		{
+			"id": "storm_caller",
+			"name": "Storm Caller",
+			"pic": "assets/cards/storm_caller.png",
+			"tags": [
+				"ranged",
+				"magical"
+			],
+			"power": 6,
+			"cooldown": 3600,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "charge",
+					"amount": 1500,
+					"targets": "adjacent"
 				}
 			]
 		}
@@ -321,9 +473,9 @@
 			]
 		},
 		{
-			"id": "battle_inspiration",
-			"name": "Battle Inspiration",
-			"description": "When {source_selector} ally uses {actionId}, apply {effect_type} ({amount})",
+			"id": "battle_reaction",
+			"name": "Battle Reaction",
+			"description": "When {source_selector} {actionId}, apply {effect_type} ({amount})",
 			"categories": [
 				"support",
 				"reactive"
