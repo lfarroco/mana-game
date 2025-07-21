@@ -17,7 +17,7 @@
 				},
 				{
 					"id": "positional_boost",
-					"amount": 2,
+					"amount": 4,
 					"position": "back"
 				}
 			]
@@ -29,7 +29,7 @@
 			"tags": [
 				"support"
 			],
-			"power": 3,
+			"power": 4,
 			"cooldown": 2000,
 			"traits": [
 				{
@@ -79,7 +79,7 @@
 				},
 				{
 					"id": "positional_boost",
-					"amount": 3,
+					"amount": 5,
 					"position": "front"
 				}
 			]
@@ -114,7 +114,7 @@
 			"tags": [
 				"support"
 			],
-			"power": 3,
+			"power": 4,
 			"cooldown": 2800,
 			"traits": [
 				{
@@ -217,11 +217,8 @@
 					"targets": "self"
 				},
 				{
-					"id": "battle_reaction",
-					"effect_type": "slow",
+					"id": "slow",
 					"amount": 600,
-					"actionId": "damage",
-					"source_selector": "self",
 					"targets": "random_enemy"
 				}
 			]
@@ -277,7 +274,7 @@
 				"tank",
 				"support"
 			],
-			"power": 2,
+			"power": 4,
 			"cooldown": 2800,
 			"traits": [
 				{
@@ -364,7 +361,7 @@
 				"support",
 				"magical"
 			],
-			"power": 3,
+			"power": 5,
 			"cooldown": 3400,
 			"traits": [
 				{
@@ -416,7 +413,7 @@
 				},
 				{
 					"id": "positional_boost",
-					"amount": 2,
+					"amount": 4,
 					"position": "front"
 				},
 				{
@@ -435,7 +432,7 @@
 			"tags": [
 				"support"
 			],
-			"power": 2,
+			"power": 4,
 			"cooldown": 2400,
 			"traits": [
 				{
@@ -569,7 +566,7 @@
 				"support",
 				"magical"
 			],
-			"power": 3,
+			"power": 5,
 			"cooldown": 3600,
 			"traits": [
 				{
@@ -597,7 +594,7 @@
 				},
 				{
 					"id": "positional_boost",
-					"amount": 2,
+					"amount": 4,
 					"position": "mid"
 				},
 				{
@@ -640,7 +637,7 @@
 				"ranged",
 				"magical"
 			],
-			"power": 8,
+			"power": 7,
 			"cooldown": 4000,
 			"traits": [
 				{
@@ -660,7 +657,7 @@
 			"tags": [
 				"tank"
 			],
-			"power": 5,
+			"power": 6,
 			"cooldown": 3200,
 			"traits": [
 				{
@@ -725,7 +722,7 @@
 			"tags": [
 				"support"
 			],
-			"power": 3,
+			"power": 5,
 			"cooldown": 3000,
 			"traits": [
 				{
