@@ -629,8 +629,6 @@ registerTraitConditionImplementation("enemy_action_id_is", (context, conditionDa
 
 // --- Helper Functions for Allied Reaction Processing ---
 
-// --- Helper Functions for Allied Reaction Processing ---
-
 /**
  * Determines which units should react to an action and sets up trigger context.
  * Returns a function that can be called to process each reactor's traits.
