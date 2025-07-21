@@ -17,7 +17,7 @@
 				},
 				{
 					"id": "positional_boost",
-					"amount": 4,
+					"amount": 2,
 					"position": "back"
 				}
 			]
@@ -29,7 +29,7 @@
 			"tags": [
 				"support"
 			],
-			"power": 4,
+			"power": 3,
 			"cooldown": 2000,
 			"traits": [
 				{
@@ -79,7 +79,7 @@
 				},
 				{
 					"id": "positional_boost",
-					"amount": 5,
+					"amount": 3,
 					"position": "front"
 				}
 			]
@@ -114,7 +114,7 @@
 			"tags": [
 				"support"
 			],
-			"power": 4,
+			"power": 3,
 			"cooldown": 2800,
 			"traits": [
 				{
@@ -220,6 +220,10 @@
 					"id": "slow",
 					"amount": 600,
 					"targets": "random_enemy"
+				},
+				{
+					"id": "shield_piercing",
+					"percentage": 50
 				}
 			]
 		},
@@ -263,6 +267,10 @@
 					"amount": 1000,
 					"actionId": "damage",
 					"source_selector": "self"
+				},
+				{
+					"id": "shield_piercing",
+					"percentage": 75
 				}
 			]
 		},
@@ -274,7 +282,7 @@
 				"tank",
 				"support"
 			],
-			"power": 4,
+			"power": 2,
 			"cooldown": 2800,
 			"traits": [
 				{
@@ -329,6 +337,10 @@
 					"amount": 2,
 					"actionId": "damage",
 					"source_selector": "self"
+				},
+				{
+					"id": "shield_piercing",
+					"percentage": 30
 				}
 			]
 		},
@@ -361,7 +373,7 @@
 				"support",
 				"magical"
 			],
-			"power": 5,
+			"power": 3,
 			"cooldown": 3400,
 			"traits": [
 				{
@@ -413,7 +425,7 @@
 				},
 				{
 					"id": "positional_boost",
-					"amount": 4,
+					"amount": 2,
 					"position": "front"
 				},
 				{
@@ -422,6 +434,10 @@
 					"amount": 3,
 					"actionId": "damage",
 					"source_selector": "all_enemies"
+				},
+				{
+					"id": "shield_piercing",
+					"percentage": 60
 				}
 			]
 		},
@@ -432,7 +448,7 @@
 			"tags": [
 				"support"
 			],
-			"power": 4,
+			"power": 2,
 			"cooldown": 2400,
 			"traits": [
 				{
@@ -462,6 +478,10 @@
 					"id": "slow",
 					"duration": 2000,
 					"targets": "random_enemy"
+				},
+				{
+					"id": "shield_piercing",
+					"percentage": 40
 				}
 			]
 		},
@@ -566,7 +586,7 @@
 				"support",
 				"magical"
 			],
-			"power": 5,
+			"power": 3,
 			"cooldown": 3600,
 			"traits": [
 				{
@@ -594,7 +614,7 @@
 				},
 				{
 					"id": "positional_boost",
-					"amount": 4,
+					"amount": 2,
 					"position": "mid"
 				},
 				{
@@ -637,7 +657,7 @@
 				"ranged",
 				"magical"
 			],
-			"power": 7,
+			"power": 8,
 			"cooldown": 4000,
 			"traits": [
 				{
@@ -657,7 +677,7 @@
 			"tags": [
 				"tank"
 			],
-			"power": 6,
+			"power": 5,
 			"cooldown": 3200,
 			"traits": [
 				{
@@ -722,7 +742,7 @@
 			"tags": [
 				"support"
 			],
-			"power": 5,
+			"power": 3,
 			"cooldown": 3000,
 			"traits": [
 				{
@@ -876,6 +896,21 @@
 				{
 					"effectId": "DYNAMIC",
 					"eventTrigger": "onEnemyAction"
+				}
+			]
+		},
+		{
+			"id": "shield_piercing",
+			"name": "Shield Piercing",
+			"description": "Damage ignores {percentage}% of enemy shields",
+			"categories": [
+				"offensive",
+				"anti-tank"
+			],
+			"effects": [
+				{
+					"effectId": "pierce_shields",
+					"eventTrigger": "onAction"
 				}
 			]
 		}
