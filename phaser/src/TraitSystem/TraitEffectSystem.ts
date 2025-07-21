@@ -603,6 +603,30 @@ registerTraitConditionImplementation("allied_action_id_is", (context, conditionD
 	return triggerContext.triggeringActionId === expectedActionId;
 });
 
+/**
+ * Condition that checks if the triggering enemy action matches a specific action ID.
+ * This is the enemy equivalent of 'allied_action_id_is'.
+ * 
+ * Example usage: React only when an enemy uses "damage" action vs "heal" action.
+ */
+registerTraitConditionImplementation("enemy_action_id_is", (context, conditionData) => {
+	const expectedActionId = conditionData.actionId as string;
+	if (!expectedActionId) {
+		if (process.env.NODE_ENV === 'development') {
+			console.error(`'enemy_action_id_is' condition is missing 'actionId' parameter.`, { conditionData });
+		}
+		return false;
+	}
+
+	// Check for triggering action context stored temporarily in the scene
+	const triggerContext = (context.scene as any)._currentTriggerContext;
+	if (!triggerContext) {
+		return false; // No trigger context available
+	}
+
+	return triggerContext.triggeringActionId === expectedActionId;
+});
+
 // --- Helper Functions for Allied Reaction Processing ---
 
 // --- Helper Functions for Allied Reaction Processing ---
@@ -780,9 +804,14 @@ export function resolveConditionsFromParams(
 
 	// Add condition for actionId matching (for battle_reaction traits)
 	const actionId = traitInstanceParams.actionId;
-	if (typeof actionId === 'string') {
+	const sourceSelector = traitInstanceParams.source_selector;
+	if (typeof actionId === 'string' && typeof sourceSelector === 'string') {
+		// Use appropriate condition based on whether this is an enemy or allied reaction
+		const isEnemyReaction = sourceSelector.includes('enemies') || sourceSelector.includes('enemy');
+		const conditionType = isEnemyReaction ? 'enemy_action_id_is' : 'allied_action_id_is';
+
 		conditions.push({
-			type: 'allied_action_id_is',
+			type: conditionType,
 			actionId: actionId
 		});
 	}
