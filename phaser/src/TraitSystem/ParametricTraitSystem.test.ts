@@ -30,6 +30,22 @@ describe('Parametric Trait System', () => {
 			expect(result).toBe('allies_adjacent');
 		});
 
+		it('should handle same_column targets', () => {
+			const traitData: TraitData = { id: 'haste' as any, targets: 'same_column' };
+			const effectInstance = { effectId: 'apply_haste', eventTrigger: 'onAction' };
+
+			const result = resolveTargetSelectorFromParams(traitData, effectInstance);
+			expect(result).toBe('all_allies_in_column');
+		});
+
+		it('should handle same_row targets', () => {
+			const traitData: TraitData = { id: 'haste' as any, targets: 'same_row' };
+			const effectInstance = { effectId: 'apply_haste', eventTrigger: 'onAction' };
+
+			const result = resolveTargetSelectorFromParams(traitData, effectInstance);
+			expect(result).toBe('all_allies_in_row');
+		});
+
 		it('should default to self when no targets specified', () => {
 			const traitData: TraitData = { id: 'some_trait' as any };
 			const effectInstance = { effectId: 'some_effect', eventTrigger: 'onBattleStart' };
