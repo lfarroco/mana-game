@@ -616,7 +616,7 @@ registerTraitConditionImplementation("allied_action_id_is", (context, conditionD
  * @param actionTraitId The ID of the trait being executed
  * @param actionType The type of action ('attack', 'heal', 'buff', etc.)
  * @param actionId The specific action ID ('damage', 'heal', 'shield', etc.)
- * @param sourceSelector The selector determining which allies can react (defaults to 'all_allies')
+ * @param sourceSelector The selector determining which units can react (supports both allies and enemies)
  * @param scene The battle scene
  * @param state The game state
  * @returns A function that takes processUnitTraitsForEvent and executes the reactions
@@ -639,6 +639,10 @@ export function setupAlliedReactions(
 		scene
 	);
 
+	// Determine the correct event based on the source selector
+	const isEnemyReaction = sourceSelector.includes('enemies') || sourceSelector.includes('enemy');
+	const eventName = isEnemyReaction ? "onEnemyAction" : "onAlliedAction";
+
 	return (processUnitTraitsForEvent) => {
 		// Process traits for each potential reactor
 		potentialReactors.forEach((reactorUnit) => {
@@ -651,8 +655,8 @@ export function setupAlliedReactions(
 				triggeringActionId: actionId
 			};
 
-			// Process the reactor's traits that respond to allied actions
-			processUnitTraitsForEvent(reactorUnit, "onAlliedAction", scene, state);
+			// Process the reactor's traits that respond to the appropriate action type
+			processUnitTraitsForEvent(reactorUnit, eventName, scene, state);
 
 			// Restore original context
 			(scene as any)._currentTriggerContext = originalTriggerContext;
@@ -772,6 +776,15 @@ export function resolveConditionsFromParams(
 				});
 				break;
 		}
+	}
+
+	// Add condition for actionId matching (for battle_reaction traits)
+	const actionId = traitInstanceParams.actionId;
+	if (typeof actionId === 'string') {
+		conditions.push({
+			type: 'allied_action_id_is',
+			actionId: actionId
+		});
 	}
 
 	return conditions;

@@ -44,6 +44,7 @@ export function setupTraitEventListeners(scene: BattlegroundScene): void {
 	const unitEventMappings: { gameEvent: string, traitKey: UnitEventKeys }[] = [
 		{ gameEvent: GameEvents.TRAIT_EVAL_UNIT_ACTION, traitKey: "onAction" },
 		{ gameEvent: GameEvents.TRAIT_EVAL_ALLIED_ACTION, traitKey: "onAlliedAction" },
+		{ gameEvent: GameEvents.TRAIT_EVAL_ENEMY_ACTION, traitKey: "onEnemyAction" },
 		{ gameEvent: GameEvents.TRAIT_EVAL_TURN_START, traitKey: "onTurnStart" },
 		{ gameEvent: GameEvents.TRAIT_EVAL_TURN_END, traitKey: "onTurnEnd" },
 	];

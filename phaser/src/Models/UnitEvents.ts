@@ -57,6 +57,7 @@ export type UnitEvents = {
 	onAction: UnitEvent[];
 	onAttackByMe: AttackEvent[];
 	onAlliedAction: UnitEvent[];
+	onEnemyAction: UnitEvent[];
 };
 // TODO: add onDamageCalculation, onDodgeCalculation, onCriticalHitCalculation, onAttackCalculation
 // This allows adding buffs/debuffs to damage, dodge, critical hit and attack
@@ -73,6 +74,7 @@ export const UNIT_EVENTS: readonly (keyof UnitEvents)[] = [
 	"onAction",
 	"onAttackByMe",
 	"onAlliedAction",
+	"onEnemyAction",
 ] as const;
 
 /** Helper type to extract keys from `UnitEvents` that correspond to `UnitEvent[]`. */

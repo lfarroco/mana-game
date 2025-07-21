@@ -70,7 +70,6 @@ export class RunCombatSystem {
       const unitsReadyToAct = chargeUnits(state, delta * this.scene.time.timeScale);
 
       for (const unit of unitsReadyToAct) {
-        // Units no longer have HP, so no need to check if alive
 
         events.emit(GameEvents.TRAIT_EVAL_TURN_START, { unit });
         // Assuming unit actions are triggered by TRAIT_EVAL_UNIT_ACTION
