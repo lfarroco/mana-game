@@ -968,6 +968,135 @@
 					"description": "When right ally deals [color=red]damage[/color], [color=green]heal 2[/color] to a random ally"
 				}
 			]
+		},
+		{
+			"id": "tempo_tactician",
+			"name": "Tempo Tactician",
+			"pic": "assets/cards/tempo_tactician.png",
+			"tags": [
+				"support",
+				"magical"
+			],
+			"power": 4,
+			"cooldown": 3200,
+			"traits": [
+				{
+					"id": "heal"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "haste",
+					"amount": 800,
+					"actionId": "haste",
+					"source_selector": "all_allies",
+					"targets": "self",
+					"description": "When any ally gains [color=blue]haste[/color], gain [color=blue]haste 800ms[/color]"
+				}
+			]
+		},
+		{
+			"id": "chill_guardian",
+			"name": "Chill Guardian",
+			"pic": "assets/cards/chill_guardian.png",
+			"tags": [
+				"tank",
+				"support"
+			],
+			"power": 5,
+			"cooldown": 3400,
+			"traits": [
+				{
+					"id": "shield"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "slow",
+					"amount": 1200,
+					"actionId": "slow",
+					"source_selector": "all_enemies",
+					"targets": "self",
+					"description": "When any enemy is [color=purple]slowed[/color], gain [color=yellow]shield 12[/color]"
+				}
+			]
+		},
+		{
+			"id": "haste_harrier",
+			"name": "Haste Harrier",
+			"pic": "assets/cards/haste_harrier.png",
+			"tags": [
+				"melee",
+				"support"
+			],
+			"power": 6,
+			"cooldown": 2600,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "damage",
+					"amount": 2,
+					"actionId": "haste",
+					"source_selector": "same_row",
+					"targets": "random_enemy",
+					"description": "When a row ally gains [color=blue]haste[/color], deal [color=red]2 damage[/color] to a random enemy"
+				}
+			]
+		},
+		{
+			"id": "slow_savant",
+			"name": "Slow Savant",
+			"pic": "assets/cards/slow_savant.png",
+			"tags": [
+				"magical",
+				"ranged"
+			],
+			"power": 5,
+			"cooldown": 3200,
+			"traits": [
+				{
+					"id": "slow",
+					"duration": 1000,
+					"targets": "random_enemy"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "heal",
+					"amount": 2,
+					"actionId": "slow",
+					"source_selector": "all_enemies",
+					"targets": "self",
+					"description": "When any enemy is [color=purple]slowed[/color], [color=green]heal 2[/color]"
+				}
+			]
+		},
+		{
+			"id": "momentum_mage",
+			"name": "Momentum Mage",
+			"pic": "assets/cards/momentum_mage.png",
+			"tags": [
+				"magical",
+				"support"
+			],
+			"power": 4,
+			"cooldown": 3000,
+			"traits": [
+				{
+					"id": "haste",
+					"duration": 1200,
+					"targets": "same_column"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_type": "shield",
+					"amount": 8,
+					"actionId": "haste",
+					"source_selector": "same_column",
+					"targets": "self",
+					"description": "When a column ally gains [color=blue]haste[/color], gain [color=yellow]shield 8[/color]"
+				}
+			]
 		}
 	],
 	"traits": [
