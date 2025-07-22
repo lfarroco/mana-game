@@ -37,7 +37,7 @@
 				},
 				{
 					"id": "positional_boost",
-					"amount": 10,
+					"amount": 8,
 					"position": "back"
 				}
 			]
@@ -49,15 +49,15 @@
 			"tags": [
 				"support"
 			],
-			"power": 18,
-			"cooldown": 3500,
+			"power": 15,
+			"cooldown": 3000,
 			"traits": [
 				{
 					"id": "heal"
 				},
 				{
 					"id": "boost_power_on_battle_start",
-					"amount": 5,
+					"amount": 3,
 					"targets": "same_row"
 				}
 			]
@@ -66,11 +66,11 @@
 			"id": "bubblegum_betty",
 			"name": "Bubblegum Betty",
 			"pic": "assets/cards/cleric.png",
-			"power": 8,
+			"power": 6,
 			"tags": [
 				"support"
 			],
-			"cooldown": 2600,
+			"cooldown": 3200,
 			"traits": [
 				{
 					"id": "heal"
@@ -78,7 +78,7 @@
 				{
 					"id": "battle_reaction",
 					"effect_type": "heal",
-					"amount": 6,
+					"amount": 2,
 					"actionId": "heal",
 					"source_selector": "same_column",
 					"description": "When a column ally [color=green]heals[/color], [color=green]heal {amount}[/color]"
@@ -92,15 +92,15 @@
 			"tags": [
 				"tank"
 			],
-			"power": 20,
-			"cooldown": 4000,
+			"power": 15,
+			"cooldown": 3000,
 			"traits": [
 				{
 					"id": "shield"
 				},
 				{
 					"id": "positional_boost",
-					"amount": 10,
+					"amount": 8,
 					"position": "front"
 				}
 			]
@@ -113,8 +113,8 @@
 				"ranged",
 				"magical"
 			],
-			"power": 7,
-			"cooldown": 3200,
+			"power": 6,
+			"cooldown": 3600,
 			"traits": [
 				{
 					"id": "damage"
@@ -122,7 +122,7 @@
 				{
 					"id": "battle_reaction",
 					"effect_type": "slow",
-					"amount": 1000,
+					"amount": 600,
 					"actionId": "damage",
 					"source_selector": "self",
 					"description": "When this unit deals [color=red]damage[/color], [color=purple]slow self for 1s[/color]"
@@ -136,15 +136,15 @@
 			"tags": [
 				"support"
 			],
-			"power": 3,
-			"cooldown": 2800,
+			"power": 4,
+			"cooldown": 3200,
 			"traits": [
 				{
 					"id": "heal"
 				},
 				{
 					"id": "haste",
-					"duration": 1500,
+					"duration": 1200,
 					"targets": "same_row"
 				}
 			]
@@ -157,20 +157,20 @@
 				"ranged",
 				"magical"
 			],
-			"power": 5,
-			"cooldown": 3000,
+			"power": 4,
+			"cooldown": 3600,
 			"traits": [
 				{
 					"id": "damage"
 				},
 				{
 					"id": "haste",
-					"duration": 1200,
+					"duration": 1000,
 					"targets": "random_ally"
 				},
 				{
 					"id": "slow",
-					"duration": 800,
+					"duration": 600,
 					"targets": "random_enemy"
 				}
 			]
@@ -183,15 +183,15 @@
 				"ranged",
 				"magical"
 			],
-			"power": 6,
-			"cooldown": 2800,
+			"power": 5,
+			"cooldown": 3200,
 			"traits": [
 				{
 					"id": "damage"
 				},
 				{
 					"id": "charge",
-					"amount": 1000,
+					"amount": 800,
 					"targets": "same_column"
 				}
 			]
@@ -205,7 +205,7 @@
 				"support"
 			],
 			"power": 4,
-			"cooldown": 2400,
+			"cooldown": 3200,
 			"traits": [
 				{
 					"id": "shield"
@@ -227,25 +227,25 @@
 			"tags": [
 				"melee"
 			],
-			"power": 8,
-			"cooldown": 2200,
+			"power": 7,
+			"cooldown": 2600,
 			"traits": [
 				{
 					"id": "damage"
 				},
 				{
 					"id": "haste",
-					"duration": 800,
+					"duration": 600,
 					"targets": "self"
 				},
 				{
 					"id": "slow",
-					"amount": 600,
+					"amount": 400,
 					"targets": "random_enemy"
 				},
 				{
 					"id": "shield_piercing",
-					"percentage": 50
+					"percentage": 30
 				}
 			]
 		},
@@ -257,15 +257,15 @@
 				"support",
 				"magical"
 			],
-			"power": 4,
-			"cooldown": 3600,
+			"power": 3,
+			"cooldown": 3200,
 			"traits": [
 				{
 					"id": "heal"
 				},
 				{
 					"id": "slow",
-					"duration": 1500,
+					"duration": 1000,
 					"targets": "random_enemy"
 				}
 			]
@@ -277,8 +277,8 @@
 			"tags": [
 				"melee"
 			],
-			"power": 9,
-			"cooldown": 3800,
+			"power": 7,
+			"cooldown": 3200,
 			"traits": [
 				{
 					"id": "damage"
@@ -286,14 +286,14 @@
 				{
 					"id": "battle_reaction",
 					"effect_type": "haste",
-					"amount": 1000,
+					"amount": 600,
 					"actionId": "damage",
 					"source_selector": "self",
 					"description": "When this unit deals [color=red]damage[/color], gain [color=blue]haste 1000ms[/color]"
 				},
 				{
 					"id": "shield_piercing",
-					"percentage": 75
+					"percentage": 40
 				}
 			]
 		},
@@ -306,7 +306,7 @@
 				"support"
 			],
 			"power": 2,
-			"cooldown": 2800,
+			"cooldown": 3200,
 			"traits": [
 				{
 					"id": "heal"
@@ -314,7 +314,7 @@
 				{
 					"id": "battle_reaction",
 					"effect_type": "heal",
-					"amount": 3,
+					"amount": 1,
 					"actionId": "heal",
 					"source_selector": "all_allies",
 					"description": "When any ally [color=green]heals[/color], [color=green]heal 3[/color]"
@@ -328,15 +328,15 @@
 			"tags": [
 				"tank"
 			],
-			"power": 7,
-			"cooldown": 3200,
+			"power": 6,
+			"cooldown": 3600,
 			"traits": [
 				{
 					"id": "shield"
 				},
 				{
 					"id": "boost_power_on_battle_start",
-					"amount": 1,
+					"amount": 2,
 					"targets": "same_row"
 				}
 			]
@@ -349,8 +349,8 @@
 				"melee",
 				"magical"
 			],
-			"power": 6,
-			"cooldown": 3000,
+			"power": 5,
+			"cooldown": 3400,
 			"traits": [
 				{
 					"id": "damage"
@@ -358,14 +358,14 @@
 				{
 					"id": "battle_reaction",
 					"effect_type": "heal",
-					"amount": 2,
+					"amount": 1,
 					"actionId": "damage",
 					"source_selector": "self",
 					"description": "When this unit deals [color=red]damage[/color], [color=green]heal 2[/color]"
 				},
 				{
 					"id": "shield_piercing",
-					"percentage": 30
+					"percentage": 20
 				}
 			]
 		},
@@ -377,15 +377,15 @@
 				"support",
 				"melee"
 			],
-			"power": 4,
-			"cooldown": 2600,
+			"power": 3,
+			"cooldown": 3200,
 			"traits": [
 				{
 					"id": "damage"
 				},
 				{
 					"id": "haste",
-					"duration": 1200,
+					"duration": 800,
 					"targets": "same_column"
 				}
 			]
@@ -398,15 +398,15 @@
 				"support",
 				"magical"
 			],
-			"power": 3,
-			"cooldown": 3400,
+			"power": 2,
+			"cooldown": 3200,
 			"traits": [
 				{
 					"id": "heal"
 				},
 				{
 					"id": "charge",
-					"amount": 2000,
+					"amount": 1200,
 					"targets": "random_ally"
 				}
 			]
@@ -419,8 +419,8 @@
 				"support",
 				"magical"
 			],
-			"power": 5,
-			"cooldown": 3000,
+			"power": 4,
+			"cooldown": 3200,
 			"traits": [
 				{
 					"id": "heal"
@@ -428,7 +428,7 @@
 				{
 					"id": "battle_reaction",
 					"effect_type": "charge",
-					"amount": 800,
+					"amount": 400,
 					"actionId": "heal",
 					"source_selector": "same_row",
 					"description": "When a row ally [color=green]heals[/color], [color=orange]charge 800ms[/color]"
@@ -443,28 +443,28 @@
 				"tank",
 				"magical"
 			],
-			"power": 8,
-			"cooldown": 3400,
+			"power": 6,
+			"cooldown": 3800,
 			"traits": [
 				{
 					"id": "damage"
 				},
 				{
 					"id": "positional_boost",
-					"amount": 2,
+					"amount": 1,
 					"position": "front"
 				},
 				{
 					"id": "battle_reaction",
 					"effect_type": "damage",
-					"amount": 3,
+					"amount": 1,
 					"actionId": "damage",
 					"source_selector": "all_enemies",
 					"description": "When any enemy deals [color=red]damage[/color], deal [color=red]3 damage[/color]"
 				},
 				{
 					"id": "shield_piercing",
-					"percentage": 60
+					"percentage": 30
 				}
 			]
 		},
@@ -475,15 +475,15 @@
 			"tags": [
 				"support"
 			],
-			"power": 2,
-			"cooldown": 2400,
+			"power": 1,
+			"cooldown": 3200,
 			"traits": [
 				{
 					"id": "heal"
 				},
 				{
 					"id": "charge",
-					"amount": 1500,
+					"amount": 800,
 					"targets": "random_ally"
 				}
 			]
