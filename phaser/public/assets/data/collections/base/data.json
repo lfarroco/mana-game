@@ -1,23 +1,43 @@
 {
 	"id": "base",
 	"name": "Base Set",
+	"guidelines": [
+		"All cards are balanced and can be 'good' depending on the situation",
+		"Each card has a 'base' of 10dps",
+		"So a 20 damage card should have a 2000ms cooldown",
+		"Each second of haste equals 5dps - over 1s, the unit will charge 1.5s",
+		"In the same way, each second of slow equals defensive 5dps",
+		"Shield has a bonus, because it can be countered",
+		"Each 1s for a shield card yields 12 shield",
+		"The power can be balanced by adjusting the cooldown",
+		"The only valid forms of enemy targeting are 'all_enemies' and 'random_enemy'",
+		"When targeting allies, 'adjacent_allies' (4 targets) and 'all_allies' (9 targets) are more expensive",
+		"The next most expensive are 'same_row' and 'same_column', as they target up to 2 allies",
+		"Other allied targeting options (left/right/front/back/self) can target up to 1 ally, so they are considered cheaper",
+		"So a card that reacts to 'same_row', can receive up to 10dps each time all 2 allies perform",
+		"Reactions to all enemies/allies should provide little 1/8 of the base dps",
+		"The same ratios should be respected for units that concede bonuses when they perform",
+		"Actions that can be reacted: damage, heal, shield, haste, slow.",
+		"Charge can't be reacted to"
+	],
 	"cards": [
 		{
 			"id": "bowsie",
 			"name": "Bowsie McTwang",
 			"pic": "assets/cards/archer.png",
 			"tags": [
-				"ranged"
+				"damage",
+				"positional"
 			],
-			"power": 6,
-			"cooldown": 2400,
+			"power": 15,
+			"cooldown": 2500,
 			"traits": [
 				{
 					"id": "damage"
 				},
 				{
 					"id": "positional_boost",
-					"amount": 2,
+					"amount": 10,
 					"position": "back"
 				}
 			]
@@ -29,15 +49,15 @@
 			"tags": [
 				"support"
 			],
-			"power": 3,
-			"cooldown": 2000,
+			"power": 18,
+			"cooldown": 3500,
 			"traits": [
 				{
 					"id": "heal"
 				},
 				{
 					"id": "boost_power_on_battle_start",
-					"amount": 1,
+					"amount": 5,
 					"targets": "same_row"
 				}
 			]
@@ -46,7 +66,7 @@
 			"id": "bubblegum_betty",
 			"name": "Bubblegum Betty",
 			"pic": "assets/cards/cleric.png",
-			"power": 4,
+			"power": 8,
 			"tags": [
 				"support"
 			],
@@ -58,10 +78,10 @@
 				{
 					"id": "battle_reaction",
 					"effect_type": "heal",
-					"amount": 2,
+					"amount": 6,
 					"actionId": "heal",
 					"source_selector": "same_column",
-					"description": "When a column ally [color=green]heals[/color], [color=green]heal 2[/color]"
+					"description": "When a column ally [color=green]heals[/color], [color=green]heal {amount}[/color]"
 				}
 			]
 		},
@@ -72,15 +92,15 @@
 			"tags": [
 				"tank"
 			],
-			"power": 8,
-			"cooldown": 3000,
+			"power": 20,
+			"cooldown": 4000,
 			"traits": [
 				{
 					"id": "shield"
 				},
 				{
 					"id": "positional_boost",
-					"amount": 3,
+					"amount": 10,
 					"position": "front"
 				}
 			]
@@ -102,10 +122,10 @@
 				{
 					"id": "battle_reaction",
 					"effect_type": "slow",
-					"amount": 800,
+					"amount": 1000,
 					"actionId": "damage",
 					"source_selector": "self",
-					"description": "When this unit deals [color=red]damage[/color], [color=purple]slow self 800ms[/color]"
+					"description": "When this unit deals [color=red]damage[/color], [color=purple]slow self for 1s[/color]"
 				}
 			]
 		},
