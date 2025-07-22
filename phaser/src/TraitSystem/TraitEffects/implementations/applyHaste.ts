@@ -50,7 +50,7 @@ export function createApplyHasteLogic(): TraitEffectFn {
 								target.hasted += duration;
 
 								// Show the original haste effect at the target location
-								await hasteEffect(scene, { x: targetChara.x, y: targetChara.y }, {
+								hasteEffect(scene, { x: targetChara.x, y: targetChara.y }, {
 									duration: 1000,
 									intensity: 1.5,
 									color: 0x00eaff // Light blue color matching the projectile

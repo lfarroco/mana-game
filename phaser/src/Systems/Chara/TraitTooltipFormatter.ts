@@ -76,8 +76,6 @@ function formatTargetName(targets: any): string {
 		case 'same_column': return 'allies in column';
 		case 'all_allies':
 		case 'all': return 'all allies';
-		case 'enemy':
-		case 'closest_enemy': return 'closest enemy';
 		case 'all_enemies': return 'all enemies';
 		case 'random_ally': return 'random ally';
 		case 'random_enemy': return 'random enemy';
@@ -114,10 +112,6 @@ function formatPositionName(position: any): string {
 		case 'ally_back': return 'ally behind';
 		case 'ally_left': return 'left ally';
 		case 'ally_right': return 'right ally';
-		case 'enemies_adjacent': return 'adjacent enemies';
-		case 'enemies_diagonal': return 'diagonal enemies';
-		case 'all_enemies_in_row': return 'enemies in row';
-		case 'all_enemies_in_column': return 'enemies in column';
 		default: return position;
 	}
 }

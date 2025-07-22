@@ -603,7 +603,7 @@
 					"actionId": "haste",
 					"source_selector": "all_allies",
 					"targets": "random_enemy",
-					"description": "When any ally gains [color=blue]haste[/color], deal [color=red]2 damage[/color] to a random enemy"
+					"description": "When any ally gains [color=blue]haste[/color], deal [color=red]2 damage[/color]"
 				}
 			]
 		},
@@ -1040,7 +1040,7 @@
 					"actionId": "haste",
 					"source_selector": "same_row",
 					"targets": "random_enemy",
-					"description": "When a row ally gains [color=blue]haste[/color], deal [color=red]2 damage[/color] to a random enemy"
+					"description": "When a row ally gains [color=blue]haste[/color], deal [color=red]2 damage[/color]"
 				}
 			]
 		},

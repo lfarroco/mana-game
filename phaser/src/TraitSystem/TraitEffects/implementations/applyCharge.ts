@@ -24,50 +24,50 @@ export function createApplyChargeLogic(): TraitEffectFn {
 
 		for (const target of targets) {
 			// Show a targeted arcane missile effect from source to target
-			if (scene && sourceChara) {
-				const targetChara = CharaManager.getChara(target.id);
-				if (targetChara) {
-					// Use the targeted arcane missile effect with charge callback
-					await arcaneMissileTargeted(
-						scene,
-						{ x: sourceChara.x, y: sourceChara.y },
-						{ x: targetChara.x, y: targetChara.y },
-						{
-							colors: [0xFFD700, 0xFFA500, 0xFF8C00], // Golden/orange colors for charge
-							amplitudeMin: 5,
-							amplitudeMax: 15,
-							particleScale: 1.5,
-							impact: {
-								colors: [0xFFD700, 0xFFA500],
-								scale: 2,
-								speed: 200,
-								lifespan: 300,
-								alpha: 0.4
-							},
-							onHit: async () => {
-								// THIS IS THE MOMENT OF IMPACT - Apply charge mutation and show charge effect
-								// Add charge amount to the unit's charge property
-								if (!target.charge) {
-									target.charge = 0;
-								}
-								target.charge += chargeAmount;
-
-								// Show the charge effect at the target location (reusing haste effect for now)
-								await hasteEffect(scene, { x: targetChara.x, y: targetChara.y }, {
-									duration: 1000,
-									intensity: 1.5,
-									color: 0xFFD700 // Golden color for charge
-								});
-							}
-						}
-					);
-				}
-			} else {
+			if (!scene || !sourceChara) {
 				// Fallback: if no scene or character visual, just apply the charge directly
 				if (!target.charge) {
 					target.charge = 0;
 				}
-				target.charge += chargeAmount;
+				return
+			}
+			target.charge += chargeAmount;
+			const targetChara = CharaManager.getChara(target.id);
+			if (targetChara) {
+				// Use the targeted arcane missile effect with charge callback
+				arcaneMissileTargeted(
+					scene,
+					{ x: sourceChara.x, y: sourceChara.y },
+					{ x: targetChara.x, y: targetChara.y },
+					{
+						colors: [0xFFD700, 0xFFA500, 0xFF8C00], // Golden/orange colors for charge
+						amplitudeMin: 5,
+						amplitudeMax: 15,
+						particleScale: 1.5,
+						impact: {
+							colors: [0xFFD700, 0xFFA500],
+							scale: 2,
+							speed: 200,
+							lifespan: 300,
+							alpha: 0.4
+						},
+						onHit: async () => {
+							// THIS IS THE MOMENT OF IMPACT - Apply charge mutation and show charge effect
+							// Add charge amount to the unit's charge property
+							if (!target.charge) {
+								target.charge = 0;
+							}
+							target.charge += chargeAmount;
+
+							// Show the charge effect at the target location (reusing haste effect for now)
+							hasteEffect(scene, { x: targetChara.x, y: targetChara.y }, {
+								duration: 1000,
+								intensity: 1.5,
+								color: 0xFFD700 // Golden color for charge
+							});
+						}
+					}
+				);
 			}
 		}
 	};

@@ -169,20 +169,6 @@ export function getTraitConditionImplementation(conditionType: string): TraitCon
 
 
 // --- Target Resolution ---
-
-/**
- * SIMPLIFIED TARGETING STRATEGY:
- * 
- * Enemy Targeting: All enemy selectors now return the closest enemy for simplicity.
- * This includes "enemy", "closest_enemy", and "all_enemies" (legacy).
- * The game no longer has complex individual enemy targeting.
- * 
- * Exception: "enemy_guild" returns ALL enemies for guild-wide effects (morale, etc.)
- * 
- * Allied Targeting: Retains full positional logic to maintain formation strategy.
- * Players can still use positioning for tactical advantages with ally buffs.
- */
-
 export function resolveTargets(
 	/** The source of the trait (a Unit). */
 	source: Unit,
@@ -192,23 +178,13 @@ export function resolveTargets(
 	selector: string | undefined,
 	/** The current game state. */
 	state: State,
-	/** The current battle scene instance. */
-	_scene: BattlegroundScene, // May be needed for more complex selections (e.g., geometry checks)
 ): Unit[] {
-	// Helper function to find closest enemy
-	const findClosestEnemy = (): Unit[] => {
-		const enemies = getActiveUnits(state).filter(u => u.force !== sourceForce);
-		if (enemies.length === 0) return [];
 
-		// Calculate Manhattan distance and find closest
-		const closestEnemy = enemies.reduce((closest, enemy) => {
-			const distToEnemy = Math.abs(enemy.position.x - source.position.x) + Math.abs(enemy.position.y - source.position.y);
-			const distToClosest = Math.abs(closest.position.x - source.position.x) + Math.abs(closest.position.y - source.position.y);
-			return distToEnemy < distToClosest ? enemy : closest;
-		});
-
-		return [closestEnemy];
-	};
+	const notSelf = (u: Unit) => u.id !== source.id;
+	const sameForce = (u: Unit) => u.force === sourceForce;
+	const enemyForce = (u: Unit) => u.force !== sourceForce;
+	const sameRow = (u: Unit) => u.position.y === source.position.y && u.id !== source.id;
+	const sameColumn = (u: Unit) => u.position.x === source.position.x && u.id !== source.id;
 
 	switch (selector) {
 		case undefined:
@@ -216,17 +192,10 @@ export function resolveTargets(
 		case "self":
 			return [source];
 		// === SIMPLIFIED ENEMY TARGETING ===
-		// All enemy targeting now uses closest enemy for simplicity
-		case "enemy":
-		case "closest_enemy":
-		case "all_enemies": // Legacy support - now returns closest enemy for simplicity
-			return findClosestEnemy();
-		case "random_enemies": {
-			const enemies = getActiveUnits(state).filter(u => u.force !== sourceForce);
-			return pickRandom(enemies, enemies.length); // Return all enemies in random order
-		}
+		case "all_enemies":
+			return getActiveUnits(state).filter(enemyForce);
 		case "random_enemy": {
-			const enemies = getActiveUnits(state).filter(u => u.force !== sourceForce);
+			const enemies = getActiveUnits(state).filter(enemyForce);
 			if (enemies.length === 0) return [];
 			return [pickOne(enemies)]; // Return a single random enemy
 		}
@@ -234,23 +203,23 @@ export function resolveTargets(
 		// === POSITIONAL ALLIED TARGETING ===
 		// Allied targeting retains positional logic for formation strategy
 		case "all_allies":
-			return getActiveUnits(state).filter(u => u.force === sourceForce && u.id !== source.id);
+			return getActiveUnits(state).filter(sameForce).filter(notSelf);
 		case "random_allies": {
-			const allies = getActiveUnits(state).filter(u => u.force === sourceForce && u.id !== source.id);
+			const allies = getActiveUnits(state).filter(sameForce).filter(notSelf);
 			return pickRandom(allies, allies.length); // Return all allies in random order
 		}
 		case "random_ally": {
-			const allies = getActiveUnits(state).filter(u => u.force === sourceForce && u.id !== source.id);
+			const allies = getActiveUnits(state).filter(sameForce).filter(notSelf);
 			if (allies.length === 0) return [];
 			return [pickOne(allies)]; // Return a single random ally
 		}
 		case "all_allies_in_row":
-			return getActiveUnits(state).filter(u => u.force === sourceForce && u.id !== source.id && u.position.y === source.position.y);
+			return getActiveUnits(state).filter(sameRow).filter(notSelf);
 		case "all_allies_in_column":
-			return getActiveUnits(state).filter(u => u.force === sourceForce && u.id !== source.id && u.position.x === source.position.x);
+			return getActiveUnits(state).filter(sameColumn).filter(notSelf);
 		case "ally_left": {
 			const targetPos = { x: source.position.x - 1, y: source.position.y };
-			return getActiveUnits(state).filter(u => u.force === sourceForce && u.position.x === targetPos.x && u.position.y === targetPos.y);
+			return getActiveUnits(state).filter(u => sameForce(u) && u.position.x === targetPos.x && u.position.y === targetPos.y);
 		}
 		case "ally_right": {
 			const targetPos = { x: source.position.x + 1, y: source.position.y };
@@ -292,31 +261,6 @@ export function resolveTargets(
 				diagonalPositions.some(pos => u.position.x === pos.x && u.position.y === pos.y)
 			);
 		}
-		case "enemies_adjacent": {
-			// Note: Since enemies are on separate boards, adjacent enemies can only exist 
-			// if there are units from different forces on the same board (which shouldn't happen in normal gameplay)
-			const adjacentPositions = [
-				{ x: source.position.x - 1, y: source.position.y },     // left
-				{ x: source.position.x + 1, y: source.position.y },     // right
-				{ x: source.position.x, y: source.position.y - 1 },     // above
-				{ x: source.position.x, y: source.position.y + 1 }      // below
-			];
-			return getActiveUnits(state).filter(u =>
-				u.force !== sourceForce &&
-				adjacentPositions.some(pos => u.position.x === pos.x && u.position.y === pos.y)
-			);
-		}
-		case "all_enemies_in_column":
-			return getActiveUnits(state).filter(u => u.force !== sourceForce && u.position.x === source.position.x);
-		case "enemies_in_row":
-			// Note: Since enemies are on separate boards, they can't be in the same row as player units
-			// This selector will always return empty array for cross-board targeting
-			return [];
-
-		// === GUILD-WIDE EFFECTS ===
-		// Special case: when you need ALL enemies (for guild-wide effects like morale)
-		case "enemy_guild":
-			return getActiveUnits(state).filter(u => u.force !== sourceForce);
 
 		// === RANDOM UNIT TARGETING ===
 		// Targets any unit on the battlefield (allies and enemies)
@@ -331,8 +275,7 @@ export function resolveTargets(
 		}
 
 		default:
-			console.warn(`Unknown target selector: ${selector}. Using closest enemy as fallback.`);
-			return findClosestEnemy();
+			throw new Error(`Unknown target selector: ${selector}.`);
 	}
 }
 
@@ -658,9 +601,9 @@ export function setupAlliedReactions(
 		actionUnit.force,
 		sourceSelector,
 		state,
-		scene
 	);
 
+	// TODO: this might be unecessary
 	// Determine the correct event based on the source selector
 	const isEnemyReaction = sourceSelector.includes('enemies') || sourceSelector.includes('enemy');
 	const eventName = isEnemyReaction ? "onEnemyAction" : "onAlliedAction";
@@ -728,13 +671,11 @@ export function resolveTargetSelectorFromParams(
 			case 'same_column':
 				return 'all_allies_in_column';
 			case 'all_allies':
+				return 'all_allies';
 			case 'all':
 				return 'all_allies';
-			case 'enemy':
-			case 'closest_enemy':
-				return 'closest_enemy';
 			case 'all_enemies':
-				return 'enemy_guild';
+				return 'all_enemies';
 			default:
 				return targets; // Assume it's already a valid selector
 		}
