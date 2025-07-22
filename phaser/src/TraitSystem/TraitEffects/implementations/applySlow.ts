@@ -28,7 +28,7 @@ export function createApplySlowLogic(): TraitEffectFn {
 				const targetChara = CharaManager.getChara(target.id);
 				if (targetChara) {
 					// Use the new targeted arcane missile effect with slow callback
-					await arcaneMissileTargeted(
+					arcaneMissileTargeted(
 						scene,
 						{ x: sourceChara.x, y: sourceChara.y },
 						{ x: targetChara.x, y: targetChara.y },
@@ -50,7 +50,7 @@ export function createApplySlowLogic(): TraitEffectFn {
 								target.slowed += duration;
 
 								// Show the original slow effect at the target location
-								await slowEffect(scene, { x: targetChara.x, y: targetChara.y }, {
+								slowEffect(scene, { x: targetChara.x, y: targetChara.y }, {
 									duration: 1000,
 									intensity: 1.5,
 									color: 0xD2691E // Orange-brownish color matching the projectile

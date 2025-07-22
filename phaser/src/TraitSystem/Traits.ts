@@ -65,7 +65,7 @@ function processTraitEvent(
 				const targetSelector = resolveTargetSelectorFromParams(traitInstanceData, effectInstance);
 				const dynamicConditions = resolveConditionsFromParams(traitInstanceData, effectInstance);
 
-				const targets = resolveTargets(source, sourceForce, targetSelector, state, scene);
+				const targets = resolveTargets(source, sourceForce, targetSelector, state);
 
 				const context: TraitEffectContext = {
 					sourceUnit: source,
