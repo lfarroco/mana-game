@@ -6,6 +6,7 @@ import { Unit } from "../../Models/Entities/Unit";
 import { GameEvents } from "../../constants/events";
 import { delay } from "../../Utils/animation";
 import { TimeoutDamageSystem } from "./Systems/TimeoutDamageSystem";
+import { processUnitTraitsForEvent } from "../../TraitSystem/Traits";
 
 /**
  * Represents the possible outcomes of a combat wave.
@@ -75,6 +76,10 @@ export class RunCombatSystem {
         // Assuming unit actions are triggered by TRAIT_EVAL_UNIT_ACTION
         // and these actions are handled by listeners (e.g., AI system, skill execution system)
         events.emit(GameEvents.TRAIT_EVAL_UNIT_ACTION, { unit });
+
+        // After unit acts, check all other units for battle_reaction traits
+        await this.processBattleReactions(unit, state);
+
         events.emit(GameEvents.TRAIT_EVAL_TURN_END, { unit });
       }
 
@@ -109,6 +114,185 @@ export class RunCombatSystem {
 
     events.on('update', this.updateHandler);
   });
+
+  /**
+   * Processes battle_reaction traits for all units when a unit acts.
+   * This is the new centralized approach that checks all units for battle reactions
+   * when any unit performs an action.
+   */
+  private async processBattleReactions(actionUnit: Unit, state: State): Promise<void> {
+    // Get all active units
+    const allUnits = getActiveUnits(state);
+
+    // Get the unit's traits that are currently being executed
+    // We need to know what actions this unit is performing
+    const actingUnitTraits = actionUnit.traits || [];
+
+    console.log(`[BattleReaction] Processing reactions for unit ${actionUnit.id} with traits:`, actingUnitTraits.map(t => t.id));
+
+    // For each trait the acting unit has, determine what actions they can perform
+    for (const actingTrait of actingUnitTraits) {
+      // Determine what action this trait represents
+      const actionIds = this.getActionIdsFromTrait(actingTrait);
+
+      for (const actionId of actionIds) {
+        console.log(`[BattleReaction] Unit ${actionUnit.id} performing action: ${actionId}`);
+
+        // Now check all OTHER units for battle_reaction traits
+        for (const reactorUnit of allUnits) {
+          if (reactorUnit.id === actionUnit.id) continue; // Skip the acting unit itself
+
+          // Check each of the reactor's traits for battle_reaction
+          for (const reactorTrait of reactorUnit.traits || []) {
+            if (reactorTrait.id === 'battle_reaction') {
+              console.log(`[BattleReaction] Found battle_reaction on ${reactorUnit.id}:`, reactorTrait);
+
+              // Check if this battle_reaction matches the current action
+              if (this.shouldTriggerBattleReaction(reactorTrait, actionUnit, actionId, reactorUnit)) {
+                console.log(`[BattleReaction] Triggering reaction on ${reactorUnit.id} for action ${actionId}`);
+                // Trigger the reaction by processing the trait with the appropriate event
+                await this.triggerBattleReaction(reactorUnit, reactorTrait, actionUnit, actionId);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Determines what action IDs a trait can perform
+   */
+  private getActionIdsFromTrait(trait: any): string[] {
+    switch (trait.id) {
+      case 'damage':
+        return ['damage'];
+      case 'heal':
+        return ['heal'];
+      case 'shield':
+        return ['shield'];
+      case 'haste':
+        return ['haste'];
+      case 'slow':
+        return ['slow'];
+      case 'charge':
+        return ['charge'];
+      default:
+        return [];
+    }
+  }
+
+  /**
+   * Checks if a battle_reaction trait should trigger based on the action and source
+   */
+  private shouldTriggerBattleReaction(
+    battleReactionTrait: any,
+    actionUnit: Unit,
+    actionId: string,
+    reactorUnit: Unit
+  ): boolean {
+    // Check if the action ID matches
+    if (battleReactionTrait.actionId !== actionId) {
+      console.log(`[BattleReaction] Action ID mismatch: expected ${battleReactionTrait.actionId}, got ${actionId}`);
+      return false;
+    }
+
+    // Check if the source selector matches
+    const sourceSelector = battleReactionTrait.source_selector;
+    if (!sourceSelector) {
+      console.log(`[BattleReaction] No source_selector specified`);
+      return false;
+    }
+
+    // Check if the actionUnit matches the source selector relative to the reactorUnit
+    const matches = this.checkSourceSelectorMatch(sourceSelector, actionUnit, reactorUnit);
+    console.log(`[BattleReaction] Source selector ${sourceSelector} match: ${matches} (action unit: ${actionUnit.id}, reactor: ${reactorUnit.id})`);
+    return matches;
+  }
+
+  /**
+   * Checks if an action unit matches a source selector relative to a reactor unit
+   */
+  private checkSourceSelectorMatch(sourceSelector: string, actionUnit: Unit, reactorUnit: Unit): boolean {
+    // Handle force-based selectors
+    if (sourceSelector === 'all_allies') {
+      return actionUnit.force === reactorUnit.force && actionUnit.id !== reactorUnit.id;
+    }
+    if (sourceSelector === 'all_enemies') {
+      return actionUnit.force !== reactorUnit.force;
+    }
+    if (sourceSelector === 'self') {
+      return actionUnit.id === reactorUnit.id;
+    }
+
+    // Handle positional selectors
+    const reactorPos = reactorUnit.position;
+    const actionPos = actionUnit.position;
+
+    // Same force check for positional selectors
+    if (actionUnit.force !== reactorUnit.force) {
+      return false;
+    }
+
+    switch (sourceSelector) {
+      case 'left_ally':
+      case 'ally_left':
+        return actionPos.x === reactorPos.x - 1 && actionPos.y === reactorPos.y;
+
+      case 'right_ally':
+      case 'ally_right':
+        return actionPos.x === reactorPos.x + 1 && actionPos.y === reactorPos.y;
+
+      case 'ally_front':
+        // Front is direction dependent on force
+        const frontY = reactorUnit.force === 'player' ? reactorPos.y - 1 : reactorPos.y + 1;
+        return actionPos.x === reactorPos.x && actionPos.y === frontY;
+
+      case 'ally_back':
+        // Back is direction dependent on force
+        const backY = reactorUnit.force === 'player' ? reactorPos.y + 1 : reactorPos.y - 1;
+        return actionPos.x === reactorPos.x && actionPos.y === backY;
+
+      case 'same_row':
+      case 'all_allies_in_row':
+        return actionPos.y === reactorPos.y && actionUnit.id !== reactorUnit.id;
+
+      case 'same_column':
+      case 'all_allies_in_column':
+        return actionPos.x === reactorPos.x && actionUnit.id !== reactorUnit.id;
+
+      default:
+        console.warn(`[BattleReaction] Unknown source selector: ${sourceSelector}`);
+        return false;
+    }
+  }
+
+  /**
+   * Triggers a battle reaction by executing the trait
+   */
+  private async triggerBattleReaction(
+    reactorUnit: Unit,
+    battleReactionTrait: any,
+    actionUnit: Unit,
+    actionId: string
+  ): Promise<void> {
+    // Set up the trigger context so conditions can check it
+    const originalTriggerContext = (this.scene as any)._currentTriggerContext;
+    (this.scene as any)._currentTriggerContext = {
+      triggeringTraitId: battleReactionTrait.id,
+      triggeringUnitId: actionUnit.id,
+      triggeringAction: actionId,
+      triggeringActionId: actionId
+    };
+
+    try {
+      // Process the reactor's traits for the battle reaction event
+      processUnitTraitsForEvent(reactorUnit, "onBattleReaction", this.scene, this.scene.state);
+    } finally {
+      // Always restore the original context
+      (this.scene as any)._currentTriggerContext = originalTriggerContext;
+    }
+  }
 }
 
 /**

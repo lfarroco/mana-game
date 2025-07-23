@@ -6,8 +6,7 @@
 import { GameEvents } from '../../../constants/events';
 import { Force, applyDamageToForce } from '../../../Models/Entities/Force';
 import { Unit } from '../../../Models/Entities/Unit';
-import { TraitEffectFn, setupAlliedReactions } from '../../TraitEffectSystem';
-import { processUnitTraitsForEvent } from '../../Traits';
+import { TraitEffectFn } from '../../TraitEffectSystem';
 import { getEffectParams } from '../../TraitSystem.pure';
 
 /**
@@ -39,23 +38,8 @@ export function createDealDamageLogic(
 
 		dealDamage(targetForce, damageAmount, context.scene, shieldPiercingPercentage);
 
-		// Process ally traits that trigger on "onAlliedAction" when this unit attacks
-		// Get source_selector parameter from trait instance to determine which allies can react (defaults to 'all_allies')
-		const sourceSelector = context.traitInstanceParams.source_selector || 'all_allies';
-
-		// Use the helper function to set up allied reactions with configurable source targeting
-		const processReactions = setupAlliedReactions(
-			sourceUnit,
-			context.traitInstanceParams.id,
-			'attack',
-			'damage',
-			sourceSelector,
-			context.scene,
-			context.state
-		);
-
-		// Execute the reactions
-		processReactions(processUnitTraitsForEvent);
+		// Battle reactions are now handled centrally in the combat loop
+		// No need to manually trigger allied reactions here
 
 	};
 }

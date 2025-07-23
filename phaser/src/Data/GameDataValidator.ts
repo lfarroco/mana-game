@@ -224,7 +224,7 @@ export function validateEffectDefinition(effect: EffectDefinition, traitId: stri
 	// Validate known event triggers
 	const validEventTriggers = [
 		'onAction', 'onBattleStart', 'onAttackByMe', 'onTakeDamage',
-		'onLowMorale', 'onDeath', 'onSpawn', 'onAlliedAction', 'onEnemyAction'
+		'onLowMorale', 'onDeath', 'onSpawn', 'onAlliedAction', 'onEnemyAction', 'onBattleReaction'
 	];
 	if (effect.eventTrigger && !validEventTriggers.includes(effect.eventTrigger)) {
 		errors.push({

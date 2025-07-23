@@ -676,6 +676,10 @@ export function resolveTargetSelectorFromParams(
 				return 'all_allies';
 			case 'all_enemies':
 				return 'all_enemies';
+			case 'left_ally':
+				return 'ally_left';
+			case 'right_ally':
+				return 'ally_right';
 			default:
 				return targets; // Assume it's already a valid selector
 		}
