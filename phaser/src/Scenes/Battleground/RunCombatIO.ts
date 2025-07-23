@@ -7,6 +7,7 @@ import { GameEvents } from "../../constants/events";
 import { delay } from "../../Utils/animation";
 import { TimeoutDamageSystem } from "./Systems/TimeoutDamageSystem";
 import { processUnitTraitsForEvent } from "../../TraitSystem/Traits";
+import { processBattleReactionsPure } from "./BattleReaction.pure";
 
 /**
  * Represents the possible outcomes of a combat wave.
@@ -121,43 +122,13 @@ export class RunCombatSystem {
    * when any unit performs an action.
    */
   private async processBattleReactions(actionUnit: Unit, state: State): Promise<void> {
-    // Get all active units
-    const allUnits = getActiveUnits(state);
-
-    // Get the unit's traits that are currently being executed
-    // We need to know what actions this unit is performing
-    const actingUnitTraits = actionUnit.traits || [];
-
-    console.log(`[BattleReaction] Processing reactions for unit ${actionUnit.id} with traits:`, actingUnitTraits.map(t => t.id));
-
-    // For each trait the acting unit has, determine what actions they can perform
-    for (const actingTrait of actingUnitTraits) {
-      // Determine what action this trait represents
-      const actionIds = this.getActionIdsFromTrait(actingTrait);
-
-      for (const actionId of actionIds) {
-        console.log(`[BattleReaction] Unit ${actionUnit.id} performing action: ${actionId}`);
-
-        // Now check all OTHER units for battle_reaction traits
-        for (const reactorUnit of allUnits) {
-          if (reactorUnit.id === actionUnit.id) continue; // Skip the acting unit itself
-
-          // Check each of the reactor's traits for battle_reaction
-          for (const reactorTrait of reactorUnit.traits || []) {
-            if (reactorTrait.id === 'battle_reaction') {
-              console.log(`[BattleReaction] Found battle_reaction on ${reactorUnit.id}:`, reactorTrait);
-
-              // Check if this battle_reaction matches the current action
-              if (this.shouldTriggerBattleReaction(reactorTrait, actionUnit, actionId, reactorUnit)) {
-                console.log(`[BattleReaction] Triggering reaction on ${reactorUnit.id} for action ${actionId}`);
-                // Trigger the reaction by processing the trait with the appropriate event
-                await this.triggerBattleReaction(reactorUnit, reactorTrait, actionUnit, actionId);
-              }
-            }
-          }
-        }
-      }
-    }
+    // Use the pure function, injecting the instance methods as dependencies
+    await processBattleReactionsPure(actionUnit, state, {
+      getActionIdsFromTrait: this.getActionIdsFromTrait.bind(this),
+      shouldTriggerBattleReaction: this.shouldTriggerBattleReaction.bind(this),
+      triggerBattleReaction: this.triggerBattleReaction.bind(this),
+      getActiveUnits: getActiveUnits,
+    });
   }
 
   /**
