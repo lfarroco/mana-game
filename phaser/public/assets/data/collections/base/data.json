@@ -12,9 +12,9 @@
 		"The power can be balanced by adjusting the cooldown",
 		"The only valid forms of enemy targeting are 'all_enemies' and 'random_enemy'",
 		"When targeting allies, 'adjacent_allies' (4 targets) and 'all_allies' (9 targets) are more expensive",
-		"The next most expensive are 'same_row' and 'same_column', as they target up to 2 allies",
+		"The next most expensive are 'same_row_allies' and 'same_column_allies', as they target up to 2 allies",
 		"Other allied targeting options (left/right/front/back/self) can target up to 1 ally, so they are considered cheaper",
-		"So a card that reacts to 'same_row', can receive up to 10dps each time all 2 allies perform",
+		"So a card that reacts to 'same_row_allies', can receive up to 10dps each time all 2 allies perform",
 		"Reactions to all enemies/allies should provide little 1/8 of the base dps",
 		"The same ratios should be respected for units that concede bonuses when they perform",
 		"Actions that can be reacted: damage, heal, shield, haste, slow.",
@@ -58,7 +58,7 @@
 				{
 					"id": "boost_power_on_battle_start",
 					"amount": 3,
-					"targets": "same_row"
+					"targets": "same_row_allies"
 				}
 			]
 		},
@@ -80,7 +80,7 @@
 					"effect_type": "heal",
 					"amount": 2,
 					"actionId": "heal",
-					"source_selector": "same_column",
+					"source_selector": "same_column_allies",
 					"description": "When a column ally [color=green]heals[/color], [color=green]heal {amount}[/color]"
 				}
 			]
@@ -145,7 +145,7 @@
 				{
 					"id": "haste",
 					"duration": 1200,
-					"targets": "same_row"
+					"targets": "same_row_allies"
 				}
 			]
 		},
@@ -192,7 +192,7 @@
 				{
 					"id": "charge",
 					"amount": 800,
-					"targets": "same_column"
+					"targets": "same_column_allies"
 				}
 			]
 		},
@@ -337,7 +337,7 @@
 				{
 					"id": "boost_power_on_battle_start",
 					"amount": 2,
-					"targets": "same_row"
+					"targets": "same_row_allies"
 				}
 			]
 		},
@@ -386,7 +386,7 @@
 				{
 					"id": "haste",
 					"duration": 800,
-					"targets": "same_column"
+					"targets": "same_column_allies"
 				}
 			]
 		},
@@ -430,7 +430,7 @@
 					"effect_type": "charge",
 					"amount": 400,
 					"actionId": "heal",
-					"source_selector": "same_row",
+					"source_selector": "same_row_allies",
 					"description": "When a row ally [color=green]heals[/color], [color=orange]charge 800ms[/color]"
 				}
 			]
@@ -457,10 +457,9 @@
 				{
 					"id": "battle_reaction",
 					"effect_type": "damage",
-					"amount": 1,
 					"actionId": "damage",
 					"source_selector": "all_enemies",
-					"description": "When any enemy deals [color=red]damage[/color], deal [color=red]3 damage[/color]"
+					"description": "When any enemy deals [color=red]damage[/color], deal [color=red]{amount} damage[/color]"
 				},
 				{
 					"id": "shield_piercing",
@@ -530,7 +529,7 @@
 					"effect_type": "charge",
 					"amount": 1000,
 					"actionId": "shield",
-					"source_selector": "same_column",
+					"source_selector": "same_column_allies",
 					"description": "When a column ally gains [color=yellow]shield[/color], [color=orange]charge 1000ms[/color]"
 				}
 			]
@@ -552,7 +551,7 @@
 				{
 					"id": "charge",
 					"amount": 1200,
-					"targets": "same_row"
+					"targets": "same_row_allies"
 				}
 			]
 		},
@@ -573,7 +572,7 @@
 				{
 					"id": "boost_power_on_battle_start",
 					"amount": 2,
-					"targets": "same_column"
+					"targets": "same_column_allies"
 				}
 			]
 		},
@@ -719,7 +718,7 @@
 					"effect_type": "shield",
 					"amount": 4,
 					"actionId": "shield",
-					"source_selector": "same_row",
+					"source_selector": "same_row_allies",
 					"description": "When a row ally gains [color=yellow]shield[/color], gain [color=yellow]4 shield[/color]"
 				}
 			]
@@ -741,7 +740,7 @@
 				{
 					"id": "charge",
 					"amount": 1000,
-					"targets": "same_column"
+					"targets": "same_column_allies"
 				}
 			]
 		},
@@ -1038,7 +1037,7 @@
 					"effect_type": "damage",
 					"amount": 2,
 					"actionId": "haste",
-					"source_selector": "same_row",
+					"source_selector": "same_row_allies",
 					"targets": "random_enemy",
 					"description": "When a row ally gains [color=blue]haste[/color], deal [color=red]2 damage[/color]"
 				}
@@ -1085,14 +1084,14 @@
 				{
 					"id": "haste",
 					"duration": 1200,
-					"targets": "same_column"
+					"targets": "same_column_allies"
 				},
 				{
 					"id": "battle_reaction",
 					"effect_type": "shield",
 					"amount": 8,
 					"actionId": "haste",
-					"source_selector": "same_column",
+					"source_selector": "same_column_allies",
 					"targets": "self",
 					"description": "When a column ally gains [color=blue]haste[/color], gain [color=yellow]shield 8[/color]"
 				}

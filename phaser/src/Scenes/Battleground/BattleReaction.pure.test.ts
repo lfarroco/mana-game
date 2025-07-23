@@ -34,8 +34,8 @@ describe("property-based battle reaction tests", () => {
 		{ selector: "ally_right", actionPos: { x: 2, y: 1 }, reactorPos: { x: 1, y: 1 }, shouldTrigger: true },
 		{ selector: "all_allies", actionPos: { x: 1, y: 1 }, reactorPos: { x: 2, y: 1 }, shouldTrigger: true },
 		{ selector: "all_enemies", actionPos: { x: 1, y: 1 }, reactorPos: { x: 2, y: 1 }, shouldTrigger: false }, // different force needed
-		{ selector: "same_row", actionPos: { x: 1, y: 2 }, reactorPos: { x: 2, y: 2 }, shouldTrigger: true },
-		{ selector: "same_column", actionPos: { x: 3, y: 1 }, reactorPos: { x: 3, y: 2 }, shouldTrigger: true },
+		{ selector: "same_row_allies", actionPos: { x: 1, y: 2 }, reactorPos: { x: 2, y: 2 }, shouldTrigger: true },
+		{ selector: "same_column_allies", actionPos: { x: 3, y: 1 }, reactorPos: { x: 3, y: 2 }, shouldTrigger: true },
 	];
 
 	it.each(noTargetEffects.flatMap(effect => selectors.map(sel => [effect, sel] as const)))
@@ -60,10 +60,10 @@ describe("property-based battle reaction tests", () => {
 							return (actionUnit as Unit).force === (reactorUnit as Unit).force && (actionUnit as Unit).id !== (reactorUnit as Unit).id;
 						case "all_enemies":
 							return (actionUnit as Unit).force !== (reactorUnit as Unit).force;
-						case "same_row":
-							return (actionUnit as Unit).position.y === (reactorUnit as Unit).position.y && (actionUnit as Unit).id !== (reactorUnit as Unit).id;
-						case "same_column":
-							return (actionUnit as Unit).position.x === (reactorUnit as Unit).position.x && (actionUnit as Unit).id !== (reactorUnit as Unit).id;
+						case "same_row_allies":
+							return (actionUnit as Unit).force === (reactorUnit as Unit).force && (actionUnit as Unit).position.y === (reactorUnit as Unit).position.y && (actionUnit as Unit).id !== (reactorUnit as Unit).id;
+						case "same_column_allies":
+							return (actionUnit as Unit).force === (reactorUnit as Unit).force && (actionUnit as Unit).position.x === (reactorUnit as Unit).position.x && (actionUnit as Unit).id !== (reactorUnit as Unit).id;
 						default:
 							return false;
 					}

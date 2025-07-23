@@ -224,11 +224,11 @@ export class RunCombatSystem {
         const backY = reactorUnit.force === 'player' ? reactorPos.y + 1 : reactorPos.y - 1;
         return actionPos.x === reactorPos.x && actionPos.y === backY;
 
-      case 'same_row':
+      case 'same_row_allies':
       case 'all_allies_in_row':
         return actionPos.y === reactorPos.y && actionUnit.id !== reactorUnit.id;
 
-      case 'same_column':
+      case 'same_column_allies':
       case 'all_allies_in_column':
         return actionPos.x === reactorPos.x && actionUnit.id !== reactorUnit.id;
 

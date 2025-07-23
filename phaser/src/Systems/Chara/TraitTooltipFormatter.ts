@@ -71,9 +71,9 @@ function formatTargetName(targets: any): string {
 		case 'adjacent': return 'adjacent allies';
 		case 'diagonal': return 'diagonal allies';
 		case 'row':
-		case 'same_row': return 'allies in row';
+		case 'same_row_allies': return 'allies in row';
 		case 'column':
-		case 'same_column': return 'allies in column';
+		case 'same_column_allies': return 'allies in column';
 		case 'all_allies':
 		case 'all': return 'all allies';
 		case 'all_enemies': return 'all enemies';

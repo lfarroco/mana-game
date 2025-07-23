@@ -665,10 +665,10 @@ export function resolveTargetSelectorFromParams(
 			case 'diagonal':
 				return 'allies_diagonal';
 			case 'row':
-			case 'same_row':
+			case 'same_row_allies':
 				return 'all_allies_in_row';
 			case 'column':
-			case 'same_column':
+			case 'same_column_allies':
 				return 'all_allies_in_column';
 			case 'all_allies':
 				return 'all_allies';
