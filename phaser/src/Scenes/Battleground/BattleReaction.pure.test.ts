@@ -30,14 +30,19 @@ describe("processBattleReactionsPure", () => {
 		} as any;
 	});
 
-	it("triggers battle_reaction trait on other units when action matches", async () => {
-		const actionUnit = makeUnit("u1", "player", [{ id: "damage" }]);
+
+	it.each([
+		["damage"],
+		["heal"],
+		["shield"]
+	])("triggers battle_reaction for %s (party morale effect, no target)", async (effect) => {
+		const actionUnit = makeUnit("u1", "player", [{ id: effect }]);
 		const reactorUnit = makeUnit("u2", "cpu", [
-			{ id: "battle_reaction", actionId: "damage", source_selector: "all_enemies" }
+			{ id: "battle_reaction", actionId: effect, source_selector: "all_enemies" }
 		]);
 		const triggerSpy = jest.fn();
 		const deps: BattleReactionDeps = {
-			getActionIdsFromTrait: () => ["damage"],
+			getActionIdsFromTrait: () => [effect],
 			shouldTriggerBattleReaction: () => true,
 			triggerBattleReaction: triggerSpy,
 			getActiveUnits: () => [actionUnit, reactorUnit],
@@ -47,7 +52,40 @@ describe("processBattleReactionsPure", () => {
 			reactorUnit,
 			reactorUnit.traits[0],
 			actionUnit,
-			"damage"
+			effect
+		);
+	});
+
+	it.each([
+		["haste", { x: 1, y: 1 }, { x: 2, y: 1 }, "ally_right"],
+		["slow", { x: 2, y: 1 }, { x: 1, y: 1 }, "ally_left"]
+	])("triggers battle_reaction for %s with correct unit targeting (source_selector: %s)", async (effect, actionPos, reactorPos, selector) => {
+		const actionUnit = makeUnit("u1", "player", [{ id: effect }], actionPos);
+		const reactorUnit = makeUnit("u2", "player", [
+			{ id: "battle_reaction", actionId: effect, source_selector: selector }
+		], reactorPos);
+		const triggerSpy = jest.fn();
+		const deps: BattleReactionDeps = {
+			getActionIdsFromTrait: () => [effect],
+			shouldTriggerBattleReaction: (_trait, actionUnit, _actionId, reactorUnit) => {
+				// For haste: actionUnit must be to the right of reactorUnit
+				// For slow: actionUnit must be to the left of reactorUnit
+				if (effect === "haste") {
+					return (actionUnit as Unit).position.x === (reactorUnit as Unit).position.x - 1;
+				} else if (effect === "slow") {
+					return (actionUnit as Unit).position.x === (reactorUnit as Unit).position.x + 1;
+				}
+				return false;
+			},
+			triggerBattleReaction: triggerSpy,
+			getActiveUnits: () => [actionUnit, reactorUnit],
+		};
+		await processBattleReactionsPure(actionUnit, state, deps);
+		expect(triggerSpy).toHaveBeenCalledWith(
+			reactorUnit,
+			reactorUnit.traits[0],
+			actionUnit,
+			effect
 		);
 	});
 
