@@ -7,8 +7,7 @@ import { GameEvents } from '../../../constants/events';
 import { Force, manipulateForceMorale } from '../../../Models/Entities/Force';
 import { Unit } from '../../../Models/Entities/Unit';
 import { getChara } from '../../../Scenes/Battleground/Systems/CharaManager';
-import { TraitEffectFn, setupAlliedReactions } from '../../TraitEffectSystem';
-import { processUnitTraitsForEvent } from '../../Traits';
+import { TraitEffectFn } from '../../TraitEffectSystem';
 
 /**
  * Pure function to create the restore morale effect implementation
@@ -40,7 +39,7 @@ export function createRestoreMoraleLogic(
  */
 export const restoreMoraleLogicIO: TraitEffectFn = async (context) => {
 
-	const { scene, sourceUnit } = context;
+	const { scene } = context;
 
 	const emitter = (unit: Unit, amount: number) => {
 		scene.events.emit(
@@ -52,23 +51,8 @@ export const restoreMoraleLogicIO: TraitEffectFn = async (context) => {
 	const impl = createRestoreMoraleLogic(emitter, manipulateForceMorale);
 	await impl(context);
 
-	// Process ally traits that trigger on "onAlliedAction" when this unit heals
-	// Get source_selector parameter from trait instance to determine which allies can react (defaults to 'all_allies')
-	const sourceSelector = context.traitInstanceParams.source_selector || 'all_allies';
-
-	// Use the helper function to set up allied reactions with configurable source targeting
-	const processReactions = setupAlliedReactions(
-		sourceUnit,
-		context.traitInstanceParams.id,
-		'heal',
-		'heal',
-		sourceSelector,
-		context.scene,
-		context.state
-	);
-
-	// Execute the reactions
-	processReactions(processUnitTraitsForEvent);
+	// Battle reactions are now handled centrally in the combat loop
+	// No need to manually trigger allied reactions here
 };
 
 /**

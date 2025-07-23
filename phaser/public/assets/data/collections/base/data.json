@@ -1229,11 +1229,7 @@
 			"effects": [
 				{
 					"effectId": "DYNAMIC",
-					"eventTrigger": "onAlliedAction"
-				},
-				{
-					"effectId": "DYNAMIC",
-					"eventTrigger": "onEnemyAction"
+					"eventTrigger": "onBattleReaction"
 				}
 			]
 		},
