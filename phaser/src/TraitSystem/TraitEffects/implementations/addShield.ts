@@ -17,10 +17,10 @@ export function createAddShieldLogic(
 	addShield: (targetForce: Force, amount: number, scene: Phaser.Scene) => void
 ): TraitEffectFn {
 	return async (context) => {
-		const { sourceUnit } = context;
+		const { sourceUnit, effectInstance, traitInstanceParams } = context;
 
-		// Use unit's power as shield amount
-		const shieldAmount = sourceUnit.power;
+		// Use trait 'amount' if present, otherwise fallback to unit's power
+		const shieldAmount = effectInstance.amount ?? traitInstanceParams.amount ?? sourceUnit.power;
 
 		emitter(sourceUnit, shieldAmount);
 

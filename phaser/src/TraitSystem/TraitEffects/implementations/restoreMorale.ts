@@ -18,10 +18,10 @@ export function createRestoreMoraleLogic(
 	healMorale: (targetForce: Force, amount: number, scene: Phaser.Scene) => void
 ): TraitEffectFn {
 	return async (context) => {
-		const { sourceUnit } = context;
+		const { sourceUnit, effectInstance, traitInstanceParams } = context;
 
-		// Use unit's power as heal amount
-		const healAmount = sourceUnit.power;
+		// Use trait 'amount' if present, otherwise fallback to unit's power
+		const healAmount = effectInstance.amount ?? traitInstanceParams.amount ?? sourceUnit.power;
 
 		emitter(sourceUnit, healAmount);
 
