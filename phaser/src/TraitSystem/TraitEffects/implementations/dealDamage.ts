@@ -18,10 +18,11 @@ export function createDealDamageLogic(
 	dealDamage: (targetForce: Force, damage: number, scene: Phaser.Scene, shieldPiercingPercentage?: number) => void
 ): TraitEffectFn {
 	return async (context) => {
-		const { sourceUnit } = context;
+		const { sourceUnit, effectInstance, traitInstanceParams } = context;
 
 		// Use unit's power as damage amount
-		const damageAmount = sourceUnit.power;
+		// Use trait 'amount' if present, otherwise fallback to unit's power
+		let damageAmount = effectInstance.amount ?? traitInstanceParams.amount ?? sourceUnit.power;
 
 		emitter(sourceUnit, damageAmount);
 
