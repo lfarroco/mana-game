@@ -825,11 +825,11 @@
 				{
 					"id": "battle_reaction",
 					"effect_type": "charge",
-					"amount": 800,
+					"amount": 1000,
 					"actionId": "damage",
 					"source_selector": "right_ally",
 					"targets": "self",
-					"description": "When right ally deals [color=red]damage[/color], gain [color=orange]charge 800ms[/color]"
+					"description": "When right ally deals [color=red]damage[/color], [color=orange]charge {amount}[/color]"
 				}
 			]
 		},
@@ -899,12 +899,12 @@
 				},
 				{
 					"id": "battle_reaction",
-					"effect_type": "shield",
-					"amount": 3,
+					"effect_type": "power_boost",
+					"amount": 4,
 					"actionId": "shield",
 					"source_selector": "left_ally",
 					"targets": "self",
-					"description": "When left ally gains [color=yellow]shield[/color], gain [color=yellow]3 shield[/color]"
+					"description": "When left ally gains [color=yellow]shield[/color], gain [color=white]{amount} power[/color]"
 				}
 			]
 		},
@@ -924,12 +924,12 @@
 				},
 				{
 					"id": "battle_reaction",
-					"effect_type": "heal",
-					"amount": 2,
+					"effect_type": "power_boost",
+					"amount": 4,
 					"actionId": "damage",
 					"source_selector": "right_ally",
-					"targets": "random_ally",
-					"description": "When right ally deals [color=red]damage[/color], [color=green]heal 2[/color] to a random ally"
+					"targets": "self",
+					"description": "When right ally deals [color=red]damage[/color], gain [color=white]{amount} power[/color]"
 				}
 			]
 		},
