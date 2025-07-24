@@ -526,7 +526,7 @@
 				},
 				{
 					"id": "charge",
-					"amount": 1200,
+					"amount": 1000,
 					"targets": "same_row_allies"
 				}
 			]
@@ -590,15 +590,15 @@
 				"support",
 				"magical"
 			],
-			"power": 3,
-			"cooldown": 3600,
+			"power": 5,
+			"cooldown": 7600,
 			"traits": [
 				{
 					"id": "heal"
 				},
 				{
 					"id": "charge",
-					"amount": 2000,
+					"amount": 1000,
 					"targets": "all_allies"
 				}
 			]
@@ -624,7 +624,7 @@
 				{
 					"id": "battle_reaction",
 					"effect_type": "slow",
-					"amount": 1200,
+					"amount": 1000,
 					"actionId": "shield",
 					"source_selector": "all_allies",
 					"targets": "random_enemy",
@@ -639,19 +639,16 @@
 			"tags": [
 				"melee"
 			],
-			"power": 6,
+			"power": 35,
 			"cooldown": 2000,
 			"traits": [
 				{
 					"id": "damage"
 				},
 				{
-					"id": "battle_reaction",
-					"effect_type": "slow",
-					"amount": 500,
-					"actionId": "damage",
-					"source_selector": "self",
-					"description": "When this unit deals [color=red]damage[/color], [color=purple]slow self 500ms[/color]"
+					"id": "slow",
+					"duration": 2000,
+					"targets": "self"
 				}
 			]
 		},
@@ -691,11 +688,12 @@
 				},
 				{
 					"id": "battle_reaction",
-					"effect_type": "shield",
+					"effect_type": "power_boost",
+					"target": "self",
 					"amount": 4,
 					"actionId": "shield",
 					"source_selector": "same_row_allies",
-					"description": "When a row ally gains [color=yellow]shield[/color], gain [color=yellow]4 shield[/color]"
+					"description": "When a row ally gains [color=yellow]shield[/color], gain 4 power"
 				}
 			]
 		},
