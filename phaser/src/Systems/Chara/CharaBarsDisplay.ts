@@ -59,9 +59,10 @@ export class CharaBarsDisplay {
 		// The border in Chara.ts uses: (constants.TILE_WIDTH * 0.8) / 2
 		const borderRadius = (constants.TILE_WIDTH * 0.8) / 2;
 		const arcRadius = borderRadius; // match border exactly
+		const lineWidth = 10; // match border width
 		const startAngle = Phaser.Math.DegToRad(-90); // Start at top
 		const endAngle = startAngle + Phaser.Math.DegToRad(360 * percent);
-		chargeBar.lineStyle(3, color, 1); // match border width (border is 3)
+		chargeBar.lineStyle(lineWidth, color, 0.8); // match border width (border is 3)
 		if (percent > 0) {
 			chargeBar.beginPath();
 			chargeBar.arc(centerX, centerY, arcRadius, startAngle, endAngle, false);
