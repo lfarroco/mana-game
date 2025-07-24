@@ -214,26 +214,26 @@ export function resolveTargets(
 			return [pickOne(allies)]; // Return a single random ally
 		}
 		case "all_allies_in_row":
-			return getActiveUnits(state).filter(sameRow).filter(notSelf);
+			return getActiveUnits(state).filter(sameForce).filter(sameRow).filter(notSelf);
 		case "all_allies_in_column":
-			return getActiveUnits(state).filter(sameColumn).filter(notSelf);
+			return getActiveUnits(state).filter(sameForce).filter(sameColumn).filter(notSelf);
 		case "ally_left": {
 			const targetPos = { x: source.position.x - 1, y: source.position.y };
-			return getActiveUnits(state).filter(u => sameForce(u) && u.position.x === targetPos.x && u.position.y === targetPos.y);
+			return getActiveUnits(state).filter(sameForce).filter(u => sameForce(u) && u.position.x === targetPos.x && u.position.y === targetPos.y);
 		}
 		case "ally_right": {
 			const targetPos = { x: source.position.x + 1, y: source.position.y };
-			return getActiveUnits(state).filter(u => u.force === sourceForce && u.position.x === targetPos.x && u.position.y === targetPos.y);
+			return getActiveUnits(state).filter(sameForce).filter(u => u.position.x === targetPos.x && u.position.y === targetPos.y);
 		}
 		case "ally_front": {
 			const yOffset = source.force === FORCE_ID_PLAYER ? -1 : 1;
 			const targetPos = { x: source.position.x, y: source.position.y + yOffset };
-			return getActiveUnits(state).filter(u => u.force === sourceForce && u.position.x === targetPos.x && u.position.y === targetPos.y);
+			return getActiveUnits(state).filter(sameForce).filter(u => u.position.x === targetPos.x && u.position.y === targetPos.y);
 		}
 		case "ally_back": {
 			const yOffset = source.force === FORCE_ID_PLAYER ? 1 : -1;
 			const targetPos = { x: source.position.x, y: source.position.y + yOffset };
-			return getActiveUnits(state).filter(u => u.force === sourceForce && u.position.x === targetPos.x && u.position.y === targetPos.y);
+			return getActiveUnits(state).filter(sameForce).filter(u => u.position.x === targetPos.x && u.position.y === targetPos.y);
 		}
 		case "allies_adjacent": {
 			const adjacentPositions = [
@@ -242,8 +242,7 @@ export function resolveTargets(
 				{ x: source.position.x, y: source.position.y - 1 },     // above
 				{ x: source.position.x, y: source.position.y + 1 }      // below
 			];
-			return getActiveUnits(state).filter(u =>
-				u.force === sourceForce &&
+			return getActiveUnits(state).filter(sameForce).filter(u =>
 				u.id !== source.id &&
 				adjacentPositions.some(pos => u.position.x === pos.x && u.position.y === pos.y)
 			);
@@ -255,8 +254,7 @@ export function resolveTargets(
 				{ x: source.position.x - 1, y: source.position.y + 1 },     // bottom-left
 				{ x: source.position.x + 1, y: source.position.y + 1 }      // bottom-right
 			];
-			return getActiveUnits(state).filter(u =>
-				u.force === sourceForce &&
+			return getActiveUnits(state).filter(sameForce).filter(u =>
 				u.id !== source.id &&
 				diagonalPositions.some(pos => u.position.x === pos.x && u.position.y === pos.y)
 			);
