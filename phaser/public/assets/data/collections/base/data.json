@@ -18,7 +18,11 @@
 		"Reactions to all enemies/allies should provide little 1/8 of the base dps",
 		"The same ratios should be respected for units that concede bonuses when they perform",
 		"Actions that can be reacted: damage, heal, shield, haste, slow.",
-		"Charge can't be reacted to"
+		"Charge can't be reacted to",
+		"charge, slow and haste all operate on a 1000ms scale",
+		"no unit can have cooldown lower than 1000ms - even with effects, the game will cap it",
+		"Avoid 'on heal, heal' effects and variation - instead, use 'on x,  power boost'",
+		"self-reactions are not necessary - use a regular trait instead. instead of 'on damage, slow', use just a slow trait",
 	],
 	"cards": [
 		{
@@ -37,7 +41,7 @@
 				},
 				{
 					"id": "positional_boost",
-					"amount": 8,
+					"amount": 10,
 					"position": "back"
 				}
 			]
@@ -57,7 +61,7 @@
 				},
 				{
 					"id": "boost_power_on_battle_start",
-					"amount": 3,
+					"amount": 5,
 					"targets": "same_row_allies"
 				}
 			]
@@ -77,11 +81,11 @@
 				},
 				{
 					"id": "battle_reaction",
-					"effect_type": "heal",
+					"effect_type": "power_boost",
 					"amount": 2,
 					"actionId": "heal",
 					"source_selector": "same_column_allies",
-					"description": "When a column ally [color=green]heals[/color], [color=green]heal {amount}[/color]"
+					"description": "When a column ally [color=green]heals[/color], gain {amount} power"
 				}
 			]
 		},
@@ -100,7 +104,7 @@
 				},
 				{
 					"id": "positional_boost",
-					"amount": 8,
+					"amount": 10,
 					"position": "front"
 				}
 			]
@@ -113,19 +117,17 @@
 				"ranged",
 				"magical"
 			],
-			"power": 6,
+			"power": 18,
 			"cooldown": 3600,
 			"traits": [
 				{
 					"id": "damage"
 				},
 				{
-					"id": "battle_reaction",
-					"effect_type": "slow",
-					"amount": 600,
-					"actionId": "damage",
-					"source_selector": "self",
-					"description": "When this unit deals [color=red]damage[/color], [color=purple]slow self for 1s[/color]"
+					"id": "slow",
+					"duration": 1000,
+					"targets": "self",
+					"description": "[color=purple]slow[/color] self for {duration}"
 				}
 			]
 		},
@@ -136,7 +138,7 @@
 			"tags": [
 				"support"
 			],
-			"power": 4,
+			"power": 10,
 			"cooldown": 3200,
 			"traits": [
 				{
@@ -157,7 +159,7 @@
 				"ranged",
 				"magical"
 			],
-			"power": 4,
+			"power": 10,
 			"cooldown": 3600,
 			"traits": [
 				{
@@ -170,7 +172,7 @@
 				},
 				{
 					"id": "slow",
-					"duration": 600,
+					"duration": 1000,
 					"targets": "random_enemy"
 				}
 			]
@@ -183,7 +185,7 @@
 				"ranged",
 				"magical"
 			],
-			"power": 5,
+			"power": 10,
 			"cooldown": 3200,
 			"traits": [
 				{
@@ -191,7 +193,7 @@
 				},
 				{
 					"id": "charge",
-					"amount": 800,
+					"amount": 1000,
 					"targets": "same_column_allies"
 				}
 			]
@@ -204,14 +206,11 @@
 				"tank",
 				"support"
 			],
-			"power": 4,
+			"power": 10,
 			"cooldown": 3200,
 			"traits": [
 				{
 					"id": "shield"
-				},
-				{
-					"id": "heal"
 				},
 				{
 					"id": "slow",
@@ -227,7 +226,7 @@
 			"tags": [
 				"melee"
 			],
-			"power": 7,
+			"power": 5,
 			"cooldown": 2600,
 			"traits": [
 				{
@@ -235,13 +234,8 @@
 				},
 				{
 					"id": "haste",
-					"duration": 600,
+					"duration": 1000,
 					"targets": "self"
-				},
-				{
-					"id": "slow",
-					"amount": 400,
-					"targets": "random_enemy"
 				},
 				{
 					"id": "shield_piercing",
@@ -257,7 +251,7 @@
 				"support",
 				"magical"
 			],
-			"power": 3,
+			"power": 10,
 			"cooldown": 3200,
 			"traits": [
 				{
@@ -277,7 +271,7 @@
 			"tags": [
 				"melee"
 			],
-			"power": 7,
+			"power": 10,
 			"cooldown": 3200,
 			"traits": [
 				{
@@ -286,14 +280,10 @@
 				{
 					"id": "battle_reaction",
 					"effect_type": "haste",
-					"amount": 600,
+					"duration": 1000,
 					"actionId": "damage",
 					"source_selector": "self",
-					"description": "When this unit deals [color=red]damage[/color], gain [color=blue]haste 1000ms[/color]"
-				},
-				{
-					"id": "shield_piercing",
-					"percentage": 40
+					"description": "When this unit deals [color=red]damage[/color], gain [color=blue]haste {duration}[/color]"
 				}
 			]
 		},
@@ -305,7 +295,7 @@
 				"tank",
 				"support"
 			],
-			"power": 2,
+			"power": 10,
 			"cooldown": 3200,
 			"traits": [
 				{
@@ -313,11 +303,11 @@
 				},
 				{
 					"id": "battle_reaction",
-					"effect_type": "heal",
-					"amount": 1,
-					"actionId": "heal",
+					"effect_type": "power_boost",
+					"amount": 4,
+					"actionId": "shield",
 					"source_selector": "all_allies",
-					"description": "When any ally [color=green]heals[/color], [color=green]heal 3[/color]"
+					"description": "When any ally [color=green]heals[/color], [color=green]shield {amount}[/color]"
 				}
 			]
 		},
@@ -358,10 +348,10 @@
 				{
 					"id": "battle_reaction",
 					"effect_type": "heal",
-					"amount": 1,
+					"amount": 10,
 					"actionId": "damage",
 					"source_selector": "self",
-					"description": "When this unit deals [color=red]damage[/color], [color=green]heal 2[/color]"
+					"description": "When this unit deals [color=red]damage[/color], [color=green]heal {amount}[/color]"
 				},
 				{
 					"id": "shield_piercing",
@@ -536,6 +526,7 @@
 		},
 		{
 			"id": "tree_hugger_tim",
+			"works": true,
 			"name": "Tree Hugger Tim",
 			"pic": "assets/cards/nature_priest.png",
 			"tags": [
