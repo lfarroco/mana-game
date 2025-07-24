@@ -37,7 +37,9 @@ export class BattlegroundSetupSystem {
 			this.scene.load.image(asset.pic, asset.pic);
 		};
 
-		collection.cards.forEach(card => loadAsset(card, "card"));
+		collection.cards
+			.slice(0, 5)
+			.forEach(card => loadAsset(card, "card"));
 
 		this.scene.load.once("complete", () => {
 			devlog("Dynamic asset loading complete for BattlegroundScene.");
