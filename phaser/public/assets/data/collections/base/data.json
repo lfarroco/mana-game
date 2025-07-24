@@ -752,17 +752,13 @@
 			"traits": [
 				{
 					"id": "charge",
-					"amount": 1500,
-					"targets": "random_ally"
+					"amount": 1000,
+					"targets": "left_ally"
 				},
 				{
-					"id": "battle_reaction",
-					"effect_type": "haste",
+					"id": "charge",
 					"amount": 1000,
-					"actionId": "charge",
-					"source_selector": "all_allies",
-					"targets": "random_ally",
-					"description": "When any ally gains [color=orange]charge[/color], give a random ally [color=blue]haste 1000ms[/color]"
+					"targets": "right_ally"
 				}
 			]
 		},
@@ -774,21 +770,16 @@
 				"support",
 				"melee"
 			],
-			"power": 4,
+			"power": 5,
 			"cooldown": 5800,
 			"traits": [
 				{
 					"id": "damage"
 				},
 				{
-					"id": "battle_reaction",
-					"effect_type": "power_boost",
-					"attribute": "power",
-					"amount": 2,
-					"actionId": "damage",
-					"source_selector": "all_allies",
-					"targets": "self",
-					"description": "When any ally deals [color=red]damage[/color], gain [color=white]+2 power[/color]"
+					"id": "power_boost_on_action",
+					"targets": "all_allies",
+					"amount": 2
 				}
 			]
 		},
@@ -1073,6 +1064,22 @@
 		}
 	],
 	"traits": [
+		{
+			"id": "power_boost_on_action",
+			"name": "Power Boost",
+			"description": "Grant {amount} power to {targets}",
+			"categories": [
+				"support",
+				"reactive"
+			],
+			"effects": [
+				{
+					"effectId": "modify_stat_passive",
+					"eventTrigger": "onAction",
+					"attribute": "power"
+				}
+			]
+		},
 		{
 			"id": "boost_power_on_battle_start",
 			"name": "Power Boost",
