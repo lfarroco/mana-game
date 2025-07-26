@@ -38,7 +38,6 @@ export class BattlegroundSetupSystem {
 		};
 
 		collection.cards
-			.slice(45, 50)
 			.forEach(card => loadAsset(card, "card"));
 
 		this.scene.load.once("complete", () => {
