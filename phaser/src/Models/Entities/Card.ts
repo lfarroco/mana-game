@@ -19,7 +19,7 @@ export const registerCollection = (collection: CardCollection): void => {
   }
   collections.set(collection.id, collection);
 
-  collection.cards.slice(45, 50).forEach(registerCard);
+  collection.cards.forEach(registerCard);
 
 };
 
