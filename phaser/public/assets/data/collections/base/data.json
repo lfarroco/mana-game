@@ -81,9 +81,9 @@
 				},
 				{
 					"id": "battle_reaction",
-					"effect_type": "power_boost",
+					"effect_to_apply": "power_boost",
 					"amount": 2,
-					"actionId": "heal",
+					"sourceActionId": "heal",
 					"source_selector": "same_column_allies",
 					"description": "When a column ally [color=green]heals[/color], gain {amount} power"
 				}
@@ -127,7 +127,7 @@
 					"id": "slow",
 					"duration": 1000,
 					"targets": "self",
-					"description": "[color=purple]slow[/color] self for {duration}"
+					"description": "[color=orange]slow[/color] self for {duration}"
 				}
 			]
 		},
@@ -300,9 +300,9 @@
 				},
 				{
 					"id": "battle_reaction",
-					"effect_type": "power_boost",
+					"effect_to_apply": "power_boost",
 					"amount": 4,
-					"actionId": "heal",
+					"sourceActionId": "heal",
 					"source_selector": "same_row_allies",
 					"description": "When a row ally [color=green]heals[/color], gain {amount} power"
 				}
@@ -344,9 +344,9 @@
 				},
 				{
 					"id": "battle_reaction",
-					"effect_type": "heal",
+					"effect_to_apply": "heal",
 					"amount": 10,
-					"actionId": "damage",
+					"sourceActionId": "damage",
 					"source_selector": "self",
 					"description": "When this unit deals [color=red]damage[/color], [color=green]heal {amount}[/color]"
 				},
@@ -414,9 +414,9 @@
 				},
 				{
 					"id": "battle_reaction",
-					"effect_type": "charge",
+					"effect_to_apply": "charge",
 					"amount": 1000,
-					"actionId": "heal",
+					"sourceActionId": "heal",
 					"source_selector": "same_row_allies",
 					"description": "When a row ally [color=green]heals[/color], [color=orange]charge 1000ms[/color]"
 				}
@@ -435,8 +435,8 @@
 			"traits": [
 				{
 					"id": "battle_reaction",
-					"effect_type": "damage",
-					"actionId": "damage",
+					"effect_to_apply": "damage",
+					"sourceActionId": "damage",
 					"source_selector": "all_enemies",
 					"description": "When any enemy deals [color=red]damage[/color], deal [color=red]{amount} damage[/color]"
 				}
@@ -501,9 +501,9 @@
 				},
 				{
 					"id": "battle_reaction",
-					"effect_type": "charge",
+					"effect_to_apply": "charge",
 					"amount": 1000,
-					"actionId": "shield",
+					"sourceActionId": "shield",
 					"source_selector": "same_column_allies",
 					"description": "When a column ally gains [color=yellow]shield[/color], [color=orange]charge 1000ms[/color]"
 				}
@@ -573,12 +573,12 @@
 				},
 				{
 					"id": "battle_reaction",
-					"effect_type": "damage",
+					"effect_to_apply": "damage",
 					"amount": 2,
-					"actionId": "haste",
+					"sourceActionId": "haste",
 					"source_selector": "all_allies",
 					"targets": "random_enemy",
-					"description": "When any ally gains [color=blue]haste[/color], deal [color=red]2 damage[/color]"
+					"description": "When any ally gains [color=lightblue]haste[/color], deal [color=red]2 damage[/color]"
 				}
 			]
 		},
@@ -623,12 +623,12 @@
 				},
 				{
 					"id": "battle_reaction",
-					"effect_type": "slow",
+					"effect_to_apply": "slow",
 					"amount": 1000,
-					"actionId": "shield",
+					"sourceActionId": "shield",
 					"source_selector": "all_allies",
 					"targets": "random_enemy",
-					"description": "When any ally gains [color=yellow]shield[/color], [color=purple]slow[/color] a random enemy for [color=purple]1200ms[/color]"
+					"description": "When any ally gains [color=yellow]shield[/color], [color=orange]slow[/color] a random enemy for [color=orange]1200ms[/color]"
 				}
 			]
 		},
@@ -688,10 +688,10 @@
 				},
 				{
 					"id": "battle_reaction",
-					"effect_type": "power_boost",
+					"effect_to_apply": "power_boost",
 					"target": "self",
 					"amount": 4,
-					"actionId": "shield",
+					"sourceActionId": "shield",
 					"source_selector": "same_row_allies",
 					"description": "When a row ally gains [color=yellow]shield[/color], gain 4 power"
 				}
@@ -765,7 +765,7 @@
 		{
 			"id": "battle_commander",
 			"name": "Battle Commander",
-			"pic": "assets/cards/war_general.png",
+			"pic": "assets/cards/centurion.png",
 			"tags": [
 				"support",
 				"melee"
@@ -799,12 +799,12 @@
 				},
 				{
 					"id": "battle_reaction",
-					"effect_type": "haste",
+					"effect_to_apply": "haste",
 					"amount": 1000,
-					"actionId": "heal",
+					"sourceActionId": "heal",
 					"source_selector": "left_ally",
 					"targets": "self",
-					"description": "When left ally [color=green]heals[/color], gain [color=blue]haste 1000ms[/color]"
+					"description": "When left ally [color=green]heals[/color], gain [color=lightblue]haste 1000ms[/color]"
 				}
 			]
 		},
@@ -824,9 +824,9 @@
 				},
 				{
 					"id": "battle_reaction",
-					"effect_type": "charge",
+					"effect_to_apply": "charge",
 					"amount": 1000,
-					"actionId": "damage",
+					"sourceActionId": "damage",
 					"source_selector": "right_ally",
 					"targets": "self",
 					"description": "When right ally deals [color=red]damage[/color], [color=orange]charge {amount}[/color]"
@@ -849,9 +849,9 @@
 				},
 				{
 					"id": "battle_reaction",
-					"effect_type": "power_boost",
+					"effect_to_apply": "power_boost",
 					"amount": 1,
-					"actionId": "heal",
+					"sourceActionId": "heal",
 					"source_selector": "all_allies",
 					"targets": "self",
 					"description": "When any ally [color=green]heals[/color], gain [color=white]+1 power[/color]"
@@ -874,9 +874,9 @@
 				},
 				{
 					"id": "battle_reaction",
-					"effect_type": "power_boost",
+					"effect_to_apply": "power_boost",
 					"amount": 1,
-					"actionId": "shield",
+					"sourceActionId": "shield",
 					"source_selector": "all_allies",
 					"targets": "self",
 					"description": "When any ally gains [color=yellow]shield[/color], gain [color=white]+1 power[/color]"
@@ -899,9 +899,9 @@
 				},
 				{
 					"id": "battle_reaction",
-					"effect_type": "power_boost",
+					"effect_to_apply": "power_boost",
 					"amount": 4,
-					"actionId": "shield",
+					"sourceActionId": "shield",
 					"source_selector": "left_ally",
 					"targets": "self",
 					"description": "When left ally gains [color=yellow]shield[/color], gain [color=white]{amount} power[/color]"
@@ -924,9 +924,9 @@
 				},
 				{
 					"id": "battle_reaction",
-					"effect_type": "power_boost",
+					"effect_to_apply": "power_boost",
 					"amount": 4,
-					"actionId": "damage",
+					"sourceActionId": "damage",
 					"source_selector": "right_ally",
 					"targets": "self",
 					"description": "When right ally deals [color=red]damage[/color], gain [color=white]{amount} power[/color]"
@@ -949,12 +949,12 @@
 				},
 				{
 					"id": "battle_reaction",
-					"effect_type": "haste",
+					"effect_to_apply": "haste",
 					"amount": 1000,
-					"actionId": "haste",
+					"sourceActionId": "haste",
 					"source_selector": "all_allies",
 					"targets": "self",
-					"description": "When any ally gains [color=blue]haste[/color], gain [color=blue]haste 1000ms[/color]"
+					"description": "When any ally [color=lightblue]hastes[/color], gain [color=lightblue]haste 1000ms[/color]"
 				}
 			]
 		},
@@ -974,19 +974,19 @@
 				},
 				{
 					"id": "battle_reaction",
-					"effect_type": "slow",
-					"amount": 1200,
-					"actionId": "slow",
-					"source_selector": "all_enemies",
-					"targets": "self",
-					"description": "When any enemy is [color=purple]slowed[/color], gain [color=yellow]shield 12[/color]"
+					"effect_to_apply": "power_boost",
+					"amount": 4,
+					"sourceActionId": "slow",
+					"source_selector": "all_allies",
+					"description": "When any ally [color=orange]slows[/color], gain {amount} power",
+					"targets": "self"
 				}
 			]
 		},
 		{
 			"id": "haste_harrier",
 			"name": "Haste Harrier",
-			"pic": "assets/cards/haste_harrier.png",
+			"pic": "assets/cards/nameless.png",
 			"tags": [
 				"melee",
 				"support"
@@ -999,12 +999,12 @@
 				},
 				{
 					"id": "battle_reaction",
-					"effect_type": "damage",
+					"effect_to_apply": "power_boost",
 					"amount": 2,
-					"actionId": "haste",
+					"sourceActionId": "haste",
 					"source_selector": "same_row_allies",
 					"targets": "random_enemy",
-					"description": "When a row ally gains [color=blue]haste[/color], deal [color=red]2 damage[/color]"
+					"description": "When a row ally [color=lightblue]hastes[/color], gain 4 power"
 				}
 			]
 		},
@@ -1026,12 +1026,12 @@
 				},
 				{
 					"id": "battle_reaction",
-					"effect_type": "heal",
-					"amount": 2,
-					"actionId": "slow",
+					"effect_to_apply": "heal",
+					"amount": 10,
+					"sourceActionId": "slow",
 					"source_selector": "all_enemies",
 					"targets": "self",
-					"description": "When any enemy is [color=purple]slowed[/color], [color=green]heal 2[/color]"
+					"description": "When any enemy [color=orange]slows[/color], [color=green]heal 10[/color]"
 				}
 			]
 		},
@@ -1053,12 +1053,12 @@
 				},
 				{
 					"id": "battle_reaction",
-					"effect_type": "shield",
+					"effect_to_apply": "shield",
 					"amount": 8,
-					"actionId": "haste",
+					"sourceActionId": "haste",
 					"source_selector": "same_column_allies",
 					"targets": "self",
-					"description": "When a column ally gains [color=blue]haste[/color], gain [color=yellow]shield 8[/color]"
+					"description": "When a column ally gains [color=lightblue]haste[/color], gain [color=yellow]shield 8[/color]"
 				}
 			]
 		}
@@ -1171,7 +1171,7 @@
 		{
 			"id": "slow",
 			"name": "Slow",
-			"description": "Slows {targets} for {duration}ms",
+			"description": "[color=orange]Slows[/color] {targets} for {duration}ms",
 			"categories": [
 				"debuff",
 				"control"
@@ -1201,7 +1201,7 @@
 		{
 			"id": "battle_reaction",
 			"name": "Battle Reaction",
-			"description": "When {source_selector} {actionId}, apply {effect_type} ({amount})",
+			"description": "When {source_selector} {sourceActionId}, apply {effect_to_apply} ({amount})",
 			"categories": [
 				"support",
 				"reactive"
