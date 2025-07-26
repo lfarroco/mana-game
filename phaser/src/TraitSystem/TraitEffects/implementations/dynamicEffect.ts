@@ -13,10 +13,10 @@ import { getEffectParams } from '../../TraitSystem.pure';
  */
 export const dynamicEffectLogic: TraitEffectFn = async (context) => {
 	// Get the effect type from trait instance parameters
-	const effectType = getEffectParams(context.traitInstanceParams, context.effectInstance, 'effect_type', '');
+	const effectType = getEffectParams(context.traitInstanceParams, context.effectInstance, 'effect_to_apply', '');
 
 	if (!effectType) {
-		console.warn('Dynamic effect missing effect_type parameter', {
+		console.warn('Dynamic effect missing effect_to_apply parameter', {
 			traitId: context.traitInstanceParams.id,
 			sourceUnit: context.sourceUnit.id
 		});
@@ -36,7 +36,7 @@ export const dynamicEffectLogic: TraitEffectFn = async (context) => {
 
 	const actualEffectId = effectMapping[effectType];
 	if (!actualEffectId) {
-		console.warn(`Unknown effect_type: ${effectType}`, {
+		console.warn(`Unknown effect_to_apply: ${effectType}`, {
 			traitId: context.traitInstanceParams.id,
 			sourceUnit: context.sourceUnit.id,
 			availableTypes: Object.keys(effectMapping)

@@ -522,15 +522,15 @@ registerTraitConditionImplementation("allied_action_type_is", (context, conditio
 /**
  * Condition: Checks if the triggering action was a specific action ID.
  * This allows traits to react only to specific action IDs like "damage", "heal", "shield", etc.
- * Requires `actionId` parameter in `conditionData`.
+ * Requires `sourceActionId` parameter in `conditionData`.
  * 
  * Example usage: React only when an ally uses "damage" action vs "heal" action.
  */
 registerTraitConditionImplementation("allied_action_id_is", (context, conditionData) => {
-	const expectedActionId = conditionData.actionId as string;
-	if (!expectedActionId) {
+	const expectedsourceActionId = conditionData.sourceActionId as string;
+	if (!expectedsourceActionId) {
 		if (process.env.NODE_ENV === 'development') {
-			console.error(`'allied_action_id_is' condition is missing 'actionId' parameter.`, { conditionData });
+			console.error(`'allied_action_id_is' condition is missing 'sourceActionId' parameter.`, { conditionData });
 		}
 		return false;
 	}
@@ -541,7 +541,7 @@ registerTraitConditionImplementation("allied_action_id_is", (context, conditionD
 		return false; // No trigger context available
 	}
 
-	return triggerContext.triggeringActionId === expectedActionId;
+	return triggerContext.triggeringsourceActionId === expectedsourceActionId;
 });
 
 /**
@@ -551,10 +551,10 @@ registerTraitConditionImplementation("allied_action_id_is", (context, conditionD
  * Example usage: React only when an enemy uses "damage" action vs "heal" action.
  */
 registerTraitConditionImplementation("enemy_action_id_is", (context, conditionData) => {
-	const expectedActionId = conditionData.actionId as string;
-	if (!expectedActionId) {
+	const expectedsourceActionId = conditionData.sourceActionId as string;
+	if (!expectedsourceActionId) {
 		if (process.env.NODE_ENV === 'development') {
-			console.error(`'enemy_action_id_is' condition is missing 'actionId' parameter.`, { conditionData });
+			console.error(`'enemy_action_id_is' condition is missing 'sourceActionId' parameter.`, { conditionData });
 		}
 		return false;
 	}
@@ -565,7 +565,7 @@ registerTraitConditionImplementation("enemy_action_id_is", (context, conditionDa
 		return false; // No trigger context available
 	}
 
-	return triggerContext.triggeringActionId === expectedActionId;
+	return triggerContext.triggeringsourceActionId === expectedsourceActionId;
 });
 
 // --- Helper Functions for Allied Reaction Processing ---
@@ -578,7 +578,7 @@ registerTraitConditionImplementation("enemy_action_id_is", (context, conditionDa
  * @param actionUnit The unit performing the action that might trigger reactions
  * @param actionTraitId The ID of the trait being executed
  * @param actionType The type of action ('attack', 'heal', 'buff', etc.)
- * @param actionId The specific action ID ('damage', 'heal', 'shield', etc.)
+ * @param sourceActionId The specific action ID ('damage', 'heal', 'shield', etc.)
  * @param sourceSelector The selector determining which units can react (supports both allies and enemies)
  * @param scene The battle scene
  * @param state The game state
@@ -588,7 +588,7 @@ export function setupAlliedReactions(
 	actionUnit: Unit,
 	actionTraitId: string,
 	actionType: string,
-	actionId: string,
+	sourceActionId: string,
 	sourceSelector: string = 'all_allies',
 	scene: BattlegroundScene,
 	state: State
@@ -615,7 +615,7 @@ export function setupAlliedReactions(
 				triggeringTraitId: actionTraitId,
 				triggeringUnitId: actionUnit.id,
 				triggeringAction: actionType,
-				triggeringActionId: actionId
+				triggeringsourceActionId: sourceActionId
 			};
 
 			// Process the reactor's traits that respond to the appropriate action type
@@ -745,17 +745,17 @@ export function resolveConditionsFromParams(
 		}
 	}
 
-	// Add condition for actionId matching (for battle_reaction traits)
-	const actionId = traitInstanceParams.actionId;
+	// Add condition for sourceActionId matching (for battle_reaction traits)
+	const sourceActionId = traitInstanceParams.sourceActionId;
 	const sourceSelector = traitInstanceParams.source_selector;
-	if (typeof actionId === 'string' && typeof sourceSelector === 'string') {
+	if (typeof sourceActionId === 'string' && typeof sourceSelector === 'string') {
 		// Use appropriate condition based on whether this is an enemy or allied reaction
 		const isEnemyReaction = sourceSelector.includes('enemies') || sourceSelector.includes('enemy');
 		const conditionType = isEnemyReaction ? 'enemy_action_id_is' : 'allied_action_id_is';
 
 		conditions.push({
 			type: conditionType,
-			actionId: actionId
+			sourceActionId: sourceActionId
 		});
 	}
 
