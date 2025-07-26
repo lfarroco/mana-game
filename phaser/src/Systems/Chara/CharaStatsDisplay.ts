@@ -94,6 +94,8 @@ export class CharaStatsDisplay {
 	 * @param newValue The new power value to animate to.
 	 */
 	animatePowerChange(newValue: number) {
+		if (!this.powerDisplay) return;
+
 		const startValue = this.displayedPower;
 		const endValue = Math.floor(newValue);
 		if (startValue === endValue) return;

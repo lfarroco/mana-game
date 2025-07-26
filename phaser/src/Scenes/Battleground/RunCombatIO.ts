@@ -124,7 +124,7 @@ export class RunCombatSystem {
   private async processBattleReactions(actionUnit: Unit, state: State): Promise<void> {
     // Use the pure function, injecting the instance methods as dependencies
     await processBattleReactionsPure(actionUnit, state, {
-      getActionIdsFromTrait: this.getActionIdsFromTrait.bind(this),
+      getsourceActionIdsFromTrait: this.getsourceActionIdsFromTrait.bind(this),
       shouldTriggerBattleReaction: this.shouldTriggerBattleReaction.bind(this),
       triggerBattleReaction: this.triggerBattleReaction.bind(this),
       getActiveUnits: getActiveUnits,
@@ -134,7 +134,7 @@ export class RunCombatSystem {
   /**
    * Determines what action IDs a trait can perform
    */
-  private getActionIdsFromTrait(trait: any): string[] {
+  private getsourceActionIdsFromTrait(trait: any): string[] {
     switch (trait.id) {
       case 'damage':
         return ['damage'];
@@ -159,12 +159,12 @@ export class RunCombatSystem {
   private shouldTriggerBattleReaction(
     battleReactionTrait: any,
     actionUnit: Unit,
-    actionId: string,
+    sourceActionId: string,
     reactorUnit: Unit
   ): boolean {
     // Check if the action ID matches
-    if (battleReactionTrait.actionId !== actionId) {
-      console.log(`[BattleReaction] Action ID mismatch: expected ${battleReactionTrait.actionId}, got ${actionId}`);
+    if (battleReactionTrait.sourceActionId !== sourceActionId) {
+      console.log(`[BattleReaction] Action ID mismatch: expected ${battleReactionTrait.sourceActionId}, got ${sourceActionId}`);
       return false;
     }
 
@@ -245,15 +245,15 @@ export class RunCombatSystem {
     reactorUnit: Unit,
     battleReactionTrait: any,
     actionUnit: Unit,
-    actionId: string
+    sourceActionId: string
   ): Promise<void> {
     // Set up the trigger context so conditions can check it
     const originalTriggerContext = (this.scene as any)._currentTriggerContext;
     (this.scene as any)._currentTriggerContext = {
       triggeringTraitId: battleReactionTrait.id,
       triggeringUnitId: actionUnit.id,
-      triggeringAction: actionId,
-      triggeringActionId: actionId
+      triggeringAction: sourceActionId,
+      triggeringsourceActionId: sourceActionId
     };
 
     try {

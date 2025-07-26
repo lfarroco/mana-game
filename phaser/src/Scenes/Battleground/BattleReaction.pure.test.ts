@@ -43,12 +43,12 @@ describe("property-based battle reaction tests", () => {
 			const { selector, actionPos, reactorPos, shouldTrigger } = sel;
 			const actionUnit = makeUnit("u1", "player", [{ id: effect }], actionPos);
 			const reactorUnit = makeUnit("u2", "player", [
-				{ id: "battle_reaction", actionId: effect, source_selector: selector }
+				{ id: "battle_reaction", sourceActionId: effect, source_selector: selector }
 			], reactorPos);
 			const triggerSpy = jest.fn();
 			const deps: BattleReactionDeps = {
-				getActionIdsFromTrait: () => [effect],
-				shouldTriggerBattleReaction: (_trait, actionUnit, _actionId, reactorUnit) => {
+				getsourceActionIdsFromTrait: () => [effect],
+				shouldTriggerBattleReaction: (_trait, actionUnit, _sourceActionId, reactorUnit) => {
 					switch (selector) {
 						case "self":
 							return (actionUnit as Unit).id === (reactorUnit as Unit).id;
@@ -98,12 +98,12 @@ describe("property-based battle reaction tests", () => {
 		("%s effect with selector %s triggers: %s", async ({ effect, selector, actionPos, reactorPos, shouldTrigger }) => {
 			const actionUnit = makeUnit("u1", "player", [{ id: effect }], actionPos);
 			const reactorUnit = makeUnit("u2", "player", [
-				{ id: "battle_reaction", actionId: effect, source_selector: selector }
+				{ id: "battle_reaction", sourceActionId: effect, source_selector: selector }
 			], reactorPos);
 			const triggerSpy = jest.fn();
 			const deps: BattleReactionDeps = {
-				getActionIdsFromTrait: () => [effect],
-				shouldTriggerBattleReaction: (_trait, actionUnit, _actionId, reactorUnit) => {
+				getsourceActionIdsFromTrait: () => [effect],
+				shouldTriggerBattleReaction: (_trait, actionUnit, _sourceActionId, reactorUnit) => {
 					if (effect === "haste" && selector === "ally_right") {
 						return (actionUnit as Unit).position.x === (reactorUnit as Unit).position.x + 1;
 					} else if (effect === "slow" && selector === "ally_left") {
@@ -167,11 +167,11 @@ describe("processBattleReactionsPure", () => {
 	])("triggers battle_reaction for %s (party morale effect, no target)", async (effect) => {
 		const actionUnit = makeUnit("u1", "player", [{ id: effect }]);
 		const reactorUnit = makeUnit("u2", "cpu", [
-			{ id: "battle_reaction", actionId: effect, source_selector: "all_enemies" }
+			{ id: "battle_reaction", sourceActionId: effect, source_selector: "all_enemies" }
 		]);
 		const triggerSpy = jest.fn();
 		const deps: BattleReactionDeps = {
-			getActionIdsFromTrait: () => [effect],
+			getsourceActionIdsFromTrait: () => [effect],
 			shouldTriggerBattleReaction: () => true,
 			triggerBattleReaction: triggerSpy,
 			getActiveUnits: () => [actionUnit, reactorUnit],
@@ -191,12 +191,12 @@ describe("processBattleReactionsPure", () => {
 	])("triggers battle_reaction for %s with correct unit targeting (source_selector: %s)", async (effect, actionPos, reactorPos, selector) => {
 		const actionUnit = makeUnit("u1", "player", [{ id: effect }], actionPos);
 		const reactorUnit = makeUnit("u2", "player", [
-			{ id: "battle_reaction", actionId: effect, source_selector: selector }
+			{ id: "battle_reaction", sourceActionId: effect, source_selector: selector }
 		], reactorPos);
 		const triggerSpy = jest.fn();
 		const deps: BattleReactionDeps = {
-			getActionIdsFromTrait: () => [effect],
-			shouldTriggerBattleReaction: (_trait, actionUnit, _actionId, reactorUnit) => {
+			getsourceActionIdsFromTrait: () => [effect],
+			shouldTriggerBattleReaction: (_trait, actionUnit, _sourceActionId, reactorUnit) => {
 				// For haste: actionUnit must be to the right of reactorUnit
 				// For slow: actionUnit must be to the left of reactorUnit
 				if (effect === "haste") {
@@ -218,14 +218,14 @@ describe("processBattleReactionsPure", () => {
 		);
 	});
 
-	it("does not trigger battle_reaction if actionId does not match", async () => {
+	it("does not trigger battle_reaction if sourceActionId does not match", async () => {
 		const actionUnit = makeUnit("u1", "player", [{ id: "heal" }]);
 		const reactorUnit = makeUnit("u2", "cpu", [
-			{ id: "battle_reaction", actionId: "damage", source_selector: "all_enemies" }
+			{ id: "battle_reaction", sourceActionId: "damage", source_selector: "all_enemies" }
 		]);
 		const triggerSpy = jest.fn();
 		const deps: BattleReactionDeps = {
-			getActionIdsFromTrait: () => ["heal"],
+			getsourceActionIdsFromTrait: () => ["heal"],
 			shouldTriggerBattleReaction: () => false,
 			triggerBattleReaction: triggerSpy,
 			getActiveUnits: () => [actionUnit, reactorUnit],
@@ -237,12 +237,12 @@ describe("processBattleReactionsPure", () => {
 	it("triggers only for correct source_selector", async () => {
 		const actionUnit = makeUnit("u1", "player", [{ id: "damage" }], { x: 1, y: 1 });
 		const reactorUnit = makeUnit("u2", "player", [
-			{ id: "battle_reaction", actionId: "damage", source_selector: "ally_left" }
+			{ id: "battle_reaction", sourceActionId: "damage", source_selector: "ally_left" }
 		], { x: 2, y: 1 });
 		const triggerSpy = jest.fn();
 		const deps: BattleReactionDeps = {
-			getActionIdsFromTrait: () => ["damage"],
-			shouldTriggerBattleReaction: (_trait, actionUnit, _actionId, reactorUnit) => {
+			getsourceActionIdsFromTrait: () => ["damage"],
+			shouldTriggerBattleReaction: (_trait, actionUnit, _sourceActionId, reactorUnit) => {
 				return (actionUnit as Unit).position.x === (reactorUnit as Unit).position.x - 1;
 			},
 			triggerBattleReaction: triggerSpy,

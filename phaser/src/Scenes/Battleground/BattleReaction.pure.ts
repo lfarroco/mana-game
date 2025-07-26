@@ -3,18 +3,18 @@ import { Unit } from "../../Models/Entities/Unit";
 import { State, getActiveUnits } from "../../Models/State";
 
 export interface BattleReactionDeps {
-	getActionIdsFromTrait: (trait: any) => string[];
+	getsourceActionIdsFromTrait: (trait: any) => string[];
 	shouldTriggerBattleReaction: (
 		battleReactionTrait: any,
 		actionUnit: Unit,
-		actionId: string,
+		sourceActionId: string,
 		reactorUnit: Unit
 	) => boolean;
 	triggerBattleReaction: (
 		reactorUnit: Unit,
 		battleReactionTrait: any,
 		actionUnit: Unit,
-		actionId: string
+		sourceActionId: string
 	) => Promise<void>;
 	getActiveUnits?: (state: State) => Unit[];
 }
@@ -33,14 +33,14 @@ export async function processBattleReactionsPure(
 	const actingUnitTraits = actionUnit.traits || [];
 
 	for (const actingTrait of actingUnitTraits) {
-		const actionIds = deps.getActionIdsFromTrait(actingTrait);
-		for (const actionId of actionIds) {
+		const sourceActionIds = deps.getsourceActionIdsFromTrait(actingTrait);
+		for (const sourceActionId of sourceActionIds) {
 			for (const reactorUnit of allUnits) {
 				if (reactorUnit.id === actionUnit.id) continue;
 				for (const reactorTrait of reactorUnit.traits || []) {
 					if (reactorTrait.id === "battle_reaction") {
-						if (deps.shouldTriggerBattleReaction(reactorTrait, actionUnit, actionId, reactorUnit)) {
-							await deps.triggerBattleReaction(reactorUnit, reactorTrait, actionUnit, actionId);
+						if (deps.shouldTriggerBattleReaction(reactorTrait, actionUnit, sourceActionId, reactorUnit)) {
+							await deps.triggerBattleReaction(reactorUnit, reactorTrait, actionUnit, sourceActionId);
 						}
 					}
 				}
