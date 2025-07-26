@@ -7,7 +7,6 @@ import { GameEvents } from '../../../constants/events';
 import { Force, applyDamageToForce } from '../../../Models/Entities/Force';
 import { Unit } from '../../../Models/Entities/Unit';
 import { TraitEffectFn } from '../../TraitEffectSystem';
-import { getEffectParams } from '../../TraitSystem.pure';
 
 /**
  * Pure function to create the deal damage effect implementation
@@ -30,14 +29,16 @@ export function createDealDamageLogic(
 			(force) => force.id !== sourceUnit.force
 		)!;
 
-		// Check if the unit has shield piercing trait
-		let shieldPiercingPercentage = 0;
-		const shieldPiercingTrait = sourceUnit.traits.find(trait => trait.id === 'shield_piercing');
-		if (shieldPiercingTrait) {
-			shieldPiercingPercentage = getEffectParams(shieldPiercingTrait, {}, 'percentage', 0);
-		}
 
-		dealDamage(targetForce, damageAmount, context.scene, shieldPiercingPercentage);
+		// TODO: shield pieces logic
+		// Check if the unit has shield piercing trait
+		// let shieldPiercingPercentage = 0;
+		// const shieldPiercingTrait = sourceUnit.traits.find(trait => trait.id === 'shield_piercing');
+		// if (shieldPiercingTrait) {
+		// 	shieldPiercingPercentage = getEffectParams(shieldPiercingTrait, {}, 'percentage', 0);
+		// }
+
+		dealDamage(targetForce, damageAmount, context.scene, 0);
 
 		// Battle reactions are now handled centrally in the combat loop
 		// No need to manually trigger allied reactions here

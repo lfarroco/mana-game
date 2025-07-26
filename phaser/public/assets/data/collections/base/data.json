@@ -236,10 +236,6 @@
 					"id": "haste",
 					"duration": 1000,
 					"targets": "self"
-				},
-				{
-					"id": "shield_piercing",
-					"percentage": 30
 				}
 			]
 		},
@@ -349,10 +345,6 @@
 					"sourceActionId": "damage",
 					"source_selector": "self",
 					"description": "When this unit deals [color=red]damage[/color], [color=green]heal {amount}[/color]"
-				},
-				{
-					"id": "shield_piercing",
-					"percentage": 20
 				}
 			]
 		},
@@ -479,10 +471,6 @@
 					"id": "slow",
 					"duration": 2000,
 					"targets": "random_enemy"
-				},
-				{
-					"id": "shield_piercing",
-					"percentage": 40
 				}
 			]
 		},
@@ -1210,21 +1198,6 @@
 				{
 					"effectId": "DYNAMIC",
 					"eventTrigger": "onBattleReaction"
-				}
-			]
-		},
-		{
-			"id": "shield_piercing",
-			"name": "Shield Piercing",
-			"description": "Damage ignores {percentage}% of enemy shields",
-			"categories": [
-				"offensive",
-				"anti-tank"
-			],
-			"effects": [
-				{
-					"effectId": "pierce_shields",
-					"eventTrigger": "onAction"
 				}
 			]
 		}
