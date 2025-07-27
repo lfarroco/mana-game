@@ -111,17 +111,17 @@
 		},
 		{
 			"id": "professor_oops",
-			"name": "Professor Oops-a-Daisy",
-			"pic": "assets/cards/apprentice.png",
+			"name": "Professor Oopsteiner",
+			"pic": "assets/cards/oops.png",
 			"tags": [
 				"ranged",
 				"magical"
 			],
-			"power": 18,
+			"power": 15,
 			"cooldown": 3600,
 			"traits": [
 				{
-					"id": "damage"
+					"id": "heal"
 				},
 				{
 					"id": "slow",
@@ -134,7 +134,7 @@
 		{
 			"id": "coffee_monk",
 			"name": "Coffee Monk",
-			"pic": "assets/cards/bard.png",
+			"pic": "assets/cards/coffee_monk.png",
 			"tags": [
 				"support"
 			],
@@ -154,7 +154,7 @@
 		{
 			"id": "disco_wizard",
 			"name": "Disco Wizard Dan",
-			"pic": "assets/cards/tempo_mage.png",
+			"pic": "assets/cards/disco_wizard.png",
 			"tags": [
 				"ranged",
 				"magical"
