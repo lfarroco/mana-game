@@ -40,16 +40,16 @@
 					"id": "damage"
 				},
 				{
-					"id": "positional_boost",
+					"id": "positional_boost_self",
 					"amount": 10,
 					"position": "back"
 				}
 			]
 		},
 		{
-			"id": "dr_bandaid",
-			"name": "Dr. Bandaid",
-			"pic": "assets/cards/medic_mouse.png",
+			"id": "fervorbeard",
+			"name": "Fervorbeard",
+			"pic": "assets/cards/fervorbeard.png",
 			"tags": [
 				"support"
 			],
@@ -60,8 +60,8 @@
 					"id": "heal"
 				},
 				{
-					"id": "boost_power_on_battle_start",
-					"amount": 5,
+					"id": "positional_boost_allies",
+					"amount": 10,
 					"targets": "same_row_allies"
 				}
 			]
@@ -103,7 +103,7 @@
 					"id": "shield"
 				},
 				{
-					"id": "positional_boost",
+					"id": "positional_boost_self",
 					"amount": 10,
 					"position": "front"
 				}
@@ -318,7 +318,7 @@
 					"id": "shield"
 				},
 				{
-					"id": "boost_power_on_battle_start",
+					"id": "positional_boost_allies",
 					"amount": 5,
 					"targets": "same_row_allies"
 				}
@@ -534,7 +534,7 @@
 					"id": "heal"
 				},
 				{
-					"id": "boost_power_on_battle_start",
+					"id": "positional_boost_allies",
 					"amount": 5,
 					"targets": "same_column_allies"
 				}
@@ -605,7 +605,7 @@
 					"id": "shield"
 				},
 				{
-					"id": "positional_boost",
+					"id": "positional_boost_self",
 					"amount": 2,
 					"position": "mid"
 				},
@@ -1069,7 +1069,7 @@
 			]
 		},
 		{
-			"id": "boost_power_on_battle_start",
+			"id": "positional_boost_allies",
 			"name": "Power Boost",
 			"description": "+{amount} power to {targets}.",
 			"categories": [
@@ -1126,7 +1126,7 @@
 			]
 		},
 		{
-			"id": "positional_boost",
+			"id": "positional_boost_self",
 			"name": "Position Boost",
 			"description": "+{amount} power in {position}.",
 			"categories": [
