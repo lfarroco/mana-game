@@ -7,7 +7,7 @@ import { TraitData } from './Traits';
 describe('Parametric Trait System', () => {
 	describe('resolveTargetSelectorFromParams', () => {
 		it('should resolve target parameters to correct selectors', () => {
-			const traitData: TraitData = { id: 'boost_power_on_battle_start' as any, targets: 'left' };
+			const traitData: TraitData = { id: 'positional_boost_allies' as any, targets: 'left' };
 			const effectInstance = { effectId: 'modify_stat_passive', eventTrigger: 'onBattleStart' };
 
 			const result = resolveTargetSelectorFromParams(traitData, effectInstance);
@@ -15,7 +15,7 @@ describe('Parametric Trait System', () => {
 		});
 
 		it('should handle right target', () => {
-			const traitData: TraitData = { id: 'boost_power_on_battle_start' as any, targets: 'right' };
+			const traitData: TraitData = { id: 'positional_boost_allies' as any, targets: 'right' };
 			const effectInstance = { effectId: 'modify_stat_passive', eventTrigger: 'onBattleStart' };
 
 			const result = resolveTargetSelectorFromParams(traitData, effectInstance);
