@@ -90,9 +90,9 @@
 			]
 		},
 		{
-			"id": "sir_clanksalot",
+			"id": "clank",
 			"name": "Sir Clanks-a-Lot",
-			"pic": "assets/cards/knight.png",
+			"pic": "assets/cards/clank.png",
 			"tags": [
 				"tank"
 			],
