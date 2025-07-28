@@ -220,14 +220,14 @@
 			]
 		},
 		{
-			"id": "ninja_cat",
-			"name": "Ninja Cat",
-			"pic": "assets/cards/shadow_assassin.png",
+			"id": "mina",
+			"name": "Ninja Mina",
+			"pic": "assets/cards/mina.png",
 			"tags": [
 				"melee"
 			],
-			"power": 5,
-			"cooldown": 2600,
+			"power": 10,
+			"cooldown": 2500,
 			"traits": [
 				{
 					"id": "damage"
@@ -240,23 +240,28 @@
 			]
 		},
 		{
-			"id": "mad_professor_pickle",
-			"name": "Mad Professor Pickle",
-			"pic": "assets/cards/chaos_scholar.png",
+			"id": "greedy",
+			"name": "Jerome, the Greedy",
+			"pic": "assets/cards/greedy.png",
 			"tags": [
 				"support",
 				"magical"
 			],
-			"power": 10,
+			"power": 2,
 			"cooldown": 3200,
 			"traits": [
 				{
-					"id": "heal"
+					"id": "damage"
+				},
+				{
+					"id": "power_boost_on_action",
+					"targets": "self",
+					"amount": 4
 				},
 				{
 					"id": "slow",
 					"duration": 1000,
-					"targets": "random_enemy"
+					"targets": "random_ally"
 				}
 			]
 		},
