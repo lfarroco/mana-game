@@ -69,7 +69,7 @@
 		{
 			"id": "bubblegum_betty",
 			"name": "Bubblegum Betty",
-			"pic": "assets/cards/cleric.png",
+			"pic": "assets/cards/bubblegum.png",
 			"power": 6,
 			"tags": [
 				"support"
@@ -199,9 +199,9 @@
 			]
 		},
 		{
-			"id": "captain_snuggles",
-			"name": "Captain Snuggles",
-			"pic": "assets/cards/frost_guardian.png",
+			"id": "skolfrost",
+			"name": "Skolfrost",
+			"pic": "assets/cards/skolfrost.png",
 			"tags": [
 				"tank",
 				"support"
