@@ -178,8 +178,8 @@
 			]
 		},
 		{
-			"id": "granny_lightning",
-			"name": "Granny Lightning",
+			"id": "thunder_mage",
+			"name": "Thunder Mage",
 			"pic": "assets/cards/thunder_mage.png",
 			"tags": [
 				"ranged",
