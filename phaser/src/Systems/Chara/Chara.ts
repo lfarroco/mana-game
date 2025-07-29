@@ -5,13 +5,11 @@ import { tween } from "../../Utils/animation";
 import * as UnitManager from "../../Scenes/Battleground/Systems/CharaManager";
 import * as Board from "../../Models/Board";
 import { popText } from "./Animations/popText";
-import { images } from "../../assets";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { CharaStatsDisplay } from "./CharaStatsDisplay";
 import { CharaBarsDisplay } from "./CharaBarsDisplay";
 import { GameEvents } from "../../constants/events";
 import { CharaInputHandler } from "./CharaInputHandler";
-import CircleMaskImage from "phaser3-rex-plugins/plugins/gameobjects/canvas/circlemaskimage/CircleMaskImage";
 import { Shop } from "../../Scenes/Battleground/Systems/Shop/Shop";
 import { createContinuousHasteEffect } from "../../Effects/hasteEffect";
 
@@ -39,7 +37,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	isAnimating: boolean;
 
 	/** The main visual image/sprite for the character. */
-	sprite!: CircleMaskImage;
+	sprite!: Phaser.GameObjects.Sprite;
 	/** The border graphics object for the sprite. */
 	spriteBorder?: Phaser.GameObjects.Graphics;
 	/** Component responsible for displaying ATK/HP numerical stats. */
@@ -165,18 +163,20 @@ export class Chara extends Phaser.GameObjects.Container {
 	 * @param borderColor The color of the border (default 0xffffff).
 	 */
 	createSprite(borderWidth: number = 3, borderColor: number = 0xffffff) {
-		// Use unit.pic if valid, otherwise default to "nameless"
-		const textureKey = this.unit.pic && this.scene.textures.exists(this.unit.pic)
-			? this.unit.pic
-			: images.nameless.key;
+		// If the andromeda atlas is loaded, use it and play idle animation if available
+		// Try to get idle frames
 
-		if (textureKey === images.nameless.key) {
-			console.warn(`Chara ${this.unit.id} using default texture ${textureKey}`);
-		}
-		// Use rexCircleMaskImage for a circular sprite
-		this.sprite = this.scene.add.rexCircleMaskImage(0, 0, textureKey);
-		this.sprite.setDisplaySize(constants.TILE_WIDTH * 0.8, constants.TILE_HEIGHT * 0.8);
-		this.add(this.sprite);
+		autoGenerateCharaAnimations(this.scene, this.unit.pic);
+
+		const frameNames = this.scene.textures.get(this.unit.pic).getFrameNames();
+		const idleFrames = frameNames.filter(name => name.startsWith(this.unit.pic + '_idle_'));
+		idleFrames.sort((a, b) => {
+			const numA = parseInt(a.match(/_(\d+)\.png$/)?.[1] || '0', 10);
+			const numB = parseInt(b.match(/_(\d+)\.png$/)?.[1] || '0', 10);
+			return numA - numB;
+		});
+		const firstIdle = idleFrames[0] || frameNames[0];
+
 
 		// Add a circular border using Phaser.GameObjects.Graphics
 		const radius = (constants.TILE_WIDTH * 0.8) / 2;
@@ -186,6 +186,14 @@ export class Chara extends Phaser.GameObjects.Container {
 		// Ensure border is above the sprite
 		this.add(border);
 		this.spriteBorder = border;
+
+		this.sprite = this.scene.add.sprite(0, -15, this.unit.pic, firstIdle);
+		this.sprite.setDisplaySize(constants.TILE_WIDTH * 1.2, constants.TILE_HEIGHT * 1.2);
+		this.add(this.sprite);
+		// Play idle animation if it exists
+		if (this.scene.anims.exists(this.unit.pic + '_idle')) {
+			this.sprite.play(this.unit.pic + '_idle');
+		}
 	}
 
 	_onShopPurchaseSuccessful(payload: { purchasedUnit: Unit, originalShopCharaId: string }): void {
@@ -332,13 +340,24 @@ export class Chara extends Phaser.GameObjects.Container {
 		if (payload.unit.id !== this.id) return;
 		if (this.isAnimating) return;
 		this.isAnimating = true;
+
+		const attackAnimKey = `${this.unit.pic}_attack`;
+		const idleAnimKey = `${this.unit.pic}_idle`;
+
+		// Play the attack animation
+		this.sprite.anims.play(attackAnimKey, true);
+
+		this.sprite.playAfterRepeat(idleAnimKey)
+
+		// Optional: scale pop effect (can be run in parallel or after anim)
 		await tween({
 			targets: [this],
-			scale: 1.1,
+			scale: 1.2,
 			yoyo: true,
-			duration: 200,
+			duration: 300,
 			repeat: 0,
 		});
+
 		this.isAnimating = false;
 	}
 
@@ -393,4 +412,49 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.hasteEffect.cleanup();
 		this.hasteEffect = undefined;
 	}
+}
+
+/**
+ * Utility to auto-generate Phaser animations from a loaded atlas by grouping frame names by prefix.
+ * Call this once per scene after the atlas is loaded.
+ * @param scene The Phaser.Scene instance
+ * @param atlasKey The key of the loaded atlas (e.g., 'andromeda')
+ * @returns The animationGroups object for further use
+ */
+export function autoGenerateCharaAnimations(scene: Phaser.Scene, atlasKey: string): { [key: string]: string[] } {
+	const frameNames = scene.textures.get(atlasKey).getFrameNames();
+	const animationGroups: { [key: string]: string[] } = {};
+
+	frameNames.forEach(name => {
+		// match the atlasKey
+		const match = name.match(new RegExp(`^${atlasKey}_([a-z]+)_\\d+\\.png$`));
+		if (match) {
+			const group = match[1];
+			if (!animationGroups[atlasKey + '_' + group]) animationGroups[atlasKey + '_' + group] = [];
+			animationGroups[atlasKey + '_' + group].push(name);
+		}
+	});
+
+	// Sort frames numerically for each group
+	Object.values(animationGroups).forEach(frames => {
+		frames.sort((a, b) => {
+			const numA = parseInt(a.match(/_(\d+)\.png$/)?.[1] || '0', 10);
+			const numB = parseInt(b.match(/_(\d+)\.png$/)?.[1] || '0', 10);
+			return numA - numB;
+		});
+	});
+
+	// Create Phaser animations for each group
+	Object.entries(animationGroups).forEach(([key, frames]) => {
+		// If the group is 'attack', play once; otherwise, loop
+		const isAttack = key.endsWith('_attack');
+		scene.anims.create({
+			key,
+			frames: frames.map(frame => ({ key: atlasKey, frame })),
+			frameRate: 16,
+			repeat: isAttack ? 0 : -1
+		});
+	});
+
+	return animationGroups;
 }

@@ -28,7 +28,7 @@
 		{
 			"id": "bowsie",
 			"name": "Bowsie McTwang",
-			"pic": "assets/cards/archer.png",
+			"pic": "boss_andromeda",
 			"tags": [
 				"damage",
 				"positional"
@@ -49,7 +49,7 @@
 		{
 			"id": "fervorbeard",
 			"name": "Fervorbeard",
-			"pic": "assets/cards/fervorbeard.png",
+			"pic": "f1_tank",
 			"tags": [
 				"support"
 			],
@@ -69,7 +69,7 @@
 		{
 			"id": "bubblegum_betty",
 			"name": "Bubblegum Betty",
-			"pic": "assets/cards/bubblegum.png",
+			"pic": "f3_mech",
 			"power": 6,
 			"tags": [
 				"support"
@@ -92,7 +92,7 @@
 		{
 			"id": "clank",
 			"name": "Sir Clanks-a-Lot",
-			"pic": "assets/cards/clank.png",
+			"pic": "boss_spelleater",
 			"tags": [
 				"tank"
 			],
@@ -112,7 +112,7 @@
 		{
 			"id": "professor_oops",
 			"name": "Professor Oopsteiner",
-			"pic": "assets/cards/oops.png",
+			"pic": "boss_andromeda",
 			"tags": [
 				"ranged",
 				"magical"
@@ -134,7 +134,7 @@
 		{
 			"id": "coffee_monk",
 			"name": "Coffee Monk",
-			"pic": "assets/cards/coffee_monk.png",
+			"pic": "boss_andromeda",
 			"tags": [
 				"support"
 			],
@@ -154,7 +154,7 @@
 		{
 			"id": "disco_wizard",
 			"name": "Disco Wizard Dan",
-			"pic": "assets/cards/disco_wizard.png",
+			"pic": "boss_andromeda",
 			"tags": [
 				"ranged",
 				"magical"
@@ -180,7 +180,7 @@
 		{
 			"id": "thunder_mage",
 			"name": "Thunder Mage",
-			"pic": "assets/cards/thunder_mage.png",
+			"pic": "boss_andromeda",
 			"tags": [
 				"ranged",
 				"magical"
@@ -201,7 +201,7 @@
 		{
 			"id": "skolfrost",
 			"name": "Skolfrost",
-			"pic": "assets/cards/skolfrost.png",
+			"pic": "boss_andromeda",
 			"tags": [
 				"tank",
 				"support"
@@ -222,7 +222,7 @@
 		{
 			"id": "mina",
 			"name": "Ninja Mina",
-			"pic": "assets/cards/mina.png",
+			"pic": "boss_andromeda",
 			"tags": [
 				"melee"
 			],
@@ -242,7 +242,7 @@
 		{
 			"id": "greedy",
 			"name": "Jerome, the Greedy",
-			"pic": "assets/cards/greedy.png",
+			"pic": "boss_andromeda",
 			"tags": [
 				"support",
 				"magical"
