@@ -84,6 +84,10 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.id = unit.id;
 		this.name = unit.id; // For Phaser's GameObject name property, useful for lookups
 		this.createSprite();
+		// Flip horizontally if this Chara is on the CPU force
+		if (this.unit.force === constants.FORCE_ID_CPU) {
+			this.sprite.setFlipX(true);
+		}
 		this.barsDisplay = new CharaBarsDisplay(this.scene, this.unit);
 		this.barsDisplay.addToContainer(this);
 		this.statsDisplay = new CharaStatsDisplay(this.scene, this.unit);
