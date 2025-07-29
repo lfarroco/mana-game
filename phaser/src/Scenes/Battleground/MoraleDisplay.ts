@@ -76,23 +76,28 @@ function handleMoraleUpdated(payload: { forceId: string, newMorale: number, maxM
 
 function create(
 	scene: Phaser.Scene,
-	y: number,
 	forceId: string,
 ): MoraleBar {
-	const barWidth = scene.scale.width / 4;
-	// Position both bars on the right side of the screen
-	const xPosition = scene.scale.width - barWidth - 120; // Right side with padding
-
-	const barColor = forceId === c.FORCE_ID_PLAYER ? 0x4CAF50 : 0xF44336; // Bright green for player, red for CPU
-	const backgroundColor = 0x000000; // Black background for morale bars
-
+	// Board constants
+	const BAR_OFFSET = 16; // px below the board
+	let x = 0, y = 0;
+	let barWidth = c.TILE_WIDTH * 3 + 8 * 2; // width of board
+	if (forceId === c.FORCE_ID_PLAYER) {
+		x = c.PLAYER_BOARD_X;
+		y = c.PLAYER_BOARD_Y + c.TILE_HEIGHT * 3 + 8 * 2 + BAR_OFFSET;
+	} else {
+		x = c.CPU_BOARD_X;
+		y = c.CPU_BOARD_Y + c.TILE_HEIGHT * 3 + 8 * 2 + BAR_OFFSET;
+	}
+	const barColor = forceId === c.FORCE_ID_PLAYER ? 0x4CAF50 : 0xF44336;
+	const backgroundColor = 0x000000;
 	return createStylizedBar(scene, {
-		x: xPosition,
-		y: y,
+		x,
+		y,
 		width: barWidth,
-		barColor: barColor,
-		backgroundColor: backgroundColor,
-		backgroundOpacity: 0.2, // Slightly more opaque for morale bars
+		barColor,
+		backgroundColor,
+		backgroundOpacity: 0.2,
 		textConfig: c.defaultTextConfig
 	});
 }
@@ -101,19 +106,19 @@ export function init(sceneRef: Phaser.Scene): void {
 	// Clean up existing bars if re-initializing
 	destroy();
 
+	// Assign scene
 	scene = sceneRef;
 
-	// Position bars on the right side with different vertical positions
-	const centerY = scene.scale.height / 2;
-	const playerBarY = centerY + 50; // Player bar lower (below center) - increased spacing for larger bars
-	playerMoraleBar = create(sceneRef, playerBarY, c.FORCE_ID_PLAYER); // Initial value will be set on first update
-	if (playerMoraleBar) playerMoraleBar.container.setVisible(true); // Always visible
-	updateMoraleBar(playerForce.id); // Initialize with max morale
+	// Place bars just below the boards
+	if (scene) {
+		playerMoraleBar = create(scene, c.FORCE_ID_PLAYER);
+		if (playerMoraleBar) playerMoraleBar.container.setVisible(true);
+		updateMoraleBar(playerForce.id);
 
-	const cpuBarY = centerY - 50; // Enemy bar higher (above center) - increased spacing for larger bars
-	cpuMoraleBar = create(sceneRef, cpuBarY, c.FORCE_ID_CPU);
+		cpuMoraleBar = create(scene, c.FORCE_ID_CPU);
 
-	scene.events.on(GameEvents.MORALE_UPDATED, handleMoraleUpdated);
+		scene.events.on(GameEvents.MORALE_UPDATED, handleMoraleUpdated);
+	}
 }
 
 export function showBars(): void {
