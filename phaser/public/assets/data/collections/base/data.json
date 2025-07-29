@@ -134,7 +134,7 @@
 		{
 			"id": "coffee_monk",
 			"name": "Coffee Monk",
-			"pic": "boss_andromeda",
+			"pic": "neutral_amu",
 			"tags": [
 				"support"
 			],
@@ -154,7 +154,7 @@
 		{
 			"id": "disco_wizard",
 			"name": "Disco Wizard Dan",
-			"pic": "boss_andromeda",
+			"pic": "neutral_arrowwhistler",
 			"tags": [
 				"ranged",
 				"magical"
@@ -180,7 +180,7 @@
 		{
 			"id": "thunder_mage",
 			"name": "Thunder Mage",
-			"pic": "boss_andromeda",
+			"pic": "neutral_golemnature",
 			"tags": [
 				"ranged",
 				"magical"
