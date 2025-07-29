@@ -6,7 +6,7 @@ export const MIDDLE_SCREEN_Y = SCREEN_HEIGHT / 2;
 
 export const TICK_DURATION = 100;
 
-export const TILE_WIDTH = SCREEN_WIDTH / 12;
+export const TILE_WIDTH = SCREEN_WIDTH / 8;
 export const TILE_HEIGHT = TILE_WIDTH;
 export const HALF_TILE_WIDTH = TILE_WIDTH / 2;
 export const HALF_TILE_HEIGHT = TILE_HEIGHT / 2;
@@ -20,11 +20,13 @@ export const REROLL_UNITS_PRICE = 3;
 
 export const MIN_COOLDOWN = 200;
 
-export const PLAYER_BOARD_X = SCREEN_WIDTH / 2 - (TILE_WIDTH * 3 / 2);
-export const PLAYER_BOARD_Y = SCREEN_HEIGHT / 2 + 40;
 
-export const CPU_BOARD_X = PLAYER_BOARD_X;
-export const CPU_BOARD_Y = 20;
+// Board layout: player on left, enemy on right, both vertically centered
+export const PLAYER_BOARD_X = 120; // left margin
+export const PLAYER_BOARD_Y = (SCREEN_HEIGHT - (TILE_HEIGHT * 3 + 8 * 2)) / 2;
+
+export const CPU_BOARD_X = SCREEN_WIDTH - (TILE_WIDTH * 3 + 8 * 2) - 120; // right margin
+export const CPU_BOARD_Y = PLAYER_BOARD_Y;
 
 export const defaultTextConfig: Phaser.Types.GameObjects.Text.TextStyle = {
 	fontSize: (TILE_HEIGHT * 0.15) + "px",
