@@ -20,6 +20,15 @@ export default class TitleScene extends Phaser.Scene {
 
 	preload() {
 		this.load.image(images.logo);
+
+		[
+			'boss_andromeda',
+			'boss_spelleater',
+			'f1_tank',
+			'f3_mech'
+		].forEach(key => {
+			this.load.atlas(key, `assets/heroes/${key}.png`, `assets/heroes/${key}.json`);
+		});
 	}
 
 	create() {
@@ -34,7 +43,6 @@ export default class TitleScene extends Phaser.Scene {
 			constants.MIDDLE_SCREEN_Y - 200,
 			images.logo.key
 		).setOrigin(0.5);
-
 
 		// Create start button using UIButton component
 		new UIButton(
