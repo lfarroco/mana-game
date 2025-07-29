@@ -166,7 +166,23 @@ export class Chara extends Phaser.GameObjects.Container {
 		// If the andromeda atlas is loaded, use it and play idle animation if available
 		// Try to get idle frames
 
-		autoGenerateCharaAnimations(this.scene, this.unit.pic);
+		// Load and register animations from cache if not already present
+		const animCacheKey = this.unit.pic + '-anims';
+		const animData = this.scene.cache.json.get(animCacheKey);
+		if (animData && animData.anims) {
+			for (const anim of animData.anims) {
+				const animKey = this.unit.pic + '_' + anim.key;
+				if (!this.scene.anims.exists(animKey)) {
+					// Clone and set the key to be unique per unit.pic
+					const animConfig = {
+						...anim,
+						key: animKey,
+						frames: (anim.frames as { frame: string }[]).map((f: { frame: string }) => ({ key: this.unit.pic, frame: f.frame })),
+					};
+					this.scene.anims.create(animConfig);
+				}
+			}
+		}
 
 		const frameNames = this.scene.textures.get(this.unit.pic).getFrameNames();
 		const idleFrames = frameNames.filter(name => name.startsWith(this.unit.pic + '_idle_'));
@@ -412,49 +428,4 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.hasteEffect.cleanup();
 		this.hasteEffect = undefined;
 	}
-}
-
-/**
- * Utility to auto-generate Phaser animations from a loaded atlas by grouping frame names by prefix.
- * Call this once per scene after the atlas is loaded.
- * @param scene The Phaser.Scene instance
- * @param atlasKey The key of the loaded atlas (e.g., 'andromeda')
- * @returns The animationGroups object for further use
- */
-export function autoGenerateCharaAnimations(scene: Phaser.Scene, atlasKey: string): { [key: string]: string[] } {
-	const frameNames = scene.textures.get(atlasKey).getFrameNames();
-	const animationGroups: { [key: string]: string[] } = {};
-
-	frameNames.forEach(name => {
-		// match the atlasKey
-		const match = name.match(new RegExp(`^${atlasKey}_([a-z]+)_\\d+\\.png$`));
-		if (match) {
-			const group = match[1];
-			if (!animationGroups[atlasKey + '_' + group]) animationGroups[atlasKey + '_' + group] = [];
-			animationGroups[atlasKey + '_' + group].push(name);
-		}
-	});
-
-	// Sort frames numerically for each group
-	Object.values(animationGroups).forEach(frames => {
-		frames.sort((a, b) => {
-			const numA = parseInt(a.match(/_(\d+)\.png$/)?.[1] || '0', 10);
-			const numB = parseInt(b.match(/_(\d+)\.png$/)?.[1] || '0', 10);
-			return numA - numB;
-		});
-	});
-
-	// Create Phaser animations for each group
-	Object.entries(animationGroups).forEach(([key, frames]) => {
-		// If the group is 'attack', play once; otherwise, loop
-		const isAttack = key.endsWith('_attack');
-		scene.anims.create({
-			key,
-			frames: frames.map(frame => ({ key: atlasKey, frame })),
-			frameRate: 16,
-			repeat: isAttack ? 0 : -1
-		});
-	});
-
-	return animationGroups;
 }
