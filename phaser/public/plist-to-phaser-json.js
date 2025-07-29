@@ -2,13 +2,16 @@
 const fs = require('fs');
 const plist = require('plist');
 
-if (process.argv.length < 4) {
-	console.error('Usage: node plist-to-phaser-json.js <input.plist> <output.json>');
+
+if (process.argv.length < 3) {
+	console.error('Usage: node plist-to-phaser-json.js <input.plist>');
 	process.exit(1);
 }
 
 const input = process.argv[2];
-const output = process.argv[3];
+const base = input.replace(/\.plist$/i, '');
+const output = base + '.json';
+const animsOutput = base + '-anims.json';
 
 const xml = fs.readFileSync(input, 'utf8');
 const data = plist.parse(xml);
@@ -38,5 +41,41 @@ const json = {
 	}
 };
 
+
+// --- Animation JSON generation ---
+// Group frames by animation type (idle, attack, death)
+const animTypes = ['idle', 'attack', 'death'];
+const anims = [];
+const frameNames = Object.keys(frames);
+
+for (const type of animTypes) {
+	// Find all frames matching this animation type
+	const regex = new RegExp(`_(?:${type})_(\\d+)\\.png$`);
+	const matching = frameNames
+		.map(name => {
+			const m = name.match(regex);
+			return m ? { name, idx: parseInt(m[1], 10) } : null;
+		})
+		.filter(Boolean)
+		.sort((a, b) => a.idx - b.idx);
+
+	if (matching.length > 0) {
+		let repeat = -1;
+		if (type === 'death' || type === 'attack') repeat = 0;
+		anims.push({
+			key: type,
+			type: 'frame',
+			frames: matching.map(f => ({ frame: f.name })),
+			frameRate: 12,
+			repeat
+		});
+	}
+}
+
+// Write atlas JSON
 fs.writeFileSync(output, JSON.stringify(json, null, 2));
 console.log('Converted', input, 'to', output);
+
+// Write animation JSON (same basename, -anims.json)
+fs.writeFileSync(animsOutput, JSON.stringify({ anims }, null, 2));
+console.log('Generated animations', animsOutput);

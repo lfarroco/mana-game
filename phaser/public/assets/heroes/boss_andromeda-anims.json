@@ -1,0 +1,166 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "boss_andromeda_idle_000.png"
+        },
+        {
+          "frame": "boss_andromeda_idle_001.png"
+        },
+        {
+          "frame": "boss_andromeda_idle_002.png"
+        },
+        {
+          "frame": "boss_andromeda_idle_003.png"
+        },
+        {
+          "frame": "boss_andromeda_idle_004.png"
+        },
+        {
+          "frame": "boss_andromeda_idle_005.png"
+        },
+        {
+          "frame": "boss_andromeda_idle_006.png"
+        },
+        {
+          "frame": "boss_andromeda_idle_007.png"
+        },
+        {
+          "frame": "boss_andromeda_idle_008.png"
+        },
+        {
+          "frame": "boss_andromeda_idle_009.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "boss_andromeda_attack_000.png"
+        },
+        {
+          "frame": "boss_andromeda_attack_001.png"
+        },
+        {
+          "frame": "boss_andromeda_attack_002.png"
+        },
+        {
+          "frame": "boss_andromeda_attack_003.png"
+        },
+        {
+          "frame": "boss_andromeda_attack_004.png"
+        },
+        {
+          "frame": "boss_andromeda_attack_005.png"
+        },
+        {
+          "frame": "boss_andromeda_attack_006.png"
+        },
+        {
+          "frame": "boss_andromeda_attack_007.png"
+        },
+        {
+          "frame": "boss_andromeda_attack_008.png"
+        },
+        {
+          "frame": "boss_andromeda_attack_009.png"
+        },
+        {
+          "frame": "boss_andromeda_attack_010.png"
+        },
+        {
+          "frame": "boss_andromeda_attack_011.png"
+        },
+        {
+          "frame": "boss_andromeda_attack_012.png"
+        },
+        {
+          "frame": "boss_andromeda_attack_013.png"
+        },
+        {
+          "frame": "boss_andromeda_attack_014.png"
+        },
+        {
+          "frame": "boss_andromeda_attack_015.png"
+        },
+        {
+          "frame": "boss_andromeda_attack_016.png"
+        },
+        {
+          "frame": "boss_andromeda_attack_017.png"
+        },
+        {
+          "frame": "boss_andromeda_attack_018.png"
+        },
+        {
+          "frame": "boss_andromeda_attack_019.png"
+        },
+        {
+          "frame": "boss_andromeda_attack_020.png"
+        },
+        {
+          "frame": "boss_andromeda_attack_021.png"
+        },
+        {
+          "frame": "boss_andromeda_attack_022.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "boss_andromeda_death_000.png"
+        },
+        {
+          "frame": "boss_andromeda_death_001.png"
+        },
+        {
+          "frame": "boss_andromeda_death_002.png"
+        },
+        {
+          "frame": "boss_andromeda_death_003.png"
+        },
+        {
+          "frame": "boss_andromeda_death_004.png"
+        },
+        {
+          "frame": "boss_andromeda_death_005.png"
+        },
+        {
+          "frame": "boss_andromeda_death_006.png"
+        },
+        {
+          "frame": "boss_andromeda_death_007.png"
+        },
+        {
+          "frame": "boss_andromeda_death_008.png"
+        },
+        {
+          "frame": "boss_andromeda_death_009.png"
+        },
+        {
+          "frame": "boss_andromeda_death_010.png"
+        },
+        {
+          "frame": "boss_andromeda_death_011.png"
+        },
+        {
+          "frame": "boss_andromeda_death_012.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

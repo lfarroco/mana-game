@@ -28,6 +28,7 @@ export default class TitleScene extends Phaser.Scene {
 			'f3_mech'
 		].forEach(key => {
 			this.load.atlas(key, `assets/heroes/${key}.png`, `assets/heroes/${key}.json`);
+			this.load.animation(`${key}-anims`, `assets/heroes/${key}-anims.json`);
 		});
 	}
 
