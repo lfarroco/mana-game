@@ -7,7 +7,7 @@ import { Unit } from "../../../Models/Entities/Unit";
  * Effect: Modifies a stat passively (permanently)
  */
 export const modifyStatPassiveLogic: TraitEffectFn = async (context) => {
-	const { targets } = context;
+	const { targets, scene } = context;
 	const attribute = getEffectParams(context.traitInstanceParams, context.effectInstance, 'attribute', 'power') as keyof Unit;
 	const amount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 0);
 
@@ -23,6 +23,7 @@ export const modifyStatPassiveLogic: TraitEffectFn = async (context) => {
 		const chara = getChara(target.id);
 		if (chara) {
 			chara.updateUnitAttribute(attribute, amount);
+			scene.sound.play('sfx_spell_innerfocus')
 		}
 	}
 };

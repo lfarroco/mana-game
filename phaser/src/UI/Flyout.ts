@@ -32,6 +32,8 @@ export class Flyout extends Phaser.GameObjects.Container {
 
 	async slideIn() {
 
+		this.scene.sound.play('sfx_ui_modalwindow_swoosh_enter')
+
 		this.scene.children.bringToTop(this);
 		await tween({
 			targets: [this],
@@ -43,6 +45,8 @@ export class Flyout extends Phaser.GameObjects.Container {
 
 	// TODO: check if multiple flyouts are kept 
 	async slideOut() {
+
+		this.scene.sound.play('sfx_ui_modalwindow_swoosh_exit');
 		await tween({
 			targets: [this],
 			y: -SCREEN_HEIGHT,

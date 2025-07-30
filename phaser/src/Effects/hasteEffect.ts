@@ -30,6 +30,8 @@ export async function hasteEffect(
 		color = 0x00eaff
 	} = options;
 
+	scene.sound.play('sfx_artifact_equipmask');
+
 	// Create upward-moving droplet particles
 	const particles = scene.add.particles(
 		x, y,
