@@ -23,7 +23,6 @@ export class ShopUI {
 		this.flyout = flyout;
 	}
 
-
 	/**
 	 * Clears and re-renders only the character cards in the tavern section of the shop.
 	 * Assumes the tavern background and title are already present and should not be recreated.
@@ -48,17 +47,22 @@ export class ShopUI {
 	): { charas: Chara[] } {
 		this.flyout.removeAll(true); // Clear any previous content
 
+
+		// Calculate right-aligned X for the shop panel
+		const screenWidth = this.scene.cameras.main.width;
+		const panelX = screenWidth - sc.SHOP_PANEL_WIDTH - 40; // 40px margin from right
 		const shopBackground = this.scene.add.graphics()
 			.fillStyle(sc.PANEL_BG_COLOR, sc.PANEL_BG_OPACITY)
-			.fillRoundedRect(sc.PANEL_X, sc.PANEL_Y, sc.SHOP_PANEL_WIDTH, sc.SHOP_PANEL_HEIGHT, 20);
+			.fillRoundedRect(panelX, sc.PANEL_Y, sc.SHOP_PANEL_WIDTH, sc.SHOP_PANEL_HEIGHT, 20);
 		this.flyout.add(shopBackground);
 
-		// Render tavern background and title first
-		this._renderTavernSectionBackgroundAndTitle();
+
+		// Render tavern background and title first, passing panelX for right alignment
+		this._renderTavernSectionBackgroundAndTitle(panelX);
+
 
 		const buttonY = sc.PANEL_Y + sc.SHOP_PANEL_HEIGHT - 100;
-		// Estimate button width + spacing to position reroll button to the left
-		const rerollButtonX = sc.PANEL_X + 190; // Adjust this offset as needed for desired spacing and button width
+		const rerollButtonX = panelX + 190;
 		const rerollBtn = new UIButton(
 			this.scene,
 			`Reroll $${c.SHOP_ITEM_PURCHASE_COST}`,
@@ -68,7 +72,7 @@ export class ShopUI {
 		);
 		this.flyout.add(rerollBtn);
 
-		const nextRoundButtonX = rerollButtonX + rerollBtn.buttonWidth + 20; // 20px spacing after reroll button
+		const nextRoundButtonX = rerollButtonX + rerollBtn.buttonWidth + 20;
 		const nextRoundBtn = new UIButton(
 			this.scene,
 			"Next Round",
@@ -80,28 +84,36 @@ export class ShopUI {
 
 		this._createSellZone();
 
+
 		// Render characters AFTER buttons to ensure they appear on top
-		const displayedCharas = this._renderTavernCharas(cardsToDisplay, charaPurchaseFinalized);
+		const displayedCharas = this._renderTavernCharas(cardsToDisplay, charaPurchaseFinalized, panelX);
 
 		return { charas: displayedCharas };
 	}
+
 
 	/**
 	 * Renders the tavern section of the shop, including its background, title, and character cards.
 	 * This method is called during the initial display of the shop.
 	 * @param cardDefs An array of `Card.CardDefinition` objects representing the characters to display.
 	 * @param charaPurchaseFinalized Callback function invoked when a character is successfully purchased.
+	 * @param panelX The X position for right-aligned shop panel.
 	 * @returns An array of the created `Chara` instances.
 	 */
 	_renderTavernUI(
 		cardDefs: Card.CardDefinition[],
-		charaPurchaseFinalized: (purchasedChara: Chara) => void
+		charaPurchaseFinalized: (purchasedChara: Chara) => void,
+		panelX: number
 	): Chara[] {
-		this._renderTavernSectionBackgroundAndTitle();
-		return this._renderTavernCharas(cardDefs, charaPurchaseFinalized);
+		this._renderTavernSectionBackgroundAndTitle(panelX);
+		return this._renderTavernCharas(cardDefs, charaPurchaseFinalized, panelX);
 	}
 
-	_renderTavernSectionBackgroundAndTitle(): void {
+
+	_renderTavernSectionBackgroundAndTitle(panelX?: number): void {
+		// Default to left if not provided
+		const tavernBaseX = (panelX !== undefined ? panelX + 20 : sc.TAVERN_BASE_X);
+		const tavernBaseY = sc.TAVERN_BASE_Y;
 
 		const bg = this.scene.add.graphics()
 			.fillStyle(0x000, 0.5)
@@ -110,10 +122,10 @@ export class ShopUI {
 				sc.TAVERN_BG_WIDTH, sc.TAVERN_BG_HEIGHT,
 				sc.SUB_PANEL_CORNER_RADIUS
 			)
-			.setPosition(sc.TAVERN_BASE_X, sc.TAVERN_BASE_Y);
+			.setPosition(tavernBaseX, tavernBaseY);
 
 		const title = this.scene.add.text(
-			sc.TAVERN_TITLE_X, sc.TAVERN_TITLE_Y,
+			tavernBaseX + 30, sc.TAVERN_TITLE_Y,
 			"Tavern",
 			c.titleTextConfig
 		);
@@ -121,11 +133,14 @@ export class ShopUI {
 		this.flyout.add([bg, title]);
 	}
 
+
 	_renderTavernCharas(
 		cardDefs: Card.CardDefinition[],
-		charaPurchaseFinalized: (purchasedChara: Chara) => void
+		charaPurchaseFinalized: (purchasedChara: Chara) => void,
+		panelX?: number
 	): Chara[] {
 		const createdCharas: Chara[] = [];
+		const baseX = (panelX !== undefined ? panelX + 160 : sc.TAVERN_CHARA_FIRST_X);
 		cardDefs.forEach((spec, index) => {
 			const unit = makeUnit(c.FORCE_ID_PLAYER, spec.id, vec2(0, 0)); // Position is relative to flyout, set later
 			const charaOptions: CharaOptions = {
@@ -141,7 +156,7 @@ export class ShopUI {
 			const chara = new Chara(this.scene, unit, charaOptions);
 			registerChara(chara); // Register with CharaManager
 
-			chara.setPosition(sc.TAVERN_CHARA_FIRST_X + (index * sc.TAVERN_CHARA_SPACING), sc.TAVERN_CHARA_BASE_Y);
+			chara.setPosition(baseX + (index * sc.TAVERN_CHARA_SPACING), sc.TAVERN_CHARA_BASE_Y);
 			chara.setBarsVisibility(false);
 
 			this.flyout.add(chara);

@@ -4,7 +4,7 @@ import { SCREEN_HEIGHT, SCREEN_WIDTH, TILE_WIDTH } from "../../../../constants/c
 export const NUM_TAVERN_SLOTS = 3;
 const PANEL_PADDING = 40;
 const TAVERN_PADDING = 20;
-export const TAVERN_CHARA_SPACING = 200; // Spacing between centers of charas
+export const TAVERN_CHARA_SPACING = 300; // Spacing between centers of charas
 const BUTTON_AREA_HEIGHT = 100;
 
 // --- Calculated Dimensions ---
@@ -25,7 +25,7 @@ export const SHOP_PANEL_HEIGHT = TAVERN_BG_HEIGHT + BUTTON_AREA_HEIGHT + (PANEL_
 
 // Main panel position (centered horizontally, near the top vertically)
 export const PANEL_X = (SCREEN_WIDTH - SHOP_PANEL_WIDTH) / 2;
-export const PANEL_Y = 40;
+export const PANEL_Y = 240;
 
 // --- Child Element Positions (calculated from PANEL_X, PANEL_Y) ---
 
@@ -38,7 +38,8 @@ export const TAVERN_TITLE_X = TAVERN_BASE_X + TAVERN_PADDING;
 export const TAVERN_TITLE_Y = TAVERN_BASE_Y + 15; // A small offset from the top of the tavern bg
 
 // Tavern character positions
-export const TAVERN_CHARA_FIRST_X = TAVERN_BASE_X + TAVERN_PADDING + (TILE_WIDTH / 2);
+// Center the charas horizontally within the tavern background
+export const TAVERN_CHARA_FIRST_X = TAVERN_BASE_X + (600);
 export const TAVERN_CHARA_BASE_Y = TAVERN_BASE_Y + 180; // Vertical position for charas within the tavern
 
 // --- Styling ---
