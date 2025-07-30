@@ -13,7 +13,7 @@ export function initGame(state: State) {
 
 	const game = new Phaser.Game({
 		type: Phaser.WEBGL,
-		pixelArt: false,
+		pixelArt: true,
 		scale: {
 			width: SCREEN_WIDTH,
 			height: SCREEN_HEIGHT,
