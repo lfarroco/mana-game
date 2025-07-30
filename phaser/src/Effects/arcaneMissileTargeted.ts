@@ -79,7 +79,7 @@ export async function arcaneMissileTargeted(
 		thickness: 1,
 		amplitude,
 		frequency,
-		segments: Math.floor(distance / 10), // More segments for smoother arc
+		segments: Math.floor(distance / 15), // More segments for smoother arc
 		color: colors[0], // Use first color for the beam
 	});
 
@@ -88,7 +88,7 @@ export async function arcaneMissileTargeted(
 
 	// Create a larger rectangle texture for angled beam effect
 	const rectKey = 'arcane_missile_rect_big';
-	const rectWidth = 36;
+	const rectWidth = 12;
 	const rectHeight = 12;
 	if (!scene.textures.exists(rectKey)) {
 		const g = scene.make.graphics({ x: 0, y: 0 });
@@ -140,6 +140,8 @@ export async function arcaneMissileTargeted(
 				alpha: 0,
 				duration: fadeDuration,
 				delay: 0,
+				x: sprite.x + (Math.random() - 0.5) * 40, // slight random offset for trailing effect
+				y: sprite.y + (Math.random() - 0.5) * 40,
 				ease: 'Cubic.easeIn',
 			});
 		});
