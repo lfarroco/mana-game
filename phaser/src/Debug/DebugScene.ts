@@ -8,11 +8,20 @@ const EFFECT_REGISTRY: Record<string, EffectFactory> = {
 		scene.time.addEvent({
 			delay: 1500,
 			callback: () => {
-				effects.arcaneMissile({ scene, source: { x: 200, y: 500 }, target: { x: 800, y: 200 }, onHit: () => { }, colors: [0xff0000, 0x00ff00] });
-				effects.arcaneMissile({ scene, source: { x: 200, y: 500 }, target: { x: 800, y: 200 } });
-				effects.arcaneMissile({ scene, source: { x: 200, y: 500 }, target: { x: 800, y: 200 } });
-				effects.arcaneMissile({ scene, source: { x: 200, y: 500 }, target: { x: 800, y: 200 } });
-				effects.arcaneMissile({ scene, source: { x: 200, y: 500 }, target: { x: 800, y: 200 } });
+				effects.arcaneMissile({
+					scene, source: { x: 200, y: 500 }, target: { x: 800, y: 200 }, onHit: () => {
+						const text = scene.add.text(400, 300, 'Arcane Missile Hit!', {
+							fontSize: '32px',
+							color: '#ff0000'
+						});
+						scene.add.tween({
+							targets: text,
+							alpha: 0,
+							duration: 2000,
+							onComplete: () => text.destroy()
+						});
+					}, colors: [0xff0000, 0x00ff00]
+				});
 			},
 			repeat: -1
 		});

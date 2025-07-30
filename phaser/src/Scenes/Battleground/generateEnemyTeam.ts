@@ -1,4 +1,4 @@
-import { CardDefinition } from "../../Models/Entities/Card";
+import { CardDefinition, getAllCards } from "../../Models/Entities/Card";
 import { cpuForce } from "../../Models/Entities/Force";
 import { vec2 } from "../../Models/Geometry";
 import { makeUnit } from "../../Models/Entities/Unit";
@@ -215,8 +215,6 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 	}
 
 	const units = [];
-	const getCardsByTag = (tagId: string): CardDefinition[] =>
-		pool.filter(card => card.tags.includes(tagId));
 
 	for (let y = 0; y < parsed.length; y++) {
 		for (let x = 0; x < parsed[y].length; x++) {
@@ -229,7 +227,7 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 				continue;
 			}
 
-			const potentialCards = getCardsByTag(tagId);
+			const potentialCards = getAllCards();
 			if (!potentialCards.length) {
 				console.warn(`No '${tagId}' cards available in the pool for template. Skipping unit at (${x},${y}).`);
 				continue;
