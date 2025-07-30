@@ -20,7 +20,7 @@ export async function arcaneMissile({
 	colors = ARCANE_MISSILE_CONFIG.DEFAULT_COLORS
 }: ArcaneMissileAnimationArgs) {
 
-	const distance = Phaser.Math.Distance.BetweenPoints(source, target)
+	const duration = 200;
 
 	const positiveOrNegative = Math.random() > 0.5 ? 1 : -1;
 
@@ -63,8 +63,6 @@ export async function arcaneMissile({
 		images.white_dot.key,
 	);
 
-
-	const duration = distance;
 	follower.setVisible(false);
 	follower.startFollow({
 		positionOnPath: true,
@@ -74,7 +72,7 @@ export async function arcaneMissile({
 	//make particles follow follower
 	particles.startFollow(follower);
 
-	await delay(scene, distance * ARCANE_MISSILE_CONFIG.DURATION_MULTIPLIER);
+	await delay(scene, duration);
 
 	particles.stop()
 
