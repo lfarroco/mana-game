@@ -6,6 +6,20 @@ export default class Core extends Phaser.Scene {
 		super('CoreScene');
 	}
 
-	preload() { }
+	preload() {
+
+		//sfx_ui_error.m4a
+		this.load.audio('sfx_ui_error', 'assets/audio/sfx_ui_error.m4a');
+
+		//sfx_ui_modalwindow_swoosh_enter.m4a
+		this.load.audio('sfx_ui_modalwindow_swoosh_enter', 'assets/audio/sfx_ui_modalwindow_swoosh_enter.m4a');
+		//sfx_ui_modalwindow_swoosh_exit.m4a
+		this.load.audio('sfx_ui_modalwindow_swoosh_exit', 'assets/audio/sfx_ui_modalwindow_swoosh_exit.m4a');
+
+		//sfx_unit_onclick.m4a
+		this.load.audio('sfx_unit_onclick', 'assets/audio/sfx_unit_onclick.m4a');
+
+
+	}
 	create() { }
 }

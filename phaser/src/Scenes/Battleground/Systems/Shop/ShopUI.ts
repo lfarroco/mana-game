@@ -174,7 +174,7 @@ export class ShopUI {
 		this.sellZoneContainer.setVisible(false); // Initially hidden
 
 		// Position sell zone in the lower left of the screen
-		const sellZoneX = 20; // Small margin from left edge
+		const sellZoneX = c.SCREEN_WIDTH - sc.SELL_ZONE_WIDTH - 20; // Small margin from left edge
 		const sellZoneY = this.scene.cameras.main.height - sc.SELL_ZONE_HEIGHT - 20; // Small margin from bottom
 
 		// Create the zone with its center aligned with the visual graphics' center

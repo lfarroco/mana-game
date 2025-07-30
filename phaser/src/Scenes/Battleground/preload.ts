@@ -27,4 +27,19 @@ function coinTexture(scene: Scene) {
 	gfx.generateTexture('coin', 16 * 2 + 3 * 2, 16 * 2 + 3 * 2);
 }
 
-function loadAudio(_scene: Scene) { }
+function loadAudio(scene: Scene) {
+
+
+	//sfx_artifact_equipmask
+
+	scene.load.audio('sfx_artifact_equipmask', 'assets/audio/sfx_artifact_equipmask.m4a');
+
+	//notification.m4a
+	scene.load.audio('sfx_notification', 'assets/audio/notification.m4a');
+
+
+
+	//sfx_spell_innerfocus
+	scene.load.audio('sfx_spell_innerfocus', 'assets/audio/sfx_spell_innerfocus.m4a');
+
+}

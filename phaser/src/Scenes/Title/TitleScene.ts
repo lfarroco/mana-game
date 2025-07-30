@@ -35,6 +35,14 @@ export default class TitleScene extends Phaser.Scene {
 			this.load.atlas(key, `assets/heroes/${key}.png`, `assets/heroes/${key}.json`);
 			this.load.animation(`${key}-anims`, `assets/heroes/${key}-anims.json`);
 		});
+
+		//sfx_artifact_equipmask
+
+		this.load.audio('sfx_artifact_equipmask', 'assets/audio/sfx_artifact_equipmask.m4a');
+
+		//notification.m4a
+		this.load.audio('sfx_notification', 'assets/audio/notification.m4a');
+
 	}
 
 	create() {

@@ -83,6 +83,8 @@ export class UIButton extends Phaser.GameObjects.Container {
 			if (wasPressed) { // Only trigger callback if pointer up happens over the button while it was pressed
 				this._drawButtonState(this.hoverFillColor); // Assume pointer is still over, show hover
 				this.buttonText.setShadow(2, 2, "#000000", 2, true, true);
+
+				this.scene.sound.play('sfx_unit_onclick');
 				callback();
 			}
 		});
