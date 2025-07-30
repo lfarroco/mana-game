@@ -35,7 +35,7 @@ export function createApplySlowLogic(): TraitEffectFn {
 						{
 							colors: [0xD2691E, 0xCD853F, 0xF4A460], // Orange-brownish colors: saddle brown, peru, sandy brown
 							amplitudeMin: 5,
-							amplitudeMax: 15,
+							amplitudeMax: 20,
 							particleScale: 1.5,
 							impact: {
 								colors: [0xD2691E, 0xCD853F],

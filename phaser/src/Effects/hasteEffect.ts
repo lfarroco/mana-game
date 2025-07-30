@@ -35,7 +35,7 @@ export async function hasteEffect(
 	// Create upward-moving droplet particles
 	const particles = scene.add.particles(
 		x, y,
-		images.white_dot.key,
+		images.light_pillar.key,
 		{
 			// Movement configuration - droplets rise upward
 			speedY: { min: -20 * intensity, max: -60 * intensity },
@@ -45,12 +45,12 @@ export async function hasteEffect(
 			alpha: { start: 0.8, end: 0 },
 			// Timing and behavior
 			lifespan: duration,
-			frequency: 250 / intensity, // Much less frequent for wider spacing
+			frequency: 150 / intensity, // Much less frequent for wider spacing
 			quantity: Math.max(1, Math.floor(1 * intensity)),
 
 			// Visual effects - very thin oval droplet shape
 			scaleX: { start: 0.8 * intensity, end: 0.0 }, // Much thinner width
-			scaleY: { start: 2.5 * intensity, end: 4.7 * intensity }, // Taller height for droplet shape
+			scaleY: { start: 1.5 * intensity, end: 1.7 * intensity }, // Taller height for droplet shape
 			blendMode: 'ADD',
 
 			// Emit zone - character sprite area coverage
