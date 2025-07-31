@@ -108,6 +108,8 @@ export class BattleProgressionSystem {
 		this._isInShopPhase = false;
 		console.log("Round", this.state.gameData.round, "Combat Phase Starting.");
 		const { enemies } = this.setupBattle();
+		// Show enemy board in combat phase
+		this.scene.events.emit(GameEvents.ENEMY_BOARD_SHOW);
 
 		this.setAllPlayerUnitBarsVisibility(true); // Show bars for player units in combat
 		this.scene.events.emit(GameEvents.COMBAT_START_EXECUTION_TRIGGER, { enemies });

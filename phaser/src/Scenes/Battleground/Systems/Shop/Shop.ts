@@ -78,6 +78,11 @@ export class Shop {
 			this._handleCharaPurchaseFinalized.bind(this),
 		);
 
+		// Hide enemy board immediately after rendering board slots
+		if (this.scene.playerBoard) {
+			this.scene.playerBoard.setEnemyBoardVisible(false);
+		}
+
 
 		this.currentShopCharas = charas;
 
