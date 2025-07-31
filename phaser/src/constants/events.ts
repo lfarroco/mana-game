@@ -111,5 +111,7 @@ export const GameEvents = {
 
 	DIFFICULTY_TIER_CHANGED: "difficulty_tier_changed", // Payload: { difficultyTier: DifficultyTier }
 
+	ENEMY_BOARD_HIDE: "enemy_board_hide",
+	ENEMY_BOARD_SHOW: "enemy_board_show",
 
 };

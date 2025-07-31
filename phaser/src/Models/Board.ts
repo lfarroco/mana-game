@@ -11,6 +11,8 @@ export class PartyBoard {
 	slotImages: Phaser.GameObjects.Image[] = [];
 	dropZones: Phaser.GameObjects.Zone[] = []; // Add drop zones array
 
+	enemyBoardVisible: boolean = true;
+
 	readonly x: number = PLAYER_BOARD_X;
 	readonly y: number = PLAYER_BOARD_Y;
 	readonly width: number = constants.TILE_WIDTH * 3 + 8 * 2; // Account for spacing between 3 tiles (2 gaps)
@@ -50,6 +52,8 @@ export class PartyBoard {
 					images.slot_round.key,
 				);
 				slotImg.setDisplaySize(constants.TILE_WIDTH, constants.TILE_HEIGHT);
+				// Set visibility for CPU slots based on flag
+				if (!board.isPlayer) slotImg.setVisible(this.enemyBoardVisible);
 				this.slotImages.push(slotImg);
 
 				// Only create drop zones for player board (enemy units can't be dragged)
@@ -66,6 +70,14 @@ export class PartyBoard {
 
 			})
 		});
+	}
+
+	setEnemyBoardVisible(visible: boolean): void {
+		this.enemyBoardVisible = visible;
+		// Update visibility of CPU slots if already rendered
+		if (this.slotImages.length >= 18) {
+			this.slotImages.slice(9, 18).forEach(img => img.setVisible(visible));
+		}
 	}
 
 	display(): void {

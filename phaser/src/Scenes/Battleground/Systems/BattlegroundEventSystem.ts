@@ -46,6 +46,25 @@ export class BattlegroundEventSystem {
 		this.shop = scene.shop;
 	}
 
+	/**
+	 * Hides the enemy board visuals (CPU board slots) when in shop phase.
+	 */
+	private handleEnemyBoardHide(): void {
+		// Hide enemy board using PartyBoard API
+		if (this.playerBoard) {
+			this.playerBoard.setEnemyBoardVisible(false);
+		}
+	}
+
+	/**
+	 * Shows the enemy board visuals (CPU board slots) when combat phase starts.
+	 */
+	private handleEnemyBoardShow(): void {
+		if (this.playerBoard) {
+			this.playerBoard.setEnemyBoardVisible(true);
+		}
+	}
+
 	addListener(event: string, handler: (...args: any[]) => void, context?: any): void {
 		// Check for duplicate listeners before adding
 		const isDuplicate = this.listeners.some(
@@ -130,6 +149,10 @@ export class BattlegroundEventSystem {
 			{ event: GameEvents.SHOP_OPEN_UI_TRIGGER, handler: this.shop.handleShopOpenUITrigger, context: this.shop },
 			{ event: GameEvents.SHOP_ITEM_CLICK_PURCHASE_REQUESTED, handler: this.shop.handleShopItemClickPurchaseRequested, context: this.shop },
 			{ event: GameEvents.SHOP_ITEM_DRAG_PURCHASE_REQUESTED, handler: this.shop.handleShopItemDragPurchaseRequested, context: this.shop },
+			// Hide enemy board in shop phase
+			{ event: GameEvents.ENEMY_BOARD_HIDE, handler: this.handleEnemyBoardHide, context: this },
+			// Show enemy board in combat phase
+			{ event: GameEvents.ENEMY_BOARD_SHOW, handler: this.handleEnemyBoardShow, context: this },
 		];
 
 		eventMappings.forEach(({ event, handler, context }) => {
