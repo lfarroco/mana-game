@@ -62,7 +62,7 @@ function handleMoraleUpdated(payload: { forceId: string, newMorale: number, maxM
 
 		const deltaText = displayValue > 0 ? `+${displayValue}` : `${displayValue}`;
 		const textType = displayValue > 0 ? "heal" : "damage"; // Green for positive, red for negative
-		const textDirection = isPlayer ? "down" : "up"; // Player text flows down, enemy text flows up
+		const textDirection = isPlayer ? "left" : "right"; // Player text flows left, enemy text flows right
 
 		scene.events.emit(GameEvents.POP_TEXT_SHOW, {
 			text: deltaText,
