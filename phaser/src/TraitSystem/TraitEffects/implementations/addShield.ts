@@ -28,7 +28,44 @@ export function createAddShieldLogic(
 			(force) => force.id === sourceUnit.force
 		)!;
 
-		addShield(sourceForce, shieldAmount, context.scene);
+		// Show a yellow/gold projectile from source unit to own shield bar
+		if (context.scene) {
+			const { getMoraleBarPosition, MORALE_BAR_WIDTH } = await import('../../../Scenes/Battleground/MoraleDisplay');
+			const sourceChara = (await import('../../../Scenes/Battleground/Systems/CharaManager')).getChara(sourceUnit.id);
+			const moraleBarPos = getMoraleBarPosition(sourceForce.id);
+			if (sourceChara && moraleBarPos) {
+				const targetX = moraleBarPos.x + MORALE_BAR_WIDTH / 2;
+				const targetY = moraleBarPos.y;
+				const { arcaneMissileTargeted } = await import('../../../Effects/arcaneMissileTargeted');
+				arcaneMissileTargeted(
+					context.scene,
+					{ x: sourceChara.x, y: sourceChara.y },
+					{ x: targetX, y: targetY },
+					{
+						colors: [0xffd700, 0xffe135, 0xfff8dc], // Gold/yellow colors
+						amplitudeMin: 5,
+						amplitudeMax: 15,
+						particleScale: 1.5,
+						impact: {
+							colors: [0xffd700, 0xffe135],
+							scale: 2,
+							speed: 200,
+							lifespan: 300,
+							alpha: 0.4
+						},
+						onHit: async () => {
+							addShield(sourceForce, shieldAmount, context.scene);
+						}
+					}
+				);
+			} else {
+				// Fallback: just apply shield directly
+				addShield(sourceForce, shieldAmount, context.scene);
+			}
+		} else {
+			// Fallback: just apply shield directly
+			addShield(sourceForce, shieldAmount, context.scene);
+		}
 	};
 }
 
