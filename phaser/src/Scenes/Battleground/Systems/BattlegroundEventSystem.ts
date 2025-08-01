@@ -7,7 +7,6 @@ import { BattlegroundScene } from "../BattlegroundScene";
 import { popText } from "../../../Systems/Chara/Animations/popText";
 import { PopTextPayload } from "../../../Models/EventPayloads";
 import * as MoraleDisplay from "../MoraleDisplay";
-import * as ShieldDisplay from "../ShieldDisplay";
 import * as VignetteSystem from "../Animations/vignette";
 import { onCharaPointerOver, onCharaPointerOut } from "../../../Systems/Chara/CharaTooltip";
 
@@ -82,22 +81,16 @@ export class BattlegroundEventSystem {
 	private initializeMoraleDisplay(): void {
 		try {
 			MoraleDisplay.init(this.scene);
+			// Handle both morale and shield bar events since they're now combined
 			this.addListener(GameEvents.MORALE_BARS_SHOW, MoraleDisplay.showBars);
 			this.addListener(GameEvents.MORALE_BARS_HIDE, MoraleDisplay.hideBars);
 			this.addListener(GameEvents.MORALE_BARS_FADE_OUT, MoraleDisplay.fadeOutBars);
+			// Shield bar events now go to the same combined display
+			this.addListener(GameEvents.SHIELD_BARS_SHOW, MoraleDisplay.showBars);
+			this.addListener(GameEvents.SHIELD_BARS_HIDE, MoraleDisplay.hideBars);
+			this.addListener(GameEvents.SHIELD_BARS_FADE_OUT, MoraleDisplay.fadeOutBars);
 		} catch (error) {
 			console.error("Failed to initialize MoraleDisplay:", error);
-		}
-	}
-
-	private initializeShieldDisplay(): void {
-		try {
-			ShieldDisplay.init(this.scene);
-			this.addListener(GameEvents.SHIELD_BARS_SHOW, ShieldDisplay.showBars);
-			this.addListener(GameEvents.SHIELD_BARS_HIDE, ShieldDisplay.hideBars);
-			this.addListener(GameEvents.SHIELD_BARS_FADE_OUT, ShieldDisplay.fadeOutBars);
-		} catch (error) {
-			console.error("Failed to initialize ShieldDisplay:", error);
 		}
 	}
 
@@ -111,7 +104,6 @@ export class BattlegroundEventSystem {
 
 	private initializeSystems(): void {
 		this.initializeMoraleDisplay();
-		this.initializeShieldDisplay();
 		this.initializeVignetteSystem();
 	}
 
@@ -172,11 +164,8 @@ export class BattlegroundEventSystem {
 			// Clear the listeners array
 			this.listeners.length = 0;
 
-			// Clean up MoraleDisplay resources
+			// Clean up MoraleDisplay resources (includes shield display now)
 			MoraleDisplay.destroy();
-
-			// Clean up ShieldDisplay resources
-			ShieldDisplay.destroy();
 
 			// Additional cleanup logic can be added here if needed
 		} catch (error) {
