@@ -183,12 +183,6 @@ export class BattleProgressionSystem {
 		const cardPool = getAllCards();
 		const enemy = generateEnemyTeam(this.state.gameData.round, cardPool);
 
-		// Clear any existing defensive trait effects from previous battles
-		// enemy.units.forEach(unit => {
-		// 	//unit.damageReductionStacks = undefined;
-		// 	// Status effects are now managed through the unified system and cleared automatically
-		// });
-
 		// Create deep copies of player units for the battle
 		const playerUnitsForBattle = this.state.gameData.player.units.map(unit => createUnitCopy(unit));
 
@@ -197,6 +191,9 @@ export class BattleProgressionSystem {
 			playerForce
 		];
 		this.state.battleData.units = [...enemy.units, ...playerUnitsForBattle];
+
+		// Small delay to ensure Chara objects are properly initialized
+		await delay(this.scene, 100);
 
 		// Update existing player Chara objects to reference the battle copies
 		playerUnitsForBattle.forEach(battleCopy => {
