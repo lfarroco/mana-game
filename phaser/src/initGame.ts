@@ -3,13 +3,12 @@ import BattlegroundScene from "./Scenes/Battleground/BattlegroundScene";
 import Core from "./Scenes/Core/Core";
 import TitleScene from "./Scenes/Title/TitleScene";
 import OptionsScene from "./Scenes/Options/OptionsScene";
-import { State } from "./Models/State";
-import { SCREEN_HEIGHT, SCREEN_WIDTH, SCENE_KEYS } from "./constants/constants";
+import { SCREEN_HEIGHT, SCREEN_WIDTH } from "./constants/constants";
 import { DebugScene } from "./Debug/DebugScene";
 import BBCodeTextPlugin from 'phaser3-rex-plugins/plugins/bbcodetext-plugin.js';
 import CircleMaskImagePlugin from 'phaser3-rex-plugins/plugins/circlemaskimage-plugin.js';
 
-export function initGame(state: State) {
+export function initGame() {
 
 	const game = new Phaser.Game({
 		type: Phaser.WEBGL,
@@ -42,16 +41,6 @@ export function initGame(state: State) {
 			]
 		}
 	});
-
-	// get query params, check for DEBUG param
-	const urlParams = new URLSearchParams(window.location.search);
-	const debug = urlParams.get('DEBUG');
-	if (debug) {
-		game.scene.start(SCENE_KEYS.DEBUG);
-	} else {
-		// Start with the title scene, pass the state so it can be forwarded to battleground
-		game.scene.start(SCENE_KEYS.TITLE, { state });
-	}
 
 	return game;
 }

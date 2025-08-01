@@ -1,13 +1,11 @@
-import { initialState } from "./Models/State";
 import { initGame } from "./initGame";
 import { initializeOptionsStore } from "./Models/OptionsStore";
 import { OptionsSystemManager } from "./Systems/OptionsSystem/OptionsSystemManager";
 import { AudioSystem } from "./Systems/AudioSystem/AudioSystem";
 import * as TraitEffectsImpl from "./TraitSystem/TraitEffects/Implementations";
 
-const state = initialState();
 
-const game = initGame(state);
+const game = initGame();
 
 // Global, one-time registration systems
 // TODO: move more global systems that are started in BattlegroundScene here

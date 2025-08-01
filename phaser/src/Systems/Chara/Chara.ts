@@ -12,6 +12,7 @@ import { GameEvents } from "../../constants/events";
 import { CharaInputHandler } from "./CharaInputHandler";
 import { Shop } from "../../Scenes/Battleground/Systems/Shop/Shop";
 import { createContinuousHasteEffect } from "../../Effects/hasteEffect";
+import { AudioSystem } from "../AudioSystem/AudioSystem";
 
 export type CharaOptions = {
 	isShopItem?: boolean;
@@ -221,7 +222,12 @@ export class Chara extends Phaser.GameObjects.Container {
 			this.finalizePurchase(); // This calls the onPurchasedCallback which should handle removal from flyout
 
 			// Play sound before destroying the character
-			this.scene.sound.play('sfx_artifact_equipweapon');
+			try {
+				const audioSystem = AudioSystem.getInstance();
+				audioSystem.playSoundEffect('sfx_artifact_equipweapon');
+			} catch (error) {
+				console.warn('Could not play equip weapon sound:', error);
+			}
 
 			// The CharaManager is responsible for the actual destruction and removal from its index.
 			UnitManager.destroyChara(this.id);

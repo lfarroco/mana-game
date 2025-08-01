@@ -11,6 +11,7 @@ import * as CharaManager from "./CharaManager";
 import { cpuForce, playerForce } from "../../../Models/Entities/Force";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
 import { updateMoraleBar } from "../MoraleDisplay";
+import { AudioSystem } from "../../../Systems/AudioSystem/AudioSystem";
 
 /**
  * Creates a deep copy of a unit for battle purposes.
@@ -120,7 +121,13 @@ export class BattleProgressionSystem {
 		console.log("Round", this.state.gameData.round, "Processing Defeat...");
 		// Wait 1 second for current animations to complete
 
-		this.scene.sound.play('sfx_victory_match');
+		try {
+			const audioSystem = AudioSystem.getInstance();
+			audioSystem.playSoundEffect('sfx_victory_match');
+		} catch (error) {
+			console.warn('Could not play victory match sound:', error);
+		}
+
 		await delay(this.scene, 1000);
 		// Fade out the bars smoothly before hiding them
 		await this._fadeOutDisplayBars();
@@ -238,7 +245,13 @@ export class BattleProgressionSystem {
 	async handleCombatEndedVictory(payload: { enemiesDefeated: Unit[] }): Promise<void> {
 		console.log("Round", this.state.gameData.round, "Processing Victory...");
 
-		this.scene.sound.play('sfx_victory_reward_chant');
+		try {
+			const audioSystem = AudioSystem.getInstance();
+			audioSystem.playSoundEffect('sfx_victory_reward_chant');
+		} catch (error) {
+			console.warn('Could not play victory reward chant sound:', error);
+		}
+
 		// Wait 1 second for current animations to complete
 		await delay(this.scene, 1000);
 		// Fade out the bars smoothly before hiding them

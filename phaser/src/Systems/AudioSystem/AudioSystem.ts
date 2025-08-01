@@ -11,6 +11,7 @@ import { getOption } from "../../Models/OptionsStore";
  * - Respects sound/music enable/disable settings
  */
 export class AudioSystem {
+	private static instance: AudioSystem | null = null;
 	private game: Phaser.Game;
 	private isInitialized = false;
 
@@ -25,6 +26,17 @@ export class AudioSystem {
 
 	constructor(game: Phaser.Game) {
 		this.game = game;
+		AudioSystem.instance = this;
+	}
+
+	/**
+	 * Get the singleton instance of AudioSystem
+	 */
+	public static getInstance(): AudioSystem {
+		if (!AudioSystem.instance) {
+			throw new Error('AudioSystem not initialized. Create an instance first.');
+		}
+		return AudioSystem.instance;
 	}
 
 	/**

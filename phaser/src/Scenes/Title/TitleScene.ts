@@ -4,6 +4,7 @@ import { State } from "../../Models/State";
 import { UIButton } from "../../UI/UIButton";
 import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
 import { images } from "../../assets";
+import { AudioSystem } from "../../Systems/AudioSystem/AudioSystem";
 
 export default class TitleScene extends Phaser.Scene {
 	private gameTitle!: Phaser.GameObjects.Image;
@@ -50,6 +51,14 @@ export default class TitleScene extends Phaser.Scene {
 		this.cloudsBackground = new CloudsBackground(this, {
 			preset: 'nebula',
 		});
+
+		// Start playing the title music
+		try {
+			const audioSystem = AudioSystem.getInstance();
+			audioSystem.playMusic('music_ageofdisjunction');
+		} catch (error) {
+			console.warn('Could not play title music:', error);
+		}
 
 		// Create the main title
 		this.gameTitle = this.add.image(

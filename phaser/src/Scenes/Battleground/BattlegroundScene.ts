@@ -18,6 +18,7 @@ import { Unit } from "../../Models/Entities/Unit";
 import { Vec2 } from "../../Models/Geometry";
 import { battleResultAnimation } from "./battleResultAnimation";
 import { handleOwnedUnitSold as handleOwnedUnitSoldPure, updatePlayerGold as updatePlayerGoldPure, handleUnitMoveRequestPure } from "./BattlegroundScene.pure";
+import { AudioSystem } from "../../Systems/AudioSystem/AudioSystem";
 
 /**
  * The main scene for the battleground, handling game logic, UI, and progression.
@@ -153,10 +154,18 @@ export class BattlegroundScene extends Phaser.Scene {
     // 6. Emit events for initial UI and board setup now that listeners are active
     this.events.emit(GameEvents.UI_MAIN_CREATE);               // For main UI (sidebar, gold, etc.)
 
-    // 7. Setup Trait System event listeners
+    // 7. Start battle music
+    try {
+      const audioSystem = AudioSystem.getInstance();
+      audioSystem.playMusic('music_battlemap_vetruv');
+    } catch (error) {
+      console.warn('Could not play battle music:', error);
+    }
+
+    // 8. Setup Trait System event listeners
     setupTraitEventListeners(this);
 
-    // 8. Start the game flow
+    // 9. Start the game flow
     this.battleProgressionSystem.transitionToShopPhase(); // Initial call, no enemies defeated
 
     // Initialize DebugController after all systems are set up
@@ -172,13 +181,16 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
   /**
-   * Plays a sound effect.
+   * Plays a sound effect using the AudioSystem.
    * @param key - The key of the sound effect to play.
    */
   playFx(key: string) {
-    const volume = getOption('soundVolume');
-    // Reuse Phaser's internal sound pool rather than adding a new instance every call
-    this.sound.play(key, { volume });
+    try {
+      const audioSystem = AudioSystem.getInstance();
+      audioSystem.playSoundEffect(key);
+    } catch (error) {
+      console.warn(`Could not play sound effect ${key}:`, error);
+    }
   }
 
   // --- Event Handlers Moved from BattlegroundEventSystem ---

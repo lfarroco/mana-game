@@ -1,3 +1,5 @@
+import { SCENE_KEYS } from "../../constants/constants";
+import { getState } from "../../Models/State";
 
 // Co
 export default class Core extends Phaser.Scene {
@@ -24,6 +26,23 @@ export default class Core extends Phaser.Scene {
 		this.load.audio('sfx_victory_reward_chant', 'assets/audio/sfx_victory_reward_chant.m4a');
 		this.load.audio('sfx_victory_match', 'assets/audio/sfx_victory_match.m4a');
 
+		this.load.audio('music_ageofdisjunction', 'assets/music/music_ageofdisjunction.m4a');
+
+		this.load.audio('music_battlemap_vetruv', 'assets/music/music_battlemap_vetruv.m4a');
 	}
-	create() { }
+	create() {
+
+		// get query params, check for DEBUG param
+		const urlParams = new URLSearchParams(window.location.search);
+		const debug = urlParams.get('DEBUG');
+		if (debug) {
+			this.game.scene.start(SCENE_KEYS.DEBUG);
+		} else {
+			// Start with the title scene, pass the state so it can be forwarded to battleground
+			this.game.scene.start(SCENE_KEYS.TITLE, { state: getState() });
+		}
+
+
+
+	}
 }
