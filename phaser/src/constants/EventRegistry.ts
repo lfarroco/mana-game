@@ -1,4 +1,5 @@
 import { GoldSystemEventPayloads } from "../Systems/GoldSystem/events";
+import { OptionsSystemEventPayloads } from "../Systems/OptionsSystem/events";
 import { Unit } from "../Models/Entities/Unit";
 
 // Core events that are always present
@@ -24,9 +25,11 @@ export interface CoreEventPayloads {
 // Combined event payloads from all systems
 export interface AllEventPayloads extends
 	CoreEventPayloads,
-	GoldSystemEventPayloads
+	GoldSystemEventPayloads,
+	OptionsSystemEventPayloads
 // Add other system event payloads here as they're modularized
 { }
 
 // Re-export system event constants for convenience
 export { GoldSystemEvents } from "../Systems/GoldSystem/events";
+export { OptionsSystemEvents } from "../Systems/OptionsSystem/events";

@@ -1,4 +1,4 @@
-import { GoldSystemEvents } from "./EventRegistry";
+import { GoldSystemEvents, OptionsSystemEvents } from "./EventRegistry";
 
 /**
  * ⚠️  LEGACY EVENT SYSTEM - Consider Using Typed Events Instead
@@ -22,6 +22,18 @@ import { GoldSystemEvents } from "./EventRegistry";
  */
 export const GameEvents = {
 	GOLD_CHANGED: GoldSystemEvents.GOLD_CHANGED,
+
+	// Options System Events
+	OPTION_CHANGED: OptionsSystemEvents.OPTION_CHANGED,
+	SOUND_ENABLED: OptionsSystemEvents.SOUND_ENABLED,
+	MUSIC_ENABLED: OptionsSystemEvents.MUSIC_ENABLED,
+	SOUND_VOLUME_CHANGED: OptionsSystemEvents.SOUND_VOLUME_CHANGED,
+	MUSIC_VOLUME_CHANGED: OptionsSystemEvents.MUSIC_VOLUME_CHANGED,
+	GAME_SPEED_CHANGED: OptionsSystemEvents.GAME_SPEED_CHANGED,
+	DEBUG_MODE_CHANGED: OptionsSystemEvents.DEBUG_MODE_CHANGED,
+	PARTICLES_QUALITY_CHANGED: OptionsSystemEvents.PARTICLES_QUALITY_CHANGED,
+	OPTIONS_RESET: OptionsSystemEvents.OPTIONS_RESET,
+
 	/**
 	 * Emitted when the battle wave setup is complete, before the first tick of combat.
 	 * Units and other systems can listen to this to apply battle-start effects.

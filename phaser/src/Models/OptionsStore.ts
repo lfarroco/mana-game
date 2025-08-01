@@ -3,6 +3,9 @@
  * This store provides a centralized and controlled way to access and potentially update these options.
  */
 
+import { TypedEventEmitter } from "../Systems/Events/TypedEventEmitter";
+import { OptionsSystemEvents, OptionsSystemEventPayloads } from "../Systems/OptionsSystem/events";
+
 export type Options = {
 	sound: boolean;
 	soundVolume: number;
@@ -15,6 +18,7 @@ export type Options = {
 
 let currentOptions: Options;
 let game: Phaser.Game;
+let eventEmitter: TypedEventEmitter<OptionsSystemEventPayloads> | null = null;
 
 const STORAGE_KEY = 'mana-game-options';
 
@@ -23,9 +27,10 @@ const STORAGE_KEY = 'mana-game-options';
  * Reads 'speed' and 'debug' from URL parameters and sets defaults for other options.
  * This function should be called once at the beginning of the application.
  */
-export function initializeOptionsStore(gameRef: Phaser.Game): void {
+export function initializeOptionsStore(gameRef: Phaser.Game, optionsEventEmitter?: TypedEventEmitter<OptionsSystemEventPayloads>): void {
 
 	game = gameRef;
+	eventEmitter = optionsEventEmitter || null;
 	let speed = 1;
 	let debug = false;
 
@@ -100,10 +105,42 @@ export function getOption<K extends keyof Options>(key: K): Options[K] {
  * @param value The new value for the option.
  */
 export function setOption<K extends keyof Options>(key: K, value: Options[K]): void {
+	const previousValue = currentOptions[key];
 	currentOptions[key] = value;
 
 	// Save to localStorage whenever an option changes
 	saveOptionsToStorage();
+
+	// Emit events if event emitter is available
+	if (eventEmitter) {
+		// General option changed event
+		eventEmitter.emit(OptionsSystemEvents.OPTION_CHANGED, key, value, previousValue);
+
+		// Specific events for different option types
+		switch (key) {
+			case 'sound':
+				eventEmitter.emit(OptionsSystemEvents.SOUND_ENABLED, value as boolean);
+				break;
+			case 'music':
+				eventEmitter.emit(OptionsSystemEvents.MUSIC_ENABLED, value as boolean);
+				break;
+			case 'soundVolume':
+				eventEmitter.emit(OptionsSystemEvents.SOUND_VOLUME_CHANGED, value as number);
+				break;
+			case 'musicVolume':
+				eventEmitter.emit(OptionsSystemEvents.MUSIC_VOLUME_CHANGED, value as number);
+				break;
+			case 'speed':
+				eventEmitter.emit(OptionsSystemEvents.GAME_SPEED_CHANGED, value as number);
+				break;
+			case 'debug':
+				eventEmitter.emit(OptionsSystemEvents.DEBUG_MODE_CHANGED, value as boolean);
+				break;
+			case 'particles':
+				eventEmitter.emit(OptionsSystemEvents.PARTICLES_QUALITY_CHANGED, value as 'low' | 'medium' | 'high');
+				break;
+		}
+	}
 
 	// Special handling for certain options that require immediate application
 	if (key === 'speed') {
@@ -167,6 +204,11 @@ export function resetOptionsToDefaults(): void {
 
 	saveOptionsToStorage();
 	setGameSpeed(currentOptions.speed);
+
+	// Emit options reset event
+	if (eventEmitter) {
+		eventEmitter.emit(OptionsSystemEvents.OPTIONS_RESET);
+	}
 }
 
 /**
