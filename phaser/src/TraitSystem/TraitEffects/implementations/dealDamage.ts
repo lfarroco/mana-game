@@ -6,6 +6,8 @@
 import { GameEvents } from '../../../constants/events';
 import { Force, applyDamageToForce } from '../../../Models/Entities/Force';
 import { Unit } from '../../../Models/Entities/Unit';
+import { getMoraleBarPosition, MORALE_BAR_WIDTH } from '../../../Scenes/Battleground/MoraleDisplay';
+import { getChara } from '../../../Scenes/Battleground/Systems/CharaManager';
 import { TraitEffectFn } from '../../TraitEffectSystem';
 
 /**
@@ -30,15 +32,44 @@ export function createDealDamageLogic(
 		)!;
 
 
-		// TODO: shield pieces logic
-		// Check if the unit has shield piercing trait
-		// let shieldPiercingPercentage = 0;
-		// const shieldPiercingTrait = sourceUnit.traits.find(trait => trait.id === 'shield_piercing');
-		// if (shieldPiercingTrait) {
-		// 	shieldPiercingPercentage = getEffectParams(shieldPiercingTrait, {}, 'percentage', 0);
-		// }
-
-		dealDamage(targetForce, damageAmount, context.scene, 0);
+		// Show a red projectile from source unit to enemy morale bar
+		if (context.scene) {
+			const sourceChara = getChara(sourceUnit.id);
+			const moraleBarPos = getMoraleBarPosition(targetForce.id);
+			if (sourceChara && moraleBarPos) {
+				// Dynamically import MoraleDisplay to get bar width
+				const targetX = moraleBarPos.x + MORALE_BAR_WIDTH / 2;
+				const targetY = moraleBarPos.y;
+				const { arcaneMissileTargeted } = await import('../../../Effects/arcaneMissileTargeted');
+				arcaneMissileTargeted(
+					context.scene,
+					{ x: sourceChara.x, y: sourceChara.y },
+					{ x: targetX, y: targetY },
+					{
+						colors: [0xff0000, 0xb22222, 0xdc143c], // Red colors
+						amplitudeMin: 5,
+						amplitudeMax: 15,
+						particleScale: 1.5,
+						impact: {
+							colors: [0xff0000, 0xb22222],
+							scale: 2,
+							speed: 200,
+							lifespan: 300,
+							alpha: 0.4
+						},
+						onHit: async () => {
+							dealDamage(targetForce, damageAmount, context.scene, 0);
+						}
+					}
+				);
+			} else {
+				// Fallback: just apply damage directly
+				dealDamage(targetForce, damageAmount, context.scene, 0);
+			}
+		} else {
+			// Fallback: just apply damage directly
+			dealDamage(targetForce, damageAmount, context.scene, 0);
+		}
 
 		// Battle reactions are now handled centrally in the combat loop
 		// No need to manually trigger allied reactions here
