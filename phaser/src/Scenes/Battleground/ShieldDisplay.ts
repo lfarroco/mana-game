@@ -113,13 +113,24 @@ export function init(sceneRef: Phaser.Scene): void {
 
 	scene = sceneRef;
 
-	// Position shield bars over the morale bars (same Y positions as morale bars)
-	const centerY = scene.scale.height / 2;
-	const playerBarY = centerY + 50; // Same as player morale bar position
-	playerShieldBar = create(sceneRef, playerBarY, c.FORCE_ID_PLAYER);
+	// --- Position shield bars directly above their respective morale bars ---
+	// Get morale bar positions from constants
+	// Player
+	const playerMoraleBarX = c.PLAYER_BOARD_X;
+	const playerMoraleBarY = c.PLAYER_BOARD_Y + c.TILE_HEIGHT * 3 + 8 * 2 + 16; // 16 = BAR_OFFSET in MoraleDisplay
+	// The shield bar should be a little below the morale bar (half its height)
+	const shieldBarYOffset = 0;
 
-	const cpuBarY = centerY - 50; // Same as enemy morale bar position
-	cpuShieldBar = create(sceneRef, cpuBarY, c.FORCE_ID_CPU);
+	const playerShieldBarY = playerMoraleBarY + shieldBarYOffset;
+	playerShieldBar = create(sceneRef, playerShieldBarY, c.FORCE_ID_PLAYER);
+	playerShieldBar.container.x = playerMoraleBarX;
+
+	// CPU
+	const cpuMoraleBarX = c.CPU_BOARD_X;
+	const cpuMoraleBarY = c.CPU_BOARD_Y + c.TILE_HEIGHT * 3 + 8 * 2 + 16;
+	const cpuShieldBarY = cpuMoraleBarY + shieldBarYOffset;
+	cpuShieldBar = create(sceneRef, cpuShieldBarY, c.FORCE_ID_CPU);
+	cpuShieldBar.container.x = cpuMoraleBarX;
 
 	scene.events.on(GameEvents.SHIELD_UPDATED, handleShieldUpdated);
 }
