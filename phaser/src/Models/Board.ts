@@ -10,8 +10,9 @@ export class PartyBoard {
 	scene: Phaser.Scene;
 	slotImages: Phaser.GameObjects.Image[] = [];
 	dropZones: Phaser.GameObjects.Zone[] = []; // Add drop zones array
+	cpuSlotImages: Phaser.GameObjects.Image[] = []; // Separate array for CPU board slots
 
-	enemyBoardVisible: boolean = true;
+	enemyBoardVisible: boolean = false;
 
 	readonly x: number = PLAYER_BOARD_X;
 	readonly y: number = PLAYER_BOARD_Y;
@@ -28,6 +29,7 @@ export class PartyBoard {
 		const slotSpacing = 8; // Add 8 pixels spacing between slots
 		this.slotImages = [];
 		this.dropZones = [];
+		this.cpuSlotImages = [];
 
 		let cells = []
 		for (let tileY = 0; tileY < 3; tileY++)
@@ -52,9 +54,21 @@ export class PartyBoard {
 					images.slot_round.key,
 				);
 				slotImg.setDisplaySize(constants.TILE_WIDTH, constants.TILE_HEIGHT);
-				// Set visibility for CPU slots based on flag
-				if (!board.isPlayer) slotImg.setVisible(this.enemyBoardVisible);
-				this.slotImages.push(slotImg);
+
+				// Handle CPU slots differently for animation
+				if (!board.isPlayer) {
+					// CPU slots start in their normal position if visible, off-screen if hidden
+					if (this.enemyBoardVisible) {
+						slotImg.x = zoneX + constants.TILE_WIDTH / 2;
+					} else {
+						const offScreenX = constants.SCREEN_WIDTH + constants.TILE_WIDTH;
+						slotImg.x = offScreenX;
+					}
+					slotImg.setVisible(this.enemyBoardVisible);
+					this.cpuSlotImages.push(slotImg);
+				} else {
+					this.slotImages.push(slotImg);
+				}
 
 				// Only create drop zones for player board (enemy units can't be dragged)
 				if (board.isPlayer) {
@@ -74,19 +88,68 @@ export class PartyBoard {
 
 	setEnemyBoardVisible(visible: boolean): void {
 		this.enemyBoardVisible = visible;
-		// Update visibility of CPU slots if already rendered
-		if (this.slotImages.length >= 18) {
-			this.slotImages.slice(9, 18).forEach(img => img.setVisible(visible));
+
+		if (this.cpuSlotImages.length > 0) {
+			const slotSpacing = 8;
+			const offScreenX = constants.SCREEN_WIDTH + constants.TILE_WIDTH;
+
+			if (visible) {
+				// Slide in from right
+				this.cpuSlotImages.forEach((img, index) => {
+					const cell = {
+						x: index % 3,
+						y: Math.floor(index / 3)
+					};
+					const targetX = CPU_BOARD_X + cell.x * (constants.TILE_WIDTH + slotSpacing) + constants.TILE_WIDTH / 2;
+
+					img.setVisible(true);
+					img.x = offScreenX; // Start from off-screen right
+
+					// Stop any existing tweens on this image to prevent conflicts
+					this.scene.tweens.killTweensOf(img);
+
+					this.scene.tweens.add({
+						targets: img,
+						x: targetX,
+						duration: 300,
+						ease: 'Power2.easeOut',
+						delay: index * 50 // Stagger the animation for each slot
+					});
+				});
+			} else {
+				// Slide out to right
+				this.cpuSlotImages.forEach((img, index) => {
+					// Stop any existing tweens on this image to prevent conflicts
+					this.scene.tweens.killTweensOf(img);
+
+					this.scene.tweens.add({
+						targets: img,
+						x: offScreenX,
+						duration: 300,
+						ease: 'Power2.easeIn',
+						delay: index * 30, // Faster stagger for hide animation
+						onComplete: () => {
+							img.setVisible(false);
+						}
+					});
+				});
+			}
 		}
 	}
 
 	display(): void {
 		this.slotImages.forEach(img => img.setVisible(true));
+		// CPU slots visibility is handled by setEnemyBoardVisible method with animation
+		if (this.enemyBoardVisible) {
+			this.cpuSlotImages.forEach(img => img.setVisible(true));
+		}
 	}
 
 	destroyVisuals(): void {
 		this.slotImages.forEach(img => img.destroy());
 		this.slotImages = [];
+		this.cpuSlotImages.forEach(img => img.destroy());
+		this.cpuSlotImages = [];
 		this.dropZones.forEach(zone => zone.destroy());
 		this.dropZones = [];
 	}
