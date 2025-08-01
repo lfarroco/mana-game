@@ -10,6 +10,13 @@ export interface OptionsSystemEventPayloads {
 	"debug_mode_changed": [debug: boolean];
 	"particles_quality_changed": [quality: 'low' | 'medium' | 'high'];
 	"options_reset": void;
+
+	// Audio playback events
+	"play_music": [musicKey: string, loop?: boolean, fadeIn?: number];
+	"stop_music": [fadeOut?: number];
+	"play_sound_effect": [soundKey: string, volume?: number];
+	"stop_sound_effect": [soundKey: string];
+	"stop_all_sound_effects": void;
 }
 
 export const OptionsSystemEvents = {
@@ -22,4 +29,11 @@ export const OptionsSystemEvents = {
 	DEBUG_MODE_CHANGED: "debug_mode_changed" as const,
 	PARTICLES_QUALITY_CHANGED: "particles_quality_changed" as const,
 	OPTIONS_RESET: "options_reset" as const,
+
+	// Audio playback events
+	PLAY_MUSIC: "play_music" as const,
+	STOP_MUSIC: "stop_music" as const,
+	PLAY_SOUND_EFFECT: "play_sound_effect" as const,
+	STOP_SOUND_EFFECT: "stop_sound_effect" as const,
+	STOP_ALL_SOUND_EFFECTS: "stop_all_sound_effects" as const,
 } as const;
