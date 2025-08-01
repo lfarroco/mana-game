@@ -34,6 +34,13 @@ export const GameEvents = {
 	PARTICLES_QUALITY_CHANGED: OptionsSystemEvents.PARTICLES_QUALITY_CHANGED,
 	OPTIONS_RESET: OptionsSystemEvents.OPTIONS_RESET,
 
+	// Audio Playback Events
+	PLAY_MUSIC: OptionsSystemEvents.PLAY_MUSIC,
+	STOP_MUSIC: OptionsSystemEvents.STOP_MUSIC,
+	PLAY_SOUND_EFFECT: OptionsSystemEvents.PLAY_SOUND_EFFECT,
+	STOP_SOUND_EFFECT: OptionsSystemEvents.STOP_SOUND_EFFECT,
+	STOP_ALL_SOUND_EFFECTS: OptionsSystemEvents.STOP_ALL_SOUND_EFFECTS,
+
 	/**
 	 * Emitted when the battle wave setup is complete, before the first tick of combat.
 	 * Units and other systems can listen to this to apply battle-start effects.
