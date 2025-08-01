@@ -16,7 +16,7 @@ export async function popText({
 	y: number;
 	text: string;
 	type?: "heal" | "damage" | "shield";
-	direction?: "up" | "down";
+	direction?: "up" | "down" | "left" | "right";
 }) {
 	let textColor = defaultTextConfig.color;
 	if (type === "heal") {
@@ -43,7 +43,15 @@ export async function popText({
 	// Calculate vertical movement based on direction
 	const verticalMovement = direction === "down"
 		? POP_TEXT_CONFIG.VERTICAL_DISTANCE  // Move down (positive Y)
-		: -POP_TEXT_CONFIG.VERTICAL_DISTANCE; // Move up (negative Y)
+		: direction === "up"
+			? -POP_TEXT_CONFIG.VERTICAL_DISTANCE // Move up (negative Y)
+			: 0;
+
+	const horizontalMovement = direction === "left"
+		? -POP_TEXT_CONFIG.HORIZONTAL_SPREAD // Move left (negative X)
+		: direction === "right"
+			? POP_TEXT_CONFIG.HORIZONTAL_SPREAD // Move right (positive X)
+			: 0;
 
 	tween({
 		targets: [popText],
@@ -51,7 +59,7 @@ export async function popText({
 		duration: POP_TEXT_CONFIG.MOVE_DURATION,
 		y: y + verticalMovement,
 		// in the angle direction
-		x: x + Math.sin(angle * Math.PI / 180) * POP_TEXT_CONFIG.HORIZONTAL_SPREAD,
+		x: x + Math.sin(angle * Math.PI / 180) * POP_TEXT_CONFIG.HORIZONTAL_SPREAD + horizontalMovement,
 	});
 	await tween({
 		targets: [popText],
