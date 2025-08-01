@@ -104,12 +104,10 @@ export class BattleProgressionSystem {
 	/**
 	 * Transitions the game to the combat phase for the current round.
 	 */
-	transitionToCombatPhase(): void {
+	async transitionToCombatPhase(): Promise<void> {
 		this._isInShopPhase = false;
 		console.log("Round", this.state.gameData.round, "Combat Phase Starting.");
-		const { enemies } = this.setupBattle();
-		// Show enemy board in combat phase
-		this.scene.events.emit(GameEvents.ENEMY_BOARD_SHOW);
+		const { enemies } = await this.setupBattle();
 
 		this.setAllPlayerUnitBarsVisibility(true); // Show bars for player units in combat
 		this.scene.events.emit(GameEvents.COMBAT_START_EXECUTION_TRIGGER, { enemies });
@@ -181,7 +179,7 @@ export class BattleProgressionSystem {
 	 * to the battle data. Also summons CPU units to the board.
 	 * @returns An object containing the array of enemy units.
 	 */
-	setupBattle(): { enemies: Unit[] } {
+	async setupBattle(): Promise<{ enemies: Unit[]; }> {
 		const cardPool = getAllCards();
 		const enemy = generateEnemyTeam(this.state.gameData.round, cardPool);
 
@@ -207,6 +205,11 @@ export class BattleProgressionSystem {
 				chara.updateUnit(battleCopy); // Update the Chara and its display components to reference the battle copy
 			}
 		});
+
+		// Show enemy board in combat phase
+		this.scene.events.emit(GameEvents.ENEMY_BOARD_SHOW);
+
+		await delay(this.scene, 500); // Wait for any animations to complete before proceeding
 
 		// Summon CPU units to the board
 		enemy.units.forEach(unit => {
