@@ -5,13 +5,10 @@ import { tween } from "../Utils/animation";
 import * as Tooltip from "./Tooltip";
 import { GoldCoinAnimator } from "./GoldCoinAnimator";
 import { GameEvents } from "../constants/events";
-import { DifficultyTier } from "../Scenes/Battleground/generateEnemyTeam";
 import { UserMessagePayload } from "../Models/EventPayloads";
 import { TypedEventEmitter } from "../Systems/Events/TypedEventEmitter";
 import { GoldSystemEventPayloads, GoldSystemEvents } from "../Systems/GoldSystem/events";
 
-const SIDEBAR_TEXT_BASE_X = 300;
-const SIDEBAR_TEXT_BASE_Y = -400;
 /**
  * Manages the user interface elements within the BattlegroundScene.
  * This class is responsible for creating, updating, and destroying UI components
@@ -30,8 +27,6 @@ export class UIManager {
 	prestigeTextElement: Phaser.GameObjects.Text | null = null;
 	/** Instance of GoldCoinAnimator for handling gold coin animations. */
 	goldCoinAnimator: GoldCoinAnimator;
-	/** Phaser text element for displaying the current difficulty tier. */
-	difficultyTierTextElement: Phaser.GameObjects.Text | null = null;
 	/** Typed event emitter for gold system events. */
 	private goldEvents: TypedEventEmitter<GoldSystemEventPayloads>;
 
@@ -49,7 +44,6 @@ export class UIManager {
 		this._setupPrestigeChangeListener();
 		this._setupPurchaseFailedListener();
 		this._setupUserMessageListener();
-		this._setupDifficultyTierChangeListener();
 		Tooltip.initializeTooltip(scene);
 		this._setupTooltipShowListener();
 		this._setupTooltipHideListener();
@@ -106,13 +100,7 @@ export class UIManager {
 		this.scene.events.on(GameEvents.TOOLTIP_HIDE, () => Tooltip.hideTooltip(), this);
 	}
 
-	/**
-	 * Sets up an event listener for "difficulty_tier_changed" events.
-	 * This allows the UIManager to react to updates in the current difficulty tier.
-	 */
-	_setupDifficultyTierChangeListener(): void {
-		this.scene.events.on(GameEvents.DIFFICULTY_TIER_CHANGED, this._handleDifficultyTierChanged, this);
-	}
+
 
 	/**
 	 * Handles the `GameEvents.PURCHASE_FAILED` event by constructing and emitting a user message.
@@ -169,16 +157,7 @@ export class UIManager {
 		// (already handled by prestigeTextElement, which is the one in the gold display)
 	}
 
-	/**
-	 * Handles the "difficulty_tier_changed" event.
-	 * It updates the displayed difficulty tier.
-	 * @param payload - The payload containing the new difficulty tier.
-	 */
-	_handleDifficultyTierChanged(payload: { difficultyTier: DifficultyTier }): void {
-		if (this.difficultyTierTextElement) {
-			this.difficultyTierTextElement.setText(`Tier: ${payload.difficultyTier}`);
-		}
-	}
+
 
 	/**
 	 * Updates a morale text element with a new value and plays a wiggle animation.
@@ -235,7 +214,6 @@ export class UIManager {
 		this.uiContainer = this.scene.add.container(0, 0);
 
 		this._createGoldText(this.uiContainer);
-		this._createDifficultyTierText(this.uiContainer);
 
 		// Ensure prestige text is updated to current value after recreation
 		if (this.prestigeTextElement) {
@@ -319,22 +297,6 @@ export class UIManager {
 	}
 
 	/**
-	 * Creates the text element that displays the current difficulty tier.
-	 * @param parent The `Phaser.GameObjects.Container` to which the text will be added.
-	 */
-	_createDifficultyTierText(parent: Phaser.GameObjects.Container): void {
-		// Initial text based on player prestige, will be updated by event
-		const initialTier = this.scene.state.gameData.player.prestige < 10 ? "Challenger" : (this.scene.state.gameData.player.prestige < 20 ? "Veteran" : "Elite");
-		this.difficultyTierTextElement = this.scene.add.text(
-			c.SCREEN_WIDTH - SIDEBAR_TEXT_BASE_X,
-			c.SCREEN_HEIGHT + SIDEBAR_TEXT_BASE_Y + 250,
-			`Tier: ${initialTier}`,
-			c.titleTextConfig
-		);
-		parent.add(this.difficultyTierTextElement);
-	}
-
-	/**
 	 * Handles requests to display a user message (e.g., error, info).
 	 * The message appears, animates briefly for emphasis, and then fades out.
 	 * This method is asynchronous and completes when the message animation finishes.
@@ -382,7 +344,6 @@ export class UIManager {
 		this.goldContainer = null;
 		this.goldTextElement = null;
 		this.prestigeTextElement = null;
-		this.difficultyTierTextElement = null;
 	}
 
 	/**
@@ -399,7 +360,6 @@ export class UIManager {
 		this.scene.events.off(GameEvents.USER_MESSAGE_REQUESTED, this._handleUserMessageRequested, this);
 		this.scene.events.off(GameEvents.TOOLTIP_SHOW);
 		this.scene.events.off(GameEvents.TOOLTIP_HIDE);
-		this.scene.events.off(GameEvents.DIFFICULTY_TIER_CHANGED, this._handleDifficultyTierChanged, this);
 	}
 
 	/**

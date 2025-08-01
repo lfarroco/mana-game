@@ -1,6 +1,7 @@
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
 import { SCREEN_HEIGHT } from "../constants/constants";
 import { tween } from "../Utils/animation";
+import { AudioSystem } from "../Systems/AudioSystem/AudioSystem";
 
 
 let flyouts: Flyout[] = [];
@@ -32,7 +33,12 @@ export class Flyout extends Phaser.GameObjects.Container {
 
 	async slideIn() {
 
-		this.scene.sound.play('sfx_ui_modalwindow_swoosh_enter')
+		try {
+			const audioSystem = AudioSystem.getInstance();
+			audioSystem.playSoundEffect('sfx_ui_modalwindow_swoosh_enter');
+		} catch (error) {
+			console.warn('Could not play modal window enter sound:', error);
+		}
 
 		this.scene.children.bringToTop(this);
 		await tween({
@@ -46,7 +52,13 @@ export class Flyout extends Phaser.GameObjects.Container {
 	// TODO: check if multiple flyouts are kept 
 	async slideOut() {
 
-		this.scene.sound.play('sfx_ui_modalwindow_swoosh_exit');
+		try {
+			const audioSystem = AudioSystem.getInstance();
+			audioSystem.playSoundEffect('sfx_ui_modalwindow_swoosh_exit');
+		} catch (error) {
+			console.warn('Could not play modal window exit sound:', error);
+		}
+
 		await tween({
 			targets: [this],
 			y: -SCREEN_HEIGHT,

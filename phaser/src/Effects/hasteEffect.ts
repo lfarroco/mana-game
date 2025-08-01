@@ -5,6 +5,7 @@
 
 import { images } from "../assets";
 import { delay } from "../Utils/animation";
+import { AudioSystem } from "../Systems/AudioSystem/AudioSystem";
 
 export interface HasteEffectOptions {
 	/** Duration of the effect in milliseconds */
@@ -30,7 +31,12 @@ export async function hasteEffect(
 		color = 0x00eaff
 	} = options;
 
-	scene.sound.play('sfx_artifact_equipmask');
+	try {
+		const audioSystem = AudioSystem.getInstance();
+		audioSystem.playSoundEffect('sfx_artifact_equipmask');
+	} catch (error) {
+		console.warn('Could not play haste effect sound:', error);
+	}
 
 	// Create upward-moving droplet particles
 	const particles = scene.add.particles(
