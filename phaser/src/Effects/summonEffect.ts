@@ -29,7 +29,6 @@ export async function summonEffect(
 			}
 		});
 
-
 	await delay(scene, LIFESPAN);
 
 	summonEffect.stop();

@@ -219,6 +219,10 @@ export class Chara extends Phaser.GameObjects.Container {
 	_onShopPurchaseSuccessful(payload: { purchasedUnit: Unit, originalShopCharaId: string }): void {
 		if (this.isShopItem && payload.originalShopCharaId === this.id) {
 			this.finalizePurchase(); // This calls the onPurchasedCallback which should handle removal from flyout
+
+			// Play sound before destroying the character
+			this.scene.sound.play('sfx_artifact_equipweapon');
+
 			// The CharaManager is responsible for the actual destruction and removal from its index.
 			UnitManager.destroyChara(this.id);
 		}
