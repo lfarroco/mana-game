@@ -214,15 +214,11 @@ export class RunCombatSystem {
       case 'ally_right':
         return actionPos.x === reactorPos.x + 1 && actionPos.y === reactorPos.y;
 
-      case 'ally_front':
-        // Front is direction dependent on force
-        const frontY = reactorUnit.force === 'player' ? reactorPos.y - 1 : reactorPos.y + 1;
-        return actionPos.x === reactorPos.x && actionPos.y === frontY;
+      case 'ally_top':
+        return actionPos.x === reactorPos.x && actionPos.y === reactorPos.y - 1;
 
-      case 'ally_back':
-        // Back is direction dependent on force
-        const backY = reactorUnit.force === 'player' ? reactorPos.y + 1 : reactorPos.y - 1;
-        return actionPos.x === reactorPos.x && actionPos.y === backY;
+      case 'ally_bottom':
+        return actionPos.x === reactorPos.x && actionPos.y === reactorPos.y + 1;
 
       case 'same_row_allies':
       case 'all_allies_in_row':

@@ -108,8 +108,8 @@ function formatPositionName(position: any): string {
 		case 'allies_diagonal': return 'diagonal allies';
 		case 'all_allies_in_row': return 'allies in row';
 		case 'all_allies_in_column': return 'allies in column';
-		case 'ally_front': return 'ally in front';
-		case 'ally_back': return 'ally behind';
+		case 'ally_top': return 'ally above';
+		case 'ally_bottom': return 'ally below';
 		case 'ally_left': return 'left ally';
 		case 'ally_right': return 'right ally';
 		default: return position;
