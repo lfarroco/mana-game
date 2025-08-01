@@ -29,7 +29,45 @@ export function createRestoreMoraleLogic(
 			(force) => force.id === sourceUnit.force
 		)!;
 
-		healMorale(sourceForce, healAmount, context.scene);
+		// Show a green projectile from source unit to own morale bar
+		if (context.scene) {
+			const sourceChara = getChara(sourceUnit.id);
+			// Dynamically import MoraleDisplay to get bar position and width
+			const { getMoraleBarPosition, MORALE_BAR_WIDTH } = await import('../../../Scenes/Battleground/MoraleDisplay');
+			const moraleBarPos = getMoraleBarPosition(sourceForce.id);
+			if (sourceChara && moraleBarPos) {
+				const targetX = moraleBarPos.x + MORALE_BAR_WIDTH / 2;
+				const targetY = moraleBarPos.y;
+				const { arcaneMissileTargeted } = await import('../../../Effects/arcaneMissileTargeted');
+				arcaneMissileTargeted(
+					context.scene,
+					{ x: sourceChara.x, y: sourceChara.y },
+					{ x: targetX, y: targetY },
+					{
+						colors: [0x00ff00, 0x32cd32, 0x7fff00], // Green colors
+						amplitudeMin: 5,
+						amplitudeMax: 15,
+						particleScale: 1.5,
+						impact: {
+							colors: [0x00ff00, 0x32cd32],
+							scale: 2,
+							speed: 200,
+							lifespan: 300,
+							alpha: 0.4
+						},
+						onHit: async () => {
+							healMorale(sourceForce, healAmount, context.scene);
+						}
+					}
+				);
+			} else {
+				// Fallback: just apply healing directly
+				healMorale(sourceForce, healAmount, context.scene);
+			}
+		} else {
+			// Fallback: just apply healing directly
+			healMorale(sourceForce, healAmount, context.scene);
+		}
 	};
 }
 
