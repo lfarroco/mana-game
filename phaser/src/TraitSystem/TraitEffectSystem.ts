@@ -218,19 +218,23 @@ export function resolveTargets(
 		case "all_allies_in_column":
 			return getActiveUnits(state).filter(sameForce).filter(sameColumn).filter(notSelf);
 		case "ally_left": {
+			// Left relative to player's perspective
 			const targetPos = { x: source.position.x - 1, y: source.position.y };
 			return getActiveUnits(state).filter(sameForce).filter(u => sameForce(u) && u.position.x === targetPos.x && u.position.y === targetPos.y);
 		}
 		case "ally_right": {
+			// Right relative to player's perspective
 			const targetPos = { x: source.position.x + 1, y: source.position.y };
 			return getActiveUnits(state).filter(sameForce).filter(u => u.position.x === targetPos.x && u.position.y === targetPos.y);
 		}
-		case "ally_front": {
+		case "ally_top": {
+			// Top relative to player's perspective
 			const yOffset = source.force === FORCE_ID_PLAYER ? -1 : 1;
 			const targetPos = { x: source.position.x, y: source.position.y + yOffset };
 			return getActiveUnits(state).filter(sameForce).filter(u => u.position.x === targetPos.x && u.position.y === targetPos.y);
 		}
-		case "ally_back": {
+		case "ally_bottom": {
+			// Bottom relative to player's perspective
 			const yOffset = source.force === FORCE_ID_PLAYER ? 1 : -1;
 			const targetPos = { x: source.position.x, y: source.position.y + yOffset };
 			return getActiveUnits(state).filter(sameForce).filter(u => u.position.x === targetPos.x && u.position.y === targetPos.y);
@@ -326,6 +330,7 @@ registerTraitConditionImplementation("target_is_enemy", (context) => {
 /**
  * Condition: Checks if the source unit is in a specific row.
  * Requires `row` parameter in `conditionData` ('front', 'mid', or 'back').
+ * Note: With horizontal layout, 'front' means closest to enemy (rightmost for player, leftmost for enemy).
  */
 registerTraitConditionImplementation("is_in_row", (context, conditionData) => {
 	const { sourceUnit } = context;
@@ -338,21 +343,23 @@ registerTraitConditionImplementation("is_in_row", (context, conditionData) => {
 		return false;
 	}
 
-	const boardHeightInTiles = 3; // Standard 3x3 board
-	const backRowY = boardHeightInTiles - 1;
-	const midRowY = 1;
-	const frontRowY = 0;
+	// Standard 3x3 board - using X axis for front/mid/back positioning
+	const backColX = 0;   // Leftmost column
+	const midColX = 1;    // Middle column
+	const frontColX = 2;  // Rightmost column
 
-	const unitY = sourceUnit.position.y;
+	const unitX = sourceUnit.position.x;
 
 	if (sourceUnit.force === FORCE_ID_PLAYER) {
-		if (row === 'back' && unitY === backRowY) return true;
-		if (row === 'mid' && unitY === midRowY) return true;
-		if (row === 'front' && unitY === frontRowY) return true;
+		// For player: front = rightmost (x=2), back = leftmost (x=0)
+		if (row === 'back' && unitX === backColX) return true;
+		if (row === 'mid' && unitX === midColX) return true;
+		if (row === 'front' && unitX === frontColX) return true;
 	} else { // CPU force
-		if (row === 'back' && unitY === frontRowY) return true; // CPU back is at y=0
-		if (row === 'mid' && unitY === midRowY) return true;
-		if (row === 'front' && unitY === backRowY) return true; // CPU front is at y=2
+		// For enemy: front = leftmost (x=0), back = rightmost (x=2)
+		if (row === 'back' && unitX === frontColX) return true;
+		if (row === 'mid' && unitX === midColX) return true;
+		if (row === 'front' && unitX === backColX) return true;
 	}
 
 	return false;
@@ -655,9 +662,9 @@ export function resolveTargetSelectorFromParams(
 				return 'ally_right';
 			case 'back':
 			case 'behind':
-				return 'ally_back';
-			case 'front':
-				return 'ally_front';
+				return 'ally_bottom';
+			case 'top':
+				return 'ally_top';
 			case 'adjacent':
 				return 'allies_adjacent';
 			case 'diagonal':

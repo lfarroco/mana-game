@@ -119,6 +119,8 @@ export class BattleProgressionSystem {
 	async handleCombatEndedDefeat(): Promise<void> {
 		console.log("Round", this.state.gameData.round, "Processing Defeat...");
 		// Wait 1 second for current animations to complete
+
+		this.scene.sound.play('sfx_victory_match');
 		await delay(this.scene, 1000);
 		// Fade out the bars smoothly before hiding them
 		await this._fadeOutDisplayBars();
@@ -235,6 +237,8 @@ export class BattleProgressionSystem {
 	 */
 	async handleCombatEndedVictory(payload: { enemiesDefeated: Unit[] }): Promise<void> {
 		console.log("Round", this.state.gameData.round, "Processing Victory...");
+
+		this.scene.sound.play('sfx_victory_reward_chant');
 		// Wait 1 second for current animations to complete
 		await delay(this.scene, 1000);
 		// Fade out the bars smoothly before hiding them

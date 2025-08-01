@@ -21,6 +21,8 @@ export default class Core extends Phaser.Scene {
 
 		this.load.audio('sfx_artifact_equipweapon', 'assets/audio/sfx_artifact_equipweapon.m4a');
 
+		this.load.audio('sfx_victory_reward_chant', 'assets/audio/sfx_victory_reward_chant.m4a');
+		this.load.audio('sfx_victory_match', 'assets/audio/sfx_victory_match.m4a');
 
 	}
 	create() { }

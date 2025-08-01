@@ -239,7 +239,7 @@ export function validateEffectDefinition(effect: EffectDefinition, traitId: stri
 	if (effect.targetSelector) {
 		const validTargetSelectors = [
 			'self', 'all_allies', 'all_enemies', 'ally_left', 'ally_right',
-			'ally_front', 'allies_adjacent', 'all_allies_in_row', 'all_allies_in_column',
+			'ally_top', 'allies_adjacent', 'all_allies_in_row', 'all_allies_in_column',
 			'same_row_allies', 'same_column_allies', 'random_ally', 'random_enemy'
 		];
 		if (!validTargetSelectors.includes(effect.targetSelector)) {
