@@ -16,6 +16,26 @@ let playerDisplay: CombinedDisplay | null = null;
 let cpuDisplay: CombinedDisplay | null = null;
 let scene: Phaser.Scene | null = null;
 
+/**
+ * Returns the position of the morale bar for a given forceId.
+ * @param forceId Player or CPU force id
+ * @returns { x: number, y: number } or null if not available
+ */
+export function getMoraleBarPosition(forceId: string): { x: number, y: number } | null {
+	if (forceId === c.FORCE_ID_PLAYER && playerDisplay) {
+		return {
+			x: playerDisplay.moraleBar.container.x,
+			y: playerDisplay.moraleBar.container.y
+		};
+	} else if (forceId === c.FORCE_ID_CPU && cpuDisplay) {
+		return {
+			x: cpuDisplay.moraleBar.container.x,
+			y: cpuDisplay.moraleBar.container.y
+		};
+	}
+	return null;
+}
+
 // Track previous values to calculate deltas
 let previousPlayerMorale: number | null = null;
 let previousCpuMorale: number | null = null;
@@ -141,6 +161,8 @@ function handleShieldUpdated(payload: { forceId: string, newShield: number, maxS
 	}
 }
 
+export const MORALE_BAR_WIDTH = c.TILE_WIDTH * 3 + 8 * 2; // width of board
+
 function createCombinedDisplay(
 	scene: Phaser.Scene,
 	forceId: string,
@@ -148,7 +170,6 @@ function createCombinedDisplay(
 	// Board constants
 	const BAR_OFFSET = 16; // px below the board
 	let x = 0, y = 0;
-	let barWidth = c.TILE_WIDTH * 3 + 8 * 2; // width of board
 	if (forceId === c.FORCE_ID_PLAYER) {
 		x = c.PLAYER_BOARD_X;
 		y = c.PLAYER_BOARD_Y + c.TILE_HEIGHT * 3 + 8 * 2 + BAR_OFFSET;
@@ -162,7 +183,7 @@ function createCombinedDisplay(
 	const moraleBar = createStylizedBar(scene, {
 		x,
 		y,
-		width: barWidth,
+		width: MORALE_BAR_WIDTH,
 		barColor: moraleBarColor,
 		backgroundColor: 0x000000,
 		backgroundOpacity: 0.2,
@@ -174,7 +195,7 @@ function createCombinedDisplay(
 	const shieldBar = createStylizedBar(scene, {
 		x,
 		y: y, // Same Y position as morale bar
-		width: barWidth,
+		width: MORALE_BAR_WIDTH,
 		barColor: shieldBarColor,
 		backgroundColor: 0x000000,
 		backgroundOpacity: 0, // No background
