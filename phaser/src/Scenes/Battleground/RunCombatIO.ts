@@ -6,6 +6,7 @@ import { Unit } from "../../Models/Entities/Unit";
 import { GameEvents } from "../../constants/events";
 import { delay } from "../../Utils/animation";
 import { TimeoutDamageSystem } from "./Systems/TimeoutDamageSystem";
+import { PoisonDamageSystem } from "./Systems/PoisonDamageSystem";
 import { processUnitTraitsForEvent } from "../../TraitSystem/Traits";
 import { processBattleReactionsPure } from "./BattleReaction.pure";
 
@@ -46,10 +47,21 @@ export class RunCombatSystem {
 
   // Timeout damage system
   private timeoutDamageSystem: TimeoutDamageSystem;
+  // Poison damage system
+  private poisonDamageSystem: PoisonDamageSystem;
 
   constructor(scene: BattlegroundScene) {
     this.scene = scene;
     this.timeoutDamageSystem = new TimeoutDamageSystem(scene);
+    this.poisonDamageSystem = new PoisonDamageSystem(scene);
+  }
+
+  /**
+   * Gets the poison damage system instance.
+   * @returns The PoisonDamageSystem instance
+   */
+  getPoisonDamageSystem(): PoisonDamageSystem {
+    return this.poisonDamageSystem;
   }
 
   /**
@@ -64,6 +76,8 @@ export class RunCombatSystem {
 
     // Initialize timeout damage system
     this.timeoutDamageSystem.initialize();
+    // Initialize poison damage system
+    this.poisonDamageSystem.initialize();
 
     const playerForce = state.battleData.forces.find(force => force.id === state.gameData.player.id)!;
     const cpuForce = state.battleData.forces.find(force => force.id !== state.gameData.player.id)!;
@@ -86,6 +100,9 @@ export class RunCombatSystem {
 
       // Check for timeout damage (after 10 seconds of combat)
       this.timeoutDamageSystem.update(playerForce, cpuForce, delta * this.scene.time.timeScale);
+
+      // Update poison damage system (processes all poison stacks)
+      this.poisonDamageSystem.update(playerForce, cpuForce, delta * this.scene.time.timeScale);
 
       const playerMoraleZero = playerForce.morale <= 0;
       const cpuMoraleZero = cpuForce.morale <= 0;

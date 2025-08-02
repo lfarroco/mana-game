@@ -10,3 +10,4 @@ export * from './summonEffect';
 export * from './arcaneMissile';
 export * from './arcaneMissileTargeted';
 export * from './explodeEffect';
+export * from './poisonEffect';

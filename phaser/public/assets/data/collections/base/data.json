@@ -26,6 +26,23 @@
 	],
 	"cards": [
 		{
+			"id": "poison_master",
+			"name": "Poison Master",
+			"pic": "boss_andromeda",
+			"tags": [
+				"magical",
+				"ranged"
+			],
+			"power": 6,
+			"cooldown": 3000,
+			"traits": [
+				{
+					"id": "poison",
+					"amount": 10
+				}
+			]
+		},
+		{
 			"id": "andromeda",
 			"name": "Andromeda",
 			"pic": "boss_andromeda",
@@ -1213,6 +1230,21 @@
 			"effects": [
 				{
 					"effectId": "apply_charge",
+					"eventTrigger": "onAction"
+				}
+			]
+		},
+		{
+			"id": "poison",
+			"name": "Poison",
+			"description": "[color=purple]Poisons[/color] for {amount} decreasing damage",
+			"categories": [
+				"debuff",
+				"damage_over_time"
+			],
+			"effects": [
+				{
+					"effectId": "apply_poison",
 					"eventTrigger": "onAction"
 				}
 			]
