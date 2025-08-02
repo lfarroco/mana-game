@@ -11,4 +11,5 @@ export * from './grantGold';
 export * from './applyHaste';
 export * from './applySlow';
 export * from './applyCharge';
+export * from './applyPoison';
 export * from './dynamicEffect';

@@ -22,6 +22,7 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("apply_haste", implementations.applyHasteLogicIO);
 	registerTraitEffectImplementation("apply_slow", implementations.applySlowLogicIO);
 	registerTraitEffectImplementation("apply_charge", implementations.applyChargeLogicIO);
+	registerTraitEffectImplementation("apply_poison", implementations.applyPoisonLogicIO);
 
 	// Dynamic effect dispatcher
 	registerTraitEffectImplementation("DYNAMIC", implementations.dynamicEffectLogic);
