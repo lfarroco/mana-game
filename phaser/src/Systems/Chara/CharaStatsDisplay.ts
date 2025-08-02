@@ -31,7 +31,7 @@ export class CharaStatsDisplay {
 
 	createElements(): void {
 
-		const displayableTraits = ["heal", "damage", "shield"];
+		const displayableTraits = ["heal", "damage", "shield", "poison"];
 
 		// TODO: list powers here
 		const trait = this.unit.traits.find(trait => displayableTraits.includes(trait.id));
@@ -54,6 +54,7 @@ export class CharaStatsDisplay {
 			damage: CHARA_STATS_COLORS.DAMAGE_BG,
 			heal: CHARA_STATS_COLORS.HEAL_BG,
 			shield: CHARA_STATS_COLORS.ARMOR_BG,
+			poison: CHARA_STATS_COLORS.POISON_BG,
 		}
 		const bgColor = colorMap[trait.id as keyof typeof colorMap];
 

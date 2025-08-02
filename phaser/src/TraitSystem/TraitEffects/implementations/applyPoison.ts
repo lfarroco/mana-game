@@ -23,11 +23,15 @@ export function createApplyPoisonLogic(
 	return async (context) => {
 		const { sourceUnit, effectInstance, traitInstanceParams } = context;
 
-		// Get poison amount from parameters, fallback to unit's power
-		let poisonAmount = getEffectParams(traitInstanceParams, effectInstance, 'amount', sourceUnit.power);
+		// Get base power for poison calculation
+		const basePower = getEffectParams(traitInstanceParams, effectInstance, 'amount', sourceUnit.power);
 
-		// Ensure minimum poison amount
-		poisonAmount = Math.max(1, Math.floor(poisonAmount));
+		// Calculate balanced poison initial amount using the formula:
+		// For total damage = basePower, initial amount A = (-1 + √(1 + 8 * basePower)) / 2
+		// This ensures poison deals approximately the same total damage as the unit's power
+		const poisonAmount = Math.max(1, Math.round((-1 + Math.sqrt(1 + 8 * basePower)) / 2));
+
+		console.log(`[ApplyPoison] Unit power: ${basePower}, Initial poison: ${poisonAmount}, Total damage over time: ${poisonAmount * (poisonAmount + 1) / 2}`);
 
 		emitter(sourceUnit, poisonAmount);
 

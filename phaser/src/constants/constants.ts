@@ -177,5 +177,6 @@ export const CHARA_STATS_COLORS = {
 	DAMAGE_BG: 0xff0000,
 	HEAL_BG: 0x23a423,
 	ARMOR_BG: 0x666666,
+	POISON_BG: 0x9932cc, // Purple color for poison
 	DEFAULT_BG: 0x000000
 } as const;
