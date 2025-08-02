@@ -32,6 +32,7 @@ export default class TitleScene extends Phaser.Scene {
 			'neutral_arrowwhistler',
 			'neutral_golemnature',
 			'neutral_golemstone',
+			'boss_shadowlord',
 		].forEach(key => {
 			this.load.atlas(key, `assets/heroes/${key}.png`, `assets/heroes/${key}.json`);
 			this.load.animation(`${key}-anims`, `assets/heroes/${key}-anims.json`);

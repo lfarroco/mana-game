@@ -4,8 +4,10 @@
  */
 
 import { GameEvents } from '../../../constants/events';
+import { arcaneMissileTargeted } from '../../../Effects';
 import { Force, manipulateForceMorale } from '../../../Models/Entities/Force';
 import { Unit } from '../../../Models/Entities/Unit';
+import { getMoraleBarPosition, MORALE_BAR_WIDTH } from '../../../Scenes/Battleground/MoraleDisplay';
 import { getChara } from '../../../Scenes/Battleground/Systems/CharaManager';
 import { TraitEffectFn } from '../../TraitEffectSystem';
 
@@ -33,12 +35,10 @@ export function createRestoreMoraleLogic(
 		if (context.scene) {
 			const sourceChara = getChara(sourceUnit.id);
 			// Dynamically import MoraleDisplay to get bar position and width
-			const { getMoraleBarPosition, MORALE_BAR_WIDTH } = await import('../../../Scenes/Battleground/MoraleDisplay');
 			const moraleBarPos = getMoraleBarPosition(sourceForce.id);
 			if (sourceChara && moraleBarPos) {
 				const targetX = moraleBarPos.x + MORALE_BAR_WIDTH / 2;
 				const targetY = moraleBarPos.y;
-				const { arcaneMissileTargeted } = await import('../../../Effects/arcaneMissileTargeted');
 				arcaneMissileTargeted(
 					context.scene,
 					{ x: sourceChara.x, y: sourceChara.y },

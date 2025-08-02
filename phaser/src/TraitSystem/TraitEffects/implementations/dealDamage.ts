@@ -4,6 +4,7 @@
  */
 
 import { GameEvents } from '../../../constants/events';
+import { arcaneMissileTargeted } from '../../../Effects';
 import { Force, applyDamageToForce } from '../../../Models/Entities/Force';
 import { Unit } from '../../../Models/Entities/Unit';
 import { getMoraleBarPosition, MORALE_BAR_WIDTH } from '../../../Scenes/Battleground/MoraleDisplay';
@@ -40,7 +41,6 @@ export function createDealDamageLogic(
 				// Dynamically import MoraleDisplay to get bar width
 				const targetX = moraleBarPos.x + MORALE_BAR_WIDTH / 2;
 				const targetY = moraleBarPos.y;
-				const { arcaneMissileTargeted } = await import('../../../Effects/arcaneMissileTargeted');
 				arcaneMissileTargeted(
 					context.scene,
 					{ x: sourceChara.x, y: sourceChara.y },
