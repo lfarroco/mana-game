@@ -26,8 +26,8 @@
 	],
 	"cards": [
 		{
-			"id": "bowsie",
-			"name": "Bowsie McTwang",
+			"id": "andromeda",
+			"name": "Andromeda",
 			"pic": "boss_andromeda",
 			"tags": [
 				"damage",
@@ -40,63 +40,20 @@
 					"id": "damage"
 				},
 				{
-					"id": "positional_boost_self",
+					"id": "positional_boost_allies",
 					"amount": 10,
-					"position": "back"
+					"targets": "same_column_allies"
 				}
 			]
 		},
 		{
-			"id": "fervorbeard",
-			"name": "Fervorbeard",
+			"id": "Living Armor",
+			"name": "Living Armor",
 			"pic": "f1_tank",
 			"tags": [
 				"support"
 			],
-			"power": 15,
-			"cooldown": 3000,
-			"traits": [
-				{
-					"id": "heal"
-				},
-				{
-					"id": "positional_boost_allies",
-					"amount": 10,
-					"targets": "same_row_allies"
-				}
-			]
-		},
-		{
-			"id": "bubblegum_betty",
-			"name": "Bubblegum Betty",
-			"pic": "f3_mech",
-			"power": 6,
-			"tags": [
-				"support"
-			],
-			"cooldown": 3200,
-			"traits": [
-				{
-					"id": "heal"
-				},
-				{
-					"id": "battle_reaction",
-					"effect_to_apply": "power_boost",
-					"amount": 2,
-					"sourceActionId": "heal",
-					"source_selector": "same_column_allies",
-					"description": "When a column ally [color=green]heals[/color], gain {amount} power"
-				}
-			]
-		},
-		{
-			"id": "clank",
-			"name": "Sir Clanks-a-Lot",
-			"pic": "boss_spelleater",
-			"tags": [
-				"tank"
-			],
-			"power": 15,
+			"power": 25,
 			"cooldown": 3000,
 			"traits": [
 				{
@@ -106,6 +63,56 @@
 					"id": "positional_boost_self",
 					"amount": 10,
 					"position": "front"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_to_apply": "power_boost",
+					"amount": 2,
+					"sourceActionId": "shield",
+					"source_selector": "all_allies",
+					"description": "When an ally [color=orange]shields[/color], gain {amount} power"
+				}
+			]
+		},
+		{
+			"id": "bubblegum_betty",
+			"name": "Bubblegum Betty",
+			"pic": "f3_mech",
+			"power": 10,
+			"tags": [
+				"support"
+			],
+			"cooldown": 3200,
+			"traits": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "haste",
+					"duration": 1200,
+					"targets": "same_column_allies"
+				}
+			]
+		},
+		{
+			"id": "timebender",
+			"name": "Time Bender",
+			"pic": "boss_spelleater",
+			"tags": [
+				"tank"
+			],
+			"power": 0,
+			"cooldown": 3000,
+			"traits": [
+				{
+					"id": "haste",
+					"duration": 1200,
+					"targets": "same_column_allies"
+				},
+				{
+					"id": "haste",
+					"duration": 1200,
+					"targets": "same_row_allies"
 				}
 			]
 		},
@@ -121,19 +128,21 @@
 			"cooldown": 3600,
 			"traits": [
 				{
-					"id": "heal"
+					"id": "damage"
 				},
 				{
-					"id": "slow",
-					"duration": 1000,
-					"targets": "self",
-					"description": "[color=orange]slow[/color] self for {duration}"
+					"id": "battle_reaction",
+					"effect_to_apply": "power_boost",
+					"amount": 2,
+					"sourceActionId": "damage",
+					"source_selector": "same_row_allies",
+					"description": "When a row ally [color=orange]damages[/color], gain {amount} power"
 				}
 			]
 		},
 		{
-			"id": "coffee_monk",
-			"name": "Coffee Monk",
+			"id": "void_specter",
+			"name": "Void Specter",
 			"pic": "neutral_amu",
 			"tags": [
 				"support"
@@ -145,15 +154,23 @@
 					"id": "heal"
 				},
 				{
-					"id": "haste",
+					"id": "slow",
 					"duration": 1200,
-					"targets": "same_row_allies"
+					"targets": "random_enemy"
+				},
+				{
+					"id": "battle_reaction",
+					"effect_to_apply": "charge",
+					"amount": 1000,
+					"sourceActionId": "damage",
+					"source_selector": "all_allies",
+					"description": "When any ally [color=red]attacks[/color], [color=orange]charge 1000ms[/color]"
 				}
 			]
 		},
 		{
-			"id": "disco_wizard",
-			"name": "Disco Wizard Dan",
+			"id": "diana",
+			"name": "Diana FireArrow",
 			"pic": "neutral_arrowwhistler",
 			"tags": [
 				"ranged",
@@ -166,20 +183,18 @@
 					"id": "damage"
 				},
 				{
-					"id": "haste",
-					"duration": 1000,
-					"targets": "random_ally"
-				},
-				{
-					"id": "slow",
-					"duration": 1000,
-					"targets": "random_enemy"
+					"id": "battle_reaction",
+					"effect_to_apply": "power_boost",
+					"amount": 2,
+					"sourceActionId": "haste",
+					"source_selector": "all_allies",
+					"description": "When any ally gains [color=lightblue]haste[/color], gain {amount} power"
 				}
 			]
 		},
 		{
-			"id": "thunder_mage",
-			"name": "Thunder Mage",
+			"id": "moss_golem",
+			"name": "Moss Golem",
 			"pic": "neutral_golemnature",
 			"tags": [
 				"ranged",
@@ -189,18 +204,23 @@
 			"cooldown": 3200,
 			"traits": [
 				{
-					"id": "damage"
+					"id": "heal"
 				},
 				{
-					"id": "charge",
-					"amount": 1000,
-					"targets": "same_column_allies"
+					"id": "positional_boost_self",
+					"amount": 10,
+					"position": "front"
+				},
+				{
+					"id": "positional_boost_allies",
+					"targets": "same_row_allies",
+					"amount": 4
 				}
 			]
 		},
 		{
-			"id": "skolfrost",
-			"name": "Skolfrost",
+			"id": "stone_guardian",
+			"name": "Stone Guardian",
 			"pic": "neutral_golemstone",
 			"tags": [
 				"tank",
@@ -213,16 +233,19 @@
 					"id": "shield"
 				},
 				{
-					"id": "slow",
-					"duration": 1000,
-					"targets": "random_enemy"
+					"id": "battle_reaction",
+					"effect_to_apply": "power_boost",
+					"amount": 2,
+					"sourceActionId": "damage",
+					"source_selector": "all_enemies",
+					"description": "When any enemy [color=red]damages[/color], gain {amount} power"
 				}
 			]
 		},
 		{
-			"id": "mina",
-			"name": "Ninja Mina",
-			"pic": "boss_andromeda",
+			"id": "shadow_assassin",
+			"name": "Shadow Assassin",
+			"pic": "boss_shadowlord",
 			"tags": [
 				"melee"
 			],
@@ -233,9 +256,12 @@
 					"id": "damage"
 				},
 				{
-					"id": "haste",
-					"duration": 1000,
-					"targets": "self"
+					"id": "battle_reaction",
+					"effect_to_apply": "power_boost",
+					"amount": 2,
+					"sourceActionId": "haste",
+					"source_selector": "all_allies",
+					"description": "When any ally [color=lightblue]hastes[/color], gain {amount} power"
 				}
 			]
 		},

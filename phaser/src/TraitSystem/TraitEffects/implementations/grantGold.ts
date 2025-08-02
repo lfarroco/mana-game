@@ -6,6 +6,7 @@
 import { TraitEffectFn, TraitEffectContext } from "../../TraitEffectSystem";
 import { getEffectParams } from "../../TraitSystem.pure";
 import { playerForce, updatePlayerGoldIO } from "../../../Models/Entities/Force";
+import { getChara } from "../../../Scenes/Battleground/Systems/CharaManager";
 
 /**
  * Pure function version of grant gold logic for testing
@@ -39,8 +40,6 @@ export const grantGoldLogic: TraitEffectFn = async (context: TraitEffectContext)
 	);
 
 	if (result.shouldGrantGold) {
-		// Dynamically import getChara to avoid circular dependencies in tests
-		const { getChara } = await import("../../../Scenes/Battleground/Systems/CharaManager");
 		const chara = getChara(sourceUnit.id);
 		if (chara && result.popTextMessage) {
 			await chara.showPopText(result.popTextMessage);

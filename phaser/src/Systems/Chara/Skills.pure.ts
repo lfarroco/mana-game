@@ -1,3 +1,5 @@
+import { slowEffect } from "../../Effects";
+
 // Pure implementation for Skills
 export async function slash(_params: any) {
 	// Add pure logic here
@@ -27,7 +29,6 @@ export async function slow(params: { scene: any; target: any; duration?: number;
 		target.slowed += duration;
 
 		// Show visual effect
-		const { slowEffect } = await import("../../Effects/slowEffect");
 		await slowEffect(scene, { x: target.x, y: target.y }, {
 			duration: 1000,
 			intensity,
