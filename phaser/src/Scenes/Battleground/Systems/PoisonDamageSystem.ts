@@ -1,7 +1,5 @@
 import { BattlegroundScene } from "../BattlegroundScene";
 import { applyDamageToForce, Force } from "../../../Models/Entities/Force";
-import { poisonEffect } from "../../../Effects/poisonEffect";
-import { getMoraleBarPosition } from "../MoraleDisplay";
 
 /**
  * Represents a poison stack on a force
@@ -63,8 +61,7 @@ export class PoisonDamageSystem {
 
 		console.log(`[PoisonDamageSystem] Applied ${amount} poison to force ${forceId}`);
 
-		// Show poison effect at force position
-		this.showPoisonEffect(targetForce);
+		// Note: Removed poison effect display for consistency with other damage types
 	}
 
 	/**
@@ -105,8 +102,7 @@ export class PoisonDamageSystem {
 
 				applyDamageToForce(force, damage, this.scene, 0, "poison");
 
-				// Show poison effect
-				this.showPoisonEffect(force);
+				// Note: Removed poison effect display for consistency with other damage types
 
 				// Decrease poison amount for next tick
 				stack.remainingAmount = Math.max(0, stack.remainingAmount - 1);
@@ -118,24 +114,6 @@ export class PoisonDamageSystem {
 					console.log(`[PoisonDamageSystem] Poison stack expired for force ${forceId}`);
 				}
 			}
-		}
-	}
-
-	/**
-	 * Shows poison visual effect at the force's morale bar position
-	 * @param force The force to show effect for
-	 */
-	private showPoisonEffect(force: Force): void {
-		const moraleBarPos = getMoraleBarPosition(force.id);
-		if (moraleBarPos) {
-			// Show poison effect slightly above the morale bar
-			poisonEffect(this.scene, {
-				x: moraleBarPos.x + 50, // Center of bar area
-				y: moraleBarPos.y - 20 // Above the bar
-			}, {
-				duration: 800,
-				intensity: 1.2
-			});
 		}
 	}
 
