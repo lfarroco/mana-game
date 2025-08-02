@@ -65,6 +65,15 @@ export class RunCombatSystem {
   }
 
   /**
+   * Reduces poison on a force based on healing amount
+   * @param forceId The force that received healing
+   * @param healAmount The amount healed
+   */
+  reducePoison(forceId: string, healAmount: number): void {
+    this.poisonDamageSystem.reducePoison(forceId, healAmount);
+  }
+
+  /**
    * Starts the combat IO loop and resolves with the wave outcome when combat ends.
    * @returns {Promise<WaveOutcome>} Resolves with the outcome of the wave.
    */
