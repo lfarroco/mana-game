@@ -88,7 +88,7 @@ export const GameEvents = {
 	MORALE_BARS_SHOW: "morale_bars_show",
 	MORALE_BARS_HIDE: "morale_bars_hide",
 	MORALE_BARS_FADE_OUT: "morale_bars_fade_out",
-	MORALE_UPDATED: "morale_updated", // Payload: { forceId: string, newMorale: number, maxMorale: number }
+	MORALE_UPDATED: "morale_updated", // Payload: { forceId: string, newMorale: number, maxMorale: number, totalDamage?: number, damageType?: "poison" | "normal" }
 
 	SHIELD_BARS_SHOW: "shield_bars_show",
 	SHIELD_BARS_HIDE: "shield_bars_hide",

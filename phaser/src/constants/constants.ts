@@ -89,6 +89,7 @@ export const POP_TEXT_CONFIG = {
 		HEAL: "green",
 		DAMAGE: "red",
 		SHIELD: "yellow",
+		POISON: "#9932cc", // Purple color for poison damage
 	}
 } as const;
 

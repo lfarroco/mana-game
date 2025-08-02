@@ -103,7 +103,7 @@ export class PoisonDamageSystem {
 				const damage = stack.remainingAmount;
 				console.log(`[PoisonDamageSystem] Poison tick on ${forceId}: ${damage} damage`);
 
-				applyDamageToForce(force, damage, this.scene);
+				applyDamageToForce(force, damage, this.scene, 0, "poison");
 
 				// Show poison effect
 				this.showPoisonEffect(force);
