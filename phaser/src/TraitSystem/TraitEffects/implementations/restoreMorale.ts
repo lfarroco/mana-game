@@ -86,7 +86,21 @@ export const restoreMoraleLogicIO: TraitEffectFn = async (context) => {
 		);
 	}
 
-	const impl = createRestoreMoraleLogic(emitter, manipulateForceMorale);
+	// Enhanced heal function that also reduces poison
+	const healMoraleWithPoisonReduction = (targetForce: Force, amount: number, scene: Phaser.Scene) => {
+		// Apply the healing
+		const actualHealing = manipulateForceMorale(targetForce, amount, scene);
+
+		// Reduce poison based on healing amount (2.5 poison reduction per 10 healing)
+		const runCombatSystem = (scene as any).runCombatSystem;
+		if (runCombatSystem && actualHealing > 0) {
+			runCombatSystem.reducePoison(targetForce.id, actualHealing);
+		}
+
+		return actualHealing;
+	};
+
+	const impl = createRestoreMoraleLogic(emitter, healMoraleWithPoisonReduction);
 	await impl(context);
 
 	// Battle reactions are now handled centrally in the combat loop

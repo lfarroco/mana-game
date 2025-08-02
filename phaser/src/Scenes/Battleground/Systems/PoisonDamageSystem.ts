@@ -140,6 +140,47 @@ export class PoisonDamageSystem {
 	}
 
 	/**
+	 * Reduces poison stacks based on healing received
+	 * For every 10 points healed, removes 2.5 poison damage (rounded down)
+	 * @param forceId The force that received healing
+	 * @param healAmount The amount healed
+	 */
+	reducePoison(forceId: string, healAmount: number): void {
+		const stacks = this.poisonStacks.get(forceId);
+		if (!stacks || stacks.length === 0) return;
+
+		// Calculate poison reduction: 2.5 per 10 healing, rounded down
+		const poisonReduction = Math.floor((healAmount / 10) * 2.5);
+		if (poisonReduction <= 0) return;
+
+		console.log(`[PoisonDamageSystem] Healing ${healAmount} reduces poison by ${poisonReduction} for force ${forceId}`);
+
+		let remainingReduction = poisonReduction;
+
+		// Reduce poison stacks starting from the most recent (highest index)
+		for (let i = stacks.length - 1; i >= 0 && remainingReduction > 0; i--) {
+			const stack = stacks[i];
+			const reduction = Math.min(remainingReduction, stack.remainingAmount);
+
+			stack.remainingAmount -= reduction;
+			remainingReduction -= reduction;
+
+			console.log(`[PoisonDamageSystem] Reduced poison stack ${i} by ${reduction}, now ${stack.remainingAmount}`);
+
+			// Remove stack if completely neutralized
+			if (stack.remainingAmount <= 0) {
+				stacks.splice(i, 1);
+				console.log(`[PoisonDamageSystem] Poison stack ${i} completely neutralized`);
+			}
+		}
+
+		// Clean up empty stack array
+		if (stacks.length === 0) {
+			this.poisonStacks.delete(forceId);
+		}
+	}
+
+	/**
 	 * Gets total poison damage that will be applied to a force
 	 * @param forceId The force ID to check
 	 * @returns Total remaining poison damage
