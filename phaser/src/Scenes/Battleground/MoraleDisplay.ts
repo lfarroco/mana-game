@@ -44,9 +44,9 @@ let previousCpuShield: number | null = null;
 
 /**
  * Handles the MORALE_UPDATED event by calling the bar update function.
- * @param payload The event payload with forceId, newMorale, maxMorale, and optional totalDamage.
+ * @param payload The event payload with forceId, newMorale, maxMorale, optional totalDamage, and optional damageType.
  */
-function handleMoraleUpdated(payload: { forceId: string, newMorale: number, maxMorale: number, totalDamage?: number }) {
+function handleMoraleUpdated(payload: { forceId: string, newMorale: number, maxMorale: number, totalDamage?: number, damageType?: "poison" | "normal" }) {
 	updateMoraleBar(payload.forceId);
 
 	// Calculate morale delta and show pop text
@@ -86,7 +86,17 @@ function handleMoraleUpdated(payload: { forceId: string, newMorale: number, maxM
 		const popTextY = targetDisplay.moraleBar.container.y + randomOffsetY;
 
 		const deltaText = displayValue > 0 ? `+${displayValue}` : `${displayValue}`;
-		const textType = displayValue > 0 ? "heal" : "damage"; // Green for positive, red for negative
+
+		// Determine text type based on damage type and value
+		let textType: "heal" | "damage" | "poison";
+		if (displayValue > 0) {
+			textType = "heal"; // Green for positive (healing)
+		} else if (payload.damageType === "poison") {
+			textType = "poison"; // Purple for poison damage
+		} else {
+			textType = "damage"; // Red for normal damage
+		}
+
 		const textDirection = isPlayer ? "left" : "right"; // Player text flows left, enemy text flows right
 
 		scene.events.emit(GameEvents.POP_TEXT_SHOW, {

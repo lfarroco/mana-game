@@ -126,7 +126,8 @@ export const applyDamageToForce = (
 	targetForce: Force,
 	damage: number,
 	scene?: Phaser.Scene,
-	shieldPiercingPercentage: number = 0
+	shieldPiercingPercentage: number = 0,
+	damageType?: "poison" | "normal"
 ): number => {
 	if (damage <= 0) return 0;
 
@@ -173,6 +174,7 @@ export const applyDamageToForce = (
 				newMorale: targetForce.morale,
 				maxMorale: targetForce.maxMorale,
 				totalDamage: damage, // Include total damage for pop text display
+				damageType: damageType, // Include damage type for colored pop text
 			});
 		}
 	}
