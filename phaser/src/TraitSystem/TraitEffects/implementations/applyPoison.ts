@@ -7,10 +7,10 @@ import { GameEvents } from '../../../constants/events';
 import { Force } from '../../../Models/Entities/Force';
 import { Unit } from '../../../Models/Entities/Unit';
 import { TraitEffectFn } from '../../TraitEffectSystem';
-import { getEffectParams } from '../../TraitSystem.pure';
 import { arcaneMissileTargeted } from '../../../Effects';
 import { getMoraleBarPosition, MORALE_BAR_WIDTH } from '../../../Scenes/Battleground/MoraleDisplay';
 import { getChara } from '../../../Scenes/Battleground/Systems/CharaManager';
+import { createPoisonApplicationData } from './applyPoison.pure';
 
 /**
  * Pure function to create the apply poison effect implementation
@@ -23,21 +23,24 @@ export function createApplyPoisonLogic(
 	return async (context) => {
 		const { sourceUnit, effectInstance, traitInstanceParams } = context;
 
-		// Get base power for poison calculation
-		const basePower = getEffectParams(traitInstanceParams, effectInstance, 'amount', sourceUnit.power);
+		// Use pure function to calculate poison data
+		const poisonData = createPoisonApplicationData({
+			sourceUnit,
+			effectInstance,
+			traitInstanceParams,
+			forces: context.state.battleData.forces
+		});
 
-		// Calculate balanced poison initial amount using the formula:
-		// For total damage = basePower, initial amount A = (-1 + √(1 + 8 * basePower)) / 2
-		// This ensures poison deals approximately the same total damage as the unit's power
-		const poisonAmount = Math.max(1, Math.round((-1 + Math.sqrt(1 + 8 * basePower)) / 2));
+		const { basePower, poisonAmount, totalDamage, targetForce } = poisonData;
 
-		console.log(`[ApplyPoison] Unit power: ${basePower}, Initial poison: ${poisonAmount}, Total damage over time: ${poisonAmount * (poisonAmount + 1) / 2}`);
+		console.log(`[ApplyPoison] Unit power: ${basePower}, Initial poison: ${poisonAmount}, Total damage over time: ${totalDamage}`);
 
 		emitter(sourceUnit, poisonAmount);
 
-		const targetForce = context.state.battleData.forces.find(
-			(force) => force.id !== sourceUnit.force
-		)!;
+		if (!targetForce) {
+			console.warn('[ApplyPoison] No target force found');
+			return;
+		}
 
 		// Show a purple projectile from source unit to enemy morale bar
 		if (context.scene) {
