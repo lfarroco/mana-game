@@ -96,15 +96,15 @@ export default class TitleScene extends Phaser.Scene {
 		// 		this.startGame();
 		// 	}
 		// );
-		new UIButton(
-			this,
-			'CREDITS',
-			constants.MIDDLE_SCREEN_X,
-			constants.MIDDLE_SCREEN_Y + 340,
-			() => {
-				this.startGame();
-			}
-		);
+		// new UIButton(
+		// 	this,
+		// 	'CREDITS',
+		// 	constants.MIDDLE_SCREEN_X,
+		// 	constants.MIDDLE_SCREEN_Y + 340,
+		// 	() => {
+		// 		this.startGame();
+		// 	}
+		// );
 		// new UIButton(
 		// 	this,
 		// 	'GO FULLSCREEN',
