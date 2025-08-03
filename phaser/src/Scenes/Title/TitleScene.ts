@@ -87,15 +87,15 @@ export default class TitleScene extends Phaser.Scene {
 				this.openOptions();
 			}
 		);
-		new UIButton(
-			this,
-			'COLLECTION',
-			constants.MIDDLE_SCREEN_X,
-			constants.MIDDLE_SCREEN_Y + 260,
-			() => {
-				this.startGame();
-			}
-		);
+		// new UIButton(
+		// 	this,
+		// 	'COLLECTION',
+		// 	constants.MIDDLE_SCREEN_X,
+		// 	constants.MIDDLE_SCREEN_Y + 260,
+		// 	() => {
+		// 		this.startGame();
+		// 	}
+		// );
 		new UIButton(
 			this,
 			'CREDITS',
@@ -105,15 +105,15 @@ export default class TitleScene extends Phaser.Scene {
 				this.startGame();
 			}
 		);
-		new UIButton(
-			this,
-			'GO FULLSCREEN',
-			constants.MIDDLE_SCREEN_X,
-			constants.MIDDLE_SCREEN_Y + 420,
-			() => {
-				this.toggleFullscreen();
-			}
-		);
+		// new UIButton(
+		// 	this,
+		// 	'GO FULLSCREEN',
+		// 	constants.MIDDLE_SCREEN_X,
+		// 	constants.MIDDLE_SCREEN_Y + 420,
+		// 	() => {
+		// 		this.toggleFullscreen();
+		// 	}
+		// );
 
 		// Add some visual flair - pulsing effect on title
 		this.tweens.add({
