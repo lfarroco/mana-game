@@ -174,6 +174,8 @@ export class RunCombatSystem {
         return ['slow'];
       case 'charge':
         return ['charge'];
+      case 'poison':
+        return ['poison'];
       default:
         return [];
     }

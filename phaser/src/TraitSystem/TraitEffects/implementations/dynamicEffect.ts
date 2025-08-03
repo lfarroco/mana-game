@@ -31,7 +31,8 @@ export const dynamicEffectLogic: TraitEffectFn = async (context) => {
 		'heal': 'restore_morale',
 		'shield': 'add_shield',
 		'damage': 'deal_damage',
-		'power_boost': 'modify_stat_passive'
+		'power_boost': 'modify_stat_passive',
+		'poison': 'apply_poison',
 	};
 
 	const actualEffectId = effectMapping[effectType];
