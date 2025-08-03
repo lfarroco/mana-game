@@ -26,8 +26,8 @@
 	],
 	"cards": [
 		{
-			"id": "poison_master",
-			"name": "Poison Master",
+			"id": "void_witch",
+			"name": "Void Witch",
 			"pic": "boss_andromeda",
 			"tags": [
 				"magical",
@@ -39,6 +39,16 @@
 				{
 					"id": "poison",
 					"amount": 10
+				},
+				{
+					"id": "slow",
+					"targets": "random_ally",
+					"duration": 1000
+				},
+				{
+					"id": "power_boost_on_action",
+					"targets": "self",
+					"amount": 4
 				}
 			]
 		},
