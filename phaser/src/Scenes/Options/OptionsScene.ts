@@ -6,6 +6,74 @@ import { getOption, setOption } from "../../Models/OptionsStore";
 
 type TabType = 'audio' | 'graphics' | 'game';
 
+// Layout Constants
+const LAYOUT = {
+	// Main UI positioning
+	TITLE_Y: 40,
+	TITLE_FONT_SIZE: '48px',
+	BACK_BUTTON_Y: 950,
+
+	// Tab system
+	TAB_BUTTON_Y: 120,
+	TAB_BUTTON_SPACING: 160,
+	TAB_BUTTON_WIDTH: 140,
+
+	// Options layout
+	OPTIONS_START_Y: 220,
+	OPTIONS_LINE_HEIGHT: 150,
+
+	// Option element offsets
+	LABEL_OFFSET_Y: 0,
+	VALUE_OFFSET_Y: 70,
+	MULTICHOICE_VALUE_OFFSET_Y: 50,
+	SPEED_VALUE_OFFSET_Y: 50,
+} as const;
+
+// Button Constants
+const BUTTONS = {
+	// Boolean option buttons
+	BOOLEAN_TOGGLE_WIDTH: 120,
+
+	// Volume control buttons
+	VOLUME_BUTTON_OFFSET_X: 120,
+	VOLUME_BUTTON_WIDTH: 60,
+
+	// Multi-choice buttons
+	MULTICHOICE_BUTTON_OFFSET_X: 150,
+	MULTICHOICE_BUTTON_WIDTH: 80,
+
+	// Speed control buttons
+	SPEED_BUTTON_OFFSET_X: 120,
+	SPEED_BUTTON_WIDTH: 60,
+} as const;
+
+// Value adjustment constants
+const ADJUSTMENTS = {
+	VOLUME_STEP: 0.1,
+	VOLUME_MIN: 0,
+	VOLUME_MAX: 1,
+
+	SPEED_STEP: 0.1,
+	SPEED_MIN: 0.1,
+	SPEED_MAX: 3.0,
+} as const;
+
+// Visual styling constants
+const STYLES = {
+	SELECTED_TAB_COLOR: '#FFD700',
+	SELECTED_TAB_STROKE_WIDTH: 4,
+	UNSELECTED_TAB_COLOR: '#FFFFFF',
+	UNSELECTED_TAB_STROKE_WIDTH: 3,
+	TAB_STROKE_COLOR: '#000000',
+	VALUE_TEXT_COLOR: '#FFD700',
+} as const;
+
+// Animation constants
+const ANIMATION = {
+	FADE_DURATION: 500,
+	FADE_COLOR: { r: 0, g: 0, b: 0 },
+} as const;
+
 export default class OptionsScene extends Phaser.Scene {
 	private cloudsBackground!: CloudsBackground;
 
@@ -54,11 +122,11 @@ export default class OptionsScene extends Phaser.Scene {
 		// Create title
 		this.add.text(
 			constants.MIDDLE_SCREEN_X,
-			40,
+			LAYOUT.TITLE_Y,
 			'OPTIONS',
 			{
 				...constants.titleTextConfig,
-				fontSize: '48px'
+				fontSize: LAYOUT.TITLE_FONT_SIZE
 			}
 		).setOrigin(0.5);
 
@@ -73,7 +141,7 @@ export default class OptionsScene extends Phaser.Scene {
 			this,
 			'BACK',
 			constants.MIDDLE_SCREEN_X,
-			750,
+			LAYOUT.BACK_BUTTON_Y,
 			() => {
 				this.returnToTitle();
 			}
@@ -103,11 +171,11 @@ export default class OptionsScene extends Phaser.Scene {
 		// Create value display (hidden, kept for compatibility)
 		const valueText = this.add.text(
 			constants.MIDDLE_SCREEN_X,
-			yPos + 60,
+			yPos + LAYOUT.VALUE_OFFSET_Y,
 			getValue() ? 'ON' : 'OFF',
 			{
 				...constants.titleTextConfig,
-				color: '#FFD700'
+				color: STYLES.VALUE_TEXT_COLOR
 			}
 		).setOrigin(0.5).setAlpha(0); // Hide the separate value display
 		setTextRef(valueText);
@@ -118,14 +186,14 @@ export default class OptionsScene extends Phaser.Scene {
 			this,
 			getValue() ? 'ON' : 'OFF',
 			constants.MIDDLE_SCREEN_X,
-			yPos + 60,
+			yPos + LAYOUT.VALUE_OFFSET_Y,
 			() => {
 				const newValue = !getValue();
 				setValue(newValue);
 				// Update button text when value changes
 				toggleButton.buttonText.setText(newValue ? 'ON' : 'OFF');
 			},
-			120
+			BUTTONS.BOOLEAN_TOGGLE_WIDTH
 		);
 		this.optionElements.push(toggleButton);
 	}
@@ -150,24 +218,24 @@ export default class OptionsScene extends Phaser.Scene {
 		const decreaseButton = new UIButton(
 			this,
 			'-',
-			constants.MIDDLE_SCREEN_X - 120,
-			yPos + 60,
+			constants.MIDDLE_SCREEN_X - BUTTONS.VOLUME_BUTTON_OFFSET_X,
+			yPos + LAYOUT.VALUE_OFFSET_Y,
 			() => {
-				const newValue = Math.max(0, getValue() - 0.1);
+				const newValue = Math.max(ADJUSTMENTS.VOLUME_MIN, getValue() - ADJUSTMENTS.VOLUME_STEP);
 				setValue(newValue);
 			},
-			60
+			BUTTONS.VOLUME_BUTTON_WIDTH
 		);
 		this.optionElements.push(decreaseButton);
 
 		// Create value display
 		const valueText = this.add.text(
 			constants.MIDDLE_SCREEN_X,
-			yPos + 60,
+			yPos + LAYOUT.VALUE_OFFSET_Y,
 			(Math.round(getValue() * 100)) + '%',
 			{
 				...constants.titleTextConfig,
-				color: '#FFD700'
+				color: STYLES.VALUE_TEXT_COLOR
 			}
 		).setOrigin(0.5);
 		setTextRef(valueText);
@@ -177,13 +245,13 @@ export default class OptionsScene extends Phaser.Scene {
 		const increaseButton = new UIButton(
 			this,
 			'+',
-			constants.MIDDLE_SCREEN_X + 120,
-			yPos + 60,
+			constants.MIDDLE_SCREEN_X + BUTTONS.VOLUME_BUTTON_OFFSET_X,
+			yPos + LAYOUT.VALUE_OFFSET_Y,
 			() => {
-				const newValue = Math.min(1, getValue() + 0.1);
+				const newValue = Math.min(ADJUSTMENTS.VOLUME_MAX, getValue() + ADJUSTMENTS.VOLUME_STEP);
 				setValue(newValue);
 			},
-			60
+			BUTTONS.VOLUME_BUTTON_WIDTH
 		);
 		this.optionElements.push(increaseButton);
 	}
@@ -209,25 +277,25 @@ export default class OptionsScene extends Phaser.Scene {
 		const decreaseButton = new UIButton(
 			this,
 			'<',
-			constants.MIDDLE_SCREEN_X - 150,
-			yPos + 50,
+			constants.MIDDLE_SCREEN_X - BUTTONS.MULTICHOICE_BUTTON_OFFSET_X,
+			yPos + LAYOUT.MULTICHOICE_VALUE_OFFSET_Y,
 			() => {
 				const currentIndex = choices.indexOf(getValue());
 				const newIndex = currentIndex > 0 ? currentIndex - 1 : choices.length - 1;
 				setValue(choices[newIndex]);
 			},
-			80
+			BUTTONS.MULTICHOICE_BUTTON_WIDTH
 		);
 		this.optionElements.push(decreaseButton);
 
 		// Create value display
 		const valueText = this.add.text(
 			constants.MIDDLE_SCREEN_X,
-			yPos + 50,
+			yPos + LAYOUT.MULTICHOICE_VALUE_OFFSET_Y,
 			getValue().toUpperCase(),
 			{
 				...constants.titleTextConfig,
-				color: '#FFD700'
+				color: STYLES.VALUE_TEXT_COLOR
 			}
 		).setOrigin(0.5);
 		setTextRef(valueText);
@@ -237,14 +305,14 @@ export default class OptionsScene extends Phaser.Scene {
 		const increaseButton = new UIButton(
 			this,
 			'>',
-			constants.MIDDLE_SCREEN_X + 150,
-			yPos + 50,
+			constants.MIDDLE_SCREEN_X + BUTTONS.MULTICHOICE_BUTTON_OFFSET_X,
+			yPos + LAYOUT.MULTICHOICE_VALUE_OFFSET_Y,
 			() => {
 				const currentIndex = choices.indexOf(getValue());
 				const newIndex = currentIndex < choices.length - 1 ? currentIndex + 1 : 0;
 				setValue(choices[newIndex]);
 			},
-			80
+			BUTTONS.MULTICHOICE_BUTTON_WIDTH
 		);
 		this.optionElements.push(increaseButton);
 	}
@@ -269,24 +337,24 @@ export default class OptionsScene extends Phaser.Scene {
 		const decreaseButton = new UIButton(
 			this,
 			'-',
-			constants.MIDDLE_SCREEN_X - 120,
-			yPos + 50,
+			constants.MIDDLE_SCREEN_X - BUTTONS.SPEED_BUTTON_OFFSET_X,
+			yPos + LAYOUT.SPEED_VALUE_OFFSET_Y,
 			() => {
-				const newValue = Math.max(0.1, getValue() - 0.1);
+				const newValue = Math.max(ADJUSTMENTS.SPEED_MIN, getValue() - ADJUSTMENTS.SPEED_STEP);
 				setValue(newValue);
 			},
-			60
+			BUTTONS.SPEED_BUTTON_WIDTH
 		);
 		this.optionElements.push(decreaseButton);
 
 		// Create value display
 		const valueText = this.add.text(
 			constants.MIDDLE_SCREEN_X,
-			yPos + 50,
+			yPos + LAYOUT.SPEED_VALUE_OFFSET_Y,
 			getValue().toFixed(1) + 'x',
 			{
 				...constants.titleTextConfig,
-				color: '#FFD700'
+				color: STYLES.VALUE_TEXT_COLOR
 			}
 		).setOrigin(0.5);
 		setTextRef(valueText);
@@ -296,13 +364,13 @@ export default class OptionsScene extends Phaser.Scene {
 		const increaseButton = new UIButton(
 			this,
 			'+',
-			constants.MIDDLE_SCREEN_X + 120,
-			yPos + 50,
+			constants.MIDDLE_SCREEN_X + BUTTONS.SPEED_BUTTON_OFFSET_X,
+			yPos + LAYOUT.SPEED_VALUE_OFFSET_Y,
 			() => {
-				const newValue = Math.min(3.0, getValue() + 0.1);
+				const newValue = Math.min(ADJUSTMENTS.SPEED_MAX, getValue() + ADJUSTMENTS.SPEED_STEP);
 				setValue(newValue);
 			},
-			60
+			BUTTONS.SPEED_BUTTON_WIDTH
 		);
 		this.optionElements.push(increaseButton);
 	}
@@ -332,7 +400,7 @@ export default class OptionsScene extends Phaser.Scene {
 
 	private returnToTitle() {
 		// Transition back to title scene
-		this.cameras.main.fade(500, 0, 0, 0);
+		this.cameras.main.fade(ANIMATION.FADE_DURATION, ANIMATION.FADE_COLOR.r, ANIMATION.FADE_COLOR.g, ANIMATION.FADE_COLOR.b);
 		this.cameras.main.once('camerafadeoutcomplete', () => {
 			this.scene.start(constants.SCENE_KEYS.TITLE);
 		});
@@ -346,8 +414,8 @@ export default class OptionsScene extends Phaser.Scene {
 	}
 
 	private createTabButtons() {
-		const tabButtonY = 120;
-		const buttonSpacing = 160;
+		const tabButtonY = LAYOUT.TAB_BUTTON_Y;
+		const buttonSpacing = LAYOUT.TAB_BUTTON_SPACING;
 		const startX = constants.MIDDLE_SCREEN_X - buttonSpacing;
 
 		// Audio Tab
@@ -357,7 +425,7 @@ export default class OptionsScene extends Phaser.Scene {
 			startX,
 			tabButtonY,
 			() => this.showTab('audio'),
-			140
+			LAYOUT.TAB_BUTTON_WIDTH
 		);
 
 		// Graphics Tab
@@ -367,7 +435,7 @@ export default class OptionsScene extends Phaser.Scene {
 			startX + buttonSpacing,
 			tabButtonY,
 			() => this.showTab('graphics'),
-			140
+			LAYOUT.TAB_BUTTON_WIDTH
 		);
 
 		// Game Tab
@@ -377,7 +445,7 @@ export default class OptionsScene extends Phaser.Scene {
 			startX + buttonSpacing * 2,
 			tabButtonY,
 			() => this.showTab('game'),
-			140
+			LAYOUT.TAB_BUTTON_WIDTH
 		);
 
 		this.updateTabButtonStates();
@@ -391,12 +459,12 @@ export default class OptionsScene extends Phaser.Scene {
 
 			if (tab === this.currentTab) {
 				// Selected tab - gold color
-				button.buttonText.setColor('#FFD700');
-				button.buttonText.setStroke('#000000', 4);
+				button.buttonText.setColor(STYLES.SELECTED_TAB_COLOR);
+				button.buttonText.setStroke(STYLES.TAB_STROKE_COLOR, STYLES.SELECTED_TAB_STROKE_WIDTH);
 			} else {
 				// Unselected tab - white color
-				button.buttonText.setColor('#FFFFFF');
-				button.buttonText.setStroke('#000000', 3);
+				button.buttonText.setColor(STYLES.UNSELECTED_TAB_COLOR);
+				button.buttonText.setStroke(STYLES.TAB_STROKE_COLOR, STYLES.UNSELECTED_TAB_STROKE_WIDTH);
 			}
 		});
 	}
@@ -406,8 +474,8 @@ export default class OptionsScene extends Phaser.Scene {
 		this.clearOptionElements();
 		this.updateTabButtonStates();
 
-		const startY = 220;
-		const lineHeight = 130;
+		const startY = LAYOUT.OPTIONS_START_Y;
+		const lineHeight = LAYOUT.OPTIONS_LINE_HEIGHT;
 
 		switch (tabType) {
 			case 'audio':
