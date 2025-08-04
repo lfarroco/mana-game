@@ -37,7 +37,8 @@
 			"cooldown": 3000,
 			"traits": [
 				{
-					"id": "poison"
+					"id": "applyPoison",
+					"trigger": "onAction"
 				},
 				{
 					"id": "slow",
@@ -63,7 +64,8 @@
 			"cooldown": 2500,
 			"traits": [
 				{
-					"id": "damage"
+					"effectId": "deal_damage",
+					"eventTrigger": "onAction"
 				},
 				{
 					"id": "positional_boost_allies",
@@ -101,8 +103,8 @@
 			]
 		},
 		{
-			"id": "bubblegum_betty",
-			"name": "Bubblegum Betty",
+			"id": "thunder_mech",
+			"name": "Thunder Mech",
 			"pic": "f3_mech",
 			"power": 10,
 			"tags": [
@@ -111,7 +113,8 @@
 			"cooldown": 3200,
 			"traits": [
 				{
-					"id": "damage"
+					"effectId": "deal_damage",
+					"eventTrigger": "onAction"
 				},
 				{
 					"id": "haste",
