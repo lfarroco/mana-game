@@ -10,24 +10,11 @@ export const onCharaPointerOver = ({ chara }: { chara: Chara }): void => {
 	const title = chara.unit.name; // Or cardDef.name
 
 	const traitDescriptions = chara.unit.traits.map(traitData => {
-		// Handle traditional trait definitions
-		if (traitData.id) {
-			const definition = getTraitDefinition(traitData.id);
-			if (!definition) {
-				return `[b]Unknown Trait:[/b] ${traitData.id}`;
-			}
-			return formatTraitDescription(definition, traitData, chara.unit);
+		const definition = getTraitDefinition(traitData.id);
+		if (!definition) {
+			return `[b]Unknown Trait:[/b] ${traitData.id}`;
 		}
-
-		// Handle direct effects
-		if (traitData.effectId && traitData.eventTrigger) {
-			// Create a simple description for direct effects
-			const effectName = traitData.effectId.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-			const trigger = traitData.eventTrigger.replace(/^on/, '').replace(/([A-Z])/g, ' $1').toLowerCase();
-			return `[b]${effectName}[/b] (${trigger})`;
-		}
-
-		return `[b]Unknown Effect[/b]`;
+		return formatTraitDescription(definition, traitData, chara.unit);
 	}).join('\n\n'); // Use double newline for better separation between traits
 
 	// 1100 -> 1.1s

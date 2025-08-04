@@ -5,7 +5,6 @@
  */
 import {
 	TraitEffectContext,
-	TraitEffectInstanceData,
 	getTraitDefinition,
 	getTraitEffectImplementation,
 	TraitDefinition,
@@ -29,15 +28,11 @@ export type TraitId = string & { __traitId: never };
  * Represents an instance of a trait attached to a unit.
  * It includes the trait's ID and any instance-specific parameters.
  * @property id - The unique identifier of the trait definition.
- * @property effectId - Optional direct effect reference (bypasses trait definition lookup)
- * @property eventTrigger - Optional event trigger (when using direct effects)
  * @property [key: string] - Additional parameters specific to this trait instance,
  *                           which can override or supplement defaults from the TraitDefinition.
  */
 export type TraitData = { // This is an *instance* of a trait on a unit
-	id?: TraitId;
-	effectId?: string; // Direct effect reference
-	eventTrigger?: string; // Event trigger for direct effects
+	id: TraitId;
 	[key: string]: any;
 };
 
@@ -51,82 +46,6 @@ function processTraitEvent(
 	scene: BattlegroundScene,
 	state: State
 ) {
-	// Handle direct effect reference (simplified traits)
-	if (traitInstanceData.effectId && traitInstanceData.eventTrigger) {
-		const triggerToMatch = traitInstanceData.trigger || traitInstanceData.eventTrigger;
-
-		if (triggerToMatch === eventKey) {
-			try {
-				const sourceForce = source.force;
-
-				// Create a synthetic effect instance from the trait data
-				const effectInstance: TraitEffectInstanceData = {
-					effectId: traitInstanceData.effectId,
-					eventTrigger: traitInstanceData.eventTrigger,
-					targetSelector: traitInstanceData.targetSelector,
-					conditions: traitInstanceData.conditions,
-					...traitInstanceData // Include all other parameters
-				};
-
-				const targetSelector = resolveTargetSelectorFromParams(traitInstanceData, effectInstance);
-				const dynamicConditions = resolveConditionsFromParams(traitInstanceData, effectInstance);
-
-				const targets = resolveTargets(source, sourceForce, targetSelector, state);
-
-				const context: TraitEffectContext = {
-					sourceUnit: source,
-					targets,
-					effectInstance,
-					traitInstanceParams: traitInstanceData,
-					scene,
-					state,
-				};
-
-				if (!checkConditions(context, dynamicConditions)) {
-					if (process.env.NODE_ENV === 'development') {
-						console.debug(`Conditions not met for direct effect ${traitInstanceData.effectId}`);
-					}
-					return;
-				}
-
-				const implementation = getTraitEffectImplementation(traitInstanceData.effectId);
-				if (implementation) {
-					try {
-						implementation(context);
-					} catch (error) {
-						console.error(
-							`Error executing direct effect ${traitInstanceData.effectId}:`,
-							error,
-							`\nSource Unit: ${source.id}`,
-							`\nEvent: ${eventKey}`,
-							`\nContext:`, context
-						);
-					}
-				} else {
-					console.warn(
-						`Implementation not found for direct effectId: ${traitInstanceData.effectId}`,
-						`\nSource: Unit: ${source.id}`
-					);
-				}
-			} catch (error) {
-				console.error(
-					`Error processing direct effect ${traitInstanceData.effectId}:`,
-					error,
-					`\nSource Unit: ${source.id}`,
-					`\nEvent: ${eventKey}`,
-					`\nTrait Data:`, traitInstanceData
-				);
-			}
-		}
-		return; // Exit early for direct effects
-	}
-
-	// Handle traditional trait definition lookup
-	if (!traitInstanceData.id) {
-		console.warn(`Trait instance missing both 'id' and 'effectId' on Unit ${source.id}:`, traitInstanceData);
-		return;
-	}
-
 	const definition = getTraitDefinition(traitInstanceData.id);
 	if (!definition) {
 		console.warn(`Trait definition not found for ID: ${traitInstanceData.id} on Unit ${source.id}`);
