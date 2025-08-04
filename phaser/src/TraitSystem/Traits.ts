@@ -1,22 +1,22 @@
 /**
- * @file Manages the core logic for traits, including their definition, processing, and event handling.
- * Traits provide special abilities or characteristics to units.
+ * @file Defines trait processing and registration for unit-based traits.
+ * Handles trait execution in response to game events, with support for
+ * conditions, dynamic targeting, and parameter resolution.
  */
-
-import { State } from "../Models/State";
-import { Unit } from "../Models/Entities/Unit";
-import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
 import {
 	TraitEffectContext,
 	getTraitDefinition,
 	getTraitEffectImplementation,
-	resolveTargets,
-	checkConditions,
-	registerTraitDefinition, // Alias to avoid conflict if any
 	TraitDefinition,
+	resolveTargets,
+	registerTraitDefinition,
+	checkConditions,
 	resolveTargetSelectorFromParams,
 	resolveConditionsFromParams
 } from "./TraitEffectSystem";
+import { State } from "../Models/State";
+import { Unit } from "../Models/Entities/Unit";
+import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
 
 /**
  * A unique identifier for a trait.
