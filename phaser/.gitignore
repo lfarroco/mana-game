@@ -13,3 +13,14 @@ node_modules/
 # Build
 dist/
 /npm-debug.log
+
+# Electron build artifacts
+dist-electron/
+*.exe
+*.dmg
+*.AppImage
+*.deb
+*.blockmap
+*.yml
+builder-debug.yml
+builder-effective-config.yaml
