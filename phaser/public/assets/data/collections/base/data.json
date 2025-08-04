@@ -41,8 +41,8 @@
 				},
 				{
 					"id": "slow",
-					"targets": "random_ally",
-					"duration": 1000
+					"duration": 1000,
+					"targets": "random_ally"
 				},
 				{
 					"id": "power_boost_on_action",
@@ -101,8 +101,8 @@
 			]
 		},
 		{
-			"id": "bubblegum_betty",
-			"name": "Bubblegum Betty",
+			"id": "thunder_mech",
+			"name": "Thunder Mech",
 			"pic": "f3_mech",
 			"power": 10,
 			"tags": [
