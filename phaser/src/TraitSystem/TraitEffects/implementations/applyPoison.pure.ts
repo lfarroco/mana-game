@@ -5,7 +5,6 @@
 
 import { Unit } from '../../../Models/Entities/Unit';
 import { Force } from '../../../Models/Entities/Force';
-import { getEffectParams } from '../../TraitSystem.pure';
 
 /**
  * Pure function to calculate poison amount based on unit power
@@ -70,23 +69,25 @@ export function calculatePoisonTotalDamage(initialAmount: number): number {
 
 /**
  * Pure function to resolve poison parameters from effect and trait instances
+ * Now always uses the unit's current power for dynamic scaling.
  * 
- * @param traitInstanceParams - Parameters from the trait instance
- * @param effectInstance - Parameters from the specific effect
- * @param sourceUnit - The unit applying the poison (for fallback to unit.power)
+ * @param _traitInstanceParams - Parameters from the trait instance (unused, kept for API compatibility)
+ * @param _effectInstance - Parameters from the specific effect (unused, kept for API compatibility)
+ * @param sourceUnit - The unit applying the poison (for current power)
  * @returns The resolved poison amount and base power used
  */
 export function resolvePoisonParams(
-	traitInstanceParams: Record<string, unknown>,
-	effectInstance: Record<string, unknown>,
+	_traitInstanceParams: Record<string, unknown>,
+	_effectInstance: Record<string, unknown>,
 	sourceUnit: Unit
 ): {
 	basePower: number;
 	poisonAmount: number;
 	totalDamage: number;
 } {
-	// Get base power for poison calculation - this uses the unit's power at the moment poison is applied
-	const basePower = getEffectParams(traitInstanceParams, effectInstance, 'amount', sourceUnit.power);
+	// Always use the unit's current power for poison calculation
+	// This ensures poison damage scales with unit power increases
+	const basePower = sourceUnit.power;
 
 	const poisonAmount = calculatePoisonAmount(basePower);
 	const totalDamage = calculatePoisonTotalDamage(poisonAmount);

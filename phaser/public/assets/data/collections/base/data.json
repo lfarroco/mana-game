@@ -33,12 +33,11 @@
 				"magical",
 				"ranged"
 			],
-			"power": 6,
+			"power": 4,
 			"cooldown": 3000,
 			"traits": [
 				{
-					"id": "poison",
-					"amount": 10
+					"id": "poison"
 				},
 				{
 					"id": "slow",
