@@ -32,13 +32,9 @@ export class CharaStatsDisplay {
 	createElements(): void {
 
 		const displayableTraits = ["heal", "damage", "shield", "poison"];
-		const displayableEffects = ["restore_morale", "deal_damage", "add_shield", "apply_poison"];
 
 		// TODO: list powers here
-		const trait = this.unit.traits.find(trait =>
-			(trait.id && displayableTraits.includes(trait.id)) ||
-			(trait.effectId && displayableEffects.includes(trait.effectId))
-		);
+		const trait = this.unit.traits.find(trait => displayableTraits.includes(trait.id));
 
 		if (!trait) {
 			return; // No displayable trait found, skip creating display
@@ -55,19 +51,12 @@ export class CharaStatsDisplay {
 		];
 
 		const colorMap = {
-			// Traditional trait IDs
 			damage: CHARA_STATS_COLORS.DAMAGE_BG,
 			heal: CHARA_STATS_COLORS.HEAL_BG,
 			shield: CHARA_STATS_COLORS.ARMOR_BG,
 			poison: CHARA_STATS_COLORS.POISON_BG,
-			// Direct effect IDs
-			deal_damage: CHARA_STATS_COLORS.DAMAGE_BG,
-			restore_morale: CHARA_STATS_COLORS.HEAL_BG,
-			add_shield: CHARA_STATS_COLORS.ARMOR_BG,
-			apply_poison: CHARA_STATS_COLORS.POISON_BG,
 		}
-		const traitKey = trait.id || trait.effectId;
-		const bgColor = colorMap[traitKey as keyof typeof colorMap];
+		const bgColor = colorMap[trait.id as keyof typeof colorMap];
 
 		this.powerDisplayBg = this.scene.add.graphics();
 		this.powerDisplayBg

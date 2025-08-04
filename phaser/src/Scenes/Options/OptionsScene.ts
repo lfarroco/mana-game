@@ -73,7 +73,7 @@ export default class OptionsScene extends Phaser.Scene {
 			this,
 			'BACK',
 			constants.MIDDLE_SCREEN_X,
-			950,
+			750,
 			() => {
 				this.returnToTitle();
 			}
@@ -103,7 +103,7 @@ export default class OptionsScene extends Phaser.Scene {
 		// Create value display (hidden, kept for compatibility)
 		const valueText = this.add.text(
 			constants.MIDDLE_SCREEN_X,
-			yPos + 70,
+			yPos + 60,
 			getValue() ? 'ON' : 'OFF',
 			{
 				...constants.titleTextConfig,
@@ -118,7 +118,7 @@ export default class OptionsScene extends Phaser.Scene {
 			this,
 			getValue() ? 'ON' : 'OFF',
 			constants.MIDDLE_SCREEN_X,
-			yPos + 70,
+			yPos + 60,
 			() => {
 				const newValue = !getValue();
 				setValue(newValue);
@@ -151,7 +151,7 @@ export default class OptionsScene extends Phaser.Scene {
 			this,
 			'-',
 			constants.MIDDLE_SCREEN_X - 120,
-			yPos + 70,
+			yPos + 60,
 			() => {
 				const newValue = Math.max(0, getValue() - 0.1);
 				setValue(newValue);
@@ -163,7 +163,7 @@ export default class OptionsScene extends Phaser.Scene {
 		// Create value display
 		const valueText = this.add.text(
 			constants.MIDDLE_SCREEN_X,
-			yPos + 70,
+			yPos + 60,
 			(Math.round(getValue() * 100)) + '%',
 			{
 				...constants.titleTextConfig,
@@ -178,7 +178,7 @@ export default class OptionsScene extends Phaser.Scene {
 			this,
 			'+',
 			constants.MIDDLE_SCREEN_X + 120,
-			yPos + 70,
+			yPos + 60,
 			() => {
 				const newValue = Math.min(1, getValue() + 0.1);
 				setValue(newValue);
@@ -223,7 +223,7 @@ export default class OptionsScene extends Phaser.Scene {
 		// Create value display
 		const valueText = this.add.text(
 			constants.MIDDLE_SCREEN_X,
-			yPos + 70,
+			yPos + 50,
 			getValue().toUpperCase(),
 			{
 				...constants.titleTextConfig,
@@ -238,7 +238,7 @@ export default class OptionsScene extends Phaser.Scene {
 			this,
 			'>',
 			constants.MIDDLE_SCREEN_X + 150,
-			yPos + 70,
+			yPos + 50,
 			() => {
 				const currentIndex = choices.indexOf(getValue());
 				const newIndex = currentIndex < choices.length - 1 ? currentIndex + 1 : 0;
@@ -270,7 +270,7 @@ export default class OptionsScene extends Phaser.Scene {
 			this,
 			'-',
 			constants.MIDDLE_SCREEN_X - 120,
-			yPos + 70,
+			yPos + 50,
 			() => {
 				const newValue = Math.max(0.1, getValue() - 0.1);
 				setValue(newValue);
@@ -297,7 +297,7 @@ export default class OptionsScene extends Phaser.Scene {
 			this,
 			'+',
 			constants.MIDDLE_SCREEN_X + 120,
-			yPos + 70,
+			yPos + 50,
 			() => {
 				const newValue = Math.min(3.0, getValue() + 0.1);
 				setValue(newValue);
@@ -407,7 +407,7 @@ export default class OptionsScene extends Phaser.Scene {
 		this.updateTabButtonStates();
 
 		const startY = 220;
-		const lineHeight = 150;
+		const lineHeight = 130;
 
 		switch (tabType) {
 			case 'audio':
