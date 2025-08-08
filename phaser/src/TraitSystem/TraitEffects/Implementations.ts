@@ -19,8 +19,8 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("modify_stat_passive", implementations.modifyStatPassiveLogic);
 
 	// Status effect applications
-	registerTraitEffectImplementation("apply_haste", implementations.applyHasteLogicIO);
-	registerTraitEffectImplementation("apply_slow", implementations.applySlowLogicIO);
+	//registerTraitEffectImplementation("apply_haste", implementations.applyHasteLogicIO);
+	//registerTraitEffectImplementation("apply_slow", implementations.applySlowLogicIO);
 	registerTraitEffectImplementation("apply_charge", implementations.applyChargeLogicIO);
 	registerTraitEffectImplementation("apply_poison", implementations.applyPoisonLogicIO);
 

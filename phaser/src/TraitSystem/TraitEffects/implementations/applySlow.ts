@@ -4,20 +4,19 @@
  * When the projectile hits, it applies slow duration and displays the original slow visual effect.
  */
 
-import { TraitEffectFn } from '../../TraitEffectSystem';
-import { getEffectParams } from '../../TraitSystem.pure';
 import { arcaneMissileTargeted } from '../../../Effects/arcaneMissileTargeted';
 import { slowEffect } from '../../../Effects/slowEffect';
 import * as CharaManager from '../../../Scenes/Battleground/Systems/CharaManager';
+import BattlegroundScene from '../../../Scenes/Battleground/BattlegroundScene';
+import { Unit } from '../../../Models/Entities/Unit';
 
 /**
  * Pure function to create the apply slow effect implementation
  * @returns The trait effect function
  */
-export function createApplySlowLogic(): TraitEffectFn {
-	return async (context) => {
-		const { targets, scene, sourceUnit } = context;
-		const duration = getEffectParams(context.traitInstanceParams, context.effectInstance, 'duration', 2000);
+export function createApplySlowLogic() {
+	return async (context: { scene: BattlegroundScene; sourceUnit: Unit; targets: Unit[]; duration: number }) => {
+		const { targets, scene, sourceUnit, duration } = context;
 
 		// Get source character position for arcane missile effect
 		const sourceChara = CharaManager.getChara(sourceUnit.id);
@@ -71,7 +70,7 @@ export function createApplySlowLogic(): TraitEffectFn {
  * Apply slow effect implementation for runtime use
  * This is the actual implementation registered with the TraitEffectSystem
  */
-export const applySlowLogicIO: TraitEffectFn = async (context) => {
+export const applySlowLogicIO = async (context: { scene: BattlegroundScene; sourceUnit: Unit; targets: Unit[]; duration: number; }) => {
 	// Dynamically import to avoid circular dependencies
 
 	const impl = createApplySlowLogic();

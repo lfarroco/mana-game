@@ -7,9 +7,9 @@ import { GameEvents } from '../../../constants/events';
 import { arcaneMissileTargeted } from '../../../Effects';
 import { Force, manipulateForceShield } from '../../../Models/Entities/Force';
 import { Unit } from '../../../Models/Entities/Unit';
+import BattlegroundScene from '../../../Scenes/Battleground/BattlegroundScene';
 import { getMoraleBarPosition, MORALE_BAR_WIDTH } from '../../../Scenes/Battleground/MoraleDisplay';
 import { getChara } from '../../../Scenes/Battleground/Systems/CharaManager';
-import { TraitEffectFn } from '../../TraitEffectSystem';
 
 /**
  * Pure function to create the add shield effect implementation
@@ -18,55 +18,48 @@ import { TraitEffectFn } from '../../TraitEffectSystem';
 export function createAddShieldLogic(
 	emitter: (unit: Unit, amount: number) => void,
 	addShield: (targetForce: Force, amount: number, scene: Phaser.Scene) => void
-): TraitEffectFn {
-	return async (context) => {
-		const { sourceUnit, effectInstance, traitInstanceParams } = context;
+) {
+	return async ({ scene, sourceUnit }: { scene: BattlegroundScene; sourceUnit: Unit; }) => {
 
-		// Use trait 'amount' if present, otherwise fallback to unit's power
-		const shieldAmount = effectInstance.amount ?? traitInstanceParams.amount ?? sourceUnit.power;
+		const shieldAmount = sourceUnit.power;
 
 		emitter(sourceUnit, shieldAmount);
 
-		const sourceForce = context.state.battleData.forces.find(
+		const sourceForce = scene.state.battleData.forces.find(
 			(force) => force.id === sourceUnit.force
 		)!;
 
 		// Show a yellow/gold projectile from source unit to own shield bar
-		if (context.scene) {
-			const sourceChara = getChara(sourceUnit.id);
-			const moraleBarPos = getMoraleBarPosition(sourceForce.id);
-			if (sourceChara && moraleBarPos) {
-				const targetX = moraleBarPos.x + MORALE_BAR_WIDTH / 2;
-				const targetY = moraleBarPos.y;
-				arcaneMissileTargeted(
-					context.scene,
-					{ x: sourceChara.x, y: sourceChara.y },
-					{ x: targetX, y: targetY },
-					{
-						colors: [0xffd700, 0xffe135, 0xfff8dc], // Gold/yellow colors
-						amplitudeMin: 5,
-						amplitudeMax: 15,
-						particleScale: 1.5,
-						impact: {
-							colors: [0xffd700, 0xffe135],
-							scale: 2,
-							speed: 200,
-							lifespan: 300,
-							alpha: 0.4
-						},
-						onHit: async () => {
-							addShield(sourceForce, shieldAmount, context.scene);
-						}
-					}
-				);
-			} else {
-				// Fallback: just apply shield directly
-				addShield(sourceForce, shieldAmount, context.scene);
-			}
-		} else {
-			// Fallback: just apply shield directly
-			addShield(sourceForce, shieldAmount, context.scene);
+		const sourceChara = getChara(sourceUnit.id);
+		const moraleBarPos = getMoraleBarPosition(sourceForce.id);
+
+		if (!sourceChara || !moraleBarPos) {
+			return;
 		}
+
+		const targetX = moraleBarPos.x + MORALE_BAR_WIDTH / 2;
+		const targetY = moraleBarPos.y;
+		arcaneMissileTargeted(
+			scene,
+			{ x: sourceChara.x, y: sourceChara.y },
+			{ x: targetX, y: targetY },
+			{
+				colors: [0xffd700, 0xffe135, 0xfff8dc], // Gold/yellow colors
+				amplitudeMin: 5,
+				amplitudeMax: 15,
+				particleScale: 1.5,
+				impact: {
+					colors: [0xffd700, 0xffe135],
+					scale: 2,
+					speed: 200,
+					lifespan: 300,
+					alpha: 0.4
+				},
+				onHit: async () => {
+					addShield(sourceForce, shieldAmount, scene);
+				}
+			}
+		);
 	};
 }
 
@@ -74,9 +67,7 @@ export function createAddShieldLogic(
  * Add shield effect implementation for runtime use
  * This is the actual implementation registered with the TraitEffectSystem
  */
-export const addShieldLogicIO: TraitEffectFn = async (context) => {
-
-	const { scene } = context;
+export const addShieldLogicIO = async ({ scene, sourceUnit }: { scene: BattlegroundScene; sourceUnit: Unit; }) => {
 
 	const emitter = (unit: Unit, amount: number) => {
 		scene.events.emit(
@@ -86,7 +77,7 @@ export const addShieldLogicIO: TraitEffectFn = async (context) => {
 	}
 
 	const impl = createAddShieldLogic(emitter, manipulateForceShield);
-	await impl(context);
+	await impl({ scene, sourceUnit });
 
 	// Battle reactions are now handled centrally in the combat loop
 	// No need to manually trigger allied reactions here
