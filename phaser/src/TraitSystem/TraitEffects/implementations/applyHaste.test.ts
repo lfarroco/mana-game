@@ -14,6 +14,8 @@ function createTestUnit(id: string, force: string, position: { x: number; y: num
 		name: 'Test Unit',
 		pic: 'test.png',
 		force,
+		effects: [],
+		reactions: [],
 		hp: 100,
 		maxHp: 100,
 		power: 15,

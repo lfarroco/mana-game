@@ -36,12 +36,17 @@ export type Effect = {
 	id: "slow",
 	duration: number,
 	sourceId: string,
-	targetId: string,
+	targeting: Targeting,
 } | {
 	id: "charge",
 	amount: number,
 	sourceId: string,
-	targetId: string,
+	targeting: Targeting,
+} | {
+	id: "increase_power",
+	amount: number,
+	sourceId: string,
+	targeting: Targeting,
 };
 
 type Targeting = {
@@ -68,6 +73,8 @@ type Targeting = {
 	id: "left_ally",
 } | {
 	id: "right_ally"
+} | {
+	id: "triggering_unit",
 }
 
 export type EffectSourcePosition = "all"
@@ -111,6 +118,9 @@ const processEffect = (scene: BattlegroundScene) => (effect: Effect) => {
 		case "charge":
 			// find target by id and apply charge
 			break;
+		case "increase_power":
+			// find target by id and apply increase power
+			break;
 		default:
 			const _exhaustiveCheck: never = effect;
 			return _exhaustiveCheck;
@@ -139,6 +149,11 @@ function processReactions(
 	effect: Effect,
 ) {
 
+	// effects that can't be reacted to
+	if (["charge", "increase_power"].includes(effect.id)) {
+		return;
+	}
+
 	const sourceUnit = getUnitById(scene.state.battleData.units)(effect.sourceId)!;
 
 	const effectListeners = scene.state.battleData.units
@@ -153,21 +168,21 @@ function processReactions(
 				case "all":
 					return true;
 				case "allies":
-					return u.force === effect.sourceId;
+					return u.force === sourceUnit.force;
 				case "enemies":
-					return u.force !== effect.sourceId;
+					return u.force !== sourceUnit.force;
 				case "row_allies":
-					return u.force === effect.sourceId && u.position.y === u.position.y;
+					return u.force === sourceUnit.force && u.position.x === u.position.x;
 				case "column_allies":
-					return u.force === effect.sourceId && u.position.x === u.position.x;
+					return u.force === sourceUnit.force && u.position.y === u.position.y;
 				case "top_ally":
-					return u.force === effect.sourceId && sourceUnit?.position.y - 1 === u.position.y;
+					return u.force === sourceUnit.force && sourceUnit?.position.y - 1 === u.position.y;
 				case "bottom_ally":
-					return u.force === effect.sourceId && sourceUnit?.position.y + 1 === u.position.y;
+					return u.force === sourceUnit.force && sourceUnit?.position.y + 1 === u.position.y;
 				case "left_ally":
-					return u.force === effect.sourceId && sourceUnit?.position.x - 1 === u.position.x;
+					return u.force === sourceUnit.force && sourceUnit?.position.x - 1 === u.position.x;
 				case "right_ally":
-					return u.force === effect.sourceId && sourceUnit?.position.x + 1 === u.position.x;
+					return u.force === sourceUnit.force && sourceUnit?.position.x + 1 === u.position.x;
 				default:
 					const _exhaustiveCheck: never = r.position;
 					return _exhaustiveCheck;

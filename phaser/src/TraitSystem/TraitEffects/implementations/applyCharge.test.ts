@@ -38,7 +38,9 @@ function createTestUnit(id: string, force: string, position: { x: number; y: num
 		charge: 0,
 		refresh: 0,
 		hasted: 0,
-		slowed: 0
+		slowed: 0,
+		effects: [],
+		reactions: []
 	} as Unit;
 }
 
