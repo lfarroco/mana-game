@@ -6,9 +6,10 @@
 import { registerTraitEffectImplementation } from "../TraitEffectSystem";
 import * as implementations from "./implementations/index";
 
+// @deprecated
 export function registerAllTraitEffects() {
 	//unused
-	registerTraitEffectImplementation("grant_gold_to_player", implementations.grantGoldLogic);
+	//registerTraitEffectImplementation("grant_gold_to_player", implementations.grantGoldLogic);
 
 	// basic effects
 	// registerTraitEffectImplementation("deal_damage", implementations.dealDamageLogicIO);
@@ -16,7 +17,7 @@ export function registerAllTraitEffects() {
 	//registerTraitEffectImplementation("add_shield", implementations.addShieldLogicIO);
 
 	// Power-increasing effects
-	registerTraitEffectImplementation("modify_stat_passive", implementations.modifyStatPassiveLogic);
+	//registerTraitEffectImplementation("modify_stat_passive", implementations.increasePower);
 
 	// Status effect applications
 	//registerTraitEffectImplementation("apply_haste", implementations.applyHasteLogicIO);

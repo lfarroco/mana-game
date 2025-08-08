@@ -314,7 +314,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	updateUnitAttribute = async <K extends keyof Unit>(attribute: K, num: number) => {
 		const { unit } = this;
 		const positive = num >= 0;
-		const text = `${positive ? "+" : "-"}${num} ${attribute}`;
+		const text = `${positive ? "+" : "-"}${num}`;
 
 		if (typeof unit[attribute] === "number") {
 			(unit[attribute] as number) += num;
