@@ -29,6 +29,8 @@ describe('Add Shield Effect', () => {
 			hp: 100,
 			maxHp: 100,
 			power: 20,
+			effects: [],
+			reactions: [],
 			cooldown: 1000,
 			crit: 0,
 			evade: 0,

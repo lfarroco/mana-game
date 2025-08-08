@@ -4,31 +4,6 @@ import { TraitData } from "../../TraitSystem/Traits";
 import { getCardDefinition } from "./Card";
 import { Effect, EffectSourcePosition } from "../../TriggerSystem/TriggerSystem";
 
-/**
- * Represents a temporary effect that will be reverted after a duration.
- */
-export type StatusEffect = {
-  type: 'haste' | 'slow' | 'freeze' | 'stun' | 'poison' | 'power_buff' | 'power_debuff' | 'fury_scaling' | 'cooldown_increase';
-  remainingDuration: number;
-
-  // For attribute modifications (power buffs/debuffs, fury scaling)
-  attribute?: keyof Unit;
-  amount?: number;
-
-  // For cooldown modifications (haste/slow/freeze/stun)
-  cooldownMultiplier?: number;
-  originalCooldown?: number; // For freeze/stun restoration
-
-  // For poison/DoT effects
-  damagePerTick?: number;
-  tickInterval?: number;
-  timeSinceLastTick?: number;
-
-  // For display and stacking
-  displayName?: string;
-  stackId?: string; // For effects that shouldn't stack (like fury)
-  source?: string; // ID of the unit/trait that applied this effect
-};
 
 /**
  * @deprecated Use StatusEffect instead. Will be removed after migration is complete.
@@ -81,8 +56,6 @@ export type Unit = {
   hasted: number;
   slowed: number;
 
-  // @deprecated - Use statusEffects instead. Will be removed after migration.
-  temporaryEffects?: TemporaryEffect[];
 };
 
 export const makeUnit = (force: string, cardId: string, position = vec2Zero()): Unit => {
@@ -137,6 +110,12 @@ export type PureUnitData = {
   refresh: number;
   hasted: number;
   slowed: number;
+  effects: Effect[];
+  reactions: {
+    position: EffectSourcePosition;
+    effectId: string; // e.g. "damage", "heal", "shield", "poison", "regen", "haste", "slow", "charge"
+    effects: Effect[]
+  }[];
 };
 
 /**
@@ -158,6 +137,8 @@ export function createUnitFromCard(
     cardId: cardDef.id,
     name: cardDef.name,
     pic: cardDef.pic,
+    effects: [],
+    reactions: [],
     force,
     position,
     power: cardDef.power || 0,
@@ -196,10 +177,12 @@ export function createCustomUnit(
     crit: 10,
     evade: 5,
     traits: [],
+    effects: [],
+    reactions: [],
     charge: 0,
     refresh: 0,
     hasted: 0,
-    slowed: 0
+    slowed: 0,
   };
 
   return {

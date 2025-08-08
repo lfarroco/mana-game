@@ -23,8 +23,6 @@ function createUnitCopy(unit: Unit): Unit {
 		// Deep copy nested objects
 		position: { ...unit.position },
 		traits: unit.traits.map(trait => ({ ...trait })),
-		// Copy arrays and other nested structures
-		temporaryEffects: unit.temporaryEffects ? [...unit.temporaryEffects] : undefined
 	};
 }
 

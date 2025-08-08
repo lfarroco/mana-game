@@ -16,6 +16,8 @@ function createTestUnit(id: string, force: string, position: { x: number; y: num
 		force,
 		hp: 100,
 		maxHp: 100,
+		effects: [],
+		reactions: [],
 		power: 15,
 		cooldown: 1000,
 		crit: 0,

@@ -7,7 +7,7 @@ import { applyStatusEffect as pureApplyStatusEffect } from '../../../Systems/Sta
  */
 
 import { getEffectParams } from '../TraitSystem.pure';
-import { Unit } from '../../Models/Entities/Unit';
+import { createTestUnit, Unit } from '../../Models/Entities/Unit';
 import { TraitEffectContext } from '../TraitEffectSystem';
 import { vec2 } from '../../Models/Geometry.pure';
 
@@ -31,45 +31,18 @@ describe('Trait Effect Implementations', () => {
 		jest.clearAllMocks();
 
 		// Create mock unit
-		mockUnit = {
-			id: 'test-unit-1',
-			cardId: 'test-card-1',
-			name: 'Test Unit',
-			pic: 'test-pic.png',
-			force: 'player-force',
-			hp: 100,
-			maxHp: 100,
-			power: 20,
-			cooldown: 1000,
-			crit: 0,
-			evade: 0,
-			position: vec2(1, 2),
-			traits: [],
-			charge: 0,
-			refresh: 0,
-			hasted: 0,
-			slowed: 0
-		} as Unit;
+		mockUnit = createTestUnit(
+			'test-unit-1',
+			'player-force',
+			vec2(1, 2)
+		);
 
-		mockTargetUnit = {
-			id: 'test-target-1',
-			cardId: 'test-target-card',
-			name: 'Target Unit',
-			pic: 'target-pic.png',
-			force: 'enemy-force',
-			hp: 80,
-			maxHp: 80,
-			power: 15,
-			cooldown: 1200,
-			crit: 0,
-			evade: 0,
-			position: vec2(0, 1),
-			traits: [],
-			charge: 0,
-			refresh: 0,
-			hasted: 0,
-			slowed: 0
-		} as Unit;
+
+		mockTargetUnit = createTestUnit(
+			'test-target-1',
+			'enemy-force',
+			vec2(0, 1)
+		);
 
 		// Create mock chara
 		mockChara = {
