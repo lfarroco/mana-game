@@ -1,9 +1,6 @@
-import { GameEvents } from "../constants/events";
-import { applyDamageToForce } from "../Models/Entities/Force";
-import { Unit } from "../Models/Entities/Unit";
 import { getUnitById } from "../Models/State";
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
-import { createDealDamageLogic } from "../TraitSystem/TraitEffects/implementations/dealDamage";
+import * as implementations from "../TraitSystem/TraitEffects/implementations/index";
 
 export type Effect = {
 	id: "damage",
@@ -93,12 +90,17 @@ export const processEffects = (scene: BattlegroundScene, effects: Effect[]) => {
 }
 
 const processEffect = (scene: BattlegroundScene) => (effect: Effect) => {
+
+	const sourceUnit = getUnitById(scene.state.battleData.units)(effect.sourceId)!
+
 	switch (effect.id) {
 		case "damage":
-			handleDealDamage(scene, effect);
+			implementations.dealDamageLogicIO({ scene, sourceUnit });
 			break;
 		case "heal":
-			// find target by id and apply heal
+			implementations.restoreMoraleLogicIO({
+				scene, sourceUnit
+			});
 			break;
 		case "shield":
 			// find target by id and apply shield
@@ -127,21 +129,6 @@ const processEffect = (scene: BattlegroundScene) => (effect: Effect) => {
 	}
 
 	processReactions(scene, effect);
-}
-
-function handleDealDamage(scene: BattlegroundScene, effect: { amount: number, sourceId: string }) {
-
-	const emitter = (unit: Unit, amount: number) => {
-		scene.events.emit(
-			GameEvents.UNIT_ATTACK,
-			{ unit, amount }
-		);
-	}
-
-	createDealDamageLogic(emitter, applyDamageToForce)({
-		scene,
-		sourceUnit: getUnitById(scene.state.battleData.units)(effect.sourceId)!
-	})
 }
 
 function processReactions(
