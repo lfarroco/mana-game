@@ -135,9 +135,18 @@ export function createUnitFromCard(
   id: string
 ): PureUnitData {
 
+  // inject source id in the effects and reaction effects
   const updatedEffects = cardDef.effects?.map(effect => ({
     ...effect,
     sourceId: id,
+  })) ?? [];
+
+  const updatedReactions = cardDef.reactions?.map(reaction => ({
+    ...reaction,
+    effects: reaction.effects.map(effect => ({
+      ...effect,
+      sourceId: id,
+    })),
   })) ?? [];
 
   return {
@@ -153,7 +162,7 @@ export function createUnitFromCard(
     evade: 0,
     traits: [],
     effects: updatedEffects,
-    reactions: cardDef.reactions || [],
+    reactions: updatedReactions,
     charge: 0,
     refresh: 0,
     hasted: 0,

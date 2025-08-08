@@ -8,13 +8,9 @@ import { GameEvents } from "../constants/events";
 import { getState } from "../Models/State";
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
 import {
-	processUnitTraitsForEvent,
-} from "./Traits";
-import { UnitEventKeys } from "../Models/UnitEvents";
-import {
-	UnitPayload,
 	EmptyPayload,
 } from "../Models/EventPayloads";
+import { processEffects } from "../TriggerSystem/TriggerSystem";
 
 
 /**
@@ -27,29 +23,13 @@ import {
 export function setupTraitEventListeners(scene: BattlegroundScene): void {
 
 	scene.events.on(GameEvents.TRAIT_EVAL_GLOBAL_BATTLE_START, async (_payload: EmptyPayload) => {
-		// Process for units in parallel instead of sequentially
-		getState().battleData.units
-			.forEach(unit => processUnitTraitsForEvent(unit, "onBattleStart", scene, getState()));
+
+		const battleStartEffects = getState().battleData.units.flatMap(u => {
+			return u.reactions.filter(e => e.effectId === "battle_start");
+		}).flatMap(r => r.effects);
+
+		processEffects(scene, battleStartEffects);
 
 	});
-
-	scene.events.on(GameEvents.TRAIT_EVAL_BATTLE_END, async (_payload: EmptyPayload) => {
-		// Process for units in parallel instead of sequentially
-		// Note: Original onBattleEnd did not filter by unit.hp > 0, preserving that behavior.
-		getState().battleData.units
-			.forEach(unit => processUnitTraitsForEvent(unit, "onBattleEnd", scene, getState()));
-
-	});
-
-	const unitEventMappings: { gameEvent: string, traitKey: UnitEventKeys }[] = [
-		{ gameEvent: GameEvents.TRAIT_EVAL_UNIT_ACTION, traitKey: "onAction" },
-	];
-
-	unitEventMappings.forEach(mapping => {
-		scene.events.on(mapping.gameEvent, (payload: UnitPayload) => {
-			processUnitTraitsForEvent(payload.unit, mapping.traitKey, scene, getState());
-		});
-	});
-
 
 }

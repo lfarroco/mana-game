@@ -95,8 +95,6 @@ export class RunCombatSystem {
 
       for (const unit of unitsReadyToAct) {
 
-        // Assuming unit actions are triggered by TRAIT_EVAL_UNIT_ACTION
-        // and these actions are handled by listeners (e.g., AI system, skill execution system)
         events.emit(GameEvents.TRAIT_EVAL_UNIT_ACTION, { unit });
 
         processEffects(this.scene, unit.effects)
@@ -129,7 +127,6 @@ export class RunCombatSystem {
           this.updateHandler = null; // Clear the handler
         }
 
-        events.emit(GameEvents.TRAIT_EVAL_BATTLE_END, {});
         console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);
         resolve(outcome!);
       }
