@@ -35,6 +35,28 @@
 			],
 			"power": 4,
 			"cooldown": 3000,
+			"effects": [
+				{
+					"id": "poison",
+					"perTick": 2,
+					"ticks": 5
+				},
+				{
+					"id": "slow",
+					"duration": 1000,
+					"targets": {
+						"id": "random_ally",
+						"count": 1
+					}
+				},
+				{
+					"id": "increase_power",
+					"amount": 4,
+					"targets": {
+						"id": "self"
+					}
+				}
+			],
 			"traits": [
 				{
 					"id": "poison"

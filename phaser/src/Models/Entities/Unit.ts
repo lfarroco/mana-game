@@ -2,7 +2,7 @@ import { v4 } from "uuid";
 import { Vec2, vec2Zero } from "../Geometry.pure";
 import { TraitData } from "../../TraitSystem/Traits";
 import { getCardDefinition } from "./Card";
-import { Effect, EffectSourcePosition } from "../../TriggerSystem/TriggerSystem";
+import { Effect, EffectReaction, EffectSourcePosition } from "../../TriggerSystem/TriggerSystem";
 
 
 /**
@@ -43,11 +43,7 @@ export type Unit = {
 
   traits: TraitData[];
   effects: Effect[];
-  reactions: {
-    position: EffectSourcePosition;
-    effectId: string; // e.g. "damage", "heal", "shield", "poison", "regen", "haste", "slow", "charge"
-    effects: Effect[]
-  }[];
+  reactions: EffectReaction[];
 
   charge: number; // each tick the job's agi is added here. when it reaches 100, the job can act
   refresh: number; // the time it takes for the job to act again. Even if charged, this must be 0
@@ -57,6 +53,8 @@ export type Unit = {
   slowed: number;
 
 };
+
+
 
 export const makeUnit = (force: string, cardId: string, position = vec2Zero()): Unit => {
   const card = getCardDefinition(cardId);
@@ -70,7 +68,9 @@ export const makeUnit = (force: string, cardId: string, position = vec2Zero()): 
       pic: card.pic,
       power: card.power,
       cooldown: card.cooldown,
-      traits: card.traits
+      traits: card.traits,
+      effects: card.effects || [],
+      reactions: card.reactions || [],
     },
     position,
     v4() // Generate unique ID for runtime
@@ -89,6 +89,8 @@ export type CardDefinition = {
   power: number;
   cooldown: number;
   traits: TraitData[];
+  effects: Effect[];
+  reactions: EffectReaction[];
 };
 
 /**
@@ -130,22 +132,28 @@ export function createUnitFromCard(
   force: string,
   cardDef: CardDefinition,
   position: Vec2 = vec2Zero(),
-  id?: string
+  id: string
 ): PureUnitData {
+
+  const updatedEffects = cardDef.effects?.map(effect => ({
+    ...effect,
+    sourceId: id,
+  })) ?? [];
+
   return {
-    id: id || cardDef.id,
+    id,
     cardId: cardDef.id,
     name: cardDef.name,
     pic: cardDef.pic,
-    effects: [],
-    reactions: [],
     force,
     position,
     power: cardDef.power || 0,
     cooldown: cardDef.cooldown,
     crit: 0,
     evade: 0,
-    traits: cardDef.traits || [],
+    traits: [],
+    effects: updatedEffects,
+    reactions: cardDef.reactions || [],
     charge: 0,
     refresh: 0,
     hasted: 0,

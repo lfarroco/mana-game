@@ -65,10 +65,8 @@ export const GameEvents = {
 	TRAIT_EVAL_UNIT_ACTION: "trait_eval_unit_action",
 	TRAIT_EVAL_GLOBAL_BATTLE_START: "trait_eval_global_battle_start", // For all units
 	TRAIT_EVAL_BATTLE_END: "trait_eval_battle_end",
-	TRAIT_EVAL_TURN_START: "trait_eval_turn_start",
 	TRAIT_EVAL_ALLIED_ACTION: "trait_eval_allied_action",
 	TRAIT_EVAL_ENEMY_ACTION: "trait_eval_enemy_action",
-	TRAIT_EVAL_TURN_END: "trait_eval_turn_end",
 	TRAIT_EVAL_ATTACK_BY_ME: "trait_eval_attack_by_me",
 
 	// BattlegroundScene specific UI and System Triggers

@@ -7,6 +7,7 @@ import { GameEvents } from "../../constants/events";
 import { delay } from "../../Utils/animation";
 import { TimeoutDamageSystem } from "./Systems/TimeoutDamageSystem";
 import { PoisonDamageSystem } from "./Systems/PoisonDamageSystem";
+import { processEffects } from "../../TriggerSystem/TriggerSystem";
 
 /**
  * Represents the possible outcomes of a combat wave.
@@ -94,13 +95,12 @@ export class RunCombatSystem {
 
       for (const unit of unitsReadyToAct) {
 
-        // TODO: remove those events, it's impossible to debug
-        events.emit(GameEvents.TRAIT_EVAL_TURN_START, { unit });
         // Assuming unit actions are triggered by TRAIT_EVAL_UNIT_ACTION
         // and these actions are handled by listeners (e.g., AI system, skill execution system)
         events.emit(GameEvents.TRAIT_EVAL_UNIT_ACTION, { unit });
 
-        events.emit(GameEvents.TRAIT_EVAL_TURN_END, { unit });
+        processEffects(this.scene, unit.effects)
+
       }
 
       // Check for timeout damage (after 10 seconds of combat)
