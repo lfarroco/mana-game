@@ -50,15 +50,9 @@ export const UNIT_EVENT_NO_OP: UnitEvent = { fn: () => async () => { } };
 
 /** Defines the structure for storing arrays of different types of unit event callbacks. */
 export type UnitEvents = {
-	onTurnStart: UnitEvent[];
-	onTurnEnd: UnitEvent[];
 	onBattleStart: UnitEvent[];
 	onBattleEnd: UnitEvent[];
 	onAction: UnitEvent[];
-	onAttackByMe: AttackEvent[];
-	onAlliedAction: UnitEvent[];
-	onEnemyAction: UnitEvent[];
-	onBattleReaction: UnitEvent[];
 };
 // TODO: add onDamageCalculation, onDodgeCalculation, onCriticalHitCalculation, onAttackCalculation
 // This allows adding buffs/debuffs to damage, dodge, critical hit and attack
@@ -68,15 +62,9 @@ export type UnitEvents = {
  * IMPORTANT: This array must be kept in sync manually with the keys of the `UnitEvents` type.
  */
 export const UNIT_EVENTS: readonly (keyof UnitEvents)[] = [
-	"onTurnStart",
-	"onTurnEnd",
 	"onBattleStart",
 	"onBattleEnd",
 	"onAction",
-	"onAttackByMe",
-	"onAlliedAction",
-	"onEnemyAction",
-	"onBattleReaction",
 ] as const;
 
 /** Helper type to extract keys from `UnitEvents` that correspond to `UnitEvent[]`. */
