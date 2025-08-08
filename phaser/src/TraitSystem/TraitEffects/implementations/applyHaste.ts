@@ -4,20 +4,23 @@
  * When the projectile hits, it applies haste duration and displays the original haste visual effect.
  */
 
-import { TraitEffectFn } from '../../TraitEffectSystem';
-import { getEffectParams } from '../../TraitSystem.pure';
 import { arcaneMissileTargeted } from '../../../Effects/arcaneMissileTargeted';
 import { hasteEffect } from '../../../Effects/hasteEffect';
 import * as CharaManager from '../../../Scenes/Battleground/Systems/CharaManager';
+import { Unit } from '../../../Models/Entities/Unit';
+import BattlegroundScene from '../../../Scenes/Battleground/BattlegroundScene';
 
 /**
  * Pure function to create the apply haste effect implementation
  * @returns The trait effect function
  */
-export function createApplyHasteLogic(): TraitEffectFn {
-	return async (context) => {
-		const { targets, scene, sourceUnit } = context;
-		const duration = getEffectParams(context.traitInstanceParams, context.effectInstance, 'duration', 2000);
+export function createApplyHasteLogic() {
+	return async (context: {
+		targets: Unit[]; scene: BattlegroundScene;
+		sourceUnit: Unit;
+		duration: number;
+	}) => {
+		const { targets, scene, sourceUnit, duration } = context;
 
 		// Get source character position for arcane missile effect
 		const sourceChara = CharaManager.getChara(sourceUnit.id);
@@ -71,7 +74,7 @@ export function createApplyHasteLogic(): TraitEffectFn {
  * Apply haste effect implementation for runtime use
  * This is the actual implementation registered with the TraitEffectSystem
  */
-export const applyHasteLogicIO: TraitEffectFn = async (context) => {
+export const applyHasteLogicIO = async (context: { targets: Unit[]; scene: BattlegroundScene; sourceUnit: Unit; duration: number; }) => {
 	// Dynamically import to avoid circular dependencies
 
 	const impl = createApplyHasteLogic();

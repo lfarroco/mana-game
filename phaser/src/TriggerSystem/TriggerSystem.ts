@@ -1,6 +1,8 @@
-import { getUnitById } from "../Models/State";
+import { Unit } from "../Models/Entities/Unit";
+import { getUnitById, State } from "../Models/State";
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
 import * as implementations from "../TraitSystem/TraitEffects/implementations/index";
+import { pickRandom } from "../utils";
 
 export type Effect = {
 	id: "damage",
@@ -44,6 +46,11 @@ export type Effect = {
 	amount: number,
 	sourceId: string,
 	targeting: Targeting,
+} | {
+	id: "grant_gold",
+	amount: number,
+	sourceId: string,
+	forceId: string,
 };
 
 type Targeting = {
@@ -103,7 +110,7 @@ const processEffect = (scene: BattlegroundScene) => (effect: Effect) => {
 			});
 			break;
 		case "shield":
-			// find target by id and apply shield
+			implementations.addShieldLogicIO({ scene, sourceUnit });
 			break;
 		case "poison":
 			// find target by id and apply poison
@@ -112,16 +119,31 @@ const processEffect = (scene: BattlegroundScene) => (effect: Effect) => {
 			// find target by id and apply regen
 			break;
 		case "haste":
-			// find target(s) by targeting and apply haste
+			const hasteTargets = resolveTargets(scene.state, effect);
+			implementations.applyHasteLogicIO({
+				targets: hasteTargets,
+				scene,
+				sourceUnit,
+				duration: effect.duration,
+			});
 			break;
 		case "slow":
-			// find target by id and apply slow
+			const slowTargets = resolveTargets(scene.state, effect);
+			implementations.applySlowLogicIO({
+				targets: slowTargets,
+				scene,
+				sourceUnit,
+				duration: effect.duration,
+			});
 			break;
 		case "charge":
 			// find target by id and apply charge
 			break;
 		case "increase_power":
 			// find target by id and apply increase power
+			break;
+		case "grant_gold":
+			// find target by forceId and apply gold
 			break;
 		default:
 			const _exhaustiveCheck: never = effect;
@@ -182,4 +204,62 @@ function processReactions(
 		processEffects(scene, r.effects);
 	});
 
+}
+
+function resolveTargets(state: State, effect: Effect): Unit[] {
+	// Only some effects have targeting
+	if (!('targeting' in effect)) {
+		console.warn(`Invalid trigger data. Effect ${effect.id} should have no targeting defined`);
+		return [];
+	}
+
+	const sourceUnit = getUnitById(state.battleData.units)(effect.sourceId)!;
+	const allUnits = state.battleData.units;
+	const allies = allUnits.filter(u => u.force === sourceUnit.force);
+	const enemies = allUnits.filter(u => u.force !== sourceUnit.force);
+
+	switch (effect.targeting.id) {
+		case "self":
+			return [sourceUnit];
+
+		case "random_ally":
+			const otherAllies = allies.filter(u => u.id !== sourceUnit.id);
+			return pickRandom(otherAllies, effect.targeting.count);
+
+		case "random_enemy":
+			return pickRandom(enemies, effect.targeting.count);
+
+		case "row_allies":
+			return allies.filter(u => u.id !== sourceUnit.id)
+				.filter(u => u.position.y === sourceUnit.position.y);
+
+		case "column_allies":
+			return allies.filter(u => u.id !== sourceUnit.id)
+				.filter(u => u.position.x === sourceUnit.position.x);
+
+		case "all_allies":
+			return allies.filter(u => u.id !== sourceUnit.id);
+
+		case "all_enemies":
+			return enemies;
+
+		case "top_ally":
+			return allies.filter(u => u.position.y === sourceUnit.position.y - 1 && u.position.x === sourceUnit.position.x);
+
+		case "bottom_ally":
+			return allies.filter(u => u.position.y === sourceUnit.position.y + 1 && u.position.x === sourceUnit.position.x);
+
+		case "left_ally":
+			return allies.filter(u => u.position.x === sourceUnit.position.x - 1 && u.position.y === sourceUnit.position.y);
+
+		case "right_ally":
+			return allies.filter(u => u.position.x === sourceUnit.position.x + 1 && u.position.y === sourceUnit.position.y);
+
+		case "triggering_unit":
+			return [sourceUnit];
+
+		default:
+			const _exhaustiveCheck: never = effect.targeting;
+			return _exhaustiveCheck;
+	}
 }
