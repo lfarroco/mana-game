@@ -4,34 +4,24 @@
  * When the projectile hits, it applies charge to the unit and displays a charge visual effect.
  */
 
-import { TraitEffectFn } from '../../TraitEffectSystem';
-import { getEffectParams } from '../../TraitSystem.pure';
 import { arcaneMissileTargeted } from '../../../Effects/arcaneMissileTargeted';
 import { hasteEffect } from '../../../Effects/hasteEffect'; // Reusing haste effect for now, can be changed later
 import * as CharaManager from '../../../Scenes/Battleground/Systems/CharaManager';
+import { Unit } from '../../../Models/Entities/Unit';
+import BattlegroundScene from '../../../Scenes/Battleground/BattlegroundScene';
 
 /**
  * Pure function to create the apply charge effect implementation
  * @returns The trait effect function
  */
-export function createApplyChargeLogic(): TraitEffectFn {
-	return async (context) => {
-		const { targets, scene, sourceUnit } = context;
-		const chargeAmount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 1);
+export function createApplyChargeLogic() {
+	return async (context: { targets: Unit[]; scene: BattlegroundScene; sourceUnit: Unit; amount: number }) => {
+		const { targets, scene, sourceUnit, amount } = context;
 
 		// Get source character position for arcane missile effect
 		const sourceChara = CharaManager.getChara(sourceUnit.id);
 
 		for (const target of targets) {
-			// Show a targeted arcane missile effect from source to target
-			if (!scene || !sourceChara) {
-				// Fallback: if no scene or character visual, just apply the charge directly
-				if (!target.charge) {
-					target.charge = 0;
-				}
-				return
-			}
-			target.charge += chargeAmount;
 			const targetChara = CharaManager.getChara(target.id);
 			if (targetChara) {
 				// Use the targeted arcane missile effect with charge callback
@@ -52,12 +42,7 @@ export function createApplyChargeLogic(): TraitEffectFn {
 							alpha: 0.4
 						},
 						onHit: async () => {
-							// THIS IS THE MOMENT OF IMPACT - Apply charge mutation and show charge effect
-							// Add charge amount to the unit's charge property
-							if (!target.charge) {
-								target.charge = 0;
-							}
-							target.charge += chargeAmount;
+							target.charge += amount;
 
 							// Show the charge effect at the target location (reusing haste effect for now)
 							hasteEffect(scene, { x: targetChara.x, y: targetChara.y }, {
@@ -77,7 +62,7 @@ export function createApplyChargeLogic(): TraitEffectFn {
  * Apply charge effect implementation for runtime use
  * This is the actual implementation registered with the TraitEffectSystem
  */
-export const applyChargeLogicIO: TraitEffectFn = async (context) => {
+export const applyChargeLogicIO = async (context: { targets: Unit[]; scene: BattlegroundScene; sourceUnit: Unit; amount: number; }) => {
 	// Dynamically import to avoid circular dependencies
 
 	const impl = createApplyChargeLogic();

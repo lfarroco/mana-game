@@ -137,7 +137,13 @@ const processEffect = (scene: BattlegroundScene) => (effect: Effect) => {
 			});
 			break;
 		case "charge":
-			// find target by id and apply charge
+			const chargeTargets = resolveTargets(scene.state, effect);
+			implementations.applyChargeLogicIO({
+				targets: chargeTargets,
+				scene,
+				sourceUnit,
+				amount: effect.amount,
+			});
 			break;
 		case "increase_power":
 			// find target by id and apply increase power

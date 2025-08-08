@@ -11,8 +11,8 @@ export function registerAllTraitEffects() {
 	registerTraitEffectImplementation("grant_gold_to_player", implementations.grantGoldLogic);
 
 	// basic effects
-	registerTraitEffectImplementation("deal_damage", implementations.dealDamageLogicIO);
-	registerTraitEffectImplementation("restore_morale", implementations.restoreMoraleLogicIO);
+	// registerTraitEffectImplementation("deal_damage", implementations.dealDamageLogicIO);
+	// registerTraitEffectImplementation("restore_morale", implementations.restoreMoraleLogicIO);
 	registerTraitEffectImplementation("add_shield", implementations.addShieldLogicIO);
 
 	// Power-increasing effects
@@ -21,7 +21,7 @@ export function registerAllTraitEffects() {
 	// Status effect applications
 	//registerTraitEffectImplementation("apply_haste", implementations.applyHasteLogicIO);
 	//registerTraitEffectImplementation("apply_slow", implementations.applySlowLogicIO);
-	registerTraitEffectImplementation("apply_charge", implementations.applyChargeLogicIO);
+	//registerTraitEffectImplementation("apply_charge", implementations.applyChargeLogicIO);
 	registerTraitEffectImplementation("apply_poison", implementations.applyPoisonLogicIO);
 
 	// Dynamic effect dispatcher
