@@ -7,9 +7,9 @@ import { GameEvents } from '../../../constants/events';
 import { arcaneMissileTargeted } from '../../../Effects';
 import { Force, manipulateForceMorale } from '../../../Models/Entities/Force';
 import { Unit } from '../../../Models/Entities/Unit';
+import BattlegroundScene from '../../../Scenes/Battleground/BattlegroundScene';
 import { getMoraleBarPosition, MORALE_BAR_WIDTH } from '../../../Scenes/Battleground/MoraleDisplay';
 import { getChara } from '../../../Scenes/Battleground/Systems/CharaManager';
-import { TraitEffectFn } from '../../TraitEffectSystem';
 
 /**
  * Pure function to create the restore morale effect implementation
@@ -18,17 +18,16 @@ import { TraitEffectFn } from '../../TraitEffectSystem';
 export function createRestoreMoraleLogic(
 	emitter: (unit: Unit, amount: number) => void,
 	healMorale: (targetForce: Force, amount: number, scene: Phaser.Scene) => void
-): TraitEffectFn {
-	return async (context) => {
-		const { sourceUnit, effectInstance, traitInstanceParams } = context;
+) {
+	return async (context: { scene: BattlegroundScene; sourceUnit: Unit; }) => {
+		const { scene, sourceUnit } = context;
 
-		// Use trait 'amount' if present, otherwise fallback to unit's power
-		const healAmount = effectInstance.amount ?? traitInstanceParams.amount ?? sourceUnit.power;
+		const healAmount = sourceUnit.power;
 
 		emitter(sourceUnit, healAmount);
 
-		const sourceForce = context.state.battleData.forces.find(
-			(force) => force.id === sourceUnit.force
+		const sourceForce = scene.state.battleData.forces.find(
+			(force: { id: any; }) => force.id === sourceUnit.force
 		)!;
 
 		// Show a green projectile from source unit to own morale bar
@@ -75,7 +74,7 @@ export function createRestoreMoraleLogic(
  * Restore morale effect implementation for runtime use
  * This is the actual implementation registered with the TraitEffectSystem
  */
-export const restoreMoraleLogicIO: TraitEffectFn = async (context) => {
+export const restoreMoraleLogicIO = async (context: { scene: BattlegroundScene; sourceUnit: Unit }) => {
 
 	const { scene } = context;
 
@@ -122,30 +121,3 @@ export function restoreForceMoralePure(amount: number, sourceForceId: string): {
 		forceId: sourceForceId
 	};
 }
-
-/**
- * Legacy implementation - keeping for backward compatibility
- * Runtime wrapper that handles morale restoration with scene integration.
- * This wrapper handles the Phaser scene integration and UI updates.
- */
-export const restoreForceMoraleLogic: TraitEffectFn = async (context) => {
-	// Use unit's power as amount instead of configurable parameters
-	const amount = context.sourceUnit.power;
-
-	const { scene, state, sourceUnit } = context;
-	const targetForce = state.battleData.forces.find(f => f.id === sourceUnit.force);
-
-	if (targetForce) {
-		// Use the shared utility function that handles morale damage reduction
-		const actualChange = manipulateForceMorale(targetForce, amount, scene);
-
-		// Show pop text for the source unit
-		if (actualChange !== 0) {
-			const chara = getChara(sourceUnit.id);
-			if (chara && chara.active && (!scene || (scene.scene && scene.scene.isActive()))) {
-				const sign = actualChange > 0 ? '+' : '';
-				await chara.showPopText(`${sign}${actualChange} Morale`, actualChange > 0 ? "heal" : "damage");
-			}
-		}
-	}
-};

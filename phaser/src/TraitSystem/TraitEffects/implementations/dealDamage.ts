@@ -10,7 +10,6 @@ import { Unit } from '../../../Models/Entities/Unit';
 import BattlegroundScene from '../../../Scenes/Battleground/BattlegroundScene';
 import { getMoraleBarPosition, MORALE_BAR_WIDTH } from '../../../Scenes/Battleground/MoraleDisplay';
 import { getChara } from '../../../Scenes/Battleground/Systems/CharaManager';
-import { TraitEffectFn } from '../../TraitEffectSystem';
 
 /**
  * Pure function to create the deal damage effect implementation
@@ -80,7 +79,7 @@ export function createDealDamageLogic(
  * Deal damage effect implementation for runtime use
  * This is the actual implementation registered with the TraitEffectSystem
  */
-export const dealDamageLogicIO: TraitEffectFn = async (context) => {
+export const dealDamageLogicIO = async (context: { scene: BattlegroundScene, sourceUnit: Unit }) => {
 
 	const { scene } = context;
 
