@@ -22,7 +22,8 @@ function createUnitCopy(unit: Unit): Unit {
 		...unit,
 		// Deep copy nested objects
 		position: { ...unit.position },
-		traits: unit.traits.map(trait => ({ ...trait })),
+		reactions: unit.reactions.map(reaction => ({ ...reaction, effects: reaction.effects.map(effect => ({ ...effect })) })),
+		effects: unit.effects.map(effect => ({ ...effect })),
 	};
 }
 

@@ -1,5 +1,3 @@
-import { TraitDefinition } from "../../TraitSystem/TraitEffectSystem";
-import * as t from "../../TraitSystem/Traits";
 import { Effect, EffectReaction } from "../../TriggerSystem/TriggerSystem";
 
 let cards = new Map<string, CardDefinition>();
@@ -32,7 +30,6 @@ export type CardCollection = {
   description: string;
   pic: string;
   cards: CardDefinition[];
-  traits: TraitDefinition[]
 }
 
 /**
@@ -48,7 +45,6 @@ export type CardDefinition = {
   description: string;
   power: number;
   cooldown: number;
-  traits: t.TraitData[];
   effects: Effect[];
   reactions: EffectReaction[];
   tags: string[];

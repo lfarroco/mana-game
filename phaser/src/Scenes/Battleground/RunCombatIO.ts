@@ -1,5 +1,5 @@
 import { BattlegroundScene } from "./BattlegroundScene";
-import { getActiveUnits, State } from "../../Models/State";
+import { getActiveUnits, getState, State } from "../../Models/State";
 import { MIN_COOLDOWN } from "../../constants/constants";
 import * as CharaManager from "./Systems/CharaManager";
 import { Unit } from "../../Models/Entities/Unit";
@@ -31,7 +31,6 @@ async function setupWave(scene: BattlegroundScene) {
 
   await delay(scene, 2000); // wait until everyone is summoned
 
-  scene.events.emit(GameEvents.TRAIT_EVAL_GLOBAL_BATTLE_START, {});
 
   scene.events.emit(GameEvents.BATTLE_START_SETUP_COMPLETE);
 
@@ -131,6 +130,14 @@ export class RunCombatSystem {
         resolve(outcome!);
       }
     };
+
+    // process battle start effects for all units
+    const battleStartEffects = getState().battleData.units.flatMap(u => {
+      return u.reactions.filter(e => e.effectId === "battle_start");
+    }).flatMap(r => r.effects);
+
+    processEffects(this.scene, battleStartEffects);
+
 
     events.on('update', this.updateHandler);
   });

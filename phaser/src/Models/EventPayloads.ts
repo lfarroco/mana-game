@@ -16,13 +16,6 @@ export type UnitPayload = {
 	unit: Unit;
 };
 
-/**
- * Payload for events that carry no specific data.
- * Used by:
- * - TRAIT_EVAL_GLOBAL_BATTLE_START
- * - TRAIT_EVAL_BATTLE_END
- */
-export type EmptyPayload = {};
 
 /**
  * Defines the structure for payloads used when requesting the display of a user-facing message.

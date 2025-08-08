@@ -1,6 +1,5 @@
 import { v4 } from "uuid";
 import { Vec2, vec2Zero } from "../Geometry.pure";
-import { TraitData } from "../../TraitSystem/Traits";
 import { getCardDefinition } from "./Card";
 import { Effect, EffectReaction, EffectSourcePosition } from "../../TriggerSystem/TriggerSystem";
 
@@ -41,7 +40,6 @@ export type Unit = {
   crit: number;
   evade: number;
 
-  traits: TraitData[];
   effects: Effect[];
   reactions: EffectReaction[];
 
@@ -68,7 +66,6 @@ export const makeUnit = (force: string, cardId: string, position = vec2Zero()): 
       pic: card.pic,
       power: card.power,
       cooldown: card.cooldown,
-      traits: card.traits,
       effects: card.effects || [],
       reactions: card.reactions || [],
     },
@@ -88,7 +85,6 @@ export type CardDefinition = {
   pic: string;
   power: number;
   cooldown: number;
-  traits: TraitData[];
   effects: Effect[];
   reactions: EffectReaction[];
 };
@@ -107,7 +103,6 @@ export type PureUnitData = {
   cooldown: number;
   crit: number;
   evade: number;
-  traits: TraitData[];
   charge: number;
   refresh: number;
   hasted: number;
@@ -160,7 +155,6 @@ export function createUnitFromCard(
     cooldown: cardDef.cooldown,
     crit: 0,
     evade: 0,
-    traits: [],
     effects: updatedEffects,
     reactions: updatedReactions,
     charge: 0,
@@ -193,7 +187,6 @@ export function createCustomUnit(
     cooldown: 100,
     crit: 10,
     evade: 5,
-    traits: [],
     effects: [],
     reactions: [],
     charge: 0,

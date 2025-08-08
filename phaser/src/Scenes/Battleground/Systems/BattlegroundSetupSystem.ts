@@ -1,6 +1,5 @@
 import { State } from "../../../Models/State";
 import { CardCollection, registerCollection } from "../../../Models/Entities/Card";
-import * as TraitSystem from "../../../TraitSystem/Traits";
 import * as ControlsSystem from "../../../Systems/Controls/Controls";
 import { initializePlayerBoard, PartyBoard, createBoardDropZone } from "../../../Models/Board";
 import * as BG_CONSTANTS from "../battlegroundConstants";
@@ -26,7 +25,6 @@ export class BattlegroundSetupSystem {
 		if (!runtimeDataInitialized) {
 			devlog("Performing one-time runtime data initialization.");
 			registerCollection(collection);
-			TraitSystem.initializeTraitsFromData(collection.traits);
 			runtimeDataInitialized = true;
 		}
 	}
