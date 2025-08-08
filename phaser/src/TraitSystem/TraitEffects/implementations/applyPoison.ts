@@ -6,11 +6,10 @@
 import { GameEvents } from '../../../constants/events';
 import { Force } from '../../../Models/Entities/Force';
 import { Unit } from '../../../Models/Entities/Unit';
-import { TraitEffectFn } from '../../TraitEffectSystem';
 import { arcaneMissileTargeted } from '../../../Effects';
 import { getMoraleBarPosition, MORALE_BAR_WIDTH } from '../../../Scenes/Battleground/MoraleDisplay';
 import { getChara } from '../../../Scenes/Battleground/Systems/CharaManager';
-import { createPoisonApplicationData } from './applyPoison.pure';
+import BattlegroundScene from '../../../Scenes/Battleground/BattlegroundScene';
 
 /**
  * Pure function to create the apply poison effect implementation
@@ -19,23 +18,15 @@ import { createPoisonApplicationData } from './applyPoison.pure';
 export function createApplyPoisonLogic(
 	emitter: (unit: Unit, amount: number) => void,
 	applyPoison: (targetForce: Force, amount: number, sourceUnitId?: string) => void
-): TraitEffectFn {
-	return async (context) => {
-		const { sourceUnit, effectInstance, traitInstanceParams } = context;
+) {
+	return async (context: { scene: BattlegroundScene; sourceUnit: Unit; amount: number }) => {
+		const { sourceUnit, scene, amount } = context;
 
-		// Use pure function to calculate poison data
-		const poisonData = createPoisonApplicationData({
-			sourceUnit,
-			effectInstance,
-			traitInstanceParams,
-			forces: context.state.battleData.forces
-		});
+		const targetForce = scene.state.battleData.forces.find(force => force.id !== sourceUnit.force);
 
-		const { basePower, poisonAmount, totalDamage, targetForce } = poisonData;
+		console.log(`[ApplyPoison] Unit power: ${sourceUnit.power}, Initial poison: ${amount}, Total damage over time: ${amount}`);
 
-		console.log(`[ApplyPoison] Unit power: ${basePower}, Initial poison: ${poisonAmount}, Total damage over time: ${totalDamage}`);
-
-		emitter(sourceUnit, poisonAmount);
+		emitter(sourceUnit, amount);
 
 		if (!targetForce) {
 			console.warn('[ApplyPoison] No target force found');
@@ -43,42 +34,39 @@ export function createApplyPoisonLogic(
 		}
 
 		// Show a purple projectile from source unit to enemy morale bar
-		if (context.scene) {
-			const sourceChara = getChara(sourceUnit.id);
-			const moraleBarPos = getMoraleBarPosition(targetForce.id);
-			if (sourceChara && moraleBarPos) {
-				const targetX = moraleBarPos.x + MORALE_BAR_WIDTH / 2;
-				const targetY = moraleBarPos.y;
-				arcaneMissileTargeted(
-					context.scene,
-					{ x: sourceChara.x, y: sourceChara.y },
-					{ x: targetX, y: targetY },
-					{
-						colors: [0x9932cc, 0x8a2be2, 0x663399], // Purple colors for poison
-						speedMultiplier: 1.5,
-						amplitudeMin: 3,
-						amplitudeMax: 12,
-						particleScale: 1.2,
-						impact: {
-							colors: [0x9932cc, 0x8a2be2],
-							scale: 2,
-							speed: 180,
-							lifespan: 400,
-							alpha: 0.6
-						},
-						onHit: async () => {
-							applyPoison(targetForce, poisonAmount, sourceUnit.id);
-						}
-					}
-				);
-			} else {
-				// Fallback: just apply poison directly
-				applyPoison(targetForce, poisonAmount, sourceUnit.id);
-			}
-		} else {
-			// Fallback: just apply poison directly
-			applyPoison(targetForce, poisonAmount, sourceUnit.id);
+		const sourceChara = getChara(sourceUnit.id);
+		const moraleBarPos = getMoraleBarPosition(targetForce.id);
+		if (!sourceChara || !moraleBarPos) {
+			console.warn('[ApplyPoison] Source character or morale bar position not found');
+			return;
 		}
+
+		const targetX = moraleBarPos.x + MORALE_BAR_WIDTH / 2;
+		const targetY = moraleBarPos.y;
+		arcaneMissileTargeted(
+			context.scene,
+			{ x: sourceChara.x, y: sourceChara.y },
+			{ x: targetX, y: targetY },
+			{
+				colors: [0x9932cc, 0x8a2be2, 0x663399], // Purple colors for poison
+				speedMultiplier: 1.5,
+				amplitudeMin: 3,
+				amplitudeMax: 12,
+				particleScale: 1.2,
+				impact: {
+					colors: [0x9932cc, 0x8a2be2],
+					scale: 2,
+					speed: 180,
+					lifespan: 400,
+					alpha: 0.6
+				},
+				onHit: async () => {
+					applyPoison(targetForce, amount, sourceUnit.id);
+				}
+			}
+		);
+
+
 	};
 }
 
@@ -86,7 +74,7 @@ export function createApplyPoisonLogic(
  * Apply poison effect implementation for runtime use
  * This is the actual implementation registered with the TraitEffectSystem
  */
-export const applyPoisonLogicIO: TraitEffectFn = async (context) => {
+export const applyPoisonLogicIO = async (context: { targets: Unit[]; scene: BattlegroundScene; sourceUnit: Unit; amount: number; }) => {
 	const { scene } = context;
 
 	const emitter = (unit: Unit, amount: number) => {
