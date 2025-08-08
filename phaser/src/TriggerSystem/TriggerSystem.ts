@@ -113,10 +113,16 @@ const processEffect = (scene: BattlegroundScene) => (effect: Effect) => {
 			implementations.addShieldLogicIO({ scene, sourceUnit });
 			break;
 		case "poison":
-			// find target by id and apply poison
+			// TODO: simplify: 10 dmg for 3 sec
+			implementations.applyPoisonLogicIO({
+				targets: resolveTargets(scene.state, effect),
+				scene,
+				sourceUnit,
+				amount: sourceUnit.power
+			})
 			break;
 		case "regen":
-			// find target by id and apply regen
+			// not implemented yet (inverse of poison)
 			break;
 		case "haste":
 			const hasteTargets = resolveTargets(scene.state, effect);

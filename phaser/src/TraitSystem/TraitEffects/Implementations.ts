@@ -13,7 +13,7 @@ export function registerAllTraitEffects() {
 	// basic effects
 	// registerTraitEffectImplementation("deal_damage", implementations.dealDamageLogicIO);
 	// registerTraitEffectImplementation("restore_morale", implementations.restoreMoraleLogicIO);
-	registerTraitEffectImplementation("add_shield", implementations.addShieldLogicIO);
+	//registerTraitEffectImplementation("add_shield", implementations.addShieldLogicIO);
 
 	// Power-increasing effects
 	registerTraitEffectImplementation("modify_stat_passive", implementations.modifyStatPassiveLogic);
@@ -22,7 +22,7 @@ export function registerAllTraitEffects() {
 	//registerTraitEffectImplementation("apply_haste", implementations.applyHasteLogicIO);
 	//registerTraitEffectImplementation("apply_slow", implementations.applySlowLogicIO);
 	//registerTraitEffectImplementation("apply_charge", implementations.applyChargeLogicIO);
-	registerTraitEffectImplementation("apply_poison", implementations.applyPoisonLogicIO);
+	//registerTraitEffectImplementation("apply_poison", implementations.applyPoisonLogicIO);
 
 	// Dynamic effect dispatcher
 	registerTraitEffectImplementation("DYNAMIC", implementations.dynamicEffectLogic);
