@@ -36,22 +36,22 @@ export type Effect = {
 	id: "haste",
 	duration: number,
 	sourceId: string,
-	targeting: Targeting,
+	targets: Targeting,
 } | {
 	id: "slow",
 	duration: number,
 	sourceId: string,
-	targeting: Targeting,
+	targets: Targeting,
 } | {
 	id: "charge",
 	amount: number,
 	sourceId: string,
-	targeting: Targeting,
+	targets: Targeting,
 } | {
 	id: "increase_power",
 	amount: number,
 	sourceId: string,
-	targeting: Targeting,
+	targets: Targeting,
 } | {
 	id: "grant_gold",
 	amount: number,
@@ -237,9 +237,9 @@ function processReactions(
 }
 
 function resolveTargets(state: State, effect: Effect): Unit[] {
-	// Only some effects have targeting
-	if (!('targeting' in effect)) {
-		console.warn(`Invalid trigger data. Effect ${effect.id} should have no targeting defined`);
+	// Only some effects have targets
+	if (!('targets' in effect)) {
+		console.warn(`Invalid trigger data. Effect ${effect.id} should have targets`);
 		return [];
 	}
 
@@ -248,16 +248,16 @@ function resolveTargets(state: State, effect: Effect): Unit[] {
 	const allies = allUnits.filter(u => u.force === sourceUnit.force);
 	const enemies = allUnits.filter(u => u.force !== sourceUnit.force);
 
-	switch (effect.targeting.id) {
+	switch (effect.targets.id) {
 		case "self":
 			return [sourceUnit];
 
 		case "random_ally":
 			const otherAllies = allies.filter(u => u.id !== sourceUnit.id);
-			return pickRandom(otherAllies, effect.targeting.count);
+			return pickRandom(otherAllies, effect.targets.count);
 
 		case "random_enemy":
-			return pickRandom(enemies, effect.targeting.count);
+			return pickRandom(enemies, effect.targets.count);
 
 		case "row_allies":
 			return allies.filter(u => u.id !== sourceUnit.id)
@@ -289,7 +289,7 @@ function resolveTargets(state: State, effect: Effect): Unit[] {
 			return [sourceUnit];
 
 		default:
-			const _exhaustiveCheck: never = effect.targeting;
+			const _exhaustiveCheck: never = effect.targets;
 			return _exhaustiveCheck;
 	}
 }
