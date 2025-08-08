@@ -61,12 +61,6 @@ export const GameEvents = {
 	UNIT_SHIELD_GAINED: "unit_shield_gained", // Payload: { unit: Unit, amount: number }
 	UNIT_MORALE_RESTORED: "unit_morale_restored", // Payload: { unit: Unit, amount: number }
 
-	// Trait System Specific Triggers
-	TRAIT_EVAL_UNIT_ACTION: "trait_eval_unit_action",
-	TRAIT_EVAL_ALLIED_ACTION: "trait_eval_allied_action",
-	TRAIT_EVAL_ENEMY_ACTION: "trait_eval_enemy_action",
-	TRAIT_EVAL_ATTACK_BY_ME: "trait_eval_attack_by_me",
-
 	// BattlegroundScene specific UI and System Triggers
 	PLAYER_GOLD_DELTA_REQUEST: "player_delta_update_request", // Payload: number (goldDelta)
 	UI_MAIN_CREATE: "ui_main_create",

@@ -1,7 +1,7 @@
-import { getChara } from "../../../Scenes/Battleground/Systems/CharaManager";
-import { Unit } from "../../../Models/Entities/Unit";
-import { AudioSystem } from "../../../Systems/AudioSystem/AudioSystem";
-import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
+import { getChara } from "../../Scenes/Battleground/Systems/CharaManager";
+import { Unit } from "../../Models/Entities/Unit";
+import { AudioSystem } from "../../Systems/AudioSystem/AudioSystem";
+import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 
 /**
  * Effect: Modifies a unit's power

@@ -3,13 +3,13 @@
  * This effect adds shield to the source unit's force and shows shield pop text.
  */
 
-import { GameEvents } from '../../../constants/events';
-import { arcaneMissileTargeted } from '../../../Effects';
-import { Force, manipulateForceShield } from '../../../Models/Entities/Force';
-import { Unit } from '../../../Models/Entities/Unit';
-import BattlegroundScene from '../../../Scenes/Battleground/BattlegroundScene';
-import { getMoraleBarPosition, MORALE_BAR_WIDTH } from '../../../Scenes/Battleground/MoraleDisplay';
-import { getChara } from '../../../Scenes/Battleground/Systems/CharaManager';
+import { GameEvents } from '../../constants/events';
+import { arcaneMissileTargeted } from '../../Effects';
+import { Force, manipulateForceShield } from '../../Models/Entities/Force';
+import { Unit } from '../../Models/Entities/Unit';
+import BattlegroundScene from '../../Scenes/Battleground/BattlegroundScene';
+import { getMoraleBarPosition, MORALE_BAR_WIDTH } from '../../Scenes/Battleground/MoraleDisplay';
+import { getChara } from '../../Scenes/Battleground/Systems/CharaManager';
 
 /**
  * Pure function to create the add shield effect implementation

@@ -3,13 +3,13 @@
  * This effect deals direct damage to targets and shows damage pop text.
  */
 
-import { GameEvents } from '../../../constants/events';
-import { arcaneMissileTargeted } from '../../../Effects';
-import { Force, applyDamageToForce } from '../../../Models/Entities/Force';
-import { Unit } from '../../../Models/Entities/Unit';
-import BattlegroundScene from '../../../Scenes/Battleground/BattlegroundScene';
-import { getMoraleBarPosition, MORALE_BAR_WIDTH } from '../../../Scenes/Battleground/MoraleDisplay';
-import { getChara } from '../../../Scenes/Battleground/Systems/CharaManager';
+import { GameEvents } from '../../constants/events';
+import { arcaneMissileTargeted } from '../../Effects';
+import { Force, applyDamageToForce } from '../../Models/Entities/Force';
+import { Unit } from '../../Models/Entities/Unit';
+import BattlegroundScene from '../../Scenes/Battleground/BattlegroundScene';
+import { getMoraleBarPosition, MORALE_BAR_WIDTH } from '../../Scenes/Battleground/MoraleDisplay';
+import { getChara } from '../../Scenes/Battleground/Systems/CharaManager';
 
 /**
  * Pure function to create the deal damage effect implementation
