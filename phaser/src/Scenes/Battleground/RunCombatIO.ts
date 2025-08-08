@@ -7,8 +7,6 @@ import { GameEvents } from "../../constants/events";
 import { delay } from "../../Utils/animation";
 import { TimeoutDamageSystem } from "./Systems/TimeoutDamageSystem";
 import { PoisonDamageSystem } from "./Systems/PoisonDamageSystem";
-import { processUnitTraitsForEvent } from "../../TraitSystem/Traits";
-import { processBattleReactionsPure } from "./BattleReaction.pure";
 
 /**
  * Represents the possible outcomes of a combat wave.
@@ -102,9 +100,6 @@ export class RunCombatSystem {
         // and these actions are handled by listeners (e.g., AI system, skill execution system)
         events.emit(GameEvents.TRAIT_EVAL_UNIT_ACTION, { unit });
 
-        // After unit acts, check all other units for battle_reaction traits
-        await this.processBattleReactions(unit, state);
-
         events.emit(GameEvents.TRAIT_EVAL_TURN_END, { unit });
       }
 
@@ -143,152 +138,6 @@ export class RunCombatSystem {
     events.on('update', this.updateHandler);
   });
 
-  /**
-   * Processes battle_reaction traits for all units when a unit acts.
-   * This is the new centralized approach that checks all units for battle reactions
-   * when any unit performs an action.
-   */
-  private async processBattleReactions(actionUnit: Unit, state: State): Promise<void> {
-    // Use the pure function, injecting the instance methods as dependencies
-    await processBattleReactionsPure(actionUnit, state, {
-      getsourceActionIdsFromTrait: this.getsourceActionIdsFromTrait.bind(this),
-      shouldTriggerBattleReaction: this.shouldTriggerBattleReaction.bind(this),
-      triggerBattleReaction: this.triggerBattleReaction.bind(this),
-      getActiveUnits: getActiveUnits,
-    });
-  }
-
-  /**
-   * Determines what action IDs a trait can perform
-   */
-  private getsourceActionIdsFromTrait(trait: any): string[] {
-    switch (trait.id) {
-      case 'damage':
-        return ['damage'];
-      case 'heal':
-        return ['heal'];
-      case 'shield':
-        return ['shield'];
-      case 'haste':
-        return ['haste'];
-      case 'slow':
-        return ['slow'];
-      case 'charge':
-        return ['charge'];
-      case 'poison':
-        return ['poison'];
-      default:
-        return [];
-    }
-  }
-
-  /**
-   * Checks if a battle_reaction trait should trigger based on the action and source
-   */
-  private shouldTriggerBattleReaction(
-    battleReactionTrait: any,
-    actionUnit: Unit,
-    sourceActionId: string,
-    reactorUnit: Unit
-  ): boolean {
-    // Check if the action ID matches
-    if (battleReactionTrait.sourceActionId !== sourceActionId) {
-      console.log(`[BattleReaction] Action ID mismatch: expected ${battleReactionTrait.sourceActionId}, got ${sourceActionId}`);
-      return false;
-    }
-
-    // Check if the source selector matches
-    const sourceSelector = battleReactionTrait.source_selector;
-    if (!sourceSelector) {
-      console.log(`[BattleReaction] No source_selector specified`);
-      return false;
-    }
-
-    // Check if the actionUnit matches the source selector relative to the reactorUnit
-    const matches = this.checkSourceSelectorMatch(sourceSelector, actionUnit, reactorUnit);
-    console.log(`[BattleReaction] Source selector ${sourceSelector} match: ${matches} (action unit: ${actionUnit.id}, reactor: ${reactorUnit.id})`);
-    return matches;
-  }
-
-  /**
-   * Checks if an action unit matches a source selector relative to a reactor unit
-   */
-  private checkSourceSelectorMatch(sourceSelector: string, actionUnit: Unit, reactorUnit: Unit): boolean {
-    // Handle force-based selectors
-    if (sourceSelector === 'all_allies') {
-      return actionUnit.force === reactorUnit.force && actionUnit.id !== reactorUnit.id;
-    }
-    if (sourceSelector === 'all_enemies') {
-      return actionUnit.force !== reactorUnit.force;
-    }
-    if (sourceSelector === 'self') {
-      return actionUnit.id === reactorUnit.id;
-    }
-
-    // Handle positional selectors
-    const reactorPos = reactorUnit.position;
-    const actionPos = actionUnit.position;
-
-    // Same force check for positional selectors
-    if (actionUnit.force !== reactorUnit.force) {
-      return false;
-    }
-
-    switch (sourceSelector) {
-      case 'left_ally':
-      case 'ally_left':
-        return actionPos.x === reactorPos.x - 1 && actionPos.y === reactorPos.y;
-
-      case 'right_ally':
-      case 'ally_right':
-        return actionPos.x === reactorPos.x + 1 && actionPos.y === reactorPos.y;
-
-      case 'ally_top':
-        return actionPos.x === reactorPos.x && actionPos.y === reactorPos.y - 1;
-
-      case 'ally_bottom':
-        return actionPos.x === reactorPos.x && actionPos.y === reactorPos.y + 1;
-
-      case 'same_row_allies':
-      case 'all_allies_in_row':
-        return actionPos.y === reactorPos.y && actionUnit.id !== reactorUnit.id;
-
-      case 'same_column_allies':
-      case 'all_allies_in_column':
-        return actionPos.x === reactorPos.x && actionUnit.id !== reactorUnit.id;
-
-      default:
-        console.warn(`[BattleReaction] Unknown source selector: ${sourceSelector}`);
-        return false;
-    }
-  }
-
-  /**
-   * Triggers a battle reaction by executing the trait
-   */
-  private async triggerBattleReaction(
-    reactorUnit: Unit,
-    battleReactionTrait: any,
-    actionUnit: Unit,
-    sourceActionId: string
-  ): Promise<void> {
-    // Set up the trigger context so conditions can check it
-    const originalTriggerContext = (this.scene as any)._currentTriggerContext;
-    (this.scene as any)._currentTriggerContext = {
-      triggeringTraitId: battleReactionTrait.id,
-      triggeringUnitId: actionUnit.id,
-      triggeringAction: sourceActionId,
-      triggeringsourceActionId: sourceActionId
-    };
-
-    try {
-      // Process the reactor's traits for the battle reaction event
-      processUnitTraitsForEvent(reactorUnit, "onBattleReaction", this.scene, this.scene.state);
-    } finally {
-      // Always restore the original context
-      (this.scene as any)._currentTriggerContext = originalTriggerContext;
-    }
-  }
 }
 
 /**
@@ -304,7 +153,6 @@ function chargeUnits(state: State, delta: number): Unit[] {
 
   for (const unit of activeUnits) {
     // Units no longer have HP, so no need to check if alive
-
 
     // Calculate cooldown modifier from status effects
     const cooldownMultiplier = unit.hasted > 0 ? 0.5 : unit.slowed > 0 ? 2 : 1;
