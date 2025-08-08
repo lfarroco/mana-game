@@ -31,13 +31,13 @@ export class CharaStatsDisplay {
 
 	createElements(): void {
 
-		const displayableTraits = ["heal", "damage", "shield", "poison"];
+		const displayableEffects = ["heal", "damage", "shield", "poison"];
 
 		// TODO: list powers here
-		const trait = this.unit.traits.find(trait => displayableTraits.includes(trait.id));
+		const effect = this.unit.effects.find(effect => displayableEffects.includes(effect.id));
 
-		if (!trait) {
-			return; // No displayable trait found, skip creating display
+		if (!effect) {
+			return; // No displayable effect found, skip creating display
 		}
 
 		const boxWidth = constants.TILE_WIDTH * CharaStatsDisplay.BOX_WIDTH_RATIO;
@@ -56,7 +56,7 @@ export class CharaStatsDisplay {
 			shield: CHARA_STATS_COLORS.ARMOR_BG,
 			poison: CHARA_STATS_COLORS.POISON_BG,
 		}
-		const bgColor = colorMap[trait.id as keyof typeof colorMap];
+		const bgColor = colorMap[effect.id as keyof typeof colorMap];
 
 		this.powerDisplayBg = this.scene.add.graphics();
 		this.powerDisplayBg

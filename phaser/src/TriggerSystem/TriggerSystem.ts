@@ -122,7 +122,6 @@ const processEffect = (scene: BattlegroundScene) => (effect: Effect) => {
 		case "poison":
 			// TODO: simplify: 10 dmg for 3 sec
 			implementations.applyPoisonLogicIO({
-				targets: resolveTargets(scene.state, effect),
 				scene,
 				sourceUnit,
 				amount: sourceUnit.power
