@@ -74,7 +74,11 @@ export function createApplyPoisonLogic(
  * Apply poison effect implementation for runtime use
  * This is the actual implementation registered with the TraitEffectSystem
  */
-export const applyPoisonLogicIO = async (context: { targets: Unit[]; scene: BattlegroundScene; sourceUnit: Unit; amount: number; }) => {
+export const applyPoisonLogicIO = async (context: {
+	scene: BattlegroundScene;
+	sourceUnit: Unit;
+	amount: number;
+}) => {
 	const { scene } = context;
 
 	const emitter = (unit: Unit, amount: number) => {
