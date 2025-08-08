@@ -2,6 +2,7 @@ import { v4 } from "uuid";
 import { Vec2, vec2Zero } from "../Geometry.pure";
 import { TraitData } from "../../TraitSystem/Traits";
 import { getCardDefinition } from "./Card";
+import { Effect, EffectSourcePosition } from "../../TriggerSystem/TriggerSystem";
 
 /**
  * Represents a temporary effect that will be reverted after a duration.
@@ -66,6 +67,12 @@ export type Unit = {
   evade: number;
 
   traits: TraitData[];
+  effects: Effect[];
+  reactions: {
+    position: EffectSourcePosition;
+    effectId: string; // e.g. "damage", "heal", "shield", "poison", "regen", "haste", "slow", "charge"
+    effects: Effect[]
+  }[];
 
   charge: number; // each tick the job's agi is added here. when it reaches 100, the job can act
   refresh: number; // the time it takes for the job to act again. Even if charged, this must be 0

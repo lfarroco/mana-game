@@ -96,6 +96,7 @@ export class RunCombatSystem {
 
       for (const unit of unitsReadyToAct) {
 
+        // TODO: remove those events, it's impossible to debug
         events.emit(GameEvents.TRAIT_EVAL_TURN_START, { unit });
         // Assuming unit actions are triggered by TRAIT_EVAL_UNIT_ACTION
         // and these actions are handled by listeners (e.g., AI system, skill execution system)
