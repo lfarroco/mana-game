@@ -152,10 +152,22 @@ const processEffect = (scene: BattlegroundScene) => (effect: Effect) => {
 			});
 			break;
 		case "increase_power":
-			// find target by id and apply increase power
+			implementations.increasePower({
+				targets: resolveTargets(scene.state, effect),
+				scene,
+				sourceUnit,
+				amount: effect.amount,
+			});
 			break;
 		case "grant_gold":
 			// find target by forceId and apply gold
+			// not implemented yet
+			implementations.grantGoldLogic({
+				forceId: effect.forceId,
+				amount: effect.amount,
+				scene,
+				sourceUnit,
+			});
 			break;
 		default:
 			const _exhaustiveCheck: never = effect;

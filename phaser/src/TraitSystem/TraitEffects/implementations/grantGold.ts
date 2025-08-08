@@ -3,10 +3,10 @@
  * 
  * This module contains the logic for granting gold to the player when triggered by a trait.
  */
-import { TraitEffectFn, TraitEffectContext } from "../../TraitEffectSystem";
-import { getEffectParams } from "../../TraitSystem.pure";
 import { playerForce, updatePlayerGoldIO } from "../../../Models/Entities/Force";
 import { getChara } from "../../../Scenes/Battleground/Systems/CharaManager";
+import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
+import { Unit } from "../../../Models/Entities/Unit";
 
 /**
  * Pure function version of grant gold logic for testing
@@ -29,9 +29,13 @@ export function grantGoldLogicPure(
 /**
  * Runtime implementation of grant gold logic
  */
-export const grantGoldLogic: TraitEffectFn = async (context: TraitEffectContext) => {
-	const { sourceUnit, scene } = context;
-	const amount = getEffectParams(context.traitInstanceParams, context.effectInstance, 'amount', 0);
+export const grantGoldLogic = async (context: {
+	forceId: string;
+	amount: number;
+	scene: BattlegroundScene;
+	sourceUnit: Unit;
+}) => {
+	const { sourceUnit, scene, amount } = context;
 
 	const result = grantGoldLogicPure(
 		amount,

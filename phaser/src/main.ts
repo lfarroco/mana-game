@@ -2,7 +2,6 @@ import { initGame } from "./initGame";
 import { initializeOptionsStore } from "./Models/OptionsStore";
 import { OptionsSystemManager } from "./Systems/OptionsSystem/OptionsSystemManager";
 import { AudioSystem } from "./Systems/AudioSystem/AudioSystem";
-import * as TraitEffectsImpl from "./TraitSystem/TraitEffects/Implementations";
 
 
 const game = initGame();
@@ -17,5 +16,3 @@ initializeOptionsStore(game, optionsSystemManager.getEventEmitter());
 // Initialize audio system to respond to sound/music option changes
 const audioSystem = new AudioSystem(game);
 audioSystem.initialize();
-
-TraitEffectsImpl.registerAllTraitEffects();
