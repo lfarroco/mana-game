@@ -51,9 +51,9 @@
 				},
 				{
 					"id": "increase_power",
-					"amount": 4,
+					"amount": 1,
 					"targets": {
-						"id": "self"
+						"id": "right_ally"
 					}
 				}
 			],
@@ -83,6 +83,39 @@
 			],
 			"power": 15,
 			"cooldown": 2500,
+			"effects": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "haste",
+					"duration": 1000,
+					"targets": {
+						"id": "top_ally"
+					}
+				},
+				{
+					"id": "charge",
+					"amount": 1000,
+					"targets": {
+						"id": "bottom_ally"
+					}
+				}
+			],
+			"reactions": [
+				{
+					"effectId": "battle_start",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 10,
+							"targets": {
+								"id": "column_allies"
+							}
+						}
+					]
+				}
+			],
 			"traits": [
 				{
 					"id": "damage"
