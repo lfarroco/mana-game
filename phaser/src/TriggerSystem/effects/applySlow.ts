@@ -4,11 +4,11 @@
  * When the projectile hits, it applies slow duration and displays the original slow visual effect.
  */
 
-import { arcaneMissileTargeted } from '../../../Effects/arcaneMissileTargeted';
-import { slowEffect } from '../../../Effects/slowEffect';
-import * as CharaManager from '../../../Scenes/Battleground/Systems/CharaManager';
-import BattlegroundScene from '../../../Scenes/Battleground/BattlegroundScene';
-import { Unit } from '../../../Models/Entities/Unit';
+import { arcaneMissileTargeted } from '../../Effects/arcaneMissileTargeted';
+import { slowEffect } from '../../Effects/slowEffect';
+import * as CharaManager from '../../Scenes/Battleground/Systems/CharaManager';
+import BattlegroundScene from '../../Scenes/Battleground/BattlegroundScene';
+import { Unit } from '../../Models/Entities/Unit';
 
 /**
  * Pure function to create the apply slow effect implementation

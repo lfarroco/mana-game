@@ -134,7 +134,6 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.scene.events.on(GameEvents.OWNED_UNIT_SWAP_ACCEPTED, this._onOwnedUnitSwapAccepted, this);
 		this.scene.events.on(GameEvents.OWNED_UNIT_MOVE_REJECTED, this._onOwnedUnitMoveRejected, this);
 
-		this.scene.events.on(GameEvents.TRAIT_EVAL_UNIT_ACTION, this.pop, this);
 	}
 
 	/**
@@ -361,13 +360,11 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.scene.events.off(GameEvents.OWNED_UNIT_MOVE_ACCEPTED, this._onOwnedUnitMoveAccepted, this);
 		this.scene.events.off(GameEvents.OWNED_UNIT_SWAP_ACCEPTED, this._onOwnedUnitSwapAccepted, this);
 		this.scene.events.off(GameEvents.OWNED_UNIT_MOVE_REJECTED, this._onOwnedUnitMoveRejected, this);
-		this.scene.events.off(GameEvents.TRAIT_EVAL_UNIT_ACTION, this.pop, this);
 
 		super.destroy(fromScene);
 	}
 
-	async pop(payload: { unit: Unit }) {
-		if (payload.unit.id !== this.id) return;
+	async pop() {
 		if (this.isAnimating) return;
 		this.isAnimating = true;
 

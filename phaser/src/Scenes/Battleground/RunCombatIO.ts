@@ -94,7 +94,7 @@ export class RunCombatSystem {
 
       for (const unit of unitsReadyToAct) {
 
-        events.emit(GameEvents.TRAIT_EVAL_UNIT_ACTION, { unit });
+        CharaManager.getChara(unit.id)?.pop()
 
         processEffects(this.scene, unit.effects)
 

@@ -3,13 +3,13 @@
  * This effect applies poison to enemy forces, causing damage over time.
  */
 
-import { GameEvents } from '../../../constants/events';
-import { Force } from '../../../Models/Entities/Force';
-import { Unit } from '../../../Models/Entities/Unit';
-import { arcaneMissileTargeted } from '../../../Effects';
-import { getMoraleBarPosition, MORALE_BAR_WIDTH } from '../../../Scenes/Battleground/MoraleDisplay';
-import { getChara } from '../../../Scenes/Battleground/Systems/CharaManager';
-import BattlegroundScene from '../../../Scenes/Battleground/BattlegroundScene';
+import { GameEvents } from '../../constants/events';
+import { Force } from '../../Models/Entities/Force';
+import { Unit } from '../../Models/Entities/Unit';
+import { arcaneMissileTargeted } from '../../Effects';
+import { getMoraleBarPosition, MORALE_BAR_WIDTH } from '../../Scenes/Battleground/MoraleDisplay';
+import { getChara } from '../../Scenes/Battleground/Systems/CharaManager';
+import BattlegroundScene from '../../Scenes/Battleground/BattlegroundScene';
 
 /**
  * Pure function to create the apply poison effect implementation

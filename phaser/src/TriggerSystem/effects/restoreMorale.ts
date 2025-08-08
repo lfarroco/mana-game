@@ -3,13 +3,13 @@
  * This effect restores morale to the source unit's force and shows healing pop text.
  */
 
-import { GameEvents } from '../../../constants/events';
-import { arcaneMissileTargeted } from '../../../Effects';
-import { Force, manipulateForceMorale } from '../../../Models/Entities/Force';
-import { Unit } from '../../../Models/Entities/Unit';
-import BattlegroundScene from '../../../Scenes/Battleground/BattlegroundScene';
-import { getMoraleBarPosition, MORALE_BAR_WIDTH } from '../../../Scenes/Battleground/MoraleDisplay';
-import { getChara } from '../../../Scenes/Battleground/Systems/CharaManager';
+import { GameEvents } from "../../constants/events";
+import { arcaneMissileTargeted } from "../../Effects";
+import { Force, manipulateForceMorale } from "../../Models/Entities/Force";
+import { Unit } from "../../Models/Entities/Unit";
+import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
+import { getMoraleBarPosition, MORALE_BAR_WIDTH } from "../../Scenes/Battleground/MoraleDisplay";
+import { getChara } from "../../Scenes/Battleground/Systems/CharaManager";
 
 /**
  * Pure function to create the restore morale effect implementation

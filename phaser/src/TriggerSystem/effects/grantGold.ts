@@ -3,10 +3,10 @@
  * 
  * This module contains the logic for granting gold to the player when triggered by a trait.
  */
-import { playerForce, updatePlayerGoldIO } from "../../../Models/Entities/Force";
-import { getChara } from "../../../Scenes/Battleground/Systems/CharaManager";
-import BattlegroundScene from "../../../Scenes/Battleground/BattlegroundScene";
-import { Unit } from "../../../Models/Entities/Unit";
+import { playerForce, updatePlayerGoldIO } from "../../Models/Entities/Force";
+import { getChara } from "../../Scenes/Battleground/Systems/CharaManager";
+import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
+import { Unit } from "../../Models/Entities/Unit";
 
 /**
  * Pure function version of grant gold logic for testing

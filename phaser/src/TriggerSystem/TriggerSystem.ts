@@ -1,7 +1,7 @@
 import { Unit } from "../Models/Entities/Unit";
 import { getUnitById, State } from "../Models/State";
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
-import * as implementations from "../TraitSystem/TraitEffects/implementations/index";
+import * as effects from "./effects";
 import { pickRandom } from "../utils";
 
 export type EffectReaction = {
@@ -109,19 +109,19 @@ const processEffect = (scene: BattlegroundScene) => (effect: Effect) => {
 
 	switch (effect.id) {
 		case "damage":
-			implementations.dealDamageLogicIO({ scene, sourceUnit });
+			effects.dealDamageLogicIO({ scene, sourceUnit });
 			break;
 		case "heal":
-			implementations.restoreMoraleLogicIO({
+			effects.restoreMoraleLogicIO({
 				scene, sourceUnit
 			});
 			break;
 		case "shield":
-			implementations.addShieldLogicIO({ scene, sourceUnit });
+			effects.addShieldLogicIO({ scene, sourceUnit });
 			break;
 		case "poison":
 			// TODO: simplify: 10 dmg for 3 sec
-			implementations.applyPoisonLogicIO({
+			effects.applyPoisonLogicIO({
 				scene,
 				sourceUnit,
 				amount: sourceUnit.power
@@ -134,7 +134,7 @@ const processEffect = (scene: BattlegroundScene) => (effect: Effect) => {
 			debugger;
 			const hasteTargets = resolveTargets(scene.state, effect);
 			debugger;
-			implementations.applyHasteLogicIO({
+			effects.applyHasteLogicIO({
 				targets: hasteTargets,
 				scene,
 				sourceUnit,
@@ -143,7 +143,7 @@ const processEffect = (scene: BattlegroundScene) => (effect: Effect) => {
 			break;
 		case "slow":
 			const slowTargets = resolveTargets(scene.state, effect);
-			implementations.applySlowLogicIO({
+			effects.applySlowLogicIO({
 				targets: slowTargets,
 				scene,
 				sourceUnit,
@@ -152,7 +152,7 @@ const processEffect = (scene: BattlegroundScene) => (effect: Effect) => {
 			break;
 		case "charge":
 			const chargeTargets = resolveTargets(scene.state, effect);
-			implementations.applyChargeLogicIO({
+			effects.applyChargeLogicIO({
 				targets: chargeTargets,
 				scene,
 				sourceUnit,
@@ -160,7 +160,7 @@ const processEffect = (scene: BattlegroundScene) => (effect: Effect) => {
 			});
 			break;
 		case "increase_power":
-			implementations.increasePower({
+			effects.increasePower({
 				targets: resolveTargets(scene.state, effect),
 				scene,
 				sourceUnit,
@@ -170,7 +170,7 @@ const processEffect = (scene: BattlegroundScene) => (effect: Effect) => {
 		case "grant_gold":
 			// find target by forceId and apply gold
 			// not implemented yet
-			implementations.grantGoldLogic({
+			effects.grantGoldLogic({
 				forceId: effect.forceId,
 				amount: effect.amount,
 				scene,

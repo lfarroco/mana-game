@@ -4,11 +4,11 @@
  * When the projectile hits, it applies haste duration and displays the original haste visual effect.
  */
 
-import { arcaneMissileTargeted } from '../../../Effects/arcaneMissileTargeted';
-import { hasteEffect } from '../../../Effects/hasteEffect';
-import * as CharaManager from '../../../Scenes/Battleground/Systems/CharaManager';
-import { Unit } from '../../../Models/Entities/Unit';
-import BattlegroundScene from '../../../Scenes/Battleground/BattlegroundScene';
+import { arcaneMissileTargeted } from '../../Effects/arcaneMissileTargeted';
+import { hasteEffect } from '../../Effects/hasteEffect';
+import * as CharaManager from '../../Scenes/Battleground/Systems/CharaManager';
+import { Unit } from '../../Models/Entities/Unit';
+import BattlegroundScene from '../../Scenes/Battleground/BattlegroundScene';
 
 /**
  * Pure function to create the apply haste effect implementation

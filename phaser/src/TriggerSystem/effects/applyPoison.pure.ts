@@ -3,8 +3,8 @@
  * These functions handle poison calculation and logic without depending on Phaser or scene objects.
  */
 
-import { Unit } from '../../../Models/Entities/Unit';
-import { Force } from '../../../Models/Entities/Force';
+import { Unit } from '../../Models/Entities/Unit';
+import { Force } from '../../Models/Entities/Force';
 
 /**
  * Pure function to calculate poison amount based on unit power
