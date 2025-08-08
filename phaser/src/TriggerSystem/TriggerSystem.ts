@@ -4,6 +4,12 @@ import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
 import * as implementations from "../TraitSystem/TraitEffects/implementations/index";
 import { pickRandom } from "../utils";
 
+export type EffectReaction = {
+	position: EffectSourcePosition;
+	effectId: string; // e.g. "damage", "heal", "shield", "poison", "regen", "haste", "slow", "charge"
+	effects: Effect[]
+}
+
 export type Effect = {
 	id: "damage",
 	amount: number,
@@ -90,6 +96,7 @@ export type EffectSourcePosition = "all"
 	| "bottom_ally"
 	| "left_ally"
 	| "right_ally"
+	;
 
 
 export const processEffects = (scene: BattlegroundScene, effects: Effect[]) => {
