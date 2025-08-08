@@ -74,7 +74,12 @@ export function createApplyHasteLogic() {
  * Apply haste effect implementation for runtime use
  * This is the actual implementation registered with the TraitEffectSystem
  */
-export const applyHasteLogicIO = async (context: { targets: Unit[]; scene: BattlegroundScene; sourceUnit: Unit; duration: number; }) => {
+export const applyHasteLogicIO = async (context: {
+	targets: Unit[];
+	scene: BattlegroundScene;
+	sourceUnit: Unit;
+	duration: number;
+}) => {
 	// Dynamically import to avoid circular dependencies
 
 	const impl = createApplyHasteLogic();

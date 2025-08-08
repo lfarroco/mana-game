@@ -136,6 +136,11 @@
 			],
 			"power": 25,
 			"cooldown": 3000,
+			"effects": [
+				{
+					"id": "shield"
+				}
+			],
 			"traits": [
 				{
 					"id": "shield"
@@ -172,6 +177,18 @@
 					"id": "haste",
 					"duration": 1200,
 					"targets": "same_column_allies"
+				}
+			],
+			"effects": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "haste",
+					"duration": 1200,
+					"targets": {
+						"id": "column_allies"
+					}
 				}
 			]
 		},

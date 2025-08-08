@@ -1,7 +1,5 @@
 import { GameEvents } from "../../constants/events";
-import { getTraitDefinition } from "../../TraitSystem/TraitEffectSystem";
 import { Chara } from "./Chara";
-import { formatTraitDescription } from "./TraitTooltipFormatter";
 
 export const onCharaPointerOver = ({ chara }: { chara: Chara }): void => {
 
@@ -9,12 +7,8 @@ export const onCharaPointerOver = ({ chara }: { chara: Chara }): void => {
 
 	const title = chara.unit.name; // Or cardDef.name
 
-	const traitDescriptions = chara.unit.traits.map(traitData => {
-		const definition = getTraitDefinition(traitData.id);
-		if (!definition) {
-			return `[b]Unknown Trait:[/b] ${traitData.id}`;
-		}
-		return formatTraitDescription(definition, traitData, chara.unit);
+	const traitDescriptions = chara.unit.effects.map(traitData => {
+		return traitData.id
 	}).join('\n\n'); // Use double newline for better separation between traits
 
 	// 1100 -> 1.1s

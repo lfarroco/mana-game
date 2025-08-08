@@ -7,7 +7,6 @@ import * as CharaManager from "./Systems/CharaManager";
 import { CardCollection } from "../../Models/Entities/Card";
 import { PartyBoard } from "../../Models/Board";
 import { Shop } from "./Systems/Shop/Shop";
-import { setupTraitEventListeners } from "../../TraitSystem/TraitSystemEventListeners";
 import { BattlegroundSetupSystem } from "./Systems/BattlegroundSetupSystem";
 import { BattlegroundEventSystem } from "./Systems/BattlegroundEventSystem";
 import { RunCombatSystem } from "./RunCombatIO";
@@ -163,7 +162,7 @@ export class BattlegroundScene extends Phaser.Scene {
     }
 
     // 8. Setup Trait System event listeners
-    setupTraitEventListeners(this);
+    //(removed)
 
     // 9. Start the game flow
     this.battleProgressionSystem.transitionToShopPhase(); // Initial call, no enemies defeated

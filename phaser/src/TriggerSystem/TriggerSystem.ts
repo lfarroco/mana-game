@@ -131,7 +131,9 @@ const processEffect = (scene: BattlegroundScene) => (effect: Effect) => {
 			// not implemented yet (inverse of poison)
 			break;
 		case "haste":
+			debugger;
 			const hasteTargets = resolveTargets(scene.state, effect);
+			debugger;
 			implementations.applyHasteLogicIO({
 				targets: hasteTargets,
 				scene,
@@ -289,7 +291,7 @@ function resolveTargets(state: State, effect: Effect): Unit[] {
 			return [sourceUnit];
 
 		default:
-			const _exhaustiveCheck: never = effect.targets;
-			return _exhaustiveCheck;
+			const formattedEvent = JSON.stringify(effect, null, 2);
+			throw new Error(`Unknown target type. Effect: ${formattedEvent}`);
 	}
 }
