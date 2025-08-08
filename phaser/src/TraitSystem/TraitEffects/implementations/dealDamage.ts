@@ -7,6 +7,7 @@ import { GameEvents } from '../../../constants/events';
 import { arcaneMissileTargeted } from '../../../Effects';
 import { Force, applyDamageToForce } from '../../../Models/Entities/Force';
 import { Unit } from '../../../Models/Entities/Unit';
+import BattlegroundScene from '../../../Scenes/Battleground/BattlegroundScene';
 import { getMoraleBarPosition, MORALE_BAR_WIDTH } from '../../../Scenes/Battleground/MoraleDisplay';
 import { getChara } from '../../../Scenes/Battleground/Systems/CharaManager';
 import { TraitEffectFn } from '../../TraitEffectSystem';
@@ -17,24 +18,22 @@ import { TraitEffectFn } from '../../TraitEffectSystem';
  */
 export function createDealDamageLogic(
 	emitter: (unit: Unit, amount: number) => void,
-	dealDamage: (targetForce: Force, damage: number, scene: Phaser.Scene, shieldPiercingPercentage?: number) => void
-): TraitEffectFn {
-	return async (context) => {
-		const { sourceUnit, effectInstance, traitInstanceParams } = context;
+	dealDamage: (targetForce: Force, damage: number, scene: Phaser.Scene) => void
+) {
+	return async (context: { sourceUnit: Unit; scene: BattlegroundScene; }) => {
+		const { sourceUnit, scene } = context;
 
-		// Use unit's power as damage amount
-		// Use trait 'amount' if present, otherwise fallback to unit's power
-		let damageAmount = effectInstance.amount ?? traitInstanceParams.amount ?? sourceUnit.power;
+		let damageAmount = sourceUnit.power;
 
 		emitter(sourceUnit, damageAmount);
 
-		const targetForce = context.state.battleData.forces.find(
-			(force) => force.id !== sourceUnit.force
+		const targetForce = scene.state.battleData.forces.find(
+			(force: { id: any; }) => force.id !== sourceUnit.force
 		)!;
 
 
 		// Show a red projectile from source unit to enemy morale bar
-		if (context.scene) {
+		if (scene) {
 			const sourceChara = getChara(sourceUnit.id);
 			const moraleBarPos = getMoraleBarPosition(targetForce.id);
 			if (sourceChara && moraleBarPos) {
@@ -42,7 +41,7 @@ export function createDealDamageLogic(
 				const targetX = moraleBarPos.x + MORALE_BAR_WIDTH / 2;
 				const targetY = moraleBarPos.y;
 				arcaneMissileTargeted(
-					context.scene,
+					scene,
 					{ x: sourceChara.x, y: sourceChara.y },
 					{ x: targetX, y: targetY },
 					{
@@ -58,17 +57,17 @@ export function createDealDamageLogic(
 							alpha: 0.4
 						},
 						onHit: async () => {
-							dealDamage(targetForce, damageAmount, context.scene, 0);
+							dealDamage(targetForce, damageAmount, scene);
 						}
 					}
 				);
 			} else {
 				// Fallback: just apply damage directly
-				dealDamage(targetForce, damageAmount, context.scene, 0);
+				dealDamage(targetForce, damageAmount, scene);
 			}
 		} else {
 			// Fallback: just apply damage directly
-			dealDamage(targetForce, damageAmount, context.scene, 0);
+			dealDamage(targetForce, damageAmount, scene);
 		}
 
 		// Battle reactions are now handled centrally in the combat loop

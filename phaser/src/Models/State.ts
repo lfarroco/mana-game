@@ -94,3 +94,7 @@ export const getGuildUnit = (state: State) => (id: string): Unit | undefined => 
 export const getUnitAt = (units: Unit[]) => (position: Vec2) => {
   return units.find((u) => eqVec2(u.position, position));
 }
+
+export const getUnitById = (units: Unit[]) => (id: string): Unit | undefined => {
+  return units.find((u) => u.id === id);
+}
