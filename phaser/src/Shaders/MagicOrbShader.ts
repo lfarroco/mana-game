@@ -54,6 +54,18 @@ void main() {
         discard;
     }
     
+    // Create outline effect
+    float outlineWidth = 0.08; // Width of the outline
+    float innerRadius = 0.4 - outlineWidth;
+    float outlineStrength = 0.0;
+    
+    // Check if we're in the outline region
+    if (dist > innerRadius) {
+        // Create a smooth outline that's brightest at the edge
+        float outlineProgress = (dist - innerRadius) / outlineWidth;
+        outlineStrength = smoothstep(0.0, 1.0, outlineProgress) * 2.5; // Bright outline
+    }
+    
     // Create multiple layers of square clouds at different scales and speeds
     float scaledTime = time * speed;
     
@@ -72,6 +84,9 @@ void main() {
     
     // Mix base color with cloud effect - stronger contrast
     vec3 finalColor = mix(baseColor, cloudColor, cloudPattern);
+    
+    // Add the bright outline effect
+    finalColor += color1 * outlineStrength;
     
     // Apply intensity
     finalColor *= intensity;
