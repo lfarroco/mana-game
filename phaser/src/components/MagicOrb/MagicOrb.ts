@@ -8,6 +8,11 @@ export interface MagicOrbConfig {
 	speed?: number;
 	x?: number;
 	y?: number;
+	// Dissolve animation parameters
+	dissolveDuration?: number; // Duration in seconds (default: 1.0)
+	dissolveGridSize?: number; // Grid resolution for pixelated effect (default: 20)
+	dissolveUpwardMovement?: number; // How far squares move up (default: 0.3)
+	dissolveFadeRange?: number; // Smoothness of fade transition (default: 0.15)
 }
 
 export class MagicOrb {
@@ -15,6 +20,8 @@ export class MagicOrb {
 	private shader: Phaser.GameObjects.Shader;
 	private startTime: number;
 	private config: Required<Omit<MagicOrbConfig, 'x' | 'y'>>;
+	private isDissolving: boolean = false;
+	private dissolveStartTime: number = 0;
 
 	constructor(scene: Phaser.Scene, x: number, y: number, config: MagicOrbConfig = {}) {
 		this.scene = scene;
@@ -24,7 +31,11 @@ export class MagicOrb {
 			size: 100,
 			color: { x: 0.5, y: 0.3, z: 1.0 }, // Purple/blue magic color
 			intensity: 1.0,
-			speed: 1.0
+			speed: 1.0,
+			dissolveDuration: 1.0,
+			dissolveGridSize: 20.0,
+			dissolveUpwardMovement: 0.3,
+			dissolveFadeRange: 0.15
 		};
 
 		this.config = { ...defaultConfig, ...config };
@@ -52,7 +63,11 @@ export class MagicOrb {
 				resolution: { type: '2f', value: [this.config.size, this.config.size] },
 				color1: { type: '3f', value: this.config.color },
 				intensity: { type: '1f', value: this.config.intensity },
-				speed: { type: '1f', value: this.config.speed }
+				speed: { type: '1f', value: this.config.speed },
+				dissolveProgress: { type: '1f', value: 0.0 },
+				dissolveGridSize: { type: '1f', value: this.config.dissolveGridSize },
+				dissolveUpwardMovement: { type: '1f', value: this.config.dissolveUpwardMovement },
+				dissolveFadeRange: { type: '1f', value: this.config.dissolveFadeRange }
 			}
 		);
 
@@ -76,6 +91,18 @@ export class MagicOrb {
 		// Update time uniform for animation
 		const elapsedTime = (time - this.startTime) / 1000; // Convert to seconds
 		this.shader.setUniform('time.value', elapsedTime);
+
+		// Update dissolve animation if active
+		if (this.isDissolving) {
+			const dissolveElapsed = (time - this.dissolveStartTime) / 1000;
+			const dissolveProgress = Math.min(dissolveElapsed / this.config.dissolveDuration, 1.0);
+			this.shader.setUniform('dissolveProgress.value', dissolveProgress);
+
+			// Destroy the orb when dissolve is complete
+			if (dissolveProgress >= 1.0) {
+				this.destroy();
+			}
+		}
 	}
 
 	// Method to change orb color dynamically
@@ -123,6 +150,20 @@ export class MagicOrb {
 	setAlpha(alpha: number): this {
 		(this.shader as any).alpha = alpha;
 		return this;
+	}
+
+	// Method to start dissolve animation
+	startDissolve(): this {
+		if (!this.isDissolving) {
+			this.isDissolving = true;
+			this.dissolveStartTime = this.scene.time.now;
+		}
+		return this;
+	}
+
+	// Method to check if orb is dissolving
+	isDissolveActive(): boolean {
+		return this.isDissolving;
 	}
 
 	// Method to destroy the orb

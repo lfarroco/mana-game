@@ -93,6 +93,10 @@ export default class TitleScene extends Phaser.Scene {
 			});
 
 			console.log('All magic orbs created successfully');
+
+			setTimeout(() => {
+				this.magicOrbs[0].startDissolve()
+			}, 1000)
 		} catch (error) {
 			console.error('Error creating magic orbs:', error);
 		}
