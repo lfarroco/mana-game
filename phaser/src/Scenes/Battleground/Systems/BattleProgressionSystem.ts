@@ -34,7 +34,7 @@ function createUnitCopy(unit: Unit): Unit {
 export class BattleProgressionSystem {
 	scene: BattlegroundScene;
 	state: State;
-	_isInShopPhase: boolean = false;
+	isInShopPhase: boolean = false;
 	prestigeSystem: PrestigeSystem;
 	listeners: any[] = [];
 
@@ -62,8 +62,8 @@ export class BattleProgressionSystem {
 		this.addListener(GameEvents.PLAYER_WON_GAME, this.handlePlayerWonGame);
 	}
 
-	get isInShopPhase(): boolean {
-		return this._isInShopPhase;
+	get getIsInShopPhase(): boolean {
+		return this.isInShopPhase;
 	}
 
 	/**
@@ -91,7 +91,7 @@ export class BattleProgressionSystem {
 		this.setAllPlayerUnitBarsVisibility(false);
 		this.state.gameData.round++;
 
-		this._isInShopPhase = true;
+		this.isInShopPhase = true;
 		if (payload && payload.enemiesDefeated) {
 			this.scene.events.emit(GameEvents.PLAYER_GOLD_DELTA_REQUEST, BG_CONSTANTS.VICTORY_GOLD_REWARD);
 			this.prestigeSystem.processVictory();
@@ -105,7 +105,7 @@ export class BattleProgressionSystem {
 	 * Transitions the game to the combat phase for the current round.
 	 */
 	async transitionToCombatPhase(): Promise<void> {
-		this._isInShopPhase = false;
+		this.isInShopPhase = false;
 		console.log("Round", this.state.gameData.round, "Combat Phase Starting.");
 		const { enemies } = await this.setupBattle();
 
@@ -143,7 +143,7 @@ export class BattleProgressionSystem {
 	 * Handles the event when the player achieves the ultimate win condition (30 prestige).
 	 */
 	async handlePlayerWonGame(): Promise<void> {
-		this._isInShopPhase = false; // Stop normal game flow
+		this.isInShopPhase = false; // Stop normal game flow
 		console.log(`PLAYER HAS WON THE GAME! Prestige: ${this.state.gameData.player.prestige}, Total Rounds: ${this.state.gameData.player.totalRoundsPlayed}`);
 
 		// Display a unique victory message/screen
@@ -161,7 +161,6 @@ export class BattleProgressionSystem {
 			unit.hasted = 0;
 			unit.slowed = 0;
 		});
-
 	}
 
 	resetPlayerUnitChargeBars(): void {

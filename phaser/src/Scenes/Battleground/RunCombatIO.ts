@@ -75,6 +75,14 @@ export class RunCombatSystem {
   }
 
   /**
+   * Gets the timeout damage system instance.
+   * @returns The TimeoutDamageSystem instance
+   */
+  getTimeoutDamageSystem(): TimeoutDamageSystem {
+    return this.timeoutDamageSystem;
+  }
+
+  /**
    * Reduces poison on a force based on healing amount
    * @param forceId The force that received healing
    * @param healAmount The amount healed
@@ -138,6 +146,9 @@ export class RunCombatSystem {
       }
 
       if (combatEnded) {
+        // Trigger storm fade-out when combat ends
+        this.timeoutDamageSystem.onCombatEnd();
+
         if (this.updateHandler) {
           events.off('update', this.updateHandler);
           this.updateHandler = null; // Clear the handler

@@ -79,14 +79,14 @@ export class BattlegroundSetupSystem {
 
 		// Store the shader as bgImage for compatibility with existing code
 		// Note: This might require type casting since shader is not exactly an Image
-		this.scene.bgImage = this.cloudsBackground.getShader() as any;
+		this.scene.cloudsBackground = this.cloudsBackground.getShader() as any;
 
 		this.scene.bgContainer = this.scene.add.container(0, 0);
 		ControlsSystem.init(this.scene);
 
 		// Add the shader to the container (the shader is already added to the scene)
 		// Note: Container.add() expects GameObject, shader should work but might need adjustment
-		this.scene.bgContainer.add([this.scene.bgImage]);
+		this.scene.bgContainer.add([this.scene.cloudsBackground]);
 
 		const playerBoard = initializePlayerBoard(this.scene);
 		createBoardDropZone(); // Actually render the board slots

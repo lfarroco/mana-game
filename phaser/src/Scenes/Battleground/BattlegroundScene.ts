@@ -29,7 +29,7 @@ export class BattlegroundScene extends Phaser.Scene {
   /** Container for background elements. Set by SetupSystem */
   bgContainer!: Phaser.GameObjects.Container;
   /** The background image of the scene. Set by SetupSystem */
-  bgImage!: Phaser.GameObjects.Image;
+  cloudsBackground!: Phaser.GameObjects.Image;
   /** The current card collection being used. */
   collection!: CardCollection;
   /** Manages UI elements within the scene. */
@@ -46,7 +46,6 @@ export class BattlegroundScene extends Phaser.Scene {
   // New Systems
   setupSystem!: BattlegroundSetupSystem;
   eventSystem!: BattlegroundEventSystem;
-
 
   /** Cleans up resources and event listeners. */
   cleanup() {
@@ -82,7 +81,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     BattlegroundAudioSystem_init(this.state, this);
     CharaManager.init(this);
-
 
   }
 
