@@ -128,7 +128,11 @@ const processEffect = (scene: BattlegroundScene) => (effect: Effect) => {
 			})
 			break;
 		case "regen":
-			// not implemented yet (inverse of poison)
+			effects.applyRegenLogicIO({
+				scene,
+				sourceUnit,
+				amount: sourceUnit.power
+			});
 			break;
 		case "haste":
 			debugger;

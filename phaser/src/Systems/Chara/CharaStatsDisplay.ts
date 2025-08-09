@@ -31,7 +31,7 @@ export class CharaStatsDisplay {
 
 	createElements(): void {
 
-		const displayableEffects = ["heal", "damage", "shield", "poison"];
+		const displayableEffects = ["heal", "damage", "shield", "poison", "regen"];
 
 		// TODO: list powers here
 		const effect = this.unit.effects.find(effect => displayableEffects.includes(effect.id));

@@ -7,6 +7,7 @@ import { GameEvents } from "../../constants/events";
 import { delay } from "../../Utils/animation";
 import { TimeoutDamageSystem } from "./Systems/TimeoutDamageSystem";
 import { PoisonDamageSystem } from "./Systems/PoisonDamageSystem";
+import { RegenSystem } from "./Systems/RegenSystem";
 import { processEffects } from "../../TriggerSystem/TriggerSystem";
 
 /**
@@ -47,11 +48,14 @@ export class RunCombatSystem {
   private timeoutDamageSystem: TimeoutDamageSystem;
   // Poison damage system
   private poisonDamageSystem: PoisonDamageSystem;
+  // Regen system
+  private regenSystem: RegenSystem;
 
   constructor(scene: BattlegroundScene) {
     this.scene = scene;
     this.timeoutDamageSystem = new TimeoutDamageSystem(scene);
     this.poisonDamageSystem = new PoisonDamageSystem(scene);
+    this.regenSystem = new RegenSystem(scene);
   }
 
   /**
@@ -60,6 +64,14 @@ export class RunCombatSystem {
    */
   getPoisonDamageSystem(): PoisonDamageSystem {
     return this.poisonDamageSystem;
+  }
+
+  /**
+   * Gets the regen system instance.
+   * @returns The RegenSystem instance
+   */
+  getRegenSystem(): RegenSystem {
+    return this.regenSystem;
   }
 
   /**
@@ -85,6 +97,8 @@ export class RunCombatSystem {
     this.timeoutDamageSystem.initialize();
     // Initialize poison damage system
     this.poisonDamageSystem.initialize();
+    // Initialize regen system
+    this.regenSystem.initialize();
 
     const playerForce = state.battleData.forces.find(force => force.id === state.gameData.player.id)!;
     const cpuForce = state.battleData.forces.find(force => force.id !== state.gameData.player.id)!;
@@ -105,6 +119,9 @@ export class RunCombatSystem {
 
       // Update poison damage system (processes all poison stacks)
       this.poisonDamageSystem.update(playerForce, cpuForce, delta * this.scene.time.timeScale);
+
+      // Update regen system (processes all regen stacks)
+      this.regenSystem.update(playerForce, cpuForce, delta * this.scene.time.timeScale);
 
       const playerMoraleZero = playerForce.morale <= 0;
       const cpuMoraleZero = cpuForce.morale <= 0;
