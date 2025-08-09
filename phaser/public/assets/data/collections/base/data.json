@@ -14,9 +14,7 @@
 			"cooldown": 3000,
 			"effects": [
 				{
-					"id": "poison",
-					"perTick": 2,
-					"ticks": 5
+					"id": "regen"
 				},
 				{
 					"id": "slow",
