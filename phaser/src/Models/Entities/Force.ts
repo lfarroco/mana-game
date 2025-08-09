@@ -135,7 +135,26 @@ export const applyDamageToForce = (
 	const originalShield = targetForce.shield;
 	const originalMorale = targetForce.morale;
 
-	// Calculate effective shield after piercing
+	// Poison damage bypasses shields entirely
+	if (damageType === "poison") {
+		// Apply poison damage directly to morale
+		const moraleChange = manipulateForceMorale(targetForce, -damage); // No scene = no event
+
+		// Emit morale update event if scene is provided
+		if (scene) {
+			scene.events.emit(GameEvents.MORALE_UPDATED, {
+				forceId: targetForce.id,
+				newMorale: targetForce.morale,
+				maxMorale: targetForce.maxMorale,
+				totalDamage: damage,
+				damageType: damageType,
+			});
+		}
+
+		return Math.abs(moraleChange);
+	}
+
+	// For non-poison damage, calculate effective shield after piercing
 	let effectiveShield = targetForce.shield;
 	if (shieldPiercingPercentage > 0 && targetForce.shield > 0) {
 		const piercedShield = Math.floor(targetForce.shield * (shieldPiercingPercentage / 100));
