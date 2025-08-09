@@ -46,7 +46,7 @@ let previousCpuShield: number | null = null;
  * Handles the MORALE_UPDATED event by calling the bar update function.
  * @param payload The event payload with forceId, newMorale, maxMorale, optional totalDamage, and optional damageType.
  */
-function handleMoraleUpdated(payload: { forceId: string, newMorale: number, maxMorale: number, totalDamage?: number, damageType?: "poison" | "normal" }) {
+function handleMoraleUpdated(payload: { forceId: string, newMorale: number, maxMorale: number, totalDamage?: number, damageType?: "poison" | "normal" | "timeout" }) {
 	updateMoraleBar(payload.forceId);
 
 	// Calculate morale delta and show pop text
@@ -88,11 +88,13 @@ function handleMoraleUpdated(payload: { forceId: string, newMorale: number, maxM
 		const deltaText = displayValue > 0 ? `+${displayValue}` : `${displayValue}`;
 
 		// Determine text type based on damage type and value
-		let textType: "heal" | "damage" | "poison";
+		let textType: "heal" | "damage" | "poison" | "timeout";
 		if (displayValue > 0) {
 			textType = "heal"; // Green for positive (healing)
 		} else if (payload.damageType === "poison") {
 			textType = "poison"; // Purple for poison damage
+		} else if (payload.damageType === "timeout") {
+			textType = "timeout"; // Orange for timeout damage
 		} else {
 			textType = "damage"; // Red for normal damage
 		}
@@ -113,7 +115,7 @@ function handleMoraleUpdated(payload: { forceId: string, newMorale: number, maxM
  * Handles the SHIELD_UPDATED event by calling the bar update function.
  * @param payload The event payload with forceId, newShield, maxShield, and optional suppressPopText.
  */
-function handleShieldUpdated(payload: { forceId: string, newShield: number, maxShield: number, suppressPopText?: boolean }) {
+function handleShieldUpdated(payload: { forceId: string, newShield: number, maxShield: number, suppressPopText?: boolean, totalDamage?: number, damageType?: "poison" | "normal" | "timeout" }) {
 	updateShieldBar(payload.forceId, payload.newShield, payload.maxShield);
 
 	// Skip pop text if suppressed (e.g., when damage affects both shield and morale)
@@ -136,31 +138,51 @@ function handleShieldUpdated(payload: { forceId: string, newShield: number, maxS
 	const isPlayer = payload.forceId === c.FORCE_ID_PLAYER;
 	const previousShield = isPlayer ? previousPlayerShield : previousCpuShield;
 
-	// Calculate delta if we have a previous value
-	if (previousShield !== null) {
+	// Use totalDamage if provided (for damage that only affects shield)
+	// Otherwise calculate delta as usual
+	let displayValue: number;
+	if (payload.totalDamage !== undefined && payload.totalDamage > 0) {
+		displayValue = -payload.totalDamage; // Show total damage as negative
+	} else if (previousShield !== null) {
 		const delta = payload.newShield - previousShield;
+		displayValue = delta; // Normal delta calculation
+	} else {
+		displayValue = 0; // No previous value to compare
+	}
 
-		if (delta !== 0) {
-			// Calculate random position over the shield bar area
-			const barWidth = scene.scale.width / 4;
-			const randomOffsetX = Math.random() * barWidth; // Random position across bar width
-			const randomOffsetY = (Math.random() - 0.5) * 40; // Random vertical offset (-20 to +20 pixels)
+	// Show pop text if there's a meaningful change
+	if (displayValue !== 0) {
+		// Calculate random position over the shield bar area
+		const barWidth = scene.scale.width / 4;
+		const randomOffsetX = Math.random() * barWidth; // Random position across bar width
+		const randomOffsetY = (Math.random() - 0.5) * 40; // Random vertical offset (-20 to +20 pixels)
 
-			const popTextX = targetDisplay.shieldBar.container.x + randomOffsetX;
-			const popTextY = targetDisplay.shieldBar.container.y + randomOffsetY;
+		const popTextX = targetDisplay.shieldBar.container.x + randomOffsetX;
+		const popTextY = targetDisplay.shieldBar.container.y + randomOffsetY;
 
-			const deltaText = delta > 0 ? `+${delta}` : `${delta}`;
-			const textType = delta > 0 ? "shield" : "damage"; // Yellow for positive shield gain, red for negative
-			const textDirection = isPlayer ? "left" : "right"; // Player text flows left, enemy text flows right
+		const deltaText = displayValue > 0 ? `+${displayValue}` : `${displayValue}`;
 
-			scene.events.emit(GameEvents.POP_TEXT_SHOW, {
-				text: deltaText,
-				x: popTextX,
-				y: popTextY,
-				type: textType,
-				direction: textDirection,
-			});
+		// Determine text type based on damage type and value
+		let textType: "heal" | "damage" | "poison" | "shield" | "timeout";
+		if (displayValue > 0) {
+			textType = "shield"; // Yellow for positive shield gain
+		} else if (payload.damageType === "poison") {
+			textType = "poison"; // Purple for poison damage (though this shouldn't happen for shields)
+		} else if (payload.damageType === "timeout") {
+			textType = "timeout"; // Orange for timeout damage
+		} else {
+			textType = "damage"; // Red for damage absorbed by shield
 		}
+
+		const textDirection = isPlayer ? "left" : "right"; // Player text flows left, enemy text flows right
+
+		scene.events.emit(GameEvents.POP_TEXT_SHOW, {
+			text: deltaText,
+			x: popTextX,
+			y: popTextY,
+			type: textType,
+			direction: textDirection,
+		});
 	}
 
 	// Update the stored previous value

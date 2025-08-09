@@ -259,5 +259,31 @@ describe('Force Shield System', () => {
 			expect(force.morale).toBe(100);
 			expect(moraleChange).toBe(0);
 		});
+
+		it('should work with timeout damage and shields', () => {
+			const force = makeForce('test-force');
+			force.morale = 100;
+			force.maxMorale = 100;
+			force.shield = 50;
+
+			// Apply timeout damage - should go through shield first like normal damage
+			const moraleChange = applyDamageToForce(force, 30, mockScene, 0, "timeout");
+
+			// Shield should absorb all damage
+			expect(force.shield).toBe(20);
+			expect(force.morale).toBe(100);
+			expect(moraleChange).toBe(0);
+
+			// Should emit shield update event with timeout damage type
+			expect(mockScene.events.emit).toHaveBeenCalledWith(
+				GameEvents.SHIELD_UPDATED,
+				expect.objectContaining({
+					forceId: force.id,
+					newShield: 20,
+					maxShield: 100,
+					damageType: "timeout"
+				})
+			);
+		});
 	});
 });

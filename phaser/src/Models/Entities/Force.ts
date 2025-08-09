@@ -127,7 +127,7 @@ export const applyDamageToForce = (
 	damage: number,
 	scene?: Phaser.Scene,
 	shieldPiercingPercentage: number = 0,
-	damageType?: "poison" | "normal"
+	damageType?: "poison" | "normal" | "timeout"
 ): number => {
 	if (damage <= 0) return 0;
 
@@ -182,7 +182,9 @@ export const applyDamageToForce = (
 				forceId: targetForce.id,
 				newShield: targetForce.shield,
 				maxShield: targetForce.maxMorale, // Use max morale as maxShield for display
-				suppressPopText: true, // Flag to suppress individual pop text
+				suppressPopText: targetForce.morale !== originalMorale, // Only suppress if morale also changed
+				totalDamage: targetForce.morale === originalMorale ? damage : undefined, // Show total damage if only shield changed
+				damageType: damageType, // Include damage type for colored pop text
 			});
 		}
 

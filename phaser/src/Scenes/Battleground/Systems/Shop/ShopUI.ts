@@ -41,6 +41,7 @@ export class ShopUI {
 	}
 	displayShop(
 		cardsToDisplay: Card.CardDefinition[],
+		orbs: string[],
 		nextRoundCallback: () => void,
 		rerollCallback: () => void,
 		charaPurchaseFinalized: (purchasedChara: Chara) => void,
@@ -83,6 +84,16 @@ export class ShopUI {
 		this.flyout.add(nextRoundBtn);
 
 		this._createSellZone();
+
+		// render orbs
+		const orbY = sc.PANEL_Y + 20;
+		const orbSpacing = 60;
+		orbs.forEach((orb, index) => {
+			const orbX = panelX + 20 + (index * orbSpacing);
+			const orbImage = this.scene.add.image(orbX, orbY, `orb_${orb}`);
+			orbImage.setScale(0.5); // Scale down the orb images
+			this.flyout.add(orbImage);
+		});
 
 
 		// Render characters AFTER buttons to ensure they appear on top
