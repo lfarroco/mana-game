@@ -5,11 +5,13 @@ import { UIButton } from "../../UI/UIButton";
 import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
 import { images } from "../../assets";
 import { AudioSystem } from "../../Systems/AudioSystem/AudioSystem";
+import { MagicOrb, MagicOrbFactory } from "../../components/MagicOrb/MagicOrb";
 
 export default class TitleScene extends Phaser.Scene {
 	private gameTitle!: Phaser.GameObjects.Image;
 	private state?: State;
 	private cloudsBackground!: CloudsBackground; // Stored for potential future manipulation
+	private magicOrbs: MagicOrb[] = []; // Array to store magic orbs
 
 	constructor() {
 		super(constants.SCENE_KEYS.TITLE);
@@ -67,6 +69,33 @@ export default class TitleScene extends Phaser.Scene {
 			constants.MIDDLE_SCREEN_Y - 200,
 			images.logo.key
 		).setOrigin(0.5);
+
+		// Create magic orbs for visual flair
+		console.log('Creating magic orbs...');
+		console.log('Screen size:', this.scale.width, this.scale.height);
+
+		try {
+			const orb1 = MagicOrbFactory.createPurpleOrb(this, 150, 200, 100);
+			const orb2 = MagicOrbFactory.createBlueOrb(this, this.scale.width - 150, 300, 80);
+			const orb3 = new MagicOrb(this, this.scale.width / 2 + 300, this.scale.height - 150, {
+				size: 60,
+				color: { x: 0.9, y: 0.7, z: 0.2 }, // Golden
+				intensity: 1.2,
+				speed: 0.8
+			});
+
+			this.magicOrbs = [orb1, orb2, orb3];
+
+			// Set depths to appear behind UI but in front of background
+			this.magicOrbs.forEach((orb, index) => {
+				orb.setDepth(-50 + index);
+				console.log(`Orb ${index} created and depth set to:`, -50 + index);
+			});
+
+			console.log('All magic orbs created successfully');
+		} catch (error) {
+			console.error('Error creating magic orbs:', error);
+		}
 
 		// Create start button using UIButton component
 		new UIButton(
@@ -134,6 +163,13 @@ export default class TitleScene extends Phaser.Scene {
 		// Note: Preset changing is now handled automatically by the CloudsBackground component
 	}
 
+	update(time: number) {
+		// Update magic orbs animation
+		this.magicOrbs.forEach(orb => {
+			orb.update(time);
+		});
+	}
+
 	private openOptions() {
 		// Transition to the options scene
 		this.cameras.main.fade(500, 0, 0, 0);
@@ -169,5 +205,11 @@ export default class TitleScene extends Phaser.Scene {
 		if (this.cloudsBackground) {
 			this.cloudsBackground.destroy();
 		}
+
+		// Clean up magic orbs
+		this.magicOrbs.forEach(orb => {
+			orb.destroy();
+		});
+		this.magicOrbs = [];
 	}
 }

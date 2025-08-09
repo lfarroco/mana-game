@@ -1,0 +1,187 @@
+import * as Phaser from "phaser";
+import { magicOrbFragmentShader } from "../../Shaders/MagicOrbShader";
+
+export interface MagicOrbConfig {
+	size?: number;
+	color?: Phaser.Types.Math.Vector3Like; // Use Phaser's Vector3Like format
+	intensity?: number;
+	speed?: number;
+	x?: number;
+	y?: number;
+}
+
+export class MagicOrb {
+	private scene: Phaser.Scene;
+	private shader: Phaser.GameObjects.Shader;
+	private startTime: number;
+	private config: Required<Omit<MagicOrbConfig, 'x' | 'y'>>;
+
+	constructor(scene: Phaser.Scene, x: number, y: number, config: MagicOrbConfig = {}) {
+		this.scene = scene;
+
+		// Set default config
+		const defaultConfig = {
+			size: 100,
+			color: { x: 0.5, y: 0.3, z: 1.0 }, // Purple/blue magic color
+			intensity: 1.0,
+			speed: 1.0
+		};
+
+		this.config = { ...defaultConfig, ...config };
+		this.startTime = scene.time.now;
+
+		console.log('Creating MagicOrb with config:', this.config);
+		console.log('Position:', x, y);
+
+		this.createShader(x, y);
+	}
+
+	private createShader(x: number, y: number): void {
+		console.log('Creating shader at position:', x, y);
+		console.log('Shader size:', this.config.size);
+		console.log('Shader color:', this.config.color);
+		console.log('Shader intensity:', this.config.intensity);
+
+		// Create the base shader
+		const baseShader = new Phaser.Display.BaseShader(
+			'MagicOrb',
+			magicOrbFragmentShader,
+			undefined,
+			{
+				time: { type: '1f', value: 0.0 },
+				resolution: { type: '2f', value: [this.config.size, this.config.size] },
+				color1: { type: '3f', value: this.config.color },
+				intensity: { type: '1f', value: this.config.intensity },
+				speed: { type: '1f', value: this.config.speed }
+			}
+		);
+
+		console.log('BaseShader created successfully');
+
+		// Create the shader game object
+		this.shader = this.scene.add.shader(
+			baseShader,
+			x,
+			y,
+			this.config.size,
+			this.config.size
+		).setOrigin(0.5, 0.5);
+
+		console.log('Shader game object created:', this.shader);
+		console.log('Shader visible:', this.shader.visible);
+		console.log('Shader alpha:', (this.shader as any).alpha);
+	}
+
+	update(time: number): void {
+		// Update time uniform for animation
+		const elapsedTime = (time - this.startTime) / 1000; // Convert to seconds
+		this.shader.setUniform('time.value', elapsedTime);
+	}
+
+	// Method to change orb color dynamically
+	setOrbColor(r: number, g: number, b: number): this {
+		this.config.color = { x: r, y: g, z: b };
+		this.shader.setUniform('color1.value', this.config.color);
+		return this;
+	}
+
+	// Method to change intensity
+	setIntensity(intensity: number): this {
+		this.config.intensity = intensity;
+		this.shader.setUniform('intensity.value', intensity);
+		return this;
+	}
+
+	// Method to change animation speed
+	setSpeed(speed: number): this {
+		this.config.speed = speed;
+		this.shader.setUniform('speed.value', speed);
+		return this;
+	}
+
+	// Method to resize the orb
+	setSize(size: number): this {
+		this.config.size = size;
+		this.shader.setSize(size, size);
+		this.shader.setUniform('resolution.value', [size, size]);
+		return this;
+	}
+
+	// Method to set position
+	setPosition(x: number, y: number): this {
+		this.shader.setPosition(x, y);
+		return this;
+	}
+
+	// Method to set depth
+	setDepth(depth: number): this {
+		this.shader.setDepth(depth);
+		return this;
+	}
+
+	// Method to set alpha
+	setAlpha(alpha: number): this {
+		(this.shader as any).alpha = alpha;
+		return this;
+	}
+
+	// Method to destroy the orb
+	destroy(): void {
+		if (this.shader) {
+			this.shader.destroy();
+		}
+	}
+
+	// Get the underlying shader object for advanced manipulation
+	getShader(): Phaser.GameObjects.Shader {
+		return this.shader;
+	}
+}
+
+// Helper function to create multiple orbs with different colors
+export class MagicOrbFactory {
+	static createPurpleOrb(scene: Phaser.Scene, x: number, y: number, size: number = 100): MagicOrb {
+		return new MagicOrb(scene, x, y, {
+			size,
+			color: { x: 0.5, y: 0.3, z: 1.0 },
+			intensity: 1.2,
+			speed: 1.0
+		});
+	}
+
+	static createBlueOrb(scene: Phaser.Scene, x: number, y: number, size: number = 100): MagicOrb {
+		return new MagicOrb(scene, x, y, {
+			size,
+			color: { x: 0.2, y: 0.6, z: 1.0 },
+			intensity: 1.0,
+			speed: 0.8
+		});
+	}
+
+	static createRedOrb(scene: Phaser.Scene, x: number, y: number, size: number = 100): MagicOrb {
+		return new MagicOrb(scene, x, y, {
+			size,
+			color: { x: 1.0, y: 0.3, z: 0.2 },
+			intensity: 1.3,
+			speed: 1.2
+		});
+	}
+
+	static createGreenOrb(scene: Phaser.Scene, x: number, y: number, size: number = 100): MagicOrb {
+		return new MagicOrb(scene, x, y, {
+			size,
+			color: { x: 0.3, y: 1.0, z: 0.4 },
+			intensity: 1.1,
+			speed: 0.9
+		});
+	}
+
+	static createGoldenOrb(scene: Phaser.Scene, x: number, y: number, size: number = 100): MagicOrb {
+		return new MagicOrb(scene, x, y, {
+			size,
+			color: { x: 1.0, y: 0.8, z: 0.2 },
+			intensity: 1.4,
+			speed: 0.7
+		});
+	}
+}
