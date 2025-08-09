@@ -6,6 +6,10 @@ uniform vec2 resolution;
 uniform vec3 color1;
 uniform float intensity;
 uniform float speed;
+uniform float dissolveProgress;
+uniform float dissolveGridSize;
+uniform float dissolveUpwardMovement;
+uniform float dissolveFadeRange;
 
 varying vec2 fragCoord;
 
@@ -54,6 +58,40 @@ void main() {
         discard;
     }
     
+    // Dissolve effect - create square grid for pixelated dissolve
+    if (dissolveProgress > 0.0) {
+        vec2 dissolveUV = uv + 0.5; // Back to [0,1] range
+        
+        // Add upward movement to the grid based on dissolve progress (parametrized)
+        float upwardMovement = dissolveProgress * dissolveUpwardMovement;
+        dissolveUV.y -= upwardMovement;
+        
+        vec2 gridUV = dissolveUV * dissolveGridSize; // Use parametrized grid size
+        vec2 gridID = floor(gridUV);
+        
+        // Create random values for each grid cell
+        float cellRandom = noise(gridID);
+        
+        // Create dissolve threshold that varies per cell
+        float dissolveThreshold = cellRandom * 1.2; // Some cells dissolve faster
+        
+        // Add some randomness to make squares appear and disappear
+        float dissolveNoise = noise(gridID + time * 2.0) * 0.3;
+        dissolveThreshold += dissolveNoise;
+        
+        // Discard pixels based on dissolve progress
+        if (dissolveProgress > dissolveThreshold) {
+            // Add some alpha fading for smoother transition (parametrized)
+            float fadeAlpha = 1.0 - smoothstep(dissolveThreshold - dissolveFadeRange, dissolveThreshold, dissolveProgress);
+            
+            if (fadeAlpha <= 0.0) {
+                discard;
+            }
+            
+            // Apply fade to final color later
+        }
+    }
+    
     // Create outline effect
     float outlineWidth = 0.08; // Width of the outline
     float innerRadius = 0.4 - outlineWidth;
@@ -91,6 +129,26 @@ void main() {
     // Apply intensity
     finalColor *= intensity;
     
-    gl_FragColor = vec4(finalColor, 1.0);
+    // Apply dissolve fade if active
+    float finalAlpha = 1.0;
+    if (dissolveProgress > 0.0) {
+        vec2 dissolveUV = uv + 0.5;
+        
+        // Add the same upward movement for consistency (parametrized)
+        float upwardMovement = dissolveProgress * dissolveUpwardMovement;
+        dissolveUV.y -= upwardMovement;
+        
+        vec2 gridUV = dissolveUV * dissolveGridSize; // Use parametrized grid size
+        vec2 gridID = floor(gridUV);
+        float cellRandom = noise(gridID);
+        float dissolveThreshold = cellRandom * 1.2;
+        float dissolveNoise = noise(gridID + time * 2.0) * 0.3;
+        dissolveThreshold += dissolveNoise;
+        
+        finalAlpha = 1.0 - smoothstep(dissolveThreshold - dissolveFadeRange, dissolveThreshold, dissolveProgress);
+        finalAlpha = max(finalAlpha, 0.0);
+    }
+    
+    gl_FragColor = vec4(finalColor, finalAlpha);
 }
 `;
