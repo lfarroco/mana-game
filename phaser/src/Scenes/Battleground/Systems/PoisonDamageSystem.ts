@@ -5,15 +5,17 @@ import { applyDamageToForce, Force } from "../../../Models/Entities/Force";
  * Represents a poison stack on a force
  */
 export type PoisonStack = {
-	initialAmount: number; // Starting damage amount
-	remainingAmount: number; // Current damage amount (decreases by 1 each tick)
+	totalDamage: number; // Total damage this poison will deal
+	damagePerTick: number; // Damage dealt per tick
+	remainingDamage: number; // Remaining damage to be dealt
 	timeSinceLastTick: number; // Time since last damage application
 	sourceUnitId?: string; // ID of the unit that applied this poison
 };
 
 /**
  * System that manages poison damage over time for forces
- * Poison decreases by 1 damage each second until it reaches 0
+ * Poison deals consistent damage per second until total damage is reached
+ * Damage per tick = max(1, floor(totalDamage / 10))
  */
 export class PoisonDamageSystem {
 	private scene: BattlegroundScene;
@@ -38,7 +40,7 @@ export class PoisonDamageSystem {
 	/**
 	 * Applies poison to a target force
 	 * @param targetForce The force to poison
-	 * @param amount Initial poison damage amount
+	 * @param amount Total poison damage to deal over time
 	 * @param sourceUnitId Optional ID of the unit applying poison
 	 */
 	applyPoison(targetForce: Force, amount: number, sourceUnitId?: string): void {
@@ -51,15 +53,21 @@ export class PoisonDamageSystem {
 
 		const stacks = this.poisonStacks.get(forceId)!;
 
+		// Calculate damage per tick: 1 damage per tick for every 10 power
+		// Minimum 1 damage per tick, deals total damage over time
+		const damagePerTick = Math.max(1, Math.floor(amount / 10));
+
 		// Add new poison stack
 		stacks.push({
-			initialAmount: amount,
-			remainingAmount: amount,
+			totalDamage: amount,
+			damagePerTick: damagePerTick,
+			remainingDamage: amount,
 			timeSinceLastTick: 0,
 			sourceUnitId
 		});
 
-		console.log(`[PoisonDamageSystem] Applied ${amount} poison to force ${forceId}`);
+		const ticksRequired = Math.ceil(amount / damagePerTick);
+		console.log(`[PoisonDamageSystem] Applied ${amount} poison to force ${forceId} (${damagePerTick} per tick, ${ticksRequired} ticks)`);
 
 		// Note: Removed poison effect display for consistency with other damage types
 	}
@@ -96,20 +104,20 @@ export class PoisonDamageSystem {
 
 			// Check if it's time for a poison tick
 			if (stack.timeSinceLastTick >= this.tickInterval) {
-				// Apply poison damage
-				const damage = stack.remainingAmount;
-				console.log(`[PoisonDamageSystem] Poison tick on ${forceId}: ${damage} damage`);
+				// Apply poison damage (consistent amount per tick)
+				const damage = Math.min(stack.damagePerTick, stack.remainingDamage);
+				console.log(`[PoisonDamageSystem] Poison tick on ${forceId}: ${damage} damage (${stack.remainingDamage} remaining)`);
 
 				applyDamageToForce(force, damage, this.scene, 0, "poison");
 
 				// Note: Removed poison effect display for consistency with other damage types
 
-				// Decrease poison amount for next tick
-				stack.remainingAmount = Math.max(0, stack.remainingAmount - 1);
+				// Decrease remaining poison damage
+				stack.remainingDamage = Math.max(0, stack.remainingDamage - damage);
 				stack.timeSinceLastTick = 0;
 
 				// Remove stack if poison is depleted
-				if (stack.remainingAmount <= 0) {
+				if (stack.remainingDamage <= 0) {
 					stacks.splice(i, 1);
 					console.log(`[PoisonDamageSystem] Poison stack expired for force ${forceId}`);
 				}
@@ -138,15 +146,15 @@ export class PoisonDamageSystem {
 		// Reduce poison stacks starting from the most recent (highest index)
 		for (let i = stacks.length - 1; i >= 0 && remainingReduction > 0; i--) {
 			const stack = stacks[i];
-			const reduction = Math.min(remainingReduction, stack.remainingAmount);
+			const reduction = Math.min(remainingReduction, stack.remainingDamage);
 
-			stack.remainingAmount -= reduction;
+			stack.remainingDamage -= reduction;
 			remainingReduction -= reduction;
 
-			console.log(`[PoisonDamageSystem] Reduced poison stack ${i} by ${reduction}, now ${stack.remainingAmount}`);
+			console.log(`[PoisonDamageSystem] Reduced poison stack ${i} by ${reduction}, now ${stack.remainingDamage} remaining`);
 
 			// Remove stack if completely neutralized
-			if (stack.remainingAmount <= 0) {
+			if (stack.remainingDamage <= 0) {
 				stacks.splice(i, 1);
 				console.log(`[PoisonDamageSystem] Poison stack ${i} completely neutralized`);
 			}
@@ -167,13 +175,8 @@ export class PoisonDamageSystem {
 		const stacks = this.poisonStacks.get(forceId);
 		if (!stacks) return 0;
 
-		// Calculate total damage from all stacks
-		// Each stack deals damage equal to: sum from 1 to remainingAmount
-		return stacks.reduce((total, stack) => {
-			// Poison damage formula: n + (n-1) + (n-2) + ... + 1 = n*(n+1)/2
-			const remaining = stack.remainingAmount;
-			return total + (remaining * (remaining + 1)) / 2;
-		}, 0);
+		// Simply sum all remaining damage from all stacks
+		return stacks.reduce((total, stack) => total + stack.remainingDamage, 0);
 	}
 
 	/**
