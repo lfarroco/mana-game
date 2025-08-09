@@ -90,6 +90,7 @@ export const POP_TEXT_CONFIG = {
 		DAMAGE: "red",
 		SHIELD: "yellow",
 		POISON: "#9932cc", // Purple color for poison damage
+		TIMEOUT: "#ff8c00", // Orange color for timeout damage
 	}
 } as const;
 

@@ -216,8 +216,8 @@ export class TimeoutDamageSystem {
 		// Apply damage to both forces (shields absorb damage first)
 		console.log(`[TimeoutDamageSystem] Timeout damage tick ${tickCount}: ${currentDamage} damage to both forces`);
 
-		applyDamageToForce(playerForce, currentDamage, this.scene);
-		applyDamageToForce(cpuForce, currentDamage, this.scene);
+		applyDamageToForce(playerForce, currentDamage, this.scene, 0, "timeout");
+		applyDamageToForce(cpuForce, currentDamage, this.scene, 0, "timeout");
 	}
 
 	/**

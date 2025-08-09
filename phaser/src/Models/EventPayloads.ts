@@ -35,6 +35,6 @@ export type PopTextPayload = {
 	text: string;
 	x: number;
 	y: number;
-	type?: "heal" | "damage" | "shield"; // Corresponds to popText function's type parameter
+	type?: "heal" | "damage" | "shield" | "poison" | "timeout"; // Corresponds to popText function's type parameter
 	direction?: "up" | "down"; // Direction for text animation
 };

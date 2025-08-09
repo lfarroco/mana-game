@@ -64,6 +64,8 @@ export class Shop {
 
 		const tavernCardData = this._getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
 
+		const orbs = ['red', 'green', 'yellow']
+
 		// Define the nextRoundCallback, which was missing
 		const nextRoundCallback = () => {
 			this.scene.events.emit(GameEvents.SHOP_PHASE_ENDED);
@@ -73,6 +75,7 @@ export class Shop {
 		// Correctly call shopUI.displayShop and destructure its result
 		const { charas } = this.shopUI.displayShop(
 			tavernCardData, // cardsToDisplay
+			orbs,
 			nextRoundCallback, // nextRoundCallback
 			this.handleShopRerollTavern.bind(this),
 			this._handleCharaPurchaseFinalized.bind(this),
