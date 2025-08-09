@@ -15,8 +15,8 @@ const LAYOUT = {
 
 	// Tab system
 	TAB_BUTTON_Y: 120,
-	TAB_BUTTON_SPACING: 160,
-	TAB_BUTTON_WIDTH: 140,
+	TAB_BUTTON_SPACING: 200,
+	TAB_BUTTON_WIDTH: 180,
 
 	// Options layout
 	OPTIONS_START_Y: 220,
@@ -25,8 +25,8 @@ const LAYOUT = {
 	// Option element offsets
 	LABEL_OFFSET_Y: 0,
 	VALUE_OFFSET_Y: 70,
-	MULTICHOICE_VALUE_OFFSET_Y: 50,
-	SPEED_VALUE_OFFSET_Y: 50,
+	MULTICHOICE_VALUE_OFFSET_Y: 70,
+	SPEED_VALUE_OFFSET_Y: 70,
 } as const;
 
 // Button Constants
@@ -175,6 +175,7 @@ export default class OptionsScene extends Phaser.Scene {
 			getValue() ? 'ON' : 'OFF',
 			{
 				...constants.titleTextConfig,
+				fontSize: '12px',
 				color: STYLES.VALUE_TEXT_COLOR
 			}
 		).setOrigin(0.5).setAlpha(0); // Hide the separate value display
@@ -295,6 +296,7 @@ export default class OptionsScene extends Phaser.Scene {
 			getValue().toUpperCase(),
 			{
 				...constants.titleTextConfig,
+				fontSize: '32px',
 				color: STYLES.VALUE_TEXT_COLOR
 			}
 		).setOrigin(0.5);
