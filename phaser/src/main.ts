@@ -3,7 +3,6 @@ import { initializeOptionsStore } from "./Models/OptionsStore";
 import { OptionsSystemManager } from "./Systems/OptionsSystem/OptionsSystemManager";
 import { AudioSystem } from "./Systems/AudioSystem/AudioSystem";
 
-
 const game = initGame();
 
 // Global, one-time registration systems

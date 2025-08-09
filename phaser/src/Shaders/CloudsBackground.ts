@@ -10,11 +10,21 @@ uniform vec3 color4;
 uniform vec3 color5;
 uniform float timeScale;
 uniform float particleQuality; // 0.0 = low, 1.0 = medium, 2.0 = high
+uniform float pixelSize; // Controls pixelation level (e.g., 4.0 for 4x4 pixel blocks)
 varying vec2 fragCoord;
 
 // Noise function for procedural generation
 float noise(vec2 p) {
     return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+// Pixelation function to quantize coordinates
+vec2 pixelate(vec2 uv, float pixelSize) {
+    if (pixelSize <= 1.0) {
+        return uv; // No pixelation if pixelSize is 1 or less
+    }
+    vec2 pixelCoord = floor(uv * resolution.xy / pixelSize) * pixelSize / resolution.xy;
+    return pixelCoord;
 }
 
 // Smooth noise function
@@ -31,14 +41,20 @@ float smoothNoise(vec2 p) {
 
 // Optimized star field function - reduced noise calls and simplified calculations
 float starField(vec2 uv, float density, float brightness) {
+    // Apply pixelation to star field coordinates only if pixelSize is provided
+    vec2 starUV = uv;
+    if (pixelSize > 1.0) {
+        starUV = pixelate(uv, pixelSize * 0.5); // Smaller pixel size for finer star details
+    }
+    
     // Create a grid for star positions
-    vec2 gridUV = uv * density;
+    vec2 gridUV = starUV * density;
     vec2 gridID = floor(gridUV);
     vec2 gridLocal = fract(gridUV);
     
     // Single noise call to determine star presence and properties
     float starNoise = noise(gridID);
-    float starThreshold = 0.95; // Only 5% of grid cells get stars
+    float starThreshold = 0.97; // Reduced from 0.95 - fewer stars (only 3% of grid cells)
     
     if (starNoise < starThreshold) {
         return 0.0; // No star in this cell
@@ -52,22 +68,31 @@ float starField(vec2 uv, float density, float brightness) {
     
     // Position the star using derived values
     vec2 starOffset = vec2(derivedNoise1, derivedNoise2) * 0.8 + 0.1;
+    if (pixelSize > 1.0) {
+        // More quantized position for blockier stars
+        starOffset = floor(starOffset * 4.0) / 4.0; // Reduced from 8.0 to 4.0 for blockier effect
+    }
     
     // Calculate distance from current pixel to star center
     float dist = length(gridLocal - starOffset);
     
-    // Create a round star with smooth falloff
-    float starSize = (derivedNoise3 * 0.3 + 0.4) * 0.1 + 0.03;
-    float star = 1.0 - smoothstep(0.0, starSize, dist);
-    star = pow(star, 2.0);
+    // Create star shape - pixelated if enabled, smooth otherwise
+    float starSize = (derivedNoise3 * 0.2 + 0.3) * 0.08 + 0.02; // Slightly smaller stars
+    float star;
+    if (pixelSize > 1.0) {
+        star = step(dist, starSize); // Hard edge for pixelated look
+    } else {
+        star = 1.0 - smoothstep(0.0, starSize, dist); // Smooth falloff
+        star = pow(star, 2.0);
+    }
     
     // Simplified glow calculation using derived values
     float phase = starNoise * 6.28318;
-    float glowSpeed = 0.2 + derivedNoise4 * 0.6;
+    float glowSpeed = 0.15 + derivedNoise4 * 0.4; // Reduced glow speed variation
     float timeOffset = derivedNoise1 * 100.0; // Reuse derived value
     float glow = sin((time * timeScale * glowSpeed) + phase + timeOffset) * 0.5 + 0.5;
-    float glowIntensity = derivedNoise2 * 0.5 + 0.3; // Reuse derived value
-    glow = mix(0.1, 0.8, pow(glow, 2.0 - glowIntensity));
+    float glowIntensity = derivedNoise2 * 0.3 + 0.2; // Reduced glow intensity
+    glow = mix(0.2, 0.6, pow(glow, 2.0 - glowIntensity)); // Less dramatic glow
     
     star *= glow * brightness;
     
@@ -88,6 +113,40 @@ float fbm(vec2 p, int octaves) {
         frequency *= 2.1; // Slightly more frequency for detail
     }
     return value;
+}
+
+// Square-based cloud function for pixelated block clouds
+float squareClouds(vec2 uv, float scale, float threshold) {
+    // Create a grid of squares
+    vec2 gridUV = uv * scale;
+    vec2 gridID = floor(gridUV);
+    
+    // Use noise to determine if each square should be a cloud
+    float cloudNoise = noise(gridID);
+    
+    // Create distinct cloud regions with hard edges
+    float cloudPresence = step(threshold, cloudNoise);
+    
+    // Add some variation within each cloud square
+    float cloudDensity = fract(cloudNoise * 7.531) * 0.3 + 0.7;
+    
+    return cloudPresence * cloudDensity;
+}
+
+// Animated square clouds with movement
+float animatedSquareClouds(vec2 uv, float scale, float threshold, float time, vec2 velocity) {
+    // Animate the grid position
+    vec2 animatedUV = uv + velocity * time;
+    
+    // Create base cloud layer
+    float clouds = squareClouds(animatedUV, scale, threshold);
+    
+    // Much subtler temporal variation to reduce noise
+    vec2 gridID = floor(animatedUV * scale);
+    float timeVariation = sin(time * 0.2 + noise(gridID) * 6.28318) * 0.2 + 0.8; // Reduced animation intensity
+    timeVariation = smoothstep(0.4, 0.9, timeVariation); // Smoother transitions
+    
+    return clouds * timeVariation;
 }
 
 // Function to create swirling patterns - optimized trigonometric operations
@@ -112,20 +171,26 @@ vec2 swirl(vec2 uv, float intensity, vec2 center) {
 
 // Optimized dust particles function - significantly reduced noise calls
 float dustParticles(vec2 uv, float scaledTime) {
-    // Quality-based particle thresholds
-    float threshold1 = 0.92 - (particleQuality * 0.02);
-    float threshold2 = 0.94 - (particleQuality * 0.02);
+    // Apply pixelation to dust coordinates only if enabled
+    vec2 dustUV = uv;
+    if (pixelSize > 1.0) {
+        dustUV = pixelate(uv, pixelSize * 1.5); // More blocky dust particles
+    }
     
-    // Adjust density based on quality
-    float densityMultiplier = 1.0 + (particleQuality * 0.25);
+    // Much higher thresholds for fewer particles
+    float threshold1 = 0.96 - (particleQuality * 0.01); // Reduced from 0.92, fewer particles
+    float threshold2 = 0.98 - (particleQuality * 0.01); // Reduced from 0.94, much fewer particles
     
-    // Create multiple layers of dust particles - reduced FBM octaves for motion
-    vec2 dustUV1 = uv * (25.0 * densityMultiplier);
-    vec2 dustUV2 = uv * (15.0 * densityMultiplier);
+    // Reduced density for cleaner look
+    float densityMultiplier = 0.5 + (particleQuality * 0.15); // Reduced from 1.0 + 0.25
     
-    // Faster dust motion - increased speed multipliers for more dynamic movement
-    dustUV1 += vec2(scaledTime * 0.08, scaledTime * 0.06) + fbm(uv * 2.0 + scaledTime * 0.12, 2) * 0.8;
-    dustUV2 += vec2(scaledTime * 0.065, scaledTime * 0.05) + fbm(uv * 1.5 + scaledTime * 0.1, 2) * 0.9;
+    // Create fewer layers of dust particles with reduced motion complexity
+    vec2 dustUV1 = dustUV * (15.0 * densityMultiplier); // Reduced from 25.0
+    vec2 dustUV2 = dustUV * (8.0 * densityMultiplier);  // Reduced from 15.0
+    
+    // Simpler, slower dust motion
+    dustUV1 += vec2(scaledTime * 0.04, scaledTime * 0.03); // Reduced speed and removed FBM
+    dustUV2 += vec2(scaledTime * 0.03, scaledTime * 0.025); // Reduced speed and removed FBM
     
     float dust = 0.0;
     
@@ -139,23 +204,32 @@ float dustParticles(vec2 uv, float scaledTime) {
         float derived2 = fract(dustNoise1 * 83.291);
         float derived3 = fract(dustNoise1 * 51.847);
         
-        vec2 dustOffset1 = vec2(derived1, derived2) * 0.6 + 0.2;
+        vec2 dustOffset1 = vec2(derived1, derived2) * 0.4 + 0.3; // Centered particles
+        if (pixelSize > 1.0) {
+            dustOffset1 = floor(dustOffset1 * 2.0) / 2.0; // More blocky quantization
+        }
+        
         float dist1 = length(gridLocal1 - dustOffset1);
-        float particleSize1 = (derived3 * 0.4 + 0.6) * 0.06;
-        float particle1 = 1.0 - smoothstep(0.0, particleSize1, dist1);
-        particle1 = pow(particle1, 1.2);
+        float particleSize1 = (derived3 * 0.2 + 0.4) * 0.08; // Slightly larger, less variation
         
-        // Faster glow effect for more dynamic dust particles
+        float particle1;
+        if (pixelSize > 1.0) {
+            particle1 = step(dist1, particleSize1); // Hard edge for pixelated look
+        } else {
+            particle1 = 1.0 - smoothstep(0.0, particleSize1, dist1); // Smooth falloff
+            particle1 = pow(particle1, 1.5); // Softer falloff
+        }
+        
+        // Much simpler glow effect
         float phase1 = dustNoise1 * 6.28318;
-        float glowSpeed1 = 1.5 + derived1 * 2.0; // Increased from 0.8 + 1.2
-        float timeOffset1 = derived2 * 50.0;
-        float glow1 = sin((scaledTime * glowSpeed1) + phase1 + timeOffset1) * 0.5 + 0.5;
-        glow1 = mix(0.4, 1.3, pow(glow1, 2.0 - derived3));
+        float glowSpeed1 = 0.8 + derived1 * 0.6; // Reduced from 1.5 + 2.0
+        float timeOffset1 = derived2 * 30.0; // Reduced offset variation
+        float glow1 = sin((scaledTime * glowSpeed1) + phase1 + timeOffset1) * 0.3 + 0.7; // Less dramatic glow
         
-        dust += particle1 * glow1 * 0.7;
+        dust += particle1 * glow1 * 0.4; // Reduced intensity from 0.7
     }
     
-    // Layer 2: Larger particles - optimized with derived noise values
+    // Layer 2: Larger particles - much fewer
     vec2 gridID2 = floor(dustUV2);
     vec2 gridLocal2 = fract(dustUV2);
     float dustNoise2 = noise(gridID2);
@@ -165,19 +239,29 @@ float dustParticles(vec2 uv, float scaledTime) {
         float derived5 = fract(dustNoise2 * 73.569);
         float derived6 = fract(dustNoise2 * 92.431);
         
-        vec2 dustOffset2 = vec2(derived4, derived5) * 0.6 + 0.2;
+        vec2 dustOffset2 = vec2(derived4, derived5) * 0.4 + 0.3; // Centered particles
+        if (pixelSize > 1.0) {
+            dustOffset2 = floor(dustOffset2 * 2.0) / 2.0; // More blocky quantization
+        }
+        
         float dist2 = length(gridLocal2 - dustOffset2);
-        float particleSize2 = (derived6 * 0.4 + 0.6) * 0.1;
-        float particle2 = 1.0 - smoothstep(0.0, particleSize2, dist2);
-        particle2 = pow(particle2, 1.1);
+        float particleSize2 = (derived6 * 0.2 + 0.4) * 0.12; // Slightly larger
         
+        float particle2;
+        if (pixelSize > 1.0) {
+            particle2 = step(dist2, particleSize2); // Hard edge for pixelated look
+        } else {
+            particle2 = 1.0 - smoothstep(0.0, particleSize2, dist2); // Smooth falloff
+            particle2 = pow(particle2, 1.3);
+        }
+        
+        // Simple glow
         float phase2 = dustNoise2 * 6.28318;
-        float glowSpeed2 = 1.2 + derived4 * 1.8; // Increased from 0.5 + 1.0
-        float timeOffset2 = derived5 * 50.0;
-        float glow2 = sin((scaledTime * glowSpeed2) + phase2 + timeOffset2) * 0.5 + 0.5;
-        glow2 = mix(0.3, 1.4, pow(glow2, 2.0 - derived6));
+        float glowSpeed2 = 0.6 + derived4 * 0.4; // Much reduced from 1.2 + 1.8
+        float timeOffset2 = derived5 * 30.0;
+        float glow2 = sin((scaledTime * glowSpeed2) + phase2 + timeOffset2) * 0.2 + 0.8; // Subtle glow
         
-        dust += particle2 * glow2 * 0.9;
+        dust += particle2 * glow2 * 0.6; // Reduced intensity from 0.9
     }
     
     return clamp(dust, 0.0, 1.0);
@@ -188,80 +272,89 @@ void main() {
     vec2 uv = fragCoord.xy / resolution.xy;
     uv.x *= resolution.x / resolution.y;
 
+    // Apply pixelation to the main UV coordinates for overall chunky effect
+    // Use a default pixelSize of 1.0 if not provided to avoid black screen
+    float effectivePixelSize = max(pixelSize, 1.0);
+    vec2 pixelatedUV = pixelate(uv, effectivePixelSize);
+
     // Apply time scaling to all time-based animations
     float scaledTime = time * timeScale;
 
-    // Animate the coordinates
-    vec2 animatedUV = uv;
-    animatedUV += vec2(scaledTime * 0.005, scaledTime * 0.004); // Half speed: was 0.01, 0.008
-
-
-    // Swirl and warp for nebula shapes
-    vec2 swirl1 = swirl(animatedUV, 0.5, vec2(0.4, 0.7));
-    vec2 swirl2 = swirl(animatedUV, -0.4, vec2(0.7, 0.3));
-    vec2 swirl3 = swirl(animatedUV, 0.7, vec2(0.5, 0.2));
-
-    // Optimized: Reduce octave counts significantly for better performance
-    int baseOctaves = int(3.0 + particleQuality * 0.5); // 3 (low), 3-4 (med), 4 (high)
-    int detailOctaves = int(2.0 + particleQuality * 0.5); // 2 (low), 2-3 (med), 3 (high)
-
-    // Nebula noise layers - reduced octave counts and consolidated some layers
-    float nebula1 = fbm(swirl1 * 3.5 + scaledTime * 0.06, baseOctaves);
-    float nebula2 = fbm(swirl2 * 2.7 + scaledTime * 0.035, baseOctaves);
+    // Use square-based clouds instead of complex FBM noise
+    // Create multiple layers of square clouds at different scales and speeds
     
-    // Combine first two nebula layers and use the result to drive the third layer more efficiently
-    float nebulaBase = nebula1 * 0.6 + nebula2 * 0.4;
-    float nebula3 = fbm(swirl3 * 4.2 + scaledTime * 0.045, detailOctaves) * 0.3;
-    float nebulaPattern = nebulaBase + nebula3;
-
-    // Optimized: Combine glow calculation with existing nebula calculation
-    float glow = nebula1 * 0.3 + nebula2 * 0.2; // Reuse existing calculations
+    // Large cloud blocks - slow moving
+    float largeClouds = animatedSquareClouds(uv, 8.0, 0.6, scaledTime, vec2(0.02, 0.015));
     
-    // Simplified color variation using reduced octaves
-    float colorVar = fbm(uv * 7.0 + scaledTime * 0.09, detailOctaves);
-
-    // Optimized star field - reduced layers and early exit optimizations
-    float starDensityMultiplier = 1.0 + (particleQuality * 0.3);
+    // Medium cloud blocks - medium speed
+    float mediumClouds = animatedSquareClouds(uv, 16.0, 0.65, scaledTime, vec2(-0.025, 0.02));
     
-    // Quality-based star layer optimization
-    float stars = 0.0;
+    // Small cloud details - faster moving
+    float smallClouds = animatedSquareClouds(uv, 32.0, 0.7, scaledTime, vec2(0.03, -0.018));
     
-    // Always render base star layer
-    stars = starField(uv, 20.0 * starDensityMultiplier, 1.0);
+    // Combine cloud layers with different weights
+    float cloudPattern = largeClouds * 0.6 + mediumClouds * 0.3 + smallClouds * 0.2;
     
-    // Only add second layer on medium+ quality
-    if (particleQuality >= 0.5) {
-        stars += starField(uv + 0.5, 15.0 * starDensityMultiplier, 0.8);
+    // Quantize the final cloud pattern for more distinct blocks
+    if (effectivePixelSize > 1.0) {
+        cloudPattern = floor(cloudPattern * 6.0) / 6.0;
     }
     
-    // Only add third layer on high quality
+    // Create some variation for glow effects using simplified calculation
+    float glow = largeClouds * 0.2 + mediumClouds * 0.15; // Reduced intensity
+    if (effectivePixelSize > 1.0) {
+        glow = floor(glow * 3.0) / 3.0; // Less quantization levels
+    }
+    
+    // Remove noisy color variation - use simple position-based variation instead
+    vec2 colorUV = (effectivePixelSize > 1.0) ? pixelatedUV : uv;
+    float colorVar = sin(colorUV.x * 2.0) * cos(colorUV.y * 1.5) * 0.1; // Simple, smooth variation
+    if (effectivePixelSize > 1.0) {
+        colorVar = floor(colorVar * 2.0) / 2.0; // Minimal quantization
+    }
+
+    // Optimized star field - reduced layers and early exit optimizations
+    float starDensityMultiplier = 0.7 + (particleQuality * 0.2); // Reduced from 1.0 + 0.3
+    
+    // Quality-based star layer optimization - fewer layers overall
+    float stars = 0.0;
+    
+    // Always render base star layer with reduced density
+    stars = starField(uv, 15.0 * starDensityMultiplier, 0.8); // Reduced from 20.0 density and 1.0 brightness
+    
+    // Only add second layer on medium+ quality with lower density
+    if (particleQuality >= 0.5) {
+        stars += starField(uv + 0.5, 10.0 * starDensityMultiplier, 0.5); // Reduced from 15.0 density and 0.8 brightness
+    }
+    
+    // Only add third layer on high quality with much lower density
     if (particleQuality >= 1.5) {
-        stars += starField(uv + 0.25, 25.0 * starDensityMultiplier, 0.6);
+        stars += starField(uv + 0.25, 12.0 * starDensityMultiplier, 0.3); // Reduced from 25.0 density and 0.6 brightness
     }
     
     stars = clamp(stars, 0.0, 1.0);
 
-    // Early exit optimization for dust particles on low quality
+    // Early exit optimization for dust particles on low quality - higher threshold
     float dust = 0.0;
-    if (particleQuality >= 0.3) {
+    if (particleQuality >= 0.5) { // Increased from 0.3 - less dust on low quality
         dust = dustParticles(uv, scaledTime);
     }
 
-    // Optimized final composition - reduced conditional branches
-    vec3 nebulaColor = mix(color1, color2, nebulaPattern);
-    nebulaColor = mix(nebulaColor, color3, smoothstep(0.5, 0.8, nebulaPattern));
-    nebulaColor = mix(nebulaColor, color4, colorVar * 0.5);
-    nebulaColor = mix(nebulaColor, color5, smoothstep(0.7, 0.95, nebulaPattern) * 0.7);
+    // Optimized final composition using square-based cloud pattern
+    vec3 nebulaColor = mix(color1, color2, cloudPattern);
+    nebulaColor = mix(nebulaColor, color3, smoothstep(0.4, 0.8, cloudPattern)); // Smoother transitions
+    nebulaColor = mix(nebulaColor, color4, colorVar * 0.2); // Reduced color variation impact
+    nebulaColor = mix(nebulaColor, color5, smoothstep(0.7, 0.95, cloudPattern) * 0.4); // Reduced intensity
 
-    // Add glow
-    nebulaColor += vec3(0.15, 0.08, 0.18) * pow(glow, 2.0);
+    // Add much subtler glow
+    nebulaColor += vec3(0.08, 0.04, 0.09) * pow(glow, 3.0); // Reduced and made more subtle
 
-    // Optimized additive blending - avoid conditionals
+    // Optimized additive blending - much reduced intensity for cleaner look
     vec3 dustColor = vec3(1.0, 0.8, 0.4);
-    nebulaColor += dustColor * dust * 1.2;
+    nebulaColor += dustColor * dust * 0.3; // Further reduced from 0.6 for minimal noise
     
     vec3 starColor = vec3(1.0);
-    nebulaColor += starColor * stars;
+    nebulaColor += starColor * stars * 0.6; // Reduced star contribution
 
     // Final output
     gl_FragColor = vec4(nebulaColor, 1.0);
