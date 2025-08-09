@@ -55,6 +55,7 @@ export class CharaStatsDisplay {
 			heal: CHARA_STATS_COLORS.HEAL_BG,
 			shield: CHARA_STATS_COLORS.ARMOR_BG,
 			poison: CHARA_STATS_COLORS.POISON_BG,
+			regen: CHARA_STATS_COLORS.REGEN_BG,
 		}
 		const bgColor = colorMap[effect.id as keyof typeof colorMap];
 
