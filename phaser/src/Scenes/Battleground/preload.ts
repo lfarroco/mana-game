@@ -37,8 +37,6 @@ function loadAudio(scene: Scene) {
 	//notification.m4a
 	scene.load.audio('sfx_notification', 'assets/audio/notification.m4a');
 
-
-
 	//sfx_spell_innerfocus
 	scene.load.audio('sfx_spell_innerfocus', 'assets/audio/sfx_spell_innerfocus.m4a');
 
