@@ -176,7 +176,8 @@ export const DIFFICULTY_TIER_CONFIG = {
 export const CHARA_STATS_COLORS = {
 	DAMAGE_BG: 0xff0000,
 	HEAL_BG: 0x23a423,
-	ARMOR_BG: 0x666666,
+	ARMOR_BG: 0xd1d135,
 	POISON_BG: 0x9932cc, // Purple color for poison
+	REGEN_BG: 0x337a31, // Green color for regen
 	DEFAULT_BG: 0x000000
 } as const;
