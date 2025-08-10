@@ -64,7 +64,7 @@ export class Shop {
 
 		const tavernCardData = this._getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
 
-		const orbs = ['red', 'green', 'yellow']
+		const orbs = [0xff3333, 0x00ff00, 0xffff00];
 
 		// Define the nextRoundCallback, which was missing
 		const nextRoundCallback = () => {
