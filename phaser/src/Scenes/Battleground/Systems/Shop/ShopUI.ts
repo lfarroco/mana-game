@@ -20,6 +20,7 @@ export class ShopUI {
 	sellZoneText: Phaser.GameObjects.Text | null = null;
 	sellZoneGraphics: Phaser.GameObjects.Graphics | null = null;
 	magicOrbs: MagicOrb[] = []; // Store magic orbs for updating
+	orbContainer: Phaser.GameObjects.Container | null = null; // Store orb container for cleanup
 
 	constructor(scene: BattlegroundScene, flyout: Flyout) {
 		this.scene = scene;
@@ -51,6 +52,12 @@ export class ShopUI {
 	): { charas: Chara[] } {
 		this.flyout.removeAll(true); // Clear any previous content
 		this.magicOrbs = []; // Clear magic orbs array
+
+		// Clean up previous orb container if it exists
+		if (this.orbContainer) {
+			this.orbContainer.destroy(true);
+			this.orbContainer = null;
+		}
 
 
 		// Calculate right-aligned X for the shop panel
@@ -92,7 +99,7 @@ export class ShopUI {
 		// render orbs
 		const orbY = sc.PANEL_Y + 520;
 		const orbSpacing = 240;
-		const orbContainer = this.scene.add.container(0, 0);
+		this.orbContainer = this.scene.add.container(0, 0);
 
 		orbs.forEach((orb, index) => {
 			const orbX = panelX + 120 + (index * orbSpacing);
@@ -153,9 +160,16 @@ export class ShopUI {
 			});
 
 			// Add the orb's shader to the container
-			orbContainer.add(magicOrb.getShader());
+			this.orbContainer!.add(magicOrb.getShader());
 			this.magicOrbs.push(magicOrb); // Store orb for updates
-		}); this.flyout.add(orbContainer);
+
+			// Set high depth so orbs appear above board units
+			magicOrb.setDepth(1000);
+		});
+
+		// Add orb container directly to scene instead of flyout so orbs stay above dragged units
+		this.scene.add.existing(this.orbContainer!);
+		this.orbContainer!.setDepth(1000); // Ensure container itself has high depth
 
 		// Render characters AFTER buttons to ensure they appear on top
 		const displayedCharas = this._renderTavernCharas(cardsToDisplay, charaPurchaseFinalized, panelX);
@@ -319,5 +333,7 @@ export class ShopUI {
 	destroy() {
 		this.sellZoneContainer?.destroy(true);
 		this.sellZoneContainer = null;
+		this.orbContainer?.destroy(true);
+		this.orbContainer = null;
 	}
 }
