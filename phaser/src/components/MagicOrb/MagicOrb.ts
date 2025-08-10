@@ -35,6 +35,7 @@ export class MagicOrb {
 	private dissolveStartTime: number = 0;
 	private originalPosition: { x: number; y: number };
 	private isDragging: boolean = false;
+	private isDestroyed: boolean = false;
 
 	constructor(scene: Phaser.Scene, x: number, y: number, config: MagicOrbConfig = {}) {
 		this.scene = scene;
@@ -261,6 +262,11 @@ export class MagicOrb {
 	}
 
 	update(time: number): void {
+		// Skip update if orb is destroyed
+		if (this.isDestroyed) {
+			return;
+		}
+
 		// Update time uniform for animation
 		const elapsedTime = (time - this.startTime) / 1000; // Convert to seconds
 		this.shader.setUniform('time.value', elapsedTime);
@@ -350,8 +356,18 @@ export class MagicOrb {
 		return this.isDissolving;
 	}
 
+	// Method to check if orb is destroyed
+	isOrbDestroyed(): boolean {
+		return this.isDestroyed;
+	}
+
 	// Method to destroy the orb
 	destroy(): void {
+		if (this.isDestroyed) {
+			return; // Already destroyed
+		}
+
+		this.isDestroyed = true;
 		if (this.shader) {
 			this.shader.destroy();
 		}
