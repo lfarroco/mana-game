@@ -13,6 +13,9 @@ export interface MagicOrbConfig {
 	dissolveGridSize?: number; // Grid resolution for pixelated effect (default: 20)
 	dissolveUpwardMovement?: number; // How far squares move up (default: 0.3)
 	dissolveFadeRange?: number; // Smoothness of fade transition (default: 0.15)
+	// Animation randomization
+	randomizeStartTime?: boolean; // Whether to randomize the initial animation phase (default: false)
+	timeOffset?: number; // Manual time offset in seconds (overrides randomization)
 }
 
 export class MagicOrb {
@@ -35,7 +38,9 @@ export class MagicOrb {
 			dissolveDuration: 1.0,
 			dissolveGridSize: 20.0,
 			dissolveUpwardMovement: 0.3,
-			dissolveFadeRange: 0.15
+			dissolveFadeRange: 0.15,
+			randomizeStartTime: false,
+			timeOffset: 0.0
 		};
 
 		this.config = { ...defaultConfig, ...config };
@@ -53,6 +58,18 @@ export class MagicOrb {
 		console.log('Shader color:', this.config.color);
 		console.log('Shader intensity:', this.config.intensity);
 
+		// Calculate animation phase offset
+		let animationPhaseOffset = 0.0;
+		if (this.config.randomizeStartTime) {
+			// Random phase offset between 0 and 2π (full cycle)
+			animationPhaseOffset = Math.random() * Math.PI * 2;
+			console.log(`MagicOrb randomization: phase offset=${animationPhaseOffset}`);
+		} else if (this.config.timeOffset !== 0) {
+			// Convert time offset to phase offset
+			animationPhaseOffset = this.config.timeOffset * Math.PI * 2;
+			console.log(`MagicOrb manual offset: ${this.config.timeOffset}s, phase=${animationPhaseOffset}`);
+		}
+
 		// Create the base shader
 		const baseShader = new Phaser.Display.BaseShader(
 			'MagicOrb',
@@ -67,7 +84,8 @@ export class MagicOrb {
 				dissolveProgress: { type: '1f', value: 0.0 },
 				dissolveGridSize: { type: '1f', value: this.config.dissolveGridSize },
 				dissolveUpwardMovement: { type: '1f', value: this.config.dissolveUpwardMovement },
-				dissolveFadeRange: { type: '1f', value: this.config.dissolveFadeRange }
+				dissolveFadeRange: { type: '1f', value: this.config.dissolveFadeRange },
+				animationPhaseOffset: { type: '1f', value: animationPhaseOffset }
 			}
 		);
 

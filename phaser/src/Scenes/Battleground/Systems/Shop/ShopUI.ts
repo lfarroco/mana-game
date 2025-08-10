@@ -88,17 +88,18 @@ export class ShopUI {
 		this._createSellZone();
 
 		// render orbs
-		const orbY = sc.PANEL_Y + 20;
-		const orbSpacing = 60;
+		const orbY = sc.PANEL_Y + 520;
+		const orbSpacing = 240;
 		const orbContainer = this.scene.add.container(0, 0);
 
 		orbs.forEach((orb, index) => {
-			const orbX = panelX + 20 + (index * orbSpacing);
+			const orbX = panelX + 120 + (index * orbSpacing);
 			const magicOrb = new MagicOrb(this.scene, orbX, orbY, {
-				size: 100,
-				color: hexToVector3(orb), // Purple using hex format
+				size: 200,
+				color: hexToVector3(orb), // Using hex format
 				intensity: 1.2,
 				speed: 1.0,
+				randomizeStartTime: true // Randomize initial animation phase
 			});
 
 			// Add the orb's shader to the container
