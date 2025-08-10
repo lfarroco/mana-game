@@ -327,6 +327,8 @@ export class ShopUI {
 
 	update(time: number): void {
 		// Update all magic orbs to enable dissolve animations
+		// Filter out destroyed orbs to prevent calling update on them
+		this.magicOrbs = this.magicOrbs.filter(orb => !orb.isOrbDestroyed());
 		this.magicOrbs.forEach(orb => orb.update(time));
 	}
 
