@@ -98,6 +98,16 @@ export class ShopUI {
 		this._createSellZone();
 
 		// render orbs
+		this.renderOrbSection(orbs, panelX); // Ensure container itself has high depth
+
+		// Render characters AFTER buttons to ensure they appear on top
+		const displayedCharas = this._renderTavernCharas(cardsToDisplay, charaPurchaseFinalized, panelX);
+
+		return { charas: displayedCharas };
+	}
+
+
+	private renderOrbSection(orbs: number[], panelX: number) {
 		const orbY = sc.PANEL_Y + 520;
 		const orbSpacing = 240;
 		this.orbContainer = this.scene.add.container(0, 0);
@@ -136,8 +146,7 @@ export class ShopUI {
 						// Check if the slot is occupied
 						// Access game state to check if there's a unit at this position
 						const gameState = this.scene.state;
-						const existingUnit = gameState?.gameData?.player?.units?.find((unit: any) =>
-							unit.position?.x === tileX && unit.position?.y === tileY
+						const existingUnit = gameState?.gameData?.player?.units?.find((unit: any) => unit.position?.x === tileX && unit.position?.y === tileY
 						);
 
 						if (existingUnit) {
@@ -149,8 +158,8 @@ export class ShopUI {
 								amount: 5,
 								sourceUnit: existingUnit,
 								scene: this.scene
-							})
-							magicOrb.startDissolve(); 
+							});
+							magicOrb.startDissolve();
 
 						} else {
 							console.log(`No unit at position [${tileX}, ${tileY}] - orb returns to position`);
@@ -171,20 +180,15 @@ export class ShopUI {
 			this.orbContainer!.add(magicOrb.getShader());
 			this.magicOrbs.push(magicOrb); // Store orb for updates
 
+
 			// Set high depth so orbs appear above board units
 			magicOrb.setDepth(1000);
 		});
 
 		// Add orb container directly to scene instead of flyout so orbs stay above dragged units
 		this.scene.add.existing(this.orbContainer!);
-		this.orbContainer!.setDepth(1000); // Ensure container itself has high depth
-
-		// Render characters AFTER buttons to ensure they appear on top
-		const displayedCharas = this._renderTavernCharas(cardsToDisplay, charaPurchaseFinalized, panelX);
-
-		return { charas: displayedCharas };
+		this.orbContainer!.setDepth(1000);
 	}
-
 
 	/**
 	 * Renders the tavern section of the shop, including its background, title, and character cards.
