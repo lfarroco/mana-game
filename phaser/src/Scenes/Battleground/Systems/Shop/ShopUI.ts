@@ -94,18 +94,25 @@ export class ShopUI {
 
 		orbs.forEach((orb, index) => {
 			const orbX = panelX + 120 + (index * orbSpacing);
+
+			// Create tooltip content based on orb color
+			const hexString = orb.toString(16).toUpperCase().padStart(6, '0');
+			const orbNames = ['Crimson', 'Emerald', 'Azure', 'Golden', 'Violet'];
+			const orbName = orbNames[index] || `Mystical`;
+
 			const magicOrb = new MagicOrb(this.scene, orbX, orbY, {
 				size: 200,
 				color: hexToVector3(orb), // Using hex format
 				intensity: 1.2,
 				speed: 1.0,
+				enableTooltip: true,
+				tooltipTitle: `${orbName} Orb`,
+				tooltipText: `A sphere of concentrated magical energy pulsing with arcane power.\n\nColor Code: #${hexString}\nEnergy Level: High\nStability: Stable`
 			});
 
 			// Add the orb's shader to the container
 			orbContainer.add(magicOrb.getShader());
-		});
-
-		this.flyout.add(orbContainer);
+		}); this.flyout.add(orbContainer);
 
 		// Render characters AFTER buttons to ensure they appear on top
 		const displayedCharas = this._renderTavernCharas(cardsToDisplay, charaPurchaseFinalized, panelX);

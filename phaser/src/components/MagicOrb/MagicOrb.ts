@@ -1,5 +1,6 @@
 import * as Phaser from "phaser";
 import { magicOrbFragmentShader } from "../../Shaders/MagicOrbShader";
+import { GameEvents } from "../../constants/events";
 
 export interface MagicOrbConfig {
 	size?: number;
@@ -13,6 +14,10 @@ export interface MagicOrbConfig {
 	dissolveGridSize?: number; // Grid resolution for pixelated effect (default: 20)
 	dissolveUpwardMovement?: number; // How far squares move up (default: 0.3)
 	dissolveFadeRange?: number; // Smoothness of fade transition (default: 0.15)
+	// Tooltip configuration
+	tooltipText?: string; // Text to show in tooltip
+	tooltipTitle?: string; // Title for the tooltip
+	enableTooltip?: boolean; // Whether to enable tooltip on hover (default: false)
 }
 
 export class MagicOrb {
@@ -36,7 +41,9 @@ export class MagicOrb {
 			dissolveGridSize: 20.0,
 			dissolveUpwardMovement: 0.3,
 			dissolveFadeRange: 0.15,
-			timeOffset: 0.0
+			tooltipText: '',
+			tooltipTitle: '',
+			enableTooltip: false
 		};
 
 		this.config = { ...defaultConfig, ...config };
@@ -54,11 +61,9 @@ export class MagicOrb {
 		console.log('Shader color:', this.config.color);
 		console.log('Shader intensity:', this.config.intensity);
 
-		// Calculate animation phase offset
-		let animationPhaseOffset = 0.0;
-
-		// Random phase offset between 0 and 2π (full cycle)
-		animationPhaseOffset = Math.random() * Math.PI * 2;
+		// Calculate animation phase offset - always randomized
+		const animationPhaseOffset = Math.random() * Math.PI * 2;
+		console.log(`MagicOrb randomization: phase offset=${animationPhaseOffset}`);
 
 		// Create the base shader
 		const baseShader = new Phaser.Display.BaseShader(
@@ -90,9 +95,55 @@ export class MagicOrb {
 			this.config.size
 		).setOrigin(0.5, 0.5);
 
+		// Add interactivity and tooltip if enabled
+		if (this.config.enableTooltip && (this.config.tooltipText || this.config.tooltipTitle)) {
+			this.setupTooltip();
+		}
+
 		console.log('Shader game object created:', this.shader);
 		console.log('Shader visible:', this.shader.visible);
 		console.log('Shader alpha:', (this.shader as any).alpha);
+	}
+
+	private setupTooltip(): void {
+		// Make the shader interactive
+		this.shader.setInteractive(
+			new Phaser.Geom.Circle(this.config.size / 2, this.config.size / 2, this.config.size / 2),
+			Phaser.Geom.Circle.Contains
+		);
+
+		// Add hover events
+		this.shader.on('pointerover', () => {
+			this.showTooltip();
+		});
+
+		this.shader.on('pointerout', () => {
+			this.hideTooltip();
+		});
+
+		// Add pointer cursor on hover
+		this.shader.on('pointerover', () => {
+			this.scene.input.setDefaultCursor('pointer');
+		});
+
+		this.shader.on('pointerout', () => {
+			this.scene.input.setDefaultCursor('default');
+		});
+	}
+
+	private showTooltip(): void {
+		// Emit tooltip show event with orb data
+		this.scene.events.emit(GameEvents.TOOLTIP_SHOW, {
+			x: this.shader.x,
+			y: this.shader.y - this.config.size / 2 - 10, // Position above the orb
+			title: this.config.tooltipTitle,
+			description: this.config.tooltipText
+		});
+	}
+
+	private hideTooltip(): void {
+		// Emit tooltip hide event
+		this.scene.events.emit(GameEvents.TOOLTIP_HIDE);
 	}
 
 	update(time: number): void {
