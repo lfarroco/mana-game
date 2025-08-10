@@ -1,6 +1,7 @@
 import * as Phaser from "phaser";
 import { magicOrbFragmentShader } from "../../Shaders/MagicOrbShader";
 import { GameEvents } from "../../constants/events";
+import * as Board from "../../Models/Board";
 
 export interface MagicOrbConfig {
 	size?: number;
@@ -21,6 +22,8 @@ export interface MagicOrbConfig {
 	// Drag configuration
 	enableDrag?: boolean; // Whether to enable drag functionality (default: false)
 	returnDuration?: number; // Duration for return animation in milliseconds (default: 300)
+	onDropTarget?: (orb: MagicOrb, target: Phaser.GameObjects.GameObject) => void; // Callback when dropped on a valid target
+	dropTargetNames?: string[]; // Array of target names to check for drops (default: empty)
 }
 
 export class MagicOrb {
@@ -50,7 +53,9 @@ export class MagicOrb {
 			tooltipTitle: '',
 			enableTooltip: false,
 			enableDrag: false,
-			returnDuration: 300
+			returnDuration: 300,
+			onDropTarget: () => { }, // Default empty callback
+			dropTargetNames: [] as string[]
 		};
 
 		this.config = { ...defaultConfig, ...config };
@@ -147,10 +152,19 @@ export class MagicOrb {
 				this.shader.setPosition(dragX, dragY);
 			});
 
-			this.shader.on('dragend', () => {
+			this.shader.on('dragend', (pointer: Phaser.Input.Pointer) => {
 				this.isDragging = false;
 				this.scene.input.setDefaultCursor('default');
-				this.returnToOriginalPosition();
+
+				// Check if dropped over a valid target
+				const dropTarget = this.checkDropTarget(pointer);
+				if (dropTarget && this.config.onDropTarget) {
+					// Execute the callback with the orb and target
+					this.config.onDropTarget(this, dropTarget);
+				} else {
+					// No valid target found, return to original position
+					this.returnToOriginalPosition();
+				}
 			});
 		}
 
@@ -183,7 +197,7 @@ export class MagicOrb {
 		this.scene.events.emit(GameEvents.TOOLTIP_HIDE);
 	}
 
-	private returnToOriginalPosition(): void {
+	returnToOriginalPosition(): void {
 		// Animate the orb back to its original position
 		this.scene.tweens.add({
 			targets: this.shader,
@@ -195,6 +209,54 @@ export class MagicOrb {
 				// Orb has returned to original position
 			}
 		});
+	}
+
+	private checkDropTarget(pointer: Phaser.Input.Pointer): Phaser.GameObjects.GameObject | null {
+		// Get all game objects at the pointer position
+		const objectsAtPointer = this.scene.input.hitTestPointer(pointer);
+
+		// First check for player board drop zones (most common case)
+		const playerBoard = Board.getSharedPlayerBoard();
+
+		if (playerBoard && playerBoard.dropZones) {
+			for (const zone of playerBoard.dropZones) {
+				if (objectsAtPointer.includes(zone)) {
+					console.log('Magic orb dropped on board zone at index:', playerBoard.dropZones.indexOf(zone));
+					return zone;
+				}
+			}
+		}
+
+		// If no drop target names specified, and no board zone hit, return null
+		if (this.config.dropTargetNames.length === 0) {
+			return null;
+		}
+
+		// Check each object to see if it matches our target criteria (for custom targets)
+		for (const obj of objectsAtPointer) {
+			// Check if object has a name that matches our target names
+			if (obj.name && this.config.dropTargetNames.includes(obj.name)) {
+				console.log('Magic orb dropped on named target:', obj.name);
+				return obj;
+			}
+
+			// Also check for objects with getData that might have identifiers
+			if (obj.getData && typeof obj.getData === 'function') {
+				const objType = obj.getData('type');
+				const objId = obj.getData('id');
+
+				if (objType && this.config.dropTargetNames.includes(objType)) {
+					console.log('Magic orb dropped on object with type:', objType);
+					return obj;
+				}
+				if (objId && this.config.dropTargetNames.includes(objId)) {
+					console.log('Magic orb dropped on object with id:', objId);
+					return obj;
+				}
+			}
+		}
+
+		return null;
 	}
 
 	update(time: number): void {
@@ -319,6 +381,97 @@ export class MagicOrb {
 	// Method to check if orb is currently being dragged
 	isDragActive(): boolean {
 		return this.isDragging;
+	}
+
+	// Method to set drop callback and target names
+	setDropCallback(callback: (orb: MagicOrb, target: Phaser.GameObjects.GameObject) => void, targetNames: string[] = []): this {
+		this.config.onDropTarget = callback;
+		this.config.dropTargetNames = targetNames;
+		return this;
+	}
+
+	// Method to add drop target names
+	addDropTargetNames(names: string[]): this {
+		this.config.dropTargetNames.push(...names);
+		return this;
+	}
+
+	// Method to remove drop target names
+	removeDropTargetNames(names: string[]): this {
+		this.config.dropTargetNames = this.config.dropTargetNames.filter(name => !names.includes(name));
+		return this;
+	}
+
+	// Method to clear all drop target names
+	clearDropTargetNames(): this {
+		this.config.dropTargetNames = [];
+		return this;
+	}
+
+	// Method to get the original position
+	getOriginalPosition(): { x: number; y: number } {
+		return { ...this.originalPosition };
+	}
+
+	// Method to get current position
+	getCurrentPosition(): { x: number; y: number } {
+		return { x: this.shader.x, y: this.shader.y };
+	}
+}
+
+// Helper callbacks for common drop behaviors
+export class MagicOrbCallbacks {
+	// Callback that makes the orb return to its original position
+	static returnToPosition(orb: MagicOrb, target: Phaser.GameObjects.GameObject): void {
+		console.log('Orb effect: Returning to position after touching', target.name || 'target');
+		orb.returnToOriginalPosition();
+	}
+
+	// Callback that makes the orb dissolve when dropped
+	static dissolveOnDrop(orb: MagicOrb, target: Phaser.GameObjects.GameObject): void {
+		console.log('Orb effect: Dissolving after touching', target.name || 'target');
+		orb.startDissolve();
+	}
+
+	// Callback that creates a healing effect (brighten then return)
+	static healingEffect(orb: MagicOrb, target: Phaser.GameObjects.GameObject): void {
+		console.log('Orb effect: Healing', target.name || 'target');
+		orb.setIntensity(2.0);
+		orb.setOrbColor(0.3, 1.0, 0.4); // Green healing color
+		setTimeout(() => {
+			orb.returnToOriginalPosition();
+		}, 1000);
+	}
+
+	// Callback that creates a damage effect (red flash then dissolve)
+	static damageEffect(orb: MagicOrb, target: Phaser.GameObjects.GameObject): void {
+		console.log('Orb effect: Damaging', target.name || 'target');
+		orb.setOrbColor(1.0, 0.3, 0.2); // Red damage color
+		orb.setIntensity(2.5);
+		setTimeout(() => {
+			orb.startDissolve();
+		}, 500);
+	}
+
+	// Callback that creates a custom effect with parameters
+	static createCustomEffect(
+		color: { r: number; g: number; b: number },
+		intensity: number,
+		behavior: 'return' | 'dissolve' = 'return',
+		delay: number = 1000
+	): (orb: MagicOrb, target: Phaser.GameObjects.GameObject) => void {
+		return (orb: MagicOrb, target: Phaser.GameObjects.GameObject) => {
+			console.log('Orb effect: Custom effect on', target.name || 'target');
+			orb.setOrbColor(color.r, color.g, color.b);
+			orb.setIntensity(intensity);
+			setTimeout(() => {
+				if (behavior === 'dissolve') {
+					orb.startDissolve();
+				} else {
+					orb.returnToOriginalPosition();
+				}
+			}, delay);
+		};
 	}
 }
 
