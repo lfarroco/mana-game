@@ -11,6 +11,7 @@ uniform float dissolveGridSize;
 uniform float dissolveUpwardMovement;
 uniform float dissolveFadeRange;
 uniform float animationPhaseOffset;
+uniform float dissolveTime; // Separate time for dissolve effects
 
 varying vec2 fragCoord;
 
@@ -77,8 +78,8 @@ void main() {
         // Create dissolve threshold that varies per cell
         float dissolveThreshold = cellRandom * 1.2; // Some cells dissolve faster
         
-        // Add some randomness to make squares appear and disappear
-        float dissolveNoise = noise(gridID + time * 2.0) * 0.3;
+        // Add some randomness to make squares appear and disappear - use dissolveTime
+        float dissolveNoise = noise(gridID + dissolveTime * 2.0) * 0.3;
         dissolveThreshold += dissolveNoise;
         
         // Discard pixels based on dissolve progress
@@ -144,7 +145,7 @@ void main() {
         vec2 gridID = floor(gridUV);
         float cellRandom = noise(gridID);
         float dissolveThreshold = cellRandom * 1.2;
-        float dissolveNoise = noise(gridID + time * 2.0) * 0.3;
+        float dissolveNoise = noise(gridID + dissolveTime * 2.0) * 0.3;
         dissolveThreshold += dissolveNoise;
         
         finalAlpha = 1.0 - smoothstep(dissolveThreshold - dissolveFadeRange, dissolveThreshold, dissolveProgress);

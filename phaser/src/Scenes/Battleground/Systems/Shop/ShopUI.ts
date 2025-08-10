@@ -19,6 +19,7 @@ export class ShopUI {
 	sellZone: Phaser.GameObjects.Zone | null = null;
 	sellZoneText: Phaser.GameObjects.Text | null = null;
 	sellZoneGraphics: Phaser.GameObjects.Graphics | null = null;
+	magicOrbs: MagicOrb[] = []; // Store magic orbs for updating
 
 	constructor(scene: BattlegroundScene, flyout: Flyout) {
 		this.scene = scene;
@@ -49,6 +50,7 @@ export class ShopUI {
 		charaPurchaseFinalized: (purchasedChara: Chara) => void,
 	): { charas: Chara[] } {
 		this.flyout.removeAll(true); // Clear any previous content
+		this.magicOrbs = []; // Clear magic orbs array
 
 
 		// Calculate right-aligned X for the shop panel
@@ -152,6 +154,7 @@ export class ShopUI {
 
 			// Add the orb's shader to the container
 			orbContainer.add(magicOrb.getShader());
+			this.magicOrbs.push(magicOrb); // Store orb for updates
 		}); this.flyout.add(orbContainer);
 
 		// Render characters AFTER buttons to ensure they appear on top
@@ -306,6 +309,11 @@ export class ShopUI {
 
 	hideSellZone(): void {
 		this.sellZoneContainer?.setVisible(false);
+	}
+
+	update(time: number): void {
+		// Update all magic orbs to enable dissolve animations
+		this.magicOrbs.forEach(orb => orb.update(time));
 	}
 
 	destroy() {

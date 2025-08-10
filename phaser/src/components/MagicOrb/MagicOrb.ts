@@ -93,7 +93,8 @@ export class MagicOrb {
 				dissolveGridSize: { type: '1f', value: this.config.dissolveGridSize },
 				dissolveUpwardMovement: { type: '1f', value: this.config.dissolveUpwardMovement },
 				dissolveFadeRange: { type: '1f', value: this.config.dissolveFadeRange },
-				animationPhaseOffset: { type: '1f', value: animationPhaseOffset }
+				animationPhaseOffset: { type: '1f', value: animationPhaseOffset },
+				dissolveTime: { type: '1f', value: 0.0 } // Separate time for dissolve effects
 			}
 		);
 
@@ -270,8 +271,17 @@ export class MagicOrb {
 			const dissolveProgress = Math.min(dissolveElapsed / this.config.dissolveDuration, 1.0);
 			this.shader.setUniform('dissolveProgress.value', dissolveProgress);
 
+			// Update dissolveTime for dissolve-specific animations
+			this.shader.setUniform('dissolveTime.value', dissolveElapsed);
+
+			// Debug logging (remove this later if it gets too verbose)
+			if (Math.floor(dissolveElapsed * 10) % 10 === 0) { // Log every 100ms
+				console.log(`Dissolve progress: ${(dissolveProgress * 100).toFixed(1)}%`);
+			}
+
 			// Destroy the orb when dissolve is complete
 			if (dissolveProgress >= 1.0) {
+				console.log('Dissolve animation complete, destroying orb');
 				this.destroy();
 			}
 		}
@@ -330,6 +340,7 @@ export class MagicOrb {
 		if (!this.isDissolving) {
 			this.isDissolving = true;
 			this.dissolveStartTime = this.scene.time.now;
+			console.log('Starting dissolve animation at time:', this.dissolveStartTime);
 		}
 		return this;
 	}
