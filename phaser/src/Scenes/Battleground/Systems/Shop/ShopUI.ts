@@ -11,6 +11,7 @@ import { makeUnit } from "../../../../Models/Entities/Unit";
 import * as sc from "./ShopConstants";
 import { MagicOrb, MagicOrbCallbacks } from "../../../../components/MagicOrb/MagicOrb";
 import { hexToVector3 } from "../../../../Utils/colorUtils";
+import { increasePower } from "../../../../TriggerSystem/effects";
 
 export class ShopUI {
 	scene: BattlegroundScene;
@@ -142,7 +143,14 @@ export class ShopUI {
 						if (existingUnit) {
 							console.log(`Unit ${existingUnit.id} is at this position - applying ${orbName} effect!`);
 
-							magicOrb.startDissolve(); // Start dissolve animation
+							existingUnit.power += 5; // Example effect: increase power by 5
+							increasePower({
+								targets: [existingUnit],
+								amount: 5,
+								sourceUnit: existingUnit,
+								scene: this.scene
+							})
+							magicOrb.startDissolve(); 
 
 						} else {
 							console.log(`No unit at position [${tileX}, ${tileY}] - orb returns to position`);
