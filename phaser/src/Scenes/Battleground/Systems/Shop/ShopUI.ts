@@ -106,6 +106,8 @@ export class ShopUI {
 				intensity: 1.2,
 				speed: 1.0,
 				enableTooltip: true,
+				enableDrag: true, // Enable drag functionality
+				returnDuration: 500, // Smooth return animation
 				tooltipTitle: `${orbName} Orb`,
 				tooltipText: `A sphere of concentrated magical energy pulsing with arcane power.\n\nColor Code: #${hexString}\nEnergy Level: High\nStability: Stable`
 			});

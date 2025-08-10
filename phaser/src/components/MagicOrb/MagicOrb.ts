@@ -18,6 +18,9 @@ export interface MagicOrbConfig {
 	tooltipText?: string; // Text to show in tooltip
 	tooltipTitle?: string; // Title for the tooltip
 	enableTooltip?: boolean; // Whether to enable tooltip on hover (default: false)
+	// Drag configuration
+	enableDrag?: boolean; // Whether to enable drag functionality (default: false)
+	returnDuration?: number; // Duration for return animation in milliseconds (default: 300)
 }
 
 export class MagicOrb {
@@ -27,6 +30,8 @@ export class MagicOrb {
 	private config: Required<Omit<MagicOrbConfig, 'x' | 'y'>>;
 	private isDissolving: boolean = false;
 	private dissolveStartTime: number = 0;
+	private originalPosition: { x: number; y: number };
+	private isDragging: boolean = false;
 
 	constructor(scene: Phaser.Scene, x: number, y: number, config: MagicOrbConfig = {}) {
 		this.scene = scene;
@@ -43,11 +48,14 @@ export class MagicOrb {
 			dissolveFadeRange: 0.15,
 			tooltipText: '',
 			tooltipTitle: '',
-			enableTooltip: false
+			enableTooltip: false,
+			enableDrag: false,
+			returnDuration: 300
 		};
 
 		this.config = { ...defaultConfig, ...config };
 		this.startTime = scene.time.now;
+		this.originalPosition = { x, y };
 
 		console.log('Creating MagicOrb with config:', this.config);
 		console.log('Position:', x, y);
@@ -95,9 +103,9 @@ export class MagicOrb {
 			this.config.size
 		).setOrigin(0.5, 0.5);
 
-		// Add interactivity and tooltip if enabled
-		if (this.config.enableTooltip && (this.config.tooltipText || this.config.tooltipTitle)) {
-			this.setupTooltip();
+		// Add interactivity if needed (tooltip or drag)
+		if ((this.config.enableTooltip && (this.config.tooltipText || this.config.tooltipTitle)) || this.config.enableDrag) {
+			this.setupInteractivity();
 		}
 
 		console.log('Shader game object created:', this.shader);
@@ -105,29 +113,58 @@ export class MagicOrb {
 		console.log('Shader alpha:', (this.shader as any).alpha);
 	}
 
-	private setupTooltip(): void {
+	private setupInteractivity(): void {
 		// Make the shader interactive
 		this.shader.setInteractive(
 			new Phaser.Geom.Circle(this.config.size / 2, this.config.size / 2, this.config.size / 2),
 			Phaser.Geom.Circle.Contains
 		);
 
-		// Add hover events
+		// Add tooltip events if enabled
+		if (this.config.enableTooltip && (this.config.tooltipText || this.config.tooltipTitle)) {
+			this.shader.on('pointerover', () => {
+				if (!this.isDragging) {
+					this.showTooltip();
+				}
+			});
+
+			this.shader.on('pointerout', () => {
+				this.hideTooltip();
+			});
+		}
+
+		// Add drag functionality if enabled
+		if (this.config.enableDrag) {
+			this.scene.input.setDraggable(this.shader);
+
+			this.shader.on('dragstart', () => {
+				this.isDragging = true;
+				this.hideTooltip(); // Hide tooltip when dragging starts
+				this.scene.input.setDefaultCursor('grabbing');
+			});
+
+			this.shader.on('drag', (_pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
+				this.shader.setPosition(dragX, dragY);
+			});
+
+			this.shader.on('dragend', () => {
+				this.isDragging = false;
+				this.scene.input.setDefaultCursor('default');
+				this.returnToOriginalPosition();
+			});
+		}
+
+		// Add pointer cursor on hover (for both tooltip and drag)
 		this.shader.on('pointerover', () => {
-			this.showTooltip();
+			if (!this.isDragging) {
+				this.scene.input.setDefaultCursor(this.config.enableDrag ? 'grab' : 'pointer');
+			}
 		});
 
 		this.shader.on('pointerout', () => {
-			this.hideTooltip();
-		});
-
-		// Add pointer cursor on hover
-		this.shader.on('pointerover', () => {
-			this.scene.input.setDefaultCursor('pointer');
-		});
-
-		this.shader.on('pointerout', () => {
-			this.scene.input.setDefaultCursor('default');
+			if (!this.isDragging) {
+				this.scene.input.setDefaultCursor('default');
+			}
 		});
 	}
 
@@ -144,6 +181,20 @@ export class MagicOrb {
 	private hideTooltip(): void {
 		// Emit tooltip hide event
 		this.scene.events.emit(GameEvents.TOOLTIP_HIDE);
+	}
+
+	private returnToOriginalPosition(): void {
+		// Animate the orb back to its original position
+		this.scene.tweens.add({
+			targets: this.shader,
+			x: this.originalPosition.x,
+			y: this.originalPosition.y,
+			duration: this.config.returnDuration,
+			ease: 'Back.easeOut',
+			onComplete: () => {
+				// Orb has returned to original position
+			}
+		});
 	}
 
 	update(time: number): void {
@@ -196,6 +247,7 @@ export class MagicOrb {
 	// Method to set position
 	setPosition(x: number, y: number): this {
 		this.shader.setPosition(x, y);
+		this.originalPosition = { x, y }; // Update original position
 		return this;
 	}
 
@@ -248,16 +300,37 @@ export class MagicOrb {
 		container.remove(this.shader);
 		return this;
 	}
+
+	// Method to enable or disable drag functionality
+	setDragEnabled(enabled: boolean): this {
+		this.config.enableDrag = enabled;
+
+		// If disabling drag, remove drag functionality
+		if (!enabled && this.shader.input) {
+			this.scene.input.setDraggable(this.shader, false);
+		} else if (enabled && this.shader.input) {
+			// If enabling drag, set it up
+			this.scene.input.setDraggable(this.shader, true);
+		}
+
+		return this;
+	}
+
+	// Method to check if orb is currently being dragged
+	isDragActive(): boolean {
+		return this.isDragging;
+	}
 }
 
 // Helper function to create multiple orbs with different colors
 export class MagicOrbFactory {
-	static createPurpleOrb(scene: Phaser.Scene, x: number, y: number, size: number = 100): MagicOrb {
+	static createPurpleOrb(scene: Phaser.Scene, x: number, y: number, size: number = 100, draggable: boolean = false): MagicOrb {
 		return new MagicOrb(scene, x, y, {
 			size,
 			color: { x: 0.5, y: 0.3, z: 1.0 },
 			intensity: 1.2,
-			speed: 1.0
+			speed: 1.0,
+			enableDrag: draggable
 		});
 	}
 
