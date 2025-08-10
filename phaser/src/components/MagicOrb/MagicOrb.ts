@@ -46,7 +46,7 @@ export class MagicOrb {
 			color: { x: 0.5, y: 0.3, z: 1.0 }, // Purple/blue magic color
 			intensity: 1.0,
 			speed: 1.0,
-			dissolveDuration: 1.0,
+			dissolveDuration: 0.5,
 			dissolveGridSize: 20.0,
 			dissolveUpwardMovement: 0.3,
 			dissolveFadeRange: 0.15,
