@@ -65,7 +65,7 @@ export class Shop {
 		const tavernCardData = this._getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
 
 		const orbs = [
-			"crimson_orb",
+			"crimsom_orb", 
 			"emerald_orb",
 			"azure_orb",
 			"golden_orb",

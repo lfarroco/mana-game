@@ -9,9 +9,8 @@ import * as c from "../../../../constants/constants";
 import { UIButton } from "../../../../UI/UIButton";
 import { makeUnit } from "../../../../Models/Entities/Unit";
 import * as sc from "./ShopConstants";
-import { MagicOrb, MagicOrbCallbacks } from "../../../../components/MagicOrb/MagicOrb";
-import { hexToVector3 } from "../../../../Utils/colorUtils";
-import { increasePower } from "../../../../TriggerSystem/effects";
+import { MagicOrb } from "../../../../components/MagicOrb/MagicOrb";
+import { renderOrbs } from "./Orbs";
 
 export class ShopUI {
 	scene: BattlegroundScene;
@@ -22,6 +21,7 @@ export class ShopUI {
 	sellZoneGraphics: Phaser.GameObjects.Graphics | null = null;
 	magicOrbs: MagicOrb[] = []; // Store magic orbs for updating
 	orbContainer: Phaser.GameObjects.Container | null = null; // Store orb container for cleanup
+	panelX: number;
 
 	constructor(scene: BattlegroundScene, flyout: Flyout) {
 		this.scene = scene;
@@ -60,22 +60,21 @@ export class ShopUI {
 			this.orbContainer = null;
 		}
 
-
 		// Calculate right-aligned X for the shop panel
 		const screenWidth = this.scene.cameras.main.width;
-		const panelX = screenWidth - sc.SHOP_PANEL_WIDTH - 40; // 40px margin from right
+		this.panelX = screenWidth - sc.SHOP_PANEL_WIDTH - 40; // 40px margin from right
 		const shopBackground = this.scene.add.graphics()
 			.fillStyle(sc.PANEL_BG_COLOR, sc.PANEL_BG_OPACITY)
-			.fillRoundedRect(panelX, sc.PANEL_Y, sc.SHOP_PANEL_WIDTH, sc.SHOP_PANEL_HEIGHT, 20);
+			.fillRoundedRect(this.panelX, sc.PANEL_Y, sc.SHOP_PANEL_WIDTH, sc.SHOP_PANEL_HEIGHT, 20);
 		this.flyout.add(shopBackground);
 
 
 		// Render tavern background and title first, passing panelX for right alignment
-		this._renderTavernSectionBackgroundAndTitle(panelX);
+		this._renderTavernSectionBackgroundAndTitle(this.panelX);
 
 
 		const buttonY = sc.PANEL_Y + sc.SHOP_PANEL_HEIGHT - 100;
-		const rerollButtonX = panelX + 190;
+		const rerollButtonX = this.panelX + 190;
 		const rerollBtn = new UIButton(
 			this.scene,
 			`Reroll $${c.SHOP_ITEM_PURCHASE_COST}`,
@@ -98,104 +97,18 @@ export class ShopUI {
 		this._createSellZone();
 
 		// render orbs
-		this.renderOrbSection(orbs, panelX); // Ensure container itself has high depth
+		this.renderOrbSection(orbs);
 
 		// Render characters AFTER buttons to ensure they appear on top
-		const displayedCharas = this._renderTavernCharas(cardsToDisplay, charaPurchaseFinalized, panelX);
+		const displayedCharas = this._renderTavernCharas(cardsToDisplay, charaPurchaseFinalized);
 
 		return { charas: displayedCharas };
 	}
 
 
-	private renderOrbSection(orbs: string[], panelX: number) {
-		const orbY = sc.PANEL_Y + 520;
-		const orbSpacing = 240;
-		this.orbContainer = this.scene.add.container(0, 0);
+	private renderOrbSection(orbs: string[]) {
 
-		orbs.forEach((orb, index) => {
-			const orbX = panelX + 120 + (index * orbSpacing);
-
-			const colors = {
-				["crimson_orb"]: 0xff0000,
-				["emerald_orb"]: 0x00ff00,
-				["azure_orb"]: 0x0000ff,
-				["golden_orb"]: 0xffff00,
-				["violet_orb"]: 0xff00ff,
-				["void_orb"]: 0x000000
-			} as Record<string, number>;
-			const color = colors[orb] || 0xffffff; // Default to white if not found
-			// Create tooltip content based on orb color
-			const orbNames = ['Crimson', 'Emerald', 'Azure', 'Golden', 'Violet'];
-			const orbName = orbNames[index] || `Mystical`;
-
-			const magicOrb = new MagicOrb(this.scene, orbX, orbY, {
-				size: 200,
-				color: hexToVector3(color), // Using hex format
-				intensity: 1.2,
-				speed: 1.0,
-				enableTooltip: true,
-				enableDrag: true, // Enable drag functionality
-				returnDuration: 500, // Smooth return animation
-				tooltipTitle: `${orbName} Orb`,
-				tooltipText: `A sphere of concentrated magical energy pulsing with arcane power.\n\nColor Code: #${color.toString(16).toUpperCase().padStart(6, '0')}\nEnergy Level: High\nStability: Stable`,
-				// Drop callback - determines what happens when orb is dropped on a target
-				onDropTarget: (orb, target) => {
-					// Get board information if dropped on a board slot
-					const Board = require("../../../../Models/Board");
-					const playerBoard = Board.getSharedPlayerBoard();
-
-					if (playerBoard && playerBoard.dropZones.includes(target)) {
-						const slotIndex = playerBoard.dropZones.indexOf(target);
-						const tileX = slotIndex % 3;
-						const tileY = Math.floor(slotIndex / 3);
-
-						console.log(`${orbName} Orb dropped on board slot [${tileX}, ${tileY}] (index: ${slotIndex})`);
-
-						// Check if the slot is occupied
-						// Access game state to check if there's a unit at this position
-						const gameState = this.scene.state;
-						const existingUnit = gameState?.gameData?.player?.units?.find((unit: any) => unit.position?.x === tileX && unit.position?.y === tileY
-						);
-
-						if (existingUnit) {
-							console.log(`Unit ${existingUnit.id} is at this position - applying ${orbName} effect!`);
-
-							existingUnit.power += 5; // Example effect: increase power by 5
-							increasePower({
-								targets: [existingUnit],
-								amount: 5,
-								sourceUnit: existingUnit,
-								scene: this.scene
-							});
-							magicOrb.startDissolve();
-
-						} else {
-							console.log(`No unit at position [${tileX}, ${tileY}] - orb returns to position`);
-							MagicOrbCallbacks.returnToPosition(orb, target);
-						}
-					} else {
-						console.log(`${orbName} Orb dropped on non-board target:`, target.name || target.getData?.('type') || 'unknown');
-						// For non-board targets, use simple return behavior
-						MagicOrbCallbacks.returnToPosition(orb, target);
-					}
-				},
-				// Note: Board drop zones are automatically detected
-				// dropTargetNames can be used for additional custom targets if needed
-				dropTargetNames: [] // Empty array - we detect board zones automatically
-			});
-
-			// Add the orb's shader to the container
-			this.orbContainer!.add(magicOrb.getShader());
-			this.magicOrbs.push(magicOrb); // Store orb for updates
-
-
-			// Set high depth so orbs appear above board units
-			magicOrb.setDepth(1000);
-		});
-
-		// Add orb container directly to scene instead of flyout so orbs stay above dragged units
-		this.scene.add.existing(this.orbContainer!);
-		this.orbContainer!.setDepth(1000);
+		renderOrbs(this, orbs); // Pass `this` to use the ShopUI instance context
 	}
 
 	/**
@@ -212,7 +125,7 @@ export class ShopUI {
 		panelX: number
 	): Chara[] {
 		this._renderTavernSectionBackgroundAndTitle(panelX);
-		return this._renderTavernCharas(cardDefs, charaPurchaseFinalized, panelX);
+		return this._renderTavernCharas(cardDefs, charaPurchaseFinalized);
 	}
 
 
@@ -243,10 +156,9 @@ export class ShopUI {
 	_renderTavernCharas(
 		cardDefs: Card.CardDefinition[],
 		charaPurchaseFinalized: (purchasedChara: Chara) => void,
-		panelX?: number
 	): Chara[] {
 		const createdCharas: Chara[] = [];
-		const baseX = (panelX !== undefined ? panelX + 160 : sc.TAVERN_CHARA_FIRST_X);
+		const baseX = (this.panelX !== undefined ? this.panelX + 160 : sc.TAVERN_CHARA_FIRST_X);
 		cardDefs.forEach((spec, index) => {
 			const unit = makeUnit(c.FORCE_ID_PLAYER, spec.id, vec2(0, 0)); // Position is relative to flyout, set later
 			const charaOptions: CharaOptions = {
