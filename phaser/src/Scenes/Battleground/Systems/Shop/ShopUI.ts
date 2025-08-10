@@ -46,7 +46,7 @@ export class ShopUI {
 	}
 	displayShop(
 		cardsToDisplay: Card.CardDefinition[],
-		orbs: number[],
+		orbs: string[],
 		nextRoundCallback: () => void,
 		rerollCallback: () => void,
 		charaPurchaseFinalized: (purchasedChara: Chara) => void,
@@ -107,7 +107,7 @@ export class ShopUI {
 	}
 
 
-	private renderOrbSection(orbs: number[], panelX: number) {
+	private renderOrbSection(orbs: string[], panelX: number) {
 		const orbY = sc.PANEL_Y + 520;
 		const orbSpacing = 240;
 		this.orbContainer = this.scene.add.container(0, 0);
@@ -115,21 +115,29 @@ export class ShopUI {
 		orbs.forEach((orb, index) => {
 			const orbX = panelX + 120 + (index * orbSpacing);
 
+			const colors = {
+				["crimson_orb"]: 0xff0000,
+				["emerald_orb"]: 0x00ff00,
+				["azure_orb"]: 0x0000ff,
+				["golden_orb"]: 0xffff00,
+				["violet_orb"]: 0xff00ff,
+				["void_orb"]: 0x000000
+			} as Record<string, number>;
+			const color = colors[orb] || 0xffffff; // Default to white if not found
 			// Create tooltip content based on orb color
-			const hexString = orb.toString(16).toUpperCase().padStart(6, '0');
 			const orbNames = ['Crimson', 'Emerald', 'Azure', 'Golden', 'Violet'];
 			const orbName = orbNames[index] || `Mystical`;
 
 			const magicOrb = new MagicOrb(this.scene, orbX, orbY, {
 				size: 200,
-				color: hexToVector3(orb), // Using hex format
+				color: hexToVector3(color), // Using hex format
 				intensity: 1.2,
 				speed: 1.0,
 				enableTooltip: true,
 				enableDrag: true, // Enable drag functionality
 				returnDuration: 500, // Smooth return animation
 				tooltipTitle: `${orbName} Orb`,
-				tooltipText: `A sphere of concentrated magical energy pulsing with arcane power.\n\nColor Code: #${hexString}\nEnergy Level: High\nStability: Stable`,
+				tooltipText: `A sphere of concentrated magical energy pulsing with arcane power.\n\nColor Code: #${color.toString(16).toUpperCase().padStart(6, '0')}\nEnergy Level: High\nStability: Stable`,
 				// Drop callback - determines what happens when orb is dropped on a target
 				onDropTarget: (orb, target) => {
 					// Get board information if dropped on a board slot
