@@ -251,6 +251,13 @@ export class BattlegroundScene extends Phaser.Scene {
       chara
     );
   }
+
+  update(time: number): void {
+    // Update shop UI to handle magic orb animations
+    if (this.shop && this.shop.shopUI) {
+      this.shop.shopUI.update(time);
+    }
+  }
 }
 
 export default BattlegroundScene;
