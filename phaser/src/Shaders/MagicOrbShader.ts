@@ -10,6 +10,7 @@ uniform float dissolveProgress;
 uniform float dissolveGridSize;
 uniform float dissolveUpwardMovement;
 uniform float dissolveFadeRange;
+uniform float animationPhaseOffset;
 
 varying vec2 fragCoord;
 
@@ -34,6 +35,7 @@ float squareClouds(vec2 uv, float scale, float threshold, float time, vec2 veloc
     float cloudPresence = step(0.5, cloudNoise); // Lower threshold for more clouds
     
     // Add temporal variation to make clouds fade in/out - more dramatic
+    // Use the time parameter which now includes the phase offset
     float timeVariation = sin(time * 1.0 + noise(gridID) * 6.28318) * 0.5 + 0.5;
     timeVariation = smoothstep(0.2, 0.9, timeVariation);
     
@@ -105,7 +107,7 @@ void main() {
     }
     
     // Create multiple layers of square clouds at different scales and speeds
-    float scaledTime = time * speed;
+    float scaledTime = time * speed + animationPhaseOffset;
     
     // Large cloud blocks - slow moving, more visible
     float largeClouds = squareClouds(uv, 6.0, 0.4, scaledTime, vec2(0.05, 0.03));
