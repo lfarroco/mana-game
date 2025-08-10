@@ -9,6 +9,8 @@ import * as c from "../../../../constants/constants";
 import { UIButton } from "../../../../UI/UIButton";
 import { makeUnit } from "../../../../Models/Entities/Unit";
 import * as sc from "./ShopConstants";
+import { MagicOrb } from "../../../../components/MagicOrb/MagicOrb";
+import { hexToVector3 } from "../../../../Utils/colorUtils";
 
 export class ShopUI {
 	scene: BattlegroundScene;
@@ -41,7 +43,7 @@ export class ShopUI {
 	}
 	displayShop(
 		cardsToDisplay: Card.CardDefinition[],
-		orbs: string[],
+		orbs: number[],
 		nextRoundCallback: () => void,
 		rerollCallback: () => void,
 		charaPurchaseFinalized: (purchasedChara: Chara) => void,
@@ -88,13 +90,22 @@ export class ShopUI {
 		// render orbs
 		const orbY = sc.PANEL_Y + 20;
 		const orbSpacing = 60;
+		const orbContainer = this.scene.add.container(0, 0);
+
 		orbs.forEach((orb, index) => {
 			const orbX = panelX + 20 + (index * orbSpacing);
-			const orbImage = this.scene.add.image(orbX, orbY, `orb_${orb}`);
-			orbImage.setScale(0.5); // Scale down the orb images
-			this.flyout.add(orbImage);
+			const magicOrb = new MagicOrb(this.scene, orbX, orbY, {
+				size: 100,
+				color: hexToVector3(orb), // Purple using hex format
+				intensity: 1.2,
+				speed: 1.0,
+			});
+
+			// Add the orb's shader to the container
+			orbContainer.add(magicOrb.getShader());
 		});
 
+		this.flyout.add(orbContainer);
 
 		// Render characters AFTER buttons to ensure they appear on top
 		const displayedCharas = this._renderTavernCharas(cardsToDisplay, charaPurchaseFinalized, panelX);

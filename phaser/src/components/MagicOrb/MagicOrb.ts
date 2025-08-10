@@ -177,6 +177,18 @@ export class MagicOrb {
 	getShader(): Phaser.GameObjects.Shader {
 		return this.shader;
 	}
+
+	// Add the orb to a container
+	addToContainer(container: Phaser.GameObjects.Container): this {
+		container.add(this.shader);
+		return this;
+	}
+
+	// Remove the orb from a container
+	removeFromContainer(container: Phaser.GameObjects.Container): this {
+		container.remove(this.shader);
+		return this;
+	}
 }
 
 // Helper function to create multiple orbs with different colors
