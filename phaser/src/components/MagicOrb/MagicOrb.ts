@@ -13,9 +13,6 @@ export interface MagicOrbConfig {
 	dissolveGridSize?: number; // Grid resolution for pixelated effect (default: 20)
 	dissolveUpwardMovement?: number; // How far squares move up (default: 0.3)
 	dissolveFadeRange?: number; // Smoothness of fade transition (default: 0.15)
-	// Animation randomization
-	randomizeStartTime?: boolean; // Whether to randomize the initial animation phase (default: false)
-	timeOffset?: number; // Manual time offset in seconds (overrides randomization)
 }
 
 export class MagicOrb {
@@ -39,7 +36,6 @@ export class MagicOrb {
 			dissolveGridSize: 20.0,
 			dissolveUpwardMovement: 0.3,
 			dissolveFadeRange: 0.15,
-			randomizeStartTime: false,
 			timeOffset: 0.0
 		};
 
@@ -60,15 +56,9 @@ export class MagicOrb {
 
 		// Calculate animation phase offset
 		let animationPhaseOffset = 0.0;
-		if (this.config.randomizeStartTime) {
-			// Random phase offset between 0 and 2π (full cycle)
-			animationPhaseOffset = Math.random() * Math.PI * 2;
-			console.log(`MagicOrb randomization: phase offset=${animationPhaseOffset}`);
-		} else if (this.config.timeOffset !== 0) {
-			// Convert time offset to phase offset
-			animationPhaseOffset = this.config.timeOffset * Math.PI * 2;
-			console.log(`MagicOrb manual offset: ${this.config.timeOffset}s, phase=${animationPhaseOffset}`);
-		}
+
+		// Random phase offset between 0 and 2π (full cycle)
+		animationPhaseOffset = Math.random() * Math.PI * 2;
 
 		// Create the base shader
 		const baseShader = new Phaser.Display.BaseShader(

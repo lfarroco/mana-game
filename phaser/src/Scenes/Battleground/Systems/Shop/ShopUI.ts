@@ -99,7 +99,6 @@ export class ShopUI {
 				color: hexToVector3(orb), // Using hex format
 				intensity: 1.2,
 				speed: 1.0,
-				randomizeStartTime: true // Randomize initial animation phase
 			});
 
 			// Add the orb's shader to the container
