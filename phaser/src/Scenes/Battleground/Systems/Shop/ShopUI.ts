@@ -9,7 +9,7 @@ import * as c from "../../../../constants/constants";
 import { UIButton } from "../../../../UI/UIButton";
 import { makeUnit } from "../../../../Models/Entities/Unit";
 import * as sc from "./ShopConstants";
-import { MagicOrb } from "../../../../components/MagicOrb/MagicOrb";
+import { MagicOrb, MagicOrbCallbacks } from "../../../../components/MagicOrb/MagicOrb";
 import { hexToVector3 } from "../../../../Utils/colorUtils";
 
 export class ShopUI {
@@ -109,7 +109,45 @@ export class ShopUI {
 				enableDrag: true, // Enable drag functionality
 				returnDuration: 500, // Smooth return animation
 				tooltipTitle: `${orbName} Orb`,
-				tooltipText: `A sphere of concentrated magical energy pulsing with arcane power.\n\nColor Code: #${hexString}\nEnergy Level: High\nStability: Stable`
+				tooltipText: `A sphere of concentrated magical energy pulsing with arcane power.\n\nColor Code: #${hexString}\nEnergy Level: High\nStability: Stable`,
+				// Drop callback - determines what happens when orb is dropped on a target
+				onDropTarget: (orb, target) => {
+					// Get board information if dropped on a board slot
+					const Board = require("../../../../Models/Board");
+					const playerBoard = Board.getSharedPlayerBoard();
+
+					if (playerBoard && playerBoard.dropZones.includes(target)) {
+						const slotIndex = playerBoard.dropZones.indexOf(target);
+						const tileX = slotIndex % 3;
+						const tileY = Math.floor(slotIndex / 3);
+
+						console.log(`${orbName} Orb dropped on board slot [${tileX}, ${tileY}] (index: ${slotIndex})`);
+
+						// Check if the slot is occupied
+						// Access game state to check if there's a unit at this position
+						const gameState = this.scene.state;
+						const existingUnit = gameState?.gameData?.player?.units?.find((unit: any) =>
+							unit.position?.x === tileX && unit.position?.y === tileY
+						);
+
+						if (existingUnit) {
+							console.log(`Unit ${existingUnit.id} is at this position - applying ${orbName} effect!`);
+
+							magicOrb.startDissolve(); // Start dissolve animation
+
+						} else {
+							console.log(`No unit at position [${tileX}, ${tileY}] - orb returns to position`);
+							MagicOrbCallbacks.returnToPosition(orb, target);
+						}
+					} else {
+						console.log(`${orbName} Orb dropped on non-board target:`, target.name || target.getData?.('type') || 'unknown');
+						// For non-board targets, use simple return behavior
+						MagicOrbCallbacks.returnToPosition(orb, target);
+					}
+				},
+				// Note: Board drop zones are automatically detected
+				// dropTargetNames can be used for additional custom targets if needed
+				dropTargetNames: [] // Empty array - we detect board zones automatically
 			});
 
 			// Add the orb's shader to the container
