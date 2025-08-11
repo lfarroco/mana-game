@@ -16,6 +16,7 @@ import * as sc from "./ShopConstants";
 import { State } from "../../../../Models/State";
 import { tween } from "../../../../Utils/animation";
 
+
 /**
  * @class Shop
  * @description Manages the in-game shop system, allowing players to purchase characters (Charas).
@@ -65,7 +66,7 @@ export class Shop {
 		const tavernCardData = this._getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
 
 		const orbs = [
-			"crimsom_orb", 
+			"crimson_orb",
 			"emerald_orb",
 			"azure_orb",
 			"golden_orb",
