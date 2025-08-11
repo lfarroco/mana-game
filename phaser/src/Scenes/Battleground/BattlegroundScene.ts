@@ -19,6 +19,8 @@ import { battleResultAnimation } from "./battleResultAnimation";
 import { handleOwnedUnitSold as handleOwnedUnitSoldPure, updatePlayerGold as updatePlayerGoldPure, handleUnitMoveRequestPure } from "./BattlegroundScene.pure";
 import { AudioSystem } from "../../Systems/AudioSystem/AudioSystem";
 
+
+export let scene: BattlegroundScene;
 /**
  * The main scene for the battleground, handling game logic, UI, and progression.
  * It orchestrates the shop phase, combat phase, and interactions between various game systems.
@@ -105,6 +107,7 @@ export class BattlegroundScene extends Phaser.Scene {
    */
   create = async () => {
     console.log("BattlegroundScene create: primary logic deferred to start().");
+    scene = this;
     this.battleProgressionSystem = new BattleProgressionSystem(this, this.state);
     this.collection = this.cache.json.get("base-collection") as CardCollection;
 
