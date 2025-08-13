@@ -7,6 +7,7 @@ export * from './dealDamage';
 export * from './addShield';
 export * from './restoreMorale';
 export * from './increasePower';
+export * from './multiplyPower';
 export * from './grantGold';
 export * from './applyHaste';
 export * from './applySlow';

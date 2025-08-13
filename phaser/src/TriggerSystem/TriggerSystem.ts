@@ -53,6 +53,11 @@ export type Effect = {
 	sourceId: string,
 	targets: Targeting,
 } | {
+	id: "multiply_power",
+	multiplier: number,
+	sourceId: string,
+	targets: Targeting,
+} | {
 	id: "grant_gold",
 	amount: number,
 	sourceId: string,
@@ -171,6 +176,14 @@ const processEffect = (scene: BattlegroundScene) => (effect: Effect) => {
 				amount: effect.amount,
 			});
 			break;
+		case "multiply_power":
+			effects.multiplyPower({
+				targets: resolveTargets(scene.state, effect),
+				scene,
+				sourceUnit,
+				multiplier: effect.multiplier,
+			});
+			break;
 		case "grant_gold":
 			// find target by forceId and apply gold
 			// not implemented yet
@@ -195,7 +208,7 @@ function processReactions(
 ) {
 
 	// effects that can't be reacted to
-	if (["charge", "increase_power"].includes(effect.id)) {
+	if (["charge", "increase_power", "multiply_power"].includes(effect.id)) {
 		return;
 	}
 

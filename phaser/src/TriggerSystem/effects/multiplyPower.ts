@@ -4,22 +4,28 @@ import { AudioSystem } from "../../Systems/AudioSystem/AudioSystem";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 
 /**
- * Effect: Modifies a unit's power
- * TODO: rename to addPower
+ * Effect: Multiplies a unit's power by a given multiplier
  */
-export const increasePower = async (context: {
+export const multiplyPower = async (context: {
 	targets: Unit[];
 	scene: BattlegroundScene;
 	sourceUnit: Unit;
-	amount: number;
+	multiplier: number;
 }) => {
-	const { targets, amount } = context;
+	const { targets, multiplier } = context;
 
 	for (const target of targets) {
-		console.log(`Modifying power of ${target.id} by ${amount}`);
+		console.log(`Multiplying power of ${target.id} by ${multiplier}`);
 		const chara = getChara(target.id);
 		if (chara) {
-			chara.updateUnitAttribute('power', amount);
+			// Calculate the new power value
+			const currentPower = target.power;
+			const newPower = Math.floor(currentPower * multiplier);
+			const powerDifference = newPower - currentPower;
+
+			// Use the existing updateUnitAttribute method to apply the difference
+			chara.updateUnitAttribute('power', powerDifference);
+
 			try {
 				const audioSystem = AudioSystem.getInstance();
 				audioSystem.playSoundEffect('sfx_spell_innerfocus');
