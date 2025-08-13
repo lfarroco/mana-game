@@ -10,6 +10,7 @@ import { Unit } from '../../Models/Entities/Unit';
 import BattlegroundScene from '../../Scenes/Battleground/BattlegroundScene';
 import { getMoraleBarPosition, MORALE_BAR_WIDTH } from '../../Scenes/Battleground/MoraleDisplay';
 import { getChara } from '../../Scenes/Battleground/Systems/CharaManager';
+import * as CombatStatsTracker from '../../Scenes/Battleground/Systems/CombatStatsTracker';
 
 /**
  * Pure function to create the deal damage effect implementation
@@ -17,7 +18,7 @@ import { getChara } from '../../Scenes/Battleground/Systems/CharaManager';
  */
 export function createDealDamageLogic(
 	emitter: (unit: Unit, amount: number) => void,
-	dealDamage: (targetForce: Force, damage: number, scene: Phaser.Scene) => void
+	dealDamage: (targetForce: Force, damage: number, scene: Phaser.Scene) => number
 ) {
 	return async (context: { sourceUnit: Unit; scene: BattlegroundScene; }) => {
 		const { sourceUnit, scene } = context;
@@ -81,7 +82,7 @@ export function createDealDamageLogic(
  */
 export const dealDamageLogicIO = async (context: { scene: BattlegroundScene, sourceUnit: Unit }) => {
 
-	const { scene } = context;
+	const { scene, sourceUnit } = context;
 
 	const emitter = (unit: Unit, amount: number) => {
 		scene.events.emit(
@@ -90,6 +91,16 @@ export const dealDamageLogicIO = async (context: { scene: BattlegroundScene, sou
 		);
 	}
 
-	const impl = createDealDamageLogic(emitter, applyDamageToForce);
+	// Create a wrapper for applyDamageToForce that tracks combat stats
+	const dealDamageWithTracking = (targetForce: Force, damage: number, scene: Phaser.Scene): number => {
+		const actualMoraleChange = applyDamageToForce(targetForce, damage, scene);
+
+		// Track damage in combat stats using singleton
+		CombatStatsTracker.trackDamage(sourceUnit.id, actualMoraleChange, 'normal');
+
+		return actualMoraleChange;
+	};
+
+	const impl = createDealDamageLogic(emitter, dealDamageWithTracking);
 	return impl(context);
 };

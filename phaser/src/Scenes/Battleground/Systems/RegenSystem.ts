@@ -1,5 +1,6 @@
 import { BattlegroundScene } from "../BattlegroundScene";
 import { Force, manipulateForceMorale } from "../../../Models/Entities/Force";
+import * as CombatStatsTracker from "./CombatStatsTracker";
 
 /**
  * Represents a regeneration stack on a force
@@ -111,6 +112,11 @@ export class RegenSystem {
 				// Apply healing to morale, respecting max morale
 				// The manipulateForceMorale function will emit MORALE_UPDATED event automatically
 				const actualHealing = manipulateForceMorale(force, healing, this.scene);
+
+				// Track regen healing in combat stats
+				if (stack.sourceUnitId && actualHealing > 0) {
+					CombatStatsTracker.trackHealing(stack.sourceUnitId, actualHealing, 'regen');
+				}
 
 				// If the poison system exists, reduce poison based on healing
 				const poisonSystem = this.scene.runCombatSystem?.getPoisonDamageSystem();

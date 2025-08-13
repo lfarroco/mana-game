@@ -9,6 +9,7 @@ import { Force, manipulateForceMorale } from "../../Models/Entities/Force";
 import { Unit } from "../../Models/Entities/Unit";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { getMoraleBarPosition, MORALE_BAR_WIDTH } from "../../Scenes/Battleground/MoraleDisplay";
+import * as CombatStatsTracker from "../../Scenes/Battleground/Systems/CombatStatsTracker";
 import { getChara } from "../../Scenes/Battleground/Systems/CharaManager";
 
 /**
@@ -76,19 +77,24 @@ export function createRestoreMoraleLogic(
  */
 export const restoreMoraleLogicIO = async (context: { scene: BattlegroundScene; sourceUnit: Unit }) => {
 
-	const { scene } = context;
+	const { scene, sourceUnit } = context;
 
 	const emitter = (unit: Unit, amount: number) => {
 		scene.events.emit(
 			GameEvents.UNIT_MORALE_RESTORED,
-			{ unit, amount }
+			{ unit, amount, sourceUnitId: sourceUnit.id }
 		);
 	}
 
-	// Enhanced heal function that also reduces poison
-	const healMoraleWithPoisonReduction = (targetForce: Force, amount: number, scene: Phaser.Scene) => {
+	// Enhanced heal function that also reduces poison and tracks stats
+	const healMoraleWithPoisonReduction = (targetForce: Force, amount: number, scene: Phaser.Scene): number => {
 		// Apply the healing
 		const actualHealing = manipulateForceMorale(targetForce, amount, scene);
+
+		// Track healing in combat stats using singleton
+		if (actualHealing > 0) {
+			CombatStatsTracker.trackHealing(sourceUnit.id, actualHealing, 'direct');
+		}
 
 		// Reduce poison based on healing amount (2.5 poison reduction per 10 healing)
 		const runCombatSystem = (scene as any).runCombatSystem;
