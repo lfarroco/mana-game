@@ -37,6 +37,12 @@ export class Shop {
 	currentShopCharas: Chara[] = [];
 
 	/**
+	 * @type {string[]}
+	 * @description Array of currently displayed orb IDs in the shop.
+	 */
+	currentOrbs: string[] = [];
+
+	/**
 	 * Creates an instance of the Shop.
 	 * @param {BattlegroundScene} scene - The main battleground scene instance.
 	 */
@@ -65,25 +71,26 @@ export class Shop {
 
 		const tavernCardData = this._getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
 
-		const orbs = [
+		// Pick 3 random orbs each time the shop opens
+		const availableOrbs = [
 			"crimson_orb",
 			"emerald_orb",
 			"azure_orb",
 			"golden_orb",
 			"violet_orb",
-			"void_orb",
 		];
+		this.currentOrbs = pickRandom(availableOrbs, 3);
 
 		// Define the nextRoundCallback, which was missing
 		const nextRoundCallback = () => {
 			this.scene.events.emit(GameEvents.SHOP_PHASE_ENDED);
-			this.flyout.slideOut();
+			this.close();
 		};
 
 		// Correctly call shopUI.displayShop and destructure its result
 		const { charas } = this.shopUI.displayShop(
 			tavernCardData, // cardsToDisplay
-			orbs,
+			this.currentOrbs,
 			nextRoundCallback, // nextRoundCallback
 			this.handleShopRerollTavern.bind(this),
 			this._handleCharaPurchaseFinalized.bind(this),
@@ -99,6 +106,18 @@ export class Shop {
 
 		await this.flyout.slideIn();
 		this.currentShopCharas.forEach(chara => this._animateItemAppearance(chara));
+	}
+
+	/**
+	 * @method close
+	 * @description Closes the shop interface and cleans up orbs.
+	 */
+	async close() {
+		// Destroy all orbs before closing
+		this.shopUI.destroyOrbs();
+		this.currentOrbs = [];
+
+		await this.flyout.slideOut();
 	}
 
 	// TODO: add tests
@@ -185,10 +204,24 @@ export class Shop {
 		});
 		this.currentShopCharas = [];
 
-		// 2. Prepare new card data for the tavern
+		// 2. Destroy existing orbs and pick new ones
+		this.shopUI.destroyOrbs();
+		const availableOrbs = [
+			"crimson_orb",
+			"emerald_orb",
+			"azure_orb",
+			"golden_orb",
+			"violet_orb",
+		];
+		this.currentOrbs = pickRandom(availableOrbs, 3);
+
+		// 3. Prepare new card data for the tavern
 		const newTavernCardData = this._getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
 
-		// 4. Update the ShopUI with new characters
+		// 4. Re-render orbs
+		this.shopUI.renderOrbSection(this.currentOrbs);
+
+		// 5. Update the ShopUI with new characters
 		const newShopCharas = this.shopUI.rerenderTavernCharas(
 			newTavernCardData,
 			this._handleCharaPurchaseFinalized.bind(this)

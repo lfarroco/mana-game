@@ -106,8 +106,7 @@ export class ShopUI {
 	}
 
 
-	private renderOrbSection(orbs: string[]) {
-
+	renderOrbSection(orbs: string[]) {
 		renderOrbs(this, orbs); // Pass `this` to use the ShopUI instance context
 	}
 
@@ -264,10 +263,25 @@ export class ShopUI {
 		this.magicOrbs.forEach(orb => orb.update(time));
 	}
 
+	destroyOrbs() {
+		// Destroy all magic orbs
+		this.magicOrbs.forEach(orb => {
+			if (!orb.isOrbDestroyed()) {
+				orb.destroy();
+			}
+		});
+		this.magicOrbs = [];
+
+		// Destroy orb container
+		if (this.orbContainer) {
+			this.orbContainer.destroy(true);
+			this.orbContainer = null;
+		}
+	}
+
 	destroy() {
+		this.destroyOrbs();
 		this.sellZoneContainer?.destroy(true);
 		this.sellZoneContainer = null;
-		this.orbContainer?.destroy(true);
-		this.orbContainer = null;
 	}
 }
