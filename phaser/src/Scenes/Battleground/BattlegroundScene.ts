@@ -16,7 +16,7 @@ import { getOption } from "../../Models/OptionsStore";
 import { Unit } from "../../Models/Entities/Unit";
 import { Vec2 } from "../../Models/Geometry";
 import { battleResultAnimation } from "./battleResultAnimation";
-import { handleOwnedUnitSold as handleOwnedUnitSoldPure, updatePlayerGold as updatePlayerGoldPure, handleUnitMoveRequestPure } from "./BattlegroundScene.pure";
+import { handleOwnedUnitSold as handleOwnedUnitSoldPure, updatePlayerGold as updatePlayerGoldPure, handleUnitMoveRequestPure, playFxSafe, playMusicSafe, handleBattleResultDisplay, performCleanup, destroyGameObjects, configureSceneTime, handleCharacterCreationRequest, createGoldUpdateHandler, updateShopUI } from "./BattlegroundScene.pure";
 import { AudioSystem } from "../../Systems/AudioSystem/AudioSystem";
 
 
@@ -51,22 +51,31 @@ export class BattlegroundScene extends Phaser.Scene {
 
   /** Cleans up resources and event listeners. */
   cleanup() {
-    CharaManager.clearCharas();
-    this.time.removeAllEvents();
-    this.children.removeAll(true);
+    // Use pure function for safe cleanup operations
+    const cleanupOperations = [
+      { name: "clearCharas", operation: () => CharaManager.clearCharas() },
+      { name: "removeAllEvents", operation: () => this.time.removeAllEvents() },
+      { name: "removeAllChildren", operation: () => this.children.removeAll(true) }
+    ];
 
-    if (this.uiManager) {
-      this.uiManager.destroy();
-    }
-    if (this.shop && this.shop.shopUI) {
-      this.shop.shopUI.destroy();
-    }
-    if (this.eventSystem) {
-      this.eventSystem.destroy();
-    }
-    if (this.setupSystem) {
-      this.setupSystem.destroy();
-    }
+    performCleanup(
+      cleanupOperations,
+      (operationName: string, error: any) => console.error(`Cleanup failed for ${operationName}:`, error)
+    );
+
+    // Use pure function for safe destruction of game objects
+    const gameObjects = [
+      { name: "uiManager", object: this.uiManager },
+      { name: "shopUI", object: this.shop?.shopUI },
+      { name: "eventSystem", object: this.eventSystem },
+      { name: "setupSystem", object: this.setupSystem }
+    ];
+
+    destroyGameObjects(
+      gameObjects,
+      (objectName: string, error: any) => console.error(`Failed to destroy ${objectName}:`, error)
+    );
+
     // Note: Shop, RunCombatSystem, BattleProgressionSystem might need destroy methods
     // if they acquire resources or set up listeners not tied to scene.events.
   }
@@ -115,8 +124,12 @@ export class BattlegroundScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.shutdown, this);
     this.events.once(Phaser.Scenes.Events.DESTROY, this.destroy, this);
 
-    this.time.timeScale = getOption("speed");
-    this.tweens.timeScale = getOption("speed");
+    const speed = getOption("speed");
+    configureSceneTime(
+      { timeScale: speed, tweenScale: speed },
+      (scale: number) => this.time.timeScale = scale,
+      (scale: number) => this.tweens.timeScale = scale
+    );
 
     this.start();
 
@@ -155,12 +168,12 @@ export class BattlegroundScene extends Phaser.Scene {
     this.events.emit(GameEvents.UI_MAIN_CREATE);               // For main UI (sidebar, gold, etc.)
 
     // 7. Start battle music
-    try {
-      const audioSystem = AudioSystem.getInstance();
-      audioSystem.playMusic('music_battlemap_vetruv');
-    } catch (error) {
-      console.warn('Could not play battle music:', error);
-    }
+    const audioSystem = AudioSystem.getInstance();
+    playMusicSafe(
+      audioSystem,
+      'music_battlemap_vetruv',
+      (errorMessage: string) => console.warn(errorMessage)
+    );
 
     // 8. Setup Trait System event listeners
     //(removed)
@@ -185,32 +198,32 @@ export class BattlegroundScene extends Phaser.Scene {
    * @param key - The key of the sound effect to play.
    */
   playFx(key: string) {
-    try {
-      const audioSystem = AudioSystem.getInstance();
-      audioSystem.playSoundEffect(key);
-    } catch (error) {
-      console.warn(`Could not play sound effect ${key}:`, error);
-    }
+    const audioSystem = AudioSystem.getInstance();
+    playFxSafe(
+      audioSystem,
+      key,
+      (errorMessage: string) => console.warn(errorMessage)
+    );
   }
 
   // --- Event Handlers Moved from BattlegroundEventSystem ---
 
   updatePlayerGold(goldDelta: number): void {
-    this.state.gameData.player.gold = updatePlayerGoldPure(
+    this.state.gameData.player.gold = createGoldUpdateHandler(
       this.state.gameData.player.gold,
       goldDelta,
+      updatePlayerGoldPure,
       (event: string, newGold: number, changeAmount: number) => this.events.emit(event, newGold, changeAmount)
     );
   }
 
   async handleBoardCharaCreateRequest(payload: { unit: Unit }): Promise<void> {
-    // When a new Chara is requested for the board (e.g., after a purchase),
-    // tell CharaManager to summon it. Default to animating its appearance.
-    await CharaManager.summonChara(payload.unit, true); // summonChara is async, but we don't need to await its completion for this logic
-    if (this.battleProgressionSystem.isInShopPhase) {
-      // Ensure the newly summoned player unit also has its bars hidden during shop phase
-      this.events.emit(GameEvents.CHARA_BARS_VISIBILITY_SET, { unitId: payload.unit.id, visible: false });
-    }
+    await handleCharacterCreationRequest(
+      payload.unit,
+      this.battleProgressionSystem.isInShopPhase,
+      (unit: Unit, animate: boolean) => CharaManager.summonChara(unit, animate),
+      (event: string, eventPayload: any) => this.events.emit(event, eventPayload)
+    );
   }
 
   handleOwnedUnitMoveRequest(payload: { unitId: string, targetTile: Vec2, dragStartX: number, dragStartY: number }): void {
@@ -229,12 +242,11 @@ export class BattlegroundScene extends Phaser.Scene {
     );
   }
 
-  handlePlayerGoldUpdateRequest(goldDelta: number): void {
-    this.updatePlayerGold(goldDelta);
-  }
-
   handleBattleResultShow(payload: { result: "victory" | "defeat" }): void {
-    battleResultAnimation(this, payload.result); // battleResultAnimation is async, but event handler is sync
+    handleBattleResultDisplay(
+      payload.result,
+      (result: "victory" | "defeat") => battleResultAnimation(this, result)
+    );
   }
 
   handleOwnedUnitSold(payload: { unitId: string, soldForGold: number }): void {
@@ -256,10 +268,12 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
   update(time: number): void {
-    // Update shop UI to handle magic orb animations
-    if (this.shop && this.shop.shopUI) {
-      this.shop.shopUI.update(time);
-    }
+    // Update shop UI to handle magic orb animations using pure function
+    updateShopUI(
+      time,
+      this.shop?.shopUI,
+      (ui, currentTime) => ui.update(currentTime)
+    );
   }
 }
 
