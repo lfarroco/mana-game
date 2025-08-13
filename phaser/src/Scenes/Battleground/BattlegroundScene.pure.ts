@@ -238,3 +238,195 @@ export function handleUnitMoveRequestPure(
 	const eventData = createMoveEventPayload(moveResult, getVisualPosition);
 	emitEvent(eventData.eventType, eventData.payload);
 }
+
+/**
+ * Pure function to safely play a sound effect with error handling
+ * @param audioSystem - The audio system instance
+ * @param key - The sound effect key to play
+ * @param onError - Function to handle errors
+ * @returns Whether the sound was played successfully
+ */
+export function playFxSafe(
+	audioSystem: { playSoundEffect: (key: string) => void },
+	key: string,
+	onError: (message: string) => void
+): boolean {
+	try {
+		audioSystem.playSoundEffect(key);
+		return true;
+	} catch (error) {
+		onError(`Could not play sound effect ${key}: ${error}`);
+		return false;
+	}
+}
+
+/**
+ * Pure function to safely play music with error handling
+ * @param audioSystem - The audio system instance
+ * @param musicKey - The music key to play
+ * @param onError - Function to handle errors
+ * @returns Whether the music was played successfully
+ */
+export function playMusicSafe(
+	audioSystem: { playMusic: (key: string) => void },
+	musicKey: string,
+	onError: (message: string) => void
+): boolean {
+	try {
+		audioSystem.playMusic(musicKey);
+		return true;
+	} catch (error) {
+		onError(`Could not play battle music: ${error}`);
+		return false;
+	}
+}
+
+/**
+ * Pure function to handle battle result display logic
+ * @param result - The battle result
+ * @param playAnimation - Function to play the animation
+ * @returns void
+ */
+export function handleBattleResultDisplay(
+	result: "victory" | "defeat",
+	playAnimation: (result: "victory" | "defeat") => void
+): void {
+	playAnimation(result);
+}
+
+/**
+ * Pure function to safely execute cleanup operations
+ * @param cleanupOperations - Array of cleanup functions to execute
+ * @param onError - Function to handle errors during cleanup
+ * @returns Array of results indicating which operations succeeded
+ */
+export function performCleanup(
+	cleanupOperations: Array<{ name: string; operation: () => void }>,
+	onError: (operationName: string, error: any) => void
+): Array<{ name: string; success: boolean }> {
+	return cleanupOperations.map(({ name, operation }) => {
+		try {
+			operation();
+			return { name, success: true };
+		} catch (error) {
+			onError(name, error);
+			return { name, success: false };
+		}
+	});
+}
+
+/**
+ * Pure function to safely destroy game objects
+ * @param gameObjects - Array of objects with destroy methods
+ * @param onError - Function to handle errors during destruction
+ * @returns Array of results indicating which objects were destroyed successfully
+ */
+export function destroyGameObjects(
+	gameObjects: Array<{ name: string; object: { destroy: () => void } | null | undefined }>,
+	onError: (objectName: string, error: any) => void
+): Array<{ name: string; success: boolean }> {
+	return gameObjects.map(({ name, object }) => {
+		try {
+			if (object) {
+				object.destroy();
+			}
+			return { name, success: true };
+		} catch (error) {
+			onError(name, error);
+			return { name, success: false };
+		}
+	});
+}
+
+/**
+ * Pure function to handle scene time configuration
+ * @param timeConfig - Configuration for time scale and tween scale
+ * @param applyTimeScale - Function to apply time scale
+ * @param applyTweenScale - Function to apply tween scale
+ * @returns void
+ */
+export function configureSceneTime(
+	timeConfig: { timeScale: number; tweenScale: number },
+	applyTimeScale: (scale: number) => void,
+	applyTweenScale: (scale: number) => void
+): void {
+	applyTimeScale(timeConfig.timeScale);
+	applyTweenScale(timeConfig.tweenScale);
+}
+
+/**
+ * Pure function to handle character creation request
+ * @param unit - The unit to create
+ * @param isInShopPhase - Whether the game is in shop phase
+ * @param summonChara - Function to summon the character
+ * @param emitEvent - Function to emit events
+ * @returns Promise that resolves when character is created
+ */
+export async function handleCharacterCreationRequest(
+	unit: Unit,
+	isInShopPhase: boolean,
+	summonChara: (unit: Unit, animate: boolean) => Promise<any>,
+	emitEvent: (event: string, payload: any) => void
+): Promise<void> {
+	// Summon the character with animation by default
+	await summonChara(unit, true);
+
+	if (isInShopPhase) {
+		// Hide bars for newly summoned player units during shop phase
+		emitEvent("CHARA_BARS_VISIBILITY_SET", { unitId: unit.id, visible: false });
+	}
+}
+
+/**
+ * Pure function to create a gold update handler
+ * @param currentGold - Current player gold
+ * @param goldDelta - Amount to change
+ * @param updateGoldFn - Function to update the gold (pure)
+ * @param emitEvent - Function to emit events
+ * @returns New gold amount
+ */
+export function createGoldUpdateHandler(
+	currentGold: number,
+	goldDelta: number,
+	updateGoldFn: (current: number, delta: number, emitter: (event: string, newGold: number, changeAmount: number) => void) => number,
+	emitEvent: (event: string, newGold: number, changeAmount: number) => void
+): number {
+	return updateGoldFn(currentGold, goldDelta, emitEvent);
+}
+
+/**
+ * Pure function to handle shop UI updates
+ * @param time - Current time
+ * @param shopUI - Shop UI object to update
+ * @param updateFn - Function to update the shop UI
+ * @returns void
+ */
+export function updateShopUI(
+	time: number,
+	shopUI: { update: (time: number) => void } | null | undefined,
+	updateFn: (ui: { update: (time: number) => void }, time: number) => void
+): void {
+	if (shopUI) {
+		updateFn(shopUI, time);
+	}
+}
+
+/**
+ * Pure function to setup event listeners with automatic lifecycle management
+ * @param eventMappings - Array of event listener configurations
+ * @param addEventListener - Function to add event listeners
+ * @returns Array of listener configurations for cleanup
+ */
+export function setupEventListeners(
+	eventMappings: Array<{ event: string; handler: (...args: any[]) => void; context?: any }>,
+	addEventListener: (event: string, handler: (...args: any[]) => void, context?: any) => void
+): Array<{ event: string; handler: (...args: any[]) => void; context?: any }> {
+	const listeners: Array<{ event: string; handler: (...args: any[]) => void; context?: any }> = [];
+
+	eventMappings.forEach(({ event, handler, context }) => {
+		addEventListener(event, handler, context);
+		listeners.push({ event, handler, context });
+	});
+
+	return listeners;
+}

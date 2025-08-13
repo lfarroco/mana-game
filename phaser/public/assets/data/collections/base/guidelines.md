@@ -19,3 +19,6 @@ charge, slow and haste all operate on a 1000ms scale
 no unit can have cooldown lower than 1000ms - even with effects, the game will cap it
 Avoid 'on heal, heal' effects and variation - instead, use 'on x,  power boost'
 self-reactions are not necessary - use a regular trait instead. instead of 'on damage, slow', use just a slow trait
+Units should have traits based on their position. Traits that trigger on 'all allies/enemies' are not only powerful,
+but trivialize positioning strategy. Instead, use 'same row/column' or 'front/etc' targeting
+Maybe we will add relics/guild skills, and those may provide 'all allies/enemies' effects

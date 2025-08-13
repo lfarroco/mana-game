@@ -117,7 +117,7 @@ export class BattlegroundEventSystem {
 			{ event: GameEvents.GAME_OVER_SHOW_UI_TRIGGER, handler: this.handleGameOverShowUITrigger, context: this.uiManager },
 
 			// Player State
-			{ event: GameEvents.PLAYER_GOLD_DELTA_REQUEST, handler: this.scene.handlePlayerGoldUpdateRequest, context: this.scene },
+			{ event: GameEvents.PLAYER_GOLD_DELTA_REQUEST, handler: this.scene.updatePlayerGold, context: this.scene },
 			{ event: GameEvents.OWNED_UNIT_MOVE_REQUESTED, handler: this.scene.handleOwnedUnitMoveRequest, context: this.scene },
 			{ event: GameEvents.OWNED_UNIT_SOLD, handler: this.scene.handleOwnedUnitSold, context: this.scene },
 
