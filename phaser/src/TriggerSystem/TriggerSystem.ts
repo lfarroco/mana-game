@@ -140,9 +140,7 @@ const processEffect = (scene: BattlegroundScene) => (effect: Effect) => {
 			});
 			break;
 		case "haste":
-			debugger;
 			const hasteTargets = resolveTargets(scene.state, effect);
-			debugger;
 			effects.applyHasteLogicIO({
 				targets: hasteTargets,
 				scene,
