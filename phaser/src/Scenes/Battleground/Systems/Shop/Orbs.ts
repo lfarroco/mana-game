@@ -40,21 +40,21 @@ const orbs: Record<string, {
 		id: "crimson_orb",
 		name: "Crimson Orb",
 		color: 0xff3333,
-		tooltip: "A sphere of concentrated magical energy pulsing with arcane power.",
+		tooltip: "[color=#ff6b6b]Power Enhancement[/color]\n\n[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]Increase Power[/color] [color=#ffd93d]+5[/color]\n[color=#c0c0c0]Target:[/color] [color=#e0e0e0]Any unit[/color]\n\n[color=#c0c0c0]Drag and drop onto a unit to permanently increase their power. A sphere of concentrated magical energy pulsing with arcane power.[/color]",
 		effect: crimsonOrbEffect
 	},
 	emerald_orb: {
 		id: "emerald_orb",
 		name: "Emerald Orb",
 		color: 0x00ff00,
-		tooltip: "Increase a healing unit power by 10",
+		tooltip: "[color=#51cf66]Healing Enhancement[/color]\n\n[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]Increase Power[/color] [color=#ffd93d]+10[/color]\n[color=#c0c0c0]Target:[/color] [color=#e0e0e0]Healing units only[/color]\n[color=#c0c0c0]Condition:[/color] [color=#ffa94d]Unit must have heal ability[/color]\n\n[color=#c0c0c0]Drag and drop onto a healing unit to enhance their restorative powers. The emerald energy resonates with life magic.[/color]",
 		effect: emeraldOrbEffect
 	},
 	azure_orb: {
 		id: "azure_orb",
 		name: "Azure Orb",
 		color: 0x3399ff,
-		tooltip: "A mysterious orb radiating cool blue energy.",
+		tooltip: "[color=#74c0fc]Mystical Energy[/color]\n\n[color=#c0c0c0]Effect:[/color] [color=#da77f2]Unknown[/color]\n[color=#c0c0c0]Target:[/color] [color=#e0e0e0]Any unit[/color]\n\n[color=#c0c0c0]A mysterious orb radiating cool blue energy. Its true power remains locked away, waiting to be discovered.[/color]",
 		effect: (unit: Unit) => {
 			// Dummy effect
 			console.log(`Azure Orb used on ${unit.id}`);
@@ -64,7 +64,7 @@ const orbs: Record<string, {
 		id: "golden_orb",
 		name: "Golden Orb",
 		color: 0xffcc00,
-		tooltip: "A radiant orb shimmering with golden light.",
+		tooltip: "[color=#ffe066]Radiant Power[/color]\n\n[color=#c0c0c0]Effect:[/color] [color=#da77f2]Unknown[/color]\n[color=#c0c0c0]Target:[/color] [color=#e0e0e0]Any unit[/color]\n\n[color=#c0c0c0]A radiant orb shimmering with golden light. The precious metal seems to pulse with untapped potential.[/color]",
 		effect: (unit: Unit) => {
 			// Dummy effect
 			console.log(`Golden Orb used on ${unit.id}`);
@@ -74,7 +74,7 @@ const orbs: Record<string, {
 		id: "violet_orb",
 		name: "Violet Orb",
 		color: 0x9933ff,
-		tooltip: "A swirling orb of deep violet energy.",
+		tooltip: "[color=#da77f2]Arcane Mystery[/color]\n\n[color=#c0c0c0]Effect:[/color] [color=#da77f2]Unknown[/color]\n[color=#c0c0c0]Target:[/color] [color=#e0e0e0]Any unit[/color]\n\n[color=#c0c0c0]A swirling orb of deep violet energy. Ancient magic flows within, its secrets hidden from mortal understanding.[/color]",
 		effect: (unit: Unit) => {
 			// Dummy effect
 			console.log(`Violet Orb used on ${unit.id}`);
