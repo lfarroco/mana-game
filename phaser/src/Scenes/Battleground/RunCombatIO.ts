@@ -8,6 +8,7 @@ import { delay } from "../../Utils/animation";
 import { TimeoutDamageSystem } from "./Systems/TimeoutDamageSystem";
 import { PoisonDamageSystem } from "./Systems/PoisonDamageSystem";
 import { RegenSystem } from "./Systems/RegenSystem";
+import * as CombatStatsTracker from "./Systems/CombatStatsTracker";
 import { processEffects } from "../../TriggerSystem/TriggerSystem";
 
 /**
@@ -107,6 +108,8 @@ export class RunCombatSystem {
     this.poisonDamageSystem.initialize();
     // Initialize regen system
     this.regenSystem.initialize();
+    // Initialize combat stats tracker
+    CombatStatsTracker.initialize(this.scene);
 
     const playerForce = state.battleData.forces.find(force => force.id === state.gameData.player.id)!;
     const cpuForce = state.battleData.forces.find(force => force.id !== state.gameData.player.id)!;
@@ -117,6 +120,9 @@ export class RunCombatSystem {
       for (const unit of unitsReadyToAct) {
 
         CharaManager.getChara(unit.id)?.pop()
+
+        // Track unit action in combat stats
+        events.emit(GameEvents.UNIT_ATTACK, { unit });
 
         processEffects(this.scene, unit.effects)
 
@@ -130,6 +136,9 @@ export class RunCombatSystem {
 
       // Update regen system (processes all regen stacks)
       this.regenSystem.update(playerForce, cpuForce, delta * this.scene.time.timeScale);
+
+      // Update combat stats tracker (time alive tracking)
+      CombatStatsTracker.updateTimeAlive(delta * this.scene.time.timeScale);
 
       const playerMoraleZero = playerForce.morale <= 0;
       const cpuMoraleZero = cpuForce.morale <= 0;
@@ -148,6 +157,9 @@ export class RunCombatSystem {
       if (combatEnded) {
         // Trigger storm fade-out when combat ends
         this.timeoutDamageSystem.onCombatEnd();
+
+        // Stop combat stats tracking and print summary
+        CombatStatsTracker.stop();
 
         if (this.updateHandler) {
           events.off('update', this.updateHandler);

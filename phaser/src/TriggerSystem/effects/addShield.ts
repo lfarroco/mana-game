@@ -9,6 +9,7 @@ import { Force, manipulateForceShield } from '../../Models/Entities/Force';
 import { Unit } from '../../Models/Entities/Unit';
 import BattlegroundScene from '../../Scenes/Battleground/BattlegroundScene';
 import { getMoraleBarPosition, MORALE_BAR_WIDTH } from '../../Scenes/Battleground/MoraleDisplay';
+import * as CombatStatsTracker from '../../Scenes/Battleground/Systems/CombatStatsTracker';
 import { getChara } from '../../Scenes/Battleground/Systems/CharaManager';
 
 /**
@@ -72,11 +73,23 @@ export const addShieldLogicIO = async ({ scene, sourceUnit }: { scene: Battlegro
 	const emitter = (unit: Unit, amount: number) => {
 		scene.events.emit(
 			GameEvents.UNIT_SHIELD_GAINED,
-			{ unit, amount }
+			{ unit, amount, sourceUnitId: sourceUnit.id }
 		);
 	}
 
-	const impl = createAddShieldLogic(emitter, manipulateForceShield);
+	// Create a wrapper for manipulateForceShield that tracks combat stats
+	const addShieldWithTracking = (targetForce: Force, amount: number, scene: Phaser.Scene): number => {
+		const actualShieldChange = manipulateForceShield(targetForce, amount, scene);
+
+		// Track shield in combat stats using singleton
+		if (actualShieldChange > 0) {
+			CombatStatsTracker.trackShield(sourceUnit.id, actualShieldChange);
+		}
+
+		return actualShieldChange;
+	};
+
+	const impl = createAddShieldLogic(emitter, addShieldWithTracking);
 	await impl({ scene, sourceUnit });
 
 	// Battle reactions are now handled centrally in the combat loop

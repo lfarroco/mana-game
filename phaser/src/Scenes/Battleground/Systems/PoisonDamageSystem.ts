@@ -1,5 +1,6 @@
 import { BattlegroundScene } from "../BattlegroundScene";
 import { applyDamageToForce, Force } from "../../../Models/Entities/Force";
+import * as CombatStatsTracker from "./CombatStatsTracker";
 
 /**
  * Represents a poison stack on a force
@@ -108,7 +109,13 @@ export class PoisonDamageSystem {
 				const damage = Math.min(stack.damagePerTick, stack.remainingDamage);
 				console.log(`[PoisonDamageSystem] Poison tick on ${forceId}: ${damage} damage (${stack.remainingDamage} remaining)`);
 
+				// Apply damage and manually track it for stats
 				applyDamageToForce(force, damage, this.scene, 0, "poison");
+
+				// Track poison damage in combat stats using singleton
+				if (stack.sourceUnitId) {
+					CombatStatsTracker.trackDamage(stack.sourceUnitId, damage, 'poison');
+				}
 
 				// Note: Removed poison effect display for consistency with other damage types
 
