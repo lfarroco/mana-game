@@ -7,7 +7,7 @@ import { GameEvents } from '../../constants/events';
 import { Force } from '../../Models/Entities/Force';
 import { Unit } from '../../Models/Entities/Unit';
 import { arcaneMissileTargeted } from '../../Effects';
-import { getMoraleBarPosition, MORALE_BAR_WIDTH } from '../../Scenes/Battleground/MoraleDisplay';
+import { getMoraleBarTipPosition } from '../../Scenes/Battleground/MoraleDisplay';
 import { getChara } from '../../Scenes/Battleground/Systems/CharaManager';
 import BattlegroundScene from '../../Scenes/Battleground/BattlegroundScene';
 
@@ -33,20 +33,18 @@ export function createApplyPoisonLogic(
 			return;
 		}
 
-		// Show a purple projectile from source unit to enemy morale bar
+		// Show a purple projectile from source unit to enemy morale bar tip
 		const sourceChara = getChara(sourceUnit.id);
-		const moraleBarPos = getMoraleBarPosition(targetForce.id);
-		if (!sourceChara || !moraleBarPos) {
-			console.warn('[ApplyPoison] Source character or morale bar position not found');
+		const moraleBarTipPos = getMoraleBarTipPosition(targetForce.id);
+		if (!sourceChara || !moraleBarTipPos) {
+			console.warn('[ApplyPoison] Source character or morale bar tip position not found');
 			return;
 		}
 
-		const targetX = moraleBarPos.x + MORALE_BAR_WIDTH / 2;
-		const targetY = moraleBarPos.y;
 		arcaneMissileTargeted(
 			context.scene,
 			{ x: sourceChara.x, y: sourceChara.y },
-			{ x: targetX, y: targetY },
+			{ x: moraleBarTipPos.x, y: moraleBarTipPos.y },
 			{
 				colors: [0x9932cc, 0x8a2be2, 0x663399], // Purple colors for poison
 				speedMultiplier: 1.5,

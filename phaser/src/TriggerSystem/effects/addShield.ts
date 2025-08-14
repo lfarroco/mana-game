@@ -8,7 +8,7 @@ import { arcaneMissileTargeted } from '../../Effects';
 import { Force, manipulateForceShield } from '../../Models/Entities/Force';
 import { Unit } from '../../Models/Entities/Unit';
 import BattlegroundScene from '../../Scenes/Battleground/BattlegroundScene';
-import { getMoraleBarPosition, MORALE_BAR_WIDTH } from '../../Scenes/Battleground/MoraleDisplay';
+import { getShieldBarTipPosition } from '../../Scenes/Battleground/MoraleDisplay';
 import * as CombatStatsTracker from '../../Scenes/Battleground/Systems/CombatStatsTracker';
 import { getChara } from '../../Scenes/Battleground/Systems/CharaManager';
 
@@ -30,20 +30,18 @@ export function createAddShieldLogic(
 			(force) => force.id === sourceUnit.force
 		)!;
 
-		// Show a yellow/gold projectile from source unit to own shield bar
+		// Show a yellow/gold projectile from source unit to own shield bar tip
 		const sourceChara = getChara(sourceUnit.id);
-		const moraleBarPos = getMoraleBarPosition(sourceForce.id);
+		const shieldBarTipPos = getShieldBarTipPosition(sourceForce.id);
 
-		if (!sourceChara || !moraleBarPos) {
+		if (!sourceChara || !shieldBarTipPos) {
 			return;
 		}
 
-		const targetX = moraleBarPos.x + MORALE_BAR_WIDTH / 2;
-		const targetY = moraleBarPos.y;
 		arcaneMissileTargeted(
 			scene,
 			{ x: sourceChara.x, y: sourceChara.y },
-			{ x: targetX, y: targetY },
+			{ x: shieldBarTipPos.x, y: shieldBarTipPos.y },
 			{
 				colors: [0xffd700, 0xffe135, 0xfff8dc], // Gold/yellow colors
 				amplitudeMin: 5,

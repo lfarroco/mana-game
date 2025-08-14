@@ -8,7 +8,7 @@ import { arcaneMissileTargeted } from '../../Effects';
 import { Force, applyDamageToForce } from '../../Models/Entities/Force';
 import { Unit } from '../../Models/Entities/Unit';
 import BattlegroundScene from '../../Scenes/Battleground/BattlegroundScene';
-import { getMoraleBarPosition, MORALE_BAR_WIDTH } from '../../Scenes/Battleground/MoraleDisplay';
+import { getMoraleBarTipPosition, getShieldBarTipPosition } from '../../Scenes/Battleground/MoraleDisplay';
 import { getChara } from '../../Scenes/Battleground/Systems/CharaManager';
 import * as CombatStatsTracker from '../../Scenes/Battleground/Systems/CombatStatsTracker';
 
@@ -32,37 +32,48 @@ export function createDealDamageLogic(
 		)!;
 
 
-		// Show a red projectile from source unit to enemy morale bar
+		// Show a red projectile from source unit to the appropriate target
+		// Target shield bar tip if enemy has shield, otherwise target morale bar tip
 		if (scene) {
 			const sourceChara = getChara(sourceUnit.id);
-			const moraleBarPos = getMoraleBarPosition(targetForce.id);
-			if (sourceChara && moraleBarPos) {
-				// Dynamically import MoraleDisplay to get bar width
-				const targetX = moraleBarPos.x + MORALE_BAR_WIDTH / 2;
-				const targetY = moraleBarPos.y;
-				arcaneMissileTargeted(
-					scene,
-					{ x: sourceChara.x, y: sourceChara.y },
-					{ x: targetX, y: targetY },
-					{
-						colors: [0xff0000, 0xb22222, 0xdc143c], // Red colors
-						amplitudeMin: 5,
-						amplitudeMax: 15,
-						particleScale: 1.5,
-						impact: {
-							colors: [0xff0000, 0xb22222],
-							scale: 2,
-							speed: 200,
-							lifespan: 300,
-							alpha: 0.4
-						},
-						onHit: async () => {
-							dealDamage(targetForce, damageAmount, scene);
+			if (sourceChara) {
+				let targetPos: { x: number; y: number } | null = null;
+
+				// Choose target based on whether the enemy has shield
+				if (targetForce.shield > 0) {
+					targetPos = getShieldBarTipPosition(targetForce.id);
+				} else {
+					targetPos = getMoraleBarTipPosition(targetForce.id);
+				}
+
+				if (targetPos) {
+					arcaneMissileTargeted(
+						scene,
+						{ x: sourceChara.x, y: sourceChara.y },
+						{ x: targetPos.x, y: targetPos.y },
+						{
+							colors: [0xff0000, 0xb22222, 0xdc143c], // Red colors
+							amplitudeMin: 5,
+							amplitudeMax: 15,
+							particleScale: 1.5,
+							impact: {
+								colors: [0xff0000, 0xb22222],
+								scale: 2,
+								speed: 200,
+								lifespan: 300,
+								alpha: 0.4
+							},
+							onHit: async () => {
+								dealDamage(targetForce, damageAmount, scene);
+							}
 						}
-					}
-				);
+					);
+				} else {
+					// Fallback: just apply damage directly
+					dealDamage(targetForce, damageAmount, scene);
+				}
 			} else {
-				// Fallback: just apply damage directly
+				// Fallback: just apply damage directly if no source character found
 				dealDamage(targetForce, damageAmount, scene);
 			}
 		} else {
