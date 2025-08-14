@@ -34,52 +34,45 @@ export function createDealDamageLogic(
 
 		// Show a red projectile from source unit to the appropriate target
 		// Target shield bar tip if enemy has shield, otherwise target morale bar tip
-		if (scene) {
-			const sourceChara = getChara(sourceUnit.id);
-			if (sourceChara) {
-				let targetPos: { x: number; y: number } | null = null;
+		const sourceChara = getChara(sourceUnit.id);
+		if (!sourceChara) {
+			// Fallback: just apply damage directly if no source character found
+			dealDamage(targetForce, damageAmount, scene);
+			return;
+		}
 
-				// Choose target based on whether the enemy has shield
-				if (targetForce.shield > 0) {
-					targetPos = getShieldBarTipPosition(targetForce.id);
-				} else {
-					targetPos = getMoraleBarTipPosition(targetForce.id);
-				}
+		// Choose target based on whether the enemy has shield
+		const targetPos = targetForce.shield > 0
+			? getShieldBarTipPosition(targetForce.id)
+			: getMoraleBarTipPosition(targetForce.id);
 
-				if (targetPos) {
-					arcaneMissileTargeted(
-						scene,
-						{ x: sourceChara.x, y: sourceChara.y },
-						{ x: targetPos.x, y: targetPos.y },
-						{
-							colors: [0xff0000, 0xb22222, 0xdc143c], // Red colors
-							amplitudeMin: 5,
-							amplitudeMax: 15,
-							particleScale: 1.5,
-							impact: {
-								colors: [0xff0000, 0xb22222],
-								scale: 2,
-								speed: 200,
-								lifespan: 300,
-								alpha: 0.4
-							},
-							onHit: async () => {
-								dealDamage(targetForce, damageAmount, scene);
-							}
-						}
-					);
-				} else {
-					// Fallback: just apply damage directly
-					dealDamage(targetForce, damageAmount, scene);
-				}
-			} else {
-				// Fallback: just apply damage directly if no source character found
-				dealDamage(targetForce, damageAmount, scene);
-			}
-		} else {
+		if (!targetPos) {
 			// Fallback: just apply damage directly
 			dealDamage(targetForce, damageAmount, scene);
+			return;
 		}
+
+		arcaneMissileTargeted(
+			scene,
+			{ x: sourceChara.x, y: sourceChara.y },
+			{ x: targetPos.x, y: targetPos.y },
+			{
+				colors: [0xff0000, 0xb22222, 0xdc143c], // Red colors
+				amplitudeMin: 5,
+				amplitudeMax: 15,
+				particleScale: 1.5,
+				impact: {
+					colors: [0xff0000, 0xb22222],
+					scale: 2,
+					speed: 200,
+					lifespan: 300,
+					alpha: 0.4
+				},
+				onHit: async () => {
+					dealDamage(targetForce, damageAmount, scene);
+				}
+			}
+		);
 
 		// Battle reactions are now handled centrally in the combat loop
 		// No need to manually trigger allied reactions here
