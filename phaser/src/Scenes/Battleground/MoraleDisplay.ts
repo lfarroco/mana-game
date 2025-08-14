@@ -36,7 +36,74 @@ export function getMoraleBarPosition(forceId: string): { x: number, y: number } 
 	return null;
 }
 
-// Track previous values to calculate deltas
+/**
+ * Returns the position of the current tip of the morale bar for a given forceId.
+ * The tip position represents where the morale bar currently ends based on current morale percentage.
+ * @param forceId Player or CPU force id
+ * @returns { x: number, y: number } or null if not available
+ */
+export function getMoraleBarTipPosition(forceId: string): { x: number, y: number } | null {
+	const barPosition = getMoraleBarPosition(forceId);
+	if (!barPosition) return null;
+
+	// Get the force to calculate current morale percentage
+	const force = forceId === c.FORCE_ID_PLAYER ? playerForce : cpuForce;
+	const moralePercentage = Math.max(0, force.morale) / force.maxMorale;
+
+	// Calculate the tip position: bars are vertical and fill from bottom
+	// Y position = bar top + (1 - percentage) * bar height
+	const tipY = barPosition.y + (1 - moralePercentage) * MORALE_BAR_HEIGHT;
+
+	return {
+		x: barPosition.x + MORALE_BAR_WIDTH / 2, // Center of the bar horizontally
+		y: tipY
+	};
+}
+
+/**
+ * Returns the position of the shield bar for a given forceId.
+ * @param forceId Player or CPU force id
+ * @returns { x: number, y: number } or null if not available
+ */
+export function getShieldBarPosition(forceId: string): { x: number, y: number } | null {
+	if (forceId === c.FORCE_ID_PLAYER && playerDisplay) {
+		return {
+			x: playerDisplay.shieldBar.container.x,
+			y: playerDisplay.shieldBar.container.y
+		};
+	} else if (forceId === c.FORCE_ID_CPU && cpuDisplay) {
+		return {
+			x: cpuDisplay.shieldBar.container.x,
+			y: cpuDisplay.shieldBar.container.y
+		};
+	}
+	return null;
+}
+
+/**
+ * Returns the position of the current tip of the shield bar for a given forceId.
+ * The tip position represents where the shield bar currently ends based on current shield percentage.
+ * @param forceId Player or CPU force id
+ * @returns { x: number, y: number } or null if not available
+ */
+export function getShieldBarTipPosition(forceId: string): { x: number, y: number } | null {
+	const barPosition = getShieldBarPosition(forceId);
+	if (!barPosition) return null;
+
+	// Get the force to calculate current shield percentage
+	const force = forceId === c.FORCE_ID_PLAYER ? playerForce : cpuForce;
+	// Shield uses maxMorale as the scale for display
+	const shieldPercentage = Math.max(0, force.shield) / force.maxMorale;
+
+	// Calculate the tip position: bars are vertical and fill from bottom
+	// Y position = bar top + (1 - percentage) * bar height
+	const tipY = barPosition.y + (1 - shieldPercentage) * MORALE_BAR_HEIGHT;
+
+	return {
+		x: barPosition.x + MORALE_BAR_WIDTH / 2, // Center of the bar horizontally
+		y: tipY
+	};
+}// Track previous values to calculate deltas
 let previousPlayerMorale: number | null = null;
 let previousCpuMorale: number | null = null;
 let previousPlayerShield: number | null = null;
@@ -204,11 +271,11 @@ function createCombinedDisplay(
 	let x = 0, y = 0;
 	if (forceId === c.FORCE_ID_PLAYER) {
 		// Player bars: left side of middle screen, close to player board
-		x = c.MIDDLE_SCREEN_X - 150; // 150px left of center
+		x = c.MIDDLE_SCREEN_X - 50; // 150px left of center
 		y = c.MIDDLE_SCREEN_Y - MORALE_BAR_HEIGHT / 2; // Vertically centered
 	} else {
 		// CPU bars: right side of middle screen, close to CPU board
-		x = c.MIDDLE_SCREEN_X + 150; // 150px right of center
+		x = c.MIDDLE_SCREEN_X + 50; // 150px right of center
 		y = c.MIDDLE_SCREEN_Y - MORALE_BAR_HEIGHT / 2; // Vertically centered
 	}
 

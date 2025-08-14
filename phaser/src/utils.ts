@@ -21,6 +21,10 @@ export function pickOne<a>(arr: a[]): a {
 	return item;
 }
 
+export function randomBetween(min: number, max: number): number {
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 // breaks lines of text into an array of lines that fit within the given width
 export function breakLines(text: string, width: number) {
 	return text.split(' ').reduce((acc, word) => {

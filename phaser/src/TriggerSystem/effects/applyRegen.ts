@@ -7,7 +7,7 @@ import { GameEvents } from '../../constants/events';
 import { Force } from '../../Models/Entities/Force';
 import { Unit } from '../../Models/Entities/Unit';
 import { arcaneMissileTargeted } from '../../Effects';
-import { getMoraleBarPosition, MORALE_BAR_WIDTH } from '../../Scenes/Battleground/MoraleDisplay';
+import { getMoraleBarTipPosition } from '../../Scenes/Battleground/MoraleDisplay';
 import { getChara } from '../../Scenes/Battleground/Systems/CharaManager';
 import BattlegroundScene from '../../Scenes/Battleground/BattlegroundScene';
 
@@ -34,20 +34,18 @@ export function createApplyRegenLogic(
 			return;
 		}
 
-		// Show a green projectile from source unit to friendly morale bar
+		// Show a green projectile from source unit to friendly morale bar tip
 		const sourceChara = getChara(sourceUnit.id);
-		const moraleBarPos = getMoraleBarPosition(targetForce.id);
-		if (!sourceChara || !moraleBarPos) {
-			console.warn('[ApplyRegen] Source character or morale bar position not found');
+		const moraleBarTipPos = getMoraleBarTipPosition(targetForce.id);
+		if (!sourceChara || !moraleBarTipPos) {
+			console.warn('[ApplyRegen] Source character or morale bar tip position not found');
 			return;
 		}
 
-		const targetX = moraleBarPos.x + MORALE_BAR_WIDTH / 2;
-		const targetY = moraleBarPos.y;
 		arcaneMissileTargeted(
 			context.scene,
 			{ x: sourceChara.x, y: sourceChara.y },
-			{ x: targetX, y: targetY },
+			{ x: moraleBarTipPos.x, y: moraleBarTipPos.y },
 			{
 				colors: [0x00ff00, 0x32cd32, 0x90ee90], // Green colors for healing
 				speedMultiplier: 1.2,

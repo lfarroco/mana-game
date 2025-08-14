@@ -8,7 +8,7 @@ import { arcaneMissileTargeted } from "../../Effects";
 import { Force, manipulateForceMorale } from "../../Models/Entities/Force";
 import { Unit } from "../../Models/Entities/Unit";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
-import { getMoraleBarPosition, MORALE_BAR_WIDTH } from "../../Scenes/Battleground/MoraleDisplay";
+import { getMoraleBarTipPosition } from "../../Scenes/Battleground/MoraleDisplay";
 import * as CombatStatsTracker from "../../Scenes/Battleground/Systems/CombatStatsTracker";
 import { getChara } from "../../Scenes/Battleground/Systems/CharaManager";
 
@@ -31,18 +31,16 @@ export function createRestoreMoraleLogic(
 			(force: { id: any; }) => force.id === sourceUnit.force
 		)!;
 
-		// Show a green projectile from source unit to own morale bar
+		// Show a green projectile from source unit to own morale bar tip
 		if (context.scene) {
 			const sourceChara = getChara(sourceUnit.id);
-			// Dynamically import MoraleDisplay to get bar position and width
-			const moraleBarPos = getMoraleBarPosition(sourceForce.id);
-			if (sourceChara && moraleBarPos) {
-				const targetX = moraleBarPos.x + MORALE_BAR_WIDTH / 2;
-				const targetY = moraleBarPos.y;
+			// Target the current tip of the morale bar for more accurate visual feedback
+			const moraleBarTipPos = getMoraleBarTipPosition(sourceForce.id);
+			if (sourceChara && moraleBarTipPos) {
 				arcaneMissileTargeted(
 					context.scene,
 					{ x: sourceChara.x, y: sourceChara.y },
-					{ x: targetX, y: targetY },
+					{ x: moraleBarTipPos.x, y: moraleBarTipPos.y },
 					{
 						colors: [0x00ff00, 0x32cd32, 0x7fff00], // Green colors
 						amplitudeMin: 5,
