@@ -77,10 +77,10 @@ function handleMoraleUpdated(payload: { forceId: string, newMorale: number, maxM
 
 	// Show pop text if there's a meaningful change
 	if (displayValue !== 0) {
-		// Calculate random position over the morale bar area
-		const barWidth = scene.scale.width / 4;
-		const randomOffsetX = Math.random() * barWidth; // Random position across bar width
-		const randomOffsetY = (Math.random() - 0.5) * 40; // Random vertical offset (-20 to +20 pixels)
+		// Calculate random position over the morale bar area (vertical bar)
+		const barHeight = MORALE_BAR_HEIGHT;
+		const randomOffsetY = Math.random() * barHeight; // Random position along bar height
+		const randomOffsetX = (Math.random() - 0.5) * 60; // Random horizontal offset (-30 to +30 pixels)
 
 		const popTextX = targetDisplay.moraleBar.container.x + randomOffsetX;
 		const popTextY = targetDisplay.moraleBar.container.y + randomOffsetY;
@@ -152,10 +152,10 @@ function handleShieldUpdated(payload: { forceId: string, newShield: number, maxS
 
 	// Show pop text if there's a meaningful change
 	if (displayValue !== 0) {
-		// Calculate random position over the shield bar area
-		const barWidth = scene.scale.width / 4;
-		const randomOffsetX = Math.random() * barWidth; // Random position across bar width
-		const randomOffsetY = (Math.random() - 0.5) * 40; // Random vertical offset (-20 to +20 pixels)
+		// Calculate random position over the shield bar area (vertical bar)
+		const barHeight = MORALE_BAR_HEIGHT;
+		const randomOffsetY = Math.random() * barHeight; // Random position along bar height
+		const randomOffsetX = (Math.random() - 0.5) * 60; // Random horizontal offset (-30 to +30 pixels)
 
 		const popTextX = targetDisplay.shieldBar.container.x + randomOffsetX;
 		const popTextY = targetDisplay.shieldBar.container.y + randomOffsetY;
@@ -193,46 +193,61 @@ function handleShieldUpdated(payload: { forceId: string, newShield: number, maxS
 	}
 }
 
-export const MORALE_BAR_WIDTH = c.TILE_WIDTH * 3 + 8 * 2; // width of board
+export const MORALE_BAR_WIDTH = 25; // Much thinner for vertical bars (like letter "I")
+export const MORALE_BAR_HEIGHT = c.TILE_HEIGHT * 4; // Taller height for vertical bars
 
 function createCombinedDisplay(
 	scene: Phaser.Scene,
 	forceId: string,
 ): CombinedDisplay {
-	// Board constants
-	const BAR_OFFSET = 16; // px below the board
+	// Position bars in the middle of the screen, close to each team's board
 	let x = 0, y = 0;
 	if (forceId === c.FORCE_ID_PLAYER) {
-		x = c.PLAYER_BOARD_X;
-		y = c.PLAYER_BOARD_Y + c.TILE_HEIGHT * 3 + 8 * 2 + BAR_OFFSET;
+		// Player bars: left side of middle screen, close to player board
+		x = c.MIDDLE_SCREEN_X - 150; // 150px left of center
+		y = c.MIDDLE_SCREEN_Y - MORALE_BAR_HEIGHT / 2; // Vertically centered
 	} else {
-		x = c.CPU_BOARD_X;
-		y = c.CPU_BOARD_Y + c.TILE_HEIGHT * 3 + 8 * 2 + BAR_OFFSET;
+		// CPU bars: right side of middle screen, close to CPU board
+		x = c.MIDDLE_SCREEN_X + 150; // 150px right of center
+		y = c.MIDDLE_SCREEN_Y - MORALE_BAR_HEIGHT / 2; // Vertically centered
 	}
 
-	// Create morale bar
+	// Create morale bar (vertical)
 	const moraleBarColor = forceId === c.FORCE_ID_PLAYER ? 0x4CAF50 : 0xF44336;
 	const moraleBar = createStylizedBar(scene, {
 		x,
 		y,
 		width: MORALE_BAR_WIDTH,
+		height: MORALE_BAR_HEIGHT,
 		barColor: moraleBarColor,
 		backgroundColor: 0x000000,
 		backgroundOpacity: 0.2,
-		textConfig: c.defaultTextConfig
+		textConfig: c.defaultTextConfig,
+		orientation: 'vertical'
 	});
 
-	// Create shield bar positioned over the morale bar
+	// Create shield bar positioned next to the morale bar
 	const shieldBarColor = 0xFFD700; // Gold/Yellow color for shields
+	let shieldBarX;
+	if (forceId === c.FORCE_ID_PLAYER) {
+		// Player shield bar: to the right of morale bar
+		shieldBarX = x + MORALE_BAR_WIDTH + 5;
+	} else {
+		// CPU shield bar: to the left of morale bar
+		shieldBarX = x - MORALE_BAR_WIDTH - 5;
+	}
+
 	const shieldBar = createStylizedBar(scene, {
-		x,
-		y: y, // Same Y position as morale bar
+		x: shieldBarX,
+		y,
 		width: MORALE_BAR_WIDTH,
+		height: MORALE_BAR_HEIGHT,
 		barColor: shieldBarColor,
 		backgroundColor: 0x000000,
 		backgroundOpacity: 0, // No background
 		borderOpacity: 0, // No border
-		textConfig: c.defaultTextConfig
+		textConfig: c.defaultTextConfig,
+		orientation: 'vertical'
 	});
 
 	// Make the shield bar semi-transparent
