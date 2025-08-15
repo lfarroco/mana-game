@@ -5,7 +5,7 @@ import { BattlegroundAudioSystem_init } from "./Systems/Audio";
 import { UIManager } from "../../UI/UIManager";
 import * as CharaManager from "./Systems/CharaManager";
 import { CardCollection } from "../../Models/Entities/Card";
-import { PartyBoard } from "../../Models/Board";
+import { PartyBoard, getSharedPlayerBoard } from "../../Models/Board";
 import { Shop } from "./Systems/Shop/Shop";
 import { BattlegroundSetupSystem } from "./Systems/BattlegroundSetupSystem";
 import { BattlegroundEventSystem } from "./Systems/BattlegroundEventSystem";
@@ -274,6 +274,12 @@ export class BattlegroundScene extends Phaser.Scene {
       this.shop?.shopUI,
       (ui, currentTime) => ui.update(currentTime)
     );
+
+    // Update board slot shader animations
+    const playerBoard = getSharedPlayerBoard();
+    if (playerBoard) {
+      playerBoard.update(time);
+    }
   }
 }
 

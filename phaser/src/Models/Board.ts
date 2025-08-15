@@ -4,13 +4,13 @@ import { PLAYER_BOARD_X, PLAYER_BOARD_Y, CPU_BOARD_X, CPU_BOARD_Y } from "../con
 import { vec2, Vec2, eqVec2 } from "./Geometry";
 import { Unit } from "./Entities/Unit"; // Pointer type might be implicitly from Phaser or a custom type
 import { getUnitAt, State } from "./State";
-import { images } from "../assets";
+import { EnergySlot, EnergySlotFactory } from "../components/EnergySlot/EnergySlot";
 
 export class PartyBoard {
 	scene: Phaser.Scene;
-	slotImages: Phaser.GameObjects.Image[] = [];
+	slotShaders: EnergySlot[] = [];
 	dropZones: Phaser.GameObjects.Zone[] = []; // Add drop zones array
-	cpuSlotImages: Phaser.GameObjects.Image[] = []; // Separate array for CPU board slots
+	cpuSlotShaders: EnergySlot[] = []; // Separate array for CPU board slots
 
 	enemyBoardVisible: boolean = false;
 
@@ -27,9 +27,9 @@ export class PartyBoard {
 		this.destroyVisuals();
 
 		const slotSpacing = 8; // Add 8 pixels spacing between slots
-		this.slotImages = [];
+		this.slotShaders = [];
 		this.dropZones = [];
-		this.cpuSlotImages = [];
+		this.cpuSlotShaders = [];
 
 		let cells = []
 		for (let tileY = 0; tileY < 3; tileY++)
@@ -47,27 +47,30 @@ export class PartyBoard {
 				const zoneX = board.x + cell.x * (constants.TILE_WIDTH + slotSpacing);
 				const zoneY = board.y + cell.y * (constants.TILE_HEIGHT + slotSpacing);
 
-				// Add slot image to each cell
-				const slotImg = this.scene.add.image(
-					zoneX + constants.TILE_WIDTH / 2,
-					zoneY + constants.TILE_HEIGHT / 2,
-					images.slot_round.key,
-				);
-				slotImg.setDisplaySize(constants.TILE_WIDTH, constants.TILE_HEIGHT);
+				const slotX = zoneX + constants.TILE_WIDTH / 2;
+				const slotY = zoneY + constants.TILE_HEIGHT / 2;
+
+				// Create energy slot shader
+				let energySlot: EnergySlot;
+				if (board.isPlayer) {
+					energySlot = EnergySlotFactory.createPlayerSlot(this.scene, slotX, slotY, constants.TILE_WIDTH);
+				} else {
+					energySlot = EnergySlotFactory.createEnemySlot(this.scene, slotX, slotY, constants.TILE_WIDTH);
+				}
 
 				// Handle CPU slots differently for animation
 				if (!board.isPlayer) {
 					// CPU slots start in their normal position if visible, off-screen if hidden
 					if (this.enemyBoardVisible) {
-						slotImg.x = zoneX + constants.TILE_WIDTH / 2;
+						energySlot.setPosition(slotX, slotY);
 					} else {
 						const offScreenX = constants.SCREEN_WIDTH + constants.TILE_WIDTH;
-						slotImg.x = offScreenX;
+						energySlot.setPosition(offScreenX, slotY);
 					}
-					slotImg.setVisible(this.enemyBoardVisible);
-					this.cpuSlotImages.push(slotImg);
+					energySlot.setVisible(this.enemyBoardVisible);
+					this.cpuSlotShaders.push(energySlot);
 				} else {
-					this.slotImages.push(slotImg);
+					this.slotShaders.push(energySlot);
 				}
 
 				// Only create drop zones for player board (enemy units can't be dragged)
@@ -89,27 +92,27 @@ export class PartyBoard {
 	setEnemyBoardVisible(visible: boolean): void {
 		this.enemyBoardVisible = visible;
 
-		if (this.cpuSlotImages.length > 0) {
+		if (this.cpuSlotShaders.length > 0) {
 			const slotSpacing = 8;
 			const offScreenX = constants.SCREEN_WIDTH + constants.TILE_WIDTH;
 
 			if (visible) {
 				// Slide in from right
-				this.cpuSlotImages.forEach((img, index) => {
+				this.cpuSlotShaders.forEach((slot, index) => {
 					const cell = {
 						x: index % 3,
 						y: Math.floor(index / 3)
 					};
 					const targetX = CPU_BOARD_X + cell.x * (constants.TILE_WIDTH + slotSpacing) + constants.TILE_WIDTH / 2;
 
-					img.setVisible(true);
-					img.x = offScreenX; // Start from off-screen right
+					slot.setVisible(true);
+					slot.setPosition(offScreenX, slot.getCurrentPosition().y); // Start from off-screen right
 
-					// Stop any existing tweens on this image to prevent conflicts
-					this.scene.tweens.killTweensOf(img);
+					// Stop any existing tweens on this slot's shader to prevent conflicts
+					this.scene.tweens.killTweensOf(slot.getShader());
 
 					this.scene.tweens.add({
-						targets: img,
+						targets: slot.getShader(),
 						x: targetX,
 						duration: 300,
 						ease: 'Power2.easeOut',
@@ -118,18 +121,18 @@ export class PartyBoard {
 				});
 			} else {
 				// Slide out to right
-				this.cpuSlotImages.forEach((img, index) => {
-					// Stop any existing tweens on this image to prevent conflicts
-					this.scene.tweens.killTweensOf(img);
+				this.cpuSlotShaders.forEach((slot, index) => {
+					// Stop any existing tweens on this slot's shader to prevent conflicts
+					this.scene.tweens.killTweensOf(slot.getShader());
 
 					this.scene.tweens.add({
-						targets: img,
+						targets: slot.getShader(),
 						x: offScreenX,
 						duration: 300,
 						ease: 'Power2.easeIn',
 						delay: index * 30, // Faster stagger for hide animation
 						onComplete: () => {
-							img.setVisible(false);
+							slot.setVisible(false);
 						}
 					});
 				});
@@ -138,20 +141,26 @@ export class PartyBoard {
 	}
 
 	display(): void {
-		this.slotImages.forEach(img => img.setVisible(true));
+		this.slotShaders.forEach(slot => slot.setVisible(true));
 		// CPU slots visibility is handled by setEnemyBoardVisible method with animation
 		if (this.enemyBoardVisible) {
-			this.cpuSlotImages.forEach(img => img.setVisible(true));
+			this.cpuSlotShaders.forEach(slot => slot.setVisible(true));
 		}
 	}
 
 	destroyVisuals(): void {
-		this.slotImages.forEach(img => img.destroy());
-		this.slotImages = [];
-		this.cpuSlotImages.forEach(img => img.destroy());
-		this.cpuSlotImages = [];
+		this.slotShaders.forEach(slot => slot.destroy());
+		this.slotShaders = [];
+		this.cpuSlotShaders.forEach(slot => slot.destroy());
+		this.cpuSlotShaders = [];
 		this.dropZones.forEach(zone => zone.destroy());
 		this.dropZones = [];
+	}
+
+	/** Update the shader animations for all slots. Should be called in the scene's update loop. */
+	update(time: number): void {
+		this.slotShaders.forEach(slot => slot.update(time));
+		this.cpuSlotShaders.forEach(slot => slot.update(time));
 	}
 
 	/** Call this when the scene shuts down or the board is no longer needed. */
