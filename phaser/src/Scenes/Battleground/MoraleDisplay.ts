@@ -92,8 +92,8 @@ export function getShieldBarTipPosition(forceId: string): { x: number, y: number
 
 	// Get the force to calculate current shield percentage
 	const force = forceId === c.FORCE_ID_PLAYER ? playerForce : cpuForce;
-	// Shield uses maxMorale as the scale for display
-	const shieldPercentage = Math.max(0, force.shield) / force.maxMorale;
+	// Shield uses maxMorale as the scale for display, but cap at 100% visually
+	const shieldPercentage = Math.min(1.0, Math.max(0, force.shield) / force.maxMorale);
 
 	// Calculate the tip position: bars are vertical and fill from bottom
 	// Y position = bar top + (1 - percentage) * bar height
@@ -425,7 +425,32 @@ export function updateShieldBar(
 	// Show the bar (even if shield is 0, it shows as empty)
 	targetDisplay.shieldBar.container.setVisible(true);
 
-	updateStylizedBar(targetDisplay.shieldBar, currentShield, maxShield);
+	// Use maxMorale as the scale so shield bar height matches morale bar height visually
+	// But cap the visual at 100% even if shield exceeds maxMorale
+	const force = forceId === c.FORCE_ID_PLAYER ? playerForce : cpuForce;
+	const percentage = Math.min(1.0, Math.max(0, currentShield) / force.maxMorale); // Cap at 1.0
+
+	// Custom update that keeps shield bar within normal height bounds
+	const bar = targetDisplay.shieldBar;
+	const duration = 200;
+
+	// Stop any existing tweens
+	bar.barFill.scene.tweens.killTweensOf([bar.barFill, bar.innerHighlight]);
+
+	// Get the original height from when the bar was created
+	const originalHeight = (bar.container as any)._originalHeight || MORALE_BAR_HEIGHT;
+	const fillHeight = originalHeight - 6; // INNER_PADDING * 2 = 6
+
+	// Calculate the Y offset to simulate scaling from bottom
+	const targetScaleY = percentage; // Capped at 1.0
+	const yOffset = 3 + fillHeight * (1 - targetScaleY); // INNER_PADDING = 3
+
+	bar.barFill.scene.tweens.add({
+		targets: [bar.barFill, bar.innerHighlight],
+		scaleY: targetScaleY,
+		y: yOffset,
+		duration: duration,
+	});
 }
 
 export function destroy(): void {
