@@ -35,7 +35,7 @@ export const grantGoldLogic = async (context: {
 	scene: BattlegroundScene;
 	sourceUnit: Unit;
 }) => {
-	const { sourceUnit, scene, amount } = context;
+	const { sourceUnit, amount } = context;
 
 	const result = grantGoldLogicPure(
 		amount,
@@ -48,6 +48,6 @@ export const grantGoldLogic = async (context: {
 		if (chara && result.popTextMessage) {
 			await chara.showPopText(result.popTextMessage);
 		}
-		updatePlayerGoldIO(scene, amount);
+		updatePlayerGoldIO(amount);
 	}
 };

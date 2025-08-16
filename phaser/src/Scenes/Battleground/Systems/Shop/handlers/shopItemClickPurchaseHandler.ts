@@ -2,6 +2,7 @@ import { BattlegroundScene } from "../../../BattlegroundScene";
 import { GameEvents } from "../../../../../constants/events";
 import * as constants from "../../../../../constants/constants";
 import { makeUnit, Unit } from "../../../../../Models/Entities/Unit";
+import { updatePlayerGoldIO } from "../../../../../Models/Entities/Force";
 
 type ShopItemClickPurchasePayload = {
 	shopUnitData: Unit;
@@ -55,7 +56,7 @@ export function shopItemClickPurchaseRequestedHandler(
 		return;
 	}
 
-	emit(GameEvents.PLAYER_GOLD_DELTA_REQUEST, -constants.SHOP_ITEM_PURCHASE_COST);
+	updatePlayerGoldIO(-constants.SHOP_ITEM_PURCHASE_COST);
 	const newUnit = makeUnit(constants.FORCE_ID_PLAYER, shopUnitData.cardId, targetTile);
 	state.gameData.player.units.push(newUnit);
 

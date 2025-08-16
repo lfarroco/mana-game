@@ -16,8 +16,9 @@ import { getOption } from "../../Models/OptionsStore";
 import { Unit } from "../../Models/Entities/Unit";
 import { Vec2 } from "../../Models/Geometry";
 import { battleResultAnimation } from "./battleResultAnimation";
-import { handleOwnedUnitSold as handleOwnedUnitSoldPure, updatePlayerGold as updatePlayerGoldPure, handleUnitMoveRequestPure, playFxSafe, playMusicSafe, handleBattleResultDisplay, performCleanup, destroyGameObjects, configureSceneTime, handleCharacterCreationRequest, createGoldUpdateHandler, updateShopUI } from "./BattlegroundScene.pure";
+import * as BattlegroundScenePure from "./BattlegroundScene.pure";
 import { AudioSystem } from "../../Systems/AudioSystem/AudioSystem";
+import { updatePlayerGoldIO } from "../../Models/Entities/Force";
 
 
 export let scene: BattlegroundScene;
@@ -58,7 +59,7 @@ export class BattlegroundScene extends Phaser.Scene {
       { name: "removeAllChildren", operation: () => this.children.removeAll(true) }
     ];
 
-    performCleanup(
+    BattlegroundScenePure.performCleanup(
       cleanupOperations,
       (operationName: string, error: any) => console.error(`Cleanup failed for ${operationName}:`, error)
     );
@@ -71,7 +72,7 @@ export class BattlegroundScene extends Phaser.Scene {
       { name: "setupSystem", object: this.setupSystem }
     ];
 
-    destroyGameObjects(
+    BattlegroundScenePure.destroyGameObjects(
       gameObjects,
       (objectName: string, error: any) => console.error(`Failed to destroy ${objectName}:`, error)
     );
@@ -125,7 +126,7 @@ export class BattlegroundScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.DESTROY, this.destroy, this);
 
     const speed = getOption("speed");
-    configureSceneTime(
+    BattlegroundScenePure.configureSceneTime(
       { timeScale: speed, tweenScale: speed },
       (scale: number) => this.time.timeScale = scale,
       (scale: number) => this.tweens.timeScale = scale
@@ -169,7 +170,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     // 7. Start battle music
     const audioSystem = AudioSystem.getInstance();
-    playMusicSafe(
+    BattlegroundScenePure.playMusicSafe(
       audioSystem,
       'music_battlemap_vetruv',
       (errorMessage: string) => console.warn(errorMessage)
@@ -199,26 +200,17 @@ export class BattlegroundScene extends Phaser.Scene {
    */
   playFx(key: string) {
     const audioSystem = AudioSystem.getInstance();
-    playFxSafe(
+    BattlegroundScenePure.playFxSafe(
       audioSystem,
       key,
       (errorMessage: string) => console.warn(errorMessage)
     );
   }
 
-  // --- Event Handlers Moved from BattlegroundEventSystem ---
 
-  updatePlayerGold(goldDelta: number): void {
-    this.state.gameData.player.gold = createGoldUpdateHandler(
-      this.state.gameData.player.gold,
-      goldDelta,
-      updatePlayerGoldPure,
-      (event: string, newGold: number, changeAmount: number) => this.events.emit(event, newGold, changeAmount)
-    );
-  }
 
   async handleBoardCharaCreateRequest(payload: { unit: Unit }): Promise<void> {
-    await handleCharacterCreationRequest(
+    await BattlegroundScenePure.handleCharacterCreationRequest(
       payload.unit,
       this.battleProgressionSystem.isInShopPhase,
       (unit: Unit, animate: boolean) => CharaManager.summonChara(unit, animate),
@@ -229,7 +221,7 @@ export class BattlegroundScene extends Phaser.Scene {
   handleOwnedUnitMoveRequest(payload: { unitId: string, targetTile: Vec2, dragStartX: number, dragStartY: number }): void {
     const { unitId, targetTile, dragStartX, dragStartY } = payload;
 
-    handleUnitMoveRequestPure(
+    BattlegroundScenePure.handleUnitMoveRequestPure(
       this.state.gameData.player.units,
       unitId,
       targetTile,
@@ -243,7 +235,7 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
   handleBattleResultShow(payload: { result: "victory" | "defeat" }): void {
-    handleBattleResultDisplay(
+    BattlegroundScenePure.handleBattleResultDisplay(
       payload.result,
       (result: "victory" | "defeat") => battleResultAnimation(this, result)
     );
@@ -256,8 +248,8 @@ export class BattlegroundScene extends Phaser.Scene {
     const chara = CharaManager.getChara(unitId);
 
     // Use the pure function with dependency injection
-    this.state.gameData.player.units = handleOwnedUnitSoldPure(
-      (amount: number) => this.updatePlayerGold(amount),
+    this.state.gameData.player.units = BattlegroundScenePure.handleOwnedUnitSold(
+      (amount: number) => updatePlayerGoldIO(amount),
       (event: string, eventPayload: any) => this.events.emit(event, eventPayload),
       () => this.shop.shopUI.hideSellZone(),
       this.state.gameData.player.units,
@@ -269,7 +261,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
   update(time: number): void {
     // Update shop UI to handle magic orb animations using pure function
-    updateShopUI(
+    BattlegroundScenePure.updateShopUI(
       time,
       this.shop?.shopUI,
       (ui, currentTime) => ui.update(currentTime)

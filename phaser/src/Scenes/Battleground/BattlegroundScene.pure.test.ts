@@ -1,4 +1,4 @@
-import { removeUnitFromPlayerState, handleOwnedUnitSold, calculateGoldUpdate, updatePlayerGold, updateUnitPosition, findUnitById, createMoveEventPayload, handleUnitMoveRequestPure } from "./BattlegroundScene.pure";
+import { removeUnitFromPlayerState, handleOwnedUnitSold, calculateGoldUpdate, updateUnitPosition, findUnitById, createMoveEventPayload, handleUnitMoveRequestPure } from "./BattlegroundScene.pure";
 import { GameEvents } from "../../constants/events";
 import { Unit } from "../../Models/Entities/Unit";
 import { vec2 } from "../../Utils/Vec2";
@@ -205,52 +205,6 @@ describe("calculateGoldUpdate", () => {
 
 		expect(result.newGold).toBe(99);
 		expect(result.changeAmount).toBe(-1);
-	});
-});
-
-describe("updatePlayerGold", () => {
-	it("should update gold and emit event with correct parameters", () => {
-		const emitEvent = jest.fn();
-
-		const newGold = updatePlayerGold(100, 25, emitEvent);
-
-		expect(newGold).toBe(125);
-		expect(emitEvent).toHaveBeenCalledWith(GameEvents.GOLD_CHANGED, 125, 25);
-	});
-
-	it("should handle negative gold changes", () => {
-		const emitEvent = jest.fn();
-
-		const newGold = updatePlayerGold(100, -30, emitEvent);
-
-		expect(newGold).toBe(70);
-		expect(emitEvent).toHaveBeenCalledWith(GameEvents.GOLD_CHANGED, 70, -30);
-	});
-
-	it("should only call emit event once", () => {
-		const emitEvent = jest.fn();
-
-		updatePlayerGold(50, 10, emitEvent);
-
-		expect(emitEvent).toHaveBeenCalledTimes(1);
-	});
-
-	it("should handle zero current gold", () => {
-		const emitEvent = jest.fn();
-
-		const newGold = updatePlayerGold(0, 50, emitEvent);
-
-		expect(newGold).toBe(50);
-		expect(emitEvent).toHaveBeenCalledWith(GameEvents.GOLD_CHANGED, 50, 50);
-	});
-
-	it("should allow gold to go negative", () => {
-		const emitEvent = jest.fn();
-
-		const newGold = updatePlayerGold(10, -50, emitEvent);
-
-		expect(newGold).toBe(-40);
-		expect(emitEvent).toHaveBeenCalledWith(GameEvents.GOLD_CHANGED, -40, -50);
 	});
 });
 

@@ -9,6 +9,8 @@ import { UserMessagePayload } from "../Models/EventPayloads";
 import { TypedEventEmitter } from "../Systems/Events/TypedEventEmitter";
 import { GoldSystemEventPayloads, GoldSystemEvents } from "../Systems/GoldSystem/events";
 
+export let ui: UIManager;
+
 /**
  * Manages the user interface elements within the BattlegroundScene.
  * This class is responsible for creating, updating, and destroying UI components
@@ -40,13 +42,13 @@ export class UIManager {
 		this.scene = scene;
 		this.goldCoinAnimator = new GoldCoinAnimator(this.scene);
 		this.goldEvents = new TypedEventEmitter<GoldSystemEventPayloads>(this.scene.events);
-		this._setupGoldChangeListener();
 		this._setupPrestigeChangeListener();
 		this._setupPurchaseFailedListener();
 		this._setupUserMessageListener();
 		Tooltip.initializeTooltip(scene);
 		this._setupTooltipShowListener();
 		this._setupTooltipHideListener();
+		ui = this;
 	}
 
 	/**
@@ -55,15 +57,6 @@ export class UIManager {
 	 */
 	_setupPrestigeChangeListener(): void {
 		this.scene.events.on(GameEvents.PRESTIGE_CHANGED, this._handlePrestigeChanged, this);
-	}
-
-	/**
-	 * Sets up an event listener for "gold_changed" events emitted by the scene.
-	 * This allows the UIManager to react dynamically to updates in the player's gold
-	 * by calling `_handleGoldChanged`.
-	 */
-	_setupGoldChangeListener(): void {
-		this.goldEvents.on(GoldSystemEvents.GOLD_CHANGED, this._handleGoldChanged.bind(this));
 	}
 
 	/**
@@ -132,7 +125,7 @@ export class UIManager {
 	 * @param newTotalGold - The new total amount of gold the player has.
 	 * @param goldDelta The amount of gold that was gained or lost.
 	 */
-	_handleGoldChanged(newTotalGold: number, goldDelta: number): void {
+	handleGoldChanged(newTotalGold: number, goldDelta: number): void {
 		if (this.goldTextElement) {
 			this.goldTextElement.setText(`${newTotalGold}`);
 			if (goldDelta !== 0) { // Play animation only if there's a change
@@ -354,7 +347,7 @@ export class UIManager {
 	destroy(): void { // Full cleanup for the UIManager
 		this.destroyMainUI();
 		Tooltip.destroyTooltip();
-		this.goldEvents.off(GoldSystemEvents.GOLD_CHANGED, this._handleGoldChanged.bind(this));
+		this.goldEvents.off(GoldSystemEvents.GOLD_CHANGED, this.handleGoldChanged.bind(this));
 		this.scene.events.off(GameEvents.PRESTIGE_CHANGED, this._handlePrestigeChanged, this);
 		this.scene.events.off(GameEvents.PURCHASE_FAILED, this._handlePurchaseFailed, this);
 		this.scene.events.off(GameEvents.USER_MESSAGE_REQUESTED, this._handleUserMessageRequested, this);
