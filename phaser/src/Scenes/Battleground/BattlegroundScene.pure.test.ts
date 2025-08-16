@@ -48,7 +48,6 @@ describe("removeUnitFromPlayerState", () => {
 describe("handleOwnedUnitSold", () => {
 	it("should update player gold, emit events, and remove the unit", () => {
 		const updatePlayerGold = jest.fn();
-		const emitEvent = jest.fn();
 		const hideSellZone = jest.fn();
 
 		const units = [{ id: "unit1" } as Unit];
@@ -56,7 +55,6 @@ describe("handleOwnedUnitSold", () => {
 
 		const updatedUnits = handleOwnedUnitSold(
 			updatePlayerGold,
-			emitEvent,
 			hideSellZone,
 			units,
 			"unit1",
@@ -65,12 +63,7 @@ describe("handleOwnedUnitSold", () => {
 		);
 
 		expect(updatePlayerGold).toHaveBeenCalledWith(10);
-		expect(emitEvent).toHaveBeenCalledWith(GameEvents.POP_TEXT_SHOW, {
-			text: "+10G",
-			x: 100,
-			y: 200,
-			type: "success",
-		});
+
 		expect(hideSellZone).toHaveBeenCalled();
 		expect(updatedUnits).toHaveLength(0);
 		expect(charaMock.destroy).toHaveBeenCalled();
@@ -78,14 +71,12 @@ describe("handleOwnedUnitSold", () => {
 
 	it("should handle unit sale without character (use fallback position)", () => {
 		const updatePlayerGold = jest.fn();
-		const emitEvent = jest.fn();
 		const hideSellZone = jest.fn();
 
 		const units = [{ id: "unit1" } as Unit];
 
 		const updatedUnits = handleOwnedUnitSold(
 			updatePlayerGold,
-			emitEvent,
 			hideSellZone,
 			units,
 			"unit1",
@@ -94,19 +85,13 @@ describe("handleOwnedUnitSold", () => {
 		);
 
 		expect(updatePlayerGold).toHaveBeenCalledWith(25);
-		expect(emitEvent).toHaveBeenCalledWith(GameEvents.POP_TEXT_SHOW, {
-			text: "+25G",
-			x: 400, // fallback position
-			y: 300, // fallback position
-			type: "success",
-		});
+
 		expect(hideSellZone).toHaveBeenCalled();
 		expect(updatedUnits).toHaveLength(0);
 	});
 
 	it("should handle multiple units and only remove the sold one", () => {
 		const updatePlayerGold = jest.fn();
-		const emitEvent = jest.fn();
 		const hideSellZone = jest.fn();
 
 		const units = [
@@ -118,7 +103,6 @@ describe("handleOwnedUnitSold", () => {
 
 		const updatedUnits = handleOwnedUnitSold(
 			updatePlayerGold,
-			emitEvent,
 			hideSellZone,
 			units,
 			"unit2",
@@ -129,18 +113,12 @@ describe("handleOwnedUnitSold", () => {
 		expect(updatedUnits).toHaveLength(2);
 		expect(updatedUnits.map(u => u.id)).toEqual(["unit1", "unit3"]);
 		expect(updatePlayerGold).toHaveBeenCalledWith(15);
-		expect(emitEvent).toHaveBeenCalledWith(GameEvents.POP_TEXT_SHOW, {
-			text: "+15G",
-			x: 150,
-			y: 250,
-			type: "success",
-		});
+
 	});
 
 	it("should call all dependencies in correct order", () => {
 		const callOrder: string[] = [];
 		const updatePlayerGold = jest.fn(() => callOrder.push("updateGold"));
-		const emitEvent = jest.fn(() => callOrder.push("emitEvent"));
 		const hideSellZone = jest.fn(() => callOrder.push("hideSellZone"));
 
 		const units = [{ id: "unit1" } as Unit];
@@ -152,7 +130,6 @@ describe("handleOwnedUnitSold", () => {
 
 		handleOwnedUnitSold(
 			updatePlayerGold,
-			emitEvent,
 			hideSellZone,
 			units,
 			"unit1",

@@ -1,6 +1,7 @@
 import { Unit } from "../../Models/Entities/Unit";
 import { GameEvents } from "../../constants/events";
 import { Vec2, eqVec2 } from "../../Utils/Vec2";
+import { popText } from "../../Systems/Chara/Animations/popText";
 
 /**
  * Pure function to remove a unit from the player's units array
@@ -30,20 +31,8 @@ export function calculateGoldUpdate(currentGold: number, goldDelta: number): { n
 	return { newGold, changeAmount };
 }
 
-/**
- * Pure function to handle the complete unit selling logic with dependency injection
- * @param updatePlayerGold - Function to update player gold
- * @param emitEvent - Function to emit events
- * @param hideSellZone - Function to hide sell zone
- * @param units - Current array of player units
- * @param unitId - ID of the unit being sold
- * @param soldForGold - Amount of gold the unit was sold for
- * @param chara - The character object to destroy (can be undefined)
- * @returns New array of units with the sold unit removed
- */
 export function handleOwnedUnitSold(
 	updatePlayerGold: (amount: number) => void,
-	emitEvent: (event: string, payload: any) => void,
 	hideSellZone: () => void,
 	units: Unit[],
 	unitId: string,
@@ -58,13 +47,13 @@ export function handleOwnedUnitSold(
 	const popTextY = chara?.y ?? 300; // Default fallback position
 	chara?.destroy();
 
-	// Emit PopText for gold gain
-	emitEvent(GameEvents.POP_TEXT_SHOW, {
-		text: `+${soldForGold}G`,
+	popText({
 		x: popTextX,
 		y: popTextY,
-		type: "success",
-	});
+		text: `+${soldForGold}G`,
+		type: "shield",
+		direction: "up"
+	})
 
 	// Hide the sell zone
 	hideSellZone();

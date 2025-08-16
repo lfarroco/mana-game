@@ -1,10 +1,7 @@
 import { UIManager } from "../../../UI/UIManager";
 import { PartyBoard } from "../../../Models/Board";
 import { Shop } from "./Shop/Shop";
-import { GameEvents } from "../../../constants/events";
 import { BattlegroundScene } from "../BattlegroundScene";
-import { popText } from "../../../Systems/Chara/Animations/popText";
-import { PopTextPayload } from "../../../Models/EventPayloads";
 import * as MoraleDisplay from "../MoraleDisplay";
 
 type Listener = {
@@ -81,16 +78,6 @@ export class BattlegroundEventSystem {
 
 
 	registerEventHandlers(): void {
-		const eventMappings = [
-
-			// Visual Effects & Feedback
-			{ event: GameEvents.POP_TEXT_SHOW, handler: (payload: PopTextPayload) => popText({ scene: this.scene, x: payload.x, y: payload.y, text: payload.text, type: payload.type, direction: payload.direction }), context: this },
-
-		];
-
-		eventMappings.forEach(({ event, handler, context }) => {
-			this.addListener(event, handler, context);
-		});
 
 		this.initializeSystems();
 	}

@@ -249,7 +249,6 @@ export class BattlegroundScene extends Phaser.Scene {
     // Use the pure function with dependency injection
     this.state.gameData.player.units = BattlegroundScenePure.handleOwnedUnitSold(
       (amount: number) => updatePlayerGoldIO(amount),
-      (event: string, eventPayload: any) => this.events.emit(event, eventPayload),
       () => this.shop.shopUI.hideSellZone(),
       this.state.gameData.player.units,
       unitId,
