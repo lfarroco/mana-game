@@ -120,9 +120,6 @@ export class BattlegroundEventSystem {
 			{ event: GameEvents.OWNED_UNIT_MOVE_REQUESTED, handler: this.scene.handleOwnedUnitMoveRequest, context: this.scene },
 			{ event: GameEvents.OWNED_UNIT_SOLD, handler: this.scene.handleOwnedUnitSold, context: this.scene },
 
-			// Board & UI Setup/Visibility
-			{ event: GameEvents.UI_MAIN_CREATE, handler: this.uiManager.createMainUI, context: this.uiManager },
-
 			// Chara Lifecycle & Visuals
 			{ event: GameEvents.BOARD_CHARA_CREATE_REQUESTED, handler: this.scene.handleBoardCharaCreateRequest, context: this.scene },
 			{ event: GameEvents.CHARA_SUMMON_TO_BOARD, handler: CharaManager.handleSummonCharaToBoardEvent },
