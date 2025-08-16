@@ -10,8 +10,8 @@ import * as CharaManager from "./CharaManager";
 import { cpuForce, playerForce, updatePlayerGoldIO } from "../../../Models/Entities/Force";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
 import { fadeOutBars, showBars, updateMoraleBar, updateMoraleDisplay, updateShieldBar } from "../MoraleDisplay";
-import { AudioSystem } from "../../../Systems/AudioSystem/AudioSystem";
 import { renderVignette } from "../Animations/vignette";
+import { audioManager } from "../../../Systems/AudioManager";
 
 /**
  * Creates a deep copy of a unit for battle purposes.
@@ -113,8 +113,7 @@ export class BattleProgressionSystem {
 		// Wait 1 second for current animations to complete
 
 		try {
-			const audioSystem = AudioSystem.getInstance();
-			audioSystem.playSoundEffect('sfx_victory_match');
+			audioManager.playSoundEffect('sfx_victory_match');
 		} catch (error) {
 			console.warn('Could not play victory match sound:', error);
 		}
@@ -220,8 +219,7 @@ export class BattleProgressionSystem {
 		console.log("Round", this.state.gameData.round, "Processing Victory...");
 
 		try {
-			const audioSystem = AudioSystem.getInstance();
-			audioSystem.playSoundEffect('sfx_victory_reward_chant');
+			audioManager.playSoundEffect('sfx_victory_reward_chant');
 		} catch (error) {
 			console.warn('Could not play victory reward chant sound:', error);
 		}

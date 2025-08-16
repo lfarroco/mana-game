@@ -1,7 +1,7 @@
 import BattlegroundScene from "../Scenes/Battleground/BattlegroundScene";
 import { SCREEN_HEIGHT } from "../constants/constants";
 import { tween } from "../Utils/animation";
-import { AudioSystem } from "../Systems/AudioSystem/AudioSystem";
+import { audioManager } from "../Systems/AudioManager";
 
 
 let flyouts: Flyout[] = [];
@@ -34,8 +34,7 @@ export class Flyout extends Phaser.GameObjects.Container {
 	async slideIn() {
 
 		try {
-			const audioSystem = AudioSystem.getInstance();
-			audioSystem.playSoundEffect('sfx_ui_modalwindow_swoosh_enter');
+			audioManager.playSoundEffect('sfx_ui_modalwindow_swoosh_enter');
 		} catch (error) {
 			console.warn('Could not play modal window enter sound:', error);
 		}
@@ -53,8 +52,7 @@ export class Flyout extends Phaser.GameObjects.Container {
 	async slideOut() {
 
 		try {
-			const audioSystem = AudioSystem.getInstance();
-			audioSystem.playSoundEffect('sfx_ui_modalwindow_swoosh_exit');
+			audioManager.playSoundEffect('sfx_ui_modalwindow_swoosh_exit');
 		} catch (error) {
 			console.warn('Could not play modal window exit sound:', error);
 		}

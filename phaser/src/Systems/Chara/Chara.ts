@@ -11,9 +11,9 @@ import { CharaBarsDisplay } from "./CharaBarsDisplay";
 import { CharaInputHandler } from "./CharaInputHandler";
 import { Shop } from "../../Scenes/Battleground/Systems/Shop/Shop";
 import { createContinuousHasteEffect } from "../../Effects/hasteEffect";
-import { AudioSystem } from "../AudioSystem/AudioSystem";
 import { onCharaPointerOut, onCharaPointerOver } from "./CharaTooltip";
 import { hideTooltip } from "../../UI/Tooltip";
+import { audioManager } from "../AudioManager";
 
 export type CharaOptions = {
 	isShopItem?: boolean;
@@ -216,8 +216,7 @@ export class Chara extends Phaser.GameObjects.Container {
 
 			// Play sound before destroying the character
 			try {
-				const audioSystem = AudioSystem.getInstance();
-				audioSystem.playSoundEffect('sfx_artifact_equipweapon');
+				audioManager.playSoundEffect('sfx_artifact_equipweapon');
 			} catch (error) {
 				console.warn('Could not play equip weapon sound:', error);
 			}

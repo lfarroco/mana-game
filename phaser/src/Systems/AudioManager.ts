@@ -13,6 +13,7 @@
 
 import { getOption } from "../Models/OptionsStore";
 
+
 export class AudioManager {
 	private static instance: AudioManager | null = null;
 	private game: Phaser.Game | null = null;
@@ -26,10 +27,6 @@ export class AudioManager {
 	private soundEffects: Map<string, Phaser.Sound.BaseSound> = new Map();
 	private soundEffectCooldowns: Map<string, number> = new Map();
 	private readonly SOUND_EFFECT_COOLDOWN_MS = 100; // Prevent same effect playing within 100ms
-
-	private constructor() {
-		// Private constructor for singleton
-	}
 
 	/**
 	 * Get the singleton instance of AudioManager
@@ -314,3 +311,5 @@ export class AudioManager {
 		}
 	}
 }
+
+export let audioManager = new AudioManager();

@@ -1,7 +1,7 @@
 import { getChara } from "../../Scenes/Battleground/Systems/CharaManager";
 import { Unit } from "../../Models/Entities/Unit";
-import { AudioSystem } from "../../Systems/AudioSystem/AudioSystem";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
+import { audioManager } from "../../Systems/AudioManager";
 
 /**
  * Effect: Multiplies a unit's power by a given multiplier
@@ -27,8 +27,7 @@ export const multiplyPower = async (context: {
 			chara.updateUnitAttribute('power', powerDifference);
 
 			try {
-				const audioSystem = AudioSystem.getInstance();
-				audioSystem.playSoundEffect('sfx_spell_innerfocus');
+				audioManager.playSoundEffect('sfx_spell_innerfocus');
 			} catch (error) {
 				console.warn('Could not play inner focus sound:', error);
 			}

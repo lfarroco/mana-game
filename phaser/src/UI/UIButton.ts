@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { tween } from "../Utils/animation";
 import { titleTextConfig } from "../constants/constants";
-import { AudioSystem } from "../Systems/AudioSystem/AudioSystem";
+import { audioManager } from "../Systems/AudioManager";
 
 /**
  * A reusable, interactive button component for Phaser scenes.
@@ -86,8 +86,7 @@ export class UIButton extends Phaser.GameObjects.Container {
 				this.buttonText.setShadow(2, 2, "#000000", 2, true, true);
 
 				try {
-					const audioSystem = AudioSystem.getInstance();
-					audioSystem.playSoundEffect('sfx_unit_onclick');
+					audioManager.playSoundEffect('sfx_unit_onclick');
 				} catch (error) {
 					console.warn('Could not play button click sound:', error);
 				}

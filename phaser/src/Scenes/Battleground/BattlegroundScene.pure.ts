@@ -228,27 +228,6 @@ export function playFxSafe(
 }
 
 /**
- * Pure function to safely play music with error handling
- * @param audioSystem - The audio system instance
- * @param musicKey - The music key to play
- * @param onError - Function to handle errors
- * @returns Whether the music was played successfully
- */
-export function playMusicSafe(
-	audioSystem: { playMusic: (key: string) => void },
-	musicKey: string,
-	onError: (message: string) => void
-): boolean {
-	try {
-		audioSystem.playMusic(musicKey);
-		return true;
-	} catch (error) {
-		onError(`Could not play battle music: ${error}`);
-		return false;
-	}
-}
-
-/**
  * Pure function to handle battle result display logic
  * @param result - The battle result
  * @param playAnimation - Function to play the animation
