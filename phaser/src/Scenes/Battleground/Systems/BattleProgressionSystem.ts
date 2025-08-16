@@ -10,8 +10,9 @@ import { PrestigeSystem } from "../../../Systems/PrestigeSystem";
 import * as CharaManager from "./CharaManager";
 import { cpuForce, playerForce, updatePlayerGoldIO } from "../../../Models/Entities/Force";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
-import { updateMoraleBar } from "../MoraleDisplay";
+import { fadeOutBars, showBars, updateMoraleBar } from "../MoraleDisplay";
 import { AudioSystem } from "../../../Systems/AudioSystem/AudioSystem";
+import { renderVignette } from "../Animations/vignette";
 
 /**
  * Creates a deep copy of a unit for battle purposes.
@@ -52,14 +53,8 @@ export class BattleProgressionSystem {
 		this.addListener(GameEvents.SHOP_PHASE_ENDED, this.handleShopPhaseEnded);
 
 		// Combat Phase
-		this.addListener(GameEvents.COMBAT_START_EXECUTION_TRIGGER, this.handleCombatStartExecution);
-		this.addListener(GameEvents.COMBAT_ENDED_VICTORY, this.handleCombatEndedVictory);
-		this.addListener(GameEvents.COMBAT_ENDED_DEFEAT, this.handleCombatEndedDefeat);
 
 		this.addListener(GameEvents.UNIT_ATTACK, this.handleUnitAttackOnMorale);
-
-		// Game Over
-		this.addListener(GameEvents.PLAYER_WON_GAME, this.handlePlayerWonGame);
 	}
 
 	get getIsInShopPhase(): boolean {
@@ -82,7 +77,7 @@ export class BattleProgressionSystem {
 		this.resetPlayerUnitsForNewRound();
 
 		const summonPromises = this.state.gameData.player.units.map(async (unit, index) => {
-			await delay(this.scene, index * 200)
+			await delay(index * 200)
 			await CharaManager.summonChara(unit, true)
 		});
 		await Promise.all(summonPromises);
@@ -98,7 +93,8 @@ export class BattleProgressionSystem {
 			this.prestigeSystem.finalizeRound();
 		}
 		console.log("Round", this.state.gameData.round, "Shop Phase Starting.");
-		this.scene.events.emit(GameEvents.SHOP_OPEN_UI_TRIGGER);
+
+		this.scene.shop.handleShopOpenUITrigger()
 	}
 
 	/**
@@ -110,7 +106,9 @@ export class BattleProgressionSystem {
 		const { enemies } = await this.setupBattle();
 
 		this.setAllPlayerUnitBarsVisibility(true); // Show bars for player units in combat
-		this.scene.events.emit(GameEvents.COMBAT_START_EXECUTION_TRIGGER, { enemies });
+
+		this.handleCombatStartExecution({ enemies });
+
 	}
 
 	/**
@@ -127,11 +125,13 @@ export class BattleProgressionSystem {
 			console.warn('Could not play victory match sound:', error);
 		}
 
-		await delay(this.scene, 1000);
+		await delay(1000);
 		// Fade out the bars smoothly before hiding them
 		await this._fadeOutDisplayBars();
-		this.scene.events.emit(GameEvents.BATTLE_RESULT_SHOW, { result: "defeat" });
-		await delay(this.scene, 1500); // Wait for animation
+		this.scene.handleBattleResultShow({
+			result: "defeat",
+		});
+		await delay(1500); // Wait for animation
 
 		this.prestigeSystem.processDefeat();
 
@@ -146,11 +146,8 @@ export class BattleProgressionSystem {
 		this.isInShopPhase = false; // Stop normal game flow
 		console.log(`PLAYER HAS WON THE GAME! Prestige: ${this.state.gameData.player.prestige}, Total Rounds: ${this.state.gameData.player.totalRoundsPlayed}`);
 
-		// Display a unique victory message/screen
-		this.scene.events.emit(
-			GameEvents.VIGNETTE_MESSAGE_SHOW,
-			{ message: `Victory! You reached Champion status in ${this.state.gameData.player.totalRoundsPlayed} rounds!` }
-		);
+
+		renderVignette({ message: `Victory! You reached Champion status in ${this.state.gameData.player.totalRoundsPlayed} rounds!` });
 		// Here you could transition to a dedicated "Game Won" scene or show a special UI.
 	}
 
@@ -165,19 +162,13 @@ export class BattleProgressionSystem {
 
 	resetPlayerUnitChargeBars(): void {
 		CharaManager.getAllCharas().forEach(chara => {
-			this.scene.events.emit(
-				GameEvents.CHARA_CHARGE_BAR_UPDATE,
-				{ unitId: chara.id }
-			);
+			CharaManager.handleCharaChargeBarUpdateEvent({ unitId: chara.id });
 		});
 	}
 
 	setAllPlayerUnitBarsVisibility(visible: boolean): void {
 		CharaManager.getAllCharas().forEach(chara => {
-			this.scene.events.emit(
-				GameEvents.CHARA_BARS_VISIBILITY_SET,
-				{ unitId: chara.id, visible },
-			);
+			CharaManager.handleCharaBarsVisibilitySetEvent({ unitId: chara.id, visible });
 		});
 	}
 
@@ -200,7 +191,7 @@ export class BattleProgressionSystem {
 		this.state.battleData.units = [...enemy.units, ...playerUnitsForBattle];
 
 		// Small delay to ensure Chara objects are properly initialized
-		await delay(this.scene, 100);
+		await delay(100);
 
 		// Update existing player Chara objects to reference the battle copies
 		playerUnitsForBattle.forEach(battleCopy => {
@@ -210,23 +201,14 @@ export class BattleProgressionSystem {
 			}
 		});
 
-		// Show enemy board in combat phase
-		this.scene.events.emit(GameEvents.ENEMY_BOARD_SHOW);
+		this.scene.eventSystem.handleEnemyBoardShow();
 
-		await delay(this.scene, 500); // Wait for any animations to complete before proceeding
+		await delay(500); // Wait for any animations to complete before proceeding
 
 		// Summon CPU units to the board
 		enemy.units.forEach(unit => {
-			this.scene.events.emit(
-				GameEvents.CHARA_SUMMON_TO_BOARD,
-				{
-					unit,
-					animateAppear: false,
-					playSound: false,
-				}
-			);
+			CharaManager.summonChara(unit, false);
 		});
-		this.scene.events.emit(GameEvents.DIFFICULTY_TIER_CHANGED, { difficultyTier: enemy.difficultyTier });
 		return { enemies: enemy.units };
 	}
 
@@ -251,11 +233,15 @@ export class BattleProgressionSystem {
 		}
 
 		// Wait 1 second for current animations to complete
-		await delay(this.scene, 1000);
+		await delay(1000);
 		// Fade out the bars smoothly before hiding them
 		await this._fadeOutDisplayBars();
-		this.scene.events.emit(GameEvents.BATTLE_RESULT_SHOW, { result: "victory" });
-		await delay(this.scene, 1500); // Wait for animation
+
+		this.scene.handleBattleResultShow({
+			result: "victory",
+		})
+
+		await delay(1500); // Wait for animation
 
 		this.transitionToShopPhase(payload);
 	}
@@ -268,9 +254,9 @@ export class BattleProgressionSystem {
 		this._initializeMorale();
 		const combatResult = await this.scene.runCombatSystem.runCombatIO(); // runCombatSystem is on BattlegroundScene
 		if (combatResult === "player_won") {
-			this.scene.events.emit(GameEvents.COMBAT_ENDED_VICTORY, { enemiesDefeated: payload.enemies });
+			this.handleCombatEndedVictory({ enemiesDefeated: payload.enemies });
 		} else {
-			this.scene.events.emit(GameEvents.COMBAT_ENDED_DEFEAT, {});
+			this.handleCombatEndedDefeat();
 		}
 	}
 
@@ -291,8 +277,8 @@ export class BattleProgressionSystem {
 		playerForce.shield = 0;
 		cpuForce.shield = 0;
 
-		this.scene.events.emit(GameEvents.MORALE_BARS_SHOW);
-		this.scene.events.emit(GameEvents.SHIELD_BARS_SHOW);
+		showBars();
+
 		this.scene.events.emit(
 			GameEvents.MORALE_UPDATED,
 			{
@@ -331,19 +317,10 @@ export class BattleProgressionSystem {
 	 * Fades out display bars smoothly before hiding them.
 	 */
 	async _fadeOutDisplayBars(): Promise<void> {
-		// Run both fade outs in parallel
-		await Promise.all([
-			new Promise<void>((resolve) => {
-				this.scene.events.emit(GameEvents.MORALE_BARS_FADE_OUT);
-				// Wait for fade out to complete
-				setTimeout(resolve, 500); // Match the fade duration
-			}),
-			new Promise<void>((resolve) => {
-				this.scene.events.emit(GameEvents.SHIELD_BARS_FADE_OUT);
-				// Wait for fade out to complete  
-				setTimeout(resolve, 500); // Match the fade duration
-			})
-		]);
+
+		fadeOutBars();
+
+		await delay(500); // Wait for fade out to complete
 	}
 
 	/**

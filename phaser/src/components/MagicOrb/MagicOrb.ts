@@ -1,7 +1,7 @@
 import * as Phaser from "phaser";
 import { magicOrbFragmentShader } from "../../Shaders/MagicOrbShader";
-import { GameEvents } from "../../constants/events";
 import * as Board from "../../Models/Board";
+import { hideTooltip, renderTooltip } from "../../UI/Tooltip";
 
 export interface MagicOrbConfig {
 	size?: number;
@@ -136,7 +136,7 @@ export class MagicOrb {
 			});
 
 			this.shader.on('pointerout', () => {
-				this.hideTooltip();
+				hideTooltip();
 			});
 		}
 
@@ -146,7 +146,7 @@ export class MagicOrb {
 
 			this.shader.on('dragstart', () => {
 				this.isDragging = true;
-				this.hideTooltip(); // Hide tooltip when dragging starts
+				hideTooltip();
 				this.scene.input.setDefaultCursor('grabbing');
 			});
 
@@ -185,19 +185,14 @@ export class MagicOrb {
 	}
 
 	private showTooltip(): void {
-		// Emit tooltip show event with orb data
-		this.scene.events.emit(GameEvents.TOOLTIP_SHOW, {
-			x: this.shader.x,
-			y: this.shader.y - this.config.size / 2 - 10, // Position above the orb
-			title: this.config.tooltipTitle,
-			description: this.config.tooltipText
-		});
+		renderTooltip(
+			this.shader.x,
+			this.shader.y - this.config.size / 2 - 10,
+			this.config.tooltipTitle,
+			this.config.tooltipText
+		);
 	}
 
-	private hideTooltip(): void {
-		// Emit tooltip hide event
-		this.scene.events.emit(GameEvents.TOOLTIP_HIDE);
-	}
 
 	returnToOriginalPosition(): void {
 		// Animate the orb back to its original position

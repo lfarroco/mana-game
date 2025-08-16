@@ -3,6 +3,7 @@ import { GameEvents } from "../../../../../constants/events";
 import * as constants from "../../../../../constants/constants";
 import { makeUnit, Unit } from "../../../../../Models/Entities/Unit";
 import { updatePlayerGoldIO } from "../../../../../Models/Entities/Force";
+import { getChara } from "../../CharaManager";
 
 type ShopItemClickPurchasePayload = {
 	shopUnitData: Unit;
@@ -28,12 +29,13 @@ export function shopItemClickPurchaseRequestedHandler(
 		reason: string,
 		additionalDetails?: Record<string, any>
 	) => {
-		emit(GameEvents.SHOP_PURCHASE_FAILED, {
-			originalShopCharaId: shopCharaId,
+		getChara(shopCharaId)._onShopPurchaseFailed({
 			reason,
+			originalShopCharaId: shopCharaId,
 			dragStartX,
 			dragStartY,
 		});
+
 		emit(GameEvents.PURCHASE_FAILED, {
 			unitName: shopUnitData.name,
 			reason,
@@ -60,6 +62,10 @@ export function shopItemClickPurchaseRequestedHandler(
 	const newUnit = makeUnit(constants.FORCE_ID_PLAYER, shopUnitData.cardId, targetTile);
 	state.gameData.player.units.push(newUnit);
 
-	emit(GameEvents.BOARD_CHARA_CREATE_REQUESTED, { unit: newUnit });
-	emit(GameEvents.SHOP_PURCHASE_SUCCESSFUL, { purchasedUnit: newUnit, originalShopCharaId: shopCharaId });
+	scene.handleBoardCharaCreateRequest({ unit: newUnit });
+
+	getChara(shopCharaId)._onShopPurchaseSuccessful({
+		purchasedUnit: newUnit,
+		originalShopCharaId: shopCharaId
+	})
 }

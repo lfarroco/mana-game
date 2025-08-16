@@ -139,10 +139,6 @@ export function handleSummonCharaToBoardEvent(payload: { unit: Unit, animateAppe
 	summonChara(payload.unit, payload.animateAppear);
 }
 
-export function handleDestroyCharaFromBoardEvent(payload: { unitId: string }): void {
-	destroyChara(payload.unitId);
-}
-
 export function handleCharaChargeBarUpdateEvent(payload: { unitId: string }): void {
 	getChara(payload.unitId)?.updateChargeBar();
 }

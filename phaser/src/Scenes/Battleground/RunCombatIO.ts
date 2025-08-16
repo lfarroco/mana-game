@@ -23,18 +23,15 @@ export type WaveOutcome = "player_won" | "player_lost";
  * @param {BattlegroundScene} scene - The current battleground scene.
  * @returns {Promise<void>} Resolves when setup is complete.
  */
-async function setupWave(scene: BattlegroundScene) {
+async function setupWave() {
 
   CharaManager
     .getAllCharas()
     .forEach(chara => {
-      scene.events.emit(GameEvents.CHARA_BARS_VISIBILITY_SET, { unitId: chara.id, visible: true });
+      CharaManager.handleCharaBarsVisibilitySetEvent({ unitId: chara.id, visible: true });
     });
 
-  await delay(scene, 2000); // wait until everyone is summoned
-
-
-  scene.events.emit(GameEvents.BATTLE_START_SETUP_COMPLETE);
+  await delay(2000); // wait until everyone is summoned
 
 }
 
@@ -99,7 +96,7 @@ export class RunCombatSystem {
   runCombatIO = (): Promise<WaveOutcome> => new Promise(async resolve => {
     const { state, events } = this.scene;
 
-    await setupWave(this.scene);
+    await setupWave();
     console.log("[RunCombatSystem] Wave setup complete, starting combat loop.");
 
     // Initialize timeout damage system

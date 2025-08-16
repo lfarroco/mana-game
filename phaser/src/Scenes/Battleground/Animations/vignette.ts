@@ -1,15 +1,10 @@
 import { tween } from "../../../Utils/animation";
 import { COLOR_BLACK } from "../../../Utils/colors";
-import BattlegroundScene from "../BattlegroundScene";
+import { scene } from "../BattlegroundScene";
 import * as c from "../../../constants/constants";
-import { GameEvents } from "../../../constants/events";
-
-export function init(scene: BattlegroundScene) {
-	scene.events.addListener(GameEvents.VIGNETTE_MESSAGE_SHOW, render(scene))
-}
 
 // display a text in the center of the screen, with a fading gradient rect behind it
-const render = (scene: BattlegroundScene) => async ({ message }: { message: string }) => {
+export const renderVignette = async ({ message }: { message: string }) => {
 
 	const rect = scene.add.rectangle(
 		0, c.MIDDLE_SCREEN_Y,

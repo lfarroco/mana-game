@@ -25,11 +25,11 @@ export async function healingHitEffect(
 			frequency: HEALING_HIT_EFFECT_CONFIG.PARTICLE_FREQUENCY,
 		});
 
-	await delay(scene, lifespan * HEALING_HIT_EFFECT_CONFIG.LIFESPAN_RATIO);
+	await delay(lifespan * HEALING_HIT_EFFECT_CONFIG.LIFESPAN_RATIO);
 
 	particles.stop();
 
-	await delay(scene, lifespan);
+	await delay(lifespan);
 
 	particles.destroy();
 

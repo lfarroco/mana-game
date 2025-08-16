@@ -3,13 +3,13 @@ import { CardCollection, registerCollection } from "../../../Models/Entities/Car
 import * as ControlsSystem from "../../../Systems/Controls/Controls";
 import { initializePlayerBoard, PartyBoard, createBoardDropZone } from "../../../Models/Board";
 import * as BG_CONSTANTS from "../battlegroundConstants";
-import { GameEvents } from "../../../constants/events";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { TypedEventEmitter } from "../../../Systems/Events/TypedEventEmitter";
 import { GoldSystemEventPayloads, GoldSystemEvents } from "../../../Systems/GoldSystem/events";
 import { getOption } from "../../../Models/OptionsStore";
 import { devlog } from "../../../utils";
 import { CloudsBackground } from "../../../components/cloudBackground/CloudsBackground";
+import { ui } from "../../../UI/UIManager";
 
 let runtimeDataInitialized = false;
 
@@ -58,7 +58,7 @@ export class BattlegroundSetupSystem {
 		state.gameData.player.gold = initialGold;
 
 		// Emit PRESTIGE_CHANGED so UI can display the initial value. Delta is 0.
-		this.scene.events.emit(GameEvents.PRESTIGE_CHANGED, state.gameData.player.prestige, 0);
+		ui.updatePrestige(state.gameData.player.prestige, 0);
 
 		// Create typed event emitter for gold system events
 		const goldEvents = new TypedEventEmitter<GoldSystemEventPayloads>(this.scene.events);

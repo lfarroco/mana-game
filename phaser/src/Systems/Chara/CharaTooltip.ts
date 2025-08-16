@@ -1,6 +1,6 @@
-import { GameEvents } from "../../constants/events";
 import { Chara } from "./Chara";
 import { Effect, EffectReaction } from "../../TriggerSystem/TriggerSystem";
+import { hideTooltip, renderTooltip } from "../../UI/Tooltip";
 
 // Helper function to generate human-readable descriptions for effects
 const getEffectDescription = (effect: Effect, unitPower: number): string => {
@@ -142,14 +142,9 @@ export const onCharaPointerOver = ({ chara }: { chara: Chara }): void => {
 	const tooltipX = charaWorldX + chara.displayWidth + TOOLTIP_OFFSET_X;
 	const tooltipY = charaWorldY; // Align with chara's vertical center
 
-	chara.scene.events.emit(GameEvents.TOOLTIP_SHOW, {
-		x: tooltipX,
-		y: tooltipY,
-		title: title,
-		description: description,
-	});
+	renderTooltip(tooltipX, tooltipY, title, description);
 }
 
-export const onCharaPointerOut = ({ chara }: { chara: Chara }): void => {
-	chara.scene.events.emit(GameEvents.TOOLTIP_HIDE);
+export const onCharaPointerOut = (): void => {
+	hideTooltip();
 }

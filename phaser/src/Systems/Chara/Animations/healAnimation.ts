@@ -89,7 +89,7 @@ export async function healAnimation(
         128, 128)
         .setOrigin(0.5, 0.5);
 
-    await delay(scene, 500);
+    await delay(500);
 
     shader.destroy();
 

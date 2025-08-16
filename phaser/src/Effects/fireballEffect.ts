@@ -33,7 +33,7 @@ export async function fireballEffect(
 	const particles = fireball(source, target, scene, FIREBALL_TRACE_LIFESPAN, FIREBALL_TRAVEL_DURATION);
 	particles.setScale(FIREBALL_INITIAL_SCALE);
 
-	await delay(scene, FIREBALL_TRAVEL_DURATION / 2);
+	await delay(FIREBALL_TRAVEL_DURATION / 2);
 
 	await impactEffect({
 		scene,

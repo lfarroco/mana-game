@@ -72,7 +72,7 @@ export async function arcaneMissile({
 	//make particles follow follower
 	particles.startFollow(follower);
 
-	await delay(scene, duration);
+	await delay(duration);
 
 	particles.stop()
 
@@ -92,11 +92,11 @@ export async function arcaneMissile({
 
 	onHit();
 
-	await delay(scene, ARCANE_MISSILE_CONFIG.IMPACT_DELAY);
+	await delay(ARCANE_MISSILE_CONFIG.IMPACT_DELAY);
 
 	impact.stop();
 
-	await delay(scene, ARCANE_MISSILE_CONFIG.IMPACT_LIFESPAN);
+	await delay(ARCANE_MISSILE_CONFIG.IMPACT_LIFESPAN);
 
 	beam.destroy();
 	particles.destroy();

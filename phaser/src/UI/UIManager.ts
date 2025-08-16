@@ -42,22 +42,12 @@ export class UIManager {
 		this.scene = scene;
 		this.goldCoinAnimator = new GoldCoinAnimator(this.scene);
 		this.goldEvents = new TypedEventEmitter<GoldSystemEventPayloads>(this.scene.events);
-		this._setupPrestigeChangeListener();
 		this._setupPurchaseFailedListener();
-		this._setupUserMessageListener();
 		Tooltip.initializeTooltip(scene);
-		this._setupTooltipShowListener();
-		this._setupTooltipHideListener();
 		ui = this;
 	}
 
-	/**
-	 * Sets up an event listener for "prestige_changed" events.
-	 * This allows the UIManager to react to updates in the player's prestige.
-	 */
-	_setupPrestigeChangeListener(): void {
-		this.scene.events.on(GameEvents.PRESTIGE_CHANGED, this._handlePrestigeChanged, this);
-	}
+
 
 	/**
 	 * Sets up an event listener for "purchase_failed" events.
@@ -66,34 +56,6 @@ export class UIManager {
 	_setupPurchaseFailedListener(): void {
 		this.scene.events.on(GameEvents.PURCHASE_FAILED, this._handlePurchaseFailed, this);
 	}
-
-	/**
-	 * Sets up an event listener for "user_message_requested" events.
-	 * This allows other game systems to request the display of messages (errors, info, etc.) to the user.
-	 */
-	_setupUserMessageListener(): void {
-		this.scene.events.on(GameEvents.USER_MESSAGE_REQUESTED, this._handleUserMessageRequested, this);
-	}
-
-	/**
-	 * Sets up an event listener for "tooltip_show" events.
-	 * This allows other game systems to request the display of a tooltip.
-	 */
-	_setupTooltipShowListener(): void {
-		this.scene.events.on(GameEvents.TOOLTIP_SHOW, (payload: { x: number, y: number, title: string, description: string }) => {
-			Tooltip.renderTooltip(payload.x, payload.y, payload.title, payload.description);
-		}, this);
-	}
-
-	/**
-	 * Sets up an event listener for "tooltip_hide" events.
-	 * This allows other game systems to request hiding the tooltip.
-	 */
-	_setupTooltipHideListener(): void {
-		this.scene.events.on(GameEvents.TOOLTIP_HIDE, () => Tooltip.hideTooltip(), this);
-	}
-
-
 
 	/**
 	 * Handles the `GameEvents.PURCHASE_FAILED` event by constructing and emitting a user message.
@@ -113,10 +75,8 @@ export class UIManager {
 				break;
 			default: message += "Reason unknown.";
 		}
-		this.scene.events.emit(GameEvents.USER_MESSAGE_REQUESTED, {
-			text: message,
-			type: 'error'
-		} as UserMessagePayload);
+		this._handleUserMessageRequested({ text: message, type: 'error' });
+
 	}
 
 	/**
@@ -142,7 +102,7 @@ export class UIManager {
 	 * @param newTotalPrestige - The new total amount of prestige the player has.
 	 * @param _prestigeDelta - The amount of prestige that was gained or lost (can be used for animations later).
 	 */
-	_handlePrestigeChanged(newTotalPrestige: number, _prestigeDelta: number): void {
+	updatePrestige(newTotalPrestige: number, _prestigeDelta: number): void {
 		if (this.prestigeTextElement) {
 			this.prestigeTextElement.setText(`${newTotalPrestige}`);
 		}
@@ -348,11 +308,7 @@ export class UIManager {
 		this.destroyMainUI();
 		Tooltip.destroyTooltip();
 		this.goldEvents.off(GoldSystemEvents.GOLD_CHANGED, this.handleGoldChanged.bind(this));
-		this.scene.events.off(GameEvents.PRESTIGE_CHANGED, this._handlePrestigeChanged, this);
 		this.scene.events.off(GameEvents.PURCHASE_FAILED, this._handlePurchaseFailed, this);
-		this.scene.events.off(GameEvents.USER_MESSAGE_REQUESTED, this._handleUserMessageRequested, this);
-		this.scene.events.off(GameEvents.TOOLTIP_SHOW);
-		this.scene.events.off(GameEvents.TOOLTIP_HIDE);
 	}
 
 	/**

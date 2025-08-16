@@ -35,7 +35,7 @@ export async function impactEffect({
 			stopAfter: IMPACT_EFFECT_CONFIG.STOP_AFTER
 		});
 
-	await delay(scene, IMPACT_EFFECT_CONFIG.PARTICLE_LIFESPAN);
+	await delay(IMPACT_EFFECT_CONFIG.PARTICLE_LIFESPAN);
 
 	particles.destroy();
 }
