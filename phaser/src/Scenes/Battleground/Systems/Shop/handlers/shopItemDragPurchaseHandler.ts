@@ -4,6 +4,7 @@ import * as constants from "../../../../../constants/constants";
 import { Vec2 } from "../../../../../Models/Geometry";
 import { makeUnit, Unit } from "../../../../../Models/Entities/Unit";
 import { getUnitAt } from "../../../../../Models/State";
+import { updatePlayerGoldIO } from "../../../../../Models/Entities/Force";
 
 export function shopItemDragPurchaseRequestedHandler(
 	scene: BattlegroundScene,
@@ -29,7 +30,7 @@ export function shopItemDragPurchaseRequestedHandler(
 		return;
 	}
 
-	scene.events.emit(GameEvents.PLAYER_GOLD_DELTA_REQUEST, -constants.SHOP_ITEM_PURCHASE_COST);
+	updatePlayerGoldIO(-constants.SHOP_ITEM_PURCHASE_COST);
 	const newUnit = makeUnit(constants.FORCE_ID_PLAYER, shopUnitData.cardId, targetTile);
 	scene.state.gameData.player.units.push(newUnit);
 	scene.events.emit(GameEvents.BOARD_CHARA_CREATE_REQUESTED, { unit: newUnit });

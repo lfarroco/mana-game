@@ -2,8 +2,7 @@ import Phaser from "phaser";
 import { FORCE_ID_PLAYER, FORCE_ID_CPU, INITIAL_MORALE } from "../../constants/constants";
 import { Unit } from "./Unit";
 import { GameEvents } from "../../constants/events";
-import { TypedEventEmitter } from "../../Systems/Events/TypedEventEmitter";
-import { GoldSystemEventPayloads, GoldSystemEvents } from "../../Systems/GoldSystem/events";
+import { ui } from "../../UI/UIManager";
 
 // A "force" represents a party of heroes (units)
 export type Force = {
@@ -45,17 +44,12 @@ export const makeForce = (id: string): Force => {
 export const playerForce = makeForce(FORCE_ID_PLAYER);
 export const cpuForce = makeForce(FORCE_ID_CPU);
 
-export const updatePlayerGoldIO = (scene: Phaser.Scene, goldDelta: number) => {
-	// Ensure goldDelta is an integer for consistent calculations
+export const updatePlayerGoldIO = (goldDelta: number) => {
+
 	const changeAmount = Math.floor(goldDelta);
 	playerForce.gold += changeAmount;
 
-	// Create typed event emitter for gold system events
-	const typedEvents = new TypedEventEmitter<GoldSystemEventPayloads>(scene.events);
-
-	// Emit typed event with the new total gold and the delta amount
-	// The UIManager will listen to this to update text and play animations
-	typedEvents.emit(GoldSystemEvents.GOLD_CHANGED, playerForce.gold, changeAmount);
+	ui.handleGoldChanged(playerForce.gold, changeAmount)
 }
 
 /**

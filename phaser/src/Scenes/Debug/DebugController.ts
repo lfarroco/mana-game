@@ -6,6 +6,7 @@ import { CardDefinition } from "../../Models/Entities/Card";
 import * as CharaManager from "../Battleground/Systems/CharaManager";
 import { makeUnit } from "../../Models/Entities/Unit";
 import * as constants from "../../constants/constants";
+import { updatePlayerGoldIO } from "../../Models/Entities/Force";
 
 export class DebugController {
 	scene: BattlegroundScene;
@@ -163,7 +164,7 @@ export class DebugController {
 
 	// --- State Manipulation for Testing ---
 	playerGoldDelta(delta: number): string {
-		this.scene.events.emit(GameEvents.PLAYER_GOLD_DELTA_REQUEST, delta);
+		updatePlayerGoldIO(delta);
 		return `Player gold update requested to ${delta}. (Delta: ${delta}).`;
 	}
 

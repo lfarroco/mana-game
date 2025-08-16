@@ -16,7 +16,7 @@ export function shopRerollTavernHandler(shopInstance: Shop): void {
 	}
 
 	// Deduct gold and reroll
-	updatePlayerGoldIO(scene, -constants.REROLL_UNITS_PRICE);
+	updatePlayerGoldIO(-constants.REROLL_UNITS_PRICE);
 	shopInstance.rerollTavern();
 }
 

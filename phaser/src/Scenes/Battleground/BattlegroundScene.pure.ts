@@ -31,23 +31,6 @@ export function calculateGoldUpdate(currentGold: number, goldDelta: number): { n
 }
 
 /**
- * Pure function to update player gold with dependency injection
- * @param currentGold - Current player gold amount
- * @param goldDelta - Amount to change
- * @param emitEvent - Function to emit events
- * @returns New gold amount
- */
-export function updatePlayerGold(
-	currentGold: number,
-	goldDelta: number,
-	emitEvent: (event: string, newGold: number, changeAmount: number) => void
-): number {
-	const { newGold, changeAmount } = calculateGoldUpdate(currentGold, goldDelta);
-	emitEvent(GameEvents.GOLD_CHANGED, newGold, changeAmount);
-	return newGold;
-}
-
-/**
  * Pure function to handle the complete unit selling logic with dependency injection
  * @param updatePlayerGold - Function to update player gold
  * @param emitEvent - Function to emit events

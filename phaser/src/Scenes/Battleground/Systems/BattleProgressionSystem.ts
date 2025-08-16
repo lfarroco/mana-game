@@ -8,7 +8,7 @@ import { getAllCards } from "../../../Models/Entities/Card";
 import { generateEnemyTeam } from "../generateEnemyTeam";
 import { PrestigeSystem } from "../../../Systems/PrestigeSystem";
 import * as CharaManager from "./CharaManager";
-import { cpuForce, playerForce } from "../../../Models/Entities/Force";
+import { cpuForce, playerForce, updatePlayerGoldIO } from "../../../Models/Entities/Force";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
 import { updateMoraleBar } from "../MoraleDisplay";
 import { AudioSystem } from "../../../Systems/AudioSystem/AudioSystem";
@@ -93,7 +93,7 @@ export class BattleProgressionSystem {
 
 		this.isInShopPhase = true;
 		if (payload && payload.enemiesDefeated) {
-			this.scene.events.emit(GameEvents.PLAYER_GOLD_DELTA_REQUEST, BG_CONSTANTS.VICTORY_GOLD_REWARD);
+			updatePlayerGoldIO(BG_CONSTANTS.VICTORY_GOLD_REWARD);
 			this.prestigeSystem.processVictory();
 			this.prestigeSystem.finalizeRound();
 		}

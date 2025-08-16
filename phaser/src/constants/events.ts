@@ -1,4 +1,4 @@
-import { GoldSystemEvents, OptionsSystemEvents } from "./EventRegistry";
+import { OptionsSystemEvents } from "./EventRegistry";
 
 /**
  * ⚠️  LEGACY EVENT SYSTEM - Consider Using Typed Events Instead
@@ -18,10 +18,8 @@ import { GoldSystemEvents, OptionsSystemEvents } from "./EventRegistry";
  * When removing a feature, you only need to delete its folder and remove the import
  * from EventRegistry.ts - the compiler will catch any remaining references.
  * 
- * Example migration: GOLD_CHANGED has been moved to `/src/Systems/GoldSystem/events.ts`
  */
 export const GameEvents = {
-	GOLD_CHANGED: GoldSystemEvents.GOLD_CHANGED,
 
 	// Options System Events
 	OPTION_CHANGED: OptionsSystemEvents.OPTION_CHANGED,
@@ -62,7 +60,6 @@ export const GameEvents = {
 	UNIT_MORALE_RESTORED: "unit_morale_restored", // Payload: { unit: Unit, amount: number }
 
 	// BattlegroundScene specific UI and System Triggers
-	PLAYER_GOLD_DELTA_REQUEST: "player_delta_update_request", // Payload: number (goldDelta)
 	UI_MAIN_CREATE: "ui_main_create",
 	CHARA_SUMMON_TO_BOARD: "chara_summon_to_board", // Payload: { unit: Unit, animateAppear: boolean, playSound: boolean }
 	CHARA_DESTROY_FROM_BOARD: "chara_destroy_from_board", // Payload: { unitId: string }
