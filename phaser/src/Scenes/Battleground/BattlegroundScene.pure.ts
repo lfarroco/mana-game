@@ -301,29 +301,6 @@ export function configureSceneTime(
 }
 
 /**
- * Pure function to handle character creation request
- * @param unit - The unit to create
- * @param isInShopPhase - Whether the game is in shop phase
- * @param summonChara - Function to summon the character
- * @param emitEvent - Function to emit events
- * @returns Promise that resolves when character is created
- */
-export async function handleCharacterCreationRequest(
-	unit: Unit,
-	isInShopPhase: boolean,
-	summonChara: (unit: Unit, animate: boolean) => Promise<any>,
-	emitEvent: (event: string, payload: any) => void
-): Promise<void> {
-	// Summon the character with animation by default
-	await summonChara(unit, true);
-
-	if (isInShopPhase) {
-		// Hide bars for newly summoned player units during shop phase
-		emitEvent("CHARA_BARS_VISIBILITY_SET", { unitId: unit.id, visible: false });
-	}
-}
-
-/**
  * Pure function to create a gold update handler
  * @param currentGold - Current player gold
  * @param goldDelta - Amount to change

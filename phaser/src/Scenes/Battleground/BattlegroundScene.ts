@@ -193,14 +193,6 @@ export class BattlegroundScene extends Phaser.Scene {
     }
   }
 
-  async handleBoardCharaCreateRequest(payload: { unit: Unit }): Promise<void> {
-    await BattlegroundScenePure.handleCharacterCreationRequest(
-      payload.unit,
-      this.battleProgressionSystem.isInShopPhase,
-      (unit: Unit, animate: boolean) => CharaManager.summonChara(unit, animate),
-      (event: string, eventPayload: any) => this.events.emit(event, eventPayload)
-    );
-  }
 
   handleOwnedUnitMoveRequest(payload: { unitId: string, targetTile: Vec2, dragStartX: number, dragStartY: number }): void {
     const { unitId, targetTile, dragStartX, dragStartY } = payload;

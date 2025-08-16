@@ -2,7 +2,7 @@ import { BattlegroundScene } from "../../../BattlegroundScene";
 import * as constants from "../../../../../constants/constants";
 import { makeUnit, Unit } from "../../../../../Models/Entities/Unit";
 import { updatePlayerGoldIO } from "../../../../../Models/Entities/Force";
-import { getChara } from "../../CharaManager";
+import { getChara, summonChara } from "../../CharaManager";
 import { ui } from "../../../../../UI/UIManager";
 
 type ShopItemClickPurchasePayload = {
@@ -60,7 +60,7 @@ export function shopItemClickPurchaseRequestedHandler(
 	const newUnit = makeUnit(constants.FORCE_ID_PLAYER, shopUnitData.cardId, targetTile);
 	state.gameData.player.units.push(newUnit);
 
-	scene.handleBoardCharaCreateRequest({ unit: newUnit });
+	summonChara(newUnit, true);
 
 	getChara(shopCharaId)._onShopPurchaseSuccessful({
 		purchasedUnit: newUnit,

@@ -3,7 +3,6 @@ import { Unit } from "../../Models/Entities/Unit"; // Ensure Unit is exported fr
 import { vec2 } from "../../Models/Geometry";
 import { CardDefinition } from "../../Models/Entities/Card";
 import * as CharaManager from "../Battleground/Systems/CharaManager";
-import { makeUnit } from "../../Models/Entities/Unit";
 import * as constants from "../../constants/constants";
 import { updatePlayerGoldIO } from "../../Models/Entities/Force";
 import { shop } from "../Battleground/Systems/Shop/Shop";
@@ -75,29 +74,6 @@ export class DebugController {
 	clickNextRound(): string {
 		this.scene.battleProgressionSystem.handleShopPhaseEnded();
 		return "Emitted SHOP_PHASE_ENDED. Current shop phase should end, leading to combat or next round's shop.";
-	}
-
-	/**
-	 * Directly adds a unit to the player's board state at a specific tile position.
-	 * Note: This only updates the state data and does NOT create a Chara GameObject
-	 * or emit the necessary events for visual representation. Use with caution,
-	 * primarily for state-based test setups like filling the party.
-	 * @param cardId The ID of the card definition for the unit.
-	 * @param boardX The X coordinate on the board grid.
-	 * @param boardY The Y coordinate on the board grid.
-	 * @param summonCharaVisual If true, also emits an event to create the visual Chara. Defaults to false.
-	 */
-	addUnitToPlayerBoard(cardId: string, boardX: number, boardY: number, summonCharaVisual: boolean = false): string {
-		const newUnit = makeUnit(constants.FORCE_ID_PLAYER, cardId, vec2(boardX, boardY));
-		this.scene.state.gameData.player.units.push(newUnit);
-
-		if (summonCharaVisual) {
-
-			this.scene.handleBoardCharaCreateRequest({ unit: newUnit });
-
-		}
-
-		return `Added unit ${newUnit.id} (Card ID: ${cardId}) to player board state at (${boardX}, ${boardY}).`;
 	}
 
 	/**
