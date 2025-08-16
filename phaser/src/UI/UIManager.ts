@@ -5,8 +5,6 @@ import { tween } from "../Utils/animation";
 import * as Tooltip from "./Tooltip";
 import { GoldCoinAnimator } from "./GoldCoinAnimator";
 import { UserMessagePayload } from "../Models/EventPayloads";
-import { TypedEventEmitter } from "../Systems/Events/TypedEventEmitter";
-import { GoldSystemEventPayloads, GoldSystemEvents } from "../Systems/GoldSystem/events";
 
 export let ui: UIManager;
 
@@ -28,8 +26,6 @@ export class UIManager {
 	prestigeTextElement: Phaser.GameObjects.Text | null = null;
 	/** Instance of GoldCoinAnimator for handling gold coin animations. */
 	goldCoinAnimator: GoldCoinAnimator;
-	/** Typed event emitter for gold system events. */
-	private goldEvents: TypedEventEmitter<GoldSystemEventPayloads>;
 
 	/**
 	 * Initializes the UIManager.
@@ -40,7 +36,6 @@ export class UIManager {
 	constructor(scene: BattlegroundScene) {
 		this.scene = scene;
 		this.goldCoinAnimator = new GoldCoinAnimator(this.scene);
-		this.goldEvents = new TypedEventEmitter<GoldSystemEventPayloads>(this.scene.events);
 		Tooltip.initializeTooltip(scene);
 		ui = this;
 	}
@@ -295,7 +290,6 @@ export class UIManager {
 	destroy(): void { // Full cleanup for the UIManager
 		this.destroyMainUI();
 		Tooltip.destroyTooltip();
-		this.goldEvents.off(GoldSystemEvents.GOLD_CHANGED, this.handleGoldChanged.bind(this));
 	}
 
 	/**
