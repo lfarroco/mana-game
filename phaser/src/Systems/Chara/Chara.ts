@@ -8,7 +8,6 @@ import { popText } from "./Animations/popText";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { CharaStatsDisplay } from "./CharaStatsDisplay";
 import { CharaBarsDisplay } from "./CharaBarsDisplay";
-import { GameEvents } from "../../constants/events";
 import { CharaInputHandler } from "./CharaInputHandler";
 import { Shop } from "../../Scenes/Battleground/Systems/Shop/Shop";
 import { createContinuousHasteEffect } from "../../Effects/hasteEffect";
@@ -125,12 +124,8 @@ export class Chara extends Phaser.GameObjects.Container {
 		// Initialize status effects based on unit state
 		this.updateStatusEffects();
 
-		// Listen for move/swap outcomes if it's an owned unit (or becomes one)
-		// These listeners are safe even if the Chara starts as a shop item,
-		// as they'll only react if the IDs match after it's owned.
-		this.scene.events.on(GameEvents.OWNED_UNIT_MOVE_ACCEPTED, this._onOwnedUnitMoveAccepted, this);
-		this.scene.events.on(GameEvents.OWNED_UNIT_SWAP_ACCEPTED, this._onOwnedUnitSwapAccepted, this);
-		this.scene.events.on(GameEvents.OWNED_UNIT_MOVE_REJECTED, this._onOwnedUnitMoveRejected, this);
+		// Note: Chara positioning is now handled via direct method calls instead of events
+		// See moveToPosition() and revertToPosition() methods
 
 	}
 
@@ -242,27 +237,26 @@ export class Chara extends Phaser.GameObjects.Container {
 		}
 	}
 
-	_onOwnedUnitMoveAccepted(payload: { unitId: string, newVisualPosition: { x: number, y: number } }): void {
-		if (!this.isShopItem && payload.unitId === this.id) {
-			tween({ targets: [this], x: payload.newVisualPosition.x, y: payload.newVisualPosition.y, duration: 150 });
-		}
-	}
-
-	_onOwnedUnitSwapAccepted(payload: { movedUnitId: string, movedUnitVisualPosition: { x: number, y: number }, swappedUnitId: string, swappedUnitVisualPosition: { x: number, y: number } }): void {
+	/**
+	 * Move this character to a new visual position (for owned units only)
+	 * @param newVisualPosition - The new visual position to move to
+	 */
+	moveToPosition(newVisualPosition: { x: number, y: number }): void {
 		if (!this.isShopItem) {
-			if (payload.movedUnitId === this.id) {
-				tween({ targets: [this], x: payload.movedUnitVisualPosition.x, y: payload.movedUnitVisualPosition.y, duration: 150 });
-			} else if (payload.swappedUnitId === this.id) {
-				tween({ targets: [this], x: payload.swappedUnitVisualPosition.x, y: payload.swappedUnitVisualPosition.y, duration: 150 });
-			}
+			tween({ targets: [this], x: newVisualPosition.x, y: newVisualPosition.y, duration: 150 });
 		}
 	}
 
-	_onOwnedUnitMoveRejected(payload: { unitId: string, dragStartX: number, dragStartY: number }): void {
-		if (!this.isShopItem && payload.unitId === this.id) {
+	/**
+	 * Revert this character's position after a failed move (for owned units only)
+	 * @param dragStartX - X position to revert to
+	 * @param dragStartY - Y position to revert to
+	 */
+	revertToPosition(dragStartX: number, dragStartY: number): void {
+		if (!this.isShopItem) {
 			// Ensure tooltip is hidden before reverting, as pointer might not naturally move out
 			hideTooltip();
-			this.revertDragOrFailedPurchase(payload.dragStartX, payload.dragStartY);
+			this.revertDragOrFailedPurchase(dragStartX, dragStartY);
 		}
 	}
 
@@ -346,14 +340,12 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.removeHasteEffect();
 
 		// Remove event listeners this Chara instance might have set up on scene.events
-		// For example, if Chara listens to SHOP_PURCHASE_FAILED, OWNED_UNIT_MOVE_ACCEPTED etc.
+		// For example, if Chara listens to other scene events
 		// This is important to prevent memory leaks if Charas are frequently created/destroyed.
 		this.off(Phaser.Input.Events.POINTER_OVER);
 		this.off(Phaser.Input.Events.POINTER_OUT);
 
-		// Clean up owned unit move listeners
-		this.scene.events.off(GameEvents.OWNED_UNIT_SWAP_ACCEPTED, this._onOwnedUnitSwapAccepted, this);
-		this.scene.events.off(GameEvents.OWNED_UNIT_MOVE_REJECTED, this._onOwnedUnitMoveRejected, this);
+		// Note: No need to clean up move event listeners since we're using direct method calls now
 
 		super.destroy(fromScene);
 	}

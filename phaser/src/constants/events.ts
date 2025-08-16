@@ -39,10 +39,4 @@ export const GameEvents = {
 	STOP_SOUND_EFFECT: OptionsSystemEvents.STOP_SOUND_EFFECT,
 	STOP_ALL_SOUND_EFFECTS: OptionsSystemEvents.STOP_ALL_SOUND_EFFECTS,
 
-	// Outcome Events (emitted by the system handling the request)
-
-	OWNED_UNIT_MOVE_ACCEPTED: "owned_unit_move_accepted", // Payload: { unitId: string, newPosition: Vec2, newVisualPosition: {x,y} }
-	OWNED_UNIT_SWAP_ACCEPTED: "owned_unit_swap_accepted",   // Payload: { movedUnitId: string, movedUnitNewPos: Vec2, movedUnitVisualPos: {x,y}, swappedUnitId: string, swappedUnitNewPos: Vec2, swappedUnitVisualPos: {x,y} }
-	OWNED_UNIT_MOVE_REJECTED: "owned_unit_move_rejected", // Payload: { unitId: string, reason: string, dragStartX: number, dragStartY: number }
-
 };

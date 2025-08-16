@@ -9,6 +9,7 @@ import { PartyBoard, getSharedPlayerBoard } from "../../Models/Board";
 import { Shop } from "./Systems/Shop/Shop";
 import { BattlegroundSetupSystem } from "./Systems/BattlegroundSetupSystem";
 import { BattlegroundEventSystem } from "./Systems/BattlegroundEventSystem";
+import { popText } from "../../Systems/Chara/Animations/popText";
 import { RunCombatSystem } from "./RunCombatIO";
 import { BattleProgressionSystem } from "./Systems/BattleProgressionSystem";
 import { getOption } from "../../Models/OptionsStore";
@@ -229,7 +230,30 @@ export class BattlegroundScene extends Phaser.Scene {
       (unit: Unit, target: Vec2, units: Unit[]) => PartyBoard.updateUnitPosition(unit, target, units),
       (unit: Unit) => CharaManager.getCharaPosition(unit),
       (message: string) => console.error(message),
-      (eventType: string, payload: any) => this.events.emit(eventType, payload)
+      // onMoveAccepted callback
+      (unitId: string, _newLogicalPosition: any, newVisualPosition: { x: number, y: number }) => {
+        const chara = CharaManager.getChara(unitId);
+        chara?.moveToPosition(newVisualPosition);
+      },
+      // onSwapAccepted callback
+      (
+        movedUnitId: string,
+        _movedUnitNewLogicalPosition: any,
+        movedUnitVisualPosition: { x: number, y: number },
+        swappedUnitId: string,
+        _swappedUnitNewLogicalPosition: any,
+        swappedUnitVisualPosition: { x: number, y: number }
+      ) => {
+        const movedChara = CharaManager.getChara(movedUnitId);
+        const swappedChara = CharaManager.getChara(swappedUnitId);
+        movedChara?.moveToPosition(movedUnitVisualPosition);
+        swappedChara?.moveToPosition(swappedUnitVisualPosition);
+      },
+      // onMoveRejected callback
+      (unitId: string, _reason: string, dragStartX: number, dragStartY: number) => {
+        const chara = CharaManager.getChara(unitId);
+        chara?.revertToPosition(dragStartX, dragStartY);
+      }
     );
   }
 
@@ -253,7 +277,17 @@ export class BattlegroundScene extends Phaser.Scene {
       this.state.gameData.player.units,
       unitId,
       soldForGold,
-      chara
+      chara,
+      (x: number, y: number, text: string, type: string, direction: string) => {
+        // Use the actual popText function from the Chara system
+        popText({
+          x,
+          y,
+          text,
+          type: type as "heal" | "damage" | "shield" | "poison" | "timeout",
+          direction: direction as "up" | "down" | "left" | "right"
+        });
+      }
     );
   }
 
