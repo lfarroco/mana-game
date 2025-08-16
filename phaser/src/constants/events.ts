@@ -40,7 +40,6 @@ export const GameEvents = {
 	STOP_ALL_SOUND_EFFECTS: OptionsSystemEvents.STOP_ALL_SOUND_EFFECTS,
 
 	// Shop / Unit Acquisition Events
-	PURCHASE_FAILED: "purchase_failed", // Payload: { unitName: string, reason: string, cost?: number }
 	SHOP_PHASE_ENDED: "shop_phase_ended",
 
 	//UNIT_TOOK_HIT: "unit_took_hit", // Payload: { unit: Unit, damage: number }

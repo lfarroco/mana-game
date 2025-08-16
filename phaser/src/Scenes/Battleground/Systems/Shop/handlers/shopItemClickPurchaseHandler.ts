@@ -1,9 +1,9 @@
 import { BattlegroundScene } from "../../../BattlegroundScene";
-import { GameEvents } from "../../../../../constants/events";
 import * as constants from "../../../../../constants/constants";
 import { makeUnit, Unit } from "../../../../../Models/Entities/Unit";
 import { updatePlayerGoldIO } from "../../../../../Models/Entities/Force";
 import { getChara } from "../../CharaManager";
+import { ui } from "../../../../../UI/UIManager";
 
 type ShopItemClickPurchasePayload = {
 	shopUnitData: Unit;
@@ -22,21 +22,19 @@ export function shopItemClickPurchaseRequestedHandler(
 	const { state, playerBoard } = scene;
 	const { shopUnitData, shopCharaId, dragStartX, dragStartY } = payload;
 
-	const emit = (eventName: string, ...args: any[]) => scene.events.emit(eventName, ...args);
-
 	// Helper function to handle and emit events for purchase failures.
 	const handlePurchaseFailure = (
 		reason: string,
 		additionalDetails?: Record<string, any>
 	) => {
-		getChara(shopCharaId)._onShopPurchaseFailed({
+		getChara(shopCharaId).onShopPurchaseFailed({
 			reason,
 			originalShopCharaId: shopCharaId,
 			dragStartX,
 			dragStartY,
 		});
 
-		emit(GameEvents.PURCHASE_FAILED, {
+		ui.handlePurchaseFailed({
 			unitName: shopUnitData.name,
 			reason,
 			...additionalDetails,

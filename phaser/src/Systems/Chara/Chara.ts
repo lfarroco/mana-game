@@ -232,7 +232,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		}
 	}
 
-	_onShopPurchaseFailed(payload: { originalShopCharaId: string, reason: string, dragStartX: number, dragStartY: number }): void {
+	onShopPurchaseFailed(payload: { originalShopCharaId: string, reason: string, dragStartX: number, dragStartY: number }): void {
 		if (this.isShopItem && payload.originalShopCharaId === this.id) {
 			// Ensure tooltip is hidden before reverting, as pointer might not naturally move out
 			hideTooltip();

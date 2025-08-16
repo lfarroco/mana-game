@@ -4,7 +4,6 @@ import { BattlegroundScene } from "../Scenes/Battleground/BattlegroundScene";
 import { tween } from "../Utils/animation";
 import * as Tooltip from "./Tooltip";
 import { GoldCoinAnimator } from "./GoldCoinAnimator";
-import { GameEvents } from "../constants/events";
 import { UserMessagePayload } from "../Models/EventPayloads";
 import { TypedEventEmitter } from "../Systems/Events/TypedEventEmitter";
 import { GoldSystemEventPayloads, GoldSystemEvents } from "../Systems/GoldSystem/events";
@@ -42,26 +41,15 @@ export class UIManager {
 		this.scene = scene;
 		this.goldCoinAnimator = new GoldCoinAnimator(this.scene);
 		this.goldEvents = new TypedEventEmitter<GoldSystemEventPayloads>(this.scene.events);
-		this._setupPurchaseFailedListener();
 		Tooltip.initializeTooltip(scene);
 		ui = this;
-	}
-
-
-
-	/**
-	 * Sets up an event listener for "purchase_failed" events.
-	 * This allows the UIManager to display appropriate user messages when a purchase cannot be completed.
-	 */
-	_setupPurchaseFailedListener(): void {
-		this.scene.events.on(GameEvents.PURCHASE_FAILED, this._handlePurchaseFailed, this);
 	}
 
 	/**
 	 * Handles the `GameEvents.PURCHASE_FAILED` event by constructing and emitting a user message.
 	 * @param payload - The payload containing details about the failed purchase, including the unit name, reason, and optionally the cost.
 	 */
-	_handlePurchaseFailed(payload: { unitName: string, reason: string, cost?: number }): void {
+	handlePurchaseFailed(payload: { unitName: string, reason: string, cost?: number }): void {
 		let message = `Could not buy ${payload.unitName}. `;
 		switch (payload.reason) {
 			case "PARTY_FULL":
@@ -308,7 +296,6 @@ export class UIManager {
 		this.destroyMainUI();
 		Tooltip.destroyTooltip();
 		this.goldEvents.off(GoldSystemEvents.GOLD_CHANGED, this.handleGoldChanged.bind(this));
-		this.scene.events.off(GameEvents.PURCHASE_FAILED, this._handlePurchaseFailed, this);
 	}
 
 	/**
