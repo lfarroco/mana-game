@@ -31,7 +31,6 @@ export type Unit = {
   charge: number; // each tick the job's agi is added here. when it reaches 100, the job can act
   refresh: number; // the time it takes for the job to act again. Even if charged, this must be 0
 
-  // @deprecated - these will be moved to statusEffects
   hasted: number;
   slowed: number;
 

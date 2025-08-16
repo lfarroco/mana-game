@@ -4,7 +4,7 @@ import { Vec2 } from "../../../../../Models/Geometry";
 import { makeUnit, Unit } from "../../../../../Models/Entities/Unit";
 import { getUnitAt } from "../../../../../Models/State";
 import { updatePlayerGoldIO } from "../../../../../Models/Entities/Force";
-import { getChara } from "../../CharaManager";
+import { getChara, summonChara } from "../../CharaManager";
 import { ui } from "../../../../../UI/UIManager";
 
 export function shopItemDragPurchaseRequestedHandler(
@@ -58,7 +58,7 @@ export function shopItemDragPurchaseRequestedHandler(
 	const newUnit = makeUnit(constants.FORCE_ID_PLAYER, shopUnitData.cardId, targetTile);
 	scene.state.gameData.player.units.push(newUnit);
 
-	scene.handleBoardCharaCreateRequest({ unit: newUnit });
+	summonChara(newUnit, true);
 
 	getChara(shopCharaId)._onShopPurchaseSuccessful({
 		purchasedUnit: newUnit,
