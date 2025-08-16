@@ -11,12 +11,8 @@ export interface OptionsSystemEventPayloads {
 	"particles_quality_changed": [quality: 'low' | 'medium' | 'high'];
 	"options_reset": void;
 
-	// Audio playback events
-	"play_music": [musicKey: string, loop?: boolean, fadeIn?: number];
-	"stop_music": [fadeOut?: number];
-	"play_sound_effect": [soundKey: string, volume?: number];
-	"stop_sound_effect": [soundKey: string];
-	"stop_all_sound_effects": void;
+	// Note: Audio playback events have been removed and replaced with direct AudioManager calls
+	// Use AudioManager.getInstance().playMusic(), .stopMusic(), .playSoundEffect(), etc.
 }
 
 export const OptionsSystemEvents = {
@@ -30,10 +26,6 @@ export const OptionsSystemEvents = {
 	PARTICLES_QUALITY_CHANGED: "particles_quality_changed" as const,
 	OPTIONS_RESET: "options_reset" as const,
 
-	// Audio playback events
-	PLAY_MUSIC: "play_music" as const,
-	STOP_MUSIC: "stop_music" as const,
-	PLAY_SOUND_EFFECT: "play_sound_effect" as const,
-	STOP_SOUND_EFFECT: "stop_sound_effect" as const,
-	STOP_ALL_SOUND_EFFECTS: "stop_all_sound_effects" as const,
+	// Note: Audio playback events have been removed and replaced with direct AudioManager calls
+	// Use AudioManager.getInstance().playMusic(), .stopMusic(), .playSoundEffect(), etc.
 } as const;

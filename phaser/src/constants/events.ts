@@ -21,7 +21,7 @@ import { OptionsSystemEvents } from "./EventRegistry";
  */
 export const GameEvents = {
 
-	// Options System Events
+	// Options System Events (non-audio)
 	OPTION_CHANGED: OptionsSystemEvents.OPTION_CHANGED,
 	SOUND_ENABLED: OptionsSystemEvents.SOUND_ENABLED,
 	MUSIC_ENABLED: OptionsSystemEvents.MUSIC_ENABLED,
@@ -32,11 +32,7 @@ export const GameEvents = {
 	PARTICLES_QUALITY_CHANGED: OptionsSystemEvents.PARTICLES_QUALITY_CHANGED,
 	OPTIONS_RESET: OptionsSystemEvents.OPTIONS_RESET,
 
-	// Audio Playback Events
-	PLAY_MUSIC: OptionsSystemEvents.PLAY_MUSIC,
-	STOP_MUSIC: OptionsSystemEvents.STOP_MUSIC,
-	PLAY_SOUND_EFFECT: OptionsSystemEvents.PLAY_SOUND_EFFECT,
-	STOP_SOUND_EFFECT: OptionsSystemEvents.STOP_SOUND_EFFECT,
-	STOP_ALL_SOUND_EFFECTS: OptionsSystemEvents.STOP_ALL_SOUND_EFFECTS,
+	// Note: Audio playback events have been removed and replaced with direct AudioManager calls
+	// Use AudioManager.getInstance().playMusic(), .stopMusic(), .playSoundEffect(), etc.
 
 };
