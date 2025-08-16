@@ -1,6 +1,4 @@
 import { AudioManager } from "../AudioManager";
-import { OptionsSystemManager } from "../OptionsSystem/OptionsSystemManager";
-import { OptionsSystemEvents } from "../OptionsSystem/events";
 
 /**
  * DEPRECATED: Legacy AudioSystem - Use AudioManager directly instead
@@ -13,7 +11,6 @@ import { OptionsSystemEvents } from "../OptionsSystem/events";
 export class AudioSystem {
 	private static instance: AudioSystem | null = null;
 	private audioManager: AudioManager;
-	private isInitialized = false;
 
 	constructor(game: Phaser.Game) {
 		// Initialize AudioManager with the game instance
@@ -38,27 +35,8 @@ export class AudioSystem {
 	 * @deprecated AudioManager handles this internally now
 	 */
 	initialize(): void {
-		if (this.isInitialized) {
-			console.warn('AudioSystem already initialized');
-			return;
-		}
 
-		try {
-			const optionsManager = OptionsSystemManager.getInstance();
-			const eventEmitter = optionsManager.getEventEmitter();
 
-			// Listen to sound/music option events and delegate to AudioManager
-			eventEmitter.on(OptionsSystemEvents.SOUND_ENABLED, () => this.audioManager.onOptionsChanged());
-			eventEmitter.on(OptionsSystemEvents.MUSIC_ENABLED, () => this.audioManager.onOptionsChanged());
-			eventEmitter.on(OptionsSystemEvents.SOUND_VOLUME_CHANGED, () => this.audioManager.onOptionsChanged());
-			eventEmitter.on(OptionsSystemEvents.MUSIC_VOLUME_CHANGED, () => this.audioManager.onOptionsChanged());
-			eventEmitter.on(OptionsSystemEvents.OPTIONS_RESET, () => this.audioManager.onOptionsChanged());
-
-			this.isInitialized = true;
-			console.log('AudioSystem initialized (delegating to AudioManager)');
-		} catch (error) {
-			console.error('Failed to initialize AudioSystem:', error);
-		}
 	}
 
 	/**
@@ -124,7 +102,6 @@ export class AudioSystem {
 	destroy(): void {
 		try {
 			this.audioManager.destroy();
-			this.isInitialized = false;
 			console.log('AudioSystem destroyed (delegated to AudioManager)');
 		} catch (error) {
 			console.error('Error during AudioSystem destruction:', error);
