@@ -4,8 +4,6 @@ import * as ControlsSystem from "../../../Systems/Controls/Controls";
 import { initializePlayerBoard, PartyBoard, createBoardDropZone } from "../../../Models/Board";
 import * as BG_CONSTANTS from "../battlegroundConstants";
 import { BattlegroundScene } from "../BattlegroundScene";
-import { TypedEventEmitter } from "../../../Systems/Events/TypedEventEmitter";
-import { GoldSystemEventPayloads, GoldSystemEvents } from "../../../Systems/GoldSystem/events";
 import { getOption } from "../../../Models/OptionsStore";
 import { devlog } from "../../../utils";
 import { CloudsBackground } from "../../../components/cloudBackground/CloudsBackground";
@@ -51,21 +49,12 @@ export class BattlegroundSetupSystem {
 
 		state.gameData.player.units = [];
 		state.gameData.round = 1;
-		state.gameData.player.prestige = 0; // Initialize prestige for a new game
-
-		// Directly set the initial gold from the constant
-		const initialGold = BG_CONSTANTS.INITIAL_PLAYER_GOLD;
-		state.gameData.player.gold = initialGold;
+		state.gameData.player.prestige = 0;
+		state.gameData.player.gold = BG_CONSTANTS.INITIAL_PLAYER_GOLD;;
 
 		// Emit PRESTIGE_CHANGED so UI can display the initial value. Delta is 0.
 		ui.updatePrestige(state.gameData.player.prestige, 0);
 
-		// Create typed event emitter for gold system events
-		const goldEvents = new TypedEventEmitter<GoldSystemEventPayloads>(this.scene.events);
-
-		// Emit GOLD_CHANGED so UI and other systems can react to the initial gold value.
-		// The delta is the full initial amount, signifying the change from a conceptual zero or previous state.
-		goldEvents.emit(GoldSystemEvents.GOLD_CHANGED, initialGold, initialGold);
 		this.scene.sound.setVolume(getOption('soundVolume') ?? BG_CONSTANTS.DEFAULT_SCENE_SOUND_VOLUME);
 	}
 
