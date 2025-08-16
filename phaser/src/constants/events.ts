@@ -39,8 +39,6 @@ export const GameEvents = {
 	STOP_SOUND_EFFECT: OptionsSystemEvents.STOP_SOUND_EFFECT,
 	STOP_ALL_SOUND_EFFECTS: OptionsSystemEvents.STOP_ALL_SOUND_EFFECTS,
 
-	//UNIT_TOOK_HIT: "unit_took_hit", // Payload: { unit: Unit, damage: number }
-	UNIT_SHIELD_GAINED: "unit_shield_gained", // Payload: { unit: Unit, amount: number }
 	UNIT_MORALE_RESTORED: "unit_morale_restored", // Payload: { unit: Unit, amount: number }
 
 	SHIELD_UPDATED: "shield_updated", // Payload: { forceId: string, newShield: number, maxShield: number }
