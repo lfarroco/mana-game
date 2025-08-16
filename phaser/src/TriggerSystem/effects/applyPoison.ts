@@ -3,7 +3,6 @@
  * This effect applies poison to enemy forces, causing damage over time.
  */
 
-import { GameEvents } from '../../constants/events';
 import { Force } from '../../Models/Entities/Force';
 import { Unit } from '../../Models/Entities/Unit';
 import { arcaneMissileTargeted } from '../../Effects';
@@ -16,7 +15,6 @@ import BattlegroundScene from '../../Scenes/Battleground/BattlegroundScene';
  * @returns The trait effect function
  */
 export function createApplyPoisonLogic(
-	emitter: (unit: Unit, amount: number) => void,
 	applyPoison: (targetForce: Force, amount: number, sourceUnitId?: string) => void
 ) {
 	return async (context: { scene: BattlegroundScene; sourceUnit: Unit; amount: number }) => {
@@ -25,8 +23,6 @@ export function createApplyPoisonLogic(
 		const targetForce = scene.state.battleData.forces.find(force => force.id !== sourceUnit.force);
 
 		console.log(`[ApplyPoison] Unit power: ${sourceUnit.power}, Initial poison: ${amount}, Total damage over time: ${amount}`);
-
-		emitter(sourceUnit, amount);
 
 		if (!targetForce) {
 			console.warn('[ApplyPoison] No target force found');
@@ -79,12 +75,6 @@ export const applyPoisonLogicIO = async (context: {
 }) => {
 	const { scene } = context;
 
-	const emitter = (unit: Unit, amount: number) => {
-		scene.events.emit(
-			GameEvents.UNIT_ATTACK, // Reuse attack event for poison application
-			{ unit, amount, type: 'poison' }
-		);
-	};
 
 	// Get the poison system from the scene
 	const poisonSystem = scene.runCombatSystem?.getPoisonDamageSystem();
@@ -97,6 +87,6 @@ export const applyPoisonLogicIO = async (context: {
 		poisonSystem.applyPoison(targetForce, amount, sourceUnitId);
 	};
 
-	const impl = createApplyPoisonLogic(emitter, applyPoison);
+	const impl = createApplyPoisonLogic(applyPoison);
 	return impl(context);
 };

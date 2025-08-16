@@ -3,7 +3,6 @@ import { getActiveUnits, getState, State } from "../../Models/State";
 import { MIN_COOLDOWN } from "../../constants/constants";
 import * as CharaManager from "./Systems/CharaManager";
 import { Unit } from "../../Models/Entities/Unit";
-import { GameEvents } from "../../constants/events";
 import { delay } from "../../Utils/animation";
 import { TimeoutDamageSystem } from "./Systems/TimeoutDamageSystem";
 import { PoisonDamageSystem } from "./Systems/PoisonDamageSystem";
@@ -118,8 +117,7 @@ export class RunCombatSystem {
 
         CharaManager.getChara(unit.id)?.pop()
 
-        // Track unit action in combat stats
-        events.emit(GameEvents.UNIT_ATTACK, { unit });
+        CombatStatsTracker.handleUnitAction({ unit });
 
         processEffects(this.scene, unit.effects)
 

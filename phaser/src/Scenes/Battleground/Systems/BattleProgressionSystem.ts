@@ -52,9 +52,6 @@ export class BattleProgressionSystem {
 		// Shop Phase
 		this.addListener(GameEvents.SHOP_PHASE_ENDED, this.handleShopPhaseEnded);
 
-		// Combat Phase
-
-		this.addListener(GameEvents.UNIT_ATTACK, this.handleUnitAttackOnMorale);
 	}
 
 	get getIsInShopPhase(): boolean {
@@ -321,18 +318,6 @@ export class BattleProgressionSystem {
 		fadeOutBars();
 
 		await delay(500); // Wait for fade out to complete
-	}
-
-	/**
-	 * Damages enemy force when a unit attacks (shields absorb damage first)
-	 */
-	handleUnitAttackOnMorale(_payload: { unit: Unit }): void {
-		// This method now only handles the attack event for other purposes
-		// Damage application is handled by the trait system in dealDamage.ts
-		// to avoid duplicate damage application
-
-		// Any additional attack processing logic can go here
-		// (e.g., sound effects, visual effects, logging, etc.)
 	}
 
 	destroy(): void {

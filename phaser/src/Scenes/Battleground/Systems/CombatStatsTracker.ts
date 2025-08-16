@@ -1,5 +1,6 @@
 import { BattlegroundScene } from "../BattlegroundScene";
 import { GameEvents } from "../../../constants/events";
+import { Unit } from "../../../Models/Entities/Unit";
 
 /**
  * Represents the combat statistics for a single unit
@@ -169,7 +170,7 @@ function handleShieldUpdated(payload: {
 /**
  * Handles unit action events to track activity
  */
-function handleUnitAction(payload: { unit: any }): void {
+export function handleUnitAction(payload: { unit: Unit }): void {
 	if (!isActive || !payload.unit?.id) return;
 
 	const stats = unitStats.get(payload.unit.id);
@@ -199,9 +200,6 @@ function setupEventListeners(): void {
 	// Track shield applications
 	events.on(GameEvents.UNIT_SHIELD_GAINED, handleShieldGained);
 	events.on(GameEvents.SHIELD_UPDATED, handleShieldUpdated);
-
-	// Track unit actions
-	events.on(GameEvents.UNIT_ATTACK, handleUnitAction);
 }
 
 /**
@@ -216,7 +214,6 @@ function removeEventListeners(): void {
 	events.off(GameEvents.UNIT_MORALE_RESTORED, handleMoraleRestored);
 	events.off(GameEvents.UNIT_SHIELD_GAINED, handleShieldGained);
 	events.off(GameEvents.SHIELD_UPDATED, handleShieldUpdated);
-	events.off(GameEvents.UNIT_ATTACK, handleUnitAction);
 }
 
 /**

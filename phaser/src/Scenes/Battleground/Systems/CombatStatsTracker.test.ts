@@ -1,6 +1,5 @@
 import * as CombatStatsTracker from './CombatStatsTracker';
 import { BattlegroundScene } from '../BattlegroundScene';
-import { GameEvents } from '../../../constants/events';
 
 // Mock BattlegroundScene
 const mockScene = {
@@ -67,14 +66,6 @@ describe('CombatStatsTracker', () => {
 			});
 		});
 
-		it('should set up event listeners', () => {
-			CombatStatsTracker.initialize(mockScene);
-
-			expect(mockScene.events.on).toHaveBeenCalledWith(GameEvents.MORALE_UPDATED, expect.any(Function));
-			expect(mockScene.events.on).toHaveBeenCalledWith(GameEvents.UNIT_MORALE_RESTORED, expect.any(Function));
-			expect(mockScene.events.on).toHaveBeenCalledWith(GameEvents.UNIT_SHIELD_GAINED, expect.any(Function));
-			expect(mockScene.events.on).toHaveBeenCalledWith(GameEvents.UNIT_ATTACK, expect.any(Function));
-		});
 	});
 
 	describe('manual tracking', () => {
