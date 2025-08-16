@@ -4,6 +4,7 @@ import { GameEvents } from '../../constants/events';
 import { StylizedBar, createStylizedBar, updateStylizedBar } from './StylizedBar';
 import { tween } from '../../Utils/animation';
 import { cpuForce, playerForce } from '../../Models/Entities/Force';
+import { popText } from '../../Systems/Chara/Animations/popText';
 
 // Combined display for both morale and shield bars
 type CombinedDisplay = {
@@ -168,13 +169,14 @@ function handleMoraleUpdated(payload: { forceId: string, newMorale: number, maxM
 
 		const textDirection = isPlayer ? "left" : "right"; // Player text flows left, enemy text flows right
 
-		scene.events.emit(GameEvents.POP_TEXT_SHOW, {
-			text: deltaText,
+		popText({
 			x: popTextX,
 			y: popTextY,
+			text: deltaText,
 			type: textType,
-			direction: textDirection,
-		});
+			direction: textDirection
+		})
+
 	}
 }
 
@@ -241,15 +243,15 @@ function handleShieldUpdated(payload: { forceId: string, newShield: number, maxS
 			textType = "damage"; // Red for damage absorbed by shield
 		}
 
-		const textDirection = isPlayer ? "left" : "right"; // Player text flows left, enemy text flows right
+		const textDirection = isPlayer ? "left" : "right";
 
-		scene.events.emit(GameEvents.POP_TEXT_SHOW, {
-			text: deltaText,
+		popText({
 			x: popTextX,
 			y: popTextY,
+			text: deltaText,
 			type: textType,
-			direction: textDirection,
-		});
+			direction: textDirection
+		})
 	}
 
 	// Update the stored previous value

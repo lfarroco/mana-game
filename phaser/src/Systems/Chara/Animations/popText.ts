@@ -1,17 +1,14 @@
+import { scene } from "../../../Scenes/Battleground/BattlegroundScene";
 import { tween } from "../../../Utils/animation";
 import { defaultTextConfig, titleTextConfig, POP_TEXT_CONFIG } from "../../../constants/constants";
 
-// TODO: move this to the chara system, as it always uses the chara container
-// TODO: for skills, use elastic pop. for damage, move the numbers
 export async function popText({
-	scene,
 	x,
 	y,
 	text,
-	type, // "heal", "damage", "shield", "poison", "timeout", or undefined for default
-	direction = "up" // Direction for animation: "up" or "down"
+	type,
+	direction = "up"
 }: {
-	scene: Phaser.Scene;
 	x: number;
 	y: number;
 	text: string;

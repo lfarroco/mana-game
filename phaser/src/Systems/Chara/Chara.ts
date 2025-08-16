@@ -333,7 +333,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	 * @param type Optional type for styling (e.g., "heal", "damage", "shield", "poison", "timeout").
 	 */
 	async showPopText(text: string, type?: "heal" | "damage" | "shield" | "poison" | "timeout"): Promise<void> {
-		await popText({ scene: this.scene, x: this.x, y: this.y, text, type });
+		await popText({ x: this.x, y: this.y, text, type });
 	}
 
 	/** Overridden destroy method to also clean up the input handler. */

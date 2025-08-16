@@ -31,7 +31,6 @@ export function createDealDamageLogic(
 			(force: { id: any; }) => force.id !== sourceUnit.force
 		)!;
 
-
 		// Show a red projectile from source unit to the appropriate target
 		// Target shield bar tip if enemy has shield, otherwise target morale bar tip
 		const sourceChara = getChara(sourceUnit.id);
