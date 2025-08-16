@@ -1,5 +1,4 @@
 import { BattlegroundScene } from "../BattlegroundScene";
-import { GameEvents } from "../../../constants/events";
 import { Unit } from "../../../Models/Entities/Unit";
 
 /**
@@ -94,8 +93,8 @@ export function trackMoraleChange(payload: {
 /**
  * Handles morale restored events to track healing done
  */
-function handleMoraleRestored(payload: {
-	unit: any;
+export function trackMoraleRestored(payload: {
+	unit: Unit;
 	amount: number;
 	type?: 'regen' | 'direct';
 	sourceUnitId?: string;
@@ -183,29 +182,6 @@ export function handleUnitAction(payload: { unit: Unit }): void {
 	console.log(`[CombatStatsTracker] Unit ${payload.unit.id} performed an action (total: ${stats.actionsPerformed})`);
 }
 
-/**
- * Sets up event listeners to track various combat actions
- */
-function setupEventListeners(): void {
-	if (!scene) return;
-
-	const { events } = scene;
-
-	// Track healing
-	events.on(GameEvents.UNIT_MORALE_RESTORED, handleMoraleRestored);
-
-}
-
-/**
- * Removes event listeners when tracker is stopped
- */
-function removeEventListeners(): void {
-	if (!scene) return;
-
-	const { events } = scene;
-
-	events.off(GameEvents.UNIT_MORALE_RESTORED, handleMoraleRestored);
-}
 
 /**
  * Initializes the combat stats tracker for a new combat.
@@ -219,9 +195,6 @@ export function initialize(battlegroundScene: BattlegroundScene): void {
 
 	// Initialize stats for all active units
 	initializeUnitStats();
-
-	// Set up event listeners
-	setupEventListeners();
 
 	console.log("[CombatStatsTracker] Initialized for new combat");
 }
@@ -398,9 +371,6 @@ export function stop(): void {
 			stats.timeAlive = combatDuration;
 		}
 	}
-
-	// Remove event listeners
-	removeEventListeners();
 
 	// Print final stats summary
 	printStatsSummary();

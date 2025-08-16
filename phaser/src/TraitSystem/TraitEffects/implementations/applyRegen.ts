@@ -8,8 +8,8 @@ import { Unit } from '../../../Models/Entities/Unit';
 import { arcaneMissileTargeted } from '../../../Effects';
 import { getMoraleBarPosition, MORALE_BAR_WIDTH } from '../../../Scenes/Battleground/MoraleDisplay';
 import { getChara } from '../../../Scenes/Battleground/Systems/CharaManager';
-import BattlegroundScene from '../../../Scenes/Battleground/BattlegroundScene';
-import { GameEvents } from '../../../constants/events';
+import { scene } from '../../../Scenes/Battleground/BattlegroundScene';
+import { trackMoraleRestored } from '../../../Scenes/Battleground/Systems/CombatStatsTracker';
 
 /**
  * Pure function to create the apply regen effect implementation
@@ -19,8 +19,8 @@ export function createApplyRegenLogic(
 	emitter: (unit: Unit, amount: number) => void,
 	applyRegen: (targetForce: Force, amount: number, sourceUnitId?: string) => void
 ) {
-	return async (context: { scene: BattlegroundScene; sourceUnit: Unit; amount: number }) => {
-		const { sourceUnit, scene, amount } = context;
+	return async (context: { sourceUnit: Unit; amount: number }) => {
+		const { sourceUnit, amount } = context;
 
 		// Apply regen to the same force (friendly effect)
 		const targetForce = scene.state.battleData.forces.find(force => force.id === sourceUnit.force);
@@ -45,7 +45,7 @@ export function createApplyRegenLogic(
 		const targetX = moraleBarPos.x + MORALE_BAR_WIDTH / 2;
 		const targetY = moraleBarPos.y;
 		arcaneMissileTargeted(
-			context.scene,
+			scene,
 			{ x: sourceChara.x, y: sourceChara.y },
 			{ x: targetX, y: targetY },
 			{
@@ -74,22 +74,22 @@ export function createApplyRegenLogic(
  * This is the actual implementation registered with the TraitEffectSystem
  */
 export const applyRegenLogicIO = async (context: {
-	scene: BattlegroundScene;
 	sourceUnit: Unit;
 	amount: number;
 }) => {
-	const { scene } = context;
 
 	const emitter = (unit: Unit, amount: number) => {
-		scene.events.emit(
-			GameEvents.UNIT_MORALE_RESTORED, // Use morale restored event for regen application
-			{ unit, amount, type: 'regen' }
-		);
+		trackMoraleRestored({
+			unit,
+			amount,
+			sourceUnitId: context.sourceUnit.id,
+			type: 'regen'
+		})
 	};
 
 	// Get the regen system from the scene - we'll need to add this to the combat system
 	// For now, let's assume it will be available similar to poison system
-	const regenSystem = (scene.runCombatSystem as any)?.getRegenSystem?.();
+	const regenSystem = scene.runCombatSystem.getRegenSystem?.();
 	if (!regenSystem) {
 		console.warn('[ApplyRegen] RegenSystem not found on scene - system may not be integrated yet');
 		return;
