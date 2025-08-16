@@ -3,21 +3,6 @@ import { Vec2, vec2Zero } from "../Geometry.pure";
 import { getCardDefinition } from "./Card";
 import { Effect, EffectReaction, EffectSourcePosition } from "../../TriggerSystem/TriggerSystem";
 
-
-/**
- * @deprecated Use StatusEffect instead. Will be removed after migration is complete.
- */
-export type TemporaryEffect = {
-  effectType: 'attribute_modification' | 'cooldown_modification' | 'poison_tick' | 'freeze' | 'stun' | 'fury_scaling';
-  attribute?: keyof Unit;
-  amount?: number;
-  remainingDuration: number;
-  tickInterval?: number; // For DoT effects
-  timeSinceLastTick?: number; // For DoT effects
-  originalCooldown?: number; // For freeze/stun effects
-  damagePerTick?: number; // For poison effects
-  effectName?: string; // For display purposes
-};
 /**
  * Represents an "instance" of a `CardDefinition` within the game's logical state.
  * A `Unit` is an actual character or entity participating in the game, holding mutable data
@@ -51,8 +36,6 @@ export type Unit = {
   slowed: number;
 
 };
-
-
 
 export const makeUnit = (force: string, cardId: string, position = vec2Zero()): Unit => {
   const card = getCardDefinition(cardId);
@@ -230,7 +213,6 @@ export const testCardDefinitions = {
     pic: 'warrior.png',
     power: 30,
     cooldown: 100,
-    traits: []
   },
   basicHealer: {
     id: 'basic-healer',
@@ -238,7 +220,6 @@ export const testCardDefinitions = {
     pic: 'healer.png',
     power: 20,
     cooldown: 120,
-    traits: []
   },
   basicTank: {
     id: 'basic-tank',
@@ -246,6 +227,5 @@ export const testCardDefinitions = {
     pic: 'tank.png',
     power: 15,
     cooldown: 80,
-    traits: []
   }
 } as const;
