@@ -93,7 +93,6 @@ export class Shop {
 			this.currentOrbs,
 			nextRoundCallback, // nextRoundCallback
 			this.handleShopRerollTavern.bind(this),
-			this._handleCharaPurchaseFinalized.bind(this),
 		);
 
 		// Hide enemy board immediately after rendering board slots
@@ -223,8 +222,7 @@ export class Shop {
 
 		// 5. Update the ShopUI with new characters
 		const newShopCharas = this.shopUI.rerenderTavernCharas(
-			newTavernCardData,
-			this._handleCharaPurchaseFinalized.bind(this)
+			newTavernCardData
 		);
 		this.currentShopCharas = newShopCharas;
 

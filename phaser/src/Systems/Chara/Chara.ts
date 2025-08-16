@@ -17,7 +17,6 @@ import { audioManager } from "../AudioManager";
 
 export type CharaOptions = {
 	isShopItem?: boolean;
-	onPurchased?: () => void;
 };
 
 /**
@@ -51,8 +50,6 @@ export class Chara extends Phaser.GameObjects.Container {
 	inputHandler!: CharaInputHandler; // +++ NEW PROPERTY
 	/** Indicates if this Chara instance represents an item currently in the shop. */
 	isShopItem: boolean;
-	/** Optional callback function to execute after a shop item is successfully purchased. */
-	onPurchasedCallback?: () => void;
 
 	// Status effect visual tracking
 	/** Active haste effect particles and cleanup function */
@@ -81,7 +78,6 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.shop = scene.shop;
 		this.unit = unit;
 		this.isShopItem = options?.isShopItem ?? false;
-		this.onPurchasedCallback = options?.onPurchased;
 
 		this.id = unit.id;
 		this.name = unit.id; // For Phaser's GameObject name property, useful for lookups
@@ -144,15 +140,6 @@ export class Chara extends Phaser.GameObjects.Container {
 	};
 
 	/**
-	 * Called when this Chara, as a shop item, has been successfully purchased.
-	 * Invokes the onPurchasedCallback if it exists.
-	 */
-	finalizePurchase(): void {
-		this.isShopItem = false; // No longer a shop item
-		if (this.onPurchasedCallback) this.onPurchasedCallback();
-	};
-
-	/**
 	 * Creates the main sprite for the Chara based on `unit.pic`.
 	 * Uses a default "nameless" image if the specified picture key doesn't exist.
 	 * Adds a circular border around the sprite.
@@ -209,21 +196,24 @@ export class Chara extends Phaser.GameObjects.Container {
 		}
 	}
 
-	// TODO: this probably belongs to the shop system
-	_onShopPurchaseSuccessful(payload: { purchasedUnit: Unit, originalShopCharaId: string }): void {
-		if (this.isShopItem && payload.originalShopCharaId === this.id) {
-			this.finalizePurchase(); // This calls the onPurchasedCallback which should handle removal from flyout
+	onShopPurchaseSuccesful(): void {
 
-			// Play sound before destroying the character
-			try {
-				audioManager.playSoundEffect('sfx_artifact_equipweapon');
-			} catch (error) {
-				console.warn('Could not play equip weapon sound:', error);
-			}
+		this.isShopItem = false;
+		hideTooltip();
 
-			// The CharaManager is responsible for the actual destruction and removal from its index.
-			UnitManager.destroyChara(this.id);
+		this.shop.flyout.remove(this);
+
+		this.shop._handleCharaPurchaseFinalized(this);
+
+		// Play sound before destroying the character
+		try {
+			audioManager.playSoundEffect('sfx_artifact_equipweapon');
+		} catch (error) {
+			console.warn('Could not play equip weapon sound:', error);
 		}
+
+		// The CharaManager is responsible for the actual destruction and removal from its index.
+		UnitManager.destroyChara(this.id);
 	}
 
 	onShopPurchaseFailed(payload: { originalShopCharaId: string, reason: string, dragStartX: number, dragStartY: number }): void {
@@ -326,7 +316,9 @@ export class Chara extends Phaser.GameObjects.Container {
 	 * @param type Optional type for styling (e.g., "heal", "damage", "shield", "poison", "timeout").
 	 */
 	async showPopText(text: string, type?: "heal" | "damage" | "shield" | "poison" | "timeout"): Promise<void> {
-		await popText({ x: this.x, y: this.y, text, type });
+		await popText({
+			x: this.x, y: this.y, text, type
+		});
 	}
 
 	/** Overridden destroy method to also clean up the input handler. */

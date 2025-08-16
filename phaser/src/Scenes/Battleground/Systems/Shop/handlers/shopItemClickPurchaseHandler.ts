@@ -62,8 +62,5 @@ export function shopItemClickPurchaseRequestedHandler(
 
 	summonChara(newUnit, true);
 
-	getChara(shopCharaId)._onShopPurchaseSuccessful({
-		purchasedUnit: newUnit,
-		originalShopCharaId: shopCharaId
-	})
+	getChara(shopCharaId).onShopPurchaseSuccesful()
 }
