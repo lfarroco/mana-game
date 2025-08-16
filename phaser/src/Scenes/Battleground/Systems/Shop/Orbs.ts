@@ -1,4 +1,5 @@
 import { MagicOrb, MagicOrbCallbacks } from "../../../../components/MagicOrb/MagicOrb";
+import { getSharedPlayerBoard } from "../../../../Models/Board";
 import { Unit } from "../../../../Models/Entities/Unit";
 import { increasePower } from "../../../../TriggerSystem/effects";
 import { hexToVector3 } from "../../../../Utils/colorUtils";
@@ -84,9 +85,23 @@ const orbs: Record<string, {
 
 
 export function renderOrbs(ui: ShopUI, orbIds: string[]) {
-	const orbY = sc.PANEL_Y + 520;
+
+	const orbY = sc.PANEL_Y + 550;
 	const orbSpacing = 240;
 	ui.orbContainer = ui.scene.add.container(0, 0);
+
+	const bg = ui.scene.add.graphics()
+
+	bg.fillStyle(0x000000, 0.25);
+	bg.fillRoundedRect(
+		ui.panelX + 20,
+		orbY - 100,
+		sc.TAVERN_BG_WIDTH,
+		200,
+		sc.SUB_PANEL_CORNER_RADIUS
+	)
+
+	ui.orbContainer.add(bg);
 
 	const orbNames = ['Crimson', 'Emerald', 'Azure', 'Golden', 'Violet'];
 	const getOrbName = (index: number) => orbNames[index] || 'Mystical';
@@ -99,8 +114,7 @@ export function renderOrbs(ui: ShopUI, orbIds: string[]) {
 		ui: ShopUI,
 		magicOrb: any
 	}) {
-		const Board = require("../../../../Models/Board");
-		const playerBoard = Board.getSharedPlayerBoard();
+		const playerBoard = getSharedPlayerBoard();
 
 		if (!playerBoard || !playerBoard.dropZones.includes(target)) {
 			console.log(`${orbName} Orb dropped on non-board target:`, target.name || target.getData?.('type') || 'unknown');
@@ -134,7 +148,7 @@ export function renderOrbs(ui: ShopUI, orbIds: string[]) {
 			console.warn(`Orb with id ${orbId} not found in orbs object`);
 			return;
 		}
-		const orbX = ui.panelX + 120 + (index * orbSpacing);
+		const orbX = ui.panelX + 220 + (index * orbSpacing);
 		const orbName = getOrbName(index);
 
 		const magicOrb = new MagicOrb(ui.scene, orbX, orbY, {
