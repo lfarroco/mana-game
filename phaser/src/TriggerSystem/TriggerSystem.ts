@@ -117,9 +117,7 @@ const processEffect = (scene: BattlegroundScene) => (effect: Effect) => {
 			effects.dealDamageLogicIO({ scene, sourceUnit });
 			break;
 		case "heal":
-			effects.restoreMoraleLogicIO({
-				scene, sourceUnit
-			});
+			effects.restoreMoraleLogicIO({ sourceUnit });
 			break;
 		case "shield":
 			effects.addShieldLogicIO({ scene, sourceUnit });

@@ -3,13 +3,13 @@
  * This effect applies regeneration to friendly forces, providing healing over time.
  */
 
-import { GameEvents } from '../../constants/events';
 import { Force } from '../../Models/Entities/Force';
 import { Unit } from '../../Models/Entities/Unit';
 import { arcaneMissileTargeted } from '../../Effects';
 import { getMoraleBarTipPosition } from '../../Scenes/Battleground/MoraleDisplay';
 import { getChara } from '../../Scenes/Battleground/Systems/CharaManager';
 import BattlegroundScene from '../../Scenes/Battleground/BattlegroundScene';
+import { trackMoraleRestored } from '../../Scenes/Battleground/Systems/CombatStatsTracker';
 
 /**
  * Pure function to create the apply regen effect implementation
@@ -79,10 +79,12 @@ export const applyRegenLogicIO = async (context: {
 	const { scene } = context;
 
 	const emitter = (unit: Unit, amount: number) => {
-		scene.events.emit(
-			GameEvents.UNIT_MORALE_RESTORED, // Use morale restored event for regen application
-			{ unit, amount, type: 'regen' }
-		);
+		trackMoraleRestored({
+			unit,
+			amount,
+			type: 'regen',
+			sourceUnitId: context.sourceUnit.id
+		})
 	};
 
 	// Get the regen system from the scene - we'll need to add this to the combat system

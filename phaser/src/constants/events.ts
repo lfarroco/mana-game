@@ -39,8 +39,6 @@ export const GameEvents = {
 	STOP_SOUND_EFFECT: OptionsSystemEvents.STOP_SOUND_EFFECT,
 	STOP_ALL_SOUND_EFFECTS: OptionsSystemEvents.STOP_ALL_SOUND_EFFECTS,
 
-	UNIT_MORALE_RESTORED: "unit_morale_restored", // Payload: { unit: Unit, amount: number }
-
 	// Outcome Events (emitted by the system handling the request)
 
 	OWNED_UNIT_MOVE_ACCEPTED: "owned_unit_move_accepted", // Payload: { unitId: string, newPosition: Vec2, newVisualPosition: {x,y} }
