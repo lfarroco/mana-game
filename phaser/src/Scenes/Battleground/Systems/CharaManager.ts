@@ -94,8 +94,15 @@ export function getCharaPosition(unit: Unit) {
 	const offsetX = unit.force === constants.FORCE_ID_PLAYER ? constants.PLAYER_BOARD_X : constants.CPU_BOARD_X;
 	const offsetY = unit.force === constants.FORCE_ID_PLAYER ? constants.PLAYER_BOARD_Y : constants.CPU_BOARD_Y;
 
+	// Mirror enemy unit positions horizontally for visual presentation
+	// while keeping game logic positions unchanged
+	let visualX = unit.position.x;
+	if (unit.force === constants.FORCE_ID_CPU) {
+		visualX = 2 - unit.position.x; // Mirror: x=0 becomes x=2, x=1 stays x=1, x=2 becomes x=0
+	}
+
 	return vec2(
-		unit.position.x * (constants.TILE_WIDTH + slotSpacing) + constants.HALF_TILE_WIDTH + offsetX,
+		visualX * (constants.TILE_WIDTH + slotSpacing) + constants.HALF_TILE_WIDTH + offsetX,
 		unit.position.y * (constants.TILE_HEIGHT + slotSpacing) + constants.HALF_TILE_HEIGHT + offsetY
 	);
 }
