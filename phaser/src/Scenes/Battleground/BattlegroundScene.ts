@@ -17,8 +17,8 @@ import { Unit } from "../../Models/Entities/Unit";
 import { Vec2 } from "../../Models/Geometry";
 import { battleResultAnimation } from "./battleResultAnimation";
 import * as BattlegroundScenePure from "./BattlegroundScene.pure";
-import { AudioSystem } from "../../Systems/AudioSystem/AudioSystem";
 import { updatePlayerGoldIO } from "../../Models/Entities/Force";
+import { audioManager } from "../../Systems/AudioManager";
 
 
 export let scene: BattlegroundScene;
@@ -169,12 +169,11 @@ export class BattlegroundScene extends Phaser.Scene {
     this.uiManager.createMainUI();
 
     // 7. Start battle music
-    const audioSystem = AudioSystem.getInstance();
-    BattlegroundScenePure.playMusicSafe(
-      audioSystem,
-      'music_battlemap_vetruv',
-      (errorMessage: string) => console.warn(errorMessage)
-    );
+    try {
+      audioManager.playMusic('music_battlemap_vetruv');
+    } catch (error) {
+      console.warn(`Error playing battle music: ${error}`);
+    }
 
     // 8. Setup Trait System event listeners
     //(removed)
@@ -193,21 +192,6 @@ export class BattlegroundScene extends Phaser.Scene {
       });
     }
   }
-
-  /**
-   * Plays a sound effect using the AudioSystem.
-   * @param key - The key of the sound effect to play.
-   */
-  playFx(key: string) {
-    const audioSystem = AudioSystem.getInstance();
-    BattlegroundScenePure.playFxSafe(
-      audioSystem,
-      key,
-      (errorMessage: string) => console.warn(errorMessage)
-    );
-  }
-
-
 
   async handleBoardCharaCreateRequest(payload: { unit: Unit }): Promise<void> {
     await BattlegroundScenePure.handleCharacterCreationRequest(

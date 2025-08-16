@@ -4,8 +4,8 @@
  */
 
 import { images } from "../assets";
+import { audioManager } from "../Systems/AudioManager";
 import { delay } from "../Utils/animation";
-import { AudioSystem } from "../Systems/AudioSystem/AudioSystem";
 
 export interface HasteEffectOptions {
 	/** Duration of the effect in milliseconds */
@@ -32,8 +32,7 @@ export async function hasteEffect(
 	} = options;
 
 	try {
-		const audioSystem = AudioSystem.getInstance();
-		audioSystem.playSoundEffect('sfx_artifact_equipmask');
+		audioManager.playSoundEffect('sfx_artifact_equipmask');
 	} catch (error) {
 		console.warn('Could not play haste effect sound:', error);
 	}
