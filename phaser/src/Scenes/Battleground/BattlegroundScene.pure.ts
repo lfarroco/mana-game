@@ -1,7 +1,5 @@
 import { Unit } from "../../Models/Entities/Unit";
-import { GameEvents } from "../../constants/events";
 import { Vec2, eqVec2 } from "../../Utils/Vec2";
-import { popText } from "../../Systems/Chara/Animations/popText";
 
 /**
  * Pure function to remove a unit from the player's units array
@@ -37,7 +35,8 @@ export function handleOwnedUnitSold(
 	units: Unit[],
 	unitId: string,
 	soldForGold: number,
-	chara?: { destroy: () => void; x: number; y: number }
+	chara: { destroy: () => void; x: number; y: number } | undefined,
+	showPopText: (x: number, y: number, text: string, type: string, direction: string) => void
 ): Unit[] {
 	// Update player gold
 	updatePlayerGold(soldForGold);
@@ -47,13 +46,7 @@ export function handleOwnedUnitSold(
 	const popTextY = chara?.y ?? 300; // Default fallback position
 	chara?.destroy();
 
-	popText({
-		x: popTextX,
-		y: popTextY,
-		text: `+${soldForGold}G`,
-		type: "shield",
-		direction: "up"
-	})
+	showPopText(popTextX, popTextY, `+${soldForGold}G`, "shield", "up");
 
 	// Hide the sell zone
 	hideSellZone();
@@ -114,46 +107,48 @@ export function findUnitById(units: Unit[], unitId: string): Unit | undefined {
 }
 
 /**
- * Pure function to create event payloads for move/swap results
+ * Pure function to handle move/swap results with direct callbacks
  * @param moveResult - Result from PlayerBoard.updateUnitPosition
  * @param getVisualPosition - Function to get visual position for a unit
- * @returns Object with event type and payload to emit
+ * @param onMoveAccepted - Callback for when a unit move is accepted
+ * @param onSwapAccepted - Callback for when a unit swap is accepted
+ * @returns void (executes callbacks directly)
  */
-export function createMoveEventPayload(
+export function handleMoveResult(
 	moveResult: {
 		movedUnit: Unit;
 		swappedUnit?: Unit;
 		oldPositionOfMovedUnit: Vec2;
 	},
-	getVisualPosition: (unit: Unit) => Vec2
-): {
-	eventType: string;
-	payload: any;
-} {
+	getVisualPosition: (unit: Unit) => Vec2,
+	onMoveAccepted: (unitId: string, newLogicalPosition: Vec2, newVisualPosition: { x: number, y: number }) => void,
+	onSwapAccepted: (
+		movedUnitId: string,
+		movedUnitNewLogicalPosition: Vec2,
+		movedUnitVisualPosition: { x: number, y: number },
+		swappedUnitId: string,
+		swappedUnitNewLogicalPosition: Vec2,
+		swappedUnitVisualPosition: { x: number, y: number }
+	) => void
+): void {
 	const movedUnitVisualPosition = getVisualPosition(moveResult.movedUnit);
 
 	if (moveResult.swappedUnit) {
 		const swappedUnitVisualPosition = getVisualPosition(moveResult.swappedUnit);
-		return {
-			eventType: GameEvents.OWNED_UNIT_SWAP_ACCEPTED,
-			payload: {
-				movedUnitId: moveResult.movedUnit.id,
-				movedUnitNewLogicalPosition: moveResult.movedUnit.position,
-				movedUnitVisualPosition: { x: movedUnitVisualPosition.x, y: movedUnitVisualPosition.y },
-				swappedUnitId: moveResult.swappedUnit.id,
-				swappedUnitNewLogicalPosition: moveResult.swappedUnit.position,
-				swappedUnitVisualPosition: { x: swappedUnitVisualPosition.x, y: swappedUnitVisualPosition.y },
-			}
-		};
+		onSwapAccepted(
+			moveResult.movedUnit.id,
+			moveResult.movedUnit.position,
+			{ x: movedUnitVisualPosition.x, y: movedUnitVisualPosition.y },
+			moveResult.swappedUnit.id,
+			moveResult.swappedUnit.position,
+			{ x: swappedUnitVisualPosition.x, y: swappedUnitVisualPosition.y }
+		);
 	} else {
-		return {
-			eventType: GameEvents.OWNED_UNIT_MOVE_ACCEPTED,
-			payload: {
-				unitId: moveResult.movedUnit.id,
-				newLogicalPosition: moveResult.movedUnit.position,
-				newVisualPosition: { x: movedUnitVisualPosition.x, y: movedUnitVisualPosition.y },
-			}
-		};
+		onMoveAccepted(
+			moveResult.movedUnit.id,
+			moveResult.movedUnit.position,
+			{ x: movedUnitVisualPosition.x, y: movedUnitVisualPosition.y }
+		);
 	}
 }
 
@@ -167,7 +162,9 @@ export function createMoveEventPayload(
  * @param updateUnitPosition - Function to update unit position (from PlayerBoard)
  * @param getVisualPosition - Function to get visual position for a unit
  * @param logError - Function to log errors
- * @param emitEvent - Function to emit events
+ * @param onMoveAccepted - Callback for when a unit move is accepted
+ * @param onSwapAccepted - Callback for when a unit swap is accepted
+ * @param onMoveRejected - Callback for when a unit move is rejected
  * @returns void (side effects through injected functions)
  */
 export function handleUnitMoveRequestPure(
@@ -179,36 +176,34 @@ export function handleUnitMoveRequestPure(
 	updateUnitPosition: (unit: Unit, target: any, units: Unit[]) => any,
 	getVisualPosition: (unit: Unit) => Vec2,
 	logError: (message: string) => void,
-	emitEvent: (eventType: string, payload: any) => void
+	onMoveAccepted: (unitId: string, newLogicalPosition: Vec2, newVisualPosition: { x: number, y: number }) => void,
+	onSwapAccepted: (
+		movedUnitId: string,
+		movedUnitNewLogicalPosition: Vec2,
+		movedUnitVisualPosition: { x: number, y: number },
+		swappedUnitId: string,
+		swappedUnitNewLogicalPosition: Vec2,
+		swappedUnitVisualPosition: { x: number, y: number }
+	) => void,
+	onMoveRejected: (unitId: string, reason: string, dragStartX: number, dragStartY: number) => void
 ): void {
 	const unitToMove = findUnitById(units, unitId);
 
 	if (!unitToMove) {
 		logError(`[BattlegroundScene] Unit with ID ${unitId} not found for move request.`);
-		emitEvent(GameEvents.OWNED_UNIT_MOVE_REJECTED, {
-			unitId,
-			reason: "UNIT_NOT_FOUND",
-			dragStartX,
-			dragStartY
-		});
+		onMoveRejected(unitId, "UNIT_NOT_FOUND", dragStartX, dragStartY);
 		return;
 	}
 
 	const moveResult = updateUnitPosition(unitToMove, targetTile, units);
 
 	if (!moveResult) {
-		emitEvent(GameEvents.OWNED_UNIT_MOVE_REJECTED, {
-			unitId,
-			reason: "NO_CHANGE_OR_INVALID",
-			dragStartX,
-			dragStartY
-		});
+		onMoveRejected(unitId, "NO_CHANGE_OR_INVALID", dragStartX, dragStartY);
 		return;
 	}
 
-	// Successfully moved or swapped
-	const eventData = createMoveEventPayload(moveResult, getVisualPosition);
-	emitEvent(eventData.eventType, eventData.payload);
+	// Successfully moved or swapped - use the new callback approach
+	handleMoveResult(moveResult, getVisualPosition, onMoveAccepted, onSwapAccepted);
 }
 
 /**
