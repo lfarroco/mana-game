@@ -44,7 +44,13 @@ export class PartyBoard {
 
 		boards.forEach(board => {
 			cells.forEach((cell) => {
-				const zoneX = board.x + cell.x * (constants.TILE_WIDTH + slotSpacing);
+				// Mirror enemy board slot positions horizontally to match unit mirroring
+				let visualX = cell.x;
+				if (!board.isPlayer) { // Enemy board
+					visualX = 2 - cell.x; // Mirror: x=0 becomes x=2, x=1 stays x=1, x=2 becomes x=0
+				}
+
+				const zoneX = board.x + visualX * (constants.TILE_WIDTH + slotSpacing);
 				const zoneY = board.y + cell.y * (constants.TILE_HEIGHT + slotSpacing);
 
 				const slotX = zoneX + constants.TILE_WIDTH / 2;
@@ -103,7 +109,9 @@ export class PartyBoard {
 						x: index % 3,
 						y: Math.floor(index / 3)
 					};
-					const targetX = CPU_BOARD_X + cell.x * (constants.TILE_WIDTH + slotSpacing) + constants.TILE_WIDTH / 2;
+					// Mirror enemy board slot positions horizontally to match unit mirroring
+					const visualX = 2 - cell.x; // Mirror: x=0 becomes x=2, x=1 stays x=1, x=2 becomes x=0
+					const targetX = CPU_BOARD_X + visualX * (constants.TILE_WIDTH + slotSpacing) + constants.TILE_WIDTH / 2;
 
 					slot.setVisible(true);
 					slot.setPosition(offScreenX, slot.getCurrentPosition().y); // Start from off-screen right
