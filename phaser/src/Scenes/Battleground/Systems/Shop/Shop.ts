@@ -204,22 +204,22 @@ export class Shop {
 		});
 		this.currentShopCharas = [];
 
-		// 2. Destroy existing orbs and pick new ones
-		this.shopUI.destroyOrbs();
-		const availableOrbs = [
-			"crimson_orb",
-			"emerald_orb",
-			"azure_orb",
-			"golden_orb",
-			"violet_orb",
-		];
-		this.currentOrbs = pickRandom(availableOrbs, 3);
+		// 2. Destroy existing orbs and pick new ones (skip)
+		// this.shopUI.destroyOrbs();
+		// const availableOrbs = [
+		// 	"crimson_orb",
+		// 	"emerald_orb",
+		// 	"azure_orb",
+		// 	"golden_orb",
+		// 	"violet_orb",
+		// ];
+		//this.currentOrbs = pickRandom(availableOrbs, 3);
 
 		// 3. Prepare new card data for the tavern
 		const newTavernCardData = this._getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
 
-		// 4. Re-render orbs
-		this.shopUI.renderOrbSection(this.currentOrbs);
+		// 4. Re-render orbs (skip)
+		//this.shopUI.renderOrbSection(this.currentOrbs);
 
 		// 5. Update the ShopUI with new characters
 		const newShopCharas = this.shopUI.rerenderTavernCharas(
