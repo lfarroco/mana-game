@@ -10,7 +10,6 @@ import { makeUnit } from "../../../../Models/Entities/Unit";
 import * as sc from "./ShopConstants";
 import { MagicOrb } from "../../../../components/MagicOrb/MagicOrb";
 import { renderOrbs } from "./Orbs";
-import { hideTooltip } from "../../../../UI/Tooltip";
 
 export class ShopUI {
 	scene: BattlegroundScene;
@@ -39,9 +38,8 @@ export class ShopUI {
 	 */
 	rerenderTavernCharas(
 		cardDefs: Card.CardDefinition[],
-		charaPurchaseFinalized: (purchasedChara: Chara) => void
 	): Chara[] {
-		const newCharas = this._renderTavernCharas(cardDefs, charaPurchaseFinalized);
+		const newCharas = this._renderTavernCharas(cardDefs);
 		return newCharas;
 	}
 	displayShop(
@@ -49,7 +47,6 @@ export class ShopUI {
 		orbs: string[],
 		nextRoundCallback: () => void,
 		rerollCallback: () => void,
-		charaPurchaseFinalized: (purchasedChara: Chara) => void,
 	): { charas: Chara[] } {
 		this.flyout.removeAll(true); // Clear any previous content
 		this.magicOrbs = []; // Clear magic orbs array
@@ -100,7 +97,7 @@ export class ShopUI {
 		this.renderOrbSection(orbs);
 
 		// Render characters AFTER buttons to ensure they appear on top
-		const displayedCharas = this._renderTavernCharas(cardsToDisplay, charaPurchaseFinalized);
+		const displayedCharas = this._renderTavernCharas(cardsToDisplay);
 
 		return { charas: displayedCharas };
 	}
@@ -114,17 +111,15 @@ export class ShopUI {
 	 * Renders the tavern section of the shop, including its background, title, and character cards.
 	 * This method is called during the initial display of the shop.
 	 * @param cardDefs An array of `Card.CardDefinition` objects representing the characters to display.
-	 * @param charaPurchaseFinalized Callback function invoked when a character is successfully purchased.
 	 * @param panelX The X position for right-aligned shop panel.
 	 * @returns An array of the created `Chara` instances.
 	 */
 	_renderTavernUI(
 		cardDefs: Card.CardDefinition[],
-		charaPurchaseFinalized: (purchasedChara: Chara) => void,
 		panelX: number
 	): Chara[] {
 		this._renderTavernSectionBackgroundAndTitle(panelX);
-		return this._renderTavernCharas(cardDefs, charaPurchaseFinalized);
+		return this._renderTavernCharas(cardDefs);
 	}
 
 
@@ -154,7 +149,6 @@ export class ShopUI {
 
 	_renderTavernCharas(
 		cardDefs: Card.CardDefinition[],
-		charaPurchaseFinalized: (purchasedChara: Chara) => void,
 	): Chara[] {
 		const createdCharas: Chara[] = [];
 		const baseX = (this.panelX !== undefined ? this.panelX + 160 : sc.TAVERN_CHARA_FIRST_X);
@@ -162,13 +156,7 @@ export class ShopUI {
 			const unit = makeUnit(c.FORCE_ID_PLAYER, spec.id, vec2(0, 0)); // Position is relative to flyout, set later
 			const charaOptions: CharaOptions = {
 				isShopItem: true,
-				onPurchased: () => {
-					hideTooltip();
-					this.flyout.remove(chara); // Remove from flyout display
-					// The Chara instance itself will be destroyed by CharaManager via event.
-					// We call charaPurchaseFinalized to let Shop update its internal list.
-					charaPurchaseFinalized(chara);
-				}
+
 			};
 			const chara = new Chara(this.scene, unit, charaOptions);
 			registerChara(chara); // Register with CharaManager
