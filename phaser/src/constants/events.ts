@@ -43,8 +43,6 @@ export const GameEvents = {
 	UNIT_SHIELD_GAINED: "unit_shield_gained", // Payload: { unit: Unit, amount: number }
 	UNIT_MORALE_RESTORED: "unit_morale_restored", // Payload: { unit: Unit, amount: number }
 
-	MORALE_UPDATED: "morale_updated", // Payload: { forceId: string, newMorale: number, maxMorale: number, totalDamage?: number, damageType?: "poison" | "normal" }
-
 	SHIELD_UPDATED: "shield_updated", // Payload: { forceId: string, newShield: number, maxShield: number }
 
 	// Outcome Events (emitted by the system handling the request)

@@ -111,7 +111,7 @@ export class RegenSystem {
 
 				// Apply healing to morale, respecting max morale
 				// The manipulateForceMorale function will emit MORALE_UPDATED event automatically
-				const actualHealing = manipulateForceMorale(force, healing, this.scene);
+				const actualHealing = manipulateForceMorale(force, healing);
 
 				// Track regen healing in combat stats
 				if (stack.sourceUnitId && actualHealing > 0) {

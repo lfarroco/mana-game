@@ -3,6 +3,9 @@ import { FORCE_ID_PLAYER, FORCE_ID_CPU, INITIAL_MORALE } from "../../constants/c
 import { Unit } from "./Unit";
 import { GameEvents } from "../../constants/events";
 import { ui } from "../../UI/UIManager";
+import { trackMoraleChange } from "../../Scenes/Battleground/Systems/CombatStatsTracker";
+import { updateMoraleDisplay } from "../../Scenes/Battleground/MoraleDisplay";
+import { scene } from "../../Scenes/Battleground/BattlegroundScene";
 
 // A "force" represents a party of heroes (units)
 export type Force = {
@@ -58,7 +61,6 @@ export const updatePlayerGoldIO = (goldDelta: number) => {
 export const manipulateForceMorale = (
 	targetForce: Force,
 	amount: number,
-	scene?: Phaser.Scene
 ): number => {
 	let finalAmount = amount;
 
@@ -71,12 +73,12 @@ export const manipulateForceMorale = (
 	const actualChange = targetForce.morale - oldMorale;
 
 	// Emit morale update event if scene is provided
-	if (scene && actualChange !== 0) {
-		scene.events.emit(GameEvents.MORALE_UPDATED, {
+	if (actualChange !== 0) {
+		updateMoraleDisplay({
 			forceId: targetForce.id,
 			newMorale: targetForce.morale,
 			maxMorale: targetForce.maxMorale,
-		});
+		})
 	}
 
 	return actualChange;
@@ -119,7 +121,6 @@ export const manipulateForceShield = (
 export const applyDamageToForce = (
 	targetForce: Force,
 	damage: number,
-	scene?: Phaser.Scene,
 	shieldPiercingPercentage: number = 0,
 	damageType?: "poison" | "normal" | "timeout"
 ): number => {
@@ -134,16 +135,22 @@ export const applyDamageToForce = (
 		// Apply poison damage directly to morale
 		const moraleChange = manipulateForceMorale(targetForce, -damage); // No scene = no event
 
-		// Emit morale update event if scene is provided
-		if (scene) {
-			scene.events.emit(GameEvents.MORALE_UPDATED, {
-				forceId: targetForce.id,
-				newMorale: targetForce.morale,
-				maxMorale: targetForce.maxMorale,
-				totalDamage: damage,
-				damageType: damageType,
-			});
-		}
+
+		updateMoraleDisplay({
+			forceId: targetForce.id,
+			newMorale: targetForce.morale,
+			maxMorale: targetForce.maxMorale,
+			totalDamage: damage, // Show total damage for pop text
+			damageType: damageType, // Include damage type for colored pop text
+		})
+
+		trackMoraleChange({
+			forceId: targetForce.id,
+			newMorale: targetForce.morale,
+			maxMorale: targetForce.maxMorale,
+			totalDamage: damage,
+			damageType: damageType,
+		});
 
 		return Math.abs(moraleChange);
 	}
@@ -169,29 +176,35 @@ export const applyDamageToForce = (
 	}
 
 	// Emit events for both shield and morale updates, but only show pop text for total damage
-	if (scene) {
-		// Emit shield update if shield changed
-		if (targetForce.shield !== originalShield) {
-			scene.events.emit(GameEvents.SHIELD_UPDATED, {
-				forceId: targetForce.id,
-				newShield: targetForce.shield,
-				maxShield: targetForce.maxMorale, // Use max morale as maxShield for display
-				suppressPopText: targetForce.morale !== originalMorale, // Only suppress if morale also changed
-				totalDamage: targetForce.morale === originalMorale ? damage : undefined, // Show total damage if only shield changed
-				damageType: damageType, // Include damage type for colored pop text
-			});
-		}
 
-		// Emit morale update if morale changed, and show total damage as pop text
-		if (targetForce.morale !== originalMorale) {
-			scene.events.emit(GameEvents.MORALE_UPDATED, {
-				forceId: targetForce.id,
-				newMorale: targetForce.morale,
-				maxMorale: targetForce.maxMorale,
-				totalDamage: damage, // Include total damage for pop text display
-				damageType: damageType, // Include damage type for colored pop text
-			});
-		}
+	// Emit shield update if shield changed
+	if (targetForce.shield !== originalShield) {
+		scene.events.emit(GameEvents.SHIELD_UPDATED, {
+			forceId: targetForce.id,
+			newShield: targetForce.shield,
+			maxShield: targetForce.maxMorale, // Use max morale as maxShield for display
+			suppressPopText: targetForce.morale !== originalMorale, // Only suppress if morale also changed
+			totalDamage: targetForce.morale === originalMorale ? damage : undefined, // Show total damage if only shield changed
+			damageType: damageType, // Include damage type for colored pop text
+		});
+	}
+
+	// Emit morale update if morale changed, and show total damage as pop text
+	if (targetForce.morale !== originalMorale) {
+		updateMoraleDisplay({
+			forceId: targetForce.id,
+			newMorale: targetForce.morale,
+			maxMorale: targetForce.maxMorale,
+			totalDamage: damage, // Include total damage for pop text display
+			damageType: damageType, // Include damage type for colored pop text
+		});
+		trackMoraleChange({
+			forceId: targetForce.id,
+			newMorale: targetForce.morale,
+			maxMorale: targetForce.maxMorale,
+			totalDamage: damage, // Include total damage for pop text display
+			damageType: damageType, // Include damage type for colored pop text
+		})
 	}
 
 	return Math.abs(moraleChange);

@@ -114,7 +114,7 @@ let previousCpuShield: number | null = null;
  * Handles the MORALE_UPDATED event by calling the bar update function.
  * @param payload The event payload with forceId, newMorale, maxMorale, optional totalDamage, and optional damageType.
  */
-function handleMoraleUpdated(payload: { forceId: string, newMorale: number, maxMorale: number, totalDamage?: number, damageType?: "poison" | "normal" | "timeout" }) {
+export function updateMoraleDisplay(payload: { forceId: string, newMorale: number, maxMorale: number, totalDamage?: number, damageType?: "poison" | "normal" | "timeout" }) {
 	updateMoraleBar(payload.forceId);
 
 	// Calculate morale delta and show pop text
@@ -347,7 +347,6 @@ export function init(sceneRef: Phaser.Scene): void {
 
 		cpuDisplay = createCombinedDisplay(scene, c.FORCE_ID_CPU);
 
-		scene.events.on(GameEvents.MORALE_UPDATED, handleMoraleUpdated);
 		scene.events.on(GameEvents.SHIELD_UPDATED, handleShieldUpdated);
 	}
 }
@@ -457,7 +456,6 @@ export function updateShieldBar(
 
 export function destroy(): void {
 	if (scene) {
-		scene.events.off(GameEvents.MORALE_UPDATED, handleMoraleUpdated);
 		scene.events.off(GameEvents.SHIELD_UPDATED, handleShieldUpdated);
 		scene = null;
 	}

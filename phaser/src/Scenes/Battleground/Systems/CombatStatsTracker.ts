@@ -59,7 +59,7 @@ function initializeUnitStats(): void {
 /**
  * Handles morale updated events to track damage dealt
  */
-function handleMoraleUpdated(payload: {
+export function trackMoraleChange(payload: {
 	forceId: string;
 	newMorale: number;
 	maxMorale: number;
@@ -191,9 +191,6 @@ function setupEventListeners(): void {
 
 	const { events } = scene;
 
-	// Track morale damage (direct damage and poison)
-	events.on(GameEvents.MORALE_UPDATED, handleMoraleUpdated);
-
 	// Track healing
 	events.on(GameEvents.UNIT_MORALE_RESTORED, handleMoraleRestored);
 
@@ -210,7 +207,6 @@ function removeEventListeners(): void {
 
 	const { events } = scene;
 
-	events.off(GameEvents.MORALE_UPDATED, handleMoraleUpdated);
 	events.off(GameEvents.UNIT_MORALE_RESTORED, handleMoraleRestored);
 	events.off(GameEvents.UNIT_SHIELD_GAINED, handleShieldGained);
 	events.off(GameEvents.SHIELD_UPDATED, handleShieldUpdated);
