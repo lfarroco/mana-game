@@ -10,7 +10,7 @@ import { PrestigeSystem } from "../../../Systems/PrestigeSystem";
 import * as CharaManager from "./CharaManager";
 import { cpuForce, playerForce, updatePlayerGoldIO } from "../../../Models/Entities/Force";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
-import { fadeOutBars, showBars, updateMoraleBar } from "../MoraleDisplay";
+import { fadeOutBars, showBars, updateMoraleBar, updateMoraleDisplay } from "../MoraleDisplay";
 import { AudioSystem } from "../../../Systems/AudioSystem/AudioSystem";
 import { renderVignette } from "../Animations/vignette";
 
@@ -274,22 +274,17 @@ export class BattleProgressionSystem {
 
 		showBars();
 
-		this.scene.events.emit(
-			GameEvents.MORALE_UPDATED,
-			{
-				forceId: FORCE_ID_PLAYER,
-				newMorale: playerForce.morale,
-				maxMorale: playerForce.maxMorale,
-			}
-		);
-		this.scene.events.emit(
-			GameEvents.MORALE_UPDATED,
-			{
-				forceId: FORCE_ID_CPU,
-				newMorale: cpuForce.morale,
-				maxMorale: cpuForce.maxMorale
-			}
-		);
+		updateMoraleDisplay({
+			forceId: FORCE_ID_PLAYER,
+			newMorale: playerForce.morale,
+			maxMorale: playerForce.maxMorale,
+		});
+		updateMoraleDisplay({
+			forceId: FORCE_ID_CPU,
+			newMorale: cpuForce.morale,
+			maxMorale: cpuForce.maxMorale,
+		});
+
 		this.scene.events.emit(
 			GameEvents.SHIELD_UPDATED,
 			{

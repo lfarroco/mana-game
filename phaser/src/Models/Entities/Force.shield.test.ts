@@ -154,25 +154,6 @@ describe('Force Shield System', () => {
 
 			applyDamageToForce(force, 30, mockScene);
 
-			// Should emit shield update event (shield goes to 0)
-			expect(mockScene.events.emit).toHaveBeenCalledWith(
-				GameEvents.SHIELD_UPDATED,
-				expect.objectContaining({
-					forceId: force.id,
-					newShield: 0,
-					maxShield: 100,
-				})
-			);
-
-			// Should emit morale update event (morale reduced by 10)
-			expect(mockScene.events.emit).toHaveBeenCalledWith(
-				GameEvents.MORALE_UPDATED,
-				expect.objectContaining({
-					forceId: force.id,
-					newMorale: 90,
-					maxMorale: 100,
-				})
-			);
 		});
 	});
 
@@ -219,30 +200,13 @@ describe('Force Shield System', () => {
 			force.shield = 50;
 
 			// Apply poison damage - should bypass shield completely
-			const moraleChange = applyDamageToForce(force, 30, mockScene, 0, "poison");
+			const moraleChange = applyDamageToForce(force, 30, 0, "poison");
 
 			// Shield should remain unchanged, all damage goes to morale
 			expect(force.shield).toBe(50);
 			expect(force.morale).toBe(70);
 			expect(moraleChange).toBe(30);
 
-			// Should emit morale update event only
-			expect(mockScene.events.emit).toHaveBeenCalledWith(
-				GameEvents.MORALE_UPDATED,
-				expect.objectContaining({
-					forceId: force.id,
-					newMorale: 70,
-					maxMorale: 100,
-					totalDamage: 30,
-					damageType: "poison"
-				})
-			);
-
-			// Should NOT emit shield update event
-			expect(mockScene.events.emit).not.toHaveBeenCalledWith(
-				GameEvents.SHIELD_UPDATED,
-				expect.anything()
-			);
 		});
 
 		it('should work with normal damage and shields as before', () => {
@@ -252,7 +216,7 @@ describe('Force Shield System', () => {
 			force.shield = 50;
 
 			// Apply normal damage - should go through shield first
-			const moraleChange = applyDamageToForce(force, 30, mockScene, 0, "normal");
+			const moraleChange = applyDamageToForce(force, 30, 0, "normal");
 
 			// Shield should absorb all damage
 			expect(force.shield).toBe(20);
@@ -267,7 +231,7 @@ describe('Force Shield System', () => {
 			force.shield = 50;
 
 			// Apply timeout damage - should go through shield first like normal damage
-			const moraleChange = applyDamageToForce(force, 30, mockScene, 0, "timeout");
+			const moraleChange = applyDamageToForce(force, 30, 0, "timeout");
 
 			// Shield should absorb all damage
 			expect(force.shield).toBe(20);

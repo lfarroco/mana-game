@@ -84,8 +84,8 @@ export const dealDamageLogicIO = async (context: { scene: BattlegroundScene, sou
 	const { sourceUnit } = context;
 
 	// Create a wrapper for applyDamageToForce that tracks combat stats
-	const dealDamageWithTracking = (targetForce: Force, damage: number, scene: Phaser.Scene): number => {
-		const actualMoraleChange = applyDamageToForce(targetForce, damage, scene);
+	const dealDamageWithTracking = (targetForce: Force, damage: number): number => {
+		const actualMoraleChange = applyDamageToForce(targetForce, damage);
 
 		// Track damage in combat stats using singleton
 		CombatStatsTracker.trackDamage(sourceUnit.id, actualMoraleChange, 'normal');

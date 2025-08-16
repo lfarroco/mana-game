@@ -1,4 +1,3 @@
-import { BattlegroundScene } from "../BattlegroundScene";
 import { applyDamageToForce, Force } from "../../../Models/Entities/Force";
 import * as CombatStatsTracker from "./CombatStatsTracker";
 
@@ -19,16 +18,11 @@ export type PoisonStack = {
  * Damage per tick = max(1, floor(totalDamage / 10))
  */
 export class PoisonDamageSystem {
-	private scene: BattlegroundScene;
 	private readonly tickInterval: number = 1000; // 1 second between poison ticks
 	private isActive: boolean = false;
 
 	// Poison stacks for each force
 	private poisonStacks: Map<string, PoisonStack[]> = new Map();
-
-	constructor(scene: BattlegroundScene) {
-		this.scene = scene;
-	}
 
 	/**
 	 * Initializes the poison damage system for a new combat.
@@ -110,7 +104,7 @@ export class PoisonDamageSystem {
 				console.log(`[PoisonDamageSystem] Poison tick on ${forceId}: ${damage} damage (${stack.remainingDamage} remaining)`);
 
 				// Apply damage and manually track it for stats
-				applyDamageToForce(force, damage, this.scene, 0, "poison");
+				applyDamageToForce(force, damage, 0, "poison");
 
 				// Track poison damage in combat stats using singleton
 				if (stack.sourceUnitId) {

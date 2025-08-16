@@ -87,7 +87,7 @@ export const restoreMoraleLogicIO = async (context: { scene: BattlegroundScene; 
 	// Enhanced heal function that also reduces poison and tracks stats
 	const healMoraleWithPoisonReduction = (targetForce: Force, amount: number, scene: Phaser.Scene): number => {
 		// Apply the healing
-		const actualHealing = manipulateForceMorale(targetForce, amount, scene);
+		const actualHealing = manipulateForceMorale(targetForce, amount);
 
 		// Track healing in combat stats using singleton
 		if (actualHealing > 0) {

@@ -51,7 +51,7 @@ export class RunCombatSystem {
   constructor(scene: BattlegroundScene) {
     this.scene = scene;
     this.timeoutDamageSystem = new TimeoutDamageSystem(scene);
-    this.poisonDamageSystem = new PoisonDamageSystem(scene);
+    this.poisonDamageSystem = new PoisonDamageSystem();
     this.regenSystem = new RegenSystem(scene);
   }
 
