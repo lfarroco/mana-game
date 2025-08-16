@@ -49,8 +49,6 @@ export class BattleProgressionSystem {
 		this.state = state;
 		this.prestigeSystem = new PrestigeSystem(scene, state);
 
-		// Shop Phase
-		this.addListener(GameEvents.SHOP_PHASE_ENDED, this.handleShopPhaseEnded);
 
 	}
 

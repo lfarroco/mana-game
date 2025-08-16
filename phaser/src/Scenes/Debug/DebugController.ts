@@ -1,5 +1,4 @@
 import { BattlegroundScene } from "../Battleground/BattlegroundScene";
-import { GameEvents } from "../../constants/events";
 import { Unit } from "../../Models/Entities/Unit"; // Ensure Unit is exported from its module
 import { vec2 } from "../../Models/Geometry";
 import { CardDefinition } from "../../Models/Entities/Card";
@@ -74,7 +73,7 @@ export class DebugController {
 	 * Simulates clicking the "Next Round" or "End Turn" button.
 	 */
 	clickNextRound(): string {
-		this.scene.events.emit(GameEvents.SHOP_PHASE_ENDED);
+		this.scene.battleProgressionSystem.handleShopPhaseEnded();
 		return "Emitted SHOP_PHASE_ENDED. Current shop phase should end, leading to combat or next round's shop.";
 	}
 

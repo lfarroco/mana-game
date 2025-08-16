@@ -3,7 +3,6 @@ import { Flyout } from "../../../../UI/Flyout";
 import { pickRandom } from "../../../../utils";
 import { Chara } from "../../../../Systems/Chara/Chara";
 import { BattlegroundScene } from "../../BattlegroundScene";
-import { GameEvents } from "../../../../constants/events"; // Corrected import path if needed
 import { Vec2 } from "../../../../Models/Geometry";
 import { Unit } from "../../../../Models/Entities/Unit";
 import { ShopUI } from "./ShopUI";
@@ -84,7 +83,7 @@ export class Shop {
 
 		// Define the nextRoundCallback, which was missing
 		const nextRoundCallback = () => {
-			this.scene.events.emit(GameEvents.SHOP_PHASE_ENDED);
+			this.scene.battleProgressionSystem.handleShopPhaseEnded();
 			this.close();
 		};
 
