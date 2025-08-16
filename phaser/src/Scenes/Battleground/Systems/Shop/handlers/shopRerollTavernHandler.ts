@@ -7,7 +7,7 @@ export function shopRerollTavernHandler(shopInstance: Shop): void {
 
 	if (state.gameData.player.gold < constants.REROLL_UNITS_PRICE) {
 
-		scene.uiManager._handleUserMessageRequested({
+		scene.uiManager.handleUserMessageRequested({
 			text: `Not enough gold to reroll (cost: ${constants.REROLL_UNITS_PRICE})`,
 			type: 'error'
 		})

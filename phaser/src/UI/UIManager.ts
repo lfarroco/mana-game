@@ -4,7 +4,6 @@ import { BattlegroundScene } from "../Scenes/Battleground/BattlegroundScene";
 import { tween } from "../Utils/animation";
 import * as Tooltip from "./Tooltip";
 import { GoldCoinAnimator } from "./GoldCoinAnimator";
-import { UserMessagePayload } from "../Models/EventPayloads";
 
 export let ui: UIManager;
 
@@ -58,7 +57,7 @@ export class UIManager {
 				break;
 			default: message += "Reason unknown.";
 		}
-		this._handleUserMessageRequested({ text: message, type: 'error' });
+		this.handleUserMessageRequested({ text: message, type: 'error' });
 
 	}
 
@@ -238,7 +237,10 @@ export class UIManager {
 	 * This method is asynchronous and completes when the message animation finishes.
 	 * @param payload The `UserMessagePayload` containing the message text and type.
 	 */
-	async _handleUserMessageRequested(payload: UserMessagePayload): Promise<void> {
+	async handleUserMessageRequested(payload: {
+		text: string;
+		type: 'error' | 'info' | 'warning' | 'success';
+	}): Promise<void> {
 
 		// Determine text style based on payload.type if needed, for now, all use titleTextConfig
 		const textStyle = c.titleTextConfig;
