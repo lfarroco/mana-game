@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import * as c from '../../constants/constants';
-import { GameEvents } from '../../constants/events';
 import { StylizedBar, createStylizedBar, updateStylizedBar } from './StylizedBar';
 import { tween } from '../../Utils/animation';
 import { cpuForce, playerForce } from '../../Models/Entities/Force';
@@ -184,7 +183,14 @@ export function updateMoraleDisplay(payload: { forceId: string, newMorale: numbe
  * Handles the SHIELD_UPDATED event by calling the bar update function.
  * @param payload The event payload with forceId, newShield, maxShield, and optional suppressPopText.
  */
-function handleShieldUpdated(payload: { forceId: string, newShield: number, maxShield: number, suppressPopText?: boolean, totalDamage?: number, damageType?: "poison" | "normal" | "timeout" }) {
+export function handleShieldUpdated(payload: {
+	forceId: string,
+	newShield: number,
+	maxShield: number,
+	suppressPopText?: boolean,
+	totalDamage?: number,
+	damageType?: "poison" | "normal" | "timeout"
+}) {
 	updateShieldBar(payload.forceId, payload.newShield, payload.maxShield);
 
 	// Skip pop text if suppressed (e.g., when damage affects both shield and morale)
@@ -347,7 +353,6 @@ export function init(sceneRef: Phaser.Scene): void {
 
 		cpuDisplay = createCombinedDisplay(scene, c.FORCE_ID_CPU);
 
-		scene.events.on(GameEvents.SHIELD_UPDATED, handleShieldUpdated);
 	}
 }
 
@@ -456,7 +461,6 @@ export function updateShieldBar(
 
 export function destroy(): void {
 	if (scene) {
-		scene.events.off(GameEvents.SHIELD_UPDATED, handleShieldUpdated);
 		scene = null;
 	}
 	if (playerDisplay) {

@@ -194,8 +194,6 @@ function setupEventListeners(): void {
 	// Track healing
 	events.on(GameEvents.UNIT_MORALE_RESTORED, handleMoraleRestored);
 
-	// Track shield applications
-	events.on(GameEvents.SHIELD_UPDATED, trackShieldUpdated);
 }
 
 /**
@@ -207,7 +205,6 @@ function removeEventListeners(): void {
 	const { events } = scene;
 
 	events.off(GameEvents.UNIT_MORALE_RESTORED, handleMoraleRestored);
-	events.off(GameEvents.SHIELD_UPDATED, trackShieldUpdated);
 }
 
 /**
