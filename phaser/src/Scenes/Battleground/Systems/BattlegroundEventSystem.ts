@@ -1,14 +1,11 @@
 import { UIManager } from "../../../UI/UIManager";
 import { PartyBoard } from "../../../Models/Board";
 import { Shop } from "./Shop/Shop";
-import * as CharaManager from "./CharaManager"; // Keep CharaManager import
 import { GameEvents } from "../../../constants/events";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { popText } from "../../../Systems/Chara/Animations/popText";
 import { PopTextPayload } from "../../../Models/EventPayloads";
 import * as MoraleDisplay from "../MoraleDisplay";
-import * as VignetteSystem from "../Animations/vignette";
-import { onCharaPointerOver, onCharaPointerOut } from "../../../Systems/Chara/CharaTooltip";
 
 type Listener = {
 	event: string;
@@ -46,19 +43,9 @@ export class BattlegroundEventSystem {
 	}
 
 	/**
-	 * Hides the enemy board visuals (CPU board slots) when in shop phase.
-	 */
-	private handleEnemyBoardHide(): void {
-		// Hide enemy board using PartyBoard API
-		if (this.playerBoard) {
-			this.playerBoard.setEnemyBoardVisible(false);
-		}
-	}
-
-	/**
 	 * Shows the enemy board visuals (CPU board slots) when combat phase starts.
 	 */
-	private handleEnemyBoardShow(): void {
+	handleEnemyBoardShow(): void {
 		if (this.playerBoard) {
 			this.playerBoard.setEnemyBoardVisible(true);
 		}
@@ -82,65 +69,23 @@ export class BattlegroundEventSystem {
 		try {
 			MoraleDisplay.init(this.scene);
 			// Handle both morale and shield bar events since they're now combined
-			this.addListener(GameEvents.MORALE_BARS_SHOW, MoraleDisplay.showBars);
-			this.addListener(GameEvents.MORALE_BARS_HIDE, MoraleDisplay.hideBars);
-			this.addListener(GameEvents.MORALE_BARS_FADE_OUT, MoraleDisplay.fadeOutBars);
 			// Shield bar events now go to the same combined display
-			this.addListener(GameEvents.SHIELD_BARS_SHOW, MoraleDisplay.showBars);
-			this.addListener(GameEvents.SHIELD_BARS_HIDE, MoraleDisplay.hideBars);
-			this.addListener(GameEvents.SHIELD_BARS_FADE_OUT, MoraleDisplay.fadeOutBars);
 		} catch (error) {
 			console.error("Failed to initialize MoraleDisplay:", error);
 		}
 	}
 
-	private initializeVignetteSystem(): void {
-		try {
-			VignetteSystem.init(this.scene);
-		} catch (error) {
-			console.error("Failed to initialize VignetteSystem:", error);
-		}
-	}
-
 	private initializeSystems(): void {
 		this.initializeMoraleDisplay();
-		this.initializeVignetteSystem();
 	}
 
-	private handleGameOverShowUITrigger(): void {
-		console.warn("Game over UI trigger handler is not implemented yet.");
-	}
 
 	registerEventHandlers(): void {
 		const eventMappings = [
-			// Game Lifecycle & Phase Transitions
-			{ event: GameEvents.GAME_OVER_SHOW_UI_TRIGGER, handler: this.handleGameOverShowUITrigger, context: this.uiManager },
-
-			// Player State
-			{ event: GameEvents.OWNED_UNIT_MOVE_REQUESTED, handler: this.scene.handleOwnedUnitMoveRequest, context: this.scene },
-			{ event: GameEvents.OWNED_UNIT_SOLD, handler: this.scene.handleOwnedUnitSold, context: this.scene },
-
-			// Chara Lifecycle & Visuals
-			{ event: GameEvents.BOARD_CHARA_CREATE_REQUESTED, handler: this.scene.handleBoardCharaCreateRequest, context: this.scene },
-			{ event: GameEvents.CHARA_SUMMON_TO_BOARD, handler: CharaManager.handleSummonCharaToBoardEvent },
-			{ event: GameEvents.CHARA_DESTROY_FROM_BOARD, handler: CharaManager.handleDestroyCharaFromBoardEvent },
-			{ event: GameEvents.CHARA_CHARGE_BAR_UPDATE, handler: CharaManager.handleCharaChargeBarUpdateEvent },
-			{ event: GameEvents.CHARA_BARS_VISIBILITY_SET, handler: CharaManager.handleCharaBarsVisibilitySetEvent },
-			{ event: GameEvents.CHARA_POINTER_OVER, handler: onCharaPointerOver },
-			{ event: GameEvents.CHARA_POINTER_OUT, handler: onCharaPointerOut },
 
 			// Visual Effects & Feedback
 			{ event: GameEvents.POP_TEXT_SHOW, handler: (payload: PopTextPayload) => popText({ scene: this.scene, x: payload.x, y: payload.y, text: payload.text, type: payload.type, direction: payload.direction }), context: this },
-			{ event: GameEvents.BATTLE_RESULT_SHOW, handler: this.scene.handleBattleResultShow, context: this.scene },
 
-			// Shop Interactions
-			{ event: GameEvents.SHOP_OPEN_UI_TRIGGER, handler: this.shop.handleShopOpenUITrigger, context: this.shop },
-			{ event: GameEvents.SHOP_ITEM_CLICK_PURCHASE_REQUESTED, handler: this.shop.handleShopItemClickPurchaseRequested, context: this.shop },
-			{ event: GameEvents.SHOP_ITEM_DRAG_PURCHASE_REQUESTED, handler: this.shop.handleShopItemDragPurchaseRequested, context: this.shop },
-			// Hide enemy board in shop phase
-			{ event: GameEvents.ENEMY_BOARD_HIDE, handler: this.handleEnemyBoardHide, context: this },
-			// Show enemy board in combat phase
-			{ event: GameEvents.ENEMY_BOARD_SHOW, handler: this.handleEnemyBoardShow, context: this },
 		];
 
 		eventMappings.forEach(({ event, handler, context }) => {

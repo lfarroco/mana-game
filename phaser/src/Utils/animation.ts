@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { scene } from "../Scenes/Battleground/BattlegroundScene";
 
 /**
  * Defines the properties for our custom tween wrapper.
@@ -78,7 +79,6 @@ export async function tweenSequence(
 }
 
 export const delay = (
-	scene: Phaser.Scene, // TODO: remove
 	duration: number,
 ) => new Promise<void>((resolve, _reject) => {
 	scene.time.addEvent(

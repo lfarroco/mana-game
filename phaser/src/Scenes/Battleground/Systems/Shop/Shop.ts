@@ -16,7 +16,7 @@ import * as sc from "./ShopConstants";
 import { State } from "../../../../Models/State";
 import { tween } from "../../../../Utils/animation";
 
-
+export let shop: Shop
 /**
  * @class Shop
  * @description Manages the in-game shop system, allowing players to purchase characters (Charas).
@@ -51,6 +51,7 @@ export class Shop {
 		this.state = scene.state;
 		this.flyout = new Flyout(this.scene);
 		this.shopUI = new ShopUI(this.scene, this.flyout);
+		shop = this;
 	}
 
 	_handleCharaPurchaseFinalized(purchasedChara: Chara): void {

@@ -7,6 +7,7 @@ import * as CharaManager from "../Battleground/Systems/CharaManager";
 import { makeUnit } from "../../Models/Entities/Unit";
 import * as constants from "../../constants/constants";
 import { updatePlayerGoldIO } from "../../Models/Entities/Force";
+import { shop } from "../Battleground/Systems/Shop/Shop";
 
 export class DebugController {
 	scene: BattlegroundScene;
@@ -31,12 +32,12 @@ export class DebugController {
 		}
 		const unitToPurchase = chara.unit;
 
-		this.scene.events.emit(GameEvents.SHOP_ITEM_CLICK_PURCHASE_REQUESTED, {
+		shop.handleShopItemClickPurchaseRequested({
 			shopUnitData: unitToPurchase,
 			shopCharaId: chara.id,
-			dragStartX: chara.x, // Original position for potential revert on failure
-			dragStartY: chara.y  // Original position for potential revert on failure
-		});
+			dragStartX: chara.x,
+			dragStartY: chara.y
+		})
 
 		return `Emitted SHOP_ITEM_CLICK_PURCHASE_REQUESTED for hero in shop slot ${slotIndex} (Card ID: ${unitToPurchase.cardId}, Chara ID: ${chara.id}). Purchase processing is asynchronous.`;
 	}
@@ -58,13 +59,13 @@ export class DebugController {
 		}
 		const unitToPurchase = chara.unit;
 
-		this.scene.events.emit(GameEvents.SHOP_ITEM_DRAG_PURCHASE_REQUESTED, {
+		shop.handleShopItemDragPurchaseRequested({
 			shopUnitData: unitToPurchase,
 			shopCharaId: chara.id,
 			targetTile: vec2(boardX, boardY),
-			dragStartX: chara.x, // Original position for potential revert
+			dragStartX: chara.x,
 			dragStartY: chara.y
-		});
+		})
 
 		return `Emitted SHOP_ITEM_DRAG_PURCHASE_REQUESTED for hero in shop slot ${shopSlotIndex} (Card ID: ${unitToPurchase.cardId}, Chara ID: ${chara.id}) to board (${boardX},${boardY}). Purchase and placement are asynchronous.`;
 	}
@@ -91,14 +92,13 @@ export class DebugController {
 		const newUnit = makeUnit(constants.FORCE_ID_PLAYER, cardId, vec2(boardX, boardY));
 		this.scene.state.gameData.player.units.push(newUnit);
 
-		let message = `Added unit ${newUnit.id} (Card ID: ${cardId}) to player board state at (${boardX}, ${boardY}).`;
-
 		if (summonCharaVisual) {
-			// This event is handled by BattlegroundEventSystem, which calls CharaManager.summonChara
-			this.scene.events.emit(GameEvents.BOARD_CHARA_CREATE_REQUESTED, { unit: newUnit });
-			message += ` Event ${GameEvents.BOARD_CHARA_CREATE_REQUESTED} emitted for visual summoning.`;
+
+			this.scene.handleBoardCharaCreateRequest({ unit: newUnit });
+
 		}
-		return message;
+
+		return `Added unit ${newUnit.id} (Card ID: ${cardId}) to player board state at (${boardX}, ${boardY}).`;
 	}
 
 	/**
@@ -133,12 +133,12 @@ export class DebugController {
 			console.warn(`DebugController.moveUnitOnBoard: Chara for unit ${unitId} not found. Using logical position for dragStart. Error: ${e}`);
 		}
 
-		this.scene.events.emit(GameEvents.OWNED_UNIT_MOVE_REQUESTED, {
+		this.scene.handleOwnedUnitMoveRequest({
 			unitId: unitId,
 			targetTile: vec2(targetBoardX, targetBoardY),
 			dragStartX: dragStartX, // Current visual X of the chara
 			dragStartY: dragStartY  // Current visual Y of the chara
-		});
+		})
 
 		return `Emitted OWNED_UNIT_MOVE_REQUESTED for unit ${unitId} to board (${targetBoardX},${targetBoardY}). Move/swap processing is asynchronous.`;
 	}
@@ -155,9 +155,7 @@ export class DebugController {
 
 		const sellPrice = Math.floor(constants.SHOP_ITEM_PURCHASE_COST / 2);
 
-		// Emit the OWNED_UNIT_SOLD event. The BattlegroundScene handler will
-		// manage gold update, pop text, state removal, visual cleanup, and sell zone.
-		this.scene.events.emit(GameEvents.OWNED_UNIT_SOLD, { unitId: unitId, soldForGold: sellPrice });
+		this.scene.handleOwnedUnitSold({ unitId: unitId, soldForGold: sellPrice });
 
 		return `Sell request processed for unit ${unitId}. Sold for ${sellPrice} gold. State and visuals will update asynchronously.`;
 	}

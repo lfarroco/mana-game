@@ -1,6 +1,6 @@
 import { State } from "../Models/State";
-import { GameEvents } from "../constants/events";
 import { BattlegroundScene } from "../Scenes/Battleground/BattlegroundScene";
+import { ui } from "../UI/UIManager";
 
 /**
  * Manages the player's prestige level, updating it based on battle outcomes.
@@ -24,10 +24,10 @@ export class PrestigeSystem {
 		playerState.winStreak += 1;
 		playerState.lossStreak = 0;
 
-		this.scene.events.emit(GameEvents.PRESTIGE_CHANGED, playerState.prestige, prestigeGain);
+		ui.updatePrestige(playerState.prestige, prestigeGain);
 
 		if (playerState.prestige >= 30) {
-			this.scene.events.emit(GameEvents.PLAYER_WON_GAME);
+			this.scene.battleProgressionSystem.handlePlayerWonGame();
 		}
 	}
 
@@ -46,7 +46,7 @@ export class PrestigeSystem {
 		playerState.winStreak = 0;
 
 		const actualPrestigeChange = playerState.prestige - oldPrestige;
-		this.scene.events.emit(GameEvents.PRESTIGE_CHANGED, playerState.prestige, actualPrestigeChange);
+		ui.updatePrestige(playerState.prestige, actualPrestigeChange);
 	}
 
 	/**
@@ -55,9 +55,5 @@ export class PrestigeSystem {
 	 */
 	finalizeRound(): void {
 		this.state.gameData.player.totalRoundsPlayed += 1;
-		this.scene.events.emit(GameEvents.ROUND_ENDED_UPDATE_STATS, {
-			totalRounds: this.state.gameData.player.totalRoundsPlayed,
-			currentPrestige: this.state.gameData.player.prestige
-		});
 	}
 }

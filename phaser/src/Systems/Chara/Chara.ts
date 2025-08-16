@@ -13,6 +13,8 @@ import { CharaInputHandler } from "./CharaInputHandler";
 import { Shop } from "../../Scenes/Battleground/Systems/Shop/Shop";
 import { createContinuousHasteEffect } from "../../Effects/hasteEffect";
 import { AudioSystem } from "../AudioSystem/AudioSystem";
+import { onCharaPointerOut, onCharaPointerOver } from "./CharaTooltip";
+import { hideTooltip } from "../../UI/Tooltip";
 
 export type CharaOptions = {
 	isShopItem?: boolean;
@@ -111,10 +113,10 @@ export class Chara extends Phaser.GameObjects.Container {
 
 		// Emit events for tooltip handling by BattlegroundEventSystem
 		this.on(Phaser.Input.Events.POINTER_OVER, () => {
-			this.scene.events.emit(GameEvents.CHARA_POINTER_OVER, { chara: this });
+			onCharaPointerOver({ chara: this });
 		});
 		this.on(Phaser.Input.Events.POINTER_OUT, () => {
-			this.scene.events.emit(GameEvents.CHARA_POINTER_OUT, { chara: this });
+			onCharaPointerOut();
 		});
 
 		this.statsDisplay.updatePower();
@@ -123,10 +125,6 @@ export class Chara extends Phaser.GameObjects.Container {
 		// Initialize status effects based on unit state
 		this.updateStatusEffects();
 
-		if (this.isShopItem) {
-			this.scene.events.on(GameEvents.SHOP_PURCHASE_SUCCESSFUL, this._onShopPurchaseSuccessful, this);
-			this.scene.events.on(GameEvents.SHOP_PURCHASE_FAILED, this._onShopPurchaseFailed, this);
-		}
 		// Listen for move/swap outcomes if it's an owned unit (or becomes one)
 		// These listeners are safe even if the Chara starts as a shop item,
 		// as they'll only react if the IDs match after it's owned.
@@ -216,6 +214,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		}
 	}
 
+	// TODO: this probably belongs to the shop system
 	_onShopPurchaseSuccessful(payload: { purchasedUnit: Unit, originalShopCharaId: string }): void {
 		if (this.isShopItem && payload.originalShopCharaId === this.id) {
 			this.finalizePurchase(); // This calls the onPurchasedCallback which should handle removal from flyout
@@ -236,7 +235,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	_onShopPurchaseFailed(payload: { originalShopCharaId: string, reason: string, dragStartX: number, dragStartY: number }): void {
 		if (this.isShopItem && payload.originalShopCharaId === this.id) {
 			// Ensure tooltip is hidden before reverting, as pointer might not naturally move out
-			this.scene.events.emit(GameEvents.TOOLTIP_HIDE);
+			hideTooltip();
 			this.revertDragOrFailedPurchase(payload.dragStartX, payload.dragStartY);
 			// Optionally, re-enable input if it was disabled during purchase attempt, though current logic doesn't show it being disabled.
 			// this.input.enabled = true;
@@ -262,7 +261,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	_onOwnedUnitMoveRejected(payload: { unitId: string, dragStartX: number, dragStartY: number }): void {
 		if (!this.isShopItem && payload.unitId === this.id) {
 			// Ensure tooltip is hidden before reverting, as pointer might not naturally move out
-			this.scene.events.emit(GameEvents.TOOLTIP_HIDE);
+			hideTooltip();
 			this.revertDragOrFailedPurchase(payload.dragStartX, payload.dragStartY);
 		}
 	}
@@ -352,12 +351,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.off(Phaser.Input.Events.POINTER_OVER);
 		this.off(Phaser.Input.Events.POINTER_OUT);
 
-		if (this.isShopItem) { // Clean up shop-specific listeners
-			this.scene.events.off(GameEvents.SHOP_PURCHASE_SUCCESSFUL, this._onShopPurchaseSuccessful, this);
-			this.scene.events.off(GameEvents.SHOP_PURCHASE_FAILED, this._onShopPurchaseFailed, this);
-		}
 		// Clean up owned unit move listeners
-		this.scene.events.off(GameEvents.OWNED_UNIT_MOVE_ACCEPTED, this._onOwnedUnitMoveAccepted, this);
 		this.scene.events.off(GameEvents.OWNED_UNIT_SWAP_ACCEPTED, this._onOwnedUnitSwapAccepted, this);
 		this.scene.events.off(GameEvents.OWNED_UNIT_MOVE_REJECTED, this._onOwnedUnitMoveRejected, this);
 

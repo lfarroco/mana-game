@@ -4,13 +4,13 @@ import { Flyout } from "../../../../UI/Flyout";
 import { registerChara } from "../CharaManager";
 import { Chara, CharaOptions } from "../../../../Systems/Chara/Chara";
 import { BattlegroundScene } from "../../BattlegroundScene";
-import { GameEvents } from "../../../../constants/events";
 import * as c from "../../../../constants/constants";
 import { UIButton } from "../../../../UI/UIButton";
 import { makeUnit } from "../../../../Models/Entities/Unit";
 import * as sc from "./ShopConstants";
 import { MagicOrb } from "../../../../components/MagicOrb/MagicOrb";
 import { renderOrbs } from "./Orbs";
+import { hideTooltip } from "../../../../UI/Tooltip";
 
 export class ShopUI {
 	scene: BattlegroundScene;
@@ -162,8 +162,8 @@ export class ShopUI {
 			const unit = makeUnit(c.FORCE_ID_PLAYER, spec.id, vec2(0, 0)); // Position is relative to flyout, set later
 			const charaOptions: CharaOptions = {
 				isShopItem: true,
-				onPurchased: () => { // Called by Chara.finalizePurchase
-					this.scene.events.emit(GameEvents.TOOLTIP_HIDE);
+				onPurchased: () => {
+					hideTooltip();
 					this.flyout.remove(chara); // Remove from flyout display
 					// The Chara instance itself will be destroyed by CharaManager via event.
 					// We call charaPurchaseFinalized to let Shop update its internal list.

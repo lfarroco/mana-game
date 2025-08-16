@@ -148,7 +148,7 @@ export async function arcaneMissileTargeted(
 	}
 
 	// Wait for projectile to reach target (simulate travel time)
-	await delay(scene, duration * speedMultiplier);
+	await delay(duration * speedMultiplier);
 
 	// Create impact effect
 	const impactParticles = scene.add.particles(
@@ -170,11 +170,11 @@ export async function arcaneMissileTargeted(
 		console.error('Error in arcaneMissileTargeted onHit callback:', error);
 	}
 
-	await delay(scene, 200);
+	await delay(200);
 
 	impactParticles.stop();
 
-	await delay(scene, 2000);
+	await delay(2000);
 
 	// Cleanup all resources
 	beam.destroy();

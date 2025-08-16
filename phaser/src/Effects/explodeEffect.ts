@@ -59,7 +59,7 @@ export async function explodeEffect(
 			}
 		});
 
-	await delay(scene, lifespan);
+	await delay(lifespan);
 
 	sparks.destroy();
 	energy.destroy();

@@ -29,11 +29,11 @@ export async function summonEffect(
 			}
 		});
 
-	await delay(scene, LIFESPAN);
+	await delay(LIFESPAN);
 
 	summonEffect.stop();
 
-	await delay(scene, LIFESPAN);
+	await delay(LIFESPAN);
 
 	summonEffect.destroy();
 

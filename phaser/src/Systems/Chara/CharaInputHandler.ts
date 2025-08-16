@@ -3,11 +3,13 @@ import { Chara } from "./Chara";
 import { FORCE_ID_PLAYER } from "../../constants/constants";
 import * as constants from "../../constants/constants";
 import { tween } from "../../Utils/animation";
-import { GameEvents } from "../../constants/events";
 import { Vec2 } from "../../Models/Geometry";
 import * as Board from "../../Models/Board";
 import { vec2 } from "../../Models/Geometry";
 import * as sc from "../../Scenes/Battleground/Systems/Shop/ShopConstants";
+import { hideTooltip } from "../../UI/Tooltip";
+import { shop } from "../../Scenes/Battleground/Systems/Shop/Shop";
+import { scene } from "../../Scenes/Battleground/BattlegroundScene";
 
 export class CharaInputHandler {
 	dragStartX: number = 0;
@@ -63,7 +65,7 @@ export class CharaInputHandler {
 		if (!this.chara.getIsShopItem()) {
 			this.chara.shop.shopUI.showSellZone();
 		}
-		this.chara.scene.events.emit(GameEvents.TOOLTIP_HIDE);
+		hideTooltip();
 	}
 
 	onDrag = (_pointer: Phaser.Input.Pointer, dragX: number, dragY: number): void => {
@@ -130,15 +132,12 @@ export class CharaInputHandler {
 	 * Called when a shop item is clicked. Emits an event to request a purchase attempt.
 	 */
 	processShopItemClick(_clickX: number, _clickY: number): void {
-		this.chara.scene.events.emit(
-			GameEvents.SHOP_ITEM_CLICK_PURCHASE_REQUESTED,
-			{
-				shopUnitData: { ...this.chara.unit },
-				shopCharaId: this.chara.id,
-				dragStartX: this.chara.x,
-				dragStartY: this.chara.y
-			}
-		);
+		shop.handleShopItemClickPurchaseRequested({
+			shopUnitData: { ...this.chara.unit },
+			shopCharaId: this.chara.id,
+			dragStartX: this.chara.x,
+			dragStartY: this.chara.y
+		})
 	}
 
 	/**
@@ -185,25 +184,26 @@ export class CharaInputHandler {
 	 * Handles dropping an owned unit onto the board, emitting a move request.
 	 */
 	private _handleDropOwnedUnit(tile: Vec2, dragStartX: number, dragStartY: number): void {
-		this.chara.scene.events.emit(GameEvents.OWNED_UNIT_MOVE_REQUESTED, {
+		// // Player State
+		scene.handleOwnedUnitMoveRequest({
 			unitId: this.chara.unit.id,
 			targetTile: tile,
 			dragStartX,
 			dragStartY
-		});
+		})
 	}
 
 	/**
 	 * Handles dropping a shop item onto the board, emitting a purchase request.
 	 */
 	private _handleDropShopItem(tile: Vec2, dragStartX: number, dragStartY: number): void {
-		this.chara.scene.events.emit(GameEvents.SHOP_ITEM_DRAG_PURCHASE_REQUESTED, {
+		shop.handleShopItemDragPurchaseRequested({
 			shopUnitData: { ...this.chara.unit }, // Pass a copy
 			shopCharaId: this.chara.id,
 			targetTile: tile,
 			dragStartX,
 			dragStartY
-		});
+		})
 	}
 
 	/**
@@ -211,6 +211,6 @@ export class CharaInputHandler {
 	 */
 	private _handleSellUnit(): void {
 		const sellPrice = Math.floor(constants.SHOP_ITEM_PURCHASE_COST / 2);
-		this.chara.scene.events.emit(GameEvents.OWNED_UNIT_SOLD, { unitId: this.chara.unit.id, soldForGold: sellPrice });
+		scene.handleOwnedUnitSold({ unitId: this.chara.unit.id, soldForGold: sellPrice });
 	}
 }

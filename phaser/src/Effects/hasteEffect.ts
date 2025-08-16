@@ -71,13 +71,13 @@ export async function hasteEffect(
 	);
 
 	// Let the effect run for its duration
-	await delay(scene, duration);
+	await delay(duration);
 
 	// Stop emitting new particles
 	particles.stop();
 
 	// Wait for existing particles to fade out
-	await delay(scene, duration);
+	await delay(duration);
 
 	// Clean up
 	particles.destroy();

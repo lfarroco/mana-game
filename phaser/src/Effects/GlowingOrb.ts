@@ -69,7 +69,7 @@ export const create = (
 
 			explosionEmitter.explode(50, orb.x, orb.y);
 
-			await delay(scene, duration * 2);
+			await delay(duration * 2);
 			container.destroy();
 		}
 	});

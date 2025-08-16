@@ -80,7 +80,7 @@ export class GoldCoinAnimator {
 			});
 		}
 
-		await delay(this.scene, 1000);
+		await delay(1000);
 
 		this.scene.add.particles(chestX, chestY, 'coin', {
 			speed: { min: 100, max: 200 },
