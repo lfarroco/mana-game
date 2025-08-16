@@ -76,8 +76,8 @@ export const addShieldLogicIO = async ({ scene, sourceUnit }: { scene: Battlegro
 	}
 
 	// Create a wrapper for manipulateForceShield that tracks combat stats
-	const addShieldWithTracking = (targetForce: Force, amount: number, scene: Phaser.Scene): number => {
-		const actualShieldChange = manipulateForceShield(targetForce, amount, scene);
+	const addShieldWithTracking = (targetForce: Force, amount: number): number => {
+		const actualShieldChange = manipulateForceShield(targetForce, amount);
 
 		// Track shield in combat stats using singleton
 		if (actualShieldChange > 0) {

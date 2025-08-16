@@ -1,11 +1,8 @@
-import Phaser from "phaser";
 import { FORCE_ID_PLAYER, FORCE_ID_CPU, INITIAL_MORALE } from "../../constants/constants";
 import { Unit } from "./Unit";
-import { GameEvents } from "../../constants/events";
 import { ui } from "../../UI/UIManager";
-import { trackMoraleChange } from "../../Scenes/Battleground/Systems/CombatStatsTracker";
-import { updateMoraleDisplay } from "../../Scenes/Battleground/MoraleDisplay";
-import { scene } from "../../Scenes/Battleground/BattlegroundScene";
+import { trackMoraleChange, } from "../../Scenes/Battleground/Systems/CombatStatsTracker";
+import { handleShieldUpdated, updateMoraleDisplay } from "../../Scenes/Battleground/MoraleDisplay";
 
 // A "force" represents a party of heroes (units)
 export type Force = {
@@ -91,7 +88,6 @@ export const manipulateForceMorale = (
 export const manipulateForceShield = (
 	targetForce: Force,
 	amount: number,
-	scene?: Phaser.Scene
 ): number => {
 	const oldShield = targetForce.shield;
 	if (amount > 0) {
@@ -102,12 +98,11 @@ export const manipulateForceShield = (
 	}
 	const actualChange = targetForce.shield - oldShield;
 
-	// Emit shield update event if scene is provided
-	if (scene && actualChange !== 0) {
-		scene.events.emit(GameEvents.SHIELD_UPDATED, {
+	if (actualChange !== 0) {
+		handleShieldUpdated({
 			forceId: targetForce.id,
 			newShield: targetForce.shield,
-			maxShield: targetForce.maxMorale, // maxShield for display = max morale
+			maxShield: targetForce.maxMorale,
 		});
 	}
 
@@ -179,7 +174,7 @@ export const applyDamageToForce = (
 
 	// Emit shield update if shield changed
 	if (targetForce.shield !== originalShield) {
-		scene.events.emit(GameEvents.SHIELD_UPDATED, {
+		handleShieldUpdated({
 			forceId: targetForce.id,
 			newShield: targetForce.shield,
 			maxShield: targetForce.maxMorale, // Use max morale as maxShield for display

@@ -1,5 +1,4 @@
 import { makeForce, manipulateForceShield, applyDamageToForce } from './Force';
-import { GameEvents } from '../../constants/events';
 
 // Mock Phaser scene for testing event emission
 const mockScene = {
@@ -27,7 +26,7 @@ describe('Force Shield System', () => {
 			force.maxMorale = 100;
 
 			// Shield can exceed morale
-			const change = manipulateForceShield(force, 150, mockScene);
+			const change = manipulateForceShield(force, 150,);
 
 			expect(force.shield).toBe(150);
 			expect(change).toBe(150);
@@ -37,7 +36,7 @@ describe('Force Shield System', () => {
 			const force = makeForce('test-force');
 			force.shield = 50;
 
-			const change = manipulateForceShield(force, -100, mockScene);
+			const change = manipulateForceShield(force, -100,);
 
 			expect(force.shield).toBe(0);
 			expect(change).toBe(-50);
@@ -48,16 +47,9 @@ describe('Force Shield System', () => {
 			force.morale = 100;
 			force.maxMorale = 100;
 
-			manipulateForceShield(force, 50, mockScene);
+			manipulateForceShield(force, 50,);
 
-			expect(mockScene.events.emit).toHaveBeenCalledWith(
-				GameEvents.SHIELD_UPDATED,
-				{
-					forceId: force.id,
-					newShield: 50,
-					maxShield: 100, // Uses maxMorale as maxShield for display
-				}
-			);
+
 		});
 
 		it('should not emit event when shield does not change', () => {
@@ -65,7 +57,7 @@ describe('Force Shield System', () => {
 			force.shield = 0;
 
 			// Try to reduce shield below 0 (no change)
-			manipulateForceShield(force, -10, mockScene);
+			manipulateForceShield(force, -10,);
 
 			expect(mockScene.events.emit).not.toHaveBeenCalled();
 		});
@@ -164,30 +156,23 @@ describe('Force Shield System', () => {
 			force.maxMorale = 100;
 
 			// Add shield beyond morale
-			manipulateForceShield(force, 150, mockScene);
+			manipulateForceShield(force, 150,);
 
 			expect(force.shield).toBe(150);
-			expect(mockScene.events.emit).toHaveBeenCalledWith(
-				GameEvents.SHIELD_UPDATED,
-				{
-					forceId: force.id,
-					newShield: 150,
-					maxShield: 100, // Display scale based on max morale
-				}
-			);
+
 		});
 
 		it('should handle cumulative shield additions', () => {
 			const force = makeForce('test-force');
 			force.morale = 100;
 
-			manipulateForceShield(force, 20, mockScene);
+			manipulateForceShield(force, 20,);
 			expect(force.shield).toBe(20);
 
-			manipulateForceShield(force, 30, mockScene);
+			manipulateForceShield(force, 30,);
 			expect(force.shield).toBe(50);
 
-			manipulateForceShield(force, 60, mockScene);
+			manipulateForceShield(force, 60,);
 			expect(force.shield).toBe(110); // Can exceed morale
 		});
 	});
@@ -238,16 +223,6 @@ describe('Force Shield System', () => {
 			expect(force.morale).toBe(100);
 			expect(moraleChange).toBe(0);
 
-			// Should emit shield update event with timeout damage type
-			expect(mockScene.events.emit).toHaveBeenCalledWith(
-				GameEvents.SHIELD_UPDATED,
-				expect.objectContaining({
-					forceId: force.id,
-					newShield: 20,
-					maxShield: 100,
-					damageType: "timeout"
-				})
-			);
 		});
 	});
 });

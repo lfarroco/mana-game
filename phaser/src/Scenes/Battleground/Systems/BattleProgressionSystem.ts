@@ -3,14 +3,13 @@ import { Unit } from "../../../Models/Entities/Unit";
 import { delay } from "../../../Utils/animation";
 import { BattlegroundScene } from "../BattlegroundScene";
 import * as BG_CONSTANTS from "../battlegroundConstants";
-import { GameEvents } from "../../../constants/events";
 import { getAllCards } from "../../../Models/Entities/Card";
 import { generateEnemyTeam } from "../generateEnemyTeam";
 import { PrestigeSystem } from "../../../Systems/PrestigeSystem";
 import * as CharaManager from "./CharaManager";
 import { cpuForce, playerForce, updatePlayerGoldIO } from "../../../Models/Entities/Force";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
-import { fadeOutBars, showBars, updateMoraleBar, updateMoraleDisplay } from "../MoraleDisplay";
+import { fadeOutBars, showBars, updateMoraleBar, updateMoraleDisplay, updateShieldBar } from "../MoraleDisplay";
 import { AudioSystem } from "../../../Systems/AudioSystem/AudioSystem";
 import { renderVignette } from "../Animations/vignette";
 
@@ -284,22 +283,15 @@ export class BattleProgressionSystem {
 			newMorale: cpuForce.morale,
 			maxMorale: cpuForce.maxMorale,
 		});
-
-		this.scene.events.emit(
-			GameEvents.SHIELD_UPDATED,
-			{
-				forceId: FORCE_ID_PLAYER,
-				newShield: playerForce.shield,
-				maxShield: playerForce.maxMorale, // maxShield for display = max morale
-			}
-		);
-		this.scene.events.emit(
-			GameEvents.SHIELD_UPDATED,
-			{
-				forceId: FORCE_ID_CPU,
-				newShield: cpuForce.shield,
-				maxShield: cpuForce.maxMorale // maxShield for display = max morale
-			}
+		updateShieldBar(
+			FORCE_ID_PLAYER,
+			playerForce.shield,
+			playerForce.maxMorale,
+		)
+		updateShieldBar(
+			FORCE_ID_CPU,
+			cpuForce.shield,
+			cpuForce.maxMorale,
 		);
 	}
 
