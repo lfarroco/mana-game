@@ -3,7 +3,6 @@
  * This effect adds shield to the source unit's force and shows shield pop text.
  */
 
-import { GameEvents } from '../../constants/events';
 import { arcaneMissileTargeted } from '../../Effects';
 import { Force, manipulateForceShield } from '../../Models/Entities/Force';
 import { Unit } from '../../Models/Entities/Unit';
@@ -69,10 +68,11 @@ export function createAddShieldLogic(
 export const addShieldLogicIO = async ({ scene, sourceUnit }: { scene: BattlegroundScene; sourceUnit: Unit; }) => {
 
 	const emitter = (unit: Unit, amount: number) => {
-		scene.events.emit(
-			GameEvents.UNIT_SHIELD_GAINED,
-			{ unit, amount, sourceUnitId: sourceUnit.id }
-		);
+		CombatStatsTracker.trackShieldGained({
+			unit,
+			amount,
+			sourceUnitId: sourceUnit.id
+		});
 	}
 
 	// Create a wrapper for manipulateForceShield that tracks combat stats

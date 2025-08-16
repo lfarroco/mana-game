@@ -124,8 +124,8 @@ function handleMoraleRestored(payload: {
 /**
  * Handles shield gained events to track shield applications
  */
-function handleShieldGained(payload: {
-	unit: any;
+export function trackShieldGained(payload: {
+	unit: Unit;
 	amount: number;
 	sourceUnitId?: string;
 }): void {
@@ -147,7 +147,7 @@ function handleShieldGained(payload: {
 /**
  * Handles shield updated events (alternative way to track shield changes)
  */
-function handleShieldUpdated(payload: {
+export function trackShieldUpdated(payload: {
 	forceId: string;
 	newShield: number;
 	maxShield: number;
@@ -195,8 +195,7 @@ function setupEventListeners(): void {
 	events.on(GameEvents.UNIT_MORALE_RESTORED, handleMoraleRestored);
 
 	// Track shield applications
-	events.on(GameEvents.UNIT_SHIELD_GAINED, handleShieldGained);
-	events.on(GameEvents.SHIELD_UPDATED, handleShieldUpdated);
+	events.on(GameEvents.SHIELD_UPDATED, trackShieldUpdated);
 }
 
 /**
@@ -208,8 +207,7 @@ function removeEventListeners(): void {
 	const { events } = scene;
 
 	events.off(GameEvents.UNIT_MORALE_RESTORED, handleMoraleRestored);
-	events.off(GameEvents.UNIT_SHIELD_GAINED, handleShieldGained);
-	events.off(GameEvents.SHIELD_UPDATED, handleShieldUpdated);
+	events.off(GameEvents.SHIELD_UPDATED, trackShieldUpdated);
 }
 
 /**
