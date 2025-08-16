@@ -14,12 +14,12 @@ const TAVERN_CHARAS_TOTAL_WIDTH = (NUM_TAVERN_SLOTS - 1) * TAVERN_CHARA_SPACING 
 
 // The tavern background panel must be wide enough to hold the characters plus padding.
 export const TAVERN_BG_WIDTH = TAVERN_CHARAS_TOTAL_WIDTH + (TAVERN_PADDING * 2);
-export const TAVERN_BG_HEIGHT = 300;
+export const TAVERN_BG_HEIGHT = 400;
 
 // The main shop panel must be wide enough for the tavern plus its own padding.
 export const SHOP_PANEL_WIDTH = TAVERN_BG_WIDTH + (PANEL_PADDING * 2);
 // The main shop panel height is the tavern height, plus button area, plus padding.
-export const SHOP_PANEL_HEIGHT = TAVERN_BG_HEIGHT + BUTTON_AREA_HEIGHT + (PANEL_PADDING * 2);
+export const SHOP_PANEL_HEIGHT = TAVERN_BG_HEIGHT + BUTTON_AREA_HEIGHT + (PANEL_PADDING * 2) + 100;
 
 // --- Positioning ---
 

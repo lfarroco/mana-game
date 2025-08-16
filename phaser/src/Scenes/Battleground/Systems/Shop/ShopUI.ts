@@ -73,7 +73,7 @@ export class ShopUI {
 		this._renderTavernSectionBackgroundAndTitle(this.panelX);
 
 
-		const buttonY = sc.PANEL_Y + sc.SHOP_PANEL_HEIGHT - 100;
+		const buttonY = sc.PANEL_Y + sc.TAVERN_BG_HEIGHT - 20;
 		const rerollButtonX = this.panelX + 190;
 		const rerollBtn = new UIButton(
 			this.scene,
