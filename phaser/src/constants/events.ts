@@ -43,9 +43,7 @@ export const GameEvents = {
 	PURCHASE_FAILED: "purchase_failed", // Payload: { unitName: string, reason: string, cost?: number }
 	SHOP_PHASE_ENDED: "shop_phase_ended",
 
-
 	//UNIT_TOOK_HIT: "unit_took_hit", // Payload: { unit: Unit, damage: number }
-	UNIT_ATTACK: "unit_attack", // Payload: { unit: Unit }
 	UNIT_SHIELD_GAINED: "unit_shield_gained", // Payload: { unit: Unit, amount: number }
 	UNIT_MORALE_RESTORED: "unit_morale_restored", // Payload: { unit: Unit, amount: number }
 

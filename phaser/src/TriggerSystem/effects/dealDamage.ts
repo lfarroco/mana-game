@@ -3,7 +3,6 @@
  * This effect deals direct damage to targets and shows damage pop text.
  */
 
-import { GameEvents } from '../../constants/events';
 import { arcaneMissileTargeted } from '../../Effects';
 import { Force, applyDamageToForce } from '../../Models/Entities/Force';
 import { Unit } from '../../Models/Entities/Unit';
@@ -17,15 +16,12 @@ import * as CombatStatsTracker from '../../Scenes/Battleground/Systems/CombatSta
  * @returns The trait effect function
  */
 export function createDealDamageLogic(
-	emitter: (unit: Unit, amount: number) => void,
 	dealDamage: (targetForce: Force, damage: number, scene: Phaser.Scene) => number
 ) {
 	return async (context: { sourceUnit: Unit; scene: BattlegroundScene; }) => {
 		const { sourceUnit, scene } = context;
 
 		let damageAmount = sourceUnit.power;
-
-		emitter(sourceUnit, damageAmount);
 
 		const targetForce = scene.state.battleData.forces.find(
 			(force: { id: any; }) => force.id !== sourceUnit.force
@@ -85,14 +81,7 @@ export function createDealDamageLogic(
  */
 export const dealDamageLogicIO = async (context: { scene: BattlegroundScene, sourceUnit: Unit }) => {
 
-	const { scene, sourceUnit } = context;
-
-	const emitter = (unit: Unit, amount: number) => {
-		scene.events.emit(
-			GameEvents.UNIT_ATTACK,
-			{ unit, amount }
-		);
-	}
+	const { sourceUnit } = context;
 
 	// Create a wrapper for applyDamageToForce that tracks combat stats
 	const dealDamageWithTracking = (targetForce: Force, damage: number, scene: Phaser.Scene): number => {
@@ -104,6 +93,6 @@ export const dealDamageLogicIO = async (context: { scene: BattlegroundScene, sou
 		return actualMoraleChange;
 	};
 
-	const impl = createDealDamageLogic(emitter, dealDamageWithTracking);
+	const impl = createDealDamageLogic(dealDamageWithTracking);
 	return impl(context);
 };
