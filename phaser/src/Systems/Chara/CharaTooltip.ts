@@ -120,15 +120,15 @@ export const onCharaPointerOver = ({ chara }: { chara: Chara }): void => {
 	});
 
 	// Combine all trait descriptions
-	const allTraitDescriptions = [...effectDescriptions, ...reactionDescriptions];
-	const traitDescriptions = allTraitDescriptions.length > 0
-		? allTraitDescriptions.join('\n\n')
+	const allEffectDescriptions = [...effectDescriptions, ...reactionDescriptions];
+	const descriptionString = allEffectDescriptions.length > 0
+		? allEffectDescriptions.join('\n\n')
 		: 'No special abilities';
 
 	// 1100 -> 1.1s
 	const cdAsSeconds = (chara.unit.cooldown / 1000).toFixed(1);
 
-	const description = `[color=#c0c0c0]Power:[/color] [color=#ffd93d]${chara.unit.power}[/color]\n[color=#c0c0c0]Cooldown:[/color] [color=#ffa94d]${cdAsSeconds}s[/color]\n\n${traitDescriptions}`;
+	const description = `[color=#c0c0c0]Power:[/color] [color=#ffd93d]${chara.unit.power}[/color]\n[color=#c0c0c0]Cooldown:[/color] [color=#ffa94d]${cdAsSeconds}s[/color]\n\n${descriptionString}`;
 
 	// Calculate absolute position of the Chara
 	// Chara's x,y is its center relative to its parent (scene or a container like flyout).
