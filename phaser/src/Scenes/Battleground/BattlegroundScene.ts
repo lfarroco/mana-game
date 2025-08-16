@@ -11,7 +11,6 @@ import { BattlegroundSetupSystem } from "./Systems/BattlegroundSetupSystem";
 import { BattlegroundEventSystem } from "./Systems/BattlegroundEventSystem";
 import { RunCombatSystem } from "./RunCombatIO";
 import { BattleProgressionSystem } from "./Systems/BattleProgressionSystem";
-import { GameEvents } from "../../constants/events";
 import { getOption } from "../../Models/OptionsStore";
 import { Unit } from "../../Models/Entities/Unit";
 import { Vec2 } from "../../Models/Geometry";
@@ -165,8 +164,8 @@ export class BattlegroundScene extends Phaser.Scene {
     this.eventSystem = new BattlegroundEventSystem(this);
     this.eventSystem.registerEventHandlers();
 
-    // 6. Emit events for initial UI and board setup now that listeners are active
-    this.events.emit(GameEvents.UI_MAIN_CREATE);               // For main UI (sidebar, gold, etc.)
+    // 6. Create initial UI and board setup
+    this.uiManager.createMainUI();
 
     // 7. Start battle music
     const audioSystem = AudioSystem.getInstance();
