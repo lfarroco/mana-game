@@ -27,7 +27,7 @@ export function createRestoreMoraleLogic(
 		emitter(sourceUnit, healAmount);
 
 		const sourceForce = scene.state.battleData.forces.find(
-			(force: { id: any; }) => force.id === sourceUnit.force
+			(force: { id: string }) => force.id === sourceUnit.force
 		)!;
 
 		// Show a green projectile from source unit to own morale bar tip

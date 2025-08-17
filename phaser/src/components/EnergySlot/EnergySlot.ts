@@ -167,7 +167,7 @@ export class EnergySlot {
 	}
 
 	// Method to set interactive (for drop zones)
-	setInteractive(shape?: any, callback?: any): this {
+	setInteractive(shape?: Phaser.Types.Input.InputConfiguration, callback?: Phaser.Types.Input.HitAreaCallback): this {
 		if (shape && callback) {
 			this.shader.setInteractive(shape, callback);
 		} else {

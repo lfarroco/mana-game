@@ -1,6 +1,6 @@
 import { removeUnitFromPlayerState, handleOwnedUnitSold, calculateGoldUpdate, updateUnitPosition, findUnitById, handleMoveResult, handleUnitMoveRequest } from "./BattlegroundScene.pure";
 import { Unit } from "../../Models/Entities/Unit";
-import { vec2 } from "../../Utils/Vec2";
+import { vec2 } from "../../Models/Geometry.pure";
 
 describe("removeUnitFromPlayerState", () => {
 	it("should remove a unit from the player's state if it exists", () => {
@@ -195,7 +195,7 @@ describe("calculateGoldUpdate", () => {
 describe("updateUnitPosition", () => {
 	const createMockUnit = (id: string, x: number, y: number): Unit => ({
 		id,
-		position: { tag: "_vec2" as const, x, y },
+		position: vec2(x, y),
 		// Add other required Unit properties as minimal mocks
 	} as Unit);
 

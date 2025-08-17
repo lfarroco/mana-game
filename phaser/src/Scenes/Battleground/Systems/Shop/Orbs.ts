@@ -106,7 +106,7 @@ export function renderOrbs(ui: ShopUI, orbIds: string[]) {
 	const orbNames = ['Crimson', 'Emerald', 'Azure', 'Golden', 'Violet'];
 	const getOrbName = (index: number) => orbNames[index] || 'Mystical';
 
-	function handleOrbDrop({ orb, target, orbSpec, orbName, ui, magicOrb }: {
+	function handleOrbDrop(params: {
 		orb: any,
 		target: any,
 		orbSpec: { id: string; name: string; color: number; tooltip: string; effect: (unit: Unit, scene: any) => void },
@@ -114,6 +114,7 @@ export function renderOrbs(ui: ShopUI, orbIds: string[]) {
 		ui: ShopUI,
 		magicOrb: any
 	}) {
+		const { orb, target, orbSpec, orbName, ui, magicOrb } = params;
 		const playerBoard = getSharedPlayerBoard();
 
 		if (!playerBoard || !playerBoard.dropZones.includes(target)) {
@@ -129,7 +130,7 @@ export function renderOrbs(ui: ShopUI, orbIds: string[]) {
 		console.log(`${orbName} Orb dropped on board slot [${tileX}, ${tileY}] (index: ${slotIndex})`);
 
 		const gameState = ui.scene.state;
-		const existingUnit = gameState?.gameData?.player?.units?.find((unit: any) => unit.position?.x === tileX && unit.position?.y === tileY);
+		const existingUnit = gameState?.gameData?.player?.units?.find((unit: Unit) => unit.position?.x === tileX && unit.position?.y === tileY);
 
 		if (!existingUnit) {
 			console.log(`No unit at position [${tileX}, ${tileY}] - orb returns to position`);

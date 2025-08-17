@@ -15,6 +15,8 @@ export type StylizedBar = {
 	label: Phaser.GameObjects.Text;
 }
 
+import { TextConfig } from "../../Types/CommonTypes";
+
 export interface StylizedBarOptions {
 	x: number;
 	y: number;
@@ -24,7 +26,7 @@ export interface StylizedBarOptions {
 	backgroundColor?: number;
 	backgroundOpacity?: number;
 	borderOpacity?: number;
-	textConfig?: any;
+	textConfig?: TextConfig;
 	orientation?: 'horizontal' | 'vertical';
 }
 
