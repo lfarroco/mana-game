@@ -19,7 +19,7 @@ import { GameError } from "../../Types/CommonTypes";
 import { battleResultAnimation } from "./battleResultAnimation";
 import * as BattlegroundScenePure from "./BattlegroundScene.pure";
 import { updatePlayerGoldIO } from "../../Models/Entities/Force";
-import { audioManager } from "../../Systems/AudioManager";
+import * as AudioManager from "../../Systems/AudioManager";
 
 
 export let scene: BattlegroundScene;
@@ -170,11 +170,7 @@ export class BattlegroundScene extends Phaser.Scene {
     this.uiManager.createMainUI();
 
     // 7. Start battle music
-    try {
-      audioManager.playMusic('music_battlemap_vetruv');
-    } catch (error) {
-      console.warn(`Error playing battle music: ${error}`);
-    }
+    AudioManager.playMusic('music_battlemap_vetruv');
 
     // 8. Setup Trait System event listeners
     //(removed)

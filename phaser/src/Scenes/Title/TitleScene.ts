@@ -5,7 +5,7 @@ import { UIButton } from "../../UI/UIButton";
 import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
 import { images } from "../../assets";
 import { MagicOrb } from "../../components/MagicOrb/MagicOrb";
-import { audioManager } from "../../Systems/AudioManager";
+import * as AudioManager from "../../Systems/AudioManager";
 
 export default class TitleScene extends Phaser.Scene {
 	private gameTitle!: Phaser.GameObjects.Image;
@@ -55,12 +55,7 @@ export default class TitleScene extends Phaser.Scene {
 			preset: 'nebula',
 		});
 
-		// Start playing the title music
-		try {
-			audioManager.playMusic('music_ageofdisjunction');
-		} catch (error) {
-			console.warn('Could not play title music:', error);
-		}
+		AudioManager.playMusic('music_ageofdisjunction');
 
 		// Create the main title
 		this.gameTitle = this.add.image(

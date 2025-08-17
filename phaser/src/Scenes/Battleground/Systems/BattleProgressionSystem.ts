@@ -11,7 +11,8 @@ import { cpuForce, playerForce, updatePlayerGoldIO } from "../../../Models/Entit
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
 import { fadeOutBars, showBars, updateMoraleBar, updateMoraleDisplay, updateShieldBar } from "../MoraleDisplay";
 import { renderVignette } from "../Animations/vignette";
-import { audioManager } from "../../../Systems/AudioManager";
+import { EventHandler } from "../../../Types/CommonTypes";
+import * as AudioManager from "../../../Systems/AudioManager";
 
 /**
  * Creates a deep copy of a unit for battle purposes.
@@ -27,7 +28,6 @@ function createUnitCopy(unit: Unit): Unit {
 	};
 }
 
-import { EventHandler } from "../../../Types/CommonTypes";
 
 /**
  * Manages the overall progression of the battle, including transitions
@@ -115,7 +115,7 @@ export class BattleProgressionSystem {
 		// Wait 1 second for current animations to complete
 
 		try {
-			audioManager.playSoundEffect('sfx_victory_match');
+			AudioManager.playSoundEffect('sfx_victory_match');
 		} catch (error) {
 			console.warn('Could not play victory match sound:', error);
 		}
@@ -220,11 +220,7 @@ export class BattleProgressionSystem {
 	async handleCombatEndedVictory(payload: { enemiesDefeated: Unit[] }): Promise<void> {
 		console.log("Round", this.state.gameData.round, "Processing Victory...");
 
-		try {
-			audioManager.playSoundEffect('sfx_victory_reward_chant');
-		} catch (error) {
-			console.warn('Could not play victory reward chant sound:', error);
-		}
+		AudioManager.playSoundEffect('sfx_victory_reward_chant');
 
 		// Wait 1 second for current animations to complete
 		await delay(1000);
