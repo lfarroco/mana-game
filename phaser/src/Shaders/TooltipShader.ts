@@ -28,6 +28,18 @@ float smoothNoise(vec2 p) {
     return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
 }
 
+// Fractal Brownian Motion (few cheap octaves)
+float fbm(vec2 p) {
+    float v = 0.0;
+    float a = 0.55;
+    for (int i = 0; i < 4; i++) {
+        v += smoothNoise(p) * a;
+        p *= 2.02;
+        a *= 0.5;
+    }
+    return v;
+}
+
 // Rounded box SDF (centered at origin) size = half extents
 float roundedBox(vec2 p, vec2 b, float r) {
     vec2 q = abs(p) - b + r;
@@ -141,8 +153,42 @@ void main() {
     // Add subtle horizontal variation
     float topNoise = smoothNoise(vec2(uv.x * 40.0, time * 0.6)) * 0.5 + 0.5;
     float topHighlight = topMask * borderAlpha * (0.6 + 0.4 * topNoise);
-    coreBorderColor += topHighlight * vec3(1.2, 1.0, 0.55);
-    glowColor += topHighlight * 0.4 * vec3(1.0,0.85,0.5);
+    // Slightly reduce top highlight impact so plasma details stay visible
+    coreBorderColor += topHighlight * 0.55 * vec3(1.2, 1.0, 0.55);
+    glowColor += topHighlight * 0.25 * vec3(1.0,0.85,0.5);
+
+    // FLOWING PLASMA BORDER (moved after color bases to avoid undeclared vars)
+    // Compute SDF gradient (approx) to derive tangent direction
+    vec2 gradSample = vec2(1.0, 0.0);
+    float dX = roundedBox(p + gradSample, halfSize, cornerRadius) - roundedBox(p - gradSample, halfSize, cornerRadius);
+    float dY = roundedBox(p + gradSample.yx, halfSize, cornerRadius) - roundedBox(p - gradSample.yx, halfSize, cornerRadius);
+    vec2 normal = normalize(vec2(dX, dY) + 1e-6);
+    vec2 tangent = vec2(-normal.y, normal.x);
+
+    float s = dot(p, tangent);
+    float plasmaSpeed = 1.25;
+    // Lower scale => larger features
+    float plasmaScale = 0.07; // was 0.11
+    vec2 baseUV = vec2(s * plasmaScale + time * plasmaSpeed, dist * 0.35); // stretch pattern across thicker band
+    vec2 warp = vec2(fbm(baseUV * 1.7 + vec2(0.0, time * 0.3)), fbm(baseUV * 1.3 + vec2(4.2, -time * 0.25)));
+    vec2 flowUV = baseUV + warp * 0.65;
+    float plasma = fbm(flowUV);
+    float filaments = pow(plasma, 2.2) * 1.4;
+    // Wider plasma band around the border (half-width in px)
+    float plasmaHalfWidth = 12.0; // broadened (was 6.0)
+    float edgeMask = smoothstep(plasmaHalfWidth, 0.0, abs(dist));
+    filaments *= edgeMask * borderAlpha;
+    float sparkle = smoothNoise(flowUV * 9.0 + vec2(time * 3.5, -time * 2.0));
+    sparkle = smoothstep(0.82, 1.0, sparkle) * edgeMask;
+    float sparklePulse = 0.6 + 0.4 * sin(time * 18.0 + s * 0.08);
+    sparkle *= sparklePulse;
+    vec3 plasmaCool = mix(borderColor, vec3(0.3, 0.55, 1.15), 0.35);
+    vec3 plasmaHot  = vec3(1.25, 0.95, 0.45);
+    vec3 plasmaColor = mix(plasmaCool, plasmaHot, clamp(filaments * 1.15, 0.0, 1.0));
+    plasmaColor += sparkle * vec3(1.6, 1.25, 0.65);
+    coreBorderColor = mix(coreBorderColor, plasmaColor, 0.72 * edgeMask);
+    glowAlpha += filaments * 0.45; // slightly stronger contribution
+    glowColor = mix(glowColor, plasmaHot, filaments * 0.18);
 
     // Halo irregularity using distance-based noise (only outside)
     float haloNoise = smoothNoise(vec2(uv.x * resolution.x / 30.0 + time * 0.2, uv.y * resolution.y / 18.0 - time * 0.15));
