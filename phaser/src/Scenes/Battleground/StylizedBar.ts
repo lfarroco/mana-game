@@ -27,7 +27,6 @@ export interface StylizedBarOptions {
 	backgroundOpacity?: number;
 	borderOpacity?: number;
 	textConfig?: TextConfig;
-	orientation?: 'horizontal' | 'vertical';
 }
 
 export function createStylizedBar(
@@ -43,13 +42,9 @@ export function createStylizedBar(
 		backgroundColor = 0x000000, // Default black
 		backgroundOpacity = 0.6, // Default semi-transparent
 		borderOpacity = 1.0, // Default fully opaque border
-		orientation = 'horizontal'
 	} = options;
 	const container = scene.add.container(x, y);
 
-	const isVertical = orientation === 'vertical';
-	// For vertical bars: width is the thin dimension, height is the tall dimension
-	// For horizontal bars: width is the long dimension, height is the short dimension
 	const barWidth = width;
 	const barHeight = height;
 
@@ -85,19 +80,12 @@ export function createStylizedBar(
 	// Inner highlight (subtle top highlight) - should scale with the bar
 	const innerHighlight = scene.add.graphics();
 	innerHighlight.fillStyle(0xffffff, 0.3);
-	if (isVertical) {
-		innerHighlight.fillRoundedRect(
-			INNER_PADDING + 1, INNER_PADDING + 1,
-			(barWidth - (INNER_PADDING * 2)) / 3, barHeight - (INNER_PADDING * 2) - 2,
-			2
-		);
-	} else {
-		innerHighlight.fillRoundedRect(
-			INNER_PADDING + 1, INNER_PADDING + 1,
-			barWidth - (INNER_PADDING * 2) - 2, (barHeight - (INNER_PADDING * 2)) / 3,
-			2
-		);
-	}
+	innerHighlight.fillRoundedRect(
+		INNER_PADDING + 1, INNER_PADDING + 1,
+		(barWidth - (INNER_PADDING * 2)) / 3, barHeight - (INNER_PADDING * 2) - 2,
+		2
+	);
+
 	container.add(innerHighlight);
 
 	// Label with stroke for better readability
@@ -113,7 +101,6 @@ export function createStylizedBar(
 	container.setVisible(false); // Initially hidden
 
 	// Store orientation and original dimensions for later use in updates
-	(container as any)._orientation = orientation;
 	(container as any)._originalHeight = barHeight;
 
 	return {
@@ -134,34 +121,21 @@ export function updateStylizedBar(
 	duration: number = 200
 ): void {
 	const percentage = Math.max(0, currentValue) / maxValue;
-	const isVertical = (bar.container as any)._orientation === 'vertical';
+	bar.barFill.scene.tweens.killTweensOf([bar.barFill, bar.innerHighlight]);
 
-	if (isVertical) {
-		// For vertical bars, scale from bottom by adjusting the origin
-		// Stop any existing tweens to prevent conflicts
-		bar.barFill.scene.tweens.killTweensOf([bar.barFill, bar.innerHighlight]);
+	// Get the original height from when the bar was created
+	const originalHeight = (bar.container as any)._originalHeight || BAR_HEIGHT;
+	const fillHeight = originalHeight - (INNER_PADDING * 2);
 
-		// Get the original height from when the bar was created
-		const originalHeight = (bar.container as any)._originalHeight || BAR_HEIGHT;
-		const fillHeight = originalHeight - (INNER_PADDING * 2);
+	// Calculate the Y offset to simulate scaling from bottom
+	const targetScaleY = percentage;
+	const yOffset = INNER_PADDING + fillHeight * (1 - targetScaleY);
 
-		// Calculate the Y offset to simulate scaling from bottom
-		const targetScaleY = percentage;
-		const yOffset = INNER_PADDING + fillHeight * (1 - targetScaleY);
+	bar.barFill.scene.tweens.add({
+		targets: [bar.barFill, bar.innerHighlight],
+		scaleY: targetScaleY,
+		y: yOffset,
+		duration: duration,
+	});
 
-		bar.barFill.scene.tweens.add({
-			targets: [bar.barFill, bar.innerHighlight],
-			scaleY: targetScaleY,
-			y: yOffset,
-			duration: duration,
-		});
-	} else {
-		// Horizontal bars (original behavior)
-		bar.barFill.scene.tweens.killTweensOf([bar.barFill, bar.innerHighlight]);
-		bar.barFill.scene.tweens.add({
-			targets: [bar.barFill, bar.innerHighlight],
-			scaleX: percentage,
-			duration: duration,
-		});
-	}
 }

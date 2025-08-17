@@ -276,7 +276,6 @@ function createCombinedDisplay(
 		backgroundColor: 0x000000,
 		backgroundOpacity: 0.2,
 		textConfig: c.defaultTextConfig,
-		orientation: 'vertical'
 	});
 
 	// Create shield bar positioned next to the morale bar
@@ -300,7 +299,6 @@ function createCombinedDisplay(
 		backgroundOpacity: 0, // No background
 		borderOpacity: 0, // No border
 		textConfig: c.defaultTextConfig,
-		orientation: 'vertical'
 	});
 
 	// Make the shield bar semi-transparent
