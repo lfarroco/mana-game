@@ -11,11 +11,26 @@ uniform vec3 color5;
 uniform float timeScale;
 uniform float particleQuality; // 0.0 = low, 1.0 = medium, 2.0 = high
 uniform float pixelSize; // Controls pixelation level (e.g., 4.0 for 4x4 pixel blocks)
+uniform float cloudContrast; // 0..1
+uniform float cloudSoftness; // 0..1
+uniform vec2 cameraOffset; // for parallax
+uniform float starTwinkle; // 0..1
+uniform float exposure; // final exposure multiplier
+uniform float timeOfDay; // 0..1 - optional time of day tint
 varying vec2 fragCoord;
 
-// Noise function for procedural generation
-float noise(vec2 p) {
-    return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+// Cheap hash functions (faster and less periodic than sin-based noise)
+float hash12(vec2 p) {
+    // based on iq's hash
+    vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.x + p3.y) * p3.z);
+}
+
+vec2 hash22(vec2 p) {
+    float a = hash12(p);
+    float b = hash12(p + a + 19.19);
+    return vec2(a, b);
 }
 
 // Pixelation function to quantize coordinates
@@ -29,12 +44,13 @@ vec2 pixelate(vec2 uv, float pixelSize) {
 
 // Smooth noise function
 float smoothNoise(vec2 p) {
+    // bilinear interpolation of hashed grid values
     vec2 i = floor(p);
     vec2 f = fract(p);
-    float a = noise(i);
-    float b = noise(i + vec2(1.0, 0.0));
-    float c = noise(i + vec2(0.0, 1.0));
-    float d = noise(i + vec2(1.0, 1.0));
+    float a = hash12(i);
+    float b = hash12(i + vec2(1.0, 0.0));
+    float c = hash12(i + vec2(0.0, 1.0));
+    float d = hash12(i + vec2(1.0, 1.0));
     vec2 u = f * f * (3.0 - 2.0 * f);
     return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
 }
@@ -52,8 +68,8 @@ float starField(vec2 uv, float density, float brightness) {
     vec2 gridID = floor(gridUV);
     vec2 gridLocal = fract(gridUV);
     
-    // Single noise call to determine star presence and properties
-    float starNoise = noise(gridID);
+    // Single hash call to determine star presence and properties
+    float starNoise = hash12(gridID);
     float starThreshold = 0.97; // Reduced from 0.95 - fewer stars (only 3% of grid cells)
     
     if (starNoise < starThreshold) {
@@ -61,10 +77,12 @@ float starField(vec2 uv, float density, float brightness) {
     }
     
     // Use single noise value to derive multiple properties (more efficient)
-    float derivedNoise1 = fract(starNoise * 43.7584); // Derive offset x
-    float derivedNoise2 = fract(starNoise * 67.3912); // Derive offset y
-    float derivedNoise3 = fract(starNoise * 91.8475); // Derive size
-    float derivedNoise4 = fract(starNoise * 23.1492); // Derive glow properties
+    // derive multiple values from a small hash
+    vec2 d12 = hash22(gridID + starNoise);
+    float derivedNoise1 = d12.x; // offset x
+    float derivedNoise2 = d12.y; // offset y
+    float derivedNoise3 = hash12(gridID + 7.7); // size
+    float derivedNoise4 = hash12(gridID + 13.3); // glow
     
     // Position the star using derived values
     vec2 starOffset = vec2(derivedNoise1, derivedNoise2) * 0.8 + 0.1;
@@ -122,7 +140,7 @@ float squareClouds(vec2 uv, float scale, float threshold) {
     vec2 gridID = floor(gridUV);
     
     // Use noise to determine if each square should be a cloud
-    float cloudNoise = noise(gridID);
+    float cloudNoise = hash12(gridID);
     
     // Create distinct cloud regions with hard edges
     float cloudPresence = step(threshold, cloudNoise);
@@ -143,7 +161,7 @@ float animatedSquareClouds(vec2 uv, float scale, float threshold, float time, ve
     
     // Much subtler temporal variation to reduce noise
     vec2 gridID = floor(animatedUV * scale);
-    float timeVariation = sin(time * 0.2 + noise(gridID) * 6.28318) * 0.2 + 0.8; // Reduced animation intensity
+    float timeVariation = sin(time * 0.2 + hash12(gridID) * 6.28318) * 0.2 + 0.8; // Reduced animation intensity
     timeVariation = smoothstep(0.4, 0.9, timeVariation); // Smoother transitions
     
     return clouds * timeVariation;
@@ -197,21 +215,21 @@ float dustParticles(vec2 uv, float scaledTime) {
     // Layer 1: Small particles - optimized with derived noise values
     vec2 gridID1 = floor(dustUV1);
     vec2 gridLocal1 = fract(dustUV1);
-    float dustNoise1 = noise(gridID1);
+    float dustNoise1 = hash12(gridID1);
     if (dustNoise1 > threshold1) {
-        // Derive multiple values from single noise call
-        float derived1 = fract(dustNoise1 * 37.684);
-        float derived2 = fract(dustNoise1 * 83.291);
-        float derived3 = fract(dustNoise1 * 51.847);
-        
+        vec2 derived = hash22(gridID1 + dustNoise1);
+        float derived1 = derived.x;
+        float derived2 = derived.y;
+        float derived3 = hash12(gridID1 + 5.5);
+
         vec2 dustOffset1 = vec2(derived1, derived2) * 0.4 + 0.3; // Centered particles
         if (pixelSize > 1.0) {
             dustOffset1 = floor(dustOffset1 * 2.0) / 2.0; // More blocky quantization
         }
-        
+
         float dist1 = length(gridLocal1 - dustOffset1);
         float particleSize1 = (derived3 * 0.2 + 0.4) * 0.08; // Slightly larger, less variation
-        
+
         float particle1;
         if (pixelSize > 1.0) {
             particle1 = step(dist1, particleSize1); // Hard edge for pixelated look
@@ -219,34 +237,34 @@ float dustParticles(vec2 uv, float scaledTime) {
             particle1 = 1.0 - smoothstep(0.0, particleSize1, dist1); // Smooth falloff
             particle1 = pow(particle1, 1.5); // Softer falloff
         }
-        
+
         // Much simpler glow effect
         float phase1 = dustNoise1 * 6.28318;
         float glowSpeed1 = 0.8 + derived1 * 0.6; // Reduced from 1.5 + 2.0
         float timeOffset1 = derived2 * 30.0; // Reduced offset variation
         float glow1 = sin((scaledTime * glowSpeed1) + phase1 + timeOffset1) * 0.3 + 0.7; // Less dramatic glow
-        
+
         dust += particle1 * glow1 * 0.4; // Reduced intensity from 0.7
     }
     
     // Layer 2: Larger particles - much fewer
     vec2 gridID2 = floor(dustUV2);
     vec2 gridLocal2 = fract(dustUV2);
-    float dustNoise2 = noise(gridID2);
+    float dustNoise2 = hash12(gridID2);
     if (dustNoise2 > threshold2) {
-        // Derive multiple values from single noise call
-        float derived4 = fract(dustNoise2 * 47.123);
-        float derived5 = fract(dustNoise2 * 73.569);
-        float derived6 = fract(dustNoise2 * 92.431);
-        
+        vec2 derivedb = hash22(gridID2 + dustNoise2 + 1.0);
+        float derived4 = derivedb.x;
+        float derived5 = derivedb.y;
+        float derived6 = hash12(gridID2 + 9.9);
+
         vec2 dustOffset2 = vec2(derived4, derived5) * 0.4 + 0.3; // Centered particles
         if (pixelSize > 1.0) {
             dustOffset2 = floor(dustOffset2 * 2.0) / 2.0; // More blocky quantization
         }
-        
+
         float dist2 = length(gridLocal2 - dustOffset2);
         float particleSize2 = (derived6 * 0.2 + 0.4) * 0.12; // Slightly larger
-        
+
         float particle2;
         if (pixelSize > 1.0) {
             particle2 = step(dist2, particleSize2); // Hard edge for pixelated look
@@ -254,13 +272,13 @@ float dustParticles(vec2 uv, float scaledTime) {
             particle2 = 1.0 - smoothstep(0.0, particleSize2, dist2); // Smooth falloff
             particle2 = pow(particle2, 1.3);
         }
-        
+
         // Simple glow
         float phase2 = dustNoise2 * 6.28318;
         float glowSpeed2 = 0.6 + derived4 * 0.4; // Much reduced from 1.2 + 1.8
         float timeOffset2 = derived5 * 30.0;
         float glow2 = sin((scaledTime * glowSpeed2) + phase2 + timeOffset2) * 0.2 + 0.8; // Subtle glow
-        
+
         dust += particle2 * glow2 * 0.6; // Reduced intensity from 0.9
     }
     
@@ -272,10 +290,14 @@ void main() {
     vec2 uv = fragCoord.xy / resolution.xy;
     uv.x *= resolution.x / resolution.y;
 
-    // Apply pixelation to the main UV coordinates for overall chunky effect
-    // Use a default pixelSize of 1.0 if not provided to avoid black screen
-    float effectivePixelSize = max(pixelSize, 1.0);
-    vec2 pixelatedUV = pixelate(uv, effectivePixelSize);
+    // apply camera offset for parallax (small influence)
+    uv += cameraOffset * 0.0005;
+
+    // Apply branchless pixelation mixing so pixelSize can be animated smoothly
+    float effectivePixelSize = max(pixelSize, 0.0); // allow 0 = off
+    float pixelFactor = clamp((effectivePixelSize - 1.0) / 7.0, 0.0, 1.0);
+    vec2 lowResUV = pixelate(uv, max(effectivePixelSize, 1.0));
+    vec2 pixelatedUV = mix(uv, lowResUV, pixelFactor);
 
     // Apply time scaling to all time-based animations
     float scaledTime = time * timeScale;
@@ -312,6 +334,10 @@ void main() {
     if (effectivePixelSize > 1.0) {
         colorVar = floor(colorVar * 2.0) / 2.0; // Minimal quantization
     }
+
+    // vertical bias for horizon tint (0 bottom -> 1 top)
+    float vertical = clamp(uv.y, 0.0, 1.0);
+    float verticalPow = pow(vertical, 1.1 + cloudSoftness * 2.0);
 
     // Optimized star field - reduced layers and early exit optimizations
     float starDensityMultiplier = 0.7 + (particleQuality * 0.2); // Reduced from 1.0 + 0.3
@@ -354,7 +380,15 @@ void main() {
     nebulaColor += dustColor * dust * 0.3; // Further reduced from 0.6 for minimal noise
     
     vec3 starColor = vec3(1.0);
-    nebulaColor += starColor * stars * 0.6; // Reduced star contribution
+    // star twinkle modulation
+    float twinkle = mix(1.0, 1.0 + (starTwinkle * 0.8), hash12(uv * 123.4));
+    nebulaColor += starColor * stars * 0.6 * twinkle; // Reduced star contribution
+
+    // exposure and timeOfDay tinting
+    vec3 dayTint = mix(vec3(1.0, 0.95, 0.9), vec3(0.6, 0.7, 1.0), timeOfDay);
+    // If exposure wasn't set (defaults to 0), treat it as 1.0 to avoid black output
+    float safeExposure = (abs(exposure) < 1e-5) ? 1.0 : exposure;
+    nebulaColor = nebulaColor * dayTint * safeExposure;
 
     // Final output
     gl_FragColor = vec4(nebulaColor, 1.0);
