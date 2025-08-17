@@ -55,20 +55,48 @@ const orbs: Record<string, {
 		id: "azure_orb",
 		name: "Azure Orb",
 		color: 0x3399ff,
-		tooltip: "[color=#74c0fc]Mystical Energy[/color]\n\n[color=#c0c0c0]Effect:[/color] [color=#da77f2]Unknown[/color]\n[color=#c0c0c0]Target:[/color] [color=#e0e0e0]Any unit[/color]\n\n[color=#c0c0c0]A mysterious orb radiating cool blue energy. Its true power remains locked away, waiting to be discovered.[/color]",
+		tooltip: "Reduce a unit's cooldown by 0.2s (minimum of 1s)",
 		effect: (unit: Unit) => {
-			// Dummy effect
-			console.log(`Azure Orb used on ${unit.id}`);
+			unit.cooldown = Math.max(1000, unit.cooldown - 200);
 		}
 	},
 	golden_orb: {
 		id: "golden_orb",
 		name: "Golden Orb",
 		color: 0xffcc00,
-		tooltip: "[color=#ffe066]Radiant Power[/color]\n\n[color=#c0c0c0]Effect:[/color] [color=#da77f2]Unknown[/color]\n[color=#c0c0c0]Target:[/color] [color=#e0e0e0]Any unit[/color]\n\n[color=#c0c0c0]A radiant orb shimmering with golden light. The precious metal seems to pulse with untapped potential.[/color]",
+		tooltip: "Adds 'when an ally shields, gain 2 power'.\nIf the unit already has this effect, increase it by 2.",
 		effect: (unit: Unit) => {
-			// Dummy effect
-			console.log(`Golden Orb used on ${unit.id}`);
+			const existingRection = unit.reactions
+				.find(react => {
+					return react.effectId === "shield" && react.position === "column_allies" && react.effects.some(e => e.id === "increase_power" && e.targets.id === "self");
+				});
+
+			if (existingRection) {
+				//increase by 2
+				const effect = existingRection.effects
+					.find(e => e.id === "increase_power" && e.targets.id === "self");
+				//@ts-ignore
+				effect.amount += 2;
+				return;
+			}
+
+			unit.reactions = [
+				...unit.reactions,
+				{
+					effectId: "shield",
+					position: "allies",
+					effects: [
+						{
+							"id": "increase_power",
+							"sourceId": unit.id,
+							"amount": 2,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
 		}
 	},
 	violet_orb: {

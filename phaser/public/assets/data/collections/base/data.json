@@ -119,7 +119,7 @@
 			"reactions": [
 				{
 					"effectId": "shield",
-					"position": "allies",
+					"position": "column_allies",
 					"effects": [
 						{
 							"id": "increase_power",
