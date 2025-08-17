@@ -33,13 +33,6 @@ export interface TargetedArcaneMissileOptions {
 	onHit?: () => void | Promise<void>;
 }
 
-/**
- * Creates a targeted arcane missile effect that travels from source to target
- * @param scene - The Phaser scene
- * @param source - Starting position {x, y}
- * @param target - Target position {x, y}
- * @param options - Customization options
- */
 export async function arcaneMissileTargeted(
 	scene: Phaser.Scene,
 	source: { x: number; y: number },

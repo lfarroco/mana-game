@@ -58,6 +58,7 @@ export const updatePlayerGoldIO = (goldDelta: number) => {
 export const manipulateForceMorale = (
 	targetForce: Force,
 	amount: number,
+	emitEvents: boolean = true,
 ): number => {
 	let finalAmount = amount;
 
@@ -69,8 +70,7 @@ export const manipulateForceMorale = (
 	}
 	const actualChange = targetForce.morale - oldMorale;
 
-	// Emit morale update event if scene is provided
-	if (actualChange !== 0) {
+	if (emitEvents && actualChange !== 0) {
 		updateMoraleDisplay({
 			forceId: targetForce.id,
 			newMorale: targetForce.morale,
@@ -88,6 +88,7 @@ export const manipulateForceMorale = (
 export const manipulateForceShield = (
 	targetForce: Force,
 	amount: number,
+	emitEvents: boolean = true,
 ): number => {
 	const oldShield = targetForce.shield;
 	if (amount > 0) {
@@ -98,7 +99,7 @@ export const manipulateForceShield = (
 	}
 	const actualChange = targetForce.shield - oldShield;
 
-	if (actualChange !== 0) {
+	if (emitEvents && actualChange !== 0) {
 		handleShieldUpdated({
 			forceId: targetForce.id,
 			newShield: targetForce.shield,
@@ -128,9 +129,9 @@ export const applyDamageToForce = (
 	// Poison damage bypasses shields entirely
 	if (damageType === "poison") {
 		// Apply poison damage directly to morale
-		const moraleChange = manipulateForceMorale(targetForce, -damage); // No scene = no event
+		const moraleChange = manipulateForceMorale(targetForce, -damage, false); // suppress intermediate event
 
-
+		// Single UI/event emission with aggregated info
 		updateMoraleDisplay({
 			forceId: targetForce.id,
 			newMorale: targetForce.morale,
@@ -160,20 +161,21 @@ export const applyDamageToForce = (
 	// Shield absorbs damage first (without emitting events), using effective shield
 	if (effectiveShield > 0) {
 		const shieldAbsorbed = Math.min(remainingDamage, effectiveShield);
-		manipulateForceShield(targetForce, -shieldAbsorbed); // No scene = no event
+		manipulateForceShield(targetForce, -shieldAbsorbed, false); // suppress intermediate event
 		remainingDamage -= shieldAbsorbed;
 	}
 
 	// Apply remaining damage to morale (without emitting events)
 	let moraleChange = 0;
 	if (remainingDamage > 0) {
-		moraleChange = manipulateForceMorale(targetForce, -remainingDamage); // No scene = no event
+		moraleChange = manipulateForceMorale(targetForce, -remainingDamage, false); // suppress intermediate event
 	}
 
 	// Emit events for both shield and morale updates, but only show pop text for total damage
 
 	// Emit shield update if shield changed
 	if (targetForce.shield !== originalShield) {
+		// Emit a single shield event with aggregated info
 		handleShieldUpdated({
 			forceId: targetForce.id,
 			newShield: targetForce.shield,
