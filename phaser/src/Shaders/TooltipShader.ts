@@ -101,8 +101,9 @@ void main() {
 
     // RANDOMIZED BACKGROUND VARIATION ---------------------------------
     // Large & medium scale fbm noise to break uniformity of gradient
-    float bgLarge  = fbm(uv * resolution / 230.0 + vec2(time * 0.015, -time * 0.011));
-    float bgMedium = fbm(uv * resolution / 95.0  + vec2(-time * 0.02,  time * 0.017));
+    // (Speed adjusted ~1.6x)
+    float bgLarge  = fbm(uv * resolution / 230.0 + vec2(time * 0.024, -time * 0.018));
+    float bgMedium = fbm(uv * resolution / 95.0  + vec2(-time * 0.032,  time * 0.027));
     float bgMix = mix(bgLarge, bgMedium, 0.55);
     // Jitter vertical gradient subtly (centered around 0)
     float gradJitter = (bgMix - 0.5);
@@ -117,8 +118,8 @@ void main() {
     // Radial highlight (gives convex volume) - elliptical for aspect ratio
     // Offset radial center by slow moving noise for organic shifting focus
     vec2 centerNoise;
-    centerNoise.x = fbm(uv * resolution / 160.0 + vec2(time * 0.04, 1.7));
-    centerNoise.y = fbm(uv * resolution / 170.0 + vec2(-2.3, -time * 0.037));
+    centerNoise.x = fbm(uv * resolution / 160.0 + vec2(time * 0.064, 1.7));
+    centerNoise.y = fbm(uv * resolution / 170.0 + vec2(-2.3, -time * 0.059));
     vec2 centerOffset = (centerNoise - 0.5) * 0.18; // up to ~18% shift of half dimension
     vec2 aspectUV = (uv - 0.5 - centerOffset);
     aspectUV.x *= resolution.x / resolution.y;
