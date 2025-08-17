@@ -14,6 +14,7 @@ import { scene } from "../../Scenes/Battleground/BattlegroundScene";
 export class CharaInputHandler {
 	dragStartX: number = 0;
 	dragStartY: number = 0;
+	dragStartVec: Vec2 = vec2(0, 0);
 	wasDragSuccessful: boolean = false;
 	chara: Chara;
 
@@ -91,7 +92,7 @@ export class CharaInputHandler {
 			this.chara.shop.shopUI.hideSellZone();
 		}
 		if (!this.wasDragSuccessful) {
-			this.chara.revertDragOrFailedPurchase(this.dragStartX, this.dragStartY);
+			this.chara.moveToPosition(vec2(this.dragStartX, this.dragStartY));
 		}
 		// Reset for next potential drag, though wasDragSuccessful is set at start of drag.
 		// this.wasDragSuccessful = false; // Not strictly needed here as it's reset on drag_start

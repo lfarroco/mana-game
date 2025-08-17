@@ -1,6 +1,6 @@
 import { BattlegroundScene } from "../../../BattlegroundScene";
 import * as constants from "../../../../../constants/constants";
-import { Vec2 } from "../../../../../Models/Geometry";
+import { vec2, Vec2 } from "../../../../../Models/Geometry";
 import { makeUnit, Unit } from "../../../../../Models/Entities/Unit";
 import { getUnitAt } from "../../../../../Models/State";
 import { updatePlayerGoldIO } from "../../../../../Models/Entities/Force";
@@ -15,11 +15,9 @@ export function shopItemDragPurchaseRequestedHandler(
 
 	if (scene.state.gameData.player.gold < constants.SHOP_ITEM_PURCHASE_COST) {
 
-		getChara(shopCharaId).onShopPurchaseFailed({
-			reason: "INSUFFICIENT_GOLD",
-			originalShopCharaId: shopCharaId,
+		getChara(shopCharaId).onShopPurchaseFailed(vec2(
 			dragStartX, dragStartY
-		});
+		));
 		ui.handlePurchaseFailed({
 			unitName: shopUnitData.name,
 			reason: "INSUFFICIENT_GOLD",
@@ -28,11 +26,9 @@ export function shopItemDragPurchaseRequestedHandler(
 		return;
 	}
 	if (scene.state.gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
-		getChara(shopCharaId).onShopPurchaseFailed({
-			reason: "PARTY_FULL",
-			originalShopCharaId: shopCharaId,
+		getChara(shopCharaId).onShopPurchaseFailed(vec2(
 			dragStartX, dragStartY
-		});
+		));
 		ui.handlePurchaseFailed({
 			unitName: shopUnitData.name,
 			reason: "PARTY_FULL"
@@ -42,11 +38,9 @@ export function shopItemDragPurchaseRequestedHandler(
 
 	const occupier = getUnitAt(scene.state.gameData.player.units)(targetTile);
 	if (occupier) {
-		getChara(shopCharaId).onShopPurchaseFailed({
-			reason: "SLOT_OCCUPIED",
-			originalShopCharaId: shopCharaId,
+		getChara(shopCharaId).onShopPurchaseFailed(vec2(
 			dragStartX, dragStartY
-		});
+		));
 		ui.handlePurchaseFailed({
 			unitName: shopUnitData.name,
 			reason: "SLOT_OCCUPIED"

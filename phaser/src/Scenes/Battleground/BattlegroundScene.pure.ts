@@ -168,25 +168,16 @@ export function handleMoveResult(
  * @returns void (side effects through injected functions)
  */
 export function handleUnitMoveRequestPure(
-	units: Unit[],
-	unitId: string,
-	targetTile: any, // Accept any Vec2-like object (with x, y properties)
-	dragStartX: number,
-	dragStartY: number,
-	updateUnitPosition: (unit: Unit, target: any, units: Unit[]) => any,
-	getVisualPosition: (unit: Unit) => Vec2,
-	logError: (message: string) => void,
-	onMoveAccepted: (unitId: string, newLogicalPosition: Vec2, newVisualPosition: { x: number, y: number }) => void,
-	onSwapAccepted: (
-		movedUnitId: string,
-		movedUnitNewLogicalPosition: Vec2,
-		movedUnitVisualPosition: { x: number, y: number },
-		swappedUnitId: string,
-		swappedUnitNewLogicalPosition: Vec2,
-		swappedUnitVisualPosition: { x: number, y: number }
-	) => void,
-	onMoveRejected: (unitId: string, reason: string, dragStartX: number, dragStartY: number) => void
-): void {
+	{ units, unitId, targetTile, dragStartX, dragStartY, updateUnitPosition, getVisualPosition, logError, onMoveAccepted, onSwapAccepted, onMoveRejected }: {
+		units: Unit[]; unitId: string; targetTile: any; dragStartX: number; dragStartY: number; updateUnitPosition: (unit: Unit, target: any, units: Unit[]) => any; getVisualPosition: (unit: Unit) => Vec2; logError: (message: string) => void; onMoveAccepted: (unitId: string, newLogicalPosition: Vec2, newVisualPosition: { x: number; y: number; }) => void; onSwapAccepted: (
+			movedUnitId: string,
+			movedUnitNewLogicalPosition: Vec2,
+			movedUnitVisualPosition: { x: number; y: number; },
+			swappedUnitId: string,
+			swappedUnitNewLogicalPosition: Vec2,
+			swappedUnitVisualPosition: { x: number; y: number; }
+		) => void; onMoveRejected: (unitId: string, reason: string, dragStartX: number, dragStartY: number) => void;
+	}): void {
 	const unitToMove = findUnitById(units, unitId);
 
 	if (!unitToMove) {

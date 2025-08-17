@@ -14,6 +14,7 @@ import { createContinuousHasteEffect } from "../../Effects/hasteEffect";
 import { onCharaPointerOut, onCharaPointerOver } from "./CharaTooltip";
 import { hideTooltip } from "../../UI/Tooltip";
 import { audioManager } from "../AudioManager";
+import { vec2, Vec2 } from "../../Models/Geometry.pure";
 
 export type CharaOptions = {
 	isShopItem?: boolean;
@@ -120,37 +121,10 @@ export class Chara extends Phaser.GameObjects.Container {
 		// Initialize status effects based on unit state
 		this.updateStatusEffects();
 
-		// Note: Chara positioning is now handled via direct method calls instead of events
-		// See moveToPosition() and revertToPosition() methods
-
 	}
 
-	/**
-	 * Reverts the Chara's visual position after an unsuccessful drag or failed purchase.
-	 * @param originalX The X position to revert to.
-	 * @param originalY The Y position to revert to.
-	 */
-	revertDragOrFailedPurchase(revertToX: number, revertToY: number): void {
-		if (this.isShopItem) { // If it's still a shop item (purchase failed or invalid drop for shop item)
-			tween({ targets: [this], x: revertToX, y: revertToY });
-		} else { // Owned unit that failed to move
-			// Revert to the actual screen coordinates from before the drag started.
-			tween({ targets: [this], x: revertToX, y: revertToY, duration: 150 });
-		}
-	};
-
-	/**
-	 * Creates the main sprite for the Chara based on `unit.pic`.
-	 * Uses a default "nameless" image if the specified picture key doesn't exist.
-	 * Adds a circular border around the sprite.
-	 * @param borderWidth The width of the border in pixels (default 3).
-	 * @param borderColor The color of the border (default 0xffffff).
-	 */
 	createSprite(borderWidth: number = 3, borderColor: number = 0xffffff) {
-		// If the andromeda atlas is loaded, use it and play idle animation if available
-		// Try to get idle frames
 
-		// Load and register animations from cache if not already present
 		const animCacheKey = this.unit.pic + '-anims';
 		const animData = this.scene.cache.json.get(animCacheKey);
 		if (animData && animData.anims) {
@@ -161,7 +135,8 @@ export class Chara extends Phaser.GameObjects.Container {
 					const animConfig = {
 						...anim,
 						key: animKey,
-						frames: (anim.frames as { frame: string }[]).map((f: { frame: string }) => ({ key: this.unit.pic, frame: f.frame })),
+						frames: (anim.frames as { frame: string }[])
+							.map((f: { frame: string }) => ({ key: this.unit.pic, frame: f.frame })),
 					};
 					this.scene.anims.create(animConfig);
 				}
@@ -176,7 +151,6 @@ export class Chara extends Phaser.GameObjects.Container {
 			return numA - numB;
 		});
 		const firstIdle = idleFrames[0] || frameNames[0];
-
 
 		// Add a circular border using Phaser.GameObjects.Graphics
 		const radius = (constants.TILE_WIDTH * 0.8) / 2;
@@ -205,32 +179,25 @@ export class Chara extends Phaser.GameObjects.Container {
 
 		this.shop._handleCharaPurchaseFinalized(this);
 
-		// Play sound before destroying the character
 		try {
 			audioManager.playSoundEffect('sfx_artifact_equipweapon');
 		} catch (error) {
 			console.warn('Could not play equip weapon sound:', error);
 		}
 
-		// The CharaManager is responsible for the actual destruction and removal from its index.
 		UnitManager.destroyChara(this.id);
 	}
 
-	onShopPurchaseFailed(payload: { originalShopCharaId: string, reason: string, dragStartX: number, dragStartY: number }): void {
-		if (this.isShopItem && payload.originalShopCharaId === this.id) {
-			// Ensure tooltip is hidden before reverting, as pointer might not naturally move out
-			hideTooltip();
-			this.revertDragOrFailedPurchase(payload.dragStartX, payload.dragStartY);
-			// Optionally, re-enable input if it was disabled during purchase attempt, though current logic doesn't show it being disabled.
-			// this.input.enabled = true;
-		}
+	onShopPurchaseFailed(vec: Vec2) {
+		hideTooltip();
+		this.moveToPosition(vec);
 	}
 
 	/**
 	 * Move this character to a new visual position (for owned units only)
 	 * @param newVisualPosition - The new visual position to move to
 	 */
-	moveToPosition(newVisualPosition: { x: number, y: number }): void {
+	moveToPosition(newVisualPosition: { x: number, y: number }) {
 		if (!this.isShopItem) {
 			tween({ targets: [this], x: newVisualPosition.x, y: newVisualPosition.y, duration: 150 });
 		}
@@ -245,7 +212,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		if (!this.isShopItem) {
 			// Ensure tooltip is hidden before reverting, as pointer might not naturally move out
 			hideTooltip();
-			this.revertDragOrFailedPurchase(dragStartX, dragStartY);
+			this.moveToPosition(vec2(dragStartX, dragStartY));
 		}
 	}
 

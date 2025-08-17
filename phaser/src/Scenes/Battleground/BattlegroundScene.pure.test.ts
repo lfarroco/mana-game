@@ -416,18 +416,7 @@ describe("handleUnitMoveRequestPure", () => {
 		const units = [{ id: "unit1" } as Unit];
 
 		handleUnitMoveRequestPure(
-			units,
-			"nonexistent",
-			vec2(1, 1),
-			100,
-			200,
-			mockUpdateUnitPosition,
-			mockGetVisualPosition,
-			mockLogError,
-			mockOnMoveAccepted,
-			mockOnSwapAccepted,
-			mockOnMoveRejected
-		);
+			{ units, unitId: "nonexistent", targetTile: vec2(1, 1), dragStartX: 100, dragStartY: 200, updateUnitPosition: mockUpdateUnitPosition, getVisualPosition: mockGetVisualPosition, logError: mockLogError, onMoveAccepted: mockOnMoveAccepted, onSwapAccepted: mockOnSwapAccepted, onMoveRejected: mockOnMoveRejected });
 
 		expect(mockLogError).toHaveBeenCalledWith(
 			"[BattlegroundScene] Unit with ID nonexistent not found for move request."
@@ -446,18 +435,7 @@ describe("handleUnitMoveRequestPure", () => {
 		mockUpdateUnitPosition.mockReturnValue(null);
 
 		handleUnitMoveRequestPure(
-			units,
-			"unit1",
-			vec2(1, 1),
-			100,
-			200,
-			mockUpdateUnitPosition,
-			mockGetVisualPosition,
-			mockLogError,
-			mockOnMoveAccepted,
-			mockOnSwapAccepted,
-			mockOnMoveRejected
-		);
+			{ units, unitId: "unit1", targetTile: vec2(1, 1), dragStartX: 100, dragStartY: 200, updateUnitPosition: mockUpdateUnitPosition, getVisualPosition: mockGetVisualPosition, logError: mockLogError, onMoveAccepted: mockOnMoveAccepted, onSwapAccepted: mockOnSwapAccepted, onMoveRejected: mockOnMoveRejected });
 
 		expect(mockUpdateUnitPosition).toHaveBeenCalledWith(units[0], vec2(1, 1), units);
 		expect(mockOnMoveRejected).toHaveBeenCalledWith(
@@ -480,18 +458,7 @@ describe("handleUnitMoveRequestPure", () => {
 		mockGetVisualPosition.mockReturnValue(vec2(100, 100));
 
 		handleUnitMoveRequestPure(
-			units,
-			"unit1",
-			vec2(1, 1),
-			50,
-			75,
-			mockUpdateUnitPosition,
-			mockGetVisualPosition,
-			mockLogError,
-			mockOnMoveAccepted,
-			mockOnSwapAccepted,
-			mockOnMoveRejected
-		);
+			{ units, unitId: "unit1", targetTile: vec2(1, 1), dragStartX: 50, dragStartY: 75, updateUnitPosition: mockUpdateUnitPosition, getVisualPosition: mockGetVisualPosition, logError: mockLogError, onMoveAccepted: mockOnMoveAccepted, onSwapAccepted: mockOnSwapAccepted, onMoveRejected: mockOnMoveRejected });
 
 		expect(mockUpdateUnitPosition).toHaveBeenCalledWith(units[0], vec2(1, 1), units);
 		expect(mockGetVisualPosition).toHaveBeenCalledWith(moveResult.movedUnit);
@@ -517,18 +484,7 @@ describe("handleUnitMoveRequestPure", () => {
 			.mockReturnValueOnce(vec2(50, 50));
 
 		handleUnitMoveRequestPure(
-			units,
-			"unit1",
-			vec2(1, 1),
-			25,
-			35,
-			mockUpdateUnitPosition,
-			mockGetVisualPosition,
-			mockLogError,
-			mockOnMoveAccepted,
-			mockOnSwapAccepted,
-			mockOnMoveRejected
-		);
+			{ units, unitId: "unit1", targetTile: vec2(1, 1), dragStartX: 25, dragStartY: 35, updateUnitPosition: mockUpdateUnitPosition, getVisualPosition: mockGetVisualPosition, logError: mockLogError, onMoveAccepted: mockOnMoveAccepted, onSwapAccepted: mockOnSwapAccepted, onMoveRejected: mockOnMoveRejected });
 
 		expect(mockUpdateUnitPosition).toHaveBeenCalledWith(units[0], vec2(1, 1), units);
 		expect(mockGetVisualPosition).toHaveBeenCalledTimes(2);
@@ -545,18 +501,7 @@ describe("handleUnitMoveRequestPure", () => {
 
 	it("should handle empty units array gracefully", () => {
 		handleUnitMoveRequestPure(
-			[],
-			"unit1",
-			vec2(1, 1),
-			0,
-			0,
-			mockUpdateUnitPosition,
-			mockGetVisualPosition,
-			mockLogError,
-			mockOnMoveAccepted,
-			mockOnSwapAccepted,
-			mockOnMoveRejected
-		);
+			{ units: [], unitId: "unit1", targetTile: vec2(1, 1), dragStartX: 0, dragStartY: 0, updateUnitPosition: mockUpdateUnitPosition, getVisualPosition: mockGetVisualPosition, logError: mockLogError, onMoveAccepted: mockOnMoveAccepted, onSwapAccepted: mockOnSwapAccepted, onMoveRejected: mockOnMoveRejected });
 
 		expect(mockLogError).toHaveBeenCalledWith(
 			"[BattlegroundScene] Unit with ID unit1 not found for move request."
