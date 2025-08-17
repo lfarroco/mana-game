@@ -6,11 +6,11 @@
 
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import { defaultTextConfig } from "../constants/constants";
+import { tooltipFragmentShader } from "../Shaders/TooltipShader";
 
 // UI Constants
 const PADDING = 20;
 const INTER_ELEMENT_PADDING = PADDING / 2;
-const BORDER_RADIUS = 10;
 
 // Sizing Constants
 const MIN_TOOLTIP_WIDTH = 600;
@@ -21,21 +21,15 @@ const MAX_TOOLTIP_WIDTH = 800;
 const TITLE_FONT_SIZE = 40;
 const DESCRIPTION_FONT_SIZE = 30;
 
-// Style Constants
-const BACKGROUND_COLOR = 0x1a3635; // Dark teal background
-const BACKGROUND_ALPHA = 1;
-const BORDER_COLOR = 0xc8a355; // Golden color
-const BORDER_WIDTH = 4;
-const CORNER_SIZE = 30; // Size of corner decorations
-
 // Module-level state for the singleton tooltip
 let scene: Phaser.Scene | null = null;
 let container: Phaser.GameObjects.Container | null = null;
-let bg: Phaser.GameObjects.Graphics | null = null;
+let bg: Phaser.GameObjects.Shader | null = null;
 let titleText: Phaser.GameObjects.Text | null = null;
 let descriptionText: BBCodeText | null = null;
 let currentTitle: string = '';
 let currentDescription: string = '';
+let startTime: number = 0;
 
 // Tooltip dimensions
 let tooltipWidth: number = MIN_TOOLTIP_WIDTH;
@@ -96,6 +90,7 @@ export function destroyTooltip(): void {
 	tooltipHeight = MIN_TOOLTIP_HEIGHT;
 	lastAdjustedX = undefined;
 	lastAdjustedY = undefined;
+	startTime = 0;
 }
 
 /**
@@ -109,16 +104,43 @@ export function initializeTooltip(newScene: Phaser.Scene): void {
 	}
 
 	scene = newScene;
+	startTime = scene.time.now;
 
 	container = scene.add.container(0, 0);
 	container.setDepth(Phaser.Math.MAX_SAFE_INTEGER); // Ensure tooltip is on top
 	tooltipWidth = MIN_TOOLTIP_WIDTH;
 	tooltipHeight = MIN_TOOLTIP_HEIGHT;
 
-	bg = scene.add.graphics();
+	// Create the shader for the background
+	const bgColorVec3 = { x: 0.1, y: 0.21, z: 0.21 }; // Dark teal (converted from 0x1a3635)
+	const borderColorVec3 = { x: 0.78, y: 0.64, z: 0.33 }; // Golden (converted from 0xc8a355)
+
+	const baseShader = new Phaser.Display.BaseShader(
+		'TooltipShader',
+		tooltipFragmentShader,
+		undefined,
+		{
+			time: { type: '1f', value: 0.0 },
+			resolution: { type: '2f', value: [tooltipWidth, tooltipHeight] },
+			bgColor: { type: '3f', value: bgColorVec3 },
+			borderColor: { type: '3f', value: borderColorVec3 }
+		}
+	);
+
+	bg = scene.add.shader(
+		baseShader,
+		0,
+		0,
+		tooltipWidth,
+		tooltipHeight
+	).setOrigin(0.5, 0.5);
+
 	container.add(bg);
 
-	titleText = scene.add.text(0, 0, '', defaultTextConfig)
+	const textConfig = { ...defaultTextConfig };
+	delete (textConfig as any).backgroundColor; // Remove any background color
+
+	titleText = scene.add.text(0, 0, '', textConfig)
 		.setOrigin(0)
 		.setFontSize(TITLE_FONT_SIZE)
 		.setFontFamily("Arial Black")
@@ -134,6 +156,16 @@ export function initializeTooltip(newScene: Phaser.Scene): void {
 	container.add(descriptionText);
 
 	container.setVisible(false); // Initially hidden
+}
+
+/**
+ * Updates the shader animation if the tooltip is visible.
+ */
+function updateShaderAnimation(): void {
+	if (!bg || !scene || !container?.visible) return;
+
+	const elapsedTime = (scene.time.now - startTime) / 1000;
+	bg.setUniform('time.value', elapsedTime);
 }
 
 /**
@@ -194,61 +226,13 @@ export function renderTooltip(x: number, y: number, title: string, description: 
 		// Redraw background and decorations
 		if (!bg) return;
 
-		bg.clear();
+		// Update shader uniforms for the new size
+		bg.setSize(tooltipWidth, tooltipHeight);
+		bg.setUniform('resolution.value', [tooltipWidth, tooltipHeight]);
 
-		// Main background
-		bg.fillStyle(BACKGROUND_COLOR, BACKGROUND_ALPHA);
-		bg.fillRoundedRect(
-			-tooltipWidth / 2,
-			-tooltipHeight / 2,
-			tooltipWidth,
-			tooltipHeight,
-			BORDER_RADIUS
-		);
-
-		// Golden border
-		bg.lineStyle(BORDER_WIDTH, BORDER_COLOR);
-		bg.strokeRoundedRect(
-			-tooltipWidth / 2,
-			-tooltipHeight / 2,
-			tooltipWidth,
-			tooltipHeight,
-			BORDER_RADIUS
-		);
-
-		// Corner decorations
-		const drawCorner = (x: number, y: number, rotation: number) => {
-			if (!bg) return;
-
-			bg.save();
-			bg.translateCanvas(x, y);
-			bg.rotateCanvas(rotation);
-
-			// Draw corner decoration
-			bg.beginPath();
-			bg.lineStyle(BORDER_WIDTH, BORDER_COLOR);
-			bg.moveTo(0, 0);
-			bg.lineTo(CORNER_SIZE, 0);
-			bg.moveTo(0, 0);
-			bg.lineTo(0, CORNER_SIZE);
-			bg.stroke();
-
-			bg.restore();
-		};
-
-		// Draw corners
-		const halfWidth = tooltipWidth / 2;
-		const halfHeight = tooltipHeight / 2;
-		const offset = BORDER_WIDTH;
-
-		// Top-left corner
-		drawCorner(-halfWidth + offset, -halfHeight + offset, 0);
-		// Top-right corner
-		drawCorner(halfWidth - offset, -halfHeight + offset, Math.PI / 2);
-		// Bottom-right corner
-		drawCorner(halfWidth - offset, halfHeight - offset, Math.PI);
-		// Bottom-left corner
-		drawCorner(-halfWidth + offset, halfHeight - offset, -Math.PI / 2);
+		// Update time uniform for animation
+		const elapsedTime = (scene.time.now - startTime) / 1000;
+		bg.setUniform('time.value', elapsedTime);
 
 		// Position text elements
 		titleText.setPosition(-tooltipWidth / 2 + PADDING, -tooltipHeight / 2 + PADDING);
@@ -268,6 +252,9 @@ export function renderTooltip(x: number, y: number, title: string, description: 
 		container.setVisible(true);
 		scene.children.bringToTop(container);
 	}
+
+	// Update shader animation
+	updateShaderAnimation();
 }
 
 /**
@@ -282,6 +269,9 @@ export function moveTooltip(x: number, y: number): void {
 	if (container.x !== adjustedX || container.y !== adjustedY) {
 		container.setPosition(adjustedX, adjustedY);
 	}
+
+	// Update shader animation
+	updateShaderAnimation();
 }
 
 /**

@@ -1,11 +1,5 @@
+import { Unit } from "../Models/Entities/Unit";
 import { Vec2 } from "../Utils/Vec2";
-
-// Forward declaration to avoid circular imports
-interface Unit {
-	id: string;
-	position: Vec2;
-	// Add other essential Unit properties as needed
-}
 
 /**
  * Common type definitions to replace `any` types throughout the codebase
@@ -44,19 +38,6 @@ export type EventHandler<T extends unknown[] = unknown[]> = (...args: T) => void
  * Context types for event handlers
  */
 export type EventContext = Record<string, unknown> | undefined;
-
-/**
- * Parameters for skill and effect functions
- */
-export interface SkillParams {
-	scene: PhaserScene;
-	source?: Vec2;
-	target?: Vec2 | Unit;
-	duration?: number;
-	intensity?: number;
-	amount?: number;
-	[key: string]: unknown;
-}
 
 /**
  * Parameters for effect functions
