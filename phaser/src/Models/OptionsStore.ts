@@ -3,7 +3,8 @@
  * This store provides a centralized and controlled way to access and potentially update these options.
  */
 
-import { AudioManager } from "../Systems/AudioManager";
+import * as AudioManager from "../Systems/AudioManager";
+
 
 export type Options = {
 	sound: boolean;
@@ -109,13 +110,7 @@ export function setOption<K extends keyof Options>(key: K, value: Options[K]): v
 
 	// Handle special audio-related options by calling AudioManager directly
 	if (key === 'sound' || key === 'music' || key === 'soundVolume' || key === 'musicVolume') {
-		try {
-			const audioManager = AudioManager.getInstance();
-			audioManager.onOptionsChanged();
-		} catch (error) {
-			// AudioManager may not be initialized yet, which is fine during initial setup
-			console.log('AudioManager not yet initialized, skipping audio update');
-		}
+		AudioManager.onOptionsChanged();
 	}
 
 	// Special handling for certain options that require immediate application
@@ -181,13 +176,7 @@ export function resetOptionsToDefaults(): void {
 	saveOptionsToStorage();
 	setGameSpeed(currentOptions.speed);
 
-	// Notify AudioManager of the reset
-	try {
-		const audioManager = AudioManager.getInstance();
-		audioManager.onOptionsChanged();
-	} catch (error) {
-		console.log('AudioManager not yet initialized, skipping audio reset');
-	}
+	AudioManager.onOptionsChanged();
 }
 
 /**

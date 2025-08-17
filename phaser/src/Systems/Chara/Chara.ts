@@ -13,8 +13,8 @@ import { Shop } from "../../Scenes/Battleground/Systems/Shop/Shop";
 import { createContinuousHasteEffect } from "../../Effects/hasteEffect";
 import { onCharaPointerOut, onCharaPointerOver } from "./CharaTooltip";
 import { hideTooltip } from "../../UI/Tooltip";
-import { audioManager } from "../AudioManager";
 import { vec2, Vec2 } from "../../Models/Geometry.pure";
+import { playSoundEffect } from "../AudioManager";
 
 export type CharaOptions = {
 	isShopItem?: boolean;
@@ -179,11 +179,7 @@ export class Chara extends Phaser.GameObjects.Container {
 
 		this.shop._handleCharaPurchaseFinalized(this);
 
-		try {
-			audioManager.playSoundEffect('sfx_artifact_equipweapon');
-		} catch (error) {
-			console.warn('Could not play equip weapon sound:', error);
-		}
+		playSoundEffect('sfx_artifact_equipweapon');
 
 		UnitManager.destroyChara(this.id);
 	}
