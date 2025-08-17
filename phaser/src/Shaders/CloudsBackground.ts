@@ -17,6 +17,9 @@ uniform vec2 cameraOffset; // for parallax
 uniform float starTwinkle; // 0..1
 uniform float exposure; // final exposure multiplier
 uniform float timeOfDay; // 0..1 - optional time of day tint
+uniform vec3 dustColor; // color for dust particles (0,0,0 -> fallback default)
+uniform float gamma; // output gamma encode if > 0 (e.g. 2.2)
+uniform float ditherAmount; // small value (e.g. 1.0) enables ordered/hash dithering
 varying vec2 fragCoord;
 
 // Cheap hash functions (faster and less periodic than sin-based noise)
@@ -55,8 +58,8 @@ float smoothNoise(vec2 p) {
     return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
 }
 
-// Optimized star field function - reduced noise calls and simplified calculations
-float starField(vec2 uv, float density, float brightness) {
+// Star field returning RGB with per-star hue & temporal twinkle
+vec3 starField(vec2 uv, float density, float brightness) {
     // Apply pixelation to star field coordinates only if pixelSize is provided
     vec2 starUV = uv;
     if (pixelSize > 1.0) {
@@ -73,7 +76,7 @@ float starField(vec2 uv, float density, float brightness) {
     float starThreshold = 0.97; // Reduced from 0.95 - fewer stars (only 3% of grid cells)
     
     if (starNoise < starThreshold) {
-        return 0.0; // No star in this cell
+        return vec3(0.0); // No star in this cell
     }
     
     // Use single noise value to derive multiple properties (more efficient)
@@ -113,25 +116,21 @@ float starField(vec2 uv, float density, float brightness) {
     glow = mix(0.2, 0.6, pow(glow, 2.0 - glowIntensity)); // Less dramatic glow
     
     star *= glow * brightness;
-    
-    return star;
+
+    // Hue variation warm -> cool
+    float hueSeed = fract(starNoise + derivedNoise3 * 0.37);
+    vec3 warmColor = vec3(1.0, 0.94, 0.85);
+    vec3 coolColor = vec3(0.78, 0.88, 1.0);
+    vec3 starTint = mix(warmColor, coolColor, hueSeed);
+
+    // Per-star twinkle modulation (independent of global twinkle uniform)
+    float twinklePhase = derivedNoise4 * 10.0 + time * timeScale * (0.5 + derivedNoise2);
+    float twinkleMod = mix(1.0, 1.0 + starTwinkle * 0.6, pow(sin(twinklePhase) * 0.5 + 0.5, 2.0));
+
+    return starTint * star * twinkleMod;
 }
 
 
-
-// Fractal Brownian Motion for nebula-like patterns
-float fbm(vec2 p, int octaves) {
-    float value = 0.0;
-    float amplitude = 0.5;
-    float frequency = 1.0;
-    for (int i = 0; i < 8; i++) {
-        if (i >= octaves) break;
-        value += amplitude * smoothNoise(p * frequency);
-        amplitude *= 0.6; // More persistence for wispier look
-        frequency *= 2.1; // Slightly more frequency for detail
-    }
-    return value;
-}
 
 // Square-based cloud function for pixelated block clouds
 float squareClouds(vec2 uv, float scale, float threshold) {
@@ -167,25 +166,7 @@ float animatedSquareClouds(vec2 uv, float scale, float threshold, float time, ve
     return clouds * timeVariation;
 }
 
-// Function to create swirling patterns - optimized trigonometric operations
-vec2 swirl(vec2 uv, float intensity, vec2 center) {
-    vec2 delta = uv - center;
-    float dist = length(delta);
-    
-    // Pre-calculate time-based swirl factor to avoid repeated calculations
-    float swirlFactor = intensity * sin(time * timeScale * 0.5) * (1.0 - dist);
-    
-    // Optimize: avoid atan2 when possible, use approximation for small angles
-    if (abs(swirlFactor) < 0.1) {
-        // For small swirl amounts, use linear approximation (much faster)
-        vec2 perpendicular = vec2(-delta.y, delta.x);
-        return center + delta + perpendicular * swirlFactor;
-    } else {
-        // Only use expensive atan2 for larger swirls
-        float angle = atan(delta.y, delta.x) + swirlFactor;
-        return center + dist * vec2(cos(angle), sin(angle));
-    }
-}
+// (Removed unused fbm & swirl for performance clarity)
 
 // Optimized dust particles function - significantly reduced noise calls
 float dustParticles(vec2 uv, float scaledTime) {
@@ -293,10 +274,11 @@ void main() {
     // apply camera offset for parallax (small influence)
     uv += cameraOffset * 0.0005;
 
-    // Apply branchless pixelation mixing so pixelSize can be animated smoothly
-    float effectivePixelSize = max(pixelSize, 0.0); // allow 0 = off
-    float pixelFactor = clamp((effectivePixelSize - 1.0) / 7.0, 0.0, 1.0);
-    vec2 lowResUV = pixelate(uv, max(effectivePixelSize, 1.0));
+    // Branchless pixelation mask for smooth animation of pixelSize
+    float effectivePixelSize = max(pixelSize, 0.0);
+    float px = step(1.0, effectivePixelSize); // 0 when off
+    float pixelFactor = clamp((effectivePixelSize - 1.0) / 7.0, 0.0, 1.0) * px;
+    vec2 lowResUV = pixelate(uv, mix(1.0, effectivePixelSize, px));
     vec2 pixelatedUV = mix(uv, lowResUV, pixelFactor);
 
     // Apply time scaling to all time-based animations
@@ -318,22 +300,16 @@ void main() {
     float cloudPattern = largeClouds * 0.6 + mediumClouds * 0.3 + smallClouds * 0.2;
     
     // Quantize the final cloud pattern for more distinct blocks
-    if (effectivePixelSize > 1.0) {
-        cloudPattern = floor(cloudPattern * 6.0) / 6.0;
-    }
+    cloudPattern = mix(cloudPattern, floor(cloudPattern * 6.0) / 6.0, px);
     
     // Create some variation for glow effects using simplified calculation
     float glow = largeClouds * 0.2 + mediumClouds * 0.15; // Reduced intensity
-    if (effectivePixelSize > 1.0) {
-        glow = floor(glow * 3.0) / 3.0; // Less quantization levels
-    }
+    glow = mix(glow, floor(glow * 3.0) / 3.0, px);
     
     // Remove noisy color variation - use simple position-based variation instead
-    vec2 colorUV = (effectivePixelSize > 1.0) ? pixelatedUV : uv;
-    float colorVar = sin(colorUV.x * 2.0) * cos(colorUV.y * 1.5) * 0.1; // Simple, smooth variation
-    if (effectivePixelSize > 1.0) {
-        colorVar = floor(colorVar * 2.0) / 2.0; // Minimal quantization
-    }
+    vec2 colorUV = mix(uv, pixelatedUV, px);
+    float colorVar = sin(colorUV.x * 2.0) * cos(colorUV.y * 1.5) * 0.1;
+    colorVar = mix(colorVar, floor(colorVar * 2.0) / 2.0, px);
 
     // vertical bias for horizon tint (0 bottom -> 1 top)
     float vertical = clamp(uv.y, 0.0, 1.0);
@@ -343,19 +319,19 @@ void main() {
     float starDensityMultiplier = 0.7 + (particleQuality * 0.2); // Reduced from 1.0 + 0.3
     
     // Quality-based star layer optimization - fewer layers overall
-    float stars = 0.0;
+    vec3 stars = vec3(0.0);
     
     // Always render base star layer with reduced density
-    stars = starField(uv, 15.0 * starDensityMultiplier, 0.8); // Reduced from 20.0 density and 1.0 brightness
+    stars = starField(uv, 15.0 * starDensityMultiplier, 0.8); // base layer
     
     // Only add second layer on medium+ quality with lower density
     if (particleQuality >= 0.5) {
-        stars += starField(uv + 0.5, 10.0 * starDensityMultiplier, 0.5); // Reduced from 15.0 density and 0.8 brightness
+    stars += starField(uv + 0.5, 10.0 * starDensityMultiplier, 0.5);
     }
     
     // Only add third layer on high quality with much lower density
     if (particleQuality >= 1.5) {
-        stars += starField(uv + 0.25, 12.0 * starDensityMultiplier, 0.3); // Reduced from 25.0 density and 0.6 brightness
+    stars += starField(uv + 0.25, 12.0 * starDensityMultiplier, 0.3);
     }
     
     stars = clamp(stars, 0.0, 1.0);
@@ -376,13 +352,15 @@ void main() {
     nebulaColor += vec3(0.08, 0.04, 0.09) * pow(glow, 3.0); // Reduced and made more subtle
 
     // Optimized additive blending - much reduced intensity for cleaner look
-    vec3 dustColor = vec3(1.0, 0.8, 0.4);
-    nebulaColor += dustColor * dust * 0.3; // Further reduced from 0.6 for minimal noise
-    
-    vec3 starColor = vec3(1.0);
-    // star twinkle modulation
-    float twinkle = mix(1.0, 1.0 + (starTwinkle * 0.8), hash12(uv * 123.4));
-    nebulaColor += starColor * stars * 0.6 * twinkle; // Reduced star contribution
+    vec3 dustCol = dustColor;
+    if (dot(dustCol, dustCol) < 1e-5) { // fallback default when uniform left zero
+        dustCol = vec3(1.0, 0.8, 0.4);
+    }
+    nebulaColor += dustCol * dust * 0.3;
+
+    // Stars already include per-star twinkle & hue; apply mild global variation
+    float globalTwinkle = mix(1.0, 1.0 + starTwinkle * 0.2, hash12(floor(uv * 64.0)));
+    nebulaColor += stars * 0.6 * globalTwinkle;
 
     // exposure and timeOfDay tinting
     vec3 dayTint = mix(vec3(1.0, 0.95, 0.9), vec3(0.6, 0.7, 1.0), timeOfDay);
@@ -390,7 +368,18 @@ void main() {
     float safeExposure = (abs(exposure) < 1e-5) ? 1.0 : exposure;
     nebulaColor = nebulaColor * dayTint * safeExposure;
 
-    // Final output
+    // Dithering (hash-based) to mitigate banding when quantized / low exposure
+    if (ditherAmount > 0.0) {
+        float d = (hash12(floor(fragCoord.xy)) - 0.5) * (ditherAmount / 255.0);
+        nebulaColor += d;
+    }
+
+    // Gamma encode if requested
+    float g = (gamma > 0.0) ? gamma : 1.0;
+    if (abs(g - 1.0) > 1e-4) {
+        nebulaColor = pow(max(nebulaColor, 0.0), vec3(1.0 / g));
+    }
+
     gl_FragColor = vec4(nebulaColor, 1.0);
 }
 `;
