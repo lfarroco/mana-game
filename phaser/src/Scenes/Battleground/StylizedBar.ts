@@ -102,7 +102,8 @@ export function createStylizedBar(
 
 	// Label with stroke for better readability
 	const label = scene.add.text(
-		barWidth / 2, barHeight + 20,
+		barWidth / 2,
+		barHeight + 30,
 		'', {
 		...titleTextConfig,
 	}

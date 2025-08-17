@@ -16,11 +16,6 @@ let playerDisplay: CombinedDisplay | null = null;
 let cpuDisplay: CombinedDisplay | null = null;
 let scene: Phaser.Scene | null = null;
 
-/**
- * Returns the position of the morale bar for a given forceId.
- * @param forceId Player or CPU force id
- * @returns { x: number, y: number } or null if not available
- */
 export function getMoraleBarPosition(forceId: string): { x: number, y: number } | null {
 	if (forceId === c.FORCE_ID_PLAYER && playerDisplay) {
 		return {
@@ -36,12 +31,6 @@ export function getMoraleBarPosition(forceId: string): { x: number, y: number } 
 	return null;
 }
 
-/**
- * Returns the position of the current tip of the morale bar for a given forceId.
- * The tip position represents where the morale bar currently ends based on current morale percentage.
- * @param forceId Player or CPU force id
- * @returns { x: number, y: number } or null if not available
- */
 export function getMoraleBarTipPosition(forceId: string): { x: number, y: number } | null {
 	const barPosition = getMoraleBarPosition(forceId);
 	if (!barPosition) return null;
@@ -60,11 +49,6 @@ export function getMoraleBarTipPosition(forceId: string): { x: number, y: number
 	};
 }
 
-/**
- * Returns the position of the shield bar for a given forceId.
- * @param forceId Player or CPU force id
- * @returns { x: number, y: number } or null if not available
- */
 export function getShieldBarPosition(forceId: string): { x: number, y: number } | null {
 	if (forceId === c.FORCE_ID_PLAYER && playerDisplay) {
 		return {
@@ -80,12 +64,6 @@ export function getShieldBarPosition(forceId: string): { x: number, y: number } 
 	return null;
 }
 
-/**
- * Returns the position of the current tip of the shield bar for a given forceId.
- * The tip position represents where the shield bar currently ends based on current shield percentage.
- * @param forceId Player or CPU force id
- * @returns { x: number, y: number } or null if not available
- */
 export function getShieldBarTipPosition(forceId: string): { x: number, y: number } | null {
 	const barPosition = getShieldBarPosition(forceId);
 	if (!barPosition) return null;
@@ -279,11 +257,11 @@ function createCombinedDisplay(
 	let x = 0, y = 0;
 	if (forceId === c.FORCE_ID_PLAYER) {
 		// Player bars: left side of middle screen, close to player board
-		x = c.MIDDLE_SCREEN_X - 50; // 150px left of center
+		x = c.MIDDLE_SCREEN_X - 80; // 150px left of center
 		y = c.MIDDLE_SCREEN_Y - MORALE_BAR_HEIGHT / 2; // Vertically centered
 	} else {
 		// CPU bars: right side of middle screen, close to CPU board
-		x = c.MIDDLE_SCREEN_X + 50; // 150px right of center
+		x = c.MIDDLE_SCREEN_X + 80; // 150px right of center
 		y = c.MIDDLE_SCREEN_Y - MORALE_BAR_HEIGHT / 2; // Vertically centered
 	}
 
