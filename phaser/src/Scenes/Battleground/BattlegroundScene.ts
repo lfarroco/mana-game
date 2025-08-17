@@ -198,39 +198,33 @@ export class BattlegroundScene extends Phaser.Scene {
     const { unitId, targetTile, dragStartX, dragStartY } = payload;
 
     BattlegroundScenePure.handleUnitMoveRequestPure(
-      this.state.gameData.player.units,
-      unitId,
-      targetTile,
-      dragStartX,
-      dragStartY,
-      (unit: Unit, target: Vec2, units: Unit[]) => PartyBoard.updateUnitPosition(unit, target, units),
-      (unit: Unit) => CharaManager.getCharaPosition(unit),
-      (message: string) => console.error(message),
-      // onMoveAccepted callback
-      (unitId: string, _newLogicalPosition: any, newVisualPosition: { x: number, y: number }) => {
-        const chara = CharaManager.getChara(unitId);
-        chara?.moveToPosition(newVisualPosition);
-      },
-      // onSwapAccepted callback
-      (
-        movedUnitId: string,
-        _movedUnitNewLogicalPosition: any,
-        movedUnitVisualPosition: { x: number, y: number },
-        swappedUnitId: string,
-        _swappedUnitNewLogicalPosition: any,
-        swappedUnitVisualPosition: { x: number, y: number }
-      ) => {
-        const movedChara = CharaManager.getChara(movedUnitId);
-        const swappedChara = CharaManager.getChara(swappedUnitId);
-        movedChara?.moveToPosition(movedUnitVisualPosition);
-        swappedChara?.moveToPosition(swappedUnitVisualPosition);
-      },
-      // onMoveRejected callback
-      (unitId: string, _reason: string, dragStartX: number, dragStartY: number) => {
-        const chara = CharaManager.getChara(unitId);
-        chara?.revertToPosition(dragStartX, dragStartY);
-      }
-    );
+      {
+        units: this.state.gameData.player.units, unitId, targetTile, dragStartX, dragStartY, updateUnitPosition: (unit: Unit, target: Vec2, units: Unit[]) => PartyBoard.updateUnitPosition(unit, target, units), getVisualPosition: (unit: Unit) => CharaManager.getCharaPosition(unit), logError: (message: string) => console.error(message),
+        // onMoveAccepted callback
+        onMoveAccepted: (unitId: string, _newLogicalPosition: any, newVisualPosition: { x: number; y: number; }) => {
+          const chara = CharaManager.getChara(unitId);
+          chara?.moveToPosition(newVisualPosition);
+        },
+        // onSwapAccepted callback
+        onSwapAccepted: (
+          movedUnitId: string,
+          _movedUnitNewLogicalPosition: any,
+          movedUnitVisualPosition: { x: number; y: number; },
+          swappedUnitId: string,
+          _swappedUnitNewLogicalPosition: any,
+          swappedUnitVisualPosition: { x: number; y: number; }
+        ) => {
+          const movedChara = CharaManager.getChara(movedUnitId);
+          const swappedChara = CharaManager.getChara(swappedUnitId);
+          movedChara?.moveToPosition(movedUnitVisualPosition);
+          swappedChara?.moveToPosition(swappedUnitVisualPosition);
+        },
+        // onMoveRejected callback
+        onMoveRejected: (unitId: string, _reason: string, dragStartX: number, dragStartY: number) => {
+          const chara = CharaManager.getChara(unitId);
+          chara?.revertToPosition(dragStartX, dragStartY);
+        }
+      });
   }
 
   handleBattleResultShow(payload: { result: "victory" | "defeat" }): void {

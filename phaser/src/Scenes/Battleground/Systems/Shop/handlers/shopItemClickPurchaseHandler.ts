@@ -4,6 +4,7 @@ import { makeUnit, Unit } from "../../../../../Models/Entities/Unit";
 import { updatePlayerGoldIO } from "../../../../../Models/Entities/Force";
 import { getChara, summonChara } from "../../CharaManager";
 import { ui } from "../../../../../UI/UIManager";
+import { vec2 } from "../../../../../Models/Geometry.pure";
 
 type ShopItemClickPurchasePayload = {
 	shopUnitData: Unit;
@@ -27,12 +28,10 @@ export function shopItemClickPurchaseRequestedHandler(
 		reason: string,
 		additionalDetails?: Record<string, any>
 	) => {
-		getChara(shopCharaId).onShopPurchaseFailed({
-			reason,
-			originalShopCharaId: shopCharaId,
+		getChara(shopCharaId).onShopPurchaseFailed(vec2(
 			dragStartX,
 			dragStartY,
-		});
+		));
 
 		ui.handlePurchaseFailed({
 			unitName: shopUnitData.name,
