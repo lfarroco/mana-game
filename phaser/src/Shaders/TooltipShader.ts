@@ -98,9 +98,29 @@ void main() {
     // Blend top->mid->bottom
     vec3 verticalBlend = mix(topColor, midColor, smoothstep(0.08, 0.45, yEase));
     verticalBlend = mix(verticalBlend, bottomColor, smoothstep(0.55, 0.95, yEase2));
+
+    // RANDOMIZED BACKGROUND VARIATION ---------------------------------
+    // Large & medium scale fbm noise to break uniformity of gradient
+    float bgLarge  = fbm(uv * resolution / 230.0 + vec2(time * 0.015, -time * 0.011));
+    float bgMedium = fbm(uv * resolution / 95.0  + vec2(-time * 0.02,  time * 0.017));
+    float bgMix = mix(bgLarge, bgMedium, 0.55);
+    // Jitter vertical gradient subtly (centered around 0)
+    float gradJitter = (bgMix - 0.5);
+    // Tint modulation (slightly shifts towards cooler or warmer tones)
+    vec3 jitterTint = vec3(0.05, 0.09, 0.14) * gradJitter;
+    verticalBlend += jitterTint;
+    // Mild contrast pop using a curved response
+    float contrast = gradJitter * 0.9;
+    verticalBlend *= 1.0 + contrast * 0.15;
+    verticalBlend = clamp(verticalBlend, 0.0, 2.0);
     
     // Radial highlight (gives convex volume) - elliptical for aspect ratio
-    vec2 aspectUV = (uv - 0.5);
+    // Offset radial center by slow moving noise for organic shifting focus
+    vec2 centerNoise;
+    centerNoise.x = fbm(uv * resolution / 160.0 + vec2(time * 0.04, 1.7));
+    centerNoise.y = fbm(uv * resolution / 170.0 + vec2(-2.3, -time * 0.037));
+    vec2 centerOffset = (centerNoise - 0.5) * 0.18; // up to ~18% shift of half dimension
+    vec2 aspectUV = (uv - 0.5 - centerOffset);
     aspectUV.x *= resolution.x / resolution.y;
     float radial = 1.0 - clamp(length(aspectUV) / 0.92, 0.0, 1.0); // center 1 -> edges 0
     float radialPow = pow(radial, 2.4);
