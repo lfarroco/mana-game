@@ -1,6 +1,6 @@
 import { initGame } from "./initGame";
-import { initializeOptionsStore } from "./Models/OptionsStore";
+import * as OptionsStore from "./Models/OptionsStore";
 
 export const game = initGame();
 
-initializeOptionsStore(game);
+OptionsStore.init()
