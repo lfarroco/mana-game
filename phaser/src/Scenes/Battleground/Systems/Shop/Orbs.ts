@@ -1,11 +1,38 @@
 import { MagicOrb, MagicOrbCallbacks } from "../../../../components/MagicOrb/MagicOrb";
 import { getSharedPlayerBoard } from "../../../../Models/Board";
 import { Unit } from "../../../../Models/Entities/Unit";
+import { getReactionDescription } from "../../../../Systems/Chara/CharaTooltip";
 import { increasePower } from "../../../../TriggerSystem/effects";
+import { EffectReaction } from "../../../../TriggerSystem/TriggerSystem";
 import { hexToVector3 } from "../../../../Utils/colorUtils";
 
 import * as sc from "./ShopConstants";
 import { ShopUI } from "./ShopUI";
+
+const reactions: {
+	id: string,
+	referencePower: number,
+	data: EffectReaction
+}[] = [
+		{
+			id: "shield_on_column_action",
+			referencePower: 2,
+			data: {
+				effectId: "shield",
+				position: "column_allies",
+				effects: [
+					{
+						"id": "increase_power",
+						"amount": 2,
+						"sourceId": "_none_",
+						"targets": {
+							"id": "self"
+						}
+					}
+				]
+			}
+		}
+	]
 
 // Orb effect functions (pure)
 function crimsonOrbEffect(unit: Unit, scene: any) {
@@ -64,8 +91,13 @@ const orbs: Record<string, {
 		id: "golden_orb",
 		name: "Golden Orb",
 		color: 0xffcc00,
-		tooltip: "Adds 'when an ally shields, gain 2 power'.\nIf the unit already has this effect, increase it by 2.",
+		tooltip: [`Adds ${getReactionDescription(reactions[0].data, 2)}.`,
+			"If the unit already has this effect, increase it by 2.",
+			"A unit can have just one reaction."
+		].join("\n"),
 		effect: (unit: Unit) => {
+			if (unit.reactions.length >= 2) return;
+			// todo: have a bank of possible effects
 			const existingRection = unit.reactions
 				.find(react => {
 					return react.effectId === "shield" && react.position === "column_allies" && react.effects.some(e => e.id === "increase_power" && e.targets.id === "self");
@@ -103,10 +135,9 @@ const orbs: Record<string, {
 		id: "violet_orb",
 		name: "Violet Orb",
 		color: 0x9933ff,
-		tooltip: "[color=#da77f2]Arcane Mystery[/color]\n\n[color=#c0c0c0]Effect:[/color] [color=#da77f2]Unknown[/color]\n[color=#c0c0c0]Target:[/color] [color=#e0e0e0]Any unit[/color]\n\n[color=#c0c0c0]A swirling orb of deep violet energy. Ancient magic flows within, its secrets hidden from mortal understanding.[/color]",
+		tooltip: "Makes a unit forget its reaction",
 		effect: (unit: Unit) => {
-			// Dummy effect
-			console.log(`Violet Orb used on ${unit.id}`);
+			unit.reactions = []
 		}
 	}
 };
