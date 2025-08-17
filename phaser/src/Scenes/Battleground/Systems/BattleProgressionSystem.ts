@@ -27,6 +27,8 @@ function createUnitCopy(unit: Unit): Unit {
 	};
 }
 
+import { EventHandler } from "../../../Types/CommonTypes";
+
 /**
  * Manages the overall progression of the battle, including transitions
  * between shop and combat phases, round victories, and game over.
@@ -36,9 +38,9 @@ export class BattleProgressionSystem {
 	state: State;
 	isInShopPhase: boolean = false;
 	prestigeSystem: PrestigeSystem;
-	listeners: any[] = [];
+	listeners: Array<{ event: string; handler: EventHandler; context: BattleProgressionSystem }> = [];
 
-	addListener(event: string, handler: (...args: any[]) => void,): void {
+	addListener(event: string, handler: EventHandler): void {
 		this.scene.events.on(event, handler, this);
 		this.listeners.push({ event, handler, context: this })
 	}

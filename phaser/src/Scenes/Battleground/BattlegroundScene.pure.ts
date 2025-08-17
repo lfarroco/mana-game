@@ -1,7 +1,20 @@
 import { Unit } from "../../Models/Entities/Unit";
-import { Vec2, eqVec2 } from "../../Utils/Vec2";
+import { Vec2, eqVec2, vec2 } from "../../Models/Geometry.pure";
+import {
+	GameError,
+	EventHandler,
+	EventContext,
+	VisualPosition
+} from "../../Types/CommonTypes";
 
-/**
+// Local type definitions for this file
+type MovementResult = {
+	movedUnit: Unit;
+	swappedUnit?: Unit;
+	oldPositionOfMovedUnit: Vec2;
+};
+
+type PositionUpdateCallback = (unit: Unit, target: Vec2, units: Unit[]) => MovementResult | null;/**
  * Pure function to remove a unit from the player's units array
  * @param units - Array of units to search through
  * @param unitId - ID of the unit to remove
@@ -71,7 +84,7 @@ export function updateUnitPosition(
 	swappedUnit?: Unit;
 	oldPositionOfMovedUnit: Vec2;
 } | null {
-	const oldPositionOfMovedUnit = { x: unitToMove.position.x, y: unitToMove.position.y };
+	const oldPositionOfMovedUnit = vec2(unitToMove.position.x, unitToMove.position.y);
 
 	if (eqVec2(oldPositionOfMovedUnit, newBoardPosition)) {
 		return null; // No change in position
@@ -86,12 +99,12 @@ export function updateUnitPosition(
 
 	if (occupierUnit) {
 		// Swap positions - need to preserve the tag property for Unit's Vec2
-		occupierUnit.position = { tag: "_vec2" as const, ...oldPositionOfMovedUnit };
-		movedUnit.position = { tag: "_vec2" as const, ...newBoardPosition };
+		occupierUnit.position = oldPositionOfMovedUnit;
+		movedUnit.position = newBoardPosition;
 		return { movedUnit, swappedUnit: occupierUnit, oldPositionOfMovedUnit };
 	} else {
 		// Move to empty slot
-		movedUnit.position = { tag: "_vec2" as const, ...newBoardPosition };
+		movedUnit.position = newBoardPosition;
 		return { movedUnit, oldPositionOfMovedUnit };
 	}
 }
@@ -155,28 +168,19 @@ export function handleMoveResult(
 type MovementState = {
 	units: Unit[];
 	unitId: string;
-	targetTile: any;
+	targetTile: Vec2;
 	dragStartX: number;
 	dragStartY: number;
 };
 
 type MovementCallbacks = {
-	onMoveAccepted: (unitId: string, newLogicalPosition: Vec2, newVisualPosition: {
-		x: number;
-		y: number;
-	}) => void;
-	onSwapAccepted: (movedUnitId: string, movedUnitNewLogicalPosition: Vec2, movedUnitVisualPosition: {
-		x: number;
-		y: number;
-	}, swappedUnitId: string, swappedUnitNewLogicalPosition: Vec2, swappedUnitVisualPosition: {
-		x: number;
-		y: number;
-	}) => void;
+	onMoveAccepted: (unitId: string, newLogicalPosition: Vec2, newVisualPosition: VisualPosition) => void;
+	onSwapAccepted: (movedUnitId: string, movedUnitNewLogicalPosition: Vec2, movedUnitVisualPosition: VisualPosition, swappedUnitId: string, swappedUnitNewLogicalPosition: Vec2, swappedUnitVisualPosition: VisualPosition) => void;
 	onMoveRejected: (unitId: string, reason: string, dragStartX: number, dragStartY: number) => void;
 };
 
 type MovementServices = {
-	updateUnitPosition: (unit: Unit, target: any, units: Unit[]) => any;
+	updateUnitPosition: PositionUpdateCallback;
 	getVisualPosition: (unit: Unit) => Vec2;
 	logError: (message: string) => void;
 };
@@ -199,11 +203,11 @@ export function validateUnitMove(
 
 export function executeUnitMove(
 	unit: Unit,
-	targetTile: any,
+	targetTile: Vec2,
 	units: Unit[],
-	updatePosition: (unit: Unit, target: any, units: Unit[]) => any,
+	updatePosition: PositionUpdateCallback,
 	onInvalidMove: (unitId: string, reason: string) => void
-): any | null {
+): MovementResult | null {
 	const moveResult = updatePosition(unit, targetTile, units);
 	if (!moveResult) {
 		onInvalidMove(unit.id, "NO_CHANGE_OR_INVALID");
@@ -285,7 +289,7 @@ export function handleBattleResultDisplay(
  */
 export function performCleanup(
 	cleanupOperations: Array<{ name: string; operation: () => void }>,
-	onError: (operationName: string, error: any) => void
+	onError: (operationName: string, error: GameError) => void
 ): Array<{ name: string; success: boolean }> {
 	return cleanupOperations.map(({ name, operation }) => {
 		try {
@@ -306,7 +310,7 @@ export function performCleanup(
  */
 export function destroyGameObjects(
 	gameObjects: Array<{ name: string; object: { destroy: () => void } | null | undefined }>,
-	onError: (objectName: string, error: any) => void
+	onError: (objectName: string, error: GameError) => void
 ): Array<{ name: string; success: boolean }> {
 	return gameObjects.map(({ name, object }) => {
 		try {
@@ -378,10 +382,10 @@ export function updateShopUI(
  * @returns Array of listener configurations for cleanup
  */
 export function setupEventListeners(
-	eventMappings: Array<{ event: string; handler: (...args: any[]) => void; context?: any }>,
-	addEventListener: (event: string, handler: (...args: any[]) => void, context?: any) => void
-): Array<{ event: string; handler: (...args: any[]) => void; context?: any }> {
-	const listeners: Array<{ event: string; handler: (...args: any[]) => void; context?: any }> = [];
+	eventMappings: Array<{ event: string; handler: EventHandler; context?: EventContext }>,
+	addEventListener: (event: string, handler: EventHandler, context?: EventContext) => void
+): Array<{ event: string; handler: EventHandler; context?: EventContext }> {
+	const listeners: Array<{ event: string; handler: EventHandler; context?: EventContext }> = [];
 
 	eventMappings.forEach(({ event, handler, context }) => {
 		addEventListener(event, handler, context);

@@ -15,6 +15,7 @@ import { BattleProgressionSystem } from "./Systems/BattleProgressionSystem";
 import { getOption } from "../../Models/OptionsStore";
 import { Unit } from "../../Models/Entities/Unit";
 import { Vec2 } from "../../Models/Geometry";
+import { GameError } from "../../Types/CommonTypes";
 import { battleResultAnimation } from "./battleResultAnimation";
 import * as BattlegroundScenePure from "./BattlegroundScene.pure";
 import { updatePlayerGoldIO } from "../../Models/Entities/Force";
@@ -61,7 +62,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     BattlegroundScenePure.performCleanup(
       cleanupOperations,
-      (operationName: string, error: any) => console.error(`Cleanup failed for ${operationName}:`, error)
+      (operationName: string, error: GameError) => console.error(`Cleanup failed for ${operationName}:`, error)
     );
 
     // Use pure function for safe destruction of game objects
@@ -74,7 +75,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     BattlegroundScenePure.destroyGameObjects(
       gameObjects,
-      (objectName: string, error: any) => console.error(`Failed to destroy ${objectName}:`, error)
+      (objectName: string, error: GameError) => console.error(`Failed to destroy ${objectName}:`, error)
     );
 
     // Note: Shop, RunCombatSystem, BattleProgressionSystem might need destroy methods
@@ -215,16 +216,16 @@ export class BattlegroundScene extends Phaser.Scene {
       },
       // Movement Callbacks - event handlers
       {
-        onMoveAccepted: (unitId: string, _newLogicalPosition: any, newVisualPosition: { x: number; y: number; }) => {
+        onMoveAccepted: (unitId: string, _newLogicalPosition: Vec2, newVisualPosition: { x: number; y: number; }) => {
           const chara = CharaManager.getChara(unitId);
           chara?.moveToPosition(newVisualPosition);
         },
         onSwapAccepted: (
           movedUnitId: string,
-          _movedUnitNewLogicalPosition: any,
+          _movedUnitNewLogicalPosition: Vec2,
           movedUnitVisualPosition: { x: number; y: number; },
           swappedUnitId: string,
-          _swappedUnitNewLogicalPosition: any,
+          _swappedUnitNewLogicalPosition: Vec2,
           swappedUnitVisualPosition: { x: number; y: number; }
         ) => {
           const movedChara = CharaManager.getChara(movedUnitId);

@@ -4,10 +4,12 @@ import { Shop } from "./Shop/Shop";
 import { BattlegroundScene } from "../BattlegroundScene";
 import * as MoraleDisplay from "../MoraleDisplay";
 
+import { EventHandler, EventContext } from "../../../Types/CommonTypes";
+
 type Listener = {
 	event: string;
-	handler: (...args: any[]) => void;
-	context?: UIManager | PartyBoard | Shop | BattlegroundEventSystem | undefined;
+	handler: EventHandler;
+	context?: UIManager | PartyBoard | Shop | BattlegroundEventSystem | EventContext | undefined;
 };
 
 /**
@@ -48,7 +50,7 @@ export class BattlegroundEventSystem {
 		}
 	}
 
-	addListener(event: string, handler: (...args: any[]) => void, context?: any): void {
+	addListener(event: string, handler: EventHandler, context?: EventContext): void {
 		// Check for duplicate listeners before adding
 		const isDuplicate = this.listeners.some(
 			listener => listener.event === event && listener.handler === handler && listener.context === context

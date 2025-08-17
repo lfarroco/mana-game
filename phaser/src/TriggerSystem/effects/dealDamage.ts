@@ -24,7 +24,7 @@ export function createDealDamageLogic(
 		let damageAmount = sourceUnit.power;
 
 		const targetForce = scene.state.battleData.forces.find(
-			(force: { id: any; }) => force.id !== sourceUnit.force
+			(force: { id: string }) => force.id !== sourceUnit.force
 		)!;
 
 		// Show a red projectile from source unit to the appropriate target
