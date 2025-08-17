@@ -296,13 +296,14 @@ function createCombinedDisplay(
 		height: MORALE_BAR_HEIGHT,
 		barColor: shieldBarColor,
 		backgroundColor: 0x000000,
-		backgroundOpacity: 0, // No background
-		borderOpacity: 0, // No border
+		// Give shield bar a faint background & border similar to morale bar so it appears solid
+		backgroundOpacity: 0.2,
+		borderOpacity: 1,
 		textConfig: c.defaultTextConfig,
 	});
 
-	// Make the shield bar semi-transparent
-	shieldBar.container.setAlpha(0.5);
+	// Ensure shield bar fully opaque (player bar was appearing transparent before)
+	shieldBar.container.setAlpha(1);
 
 	return {
 		moraleBar,
