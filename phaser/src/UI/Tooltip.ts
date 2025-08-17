@@ -9,7 +9,7 @@ import { defaultTextConfig } from "../constants/constants";
 import { tooltipFragmentShader } from "../Shaders/TooltipShader";
 
 // UI Constants
-const PADDING = 20;
+const PADDING = 30;
 const INTER_ELEMENT_PADDING = PADDING / 2;
 
 // Sizing Constants
@@ -39,10 +39,11 @@ let lastAdjustedY: number | undefined;
 
 /**
  * Calculates the adjusted position for the tooltip to ensure it stays within the canvas bounds.
- * The tooltip is centered on the provided x, y coordinates unless it would go off-screen.
+ * The tooltip will be centered on the provided x, y coordinates unless it would go off-screen.
+ * Returns the top-left corner position for 0,0 anchored tooltip.
  * @param x The desired x-coordinate (center of the tooltip).
  * @param y The desired y-coordinate (center of the tooltip).
- * @returns An object containing the adjusted x and y coordinates.
+ * @returns An object containing the adjusted x and y coordinates for the top-left corner.
  */
 function getAdjustedPosition(x: number, y: number): { x: number, y: number } {
 	if (!scene || !container) return { x, y };
@@ -50,8 +51,8 @@ function getAdjustedPosition(x: number, y: number): { x: number, y: number } {
 	// Check if we can use cached position
 	if (lastAdjustedX !== undefined &&
 		lastAdjustedY !== undefined &&
-		Math.abs(x - container.x) < 1 &&
-		Math.abs(y - container.y) < 1) {
+		Math.abs(x - (container.x + tooltipWidth / 2)) < 1 &&
+		Math.abs(y - (container.y + tooltipHeight / 2)) < 1) {
 		return { x: lastAdjustedX, y: lastAdjustedY };
 	}
 
@@ -60,9 +61,13 @@ function getAdjustedPosition(x: number, y: number): { x: number, y: number } {
 	const halfTooltipWidth = tooltipWidth / 2;
 	const halfTooltipHeight = tooltipHeight / 2;
 
-	// Calculate adjusted position
-	const adjustedX = Math.max(halfTooltipWidth, Math.min(x, canvasWidth - halfTooltipWidth));
-	const adjustedY = Math.max(halfTooltipHeight, Math.min(y, canvasHeight - halfTooltipHeight));
+	// Calculate center position first
+	const centerX = Math.max(halfTooltipWidth, Math.min(x, canvasWidth - halfTooltipWidth));
+	const centerY = Math.max(halfTooltipHeight, Math.min(y, canvasHeight - halfTooltipHeight));
+
+	// Convert center position to top-left corner for 0,0 anchor
+	const adjustedX = centerX - halfTooltipWidth;
+	const adjustedY = centerY - halfTooltipHeight;
 
 	// Cache the result
 	lastAdjustedX = adjustedX;
@@ -133,7 +138,7 @@ export function initializeTooltip(newScene: Phaser.Scene): void {
 		0,
 		tooltipWidth,
 		tooltipHeight
-	).setOrigin(0.5, 0.5);
+	).setOrigin(0, 0);
 
 	container.add(bg);
 
@@ -198,35 +203,30 @@ export function renderTooltip(x: number, y: number, title: string, description: 
 
 	// Recalculate layout only if content changed or tooltip was hidden
 	if (contentChanged || !container.visible) {
-		// Calculate max wrap width
+		// First, render text with maximum possible width to get accurate measurements
 		const maxWrapWidth = MAX_TOOLTIP_WIDTH - 2 * PADDING;
 		descriptionText.setWordWrapWidth(maxWrapWidth);
 
-		// Force text layout update for BBCodeText
+		// Force text layout update for BBCodeText to get accurate dimensions
 		descriptionText.updateText();
 
-		// Position elements and calculate sizes
-		titleText.setPosition(0, 0);
-		descriptionText.setPosition(0, titleText.height + INTER_ELEMENT_PADDING);
-
+		// Now calculate the actual tooltip size based on text content
 		const contentWidth = Math.max(titleText.width, descriptionText.width);
 		tooltipWidth = Math.max(MIN_TOOLTIP_WIDTH, Math.min(contentWidth + 2 * PADDING, MAX_TOOLTIP_WIDTH));
 
-		// Adjust description wrap if needed
-		const descriptionWrapWidth = tooltipWidth - 2 * PADDING;
-		descriptionText.setWordWrapWidth(descriptionWrapWidth);
+		// If the calculated width is smaller than max, re-wrap description with the actual width
+		const actualDescriptionWrapWidth = tooltipWidth - 2 * PADDING;
+		if (actualDescriptionWrapWidth < maxWrapWidth) {
+			descriptionText.setWordWrapWidth(actualDescriptionWrapWidth);
+			descriptionText.updateText();
+		}
 
-		// Force another layout update after final wrap width adjustment
-		descriptionText.updateText();
-		descriptionText.setPosition(0, titleText.height + INTER_ELEMENT_PADDING);
+		// Calculate total height based on final text dimensions
+		const totalContentHeight = titleText.height + INTER_ELEMENT_PADDING + descriptionText.height;
+		tooltipHeight = Math.max(MIN_TOOLTIP_HEIGHT, totalContentHeight + 2 * PADDING);
 
-		const totalHeight = titleText.height + INTER_ELEMENT_PADDING + descriptionText.height + PADDING;
-		tooltipHeight = Math.max(MIN_TOOLTIP_HEIGHT, totalHeight + PADDING);
-
-		// Redraw background and decorations
+		// Update shader background size first
 		if (!bg) return;
-
-		// Update shader uniforms for the new size
 		bg.setSize(tooltipWidth, tooltipHeight);
 		bg.setUniform('resolution.value', [tooltipWidth, tooltipHeight]);
 
@@ -234,12 +234,9 @@ export function renderTooltip(x: number, y: number, title: string, description: 
 		const elapsedTime = (scene.time.now - startTime) / 1000;
 		bg.setUniform('time.value', elapsedTime);
 
-		// Position text elements
-		titleText.setPosition(-tooltipWidth / 2 + PADDING, -tooltipHeight / 2 + PADDING);
-		descriptionText.setPosition(
-			-tooltipWidth / 2 + PADDING,
-			titleText.y + titleText.height + INTER_ELEMENT_PADDING
-		);
+		// Position text elements with consistent 0,0 anchor positioning
+		titleText.setPosition(PADDING, PADDING);
+		descriptionText.setPosition(PADDING, PADDING + titleText.height + INTER_ELEMENT_PADDING);
 	}
 
 	// Update position
