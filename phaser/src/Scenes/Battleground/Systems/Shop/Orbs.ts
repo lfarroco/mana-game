@@ -24,7 +24,6 @@ const reactions: {
 					{
 						"id": "increase_power",
 						"amount": 2,
-						"sourceId": "_none_",
 						"targets": {
 							"id": "self"
 						}
@@ -120,7 +119,6 @@ const orbs: Record<string, {
 					effects: [
 						{
 							"id": "increase_power",
-							"sourceId": unit.id,
 							"amount": 2,
 							"targets": {
 								"id": "self"

@@ -8,7 +8,7 @@ import { TimeoutDamageSystem } from "./Systems/TimeoutDamageSystem";
 import { PoisonDamageSystem } from "./Systems/PoisonDamageSystem";
 import { RegenSystem } from "./Systems/RegenSystem";
 import * as CombatStatsTracker from "./Systems/CombatStatsTracker";
-import { processEffects } from "../../TriggerSystem/TriggerSystem";
+import { processEffectsIO } from "../../TriggerSystem/TriggerSystem";
 
 /**
  * Represents the possible outcomes of a combat wave.
@@ -119,7 +119,7 @@ export class RunCombatSystem {
 
         CombatStatsTracker.handleUnitAction({ unit });
 
-        processEffects(this.scene, unit.effects)
+        processEffectsIO(unit, unit.effects)
 
       }
 
@@ -167,11 +167,11 @@ export class RunCombatSystem {
     };
 
     // process battle start effects for all units
-    const battleStartEffects = getState().battleData.units.flatMap(u => {
-      return u.reactions.filter(e => e.effectId === "battle_start");
-    }).flatMap(r => r.effects);
-
-    processEffects(this.scene, battleStartEffects);
+    // Execute battle start effects per unit (source context matters now)
+    getState().battleData.units.forEach(u => {
+      const startReactions = u.reactions.filter(r => r.effectId === "battle_start");
+      startReactions.forEach(r => processEffectsIO(u, r.effects));
+    });
 
 
     events.on('update', this.updateHandler);
