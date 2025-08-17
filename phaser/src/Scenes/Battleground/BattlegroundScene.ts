@@ -197,15 +197,28 @@ export class BattlegroundScene extends Phaser.Scene {
   handleOwnedUnitMoveRequest(payload: { unitId: string, targetTile: Vec2, dragStartX: number, dragStartY: number }): void {
     const { unitId, targetTile, dragStartX, dragStartY } = payload;
 
-    BattlegroundScenePure.handleUnitMoveRequestPure(
+    // Use the new functional approach with organized parameters
+    BattlegroundScenePure.handleUnitMoveRequest(
+      // Movement State - the core data
       {
-        units: this.state.gameData.player.units, unitId, targetTile, dragStartX, dragStartY, updateUnitPosition: (unit: Unit, target: Vec2, units: Unit[]) => PartyBoard.updateUnitPosition(unit, target, units), getVisualPosition: (unit: Unit) => CharaManager.getCharaPosition(unit), logError: (message: string) => console.error(message),
-        // onMoveAccepted callback
+        units: this.state.gameData.player.units,
+        unitId,
+        targetTile,
+        dragStartX,
+        dragStartY
+      },
+      // Movement Services - pure functions and utilities
+      {
+        updateUnitPosition: (unit: Unit, target: Vec2, units: Unit[]) => PartyBoard.updateUnitPosition(unit, target, units),
+        getVisualPosition: (unit: Unit) => CharaManager.getCharaPosition(unit),
+        logError: (message: string) => console.error(message)
+      },
+      // Movement Callbacks - event handlers
+      {
         onMoveAccepted: (unitId: string, _newLogicalPosition: any, newVisualPosition: { x: number; y: number; }) => {
           const chara = CharaManager.getChara(unitId);
           chara?.moveToPosition(newVisualPosition);
         },
-        // onSwapAccepted callback
         onSwapAccepted: (
           movedUnitId: string,
           _movedUnitNewLogicalPosition: any,
@@ -219,12 +232,12 @@ export class BattlegroundScene extends Phaser.Scene {
           movedChara?.moveToPosition(movedUnitVisualPosition);
           swappedChara?.moveToPosition(swappedUnitVisualPosition);
         },
-        // onMoveRejected callback
         onMoveRejected: (unitId: string, _reason: string, dragStartX: number, dragStartY: number) => {
           const chara = CharaManager.getChara(unitId);
           chara?.revertToPosition(dragStartX, dragStartY);
         }
-      });
+      }
+    );
   }
 
   handleBattleResultShow(payload: { result: "victory" | "defeat" }): void {

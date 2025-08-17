@@ -152,48 +152,94 @@ export function handleMoveResult(
 	}
 }
 
+type MovementState = {
+	units: Unit[];
+	unitId: string;
+	targetTile: any;
+	dragStartX: number;
+	dragStartY: number;
+};
+
+type MovementCallbacks = {
+	onMoveAccepted: (unitId: string, newLogicalPosition: Vec2, newVisualPosition: {
+		x: number;
+		y: number;
+	}) => void;
+	onSwapAccepted: (movedUnitId: string, movedUnitNewLogicalPosition: Vec2, movedUnitVisualPosition: {
+		x: number;
+		y: number;
+	}, swappedUnitId: string, swappedUnitNewLogicalPosition: Vec2, swappedUnitVisualPosition: {
+		x: number;
+		y: number;
+	}) => void;
+	onMoveRejected: (unitId: string, reason: string, dragStartX: number, dragStartY: number) => void;
+};
+
+type MovementServices = {
+	updateUnitPosition: (unit: Unit, target: any, units: Unit[]) => any;
+	getVisualPosition: (unit: Unit) => Vec2;
+	logError: (message: string) => void;
+};
+
 /**
- * Pure function to handle unit move request logic with dependency injection
- * @param units - Array of player units
- * @param unitId - ID of unit to move
- * @param targetTile - Target position
- * @param dragStartX - X coordinate where drag started
- * @param dragStartY - Y coordinate where drag started
- * @param updateUnitPosition - Function to update unit position (from PlayerBoard)
- * @param getVisualPosition - Function to get visual position for a unit
- * @param logError - Function to log errors
- * @param onMoveAccepted - Callback for when a unit move is accepted
- * @param onSwapAccepted - Callback for when a unit swap is accepted
- * @param onMoveRejected - Callback for when a unit move is rejected
- * @returns void (side effects through injected functions)
+ * Alternative approach: Break down into smaller, focused functions
  */
-export function handleUnitMoveRequestPure(
-	{ units, unitId, targetTile, dragStartX, dragStartY, updateUnitPosition, getVisualPosition, logError, onMoveAccepted, onSwapAccepted, onMoveRejected }: {
-		units: Unit[]; unitId: string; targetTile: any; dragStartX: number; dragStartY: number; updateUnitPosition: (unit: Unit, target: any, units: Unit[]) => any; getVisualPosition: (unit: Unit) => Vec2; logError: (message: string) => void; onMoveAccepted: (unitId: string, newLogicalPosition: Vec2, newVisualPosition: { x: number; y: number; }) => void; onSwapAccepted: (
-			movedUnitId: string,
-			movedUnitNewLogicalPosition: Vec2,
-			movedUnitVisualPosition: { x: number; y: number; },
-			swappedUnitId: string,
-			swappedUnitNewLogicalPosition: Vec2,
-			swappedUnitVisualPosition: { x: number; y: number; }
-		) => void; onMoveRejected: (unitId: string, reason: string, dragStartX: number, dragStartY: number) => void;
-	}): void {
+export function validateUnitMove(
+	units: Unit[],
+	unitId: string,
+	onError: (unitId: string, reason: string) => void
+): Unit | null {
 	const unitToMove = findUnitById(units, unitId);
-
 	if (!unitToMove) {
-		logError(`[BattlegroundScene] Unit with ID ${unitId} not found for move request.`);
-		onMoveRejected(unitId, "UNIT_NOT_FOUND", dragStartX, dragStartY);
-		return;
+		onError(unitId, "UNIT_NOT_FOUND");
+		return null;
 	}
+	return unitToMove;
+}
 
-	const moveResult = updateUnitPosition(unitToMove, targetTile, units);
-
+export function executeUnitMove(
+	unit: Unit,
+	targetTile: any,
+	units: Unit[],
+	updatePosition: (unit: Unit, target: any, units: Unit[]) => any,
+	onInvalidMove: (unitId: string, reason: string) => void
+): any | null {
+	const moveResult = updatePosition(unit, targetTile, units);
 	if (!moveResult) {
-		onMoveRejected(unitId, "NO_CHANGE_OR_INVALID", dragStartX, dragStartY);
-		return;
+		onInvalidMove(unit.id, "NO_CHANGE_OR_INVALID");
+		return null;
 	}
+	return moveResult;
+}
 
-	// Successfully moved or swapped - use the new callback approach
+/**
+ * Main function to handle unit move requests using functional decomposition
+ */
+export function handleUnitMoveRequest(
+	state: MovementState,
+	services: MovementServices,
+	callbacks: MovementCallbacks
+) {
+	const { units, unitId, targetTile, dragStartX, dragStartY } = state;
+	const { updateUnitPosition, getVisualPosition, logError } = services;
+	const { onMoveAccepted, onSwapAccepted, onMoveRejected } = callbacks;
+
+	// Validate unit exists
+	const unit = validateUnitMove(units, unitId, (id, reason) => {
+		logError(`[BattlegroundScene] Unit with ID ${id} not found for move request.`);
+		onMoveRejected(id, reason, dragStartX, dragStartY);
+	});
+
+	if (!unit) return;
+
+	// Execute the move
+	const moveResult = executeUnitMove(unit, targetTile, units, updateUnitPosition, (id, reason) => {
+		onMoveRejected(id, reason, dragStartX, dragStartY);
+	});
+
+	if (!moveResult) return;
+
+	// Handle successful move/swap
 	handleMoveResult(moveResult, getVisualPosition, onMoveAccepted, onSwapAccepted);
 }
 
