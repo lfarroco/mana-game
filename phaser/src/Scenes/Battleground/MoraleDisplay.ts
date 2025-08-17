@@ -29,9 +29,11 @@ export function getMoraleBarPosition(forceId: string): { x: number, y: number } 
 	return null;
 }
 
-export function getMoraleBarTipPosition(forceId: string): { x: number, y: number } | null {
+export function getMoraleBarTipPosition(forceId: string): { x: number, y: number } {
 	const barPosition = getMoraleBarPosition(forceId);
-	if (!barPosition) return null;
+	if (!barPosition) {
+		throw new Error(`Morale bar position not found for forceId: ${forceId}`);
+	}
 
 	const force = forceId === c.FORCE_ID_PLAYER ? playerForce : cpuForce;
 	const moralePercentage = Math.max(0, force.morale) / force.maxMorale;
@@ -59,9 +61,11 @@ export function getShieldBarPosition(forceId: string): { x: number, y: number } 
 	return null;
 }
 
-export function getShieldBarTipPosition(forceId: string): { x: number, y: number } | null {
+export function getShieldBarTipPosition(forceId: string): { x: number, y: number } {
 	const barPosition = getShieldBarPosition(forceId);
-	if (!barPosition) return null;
+	if (!barPosition) {
+		throw new Error(`Shield bar position not found for forceId: ${forceId}`);
+	};
 
 	const force = forceId === c.FORCE_ID_PLAYER ? playerForce : cpuForce;
 	const shieldPercentage = Math.min(1.0, Math.max(0, force.shield) / force.maxMorale);

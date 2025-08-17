@@ -30,22 +30,11 @@ export function createDealDamageLogic(
 		// Show a red projectile from source unit to the appropriate target
 		// Target shield bar tip if enemy has shield, otherwise target morale bar tip
 		const sourceChara = getChara(sourceUnit.id);
-		if (!sourceChara) {
-			// Fallback: just apply damage directly if no source character found
-			dealDamage(targetForce, damageAmount, scene);
-			return;
-		}
 
 		// Choose target based on whether the enemy has shield
 		const targetPos = targetForce.shield > 0
 			? getShieldBarTipPosition(targetForce.id)
 			: getMoraleBarTipPosition(targetForce.id);
-
-		if (!targetPos) {
-			// Fallback: just apply damage directly
-			dealDamage(targetForce, damageAmount, scene);
-			return;
-		}
 
 		arcaneMissileTargeted(
 			scene,
