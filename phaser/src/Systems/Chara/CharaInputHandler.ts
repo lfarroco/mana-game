@@ -47,6 +47,7 @@ export class CharaInputHandler {
 	onDragStart = (_pointer: Phaser.Input.Pointer, _dragX: number, _dragY: number): void => {
 		this.dragStartX = this.chara.x;
 		this.dragStartY = this.chara.y;
+		this.dragStartVec = vec2(this.dragStartX, this.dragStartY);
 		this.wasDragSuccessful = false;
 
 		// If it's a shop item, bring it to top within the shop flyout
@@ -91,11 +92,14 @@ export class CharaInputHandler {
 		if (!this.chara.getIsShopItem()) {
 			this.chara.shop.shopUI.hideSellZone();
 		}
+
+		// If drag was not successful, return to original position
 		if (!this.wasDragSuccessful) {
-			this.chara.moveToPosition(vec2(this.dragStartX, this.dragStartY));
+			this.chara.moveToPosition(this.dragStartVec);
 		}
-		// Reset for next potential drag, though wasDragSuccessful is set at start of drag.
-		// this.wasDragSuccessful = false; // Not strictly needed here as it's reset on drag_start
+
+		// Always reset the flag for the next drag operation
+		this.wasDragSuccessful = false;
 	}
 
 	onPointerUpShopItem = (pointer: Phaser.Input.Pointer): void => {

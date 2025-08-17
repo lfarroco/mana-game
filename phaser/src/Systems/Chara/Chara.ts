@@ -194,26 +194,21 @@ export class Chara extends Phaser.GameObjects.Container {
 	}
 
 	/**
-	 * Move this character to a new visual position (for owned units only)
+	 * Move this character to a new visual position
 	 * @param newVisualPosition - The new visual position to move to
 	 */
 	moveToPosition(newVisualPosition: { x: number, y: number }) {
-		if (!this.isShopItem) {
-			tween({ targets: [this], x: newVisualPosition.x, y: newVisualPosition.y, duration: 150 });
-		}
+		tween({ targets: [this], x: newVisualPosition.x, y: newVisualPosition.y, duration: 150 });
 	}
 
 	/**
-	 * Revert this character's position after a failed move (for owned units only)
+	 * Revert this character's position after a failed move
 	 * @param dragStartX - X position to revert to
 	 * @param dragStartY - Y position to revert to
 	 */
 	revertToPosition(dragStartX: number, dragStartY: number): void {
-		if (!this.isShopItem) {
-			// Ensure tooltip is hidden before reverting, as pointer might not naturally move out
-			hideTooltip();
-			this.moveToPosition(vec2(dragStartX, dragStartY));
-		}
+		hideTooltip();
+		this.moveToPosition(vec2(dragStartX, dragStartY));
 	}
 
 	// --- UI Update Methods ---
