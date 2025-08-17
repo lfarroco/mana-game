@@ -43,7 +43,7 @@ const buildEffectBlock = (effect: Effect, unitPower: number): string => {
 	}
 };
 
-const getReactionDescription = (reaction: EffectReaction, unitPower: number): string => {
+export const getReactionDescription = (reaction: EffectReaction, unitPower: number): string => {
 	const triggerOn = reaction.effectId.charAt(0).toUpperCase() + reaction.effectId.slice(1);
 
 	const posDesc = reaction.position ? getPositionDescription(reaction.position) : undefined;

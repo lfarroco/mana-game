@@ -13,7 +13,7 @@ export type EffectReaction = {
 export type Effect = {
 	id: "damage",
 	amount: number,
-	sourceId: string,
+	sourceId: string, // TODO: probably not needed, and creates a drift when compared with spec
 } | {
 	id: "heal",
 	amount: number,
