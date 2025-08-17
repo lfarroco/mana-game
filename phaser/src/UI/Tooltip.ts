@@ -20,6 +20,7 @@ const MAX_TOOLTIP_WIDTH = 800;
 // Font Constants
 const TITLE_FONT_SIZE = 40;
 const DESCRIPTION_FONT_SIZE = 30;
+const DESCRIPTION_LINE_SPACING = 8; // extra vertical space between lines
 
 // Module-level state for the singleton tooltip
 let scene: Phaser.Scene | null = null;
@@ -158,6 +159,14 @@ export function initializeTooltip(newScene: Phaser.Scene): void {
 		.setAlign("left")
 		.setWrapMode(1)
 		.setFontFamily("Arial");
+
+	// Increase line height (line spacing) slightly for readability
+	// Use cast to any in case typings don't include setLineSpacing
+	if ((descriptionText as any).setLineSpacing) {
+		(descriptionText as any).setLineSpacing(DESCRIPTION_LINE_SPACING);
+	} else if ('lineSpacing' in (descriptionText as any)) {
+		(descriptionText as any).lineSpacing = DESCRIPTION_LINE_SPACING;
+	}
 	container.add(descriptionText);
 
 	container.setVisible(false); // Initially hidden

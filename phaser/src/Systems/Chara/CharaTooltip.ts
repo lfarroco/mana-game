@@ -2,36 +2,42 @@ import { Chara } from "./Chara";
 import { Effect, EffectReaction } from "../../TriggerSystem/TriggerSystem";
 import { hideTooltip, renderTooltip } from "../../UI/Tooltip";
 
-// Helper function to generate structured effect blocks (closer to card mockup)
-// Returns an array of lines so we can control spacing/layout more easily.
+// Helper function to generate single-line effect descriptions (no internal line breaks)
+// Pattern example: Haste 1s -> Top ally
 const buildEffectBlock = (effect: Effect, unitPower: number): string => {
+	// Common helpers
+	const withTargets = (base: string, targets?: any) => {
+		if (!targets) return base; // effects without explicit targets
+		return `${base} → [color=#e0e0e0]${getTargetDescription(targets)}[/color]`;
+	};
+
 	switch (effect.id) {
 		case "damage":
-			return `[color=#ff6b6b]Damage[/color]  [color=#ffd93d]${unitPower}[/color]`;
+			return `[color=#ff6b6b]Damage[/color] [color=#ffd93d]${unitPower}[/color]`;
 		case "heal":
-			return `[color=#51cf66]Heal[/color]  [color=#ffd93d]${unitPower}[/color]`;
+			return `[color=#51cf66]Heal[/color] [color=#ffd93d]${unitPower}[/color]`;
 		case "shield":
-			return `[color=#74c0fc]Shield[/color]  [color=#ffd93d]${unitPower}[/color]`;
+			return `[color=#74c0fc]Shield[/color] [color=#ffd93d]${unitPower}[/color]`;
 		case "poison":
-			return `[color=#da77f2]Poison[/color]  [color=#ffd93d]${unitPower}[/color]`;
+			return `[color=#da77f2]Poison[/color] [color=#ffd93d]${unitPower}[/color]`;
 		case "regen":
-			return `[color=#8ce99a]Regen[/color]  [color=#ffd93d]${unitPower}[/color]`;
+			return `[color=#8ce99a]Regen[/color] [color=#ffd93d]${unitPower}[/color]`;
 		case "haste": {
 			const dur = (effect.duration / 1000).toFixed(1);
-			return `[color=#91a7ff][b]Haste[/b][/color] [color=#ffa94d]${dur}s[/color]\n[color=#c0c0c0]→ Affects:[/color] [color=#e0e0e0]${getTargetDescription(effect.targets)}[/color]`;
+			return withTargets(`[color=#91a7ff][b]Haste[/b][/color] [color=#ffa94d]${dur}s[/color]`, effect.targets);
 		}
 		case "slow": {
 			const dur = (effect.duration / 1000).toFixed(1);
-			return `[color=#d0bfff][b]Slow[/b][/color] [color=#ffa94d]${dur}s[/color]\n[color=#c0c0c0]→ Affects:[/color] [color=#e0e0e0]${getTargetDescription(effect.targets)}[/color]`;
+			return withTargets(`[color=#d0bfff][b]Slow[/b][/color] [color=#ffa94d]${dur}s[/color]`, effect.targets);
 		}
 		case "charge":
-			return `[color=#ffe066]Charge[/color]  [color=#ffd93d]${effect.amount}[/color]\n[color=#c0c0c0]→ Targets:[/color] [color=#e0e0e0]${getTargetDescription(effect.targets)}[/color]`;
+			return withTargets(`[color=#ffe066]Charge[/color] [color=#ffd93d]${effect.amount}[/color]`, effect.targets);
 		case "increase_power":
-			return `[color=#ff8cc8]Increase Power[/color]  [color=#ffd93d]${effect.amount}[/color]\n[color=#c0c0c0]→ Targets:[/color] [color=#e0e0e0]${getTargetDescription(effect.targets)}[/color]`;
+			return withTargets(`[color=#ff8cc8]Increase Power[/color] [color=#ffd93d]${effect.amount}[/color]`, effect.targets);
 		case "multiply_power":
-			return `[color=#ff8cc8]Multiply Power[/color]  [color=#ffd93d]${effect.multiplier}x[/color]\n[color=#c0c0c0]→ Targets:[/color] [color=#e0e0e0]${getTargetDescription(effect.targets)}[/color]`;
+			return withTargets(`[color=#ff8cc8]Multiply Power[/color] [color=#ffd93d]${effect.multiplier}x[/color]`, effect.targets);
 		case "grant_gold":
-			return `[color=#ffe066]Grant Gold[/color]  [color=#ffd93d]${effect.amount}[/color]`;
+			return `[color=#ffe066]Grant Gold[/color] [color=#ffd93d]${effect.amount}[/color]`;
 		default: {
 			const _exhaustiveCheck: never = effect;
 			return _exhaustiveCheck;
@@ -39,12 +45,25 @@ const buildEffectBlock = (effect: Effect, unitPower: number): string => {
 	}
 };
 
-// Helper function to generate human-readable descriptions for reactions (kept compact for now)
+// Helper function to generate single-line reaction description.
+// Pattern examples:
+// ⚡ Heal (bottom ally) -> Slow 2s -> Top ally
+// ⚡ Heal -> Slow 2s -> Top ally (when no specific source position needed)
 const getReactionDescription = (reaction: EffectReaction, unitPower: number): string => {
 	const triggerOn = reaction.effectId.charAt(0).toUpperCase() + reaction.effectId.slice(1);
-	const position = getPositionDescription(reaction.position);
-	const effects = reaction.effects.map(effect => buildEffectBlock(effect, unitPower)).join(`\n[color=#c0c0c0]-[/color] `);
-	return `[color=#c0c0c0]React to[/color] [color=#ffa94d]${triggerOn}[/color]\n[color=#c0c0c0]From:[/color] [color=#e0e0e0]${position}[/color]\n[color=#c0c0c0]Effect:[/color] ${effects}`;
+	// reaction.position may be undefined in malformed data – guard against it
+	const posDesc = reaction.position ? getPositionDescription(reaction.position) : undefined;
+	const showPos = !!reaction.position && !["all", "allies", "enemies"].includes(reaction.position); // only show specific relative positions
+
+	// Build effect chain (each effect's own targets already appended inside buildEffectBlock)
+	// For reactions we want: trigger segment -> effect label/time(s) -> (if last effect has targets and they weren't shown yet, ensure they appear)
+	const effectSegments = reaction.effects.map(e => buildEffectBlock(e, unitPower));
+
+	// Compose trigger prefix with lightning emoji (keeping original colors for text portions)
+	const triggerPrefix = `⚡ [color=#51cf66]${triggerOn}[/color]${showPos && posDesc ? ` ([color=#c0c0c0]${posDesc.toLowerCase()}[/color])` : ''}`; // using heal green as main highlight for trigger label
+
+	// Now join with arrows
+	return [triggerPrefix, ...effectSegments].join(' → ');
 };
 
 // Helper function to describe position conditions
@@ -113,10 +132,10 @@ export const onCharaPointerOver = ({ chara }: { chara: Chara }): void => {
 
 	const title = chara.unit.name; // Or cardDef.name
 
-	// Build structured effect blocks
+	// Build single-line effect & reaction blocks (no internal line breaks)
 	const effectBlocks = chara.unit.effects.map(e => buildEffectBlock(e, chara.unit.power));
 	const reactionBlocks = chara.unit.reactions.map(r => getReactionDescription(r, chara.unit.power));
-	const descriptionString = [...effectBlocks, ...reactionBlocks].join('\n\n') || 'No special abilities';
+	const descriptionString = [...effectBlocks, ...reactionBlocks].join('\n') || 'No special abilities';
 
 	// 1100 -> 1.1s
 	const cdAsSeconds = (chara.unit.cooldown / 1000).toFixed(1);
