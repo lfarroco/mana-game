@@ -20,7 +20,7 @@ Created `BattlegroundScene.pure.ts` containing pure functions with dependency in
 - `updateUnitPosition()` - Unit movement and swapping logic
 - `findUnitById()` - Pure unit lookup by ID
 - `createMoveEventPayload()` - Pure event payload generation for moves/swaps
-- `handleUnitMoveRequestPure()` - Complete move request validation and event handling
+- `handleUnitMoveRequest()` - Complete move request validation and event handling using functional decomposition
 
 #### Benefits:
 - **Pure functions**: No side effects, predictable outputs
@@ -88,7 +88,7 @@ Created `BattlegroundScene.pure.test.ts` with 36 tests covering:
 - Move event payload generation
 - Visual position integration
 
-#### `handleUnitMoveRequestPure` (5 tests)
+#### `handleUnitMoveRequest` (5 tests)
 - Unit not found error handling
 - Invalid move rejection
 - Successful move acceptance
