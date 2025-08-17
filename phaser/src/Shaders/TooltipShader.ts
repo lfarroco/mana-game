@@ -41,7 +41,7 @@ void main() {
     // CONFIG ------------------------------------------------------------
     float borderThickness = 3.0;    // crisp core border
     float glowSize        = 14.0;   // outward halo range in pixels (extended)
-    float cornerRadius    = min(resolution.x, resolution.y) * 0.095; // relative radius
+    float cornerRadius    = min(resolution.x, resolution.y) * 0.0475; // relative radius
     
     // Make the core box fill almost the whole quad minus glow
     vec2 halfSize = resolution * 0.5 - vec2(glowSize);
