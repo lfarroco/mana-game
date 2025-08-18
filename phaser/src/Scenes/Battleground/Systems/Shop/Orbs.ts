@@ -106,6 +106,34 @@ const generateReactionOrb = () => {
 	}
 
 }
+const generatePowerUpOrb = () => {
+
+	const powerTargetEffects = ["heal", "damage", "shield", "haste", "slow", "regen", "poison"];
+
+	const effectId = pickOne(powerTargetEffects);
+	const amount = 10;
+
+	return {
+		id: "power_orb",
+		name: `Power Orb: ${effectId}`,
+		color: 0x00ff88,
+		tooltip: [
+			`[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]Increase Power[/color] [color=#ffd93d]+${amount}[/color]`,
+			`[color=#c0c0c0]Target:[/color] [color=#e0e0e0]Units with '${effectId}' effect[/color]`,
+			`[color=#c0c0c0]Condition:[/color] [color=#ffa94d]Unit must have effect '${effectId}'[/color]`,
+		].join('\n'),
+		effect: (unit: Unit) => {
+			if (!unit.effects.some(e => e.id === effectId)) return;
+			increasePower({
+				targets: [unit],
+				sourceUnit: unit,
+				scene,
+				amount
+			});
+		}
+	}
+
+}
 
 // Orb effect functions (pure)
 function crimsonOrbEffect(unit: Unit) {
@@ -119,15 +147,7 @@ function crimsonOrbEffect(unit: Unit) {
 	console.log(`Crimson Orb applied to ${unit.id}, new power: ${unit.power}`);
 }
 
-function emeraldOrbEffect(unit: Unit) {
-	if (!unit.effects.some(effect => effect.id === "heal")) return;
-	increasePower({
-		targets: [unit],
-		sourceUnit: unit,
-		scene,
-		amount: 10
-	});
-}
+// ...existing code...
 
 // Orb specs as plain data (lookup object)
 const orbs: Record<string, () => {
@@ -147,17 +167,7 @@ const orbs: Record<string, () => {
 		].join("\n"),
 		effect: crimsonOrbEffect
 	}),
-	emerald_orb: () => ({
-		id: "emerald_orb",
-		name: "Emerald Orb",
-		color: 0x00ff00,
-		tooltip: [
-			"[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]Increase Power[/color] [color=#ffd93d]+10[/color]",
-			"[color=#c0c0c0]Target:[/color] [color=#e0e0e0]Healing units only[/color]",
-			"[color=#c0c0c0]Condition:[/color] [color=#ffa94d]Unit must have heal ability[/color]",
-		].join('\n'),
-		effect: emeraldOrbEffect
-	}),
+	emerald_orb: generatePowerUpOrb,
 	azure_orb: () => ({
 		id: "azure_orb",
 		name: "Azure Orb",
