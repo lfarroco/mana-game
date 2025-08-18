@@ -91,10 +91,10 @@ export class ShopUI {
 		);
 		this.flyout.add(nextRoundBtn);
 
-		this._createSellZone();
-
 		// render orbs
 		this.renderOrbSection(orbs);
+
+		this._createSellZone();
 
 		// Render characters AFTER buttons to ensure they appear on top
 		const displayedCharas = this._renderTavernCharas(cardsToDisplay);
@@ -176,13 +176,11 @@ export class ShopUI {
 		}
 
 		this.sellZoneContainer = this.scene.add.container(0, 0);
-		this.sellZoneContainer.setVisible(false); // Initially hidden
+		this.sellZoneContainer.setVisible(false);
 
-		// Position sell zone in the lower left of the screen
-		const sellZoneX = c.SCREEN_WIDTH - sc.SELL_ZONE_WIDTH - 20; // Small margin from left edge
-		const sellZoneY = this.scene.cameras.main.height - sc.SELL_ZONE_HEIGHT - 20; // Small margin from bottom
+		const sellZoneX = sc.PANEL_X + sc.SHOP_PANEL_WIDTH / 2 - 40;
+		const sellZoneY = sc.PANEL_Y;
 
-		// Create the zone with its center aligned with the visual graphics' center
 		this.sellZone = this.scene.add.zone(
 			sellZoneX + sc.SELL_ZONE_WIDTH / 2,
 			sellZoneY + sc.SELL_ZONE_HEIGHT / 2,
