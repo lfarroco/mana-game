@@ -3,38 +3,103 @@ import { getSharedPlayerBoard } from "../../../../Models/Board";
 import { Unit } from "../../../../Models/Entities/Unit";
 import { getReactionDescription } from "../../../../Systems/Chara/CharaTooltip";
 import { increasePower } from "../../../../TriggerSystem/effects";
-import { EffectReaction } from "../../../../TriggerSystem/TriggerSystem";
+import { EffectReaction, EffectSourcePosition } from "../../../../TriggerSystem/TriggerSystem";
+import { pickOne } from "../../../../utils";
 import { hexToVector3 } from "../../../../Utils/colorUtils";
-
+import { scene } from "../../BattlegroundScene";
 import * as sc from "./ShopConstants";
 import { ShopUI } from "./ShopUI";
 
-const reactions: {
-	id: string,
-	referencePower: number,
-	data: EffectReaction
-}[] = [
+
+// 1 - reaction (gain power)
+// 2 - boost
+// 3 - transformation
+
+const generateReactionOrb = () => {
+
+	const reactionSourceEffects = ["shield", "heal", "haste", "damage", "slow", "regen", "poison"]
+
+	const positions = [
+		// TODO: use imported constants
 		{
-			id: "shield_on_column_action",
-			referencePower: 2,
-			data: {
-				effectId: "shield",
-				position: "column_allies",
-				effects: [
-					{
-						"id": "increase_power",
-						"amount": 2,
-						"targets": {
-							"id": "self"
-						}
-					}
-				]
-			}
+			power: 2,
+			source: "column_allies" as EffectSourcePosition
+		},
+		{
+			power: 2,
+			source: "row_allies" as EffectSourcePosition
+		},
+		{
+			power: 6,
+			source: "left" as EffectSourcePosition
+		},
+		{
+			power: 6,
+			source: "right" as EffectSourcePosition
+		},
+		{
+			power: 6,
+			source: "top" as EffectSourcePosition
+		},
+		{
+			power: 6,
+			source: "bottom" as EffectSourcePosition
+		},
+	];
+
+	const effect = pickOne(reactionSourceEffects)
+	const position = pickOne(positions);
+	const resulttingEffData = {
+		"id": "increase_power",
+		"amount": position.power,
+		"targets": {
+			"id": "self"
 		}
-	]
+	}
+
+	const resultingEffect = {
+		id: "reaction_orb",
+		referencePower: 2,
+		data: {
+			effectId: effect,
+			position: position.source as EffectSourcePosition,
+			effects: [
+				resulttingEffData
+			]
+		} as EffectReaction
+	}
+
+	return {
+		id: "reaction_orb",
+		name: "Reaction Orb: " + effect,
+		color: 0xffcc00,
+		tooltip: [`Adds ${getReactionDescription(resultingEffect.data, resultingEffect.referencePower)}.`,
+			"A unit can have just one reaction (⚡)."
+		].join("\n"),
+		effect: (unit: Unit) => {
+			if (unit.reactions.length > 0) return;
+			unit.reactions = [
+				{
+					effectId: effect,
+					position: position.source,
+					effects: [
+						{
+							"id": "increase_power",
+							"amount": position.power,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
+		}
+	}
+
+}
 
 // Orb effect functions (pure)
-function crimsonOrbEffect(unit: Unit, scene: any) {
+function crimsonOrbEffect(unit: Unit) {
 	unit.power += 5;
 	increasePower({
 		targets: [unit],
@@ -45,7 +110,7 @@ function crimsonOrbEffect(unit: Unit, scene: any) {
 	console.log(`Crimson Orb applied to ${unit.id}, new power: ${unit.power}`);
 }
 
-function emeraldOrbEffect(unit: Unit, scene: any) {
+function emeraldOrbEffect(unit: Unit) {
 	if (!unit.effects.some(effect => effect.id === "heal")) return;
 	increasePower({
 		targets: [unit],
@@ -56,28 +121,35 @@ function emeraldOrbEffect(unit: Unit, scene: any) {
 }
 
 // Orb specs as plain data (lookup object)
-const orbs: Record<string, {
+const orbs: Record<string, () => {
 	id: string;
 	name: string;
 	color: number;
 	tooltip: string;
-	effect: (unit: Unit, scene: any) => void;
+	effect: (unit: Unit) => void;
 }> = {
-	crimson_orb: {
+	crimson_orb: () => ({
 		id: "crimson_orb",
 		name: "Crimson Orb",
 		color: 0xff3333,
-		tooltip: "[color=#ff6b6b]Power Enhancement[/color]\n\n[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]Increase Power[/color] [color=#ffd93d]+5[/color]\n[color=#c0c0c0]Target:[/color] [color=#e0e0e0]Any unit[/color]\n\n[color=#c0c0c0]Drag and drop onto a unit to permanently increase their power. A sphere of concentrated magical energy pulsing with arcane power.[/color]",
+		tooltip: [
+			"[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]Increase Power[/color] [color=#ffd93d]+5[/color]",
+			"[color=#c0c0c0]Target:[/color] [color=#e0e0e0]Any unit[/color]",
+		].join("\n"),
 		effect: crimsonOrbEffect
-	},
-	emerald_orb: {
+	}),
+	emerald_orb: () => ({
 		id: "emerald_orb",
 		name: "Emerald Orb",
 		color: 0x00ff00,
-		tooltip: "[color=#51cf66]Healing Enhancement[/color]\n\n[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]Increase Power[/color] [color=#ffd93d]+10[/color]\n[color=#c0c0c0]Target:[/color] [color=#e0e0e0]Healing units only[/color]\n[color=#c0c0c0]Condition:[/color] [color=#ffa94d]Unit must have heal ability[/color]\n\n[color=#c0c0c0]Drag and drop onto a healing unit to enhance their restorative powers. The emerald energy resonates with life magic.[/color]",
+		tooltip: [
+			"[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]Increase Power[/color] [color=#ffd93d]+10[/color]",
+			"[color=#c0c0c0]Target:[/color] [color=#e0e0e0]Healing units only[/color]",
+			"[color=#c0c0c0]Condition:[/color] [color=#ffa94d]Unit must have heal ability[/color]",
+		].join('\n'),
 		effect: emeraldOrbEffect
-	},
-	azure_orb: {
+	}),
+	azure_orb: () => ({
 		id: "azure_orb",
 		name: "Azure Orb",
 		color: 0x3399ff,
@@ -85,51 +157,9 @@ const orbs: Record<string, {
 		effect: (unit: Unit) => {
 			unit.cooldown = Math.max(1000, unit.cooldown - 200);
 		}
-	},
-	golden_orb: {
-		id: "golden_orb",
-		name: "Golden Orb",
-		color: 0xffcc00,
-		tooltip: [`Adds ${getReactionDescription(reactions[0].data, 2)}.`,
-			"If the unit already has this effect, increase it by 2.",
-			"A unit can have just one reaction."
-		].join("\n"),
-		effect: (unit: Unit) => {
-			if (unit.reactions.length >= 2) return;
-			// todo: have a bank of possible effects
-			const existingRection = unit.reactions
-				.find(react => {
-					return react.effectId === "shield" && react.position === "column_allies" && react.effects.some(e => e.id === "increase_power" && e.targets.id === "self");
-				});
-
-			if (existingRection) {
-				//increase by 2
-				const effect = existingRection.effects
-					.find(e => e.id === "increase_power" && e.targets.id === "self");
-				//@ts-ignore
-				effect.amount += 2;
-				return;
-			}
-
-			unit.reactions = [
-				...unit.reactions,
-				{
-					effectId: "shield",
-					position: "allies",
-					effects: [
-						{
-							"id": "increase_power",
-							"amount": 2,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
-			]
-		}
-	},
-	violet_orb: {
+	}),
+	golden_orb: generateReactionOrb,
+	violet_orb: () => ({
 		id: "violet_orb",
 		name: "Violet Orb",
 		color: 0x9933ff,
@@ -137,7 +167,7 @@ const orbs: Record<string, {
 		effect: (unit: Unit) => {
 			unit.reactions = []
 		}
-	}
+	})
 };
 
 
@@ -145,9 +175,9 @@ export function renderOrbs(ui: ShopUI, orbIds: string[]) {
 
 	const orbY = sc.PANEL_Y + 550;
 	const orbSpacing = 240;
-	ui.orbContainer = ui.scene.add.container(0, 0);
+	ui.orbContainer = scene.add.container(0, 0);
 
-	const bg = ui.scene.add.graphics()
+	const bg = scene.add.graphics()
 
 	bg.fillStyle(0x000000, 0.25);
 	bg.fillRoundedRect(
@@ -160,22 +190,18 @@ export function renderOrbs(ui: ShopUI, orbIds: string[]) {
 
 	ui.orbContainer.add(bg);
 
-	const orbNames = ['Crimson', 'Emerald', 'Azure', 'Golden', 'Violet'];
-	const getOrbName = (index: number) => orbNames[index] || 'Mystical';
-
 	function handleOrbDrop(params: {
 		orb: any,
 		target: any,
-		orbSpec: { id: string; name: string; color: number; tooltip: string; effect: (unit: Unit, scene: any) => void },
-		orbName: string,
+		orbSpec: { id: string; name: string; color: number; tooltip: string; effect: (unit: Unit) => void },
 		ui: ShopUI,
 		magicOrb: any
 	}) {
-		const { orb, target, orbSpec, orbName, ui, magicOrb } = params;
+		const { orb, target, orbSpec, magicOrb } = params;
 		const playerBoard = getSharedPlayerBoard();
 
 		if (!playerBoard || !playerBoard.dropZones.includes(target)) {
-			console.log(`${orbName} Orb dropped on non-board target:`, target.name || target.getData?.('type') || 'unknown');
+			console.log(`${orb.name} Orb dropped on non-board target:`, target.name || target.getData?.('type') || 'unknown');
 			MagicOrbCallbacks.returnToPosition(orb, target);
 			return;
 		}
@@ -184,9 +210,9 @@ export function renderOrbs(ui: ShopUI, orbIds: string[]) {
 		const tileX = slotIndex % 3;
 		const tileY = Math.floor(slotIndex / 3);
 
-		console.log(`${orbName} Orb dropped on board slot [${tileX}, ${tileY}] (index: ${slotIndex})`);
+		console.log(`${orb.name} Orb dropped on board slot [${tileX}, ${tileY}] (index: ${slotIndex})`);
 
-		const gameState = ui.scene.state;
+		const gameState = scene.state;
 		const existingUnit = gameState?.gameData?.player?.units?.find((unit: Unit) => unit.position?.x === tileX && unit.position?.y === tileY);
 
 		if (!existingUnit) {
@@ -195,21 +221,20 @@ export function renderOrbs(ui: ShopUI, orbIds: string[]) {
 			return;
 		}
 
-		console.log(`Unit ${existingUnit.id} is at this position - applying ${orbName} effect!`);
-		orbSpec.effect(existingUnit, ui.scene);
+		console.log(`Unit ${existingUnit.id} is at this position - applying ${orb.name} effect!`);
+		orbSpec.effect(existingUnit);
 		magicOrb.startDissolve();
 	}
 
 	orbIds.forEach((orbId: string, index: number) => {
-		const orbSpec = orbs[orbId];
+		const orbSpec = orbs[orbId]();
 		if (!orbSpec) {
 			console.warn(`Orb with id ${orbId} not found in orbs object`);
 			return;
 		}
 		const orbX = ui.panelX + 220 + (index * orbSpacing);
-		const orbName = getOrbName(index);
 
-		const magicOrb = new MagicOrb(ui.scene, orbX, orbY, {
+		const magicOrb = new MagicOrb(scene, orbX, orbY, {
 			size: 200,
 			color: hexToVector3(orbSpec.color),
 			intensity: 1.2,
@@ -219,7 +244,7 @@ export function renderOrbs(ui: ShopUI, orbIds: string[]) {
 			returnDuration: 500,
 			tooltipTitle: orbSpec.name,
 			tooltipText: orbSpec.tooltip,
-			onDropTarget: (orb: any, target: any) => handleOrbDrop({ orb, target, orbSpec, orbName, ui, magicOrb }),
+			onDropTarget: (orb: any, target: any) => handleOrbDrop({ orb, target, orbSpec, ui, magicOrb }),
 			dropTargetNames: []
 		});
 		ui.orbContainer!.add(magicOrb.getShader());
@@ -227,6 +252,6 @@ export function renderOrbs(ui: ShopUI, orbIds: string[]) {
 		magicOrb.setDepth(1000);
 	});
 
-	ui.scene.add.existing(ui.orbContainer!);
+	scene.add.existing(ui.orbContainer!);
 	ui.orbContainer!.setDepth(1000);
 }
