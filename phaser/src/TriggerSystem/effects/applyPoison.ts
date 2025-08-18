@@ -9,6 +9,7 @@ import { arcaneMissileTargeted } from '../../Effects';
 import { getMoraleBarTipPosition } from '../../Scenes/Battleground/MoraleDisplay';
 import { getChara } from '../../Scenes/Battleground/Systems/CharaManager';
 import BattlegroundScene from '../../Scenes/Battleground/BattlegroundScene';
+import { applyPoison } from '../../Scenes/Battleground/Systems/PoisonDamageSystem';
 
 /**
  * Pure function to create the apply poison effect implementation
@@ -73,20 +74,6 @@ export const applyPoisonLogicIO = async (context: {
 	sourceUnit: Unit;
 	amount: number;
 }) => {
-	const { scene } = context;
-
-
-	// Get the poison system from the scene
-	const poisonSystem = scene.runCombatSystem?.getPoisonDamageSystem();
-	if (!poisonSystem) {
-		console.warn('[ApplyPoison] PoisonDamageSystem not found on scene');
-		return;
-	}
-
-	const applyPoison = (targetForce: Force, amount: number, sourceUnitId?: string) => {
-		poisonSystem.applyPoison(targetForce, amount, sourceUnitId);
-	};
-
 	const impl = createApplyPoisonLogic(applyPoison);
 	return impl(context);
 };

@@ -8,11 +8,11 @@ import {
   updateTimeoutDamageSystem,
   onTimeoutDamageCombatEnd,
 } from "./Systems/TimeoutDamageSystem";
-import { PoisonDamageSystem } from "./Systems/PoisonDamageSystem";
 import { RegenSystem } from "./Systems/RegenSystem";
 import * as CombatStatsTracker from "./Systems/CombatStatsTracker";
 import { processEffectsIO } from "../../TriggerSystem/TriggerSystem";
 import { cpuForce, playerForce } from "../../Models/Entities/Force";
+import * as PoisonDamageSystem from "./Systems/PoisonDamageSystem";
 
 export type WaveOutcome = "player_won" | "player_lost";
 
@@ -20,18 +20,13 @@ export class RunCombatSystem {
   private active: boolean = false;
 
   // timeout damage system is module-scoped; we call its exported functions
-  private poisonDamageSystem: PoisonDamageSystem;
   private regenSystem: RegenSystem;
 
   constructor(_scene: BattlegroundScene) {
     // initializeTimeoutDamageSystem will be called when runCombatIO starts
-    this.poisonDamageSystem = new PoisonDamageSystem();
-    this.regenSystem = new RegenSystem(_scene);
+    this.regenSystem = new RegenSystem();
   }
 
-  getPoisonDamageSystem(): PoisonDamageSystem {
-    return this.poisonDamageSystem;
-  }
 
   getRegenSystem(): RegenSystem {
     return this.regenSystem;
@@ -39,7 +34,7 @@ export class RunCombatSystem {
 
 
   reducePoison(forceId: string, healAmount: number): void {
-    this.poisonDamageSystem.reducePoison(forceId, healAmount);
+    PoisonDamageSystem.reducePoison(forceId, healAmount);
   }
 
   runCombatIO = () => {
@@ -47,7 +42,7 @@ export class RunCombatSystem {
       throw new Error("Combat is already active");
     }
     initializeTimeoutDamageSystem();
-    this.poisonDamageSystem.initialize();
+    PoisonDamageSystem.initialize();
     this.regenSystem.initialize();
     CombatStatsTracker.initialize();
     getState().battleData.units.forEach(u => {
@@ -73,7 +68,7 @@ export class RunCombatSystem {
 
     // Periodic systems
     updateTimeoutDamageSystem(playerForce, cpuForce, scaledDelta);
-    this.poisonDamageSystem.update(playerForce, cpuForce, scaledDelta);
+    PoisonDamageSystem.update(playerForce, cpuForce, scaledDelta);
     this.regenSystem.update(playerForce, cpuForce, scaledDelta);
     CombatStatsTracker.updateTimeAlive(scaledDelta);
 
