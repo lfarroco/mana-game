@@ -67,7 +67,7 @@ export class BattlegroundScene extends Phaser.Scene {
     console.log("BattlegroundScene constructor")
 
     this.state = getState();
-    this.runCombatSystem = new RunCombatSystem(this);
+    this.runCombatSystem = new RunCombatSystem();
 
   }
 
