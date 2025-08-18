@@ -175,6 +175,8 @@ export class ShopUI {
 			this.sellZoneContainer.destroy(true);
 		}
 
+		// Create the sell zone container as a scene-level container so we can
+		// control its depth relative to other scene objects (like orbs).
 		this.sellZoneContainer = this.scene.add.container(0, 0);
 		this.sellZoneContainer.setVisible(false);
 
@@ -228,12 +230,12 @@ export class ShopUI {
 		).setOrigin(0.5);
 
 		this.sellZoneContainer.add([this.sellZone, this.sellZoneGraphics, this.sellZoneText]);
-		this.flyout.add(this.sellZoneContainer);
+
 	}
 
 	showSellZone(): void {
 		if (this.sellZoneContainer) {
-			this.flyout.bringToTop(this.sellZoneContainer); // Ensure it's visible above other shop items
+			this.scene.children.bringToTop(this.sellZoneContainer);
 			this.sellZoneContainer.setVisible(true);
 		}
 	}
