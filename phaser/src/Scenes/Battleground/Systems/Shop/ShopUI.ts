@@ -65,28 +65,27 @@ export class ShopUI {
 			.fillRoundedRect(this.panelX, sc.PANEL_Y, sc.SHOP_PANEL_WIDTH, sc.SHOP_PANEL_HEIGHT, 20);
 		this.flyout.add(shopBackground);
 
-
 		// Render tavern background and title first, passing panelX for right alignment
 		this._renderTavernSectionBackgroundAndTitle(this.panelX);
 
-
-		const buttonY = sc.PANEL_Y + sc.TAVERN_BG_HEIGHT - 20;
-		const rerollButtonX = this.panelX + 190;
+		const rerollButtonX = this.panelX + 470;
+		const rerollButtonY = sc.PANEL_Y + sc.TAVERN_BG_HEIGHT - 20;
 		const rerollBtn = new UIButton(
 			this.scene,
 			`Reroll $${c.SHOP_ITEM_PURCHASE_COST}`,
 			rerollButtonX,
-			buttonY,
+			rerollButtonY,
 			rerollCallback
 		);
 		this.flyout.add(rerollBtn);
 
-		const nextRoundButtonX = rerollButtonX + rerollBtn.buttonWidth + 20;
+		const nextRoundButtonX = c.SCREEN_WIDTH - 200;
+		const nextRoundButtonY = c.SCREEN_HEIGHT - 100;
 		const nextRoundBtn = new UIButton(
 			this.scene,
 			"Next Round",
 			nextRoundButtonX,
-			buttonY,
+			nextRoundButtonY,
 			nextRoundCallback
 		);
 		this.flyout.add(nextRoundBtn);
