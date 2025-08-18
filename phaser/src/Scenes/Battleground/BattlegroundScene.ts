@@ -12,8 +12,7 @@ import { popText } from "../../Systems/Chara/Animations/popText";
 import { RunCombatSystem } from "./RunCombatIO";
 import { BattleProgressionSystem } from "./Systems/BattleProgressionSystem";
 import { getOption } from "../../Models/OptionsStore";
-import { Unit } from "../../Models/Entities/Unit";
-import { Vec2 } from "../../Models/Geometry";
+// Removed handleOwnedUnitMoveRequest: related logic now in CharaInputHandler
 import { GameError } from "../../Types/CommonTypes";
 import { battleResultAnimation } from "./battleResultAnimation";
 import * as BattlegroundScenePure from "./BattlegroundScene.pure";
@@ -134,58 +133,7 @@ export class BattlegroundScene extends Phaser.Scene {
     }
   }
 
-  handleOwnedUnitMoveRequest(payload: {
-    unitId: string, targetTile: Vec2, dragStartX: number, dragStartY: number
-  }): void {
-    const { unitId, targetTile, dragStartX, dragStartY } = payload;
-
-    BattlegroundScenePure.handleUnitMoveRequest(
-      {
-        units: this.state.gameData.player.units,
-        unitId,
-        targetTile,
-        dragStartX,
-        dragStartY
-      },
-      {
-        updateUnitPosition: (unit: Unit, target: Vec2, units: Unit[]) => PartyBoard.updateUnitPosition(unit, target, units),
-        getVisualPosition: (unit: Unit) => CharaManager.getCharaPosition(unit),
-        logError: (message: string) => console.error(message)
-      },
-      {
-        onMoveAccepted: (
-          unitId: string,
-          _newLogicalPosition: Vec2,
-          newVisualPosition: { x: number; y: number; },
-        ) => {
-          const chara = CharaManager.getChara(unitId);
-          chara?.moveToPosition(newVisualPosition);
-        },
-        onSwapAccepted: (
-          movedUnitId: string,
-          _movedUnitNewLogicalPosition: Vec2,
-          movedUnitVisualPosition: { x: number; y: number; },
-          swappedUnitId: string,
-          _swappedUnitNewLogicalPosition: Vec2,
-          swappedUnitVisualPosition: { x: number; y: number; }
-        ) => {
-          const movedChara = CharaManager.getChara(movedUnitId);
-          const swappedChara = CharaManager.getChara(swappedUnitId);
-          movedChara?.moveToPosition(movedUnitVisualPosition);
-          swappedChara?.moveToPosition(swappedUnitVisualPosition);
-        },
-        onMoveRejected: (
-          unitId: string,
-          _reason: string,
-          dragStartX: number,
-          dragStartY: number,
-        ) => {
-          const chara = CharaManager.getChara(unitId);
-          chara?.revertToPosition(dragStartX, dragStartY);
-        }
-      }
-    );
-  }
+  // handleOwnedUnitMoveRequest moved to CharaInputHandler._processOwnedUnitMoveRequest
 
   handleBattleResultShow(payload: { result: "victory" | "defeat" }): void {
     BattlegroundScenePure.handleBattleResultDisplay(
