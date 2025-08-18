@@ -2,7 +2,7 @@ name: E2E Tests
 
 on:
   push:
-    branches: [ main ] # Adjust if your main branch is named differently (e.g., master)
+    branches: [ ] # Adjust if your main branch is named differently (e.g., master)
   pull_request:
     branches: [ main ] # Adjust if your main branch is named differently
 
