@@ -1,5 +1,5 @@
 import { BattlegroundScene } from "./BattlegroundScene";
-import { getActiveUnits, getState, State } from "../../Models/State";
+import { getState, State } from "../../Models/State";
 import { MIN_COOLDOWN } from "../../constants/constants";
 import * as CharaManager from "./Systems/CharaManager";
 import { Unit } from "../../Models/Entities/Unit";
@@ -187,13 +187,9 @@ export class RunCombatSystem {
  * @returns {Unit[]} Array of units ready to perform an action.
  */
 function chargeUnits(state: State, delta: number): Unit[] {
-  const activeUnits = getActiveUnits(state);
   let performingUnits: Unit[] = []; // units that are ready to perform an action
 
-  for (const unit of activeUnits) {
-    // Units no longer have HP, so no need to check if alive
-
-    // Calculate cooldown modifier from status effects
+  for (const unit of state.battleData.units) {
     const cooldownMultiplier = unit.hasted > 0 ? 0.5 : unit.slowed > 0 ? 2 : 1;
     const chargeRate = cooldownMultiplier === Number.MAX_SAFE_INTEGER ? 0 : 1 / cooldownMultiplier;
 
