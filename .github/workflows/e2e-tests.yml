@@ -1,10 +1,30 @@
 name: E2E Tests
 
+# Currently disabled for automatic runs to avoid unintended CI usage.
+# To re-enable automatic runs, replace the `on:` block with one of the
+# following options (uncomment the block you want):
+#
+#  1) Enable on push and pull_request for the main branch
+#
+#on:
+#  push:
+#    branches: [ main ]
+#  pull_request:
+#    branches: [ main ]
+#
+#  2) Enable push only (e.g., for main and release branches)
+#
+#on:
+#  push:
+#    branches: [ main, release/* ]
+#
+#  3) Keep manual trigger but add a repo secret toggle to opt-in runs.
+#     - Create a repo secret named RUN_E2E with value "true" to allow runs.
+#     - Add `if: ${{ secrets.RUN_E2E == 'true' }}` to the job or each step.
+#
+# Current configuration: manual run only via the Actions tab or API
 on:
-  push:
-    branches: [ main ] # Adjust if your main branch is named differently (e.g., master)
-  pull_request:
-    branches: [ main ] # Adjust if your main branch is named differently
+  workflow_dispatch: {}
 
 jobs:
   playwright-tests:
