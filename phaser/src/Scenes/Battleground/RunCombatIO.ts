@@ -3,7 +3,6 @@ import { getState } from "../../Models/State";
 import { MIN_COOLDOWN } from "../../constants/constants";
 import * as CharaManager from "./Systems/CharaManager";
 import { Unit } from "../../Models/Entities/Unit";
-import { delay } from "../../Utils/animation";
 import { TimeoutDamageSystem } from "./Systems/TimeoutDamageSystem";
 import { PoisonDamageSystem } from "./Systems/PoisonDamageSystem";
 import { RegenSystem } from "./Systems/RegenSystem";
@@ -13,20 +12,13 @@ import { cpuForce, playerForce } from "../../Models/Entities/Force";
 
 export type WaveOutcome = "player_won" | "player_lost";
 
-async function setupWave() {
-
-  CharaManager
-    .getAllCharas()
-    .forEach(chara => {
-      CharaManager.handleCharaBarsVisibilitySetEvent({ unitId: chara.id, visible: true });
-    });
-
-  await delay(1000);
-}
+// Wave setup (enemy reveal, summoning, bar visibility) handled externally in BattleProgressionSystem
 
 export class RunCombatSystem {
   scene: BattlegroundScene;
-  updateHandler: ((time: number, delta: number) => Promise<void>) | null = null;
+  // True while a combat wave is running
+  private active: boolean = false;
+  private outcomeResolver: ((outcome: WaveOutcome) => void) | null = null;
 
   private timeoutDamageSystem: TimeoutDamageSystem;
   private poisonDamageSystem: PoisonDamageSystem;
@@ -55,79 +47,76 @@ export class RunCombatSystem {
     this.poisonDamageSystem.reducePoison(forceId, healAmount);
   }
 
-  runCombatIO = (): Promise<WaveOutcome> => new Promise(async resolve => {
-    const { events } = this.scene;
-
-    await setupWave();
-    console.log("[RunCombatSystem] Wave setup complete, starting combat loop.");
-
+  /**
+   * Starts a combat wave and returns a Promise resolved with the outcome.
+   * Runs frame logic through scene.update calling updateFrame.
+   */
+  runCombatIO = (): Promise<WaveOutcome> => {
+    if (this.active) {
+      throw new Error("runCombatIO called while combat already active");
+    }
+    // Initialize combat systems – assumes units & charas fully ready
     this.timeoutDamageSystem.initialize();
     this.poisonDamageSystem.initialize();
     this.regenSystem.initialize();
     CombatStatsTracker.initialize(this.scene);
-
-    this.updateHandler = async (_time: number, delta: number) => {
-      const unitsReadyToAct = chargeUnits(delta * this.scene.time.timeScale);
-
-      for (const unit of unitsReadyToAct) {
-
-        CharaManager.getChara(unit.id)?.pop()
-
-        CombatStatsTracker.handleUnitAction({ unit });
-
-        processEffectsIO(unit, unit.effects)
-
-      }
-
-      // Check for timeout damage (after 10 seconds of combat)
-      this.timeoutDamageSystem.update(playerForce, cpuForce, delta * this.scene.time.timeScale);
-
-      // Update poison damage system (processes all poison stacks)
-      this.poisonDamageSystem.update(playerForce, cpuForce, delta * this.scene.time.timeScale);
-
-      // Update regen system (processes all regen stacks)
-      this.regenSystem.update(playerForce, cpuForce, delta * this.scene.time.timeScale);
-
-      // Update combat stats tracker (time alive tracking)
-      CombatStatsTracker.updateTimeAlive(delta * this.scene.time.timeScale);
-
-      const playerMoraleZero = playerForce.morale <= 0;
-      const cpuMoraleZero = cpuForce.morale <= 0;
-
-      let combatEnded = false;
-      let outcome: WaveOutcome | null = null;
-
-      if (playerMoraleZero) {
-        combatEnded = true;
-        outcome = "player_lost";
-      } else if (cpuMoraleZero) {
-        combatEnded = true;
-        outcome = "player_won";
-      }
-
-      if (combatEnded) {
-        this.timeoutDamageSystem.onCombatEnd();
-
-        CombatStatsTracker.stop();
-
-        if (this.updateHandler) {
-          events.off('update', this.updateHandler);
-          this.updateHandler = null;
-        }
-
-        console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);
-        resolve(outcome!);
-      }
-    };
-
+    // Battle start reactions
     getState().battleData.units.forEach(u => {
       const startReactions = u.reactions.filter(r => r.effectId === "battle_start");
       startReactions.forEach(r => processEffectsIO(u, r.effects));
     });
+    this.active = true;
+    return new Promise<WaveOutcome>(resolve => this.outcomeResolver = resolve);
+  };
 
+  /**
+   * Called every frame by the scene while active.
+   * @param _time current time (unused)
+   * @param delta delta time in ms since last frame
+   */
+  updateFrame(_time: number, delta: number): void {
+    if (!this.active) return;
 
-    events.on('update', this.updateHandler);
-  });
+    const scaledDelta = delta * this.scene.time.timeScale;
+
+    const unitsReadyToAct = chargeUnits(scaledDelta);
+
+    for (const unit of unitsReadyToAct) {
+      CharaManager.getChara(unit.id)?.pop();
+      CombatStatsTracker.handleUnitAction({ unit });
+      processEffectsIO(unit, unit.effects);
+    }
+
+    // Periodic systems
+    this.timeoutDamageSystem.update(playerForce, cpuForce, scaledDelta);
+    this.poisonDamageSystem.update(playerForce, cpuForce, scaledDelta);
+    this.regenSystem.update(playerForce, cpuForce, scaledDelta);
+    CombatStatsTracker.updateTimeAlive(scaledDelta);
+
+    // Victory / defeat check
+    const playerMoraleZero = playerForce.morale <= 0;
+    const cpuMoraleZero = cpuForce.morale <= 0;
+
+    let outcome: WaveOutcome | null = null;
+    if (playerMoraleZero) outcome = "player_lost"; else if (cpuMoraleZero) outcome = "player_won";
+
+    if (outcome) {
+      this.finishCombat(outcome);
+    }
+  }
+
+  private finishCombat(outcome: WaveOutcome) {
+    if (!this.active) return; // already finished
+    this.active = false;
+    this.timeoutDamageSystem.onCombatEnd();
+    CombatStatsTracker.stop();
+    console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);
+    this.outcomeResolver?.(outcome);
+    this.outcomeResolver = null;
+  }
+
+  /** Whether a combat is currently running */
+  isActive(): boolean { return this.active; }
 
 }
 
@@ -154,7 +143,8 @@ function chargeUnits(delta: number): Unit[] {
       unit.refresh = MIN_COOLDOWN;
       performingUnits.push(unit);
     }
-    CharaManager.getChara(unit.id)?.updateChargeBar();
+    const chara = CharaManager.getChara(unit.id);
+    chara.updateChargeBar();
   }
   return performingUnits;
 }

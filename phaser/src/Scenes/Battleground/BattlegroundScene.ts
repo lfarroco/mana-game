@@ -271,7 +271,7 @@ export class BattlegroundScene extends Phaser.Scene {
     );
   }
 
-  update(time: number): void {
+  update(time: number, delta: number): void {
     // Update shop UI to handle magic orb animations using pure function
     BattlegroundScenePure.updateShopUI(
       time,
@@ -284,6 +284,9 @@ export class BattlegroundScene extends Phaser.Scene {
     if (playerBoard) {
       playerBoard.update(time);
     }
+
+    // Forward frame updates to combat system (removes need for events.on('update'))
+    this.runCombatSystem.updateFrame(time, delta);
   }
 }
 
