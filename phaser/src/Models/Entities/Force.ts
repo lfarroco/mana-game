@@ -52,9 +52,6 @@ export const updatePlayerGoldIO = (goldDelta: number) => {
 	ui.handleGoldChanged(playerForce.gold, changeAmount)
 }
 
-/**
- * Utility function to manipulate force morale with morale damage reduction effects
- */
 export const manipulateForceMorale = (
 	targetForce: Force,
 	amount: number,
