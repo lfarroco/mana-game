@@ -10,6 +10,9 @@ import * as sc from "../../Scenes/Battleground/Systems/Shop/ShopConstants";
 import { hideTooltip } from "../../UI/Tooltip";
 import { shop } from "../../Scenes/Battleground/Systems/Shop/Shop";
 import { scene } from "../../Scenes/Battleground/BattlegroundScene";
+import { PartyBoard } from "../../Models/Board";
+import * as CharaManager from "../../Scenes/Battleground/Systems/CharaManager";
+import { Unit } from "../../Models/Entities/Unit";
 
 export class CharaInputHandler {
 	dragStartX: number = 0;
@@ -157,12 +160,12 @@ export class CharaInputHandler {
 	}
 
 	private _handleDropOwnedUnit(tile: Vec2, dragStartX: number, dragStartY: number): void {
-		scene.handleOwnedUnitMoveRequest({
+		this._processOwnedUnitMoveRequest({
 			unitId: this.chara.unit.id,
 			targetTile: tile,
 			dragStartX,
 			dragStartY
-		})
+		});
 	}
 
 	private _handleDropShopItem(tile: Vec2, dragStartX: number, dragStartY: number): void {
@@ -178,5 +181,83 @@ export class CharaInputHandler {
 	private _handleSellUnit(): void {
 		const sellPrice = Math.floor(constants.SHOP_ITEM_PURCHASE_COST / 2);
 		scene.handleOwnedUnitSold({ unitId: this.chara.unit.id, soldForGold: sellPrice });
+	}
+
+	/**
+	 * Public method (also used by DebugController) to request moving an owned unit.
+	 */
+	requestOwnedUnitMove(targetTile: Vec2, dragStartX: number, dragStartY: number): void {
+		this._processOwnedUnitMoveRequest({
+			unitId: this.chara.unit.id,
+			targetTile,
+			dragStartX,
+			dragStartY
+		});
+	}
+
+	/**
+	 * Core logic formerly in BattlegroundScene.handleOwnedUnitMoveRequest.
+	 * Handles move or swap operations and visual feedback.
+	 */
+	private _processOwnedUnitMoveRequest(payload: { unitId: string; targetTile: Vec2; dragStartX: number; dragStartY: number; }): void {
+		const { unitId, targetTile, dragStartX, dragStartY } = payload;
+
+		this._attemptOwnedUnitMovement(unitId, targetTile, dragStartX, dragStartY);
+	}
+
+	private _attemptOwnedUnitMovement(unitId: string, targetTile: Vec2, dragStartX: number, dragStartY: number) {
+		const units = scene.state.gameData.player.units;
+		// 1. Identify unit
+		const unit = units.find(u => u.id === unitId);
+		if (!unit) {
+			this._movementRejected(unitId, dragStartX, dragStartY, "UNIT_NOT_FOUND");
+			return;
+		}
+		// 2. Early exit if target equals current
+		if (unit.position.x === targetTile.x && unit.position.y === targetTile.y) {
+			this._movementRejected(unitId, dragStartX, dragStartY, "NO_OP");
+			return;
+		}
+		// 3. Determine occupier (swap vs move)
+		const occupier = units.find(u => u.id !== unitId && u.position.x === targetTile.x && u.position.y === targetTile.y);
+		if (occupier) {
+			this._executeSwap(unit, occupier, targetTile, units);
+			return;
+		}
+		// 4. Normal move
+		this._executeMove(unit, targetTile, units);
+	}
+
+	private _executeMove(unit: Unit, target: Vec2, units: Unit[]) {
+		const result = PartyBoard.updateUnitPosition(unit, target, units);
+		if (!result) return; // safety
+		this._applyMoveVisual(result.movedUnit);
+	}
+
+	private _executeSwap(unit: Unit, _occupier: Unit, target: Vec2, units: Unit[]) {
+		const result = PartyBoard.updateUnitPosition(unit, target, units);
+		if (!result) return; // safety
+		this._applySwapVisual(result.movedUnit, result.swappedUnit!);
+	}
+
+	private _applyMoveVisual(movedUnit: Unit) {
+		const movedChara = CharaManager.getChara(movedUnit.id);
+		if (!movedChara) return;
+		const pos = CharaManager.getCharaPosition(movedUnit);
+		movedChara.moveToPosition(pos);
+	}
+
+	private _applySwapVisual(movedUnit: Unit, swappedUnit: Unit) {
+		const movedChara = CharaManager.getChara(movedUnit.id);
+		const swappedChara = CharaManager.getChara(swappedUnit.id);
+		const movedPos = CharaManager.getCharaPosition(movedUnit);
+		const swappedPos = CharaManager.getCharaPosition(swappedUnit);
+		movedChara?.moveToPosition(movedPos);
+		swappedChara?.moveToPosition(swappedPos);
+	}
+
+	private _movementRejected(unitId: string, dragStartX: number, dragStartY: number, _reason: string) {
+		const failedChara = CharaManager.getChara(unitId);
+		failedChara?.revertToPosition(dragStartX, dragStartY);
 	}
 }

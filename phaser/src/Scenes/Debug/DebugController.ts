@@ -108,12 +108,9 @@ export class DebugController {
 			console.warn(`DebugController.moveUnitOnBoard: Chara for unit ${unitId} not found. Using logical position for dragStart. Error: ${e}`);
 		}
 
-		this.scene.handleOwnedUnitMoveRequest({
-			unitId: unitId,
-			targetTile: vec2(targetBoardX, targetBoardY),
-			dragStartX: dragStartX, // Current visual X of the chara
-			dragStartY: dragStartY  // Current visual Y of the chara
-		})
+		// Delegate to the Chara's input handler which now owns the move logic
+		const moveChara = CharaManager.getChara(unitId);
+		moveChara.inputHandler.requestOwnedUnitMove(vec2(targetBoardX, targetBoardY), dragStartX, dragStartY);
 
 		return `Emitted OWNED_UNIT_MOVE_REQUESTED for unit ${unitId} to board (${targetBoardX},${targetBoardY}). Move/swap processing is asynchronous.`;
 	}

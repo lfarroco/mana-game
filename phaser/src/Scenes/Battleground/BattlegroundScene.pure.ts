@@ -248,6 +248,33 @@ export function handleUnitMoveRequest(
 }
 
 /**
+ * Factory that creates a reusable processor with services closed over.
+ * Usage:
+ *   const processMove = createUnitMoveProcessor(services);
+ *   processMove(state, callbacks);
+ */
+export function createUnitMoveProcessor(services: MovementServices) {
+	return function processMove(state: MovementState, callbacks: MovementCallbacks) {
+		const { units, unitId, targetTile, dragStartX, dragStartY } = state;
+		const { updateUnitPosition, getVisualPosition, logError } = services;
+		const { onMoveAccepted, onSwapAccepted, onMoveRejected } = callbacks;
+
+		const unit = validateUnitMove(units, unitId, (id, reason) => {
+			logError(`[BattlegroundScene] Unit with ID ${id} not found for move request.`);
+			onMoveRejected(id, reason, dragStartX, dragStartY);
+		});
+		if (!unit) return;
+
+		const moveResult = executeUnitMove(unit, targetTile, units, updateUnitPosition, (id, reason) => {
+			onMoveRejected(id, reason, dragStartX, dragStartY);
+		});
+		if (!moveResult) return;
+
+		handleMoveResult(moveResult, getVisualPosition, onMoveAccepted, onSwapAccepted);
+	}
+}
+
+/**
  * Pure function to safely play a sound effect with error handling
  * @param audioSystem - The audio system instance
  * @param key - The sound effect key to play

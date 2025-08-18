@@ -2,22 +2,22 @@ import Phaser from "phaser";
 import * as constants from "../constants/constants";
 import { PLAYER_BOARD_X, PLAYER_BOARD_Y, CPU_BOARD_X, CPU_BOARD_Y } from "../constants/constants";
 import { vec2, Vec2, eqVec2 } from "./Geometry";
-import { Unit } from "./Entities/Unit"; // Pointer type might be implicitly from Phaser or a custom type
+import { Unit } from "./Entities/Unit";
 import { getUnitAt, State } from "./State";
 import { EnergySlot, EnergySlotFactory } from "../components/EnergySlot/EnergySlot";
 
 export class PartyBoard {
 	scene: Phaser.Scene;
 	slotShaders: EnergySlot[] = [];
-	dropZones: Phaser.GameObjects.Zone[] = []; // Add drop zones array
-	cpuSlotShaders: EnergySlot[] = []; // Separate array for CPU board slots
+	dropZones: Phaser.GameObjects.Zone[] = [];
+	cpuSlotShaders: EnergySlot[] = [];
 
 	enemyBoardVisible: boolean = false;
 
 	readonly x: number = PLAYER_BOARD_X;
 	readonly y: number = PLAYER_BOARD_Y;
-	readonly width: number = constants.TILE_WIDTH * 3 + 8 * 2; // Account for spacing between 3 tiles (2 gaps)
-	readonly height: number = constants.TILE_HEIGHT * 3 + 8 * 2; // Account for spacing between 3 tiles (2 gaps)
+	readonly width: number = constants.TILE_WIDTH * 3 + 8 * 2;
+	readonly height: number = constants.TILE_HEIGHT * 3 + 8 * 2;
 
 	constructor(scene: Phaser.Scene) {
 		this.scene = scene;
@@ -26,7 +26,7 @@ export class PartyBoard {
 	renderSlots(): void {
 		this.destroyVisuals();
 
-		const slotSpacing = 8; // Add 8 pixels spacing between slots
+		const slotSpacing = 8;
 		this.slotShaders = [];
 		this.dropZones = [];
 		this.cpuSlotShaders = [];
@@ -36,7 +36,6 @@ export class PartyBoard {
 			for (let tileX = 0; tileX < 3; tileX++)
 				cells.push(vec2(tileX, tileY));
 
-		// Render slots for both player and CPU boards
 		const boards = [
 			{ x: PLAYER_BOARD_X, y: PLAYER_BOARD_Y, isPlayer: true },
 			{ x: CPU_BOARD_X, y: CPU_BOARD_Y, isPlayer: false }
@@ -44,10 +43,9 @@ export class PartyBoard {
 
 		boards.forEach(board => {
 			cells.forEach((cell) => {
-				// Mirror enemy board slot positions horizontally to match unit mirroring
 				let visualX = cell.x;
-				if (!board.isPlayer) { // Enemy board
-					visualX = 2 - cell.x; // Mirror: x=0 becomes x=2, x=1 stays x=1, x=2 becomes x=0
+				if (!board.isPlayer) {
+					visualX = 2 - cell.x;
 				}
 
 				const zoneX = board.x + visualX * (constants.TILE_WIDTH + slotSpacing);
@@ -56,7 +54,6 @@ export class PartyBoard {
 				const slotX = zoneX + constants.TILE_WIDTH / 2;
 				const slotY = zoneY + constants.TILE_HEIGHT / 2;
 
-				// Create energy slot shader
 				let energySlot: EnergySlot;
 				if (board.isPlayer) {
 					energySlot = EnergySlotFactory.createPlayerSlot(this.scene, slotX, slotY, constants.TILE_WIDTH);
@@ -64,9 +61,7 @@ export class PartyBoard {
 					energySlot = EnergySlotFactory.createEnemySlot(this.scene, slotX, slotY, constants.TILE_WIDTH);
 				}
 
-				// Handle CPU slots differently for animation
 				if (!board.isPlayer) {
-					// CPU slots start in their normal position if visible, off-screen if hidden
 					if (this.enemyBoardVisible) {
 						energySlot.setPosition(slotX, slotY);
 					} else {
@@ -79,7 +74,6 @@ export class PartyBoard {
 					this.slotShaders.push(energySlot);
 				}
 
-				// Only create drop zones for player board (enemy units can't be dragged)
 				if (board.isPlayer) {
 					const dropZone = this.scene.add.zone(
 						zoneX + constants.TILE_WIDTH / 2,
@@ -103,20 +97,17 @@ export class PartyBoard {
 			const offScreenX = constants.SCREEN_WIDTH + constants.TILE_WIDTH;
 
 			if (visible) {
-				// Slide in from right
 				this.cpuSlotShaders.forEach((slot, index) => {
 					const cell = {
 						x: index % 3,
 						y: Math.floor(index / 3)
 					};
-					// Mirror enemy board slot positions horizontally to match unit mirroring
-					const visualX = 2 - cell.x; // Mirror: x=0 becomes x=2, x=1 stays x=1, x=2 becomes x=0
+					const visualX = 2 - cell.x;
 					const targetX = CPU_BOARD_X + visualX * (constants.TILE_WIDTH + slotSpacing) + constants.TILE_WIDTH / 2;
 
 					slot.setVisible(true);
-					slot.setPosition(offScreenX, slot.getCurrentPosition().y); // Start from off-screen right
+					slot.setPosition(offScreenX, slot.getCurrentPosition().y);
 
-					// Stop any existing tweens on this slot's shader to prevent conflicts
 					this.scene.tweens.killTweensOf(slot.getShader());
 
 					this.scene.tweens.add({
@@ -124,13 +115,11 @@ export class PartyBoard {
 						x: targetX,
 						duration: 300,
 						ease: 'Power2.easeOut',
-						delay: index * 50 // Stagger the animation for each slot
+						delay: index * 50
 					});
 				});
 			} else {
-				// Slide out to right
 				this.cpuSlotShaders.forEach((slot, index) => {
-					// Stop any existing tweens on this slot's shader to prevent conflicts
 					this.scene.tweens.killTweensOf(slot.getShader());
 
 					this.scene.tweens.add({
@@ -138,7 +127,7 @@ export class PartyBoard {
 						x: offScreenX,
 						duration: 300,
 						ease: 'Power2.easeIn',
-						delay: index * 30, // Faster stagger for hide animation
+						delay: index * 30,
 						onComplete: () => {
 							slot.setVisible(false);
 						}
@@ -150,7 +139,6 @@ export class PartyBoard {
 
 	display(): void {
 		this.slotShaders.forEach(slot => slot.setVisible(true));
-		// CPU slots visibility is handled by setEnemyBoardVisible method with animation
 		if (this.enemyBoardVisible) {
 			this.cpuSlotShaders.forEach(slot => slot.setVisible(true));
 		}
@@ -165,24 +153,15 @@ export class PartyBoard {
 		this.dropZones = [];
 	}
 
-	/** Update the shader animations for all slots. Should be called in the scene's update loop. */
 	update(time: number): void {
 		this.slotShaders.forEach(slot => slot.update(time));
 		this.cpuSlotShaders.forEach(slot => slot.update(time));
 	}
 
-	/** Call this when the scene shuts down or the board is no longer needed. */
 	destroy(): void {
 		this.destroyVisuals();
-		// Any other cleanup specific to the PlayerBoard instance itself can go here
 	}
 
-	/**
-	 * Looks for an empty slot on the board.
-	 * @param units The list of units currently on a board (e.g., player's guild units).
-	 * @param forceId The forceId to check against for unit count (relevant if board has mixed forces, though typically used for one force).
-	 * @returns A Vec2 position if an empty slot is found, otherwise null.
-	 */
 	getEmptySlot(units: Unit[], forceId: string): Vec2 | null {
 		const boardWidthInTiles = Math.floor(this.width / constants.TILE_WIDTH);
 		const boardHeightInTiles = Math.floor(this.height / constants.TILE_HEIGHT);
@@ -196,7 +175,6 @@ export class PartyBoard {
 		for (let y = 0; y < boardHeightInTiles; y++) {
 			for (let x = 0; x < boardWidthInTiles; x++) {
 				const currentPos = vec2(x, y);
-				// getUnitAt is a general utility function that finds a unit at a position in a given array.
 				if (!getUnitAt(units)(currentPos)) {
 					return currentPos;
 				}
@@ -205,24 +183,17 @@ export class PartyBoard {
 		return null;
 	}
 
-	/**
-	 * Converts world coordinates to board tile coordinates.
-	 * @param pointer An object with x, y world coordinates.
-	 * @returns A Vec2 representing the tile coordinates (e.g., {x:0, y:0}), or null if outside board.
-	 */
 	getTileAt(pointer: { x: number; y: number }): Vec2 | null {
-		const slotSpacing = 8; // Must match the spacing used in renderSlots()
+		const slotSpacing = 8;
 		const tileWithSpacing = constants.TILE_WIDTH + slotSpacing;
 		const heightWithSpacing = constants.TILE_HEIGHT + slotSpacing;
 
-		// Check if the pointer is within the board's boundaries
 		if (pointer.x >= this.x && pointer.x < this.x + this.width &&
 			pointer.y >= this.y && pointer.y < this.y + this.height) {
 
 			const tileX = Math.floor((pointer.x - this.x) / tileWithSpacing);
 			const tileY = Math.floor((pointer.y - this.y) / heightWithSpacing);
 
-			// Ensure we're within the 3x3 grid
 			if (tileX >= 0 && tileX < 3 && tileY >= 0 && tileY < 3) {
 				return vec2(tileX, tileY);
 			}
@@ -230,15 +201,6 @@ export class PartyBoard {
 		return null;
 	}
 
-	/**
-	 * Updates the position of a unit on a given list of units.
-	 * If the new position is occupied, it swaps the units.
-	 * This function modifies the unit objects directly.
-	 * @param unitToMove The unit that is being moved.
-	 * @param newBoardPosition The target {x, y} position on the board grid.
-	 * @param unitsOnBoard The array of units to check for collisions/swaps.
-	 * @returns An object detailing the move, or null if no move was made.
-	 */
 	static updateUnitPosition(
 		unitToMove: Unit,
 		newBoardPosition: Vec2,
@@ -251,17 +213,17 @@ export class PartyBoard {
 		const oldPositionOfMovedUnit = { ...unitToMove.position };
 
 		if (eqVec2(oldPositionOfMovedUnit, newBoardPosition)) {
-			return null; // No change in position
+			return null;
 		}
 
 		const occupierUnit = unitsOnBoard.find(u => u.id !== unitToMove.id && eqVec2(u.position, newBoardPosition));
 
 		if (occupierUnit) {
-			occupierUnit.position = oldPositionOfMovedUnit; // Swap
+			occupierUnit.position = oldPositionOfMovedUnit;
 			unitToMove.position = newBoardPosition;
 			return { movedUnit: unitToMove, swappedUnit: occupierUnit, oldPositionOfMovedUnit };
 		} else {
-			unitToMove.position = newBoardPosition; // Move to empty slot
+			unitToMove.position = newBoardPosition;
 			return { movedUnit: unitToMove, oldPositionOfMovedUnit };
 		}
 	}
@@ -271,14 +233,6 @@ export class PartyBoard {
 
 let _playerBoardInstance: PartyBoard | null = null;
 
-/**
- * Initializes or re-initializes the shared PlayerBoard instance.
- * If an instance already exists, it's destroyed before a new one is created.
- * After initialization, call `playerBoard.createDropZone()` on the instance or
- * the module-level `createBoardDropZone()` to set up its visuals.
- * @param scene The Phaser scene.
- * @returns The newly created PlayerBoard instance.
- */
 export function initializePlayerBoard(scene: Phaser.Scene): PartyBoard {
 	if (_playerBoardInstance) {
 		_playerBoardInstance.destroy();
@@ -287,34 +241,17 @@ export function initializePlayerBoard(scene: Phaser.Scene): PartyBoard {
 	return _playerBoardInstance;
 }
 
-/**
- * Retrieves the shared PlayerBoard instance.
- * @returns The PlayerBoard instance, or null if it hasn't been initialized.
- */
-export function getSharedPlayerBoard(): PartyBoard | null {
+export function getSharedPlayerBoard(): PartyBoard {
 	if (!_playerBoardInstance) {
-		console.warn("Shared PlayerBoard accessed before initialization. Call initializeSharedPlayerBoard(scene) first.");
+		throw new Error("Shared PlayerBoard accessed before initialization. Call initializeSharedPlayerBoard(scene) first.");
 	}
 	return _playerBoardInstance;
 }
 
-/**
- * Creates the drop zone visuals and interactive zones for the shared player board.
- * This will also clear any previous visuals on the shared board before creating new ones.
- * Requires `initializeSharedPlayerBoard` to have been called first.
- */
 export function createBoardDropZone(): void {
 	const board = getSharedPlayerBoard();
-	if (board) {
-		board.renderSlots(); // This method internally handles cleanup of its previous visuals
-	} else {
-		console.error("Cannot create board drop zone: Shared PlayerBoard not initialized.");
-	}
+	board.renderSlots();
 }
-
-// --- End Module-level singleton management ---
-
-
 
 export function getColumnNeighbors(state: State, unit: Unit) {
 	return state.battleData.units
