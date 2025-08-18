@@ -1,5 +1,5 @@
 import { BattlegroundScene } from "./BattlegroundScene";
-import { getState, State } from "../../Models/State";
+import { getState } from "../../Models/State";
 import { MIN_COOLDOWN } from "../../constants/constants";
 import * as CharaManager from "./Systems/CharaManager";
 import { Unit } from "../../Models/Entities/Unit";
@@ -9,19 +9,10 @@ import { PoisonDamageSystem } from "./Systems/PoisonDamageSystem";
 import { RegenSystem } from "./Systems/RegenSystem";
 import * as CombatStatsTracker from "./Systems/CombatStatsTracker";
 import { processEffectsIO } from "../../TriggerSystem/TriggerSystem";
+import { cpuForce, playerForce } from "../../Models/Entities/Force";
 
-/**
- * Represents the possible outcomes of a combat wave.
- * @typedef {('player_won' | 'player_lost')} WaveOutcome
- */
 export type WaveOutcome = "player_won" | "player_lost";
 
-/**
- * Sets up the wave by initializing unit charge, refresh, and bar visibility.
- * Emits events for trait and battle start setup.
- * @param {BattlegroundScene} scene - The current battleground scene.
- * @returns {Promise<void>} Resolves when setup is complete.
- */
 async function setupWave() {
 
   CharaManager
@@ -30,22 +21,15 @@ async function setupWave() {
       CharaManager.handleCharaBarsVisibilitySetEvent({ unitId: chara.id, visible: true });
     });
 
-  await delay(2000); // wait until everyone is summoned
-
+  await delay(1000);
 }
 
-/**
- * System to run the combat input/output loop for a battleground scene.
- */
 export class RunCombatSystem {
   scene: BattlegroundScene;
   updateHandler: ((time: number, delta: number) => Promise<void>) | null = null;
 
-  // Timeout damage system
   private timeoutDamageSystem: TimeoutDamageSystem;
-  // Poison damage system
   private poisonDamageSystem: PoisonDamageSystem;
-  // Regen system
   private regenSystem: RegenSystem;
 
   constructor(scene: BattlegroundScene) {
@@ -55,63 +39,35 @@ export class RunCombatSystem {
     this.regenSystem = new RegenSystem(scene);
   }
 
-  /**
-   * Gets the poison damage system instance.
-   * @returns The PoisonDamageSystem instance
-   */
   getPoisonDamageSystem(): PoisonDamageSystem {
     return this.poisonDamageSystem;
   }
 
-  /**
-   * Gets the regen system instance.
-   * @returns The RegenSystem instance
-   */
   getRegenSystem(): RegenSystem {
     return this.regenSystem;
   }
 
-  /**
-   * Gets the timeout damage system instance.
-   * @returns The TimeoutDamageSystem instance
-   */
   getTimeoutDamageSystem(): TimeoutDamageSystem {
     return this.timeoutDamageSystem;
   }
 
-  /**
-   * Reduces poison on a force based on healing amount
-   * @param forceId The force that received healing
-   * @param healAmount The amount healed
-   */
   reducePoison(forceId: string, healAmount: number): void {
     this.poisonDamageSystem.reducePoison(forceId, healAmount);
   }
 
-  /**
-   * Starts the combat IO loop and resolves with the wave outcome when combat ends.
-   * @returns {Promise<WaveOutcome>} Resolves with the outcome of the wave.
-   */
   runCombatIO = (): Promise<WaveOutcome> => new Promise(async resolve => {
-    const { state, events } = this.scene;
+    const { events } = this.scene;
 
     await setupWave();
     console.log("[RunCombatSystem] Wave setup complete, starting combat loop.");
 
-    // Initialize timeout damage system
     this.timeoutDamageSystem.initialize();
-    // Initialize poison damage system
     this.poisonDamageSystem.initialize();
-    // Initialize regen system
     this.regenSystem.initialize();
-    // Initialize combat stats tracker
     CombatStatsTracker.initialize(this.scene);
 
-    const playerForce = state.battleData.forces.find(force => force.id === state.gameData.player.id)!;
-    const cpuForce = state.battleData.forces.find(force => force.id !== state.gameData.player.id)!;
-
     this.updateHandler = async (_time: number, delta: number) => {
-      const unitsReadyToAct = chargeUnits(state, delta * this.scene.time.timeScale);
+      const unitsReadyToAct = chargeUnits(delta * this.scene.time.timeScale);
 
       for (const unit of unitsReadyToAct) {
 
@@ -150,15 +106,13 @@ export class RunCombatSystem {
       }
 
       if (combatEnded) {
-        // Trigger storm fade-out when combat ends
         this.timeoutDamageSystem.onCombatEnd();
 
-        // Stop combat stats tracking and print summary
         CombatStatsTracker.stop();
 
         if (this.updateHandler) {
           events.off('update', this.updateHandler);
-          this.updateHandler = null; // Clear the handler
+          this.updateHandler = null;
         }
 
         console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);
@@ -166,8 +120,6 @@ export class RunCombatSystem {
       }
     };
 
-    // process battle start effects for all units
-    // Execute battle start effects per unit (source context matters now)
     getState().battleData.units.forEach(u => {
       const startReactions = u.reactions.filter(r => r.effectId === "battle_start");
       startReactions.forEach(r => processEffectsIO(u, r.effects));
@@ -179,19 +131,12 @@ export class RunCombatSystem {
 
 }
 
-/**
- * Charges units based on delta time, speed modifiers, and cooldowns.
- * Returns units that are ready to act this frame.
- * @param {State} state - The current game state.
- * @param {number} delta - The time delta since last update.
- * @returns {Unit[]} Array of units ready to perform an action.
- */
-function chargeUnits(state: State, delta: number): Unit[] {
-  let performingUnits: Unit[] = []; // units that are ready to perform an action
+function chargeUnits(delta: number): Unit[] {
+  let performingUnits: Unit[] = [];
 
-  for (const unit of state.battleData.units) {
+  for (const unit of getState().battleData.units) {
     const cooldownMultiplier = unit.hasted > 0 ? 0.5 : unit.slowed > 0 ? 2 : 1;
-    const chargeRate = cooldownMultiplier === Number.MAX_SAFE_INTEGER ? 0 : 1 / cooldownMultiplier;
+    const chargeRate = 1 / cooldownMultiplier;
 
     unit.charge += delta * chargeRate;
 
@@ -206,7 +151,7 @@ function chargeUnits(state: State, delta: number): Unit[] {
 
     if (unit.charge >= unit.cooldown && unit.refresh === 0) {
       unit.charge = unit.charge - unit.cooldown;
-      unit.refresh = MIN_COOLDOWN; // minimum space between actions 
+      unit.refresh = MIN_COOLDOWN;
       performingUnits.push(unit);
     }
     CharaManager.getChara(unit.id)?.updateChargeBar();
