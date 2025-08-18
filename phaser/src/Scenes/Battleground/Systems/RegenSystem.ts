@@ -1,6 +1,6 @@
-import { BattlegroundScene } from "../BattlegroundScene";
 import { Force, manipulateForceMorale } from "../../../Models/Entities/Force";
 import * as CombatStatsTracker from "./CombatStatsTracker";
+import { reducePoison } from "./PoisonDamageSystem";
 
 /**
  * Represents a regeneration stack on a force
@@ -19,16 +19,11 @@ export type RegenStack = {
  * Healing per tick = max(1, floor(totalHealing / 10))
  */
 export class RegenSystem {
-	private scene: BattlegroundScene;
 	private readonly tickInterval: number = 1000; // 1 second between regen ticks
 	private isActive: boolean = false;
 
 	// Regen stacks for each force
 	private regenStacks: Map<string, RegenStack[]> = new Map();
-
-	constructor(scene: BattlegroundScene) {
-		this.scene = scene;
-	}
 
 	/**
 	 * Initializes the regen system for a new combat.
@@ -119,9 +114,8 @@ export class RegenSystem {
 				}
 
 				// If the poison system exists, reduce poison based on healing
-				const poisonSystem = this.scene.runCombatSystem?.getPoisonDamageSystem();
-				if (poisonSystem && actualHealing > 0) {
-					poisonSystem.reducePoison(forceId, actualHealing);
+				if (actualHealing > 0) {
+					reducePoison(forceId, actualHealing);
 				}
 
 				// Decrease remaining regen healing

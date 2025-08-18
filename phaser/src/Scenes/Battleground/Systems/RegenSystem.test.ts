@@ -20,7 +20,7 @@ describe('RegenSystem', () => {
 
 	beforeEach(() => {
 		jest.clearAllMocks();
-		regenSystem = new RegenSystem(mockScene);
+		regenSystem = new RegenSystem();
 
 		playerForce = makeForce('player');
 		playerForce.morale = 50;
