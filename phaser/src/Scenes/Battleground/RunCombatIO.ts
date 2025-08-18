@@ -3,7 +3,11 @@ import { getState } from "../../Models/State";
 import { MIN_COOLDOWN } from "../../constants/constants";
 import * as CharaManager from "./Systems/CharaManager";
 import { Unit } from "../../Models/Entities/Unit";
-import { TimeoutDamageSystem } from "./Systems/TimeoutDamageSystem";
+import {
+  initializeTimeoutDamageSystem,
+  updateTimeoutDamageSystem,
+  onTimeoutDamageCombatEnd,
+} from "./Systems/TimeoutDamageSystem";
 import { PoisonDamageSystem } from "./Systems/PoisonDamageSystem";
 import { RegenSystem } from "./Systems/RegenSystem";
 import * as CombatStatsTracker from "./Systems/CombatStatsTracker";
@@ -15,14 +19,14 @@ export type WaveOutcome = "player_won" | "player_lost";
 export class RunCombatSystem {
   private active: boolean = false;
 
-  private timeoutDamageSystem: TimeoutDamageSystem;
+  // timeout damage system is module-scoped; we call its exported functions
   private poisonDamageSystem: PoisonDamageSystem;
   private regenSystem: RegenSystem;
 
-  constructor(scene: BattlegroundScene) {
-    this.timeoutDamageSystem = new TimeoutDamageSystem(scene);
+  constructor(_scene: BattlegroundScene) {
+    // initializeTimeoutDamageSystem will be called when runCombatIO starts
     this.poisonDamageSystem = new PoisonDamageSystem();
-    this.regenSystem = new RegenSystem(scene);
+    this.regenSystem = new RegenSystem(_scene);
   }
 
   getPoisonDamageSystem(): PoisonDamageSystem {
@@ -33,9 +37,6 @@ export class RunCombatSystem {
     return this.regenSystem;
   }
 
-  getTimeoutDamageSystem(): TimeoutDamageSystem {
-    return this.timeoutDamageSystem;
-  }
 
   reducePoison(forceId: string, healAmount: number): void {
     this.poisonDamageSystem.reducePoison(forceId, healAmount);
@@ -45,7 +46,7 @@ export class RunCombatSystem {
     if (this.active) {
       throw new Error("Combat is already active");
     }
-    this.timeoutDamageSystem.initialize();
+    initializeTimeoutDamageSystem();
     this.poisonDamageSystem.initialize();
     this.regenSystem.initialize();
     CombatStatsTracker.initialize();
@@ -71,7 +72,7 @@ export class RunCombatSystem {
     }
 
     // Periodic systems
-    this.timeoutDamageSystem.update(playerForce, cpuForce, scaledDelta);
+    updateTimeoutDamageSystem(playerForce, cpuForce, scaledDelta);
     this.poisonDamageSystem.update(playerForce, cpuForce, scaledDelta);
     this.regenSystem.update(playerForce, cpuForce, scaledDelta);
     CombatStatsTracker.updateTimeAlive(scaledDelta);
@@ -91,7 +92,7 @@ export class RunCombatSystem {
   private finishCombat(outcome: WaveOutcome) {
     if (!this.active) return; // already finished
     this.active = false;
-    this.timeoutDamageSystem.onCombatEnd();
+    onTimeoutDamageCombatEnd();
     CombatStatsTracker.stop();
     console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);
     scene.battleProgressionSystem.handleCombatEnded(outcome);
