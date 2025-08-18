@@ -134,7 +134,6 @@ export class BattlegroundScene extends Phaser.Scene {
     }
   }
 
-
   handleOwnedUnitMoveRequest(payload: {
     unitId: string, targetTile: Vec2, dragStartX: number, dragStartY: number
   }): void {
@@ -154,7 +153,11 @@ export class BattlegroundScene extends Phaser.Scene {
         logError: (message: string) => console.error(message)
       },
       {
-        onMoveAccepted: (unitId: string, _newLogicalPosition: Vec2, newVisualPosition: { x: number; y: number; }) => {
+        onMoveAccepted: (
+          unitId: string,
+          _newLogicalPosition: Vec2,
+          newVisualPosition: { x: number; y: number; },
+        ) => {
           const chara = CharaManager.getChara(unitId);
           chara?.moveToPosition(newVisualPosition);
         },
@@ -171,7 +174,12 @@ export class BattlegroundScene extends Phaser.Scene {
           movedChara?.moveToPosition(movedUnitVisualPosition);
           swappedChara?.moveToPosition(swappedUnitVisualPosition);
         },
-        onMoveRejected: (unitId: string, _reason: string, dragStartX: number, dragStartY: number) => {
+        onMoveRejected: (
+          unitId: string,
+          _reason: string,
+          dragStartX: number,
+          dragStartY: number,
+        ) => {
           const chara = CharaManager.getChara(unitId);
           chara?.revertToPosition(dragStartX, dragStartY);
         }
