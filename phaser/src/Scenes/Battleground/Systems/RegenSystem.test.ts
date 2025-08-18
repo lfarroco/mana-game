@@ -1,5 +1,5 @@
-import { RegenSystem } from './RegenSystem';
 import { makeForce } from '../../../Models/Entities/Force';
+import * as regenSystem from './RegenSystem';
 
 // Mock BattlegroundScene for testing
 const mockScene = {
@@ -14,13 +14,11 @@ const mockScene = {
 } as any;
 
 describe('RegenSystem', () => {
-	let regenSystem: RegenSystem;
 	let playerForce: any;
 	let cpuForce: any;
 
 	beforeEach(() => {
 		jest.clearAllMocks();
-		regenSystem = new RegenSystem();
 
 		playerForce = makeForce('player');
 		playerForce.morale = 50;

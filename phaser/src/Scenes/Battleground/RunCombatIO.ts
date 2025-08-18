@@ -1,4 +1,4 @@
-import { BattlegroundScene, scene } from "./BattlegroundScene";
+import { scene } from "./BattlegroundScene";
 import { getState } from "../../Models/State";
 import { MIN_COOLDOWN } from "../../constants/constants";
 import * as CharaManager from "./Systems/CharaManager";
@@ -8,29 +8,16 @@ import {
   updateTimeoutDamageSystem,
   onTimeoutDamageCombatEnd,
 } from "./Systems/TimeoutDamageSystem";
-import { RegenSystem } from "./Systems/RegenSystem";
 import * as CombatStatsTracker from "./Systems/CombatStatsTracker";
 import { processEffectsIO } from "../../TriggerSystem/TriggerSystem";
 import { cpuForce, playerForce } from "../../Models/Entities/Force";
 import * as PoisonDamageSystem from "./Systems/PoisonDamageSystem";
+import * as RegenSystem from "./Systems/RegenSystem";
 
 export type WaveOutcome = "player_won" | "player_lost";
 
 export class RunCombatSystem {
   private active: boolean = false;
-
-  // timeout damage system is module-scoped; we call its exported functions
-  private regenSystem: RegenSystem;
-
-  constructor(_scene: BattlegroundScene) {
-    // initializeTimeoutDamageSystem will be called when runCombatIO starts
-    this.regenSystem = new RegenSystem();
-  }
-
-
-  getRegenSystem(): RegenSystem {
-    return this.regenSystem;
-  }
 
 
   reducePoison(forceId: string, healAmount: number): void {
@@ -43,7 +30,7 @@ export class RunCombatSystem {
     }
     initializeTimeoutDamageSystem();
     PoisonDamageSystem.initialize();
-    this.regenSystem.initialize();
+    RegenSystem.initialize();
     CombatStatsTracker.initialize();
     getState().battleData.units.forEach(u => {
       const startReactions = u.reactions.filter(r => r.effectId === "battle_start");
@@ -69,7 +56,7 @@ export class RunCombatSystem {
     // Periodic systems
     updateTimeoutDamageSystem(playerForce, cpuForce, scaledDelta);
     PoisonDamageSystem.update(playerForce, cpuForce, scaledDelta);
-    this.regenSystem.update(playerForce, cpuForce, scaledDelta);
+    RegenSystem.update(playerForce, cpuForce, scaledDelta);
     CombatStatsTracker.updateTimeAlive(scaledDelta);
 
     // Victory / defeat check

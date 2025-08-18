@@ -2,182 +2,115 @@ import { Force, manipulateForceMorale } from "../../../Models/Entities/Force";
 import * as CombatStatsTracker from "./CombatStatsTracker";
 import { reducePoison } from "./PoisonDamageSystem";
 
-/**
- * Represents a regeneration stack on a force
- */
 export type RegenStack = {
-	totalHealing: number; // Total healing this regen will provide
-	healingPerTick: number; // Healing provided per tick
-	remainingHealing: number; // Remaining healing to be applied
-	timeSinceLastTick: number; // Time since last healing application
-	sourceUnitId?: string; // ID of the unit that applied this regen
+	totalHealing: number;
+	healingPerTick: number;
+	remainingHealing: number;
+	timeSinceLastTick: number;
+	sourceUnitId?: string;
 };
 
-/**
- * System that manages regeneration (healing over time) for forces
- * Regen provides consistent healing per second until total healing is reached
- * Healing per tick = max(1, floor(totalHealing / 10))
- */
-export class RegenSystem {
-	private readonly tickInterval: number = 1000; // 1 second between regen ticks
-	private isActive: boolean = false;
+const TICK_INTERVAL = 1000;
+let isActive: boolean = false;
 
-	// Regen stacks for each force
-	private regenStacks: Map<string, RegenStack[]> = new Map();
+const regenStacks: Map<string, RegenStack[]> = new Map();
 
-	/**
-	 * Initializes the regen system for a new combat.
-	 */
-	initialize(): void {
-		this.isActive = true;
-		this.regenStacks.clear();
+export function initialize(): void {
+	isActive = true;
+	regenStacks.clear();
+}
+
+export function applyRegen(targetForce: Force, amount: number, sourceUnitId?: string): void {
+	if (amount <= 0) return;
+
+	const forceId = targetForce.id;
+	if (!regenStacks.has(forceId)) {
+		regenStacks.set(forceId, []);
 	}
 
-	/**
-	 * Applies regeneration to a target force
-	 * @param targetForce The force to apply regen to
-	 * @param amount Total healing to provide over time
-	 * @param sourceUnitId Optional ID of the unit applying regen
-	 */
-	applyRegen(targetForce: Force, amount: number, sourceUnitId?: string): void {
-		if (amount <= 0) return;
+	const stacks = regenStacks.get(forceId)!;
 
-		const forceId = targetForce.id;
-		if (!this.regenStacks.has(forceId)) {
-			this.regenStacks.set(forceId, []);
-		}
+	const healingPerTick = Math.max(1, Math.floor(amount / 10));
 
-		const stacks = this.regenStacks.get(forceId)!;
+	stacks.push({
+		totalHealing: amount,
+		healingPerTick: healingPerTick,
+		remainingHealing: amount,
+		timeSinceLastTick: 0,
+		sourceUnitId
+	});
 
-		// Calculate healing per tick: 1 healing per tick for every 10 power
-		// Minimum 1 healing per tick, provides total healing over time
-		const healingPerTick = Math.max(1, Math.floor(amount / 10));
+	const ticksRequired = Math.ceil(amount / healingPerTick);
+	console.log(`[RegenSystem] Applied ${amount} regen to force ${forceId} (${healingPerTick} per tick, ${ticksRequired} ticks)`);
+}
 
-		// Add new regen stack
-		stacks.push({
-			totalHealing: amount,
-			healingPerTick: healingPerTick,
-			remainingHealing: amount,
-			timeSinceLastTick: 0,
-			sourceUnitId
-		});
+export function update(playerForce: Force, cpuForce: Force, delta: number): void {
+	if (!isActive) return;
 
-		const ticksRequired = Math.ceil(amount / healingPerTick);
-		console.log(`[RegenSystem] Applied ${amount} regen to force ${forceId} (${healingPerTick} per tick, ${ticksRequired} ticks)`);
+	updateForceRegen(playerForce, delta);
+	updateForceRegen(cpuForce, delta);
+}
 
-		// Note: Removed regen effect display for consistency with other healing types
-	}
+function updateForceRegen(force: Force, delta: number): void {
+	const forceId = force.id;
+	const stacks = regenStacks.get(forceId);
 
-	/**
-	 * Updates the regen system. Should be called every frame during combat.
-	 * @param playerForce The player's force
-	 * @param cpuForce The CPU's force
-	 * @param delta The time delta since last update in milliseconds
-	 */
-	update(playerForce: Force, cpuForce: Force, delta: number): void {
-		if (!this.isActive) return;
+	if (!stacks || stacks.length === 0) return;
 
-		// Update regen for both forces
-		this.updateForceRegen(playerForce, delta);
-		this.updateForceRegen(cpuForce, delta);
-	}
+	for (let i = stacks.length - 1; i >= 0; i--) {
+		const stack = stacks[i];
+		stack.timeSinceLastTick += delta;
 
-	/**
-	 * Updates regen stacks for a specific force
-	 * @param force The force to update
-	 * @param delta Time delta in milliseconds
-	 */
-	private updateForceRegen(force: Force, delta: number): void {
-		const forceId = force.id;
-		const stacks = this.regenStacks.get(forceId);
+		if (stack.timeSinceLastTick >= TICK_INTERVAL) {
+			const healing = Math.min(stack.healingPerTick, stack.remainingHealing);
+			console.log(`[RegenSystem] Regen tick on ${forceId}: ${healing} healing (${stack.remainingHealing} remaining)`);
 
-		if (!stacks || stacks.length === 0) return;
+			const actualHealing = manipulateForceMorale(force, healing);
 
-		// Update each regen stack
-		for (let i = stacks.length - 1; i >= 0; i--) {
-			const stack = stacks[i];
-			stack.timeSinceLastTick += delta;
+			if (stack.sourceUnitId && actualHealing > 0) {
+				CombatStatsTracker.trackHealing(stack.sourceUnitId, actualHealing, 'regen');
+			}
 
-			// Check if it's time for a regen tick
-			if (stack.timeSinceLastTick >= this.tickInterval) {
-				// Apply regen healing (consistent amount per tick)
-				const healing = Math.min(stack.healingPerTick, stack.remainingHealing);
-				console.log(`[RegenSystem] Regen tick on ${forceId}: ${healing} healing (${stack.remainingHealing} remaining)`);
+			if (actualHealing > 0) {
+				reducePoison(forceId, actualHealing);
+			}
 
-				// Apply healing to morale, respecting max morale
-				// The manipulateForceMorale function will emit MORALE_UPDATED event automatically
-				const actualHealing = manipulateForceMorale(force, healing);
+			stack.remainingHealing = Math.max(0, stack.remainingHealing - healing);
+			stack.timeSinceLastTick = 0;
 
-				// Track regen healing in combat stats
-				if (stack.sourceUnitId && actualHealing > 0) {
-					CombatStatsTracker.trackHealing(stack.sourceUnitId, actualHealing, 'regen');
-				}
-
-				// If the poison system exists, reduce poison based on healing
-				if (actualHealing > 0) {
-					reducePoison(forceId, actualHealing);
-				}
-
-				// Decrease remaining regen healing
-				stack.remainingHealing = Math.max(0, stack.remainingHealing - healing);
-				stack.timeSinceLastTick = 0;
-
-				// Remove stack if regen is depleted
-				if (stack.remainingHealing <= 0) {
-					stacks.splice(i, 1);
-					console.log(`[RegenSystem] Regen stack expired for force ${forceId}`);
-				}
+			if (stack.remainingHealing <= 0) {
+				stacks.splice(i, 1);
+				console.log(`[RegenSystem] Regen stack expired for force ${forceId}`);
 			}
 		}
 	}
+}
 
-	/**
-	 * Gets total regen healing that will be applied to a force
-	 * @param forceId The force ID to check
-	 * @returns Total remaining regen healing
-	 */
-	getTotalRegenHealing(forceId: string): number {
-		const stacks = this.regenStacks.get(forceId);
-		if (!stacks) return 0;
+export function getTotalRegenHealing(forceId: string): number {
+	const stacks = regenStacks.get(forceId);
+	if (!stacks) return 0;
 
-		// Simply sum all remaining healing from all stacks
-		return stacks.reduce((total, stack) => total + stack.remainingHealing, 0);
-	}
+	return stacks.reduce((total, stack) => total + stack.remainingHealing, 0);
+}
 
-	/**
-	 * Gets current regen stacks for a force
-	 * @param forceId The force ID to check
-	 * @returns Array of regen stacks
-	 */
-	getRegenStacks(forceId: string): RegenStack[] {
-		return this.regenStacks.get(forceId) || [];
-	}
+export function getRegenStacks(forceId: string): RegenStack[] {
+	return regenStacks.get(forceId) || [];
+}
 
-	/**
-	 * Clears all regen from a force
-	 * @param forceId The force ID to clear
-	 */
-	clearRegen(forceId: string): void {
-		this.regenStacks.delete(forceId);
-	}
+export function clearRegen(forceId: string): void {
+	regenStacks.delete(forceId);
+}
 
-	/**
-	 * Stops the regen system.
-	 */
-	stop(): void {
-		this.isActive = false;
-		this.regenStacks.clear();
-	}
+export function stop(): void {
+	isActive = false;
+	regenStacks.clear();
+}
 
-	/**
-	 * Gets the current regen system configuration.
-	 */
-	getConfig() {
-		return {
-			tickInterval: this.tickInterval,
-			isActive: this.isActive,
-			totalStacks: Array.from(this.regenStacks.values())
-				.reduce((total, stacks) => total + stacks.length, 0)
-		};
-	}
+export function getConfig() {
+	return {
+		tickInterval: TICK_INTERVAL,
+		isActive,
+		totalStacks: Array.from(regenStacks.values())
+			.reduce((total, stacks) => total + stacks.length, 0)
+	};
 }
