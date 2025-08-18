@@ -46,7 +46,7 @@ describe('CombatStatsTracker', () => {
 
 	describe('initialization', () => {
 		it('should initialize stats for all units', () => {
-			CombatStatsTracker.initialize(mockScene);
+			CombatStatsTracker.initialize();
 
 			const allStats = CombatStatsTracker.getAllStats();
 			expect(allStats).toHaveLength(2);
@@ -70,7 +70,7 @@ describe('CombatStatsTracker', () => {
 
 	describe('manual tracking', () => {
 		beforeEach(() => {
-			CombatStatsTracker.initialize(mockScene);
+			CombatStatsTracker.initialize();
 		});
 
 		it('should track damage manually', () => {
@@ -115,7 +115,7 @@ describe('CombatStatsTracker', () => {
 
 	describe('aggregation', () => {
 		beforeEach(() => {
-			CombatStatsTracker.initialize(mockScene);
+			CombatStatsTracker.initialize();
 		});
 
 		it('should aggregate force stats correctly', () => {
@@ -153,7 +153,7 @@ describe('CombatStatsTracker', () => {
 
 	describe('time tracking', () => {
 		beforeEach(() => {
-			CombatStatsTracker.initialize(mockScene);
+			CombatStatsTracker.initialize();
 		});
 
 		it('should update time alive for active units', () => {
@@ -175,12 +175,12 @@ describe('CombatStatsTracker', () => {
 
 	describe('lifecycle', () => {
 		it('should stop correctly and finalize time alive', () => {
-			CombatStatsTracker.initialize(mockScene);
+			CombatStatsTracker.initialize();
 
 			// Mock Date.now to control time
 			const mockNow = jest.spyOn(Date, 'now');
 			mockNow.mockReturnValueOnce(1000); // Start time
-			CombatStatsTracker.initialize(mockScene); // Re-initialize to set start time
+			CombatStatsTracker.initialize(); // Re-initialize to set start time
 
 			mockNow.mockReturnValueOnce(3000); // End time (2 seconds later)
 			CombatStatsTracker.stop();
@@ -204,7 +204,7 @@ describe('CombatStatsTracker', () => {
 
 	describe('configuration', () => {
 		it('should return correct configuration', () => {
-			CombatStatsTracker.initialize(mockScene);
+			CombatStatsTracker.initialize();
 
 			const config = CombatStatsTracker.getConfig();
 			expect(config.isActive).toBe(true);

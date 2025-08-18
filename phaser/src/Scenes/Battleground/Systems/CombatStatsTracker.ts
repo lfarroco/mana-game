@@ -1,4 +1,4 @@
-import { BattlegroundScene } from "../BattlegroundScene";
+import { scene } from "../BattlegroundScene";
 import { Unit } from "../../../Models/Entities/Unit";
 
 /**
@@ -26,7 +26,6 @@ export type UnitCombatStats = {
 };
 
 // Singleton state
-let scene: BattlegroundScene | null = null;
 let isActive: boolean = false;
 let unitStats: Map<string, UnitCombatStats> = new Map();
 let combatStartTime: number = 0;
@@ -35,7 +34,6 @@ let combatStartTime: number = 0;
  * Creates initial stat entries for all units in the battle
  */
 function initializeUnitStats(): void {
-	if (!scene) return;
 
 	const allUnits = scene.state.battleData.units;
 
@@ -187,8 +185,7 @@ export function handleUnitAction(payload: { unit: Unit }): void {
  * Initializes the combat stats tracker for a new combat.
  * Sets up event listeners and creates initial stats for all units.
  */
-export function initialize(battlegroundScene: BattlegroundScene): void {
-	scene = battlegroundScene;
+export function initialize(): void {
 	isActive = true;
 	unitStats.clear();
 	combatStartTime = Date.now();
@@ -263,7 +260,7 @@ export function trackShield(sourceUnitId: string, shield: number): void {
  * Should be called periodically during combat
  */
 export function updateTimeAlive(delta: number): void {
-	if (!isActive || !scene) return;
+	if (!isActive) return;
 
 	// Get currently active units
 	const activeUnits = scene.state.battleData.units.filter(unit =>
@@ -394,7 +391,6 @@ export function getConfig() {
  * @internal
  */
 export function reset(): void {
-	scene = null;
 	isActive = false;
 	unitStats.clear();
 	combatStartTime = 0;

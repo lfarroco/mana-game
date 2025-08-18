@@ -1,4 +1,4 @@
-import { BattlegroundScene } from "./BattlegroundScene";
+import { BattlegroundScene, scene } from "./BattlegroundScene";
 import { getState } from "../../Models/State";
 import { MIN_COOLDOWN } from "../../constants/constants";
 import * as CharaManager from "./Systems/CharaManager";
@@ -12,20 +12,14 @@ import { cpuForce, playerForce } from "../../Models/Entities/Force";
 
 export type WaveOutcome = "player_won" | "player_lost";
 
-// Wave setup (enemy reveal, summoning, bar visibility) handled externally in BattleProgressionSystem
-
 export class RunCombatSystem {
-  scene: BattlegroundScene;
-  // True while a combat wave is running
   private active: boolean = false;
-  private outcomeResolver: ((outcome: WaveOutcome) => void) | null = null;
 
   private timeoutDamageSystem: TimeoutDamageSystem;
   private poisonDamageSystem: PoisonDamageSystem;
   private regenSystem: RegenSystem;
 
   constructor(scene: BattlegroundScene) {
-    this.scene = scene;
     this.timeoutDamageSystem = new TimeoutDamageSystem(scene);
     this.poisonDamageSystem = new PoisonDamageSystem();
     this.regenSystem = new RegenSystem(scene);
@@ -47,37 +41,26 @@ export class RunCombatSystem {
     this.poisonDamageSystem.reducePoison(forceId, healAmount);
   }
 
-  /**
-   * Starts a combat wave and returns a Promise resolved with the outcome.
-   * Runs frame logic through scene.update calling updateFrame.
-   */
-  runCombatIO = (): Promise<WaveOutcome> => {
+  runCombatIO = () => {
     if (this.active) {
-      throw new Error("runCombatIO called while combat already active");
+      throw new Error("Combat is already active");
     }
-    // Initialize combat systems – assumes units & charas fully ready
     this.timeoutDamageSystem.initialize();
     this.poisonDamageSystem.initialize();
     this.regenSystem.initialize();
-    CombatStatsTracker.initialize(this.scene);
-    // Battle start reactions
+    CombatStatsTracker.initialize();
     getState().battleData.units.forEach(u => {
       const startReactions = u.reactions.filter(r => r.effectId === "battle_start");
       startReactions.forEach(r => processEffectsIO(u, r.effects));
     });
     this.active = true;
-    return new Promise<WaveOutcome>(resolve => this.outcomeResolver = resolve);
+
   };
 
-  /**
-   * Called every frame by the scene while active.
-   * @param _time current time (unused)
-   * @param delta delta time in ms since last frame
-   */
   updateFrame(_time: number, delta: number): void {
     if (!this.active) return;
 
-    const scaledDelta = delta * this.scene.time.timeScale;
+    const scaledDelta = delta * scene.time.timeScale;
 
     const unitsReadyToAct = chargeUnits(scaledDelta);
 
@@ -111,8 +94,7 @@ export class RunCombatSystem {
     this.timeoutDamageSystem.onCombatEnd();
     CombatStatsTracker.stop();
     console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);
-    this.outcomeResolver?.(outcome);
-    this.outcomeResolver = null;
+    scene.battleProgressionSystem.handleCombatEnded(outcome);
   }
 
   /** Whether a combat is currently running */

@@ -47,7 +47,7 @@ export class BattleProgressionSystem {
 		return this.isInShopPhase;
 	}
 
-	async transitionToShopPhase(payload?: { enemiesDefeated?: Unit[] }): Promise<void> {
+	async transitionToShopPhase(): Promise<void> {
 
 		CharaManager.clearCharas();
 		this.state.battleData.units = [];
@@ -68,11 +68,10 @@ export class BattleProgressionSystem {
 		this.state.gameData.round++;
 
 		this.isInShopPhase = true;
-		if (payload && payload.enemiesDefeated) {
-			updatePlayerGoldIO(BG_CONSTANTS.VICTORY_GOLD_REWARD);
-			this.prestigeSystem.processVictory();
-			this.prestigeSystem.finalizeRound();
-		}
+		updatePlayerGoldIO(BG_CONSTANTS.VICTORY_GOLD_REWARD);
+		this.prestigeSystem.processVictory();
+		this.prestigeSystem.finalizeRound();
+
 		console.log("Round", this.state.gameData.round, "Shop Phase Starting.");
 
 		this.scene.shop.handleShopOpenUITrigger()
@@ -92,7 +91,7 @@ export class BattleProgressionSystem {
 	async handleCombatEndedDefeat(): Promise<void> {
 		console.log("Round", this.state.gameData.round, "Processing Defeat...");
 
-			AudioManager.playSoundEffect('sfx_victory_match');
+		AudioManager.playSoundEffect('sfx_victory_match');
 
 		await delay(1000);
 		await this._fadeOutDisplayBars();
@@ -163,7 +162,7 @@ export class BattleProgressionSystem {
 		this.transitionToCombatPhase();
 	}
 
-	async handleCombatEndedVictory(payload: { enemiesDefeated: Unit[] }): Promise<void> {
+	async handleCombatEndedVictory(): Promise<void> {
 		console.log("Round", this.state.gameData.round, "Processing Victory...");
 
 		AudioManager.playSoundEffect('sfx_victory_reward_chant');
@@ -177,7 +176,7 @@ export class BattleProgressionSystem {
 
 		await delay(1500);
 
-		this.transitionToShopPhase(payload);
+		this.transitionToShopPhase();
 	}
 
 	async handleCombatStartExecution(payload: { enemies: Unit[] }): Promise<void> {
@@ -189,12 +188,17 @@ export class BattleProgressionSystem {
 			try { CharaManager.handleCharaBarsVisibilitySetEvent({ unitId: u.id, visible: true }); } catch { }
 		});
 
-		const combatResult = await this.scene.runCombatSystem.runCombatIO();
+		await this.scene.runCombatSystem.runCombatIO();
+
+	}
+
+	handleCombatEnded(combatResult: string) {
 		if (combatResult === "player_won") {
-			this.handleCombatEndedVictory({ enemiesDefeated: payload.enemies });
+			this.handleCombatEndedVictory();
 		} else {
 			this.handleCombatEndedDefeat();
 		}
+
 	}
 
 
