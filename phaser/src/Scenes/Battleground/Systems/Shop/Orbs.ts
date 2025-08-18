@@ -1,4 +1,5 @@
 import { MagicOrb, MagicOrbCallbacks } from "../../../../components/MagicOrb/MagicOrb";
+import * as Phaser from "phaser";
 import { getSharedPlayerBoard } from "../../../../Models/Board";
 import { Unit } from "../../../../Models/Entities/Unit";
 import { getReactionDescription } from "../../../../Systems/Chara/CharaTooltip";
@@ -10,6 +11,14 @@ import { scene } from "../../BattlegroundScene";
 import * as sc from "./ShopConstants";
 import { ShopUI } from "./ShopUI";
 
+
+type OrbSpec = {
+	id: string;
+	name: string;
+	color: number;
+	tooltip: string;
+	effect: (unit: Unit) => void
+};
 
 // 1 - reaction (gain power)
 // 2 - boost
@@ -191,26 +200,27 @@ export function renderOrbs(ui: ShopUI, orbIds: string[]) {
 	ui.orbContainer.add(bg);
 
 	function handleOrbDrop(params: {
-		orb: any,
-		target: any,
-		orbSpec: { id: string; name: string; color: number; tooltip: string; effect: (unit: Unit) => void },
+		orb: MagicOrb,
+		target: Phaser.GameObjects.GameObject,
+		orbSpec: OrbSpec,
 		ui: ShopUI,
-		magicOrb: any
+		magicOrb: MagicOrb
 	}) {
 		const { orb, target, orbSpec, magicOrb } = params;
 		const playerBoard = getSharedPlayerBoard();
 
-		if (!playerBoard || !playerBoard.dropZones.includes(target)) {
-			console.log(`${orb.name} Orb dropped on non-board target:`, target.name || target.getData?.('type') || 'unknown');
+		if (!playerBoard || !playerBoard.dropZones.includes(target as Phaser.GameObjects.Zone)) {
+			console.log(`${orbSpec.name} dropped on non-board target:`, target);
 			MagicOrbCallbacks.returnToPosition(orb, target);
 			return;
 		}
 
-		const slotIndex = playerBoard.dropZones.indexOf(target);
+		// At this point target is guaranteed to be a Zone in dropZones
+		const slotIndex = playerBoard.dropZones.indexOf(target as Phaser.GameObjects.Zone);
 		const tileX = slotIndex % 3;
 		const tileY = Math.floor(slotIndex / 3);
 
-		console.log(`${orb.name} Orb dropped on board slot [${tileX}, ${tileY}] (index: ${slotIndex})`);
+		console.log(`${orbSpec.name} dropped on board slot [${tileX}, ${tileY}] (index: ${slotIndex})`);
 
 		const gameState = scene.state;
 		const existingUnit = gameState?.gameData?.player?.units?.find((unit: Unit) => unit.position?.x === tileX && unit.position?.y === tileY);
@@ -221,7 +231,7 @@ export function renderOrbs(ui: ShopUI, orbIds: string[]) {
 			return;
 		}
 
-		console.log(`Unit ${existingUnit.id} is at this position - applying ${orb.name} effect!`);
+		console.log(`Unit ${existingUnit.id} is at this position - applying ${orbSpec.name} effect!`);
 		orbSpec.effect(existingUnit);
 		magicOrb.startDissolve();
 	}
@@ -244,7 +254,7 @@ export function renderOrbs(ui: ShopUI, orbIds: string[]) {
 			returnDuration: 500,
 			tooltipTitle: orbSpec.name,
 			tooltipText: orbSpec.tooltip,
-			onDropTarget: (orb: any, target: any) => handleOrbDrop({ orb, target, orbSpec, ui, magicOrb }),
+			onDropTarget: (orb: MagicOrb, target: Phaser.GameObjects.GameObject) => handleOrbDrop({ orb, target, orbSpec, ui, magicOrb }),
 			dropTargetNames: []
 		});
 		ui.orbContainer!.add(magicOrb.getShader());
