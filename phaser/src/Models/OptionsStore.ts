@@ -1,7 +1,6 @@
 import { game } from "../main";
 import * as AudioManager from "../Systems/AudioManager";
 
-
 export const init = () => {
 	const savedOptions = loadOptionsFromStorage();
 	if (savedOptions) {

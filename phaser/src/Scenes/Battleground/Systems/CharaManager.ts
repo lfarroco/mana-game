@@ -2,26 +2,14 @@ import { Unit } from "../../../Models/Entities/Unit";
 import * as Chara from "../../../Systems/Chara/Chara";
 import { vec2 } from "../../../Models/Geometry";
 import { summonEffect } from "../../../Effects/summonEffect";
-import { BattlegroundScene } from "../BattlegroundScene";
 import * as constants from "../../../constants/constants";
 import { tween } from "../../../Utils/animation";
+import { scene } from "../BattlegroundScene";
 
-let scene: BattlegroundScene;
 
 // This was previously part of an exported CharaManagerState.
 // It's now an internal variable, managed solely by this module.
 const charaIndex: Chara.Chara[] = [];
-
-//@ts-ignore
-window.index = charaIndex;
-
-export function init(sceneRef: BattlegroundScene) {
-	scene = sceneRef;
-	if (process.env.NODE_ENV === 'development') {
-		//@ts-ignore
-		window.debug_getAllManagedCharas = () => [...charaIndex]; // Provide a controlled way to inspect for debugging
-	}
-}
 
 export function clearCharas() {
 	// Iterate over a copy as destroyChara modifies the charaIndex
