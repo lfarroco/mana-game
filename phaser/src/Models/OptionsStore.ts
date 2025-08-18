@@ -1,6 +1,16 @@
 import { game } from "../main";
 import * as AudioManager from "../Systems/AudioManager";
 
+let currentOptions: Options = {
+	sound: true,
+	soundVolume: 0.4,
+	music: true,
+	musicVolume: 0.2,
+	debug: false,
+	speed: 2,
+	particles: 'medium',
+};
+
 export const init = () => {
 	const savedOptions = loadOptionsFromStorage();
 	if (savedOptions) {
@@ -17,16 +27,6 @@ export type Options = {
 	debug: boolean;
 	speed: number;
 	particles: 'low' | 'medium' | 'high';
-};
-
-let currentOptions: Options = {
-	sound: true,
-	soundVolume: 0.4,
-	music: true,
-	musicVolume: 0.2,
-	debug: false,
-	speed: 1,
-	particles: 'medium',
 };
 
 const STORAGE_KEY = 'mana-game-options';
@@ -60,26 +60,6 @@ export function setOption<K extends keyof Options>(key: K, value: Options[K]): v
 
 export function saveOptions(): void {
 	saveOptionsToStorage();
-}
-
-export function resetOptionsToDefaults(): void {
-	let speed = 1;
-	let debug = false;
-
-	currentOptions = {
-		sound: true,
-		soundVolume: 0.4,
-		music: true,
-		musicVolume: 0.2,
-		debug,
-		speed,
-		particles: 'medium',
-	};
-
-	saveOptionsToStorage();
-	setGameSpeed(currentOptions.speed);
-
-	AudioManager.onOptionsChanged();
 }
 
 function setGameSpeed(speed: number) {
