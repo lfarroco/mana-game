@@ -23,6 +23,7 @@ import { DebugController } from "../Debug/DebugController";
 export let scene: BattlegroundScene;
 
 export class BattlegroundScene extends Phaser.Scene {
+  private headless: boolean = false;
   state: State;
   bgContainer!: Phaser.GameObjects.Container;
   cloudsBackground!: Phaser.GameObjects.Image;
@@ -83,6 +84,13 @@ export class BattlegroundScene extends Phaser.Scene {
 
   preload = preload;
 
+  init(data: { headless?: boolean } = {}) {
+    if (data.headless) {
+      this.headless = true;
+      console.log("BattlegroundScene init: running in headless (effects-only) mode.");
+    }
+  }
+
   create = async () => {
     console.log("BattlegroundScene create: primary logic deferred to start().");
     scene = this;
@@ -98,6 +106,10 @@ export class BattlegroundScene extends Phaser.Scene {
       (scale: number) => this.time.timeScale = scale,
       (scale: number) => this.tweens.timeScale = scale
     );
+    if (this.headless) {
+      console.log("BattlegroundScene create: headless mode - skipping start() heavy logic.");
+      return;
+    }
 
     this.start();
 
@@ -167,6 +179,9 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
   update(time: number, delta: number): void {
+    if (this.headless) {
+      return;
+    }
     BattlegroundScenePure.updateShopUI(
       time,
       this.shop?.shopUI,
