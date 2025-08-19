@@ -1,5 +1,7 @@
 import { images } from "../assets";
 import * as effects from "../Effects";
+import { UIButton } from "../UI/UIButton";
+import * as constants from "../constants/constants";
 
 type EffectFactory = (scene: DebugScene) => void;
 
@@ -173,8 +175,57 @@ export class DebugScene extends Phaser.Scene {
 		const urlParams = new URLSearchParams(window.location.search);
 		const effect = urlParams.get('vieweffect')?.toLowerCase();
 
+		// If url param provided, auto-run that effect (legacy behavior)
 		if (effect && EFFECT_REGISTRY[effect]) {
 			EFFECT_REGISTRY[effect](this);
+		}
+
+		this.createEffectButtons();
+	}
+
+	private createEffectButtons() {
+		// List of effect keys
+		const effectKeys = Object.keys(EFFECT_REGISTRY);
+
+		// Layout config
+		const startX = 200;
+		const startY = 150;
+		const verticalSpacing = 70;
+		const columns = 3;
+		const columnWidth = 360;
+
+		// Title text
+		this.add.text(constants.MIDDLE_SCREEN_X, 60, 'DEBUG EFFECTS', {
+			fontSize: '48px',
+			color: '#ffffff',
+			stroke: '#000000',
+			strokeThickness: 6
+		}).setOrigin(0.5);
+
+		// Back button
+		new UIButton(this, 'BACK', constants.SCREEN_WIDTH - 180, constants.SCREEN_HEIGHT - 80, () => {
+			this.scene.start(constants.SCENE_KEYS.TITLE);
+		}, 200);
+
+		// Create buttons for each effect
+		effectKeys.forEach((key, index) => {
+			const col = index % columns;
+			const row = Math.floor(index / columns);
+			const x = startX + col * columnWidth;
+			const y = startY + row * verticalSpacing;
+			new UIButton(this, key.toUpperCase(), x, y, () => this.runEffect(key), 320);
+		});
+	}
+
+	private runEffect(key: string) {
+		// Clear previous timed events (avoids stacking repeats)
+		this.time.removeAllEvents();
+		console.log('[DebugScene] Running effect:', key);
+		const fx = EFFECT_REGISTRY[key];
+		if (fx) {
+			fx(this);
+		} else {
+			console.warn('[DebugScene] Effect not found:', key);
 		}
 	}
 }
