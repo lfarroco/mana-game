@@ -1,4 +1,6 @@
 import { images } from "../assets";
+import { SCENE_KEYS } from "../constants/constants";
+import { BattlegroundScene } from "../Scenes/Battleground/BattlegroundScene";
 import * as effects from "../Effects";
 import { UIButton } from "../UI/UIButton";
 import * as constants from "../constants/constants";
@@ -174,6 +176,18 @@ export class DebugScene extends Phaser.Scene {
 	}
 
 	create() {
+		// Ensure a headless battleground scene exists for effects that depend on its globals/systems.
+		if (!this.scene.get(SCENE_KEYS.BATTLEGROUND)) {
+			console.log("[DebugScene] Adding headless BattlegroundScene instance for effect dependencies.");
+			this.scene.add(SCENE_KEYS.BATTLEGROUND, BattlegroundScene, true, { headless: true });
+		} else {
+			const bg = this.scene.get(SCENE_KEYS.BATTLEGROUND) as BattlegroundScene;
+			if (!bg.scene.isActive()) {
+				console.log("[DebugScene] Launching existing BattlegroundScene in headless mode.");
+				this.scene.launch(SCENE_KEYS.BATTLEGROUND, { headless: true });
+			}
+		}
+
 		const urlParams = new URLSearchParams(window.location.search);
 		const effect = urlParams.get('vieweffect')?.toLowerCase();
 
