@@ -22,11 +22,9 @@ export type Effect = {
 } | {
 	id: "poison",
 	perTick: number,
-	ticks: number,
 } | {
 	id: "regen",
 	perTick: number,
-	ticks: number,
 } | {
 	id: "haste",
 	duration: number,
@@ -114,12 +112,7 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
 			effects.addShieldLogicIO({ scene, sourceUnit });
 			break;
 		case "poison":
-			// TODO: simplify: 10 dmg for 3 sec
-			effects.applyPoisonLogicIO({
-				scene,
-				sourceUnit,
-				amount: sourceUnit.power
-			})
+			effects.applyPoisonLogicIO(sourceUnit)
 			break;
 		case "regen":
 			effects.applyRegenLogicIO({
