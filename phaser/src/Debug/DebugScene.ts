@@ -158,6 +158,8 @@ const EFFECT_REGISTRY: Record<string, EffectFactory> = {
 };
 
 export class DebugScene extends Phaser.Scene {
+	private effectButtonsContainer!: Phaser.GameObjects.Container;
+	private backButton?: UIButton;
 
 	constructor() {
 		super('DebugScene');
@@ -184,8 +186,14 @@ export class DebugScene extends Phaser.Scene {
 	}
 
 	private createEffectButtons() {
-		// List of effect keys
 		const effectKeys = Object.keys(EFFECT_REGISTRY);
+		this.effectButtonsContainer = this.add.container(0, 0);
+
+		// Title inside container
+		const title = this.add.text(constants.MIDDLE_SCREEN_X, 60, 'DEBUG EFFECTS', {
+			fontSize: '48px', color: '#ffffff', stroke: '#000000', strokeThickness: 6
+		}).setOrigin(0.5);
+		this.effectButtonsContainer.add(title);
 
 		// Layout config
 		const startX = 200;
@@ -194,27 +202,21 @@ export class DebugScene extends Phaser.Scene {
 		const columns = 3;
 		const columnWidth = 360;
 
-		// Title text
-		this.add.text(constants.MIDDLE_SCREEN_X, 60, 'DEBUG EFFECTS', {
-			fontSize: '48px',
-			color: '#ffffff',
-			stroke: '#000000',
-			strokeThickness: 6
-		}).setOrigin(0.5);
-
-		// Back button
-		new UIButton(this, 'BACK', constants.SCREEN_WIDTH - 180, constants.SCREEN_HEIGHT - 80, () => {
-			this.scene.start(constants.SCENE_KEYS.TITLE);
-		}, 200);
-
-		// Create buttons for each effect
+		// Buttons per effect
 		effectKeys.forEach((key, index) => {
 			const col = index % columns;
 			const row = Math.floor(index / columns);
 			const x = startX + col * columnWidth;
 			const y = startY + row * verticalSpacing;
-			new UIButton(this, key.toUpperCase(), x, y, () => this.runEffect(key), 320);
+			const btn = new UIButton(this, key.toUpperCase(), x, y, () => this.runEffect(key), 320);
+			this.effectButtonsContainer.add(btn);
 		});
+
+		// Exit to Title button (only in list mode)
+		const exitBtn = new UIButton(this, 'EXIT', constants.SCREEN_WIDTH - 180, constants.SCREEN_HEIGHT - 80, () => {
+			this.scene.start(constants.SCENE_KEYS.TITLE);
+		}, 200);
+		this.effectButtonsContainer.add(exitBtn);
 	}
 
 	private runEffect(key: string) {
@@ -226,6 +228,31 @@ export class DebugScene extends Phaser.Scene {
 			fx(this);
 		} else {
 			console.warn('[DebugScene] Effect not found:', key);
+			return;
 		}
+
+		// Hide list container
+		if (this.effectButtonsContainer) {
+			this.effectButtonsContainer.setVisible(false);
+			this.effectButtonsContainer.list.forEach(go => {
+				// Disable interaction on its buttons
+				// @ts-ignore
+				if (go.buttonGraphics) go.buttonGraphics.disableInteractive();
+			});
+		}
+
+		// Create Back button if not existing
+		if (!this.backButton) {
+			this.backButton = new UIButton(this, 'BACK', constants.MIDDLE_SCREEN_X, constants.SCREEN_HEIGHT - 80, () => this.returnToList(), 260);
+		} else {
+			this.backButton.setVisible(true);
+			// @ts-ignore
+			this.backButton.buttonGraphics.setInteractive();
+		}
+	}
+
+	private returnToList() {
+		// Restart scene for a clean reset (simplest cleanup)
+		this.scene.restart();
 	}
 }
