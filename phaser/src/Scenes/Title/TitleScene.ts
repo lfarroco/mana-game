@@ -86,6 +86,15 @@ export default class TitleScene extends Phaser.Scene {
 				this.openOptions();
 			}
 		);
+		new UIButton(
+			this,
+			'DEBUG',
+			constants.MIDDLE_SCREEN_X,
+			constants.MIDDLE_SCREEN_Y + 260,
+			() => {
+				this.openDebug();
+			}
+		);
 		// new UIButton(
 		// 	this,
 		// 	'COLLECTION',
@@ -135,6 +144,13 @@ export default class TitleScene extends Phaser.Scene {
 		this.cameras.main.fade(500, 0, 0, 0);
 		this.cameras.main.once('camerafadeoutcomplete', () => {
 			this.scene.start(constants.SCENE_KEYS.OPTIONS);
+		});
+	}
+
+	private openDebug() {
+		this.cameras.main.fade(300, 0, 0, 0);
+		this.cameras.main.once('camerafadeoutcomplete', () => {
+			this.scene.start(constants.SCENE_KEYS.DEBUG);
 		});
 	}
 

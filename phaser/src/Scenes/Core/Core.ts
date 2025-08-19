@@ -1,7 +1,6 @@
 import { SCENE_KEYS } from "../../constants/constants";
 import { getState } from "../../Models/State";
 
-// Co
 export default class Core extends Phaser.Scene {
 
 	constructor() {
@@ -40,7 +39,6 @@ export default class Core extends Phaser.Scene {
 	}
 	create() {
 
-		// get query params, check for DEBUG param
 		const urlParams = new URLSearchParams(window.location.search);
 		const debug = urlParams.get('DEBUG');
 		if (debug) {
@@ -49,8 +47,6 @@ export default class Core extends Phaser.Scene {
 			// Start with the title scene, pass the state so it can be forwarded to battleground
 			this.game.scene.start(SCENE_KEYS.TITLE, { state: getState() });
 		}
-
-
 
 	}
 }
