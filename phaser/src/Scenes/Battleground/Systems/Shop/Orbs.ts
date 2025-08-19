@@ -135,6 +135,48 @@ const generatePowerUpOrb = () => {
 
 }
 
+const generateChargeReactionOrb = () => {
+	const reactionSourceEffects = ["shield", "heal", "haste", "damage", "slow", "regen", "poison"];
+
+	const positions: Array<{ amount: number; source: EffectSourcePosition; }> = [
+		{ amount: 400, source: "column_allies" },
+		{ amount: 400, source: "row_allies" },
+		{ amount: 900, source: "left_ally" },
+		{ amount: 900, source: "right_ally" },
+		{ amount: 900, source: "top_ally" },
+		{ amount: 900, source: "bottom_ally" },
+	];
+
+	const effectId = pickOne(reactionSourceEffects);
+	const position = pickOne(positions);
+
+	const reactionData: EffectReaction = {
+		effectId,
+		position: position.source,
+		effects: [
+			{
+				id: "charge",
+				amount: position.amount,
+				targets: { id: "self" }
+			}
+		]
+	};
+
+	return {
+		id: "charge_reaction_orb",
+		name: `Charge Reaction Orb: ${effectId}`,
+		color: 0xffe066,
+		tooltip: [
+			`Adds ${getReactionDescription(reactionData, position.amount)}.`,
+			"A unit can have just one reaction (⚡)."
+		].join("\n"),
+		effect: (unit: Unit) => {
+			if (unit.reactions.length > 0) return;
+			unit.reactions = [reactionData];
+		}
+	};
+}
+
 // Orb effect functions (pure)
 function crimsonOrbEffect(unit: Unit) {
 	unit.power += 5;
@@ -186,7 +228,8 @@ const orbs: Record<string, () => {
 		effect: (unit: Unit) => {
 			unit.reactions = []
 		}
-	})
+	}),
+	charge_orb: generateChargeReactionOrb
 };
 
 
