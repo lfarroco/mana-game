@@ -81,18 +81,12 @@ export async function tweenSequence(
 export const delay = (
 	duration: number,
 ) => new Promise<void>((resolve) => {
-	// If the BattlegroundScene 'scene' export is initialized and has a time system, use it.
-	if (scene && (scene as any).time && (scene as any).time.addEvent) {
-		try {
-			scene.time.addEvent({
-				delay: duration,
-				callback: () => resolve()
-			});
-			return;
-		} catch (err) {
-			console.warn('[delay] Phaser time.addEvent failed, falling back to setTimeout.', err);
+	scene.time.addEvent(
+		{
+			delay: duration,
+			callback: () => {
+				resolve();
+			}
 		}
-	}
-	// Fallback (e.g., DebugScene context before BattlegroundScene ever created)
-	setTimeout(() => resolve(), duration);
+	);
 });
