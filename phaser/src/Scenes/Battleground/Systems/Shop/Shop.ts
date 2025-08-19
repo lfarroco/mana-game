@@ -78,6 +78,7 @@ export class Shop {
 			"azure_orb",
 			"golden_orb",
 			"violet_orb",
+			"charge_orb",
 		];
 		this.currentOrbs = pickRandom(availableOrbs, 3);
 
