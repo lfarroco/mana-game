@@ -3,7 +3,7 @@ import * as constants from "../../../../../constants/constants";
 import { makeUnit, Unit } from "../../../../../Models/Entities/Unit";
 import { updatePlayerGoldIO } from "../../../../../Models/Entities/Force";
 import { getChara, summonChara } from "../../CharaManager";
-import { ui } from "../../../../../UI/UIManager";
+import * as UIManager from "../../../../../UI/UIManager";
 import { vec2 } from "../../../../../Models/Geometry.pure";
 
 type ShopItemClickPurchasePayload = {
@@ -33,7 +33,7 @@ export function shopItemClickPurchaseRequestedHandler(
 			dragStartY,
 		));
 
-		ui.handlePurchaseFailed({
+		UIManager.handlePurchaseFailed({
 			unitName: shopUnitData.name,
 			reason,
 			...additionalDetails,

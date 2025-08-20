@@ -5,7 +5,7 @@ import { makeUnit, Unit } from "../../../../../Models/Entities/Unit";
 import { getUnitAt } from "../../../../../Models/State";
 import { updatePlayerGoldIO } from "../../../../../Models/Entities/Force";
 import { getChara, summonChara } from "../../CharaManager";
-import { ui } from "../../../../../UI/UIManager";
+import * as UIManager from "../../../../../UI/UIManager";
 
 export function shopItemDragPurchaseRequestedHandler(
 	scene: BattlegroundScene,
@@ -18,7 +18,7 @@ export function shopItemDragPurchaseRequestedHandler(
 		getChara(shopCharaId).onShopPurchaseFailed(vec2(
 			dragStartX, dragStartY
 		));
-		ui.handlePurchaseFailed({
+		UIManager.handlePurchaseFailed({
 			unitName: shopUnitData.name,
 			reason: "INSUFFICIENT_GOLD",
 			cost: constants.SHOP_ITEM_PURCHASE_COST
@@ -29,7 +29,7 @@ export function shopItemDragPurchaseRequestedHandler(
 		getChara(shopCharaId).onShopPurchaseFailed(vec2(
 			dragStartX, dragStartY
 		));
-		ui.handlePurchaseFailed({
+		UIManager.handlePurchaseFailed({
 			unitName: shopUnitData.name,
 			reason: "PARTY_FULL"
 		});
@@ -41,7 +41,7 @@ export function shopItemDragPurchaseRequestedHandler(
 		getChara(shopCharaId).onShopPurchaseFailed(vec2(
 			dragStartX, dragStartY
 		));
-		ui.handlePurchaseFailed({
+		UIManager.handlePurchaseFailed({
 			unitName: shopUnitData.name,
 			reason: "SLOT_OCCUPIED"
 		});

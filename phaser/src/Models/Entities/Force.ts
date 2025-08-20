@@ -1,6 +1,6 @@
 import { FORCE_ID_PLAYER, FORCE_ID_CPU, INITIAL_MORALE } from "../../constants/constants";
 import { Unit } from "./Unit";
-import { ui } from "../../UI/UIManager";
+import * as UIManager from "../../UI/UIManager";
 import { trackMoraleChange, } from "../../Scenes/Battleground/Systems/CombatStatsTracker";
 import { handleShieldUpdated, updateMoraleDisplay } from "../../Scenes/Battleground/MoraleDisplay";
 
@@ -49,7 +49,7 @@ export const updatePlayerGoldIO = (goldDelta: number) => {
 	const changeAmount = Math.floor(goldDelta);
 	playerForce.gold += changeAmount;
 
-	ui.handleGoldChanged(playerForce.gold, changeAmount)
+	UIManager.handleGoldChanged(playerForce.gold, changeAmount)
 }
 
 export const manipulateForceMorale = (

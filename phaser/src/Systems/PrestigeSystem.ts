@@ -1,59 +1,39 @@
-import { State } from "../Models/State";
-import { BattlegroundScene } from "../Scenes/Battleground/BattlegroundScene";
-import { ui } from "../UI/UIManager";
+import { getState } from "../Models/State";
+import { scene } from "../Scenes/Battleground/BattlegroundScene";
+import * as UIManager from "../UI/UIManager";
 
-/**
- * Manages the player's prestige level, updating it based on battle outcomes.
- */
 export class PrestigeSystem {
-	scene: BattlegroundScene;
-	state: State;
 
-	constructor(scene: BattlegroundScene, state: State) {
-		this.scene = scene;
-		this.state = state;
-	}
-
-	/**
-	 * Processes the prestige change when the player wins a battle.
-	 */
 	processVictory(): void {
-		const playerState = this.state.gameData.player;
+		const playerState = getState().gameData.player;
 		const prestigeGain = 1;
 		playerState.prestige += prestigeGain;
 		playerState.winStreak += 1;
 		playerState.lossStreak = 0;
 
-		ui.updatePrestige(playerState.prestige, prestigeGain);
+		UIManager.updatePrestige(playerState.prestige, prestigeGain);
 
 		if (playerState.prestige >= 30) {
-			this.scene.battleProgressionSystem.handlePlayerWonGame();
+			scene.battleProgressionSystem.handlePlayerWonGame();
 		}
 	}
 
-	/**
-	 * Processes the prestige change when the player loses a battle.
-	 */
 	processDefeat(): void {
-		const playerState = this.state.gameData.player;
+		const playerState = getState().gameData.player;
 		const oldPrestige = playerState.prestige;
-		const prestigeLoss = 1; // Reduced from 2 to be less punitive
+		const prestigeLoss = 1;
 
 		playerState.prestige -= prestigeLoss;
-		playerState.prestige = Math.max(0, playerState.prestige); // Prestige cannot go below 0
+		playerState.prestige = Math.max(0, playerState.prestige);
 
 		playerState.lossStreak += 1;
 		playerState.winStreak = 0;
 
 		const actualPrestigeChange = playerState.prestige - oldPrestige;
-		ui.updatePrestige(playerState.prestige, actualPrestigeChange);
+		UIManager.updatePrestige(playerState.prestige, actualPrestigeChange);
 	}
 
-	/**
-	 * Finalizes round-specific statistics like total rounds played.
-	 * Should be called after every battle.
-	 */
 	finalizeRound(): void {
-		this.state.gameData.player.totalRoundsPlayed += 1;
+		getState().gameData.player.totalRoundsPlayed += 1;
 	}
 }

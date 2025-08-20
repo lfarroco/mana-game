@@ -7,7 +7,7 @@ import { BattlegroundScene } from "../BattlegroundScene";
 import { getOption } from "../../../Models/OptionsStore";
 import { devlog } from "../../../utils";
 import { CloudsBackground } from "../../../components/cloudBackground/CloudsBackground";
-import { ui } from "../../../UI/UIManager";
+import * as UIManager from "../../../UI/UIManager";
 
 let runtimeDataInitialized = false;
 
@@ -52,39 +52,30 @@ export class BattlegroundSetupSystem {
 		state.gameData.player.prestige = 0;
 		state.gameData.player.gold = BG_CONSTANTS.INITIAL_PLAYER_GOLD;;
 
-		// Emit PRESTIGE_CHANGED so UI can display the initial value. Delta is 0.
-		ui.updatePrestige(state.gameData.player.prestige, 0);
+		UIManager.updatePrestige(state.gameData.player.prestige, 0);
 
 		this.scene.sound.setVolume(getOption('soundVolume') ?? BG_CONSTANTS.DEFAULT_SCENE_SOUND_VOLUME);
 	}
 
 	setupSceneElements(_state: State): PartyBoard {
-		// Create the animated clouds background instead of a static forest image
 		this.cloudsBackground = new CloudsBackground(this.scene, {
-			preset: 'forest', // Use forest preset to match the original theme
-			depth: -2000, // Ensure it's behind everything else
-			timeScale: 0.3 // Slow down the animation to be less distracting (30% of normal speed)
+			preset: 'forest',
+			depth: -2000,
+			timeScale: 0.3
 		});
 
-		// Store the shader as bgImage for compatibility with existing code
-		// Note: This might require type casting since shader is not exactly an Image
 		this.scene.cloudsBackground = this.cloudsBackground.getShader() as any;
 
 		this.scene.bgContainer = this.scene.add.container(0, 0);
 		ControlsSystem.init(this.scene);
 
-		// Add the shader to the container (the shader is already added to the scene)
-		// Note: Container.add() expects GameObject, shader should work but might need adjustment
 		this.scene.bgContainer.add([this.scene.cloudsBackground]);
 
 		const playerBoard = initializePlayerBoard(this.scene);
-		createBoardDropZone(); // Actually render the board slots
+		createBoardDropZone();
 		return playerBoard;
 	}
 
-	/**
-	 * Clean up the clouds background when the scene is destroyed
-	 */
 	destroy(): void {
 		if (this.cloudsBackground) {
 			this.cloudsBackground.destroy();

@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { preload } from "./preload";
 import { State, getState } from "../../Models/State";
-import { UIManager } from "../../UI/UIManager";
+import * as UIManager from "../../UI/UIManager";
 import * as CharaManager from "./Systems/CharaManager";
 import { CardCollection } from "../../Models/Entities/Card";
 import { PartyBoard, getSharedPlayerBoard } from "../../Models/Board";
@@ -28,7 +28,6 @@ export class BattlegroundScene extends Phaser.Scene {
   bgContainer!: Phaser.GameObjects.Container;
   cloudsBackground!: Phaser.GameObjects.Image;
   collection!: CardCollection;
-  uiManager!: UIManager;
   playerBoard!: PartyBoard;
   runCombatSystem: RunCombatSystem;
   battleProgressionSystem: BattleProgressionSystem;
@@ -50,7 +49,6 @@ export class BattlegroundScene extends Phaser.Scene {
     );
 
     const gameObjects = [
-      { name: "uiManager", object: this.uiManager },
       { name: "shopUI", object: this.shop?.shopUI },
       { name: "eventSystem", object: this.eventSystem },
       { name: "setupSystem", object: this.setupSystem }
@@ -60,6 +58,8 @@ export class BattlegroundScene extends Phaser.Scene {
       gameObjects,
       (objectName: string, error: GameError) => console.error(`Failed to destroy ${objectName}:`, error)
     );
+
+    UIManager.destroy();
 
   }
 
@@ -120,7 +120,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.setupSystem = new BattlegroundSetupSystem(this);
     this.shop = new Shop(this);
-    this.uiManager = new UIManager();
 
     this.setupSystem.performOneTimeRuntimeInitialization(this.collection);
 
@@ -133,7 +132,7 @@ export class BattlegroundScene extends Phaser.Scene {
     this.eventSystem = new BattlegroundEventSystem(this);
     this.eventSystem.registerEventHandlers();
 
-    this.uiManager.createMainUI();
+    UIManager.createMainUI();
 
     AudioManager.playMusic('music_battlemap_vetruv');
 
