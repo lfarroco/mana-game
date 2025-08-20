@@ -120,7 +120,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.setupSystem = new BattlegroundSetupSystem(this);
     this.shop = new Shop(this);
-    this.uiManager = new UIManager(this);
+    this.uiManager = new UIManager();
 
     this.setupSystem.performOneTimeRuntimeInitialization(this.collection);
 

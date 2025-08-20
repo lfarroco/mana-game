@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import * as c from "../constants/constants";
-import { BattlegroundScene } from "../Scenes/Battleground/BattlegroundScene";
+import { scene } from "../Scenes/Battleground/BattlegroundScene";
 import { tween } from "../Utils/animation";
 import * as Tooltip from "./Tooltip";
 import { GoldCoinAnimator } from "./GoldCoinAnimator";
@@ -8,16 +8,14 @@ import { GoldCoinAnimator } from "./GoldCoinAnimator";
 export let ui: UIManager;
 
 export class UIManager {
-	scene: BattlegroundScene;
 	uiContainer: Phaser.GameObjects.Container | null = null;
 	goldContainer: Phaser.GameObjects.Container | null = null;
 	goldTextElement: Phaser.GameObjects.Text | null = null;
 	prestigeTextElement: Phaser.GameObjects.Text | null = null;
 	goldCoinAnimator: GoldCoinAnimator;
 
-	constructor(scene: BattlegroundScene) {
-		this.scene = scene;
-		this.goldCoinAnimator = new GoldCoinAnimator(this.scene);
+	constructor() {
+		this.goldCoinAnimator = new GoldCoinAnimator(scene);
 		Tooltip.initializeTooltip(scene);
 		ui = this;
 	}
@@ -56,13 +54,13 @@ export class UIManager {
 	}
 
 	_updateMoraleTextWithAnimation(textElement: Phaser.GameObjects.Text, newMorale: number): void {
-		this.scene.tweens.killTweensOf(textElement);
+		scene.tweens.killTweensOf(textElement);
 
 		textElement.setRotation(0);
 
 		textElement.setText(`${Math.floor(newMorale)}`);
 
-		const timeline = this.scene.add.timeline([{
+		const timeline = scene.add.timeline([{
 			at: 0,
 			tween: {
 				targets: textElement,
@@ -93,34 +91,34 @@ export class UIManager {
 	createMainUI() {
 		this.destroyMainUI();
 
-		this.uiContainer = this.scene.add.container(0, 0);
+		this.uiContainer = scene.add.container(0, 0);
 
 		this._createGoldText(this.uiContainer);
 
 		if (this.prestigeTextElement) {
-			this.prestigeTextElement.setText(`${this.scene.state.gameData.player.prestige}`);
+			this.prestigeTextElement.setText(`${scene.state.gameData.player.prestige}`);
 		}
 	}
 
 	_createGoldText(parent: Phaser.GameObjects.Container): void {
-		const initialGold = this.scene.state.gameData.player.gold;
+		const initialGold = scene.state.gameData.player.gold;
 
 		const displayX = c.SCREEN_WIDTH - 120;
 		const displayY = 30;
 
-		this.goldContainer = this.scene.add.container(displayX, displayY);
+		this.goldContainer = scene.add.container(displayX, displayY);
 
-		const background = this.scene.add.graphics();
+		const background = scene.add.graphics();
 		background.fillStyle(0x2d3d1a, 0.8);
 		background.lineStyle(3, 0x1a2610, 1);
 		background.fillRoundedRect(-50, -20, 100, 40, 20);
 		background.strokeRoundedRect(-50, -20, 100, 40, 20);
 		this.goldContainer.add(background);
 
-		const coinIcon = this.scene.add.image(-25, 0, 'coin').setScale(0.8);
+		const coinIcon = scene.add.image(-25, 0, 'coin').setScale(0.8);
 		this.goldContainer.add(coinIcon);
 
-		this.goldTextElement = this.scene.add.text(
+		this.goldTextElement = scene.add.text(
 			0, 0,
 			`${initialGold}`,
 			{
@@ -131,21 +129,21 @@ export class UIManager {
 		).setOrigin(0, 0.5);
 		this.goldContainer.add(this.goldTextElement);
 
-		const initialPrestige = this.scene.state.gameData.player.prestige;
-		const prestigeContainer = this.scene.add.container(0, 44);
+		const initialPrestige = scene.state.gameData.player.prestige;
+		const prestigeContainer = scene.add.container(0, 44);
 
-		const prestigeBg = this.scene.add.graphics();
+		const prestigeBg = scene.add.graphics();
 		prestigeBg.fillStyle(0x3a2d1a, 0.8);
 		prestigeBg.lineStyle(3, 0x261a10, 1);
 		prestigeBg.fillRoundedRect(-50, -20, 100, 40, 20);
 		prestigeBg.strokeRoundedRect(-50, -20, 100, 40, 20);
 		prestigeContainer.add(prestigeBg);
 
-		const prestigeIcon = this.scene.add.image(-25, 0, 'coin').setScale(0.8);
+		const prestigeIcon = scene.add.image(-25, 0, 'coin').setScale(0.8);
 		prestigeIcon.setTint(0x4a90ff);
 		prestigeContainer.add(prestigeIcon);
 
-		this.prestigeTextElement = this.scene.add.text(
+		this.prestigeTextElement = scene.add.text(
 			0, 0,
 			`${initialPrestige}`,
 			{
@@ -168,7 +166,7 @@ export class UIManager {
 
 		const textStyle = c.titleTextConfig;
 
-		const text = this.scene.add.text(
+		const text = scene.add.text(
 			c.SCREEN_WIDTH / 2, c.SCREEN_HEIGHT - 100,
 			payload.text,
 			textStyle,
@@ -214,7 +212,7 @@ export class UIManager {
 		const startX = this.goldTextElement!.x + this.goldTextElement!.width / 2;
 		const startY = this.goldTextElement!.y + this.goldTextElement!.height / 2;
 
-		const goldAmountText = this.scene.add.text(
+		const goldAmountText = scene.add.text(
 			startX,
 			startY,
 			animationText, c.titleTextConfig)
