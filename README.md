@@ -1,4 +1,3 @@
-relics were removed (focusing on unit balance for now)
 
 ```mermaid
 graph TD
