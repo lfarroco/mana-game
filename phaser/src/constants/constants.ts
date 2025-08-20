@@ -20,12 +20,10 @@ export const REROLL_UNITS_PRICE = 3;
 
 export const MIN_COOLDOWN = 200;
 
-
-// Board layout: player on left, enemy on right, both vertically centered
-export const PLAYER_BOARD_X = 120; // left margin
+export const PLAYER_BOARD_X = 120;
 export const PLAYER_BOARD_Y = (SCREEN_HEIGHT - (TILE_HEIGHT * 3 + 8 * 2)) / 2;
 
-export const CPU_BOARD_X = SCREEN_WIDTH - (TILE_WIDTH * 3 + 8 * 2) - 120; // right margin
+export const CPU_BOARD_X = SCREEN_WIDTH - (TILE_WIDTH * 3 + 8 * 2) - 120;
 export const CPU_BOARD_Y = PLAYER_BOARD_Y;
 
 export const defaultTextConfig: Phaser.Types.GameObjects.Text.TextStyle = {
@@ -51,23 +49,20 @@ export const MAX_GRID_WIDTH = 32;
 export const FORCE_ID_PLAYER = "PLAYER";
 export const FORCE_ID_CPU = "CPU";
 
-// Morale Bar UI Constants
-export const PLAYER_MORALE_BAR_BOTTOM_OFFSET = 50; // Distance from the bottom of the screen
-export const CPU_MORALE_BAR_TOP_OFFSET = 20;    // Distance from the top of the screen
+export const PLAYER_MORALE_BAR_BOTTOM_OFFSET = 50;
+export const CPU_MORALE_BAR_TOP_OFFSET = 20;
 
-// Shield Bar UI Constants (positioned above morale bars)
-export const PLAYER_SHIELD_BAR_BOTTOM_OFFSET = 80; // Distance from the bottom of the screen
-export const CPU_SHIELD_BAR_TOP_OFFSET = 50;    // Distance from the top of the screen
+export const PLAYER_SHIELD_BAR_BOTTOM_OFFSET = 80;
+export const CPU_SHIELD_BAR_TOP_OFFSET = 50;
 
 export const INITIAL_MORALE = 500;
 
-export const PLAYER_MORALE_BAR_COLOR = 0x4e9de0; // Blue for player
-export const CPU_MORALE_BAR_COLOR = 0xe04e4e;   // Red for CPU
+export const PLAYER_MORALE_BAR_COLOR = 0x4e9de0;
+export const CPU_MORALE_BAR_COLOR = 0xe04e4e;
 
-export const PLAYER_SHIELD_BAR_COLOR = 0x9de04e; // Green for player
-export const CPU_SHIELD_BAR_COLOR = 0xe0a04e;   // Orange for CPU
+export const PLAYER_SHIELD_BAR_COLOR = 0x9de04e;
+export const CPU_SHIELD_BAR_COLOR = 0xe0a04e;
 
-// Scene Keys
 export const SCENE_KEYS = {
 	DEBUG: "DebugScene",
 	BATTLEGROUND: "BattlegroundScene",
@@ -76,7 +71,6 @@ export const SCENE_KEYS = {
 	OPTIONS: "OptionsScene"
 } as const;
 
-// Pop Text Animation Constants
 export const POP_TEXT_CONFIG = {
 	MAX_ANGLE: 30,
 	SCALE_TARGET: 1.4,
@@ -89,12 +83,11 @@ export const POP_TEXT_CONFIG = {
 		HEAL: "green",
 		DAMAGE: "red",
 		SHIELD: "yellow",
-		POISON: "#9932cc", // Purple color for poison damage
-		TIMEOUT: "#ff8c00", // Orange color for timeout damage
+		POISON: "#9932cc",
+		TIMEOUT: "#ff8c00",
 	}
 } as const;
 
-// Impact Effect Constants
 export const IMPACT_EFFECT_CONFIG = {
 	PARTICLE_SPEED: 200,
 	PARTICLE_LIFESPAN: 600,
@@ -105,18 +98,16 @@ export const IMPACT_EFFECT_CONFIG = {
 	STOP_AFTER: 5
 } as const;
 
-// Healing Hit Effect Constants
 export const HEALING_HIT_EFFECT_CONFIG = {
 	PARTICLE_SPEED: 50,
 	PARTICLE_SCALE_START: 3,
 	PARTICLE_SCALE_END: 0,
 	PARTICLE_QUANTITY: 5,
 	PARTICLE_FREQUENCY: 100,
-	LIFESPAN_RATIO: 0.5, // particles.stop() at lifespan / 2
+	LIFESPAN_RATIO: 0.5,
 	HEALING_COLORS: [0x00ff00, 0x32cd32, 0x3cb371, 0x2e8b57, 0x228b22, 0x556b2f, 0x6b8e23, 0x8b4513, 0xcd853f, 0xdaa520, 0xffd700] as number[]
 } as const;
 
-// Summon Effect Constants
 export const SUMMON_EFFECT_CONFIG = {
 	LIFESPAN: 200,
 	SCALE_START: 1.25,
@@ -128,9 +119,8 @@ export const SUMMON_EFFECT_CONFIG = {
 	EMIT_ZONE_QUANTITY: 8
 } as const;
 
-// Arcane Missile Effect Constants
 export const ARCANE_MISSILE_CONFIG = {
-	DEFAULT_COLORS: [0xFF00FF, 0x0000FF, 0x000000] as number[], // dark purple to blue
+	DEFAULT_COLORS: [0xFF00FF, 0x0000FF, 0x000000] as number[],
 	BEAM_AMPLITUDE_BASE: 30,
 	BEAM_AMPLITUDE_RANDOM: 100,
 	BEAM_FREQUENCY_MIN: 1,
@@ -143,7 +133,7 @@ export const ARCANE_MISSILE_CONFIG = {
 	PARTICLE_SCALE_END: 0,
 	DURATION_MULTIPLIER: 2,
 	IMPACT_SPEED: 300,
-	IMPACT_COLORS: [0x800080, 0x0000FF] as number[], // purple to blue
+	IMPACT_COLORS: [0x800080, 0x0000FF] as number[],
 	IMPACT_LIFESPAN: 400,
 	IMPACT_SCALE_START: 6,
 	IMPACT_SCALE_END: 0,
@@ -151,34 +141,11 @@ export const ARCANE_MISSILE_CONFIG = {
 	IMPACT_DELAY: 300
 } as const;
 
-// Difficulty Tier Constants
-export const DIFFICULTY_TIER_CONFIG = {
-	ELITE: {
-		HP_MULTIPLIER: 1.15,
-		POWER_MULTIPLIER: 1.10,
-		OVERFLOW_THRESHOLD: 0.5,
-		HASTE_DURATION: 3000,
-		HASTE_COOLDOWN_MULTIPLIER: 0.5
-	},
-	VETERAN: {
-		HP_MULTIPLIER: 1.10,
-		POWER_MULTIPLIER: 1.05,
-		OVERFLOW_THRESHOLD: 0.3,
-		CRIT_BONUS: 5
-	},
-	CHALLENGER: {
-		HP_MULTIPLIER: 1.05,
-		POWER_MULTIPLIER: 1.05,
-		OVERFLOW_THRESHOLD: 0.7
-	}
-} as const;
-
-// Character Stats Display Colors
 export const CHARA_STATS_COLORS = {
 	DAMAGE_BG: 0xff0000,
 	HEAL_BG: 0x23a423,
 	ARMOR_BG: 0xd1d135,
-	POISON_BG: 0x9932cc, // Purple color for poison
-	REGEN_BG: 0x337a31, // Green color for regen
+	POISON_BG: 0x9932cc,
+	REGEN_BG: 0x337a31,
 	DEFAULT_BG: 0x000000
 } as const;
