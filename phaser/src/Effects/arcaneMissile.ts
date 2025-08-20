@@ -1,8 +1,28 @@
 import { images } from "../assets";
 import { delay } from "../Utils/animation";
 import { EnergyBeam } from "./EnergyBeam";
-import { ARCANE_MISSILE_CONFIG } from "../constants/constants";
 
+const ARCANE_MISSILE_CONFIG = {
+	DEFAULT_COLORS: [0xFF00FF, 0x0000FF, 0x000000] as number[],
+	BEAM_AMPLITUDE_BASE: 30,
+	BEAM_AMPLITUDE_RANDOM: 100,
+	BEAM_FREQUENCY_MIN: 1,
+	BEAM_FREQUENCY_MAX: 3,
+	BEAM_SEGMENTS: 20,
+	BEAM_COLOR: 0x00FFFF,
+	PARTICLE_SPEED: 20,
+	PARTICLE_LIFESPAN: 600,
+	PARTICLE_SCALE_START: 4,
+	PARTICLE_SCALE_END: 0,
+	DURATION_MULTIPLIER: 2,
+	IMPACT_SPEED: 300,
+	IMPACT_COLORS: [0x800080, 0x0000FF] as number[],
+	IMPACT_LIFESPAN: 400,
+	IMPACT_SCALE_START: 6,
+	IMPACT_SCALE_END: 0,
+	IMPACT_ALPHA_START: 0.5,
+	IMPACT_DELAY: 300
+};
 
 type ArcaneMissileAnimationArgs = {
 	scene: Scene;

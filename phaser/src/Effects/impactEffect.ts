@@ -1,6 +1,15 @@
 import { images } from "../assets";
 import { delay } from "../Utils/animation";
-import { IMPACT_EFFECT_CONFIG } from "../constants/constants";
+
+export const IMPACT_EFFECT_CONFIG = {
+	PARTICLE_SPEED: 200,
+	PARTICLE_LIFESPAN: 600,
+	ANGLE_SPREAD: 40,
+	MAX_ALIVE_PARTICLES: 5,
+	SCALE_MIN: 1,
+	SCALE_MAX: 6,
+	STOP_AFTER: 5
+} as const;
 
 type ImpactEffctProps = {
 	scene: Phaser.Scene;
