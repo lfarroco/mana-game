@@ -146,7 +146,7 @@ export class BattleProgressionSystem {
 
 	async setupBattle(): Promise<{ enemies: Unit[]; }> {
 		const cardPool = getAllCards();
-		const enemy = generateEnemyTeam(this.state.gameData.round, cardPool);
+		const enemies = generateEnemyTeam(this.state.gameData.round, cardPool);
 
 		const playerUnitsForBattle = this.state.gameData.player.units.map(unit => createUnitCopy(unit));
 
@@ -154,7 +154,7 @@ export class BattleProgressionSystem {
 			cpuForce,
 			playerForce
 		];
-		this.state.battleData.units = [...enemy.units, ...playerUnitsForBattle];
+		this.state.battleData.units = [...enemies, ...playerUnitsForBattle];
 
 		await delay(100);
 
@@ -164,7 +164,7 @@ export class BattleProgressionSystem {
 				.updateUnit(battleCopy);
 		});
 
-		return { enemies: enemy.units };
+		return { enemies };
 	}
 
 	handleShopPhaseEnded(): void {
