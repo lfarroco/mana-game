@@ -9,10 +9,6 @@ let goldContainer: Phaser.GameObjects.Container | null = null;
 let goldTextElement: Phaser.GameObjects.Text | null = null;
 let prestigeTextElement: Phaser.GameObjects.Text | null = null;
 
-export function init() {
-	Tooltip.initializeTooltip(scene);
-}
-
 export function handlePurchaseFailed(payload: { unitName: string, reason: string, cost?: number }): void {
 	let message = `Could not buy ${payload.unitName}. `;
 	switch (payload.reason) {
@@ -50,6 +46,8 @@ export function createMainUI() {
 	destroyMainUI();
 
 	uiContainer = scene.add.container(0, 0);
+
+	Tooltip.init();
 
 	createGoldText(uiContainer);
 
