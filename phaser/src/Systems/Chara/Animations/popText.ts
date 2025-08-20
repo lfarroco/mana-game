@@ -1,6 +1,23 @@
 import { scene } from "../../../Scenes/Battleground/BattlegroundScene";
 import { tween } from "../../../Utils/animation";
-import { defaultTextConfig, titleTextConfig, POP_TEXT_CONFIG } from "../../../constants/constants";
+import { defaultTextConfig, titleTextConfig } from "../../../constants/constants";
+
+const CONFIG = {
+	MAX_ANGLE: 30,
+	SCALE_TARGET: 1.4,
+	MOVE_DURATION: 1000,
+	FADE_DELAY: 500,
+	FADE_DURATION: 1000,
+	VERTICAL_DISTANCE: 128,
+	HORIZONTAL_SPREAD: 60,
+	COLORS: {
+		HEAL: "green",
+		DAMAGE: "red",
+		SHIELD: "yellow",
+		POISON: "#9932cc",
+		TIMEOUT: "#ff8c00",
+	}
+};
 
 export async function popText({
 	x,
@@ -17,15 +34,15 @@ export async function popText({
 }) {
 	let textColor = defaultTextConfig.color;
 	if (type === "heal") {
-		textColor = POP_TEXT_CONFIG.COLORS.HEAL;
+		textColor = CONFIG.COLORS.HEAL;
 	} else if (type === "damage") {
-		textColor = POP_TEXT_CONFIG.COLORS.DAMAGE;
+		textColor = CONFIG.COLORS.DAMAGE;
 	} else if (type === "shield") {
-		textColor = POP_TEXT_CONFIG.COLORS.SHIELD;
+		textColor = CONFIG.COLORS.SHIELD;
 	} else if (type === "poison") {
-		textColor = POP_TEXT_CONFIG.COLORS.POISON;
+		textColor = CONFIG.COLORS.POISON;
 	} else if (type === "timeout") {
-		textColor = POP_TEXT_CONFIG.COLORS.TIMEOUT;
+		textColor = CONFIG.COLORS.TIMEOUT;
 	}
 
 	const popText = scene.add.text(
@@ -39,34 +56,34 @@ export async function popText({
 	if (textColor) popText.setColor(textColor);
 
 	// random angle upwards or downwards based on direction
-	const angle = Math.random() * POP_TEXT_CONFIG.MAX_ANGLE * (Math.random() < 0.5 ? -1 : 1);
+	const angle = Math.random() * CONFIG.MAX_ANGLE * (Math.random() < 0.5 ? -1 : 1);
 
 	// Calculate vertical movement based on direction
 	const verticalMovement = direction === "down"
-		? POP_TEXT_CONFIG.VERTICAL_DISTANCE  // Move down (positive Y)
+		? CONFIG.VERTICAL_DISTANCE  // Move down (positive Y)
 		: direction === "up"
-			? -POP_TEXT_CONFIG.VERTICAL_DISTANCE // Move up (negative Y)
+			? -CONFIG.VERTICAL_DISTANCE // Move up (negative Y)
 			: 0;
 
 	const horizontalMovement = direction === "left"
-		? -POP_TEXT_CONFIG.HORIZONTAL_SPREAD // Move left (negative X)
+		? -CONFIG.HORIZONTAL_SPREAD // Move left (negative X)
 		: direction === "right"
-			? POP_TEXT_CONFIG.HORIZONTAL_SPREAD // Move right (positive X)
+			? CONFIG.HORIZONTAL_SPREAD // Move right (positive X)
 			: 0;
 
 	tween({
 		targets: [popText],
-		scale: POP_TEXT_CONFIG.SCALE_TARGET,
-		duration: POP_TEXT_CONFIG.MOVE_DURATION,
+		scale: CONFIG.SCALE_TARGET,
+		duration: CONFIG.MOVE_DURATION,
 		y: y + verticalMovement,
 		// in the angle direction
-		x: x + Math.sin(angle * Math.PI / 180) * POP_TEXT_CONFIG.HORIZONTAL_SPREAD + horizontalMovement,
+		x: x + Math.sin(angle * Math.PI / 180) * CONFIG.HORIZONTAL_SPREAD + horizontalMovement,
 	});
 	await tween({
 		targets: [popText],
-		delay: POP_TEXT_CONFIG.FADE_DELAY,
+		delay: CONFIG.FADE_DELAY,
 		alpha: 0,
-		duration: POP_TEXT_CONFIG.FADE_DURATION
+		duration: CONFIG.FADE_DURATION
 	});
 
 	popText.destroy();

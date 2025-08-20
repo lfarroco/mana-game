@@ -1,7 +1,17 @@
 import Phaser from "phaser";
 import { delay } from "../Utils/animation";
 import { images } from "../assets";
-import { SUMMON_EFFECT_CONFIG } from "../constants/constants";
+
+const SUMMON_EFFECT_CONFIG = {
+	LIFESPAN: 200,
+	SCALE_START: 1.25,
+	SCALE_END: 4.3,
+	SPEED_MIN: 100,
+	SPEED_MAX: 200,
+	PARTICLE_QUANTITY: 4,
+	EMIT_ZONE_RADIUS: 10,
+	EMIT_ZONE_QUANTITY: 8
+};
 
 export async function summonEffect(
 	scene: Phaser.Scene,
