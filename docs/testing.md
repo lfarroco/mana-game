@@ -1,3 +1,0 @@
-- When I POINTER_DOWN a unit, I select it
-- When I POINTE_DOWN an allied unit and drag, the map is not dragged
-- When I POINTER_DOWN an allied unit and drag, a movement arrow is displayed
