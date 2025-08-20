@@ -19,7 +19,6 @@ export type WaveOutcome = "player_won" | "player_lost";
 export class RunCombatSystem {
   private active: boolean = false;
 
-
   reducePoison(forceId: string, healAmount: number): void {
     PoisonDamageSystem.reducePoison(forceId, healAmount);
   }
