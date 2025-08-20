@@ -31,16 +31,6 @@ const EFFECT_REGISTRY: Record<string, EffectFactory> = {
 		});
 	},
 
-	criticaldamagedisplay: (scene) => {
-		scene.time.addEvent({
-			delay: 1200,
-			callback: () => {
-				effects.criticalDamageDisplay(scene, { x: 200, y: 200 }, 33);
-			},
-			repeat: -1
-		});
-	},
-
 	energybeam: (scene) => {
 		const beam = new effects.EnergyBeam(scene, {
 			start: { x: 100, y: 100 },
@@ -172,7 +162,6 @@ export class DebugScene extends Phaser.Scene {
 		this.load.image(images.beam);
 		this.load.image(images.white_dot);
 		this.load.image(images.light_pillar);
-		this.load.image(images.damage_display);
 	}
 
 	create() {
