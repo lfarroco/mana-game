@@ -3,12 +3,10 @@ import * as constants from "../../constants/constants";
 import { UIButton } from "../../UI/UIButton";
 import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
 import { images } from "../../assets";
-import { MagicOrb } from "../../components/MagicOrb/MagicOrb";
 import * as AudioManager from "../../Systems/AudioManager";
 
 export default class TitleScene extends Phaser.Scene {
-	private cloudsBackground!: CloudsBackground; // Stored for potential future manipulation
-	private magicOrbs: MagicOrb[] = []; // Array to store magic orbs
+	private cloudsBackground!: CloudsBackground;
 
 	constructor() {
 		super(constants.SCENE_KEYS.TITLE);
@@ -33,31 +31,25 @@ export default class TitleScene extends Phaser.Scene {
 			this.load.animation(`${key}-anims`, `assets/heroes/${key}-anims.json`);
 		});
 
-		//sfx_artifact_equipmask
-
 		this.load.audio('sfx_artifact_equipmask', 'assets/audio/sfx_artifact_equipmask.m4a');
 
-		//notification.m4a
 		this.load.audio('sfx_notification', 'assets/audio/notification.m4a');
 
 	}
 
 	create() {
-		// Create the clouds background with auto-changing presets
 		this.cloudsBackground = new CloudsBackground(this, {
 			preset: 'nebula',
 		});
 
 		AudioManager.playMusic('music_ageofdisjunction');
 
-		// Create the main title
 		this.add.image(
 			constants.MIDDLE_SCREEN_X,
 			constants.MIDDLE_SCREEN_Y - 200,
 			images.logo.key
 		).setOrigin(0.5);
 
-		// Create magic orbs for visual flair
 		console.log('Creating magic orbs...');
 		console.log('Screen size:', this.scale.width, this.scale.height);
 
@@ -67,7 +59,6 @@ export default class TitleScene extends Phaser.Scene {
 			console.error('Error creating magic orbs:', error);
 		}
 
-		// Create start button using UIButton component
 		new UIButton(
 			this,
 			'START GAME',
@@ -123,24 +114,12 @@ export default class TitleScene extends Phaser.Scene {
 		// 	}
 		// );
 
-
-		// Allow Enter key to start the game
 		this.input.keyboard?.on('keydown-ENTER', () => {
 			this.startGame();
-		});
-
-		// Note: Preset changing is now handled automatically by the CloudsBackground component
-	}
-
-	update(time: number) {
-		// Update magic orbs animation
-		this.magicOrbs.forEach(orb => {
-			orb.update(time);
 		});
 	}
 
 	private openOptions() {
-		// Transition to the options scene
 		this.cameras.main.fade(500, 0, 0, 0);
 		this.cameras.main.once('camerafadeoutcomplete', () => {
 			this.scene.start(constants.SCENE_KEYS.OPTIONS);
@@ -155,7 +134,6 @@ export default class TitleScene extends Phaser.Scene {
 	}
 
 	private startGame() {
-		// Transition to the battleground scene
 		this.cameras.main.fade(500, 0, 0, 0);
 		this.cameras.main.once('camerafadeoutcomplete', () => {
 			this.scene.start(constants.SCENE_KEYS.BATTLEGROUND);
@@ -171,15 +149,6 @@ export default class TitleScene extends Phaser.Scene {
 	}
 
 	destroy() {
-		// Clean up the clouds background when scene is destroyed
-		if (this.cloudsBackground) {
-			this.cloudsBackground.destroy();
-		}
-
-		// Clean up magic orbs
-		this.magicOrbs.forEach(orb => {
-			orb.destroy();
-		});
-		this.magicOrbs = [];
+		this.cloudsBackground?.destroy();
 	}
 }
