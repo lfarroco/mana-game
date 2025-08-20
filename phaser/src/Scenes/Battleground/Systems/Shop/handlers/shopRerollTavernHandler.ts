@@ -1,13 +1,14 @@
 import { Shop } from "../Shop";
 import * as constants from "../../../../..//constants/constants";
 import { updatePlayerGoldIO } from "../../../../..//Models/Entities/Force";
+import * as UIManager from "../../../../../UI/UIManager";
+import { getState } from "../../../../../Models/State";
 
 export function shopRerollTavernHandler(shopInstance: Shop): void {
-	const { scene, state } = shopInstance;
 
-	if (state.gameData.player.gold < constants.REROLL_UNITS_PRICE) {
+	if (getState().gameData.player.gold < constants.REROLL_UNITS_PRICE) {
 
-		scene.uiManager.handleUserMessageRequested({
+		UIManager.handleUserMessageRequested({
 			text: `Not enough gold to reroll (cost: ${constants.REROLL_UNITS_PRICE})`,
 			type: 'error'
 		})

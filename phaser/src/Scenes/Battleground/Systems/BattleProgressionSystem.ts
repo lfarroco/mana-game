@@ -39,7 +39,7 @@ export class BattleProgressionSystem {
 	constructor(scene: BattlegroundScene, state: State) {
 		this.scene = scene;
 		this.state = state;
-		this.prestigeSystem = new PrestigeSystem(scene, state);
+		this.prestigeSystem = new PrestigeSystem();
 
 
 	}

@@ -4,6 +4,7 @@ import { StylizedBar, createStylizedBar, updateStylizedBar } from './StylizedBar
 import { tween } from '../../Utils/animation';
 import { cpuForce, playerForce } from '../../Models/Entities/Force';
 import { popText } from '../../Systems/Chara/Animations/popText';
+import { scene } from './BattlegroundScene';
 
 type CombinedDisplay = {
 	moraleBar: StylizedBar;
@@ -12,7 +13,6 @@ type CombinedDisplay = {
 
 let playerDisplay: CombinedDisplay | null = null;
 let cpuDisplay: CombinedDisplay | null = null;
-let scene: Phaser.Scene | null = null;
 
 export function getMoraleBarPosition(forceId: string): { x: number, y: number } | null {
 	if (forceId === c.FORCE_ID_PLAYER && playerDisplay) {
@@ -272,10 +272,9 @@ function createCombinedDisplay(
 	};
 }
 
-export function init(sceneRef: Phaser.Scene): void {
+export function init(): void {
 	destroy();
 
-	scene = sceneRef;
 
 	playerDisplay = createCombinedDisplay(scene, c.FORCE_ID_PLAYER);
 	if (playerDisplay) {
@@ -382,9 +381,6 @@ export function updateShieldBar(
 }
 
 export function destroy(): void {
-	if (scene) {
-		scene = null;
-	}
 	if (playerDisplay) {
 		playerDisplay.moraleBar.container.destroy();
 		playerDisplay.shieldBar.container.destroy();
