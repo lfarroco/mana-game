@@ -8,6 +8,7 @@ import { generateEnemyTeam } from "../generateEnemyTeam";
 import { PrestigeSystem } from "../../../Systems/PrestigeSystem";
 import * as CharaManager from "./CharaManager";
 import { cpuForce, playerForce, updatePlayerGoldIO } from "../../../Models/Entities/Force";
+import * as GhostStore from "../../../Models/GhostStore";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
 import { fadeOutBars, showBars, updateMoraleBar, updateMoraleDisplay, updateShieldBar } from "../MoraleDisplay";
 import { renderVignette } from "../Animations/vignette";
@@ -84,8 +85,13 @@ export class BattleProgressionSystem {
 
 		this.setAllPlayerUnitBarsVisibility(true);
 
-		this.handleCombatStartExecution({ enemies });
+		GhostStore.saveGhostForRound(
+			this.state.gameData.round,
+			this.state.gameData.player.units,
+			this.state.gameData.player.prestige
+		);
 
+		this.handleCombatStartExecution({ enemies });
 	}
 
 	async handleCombatEndedDefeat(): Promise<void> {
@@ -123,15 +129,19 @@ export class BattleProgressionSystem {
 	}
 
 	resetPlayerUnitChargeBars(): void {
-		CharaManager.getAllCharas().forEach(chara => {
-			CharaManager.handleCharaChargeBarUpdateEvent({ unitId: chara.id });
-		});
+		CharaManager
+			.getAllCharas()
+			.forEach(chara => {
+				CharaManager.handleCharaChargeBarUpdateEvent({ unitId: chara.id });
+			});
 	}
 
 	setAllPlayerUnitBarsVisibility(visible: boolean): void {
-		CharaManager.getAllCharas().forEach(chara => {
-			CharaManager.handleCharaBarsVisibilitySetEvent({ unitId: chara.id, visible });
-		});
+		CharaManager
+			.getAllCharas()
+			.forEach(chara => {
+				CharaManager.handleCharaBarsVisibilitySetEvent({ unitId: chara.id, visible });
+			});
 	}
 
 	async setupBattle(): Promise<{ enemies: Unit[]; }> {
@@ -149,10 +159,9 @@ export class BattleProgressionSystem {
 		await delay(100);
 
 		playerUnitsForBattle.forEach(battleCopy => {
-			const chara = CharaManager.getChara(battleCopy.id);
-			if (chara) {
-				chara.updateUnit(battleCopy);
-			}
+			CharaManager
+				.getChara(battleCopy.id)
+				.updateUnit(battleCopy);
 		});
 
 		return { enemies: enemy.units };
@@ -185,10 +194,10 @@ export class BattleProgressionSystem {
 		await delay(300);
 		await Promise.all(payload.enemies.map(u => CharaManager.summonChara(u, true)));
 		[...payload.enemies, ...this.state.gameData.player.units].forEach(u => {
-			try { CharaManager.handleCharaBarsVisibilitySetEvent({ unitId: u.id, visible: true }); } catch { }
+			CharaManager.handleCharaBarsVisibilitySetEvent({ unitId: u.id, visible: true });
 		});
 
-		await this.scene.runCombatSystem.runCombatIO();
+		this.scene.runCombatSystem.runCombatIO();
 
 	}
 
@@ -198,9 +207,7 @@ export class BattleProgressionSystem {
 		} else {
 			this.handleCombatEndedDefeat();
 		}
-
 	}
-
 
 	_initializeMorale(): void {
 		playerForce.morale = playerForce.maxMorale;

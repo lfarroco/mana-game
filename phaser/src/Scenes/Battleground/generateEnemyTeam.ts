@@ -5,6 +5,7 @@ import { makeUnit } from "../../Models/Entities/Unit";
 import { pickOne, devlog } from "../../utils";
 import { getState } from "../../Models/State";
 import { DIFFICULTY_TIER_CONFIG } from "../../constants/constants";
+import * as GhostStore from "../../Models/GhostStore";
 
 /** Constants for team size and difficulty calculation */
 const BASE_ENEMY_COUNT = 2;
@@ -157,6 +158,14 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 	}
 
 	const playerState = getState().gameData.player;
+
+	const ghost = GhostStore.pickRandomGhost(round);
+	if (ghost) {
+		const ghostUnits = GhostStore.instantiateGhostUnits(ghost);
+		devlog(`Loaded ghost enemy team for round ${round} (ghosts stored for round: ${GhostStore.getGhostCountForRound(round)})`);
+		return { units: ghostUnits, difficultyTier: DifficultyTier.Challenger };
+	}
+
 	const { teamSize: enemyTeamSize, powerBudgetOverflow, difficultyTier } = calculateEnemyTeamParameters(
 		round,
 		playerState.prestige,
