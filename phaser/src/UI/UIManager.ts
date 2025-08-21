@@ -165,16 +165,17 @@ async function goldChangeAnimation(gold: number): Promise<void> {
 	const sign = gold > 0 ? "+" : "";
 	const animationText = `${sign}${gold}`;
 
-	const startX = goldTextElement!.x + goldTextElement!.width / 2;
-	const startY = goldTextElement!.y + goldTextElement!.height / 2;
+	if (!goldTextElement) return;
 
-	const goldAmountText = scene.add.text(
-		startX,
-		startY,
-		animationText, c.titleTextConfig)
+	const bounds = goldTextElement.getBounds();
+	const startX = bounds.centerX;
+	const startY = bounds.centerY;
+
+	const goldAmountText = scene.add.text(startX, startY, animationText, c.titleTextConfig)
 		.setOrigin(0.5, 0.5)
 		.setAlpha(0)
-		.setScale(1);
+		.setScale(1)
+		.setDepth(1000);
 
 	await tween({
 		targets: [goldAmountText],
