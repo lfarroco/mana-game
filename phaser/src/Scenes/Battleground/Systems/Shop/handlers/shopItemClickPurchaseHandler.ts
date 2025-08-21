@@ -13,9 +13,6 @@ type ShopItemClickPurchasePayload = {
 	dragStartY: number;
 };
 
-/**
- * An attempt on purchasing a unit from the shop
- */
 export function shopItemClickPurchaseRequestedHandler(
 	payload: ShopItemClickPurchasePayload
 ): void {
@@ -23,7 +20,6 @@ export function shopItemClickPurchaseRequestedHandler(
 
 	const { state, playerBoard } = scene;
 
-	// Helper function to handle and emit events for purchase failures.
 	const handlePurchaseFailure = (
 		reason: string,
 		additionalDetails?: Record<string, any>
