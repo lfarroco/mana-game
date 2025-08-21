@@ -14,6 +14,7 @@ import { fadeOutBars, showBars, updateMoraleBar, updateMoraleDisplay, updateShie
 import { renderVignette } from "../Animations/vignette";
 import { EventHandler } from "../../../Types/CommonTypes";
 import * as AudioManager from "../../../Systems/AudioManager";
+import * as Shop from "./Shop/Shop";
 
 function createUnitCopy(unit: Unit): Unit {
 	return {
@@ -75,7 +76,7 @@ export class BattleProgressionSystem {
 
 		console.log("Round", this.state.gameData.round, "Shop Phase Starting.");
 
-		this.scene.shop.handleShopOpenUITrigger()
+		Shop.handleShopOpenUITrigger()
 	}
 
 	async transitionToCombatPhase(): Promise<void> {

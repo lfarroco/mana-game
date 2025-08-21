@@ -1,10 +1,10 @@
-import { Shop } from "../Shop";
+import * as Shop from "../Shop";
 import * as constants from "../../../../..//constants/constants";
 import { updatePlayerGoldIO } from "../../../../..//Models/Entities/Force";
 import * as UIManager from "../../../../../UI/UIManager";
 import { getState } from "../../../../../Models/State";
 
-export function shopRerollTavernHandler(shopInstance: Shop): void {
+export function shopRerollTavernHandler(): void {
 
 	if (getState().gameData.player.gold < constants.REROLL_UNITS_PRICE) {
 
@@ -18,6 +18,6 @@ export function shopRerollTavernHandler(shopInstance: Shop): void {
 
 	// Deduct gold and reroll
 	updatePlayerGoldIO(-constants.REROLL_UNITS_PRICE);
-	shopInstance.rerollTavern();
+	Shop.rerollTavern();
 }
 

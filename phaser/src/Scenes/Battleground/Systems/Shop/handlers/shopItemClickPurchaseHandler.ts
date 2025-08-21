@@ -1,10 +1,10 @@
-import { BattlegroundScene } from "../../../BattlegroundScene";
 import * as constants from "../../../../../constants/constants";
 import { makeUnit, Unit } from "../../../../../Models/Entities/Unit";
 import { updatePlayerGoldIO } from "../../../../../Models/Entities/Force";
 import { getChara, summonChara } from "../../CharaManager";
 import * as UIManager from "../../../../../UI/UIManager";
 import { vec2 } from "../../../../../Models/Geometry.pure";
+import { scene } from "../../../BattlegroundScene";
 
 type ShopItemClickPurchasePayload = {
 	shopUnitData: Unit;
@@ -17,11 +17,11 @@ type ShopItemClickPurchasePayload = {
  * An attempt on purchasing a unit from the shop
  */
 export function shopItemClickPurchaseRequestedHandler(
-	scene: BattlegroundScene,
 	payload: ShopItemClickPurchasePayload
 ): void {
-	const { state, playerBoard } = scene;
 	const { shopUnitData, shopCharaId, dragStartX, dragStartY } = payload;
+
+	const { state, playerBoard } = scene;
 
 	// Helper function to handle and emit events for purchase failures.
 	const handlePurchaseFailure = (

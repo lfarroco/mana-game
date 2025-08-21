@@ -1,4 +1,4 @@
-import { BattlegroundScene } from "../../../BattlegroundScene";
+import { scene } from "../../../BattlegroundScene";
 import * as constants from "../../../../../constants/constants";
 import { vec2, Vec2 } from "../../../../../Models/Geometry";
 import { makeUnit, Unit } from "../../../../../Models/Entities/Unit";
@@ -8,7 +8,6 @@ import { getChara, summonChara } from "../../CharaManager";
 import * as UIManager from "../../../../../UI/UIManager";
 
 export function shopItemDragPurchaseRequestedHandler(
-	scene: BattlegroundScene,
 	payload: { shopUnitData: Unit, shopCharaId: string, targetTile: Vec2, dragStartX: number, dragStartY: number }
 ): void {
 	const { shopUnitData, shopCharaId, targetTile, dragStartX, dragStartY } = payload;

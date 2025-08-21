@@ -9,12 +9,12 @@ import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { CharaStatsDisplay } from "./CharaStatsDisplay";
 import { CharaBarsDisplay } from "./CharaBarsDisplay";
 import { CharaInputHandler } from "./CharaInputHandler";
-import { Shop } from "../../Scenes/Battleground/Systems/Shop/Shop";
 import { createContinuousHasteEffect } from "../../Effects/hasteEffect";
 import { onCharaPointerOut, onCharaPointerOver } from "./CharaTooltip";
 import { hideTooltip } from "../../UI/Tooltip";
 import { vec2, Vec2 } from "../../Models/Geometry.pure";
 import { playSoundEffect } from "../AudioManager";
+import * as Shop from "../../Scenes/Battleground/Systems/Shop/Shop";
 
 export type CharaOptions = {
 	isShopItem?: boolean;
@@ -59,7 +59,6 @@ export class Chara extends Phaser.GameObjects.Container {
 	private previousHasteState: number = 0;
 
 	playerBoard: Board.PartyBoard;
-	shop: Shop;
 
 	/**
 	 * Creates an instance of a Chara.
@@ -76,7 +75,6 @@ export class Chara extends Phaser.GameObjects.Container {
 
 		this.scene = scene;
 		this.playerBoard = scene.playerBoard;
-		this.shop = scene.shop;
 		this.unit = unit;
 		this.isShopItem = options?.isShopItem ?? false;
 
@@ -175,9 +173,9 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.isShopItem = false;
 		hideTooltip();
 
-		this.shop.flyout.remove(this);
+		Shop.flyout.remove(this);
 
-		this.shop._handleCharaPurchaseFinalized(this);
+		Shop.handleCharaPurchaseFinalized(this);
 
 		playSoundEffect('sfx_artifact_equipweapon');
 
