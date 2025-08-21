@@ -1,5 +1,5 @@
 import test, { expect, Page } from "@playwright/test";
-
+import { getDebugController } from "../../../../test-utils/debugController";
 
 const boardSpec = (
 	waitForGameInit: (p: Page) => Promise<void>,
@@ -8,13 +8,15 @@ const boardSpec = (
 		await page.goto('/');
 		await waitForGameInit(page);
 
+		const debugController = getDebugController(page);
+
 		// Add a unit to the board
 		const cardIdToUse = 'bowsie'; // Ensure this is a valid card ID
 		const initialBoardX = 0;
 		const initialBoardY = 0;
-		await page.evaluate(({ cardId, x, y }) => window.gameController.addUnitToPlayerBoard(cardId, x, y), { cardId: cardIdToUse, x: initialBoardX, y: initialBoardY });
+		await debugController.addUnitToPlayerBoard(cardIdToUse, initialBoardX, initialBoardY);
 
-		let units = await page.evaluate(() => window.gameController.getPlayerBoardUnits());
+		let units = await debugController.getPlayerBoardUnits();
 		const unitToMove = units.find(u => u.position.x === initialBoardX && u.position.y === initialBoardY);
 		expect(unitToMove).toBeDefined();
 		if (!unitToMove) return; // Guard for TypeScript
@@ -23,10 +25,10 @@ const boardSpec = (
 		const targetBoardY = 1;
 
 		// Move the unit
-		await page.evaluate(({ unitId, x, y }) => window.gameController.moveUnitOnBoard(unitId, x, y), { unitId: unitToMove.id, x: targetBoardX, y: targetBoardY });
+		await debugController.moveUnitOnBoard(unitToMove.id, targetBoardX, targetBoardY);
 		await page.waitForTimeout(500); // Wait for move to process
 
-		units = await page.evaluate(() => window.gameController.getPlayerBoardUnits());
+		units = await debugController.getPlayerBoardUnits();
 		const movedUnit = units.find(u => u.id === unitToMove.id);
 
 		expect(movedUnit).toBeDefined();
@@ -41,6 +43,8 @@ const boardSpec = (
 		await page.goto('/');
 		await waitForGameInit(page);
 
+		const debugController = getDebugController(page);
+
 		const cardId1 = 'bowsie';
 		const cardId2 = 'wizzy'; // Ensure 'anotherCard' is a valid card ID, or use 'bowsie' again if different instances are fine
 
@@ -48,10 +52,10 @@ const boardSpec = (
 		const unit1InitialX = 0, unit1InitialY = 0;
 		const unit2InitialX = 1, unit2InitialY = 1;
 
-		await page.evaluate(({ cardId, x, y }) => window.gameController.addUnitToPlayerBoard(cardId, x, y), { cardId: cardId1, x: unit1InitialX, y: unit1InitialY });
-		await page.evaluate(({ cardId, x, y }) => window.gameController.addUnitToPlayerBoard(cardId, x, y), { cardId: cardId2, x: unit2InitialX, y: unit2InitialY });
+		await debugController.addUnitToPlayerBoard(cardId1, unit1InitialX, unit1InitialY);
+		await debugController.addUnitToPlayerBoard(cardId2, unit2InitialX, unit2InitialY);
 
-		let units = await page.evaluate(() => window.gameController.getPlayerBoardUnits());
+		let units = await debugController.getPlayerBoardUnits();
 		const unit1 = units.find(u => u.position.x === unit1InitialX && u.position.y === unit1InitialY);
 		const unit2 = units.find(u => u.position.x === unit2InitialX && u.position.y === unit2InitialY);
 
@@ -60,10 +64,10 @@ const boardSpec = (
 		if (!unit1 || !unit2) return; // Guard for TypeScript
 
 		// Move unit1 to unit2's position
-		await page.evaluate(({ unitId, x, y }) => window.gameController.moveUnitOnBoard(unitId, x, y), { unitId: unit1.id, x: unit2InitialX, y: unit2InitialY });
+		await debugController.moveUnitOnBoard(unit1.id, unit2InitialX, unit2InitialY);
 		await page.waitForTimeout(500); // Wait for swap to process
 
-		units = await page.evaluate(() => window.gameController.getPlayerBoardUnits());
+		units = await debugController.getPlayerBoardUnits();
 		const unit1AfterMove = units.find(u => u.id === unit1.id);
 		const unit2AfterMove = units.find(u => u.id === unit2.id);
 
