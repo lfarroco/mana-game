@@ -1,38 +1,27 @@
 import { scene } from "../BattlegroundScene";
 import { Unit } from "../../../Models/Entities/Unit";
 
-/**
- * Represents the combat statistics for a single unit
- */
 export type UnitCombatStats = {
 	unitId: string;
 	unitName?: string;
 	forceId: string;
 
-	// Damage statistics
-	damageDealt: number;      // Total direct damage dealt
-	poisonApplied: number;    // Total poison damage applied (over time)
+	damageDealt: number;
+	poisonApplied: number;
 
-	// Healing statistics
-	healingDone: number;      // Total direct healing done
-	regenApplied: number;     // Total regen healing applied (over time)
+	healingDone: number;
+	regenApplied: number;
 
-	// Shield statistics
-	shieldGranted: number;    // Total shield points granted to allies
+	shieldGranted: number;
 
-	// Additional tracking
-	actionsPerformed: number; // Number of actions/abilities used
-	timeAlive: number;        // Total time unit was active in combat (ms)
+	actionsPerformed: number;
+	timeAlive: number;
 };
 
-// Singleton state
 let isActive: boolean = false;
 let unitStats: Map<string, UnitCombatStats> = new Map();
 let combatStartTime: number = 0;
 
-/**
- * Creates initial stat entries for all units in the battle
- */
 function initializeUnitStats(): void {
 
 	const allUnits = scene.state.battleData.units;
@@ -53,9 +42,6 @@ function initializeUnitStats(): void {
 	}
 }
 
-/**
- * Handles morale updated events to track damage dealt
- */
 export function trackMoraleChange(payload: {
 	forceId: string;
 	newMorale: number;
@@ -78,7 +64,6 @@ export function trackMoraleChange(payload: {
 		return;
 	}
 
-	// Track different types of damage
 	if (payload.damageType === "poison") {
 		stats.poisonApplied += payload.totalDamage;
 	} else {
@@ -88,9 +73,6 @@ export function trackMoraleChange(payload: {
 	console.log(`[CombatStatsTracker] Unit ${sourceUnitId} dealt ${payload.totalDamage} ${payload.damageType || "normal"} damage`);
 }
 
-/**
- * Handles morale restored events to track healing done
- */
 export function trackMoraleRestored(payload: {
 	unit: Unit;
 	amount: number;
@@ -108,7 +90,6 @@ export function trackMoraleRestored(payload: {
 		return;
 	}
 
-	// Track different types of healing
 	if (payload.type === 'regen') {
 		stats.regenApplied += payload.amount;
 	} else {
@@ -118,9 +99,6 @@ export function trackMoraleRestored(payload: {
 	console.log(`[CombatStatsTracker] Unit ${sourceUnitId} provided ${payload.amount} ${payload.type || "direct"} healing`);
 }
 
-/**
- * Handles shield gained events to track shield applications
- */
 export function trackShieldGained(payload: {
 	unit: Unit;
 	amount: number;
@@ -141,9 +119,6 @@ export function trackShieldGained(payload: {
 	console.log(`[CombatStatsTracker] Unit ${sourceUnitId} granted ${payload.amount} shield`);
 }
 
-/**
- * Handles shield updated events (alternative way to track shield changes)
- */
 export function trackShieldUpdated(payload: {
 	forceId: string;
 	newShield: number;
@@ -164,9 +139,6 @@ export function trackShieldUpdated(payload: {
 	console.log(`[CombatStatsTracker] Unit ${payload.sourceUnitId} granted ${payload.shieldDelta} shield via shield update`);
 }
 
-/**
- * Handles unit action events to track activity
- */
 export function handleUnitAction(payload: { unit: Unit }): void {
 	if (!isActive || !payload.unit?.id) return;
 
@@ -181,25 +153,16 @@ export function handleUnitAction(payload: { unit: Unit }): void {
 }
 
 
-/**
- * Initializes the combat stats tracker for a new combat.
- * Sets up event listeners and creates initial stats for all units.
- */
 export function initialize(): void {
 	isActive = true;
 	unitStats.clear();
 	combatStartTime = Date.now();
 
-	// Initialize stats for all active units
 	initializeUnitStats();
 
 	console.log("[CombatStatsTracker] Initialized for new combat");
 }
 
-/**
- * Manually track damage dealt by a specific unit
- * Used when systems need to directly report damage attribution
- */
 export function trackDamage(sourceUnitId: string, damage: number, damageType: 'normal' | 'poison' = 'normal'): void {
 	if (!isActive || damage <= 0) return;
 
@@ -218,9 +181,6 @@ export function trackDamage(sourceUnitId: string, damage: number, damageType: 'n
 	console.log(`[CombatStatsTracker] Manually tracked ${damage} ${damageType} damage for unit ${sourceUnitId}`);
 }
 
-/**
- * Manually track healing done by a specific unit
- */
 export function trackHealing(sourceUnitId: string, healing: number, healingType: 'direct' | 'regen' = 'direct'): void {
 	if (!isActive || healing <= 0) return;
 
@@ -239,9 +199,6 @@ export function trackHealing(sourceUnitId: string, healing: number, healingType:
 	console.log(`[CombatStatsTracker] Manually tracked ${healing} ${healingType} healing for unit ${sourceUnitId}`);
 }
 
-/**
- * Manually track shield granted by a specific unit
- */
 export function trackShield(sourceUnitId: string, shield: number): void {
 	if (!isActive || shield <= 0) return;
 
@@ -255,14 +212,9 @@ export function trackShield(sourceUnitId: string, shield: number): void {
 	console.log(`[CombatStatsTracker] Manually tracked ${shield} shield for unit ${sourceUnitId}`);
 }
 
-/**
- * Updates time alive for all active units
- * Should be called periodically during combat
- */
 export function updateTimeAlive(delta: number): void {
 	if (!isActive) return;
 
-	// Get currently active units
 	const activeUnits = scene.state.battleData.units.filter(unit =>
 		scene!.state.battleData.forces.some(force =>
 			force.units.some(forceUnit => forceUnit.id === unit.id)
@@ -277,30 +229,18 @@ export function updateTimeAlive(delta: number): void {
 	}
 }
 
-/**
- * Gets combat stats for a specific unit
- */
 export function getUnitStats(unitId: string): UnitCombatStats | undefined {
 	return unitStats.get(unitId);
 }
 
-/**
- * Gets combat stats for all units
- */
 export function getAllStats(): UnitCombatStats[] {
 	return Array.from(unitStats.values());
 }
 
-/**
- * Gets combat stats for units in a specific force
- */
 export function getForceStats(forceId: string): UnitCombatStats[] {
 	return Array.from(unitStats.values()).filter(stats => stats.forceId === forceId);
 }
 
-/**
- * Gets aggregated stats for a force (sum of all unit stats)
- */
 export function getAggregatedForceStats(forceId: string): Omit<UnitCombatStats, 'unitId' | 'unitName'> {
 	const forceStats = getForceStats(forceId);
 
@@ -312,7 +252,7 @@ export function getAggregatedForceStats(forceId: string): Omit<UnitCombatStats, 
 		regenApplied: aggregate.regenApplied + stats.regenApplied,
 		shieldGranted: aggregate.shieldGranted + stats.shieldGranted,
 		actionsPerformed: aggregate.actionsPerformed + stats.actionsPerformed,
-		timeAlive: Math.max(aggregate.timeAlive, stats.timeAlive) // Use max time for force
+		timeAlive: Math.max(aggregate.timeAlive, stats.timeAlive)
 	}), {
 		forceId,
 		damageDealt: 0,
@@ -325,9 +265,6 @@ export function getAggregatedForceStats(forceId: string): Omit<UnitCombatStats, 
 	});
 }
 
-/**
- * Prints a summary of combat stats to console
- */
 export function printStatsSummary(): void {
 	if (!isActive && unitStats.size === 0) {
 		console.log("[CombatStatsTracker] No stats available");
@@ -352,32 +289,23 @@ export function printStatsSummary(): void {
 	console.log("=== END COMBAT STATS ===");
 }
 
-/**
- * Stops the combat stats tracker and finalizes time alive calculations
- */
 export function stop(): void {
 	if (!isActive) return;
 
 	isActive = false;
 
-	// Finalize time alive for all units
 	const combatDuration = Date.now() - combatStartTime;
 	for (const stats of unitStats.values()) {
-		// If unit doesn't have time alive tracked, assume it was alive for full combat
 		if (stats.timeAlive === 0) {
 			stats.timeAlive = combatDuration;
 		}
 	}
 
-	// Print final stats summary
 	printStatsSummary();
 
 	console.log("[CombatStatsTracker] Stopped and finalized stats");
 }
 
-/**
- * Gets the current tracker configuration
- */
 export function getConfig() {
 	return {
 		isActive,
@@ -386,10 +314,6 @@ export function getConfig() {
 	};
 }
 
-/**
- * Resets the tracker state - useful for testing
- * @internal
- */
 export function reset(): void {
 	isActive = false;
 	unitStats.clear();

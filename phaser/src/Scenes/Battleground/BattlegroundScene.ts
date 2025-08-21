@@ -11,7 +11,6 @@ import { popText } from "../../Systems/Chara/Animations/popText";
 import { RunCombatSystem } from "./RunCombatIO";
 import { BattleProgressionSystem } from "./Systems/BattleProgressionSystem";
 import { getOption } from "../../Models/OptionsStore";
-// Removed handleOwnedUnitMoveRequest: related logic now in CharaInputHandler
 import { GameError } from "../../Types/CommonTypes";
 import { battleResultAnimation } from "./battleResultAnimation";
 import * as BattlegroundScenePure from "./BattlegroundScene.pure";
