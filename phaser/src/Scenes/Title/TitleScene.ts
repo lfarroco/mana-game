@@ -5,11 +5,14 @@ import { CloudsBackground } from "../../components/cloudBackground/CloudsBackgro
 import { images } from "../../assets";
 import * as AudioManager from "../../Systems/AudioManager";
 
+export let titleScene: TitleScene;
+
 export default class TitleScene extends Phaser.Scene {
-	private cloudsBackground!: CloudsBackground;
+	cloudsBackground!: CloudsBackground;
 
 	constructor() {
 		super(constants.SCENE_KEYS.TITLE);
+		titleScene = this;
 	}
 
 	preload() {
@@ -119,21 +122,21 @@ export default class TitleScene extends Phaser.Scene {
 		});
 	}
 
-	private openOptions() {
+	openOptions() {
 		this.cameras.main.fade(500, 0, 0, 0);
 		this.cameras.main.once('camerafadeoutcomplete', () => {
 			this.scene.start(constants.SCENE_KEYS.OPTIONS);
 		});
 	}
 
-	private openDebug() {
+	openDebug() {
 		this.cameras.main.fade(300, 0, 0, 0);
 		this.cameras.main.once('camerafadeoutcomplete', () => {
 			this.scene.start(constants.SCENE_KEYS.DEBUG);
 		});
 	}
 
-	private startGame() {
+	startGame() {
 		this.cameras.main.fade(500, 0, 0, 0);
 		this.cameras.main.once('camerafadeoutcomplete', () => {
 			this.scene.start(constants.SCENE_KEYS.BATTLEGROUND);

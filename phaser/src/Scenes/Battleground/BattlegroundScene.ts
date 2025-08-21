@@ -15,7 +15,6 @@ import { battleResultAnimation } from "./battleResultAnimation";
 import * as BattlegroundScenePure from "./BattlegroundScene.pure";
 import { updatePlayerGoldIO } from "../../Models/Entities/Force";
 import * as AudioManager from "../../Systems/AudioManager";
-import { DebugController } from "../Debug/DebugController";
 import * as Shop from "./Systems/Shop/Shop";
 import * as MoraleDisplay from "./MoraleDisplay";
 
@@ -136,10 +135,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.battleProgressionSystem.transitionToShopPhase();
 
-    if (process.env.NODE_ENV === 'development') {
-      window.gameController = new DebugController(this);
-      console.log("BattlegroundScene: DebugController dynamically loaded and initialized.");
-    }
   }
 
   // handleOwnedUnitMoveRequest moved to CharaInputHandler._processOwnedUnitMoveRequest
