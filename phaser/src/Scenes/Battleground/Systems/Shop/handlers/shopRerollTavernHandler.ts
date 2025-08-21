@@ -1,6 +1,6 @@
 import * as Shop from "../Shop";
 import * as constants from "../../../../..//constants/constants";
-import { updatePlayerGoldIO } from "../../../../..//Models/Entities/Force";
+import { updatePlayerGoldIO } from "../../../../../Models/Entities/Force";
 import * as UIManager from "../../../../../UI/UIManager";
 import { getState } from "../../../../../Models/State";
 
@@ -16,7 +16,6 @@ export function shopRerollTavernHandler(): void {
 		return;
 	}
 
-	// Deduct gold and reroll
 	updatePlayerGoldIO(-constants.REROLL_UNITS_PRICE);
 	Shop.rerollTavern();
 }

@@ -8,7 +8,13 @@ import { getChara, summonChara } from "../../CharaManager";
 import * as UIManager from "../../../../../UI/UIManager";
 
 export function shopItemDragPurchaseRequestedHandler(
-	payload: { shopUnitData: Unit, shopCharaId: string, targetTile: Vec2, dragStartX: number, dragStartY: number }
+	payload: {
+		shopUnitData: Unit,
+		shopCharaId: string,
+		targetTile: Vec2,
+		dragStartX: number,
+		dragStartY: number
+	}
 ): void {
 	const { shopUnitData, shopCharaId, targetTile, dragStartX, dragStartY } = payload;
 
