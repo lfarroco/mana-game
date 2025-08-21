@@ -39,8 +39,6 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 		return ghostUnits
 	}
 
-
-	// Validate chosen formation
 	const template = pickOne(FORMATION_TEMPLATES);
 
 	const parsed = template.map(row => row.split(""));

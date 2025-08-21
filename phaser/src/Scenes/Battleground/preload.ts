@@ -29,15 +29,10 @@ function coinTexture(scene: Scene) {
 
 function loadAudio(scene: Scene) {
 
-
-	//sfx_artifact_equipmask
-
 	scene.load.audio('sfx_artifact_equipmask', 'assets/audio/sfx_artifact_equipmask.m4a');
 
-	//notification.m4a
 	scene.load.audio('sfx_notification', 'assets/audio/notification.m4a');
 
-	//sfx_spell_innerfocus
 	scene.load.audio('sfx_spell_innerfocus', 'assets/audio/sfx_spell_innerfocus.m4a');
 
 }

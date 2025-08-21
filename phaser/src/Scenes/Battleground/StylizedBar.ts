@@ -1,10 +1,10 @@
 import Phaser from 'phaser';
 import { titleTextConfig } from '../../constants/constants';
+import { TextConfig } from "../../Types/CommonTypes";
 
 const BAR_HEIGHT = 50;
 const INNER_PADDING = 3;
 
-// This type represents the components of a stylized bar
 export type StylizedBar = {
 	container: Phaser.GameObjects.Container;
 	outerBorder: Phaser.GameObjects.Graphics;
@@ -15,7 +15,6 @@ export type StylizedBar = {
 	label: Phaser.GameObjects.Text;
 }
 
-import { TextConfig } from "../../Types/CommonTypes";
 
 export interface StylizedBarOptions {
 	x: number;
@@ -38,23 +37,21 @@ export function createStylizedBar(
 		y,
 		width,
 		height = BAR_HEIGHT,
-		barColor = 0x00ff00, // Default green
-		backgroundColor = 0x000000, // Default black
-		backgroundOpacity = 0.6, // Default semi-transparent
-		borderOpacity = 1.0, // Default fully opaque border
+		barColor = 0x00ff00,
+		backgroundColor = 0x000000,
+		backgroundOpacity = 0.6,
+		borderOpacity = 1.0,
 	} = options;
 	const container = scene.add.container(x, y);
 
 	const barWidth = width;
 	const barHeight = height;
 
-	// Outer border (dark)
 	const outerBorder = scene.add.graphics();
 	outerBorder.fillStyle(0x2a2a2a, borderOpacity);
 	outerBorder.fillRoundedRect(0, 0, barWidth, barHeight, 6);
 	container.add(outerBorder);
 
-	// Inner background (customizable color)
 	const backgroundBar = scene.add.graphics();
 	backgroundBar.fillStyle(backgroundColor, backgroundOpacity);
 	backgroundBar.fillRoundedRect(
@@ -64,7 +61,6 @@ export function createStylizedBar(
 	);
 	container.add(backgroundBar);
 
-	// Foreground bar (the fill color - this will be animated to show current percentage)
 	const foregroundBar = scene.add.graphics();
 	foregroundBar.fillStyle(barColor, 1);
 	foregroundBar.fillRoundedRect(
@@ -74,10 +70,8 @@ export function createStylizedBar(
 	);
 	container.add(foregroundBar);
 
-	// We'll use the foregroundBar itself for animation, no need for a separate barFill
-	const barFill = foregroundBar; // Just reference the same object
+	const barFill = foregroundBar;
 
-	// Inner highlight (subtle top highlight) - should scale with the bar
 	const innerHighlight = scene.add.graphics();
 	innerHighlight.fillStyle(0xffffff, 0.3);
 	innerHighlight.fillRoundedRect(
@@ -88,7 +82,6 @@ export function createStylizedBar(
 
 	container.add(innerHighlight);
 
-	// Label with stroke for better readability
 	const label = scene.add.text(
 		barWidth / 2,
 		barHeight + 30,
@@ -98,9 +91,8 @@ export function createStylizedBar(
 	).setOrigin(0.5);
 	container.add(label);
 
-	container.setVisible(false); // Initially hidden
+	container.setVisible(false);
 
-	// Store orientation and original dimensions for later use in updates
 	(container as any)._originalHeight = barHeight;
 
 	return {
@@ -123,11 +115,9 @@ export function updateStylizedBar(
 	const percentage = Math.max(0, currentValue) / maxValue;
 	bar.barFill.scene.tweens.killTweensOf([bar.barFill, bar.innerHighlight]);
 
-	// Get the original height from when the bar was created
 	const originalHeight = (bar.container as any)._originalHeight || BAR_HEIGHT;
 	const fillHeight = originalHeight - (INNER_PADDING * 2);
 
-	// Calculate the Y offset to simulate scaling from bottom
 	const targetScaleY = percentage;
 	const yOffset = INNER_PADDING + fillHeight * (1 - targetScaleY);
 

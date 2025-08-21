@@ -18,22 +18,20 @@ export async function battleResultAnimation(
 		assets.images.reveal_mask.key)
 		.setOrigin(0.5, 0.5)
 		.setScale(1);
-	revealMask.setVisible(false); // mask itself shouldn't be shown
+	revealMask.setVisible(false);
 
 	const mask = new Phaser.Display.Masks.BitmapMask(scene, revealMask);
 	banner.setMask(mask);
 
-	// Move the mask to the right
 	await tween({
 		targets: [revealMask],
-		x: banner.x, // move rightward
+		x: banner.x,
 		duration: 1500,
 	});
 
-	// Move the mask even more to the right
 	await tween({
 		targets: [revealMask],
-		x: banner.x + revealMask.width, // move rightward
+		x: banner.x + revealMask.width,
 		duration: 1500,
 	});
 

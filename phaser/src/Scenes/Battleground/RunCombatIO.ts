@@ -52,13 +52,11 @@ export class RunCombatSystem {
       processEffectsIO(unit, unit.effects);
     }
 
-    // Periodic systems
     updateTimeoutDamageSystem(playerForce, cpuForce, scaledDelta);
     PoisonDamageSystem.update(playerForce, cpuForce, scaledDelta);
     RegenSystem.update(playerForce, cpuForce, scaledDelta);
     CombatStatsTracker.updateTimeAlive(scaledDelta);
 
-    // Victory / defeat check
     const playerMoraleZero = playerForce.morale <= 0;
     const cpuMoraleZero = cpuForce.morale <= 0;
 
@@ -71,7 +69,7 @@ export class RunCombatSystem {
   }
 
   private finishCombat(outcome: WaveOutcome) {
-    if (!this.active) return; // already finished
+    if (!this.active) return;
     this.active = false;
     onTimeoutDamageCombatEnd();
     CombatStatsTracker.stop();
@@ -79,7 +77,6 @@ export class RunCombatSystem {
     scene.battleProgressionSystem.handleCombatEnded(outcome);
   }
 
-  /** Whether a combat is currently running */
   isActive(): boolean { return this.active; }
 
 }
