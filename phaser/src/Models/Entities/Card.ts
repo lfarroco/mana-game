@@ -1,5 +1,20 @@
 import { Effect, EffectReaction } from "../../TriggerSystem/TriggerSystem";
 
+const dummy: CardDefinition = {
+  "id": "dummy_card",
+  "name": "Dummyy",
+  "pic": "boss_andromeda",
+  "power": 10,
+  "cooldown": 2300,
+  "description": "",
+  "reactions": [],
+  "effects": [
+    {
+      "id": "shield"
+    } as Effect
+  ]
+}
+
 let cards = new Map<string, CardDefinition>();
 
 
@@ -19,7 +34,7 @@ export const registerCollection = (collection: CardCollection): void => {
   collections.set(collection.id, collection);
 
   collection.cards
-    .slice(0, 5)
+    //.slice(0, 5)
     .forEach(registerCard);
 
 };
@@ -47,13 +62,12 @@ export type CardDefinition = {
   cooldown: number;
   effects: Effect[];
   reactions: EffectReaction[];
-  tags: string[];
 };
 
 export const getCardDefinition = (id: string): CardDefinition => {
   const card = cards.get(id);
   if (!card) {
-    throw new Error(`Card with id ${id} not found.`);
+    return dummy
   }
   return card;
 }

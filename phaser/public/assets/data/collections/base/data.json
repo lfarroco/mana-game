@@ -6,99 +6,11 @@
 			"id": "void_witch",
 			"name": "Void Witch",
 			"pic": "boss_andromeda",
-			"tags": [
-				"magical",
-				"ranged"
-			],
-			"power": 4,
+			"power": 14,
 			"cooldown": 3000,
 			"effects": [
 				{
-					"id": "regen"
-				},
-				{
-					"id": "slow",
-					"duration": 1000,
-					"targets": {
-						"id": "random_ally",
-						"count": 1
-					}
-				},
-				{
-					"id": "increase_power",
-					"amount": 1,
-					"targets": {
-						"id": "right_ally"
-					}
-				}
-			],
-			"traits": [
-				{
 					"id": "poison"
-				},
-				{
-					"id": "slow",
-					"duration": 1000,
-					"targets": "random_ally"
-				},
-				{
-					"id": "power_boost_on_action",
-					"targets": "self",
-					"amount": 4
-				}
-			]
-		},
-		{
-			"id": "andromeda",
-			"name": "Andromeda",
-			"pic": "boss_andromeda",
-			"tags": [
-				"damage",
-				"positional"
-			],
-			"power": 15,
-			"cooldown": 2500,
-			"effects": [
-				{
-					"id": "damage"
-				},
-				{
-					"id": "haste",
-					"duration": 1000,
-					"targets": {
-						"id": "top_ally"
-					}
-				},
-				{
-					"id": "charge",
-					"amount": 1000,
-					"targets": {
-						"id": "bottom_ally"
-					}
-				}
-			],
-			"reactions": [
-				{
-					"effectId": "battle_start",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 10,
-							"targets": {
-								"id": "column_allies"
-							}
-						}
-					]
-				}
-			],
-			"traits": [
-				{
-					"id": "damage"
-				},
-				{
-					"id": "positional_boost_allies",
-					"amount": 10,
-					"targets": "same_column_allies"
 				}
 			]
 		},
@@ -106,9 +18,6 @@
 			"id": "Living Armor",
 			"name": "Living Armor",
 			"pic": "f1_tank",
-			"tags": [
-				"support"
-			],
 			"power": 25,
 			"cooldown": 3000,
 			"effects": [
@@ -116,69 +25,17 @@
 					"id": "shield"
 				}
 			],
-			"reactions": [
-				{
-					"effectId": "shield",
-					"position": "column_allies",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 2,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
-			],
-			"traits": [
-				{
-					"id": "shield"
-				},
-				{
-					"id": "positional_boost_self",
-					"amount": 10,
-					"position": "front"
-				},
-				{
-					"id": "battle_reaction",
-					"effect_to_apply": "power_boost",
-					"amount": 2,
-					"sourceActionId": "shield",
-					"source_selector": "all_allies",
-					"description": "When an ally [color=orange]shields[/color], gain {amount} power"
-				}
-			]
+			"reactions": []
 		},
 		{
 			"id": "thunder_mech",
 			"name": "Thunder Mech",
 			"pic": "f3_mech",
 			"power": 10,
-			"tags": [
-				"support"
-			],
 			"cooldown": 3200,
-			"traits": [
-				{
-					"id": "damage"
-				},
-				{
-					"id": "haste",
-					"duration": 1200,
-					"targets": "same_column_allies"
-				}
-			],
 			"effects": [
 				{
 					"id": "damage"
-				},
-				{
-					"id": "haste",
-					"duration": 1200,
-					"targets": {
-						"id": "column_allies"
-					}
 				}
 			]
 		},
@@ -186,23 +43,8 @@
 			"id": "timebender",
 			"name": "Time Bender",
 			"pic": "boss_spelleater",
-			"tags": [
-				"tank"
-			],
 			"power": 14,
 			"cooldown": 3000,
-			"traits": [
-				{
-					"id": "haste",
-					"duration": 1200,
-					"targets": "same_column_allies"
-				},
-				{
-					"id": "haste",
-					"duration": 1200,
-					"targets": "same_row_allies"
-				}
-			],
 			"effects": [
 				{
 					"id": "poison"
@@ -213,23 +55,11 @@
 			"id": "professor_oops",
 			"name": "Professor Oopsteiner",
 			"pic": "f3_windgiver",
-			"tags": [
-				"ranged",
-				"magical"
-			],
 			"power": 15,
 			"cooldown": 3600,
-			"traits": [
+			"effects": [
 				{
 					"id": "damage"
-				},
-				{
-					"id": "battle_reaction",
-					"effect_to_apply": "power_boost",
-					"amount": 2,
-					"sourceActionId": "damage",
-					"source_selector": "same_row_allies",
-					"description": "When a row ally [color=orange]damages[/color], gain {amount} power"
 				}
 			]
 		},
@@ -237,51 +67,24 @@
 			"id": "void_specter",
 			"name": "Void Specter",
 			"pic": "neutral_amu",
-			"tags": [
-				"support"
-			],
 			"power": 10,
 			"cooldown": 3200,
-			"traits": [
+			"effects": [
 				{
-					"id": "heal"
-				},
-				{
-					"id": "slow",
-					"duration": 1200,
-					"targets": "random_enemy"
-				},
-				{
-					"id": "battle_reaction",
-					"effect_to_apply": "charge",
-					"amount": 1000,
-					"sourceActionId": "damage",
-					"source_selector": "all_allies",
-					"description": "When any ally [color=red]attacks[/color], [color=orange]charge 1000ms[/color]"
+					"id": "poison"
 				}
-			]
+			],
+			"reactions": []
 		},
 		{
 			"id": "diana",
 			"name": "Diana FireArrow",
 			"pic": "neutral_arrowwhistler",
-			"tags": [
-				"ranged",
-				"magical"
-			],
 			"power": 10,
 			"cooldown": 3600,
-			"traits": [
+			"effects": [
 				{
 					"id": "damage"
-				},
-				{
-					"id": "battle_reaction",
-					"effect_to_apply": "power_boost",
-					"amount": 2,
-					"sourceActionId": "haste",
-					"source_selector": "all_allies",
-					"description": "When any ally gains [color=lightblue]haste[/color], gain {amount} power"
 				}
 			]
 		},
@@ -289,25 +92,11 @@
 			"id": "moss_golem",
 			"name": "Moss Golem",
 			"pic": "neutral_golemnature",
-			"tags": [
-				"ranged",
-				"magical"
-			],
 			"power": 10,
 			"cooldown": 3200,
-			"traits": [
+			"effects": [
 				{
-					"id": "heal"
-				},
-				{
-					"id": "positional_boost_self",
-					"amount": 10,
-					"position": "front"
-				},
-				{
-					"id": "positional_boost_allies",
-					"targets": "same_row_allies",
-					"amount": 4
+					"id": "regen"
 				}
 			]
 		},
@@ -315,46 +104,24 @@
 			"id": "stone_guardian",
 			"name": "Stone Guardian",
 			"pic": "neutral_golemstone",
-			"tags": [
-				"tank",
-				"support"
-			],
 			"power": 10,
 			"cooldown": 3200,
-			"traits": [
+			"effects": [
 				{
 					"id": "shield"
-				},
-				{
-					"id": "battle_reaction",
-					"effect_to_apply": "power_boost",
-					"amount": 2,
-					"sourceActionId": "damage",
-					"source_selector": "all_enemies",
-					"description": "When any enemy [color=red]damages[/color], gain {amount} power"
 				}
-			]
+			],
+			"reactions": []
 		},
 		{
 			"id": "shadow_assassin",
 			"name": "Shadow Assassin",
 			"pic": "boss_shadowlord",
-			"tags": [
-				"melee"
-			],
 			"power": 10,
 			"cooldown": 2500,
-			"traits": [
+			"effects": [
 				{
 					"id": "damage"
-				},
-				{
-					"id": "battle_reaction",
-					"effect_to_apply": "power_boost",
-					"amount": 2,
-					"sourceActionId": "haste",
-					"source_selector": "all_allies",
-					"description": "When any ally [color=lightblue]hastes[/color], gain {amount} power"
 				}
 			]
 		}
