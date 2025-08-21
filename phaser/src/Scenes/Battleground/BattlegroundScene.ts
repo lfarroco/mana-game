@@ -6,7 +6,6 @@ import * as CharaManager from "./Systems/CharaManager";
 import { CardCollection } from "../../Models/Entities/Card";
 import { PartyBoard, getSharedPlayerBoard } from "../../Models/Board";
 import { BattlegroundSetupSystem } from "./Systems/BattlegroundSetupSystem";
-import { BattlegroundEventSystem } from "./Systems/BattlegroundEventSystem";
 import { popText } from "../../Systems/Chara/Animations/popText";
 import { RunCombatSystem } from "./RunCombatIO";
 import { BattleProgressionSystem } from "./Systems/BattleProgressionSystem";
@@ -18,6 +17,7 @@ import { updatePlayerGoldIO } from "../../Models/Entities/Force";
 import * as AudioManager from "../../Systems/AudioManager";
 import { DebugController } from "../Debug/DebugController";
 import * as Shop from "./Systems/Shop/Shop";
+import * as MoraleDisplay from "./MoraleDisplay";
 
 export let scene: BattlegroundScene;
 
@@ -32,7 +32,6 @@ export class BattlegroundScene extends Phaser.Scene {
   battleProgressionSystem: BattleProgressionSystem;
 
   setupSystem!: BattlegroundSetupSystem;
-  eventSystem!: BattlegroundEventSystem;
 
   cleanup() {
     const cleanupOperations = [
@@ -48,7 +47,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     const gameObjects = [
       { name: "shopUI", object: Shop.shopUI },
-      { name: "eventSystem", object: this.eventSystem },
       { name: "setupSystem", object: this.setupSystem }
     ];
 
@@ -57,6 +55,8 @@ export class BattlegroundScene extends Phaser.Scene {
       (objectName: string, error: GameError) => console.error(`Failed to destroy ${objectName}:`, error)
     );
 
+
+    MoraleDisplay.destroy();
     UIManager.destroy();
 
   }
@@ -126,12 +126,11 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.playerBoard = this.setupSystem.setupSceneElements(this.state);
 
-    this.eventSystem = new BattlegroundEventSystem(this);
-    this.eventSystem.registerEventHandlers();
-
     UIManager.createMainUI();
 
     Shop.init();
+
+    MoraleDisplay.init();
 
     AudioManager.playMusic('music_battlemap_vetruv');
 

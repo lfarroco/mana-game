@@ -191,7 +191,9 @@ export class BattleProgressionSystem {
 
 	async handleCombatStartExecution(payload: { enemies: Unit[] }): Promise<void> {
 		this._initializeMorale();
-		this.scene.eventSystem.handleEnemyBoardShow();
+		if (this.scene.playerBoard) {
+			this.scene.playerBoard.setEnemyBoardVisible(true);
+		}
 		await delay(300);
 		await Promise.all(payload.enemies.map(u => CharaManager.summonChara(u, true)));
 		[...payload.enemies, ...this.state.gameData.player.units].forEach(u => {
