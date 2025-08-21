@@ -8,11 +8,11 @@ import * as Board from "../../Models/Board";
 import { vec2 } from "../../Models/Geometry";
 import * as sc from "../../Scenes/Battleground/Systems/Shop/ShopConstants";
 import { hideTooltip } from "../../UI/Tooltip";
-import { shop } from "../../Scenes/Battleground/Systems/Shop/Shop";
 import { scene } from "../../Scenes/Battleground/BattlegroundScene";
 import { PartyBoard } from "../../Models/Board";
 import * as CharaManager from "../../Scenes/Battleground/Systems/CharaManager";
 import { Unit } from "../../Models/Entities/Unit";
+import * as Shop from "../../Scenes/Battleground/Systems/Shop/Shop";
 
 export class CharaInputHandler {
 	dragStartX: number = 0;
@@ -49,7 +49,7 @@ export class CharaInputHandler {
 		this.wasDragSuccessful = false;
 
 		if (this.chara.getIsShopItem()) {
-			this.chara.shop.flyout.bringChildToTop(this.chara);
+			Shop.flyout.bringChildToTop(this.chara);
 		} else {
 			this.chara.scene.children.bringToTop(this.chara);
 		}
@@ -61,7 +61,7 @@ export class CharaInputHandler {
 			ease: "Cubic.Out",
 		});
 		if (!this.chara.getIsShopItem()) {
-			this.chara.shop.shopUI.showSellZone();
+			Shop.shopUI.showSellZone();
 		}
 		hideTooltip();
 	}
@@ -84,7 +84,7 @@ export class CharaInputHandler {
 		});
 
 		if (!this.chara.getIsShopItem()) {
-			this.chara.shop.shopUI.hideSellZone();
+			Shop.shopUI.hideSellZone();
 		}
 
 		if (!this.wasDragSuccessful) {
@@ -119,7 +119,7 @@ export class CharaInputHandler {
 	}
 
 	processShopItemClick(_clickX: number, _clickY: number): void {
-		shop.handleShopItemClickPurchaseRequested({
+		Shop.handleShopItemClickPurchaseRequested({
 			shopUnitData: { ...this.chara.unit },
 			shopCharaId: this.chara.id,
 			dragStartX: this.chara.x,
@@ -169,7 +169,7 @@ export class CharaInputHandler {
 	}
 
 	private _handleDropShopItem(tile: Vec2, dragStartX: number, dragStartY: number): void {
-		shop.handleShopItemDragPurchaseRequested({
+		Shop.handleShopItemDragPurchaseRequested({
 			shopUnitData: { ...this.chara.unit },
 			shopCharaId: this.chara.id,
 			targetTile: tile,

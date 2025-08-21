@@ -2,162 +2,149 @@ import * as Card from "../../../../Models/Entities/Card";
 import { Flyout } from "../../../../UI/Flyout";
 import { pickRandom } from "../../../../utils";
 import { Chara } from "../../../../Systems/Chara/Chara";
-import { BattlegroundScene } from "../../BattlegroundScene";
+import { scene } from "../../BattlegroundScene";
 import { Vec2 } from "../../../../Models/Geometry";
 import { Unit } from "../../../../Models/Entities/Unit";
 import { ShopUI } from "./ShopUI";
-import { shopOpenUITriggerHandler } from "./handlers/shopOpenUITriggerHandler";
 import { shopItemClickPurchaseRequestedHandler } from "./handlers/shopItemClickPurchaseHandler";
 import { shopItemDragPurchaseRequestedHandler } from "./handlers/shopItemDragPurchaseHandler";
 import { shopRerollTavernHandler } from "./handlers/shopRerollTavernHandler";
 import * as CharaManager from "../CharaManager";
 import * as sc from "./ShopConstants";
-import { State } from "../../../../Models/State";
 import { tween } from "../../../../Utils/animation";
 
-export let shop: Shop
 
-export class Shop {
+export let flyout: Flyout;
+export let shopUI: ShopUI;
+let currentShopCharas: Chara[] = [];
+let currentOrbs: string[] = [];
 
-	scene: BattlegroundScene;
-	state: State;
-	flyout: Flyout;
-	shopUI: ShopUI;
+export function init() {
+	flyout = new Flyout(scene);
+	shopUI = new ShopUI(scene, flyout);
+}
 
-	currentShopCharas: Chara[] = [];
+export function handleCharaPurchaseFinalized(purchasedChara: Chara): void {
+	currentShopCharas = currentShopCharas.filter(c => c.id !== purchasedChara.id);
+}
 
-	currentOrbs: string[] = [];
+export async function open() {
+	currentShopCharas = [];
 
-	constructor(scene: BattlegroundScene) {
-		this.scene = scene;
-		this.state = scene.state;
-		this.flyout = new Flyout(this.scene);
-		this.shopUI = new ShopUI(this.scene, this.flyout);
-		shop = this;
+	const tavernCardData = _getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
+
+	const availableOrbs = [
+		"crimson_orb",
+		"emerald_orb",
+		"azure_orb",
+		"golden_orb",
+		"violet_orb",
+		"charge_orb",
+	];
+	currentOrbs = pickRandom(availableOrbs, 3);
+
+	const nextRoundCallback = () => {
+		scene.battleProgressionSystem.handleShopPhaseEnded();
+		close();
+	};
+
+	const { charas } = shopUI.displayShop(
+		tavernCardData,
+		currentOrbs,
+		nextRoundCallback,
+		handleShopRerollTavern,
+	);
+
+	if (scene.playerBoard) {
+		scene.playerBoard.setEnemyBoardVisible(false);
 	}
 
-	_handleCharaPurchaseFinalized(purchasedChara: Chara): void {
-		this.currentShopCharas = this.currentShopCharas.filter(c => c.id !== purchasedChara.id);
-	}
+	currentShopCharas = charas;
 
-	async open() {
-		this.currentShopCharas = [];
+	await flyout.slideIn();
+	currentShopCharas.forEach(chara => _animateItemAppearance(chara));
+}
 
-		const tavernCardData = this._getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
+export async function close() {
+	shopUI.destroyOrbs();
+	currentOrbs = [];
 
-		const availableOrbs = [
-			"crimson_orb",
-			"emerald_orb",
-			"azure_orb",
-			"golden_orb",
-			"violet_orb",
-			"charge_orb",
-		];
-		this.currentOrbs = pickRandom(availableOrbs, 3);
+	await flyout.slideOut();
+}
 
-		const nextRoundCallback = () => {
-			this.scene.battleProgressionSystem.handleShopPhaseEnded();
-			this.close();
-		};
+// TODO: add tests
+// TODO: add animation for reroll
 
-		const { charas } = this.shopUI.displayShop(
-			tavernCardData,
-			this.currentOrbs,
-			nextRoundCallback,
-			this.handleShopRerollTavern.bind(this),
-		);
+export function getShopCharaBySlot(slotIndex: number): Chara | null {
+	return currentShopCharas[slotIndex] || null;
+}
 
-		if (this.scene.playerBoard) {
-			this.scene.playerBoard.setEnemyBoardVisible(false);
-		}
+export function getDisplayedHeroCardDefinitions(): Card.CardDefinition[] {
+	return currentShopCharas.map(chara => chara.unit.cardId)
+		.map(Card.getCardDefinition);
+}
 
-		this.currentShopCharas = charas;
+export async function handleShopOpenUITrigger(): Promise<void> {
+	await open();
+}
 
-		await this.flyout.slideIn();
-		this.currentShopCharas.forEach(chara => this._animateItemAppearance(chara));
-	}
+export function handleShopItemClickPurchaseRequested(payload: { shopUnitData: Unit, shopCharaId: string, dragStartX: number, dragStartY: number }): void {
+	shopItemClickPurchaseRequestedHandler(payload);
+}
 
-	async close() {
-		this.shopUI.destroyOrbs();
-		this.currentOrbs = [];
+export function handleShopItemDragPurchaseRequested(payload: { shopUnitData: Unit, shopCharaId: string, targetTile: Vec2, dragStartX: number, dragStartY: number }): void {
+	shopItemDragPurchaseRequestedHandler(payload);
+}
+export function handleShopRerollTavern() {
+	shopRerollTavernHandler();
+}
 
-		await this.flyout.slideOut();
-	}
+async function _animateItemAppearance(
+	item: Chara
+): Promise<void> {
+	const targetScaleX = item.scaleX;
+	const targetScaleY = item.scaleY;
 
-	// TODO: add tests
-	// TODO: add animation for reroll
+	item.setScale(0);
 
-	getShopCharaBySlot(slotIndex: number): Chara | null {
-		return this.currentShopCharas[slotIndex] || null;
-	}
+	tween({
+		targets: [item],
+		scaleX: targetScaleX,
+		scaleY: targetScaleY,
+		duration: sc.SHOP_ITEM_APPEAR_SCALE_DURATION
+	});
 
-	getDisplayedHeroCardDefinitions(): Card.CardDefinition[] {
-		return this.currentShopCharas.map(chara => chara.unit.cardId)
-			.map(Card.getCardDefinition);
-	}
+	//shake card left and right
+	scene.tweens.chain({
+		targets: item,
+		tweens: [
+			{ angle: -sc.SHOP_ITEM_APPEAR_WIGGLE_ANGLE, duration: sc.SHOP_ITEM_APPEAR_WIGGLE_DURATION_1, yoyo: true, ease: 'Quad.easeInOut' },
+			{ angle: sc.SHOP_ITEM_APPEAR_WIGGLE_ANGLE, duration: sc.SHOP_ITEM_APPEAR_WIGGLE_DURATION_2, yoyo: true, ease: 'Quad.easeInOut' },
+			{ angle: 0, duration: sc.SHOP_ITEM_APPEAR_WIGGLE_RETURN_DURATION, ease: 'Quad.easeIn' }
+		]
+	});
+}
 
-	async handleShopOpenUITrigger(): Promise<void> {
-		await shopOpenUITriggerHandler(this);
-	}
+function _getAvailableCardsForTavern(count: number): Card.CardDefinition[] {
+	const ownedCardIds = new Set(scene.state.gameData.player.units.map(u => u.cardId));
+	const allCards = Card.getAllCards();
+	const filteredCards = allCards.filter(card => !ownedCardIds.has(card.id));
+	return pickRandom(filteredCards, count);
+}
 
-	handleShopItemClickPurchaseRequested(payload: { shopUnitData: Unit, shopCharaId: string, dragStartX: number, dragStartY: number }): void {
-		shopItemClickPurchaseRequestedHandler(this.scene, payload);
-	}
+export function rerollTavern(): void {
+	currentShopCharas.forEach(chara => {
+		flyout.remove(chara, false);
+		CharaManager.destroyChara(chara.id);
+	});
+	currentShopCharas = [];
 
-	handleShopItemDragPurchaseRequested(payload: { shopUnitData: Unit, shopCharaId: string, targetTile: Vec2, dragStartX: number, dragStartY: number }): void {
-		shopItemDragPurchaseRequestedHandler(this.scene, payload);
-	}
-	handleShopRerollTavern(): void {
-		shopRerollTavernHandler(this);
-	}
+	const newTavernCardData = _getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
 
-	async _animateItemAppearance(
-		item: Chara
-	): Promise<void> {
-		const targetScaleX = item.scaleX;
-		const targetScaleY = item.scaleY;
+	const newShopCharas = shopUI.rerenderTavernCharas(
+		newTavernCardData
+	);
+	currentShopCharas = newShopCharas;
 
-		item.setScale(0);
-
-		tween({
-			targets: [item],
-			scaleX: targetScaleX,
-			scaleY: targetScaleY,
-			duration: sc.SHOP_ITEM_APPEAR_SCALE_DURATION
-		});
-
-		//shake card left and right
-		this.scene.tweens.chain({
-			targets: item,
-			tweens: [
-				{ angle: -sc.SHOP_ITEM_APPEAR_WIGGLE_ANGLE, duration: sc.SHOP_ITEM_APPEAR_WIGGLE_DURATION_1, yoyo: true, ease: 'Quad.easeInOut' },
-				{ angle: sc.SHOP_ITEM_APPEAR_WIGGLE_ANGLE, duration: sc.SHOP_ITEM_APPEAR_WIGGLE_DURATION_2, yoyo: true, ease: 'Quad.easeInOut' },
-				{ angle: 0, duration: sc.SHOP_ITEM_APPEAR_WIGGLE_RETURN_DURATION, ease: 'Quad.easeIn' }
-			]
-		});
-	}
-
-	_getAvailableCardsForTavern(count: number): Card.CardDefinition[] {
-		const ownedCardIds = new Set(this.state.gameData.player.units.map(u => u.cardId));
-		const allCards = Card.getAllCards();
-		const filteredCards = allCards.filter(card => !ownedCardIds.has(card.id));
-		return pickRandom(filteredCards, count);
-	}
-
-	rerollTavern(): void {
-		this.currentShopCharas.forEach(chara => {
-			this.flyout.remove(chara, false);
-			CharaManager.destroyChara(chara.id);
-		});
-		this.currentShopCharas = [];
-
-		const newTavernCardData = this._getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
-
-		const newShopCharas = this.shopUI.rerenderTavernCharas(
-			newTavernCardData
-		);
-		this.currentShopCharas = newShopCharas;
-
-		newShopCharas.forEach(chara => this._animateItemAppearance(chara));
-	}
+	newShopCharas.forEach(chara => _animateItemAppearance(chara));
 }

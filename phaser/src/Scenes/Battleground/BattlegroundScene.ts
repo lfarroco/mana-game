@@ -5,7 +5,6 @@ import * as UIManager from "../../UI/UIManager";
 import * as CharaManager from "./Systems/CharaManager";
 import { CardCollection } from "../../Models/Entities/Card";
 import { PartyBoard, getSharedPlayerBoard } from "../../Models/Board";
-import { Shop } from "./Systems/Shop/Shop";
 import { BattlegroundSetupSystem } from "./Systems/BattlegroundSetupSystem";
 import { BattlegroundEventSystem } from "./Systems/BattlegroundEventSystem";
 import { popText } from "../../Systems/Chara/Animations/popText";
@@ -19,6 +18,7 @@ import * as BattlegroundScenePure from "./BattlegroundScene.pure";
 import { updatePlayerGoldIO } from "../../Models/Entities/Force";
 import * as AudioManager from "../../Systems/AudioManager";
 import { DebugController } from "../Debug/DebugController";
+import * as Shop from "./Systems/Shop/Shop";
 
 export let scene: BattlegroundScene;
 
@@ -31,7 +31,6 @@ export class BattlegroundScene extends Phaser.Scene {
   playerBoard!: PartyBoard;
   runCombatSystem: RunCombatSystem;
   battleProgressionSystem: BattleProgressionSystem;
-  shop: Shop;
 
   setupSystem!: BattlegroundSetupSystem;
   eventSystem!: BattlegroundEventSystem;
@@ -49,7 +48,7 @@ export class BattlegroundScene extends Phaser.Scene {
     );
 
     const gameObjects = [
-      { name: "shopUI", object: this.shop?.shopUI },
+      { name: "shopUI", object: Shop.shopUI },
       { name: "eventSystem", object: this.eventSystem },
       { name: "setupSystem", object: this.setupSystem }
     ];
@@ -119,7 +118,6 @@ export class BattlegroundScene extends Phaser.Scene {
     console.log("BattlegroundScene starting logic...");
 
     this.setupSystem = new BattlegroundSetupSystem(this);
-    this.shop = new Shop(this);
 
     this.setupSystem.performOneTimeRuntimeInitialization(this.collection);
 
@@ -133,6 +131,8 @@ export class BattlegroundScene extends Phaser.Scene {
     this.eventSystem.registerEventHandlers();
 
     UIManager.createMainUI();
+
+    Shop.init();
 
     AudioManager.playMusic('music_battlemap_vetruv');
 
@@ -160,7 +160,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.state.gameData.player.units = BattlegroundScenePure.handleOwnedUnitSold(
       (amount: number) => updatePlayerGoldIO(amount),
-      () => this.shop.shopUI.hideSellZone(),
+      () => Shop.shopUI.hideSellZone(),
       this.state.gameData.player.units,
       unitId,
       soldForGold,
@@ -183,7 +183,7 @@ export class BattlegroundScene extends Phaser.Scene {
     }
     BattlegroundScenePure.updateShopUI(
       time,
-      this.shop?.shopUI,
+      Shop.shopUI,
       (ui, currentTime) => ui.update(currentTime)
     );
 

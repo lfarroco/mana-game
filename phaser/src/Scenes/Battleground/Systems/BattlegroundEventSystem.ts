@@ -1,15 +1,12 @@
 import { PartyBoard } from "../../../Models/Board";
-import { Shop } from "./Shop/Shop";
 import { BattlegroundScene } from "../BattlegroundScene";
 import * as MoraleDisplay from "../MoraleDisplay";
 
 export class BattlegroundEventSystem {
 	playerBoard: PartyBoard;
-	shop: Shop;
 
 	constructor(scene: BattlegroundScene) {
 		this.playerBoard = scene.playerBoard;
-		this.shop = scene.shop;
 	}
 
 	handleEnemyBoardShow(): void {

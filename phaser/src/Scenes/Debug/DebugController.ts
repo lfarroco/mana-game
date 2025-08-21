@@ -5,7 +5,7 @@ import { CardDefinition } from "../../Models/Entities/Card";
 import * as CharaManager from "../Battleground/Systems/CharaManager";
 import * as constants from "../../constants/constants";
 import { updatePlayerGoldIO } from "../../Models/Entities/Force";
-import { shop } from "../Battleground/Systems/Shop/Shop";
+import { flyout, getDisplayedHeroCardDefinitions, getShopCharaBySlot, handleShopItemClickPurchaseRequested, handleShopItemDragPurchaseRequested } from "../Battleground/Systems/Shop/Shop";
 
 export class DebugController {
 	scene: BattlegroundScene;
@@ -21,7 +21,7 @@ export class DebugController {
 	 * @param slotIndex 0-based index of the hero slot in the shop.
 	 */
 	clickHeroInShop(slotIndex: number): string {
-		const chara = this.scene.shop.getShopCharaBySlot(slotIndex);
+		const chara = getShopCharaBySlot(slotIndex);
 		if (!chara) {
 			return `Error: No hero Chara found in shop slot ${slotIndex}.`;
 		}
@@ -30,7 +30,7 @@ export class DebugController {
 		}
 		const unitToPurchase = chara.unit;
 
-		shop.handleShopItemClickPurchaseRequested({
+		handleShopItemClickPurchaseRequested({
 			shopUnitData: unitToPurchase,
 			shopCharaId: chara.id,
 			dragStartX: chara.x,
@@ -48,7 +48,7 @@ export class DebugController {
 	 * @param boardY Target Y coordinate on the board.
 	 */
 	buyAndPlaceHero(shopSlotIndex: number, boardX: number, boardY: number): string {
-		const chara = this.scene.shop.getShopCharaBySlot(shopSlotIndex);
+		const chara = getShopCharaBySlot(shopSlotIndex);
 		if (!chara) {
 			return `Error: No hero Chara found in shop slot ${shopSlotIndex}.`;
 		}
@@ -57,7 +57,7 @@ export class DebugController {
 		}
 		const unitToPurchase = chara.unit;
 
-		shop.handleShopItemDragPurchaseRequested({
+		handleShopItemDragPurchaseRequested({
 			shopUnitData: unitToPurchase,
 			shopCharaId: chara.id,
 			targetTile: vec2(boardX, boardY),
@@ -139,7 +139,7 @@ export class DebugController {
 	}
 
 	isShopVisible() {
-		return this.scene.shop.flyout.isOpen;
+		return flyout.isOpen;
 	}
 
 	// --- Game Constants Accessors ---
@@ -157,7 +157,7 @@ export class DebugController {
 	}
 
 	getShopHeroes(): CardDefinition[] {
-		return this.scene.shop.getDisplayedHeroCardDefinitions ? this.scene.shop.getDisplayedHeroCardDefinitions() : []; // TODO: rename to getDisplayedShopHeroDefinitions
+		return getDisplayedHeroCardDefinitions();
 	}
 
 	getPlayerBoardUnits(): Unit[] {
