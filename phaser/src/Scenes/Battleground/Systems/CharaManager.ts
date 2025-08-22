@@ -1,10 +1,9 @@
 import { Unit } from "../../../Models/Entities/Unit";
 import * as Chara from "../../../Systems/Chara/Chara";
-import { vec2 } from "../../../Models/Geometry";
 import { summonEffect } from "../../../Effects/summonEffect";
-import * as constants from "../../../constants/constants";
 import { tween } from "../../../Utils/animation";
 import { scene } from "../BattlegroundScene";
+import { getCharaPosition } from "../../../Systems/Chara/Chara";
 
 
 const charaIndex: Chara.Chara[] = [];
@@ -53,8 +52,6 @@ export async function summonChara(
 	});
 	Chara.setBarsVisibility(chara, true);
 
-	registerChara(chara);
-
 	return chara;
 }
 
@@ -66,22 +63,7 @@ export function registerChara(chara: Chara.Chara) {
 	}
 }
 
-// TODO: move to chara
-export function getCharaPosition(unit: Unit) {
-	const slotSpacing = 8;
-	const offsetX = unit.force === constants.FORCE_ID_PLAYER ? constants.PLAYER_BOARD_X : constants.CPU_BOARD_X;
-	const offsetY = unit.force === constants.FORCE_ID_PLAYER ? constants.PLAYER_BOARD_Y : constants.CPU_BOARD_Y;
-
-	let visualX = unit.position.x;
-	if (unit.force === constants.FORCE_ID_CPU) {
-		visualX = 2 - unit.position.x;
-	}
-
-	return vec2(
-		visualX * (constants.TILE_WIDTH + slotSpacing) + constants.HALF_TILE_WIDTH + offsetX,
-		unit.position.y * (constants.TILE_HEIGHT + slotSpacing) + constants.HALF_TILE_HEIGHT + offsetY
-	);
-}
+// positioning now provided by Chara.getCharaPosition
 
 export function getChara(id: string) {
 	const maybeChara = charaIndex.find((chara) => Chara.getId(chara) === id);

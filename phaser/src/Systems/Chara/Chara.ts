@@ -44,7 +44,7 @@ type CharaState = {
 const charaState = new WeakMap<Chara, CharaState>();
 
 export function create(unit: Unit, options?: CharaOptions): Chara {
-	const position = CharaManager.getCharaPosition(unit);
+	const position = getCharaPosition(unit);
 	const container = scene.add.container(position.x, position.y);
 
 	// Prepare sprite and visuals
@@ -86,6 +86,9 @@ export function create(unit: Unit, options?: CharaOptions): Chara {
 	// Input handling depends on state existing
 	state.inputHandler = CharaInputHandler.create(container);
 
+	// Auto-register this chara instance for global lookup
+	CharaManager.registerChara(container);
+
 	container.on(Phaser.Input.Events.POINTER_OVER, () => {
 		onCharaPointerOver({ chara: container });
 	});
@@ -99,6 +102,23 @@ export function create(unit: Unit, options?: CharaOptions): Chara {
 	updateStatusEffects(container);
 
 	return container;
+}
+
+// Returns the on-screen position for a unit's board coordinates and force.
+export function getCharaPosition(unit: Unit) {
+	const slotSpacing = 8;
+	const offsetX = unit.force === constants.FORCE_ID_PLAYER ? constants.PLAYER_BOARD_X : constants.CPU_BOARD_X;
+	const offsetY = unit.force === constants.FORCE_ID_PLAYER ? constants.PLAYER_BOARD_Y : constants.CPU_BOARD_Y;
+
+	let visualX = unit.position.x;
+	if (unit.force === constants.FORCE_ID_CPU) {
+		visualX = 2 - unit.position.x;
+	}
+
+	return {
+		x: visualX * (constants.TILE_WIDTH + slotSpacing) + constants.HALF_TILE_WIDTH + offsetX,
+		y: unit.position.y * (constants.TILE_HEIGHT + slotSpacing) + constants.HALF_TILE_HEIGHT + offsetY,
+	} as Vec2;
 }
 
 function createSprite(container: Chara, unit: Unit, borderWidth: number = 3, borderColor: number = 0xffffff) {

@@ -1,6 +1,5 @@
 import * as Card from "../../../../Models/Entities/Card";
 import { vec2 } from "../../../../Models/Geometry";
-import { registerChara } from "../CharaManager";
 import * as Chara from "../../../../Systems/Chara/Chara";
 import * as c from "../../../../constants/constants";
 import { createUIButton } from "../../../../UI/UIButton";
@@ -131,7 +130,6 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 
 		};
 		const chara = Chara.create(unit, charaOptions);
-		registerChara(chara);
 
 		chara.setPosition(baseX + (index * sc.TAVERN_CHARA_SPACING), sc.TAVERN_CHARA_BASE_Y);
 		Chara.setBarsVisibility(chara, false);
