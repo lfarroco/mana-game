@@ -7,6 +7,7 @@ import * as constants from "../../constants/constants";
 import { updatePlayerGoldIO } from "../../Models/Entities/Force";
 import { flyout, getDisplayedHeroCardDefinitions, getShopCharaBySlot, handleShopItemClickPurchaseRequested, handleShopItemDragPurchaseRequested } from "../Battleground/Systems/Shop/Shop";
 import { titleScene } from "../Title/TitleScene";
+import * as CharaInputHandler from "../../Systems/Chara/CharaInputHandler";
 
 export function clickHeroInShop(slotIndex: number): string {
 	const chara = getShopCharaBySlot(slotIndex);
@@ -69,7 +70,7 @@ export function moveUnitOnBoard(unitId: string, targetBoardX: number, targetBoar
 	dragStartY = chara.container.y;
 
 	const moveChara = CharaManager.getChara(unitId);
-	moveChara.inputHandler.requestOwnedUnitMove(vec2(targetBoardX, targetBoardY), dragStartX, dragStartY);
+	CharaInputHandler.requestOwnedUnitMove(moveChara.inputHandler)(vec2(targetBoardX, targetBoardY), dragStartX, dragStartY);
 
 	return `Emitted OWNED_UNIT_MOVE_REQUESTED for unit ${unitId} to board (${targetBoardX},${targetBoardY}). Move/swap processing is asynchronous.`;
 }
