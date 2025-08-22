@@ -6,7 +6,7 @@
 
 import { arcaneMissileTargeted } from '../../Effects/arcaneMissileTargeted';
 import { slowEffect } from '../../Effects/slowEffect';
-import * as CharaManager from '../../Scenes/Battleground/Systems/CharaManager';
+import { getCharaById } from '../../Systems/Chara/Chara';
 import BattlegroundScene from '../../Scenes/Battleground/BattlegroundScene';
 import { Unit } from '../../Models/Entities/Unit';
 
@@ -19,12 +19,12 @@ export function createApplySlowLogic() {
 		const { targets, scene, sourceUnit, duration } = context;
 
 		// Get source character position for arcane missile effect
-		const sourceChara = CharaManager.getChara(sourceUnit.id);
+		const sourceChara = getCharaById(sourceUnit.id);
 
 		for (const target of targets) {
 			// Show a targeted arcane missile effect from source to target
 			if (scene && sourceChara) {
-				const targetChara = CharaManager.getChara(target.id);
+				const targetChara = getCharaById(target.id);
 				if (targetChara) {
 					// Use the new targeted arcane missile effect with slow callback
 					arcaneMissileTargeted(
