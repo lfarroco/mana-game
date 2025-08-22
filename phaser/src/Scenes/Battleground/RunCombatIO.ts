@@ -1,7 +1,6 @@
 import { scene } from "./BattlegroundScene";
 import { getState } from "../../Models/State";
 import { MIN_COOLDOWN } from "../../constants/constants";
-import * as CharaManager from "./Systems/CharaManager";
 import { Unit } from "../../Models/Entities/Unit";
 import {
   initializeTimeoutDamageSystem,
@@ -107,7 +106,7 @@ function chargeUnits(delta: number): Unit[] {
       unit.refresh = MIN_COOLDOWN;
       performingUnits.push(unit);
     }
-    const chara = CharaManager.getChara(unit.id);
+    const chara = Chara.getCharaById(unit.id);
     Chara.updateChargeBar(chara);
   }
   return performingUnits;

@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { preload } from "./preload";
 import { State, getState } from "../../Models/State";
 import * as UIManager from "../../UI/UIManager";
-import * as CharaManager from "./Systems/CharaManager";
+import * as Chara from "../../Systems/Chara/Chara";
 import { CardCollection } from "../../Models/Entities/Card";
 import { PartyBoard, getSharedPlayerBoard } from "../../Models/Board";
 import { BattlegroundSetupSystem } from "./Systems/BattlegroundSetupSystem";
@@ -35,7 +35,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
   cleanup() {
     const cleanupOperations = [
-      { name: "clearCharas", operation: () => CharaManager.clearCharas() },
+      { name: "clearCharas", operation: () => Chara.clearAll() },
       { name: "removeAllEvents", operation: () => this.time.removeAllEvents() },
       { name: "removeAllChildren", operation: () => this.children.removeAll(true) }
     ];
@@ -148,7 +148,7 @@ export class BattlegroundScene extends Phaser.Scene {
   handleOwnedUnitSold(payload: { unitId: string, soldForGold: number }): void {
     const { unitId, soldForGold } = payload;
 
-    const chara = CharaManager.getChara(unitId);
+    const chara = Chara.getCharaById(unitId);
 
     this.state.gameData.player.units = BattlegroundScenePure.handleOwnedUnitSold(
       (amount: number) => updatePlayerGoldIO(amount),

@@ -2,7 +2,6 @@ import { scene } from "../Battleground/BattlegroundScene";
 import { Unit } from "../../Models/Entities/Unit"; // Ensure Unit is exported from its module
 import { vec2 } from "../../Models/Geometry";
 import { CardDefinition } from "../../Models/Entities/Card";
-import * as CharaManager from "../Battleground/Systems/CharaManager";
 import * as constants from "../../constants/constants";
 import { updatePlayerGoldIO } from "../../Models/Entities/Force";
 import * as Shop from "../Battleground/Systems/Shop/Shop";
@@ -66,12 +65,12 @@ export function moveUnitOnBoard(unitId: string, targetBoardX: number, targetBoar
 	let dragStartX = 0;
 	let dragStartY = 0;
 
-	const chara = CharaManager.getChara(unitId);
+	const chara = Chara.getCharaById(unitId);
 
 	dragStartX = chara.x;
 	dragStartY = chara.y;
 
-	const moveChara = CharaManager.getChara(unitId);
+	const moveChara = Chara.getCharaById(unitId);
 	CharaInputHandler.requestOwnedUnitMove(Chara.getInputHandler(moveChara))(vec2(targetBoardX, targetBoardY), dragStartX, dragStartY);
 
 	return `Emitted OWNED_UNIT_MOVE_REQUESTED for unit ${unitId} to board (${targetBoardX},${targetBoardY}). Move/swap processing is asynchronous.`;
