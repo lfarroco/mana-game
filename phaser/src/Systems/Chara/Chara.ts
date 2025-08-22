@@ -96,6 +96,21 @@ export function getSurroundingAllies(unit: Unit): Chara[] {
 		});
 }
 
+// Event-style helpers (kept for compatibility with functional callers)
+export function summonToBoard(payload: { unit: Unit; animateAppear: boolean; playSound?: boolean }): void {
+	void summon(payload.unit, payload.animateAppear);
+}
+
+export function updateChargeBarById(payload: { unitId: string }): void {
+	const chara = getCharaById(payload.unitId);
+	updateChargeBar(chara);
+}
+
+export function setBarsVisibilityById(payload: { unitId: string; visible: boolean }): void {
+	const chara = getCharaById(payload.unitId);
+	setBarsVisibility(chara, payload.visible);
+}
+
 export function create(unit: Unit, options?: CharaOptions): Chara {
 	const position = getCharaPosition(unit);
 	const container = scene.add.container(position.x, position.y);
