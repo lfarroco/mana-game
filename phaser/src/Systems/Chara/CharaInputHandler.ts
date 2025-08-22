@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { Chara } from "./Chara";
+import { Chara, getIsShopItem, getUnit } from "./Chara";
 import { FORCE_ID_PLAYER } from "../../constants/constants";
 import * as constants from "../../constants/constants";
 import { tween } from "../../Utils/animation";
@@ -33,16 +33,16 @@ export function create(chara: Chara) {
 		chara
 	}
 
-	if (chara.unit.force === FORCE_ID_PLAYER || chara.getIsShopItem()) {
-		scene.input.setDraggable(chara.container, true);
+	if (getUnit(chara).force === FORCE_ID_PLAYER || getIsShopItem(chara)) {
+		scene.input.setDraggable(chara, true);
 
-		chara.container.on(Phaser.Input.Events.DRAG_START, onDragStart(state));
-		chara.container.on(Phaser.Input.Events.DRAG, onDrag(state));
-		chara.container.on(Phaser.Input.Events.DROP, onDrop(state));
-		chara.container.on(Phaser.Input.Events.DRAG_END, onDragEnd(state));
+		chara.on(Phaser.Input.Events.DRAG_START, onDragStart(state));
+		chara.on(Phaser.Input.Events.DRAG, onDrag(state));
+		chara.on(Phaser.Input.Events.DROP, onDrop(state));
+		chara.on(Phaser.Input.Events.DRAG_END, onDragEnd(state));
 
-		if (chara.getIsShopItem()) {
-			chara.container.on(Phaser.Input.Events.POINTER_UP, onPointerUpShopItem(state));
+		if (getIsShopItem(chara)) {
+			chara.on(Phaser.Input.Events.POINTER_UP, onPointerUpShopItem(state));
 		}
 	}
 
@@ -51,24 +51,24 @@ export function create(chara: Chara) {
 
 const onDragStart = (handlerState: CharaInputHandler) => (_pointer: Phaser.Input.Pointer, _dragX: number, _dragY: number) => {
 	const { chara } = handlerState;
-	handlerState.dragStartX = chara.container.x;
-	handlerState.dragStartY = chara.container.y;
+	handlerState.dragStartX = chara.x;
+	handlerState.dragStartY = chara.y;
 	handlerState.dragStartVec = vec2(handlerState.dragStartX, handlerState.dragStartY);
 	handlerState.wasDragSuccessful = false;
 
-	if (chara.getIsShopItem()) {
-		ShopUI.bringShopChildToTop(chara.container);
+	if (getIsShopItem(chara)) {
+		ShopUI.bringShopChildToTop(chara);
 	} else {
-		scene.children.bringToTop(chara.container);
+		scene.children.bringToTop(chara);
 	}
 
 	tween({
-		targets: [chara.container],
+		targets: [chara],
 		angle: -10,
 		duration: 100,
 		ease: "Cubic.Out",
 	});
-	if (!chara.getIsShopItem()) {
+	if (!getIsShopItem(chara)) {
 		ShopUI.showSellZone();
 	}
 	hideTooltip();
@@ -76,8 +76,8 @@ const onDragStart = (handlerState: CharaInputHandler) => (_pointer: Phaser.Input
 
 const onDrag = (handlerState: CharaInputHandler) => (_pointer: Phaser.Input.Pointer, dragX: number, dragY: number): void => {
 	const { chara } = handlerState;
-	chara.container.x = dragX;
-	chara.container.y = dragY;
+	chara.x = dragX;
+	chara.y = dragY;
 }
 
 const onDrop = (handlerState: CharaInputHandler) => (_pointer: Phaser.Input.Pointer, dropZoneTarget: Phaser.GameObjects.GameObject): void => {
@@ -87,19 +87,19 @@ const onDrop = (handlerState: CharaInputHandler) => (_pointer: Phaser.Input.Poin
 const onDragEnd = (handlerState: CharaInputHandler) => (_pointer: Phaser.Input.Pointer): void => {
 	const { chara } = handlerState;
 	scene.tweens.add({
-		targets: [handlerState.chara.container],
+		targets: [handlerState.chara],
 		angle: 0,
 		duration: 100,
 		ease: "Cubic.Out",
 	});
 
-	if (!chara.getIsShopItem()) {
+	if (!getIsShopItem(chara)) {
 		ShopUI.hideSellZone();
 	}
 
 	if (!handlerState.wasDragSuccessful) {
 		tween({
-			targets: [chara.container],
+			targets: [chara],
 			...handlerState.dragStartVec,
 			duration: 150,
 		});
@@ -109,7 +109,7 @@ const onDragEnd = (handlerState: CharaInputHandler) => (_pointer: Phaser.Input.P
 }
 
 const onPointerUpShopItem = (handlerState: CharaInputHandler) => (pointer: Phaser.Input.Pointer): void => {
-	if (!handlerState.chara.getIsShopItem() || !handlerState.chara.container.input?.enabled) return;
+	if (!getIsShopItem(handlerState.chara) || !handlerState.chara.input?.enabled) return;
 
 	if (pointer.getDistance() > constants.DRAG_CLICK_THRESHOLD) {
 		return;
@@ -121,16 +121,16 @@ const onPointerUpShopItem = (handlerState: CharaInputHandler) => (pointer: Phase
 const processShopItemClick = (handlerState: CharaInputHandler) => (_clickX: number, _clickY: number): void => {
 	const { chara } = handlerState;
 	Shop.handleShopItemClickPurchaseRequested({
-		shopUnitData: { ...chara.unit },
-		shopCharaId: chara.id,
-		dragStartX: chara.container.x,
-		dragStartY: chara.container.y
+		shopUnitData: { ...getUnit(chara) },
+		shopCharaId: getUnit(chara).id,
+		dragStartX: chara.x,
+		dragStartY: chara.y
 	});
 }
 
 const processDrop = (handlerState: CharaInputHandler) => (dropTarget: Phaser.GameObjects.GameObject, dragStartX: number, dragStartY: number): boolean => {
 	if (dropTarget.name === sc.SHOP_SELL_ZONE_NAME) {
-		if (!handlerState.chara.getIsShopItem()) {
+		if (!getIsShopItem(handlerState.chara)) {
 			_handleSellUnit(handlerState);
 			return true;
 		} else {
@@ -151,7 +151,7 @@ const processDrop = (handlerState: CharaInputHandler) => (dropTarget: Phaser.Gam
 	const tileY = Math.floor(slotIndex / 3);
 	const tile = vec2(tileX, tileY);
 
-	if (!handlerState.chara.getIsShopItem()) {
+	if (!getIsShopItem(handlerState.chara)) {
 		_handleDropOwnedUnit(handlerState)(tile, dragStartX, dragStartY);
 		return true;
 	} else {
@@ -162,7 +162,7 @@ const processDrop = (handlerState: CharaInputHandler) => (dropTarget: Phaser.Gam
 
 const _handleDropOwnedUnit = (handlerState: CharaInputHandler) => (tile: Vec2, dragStartX: number, dragStartY: number) => {
 	_processOwnedUnitMoveRequest({
-		unitId: handlerState.chara.unit.id,
+		unitId: getUnit(handlerState.chara).id,
 		targetTile: tile,
 		dragStartX,
 		dragStartY
@@ -172,8 +172,8 @@ const _handleDropOwnedUnit = (handlerState: CharaInputHandler) => (tile: Vec2, d
 const _handleDropShopItem = (handlerState: CharaInputHandler) => (tile: Vec2, dragStartX: number, dragStartY: number) => {
 	const { chara } = handlerState
 	Shop.handleShopItemDragPurchaseRequested({
-		shopUnitData: { ...chara.unit },
-		shopCharaId: chara.id,
+		shopUnitData: { ...getUnit(chara) },
+		shopCharaId: getUnit(chara).id,
 		targetTile: tile,
 		dragStartX,
 		dragStartY
@@ -182,14 +182,14 @@ const _handleDropShopItem = (handlerState: CharaInputHandler) => (tile: Vec2, dr
 
 const _handleSellUnit = (handlerState: CharaInputHandler): void => {
 	const sellPrice = Math.floor(constants.SHOP_ITEM_PURCHASE_COST / 2);
-	scene.handleOwnedUnitSold({ unitId: handlerState.chara.unit.id, soldForGold: sellPrice });
+	scene.handleOwnedUnitSold({ unitId: getUnit(handlerState.chara).id, soldForGold: sellPrice });
 }
 
 export const requestOwnedUnitMove = (handlerState: CharaInputHandler) => (targetTile: Vec2, dragStartX: number, dragStartY: number) => {
 	const { chara } = handlerState;
 
 	_processOwnedUnitMoveRequest({
-		unitId: chara.unit.id,
+		unitId: getUnit(chara).id,
 		targetTile,
 		dragStartX,
 		dragStartY
@@ -238,7 +238,7 @@ const _applyMoveVisual = (movedUnit: Unit) => {
 	const movedChara = CharaManager.getChara(movedUnit.id);
 	const pos = CharaManager.getCharaPosition(movedUnit);
 	tween({
-		targets: [movedChara.container],
+		targets: [movedChara],
 		...pos
 	})
 }
@@ -248,12 +248,12 @@ const _applySwapVisual = (movedUnit: Unit, swappedUnit: Unit) => {
 	const swappedChara = CharaManager.getChara(swappedUnit.id);
 	const movedPos = CharaManager.getCharaPosition(movedUnit);
 	const swappedPos = CharaManager.getCharaPosition(swappedUnit);
-	tween({ targets: [movedChara.container], ...movedPos });
-	tween({ targets: [swappedChara.container], ...swappedPos });
+	tween({ targets: [movedChara], ...movedPos });
+	tween({ targets: [swappedChara], ...swappedPos });
 }
 
 const _movementRejected = (unitId: string, dragStartX: number, dragStartY: number, _reason: string) => {
 	const failedChara = CharaManager.getChara(unitId);
 	hideTooltip();
-	tween({ targets: [failedChara.container], ...vec2(dragStartX, dragStartY) });
+	tween({ targets: [failedChara], ...vec2(dragStartX, dragStartY) });
 }

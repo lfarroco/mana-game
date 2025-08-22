@@ -23,7 +23,7 @@ export const applyPoisonLogicIO = async (sourceUnit: Unit) => {
 
 	arcaneMissileTargeted(
 		scene,
-		sourceChara.container,
+		sourceChara,
 		moraleBarTipPos,
 		{
 			colors: [0x9932cc, 0x8a2be2, 0x663399], // Purple colors for poison

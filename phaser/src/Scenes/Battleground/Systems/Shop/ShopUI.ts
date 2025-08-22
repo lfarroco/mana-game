@@ -1,7 +1,7 @@
 import * as Card from "../../../../Models/Entities/Card";
 import { vec2 } from "../../../../Models/Geometry";
 import { registerChara } from "../CharaManager";
-import { Chara, CharaOptions } from "../../../../Systems/Chara/Chara";
+import * as Chara from "../../../../Systems/Chara/Chara";
 import * as c from "../../../../constants/constants";
 import { createUIButton } from "../../../../UI/UIButton";
 import { makeUnit } from "../../../../Models/Entities/Unit";
@@ -48,7 +48,7 @@ export function displayShop(
 	orbs: string[],
 	nextRoundCallback: () => void,
 	rerollCallback: () => void,
-): { charas: Chara[] } {
+): { charas: Chara.Chara[] } {
 	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
 	state.shopContainer.removeAll(true);
 	state.magicOrbs = [];
@@ -120,23 +120,23 @@ function _renderTavernSectionBackgroundAndTitle(container: Phaser.GameObjects.Co
 	container.add([bg, title]);
 }
 
-export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara[] {
+export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara[] {
 	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
-	const createdCharas: Chara[] = [];
+	const createdCharas: Chara.Chara[] = [];
 	const baseX = (state.panelX !== undefined ? state.panelX + 160 : sc.TAVERN_CHARA_FIRST_X);
 	cardDefs.forEach((spec, index) => {
 		const unit = makeUnit(c.FORCE_ID_PLAYER, spec.id, vec2(0, 0));
-		const charaOptions: CharaOptions = {
+		const charaOptions: Chara.CharaOptions = {
 			isShopItem: true,
 
 		};
-		const chara = new Chara(unit, charaOptions);
+		const chara = Chara.create(unit, charaOptions);
 		registerChara(chara);
 
-		chara.container.setPosition(baseX + (index * sc.TAVERN_CHARA_SPACING), sc.TAVERN_CHARA_BASE_Y);
-		chara.setBarsVisibility(false);
+		chara.setPosition(baseX + (index * sc.TAVERN_CHARA_SPACING), sc.TAVERN_CHARA_BASE_Y);
+		Chara.setBarsVisibility(chara, false);
 
-		state!.shopContainer.add(chara.container);
+		state!.shopContainer.add(chara);
 		createdCharas.push(chara);
 	});
 	return createdCharas;

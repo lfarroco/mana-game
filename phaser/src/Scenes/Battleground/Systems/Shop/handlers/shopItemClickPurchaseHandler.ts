@@ -2,6 +2,7 @@ import * as constants from "../../../../../constants/constants";
 import { makeUnit, Unit } from "../../../../../Models/Entities/Unit";
 import { updatePlayerGoldIO } from "../../../../../Models/Entities/Force";
 import { getChara, summonChara } from "../../CharaManager";
+import * as Chara from "../../../../../Systems/Chara/Chara";
 import * as UIManager from "../../../../../UI/UIManager";
 import { vec2 } from "../../../../../Models/Geometry.pure";
 import { scene } from "../../../BattlegroundScene";
@@ -24,7 +25,7 @@ export function shopItemClickPurchaseRequestedHandler(
 		reason: string,
 		additionalDetails?: Record<string, any>
 	) => {
-		getChara(shopCharaId).onShopPurchaseFailed(vec2(
+		Chara.onShopPurchaseFailed(getChara(shopCharaId), vec2(
 			dragStartX,
 			dragStartY,
 		));
@@ -57,5 +58,5 @@ export function shopItemClickPurchaseRequestedHandler(
 
 	summonChara(newUnit, true);
 
-	getChara(shopCharaId).onShopPurchaseSuccesful()
+	Chara.onShopPurchaseSuccesful(getChara(shopCharaId))
 }

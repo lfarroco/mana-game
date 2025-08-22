@@ -23,7 +23,7 @@ export const applyRegenLogicIO = async (
 
 	arcaneMissileTargeted(
 		scene,
-		sourceChara.container,
+		sourceChara,
 		moraleBarTipPos,
 		{
 			colors: [0x00ff00, 0x32cd32, 0x90ee90], // Green colors for healing

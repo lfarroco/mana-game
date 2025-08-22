@@ -25,7 +25,7 @@ export function createAddShieldLogic(
 
 		arcaneMissileTargeted(
 			scene,
-			sourceChara.container,
+			sourceChara,
 			shieldBarTipPos,
 			{
 				colors: [0xffd700, 0xffe135, 0xfff8dc], // Gold/yellow colors

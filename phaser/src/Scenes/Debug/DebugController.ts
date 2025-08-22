@@ -9,25 +9,26 @@ import * as Shop from "../Battleground/Systems/Shop/Shop";
 import * as ShopUI from "../Battleground/Systems/Shop/ShopUI";
 import { titleScene } from "../Title/TitleScene";
 import * as CharaInputHandler from "../../Systems/Chara/CharaInputHandler";
+import * as Chara from "../../Systems/Chara/Chara";
 
 export function clickHeroInShop(slotIndex: number): string {
 	const chara = Shop.getShopCharaBySlot(slotIndex);
 	if (!chara) {
 		return `Error: No hero Chara found in shop slot ${slotIndex}.`;
 	}
-	if (!chara.getIsShopItem()) {
-		return `Error: Hero in slot ${slotIndex} (Chara ID: ${chara.id}) is not a shop item or already purchased.`;
+	if (!Chara.getIsShopItem(chara)) {
+		return `Error: Hero in slot ${slotIndex} (Chara ID: ${Chara.getId(chara)}) is not a shop item or already purchased.`;
 	}
-	const unitToPurchase = chara.unit;
+	const unitToPurchase = Chara.getUnit(chara);
 
 	Shop.handleShopItemClickPurchaseRequested({
 		shopUnitData: unitToPurchase,
-		shopCharaId: chara.id,
-		dragStartX: chara.container.x,
-		dragStartY: chara.container.y
+		shopCharaId: Chara.getId(chara),
+		dragStartX: chara.x,
+		dragStartY: chara.y
 	})
 
-	return `Emitted SHOP_ITEM_CLICK_PURCHASE_REQUESTED for hero in shop slot ${slotIndex} (Card ID: ${unitToPurchase.cardId}, Chara ID: ${chara.id}). Purchase processing is asynchronous.`;
+	return `Emitted SHOP_ITEM_CLICK_PURCHASE_REQUESTED for hero in shop slot ${slotIndex} (Card ID: ${unitToPurchase.cardId}, Chara ID: ${Chara.getId(chara)}). Purchase processing is asynchronous.`;
 }
 
 export function buyAndPlaceHero(shopSlotIndex: number, boardX: number, boardY: number): string {
@@ -35,20 +36,20 @@ export function buyAndPlaceHero(shopSlotIndex: number, boardX: number, boardY: n
 	if (!chara) {
 		return `Error: No hero Chara found in shop slot ${shopSlotIndex}.`;
 	}
-	if (!chara.getIsShopItem()) {
-		return `Error: Hero in slot ${shopSlotIndex} (Chara ID: ${chara.id}) is not a shop item or already purchased.`;
+	if (!Chara.getIsShopItem(chara)) {
+		return `Error: Hero in slot ${shopSlotIndex} (Chara ID: ${Chara.getId(chara)}) is not a shop item or already purchased.`;
 	}
-	const unitToPurchase = chara.unit;
+	const unitToPurchase = Chara.getUnit(chara);
 
 	Shop.handleShopItemDragPurchaseRequested({
 		shopUnitData: unitToPurchase,
-		shopCharaId: chara.id,
+		shopCharaId: Chara.getId(chara),
 		targetTile: vec2(boardX, boardY),
-		dragStartX: chara.container.x,
-		dragStartY: chara.container.y
+		dragStartX: chara.x,
+		dragStartY: chara.y
 	})
 
-	return `Emitted SHOP_ITEM_DRAG_PURCHASE_REQUESTED for hero in shop slot ${shopSlotIndex} (Card ID: ${unitToPurchase.cardId}, Chara ID: ${chara.id}) to board (${boardX},${boardY}). Purchase and placement are asynchronous.`;
+	return `Emitted SHOP_ITEM_DRAG_PURCHASE_REQUESTED for hero in shop slot ${shopSlotIndex} (Card ID: ${unitToPurchase.cardId}, Chara ID: ${Chara.getId(chara)}) to board (${boardX},${boardY}). Purchase and placement are asynchronous.`;
 }
 
 export function clickNextRound(): string {
@@ -67,11 +68,11 @@ export function moveUnitOnBoard(unitId: string, targetBoardX: number, targetBoar
 
 	const chara = CharaManager.getChara(unitId);
 
-	dragStartX = chara.container.x;
-	dragStartY = chara.container.y;
+	dragStartX = chara.x;
+	dragStartY = chara.y;
 
 	const moveChara = CharaManager.getChara(unitId);
-	CharaInputHandler.requestOwnedUnitMove(moveChara.inputHandler)(vec2(targetBoardX, targetBoardY), dragStartX, dragStartY);
+	CharaInputHandler.requestOwnedUnitMove(Chara.getInputHandler(moveChara))(vec2(targetBoardX, targetBoardY), dragStartX, dragStartY);
 
 	return `Emitted OWNED_UNIT_MOVE_REQUESTED for unit ${unitId} to board (${targetBoardX},${targetBoardY}). Move/swap processing is asynchronous.`;
 }

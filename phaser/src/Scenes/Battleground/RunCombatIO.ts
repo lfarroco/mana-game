@@ -108,7 +108,7 @@ function chargeUnits(delta: number): Unit[] {
       performingUnits.push(unit);
     }
     const chara = CharaManager.getChara(unit.id);
-    chara.updateChargeBar();
+    Chara.updateChargeBar(chara);
   }
   return performingUnits;
 }

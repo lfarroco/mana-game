@@ -21,249 +21,282 @@ export type CharaOptions = {
 	isShopItem?: boolean;
 };
 
-export class Chara {
+// Expose a simple alias so existing imports `import { Chara }` keep referring to the Container type
+export type Chara = Phaser.GameObjects.Container;
+
+type HasteEffectState = { particles: Phaser.GameObjects.Particles.ParticleEmitter; cleanup: () => void };
+
+type CharaState = {
 	unit: Unit;
 	id: string;
-
-	container!: Container;
-
 	isAnimating: boolean;
-
-	sprite!: Phaser.GameObjects.Sprite;
+	sprite: Phaser.GameObjects.Sprite;
 	spriteBorder?: Phaser.GameObjects.Graphics;
 	statsDisplay: CharaStatsDisplay.StatsDisplay | null;
-	barsDisplay!: CharaBarsDisplay.CharaBars;
-
+	barsDisplay: CharaBarsDisplay.CharaBars;
 	inputHandler: CharaInputHandler.CharaInputHandler;
 	isShopItem: boolean;
-
-	private hasteEffect?: { particles: Phaser.GameObjects.Particles.ParticleEmitter; cleanup: () => void };
-	private previousHasteState: number = 0;
-
+	hasteEffect?: HasteEffectState;
+	previousHasteState: number;
 	playerBoard: Board.PartyBoard;
+};
 
-	constructor(unit: Unit, options?: CharaOptions) {
-		const position = CharaManager.getCharaPosition(unit);
+const charaState = new WeakMap<Chara, CharaState>();
 
-		this.container = scene.add.container(position.x, position.y);
-		this.playerBoard = scene.playerBoard;
-		this.unit = unit;
-		this.isShopItem = options?.isShopItem ?? false;
+export function create(unit: Unit, options?: CharaOptions): Chara {
+	const position = CharaManager.getCharaPosition(unit);
+	const container = scene.add.container(position.x, position.y);
 
-		this.id = unit.id;
-		this.createSprite();
-		if (this.unit.force === constants.FORCE_ID_CPU) {
-			this.sprite.setFlipX(true);
-		}
-		this.barsDisplay = CharaBarsDisplay.create(unit, this.container);
-		this.statsDisplay = CharaStatsDisplay.create(this.unit, this.container);
-
-		this.container.setInteractive(
-			new Phaser.Geom.Rectangle(
-				-constants.HALF_TILE_WIDTH,
-				-constants.HALF_TILE_HEIGHT,
-				constants.TILE_WIDTH,
-				constants.TILE_HEIGHT
-			),
-			Phaser.Geom.Rectangle.Contains
-		);
-
-		this.inputHandler = CharaInputHandler.create(this);
-
-		this.container.on(Phaser.Input.Events.POINTER_OVER, () => {
-			onCharaPointerOver({ chara: this });
-		});
-		this.container.on(Phaser.Input.Events.POINTER_OUT, () => {
-			onCharaPointerOut();
-		});
-
-		if (this.statsDisplay)
-			CharaStatsDisplay.updatePower(this.statsDisplay);
-
-		CharaBarsDisplay.updateBars(this.barsDisplay);
-
-		this.updateStatusEffects();
-
+	// Prepare sprite and visuals
+	const { sprite, spriteBorder } = createSprite(container, unit);
+	if (unit.force === constants.FORCE_ID_CPU) {
+		sprite.setFlipX(true);
 	}
+	const barsDisplay = CharaBarsDisplay.create(unit, container);
+	const statsDisplay = CharaStatsDisplay.create(unit, container);
 
-	createSprite(borderWidth: number = 3, borderColor: number = 0xffffff) {
+	container.setInteractive(
+		new Phaser.Geom.Rectangle(
+			-constants.HALF_TILE_WIDTH,
+			-constants.HALF_TILE_HEIGHT,
+			constants.TILE_WIDTH,
+			constants.TILE_HEIGHT
+		),
+		Phaser.Geom.Rectangle.Contains
+	);
 
-		const animCacheKey = this.unit.pic + '-anims';
-		const animData = scene.cache.json.get(animCacheKey);
-		if (animData && animData.anims) {
-			for (const anim of animData.anims) {
-				const animKey = this.unit.pic + '_' + anim.key;
-				if (!scene.anims.exists(animKey)) {
-					const animConfig = {
-						...anim,
-						key: animKey,
-						frames: (anim.frames as { frame: string }[])
-							.map((f: { frame: string }) => ({ key: this.unit.pic, frame: f.frame })),
-					};
-					scene.anims.create(animConfig);
-				}
+	// Initialize state
+	const state: CharaState = {
+		unit,
+		id: unit.id,
+		isAnimating: false,
+		sprite,
+		spriteBorder,
+		statsDisplay,
+		barsDisplay,
+		inputHandler: undefined as any, // set below so we can pass container
+		isShopItem: options?.isShopItem ?? false,
+		hasteEffect: undefined,
+		previousHasteState: 0,
+		playerBoard: scene.playerBoard,
+	};
+
+	charaState.set(container, state);
+
+	// Input handling depends on state existing
+	state.inputHandler = CharaInputHandler.create(container);
+
+	container.on(Phaser.Input.Events.POINTER_OVER, () => {
+		onCharaPointerOver({ chara: container });
+	});
+	container.on(Phaser.Input.Events.POINTER_OUT, () => {
+		onCharaPointerOut();
+	});
+
+	if (statsDisplay) CharaStatsDisplay.updatePower(statsDisplay);
+	CharaBarsDisplay.updateBars(barsDisplay);
+
+	updateStatusEffects(container);
+
+	return container;
+}
+
+function createSprite(container: Chara, unit: Unit, borderWidth: number = 3, borderColor: number = 0xffffff) {
+	const animCacheKey = unit.pic + '-anims';
+	const animData = scene.cache.json.get(animCacheKey);
+	if (animData && animData.anims) {
+		for (const anim of animData.anims) {
+			const animKey = unit.pic + '_' + anim.key;
+			if (!scene.anims.exists(animKey)) {
+				const animConfig = {
+					...anim,
+					key: animKey,
+					frames: (anim.frames as { frame: string }[])
+						.map((f: { frame: string }) => ({ key: unit.pic, frame: f.frame })),
+				};
+				scene.anims.create(animConfig);
 			}
 		}
+	}
 
-		const frameNames = scene.textures.get(this.unit.pic).getFrameNames();
-		const idleFrames = frameNames.filter(name => name.startsWith(this.unit.pic + '_idle_'));
-		idleFrames.sort((a, b) => {
-			const numA = parseInt(a.match(/_(\d+)\.png$/)?.[1] || '0', 10);
-			const numB = parseInt(b.match(/_(\d+)\.png$/)?.[1] || '0', 10);
-			return numA - numB;
-		});
-		const firstIdle = idleFrames[0] || frameNames[0];
+	const frameNames = scene.textures.get(unit.pic).getFrameNames();
+	const idleFrames = frameNames.filter(name => name.startsWith(unit.pic + '_idle_'));
+	idleFrames.sort((a, b) => {
+		const numA = parseInt(a.match(/_(\d+)\.png$/)?.[1] || '0', 10);
+		const numB = parseInt(b.match(/_(\d+)\.png$/)?.[1] || '0', 10);
+		return numA - numB;
+	});
+	const firstIdle = idleFrames[0] || frameNames[0];
 
-		const radius = (constants.TILE_WIDTH * 0.8) / 2;
-		const border = scene.add.graphics({ x: 0, y: 0 });
-		border.lineStyle(borderWidth, borderColor, 1);
-		border.strokeCircle(0, 0, radius);
-		this.container.add(border);
-		this.spriteBorder = border;
+	const radius = (constants.TILE_WIDTH * 0.8) / 2;
+	const border = scene.add.graphics({ x: 0, y: 0 });
+	border.lineStyle(borderWidth, borderColor, 1);
+	border.strokeCircle(0, 0, radius);
+	container.add(border);
 
-		this.sprite = scene.add.sprite(0, -15, this.unit.pic, firstIdle);
-		this.sprite.setDisplaySize(constants.TILE_WIDTH * 1.2, constants.TILE_HEIGHT * 1.2);
-		this.container.add(this.sprite);
-		if (scene.anims.exists(this.unit.pic + '_idle')) {
-			this.sprite.play(this.unit.pic + '_idle');
+	const sprite = scene.add.sprite(0, -15, unit.pic, firstIdle);
+	sprite.setDisplaySize(constants.TILE_WIDTH * 1.2, constants.TILE_HEIGHT * 1.2);
+	container.add(sprite);
+	if (scene.anims.exists(unit.pic + '_idle')) {
+		sprite.play(unit.pic + '_idle');
+	}
+
+	return { sprite, spriteBorder: border };
+}
+
+export function onShopPurchaseSuccesful(chara: Chara): void {
+	const s = mustGetState(chara);
+	s.isShopItem = false;
+	hideTooltip();
+
+	ShopUI.removeShopChild(chara);
+
+	Shop.handleCharaPurchaseFinalized(chara);
+
+	playSoundEffect('sfx_artifact_equipweapon');
+
+	CharaManager.destroyChara(s.id);
+}
+
+export function onShopPurchaseFailed(chara: Chara, vec: Vec2) {
+	hideTooltip();
+	tween({
+		targets: [chara],
+		...vec,
+		duration: 150,
+	});
+}
+
+export function getIsShopItem(chara: Chara): boolean {
+	return mustGetState(chara).isShopItem;
+}
+
+export function getUnit(chara: Chara): Unit {
+	return mustGetState(chara).unit;
+}
+
+export function getId(chara: Chara): string {
+	return mustGetState(chara).id;
+}
+
+export function updateUnit(chara: Chara, newUnit: Unit): void {
+	const s = mustGetState(chara);
+	s.unit = newUnit;
+	if (s.statsDisplay)
+		CharaStatsDisplay.updateUnit(s.statsDisplay, newUnit);
+	CharaBarsDisplay.updateUnit(s.barsDisplay, newUnit);
+	updateStatusEffects(chara);
+}
+
+export function updatePowerDisplay(chara: Chara) {
+	const s = mustGetState(chara);
+	if (s.statsDisplay)
+		CharaStatsDisplay.animatePowerChange(s.statsDisplay, s.unit.power);
+}
+
+export function setBarsVisibility(chara: Chara, visible: boolean): void {
+	const s = mustGetState(chara);
+	CharaBarsDisplay.setVisible(s.barsDisplay, visible);
+}
+
+export function updateChargeBar(chara: Chara) {
+	const s = mustGetState(chara);
+	CharaBarsDisplay.updateBars(s.barsDisplay);
+}
+
+export function getInputHandler(chara: Chara) {
+	return mustGetState(chara).inputHandler;
+}
+
+export async function updateUnitAttribute<K extends keyof Unit>(chara: Chara, attribute: K, num: number) {
+	const s = mustGetState(chara);
+	const { unit } = s;
+	const positive = num >= 0;
+	const text = `${positive ? "+" : "-"}${num}`;
+
+	if (typeof unit[attribute] === "number") {
+		(unit[attribute] as number) += num;
+	} else {
+		console.error(`Cannot add number to non-numeric attribute: ${String(attribute)}`);
+	}
+
+	if (attribute === "power") {
+		updatePowerDisplay(chara);
+	}
+
+	popText({
+		x: chara.x,
+		y: chara.y,
+		text,
+	});
+}
+
+export function destroy(chara: Chara, fromScene?: boolean) {
+	removeHasteEffect(chara);
+	chara.off(Phaser.Input.Events.POINTER_OVER);
+	chara.off(Phaser.Input.Events.POINTER_OUT);
+	chara.destroy(fromScene);
+}
+
+export function updateStatusEffects(chara: Chara): void {
+	const s = mustGetState(chara);
+	if (s.unit.hasted > 0 && s.previousHasteState === 0) {
+		showHasteEffect(chara);
+	} else if (s.unit.hasted === 0 && s.previousHasteState > 0) {
+		removeHasteEffect(chara);
+	}
+	s.previousHasteState = s.unit.hasted;
+}
+
+function showHasteEffect(chara: Chara): void {
+	const s = mustGetState(chara);
+	if (s.hasteEffect) return;
+
+	s.hasteEffect = createContinuousHasteEffect(
+		scene,
+		{ x: chara.x, y: chara.y },
+		{
+			intensity: 1.0,
+			color: 0x00eaff
 		}
-	}
+	);
 
-	onShopPurchaseSuccesful(): void {
+	chara.add(s.hasteEffect.particles);
+	s.hasteEffect.particles.setPosition(0, 0);
+}
 
-		this.isShopItem = false;
-		hideTooltip();
-
-		ShopUI.removeShopChild(this.container);
-
-		Shop.handleCharaPurchaseFinalized(this);
-
-		playSoundEffect('sfx_artifact_equipweapon');
-
-		CharaManager.destroyChara(this.id);
-	}
-
-	onShopPurchaseFailed(vec: Vec2) {
-		hideTooltip();
-		tween({
-			targets: [this.container],
-			...vec,
-			duration: 150,
-		});
-	}
-
-	getIsShopItem(): boolean {
-		return this.isShopItem;
-	}
-
-	updateUnit(newUnit: Unit): void {
-		this.unit = newUnit;
-		if (this.statsDisplay)
-			CharaStatsDisplay.updateUnit(this.statsDisplay, newUnit);
-		CharaBarsDisplay.updateUnit(this.barsDisplay, newUnit);
-		this.updateStatusEffects();
-	}
-
-	updatePowerDisplay = () => {
-		if (this.statsDisplay)
-			CharaStatsDisplay.animatePowerChange(this.statsDisplay, this.unit.power);
-	}
-
-	setBarsVisibility(visible: boolean): void {
-		CharaBarsDisplay.setVisible(this.barsDisplay, visible);
-	}
-
-	updateChargeBar = () => {
-		CharaBarsDisplay.updateBars(this.barsDisplay);
-	}
-
-	updateUnitAttribute = async <K extends keyof Unit>(attribute: K, num: number) => {
-		const { unit } = this;
-		const positive = num >= 0;
-		const text = `${positive ? "+" : "-"}${num}`;
-
-		if (typeof unit[attribute] === "number") {
-			(unit[attribute] as number) += num;
-		} else {
-			console.error(`Cannot add number to non-numeric attribute: ${attribute}`);
-		}
-
-		if (attribute === "power") {
-			this.updatePowerDisplay();
-		}
-
-		popText({
-			x: this.container.x,
-			y: this.container.y,
-			text,
-		});
-	}
-
-	destroy(fromScene?: boolean) {
-
-		this.removeHasteEffect();
-
-		this.container.off(Phaser.Input.Events.POINTER_OVER);
-		this.container.off(Phaser.Input.Events.POINTER_OUT);
-
-		this.container.destroy(fromScene);
-	}
-
-	updateStatusEffects(): void {
-		if (this.unit.hasted > 0 && this.previousHasteState === 0) {
-			this.showHasteEffect();
-		} else if (this.unit.hasted === 0 && this.previousHasteState > 0) {
-			this.removeHasteEffect();
-		}
-		this.previousHasteState = this.unit.hasted;
-	}
-
-	private showHasteEffect(): void {
-		if (this.hasteEffect) return;
-
-		this.hasteEffect = createContinuousHasteEffect(
-			scene,
-			{ x: this.container.x, y: this.container.y },
-			{
-				intensity: 1.0,
-				color: 0x00eaff
-			}
-		);
-
-		this.container.add(this.hasteEffect.particles);
-
-		this.hasteEffect.particles.setPosition(0, 0);
-	}
-
-	private removeHasteEffect(): void {
-		if (!this.hasteEffect) return;
-
-		this.hasteEffect.cleanup();
-		this.hasteEffect = undefined;
-	}
+function removeHasteEffect(chara: Chara): void {
+	const s = charaState.get(chara);
+	if (!s || !s.hasteEffect) return;
+	s.hasteEffect.cleanup();
+	s.hasteEffect = undefined;
 }
 
 export async function pop(id: string) {
-
 	const chara = CharaManager.getChara(id);
+	const s = mustGetState(chara);
+	if (s.isAnimating) return;
+	s.isAnimating = true;
 
-	if (chara.isAnimating) return;
-	chara.isAnimating = true;
+	const attackAnimKey = `${s.unit.pic}_attack`;
+	const idleAnimKey = `${s.unit.pic}_idle`;
 
-	const attackAnimKey = `${chara.unit.pic}_attack`;
-	const idleAnimKey = `${chara.unit.pic}_idle`;
-
-	chara.sprite.anims.play(attackAnimKey, true);
-
-	chara.sprite.playAfterRepeat(idleAnimKey)
+	s.sprite.anims.play(attackAnimKey, true);
+	s.sprite.playAfterRepeat(idleAnimKey);
 
 	await tween({
-		targets: [chara.container],
+		targets: [chara],
 		scale: 1.2,
 		yoyo: true,
 		duration: 300,
 		repeat: 0,
 	});
 
-	chara.isAnimating = false;
+	s.isAnimating = false;
+}
+
+function mustGetState(chara: Chara): CharaState {
+	const s = charaState.get(chara);
+	if (!s) throw new Error("Chara state not found for container");
+	return s;
 }

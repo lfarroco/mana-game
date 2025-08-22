@@ -18,8 +18,8 @@ export const applyHasteLogicIO = async (context: {
 		if (targetChara) {
 			arcaneMissileTargeted(
 				scene,
-				sourceChara.container,
-				targetChara.container,
+				sourceChara,
+				targetChara,
 				{
 					colors: [0x00FFFF, 0x87CEEB, 0xADD8E6],
 					amplitudeMin: 5,
@@ -35,7 +35,7 @@ export const applyHasteLogicIO = async (context: {
 					onHit: async () => {
 						target.hasted += duration;
 
-						hasteEffect(scene, targetChara.container, {
+						hasteEffect(scene, targetChara, {
 							duration: 1000,
 							intensity: 1.5,
 							color: 0x00eaff

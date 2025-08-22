@@ -156,7 +156,7 @@ export class BattlegroundScene extends Phaser.Scene {
       this.state.gameData.player.units,
       unitId,
       soldForGold,
-      chara.container,
+      chara,
       (x: number, y: number, text: string, type: string, direction: string) => {
         popText({
           x,
