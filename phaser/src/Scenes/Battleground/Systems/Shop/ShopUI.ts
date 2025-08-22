@@ -3,240 +3,250 @@ import { vec2 } from "../../../../Models/Geometry";
 import { Flyout } from "../../../../UI/Flyout";
 import { registerChara } from "../CharaManager";
 import { Chara, CharaOptions } from "../../../../Systems/Chara/Chara";
-import { BattlegroundScene } from "../../BattlegroundScene";
 import * as c from "../../../../constants/constants";
 import { UIButton } from "../../../../UI/UIButton";
 import { makeUnit } from "../../../../Models/Entities/Unit";
 import * as sc from "./ShopConstants";
 import { MagicOrb } from "../../../../components/MagicOrb/MagicOrb";
 import { renderOrbs } from "./Orbs";
+import { scene } from "../../BattlegroundScene";
 
-export class ShopUI {
-	scene: BattlegroundScene;
+export type ShopUIState = {
 	flyout: Flyout;
-	sellZoneContainer: Phaser.GameObjects.Container | null = null;
-	sellZone: Phaser.GameObjects.Zone | null = null;
-	sellZoneText: Phaser.GameObjects.Text | null = null;
-	sellZoneGraphics: Phaser.GameObjects.Graphics | null = null;
-	magicOrbs: MagicOrb[] = [];
-	orbContainer: Phaser.GameObjects.Container | null = null;
+	sellZoneContainer: Phaser.GameObjects.Container | null;
+	sellZone: Phaser.GameObjects.Zone | null;
+	sellZoneText: Phaser.GameObjects.Text | null;
+	sellZoneGraphics: Phaser.GameObjects.Graphics | null;
+	magicOrbs: MagicOrb[];
+	orbContainer: Phaser.GameObjects.Container | null;
 	panelX: number;
+}
+export function create(flyout: Flyout) {
+	const state: ShopUIState = {
+		flyout,
+		sellZoneContainer: null,
+		sellZone: null,
+		sellZoneText: null,
+		sellZoneGraphics: null,
+		magicOrbs: [],
+		orbContainer: null,
+		panelX: 0,
+	};
 
-	constructor(scene: BattlegroundScene, flyout: Flyout) {
-		this.scene = scene;
-		this.flyout = flyout;
+	displayShop = _displayShop(state)
+	showSellZone = _showSellZone(state);
+	hideSellZone = _hideSellZone(state);
+	update = _update(state);
+	destroyOrbs = _destroyOrbs(state);
+	destroy = _destroy(state);
+	renderTavernCharas = _renderTavernCharas(state);
+	return state;
+};
+
+export let displayShop: (
+	cardsToDisplay: Card.CardDefinition[],
+	orbs: string[],
+	nextRoundCallback: () => void,
+	rerollCallback: () => void,
+) => { charas: Chara[] };
+
+const _displayShop = (state: ShopUIState) => (
+	cardsToDisplay: Card.CardDefinition[],
+	orbs: string[],
+	nextRoundCallback: () => void,
+	rerollCallback: () => void,
+): { charas: Chara[] } => {
+	state.flyout.removeAll(true);
+	state.magicOrbs = [];
+
+	if (state.orbContainer) {
+		state.orbContainer.destroy(true);
+		state.orbContainer = null;
 	}
 
-	rerenderTavernCharas(
-		cardDefs: Card.CardDefinition[],
-	): Chara[] {
-		const newCharas = this._renderTavernCharas(cardDefs);
-		return newCharas;
-	}
-	displayShop(
-		cardsToDisplay: Card.CardDefinition[],
-		orbs: string[],
-		nextRoundCallback: () => void,
-		rerollCallback: () => void,
-	): { charas: Chara[] } {
-		this.flyout.removeAll(true);
-		this.magicOrbs = [];
+	const screenWidth = scene.cameras.main.width;
+	state.panelX = screenWidth - sc.SHOP_PANEL_WIDTH - 40;
+	const shopBackground = scene.add.graphics()
+		.fillStyle(sc.PANEL_BG_COLOR, sc.PANEL_BG_OPACITY)
+		.fillRoundedRect(state.panelX, sc.PANEL_Y, sc.SHOP_PANEL_WIDTH, sc.SHOP_PANEL_HEIGHT, 20);
+	state.flyout.add(shopBackground);
 
-		if (this.orbContainer) {
-			this.orbContainer.destroy(true);
-			this.orbContainer = null;
-		}
+	_renderTavernSectionBackgroundAndTitle(state.flyout, state.panelX);
 
-		const screenWidth = this.scene.cameras.main.width;
-		this.panelX = screenWidth - sc.SHOP_PANEL_WIDTH - 40;
-		const shopBackground = this.scene.add.graphics()
-			.fillStyle(sc.PANEL_BG_COLOR, sc.PANEL_BG_OPACITY)
-			.fillRoundedRect(this.panelX, sc.PANEL_Y, sc.SHOP_PANEL_WIDTH, sc.SHOP_PANEL_HEIGHT, 20);
-		this.flyout.add(shopBackground);
+	const rerollButtonX = state.panelX + 470;
+	const rerollButtonY = sc.PANEL_Y + sc.TAVERN_BG_HEIGHT - 20;
+	const rerollBtn = new UIButton(
+		scene,
+		`Reroll $${c.SHOP_ITEM_PURCHASE_COST}`,
+		rerollButtonX,
+		rerollButtonY,
+		rerollCallback
+	);
+	state.flyout.add(rerollBtn);
 
-		this._renderTavernSectionBackgroundAndTitle(this.panelX);
+	const nextRoundButtonX = c.SCREEN_WIDTH - 200;
+	const nextRoundButtonY = c.SCREEN_HEIGHT - 100;
+	const nextRoundBtn = new UIButton(
+		scene,
+		"Next Round",
+		nextRoundButtonX,
+		nextRoundButtonY,
+		nextRoundCallback
+	);
+	state.flyout.add(nextRoundBtn);
 
-		const rerollButtonX = this.panelX + 470;
-		const rerollButtonY = sc.PANEL_Y + sc.TAVERN_BG_HEIGHT - 20;
-		const rerollBtn = new UIButton(
-			this.scene,
-			`Reroll $${c.SHOP_ITEM_PURCHASE_COST}`,
-			rerollButtonX,
-			rerollButtonY,
-			rerollCallback
-		);
-		this.flyout.add(rerollBtn);
+	renderOrbs(state, orbs);
 
-		const nextRoundButtonX = c.SCREEN_WIDTH - 200;
-		const nextRoundButtonY = c.SCREEN_HEIGHT - 100;
-		const nextRoundBtn = new UIButton(
-			this.scene,
-			"Next Round",
-			nextRoundButtonX,
-			nextRoundButtonY,
-			nextRoundCallback
-		);
-		this.flyout.add(nextRoundBtn);
+	_createSellZone(state);
 
-		this.renderOrbSection(orbs);
+	const displayedCharas = _renderTavernCharas(state)(cardsToDisplay);
 
-		this._createSellZone();
-
-		const displayedCharas = this._renderTavernCharas(cardsToDisplay);
-
-		return { charas: displayedCharas };
-	}
+	return { charas: displayedCharas };
+}
 
 
-	renderOrbSection(orbs: string[]) {
-		renderOrbs(this, orbs);
-	}
+function _renderTavernSectionBackgroundAndTitle(flyout: Flyout, panelX?: number): void {
+	const tavernBaseX = (panelX !== undefined ? panelX + 20 : sc.TAVERN_BASE_X);
+	const tavernBaseY = sc.TAVERN_BASE_Y;
 
-	_renderTavernUI(
-		cardDefs: Card.CardDefinition[],
-		panelX: number
-	): Chara[] {
-		this._renderTavernSectionBackgroundAndTitle(panelX);
-		return this._renderTavernCharas(cardDefs);
-	}
+	const bg = scene.add.graphics()
+		.fillStyle(0x000, 0.5)
+		.fillRoundedRect(
+			0, 0,
+			sc.TAVERN_BG_WIDTH, sc.TAVERN_BG_HEIGHT,
+			sc.SUB_PANEL_CORNER_RADIUS
+		)
+		.setPosition(tavernBaseX, tavernBaseY);
 
+	const title = scene.add.text(
+		tavernBaseX + 30, sc.TAVERN_TITLE_Y,
+		"Tavern",
+		c.titleTextConfig
+	);
 
-	_renderTavernSectionBackgroundAndTitle(panelX?: number): void {
-		const tavernBaseX = (panelX !== undefined ? panelX + 20 : sc.TAVERN_BASE_X);
-		const tavernBaseY = sc.TAVERN_BASE_Y;
+	flyout.add([bg, title]);
+}
 
-		const bg = this.scene.add.graphics()
-			.fillStyle(0x000, 0.5)
-			.fillRoundedRect(
-				0, 0,
-				sc.TAVERN_BG_WIDTH, sc.TAVERN_BG_HEIGHT,
-				sc.SUB_PANEL_CORNER_RADIUS
-			)
-			.setPosition(tavernBaseX, tavernBaseY);
+export let renderTavernCharas: (
+	cardDefs: Card.CardDefinition[],
+) => Chara[];
 
-		const title = this.scene.add.text(
-			tavernBaseX + 30, sc.TAVERN_TITLE_Y,
-			"Tavern",
-			c.titleTextConfig
-		);
+const _renderTavernCharas = (state: ShopUIState) => (cardDefs: Card.CardDefinition[]): Chara[] => {
+	const createdCharas: Chara[] = [];
+	const baseX = (state.panelX !== undefined ? state.panelX + 160 : sc.TAVERN_CHARA_FIRST_X);
+	cardDefs.forEach((spec, index) => {
+		const unit = makeUnit(c.FORCE_ID_PLAYER, spec.id, vec2(0, 0));
+		const charaOptions: CharaOptions = {
+			isShopItem: true,
 
-		this.flyout.add([bg, title]);
+		};
+		const chara = new Chara(unit, charaOptions);
+		registerChara(chara);
+
+		chara.container.setPosition(baseX + (index * sc.TAVERN_CHARA_SPACING), sc.TAVERN_CHARA_BASE_Y);
+		chara.setBarsVisibility(false);
+
+		state.flyout.add(chara.container);
+		createdCharas.push(chara);
+	});
+	return createdCharas;
+}
+
+function _createSellZone(state: ShopUIState): void {
+	if (state.sellZoneContainer) {
+		state.sellZoneContainer.destroy(true);
 	}
 
+	state.sellZoneContainer = scene.add.container(0, 0);
+	state.sellZoneContainer.setVisible(false);
 
-	_renderTavernCharas(
-		cardDefs: Card.CardDefinition[],
-	): Chara[] {
-		const createdCharas: Chara[] = [];
-		const baseX = (this.panelX !== undefined ? this.panelX + 160 : sc.TAVERN_CHARA_FIRST_X);
-		cardDefs.forEach((spec, index) => {
-			const unit = makeUnit(c.FORCE_ID_PLAYER, spec.id, vec2(0, 0));
-			const charaOptions: CharaOptions = {
-				isShopItem: true,
+	const sellZoneX = sc.PANEL_X + sc.SHOP_PANEL_WIDTH / 2 - 40;
+	const sellZoneY = sc.PANEL_Y;
 
-			};
-			const chara = new Chara(unit, charaOptions);
-			registerChara(chara);
+	state.sellZone = scene.add.zone(
+		sellZoneX + sc.SELL_ZONE_WIDTH / 2,
+		sellZoneY + sc.SELL_ZONE_HEIGHT / 2,
+		sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT
+	);
+	state.sellZone.setName(sc.SHOP_SELL_ZONE_NAME);
 
-			chara.container.setPosition(baseX + (index * sc.TAVERN_CHARA_SPACING), sc.TAVERN_CHARA_BASE_Y);
-			chara.setBarsVisibility(false);
+	state.sellZoneGraphics = scene.add.graphics({ x: sellZoneX, y: sellZoneY });
+	state.sellZoneGraphics.save();
+	state.sellZoneGraphics.fillStyle(0x000000, 0.25);
+	state.sellZoneGraphics.fillRoundedRect(6, 6, sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT, sc.SELL_ZONE_CORNER_RADIUS);
+	state.sellZoneGraphics.restore();
 
-			this.flyout.add(chara.container);
-			createdCharas.push(chara);
-		});
-		return createdCharas;
-	}
+	state.sellZoneGraphics.lineStyle(4, 0xffffff, 0.8);
+	state.sellZoneGraphics.fillStyle(sc.SELL_ZONE_BG_COLOR, sc.SELL_ZONE_BG_ALPHA);
+	state.sellZoneGraphics.fillRoundedRect(0, 0, sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT, sc.SELL_ZONE_CORNER_RADIUS);
+	state.sellZoneGraphics.strokeRoundedRect(0, 0, sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT, sc.SELL_ZONE_CORNER_RADIUS);
 
-	_createSellZone(): void {
-		if (this.sellZoneContainer) {
-			this.sellZoneContainer.destroy(true);
-		}
+	state.sellZone.setRectangleDropZone(sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT);
 
-		this.sellZoneContainer = this.scene.add.container(0, 0);
-		this.sellZoneContainer.setVisible(false);
-
-		const sellZoneX = sc.PANEL_X + sc.SHOP_PANEL_WIDTH / 2 - 40;
-		const sellZoneY = sc.PANEL_Y;
-
-		this.sellZone = this.scene.add.zone(
-			sellZoneX + sc.SELL_ZONE_WIDTH / 2,
-			sellZoneY + sc.SELL_ZONE_HEIGHT / 2,
-			sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT
-		);
-		this.sellZone.setName(sc.SHOP_SELL_ZONE_NAME);
-
-		this.sellZoneGraphics = this.scene.add.graphics({ x: sellZoneX, y: sellZoneY });
-		this.sellZoneGraphics.save();
-		this.sellZoneGraphics.fillStyle(0x000000, 0.25);
-		this.sellZoneGraphics.fillRoundedRect(6, 6, sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT, sc.SELL_ZONE_CORNER_RADIUS);
-		this.sellZoneGraphics.restore();
-
-		this.sellZoneGraphics.lineStyle(4, 0xffffff, 0.8);
-		this.sellZoneGraphics.fillStyle(sc.SELL_ZONE_BG_COLOR, sc.SELL_ZONE_BG_ALPHA);
-		this.sellZoneGraphics.fillRoundedRect(0, 0, sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT, sc.SELL_ZONE_CORNER_RADIUS);
-		this.sellZoneGraphics.strokeRoundedRect(0, 0, sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT, sc.SELL_ZONE_CORNER_RADIUS);
-
-		this.sellZone.setRectangleDropZone(sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT);
-
-		this.sellZoneText = this.scene.add.text(
-			sellZoneX + sc.SELL_ZONE_WIDTH / 2,
-			sellZoneY + sc.SELL_ZONE_HEIGHT / 2,
-			sc.SELL_ZONE_TEXT,
-			{
-				...c.defaultTextConfig,
-				...sc.SELL_ZONE_TEXT_STYLE,
-				fontSize: '40px',
-				fontStyle: 'bold',
-				color: '#fff',
-				stroke: '#222',
-				strokeThickness: 6,
-				shadow: {
-					offsetX: 2,
-					offsetY: 2,
-					color: '#000',
-					blur: 4,
-					fill: true
-				}
+	state.sellZoneText = scene.add.text(
+		sellZoneX + sc.SELL_ZONE_WIDTH / 2,
+		sellZoneY + sc.SELL_ZONE_HEIGHT / 2,
+		sc.SELL_ZONE_TEXT,
+		{
+			...c.defaultTextConfig,
+			...sc.SELL_ZONE_TEXT_STYLE,
+			fontSize: '40px',
+			fontStyle: 'bold',
+			color: '#fff',
+			stroke: '#222',
+			strokeThickness: 6,
+			shadow: {
+				offsetX: 2,
+				offsetY: 2,
+				color: '#000',
+				blur: 4,
+				fill: true
 			}
-		).setOrigin(0.5);
-
-		this.sellZoneContainer.add([this.sellZone, this.sellZoneGraphics, this.sellZoneText]);
-
-	}
-
-	showSellZone(): void {
-		if (this.sellZoneContainer) {
-			this.scene.children.bringToTop(this.sellZoneContainer);
-			this.sellZoneContainer.setVisible(true);
 		}
+	).setOrigin(0.5);
+
+	state.sellZoneContainer.add([state.sellZone, state.sellZoneGraphics, state.sellZoneText]);
+
+}
+
+export let showSellZone: () => void;
+const _showSellZone = (state: ShopUIState) => () => {
+	if (state.sellZoneContainer) {
+		scene.children.bringToTop(state.sellZoneContainer);
+		state.sellZoneContainer.setVisible(true);
 	}
+}
 
-	hideSellZone(): void {
-		this.sellZoneContainer?.setVisible(false);
-	}
+export let hideSellZone: () => void;
+const _hideSellZone = (state: ShopUIState) => () => {
+	state.sellZoneContainer?.setVisible(false);
+}
 
-	update(time: number): void {
-		this.magicOrbs = this.magicOrbs.filter(orb => !orb.isOrbDestroyed());
-		this.magicOrbs.forEach(orb => orb.update(time));
-	}
+export let update: (time: number) => void;
+const _update = (state: ShopUIState) => (time: number): void => {
+	state.magicOrbs = state.magicOrbs.filter(orb => !orb.isOrbDestroyed());
+	state.magicOrbs.forEach(orb => orb.update(time));
+}
 
-	destroyOrbs() {
-		this.magicOrbs.forEach(orb => {
-			if (!orb.isOrbDestroyed()) {
-				orb.destroy();
-			}
-		});
-		this.magicOrbs = [];
+export let destroyOrbs: () => void;
 
-		if (this.orbContainer) {
-			this.orbContainer.destroy(true);
-			this.orbContainer = null;
+const _destroyOrbs = (state: ShopUIState) => () => {
+	state.magicOrbs.forEach(orb => {
+		if (!orb.isOrbDestroyed()) {
+			orb.destroy();
 		}
-	}
+	});
+	state.magicOrbs = [];
 
-	destroy() {
-		this.destroyOrbs();
-		this.sellZoneContainer?.destroy(true);
-		this.sellZoneContainer = null;
+	if (state.orbContainer) {
+		state.orbContainer.destroy(true);
+		state.orbContainer = null;
 	}
+}
+
+export let destroy: () => void;
+const _destroy = (state: ShopUIState) => () => {
+	_destroyOrbs(state);
+	state.sellZoneContainer?.destroy(true);
+	state.sellZoneContainer = null;
 }

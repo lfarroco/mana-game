@@ -9,7 +9,7 @@ import { pickOne } from "../../../../utils";
 import { hexToVector3 } from "../../../../Utils/colorUtils";
 import { scene } from "../../BattlegroundScene";
 import * as sc from "./ShopConstants";
-import { ShopUI } from "./ShopUI";
+import * as ShopUI from "./ShopUI";
 
 
 type OrbSpec = {
@@ -233,7 +233,7 @@ const orbs: Record<string, () => {
 };
 
 
-export function renderOrbs(ui: ShopUI, orbIds: string[]) {
+export function renderOrbs(ui: ShopUI.ShopUIState, orbIds: string[]) {
 
 	const orbY = sc.PANEL_Y + 550;
 	const orbSpacing = 240;
@@ -256,7 +256,6 @@ export function renderOrbs(ui: ShopUI, orbIds: string[]) {
 		orb: MagicOrb,
 		target: Phaser.GameObjects.GameObject,
 		orbSpec: OrbSpec,
-		ui: ShopUI,
 		magicOrb: MagicOrb
 	}) {
 		const { orb, target, orbSpec, magicOrb } = params;
@@ -307,7 +306,7 @@ export function renderOrbs(ui: ShopUI, orbIds: string[]) {
 			returnDuration: 500,
 			tooltipTitle: orbSpec.name,
 			tooltipText: orbSpec.tooltip,
-			onDropTarget: (orb: MagicOrb, target: Phaser.GameObjects.GameObject) => handleOrbDrop({ orb, target, orbSpec, ui, magicOrb }),
+			onDropTarget: (orb: MagicOrb, target: Phaser.GameObjects.GameObject) => handleOrbDrop({ orb, target, orbSpec, magicOrb }),
 			dropTargetNames: []
 		});
 		ui.orbContainer!.add(magicOrb.getShader());

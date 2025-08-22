@@ -5,7 +5,7 @@ import { Chara } from "../../../../Systems/Chara/Chara";
 import { scene } from "../../BattlegroundScene";
 import { Vec2 } from "../../../../Models/Geometry";
 import { Unit } from "../../../../Models/Entities/Unit";
-import { ShopUI } from "./ShopUI";
+import * as ShopUI from "./ShopUI";
 import { shopItemClickPurchaseRequestedHandler } from "./handlers/shopItemClickPurchaseHandler";
 import { shopItemDragPurchaseRequestedHandler } from "./handlers/shopItemDragPurchaseHandler";
 import { shopRerollTavernHandler } from "./handlers/shopRerollTavernHandler";
@@ -15,13 +15,12 @@ import { tween } from "../../../../Utils/animation";
 
 
 export let flyout: Flyout;
-export let shopUI: ShopUI;
 let currentShopCharas: Chara[] = [];
 let currentOrbs: string[] = [];
 
 export function init() {
 	flyout = new Flyout(scene);
-	shopUI = new ShopUI(scene, flyout);
+	ShopUI.create(flyout);
 }
 
 export function handleCharaPurchaseFinalized(purchasedChara: Chara): void {
@@ -48,7 +47,7 @@ export async function open() {
 		close();
 	};
 
-	const { charas } = shopUI.displayShop(
+	const { charas } = ShopUI.displayShop(
 		tavernCardData,
 		currentOrbs,
 		nextRoundCallback,
@@ -66,7 +65,7 @@ export async function open() {
 }
 
 export async function close() {
-	shopUI.destroyOrbs();
+	ShopUI.destroyOrbs();
 	currentOrbs = [];
 
 	await flyout.slideOut();
@@ -140,7 +139,7 @@ export function rerollTavern(): void {
 
 	const newTavernCardData = _getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
 
-	const newShopCharas = shopUI.rerenderTavernCharas(
+	const newShopCharas = ShopUI.renderTavernCharas(
 		newTavernCardData
 	);
 	currentShopCharas = newShopCharas;
