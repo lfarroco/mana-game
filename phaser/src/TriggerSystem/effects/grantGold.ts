@@ -1,16 +1,9 @@
-/**
- * @file Grant gold to player trait effect implementation
- * 
- * This module contains the logic for granting gold to the player when triggered by a trait.
- */
 import { playerForce, updatePlayerGoldIO } from "../../Models/Entities/Force";
 import { getChara } from "../../Scenes/Battleground/Systems/CharaManager";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { Unit } from "../../Models/Entities/Unit";
+import { popText } from "../../Systems/Chara/Animations/popText";
 
-/**
- * Pure function version of grant gold logic for testing
- */
 export function grantGoldLogicPure(
 	amount: number,
 	sourceUnitForceId: string,
@@ -26,9 +19,6 @@ export function grantGoldLogicPure(
 	};
 }
 
-/**
- * Runtime implementation of grant gold logic
- */
 export const grantGoldLogic = async (context: {
 	forceId: string;
 	amount: number;
@@ -45,9 +35,10 @@ export const grantGoldLogic = async (context: {
 
 	if (result.shouldGrantGold) {
 		const chara = getChara(sourceUnit.id);
-		if (chara && result.popTextMessage) {
-			await chara.showPopText(result.popTextMessage);
-		}
+		if (result.popTextMessage)
+			await popText({
+				x: chara.container.x, y: chara.container.y, text: result.popTextMessage, type: "shield"
+			});
 		updatePlayerGoldIO(amount);
 	}
 };

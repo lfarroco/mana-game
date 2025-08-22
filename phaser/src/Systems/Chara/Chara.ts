@@ -4,7 +4,6 @@ import * as constants from "../../constants/constants";
 import { tween } from "../../Utils/animation";
 import * as CharaManager from "../../Scenes/Battleground/Systems/CharaManager";
 import * as Board from "../../Models/Board";
-import { popText } from "./Animations/popText";
 import { scene } from "../../Scenes/Battleground/BattlegroundScene";
 import { CharaStatsDisplay } from "./CharaStatsDisplay";
 import { CharaBarsDisplay } from "./CharaBarsDisplay";
@@ -15,6 +14,7 @@ import { hideTooltip } from "../../UI/Tooltip";
 import { Vec2 } from "../../Models/Geometry.pure";
 import { playSoundEffect } from "../AudioManager";
 import * as Shop from "../../Scenes/Battleground/Systems/Shop/Shop";
+import { popText } from "./Animations/popText";
 
 export type CharaOptions = {
 	isShopItem?: boolean;
@@ -189,12 +189,10 @@ export class Chara {
 			this.updatePowerDisplay();
 		}
 
-		this.showPopText(text);
-	}
-
-	async showPopText(text: string, type?: "heal" | "damage" | "shield" | "poison" | "timeout"): Promise<void> {
-		await popText({
-			x: this.container.x, y: this.container.y, text, type
+		popText({
+			x: this.container.x,
+			y: this.container.y,
+			text,
 		});
 	}
 
