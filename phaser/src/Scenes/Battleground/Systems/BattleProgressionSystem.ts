@@ -6,7 +6,7 @@ import * as BG_CONSTANTS from "../battlegroundConstants";
 import { getAllCards } from "../../../Models/Entities/Card";
 import { generateEnemyTeam } from "../generateEnemyTeam";
 import { PrestigeSystem } from "../../../Systems/PrestigeSystem";
-import * as CharaManager from "./CharaManager";
+// CharaManager removed in favor of functional Chara API
 import { cpuForce, playerForce, updatePlayerGoldIO } from "../../../Models/Entities/Force";
 import * as GhostStore from "../../../Models/GhostStore";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
@@ -52,7 +52,7 @@ export class BattleProgressionSystem {
 
 	async transitionToShopPhase(): Promise<void> {
 
-		CharaManager.clearCharas();
+		Chara.clearAll();
 		this.state.battleData.units = [];
 
 		playerForce.morale = playerForce.maxMorale;
@@ -62,7 +62,7 @@ export class BattleProgressionSystem {
 
 		const summonPromises = this.state.gameData.player.units.map(async (unit, index) => {
 			await delay(index * 200)
-			await CharaManager.summonChara(unit, true)
+			await Chara.summon(unit, true)
 		});
 		await Promise.all(summonPromises);
 
@@ -131,18 +131,18 @@ export class BattleProgressionSystem {
 	}
 
 	resetPlayerUnitChargeBars(): void {
-		CharaManager
+		Chara
 			.getAllCharas()
 			.forEach(chara => {
-				CharaManager.handleCharaChargeBarUpdateEvent({ unitId: Chara.getId(chara) });
+				Chara.updateChargeBar(chara);
 			});
 	}
 
 	setAllPlayerUnitBarsVisibility(visible: boolean): void {
-		CharaManager
+		Chara
 			.getAllCharas()
 			.forEach(chara => {
-				CharaManager.handleCharaBarsVisibilitySetEvent({ unitId: Chara.getId(chara), visible });
+				Chara.setBarsVisibility(chara, visible);
 			});
 	}
 
@@ -161,7 +161,7 @@ export class BattleProgressionSystem {
 		await delay(100);
 
 		playerUnitsForBattle.forEach(battleCopy => {
-			const chara = CharaManager.getChara(battleCopy.id);
+			const chara = Chara.getCharaById(battleCopy.id);
 			Chara.updateUnit(chara, battleCopy);
 		});
 
@@ -195,9 +195,9 @@ export class BattleProgressionSystem {
 			this.scene.playerBoard.setEnemyBoardVisible(true);
 		}
 		await delay(300);
-		await Promise.all(payload.enemies.map(u => CharaManager.summonChara(u, true)));
+		await Promise.all(payload.enemies.map(u => Chara.summon(u, true)));
 		[...payload.enemies, ...this.state.gameData.player.units].forEach(u => {
-			CharaManager.handleCharaBarsVisibilitySetEvent({ unitId: u.id, visible: true });
+			Chara.setBarsVisibility(Chara.getCharaById(u.id), true);
 		});
 
 		this.scene.runCombatSystem.runCombatIO();
