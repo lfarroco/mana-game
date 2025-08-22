@@ -3,17 +3,16 @@ import { arcaneMissileTargeted } from '../../Effects';
 import { getMoraleBarTipPosition } from '../../Scenes/Battleground/MoraleDisplay';
 import { getChara } from '../../Scenes/Battleground/Systems/CharaManager';
 import { scene } from '../../Scenes/Battleground/BattlegroundScene';
-import { trackMoraleRestored } from '../../Scenes/Battleground/Systems/CombatStatsTracker';
 import { applyRegen } from '../../Scenes/Battleground/Systems/RegenSystem';
 
 export const applyRegenLogicIO = async (
 	sourceUnit: Unit,
-	amount: number
 ) => {
+	const amount = Math.floor(sourceUnit.power * 0.1);
 
 	const targetForce = scene.state.battleData.forces.find(force => force.id === sourceUnit.force)!;
 
-	console.log(`[ApplyRegen] Unit power: ${sourceUnit.power}, Regen amount: ${amount}, Total healing over time: ${amount}`);
+	console.log(`[ApplyRegen] Unit power: ${sourceUnit.power}, Regen per tick: ${amount}`);
 
 	const sourceChara = getChara(sourceUnit.id);
 	const moraleBarTipPos = getMoraleBarTipPosition(targetForce.id);
@@ -41,12 +40,6 @@ export const applyRegenLogicIO = async (
 			},
 			onHit: async () => {
 				applyRegen(targetForce, amount, sourceUnit.id);
-				trackMoraleRestored({
-					unit: sourceChara.unit,
-					amount,
-					type: 'regen',
-					sourceUnitId: sourceUnit.id
-				})
 			}
 		}
 	);

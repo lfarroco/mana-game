@@ -79,7 +79,8 @@ type Targeting = {
 	id: "triggering_unit",
 }
 
-export type EffectSourcePosition = "all"
+export type EffectSourcePosition = 
+	| "all"
 	| "allies"
 	| "enemies"
 	| "row_allies"
@@ -115,7 +116,7 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
 			effects.applyPoisonLogicIO(sourceUnit)
 			break;
 		case "regen":
-			effects.applyRegenLogicIO(sourceUnit, sourceUnit.power);
+			effects.applyRegenLogicIO(sourceUnit);
 			break;
 		case "haste":
 			const hasteTargets = resolveTargets(scene.state, sourceUnit, effect);
