@@ -29,8 +29,8 @@ export function createApplySlowLogic() {
 					// Use the new targeted arcane missile effect with slow callback
 					arcaneMissileTargeted(
 						scene,
-						sourceChara.container,
-						targetChara.container,
+						sourceChara,
+						targetChara,
 						{
 							colors: [0xD2691E, 0xCD853F, 0xF4A460], // Orange-brownish colors: saddle brown, peru, sandy brown
 							amplitudeMin: 5,
@@ -49,7 +49,7 @@ export function createApplySlowLogic() {
 								target.slowed += duration;
 
 								// Show the original slow effect at the target location
-								slowEffect(scene, targetChara.container, {
+								slowEffect(scene, targetChara, {
 									duration: 1000,
 									intensity: 1.5,
 									color: 0xD2691E // Orange-brownish color matching the projectile

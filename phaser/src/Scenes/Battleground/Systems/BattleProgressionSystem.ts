@@ -15,6 +15,7 @@ import { renderVignette } from "../Animations/vignette";
 import { EventHandler } from "../../../Types/CommonTypes";
 import * as AudioManager from "../../../Systems/AudioManager";
 import * as Shop from "./Shop/Shop";
+import * as Chara from "../../../Systems/Chara/Chara";
 
 function createUnitCopy(unit: Unit): Unit {
 	return {
@@ -133,7 +134,7 @@ export class BattleProgressionSystem {
 		CharaManager
 			.getAllCharas()
 			.forEach(chara => {
-				CharaManager.handleCharaChargeBarUpdateEvent({ unitId: chara.id });
+				CharaManager.handleCharaChargeBarUpdateEvent({ unitId: Chara.getId(chara) });
 			});
 	}
 
@@ -141,7 +142,7 @@ export class BattleProgressionSystem {
 		CharaManager
 			.getAllCharas()
 			.forEach(chara => {
-				CharaManager.handleCharaBarsVisibilitySetEvent({ unitId: chara.id, visible });
+				CharaManager.handleCharaBarsVisibilitySetEvent({ unitId: Chara.getId(chara), visible });
 			});
 	}
 
@@ -160,9 +161,8 @@ export class BattleProgressionSystem {
 		await delay(100);
 
 		playerUnitsForBattle.forEach(battleCopy => {
-			CharaManager
-				.getChara(battleCopy.id)
-				.updateUnit(battleCopy);
+			const chara = CharaManager.getChara(battleCopy.id);
+			Chara.updateUnit(chara, battleCopy);
 		});
 
 		return { enemies };

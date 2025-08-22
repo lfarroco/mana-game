@@ -26,7 +26,7 @@ export function createRestoreMoraleLogic(
 		if (sourceChara && moraleBarTipPos) {
 			arcaneMissileTargeted(
 				scene,
-				sourceChara.container,
+				sourceChara,
 				moraleBarTipPos,
 				{
 					colors: [0x00ff00, 0x32cd32, 0x7fff00], // Green colors

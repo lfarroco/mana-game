@@ -37,7 +37,7 @@ export const grantGoldLogic = async (context: {
 		const chara = getChara(sourceUnit.id);
 		if (result.popTextMessage)
 			await popText({
-				x: chara.container.x, y: chara.container.y, text: result.popTextMessage, type: "shield"
+				x: chara.x, y: chara.y, text: result.popTextMessage, type: "shield"
 			});
 		updatePlayerGoldIO(amount);
 	}

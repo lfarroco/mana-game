@@ -1,4 +1,4 @@
-import { Chara } from "./Chara";
+import { Chara, getUnit } from "./Chara";
 import { Effect, EffectReaction } from "../../TriggerSystem/TriggerSystem";
 import { hideTooltip, renderTooltip } from "../../UI/Tooltip";
 
@@ -116,26 +116,27 @@ const getTargetDescription = (targets: any): string => {
 
 export const onCharaPointerOver = ({ chara }: { chara: Chara }): void => {
 
-	if (!chara.container.active || !chara.container.visible) return
+	if (!chara.active || !chara.visible) return
 
-	const title = chara.unit.name;
+	const unit = getUnit(chara);
+	const title = unit.name;
 
-	const effectBlocks = chara.unit.effects.map(e => buildEffectBlock(e, chara.unit.power));
-	const reactionBlocks = chara.unit.reactions.map(r => getReactionDescription(r, chara.unit.power));
+	const effectBlocks = unit.effects.map(e => buildEffectBlock(e, unit.power));
+	const reactionBlocks = unit.reactions.map(r => getReactionDescription(r, unit.power));
 	const descriptionString = [...effectBlocks, ...reactionBlocks].join('\n') || 'No special abilities';
 
-	const cdAsSeconds = (chara.unit.cooldown / 1000).toFixed(1);
+	const cdAsSeconds = (unit.cooldown / 1000).toFixed(1);
 
-	const statsBlock = `[color=#c0c0c0]Power:[/color] [color=#ffd93d]${chara.unit.power}[/color]\n[color=#c0c0c0]Cooldown:[/color] [color=#ffa94d]${cdAsSeconds}s[/color]`;
+	const statsBlock = `[color=#c0c0c0]Power:[/color] [color=#ffd93d]${unit.power}[/color]\n[color=#c0c0c0]Cooldown:[/color] [color=#ffa94d]${cdAsSeconds}s[/color]`;
 	const description = `${statsBlock}\n\n${descriptionString}`;
 
-	const worldMatrix = chara.container.getWorldTransformMatrix();
+	const worldMatrix = chara.getWorldTransformMatrix();
 	const charaWorldX = worldMatrix.tx;
 	const charaWorldY = worldMatrix.ty;
 
 	const TOOLTIP_OFFSET_X = 400;
-	const tooltipX = charaWorldX + chara.container.displayWidth + TOOLTIP_OFFSET_X;
-	const CHAR_TOP = charaWorldY - chara.container.displayHeight / 2;
+	const tooltipX = charaWorldX + chara.displayWidth + TOOLTIP_OFFSET_X;
+	const CHAR_TOP = charaWorldY - chara.displayHeight / 2;
 	const EXTRA_OFFSET = -20;
 	const tooltipY = CHAR_TOP + EXTRA_OFFSET;
 

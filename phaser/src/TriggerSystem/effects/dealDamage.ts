@@ -25,7 +25,7 @@ export function createDealDamageLogic(
 
 		arcaneMissileTargeted(
 			scene,
-			sourceChara.container,
+			sourceChara,
 			targetPos,
 			{
 				colors: [0xff0000, 0xb22222, 0xdc143c], // Red colors

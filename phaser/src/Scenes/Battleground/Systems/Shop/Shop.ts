@@ -1,6 +1,6 @@
 import * as Card from "../../../../Models/Entities/Card";
 import { pickRandom } from "../../../../utils";
-import { Chara } from "../../../../Systems/Chara/Chara";
+import * as Chara from "../../../../Systems/Chara/Chara";
 import { scene } from "../../BattlegroundScene";
 import { Vec2 } from "../../../../Models/Geometry";
 import { Unit } from "../../../../Models/Entities/Unit";
@@ -13,15 +13,15 @@ import * as sc from "./ShopConstants";
 import { tween } from "../../../../Utils/animation";
 
 
-let currentShopCharas: Chara[] = [];
+let currentShopCharas: Chara.Chara[] = [];
 let currentOrbs: string[] = [];
 
 export function init() {
 	ShopUI.create();
 }
 
-export function handleCharaPurchaseFinalized(purchasedChara: Chara): void {
-	currentShopCharas = currentShopCharas.filter(c => c.id !== purchasedChara.id);
+export function handleCharaPurchaseFinalized(purchasedChara: Chara.Chara): void {
+	currentShopCharas = currentShopCharas.filter(c => Chara.getId(c) !== Chara.getId(purchasedChara));
 }
 
 export async function open() {
@@ -69,12 +69,12 @@ export async function close() {
 }
 
 
-export function getShopCharaBySlot(slotIndex: number): Chara | null {
+export function getShopCharaBySlot(slotIndex: number): Chara.Chara | null {
 	return currentShopCharas[slotIndex] || null;
 }
 
 export function getDisplayedHeroCardDefinitions(): Card.CardDefinition[] {
-	return currentShopCharas.map(chara => chara.unit.cardId)
+	return currentShopCharas.map(chara => Chara.getUnit(chara).cardId)
 		.map(Card.getCardDefinition);
 }
 
@@ -94,15 +94,15 @@ export function handleShopRerollTavern() {
 }
 
 async function _animateItemAppearance(
-	chara: Chara
+	chara: Chara.Chara
 ): Promise<void> {
-	const targetScaleX = chara.container.scaleX;
-	const targetScaleY = chara.container.scaleY;
+	const targetScaleX = chara.scaleX;
+	const targetScaleY = chara.scaleY;
 
-	chara.container.setScale(0);
+	chara.setScale(0);
 
 	tween({
-		targets: [chara.container],
+		targets: [chara],
 		scaleX: targetScaleX,
 		scaleY: targetScaleY,
 		duration: sc.SHOP_ITEM_APPEAR_SCALE_DURATION
@@ -127,8 +127,8 @@ function _getAvailableCardsForTavern(count: number): Card.CardDefinition[] {
 
 export function rerollTavern(): void {
 	currentShopCharas.forEach(chara => {
-		ShopUI.removeShopChild(chara.container, false);
-		CharaManager.destroyChara(chara.id);
+		ShopUI.removeShopChild(chara, false);
+		CharaManager.destroyChara(Chara.getId(chara));
 	});
 	currentShopCharas = [];
 

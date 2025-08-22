@@ -1,4 +1,5 @@
 import { getChara } from "../../Scenes/Battleground/Systems/CharaManager";
+import * as Chara from "../../Systems/Chara/Chara";
 import { Unit } from "../../Models/Entities/Unit";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import { playSoundEffect } from "../../Systems/AudioManager";
@@ -17,14 +18,14 @@ export const multiplyPower = async (context: {
 	for (const target of targets) {
 		console.log(`Multiplying power of ${target.id} by ${multiplier}`);
 		const chara = getChara(target.id);
-			// Calculate the new power value
-			const currentPower = target.power;
-			const newPower = Math.floor(currentPower * multiplier);
-			const powerDifference = newPower - currentPower;
+		// Calculate the new power value
+		const currentPower = target.power;
+		const newPower = Math.floor(currentPower * multiplier);
+		const powerDifference = newPower - currentPower;
 
-			// Use the existing updateUnitAttribute method to apply the difference
-			chara.updateUnitAttribute('power', powerDifference);
+		// Use the existing updateUnitAttribute method to apply the difference
+		await Chara.updateUnitAttribute(chara, 'power', powerDifference);
 
-				playSoundEffect('sfx_spell_innerfocus');
+		playSoundEffect('sfx_spell_innerfocus');
 	}
 };

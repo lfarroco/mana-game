@@ -11,7 +11,7 @@ const charaIndex: Chara.Chara[] = [];
 
 export function clearCharas() {
 	[...charaIndex].forEach(chara => {
-		destroyChara(chara.id);
+		destroyChara(Chara.getId(chara));
 	});
 	if (charaIndex.length > 0) {
 		console.warn("CharaManager: charaIndex not empty after clearCharas loop. Forcibly clearing.");
@@ -20,13 +20,13 @@ export function clearCharas() {
 }
 
 export function destroyChara(id: string) {
-	const charaIndexPos = charaIndex.findIndex(chara => chara.id === id);
+	const charaIndexPos = charaIndex.findIndex(chara => Chara.getId(chara) === id);
 
 	if (charaIndexPos !== -1) {
 		const charaInstance = charaIndex[charaIndexPos];
 
 		charaIndex.splice(charaIndexPos, 1);
-		charaInstance.destroy();
+		Chara.destroy(charaInstance);
 	}
 }
 export async function summonChara(
@@ -39,19 +39,19 @@ export async function summonChara(
 		summonEffect(scene, vec);
 	}
 
-	const chara = new Chara.Chara(unit);
+	const chara = Chara.create(unit);
 
-	chara.setBarsVisibility(false);
-	chara.container.setScale(0);
-	chara.container.setAngle(-10);
+	Chara.setBarsVisibility(chara, false);
+	chara.setScale(0);
+	chara.setAngle(-10);
 	await tween({
-		targets: [chara.container],
+		targets: [chara],
 		scale: 1,
 		angle: 0,
 		ease: "Back.easeOut",
 		duration: 500,
 	});
-	chara.setBarsVisibility(true);
+	Chara.setBarsVisibility(chara, true);
 
 	registerChara(chara);
 
@@ -59,10 +59,10 @@ export async function summonChara(
 }
 
 export function registerChara(chara: Chara.Chara) {
-	if (!charaIndex.some(c => c.id === chara.id)) {
+	if (!charaIndex.some(c => Chara.getId(c) === Chara.getId(chara))) {
 		charaIndex.push(chara);
 	} else {
-		console.warn(`CharaManager: Attempted to register chara with id ${chara.id} which is already registered.`);
+		console.warn(`CharaManager: Attempted to register chara with id ${Chara.getId(chara)} which is already registered.`);
 	}
 }
 
@@ -84,8 +84,7 @@ export function getCharaPosition(unit: Unit) {
 }
 
 export function getChara(id: string) {
-
-	const maybeChara = charaIndex.find((chara) => chara.id === id);
+	const maybeChara = charaIndex.find((chara) => Chara.getId(chara) === id);
 
 	if (!maybeChara)
 		throw new Error(`Chara with id ${id} not found.`);
@@ -99,12 +98,12 @@ export function getAllCharas() {
 
 export const getSurroundingAllies = (unit: Unit) => {
 	return charaIndex
-		.filter(chara => chara.unit.force === unit.force)
-		.filter(chara => chara.id !== unit.id)
+		.filter(chara => Chara.getUnit(chara).force === unit.force)
+		.filter(chara => Chara.getId(chara) !== unit.id)
 		.filter(chara => {
 			const distance = Phaser.Math.Distance.BetweenPoints(
 				unit.position,
-				chara.unit.position
+				Chara.getUnit(chara).position
 			);
 			return distance === 1;
 		});
@@ -115,9 +114,11 @@ export function handleSummonCharaToBoardEvent(payload: { unit: Unit, animateAppe
 }
 
 export function handleCharaChargeBarUpdateEvent(payload: { unitId: string }): void {
-	getChara(payload.unitId)?.updateChargeBar();
+	const chara = getChara(payload.unitId);
+	Chara.updateChargeBar(chara);
 }
 
 export function handleCharaBarsVisibilitySetEvent(payload: { unitId: string, visible: boolean }): void {
-	getChara(payload.unitId)?.setBarsVisibility(payload.visible);
+	const chara = getChara(payload.unitId);
+	Chara.setBarsVisibility(chara, payload.visible);
 }
