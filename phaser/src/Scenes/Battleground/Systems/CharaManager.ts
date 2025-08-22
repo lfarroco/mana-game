@@ -5,28 +5,19 @@ import { tween } from "../../../Utils/animation";
 import { scene } from "../BattlegroundScene";
 import { getCharaPosition } from "../../../Systems/Chara/Chara";
 
-
-const charaIndex: Chara.Chara[] = [];
+// Registry is now owned by Chara; this module delegates to Chara for queries
 
 export function clearCharas() {
-	[...charaIndex].forEach(chara => {
+	Chara.getAllCharas().forEach(chara => {
 		destroyChara(Chara.getId(chara));
 	});
-	if (charaIndex.length > 0) {
-		console.warn("CharaManager: charaIndex not empty after clearCharas loop. Forcibly clearing.");
-		charaIndex.length = 0;
-	}
 }
 
 export function destroyChara(id: string) {
-	const charaIndexPos = charaIndex.findIndex(chara => Chara.getId(chara) === id);
-
-	if (charaIndexPos !== -1) {
-		const charaInstance = charaIndex[charaIndexPos];
-
-		charaIndex.splice(charaIndexPos, 1);
+	try {
+		const charaInstance = Chara.getCharaById(id);
 		Chara.destroy(charaInstance);
-	}
+	} catch { /* already gone */ }
 }
 export async function summonChara(
 	unit: Unit,
@@ -55,31 +46,22 @@ export async function summonChara(
 	return chara;
 }
 
-export function registerChara(chara: Chara.Chara) {
-	if (!charaIndex.some(c => Chara.getId(c) === Chara.getId(chara))) {
-		charaIndex.push(chara);
-	} else {
-		console.warn(`CharaManager: Attempted to register chara with id ${Chara.getId(chara)} which is already registered.`);
-	}
+export function registerChara(_chara: Chara.Chara) {
+	// No-op retained for API compatibility; Chara.create auto-registers.
 }
 
 // positioning now provided by Chara.getCharaPosition
 
 export function getChara(id: string) {
-	const maybeChara = charaIndex.find((chara) => Chara.getId(chara) === id);
-
-	if (!maybeChara)
-		throw new Error(`Chara with id ${id} not found.`);
-
-	return maybeChara
+	return Chara.getCharaById(id);
 }
 
 export function getAllCharas() {
-	return charaIndex;
+	return Chara.getAllCharas();
 }
 
 export const getSurroundingAllies = (unit: Unit) => {
-	return charaIndex
+	return Chara.getAllCharas()
 		.filter(chara => Chara.getUnit(chara).force === unit.force)
 		.filter(chara => Chara.getId(chara) !== unit.id)
 		.filter(chara => {
