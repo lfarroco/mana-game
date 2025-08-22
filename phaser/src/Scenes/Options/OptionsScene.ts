@@ -1,6 +1,6 @@
 import * as Phaser from "phaser";
 import * as constants from "../../constants/constants";
-import { UIButton } from "../../UI/UIButton";
+import { createUIButton } from "../../UI/UIButton";
 import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
 import { getOption, setOption } from "../../Models/OptionsStore";
 
@@ -88,7 +88,7 @@ export default class OptionsScene extends Phaser.Scene {
 
 	// Tab system
 	private currentTab: TabType = 'audio';
-	private tabButtons: { [key in TabType]: UIButton } = {} as any;
+	private tabButtons: { [key in TabType]: Phaser.GameObjects.Container } = {} as any;
 	private optionElements: Phaser.GameObjects.GameObject[] = [];
 
 	// Current settings
@@ -137,7 +137,7 @@ export default class OptionsScene extends Phaser.Scene {
 		this.showTab(this.currentTab);
 
 		// Create back button
-		new UIButton(
+		createUIButton(
 			this,
 			'BACK',
 			constants.MIDDLE_SCREEN_X,
@@ -183,7 +183,7 @@ export default class OptionsScene extends Phaser.Scene {
 		this.optionElements.push(valueText);
 
 		// Create toggle button with current value as text
-		const toggleButton = new UIButton(
+		const toggleButton = createUIButton(
 			this,
 			getValue() ? 'ON' : 'OFF',
 			constants.MIDDLE_SCREEN_X,
@@ -192,7 +192,8 @@ export default class OptionsScene extends Phaser.Scene {
 				const newValue = !getValue();
 				setValue(newValue);
 				// Update button text when value changes
-				toggleButton.buttonText.setText(newValue ? 'ON' : 'OFF');
+				const txt = toggleButton.getByName('buttonLabel') as Phaser.GameObjects.Text | undefined;
+				if (txt) txt.setText(newValue ? 'ON' : 'OFF');
 			},
 			BUTTONS.BOOLEAN_TOGGLE_WIDTH
 		);
@@ -216,7 +217,7 @@ export default class OptionsScene extends Phaser.Scene {
 		this.optionElements.push(labelText);
 
 		// Create decrease button
-		const decreaseButton = new UIButton(
+		const decreaseButton = createUIButton(
 			this,
 			'-',
 			constants.MIDDLE_SCREEN_X - BUTTONS.VOLUME_BUTTON_OFFSET_X,
@@ -243,7 +244,7 @@ export default class OptionsScene extends Phaser.Scene {
 		this.optionElements.push(valueText);
 
 		// Create increase button
-		const increaseButton = new UIButton(
+		const increaseButton = createUIButton(
 			this,
 			'+',
 			constants.MIDDLE_SCREEN_X + BUTTONS.VOLUME_BUTTON_OFFSET_X,
@@ -275,7 +276,7 @@ export default class OptionsScene extends Phaser.Scene {
 		this.optionElements.push(labelText);
 
 		// Create decrease button
-		const decreaseButton = new UIButton(
+		const decreaseButton = createUIButton(
 			this,
 			'<',
 			constants.MIDDLE_SCREEN_X - BUTTONS.MULTICHOICE_BUTTON_OFFSET_X,
@@ -304,7 +305,7 @@ export default class OptionsScene extends Phaser.Scene {
 		this.optionElements.push(valueText);
 
 		// Create increase button
-		const increaseButton = new UIButton(
+		const increaseButton = createUIButton(
 			this,
 			'>',
 			constants.MIDDLE_SCREEN_X + BUTTONS.MULTICHOICE_BUTTON_OFFSET_X,
@@ -336,7 +337,7 @@ export default class OptionsScene extends Phaser.Scene {
 		this.optionElements.push(labelText);
 
 		// Create decrease button
-		const decreaseButton = new UIButton(
+		const decreaseButton = createUIButton(
 			this,
 			'-',
 			constants.MIDDLE_SCREEN_X - BUTTONS.SPEED_BUTTON_OFFSET_X,
@@ -363,7 +364,7 @@ export default class OptionsScene extends Phaser.Scene {
 		this.optionElements.push(valueText);
 
 		// Create increase button
-		const increaseButton = new UIButton(
+		const increaseButton = createUIButton(
 			this,
 			'+',
 			constants.MIDDLE_SCREEN_X + BUTTONS.SPEED_BUTTON_OFFSET_X,
@@ -421,7 +422,7 @@ export default class OptionsScene extends Phaser.Scene {
 		const startX = constants.MIDDLE_SCREEN_X - buttonSpacing;
 
 		// Audio Tab
-		this.tabButtons.audio = new UIButton(
+		this.tabButtons.audio = createUIButton(
 			this,
 			'AUDIO',
 			startX,
@@ -431,7 +432,7 @@ export default class OptionsScene extends Phaser.Scene {
 		);
 
 		// Graphics Tab
-		this.tabButtons.graphics = new UIButton(
+		this.tabButtons.graphics = createUIButton(
 			this,
 			'GRAPHICS',
 			startX + buttonSpacing,
@@ -441,7 +442,7 @@ export default class OptionsScene extends Phaser.Scene {
 		);
 
 		// Game Tab
-		this.tabButtons.game = new UIButton(
+		this.tabButtons.game = createUIButton(
 			this,
 			'GAME',
 			startX + buttonSpacing * 2,
@@ -458,15 +459,14 @@ export default class OptionsScene extends Phaser.Scene {
 		Object.keys(this.tabButtons).forEach(tabKey => {
 			const tab = tabKey as TabType;
 			const button = this.tabButtons[tab];
-
+			const txt = button.getByName && (button.getByName('buttonLabel') as Phaser.GameObjects.Text | undefined);
+			if (!txt) return;
 			if (tab === this.currentTab) {
-				// Selected tab - gold color
-				button.buttonText.setColor(STYLES.SELECTED_TAB_COLOR);
-				button.buttonText.setStroke(STYLES.TAB_STROKE_COLOR, STYLES.SELECTED_TAB_STROKE_WIDTH);
+				txt.setColor(STYLES.SELECTED_TAB_COLOR);
+				txt.setStroke(STYLES.TAB_STROKE_COLOR, STYLES.SELECTED_TAB_STROKE_WIDTH);
 			} else {
-				// Unselected tab - white color
-				button.buttonText.setColor(STYLES.UNSELECTED_TAB_COLOR);
-				button.buttonText.setStroke(STYLES.TAB_STROKE_COLOR, STYLES.UNSELECTED_TAB_STROKE_WIDTH);
+				txt.setColor(STYLES.UNSELECTED_TAB_COLOR);
+				txt.setStroke(STYLES.TAB_STROKE_COLOR, STYLES.UNSELECTED_TAB_STROKE_WIDTH);
 			}
 		});
 	}

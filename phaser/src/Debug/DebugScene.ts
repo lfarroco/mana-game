@@ -2,7 +2,7 @@ import { images } from "../assets";
 import { SCENE_KEYS } from "../constants/constants";
 import { BattlegroundScene } from "../Scenes/Battleground/BattlegroundScene";
 import * as effects from "../Effects";
-import { UIButton } from "../UI/UIButton";
+import { createUIButton } from "../UI/UIButton";
 import * as constants from "../constants/constants";
 
 type EffectFactory = (scene: DebugScene) => void;
@@ -151,7 +151,7 @@ const EFFECT_REGISTRY: Record<string, EffectFactory> = {
 
 export class DebugScene extends Phaser.Scene {
 	private effectButtonsContainer!: Phaser.GameObjects.Container;
-	private backButton?: UIButton;
+	private backButton?: Phaser.GameObjects.Container;
 
 	constructor() {
 		super('DebugScene');
@@ -211,12 +211,12 @@ export class DebugScene extends Phaser.Scene {
 			const row = Math.floor(index / columns);
 			const x = startX + col * columnWidth;
 			const y = startY + row * verticalSpacing;
-			const btn = new UIButton(this, key.toUpperCase(), x, y, () => this.runEffect(key), 320);
+			const btn = createUIButton(this, key.toUpperCase(), x, y, () => this.runEffect(key), 320);
 			this.effectButtonsContainer.add(btn);
 		});
 
 		// Exit to Title button (only in list mode)
-		const exitBtn = new UIButton(this, 'EXIT', constants.SCREEN_WIDTH - 180, constants.SCREEN_HEIGHT - 80, () => {
+		const exitBtn = createUIButton(this, 'EXIT', constants.SCREEN_WIDTH - 180, constants.SCREEN_HEIGHT - 80, () => {
 			this.scene.start(constants.SCENE_KEYS.TITLE);
 		}, 200);
 		this.effectButtonsContainer.add(exitBtn);
@@ -246,11 +246,12 @@ export class DebugScene extends Phaser.Scene {
 
 		// Create Back button if not existing
 		if (!this.backButton) {
-			this.backButton = new UIButton(this, 'BACK', constants.MIDDLE_SCREEN_X, constants.SCREEN_HEIGHT - 80, () => this.returnToList(), 260);
+			this.backButton = createUIButton(this, 'BACK', constants.MIDDLE_SCREEN_X, constants.SCREEN_HEIGHT - 80, () => this.returnToList(), 260);
 		} else {
 			this.backButton.setVisible(true);
-			// @ts-ignore
-			this.backButton.buttonGraphics.setInteractive();
+			// enableGraphic interaction if present
+			const g = this.backButton.getByName && (this.backButton.getByName('buttonBackground') as Phaser.GameObjects.Graphics | undefined);
+			if (g) g.setInteractive();
 		}
 	}
 

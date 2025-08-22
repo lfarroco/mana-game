@@ -3,7 +3,7 @@ import { vec2 } from "../../../../Models/Geometry";
 import { registerChara } from "../CharaManager";
 import { Chara, CharaOptions } from "../../../../Systems/Chara/Chara";
 import * as c from "../../../../constants/constants";
-import { UIButton } from "../../../../UI/UIButton";
+import { createUIButton } from "../../../../UI/UIButton";
 import { makeUnit } from "../../../../Models/Entities/Unit";
 import * as sc from "./ShopConstants";
 import { MagicOrb } from "../../../../components/MagicOrb/MagicOrb";
@@ -69,7 +69,7 @@ export function displayShop(
 
 	const rerollButtonX = state.panelX + 470;
 	const rerollButtonY = sc.PANEL_Y + sc.TAVERN_BG_HEIGHT - 20;
-	const rerollBtn = new UIButton(
+	const rerollBtn = createUIButton(
 		scene,
 		`Reroll $${c.SHOP_ITEM_PURCHASE_COST}`,
 		rerollButtonX,
@@ -80,7 +80,7 @@ export function displayShop(
 
 	const nextRoundButtonX = c.SCREEN_WIDTH - 200;
 	const nextRoundButtonY = c.SCREEN_HEIGHT - 100;
-	const nextRoundBtn = new UIButton(
+	const nextRoundBtn = createUIButton(
 		scene,
 		"Next Round",
 		nextRoundButtonX,

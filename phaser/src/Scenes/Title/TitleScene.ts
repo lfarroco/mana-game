@@ -1,6 +1,6 @@
 import * as Phaser from "phaser";
 import * as constants from "../../constants/constants";
-import { UIButton } from "../../UI/UIButton";
+import { createUIButton } from "../../UI/UIButton";
 import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
 import { images } from "../../assets";
 import * as AudioManager from "../../Systems/AudioManager";
@@ -62,7 +62,7 @@ export default class TitleScene extends Phaser.Scene {
 			console.error('Error creating magic orbs:', error);
 		}
 
-		new UIButton(
+		createUIButton(
 			this,
 			'START GAME',
 			constants.MIDDLE_SCREEN_X,
@@ -71,7 +71,7 @@ export default class TitleScene extends Phaser.Scene {
 				this.startGame();
 			}
 		);
-		new UIButton(
+		createUIButton(
 			this,
 			'OPTIONS',
 			constants.MIDDLE_SCREEN_X,
@@ -80,7 +80,7 @@ export default class TitleScene extends Phaser.Scene {
 				this.openOptions();
 			}
 		);
-		new UIButton(
+		createUIButton(
 			this,
 			'DEBUG',
 			constants.MIDDLE_SCREEN_X,
