@@ -12,7 +12,7 @@ import { CharaInputHandler } from "./CharaInputHandler";
 import { createContinuousHasteEffect } from "../../Effects/hasteEffect";
 import { onCharaPointerOut, onCharaPointerOver } from "./CharaTooltip";
 import { hideTooltip } from "../../UI/Tooltip";
-import { vec2, Vec2 } from "../../Models/Geometry.pure";
+import { Vec2 } from "../../Models/Geometry.pure";
 import { playSoundEffect } from "../AudioManager";
 import * as Shop from "../../Scenes/Battleground/Systems/Shop/Shop";
 
@@ -147,16 +147,6 @@ export class Chara {
 		tween({
 			targets: [this.container],
 			...vec,
-			duration: 150,
-		});
-	}
-
-
-	revertToPosition(dragStartX: number, dragStartY: number): void {
-		hideTooltip();
-		tween({
-			targets: [this.container],
-			...vec2(dragStartX, dragStartY),
 			duration: 150,
 		});
 	}
