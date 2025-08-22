@@ -13,6 +13,7 @@ import { PartyBoard } from "../../Models/Board";
 import * as CharaManager from "../../Scenes/Battleground/Systems/CharaManager";
 import { Unit } from "../../Models/Entities/Unit";
 import * as Shop from "../../Scenes/Battleground/Systems/Shop/Shop";
+import * as ShopUI from "../../Scenes/Battleground/Systems/Shop/ShopUI";
 
 export type CharaInputHandler = {
 	dragStartX: number;
@@ -68,7 +69,7 @@ const onDragStart = (handlerState: CharaInputHandler) => (_pointer: Phaser.Input
 		ease: "Cubic.Out",
 	});
 	if (!chara.getIsShopItem()) {
-		Shop.shopUI.showSellZone();
+		ShopUI.showSellZone();
 	}
 	hideTooltip();
 }
@@ -93,7 +94,7 @@ const onDragEnd = (handlerState: CharaInputHandler) => (_pointer: Phaser.Input.P
 	});
 
 	if (!chara.getIsShopItem()) {
-		Shop.shopUI.hideSellZone();
+		ShopUI.hideSellZone();
 	}
 
 	if (!handlerState.wasDragSuccessful) {

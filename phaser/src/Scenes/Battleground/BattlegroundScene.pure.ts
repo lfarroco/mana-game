@@ -293,16 +293,6 @@ export function createGoldUpdateHandler(
 	return updateGoldFn(currentGold, goldDelta, emitEvent);
 }
 
-export function updateShopUI(
-	time: number,
-	shopUI: { update: (time: number) => void } | null | undefined,
-	updateFn: (ui: { update: (time: number) => void }, time: number) => void
-): void {
-	if (shopUI) {
-		updateFn(shopUI, time);
-	}
-}
-
 export function setupEventListeners(
 	eventMappings: Array<{ event: string; handler: EventHandler; context?: EventContext }>,
 	addEventListener: (event: string, handler: EventHandler, context?: EventContext) => void
