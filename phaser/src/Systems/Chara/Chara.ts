@@ -7,7 +7,7 @@ import * as Board from "../../Models/Board";
 import { scene } from "../../Scenes/Battleground/BattlegroundScene";
 import * as CharaStatsDisplay from "./CharaStatsDisplay";
 import * as CharaBarsDisplay from "./CharaBarsDisplay";
-import { CharaInputHandler } from "./CharaInputHandler";
+import * as CharaInputHandler from "./CharaInputHandler";
 import { createContinuousHasteEffect } from "../../Effects/hasteEffect";
 import { onCharaPointerOut, onCharaPointerOver } from "./CharaTooltip";
 import { hideTooltip } from "../../UI/Tooltip";
@@ -33,7 +33,7 @@ export class Chara {
 	statsDisplay: CharaStatsDisplay.StatsDisplay | null;
 	barsDisplay!: CharaBarsDisplay.CharaBars;
 
-	inputHandler!: CharaInputHandler;
+	inputHandler: CharaInputHandler.CharaInputHandler;
 	isShopItem: boolean;
 
 	private hasteEffect?: { particles: Phaser.GameObjects.Particles.ParticleEmitter; cleanup: () => void };
@@ -67,7 +67,7 @@ export class Chara {
 			Phaser.Geom.Rectangle.Contains
 		);
 
-		this.inputHandler = new CharaInputHandler(this);
+		this.inputHandler = CharaInputHandler.create(this);
 
 		this.container.on(Phaser.Input.Events.POINTER_OVER, () => {
 			onCharaPointerOver({ chara: this });
@@ -199,9 +199,6 @@ export class Chara {
 	}
 
 	destroy(fromScene?: boolean) {
-		if (this.inputHandler) {
-			this.inputHandler.destroy();
-		}
 
 		this.removeHasteEffect();
 
