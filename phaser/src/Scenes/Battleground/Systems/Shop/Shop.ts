@@ -8,7 +8,7 @@ import * as ShopUI from "./ShopUI";
 import { shopItemClickPurchaseRequestedHandler } from "./handlers/shopItemClickPurchaseHandler";
 import { shopItemDragPurchaseRequestedHandler } from "./handlers/shopItemDragPurchaseHandler";
 import { shopRerollTavernHandler } from "./handlers/shopRerollTavernHandler";
-import * as CharaManager from "../CharaManager";
+import { destroy, getCharaById } from "../../../../Systems/Chara/Chara";
 import * as sc from "./ShopConstants";
 import { tween } from "../../../../Utils/animation";
 
@@ -128,7 +128,7 @@ function _getAvailableCardsForTavern(count: number): Card.CardDefinition[] {
 export function rerollTavern(): void {
 	currentShopCharas.forEach(chara => {
 		ShopUI.removeShopChild(chara, false);
-		CharaManager.destroyChara(Chara.getId(chara));
+		destroy(getCharaById(Chara.getId(chara)));
 	});
 	currentShopCharas = [];
 

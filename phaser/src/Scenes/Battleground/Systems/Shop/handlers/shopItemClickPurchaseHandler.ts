@@ -1,7 +1,7 @@
 import * as constants from "../../../../../constants/constants";
 import { makeUnit, Unit } from "../../../../../Models/Entities/Unit";
 import { updatePlayerGoldIO } from "../../../../../Models/Entities/Force";
-import { getChara, summonChara } from "../../CharaManager";
+import { getCharaById, summon } from "../../../../../Systems/Chara/Chara";
 import * as Chara from "../../../../../Systems/Chara/Chara";
 import * as UIManager from "../../../../../UI/UIManager";
 import { vec2 } from "../../../../../Models/Geometry.pure";
@@ -25,7 +25,7 @@ export function shopItemClickPurchaseRequestedHandler(
 		reason: string,
 		additionalDetails?: Record<string, any>
 	) => {
-		Chara.onShopPurchaseFailed(getChara(shopCharaId), vec2(
+		Chara.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(
 			dragStartX,
 			dragStartY,
 		));
@@ -56,7 +56,7 @@ export function shopItemClickPurchaseRequestedHandler(
 	const newUnit = makeUnit(constants.FORCE_ID_PLAYER, shopUnitData.cardId, targetTile);
 	state.gameData.player.units.push(newUnit);
 
-	summonChara(newUnit, true);
+	summon(newUnit, true);
 
-	Chara.onShopPurchaseSuccesful(getChara(shopCharaId))
+	Chara.onShopPurchaseSuccesful(getCharaById(shopCharaId))
 }
