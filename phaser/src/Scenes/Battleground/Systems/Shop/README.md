@@ -15,7 +15,7 @@ The Shop system manages the player's ability to acquire new characters (Charas) 
 -   **`ShopUI.ts`**: Responsible for rendering the shop interface. It:
     -   Creates and positions all visual elements of the shop (backgrounds, titles, item slots, character/relic cards, buttons).
     -   Manages item interactions (e.g., click callbacks for purchase/acquisition).
-    -   Uses a `Flyout` component to slide the shop panel in and out of view.
+    -   Uses a ShopUI-owned container to slide the shop panel in and out of view (no separate Flyout component).
 -   **`ShopConstants.ts`**: Defines layout constants (positions, sizes, colors) for the `ShopUI`.
 -   **Handler Files (e.g., `shopItemClickPurchaseHandler.ts`, `shopItemDragPurchaseHandler.ts`, `shopOpenUITriggerHandler.ts`)**: Contain the specific logic for:
     -   Opening the shop UI (`shopOpenUITriggerHandler`).
@@ -36,7 +36,7 @@ graph TD
     end
 
     subgraph ShopUI Rendering & Interaction
-        G --> H[ShopUI: Clears previous Flyout content];
+    G --> H[ShopUI: Clears previous shop container content];
         H --> I[ShopUI: Renders Shop Panel (backgrounds, titles)];
         I --> J_Relic[ShopUI: _renderRelicsUI() - Creates RelicCard instances with onAcquire callback];
         J_Relic -- Returns --> K_Relics[Displayed RelicCards];
@@ -44,7 +44,7 @@ graph TD
         J_Chara -- Returns --> K_Charas[Displayed Charas];
         I --> J_NextBtn[ShopUI: Creates 'Next Round' Button with nextRoundCallback];
         G -- Returns {charas, relicCards} --> L[Shop: Stores displayed Charas & RelicCards from ShopUI];
-        L --> M[Flyout.slideIn()];
+    L --> M[ShopUI.slideIn()];
     end
 
     subgraph Character Purchase
@@ -65,14 +65,14 @@ graph TD
         S -- Failure --> Y[Handler: Emits SHOP_PURCHASE_FAILED & PURCHASE_FAILED];
 
         X -- Processed by Shop Chara --> Z[Shop Chara's onPurchased callback (defined in ShopUI)];
-        Z --> ZA[ShopUI: flyout.remove(shopChara)];
+    Z --> ZA[ShopUI: removeShopChild(shopChara)];
         Z --> ZB[ShopUI: Calls charaPurchaseFinalizedCallback (passed from Shop)];
         ZB --> ZC[Shop: Updates currentShopCharas (removes purchased Chara)];
     end
 
     subgraph Relic Acquisition
         AA[User Clicks Shop RelicCard] --> AB[RelicCard's onAcquire callback (defined in ShopUI)];
-        AB --> AC[ShopUI: flyout.remove(relicCard)];
+    AB --> AC[ShopUI: removeShopChild(relicCard)];
         AB --> AD[ShopUI: Calls relicAcquisitionFinalizedCallback (passed from Shop)];
         AD --> AE[Shop: Updates currentShopRelicCards (removes acquired RelicCard)];
         %% Note: Actual relic effect application is a separate concern.
@@ -81,7 +81,7 @@ graph TD
     subgraph Next Round
         AF[User Clicks 'Next Round' Button] --> AG[nextRoundCallback (defined in Shop)];
         AG --> AH[Shop: Emits GameEvents.SHOP_PHASE_ENDED];
-        AG --> AI[Shop: flyout.slideOut()];
+    AG --> AI[Shop: ShopUI.slideOut()];
     end
 
     %% Styling

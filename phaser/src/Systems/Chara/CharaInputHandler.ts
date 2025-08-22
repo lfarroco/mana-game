@@ -57,7 +57,7 @@ const onDragStart = (handlerState: CharaInputHandler) => (_pointer: Phaser.Input
 	handlerState.wasDragSuccessful = false;
 
 	if (chara.getIsShopItem()) {
-		Shop.flyout.bringChildToTop(chara.container);
+		ShopUI.bringShopChildToTop(chara.container);
 	} else {
 		scene.children.bringToTop(chara.container);
 	}
