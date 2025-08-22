@@ -11,13 +11,6 @@ import { renderOrbs } from "./Orbs";
 import { scene } from "../../BattlegroundScene";
 import { tween } from "../../../../Utils/animation";
 import * as AudioManager from "../../../../Systems/AudioManager";
-import {
-	ShopUIEnv,
-	ShopUIProgram,
-	buildSlideInProgram,
-	buildSlideOutProgram,
-	runShopUIProgram,
-} from './ShopUI.pure';
 
 export type ShopUIState = {
 	shopContainer: Phaser.GameObjects.Container;
@@ -246,31 +239,20 @@ export function destroy(): void {
 	state.sellZoneContainer = null;
 }
 
-// ============================
-// IO instruction layer (tiny)
-// ============================
-function makeDefaultEnv(): ShopUIEnv {
-	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
-	return {
-		playSound: (key) => AudioManager.playSoundEffect(key),
-		bringShopContainerToTop: () => scene.children.bringToTop(state!.shopContainer),
-		tweenShopContainerToY: (y) => tween({ targets: [state!.shopContainer], y }),
-		setIsOpen: (value) => { state!.isOpen = value; },
-	};
-}
-
-export async function runShopUIProgramWithDefaultEnv(program: ShopUIProgram): Promise<void> {
-	return runShopUIProgram(program, makeDefaultEnv());
-}
 
 export async function slideIn(): Promise<void> {
-	// Build a pure program and interpret it with real env
-	await runShopUIProgramWithDefaultEnv(buildSlideInProgram());
+	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
+	AudioManager.playSoundEffect('sfx_ui_modalwindow_swoosh_enter');
+	scene.children.bringToTop(state.shopContainer);
+	await tween({ targets: [state.shopContainer], y: 0 });
+	state.isOpen = true;
 }
 
 export async function slideOut(): Promise<void> {
-	// Build a pure program and interpret it with real env
-	await runShopUIProgramWithDefaultEnv(buildSlideOutProgram());
+	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
+	AudioManager.playSoundEffect('sfx_ui_modalwindow_swoosh_exit');
+	await tween({ targets: [state.shopContainer], y: c.SCREEN_HEIGHT * -1 });
+	state.isOpen = false;
 }
 
 export function bringShopChildToTop(child: Phaser.GameObjects.GameObject): void {
