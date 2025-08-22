@@ -1,7 +1,7 @@
 import { Unit } from '../../Models/Entities/Unit';
 import { arcaneMissileTargeted } from '../../Effects';
 import { getMoraleBarTipPosition } from '../../Scenes/Battleground/MoraleDisplay';
-import { getChara } from '../../Scenes/Battleground/Systems/CharaManager';
+import { getCharaById } from '../../Systems/Chara/Chara';
 import { scene } from '../../Scenes/Battleground/BattlegroundScene';
 import { applyPoison } from '../../Scenes/Battleground/Systems/PoisonDamageSystem';
 
@@ -18,7 +18,7 @@ export const applyPoisonLogicIO = async (sourceUnit: Unit) => {
 		return;
 	}
 
-	const sourceChara = getChara(sourceUnit.id);
+	const sourceChara = getCharaById(sourceUnit.id);
 	const moraleBarTipPos = getMoraleBarTipPosition(targetForce.id);
 
 	arcaneMissileTargeted(

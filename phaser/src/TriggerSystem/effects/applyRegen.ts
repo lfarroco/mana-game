@@ -1,7 +1,7 @@
 import { Unit } from '../../Models/Entities/Unit';
 import { arcaneMissileTargeted } from '../../Effects';
 import { getMoraleBarTipPosition } from '../../Scenes/Battleground/MoraleDisplay';
-import { getChara } from '../../Scenes/Battleground/Systems/CharaManager';
+import { getCharaById } from '../../Systems/Chara/Chara';
 import { scene } from '../../Scenes/Battleground/BattlegroundScene';
 import { applyRegen } from '../../Scenes/Battleground/Systems/RegenSystem';
 
@@ -14,7 +14,7 @@ export const applyRegenLogicIO = async (
 
 	console.log(`[ApplyRegen] Unit power: ${sourceUnit.power}, Regen per tick: ${amount}`);
 
-	const sourceChara = getChara(sourceUnit.id);
+	const sourceChara = getCharaById(sourceUnit.id);
 	const moraleBarTipPos = getMoraleBarTipPosition(targetForce.id);
 	if (!moraleBarTipPos) {
 		console.warn('[ApplyRegen] Morale bar tip position not found');
