@@ -6,7 +6,7 @@
 
 import { arcaneMissileTargeted } from '../../Effects/arcaneMissileTargeted';
 import { hasteEffect } from '../../Effects/hasteEffect'; // Reusing haste effect for now, can be changed later
-import * as CharaManager from '../../Scenes/Battleground/Systems/CharaManager';
+import { getCharaById } from '../../Systems/Chara/Chara';
 import { Unit } from '../../Models/Entities/Unit';
 import BattlegroundScene from '../../Scenes/Battleground/BattlegroundScene';
 
@@ -19,10 +19,10 @@ export function createApplyChargeLogic() {
 		const { targets, scene, sourceUnit, amount } = context;
 
 		// Get source character position for arcane missile effect
-		const sourceChara = CharaManager.getChara(sourceUnit.id);
+		const sourceChara = getCharaById(sourceUnit.id);
 
 		for (const target of targets) {
-			const targetChara = CharaManager.getChara(target.id);
+			const targetChara = getCharaById(target.id);
 			if (targetChara) {
 				// Use the targeted arcane missile effect with charge callback
 				arcaneMissileTargeted(

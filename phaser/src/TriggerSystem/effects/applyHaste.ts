@@ -1,6 +1,6 @@
 import { arcaneMissileTargeted } from '../../Effects/arcaneMissileTargeted';
 import { hasteEffect } from '../../Effects/hasteEffect';
-import * as CharaManager from '../../Scenes/Battleground/Systems/CharaManager';
+import { getCharaById } from '../../Systems/Chara/Chara';
 import { Unit } from '../../Models/Entities/Unit';
 import { scene } from '../../Scenes/Battleground/BattlegroundScene';
 
@@ -11,10 +11,10 @@ export const applyHasteLogicIO = async (context: {
 }) => {
 	const { targets, sourceUnit, duration } = context;
 
-	const sourceChara = CharaManager.getChara(sourceUnit.id);
+	const sourceChara = getCharaById(sourceUnit.id);
 
 	for (const target of targets) {
-		const targetChara = CharaManager.getChara(target.id);
+		const targetChara = getCharaById(target.id);
 		if (targetChara) {
 			arcaneMissileTargeted(
 				scene,

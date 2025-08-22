@@ -1,4 +1,4 @@
-import { getChara } from "../../Scenes/Battleground/Systems/CharaManager";
+import { getCharaById } from "../../Systems/Chara/Chara";
 import * as Chara from "../../Systems/Chara/Chara";
 import { Unit } from "../../Models/Entities/Unit";
 import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
@@ -17,7 +17,7 @@ export const multiplyPower = async (context: {
 
 	for (const target of targets) {
 		console.log(`Multiplying power of ${target.id} by ${multiplier}`);
-		const chara = getChara(target.id);
+		const chara = getCharaById(target.id);
 		// Calculate the new power value
 		const currentPower = target.power;
 		const newPower = Math.floor(currentPower * multiplier);

@@ -16,6 +16,7 @@ import { playSoundEffect } from "../AudioManager";
 import * as Shop from "../../Scenes/Battleground/Systems/Shop/Shop";
 import * as ShopUI from "../../Scenes/Battleground/Systems/Shop/ShopUI";
 import { popText } from "./Animations/popText";
+import { summonEffect } from "../../Effects/summonEffect";
 
 export type CharaOptions = {
 	isShopItem?: boolean;
@@ -54,6 +55,45 @@ export function getCharaById(id: string): Chara {
 
 export function getAllCharas(): Chara[] {
 	return Array.from(charaById.values());
+}
+
+// Summon a chara with optional VFX and intro tween
+export async function summon(unit: Unit, useSummonEffect: boolean = true): Promise<Chara> {
+	const vec = getCharaPosition(unit);
+	if (useSummonEffect) {
+		summonEffect(scene, vec);
+	}
+	const chara = create(unit);
+	setBarsVisibility(chara, false);
+	chara.setScale(0);
+	chara.setAngle(-10);
+	await tween({
+		targets: [chara],
+		scale: 1,
+		angle: 0,
+		ease: "Back.easeOut",
+		duration: 500,
+	});
+	setBarsVisibility(chara, true);
+	return chara;
+}
+
+// Destroy all currently tracked charas
+export function clearAll(): void {
+	getAllCharas().forEach(c => destroy(c));
+}
+
+export function getSurroundingAllies(unit: Unit): Chara[] {
+	return getAllCharas()
+		.filter(ch => getUnit(ch).force === unit.force)
+		.filter(ch => getId(ch) !== unit.id)
+		.filter(ch => {
+			const distance = Phaser.Math.Distance.BetweenPoints(
+				unit.position,
+				getUnit(ch).position
+			);
+			return distance === 1;
+		});
 }
 
 export function create(unit: Unit, options?: CharaOptions): Chara {

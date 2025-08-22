@@ -10,7 +10,7 @@ import * as sc from "../../Scenes/Battleground/Systems/Shop/ShopConstants";
 import { hideTooltip } from "../../UI/Tooltip";
 import { scene } from "../../Scenes/Battleground/BattlegroundScene";
 import { PartyBoard } from "../../Models/Board";
-import * as CharaManager from "../../Scenes/Battleground/Systems/CharaManager";
+import { getCharaById } from "./Chara";
 import { Unit } from "../../Models/Entities/Unit";
 import * as Shop from "../../Scenes/Battleground/Systems/Shop/Shop";
 import * as ShopUI from "../../Scenes/Battleground/Systems/Shop/ShopUI";
@@ -235,7 +235,7 @@ const _executeSwap = (unit: Unit, _occupier: Unit, target: Vec2, units: Unit[]) 
 }
 
 const _applyMoveVisual = (movedUnit: Unit) => {
-	const movedChara = CharaManager.getChara(movedUnit.id);
+	const movedChara = getCharaById(movedUnit.id);
 	const pos = getCharaPosition(movedUnit);
 	tween({
 		targets: [movedChara],
@@ -244,8 +244,8 @@ const _applyMoveVisual = (movedUnit: Unit) => {
 }
 
 const _applySwapVisual = (movedUnit: Unit, swappedUnit: Unit) => {
-	const movedChara = CharaManager.getChara(movedUnit.id);
-	const swappedChara = CharaManager.getChara(swappedUnit.id);
+	const movedChara = getCharaById(movedUnit.id);
+	const swappedChara = getCharaById(swappedUnit.id);
 	const movedPos = getCharaPosition(movedUnit);
 	const swappedPos = getCharaPosition(swappedUnit);
 	tween({ targets: [movedChara], ...movedPos });
@@ -253,7 +253,7 @@ const _applySwapVisual = (movedUnit: Unit, swappedUnit: Unit) => {
 }
 
 const _movementRejected = (unitId: string, dragStartX: number, dragStartY: number, _reason: string) => {
-	const failedChara = CharaManager.getChara(unitId);
+	const failedChara = getCharaById(unitId);
 	hideTooltip();
 	tween({ targets: [failedChara], ...vec2(dragStartX, dragStartY) });
 }
