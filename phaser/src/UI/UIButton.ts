@@ -14,7 +14,7 @@ interface UIButtonState {
 	lineWidth: number;
 }
 
-const uiButtonState = new WeakMap<Phaser.GameObjects.Container, UIButtonState>();
+const uiButtonsState = new WeakMap<Phaser.GameObjects.Container, UIButtonState>();
 
 export function createUIButton(
 	scene: Phaser.Scene,
@@ -36,11 +36,11 @@ export function createUIButton(
 		lineColor: 0x000000,
 		lineWidth: 4,
 	};
-	uiButtonState.set(container, state);
+	uiButtonsState.set(container, state);
 
 	const buttonGraphics = scene.add.graphics();
 	buttonGraphics.setName("buttonBackground");
-	const st = uiButtonState.get(container)!;
+	const st = uiButtonsState.get(container)!;
 	buttonGraphics.setPosition(x - st.buttonWidth / 2, y - st.buttonHeight / 2);
 	container.add(buttonGraphics);
 	drawUIButtonState(container, (container as any).normalFillColor);
@@ -112,7 +112,7 @@ export function drawUIButtonState(container: Phaser.GameObjects.Container, fill:
 	const g = container.getByName("buttonBackground") as Phaser.GameObjects.Graphics;
 	if (!g) return;
 
-	const st = uiButtonState.get(container);
+	const st = uiButtonsState.get(container);
 	if (!st) return;
 	const buttonWidth = st.buttonWidth;
 	const buttonHeight = st.buttonHeight;
@@ -157,7 +157,7 @@ export function enableUIButton(container: Phaser.GameObjects.Container) {
 	const t = container.getByName("buttonLabel") as Phaser.GameObjects.Text;
 	if (g) {
 		g.setAlpha(1);
-		const st = uiButtonState.get(container);
+		const st = uiButtonsState.get(container);
 		const w = st ? st.buttonWidth : 280;
 		const h = st ? st.buttonHeight : 60;
 		g.setInteractive(new Phaser.Geom.Rectangle(0, 0, w, h), Phaser.Geom.Rectangle.Contains);
