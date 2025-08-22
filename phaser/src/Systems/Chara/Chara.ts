@@ -6,7 +6,7 @@ import * as CharaManager from "../../Scenes/Battleground/Systems/CharaManager";
 import * as Board from "../../Models/Board";
 import { scene } from "../../Scenes/Battleground/BattlegroundScene";
 import { CharaStatsDisplay } from "./CharaStatsDisplay";
-import { CharaBarsDisplay } from "./CharaBarsDisplay";
+import * as CharaBarsDisplay from "./CharaBarsDisplay";
 import { CharaInputHandler } from "./CharaInputHandler";
 import { createContinuousHasteEffect } from "../../Effects/hasteEffect";
 import { onCharaPointerOut, onCharaPointerOver } from "./CharaTooltip";
@@ -31,7 +31,7 @@ export class Chara {
 	sprite!: Phaser.GameObjects.Sprite;
 	spriteBorder?: Phaser.GameObjects.Graphics;
 	statsDisplay!: CharaStatsDisplay;
-	barsDisplay!: CharaBarsDisplay;
+	barsDisplay!: CharaBarsDisplay.CharaBars;
 
 	inputHandler!: CharaInputHandler;
 	isShopItem: boolean;
@@ -54,8 +54,7 @@ export class Chara {
 		if (this.unit.force === constants.FORCE_ID_CPU) {
 			this.sprite.setFlipX(true);
 		}
-		this.barsDisplay = new CharaBarsDisplay(this.unit);
-		this.barsDisplay.addToContainer(this.container);
+		this.barsDisplay = CharaBarsDisplay.create(unit, this.container);
 		this.statsDisplay = new CharaStatsDisplay(scene, this.unit);
 		this.statsDisplay.addToContainer(this.container);
 
@@ -79,7 +78,8 @@ export class Chara {
 		});
 
 		this.statsDisplay.updatePower();
-		this.barsDisplay.updateBars();
+
+		CharaBarsDisplay.updateBars(this.barsDisplay);
 
 		this.updateStatusEffects();
 
@@ -158,7 +158,7 @@ export class Chara {
 	updateUnit(newUnit: Unit): void {
 		this.unit = newUnit;
 		this.statsDisplay.updateUnit(newUnit);
-		this.barsDisplay.updateUnit(newUnit);
+		CharaBarsDisplay.updateUnit(this.barsDisplay, newUnit);
 		this.updateStatusEffects();
 	}
 
@@ -167,11 +167,11 @@ export class Chara {
 	}
 
 	setBarsVisibility(visible: boolean): void {
-		this.barsDisplay.setVisible(visible);
+		CharaBarsDisplay.setVisible(this.barsDisplay, visible);
 	}
 
 	updateChargeBar = () => {
-		this.barsDisplay.updateBars();
+		CharaBarsDisplay.updateBars(this.barsDisplay);
 	}
 
 	updateUnitAttribute = async <K extends keyof Unit>(attribute: K, num: number) => {
