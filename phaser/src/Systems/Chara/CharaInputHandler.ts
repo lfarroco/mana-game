@@ -254,6 +254,7 @@ export class CharaInputHandler {
 
 	private _movementRejected(unitId: string, dragStartX: number, dragStartY: number, _reason: string) {
 		const failedChara = CharaManager.getChara(unitId);
-		failedChara?.revertToPosition(dragStartX, dragStartY);
+		hideTooltip();
+		tween({ targets: [failedChara.container], ...vec2(dragStartX, dragStartY) });
 	}
 }
