@@ -137,8 +137,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
   }
 
-  // handleOwnedUnitMoveRequest moved to CharaInputHandler._processOwnedUnitMoveRequest
-
   handleBattleResultShow(payload: { result: "victory" | "defeat" }): void {
     BattlegroundScenePure.handleBattleResultDisplay(
       payload.result,
@@ -157,7 +155,7 @@ export class BattlegroundScene extends Phaser.Scene {
       this.state.gameData.player.units,
       unitId,
       soldForGold,
-      chara,
+      chara.container,
       (x: number, y: number, text: string, type: string, direction: string) => {
         popText({
           x,

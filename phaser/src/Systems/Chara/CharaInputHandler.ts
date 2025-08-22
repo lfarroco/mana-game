@@ -29,33 +29,33 @@ export class CharaInputHandler {
 	setupInteractions(): void {
 
 		if (this.chara.unit.force === FORCE_ID_PLAYER || this.chara.getIsShopItem()) {
-			this.chara.scene.input.setDraggable(this.chara, true);
+			scene.input.setDraggable(this.chara.container, true);
 
-			this.chara.on(Phaser.Input.Events.DRAG_START, this.onDragStart);
-			this.chara.on(Phaser.Input.Events.DRAG, this.onDrag);
-			this.chara.on(Phaser.Input.Events.DROP, this.onDrop);
-			this.chara.on(Phaser.Input.Events.DRAG_END, this.onDragEnd);
+			this.chara.container.on(Phaser.Input.Events.DRAG_START, this.onDragStart);
+			this.chara.container.on(Phaser.Input.Events.DRAG, this.onDrag);
+			this.chara.container.on(Phaser.Input.Events.DROP, this.onDrop);
+			this.chara.container.on(Phaser.Input.Events.DRAG_END, this.onDragEnd);
 		}
 
 		if (this.chara.getIsShopItem()) {
-			this.chara.on(Phaser.Input.Events.POINTER_UP, this.onPointerUpShopItem);
+			this.chara.container.on(Phaser.Input.Events.POINTER_UP, this.onPointerUpShopItem);
 		}
 	}
 
 	onDragStart = (_pointer: Phaser.Input.Pointer, _dragX: number, _dragY: number): void => {
-		this.dragStartX = this.chara.x;
-		this.dragStartY = this.chara.y;
+		this.dragStartX = this.chara.container.x;
+		this.dragStartY = this.chara.container.y;
 		this.dragStartVec = vec2(this.dragStartX, this.dragStartY);
 		this.wasDragSuccessful = false;
 
 		if (this.chara.getIsShopItem()) {
-			Shop.flyout.bringChildToTop(this.chara);
+			Shop.flyout.bringChildToTop(this.chara.container);
 		} else {
-			this.chara.scene.children.bringToTop(this.chara);
+			scene.children.bringToTop(this.chara.container);
 		}
 
 		tween({
-			targets: [this.chara],
+			targets: [this.chara.container],
 			angle: -10,
 			duration: 100,
 			ease: "Cubic.Out",
@@ -67,8 +67,8 @@ export class CharaInputHandler {
 	}
 
 	onDrag = (_pointer: Phaser.Input.Pointer, dragX: number, dragY: number): void => {
-		this.chara.x = dragX;
-		this.chara.y = dragY;
+		this.chara.container.x = dragX;
+		this.chara.container.y = dragY;
 	}
 
 	onDrop = (_pointer: Phaser.Input.Pointer, dropZoneTarget: Phaser.GameObjects.GameObject): void => {
@@ -76,8 +76,8 @@ export class CharaInputHandler {
 	}
 
 	onDragEnd = (_pointer: Phaser.Input.Pointer): void => {
-		this.chara.scene.tweens.add({
-			targets: [this.chara],
+		scene.tweens.add({
+			targets: [this.chara.container],
 			angle: 0,
 			duration: 100,
 			ease: "Cubic.Out",
@@ -95,7 +95,7 @@ export class CharaInputHandler {
 	}
 
 	onPointerUpShopItem = (pointer: Phaser.Input.Pointer): void => {
-		if (!this.chara.getIsShopItem() || !this.chara.input?.enabled) return;
+		if (!this.chara.getIsShopItem() || !this.chara.container.input?.enabled) return;
 
 		if (pointer.getDistance() > constants.DRAG_CLICK_THRESHOLD) {
 			return;
@@ -106,25 +106,25 @@ export class CharaInputHandler {
 
 	updateShopItemStatus(isShopItem: boolean): void {
 		if (!isShopItem) {
-			this.chara.off(Phaser.Input.Events.POINTER_UP, this.onPointerUpShopItem);
+			this.chara.container.off(Phaser.Input.Events.POINTER_UP, this.onPointerUpShopItem);
 		}
 	}
 
 	destroy(): void {
-		this.chara.off(Phaser.Input.Events.DRAG_START, this.onDragStart);
-		this.chara.off(Phaser.Input.Events.DRAG, this.onDrag);
-		this.chara.off(Phaser.Input.Events.DROP, this.onDrop);
-		this.chara.off(Phaser.Input.Events.DRAG_END, this.onDragEnd);
-		this.chara.off(Phaser.Input.Events.POINTER_UP, this.onPointerUpShopItem);
+		this.chara.container.off(Phaser.Input.Events.DRAG_START, this.onDragStart);
+		this.chara.container.off(Phaser.Input.Events.DRAG, this.onDrag);
+		this.chara.container.off(Phaser.Input.Events.DROP, this.onDrop);
+		this.chara.container.off(Phaser.Input.Events.DRAG_END, this.onDragEnd);
+		this.chara.container.off(Phaser.Input.Events.POINTER_UP, this.onPointerUpShopItem);
 	}
 
 	processShopItemClick(_clickX: number, _clickY: number): void {
 		Shop.handleShopItemClickPurchaseRequested({
 			shopUnitData: { ...this.chara.unit },
 			shopCharaId: this.chara.id,
-			dragStartX: this.chara.x,
-			dragStartY: this.chara.y
-		})
+			dragStartX: this.chara.container.x,
+			dragStartY: this.chara.container.y
+		});
 	}
 
 	processDrop(dropTarget: Phaser.GameObjects.GameObject, dragStartX: number, dragStartY: number): boolean {
@@ -183,9 +183,6 @@ export class CharaInputHandler {
 		scene.handleOwnedUnitSold({ unitId: this.chara.unit.id, soldForGold: sellPrice });
 	}
 
-	/**
-	 * Public method (also used by DebugController) to request moving an owned unit.
-	 */
 	requestOwnedUnitMove(targetTile: Vec2, dragStartX: number, dragStartY: number): void {
 		this._processOwnedUnitMoveRequest({
 			unitId: this.chara.unit.id,
@@ -195,10 +192,6 @@ export class CharaInputHandler {
 		});
 	}
 
-	/**
-	 * Core logic formerly in BattlegroundScene.handleOwnedUnitMoveRequest.
-	 * Handles move or swap operations and visual feedback.
-	 */
 	private _processOwnedUnitMoveRequest(payload: { unitId: string; targetTile: Vec2; dragStartX: number; dragStartY: number; }): void {
 		const { unitId, targetTile, dragStartX, dragStartY } = payload;
 
@@ -207,36 +200,32 @@ export class CharaInputHandler {
 
 	private _attemptOwnedUnitMovement(unitId: string, targetTile: Vec2, dragStartX: number, dragStartY: number) {
 		const units = scene.state.gameData.player.units;
-		// 1. Identify unit
 		const unit = units.find(u => u.id === unitId);
 		if (!unit) {
 			this._movementRejected(unitId, dragStartX, dragStartY, "UNIT_NOT_FOUND");
 			return;
 		}
-		// 2. Early exit if target equals current
 		if (unit.position.x === targetTile.x && unit.position.y === targetTile.y) {
 			this._movementRejected(unitId, dragStartX, dragStartY, "NO_OP");
 			return;
 		}
-		// 3. Determine occupier (swap vs move)
 		const occupier = units.find(u => u.id !== unitId && u.position.x === targetTile.x && u.position.y === targetTile.y);
 		if (occupier) {
 			this._executeSwap(unit, occupier, targetTile, units);
 			return;
 		}
-		// 4. Normal move
 		this._executeMove(unit, targetTile, units);
 	}
 
 	private _executeMove(unit: Unit, target: Vec2, units: Unit[]) {
 		const result = PartyBoard.updateUnitPosition(unit, target, units);
-		if (!result) return; // safety
+		if (!result) return;
 		this._applyMoveVisual(result.movedUnit);
 	}
 
 	private _executeSwap(unit: Unit, _occupier: Unit, target: Vec2, units: Unit[]) {
 		const result = PartyBoard.updateUnitPosition(unit, target, units);
-		if (!result) return; // safety
+		if (!result) return;
 		this._applySwapVisual(result.movedUnit, result.swappedUnit!);
 	}
 

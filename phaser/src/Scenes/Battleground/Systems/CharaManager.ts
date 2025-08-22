@@ -11,7 +11,7 @@ const charaIndex: Chara.Chara[] = [];
 
 export function clearCharas() {
 	[...charaIndex].forEach(chara => {
-		destroyChara(chara.id); // destroyChara will remove it from the charaIndex
+		destroyChara(chara.id);
 	});
 	if (charaIndex.length > 0) {
 		console.warn("CharaManager: charaIndex not empty after clearCharas loop. Forcibly clearing.");
@@ -26,9 +26,7 @@ export function destroyChara(id: string) {
 		const charaInstance = charaIndex[charaIndexPos];
 
 		charaIndex.splice(charaIndexPos, 1);
-		if (charaInstance.scene) {
-			charaInstance.destroy();
-		}
+		charaInstance.destroy();
 	}
 }
 export async function summonChara(
@@ -41,13 +39,13 @@ export async function summonChara(
 		summonEffect(scene, vec);
 	}
 
-	const chara = new Chara.Chara(scene, unit);
+	const chara = new Chara.Chara(unit);
 
 	chara.setBarsVisibility(false);
-	chara.setScale(0);
-	chara.setAngle(-10);
+	chara.container.setScale(0);
+	chara.container.setAngle(-10);
 	await tween({
-		targets: [chara],
+		targets: [chara.container],
 		scale: 1,
 		angle: 0,
 		ease: "Back.easeOut",
@@ -67,9 +65,10 @@ export function registerChara(chara: Chara.Chara) {
 		console.warn(`CharaManager: Attempted to register chara with id ${chara.id} which is already registered.`);
 	}
 }
+
 // TODO: move to chara
 export function getCharaPosition(unit: Unit) {
-	const slotSpacing = 8; // Must match the spacing used in Board.ts renderSlots()
+	const slotSpacing = 8;
 	const offsetX = unit.force === constants.FORCE_ID_PLAYER ? constants.PLAYER_BOARD_X : constants.CPU_BOARD_X;
 	const offsetY = unit.force === constants.FORCE_ID_PLAYER ? constants.PLAYER_BOARD_Y : constants.CPU_BOARD_Y;
 

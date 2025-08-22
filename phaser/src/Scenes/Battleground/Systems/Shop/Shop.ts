@@ -100,23 +100,22 @@ export function handleShopRerollTavern() {
 }
 
 async function _animateItemAppearance(
-	item: Chara
+	chara: Chara
 ): Promise<void> {
-	const targetScaleX = item.scaleX;
-	const targetScaleY = item.scaleY;
+	const targetScaleX = chara.container.scaleX;
+	const targetScaleY = chara.container.scaleY;
 
-	item.setScale(0);
+	chara.container.setScale(0);
 
 	tween({
-		targets: [item],
+		targets: [chara.container],
 		scaleX: targetScaleX,
 		scaleY: targetScaleY,
 		duration: sc.SHOP_ITEM_APPEAR_SCALE_DURATION
 	});
 
-	//shake card left and right
 	scene.tweens.chain({
-		targets: item,
+		targets: chara,
 		tweens: [
 			{ angle: -sc.SHOP_ITEM_APPEAR_WIGGLE_ANGLE, duration: sc.SHOP_ITEM_APPEAR_WIGGLE_DURATION_1, yoyo: true, ease: 'Quad.easeInOut' },
 			{ angle: sc.SHOP_ITEM_APPEAR_WIGGLE_ANGLE, duration: sc.SHOP_ITEM_APPEAR_WIGGLE_DURATION_2, yoyo: true, ease: 'Quad.easeInOut' },
@@ -134,7 +133,7 @@ function _getAvailableCardsForTavern(count: number): Card.CardDefinition[] {
 
 export function rerollTavern(): void {
 	currentShopCharas.forEach(chara => {
-		flyout.remove(chara, false);
+		flyout.remove(chara.container, false);
 		CharaManager.destroyChara(chara.id);
 	});
 	currentShopCharas = [];

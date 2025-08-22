@@ -1,25 +1,15 @@
-/**
- * @file Deal Damage trait effect implementation
- * This effect deals direct damage to targets and shows damage pop text.
- */
-
 import { arcaneMissileTargeted } from '../../Effects';
 import { Force, applyDamageToForce } from '../../Models/Entities/Force';
 import { Unit } from '../../Models/Entities/Unit';
-import BattlegroundScene from '../../Scenes/Battleground/BattlegroundScene';
+import { scene } from '../../Scenes/Battleground/BattlegroundScene';
 import { getMoraleBarTipPosition, getShieldBarTipPosition } from '../../Scenes/Battleground/MoraleDisplay';
 import { getChara } from '../../Scenes/Battleground/Systems/CharaManager';
 import * as CombatStatsTracker from '../../Scenes/Battleground/Systems/CombatStatsTracker';
 
-/**
- * Pure function to create the deal damage effect implementation
- * @returns The trait effect function
- */
 export function createDealDamageLogic(
 	dealDamage: (targetForce: Force, damage: number, scene: Phaser.Scene) => number
 ) {
-	return async (context: { sourceUnit: Unit; scene: BattlegroundScene; }) => {
-		const { sourceUnit, scene } = context;
+	return async (sourceUnit: Unit) => {
 
 		let damageAmount = sourceUnit.power;
 
@@ -27,19 +17,16 @@ export function createDealDamageLogic(
 			(force: { id: string }) => force.id !== sourceUnit.force
 		)!;
 
-		// Show a red projectile from source unit to the appropriate target
-		// Target shield bar tip if enemy has shield, otherwise target morale bar tip
 		const sourceChara = getChara(sourceUnit.id);
 
-		// Choose target based on whether the enemy has shield
 		const targetPos = targetForce.shield > 0
 			? getShieldBarTipPosition(targetForce.id)
 			: getMoraleBarTipPosition(targetForce.id);
 
 		arcaneMissileTargeted(
 			scene,
-			{ x: sourceChara.x, y: sourceChara.y },
-			{ x: targetPos.x, y: targetPos.y },
+			sourceChara.container,
+			targetPos,
 			{
 				colors: [0xff0000, 0xb22222, 0xdc143c], // Red colors
 				amplitudeMin: 5,
@@ -58,30 +45,18 @@ export function createDealDamageLogic(
 			}
 		);
 
-		// Battle reactions are now handled centrally in the combat loop
-		// No need to manually trigger allied reactions here
-
 	};
 }
 
-/**
- * Deal damage effect implementation for runtime use
- * This is the actual implementation registered with the TraitEffectSystem
- */
-export const dealDamageLogicIO = async (context: { scene: BattlegroundScene, sourceUnit: Unit }) => {
-
-	const { sourceUnit } = context;
-
-	// Create a wrapper for applyDamageToForce that tracks combat stats
+export const dealDamageLogicIO = async (sourceUnit: Unit) => {
 	const dealDamageWithTracking = (targetForce: Force, damage: number): number => {
 		const actualMoraleChange = applyDamageToForce(targetForce, damage);
 
-		// Track damage in combat stats using singleton
 		CombatStatsTracker.trackDamage(sourceUnit.id, actualMoraleChange, 'normal');
 
 		return actualMoraleChange;
 	};
 
 	const impl = createDealDamageLogic(dealDamageWithTracking);
-	return impl(context);
+	return impl(sourceUnit);
 };

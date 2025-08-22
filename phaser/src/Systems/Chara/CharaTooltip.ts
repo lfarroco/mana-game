@@ -116,7 +116,7 @@ const getTargetDescription = (targets: any): string => {
 
 export const onCharaPointerOver = ({ chara }: { chara: Chara }): void => {
 
-	if (!chara.active || !chara.visible) return
+	if (!chara.container.active || !chara.container.visible) return
 
 	const title = chara.unit.name;
 
@@ -129,13 +129,13 @@ export const onCharaPointerOver = ({ chara }: { chara: Chara }): void => {
 	const statsBlock = `[color=#c0c0c0]Power:[/color] [color=#ffd93d]${chara.unit.power}[/color]\n[color=#c0c0c0]Cooldown:[/color] [color=#ffa94d]${cdAsSeconds}s[/color]`;
 	const description = `${statsBlock}\n\n${descriptionString}`;
 
-	const worldMatrix = chara.getWorldTransformMatrix();
+	const worldMatrix = chara.container.getWorldTransformMatrix();
 	const charaWorldX = worldMatrix.tx;
 	const charaWorldY = worldMatrix.ty;
 
 	const TOOLTIP_OFFSET_X = 400;
-	const tooltipX = charaWorldX + chara.displayWidth + TOOLTIP_OFFSET_X;
-	const CHAR_TOP = charaWorldY - chara.displayHeight / 2;
+	const tooltipX = charaWorldX + chara.container.displayWidth + TOOLTIP_OFFSET_X;
+	const CHAR_TOP = charaWorldY - chara.container.displayHeight / 2;
 	const EXTRA_OFFSET = -20;
 	const tooltipY = CHAR_TOP + EXTRA_OFFSET;
 

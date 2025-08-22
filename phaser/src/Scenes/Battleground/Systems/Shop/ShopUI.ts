@@ -18,8 +18,8 @@ export class ShopUI {
 	sellZone: Phaser.GameObjects.Zone | null = null;
 	sellZoneText: Phaser.GameObjects.Text | null = null;
 	sellZoneGraphics: Phaser.GameObjects.Graphics | null = null;
-	magicOrbs: MagicOrb[] = []; // Store magic orbs for updating
-	orbContainer: Phaser.GameObjects.Container | null = null; // Store orb container for cleanup
+	magicOrbs: MagicOrb[] = [];
+	orbContainer: Phaser.GameObjects.Container | null = null;
 	panelX: number;
 
 	constructor(scene: BattlegroundScene, flyout: Flyout) {
@@ -27,15 +27,6 @@ export class ShopUI {
 		this.flyout = flyout;
 	}
 
-	/**
-	 * Clears and re-renders only the character cards in the tavern section of the shop.
-	 * Assumes the tavern background and title are already present and should not be recreated.
-	 * This method is called when the player rerolls the tavern.
-	 * @param cardDefs The new card definitions to display in the tavern.
-	 * @param charaPurchaseFinalized Callback function invoked when a character is successfully purchased from the tavern.
-	 *                               This allows the `Shop` class to update its list of `currentShopCharas`.
-	 * @returns An array of the newly created `Chara` instances that are now displayed in the tavern.
-	 */
 	rerenderTavernCharas(
 		cardDefs: Card.CardDefinition[],
 	): Chara[] {
@@ -48,24 +39,21 @@ export class ShopUI {
 		nextRoundCallback: () => void,
 		rerollCallback: () => void,
 	): { charas: Chara[] } {
-		this.flyout.removeAll(true); // Clear any previous content
-		this.magicOrbs = []; // Clear magic orbs array
+		this.flyout.removeAll(true);
+		this.magicOrbs = [];
 
-		// Clean up previous orb container if it exists
 		if (this.orbContainer) {
 			this.orbContainer.destroy(true);
 			this.orbContainer = null;
 		}
 
-		// Calculate right-aligned X for the shop panel
 		const screenWidth = this.scene.cameras.main.width;
-		this.panelX = screenWidth - sc.SHOP_PANEL_WIDTH - 40; // 40px margin from right
+		this.panelX = screenWidth - sc.SHOP_PANEL_WIDTH - 40;
 		const shopBackground = this.scene.add.graphics()
 			.fillStyle(sc.PANEL_BG_COLOR, sc.PANEL_BG_OPACITY)
 			.fillRoundedRect(this.panelX, sc.PANEL_Y, sc.SHOP_PANEL_WIDTH, sc.SHOP_PANEL_HEIGHT, 20);
 		this.flyout.add(shopBackground);
 
-		// Render tavern background and title first, passing panelX for right alignment
 		this._renderTavernSectionBackgroundAndTitle(this.panelX);
 
 		const rerollButtonX = this.panelX + 470;
@@ -90,12 +78,10 @@ export class ShopUI {
 		);
 		this.flyout.add(nextRoundBtn);
 
-		// render orbs
 		this.renderOrbSection(orbs);
 
 		this._createSellZone();
 
-		// Render characters AFTER buttons to ensure they appear on top
 		const displayedCharas = this._renderTavernCharas(cardsToDisplay);
 
 		return { charas: displayedCharas };
@@ -103,16 +89,9 @@ export class ShopUI {
 
 
 	renderOrbSection(orbs: string[]) {
-		renderOrbs(this, orbs); // Pass `this` to use the ShopUI instance context
+		renderOrbs(this, orbs);
 	}
 
-	/**
-	 * Renders the tavern section of the shop, including its background, title, and character cards.
-	 * This method is called during the initial display of the shop.
-	 * @param cardDefs An array of `Card.CardDefinition` objects representing the characters to display.
-	 * @param panelX The X position for right-aligned shop panel.
-	 * @returns An array of the created `Chara` instances.
-	 */
 	_renderTavernUI(
 		cardDefs: Card.CardDefinition[],
 		panelX: number
@@ -123,7 +102,6 @@ export class ShopUI {
 
 
 	_renderTavernSectionBackgroundAndTitle(panelX?: number): void {
-		// Default to left if not provided
 		const tavernBaseX = (panelX !== undefined ? panelX + 20 : sc.TAVERN_BASE_X);
 		const tavernBaseY = sc.TAVERN_BASE_Y;
 
@@ -152,18 +130,18 @@ export class ShopUI {
 		const createdCharas: Chara[] = [];
 		const baseX = (this.panelX !== undefined ? this.panelX + 160 : sc.TAVERN_CHARA_FIRST_X);
 		cardDefs.forEach((spec, index) => {
-			const unit = makeUnit(c.FORCE_ID_PLAYER, spec.id, vec2(0, 0)); // Position is relative to flyout, set later
+			const unit = makeUnit(c.FORCE_ID_PLAYER, spec.id, vec2(0, 0));
 			const charaOptions: CharaOptions = {
 				isShopItem: true,
 
 			};
-			const chara = new Chara(this.scene, unit, charaOptions);
-			registerChara(chara); // Register with CharaManager
+			const chara = new Chara(unit, charaOptions);
+			registerChara(chara);
 
-			chara.setPosition(baseX + (index * sc.TAVERN_CHARA_SPACING), sc.TAVERN_CHARA_BASE_Y);
+			chara.container.setPosition(baseX + (index * sc.TAVERN_CHARA_SPACING), sc.TAVERN_CHARA_BASE_Y);
 			chara.setBarsVisibility(false);
 
-			this.flyout.add(chara);
+			this.flyout.add(chara.container);
 			createdCharas.push(chara);
 		});
 		return createdCharas;
@@ -174,8 +152,6 @@ export class ShopUI {
 			this.sellZoneContainer.destroy(true);
 		}
 
-		// Create the sell zone container as a scene-level container so we can
-		// control its depth relative to other scene objects (like orbs).
 		this.sellZoneContainer = this.scene.add.container(0, 0);
 		this.sellZoneContainer.setVisible(false);
 
@@ -187,23 +163,19 @@ export class ShopUI {
 			sellZoneY + sc.SELL_ZONE_HEIGHT / 2,
 			sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT
 		);
-		this.sellZone.setName(sc.SHOP_SELL_ZONE_NAME); // Set name for drop target identification
+		this.sellZone.setName(sc.SHOP_SELL_ZONE_NAME);
 
 		this.sellZoneGraphics = this.scene.add.graphics({ x: sellZoneX, y: sellZoneY });
-		// Draw drop shadow
 		this.sellZoneGraphics.save();
-		this.sellZoneGraphics.fillStyle(0x000000, 0.25); // Shadow color and alpha
+		this.sellZoneGraphics.fillStyle(0x000000, 0.25);
 		this.sellZoneGraphics.fillRoundedRect(6, 6, sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT, sc.SELL_ZONE_CORNER_RADIUS);
 		this.sellZoneGraphics.restore();
 
-		// Draw main background
-		this.sellZoneGraphics.lineStyle(4, 0xffffff, 0.8); // White border
+		this.sellZoneGraphics.lineStyle(4, 0xffffff, 0.8);
 		this.sellZoneGraphics.fillStyle(sc.SELL_ZONE_BG_COLOR, sc.SELL_ZONE_BG_ALPHA);
 		this.sellZoneGraphics.fillRoundedRect(0, 0, sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT, sc.SELL_ZONE_CORNER_RADIUS);
 		this.sellZoneGraphics.strokeRoundedRect(0, 0, sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT, sc.SELL_ZONE_CORNER_RADIUS);
 
-		// Make the graphics object the drop zone
-		//this.sellZone.setInteractive();
 		this.sellZone.setRectangleDropZone(sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT);
 
 		this.sellZoneText = this.scene.add.text(
@@ -213,7 +185,7 @@ export class ShopUI {
 			{
 				...c.defaultTextConfig,
 				...sc.SELL_ZONE_TEXT_STYLE,
-				fontSize: '40px', // Larger text
+				fontSize: '40px',
 				fontStyle: 'bold',
 				color: '#fff',
 				stroke: '#222',
@@ -244,14 +216,11 @@ export class ShopUI {
 	}
 
 	update(time: number): void {
-		// Update all magic orbs to enable dissolve animations
-		// Filter out destroyed orbs to prevent calling update on them
 		this.magicOrbs = this.magicOrbs.filter(orb => !orb.isOrbDestroyed());
 		this.magicOrbs.forEach(orb => orb.update(time));
 	}
 
 	destroyOrbs() {
-		// Destroy all magic orbs
 		this.magicOrbs.forEach(orb => {
 			if (!orb.isOrbDestroyed()) {
 				orb.destroy();
@@ -259,7 +228,6 @@ export class ShopUI {
 		});
 		this.magicOrbs = [];
 
-		// Destroy orb container
 		if (this.orbContainer) {
 			this.orbContainer.destroy(true);
 			this.orbContainer = null;

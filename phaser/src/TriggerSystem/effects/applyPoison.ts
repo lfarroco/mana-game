@@ -20,14 +20,10 @@ export const applyPoisonLogicIO = async (sourceUnit: Unit) => {
 
 	const sourceChara = getChara(sourceUnit.id);
 	const moraleBarTipPos = getMoraleBarTipPosition(targetForce.id);
-	if (!sourceChara || !moraleBarTipPos) {
-		console.warn('[ApplyPoison] Source character or morale bar tip position not found');
-		return;
-	}
 
 	arcaneMissileTargeted(
 		scene,
-		sourceChara,
+		sourceChara.container,
 		moraleBarTipPos,
 		{
 			colors: [0x9932cc, 0x8a2be2, 0x663399], // Purple colors for poison
