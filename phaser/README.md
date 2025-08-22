@@ -76,7 +76,7 @@ This document outlines potential areas for improvement and refactoring within th
 *   **Tooltip Sizing (`UI/Tooltip.ts`):**
     *   The `Tooltip` class currently uses `FIXED_TOOLTIP_WIDTH` and `FIXED_TOOLTIP_HEIGHT`.
     *   **Suggestion:** If more flexibility is needed, consider re-implementing dynamic sizing based on the title and description content, while still respecting screen boundaries. This would involve calculating text dimensions after setting the content.
-*   **`CharaManager.getSurroundingAllies` (`Scenes/Battleground/Systems/CharaManager.ts`):**
+*   **`Chara.getSurroundingAllies` (`Systems/Chara/Chara.ts`):**
     *   This function uses `Phaser.Math.Distance.BetweenPoints` (Euclidean distance). For grid-based games, if only cardinal or diagonal neighbors are required, a simpler check based on coordinate differences (`Math.abs(dx) <= 1 && Math.abs(dy) <= 1`) might be more direct and performant than calculating square roots.
 
 ## 7. Testing

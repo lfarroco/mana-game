@@ -3,7 +3,7 @@ import { Force, applyDamageToForce } from '../../Models/Entities/Force';
 import { Unit } from '../../Models/Entities/Unit';
 import { scene } from '../../Scenes/Battleground/BattlegroundScene';
 import { getMoraleBarTipPosition, getShieldBarTipPosition } from '../../Scenes/Battleground/MoraleDisplay';
-import { getChara } from '../../Scenes/Battleground/Systems/CharaManager';
+import { getCharaById } from '../../Systems/Chara/Chara';
 import * as CombatStatsTracker from '../../Scenes/Battleground/Systems/CombatStatsTracker';
 
 export function createDealDamageLogic(
@@ -17,7 +17,7 @@ export function createDealDamageLogic(
 			(force: { id: string }) => force.id !== sourceUnit.force
 		)!;
 
-		const sourceChara = getChara(sourceUnit.id);
+		const sourceChara = getCharaById(sourceUnit.id);
 
 		const targetPos = targetForce.shield > 0
 			? getShieldBarTipPosition(targetForce.id)

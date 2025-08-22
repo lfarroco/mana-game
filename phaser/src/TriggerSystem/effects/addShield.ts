@@ -4,7 +4,7 @@ import { Unit } from '../../Models/Entities/Unit';
 import { scene } from '../../Scenes/Battleground/BattlegroundScene';
 import { getShieldBarTipPosition } from '../../Scenes/Battleground/MoraleDisplay';
 import * as CombatStatsTracker from '../../Scenes/Battleground/Systems/CombatStatsTracker';
-import { getChara } from '../../Scenes/Battleground/Systems/CharaManager';
+import { getCharaById } from '../../Systems/Chara/Chara';
 
 export function createAddShieldLogic(
 	emitter: (unit: Unit, amount: number) => void,
@@ -20,7 +20,7 @@ export function createAddShieldLogic(
 			(force) => force.id === sourceUnit.force
 		)!;
 
-		const sourceChara = getChara(sourceUnit.id);
+		const sourceChara = getCharaById(sourceUnit.id);
 		const shieldBarTipPos = getShieldBarTipPosition(sourceForce.id);
 
 		arcaneMissileTargeted(
