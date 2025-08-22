@@ -5,7 +5,7 @@ import { tween } from "../../Utils/animation";
 import * as CharaManager from "../../Scenes/Battleground/Systems/CharaManager";
 import * as Board from "../../Models/Board";
 import { scene } from "../../Scenes/Battleground/BattlegroundScene";
-import { CharaStatsDisplay } from "./CharaStatsDisplay";
+import * as CharaStatsDisplay from "./CharaStatsDisplay";
 import * as CharaBarsDisplay from "./CharaBarsDisplay";
 import { CharaInputHandler } from "./CharaInputHandler";
 import { createContinuousHasteEffect } from "../../Effects/hasteEffect";
@@ -30,7 +30,7 @@ export class Chara {
 
 	sprite!: Phaser.GameObjects.Sprite;
 	spriteBorder?: Phaser.GameObjects.Graphics;
-	statsDisplay!: CharaStatsDisplay;
+	statsDisplay: CharaStatsDisplay.StatsDisplay | null;
 	barsDisplay!: CharaBarsDisplay.CharaBars;
 
 	inputHandler!: CharaInputHandler;
@@ -55,8 +55,7 @@ export class Chara {
 			this.sprite.setFlipX(true);
 		}
 		this.barsDisplay = CharaBarsDisplay.create(unit, this.container);
-		this.statsDisplay = new CharaStatsDisplay(scene, this.unit);
-		this.statsDisplay.addToContainer(this.container);
+		this.statsDisplay = CharaStatsDisplay.create(this.unit, this.container);
 
 		this.container.setInteractive(
 			new Phaser.Geom.Rectangle(
@@ -77,7 +76,8 @@ export class Chara {
 			onCharaPointerOut();
 		});
 
-		this.statsDisplay.updatePower();
+		if (this.statsDisplay)
+			CharaStatsDisplay.updatePower(this.statsDisplay);
 
 		CharaBarsDisplay.updateBars(this.barsDisplay);
 
@@ -157,13 +157,15 @@ export class Chara {
 
 	updateUnit(newUnit: Unit): void {
 		this.unit = newUnit;
-		this.statsDisplay.updateUnit(newUnit);
+		if (this.statsDisplay)
+			CharaStatsDisplay.updateUnit(this.statsDisplay, newUnit);
 		CharaBarsDisplay.updateUnit(this.barsDisplay, newUnit);
 		this.updateStatusEffects();
 	}
 
 	updatePowerDisplay = () => {
-		this.statsDisplay.animatePowerChange(this.unit.power);
+		if (this.statsDisplay)
+			CharaStatsDisplay.animatePowerChange(this.statsDisplay, this.unit.power);
 	}
 
 	setBarsVisibility(visible: boolean): void {

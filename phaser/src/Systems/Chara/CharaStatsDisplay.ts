@@ -1,7 +1,21 @@
-
 import Phaser from "phaser";
 import { Unit } from "../../Models/Entities/Unit";
 import * as constants from "../../constants/constants";
+import { scene } from "../../Scenes/Battleground/BattlegroundScene";
+
+const BOX_WIDTH_RATIO = 0.4;
+const BOX_HEIGHT_RATIO = 0.2;
+const STAT_BOX_CORNER_RADIUS_RATIO = 0.1;
+const STAT_BOX_MARGIN_RATIO = 0.1;
+
+export type StatsDisplay = {
+	powerDisplayBg: Phaser.GameObjects.Graphics;
+	powerDisplay: Phaser.GameObjects.Text;
+	unit: Unit;
+	displayedPower: number;
+	powerTween: Phaser.Tweens.Tween | null;
+	odometerTween: Phaser.Tweens.Tween | null;
+}
 
 export const CHARA_STATS_COLORS = {
 	DAMAGE_BG: 0xff0000,
@@ -12,152 +26,127 @@ export const CHARA_STATS_COLORS = {
 	DEFAULT_BG: 0x000000
 } as const;
 
-export class CharaStatsDisplay {
-	scene: Phaser.Scene;
-	unit: Unit;
+export function create(unit: Unit, container: Container): StatsDisplay | null {
 
-	powerDisplayBg: Phaser.GameObjects.Graphics | null = null;
-	powerDisplay: Phaser.GameObjects.Text | null = null;
+	const displayableEffects = ["heal", "damage", "shield", "poison", "regen"];
 
-	// Animation state fields
-	private powerTween?: Phaser.Tweens.Tween;
-	private odometerTween?: Phaser.Tweens.Tween;
-	private displayedPower: number = 0;
+	const effect = unit.effects.find(effect => displayableEffects.includes(effect.id));
 
-	static readonly BOX_WIDTH_RATIO = 0.4;
-	static readonly BOX_HEIGHT_RATIO = 0.2;
-	static readonly STAT_BOX_CORNER_RADIUS_RATIO = 0.1; // Ratio of boxWidth for corner radius
-	static readonly STAT_BOX_MARGIN_RATIO = 0.1; // Ratio of boxWidth for margin
+	if (!effect) return null;
 
-	constructor(scene: Phaser.Scene, unit: Unit) {
-		this.scene = scene;
-		this.unit = unit;
-		this.displayedPower = Math.floor(unit.power);
-		this.createElements();
+	const displayedPower = Math.floor(unit.power);
+
+	const powerDisplayBg = scene.add.graphics();
+
+	const powerTween: Phaser.Tweens.Tween | null = null;
+	const odometerTween: Phaser.Tweens.Tween | null = null;
+
+	const boxWidth = constants.TILE_WIDTH * BOX_WIDTH_RATIO;
+	const boxHeight = constants.TILE_HEIGHT * BOX_HEIGHT_RATIO;
+	const cornerRadius = boxWidth * STAT_BOX_CORNER_RADIUS_RATIO;
+	const margin = boxWidth * STAT_BOX_MARGIN_RATIO;
+
+	const powerDisplayPosition: [number, number] = [
+		-boxWidth / 2,
+		constants.HALF_TILE_HEIGHT - boxHeight - margin,
+	];
+
+	const colorMap = {
+		damage: CHARA_STATS_COLORS.DAMAGE_BG,
+		heal: CHARA_STATS_COLORS.HEAL_BG,
+		shield: CHARA_STATS_COLORS.ARMOR_BG,
+		poison: CHARA_STATS_COLORS.POISON_BG,
+		regen: CHARA_STATS_COLORS.REGEN_BG,
 	}
+	const bgColor = colorMap[effect.id as keyof typeof colorMap];
 
-	createElements(): void {
+	powerDisplayBg
+		.fillStyle(bgColor, 1)
+		.fillRoundedRect(
+			powerDisplayPosition[0], powerDisplayPosition[1],
+			boxWidth, boxHeight,
+			cornerRadius
+		);
 
-		const displayableEffects = ["heal", "damage", "shield", "poison", "regen"];
+	const powerDisplay = scene.add.text(
+		powerDisplayPosition[0] + boxWidth / 2,
+		powerDisplayPosition[1] + boxHeight / 2,
+		displayedPower.toString(),
+		constants.defaultTextConfig
+	).setOrigin(0.5).setAlign('center');
 
-		// TODO: list powers here
-		const effect = this.unit.effects.find(effect => displayableEffects.includes(effect.id));
+	container.add([powerDisplayBg, powerDisplay]);
 
-		if (!effect) {
-			return; // No displayable effect found, skip creating display
+	return {
+		unit,
+		powerDisplayBg,
+		powerDisplay,
+		displayedPower,
+		powerTween,
+		odometerTween,
+	}
+}
+
+export function updatePower(stats: StatsDisplay): void {
+	stats.displayedPower = Math.floor(stats.unit.power);
+	stats.powerDisplay?.setText(stats.displayedPower.toString());
+}
+
+export function animatePowerChange(stats: StatsDisplay, newValue: number) {
+	if (!stats.powerDisplay) return;
+
+	const startValue = stats.displayedPower;
+	const endValue = Math.floor(newValue);
+	if (startValue === endValue) return;
+
+	// Stop any previous tweens
+	if (stats.powerTween) stats.powerTween.stop();
+	if (stats.odometerTween) stats.odometerTween.stop();
+
+	// Pulse animation (scale up then down)
+	stats.powerTween = scene.tweens.add({
+		targets: stats.powerDisplay,
+		scale: 1.3,
+		yoyo: true,
+		ease: 'Quad.easeOut',
+		onStart: () => {
+			stats.powerDisplay.setScale(1);
+		},
+		onComplete: () => {
+			stats.powerDisplay.setScale(1);
 		}
+	});
 
-		const boxWidth = constants.TILE_WIDTH * CharaStatsDisplay.BOX_WIDTH_RATIO;
-		const boxHeight = constants.TILE_HEIGHT * CharaStatsDisplay.BOX_HEIGHT_RATIO;
-		const cornerRadius = boxWidth * CharaStatsDisplay.STAT_BOX_CORNER_RADIUS_RATIO;
-		const margin = boxWidth * CharaStatsDisplay.STAT_BOX_MARGIN_RATIO;
-		// Power Display
-		const powerDisplayPosition: [number, number] = [
-			-boxWidth / 2,
-			constants.HALF_TILE_HEIGHT - boxHeight - margin,
-		];
-
-		const colorMap = {
-			damage: CHARA_STATS_COLORS.DAMAGE_BG,
-			heal: CHARA_STATS_COLORS.HEAL_BG,
-			shield: CHARA_STATS_COLORS.ARMOR_BG,
-			poison: CHARA_STATS_COLORS.POISON_BG,
-			regen: CHARA_STATS_COLORS.REGEN_BG,
-		}
-		const bgColor = colorMap[effect.id as keyof typeof colorMap];
-
-		this.powerDisplayBg = this.scene.add.graphics();
-		this.powerDisplayBg
-			.fillStyle(bgColor, 1)
-			.fillRoundedRect(
-				powerDisplayPosition[0], powerDisplayPosition[1],
-				boxWidth, boxHeight,
-				cornerRadius
-			);
-
-		this.powerDisplay = this.scene.add.text(
-			powerDisplayPosition[0] + boxWidth / 2,
-			powerDisplayPosition[1] + boxHeight / 2,
-			Math.floor(this.unit.power).toString(),
-			constants.defaultTextConfig
-		).setOrigin(0.5).setAlign('center');
-
-	}
-
-	addToContainer(container: Phaser.GameObjects.Container): void {
-		if (!this.powerDisplayBg || !this.powerDisplay) {
-			return;
-		}
-		container.add([this.powerDisplayBg, this.powerDisplay]);
-	}
-
-	updatePower(): void {
-		// For legacy calls, just update instantly
-		this.displayedPower = Math.floor(this.unit.power);
-		this.powerDisplay?.setText(this.displayedPower.toString());
-	}
-
-	/**
-	 * Animates the power number like an odometer and pulses the text.
-	 * If called again during animation, restarts with new value.
-	 * @param newValue The new power value to animate to.
-	 */
-	animatePowerChange(newValue: number) {
-		if (!this.powerDisplay) return;
-
-		const startValue = this.displayedPower;
-		const endValue = Math.floor(newValue);
-		if (startValue === endValue) return;
-
-		// Stop any previous tweens
-		if (this.powerTween) this.powerTween.stop();
-		if (this.odometerTween) this.odometerTween.stop();
-
-		// Pulse animation (scale up then down)
-		this.powerTween = this.scene.tweens.add({
-			targets: this.powerDisplay,
-			scale: 1.3,
-			duration: 100,
-			yoyo: true,
-			ease: 'Quad.easeOut',
-			onStart: () => {
-				this.powerDisplay?.setScale(1);
-			},
-			onComplete: () => {
-				this.powerDisplay?.setScale(1);
+	// Odometer animation
+	const duration = 200;
+	let lastValue = startValue;
+	stats.odometerTween = scene.tweens.addCounter({
+		from: startValue,
+		to: endValue,
+		duration,
+		ease: 'Cubic.easeOut',
+		onUpdate: tween => {
+			const val = Math.round(tween.getValue());
+			if (val !== lastValue) {
+				stats.displayedPower = val;
+				stats.powerDisplay.setText(val.toString());
+				lastValue = val;
 			}
-		});
+		},
+		onComplete: () => {
+			stats.displayedPower = endValue;
+			stats.powerDisplay.setText(endValue.toString());
+		}
+	});
+}
 
-		// Odometer animation
-		const duration = 200;
-		let lastValue = startValue;
-		this.odometerTween = this.scene.tweens.addCounter({
-			from: startValue,
-			to: endValue,
-			duration,
-			ease: 'Cubic.easeOut',
-			onUpdate: tween => {
-				const val = Math.round(tween.getValue());
-				if (val !== lastValue) {
-					this.displayedPower = val;
-					this.powerDisplay?.setText(val.toString());
-					lastValue = val;
-				}
-			},
-			onComplete: () => {
-				this.displayedPower = endValue;
-				this.powerDisplay?.setText(endValue.toString());
-			}
-		});
-	}
+export function updateUnit(stats: StatsDisplay, newUnit: Unit): void {
+	stats.unit = newUnit;
+	updatePower(stats);
+}
 
-	updateUnit(newUnit: Unit): void {
-		this.unit = newUnit;
-		this.updatePower();
-	}
 
-	setVisible(visible: boolean): void {
-		this.powerDisplayBg?.setVisible(visible);
-		this.powerDisplay?.setVisible(visible);
-	}
+export function setVisible(stats: StatsDisplay, visible: boolean): void {
+	stats.powerDisplayBg.setVisible(visible);
+	stats.powerDisplay.setVisible(visible);
 }
