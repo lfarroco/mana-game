@@ -1,5 +1,4 @@
 import * as Card from "../../../../Models/Entities/Card";
-import { Flyout } from "../../../../UI/Flyout";
 import { pickRandom } from "../../../../utils";
 import { Chara } from "../../../../Systems/Chara/Chara";
 import { scene } from "../../BattlegroundScene";
@@ -14,13 +13,11 @@ import * as sc from "./ShopConstants";
 import { tween } from "../../../../Utils/animation";
 
 
-export let flyout: Flyout;
 let currentShopCharas: Chara[] = [];
 let currentOrbs: string[] = [];
 
 export function init() {
-	flyout = new Flyout(scene);
-	ShopUI.create(flyout);
+	ShopUI.create();
 }
 
 export function handleCharaPurchaseFinalized(purchasedChara: Chara): void {
@@ -60,7 +57,7 @@ export async function open() {
 
 	currentShopCharas = charas;
 
-	await flyout.slideIn();
+	await ShopUI.slideIn();
 	currentShopCharas.forEach(chara => _animateItemAppearance(chara));
 }
 
@@ -68,11 +65,9 @@ export async function close() {
 	ShopUI.destroyOrbs();
 	currentOrbs = [];
 
-	await flyout.slideOut();
+	await ShopUI.slideOut();
 }
 
-// TODO: add tests
-// TODO: add animation for reroll
 
 export function getShopCharaBySlot(slotIndex: number): Chara | null {
 	return currentShopCharas[slotIndex] || null;
@@ -132,7 +127,7 @@ function _getAvailableCardsForTavern(count: number): Card.CardDefinition[] {
 
 export function rerollTavern(): void {
 	currentShopCharas.forEach(chara => {
-		flyout.remove(chara.container, false);
+		ShopUI.removeShopChild(chara.container, false);
 		CharaManager.destroyChara(chara.id);
 	});
 	currentShopCharas = [];

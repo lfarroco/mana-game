@@ -1,6 +1,5 @@
 import * as Card from "../../../../Models/Entities/Card";
 import { vec2 } from "../../../../Models/Geometry";
-import { Flyout } from "../../../../UI/Flyout";
 import { registerChara } from "../CharaManager";
 import { Chara, CharaOptions } from "../../../../Systems/Chara/Chara";
 import * as c from "../../../../constants/constants";
@@ -12,7 +11,7 @@ import { renderOrbs } from "./Orbs";
 import { scene } from "../../BattlegroundScene";
 
 export type ShopUIState = {
-	flyout: Flyout;
+	shopContainer: Phaser.GameObjects.Container;
 	sellZoneContainer: Phaser.GameObjects.Container | null;
 	sellZone: Phaser.GameObjects.Zone | null;
 	sellZoneText: Phaser.GameObjects.Text | null;
@@ -20,10 +19,11 @@ export type ShopUIState = {
 	magicOrbs: MagicOrb[];
 	orbContainer: Phaser.GameObjects.Container | null;
 	panelX: number;
+	isOpen: boolean;
 }
-export function create(flyout: Flyout) {
+export function create() {
 	const state: ShopUIState = {
-		flyout,
+		shopContainer: scene.add.container(0, 0),
 		sellZoneContainer: null,
 		sellZone: null,
 		sellZoneText: null,
@@ -31,7 +31,10 @@ export function create(flyout: Flyout) {
 		magicOrbs: [],
 		orbContainer: null,
 		panelX: 0,
+		isOpen: false,
 	};
+
+	state.shopContainer.setY(c.SCREEN_HEIGHT * -1);
 
 	displayShop = _displayShop(state)
 	showSellZone = _showSellZone(state);
@@ -40,6 +43,11 @@ export function create(flyout: Flyout) {
 	destroyOrbs = _destroyOrbs(state);
 	destroy = _destroy(state);
 	renderTavernCharas = _renderTavernCharas(state);
+	slideIn = _slideIn(state);
+	slideOut = _slideOut(state);
+	bringShopChildToTop = _bringShopChildToTop(state);
+	removeShopChild = _removeShopChild(state);
+	getIsShopOpen = () => state.isOpen;
 	return state;
 };
 
@@ -56,7 +64,7 @@ const _displayShop = (state: ShopUIState) => (
 	nextRoundCallback: () => void,
 	rerollCallback: () => void,
 ): { charas: Chara[] } => {
-	state.flyout.removeAll(true);
+	state.shopContainer.removeAll(true);
 	state.magicOrbs = [];
 
 	if (state.orbContainer) {
@@ -69,9 +77,9 @@ const _displayShop = (state: ShopUIState) => (
 	const shopBackground = scene.add.graphics()
 		.fillStyle(sc.PANEL_BG_COLOR, sc.PANEL_BG_OPACITY)
 		.fillRoundedRect(state.panelX, sc.PANEL_Y, sc.SHOP_PANEL_WIDTH, sc.SHOP_PANEL_HEIGHT, 20);
-	state.flyout.add(shopBackground);
+	state.shopContainer.add(shopBackground);
 
-	_renderTavernSectionBackgroundAndTitle(state.flyout, state.panelX);
+	_renderTavernSectionBackgroundAndTitle(state.shopContainer, state.panelX);
 
 	const rerollButtonX = state.panelX + 470;
 	const rerollButtonY = sc.PANEL_Y + sc.TAVERN_BG_HEIGHT - 20;
@@ -82,7 +90,7 @@ const _displayShop = (state: ShopUIState) => (
 		rerollButtonY,
 		rerollCallback
 	);
-	state.flyout.add(rerollBtn);
+	state.shopContainer.add(rerollBtn);
 
 	const nextRoundButtonX = c.SCREEN_WIDTH - 200;
 	const nextRoundButtonY = c.SCREEN_HEIGHT - 100;
@@ -93,7 +101,7 @@ const _displayShop = (state: ShopUIState) => (
 		nextRoundButtonY,
 		nextRoundCallback
 	);
-	state.flyout.add(nextRoundBtn);
+	state.shopContainer.add(nextRoundBtn);
 
 	renderOrbs(state, orbs);
 
@@ -104,8 +112,7 @@ const _displayShop = (state: ShopUIState) => (
 	return { charas: displayedCharas };
 }
 
-
-function _renderTavernSectionBackgroundAndTitle(flyout: Flyout, panelX?: number): void {
+function _renderTavernSectionBackgroundAndTitle(container: Phaser.GameObjects.Container, panelX?: number): void {
 	const tavernBaseX = (panelX !== undefined ? panelX + 20 : sc.TAVERN_BASE_X);
 	const tavernBaseY = sc.TAVERN_BASE_Y;
 
@@ -124,7 +131,7 @@ function _renderTavernSectionBackgroundAndTitle(flyout: Flyout, panelX?: number)
 		c.titleTextConfig
 	);
 
-	flyout.add([bg, title]);
+	container.add([bg, title]);
 }
 
 export let renderTavernCharas: (
@@ -146,7 +153,7 @@ const _renderTavernCharas = (state: ShopUIState) => (cardDefs: Card.CardDefiniti
 		chara.container.setPosition(baseX + (index * sc.TAVERN_CHARA_SPACING), sc.TAVERN_CHARA_BASE_Y);
 		chara.setBarsVisibility(false);
 
-		state.flyout.add(chara.container);
+		state.shopContainer.add(chara.container);
 		createdCharas.push(chara);
 	});
 	return createdCharas;
@@ -250,3 +257,34 @@ const _destroy = (state: ShopUIState) => () => {
 	state.sellZoneContainer?.destroy(true);
 	state.sellZoneContainer = null;
 }
+
+// Slide controls and simple container helpers (replacing Flyout)
+import { tween } from "../../../../Utils/animation";
+import * as AudioManager from "../../../../Systems/AudioManager";
+
+export let slideIn: () => Promise<void>;
+const _slideIn = (state: ShopUIState) => async (): Promise<void> => {
+	AudioManager.playSoundEffect('sfx_ui_modalwindow_swoosh_enter');
+	scene.children.bringToTop(state.shopContainer);
+	await tween({ targets: [state.shopContainer], y: 0 });
+	state.isOpen = true;
+}
+
+export let slideOut: () => Promise<void>;
+const _slideOut = (state: ShopUIState) => async (): Promise<void> => {
+	AudioManager.playSoundEffect('sfx_ui_modalwindow_swoosh_exit');
+	await tween({ targets: [state.shopContainer], y: c.SCREEN_HEIGHT * -1 });
+	state.isOpen = false;
+}
+
+export let bringShopChildToTop: (child: Phaser.GameObjects.GameObject) => void;
+const _bringShopChildToTop = (state: ShopUIState) => (child: Phaser.GameObjects.GameObject): void => {
+	state.shopContainer.bringToTop(child);
+}
+
+export let removeShopChild: (child: Phaser.GameObjects.GameObject, destroy?: boolean) => void;
+const _removeShopChild = (state: ShopUIState) => (child: Phaser.GameObjects.GameObject, destroy: boolean = false): void => {
+	state.shopContainer.remove(child, destroy);
+}
+
+export let getIsShopOpen: () => boolean;

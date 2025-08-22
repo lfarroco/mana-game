@@ -5,12 +5,13 @@ import { CardDefinition } from "../../Models/Entities/Card";
 import * as CharaManager from "../Battleground/Systems/CharaManager";
 import * as constants from "../../constants/constants";
 import { updatePlayerGoldIO } from "../../Models/Entities/Force";
-import { flyout, getDisplayedHeroCardDefinitions, getShopCharaBySlot, handleShopItemClickPurchaseRequested, handleShopItemDragPurchaseRequested } from "../Battleground/Systems/Shop/Shop";
+import * as Shop from "../Battleground/Systems/Shop/Shop";
+import * as ShopUI from "../Battleground/Systems/Shop/ShopUI";
 import { titleScene } from "../Title/TitleScene";
 import * as CharaInputHandler from "../../Systems/Chara/CharaInputHandler";
 
 export function clickHeroInShop(slotIndex: number): string {
-	const chara = getShopCharaBySlot(slotIndex);
+	const chara = Shop.getShopCharaBySlot(slotIndex);
 	if (!chara) {
 		return `Error: No hero Chara found in shop slot ${slotIndex}.`;
 	}
@@ -19,7 +20,7 @@ export function clickHeroInShop(slotIndex: number): string {
 	}
 	const unitToPurchase = chara.unit;
 
-	handleShopItemClickPurchaseRequested({
+	Shop.handleShopItemClickPurchaseRequested({
 		shopUnitData: unitToPurchase,
 		shopCharaId: chara.id,
 		dragStartX: chara.container.x,
@@ -30,7 +31,7 @@ export function clickHeroInShop(slotIndex: number): string {
 }
 
 export function buyAndPlaceHero(shopSlotIndex: number, boardX: number, boardY: number): string {
-	const chara = getShopCharaBySlot(shopSlotIndex);
+	const chara = Shop.getShopCharaBySlot(shopSlotIndex);
 	if (!chara) {
 		return `Error: No hero Chara found in shop slot ${shopSlotIndex}.`;
 	}
@@ -39,7 +40,7 @@ export function buyAndPlaceHero(shopSlotIndex: number, boardX: number, boardY: n
 	}
 	const unitToPurchase = chara.unit;
 
-	handleShopItemDragPurchaseRequested({
+	Shop.handleShopItemDragPurchaseRequested({
 		shopUnitData: unitToPurchase,
 		shopCharaId: chara.id,
 		targetTile: vec2(boardX, boardY),
@@ -94,7 +95,7 @@ export function playerGoldDelta(delta: number): string {
 }
 
 export function isShopVisible(): boolean {
-	return flyout.isOpen;
+	return ShopUI.getIsShopOpen();
 }
 
 export function getShopItemCost(): number {
@@ -110,7 +111,7 @@ export function getPlayerGold(): number {
 }
 
 export function getShopHeroes(): CardDefinition[] {
-	return getDisplayedHeroCardDefinitions();
+	return Shop.getDisplayedHeroCardDefinitions();
 }
 
 export function getPlayerBoardUnits(): Unit[] {

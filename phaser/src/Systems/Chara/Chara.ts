@@ -14,6 +14,7 @@ import { hideTooltip } from "../../UI/Tooltip";
 import { Vec2 } from "../../Models/Geometry.pure";
 import { playSoundEffect } from "../AudioManager";
 import * as Shop from "../../Scenes/Battleground/Systems/Shop/Shop";
+import * as ShopUI from "../../Scenes/Battleground/Systems/Shop/ShopUI";
 import { popText } from "./Animations/popText";
 
 export type CharaOptions = {
@@ -133,7 +134,7 @@ export class Chara {
 		this.isShopItem = false;
 		hideTooltip();
 
-		Shop.flyout.remove(this.container);
+		ShopUI.removeShopChild(this.container);
 
 		Shop.handleCharaPurchaseFinalized(this);
 
