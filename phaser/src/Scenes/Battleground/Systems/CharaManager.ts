@@ -46,9 +46,7 @@ export async function summonChara(
 	return chara;
 }
 
-export function registerChara(_chara: Chara.Chara) {
-	// No-op retained for API compatibility; Chara.create auto-registers.
-}
+// registerChara removed: Chara.create() handles registration.
 
 // positioning now provided by Chara.getCharaPosition
 
