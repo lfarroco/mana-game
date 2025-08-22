@@ -5,7 +5,7 @@ import { tween } from "../../Utils/animation";
 import * as UnitManager from "../../Scenes/Battleground/Systems/CharaManager";
 import * as Board from "../../Models/Board";
 import { popText } from "./Animations/popText";
-import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
+import { scene } from "../../Scenes/Battleground/BattlegroundScene";
 import { CharaStatsDisplay } from "./CharaStatsDisplay";
 import { CharaBarsDisplay } from "./CharaBarsDisplay";
 import { CharaInputHandler } from "./CharaInputHandler";
@@ -20,9 +20,11 @@ export type CharaOptions = {
 	isShopItem?: boolean;
 };
 
-export class Chara extends Phaser.GameObjects.Container {
+export class Chara {
 	unit: Unit;
 	id: string;
+
+	container!: Container;
 
 	isAnimating: boolean;
 
@@ -39,29 +41,25 @@ export class Chara extends Phaser.GameObjects.Container {
 
 	playerBoard: Board.PartyBoard;
 
-	constructor(scene: BattlegroundScene, unit: Unit, options?: CharaOptions) {
+	constructor(unit: Unit, options?: CharaOptions) {
 		const position = UnitManager.getCharaPosition(unit);
-		super(scene, position.x, position.y);
 
-		this.scene = scene;
+		this.container = scene.add.container(position.x, position.y);
 		this.playerBoard = scene.playerBoard;
 		this.unit = unit;
 		this.isShopItem = options?.isShopItem ?? false;
 
 		this.id = unit.id;
-		this.name = unit.id;
 		this.createSprite();
 		if (this.unit.force === constants.FORCE_ID_CPU) {
 			this.sprite.setFlipX(true);
 		}
-		this.barsDisplay = new CharaBarsDisplay(this.scene, this.unit);
-		this.barsDisplay.addToContainer(this);
-		this.statsDisplay = new CharaStatsDisplay(this.scene, this.unit);
-		this.statsDisplay.addToContainer(this);
+		this.barsDisplay = new CharaBarsDisplay(this.unit);
+		this.barsDisplay.addToContainer(this.container);
+		this.statsDisplay = new CharaStatsDisplay(scene, this.unit);
+		this.statsDisplay.addToContainer(this.container);
 
-		this.scene.add.existing(this);
-
-		this.setInteractive(
+		this.container.setInteractive(
 			new Phaser.Geom.Rectangle(
 				-constants.HALF_TILE_WIDTH,
 				-constants.HALF_TILE_HEIGHT,
@@ -73,10 +71,10 @@ export class Chara extends Phaser.GameObjects.Container {
 
 		this.inputHandler = new CharaInputHandler(this);
 
-		this.on(Phaser.Input.Events.POINTER_OVER, () => {
+		this.container.on(Phaser.Input.Events.POINTER_OVER, () => {
 			onCharaPointerOver({ chara: this });
 		});
-		this.on(Phaser.Input.Events.POINTER_OUT, () => {
+		this.container.on(Phaser.Input.Events.POINTER_OUT, () => {
 			onCharaPointerOut();
 		});
 
@@ -90,23 +88,23 @@ export class Chara extends Phaser.GameObjects.Container {
 	createSprite(borderWidth: number = 3, borderColor: number = 0xffffff) {
 
 		const animCacheKey = this.unit.pic + '-anims';
-		const animData = this.scene.cache.json.get(animCacheKey);
+		const animData = scene.cache.json.get(animCacheKey);
 		if (animData && animData.anims) {
 			for (const anim of animData.anims) {
 				const animKey = this.unit.pic + '_' + anim.key;
-				if (!this.scene.anims.exists(animKey)) {
+				if (!scene.anims.exists(animKey)) {
 					const animConfig = {
 						...anim,
 						key: animKey,
 						frames: (anim.frames as { frame: string }[])
 							.map((f: { frame: string }) => ({ key: this.unit.pic, frame: f.frame })),
 					};
-					this.scene.anims.create(animConfig);
+					scene.anims.create(animConfig);
 				}
 			}
 		}
 
-		const frameNames = this.scene.textures.get(this.unit.pic).getFrameNames();
+		const frameNames = scene.textures.get(this.unit.pic).getFrameNames();
 		const idleFrames = frameNames.filter(name => name.startsWith(this.unit.pic + '_idle_'));
 		idleFrames.sort((a, b) => {
 			const numA = parseInt(a.match(/_(\d+)\.png$/)?.[1] || '0', 10);
@@ -116,16 +114,16 @@ export class Chara extends Phaser.GameObjects.Container {
 		const firstIdle = idleFrames[0] || frameNames[0];
 
 		const radius = (constants.TILE_WIDTH * 0.8) / 2;
-		const border = this.scene.add.graphics({ x: 0, y: 0 });
+		const border = scene.add.graphics({ x: 0, y: 0 });
 		border.lineStyle(borderWidth, borderColor, 1);
 		border.strokeCircle(0, 0, radius);
-		this.add(border);
+		this.container.add(border);
 		this.spriteBorder = border;
 
-		this.sprite = this.scene.add.sprite(0, -15, this.unit.pic, firstIdle);
+		this.sprite = scene.add.sprite(0, -15, this.unit.pic, firstIdle);
 		this.sprite.setDisplaySize(constants.TILE_WIDTH * 1.2, constants.TILE_HEIGHT * 1.2);
-		this.add(this.sprite);
-		if (this.scene.anims.exists(this.unit.pic + '_idle')) {
+		this.container.add(this.sprite);
+		if (scene.anims.exists(this.unit.pic + '_idle')) {
 			this.sprite.play(this.unit.pic + '_idle');
 		}
 	}
@@ -135,7 +133,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.isShopItem = false;
 		hideTooltip();
 
-		Shop.flyout.remove(this);
+		Shop.flyout.remove(this.container);
 
 		Shop.handleCharaPurchaseFinalized(this);
 
@@ -150,7 +148,7 @@ export class Chara extends Phaser.GameObjects.Container {
 	}
 
 	moveToPosition(newVisualPosition: { x: number, y: number }) {
-		tween({ targets: [this], x: newVisualPosition.x, y: newVisualPosition.y, duration: 150 });
+		tween({ targets: [this.container], x: newVisualPosition.x, y: newVisualPosition.y, duration: 150 });
 	}
 
 	revertToPosition(dragStartX: number, dragStartY: number): void {
@@ -201,7 +199,7 @@ export class Chara extends Phaser.GameObjects.Container {
 
 	async showPopText(text: string, type?: "heal" | "damage" | "shield" | "poison" | "timeout"): Promise<void> {
 		await popText({
-			x: this.x, y: this.y, text, type
+			x: this.container.x, y: this.container.y, text, type
 		});
 	}
 
@@ -212,10 +210,10 @@ export class Chara extends Phaser.GameObjects.Container {
 
 		this.removeHasteEffect();
 
-		this.off(Phaser.Input.Events.POINTER_OVER);
-		this.off(Phaser.Input.Events.POINTER_OUT);
+		this.container.off(Phaser.Input.Events.POINTER_OVER);
+		this.container.off(Phaser.Input.Events.POINTER_OUT);
 
-		super.destroy(fromScene);
+		this.container.destroy(fromScene);
 	}
 
 	async pop() {
@@ -230,7 +228,7 @@ export class Chara extends Phaser.GameObjects.Container {
 		this.sprite.playAfterRepeat(idleAnimKey)
 
 		await tween({
-			targets: [this],
+			targets: [this.container],
 			scale: 1.2,
 			yoyo: true,
 			duration: 300,
@@ -254,15 +252,15 @@ export class Chara extends Phaser.GameObjects.Container {
 		if (this.hasteEffect) return;
 
 		this.hasteEffect = createContinuousHasteEffect(
-			this.scene,
-			{ x: this.x, y: this.y },
+			scene,
+			{ x: this.container.x, y: this.container.y },
 			{
 				intensity: 1.0,
 				color: 0x00eaff
 			}
 		);
 
-		this.add(this.hasteEffect.particles);
+		this.container.add(this.hasteEffect.particles);
 
 		this.hasteEffect.particles.setPosition(0, 0);
 	}

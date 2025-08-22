@@ -103,29 +103,24 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
 
 	switch (effect.id) {
 		case "damage":
-			effects.dealDamageLogicIO({ scene, sourceUnit });
+			effects.dealDamageLogicIO(sourceUnit);
 			break;
 		case "heal":
 			effects.restoreMoraleLogicIO({ sourceUnit });
 			break;
 		case "shield":
-			effects.addShieldLogicIO({ scene, sourceUnit });
+			effects.addShieldLogicIO(sourceUnit);
 			break;
 		case "poison":
 			effects.applyPoisonLogicIO(sourceUnit)
 			break;
 		case "regen":
-			effects.applyRegenLogicIO({
-				scene,
-				sourceUnit,
-				amount: sourceUnit.power
-			});
+			effects.applyRegenLogicIO(sourceUnit, sourceUnit.power);
 			break;
 		case "haste":
 			const hasteTargets = resolveTargets(scene.state, sourceUnit, effect);
 			effects.applyHasteLogicIO({
 				targets: hasteTargets,
-				scene,
 				sourceUnit,
 				duration: effect.duration,
 			});

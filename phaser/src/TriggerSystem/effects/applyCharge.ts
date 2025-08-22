@@ -27,8 +27,8 @@ export function createApplyChargeLogic() {
 				// Use the targeted arcane missile effect with charge callback
 				arcaneMissileTargeted(
 					scene,
-					{ x: sourceChara.x, y: sourceChara.y },
-					{ x: targetChara.x, y: targetChara.y },
+					sourceChara.container,
+					targetChara.container,
 					{
 						colors: [0xFFD700, 0xFFA500, 0xFF8C00], // Golden/orange colors for charge
 						amplitudeMin: 5,
@@ -45,7 +45,7 @@ export function createApplyChargeLogic() {
 							target.charge += amount;
 
 							// Show the charge effect at the target location (reusing haste effect for now)
-							hasteEffect(scene, { x: targetChara.x, y: targetChara.y }, {
+							hasteEffect(scene, targetChara.container, {
 								duration: 1000,
 								intensity: 1.5,
 								color: 0xFFD700 // Golden color for charge

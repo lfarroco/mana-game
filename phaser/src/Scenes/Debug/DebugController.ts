@@ -21,8 +21,8 @@ export function clickHeroInShop(slotIndex: number): string {
 	handleShopItemClickPurchaseRequested({
 		shopUnitData: unitToPurchase,
 		shopCharaId: chara.id,
-		dragStartX: chara.x,
-		dragStartY: chara.y
+		dragStartX: chara.container.x,
+		dragStartY: chara.container.y
 	})
 
 	return `Emitted SHOP_ITEM_CLICK_PURCHASE_REQUESTED for hero in shop slot ${slotIndex} (Card ID: ${unitToPurchase.cardId}, Chara ID: ${chara.id}). Purchase processing is asynchronous.`;
@@ -42,8 +42,8 @@ export function buyAndPlaceHero(shopSlotIndex: number, boardX: number, boardY: n
 		shopUnitData: unitToPurchase,
 		shopCharaId: chara.id,
 		targetTile: vec2(boardX, boardY),
-		dragStartX: chara.x,
-		dragStartY: chara.y
+		dragStartX: chara.container.x,
+		dragStartY: chara.container.y
 	})
 
 	return `Emitted SHOP_ITEM_DRAG_PURCHASE_REQUESTED for hero in shop slot ${shopSlotIndex} (Card ID: ${unitToPurchase.cardId}, Chara ID: ${chara.id}) to board (${boardX},${boardY}). Purchase and placement are asynchronous.`;
@@ -62,19 +62,11 @@ export function moveUnitOnBoard(unitId: string, targetBoardX: number, targetBoar
 
 	let dragStartX = 0;
 	let dragStartY = 0;
-	try {
-		const chara = CharaManager.getChara(unitId);
-		if (!chara) {
-			throw new Error(`Chara for unit ${unitId} not found.`);
-		}
-		dragStartX = chara.x;
-		dragStartY = chara.y;
-	} catch (e) {
-		const visualPos = CharaManager.getCharaPosition(unit);
-		dragStartX = visualPos.x;
-		dragStartY = visualPos.y;
-		console.warn(`DebugController.moveUnitOnBoard: Chara for unit ${unitId} not found. Using logical position for dragStart. Error: ${e}`);
-	}
+
+	const chara = CharaManager.getChara(unitId);
+
+	dragStartX = chara.container.x;
+	dragStartY = chara.container.y;
 
 	const moveChara = CharaManager.getChara(unitId);
 	moveChara.inputHandler.requestOwnedUnitMove(vec2(targetBoardX, targetBoardY), dragStartX, dragStartY);

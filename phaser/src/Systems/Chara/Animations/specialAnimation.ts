@@ -1,13 +1,14 @@
 import { Chara } from "../Chara";
 import { tween } from "../../../Utils/animation";
 import { TILE_HEIGHT, TILE_WIDTH } from "../../../constants/constants";
+import { scene } from "../../../Scenes/Battleground/BattlegroundScene";
 
 export async function specialAnimation(activeChara: Chara) {
 
-	const { scene: scene, unit } = activeChara;
+	const { unit } = activeChara;
 
 	const pic = scene.add.image(
-		activeChara.x, activeChara.y,
+		activeChara.container.x, activeChara.container.y,
 		"charas/" + unit.cardId
 	)
 		.setDisplaySize(TILE_WIDTH, TILE_HEIGHT)

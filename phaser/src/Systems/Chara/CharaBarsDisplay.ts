@@ -1,11 +1,10 @@
-// src/Systems/Chara/CharaBarsDisplay.ts
 import Phaser from "phaser";
 import { Unit } from "../../Models/Entities/Unit";
 import * as constants from "../../constants/constants";
 import { getOption } from "../../Models/OptionsStore";
+import { scene } from "../../Scenes/Battleground/BattlegroundScene";
 
 export class CharaBarsDisplay {
-	scene: Phaser.Scene;
 	unit: Unit;
 
 	chargeBar!: Phaser.GameObjects.Graphics;
@@ -15,16 +14,15 @@ export class CharaBarsDisplay {
 	static readonly DEBUG_BAR_PADDING = 10;
 	static readonly DEBUG_BAR_HEIGHT = 10;
 
-	constructor(scene: Phaser.Scene, unit: Unit) {
-		this.scene = scene;
+	constructor(unit: Unit) {
 		this.unit = unit;
 		this.createElements();
 	}
 
 	createElements(): void {
-		this.chargeBar = this.scene.add.graphics();
-		this.cooldownBar = this.scene.add.graphics();
-		this.hpBar = this.scene.add.graphics();
+		this.chargeBar = scene.add.graphics();
+		this.cooldownBar = scene.add.graphics();
+		this.hpBar = scene.add.graphics();
 	}
 
 	addToContainer(container: Phaser.GameObjects.Container): void {
@@ -79,6 +77,6 @@ export class CharaBarsDisplay {
 		this.chargeBar.setVisible(visible);
 		const debugMode = getOption('debug');
 		this.cooldownBar.setVisible(visible && debugMode);
-		this.hpBar.setVisible(false); // HP bar disabled since units no longer have HP
+		this.hpBar.setVisible(false);
 	}
 }
