@@ -88,7 +88,11 @@ export class CharaInputHandler {
 		}
 
 		if (!this.wasDragSuccessful) {
-			this.chara.moveToPosition(this.dragStartVec);
+			tween({
+				targets: [this.chara.container],
+				...this.dragStartVec,
+				duration: 150,
+			});
 		}
 
 		this.wasDragSuccessful = false;
@@ -233,7 +237,10 @@ export class CharaInputHandler {
 		const movedChara = CharaManager.getChara(movedUnit.id);
 		if (!movedChara) return;
 		const pos = CharaManager.getCharaPosition(movedUnit);
-		movedChara.moveToPosition(pos);
+		tween({
+			targets: [movedChara.container],
+			...pos
+		})
 	}
 
 	private _applySwapVisual(movedUnit: Unit, swappedUnit: Unit) {
@@ -241,8 +248,8 @@ export class CharaInputHandler {
 		const swappedChara = CharaManager.getChara(swappedUnit.id);
 		const movedPos = CharaManager.getCharaPosition(movedUnit);
 		const swappedPos = CharaManager.getCharaPosition(swappedUnit);
-		movedChara?.moveToPosition(movedPos);
-		swappedChara?.moveToPosition(swappedPos);
+		tween({ targets: [movedChara.container], ...movedPos });
+		tween({ targets: [swappedChara.container], ...swappedPos });
 	}
 
 	private _movementRejected(unitId: string, dragStartX: number, dragStartY: number, _reason: string) {

@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { Unit } from "../../Models/Entities/Unit";
 import * as constants from "../../constants/constants";
 import { tween } from "../../Utils/animation";
-import * as UnitManager from "../../Scenes/Battleground/Systems/CharaManager";
+import * as CharaManager from "../../Scenes/Battleground/Systems/CharaManager";
 import * as Board from "../../Models/Board";
 import { popText } from "./Animations/popText";
 import { scene } from "../../Scenes/Battleground/BattlegroundScene";
@@ -42,7 +42,7 @@ export class Chara {
 	playerBoard: Board.PartyBoard;
 
 	constructor(unit: Unit, options?: CharaOptions) {
-		const position = UnitManager.getCharaPosition(unit);
+		const position = CharaManager.getCharaPosition(unit);
 
 		this.container = scene.add.container(position.x, position.y);
 		this.playerBoard = scene.playerBoard;
@@ -139,21 +139,26 @@ export class Chara {
 
 		playSoundEffect('sfx_artifact_equipweapon');
 
-		UnitManager.destroyChara(this.id);
+		CharaManager.destroyChara(this.id);
 	}
 
 	onShopPurchaseFailed(vec: Vec2) {
 		hideTooltip();
-		this.moveToPosition(vec);
+		tween({
+			targets: [this.container],
+			...vec,
+			duration: 150,
+		});
 	}
 
-	moveToPosition(newVisualPosition: { x: number, y: number }) {
-		tween({ targets: [this.container], x: newVisualPosition.x, y: newVisualPosition.y, duration: 150 });
-	}
 
 	revertToPosition(dragStartX: number, dragStartY: number): void {
 		hideTooltip();
-		this.moveToPosition(vec2(dragStartX, dragStartY));
+		tween({
+			targets: [this.container],
+			...vec2(dragStartX, dragStartY),
+			duration: 150,
+		});
 	}
 
 	getIsShopItem(): boolean {
@@ -216,29 +221,6 @@ export class Chara {
 		this.container.destroy(fromScene);
 	}
 
-	async pop() {
-		if (this.isAnimating) return;
-		this.isAnimating = true;
-
-		const attackAnimKey = `${this.unit.pic}_attack`;
-		const idleAnimKey = `${this.unit.pic}_idle`;
-
-		this.sprite.anims.play(attackAnimKey, true);
-
-		this.sprite.playAfterRepeat(idleAnimKey)
-
-		await tween({
-			targets: [this.container],
-			scale: 1.2,
-			yoyo: true,
-			duration: 300,
-			repeat: 0,
-		});
-
-		this.isAnimating = false;
-	}
-
-
 	updateStatusEffects(): void {
 		if (this.unit.hasted > 0 && this.previousHasteState === 0) {
 			this.showHasteEffect();
@@ -271,4 +253,29 @@ export class Chara {
 		this.hasteEffect.cleanup();
 		this.hasteEffect = undefined;
 	}
+}
+
+export async function pop(id: string) {
+
+	const chara = CharaManager.getChara(id);
+
+	if (chara.isAnimating) return;
+	chara.isAnimating = true;
+
+	const attackAnimKey = `${chara.unit.pic}_attack`;
+	const idleAnimKey = `${chara.unit.pic}_idle`;
+
+	chara.sprite.anims.play(attackAnimKey, true);
+
+	chara.sprite.playAfterRepeat(idleAnimKey)
+
+	await tween({
+		targets: [chara.container],
+		scale: 1.2,
+		yoyo: true,
+		duration: 300,
+		repeat: 0,
+	});
+
+	chara.isAnimating = false;
 }

@@ -13,6 +13,7 @@ import { processEffectsIO } from "../../TriggerSystem/TriggerSystem";
 import { cpuForce, playerForce } from "../../Models/Entities/Force";
 import * as PoisonDamageSystem from "./Systems/PoisonDamageSystem";
 import * as RegenSystem from "./Systems/RegenSystem";
+import * as Chara from "../../Systems/Chara/Chara";
 
 export type WaveOutcome = "player_won" | "player_lost";
 
@@ -47,7 +48,9 @@ export class RunCombatSystem {
     const unitsReadyToAct = chargeUnits(scaledDelta);
 
     for (const unit of unitsReadyToAct) {
-      CharaManager.getChara(unit.id)?.pop();
+
+      Chara.pop(unit.id);
+
       CombatStatsTracker.handleUnitAction({ unit });
       processEffectsIO(unit, unit.effects);
     }
