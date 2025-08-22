@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { Chara, getIsShopItem, getUnit } from "./Chara";
+import { Chara as CharaType, getIsShopItem, getUnit, getCharaPosition } from "./Chara";
 import { FORCE_ID_PLAYER } from "../../constants/constants";
 import * as constants from "../../constants/constants";
 import { tween } from "../../Utils/animation";
@@ -20,10 +20,10 @@ export type CharaInputHandler = {
 	dragStartY: number;
 	dragStartVec: Vec2;
 	wasDragSuccessful: boolean;
-	chara: Chara;
+	chara: CharaType;
 };
 
-export function create(chara: Chara) {
+export function create(chara: CharaType) {
 
 	const state: CharaInputHandler = {
 		dragStartX: 0,
@@ -236,7 +236,7 @@ const _executeSwap = (unit: Unit, _occupier: Unit, target: Vec2, units: Unit[]) 
 
 const _applyMoveVisual = (movedUnit: Unit) => {
 	const movedChara = CharaManager.getChara(movedUnit.id);
-	const pos = CharaManager.getCharaPosition(movedUnit);
+	const pos = getCharaPosition(movedUnit);
 	tween({
 		targets: [movedChara],
 		...pos
@@ -246,8 +246,8 @@ const _applyMoveVisual = (movedUnit: Unit) => {
 const _applySwapVisual = (movedUnit: Unit, swappedUnit: Unit) => {
 	const movedChara = CharaManager.getChara(movedUnit.id);
 	const swappedChara = CharaManager.getChara(swappedUnit.id);
-	const movedPos = CharaManager.getCharaPosition(movedUnit);
-	const swappedPos = CharaManager.getCharaPosition(swappedUnit);
+	const movedPos = getCharaPosition(movedUnit);
+	const swappedPos = getCharaPosition(swappedUnit);
 	tween({ targets: [movedChara], ...movedPos });
 	tween({ targets: [swappedChara], ...swappedPos });
 }
