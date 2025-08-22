@@ -4,7 +4,7 @@ import { vec2, Vec2 } from "../../../../../Models/Geometry";
 import { makeUnit, Unit } from "../../../../../Models/Entities/Unit";
 import { getUnitAt } from "../../../../../Models/State";
 import { updatePlayerGoldIO } from "../../../../../Models/Entities/Force";
-import { getChara, summonChara } from "../../CharaManager";
+import { getCharaById, summon } from "../../../../../Systems/Chara/Chara";
 import * as Chara from "../../../../../Systems/Chara/Chara";
 import * as UIManager from "../../../../../UI/UIManager";
 
@@ -21,7 +21,7 @@ export function shopItemDragPurchaseRequestedHandler(
 
 	if (scene.state.gameData.player.gold < constants.SHOP_ITEM_PURCHASE_COST) {
 
-		Chara.onShopPurchaseFailed(getChara(shopCharaId), vec2(
+		Chara.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(
 			dragStartX, dragStartY
 		));
 		UIManager.handlePurchaseFailed({
@@ -32,7 +32,7 @@ export function shopItemDragPurchaseRequestedHandler(
 		return;
 	}
 	if (scene.state.gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
-		Chara.onShopPurchaseFailed(getChara(shopCharaId), vec2(
+		Chara.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(
 			dragStartX, dragStartY
 		));
 		UIManager.handlePurchaseFailed({
@@ -44,7 +44,7 @@ export function shopItemDragPurchaseRequestedHandler(
 
 	const occupier = getUnitAt(scene.state.gameData.player.units)(targetTile);
 	if (occupier) {
-		Chara.onShopPurchaseFailed(getChara(shopCharaId), vec2(
+		Chara.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(
 			dragStartX, dragStartY
 		));
 		UIManager.handlePurchaseFailed({
@@ -58,8 +58,8 @@ export function shopItemDragPurchaseRequestedHandler(
 	const newUnit = makeUnit(constants.FORCE_ID_PLAYER, shopUnitData.cardId, targetTile);
 	scene.state.gameData.player.units.push(newUnit);
 
-	summonChara(newUnit, true);
+	summon(newUnit, true);
 
-	Chara.onShopPurchaseSuccesful(getChara(shopCharaId))
+	Chara.onShopPurchaseSuccesful(getCharaById(shopCharaId))
 
 }
