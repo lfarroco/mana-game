@@ -3,10 +3,19 @@ import { tween } from "../Utils/animation";
 import { titleTextConfig } from "../constants/constants";
 import { playSoundEffect } from "../Systems/AudioManager";
 
-/**
- * Create a button as a container. Returns the container which contains a
- * Graphics named "buttonBackground" and a Text named "buttonLabel".
- */
+interface UIButtonState {
+	buttonWidth: number;
+	buttonHeight: number;
+	cornerRadius: number;
+	normalFillColor: number;
+	hoverFillColor: number;
+	pressedFillColor: number;
+	lineColor: number;
+	lineWidth: number;
+}
+
+const uiButtonState = new WeakMap<Phaser.GameObjects.Container, UIButtonState>();
+
 export function createUIButton(
 	scene: Phaser.Scene,
 	text: string,
@@ -17,20 +26,22 @@ export function createUIButton(
 ): Phaser.GameObjects.Container {
 	const container = scene.add.container(0, 0);
 
-	// store properties on the container so helper functions can access them
-	(container as any).buttonWidth = width || 280;
-	(container as any).buttonHeight = 60;
-	(container as any).cornerRadius = 10;
-	(container as any).normalFillColor = 0x2c3e50;
-	(container as any).hoverFillColor = 0x34495e;
-	(container as any).pressedFillColor = 0x273746;
-	(container as any).lineColor = 0x000000;
-	(container as any).lineWidth = 4;
+	const state: UIButtonState = {
+		buttonWidth: width || 280,
+		buttonHeight: 60,
+		cornerRadius: 10,
+		normalFillColor: 0x2c3e50,
+		hoverFillColor: 0x34495e,
+		pressedFillColor: 0x273746,
+		lineColor: 0x000000,
+		lineWidth: 4,
+	};
+	uiButtonState.set(container, state);
 
 	const buttonGraphics = scene.add.graphics();
 	buttonGraphics.setName("buttonBackground");
-	buttonGraphics.setPosition(x - (container as any).buttonWidth / 2, y - (container as any).buttonHeight / 2);
-	// Add graphics to container before drawing so drawUIButtonState can find it via getByName
+	const st = uiButtonState.get(container)!;
+	buttonGraphics.setPosition(x - st.buttonWidth / 2, y - st.buttonHeight / 2);
 	container.add(buttonGraphics);
 	drawUIButtonState(container, (container as any).normalFillColor);
 
@@ -50,7 +61,7 @@ export function createUIButton(
 		.setOrigin(0.5);
 	buttonText.setName("buttonLabel");
 
-	const hitArea = new Phaser.Geom.Rectangle(0, 0, (container as any).buttonWidth, (container as any).buttonHeight);
+	const hitArea = new Phaser.Geom.Rectangle(0, 0, st.buttonWidth, st.buttonHeight);
 	buttonGraphics.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
 
 	let isPressed = false;
@@ -93,7 +104,6 @@ export function createUIButton(
 		tween({ targets: [buttonText], scale: 1.0 });
 	});
 
-	// graphics already added above
 	container.add(buttonText);
 	return container;
 }
@@ -102,9 +112,11 @@ export function drawUIButtonState(container: Phaser.GameObjects.Container, fill:
 	const g = container.getByName("buttonBackground") as Phaser.GameObjects.Graphics;
 	if (!g) return;
 
-	const buttonWidth = (container as any).buttonWidth as number;
-	const buttonHeight = (container as any).buttonHeight as number;
-	const cornerRadius = (container as any).cornerRadius as number;
+	const st = uiButtonState.get(container);
+	if (!st) return;
+	const buttonWidth = st.buttonWidth;
+	const buttonHeight = st.buttonHeight;
+	const cornerRadius = st.cornerRadius;
 
 	g.clear();
 
@@ -145,7 +157,10 @@ export function enableUIButton(container: Phaser.GameObjects.Container) {
 	const t = container.getByName("buttonLabel") as Phaser.GameObjects.Text;
 	if (g) {
 		g.setAlpha(1);
-		g.setInteractive(new Phaser.Geom.Rectangle(0, 0, (container as any).buttonWidth, (container as any).buttonHeight), Phaser.Geom.Rectangle.Contains);
+		const st = uiButtonState.get(container);
+		const w = st ? st.buttonWidth : 280;
+		const h = st ? st.buttonHeight : 60;
+		g.setInteractive(new Phaser.Geom.Rectangle(0, 0, w, h), Phaser.Geom.Rectangle.Contains);
 	}
 	if (t) t.setAlpha(1);
 }
