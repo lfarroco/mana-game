@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { Unit } from "../../Models/Entities/Unit";
 import * as constants from "../../constants/constants";
 import { tween } from "../../Utils/animation";
-import * as CharaManager from "../../Scenes/Battleground/Systems/CharaManager";
+// Note: Chara acts as the single source of truth for chara instances
 import * as Board from "../../Models/Board";
 import { scene } from "../../Scenes/Battleground/BattlegroundScene";
 import * as CharaStatsDisplay from "./CharaStatsDisplay";
@@ -42,6 +42,19 @@ type CharaState = {
 };
 
 const charaState = new WeakMap<Chara, CharaState>();
+
+// Global registry of active charas keyed by Unit ID
+const charaById = new Map<string, Chara>();
+
+export function getCharaById(id: string): Chara {
+	const c = charaById.get(id);
+	if (!c) throw new Error(`Chara with id ${id} not found.`);
+	return c;
+}
+
+export function getAllCharas(): Chara[] {
+	return Array.from(charaById.values());
+}
 
 export function create(unit: Unit, options?: CharaOptions): Chara {
 	const position = getCharaPosition(unit);
@@ -86,8 +99,8 @@ export function create(unit: Unit, options?: CharaOptions): Chara {
 	// Input handling depends on state existing
 	state.inputHandler = CharaInputHandler.create(container);
 
-	// Auto-register this chara instance for global lookup
-	CharaManager.registerChara(container);
+	// Register this chara instance for global lookup
+	charaById.set(unit.id, container);
 
 	container.on(Phaser.Input.Events.POINTER_OVER, () => {
 		onCharaPointerOver({ chara: container });
@@ -175,7 +188,8 @@ export function onShopPurchaseSuccesful(chara: Chara): void {
 
 	playSoundEffect('sfx_artifact_equipweapon');
 
-	CharaManager.destroyChara(s.id);
+	// Remove the shop item instance from display and registry
+	destroy(chara);
 }
 
 export function onShopPurchaseFailed(chara: Chara, vec: Vec2) {
@@ -256,6 +270,10 @@ export function destroy(chara: Chara, fromScene?: boolean) {
 	chara.off(Phaser.Input.Events.POINTER_OVER);
 	chara.off(Phaser.Input.Events.POINTER_OUT);
 	chara.destroy(fromScene);
+	// De-register from global registry
+	try {
+		charaById.delete(getId(chara));
+	} catch { /* ignore */ }
 }
 
 export function updateStatusEffects(chara: Chara): void {
@@ -293,7 +311,7 @@ function removeHasteEffect(chara: Chara): void {
 }
 
 export async function pop(id: string) {
-	const chara = CharaManager.getChara(id);
+	const chara = getCharaById(id);
 	const s = mustGetState(chara);
 	if (s.isAnimating) return;
 	s.isAnimating = true;
