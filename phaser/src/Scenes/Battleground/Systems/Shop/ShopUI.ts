@@ -9,6 +9,8 @@ import * as sc from "./ShopConstants";
 import { MagicOrb } from "../../../../components/MagicOrb/MagicOrb";
 import { renderOrbs } from "./Orbs";
 import { scene } from "../../BattlegroundScene";
+import { tween } from "../../../../Utils/animation";
+import * as AudioManager from "../../../../Systems/AudioManager";
 
 export type ShopUIState = {
 	shopContainer: Phaser.GameObjects.Container;
@@ -21,8 +23,10 @@ export type ShopUIState = {
 	panelX: number;
 	isOpen: boolean;
 }
+let state: ShopUIState | null = null;
+
 export function create() {
-	const state: ShopUIState = {
+	state = {
 		shopContainer: scene.add.container(0, 0),
 		sellZoneContainer: null,
 		sellZone: null,
@@ -36,34 +40,16 @@ export function create() {
 
 	state.shopContainer.setY(c.SCREEN_HEIGHT * -1);
 
-	displayShop = _displayShop(state)
-	showSellZone = _showSellZone(state);
-	hideSellZone = _hideSellZone(state);
-	update = _update(state);
-	destroyOrbs = _destroyOrbs(state);
-	destroy = _destroy(state);
-	renderTavernCharas = _renderTavernCharas(state);
-	slideIn = _slideIn(state);
-	slideOut = _slideOut(state);
-	bringShopChildToTop = _bringShopChildToTop(state);
-	removeShopChild = _removeShopChild(state);
-	getIsShopOpen = () => state.isOpen;
 	return state;
 };
 
-export let displayShop: (
+export function displayShop(
 	cardsToDisplay: Card.CardDefinition[],
 	orbs: string[],
 	nextRoundCallback: () => void,
 	rerollCallback: () => void,
-) => { charas: Chara[] };
-
-const _displayShop = (state: ShopUIState) => (
-	cardsToDisplay: Card.CardDefinition[],
-	orbs: string[],
-	nextRoundCallback: () => void,
-	rerollCallback: () => void,
-): { charas: Chara[] } => {
+): { charas: Chara[] } {
+	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
 	state.shopContainer.removeAll(true);
 	state.magicOrbs = [];
 
@@ -107,7 +93,7 @@ const _displayShop = (state: ShopUIState) => (
 
 	_createSellZone(state);
 
-	const displayedCharas = _renderTavernCharas(state)(cardsToDisplay);
+	const displayedCharas = renderTavernCharas(cardsToDisplay);
 
 	return { charas: displayedCharas };
 }
@@ -134,11 +120,8 @@ function _renderTavernSectionBackgroundAndTitle(container: Phaser.GameObjects.Co
 	container.add([bg, title]);
 }
 
-export let renderTavernCharas: (
-	cardDefs: Card.CardDefinition[],
-) => Chara[];
-
-const _renderTavernCharas = (state: ShopUIState) => (cardDefs: Card.CardDefinition[]): Chara[] => {
+export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara[] {
+	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
 	const createdCharas: Chara[] = [];
 	const baseX = (state.panelX !== undefined ? state.panelX + 160 : sc.TAVERN_CHARA_FIRST_X);
 	cardDefs.forEach((spec, index) => {
@@ -153,7 +136,7 @@ const _renderTavernCharas = (state: ShopUIState) => (cardDefs: Card.CardDefiniti
 		chara.container.setPosition(baseX + (index * sc.TAVERN_CHARA_SPACING), sc.TAVERN_CHARA_BASE_Y);
 		chara.setBarsVisibility(false);
 
-		state.shopContainer.add(chara.container);
+		state!.shopContainer.add(chara.container);
 		createdCharas.push(chara);
 	});
 	return createdCharas;
@@ -216,28 +199,26 @@ function _createSellZone(state: ShopUIState): void {
 
 }
 
-export let showSellZone: () => void;
-const _showSellZone = (state: ShopUIState) => () => {
+export function showSellZone(): void {
+	if (!state) return;
 	if (state.sellZoneContainer) {
 		scene.children.bringToTop(state.sellZoneContainer);
 		state.sellZoneContainer.setVisible(true);
 	}
 }
 
-export let hideSellZone: () => void;
-const _hideSellZone = (state: ShopUIState) => () => {
-	state.sellZoneContainer?.setVisible(false);
+export function hideSellZone(): void {
+	state?.sellZoneContainer?.setVisible(false);
 }
 
-export let update: (time: number) => void;
-const _update = (state: ShopUIState) => (time: number): void => {
+export function update(time: number): void {
+	if (!state) return;
 	state.magicOrbs = state.magicOrbs.filter(orb => !orb.isOrbDestroyed());
 	state.magicOrbs.forEach(orb => orb.update(time));
 }
 
-export let destroyOrbs: () => void;
-
-const _destroyOrbs = (state: ShopUIState) => () => {
+export function destroyOrbs(): void {
+	if (!state) return;
 	state.magicOrbs.forEach(orb => {
 		if (!orb.isOrbDestroyed()) {
 			orb.destroy();
@@ -251,40 +232,39 @@ const _destroyOrbs = (state: ShopUIState) => () => {
 	}
 }
 
-export let destroy: () => void;
-const _destroy = (state: ShopUIState) => () => {
-	_destroyOrbs(state);
+export function destroy(): void {
+	if (!state) return;
+	destroyOrbs();
 	state.sellZoneContainer?.destroy(true);
 	state.sellZoneContainer = null;
 }
 
-// Slide controls and simple container helpers (replacing Flyout)
-import { tween } from "../../../../Utils/animation";
-import * as AudioManager from "../../../../Systems/AudioManager";
 
-export let slideIn: () => Promise<void>;
-const _slideIn = (state: ShopUIState) => async (): Promise<void> => {
+export async function slideIn(): Promise<void> {
+	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
 	AudioManager.playSoundEffect('sfx_ui_modalwindow_swoosh_enter');
 	scene.children.bringToTop(state.shopContainer);
 	await tween({ targets: [state.shopContainer], y: 0 });
 	state.isOpen = true;
 }
 
-export let slideOut: () => Promise<void>;
-const _slideOut = (state: ShopUIState) => async (): Promise<void> => {
+export async function slideOut(): Promise<void> {
+	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
 	AudioManager.playSoundEffect('sfx_ui_modalwindow_swoosh_exit');
 	await tween({ targets: [state.shopContainer], y: c.SCREEN_HEIGHT * -1 });
 	state.isOpen = false;
 }
 
-export let bringShopChildToTop: (child: Phaser.GameObjects.GameObject) => void;
-const _bringShopChildToTop = (state: ShopUIState) => (child: Phaser.GameObjects.GameObject): void => {
+export function bringShopChildToTop(child: Phaser.GameObjects.GameObject): void {
+	if (!state) return;
 	state.shopContainer.bringToTop(child);
 }
 
-export let removeShopChild: (child: Phaser.GameObjects.GameObject, destroy?: boolean) => void;
-const _removeShopChild = (state: ShopUIState) => (child: Phaser.GameObjects.GameObject, destroy: boolean = false): void => {
+export function removeShopChild(child: Phaser.GameObjects.GameObject, destroy: boolean = false): void {
+	if (!state) return;
 	state.shopContainer.remove(child, destroy);
 }
 
-export let getIsShopOpen: () => boolean;
+export function getIsShopOpen(): boolean {
+	return !!state?.isOpen;
+}
