@@ -35,7 +35,7 @@ export function create(chara: CharaType) {
 		unitId: getUnit(chara).id
 	}
 
-	if (getUnit(chara).force === FORCE_ID_PLAYER || getIsShopItem(chara)) {
+	if (getUnit(chara).force === FORCE_ID_PLAYER || getIsShopItem(state.unitId)) {
 		scene.input.setDraggable(chara, true);
 
 		chara.on(Phaser.Input.Events.DRAG_START, onDragStart(state));
@@ -43,7 +43,7 @@ export function create(chara: CharaType) {
 		chara.on(Phaser.Input.Events.DROP, onDrop(state));
 		chara.on(Phaser.Input.Events.DRAG_END, onDragEnd(state));
 
-		if (getIsShopItem(chara)) {
+		if (getIsShopItem(state.unitId)) {
 			chara.on(Phaser.Input.Events.POINTER_UP, onPointerUpShopItem(state));
 		}
 	}
@@ -62,7 +62,7 @@ const onDragStart = (handlerState: CharaInputHandler) => (
 	handlerState.dragStartVec = vec2(handlerState.dragStartX, handlerState.dragStartY);
 	handlerState.wasDragSuccessful = false;
 
-	if (getIsShopItem(chara)) {
+	if (getIsShopItem(handlerState.unitId)) {
 		ShopUI.bringShopChildToTop(chara);
 	} else {
 		scene.children.bringToTop(chara);
@@ -74,7 +74,7 @@ const onDragStart = (handlerState: CharaInputHandler) => (
 		duration: 100,
 		ease: "Cubic.Out",
 	});
-	if (!getIsShopItem(chara)) {
+	if (!getIsShopItem(handlerState.unitId)) {
 		ShopUI.showSellZone();
 	}
 	hideTooltip();
@@ -99,7 +99,7 @@ const onDragEnd = (handlerState: CharaInputHandler) => (_pointer: Phaser.Input.P
 		ease: "Cubic.Out",
 	});
 
-	if (!getIsShopItem(chara)) {
+	if (!getIsShopItem(handlerState.unitId)) {
 		ShopUI.hideSellZone();
 	}
 
@@ -115,7 +115,7 @@ const onDragEnd = (handlerState: CharaInputHandler) => (_pointer: Phaser.Input.P
 }
 
 const onPointerUpShopItem = (handlerState: CharaInputHandler) => (pointer: Phaser.Input.Pointer): void => {
-	if (!getIsShopItem(handlerState.chara) || !handlerState.chara.input?.enabled) return;
+	if (!getIsShopItem(handlerState.unitId) || !handlerState.chara.input?.enabled) return;
 
 	if (pointer.getDistance() > constants.DRAG_CLICK_THRESHOLD) {
 		return;
@@ -136,7 +136,7 @@ const processShopItemClick = (handlerState: CharaInputHandler) => (_clickX: numb
 
 const processDrop = (handlerState: CharaInputHandler) => (dropTarget: Phaser.GameObjects.GameObject, dragStartX: number, dragStartY: number): boolean => {
 	if (dropTarget.name === sc.SHOP_SELL_ZONE_NAME) {
-		if (!getIsShopItem(handlerState.chara)) {
+		if (!getIsShopItem(handlerState.unitId)) {
 			_handleSellUnit(handlerState);
 			return true;
 		} else {
@@ -157,8 +157,8 @@ const processDrop = (handlerState: CharaInputHandler) => (dropTarget: Phaser.Gam
 	const tileY = Math.floor(slotIndex / 3);
 	const tile = vec2(tileX, tileY);
 
-	if (!getIsShopItem(handlerState.chara)) {
-		processOwnedUnitMoveRequest(handlerState.unitId,tile, dragStartX, dragStartY);
+	if (!getIsShopItem(handlerState.unitId)) {
+		processOwnedUnitMoveRequest(handlerState.unitId, tile, dragStartX, dragStartY);
 		return true;
 	} else {
 		_handleDropShopItem(handlerState)(tile, dragStartX, dragStartY);
