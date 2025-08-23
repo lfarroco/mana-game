@@ -31,7 +31,6 @@ type CharaState = {
 	id: string;
 	isAnimating: boolean;
 	sprite: Phaser.GameObjects.Sprite;
-	spriteBorder?: Phaser.GameObjects.Graphics;
 	statsDisplay: CharaStatsDisplay.StatsDisplay | null;
 	inputHandler: CharaInputHandler.CharaInputHandler;
 	isShopItem: boolean;
@@ -105,7 +104,7 @@ export function create(unit: Unit, options?: CharaOptions): Chara {
 	const position = getCharaPosition(unit);
 	const container = scene.add.container(position.x, position.y);
 
-	const { sprite, spriteBorder } = createSprite(container, unit);
+	const sprite = createSprite(container, unit);
 	if (unit.force === constants.FORCE_ID_CPU) {
 		sprite.setFlipX(true);
 	}
@@ -126,7 +125,6 @@ export function create(unit: Unit, options?: CharaOptions): Chara {
 		id: unit.id,
 		isAnimating: false,
 		sprite,
-		spriteBorder,
 		statsDisplay,
 		inputHandler: undefined as any, // set below so we can pass container
 		isShopItem: options?.isShopItem ?? false,
@@ -177,6 +175,7 @@ export function getCharaPosition(unit: Unit) {
 function createSprite(container: Chara, unit: Unit, borderWidth: number = 3, borderColor: number = 0xffffff) {
 	const animCacheKey = unit.pic + '-anims';
 	const animData = scene.cache.json.get(animCacheKey);
+
 	if (animData && animData.anims) {
 		for (const anim of animData.anims) {
 			const animKey = unit.pic + '_' + anim.key;
@@ -214,7 +213,7 @@ function createSprite(container: Chara, unit: Unit, borderWidth: number = 3, bor
 		sprite.play(unit.pic + '_idle');
 	}
 
-	return { sprite, spriteBorder: border };
+	return sprite;
 }
 
 export function onShopPurchaseSuccesful(chara: Chara): void {
