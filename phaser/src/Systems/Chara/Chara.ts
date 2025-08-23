@@ -69,23 +69,6 @@ export function clearAll(): void {
 	getAllCharas().forEach(c => destroy(c));
 }
 
-export function getSurroundingAllies(unit: Unit): Chara[] {
-	return getAllCharas()
-		.filter(ch => getUnit(ch).force === unit.force)
-		.filter(ch => getId(ch) !== unit.id)
-		.filter(ch => {
-			const distance = Phaser.Math.Distance.BetweenPoints(
-				unit.position,
-				getUnit(ch).position
-			);
-			return distance === 1;
-		});
-}
-
-export function summonToBoard(payload: { unit: Unit; animateAppear: boolean; playSound?: boolean }): void {
-	void summon(payload.unit, payload.animateAppear);
-}
-
 export function create(unit: Unit): Chara {
 	const position = getCharaPosition(unit);
 	const container = scene.add.container(position.x, position.y);
@@ -259,15 +242,10 @@ export function updateUnitPower(chara: Chara, num: number) {
 	});
 }
 
-export function destroy(chara: Chara, fromScene?: boolean) {
+export function destroy(chara: Chara) {
 	removeHasteEffect(chara);
-	chara.off(Phaser.Input.Events.POINTER_OVER);
-	chara.off(Phaser.Input.Events.POINTER_OUT);
-	chara.destroy(fromScene);
-	// De-register from global registry
-	try {
-		charaById.delete(getId(chara));
-	} catch { /* ignore */ }
+	chara.destroy();
+	charaById.delete(getId(chara));
 }
 
 export function updateStatusEffects(chara: Chara): void {
