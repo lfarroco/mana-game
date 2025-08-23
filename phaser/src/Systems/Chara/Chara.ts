@@ -15,10 +15,7 @@ import * as Shop from "../../Scenes/Battleground/Systems/Shop/Shop";
 import * as ShopUI from "../../Scenes/Battleground/Systems/Shop/ShopUI";
 import { popText } from "./Animations/popText";
 import { summonEffect } from "../../Effects/summonEffect";
-
-export type CharaOptions = {
-	isShopItem?: boolean;
-};
+import { getState } from "../../Models/State";
 
 export type Chara = Phaser.GameObjects.Container;
 
@@ -29,7 +26,6 @@ type CharaState = {
 	id: string;
 	isAnimating: boolean;
 	sprite: Phaser.GameObjects.Sprite;
-	isShopItem: boolean;
 	hasteEffect?: HasteEffectState;
 	previousHasteState: number;
 };
@@ -90,7 +86,7 @@ export function summonToBoard(payload: { unit: Unit; animateAppear: boolean; pla
 	void summon(payload.unit, payload.animateAppear);
 }
 
-export function create(unit: Unit, options?: CharaOptions): Chara {
+export function create(unit: Unit): Chara {
 	const position = getCharaPosition(unit);
 	const container = scene.add.container(position.x, position.y);
 
@@ -114,7 +110,6 @@ export function create(unit: Unit, options?: CharaOptions): Chara {
 		id: unit.id,
 		isAnimating: false,
 		sprite,
-		isShopItem: options?.isShopItem ?? false,
 		hasteEffect: undefined,
 		previousHasteState: 0,
 	};
@@ -202,8 +197,6 @@ function createSprite(container: Chara, unit: Unit, borderWidth: number = 3, bor
 }
 
 export function onShopPurchaseSuccesful(chara: Chara): void {
-	const s = mustGetState(chara);
-	s.isShopItem = false;
 	hideTooltip();
 
 	ShopUI.removeShopChild(chara);
@@ -225,8 +218,8 @@ export function onShopPurchaseFailed(chara: Chara, vec: Vec2) {
 	});
 }
 
-export function getIsShopItem(chara: Chara): boolean {
-	return mustGetState(chara).isShopItem;
+export function getIsShopItem(id: string): boolean {
+	return !getState().gameData.player.units.find(u => u.id === id);
 }
 
 export function getUnit(chara: Chara): Unit {

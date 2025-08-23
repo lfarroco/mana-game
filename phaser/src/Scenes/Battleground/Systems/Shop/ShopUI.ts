@@ -126,11 +126,8 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 	const baseX = (state.panelX !== undefined ? state.panelX + 160 : sc.TAVERN_CHARA_FIRST_X);
 	cardDefs.forEach((spec, index) => {
 		const unit = makeUnit(c.FORCE_ID_PLAYER, spec.id, vec2(0, 0));
-		const charaOptions: Chara.CharaOptions = {
-			isShopItem: true,
 
-		};
-		const chara = Chara.create(unit, charaOptions);
+		const chara = Chara.create(unit);
 
 		chara.setPosition(baseX + (index * sc.TAVERN_CHARA_SPACING), sc.TAVERN_CHARA_BASE_Y);
 		CharaBarsDisplay.setVisible(unit.id, false);
