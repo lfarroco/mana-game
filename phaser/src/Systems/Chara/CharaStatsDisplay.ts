@@ -17,6 +17,8 @@ export type StatsDisplay = {
 	odometerTween: Phaser.Tweens.Tween | null;
 }
 
+const statsDisplayMap = new Map<string, StatsDisplay>();
+
 export const CHARA_STATS_COLORS = {
 	DAMAGE_BG: 0xff0000,
 	HEAL_BG: 0x23a423,
@@ -26,7 +28,7 @@ export const CHARA_STATS_COLORS = {
 	DEFAULT_BG: 0x000000
 } as const;
 
-export function create(unit: Unit, container: Container): StatsDisplay | null {
+export function create(unit: Unit, container: Container) {
 
 	const displayableEffects = ["heal", "damage", "shield", "poison", "regen"];
 
@@ -77,33 +79,35 @@ export function create(unit: Unit, container: Container): StatsDisplay | null {
 
 	container.add([powerDisplayBg, powerDisplay]);
 
-	return {
+	statsDisplayMap.set(unit.id, {
 		unit,
 		powerDisplayBg,
 		powerDisplay,
 		displayedPower,
 		powerTween,
 		odometerTween,
-	}
+	});
 }
 
-export function updatePower(stats: StatsDisplay): void {
+export function updatePower(id: string) {
+	const stats = statsDisplayMap.get(id);
+	if (!stats) return;
+
 	stats.displayedPower = Math.floor(stats.unit.power);
-	stats.powerDisplay?.setText(stats.displayedPower.toString());
+	stats.powerDisplay.setText(stats.displayedPower.toString());
 }
 
-export function animatePowerChange(stats: StatsDisplay, newValue: number) {
-	if (!stats.powerDisplay) return;
+export function animatePowerChange(id: string, newValue: number) {
+	const stats = statsDisplayMap.get(id);
+	if (!stats ) return;
 
 	const startValue = stats.displayedPower;
 	const endValue = Math.floor(newValue);
 	if (startValue === endValue) return;
 
-	// Stop any previous tweens
 	if (stats.powerTween) stats.powerTween.stop();
 	if (stats.odometerTween) stats.odometerTween.stop();
 
-	// Pulse animation (scale up then down)
 	stats.powerTween = scene.tweens.add({
 		targets: stats.powerDisplay,
 		scale: 1.3,
@@ -117,7 +121,6 @@ export function animatePowerChange(stats: StatsDisplay, newValue: number) {
 		}
 	});
 
-	// Odometer animation
 	const duration = 200;
 	let lastValue = startValue;
 	stats.odometerTween = scene.tweens.addCounter({
@@ -140,13 +143,19 @@ export function animatePowerChange(stats: StatsDisplay, newValue: number) {
 	});
 }
 
-export function updateUnit(stats: StatsDisplay, newUnit: Unit): void {
+export function updateUnit(id: string, newUnit: Unit): void {
+	const stats = statsDisplayMap.get(id);
+	if (!stats) return;
+
 	stats.unit = newUnit;
-	updatePower(stats);
+	updatePower(id);
 }
 
 
-export function setVisible(stats: StatsDisplay, visible: boolean): void {
+export function setVisible(id: string, visible: boolean): void {
+	const stats = statsDisplayMap.get(id);
+	if (!stats) return;
+
 	stats.powerDisplayBg.setVisible(visible);
 	stats.powerDisplay.setVisible(visible);
 }

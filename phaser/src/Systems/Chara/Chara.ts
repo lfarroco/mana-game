@@ -29,7 +29,6 @@ type CharaState = {
 	id: string;
 	isAnimating: boolean;
 	sprite: Phaser.GameObjects.Sprite;
-	statsDisplay: CharaStatsDisplay.StatsDisplay | null;
 	isShopItem: boolean;
 	hasteEffect?: HasteEffectState;
 	previousHasteState: number;
@@ -104,7 +103,6 @@ export function create(unit: Unit, options?: CharaOptions): Chara {
 	if (unit.force === constants.FORCE_ID_CPU) {
 		sprite.setFlipX(true);
 	}
-	const statsDisplay = CharaStatsDisplay.create(unit, container);
 
 	container.setInteractive(
 		new Phaser.Geom.Rectangle(
@@ -121,7 +119,6 @@ export function create(unit: Unit, options?: CharaOptions): Chara {
 		id: unit.id,
 		isAnimating: false,
 		sprite,
-		statsDisplay,
 		isShopItem: options?.isShopItem ?? false,
 		hasteEffect: undefined,
 		previousHasteState: 0,
@@ -141,7 +138,7 @@ export function create(unit: Unit, options?: CharaOptions): Chara {
 		onCharaPointerOut();
 	});
 
-	if (statsDisplay) CharaStatsDisplay.updatePower(statsDisplay);
+	CharaStatsDisplay.updatePower(unit.id);
 
 	updateStatusEffects(container);
 
@@ -248,16 +245,11 @@ export function getId(chara: Chara): string {
 export function updateUnit(chara: Chara, newUnit: Unit): void {
 	const s = mustGetState(chara);
 	s.unit = newUnit;
-	if (s.statsDisplay)
-		CharaStatsDisplay.updateUnit(s.statsDisplay, newUnit);
+
+	CharaStatsDisplay.updateUnit(s.id, newUnit);
+
 	CharaBarsDisplay.updateUnit(s.id, newUnit);
 	updateStatusEffects(chara);
-}
-
-export function updatePowerDisplay(chara: Chara) {
-	const s = mustGetState(chara);
-	if (s.statsDisplay)
-		CharaStatsDisplay.animatePowerChange(s.statsDisplay, s.unit.power);
 }
 
 export function setBarsVisibility(chara: Chara, visible: boolean): void {
@@ -278,7 +270,7 @@ export async function updateUnitAttribute<K extends keyof Unit>(chara: Chara, at
 	}
 
 	if (attribute === "power") {
-		updatePowerDisplay(chara);
+		CharaStatsDisplay.animatePowerChange(s.id, unit.power);
 	}
 
 	popText({
