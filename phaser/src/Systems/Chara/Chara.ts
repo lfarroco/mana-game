@@ -32,7 +32,6 @@ type CharaState = {
 	isAnimating: boolean;
 	sprite: Phaser.GameObjects.Sprite;
 	statsDisplay: CharaStatsDisplay.StatsDisplay | null;
-	inputHandler: CharaInputHandler.CharaInputHandler;
 	isShopItem: boolean;
 	hasteEffect?: HasteEffectState;
 	previousHasteState: number;
@@ -126,7 +125,6 @@ export function create(unit: Unit, options?: CharaOptions): Chara {
 		isAnimating: false,
 		sprite,
 		statsDisplay,
-		inputHandler: undefined as any, // set below so we can pass container
 		isShopItem: options?.isShopItem ?? false,
 		hasteEffect: undefined,
 		previousHasteState: 0,
@@ -135,8 +133,7 @@ export function create(unit: Unit, options?: CharaOptions): Chara {
 
 	charaState.set(container, state);
 
-	// Input handling depends on state existing
-	state.inputHandler = CharaInputHandler.create(container);
+	CharaInputHandler.create(container);
 
 	// Register this chara instance for global lookup
 	charaById.set(unit.id, container);
@@ -270,10 +267,6 @@ export function updatePowerDisplay(chara: Chara) {
 export function setBarsVisibility(chara: Chara, visible: boolean): void {
 	const s = mustGetState(chara);
 	CharaBarsDisplay.setVisible(s.id, visible);
-}
-
-export function getInputHandler(chara: Chara) {
-	return mustGetState(chara).inputHandler;
 }
 
 export async function updateUnitAttribute<K extends keyof Unit>(chara: Chara, attribute: K, num: number) {
