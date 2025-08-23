@@ -68,7 +68,11 @@ export class BattleProgressionSystem {
 		await Promise.all(summonPromises);
 
 		this.resetPlayerUnitChargeBars();
-		this.setAllPlayerUnitBarsVisibility(false);
+		this.state.gameData.player.units
+			.forEach(unit => {
+
+				CharaBarsDisplay.setVisible(unit.id, false);
+			});
 		this.state.gameData.round++;
 
 		this.isInShopPhase = true;
@@ -86,7 +90,9 @@ export class BattleProgressionSystem {
 		console.log("Round", this.state.gameData.round, "Combat Phase Starting.");
 		const { enemies } = await this.setupBattle();
 
-		this.setAllPlayerUnitBarsVisibility(true);
+		this.state.gameData.player.units.forEach(u => {
+			CharaBarsDisplay.setVisible(u.id, true);
+		})
 
 		GhostStore.saveGhostForRound(
 			this.state.gameData.round,
@@ -135,14 +141,6 @@ export class BattleProgressionSystem {
 		this.state.gameData.player.units.forEach(unit => {
 			CharaBarsDisplay.updateBars(unit.id)
 		});
-	}
-
-	setAllPlayerUnitBarsVisibility(visible: boolean): void {
-		Chara
-			.getAllCharas()
-			.forEach(chara => {
-				Chara.setBarsVisibility(chara, visible);
-			});
 	}
 
 	async setupBattle(): Promise<{ enemies: Unit[]; }> {
@@ -196,7 +194,7 @@ export class BattleProgressionSystem {
 		await delay(300);
 		await Promise.all(payload.enemies.map(u => Chara.summon(u, true)));
 		[...payload.enemies, ...this.state.gameData.player.units].forEach(u => {
-			Chara.setBarsVisibility(Chara.getCharaById(u.id), true);
+			CharaBarsDisplay.setVisible(u.id, true);
 		});
 
 		this.scene.runCombatSystem.runCombatIO();

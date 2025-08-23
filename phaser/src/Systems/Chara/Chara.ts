@@ -54,7 +54,7 @@ export async function summon(unit: Unit, useSummonEffect: boolean = true): Promi
 		summonEffect(scene, vec);
 	}
 	const chara = create(unit);
-	setBarsVisibility(chara, false);
+	CharaBarsDisplay.setVisible(unit.id, false);
 	chara.setScale(0);
 	chara.setAngle(-10);
 	await tween({
@@ -64,7 +64,7 @@ export async function summon(unit: Unit, useSummonEffect: boolean = true): Promi
 		ease: "Back.easeOut",
 		duration: 500,
 	});
-	setBarsVisibility(chara, true);
+	CharaBarsDisplay.setVisible(unit.id, true);
 	return chara;
 }
 
@@ -88,11 +88,6 @@ export function getSurroundingAllies(unit: Unit): Chara[] {
 
 export function summonToBoard(payload: { unit: Unit; animateAppear: boolean; playSound?: boolean }): void {
 	void summon(payload.unit, payload.animateAppear);
-}
-
-export function setBarsVisibilityById(payload: { unitId: string; visible: boolean }): void {
-	const chara = getCharaById(payload.unitId);
-	setBarsVisibility(chara, payload.visible);
 }
 
 export function create(unit: Unit, options?: CharaOptions): Chara {
@@ -252,10 +247,7 @@ export function updateUnit(chara: Chara, newUnit: Unit): void {
 	updateStatusEffects(chara);
 }
 
-export function setBarsVisibility(chara: Chara, visible: boolean): void {
-	const s = mustGetState(chara);
-	CharaBarsDisplay.setVisible(s.id, visible);
-}
+
 
 export function updateUnitPower(chara: Chara, num: number) {
 	const s = mustGetState(chara);
