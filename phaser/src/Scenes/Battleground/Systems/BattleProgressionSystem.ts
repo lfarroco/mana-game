@@ -16,6 +16,7 @@ import { EventHandler } from "../../../Types/CommonTypes";
 import * as AudioManager from "../../../Systems/AudioManager";
 import * as Shop from "./Shop/Shop";
 import * as Chara from "../../../Systems/Chara/Chara";
+import * as CharaBarsDisplay from "../../../Systems/Chara/CharaBarsDisplay";
 
 function createUnitCopy(unit: Unit): Unit {
 	return {
@@ -131,11 +132,9 @@ export class BattleProgressionSystem {
 	}
 
 	resetPlayerUnitChargeBars(): void {
-		Chara
-			.getAllCharas()
-			.forEach(chara => {
-				Chara.updateChargeBar(chara);
-			});
+		this.state.gameData.player.units.forEach(unit => {
+			CharaBarsDisplay.updateBars(unit.id)
+		});
 	}
 
 	setAllPlayerUnitBarsVisibility(visible: boolean): void {

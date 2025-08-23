@@ -22,7 +22,6 @@ export type CharaOptions = {
 	isShopItem?: boolean;
 };
 
-// Expose a simple alias so existing imports `import { Chara }` keep referring to the Container type
 export type Chara = Phaser.GameObjects.Container;
 
 type HasteEffectState = { particles: Phaser.GameObjects.Particles.ParticleEmitter; cleanup: () => void };
@@ -34,7 +33,6 @@ type CharaState = {
 	sprite: Phaser.GameObjects.Sprite;
 	spriteBorder?: Phaser.GameObjects.Graphics;
 	statsDisplay: CharaStatsDisplay.StatsDisplay | null;
-	barsDisplay: CharaBarsDisplay.CharaBars;
 	inputHandler: CharaInputHandler.CharaInputHandler;
 	isShopItem: boolean;
 	hasteEffect?: HasteEffectState;
@@ -44,7 +42,6 @@ type CharaState = {
 
 const charaState = new WeakMap<Chara, CharaState>();
 
-// Global registry of active charas keyed by Unit ID
 const charaById = new Map<string, Chara>();
 
 export function getCharaById(id: string): Chara {
@@ -57,7 +54,6 @@ export function getAllCharas(): Chara[] {
 	return Array.from(charaById.values());
 }
 
-// Summon a chara with optional VFX and intro tween
 export async function summon(unit: Unit, useSummonEffect: boolean = true): Promise<Chara> {
 	const vec = getCharaPosition(unit);
 	if (useSummonEffect) {
@@ -96,14 +92,8 @@ export function getSurroundingAllies(unit: Unit): Chara[] {
 		});
 }
 
-// Event-style helpers (kept for compatibility with functional callers)
 export function summonToBoard(payload: { unit: Unit; animateAppear: boolean; playSound?: boolean }): void {
 	void summon(payload.unit, payload.animateAppear);
-}
-
-export function updateChargeBarById(payload: { unitId: string }): void {
-	const chara = getCharaById(payload.unitId);
-	updateChargeBar(chara);
 }
 
 export function setBarsVisibilityById(payload: { unitId: string; visible: boolean }): void {
@@ -115,12 +105,10 @@ export function create(unit: Unit, options?: CharaOptions): Chara {
 	const position = getCharaPosition(unit);
 	const container = scene.add.container(position.x, position.y);
 
-	// Prepare sprite and visuals
 	const { sprite, spriteBorder } = createSprite(container, unit);
 	if (unit.force === constants.FORCE_ID_CPU) {
 		sprite.setFlipX(true);
 	}
-	const barsDisplay = CharaBarsDisplay.create(unit, container);
 	const statsDisplay = CharaStatsDisplay.create(unit, container);
 
 	container.setInteractive(
@@ -133,7 +121,6 @@ export function create(unit: Unit, options?: CharaOptions): Chara {
 		Phaser.Geom.Rectangle.Contains
 	);
 
-	// Initialize state
 	const state: CharaState = {
 		unit,
 		id: unit.id,
@@ -141,7 +128,6 @@ export function create(unit: Unit, options?: CharaOptions): Chara {
 		sprite,
 		spriteBorder,
 		statsDisplay,
-		barsDisplay,
 		inputHandler: undefined as any, // set below so we can pass container
 		isShopItem: options?.isShopItem ?? false,
 		hasteEffect: undefined,
@@ -165,7 +151,6 @@ export function create(unit: Unit, options?: CharaOptions): Chara {
 	});
 
 	if (statsDisplay) CharaStatsDisplay.updatePower(statsDisplay);
-	CharaBarsDisplay.updateBars(barsDisplay);
 
 	updateStatusEffects(container);
 
@@ -273,7 +258,7 @@ export function updateUnit(chara: Chara, newUnit: Unit): void {
 	s.unit = newUnit;
 	if (s.statsDisplay)
 		CharaStatsDisplay.updateUnit(s.statsDisplay, newUnit);
-	CharaBarsDisplay.updateUnit(s.barsDisplay, newUnit);
+	CharaBarsDisplay.updateUnit(s.id, newUnit);
 	updateStatusEffects(chara);
 }
 
@@ -285,12 +270,7 @@ export function updatePowerDisplay(chara: Chara) {
 
 export function setBarsVisibility(chara: Chara, visible: boolean): void {
 	const s = mustGetState(chara);
-	CharaBarsDisplay.setVisible(s.barsDisplay, visible);
-}
-
-export function updateChargeBar(chara: Chara) {
-	const s = mustGetState(chara);
-	CharaBarsDisplay.updateBars(s.barsDisplay);
+	CharaBarsDisplay.setVisible(s.id, visible);
 }
 
 export function getInputHandler(chara: Chara) {
