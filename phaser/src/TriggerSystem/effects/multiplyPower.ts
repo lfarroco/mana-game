@@ -24,7 +24,7 @@ export const multiplyPower = async (context: {
 		const powerDifference = newPower - currentPower;
 
 		// Use the existing updateUnitAttribute method to apply the difference
-		await Chara.updateUnitAttribute(chara, 'power', powerDifference);
+		Chara.updateUnitPower(chara, powerDifference);
 
 		playSoundEffect('sfx_spell_innerfocus');
 	}

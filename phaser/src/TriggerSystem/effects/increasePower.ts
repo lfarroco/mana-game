@@ -19,7 +19,7 @@ export const increasePower = async (context: {
 	for (const target of targets) {
 		console.log(`Modifying power of ${target.id} by ${amount}`);
 		const chara = getCharaById(target.id);
-		await Chara.updateUnitAttribute(chara, 'power', amount);
+		Chara.updateUnitPower(chara, amount);
 		AudioManager.playSoundEffect('sfx_spell_innerfocus');
 	}
 };
