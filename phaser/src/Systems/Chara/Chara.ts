@@ -2,8 +2,6 @@ import Phaser from "phaser";
 import { Unit } from "../../Models/Entities/Unit";
 import * as constants from "../../constants/constants";
 import { tween } from "../../Utils/animation";
-// Note: Chara acts as the single source of truth for chara instances
-import * as Board from "../../Models/Board";
 import { scene } from "../../Scenes/Battleground/BattlegroundScene";
 import * as CharaStatsDisplay from "./CharaStatsDisplay";
 import * as CharaBarsDisplay from "./CharaBarsDisplay";
@@ -35,7 +33,6 @@ type CharaState = {
 	isShopItem: boolean;
 	hasteEffect?: HasteEffectState;
 	previousHasteState: number;
-	playerBoard: Board.PartyBoard;
 };
 
 const charaState = new WeakMap<Chara, CharaState>();
@@ -128,7 +125,6 @@ export function create(unit: Unit, options?: CharaOptions): Chara {
 		isShopItem: options?.isShopItem ?? false,
 		hasteEffect: undefined,
 		previousHasteState: 0,
-		playerBoard: scene.playerBoard,
 	};
 
 	charaState.set(container, state);
