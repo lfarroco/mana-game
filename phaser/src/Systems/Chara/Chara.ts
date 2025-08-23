@@ -257,21 +257,15 @@ export function setBarsVisibility(chara: Chara, visible: boolean): void {
 	CharaBarsDisplay.setVisible(s.id, visible);
 }
 
-export async function updateUnitAttribute<K extends keyof Unit>(chara: Chara, attribute: K, num: number) {
+export function updateUnitPower(chara: Chara, num: number) {
 	const s = mustGetState(chara);
 	const { unit } = s;
 	const positive = num >= 0;
 	const text = `${positive ? "+" : "-"}${num}`;
 
-	if (typeof unit[attribute] === "number") {
-		(unit[attribute] as number) += num;
-	} else {
-		console.error(`Cannot add number to non-numeric attribute: ${String(attribute)}`);
-	}
+	unit.power += num;
 
-	if (attribute === "power") {
-		CharaStatsDisplay.animatePowerChange(s.id, unit.power);
-	}
+	CharaStatsDisplay.animatePowerChange(s.id, unit.power);
 
 	popText({
 		x: chara.x,
