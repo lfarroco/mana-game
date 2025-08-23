@@ -70,8 +70,12 @@ export function moveUnitOnBoard(unitId: string, targetBoardX: number, targetBoar
 	dragStartX = chara.x;
 	dragStartY = chara.y;
 
-	const moveChara = Chara.getCharaById(unitId);
-	CharaInputHandler.requestOwnedUnitMove(Chara.getInputHandler(moveChara))(vec2(targetBoardX, targetBoardY), dragStartX, dragStartY);
+	CharaInputHandler
+		.processOwnedUnitMoveRequest(
+			unitId,
+			vec2(targetBoardX, targetBoardY),
+			dragStartX, dragStartY,
+		);
 
 	return `Emitted OWNED_UNIT_MOVE_REQUESTED for unit ${unitId} to board (${targetBoardX},${targetBoardY}). Move/swap processing is asynchronous.`;
 }

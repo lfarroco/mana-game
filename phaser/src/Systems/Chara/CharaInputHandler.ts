@@ -21,6 +21,7 @@ export type CharaInputHandler = {
 	dragStartVec: Vec2;
 	wasDragSuccessful: boolean;
 	chara: CharaType;
+	unitId: string;
 };
 
 export function create(chara: CharaType) {
@@ -30,7 +31,8 @@ export function create(chara: CharaType) {
 		dragStartY: 0,
 		dragStartVec: vec2(0, 0),
 		wasDragSuccessful: false,
-		chara
+		chara,
+		unitId: getUnit(chara).id
 	}
 
 	if (getUnit(chara).force === FORCE_ID_PLAYER || getIsShopItem(chara)) {
@@ -49,7 +51,11 @@ export function create(chara: CharaType) {
 	return state
 }
 
-const onDragStart = (handlerState: CharaInputHandler) => (_pointer: Phaser.Input.Pointer, _dragX: number, _dragY: number) => {
+const onDragStart = (handlerState: CharaInputHandler) => (
+	_pointer: Phaser.Input.Pointer,
+	_dragX: number,
+	_dragY: number,
+) => {
 	const { chara } = handlerState;
 	handlerState.dragStartX = chara.x;
 	handlerState.dragStartY = chara.y;
@@ -152,7 +158,7 @@ const processDrop = (handlerState: CharaInputHandler) => (dropTarget: Phaser.Gam
 	const tile = vec2(tileX, tileY);
 
 	if (!getIsShopItem(handlerState.chara)) {
-		_handleDropOwnedUnit(handlerState)(tile, dragStartX, dragStartY);
+		processOwnedUnitMoveRequest(handlerState.unitId,tile, dragStartX, dragStartY);
 		return true;
 	} else {
 		_handleDropShopItem(handlerState)(tile, dragStartX, dragStartY);
@@ -160,14 +166,6 @@ const processDrop = (handlerState: CharaInputHandler) => (dropTarget: Phaser.Gam
 	}
 }
 
-const _handleDropOwnedUnit = (handlerState: CharaInputHandler) => (tile: Vec2, dragStartX: number, dragStartY: number) => {
-	_processOwnedUnitMoveRequest({
-		unitId: getUnit(handlerState.chara).id,
-		targetTile: tile,
-		dragStartX,
-		dragStartY
-	});
-}
 
 const _handleDropShopItem = (handlerState: CharaInputHandler) => (tile: Vec2, dragStartX: number, dragStartY: number) => {
 	const { chara } = handlerState
@@ -185,25 +183,10 @@ const _handleSellUnit = (handlerState: CharaInputHandler): void => {
 	scene.handleOwnedUnitSold({ unitId: getUnit(handlerState.chara).id, soldForGold: sellPrice });
 }
 
-export const requestOwnedUnitMove = (handlerState: CharaInputHandler) => (targetTile: Vec2, dragStartX: number, dragStartY: number) => {
-	const { chara } = handlerState;
 
-	_processOwnedUnitMoveRequest({
-		unitId: getUnit(chara).id,
-		targetTile,
-		dragStartX,
-		dragStartY
-	});
-}
-
-const _processOwnedUnitMoveRequest = (payload: { unitId: string; targetTile: Vec2; dragStartX: number; dragStartY: number; }) => {
-	const { unitId, targetTile, dragStartX, dragStartY } = payload;
-
-	_attemptOwnedUnitMovement(unitId, targetTile, dragStartX, dragStartY);
-}
-
-
-const _attemptOwnedUnitMovement = (unitId: string, targetTile: Vec2, dragStartX: number, dragStartY: number) => {
+export const processOwnedUnitMoveRequest = (
+	unitId: string, targetTile: Vec2, dragStartX: number, dragStartY: number
+) => {
 	const units = scene.state.gameData.player.units;
 	const unit = units.find(u => u.id === unitId);
 	if (!unit) {
