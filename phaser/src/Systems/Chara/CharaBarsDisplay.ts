@@ -10,20 +10,31 @@ export type CharaBars = {
 	unit: Unit;
 };
 
-export function create(unit: Unit, container: Container): CharaBars {
+let charaBarsMap = new Map<string, CharaBars>();
+
+export function create(unit: Unit, container: Container) {
 	const chargeBar = scene.add.graphics();
 	const cooldownBar = scene.add.graphics();
 
 	container.add([chargeBar, cooldownBar]);
 
-	return {
+	const state = {
 		chargeBar,
 		cooldownBar,
 		unit
 	}
+
+	charaBarsMap.set(unit.id, state);
+
+	updateBars(unit.id)
 }
 
-export function updateBars({ chargeBar, unit }: CharaBars): void {
+export function updateBars(id: string): void {
+
+	const state = charaBarsMap.get(id);
+	if (!state) return;
+
+	const { chargeBar, unit } = state;
 
 	chargeBar.clear();
 	const percent = Math.max(0, Math.min(unit.charge / unit.cooldown, 1));
@@ -53,12 +64,19 @@ export function updateBars({ chargeBar, unit }: CharaBars): void {
 	}
 }
 
-export function updateUnit(charaBars: CharaBars, newUnit: Unit): void {
+export function updateUnit(id: string, newUnit: Unit): void {
+	const charaBars = charaBarsMap.get(id);
+	if (!charaBars) {
+		console.warn(`CharaBars not found for unit id: ${id}`);
+		return;
+	}
 	charaBars.unit = newUnit;
-	updateBars(charaBars);
+	updateBars(id);
 }
 
-export function setVisible(charaBars: CharaBars, visible: boolean): void {
+export function setVisible(id: string, visible: boolean): void {
+	const charaBars = charaBarsMap.get(id);
+	if (!charaBars) return;
 	charaBars.chargeBar.setVisible(visible);
 	const debugMode = getOption('debug');
 	charaBars.cooldownBar.setVisible(visible && debugMode);
