@@ -53,15 +53,6 @@ export default class TitleScene extends Phaser.Scene {
 			images.logo.key
 		).setOrigin(0.5);
 
-		console.log('Creating magic orbs...');
-		console.log('Screen size:', this.scale.width, this.scale.height);
-
-		try {
-
-		} catch (error) {
-			console.error('Error creating magic orbs:', error);
-		}
-
 		createUIButton(
 			this,
 			'START GAME',

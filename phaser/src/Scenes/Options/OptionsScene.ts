@@ -6,48 +6,37 @@ import { getOption, setOption } from "../../Models/OptionsStore";
 
 type TabType = 'audio' | 'graphics' | 'game';
 
-// Layout Constants
 const LAYOUT = {
-	// Main UI positioning
 	TITLE_Y: 40,
 	TITLE_FONT_SIZE: '48px',
 	BACK_BUTTON_Y: 950,
 
-	// Tab system
 	TAB_BUTTON_Y: 120,
 	TAB_BUTTON_SPACING: 200,
 	TAB_BUTTON_WIDTH: 180,
 
-	// Options layout
 	OPTIONS_START_Y: 220,
 	OPTIONS_LINE_HEIGHT: 150,
 
-	// Option element offsets
 	LABEL_OFFSET_Y: 0,
 	VALUE_OFFSET_Y: 70,
 	MULTICHOICE_VALUE_OFFSET_Y: 70,
 	SPEED_VALUE_OFFSET_Y: 70,
 } as const;
 
-// Button Constants
 const BUTTONS = {
-	// Boolean option buttons
 	BOOLEAN_TOGGLE_WIDTH: 120,
 
-	// Volume control buttons
 	VOLUME_BUTTON_OFFSET_X: 120,
 	VOLUME_BUTTON_WIDTH: 60,
 
-	// Multi-choice buttons
 	MULTICHOICE_BUTTON_OFFSET_X: 150,
 	MULTICHOICE_BUTTON_WIDTH: 80,
 
-	// Speed control buttons
 	SPEED_BUTTON_OFFSET_X: 120,
 	SPEED_BUTTON_WIDTH: 60,
 } as const;
 
-// Value adjustment constants
 const ADJUSTMENTS = {
 	VOLUME_STEP: 0.1,
 	VOLUME_MIN: 0,
@@ -58,7 +47,6 @@ const ADJUSTMENTS = {
 	SPEED_MAX: 3.0,
 } as const;
 
-// Visual styling constants
 const STYLES = {
 	SELECTED_TAB_COLOR: '#FFD700',
 	SELECTED_TAB_STROKE_WIDTH: 4,
@@ -68,7 +56,6 @@ const STYLES = {
 	VALUE_TEXT_COLOR: '#FFD700',
 } as const;
 
-// Animation constants
 const ANIMATION = {
 	FADE_DURATION: 500,
 	FADE_COLOR: { r: 0, g: 0, b: 0 },
@@ -77,7 +64,6 @@ const ANIMATION = {
 export default class OptionsScene extends Phaser.Scene {
 	private cloudsBackground!: CloudsBackground;
 
-	// Text displays for each option
 	private particlesValueText!: Phaser.GameObjects.Text;
 	private soundValueText!: Phaser.GameObjects.Text;
 	private musicValueText!: Phaser.GameObjects.Text;
@@ -86,12 +72,10 @@ export default class OptionsScene extends Phaser.Scene {
 	private debugValueText!: Phaser.GameObjects.Text;
 	private speedValueText!: Phaser.GameObjects.Text;
 
-	// Tab system
 	private currentTab: TabType = 'audio';
 	private tabButtons: { [key in TabType]: Phaser.GameObjects.Container } = {} as any;
 	private optionElements: Phaser.GameObjects.GameObject[] = [];
 
-	// Current settings
 	private currentParticlesSetting: 'low' | 'medium' | 'high' = 'medium';
 	private currentSoundSetting: boolean = true;
 	private currentMusicSetting: boolean = true;
@@ -105,12 +89,10 @@ export default class OptionsScene extends Phaser.Scene {
 	}
 
 	create() {
-		// Create the clouds background 
 		this.cloudsBackground = new CloudsBackground(this, {
 			preset: 'aurora',
 		});
 
-		// Get current settings from OptionsStore
 		this.currentParticlesSetting = getOption('particles');
 		this.currentSoundSetting = getOption('sound');
 		this.currentMusicSetting = getOption('music');
@@ -119,7 +101,6 @@ export default class OptionsScene extends Phaser.Scene {
 		this.currentDebugSetting = getOption('debug');
 		this.currentSpeedSetting = getOption('speed');
 
-		// Create title
 		this.add.text(
 			constants.MIDDLE_SCREEN_X,
 			LAYOUT.TITLE_Y,
@@ -130,13 +111,10 @@ export default class OptionsScene extends Phaser.Scene {
 			}
 		).setOrigin(0.5);
 
-		// Create tab buttons
 		this.createTabButtons();
 
-		// Create initial tab content
 		this.showTab(this.currentTab);
 
-		// Create back button
 		createUIButton(
 			this,
 			'BACK',
@@ -147,11 +125,11 @@ export default class OptionsScene extends Phaser.Scene {
 			}
 		);
 
-		// Allow ESC key to go back
 		this.input.keyboard?.on('keydown-ESC', () => {
 			this.returnToTitle();
 		});
 	}
+
 	private createBooleanOption(
 		label: string,
 		yPos: number,
@@ -159,7 +137,7 @@ export default class OptionsScene extends Phaser.Scene {
 		setValue: (value: boolean) => void,
 		setTextRef: (text: Phaser.GameObjects.Text) => void
 	) {
-		// Create label
+
 		const labelText = this.add.text(
 			constants.MIDDLE_SCREEN_X,
 			yPos,
@@ -168,7 +146,6 @@ export default class OptionsScene extends Phaser.Scene {
 		).setOrigin(0.5);
 		this.optionElements.push(labelText);
 
-		// Create value display (hidden, kept for compatibility)
 		const valueText = this.add.text(
 			constants.MIDDLE_SCREEN_X,
 			yPos + LAYOUT.VALUE_OFFSET_Y,
@@ -178,11 +155,10 @@ export default class OptionsScene extends Phaser.Scene {
 				fontSize: '12px',
 				color: STYLES.VALUE_TEXT_COLOR
 			}
-		).setOrigin(0.5).setAlpha(0); // Hide the separate value display
+		).setOrigin(0.5).setAlpha(0);
 		setTextRef(valueText);
 		this.optionElements.push(valueText);
 
-		// Create toggle button with current value as text
 		const toggleButton = createUIButton(
 			this,
 			getValue() ? 'ON' : 'OFF',
@@ -191,7 +167,6 @@ export default class OptionsScene extends Phaser.Scene {
 			() => {
 				const newValue = !getValue();
 				setValue(newValue);
-				// Update button text when value changes
 				const txt = toggleButton.getByName('buttonLabel') as Phaser.GameObjects.Text | undefined;
 				if (txt) txt.setText(newValue ? 'ON' : 'OFF');
 			},
@@ -207,7 +182,6 @@ export default class OptionsScene extends Phaser.Scene {
 		setValue: (value: number) => void,
 		setTextRef: (text: Phaser.GameObjects.Text) => void
 	) {
-		// Create label
 		const labelText = this.add.text(
 			constants.MIDDLE_SCREEN_X,
 			yPos,
@@ -216,7 +190,6 @@ export default class OptionsScene extends Phaser.Scene {
 		).setOrigin(0.5);
 		this.optionElements.push(labelText);
 
-		// Create decrease button
 		const decreaseButton = createUIButton(
 			this,
 			'-',
@@ -230,7 +203,6 @@ export default class OptionsScene extends Phaser.Scene {
 		);
 		this.optionElements.push(decreaseButton);
 
-		// Create value display
 		const valueText = this.add.text(
 			constants.MIDDLE_SCREEN_X,
 			yPos + LAYOUT.VALUE_OFFSET_Y,
@@ -243,7 +215,6 @@ export default class OptionsScene extends Phaser.Scene {
 		setTextRef(valueText);
 		this.optionElements.push(valueText);
 
-		// Create increase button
 		const increaseButton = createUIButton(
 			this,
 			'+',
@@ -266,7 +237,6 @@ export default class OptionsScene extends Phaser.Scene {
 		setValue: (value: string) => void,
 		setTextRef: (text: Phaser.GameObjects.Text) => void
 	) {
-		// Create label
 		const labelText = this.add.text(
 			constants.MIDDLE_SCREEN_X,
 			yPos,
@@ -275,7 +245,6 @@ export default class OptionsScene extends Phaser.Scene {
 		).setOrigin(0.5);
 		this.optionElements.push(labelText);
 
-		// Create decrease button
 		const decreaseButton = createUIButton(
 			this,
 			'<',
@@ -290,7 +259,6 @@ export default class OptionsScene extends Phaser.Scene {
 		);
 		this.optionElements.push(decreaseButton);
 
-		// Create value display
 		const valueText = this.add.text(
 			constants.MIDDLE_SCREEN_X,
 			yPos + LAYOUT.MULTICHOICE_VALUE_OFFSET_Y,
@@ -304,7 +272,6 @@ export default class OptionsScene extends Phaser.Scene {
 		setTextRef(valueText);
 		this.optionElements.push(valueText);
 
-		// Create increase button
 		const increaseButton = createUIButton(
 			this,
 			'>',
@@ -327,7 +294,7 @@ export default class OptionsScene extends Phaser.Scene {
 		setValue: (value: number) => void,
 		setTextRef: (text: Phaser.GameObjects.Text) => void
 	) {
-		// Create label
+
 		const labelText = this.add.text(
 			constants.MIDDLE_SCREEN_X,
 			yPos,
@@ -336,7 +303,6 @@ export default class OptionsScene extends Phaser.Scene {
 		).setOrigin(0.5);
 		this.optionElements.push(labelText);
 
-		// Create decrease button
 		const decreaseButton = createUIButton(
 			this,
 			'-',
@@ -350,7 +316,6 @@ export default class OptionsScene extends Phaser.Scene {
 		);
 		this.optionElements.push(decreaseButton);
 
-		// Create value display
 		const valueText = this.add.text(
 			constants.MIDDLE_SCREEN_X,
 			yPos + LAYOUT.SPEED_VALUE_OFFSET_Y,
@@ -363,7 +328,6 @@ export default class OptionsScene extends Phaser.Scene {
 		setTextRef(valueText);
 		this.optionElements.push(valueText);
 
-		// Create increase button
 		const increaseButton = createUIButton(
 			this,
 			'+',
@@ -378,23 +342,17 @@ export default class OptionsScene extends Phaser.Scene {
 		this.optionElements.push(increaseButton);
 	}
 
-	/**
-	 * Update particle quality on all active CloudsBackground instances across all scenes
-	 */
 	private updateAllCloudsBackgrounds() {
-		// Update the local clouds background
+
 		if (this.cloudsBackground) {
 			this.cloudsBackground.updateParticleQuality();
 		}
 
-		// Find and update CloudsBackground instances in other active scenes
 		this.scene.manager.getScenes(true).forEach(scene => {
-			// Check if scene has a cloudsBackground property
 			if ((scene as any).cloudsBackground && typeof (scene as any).cloudsBackground.updateParticleQuality === 'function') {
 				(scene as any).cloudsBackground.updateParticleQuality();
 			}
 
-			// Check for CloudsBackground in battleground setup system
 			if ((scene as any).battlegroundSetupSystem?.cloudsBackground) {
 				(scene as any).battlegroundSetupSystem.cloudsBackground.updateParticleQuality();
 			}
@@ -402,7 +360,6 @@ export default class OptionsScene extends Phaser.Scene {
 	}
 
 	private returnToTitle() {
-		// Transition back to title scene
 		this.cameras.main.fade(ANIMATION.FADE_DURATION, ANIMATION.FADE_COLOR.r, ANIMATION.FADE_COLOR.g, ANIMATION.FADE_COLOR.b);
 		this.cameras.main.once('camerafadeoutcomplete', () => {
 			this.scene.start(constants.SCENE_KEYS.TITLE);
@@ -410,7 +367,6 @@ export default class OptionsScene extends Phaser.Scene {
 	}
 
 	destroy() {
-		// Clean up the clouds background when scene is destroyed
 		if (this.cloudsBackground) {
 			this.cloudsBackground.destroy();
 		}
@@ -421,7 +377,6 @@ export default class OptionsScene extends Phaser.Scene {
 		const buttonSpacing = LAYOUT.TAB_BUTTON_SPACING;
 		const startX = constants.MIDDLE_SCREEN_X - buttonSpacing;
 
-		// Audio Tab
 		this.tabButtons.audio = createUIButton(
 			this,
 			'AUDIO',
@@ -431,7 +386,6 @@ export default class OptionsScene extends Phaser.Scene {
 			LAYOUT.TAB_BUTTON_WIDTH
 		);
 
-		// Graphics Tab
 		this.tabButtons.graphics = createUIButton(
 			this,
 			'GRAPHICS',
@@ -441,7 +395,6 @@ export default class OptionsScene extends Phaser.Scene {
 			LAYOUT.TAB_BUTTON_WIDTH
 		);
 
-		// Game Tab
 		this.tabButtons.game = createUIButton(
 			this,
 			'GAME',
@@ -455,7 +408,6 @@ export default class OptionsScene extends Phaser.Scene {
 	}
 
 	private updateTabButtonStates() {
-		// Update button colors based on selected tab
 		Object.keys(this.tabButtons).forEach(tabKey => {
 			const tab = tabKey as TabType;
 			const button = this.tabButtons[tab];
@@ -500,7 +452,6 @@ export default class OptionsScene extends Phaser.Scene {
 	}
 
 	private createAudioOptions(startY: number, lineHeight: number) {
-		// Sound On/Off
 		this.createBooleanOption('Sound', startY,
 			() => this.currentSoundSetting,
 			(value: boolean) => {
@@ -511,7 +462,6 @@ export default class OptionsScene extends Phaser.Scene {
 			(text: Phaser.GameObjects.Text) => this.soundValueText = text
 		);
 
-		// Sound Volume
 		this.createVolumeOption('Sound Volume', startY + lineHeight,
 			() => this.currentSoundVolume,
 			(value: number) => {
@@ -522,7 +472,6 @@ export default class OptionsScene extends Phaser.Scene {
 			(text: Phaser.GameObjects.Text) => this.soundVolumeValueText = text
 		);
 
-		// Music On/Off
 		this.createBooleanOption('Music', startY + lineHeight * 2,
 			() => this.currentMusicSetting,
 			(value: boolean) => {
@@ -533,7 +482,6 @@ export default class OptionsScene extends Phaser.Scene {
 			(text: Phaser.GameObjects.Text) => this.musicValueText = text
 		);
 
-		// Music Volume
 		this.createVolumeOption('Music Volume', startY + lineHeight * 3,
 			() => this.currentMusicVolume,
 			(value: number) => {
@@ -546,7 +494,6 @@ export default class OptionsScene extends Phaser.Scene {
 	}
 
 	private createGraphicsOptions(startY: number) {
-		// Particles
 		this.createMultiChoiceOption('Particles', startY,
 			['low', 'medium', 'high'],
 			() => this.currentParticlesSetting,
@@ -554,7 +501,6 @@ export default class OptionsScene extends Phaser.Scene {
 				this.currentParticlesSetting = value as 'low' | 'medium' | 'high';
 				setOption('particles', this.currentParticlesSetting);
 				this.particlesValueText.setText(value.toUpperCase());
-				// Update all active CloudsBackground instances
 				this.updateAllCloudsBackgrounds();
 			},
 			(text: Phaser.GameObjects.Text) => this.particlesValueText = text
@@ -562,7 +508,6 @@ export default class OptionsScene extends Phaser.Scene {
 	}
 
 	private createGameOptions(startY: number, lineHeight: number) {
-		// Debug Mode
 		this.createBooleanOption('Debug', startY,
 			() => this.currentDebugSetting,
 			(value: boolean) => {
@@ -573,7 +518,6 @@ export default class OptionsScene extends Phaser.Scene {
 			(text: Phaser.GameObjects.Text) => this.debugValueText = text
 		);
 
-		// Game Speed
 		this.createSpeedOption('Speed', startY + lineHeight,
 			() => this.currentSpeedSetting,
 			(value: number) => {
