@@ -179,7 +179,6 @@ const generateChargeReactionOrb = () => {
 
 // Orb effect functions (pure)
 function crimsonOrbEffect(unit: Unit) {
-	unit.power += 5;
 	increasePower({
 		targets: [unit],
 		sourceUnit: unit,

@@ -145,11 +145,3 @@ export function animatePowerChange(id: string, newValue: number) {
 		}
 	});
 }
-
-export function setVisible(id: string, visible: boolean): void {
-	const stats = statsDisplayMap.get(id);
-	if (!stats) return;
-
-	stats.powerDisplayBg.setVisible(visible);
-	stats.powerDisplay.setVisible(visible);
-}
