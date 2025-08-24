@@ -42,6 +42,11 @@ export type Effect = {
 	amount: number,
 	targets: Targeting,
 } | {
+	id: "increase_power_on_type",
+	amount: number,
+	targets: Targeting,
+	targetEffectId: string,
+} | {
 	id: "multiply_power",
 	multiplier: number,
 	targets: Targeting,
@@ -163,6 +168,18 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
 				amount: effect.amount,
 			});
 			break;
+		case "increase_power_on_type": {
+			const allTargets = resolveTargets(scene.state, sourceUnit, effect);
+			const filtered = allTargets.filter(u => u.effects.some(e => e.id === effect.targetEffectId));
+			if (filtered.length === 0) break;
+			effects.increasePower({
+				targets: filtered,
+				scene,
+				sourceUnit,
+				amount: effect.amount,
+			});
+			break;
+		}
 		case "multiply_power":
 			effects.multiplyPower({
 				targets: resolveTargets(scene.state, sourceUnit, effect),
@@ -196,7 +213,7 @@ function processReactions(
 ) {
 
 	// effects that can't be reacted to
-	if (["charge", "increase_power", "multiply_power"].includes(effect.id)) {
+	if (["charge", "increase_power", "increase_power_on_type", "multiply_power"].includes(effect.id)) {
 		return;
 	}
 
