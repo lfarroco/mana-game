@@ -2,9 +2,9 @@ import Phaser from "phaser";
 import { tween } from "../../Utils/animation";
 import * as constants from "../../constants/constants";
 import * as assets from "../../assets";
+import { scene } from "./BattlegroundScene";
 
 export async function battleResultAnimation(
-	scene: Scene,
 	result: "victory" | "defeat",
 ) {
 	const image = result === "defeat" ? assets.images.defeat : assets.images.victory;

@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { Unit } from "../../Models/Entities/Unit";
 import * as constants from "../../constants/constants";
 import { scene } from "../../Scenes/Battleground/BattlegroundScene";
+import { Chara } from "./Chara";
 
 const BOX_WIDTH_RATIO = 0.4;
 const BOX_HEIGHT_RATIO = 0.2;
@@ -28,7 +29,7 @@ export const CHARA_STATS_COLORS = {
 	DEFAULT_BG: 0x000000
 } as const;
 
-export function create(unit: Unit, container: Container) {
+export function create(unit: Unit, container: Chara) {
 
 	const displayableEffects = ["heal", "damage", "shield", "poison", "regen"];
 
@@ -87,6 +88,8 @@ export function create(unit: Unit, container: Container) {
 		powerTween,
 		odometerTween,
 	});
+
+	updatePower(unit.id);
 }
 
 export function updatePower(id: string) {
@@ -99,7 +102,7 @@ export function updatePower(id: string) {
 
 export function animatePowerChange(id: string, newValue: number) {
 	const stats = statsDisplayMap.get(id);
-	if (!stats ) return;
+	if (!stats) return;
 
 	const startValue = stats.displayedPower;
 	const endValue = Math.floor(newValue);

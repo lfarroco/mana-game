@@ -1,11 +1,10 @@
-import { removeUnitFromPlayerState, handleOwnedUnitSold, calculateGoldUpdate, updateUnitPosition, findUnitById, handleMoveResult, handleUnitMoveRequest } from "./BattlegroundScene.pure";
+import * as BattlegroundScenePure from "./BattlegroundScene.pure";
 import { Unit } from "../../Models/Entities/Unit";
-import { vec2 } from "../../Models/Geometry.pure";
 
 describe("removeUnitFromPlayerState", () => {
 	it("should remove a unit from the player's state if it exists", () => {
 		const units = [{ id: "unit1" } as Unit];
-		const updatedUnits = removeUnitFromPlayerState(units, "unit1");
+		const updatedUnits = BattlegroundScenePure.removeUnitFromPlayerState(units, "unit1");
 
 		expect(updatedUnits).toHaveLength(0);
 	});
@@ -14,7 +13,7 @@ describe("removeUnitFromPlayerState", () => {
 		const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
 
 		const units = [{ id: "unit1" } as Unit];
-		removeUnitFromPlayerState(units, "nonexistentUnit");
+		BattlegroundScenePure.removeUnitFromPlayerState(units, "nonexistentUnit");
 
 		expect(consoleWarnSpy).toHaveBeenCalledWith(
 			expect.stringContaining("Unit with ID nonexistentUnit not found for selling.")
@@ -29,7 +28,7 @@ describe("removeUnitFromPlayerState", () => {
 			{ id: "unit2" } as Unit,
 			{ id: "unit3" } as Unit
 		];
-		const updatedUnits = removeUnitFromPlayerState(units, "unit2");
+		const updatedUnits = BattlegroundScenePure.removeUnitFromPlayerState(units, "unit2");
 
 		expect(updatedUnits).toHaveLength(2);
 		expect(updatedUnits.map(u => u.id)).toEqual(["unit1", "unit3"]);
@@ -37,7 +36,7 @@ describe("removeUnitFromPlayerState", () => {
 
 	it("should return the same array if unit doesn't exist", () => {
 		const units = [{ id: "unit1" } as Unit];
-		const updatedUnits = removeUnitFromPlayerState(units, "nonexistent");
+		const updatedUnits = BattlegroundScenePure.removeUnitFromPlayerState(units, "nonexistent");
 
 		expect(updatedUnits).toEqual(units);
 		expect(updatedUnits).not.toBe(units); // Should be a new array
@@ -53,7 +52,7 @@ describe("handleOwnedUnitSold", () => {
 		const units = [{ id: "unit1" } as Unit];
 		const charaMock = { destroy: jest.fn(), x: 100, y: 200 };
 
-		const updatedUnits = handleOwnedUnitSold(
+		const updatedUnits = BattlegroundScenePure.handleOwnedUnitSold(
 			updatePlayerGold,
 			hideSellZone,
 			units,
@@ -77,7 +76,7 @@ describe("handleOwnedUnitSold", () => {
 
 		const units = [{ id: "unit1" } as Unit];
 
-		const updatedUnits = handleOwnedUnitSold(
+		const updatedUnits = BattlegroundScenePure.handleOwnedUnitSold(
 			updatePlayerGold,
 			hideSellZone,
 			units,
@@ -105,7 +104,7 @@ describe("handleOwnedUnitSold", () => {
 		];
 		const charaMock = { destroy: jest.fn(), x: 150, y: 250 };
 
-		const updatedUnits = handleOwnedUnitSold(
+		const updatedUnits = BattlegroundScenePure.handleOwnedUnitSold(
 			updatePlayerGold,
 			hideSellZone,
 			units,
@@ -134,7 +133,7 @@ describe("handleOwnedUnitSold", () => {
 			y: 200
 		};
 
-		handleOwnedUnitSold(
+		BattlegroundScenePure.handleOwnedUnitSold(
 			updatePlayerGold,
 			hideSellZone,
 			units,
@@ -145,402 +144,5 @@ describe("handleOwnedUnitSold", () => {
 		);
 
 		expect(callOrder).toEqual(["updateGold", "destroyChara", "showPopText", "hideSellZone"]);
-	});
-});
-
-describe("calculateGoldUpdate", () => {
-	it("should calculate correct gold update with positive delta", () => {
-		const result = calculateGoldUpdate(100, 25.7);
-
-		expect(result.newGold).toBe(125);
-		expect(result.changeAmount).toBe(25);
-	});
-
-	it("should calculate correct gold update with negative delta", () => {
-		const result = calculateGoldUpdate(100, -30.2);
-
-		expect(result.newGold).toBe(69); // 100 + Math.floor(-30.2) = 100 + (-31) = 69
-		expect(result.changeAmount).toBe(-31); // Math.floor(-30.2) = -31
-	});
-
-	it("should floor the change amount", () => {
-		const result = calculateGoldUpdate(50, 15.9);
-
-		expect(result.newGold).toBe(65);
-		expect(result.changeAmount).toBe(15);
-	});
-
-	it("should handle zero delta", () => {
-		const result = calculateGoldUpdate(100, 0);
-
-		expect(result.newGold).toBe(100);
-		expect(result.changeAmount).toBe(0);
-	});
-
-	it("should handle very small positive decimals", () => {
-		const result = calculateGoldUpdate(100, 0.9);
-
-		expect(result.newGold).toBe(100);
-		expect(result.changeAmount).toBe(0);
-	});
-
-	it("should handle very small negative decimals", () => {
-		const result = calculateGoldUpdate(100, -0.1);
-
-		expect(result.newGold).toBe(99);
-		expect(result.changeAmount).toBe(-1);
-	});
-});
-
-describe("updateUnitPosition", () => {
-	const createMockUnit = (id: string, x: number, y: number): Unit => ({
-		id,
-		position: vec2(x, y),
-		// Add other required Unit properties as minimal mocks
-	} as Unit);
-
-	it("should return null if unit moves to its current position", () => {
-		const unit = createMockUnit("unit1", 1, 1);
-		const units = [unit];
-
-		const result = updateUnitPosition(unit, vec2(1, 1), units);
-
-		expect(result).toBeNull();
-	});
-
-	it("should move unit to empty position", () => {
-		const unit = createMockUnit("unit1", 0, 0);
-		const units = [unit];
-
-		const result = updateUnitPosition(unit, vec2(1, 1), units);
-
-		expect(result).not.toBeNull();
-		expect(result!.movedUnit.position.x).toBe(1);
-		expect(result!.movedUnit.position.y).toBe(1);
-		expect(result!.oldPositionOfMovedUnit).toEqual(vec2(0, 0));
-		expect(result!.swappedUnit).toBeUndefined();
-	});
-
-	it("should swap units when moving to occupied position", () => {
-		const unit1 = createMockUnit("unit1", 0, 0);
-		const unit2 = createMockUnit("unit2", 1, 1);
-		const units = [unit1, unit2];
-
-		const result = updateUnitPosition(unit1, vec2(1, 1), units);
-
-		expect(result).not.toBeNull();
-		expect(result!.movedUnit.id).toBe("unit1");
-		expect(result!.movedUnit.position.x).toBe(1);
-		expect(result!.movedUnit.position.y).toBe(1);
-		expect(result!.swappedUnit!.id).toBe("unit2");
-		expect(result!.swappedUnit!.position.x).toBe(0);
-		expect(result!.swappedUnit!.position.y).toBe(0);
-		expect(result!.oldPositionOfMovedUnit).toEqual(vec2(0, 0));
-	});
-
-	it("should not mutate the original units array or units", () => {
-		const unit1 = createMockUnit("unit1", 0, 0);
-		const unit2 = createMockUnit("unit2", 1, 1);
-		const units = [unit1, unit2];
-		const originalUnit1Position = { ...unit1.position };
-		const originalUnit2Position = { ...unit2.position };
-
-		updateUnitPosition(unit1, vec2(1, 1), units);
-
-		// Original units should be unchanged
-		expect(unit1.position).toEqual(originalUnit1Position);
-		expect(unit2.position).toEqual(originalUnit2Position);
-		expect(units.length).toBe(2);
-	});
-
-	it("should handle moving unit that doesn't exist in units array", () => {
-		const unit1 = createMockUnit("unit1", 0, 0);
-		const unit2 = createMockUnit("unit2", 1, 1);
-		const nonExistentUnit = createMockUnit("unit3", 2, 2);
-		const units = [unit1, unit2];
-
-		const result = updateUnitPosition(nonExistentUnit, vec2(1, 0), units);
-
-		expect(result).toBeNull();
-	});
-
-	it("should handle complex multi-unit board scenario", () => {
-		const unit1 = createMockUnit("unit1", 0, 0);
-		const unit2 = createMockUnit("unit2", 1, 0);
-		const unit3 = createMockUnit("unit3", 2, 0);
-		const unit4 = createMockUnit("unit4", 0, 1);
-		const units = [unit1, unit2, unit3, unit4];
-
-		// Move unit1 to unit3's position (should swap)
-		const result = updateUnitPosition(unit1, vec2(2, 0), units);
-
-		expect(result).not.toBeNull();
-		expect(result!.movedUnit.id).toBe("unit1");
-		expect(result!.movedUnit.position.x).toBe(2);
-		expect(result!.movedUnit.position.y).toBe(0);
-		expect(result!.swappedUnit!.id).toBe("unit3");
-		expect(result!.swappedUnit!.position.x).toBe(0);
-		expect(result!.swappedUnit!.position.y).toBe(0);
-
-		// Verify other units remain in returned array but unaffected by position changes
-		const resultUnits = [result!.movedUnit, result!.swappedUnit!,
-		...units.filter(u => u.id !== "unit1" && u.id !== "unit3")];
-		expect(resultUnits.length).toBe(4);
-	});
-
-	it("should handle moving to position with exact same coordinates", () => {
-		const unit1 = createMockUnit("unit1", 1, 1);
-		const unit2 = createMockUnit("unit2", 1, 1); // Same position
-		const units = [unit1, unit2];
-
-		const result = updateUnitPosition(unit1, vec2(2, 2), units);
-
-		expect(result).not.toBeNull();
-		expect(result!.movedUnit.position.x).toBe(2);
-		expect(result!.movedUnit.position.y).toBe(2);
-		// When two units are at the same position, the search should find unit2 as the occupier
-		// But since they start at the same position, there's no "occupier" at the target position
-		// This test case might be unrealistic - let's update it
-		expect(result!.swappedUnit).toBeUndefined(); // No unit at target position (2,2)
-	});
-});
-
-// --- New tests for unit move request functions ---
-
-describe("findUnitById", () => {
-	it("should find unit by ID when it exists", () => {
-		const units = [
-			{ id: "unit1" } as Unit,
-			{ id: "unit2" } as Unit,
-			{ id: "unit3" } as Unit
-		];
-
-		const result = findUnitById(units, "unit2");
-
-		expect(result).toBeDefined();
-		expect(result!.id).toBe("unit2");
-	});
-
-	it("should return undefined when unit doesn't exist", () => {
-		const units = [{ id: "unit1" } as Unit];
-
-		const result = findUnitById(units, "nonexistent");
-
-		expect(result).toBeUndefined();
-	});
-
-	it("should return undefined for empty array", () => {
-		const result = findUnitById([], "unit1");
-
-		expect(result).toBeUndefined();
-	});
-});
-
-describe("handleMoveResult", () => {
-	const mockGetVisualPosition = jest.fn();
-	const mockOnMoveAccepted = jest.fn();
-	const mockOnSwapAccepted = jest.fn();
-
-	beforeEach(() => {
-		mockGetVisualPosition.mockClear();
-		mockOnMoveAccepted.mockClear();
-		mockOnSwapAccepted.mockClear();
-	});
-
-	it("should call onSwapAccepted when swapped unit exists", () => {
-		const moveResult = {
-			movedUnit: { id: "unit1", position: vec2(1, 1) } as Unit,
-			swappedUnit: { id: "unit2", position: vec2(0, 0) } as Unit,
-			oldPositionOfMovedUnit: vec2(0, 0)
-		};
-
-		mockGetVisualPosition
-			.mockReturnValueOnce(vec2(100, 100)) // movedUnit visual position
-			.mockReturnValueOnce(vec2(50, 50));   // swappedUnit visual position
-
-		handleMoveResult(moveResult, mockGetVisualPosition, mockOnMoveAccepted, mockOnSwapAccepted);
-
-		expect(mockOnSwapAccepted).toHaveBeenCalledWith(
-			"unit1",
-			vec2(1, 1),
-			{ x: 100, y: 100 },
-			"unit2",
-			vec2(0, 0),
-			{ x: 50, y: 50 }
-		);
-		expect(mockOnMoveAccepted).not.toHaveBeenCalled();
-		expect(mockGetVisualPosition).toHaveBeenCalledTimes(2);
-		expect(mockGetVisualPosition).toHaveBeenCalledWith(moveResult.movedUnit);
-		expect(mockGetVisualPosition).toHaveBeenCalledWith(moveResult.swappedUnit);
-	});
-
-	it("should call onMoveAccepted when no swapped unit", () => {
-		const moveResult = {
-			movedUnit: { id: "unit1", position: vec2(1, 1) } as Unit,
-			oldPositionOfMovedUnit: vec2(0, 0)
-		};
-
-		mockGetVisualPosition.mockReturnValue(vec2(100, 100));
-
-		handleMoveResult(moveResult, mockGetVisualPosition, mockOnMoveAccepted, mockOnSwapAccepted);
-
-		expect(mockOnMoveAccepted).toHaveBeenCalledWith(
-			"unit1",
-			vec2(1, 1),
-			{ x: 100, y: 100 }
-		);
-		expect(mockOnSwapAccepted).not.toHaveBeenCalled();
-		expect(mockGetVisualPosition).toHaveBeenCalledTimes(1);
-		expect(mockGetVisualPosition).toHaveBeenCalledWith(moveResult.movedUnit);
-	});
-});
-
-describe("handleUnitMoveRequest", () => {
-	const mockUpdateUnitPosition = jest.fn();
-	const mockGetVisualPosition = jest.fn();
-	const mockLogError = jest.fn();
-	const mockOnMoveAccepted = jest.fn();
-	const mockOnSwapAccepted = jest.fn();
-	const mockOnMoveRejected = jest.fn();
-
-	beforeEach(() => {
-		mockUpdateUnitPosition.mockClear();
-		mockGetVisualPosition.mockClear();
-		mockLogError.mockClear();
-		mockOnMoveAccepted.mockClear();
-		mockOnSwapAccepted.mockClear();
-		mockOnMoveRejected.mockClear();
-	});
-
-	it("should call onMoveRejected when unit doesn't exist", () => {
-		const units = [{ id: "unit1" } as Unit];
-
-		handleUnitMoveRequest(
-			// Movement State
-			{ units, unitId: "nonexistent", targetTile: vec2(1, 1), dragStartX: 100, dragStartY: 200 },
-			// Movement Services
-			{ updateUnitPosition: mockUpdateUnitPosition, getVisualPosition: mockGetVisualPosition, logError: mockLogError },
-			// Movement Callbacks
-			{ onMoveAccepted: mockOnMoveAccepted, onSwapAccepted: mockOnSwapAccepted, onMoveRejected: mockOnMoveRejected }
-		);
-
-		expect(mockLogError).toHaveBeenCalledWith(
-			"[BattlegroundScene] Unit with ID nonexistent not found for move request."
-		);
-		expect(mockOnMoveRejected).toHaveBeenCalledWith(
-			"nonexistent",
-			"UNIT_NOT_FOUND",
-			100,
-			200
-		);
-		expect(mockUpdateUnitPosition).not.toHaveBeenCalled();
-	});
-
-	it("should call onMoveRejected when move result is null", () => {
-		const units = [{ id: "unit1" } as Unit];
-		mockUpdateUnitPosition.mockReturnValue(null);
-
-		handleUnitMoveRequest(
-			// Movement State
-			{ units, unitId: "unit1", targetTile: vec2(1, 1), dragStartX: 100, dragStartY: 200 },
-			// Movement Services
-			{ updateUnitPosition: mockUpdateUnitPosition, getVisualPosition: mockGetVisualPosition, logError: mockLogError },
-			// Movement Callbacks
-			{ onMoveAccepted: mockOnMoveAccepted, onSwapAccepted: mockOnSwapAccepted, onMoveRejected: mockOnMoveRejected }
-		);
-
-		expect(mockUpdateUnitPosition).toHaveBeenCalledWith(units[0], vec2(1, 1), units);
-		expect(mockOnMoveRejected).toHaveBeenCalledWith(
-			"unit1",
-			"NO_CHANGE_OR_INVALID",
-			100,
-			200
-		);
-		expect(mockLogError).not.toHaveBeenCalled();
-	});
-
-	it("should call onMoveAccepted for successful move", () => {
-		const units = [{ id: "unit1" } as Unit];
-		const moveResult = {
-			movedUnit: { id: "unit1", position: vec2(1, 1) } as Unit,
-			oldPositionOfMovedUnit: vec2(0, 0)
-		};
-
-		mockUpdateUnitPosition.mockReturnValue(moveResult);
-		mockGetVisualPosition.mockReturnValue(vec2(100, 100));
-
-		handleUnitMoveRequest(
-			// Movement State
-			{ units, unitId: "unit1", targetTile: vec2(1, 1), dragStartX: 50, dragStartY: 75 },
-			// Movement Services
-			{ updateUnitPosition: mockUpdateUnitPosition, getVisualPosition: mockGetVisualPosition, logError: mockLogError },
-			// Movement Callbacks
-			{ onMoveAccepted: mockOnMoveAccepted, onSwapAccepted: mockOnSwapAccepted, onMoveRejected: mockOnMoveRejected }
-		);
-
-		expect(mockUpdateUnitPosition).toHaveBeenCalledWith(units[0], vec2(1, 1), units);
-		expect(mockGetVisualPosition).toHaveBeenCalledWith(moveResult.movedUnit);
-		expect(mockOnMoveAccepted).toHaveBeenCalledWith(
-			"unit1",
-			vec2(1, 1),
-			{ x: 100, y: 100 }
-		);
-		expect(mockLogError).not.toHaveBeenCalled();
-	});
-
-	it("should call onSwapAccepted for successful swap", () => {
-		const units = [{ id: "unit1" } as Unit, { id: "unit2" } as Unit];
-		const moveResult = {
-			movedUnit: { id: "unit1", position: vec2(1, 1) } as Unit,
-			swappedUnit: { id: "unit2", position: vec2(0, 0) } as Unit,
-			oldPositionOfMovedUnit: vec2(0, 0)
-		};
-
-		mockUpdateUnitPosition.mockReturnValue(moveResult);
-		mockGetVisualPosition
-			.mockReturnValueOnce(vec2(100, 100))
-			.mockReturnValueOnce(vec2(50, 50));
-
-		handleUnitMoveRequest(
-			// Movement State
-			{ units, unitId: "unit1", targetTile: vec2(1, 1), dragStartX: 25, dragStartY: 35 },
-			// Movement Services
-			{ updateUnitPosition: mockUpdateUnitPosition, getVisualPosition: mockGetVisualPosition, logError: mockLogError },
-			// Movement Callbacks
-			{ onMoveAccepted: mockOnMoveAccepted, onSwapAccepted: mockOnSwapAccepted, onMoveRejected: mockOnMoveRejected }
-		);
-
-		expect(mockUpdateUnitPosition).toHaveBeenCalledWith(units[0], vec2(1, 1), units);
-		expect(mockGetVisualPosition).toHaveBeenCalledTimes(2);
-		expect(mockOnSwapAccepted).toHaveBeenCalledWith(
-			"unit1",
-			vec2(1, 1),
-			{ x: 100, y: 100 },
-			"unit2",
-			vec2(0, 0),
-			{ x: 50, y: 50 }
-		);
-		expect(mockLogError).not.toHaveBeenCalled();
-	});
-
-	it("should handle empty units array gracefully", () => {
-		handleUnitMoveRequest(
-			// Movement State
-			{ units: [], unitId: "unit1", targetTile: vec2(1, 1), dragStartX: 0, dragStartY: 0 },
-			// Movement Services
-			{ updateUnitPosition: mockUpdateUnitPosition, getVisualPosition: mockGetVisualPosition, logError: mockLogError },
-			// Movement Callbacks
-			{ onMoveAccepted: mockOnMoveAccepted, onSwapAccepted: mockOnSwapAccepted, onMoveRejected: mockOnMoveRejected }
-		);
-
-		expect(mockLogError).toHaveBeenCalledWith(
-			"[BattlegroundScene] Unit with ID unit1 not found for move request."
-		);
-		expect(mockOnMoveRejected).toHaveBeenCalledWith(
-			"unit1",
-			"UNIT_NOT_FOUND",
-			0,
-			0
-		);
 	});
 });

@@ -6,17 +6,16 @@ import * as BG_CONSTANTS from "../battlegroundConstants";
 import { getAllCards } from "../../../Models/Entities/Card";
 import { generateEnemyTeam } from "../generateEnemyTeam";
 import { PrestigeSystem } from "../../../Systems/PrestigeSystem";
-// CharaManager removed in favor of functional Chara API
 import { cpuForce, playerForce, updatePlayerGoldIO } from "../../../Models/Entities/Force";
 import * as GhostStore from "../../../Models/GhostStore";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
-import { fadeOutBars, showBars, updateMoraleBar, updateMoraleDisplay, updateShieldBar } from "../MoraleDisplay";
+import * as MoraleDisplay from "../MoraleDisplay";
 import { renderVignette } from "../Animations/vignette";
-import { EventHandler } from "../../../Types/CommonTypes";
 import * as AudioManager from "../../../Systems/AudioManager";
 import * as Shop from "./Shop/Shop";
 import * as Chara from "../../../Systems/Chara/Chara";
 import * as CharaBarsDisplay from "../../../Systems/Chara/CharaBarsDisplay";
+import { battleResultAnimation } from "../battleResultAnimation";
 
 function createUnitCopy(unit: Unit): Unit {
 	return {
@@ -32,12 +31,6 @@ export class BattleProgressionSystem {
 	state: State;
 	isInShopPhase: boolean = false;
 	prestigeSystem: PrestigeSystem;
-	listeners: Array<{ event: string; handler: EventHandler; context: BattleProgressionSystem }> = [];
-
-	addListener(event: string, handler: EventHandler): void {
-		this.scene.events.on(event, handler, this);
-		this.listeners.push({ event, handler, context: this })
-	}
 
 	constructor(scene: BattlegroundScene, state: State) {
 		this.scene = scene;
@@ -57,7 +50,7 @@ export class BattleProgressionSystem {
 		this.state.battleData.units = [];
 
 		playerForce.morale = playerForce.maxMorale;
-		updateMoraleBar(playerForce.id);
+		MoraleDisplay.updateMoraleBar(playerForce.id);
 
 		this.resetPlayerUnitsForNewRound();
 
@@ -68,11 +61,7 @@ export class BattleProgressionSystem {
 		await Promise.all(summonPromises);
 
 		this.resetPlayerUnitChargeBars();
-		this.state.gameData.player.units
-			.forEach(unit => {
 
-				CharaBarsDisplay.setVisible(unit.id, false);
-			});
 		this.state.gameData.round++;
 
 		this.isInShopPhase = true;
@@ -90,9 +79,6 @@ export class BattleProgressionSystem {
 		console.log("Round", this.state.gameData.round, "Combat Phase Starting.");
 		const { enemies } = await this.setupBattle();
 
-		this.state.gameData.player.units.forEach(u => {
-			CharaBarsDisplay.setVisible(u.id, true);
-		})
 
 		GhostStore.saveGhostForRound(
 			this.state.gameData.round,
@@ -110,9 +96,7 @@ export class BattleProgressionSystem {
 
 		await delay(1000);
 		await this._fadeOutDisplayBars();
-		this.scene.handleBattleResultShow({
-			result: "defeat",
-		});
+		battleResultAnimation("defeat")
 		await delay(1500);
 
 		this.prestigeSystem.processDefeat();
@@ -157,10 +141,6 @@ export class BattleProgressionSystem {
 
 		await delay(100);
 
-		playerUnitsForBattle.forEach(battleCopy => {
-			const chara = Chara.getCharaById(battleCopy.id);
-			Chara.updateUnit(chara, battleCopy);
-		});
 
 		return { enemies };
 	}
@@ -176,11 +156,7 @@ export class BattleProgressionSystem {
 
 		await delay(1000);
 		await this._fadeOutDisplayBars();
-
-		this.scene.handleBattleResultShow({
-			result: "victory",
-		})
-
+		battleResultAnimation("victory");
 		await delay(1500);
 
 		this.transitionToShopPhase();
@@ -192,9 +168,13 @@ export class BattleProgressionSystem {
 			this.scene.playerBoard.setEnemyBoardVisible(true);
 		}
 		await delay(300);
-		await Promise.all(payload.enemies.map(u => Chara.summon(u, true)));
-		[...payload.enemies, ...this.state.gameData.player.units].forEach(u => {
-			CharaBarsDisplay.setVisible(u.id, true);
+
+		Chara.clearAll();
+
+		const combatUnits = [...payload.enemies, ...this.state.gameData.player.units]
+
+		combatUnits.forEach(u => {
+			Chara.summon(u, false);
 		});
 
 		this.scene.runCombatSystem.runCombatIO();
@@ -216,24 +196,24 @@ export class BattleProgressionSystem {
 		playerForce.shield = 0;
 		cpuForce.shield = 0;
 
-		showBars();
+		MoraleDisplay.showBars();
 
-		updateMoraleDisplay({
+		MoraleDisplay.updateMoraleDisplay({
 			forceId: FORCE_ID_PLAYER,
 			newMorale: playerForce.morale,
 			maxMorale: playerForce.maxMorale,
 		});
-		updateMoraleDisplay({
+		MoraleDisplay.updateMoraleDisplay({
 			forceId: FORCE_ID_CPU,
 			newMorale: cpuForce.morale,
 			maxMorale: cpuForce.maxMorale,
 		});
-		updateShieldBar(
+		MoraleDisplay.updateShieldBar(
 			FORCE_ID_PLAYER,
 			playerForce.shield,
 			playerForce.maxMorale,
 		)
-		updateShieldBar(
+		MoraleDisplay.updateShieldBar(
 			FORCE_ID_CPU,
 			cpuForce.shield,
 			cpuForce.maxMorale,
@@ -242,15 +222,9 @@ export class BattleProgressionSystem {
 
 	async _fadeOutDisplayBars(): Promise<void> {
 
-		fadeOutBars();
+		MoraleDisplay.fadeOutBars();
 
 		await delay(500);
 	}
 
-	destroy(): void {
-		this.listeners.forEach(listener => {
-			this.scene.events.off(listener.event, listener.handler, listener.context);
-		});
-		this.listeners = [];
-	}
 }

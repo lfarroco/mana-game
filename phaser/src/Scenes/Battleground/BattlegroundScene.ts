@@ -10,8 +10,6 @@ import { popText } from "../../Systems/Chara/Animations/popText";
 import { RunCombatSystem } from "./RunCombatIO";
 import { BattleProgressionSystem } from "./Systems/BattleProgressionSystem";
 import { getOption } from "../../Models/OptionsStore";
-import { GameError } from "../../Types/CommonTypes";
-import { battleResultAnimation } from "./battleResultAnimation";
 import * as BattlegroundScenePure from "./BattlegroundScene.pure";
 import { updatePlayerGoldIO } from "../../Models/Entities/Force";
 import * as AudioManager from "../../Systems/AudioManager";
@@ -22,7 +20,6 @@ import * as ShopUI from "./Systems/Shop/ShopUI";
 export let scene: BattlegroundScene;
 
 export class BattlegroundScene extends Phaser.Scene {
-  private headless: boolean = false;
   state: State;
   bgContainer!: Phaser.GameObjects.Container;
   cloudsBackground!: Phaser.GameObjects.Image;
@@ -34,26 +31,11 @@ export class BattlegroundScene extends Phaser.Scene {
   setupSystem!: BattlegroundSetupSystem;
 
   cleanup() {
-    const cleanupOperations = [
-      { name: "clearCharas", operation: () => Chara.clearAll() },
-      { name: "removeAllEvents", operation: () => this.time.removeAllEvents() },
-      { name: "removeAllChildren", operation: () => this.children.removeAll(true) }
-    ];
+    Chara.clearAll();
+    this.time.removeAllEvents();
+    this.children.removeAll(true);
 
-    BattlegroundScenePure.performCleanup(
-      cleanupOperations,
-      (operationName: string, error: GameError) => console.error(`Cleanup failed for ${operationName}:`, error)
-    );
-
-    const gameObjects = [
-      { name: "setupSystem", object: this.setupSystem }
-    ];
-
-    BattlegroundScenePure.destroyGameObjects(
-      gameObjects,
-      (objectName: string, error: GameError) => console.error(`Failed to destroy ${objectName}:`, error)
-    );
-
+    this.setupSystem.destroy();
 
     MoraleDisplay.destroy();
     UIManager.destroy();
@@ -82,13 +64,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
   preload = preload;
 
-  init(data: { headless?: boolean } = {}) {
-    if (data.headless) {
-      this.headless = true;
-      console.log("BattlegroundScene init: running in headless (effects-only) mode.");
-    }
-  }
-
   create = async () => {
     console.log("BattlegroundScene create: primary logic deferred to start().");
     scene = this;
@@ -99,15 +74,9 @@ export class BattlegroundScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.DESTROY, this.destroy, this);
 
     const speed = getOption("speed");
-    BattlegroundScenePure.configureSceneTime(
-      { timeScale: speed, tweenScale: speed },
-      (scale: number) => this.time.timeScale = scale,
-      (scale: number) => this.tweens.timeScale = scale
-    );
-    if (this.headless) {
-      console.log("BattlegroundScene create: headless mode - skipping start() heavy logic.");
-      return;
-    }
+
+    this.time.timeScale = speed;
+    this.tweens.timeScale = speed;
 
     this.start();
 
@@ -138,13 +107,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
   }
 
-  handleBattleResultShow(payload: { result: "victory" | "defeat" }): void {
-    BattlegroundScenePure.handleBattleResultDisplay(
-      payload.result,
-      (result: "victory" | "defeat") => battleResultAnimation(this, result)
-    );
-  }
-
   handleOwnedUnitSold(payload: { unitId: string, soldForGold: number }): void {
     const { unitId, soldForGold } = payload;
 
@@ -170,9 +132,6 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
   update(time: number, delta: number): void {
-    if (this.headless) {
-      return;
-    }
     ShopUI.update(time);
     const playerBoard = getSharedPlayerBoard();
     if (playerBoard) {
