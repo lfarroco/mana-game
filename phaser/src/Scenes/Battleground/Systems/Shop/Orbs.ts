@@ -230,6 +230,8 @@ const orbs: Record<string, () => {
 	}),
 	charge_orb: generateChargeReactionOrb,
 	positional_power_orb: generatePositionalPowerOrb,
+	positional_skill_power_orb: generatePositionalSkillPowerOrb,
+	positional_typed_power_orb: generatePositionalTypedPowerOrb,
 };
 
 
@@ -269,6 +271,90 @@ function generatePositionalPowerOrb() {
 					targets: choice.target,
 				}
 			);
+		}
+	}
+}
+
+// Increase X Power to some_position, but only if the unit has a randomized effect type (damage/heal/shield/regen/poison)
+function generatePositionalSkillPowerOrb() {
+	const skillTypes = ["heal", "damage", "shield", "regen", "poison"] as const;
+	const effectId = pickOne([...skillTypes]);
+
+	const options: Array<{
+		target: {
+			id: "row_allies" | "column_allies" | "left_ally" | "right_ally" | "top_ally" | "bottom_ally";
+		};
+		amount: number;
+		label: string;
+	}> = [
+			{ target: { id: "row_allies" }, amount: 2, label: "Row Allies" },
+			{ target: { id: "column_allies" }, amount: 2, label: "Column Allies" },
+			{ target: { id: "left_ally" }, amount: 6, label: "Left Ally" },
+			{ target: { id: "right_ally" }, amount: 6, label: "Right Ally" },
+			{ target: { id: "top_ally" }, amount: 6, label: "Top Ally" },
+			{ target: { id: "bottom_ally" }, amount: 6, label: "Bottom Ally" },
+		];
+
+	const choice = pickOne(options);
+
+	return {
+		id: "positional_skill_power_orb",
+		name: `Power Orb: ${choice.label} (if ${effectId})`,
+		color: 0x44ffd1,
+		tooltip: [
+			`[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]Increase Power[/color] [color=#ffd93d]+${choice.amount}[/color]`,
+			`[color=#c0c0c0]Target:[/color] [color=#e0e0e0]${choice.label}[/color]`,
+			`[color=#c0c0c0]Condition:[/color] [color=#ffa94d]Unit must have effect '${effectId}'[/color]`,
+		].join("\n"),
+		effect: (unit: Unit) => {
+			if (!unit.effects.some(e => e.id === effectId)) return;
+			unit.effects.push({
+				id: "increase_power",
+				amount: choice.amount,
+				targets: choice.target,
+			});
+		}
+	}
+}
+
+// Increase X Power to some_position only for units that HAVE a specific randomized effect type
+function generatePositionalTypedPowerOrb() {
+	const skillTypes = ["heal", "damage", "shield", "regen", "poison"] as const;
+	const effectId = pickOne([...skillTypes]);
+
+	const options: Array<{
+		target: {
+			id: "row_allies" | "column_allies" | "left_ally" | "right_ally" | "top_ally" | "bottom_ally";
+		};
+		amount: number;
+		label: string;
+	}> = [
+			{ target: { id: "row_allies" }, amount: 2, label: "Row Allies" },
+			{ target: { id: "column_allies" }, amount: 2, label: "Column Allies" },
+			{ target: { id: "left_ally" }, amount: 6, label: "Left Ally" },
+			{ target: { id: "right_ally" }, amount: 6, label: "Right Ally" },
+			{ target: { id: "top_ally" }, amount: 6, label: "Top Ally" },
+			{ target: { id: "bottom_ally" }, amount: 6, label: "Bottom Ally" },
+		];
+
+	const choice = pickOne(options);
+
+	return {
+		id: "positional_typed_power_orb",
+		name: `Power Orb: ${choice.label} (units with ${effectId})`,
+		color: 0x22ccff,
+		tooltip: [
+			`[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]Increase Power[/color] [color=#ffd93d]+${choice.amount}[/color]`,
+			`[color=#c0c0c0]Target:[/color] [color=#e0e0e0]${choice.label}[/color]`,
+			`[color=#c0c0c0]Condition:[/color] [color=#ffa94d]Recipients must have '${effectId}'[/color]`,
+		].join("\n"),
+		effect: (unit: Unit) => {
+			unit.effects.push({
+				id: "increase_power_on_type",
+				amount: choice.amount,
+				targets: choice.target,
+				targetEffectId: effectId,
+			} as any);
 		}
 	}
 }
