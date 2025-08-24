@@ -4,7 +4,7 @@ import { getSharedPlayerBoard } from "../../../../Models/Board";
 import { Unit } from "../../../../Models/Entities/Unit";
 import { getReactionDescription } from "../../../../Systems/Chara/CharaTooltip";
 import { increasePower } from "../../../../TriggerSystem/effects";
-import { EffectReaction, EffectSourcePosition } from "../../../../TriggerSystem/TriggerSystem";
+import { EFFECT_SOURCE_POSITIONS, EffectReaction, EffectSourcePosition } from "../../../../TriggerSystem/TriggerSystem";
 import { pickOne } from "../../../../utils";
 import { hexToVector3 } from "../../../../Utils/colorUtils";
 import { scene } from "../../BattlegroundScene";
@@ -29,30 +29,29 @@ const generateReactionOrb = () => {
 	const reactionSourceEffects = ["shield", "heal", "haste", "damage", "slow", "regen", "poison"]
 
 	const positions = [
-		// TODO: use imported constants
 		{
 			power: 2,
-			source: "column_allies" as EffectSourcePosition
+			source: EFFECT_SOURCE_POSITIONS.column_allies
 		},
 		{
 			power: 2,
-			source: "row_allies" as EffectSourcePosition
+			source: EFFECT_SOURCE_POSITIONS.row_allies
 		},
 		{
 			power: 6,
-			source: "left" as EffectSourcePosition
+			source: EFFECT_SOURCE_POSITIONS.left_ally
 		},
 		{
 			power: 6,
-			source: "right" as EffectSourcePosition
+			source: EFFECT_SOURCE_POSITIONS.right_ally
 		},
 		{
 			power: 6,
-			source: "top" as EffectSourcePosition
+			source: EFFECT_SOURCE_POSITIONS.top_ally
 		},
 		{
 			power: 6,
-			source: "bottom" as EffectSourcePosition
+			source: EFFECT_SOURCE_POSITIONS.bottom_ally
 		},
 	];
 
@@ -104,11 +103,11 @@ const generateReactionOrb = () => {
 			]
 		}
 	}
-
 }
-const generatePowerUpOrb = () => {
 
-	const powerTargetEffects = ["heal", "damage", "shield", "haste", "slow", "regen", "poison"];
+const generateSkillPowerUpOrb = () => {
+
+	const powerTargetEffects = ["heal", "damage", "shield", "regen", "poison"];
 
 	const effectId = pickOne(powerTargetEffects);
 	const amount = 10;
@@ -139,12 +138,12 @@ const generateChargeReactionOrb = () => {
 	const reactionSourceEffects = ["shield", "heal", "haste", "damage", "slow", "regen", "poison"];
 
 	const positions: Array<{ amount: number; source: EffectSourcePosition; }> = [
-		{ amount: 400, source: "column_allies" },
-		{ amount: 400, source: "row_allies" },
-		{ amount: 900, source: "left_ally" },
-		{ amount: 900, source: "right_ally" },
-		{ amount: 900, source: "top_ally" },
-		{ amount: 900, source: "bottom_ally" },
+		{ amount: 400, source: EFFECT_SOURCE_POSITIONS.column_allies },
+		{ amount: 400, source: EFFECT_SOURCE_POSITIONS.row_allies },
+		{ amount: 900, source: EFFECT_SOURCE_POSITIONS.left_ally },
+		{ amount: 900, source: EFFECT_SOURCE_POSITIONS.right_ally },
+		{ amount: 900, source: EFFECT_SOURCE_POSITIONS.top_ally },
+		{ amount: 900, source: EFFECT_SOURCE_POSITIONS.bottom_ally },
 	];
 
 	const effectId = pickOne(reactionSourceEffects);
@@ -177,6 +176,7 @@ const generateChargeReactionOrb = () => {
 	};
 }
 
+
 // Orb effect functions (pure)
 function crimsonOrbEffect(unit: Unit) {
 	increasePower({
@@ -208,7 +208,7 @@ const orbs: Record<string, () => {
 		].join("\n"),
 		effect: crimsonOrbEffect
 	}),
-	emerald_orb: generatePowerUpOrb,
+	emerald_orb: generateSkillPowerUpOrb,
 	azure_orb: () => ({
 		id: "azure_orb",
 		name: "Azure Orb",
