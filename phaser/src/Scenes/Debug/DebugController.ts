@@ -9,6 +9,7 @@ import * as ShopUI from "../Battleground/Systems/Shop/ShopUI";
 import { titleScene } from "../Title/TitleScene";
 import * as CharaInputHandler from "../../Systems/Chara/CharaInputHandler";
 import * as Chara from "../../Systems/Chara/Chara";
+import { shopItemDragPurchaseRequestedHandler } from "../Battleground/Systems/Shop/handlers/shopItemDragPurchaseHandler";
 
 export function clickHeroInShop(slotIndex: number): string {
 	const chara = Shop.getShopCharaBySlot(slotIndex);
@@ -42,13 +43,13 @@ export function buyAndPlaceHero(shopSlotIndex: number, boardX: number, boardY: n
 		return `Error: Hero in slot ${shopSlotIndex} (Chara ID: ${Chara.getId(chara)}) is not a shop item or already purchased.`;
 	}
 
-	Shop.handleShopItemDragPurchaseRequested({
-		shopUnitData: unitToPurchase,
-		shopCharaId: Chara.getId(chara),
-		targetTile: vec2(boardX, boardY),
-		dragStartX: chara.x,
-		dragStartY: chara.y
-	})
+	shopItemDragPurchaseRequestedHandler(
+		unitToPurchase,
+		Chara.getId(chara),
+		vec2(boardX, boardY),
+		chara.x,
+		chara.y
+	);
 
 	return `Emitted SHOP_ITEM_DRAG_PURCHASE_REQUESTED for hero in shop slot ${shopSlotIndex} (Card ID: ${unitToPurchase.cardId}, Chara ID: ${Chara.getId(chara)}) to board (${boardX},${boardY}). Purchase and placement are asynchronous.`;
 }
