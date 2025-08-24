@@ -228,8 +228,50 @@ const orbs: Record<string, () => {
 			unit.reactions = []
 		}
 	}),
-	charge_orb: generateChargeReactionOrb
+	charge_orb: generateChargeReactionOrb,
+	positional_power_orb: generatePositionalPowerOrb,
 };
+
+
+// Increase X Power to some_position (x depends on position generality)
+function generatePositionalPowerOrb() {
+	// Map targets to power amounts: general (row/column) -> lower, adjacent -> higher
+	const options: Array<{
+		target: {
+			id: "row_allies" | "column_allies" | "left_ally" | "right_ally" | "top_ally" | "bottom_ally";
+		};
+		amount: number;
+		label: string;
+	}> = [
+			{ target: { id: "row_allies" }, amount: 2, label: "Row Allies" },
+			{ target: { id: "column_allies" }, amount: 2, label: "Column Allies" },
+			{ target: { id: "left_ally" }, amount: 6, label: "Left Ally" },
+			{ target: { id: "right_ally" }, amount: 6, label: "Right Ally" },
+			{ target: { id: "top_ally" }, amount: 6, label: "Top Ally" },
+			{ target: { id: "bottom_ally" }, amount: 6, label: "Bottom Ally" },
+		];
+
+	const choice = pickOne(options);
+
+	return {
+		id: "positional_power_orb",
+		name: `Power Orb: ${choice.label}`,
+		color: 0x33ffaa,
+		tooltip: [
+			`[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]Increase Power[/color] [color=#ffd93d]+${choice.amount}[/color]`,
+			`[color=#c0c0c0]Target:[/color] [color=#e0e0e0]${choice.label}[/color]`,
+		].join("\n"),
+		effect: (unit: Unit) => {
+			unit.effects.push(
+				{
+					id: "increase_power",
+					amount: choice.amount,
+					targets: choice.target,
+				}
+			);
+		}
+	}
+}
 
 
 export function renderOrbs(ui: ShopUI.ShopUIState, orbIds: string[]) {
