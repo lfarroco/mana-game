@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { tween } from "../Utils/animation";
 import { titleTextConfig } from "../constants/constants";
 import { playSoundEffect } from "../Systems/AudioManager";
+import { createMagicButtonOverlay, MagicOverlayHandle } from "./shaders/magicButtonShader";
 
 interface UIButtonState {
 	buttonWidth: number;
@@ -12,6 +13,7 @@ interface UIButtonState {
 	pressedFillColor: number;
 	lineColor: number;
 	lineWidth: number;
+	magic?: MagicOverlayHandle;
 }
 
 const uiButtonsState = new WeakMap<Phaser.GameObjects.Container, UIButtonState>();
@@ -30,7 +32,7 @@ export function createUIButton(
 		buttonWidth: width || 280,
 		buttonHeight: 60,
 		cornerRadius: 10,
-		normalFillColor: 0x2c3e50,
+		normalFillColor: 0x22331e,
 		hoverFillColor: 0x34495e,
 		pressedFillColor: 0x273746,
 		lineColor: 0x000000,
@@ -44,6 +46,12 @@ export function createUIButton(
 	buttonGraphics.setPosition(x - st.buttonWidth / 2, y - st.buttonHeight / 2);
 	container.add(buttonGraphics);
 	drawUIButtonState(container, (container as any).normalFillColor);
+
+	// Add magical shader overlay (between background and label)
+	const magic = createMagicButtonOverlay(scene, x, y, st.buttonWidth, st.buttonHeight, st.cornerRadius);
+	magic.shader.setName("magicAura");
+	container.addAt(magic.shader, 1);
+	state.magic = magic;
 
 	const buttonText = scene.add
 		.text(
@@ -66,11 +74,28 @@ export function createUIButton(
 
 	let isPressed = false;
 
+	const tweenIntensity = (to: number, duration = 180) => {
+		if (!state.magic) return;
+		const shader = state.magic.shader as any;
+		if (shader.magicIntensity === undefined) {
+			shader.magicIntensity = state.magic.intensityState.value;
+		}
+		// Tween a custom property on the shader GameObject
+		tween({
+			targets: [state.magic.shader as unknown as Phaser.GameObjects.GameObject],
+			magicIntensity: to as any,
+			duration,
+			onUpdate: () => state.magic?.setIntensity(shader.magicIntensity),
+			ease: "Sine.easeInOut",
+		});
+	};
+
 	buttonGraphics.on(Phaser.Input.Events.POINTER_DOWN, () => {
 		if (!buttonGraphics.input?.enabled) return;
 		isPressed = true;
 		drawUIButtonState(container, (container as any).pressedFillColor);
 		buttonText.setShadow(0, 0, "#eaeaea", 0, true, true);
+		tweenIntensity(1.1, 100);
 	});
 
 	buttonGraphics.on(Phaser.Input.Events.POINTER_UP, () => {
@@ -82,6 +107,7 @@ export function createUIButton(
 			buttonText.setShadow(2, 2, "#000000", 2, true, true);
 
 			playSoundEffect("sfx_unit_onclick");
+			tweenIntensity(0.9, 140);
 			callback();
 		}
 	});
@@ -95,6 +121,7 @@ export function createUIButton(
 		}
 		buttonText.setShadow(2, 2, "#000000", 2, true, true);
 		tween({ targets: [buttonText], scale: 1.2 });
+		tweenIntensity(0.95);
 	});
 
 	buttonGraphics.on(Phaser.Input.Events.POINTER_OUT, () => {
@@ -102,6 +129,7 @@ export function createUIButton(
 		drawUIButtonState(container, (container as any).normalFillColor);
 		buttonText.setShadow(0, 0, "#000000", 0, true, true);
 		tween({ targets: [buttonText], scale: 1.0 });
+		tweenIntensity(0.45);
 	});
 
 	container.add(buttonText);
@@ -150,6 +178,12 @@ export function disableUIButton(container: Phaser.GameObjects.Container) {
 		g.disableInteractive();
 	}
 	if (t) t.setAlpha(0.5);
+
+	const st = uiButtonsState.get(container);
+	if (st?.magic) {
+		(st.magic.shader as any).alpha = 0.5;
+		st.magic.setIntensity(0.2);
+	}
 }
 
 export function enableUIButton(container: Phaser.GameObjects.Container) {
@@ -163,4 +197,10 @@ export function enableUIButton(container: Phaser.GameObjects.Container) {
 		g.setInteractive(new Phaser.Geom.Rectangle(0, 0, w, h), Phaser.Geom.Rectangle.Contains);
 	}
 	if (t) t.setAlpha(1);
+
+	const st2 = uiButtonsState.get(container);
+	if (st2?.magic) {
+		(st2.magic.shader as any).alpha = 1;
+		st2.magic.setIntensity(0.45);
+	}
 }
