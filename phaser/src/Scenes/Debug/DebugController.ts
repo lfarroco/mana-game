@@ -131,12 +131,10 @@ export function logGameState(): void {
 		shopHeroes: getShopHeroes().map(c => c?.id),
 		playerUnits: getPlayerBoardUnits().map(u => ({ id: u.id, cardId: u.cardId, x: u.position.x, y: u.position.y })),
 		currentRound: scene.state.gameData?.round,
-		// Add other relevant state parts
 	});
 }
 
 export function addUnitToPlayerBoard(cardId: string, boardX: number, boardY: number): string {
-	// Create a unit using the existing unit creation utilities
 	const newUnit: Unit = {
 		id: `test-unit-${Date.now()}-${Math.random()}`,
 		cardId: cardId,
@@ -156,11 +154,7 @@ export function addUnitToPlayerBoard(cardId: string, boardX: number, boardY: num
 		slowed: 0
 	};
 
-	// Add the unit to the player's units array
 	scene.state.gameData.player.units.push(newUnit);
-
-	// You might need to trigger visual updates here as well
-	// This depends on how your game's state management works
 
 	return `Added unit ${cardId} (ID: ${newUnit.id}) to board position (${boardX}, ${boardY})`;
 }

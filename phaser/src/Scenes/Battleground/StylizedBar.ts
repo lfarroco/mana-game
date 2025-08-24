@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import { titleTextConfig } from '../../constants/constants';
-import { TextConfig } from "../../Types/CommonTypes";
 
 const BAR_HEIGHT = 50;
 const INNER_PADDING = 3;
@@ -25,7 +24,7 @@ export interface StylizedBarOptions {
 	backgroundColor?: number;
 	backgroundOpacity?: number;
 	borderOpacity?: number;
-	textConfig?: TextConfig;
+	textConfig?: Phaser.Types.GameObjects.Text.TextStyle;
 }
 
 export function createStylizedBar(

@@ -1,4 +1,3 @@
-
 // picks n random elements from an array using Fisher-Yates shuffle
 export function pickRandom<T>(arr: T[], n: number): T[] {
 	const copy = [...arr]; // Don't mutate the original array
