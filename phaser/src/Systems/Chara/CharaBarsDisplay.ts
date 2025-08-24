@@ -62,14 +62,3 @@ export function updateBars(id: string): void {
 		chargeBar.strokePath();
 	}
 }
-
-export function updateUnit(id: string, newUnit: Unit): void {
-	const charaBars = charaBarsMap.get(id);
-	if (!charaBars) {
-		console.warn(`CharaBars not found for unit id: ${id}`);
-		return;
-	}
-	charaBars.unit = newUnit;
-	updateBars(id);
-}
-

@@ -146,15 +146,6 @@ export function animatePowerChange(id: string, newValue: number) {
 	});
 }
 
-export function updateUnit(id: string, newUnit: Unit): void {
-	const stats = statsDisplayMap.get(id);
-	if (!stats) return;
-
-	stats.unit = newUnit;
-	updatePower(id);
-}
-
-
 export function setVisible(id: string, visible: boolean): void {
 	const stats = statsDisplayMap.get(id);
 	if (!stats) return;
