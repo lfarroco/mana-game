@@ -5,7 +5,6 @@ import { initializePlayerBoard, PartyBoard, createBoardDropZone } from "../../..
 import * as BG_CONSTANTS from "../battlegroundConstants";
 import { BattlegroundScene } from "../BattlegroundScene";
 import { getOption } from "../../../Models/OptionsStore";
-import { devlog } from "../../../utils";
 import { CloudsBackground } from "../../../components/cloudBackground/CloudsBackground";
 import * as UIManager from "../../../UI/UIManager";
 
@@ -21,7 +20,7 @@ export class BattlegroundSetupSystem {
 
 	performOneTimeRuntimeInitialization(collection: CardCollection): void {
 		if (!runtimeDataInitialized) {
-			devlog("Performing one-time runtime data initialization.");
+			console.log("Performing one-time runtime data initialization.");
 			registerCollection(collection);
 			runtimeDataInitialized = true;
 		}
@@ -29,7 +28,7 @@ export class BattlegroundSetupSystem {
 
 	loadDynamicAssets = (collection: CardCollection): Promise<void> => new Promise((resolve) => {
 		const loadAsset = (asset: { name: string, pic: string }, type: string) => {
-			devlog(`Loading ${type} asset: ${asset.name} - ${asset.pic}`);
+			console.log(`Loading ${type} asset: ${asset.name} - ${asset.pic}`);
 			this.scene.load.image(asset.pic, asset.pic);
 		};
 
@@ -37,7 +36,7 @@ export class BattlegroundSetupSystem {
 			.forEach(card => loadAsset(card, "card"));
 
 		this.scene.load.once("complete", () => {
-			devlog("Dynamic asset loading complete for BattlegroundScene.");
+			console.log("Dynamic asset loading complete for BattlegroundScene.");
 			resolve();
 		});
 
