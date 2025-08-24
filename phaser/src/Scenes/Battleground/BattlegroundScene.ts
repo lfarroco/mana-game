@@ -52,11 +52,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
   }
 
-  shutdown() {
-    console.log("BattlegroundScene shutdown.");
-    this.cleanup();
-  }
-
   destroy() {
     console.log("BattlegroundScene destroy.");
     this.cleanup();
@@ -65,12 +60,10 @@ export class BattlegroundScene extends Phaser.Scene {
   preload = preload;
 
   create = async () => {
-    console.log("BattlegroundScene create: primary logic deferred to start().");
     scene = this;
     this.battleProgressionSystem = new BattleProgressionSystem(this, this.state);
     this.collection = this.cache.json.get("base-collection") as CardCollection;
 
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.shutdown, this);
     this.events.once(Phaser.Scenes.Events.DESTROY, this.destroy, this);
 
     const speed = getOption("speed");
@@ -134,9 +127,7 @@ export class BattlegroundScene extends Phaser.Scene {
   update(time: number, delta: number): void {
     ShopUI.update(time);
     const playerBoard = getSharedPlayerBoard();
-    if (playerBoard) {
-      playerBoard.update(time);
-    }
+    playerBoard?.update(time);
 
     this.runCombatSystem.updateFrame(time, delta);
   }
