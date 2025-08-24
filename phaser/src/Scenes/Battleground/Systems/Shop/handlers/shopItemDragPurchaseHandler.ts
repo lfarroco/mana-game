@@ -9,15 +9,12 @@ import * as Chara from "../../../../../Systems/Chara/Chara";
 import * as UIManager from "../../../../../UI/UIManager";
 
 export function shopItemDragPurchaseRequestedHandler(
-	payload: {
-		shopUnitData: Unit,
-		shopCharaId: string,
-		targetTile: Vec2,
-		dragStartX: number,
-		dragStartY: number
-	}
-): void {
-	const { shopUnitData, shopCharaId, targetTile, dragStartX, dragStartY } = payload;
+	shopUnitData: Unit,
+	shopCharaId: string,
+	targetTile: Vec2,
+	dragStartX: number,
+	dragStartY: number
+) {
 
 	if (scene.state.gameData.player.gold < constants.SHOP_ITEM_PURCHASE_COST) {
 

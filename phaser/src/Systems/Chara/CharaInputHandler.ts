@@ -14,6 +14,7 @@ import { getCharaById } from "./Chara";
 import { Unit } from "../../Models/Entities/Unit";
 import * as Shop from "../../Scenes/Battleground/Systems/Shop/Shop";
 import * as ShopUI from "../../Scenes/Battleground/Systems/Shop/ShopUI";
+import { shopItemDragPurchaseRequestedHandler } from "../../Scenes/Battleground/Systems/Shop/handlers/shopItemDragPurchaseHandler";
 
 export type CharaInputHandler = {
 	dragStartX: number;
@@ -169,13 +170,13 @@ const processDrop = (handlerState: CharaInputHandler) => (dropTarget: Phaser.Gam
 
 const _handleDropShopItem = (handlerState: CharaInputHandler) => (tile: Vec2, dragStartX: number, dragStartY: number) => {
 	const { chara } = handlerState
-	Shop.handleShopItemDragPurchaseRequested({
-		shopUnitData: { ...getUnit(chara) },
-		shopCharaId: getUnit(chara).id,
-		targetTile: tile,
+	shopItemDragPurchaseRequestedHandler(
+		{ ...getUnit(chara) },
+		getUnit(chara).id,
+		tile,
 		dragStartX,
 		dragStartY
-	})
+	);
 }
 
 const _handleSellUnit = (handlerState: CharaInputHandler): void => {

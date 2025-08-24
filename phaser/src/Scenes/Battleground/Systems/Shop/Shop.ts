@@ -2,11 +2,9 @@ import * as Card from "../../../../Models/Entities/Card";
 import { pickRandom } from "../../../../utils";
 import * as Chara from "../../../../Systems/Chara/Chara";
 import { scene } from "../../BattlegroundScene";
-import { Vec2 } from "../../../../Models/Geometry";
 import { Unit } from "../../../../Models/Entities/Unit";
 import * as ShopUI from "./ShopUI";
 import { shopItemClickPurchaseRequestedHandler } from "./handlers/shopItemClickPurchaseHandler";
-import { shopItemDragPurchaseRequestedHandler } from "./handlers/shopItemDragPurchaseHandler";
 import { shopRerollTavernHandler } from "./handlers/shopRerollTavernHandler";
 import * as sc from "./ShopConstants";
 import { tween } from "../../../../Utils/animation";
@@ -85,9 +83,7 @@ export function handleShopItemClickPurchaseRequested(payload: { shopUnitData: Un
 	shopItemClickPurchaseRequestedHandler(payload);
 }
 
-export function handleShopItemDragPurchaseRequested(payload: { shopUnitData: Unit, shopCharaId: string, targetTile: Vec2, dragStartX: number, dragStartY: number }): void {
-	shopItemDragPurchaseRequestedHandler(payload);
-}
+
 export function handleShopRerollTavern() {
 	shopRerollTavernHandler();
 }
