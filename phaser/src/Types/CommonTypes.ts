@@ -15,11 +15,6 @@ export interface TilePosition extends Vec2 {
 }
 
 /**
- * Standard error type for error handlers
- */
-export type GameError = Error | string | unknown;
-
-/**
  * Phaser scene reference type
  */
 export type PhaserScene = Phaser.Scene;
@@ -28,11 +23,6 @@ export type PhaserScene = Phaser.Scene;
  * Text configuration for Phaser text objects
  */
 export type TextConfig = Phaser.Types.GameObjects.Text.TextStyle;
-
-/**
- * Generic event handler type for game events
- */
-export type EventHandler<T extends unknown[] = unknown[]> = (...args: T) => void;
 
 /**
  * Context types for event handlers

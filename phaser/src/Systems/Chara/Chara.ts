@@ -50,7 +50,6 @@ export async function summon(unit: Unit, useSummonEffect: boolean = true): Promi
 		summonEffect(scene, vec);
 	}
 	const chara = create(unit);
-	CharaBarsDisplay.setVisible(unit.id, false);
 	chara.setScale(0);
 	chara.setAngle(-10);
 	await tween({
@@ -60,7 +59,6 @@ export async function summon(unit: Unit, useSummonEffect: boolean = true): Promi
 		ease: "Back.easeOut",
 		duration: 500,
 	});
-	CharaBarsDisplay.setVisible(unit.id, true);
 	return chara;
 }
 
@@ -111,8 +109,8 @@ export function create(unit: Unit): Chara {
 		onCharaPointerOut();
 	});
 
-	CharaStatsDisplay.updatePower(unit.id);
-
+	CharaBarsDisplay.create(unit, container);
+	CharaStatsDisplay.create(unit, container);
 	updateStatusEffects(container);
 
 	return container;
@@ -212,18 +210,6 @@ export function getUnit(chara: Chara): Unit {
 export function getId(chara: Chara): string {
 	return mustGetState(chara).id;
 }
-
-export function updateUnit(chara: Chara, newUnit: Unit): void {
-	const s = mustGetState(chara);
-	s.unit = newUnit;
-
-	CharaStatsDisplay.updateUnit(s.id, newUnit);
-
-	CharaBarsDisplay.updateUnit(s.id, newUnit);
-	updateStatusEffects(chara);
-}
-
-
 
 export function updateUnitPower(chara: Chara, num: number) {
 	const s = mustGetState(chara);

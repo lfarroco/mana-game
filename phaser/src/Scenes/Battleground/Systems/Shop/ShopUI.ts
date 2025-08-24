@@ -10,7 +10,6 @@ import { renderOrbs } from "./Orbs";
 import { scene } from "../../BattlegroundScene";
 import { tween } from "../../../../Utils/animation";
 import * as AudioManager from "../../../../Systems/AudioManager";
-import * as CharaBarsDisplay from "../../../../Systems/Chara/CharaBarsDisplay";
 
 export type ShopUIState = {
 	shopContainer: Phaser.GameObjects.Container;
@@ -130,7 +129,6 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 		const chara = Chara.create(unit);
 
 		chara.setPosition(baseX + (index * sc.TAVERN_CHARA_SPACING), sc.TAVERN_CHARA_BASE_Y);
-		CharaBarsDisplay.setVisible(unit.id, false);
 
 		state!.shopContainer.add(chara);
 		createdCharas.push(chara);

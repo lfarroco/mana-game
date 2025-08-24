@@ -1,7 +1,6 @@
 import Phaser from "phaser";
 import { Unit } from "../../Models/Entities/Unit";
 import * as constants from "../../constants/constants";
-import { getOption } from "../../Models/OptionsStore";
 import { scene } from "../../Scenes/Battleground/BattlegroundScene";
 
 export type CharaBars = {
@@ -72,13 +71,5 @@ export function updateUnit(id: string, newUnit: Unit): void {
 	}
 	charaBars.unit = newUnit;
 	updateBars(id);
-}
-
-export function setVisible(id: string, visible: boolean): void {
-	const charaBars = charaBarsMap.get(id);
-	if (!charaBars) return;
-	charaBars.chargeBar.setVisible(visible);
-	const debugMode = getOption('debug');
-	charaBars.cooldownBar.setVisible(visible && debugMode);
 }
 
