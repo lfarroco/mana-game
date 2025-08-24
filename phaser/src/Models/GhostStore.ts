@@ -1,6 +1,5 @@
 import { Unit, makeUnit } from "./Entities/Unit";
 import { cpuForce } from "./Entities/Force";
-import { devlog } from "../utils";
 import { vec2 } from "../Models/Geometry";
 import { Effect, EffectReaction } from "../TriggerSystem/TriggerSystem";
 
@@ -89,7 +88,7 @@ export function saveGhostForRound(round: number, playerUnits: Unit[], prestige: 
 	list.sort((a, b) => b.savedAt - a.savedAt);
 	store[round] = list.slice(0, MAX_PER_ROUND);
 	saveStore(store);
-	devlog(`[GhostStore] Saved ghost for round ${round}. Total for round: ${store[round].length}`);
+	console.log(`[GhostStore] Saved ghost for round ${round}. Total for round: ${store[round].length}`);
 }
 
 export function pickRandomGhost(round: number): GhostEntry | null {

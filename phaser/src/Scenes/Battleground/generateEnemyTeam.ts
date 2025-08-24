@@ -2,7 +2,7 @@ import { CardDefinition, getAllCards } from "../../Models/Entities/Card";
 import { cpuForce } from "../../Models/Entities/Force";
 import { vec2 } from "../../Models/Geometry";
 import { makeUnit } from "../../Models/Entities/Unit";
-import { pickOne, devlog } from "../../utils";
+import { pickOne } from "../../utils";
 import * as GhostStore from "../../Models/GhostStore";
 
 export const FORMATION_TEMPLATES: string[][] =
@@ -35,7 +35,7 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 	const ghost = GhostStore.pickRandomGhost(round);
 	if (ghost) {
 		const ghostUnits = GhostStore.instantiateGhostUnits(ghost);
-		devlog(`Loaded ghost enemy team for round ${round} (ghosts stored for round: ${GhostStore.getGhostCountForRound(round)})`);
+		console.log(`Loaded ghost enemy team for round ${round} (ghosts stored for round: ${GhostStore.getGhostCountForRound(round)})`);
 		return ghostUnits
 	}
 

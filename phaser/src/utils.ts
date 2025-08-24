@@ -18,9 +18,3 @@ export function pickOne<a>(arr: a[]): a {
 export function randomBetween(min: number, max: number): number {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-
-export function devlog(msg: string) {
-	if (process.env.NODE_ENV === 'development') {
-		console.log(msg);
-	}
-}
