@@ -33,6 +33,7 @@ export async function open() {
 		"golden_orb",
 		"violet_orb",
 		"charge_orb",
+		"positional_power_orb"
 	];
 	currentOrbs = pickRandom(availableOrbs, 3);
 
