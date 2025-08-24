@@ -4,10 +4,6 @@ import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
 import * as AudioManager from "../../Systems/AudioManager";
 import * as Chara from "../../Systems/Chara/Chara";
 
-/**
- * Effect: Modifies a unit's power
- * TODO: rename to addPower
- */
 export const increasePower = async (context: {
 	targets: Unit[];
 	scene: BattlegroundScene;
