@@ -4,15 +4,14 @@ import { vec2 } from "../../Models/Geometry";
 import { CardDefinition } from "../../Models/Entities/Card";
 import * as constants from "../../constants/constants";
 import { updatePlayerGoldIO } from "../../Models/Entities/Force";
-import * as Shop from "../Battleground/Systems/Shop/Shop";
-import * as ShopUI from "../Battleground/Systems/Shop/ShopUI";
+import * as Shop from "../Battleground/Systems/Shop";
 import { titleScene } from "../Title/TitleScene";
 import * as CharaInputHandler from "../../Systems/Chara/CharaInputHandler";
 import { Chara } from "../../Systems/Chara";
 import { shopItemDragPurchaseRequestedHandler } from "../Battleground/Systems/Shop/handlers/shopItemDragPurchaseHandler";
 
 export function clickHeroInShop(slotIndex: number): string {
-	const chara = Shop.getShopCharaBySlot(slotIndex);
+	const chara = Shop.Shop.getShopCharaBySlot(slotIndex);
 	if (!chara) {
 		return `Error: No hero Chara found in shop slot ${slotIndex}.`;
 	}
@@ -22,7 +21,7 @@ export function clickHeroInShop(slotIndex: number): string {
 		return `Error: Hero in slot ${slotIndex} (Chara ID: ${Chara.getId(chara)}) is not a shop item or already purchased.`;
 	}
 
-	Shop.handleShopItemClickPurchaseRequested({
+	Shop.Shop.handleShopItemClickPurchaseRequested({
 		shopUnitData: unitToPurchase,
 		shopCharaId: Chara.getId(chara),
 		dragStartX: chara.x,
@@ -33,7 +32,7 @@ export function clickHeroInShop(slotIndex: number): string {
 }
 
 export function buyAndPlaceHero(shopSlotIndex: number, boardX: number, boardY: number): string {
-	const chara = Shop.getShopCharaBySlot(shopSlotIndex);
+	const chara = Shop.Shop.getShopCharaBySlot(shopSlotIndex);
 	if (!chara) {
 		return `Error: No hero Chara found in shop slot ${shopSlotIndex}.`;
 	}
@@ -91,7 +90,7 @@ export function sellUnitFromBoard(unitId: string): string {
 
 	const sellPrice = Math.floor(constants.SHOP_ITEM_PURCHASE_COST / 2);
 
-	scene.handleOwnedUnitSold({ unitId: unitId, soldForGold: sellPrice });
+	Shop.handlers.ownedUnitSoldHandler({ unitId: unitId, soldForGold: sellPrice });
 
 	return `Sell request processed for unit ${unitId}. Sold for ${sellPrice} gold. State and visuals will update asynchronously.`;
 }
@@ -102,7 +101,7 @@ export function playerGoldDelta(delta: number): string {
 }
 
 export function isShopVisible(): boolean {
-	return ShopUI.getIsShopOpen();
+	return Shop.UI.getIsShopOpen();
 }
 
 export function getShopItemCost(): number {
@@ -118,7 +117,7 @@ export function getPlayerGold(): number {
 }
 
 export function getShopHeroes(): CardDefinition[] {
-	return Shop.getDisplayedHeroCardDefinitions();
+	return Shop.Shop.getDisplayedHeroCardDefinitions();
 }
 
 export function getPlayerBoardUnits(): Unit[] {
