@@ -23,14 +23,12 @@ export class BattlegroundScene extends Phaser.Scene {
   runCombatSystem: RunCombatSystem;
   battleProgressionSystem: Systems.Progression.BattleProgressionSystem;
 
-  setupSystem!: Systems.Setup.BattlegroundSetupSystem;
-
   cleanup() {
     Chara.clearAll();
     this.time.removeAllEvents();
     this.children.removeAll(true);
 
-    this.setupSystem.destroy();
+    Systems.Setup.destroy();
 
     MoraleDisplay.destroy();
     UIManager.destroy();
@@ -52,7 +50,6 @@ export class BattlegroundScene extends Phaser.Scene {
   create = async () => {
     scene = this;
 
-    this.setupSystem = new Systems.Setup.BattlegroundSetupSystem();
     this.battleProgressionSystem = new Systems.Progression.BattleProgressionSystem(this, this.state);
     this.collection = this.cache.json.get("base-collection") as CardCollection;
 
@@ -73,9 +70,9 @@ export class BattlegroundScene extends Phaser.Scene {
     Systems.Loader.init(this.collection);
     Systems.Loader.loadDynamicAssets(this.collection)
 
-    this.setupSystem.initializeNewGame(this.state);
+    Systems.Setup.initializeNewGame(this.state);
 
-    this.playerBoard = this.setupSystem.setupSceneElements(this.state);
+    this.playerBoard = Systems.Setup.setupSceneElements(this.state);
 
     UIManager.init();
 
