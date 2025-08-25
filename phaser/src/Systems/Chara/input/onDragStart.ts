@@ -5,9 +5,9 @@ import * as Shop from "../../../Scenes/Battleground/Systems/Shop";
 import { hideTooltip } from "../../../UI/Tooltip";
 import { tween } from "../../../Utils/animation";
 import { getIsShopItem } from "../Chara";
-import { CharaInputHandler } from "./CharaInputHandler";
+import { InputHandler } from ".";
 
-export const onDragStart = (handlerState: CharaInputHandler) => (
+export const onDragStart = (handlerState: InputHandler) => (
 	_pointer: Phaser.Input.Pointer,
 	_dragX: number,
 	_dragY: number

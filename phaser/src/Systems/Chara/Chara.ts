@@ -5,7 +5,7 @@ import { tween } from "../../Utils/animation";
 import { scene } from "../../Scenes/Battleground/BattlegroundScene";
 import * as CharaStatsDisplay from "./CharaStatsDisplay";
 import * as ChargeBarDisplay from "./ChargeBarDisplay";
-import * as CharaInputHandler from "./input/CharaInputHandler";
+import * as input from "./input";
 import { createContinuousHasteEffect } from "../../Effects/hasteEffect";
 import { onCharaPointerOut, onCharaPointerOver } from "./CharaTooltip";
 import { hideTooltip } from "../../UI/Tooltip";
@@ -96,7 +96,7 @@ export function create(unit: Unit): Chara {
 
 	charaState.set(container, state);
 
-	CharaInputHandler.create(container);
+	input.init(container);
 
 	// Register this chara instance for global lookup
 	charaById.set(unit.id, container);
