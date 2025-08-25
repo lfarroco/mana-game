@@ -42,8 +42,7 @@ export function updatePrestige(newTotalPrestige: number, _prestigeDelta: number)
 	}
 }
 
-export function createMainUI() {
-	destroyMainUI();
+export function init() {
 
 	uiContainer = scene.add.container(0, 0);
 
