@@ -12,10 +12,10 @@ export const onDragStart = (handlerState: InputHandler) => (
 	_dragX: number,
 	_dragY: number
 ) => {
-	const { chara, dragStartX, dragStartY } = handlerState;
+	const { chara } = handlerState;
 	handlerState.dragStartX = chara.x;
 	handlerState.dragStartY = chara.y;
-	handlerState.dragStartVec = vec2(dragStartX, dragStartY);
+	handlerState.dragStartVec = vec2(chara.x, chara.y);
 	handlerState.wasDragSuccessful = false;
 
 	if (getIsShopItem(handlerState.unitId)) {
