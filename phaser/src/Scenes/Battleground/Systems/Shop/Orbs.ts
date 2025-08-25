@@ -8,7 +8,7 @@ import { EFFECT_SOURCE_POSITIONS, EffectReaction, EffectSourcePosition } from ".
 import { pickOne } from "../../../../utils";
 import { hexToVector3 } from "../../../../Utils/colorUtils";
 import { scene } from "../../BattlegroundScene";
-import * as sc from "./ShopConstants";
+import * as sc from "./constants";
 import * as ShopUI from "./ShopUI";
 
 

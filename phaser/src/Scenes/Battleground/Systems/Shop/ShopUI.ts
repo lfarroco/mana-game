@@ -4,7 +4,7 @@ import * as Chara from "../../../../Systems/Chara/Chara";
 import * as c from "../../../../constants/constants";
 import { createUIButton } from "../../../../UI/UIButton";
 import { makeUnit } from "../../../../Models/Entities/Unit";
-import * as sc from "./ShopConstants";
+import * as sc from "./constants";
 import { MagicOrb } from "../../../../components/MagicOrb/MagicOrb";
 import { renderOrbs } from "./Orbs";
 import { scene } from "../../BattlegroundScene";

@@ -3,7 +3,7 @@ import { pickRandom } from "../../../../utils";
 import * as Chara from "../../../../Systems/Chara/Chara";
 import { scene } from "../../BattlegroundScene";
 import * as ShopUI from "./ShopUI";
-import * as sc from "./ShopConstants";
+import * as sc from "./constants";
 import * as events from "./events";
 import { tween } from "../../../../Utils/animation";
 
