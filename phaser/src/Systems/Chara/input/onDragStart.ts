@@ -12,10 +12,10 @@ export const onDragStart = (handlerState: InputHandler) => (
 	_dragX: number,
 	_dragY: number
 ) => {
-	const { chara } = handlerState;
+	const { chara, dragStartX, dragStartY } = handlerState;
 	handlerState.dragStartX = chara.x;
 	handlerState.dragStartY = chara.y;
-	handlerState.dragStartVec = vec2(handlerState.dragStartX, handlerState.dragStartY);
+	handlerState.dragStartVec = vec2(dragStartX, dragStartY);
 	handlerState.wasDragSuccessful = false;
 
 	if (getIsShopItem(handlerState.unitId)) {
@@ -30,8 +30,10 @@ export const onDragStart = (handlerState: InputHandler) => (
 		duration: 100,
 		ease: "Cubic.Out",
 	});
+
 	if (!getIsShopItem(handlerState.unitId)) {
 		Shop.UI.showSellZone();
 	}
+
 	hideTooltip();
 };
