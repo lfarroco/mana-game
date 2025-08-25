@@ -2,11 +2,9 @@ import * as Card from "../../../../Models/Entities/Card";
 import { pickRandom } from "../../../../utils";
 import * as Chara from "../../../../Systems/Chara/Chara";
 import { scene } from "../../BattlegroundScene";
-import { Unit } from "../../../../Models/Entities/Unit";
 import * as ShopUI from "./ShopUI";
-import { shopItemClickPurchaseRequested } from "./events/shopItemClickPurchase";
-import { shopRerollTavern } from "./events/shopRerollTavern";
 import * as sc from "./ShopConstants";
+import * as events from "./events";
 import { tween } from "../../../../Utils/animation";
 
 
@@ -47,7 +45,7 @@ export async function open() {
 		tavernCardData,
 		currentOrbs,
 		nextRoundCallback,
-		handleShopRerollTavern,
+		events.shopRerollTavern,
 	);
 
 	if (scene.playerBoard) {
@@ -79,15 +77,6 @@ export function getDisplayedHeroCardDefinitions(): Card.CardDefinition[] {
 
 export async function handleShopOpenUITrigger(): Promise<void> {
 	await open();
-}
-
-export function handleShopItemClickPurchaseRequested(payload: { shopUnitData: Unit, shopCharaId: string, dragStartX: number, dragStartY: number }): void {
-	shopItemClickPurchaseRequested(payload);
-}
-
-
-export function handleShopRerollTavern() {
-	shopRerollTavern();
 }
 
 async function _animateItemAppearance(
