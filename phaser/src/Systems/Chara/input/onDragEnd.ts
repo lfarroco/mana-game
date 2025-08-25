@@ -3,9 +3,9 @@ import { scene } from "../../../Scenes/Battleground/BattlegroundScene";
 import * as Shop from "../../../Scenes/Battleground/Systems/Shop";
 import { tween } from "../../../Utils/animation";
 import { getIsShopItem } from "../Chara";
-import { CharaInputHandler } from "./CharaInputHandler";
+import { InputHandler } from ".";
 
-export const onDragEnd = (handlerState: CharaInputHandler) => (_pointer: Phaser.Input.Pointer): void => {
+export const onDragEnd = (handlerState: InputHandler) => (_pointer: Phaser.Input.Pointer): void => {
 	const { chara } = handlerState;
 	scene.tweens.add({
 		targets: [handlerState.chara],
