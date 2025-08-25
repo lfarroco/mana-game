@@ -13,9 +13,8 @@ import { getOption } from "../../Models/OptionsStore";
 import * as BattlegroundScenePure from "./BattlegroundScene.pure";
 import { updatePlayerGoldIO } from "../../Models/Entities/Force";
 import * as AudioManager from "../../Systems/AudioManager";
-import * as Shop from "./Systems/Shop/Shop";
+import * as Shop from "./Systems/Shop";
 import * as MoraleDisplay from "./MoraleDisplay";
-import * as ShopUI from "./Systems/Shop/ShopUI";
 
 export let scene: BattlegroundScene;
 
@@ -39,7 +38,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     MoraleDisplay.destroy();
     UIManager.destroy();
-    ShopUI.destroy();
+    Shop.UI.destroy();
 
   }
 
@@ -90,7 +89,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     UIManager.createMainUI();
 
-    Shop.init();
+    Shop.Shop.init();
 
     MoraleDisplay.init();
 
@@ -107,7 +106,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.state.gameData.player.units = BattlegroundScenePure.handleOwnedUnitSold(
       (amount: number) => updatePlayerGoldIO(amount),
-      ShopUI.hideSellZone,
+      Shop.UI.hideSellZone,
       this.state.gameData.player.units,
       unitId,
       soldForGold,
@@ -125,7 +124,7 @@ export class BattlegroundScene extends Phaser.Scene {
   }
 
   update(time: number, delta: number): void {
-    ShopUI.update(time);
+    Shop.UI.update(time);
     const playerBoard = getSharedPlayerBoard();
     playerBoard?.update(time);
 
