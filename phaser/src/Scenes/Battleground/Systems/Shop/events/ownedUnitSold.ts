@@ -5,8 +5,7 @@ import { getState } from "../../../../../Models/State";
 import { Chara } from "../../../../../Systems/Chara";
 import { popText } from "../../../../../Systems/Chara/Animations/popText";
 
-export function ownedUnitSold(payload: { unitId: string, soldForGold: number }) {
-	const { unitId, soldForGold } = payload;
+export function ownedUnitSold(unitId: string, soldForGold: number) {
 
 	const state = getState();
 

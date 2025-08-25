@@ -7,17 +7,12 @@ import * as UIManager from "../../../../../UI/UIManager";
 import { vec2 } from "../../../../../Models/Geometry.pure";
 import { scene } from "../../../BattlegroundScene";
 
-type ShopItemClickPurchasePayload = {
-	shopUnitData: Unit;
-	shopCharaId: string;
-	dragStartX: number;
-	dragStartY: number;
-};
-
 export function shopItemClickPurchaseRequested(
-	payload: ShopItemClickPurchasePayload
+	shopUnitData: Unit,
+	shopCharaId: string,
+	dragStartX: number,
+	dragStartY: number,
 ): void {
-	const { shopUnitData, shopCharaId, dragStartX, dragStartY } = payload;
 
 	const { state, playerBoard } = scene;
 

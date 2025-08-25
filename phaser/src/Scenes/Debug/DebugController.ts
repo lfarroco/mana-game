@@ -1,5 +1,5 @@
 import { scene } from "../Battleground/BattlegroundScene";
-import { Unit } from "../../Models/Entities/Unit"; // Ensure Unit is exported from its module
+import { Unit } from "../../Models/Entities/Unit";
 import { vec2 } from "../../Models/Geometry";
 import { CardDefinition } from "../../Models/Entities/Card";
 import * as constants from "../../constants/constants";
@@ -8,7 +8,6 @@ import * as Shop from "../Battleground/Systems/Shop";
 import { titleScene } from "../Title/TitleScene";
 import * as CharaInputHandler from "../../Systems/Chara/CharaInputHandler";
 import { Chara } from "../../Systems/Chara";
-import { shopItemDragPurchaseRequested } from "../Battleground/Systems/Shop/events/shopItemDragPurchase";
 
 export function clickHeroInShop(slotIndex: number): string {
 	const chara = Shop.Shop.getShopCharaBySlot(slotIndex);
@@ -21,12 +20,12 @@ export function clickHeroInShop(slotIndex: number): string {
 		return `Error: Hero in slot ${slotIndex} (Chara ID: ${Chara.getId(chara)}) is not a shop item or already purchased.`;
 	}
 
-	Shop.Shop.handleShopItemClickPurchaseRequested({
-		shopUnitData: unitToPurchase,
-		shopCharaId: Chara.getId(chara),
-		dragStartX: chara.x,
-		dragStartY: chara.y
-	})
+	Shop.events.shopItemClickPurchaseRequested(
+		{ ...unitToPurchase },
+		Chara.getId(chara),
+		chara.x,
+		chara.y
+	);
 
 	return `Emitted SHOP_ITEM_CLICK_PURCHASE_REQUESTED for hero in shop slot ${slotIndex} (Card ID: ${unitToPurchase.cardId}, Chara ID: ${Chara.getId(chara)}). Purchase processing is asynchronous.`;
 }
@@ -42,7 +41,7 @@ export function buyAndPlaceHero(shopSlotIndex: number, boardX: number, boardY: n
 		return `Error: Hero in slot ${shopSlotIndex} (Chara ID: ${Chara.getId(chara)}) is not a shop item or already purchased.`;
 	}
 
-	shopItemDragPurchaseRequested(
+	Shop.events.shopItemDragPurchaseRequested(
 		unitToPurchase,
 		Chara.getId(chara),
 		vec2(boardX, boardY),
@@ -90,7 +89,7 @@ export function sellUnitFromBoard(unitId: string): string {
 
 	const sellPrice = Math.floor(constants.SHOP_ITEM_PURCHASE_COST / 2);
 
-	Shop.events.ownedUnitSold({ unitId: unitId, soldForGold: sellPrice });
+	Shop.events.ownedUnitSold(unitId, sellPrice);
 
 	return `Sell request processed for unit ${unitId}. Sold for ${sellPrice} gold. State and visuals will update asynchronously.`;
 }
