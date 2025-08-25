@@ -20,7 +20,7 @@ export function clickHeroInShop(slotIndex: number): string {
 		return `Error: Hero in slot ${slotIndex} (Chara ID: ${Chara.getId(chara)}) is not a shop item or already purchased.`;
 	}
 
-	Shop.events.shopItemClickPurchaseRequested(
+	Shop.events.itemClickPurchaseRequested(
 		{ ...unitToPurchase },
 		Chara.getId(chara),
 		chara.x,
@@ -41,7 +41,7 @@ export function buyAndPlaceHero(shopSlotIndex: number, boardX: number, boardY: n
 		return `Error: Hero in slot ${shopSlotIndex} (Chara ID: ${Chara.getId(chara)}) is not a shop item or already purchased.`;
 	}
 
-	Shop.events.shopItemDragPurchaseRequested(
+	Shop.events.itemDragPurchaseRequested(
 		unitToPurchase,
 		Chara.getId(chara),
 		vec2(boardX, boardY),

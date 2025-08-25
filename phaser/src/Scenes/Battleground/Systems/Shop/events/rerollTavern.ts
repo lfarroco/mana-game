@@ -4,7 +4,7 @@ import { updatePlayerGoldIO } from "../../../../../Models/Entities/Force";
 import * as UIManager from "../../../../../UI/UIManager";
 import { getState } from "../../../../../Models/State";
 
-export function shopRerollTavern(): void {
+export function rerollTavern(): void {
 
 	if (getState().gameData.player.gold < constants.REROLL_UNITS_PRICE) {
 

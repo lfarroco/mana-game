@@ -45,7 +45,7 @@ export async function open() {
 		tavernCardData,
 		currentOrbs,
 		nextRoundCallback,
-		events.shopRerollTavern,
+		events.rerollTavern,
 	);
 
 	if (scene.playerBoard) {
