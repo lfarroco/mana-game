@@ -8,6 +8,7 @@ import * as Shop from "../Battleground/Systems/Shop";
 import { titleScene } from "../Title/TitleScene";
 import * as CharaInputHandler from "../../Systems/Chara/CharaInputHandler";
 import { Chara } from "../../Systems/Chara";
+import * as Systems from "../Battleground/Systems";
 
 export function clickHeroInShop(slotIndex: number): string {
 	const chara = Shop.Shop.getShopCharaBySlot(slotIndex);
@@ -53,7 +54,7 @@ export function buyAndPlaceHero(shopSlotIndex: number, boardX: number, boardY: n
 }
 
 export function clickNextRound(): string {
-	scene.battleProgressionSystem.handleShopPhaseEnded();
+	Systems.Progression.handleShopPhaseEnded();
 	return "Emitted SHOP_PHASE_ENDED. Current shop phase should end, leading to combat or next round's shop.";
 }
 
