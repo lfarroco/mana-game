@@ -6,15 +6,12 @@ import { tween } from "../../Utils/animation";
 import { Vec2 } from "../../Models/Geometry";
 import * as Board from "../../Models/Board";
 import { vec2 } from "../../Models/Geometry";
-import * as sc from "../../Scenes/Battleground/Systems/Shop/ShopConstants";
 import { hideTooltip } from "../../UI/Tooltip";
 import { scene } from "../../Scenes/Battleground/BattlegroundScene";
 import { PartyBoard } from "../../Models/Board";
 import { getCharaById } from "./Chara";
 import { Unit } from "../../Models/Entities/Unit";
-import * as Shop from "../../Scenes/Battleground/Systems/Shop/Shop";
-import * as ShopUI from "../../Scenes/Battleground/Systems/Shop/ShopUI";
-import { shopItemDragPurchaseRequestedHandler } from "../../Scenes/Battleground/Systems/Shop/handlers/shopItemDragPurchaseHandler";
+import * as Shop from "../../Scenes/Battleground/Systems/Shop";
 
 export type CharaInputHandler = {
 	dragStartX: number;
@@ -64,7 +61,7 @@ const onDragStart = (handlerState: CharaInputHandler) => (
 	handlerState.wasDragSuccessful = false;
 
 	if (getIsShopItem(handlerState.unitId)) {
-		ShopUI.bringShopChildToTop(chara);
+		Shop.UI.bringShopChildToTop(chara);
 	} else {
 		scene.children.bringToTop(chara);
 	}
@@ -76,7 +73,7 @@ const onDragStart = (handlerState: CharaInputHandler) => (
 		ease: "Cubic.Out",
 	});
 	if (!getIsShopItem(handlerState.unitId)) {
-		ShopUI.showSellZone();
+		Shop.UI.showSellZone();
 	}
 	hideTooltip();
 }
@@ -101,7 +98,7 @@ const onDragEnd = (handlerState: CharaInputHandler) => (_pointer: Phaser.Input.P
 	});
 
 	if (!getIsShopItem(handlerState.unitId)) {
-		ShopUI.hideSellZone();
+		Shop.UI.hideSellZone();
 	}
 
 	if (!handlerState.wasDragSuccessful) {
@@ -127,7 +124,7 @@ const onPointerUpShopItem = (handlerState: CharaInputHandler) => (pointer: Phase
 
 const processShopItemClick = (handlerState: CharaInputHandler) => (_clickX: number, _clickY: number): void => {
 	const { chara } = handlerState;
-	Shop.handleShopItemClickPurchaseRequested({
+	Shop.handlers.shopItemClickPurchaseRequestedHandler({
 		shopUnitData: { ...getUnit(chara) },
 		shopCharaId: getUnit(chara).id,
 		dragStartX: chara.x,
@@ -136,7 +133,7 @@ const processShopItemClick = (handlerState: CharaInputHandler) => (_clickX: numb
 }
 
 const processDrop = (handlerState: CharaInputHandler) => (dropTarget: Phaser.GameObjects.GameObject, dragStartX: number, dragStartY: number): boolean => {
-	if (dropTarget.name === sc.SHOP_SELL_ZONE_NAME) {
+	if (dropTarget.name === Shop.constants.SHOP_SELL_ZONE_NAME) {
 		if (!getIsShopItem(handlerState.unitId)) {
 			_handleSellUnit(handlerState);
 			return true;
@@ -170,7 +167,7 @@ const processDrop = (handlerState: CharaInputHandler) => (dropTarget: Phaser.Gam
 
 const _handleDropShopItem = (handlerState: CharaInputHandler) => (tile: Vec2, dragStartX: number, dragStartY: number) => {
 	const { chara } = handlerState
-	shopItemDragPurchaseRequestedHandler(
+	Shop.handlers.shopItemDragPurchaseRequestedHandler(
 		{ ...getUnit(chara) },
 		getUnit(chara).id,
 		tile,
@@ -181,7 +178,7 @@ const _handleDropShopItem = (handlerState: CharaInputHandler) => (tile: Vec2, dr
 
 const _handleSellUnit = (handlerState: CharaInputHandler): void => {
 	const sellPrice = Math.floor(constants.SHOP_ITEM_PURCHASE_COST / 2);
-	scene.handleOwnedUnitSold({ unitId: getUnit(handlerState.chara).id, soldForGold: sellPrice });
+	Shop.handlers.ownedUnitSoldHandler({ unitId: getUnit(handlerState.chara).id, soldForGold: sellPrice });
 }
 
 

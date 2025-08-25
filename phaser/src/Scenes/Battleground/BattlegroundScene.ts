@@ -6,12 +6,9 @@ import { Chara } from "../../Systems/Chara";
 import { CardCollection } from "../../Models/Entities/Card";
 import { PartyBoard, getSharedPlayerBoard } from "../../Models/Board";
 import { BattlegroundSetupSystem } from "./Systems/BattlegroundSetupSystem";
-import { popText } from "../../Systems/Chara/Animations/popText";
 import { RunCombatSystem } from "./RunCombatIO";
 import { BattleProgressionSystem } from "./Systems/BattleProgressionSystem";
 import { getOption } from "../../Models/OptionsStore";
-import * as BattlegroundScenePure from "./BattlegroundScene.pure";
-import { updatePlayerGoldIO } from "../../Models/Entities/Force";
 import * as AudioManager from "../../Systems/AudioManager";
 import * as Shop from "./Systems/Shop";
 import * as MoraleDisplay from "./MoraleDisplay";
@@ -99,29 +96,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
   }
 
-  handleOwnedUnitSold(payload: { unitId: string, soldForGold: number }): void {
-    const { unitId, soldForGold } = payload;
 
-    const chara = Chara.getCharaById(unitId);
-
-    this.state.gameData.player.units = BattlegroundScenePure.handleOwnedUnitSold(
-      (amount: number) => updatePlayerGoldIO(amount),
-      Shop.UI.hideSellZone,
-      this.state.gameData.player.units,
-      unitId,
-      soldForGold,
-      chara,
-      (x: number, y: number, text: string, type: string, direction: string) => {
-        popText({
-          x,
-          y,
-          text,
-          type: type as "heal" | "damage" | "shield" | "poison" | "timeout",
-          direction: direction as "up" | "down" | "left" | "right"
-        });
-      }
-    );
-  }
 
   update(time: number, delta: number): void {
     Shop.UI.update(time);
