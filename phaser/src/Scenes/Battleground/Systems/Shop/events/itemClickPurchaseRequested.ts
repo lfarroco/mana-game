@@ -7,7 +7,7 @@ import * as UIManager from "../../../../../UI/UIManager";
 import { vec2 } from "../../../../../Models/Geometry.pure";
 import { scene } from "../../../BattlegroundScene";
 
-export function shopItemClickPurchaseRequested(
+export function itemClickPurchaseRequested(
 	shopUnitData: Unit,
 	shopCharaId: string,
 	dragStartX: number,

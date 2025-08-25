@@ -124,7 +124,7 @@ const onPointerUpShopItem = (handlerState: CharaInputHandler) => (pointer: Phase
 
 const processShopItemClick = (handlerState: CharaInputHandler) => (_clickX: number, _clickY: number): void => {
 	const { chara, unitId } = handlerState;
-	Shop.events.shopItemClickPurchaseRequested(
+	Shop.events.itemClickPurchaseRequested(
 		{ ...getUnit(chara) },
 		unitId,
 		chara.x,
@@ -167,7 +167,7 @@ const processDrop = (handlerState: CharaInputHandler) => (dropTarget: Phaser.Gam
 
 const _handleDropShopItem = (handlerState: CharaInputHandler) => (tile: Vec2, dragStartX: number, dragStartY: number) => {
 	const { chara } = handlerState
-	Shop.events.shopItemDragPurchaseRequested(
+	Shop.events.itemDragPurchaseRequested(
 		{ ...getUnit(chara) },
 		getUnit(chara).id,
 		tile,
