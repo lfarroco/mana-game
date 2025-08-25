@@ -275,7 +275,6 @@ function createCombinedDisplay(
 export function init(): void {
 	destroy();
 
-
 	playerDisplay = createCombinedDisplay(scene, c.FORCE_ID_PLAYER);
 	if (playerDisplay) {
 		playerDisplay.moraleBar.container.setVisible(true);

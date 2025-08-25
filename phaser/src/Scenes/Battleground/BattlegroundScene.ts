@@ -5,13 +5,12 @@ import * as UIManager from "../../UI/UIManager";
 import { Chara } from "../../Systems/Chara";
 import { CardCollection } from "../../Models/Entities/Card";
 import { PartyBoard, getSharedPlayerBoard } from "../../Models/Board";
-import { BattlegroundSetupSystem } from "./Systems/BattlegroundSetupSystem";
 import { RunCombatSystem } from "./RunCombatIO";
-import { BattleProgressionSystem } from "./Systems/BattleProgressionSystem";
 import { getOption } from "../../Models/OptionsStore";
 import * as AudioManager from "../../Systems/AudioManager";
 import * as Shop from "./Systems/Shop";
 import * as MoraleDisplay from "./MoraleDisplay";
+import * as Systems from "./Systems"
 
 export let scene: BattlegroundScene;
 
@@ -22,9 +21,9 @@ export class BattlegroundScene extends Phaser.Scene {
   collection!: CardCollection;
   playerBoard!: PartyBoard;
   runCombatSystem: RunCombatSystem;
-  battleProgressionSystem: BattleProgressionSystem;
+  battleProgressionSystem: Systems.Progression.BattleProgressionSystem;
 
-  setupSystem!: BattlegroundSetupSystem;
+  setupSystem!: Systems.Setup.BattlegroundSetupSystem;
 
   cleanup() {
     Chara.clearAll();
@@ -48,19 +47,16 @@ export class BattlegroundScene extends Phaser.Scene {
 
   }
 
-  destroy() {
-    console.log("BattlegroundScene destroy.");
-    this.cleanup();
-  }
-
   preload = preload;
 
   create = async () => {
     scene = this;
-    this.battleProgressionSystem = new BattleProgressionSystem(this, this.state);
+
+    this.setupSystem = new Systems.Setup.BattlegroundSetupSystem();
+    this.battleProgressionSystem = new Systems.Progression.BattleProgressionSystem(this, this.state);
     this.collection = this.cache.json.get("base-collection") as CardCollection;
 
-    this.events.once(Phaser.Scenes.Events.DESTROY, this.destroy, this);
+    this.events.once(Phaser.Scenes.Events.DESTROY, this.cleanup, this);
 
     const speed = getOption("speed");
 
@@ -74,21 +70,18 @@ export class BattlegroundScene extends Phaser.Scene {
   start = async () => {
     console.log("BattlegroundScene starting logic...");
 
-    this.setupSystem = new BattlegroundSetupSystem(this);
-
-    this.setupSystem.performOneTimeRuntimeInitialization(this.collection);
-
-    await this.setupSystem.loadDynamicAssets(this.collection)
+    Systems.Loader.init(this.collection);
+    Systems.Loader.loadDynamicAssets(this.collection)
 
     this.setupSystem.initializeNewGame(this.state);
 
     this.playerBoard = this.setupSystem.setupSceneElements(this.state);
 
-    UIManager.createMainUI();
+    UIManager.init();
 
     Shop.Shop.init();
 
-    MoraleDisplay.init();
+    MoraleDisplay.init(); //TODO: move to UI
 
     AudioManager.playMusic('music_battlemap_vetruv');
 
