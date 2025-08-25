@@ -5,30 +5,29 @@ import { scene } from "../../Scenes/Battleground/BattlegroundScene";
 
 export type CharaBars = {
 	chargeBar: Phaser.GameObjects.Graphics;
-	cooldownBar: Phaser.GameObjects.Graphics;
 	unit: Unit;
 };
 
 let charaBarsMap = new Map<string, CharaBars>();
 
+//@ts-ignore
+window.bars = charaBarsMap
+
 export function create(unit: Unit, container: Container) {
 	const chargeBar = scene.add.graphics();
-	const cooldownBar = scene.add.graphics();
 
-	container.add([chargeBar, cooldownBar]);
+	container.add([chargeBar]);
 
 	const state = {
 		chargeBar,
-		cooldownBar,
 		unit
 	}
 
 	charaBarsMap.set(unit.id, state);
-
-	updateBars(unit.id)
 }
 
-export function updateBars(id: string): void {
+
+export function updateChargeBar(id: string): void {
 
 	const state = charaBarsMap.get(id);
 	if (!state) return;
@@ -36,7 +35,12 @@ export function updateBars(id: string): void {
 	const { chargeBar, unit } = state;
 
 	chargeBar.clear();
-	const percent = Math.max(0, Math.min(unit.charge / unit.cooldown, 1));
+
+	const percent = Math.max(
+		0,
+		Math.min(unit.charge / unit.cooldown, 1)
+	);
+
 	let color = 0x33ff33;
 
 	const isHasted = unit.hasted > 0;
@@ -56,6 +60,7 @@ export function updateBars(id: string): void {
 	const startAngle = Phaser.Math.DegToRad(-90);
 	const endAngle = startAngle + Phaser.Math.DegToRad(360 * percent);
 	chargeBar.lineStyle(lineWidth, color, 0.8);
+
 	if (percent > 0) {
 		chargeBar.beginPath();
 		chargeBar.arc(centerX, centerY, arcRadius, startAngle, endAngle, false);

@@ -4,7 +4,7 @@ import * as constants from "../../constants/constants";
 import { tween } from "../../Utils/animation";
 import { scene } from "../../Scenes/Battleground/BattlegroundScene";
 import * as CharaStatsDisplay from "./CharaStatsDisplay";
-import * as CharaBarsDisplay from "./CharaBarsDisplay";
+import * as ChargeBarDisplay from "./ChargeBarDisplay";
 import * as CharaInputHandler from "./CharaInputHandler";
 import { createContinuousHasteEffect } from "../../Effects/hasteEffect";
 import { onCharaPointerOut, onCharaPointerOver } from "./CharaTooltip";
@@ -62,7 +62,6 @@ export async function summon(unit: Unit, useSummonEffect: boolean = true): Promi
 	return chara;
 }
 
-// Destroy all currently tracked charas
 export function clearAll(): void {
 	getAllCharas().forEach(c => destroy(c));
 }
@@ -109,7 +108,7 @@ export function create(unit: Unit): Chara {
 		onCharaPointerOut();
 	});
 
-	CharaBarsDisplay.create(unit, container);
+	ChargeBarDisplay.create(unit, container);
 	CharaStatsDisplay.create(unit, container);
 	updateStatusEffects(container);
 

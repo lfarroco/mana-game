@@ -14,7 +14,6 @@ import { renderVignette } from "../Animations/vignette";
 import * as AudioManager from "../../../Systems/AudioManager";
 import * as Shop from "./Shop/Shop";
 import * as Chara from "../../../Systems/Chara/Chara";
-import * as CharaBarsDisplay from "../../../Systems/Chara/CharaBarsDisplay";
 import { battleResultAnimation } from "../battleResultAnimation";
 
 function createUnitCopy(unit: Unit): Unit {
@@ -36,8 +35,6 @@ export class BattleProgressionSystem {
 		this.scene = scene;
 		this.state = state;
 		this.prestigeSystem = new PrestigeSystem();
-
-
 	}
 
 	get getIsInShopPhase(): boolean {
@@ -52,20 +49,19 @@ export class BattleProgressionSystem {
 		playerForce.morale = playerForce.maxMorale;
 		MoraleDisplay.updateMoraleBar(playerForce.id);
 
-		this.resetPlayerUnitsForNewRound();
 
-		const summonPromises = this.state.gameData.player.units.map(async (unit, index) => {
-			await delay(index * 200)
-			await Chara.summon(unit, true)
-		});
+		const summonPromises = this.state.gameData.player.units
+			.map(async (unit, index) => {
+				await delay(index * 200);
+				await Chara.summon(unit, true);
+			});
 		await Promise.all(summonPromises);
-
-		this.resetPlayerUnitChargeBars();
 
 		this.state.gameData.round++;
 
 		this.isInShopPhase = true;
 		updatePlayerGoldIO(BG_CONSTANTS.VICTORY_GOLD_REWARD);
+
 		this.prestigeSystem.processVictory();
 		this.prestigeSystem.finalizeRound();
 
@@ -112,21 +108,6 @@ export class BattleProgressionSystem {
 		renderVignette({ message: `Victory! You reached Champion status in ${this.state.gameData.player.totalRoundsPlayed} rounds!` });
 	}
 
-	resetPlayerUnitsForNewRound(): void {
-		this.state.gameData.player.units.forEach(unit => {
-			unit.charge = 0;
-			unit.refresh = 0;
-			unit.hasted = 0;
-			unit.slowed = 0;
-		});
-	}
-
-	resetPlayerUnitChargeBars(): void {
-		this.state.gameData.player.units.forEach(unit => {
-			CharaBarsDisplay.updateBars(unit.id)
-		});
-	}
-
 	async setupBattle(): Promise<{ enemies: Unit[]; }> {
 		const cardPool = getAllCards();
 		const enemies = generateEnemyTeam(this.state.gameData.round, cardPool);
@@ -162,20 +143,20 @@ export class BattleProgressionSystem {
 		this.transitionToShopPhase();
 	}
 
-	async handleCombatStartExecution(payload: { enemies: Unit[] }): Promise<void> {
+	async handleCombatStartExecution(_payload: { enemies: Unit[] }): Promise<void> {
+
 		this._initializeMorale();
-		if (this.scene.playerBoard) {
-			this.scene.playerBoard.setEnemyBoardVisible(true);
-		}
-		await delay(300);
 
+		this.scene.playerBoard?.setEnemyBoardVisible(true);
 		Chara.clearAll();
-
-		const combatUnits = [...payload.enemies, ...this.state.gameData.player.units]
-
+		// Important: summon the exact Unit instances stored in battleData.units
+		// so display components (e.g., charge bars) observe the same objects updated during combat.
+		const combatUnits = this.state.battleData.units;
 		combatUnits.forEach(u => {
 			Chara.summon(u, false);
 		});
+
+		await delay(300);
 
 		this.scene.runCombatSystem.runCombatIO();
 
