@@ -8,7 +8,7 @@ import * as Shop from "../Battleground/Systems/Shop/Shop";
 import * as ShopUI from "../Battleground/Systems/Shop/ShopUI";
 import { titleScene } from "../Title/TitleScene";
 import * as CharaInputHandler from "../../Systems/Chara/CharaInputHandler";
-import * as Chara from "../../Systems/Chara/Chara";
+import { Chara } from "../../Systems/Chara";
 import { shopItemDragPurchaseRequestedHandler } from "../Battleground/Systems/Shop/handlers/shopItemDragPurchaseHandler";
 
 export function clickHeroInShop(slotIndex: number): string {

@@ -10,9 +10,6 @@ export type CharaBars = {
 
 let charaBarsMap = new Map<string, CharaBars>();
 
-//@ts-ignore
-window.bars = charaBarsMap
-
 export function create(unit: Unit, container: Container) {
 	const chargeBar = scene.add.graphics();
 
@@ -26,6 +23,12 @@ export function create(unit: Unit, container: Container) {
 	charaBarsMap.set(unit.id, state);
 }
 
+export function clearAll(): void {
+	charaBarsMap.forEach(state => {
+		state.chargeBar.destroy();
+	});
+	charaBarsMap.clear();
+}
 
 export function updateChargeBar(id: string): void {
 

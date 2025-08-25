@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { preload } from "./preload";
 import { State, getState } from "../../Models/State";
 import * as UIManager from "../../UI/UIManager";
-import * as Chara from "../../Systems/Chara/Chara";
+import { Chara } from "../../Systems/Chara";
 import { CardCollection } from "../../Models/Entities/Card";
 import { PartyBoard, getSharedPlayerBoard } from "../../Models/Board";
 import { BattlegroundSetupSystem } from "./Systems/BattlegroundSetupSystem";

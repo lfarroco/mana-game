@@ -4,7 +4,7 @@ import { Unit } from "../../Models/Entities/Unit";
 import { scene } from "../../Scenes/Battleground/BattlegroundScene";
 import { getMoraleBarTipPosition } from "../../Scenes/Battleground/MoraleDisplay";
 import * as CombatStatsTracker from "../../Scenes/Battleground/Systems/CombatStatsTracker";
-import { getCharaById } from "../../Systems/Chara/Chara";
+import { Chara } from "../../Systems/Chara";
 
 export function createRestoreMoraleLogic(
 	emitter: (unit: Unit, amount: number) => void,
@@ -21,7 +21,7 @@ export function createRestoreMoraleLogic(
 			(force: { id: string }) => force.id === sourceUnit.force
 		)!;
 
-		const sourceChara = getCharaById(sourceUnit.id);
+		const sourceChara = Chara.getCharaById(sourceUnit.id);
 		const moraleBarTipPos = getMoraleBarTipPosition(sourceForce.id);
 		if (sourceChara && moraleBarTipPos) {
 			arcaneMissileTargeted(
