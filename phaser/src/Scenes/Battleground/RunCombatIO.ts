@@ -2,17 +2,10 @@ import { scene } from "./BattlegroundScene";
 import { getState } from "../../Models/State";
 import { MIN_COOLDOWN } from "../../constants/constants";
 import { Unit } from "../../Models/Entities/Unit";
-import {
-  initializeTimeoutDamageSystem,
-  updateTimeoutDamageSystem,
-  onTimeoutDamageCombatEnd,
-} from "./Systems/TimeoutDamageSystem";
-import * as CombatStatsTracker from "./Systems/CombatStatsTracker";
 import { processEffectsIO } from "../../TriggerSystem/TriggerSystem";
 import { cpuForce, playerForce } from "../../Models/Entities/Force";
-import * as PoisonDamageSystem from "./Systems/PoisonDamageSystem";
-import * as RegenSystem from "./Systems/RegenSystem";
 import * as Chara from "../../Systems/Chara";
+import * as Systems from "./Systems";
 
 export type WaveOutcome = "player_won" | "player_lost";
 
@@ -20,17 +13,17 @@ export class RunCombatSystem {
   private active: boolean = false;
 
   reducePoison(forceId: string, healAmount: number): void {
-    PoisonDamageSystem.reducePoison(forceId, healAmount);
+    Systems.Poison.reducePoison(forceId, healAmount);
   }
 
   runCombatIO = () => {
     if (this.active) {
       throw new Error("Combat is already active");
     }
-    initializeTimeoutDamageSystem();
-    PoisonDamageSystem.initialize();
-    RegenSystem.initialize();
-    CombatStatsTracker.initialize();
+    Systems.Timeout.initializeTimeoutDamageSystem();
+    Systems.Poison.initialize();
+    Systems.Regen.initialize();
+    Systems.CombatStatsTracker.initialize();
     getState().battleData.units.forEach(u => {
       const startReactions = u.reactions.filter(r => r.effectId === "battle_start");
       startReactions.forEach(r => processEffectsIO(u, r.effects));
@@ -50,14 +43,14 @@ export class RunCombatSystem {
 
       Chara.Chara.pop(unit.id);
 
-      CombatStatsTracker.handleUnitAction({ unit });
+      Systems.CombatStatsTracker.handleUnitAction({ unit });
       processEffectsIO(unit, unit.effects);
     }
 
-    updateTimeoutDamageSystem(playerForce, cpuForce, scaledDelta);
-    PoisonDamageSystem.update(playerForce, cpuForce, scaledDelta);
-    RegenSystem.update(playerForce, cpuForce, scaledDelta);
-    CombatStatsTracker.updateTimeAlive(scaledDelta);
+    Systems.Timeout.updateTimeoutDamageSystem(playerForce, cpuForce, scaledDelta);
+    Systems.Poison.update(playerForce, cpuForce, scaledDelta);
+    Systems.Regen.update(playerForce, cpuForce, scaledDelta);
+    Systems.CombatStatsTracker.updateTimeAlive(scaledDelta);
 
     const playerMoraleZero = playerForce.morale <= 0;
     const cpuMoraleZero = cpuForce.morale <= 0;
@@ -73,10 +66,10 @@ export class RunCombatSystem {
   private finishCombat(outcome: WaveOutcome) {
     if (!this.active) return;
     this.active = false;
-    onTimeoutDamageCombatEnd();
-    CombatStatsTracker.stop();
+    Systems.Timeout.onTimeoutDamageCombatEnd();
+    Systems.CombatStatsTracker.stop();
     console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);
-    scene.battleProgressionSystem.handleCombatEnded(outcome);
+    Systems.Progression.handleCombatEnded(outcome);
   }
 
   isActive(): boolean { return this.active; }

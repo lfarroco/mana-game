@@ -21,7 +21,6 @@ export class BattlegroundScene extends Phaser.Scene {
   collection!: CardCollection;
   playerBoard!: PartyBoard;
   runCombatSystem: RunCombatSystem;
-  battleProgressionSystem: Systems.Progression.BattleProgressionSystem;
 
   cleanup() {
     Chara.clearAll();
@@ -50,7 +49,6 @@ export class BattlegroundScene extends Phaser.Scene {
   create = async () => {
     scene = this;
 
-    this.battleProgressionSystem = new Systems.Progression.BattleProgressionSystem(this, this.state);
     this.collection = this.cache.json.get("base-collection") as CardCollection;
 
     this.events.once(Phaser.Scenes.Events.DESTROY, this.cleanup, this);
@@ -78,15 +76,11 @@ export class BattlegroundScene extends Phaser.Scene {
 
     Shop.Shop.init();
 
-    MoraleDisplay.init(); //TODO: move to UI
-
     AudioManager.playMusic('music_battlemap_vetruv');
 
-    this.battleProgressionSystem.transitionToShopPhase();
+    Systems.Progression.transitionToShopPhase();
 
   }
-
-
 
   update(time: number, delta: number): void {
     Shop.UI.update(time);

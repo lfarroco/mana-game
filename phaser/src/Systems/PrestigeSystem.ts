@@ -1,5 +1,5 @@
 import { getState } from "../Models/State";
-import { scene } from "../Scenes/Battleground/BattlegroundScene";
+import * as Systems from "../Scenes/Battleground/Systems";
 import * as UIManager from "../UI/UIManager";
 
 export class PrestigeSystem {
@@ -14,7 +14,7 @@ export class PrestigeSystem {
 		UIManager.updatePrestige(playerState.prestige, prestigeGain);
 
 		if (playerState.prestige >= 30) {
-			scene.battleProgressionSystem.handlePlayerWonGame();
+			Systems.Progression.handlePlayerWonGame();
 		}
 	}
 

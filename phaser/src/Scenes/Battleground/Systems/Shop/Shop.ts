@@ -6,13 +6,15 @@ import * as ShopUI from "./ShopUI";
 import * as sc from "./constants";
 import * as events from "./events";
 import { tween } from "../../../../Utils/animation";
-
+import * as MoraleDisplay from "../../MoraleDisplay";
+import * as Systems from "../index"
 
 let currentShopCharas: Chara.Chara[] = [];
 let currentOrbs: string[] = [];
 
 export function init() {
 	ShopUI.create();
+	MoraleDisplay.init();
 }
 
 export function handleCharaPurchaseFinalized(purchasedChara: Chara.Chara): void {
@@ -37,7 +39,7 @@ export async function open() {
 	currentOrbs = pickRandom(availableOrbs, 3);
 
 	const nextRoundCallback = () => {
-		scene.battleProgressionSystem.handleShopPhaseEnded();
+		Systems.Progression.handleShopPhaseEnded();
 		close();
 	};
 
