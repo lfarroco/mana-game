@@ -13,7 +13,7 @@ import * as MoraleDisplay from "../MoraleDisplay";
 import { renderVignette } from "../Animations/vignette";
 import * as AudioManager from "../../../Systems/AudioManager";
 import * as Shop from "./Shop/Shop";
-import * as Chara from "../../../Systems/Chara/Chara";
+import { Chara } from "../../../Systems/Chara";
 import { battleResultAnimation } from "../battleResultAnimation";
 
 function createUnitCopy(unit: Unit): Unit {

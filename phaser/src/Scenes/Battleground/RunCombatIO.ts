@@ -13,7 +13,7 @@ import { cpuForce, playerForce } from "../../Models/Entities/Force";
 import * as PoisonDamageSystem from "./Systems/PoisonDamageSystem";
 import * as RegenSystem from "./Systems/RegenSystem";
 import * as Chara from "../../Systems/Chara/Chara";
-import * as ChargeBarDisplay from "../../Systems/Chara/ChargeBarDisplay";
+import { ChargeBarDisplay } from "../../Systems/Chara";
 
 export type WaveOutcome = "player_won" | "player_lost";
 
