@@ -41,7 +41,7 @@ export class RunCombatSystem {
 
     for (const unit of unitsReadyToAct) {
 
-      Chara.Chara.pop(unit.id);
+      Chara.Animations.pop(unit.id);
 
       Systems.CombatStatsTracker.handleUnitAction({ unit });
       processEffectsIO(unit, unit.effects);

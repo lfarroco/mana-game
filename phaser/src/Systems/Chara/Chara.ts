@@ -5,7 +5,7 @@ import { tween } from "../../Utils/animation";
 import { scene } from "../../Scenes/Battleground/BattlegroundScene";
 import * as CharaStatsDisplay from "./CharaStatsDisplay";
 import * as ChargeBarDisplay from "./ChargeBarDisplay";
-import * as CharaInputHandler from "./CharaInputHandler";
+import * as CharaInputHandler from "./input/CharaInputHandler";
 import { createContinuousHasteEffect } from "../../Effects/hasteEffect";
 import { onCharaPointerOut, onCharaPointerOver } from "./CharaTooltip";
 import { hideTooltip } from "../../UI/Tooltip";
@@ -267,30 +267,7 @@ function removeHasteEffect(chara: Chara): void {
 	s.hasteEffect = undefined;
 }
 
-export async function pop(id: string) {
-	const chara = getCharaById(id);
-	const s = mustGetState(chara);
-	if (s.isAnimating) return;
-	s.isAnimating = true;
-
-	const attackAnimKey = `${s.unit.pic}_attack`;
-	const idleAnimKey = `${s.unit.pic}_idle`;
-
-	s.sprite.anims.play(attackAnimKey, true);
-	s.sprite.playAfterRepeat(idleAnimKey);
-
-	await tween({
-		targets: [chara],
-		scale: 1.2,
-		yoyo: true,
-		duration: 300,
-		repeat: 0,
-	});
-
-	s.isAnimating = false;
-}
-
-function mustGetState(chara: Chara): CharaState {
+export function mustGetState(chara: Chara): CharaState {
 	const s = charaState.get(chara);
 	if (!s) throw new Error("Chara state not found for container");
 	return s;

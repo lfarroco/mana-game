@@ -6,7 +6,7 @@ import * as constants from "../../constants/constants";
 import { updatePlayerGoldIO } from "../../Models/Entities/Force";
 import * as Shop from "../Battleground/Systems/Shop";
 import { titleScene } from "../Title/TitleScene";
-import * as CharaInputHandler from "../../Systems/Chara/CharaInputHandler";
+import * as CharaInputHandler from "../../Systems/Chara/input/CharaInputHandler";
 import { Chara } from "../../Systems/Chara";
 import * as Systems from "../Battleground/Systems";
 
