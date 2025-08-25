@@ -71,15 +71,15 @@ export default class TitleScene extends Phaser.Scene {
 				this.openOptions();
 			}
 		);
-		createUIButton(
-			this,
-			'DEBUG',
-			constants.MIDDLE_SCREEN_X,
-			constants.MIDDLE_SCREEN_Y + 260,
-			() => {
-				this.openDebug();
-			}
-		);
+		// createUIButton(
+		// 	this,
+		// 	'DEBUG',
+		// 	constants.MIDDLE_SCREEN_X,
+		// 	constants.MIDDLE_SCREEN_Y + 260,
+		// 	() => {
+		// 		this.openDebug();
+		// 	}
+		// );
 		// new UIButton(
 		// 	this,
 		// 	'COLLECTION',

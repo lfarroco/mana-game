@@ -13,7 +13,7 @@ import { cpuForce, playerForce } from "../../Models/Entities/Force";
 import * as PoisonDamageSystem from "./Systems/PoisonDamageSystem";
 import * as RegenSystem from "./Systems/RegenSystem";
 import * as Chara from "../../Systems/Chara/Chara";
-import { updateBars } from "../../Systems/Chara/CharaBarsDisplay";
+import * as ChargeBarDisplay from "../../Systems/Chara/ChargeBarDisplay";
 
 export type WaveOutcome = "player_won" | "player_lost";
 
@@ -107,7 +107,7 @@ function chargeUnits(delta: number): Unit[] {
       unit.refresh = MIN_COOLDOWN;
       performingUnits.push(unit);
     }
-    updateBars(unit.id)
+    ChargeBarDisplay.updateChargeBar(unit.id)
   }
   return performingUnits;
 }
