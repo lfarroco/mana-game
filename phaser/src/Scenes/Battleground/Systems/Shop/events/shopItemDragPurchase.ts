@@ -8,7 +8,7 @@ import { getCharaById, summon } from "../../../../../Systems/Chara/Chara";
 import * as Chara from "../../../../../Systems/Chara/Chara";
 import * as UIManager from "../../../../../UI/UIManager";
 
-export function shopItemDragPurchaseRequestedHandler(
+export function shopItemDragPurchaseRequested(
 	shopUnitData: Unit,
 	shopCharaId: string,
 	targetTile: Vec2,

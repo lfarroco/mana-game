@@ -124,7 +124,7 @@ const onPointerUpShopItem = (handlerState: CharaInputHandler) => (pointer: Phase
 
 const processShopItemClick = (handlerState: CharaInputHandler) => (_clickX: number, _clickY: number): void => {
 	const { chara } = handlerState;
-	Shop.handlers.shopItemClickPurchaseRequestedHandler({
+	Shop.events.shopItemClickPurchaseRequested({
 		shopUnitData: { ...getUnit(chara) },
 		shopCharaId: getUnit(chara).id,
 		dragStartX: chara.x,
@@ -167,7 +167,7 @@ const processDrop = (handlerState: CharaInputHandler) => (dropTarget: Phaser.Gam
 
 const _handleDropShopItem = (handlerState: CharaInputHandler) => (tile: Vec2, dragStartX: number, dragStartY: number) => {
 	const { chara } = handlerState
-	Shop.handlers.shopItemDragPurchaseRequestedHandler(
+	Shop.events.shopItemDragPurchaseRequested(
 		{ ...getUnit(chara) },
 		getUnit(chara).id,
 		tile,
@@ -178,7 +178,7 @@ const _handleDropShopItem = (handlerState: CharaInputHandler) => (tile: Vec2, dr
 
 const _handleSellUnit = (handlerState: CharaInputHandler): void => {
 	const sellPrice = Math.floor(constants.SHOP_ITEM_PURCHASE_COST / 2);
-	Shop.handlers.ownedUnitSoldHandler({ unitId: getUnit(handlerState.chara).id, soldForGold: sellPrice });
+	Shop.events.ownedUnitSold({ unitId: getUnit(handlerState.chara).id, soldForGold: sellPrice });
 }
 
 

@@ -14,7 +14,7 @@ type ShopItemClickPurchasePayload = {
 	dragStartY: number;
 };
 
-export function shopItemClickPurchaseRequestedHandler(
+export function shopItemClickPurchaseRequested(
 	payload: ShopItemClickPurchasePayload
 ): void {
 	const { shopUnitData, shopCharaId, dragStartX, dragStartY } = payload;
