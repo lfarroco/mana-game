@@ -32,7 +32,7 @@ export function init(chara: Chara) {
 		scene.input.setDraggable(chara, true);
 
 		chara.on(Phaser.Input.Events.DRAG_START, onDragStart(state));
-		chara.on(Phaser.Input.Events.DRAG, onDrag(state));
+		chara.on(Phaser.Input.Events.DRAG, onDrag(chara));
 		chara.on(Phaser.Input.Events.DROP, onDrop(state));
 		chara.on(Phaser.Input.Events.DRAG_END, onDragEnd(state));
 
