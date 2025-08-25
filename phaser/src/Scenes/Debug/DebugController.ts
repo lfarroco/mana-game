@@ -8,7 +8,7 @@ import * as Shop from "../Battleground/Systems/Shop";
 import { titleScene } from "../Title/TitleScene";
 import * as CharaInputHandler from "../../Systems/Chara/CharaInputHandler";
 import { Chara } from "../../Systems/Chara";
-import { shopItemDragPurchaseRequestedHandler } from "../Battleground/Systems/Shop/handlers/shopItemDragPurchaseHandler";
+import { shopItemDragPurchaseRequested } from "../Battleground/Systems/Shop/events/shopItemDragPurchase";
 
 export function clickHeroInShop(slotIndex: number): string {
 	const chara = Shop.Shop.getShopCharaBySlot(slotIndex);
@@ -42,7 +42,7 @@ export function buyAndPlaceHero(shopSlotIndex: number, boardX: number, boardY: n
 		return `Error: Hero in slot ${shopSlotIndex} (Chara ID: ${Chara.getId(chara)}) is not a shop item or already purchased.`;
 	}
 
-	shopItemDragPurchaseRequestedHandler(
+	shopItemDragPurchaseRequested(
 		unitToPurchase,
 		Chara.getId(chara),
 		vec2(boardX, boardY),
@@ -90,7 +90,7 @@ export function sellUnitFromBoard(unitId: string): string {
 
 	const sellPrice = Math.floor(constants.SHOP_ITEM_PURCHASE_COST / 2);
 
-	Shop.handlers.ownedUnitSoldHandler({ unitId: unitId, soldForGold: sellPrice });
+	Shop.events.ownedUnitSold({ unitId: unitId, soldForGold: sellPrice });
 
 	return `Sell request processed for unit ${unitId}. Sold for ${sellPrice} gold. State and visuals will update asynchronously.`;
 }

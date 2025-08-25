@@ -4,8 +4,8 @@ import * as Chara from "../../../../Systems/Chara/Chara";
 import { scene } from "../../BattlegroundScene";
 import { Unit } from "../../../../Models/Entities/Unit";
 import * as ShopUI from "./ShopUI";
-import { shopItemClickPurchaseRequestedHandler } from "./handlers/shopItemClickPurchaseHandler";
-import { shopRerollTavernHandler } from "./handlers/shopRerollTavernHandler";
+import { shopItemClickPurchaseRequested } from "./events/shopItemClickPurchase";
+import { shopRerollTavern } from "./events/shopRerollTavern";
 import * as sc from "./ShopConstants";
 import { tween } from "../../../../Utils/animation";
 
@@ -82,12 +82,12 @@ export async function handleShopOpenUITrigger(): Promise<void> {
 }
 
 export function handleShopItemClickPurchaseRequested(payload: { shopUnitData: Unit, shopCharaId: string, dragStartX: number, dragStartY: number }): void {
-	shopItemClickPurchaseRequestedHandler(payload);
+	shopItemClickPurchaseRequested(payload);
 }
 
 
 export function handleShopRerollTavern() {
-	shopRerollTavernHandler();
+	shopRerollTavern();
 }
 
 async function _animateItemAppearance(
