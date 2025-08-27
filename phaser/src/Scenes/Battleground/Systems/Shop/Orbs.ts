@@ -4,7 +4,7 @@ import { getSharedPlayerBoard } from "../../../../Models/Board";
 import { Unit } from "../../../../Models/Entities/Unit";
 import { getReactionDescription } from "../../../../Systems/Chara/CharaTooltip";
 import { increasePower } from "../../../../TriggerSystem/effects";
-import { EFFECT_SOURCE_POSITIONS, EffectReaction, EffectSourcePosition } from "../../../../TriggerSystem/TriggerSystem";
+import { Effect, EFFECT_SOURCE_POSITIONS, EffectReaction, EffectSourcePosition } from "../../../../TriggerSystem/TriggerSystem";
 import { pickOne } from "../../../../utils";
 import { hexToVector3 } from "../../../../Utils/colorUtils";
 import { scene } from "../../BattlegroundScene";
@@ -85,22 +85,19 @@ const generateReactionOrb = () => {
 			"A unit can have just one reaction (⚡)."
 		].join("\n"),
 		effect: (unit: Unit) => {
-			if (unit.reactions.length > 0) return;
-			unit.reactions = [
-				{
-					effectId: effect,
-					position: position.source,
-					effects: [
-						{
-							"id": "increase_power",
-							"amount": position.power,
-							"targets": {
-								"id": "self"
-							}
+			setReactionSafely(unit, {
+				effectId: effect,
+				position: position.source,
+				effects: [
+					{
+						"id": "increase_power",
+						"amount": position.power,
+						"targets": {
+							"id": "self"
 						}
-					]
-				}
-			]
+					}
+				]
+			});
 		}
 	}
 }
@@ -170,8 +167,7 @@ const generateChargeReactionOrb = () => {
 			"A unit can have just one reaction (⚡)."
 		].join("\n"),
 		effect: (unit: Unit) => {
-			if (unit.reactions.length > 0) return;
-			unit.reactions = [reactionData];
+			setReactionSafely(unit, reactionData);
 		}
 	};
 }
@@ -188,7 +184,36 @@ function crimsonOrbEffect(unit: Unit) {
 	console.log(`Crimson Orb applied to ${unit.id}, new power: ${unit.power}`);
 }
 
-// ...existing code...
+
+
+
+function addEffectSafely(unit: Unit, effect: Effect) {
+	if (!canAddEffect(unit)) {
+		console.log(`Cannot add effect to ${unit.id}: max effects reached`);
+		return false;
+	}
+	unit.effects.push(effect);
+	return true;
+}
+
+function canAddEffect(unit: Unit) {
+	const totalEffects = unit.effects.length;
+	const totalReactions = unit.reactions.length;
+	return (totalEffects + totalReactions) < 3;
+}
+
+function canAddReaction(unit: Unit) {
+	return unit.reactions.length < 1;
+}
+
+function setReactionSafely(unit: Unit, reaction: EffectReaction) {
+	if (!canAddReaction(unit)) {
+		console.log(`Cannot add reaction to ${unit.id}: reaction already present`);
+		return false;
+	}
+	unit.reactions = [reaction];
+	return true;
+}
 
 // Orb specs as plain data (lookup object)
 const orbs: Record<string, () => {
@@ -264,13 +289,11 @@ function generatePositionalPowerOrb() {
 			`[color=#c0c0c0]Target:[/color] [color=#e0e0e0]${choice.label}[/color]`,
 		].join("\n"),
 		effect: (unit: Unit) => {
-			unit.effects.push(
-				{
-					id: "increase_power",
-					amount: choice.amount,
-					targets: choice.target,
-				}
-			);
+			addEffectSafely(unit, {
+				id: "increase_power",
+				amount: choice.amount,
+				targets: choice.target,
+			});
 		}
 	}
 }
@@ -307,8 +330,8 @@ function generatePositionalSkillPowerOrb() {
 			`[color=#c0c0c0]Condition:[/color] [color=#ffa94d]Unit must have effect '${effectId}'[/color]`,
 		].join("\n"),
 		effect: (unit: Unit) => {
-			if (!unit.effects.some(e => e.id === effectId)) return;
-			unit.effects.push({
+			if (!((unit.effects || []).some(e => e.id === effectId))) return;
+			addEffectSafely(unit, {
 				id: "increase_power",
 				amount: choice.amount,
 				targets: choice.target,
@@ -349,7 +372,7 @@ function generatePositionalTypedPowerOrb() {
 			`[color=#c0c0c0]Condition:[/color] [color=#ffa94d]Recipients must have '${effectId}'[/color]`,
 		].join("\n"),
 		effect: (unit: Unit) => {
-			unit.effects.push({
+			addEffectSafely(unit, {
 				id: "increase_power_on_type",
 				amount: choice.amount,
 				targets: choice.target,
