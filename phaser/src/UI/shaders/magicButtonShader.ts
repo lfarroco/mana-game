@@ -71,7 +71,7 @@ void main(){
 
 export type MagicOverlayHandle = {
 	shader: Phaser.GameObjects.Shader;
-	maskG: Phaser.GameObjects.Graphics;
+	maskG: Graphics;
 	intensityState: { value: number };
 	setIntensity: (v: number) => void;
 };

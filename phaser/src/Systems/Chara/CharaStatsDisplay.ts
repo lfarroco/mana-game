@@ -10,7 +10,7 @@ const STAT_BOX_CORNER_RADIUS_RATIO = 0.1;
 const STAT_BOX_MARGIN_RATIO = 0.1;
 
 export type StatsDisplay = {
-	powerDisplayBg: Phaser.GameObjects.Graphics;
+	powerDisplayBg: Graphics;
 	powerDisplay: Phaser.GameObjects.Text;
 	unit: Unit;
 	displayedPower: number;

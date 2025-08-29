@@ -1,13 +1,12 @@
-import Phaser from "phaser";
 import * as c from "../constants/constants";
 import { scene } from "../Scenes/Battleground/BattlegroundScene";
 import { tween } from "../Utils/animation";
 import * as Tooltip from "./Tooltip";
 
-let uiContainer: Phaser.GameObjects.Container | null = null;
-let goldContainer: Phaser.GameObjects.Container | null = null;
-let goldTextElement: Phaser.GameObjects.Text | null = null;
-let prestigeTextElement: Phaser.GameObjects.Text | null = null;
+let uiContainer: Container | null = null;
+let goldContainer: Container | null = null;
+let goldTextElement: TextObj | null = null;
+let prestigeTextElement: TextObj | null = null;
 
 export function handlePurchaseFailed(payload: { unitName: string, reason: string, cost?: number }): void {
 	let message = `Could not buy ${payload.unitName}. `;
@@ -55,7 +54,7 @@ export function init() {
 	}
 }
 
-function createGoldText(parent: Phaser.GameObjects.Container): void {
+function createGoldText(parent: Container): void {
 	const initialGold = scene.state.gameData.player.gold;
 
 	const displayX = c.SCREEN_WIDTH - 120;

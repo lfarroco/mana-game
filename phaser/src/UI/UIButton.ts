@@ -16,7 +16,7 @@ interface UIButtonState {
 	magic?: MagicOverlayHandle;
 }
 
-const uiButtonsState = new WeakMap<Phaser.GameObjects.Container, UIButtonState>();
+const uiButtonsState = new WeakMap<Container, UIButtonState>();
 
 export function createUIButton(
 	scene: Phaser.Scene,
@@ -25,7 +25,7 @@ export function createUIButton(
 	y: number,
 	callback: () => void,
 	width?: number
-): Phaser.GameObjects.Container {
+): Container {
 	const container = scene.add.container(0, 0);
 
 	const state: UIButtonState = {
@@ -136,8 +136,8 @@ export function createUIButton(
 	return container;
 }
 
-export function drawUIButtonState(container: Phaser.GameObjects.Container, fill: number) {
-	const g = container.getByName("buttonBackground") as Phaser.GameObjects.Graphics;
+export function drawUIButtonState(container: Container, fill: number) {
+	const g = container.getByName("buttonBackground") as Graphics;
 	if (!g) return;
 
 	const st = uiButtonsState.get(container);
@@ -170,8 +170,8 @@ export function drawUIButtonState(container: Phaser.GameObjects.Container, fill:
 	g.strokeRoundedRect(innerPadding + 0.5, innerPadding + 0.5, buttonWidth - innerPadding * 2 - 1, buttonHeight - innerPadding * 2 - 1, cornerRadius - 2);
 }
 
-export function disableUIButton(container: Phaser.GameObjects.Container) {
-	const g = container.getByName("buttonBackground") as Phaser.GameObjects.Graphics;
+export function disableUIButton(container: Container) {
+	const g = container.getByName("buttonBackground") as Graphics;
 	const t = container.getByName("buttonLabel") as Phaser.GameObjects.Text;
 	if (g) {
 		g.setAlpha(0.5);
@@ -186,8 +186,8 @@ export function disableUIButton(container: Phaser.GameObjects.Container) {
 	}
 }
 
-export function enableUIButton(container: Phaser.GameObjects.Container) {
-	const g = container.getByName("buttonBackground") as Phaser.GameObjects.Graphics;
+export function enableUIButton(container: Container) {
+	const g = container.getByName("buttonBackground") as Graphics;
 	const t = container.getByName("buttonLabel") as Phaser.GameObjects.Text;
 	if (g) {
 		g.setAlpha(1);

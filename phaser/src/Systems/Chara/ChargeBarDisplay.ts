@@ -4,7 +4,7 @@ import * as constants from "../../constants/constants";
 import { scene } from "../../Scenes/Battleground/BattlegroundScene";
 
 export type CharaBars = {
-	chargeBar: Phaser.GameObjects.Graphics;
+	chargeBar: Graphics;
 	unit: Unit;
 };
 

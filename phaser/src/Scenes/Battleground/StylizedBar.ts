@@ -5,12 +5,12 @@ const BAR_HEIGHT = 50;
 const INNER_PADDING = 3;
 
 export type StylizedBar = {
-	container: Phaser.GameObjects.Container;
-	outerBorder: Phaser.GameObjects.Graphics;
-	backgroundBar: Phaser.GameObjects.Graphics;
-	foregroundBar: Phaser.GameObjects.Graphics;
-	barFill: Phaser.GameObjects.Graphics;
-	innerHighlight: Phaser.GameObjects.Graphics;
+	container: Container;
+	outerBorder: Graphics;
+	backgroundBar: Graphics;
+	foregroundBar: Graphics;
+	barFill: Graphics;
+	innerHighlight: Graphics;
 	label: Phaser.GameObjects.Text;
 }
 

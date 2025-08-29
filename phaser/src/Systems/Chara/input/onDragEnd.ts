@@ -1,4 +1,3 @@
-import Phaser from "phaser";
 import { scene } from "../../../Scenes/Battleground/BattlegroundScene";
 import * as Shop from "../../../Scenes/Battleground/Systems/Shop";
 import { tween } from "../../../Utils/animation";
@@ -8,7 +7,7 @@ import { InputHandler } from ".";
 export const onDragEnd = (
 	handlerState: InputHandler,
 ) => (
-	_pointer: Phaser.Input.Pointer,
+	_pointer: Pointer,
 ) => {
 		const { chara } = handlerState;
 		scene.tweens.add({

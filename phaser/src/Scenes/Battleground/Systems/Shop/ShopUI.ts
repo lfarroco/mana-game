@@ -12,13 +12,13 @@ import { tween } from "../../../../Utils/animation";
 import * as AudioManager from "../../../../Systems/AudioManager";
 
 export type ShopUIState = {
-	shopContainer: Phaser.GameObjects.Container;
-	sellZoneContainer: Phaser.GameObjects.Container | null;
+	shopContainer: Container;
+	sellZoneContainer: Container | null;
 	sellZone: Phaser.GameObjects.Zone | null;
 	sellZoneText: Phaser.GameObjects.Text | null;
-	sellZoneGraphics: Phaser.GameObjects.Graphics | null;
+	sellZoneGraphics: Graphics | null;
 	magicOrbs: MagicOrb[];
-	orbContainer: Phaser.GameObjects.Container | null;
+	orbContainer: Container | null;
 	panelX: number;
 	isOpen: boolean;
 }
@@ -97,7 +97,7 @@ export function displayShop(
 	return { charas: displayedCharas };
 }
 
-function _renderTavernSectionBackgroundAndTitle(container: Phaser.GameObjects.Container, panelX?: number): void {
+function _renderTavernSectionBackgroundAndTitle(container: Container, panelX?: number): void {
 	const tavernBaseX = (panelX !== undefined ? panelX + 20 : sc.TAVERN_BASE_X);
 	const tavernBaseY = sc.TAVERN_BASE_Y;
 

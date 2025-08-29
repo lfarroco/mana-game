@@ -73,7 +73,7 @@ export default class OptionsScene extends Phaser.Scene {
 	private speedValueText!: Phaser.GameObjects.Text;
 
 	private currentTab: TabType = 'audio';
-	private tabButtons: { [key in TabType]: Phaser.GameObjects.Container } = {} as any;
+	private tabButtons: { [key in TabType]: Container } = {} as any;
 	private optionElements: Phaser.GameObjects.GameObject[] = [];
 
 	private currentParticlesSetting: 'low' | 'medium' | 'high' = 'medium';

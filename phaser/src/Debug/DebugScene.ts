@@ -151,7 +151,7 @@ const EFFECT_REGISTRY: Record<string, EffectFactory> = {
 
 export class DebugScene extends Phaser.Scene {
 	private effectButtonsContainer!: Phaser.GameObjects.Container;
-	private backButton?: Phaser.GameObjects.Container;
+	private backButton?: Container;
 
 	constructor() {
 		super('DebugScene');
@@ -250,7 +250,7 @@ export class DebugScene extends Phaser.Scene {
 		} else {
 			this.backButton.setVisible(true);
 			// enableGraphic interaction if present
-			const g = this.backButton.getByName && (this.backButton.getByName('buttonBackground') as Phaser.GameObjects.Graphics | undefined);
+			const g = this.backButton.getByName && (this.backButton.getByName('buttonBackground') as Graphics | undefined);
 			if (g) g.setInteractive();
 		}
 	}

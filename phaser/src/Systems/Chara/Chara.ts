@@ -17,7 +17,7 @@ import { popText } from "./Animations/popText";
 import { summonEffect } from "../../Effects/summonEffect";
 import { getState } from "../../Models/State";
 
-export type Chara = Phaser.GameObjects.Container;
+export type Chara = Container;
 
 type HasteEffectState = { particles: Phaser.GameObjects.Particles.ParticleEmitter; cleanup: () => void };
 

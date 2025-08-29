@@ -1,4 +1,3 @@
-import Phaser from "phaser";
 import { vec2 } from "../../../Models/Geometry.pure";
 import { scene } from "../../../Scenes/Battleground/BattlegroundScene";
 import * as Shop from "../../../Scenes/Battleground/Systems/Shop";
@@ -8,7 +7,7 @@ import { getIsShopItem } from "../Chara";
 import { InputHandler } from ".";
 
 export const onDragStart = (handlerState: InputHandler) => (
-	_pointer: Phaser.Input.Pointer,
+	_pointer: Pointer,
 	_dragX: number,
 	_dragY: number
 ) => {

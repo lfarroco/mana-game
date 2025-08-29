@@ -150,11 +150,11 @@ export class MagicOrb {
 				this.scene.input.setDefaultCursor('grabbing');
 			});
 
-			this.shader.on('drag', (_pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
+			this.shader.on('drag', (_pointer: Pointer, dragX: number, dragY: number) => {
 				this.shader.setPosition(dragX, dragY);
 			});
 
-			this.shader.on('dragend', (pointer: Phaser.Input.Pointer) => {
+			this.shader.on('dragend', (pointer: Pointer) => {
 				this.isDragging = false;
 				this.scene.input.setDefaultCursor('default');
 
@@ -208,7 +208,7 @@ export class MagicOrb {
 		});
 	}
 
-	private checkDropTarget(pointer: Phaser.Input.Pointer): Phaser.GameObjects.GameObject | null {
+	private checkDropTarget(pointer: Pointer): Phaser.GameObjects.GameObject | null {
 		// Get all game objects at the pointer position
 		const objectsAtPointer = this.scene.input.hitTestPointer(pointer);
 
@@ -374,13 +374,13 @@ export class MagicOrb {
 	}
 
 	// Add the orb to a container
-	addToContainer(container: Phaser.GameObjects.Container): this {
+	addToContainer(container: Container): this {
 		container.add(this.shader);
 		return this;
 	}
 
 	// Remove the orb from a container
-	removeFromContainer(container: Phaser.GameObjects.Container): this {
+	removeFromContainer(container: Container): this {
 		container.remove(this.shader);
 		return this;
 	}
