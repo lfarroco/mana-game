@@ -17,7 +17,8 @@ type OrbSpec = {
 	name: string;
 	color: number;
 	tooltip: string;
-	effect: (unit: Unit) => void
+	// return false to indicate the effect was not applied and the orb should return
+	effect: (unit: Unit) => boolean
 };
 
 // 1 - reaction (gain power)
@@ -85,7 +86,7 @@ const generateReactionOrb = () => {
 			"A unit can have just one reaction (⚡)."
 		].join("\n"),
 		effect: (unit: Unit) => {
-			setReactionSafely(unit, {
+			return setReactionSafely(unit, {
 				effectId: effect,
 				position: position.source,
 				effects: [
@@ -119,13 +120,14 @@ const generateSkillPowerUpOrb = () => {
 			`[color=#c0c0c0]Condition:[/color] [color=#ffa94d]Unit must have effect '${effectId}'[/color]`,
 		].join('\n'),
 		effect: (unit: Unit) => {
-			if (!unit.effects.some(e => e.id === effectId)) return;
+			if (!unit.effects.some(e => e.id === effectId)) return false;
 			increasePower({
 				targets: [unit],
 				sourceUnit: unit,
 				scene,
 				amount
 			});
+			return true;
 		}
 	}
 
@@ -167,7 +169,7 @@ const generateChargeReactionOrb = () => {
 			"A unit can have just one reaction (⚡)."
 		].join("\n"),
 		effect: (unit: Unit) => {
-			setReactionSafely(unit, reactionData);
+			return setReactionSafely(unit, reactionData);
 		}
 	};
 }
@@ -182,6 +184,7 @@ function crimsonOrbEffect(unit: Unit) {
 		amount: 5
 	});
 	console.log(`Crimson Orb applied to ${unit.id}, new power: ${unit.power}`);
+	return true;
 }
 
 
@@ -221,7 +224,7 @@ const orbs: Record<string, () => {
 	name: string;
 	color: number;
 	tooltip: string;
-	effect: (unit: Unit) => void;
+	effect: (unit: Unit) => boolean;
 }> = {
 	crimson_orb: () => ({
 		id: "crimson_orb",
@@ -241,6 +244,7 @@ const orbs: Record<string, () => {
 		tooltip: "Reduce a unit's cooldown by 0.2s (minimum of 1s)",
 		effect: (unit: Unit) => {
 			unit.cooldown = Math.max(1000, unit.cooldown - 200);
+			return true;
 		}
 	}),
 	golden_orb: generateReactionOrb,
@@ -250,7 +254,8 @@ const orbs: Record<string, () => {
 		color: 0x9933ff,
 		tooltip: "Makes a unit forget its reaction",
 		effect: (unit: Unit) => {
-			unit.reactions = []
+			unit.reactions = [];
+			return true;
 		}
 	}),
 	charge_orb: generateChargeReactionOrb,
@@ -289,7 +294,7 @@ function generatePositionalPowerOrb() {
 			`[color=#c0c0c0]Target:[/color] [color=#e0e0e0]${choice.label}[/color]`,
 		].join("\n"),
 		effect: (unit: Unit) => {
-			addEffectSafely(unit, {
+			return addEffectSafely(unit, {
 				id: "increase_power",
 				amount: choice.amount,
 				targets: choice.target,
@@ -330,8 +335,8 @@ function generatePositionalSkillPowerOrb() {
 			`[color=#c0c0c0]Condition:[/color] [color=#ffa94d]Unit must have effect '${effectId}'[/color]`,
 		].join("\n"),
 		effect: (unit: Unit) => {
-			if (!((unit.effects || []).some(e => e.id === effectId))) return;
-			addEffectSafely(unit, {
+			if (!((unit.effects || []).some(e => e.id === effectId))) return false;
+			return addEffectSafely(unit, {
 				id: "increase_power",
 				amount: choice.amount,
 				targets: choice.target,
@@ -372,7 +377,7 @@ function generatePositionalTypedPowerOrb() {
 			`[color=#c0c0c0]Condition:[/color] [color=#ffa94d]Recipients must have '${effectId}'[/color]`,
 		].join("\n"),
 		effect: (unit: Unit) => {
-			addEffectSafely(unit, {
+			return addEffectSafely(unit, {
 				id: "increase_power_on_type",
 				amount: choice.amount,
 				targets: choice.target,
@@ -434,7 +439,18 @@ export function renderOrbs(ui: ShopUI.ShopUIState, orbIds: string[]) {
 		}
 
 		console.log(`Unit ${existingUnit.id} is at this position - applying ${orbSpec.name} effect!`);
-		orbSpec.effect(existingUnit);
+		let applied = false;
+		try {
+			applied = !!orbSpec.effect(existingUnit);
+		} catch (err) {
+			console.error(`Error applying orb effect ${orbSpec.name} to ${existingUnit.id}:`, err);
+			applied = false;
+		}
+		if (!applied) {
+			console.log(`${orbSpec.name} effect returned false — returning orb to origin`);
+			MagicOrbCallbacks.returnToPosition(orb, target);
+			return;
+		}
 		magicOrb.startDissolve();
 	}
 
