@@ -1,17 +1,16 @@
 import { scene } from "../Battleground/BattlegroundScene";
-import { Unit } from "../../Models/Entities/Unit";
-import { vec2 } from "../../Models/Geometry";
-import { CardDefinition } from "../../Models/Entities/Card";
+import { Unit } from "@Models/Entities/Unit";
+import { vec2 } from "@Models/Geometry";
+import { CardDefinition } from "@Models/Entities/Card";
 import * as constants from "../../constants/constants";
-import { updatePlayerGoldIO } from "../../Models/Entities/Force";
-import * as Shop from "../Battleground/Systems/Shop";
+import { updatePlayerGoldIO } from "@Models/Entities/Force";
 import { titleScene } from "../Title/TitleScene";
-import { Chara } from "../../Systems/Chara";
+import { Chara } from "@Systems/Chara";
 import * as Systems from "../Battleground/Systems";
-import { processOwnedUnitMoveRequest } from "../../Systems/Chara/input/onDrop";
+import { processOwnedUnitMoveRequest } from "@Systems/Chara/input/onDrop";
 
 export function clickHeroInShop(slotIndex: number): string {
-	const chara = Shop.Shop.getShopCharaBySlot(slotIndex);
+	const chara = Systems.Shop.Shop.getShopCharaBySlot(slotIndex);
 	if (!chara) {
 		return `Error: No hero Chara found in shop slot ${slotIndex}.`;
 	}
@@ -21,7 +20,7 @@ export function clickHeroInShop(slotIndex: number): string {
 		return `Error: Hero in slot ${slotIndex} (Chara ID: ${Chara.getId(chara)}) is not a shop item or already purchased.`;
 	}
 
-	Shop.events.itemClickPurchaseRequested(
+	Systems.Shop.events.itemClickPurchaseRequested(
 		{ ...unitToPurchase },
 		Chara.getId(chara),
 		chara.x,
@@ -32,7 +31,7 @@ export function clickHeroInShop(slotIndex: number): string {
 }
 
 export function buyAndPlaceHero(shopSlotIndex: number, boardX: number, boardY: number): string {
-	const chara = Shop.Shop.getShopCharaBySlot(shopSlotIndex);
+	const chara = Systems.Shop.Shop.getShopCharaBySlot(shopSlotIndex);
 	if (!chara) {
 		return `Error: No hero Chara found in shop slot ${shopSlotIndex}.`;
 	}
@@ -42,7 +41,7 @@ export function buyAndPlaceHero(shopSlotIndex: number, boardX: number, boardY: n
 		return `Error: Hero in slot ${shopSlotIndex} (Chara ID: ${Chara.getId(chara)}) is not a shop item or already purchased.`;
 	}
 
-	Shop.events.itemDragPurchaseRequested(
+	Systems.Shop.events.itemDragPurchaseRequested(
 		unitToPurchase,
 		Chara.getId(chara),
 		vec2(boardX, boardY),
@@ -89,7 +88,7 @@ export function sellUnitFromBoard(unitId: string): string {
 
 	const sellPrice = Math.floor(constants.SHOP_ITEM_PURCHASE_COST / 2);
 
-	Shop.events.ownedUnitSold(unitId, sellPrice);
+	Systems.Shop.events.ownedUnitSold(unitId, sellPrice);
 
 	return `Sell request processed for unit ${unitId}. Sold for ${sellPrice} gold. State and visuals will update asynchronously.`;
 }
@@ -100,7 +99,7 @@ export function playerGoldDelta(delta: number): string {
 }
 
 export function isShopVisible(): boolean {
-	return Shop.UI.getIsShopOpen();
+	return Systems.Shop.UI.getIsShopOpen();
 }
 
 export function getShopItemCost(): number {
@@ -116,7 +115,7 @@ export function getPlayerGold(): number {
 }
 
 export function getShopHeroes(): CardDefinition[] {
-	return Shop.Shop.getDisplayedHeroCardDefinitions();
+	return Systems.Shop.Shop.getDisplayedHeroCardDefinitions();
 }
 
 export function getPlayerBoardUnits(): Unit[] {

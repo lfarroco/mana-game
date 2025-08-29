@@ -1,7 +1,7 @@
-import { Chara } from "../../Systems/Chara";
-import { Unit } from "../../Models/Entities/Unit";
-import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
-import * as AudioManager from "../../Systems/AudioManager";
+import { Chara } from "@Systems/Chara";
+import { Unit } from "@Models/Entities/Unit";
+import BattlegroundScene from "@Scenes/Battleground/BattlegroundScene";
+import * as AudioManager from "@Systems/AudioManager";
 
 export const increasePower = async (context: {
 	targets: Unit[];

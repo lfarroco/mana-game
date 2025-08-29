@@ -1,9 +1,9 @@
-import { Unit } from '../../Models/Entities/Unit';
+import { Unit } from '@Models/Entities/Unit';
 import { arcaneMissileTargeted } from '../../Effects';
-import { getMoraleBarTipPosition } from '../../Scenes/Battleground/MoraleDisplay';
-import { getCharaById } from '../../Systems/Chara/Chara';
-import { scene } from '../../Scenes/Battleground/BattlegroundScene';
-import { applyPoison } from '../../Scenes/Battleground/Systems/PoisonDamageSystem';
+import { getMoraleBarTipPosition } from '@Scenes//Battleground/MoraleDisplay';
+import { getCharaById } from '@Systems/Chara/Chara';
+import { scene } from '@Scenes//Battleground/BattlegroundScene';
+import { applyPoison } from '@Scenes//Battleground/Systems/PoisonDamageSystem';
 
 export const applyPoisonLogicIO = async (sourceUnit: Unit) => {
 

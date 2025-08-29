@@ -1,4 +1,4 @@
-import * as Shop from "../../../Scenes/Battleground/Systems/Shop";
+import * as Shop from "@Scenes/Battleground/Systems/Shop";
 import { tween } from "../../../Utils/animation";
 import { getIsShopItem } from "../Chara";
 import { InputHandler } from ".";

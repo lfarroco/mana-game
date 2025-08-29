@@ -1,9 +1,9 @@
-import { State } from "../../../Models/State";
-import * as ControlsSystem from "../../../Systems/Controls/Controls";
-import { initializePlayerBoard, PartyBoard, createBoardDropZone } from "../../../Models/Board";
+import { State } from "@Models/State";
+import * as ControlsSystem from "@Systems/Controls/Controls";
+import { initializePlayerBoard, PartyBoard, createBoardDropZone } from "@Models/Board";
 import * as BG_CONSTANTS from "../battlegroundConstants";
 import { scene } from "../BattlegroundScene";
-import { getOption } from "../../../Models/OptionsStore";
+import { getOption } from "@Models/OptionsStore";
 import { CloudsBackground } from "../../../components/cloudBackground/CloudsBackground";
 import * as UIManager from "../../../UI/UIManager";
 

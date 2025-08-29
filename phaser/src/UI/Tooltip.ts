@@ -1,7 +1,7 @@
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import { defaultTextConfig } from "../constants/constants";
 import { tooltipFragmentShader } from "../Shaders/TooltipShader";
-import { scene } from "../Scenes/Battleground/BattlegroundScene";
+import { scene } from "@Scenes/Battleground/BattlegroundScene";
 
 const PADDING = 30;
 const INTER_ELEMENT_PADDING = PADDING / 2;

@@ -1,11 +1,11 @@
 import { scene } from "../../../BattlegroundScene";
 import * as constants from "../../../../../constants/constants";
-import { vec2, Vec2 } from "../../../../../Models/Geometry";
-import { makeUnit, Unit } from "../../../../../Models/Entities/Unit";
-import { getUnitAt } from "../../../../../Models/State";
-import { updatePlayerGoldIO } from "../../../../../Models/Entities/Force";
-import { getCharaById, summon } from "../../../../../Systems/Chara/Chara";
-import * as Chara from "../../../../../Systems/Chara/Chara";
+import { vec2, Vec2 } from "@Models/Geometry";
+import { makeUnit, Unit } from "@Models/Entities/Unit";
+import { getUnitAt } from "@Models/State";
+import { updatePlayerGoldIO } from "@Models/Entities/Force";
+import { getCharaById, summon } from "@Systems/Chara/Chara";
+import * as Chara from "@Systems/Chara/Chara";
 import * as UIManager from "../../../../../UI/UIManager";
 
 export function itemDragPurchaseRequested(

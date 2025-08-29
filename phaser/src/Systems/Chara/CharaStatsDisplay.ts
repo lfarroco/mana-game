@@ -1,7 +1,7 @@
 import Phaser from "phaser";
-import { Unit } from "../../Models/Entities/Unit";
+import { Unit } from "@Models/Entities/Unit";
 import * as constants from "../../constants/constants";
-import { scene } from "../../Scenes/Battleground/BattlegroundScene";
+import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import { Chara } from "./Chara";
 
 const BOX_WIDTH_RATIO = 0.4;

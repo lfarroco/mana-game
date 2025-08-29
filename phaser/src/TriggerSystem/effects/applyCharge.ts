@@ -6,9 +6,9 @@
 
 import { arcaneMissileTargeted } from '../../Effects/arcaneMissileTargeted';
 import { hasteEffect } from '../../Effects/hasteEffect'; // Reusing haste effect for now, can be changed later
-import { getCharaById } from '../../Systems/Chara/Chara';
-import { Unit } from '../../Models/Entities/Unit';
-import BattlegroundScene from '../../Scenes/Battleground/BattlegroundScene';
+import { getCharaById } from '@Systems/Chara/Chara';
+import { Unit } from '@Models/Entities/Unit';
+import BattlegroundScene from '@Scenes//Battleground/BattlegroundScene';
 
 /**
  * Pure function to create the apply charge effect implementation

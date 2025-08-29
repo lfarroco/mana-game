@@ -1,15 +1,15 @@
-import * as Card from "../../../../Models/Entities/Card";
-import { vec2 } from "../../../../Models/Geometry";
-import * as Chara from "../../../../Systems/Chara/Chara";
+import * as Card from "@Models/Entities/Card";
+import { vec2 } from "@Models/Geometry";
+import * as Chara from "@Systems/Chara/Chara";
 import * as c from "../../../../constants/constants";
 import { createUIButton } from "../../../../UI/UIButton";
-import { makeUnit } from "../../../../Models/Entities/Unit";
+import { makeUnit } from "@Models/Entities/Unit";
 import * as sc from "./constants";
 import { MagicOrb } from "../../../../components/MagicOrb/MagicOrb";
 import { renderOrbs } from "./Orbs";
 import { scene } from "../../BattlegroundScene";
 import { tween } from "../../../../Utils/animation";
-import * as AudioManager from "../../../../Systems/AudioManager";
+import * as AudioManager from "@Systems/AudioManager";
 
 export type ShopUIState = {
 	shopContainer: Container;

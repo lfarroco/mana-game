@@ -1,13 +1,13 @@
 import Phaser from "phaser";
 import { preload } from "./preload";
-import { State, getState } from "../../Models/State";
+import { State, getState } from "@Models/State";
 import * as UIManager from "../../UI/UIManager";
-import { Chara } from "../../Systems/Chara";
-import { CardCollection } from "../../Models/Entities/Card";
-import { PartyBoard, getSharedPlayerBoard } from "../../Models/Board";
+import { Chara } from "@Systems/Chara";
+import { CardCollection } from "@Models/Entities/Card";
+import { PartyBoard, getSharedPlayerBoard } from "@Models/Board";
 import { RunCombatSystem } from "./RunCombatIO";
-import { getOption } from "../../Models/OptionsStore";
-import * as AudioManager from "../../Systems/AudioManager";
+import { getOption } from "@Models/OptionsStore";
+import * as AudioManager from "@Systems/AudioManager";
 import * as Shop from "./Systems/Shop";
 import * as MoraleDisplay from "./MoraleDisplay";
 import * as Systems from "./Systems"

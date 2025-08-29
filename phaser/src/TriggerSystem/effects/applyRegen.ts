@@ -1,9 +1,9 @@
-import { Unit } from '../../Models/Entities/Unit';
+import { Unit } from '@Models/Entities/Unit';
 import { arcaneMissileTargeted } from '../../Effects';
-import { getMoraleBarTipPosition } from '../../Scenes/Battleground/MoraleDisplay';
-import { getCharaById } from '../../Systems/Chara/Chara';
-import { scene } from '../../Scenes/Battleground/BattlegroundScene';
-import { applyRegen } from '../../Scenes/Battleground/Systems/RegenSystem';
+import { getMoraleBarTipPosition } from '@Scenes//Battleground/MoraleDisplay';
+import { getCharaById } from '@Systems/Chara/Chara';
+import { scene } from '@Scenes//Battleground/BattlegroundScene';
+import { applyRegen } from '@Scenes//Battleground/Systems/RegenSystem';
 
 export const applyRegenLogicIO = async (
 	sourceUnit: Unit,

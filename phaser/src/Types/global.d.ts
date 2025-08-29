@@ -1,6 +1,6 @@
 // Global type declarations for testing and development
 
-import * as DebugController from '../Scenes/Debug/DebugController';
+import * as DebugController from '@Scenes//Debug/DebugController';
 
 declare global {
 	interface Window {

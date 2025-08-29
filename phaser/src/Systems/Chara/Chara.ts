@@ -1,21 +1,21 @@
 import Phaser from "phaser";
-import { Unit } from "../../Models/Entities/Unit";
+import { Unit } from "@Models/Entities/Unit";
 import * as constants from "../../constants/constants";
 import { tween } from "../../Utils/animation";
-import { scene } from "../../Scenes/Battleground/BattlegroundScene";
+import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import * as CharaStatsDisplay from "./CharaStatsDisplay";
 import * as ChargeBarDisplay from "./ChargeBarDisplay";
 import * as input from "./input";
 import { createContinuousHasteEffect } from "../../Effects/hasteEffect";
 import { onCharaPointerOut, onCharaPointerOver } from "./CharaTooltip";
 import { hideTooltip } from "../../UI/Tooltip";
-import { Vec2 } from "../../Models/Geometry.pure";
+import { Vec2 } from "@Models/Geometry.pure";
 import { playSoundEffect } from "../AudioManager";
-import * as Shop from "../../Scenes/Battleground/Systems/Shop/Shop";
-import * as ShopUI from "../../Scenes/Battleground/Systems/Shop/ShopUI";
+import * as Shop from "@Scenes/Battleground/Systems/Shop/Shop";
+import * as ShopUI from "@Scenes/Battleground/Systems/Shop/ShopUI";
 import { popText } from "./Animations/popText";
 import { summonEffect } from "../../Effects/summonEffect";
-import { getState } from "../../Models/State";
+import { getState } from "@Models/State";
 
 export type Chara = Container;
 

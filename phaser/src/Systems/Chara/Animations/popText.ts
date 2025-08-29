@@ -1,4 +1,4 @@
-import { scene } from "../../../Scenes/Battleground/BattlegroundScene";
+import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import { tween } from "../../../Utils/animation";
 import { defaultTextConfig, titleTextConfig } from "../../../constants/constants";
 

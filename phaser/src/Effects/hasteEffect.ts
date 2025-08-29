@@ -4,7 +4,7 @@
  */
 
 import { images } from "../assets";
-import * as AudioManager from "../Systems/AudioManager";
+import * as AudioManager from "@Systems/AudioManager";
 import { delay } from "../Utils/animation";
 
 export interface HasteEffectOptions {

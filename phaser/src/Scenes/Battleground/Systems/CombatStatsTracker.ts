@@ -1,5 +1,5 @@
 import { scene } from "../BattlegroundScene";
-import { Unit } from "../../../Models/Entities/Unit";
+import { Unit } from "@Models/Entities/Unit";
 
 export type UnitCombatStats = {
 	unitId: string;

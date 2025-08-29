@@ -1,9 +1,9 @@
 import * as Shop from "..";
-import { updatePlayerGoldIO } from "../../../../../Models/Entities/Force";
-import { Unit } from "../../../../../Models/Entities/Unit";
-import { getState } from "../../../../../Models/State";
-import { Chara } from "../../../../../Systems/Chara";
-import { popText } from "../../../../../Systems/Chara/Animations/popText";
+import { updatePlayerGoldIO } from "@Models/Entities/Force";
+import { Unit } from "@Models/Entities/Unit";
+import { getState } from "@Models/State";
+import { Chara } from "@Systems/Chara";
+import { popText } from "@Systems/Chara/Animations/popText";
 
 export function ownedUnitSold(unitId: string, soldForGold: number) {
 

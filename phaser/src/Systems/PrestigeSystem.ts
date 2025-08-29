@@ -1,5 +1,5 @@
-import { getState } from "../Models/State";
-import * as Systems from "../Scenes/Battleground/Systems";
+import { getState } from "@Models/State";
+import * as Systems from "@Scenes/Battleground/Systems";
 import * as UIManager from "../UI/UIManager";
 
 export class PrestigeSystem {

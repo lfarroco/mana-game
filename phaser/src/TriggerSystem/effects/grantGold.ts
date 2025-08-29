@@ -1,8 +1,8 @@
-import { playerForce, updatePlayerGoldIO } from "../../Models/Entities/Force";
-import { Chara } from "../../Systems/Chara";
-import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
-import { Unit } from "../../Models/Entities/Unit";
-import { popText } from "../../Systems/Chara/Animations/popText";
+import { playerForce, updatePlayerGoldIO } from "@Models/Entities/Force";
+import { Chara } from "@Systems/Chara";
+import BattlegroundScene from "@Scenes/Battleground/BattlegroundScene";
+import { Unit } from "@Models/Entities/Unit";
+import { popText } from "@Systems/Chara/Animations/popText";
 
 export function grantGoldLogicPure(
 	amount: number,

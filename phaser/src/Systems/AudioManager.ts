@@ -1,5 +1,5 @@
 import { game } from "../main";
-import { getOption } from "../Models/OptionsStore";
+import { getOption } from "@Models/OptionsStore";
 
 let currentMusic: Phaser.Sound.BaseSound | null = null;
 let currentMusicKey: string | null = null;

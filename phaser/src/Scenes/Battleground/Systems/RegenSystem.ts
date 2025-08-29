@@ -1,4 +1,4 @@
-import { Force, manipulateForceMorale } from "../../../Models/Entities/Force";
+import { Force, manipulateForceMorale } from "@Models/Entities/Force";
 import * as CombatStatsTracker from "./CombatStatsTracker";
 import { reducePoison } from "./PoisonDamageSystem";
 

@@ -1,8 +1,8 @@
 import { MagicOrb, MagicOrbCallbacks } from "../../../../components/MagicOrb/MagicOrb";
 import * as Phaser from "phaser";
-import { getSharedPlayerBoard } from "../../../../Models/Board";
-import { Unit } from "../../../../Models/Entities/Unit";
-import { getReactionDescription } from "../../../../Systems/Chara/CharaTooltip";
+import { getSharedPlayerBoard } from "@Models/Board";
+import { Unit } from "@Models/Entities/Unit";
+import { getReactionDescription } from "@Systems/Chara/CharaTooltip";
 import { increasePower } from "../../../../TriggerSystem/effects";
 import { Effect, EFFECT_SOURCE_POSITIONS, EffectReaction, EffectSourcePosition } from "../../../../TriggerSystem/TriggerSystem";
 import { pickOne } from "../../../../utils";

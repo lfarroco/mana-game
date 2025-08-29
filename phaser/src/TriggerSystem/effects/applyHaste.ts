@@ -1,8 +1,8 @@
 import { arcaneMissileTargeted } from '../../Effects/arcaneMissileTargeted';
 import { hasteEffect } from '../../Effects/hasteEffect';
-import { getCharaById } from '../../Systems/Chara/Chara';
-import { Unit } from '../../Models/Entities/Unit';
-import { scene } from '../../Scenes/Battleground/BattlegroundScene';
+import { getCharaById } from '@Systems/Chara/Chara';
+import { Unit } from '@Models/Entities/Unit';
+import { scene } from '@Scenes//Battleground/BattlegroundScene';
 
 export const applyHasteLogicIO = async (context: {
 	targets: Unit[];
