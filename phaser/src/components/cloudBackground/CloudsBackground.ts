@@ -218,7 +218,7 @@ export class CloudsBackground {
 	private getParticleQualityValue(): number {
 		try {
 			// Import getOption here to avoid circular dependencies
-			const { getOption } = require('../../Models/OptionsStore');
+			const { getOption } = require('@Models/OptionsStore');
 			const particles = getOption('particles');
 
 			switch (particles) {

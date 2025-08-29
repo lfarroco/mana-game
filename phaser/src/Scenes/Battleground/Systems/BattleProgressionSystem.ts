@@ -1,19 +1,19 @@
-import { getState } from "../../../Models/State";
-import { Unit } from "../../../Models/Entities/Unit";
+import { getState } from "@Models/State";
+import { Unit } from "@Models/Entities/Unit";
 import { delay } from "../../../Utils/animation";
 import { scene } from "../BattlegroundScene";
 import * as BG_CONSTANTS from "../battlegroundConstants";
-import { getAllCards } from "../../../Models/Entities/Card";
+import { getAllCards } from "@Models/Entities/Card";
 import { generateEnemyTeam } from "../generateEnemyTeam";
-import { PrestigeSystem } from "../../../Systems/PrestigeSystem";
-import { cpuForce, playerForce, updatePlayerGoldIO } from "../../../Models/Entities/Force";
-import * as GhostStore from "../../../Models/GhostStore";
+import { PrestigeSystem } from "@Systems/PrestigeSystem";
+import { cpuForce, playerForce, updatePlayerGoldIO } from "@Models/Entities/Force";
+import * as GhostStore from "@Models/GhostStore";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
 import * as MoraleDisplay from "../MoraleDisplay";
 import { renderVignette } from "../Animations/vignette";
-import * as AudioManager from "../../../Systems/AudioManager";
+import * as AudioManager from "@Systems/AudioManager";
 import * as Shop from "./Shop/Shop";
-import { Chara } from "../../../Systems/Chara";
+import { Chara } from "@Systems/Chara";
 import { battleResultAnimation } from "../battleResultAnimation";
 
 const state = getState();

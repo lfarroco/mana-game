@@ -1,7 +1,7 @@
-import { Chara } from "../../Systems/Chara";
-import { Unit } from "../../Models/Entities/Unit";
-import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
-import { playSoundEffect } from "../../Systems/AudioManager";
+import { Chara } from "@Systems/Chara";
+import { Unit } from "@Models/Entities/Unit";
+import BattlegroundScene from "@Scenes/Battleground/BattlegroundScene";
+import { playSoundEffect } from "@Systems/AudioManager";
 
 export const multiplyPower = async (context: {
 	targets: Unit[];

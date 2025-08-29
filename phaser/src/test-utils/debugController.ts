@@ -1,7 +1,7 @@
 // Test utilities for E2E tests with proper TypeScript support
 
 import { Page } from '@playwright/test';
-import type * as DebugController from '../Scenes/Debug/DebugController';
+import type * as DebugController from '@Scenes//Debug/DebugController';
 
 /**
  * Helper function to access debugController with full TypeScript support

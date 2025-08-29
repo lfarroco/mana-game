@@ -1,8 +1,8 @@
 import { FORCE_ID_PLAYER, FORCE_ID_CPU, INITIAL_MORALE } from "../../constants/constants";
 import { Unit } from "./Unit";
 import * as UIManager from "../../UI/UIManager";
-import { trackMoraleChange, } from "../../Scenes/Battleground/Systems/CombatStatsTracker";
-import { handleShieldUpdated, updateMoraleDisplay } from "../../Scenes/Battleground/MoraleDisplay";
+import { trackMoraleChange, } from "@Scenes/Battleground/Systems/CombatStatsTracker";
+import { handleShieldUpdated, updateMoraleDisplay } from "@Scenes/Battleground/MoraleDisplay";
 
 // A "force" represents a party of heroes (units)
 export type Force = {

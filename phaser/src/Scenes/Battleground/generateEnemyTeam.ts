@@ -1,9 +1,9 @@
-import { CardDefinition, getAllCards } from "../../Models/Entities/Card";
-import { cpuForce } from "../../Models/Entities/Force";
-import { vec2 } from "../../Models/Geometry";
-import { makeUnit } from "../../Models/Entities/Unit";
+import { CardDefinition, getAllCards } from "@Models/Entities/Card";
+import { cpuForce } from "@Models/Entities/Force";
+import { vec2 } from "@Models/Geometry";
+import { makeUnit } from "@Models/Entities/Unit";
+import * as GhostStore from "@Models/GhostStore";
 import { pickOne } from "../../utils";
-import * as GhostStore from "../../Models/GhostStore";
 
 export const FORMATION_TEMPLATES: string[][] =
 	[

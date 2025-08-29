@@ -2,8 +2,8 @@ import Phaser from 'phaser';
 import * as c from '../../constants/constants';
 import { StylizedBar, createStylizedBar, updateStylizedBar } from './StylizedBar';
 import { tween } from '../../Utils/animation';
-import { cpuForce, playerForce } from '../../Models/Entities/Force';
-import { popText } from '../../Systems/Chara/Animations/popText';
+import { cpuForce, playerForce } from '@Models/Entities/Force';
+import { popText } from '@Systems/Chara/Animations/popText';
 import { scene } from './BattlegroundScene';
 
 type CombinedDisplay = {

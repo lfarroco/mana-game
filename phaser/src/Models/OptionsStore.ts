@@ -1,5 +1,5 @@
 import { game } from "../main";
-import * as AudioManager from "../Systems/AudioManager";
+import * as AudioManager from "@Systems/AudioManager";
 
 let currentOptions: Options = {
 	sound: true,

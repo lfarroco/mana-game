@@ -1,6 +1,6 @@
 import { Unit, makeUnit } from "./Entities/Unit";
 import { cpuForce } from "./Entities/Force";
-import { vec2 } from "../Models/Geometry";
+import { vec2 } from "@Models/Geometry";
 import { Effect, EffectReaction } from "../TriggerSystem/TriggerSystem";
 
 const STORAGE_KEY = 'mana-game-ghosts-v1';

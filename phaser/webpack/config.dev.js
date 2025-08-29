@@ -13,7 +13,12 @@ module.exports = {
         filename: "bundle.min.js"
     },
     resolve: {
-        extensions: [".ts", ".js", ".json"]
+        extensions: [".ts", ".js", ".json"],
+        alias: {
+            "@Models": path.resolve(__dirname, "../src/Models"),
+            "@Scenes": path.resolve(__dirname, "../src/Scenes"),
+            "@Systems": path.resolve(__dirname, "../src/Systems")
+        }
     },
     module: {
         rules: [

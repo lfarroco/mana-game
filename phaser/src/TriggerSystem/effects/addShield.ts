@@ -1,10 +1,10 @@
 import { arcaneMissileTargeted } from '../../Effects';
-import { Force, manipulateForceShield } from '../../Models/Entities/Force';
-import { Unit } from '../../Models/Entities/Unit';
-import { scene } from '../../Scenes/Battleground/BattlegroundScene';
-import { getShieldBarTipPosition } from '../../Scenes/Battleground/MoraleDisplay';
-import * as CombatStatsTracker from '../../Scenes/Battleground/Systems/CombatStatsTracker';
-import { getCharaById } from '../../Systems/Chara/Chara';
+import { Force, manipulateForceShield } from '@Models/Entities/Force';
+import { Unit } from '@Models/Entities/Unit';
+import { scene } from '@Scenes//Battleground/BattlegroundScene';
+import { getShieldBarTipPosition } from '@Scenes//Battleground/MoraleDisplay';
+import * as CombatStatsTracker from '@Scenes//Battleground/Systems/CombatStatsTracker';
+import { getCharaById } from '@Systems/Chara/Chara';
 
 export function createAddShieldLogic(
 	emitter: (unit: Unit, amount: number) => void,

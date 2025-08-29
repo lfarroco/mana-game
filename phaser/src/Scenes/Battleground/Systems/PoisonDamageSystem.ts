@@ -1,4 +1,4 @@
-import { applyDamageToForce, Force } from "../../../Models/Entities/Force";
+import { applyDamageToForce, Force } from "@Models/Entities/Force";
 import * as CombatStatsTracker from "./CombatStatsTracker";
 
 

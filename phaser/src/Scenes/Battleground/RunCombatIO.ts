@@ -1,10 +1,10 @@
 import { scene } from "./BattlegroundScene";
-import { getState } from "../../Models/State";
+import { getState } from "@Models/State";
 import { MIN_COOLDOWN } from "../../constants/constants";
-import { Unit } from "../../Models/Entities/Unit";
+import { Unit } from "@Models/Entities/Unit";
 import { processEffectsIO } from "../../TriggerSystem/TriggerSystem";
-import { cpuForce, playerForce } from "../../Models/Entities/Force";
-import * as Chara from "../../Systems/Chara";
+import { cpuForce, playerForce } from "@Models/Entities/Force";
+import * as Chara from "@Systems/Chara";
 import * as Systems from "./Systems";
 
 export type WaveOutcome = "player_won" | "player_lost";

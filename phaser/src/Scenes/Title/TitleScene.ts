@@ -3,7 +3,7 @@ import * as constants from "../../constants/constants";
 import { createUIButton } from "../../UI/UIButton";
 import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
 import { images } from "../../assets";
-import * as AudioManager from "../../Systems/AudioManager";
+import * as AudioManager from "@Systems/AudioManager";
 
 export let titleScene: TitleScene;
 

@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { scene } from "../Scenes/Battleground/BattlegroundScene";
+import { scene } from "@Scenes/Battleground/BattlegroundScene";
 
 /**
  * Defines the properties for our custom tween wrapper.

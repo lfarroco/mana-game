@@ -1,10 +1,10 @@
 import { arcaneMissileTargeted } from "../../Effects";
-import { Force, manipulateForceMorale } from "../../Models/Entities/Force";
-import { Unit } from "../../Models/Entities/Unit";
-import { scene } from "../../Scenes/Battleground/BattlegroundScene";
-import { getMoraleBarTipPosition } from "../../Scenes/Battleground/MoraleDisplay";
-import * as CombatStatsTracker from "../../Scenes/Battleground/Systems/CombatStatsTracker";
-import { Chara } from "../../Systems/Chara";
+import { Force, manipulateForceMorale } from "@Models/Entities/Force";
+import { Unit } from "@Models/Entities/Unit";
+import { scene } from "@Scenes/Battleground/BattlegroundScene";
+import { getMoraleBarTipPosition } from "@Scenes/Battleground/MoraleDisplay";
+import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
+import { Chara } from "@Systems/Chara";
 
 export function createRestoreMoraleLogic(
 	emitter: (unit: Unit, amount: number) => void,

@@ -1,4 +1,4 @@
-import BattlegroundScene from "../../Scenes/Battleground/BattlegroundScene";
+import BattlegroundScene from "@Scenes/Battleground/BattlegroundScene";
 
 export function init(scene: BattlegroundScene) {
 

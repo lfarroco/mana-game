@@ -1,5 +1,5 @@
 import * as c from "../constants/constants";
-import { scene } from "../Scenes/Battleground/BattlegroundScene";
+import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import { tween } from "../Utils/animation";
 import * as Tooltip from "./Tooltip";
 

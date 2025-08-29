@@ -1,6 +1,6 @@
-import { vec2 } from "../../../Models/Geometry.pure";
-import { scene } from "../../../Scenes/Battleground/BattlegroundScene";
-import * as Shop from "../../../Scenes/Battleground/Systems/Shop";
+import { vec2 } from "@Models/Geometry.pure";
+import { scene } from "@Scenes/Battleground/BattlegroundScene";
+import * as Shop from "@Scenes/Battleground/Systems/Shop";
 import { hideTooltip } from "../../../UI/Tooltip";
 import { tween } from "../../../Utils/animation";
 import { getIsShopItem } from "../Chara";

@@ -1,11 +1,11 @@
 import Phaser from "phaser";
 import * as events from "../events";
-import { Vec2, vec2 } from "../../../Models/Geometry.pure";
-import * as Shop from "../../../Scenes/Battleground/Systems/Shop";
+import { Vec2, vec2 } from "@Models/Geometry.pure";
+import * as Shop from "@Scenes/Battleground/Systems/Shop";
 import * as Chara from "../Chara";
-import { getSharedPlayerBoard, PartyBoard } from "../../../Models/Board";
-import { scene } from "../../../Scenes/Battleground/BattlegroundScene";
-import { Unit } from "../../../Models/Entities/Unit";
+import { getSharedPlayerBoard, PartyBoard } from "@Models/Board";
+import { scene } from "@Scenes/Battleground/BattlegroundScene";
+import { Unit } from "@Models/Entities/Unit";
 import { hideTooltip } from "../../../UI/Tooltip";
 import { tween } from "../../../Utils/animation";
 import * as input from "./index";

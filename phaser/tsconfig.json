@@ -4,6 +4,18 @@
         "useDefineForClassFields": true,
         "module": "ESNext",
         "outDir": "./dist/",
+        "baseUrl": "./src",
+        "paths": {
+            "@Models/*": [
+                "Models/*"
+            ],
+            "@Scenes/*": [
+                "Scenes/*"
+            ],
+            "@Systems/*": [
+                "Systems/*"
+            ],
+        },
         "lib": [
             "ES2020",
             "DOM",

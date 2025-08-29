@@ -2,7 +2,7 @@ import * as Phaser from "phaser";
 import * as constants from "../../constants/constants";
 import { createUIButton } from "../../UI/UIButton";
 import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
-import { getOption, setOption } from "../../Models/OptionsStore";
+import { getOption, setOption } from "@Models/OptionsStore";
 
 type TabType = 'audio' | 'graphics' | 'game';
 

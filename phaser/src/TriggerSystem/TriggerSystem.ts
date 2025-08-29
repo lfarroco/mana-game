@@ -1,6 +1,6 @@
-import { Unit } from "../Models/Entities/Unit";
-import { State } from "../Models/State";
-import BattlegroundScene, { scene } from "../Scenes/Battleground/BattlegroundScene";
+import { Unit } from "@Models/Entities/Unit";
+import { State } from "@Models/State";
+import BattlegroundScene, { scene } from "@Scenes/Battleground/BattlegroundScene";
 import * as effects from "./effects";
 import { pickRandom } from "../utils";
 

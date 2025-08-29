@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { tween } from "../Utils/animation";
 import { titleTextConfig } from "../constants/constants";
-import { playSoundEffect } from "../Systems/AudioManager";
+import { playSoundEffect } from "@Systems/AudioManager";
 import { createMagicButtonOverlay, MagicOverlayHandle } from "./shaders/magicButtonShader";
 
 interface UIButtonState {

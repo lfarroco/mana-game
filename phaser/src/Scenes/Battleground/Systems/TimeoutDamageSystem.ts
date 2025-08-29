@@ -1,5 +1,5 @@
 import { scene } from "../BattlegroundScene";
-import { applyDamageToForce, Force } from "../../../Models/Entities/Force";
+import { applyDamageToForce, Force } from "@Models/Entities/Force";
 import { arcaneMissileTargeted } from '../../../Effects';
 import { getMoraleBarTipPosition, getShieldBarTipPosition } from '../MoraleDisplay';
 

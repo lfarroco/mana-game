@@ -1,7 +1,7 @@
 // Centralized offset vectors for secondary impact effects around a target.
 // These are used by multiple effects (e.g., explodeEffect, fireballEffect).
 
-import { vec2 } from "../Models/Geometry";
+import { vec2 } from "@Models/Geometry";
 import { TILE_WIDTH } from "../constants/constants";
 
 // All 8 directions around a tile (no (0,0))

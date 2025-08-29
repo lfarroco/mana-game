@@ -1,6 +1,6 @@
-import * as Card from "../../../../Models/Entities/Card";
+import * as Card from "@Models/Entities/Card";
 import { pickRandom } from "../../../../utils";
-import * as Chara from "../../../../Systems/Chara/Chara";
+import * as Chara from "@Systems/Chara/Chara";
 import { scene } from "../../BattlegroundScene";
 import * as ShopUI from "./ShopUI";
 import * as sc from "./constants";

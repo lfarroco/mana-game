@@ -1,4 +1,4 @@
-import { CardCollection, registerCollection } from "../../../../Models/Entities/Card";
+import { CardCollection, registerCollection } from "@Models/Entities/Card";
 import { scene } from "../../BattlegroundScene";
 
 export function init(collection: CardCollection): void {

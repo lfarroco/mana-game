@@ -1,10 +1,10 @@
 import * as constants from "../../../../../constants/constants";
-import { makeUnit, Unit } from "../../../../../Models/Entities/Unit";
-import { updatePlayerGoldIO } from "../../../../../Models/Entities/Force";
-import { getCharaById, summon } from "../../../../../Systems/Chara/Chara";
-import * as Chara from "../../../../../Systems/Chara/Chara";
+import { makeUnit, Unit } from "@Models/Entities/Unit";
+import { updatePlayerGoldIO } from "@Models/Entities/Force";
+import { getCharaById, summon } from "@Systems/Chara/Chara";
+import * as Chara from "@Systems/Chara/Chara";
 import * as UIManager from "../../../../../UI/UIManager";
-import { vec2 } from "../../../../../Models/Geometry.pure";
+import { vec2 } from "@Models/Geometry.pure";
 import { scene } from "../../../BattlegroundScene";
 
 export function itemClickPurchaseRequested(

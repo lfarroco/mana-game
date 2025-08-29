@@ -1,10 +1,10 @@
 import { arcaneMissileTargeted } from '../../Effects';
-import { Force, applyDamageToForce } from '../../Models/Entities/Force';
-import { Unit } from '../../Models/Entities/Unit';
-import { scene } from '../../Scenes/Battleground/BattlegroundScene';
-import { getMoraleBarTipPosition, getShieldBarTipPosition } from '../../Scenes/Battleground/MoraleDisplay';
-import { getCharaById } from '../../Systems/Chara/Chara';
-import * as CombatStatsTracker from '../../Scenes/Battleground/Systems/CombatStatsTracker';
+import { Force, applyDamageToForce } from '@Models/Entities/Force';
+import { Unit } from '@Models/Entities/Unit';
+import { scene } from '@Scenes//Battleground/BattlegroundScene';
+import { getMoraleBarTipPosition, getShieldBarTipPosition } from '@Scenes//Battleground/MoraleDisplay';
+import { getCharaById } from '@Systems/Chara/Chara';
+import * as CombatStatsTracker from '@Scenes//Battleground/Systems/CombatStatsTracker';
 
 export function createDealDamageLogic(
 	dealDamage: (targetForce: Force, damage: number, scene: Phaser.Scene) => number

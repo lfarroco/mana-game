@@ -1,4 +1,4 @@
-import { makeForce } from '../../../Models/Entities/Force';
+import { makeForce } from '@Models/Entities/Force';
 import * as regenSystem from './RegenSystem';
 
 describe('RegenSystem', () => {
