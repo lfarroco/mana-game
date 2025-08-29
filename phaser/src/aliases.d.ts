@@ -2,12 +2,12 @@ import type * as Phaser from 'phaser';
 
 declare global {
 	type Scene = Phaser.Scene;
-	type Container = Phaser.GameObjects.Container;
-	type Graphics = Phaser.GameObjects.Graphics;
+	type Container = Container;
+	type Graphics = Graphics;
 	type Sprite = Phaser.GameObjects.Sprite;
-	type Text = Phaser.GameObjects.Text;
+	type TextObj = Phaser.GameObjects.Text;
 	type Image = Phaser.GameObjects.Image;
-	type Pointer = Phaser.Input.Pointer;
+	type Pointer = Pointer;
 	type Point = { x: number, y: number }
 }
 

@@ -16,7 +16,7 @@ export let scene: BattlegroundScene;
 
 export class BattlegroundScene extends Phaser.Scene {
   state: State;
-  bgContainer!: Phaser.GameObjects.Container;
+  bgContainer!: Container;
   cloudsBackground!: Phaser.GameObjects.Image;
   collection!: CardCollection;
   playerBoard!: PartyBoard;

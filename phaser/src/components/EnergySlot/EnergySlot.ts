@@ -150,13 +150,13 @@ export class EnergySlot {
 	}
 
 	// Add the slot to a container
-	addToContainer(container: Phaser.GameObjects.Container): this {
+	addToContainer(container: Container): this {
 		container.add(this.shader);
 		return this;
 	}
 
 	// Remove the slot from a container
-	removeFromContainer(container: Phaser.GameObjects.Container): this {
+	removeFromContainer(container: Container): this {
 		container.remove(this.shader);
 		return this;
 	}

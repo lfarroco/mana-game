@@ -11,7 +11,7 @@ import { tween } from "../../../Utils/animation";
 import * as input from "./index";
 
 export const onDrop = (handlerState: input.InputHandler) => (
-	_pointer: Phaser.Input.Pointer,
+	_pointer: Pointer,
 	dropZoneTarget: Phaser.GameObjects.GameObject,
 ): void => {
 	handlerState.wasDragSuccessful = processDrop(handlerState)(

@@ -3,7 +3,7 @@ import { InputHandler } from ".";
 import { DRAG_CLICK_THRESHOLD } from "../../../constants/constants";
 import { itemClickPurchaseRequested } from "../../../Scenes/Battleground/Systems/Shop/events";
 
-export const onPointerUpShopItem = (handlerState: InputHandler) => (pointer: Phaser.Input.Pointer): void => {
+export const onPointerUpShopItem = (handlerState: InputHandler) => (pointer: Pointer): void => {
 	if (!getIsShopItem(handlerState.unitId) || !handlerState.chara.input?.enabled) return;
 
 	if (pointer.getDistance() > DRAG_CLICK_THRESHOLD) {

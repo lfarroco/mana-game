@@ -14,7 +14,7 @@ const TITLE_FONT_SIZE = 40;
 const DESCRIPTION_FONT_SIZE = 30;
 const DESCRIPTION_LINE_SPACING = 8;
 
-let container: Phaser.GameObjects.Container | null = null;
+let container: Container | null = null;
 let bg: Phaser.GameObjects.Shader | null = null;
 let titleText: Phaser.GameObjects.Text | null = null;
 let descriptionText: BBCodeText | null = null;
