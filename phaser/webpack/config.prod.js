@@ -21,7 +21,8 @@ module.exports = {
         alias: {
             "@Models": path.resolve(__dirname, "../src/Models"),
             "@Scenes": path.resolve(__dirname, "../src/Scenes"),
-            "@Systems": path.resolve(__dirname, "../src/Systems")
+            "@Systems": path.resolve(__dirname, "../src/Systems"),
+            "@UI": path.resolve(__dirname, "../src/UI")
         }
     },
     devtool: false,

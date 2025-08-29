@@ -1,5 +1,5 @@
 import { State } from "@Models/State";
-import * as ControlsSystem from "@Systems/Controls/Controls";
+import * as ControlsSystem from "@Systems/Controls";
 import { initializePlayerBoard, PartyBoard, createBoardDropZone } from "@Models/Board";
 import * as BG_CONSTANTS from "../battlegroundConstants";
 import { scene } from "../BattlegroundScene";
