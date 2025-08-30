@@ -7,7 +7,7 @@ import { updatePlayerGoldIO } from "@Models/Entities/Force";
 import { titleScene } from "../Title/TitleScene";
 import { Chara } from "@Systems/Chara";
 import * as Systems from "../Battleground/Systems";
-import { processOwnedUnitMoveRequest } from "@Systems/Chara/input/onDrop";
+import { processOwnedUnitMoveRequest } from "@Systems/Chara/input";
 
 export function clickHeroInShop(slotIndex: number): string {
 	const chara = Systems.Shop.Shop.getShopCharaBySlot(slotIndex);
