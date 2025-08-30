@@ -43,9 +43,9 @@ export function init(chara: Chara.Chara) {
 		chara.on(Phaser.Input.Events.DROP, onDrop(state));
 		chara.on(Phaser.Input.Events.DRAG_END, onDragEnd(state));
 
-		if (Chara.getIsShopItem(state.unitId)) {
-			chara.on(Phaser.Input.Events.POINTER_UP, onPointerUpShopItem(state));
-		}
+		if (!isShopUnit) return;
+
+		chara.on(Phaser.Input.Events.POINTER_UP, onPointerUpShopItem(state));
 	}
 
 	return state;
