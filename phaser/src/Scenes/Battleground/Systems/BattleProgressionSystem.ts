@@ -30,8 +30,28 @@ function createUnitCopy(unit: Unit): Unit {
 
 export let isInShopPhase: boolean = false;
 
+export async function initializeShopPhase(): Promise<void> {
+	clearAll();
+	state.battleData.units = [];
 
-export async function transitionToShopPhase(isVictoryTransition: boolean = false): Promise<void> {
+	playerForce.morale = playerForce.maxMorale;
+	MoraleDisplay.updateMoraleBar(playerForce.id);
+
+	const summonPromises = state.gameData.player.units
+		.map(async (unit, index) => {
+			await delay(index * 200);
+			await summon(unit, true);
+		});
+	await Promise.all(summonPromises);
+
+	isInShopPhase = true;
+
+	console.log("Round", state.gameData.round, "Shop Phase Starting (Initial Setup).");
+
+	Shop.handleShopOpenUITrigger();
+}
+
+export async function transitionToShopPhase(): Promise<void> {
 
 	clearAll();
 	state.battleData.units = [];
@@ -51,13 +71,10 @@ export async function transitionToShopPhase(isVictoryTransition: boolean = false
 	isInShopPhase = true;
 	updatePlayerGoldIO(BG_CONSTANTS.VICTORY_GOLD_REWARD);
 
-	// Only process victory if this is actually a victory transition (not initial setup)
-	if (isVictoryTransition) {
-		PrestigeSystem.processVictory();
-	}
+	PrestigeSystem.processVictory();
 	PrestigeSystem.finalizeRound();
 
-	console.log("Round", state.gameData.round, "Shop Phase Starting.");
+	console.log("Round", state.gameData.round, "Shop Phase Starting (Victory Transition).");
 
 	Shop.handleShopOpenUITrigger()
 }
@@ -135,7 +152,7 @@ export async function handleCombatEndedVictory(): Promise<void> {
 	battleResultAnimation("victory");
 	await delay(1500);
 
-	transitionToShopPhase(true);
+	transitionToShopPhase();
 }
 
 export async function handleCombatStartExecution(_payload: { enemies: Unit[] }): Promise<void> {
