@@ -1,6 +1,6 @@
 import { getState } from "@Models/State";
 import * as Systems from "@Scenes/Battleground/Systems";
-import * as UIManager from "../UI/UIManager";
+import * as UIManager from "@UI/index";
 
 export class PrestigeSystem {
 

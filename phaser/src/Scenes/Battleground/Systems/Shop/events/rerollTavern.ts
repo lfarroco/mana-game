@@ -1,7 +1,7 @@
 import * as Shop from "../Shop";
 import * as constants from "../../../../../constants/constants";
 import { updatePlayerGoldIO } from "@Models/Entities/Force";
-import * as UIManager from "../../../../../UI/UIManager";
+import * as UIManager from "../../../../../UI";
 import { getState } from "@Models/State";
 
 export function rerollTavern(): void {

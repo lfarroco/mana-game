@@ -3,7 +3,7 @@ import { makeUnit, Unit } from "@Models/Entities/Unit";
 import { updatePlayerGoldIO } from "@Models/Entities/Force";
 import { getCharaById, summon } from "@Systems/Chara/Chara";
 import * as Chara from "@Systems/Chara/Chara";
-import * as UIManager from "../../../../../UI/UIManager";
+import * as onPurchaseFailed from "@UI/events/onPurchaseFailed";
 import { vec2 } from "@Models/Geometry.pure";
 import { scene } from "../../../BattlegroundScene";
 
@@ -25,7 +25,7 @@ export function itemClickPurchaseRequested(
 			dragStartY,
 		));
 
-		UIManager.handlePurchaseFailed({
+		onPurchaseFailed.onPurchaseFailed({
 			unitName: shopUnitData.name,
 			reason,
 			...additionalDetails,
