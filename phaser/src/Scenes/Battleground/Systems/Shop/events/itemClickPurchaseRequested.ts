@@ -5,7 +5,7 @@ import { getCharaById, summon } from "@Systems/Chara/Chara";
 import * as onShopPurchaseSuccesful from "@Systems/Chara/events/onShopPurchaseSuccesful";
 import * as onShopPurchaseFailed from "@Systems/Chara/events/onShopPurchaseFailed";
 import * as onPurchaseFailed from "@UI/events/onPurchaseFailed";
-import { vec2 } from "@Models/Geometry.pure";
+import * as Geometry from "@Models/Geometry";
 import { scene } from "../../../BattlegroundScene";
 import * as Board from "@Models/Board";
 
@@ -22,7 +22,7 @@ export function itemClickPurchaseRequested(
 		reason: string,
 		additionalDetails?: Record<string, any>
 	) => {
-		onShopPurchaseFailed.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(
+		onShopPurchaseFailed.onShopPurchaseFailed(getCharaById(shopCharaId), Geometry.vec2(
 			dragStartX,
 			dragStartY,
 		));

@@ -1,5 +1,5 @@
 import { FORCE_ID_PLAYER } from "../../../constants/constants";
-import { vec2 } from "@Models/Geometry.pure";
+import * as Geometry from "@Models/Geometry";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import { Chara, getUnit, getIsShopItem } from "../Chara";
 import { onDrag } from "./onDrag";
@@ -22,7 +22,7 @@ export function init(chara: Chara) {
 	const state: InputHandler = {
 		dragStartX: 0,
 		dragStartY: 0,
-		dragStartVec: vec2(0, 0),
+		dragStartVec: Geometry.vec2(0, 0),
 		wasDragSuccessful: false,
 		chara,
 		unitId: getUnit(chara).id

@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import * as events from "../events";
-import { vec2 } from "@Models/Geometry.pure";
+import * as Geometry from "@Models/Geometry";
 import * as Shop from "@Scenes/Battleground/Systems/Shop";
 import * as Chara from "../Chara";
 import * as Board from "@Models/Board";
@@ -48,7 +48,7 @@ const processDrop = (handlerState: input.InputHandler) => (
 
 	const tileX = slotIndex % 3;
 	const tileY = Math.floor(slotIndex / 3);
-	const tile = vec2(tileX, tileY);
+	const tile = Geometry.vec2(tileX, tileY);
 
 	if (!Chara.getIsShopItem(handlerState.unitId)) {
 		processOwnedUnitMoveRequest(handlerState.unitId, tile, dragStartX, dragStartY);
@@ -132,6 +132,6 @@ const _movementRejected = (unitId: string, dragStartX: number, dragStartY: numbe
 	const failedChara = Chara.getCharaById(unitId);
 	hideTooltip();
 
-	tween({ targets: [failedChara], ...vec2(dragStartX, dragStartY) });
+	tween({ targets: [failedChara], ...Geometry.vec2(dragStartX, dragStartY) });
 };
 

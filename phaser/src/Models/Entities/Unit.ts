@@ -1,7 +1,7 @@
-import { v4 } from "uuid";
-import { vec2Zero } from "../Geometry.pure";
+import * as uuid from "uuid";
+import { vec2Zero } from "../Geometry";
 import { getCardDefinition } from "./Card";
-import { Effect, EffectReaction, EffectSourcePosition } from "../../TriggerSystem/TriggerSystem";
+import * as TriggerSystem from "../../TriggerSystem/TriggerSystem";
 
 export type Unit = {
   id: string;
@@ -17,8 +17,8 @@ export type Unit = {
   crit: number;
   evade: number;
 
-  effects: Effect[];
-  reactions: EffectReaction[];
+  effects: TriggerSystem.Effect[];
+  reactions: TriggerSystem.EffectReaction[];
 
   charge: number; // each tick the job's agi is added here. when it reaches 100, the job can act
   refresh: number; // the time it takes for the job to act again. Even if charged, this must be 0
@@ -43,7 +43,7 @@ export const makeUnit = (force: string, cardId: string, position = vec2Zero()): 
       reactions: card.reactions || [],
     },
     position,
-    v4()
+    uuid.v4()
   );
 
   return pureUnit as Unit;
@@ -55,8 +55,8 @@ export type CardDefinition = {
   pic: string;
   power: number;
   cooldown: number;
-  effects: Effect[];
-  reactions: EffectReaction[];
+  effects: TriggerSystem.Effect[];
+  reactions: TriggerSystem.EffectReaction[];
 };
 
 export type PureUnitData = {
@@ -74,11 +74,11 @@ export type PureUnitData = {
   refresh: number;
   hasted: number;
   slowed: number;
-  effects: Effect[];
+  effects: TriggerSystem.Effect[];
   reactions: {
-    position: EffectSourcePosition;
+    position: TriggerSystem.EffectSourcePosition;
     effectId: string; // e.g. "damage", "heal", "shield", "poison", "regen", "haste", "slow", "charge"
-    effects: Effect[]
+    effects: TriggerSystem.Effect[]
   }[];
 };
 
