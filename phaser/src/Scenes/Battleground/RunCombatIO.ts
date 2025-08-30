@@ -70,7 +70,7 @@ export class RunCombatSystem {
     Systems.Timeout.onTimeoutDamageCombatEnd();
     Systems.CombatStatsTracker.stop();
     console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);
-    Systems.Progression.handleCombatEnded(outcome);
+    Systems.ResultsPhase.handleCombatEnded(outcome);
   }
 
   isActive(): boolean { return this.active; }

@@ -40,7 +40,7 @@ export async function open() {
 	currentOrbs = pickRandom(availableOrbs, 3);
 
 	const nextRoundCallback = () => {
-		Systems.Progression.handleShopPhaseEnded();
+		Systems.ShopPhase.handleShopPhaseEnded();
 		close();
 	};
 
