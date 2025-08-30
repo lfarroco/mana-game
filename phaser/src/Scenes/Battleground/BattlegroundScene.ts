@@ -77,7 +77,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     AudioManager.playMusic('music_battlemap_vetruv');
 
-    Systems.Progression.transitionToShopPhase();
+    Systems.Progression.initializeShopPhase();
 
   }
 
