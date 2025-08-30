@@ -31,7 +31,7 @@ function createUnitCopy(unit: Unit): Unit {
 export let isInShopPhase: boolean = false;
 
 
-export async function transitionToShopPhase(): Promise<void> {
+export async function transitionToShopPhase(isVictoryTransition: boolean = false): Promise<void> {
 
 	clearAll();
 	state.battleData.units = [];
@@ -51,7 +51,10 @@ export async function transitionToShopPhase(): Promise<void> {
 	isInShopPhase = true;
 	updatePlayerGoldIO(BG_CONSTANTS.VICTORY_GOLD_REWARD);
 
-	PrestigeSystem.processVictory();
+	// Only process victory if this is actually a victory transition (not initial setup)
+	if (isVictoryTransition) {
+		PrestigeSystem.processVictory();
+	}
 	PrestigeSystem.finalizeRound();
 
 	console.log("Round", state.gameData.round, "Shop Phase Starting.");
@@ -132,7 +135,7 @@ export async function handleCombatEndedVictory(): Promise<void> {
 	battleResultAnimation("victory");
 	await delay(1500);
 
-	transitionToShopPhase();
+	transitionToShopPhase(true);
 }
 
 export async function handleCombatStartExecution(_payload: { enemies: Unit[] }): Promise<void> {
