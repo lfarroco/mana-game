@@ -5,10 +5,8 @@ import * as BG_CONSTANTS from "../battlegroundConstants";
 import { scene } from "../BattlegroundScene";
 import { getOption } from "@Models/OptionsStore";
 import { CloudsBackground } from "../../../components/cloudBackground/CloudsBackground";
-import * as UI from "@UI/UI";
 
 export let cloudsBackground: CloudsBackground | null = null;
-
 
 export function initializeNewGame(state: State): void {
 
@@ -16,7 +14,6 @@ export function initializeNewGame(state: State): void {
 	state.gameData.round = 1;
 	state.gameData.player.prestige = 0;
 	state.gameData.player.gold = BG_CONSTANTS.INITIAL_PLAYER_GOLD;;
-	UI.updatePrestige(state.gameData.player.prestige, 0);
 
 	scene.sound.setVolume(getOption('soundVolume') ?? BG_CONSTANTS.DEFAULT_SCENE_SOUND_VOLUME);
 }
