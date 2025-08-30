@@ -35,7 +35,7 @@ export function setupSceneElements(_state: State) {
 
 	scene.bgContainer.add([scene.cloudsBackground]);
 
-	const playerBoard = Board.initializeBoardState();
+	const playerBoard = Board.init();
 	Board.initializeBoardDropZones();
 	return playerBoard;
 }
