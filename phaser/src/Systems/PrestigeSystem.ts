@@ -3,6 +3,11 @@ import * as UIManager from "@UI/UI";
 
 
 export function processVictory(): void {
+	const playerState = getState().gameData.player;
+	const prestigeGain = Math.max(Math.floor(playerState.round/2), 1);
+
+	playerState.prestige += prestigeGain;
+	UIManager.updatePrestigeDisplay(playerState.prestige);
 }
 
 export function processDefeat(): void {
