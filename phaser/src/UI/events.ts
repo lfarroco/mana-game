@@ -1,7 +1,7 @@
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
-import { goldTextElement } from "../UI";
-import { titleTextConfig } from "../../constants/constants";
-import { tween } from "../../Utils/animation";
+import { titleTextConfig } from "../constants/constants";
+import { tween } from "../Utils/animation";
+import { goldTextElement, handleUserMessageRequested } from "./UI";
 
 
 export function onGoldChanged(newTotalGold: number, goldDelta: number): void {
@@ -48,3 +48,29 @@ async function goldChangeAnimation(gold: number) {
 
 	goldAmountText.destroy();
 }
+
+export function onPurchaseFailed(
+	payload: {
+		unitName: string; reason: string; cost?: number;
+
+	}) {
+
+	let message = `Could not buy ${payload.unitName}. `;
+
+	switch (payload.reason) {
+		case "PARTY_FULL":
+			message += "Your party is full!";
+			break;
+		case "INSUFFICIENT_GOLD":
+			message += `Not enough gold! (Cost: ${payload.cost ?? 'N/A'})`;
+			break;
+		case "SLOT_OCCUPIED":
+			message += "That slot is already occupied.";
+			break;
+		default: message += "Reason unknown.";
+	}
+
+	handleUserMessageRequested({ text: message, type: 'error' });
+
+}
+

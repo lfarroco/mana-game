@@ -2,8 +2,8 @@ import * as constants from "../../../../../constants/constants";
 import { makeUnit, Unit } from "@Models/Entities/Unit";
 import { updatePlayerGoldIO } from "@Models/Entities/Force";
 import { getCharaById, summon } from "@Systems/Chara/Chara";
-import events from "@Systems/Chara/events";
-import * as onPurchaseFailed from "@UI/events/onPurchaseFailed";
+import * as charaEvents from "@Systems/Chara/events";
+import * as uiEvents from "@UI/events";
 import * as Geometry from "@Models/Geometry";
 import { scene } from "../../../BattlegroundScene";
 import * as Board from "@Models/Board";
@@ -21,12 +21,12 @@ export function itemClickPurchaseRequested(
 		reason: string,
 		additionalDetails?: Record<string, any>
 	) => {
-		events.onShopPurchaseFailed(getCharaById(shopCharaId), Geometry.vec2(
+		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), Geometry.vec2(
 			dragStartX,
 			dragStartY,
 		));
 
-		onPurchaseFailed.onPurchaseFailed({
+		uiEvents.onPurchaseFailed({
 			unitName: shopUnitData.name,
 			reason,
 			...additionalDetails,
@@ -55,5 +55,5 @@ export function itemClickPurchaseRequested(
 
 	summon(newUnit, true);
 
-	events.onShopPurchaseSuccesful(getCharaById(shopCharaId))
+	charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId))
 }
