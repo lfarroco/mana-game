@@ -5,7 +5,7 @@ import * as UI from "./UI";
 
 
 export function onGoldChanged(newTotalGold: number, goldDelta: number) {
-	UI.updateGold(newTotalGold);
+	UI.updateGoldDisplay(newTotalGold);
 	if (goldDelta !== 0) {
 		goldChangeAnimation(goldDelta);
 	}

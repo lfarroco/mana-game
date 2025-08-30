@@ -4,20 +4,18 @@ import * as UI from "@UI/UI";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import * as MoraleDisplay from "@Scenes/Battleground/MoraleDisplay";
 
-// A "force" represents a party of heroes (units)
 export type Force = {
 	id: string;
 	name: string;
 	color: string;
 	gold: number;
 	level: number;
-	xp: number;
 	morale: number;
 	maxMorale: number;
 	shield: number;
 	units: Unit[];
 	prestige: number,
-	totalRoundsPlayed: number;
+	round: number;
 };
 
 export const makeForce = (id: string): Force => {
@@ -27,13 +25,12 @@ export const makeForce = (id: string): Force => {
 		color: "",
 		gold: 10,
 		level: 1,
-		xp: 0,
 		units: [],
 		morale: constants.INITIAL_MORALE,
 		maxMorale: constants.INITIAL_MORALE,
 		shield: 0,
-		prestige: 0,
-		totalRoundsPlayed: 0,
+		prestige: 20,
+		round: 1,
 	}
 };
 
