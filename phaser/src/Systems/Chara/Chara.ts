@@ -19,6 +19,8 @@ type HasteEffectState = {
 	cleanup: () => void
 };
 
+
+
 type CharaState = {
 	unit: Unit;
 	id: string;

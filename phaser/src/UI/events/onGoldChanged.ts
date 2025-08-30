@@ -1,5 +1,5 @@
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
-import { goldTextElement } from "..";
+import { goldTextElement } from "../UI";
 import { titleTextConfig } from "../../constants/constants";
 import { tween } from "../../Utils/animation";
 

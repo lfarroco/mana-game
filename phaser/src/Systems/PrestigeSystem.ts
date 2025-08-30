@@ -1,6 +1,6 @@
 import { getState } from "@Models/State";
 import * as Systems from "@Scenes/Battleground/Systems";
-import * as UIManager from "@UI/index";
+import * as UIManager from "@UI/UI";
 
 
 export function processVictory(): void {
