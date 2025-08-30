@@ -213,7 +213,7 @@ export class MagicOrb {
 		const objectsAtPointer = this.scene.input.hitTestPointer(pointer);
 
 		// First check for player board drop zones (most common case)
-		const playerBoard = Board.getSharedPlayerBoard();
+		const playerBoard = Board.getBoardState();
 
 		if (playerBoard && playerBoard.dropZones) {
 			for (const zone of playerBoard.dropZones) {
