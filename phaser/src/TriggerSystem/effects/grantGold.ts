@@ -1,8 +1,8 @@
 import { playerForce, updatePlayerGoldIO } from "@Models/Entities/Force";
-import { Chara } from "@Systems/Chara";
 import BattlegroundScene from "@Scenes/Battleground/BattlegroundScene";
 import { Unit } from "@Models/Entities/Unit";
 import { popText } from "@Systems/Chara/Animations/popText";
+import { getCharaById } from "@Systems/Chara/Chara";
 
 export function grantGoldLogicPure(
 	amount: number,
@@ -34,7 +34,7 @@ export const grantGoldLogic = async (context: {
 	);
 
 	if (result.shouldGrantGold) {
-		const chara = Chara.getCharaById(sourceUnit.id);
+		const chara = getCharaById(sourceUnit.id);
 		if (result.popTextMessage)
 			await popText({
 				x: chara.x, y: chara.y, text: result.popTextMessage, type: "shield"

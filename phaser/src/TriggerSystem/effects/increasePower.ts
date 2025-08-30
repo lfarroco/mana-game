@@ -1,7 +1,7 @@
-import { Chara } from "@Systems/Chara";
 import { Unit } from "@Models/Entities/Unit";
 import BattlegroundScene from "@Scenes/Battleground/BattlegroundScene";
 import * as AudioManager from "@Systems/AudioManager";
+import { getCharaById, updateUnitPower } from "@Systems/Chara/Chara";
 
 export const increasePower = async (context: {
 	targets: Unit[];
@@ -13,8 +13,8 @@ export const increasePower = async (context: {
 
 	for (const target of targets) {
 		console.log(`Modifying power of ${target.id} by ${amount}`);
-		const chara = Chara.getCharaById(target.id);
-		Chara.updateUnitPower(chara, amount);
+		const chara = getCharaById(target.id);
+		updateUnitPower(chara, amount);
 		AudioManager.playSoundEffect('sfx_spell_innerfocus');
 	}
 };

@@ -4,8 +4,9 @@ import { MIN_COOLDOWN } from "../../constants/constants";
 import { Unit } from "@Models/Entities/Unit";
 import { processEffectsIO } from "../../TriggerSystem/TriggerSystem";
 import { cpuForce, playerForce } from "@Models/Entities/Force";
-import * as Chara from "@Systems/Chara";
 import * as Systems from "./Systems";
+import * as Animations from "@Systems/Chara/Animations";
+import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 
 export type WaveOutcome = "player_won" | "player_lost";
 
@@ -41,7 +42,7 @@ export class RunCombatSystem {
 
     for (const unit of unitsReadyToAct) {
 
-      Chara.Animations.pop(unit.id);
+      Animations.pop(unit.id);
 
       Systems.CombatStatsTracker.handleUnitAction({ unit });
       processEffectsIO(unit, unit.effects);
@@ -99,7 +100,7 @@ function chargeUnits(delta: number): Unit[] {
       unit.refresh = MIN_COOLDOWN;
       performingUnits.push(unit);
     }
-    Chara.ChargeBarDisplay.updateChargeBar(unit.id)
+    ChargeBarDisplay.updateChargeBar(unit.id)
   }
   return performingUnits;
 }

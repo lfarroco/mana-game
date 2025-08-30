@@ -12,10 +12,10 @@ import * as MoraleDisplay from "../MoraleDisplay";
 import { renderVignette } from "../Animations/vignette";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Shop from "./Shop/Shop";
-import { Chara } from "@Systems/Chara";
 import { battleResultAnimation } from "../battleResultAnimation";
 import * as Board from "@Models/Board";
 import * as PrestigeSystem from "@Systems/PrestigeSystem";
+import { clearAll, summon } from "@Systems/Chara/Chara";
 
 const state = getState();
 
@@ -31,11 +31,9 @@ function createUnitCopy(unit: Unit): Unit {
 export let isInShopPhase: boolean = false;
 
 
-
 export async function transitionToShopPhase(): Promise<void> {
 
-
-	Chara.clearAll();
+	clearAll();
 	state.battleData.units = [];
 
 	playerForce.morale = playerForce.maxMorale;
@@ -44,7 +42,7 @@ export async function transitionToShopPhase(): Promise<void> {
 	const summonPromises = state.gameData.player.units
 		.map(async (unit, index) => {
 			await delay(index * 200);
-			await Chara.summon(unit, true);
+			await summon(unit, true);
 		});
 	await Promise.all(summonPromises);
 
@@ -142,12 +140,12 @@ export async function handleCombatStartExecution(_payload: { enemies: Unit[] }):
 	_initializeMorale();
 
 	Board.setEnemyBoardVisible(true);
-	Chara.clearAll();
+	clearAll();
 	// Important: summon the exact Unit instances stored in battleData.units
 	// so display components (e.g., charge bars) observe the same objects updated during combat.
 	const combatUnits = state.battleData.units;
 	combatUnits.forEach(u => {
-		Chara.summon(u, false);
+		summon(u, false);
 	});
 
 	await delay(300);
