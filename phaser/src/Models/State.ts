@@ -1,5 +1,5 @@
 import { Force, playerForce } from "./Entities/Force";
-import { eqVec2 } from "./Geometry.pure";
+import { eqVec2 } from "./Geometry";
 import { Unit } from "./Entities/Unit";
 
 export type State = {

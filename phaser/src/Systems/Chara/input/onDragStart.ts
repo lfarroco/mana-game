@@ -1,4 +1,4 @@
-import { vec2 } from "@Models/Geometry.pure";
+import * as Geometry from "@Models/Geometry";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import * as Shop from "@Scenes/Battleground/Systems/Shop";
 import { hideTooltip } from "../../../UI/Tooltip";
@@ -14,7 +14,7 @@ export const onDragStart = (handlerState: InputHandler) => (
 	const { chara } = handlerState;
 	handlerState.dragStartX = chara.x;
 	handlerState.dragStartY = chara.y;
-	handlerState.dragStartVec = vec2(chara.x, chara.y);
+	handlerState.dragStartVec = Geometry.vec2(chara.x, chara.y);
 	handlerState.wasDragSuccessful = false;
 
 	if (getIsShopItem(handlerState.unitId)) {
