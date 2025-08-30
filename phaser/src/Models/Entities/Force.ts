@@ -1,8 +1,8 @@
-import { FORCE_ID_PLAYER, FORCE_ID_CPU, INITIAL_MORALE } from "../../constants/constants";
+import * as constants from "../../constants/constants";
 import { Unit } from "./Unit";
-import * as UIManager from "../../UI/UIManager";
-import { trackMoraleChange, } from "@Scenes/Battleground/Systems/CombatStatsTracker";
-import { handleShieldUpdated, updateMoraleDisplay } from "@Scenes/Battleground/MoraleDisplay";
+import * as UI from "@UI/index";
+import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
+import * as MoraleDisplay from "@Scenes/Battleground/MoraleDisplay";
 
 // A "force" represents a party of heroes (units)
 export type Force = {
@@ -31,8 +31,8 @@ export const makeForce = (id: string): Force => {
 		level: 1,
 		xp: 0,
 		units: [],
-		morale: INITIAL_MORALE,
-		maxMorale: INITIAL_MORALE,
+		morale: constants.INITIAL_MORALE,
+		maxMorale: constants.INITIAL_MORALE,
 		shield: 0,
 		prestige: 0,
 		winStreak: 0,
@@ -41,15 +41,15 @@ export const makeForce = (id: string): Force => {
 	}
 };
 
-export const playerForce = makeForce(FORCE_ID_PLAYER);
-export const cpuForce = makeForce(FORCE_ID_CPU);
+export const playerForce = makeForce(constants.FORCE_ID_PLAYER);
+export const cpuForce = makeForce(constants.FORCE_ID_CPU);
 
 export const updatePlayerGoldIO = (goldDelta: number) => {
 
 	const changeAmount = Math.floor(goldDelta);
 	playerForce.gold += changeAmount;
 
-	UIManager.handleGoldChanged(playerForce.gold, changeAmount)
+	UI.events.onGoldChanged(playerForce.gold, changeAmount)
 }
 
 export const manipulateForceMorale = (
@@ -68,7 +68,7 @@ export const manipulateForceMorale = (
 	const actualChange = targetForce.morale - oldMorale;
 
 	if (emitEvents && actualChange !== 0) {
-		updateMoraleDisplay({
+		MoraleDisplay.updateMoraleDisplay({
 			forceId: targetForce.id,
 			newMorale: targetForce.morale,
 			maxMorale: targetForce.maxMorale,
@@ -97,7 +97,7 @@ export const manipulateForceShield = (
 	const actualChange = targetForce.shield - oldShield;
 
 	if (emitEvents && actualChange !== 0) {
-		handleShieldUpdated({
+		MoraleDisplay.handleShieldUpdated({
 			forceId: targetForce.id,
 			newShield: targetForce.shield,
 			maxShield: targetForce.maxMorale,
@@ -129,7 +129,7 @@ export const applyDamageToForce = (
 		const moraleChange = manipulateForceMorale(targetForce, -damage, false); // suppress intermediate event
 
 		// Single UI/event emission with aggregated info
-		updateMoraleDisplay({
+		MoraleDisplay.updateMoraleDisplay({
 			forceId: targetForce.id,
 			newMorale: targetForce.morale,
 			maxMorale: targetForce.maxMorale,
@@ -137,7 +137,7 @@ export const applyDamageToForce = (
 			damageType: damageType, // Include damage type for colored pop text
 		})
 
-		trackMoraleChange({
+		CombatStatsTracker.trackMoraleChange({
 			forceId: targetForce.id,
 			newMorale: targetForce.morale,
 			maxMorale: targetForce.maxMorale,
@@ -173,7 +173,7 @@ export const applyDamageToForce = (
 	// Emit shield update if shield changed
 	if (targetForce.shield !== originalShield) {
 		// Emit a single shield event with aggregated info
-		handleShieldUpdated({
+		MoraleDisplay.handleShieldUpdated({
 			forceId: targetForce.id,
 			newShield: targetForce.shield,
 			maxShield: targetForce.maxMorale, // Use max morale as maxShield for display
@@ -185,14 +185,14 @@ export const applyDamageToForce = (
 
 	// Emit morale update if morale changed, and show total damage as pop text
 	if (targetForce.morale !== originalMorale) {
-		updateMoraleDisplay({
+		MoraleDisplay.updateMoraleDisplay({
 			forceId: targetForce.id,
 			newMorale: targetForce.morale,
 			maxMorale: targetForce.maxMorale,
 			totalDamage: damage, // Include total damage for pop text display
 			damageType: damageType, // Include damage type for colored pop text
 		});
-		trackMoraleChange({
+		CombatStatsTracker.trackMoraleChange({
 			forceId: targetForce.id,
 			newMorale: targetForce.morale,
 			maxMorale: targetForce.maxMorale,

@@ -2,38 +2,12 @@ import * as c from "../constants/constants";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import { tween } from "../Utils/animation";
 import * as Tooltip from "./Tooltip";
+export * as events from "./events/"
 
 let uiContainer: Container | null = null;
 let goldContainer: Container | null = null;
-let goldTextElement: TextObj | null = null;
+export let goldTextElement: TextObj | null = null;
 let prestigeTextElement: TextObj | null = null;
-
-export function handlePurchaseFailed(payload: { unitName: string, reason: string, cost?: number }): void {
-	let message = `Could not buy ${payload.unitName}. `;
-	switch (payload.reason) {
-		case "PARTY_FULL":
-			message += "Your party is full!";
-			break;
-		case "INSUFFICIENT_GOLD":
-			message += `Not enough gold! (Cost: ${payload.cost ?? 'N/A'})`;
-			break;
-		case "SLOT_OCCUPIED":
-			message += "That slot is already occupied.";
-			break;
-		default: message += "Reason unknown.";
-	}
-	handleUserMessageRequested({ text: message, type: 'error' });
-
-}
-
-export function handleGoldChanged(newTotalGold: number, goldDelta: number): void {
-	if (goldTextElement) {
-		goldTextElement.setText(`${newTotalGold}`);
-		if (goldDelta !== 0) {
-			goldChangeAnimation(goldDelta);
-		}
-	}
-}
 
 export function updatePrestige(newTotalPrestige: number, _prestigeDelta: number): void {
 	if (prestigeTextElement) {
@@ -144,7 +118,8 @@ export async function handleUserMessageRequested(payload: {
 	text.destroy();
 }
 
-function destroyMainUI(): void {
+
+export function destroy(): void {
 	if (uiContainer) {
 		uiContainer.destroy(true);
 		uiContainer = null;
@@ -152,44 +127,7 @@ function destroyMainUI(): void {
 	goldContainer = null;
 	goldTextElement = null;
 	prestigeTextElement = null;
-}
-
-export function destroy(): void {
-	destroyMainUI();
 	Tooltip.destroyTooltip();
 }
 
-async function goldChangeAnimation(gold: number): Promise<void> {
-	const sign = gold > 0 ? "+" : "";
-	const animationText = `${sign}${gold}`;
-
-	if (!goldTextElement) return;
-
-	const bounds = goldTextElement.getBounds();
-	const startX = bounds.centerX;
-	const startY = bounds.centerY;
-
-	const goldAmountText = scene.add.text(startX, startY, animationText, c.titleTextConfig)
-		.setOrigin(0.5, 0.5)
-		.setAlpha(0)
-		.setScale(1)
-		.setDepth(1000);
-
-	await tween({
-		targets: [goldAmountText],
-		alpha: 1,
-		scale: 1.2,
-		y: startY - 30,
-	});
-
-	await tween({
-		targets: [goldAmountText],
-		alpha: 0,
-		scale: 1,
-		y: startY - 60,
-		duration: 800,
-	});
-
-	goldAmountText.destroy();
-}
 

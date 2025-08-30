@@ -6,7 +6,7 @@ import { getUnitAt } from "@Models/State";
 import { updatePlayerGoldIO } from "@Models/Entities/Force";
 import { getCharaById, summon } from "@Systems/Chara/Chara";
 import * as Systems from "@Systems/index"
-import * as UIManager from "@UI/UIManager";
+import * as onPurchaseFailed from "@UI/events/onPurchaseFailed";
 
 export function itemDragPurchaseRequested(
 	shopUnitData: Unit,
@@ -21,7 +21,7 @@ export function itemDragPurchaseRequested(
 		Systems.Chara.Chara.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(
 			dragStartX, dragStartY
 		));
-		UIManager.handlePurchaseFailed({
+		onPurchaseFailed.onPurchaseFailed({
 			unitName: shopUnitData.name,
 			reason: "INSUFFICIENT_GOLD",
 			cost: constants.SHOP_ITEM_PURCHASE_COST
@@ -32,7 +32,7 @@ export function itemDragPurchaseRequested(
 		Systems.Chara.Chara.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(
 			dragStartX, dragStartY
 		));
-		UIManager.handlePurchaseFailed({
+		onPurchaseFailed.onPurchaseFailed({
 			unitName: shopUnitData.name,
 			reason: "PARTY_FULL"
 		});
@@ -44,7 +44,7 @@ export function itemDragPurchaseRequested(
 		Systems.Chara.Chara.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(
 			dragStartX, dragStartY
 		));
-		UIManager.handlePurchaseFailed({
+		onPurchaseFailed.onPurchaseFailed({
 			unitName: shopUnitData.name,
 			reason: "SLOT_OCCUPIED"
 		});
