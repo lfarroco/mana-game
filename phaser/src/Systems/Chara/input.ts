@@ -10,7 +10,7 @@ import * as Tooltip from "@UI/Tooltip";
 
 import * as Chara from "./Chara";
 import * as input from "./input";
-import events from "./events";
+import * as events from "./events";
 
 export type InputHandler = {
 	dragStartX: number;

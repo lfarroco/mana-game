@@ -5,8 +5,8 @@ import { makeUnit, Unit } from "@Models/Entities/Unit";
 import { getUnitAt } from "@Models/State";
 import { updatePlayerGoldIO } from "@Models/Entities/Force";
 import { getCharaById, summon } from "@Systems/Chara/Chara";
-import * as onPurchaseFailed from "@UI/events/onPurchaseFailed";
-import events from "@Systems/Chara/events";
+import * as uiEvents from "@UI/events";
+import * as charaEvents from "@Systems/Chara/events";
 
 export function itemDragPurchaseRequested(
 	shopUnitData: Unit,
@@ -18,10 +18,10 @@ export function itemDragPurchaseRequested(
 
 	if (scene.state.gameData.player.gold < constants.SHOP_ITEM_PURCHASE_COST) {
 
-		events.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(
+		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(
 			dragStartX, dragStartY
 		));
-		onPurchaseFailed.onPurchaseFailed({
+		uiEvents.onPurchaseFailed({
 			unitName: shopUnitData.name,
 			reason: "INSUFFICIENT_GOLD",
 			cost: constants.SHOP_ITEM_PURCHASE_COST
@@ -29,10 +29,10 @@ export function itemDragPurchaseRequested(
 		return;
 	}
 	if (scene.state.gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
-		events.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(
+		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(
 			dragStartX, dragStartY
 		));
-		onPurchaseFailed.onPurchaseFailed({
+		uiEvents.onPurchaseFailed({
 			unitName: shopUnitData.name,
 			reason: "PARTY_FULL"
 		});
@@ -41,10 +41,10 @@ export function itemDragPurchaseRequested(
 
 	const occupier = getUnitAt(scene.state.gameData.player.units)(targetTile);
 	if (occupier) {
-		events.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(
+		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(
 			dragStartX, dragStartY
 		));
-		onPurchaseFailed.onPurchaseFailed({
+		uiEvents.onPurchaseFailed({
 			unitName: shopUnitData.name,
 			reason: "SLOT_OCCUPIED"
 		});
@@ -57,6 +57,6 @@ export function itemDragPurchaseRequested(
 
 	summon(newUnit, true);
 
-	events.onShopPurchaseSuccesful(getCharaById(shopCharaId));
+	charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
 
 }
