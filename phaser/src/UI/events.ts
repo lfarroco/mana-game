@@ -5,7 +5,7 @@ import * as UI from "./UI";
 
 
 export function onGoldChanged(newTotalGold: number, goldDelta: number) {
-	UI.goldTextElement!.setText(`${newTotalGold}`);
+	UI.updateGold(newTotalGold);
 	if (goldDelta !== 0) {
 		goldChangeAnimation(goldDelta);
 	}
@@ -15,9 +15,7 @@ async function goldChangeAnimation(gold: number) {
 	const sign = gold > 0 ? "+" : "";
 	const animationText = `${sign}${gold}`;
 
-	if (!UI.goldTextElement) return;
-
-	const bounds = UI.goldTextElement.getBounds();
+	const bounds = UI.goldTextElement!.getBounds();
 	const startX = bounds.centerX;
 	const startY = bounds.centerY;
 

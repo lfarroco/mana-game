@@ -10,9 +10,11 @@ export let goldTextElement: TextObj | null = null;
 let prestigeTextElement: TextObj | null = null;
 
 export function updatePrestige(newTotalPrestige: number, _prestigeDelta: number): void {
-	if (prestigeTextElement) {
-		prestigeTextElement.setText(`${newTotalPrestige}`);
-	}
+	prestigeTextElement!.setText(`${newTotalPrestige}`);
+}
+
+export function updateGold(newTotalGold: number) {
+	goldTextElement!.setText(`${newTotalGold}`);
 }
 
 export function init() {
@@ -21,33 +23,33 @@ export function init() {
 
 	Tooltip.init();
 
-	createGoldText(uiContainer);
+	createGoldDisplay(uiContainer);
 
-	if (prestigeTextElement) {
-		prestigeTextElement.setText(`${scene.state.gameData.player.prestige}`);
-	}
+	createPrestigeDisplay(uiContainer);
+
 }
 
-function createGoldText(parent: Container): void {
+function createGoldDisplay(parent: Container): void {
 	const initialGold = scene.state.gameData.player.gold;
 
-	const displayX = c.SCREEN_WIDTH - 120;
+	const displayX = c.SCREEN_WIDTH - 320;
 	const displayY = 30;
 
 	goldContainer = scene.add.container(displayX, displayY);
 
-	const background = scene.add.graphics();
-	background.fillStyle(0x2d3d1a, 0.8);
-	background.lineStyle(3, 0x1a2610, 1);
-	background.fillRoundedRect(-50, -20, 100, 40, 20);
-	background.strokeRoundedRect(-50, -20, 100, 40, 20);
-	goldContainer.add(background);
-
-	const coinIcon = scene.add.image(-25, 0, 'coin').setScale(0.8);
-	goldContainer.add(coinIcon);
+	const label = scene.add.text(
+		0, 0,
+		"Gold:",
+		{
+			...c.titleTextConfig,
+			fontSize: '24px',
+			color: '#ffffff'
+		}
+	).setOrigin(1, 0.5);
+	goldContainer.add(label);
 
 	goldTextElement = scene.add.text(
-		0, 0,
+		100, 0,
 		`${initialGold}`,
 		{
 			...c.titleTextConfig,
@@ -57,8 +59,16 @@ function createGoldText(parent: Container): void {
 	).setOrigin(0, 0.5);
 	goldContainer.add(goldTextElement);
 
+	parent.add(goldContainer);
+}
+
+function createPrestigeDisplay(parent: Container): void {
+
+	const displayX = c.SCREEN_WIDTH - 620;
+	const displayY = 30;
+
 	const initialPrestige = scene.state.gameData.player.prestige;
-	const prestigeContainer = scene.add.container(0, 44);
+	const prestigeContainer = scene.add.container(displayX, displayY);
 
 	const prestigeBg = scene.add.graphics();
 	prestigeBg.fillStyle(0x3a2d1a, 0.8);
@@ -67,12 +77,19 @@ function createGoldText(parent: Container): void {
 	prestigeBg.strokeRoundedRect(-50, -20, 100, 40, 20);
 	prestigeContainer.add(prestigeBg);
 
-	const prestigeIcon = scene.add.image(-25, 0, 'coin').setScale(0.8);
-	prestigeIcon.setTint(0x4a90ff);
-	prestigeContainer.add(prestigeIcon);
+	const label = scene.add.text(
+		0, 0,
+		"Prestige:",
+		{
+			...c.titleTextConfig,
+			fontSize: '24px',
+			color: '#ffffff'
+		}
+	).setOrigin(1, 0.5);
+	prestigeContainer.add(label);
 
 	prestigeTextElement = scene.add.text(
-		0, 0,
+		100, 0,
 		`${initialPrestige}`,
 		{
 			...c.titleTextConfig,
@@ -82,9 +99,7 @@ function createGoldText(parent: Container): void {
 	).setOrigin(0, 0.5);
 	prestigeContainer.add(prestigeTextElement);
 
-	goldContainer.add(prestigeContainer);
-
-	parent.add(goldContainer);
+	parent.add(prestigeContainer);
 }
 
 export async function handleUserMessageRequested(payload: {
