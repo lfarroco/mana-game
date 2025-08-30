@@ -2,7 +2,6 @@ import Phaser from "phaser";
 import { preload } from "./preload";
 import { State, getState } from "@Models/State";
 import * as UIManager from "../../UI/UI";
-import { Chara } from "@Systems/Chara";
 import { CardCollection } from "@Models/Entities/Card";
 import * as Board from "@Models/Board";
 import { RunCombatSystem } from "./RunCombatIO";
@@ -11,6 +10,7 @@ import * as AudioManager from "@Systems/AudioManager";
 import * as Shop from "./Systems/Shop";
 import * as MoraleDisplay from "./MoraleDisplay";
 import * as Systems from "./Systems"
+import { clearAll } from "@Systems/Chara/Chara";
 
 export let scene: BattlegroundScene;
 
@@ -22,7 +22,7 @@ export class BattlegroundScene extends Phaser.Scene {
   runCombatSystem: RunCombatSystem;
 
   cleanup() {
-    Chara.clearAll();
+    clearAll();
     this.time.removeAllEvents();
     this.children.removeAll(true);
 

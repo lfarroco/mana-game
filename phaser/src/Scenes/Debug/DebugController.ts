@@ -5,7 +5,7 @@ import { CardDefinition } from "@Models/Entities/Card";
 import * as constants from "../../constants/constants";
 import { updatePlayerGoldIO } from "@Models/Entities/Force";
 import { titleScene } from "../Title/TitleScene";
-import { Chara } from "@Systems/Chara";
+import * as  Chara from "@Systems/Chara/Chara";
 import * as Systems from "../Battleground/Systems";
 import { processOwnedUnitMoveRequest } from "@Systems/Chara/input";
 
