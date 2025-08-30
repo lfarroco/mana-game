@@ -19,22 +19,22 @@ export function itemClickPurchaseRequested(
 
 	const handlePurchaseFailure = (
 		reason: string,
-		additionalDetails?: Record<string, any>
+		cost?: number
 	) => {
 		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), Geometry.vec2(
 			dragStartX,
 			dragStartY,
 		));
 
-		uiEvents.onPurchaseFailed({
-			unitName: shopUnitData.name,
+		uiEvents.onPurchaseFailed(
+			shopUnitData.name,
 			reason,
-			...additionalDetails,
-		});
+			cost
+		);
 	};
 
 	if (state.gameData.player.gold < constants.SHOP_ITEM_PURCHASE_COST) {
-		handlePurchaseFailure("INSUFFICIENT_GOLD", { cost: constants.SHOP_ITEM_PURCHASE_COST });
+		handlePurchaseFailure("INSUFFICIENT_GOLD", constants.SHOP_ITEM_PURCHASE_COST);
 		return;
 	}
 	if (state.gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
