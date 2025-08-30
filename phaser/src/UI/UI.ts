@@ -4,17 +4,22 @@ import { tween } from "../Utils/animation";
 import * as Tooltip from "./Tooltip";
 export * as events from "./events"
 
+const GOLD_DISPLAY_X = c.SCREEN_WIDTH - 320;
+const GOLD_DISPLAY_Y = 20;
+
+const PRESTIGE_DISPLAY_X = c.SCREEN_WIDTH - 520;
+const PRESTIGE_DISPLAY_Y = 20;
+
 let uiContainer: Container | null = null;
-let goldContainer: Container | null = null;
 export let goldTextElement: TextObj | null = null;
 let prestigeTextElement: TextObj | null = null;
 
-export function updatePrestige(newTotalPrestige: number, _prestigeDelta: number): void {
-	prestigeTextElement!.setText(`${newTotalPrestige}`);
+export const updatePrestige = (newTotalPrestige: number): void => {
+	prestigeTextElement!.setText(newTotalPrestige.toString());
 }
 
-export function updateGold(newTotalGold: number) {
-	goldTextElement!.setText(`${newTotalGold}`);
+export const updateGold = (newTotalGold: number): void => {
+	goldTextElement!.setText(newTotalGold.toString());
 }
 
 export function init() {
@@ -32,10 +37,7 @@ export function init() {
 function createGoldDisplay(parent: Container): void {
 	const initialGold = scene.state.gameData.player.gold;
 
-	const displayX = c.SCREEN_WIDTH - 320;
-	const displayY = 30;
-
-	goldContainer = scene.add.container(displayX, displayY);
+	const goldContainer = scene.add.container(GOLD_DISPLAY_X, GOLD_DISPLAY_Y);
 
 	const label = scene.add.text(
 		0, 0,
@@ -45,18 +47,19 @@ function createGoldDisplay(parent: Container): void {
 			fontSize: '24px',
 			color: '#ffffff'
 		}
-	).setOrigin(1, 0.5);
+	).setOrigin(0);
 	goldContainer.add(label);
 
 	goldTextElement = scene.add.text(
-		100, 0,
-		`${initialGold}`,
+		label.width + 10, 0,
+		initialGold.toString(),
 		{
 			...c.titleTextConfig,
 			fontSize: '24px',
 			color: '#ffffff'
 		}
-	).setOrigin(0, 0.5);
+	).setOrigin(0);
+
 	goldContainer.add(goldTextElement);
 
 	parent.add(goldContainer);
@@ -64,18 +67,8 @@ function createGoldDisplay(parent: Container): void {
 
 function createPrestigeDisplay(parent: Container): void {
 
-	const displayX = c.SCREEN_WIDTH - 620;
-	const displayY = 30;
-
 	const initialPrestige = scene.state.gameData.player.prestige;
-	const prestigeContainer = scene.add.container(displayX, displayY);
-
-	const prestigeBg = scene.add.graphics();
-	prestigeBg.fillStyle(0x3a2d1a, 0.8);
-	prestigeBg.lineStyle(3, 0x261a10, 1);
-	prestigeBg.fillRoundedRect(-50, -20, 100, 40, 20);
-	prestigeBg.strokeRoundedRect(-50, -20, 100, 40, 20);
-	prestigeContainer.add(prestigeBg);
+	const prestigeContainer = scene.add.container(PRESTIGE_DISPLAY_X, PRESTIGE_DISPLAY_Y);
 
 	const label = scene.add.text(
 		0, 0,
@@ -85,18 +78,18 @@ function createPrestigeDisplay(parent: Container): void {
 			fontSize: '24px',
 			color: '#ffffff'
 		}
-	).setOrigin(1, 0.5);
+	).setOrigin(0);
 	prestigeContainer.add(label);
 
 	prestigeTextElement = scene.add.text(
-		100, 0,
-		`${initialPrestige}`,
+		label.width + 10, 0,
+		initialPrestige.toString(),
 		{
 			...c.titleTextConfig,
 			fontSize: '24px',
 			color: '#ffffff'
 		}
-	).setOrigin(0, 0.5);
+	).setOrigin(0);
 	prestigeContainer.add(prestigeTextElement);
 
 	parent.add(prestigeContainer);
@@ -135,13 +128,8 @@ export async function handleUserMessageRequested(payload: {
 
 
 export function destroy(): void {
-	if (uiContainer) {
-		uiContainer.destroy(true);
-		uiContainer = null;
-	}
-	goldContainer = null;
-	goldTextElement = null;
-	prestigeTextElement = null;
+	uiContainer!.destroy(true);
+	uiContainer = null;
 	Tooltip.destroyTooltip();
 }
 

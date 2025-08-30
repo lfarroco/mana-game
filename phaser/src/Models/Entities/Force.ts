@@ -17,8 +17,6 @@ export type Force = {
 	shield: number;
 	units: Unit[];
 	prestige: number,
-	winStreak: number,
-	lossStreak: number,
 	totalRoundsPlayed: number;
 };
 
@@ -35,8 +33,6 @@ export const makeForce = (id: string): Force => {
 		maxMorale: constants.INITIAL_MORALE,
 		shield: 0,
 		prestige: 0,
-		winStreak: 0,
-		lossStreak: 0,
 		totalRoundsPlayed: 0,
 	}
 };
