@@ -1,5 +1,5 @@
 import { FORCE_ID_PLAYER } from "../../../constants/constants";
-import { Vec2, vec2 } from "@Models/Geometry.pure";
+import { vec2 } from "@Models/Geometry.pure";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import { Chara, getUnit, getIsShopItem } from "../Chara";
 import { onDrag } from "./onDrag";

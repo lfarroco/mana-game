@@ -1,16 +1,8 @@
 import { v4 } from "uuid";
-import { Vec2, vec2Zero } from "../Geometry.pure";
+import { vec2Zero } from "../Geometry.pure";
 import { getCardDefinition } from "./Card";
 import { Effect, EffectReaction, EffectSourcePosition } from "../../TriggerSystem/TriggerSystem";
 
-/**
- * Represents an "instance" of a `CardDefinition` within the game's logical state.
- * A `Unit` is an actual character or entity participating in the game, holding mutable data
- * that can change during gameplay, such as position on the board, experience points (xp),
- * status effects (like hasted, slowed), and current charge/cooldown for actions.
- * Game logic and systems primarily interact with `Unit` objects.
- * It is visually represented in the scene by a `Chara` object.
- */
 export type Unit = {
   id: string;
   cardId: string;
@@ -39,7 +31,6 @@ export type Unit = {
 export const makeUnit = (force: string, cardId: string, position = vec2Zero()): Unit => {
   const card = getCardDefinition(cardId);
 
-  // Use pure function with runtime-specific ID generation
   const pureUnit = createUnitFromCard(
     force,
     {
@@ -52,15 +43,12 @@ export const makeUnit = (force: string, cardId: string, position = vec2Zero()): 
       reactions: card.reactions || [],
     },
     position,
-    v4() // Generate unique ID for runtime
+    v4()
   );
 
   return pureUnit as Unit;
 };
 
-/**
- * Minimal card-like definition for unit creation
- */
 export type CardDefinition = {
   id: string;
   name: string;
@@ -71,9 +59,6 @@ export type CardDefinition = {
   reactions: EffectReaction[];
 };
 
-/**
- * All the required properties for a Unit, extracted for pure creation
- */
 export type PureUnitData = {
   id: string;
   cardId: string;
@@ -97,14 +82,6 @@ export type PureUnitData = {
   }[];
 };
 
-/**
- * Pure function to create a unit from a card definition
- * @param force The force/team the unit belongs to
- * @param cardDef The card definition to base the unit on
- * @param position The position to place the unit at
- * @param id Optional custom ID, if not provided will use cardDef.id
- * @returns A unit object with all required properties
- */
 export function createUnitFromCard(
   force: string,
   cardDef: CardDefinition,
@@ -136,13 +113,6 @@ export function createUnitFromCard(
   };
 }
 
-/**
- * Pure function to create a unit with custom properties
- * Useful for testing where you want full control over unit properties
- * @param baseProps Basic required properties
- * @param overrides Optional property overrides
- * @returns A unit object with all required properties
- */
 export function createCustomUnit(
   baseProps: {
     id: string;
@@ -176,14 +146,6 @@ export function createCustomUnit(
   };
 }
 
-/**
- * Pure function to create a test unit with sensible defaults
- * This is specifically designed for testing scenarios
- * @param id The unit ID
- * @param force The force/team
- * @param position Optional position (defaults to 0,0)
- * @returns A unit suitable for testing
- */
 export function createTestUnit(
   id: string,
   force: string,
@@ -192,9 +154,6 @@ export function createTestUnit(
   return createCustomUnit({ id, force, position });
 }
 
-/**
- * Common card definitions for testing
- */
 export const testCardDefinitions = {
   basicWarrior: {
     id: 'basic-warrior',

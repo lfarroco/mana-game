@@ -8,18 +8,16 @@ import * as ChargeBarDisplay from "./ChargeBarDisplay";
 import * as input from "./input";
 import { createContinuousHasteEffect } from "../../Effects/hasteEffect";
 import { onCharaPointerOut, onCharaPointerOver } from "./CharaTooltip";
-import { hideTooltip } from "../../UI/Tooltip";
-import { Vec2 } from "@Models/Geometry.pure";
-import { playSoundEffect } from "../AudioManager";
-import * as Shop from "@Scenes/Battleground/Systems/Shop/Shop";
-import * as ShopUI from "@Scenes/Battleground/Systems/Shop/ShopUI";
 import { popText } from "./Animations/popText";
 import { summonEffect } from "../../Effects/summonEffect";
 import { getState } from "@Models/State";
 
 export type Chara = Container;
 
-type HasteEffectState = { particles: Phaser.GameObjects.Particles.ParticleEmitter; cleanup: () => void };
+type HasteEffectState = {
+	particles: Phaser.GameObjects.Particles.ParticleEmitter;
+	cleanup: () => void
+};
 
 type CharaState = {
 	unit: Unit;
@@ -129,7 +127,7 @@ export function getCharaPosition(unit: Unit) {
 	return {
 		x: visualX * (constants.TILE_WIDTH + slotSpacing) + constants.HALF_TILE_WIDTH + offsetX,
 		y: unit.position.y * (constants.TILE_HEIGHT + slotSpacing) + constants.HALF_TILE_HEIGHT + offsetY,
-	} as Vec2;
+	};
 }
 
 function createSprite(container: Chara, unit: Unit, borderWidth: number = 3, borderColor: number = 0xffffff) {
@@ -174,28 +172,6 @@ function createSprite(container: Chara, unit: Unit, borderWidth: number = 3, bor
 	}
 
 	return sprite;
-}
-
-export function onShopPurchaseSuccesful(chara: Chara): void {
-	hideTooltip();
-
-	ShopUI.removeShopChild(chara);
-
-	Shop.handleCharaPurchaseFinalized(chara);
-
-	playSoundEffect('sfx_artifact_equipweapon');
-
-	// Remove the shop item instance from display and registry
-	destroy(chara);
-}
-
-export function onShopPurchaseFailed(chara: Chara, vec: Vec2) {
-	hideTooltip();
-	tween({
-		targets: [chara],
-		...vec,
-		duration: 150,
-	});
 }
 
 export function getIsShopItem(id: string): boolean {

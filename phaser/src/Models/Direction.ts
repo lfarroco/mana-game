@@ -1,5 +1,3 @@
-import { Vec2 } from "./Geometry";
-
 export type Direction = "up" | "down" | "left" | "right";
 
 export const DIRECTIONS: Record<Direction, Direction> = {

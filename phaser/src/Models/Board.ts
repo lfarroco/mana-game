@@ -1,16 +1,15 @@
-import Phaser from "phaser";
 import * as constants from "../constants/constants";
-import { PLAYER_BOARD_X, PLAYER_BOARD_Y, CPU_BOARD_X, CPU_BOARD_Y } from "../constants/constants";
-import { vec2, Vec2, eqVec2 } from "./Geometry";
+import * as constants_1 from "../constants/constants";
+import * as Geometry from "./Geometry";
 import { Unit } from "./Entities/Unit";
 import { getUnitAt, State } from "./State";
-import { EnergySlot, EnergySlotFactory } from "../components/EnergySlot/EnergySlot";
+import * as EnergySlot from "../components/EnergySlot/EnergySlot";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 
 export interface BoardState {
-	slotShaders: EnergySlot[];
+	slotShaders: EnergySlot.EnergySlot[];
 	dropZones: Phaser.GameObjects.Zone[];
-	cpuSlotShaders: EnergySlot[];
+	cpuSlotShaders: EnergySlot.EnergySlot[];
 	enemyBoardVisible: boolean;
 	readonly x: number;
 	readonly y: number;
@@ -24,8 +23,8 @@ export function createBoardState(): BoardState {
 		dropZones: [],
 		cpuSlotShaders: [],
 		enemyBoardVisible: false,
-		x: PLAYER_BOARD_X,
-		y: PLAYER_BOARD_Y,
+		x: constants_1.PLAYER_BOARD_X,
+		y: constants_1.PLAYER_BOARD_Y,
 		width: constants.TILE_WIDTH * 3 + 8 * 2,
 		height: constants.TILE_HEIGHT * 3 + 8 * 2,
 	};
@@ -42,11 +41,11 @@ export function renderBoardSlots(board: BoardState): void {
 	let cells = []
 	for (let tileY = 0; tileY < 3; tileY++)
 		for (let tileX = 0; tileX < 3; tileX++)
-			cells.push(vec2(tileX, tileY));
+			cells.push(Geometry.vec2(tileX, tileY));
 
 	const boards = [
-		{ x: PLAYER_BOARD_X, y: PLAYER_BOARD_Y, isPlayer: true },
-		{ x: CPU_BOARD_X, y: CPU_BOARD_Y, isPlayer: false }
+		{ x: constants_1.PLAYER_BOARD_X, y: constants_1.PLAYER_BOARD_Y, isPlayer: true },
+		{ x: constants_1.CPU_BOARD_X, y: constants_1.CPU_BOARD_Y, isPlayer: false }
 	];
 
 	boards.forEach(boardInfo => {
@@ -62,11 +61,11 @@ export function renderBoardSlots(board: BoardState): void {
 			const slotX = zoneX + constants.TILE_WIDTH / 2;
 			const slotY = zoneY + constants.TILE_HEIGHT / 2;
 
-			let energySlot: EnergySlot;
+			let energySlot: EnergySlot.EnergySlot;
 			if (boardInfo.isPlayer) {
-				energySlot = EnergySlotFactory.createPlayerSlot(slotX, slotY, constants.TILE_WIDTH);
+				energySlot = EnergySlot.EnergySlotFactory.createPlayerSlot(slotX, slotY, constants.TILE_WIDTH);
 			} else {
-				energySlot = EnergySlotFactory.createEnemySlot(slotX, slotY, constants.TILE_WIDTH);
+				energySlot = EnergySlot.EnergySlotFactory.createEnemySlot(slotX, slotY, constants.TILE_WIDTH);
 			}
 
 			if (!boardInfo.isPlayer) {
@@ -112,7 +111,7 @@ export function setEnemyBoardVisible(visible: boolean): void {
 					y: Math.floor(index / 3)
 				};
 				const visualX = 2 - cell.x;
-				const targetX = CPU_BOARD_X + visualX * (constants.TILE_WIDTH + slotSpacing) + constants.TILE_WIDTH / 2;
+				const targetX = constants_1.CPU_BOARD_X + visualX * (constants.TILE_WIDTH + slotSpacing) + constants.TILE_WIDTH / 2;
 
 				slot.setVisible(true);
 				slot.setPosition(offScreenX, slot.getCurrentPosition().y);
@@ -185,7 +184,7 @@ export function getEmptySlot(units: Unit[], forceId: string): Vec2 | null {
 
 	for (let y = 0; y < boardHeightInTiles; y++) {
 		for (let x = 0; x < boardWidthInTiles; x++) {
-			const currentPos = vec2(x, y);
+			const currentPos = Geometry.vec2(x, y);
 			if (!getUnitAt(units)(currentPos)) {
 				return currentPos;
 			}
@@ -206,7 +205,7 @@ export function getTileAt(board: BoardState, pointer: { x: number; y: number }):
 		const tileY = Math.floor((pointer.y - board.y) / heightWithSpacing);
 
 		if (tileX >= 0 && tileX < 3 && tileY >= 0 && tileY < 3) {
-			return vec2(tileX, tileY);
+			return Geometry.vec2(tileX, tileY);
 		}
 	}
 	return null;
@@ -223,11 +222,11 @@ export function updateUnitPosition(
 } | null {
 	const oldPositionOfMovedUnit = { ...unitToMove.position };
 
-	if (eqVec2(oldPositionOfMovedUnit, newBoardPosition)) {
+	if (Geometry.eqVec2(oldPositionOfMovedUnit, newBoardPosition)) {
 		return null;
 	}
 
-	const occupierUnit = unitsOnBoard.find(u => u.id !== unitToMove.id && eqVec2(u.position, newBoardPosition));
+	const occupierUnit = unitsOnBoard.find(u => u.id !== unitToMove.id && Geometry.eqVec2(u.position, newBoardPosition));
 
 	if (occupierUnit) {
 		occupierUnit.position = oldPositionOfMovedUnit;

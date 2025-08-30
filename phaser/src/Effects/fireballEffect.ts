@@ -54,8 +54,8 @@ export async function fireballEffect(
 }
 
 function fireball(
-	source: Point,
-	target: Point,
+	source: Vec2,
+	target: Vec2,
 	scene: Scene,
 	lifespan: number,
 	travelDuration: number,
