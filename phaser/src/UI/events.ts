@@ -1,15 +1,13 @@
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import { titleTextConfig } from "../constants/constants";
 import { tween } from "../Utils/animation";
-import { goldTextElement, handleUserMessageRequested } from "./UI";
+import * as UI from "./UI";
 
 
-export function onGoldChanged(newTotalGold: number, goldDelta: number): void {
-	if (goldTextElement) {
-		goldTextElement.setText(`${newTotalGold}`);
-		if (goldDelta !== 0) {
-			goldChangeAnimation(goldDelta);
-		}
+export function onGoldChanged(newTotalGold: number, goldDelta: number) {
+	UI.goldTextElement!.setText(`${newTotalGold}`);
+	if (goldDelta !== 0) {
+		goldChangeAnimation(goldDelta);
 	}
 }
 
@@ -17,9 +15,9 @@ async function goldChangeAnimation(gold: number) {
 	const sign = gold > 0 ? "+" : "";
 	const animationText = `${sign}${gold}`;
 
-	if (!goldTextElement) return;
+	if (!UI.goldTextElement) return;
 
-	const bounds = goldTextElement.getBounds();
+	const bounds = UI.goldTextElement.getBounds();
 	const startX = bounds.centerX;
 	const startY = bounds.centerY;
 
@@ -50,19 +48,17 @@ async function goldChangeAnimation(gold: number) {
 }
 
 export function onPurchaseFailed(
-	payload: {
-		unitName: string; reason: string; cost?: number;
+	unitName: string, reason: string, cost?: number,
+) {
 
-	}) {
+	let message = `Could not buy ${unitName}. `;
 
-	let message = `Could not buy ${payload.unitName}. `;
-
-	switch (payload.reason) {
+	switch (reason) {
 		case "PARTY_FULL":
 			message += "Your party is full!";
 			break;
 		case "INSUFFICIENT_GOLD":
-			message += `Not enough gold! (Cost: ${payload.cost ?? 'N/A'})`;
+			message += `Not enough gold! (Cost: ${cost ?? 'N/A'})`;
 			break;
 		case "SLOT_OCCUPIED":
 			message += "That slot is already occupied.";
@@ -70,7 +66,7 @@ export function onPurchaseFailed(
 		default: message += "Reason unknown.";
 	}
 
-	handleUserMessageRequested({ text: message, type: 'error' });
+	UI.handleUserMessageRequested({ text: message, type: 'error' });
 
 }
 

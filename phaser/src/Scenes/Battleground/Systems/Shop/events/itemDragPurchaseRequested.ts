@@ -21,21 +21,21 @@ export function itemDragPurchaseRequested(
 		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(
 			dragStartX, dragStartY
 		));
-		uiEvents.onPurchaseFailed({
-			unitName: shopUnitData.name,
-			reason: "INSUFFICIENT_GOLD",
-			cost: constants.SHOP_ITEM_PURCHASE_COST
-		});
+		uiEvents.onPurchaseFailed(
+			shopUnitData.name,
+			"INSUFFICIENT_GOLD",
+			constants.SHOP_ITEM_PURCHASE_COST
+		);
 		return;
 	}
 	if (scene.state.gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
 		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(
 			dragStartX, dragStartY
 		));
-		uiEvents.onPurchaseFailed({
-			unitName: shopUnitData.name,
-			reason: "PARTY_FULL"
-		});
+		uiEvents.onPurchaseFailed(
+			shopUnitData.name,
+			"PARTY_FULL"
+		);
 		return;
 	}
 
@@ -44,10 +44,10 @@ export function itemDragPurchaseRequested(
 		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(
 			dragStartX, dragStartY
 		));
-		uiEvents.onPurchaseFailed({
-			unitName: shopUnitData.name,
-			reason: "SLOT_OCCUPIED"
-		});
+		uiEvents.onPurchaseFailed(
+			shopUnitData.name,
+			"SLOT_OCCUPIED"
+		);
 		return;
 	}
 
