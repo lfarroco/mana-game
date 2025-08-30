@@ -3,7 +3,7 @@ import * as events from "../events";
 import { Vec2, vec2 } from "@Models/Geometry.pure";
 import * as Shop from "@Scenes/Battleground/Systems/Shop";
 import * as Chara from "../Chara";
-import { getSharedPlayerBoard, PartyBoard } from "@Models/Board";
+import { getSharedPlayerBoard, updateUnitPosition } from "@Models/Board";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import { Unit } from "@Models/Entities/Unit";
 import { hideTooltip } from "../../../UI/Tooltip";
@@ -98,14 +98,14 @@ export const processOwnedUnitMoveRequest = (
 };
 
 const _executeMove = (unit: Unit, target: Vec2, units: Unit[]) => {
-	const result = PartyBoard.updateUnitPosition(unit, target, units);
+	const result = updateUnitPosition(unit, target, units);
 	if (!result) return;
 
 	_applyMoveVisual(result.movedUnit);
 };
 
 const _executeSwap = (unit: Unit, _occupier: Unit, target: Vec2, units: Unit[]) => {
-	const result = PartyBoard.updateUnitPosition(unit, target, units);
+	const result = updateUnitPosition(unit, target, units);
 	if (!result) return;
 
 	_applySwapVisual(result.movedUnit, result.swappedUnit!);
