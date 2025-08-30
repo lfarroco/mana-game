@@ -238,7 +238,7 @@ export function updateUnitPosition(
 
 let _playerBoardState: BoardState | null = null;
 
-export function initializeBoardState(): BoardState {
+export function init(): BoardState {
 	if (_playerBoardState) {
 		destroy(_playerBoardState);
 	}
@@ -248,7 +248,7 @@ export function initializeBoardState(): BoardState {
 
 export function getBoardState(): BoardState {
 	if (!_playerBoardState) {
-		throw new Error("Shared PlayerBoard accessed before initialization. Call initializeBoardState() first.");
+		throw new Error("Shared PlayerBoard accessed before initialization. Call Board.init() first.");
 	}
 	return _playerBoardState;
 }
