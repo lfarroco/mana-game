@@ -2,7 +2,7 @@ import * as c from "../constants/constants";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import { tween } from "../Utils/animation";
 import * as Tooltip from "./Tooltip";
-export * as events from "./events/"
+export * as events from "./events"
 
 let uiContainer: Container | null = null;
 let goldContainer: Container | null = null;

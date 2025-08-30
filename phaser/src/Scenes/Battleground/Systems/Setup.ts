@@ -5,7 +5,7 @@ import * as BG_CONSTANTS from "../battlegroundConstants";
 import { scene } from "../BattlegroundScene";
 import { getOption } from "@Models/OptionsStore";
 import { CloudsBackground } from "../../../components/cloudBackground/CloudsBackground";
-import * as UI from "@UI/index";
+import * as UI from "@UI/UI";
 
 export let cloudsBackground: CloudsBackground | null = null;
 

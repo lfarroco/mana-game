@@ -1,6 +1,6 @@
 import * as constants from "../../constants/constants";
 import { Unit } from "./Unit";
-import * as UI from "@UI/index";
+import * as UI from "@UI/UI";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import * as MoraleDisplay from "@Scenes/Battleground/MoraleDisplay";
 

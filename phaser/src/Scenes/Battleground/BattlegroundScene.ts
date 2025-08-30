@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { preload } from "./preload";
 import { State, getState } from "@Models/State";
-import * as UIManager from "../../UI";
+import * as UIManager from "../../UI/UI";
 import { Chara } from "@Systems/Chara";
 import { CardCollection } from "@Models/Entities/Card";
 import * as Board from "@Models/Board";

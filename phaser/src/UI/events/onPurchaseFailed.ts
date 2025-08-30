@@ -1,4 +1,4 @@
-import { handleUserMessageRequested } from "..";
+import { handleUserMessageRequested } from "../UI";
 
 
 export function onPurchaseFailed(payload: { unitName: string; reason: string; cost?: number; }): void {
