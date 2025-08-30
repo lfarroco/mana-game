@@ -10,6 +10,9 @@ const GOLD_DISPLAY_Y = 20;
 const PRESTIGE_DISPLAY_X = c.SCREEN_WIDTH - 520;
 const PRESTIGE_DISPLAY_Y = 20;
 
+const ROUND_DISPLAY_X = c.SCREEN_WIDTH - 720;
+const ROUND_DISPLAY_Y = 20;
+
 let uiContainer: Container | null = null;
 export let goldTextElement: TextObj | null = null;
 let prestigeTextElement: TextObj | null = null;
@@ -31,6 +34,8 @@ export function init() {
 	createGoldDisplay(uiContainer);
 
 	createPrestigeDisplay(uiContainer);
+
+	createRoundDisplay(uiContainer);
 
 }
 
@@ -93,6 +98,35 @@ function createPrestigeDisplay(parent: Container): void {
 	prestigeContainer.add(prestigeTextElement);
 
 	parent.add(prestigeContainer);
+}
+
+function createRoundDisplay(parent: Container): void {
+	const initialRound = scene.state.gameData.player.totalRoundsPlayed;
+	const roundContainer = scene.add.container(ROUND_DISPLAY_X, ROUND_DISPLAY_Y);
+
+	const label = scene.add.text(
+		0, 0,
+		"Round:",
+		{
+			...c.titleTextConfig,
+			fontSize: '24px',
+			color: '#ffffff'
+		}
+	).setOrigin(0);
+	roundContainer.add(label);
+
+	const roundTextElement = scene.add.text(
+		label.width + 10, 0,
+		initialRound.toString(),
+		{
+			...c.titleTextConfig,
+			fontSize: '24px',
+			color: '#ffffff'
+		}
+	).setOrigin(0);
+	roundContainer.add(roundTextElement);
+
+	parent.add(roundContainer);
 }
 
 export async function handleUserMessageRequested(payload: {
