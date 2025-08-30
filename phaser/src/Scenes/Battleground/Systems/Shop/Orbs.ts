@@ -1,6 +1,6 @@
 import { MagicOrb, MagicOrbCallbacks } from "../../../../components/MagicOrb/MagicOrb";
 import * as Phaser from "phaser";
-import { getSharedPlayerBoard } from "@Models/Board";
+import * as Board from "@Models/Board";
 import { Unit } from "@Models/Entities/Unit";
 import { getReactionDescription } from "@Systems/Chara/CharaTooltip";
 import { increasePower } from "../../../../TriggerSystem/effects";
@@ -414,7 +414,7 @@ export function renderOrbs(ui: ShopUI.ShopUIState, orbIds: string[]) {
 		magicOrb: MagicOrb
 	}) {
 		const { orb, target, orbSpec, magicOrb } = params;
-		const playerBoard = getSharedPlayerBoard();
+		const playerBoard = Board.getBoardState();
 
 		if (!playerBoard || !playerBoard.dropZones.includes(target as Phaser.GameObjects.Zone)) {
 			console.log(`${orbSpec.name} dropped on non-board target:`, target);

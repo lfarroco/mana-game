@@ -4,7 +4,7 @@ import { State, getState } from "@Models/State";
 import * as UIManager from "../../UI";
 import { Chara } from "@Systems/Chara";
 import { CardCollection } from "@Models/Entities/Card";
-import { BoardState, getSharedPlayerBoard, update } from "@Models/Board";
+import * as Board from "@Models/Board";
 import { RunCombatSystem } from "./RunCombatIO";
 import { getOption } from "@Models/OptionsStore";
 import * as AudioManager from "@Systems/AudioManager";
@@ -19,7 +19,7 @@ export class BattlegroundScene extends Phaser.Scene {
   bgContainer!: Container;
   cloudsBackground!: Phaser.GameObjects.Image;
   collection!: CardCollection;
-  playerBoard!: BoardState;
+  playerBoard!: Board.BoardState;
   runCombatSystem: RunCombatSystem;
 
   cleanup() {
@@ -84,8 +84,8 @@ export class BattlegroundScene extends Phaser.Scene {
 
   update(time: number, delta: number): void {
     Shop.UI.update(time);
-    const playerBoard = getSharedPlayerBoard();
-    update(playerBoard, time);
+    const playerBoard = Board.getBoardState();
+    Board.update(playerBoard, time);
 
     this.runCombatSystem.updateFrame(time, delta);
   }

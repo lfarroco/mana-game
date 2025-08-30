@@ -1,6 +1,6 @@
 import { State } from "@Models/State";
 import * as ControlsSystem from "@Systems/Controls";
-import { initializePlayerBoard, createBoardDropZone } from "@Models/Board";
+import * as Board from "@Models/Board";
 import * as BG_CONSTANTS from "../battlegroundConstants";
 import { scene } from "../BattlegroundScene";
 import { getOption } from "@Models/OptionsStore";
@@ -35,8 +35,8 @@ export function setupSceneElements(_state: State) {
 
 	scene.bgContainer.add([scene.cloudsBackground]);
 
-	const playerBoard = initializePlayerBoard();
-	createBoardDropZone();
+	const playerBoard = Board.initializeBoardState();
+	Board.initializeBoardDropZones();
 	return playerBoard;
 }
 

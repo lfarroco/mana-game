@@ -18,7 +18,7 @@ export interface BoardState {
 	readonly height: number;
 }
 
-export function createBoard(): BoardState {
+export function createBoardState(): BoardState {
 	return {
 		slotShaders: [],
 		dropZones: [],
@@ -31,7 +31,7 @@ export function createBoard(): BoardState {
 	};
 }
 
-export function renderSlots(board: BoardState): void {
+export function renderBoardSlots(board: BoardState): void {
 	destroyVisuals(board);
 
 	const slotSpacing = 8;
@@ -238,24 +238,24 @@ export function updateUnitPosition(
 
 let _playerBoardState: BoardState | null = null;
 
-export function initializePlayerBoard(): BoardState {
+export function initializeBoardState(): BoardState {
 	if (_playerBoardState) {
 		destroy(_playerBoardState);
 	}
-	_playerBoardState = createBoard();
+	_playerBoardState = createBoardState();
 	return _playerBoardState;
 }
 
-export function getSharedPlayerBoard(): BoardState {
+export function getBoardState(): BoardState {
 	if (!_playerBoardState) {
-		throw new Error("Shared PlayerBoard accessed before initialization. Call initializePlayerBoard(scene) first.");
+		throw new Error("Shared PlayerBoard accessed before initialization. Call initializeBoardState() first.");
 	}
 	return _playerBoardState;
 }
 
-export function createBoardDropZone(): void {
-	const board = getSharedPlayerBoard();
-	renderSlots(board);
+export function initializeBoardDropZones(): void {
+	const board = getBoardState();
+	renderBoardSlots(board);
 }
 
 export function getColumnNeighbors(state: State, unit: Unit) {
