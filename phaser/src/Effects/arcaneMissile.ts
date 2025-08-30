@@ -26,8 +26,8 @@ const ARCANE_MISSILE_CONFIG = {
 
 type ArcaneMissileAnimationArgs = {
 	scene: Scene;
-	source: Point;
-	target: Point;
+	source: Vec2;
+	target: Vec2;
 	onHit?: () => void;
 	colors?: number[];
 }

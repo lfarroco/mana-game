@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import * as events from "../events";
-import { Vec2, vec2 } from "@Models/Geometry.pure";
+import { vec2 } from "@Models/Geometry.pure";
 import * as Shop from "@Scenes/Battleground/Systems/Shop";
 import * as Chara from "../Chara";
 import * as Board from "@Models/Board";
