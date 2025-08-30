@@ -53,7 +53,7 @@ export function buyAndPlaceHero(shopSlotIndex: number, boardX: number, boardY: n
 }
 
 export function clickNextRound(): string {
-	Systems.Progression.handleShopPhaseEnded();
+	Systems.ShopPhase.handleShopPhaseEnded();
 	return "Emitted SHOP_PHASE_ENDED. Current shop phase should end, leading to combat or next round's shop.";
 }
 

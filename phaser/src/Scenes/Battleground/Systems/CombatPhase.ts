@@ -1,0 +1,107 @@
+import { getState } from "@Models/State";
+import { Unit } from "@Models/Entities/Unit";
+import { delay } from "../../../Utils/animation";
+import { scene } from "../BattlegroundScene";
+import { getAllCards } from "@Models/Entities/Card";
+import { generateEnemyTeam } from "../generateEnemyTeam";
+import { cpuForce, playerForce } from "@Models/Entities/Force";
+import * as GhostStore from "@Models/GhostStore";
+import * as Board from "@Models/Board";
+import { clearAll, summon } from "@Systems/Chara/Chara";
+import * as MoraleDisplay from "../MoraleDisplay";
+import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
+import { endShopPhase } from "./ShopPhase";
+
+const state = getState();
+
+function createUnitCopy(unit: Unit): Unit {
+	return {
+		...unit,
+		position: { ...unit.position },
+		reactions: unit.reactions.map(reaction => ({ ...reaction, effects: reaction.effects.map(effect => ({ ...effect })) })),
+		effects: unit.effects.map(effect => ({ ...effect })),
+	};
+}
+
+export async function transitionToCombatPhase(): Promise<void> {
+	endShopPhase();
+	console.log("Round", state.gameData.round, "Combat Phase Starting.");
+	const { enemies } = await setupBattle();
+
+
+	GhostStore.saveGhostForRound(
+		state.gameData.round,
+		state.gameData.player.units,
+		state.gameData.player.prestige
+	);
+
+	handleCombatStartExecution({ enemies });
+}
+
+export async function setupBattle(): Promise<{ enemies: Unit[]; }> {
+	const cardPool = getAllCards();
+	const enemies = generateEnemyTeam(state.gameData.round, cardPool);
+
+	const playerUnitsForBattle = state.gameData.player.units.map(unit => createUnitCopy(unit));
+
+	state.battleData.forces = [
+		cpuForce,
+		playerForce
+	];
+	state.battleData.units = [...enemies, ...playerUnitsForBattle];
+
+	await delay(100);
+
+
+	return { enemies };
+}
+
+export async function handleCombatStartExecution(_payload: { enemies: Unit[] }): Promise<void> {
+
+	_initializeMorale();
+
+	Board.setEnemyBoardVisible(true);
+	clearAll();
+	// Important: summon the exact Unit instances stored in battleData.units
+	// so display components (e.g., charge bars) observe the same objects updated during combat.
+	const combatUnits = state.battleData.units;
+	combatUnits.forEach(u => {
+		summon(u, false);
+	});
+
+	await delay(300);
+
+	scene.runCombatSystem.runCombatIO();
+
+}
+
+function _initializeMorale(): void {
+	playerForce.morale = playerForce.maxMorale;
+	cpuForce.morale = cpuForce.maxMorale;
+
+	playerForce.shield = 0;
+	cpuForce.shield = 0;
+
+	MoraleDisplay.showBars();
+
+	MoraleDisplay.updateMoraleDisplay({
+		forceId: FORCE_ID_PLAYER,
+		newMorale: playerForce.morale,
+		maxMorale: playerForce.maxMorale,
+	});
+	MoraleDisplay.updateMoraleDisplay({
+		forceId: FORCE_ID_CPU,
+		newMorale: cpuForce.morale,
+		maxMorale: cpuForce.maxMorale,
+	});
+	MoraleDisplay.updateShieldBar(
+		FORCE_ID_PLAYER,
+		playerForce.shield,
+		playerForce.maxMorale,
+	)
+	MoraleDisplay.updateShieldBar(
+		FORCE_ID_CPU,
+		cpuForce.shield,
+		cpuForce.maxMorale,
+	);
+}
