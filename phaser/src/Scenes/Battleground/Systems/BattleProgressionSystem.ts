@@ -28,9 +28,7 @@ function createUnitCopy(unit: Unit): Unit {
 	};
 }
 
-export let isInShopPhase: boolean = false;
-
-export async function initializeShopPhase(): Promise<void> {
+async function setupShopPhaseCommon(): Promise<void> {
 	clearAll();
 	state.battleData.units = [];
 
@@ -45,6 +43,12 @@ export async function initializeShopPhase(): Promise<void> {
 	await Promise.all(summonPromises);
 
 	isInShopPhase = true;
+}
+
+export let isInShopPhase: boolean = false;
+
+export async function initializeShopPhase(): Promise<void> {
+	await setupShopPhaseCommon();
 
 	console.log("Round", state.gameData.round, "Shop Phase Starting (Initial Setup).");
 
@@ -52,23 +56,9 @@ export async function initializeShopPhase(): Promise<void> {
 }
 
 export async function transitionToShopPhase(): Promise<void> {
-
-	clearAll();
-	state.battleData.units = [];
-
-	playerForce.morale = playerForce.maxMorale;
-	MoraleDisplay.updateMoraleBar(playerForce.id);
-
-	const summonPromises = state.gameData.player.units
-		.map(async (unit, index) => {
-			await delay(index * 200);
-			await summon(unit, true);
-		});
-	await Promise.all(summonPromises);
+	await setupShopPhaseCommon();
 
 	state.gameData.round++;
-
-	isInShopPhase = true;
 	updatePlayerGoldIO(BG_CONSTANTS.VICTORY_GOLD_REWARD);
 
 	PrestigeSystem.processVictory();
@@ -76,26 +66,13 @@ export async function transitionToShopPhase(): Promise<void> {
 
 	console.log("Round", state.gameData.round, "Shop Phase Starting (Victory Transition).");
 
-	Shop.handleShopOpenUITrigger()
+	Shop.handleShopOpenUITrigger();
 }
 
 export async function transitionToShopPhaseAfterDefeat(): Promise<void> {
-	clearAll();
-	state.battleData.units = [];
-
-	playerForce.morale = playerForce.maxMorale;
-	MoraleDisplay.updateMoraleBar(playerForce.id);
-
-	const summonPromises = state.gameData.player.units
-		.map(async (unit, index) => {
-			await delay(index * 200);
-			await summon(unit, true);
-		});
-	await Promise.all(summonPromises);
+	await setupShopPhaseCommon();
 
 	state.gameData.round++;
-
-	isInShopPhase = true;
 	PrestigeSystem.finalizeRound();
 
 	console.log("Round", state.gameData.round, "Shop Phase Starting (After Defeat).");
