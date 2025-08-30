@@ -91,11 +91,11 @@ export async function handleCombatEndedDefeat(): Promise<void> {
 
 export async function handlePlayerWonGame(): Promise<void> {
 	isInShopPhase = false;
-	console.log(`PLAYER HAS WON THE GAME! Prestige: ${state.gameData.player.prestige}, Total Rounds: ${state.gameData.player.totalRoundsPlayed}`);
+	console.log(`PLAYER HAS WON THE GAME! Prestige: ${state.gameData.player.prestige}, Total Rounds: ${state.gameData.player.round}`);
 
 
 	renderVignette({
-		message: `Victory! You reached Champion status in ${state.gameData.player.totalRoundsPlayed
+		message: `Victory! You reached Champion status in ${state.gameData.player.round
 			} rounds!`
 	});
 }

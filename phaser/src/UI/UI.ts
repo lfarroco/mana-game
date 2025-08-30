@@ -17,11 +17,11 @@ let uiContainer: Container | null = null;
 export let goldTextElement: TextObj | null = null;
 let prestigeTextElement: TextObj | null = null;
 
-export const updatePrestige = (newTotalPrestige: number): void => {
+export const updatePrestigeDisplay = (newTotalPrestige: number): void => {
 	prestigeTextElement!.setText(newTotalPrestige.toString());
 }
 
-export const updateGold = (newTotalGold: number): void => {
+export const updateGoldDisplay = (newTotalGold: number): void => {
 	goldTextElement!.setText(newTotalGold.toString());
 }
 
@@ -101,7 +101,7 @@ function createPrestigeDisplay(parent: Container): void {
 }
 
 function createRoundDisplay(parent: Container): void {
-	const initialRound = scene.state.gameData.player.totalRoundsPlayed;
+	const initialRound = scene.state.gameData.player.round;
 	const roundContainer = scene.add.container(ROUND_DISPLAY_X, ROUND_DISPLAY_Y);
 
 	const label = scene.add.text(
