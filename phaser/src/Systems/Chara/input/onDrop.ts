@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import * as events from "../events";
+import events from "../events";
 import * as Geometry from "@Models/Geometry";
 import * as Shop from "@Scenes/Battleground/Systems/Shop";
 import * as Chara from "../Chara";
