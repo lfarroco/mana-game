@@ -1,6 +1,6 @@
 import { State } from "@Models/State";
 import * as ControlsSystem from "@Systems/Controls";
-import { initializePlayerBoard, PartyBoard, createBoardDropZone } from "@Models/Board";
+import { initializePlayerBoard, createBoardDropZone } from "@Models/Board";
 import * as BG_CONSTANTS from "../battlegroundConstants";
 import { scene } from "../BattlegroundScene";
 import { getOption } from "@Models/OptionsStore";
@@ -21,7 +21,7 @@ export function initializeNewGame(state: State): void {
 	scene.sound.setVolume(getOption('soundVolume') ?? BG_CONSTANTS.DEFAULT_SCENE_SOUND_VOLUME);
 }
 
-export function setupSceneElements(_state: State): PartyBoard {
+export function setupSceneElements(_state: State) {
 	cloudsBackground = new CloudsBackground(scene, {
 		preset: 'forest',
 		depth: -2000,
@@ -35,7 +35,7 @@ export function setupSceneElements(_state: State): PartyBoard {
 
 	scene.bgContainer.add([scene.cloudsBackground]);
 
-	const playerBoard = initializePlayerBoard(scene);
+	const playerBoard = initializePlayerBoard();
 	createBoardDropZone();
 	return playerBoard;
 }

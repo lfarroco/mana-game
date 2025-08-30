@@ -6,6 +6,7 @@ import * as Chara from "@Systems/Chara/Chara";
 import * as onPurchaseFailed from "@UI/events/onPurchaseFailed";
 import { vec2 } from "@Models/Geometry.pure";
 import { scene } from "../../../BattlegroundScene";
+import * as Board from "@Models/Board";
 
 export function itemClickPurchaseRequested(
 	shopUnitData: Unit,
@@ -14,7 +15,7 @@ export function itemClickPurchaseRequested(
 	dragStartY: number,
 ): void {
 
-	const { state, playerBoard } = scene;
+	const { state } = scene;
 
 	const handlePurchaseFailure = (
 		reason: string,
@@ -41,7 +42,9 @@ export function itemClickPurchaseRequested(
 		return;
 	}
 
-	const targetTile = playerBoard.getEmptySlot(state.gameData.player.units, constants.FORCE_ID_PLAYER);
+	const targetTile = Board.getEmptySlot(
+		scene.playerBoard,
+		state.gameData.player.units, constants.FORCE_ID_PLAYER);
 	if (!targetTile) {
 		handlePurchaseFailure("NO_EMPTY_SLOT");
 		return;

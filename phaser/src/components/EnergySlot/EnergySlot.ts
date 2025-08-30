@@ -1,5 +1,6 @@
 import * as Phaser from "phaser";
 import { energySlotFragmentShader } from "../../Shaders/EnergySlotShader";
+import { scene } from "@Scenes/Battleground/BattlegroundScene";
 
 export interface EnergySlotConfig {
 	size?: number;
@@ -191,7 +192,7 @@ export class EnergySlot {
 
 // Factory class for creating different types of energy slots
 export class EnergySlotFactory {
-	static createPlayerSlot(scene: Phaser.Scene, x: number, y: number, size: number = 80): EnergySlot {
+	static createPlayerSlot(x: number, y: number, size: number = 80): EnergySlot {
 		return new EnergySlot(scene, x, y, {
 			size,
 			color: { x: 0.7, y: 0.9, z: 1.0 }, // Blue-white for player
@@ -200,7 +201,7 @@ export class EnergySlotFactory {
 		});
 	}
 
-	static createEnemySlot(scene: Phaser.Scene, x: number, y: number, size: number = 80): EnergySlot {
+	static createEnemySlot(x: number, y: number, size: number = 80): EnergySlot {
 		return new EnergySlot(scene, x, y, {
 			size,
 			color: { x: 1.0, y: 0.7, z: 0.7 }, // Red-white for enemy

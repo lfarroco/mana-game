@@ -5,7 +5,6 @@ import { scene } from "../BattlegroundScene";
 import * as BG_CONSTANTS from "../battlegroundConstants";
 import { getAllCards } from "@Models/Entities/Card";
 import { generateEnemyTeam } from "../generateEnemyTeam";
-import { PrestigeSystem } from "@Systems/PrestigeSystem";
 import { cpuForce, playerForce, updatePlayerGoldIO } from "@Models/Entities/Force";
 import * as GhostStore from "@Models/GhostStore";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
@@ -15,6 +14,8 @@ import * as AudioManager from "@Systems/AudioManager";
 import * as Shop from "./Shop/Shop";
 import { Chara } from "@Systems/Chara";
 import { battleResultAnimation } from "../battleResultAnimation";
+import { setEnemyBoardVisible } from "@Models/Board";
+import * as PrestigeSystem from "@Systems/PrestigeSystem";
 
 const state = getState();
 
@@ -29,7 +30,6 @@ function createUnitCopy(unit: Unit): Unit {
 
 export let isInShopPhase: boolean = false;
 
-const prestigeSystem = new PrestigeSystem();
 
 
 export async function transitionToShopPhase(): Promise<void> {
@@ -53,8 +53,8 @@ export async function transitionToShopPhase(): Promise<void> {
 	isInShopPhase = true;
 	updatePlayerGoldIO(BG_CONSTANTS.VICTORY_GOLD_REWARD);
 
-	prestigeSystem.processVictory();
-	prestigeSystem.finalizeRound();
+	PrestigeSystem.processVictory();
+	PrestigeSystem.finalizeRound();
 
 	console.log("Round", state.gameData.round, "Shop Phase Starting.");
 
@@ -86,7 +86,7 @@ export async function handleCombatEndedDefeat(): Promise<void> {
 	battleResultAnimation("defeat")
 	await delay(1500);
 
-	prestigeSystem.processDefeat();
+	PrestigeSystem.processDefeat();
 
 
 }
@@ -141,7 +141,9 @@ export async function handleCombatStartExecution(_payload: { enemies: Unit[] }):
 
 	_initializeMorale();
 
-	scene.playerBoard?.setEnemyBoardVisible(true);
+	setEnemyBoardVisible(
+		scene.playerBoard,
+		true);
 	Chara.clearAll();
 	// Important: summon the exact Unit instances stored in battleData.units
 	// so display components (e.g., charge bars) observe the same objects updated during combat.

@@ -8,6 +8,7 @@ import * as events from "./events";
 import { tween } from "../../../../Utils/animation";
 import * as MoraleDisplay from "../../MoraleDisplay";
 import * as Systems from "../index"
+import { setEnemyBoardVisible } from "@Models/Board";
 
 let currentShopCharas: Chara.Chara[] = [];
 let currentOrbs: string[] = [];
@@ -51,7 +52,9 @@ export async function open() {
 	);
 
 	if (scene.playerBoard) {
-		scene.playerBoard.setEnemyBoardVisible(false);
+		setEnemyBoardVisible(
+			scene.playerBoard,
+			false);
 	}
 
 	currentShopCharas = charas;
