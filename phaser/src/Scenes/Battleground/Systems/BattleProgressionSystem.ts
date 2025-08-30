@@ -79,6 +79,30 @@ export async function transitionToShopPhase(): Promise<void> {
 	Shop.handleShopOpenUITrigger()
 }
 
+export async function transitionToShopPhaseAfterDefeat(): Promise<void> {
+	clearAll();
+	state.battleData.units = [];
+
+	playerForce.morale = playerForce.maxMorale;
+	MoraleDisplay.updateMoraleBar(playerForce.id);
+
+	const summonPromises = state.gameData.player.units
+		.map(async (unit, index) => {
+			await delay(index * 200);
+			await summon(unit, true);
+		});
+	await Promise.all(summonPromises);
+
+	state.gameData.round++;
+
+	isInShopPhase = true;
+	PrestigeSystem.finalizeRound();
+
+	console.log("Round", state.gameData.round, "Shop Phase Starting (After Defeat).");
+
+	Shop.handleShopOpenUITrigger();
+}
+
 export async function transitionToCombatPhase(): Promise<void> {
 	isInShopPhase = false;
 	console.log("Round", state.gameData.round, "Combat Phase Starting.");
@@ -106,7 +130,8 @@ export async function handleCombatEndedDefeat(): Promise<void> {
 
 	PrestigeSystem.processDefeat();
 
-
+	// Transition back to shop phase after defeat
+	transitionToShopPhaseAfterDefeat();
 }
 
 export async function handlePlayerWonGame(): Promise<void> {
