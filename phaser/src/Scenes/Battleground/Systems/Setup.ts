@@ -35,9 +35,7 @@ export function setupSceneElements(_state: State) {
 
 	scene.bgContainer.add([scene.cloudsBackground]);
 
-	const playerBoard = Board.init();
-	Board.initializeBoardDropZones();
-	return playerBoard;
+	Board.init();
 }
 
 export function destroy(): void {

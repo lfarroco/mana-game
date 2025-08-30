@@ -97,7 +97,8 @@ export function renderBoardSlots(board: BoardState): void {
 	});
 }
 
-export function setEnemyBoardVisible(board: BoardState, visible: boolean): void {
+export function setEnemyBoardVisible(visible: boolean): void {
+	const board = getBoardState();
 	board.enemyBoardVisible = visible;
 
 	if (board.cpuSlotShaders.length > 0) {
@@ -161,7 +162,8 @@ export function destroyVisuals(board: BoardState): void {
 	board.dropZones = [];
 }
 
-export function update(board: BoardState, time: number): void {
+export function update(time: number): void {
+	const board = getBoardState();
 	board.slotShaders.forEach(slot => slot.update(time));
 	board.cpuSlotShaders.forEach(slot => slot.update(time));
 }
@@ -170,7 +172,8 @@ export function destroy(board: BoardState): void {
 	destroyVisuals(board);
 }
 
-export function getEmptySlot(board: BoardState, units: Unit[], forceId: string): Vec2 | null {
+export function getEmptySlot(units: Unit[], forceId: string): Vec2 | null {
+	const board = getBoardState();
 	const boardWidthInTiles = Math.floor(board.width / constants.TILE_WIDTH);
 	const boardHeightInTiles = Math.floor(board.height / constants.TILE_HEIGHT);
 	const maxSlots = boardWidthInTiles * boardHeightInTiles;
@@ -238,12 +241,13 @@ export function updateUnitPosition(
 
 let _playerBoardState: BoardState | null = null;
 
-export function init(): BoardState {
+export function init() {
 	if (_playerBoardState) {
 		destroy(_playerBoardState);
 	}
 	_playerBoardState = createBoardState();
-	return _playerBoardState;
+	renderBoardSlots(_playerBoardState)
+
 }
 
 export function getBoardState(): BoardState {
@@ -251,11 +255,6 @@ export function getBoardState(): BoardState {
 		throw new Error("Shared PlayerBoard accessed before initialization. Call Board.init() first.");
 	}
 	return _playerBoardState;
-}
-
-export function initializeBoardDropZones(): void {
-	const board = getBoardState();
-	renderBoardSlots(board);
 }
 
 export function getColumnNeighbors(state: State, unit: Unit) {

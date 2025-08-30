@@ -8,7 +8,7 @@ import * as events from "./events";
 import { tween } from "../../../../Utils/animation";
 import * as MoraleDisplay from "../../MoraleDisplay";
 import * as Systems from "../index"
-import { setEnemyBoardVisible } from "@Models/Board";
+import * as Board from "@Models/Board";
 
 let currentShopCharas: Chara.Chara[] = [];
 let currentOrbs: string[] = [];
@@ -51,11 +51,7 @@ export async function open() {
 		events.rerollTavern,
 	);
 
-	if (scene.playerBoard) {
-		setEnemyBoardVisible(
-			scene.playerBoard,
-			false);
-	}
+	Board.setEnemyBoardVisible(false);
 
 	currentShopCharas = charas;
 
