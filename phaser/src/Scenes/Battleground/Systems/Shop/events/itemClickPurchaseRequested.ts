@@ -43,7 +43,6 @@ export function itemClickPurchaseRequested(
 	}
 
 	const targetTile = Board.getEmptySlot(
-		scene.playerBoard,
 		state.gameData.player.units, constants.FORCE_ID_PLAYER);
 	if (!targetTile) {
 		handlePurchaseFailure("NO_EMPTY_SLOT");

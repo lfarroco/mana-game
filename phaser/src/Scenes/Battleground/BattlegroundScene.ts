@@ -19,7 +19,6 @@ export class BattlegroundScene extends Phaser.Scene {
   bgContainer!: Container;
   cloudsBackground!: Phaser.GameObjects.Image;
   collection!: CardCollection;
-  playerBoard!: Board.BoardState;
   runCombatSystem: RunCombatSystem;
 
   cleanup() {
@@ -70,7 +69,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     Systems.Setup.initializeNewGame(this.state);
 
-    this.playerBoard = Systems.Setup.setupSceneElements(this.state);
+    Systems.Setup.setupSceneElements(this.state);
 
     UIManager.init();
 
@@ -84,8 +83,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
   update(time: number, delta: number): void {
     Shop.UI.update(time);
-    const playerBoard = Board.getBoardState();
-    Board.update(playerBoard, time);
+    Board.update(time);
 
     this.runCombatSystem.updateFrame(time, delta);
   }
