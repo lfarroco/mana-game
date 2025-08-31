@@ -11,6 +11,13 @@ export function onGoldChanged(newTotalGold: number, goldDelta: number) {
 	}
 }
 
+export function onWinsChanged(newTotalWins: number, winsDelta: number) {
+	UI.updateWinsDisplay(newTotalWins);
+	if (winsDelta !== 0) {
+		winsChangeAnimation(winsDelta);
+	}
+}
+
 async function goldChangeAnimation(gold: number) {
 	const sign = gold > 0 ? "+" : "";
 	const animationText = `${sign}${gold}`;
@@ -43,6 +50,40 @@ async function goldChangeAnimation(gold: number) {
 	});
 
 	goldAmountText.destroy();
+}
+
+async function winsChangeAnimation(wins: number) {
+	const sign = wins > 0 ? "+" : "";
+	const animationText = `${sign}${wins}`;
+
+	const bounds = UI.winsTextElement!.getBounds();
+	const startX = bounds.centerX;
+	const startY = bounds.centerY;
+
+	const winsAmountText = scene.add.text(
+		startX, startY, animationText, titleTextConfig
+	)
+		.setOrigin(0.5, 0.5)
+		.setAlpha(0)
+		.setScale(1)
+		.setDepth(1000);
+
+	await tween({
+		targets: [winsAmountText],
+		alpha: 1,
+		scale: 1.2,
+		y: startY - 30,
+	});
+
+	await tween({
+		targets: [winsAmountText],
+		alpha: 0,
+		scale: 1,
+		y: startY - 60,
+		duration: 800,
+	});
+
+	winsAmountText.destroy();
 }
 
 export function onPurchaseFailed(

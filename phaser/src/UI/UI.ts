@@ -13,12 +13,20 @@ const PRESTIGE_DISPLAY_Y = 20;
 const ROUND_DISPLAY_X = c.SCREEN_WIDTH - 720;
 const ROUND_DISPLAY_Y = 20;
 
+const WINS_DISPLAY_X = c.SCREEN_WIDTH - 920;
+const WINS_DISPLAY_Y = 20;
+
 let uiContainer: Container | null = null;
 export let goldTextElement: TextObj | null = null;
 let prestigeTextElement: TextObj | null = null;
+export let winsTextElement: TextObj | null = null;
 
 export const updatePrestigeDisplay = (newTotalPrestige: number): void => {
 	prestigeTextElement!.setText(newTotalPrestige.toString());
+}
+
+export const updateWinsDisplay = (newTotalWins: number): void => {
+	winsTextElement!.setText(newTotalWins.toString());
 }
 
 export const updateGoldDisplay = (newTotalGold: number): void => {
@@ -36,6 +44,8 @@ export function init() {
 	createPrestigeDisplay(uiContainer);
 
 	createRoundDisplay(uiContainer);
+
+	createWinsDisplay(uiContainer);
 
 }
 
@@ -127,6 +137,35 @@ function createRoundDisplay(parent: Container): void {
 	roundContainer.add(roundTextElement);
 
 	parent.add(roundContainer);
+}
+
+function createWinsDisplay(parent: Container): void {
+	const initialWins = scene.state.gameData.player.wins;
+	const winsContainer = scene.add.container(WINS_DISPLAY_X, WINS_DISPLAY_Y);
+
+	const label = scene.add.text(
+		0, 0,
+		"Wins:",
+		{
+			...c.titleTextConfig,
+			fontSize: '24px',
+			color: '#ffffff'
+		}
+	).setOrigin(0);
+	winsContainer.add(label);
+
+	winsTextElement = scene.add.text(
+		label.width + 10, 0,
+		initialWins.toString(),
+		{
+			...c.titleTextConfig,
+			fontSize: '24px',
+			color: '#ffffff'
+		}
+	).setOrigin(0);
+	winsContainer.add(winsTextElement);
+
+	parent.add(winsContainer);
 }
 
 export async function handleUserMessageRequested(payload: {
