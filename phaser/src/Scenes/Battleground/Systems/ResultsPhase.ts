@@ -6,6 +6,7 @@ import { battleResultAnimation } from "../battleResultAnimation";
 import * as PrestigeSystem from "@Systems/PrestigeSystem";
 import * as MoraleDisplay from "../MoraleDisplay";
 import { transitionToShopPhase, transitionToShopPhaseAfterDefeat } from "./ShopPhase";
+import * as ResultsUI from "./ResultsUI";
 
 const state = getState();
 
@@ -21,8 +22,11 @@ export async function handleCombatEndedDefeat(): Promise<void> {
 
 	PrestigeSystem.processDefeat();
 
-	// Transition back to shop phase after defeat
-	transitionToShopPhaseAfterDefeat();
+	// Show results panel instead of immediately transitioning
+	ResultsUI.displayResults("defeat", () => {
+		transitionToShopPhaseAfterDefeat();
+	});
+	await ResultsUI.slideIn();
 }
 
 export async function handlePlayerWonGame(): Promise<void> {
@@ -45,7 +49,14 @@ export async function handleCombatEndedVictory(): Promise<void> {
 	battleResultAnimation("victory");
 	await delay(1500);
 
-	transitionToShopPhase();
+	PrestigeSystem.processVictory();
+	PrestigeSystem.finalizeRound();
+
+	// Show results panel instead of immediately transitioning
+	ResultsUI.displayResults("victory", () => {
+		transitionToShopPhase();
+	});
+	await ResultsUI.slideIn();
 }
 
 export function handleCombatEnded(combatResult: string) {
