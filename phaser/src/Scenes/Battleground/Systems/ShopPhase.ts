@@ -3,6 +3,7 @@ import { delay } from "../../../Utils/animation";
 import * as BG_CONSTANTS from "../battlegroundConstants";
 import { updatePlayerGoldIO } from "@Models/Entities/Force";
 import * as PrestigeSystem from "@Systems/PrestigeSystem";
+import { renderVignette } from "../Animations/vignette";
 import { clearAll, summon } from "@Systems/Chara/Chara";
 import * as Shop from "./Shop/Shop";
 import { transitionToCombatPhase } from "./CombatPhase";
@@ -56,6 +57,14 @@ export async function transitionToShopPhaseAfterDefeat(): Promise<void> {
 	PrestigeSystem.finalizeRound();
 
 	console.log("Round", state.gameData.round, "Shop Phase Starting (After Defeat).");
+
+	// If prestige reached 0 after defeat, show a game-over vignette instead of opening the shop
+	const player = state.gameData.player;
+	if (player.prestige <= 0) {
+		// Small delay then render game over message
+		await renderVignette({ message: `Game Over! You were defeated in ${player.round} rounds.` });
+		return;
+	}
 
 	Shop.handleShopOpenUITrigger();
 }
