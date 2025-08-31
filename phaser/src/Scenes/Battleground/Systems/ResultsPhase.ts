@@ -5,7 +5,7 @@ import * as AudioManager from "@Systems/AudioManager";
 import { battleResultAnimation } from "../battleResultAnimation";
 import * as MoraleDisplay from "../MoraleDisplay";
 import { transitionToShopPhase, transitionToShopPhaseAfterDefeat } from "./ShopPhase";
-import * as ResultsUI from "./ResultsUI";
+import * as ResultsUI from "../Results/ResultsUI";
 
 const state = getState();
 
