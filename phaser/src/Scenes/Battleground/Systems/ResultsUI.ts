@@ -49,13 +49,28 @@ export function displayResults(
 	state.backgroundOverlay.setDepth(1000); // High depth to be above game elements
 
 	const gameState = getState();
-	const currentRound = gameState.gameData.round;
 
-	// Calculate rewards/penalties
+	// NOTE: prestige/win calculations must mirror PrestigeSystem.processVictory/processDefeat
+	// Use the player's round (player.round) because PrestigeSystem uses that field.
+	const player = gameState.gameData.player;
+	const currentPlayerRound = player.round;
+
+	// Calculate rewards/penalties (keep gold reward same as battlegroundConstants VICTORY_GOLD_REWARD)
 	const goldReward = resultType === "victory" ? 5 : 0;
+
+	// Match PrestigeSystem logic exactly so the UI preview equals the state change.
 	const prestigeChange = resultType === "victory"
-		? Math.max(Math.floor(currentRound / 2), 1)
-		: -currentRound;
+		? Math.max(Math.floor(currentPlayerRound / 2), 1)
+		: (Math.max(0, player.prestige - currentPlayerRound) - player.prestige); // negative or zero
+
+	const expectedNewPrestige = player.prestige + prestigeChange;
+	const newWins = resultType === "victory" ? player.wins + 1 : player.wins;
+
+	// Localised win threshold (keeps behaviour identical to previous hard-coded 10)
+	const WINS_TO_WIN_GAME = 2;
+
+	const gameWon = (resultType === "victory" && newWins >= WINS_TO_WIN_GAME);
+	const gameOver = (resultType === "defeat" && expectedNewPrestige <= 0);
 
 	const screenWidth = scene.cameras.main.width;
 	const panelX = screenWidth - 600 - 40;
@@ -71,7 +86,7 @@ export function displayResults(
 	state.resultsContainer.add(resultsBackground);
 
 	// Add title
-	const titleText = resultType === "victory" ? "Victory!" : "Defeat";
+	const titleText = gameWon ? "You Win the Game!" : (gameOver ? "Game Over!" : (resultType === "victory" ? "Victory!" : "Defeat"));
 	const title = scene.add.text(
 		panelX + panelWidth / 2,
 		panelY + 50,
@@ -79,16 +94,20 @@ export function displayResults(
 		{
 			...c.titleTextConfig,
 			fontSize: "48px",
-			color: resultType === "victory" ? "#4CAF50" : "#F44336"
+			color: gameWon ? "#FFD700" : (gameOver ? "#F44336" : (resultType === "victory" ? "#4CAF50" : "#F44336"))
 		}
 	).setOrigin(0.5);
 	title.setDepth(1001);
 	state.resultsContainer.add(title);
 
 	// Add result message
-	const messageText = resultType === "victory"
-		? "Congratulations! You have won the battle."
-		: "You have been defeated. Better luck next time!";
+	const messageText = gameWon
+		? "Congratulations! You have won the game."
+		: (gameOver
+			? "You have been defeated and lost the game."
+			: (resultType === "victory"
+				? "Congratulations! You have won the battle."
+				: "You have been defeated. Better luck next time!"));
 	const message = scene.add.text(
 		panelX + panelWidth / 2,
 		panelY + 120,
@@ -139,7 +158,7 @@ export function displayResults(
 	const buttonY = panelY + panelHeight - 80;
 	const nextButton = createUIButton(
 		scene,
-		"Continue",
+		(gameWon || gameOver) ? "Finish" : "Continue",
 		buttonX,
 		buttonY,
 		async () => {
