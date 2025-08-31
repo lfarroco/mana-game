@@ -3,6 +3,7 @@ import { tween } from "../../../Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import { createUIButton } from "../../../UI/UIButton";
 import * as c from "../../../constants/constants";
+import { getState } from "@Models/State";
 
 export type ResultsUIState = {
 	resultsContainer: Container;
@@ -29,11 +30,20 @@ export function displayResults(
 	if (!state) throw new Error("ResultsUI not initialized. Call create() first.");
 	state.resultsContainer.removeAll(true);
 
+	const gameState = getState();
+	const currentRound = gameState.gameData.round;
+
+	// Calculate rewards/penalties
+	const goldReward = resultType === "victory" ? 5 : 0;
+	const prestigeChange = resultType === "victory"
+		? Math.max(Math.floor(currentRound / 2), 1)
+		: -currentRound;
+
 	const screenWidth = scene.cameras.main.width;
-	const panelX = screenWidth - 600 - 40; // Similar to shop panel width
+	const panelX = screenWidth - 600 - 40;
 	const panelY = 240;
 	const panelWidth = 600;
-	const panelHeight = 400;
+	const panelHeight = 500; // Increased height to accommodate new info
 
 	// Create background panel
 	const resultsBackground = scene.add.graphics()
@@ -61,15 +71,45 @@ export function displayResults(
 		: "You have been defeated. Better luck next time!";
 	const message = scene.add.text(
 		panelX + panelWidth / 2,
-		panelY + 150,
+		panelY + 120,
 		messageText,
 		{
 			...c.defaultTextConfig,
-			fontSize: "24px",
+			fontSize: "20px",
 			wordWrap: { width: panelWidth - 80 }
 		}
 	).setOrigin(0.5);
 	state.resultsContainer.add(message);
+
+	// Add gold reward info
+	const goldText = `Gold: +${goldReward}`;
+	const goldDisplay = scene.add.text(
+		panelX + panelWidth / 2,
+		panelY + 180,
+		goldText,
+		{
+			...c.defaultTextConfig,
+			fontSize: "28px",
+			color: "#FFD700",
+			fontStyle: "bold"
+		}
+	).setOrigin(0.5);
+	state.resultsContainer.add(goldDisplay);
+
+	// Add prestige info
+	const prestigeText = `Prestige: ${prestigeChange > 0 ? '+' : ''}${prestigeChange}`;
+	const prestigeDisplay = scene.add.text(
+		panelX + panelWidth / 2,
+		panelY + 230,
+		prestigeText,
+		{
+			...c.defaultTextConfig,
+			fontSize: "28px",
+			color: prestigeChange > 0 ? "#4CAF50" : "#F44336",
+			fontStyle: "bold"
+		}
+	).setOrigin(0.5);
+	state.resultsContainer.add(prestigeDisplay);
 
 	// Add next phase button
 	const buttonX = panelX + panelWidth / 2;
@@ -79,7 +119,10 @@ export function displayResults(
 		"Continue",
 		buttonX,
 		buttonY,
-		nextPhaseCallback
+		async () => {
+			await slideOut();
+			nextPhaseCallback();
+		}
 	);
 	state.resultsContainer.add(nextButton);
 }
