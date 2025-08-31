@@ -6,13 +6,15 @@ export const tickInterval: number = 1000;
 // TODO: this can be simplified if the parent controls if in combat or not
 let isActive = false;
 
-const poisonPool: Map<string, number> = new Map();
+const poisonRate: Map<string, number> = new Map();
+const accumulator: Map<string, number> = new Map();
 const timeSinceLastTick: Map<string, number> = new Map();
 const sourceContributions: Map<string, Map<string, number>> = new Map();
 
 export function initialize(): void {
 	isActive = true;
-	poisonPool.clear();
+	poisonRate.clear();
+	accumulator.clear();
 	timeSinceLastTick.clear();
 	sourceContributions.clear();
 }
@@ -20,15 +22,16 @@ export function initialize(): void {
 export function applyPoison(targetForce: Force, amount: number, sourceUnitId?: string): void {
 	if (amount <= 0) return;
 	const id = targetForce.id;
-	const newTotal = (poisonPool.get(id) || 0) + amount;
-	poisonPool.set(id, newTotal);
+	const newTotal = (poisonRate.get(id) || 0) + amount;
+	poisonRate.set(id, newTotal);
 	if (!timeSinceLastTick.has(id)) timeSinceLastTick.set(id, 0);
+	if (!accumulator.has(id)) accumulator.set(id, 0);
 	if (sourceUnitId) {
 		if (!sourceContributions.has(id)) sourceContributions.set(id, new Map());
 		const contribs = sourceContributions.get(id)!;
 		contribs.set(sourceUnitId, (contribs.get(sourceUnitId) || 0) + amount);
 	}
-	console.log(`[PoisonDamageSystem] Added ${amount} poison to ${id}. Pool=${newTotal}`);
+	console.log(`[PoisonDamageSystem] Added ${amount} poison rate to ${id}. Rate=${newTotal}`);
 }
 
 export function update(playerForce: Force, cpuForce: Force, delta: number): void {
@@ -46,8 +49,12 @@ function tickForce(force: Force, delta: number) {
 		return;
 	}
 
-	const damage = poisonPool.get(id) || 0;
+	const rate = poisonRate.get(id) || 0;
+	const currentAccumulator = accumulator.get(id) || 0;
+	const newAccumulator = currentAccumulator + rate;
+	const damage = Math.floor(newAccumulator);
 	timeSinceLastTick.set(id, acc - tickInterval);
+	accumulator.set(id, newAccumulator - damage);
 	if (damage <= 0) return;
 	console.log(`[PoisonDamageSystem] Poison tick on ${id}: ${damage} damage`);
 	applyDamageToForce(force, damage, 0, "poison");
@@ -67,12 +74,12 @@ function tickForce(force: Force, delta: number) {
 
 export function reducePoison(forceId: string, healAmount: number): void {
 	if (healAmount <= 0) return;
-	const current = poisonPool.get(forceId) || 0;
+	const current = poisonRate.get(forceId) || 0;
 	if (current === 0) return;
 	const reduction = Math.min(current, Math.floor(healAmount * 0.25));
 	if (reduction <= 0) return;
 	const newTotal = current - reduction;
-	poisonPool.set(forceId, newTotal);
+	poisonRate.set(forceId, newTotal);
 	// Scale down contributions proportionally to keep ratios
 	const contribs = sourceContributions.get(forceId);
 	if (contribs && current > 0 && newTotal > 0) {
@@ -83,22 +90,28 @@ export function reducePoison(forceId: string, healAmount: number): void {
 	} else if (contribs && newTotal === 0) {
 		contribs.clear();
 	}
+	if (newTotal === 0) {
+		timeSinceLastTick.delete(forceId);
+		accumulator.delete(forceId);
+	}
 	console.log(`[PoisonDamageSystem] Healing ${healAmount} reduced poison on ${forceId} by ${reduction}. Remaining=${newTotal}`);
 }
 
 export function getTotalPoisonDamage(forceId: string): number {
-	return poisonPool.get(forceId) || 0;
+	return poisonRate.get(forceId) || 0;
 }
 
 export function clearPoison(forceId: string): void {
-	poisonPool.delete(forceId);
+	poisonRate.delete(forceId);
+	accumulator.delete(forceId);
 	timeSinceLastTick.delete(forceId);
 	sourceContributions.delete(forceId);
 }
 
 export function stop(): void {
 	isActive = false;
-	poisonPool.clear();
+	poisonRate.clear();
+	accumulator.clear();
 	timeSinceLastTick.clear();
 	sourceContributions.clear();
 }
@@ -107,6 +120,6 @@ export function getConfig() {
 	return {
 		tickInterval,
 		isActive,
-		activeForces: poisonPool.size
+		activeForces: poisonRate.size
 	};
 }
