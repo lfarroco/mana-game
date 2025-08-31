@@ -18,7 +18,7 @@ const WINS_DISPLAY_Y = 20;
 
 let uiContainer: Container | null = null;
 export let goldTextElement: TextObj | null = null;
-let prestigeTextElement: TextObj | null = null;
+export let prestigeTextElement: TextObj | null = null;
 export let winsTextElement: TextObj | null = null;
 
 export const updatePrestigeDisplay = (newTotalPrestige: number): void => {

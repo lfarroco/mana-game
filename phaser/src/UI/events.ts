@@ -18,6 +18,13 @@ export function onWinsChanged(newTotalWins: number, winsDelta: number) {
 	}
 }
 
+export function onPrestigeChanged(newTotalPrestige: number, prestigeDelta: number) {
+	UI.updatePrestigeDisplay(newTotalPrestige);
+	if (prestigeDelta !== 0) {
+		prestigeChangeAnimation(prestigeDelta);
+	}
+}
+
 async function goldChangeAnimation(gold: number) {
 	const sign = gold > 0 ? "+" : "";
 	const animationText = `${sign}${gold}`;
@@ -84,6 +91,40 @@ async function winsChangeAnimation(wins: number) {
 	});
 
 	winsAmountText.destroy();
+}
+
+async function prestigeChangeAnimation(prestige: number) {
+	const sign = prestige > 0 ? "+" : "";
+	const animationText = `${sign}${prestige}`;
+
+	const bounds = UI.prestigeTextElement!.getBounds();
+	const startX = bounds.centerX;
+	const startY = bounds.centerY;
+
+	const prestigeAmountText = scene.add.text(
+		startX, startY, animationText, titleTextConfig
+	)
+		.setOrigin(0.5, 0.5)
+		.setAlpha(0)
+		.setScale(1)
+		.setDepth(1000);
+
+	await tween({
+		targets: [prestigeAmountText],
+		alpha: 1,
+		scale: 1.2,
+		y: startY - 30,
+	});
+
+	await tween({
+		targets: [prestigeAmountText],
+		alpha: 0,
+		scale: 1,
+		y: startY - 60,
+		duration: 800,
+	});
+
+	prestigeAmountText.destroy();
 }
 
 export function onPurchaseFailed(

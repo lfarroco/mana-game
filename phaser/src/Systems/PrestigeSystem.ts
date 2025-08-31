@@ -8,17 +8,19 @@ export function processVictory(): void {
 
 	playerState.prestige += prestigeGain;
 	playerState.wins += 1;
-	UIManager.updatePrestigeDisplay(playerState.prestige);
+	UIManager.events.onPrestigeChanged(playerState.prestige, prestigeGain);
 	UIManager.events.onWinsChanged(playerState.wins, 1);
 }
 
 export function processDefeat(): void {
 	const playerState = getState().gameData.player;
+	const oldPrestige = playerState.prestige;
 	const newPrestige = Math.max(0, playerState.prestige - playerState.round);
+	const prestigeDelta = newPrestige - oldPrestige;
 
 	playerState.prestige = newPrestige;
 
-	UIManager.updatePrestigeDisplay(playerState.prestige);
+	UIManager.events.onPrestigeChanged(playerState.prestige, prestigeDelta);
 }
 
 export function finalizeRound(): void {
