@@ -3,7 +3,6 @@ import { delay } from "../../../Utils/animation";
 import { renderVignette } from "../Animations/vignette";
 import * as AudioManager from "@Systems/AudioManager";
 import { battleResultAnimation } from "../battleResultAnimation";
-import * as PrestigeSystem from "@Systems/PrestigeSystem";
 import * as MoraleDisplay from "../MoraleDisplay";
 import { transitionToShopPhase, transitionToShopPhaseAfterDefeat } from "./ShopPhase";
 import * as ResultsUI from "./ResultsUI";
@@ -19,8 +18,6 @@ export async function handleCombatEndedDefeat(): Promise<void> {
 	await _fadeOutDisplayBars();
 	battleResultAnimation("defeat")
 	await delay(1500);
-
-	PrestigeSystem.processDefeat();
 
 	// Show results panel instead of immediately transitioning
 	ResultsUI.displayResults("defeat", () => {
@@ -48,9 +45,6 @@ export async function handleCombatEndedVictory(): Promise<void> {
 	await _fadeOutDisplayBars();
 	battleResultAnimation("victory");
 	await delay(1500);
-
-	PrestigeSystem.processVictory();
-	PrestigeSystem.finalizeRound();
 
 	// Show results panel instead of immediately transitioning
 	ResultsUI.displayResults("victory", () => {

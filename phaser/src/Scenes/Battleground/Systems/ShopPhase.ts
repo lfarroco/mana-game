@@ -55,6 +55,7 @@ export async function transitionToShopPhaseAfterDefeat(): Promise<void> {
 
 	state.gameData.round++;
 	PrestigeSystem.finalizeRound();
+	PrestigeSystem.processDefeat();
 
 	console.log("Round", state.gameData.round, "Shop Phase Starting (After Defeat).");
 
