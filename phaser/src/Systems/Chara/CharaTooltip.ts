@@ -16,9 +16,9 @@ const buildEffectBlock = (effect: Effect, unitPower: number): string => {
 		case "shield":
 			return `[color=#74c0fc]Shield[/color] [color=#ffd93d]${unitPower}[/color]`;
 		case "poison":
-			return `[color=#da77f2]Poison[/color] [color=#ffd93d]${Math.floor(unitPower / 10)}[/color] (1 per 10 power)`;
+			return `[color=#da77f2]Poison[/color] [color=#ffd93d]${unitPower}[/color] over 10s`;
 		case "regen":
-			return `[color=#8ce99a]Regen[/color] [color=#ffd93d]${unitPower}[/color]`;
+			return `[color=#8ce99a]Regen[/color] [color=#ffd93d]${unitPower}[/color] over 10s`;
 		case "haste": {
 			const dur = (effect.duration / 1000).toFixed(1);
 			return withTargets(`[color=#91a7ff][b]Haste[/b][/color] [color=#ffa94d]${dur}s[/color]`, effect.targets);

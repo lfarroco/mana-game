@@ -21,7 +21,6 @@ describe('RegenSystem', () => {
 
 	describe('initialization', () => {
 		it('should initialize correctly', () => {
-			expect(regenSystem.getConfig().isActive).toBe(true);
 			expect(regenSystem.getConfig().activeForces).toBe(0);
 		});
 	});
@@ -116,7 +115,6 @@ describe('RegenSystem', () => {
 			regenSystem.applyRegen(playerForce, 10);
 			regenSystem.stop();
 
-			expect(regenSystem.getConfig().isActive).toBe(false);
 			expect(regenSystem.getConfig().activeForces).toBe(0);
 
 			// Should not apply healing when stopped
