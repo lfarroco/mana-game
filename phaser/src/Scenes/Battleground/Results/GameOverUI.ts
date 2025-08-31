@@ -74,18 +74,25 @@ export function displayGameOver(
 	prestigeDisplay.setDepth(1001);
 	state.resultsContainer.add(prestigeDisplay);
 
-	// Add next phase button
-	const buttonX = panelX + panelWidth / 2;
-	const buttonY = panelY + panelHeight - 80;
-	const nextButton = createUIButton(
+	const newRunButton = createUIButton(
 		scene,
-		"Finish",
-		buttonX,
-		buttonY,
+		"New Run",
+		panelX + panelWidth / 2,
+		panelY + panelHeight - 180,
+		async () => {
+		}
+	);
+	state.resultsContainer.add(newRunButton);
+
+	const mainMenuButton = createUIButton(
+		scene,
+		"Main Menu",
+		panelX + panelWidth / 2,
+		panelY + panelHeight - 80,
 		async () => {
 			await slideOut();
 			nextPhaseCallback();
 		}
 	);
-	state.resultsContainer.add(nextButton);
+	state.resultsContainer.add(mainMenuButton);
 }
