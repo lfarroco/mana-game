@@ -7,6 +7,7 @@ import { getState } from "@Models/State";
 
 export type ResultsUIState = {
 	resultsContainer: Container;
+	backgroundOverlay: Phaser.GameObjects.Rectangle | null;
 	isOpen: boolean;
 };
 
@@ -15,13 +16,15 @@ let state: ResultsUIState | null = null;
 export function create() {
 	state = {
 		resultsContainer: scene.add.container(0, 0),
+		backgroundOverlay: null,
 		isOpen: false,
 	};
 
 	state.resultsContainer.setY(c.SCREEN_HEIGHT * -1);
+	state.resultsContainer.setDepth(1002);
 
 	return state;
-}
+};
 
 export function displayResults(
 	resultType: "victory" | "defeat",
@@ -29,6 +32,21 @@ export function displayResults(
 ): void {
 	if (!state) throw new Error("ResultsUI not initialized. Call create() first.");
 	state.resultsContainer.removeAll(true);
+
+	// Create background overlay to block interactions
+	if (state.backgroundOverlay) {
+		state.backgroundOverlay.destroy();
+	}
+	state.backgroundOverlay = scene.add.rectangle(
+		c.SCREEN_WIDTH / 2,
+		c.SCREEN_HEIGHT / 2,
+		c.SCREEN_WIDTH,
+		c.SCREEN_HEIGHT,
+		0x000000,
+		0 // Invisible but still blocks interactions
+	);
+	state.backgroundOverlay.setInteractive();
+	state.backgroundOverlay.setDepth(1000); // High depth to be above game elements
 
 	const gameState = getState();
 	const currentRound = gameState.gameData.round;
@@ -49,6 +67,7 @@ export function displayResults(
 	const resultsBackground = scene.add.graphics()
 		.fillStyle(0x2c3e50, 0.95)
 		.fillRoundedRect(panelX, panelY, panelWidth, panelHeight, 20);
+	resultsBackground.setDepth(1001); // Above background overlay
 	state.resultsContainer.add(resultsBackground);
 
 	// Add title
@@ -63,6 +82,7 @@ export function displayResults(
 			color: resultType === "victory" ? "#4CAF50" : "#F44336"
 		}
 	).setOrigin(0.5);
+	title.setDepth(1001);
 	state.resultsContainer.add(title);
 
 	// Add result message
@@ -79,6 +99,7 @@ export function displayResults(
 			wordWrap: { width: panelWidth - 80 }
 		}
 	).setOrigin(0.5);
+	message.setDepth(1001);
 	state.resultsContainer.add(message);
 
 	// Add gold reward info
@@ -94,6 +115,7 @@ export function displayResults(
 			fontStyle: "bold"
 		}
 	).setOrigin(0.5);
+	goldDisplay.setDepth(1001);
 	state.resultsContainer.add(goldDisplay);
 
 	// Add prestige info
@@ -109,6 +131,7 @@ export function displayResults(
 			fontStyle: "bold"
 		}
 	).setOrigin(0.5);
+	prestigeDisplay.setDepth(1001);
 	state.resultsContainer.add(prestigeDisplay);
 
 	// Add next phase button
@@ -130,7 +153,14 @@ export function displayResults(
 export async function slideIn(): Promise<void> {
 	if (!state) throw new Error("ResultsUI not initialized. Call create() first.");
 	AudioManager.playSoundEffect('sfx_ui_modalwindow_swoosh_enter');
-	scene.children.bringToTop(state.resultsContainer);
+
+	// Bring background overlay to top
+	if (state.backgroundOverlay) {
+		state.backgroundOverlay.setVisible(true);
+	}
+
+	// Bring results container to top
+	state.resultsContainer.setDepth(1002);
 	await tween({ targets: [state.resultsContainer], y: 0 });
 	state.isOpen = true;
 }
@@ -139,11 +169,24 @@ export async function slideOut(): Promise<void> {
 	if (!state) throw new Error("ResultsUI not initialized. Call create() first.");
 	AudioManager.playSoundEffect('sfx_ui_modalwindow_swoosh_exit');
 	await tween({ targets: [state.resultsContainer], y: c.SCREEN_HEIGHT * -1 });
+
+	// Hide background overlay
+	if (state.backgroundOverlay) {
+		state.backgroundOverlay.setVisible(false);
+	}
+
 	state.isOpen = false;
 }
 
 export function destroy(): void {
 	if (!state) return;
+
+	// Destroy background overlay
+	if (state.backgroundOverlay) {
+		state.backgroundOverlay.destroy();
+		state.backgroundOverlay = null;
+	}
+
 	state.resultsContainer.destroy(true);
 	state = null;
 }
