@@ -11,7 +11,7 @@ import * as Shop from "./Systems/Shop";
 import * as MoraleDisplay from "./MoraleDisplay";
 import * as Systems from "./Systems"
 import { clearAll } from "@Systems/Chara/Chara";
-import * as ResultsUI from "./Systems/ResultsUI";
+import * as ResultsUI from "./Results/ResultsUI";
 
 export let scene: BattlegroundScene;
 
