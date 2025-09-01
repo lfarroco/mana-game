@@ -12,7 +12,6 @@ import * as MoraleDisplay from "./MoraleDisplay";
 import * as Systems from "./Systems"
 import { clearAll } from "@Systems/Chara/Chara";
 import * as ResultsUI from "./Results/ResultsUI";
-import { CountdownTimer } from "./CountdownTimer";
 
 export let scene: BattlegroundScene;
 
@@ -22,7 +21,6 @@ export class BattlegroundScene extends Phaser.Scene {
   cloudsBackground!: Phaser.GameObjects.Image;
   collection!: CardCollection;
   runCombatSystem: RunCombatSystem;
-  timer!: CountdownTimer;
 
   cleanup() {
     clearAll();
@@ -44,7 +42,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.state = getState();
     this.runCombatSystem = new RunCombatSystem();
-    this.timer = new CountdownTimer(this);
   }
 
   preload = preload;
@@ -76,6 +73,8 @@ export class BattlegroundScene extends Phaser.Scene {
     Systems.Setup.setupSceneElements(this.state);
 
     UIManager.init();
+
+    Systems.CountdownTimer.initializeCountdownTimer(this);
 
     Shop.Shop.init();
     ResultsUI.create();
