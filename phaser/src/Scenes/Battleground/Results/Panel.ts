@@ -17,11 +17,11 @@ export function createResultsPanel(state: ResultsUIState): { panelX: number; pan
 	state.backgroundOverlay.setInteractive();
 	state.backgroundOverlay.setDepth(1000);
 
-	const screenWidth = scene.cameras.main.width;
+	const { width, height } = scene.cameras.main;
 	const panelWidth = 850;
 	const panelHeight = 850;
-	const panelX = screenWidth - panelWidth - 40;
-	const panelY = 150;
+	const panelX = width / 2 - panelWidth / 2;
+	const panelY = height / 2 - panelHeight / 2;
 
 	const resultsBackground = scene.add.graphics()
 		.fillStyle(0x2c3e50, 0.95)
