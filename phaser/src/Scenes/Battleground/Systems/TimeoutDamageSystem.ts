@@ -48,8 +48,8 @@ function spawnStar(damage: number, targetForce: Force): void {
 		targetPos,
 		{
 			colors,
-			amplitudeMin: 4,
-			amplitudeMax: 12,
+			amplitudeMin: 10,
+			amplitudeMax: 20,
 			particleScale: 1.2,
 			speedMultiplier: 1.6,
 			impact: {
