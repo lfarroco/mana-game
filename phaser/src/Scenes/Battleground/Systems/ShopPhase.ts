@@ -43,7 +43,7 @@ export async function transitionToShopPhase(): Promise<void> {
 	PrestigeSystem.processVictory();
 	PrestigeSystem.finalizeRound();
 
-	updatePlayerGoldIO(BG_CONSTANTS.VICTORY_GOLD_REWARD);
+	updatePlayerGoldIO(BG_CONSTANTS.GOLD_PER_ROUND);
 
 	console.log("Round", state.gameData.round, "Shop Phase Starting (Victory Transition).");
 
@@ -55,6 +55,8 @@ export async function transitionToShopPhaseAfterDefeat(): Promise<void> {
 
 	PrestigeSystem.processDefeat();
 	PrestigeSystem.finalizeRound();
+
+	updatePlayerGoldIO(BG_CONSTANTS.GOLD_PER_ROUND);
 
 	console.log("Round", state.gameData.round, "Shop Phase Starting (After Defeat).");
 

@@ -44,7 +44,7 @@ export function displayResults(
 	const currentPlayerRound = player.round;
 
 	// Calculate rewards/penalties (keep gold reward same as battlegroundConstants VICTORY_GOLD_REWARD)
-	const goldReward = resultType === "victory" ? 5 : 0;
+	const displayGoldAmount = 5; // Always show 5 gold visually
 
 	// Match PrestigeSystem logic exactly so the UI preview equals the state change.
 	const prestigeChange = resultType === "victory"
@@ -61,13 +61,13 @@ export function displayResults(
 	const gameOver = (resultType === "defeat" && expectedNewPrestige <= 0);
 
 	if (gameWon) {
-		displayGameWon(state, goldReward, prestigeChange, nextPhaseCallback);
+		displayGameWon(state, displayGoldAmount, prestigeChange, nextPhaseCallback);
 	} else if (gameOver) {
-		displayGameOver(state, goldReward, prestigeChange, nextPhaseCallback);
+		displayGameOver(state, displayGoldAmount, prestigeChange, nextPhaseCallback);
 	} else if (resultType === "victory") {
-		displayVictory(state, goldReward, prestigeChange, nextPhaseCallback);
+		displayVictory(state, displayGoldAmount, prestigeChange, nextPhaseCallback);
 	} else {
-		displayDefeat(state, goldReward, prestigeChange, nextPhaseCallback);
+		displayDefeat(state, displayGoldAmount, prestigeChange, nextPhaseCallback);
 	}
 }
 

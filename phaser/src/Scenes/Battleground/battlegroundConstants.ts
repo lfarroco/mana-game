@@ -1,6 +1,6 @@
 export const INITIAL_PLAYER_GOLD = 20;
 export const INITIAL_PLAYER_PRESTIGE = 10;
-export const VICTORY_GOLD_REWARD = 5;
+export const GOLD_PER_ROUND = 5;
 export const XP_PER_ENEMY = 15;
 export const XP_FOR_LEVEL_UP = 100;
 export const HP_MULTIPLIER_LEVEL_UP = 1.1;
