@@ -28,8 +28,8 @@ function spawnStar(damage: number, targetForce: Force): void {
 	if (activeStars >= maxStars) return;
 
 	const screenWidth = scene.scale.width;
-	const startX = scene.timerCircle ? scene.timerCircle.x : Math.floor(screenWidth / 2);
-	const startY = scene.timerCircle ? scene.timerCircle.y : -40;
+	const startX = scene.timer ? scene.timer.circle.x : Math.floor(screenWidth / 2);
+	const startY = scene.timer ? scene.timer.circle.y : -40;
 
 	const targetPos = targetForce.shield > 0
 		? getShieldBarTipPosition(targetForce.id)
