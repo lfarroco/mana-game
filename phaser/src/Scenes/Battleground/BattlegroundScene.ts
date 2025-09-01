@@ -103,6 +103,7 @@ export class BattlegroundScene extends Phaser.Scene {
     // Add a circle background
     this.timerCircle = this.add.circle(centerX, centerY, 40, 0x000000, 0.8);
     this.timerCircle.setStrokeStyle(4, 0xffffff);
+    this.timerCircle.setDepth(1000);
 
     this.timerText = this.add.text(centerX, centerY, this.timerValue.toString(), {
       fontSize: '48px',
@@ -110,6 +111,7 @@ export class BattlegroundScene extends Phaser.Scene {
       stroke: '#000000',
       strokeThickness: 4
     }).setOrigin(0.5);
+    this.timerText.setDepth(1001);
 
     this.timerEvent = this.time.addEvent({
       delay: 1000,
