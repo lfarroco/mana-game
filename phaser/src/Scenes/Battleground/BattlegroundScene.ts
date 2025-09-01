@@ -17,10 +17,14 @@ export let scene: BattlegroundScene;
 
 export class BattlegroundScene extends Phaser.Scene {
   state: State;
-  bgContainer!: Container;
+  bgContainer!: Phaser.GameObjects.Container;
   cloudsBackground!: Phaser.GameObjects.Image;
   collection!: CardCollection;
   runCombatSystem: RunCombatSystem;
+  timerText!: Phaser.GameObjects.Text;
+  timerCircle!: Phaser.GameObjects.Arc;
+  timerValue: number = 10;
+  timerEvent?: Phaser.Time.TimerEvent;
 
   cleanup() {
     clearAll();
@@ -89,6 +93,49 @@ export class BattlegroundScene extends Phaser.Scene {
     Board.update(time);
 
     this.runCombatSystem.updateFrame(time, delta);
+  }
+
+  startCombatTimer(): void {
+    this.timerValue = 10;
+    const centerX = this.scale.width / 2;
+    const centerY = 50;
+
+    // Add a circle background
+    this.timerCircle = this.add.circle(centerX, centerY, 40, 0x000000, 0.8);
+    this.timerCircle.setStrokeStyle(4, 0xffffff);
+
+    this.timerText = this.add.text(centerX, centerY, this.timerValue.toString(), {
+      fontSize: '48px',
+      color: '#ffffff',
+      stroke: '#000000',
+      strokeThickness: 4
+    }).setOrigin(0.5);
+
+    this.timerEvent = this.time.addEvent({
+      delay: 1000,
+      callback: this.updateTimer,
+      callbackScope: this,
+      loop: true
+    });
+  }
+
+  updateTimer(): void {
+    this.timerValue--;
+    this.timerText.setText(this.timerValue.toString());
+    if (this.timerValue <= 0) {
+      this.timerEvent?.destroy();
+      // Keep the timer visible at 0
+    }
+  }
+
+  stopCombatTimer(): void {
+    this.timerEvent?.destroy();
+    if (this.timerText) {
+      this.timerText.destroy();
+    }
+    if (this.timerCircle) {
+      this.timerCircle.destroy();
+    }
   }
 }
 

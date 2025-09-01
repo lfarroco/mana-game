@@ -30,7 +30,7 @@ export class RunCombatSystem {
       startReactions.forEach(r => processEffectsIO(u, r.effects));
     });
     this.active = true;
-
+    scene.startCombatTimer();
   };
 
   updateFrame(_time: number, delta: number): void {
@@ -71,6 +71,7 @@ export class RunCombatSystem {
     Systems.CombatStatsTracker.stop();
     console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);
     Systems.ResultsPhase.handleCombatEnded(outcome);
+    scene.stopCombatTimer();
   }
 
   isActive(): boolean { return this.active; }
