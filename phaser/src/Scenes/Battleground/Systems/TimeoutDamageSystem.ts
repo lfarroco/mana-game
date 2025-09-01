@@ -2,6 +2,7 @@ import { scene } from "../BattlegroundScene";
 import { applyDamageToForce, Force } from "@Models/Entities/Force";
 import { arcaneMissileTargeted } from '../../../Effects';
 import { getMoraleBarTipPosition, getShieldBarTipPosition } from '../MoraleDisplay';
+import * as Systems from "../Systems";
 
 const timeoutDamageStartTime = 10000;
 const timeoutDamageInterval = 1000;
@@ -28,8 +29,9 @@ function spawnStar(damage: number, targetForce: Force): void {
 	if (activeStars >= maxStars) return;
 
 	const screenWidth = scene.scale.width;
-	const startX = scene.timer ? scene.timer.circle.x : Math.floor(screenWidth / 2);
-	const startY = scene.timer ? scene.timer.circle.y : -40;
+	const timerCircle = Systems.CountdownTimer.getCircle();
+	const startX = timerCircle ? timerCircle.x : Math.floor(screenWidth / 2);
+	const startY = timerCircle ? timerCircle.y : -40;
 
 	const targetPos = targetForce.shield > 0
 		? getShieldBarTipPosition(targetForce.id)
