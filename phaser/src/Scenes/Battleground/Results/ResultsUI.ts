@@ -38,23 +38,18 @@ export function displayResults(
 
 	const gameState = getState();
 
-	// NOTE: prestige/win calculations must mirror PrestigeSystem.processVictory/processDefeat
-	// Use the player's round (player.round) because PrestigeSystem uses that field.
 	const player = gameState.gameData.player;
 	const currentPlayerRound = player.round;
 
-	// Calculate rewards/penalties (keep gold reward same as battlegroundConstants VICTORY_GOLD_REWARD)
-	const displayGoldAmount = 5; // Always show 5 gold visually
+	const displayGoldAmount = 5;
 
-	// Match PrestigeSystem logic exactly so the UI preview equals the state change.
 	const prestigeChange = resultType === "victory"
 		? Math.max(Math.floor(currentPlayerRound / 2), 1)
-		: (Math.max(0, player.prestige - currentPlayerRound) - player.prestige); // negative or zero
+		: (Math.max(0, player.prestige - currentPlayerRound) - player.prestige);
 
 	const expectedNewPrestige = player.prestige + prestigeChange;
 	const newWins = resultType === "victory" ? player.wins + 1 : player.wins;
 
-	// Localised win threshold (keeps behaviour identical to previous hard-coded 10)
 	const WINS_TO_WIN_GAME = 2;
 
 	const gameWon = (resultType === "victory" && newWins >= WINS_TO_WIN_GAME);
@@ -75,12 +70,10 @@ export async function slideIn(): Promise<void> {
 	if (!state) throw new Error("ResultsUI not initialized. Call create() first.");
 	AudioManager.playSoundEffect('sfx_ui_modalwindow_swoosh_enter');
 
-	// Bring background overlay to top
 	if (state.backgroundOverlay) {
 		state.backgroundOverlay.setVisible(true);
 	}
 
-	// Bring results container to top
 	state.resultsContainer.setDepth(1002);
 	await tween({ targets: [state.resultsContainer], y: 0 });
 	state.isOpen = true;
@@ -91,7 +84,6 @@ export async function slideOut(): Promise<void> {
 	AudioManager.playSoundEffect('sfx_ui_modalwindow_swoosh_exit');
 	await tween({ targets: [state.resultsContainer], y: c.SCREEN_HEIGHT * -1 });
 
-	// Hide background overlay
 	if (state.backgroundOverlay) {
 		state.backgroundOverlay.setVisible(false);
 	}
@@ -102,7 +94,6 @@ export async function slideOut(): Promise<void> {
 export function destroy(): void {
 	if (!state) return;
 
-	// Destroy background overlay
 	if (state.backgroundOverlay) {
 		state.backgroundOverlay.destroy();
 		state.backgroundOverlay = null;
