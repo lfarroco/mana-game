@@ -116,6 +116,34 @@ export const processEffectsIO = (
 	effects.forEach(effect => processEffectIO(sourceUnit, effect));
 }
 
+// Process a list of effects that originate from a given source force
+export const processForceEffectsIO = (
+	sourceForceId: string,
+	effects: Effect[],
+) => {
+	// Find a representative unit from the force to use as the source
+	const representativeUnit = scene.state.battleData.units.find(u => u.force === sourceForceId) || {
+		id: `${sourceForceId}-representative`,
+		cardId: `${sourceForceId}-card`,
+		force: sourceForceId,
+		position: { x: 0, y: 0 },
+		name: "Force Representative",
+		pic: "",
+		power: 0,
+		cooldown: 100,
+		crit: 0,
+		evade: 0,
+		effects: [],
+		reactions: [],
+		charge: 0,
+		refresh: 0,
+		hasted: 0,
+		slowed: 0,
+	} as Unit;
+
+	effects.forEach(effect => processEffectIO(representativeUnit, effect));
+}
+
 const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
 
 	switch (effect.id) {
@@ -217,14 +245,15 @@ function processReactions(
 		return;
 	}
 
-	const effectListeners = scene.state.battleData.units
+	// Process unit reactions
+	const unitEffectListeners = scene.state.battleData.units
 		.filter(u => u.id != sourceUnit.id) //not self!
 		.filter(u => {
 			return u.reactions.some(r => r.effectId === effect.id);
 		});
 
-	// Evaluate reactions per listener and process them with that listener as the source
-	effectListeners.forEach(u => {
+	// Evaluate reactions per unit listener and process them with that listener as the source
+	unitEffectListeners.forEach(u => {
 		const eligible = u.reactions.filter(r => {
 			switch (r.position) {
 				case "all":
@@ -253,6 +282,49 @@ function processReactions(
 
 		eligible.forEach(r => {
 			processEffectsIO(u, r.effects);
+		});
+	});
+
+	// Process force reactions
+	const forceEffectListeners = scene.state.battleData.forces
+		.filter(f => f.id !== sourceUnit.force) // not the source unit's force
+		.filter(f => {
+			return f.reactions.some(r => r.effectId === effect.id);
+		});
+
+	// Evaluate reactions per force listener
+	forceEffectListeners.forEach(f => {
+		const eligible = f.reactions.filter(r => {
+			switch (r.position) {
+				case "all":
+					return true;
+				case "allies":
+					return f.id === sourceUnit.force;
+				case "enemies":
+					return f.id !== sourceUnit.force;
+				// Position-based reactions don't apply to forces
+				case "row_allies":
+				case "column_allies":
+				case "top_ally":
+				case "bottom_ally":
+				case "left_ally":
+				case "right_ally":
+					return false;
+				default:
+					const _exhaustiveCheck: never = r.position;
+					return _exhaustiveCheck;
+			}
+		});
+
+		eligible.forEach(r => {
+			// For force reactions, we need a representative unit from the force to process effects
+			// Use the first unit of the force, or create a temporary unit if no units exist
+			const representativeUnit = scene.state.battleData.units.find(u => u.force === f.id) || {
+				...sourceUnit,
+				force: f.id,
+				id: `${f.id}-representative`
+			};
+			processEffectsIO(representativeUnit, r.effects);
 		});
 	});
 
