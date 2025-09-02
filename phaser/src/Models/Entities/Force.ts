@@ -3,6 +3,17 @@ import { Unit } from "./Unit";
 import * as UI from "@UI/UI";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import * as MoraleDisplay from "@Scenes/Battleground/MoraleDisplay";
+import * as TriggerSystem from "../../TriggerSystem/TriggerSystem";
+
+export type Skill = {
+	name: string;
+	id: string;
+	effect: TriggerSystem.Effect;
+};
+
+export type ForceReaction = TriggerSystem.EffectReaction & {
+	skillId: string;
+};
 
 export type Force = {
 	id: string;
@@ -17,6 +28,8 @@ export type Force = {
 	prestige: number,
 	round: number;
 	wins: number;
+	skills: Skill[];
+	reactions: ForceReaction[];
 };
 
 export const makeForce = (id: string): Force => {
@@ -33,6 +46,8 @@ export const makeForce = (id: string): Force => {
 		prestige: 20,
 		round: 1,
 		wins: 0,
+		skills: [],
+		reactions: [],
 	}
 };
 
