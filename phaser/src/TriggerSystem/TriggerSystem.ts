@@ -2,13 +2,54 @@ import { Unit } from "@Models/Entities/Unit";
 import { State } from "@Models/State";
 import BattlegroundScene, { scene } from "@Scenes/Battleground/BattlegroundScene";
 import * as effects from "./effects";
+import * as skillEffects from "./skillEffects";
 import { pickRandom } from "../utils";
+import { Skill } from "@Models/Entities/Force";
 
 export type EffectReaction = {
 	position: EffectSourcePosition;
 	effectId: string; // e.g. "damage", "heal", "shield", "poison", "regen", "haste", "slow", "charge"
 	effects: Effect[]
 }
+
+export type SkillEffect = {
+	id: "damage",
+	amount: number,
+} | {
+	id: "heal",
+	amount: number,
+} | {
+	id: "shield",
+	amount: number,
+} | {
+	id: "poison",
+	perTick: number,
+} | {
+	id: "regen",
+	perTick: number,
+} | {
+	id: "haste",
+	duration: number,
+} | {
+	id: "slow",
+	duration: number,
+} | {
+	id: "charge",
+	amount: number,
+} | {
+	id: "increase_power",
+	amount: number,
+} | {
+	id: "multiply_power",
+	multiplier: number,
+} | {
+	id: "grant_gold",
+	amount: number,
+	forceId: string,
+} | {
+	id: "ally_damage_power_boost",
+	powerBonus: number,
+};
 
 export type Effect = {
 	id: "damage",
@@ -113,7 +154,19 @@ export const processEffectsIO = (
 	sourceUnit: Unit,
 	effects: Effect[],
 ) => {
-	effects.forEach(effect => processEffectIO(sourceUnit, effect));
+	effects.forEach(effect => {
+		processEffectIO(sourceUnit, effect);
+	});
+}
+
+// Process a list of skill effects that originate from a given source unit
+export const processSkillEffectsIO = (
+	sourceUnit: Unit,
+	effects: SkillEffect[],
+) => {
+	effects.forEach(effect => {
+		processSkillEffectIOGeneral(sourceUnit, effect);
+	});
 }
 
 // Process a list of effects that originate from a given source force
@@ -218,7 +271,6 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
 			break;
 		case "grant_gold":
 			// find target by forceId and apply gold
-			// not implemented yet
 			effects.grantGoldLogic({
 				forceId: effect.forceId,
 				amount: effect.amount,
@@ -237,7 +289,7 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
 function processReactions(
 	scene: BattlegroundScene,
 	sourceUnit: Unit,
-	effect: Effect,
+	effect: Effect | SkillEffect,
 ) {
 
 	// effects that can't be reacted to
@@ -328,6 +380,157 @@ function processReactions(
 		});
 	});
 
+}
+
+// Process a skill effect that originates from a skill icon position
+export const processSkillEffectIO = (
+	skill: Skill,
+	sourceUnit: Unit,
+	skillPosition: { x: number; y: number }
+) => {
+	processSkillEffect(skill, sourceUnit, skillPosition);
+}
+
+// Process a skill effect without position (for general skill effect processing)
+export const processSkillEffectIOGeneral = (
+	sourceUnit: Unit,
+	effect: SkillEffect
+) => {
+	processSkillEffectGeneral(sourceUnit, effect);
+}
+
+const processSkillEffect = (skill: Skill, sourceUnit: Unit, skillPosition: { x: number; y: number }) => {
+	const effect = skill.effect;
+
+	switch (effect.id) {
+		case "damage":
+			skillEffects.dealDamageFromSkill(sourceUnit, skillPosition, effect.amount);
+			break;
+		case "heal":
+			skillEffects.restoreMoraleFromSkill(sourceUnit, skillPosition, effect.amount);
+			break;
+		case "shield":
+			skillEffects.addShieldFromSkill(sourceUnit, skillPosition, effect.amount);
+			break;
+		case "poison":
+			skillEffects.applyPoisonFromSkill(sourceUnit, skillPosition, effect.perTick);
+			break;
+		case "regen":
+			skillEffects.applyRegenFromSkill(sourceUnit, skillPosition, effect.perTick);
+			break;
+		case "haste":
+			skillEffects.applyHasteFromSkill(sourceUnit, skillPosition, effect.duration);
+			break;
+		case "slow":
+			skillEffects.applySlowFromSkill(sourceUnit, skillPosition, effect.duration);
+			break;
+		case "charge":
+			skillEffects.applyChargeFromSkill(sourceUnit, skillPosition, effect.amount);
+			break;
+		case "increase_power":
+			skillEffects.increasePowerFromSkill(sourceUnit, skillPosition, effect.amount);
+			break;
+		case "multiply_power":
+			skillEffects.multiplyPowerFromSkill(sourceUnit, skillPosition, effect.multiplier);
+			break;
+		case "grant_gold":
+			skillEffects.grantGoldFromSkill(sourceUnit, skillPosition, effect.amount);
+			break;
+		case "ally_damage_power_boost":
+			// This is a passive skill effect, no visual trigger needed
+			break;
+		default:
+			const _exhaustiveCheck: never = effect;
+			return _exhaustiveCheck;
+	}
+
+	processReactions(scene, sourceUnit, effect);
+}
+
+const processSkillEffectGeneral = (sourceUnit: Unit, effect: SkillEffect) => {
+	switch (effect.id) {
+		case "damage":
+			effects.dealDamageLogicIO(sourceUnit);
+			break;
+		case "heal":
+			effects.restoreMoraleLogicIO({ sourceUnit });
+			break;
+		case "shield":
+			effects.addShieldLogicIO(sourceUnit);
+			break;
+		case "poison":
+			effects.applyPoisonLogicIO(sourceUnit);
+			break;
+		case "regen":
+			effects.applyRegenLogicIO(sourceUnit);
+			break;
+		case "haste":
+			// SkillEffect version - target all allies
+			const allies = scene.state.battleData.units.filter(u => u.force === sourceUnit.force && u.id !== sourceUnit.id);
+			effects.applyHasteLogicIO({
+				targets: allies,
+				sourceUnit,
+				duration: effect.duration,
+			});
+			break;
+		case "slow":
+			// SkillEffect version - target all enemies
+			const enemies = scene.state.battleData.units.filter(u => u.force !== sourceUnit.force);
+			effects.applySlowLogicIO({
+				targets: enemies,
+				scene,
+				sourceUnit,
+				duration: effect.duration,
+			});
+			break;
+		case "charge":
+			// SkillEffect version - target all allies
+			const alliesCharge = scene.state.battleData.units.filter(u => u.force === sourceUnit.force && u.id !== sourceUnit.id);
+			effects.applyChargeLogicIO({
+				targets: alliesCharge,
+				scene,
+				sourceUnit,
+				amount: effect.amount,
+			});
+			break;
+		case "increase_power":
+			// SkillEffect version - target all allies
+			const alliesPower = scene.state.battleData.units.filter(u => u.force === sourceUnit.force && u.id !== sourceUnit.id);
+			effects.increasePower({
+				targets: alliesPower,
+				scene,
+				sourceUnit,
+				amount: effect.amount,
+			});
+			break;
+		case "multiply_power":
+			// SkillEffect version - target all allies
+			const alliesMultiply = scene.state.battleData.units.filter(u => u.force === sourceUnit.force && u.id !== sourceUnit.id);
+			effects.multiplyPower({
+				targets: alliesMultiply,
+				scene,
+				sourceUnit,
+				multiplier: effect.multiplier,
+			});
+			break;
+		case "grant_gold":
+			// find target by forceId and apply gold
+			effects.grantGoldLogic({
+				forceId: effect.forceId,
+				amount: effect.amount,
+				scene,
+				sourceUnit,
+			});
+			break;
+		case "ally_damage_power_boost":
+			// This is a passive skill effect, no visual trigger needed
+			break;
+		default:
+			const _exhaustiveCheck: never = effect;
+			return _exhaustiveCheck;
+	}
+
+	processReactions(scene, sourceUnit, effect);
 }
 
 function resolveTargets(state: State, sourceUnit: Unit, effect: Effect): Unit[] {

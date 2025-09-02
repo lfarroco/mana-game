@@ -40,7 +40,6 @@ export class BattlegroundScene extends Phaser.Scene {
     super("BattlegroundScene");
     console.log("BattlegroundScene constructor")
 
-    this.state = getState();
     this.runCombatSystem = new RunCombatSystem();
   }
 
@@ -65,6 +64,8 @@ export class BattlegroundScene extends Phaser.Scene {
   start = async () => {
     console.log("BattlegroundScene starting logic...");
 
+    this.state = getState();
+
     Systems.Loader.init(this.collection);
     Systems.Loader.loadDynamicAssets(this.collection)
 
@@ -88,6 +89,7 @@ export class BattlegroundScene extends Phaser.Scene {
   update(time: number, delta: number): void {
     Shop.UI.update(time);
     Board.update(time);
+    UIManager.update();
 
     this.runCombatSystem.updateFrame(time, delta);
   }

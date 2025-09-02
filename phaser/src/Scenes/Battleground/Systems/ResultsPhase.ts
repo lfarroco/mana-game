@@ -7,9 +7,8 @@ import * as MoraleDisplay from "../MoraleDisplay";
 import { transitionToShopPhase, transitionToShopPhaseAfterDefeat } from "./ShopPhase";
 import * as ResultsUI from "../Results/ResultsUI";
 
-const state = getState();
-
 export async function handleCombatEndedDefeat(): Promise<void> {
+	const state = getState();
 	console.log("Round", state.gameData.round, "Processing Defeat...");
 
 	AudioManager.playSoundEffect('sfx_victory_match');
@@ -27,6 +26,7 @@ export async function handleCombatEndedDefeat(): Promise<void> {
 }
 
 export async function handlePlayerWonGame(): Promise<void> {
+	const state = getState();
 	console.log(`PLAYER HAS WON THE GAME! Prestige: ${state.gameData.player.prestige}, Total Rounds: ${state.gameData.player.round}`);
 
 
@@ -37,6 +37,7 @@ export async function handlePlayerWonGame(): Promise<void> {
 }
 
 export async function handleCombatEndedVictory(): Promise<void> {
+	const state = getState();
 	console.log("Round", state.gameData.round, "Processing Victory...");
 
 	AudioManager.playSoundEffect('sfx_victory_reward_chant');

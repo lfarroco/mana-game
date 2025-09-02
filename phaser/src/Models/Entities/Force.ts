@@ -8,7 +8,7 @@ import * as TriggerSystem from "../../TriggerSystem/TriggerSystem";
 export type Skill = {
 	name: string;
 	id: string;
-	effect: TriggerSystem.Effect;
+	effect: TriggerSystem.SkillEffect;
 };
 
 export type ForceReaction = TriggerSystem.EffectReaction & {
@@ -53,6 +53,33 @@ export const makeForce = (id: string): Force => {
 
 export const playerForce = makeForce(constants.FORCE_ID_PLAYER);
 export const cpuForce = makeForce(constants.FORCE_ID_CPU);
+
+// Add some sample skills for testing
+playerForce.skills = [
+	{
+		id: "player-ally-damage-boost",
+		name: "Battle Fury",
+		effect: { id: "ally_damage_power_boost", powerBonus: 2 }
+	},
+	{
+		id: "player-shield-boost",
+		name: "Shield Boost",
+		effect: { id: "shield", amount: 20 }
+	}
+];
+
+cpuForce.skills = [
+	{
+		id: "cpu-ally-damage-boost",
+		name: "Rage Boost",
+		effect: { id: "ally_damage_power_boost", powerBonus: 3 }
+	},
+	{
+		id: "cpu-damage-spike",
+		name: "Damage Spike",
+		effect: { id: "damage", amount: 25 }
+	}
+];
 
 export const updatePlayerGoldIO = (goldDelta: number) => {
 
