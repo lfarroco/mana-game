@@ -12,8 +12,6 @@ import * as MoraleDisplay from "../MoraleDisplay";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
 import { endShopPhase } from "./ShopPhase";
 
-const state = getState();
-
 function createUnitCopy(unit: Unit): Unit {
 	return {
 		...unit,
@@ -24,6 +22,7 @@ function createUnitCopy(unit: Unit): Unit {
 }
 
 export async function transitionToCombatPhase(): Promise<void> {
+	const state = getState();
 	endShopPhase();
 	console.log("Round", state.gameData.round, "Combat Phase Starting.");
 	const { enemies } = await setupBattle();
@@ -39,6 +38,7 @@ export async function transitionToCombatPhase(): Promise<void> {
 }
 
 export async function setupBattle(): Promise<{ enemies: Unit[]; }> {
+	const state = getState();
 	const cardPool = getAllCards();
 	const enemies = generateEnemyTeam(state.gameData.round, cardPool);
 
@@ -57,6 +57,7 @@ export async function setupBattle(): Promise<{ enemies: Unit[]; }> {
 }
 
 export async function handleCombatStartExecution(_payload: { enemies: Unit[] }): Promise<void> {
+	const state = getState();
 
 	_initializeMorale();
 

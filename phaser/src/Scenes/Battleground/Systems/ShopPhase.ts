@@ -8,9 +8,8 @@ import { clearAll, summon } from "@Systems/Chara/Chara";
 import * as Shop from "./Shop/Shop";
 import { transitionToCombatPhase } from "./CombatPhase";
 
-const state = getState();
-
 async function setupShopPhaseCommon(): Promise<void> {
+	const state = getState();
 	clearAll();
 	state.battleData.units = [];
 
@@ -32,6 +31,7 @@ export let isInShopPhase: boolean = false;
 export async function initializeShopPhase(): Promise<void> {
 	await setupShopPhaseCommon();
 
+	const state = getState();
 	console.log("Round", state.gameData.round, "Shop Phase Starting (Initial Setup).");
 
 	Shop.handleShopOpenUITrigger();
@@ -45,6 +45,7 @@ export async function transitionToShopPhase(): Promise<void> {
 
 	updatePlayerGoldIO(BG_CONSTANTS.GOLD_PER_ROUND);
 
+	const state = getState();
 	console.log("Round", state.gameData.round, "Shop Phase Starting (Victory Transition).");
 
 	Shop.handleShopOpenUITrigger();
@@ -58,6 +59,7 @@ export async function transitionToShopPhaseAfterDefeat(): Promise<void> {
 
 	updatePlayerGoldIO(BG_CONSTANTS.GOLD_PER_ROUND);
 
+	const state = getState();
 	console.log("Round", state.gameData.round, "Shop Phase Starting (After Defeat).");
 
 	// If prestige reached 0 after defeat, show a game-over vignette instead of opening the shop

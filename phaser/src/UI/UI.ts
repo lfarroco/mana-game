@@ -2,6 +2,7 @@ import * as c from "../constants/constants";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import { tween } from "../Utils/animation";
 import * as Tooltip from "./Tooltip";
+import * as ForceSkillsDisplay from "./ForceSkillsDisplay";
 export * as events from "./events"
 
 const GOLD_DISPLAY_X = c.SCREEN_WIDTH - 320;
@@ -46,6 +47,8 @@ export function init() {
 	createRoundDisplay(uiContainer);
 
 	createWinsDisplay(uiContainer);
+
+	ForceSkillsDisplay.initForceSkillsDisplay();
 
 }
 
@@ -200,10 +203,18 @@ export async function handleUserMessageRequested(payload: {
 }
 
 
+export function update(): void {
+	ForceSkillsDisplay.updateForceSkillsDisplay();
+}
+
+export function refreshSkillsDisplay(): void {
+	ForceSkillsDisplay.updatePlayerSkills();
+	ForceSkillsDisplay.updateCpuSkills();
+}
+
 export function destroy(): void {
 	uiContainer!.destroy(true);
 	uiContainer = null;
 	Tooltip.destroyTooltip();
+	ForceSkillsDisplay.destroyForceSkillsDisplay();
 }
-
-
