@@ -1,22 +1,23 @@
-import { arcaneMissileTargeted, hasteEffect, slowEffect } from '../Effects';
-import { applyDamageToForce, Force, manipulateForceMorale, manipulateForceShield } from '@Models/Entities/Force';
+import * as Effects from '../Effects';
+import * as Force from '@Models/Entities/Force';
 import { Unit } from '@Models/Entities/Unit';
 import { asVec2 } from '@Models/Geometry.pure';
 import { scene } from '@Scenes//Battleground/BattlegroundScene';
-import { getMoraleBarTipPosition, getShieldBarTipPosition } from '@Scenes//Battleground/MoraleDisplay';
+import * as MoraleDisplay from '@Scenes//Battleground/MoraleDisplay';
 import { applyPoison } from '@Scenes/Battleground/Systems/PoisonDamageSystem';
 import { applyRegen } from '@Scenes/Battleground/Systems/RegenSystem';
 import { getCharaById } from '@Systems/Chara/Chara';
+import { increasePower } from './effects';
 
 // Skill-based effect functions that originate from skill icon positions
 
-export function dealDamageFromSkill(targetForce: Force, skillPosition: { x: number; y: number }, amount: number) {
+export function dealDamageFromSkill(targetForce: Force.Force, skillPosition: { x: number; y: number }, amount: number) {
 
 	const targetPos = targetForce.shield > 0
-		? getShieldBarTipPosition(targetForce.id)
-		: getMoraleBarTipPosition(targetForce.id);
+		? MoraleDisplay.getShieldBarTipPosition(targetForce.id)
+		: MoraleDisplay.getMoraleBarTipPosition(targetForce.id);
 
-	arcaneMissileTargeted(
+	Effects.arcaneMissileTargeted(
 		scene,
 		skillPosition,
 		targetPos,
@@ -33,17 +34,17 @@ export function dealDamageFromSkill(targetForce: Force, skillPosition: { x: numb
 				alpha: 0.4
 			},
 			onHit: async () => {
-				applyDamageToForce(targetForce, amount);
+				Force.applyDamageToForce(targetForce, amount);
 			}
 		}
 	);
 }
 
-export function restoreMoraleFromSkill(targetForce: Force, skillPosition: { x: number; y: number }, amount: number) {
+export function restoreMoraleFromSkill(targetForce: Force.Force, skillPosition: { x: number; y: number }, amount: number) {
 
-	const targetPos = getMoraleBarTipPosition(targetForce.id);
+	const targetPos = MoraleDisplay.getMoraleBarTipPosition(targetForce.id);
 
-	arcaneMissileTargeted(
+	Effects.arcaneMissileTargeted(
 		scene,
 		skillPosition,
 		targetPos,
@@ -60,17 +61,17 @@ export function restoreMoraleFromSkill(targetForce: Force, skillPosition: { x: n
 				alpha: 0.4
 			},
 			onHit: async () => {
-				manipulateForceMorale(targetForce, amount);
+				Force.manipulateForceMorale(targetForce, amount);
 			}
 		}
 	);
 }
 
-export function addShieldFromSkill(targetForce: Force, skillPosition: { x: number; y: number }, amount: number) {
+export function addShieldFromSkill(targetForce: Force.Force, skillPosition: { x: number; y: number }, amount: number) {
 
-	const targetPos = getShieldBarTipPosition(targetForce.id);
+	const targetPos = MoraleDisplay.getShieldBarTipPosition(targetForce.id);
 
-	arcaneMissileTargeted(
+	Effects.arcaneMissileTargeted(
 		scene,
 		skillPosition,
 		targetPos,
@@ -87,16 +88,16 @@ export function addShieldFromSkill(targetForce: Force, skillPosition: { x: numbe
 				alpha: 0.4
 			},
 			onHit: async () => {
-				manipulateForceShield(targetForce, amount);
+				Force.manipulateForceShield(targetForce, amount);
 			}
 		}
 	);
 }
 
-export function applyPoisonFromSkill(targetForce: Force, skillPosition: { x: number; y: number }, perTick: number) {
+export function applyPoisonFromSkill(targetForce: Force.Force, skillPosition: { x: number; y: number }, perTick: number) {
 
-	const target = getMoraleBarTipPosition(targetForce.id);
-	arcaneMissileTargeted(
+	const target = MoraleDisplay.getMoraleBarTipPosition(targetForce.id);
+	Effects.arcaneMissileTargeted(
 		scene,
 		skillPosition,
 		target,
@@ -119,11 +120,11 @@ export function applyPoisonFromSkill(targetForce: Force, skillPosition: { x: num
 	);
 }
 
-export function applyRegenFromSkill(targetForce: Force, skillPosition: { x: number; y: number }, perTick: number) {
+export function applyRegenFromSkill(targetForce: Force.Force, skillPosition: { x: number; y: number }, perTick: number) {
 
-	const target = getMoraleBarTipPosition(targetForce.id);
+	const target = MoraleDisplay.getMoraleBarTipPosition(targetForce.id);
 
-	arcaneMissileTargeted(
+	Effects.arcaneMissileTargeted(
 		scene,
 		skillPosition,
 		target,
@@ -153,7 +154,7 @@ export function applyHasteFromSkill(
 ) {
 
 	targets.forEach(unit => {
-		arcaneMissileTargeted(
+		Effects.arcaneMissileTargeted(
 			scene,
 			skillPosition,
 			asVec2(getCharaById(unit.id)),
@@ -172,7 +173,7 @@ export function applyHasteFromSkill(
 				onHit: async () => {
 					unit.hasted += duration;
 
-					hasteEffect(scene, getCharaById(unit.id), {
+					Effects.hasteEffect(scene, getCharaById(unit.id), {
 						duration: 1000,
 						intensity: 1.5,
 						color: 0x00eaff
@@ -192,7 +193,7 @@ export function applySlowFromSkill(
 	units.forEach(unit => {
 		const chara = getCharaById(unit.id);
 		if (chara) {
-			arcaneMissileTargeted(
+			Effects.arcaneMissileTargeted(
 				scene,
 				skillPosition,
 				{ x: chara.x, y: chara.y },
@@ -210,7 +211,7 @@ export function applySlowFromSkill(
 					},
 					onHit: async () => {
 						unit.slowed += duration;
-						slowEffect(scene, getCharaById(unit.id), {
+						Effects.slowEffect(scene, getCharaById(unit.id), {
 							duration: 1000,
 							intensity: 1.5,
 							color: 0x00eaff
@@ -230,7 +231,7 @@ export function applyChargeFromSkill(
 
 	units.forEach(unit => {
 		const chara = getCharaById(unit.id);
-		arcaneMissileTargeted(
+		Effects.arcaneMissileTargeted(
 			scene,
 			skillPosition,
 			chara,
@@ -262,7 +263,7 @@ export function increasePowerFromSkill(
 
 	units.forEach(unit => {
 		const chara = getCharaById(unit.id);
-		arcaneMissileTargeted(
+		Effects.arcaneMissileTargeted(
 			scene,
 			skillPosition,
 			chara,
@@ -279,7 +280,7 @@ export function increasePowerFromSkill(
 					alpha: 0.4
 				},
 				onHit: async () => {
-					unit.power += amount;
+					increasePower(units, amount)
 				}
 			}
 		);
@@ -295,7 +296,7 @@ export function multiplyPowerFromSkill(
 	units.forEach(unit => {
 		const chara = getCharaById(unit.id);
 		if (chara) {
-			arcaneMissileTargeted(
+			Effects.arcaneMissileTargeted(
 				scene,
 				skillPosition,
 				{ x: chara.x, y: chara.y },
@@ -321,14 +322,14 @@ export function multiplyPowerFromSkill(
 }
 
 export function grantGoldFromSkill(
-	targetForce: Force,
+	targetForce: Force.Force,
 	skillPosition: { x: number; y: number },
 	amount: number
 ) {
 
 	const targetPos = { x: 100, y: 50 };
 
-	arcaneMissileTargeted(
+	Effects.arcaneMissileTargeted(
 		scene,
 		skillPosition,
 		targetPos,

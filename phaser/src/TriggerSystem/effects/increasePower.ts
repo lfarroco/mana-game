@@ -1,15 +1,11 @@
 import { Unit } from "@Models/Entities/Unit";
-import BattlegroundScene from "@Scenes/Battleground/BattlegroundScene";
 import * as AudioManager from "@Systems/AudioManager";
 import { getCharaById, updateUnitPower } from "@Systems/Chara/Chara";
 
-export const increasePower = async (context: {
-	targets: Unit[];
-	scene: BattlegroundScene;
-	sourceUnit: Unit;
-	amount: number;
-}) => {
-	const { targets, amount } = context;
+export const increasePower = async (
+	targets: Unit[],
+	amount: number
+) => {
 
 	for (const target of targets) {
 		console.log(`Modifying power of ${target.id} by ${amount}`);

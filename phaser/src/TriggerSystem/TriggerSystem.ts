@@ -165,23 +165,19 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
 			});
 			break;
 		case "increase_power":
-			effects.increasePower({
-				targets: resolveTargets(scene.state, sourceUnit, effect),
-				scene,
-				sourceUnit,
-				amount: effect.amount,
-			});
+			effects.increasePower(
+				resolveTargets(scene.state, sourceUnit, effect),
+				effect.amount,
+			);
 			break;
 		case "increase_power_on_type": {
 			const allTargets = resolveTargets(scene.state, sourceUnit, effect);
 			const filtered = allTargets.filter(u => u.effects.some(e => e.id === effect.targetEffectId));
 			if (filtered.length === 0) break;
-			effects.increasePower({
-				targets: filtered,
-				scene,
-				sourceUnit,
-				amount: effect.amount,
-			});
+			effects.increasePower(
+				filtered,
+				effect.amount,
+			);
 			break;
 		}
 		case "multiply_power":
