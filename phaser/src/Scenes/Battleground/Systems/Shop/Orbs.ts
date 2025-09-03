@@ -121,12 +121,7 @@ const generateSkillPowerUpOrb = () => {
 		].join('\n'),
 		effect: (unit: Unit) => {
 			if (!unit.effects.some(e => e.id === effectId)) return false;
-			increasePower({
-				targets: [unit],
-				sourceUnit: unit,
-				scene,
-				amount
-			});
+			increasePower([unit], amount);
 			return true;
 		}
 	}
@@ -177,12 +172,7 @@ const generateChargeReactionOrb = () => {
 
 // Orb effect functions (pure)
 function crimsonOrbEffect(unit: Unit) {
-	increasePower({
-		targets: [unit],
-		sourceUnit: unit,
-		scene,
-		amount: 5
-	});
+	increasePower([unit], 5);
 	console.log(`Crimson Orb applied to ${unit.id}, new power: ${unit.power}`);
 	return true;
 }
