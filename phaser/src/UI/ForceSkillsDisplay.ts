@@ -1,9 +1,7 @@
 import * as c from "../constants/constants";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import { Force, Skill } from "@Models/Entities/Force";
-import { Unit } from "@Models/Entities/Unit";
 import * as SkillTooltip from "./SkillTooltip";
-import { processSkillEffectIO } from "../TriggerSystem/TriggerSystem";
 
 interface SkillCircle {
 	circle: Phaser.GameObjects.Arc;
@@ -19,38 +17,6 @@ let cpuCircles: SkillCircle[] = [];
 const CIRCLE_RADIUS = 25;
 const CIRCLE_SPACING = 10;
 const SKILL_OFFSET_Y = 40; // Distance below the board
-
-function activateSkill(skill: Skill, position: { x: number; y: number }) {
-	// Find the force that owns this skill
-	const force = scene.state.battleData.forces.find(f =>
-		f.skills.some(s => s.id === skill.id)
-	);
-
-	if (!force) return;
-
-	// Create a representative unit for the force to trigger the effect
-	const representativeUnit = scene.state.battleData.units.find(u => u.force === force.id) || {
-		id: `${force.id}-skill-representative`,
-		cardId: `${force.id}-card`,
-		force: force.id,
-		position: { x: 0, y: 0 },
-		name: "Skill Representative",
-		pic: "",
-		power: 0,
-		cooldown: 100,
-		crit: 0,
-		evade: 0,
-		effects: [],
-		reactions: [],
-		charge: 0,
-		refresh: 0,
-		hasted: 0,
-		slowed: 0,
-	} as Unit;
-
-	// Process the skill effect from the skill icon position
-	processSkillEffectIO(skill, representativeUnit, position);
-}
 
 export function initForceSkillsDisplay() {
 	playerContainer = scene.add.container(0, 0);
@@ -136,7 +102,6 @@ function createSkillCircle(skill: Skill, x: number, y: number, isPlayer: boolean
 	circle.on('pointerdown', () => {
 		circle.setScale(0.9);
 		text.setScale(0.9);
-		activateSkill(skill, { x, y });
 	});
 
 	circle.on('pointerup', () => {
@@ -147,7 +112,6 @@ function createSkillCircle(skill: Skill, x: number, y: number, isPlayer: boolean
 	text.on('pointerdown', () => {
 		circle.setScale(0.9);
 		text.setScale(0.9);
-		activateSkill(skill, { x, y });
 	});
 
 	text.on('pointerup', () => {

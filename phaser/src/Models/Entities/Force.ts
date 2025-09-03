@@ -5,16 +5,6 @@ import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTra
 import * as MoraleDisplay from "@Scenes/Battleground/MoraleDisplay";
 import * as TriggerSystem from "../../TriggerSystem/TriggerSystem";
 
-export type Skill = {
-	name: string;
-	id: string;
-	effect: TriggerSystem.SkillEffect;
-};
-
-export type ForceReaction = TriggerSystem.EffectReaction & {
-	skillId: string;
-};
-
 export type Force = {
 	id: string;
 	name: string;
@@ -29,7 +19,12 @@ export type Force = {
 	round: number;
 	wins: number;
 	skills: Skill[];
-	reactions: ForceReaction[];
+};
+
+export type Skill = {
+	name: string;
+	id: string;
+	reactions: TriggerSystem.EffectReaction[];
 };
 
 export const makeForce = (id: string): Force => {
@@ -47,38 +42,58 @@ export const makeForce = (id: string): Force => {
 		round: 1,
 		wins: 0,
 		skills: [],
-		reactions: [],
 	}
 };
 
 export const playerForce = makeForce(constants.FORCE_ID_PLAYER);
 export const cpuForce = makeForce(constants.FORCE_ID_CPU);
 
-// Add some sample skills for testing
 playerForce.skills = [
 	{
 		id: "player-ally-damage-boost",
 		name: "Battle Fury",
-		effect: { id: "ally_damage_power_boost", powerBonus: 2 }
-	},
-	{
-		id: "player-shield-boost",
-		name: "Shield Boost",
-		effect: { id: "shield", amount: 20 }
+		reactions: [
+			{
+				effectId: "damage",
+				position: "allies",
+				effects: [
+					{
+						"id": "increase_power",
+						"amount": 10,
+						"targets": {
+							"id": "all_allies"
+						}
+					}
+				]
+			}
+
+		]
 	}
+
 ];
 
 cpuForce.skills = [
 	{
-		id: "cpu-ally-damage-boost",
-		name: "Rage Boost",
-		effect: { id: "ally_damage_power_boost", powerBonus: 3 }
-	},
-	{
-		id: "cpu-damage-spike",
-		name: "Damage Spike",
-		effect: { id: "damage", amount: 25 }
+		id: "cpu-poison-damage-boost",
+		name: "Poison Fury",
+		reactions: [
+			{
+				effectId: "poison",
+				position: "allies",
+				effects: [
+					{
+						"id": "increase_power",
+						"amount": 10,
+						"targets": {
+							"id": "all_allies"
+						}
+					}
+				]
+			}
+
+		]
 	}
+
 ];
 
 export const updatePlayerGoldIO = (goldDelta: number) => {

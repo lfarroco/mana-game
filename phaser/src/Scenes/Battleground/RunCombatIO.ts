@@ -2,7 +2,7 @@ import { scene } from "./BattlegroundScene";
 import { getState } from "@Models/State";
 import { MIN_COOLDOWN } from "../../constants/constants";
 import { Unit } from "@Models/Entities/Unit";
-import { processEffectsIO, processForceEffectsIO } from "../../TriggerSystem/TriggerSystem";
+import { processEffectsIO } from "../../TriggerSystem/TriggerSystem";
 import { cpuForce, playerForce } from "@Models/Entities/Force";
 import * as Systems from "./Systems";
 import * as Animations from "@Systems/Chara/Animations";
@@ -25,15 +25,7 @@ export class RunCombatSystem {
     Systems.Poison.initialize();
     Systems.Regen.initialize();
     Systems.CombatStatsTracker.initialize();
-    getState().battleData.units.forEach(u => {
-      const startReactions = u.reactions.filter(r => r.effectId === "battle_start");
-      startReactions.forEach(r => processEffectsIO(u, r.effects));
-    });
-    // Process force battle start reactions
-    getState().battleData.forces.forEach(f => {
-      const startReactions = f.reactions.filter(r => r.effectId === "battle_start");
-      startReactions.forEach(r => processForceEffectsIO(f.id, r.effects));
-    });
+
     this.active = true;
     Systems.CountdownTimer.start();
   };
