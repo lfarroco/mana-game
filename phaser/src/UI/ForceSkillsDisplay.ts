@@ -168,6 +168,20 @@ export function destroyForceSkillsDisplay() {
 	cpuContainer.destroy();
 }
 
+export function hideCpuSkills() {
+	cpuCircles.forEach(circle => {
+		circle.circle.setVisible(false);
+		circle.text.setVisible(false);
+	});
+}
+
+export function showCpuSkills() {
+	cpuCircles.forEach(circle => {
+		circle.circle.setVisible(true);
+		circle.text.setVisible(true);
+	});
+}
+
 export function getSkillPosition(skillId: string, forceId: string): { x: number; y: number } | null {
 	const circles = forceId === c.FORCE_ID_PLAYER ? playerCircles : cpuCircles;
 	const skillCircle = circles.find(circle => circle.skill.id === skillId);
