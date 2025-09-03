@@ -298,38 +298,37 @@ const processSkillEffect = (eff: Effect, force: Force, skillPosition: { x: numbe
 	const targets = resolveTargets(scene.state, createTestUnit("", force.id), eff);
 	switch (eff.id) {
 		case "damage":
-			skillEffects.dealDamageFromSkill(force, skillPosition, 10);
+			skillEffects.dealDamageFromSkill(force, skillPosition, eff.amount);
 			break;
 		case "heal":
-			skillEffects.restoreMoraleFromSkill(force, skillPosition, 10);
+			skillEffects.restoreMoraleFromSkill(force, skillPosition, eff.amount);
 			break;
 		case "shield":
-			skillEffects.addShieldFromSkill(force, skillPosition, 10);
+			skillEffects.addShieldFromSkill(force, skillPosition, eff.amount);
 			break;
 		case "poison":
-			skillEffects.applyPoisonFromSkill(force, skillPosition, 1);
+			skillEffects.applyPoisonFromSkill(force, skillPosition, eff.perTick);
 			break;
 		case "regen":
-			skillEffects.applyRegenFromSkill(force, skillPosition, 1);
+			skillEffects.applyRegenFromSkill(force, skillPosition, eff.perTick);
 			break;
 		case "haste":
-			skillEffects.applyHasteFromSkill(targets, skillPosition, 1000);
+			skillEffects.applyHasteFromSkill(targets, skillPosition, eff.duration);
 			break;
 		case "slow":
-			skillEffects.applySlowFromSkill(targets, skillPosition, 1000);
+			skillEffects.applySlowFromSkill(targets, skillPosition, eff.duration);
 			break;
 		case "charge":
-
-			skillEffects.applyChargeFromSkill(targets, skillPosition, 200);
+			skillEffects.applyChargeFromSkill(targets, skillPosition, eff.amount);
 			break;
 		case "increase_power":
-			skillEffects.increasePowerFromSkill(targets, skillPosition, 10);
+			skillEffects.increasePowerFromSkill(targets, skillPosition, eff.amount);
 			break;
 		case "multiply_power":
-			skillEffects.multiplyPowerFromSkill(targets, skillPosition, 2);
+			skillEffects.multiplyPowerFromSkill(targets, skillPosition, eff.multiplier);
 			break;
 		case "grant_gold":
-			skillEffects.grantGoldFromSkill(force, skillPosition, 1);
+			skillEffects.grantGoldFromSkill(force, skillPosition, eff.amount);
 			break;
 		case "increase_power_on_type":
 			//skillEffects.increasePowerOnTypeFromSkill(sourceUnit, skillPosition, 10);

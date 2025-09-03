@@ -280,7 +280,7 @@ export function increasePowerFromSkill(
 					alpha: 0.4
 				},
 				onHit: async () => {
-					increasePower(units, amount)
+					increasePower([unit], amount)
 				}
 			}
 		);
