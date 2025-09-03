@@ -11,6 +11,7 @@ import * as Chara from "@Systems/Chara/Chara";
 import * as MoraleDisplay from "../MoraleDisplay";
 import * as constants from "../../../constants/constants";
 import { endShopPhase } from "./ShopPhase";
+import * as ForceSkillsDisplay from "@UI/ForceSkillsDisplay";
 
 function createUnitCopy(unit: Unit): Unit {
 	return {
@@ -26,6 +27,9 @@ export async function transitionToCombatPhase(): Promise<void> {
 	endShopPhase();
 	console.log("Round", state.gameData.round, "Combat Phase Starting.");
 	const { enemies } = await setupBattle();
+
+	// Show enemy skill icons when entering combat phase
+	ForceSkillsDisplay.showCpuSkills();
 
 
 	GhostStore.saveGhostForRound(

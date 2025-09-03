@@ -7,6 +7,7 @@ import { renderVignette } from "../Animations/vignette";
 import { clearAll, summon } from "@Systems/Chara/Chara";
 import * as Shop from "./Shop/Shop";
 import { transitionToCombatPhase } from "./CombatPhase";
+import * as ForceSkillsDisplay from "@UI/ForceSkillsDisplay";
 
 async function setupShopPhaseCommon(): Promise<void> {
 	const state = getState();
@@ -40,6 +41,9 @@ export async function initializeShopPhase(): Promise<void> {
 export async function transitionToShopPhase(): Promise<void> {
 	await setupShopPhaseCommon();
 
+	// Hide enemy skill icons when leaving combat phase
+	ForceSkillsDisplay.hideCpuSkills();
+
 	PrestigeSystem.processVictory();
 	PrestigeSystem.finalizeRound();
 
@@ -53,6 +57,9 @@ export async function transitionToShopPhase(): Promise<void> {
 
 export async function transitionToShopPhaseAfterDefeat(): Promise<void> {
 	await setupShopPhaseCommon();
+
+	// Hide enemy skill icons when leaving combat phase
+	ForceSkillsDisplay.hideCpuSkills();
 
 	PrestigeSystem.processDefeat();
 	PrestigeSystem.finalizeRound();
