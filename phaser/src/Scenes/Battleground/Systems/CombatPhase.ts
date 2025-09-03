@@ -7,9 +7,9 @@ import { generateEnemyTeam } from "../generateEnemyTeam";
 import { cpuForce, playerForce } from "@Models/Entities/Force";
 import * as GhostStore from "@Models/GhostStore";
 import * as Board from "@Models/Board";
-import { clearAll, summon } from "@Systems/Chara/Chara";
+import * as Chara from "@Systems/Chara/Chara";
 import * as MoraleDisplay from "../MoraleDisplay";
-import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../constants/constants";
+import * as constants from "../../../constants/constants";
 import { endShopPhase } from "./ShopPhase";
 
 function createUnitCopy(unit: Unit): Unit {
@@ -62,12 +62,12 @@ export async function handleCombatStartExecution(_payload: { enemies: Unit[] }):
 	_initializeMorale();
 
 	Board.setEnemyBoardVisible(true);
-	clearAll();
+	Chara.clearAll();
 	// Important: summon the exact Unit instances stored in battleData.units
 	// so display components (e.g., charge bars) observe the same objects updated during combat.
 	const combatUnits = state.battleData.units;
 	combatUnits.forEach(u => {
-		summon(u, false);
+		Chara.summon(u, false);
 	});
 
 	await delay(300);
@@ -86,22 +86,22 @@ function _initializeMorale(): void {
 	MoraleDisplay.showBars();
 
 	MoraleDisplay.updateMoraleDisplay({
-		forceId: FORCE_ID_PLAYER,
+		forceId: constants.FORCE_ID_PLAYER,
 		newMorale: playerForce.morale,
 		maxMorale: playerForce.maxMorale,
 	});
 	MoraleDisplay.updateMoraleDisplay({
-		forceId: FORCE_ID_CPU,
+		forceId: constants.FORCE_ID_CPU,
 		newMorale: cpuForce.morale,
 		maxMorale: cpuForce.maxMorale,
 	});
 	MoraleDisplay.updateShieldBar(
-		FORCE_ID_PLAYER,
+		constants.FORCE_ID_PLAYER,
 		playerForce.shield,
 		playerForce.maxMorale,
 	)
 	MoraleDisplay.updateShieldBar(
-		FORCE_ID_CPU,
+		constants.FORCE_ID_CPU,
 		cpuForce.shield,
 		cpuForce.maxMorale,
 	);
