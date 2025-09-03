@@ -5,6 +5,7 @@ import * as effects from "./effects";
 import * as skillEffects from "./skillEffects";
 import { pickRandom } from "../utils";
 import { Force } from "@Models/Entities/Force";
+import * as ForceSkillsDisplay from "@UI/ForceSkillsDisplay";
 
 export type EffectReaction = {
 	position: EffectSourcePosition;
@@ -257,34 +258,36 @@ function processReactions(
 	});
 
 	scene.state.battleData.forces.forEach(force => {
-		const reactions = force.skills
-			.flatMap(skill => skill.reactions.filter(r => r.effectId === effect.id));
+		force.skills.forEach(skill => {
+			const reactions = skill.reactions.filter(r => r.effectId === effect.id);
 
-		const eligible = reactions.filter(r => {
-			switch (r.position) {
-				case "all":
-					return true;
-				case "allies":
-					return force.id === triggeringUnit.force;
-				case "enemies":
-					return force.id !== triggeringUnit.force;
-				case "row_allies":
-				case "column_allies":
-				case "top_ally":
-				case "bottom_ally":
-				case "left_ally":
-				case "right_ally":
-					return false;
-				default:
-					const _exhaustiveCheck: never = r.position;
-					return _exhaustiveCheck;
-			}
-		});
+			const eligible = reactions.filter(r => {
+				switch (r.position) {
+					case "all":
+						return true;
+					case "allies":
+						return force.id === triggeringUnit.force;
+					case "enemies":
+						return force.id !== triggeringUnit.force;
+					case "row_allies":
+					case "column_allies":
+					case "top_ally":
+					case "bottom_ally":
+					case "left_ally":
+					case "right_ally":
+						return false;
+					default:
+						const _exhaustiveCheck: never = r.position;
+						return _exhaustiveCheck;
+				}
+			});
 
-		eligible.forEach(r => {
-			r.effects.forEach(eff => {
-				processSkillEffect(eff, force, { x: 100, y: 100 })
-			})
+			eligible.forEach(r => {
+				r.effects.forEach(eff => {
+					const position = ForceSkillsDisplay.getSkillPosition(skill.id, force.id);
+					processSkillEffect(eff, force, position || { x: 100, y: 100 })
+				})
+			});
 		});
 	});
 

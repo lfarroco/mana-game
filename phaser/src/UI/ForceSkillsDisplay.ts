@@ -14,9 +14,23 @@ let cpuContainer: Phaser.GameObjects.Container;
 let playerCircles: SkillCircle[] = [];
 let cpuCircles: SkillCircle[] = [];
 
-const CIRCLE_RADIUS = 25;
+const CIRCLE_RADIUS = 35;
 const CIRCLE_SPACING = 10;
 const SKILL_OFFSET_Y = 40; // Distance below the board
+
+function getSkillIcon(skillId: string, forceId: string): string {
+	// Get skill icon based on force id + skill id
+	const key = `${forceId}-${skillId}`;
+
+	switch (key) {
+		case "player-player-ally-damage-boost":
+			return "⚔️"; // Sword for damage boost
+		case "cpu-cpu-poison-damage-boost":
+			return "☠️"; // Skull for poison
+		default:
+			return skillId.charAt(0).toUpperCase(); // Fallback to first letter
+	}
+}
 
 export function initForceSkillsDisplay() {
 	playerContainer = scene.add.container(0, 0);
@@ -71,13 +85,16 @@ function createSkillCircle(skill: Skill, x: number, y: number, isPlayer: boolean
 	const circle = scene.add.circle(x, y, CIRCLE_RADIUS, isPlayer ? 0x4e9de0 : 0xe04e4e, 0.8);
 	circle.setStrokeStyle(2, 0xffffff);
 
-	// Create skill text/icon (using first letter of skill name for now)
-	const text = scene.add.text(x, y, skill.name.charAt(0).toUpperCase(), {
-		fontSize: '16px',
+	// Get skill icon based on force id + skill id
+	const iconText = getSkillIcon(skill.id, isPlayer ? c.FORCE_ID_PLAYER : c.FORCE_ID_CPU);
+
+	// Create skill text/icon
+	const text = scene.add.text(x, y, iconText, {
+		fontSize: '28px',
 		color: '#ffffff',
 		fontFamily: 'Arial Black',
 		stroke: '#000000',
-		strokeThickness: 3
+		strokeThickness: 4
 	}).setOrigin(0.5);
 
 	// Make interactive
@@ -149,4 +166,13 @@ export function destroyForceSkillsDisplay() {
 	clearCpuSkills();
 	playerContainer.destroy();
 	cpuContainer.destroy();
+}
+
+export function getSkillPosition(skillId: string, forceId: string): { x: number; y: number } | null {
+	const circles = forceId === c.FORCE_ID_PLAYER ? playerCircles : cpuCircles;
+	const skillCircle = circles.find(circle => circle.skill.id === skillId);
+	if (skillCircle) {
+		return { x: skillCircle.circle.x, y: skillCircle.circle.y };
+	}
+	return null;
 }
