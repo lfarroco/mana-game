@@ -8,6 +8,8 @@ import { clearAll, summon } from "@Systems/Chara/Chara";
 import * as Shop from "./Shop/Shop";
 import { transitionToCombatPhase } from "./CombatPhase";
 import * as ForceSkillsDisplay from "@UI/ForceSkillsDisplay";
+import * as MoraleDisplay from "../MoraleDisplay";
+import * as c from "../../../constants/constants";
 
 async function setupShopPhaseCommon(): Promise<void> {
 	const state = getState();
@@ -16,6 +18,9 @@ async function setupShopPhaseCommon(): Promise<void> {
 
 	const playerForce = state.gameData.player;
 	playerForce.morale = playerForce.maxMorale;
+	playerForce.shield = 0;
+	MoraleDisplay.updateMoraleBar(c.FORCE_ID_PLAYER);
+	MoraleDisplay.updateShieldBar(c.FORCE_ID_PLAYER, 0, playerForce.maxMorale);
 
 	const summonPromises = state.gameData.player.units
 		.map(async (unit, index) => {
