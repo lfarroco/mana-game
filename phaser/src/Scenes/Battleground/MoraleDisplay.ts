@@ -258,6 +258,10 @@ function createCombinedDisplay(
 	});
 
 	shieldBar.container.setAlpha(1);
+	shieldBar.barFill.alpha = 0.6;
+	shieldBar.innerHighlight.alpha = 0.6;
+	shieldBar.barFill.scaleY = 0;
+	shieldBar.innerHighlight.scaleY = 0;
 
 	return {
 		moraleBar,
