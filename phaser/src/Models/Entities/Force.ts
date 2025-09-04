@@ -24,6 +24,7 @@ export type Force = {
 export type Skill = {
 	name: string;
 	id: string;
+	cardFilters: ((effects: TriggerSystem.Effect[]) => boolean)[];
 	reactions: TriggerSystem.EffectReaction[];
 };
 
@@ -52,6 +53,9 @@ playerForce.skills = [
 	{
 		id: "player-ally-damage-boost",
 		name: "Battle Fury",
+		cardFilters: [
+			(effects) => !effects.some(e => e.id === "poison")
+		],
 		reactions: [
 			{
 				effectId: "damage",
@@ -76,6 +80,7 @@ cpuForce.skills = [
 	{
 		id: "cpu-poison-damage-boost",
 		name: "Poison Fury",
+		cardFilters: [],
 		reactions: [
 			{
 				effectId: "poison",

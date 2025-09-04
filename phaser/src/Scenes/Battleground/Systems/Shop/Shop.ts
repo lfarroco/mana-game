@@ -9,6 +9,7 @@ import { tween } from "../../../../Utils/animation";
 import * as MoraleDisplay from "../../MoraleDisplay";
 import * as Systems from "../index"
 import * as Board from "@Models/Board";
+import { playerForce } from "@Models/Entities/Force";
 
 let currentShopCharas: Chara.Chara[] = [];
 let currentOrbs: string[] = [];
@@ -108,7 +109,10 @@ async function _animateItemAppearance(
 function _getAvailableCardsForTavern(count: number): Card.CardDefinition[] {
 	const ownedCardIds = new Set(scene.state.gameData.player.units.map(u => u.cardId));
 	const allCards = Card.getAllCards();
-	const filteredCards = allCards.filter(card => !ownedCardIds.has(card.id));
+	const playerFilters = playerForce.skills.flatMap(skill => skill.cardFilters);
+	const filteredCards = allCards
+		.filter(card => !ownedCardIds.has(card.id))
+		.filter(card => playerFilters.every(filter => filter(card.effects)));
 	return pickRandom(filteredCards, count);
 }
 
