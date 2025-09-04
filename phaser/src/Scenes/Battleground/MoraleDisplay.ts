@@ -216,8 +216,8 @@ export function handleShieldUpdated(payload: {
 	}
 }
 
-export const MORALE_BAR_WIDTH = 25;
-export const MORALE_BAR_HEIGHT = c.TILE_HEIGHT * 4;
+export const MORALE_BAR_WIDTH = 50;
+export const MORALE_BAR_HEIGHT = 900;
 
 function createCombinedDisplay(
 	scene: Phaser.Scene,
@@ -225,10 +225,10 @@ function createCombinedDisplay(
 ): CombinedDisplay {
 	let x = 0, y = 0;
 	if (forceId === c.FORCE_ID_PLAYER) {
-		x = c.MIDDLE_SCREEN_X - 80;
+		x = c.MIDDLE_SCREEN_X - 100;
 		y = c.MIDDLE_SCREEN_Y - MORALE_BAR_HEIGHT / 2;
 	} else {
-		x = c.MIDDLE_SCREEN_X + 80;
+		x = c.MIDDLE_SCREEN_X + 100;
 		y = c.MIDDLE_SCREEN_Y - MORALE_BAR_HEIGHT / 2;
 	}
 
@@ -245,22 +245,15 @@ function createCombinedDisplay(
 	});
 
 	const shieldBarColor = 0xFFD700;
-	let shieldBarX;
-	if (forceId === c.FORCE_ID_PLAYER) {
-		shieldBarX = x + MORALE_BAR_WIDTH + 5;
-	} else {
-		shieldBarX = x - MORALE_BAR_WIDTH - 5;
-	}
-
 	const shieldBar = createStylizedBar(scene, {
-		x: shieldBarX,
+		x,
 		y,
 		width: MORALE_BAR_WIDTH,
 		height: MORALE_BAR_HEIGHT,
 		barColor: shieldBarColor,
 		backgroundColor: 0x000000,
-		backgroundOpacity: 0.2,
-		borderOpacity: 1,
+		backgroundOpacity: 0,
+		borderOpacity: 0,
 		textConfig: c.defaultTextConfig,
 	});
 
@@ -300,10 +293,6 @@ export function showBars(): void {
 
 export function hideBars(): void {
 	// playerbar: always visible
-	//if (playerDisplay) {
-	//	playerDisplay.moraleBar.container.setVisible(false);
-	//	playerDisplay.shieldBar.container.setVisible(false);
-	//}
 	if (cpuDisplay) {
 		cpuDisplay.moraleBar.container.setVisible(false);
 		cpuDisplay.shieldBar.container.setVisible(false);
