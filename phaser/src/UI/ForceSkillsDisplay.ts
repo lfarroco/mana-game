@@ -10,14 +10,37 @@ interface SkillCircle {
 	skill: Skill;
 }
 
+const CIRCLE_RADIUS = 35;
+const CIRCLE_SPACING = 10;
+const SKILL_OFFSET_Y = 40;
+
+const BOARD_WIDTH = c.TILE_WIDTH * 3 + 8 * 2;
+const BOARD_HEIGHT = c.TILE_HEIGHT * 3 + 8 * 2;
+const SKILLS_Y = c.PLAYER_BOARD_Y + BOARD_HEIGHT + SKILL_OFFSET_Y;
+const PLAYER_BASE_X = c.PLAYER_BOARD_X + BOARD_WIDTH / 2;
+const CPU_BASE_X = c.CPU_BOARD_X + BOARD_WIDTH / 2;
+
+const forceBaseX = new Map<Force, number>();
+
+const forceColors: { [key: string]: number } = {
+	[c.FORCE_ID_PLAYER]: 0x4e9de0,
+	[c.FORCE_ID_CPU]: 0xe04e4e
+};
+
+const forceIdMap = new Map<Force, string>();
+
+const forceContainerMap = new Map<Force, Container>();
+const forceCirclesMapObj = new Map<Force, SkillCircle[]>();
+
 let playerContainer: Container;
 let cpuContainer: Container;
 let playerCircles: SkillCircle[] = [];
 let cpuCircles: SkillCircle[] = [];
 
-const CIRCLE_RADIUS = 35;
-const CIRCLE_SPACING = 10;
-const SKILL_OFFSET_Y = 40;
+const forceCirclesMap: { [key: string]: SkillCircle[] } = {
+	[c.FORCE_ID_PLAYER]: playerCircles,
+	[c.FORCE_ID_CPU]: cpuCircles
+};
 
 function getSkillIcon(_skillId: string, _forceId: string): string {
 
@@ -27,9 +50,15 @@ function getSkillIcon(_skillId: string, _forceId: string): string {
 
 export function initForceSkillsDisplay() {
 	playerContainer = scene.add.container(0, 0);
-	playerContainer.setDepth(1000);
 	cpuContainer = scene.add.container(0, 0);
-	cpuContainer.setDepth(1000);
+	forceBaseX.set(playerForce, PLAYER_BASE_X);
+	forceBaseX.set(cpuForce, CPU_BASE_X);
+	forceIdMap.set(playerForce, c.FORCE_ID_PLAYER);
+	forceIdMap.set(cpuForce, c.FORCE_ID_CPU);
+	forceContainerMap.set(playerForce, playerContainer);
+	forceContainerMap.set(cpuForce, cpuContainer);
+	forceCirclesMapObj.set(playerForce, playerCircles);
+	forceCirclesMapObj.set(cpuForce, cpuCircles);
 	updatePlayerSkills();
 	updateCpuSkills();
 }
@@ -45,35 +74,30 @@ export function updateCpuSkills() {
 }
 
 function renderSkills(force: Force) {
-	const isPlayer = force === playerForce;
-	const container = isPlayer ? playerContainer : cpuContainer;
-	const circles = isPlayer ? playerCircles : cpuCircles;
+	const container = forceContainerMap.get(force)!;
+	const circles = forceCirclesMapObj.get(force)!;
 
-	const boardY = c.PLAYER_BOARD_Y;
-	const boardHeight = c.TILE_HEIGHT * 3 + 8 * 2;
-	const skillsY = boardY + boardHeight + SKILL_OFFSET_Y;
-
-	const boardWidth = c.TILE_WIDTH * 3 + 8 * 2;
 	const totalSkillsWidth = force.skills.length * (CIRCLE_RADIUS * 2 + CIRCLE_SPACING) - CIRCLE_SPACING;
-	const startX = isPlayer
-		? c.PLAYER_BOARD_X + boardWidth / 2 - totalSkillsWidth / 2
-		: c.CPU_BOARD_X + boardWidth / 2 - totalSkillsWidth / 2;
+	const baseX = forceBaseX.get(force)!;
+	const startX = baseX - totalSkillsWidth / 2;
 
 	force.skills.forEach((skill, index) => {
 		const x = startX + index * (CIRCLE_RADIUS * 2 + CIRCLE_SPACING);
-		const circle = createSkillCircle(skill, x, skillsY, isPlayer);
+		const circle = createSkillCircle(skill, x, SKILLS_Y, force);
 		container.add(circle.circle);
 		container.add(circle.text);
 		circles.push(circle);
 	});
 }
 
-function createSkillCircle(skill: Skill, x: number, y: number, isPlayer: boolean): SkillCircle {
+function createSkillCircle(skill: Skill, x: number, y: number, force: Force): SkillCircle {
+	const forceId = forceIdMap.get(force)!;
+	const color = forceColors[forceId];
 
-	const circle = scene.add.circle(x, y, CIRCLE_RADIUS, isPlayer ? 0x4e9de0 : 0xe04e4e, 0.8);
+	const circle = scene.add.circle(x, y, CIRCLE_RADIUS, color, 0.8);
 	circle.setStrokeStyle(2, 0xffffff);
 
-	const iconText = getSkillIcon(skill.id, isPlayer ? c.FORCE_ID_PLAYER : c.FORCE_ID_CPU);
+	const iconText = getSkillIcon(skill.id, forceId);
 
 	const text = scene.add.text(x, y, iconText, {
 		fontSize: '28px',
@@ -121,6 +145,8 @@ function clearPlayerSkills() {
 		circle.text.destroy();
 	});
 	playerCircles = [];
+	forceCirclesMap[c.FORCE_ID_PLAYER] = playerCircles;
+	forceCirclesMapObj.set(playerForce, playerCircles);
 }
 
 function clearCpuSkills() {
@@ -129,6 +155,8 @@ function clearCpuSkills() {
 		circle.text.destroy();
 	});
 	cpuCircles = [];
+	forceCirclesMap[c.FORCE_ID_CPU] = cpuCircles;
+	forceCirclesMapObj.set(cpuForce, cpuCircles);
 }
 
 export function updateForceSkillsDisplay() {
@@ -159,7 +187,7 @@ export function showCpuSkills() {
 }
 
 export function getSkillPosition(skillId: string, forceId: string): { x: number; y: number } | null {
-	const circles = forceId === c.FORCE_ID_PLAYER ? playerCircles : cpuCircles;
+	const circles = forceCirclesMap[forceId];
 	const skillCircle = circles.find(circle => circle.skill.id === skillId);
 	if (skillCircle) {
 		return { x: skillCircle.circle.x, y: skillCircle.circle.y };
