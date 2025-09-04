@@ -100,7 +100,7 @@ function createSkillCircle(skill: Skill, x: number, y: number, force: Force): Sk
 	const iconText = getSkillIcon(skill.id, forceId);
 
 	const text = scene.add.text(x, y, iconText, {
-		fontSize: '28px',
+		fontSize: '48px',
 		color: '#ffffff',
 		fontFamily: 'Arial Black',
 		stroke: '#000000',
