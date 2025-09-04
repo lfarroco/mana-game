@@ -24,6 +24,8 @@ async function setupShopPhaseCommon(): Promise<void> {
 		});
 	await Promise.all(summonPromises);
 
+	ForceSkillsDisplay.hideCpuSkills();
+
 	isInShopPhase = true;
 }
 
@@ -41,9 +43,6 @@ export async function initializeShopPhase(): Promise<void> {
 export async function transitionToShopPhase(): Promise<void> {
 	await setupShopPhaseCommon();
 
-	// Hide enemy skill icons when leaving combat phase
-	ForceSkillsDisplay.hideCpuSkills();
-
 	PrestigeSystem.processVictory();
 	PrestigeSystem.finalizeRound();
 
@@ -57,9 +56,6 @@ export async function transitionToShopPhase(): Promise<void> {
 
 export async function transitionToShopPhaseAfterDefeat(): Promise<void> {
 	await setupShopPhaseCommon();
-
-	// Hide enemy skill icons when leaving combat phase
-	ForceSkillsDisplay.hideCpuSkills();
 
 	PrestigeSystem.processDefeat();
 	PrestigeSystem.finalizeRound();
