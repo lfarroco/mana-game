@@ -89,7 +89,6 @@ export class BattlegroundScene extends Phaser.Scene {
   update(time: number, delta: number): void {
     Shop.UI.update(time);
     Board.update(time);
-    UIManager.update();
 
     this.runCombatSystem.updateFrame(time, delta);
   }

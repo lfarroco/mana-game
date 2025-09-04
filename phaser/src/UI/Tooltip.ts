@@ -14,7 +14,7 @@ const TITLE_FONT_SIZE = 40;
 const DESCRIPTION_FONT_SIZE = 30;
 const DESCRIPTION_LINE_SPACING = 8;
 
-let container: Container | null = null;
+let container: Phaser.GameObjects.Container | null = null;
 let bg: Phaser.GameObjects.Shader | null = null;
 let titleText: Phaser.GameObjects.Text | null = null;
 let descriptionText: BBCodeText | null = null;
@@ -72,7 +72,6 @@ export function destroyTooltip(): void {
 }
 
 export function init() {
-
 	startTime = scene.time.now;
 
 	container = scene.add.container(0, 0);

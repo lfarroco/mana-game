@@ -203,10 +203,6 @@ export async function handleUserMessageRequested(payload: {
 }
 
 
-export function update(): void {
-	ForceSkillsDisplay.updateForceSkillsDisplay();
-}
-
 export function refreshSkillsDisplay(): void {
 	ForceSkillsDisplay.updatePlayerSkills();
 	ForceSkillsDisplay.updateCpuSkills();
