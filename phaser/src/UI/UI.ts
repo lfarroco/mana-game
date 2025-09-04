@@ -202,12 +202,6 @@ export async function handleUserMessageRequested(payload: {
 	text.destroy();
 }
 
-
-export function refreshSkillsDisplay(): void {
-	ForceSkillsDisplay.updatePlayerSkills();
-	ForceSkillsDisplay.updateCpuSkills();
-}
-
 export function destroy(): void {
 	uiContainer!.destroy(true);
 	uiContainer = null;
