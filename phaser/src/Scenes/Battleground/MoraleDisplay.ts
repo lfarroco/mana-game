@@ -228,7 +228,7 @@ function createCombinedDisplay(
 		x = c.MIDDLE_SCREEN_X - 100;
 		y = c.MIDDLE_SCREEN_Y - MORALE_BAR_HEIGHT / 2;
 	} else {
-		x = c.MIDDLE_SCREEN_X + 100;
+		x = c.MIDDLE_SCREEN_X + 60;
 		y = c.MIDDLE_SCREEN_Y - MORALE_BAR_HEIGHT / 2;
 	}
 
