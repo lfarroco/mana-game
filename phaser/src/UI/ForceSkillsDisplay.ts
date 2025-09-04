@@ -1,16 +1,17 @@
 import * as c from "../constants/constants";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
-import { Force, Skill } from "@Models/Entities/Force";
+import { cpuForce, Force, playerForce, Skill } from "@Models/Entities/Force";
 import * as SkillTooltip from "./SkillTooltip";
+import { pickOne } from "../utils";
 
 interface SkillCircle {
 	circle: Phaser.GameObjects.Arc;
-	text: Phaser.GameObjects.Text;
+	text: TextObj;
 	skill: Skill;
 }
 
-let playerContainer: Phaser.GameObjects.Container;
-let cpuContainer: Phaser.GameObjects.Container;
+let playerContainer: Container;
+let cpuContainer: Container;
 let playerCircles: SkillCircle[] = [];
 let cpuCircles: SkillCircle[] = [];
 
@@ -18,43 +19,33 @@ const CIRCLE_RADIUS = 35;
 const CIRCLE_SPACING = 10;
 const SKILL_OFFSET_Y = 40;
 
-function getSkillIcon(skillId: string, forceId: string): string {
-	const key = `${forceId}-${skillId}`;
+function getSkillIcon(_skillId: string, _forceId: string): string {
 
-	switch (key) {
-		case "player-player-ally-damage-boost":
-			return "⚔️";
-		case "cpu-cpu-poison-damage-boost":
-			return "☠️";
-		default:
-			return skillId.charAt(0).toUpperCase();
-	}
+	// placeholder for now
+	return pickOne(["⚔️", "☠️"])
 }
 
 export function initForceSkillsDisplay() {
 	playerContainer = scene.add.container(0, 0);
+	playerContainer.setDepth(1000);
 	cpuContainer = scene.add.container(0, 0);
+	cpuContainer.setDepth(1000);
 	updatePlayerSkills();
 	updateCpuSkills();
 }
 
 export function updatePlayerSkills() {
 	clearPlayerSkills();
-	const playerForce = scene.state.battleData.forces.find(f => f.id === c.FORCE_ID_PLAYER);
-	if (playerForce) {
-		renderSkills(playerForce, true);
-	}
+	renderSkills(playerForce);
 }
 
 export function updateCpuSkills() {
 	clearCpuSkills();
-	const cpuForce = scene.state.battleData.forces.find(f => f.id === c.FORCE_ID_CPU);
-	if (cpuForce) {
-		renderSkills(cpuForce, false);
-	}
+	renderSkills(cpuForce);
 }
 
-function renderSkills(force: Force, isPlayer: boolean) {
+function renderSkills(force: Force) {
+	const isPlayer = force === playerForce;
 	const container = isPlayer ? playerContainer : cpuContainer;
 	const circles = isPlayer ? playerCircles : cpuCircles;
 
@@ -78,6 +69,7 @@ function renderSkills(force: Force, isPlayer: boolean) {
 }
 
 function createSkillCircle(skill: Skill, x: number, y: number, isPlayer: boolean): SkillCircle {
+
 	const circle = scene.add.circle(x, y, CIRCLE_RADIUS, isPlayer ? 0x4e9de0 : 0xe04e4e, 0.8);
 	circle.setStrokeStyle(2, 0xffffff);
 
@@ -91,10 +83,16 @@ function createSkillCircle(skill: Skill, x: number, y: number, isPlayer: boolean
 		strokeThickness: 4
 	}).setOrigin(0.5);
 
-	circle.setInteractive();
+	circle.setInteractive(
+		new Phaser.Geom.Circle(CIRCLE_RADIUS, CIRCLE_RADIUS, CIRCLE_RADIUS),
+		Phaser.Geom.Circle.Contains
+	);
+
 
 	const showTooltip = () => {
-		SkillTooltip.showSkillTooltip(skill, x, y - CIRCLE_RADIUS - 10);
+		const tooltipX = x;
+		const tooltipY = y - 200;
+		SkillTooltip.showSkillTooltip(skill, tooltipX, tooltipY);
 	};
 
 	const hideTooltip = () => {
@@ -113,7 +111,6 @@ function createSkillCircle(skill: Skill, x: number, y: number, isPlayer: boolean
 		circle.setScale(1);
 		text.setScale(1);
 	});
-
 
 	return { circle, text, skill };
 }
@@ -135,6 +132,7 @@ function clearCpuSkills() {
 }
 
 export function updateForceSkillsDisplay() {
+
 	updatePlayerSkills();
 	updateCpuSkills();
 }
@@ -142,8 +140,8 @@ export function updateForceSkillsDisplay() {
 export function destroyForceSkillsDisplay() {
 	clearPlayerSkills();
 	clearCpuSkills();
-	playerContainer.destroy();
-	cpuContainer.destroy();
+	if (playerContainer) playerContainer.destroy();
+	if (cpuContainer) cpuContainer.destroy();
 }
 
 export function hideCpuSkills() {
