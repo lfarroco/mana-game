@@ -274,7 +274,7 @@ export function init(): void {
 		playerDisplay.shieldBar.container.setVisible(true);
 	}
 	updateMoraleBar(playerForce.id);
-	updateShieldBar(playerForce.id, playerForce.shield, playerForce.maxMorale);
+	updateShieldBar(playerForce.id, 0, playerForce.maxMorale);
 
 	cpuDisplay = createCombinedDisplay(scene, c.FORCE_ID_CPU);
 
