@@ -12,6 +12,7 @@ import * as MoraleDisplay from "../MoraleDisplay";
 import * as constants from "../../../constants/constants";
 import { endShopPhase } from "./ShopPhase";
 import * as ForceSkillsDisplay from "@UI/ForceSkillsDisplay";
+import * as BoardStatsDisplay from "../BoardStatsDisplay";
 
 function createUnitCopy(unit: Unit): Unit {
 	return {
@@ -30,6 +31,7 @@ export async function transitionToCombatPhase(): Promise<void> {
 
 	// Show enemy skill icons when entering combat phase
 	ForceSkillsDisplay.showCpuSkills();
+	BoardStatsDisplay.showCpuStats();
 
 
 	GhostStore.saveGhostForRound(

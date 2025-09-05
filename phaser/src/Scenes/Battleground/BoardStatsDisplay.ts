@@ -20,25 +20,23 @@ function createBoardStatsDisplay(forceId: string): BoardStatsDisplay {
 	const isPlayer = forceId === c.FORCE_ID_PLAYER;
 	const boardX = isPlayer ? c.PLAYER_BOARD_X : c.CPU_BOARD_X;
 	const boardY = isPlayer ? c.PLAYER_BOARD_Y : c.CPU_BOARD_Y;
-	const boardWidth = c.TILE_WIDTH * 3 + 8 * 2;
 	const boardHeight = c.TILE_HEIGHT * 3 + 8 * 2;
 
-	// Position below the board
-	const statsX = boardX + boardWidth / 2;
-	const statsY = boardY + boardHeight + 20;
+	const statsX = boardX + 50;
+	const statsY = boardY + boardHeight + 120;
 
 	const container = scene.add.container(statsX, statsY);
 
 	const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
-		...c.defaultTextConfig,
-		fontSize: '18px',
+		...c.titleTextConfig,
+		fontSize: '28px',
 		align: 'center'
 	};
 
-	const moraleText = scene.add.text(0, -40, 'morale: 0', textStyle);
-	const shieldText = scene.add.text(0, -20, 'shield: 0', textStyle);
-	const regenText = scene.add.text(0, 0, 'regen: 0', textStyle);
-	const poisonText = scene.add.text(0, 20, 'poison: 0', textStyle);
+	const moraleText = scene.add.text(0, 0, 'morale: 0', textStyle);
+	const shieldText = scene.add.text(200, 0, 'shield: 0', textStyle);
+	const regenText = scene.add.text(400, 0, 'regen: 0', textStyle);
+	const poisonText = scene.add.text(600, 0, 'poison: 0', textStyle);
 
 	moraleText.setOrigin(0.5);
 	shieldText.setOrigin(0.5);
@@ -76,6 +74,18 @@ export function updateStats(forceId: string): void {
 	display.shieldText.setText(`shield: ${force.shield}`);
 	display.regenText.setText(`regen: ${getTotalRegenHealing(forceId)}`);
 	display.poisonText.setText(`poison: ${getTotalPoisonDamage(forceId)}`);
+}
+
+export function showCpuStats(): void {
+	if (cpuBoardStats) {
+		cpuBoardStats.container.setVisible(true);
+	}
+}
+
+export function hideCpuStats(): void {
+	if (cpuBoardStats) {
+		cpuBoardStats.container.setVisible(false);
+	}
 }
 
 export function destroy(): void {

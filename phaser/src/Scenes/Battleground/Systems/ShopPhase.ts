@@ -10,6 +10,7 @@ import { transitionToCombatPhase } from "./CombatPhase";
 import * as ForceSkillsDisplay from "@UI/ForceSkillsDisplay";
 import * as MoraleDisplay from "../MoraleDisplay";
 import * as c from "../../../constants/constants";
+import * as BoardStatsDisplay from "../BoardStatsDisplay";
 
 async function setupShopPhaseCommon(): Promise<void> {
 	const state = getState();
@@ -32,6 +33,7 @@ async function setupShopPhaseCommon(): Promise<void> {
 	ForceSkillsDisplay.hideCpuSkills();
 
 	isInShopPhase = true;
+	BoardStatsDisplay.hideCpuStats();
 }
 
 export let isInShopPhase: boolean = false;
