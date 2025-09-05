@@ -1,8 +1,9 @@
 import * as c from "../constants/constants";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
-import { cpuForce, Force, playerForce, Skill } from "@Models/Entities/Force";
-import * as SkillTooltip from "./SkillTooltip";
+import { cpuForce, Force, playerForce } from "@Models/Entities/Force";
 import { pickOne } from "../utils";
+import { Skill } from "@Models/Skills";
+import { hideTooltip, renderTooltip } from "./Tooltip";
 
 interface SkillCircle {
 	circle: Phaser.GameObjects.Arc;
@@ -112,18 +113,9 @@ function createSkillCircle(skill: Skill, x: number, y: number, force: Force): Sk
 		Phaser.Geom.Circle.Contains
 	);
 
-
-	const showTooltip = () => {
-		const tooltipX = x;
-		const tooltipY = y - 200;
-		SkillTooltip.showSkillTooltip(skill, tooltipX, tooltipY);
-	};
-
-	const hideTooltip = () => {
-		SkillTooltip.hideSkillTooltip();
-	};
-
-	circle.on('pointerover', showTooltip);
+	circle.on('pointerover', () => {
+		renderTooltip(x, y - 200, skill.name, skill.description);
+	});
 	circle.on('pointerout', hideTooltip);
 
 	circle.on('pointerdown', () => {
