@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import * as c from '../../constants/constants';
 import { cpuForce, playerForce } from '@Models/Entities/Force';
 import { scene } from './BattlegroundScene';
@@ -7,10 +8,10 @@ import { getTotalPoisonDamage } from './Systems/PoisonDamageSystem';
 
 type BoardStatsDisplay = {
 	container: Phaser.GameObjects.Container;
-	moraleText: Phaser.GameObjects.Text;
-	shieldText: Phaser.GameObjects.Text;
-	regenText: Phaser.GameObjects.Text;
-	poisonText: Phaser.GameObjects.Text;
+	moraleText: BBCodeText;
+	shieldText: BBCodeText;
+	regenText: BBCodeText;
+	poisonText: BBCodeText;
 };
 
 let playerBoardStats: BoardStatsDisplay | null = null;
@@ -27,23 +28,38 @@ function createBoardStatsDisplay(forceId: string): BoardStatsDisplay {
 
 	const container = scene.add.container(statsX, statsY);
 
-	const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
-		...c.titleTextConfig,
-		fontSize: '28px',
-		align: 'center'
-	};
+	const bgWidth = 800;
+	const bgHeight = 80;
+	const background = scene.add.rectangle(-100, -40, bgWidth, bgHeight, 0x000000, 0.5);
+	background.setOrigin(0);
 
-	const moraleText = scene.add.text(0, 0, 'morale: 0', textStyle);
-	const shieldText = scene.add.text(200, 0, 'shield: 0', textStyle);
-	const regenText = scene.add.text(400, 0, 'regen: 0', textStyle);
-	const poisonText = scene.add.text(600, 0, 'poison: 0', textStyle);
+	const moraleText = scene.add.rexBBCodeText(0, 0, '[color=green]0[/color]')
+		.setFontSize(28)
+		.setFontFamily("'Arial Black', sans-serif")
+		.setStroke("black", 14)
+		.setAlign("center");
+	const shieldText = scene.add.rexBBCodeText(200, 0, '[color=yellow]0[/color]')
+		.setFontSize(28)
+		.setFontFamily("'Arial Black', sans-serif")
+		.setStroke("black", 14)
+		.setAlign("center");
+	const regenText = scene.add.rexBBCodeText(400, 0, '[color=#006400]0[/color]')
+		.setFontSize(28)
+		.setFontFamily("'Arial Black', sans-serif")
+		.setStroke("black", 14)
+		.setAlign("center");
+	const poisonText = scene.add.rexBBCodeText(600, 0, '[color=purple]0[/color]')
+		.setFontSize(28)
+		.setFontFamily("'Arial Black', sans-serif")
+		.setStroke("black", 14)
+		.setAlign("center");
 
 	moraleText.setOrigin(0.5);
 	shieldText.setOrigin(0.5);
 	regenText.setOrigin(0.5);
 	poisonText.setOrigin(0.5);
 
-	container.add([moraleText, shieldText, regenText, poisonText]);
+	container.add([background, moraleText, shieldText, regenText, poisonText]);
 
 	return {
 		container,
@@ -70,10 +86,10 @@ export function updateStats(forceId: string): void {
 
 	const force = forceId === c.FORCE_ID_PLAYER ? playerForce : cpuForce;
 
-	display.moraleText.setText(`morale: ${force.morale}`);
-	display.shieldText.setText(`shield: ${force.shield}`);
-	display.regenText.setText(`regen: ${getTotalRegenHealing(forceId)}`);
-	display.poisonText.setText(`poison: ${getTotalPoisonDamage(forceId)}`);
+	display.moraleText.setText(`[color=green]${force.morale}[/color]`);
+	display.shieldText.setText(`[color=yellow]${force.shield}[/color]`);
+	display.regenText.setText(`[color=#006400]${getTotalRegenHealing(forceId)}[/color]`);
+	display.poisonText.setText(`[color=purple]${getTotalPoisonDamage(forceId)}[/color]`);
 }
 
 export function showCpuStats(): void {
