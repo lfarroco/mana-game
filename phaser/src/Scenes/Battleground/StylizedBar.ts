@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import { titleTextConfig } from '../../constants/constants';
 
 const BAR_HEIGHT = 50;
 const INNER_PADDING = 3;
@@ -11,7 +10,6 @@ export type StylizedBar = {
 	foregroundBar: Graphics;
 	barFill: Graphics;
 	innerHighlight: Graphics;
-	label: Phaser.GameObjects.Text;
 }
 
 
@@ -81,15 +79,6 @@ export function createStylizedBar(
 
 	container.add(innerHighlight);
 
-	const label = scene.add.text(
-		barWidth / 2,
-		barHeight + 30,
-		'', {
-		...titleTextConfig,
-	}
-	).setOrigin(0.5);
-	container.add(label);
-
 	container.setVisible(false);
 
 	(container as any)._originalHeight = barHeight;
@@ -101,7 +90,6 @@ export function createStylizedBar(
 		foregroundBar,
 		barFill,
 		innerHighlight,
-		label,
 	}
 }
 

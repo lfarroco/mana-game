@@ -330,9 +330,6 @@ export function updateMoraleBar(
 
 	const force = forceId === c.FORCE_ID_PLAYER ? playerForce : cpuForce;
 	updateStylizedBar(targetDisplay.moraleBar, force.morale, force.maxMorale);
-
-	const shieldText = force.shield > 0 ? `(${force.shield})` : '';
-	targetDisplay.moraleBar.label.setText(`${force.morale}${shieldText}`);
 }
 
 export function updateShieldBar(
