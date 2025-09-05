@@ -24,6 +24,7 @@ export type Force = {
 export type Skill = {
 	name: string;
 	id: string;
+	description: string;
 	cardFilters: ((effects: TriggerSystem.Effect[]) => boolean)[];
 	reactions: TriggerSystem.EffectReaction[];
 };
@@ -53,9 +54,8 @@ playerForce.skills = [
 	{
 		id: "player-ally-damage-boost",
 		name: "Battle Fury",
-		cardFilters: [
-			(effects) => !effects.some(e => e.id === "poison")
-		],
+		description: "When an ally deals damage, all allies gain +10 power",
+		cardFilters: [],
 		reactions: [
 			{
 				effectId: "damage",
@@ -72,6 +72,16 @@ playerForce.skills = [
 			}
 
 		]
+	},
+	{
+		id: "no-poison",
+		name: "No Poison",
+		description: "You can't draft poison heroes",
+		cardFilters: [
+			(effects) => !effects.some(e => e.id === "poison")
+		],
+		reactions: []
+
 	}
 
 ];
@@ -80,6 +90,7 @@ cpuForce.skills = [
 	{
 		id: "cpu-poison-damage-boost",
 		name: "Poison Fury",
+		description: "When an ally applies poison, all allies gain +10 power",
 		cardFilters: [],
 		reactions: [
 			{
