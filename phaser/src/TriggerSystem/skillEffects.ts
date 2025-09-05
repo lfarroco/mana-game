@@ -1,7 +1,7 @@
 import * as Effects from '../Effects';
 import * as Force from '@Models/Entities/Force';
 import { Unit } from '@Models/Entities/Unit';
-import { asVec2 } from '@Models/Geometry.pure';
+import { asVec2 } from "@Models/Geometry";
 import { scene } from '@Scenes//Battleground/BattlegroundScene';
 import * as MoraleDisplay from '@Scenes//Battleground/MoraleDisplay';
 import { applyPoison } from '@Scenes/Battleground/Systems/PoisonDamageSystem';

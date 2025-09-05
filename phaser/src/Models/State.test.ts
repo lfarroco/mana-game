@@ -3,7 +3,7 @@
  */
 import { getUnitAt } from './State';
 import { Unit, createTestUnit } from './Entities/Unit';
-import { vec2 } from './Geometry.pure';
+import { vec2 } from "./Geometry";
 
 describe('State selectors', () => {
 
