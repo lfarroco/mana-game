@@ -1,7 +1,7 @@
 import { getState } from "@Models/State";
 import { delay } from "../../../Utils/animation";
 import * as BG_CONSTANTS from "../battlegroundConstants";
-import { updatePlayerGoldIO } from "@Models/Entities/Force";
+import { updatePlayerGoldIO, cpuForce } from "@Models/Entities/Force";
 import * as PrestigeSystem from "@Systems/PrestigeSystem";
 import { renderVignette } from "../Animations/vignette";
 import { clearAll, summon } from "@Systems/Chara/Chara";
@@ -9,6 +9,8 @@ import * as Shop from "./Shop/Shop";
 import { transitionToCombatPhase } from "./CombatPhase";
 import * as ForceSkillsDisplay from "@UI/ForceSkillsDisplay";
 import * as MoraleDisplay from "../MoraleDisplay";
+import { clearRegen } from "./RegenSystem";
+import { clearPoison } from "./PoisonDamageSystem";
 import * as c from "../../../constants/constants";
 import * as BoardStatsDisplay from "../BoardStatsDisplay";
 
@@ -22,6 +24,19 @@ async function setupShopPhaseCommon(): Promise<void> {
 	playerForce.shield = 0;
 	MoraleDisplay.updateMoraleBar(c.FORCE_ID_PLAYER);
 	MoraleDisplay.updateShieldBar(c.FORCE_ID_PLAYER, 0, playerForce.maxMorale);
+
+	cpuForce.morale = cpuForce.maxMorale;
+	cpuForce.shield = 0;
+	MoraleDisplay.updateMoraleBar(c.FORCE_ID_CPU);
+	MoraleDisplay.updateShieldBar(c.FORCE_ID_CPU, 0, cpuForce.maxMorale);
+
+	clearRegen(c.FORCE_ID_PLAYER);
+	clearRegen(c.FORCE_ID_CPU);
+	clearPoison(c.FORCE_ID_PLAYER);
+	clearPoison(c.FORCE_ID_CPU);
+
+	BoardStatsDisplay.updateStats(c.FORCE_ID_PLAYER);
+	BoardStatsDisplay.updateStats(c.FORCE_ID_CPU);
 
 	const summonPromises = state.gameData.player.units
 		.map(async (unit, index) => {
