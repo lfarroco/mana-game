@@ -12,6 +12,7 @@ import * as MoraleDisplay from "./MoraleDisplay";
 import * as Systems from "./Systems"
 import { clearAll } from "@Systems/Chara/Chara";
 import * as ResultsUI from "./Results/ResultsUI";
+import * as BoardStatsDisplay from "./BoardStatsDisplay";
 
 export let scene: BattlegroundScene;
 
@@ -33,6 +34,7 @@ export class BattlegroundScene extends Phaser.Scene {
     UIManager.destroy();
     Shop.UI.destroy();
     ResultsUI.destroy();
+    BoardStatsDisplay.destroy();
 
   }
 
@@ -79,6 +81,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     Shop.Shop.init();
     ResultsUI.create();
+    BoardStatsDisplay.init();
 
     AudioManager.playMusic('music_battlemap_vetruv');
 

@@ -1,5 +1,6 @@
 import { applyDamageToForce, Force } from "@Models/Entities/Force";
 import * as CombatStatsTracker from "./CombatStatsTracker";
+import * as BoardStatsDisplay from "../BoardStatsDisplay";
 
 export const tickInterval: number = 1000;
 
@@ -30,6 +31,7 @@ export function applyPoison(targetForce: Force, amount: number, sourceUnitId?: s
 		const contribs = state.sourceContributions;
 		contribs.set(sourceUnitId, (contribs.get(sourceUnitId) || 0) + amount);
 	}
+	BoardStatsDisplay.updateStats(id);
 }
 
 export function update(playerForce: Force, cpuForce: Force, delta: number): void {
@@ -60,6 +62,7 @@ function tickForce(force: Force, delta: number): void {
 			});
 		}
 	}
+	BoardStatsDisplay.updateStats(id);
 }
 
 export function reducePoison(forceId: string, healAmount: number): void {
@@ -84,6 +87,7 @@ export function reducePoison(forceId: string, healAmount: number): void {
 	if (state.rate === 0) {
 		poisonStates.delete(forceId);
 	}
+	BoardStatsDisplay.updateStats(forceId);
 }
 
 export function getTotalPoisonDamage(forceId: string): number {
