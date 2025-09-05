@@ -1,5 +1,4 @@
 import * as uuid from "uuid";
-import { vec2Zero } from "../Geometry";
 import { getCardDefinition } from "./Card";
 import * as TriggerSystem from "../../TriggerSystem/TriggerSystem";
 
@@ -28,7 +27,7 @@ export type Unit = {
 
 };
 
-export const makeUnit = (force: string, cardId: string, position = vec2Zero()): Unit => {
+export const makeUnit = (force: string, cardId: string, position = { x: 0, y: 0 }): Unit => {
   const card = getCardDefinition(cardId);
 
   const pureUnit = createUnitFromCard(
@@ -85,7 +84,7 @@ export type PureUnitData = {
 export function createUnitFromCard(
   force: string,
   cardDef: CardDefinition,
-  position: Vec2 = vec2Zero(),
+  position: Vec2 = { x: 0, y: 0 },
   id: string
 ): PureUnitData {
 
@@ -140,7 +139,7 @@ export function createCustomUnit(
   return {
     id: baseProps.id,
     force: baseProps.force,
-    position: baseProps.position || vec2Zero(),
+    position: baseProps.position || { x: 0, y: 0 },
     ...defaults,
     ...overrides
   };
@@ -149,7 +148,7 @@ export function createCustomUnit(
 export function createTestUnit(
   id: string,
   force: string,
-  position: Vec2 = vec2Zero()
+  position: Vec2 = { x: 0, y: 0 }
 ): PureUnitData {
   return createCustomUnit({ id, force, position });
 }
