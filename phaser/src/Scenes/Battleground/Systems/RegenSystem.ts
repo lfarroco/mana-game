@@ -1,6 +1,7 @@
 import { Force, manipulateForceMorale } from "@Models/Entities/Force";
 import * as CombatStatsTracker from "./CombatStatsTracker";
 import { reducePoison } from "./PoisonDamageSystem";
+import * as BoardStatsDisplay from "../BoardStatsDisplay";
 
 export const tickInterval: number = 1000;
 
@@ -31,6 +32,7 @@ export function applyRegen(targetForce: Force, amount: number, sourceUnitId?: st
 		const contribs = state.sourceContributions;
 		contribs.set(sourceUnitId, (contribs.get(sourceUnitId) || 0) + amount);
 	}
+	BoardStatsDisplay.updateStats(id);
 }
 
 export function update(playerForce: Force, cpuForce: Force, delta: number): void {
@@ -67,6 +69,7 @@ function tickForce(force: Force, delta: number): void {
 	if (actualHealing > 0) {
 		reducePoison(id, actualHealing);
 	}
+	BoardStatsDisplay.updateStats(id);
 }
 
 export function getTotalRegenHealing(forceId: string): number {

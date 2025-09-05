@@ -3,6 +3,7 @@ import { Unit } from "./Unit";
 import * as UI from "@UI/UI";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import * as MoraleDisplay from "@Scenes/Battleground/MoraleDisplay";
+import * as BoardStatsDisplay from "@Scenes/Battleground/BoardStatsDisplay";
 import { Skill, skillsIndex } from "../Skills";
 
 export type Force = {
@@ -80,6 +81,7 @@ export const manipulateForceMorale = (
 			newMorale: targetForce.morale,
 			maxMorale: targetForce.maxMorale,
 		})
+		BoardStatsDisplay.updateStats(targetForce.id);
 	}
 
 	return actualChange;
@@ -104,6 +106,7 @@ export const manipulateForceShield = (
 			newShield: targetForce.shield,
 			maxShield: targetForce.maxMorale,
 		});
+		BoardStatsDisplay.updateStats(targetForce.id);
 	}
 
 	return actualChange;
