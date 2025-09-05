@@ -146,10 +146,6 @@ export const manipulateForceMorale = (
 	return actualChange;
 };
 
-/**
- * Utility function to manipulate force shield with shield change events
- * Shield can exceed morale - morale is just used as the scale for display
- */
 export const manipulateForceShield = (
 	targetForce: Force,
 	amount: number,
@@ -157,7 +153,6 @@ export const manipulateForceShield = (
 ): number => {
 	const oldShield = targetForce.shield;
 	if (amount > 0) {
-		// Shield can grow beyond morale value
 		targetForce.shield = targetForce.shield + amount;
 	} else {
 		targetForce.shield = Math.max(0, targetForce.shield + amount);
@@ -175,10 +170,6 @@ export const manipulateForceShield = (
 	return actualChange;
 };
 
-/**
- * Utility function to apply damage to a force, reducing shield first, then morale
- * Returns the actual damage applied to morale after shield absorption
- */
 export const applyDamageToForce = (
 	targetForce: Force,
 	damage: number,
@@ -191,18 +182,16 @@ export const applyDamageToForce = (
 	const originalShield = targetForce.shield;
 	const originalMorale = targetForce.morale;
 
-	// Poison damage bypasses shields entirely
 	if (damageType === "poison") {
-		// Apply poison damage directly to morale
-		const moraleChange = manipulateForceMorale(targetForce, -damage, false); // suppress intermediate event
+		const moraleChange = manipulateForceMorale(targetForce, -damage, false);
 
 		// Single UI/event emission with aggregated info
 		MoraleDisplay.updateMoraleDisplay({
 			forceId: targetForce.id,
 			newMorale: targetForce.morale,
 			maxMorale: targetForce.maxMorale,
-			totalDamage: damage, // Show total damage for pop text
-			damageType: damageType, // Include damage type for colored pop text
+			totalDamage: damage,
+			damageType: damageType,
 		})
 
 		CombatStatsTracker.trackMoraleChange({
@@ -216,56 +205,48 @@ export const applyDamageToForce = (
 		return Math.abs(moraleChange);
 	}
 
-	// For non-poison damage, calculate effective shield after piercing
 	let effectiveShield = targetForce.shield;
 	if (shieldPiercingPercentage > 0 && targetForce.shield > 0) {
 		const piercedShield = Math.floor(targetForce.shield * (shieldPiercingPercentage / 100));
 		effectiveShield = Math.max(0, targetForce.shield - piercedShield);
 	}
 
-	// Shield absorbs damage first (without emitting events), using effective shield
 	if (effectiveShield > 0) {
 		const shieldAbsorbed = Math.min(remainingDamage, effectiveShield);
-		manipulateForceShield(targetForce, -shieldAbsorbed, false); // suppress intermediate event
+		manipulateForceShield(targetForce, -shieldAbsorbed, false);
 		remainingDamage -= shieldAbsorbed;
 	}
 
-	// Apply remaining damage to morale (without emitting events)
 	let moraleChange = 0;
 	if (remainingDamage > 0) {
-		moraleChange = manipulateForceMorale(targetForce, -remainingDamage, false); // suppress intermediate event
+		moraleChange = manipulateForceMorale(targetForce, -remainingDamage, false);
 	}
 
-	// Emit events for both shield and morale updates, but only show pop text for total damage
-
-	// Emit shield update if shield changed
 	if (targetForce.shield !== originalShield) {
-		// Emit a single shield event with aggregated info
 		MoraleDisplay.handleShieldUpdated({
 			forceId: targetForce.id,
 			newShield: targetForce.shield,
-			maxShield: targetForce.maxMorale, // Use max morale as maxShield for display
-			suppressPopText: targetForce.morale !== originalMorale, // Only suppress if morale also changed
-			totalDamage: targetForce.morale === originalMorale ? damage : undefined, // Show total damage if only shield changed
-			damageType: damageType, // Include damage type for colored pop text
+			maxShield: targetForce.maxMorale,
+			suppressPopText: targetForce.morale !== originalMorale,
+			totalDamage: targetForce.morale === originalMorale ? damage : undefined,
+			damageType: damageType,
 		});
 	}
 
-	// Emit morale update if morale changed, and show total damage as pop text
 	if (targetForce.morale !== originalMorale) {
 		MoraleDisplay.updateMoraleDisplay({
 			forceId: targetForce.id,
 			newMorale: targetForce.morale,
 			maxMorale: targetForce.maxMorale,
-			totalDamage: damage, // Include total damage for pop text display
-			damageType: damageType, // Include damage type for colored pop text
+			totalDamage: damage,
+			damageType: damageType,
 		});
 		CombatStatsTracker.trackMoraleChange({
 			forceId: targetForce.id,
 			newMorale: targetForce.morale,
 			maxMorale: targetForce.maxMorale,
-			totalDamage: damage, // Include total damage for pop text display
-			damageType: damageType, // Include damage type for colored pop text
+			totalDamage: damage,
+			damageType: damageType,
 		})
 	}
 
