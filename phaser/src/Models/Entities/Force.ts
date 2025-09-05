@@ -3,7 +3,7 @@ import { Unit } from "./Unit";
 import * as UI from "@UI/UI";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import * as MoraleDisplay from "@Scenes/Battleground/MoraleDisplay";
-import * as TriggerSystem from "../../TriggerSystem/TriggerSystem";
+import { Skill, skillsIndex } from "../Skills";
 
 export type Force = {
 	id: string;
@@ -19,14 +19,6 @@ export type Force = {
 	round: number;
 	wins: number;
 	skills: Skill[];
-};
-
-export type Skill = {
-	name: string;
-	id: string;
-	description: string;
-	cardFilters: ((effects: TriggerSystem.Effect[]) => boolean)[];
-	reactions: TriggerSystem.EffectReaction[];
 };
 
 export const makeForce = (id: string): Force => {
@@ -51,65 +43,12 @@ export const playerForce = makeForce(constants.FORCE_ID_PLAYER);
 export const cpuForce = makeForce(constants.FORCE_ID_CPU);
 
 playerForce.skills = [
-	{
-		id: "player-ally-damage-boost",
-		name: "Battle Fury",
-		description: "When an ally deals damage, all allies gain +10 power",
-		cardFilters: [],
-		reactions: [
-			{
-				effectId: "damage",
-				position: "allies",
-				effects: [
-					{
-						"id": "increase_power",
-						"amount": 10,
-						"targets": {
-							"id": "all_allies"
-						}
-					}
-				]
-			}
-
-		]
-	},
-	{
-		id: "no-poison",
-		name: "No Poison",
-		description: "You can't draft poison heroes",
-		cardFilters: [
-			(effects) => !effects.some(e => e.id === "poison")
-		],
-		reactions: []
-
-	}
-
+	skillsIndex["player_ally_damage_boost"],
+	skillsIndex["no_poison"]
 ];
 
 cpuForce.skills = [
-	{
-		id: "cpu-poison-damage-boost",
-		name: "Poison Fury",
-		description: "When an ally applies poison, all allies gain +10 power",
-		cardFilters: [],
-		reactions: [
-			{
-				effectId: "poison",
-				position: "allies",
-				effects: [
-					{
-						"id": "increase_power",
-						"amount": 10,
-						"targets": {
-							"id": "all_allies"
-						}
-					}
-				]
-			}
-
-		]
-	}
-
+	skillsIndex["cpu_poison_damage_boost"]
 ];
 
 export const updatePlayerGoldIO = (goldDelta: number) => {
