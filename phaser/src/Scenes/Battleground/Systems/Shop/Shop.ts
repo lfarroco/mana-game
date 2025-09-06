@@ -23,7 +23,7 @@ export function handleCharaPurchaseFinalized(purchasedChara: Chara.Chara): void 
 	currentShopCharas = currentShopCharas.filter(c => Chara.getId(c) !== Chara.getId(purchasedChara));
 }
 
-export async function open() {
+export async function open(buttonText: string = "Next Round") {
 	currentShopCharas = [];
 
 	const tavernCardData = _getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
@@ -50,6 +50,7 @@ export async function open() {
 		currentOrbs,
 		nextRoundCallback,
 		events.rerollTavern,
+		buttonText
 	);
 
 	Board.setEnemyBoardVisible(false);
@@ -77,8 +78,8 @@ export function getDisplayedHeroCardDefinitions(): Card.CardDefinition[] {
 		.map(Card.getCardDefinition);
 }
 
-export async function handleShopOpenUITrigger(): Promise<void> {
-	await open();
+export async function handleShopOpenUITrigger(buttonText: string = "Next Round"): Promise<void> {
+	await open(buttonText);
 }
 
 async function _animateItemAppearance(
