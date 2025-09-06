@@ -6,6 +6,7 @@ import { renderVignette } from "../Animations/vignette";
 import { clearAll, summon } from "@Systems/Chara/Chara";
 import * as HeroShop from "./Shop/HeroShop";
 import * as OrbShop from "./Shop/OrbShop";
+import * as SkillShop from "./Shop/SkillShop";
 import { transitionToCombatPhase } from "./CombatPhase";
 import * as ForceSkillsDisplay from "@UI/ForceSkillsDisplay";
 import * as MoraleDisplay from "../MoraleDisplay";
@@ -17,6 +18,7 @@ import * as BoardStatsDisplay from "../BoardStatsDisplay";
 export let isInShopPhase: boolean = false;
 let heroShopCount: number = 0;
 let isOrbShop: boolean = false;
+let isSkillShop: boolean = false;
 
 async function setupShopPhaseCommon(): Promise<void> {
 	const state = getState();
@@ -64,6 +66,7 @@ export async function initializeShopPhase(): Promise<void> {
 
 	heroShopCount = 1;
 	isOrbShop = false;
+	isSkillShop = false;
 
 	HeroShop.handleShopOpenUITrigger("Next Shop");
 }
@@ -79,6 +82,7 @@ export async function transitionToShopPhase(): Promise<void> {
 
 	heroShopCount = 1;
 	isOrbShop = false;
+	isSkillShop = false;
 
 	HeroShop.handleShopOpenUITrigger("Next Shop");
 }
@@ -100,6 +104,7 @@ export async function transitionToShopPhaseAfterDefeat(): Promise<void> {
 
 	heroShopCount = 1;
 	isOrbShop = false;
+	isSkillShop = false;
 
 	HeroShop.handleShopOpenUITrigger("Next Shop");
 }
@@ -122,12 +127,23 @@ export async function transitionToOrbShopPhase(): Promise<void> {
 
 	isOrbShop = true;
 
-	OrbShop.handleShopOpenUITrigger("Next Round");
+	OrbShop.handleShopOpenUITrigger("Next Skill Shop");
+}
+
+export async function transitionToSkillShopPhase(): Promise<void> {
+	await setupShopPhaseCommon();
+
+	const state = getState();
+	console.log("Round", state.gameData.round, "Skill Shop Phase Starting.");
+
+	isSkillShop = true;
+
+	SkillShop.handleShopOpenUITrigger("Next Round");
 }
 
 export function handleShopPhaseEnded(): void {
 	isInShopPhase = false;
-	if (!isOrbShop) {
+	if (!isOrbShop && !isSkillShop) {
 		if (heroShopCount < 3) {
 			heroShopCount++;
 			transitionToNextShopPhase();
@@ -135,6 +151,9 @@ export function handleShopPhaseEnded(): void {
 			isOrbShop = true;
 			transitionToOrbShopPhase();
 		}
+	} else if (isOrbShop && !isSkillShop) {
+		isSkillShop = true;
+		transitionToSkillShopPhase();
 	} else {
 		transitionToCombatPhase();
 	}

@@ -29,7 +29,8 @@ export async function open(buttonText: string = "Next Round") {
 		nextRoundCallback,
 		() => { }, // No reroll for orbs
 		buttonText,
-		'orb'
+		'orb',
+		undefined
 	);
 
 	Board.setEnemyBoardVisible(false);
