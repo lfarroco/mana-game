@@ -9,9 +9,6 @@ import type * as DebugController from '@Scenes//Debug/DebugController';
  */
 export function getDebugController(page: Page) {
 	return {
-		async getPlayerGold(): Promise<number> {
-			return await page.evaluate(() => window.debugController.getPlayerGold());
-		},
 
 		async getPlayerBoardUnits(): Promise<ReturnType<typeof DebugController.getPlayerBoardUnits>> {
 			return await page.evaluate(() => window.debugController.getPlayerBoardUnits());
@@ -45,10 +42,6 @@ export function getDebugController(page: Page) {
 
 		async sellUnitFromBoard(unitId: string): Promise<string> {
 			return await page.evaluate((id) => window.debugController.sellUnitFromBoard(id), unitId);
-		},
-
-		async playerGoldDelta(delta: number): Promise<string> {
-			return await page.evaluate((delta) => window.debugController.playerGoldDelta(delta), delta);
 		},
 
 		async isShopVisible(): Promise<boolean> {
@@ -88,9 +81,4 @@ export async function waitForGameInit(page: Page): Promise<void> {
 	const canvas = await page.waitForSelector('canvas');
 	if (!canvas) throw new Error('Canvas not found');
 
-	// Wait for the debugController to be available globally with proper typing
-	await page.waitForFunction(() => {
-		return typeof window.debugController !== 'undefined' &&
-			typeof window.debugController.getPlayerGold === 'function';
-	}, { timeout: 10000 });
 }

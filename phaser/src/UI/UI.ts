@@ -5,9 +5,6 @@ import * as Tooltip from "./Tooltip";
 import * as ForceSkillsDisplay from "./ForceSkillsDisplay";
 export * as events from "./events"
 
-const GOLD_DISPLAY_X = c.SCREEN_WIDTH - 320;
-const GOLD_DISPLAY_Y = 20;
-
 const PRESTIGE_DISPLAY_X = c.SCREEN_WIDTH - 520;
 const PRESTIGE_DISPLAY_Y = 20;
 
@@ -40,8 +37,6 @@ export function init() {
 
 	Tooltip.init();
 
-	createGoldDisplay(uiContainer);
-
 	createPrestigeDisplay(uiContainer);
 
 	createRoundDisplay(uiContainer);
@@ -50,37 +45,6 @@ export function init() {
 
 	ForceSkillsDisplay.initForceSkillsDisplay();
 
-}
-
-function createGoldDisplay(parent: Container): void {
-	const initialGold = scene.state.gameData.player.gold;
-
-	const goldContainer = scene.add.container(GOLD_DISPLAY_X, GOLD_DISPLAY_Y);
-
-	const label = scene.add.text(
-		0, 0,
-		"Gold:",
-		{
-			...c.titleTextConfig,
-			fontSize: '24px',
-			color: '#ffffff'
-		}
-	).setOrigin(0);
-	goldContainer.add(label);
-
-	goldTextElement = scene.add.text(
-		label.width + 10, 0,
-		initialGold.toString(),
-		{
-			...c.titleTextConfig,
-			fontSize: '24px',
-			color: '#ffffff'
-		}
-	).setOrigin(0);
-
-	goldContainer.add(goldTextElement);
-
-	parent.add(goldContainer);
 }
 
 function createPrestigeDisplay(parent: Container): void {

@@ -1,7 +1,6 @@
 import { getState } from "@Models/State";
 import { delay } from "../../../Utils/animation";
-import * as BG_CONSTANTS from "../battlegroundConstants";
-import { updatePlayerGoldIO, cpuForce } from "@Models/Entities/Force";
+import { cpuForce } from "@Models/Entities/Force";
 import * as PrestigeSystem from "@Systems/PrestigeSystem";
 import { renderVignette } from "../Animations/vignette";
 import { clearAll, summon } from "@Systems/Chara/Chara";
@@ -68,8 +67,6 @@ export async function transitionToShopPhase(): Promise<void> {
 	PrestigeSystem.processVictory();
 	PrestigeSystem.finalizeRound();
 
-	updatePlayerGoldIO(BG_CONSTANTS.GOLD_PER_ROUND);
-
 	const state = getState();
 	console.log("Round", state.gameData.round, "Shop Phase Starting (Victory Transition).");
 
@@ -81,8 +78,6 @@ export async function transitionToShopPhaseAfterDefeat(): Promise<void> {
 
 	PrestigeSystem.processDefeat();
 	PrestigeSystem.finalizeRound();
-
-	updatePlayerGoldIO(BG_CONSTANTS.GOLD_PER_ROUND);
 
 	const state = getState();
 	console.log("Round", state.gameData.round, "Shop Phase Starting (After Defeat).");

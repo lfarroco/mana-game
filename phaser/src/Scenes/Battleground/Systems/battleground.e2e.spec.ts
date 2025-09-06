@@ -8,9 +8,6 @@ const battlegroundSpec = (waitForGameInit: (p: Page) => Promise<void>) => test.d
 
 		const debugController = getDebugController(page);
 
-		// Get initial state
-		const initialGold = await debugController.getPlayerGold();
-
 		// End shop phase using DebugController
 		await debugController.clickNextRound();
 
@@ -20,9 +17,6 @@ const battlegroundSpec = (waitForGameInit: (p: Page) => Promise<void>) => test.d
 		// Log state after transition
 		await debugController.logGameState();
 
-		// Verify state changed after transition
-		const finalGold = await debugController.getPlayerGold();
-		expect(finalGold).toBeDefined();
 	});
 });
 

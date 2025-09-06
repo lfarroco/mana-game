@@ -38,8 +38,6 @@ const buildEffectBlock = (effect: Effect, unitPower: number): string => {
 		}
 		case "multiply_power":
 			return withTargets(`[color=#ff8cc8]Multiply Power[/color] [color=#ffd93d]${effect.multiplier}x[/color]`, effect.targets);
-		case "grant_gold":
-			return `[color=#ffe066]Grant Gold[/color] [color=#ffd93d]${effect.amount}[/color]`;
 		default: {
 			const _exhaustiveCheck: never = effect;
 			return _exhaustiveCheck;

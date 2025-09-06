@@ -1,5 +1,4 @@
 import * as Shop from "..";
-import { updatePlayerGoldIO } from "@Models/Entities/Force";
 import { Unit } from "@Models/Entities/Unit";
 import { getState } from "@Models/State";
 import { popText } from "@Systems/Chara/Animations/popText";
@@ -10,8 +9,6 @@ export function ownedUnitSold(unitId: string, soldForGold: number) {
 	const state = getState();
 
 	const chara = getCharaById(unitId);
-
-	updatePlayerGoldIO(soldForGold);
 
 	const popTextX = chara?.x ?? 400;
 	const popTextY = chara?.y ?? 300;

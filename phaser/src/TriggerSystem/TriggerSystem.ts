@@ -53,11 +53,7 @@ export type Effect = {
 	id: "multiply_power",
 	multiplier: number,
 	targets: Targeting,
-} | {
-	id: "grant_gold",
-	amount: number,
-	forceId: string,
-};
+}
 
 type Targeting = {
 	id: "self"
@@ -189,15 +185,6 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
 				multiplier: effect.multiplier,
 			});
 			break;
-		case "grant_gold":
-			// find target by forceId and apply gold
-			effects.grantGoldLogic({
-				forceId: effect.forceId,
-				amount: effect.amount,
-				scene,
-				sourceUnit,
-			});
-			break;
 		default:
 			const _exhaustiveCheck: never = effect;
 			return _exhaustiveCheck;
@@ -326,9 +313,6 @@ const processSkillEffect = (eff: Effect, force: Force, skillPosition: { x: numbe
 			break;
 		case "multiply_power":
 			skillEffects.multiplyPowerFromSkill(targets, skillPosition, eff.multiplier);
-			break;
-		case "grant_gold":
-			skillEffects.grantGoldFromSkill(force, skillPosition, eff.amount);
 			break;
 		case "increase_power_on_type":
 			//skillEffects.increasePowerOnTypeFromSkill(sourceUnit, skillPosition, 10);

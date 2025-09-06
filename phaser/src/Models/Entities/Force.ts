@@ -1,6 +1,5 @@
 import * as constants from "../../constants/constants";
 import { Unit } from "./Unit";
-import * as UI from "@UI/UI";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import * as MoraleDisplay from "@Scenes/Battleground/MoraleDisplay";
 import * as BoardStatsDisplay from "@Scenes/Battleground/BoardStatsDisplay";
@@ -10,8 +9,6 @@ export type Force = {
 	id: string;
 	name: string;
 	color: string;
-	gold: number;
-	level: number;
 	morale: number;
 	maxMorale: number;
 	shield: number;
@@ -27,8 +24,6 @@ export const makeForce = (id: string): Force => {
 		id,
 		name: "",
 		color: "",
-		gold: 10,
-		level: 1,
 		units: [],
 		morale: constants.INITIAL_MORALE,
 		maxMorale: constants.INITIAL_MORALE,
@@ -52,13 +47,6 @@ cpuForce.skills = [
 	skillsIndex["cpu_poison_damage_boost"]
 ];
 
-export const updatePlayerGoldIO = (goldDelta: number) => {
-
-	const changeAmount = Math.floor(goldDelta);
-	playerForce.gold += changeAmount;
-
-	UI.events.onGoldChanged(playerForce.gold, changeAmount)
-}
 
 export const manipulateForceMorale = (
 	targetForce: Force,
