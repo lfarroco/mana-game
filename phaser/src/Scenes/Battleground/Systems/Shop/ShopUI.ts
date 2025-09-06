@@ -70,7 +70,7 @@ export function displayShop(
 	const rerollButtonY = sc.PANEL_Y + sc.TAVERN_BG_HEIGHT - 20;
 	const rerollBtn = createUIButton(
 		scene,
-		`Reroll $${c.SHOP_ITEM_PURCHASE_COST}`,
+		`Reroll`,
 		rerollButtonX,
 		rerollButtonY,
 		rerollCallback
