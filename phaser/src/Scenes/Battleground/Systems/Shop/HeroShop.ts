@@ -12,7 +12,6 @@ import * as Board from "@Models/Board";
 import { playerForce } from "@Models/Entities/Force";
 
 let currentShopCharas: Chara.Chara[] = [];
-let currentOrbs: string[] = [];
 
 export function init() {
 	ShopUI.create();
@@ -23,27 +22,10 @@ export function handleCharaPurchaseFinalized(purchasedChara: Chara.Chara): void 
 	currentShopCharas = currentShopCharas.filter(c => Chara.getId(c) !== Chara.getId(purchasedChara));
 }
 
-export async function open(buttonText: string = "Next Round", mode: 'hero' | 'orb' = 'hero') {
+export async function open(buttonText: string = "Next Shop") {
 	currentShopCharas = [];
 
-	let tavernCardData: Card.CardDefinition[] = [];
-	let availableOrbs: string[] = [];
-
-	if (mode === 'hero') {
-		tavernCardData = _getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
-	} else {
-		availableOrbs = [
-			"crimson_orb",
-			"emerald_orb",
-			"azure_orb",
-			"golden_orb",
-			"violet_orb",
-			"charge_orb",
-			"positional_power_orb",
-			"positional_typed_power_orb"
-		];
-		currentOrbs = pickRandom(availableOrbs, 3);
-	}
+	const tavernCardData = _getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
 
 	const nextRoundCallback = () => {
 		Systems.ShopPhase.handleShopPhaseEnded();
@@ -52,11 +34,11 @@ export async function open(buttonText: string = "Next Round", mode: 'hero' | 'or
 
 	const { charas } = ShopUI.displayShop(
 		tavernCardData,
-		currentOrbs,
+		[],
 		nextRoundCallback,
 		events.rerollTavern,
 		buttonText,
-		mode
+		'hero'
 	);
 
 	Board.setEnemyBoardVisible(false);
@@ -64,18 +46,14 @@ export async function open(buttonText: string = "Next Round", mode: 'hero' | 'or
 	currentShopCharas = charas;
 
 	await ShopUI.slideIn();
-	if (mode === 'hero') {
-		currentShopCharas.forEach(chara => _animateItemAppearance(chara));
-	}
+	currentShopCharas.forEach(chara => _animateItemAppearance(chara));
 }
 
 export async function close() {
-	ShopUI.destroyOrbs();
-	currentOrbs = [];
+	currentShopCharas = [];
 
 	await ShopUI.slideOut();
 }
-
 
 export function getShopCharaBySlot(slotIndex: number): Chara.Chara | null {
 	return currentShopCharas[slotIndex] || null;
@@ -86,8 +64,8 @@ export function getDisplayedHeroCardDefinitions(): Card.CardDefinition[] {
 		.map(Card.getCardDefinition);
 }
 
-export async function handleShopOpenUITrigger(buttonText: string = "Next Round", mode: 'hero' | 'orb' = 'hero'): Promise<void> {
-	await open(buttonText, mode);
+export async function handleShopOpenUITrigger(buttonText: string = "Next Shop"): Promise<void> {
+	await open(buttonText);
 }
 
 async function _animateItemAppearance(

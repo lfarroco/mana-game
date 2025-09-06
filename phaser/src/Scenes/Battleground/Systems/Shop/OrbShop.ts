@@ -1,0 +1,46 @@
+import * as ShopUI from "./ShopUI";
+import * as Systems from "../index"
+import * as Board from "@Models/Board";
+
+export function init() {
+	ShopUI.create();
+}
+
+export async function open(buttonText: string = "Next Round") {
+	const availableOrbs = [
+		"crimson_orb",
+		"emerald_orb",
+		"azure_orb",
+		"golden_orb",
+		"violet_orb",
+		"charge_orb",
+		"positional_power_orb",
+		"positional_typed_power_orb"
+	];
+
+	const nextRoundCallback = () => {
+		Systems.ShopPhase.handleShopPhaseEnded();
+		close();
+	};
+
+	ShopUI.displayShop(
+		[],
+		availableOrbs,
+		nextRoundCallback,
+		() => { }, // No reroll for orbs
+		buttonText,
+		'orb'
+	);
+
+	Board.setEnemyBoardVisible(false);
+
+	await ShopUI.slideIn();
+}
+
+export async function close() {
+	await ShopUI.slideOut();
+}
+
+export async function handleShopOpenUITrigger(buttonText: string = "Next Round"): Promise<void> {
+	await open(buttonText);
+}
