@@ -11,6 +11,7 @@ import { scene } from "../../BattlegroundScene";
 import { tween } from "../../../../Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import { skillsIndex } from "@Models/Skills";
+import { pickOne } from "../../../../utils";
 
 export type ShopUIState = {
 	shopContainer: Container;
@@ -133,21 +134,60 @@ export function renderSkills(state: ShopUIState, skills: string[], onPurchase: (
 	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
 	const baseX = state.panelX + 20;
 	const baseY = sc.TAVERN_BASE_Y + 50;
+	const CIRCLE_RADIUS = 35;
+	const CIRCLE_SPACING = 10;
+	const totalSkillsWidth = skills.length * (CIRCLE_RADIUS * 2 + CIRCLE_SPACING) - CIRCLE_SPACING;
+	const startX = baseX + totalSkillsWidth / 2;
+
 	skills.forEach((skillId, index) => {
 		const skill = skillsIndex[skillId];
 		if (skill) {
-			const buttonText = `${skill.name}\n${skill.description}`;
-			const skillButton = createUIButton(
-				scene,
-				buttonText,
-				baseX,
-				baseY + index * 80,
-				() => onPurchase(skillId)
+			const x = startX - index * (CIRCLE_RADIUS * 2 + CIRCLE_SPACING);
+			const circle = scene.add.circle(x, baseY, CIRCLE_RADIUS, 0x4e9de0, 0.8);
+			circle.setStrokeStyle(2, 0xffffff);
+
+			const iconText = getSkillIcon(skillId);
+
+			const text = scene.add.text(x, baseY, iconText, {
+				fontSize: '48px',
+				color: '#ffffff',
+				fontFamily: 'Arial Black',
+				stroke: '#000000',
+				strokeThickness: 4
+			}).setOrigin(0.5);
+
+			circle.setInteractive(
+				new Phaser.Geom.Circle(CIRCLE_RADIUS, CIRCLE_RADIUS, CIRCLE_RADIUS),
+				Phaser.Geom.Circle.Contains
 			);
-			skillButton.setScale(1.5); // Larger scale as requested
-			state.shopContainer.add(skillButton);
+
+			circle.on('pointerover', () => {
+				// renderTooltip(x, y - 200, skill.name, skill.description);
+			});
+			circle.on('pointerout', () => {
+				// hideTooltip();
+			});
+
+			circle.on('pointerdown', () => {
+				circle.setScale(0.9);
+				text.setScale(0.9);
+				onPurchase(skillId);
+			});
+
+			circle.on('pointerup', () => {
+				circle.setScale(1);
+				text.setScale(1);
+			});
+
+			state.shopContainer.add(circle);
+			state.shopContainer.add(text);
 		}
 	});
+}
+
+function getSkillIcon(_skillId: string): string {
+	// placeholder for now
+	return pickOne(["⚔️", "☠️"]);
 }
 
 export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara[] {
