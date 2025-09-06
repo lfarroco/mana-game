@@ -47,7 +47,8 @@ export function displayShop(
 	orbs: string[],
 	nextRoundCallback: () => void,
 	rerollCallback: () => void,
-	buttonText: string = "Next Round"
+	buttonText: string = "Next Round",
+	mode: 'hero' | 'orb' = 'hero'
 ): { charas: Chara.Chara[] } {
 	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
 	state.shopContainer.removeAll(true);
@@ -65,18 +66,20 @@ export function displayShop(
 		.fillRoundedRect(state.panelX, sc.PANEL_Y, sc.SHOP_PANEL_WIDTH, sc.SHOP_PANEL_HEIGHT, 20);
 	state.shopContainer.add(shopBackground);
 
-	_renderTavernSectionBackgroundAndTitle(state.shopContainer, state.panelX);
+	_renderTavernSectionBackgroundAndTitle(state.shopContainer, state.panelX, mode === 'hero' ? "Tavern" : "Orb Shop");
 
-	const rerollButtonX = state.panelX + 470;
-	const rerollButtonY = sc.PANEL_Y + sc.TAVERN_BG_HEIGHT - 20;
-	const rerollBtn = createUIButton(
-		scene,
-		`Reroll`,
-		rerollButtonX,
-		rerollButtonY,
-		rerollCallback
-	);
-	state.shopContainer.add(rerollBtn);
+	if (mode === 'hero') {
+		const rerollButtonX = state.panelX + 470;
+		const rerollButtonY = sc.PANEL_Y + sc.TAVERN_BG_HEIGHT - 20;
+		const rerollBtn = createUIButton(
+			scene,
+			`Reroll`,
+			rerollButtonX,
+			rerollButtonY,
+			rerollCallback
+		);
+		state.shopContainer.add(rerollBtn);
+	}
 
 	const nextRoundButtonX = c.SCREEN_WIDTH - 200;
 	const nextRoundButtonY = c.SCREEN_HEIGHT - 100;
@@ -89,16 +92,18 @@ export function displayShop(
 	);
 	state.shopContainer.add(nextRoundBtn);
 
-	renderOrbs(state, orbs);
+	if (mode === 'orb') {
+		renderOrbs(state, orbs);
+	}
 
 	_createSellZone(state);
 
-	const displayedCharas = renderTavernCharas(cardsToDisplay);
+	const displayedCharas = mode === 'hero' ? renderTavernCharas(cardsToDisplay) : [];
 
 	return { charas: displayedCharas };
 }
 
-function _renderTavernSectionBackgroundAndTitle(container: Container, panelX?: number): void {
+function _renderTavernSectionBackgroundAndTitle(container: Container, panelX?: number, sectionTitle: string = "Tavern"): void {
 	const tavernBaseX = (panelX !== undefined ? panelX + 20 : sc.TAVERN_BASE_X);
 	const tavernBaseY = sc.TAVERN_BASE_Y;
 
@@ -113,7 +118,7 @@ function _renderTavernSectionBackgroundAndTitle(container: Container, panelX?: n
 
 	const title = scene.add.text(
 		tavernBaseX + 30, sc.TAVERN_TITLE_Y,
-		"Tavern",
+		sectionTitle,
 		c.titleTextConfig
 	);
 
