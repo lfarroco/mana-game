@@ -3,6 +3,7 @@ import * as Systems from "../index"
 import * as Board from "@Models/Board";
 import { skillsIndex } from "@Models/Skills";
 import { getState } from "@Models/State";
+import * as ForceSkillsDisplay from "@UI/ForceSkillsDisplay";
 
 export function init() {
 	ShopUI.create();
@@ -62,6 +63,9 @@ function purchaseSkill(skillId: string) {
 	player.skills.push(skill);
 
 	console.log(`Purchased skill: ${skill.name}`);
+
+	// Update the display
+	ForceSkillsDisplay.updatePlayerSkills();
 }
 
 export async function close() {
