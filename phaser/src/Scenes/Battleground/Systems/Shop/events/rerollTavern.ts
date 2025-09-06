@@ -1,6 +1,6 @@
-import * as Shop from "../Shop";
+import * as HeroShop from "../HeroShop";
 
 export function rerollTavern(): void {
-	Shop.rerollTavern();
+	HeroShop.rerollTavern();
 }
 
