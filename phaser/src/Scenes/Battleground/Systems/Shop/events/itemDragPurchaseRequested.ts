@@ -8,6 +8,7 @@ import * as uiEvents from "@UI/events";
 import * as charaEvents from "@Systems/Chara/events";
 import * as Systems from "../../index";
 import * as Shop from "../Shop";
+import * as HeroShop from "../HeroShop";
 
 export function itemDragPurchaseRequested(
 	shopUnitData: Unit,
@@ -47,7 +48,16 @@ export function itemDragPurchaseRequested(
 
 	charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
 
-	// Move to next phase after placing hero (same as next round button)
-	Systems.ShopPhase.handleShopPhaseEnded();
-	Shop.close();
+	// Refresh all heroes in the shop after purchase
+	HeroShop.rerollTavern();
+
+	// Check if we should close the shop after this purchase
+	const shouldCloseShop = Systems.ShopPhase.handleHeroPurchase();
+
+	if (shouldCloseShop) {
+		// Move to next phase after placing hero (same as next round button)
+		Systems.ShopPhase.handleShopPhaseEnded();
+		Shop.close();
+	}
+	// If shouldCloseShop is false, the shop stays open for more purchases
 }

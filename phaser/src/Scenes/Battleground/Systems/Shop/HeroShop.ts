@@ -21,6 +21,16 @@ export function init() {
 
 export function handleCharaPurchaseFinalized(purchasedChara: Chara.Chara): void {
 	currentShopCharas = currentShopCharas.filter(c => Chara.getId(c) !== Chara.getId(purchasedChara));
+
+	// For hero shops 1 and 2, add a new hero to replace the purchased one
+	if (currentShopCharas.length < sc.NUM_TAVERN_SLOTS) {
+		const newCardData = _getAvailableCardsForTavern(1);
+		if (newCardData.length > 0) {
+			const newCharas = ShopUI.renderTavernCharas(newCardData);
+			currentShopCharas.push(...newCharas);
+			newCharas.forEach(chara => _animateItemAppearance(chara));
+		}
+	}
 }
 
 export async function open(buttonText: string = "Next Shop") {
