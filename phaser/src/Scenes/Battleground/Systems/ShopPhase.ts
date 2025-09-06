@@ -87,10 +87,8 @@ export async function transitionToShopPhaseAfterDefeat(): Promise<void> {
 	const state = getState();
 	console.log("Round", state.gameData.round, "Shop Phase Starting (After Defeat).");
 
-	// If prestige reached 0 after defeat, show a game-over vignette instead of opening the shop
 	const player = state.gameData.player;
 	if (player.prestige <= 0) {
-		// Small delay then render game over message
 		await renderVignette({ message: `Game Over! You were defeated in ${player.round} rounds.` });
 		return;
 	}
