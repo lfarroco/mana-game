@@ -27,21 +27,25 @@ export default function (
 
 			const debugController = getDebugController(page);
 
-			const shopItemCost = await debugController.getShopItemCost();
-			await debugController.playerGoldDelta(shopItemCost + 5);
-			await page.waitForTimeout(200); // Wait for gold update to propagate
-
 			const initialGold = await debugController.getPlayerGold();
 			const initialUnits = await debugController.getPlayerBoardUnits();
+			const shopPhaseBefore = await page.evaluate(() => (window as any).Systems.ShopPhase.isInShopPhase);
+			const shopOpenBefore = await debugController.isShopVisible();
 
 			await debugController.clickHeroInShop(0);
 			await page.waitForTimeout(200); // Wait for purchase to process
 
 			const finalGold = await debugController.getPlayerGold();
 			const finalUnits = await debugController.getPlayerBoardUnits();
+			const shopPhaseAfter = await page.evaluate(() => (window as any).Systems.ShopPhase.isInShopPhase);
+			const shopOpenAfter = await debugController.isShopVisible();
 
-			expect(finalGold).toBe(initialGold - shopItemCost);
+			expect(finalGold).toBe(initialGold); // Gold should not change
 			expect(finalUnits.length).toBe(initialUnits.length + 1);
+			expect(shopPhaseBefore).toBe(true);
+			expect(shopPhaseAfter).toBe(false); // Shop phase should end after placing hero
+			expect(shopOpenBefore).toBe(true);
+			expect(shopOpenAfter).toBe(false); // Shop UI should close after placing hero
 			const newUnit = finalUnits.find(u => !initialUnits.some(iu => iu.id === u.id));
 			expect(newUnit).toBeDefined();
 			if (newUnit) {
@@ -57,12 +61,10 @@ export default function (
 
 			await isShopVisible(page);
 
-			const shopItemCost = await page.evaluate(() => (window as any).debugController.getShopItemCost());
-			await page.evaluate((cost) => (window as any).debugController.playerGoldDelta(cost + 5), shopItemCost);
-			await page.waitForTimeout(200);
-
 			const initialGold = await page.evaluate(() => (window as any).debugController.getPlayerGold());
 			const initialUnits = await page.evaluate(() => (window as any).debugController.getPlayerBoardUnits());
+			const shopPhaseBefore = await page.evaluate(() => (window as any).Systems.ShopPhase.isInShopPhase);
+			const shopOpenBefore = await page.evaluate(() => (window as any).debugController.isShopVisible());
 
 			const targetBoardX = 0;
 			const targetBoardY = 1;
@@ -72,9 +74,15 @@ export default function (
 
 			const finalGold = await page.evaluate(() => (window as any).debugController.getPlayerGold());
 			const finalUnits = await page.evaluate(() => (window as any).debugController.getPlayerBoardUnits());
+			const shopPhaseAfter = await page.evaluate(() => (window as any).Systems.ShopPhase.isInShopPhase);
+			const shopOpenAfter = await page.evaluate(() => (window as any).debugController.isShopVisible());
 
-			expect(finalGold).toBe(initialGold - shopItemCost);
+			expect(finalGold).toBe(initialGold); // Gold should not change
 			expect(finalUnits.length).toBe(initialUnits.length + 1);
+			expect(shopPhaseBefore).toBe(true);
+			expect(shopPhaseAfter).toBe(false); // Shop phase should end after placing hero
+			expect(shopOpenBefore).toBe(true);
+			expect(shopOpenAfter).toBe(false); // Shop UI should close after placing hero
 
 			const newUnit = finalUnits.find(u => !initialUnits.some(iu => iu.id === u.id));
 			expect(newUnit).toBeDefined();
@@ -84,7 +92,7 @@ export default function (
 			}
 		});
 
-		test('should fail to buy a hero if insufficient gold', async ({ page }) => {
+		test('should successfully buy a hero with any amount of gold', async ({ page }) => {
 			await page.goto('/');
 			await waitForGameInit(page);
 
@@ -92,16 +100,11 @@ export default function (
 
 			const initialGold = await page.evaluate(() => (window as any).debugController.getPlayerGold());
 			const initialUnits = await page.evaluate(() => (window as any).debugController.getPlayerBoardUnits());
+			const shopPhaseBefore = await page.evaluate(() => (window as any).Systems.ShopPhase.isInShopPhase);
+			const shopOpenBefore = await page.evaluate(() => (window as any).debugController.isShopVisible());
 
-			const shopItemCost = await page.evaluate(() => (window as any).debugController.getShopItemCost());
 			// Set gold to 0
 			await page.evaluate((delta) => (window as any).debugController.playerGoldDelta(-delta), initialGold);
-			await page.waitForTimeout(200);
-
-			const currentGold = shopItemCost - 1;
-
-			// Set gold to less than item cost
-			await page.evaluate((cost) => (window as any).debugController.playerGoldDelta(cost), currentGold);
 			await page.waitForTimeout(200);
 
 			await page.evaluate(() => (window as any).debugController.clickHeroInShop(0));
@@ -109,9 +112,15 @@ export default function (
 
 			const finalGold = await page.evaluate(() => (window as any).debugController.getPlayerGold());
 			const finalUnits = await page.evaluate(() => (window as any).debugController.getPlayerBoardUnits());
+			const shopPhaseAfter = await page.evaluate(() => (window as any).Systems.ShopPhase.isInShopPhase);
+			const shopOpenAfter = await page.evaluate(() => (window as any).debugController.isShopVisible());
 
-			expect(finalGold).toBe(currentGold); // Gold should not change
-			expect(finalUnits.length).toBe(initialUnits.length); // Unit count should not change
+			expect(finalGold).toBe(0); // Gold should remain 0
+			expect(finalUnits.length).toBe(initialUnits.length + 1); // Should still be able to buy
+			expect(shopPhaseBefore).toBe(true);
+			expect(shopPhaseAfter).toBe(false); // Shop phase should end after placing hero
+			expect(shopOpenBefore).toBe(true);
+			expect(shopOpenAfter).toBe(false); // Shop UI should close after placing hero
 		});
 
 		test('should fail to buy a hero if party is full', async ({ page }) => {
@@ -121,11 +130,6 @@ export default function (
 			await isShopVisible(page);
 
 			const maxPartySize = await page.evaluate(() => (window as any).debugController.getMaxPartySize());
-			const shopItemCost = await page.evaluate(() => (window as any).debugController.getShopItemCost());
-
-			// Set enough gold to buy maxPartySize + 1 units
-			await page.evaluate(({ mps, cost }) => (window as any).debugController.playerGoldDelta((mps + 1) * cost), { mps: maxPartySize, cost: shopItemCost });
-			await page.waitForTimeout(200);
 
 			// --- PRE-FILL THE PARTY ---
 			// Add MAX_PARTY_SIZE - 1 units directly to the state
@@ -141,6 +145,7 @@ export default function (
 			expect(unitsBeforeAttempt.length).toBe(maxPartySize);
 
 			const goldBeforeAttempt = await page.evaluate(() => (window as any).debugController.getPlayerGold());
+			const shopPhaseBefore = await page.evaluate(() => (window as any).Systems.ShopPhase.isInShopPhase);
 
 			// Attempt to buy one more hero
 			// We don't care which hero it is, just that we try to buy *a* hero from the shop.
@@ -149,19 +154,18 @@ export default function (
 
 			const finalGold = await page.evaluate(() => (window as any).debugController.getPlayerGold());
 			const finalUnits = await page.evaluate(() => (window as any).debugController.getPlayerBoardUnits());
+			const shopPhaseAfter = await page.evaluate(() => (window as any).Systems.ShopPhase.isInShopPhase);
 
 			expect(finalGold).toBe(goldBeforeAttempt); // Gold should not change
 			expect(finalUnits.length).toBe(maxPartySize); // Unit count should not change
+			expect(shopPhaseBefore).toBe(true);
+			expect(shopPhaseAfter).toBe(true); // Shop phase should NOT end when purchase fails
 		});
 
 		test('should successfully sell an owned hero', async ({ page }) => {
 			await page.goto('/');
 			await waitForGameInit(page);
 			await isShopVisible(page);
-
-			const shopItemCost = await page.evaluate(() => (window as any).debugController.getShopItemCost());
-			await page.evaluate((cost) => (window as any).debugController.playerGoldDelta(cost + 10), shopItemCost); // Ensure enough gold
-			await page.waitForTimeout(200);
 
 			const initialBoardUnits = await page.evaluate(() => (window as any).debugController.getPlayerBoardUnits());
 			const goldBeforePurchase = await page.evaluate(() => (window as any).debugController.getPlayerGold());
@@ -174,7 +178,7 @@ export default function (
 			const goldAfterPurchase = await page.evaluate(() => (window as any).debugController.getPlayerGold());
 
 			expect(unitsAfterPurchase.length).toBe(initialBoardUnits.length + 1);
-			expect(goldAfterPurchase).toBe(goldBeforePurchase - shopItemCost);
+			expect(goldAfterPurchase).toBe(goldBeforePurchase); // Gold should not change when buying
 
 			const newUnit = unitsAfterPurchase.find(u => !initialBoardUnits.some(iu => iu.id === u.id));
 			expect(newUnit).toBeDefined();
@@ -189,7 +193,7 @@ export default function (
 			const finalUnits = await page.evaluate(() => (window as any).debugController.getPlayerBoardUnits());
 			const finalGold = await page.evaluate(() => (window as any).debugController.getPlayerGold());
 
-			const expectedSellPrice = Math.floor(shopItemCost / 2);
+			const expectedSellPrice = Math.floor(3 / 2); // SHOP_ITEM_PURCHASE_COST / 2
 			expect(finalGold).toBe(goldAfterPurchase + expectedSellPrice);
 			expect(finalUnits.length).toBe(initialBoardUnits.length);
 			expect(finalUnits.find(u => u.id === unitToSellId)).toBeUndefined();
