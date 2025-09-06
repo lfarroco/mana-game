@@ -16,10 +16,6 @@ test.describe('Game Initialization', () => {
 
 		const debugController = getDebugController(page);
 
-		// Verify initial game setup using DebugController
-		const gold = await debugController.getPlayerGold();
-		expect(typeof gold).toBe('number');
-
 		// Verify we can get player units using DebugController
 		const units = await debugController.getPlayerBoardUnits();
 		expect(Array.isArray(units)).toBe(true);

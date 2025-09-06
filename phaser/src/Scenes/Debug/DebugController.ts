@@ -3,7 +3,6 @@ import { Unit } from "@Models/Entities/Unit";
 import { vec2 } from "@Models/Geometry";
 import { CardDefinition } from "@Models/Entities/Card";
 import * as constants from "../../constants/constants";
-import { updatePlayerGoldIO } from "@Models/Entities/Force";
 import { titleScene } from "../Title/TitleScene";
 import * as  Chara from "@Systems/Chara/Chara";
 import * as Systems from "../Battleground/Systems";
@@ -93,11 +92,6 @@ export function sellUnitFromBoard(unitId: string): string {
 	return `Sell request processed for unit ${unitId}. Sold for ${sellPrice} gold. State and visuals will update asynchronously.`;
 }
 
-export function playerGoldDelta(delta: number): string {
-	updatePlayerGoldIO(delta);
-	return `Player gold update requested to ${delta}. (Delta: ${delta}).`;
-}
-
 export function isShopVisible(): boolean {
 	return Systems.Shop.UI.getIsShopOpen();
 }
@@ -110,10 +104,6 @@ export function getMaxPartySize(): number {
 	return constants.MAX_PARTY_SIZE;
 }
 
-export function getPlayerGold(): number {
-	return scene.state.gameData.player.gold;
-}
-
 export function getShopHeroes(): CardDefinition[] {
 	return Systems.Shop.Shop.getDisplayedHeroCardDefinitions();
 }
@@ -124,7 +114,6 @@ export function getPlayerBoardUnits(): Unit[] {
 
 export function logGameState(): void {
 	console.log("Current Game State (DebugController):", {
-		playerGold: getPlayerGold(),
 		shopHeroes: getShopHeroes().map(c => c?.id),
 		playerUnits: getPlayerBoardUnits().map(u => ({ id: u.id, cardId: u.cardId, x: u.position.x, y: u.position.y })),
 		currentRound: scene.state.gameData?.round,

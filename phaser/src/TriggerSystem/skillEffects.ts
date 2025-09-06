@@ -320,34 +320,3 @@ export function multiplyPowerFromSkill(
 		}
 	});
 }
-
-export function grantGoldFromSkill(
-	targetForce: Force.Force,
-	skillPosition: { x: number; y: number },
-	amount: number
-) {
-
-	const targetPos = { x: 100, y: 50 };
-
-	Effects.arcaneMissileTargeted(
-		scene,
-		skillPosition,
-		targetPos,
-		{
-			colors: [0xFFD700, 0xFFA500, 0xFF8C00], // Gold colors
-			amplitudeMin: 6,
-			amplitudeMax: 15,
-			particleScale: 1.6,
-			impact: {
-				colors: [0xFFD700, 0xFFA500],
-				scale: 2.2,
-				speed: 200,
-				lifespan: 350,
-				alpha: 0.5
-			},
-			onHit: async () => {
-				targetForce.gold += amount;
-			}
-		}
-	);
-}
