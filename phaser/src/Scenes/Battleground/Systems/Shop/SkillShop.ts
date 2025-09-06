@@ -25,26 +25,12 @@ export async function open(buttonText: string = "Next Round") {
 			availableSkills.splice(index, 1);
 		}
 		// Re-render the skills
-		ShopUI.displayShop(
-			[],
-			availableSkills,
-			nextRoundCallback,
-			() => { }, // No reroll for skills
-			buttonText,
-			'skill',
-			onPurchase
-		);
+		ShopUI.displayCommonShop(nextRoundCallback, buttonText, 'skill');
+		ShopUI.renderSkills(availableSkills, onPurchase);
 	};
 
-	ShopUI.displayShop(
-		[],
-		availableSkills,
-		nextRoundCallback,
-		() => { }, // No reroll for skills
-		buttonText,
-		'skill',
-		onPurchase
-	);
+	ShopUI.displayCommonShop(nextRoundCallback, buttonText, 'skill');
+	ShopUI.renderSkills(availableSkills, onPurchase);
 
 	Board.setEnemyBoardVisible(false);
 

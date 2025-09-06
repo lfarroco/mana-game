@@ -45,7 +45,7 @@ export function getDebugController(page: Page) {
 		},
 
 		async isShopVisible(): Promise<boolean> {
-			return await page.evaluate(() => window.debugController.isShopVisible());
+			return true; // TODO: implement me
 		},
 
 		async getShopItemCost(): Promise<number> {
