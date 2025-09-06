@@ -50,18 +50,27 @@ export async function open(buttonText: string = "Next Round", mode: 'hero' | 'or
 		close();
 	};
 
-	const { charas } = ShopUI.displayShop(
-		tavernCardData,
-		currentOrbs,
-		nextRoundCallback,
-		events.rerollTavern,
-		buttonText,
-		mode
-	);
+	ShopUI.displayCommonShop(nextRoundCallback, buttonText, mode);
+
+	if (mode === 'hero') {
+		// Add reroll button for hero mode
+		const rerollButtonX = ShopUI.getPanelX() + 470;
+		const rerollButtonY = sc.PANEL_Y + sc.TAVERN_BG_HEIGHT - 20;
+		const rerollBtn = ShopUI.createUIButton(scene, `Reroll`, rerollButtonX, rerollButtonY, events.rerollTavern);
+		ShopUI.addToShopContainer(rerollBtn);
+
+		// Render tavern charas
+		currentShopCharas = ShopUI.renderTavernCharas(tavernCardData);
+	} else {
+		// Render orbs for orb mode
+		const shopState = ShopUI.getState();
+		if (shopState) {
+			const { renderOrbs } = require('./Orbs');
+			renderOrbs(shopState, currentOrbs);
+		}
+	}
 
 	Board.setEnemyBoardVisible(false);
-
-	currentShopCharas = charas;
 
 	await ShopUI.slideIn();
 	if (mode === 'hero') {

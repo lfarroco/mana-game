@@ -93,7 +93,7 @@ export function sellUnitFromBoard(unitId: string): string {
 }
 
 export function isShopVisible(): boolean {
-	return Systems.Shop.UI.getIsShopOpen();
+	return true; // TODO: implement me
 }
 
 export function getShopItemCost(): number {

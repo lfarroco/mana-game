@@ -6,13 +6,15 @@ import { createUIButton } from "../../../../UI/UIButton";
 import { makeUnit } from "@Models/Entities/Unit";
 import * as sc from "./constants";
 import { MagicOrb } from "../../../../components/MagicOrb/MagicOrb";
-import { renderOrbs } from "./Orbs";
 import { scene } from "../../BattlegroundScene";
 import { tween } from "../../../../Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import { pickOne } from "../../../../utils";
 import { hideTooltip, renderTooltip } from "@UI/Tooltip";
 import { skillsIndex } from "@Models/Skills";
+
+// Re-export createUIButton for use in other shop files
+export { createUIButton };
 
 export type ShopUIState = {
 	shopContainer: Container;
@@ -45,15 +47,11 @@ export function create() {
 	return state;
 };
 
-export function displayShop(
-	cardsToDisplay: Card.CardDefinition[],
-	orbs: string[],
+export function displayCommonShop(
 	nextRoundCallback: () => void,
-	rerollCallback: () => void,
 	buttonText: string = "Next Round",
-	mode: 'hero' | 'orb' | 'skill' = 'hero',
-	onPurchase?: (skillId: string) => void
-): { charas: Chara.Chara[] } {
+	mode: 'hero' | 'orb' | 'skill' = 'hero'
+): void {
 	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
 	state.shopContainer.removeAll(true);
 	state.magicOrbs = [];
@@ -72,19 +70,6 @@ export function displayShop(
 
 	_renderTavernSectionBackgroundAndTitle(state.shopContainer, state.panelX, mode === 'hero' ? "Tavern" : mode === 'orb' ? "Orb Shop" : "Skill Shop");
 
-	if (mode === 'hero') {
-		const rerollButtonX = state.panelX + 470;
-		const rerollButtonY = sc.PANEL_Y + sc.TAVERN_BG_HEIGHT - 20;
-		const rerollBtn = createUIButton(
-			scene,
-			`Reroll`,
-			rerollButtonX,
-			rerollButtonY,
-			rerollCallback
-		);
-		state.shopContainer.add(rerollBtn);
-	}
-
 	const nextRoundButtonX = c.SCREEN_WIDTH - 200;
 	const nextRoundButtonY = c.SCREEN_HEIGHT - 100;
 	const nextRoundBtn = createUIButton(
@@ -96,17 +81,7 @@ export function displayShop(
 	);
 	state.shopContainer.add(nextRoundBtn);
 
-	if (mode === 'orb') {
-		renderOrbs(state, orbs);
-	} else if (mode === 'skill' && onPurchase) {
-		renderSkills(state, orbs, onPurchase);
-	}
-
 	_createSellZone(state);
-
-	const displayedCharas = mode === 'hero' ? renderTavernCharas(cardsToDisplay) : [];
-
-	return { charas: displayedCharas };
 }
 
 function _renderTavernSectionBackgroundAndTitle(container: Container, panelX?: number, sectionTitle: string = "Tavern"): void {
@@ -131,7 +106,7 @@ function _renderTavernSectionBackgroundAndTitle(container: Container, panelX?: n
 	container.add([bg, title]);
 }
 
-export function renderSkills(state: ShopUIState, skills: string[], onPurchase: (skillId: string) => void): void {
+export function renderSkills(skills: string[], onPurchase: (skillId: string) => void): void {
 	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
 	const baseX = state.panelX + 20;
 	const baseY = sc.TAVERN_BASE_Y + 50;
@@ -181,8 +156,8 @@ export function renderSkills(state: ShopUIState, skills: string[], onPurchase: (
 				text.setScale(1.5);
 			});
 
-			state.shopContainer.add(circle);
-			state.shopContainer.add(text);
+			state!.shopContainer.add(circle);
+			state!.shopContainer.add(text);
 		}
 	});
 }
@@ -332,6 +307,16 @@ export function removeShopChild(child: Phaser.GameObjects.GameObject, destroy: b
 	state.shopContainer.remove(child, destroy);
 }
 
-export function getIsShopOpen(): boolean {
-	return !!state?.isOpen;
+export function getPanelX(): number {
+	return state?.panelX || 0;
+}
+
+export function getState(): ShopUIState | null {
+	return state;
+}
+
+export function addToShopContainer(child: Phaser.GameObjects.GameObject): void {
+	if (state) {
+		state.shopContainer.add(child);
+	}
 }

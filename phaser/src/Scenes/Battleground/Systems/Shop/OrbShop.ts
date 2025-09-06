@@ -1,6 +1,7 @@
 import * as ShopUI from "./ShopUI";
 import * as Systems from "../index"
 import * as Board from "@Models/Board";
+import { renderOrbs } from "./Orbs";
 
 export function init() {
 	ShopUI.create();
@@ -23,15 +24,12 @@ export async function open(buttonText: string = "Next Round") {
 		close();
 	};
 
-	ShopUI.displayShop(
-		[],
-		availableOrbs,
-		nextRoundCallback,
-		() => { }, // No reroll for orbs
-		buttonText,
-		'orb',
-		undefined
-	);
+	ShopUI.displayCommonShop(nextRoundCallback, buttonText, 'orb');
+
+	const shopState = ShopUI.getState();
+	if (shopState) {
+		renderOrbs(shopState, availableOrbs);
+	}
 
 	Board.setEnemyBoardVisible(false);
 
