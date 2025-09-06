@@ -13,6 +13,9 @@ import { clearPoison } from "./PoisonDamageSystem";
 import * as c from "../../../constants/constants";
 import * as BoardStatsDisplay from "../BoardStatsDisplay";
 
+export let isInShopPhase: boolean = false;
+let shopPhaseCount: number = 0;
+
 async function setupShopPhaseCommon(): Promise<void> {
 	const state = getState();
 	clearAll();
@@ -50,7 +53,6 @@ async function setupShopPhaseCommon(): Promise<void> {
 	BoardStatsDisplay.hideCpuStats();
 }
 
-export let isInShopPhase: boolean = false;
 
 export async function initializeShopPhase(): Promise<void> {
 	await setupShopPhaseCommon();
@@ -58,7 +60,9 @@ export async function initializeShopPhase(): Promise<void> {
 	const state = getState();
 	console.log("Round", state.gameData.round, "Shop Phase Starting (Initial Setup).");
 
-	Shop.handleShopOpenUITrigger();
+	shopPhaseCount = 1;
+
+	Shop.handleShopOpenUITrigger("Next Shop");
 }
 
 export async function transitionToShopPhase(): Promise<void> {
@@ -70,7 +74,9 @@ export async function transitionToShopPhase(): Promise<void> {
 	const state = getState();
 	console.log("Round", state.gameData.round, "Shop Phase Starting (Victory Transition).");
 
-	Shop.handleShopOpenUITrigger();
+	shopPhaseCount = 1;
+
+	Shop.handleShopOpenUITrigger("Next Shop");
 }
 
 export async function transitionToShopPhaseAfterDefeat(): Promise<void> {
@@ -88,12 +94,29 @@ export async function transitionToShopPhaseAfterDefeat(): Promise<void> {
 		return;
 	}
 
-	Shop.handleShopOpenUITrigger();
+	shopPhaseCount = 1;
+
+	Shop.handleShopOpenUITrigger("Next Shop");
+}
+
+export async function transitionToNextShopPhase(): Promise<void> {
+	await setupShopPhaseCommon();
+
+	const state = getState();
+	console.log("Round", state.gameData.round, "Shop Phase", shopPhaseCount, "Starting.");
+
+	const buttonText = shopPhaseCount < 3 ? "Next Shop" : "Next Round";
+	Shop.handleShopOpenUITrigger(buttonText);
 }
 
 export function handleShopPhaseEnded(): void {
 	isInShopPhase = false;
-	transitionToCombatPhase();
+	if (shopPhaseCount < 3) {
+		shopPhaseCount++;
+		transitionToNextShopPhase();
+	} else {
+		transitionToCombatPhase();
+	}
 }
 
 export function endShopPhase(): void {

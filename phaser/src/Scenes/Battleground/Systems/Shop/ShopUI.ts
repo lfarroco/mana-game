@@ -47,6 +47,7 @@ export function displayShop(
 	orbs: string[],
 	nextRoundCallback: () => void,
 	rerollCallback: () => void,
+	buttonText: string = "Next Round"
 ): { charas: Chara.Chara[] } {
 	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
 	state.shopContainer.removeAll(true);
@@ -81,7 +82,7 @@ export function displayShop(
 	const nextRoundButtonY = c.SCREEN_HEIGHT - 100;
 	const nextRoundBtn = createUIButton(
 		scene,
-		"Next Round",
+		buttonText,
 		nextRoundButtonX,
 		nextRoundButtonY,
 		nextRoundCallback
