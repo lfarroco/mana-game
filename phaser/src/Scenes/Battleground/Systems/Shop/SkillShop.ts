@@ -19,6 +19,21 @@ export async function open(buttonText: string = "Next Round") {
 
 	const onPurchase = (skillId: string) => {
 		purchaseSkill(skillId);
+		// Remove the purchased skill from available list
+		const index = availableSkills.indexOf(skillId);
+		if (index > -1) {
+			availableSkills.splice(index, 1);
+		}
+		// Re-render the skills
+		ShopUI.displayShop(
+			[],
+			availableSkills,
+			nextRoundCallback,
+			() => { }, // No reroll for skills
+			buttonText,
+			'skill',
+			onPurchase
+		);
 	};
 
 	ShopUI.displayShop(
