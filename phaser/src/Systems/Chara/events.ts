@@ -24,7 +24,7 @@ export function onShopPurchaseSuccesful(chara: Chara.Chara) {
 
 	Shop.UI.removeShopChild(chara);
 
-	Shop.Shop.handleCharaPurchaseFinalized(chara);
+	Shop.HeroShop.handleCharaPurchaseFinalized(chara);
 
 	playSoundEffect('sfx_artifact_equipweapon');
 

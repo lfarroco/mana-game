@@ -9,7 +9,7 @@ import * as Systems from "../Battleground/Systems";
 import { processOwnedUnitMoveRequest } from "@Systems/Chara/input";
 
 export function clickHeroInShop(slotIndex: number): string {
-	const chara = Systems.Shop.Shop.getShopCharaBySlot(slotIndex);
+	const chara = Systems.Shop.HeroShop.getShopCharaBySlot(slotIndex);
 	if (!chara) {
 		return `Error: No hero Chara found in shop slot ${slotIndex}.`;
 	}
@@ -30,7 +30,7 @@ export function clickHeroInShop(slotIndex: number): string {
 }
 
 export function buyAndPlaceHero(shopSlotIndex: number, boardX: number, boardY: number): string {
-	const chara = Systems.Shop.Shop.getShopCharaBySlot(shopSlotIndex);
+	const chara = Systems.Shop.HeroShop.getShopCharaBySlot(shopSlotIndex);
 	if (!chara) {
 		return `Error: No hero Chara found in shop slot ${shopSlotIndex}.`;
 	}
@@ -105,7 +105,7 @@ export function getMaxPartySize(): number {
 }
 
 export function getShopHeroes(): CardDefinition[] {
-	return Systems.Shop.Shop.getDisplayedHeroCardDefinitions();
+	return Systems.Shop.HeroShop.getDisplayedHeroCardDefinitions();
 }
 
 export function getPlayerBoardUnits(): Unit[] {
