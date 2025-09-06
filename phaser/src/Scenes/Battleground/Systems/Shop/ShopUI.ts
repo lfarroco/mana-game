@@ -10,6 +10,7 @@ import { renderOrbs } from "./Orbs";
 import { scene } from "../../BattlegroundScene";
 import { tween } from "../../../../Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
+import { skillsIndex } from "@Models/Skills";
 
 export type ShopUIState = {
 	shopContainer: Container;
@@ -48,7 +49,8 @@ export function displayShop(
 	nextRoundCallback: () => void,
 	rerollCallback: () => void,
 	buttonText: string = "Next Round",
-	mode: 'hero' | 'orb' = 'hero'
+	mode: 'hero' | 'orb' | 'skill' = 'hero',
+	onPurchase?: (skillId: string) => void
 ): { charas: Chara.Chara[] } {
 	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
 	state.shopContainer.removeAll(true);
@@ -66,7 +68,7 @@ export function displayShop(
 		.fillRoundedRect(state.panelX, sc.PANEL_Y, sc.SHOP_PANEL_WIDTH, sc.SHOP_PANEL_HEIGHT, 20);
 	state.shopContainer.add(shopBackground);
 
-	_renderTavernSectionBackgroundAndTitle(state.shopContainer, state.panelX, mode === 'hero' ? "Tavern" : "Orb Shop");
+	_renderTavernSectionBackgroundAndTitle(state.shopContainer, state.panelX, mode === 'hero' ? "Tavern" : mode === 'orb' ? "Orb Shop" : "Skill Shop");
 
 	if (mode === 'hero') {
 		const rerollButtonX = state.panelX + 470;
@@ -94,6 +96,8 @@ export function displayShop(
 
 	if (mode === 'orb') {
 		renderOrbs(state, orbs);
+	} else if (mode === 'skill' && onPurchase) {
+		renderSkills(state, orbs, onPurchase);
 	}
 
 	_createSellZone(state);
@@ -123,6 +127,27 @@ function _renderTavernSectionBackgroundAndTitle(container: Container, panelX?: n
 	);
 
 	container.add([bg, title]);
+}
+
+export function renderSkills(state: ShopUIState, skills: string[], onPurchase: (skillId: string) => void): void {
+	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
+	const baseX = state.panelX + 20;
+	const baseY = sc.TAVERN_BASE_Y + 50;
+	skills.forEach((skillId, index) => {
+		const skill = skillsIndex[skillId];
+		if (skill) {
+			const buttonText = `${skill.name}\n${skill.description}`;
+			const skillButton = createUIButton(
+				scene,
+				buttonText,
+				baseX,
+				baseY + index * 80,
+				() => onPurchase(skillId)
+			);
+			skillButton.setScale(1.5); // Larger scale as requested
+			state.shopContainer.add(skillButton);
+		}
+	});
 }
 
 export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara[] {

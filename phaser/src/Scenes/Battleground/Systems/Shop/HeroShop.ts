@@ -38,7 +38,8 @@ export async function open(buttonText: string = "Next Shop") {
 		nextRoundCallback,
 		events.rerollTavern,
 		buttonText,
-		'hero'
+		'hero',
+		undefined
 	);
 
 	Board.setEnemyBoardVisible(false);
