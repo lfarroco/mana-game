@@ -10,8 +10,9 @@ import { renderOrbs } from "./Orbs";
 import { scene } from "../../BattlegroundScene";
 import { tween } from "../../../../Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
-import { skillsIndex } from "@Models/Skills";
 import { pickOne } from "../../../../utils";
+import { hideTooltip, renderTooltip } from "@UI/Tooltip";
+import { skillsIndex } from "@Models/Skills";
 
 export type ShopUIState = {
 	shopContainer: Container;
@@ -134,7 +135,7 @@ export function renderSkills(state: ShopUIState, skills: string[], onPurchase: (
 	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
 	const baseX = state.panelX + 20;
 	const baseY = sc.TAVERN_BASE_Y + 50;
-	const CIRCLE_RADIUS = 35;
+	const CIRCLE_RADIUS = 35 * 1.5; // Larger scale
 	const CIRCLE_SPACING = 10;
 	const totalSkillsWidth = skills.length * (CIRCLE_RADIUS * 2 + CIRCLE_SPACING) - CIRCLE_SPACING;
 	const startX = baseX + totalSkillsWidth / 2;
@@ -155,6 +156,7 @@ export function renderSkills(state: ShopUIState, skills: string[], onPurchase: (
 				stroke: '#000000',
 				strokeThickness: 4
 			}).setOrigin(0.5);
+			text.setScale(1.5); // Larger scale
 
 			circle.setInteractive(
 				new Phaser.Geom.Circle(CIRCLE_RADIUS, CIRCLE_RADIUS, CIRCLE_RADIUS),
@@ -162,21 +164,21 @@ export function renderSkills(state: ShopUIState, skills: string[], onPurchase: (
 			);
 
 			circle.on('pointerover', () => {
-				// renderTooltip(x, y - 200, skill.name, skill.description);
+				renderTooltip(x, baseY - 200, skill.name, skill.description);
 			});
 			circle.on('pointerout', () => {
-				// hideTooltip();
+				hideTooltip();
 			});
 
 			circle.on('pointerdown', () => {
 				circle.setScale(0.9);
-				text.setScale(0.9);
+				text.setScale(1.35);
 				onPurchase(skillId);
 			});
 
 			circle.on('pointerup', () => {
-				circle.setScale(1);
-				text.setScale(1);
+				circle.setScale(1.5);
+				text.setScale(1.5);
 			});
 
 			state.shopContainer.add(circle);

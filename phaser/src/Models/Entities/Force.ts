@@ -3,7 +3,7 @@ import { Unit } from "./Unit";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import * as MoraleDisplay from "@Scenes/Battleground/MoraleDisplay";
 import * as BoardStatsDisplay from "@Scenes/Battleground/BoardStatsDisplay";
-import { Skill, skillsIndex } from "../Skills";
+import { Skill } from "../Skills";
 
 export type Force = {
 	id: string;
@@ -37,16 +37,6 @@ export const makeForce = (id: string): Force => {
 
 export const playerForce = makeForce(constants.FORCE_ID_PLAYER);
 export const cpuForce = makeForce(constants.FORCE_ID_CPU);
-
-playerForce.skills = [
-	skillsIndex["player_ally_damage_boost"],
-	skillsIndex["no_poison"]
-];
-
-cpuForce.skills = [
-	skillsIndex["cpu_poison_damage_boost"]
-];
-
 
 export const manipulateForceMorale = (
 	targetForce: Force,
