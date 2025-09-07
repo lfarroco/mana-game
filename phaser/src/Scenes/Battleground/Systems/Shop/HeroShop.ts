@@ -4,13 +4,11 @@ import * as Chara from "@Systems/Chara/Chara";
 import { scene } from "../../BattlegroundScene";
 import * as ShopUI from "./ShopUI";
 import * as sc from "./constants";
-import * as events from "./events";
 import { tween } from "../../../../Utils/animation";
 import * as MoraleDisplay from "../../MoraleDisplay";
 import * as Systems from "../index"
 import * as Board from "@Models/Board";
 import { playerForce } from "@Models/Entities/Force";
-import { createUIButton } from "../../../../UI/UIButton";
 
 let currentShopCharas: Chara.Chara[] = [];
 
@@ -44,18 +42,6 @@ export async function open(buttonText: string = "Next Shop") {
 	};
 
 	ShopUI.displayCommonShop(nextRoundCallback, buttonText, 'hero');
-
-	// Add reroll button
-	const rerollButtonX = ShopUI.getPanelX() + 470;
-	const rerollButtonY = sc.PANEL_Y + sc.TAVERN_BG_HEIGHT - 20;
-	const rerollBtn = createUIButton(
-		scene,
-		`Reroll`,
-		rerollButtonX,
-		rerollButtonY,
-		events.rerollTavern
-	);
-	ShopUI.addToShopContainer(rerollBtn);
 
 	// Render tavern charas
 	const displayedCharas = ShopUI.renderTavernCharas(tavernCardData);
