@@ -4,6 +4,7 @@ import * as Board from "@Models/Board";
 import { skillsIndex } from "@Models/Skills";
 import { getState } from "@Models/State";
 import * as ForceSkillsDisplay from "@UI/ForceSkillsDisplay";
+import { delay } from "../../../../Utils/animation";
 
 export function init() {
 	ShopUI.create();
@@ -17,16 +18,13 @@ export async function open(buttonText: string = "Next Round") {
 		close();
 	};
 
-	const onPurchase = (skillId: string) => {
+	const onPurchase = async (skillId: string) => {
 		purchaseSkill(skillId);
-		// Remove the purchased skill from available list
-		const index = availableSkills.indexOf(skillId);
-		if (index > -1) {
-			availableSkills.splice(index, 1);
-		}
-		// Re-render the skills
-		ShopUI.displayCommonShop(nextRoundCallback, buttonText, "Skill Shop");
-		ShopUI.renderSkills(availableSkills, onPurchase);
+		ShopUI.disableNextRoundButton();
+		ShopUI.disableSkillCircles();
+		await delay(500);
+		Systems.ShopPhase.handleShopPhaseEnded();
+		await close();
 	};
 
 	ShopUI.displayCommonShop(nextRoundCallback, buttonText, "Skill Shop");
@@ -50,22 +48,10 @@ function purchaseSkill(skillId: string) {
 		return;
 	}
 
-	// Assume cost is 10 prestige for now
-	const cost = 10;
-	if (player.prestige < cost) {
-		console.log("Not enough prestige");
-		return;
-	}
-
-	// Deduct cost
-	player.prestige -= cost;
-
-	// Add skill
 	player.skills.push(skill);
 
 	console.log(`Purchased skill: ${skill.name}`);
 
-	// Update the display
 	ForceSkillsDisplay.updatePlayerSkills();
 }
 

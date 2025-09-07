@@ -2,6 +2,7 @@ import * as ShopUI from "./ShopUI";
 import * as Systems from "../index"
 import * as Board from "@Models/Board";
 import { renderOrbs } from "./Orbs";
+import { delay } from "../../../../Utils/animation";
 
 export function init() {
 	ShopUI.create();
@@ -28,7 +29,12 @@ export async function open(buttonText: string = "Next Round") {
 
 	const shopState = ShopUI.getState();
 	if (shopState) {
-		renderOrbs(shopState, availableOrbs);
+		renderOrbs(shopState, availableOrbs, async () => {
+			ShopUI.disableNextRoundButton();
+			await delay(500);
+			Systems.ShopPhase.handleShopPhaseEnded();
+			await close();
+		});
 	}
 
 	Board.setEnemyBoardVisible(false);
