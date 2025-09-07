@@ -4,7 +4,7 @@ import * as Board from "@Models/Board";
 import { Unit } from "@Models/Entities/Unit";
 import { getReactionDescription } from "@Systems/Chara/CharaTooltip";
 import { increasePower } from "../../../../TriggerSystem/effects";
-import { Effect, EFFECT_SOURCE_POSITIONS, EffectReaction, EffectSourcePosition } from "../../../../TriggerSystem/TriggerSystem";
+import * as TriggerSystem from "../../../../TriggerSystem/TriggerSystem";
 import { pickOne } from "../../../../utils";
 import { hexToVector3 } from "../../../../Utils/colorUtils";
 import { scene } from "../../BattlegroundScene";
@@ -32,27 +32,27 @@ const generateReactionOrb = () => {
 	const positions = [
 		{
 			power: 2,
-			source: EFFECT_SOURCE_POSITIONS.column_allies
+			source: TriggerSystem.EFFECT_SOURCE_POSITIONS.column_allies
 		},
 		{
 			power: 2,
-			source: EFFECT_SOURCE_POSITIONS.row_allies
+			source: TriggerSystem.EFFECT_SOURCE_POSITIONS.row_allies
 		},
 		{
 			power: 6,
-			source: EFFECT_SOURCE_POSITIONS.left_ally
+			source: TriggerSystem.EFFECT_SOURCE_POSITIONS.left_ally
 		},
 		{
 			power: 6,
-			source: EFFECT_SOURCE_POSITIONS.right_ally
+			source: TriggerSystem.EFFECT_SOURCE_POSITIONS.right_ally
 		},
 		{
 			power: 6,
-			source: EFFECT_SOURCE_POSITIONS.top_ally
+			source: TriggerSystem.EFFECT_SOURCE_POSITIONS.top_ally
 		},
 		{
 			power: 6,
-			source: EFFECT_SOURCE_POSITIONS.bottom_ally
+			source: TriggerSystem.EFFECT_SOURCE_POSITIONS.bottom_ally
 		},
 	];
 
@@ -71,11 +71,11 @@ const generateReactionOrb = () => {
 		referencePower: 2,
 		data: {
 			effectId: effect,
-			position: position.source as EffectSourcePosition,
+			position: position.source as TriggerSystem.EffectSourcePosition,
 			effects: [
 				resulttingEffData
 			]
-		} as EffectReaction
+		} as TriggerSystem.EffectReaction
 	}
 
 	return {
@@ -131,19 +131,19 @@ const generateSkillPowerUpOrb = () => {
 const generateChargeReactionOrb = () => {
 	const reactionSourceEffects = ["shield", "heal", "haste", "damage", "slow", "regen", "poison"];
 
-	const positions: Array<{ amount: number; source: EffectSourcePosition; }> = [
-		{ amount: 400, source: EFFECT_SOURCE_POSITIONS.column_allies },
-		{ amount: 400, source: EFFECT_SOURCE_POSITIONS.row_allies },
-		{ amount: 900, source: EFFECT_SOURCE_POSITIONS.left_ally },
-		{ amount: 900, source: EFFECT_SOURCE_POSITIONS.right_ally },
-		{ amount: 900, source: EFFECT_SOURCE_POSITIONS.top_ally },
-		{ amount: 900, source: EFFECT_SOURCE_POSITIONS.bottom_ally },
+	const positions: Array<{ amount: number; source: TriggerSystem.EffectSourcePosition; }> = [
+		{ amount: 400, source: TriggerSystem.EFFECT_SOURCE_POSITIONS.column_allies },
+		{ amount: 400, source: TriggerSystem.EFFECT_SOURCE_POSITIONS.row_allies },
+		{ amount: 900, source: TriggerSystem.EFFECT_SOURCE_POSITIONS.left_ally },
+		{ amount: 900, source: TriggerSystem.EFFECT_SOURCE_POSITIONS.right_ally },
+		{ amount: 900, source: TriggerSystem.EFFECT_SOURCE_POSITIONS.top_ally },
+		{ amount: 900, source: TriggerSystem.EFFECT_SOURCE_POSITIONS.bottom_ally },
 	];
 
 	const effectId = pickOne(reactionSourceEffects);
 	const position = pickOne(positions);
 
-	const reactionData: EffectReaction = {
+	const reactionData: TriggerSystem.EffectReaction = {
 		effectId,
 		position: position.source,
 		effects: [
@@ -180,7 +180,7 @@ function crimsonOrbEffect(unit: Unit) {
 
 
 
-function addEffectSafely(unit: Unit, effect: Effect) {
+function addEffectSafely(unit: Unit, effect: TriggerSystem.Effect) {
 	if (!canAddEffect(unit)) {
 		console.log(`Cannot add effect to ${unit.id}: max effects reached`);
 		return false;
@@ -199,7 +199,7 @@ function canAddReaction(unit: Unit) {
 	return unit.reactions.length < 1;
 }
 
-function setReactionSafely(unit: Unit, reaction: EffectReaction) {
+function setReactionSafely(unit: Unit, reaction: TriggerSystem.EffectReaction) {
 	if (!canAddReaction(unit)) {
 		console.log(`Cannot add reaction to ${unit.id}: reaction already present`);
 		return false;
@@ -378,7 +378,7 @@ function generatePositionalTypedPowerOrb() {
 }
 
 
-export function renderOrbs(ui: ShopUI.ShopUIState, orbIds: string[]) {
+export function renderOrbs(ui: ShopUI.ShopUIState, orbIds: string[], onOrbUsed?: () => void | Promise<void>) {
 
 	const orbY = sc.PANEL_Y + 550;
 	const orbSpacing = 240;
@@ -442,6 +442,7 @@ export function renderOrbs(ui: ShopUI.ShopUIState, orbIds: string[]) {
 			return;
 		}
 		magicOrb.startDissolve();
+		onOrbUsed?.();
 	}
 
 	orbIds.forEach((orbId: string, index: number) => {

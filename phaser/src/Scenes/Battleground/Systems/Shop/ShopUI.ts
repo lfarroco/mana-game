@@ -36,6 +36,8 @@ export type ShopUIState = {
 	orbContainer: Container | null;
 	panelX: number;
 	isOpen: boolean;
+	nextRoundButton: Phaser.GameObjects.Container | null;
+	skillCircles: Phaser.GameObjects.Arc[];
 }
 let state: ShopUIState | null = null;
 
@@ -50,6 +52,8 @@ export function create() {
 		orbContainer: null,
 		panelX: 0,
 		isOpen: false,
+		nextRoundButton: null,
+		skillCircles: [],
 	};
 
 	state.shopContainer.setY(c.SCREEN_HEIGHT * -1);
@@ -65,6 +69,7 @@ export function displayCommonShop(
 	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
 	state.shopContainer.removeAll(true);
 	state.magicOrbs = [];
+	state.skillCircles = [];
 
 	if (state.orbContainer) {
 		state.orbContainer.destroy(true);
@@ -84,6 +89,7 @@ export function displayCommonShop(
 		nextRoundCallback
 	);
 	state.shopContainer.add(nextRoundBtn);
+	state.nextRoundButton = nextRoundBtn;
 
 	_createSellZone(state);
 }
@@ -110,7 +116,7 @@ function _renderTavernSectionBackgroundAndTitle(container: Container, panelX?: n
 	container.add([bg, title]);
 }
 
-export function renderSkills(skills: string[], onPurchase: (skillId: string) => void): void {
+export function renderSkills(skills: string[], onPurchase: (skillId: string) => void | Promise<void>): void {
 	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
 	const baseX = state.panelX + 20;
 	const baseY = sc.TAVERN_BASE_Y + 50;
@@ -160,6 +166,7 @@ export function renderSkills(skills: string[], onPurchase: (skillId: string) => 
 
 			state!.shopContainer.add(circle);
 			state!.shopContainer.add(text);
+			state!.skillCircles.push(circle);
 		}
 	});
 }
@@ -336,12 +343,32 @@ export function removeShopChild(child: Phaser.GameObjects.GameObject, destroy: b
 	state.shopContainer.remove(child, destroy);
 }
 
-export function getPanelX(): number {
-	return state?.panelX || 0;
-}
-
 export function getState(): ShopUIState | null {
 	return state;
+}
+
+export function disableSkillCircles(): void {
+	if (state?.skillCircles) {
+		state.skillCircles.forEach(circle => {
+			circle.disableInteractive();
+			circle.setAlpha(0.5);
+		});
+	}
+}
+
+export function disableNextRoundButton(): void {
+	if (state?.nextRoundButton) {
+		const buttonGraphics = state.nextRoundButton.getByName("buttonBackground") as Phaser.GameObjects.Graphics;
+		const buttonLabel = state.nextRoundButton.getByName("buttonLabel") as Phaser.GameObjects.Text;
+		if (buttonGraphics) {
+			buttonGraphics.disableInteractive();
+			buttonGraphics.setAlpha(0.5);
+		}
+		if (buttonLabel) {
+			buttonLabel.setAlpha(0.5);
+		}
+		state.nextRoundButton.setAlpha(0.5);
+	}
 }
 
 export function addToShopContainer(child: Phaser.GameObjects.GameObject): void {
