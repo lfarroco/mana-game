@@ -50,7 +50,7 @@ export function create() {
 export function displayCommonShop(
 	nextRoundCallback: () => void,
 	buttonText: string = "Next Round",
-	mode: 'hero' | 'orb' | 'skill' = 'hero'
+	title: string = "Tavern"
 ): void {
 	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
 	state.shopContainer.removeAll(true);
@@ -68,7 +68,7 @@ export function displayCommonShop(
 		.fillRoundedRect(state.panelX, sc.PANEL_Y, sc.SHOP_PANEL_WIDTH, sc.SHOP_PANEL_HEIGHT, 20);
 	state.shopContainer.add(shopBackground);
 
-	_renderTavernSectionBackgroundAndTitle(state.shopContainer, state.panelX, mode === 'hero' ? "Tavern" : mode === 'orb' ? "Orb Shop" : "Skill Shop");
+	_renderTavernSectionBackgroundAndTitle(state.shopContainer, state.panelX, title);
 
 	const nextRoundButtonX = c.SCREEN_WIDTH - 200;
 	const nextRoundButtonY = c.SCREEN_HEIGHT - 100;
