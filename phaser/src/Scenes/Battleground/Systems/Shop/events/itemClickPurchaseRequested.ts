@@ -1,6 +1,6 @@
 import * as constants from "../../../../../constants/constants";
 import { makeUnit, Unit } from "@Models/Entities/Unit";
-import { getCharaById, summon } from "@Systems/Chara/Chara";
+import { getCharaById, summon, updateUnitPower } from "@Systems/Chara/Chara";
 import * as charaEvents from "@Systems/Chara/events";
 import * as uiEvents from "@UI/events";
 import * as Geometry from "@Models/Geometry";
@@ -34,6 +34,29 @@ export function itemClickPurchaseRequested(
 			cost
 		);
 	};
+
+	const existingUnit = state.gameData.player.units.find(u => u.cardId === shopUnitData.cardId);
+
+	if (existingUnit) {
+		// Fuse: add power to existing unit
+		const chara = getCharaById(existingUnit.id);
+		updateUnitPower(chara, shopUnitData.power);
+
+		charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
+
+		// Refresh all heroes in the shop after purchase
+		HeroShop.rerollTavern();
+
+		// Check if we should close the shop after this purchase
+		const shouldCloseShop = Systems.ShopPhase.handleHeroPurchase();
+
+		if (shouldCloseShop) {
+			// Move to next phase after placing hero (same as next round button)
+			Systems.ShopPhase.handleShopPhaseEnded();
+			Shop.close();
+		}
+		return;
+	}
 
 	if (state.gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
 		handlePurchaseFailure("PARTY_FULL");

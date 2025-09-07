@@ -94,7 +94,7 @@ export function create(unit: Unit, container: Chara) {
 
 export function updatePower(id: string) {
 	const stats = statsDisplayMap.get(id);
-	if (!stats) return;
+	if (!stats || !stats.powerDisplay || !stats.powerDisplay.active) return;
 
 	stats.displayedPower = Math.floor(stats.unit.power);
 	stats.powerDisplay.setText(stats.displayedPower.toString());
@@ -102,7 +102,7 @@ export function updatePower(id: string) {
 
 export function animatePowerChange(id: string, newValue: number) {
 	const stats = statsDisplayMap.get(id);
-	if (!stats) return;
+	if (!stats || !stats.powerDisplay || !stats.powerDisplay.active) return;
 
 	const startValue = stats.displayedPower;
 	const endValue = Math.floor(newValue);
@@ -117,10 +117,14 @@ export function animatePowerChange(id: string, newValue: number) {
 		yoyo: true,
 		ease: 'Quad.easeOut',
 		onStart: () => {
-			stats.powerDisplay.setScale(1);
+			if (stats.powerDisplay && stats.powerDisplay.active) {
+				stats.powerDisplay.setScale(1);
+			}
 		},
 		onComplete: () => {
-			stats.powerDisplay.setScale(1);
+			if (stats.powerDisplay && stats.powerDisplay.active) {
+				stats.powerDisplay.setScale(1);
+			}
 		}
 	});
 
@@ -132,6 +136,7 @@ export function animatePowerChange(id: string, newValue: number) {
 		duration,
 		ease: 'Cubic.easeOut',
 		onUpdate: tween => {
+			if (!stats.powerDisplay || !stats.powerDisplay.active) return;
 			const val = Math.round(tween.getValue());
 			if (val !== lastValue) {
 				stats.displayedPower = val;
@@ -140,8 +145,10 @@ export function animatePowerChange(id: string, newValue: number) {
 			}
 		},
 		onComplete: () => {
-			stats.displayedPower = endValue;
-			stats.powerDisplay.setText(endValue.toString());
+			if (stats.powerDisplay && stats.powerDisplay.active) {
+				stats.displayedPower = endValue;
+				stats.powerDisplay.setText(endValue.toString());
+			}
 		}
 	});
 }
