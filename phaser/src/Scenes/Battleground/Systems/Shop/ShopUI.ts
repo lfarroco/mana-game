@@ -13,7 +13,17 @@ import { pickOne } from "../../../../utils";
 import { hideTooltip, renderTooltip } from "@UI/Tooltip";
 import { skillsIndex } from "@Models/Skills";
 
-// Re-export createUIButton for use in other shop files
+const NEXT_ROUND_BUTTON_X = c.SCREEN_WIDTH - 200;
+const NEXT_ROUND_BUTTON_Y = c.SCREEN_HEIGHT - 100;
+const SKILL_CIRCLE_RADIUS = 35 * 1.5;
+const SKILL_CIRCLE_SPACING = 10;
+const SKILL_CIRCLE_SCALE = 1.5;
+const SKILL_TEXT_SCALE = 1.5;
+const SKILL_CLICK_SCALE = 0.9;
+const SKILL_CLICK_TEXT_SCALE = 1.35;
+const SKILL_ICON_FONT_SIZE = '48px';
+const SELL_ZONE_TEXT_FONT_SIZE = '40px';
+
 export { createUIButton };
 
 export type ShopUIState = {
@@ -63,20 +73,14 @@ export function displayCommonShop(
 
 	const screenWidth = scene.cameras.main.width;
 	state.panelX = screenWidth - sc.SHOP_PANEL_WIDTH - 40;
-	const shopBackground = scene.add.graphics()
-		.fillStyle(sc.PANEL_BG_COLOR, sc.PANEL_BG_OPACITY)
-		.fillRoundedRect(state.panelX, sc.PANEL_Y, sc.SHOP_PANEL_WIDTH, sc.SHOP_PANEL_HEIGHT, 20);
-	state.shopContainer.add(shopBackground);
 
 	_renderTavernSectionBackgroundAndTitle(state.shopContainer, state.panelX, title);
 
-	const nextRoundButtonX = c.SCREEN_WIDTH - 200;
-	const nextRoundButtonY = c.SCREEN_HEIGHT - 100;
 	const nextRoundBtn = createUIButton(
 		scene,
 		buttonText,
-		nextRoundButtonX,
-		nextRoundButtonY,
+		NEXT_ROUND_BUTTON_X,
+		NEXT_ROUND_BUTTON_Y,
 		nextRoundCallback
 	);
 	state.shopContainer.add(nextRoundBtn);
@@ -110,22 +114,20 @@ export function renderSkills(skills: string[], onPurchase: (skillId: string) => 
 	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
 	const baseX = state.panelX + 20;
 	const baseY = sc.TAVERN_BASE_Y + 50;
-	const CIRCLE_RADIUS = 35 * 1.5; // Larger scale
-	const CIRCLE_SPACING = 10;
-	const totalSkillsWidth = skills.length * (CIRCLE_RADIUS * 2 + CIRCLE_SPACING) - CIRCLE_SPACING;
+	const totalSkillsWidth = skills.length * (SKILL_CIRCLE_RADIUS * 2 + SKILL_CIRCLE_SPACING) - SKILL_CIRCLE_SPACING;
 	const startX = baseX + totalSkillsWidth / 2;
 
 	skills.forEach((skillId, index) => {
 		const skill = skillsIndex[skillId];
 		if (skill) {
-			const x = startX - index * (CIRCLE_RADIUS * 2 + CIRCLE_SPACING);
-			const circle = scene.add.circle(x, baseY, CIRCLE_RADIUS, 0x4e9de0, 0.8);
+			const x = startX - index * (SKILL_CIRCLE_RADIUS * 2 + SKILL_CIRCLE_SPACING);
+			const circle = scene.add.circle(x, baseY, SKILL_CIRCLE_RADIUS, 0x4e9de0, 0.8);
 			circle.setStrokeStyle(2, 0xffffff);
 
 			const iconText = getSkillIcon(skillId);
 
 			const text = scene.add.text(x, baseY, iconText, {
-				fontSize: '48px',
+				fontSize: SKILL_ICON_FONT_SIZE,
 				color: '#ffffff',
 				fontFamily: 'Arial Black',
 				stroke: '#000000',
@@ -134,7 +136,7 @@ export function renderSkills(skills: string[], onPurchase: (skillId: string) => 
 			text.setScale(1.5); // Larger scale
 
 			circle.setInteractive(
-				new Phaser.Geom.Circle(CIRCLE_RADIUS, CIRCLE_RADIUS, CIRCLE_RADIUS),
+				new Phaser.Geom.Circle(SKILL_CIRCLE_RADIUS, SKILL_CIRCLE_RADIUS, SKILL_CIRCLE_RADIUS),
 				Phaser.Geom.Circle.Contains
 			);
 
@@ -146,14 +148,14 @@ export function renderSkills(skills: string[], onPurchase: (skillId: string) => 
 			});
 
 			circle.on('pointerdown', () => {
-				circle.setScale(0.9);
-				text.setScale(1.35);
+				circle.setScale(SKILL_CLICK_SCALE);
+				text.setScale(SKILL_CLICK_TEXT_SCALE);
 				onPurchase(skillId);
 			});
 
 			circle.on('pointerup', () => {
-				circle.setScale(1.5);
-				text.setScale(1.5);
+				circle.setScale(SKILL_CIRCLE_SCALE);
+				text.setScale(SKILL_TEXT_SCALE);
 			});
 
 			state!.shopContainer.add(circle);
@@ -249,7 +251,7 @@ function _createSellZone(state: ShopUIState): void {
 		{
 			...c.defaultTextConfig,
 			...sc.SELL_ZONE_TEXT_STYLE,
-			fontSize: '40px',
+			fontSize: SELL_ZONE_TEXT_FONT_SIZE,
 			fontStyle: 'bold',
 			color: '#fff',
 			stroke: '#222',
