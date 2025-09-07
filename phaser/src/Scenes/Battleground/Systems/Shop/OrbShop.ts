@@ -24,7 +24,7 @@ export async function open(buttonText: string = "Next Round") {
 		close();
 	};
 
-	ShopUI.displayCommonShop(nextRoundCallback, buttonText, 'orb');
+	ShopUI.displayCommonShop(nextRoundCallback, buttonText, "Orb Shop");
 
 	const shopState = ShopUI.getState();
 	if (shopState) {

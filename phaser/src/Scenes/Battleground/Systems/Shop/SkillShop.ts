@@ -25,11 +25,11 @@ export async function open(buttonText: string = "Next Round") {
 			availableSkills.splice(index, 1);
 		}
 		// Re-render the skills
-		ShopUI.displayCommonShop(nextRoundCallback, buttonText, 'skill');
+		ShopUI.displayCommonShop(nextRoundCallback, buttonText, "Skill Shop");
 		ShopUI.renderSkills(availableSkills, onPurchase);
 	};
 
-	ShopUI.displayCommonShop(nextRoundCallback, buttonText, 'skill');
+	ShopUI.displayCommonShop(nextRoundCallback, buttonText, "Skill Shop");
 	ShopUI.renderSkills(availableSkills, onPurchase);
 
 	Board.setEnemyBoardVisible(false);
