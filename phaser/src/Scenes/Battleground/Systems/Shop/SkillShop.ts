@@ -5,6 +5,7 @@ import { skillsIndex } from "@Models/Skills";
 import { getState } from "@Models/State";
 import * as ForceSkillsDisplay from "@UI/ForceSkillsDisplay";
 import { delay } from "../../../../Utils/animation";
+import { hideTooltip } from "@UI/Tooltip";
 
 export function init() {
 	ShopUI.create();
@@ -20,6 +21,7 @@ export async function open(buttonText: string = "Next Round") {
 
 	const onPurchase = async (skillId: string) => {
 		purchaseSkill(skillId);
+		hideTooltip();
 		ShopUI.disableNextRoundButton();
 		ShopUI.disableSkillCircles();
 		await delay(500);
