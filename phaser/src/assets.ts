@@ -1,12 +1,4 @@
 export const images = {
-	victory: {
-		key: 'ui/victory',
-		url: 'assets/ui/victory.png',
-	},
-	defeat: {
-		key: 'ui/defeat',
-		url: 'assets/ui/defeat.png',
-	},
 	logo: {
 		key: 'ui/logo',
 		url: 'assets/ui/logo.png',

@@ -2,7 +2,6 @@ import { getState } from "@Models/State";
 import { delay } from "../../../Utils/animation";
 import { renderVignette } from "../Animations/vignette";
 import * as AudioManager from "@Systems/AudioManager";
-import { battleResultAnimation } from "../battleResultAnimation";
 import * as MoraleDisplay from "../MoraleDisplay";
 import { transitionToShopPhase, transitionToShopPhaseAfterDefeat } from "./ShopPhase";
 import * as ResultsUI from "../Results/ResultsUI";
@@ -15,7 +14,6 @@ export async function handleCombatEndedDefeat(): Promise<void> {
 
 	await delay(1000);
 	await _fadeOutDisplayBars();
-	battleResultAnimation("defeat")
 	await delay(1500);
 
 	// Show results panel instead of immediately transitioning
@@ -44,7 +42,6 @@ export async function handleCombatEndedVictory(): Promise<void> {
 
 	await delay(1000);
 	await _fadeOutDisplayBars();
-	battleResultAnimation("victory");
 	await delay(1500);
 
 	// Show results panel instead of immediately transitioning
