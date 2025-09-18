@@ -29,7 +29,7 @@ export async function open(buttonText: string = "Next Round") {
 		await close();
 	};
 
-	ShopUI.displayCommonShop(nextRoundCallback, buttonText, "Skill Shop");
+	ShopUI.displayCommonShop(nextRoundCallback, buttonText);
 	ShopUI.renderSkills(availableSkills, onPurchase);
 
 	Board.setEnemyBoardVisible(false);
