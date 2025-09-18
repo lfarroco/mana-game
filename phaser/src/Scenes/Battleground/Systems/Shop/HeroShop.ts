@@ -41,7 +41,7 @@ export async function open(buttonText: string = "Next Shop") {
 		close();
 	};
 
-	ShopUI.displayCommonShop(nextRoundCallback, buttonText, "Tavern");
+	ShopUI.displayCommonShop(nextRoundCallback, buttonText);
 
 	// Render tavern charas
 	const displayedCharas = ShopUI.renderTavernCharas(tavernCardData);

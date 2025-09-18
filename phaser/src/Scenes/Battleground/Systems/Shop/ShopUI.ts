@@ -63,8 +63,7 @@ export function create() {
 
 export function displayCommonShop(
 	nextRoundCallback: () => void,
-	buttonText: string = "Next Round",
-	title: string = "Tavern"
+	buttonText: string = "Next Round"
 ): void {
 	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
 	state.shopContainer.removeAll(true);
@@ -79,7 +78,7 @@ export function displayCommonShop(
 	const screenWidth = scene.cameras.main.width;
 	state.panelX = screenWidth - sc.SHOP_PANEL_WIDTH - 40;
 
-	_renderTavernSectionBackgroundAndTitle(state.shopContainer, state.panelX, title);
+	_renderTavernSectionBackgroundAndTitle(state.shopContainer, state.panelX);
 
 	const nextRoundBtn = createUIButton(
 		scene,
@@ -94,7 +93,7 @@ export function displayCommonShop(
 	_createSellZone(state);
 }
 
-function _renderTavernSectionBackgroundAndTitle(container: Container, panelX?: number, sectionTitle: string = "Tavern"): void {
+function _renderTavernSectionBackgroundAndTitle(container: Container, panelX?: number): void {
 	const tavernBaseX = (panelX !== undefined ? panelX + 20 : sc.TAVERN_BASE_X);
 	const tavernBaseY = sc.TAVERN_BASE_Y;
 
@@ -107,13 +106,7 @@ function _renderTavernSectionBackgroundAndTitle(container: Container, panelX?: n
 		)
 		.setPosition(tavernBaseX, tavernBaseY);
 
-	const title = scene.add.text(
-		tavernBaseX + 30, sc.TAVERN_TITLE_Y,
-		sectionTitle,
-		c.titleTextConfig
-	);
-
-	container.add([bg, title]);
+	container.add([bg]);
 }
 
 export function renderSkills(skills: string[], onPurchase: (skillId: string) => void | Promise<void>): void {
