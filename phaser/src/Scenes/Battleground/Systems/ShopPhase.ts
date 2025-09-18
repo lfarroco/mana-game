@@ -21,10 +21,12 @@ let heroesPurchasedInCurrentShop: number = 0;
 let isOrbShop: boolean = false;
 let isSkillShop: boolean = false;
 
-async function setupShopPhaseCommon(): Promise<void> {
+async function setupShopPhaseCommon(shouldResummonUnits: boolean = true): Promise<void> {
 	const state = getState();
-	clearAll();
-	state.battleData.units = [];
+	if (shouldResummonUnits) {
+		clearAll();
+		state.battleData.units = [];
+	}
 
 	const playerForce = state.gameData.player;
 	playerForce.morale = playerForce.maxMorale;
@@ -45,12 +47,14 @@ async function setupShopPhaseCommon(): Promise<void> {
 	BoardStatsDisplay.updateStats(c.FORCE_ID_PLAYER);
 	BoardStatsDisplay.updateStats(c.FORCE_ID_CPU);
 
-	const summonPromises = state.gameData.player.units
-		.map(async (unit, index) => {
-			await delay(index * 200);
-			await summon(unit, true);
-		});
-	await Promise.all(summonPromises);
+	if (shouldResummonUnits) {
+		const summonPromises = state.gameData.player.units
+			.map(async (unit, index) => {
+				await delay(index * 200);
+				await summon(unit, true);
+			});
+		await Promise.all(summonPromises);
+	}
 
 	ForceSkillsDisplay.hideCpuSkills();
 
@@ -60,7 +64,7 @@ async function setupShopPhaseCommon(): Promise<void> {
 
 
 export async function initializeShopPhase(): Promise<void> {
-	await setupShopPhaseCommon();
+	await setupShopPhaseCommon(true);
 
 	const state = getState();
 	console.log("Round", state.gameData.round, "Shop Phase Starting (Initial Setup).");
@@ -74,7 +78,7 @@ export async function initializeShopPhase(): Promise<void> {
 }
 
 export async function transitionToShopPhase(): Promise<void> {
-	await setupShopPhaseCommon();
+	await setupShopPhaseCommon(true);
 
 	PrestigeSystem.processVictory();
 	PrestigeSystem.finalizeRound();
@@ -91,7 +95,7 @@ export async function transitionToShopPhase(): Promise<void> {
 }
 
 export async function transitionToShopPhaseAfterDefeat(): Promise<void> {
-	await setupShopPhaseCommon();
+	await setupShopPhaseCommon(true);
 
 	PrestigeSystem.processDefeat();
 	PrestigeSystem.finalizeRound();
@@ -114,7 +118,7 @@ export async function transitionToShopPhaseAfterDefeat(): Promise<void> {
 }
 
 export async function transitionToNextShopPhase(): Promise<void> {
-	await setupShopPhaseCommon();
+	await setupShopPhaseCommon(false);
 
 	const state = getState();
 	console.log("Round", state.gameData.round, "Shop Phase", heroShopCount, "Starting.");
@@ -125,7 +129,7 @@ export async function transitionToNextShopPhase(): Promise<void> {
 }
 
 export async function transitionToOrbShopPhase(): Promise<void> {
-	await setupShopPhaseCommon();
+	await setupShopPhaseCommon(false);
 
 	const state = getState();
 	console.log("Round", state.gameData.round, "Orb Shop Phase Starting.");
@@ -136,7 +140,7 @@ export async function transitionToOrbShopPhase(): Promise<void> {
 }
 
 export async function transitionToSkillShopPhase(): Promise<void> {
-	await setupShopPhaseCommon();
+	await setupShopPhaseCommon(false);
 
 	const state = getState();
 	console.log("Round", state.gameData.round, "Skill Shop Phase Starting.");
