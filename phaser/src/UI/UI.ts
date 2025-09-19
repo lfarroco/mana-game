@@ -17,10 +17,15 @@ const WINS_DISPLAY_Y = 20;
 let uiContainer: Container | null = null;
 export let goldTextElement: TextObj | null = null;
 export let prestigeTextElement: TextObj | null = null;
+export let roundTextElement: TextObj | null = null;
 export let winsTextElement: TextObj | null = null;
 
 export const updatePrestigeDisplay = (newTotalPrestige: number): void => {
 	prestigeTextElement!.setText(newTotalPrestige.toString());
+}
+
+export const updateRoundDisplay = (newTotalRound: number): void => {
+	roundTextElement!.setText(newTotalRound.toString());
 }
 
 export const updateWinsDisplay = (newTotalWins: number): void => {
@@ -92,7 +97,7 @@ function createRoundDisplay(parent: Container): void {
 	).setOrigin(0);
 	roundContainer.add(label);
 
-	const roundTextElement = scene.add.text(
+	roundTextElement = scene.add.text(
 		label.width + 10, 0,
 		initialRound.toString(),
 		{
