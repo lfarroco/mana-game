@@ -25,11 +25,9 @@ export function onPrestigeChanged(newTotalPrestige: number, prestigeDelta: numbe
 	}
 }
 
-export function onRoundChanged(newTotalRound: number, roundDelta: number) {
+export function onRoundChanged(newTotalRound: number) {
 	UI.updateRoundDisplay(newTotalRound);
-	if (roundDelta !== 0) {
-		roundChangeAnimation(roundDelta);
-	}
+	roundChangeAnimation();
 }
 
 async function goldChangeAnimation(gold: number) {
@@ -134,9 +132,8 @@ async function prestigeChangeAnimation(prestige: number) {
 	prestigeAmountText.destroy();
 }
 
-async function roundChangeAnimation(round: number) {
-	const sign = round > 0 ? "+" : "";
-	const animationText = `${sign}${round}`;
+async function roundChangeAnimation() {
+	const animationText = "+1";
 
 	const bounds = UI.roundTextElement!.getBounds();
 	const startX = bounds.centerX;

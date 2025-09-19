@@ -26,5 +26,5 @@ export function processDefeat(): void {
 export function finalizeRound(): void {
 	const state = getState();
 	state.gameData.player.round += 1;
-	UIManager.events.onRoundChanged(state.gameData.player.round, 1);
+	UIManager.events.onRoundChanged(state.gameData.player.round);
 }
