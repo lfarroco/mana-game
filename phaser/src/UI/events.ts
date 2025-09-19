@@ -25,6 +25,13 @@ export function onPrestigeChanged(newTotalPrestige: number, prestigeDelta: numbe
 	}
 }
 
+export function onRoundChanged(newTotalRound: number, roundDelta: number) {
+	UI.updateRoundDisplay(newTotalRound);
+	if (roundDelta !== 0) {
+		roundChangeAnimation(roundDelta);
+	}
+}
+
 async function goldChangeAnimation(gold: number) {
 	const sign = gold > 0 ? "+" : "";
 	const animationText = `${sign}${gold}`;
@@ -125,6 +132,40 @@ async function prestigeChangeAnimation(prestige: number) {
 	});
 
 	prestigeAmountText.destroy();
+}
+
+async function roundChangeAnimation(round: number) {
+	const sign = round > 0 ? "+" : "";
+	const animationText = `${sign}${round}`;
+
+	const bounds = UI.roundTextElement!.getBounds();
+	const startX = bounds.centerX;
+	const startY = bounds.centerY;
+
+	const roundAmountText = scene.add.text(
+		startX, startY, animationText, titleTextConfig
+	)
+		.setOrigin(0.5, 0.5)
+		.setAlpha(0)
+		.setScale(1)
+		.setDepth(1000);
+
+	await tween({
+		targets: [roundAmountText],
+		alpha: 1,
+		scale: 1.2,
+		y: startY - 30,
+	});
+
+	await tween({
+		targets: [roundAmountText],
+		alpha: 0,
+		scale: 1,
+		y: startY - 60,
+		duration: 800,
+	});
+
+	roundAmountText.destroy();
 }
 
 export function onPurchaseFailed(
