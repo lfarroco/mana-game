@@ -11,6 +11,7 @@ import { scene } from "../../BattlegroundScene";
 import * as sc from "./constants";
 import * as ShopUI from "./ShopUI";
 
+const ORBS_Y = sc.PANEL_Y + 220;
 
 type OrbSpec = {
 	id: string;
@@ -20,10 +21,6 @@ type OrbSpec = {
 	// return false to indicate the effect was not applied and the orb should return
 	effect: (unit: Unit) => boolean
 };
-
-// 1 - reaction (gain power)
-// 2 - boost
-// 3 - transformation
 
 const generateReactionOrb = () => {
 
@@ -364,7 +361,7 @@ function generatePositionalTypedPowerOrb() {
 		tooltip: [
 			`[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]Increase Power[/color] [color=#ffd93d]+${choice.amount}[/color]`,
 			`[color=#c0c0c0]Target:[/color] [color=#e0e0e0]${choice.label}[/color]`,
-			`[color=#c0c0c0]Condition:[/color] [color=#ffa94d]Recipients must have '${effectId}'[/color]`,
+			`[color=#c0c0c0]Condition:[/color] [color=#ffa94d]Target must have '${effectId}'[/color]`,
 		].join("\n"),
 		effect: (unit: Unit) => {
 			return addEffectSafely(unit, {
@@ -380,8 +377,7 @@ function generatePositionalTypedPowerOrb() {
 
 export function renderOrbs(ui: ShopUI.ShopUIState, orbIds: string[], onOrbUsed?: () => void | Promise<void>) {
 
-	const orbY = sc.PANEL_Y + 550;
-	const orbSpacing = 240;
+	const orbSpacing = sc.TAVERN_CHARA_SPACING;
 	ui.orbContainer = scene.add.container(0, 0);
 
 	const bg = scene.add.graphics()
@@ -389,7 +385,7 @@ export function renderOrbs(ui: ShopUI.ShopUIState, orbIds: string[], onOrbUsed?:
 	bg.fillStyle(0x000000, 0.25);
 	bg.fillRoundedRect(
 		ui.panelX + 20,
-		orbY - 100,
+		ORBS_Y - 100,
 		sc.TAVERN_BG_WIDTH,
 		200,
 		sc.SUB_PANEL_CORNER_RADIUS
@@ -451,9 +447,9 @@ export function renderOrbs(ui: ShopUI.ShopUIState, orbIds: string[], onOrbUsed?:
 			console.warn(`Orb with id ${orbId} not found in orbs object`);
 			return;
 		}
-		const orbX = ui.panelX + 220 + (index * orbSpacing);
+		const orbX = ui.panelX + 160 + (index * orbSpacing);
 
-		const magicOrb = new MagicOrb(scene, orbX, orbY, {
+		const magicOrb = new MagicOrb(scene, orbX, ORBS_Y, {
 			size: 200,
 			color: hexToVector3(orbSpec.color),
 			intensity: 1.2,
