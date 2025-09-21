@@ -19,8 +19,6 @@ type HasteEffectState = {
 	cleanup: () => void
 };
 
-
-
 type CharaState = {
 	unit: Unit;
 	id: string;
@@ -44,8 +42,11 @@ export function getAllCharas(): Chara[] {
 	return Array.from(charaById.values());
 }
 
-export async function summon(unit: Unit, useSummonEffect: boolean = true): Promise<Chara> {
-	const vec = getCharaPosition(unit);
+export async function summon(
+	unit: Unit,
+	useSummonEffect: boolean = true,
+): Promise<Chara> {
+	const vec = getScreenPosition(unit);
 	if (useSummonEffect) {
 		summonEffect(scene, vec);
 	}
@@ -67,7 +68,7 @@ export function clearAll(): void {
 }
 
 export function create(unit: Unit): Chara {
-	const position = getCharaPosition(unit);
+	const position = getScreenPosition(unit);
 	const container = scene.add.container(position.x, position.y);
 
 	const sprite = createSprite(container, unit);
@@ -98,11 +99,10 @@ export function create(unit: Unit): Chara {
 
 	input.init(container);
 
-	// Register this chara instance for global lookup
 	charaById.set(unit.id, container);
 
 	container.on(Phaser.Input.Events.POINTER_OVER, () => {
-		onCharaPointerOver({ chara: container });
+		onCharaPointerOver(container);
 	});
 	container.on(Phaser.Input.Events.POINTER_OUT, () => {
 		onCharaPointerOut();
@@ -115,8 +115,7 @@ export function create(unit: Unit): Chara {
 	return container;
 }
 
-// Returns the on-screen position for a unit's board coordinates and force.
-export function getCharaPosition(unit: Unit) {
+export function getScreenPosition(unit: Unit) {
 	const slotSpacing = 8;
 	const offsetX = unit.force === constants.FORCE_ID_PLAYER ? constants.PLAYER_BOARD_X : constants.CPU_BOARD_X;
 	const offsetY = unit.force === constants.FORCE_ID_PLAYER ? constants.PLAYER_BOARD_Y : constants.CPU_BOARD_Y;
@@ -176,7 +175,7 @@ function createSprite(container: Chara, unit: Unit, borderWidth: number = 3, bor
 	return sprite;
 }
 
-export function getIsShopItem(id: string): boolean {
+export function isShopItem(id: string): boolean {
 	return !getState().gameData.player.units.find(u => u.id === id);
 }
 
