@@ -8,7 +8,6 @@ import { tween } from "../../../../Utils/animation";
 import * as MoraleDisplay from "../../MoraleDisplay";
 import * as Systems from "../index"
 import * as Board from "@Models/Board";
-import { playerForce } from "@Models/Entities/Force";
 
 let currentShopCharas: Chara.Chara[] = [];
 
@@ -22,7 +21,7 @@ export function handleCharaPurchaseFinalized(purchasedChara: Chara.Chara): void 
 
 	// For hero shops 1 and 2, add a new hero to replace the purchased one
 	if (currentShopCharas.length < sc.NUM_TAVERN_SLOTS) {
-		const newCardData = _getAvailableCardsForTavern(1);
+		const newCardData = getAvailableCardsForTavern(1);
 		if (newCardData.length > 0) {
 			const newCharas = ShopUI.renderTavernCharas(newCardData);
 			currentShopCharas.push(...newCharas);
@@ -34,7 +33,7 @@ export function handleCharaPurchaseFinalized(purchasedChara: Chara.Chara): void 
 export async function open(buttonText: string = "Next Shop") {
 	currentShopCharas = [];
 
-	const tavernCardData = _getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
+	const tavernCardData = getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
 
 	const nextRoundCallback = () => {
 		Systems.ShopPhase.handleShopPhaseEnded();
@@ -97,12 +96,9 @@ async function _animateItemAppearance(
 	});
 }
 
-function _getAvailableCardsForTavern(count: number): Card.CardDefinition[] {
+function getAvailableCardsForTavern(count: number): Card.CardDefinition[] {
 	const allCards = Card.getAllCards();
-	const playerFilters = playerForce.skills.flatMap(skill => skill.cardFilters);
-	const filteredCards = allCards
-		.filter(card => playerFilters.every(filter => filter(card.effects)));
-	return pickRandom(filteredCards, count);
+	return pickRandom(allCards, count);
 }
 
 export function rerollTavern(): void {
@@ -112,7 +108,7 @@ export function rerollTavern(): void {
 	});
 	currentShopCharas = [];
 
-	const newTavernCardData = _getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
+	const newTavernCardData = getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
 
 	const newShopCharas = ShopUI.renderTavernCharas(
 		newTavernCardData
