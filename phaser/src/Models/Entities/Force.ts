@@ -112,7 +112,7 @@ export const applyDamageToForce = (
 			maxMorale: targetForce.maxMorale,
 			totalDamage: damage,
 			damageType: damageType,
-		})
+		});
 
 		CombatStatsTracker.trackMoraleChange({
 			forceId: targetForce.id,
