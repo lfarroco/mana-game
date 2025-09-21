@@ -15,7 +15,7 @@ export function clickHeroInShop(slotIndex: number): string {
 	}
 	const unitToPurchase = Chara.getUnit(chara);
 
-	if (!Chara.getIsShopItem(unitToPurchase.id)) {
+	if (!Chara.isShopItem(unitToPurchase.id)) {
 		return `Error: Hero in slot ${slotIndex} (Chara ID: ${Chara.getId(chara)}) is not a shop item or already purchased.`;
 	}
 
@@ -36,7 +36,7 @@ export function buyAndPlaceHero(shopSlotIndex: number, boardX: number, boardY: n
 	}
 	const unitToPurchase = Chara.getUnit(chara);
 
-	if (!Chara.getIsShopItem(unitToPurchase.id)) {
+	if (!Chara.isShopItem(unitToPurchase.id)) {
 		return `Error: Hero in slot ${shopSlotIndex} (Chara ID: ${Chara.getId(chara)}) is not a shop item or already purchased.`;
 	}
 

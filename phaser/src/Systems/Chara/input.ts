@@ -11,6 +11,9 @@ import * as Tooltip from "@UI/Tooltip";
 import * as Chara from "./Chara";
 import * as input from "./input";
 import * as events from "./events";
+import { onCharaPointerOver } from "./CharaTooltip";
+
+const TOUCH_TOOLTIP_INPUT_DOWN_DELAY = 200;
 
 export type InputHandler = {
 	dragStartX: number;
@@ -19,6 +22,8 @@ export type InputHandler = {
 	wasDragSuccessful: boolean;
 	chara: Chara.Chara;
 	unitId: string;
+	longPressTimer?: Phaser.Time.TimerEvent;
+	isLongPressActive: boolean;
 };
 
 export function init(chara: Chara.Chara) {
@@ -29,11 +34,12 @@ export function init(chara: Chara.Chara) {
 		dragStartVec: Geometry.vec2(0, 0),
 		wasDragSuccessful: false,
 		chara,
-		unitId: Chara.getUnit(chara).id
+		unitId: Chara.getUnit(chara).id,
+		isLongPressActive: false,
 	};
 
 	const isPlayerUnit = Chara.getUnit(chara).force === constants.FORCE_ID_PLAYER
-	const isShopUnit = Chara.getIsShopItem(state.unitId)
+	const isShopUnit = Chara.isShopItem(state.unitId)
 
 	if (isPlayerUnit || isShopUnit) {
 		scene.input.setDraggable(chara, true);
@@ -42,6 +48,9 @@ export function init(chara: Chara.Chara) {
 		chara.on(Phaser.Input.Events.DRAG, onDrag(chara));
 		chara.on(Phaser.Input.Events.DROP, onDrop(state));
 		chara.on(Phaser.Input.Events.DRAG_END, onDragEnd(state));
+
+		chara.on(Phaser.Input.Events.POINTER_DOWN, onPointerDown(state));
+		chara.on(Phaser.Input.Events.POINTER_UP, onPointerUp(state));
 
 		if (!isShopUnit) return;
 
@@ -68,7 +77,7 @@ export const onDrag = (chara: Chara.Chara) => (
 		ease: "Cubic.Out",
 	});
 
-	if (!Chara.getIsShopItem(handlerState.unitId)) {
+	if (!Chara.isShopItem(handlerState.unitId)) {
 		Shop.UI.hideSellZone();
 	}
 
@@ -94,7 +103,14 @@ export const onDragStart = (handlerState: InputHandler) => (
 	handlerState.dragStartVec = Geometry.vec2(chara.x, chara.y);
 	handlerState.wasDragSuccessful = false;
 
-	if (Chara.getIsShopItem(handlerState.unitId)) {
+
+	if (handlerState.longPressTimer) {
+		handlerState.longPressTimer.destroy();
+		handlerState.longPressTimer = undefined;
+	}
+	handlerState.isLongPressActive = false;
+
+	if (Chara.isShopItem(handlerState.unitId)) {
 		Shop.UI.bringShopChildToTop(chara);
 	} else {
 		scene.children.bringToTop(chara);
@@ -107,7 +123,7 @@ export const onDragStart = (handlerState: InputHandler) => (
 		ease: "Cubic.Out",
 	});
 
-	if (!Chara.getIsShopItem(handlerState.unitId)) {
+	if (!Chara.isShopItem(handlerState.unitId)) {
 		Shop.UI.showSellZone();
 	}
 
@@ -131,7 +147,7 @@ const processDrop = (handlerState: input.InputHandler) => (
 	dragStartY: number
 ): boolean => {
 	if (dropTarget.name === Shop.constants.SHOP_SELL_ZONE_NAME) {
-		if (!Chara.getIsShopItem(handlerState.unitId)) {
+		if (!Chara.isShopItem(handlerState.unitId)) {
 			events.onSell(handlerState.chara);
 			return true;
 		}
@@ -154,7 +170,7 @@ const processDrop = (handlerState: input.InputHandler) => (
 	const tileY = Math.floor(slotIndex / 3);
 	const tile = Geometry.vec2(tileX, tileY);
 
-	if (!Chara.getIsShopItem(handlerState.unitId)) {
+	if (!Chara.isShopItem(handlerState.unitId)) {
 		processOwnedUnitMoveRequest(handlerState.unitId, tile, dragStartX, dragStartY);
 		return true;
 	}
@@ -217,7 +233,7 @@ const _executeSwap = (unit: Unit, _occupier: Unit, target: Vec2, units: Unit[]) 
 
 const _applyMoveVisual = (movedUnit: Unit) => {
 	const movedChara = Chara.getCharaById(movedUnit.id);
-	const pos = Chara.getCharaPosition(movedUnit);
+	const pos = Chara.getScreenPosition(movedUnit);
 
 	tween({ targets: [movedChara], ...pos });
 };
@@ -225,8 +241,8 @@ const _applyMoveVisual = (movedUnit: Unit) => {
 const _applySwapVisual = (movedUnit: Unit, swappedUnit: Unit) => {
 	const movedChara = Chara.getCharaById(movedUnit.id);
 	const swappedChara = Chara.getCharaById(swappedUnit.id);
-	const movedPos = Chara.getCharaPosition(movedUnit);
-	const swappedPos = Chara.getCharaPosition(swappedUnit);
+	const movedPos = Chara.getScreenPosition(movedUnit);
+	const swappedPos = Chara.getScreenPosition(swappedUnit);
 
 	tween({ targets: [movedChara], ...movedPos });
 	tween({ targets: [swappedChara], ...swappedPos });
@@ -239,10 +255,45 @@ const _movementRejected = (unitId: string, dragStartX: number, dragStartY: numbe
 	tween({ targets: [failedChara], ...Geometry.vec2(dragStartX, dragStartY) });
 };
 
+export const onPointerDown = (handlerState: InputHandler) => (_pointer: Pointer): void => {
+
+	if (!scene.sys.game.device.input.touch) return;
+	handlerState.longPressTimer = scene.time.delayedCall(TOUCH_TOOLTIP_INPUT_DOWN_DELAY, () => {
+		handlerState.isLongPressActive = true;
+		const { chara } = handlerState;
+		onCharaPointerOver(chara);
+	});
+};
+
+export const onPointerUp = (handlerState: InputHandler) => (_pointer: Pointer): void => {
+	if (handlerState.longPressTimer) {
+		handlerState.longPressTimer.destroy();
+		handlerState.longPressTimer = undefined;
+	}
+
+	if (handlerState.isLongPressActive && !Chara.isShopItem(handlerState.unitId)) {
+		handlerState.isLongPressActive = false;
+		import('./CharaTooltip').then(({ onCharaPointerOut }) => {
+			onCharaPointerOut();
+		});
+	}
+};
+
 export const onPointerUpShopItem = (handlerState: InputHandler) => (pointer: Pointer): void => {
-	if (!Chara.getIsShopItem(handlerState.unitId) || !handlerState.chara.input?.enabled) return;
+	if (!Chara.isShopItem(handlerState.unitId) || !handlerState.chara.input?.enabled) return;
 
 	if (pointer.getDistance() > constants.DRAG_CLICK_THRESHOLD) {
+		return;
+	}
+
+	// Don't trigger shop click if it was a long press, and snap back to original position
+	if (handlerState.isLongPressActive) {
+		handlerState.isLongPressActive = false;
+		tween({
+			targets: [handlerState.chara],
+			...handlerState.dragStartVec,
+			duration: 150,
+		});
 		return;
 	}
 

@@ -116,7 +116,7 @@ const getTargetDescription = (targets: any): string => {
 	}
 };
 
-export const onCharaPointerOver = ({ chara }: { chara: Chara }): void => {
+export const onCharaPointerOver = (chara: Chara): void => {
 
 	if (!chara.active || !chara.visible) return
 
