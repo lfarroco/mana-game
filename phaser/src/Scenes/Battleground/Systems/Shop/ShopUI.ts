@@ -9,18 +9,10 @@ import { MagicOrb } from "../../../../components/MagicOrb/MagicOrb";
 import { scene } from "../../BattlegroundScene";
 import { tween } from "../../../../Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
-import { pickOne } from "../../../../utils";
-import { hideTooltip, renderTooltip } from "@UI/Tooltip";
-import { skillsIndex } from "@Models/Skills";
 
 const NEXT_ROUND_BUTTON_X = c.SCREEN_WIDTH - 200;
 const NEXT_ROUND_BUTTON_Y = c.SCREEN_HEIGHT - 100;
-const SKILL_CIRCLE_RADIUS = 35 * 1.5;
-const SKILL_CIRCLE_SCALE = 1.5;
-const SKILL_TEXT_SCALE = 1.5;
-const SKILL_CLICK_SCALE = 0.9;
-const SKILL_CLICK_TEXT_SCALE = 1.35;
-const SKILL_ICON_FONT_SIZE = '48px';
+
 const SELL_ZONE_TEXT_FONT_SIZE = '40px';
 
 export { createUIButton };
@@ -38,7 +30,7 @@ export type ShopUIState = {
 	nextRoundButton: Phaser.GameObjects.Container | null;
 	skillCircles: Phaser.GameObjects.Arc[];
 }
-let state: ShopUIState | null = null;
+export let state: ShopUIState | null = null;
 
 export function create() {
 	state = {
@@ -108,64 +100,6 @@ function _renderTavernSectionBackgroundAndTitle(container: Container, panelX?: n
 	container.add([bg]);
 }
 
-export function renderSkills(skills: string[], onPurchase: (skillId: string) => void | Promise<void>): void {
-	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
-	const baseX = state.panelX + 160;
-	const baseY = sc.TAVERN_BASE_Y + 50;
-
-	skills.forEach((skillId, index) => {
-		const skill = skillsIndex[skillId];
-		if (skill) {
-			const x = baseX + (index * sc.TAVERN_CHARA_SPACING);
-			const circle = scene.add.circle(x, baseY, SKILL_CIRCLE_RADIUS, 0x4e9de0, 0.8);
-			circle.setStrokeStyle(2, 0xffffff);
-
-			const iconText = getSkillIcon(skillId);
-
-			const text = scene.add.text(x, baseY, iconText, {
-				fontSize: SKILL_ICON_FONT_SIZE,
-				color: '#ffffff',
-				fontFamily: 'Arial Black',
-				stroke: '#000000',
-				strokeThickness: 4
-			}).setOrigin(0.5);
-			text.setScale(1.5); // Larger scale
-
-			circle.setInteractive(
-				new Phaser.Geom.Circle(SKILL_CIRCLE_RADIUS, SKILL_CIRCLE_RADIUS, SKILL_CIRCLE_RADIUS),
-				Phaser.Geom.Circle.Contains
-			);
-
-			circle.on('pointerover', () => {
-				renderTooltip(x, baseY - 200, skill.name, skill.description);
-			});
-			circle.on('pointerout', () => {
-				hideTooltip();
-			});
-
-			circle.on('pointerdown', () => {
-				circle.setScale(SKILL_CLICK_SCALE);
-				text.setScale(SKILL_CLICK_TEXT_SCALE);
-				onPurchase(skillId);
-			});
-
-			circle.on('pointerup', () => {
-				circle.setScale(SKILL_CIRCLE_SCALE);
-				text.setScale(SKILL_TEXT_SCALE);
-			});
-
-			state!.shopContainer.add(circle);
-			state!.shopContainer.add(text);
-			state!.skillCircles.push(circle);
-		}
-	});
-}
-
-function getSkillIcon(_skillId: string): string {
-	// placeholder for now
-	return pickOne(["⚔️", "☠️"]);
-}
-
 export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara[] {
 	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
 	const createdCharas: Chara.Chara[] = [];
@@ -226,6 +160,7 @@ function _createSellZone(state: ShopUIState): void {
 		sellZoneY + sc.SELL_ZONE_HEIGHT / 2,
 		sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT
 	);
+
 	state.sellZone.setName(sc.SHOP_SELL_ZONE_NAME);
 
 	state.sellZoneGraphics = scene.add.graphics({ x: sellZoneX, y: sellZoneY });
@@ -335,15 +270,6 @@ export function removeShopChild(child: Phaser.GameObjects.GameObject, destroy: b
 
 export function getState(): ShopUIState | null {
 	return state;
-}
-
-export function disableSkillCircles(): void {
-	if (state?.skillCircles) {
-		state.skillCircles.forEach(circle => {
-			circle.disableInteractive();
-			circle.setAlpha(0.5);
-		});
-	}
 }
 
 export function disableNextRoundButton(): void {
