@@ -16,7 +16,6 @@ import { skillsIndex } from "@Models/Skills";
 const NEXT_ROUND_BUTTON_X = c.SCREEN_WIDTH - 200;
 const NEXT_ROUND_BUTTON_Y = c.SCREEN_HEIGHT - 100;
 const SKILL_CIRCLE_RADIUS = 35 * 1.5;
-const SKILL_CIRCLE_SPACING = 10;
 const SKILL_CIRCLE_SCALE = 1.5;
 const SKILL_TEXT_SCALE = 1.5;
 const SKILL_CLICK_SCALE = 0.9;
@@ -111,15 +110,13 @@ function _renderTavernSectionBackgroundAndTitle(container: Container, panelX?: n
 
 export function renderSkills(skills: string[], onPurchase: (skillId: string) => void | Promise<void>): void {
 	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
-	const baseX = state.panelX + 20;
+	const baseX = state.panelX + 160;
 	const baseY = sc.TAVERN_BASE_Y + 50;
-	const totalSkillsWidth = skills.length * (SKILL_CIRCLE_RADIUS * 2 + SKILL_CIRCLE_SPACING) - SKILL_CIRCLE_SPACING;
-	const startX = baseX + totalSkillsWidth / 2;
 
 	skills.forEach((skillId, index) => {
 		const skill = skillsIndex[skillId];
 		if (skill) {
-			const x = startX - index * (SKILL_CIRCLE_RADIUS * 2 + SKILL_CIRCLE_SPACING);
+			const x = baseX + (index * sc.TAVERN_CHARA_SPACING);
 			const circle = scene.add.circle(x, baseY, SKILL_CIRCLE_RADIUS, 0x4e9de0, 0.8);
 			circle.setStrokeStyle(2, 0xffffff);
 
