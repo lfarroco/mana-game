@@ -3,15 +3,15 @@ import * as Board from "@Models/Board";
 import { skillsIndex } from "@Models/Skills";
 import { getState } from "@Models/State";
 import * as ForceSkillsDisplay from "@UI/ForceSkillsDisplay";
-import { delay } from "../../../../Utils/animation";
+import { delay, tween } from "../../../../Utils/animation";
 import { hideTooltip, renderTooltip } from "@UI/Tooltip";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import * as sc from "./constants";
 import * as ShopUI from "./ShopUI";
-import { pickOne } from "../../../../utils";
+import { pickOne, pickRandom } from "../../../../utils";
 import { state } from "./ShopUI";
 
-const SKILL_CIRCLE_RADIUS = 35 * 1.5;
+const SKILL_CIRCLE_RADIUS = 90;
 const SKILL_CIRCLE_SCALE = 1.5;
 const SKILL_TEXT_SCALE = 1.5;
 const SKILL_CLICK_SCALE = 0.9;
@@ -23,7 +23,7 @@ export function init() {
 }
 
 export async function open(buttonText: string = "Next Round") {
-	const availableSkills = Object.keys(skillsIndex);
+	const availableSkills = pickRandom(Object.keys(skillsIndex), 3);
 
 	const nextRoundCallback = () => {
 		Systems.ShopPhase.handleShopPhaseEnded();
@@ -78,7 +78,7 @@ export async function handleShopOpenUITrigger(buttonText: string = "Next Round")
 export function renderSkills(skills: string[], onPurchase: (skillId: string) => void | Promise<void>): void {
 	if (!ShopUI.state) throw new Error("ShopUI not initialized. Call create() first.");
 	const baseX = ShopUI.state.panelX + 160;
-	const baseY = sc.TAVERN_BASE_Y + 50;
+	const baseY = sc.TAVERN_BASE_Y + 130;
 
 	skills.forEach((skillId, index) => {
 		const skill = skillsIndex[skillId];
@@ -124,13 +124,36 @@ export function renderSkills(skills: string[], onPurchase: (skillId: string) => 
 			ShopUI.state!.shopContainer.add(circle);
 			ShopUI.state!.shopContainer.add(text);
 			ShopUI.state!.skillCircles.push(circle);
+
+			tween({
+				targets: [circle, text],
+				y: `+=20`,
+				duration: 4200 + Math.random() * 2000,
+				yoyo: true,
+				repeat: -1,
+				ease: 'Sine.easeInOut',
+				delay: index * 100
+			});
+			tween({
+				targets: [text],
+				rotation: `+=0.05`,
+				duration: 4200 + Math.random() * 2000,
+				yoyo: true,
+				repeat: -1,
+				ease: 'Sine.easeInOut',
+				delay: index * 100
+			});
 		}
 	});
 }
 function getSkillIcon(_skillId: string): string {
-	// placeholder for now
-	return pickOne(["⚔️", "☠️"]);
-} export function disableSkillCircles(): void {
+	return pickOne([
+		"♈", "♉", "♊", "♋", "♌", "♍", "♎", "♏", "♐", "♑", "♒", "♓",
+
+	]);
+}
+
+export function disableSkillCircles(): void {
 	if (state?.skillCircles) {
 		state.skillCircles.forEach(circle => {
 			circle.disableInteractive();
@@ -138,4 +161,3 @@ function getSkillIcon(_skillId: string): string {
 		});
 	}
 }
-
