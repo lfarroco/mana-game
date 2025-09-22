@@ -47,6 +47,7 @@ export async function open(buttonText: string = "Next Round") {
 
 export async function close() {
 	await ShopUI.slideOut();
+	ShopUI.destroyOrbs();
 }
 
 export async function handleShopOpenUITrigger(buttonText: string = "Next Round"): Promise<void> {
