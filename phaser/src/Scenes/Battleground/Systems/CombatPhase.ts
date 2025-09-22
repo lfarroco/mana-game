@@ -11,7 +11,6 @@ import * as Chara from "@Systems/Chara/Chara";
 import * as MoraleDisplay from "../MoraleDisplay";
 import * as constants from "../../../constants/constants";
 import { endShopPhase } from "./ShopPhase";
-import * as ForceSkillsDisplay from "@UI/ForceSkillsDisplay";
 import * as BoardStatsDisplay from "../BoardStatsDisplay";
 
 function createUnitCopy(unit: Unit): Unit {
@@ -30,7 +29,6 @@ export async function transitionToCombatPhase(): Promise<void> {
 	const { enemies } = await setupBattle();
 
 	// Show enemy skill icons when entering combat phase
-	ForceSkillsDisplay.showCpuSkills();
 	BoardStatsDisplay.showCpuStats();
 
 

@@ -3,7 +3,6 @@ import { Unit } from "./Unit";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import * as MoraleDisplay from "@Scenes/Battleground/MoraleDisplay";
 import * as BoardStatsDisplay from "@Scenes/Battleground/BoardStatsDisplay";
-import { Skill } from "../Skills";
 
 export type Force = {
 	id: string;
@@ -16,7 +15,6 @@ export type Force = {
 	prestige: number,
 	round: number;
 	wins: number;
-	skills: Skill[];
 };
 
 export const makeForce = (id: string): Force => {
@@ -31,7 +29,6 @@ export const makeForce = (id: string): Force => {
 		prestige: 20,
 		round: 1,
 		wins: 0,
-		skills: [],
 	}
 };
 
