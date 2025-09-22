@@ -162,6 +162,7 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
 			effects.increasePower(
 				resolveTargets(scene.state, sourceUnit, effect),
 				effect.amount,
+				sourceUnit
 			);
 			break;
 		case "increase_power_on_type": {
@@ -171,6 +172,7 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
 			effects.increasePower(
 				filtered,
 				effect.amount,
+				sourceUnit
 			);
 			break;
 		}
