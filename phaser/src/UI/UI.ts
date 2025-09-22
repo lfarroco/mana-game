@@ -2,7 +2,6 @@ import * as c from "../constants/constants";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import { tween } from "../Utils/animation";
 import * as Tooltip from "./Tooltip";
-import * as ForceSkillsDisplay from "./ForceSkillsDisplay";
 export * as events from "./events"
 
 const PRESTIGE_DISPLAY_X = c.SCREEN_WIDTH - 520;
@@ -48,7 +47,6 @@ export function init() {
 
 	createWinsDisplay(uiContainer);
 
-	ForceSkillsDisplay.initForceSkillsDisplay();
 
 }
 
@@ -175,5 +173,4 @@ export function destroy(): void {
 	uiContainer!.destroy(true);
 	uiContainer = null;
 	Tooltip.destroyTooltip();
-	ForceSkillsDisplay.destroyForceSkillsDisplay();
 }

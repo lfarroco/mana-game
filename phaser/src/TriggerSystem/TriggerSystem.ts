@@ -1,11 +1,8 @@
-import { createTestUnit, Unit } from "@Models/Entities/Unit";
+import { Unit } from "@Models/Entities/Unit";
 import { State } from "@Models/State";
 import BattlegroundScene, { scene } from "@Scenes/Battleground/BattlegroundScene";
 import * as effects from "./effects";
-import * as skillEffects from "./skillEffects";
 import { pickRandom } from "../utils";
-import { Force } from "@Models/Entities/Force";
-import * as ForceSkillsDisplay from "@UI/ForceSkillsDisplay";
 
 export type EffectReaction = {
 	position: EffectSourcePosition;
@@ -243,84 +240,6 @@ function processReactions(
 			processEffectsIO(u, r.effects);
 		});
 	});
-
-	scene.state.battleData.forces.forEach(force => {
-		force.skills.forEach(skill => {
-			const reactions = skill.reactions.filter(r => r.effectId === effect.id);
-
-			const eligible = reactions.filter(r => {
-				switch (r.position) {
-					case "all":
-						return true;
-					case "allies":
-						return force.id === triggeringUnit.force;
-					case "enemies":
-						return force.id !== triggeringUnit.force;
-					case "row_allies":
-					case "column_allies":
-					case "top_ally":
-					case "bottom_ally":
-					case "left_ally":
-					case "right_ally":
-						return false;
-					default:
-						const _exhaustiveCheck: never = r.position;
-						return _exhaustiveCheck;
-				}
-			});
-
-			eligible.forEach(r => {
-				r.effects.forEach(eff => {
-					const position = ForceSkillsDisplay.getSkillPosition(skill.id, force.id);
-					processSkillEffect(eff, force, position || { x: 100, y: 100 })
-				})
-			});
-		});
-	});
-
-}
-
-const processSkillEffect = (eff: Effect, force: Force, skillPosition: { x: number; y: number }) => {
-
-	const targets = resolveTargets(scene.state, createTestUnit("", force.id), eff);
-	switch (eff.id) {
-		case "damage":
-			skillEffects.dealDamageFromSkill(force, skillPosition, eff.amount);
-			break;
-		case "heal":
-			skillEffects.restoreMoraleFromSkill(force, skillPosition, eff.amount);
-			break;
-		case "shield":
-			skillEffects.addShieldFromSkill(force, skillPosition, eff.amount);
-			break;
-		case "poison":
-			skillEffects.applyPoisonFromSkill(force, skillPosition, eff.perTick);
-			break;
-		case "regen":
-			skillEffects.applyRegenFromSkill(force, skillPosition, eff.perTick);
-			break;
-		case "haste":
-			skillEffects.applyHasteFromSkill(targets, skillPosition, eff.duration);
-			break;
-		case "slow":
-			skillEffects.applySlowFromSkill(targets, skillPosition, eff.duration);
-			break;
-		case "charge":
-			skillEffects.applyChargeFromSkill(targets, skillPosition, eff.amount);
-			break;
-		case "increase_power":
-			skillEffects.increasePowerFromSkill(targets, skillPosition, eff.amount);
-			break;
-		case "multiply_power":
-			skillEffects.multiplyPowerFromSkill(targets, skillPosition, eff.multiplier);
-			break;
-		case "increase_power_on_type":
-			//skillEffects.increasePowerOnTypeFromSkill(sourceUnit, skillPosition, 10);
-			break;
-		default:
-			const _exhaustiveCheck: never = eff;
-			return _exhaustiveCheck;
-	}
 
 }
 

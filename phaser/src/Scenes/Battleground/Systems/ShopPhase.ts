@@ -6,9 +6,7 @@ import { renderVignette } from "../Animations/vignette";
 import { clearAll, summon } from "@Systems/Chara/Chara";
 import * as HeroShop from "./Shop/HeroShop";
 import * as OrbShop from "./Shop/OrbShop";
-import * as SkillShop from "./Shop/SkillShop";
 import { transitionToCombatPhase } from "./CombatPhase";
-import * as ForceSkillsDisplay from "@UI/ForceSkillsDisplay";
 import * as MoraleDisplay from "../MoraleDisplay";
 import { clearRegen } from "./RegenSystem";
 import { clearPoison } from "./PoisonDamageSystem";
@@ -19,7 +17,6 @@ export let isInShopPhase: boolean = false;
 let heroShopCount: number = 0;
 let heroesPurchasedInCurrentShop: number = 0;
 let isOrbShop: boolean = false;
-let isSkillShop: boolean = false;
 
 async function setupShopPhaseCommon(shouldResummonUnits: boolean = true): Promise<void> {
 	const state = getState();
@@ -56,8 +53,6 @@ async function setupShopPhaseCommon(shouldResummonUnits: boolean = true): Promis
 		await Promise.all(summonPromises);
 	}
 
-	ForceSkillsDisplay.hideCpuSkills();
-
 	isInShopPhase = true;
 	BoardStatsDisplay.hideCpuStats();
 }
@@ -72,7 +67,6 @@ export async function initializeShopPhase(): Promise<void> {
 	heroShopCount = 1;
 	heroesPurchasedInCurrentShop = 0;
 	isOrbShop = false;
-	isSkillShop = false;
 
 	HeroShop.handleShopOpenUITrigger("Skip");
 }
@@ -89,7 +83,6 @@ export async function transitionToShopPhase(): Promise<void> {
 	heroShopCount = 1;
 	heroesPurchasedInCurrentShop = 0;
 	isOrbShop = false;
-	isSkillShop = false;
 
 	HeroShop.handleShopOpenUITrigger("Skip");
 }
@@ -112,7 +105,6 @@ export async function transitionToShopPhaseAfterDefeat(): Promise<void> {
 	heroShopCount = 1;
 	heroesPurchasedInCurrentShop = 0;
 	isOrbShop = false;
-	isSkillShop = false;
 
 	HeroShop.handleShopOpenUITrigger("Skip");
 }
@@ -139,20 +131,10 @@ export async function transitionToOrbShopPhase(): Promise<void> {
 	OrbShop.handleShopOpenUITrigger("Next Skill Shop");
 }
 
-export async function transitionToSkillShopPhase(): Promise<void> {
-	await setupShopPhaseCommon(false);
-
-	const state = getState();
-	console.log("Round", state.gameData.round, "Skill Shop Phase Starting.");
-
-	isSkillShop = true;
-
-	SkillShop.handleShopOpenUITrigger("Next Round");
-}
 
 export function handleShopPhaseEnded(): void {
 	isInShopPhase = false;
-	if (!isOrbShop && !isSkillShop) {
+	if (!isOrbShop) {
 		if (heroShopCount < 3) {
 			heroShopCount++;
 			transitionToNextShopPhase();
@@ -160,9 +142,6 @@ export function handleShopPhaseEnded(): void {
 			isOrbShop = true;
 			transitionToOrbShopPhase();
 		}
-	} else if (isOrbShop && !isSkillShop) {
-		isSkillShop = true;
-		transitionToSkillShopPhase();
 	} else {
 		transitionToCombatPhase();
 	}
