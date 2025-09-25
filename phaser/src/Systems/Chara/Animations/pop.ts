@@ -16,7 +16,7 @@ export async function pop(id: string) {
 
 	await tween({
 		targets: [chara],
-		scale: 1.2,
+		scale: 1.4,
 		yoyo: true,
 		duration: 300,
 		repeat: 0,

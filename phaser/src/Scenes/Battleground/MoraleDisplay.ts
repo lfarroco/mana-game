@@ -149,29 +149,32 @@ export function handleShieldUpdated(payload: {
 	totalDamage?: number,
 	damageType?: "poison" | "normal" | "timeout"
 }) {
-	updateShieldBar(payload.forceId, payload.newShield, payload.maxShield);
 
-	if (payload.suppressPopText) {
-		const isPlayer = payload.forceId === c.FORCE_ID_PLAYER;
+	const { forceId, newShield, maxShield, suppressPopText, totalDamage, damageType } = payload;
+
+	updateShieldBar(forceId, newShield, maxShield);
+
+	if (suppressPopText) {
+		const isPlayer = forceId === c.FORCE_ID_PLAYER;
 		if (isPlayer) {
-			previousPlayerShield = payload.newShield;
+			previousPlayerShield = newShield;
 		} else {
-			previousCpuShield = payload.newShield;
+			previousCpuShield = newShield;
 		}
 		return;
 	}
 
-	const targetDisplay = payload.forceId === c.FORCE_ID_PLAYER ? playerDisplay : cpuDisplay;
+	const targetDisplay = forceId === c.FORCE_ID_PLAYER ? playerDisplay : cpuDisplay;
 	if (!targetDisplay || !scene) return;
 
-	const isPlayer = payload.forceId === c.FORCE_ID_PLAYER;
+	const isPlayer = forceId === c.FORCE_ID_PLAYER;
 	const previousShield = isPlayer ? previousPlayerShield : previousCpuShield;
 
 	let displayValue: number;
-	if (payload.totalDamage !== undefined && payload.totalDamage > 0) {
-		displayValue = -payload.totalDamage;
+	if (totalDamage !== undefined && totalDamage > 0) {
+		displayValue = -totalDamage;
 	} else if (previousShield !== null) {
-		const delta = payload.newShield - previousShield;
+		const delta = newShield - previousShield;
 		displayValue = delta;
 	} else {
 		displayValue = 0;
@@ -190,9 +193,9 @@ export function handleShieldUpdated(payload: {
 		let textType: "heal" | "damage" | "poison" | "shield" | "timeout";
 		if (displayValue > 0) {
 			textType = "shield";
-		} else if (payload.damageType === "poison") {
+		} else if (damageType === "poison") {
 			textType = "poison";
-		} else if (payload.damageType === "timeout") {
+		} else if (damageType === "timeout") {
 			textType = "timeout";
 		} else {
 			textType = "damage";
