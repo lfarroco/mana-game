@@ -12,6 +12,7 @@ import * as MoraleDisplay from "../MoraleDisplay";
 import * as constants from "../../../constants/constants";
 import { endShopPhase } from "./ShopPhase";
 import * as BoardStatsDisplay from "../BoardStatsDisplay";
+import { createUIButton } from "../../../UI/UIButton";
 
 function createUnitCopy(unit: Unit): Unit {
 	return {
@@ -38,7 +39,18 @@ export async function transitionToCombatPhase(): Promise<void> {
 		state.gameData.player.prestige
 	);
 
-	handleCombatStartExecution({ enemies });
+	showReadyButton({ enemies });
+
+	_initializeMorale();
+
+	Board.setEnemyBoardVisible(true);
+	Chara.clearAll();
+	// Important: summon the exact Unit instances stored in battleData.units
+	// so display components (e.g., charge bars) observe the same objects updated during combat.
+	const combatUnits = state.battleData.units;
+	combatUnits.forEach(u => {
+		Chara.summon(u, false);
+	});
 }
 
 export async function setupBattle(): Promise<{ enemies: Unit[]; }> {
@@ -60,19 +72,21 @@ export async function setupBattle(): Promise<{ enemies: Unit[]; }> {
 	return { enemies };
 }
 
+export async function showReadyButton(payload: { enemies: Unit[] }): Promise<void> {
+	const readyButton = createUIButton(
+		scene,
+		"Ready",
+		constants.SCREEN_WIDTH / 2,
+		constants.SCREEN_HEIGHT - 100,
+		() => {
+			readyButton.destroy();
+			handleCombatStartExecution(payload);
+		}
+	);
+}
+
 export async function handleCombatStartExecution(_payload: { enemies: Unit[] }): Promise<void> {
-	const state = getState();
 
-	_initializeMorale();
-
-	Board.setEnemyBoardVisible(true);
-	Chara.clearAll();
-	// Important: summon the exact Unit instances stored in battleData.units
-	// so display components (e.g., charge bars) observe the same objects updated during combat.
-	const combatUnits = state.battleData.units;
-	combatUnits.forEach(u => {
-		Chara.summon(u, false);
-	});
 
 	await delay(300);
 
