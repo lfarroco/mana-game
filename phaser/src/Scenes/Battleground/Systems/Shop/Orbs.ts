@@ -382,12 +382,15 @@ export function renderOrbs(ui: ShopUI.ShopUIState, orbIds: string[], onOrbUsed?:
 
 	const bg = scene.add.graphics()
 
+	const bgHeight = (orbIds.length - 1) * orbSpacing + 200;
+	const bgY = ORBS_Y - 100;
+
 	bg.fillStyle(0x000000, 0.25);
 	bg.fillRoundedRect(
 		ui.panelX + 20,
-		ORBS_Y - 100,
+		bgY,
 		sc.TAVERN_BG_WIDTH,
-		200,
+		bgHeight,
 		sc.SUB_PANEL_CORNER_RADIUS
 	)
 
@@ -447,9 +450,10 @@ export function renderOrbs(ui: ShopUI.ShopUIState, orbIds: string[], onOrbUsed?:
 			console.warn(`Orb with id ${orbId} not found in orbs object`);
 			return;
 		}
-		const orbX = ui.panelX + 160 + (index * orbSpacing);
+		const orbX = ui.panelX + 160;
+		const orbY = ORBS_Y + (index * orbSpacing);
 
-		const magicOrb = new MagicOrb(scene, orbX, ORBS_Y, {
+		const magicOrb = new MagicOrb(scene, orbX, orbY, {
 			size: 200,
 			color: hexToVector3(orbSpec.color),
 			intensity: 1.2,

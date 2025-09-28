@@ -66,10 +66,20 @@ export function displayCommonShop(
 		state.orbContainer = null;
 	}
 
-	const screenWidth = scene.cameras.main.width;
-	state.panelX = screenWidth - sc.SHOP_PANEL_WIDTH - 40;
+	state.panelX = scene.cameras.main.width / 2
 
-	_renderTavernSectionBackgroundAndTitle(state.shopContainer, state.panelX);
+	const tavernBaseY = sc.TAVERN_BASE_Y;
+
+	const bg = scene.add.graphics()
+		.fillStyle(0x000, 0.5)
+		.fillRoundedRect(
+			0, 0,
+			sc.TAVERN_BG_WIDTH, sc.TAVERN_BG_HEIGHT,
+			sc.SUB_PANEL_CORNER_RADIUS
+		)
+		.setPosition(state.panelX, tavernBaseY);
+
+	state.shopContainer.add([bg]);
 
 	const nextRoundBtn = createUIButton(
 		scene,
@@ -84,22 +94,6 @@ export function displayCommonShop(
 	_createSellZone(state);
 }
 
-function _renderTavernSectionBackgroundAndTitle(container: Container, panelX?: number): void {
-	const tavernBaseX = (panelX !== undefined ? panelX + 20 : sc.TAVERN_BASE_X);
-	const tavernBaseY = sc.TAVERN_BASE_Y;
-
-	const bg = scene.add.graphics()
-		.fillStyle(0x000, 0.5)
-		.fillRoundedRect(
-			0, 0,
-			sc.TAVERN_BG_WIDTH, sc.TAVERN_BG_HEIGHT,
-			sc.SUB_PANEL_CORNER_RADIUS
-		)
-		.setPosition(tavernBaseX, tavernBaseY);
-
-	container.add([bg]);
-}
-
 export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara[] {
 	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
 	const createdCharas: Chara.Chara[] = [];
@@ -111,7 +105,7 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 
 		const chara = Chara.create(unit);
 
-		chara.setPosition(baseX + (index * sc.TAVERN_CHARA_SPACING), sc.TAVERN_CHARA_BASE_Y);
+		chara.setPosition(baseX, sc.TAVERN_CHARA_BASE_Y + (index * sc.TAVERN_CHARA_SPACING));
 
 		if (ownedCardIds.has(spec.id)) {
 			const borderRadius = (c.TILE_WIDTH * 0.8) / 2;
