@@ -1,28 +1,25 @@
-import { SCREEN_WIDTH, TILE_WIDTH } from "../../../../constants/constants";
 
 export const NUM_TAVERN_SLOTS = 3;
 const PANEL_PADDING = 40;
 const TAVERN_PADDING = 20;
-export const TAVERN_CHARA_SPACING = 300;
+export const TAVERN_CHARA_SPACING = 270;
 
-const TAVERN_CHARAS_TOTAL_WIDTH = (NUM_TAVERN_SLOTS - 1) * TAVERN_CHARA_SPACING + TILE_WIDTH;
-
-export const TAVERN_BG_WIDTH = TAVERN_CHARAS_TOTAL_WIDTH + (TAVERN_PADDING * 2);
-export const TAVERN_BG_HEIGHT = 400;
+export const TAVERN_BG_WIDTH = 900;
+export const TAVERN_BG_HEIGHT = 700;
 
 export const SHOP_PANEL_WIDTH = TAVERN_BG_WIDTH + (PANEL_PADDING * 2);
 
-export const PANEL_X = (SCREEN_WIDTH - SHOP_PANEL_WIDTH) / 2;
-export const PANEL_Y = 240;
+export const PANEL_X = 300;
+export const PANEL_Y = 200;
 
-export const TAVERN_BASE_X = PANEL_X + PANEL_PADDING;
+export const TAVERN_BASE_X = 0;
 export const TAVERN_BASE_Y = PANEL_Y + PANEL_PADDING;
 
 export const TAVERN_TITLE_X = TAVERN_BASE_X + TAVERN_PADDING;
 export const TAVERN_TITLE_Y = TAVERN_BASE_Y + 15;
 
-export const TAVERN_CHARA_FIRST_X = TAVERN_BASE_X + (600);
-export const TAVERN_CHARA_BASE_Y = TAVERN_BASE_Y + 180;
+export const TAVERN_CHARA_FIRST_X = TAVERN_BASE_X + TAVERN_PADDING;
+export const TAVERN_CHARA_BASE_Y = TAVERN_BASE_Y + TAVERN_PADDING;
 
 export const PANEL_BG_COLOR = 0x2c3e50;
 export const PANEL_BG_OPACITY = 0.95;
