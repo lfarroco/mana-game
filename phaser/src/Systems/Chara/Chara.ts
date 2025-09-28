@@ -6,7 +6,6 @@ import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import * as CharaStatsDisplay from "./CharaStatsDisplay";
 import * as ChargeBarDisplay from "./ChargeBarDisplay";
 import * as input from "./input";
-import { createContinuousHasteEffect } from "../../Effects/hasteEffect";
 import { onCharaPointerOut, onCharaPointerOver } from "./CharaTooltip";
 import { popText } from "./Animations/popText";
 import { summonEffect } from "../../Effects/summonEffect";
@@ -14,18 +13,11 @@ import { getState } from "@Models/State";
 
 export type Chara = Container;
 
-type HasteEffectState = {
-	particles: Phaser.GameObjects.Particles.ParticleEmitter;
-	cleanup: () => void
-};
-
 type CharaState = {
 	unit: Unit;
 	id: string;
 	isAnimating: boolean;
 	sprite: Phaser.GameObjects.Sprite;
-	hasteEffect?: HasteEffectState;
-	previousHasteState: number;
 };
 
 const charaState = new WeakMap<Chara, CharaState>();
@@ -91,8 +83,6 @@ export function create(unit: Unit): Chara {
 		id: unit.id,
 		isAnimating: false,
 		sprite,
-		hasteEffect: undefined,
-		previousHasteState: 0,
 	};
 
 	charaState.set(container, state);
@@ -110,7 +100,6 @@ export function create(unit: Unit): Chara {
 
 	ChargeBarDisplay.create(unit, container);
 	CharaStatsDisplay.create(unit, container);
-	updateStatusEffects(container);
 
 	return container;
 }
@@ -205,44 +194,10 @@ export function updateUnitPower(chara: Chara, num: number) {
 }
 
 export function destroy(chara: Chara) {
-	removeHasteEffect(chara);
 	chara.destroy();
 	charaById.delete(getId(chara));
 }
 
-export function updateStatusEffects(chara: Chara): void {
-	const s = mustGetState(chara);
-	if (s.unit.hasted > 0 && s.previousHasteState === 0) {
-		showHasteEffect(chara);
-	} else if (s.unit.hasted === 0 && s.previousHasteState > 0) {
-		removeHasteEffect(chara);
-	}
-	s.previousHasteState = s.unit.hasted;
-}
-
-function showHasteEffect(chara: Chara): void {
-	const s = mustGetState(chara);
-	if (s.hasteEffect) return;
-
-	s.hasteEffect = createContinuousHasteEffect(
-		scene,
-		{ x: chara.x, y: chara.y },
-		{
-			intensity: 1.0,
-			color: 0x00eaff
-		}
-	);
-
-	chara.add(s.hasteEffect.particles);
-	s.hasteEffect.particles.setPosition(0, 0);
-}
-
-function removeHasteEffect(chara: Chara): void {
-	const s = charaState.get(chara);
-	if (!s || !s.hasteEffect) return;
-	s.hasteEffect.cleanup();
-	s.hasteEffect = undefined;
-}
 
 export function mustGetState(chara: Chara): CharaState {
 	const s = charaState.get(chara);
