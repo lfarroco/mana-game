@@ -45,6 +45,7 @@ type ComponentState<Msg> = {
 	messageQueue: Msg[];
 	update?: (msg: Msg, state: ComponentState<Msg>) => ComponentState<Msg>;
 	eventHandlersAttached: Set<string>;
+	subscribers: Array<(msg: Msg) => void>;
 };
 
 export const createComponentState = <Msg>(
@@ -57,6 +58,7 @@ export const createComponentState = <Msg>(
 	messageQueue: [],
 	update,
 	eventHandlersAttached: new Set<string>(),
+	subscribers: [],
 });
 
 export const enqueueMessages = <Msg>(messages: Msg[]) => (
@@ -65,6 +67,20 @@ export const enqueueMessages = <Msg>(messages: Msg[]) => (
 	...state,
 	messageQueue: [...state.messageQueue, ...messages],
 });
+
+export const subscribe = <Msg>(callback: (msg: Msg) => void) => (
+	state: ComponentState<Msg>
+): ComponentState<Msg> => ({
+	...state,
+	subscribers: [...state.subscribers, callback],
+});
+
+export const emit = <Msg>(msg: Msg) => (
+	state: ComponentState<Msg>
+): ComponentState<Msg> => {
+	state.subscribers.forEach(subscriber => subscriber(msg));
+	return state;
+};
 
 export const processMessages = <Msg>(
 	state: ComponentState<Msg>
@@ -79,7 +95,10 @@ export const processMessages = <Msg>(
 		state.messageQueue,
 		A.reduce<Msg, ComponentState<Msg>>(
 			state,
-			(acc, msg) => (acc.update ? acc.update(msg, acc) : acc)
+			(acc, msg) => {
+				acc.subscribers.forEach(subscriber => subscriber(msg));
+				return acc.update ? acc.update(msg, acc) : acc;
+			}
 		)
 	);
 
@@ -276,6 +295,7 @@ export const destroy = <Msg>(state: ComponentState<Msg>): ComponentState<Msg> =>
 		elements: {},
 		data: [],
 		eventHandlersAttached: new Set<string>(),
+		subscribers: [],
 	};
 };
 
@@ -284,10 +304,10 @@ type DemoMsg =
 	| { type: 'MoveImage'; id: string; dx: number; dy: number };
 
 export const createReactiveDemo = (scene: Phaser.Scene) => {
-	const update = (msg: DemoMsg, state: ComponentState<DemoMsg>): ComponentState<DemoMsg> => {
+	const update1 = (msg: DemoMsg, state: ComponentState<DemoMsg>): ComponentState<DemoMsg> => {
 		switch (msg.type) {
 			case 'ImageClicked':
-				console.log(`Image ${msg.id} clicked at (${msg.x}, ${msg.y})`);
+				console.log(`Component 1: Image ${msg.id} clicked at (${msg.x}, ${msg.y})`);
 				const withMessage: ComponentState<DemoMsg> = enqueueMessages<DemoMsg>([
 					{ type: 'MoveImage', id: msg.id, dx: 50, dy: 50 },
 				])(state);
@@ -304,9 +324,29 @@ export const createReactiveDemo = (scene: Phaser.Scene) => {
 		}
 	};
 
-	let state = createComponentState<DemoMsg>(scene, update);
+	const update2 = (msg: DemoMsg, state: ComponentState<DemoMsg>): ComponentState<DemoMsg> => {
+		switch (msg.type) {
+			case 'ImageClicked':
+				console.log(`Component 2: Reacting to click on ${msg.id}`);
+				return state;
 
-	const initialData: Component<DemoMsg>[] = [
+			case 'MoveImage':
+				console.log(`Component 2: ${msg.id} moved by (${msg.dx}, ${msg.dy})`);
+				return state;
+
+			default:
+				return state;
+		}
+	};
+
+	let state1 = createComponentState<DemoMsg>(scene, update1);
+	let state2 = createComponentState<DemoMsg>(scene, update2);
+
+	state1 = subscribe<DemoMsg>((msg) => {
+		state2 = enqueueMessages<DemoMsg>([msg])(state2);
+	})(state1);
+
+	const component1Data: Component<DemoMsg>[] = [
 		{
 			id: 'image1',
 			type: 'image',
@@ -324,10 +364,13 @@ export const createReactiveDemo = (scene: Phaser.Scene) => {
 				},
 			],
 		},
+	];
+
+	const component2Data: Component<DemoMsg>[] = [
 		{
 			id: 'image2',
 			type: 'image',
-			x: 200,
+			x: 1200,
 			y: 200,
 			texture: 'ui/logo',
 			alpha: 1,
@@ -343,13 +386,15 @@ export const createReactiveDemo = (scene: Phaser.Scene) => {
 		},
 	];
 
-	state = setData<DemoMsg>(initialData)(state);
+	state1 = setData<DemoMsg>(component1Data)(state1);
+	state2 = setData<DemoMsg>(component2Data)(state2);
 
 	scene.events.on('update', () => {
-		state = processMessages<DemoMsg>(state);
+		state1 = processMessages<DemoMsg>(state1);
+		state2 = processMessages<DemoMsg>(state2);
 	});
 
-	return state;
+	return state1;
 };
 
 export type { Component, ImageElement as ImageComponent, TextElement as TextComponent, ContainerElement as ContainerComponent, ComponentState as SystemState, ClickHandler };
