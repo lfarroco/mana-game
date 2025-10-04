@@ -107,26 +107,24 @@ const applyBaseProps = <T extends Phaser.GameObjects.GameObject, Msg>(
 	data: BaseElement<Msg>,
 	state: ComponentState<Msg>
 ): void => {
-	if ('x' in gameObject && 'y' in gameObject) {
-		gameObject.x = data.x;
-		gameObject.y = data.y;
-	}
+	const propertySetters: Record<string, (obj: any, val: any) => void> = {
+		x: (obj, val) => { if ('x' in obj) obj.x = val; },
+		y: (obj, val) => { if ('y' in obj) obj.y = val; },
+		visible: (obj, val) => { if ('setVisible' in obj) obj.setVisible(val); },
+		alpha: (obj, val) => { if ('setAlpha' in obj) obj.setAlpha(val); },
+		rotation: (obj, val) => { if ('rotation' in obj) obj.rotation = val; },
+		scale: (obj, val) => {
+			if ('setScale' in obj && val && typeof val === 'object' && 'x' in val && 'y' in val) {
+				obj.setScale(val.x, val.y);
+			}
+		},
+	};
 
-	if (data.visible !== undefined && 'setVisible' in gameObject) {
-		(gameObject as any).setVisible(data.visible);
-	}
-
-	if (data.alpha !== undefined && 'setAlpha' in gameObject) {
-		(gameObject as any).setAlpha(data.alpha);
-	}
-
-	if (data.rotation !== undefined && 'rotation' in gameObject) {
-		gameObject.rotation = data.rotation;
-	}
-
-	if (data.scale && 'setScale' in gameObject) {
-		(gameObject as any).setScale(data.scale.x, data.scale.y);
-	}
+	Object.keys(data).forEach(key => {
+		if (key in propertySetters && (data as any)[key] !== undefined) {
+			propertySetters[key](gameObject, (data as any)[key]);
+		}
+	});
 
 	if ((data.interactive || data.onClick) && 'setInteractive' in gameObject) {
 		const go = gameObject as any;
