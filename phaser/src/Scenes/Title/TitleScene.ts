@@ -4,7 +4,6 @@ import { createUIButton } from "../../UI/UIButton";
 import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
 import { images } from "../../assets";
 import * as AudioManager from "@Systems/AudioManager";
-import { createReactiveDemo } from "../../mana";
 
 export let titleScene: TitleScene;
 
@@ -112,8 +111,6 @@ export default class TitleScene extends Phaser.Scene {
 		this.input.keyboard?.on('keydown-ENTER', () => {
 			this.startGame();
 		});
-
-		createReactiveDemo(this);
 	}
 
 	openOptions() {
