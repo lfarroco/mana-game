@@ -4,7 +4,7 @@ import { createUIButton } from "../../UI/UIButton";
 import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
 import { images } from "../../assets";
 import * as AudioManager from "@Systems/AudioManager";
-import { createReactiveDemo } from "../../ph-ts";
+import { createReactiveDemo } from "../../mana";
 
 export let titleScene: TitleScene;
 
