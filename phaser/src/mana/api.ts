@@ -35,6 +35,9 @@ export const createComponent = <Msg>(
 
 	// Return a render function that takes elements and renders them
 	return (elements: readonly Element<Msg>[]): ComponentState<Msg> => {
-		return setData(elements)(state);
+		const newState = setData(elements)(state);
+		// Update the original state with the new data
+		state.data = newState.data;
+		return newState;
 	};
 };
