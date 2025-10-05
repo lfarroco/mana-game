@@ -8,8 +8,13 @@ A declarative, reactive library for managing Phaser game objects with an Elm-lik
 - **Reactive State**: Automatic updates when state changes
 - **Message-Based Events**: Type-safe event handling
 - **Extensible Architecture**: Easy to add new component types and properties
-- **Type-Safe**: Full TypeScript support
+- **Type-Safe**: Full TypeScript support with readonly types for immutability
 - **Modular Design**: Clean separation of concerns
+- **Lifecycle Hooks**: Mount/unmount callbacks for custom component behavior
+- **Performance Optimized**: Shallow comparison and memoization prevent unnecessary updates
+- **Container Support**: Nested components with automatic child management
+- **Development Mode**: Helpful warnings and validation during development
+- **Custom Components**: Registry pattern for adding new component types
 
 ## Quick Start
 
@@ -218,6 +223,72 @@ registerCleanupHook((state) => {
 });
 ```
 
+### Adding Lifecycle Hooks
+
+```typescript
+import { registerMountHook, registerUnmountHook } from './mana';
+
+// Called when a component is created
+registerMountHook('sprite', (element, data, state) => {
+  console.log('Sprite mounted:', data.id);
+  // Initialize sprite animations, etc.
+});
+
+// Called when a component is destroyed
+registerUnmountHook('sprite', (element, data, state) => {
+  console.log('Sprite unmounted:', data.id);
+  // Clean up sprite-specific resources
+});
+```
+
+### Registering Custom Component Types
+
+```typescript
+import { registerComponentFactory, applyBaseProps } from './mana';
+
+// Register a custom sprite component
+registerComponentFactory('sprite', (state, data) => {
+  const sprite = state.scene.add.sprite(data.x, data.y, data.texture);
+  
+  if (data.animation) {
+    sprite.play(data.animation);
+  }
+  
+  applyBaseProps(sprite, data, state);
+  return sprite;
+});
+
+// Now you can use it in your components
+const components = [
+  {
+    id: 'player',
+    type: 'sprite', // Custom type!
+    x: 100,
+    y: 100,
+    texture: 'player',
+    animation: 'idle'
+  }
+];
+```
+
+### Development Mode
+
+```typescript
+import { setDevMode } from './mana';
+
+// Disable development warnings in production
+if (process.env.NODE_ENV === 'production') {
+  setDevMode(false);
+}
+
+// Development mode provides:
+// - Validation of element structure
+// - Duplicate ID detection
+// - Performance warnings
+// - Missing texture warnings
+// - State consistency checks
+```
+
 ## Advanced Usage
 
 ### Message Processing
@@ -328,6 +399,23 @@ const createButton = (
 ### Lifecycle
 - `destroy(state)` - Clean up the system
 - `registerCleanupHook(hook)` - Add custom cleanup logic
+- `registerMountHook(type, hook)` - Add mount callback for component type
+- `registerUnmountHook(type, hook)` - Add unmount callback for component type
+
+### Component Factories
+- `registerComponentFactory(type, factory)` - Register custom component type
+
+### Utilities
+- `shallowEqual(obj1, obj2)` - Compare objects for equality
+- `elementsEqual(el1, el2)` - Compare elements for equality
+- `ElementCache` - Cache for memoizing elements
+- `debounce(func, delay)` - Debounce function calls
+- `throttle(func, limit)` - Throttle function calls
+
+### Validation
+- `setDevMode(enabled)` - Enable/disable development warnings
+- `validateElement(element)` - Validate element structure
+- `validateElements(elements)` - Validate array of elements
 
 ## Architecture
 
@@ -349,10 +437,13 @@ Each module has a single responsibility and can be extended through registry pat
 ## Performance Tips
 
 1. **Stable IDs**: Don't generate new IDs on each render
-2. **Minimal Updates**: Only update changed components
+2. **Minimal Updates**: Only update changed components - the system automatically skips updates if element data hasn't changed
 3. **Batch Messages**: Enqueue multiple messages at once
 4. **Event Deduplication**: Handlers are attached once per component
 5. **Cleanup**: Always call `destroy()` when done
+6. **Use ElementCache**: For large lists with frequent updates
+7. **Development Mode**: Disable in production with `setDevMode(false)` for better performance
+8. **Container Children**: Children are automatically managed and only updated when needed
 
 ## TypeScript Support
 
