@@ -2,7 +2,7 @@
  * Component factory functions for creating Phaser game objects
  */
 
-import type { ComponentState, ImageElement, TextElement, ContainerElement } from './types';
+import type { ComponentState, ImageElement, TextElement, ContainerElement, GraphicsElement } from './types';
 import { applyBaseProps } from './properties';
 import { callMountHooks } from './lifecycle';
 import { validateTexture, validateClickHandler } from './validation';
@@ -76,6 +76,33 @@ export const createContainer = <Msg>(
 };
 
 /**
+ * Create a graphics game object
+ */
+export const createGraphics = <Msg>(
+	state: ComponentState<Msg>,
+	data: GraphicsElement<Msg>
+): Phaser.GameObjects.Graphics => {
+	const graphics = state.scene.add.graphics({ x: data.x, y: data.y });
+
+	// Apply fill and line styles if provided
+	if (data.fillColor !== undefined) {
+		graphics.fillStyle(data.fillColor, data.fillAlpha ?? 1);
+	}
+	if (data.lineColor !== undefined) {
+		graphics.lineStyle(data.lineWidth ?? 1, data.lineColor, data.lineAlpha ?? 1);
+	}
+
+	// Execute custom draw function if provided
+	if (data.draw) {
+		data.draw(graphics);
+	}
+
+	applyBaseProps(graphics, data, state);
+	callMountHooks(graphics, data, state);
+	return graphics;
+};
+
+/**
  * Create a component for supported game object types
  * Checks the factory registry first, then falls back to built-in types
  */
@@ -97,6 +124,8 @@ export const createComponent = <Msg>(
 			return createText(state, data);
 		case 'container':
 			return createContainer(state, data);
+		case 'graphics':
+			return createGraphics(state, data);
 		default:
 			console.warn(`[Mana] Unknown component type: ${data.type}`);
 			return null;
