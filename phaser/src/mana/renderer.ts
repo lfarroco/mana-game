@@ -201,10 +201,16 @@ const updateGraphicsElement: UpdateHandler<any> = (gameObject, data) => {
 				drawShape(graphics, shape);
 			}
 		}
-	}
-};
 
-/**
+		// Re-apply hit area if interactive (clearing can sometimes affect hit detection)
+		if (graphicsData.interactive && graphicsData.hitArea && (graphics as any).input) {
+			const hitAreaConfig = graphicsData.hitArea;
+			// Update the hit area in case it changed
+			(graphics as any).input.hitArea = hitAreaConfig.shape;
+			(graphics as any).input.hitAreaCallback = hitAreaConfig.callback;
+		}
+	}
+};/**
  * Register built-in update handlers
  */
 const registerBuiltInUpdateHandlers = (): void => {
