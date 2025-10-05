@@ -9,7 +9,7 @@
  * - Hover effects with color tween
  */
 
-import type { Element, GraphicsElement, TextElement } from '../types';
+import type { Element, RoundedRectangleElement, TextElement } from '../types';
 
 /**
  * Button configuration
@@ -93,13 +93,17 @@ export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<M
 	const state = buttonStates.get(id)!;
 
 	// Background graphics rect
-	const background: GraphicsElement<Msg> & { skipAutoUpdate?: boolean } = {
+	const background: RoundedRectangleElement<Msg> & { skipAutoUpdate?: boolean } = {
 		id: `${id}-bg`,
-		type: 'graphics',
+		type: 'roundrect',
 		x: 0,
 		y: 0,
+		width,
+		height,
+		radius: cornerRadius,
+		fillColor: state.currentColor,
+		fillAlpha: 1,
 		interactive: true,
-		shapes: [],  // Empty - we'll draw manually to avoid double-rendering during tweens
 		skipAutoUpdate: true,  // Prevent Mana's automatic graphics redrawing
 		hitArea: {
 			shape: new Phaser.Geom.Rectangle(-width / 2, -height / 2, width, height),
