@@ -57,16 +57,130 @@ export type ContainerElement<Msg> = BaseElement<Msg> & {
 };
 
 /**
+ * Shape definitions for graphics elements
+ */
+export type RectangleShape = {
+	readonly type: 'rectangle';
+	readonly x: number;
+	readonly y: number;
+	readonly width: number;
+	readonly height: number;
+	readonly fillColor?: number;
+	readonly fillAlpha?: number;
+	readonly strokeColor?: number;
+	readonly strokeWidth?: number;
+	readonly strokeAlpha?: number;
+};
+
+export type RoundedRectangleShape = {
+	readonly type: 'roundedRectangle';
+	readonly x: number;
+	readonly y: number;
+	readonly width: number;
+	readonly height: number;
+	readonly radius: number;
+	readonly fillColor?: number;
+	readonly fillAlpha?: number;
+	readonly strokeColor?: number;
+	readonly strokeWidth?: number;
+	readonly strokeAlpha?: number;
+};
+
+export type CircleShape = {
+	readonly type: 'circle';
+	readonly x: number;
+	readonly y: number;
+	readonly radius: number;
+	readonly fillColor?: number;
+	readonly fillAlpha?: number;
+	readonly strokeColor?: number;
+	readonly strokeWidth?: number;
+	readonly strokeAlpha?: number;
+};
+
+export type EllipseShape = {
+	readonly type: 'ellipse';
+	readonly x: number;
+	readonly y: number;
+	readonly width: number;
+	readonly height: number;
+	readonly fillColor?: number;
+	readonly fillAlpha?: number;
+	readonly strokeColor?: number;
+	readonly strokeWidth?: number;
+	readonly strokeAlpha?: number;
+};
+
+export type LineShape = {
+	readonly type: 'line';
+	readonly x1: number;
+	readonly y1: number;
+	readonly x2: number;
+	readonly y2: number;
+	readonly strokeColor?: number;
+	readonly strokeWidth?: number;
+	readonly strokeAlpha?: number;
+};
+
+export type PolygonShape = {
+	readonly type: 'polygon';
+	readonly points: readonly { readonly x: number; readonly y: number }[];
+	readonly fillColor?: number;
+	readonly fillAlpha?: number;
+	readonly strokeColor?: number;
+	readonly strokeWidth?: number;
+	readonly strokeAlpha?: number;
+};
+
+export type ArcShape = {
+	readonly type: 'arc';
+	readonly x: number;
+	readonly y: number;
+	readonly radius: number;
+	readonly startAngle: number;
+	readonly endAngle: number;
+	readonly anticlockwise?: boolean;
+	readonly fillColor?: number;
+	readonly fillAlpha?: number;
+	readonly strokeColor?: number;
+	readonly strokeWidth?: number;
+	readonly strokeAlpha?: number;
+};
+
+export type TriangleShape = {
+	readonly type: 'triangle';
+	readonly x1: number;
+	readonly y1: number;
+	readonly x2: number;
+	readonly y2: number;
+	readonly x3: number;
+	readonly y3: number;
+	readonly fillColor?: number;
+	readonly fillAlpha?: number;
+	readonly strokeColor?: number;
+	readonly strokeWidth?: number;
+	readonly strokeAlpha?: number;
+};
+
+/**
+ * Union type of all shape definitions
+ */
+export type Shape =
+	| RectangleShape
+	| RoundedRectangleShape
+	| CircleShape
+	| EllipseShape
+	| LineShape
+	| PolygonShape
+	| ArcShape
+	| TriangleShape;
+
+/**
  * Graphics element for drawing shapes
  */
 export type GraphicsElement<Msg> = BaseElement<Msg> & {
 	readonly type: 'graphics';
-	readonly draw?: (graphics: Phaser.GameObjects.Graphics) => void;
-	readonly fillColor?: number;
-	readonly fillAlpha?: number;
-	readonly lineColor?: number;
-	readonly lineWidth?: number;
-	readonly lineAlpha?: number;
+	readonly shapes: readonly Shape[];
 	readonly hitArea?: {
 		readonly shape: Phaser.Geom.Rectangle | Phaser.Geom.Circle | Phaser.Geom.Polygon;
 		readonly callback: Phaser.Types.Input.HitAreaCallback;

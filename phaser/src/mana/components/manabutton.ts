@@ -81,16 +81,21 @@ export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<M
 		x: 0,
 		y: 0,
 		interactive: true,
-		fillColor: state.currentColor,
-		fillAlpha: 1,
+		shapes: [
+			{
+				type: 'roundedRectangle',
+				x: -width / 2,
+				y: -height / 2,
+				width,
+				height,
+				radius: cornerRadius,
+				fillColor: state.currentColor,
+				fillAlpha: 1,
+			},
+		],
 		hitArea: {
 			shape: new Phaser.Geom.Rectangle(-width / 2, -height / 2, width, height),
 			callback: Phaser.Geom.Rectangle.Contains,
-		},
-		draw: (graphics) => {
-			graphics.clear();
-			graphics.fillStyle(state.currentColor, 1);
-			graphics.fillRoundedRect(-width / 2, -height / 2, width, height, cornerRadius);
 		},
 		onClick,
 		onHover: (pointer) => {

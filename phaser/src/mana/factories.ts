@@ -2,7 +2,7 @@
  * Component factory functions for creating Phaser game objects
  */
 
-import type { ComponentState, ImageElement, TextElement, ContainerElement, GraphicsElement } from './types';
+import type { ComponentState, ImageElement, TextElement, ContainerElement, GraphicsElement, Shape } from './types';
 import { applyBaseProps } from './properties';
 import { callMountHooks } from './lifecycle';
 import { validateTexture, validateClickHandler } from './validation';
@@ -76,6 +76,100 @@ export const createContainer = <Msg>(
 };
 
 /**
+ * Draw a single shape on the graphics object
+ */
+const drawShape = (graphics: Phaser.GameObjects.Graphics, shape: Shape): void => {
+	switch (shape.type) {
+		case 'rectangle': {
+			if (shape.fillColor !== undefined) {
+				graphics.fillStyle(shape.fillColor, shape.fillAlpha ?? 1);
+				graphics.fillRect(shape.x, shape.y, shape.width, shape.height);
+			}
+			if (shape.strokeColor !== undefined) {
+				graphics.lineStyle(shape.strokeWidth ?? 1, shape.strokeColor, shape.strokeAlpha ?? 1);
+				graphics.strokeRect(shape.x, shape.y, shape.width, shape.height);
+			}
+			break;
+		}
+		case 'roundedRectangle': {
+			if (shape.fillColor !== undefined) {
+				graphics.fillStyle(shape.fillColor, shape.fillAlpha ?? 1);
+				graphics.fillRoundedRect(shape.x, shape.y, shape.width, shape.height, shape.radius);
+			}
+			if (shape.strokeColor !== undefined) {
+				graphics.lineStyle(shape.strokeWidth ?? 1, shape.strokeColor, shape.strokeAlpha ?? 1);
+				graphics.strokeRoundedRect(shape.x, shape.y, shape.width, shape.height, shape.radius);
+			}
+			break;
+		}
+		case 'circle': {
+			if (shape.fillColor !== undefined) {
+				graphics.fillStyle(shape.fillColor, shape.fillAlpha ?? 1);
+				graphics.fillCircle(shape.x, shape.y, shape.radius);
+			}
+			if (shape.strokeColor !== undefined) {
+				graphics.lineStyle(shape.strokeWidth ?? 1, shape.strokeColor, shape.strokeAlpha ?? 1);
+				graphics.strokeCircle(shape.x, shape.y, shape.radius);
+			}
+			break;
+		}
+		case 'ellipse': {
+			if (shape.fillColor !== undefined) {
+				graphics.fillStyle(shape.fillColor, shape.fillAlpha ?? 1);
+				graphics.fillEllipse(shape.x, shape.y, shape.width, shape.height);
+			}
+			if (shape.strokeColor !== undefined) {
+				graphics.lineStyle(shape.strokeWidth ?? 1, shape.strokeColor, shape.strokeAlpha ?? 1);
+				graphics.strokeEllipse(shape.x, shape.y, shape.width, shape.height);
+			}
+			break;
+		}
+		case 'line': {
+			if (shape.strokeColor !== undefined) {
+				graphics.lineStyle(shape.strokeWidth ?? 1, shape.strokeColor, shape.strokeAlpha ?? 1);
+				graphics.lineBetween(shape.x1, shape.y1, shape.x2, shape.y2);
+			}
+			break;
+		}
+		case 'polygon': {
+			if (shape.fillColor !== undefined) {
+				graphics.fillStyle(shape.fillColor, shape.fillAlpha ?? 1);
+				graphics.fillPoints(shape.points as any, true);
+			}
+			if (shape.strokeColor !== undefined) {
+				graphics.lineStyle(shape.strokeWidth ?? 1, shape.strokeColor, shape.strokeAlpha ?? 1);
+				graphics.strokePoints(shape.points as any, true);
+			}
+			break;
+		}
+		case 'arc': {
+			if (shape.fillColor !== undefined) {
+				graphics.fillStyle(shape.fillColor, shape.fillAlpha ?? 1);
+				graphics.slice(shape.x, shape.y, shape.radius, shape.startAngle, shape.endAngle, shape.anticlockwise);
+				graphics.fillPath();
+			}
+			if (shape.strokeColor !== undefined) {
+				graphics.lineStyle(shape.strokeWidth ?? 1, shape.strokeColor, shape.strokeAlpha ?? 1);
+				graphics.arc(shape.x, shape.y, shape.radius, shape.startAngle, shape.endAngle, shape.anticlockwise);
+				graphics.strokePath();
+			}
+			break;
+		}
+		case 'triangle': {
+			if (shape.fillColor !== undefined) {
+				graphics.fillStyle(shape.fillColor, shape.fillAlpha ?? 1);
+				graphics.fillTriangle(shape.x1, shape.y1, shape.x2, shape.y2, shape.x3, shape.y3);
+			}
+			if (shape.strokeColor !== undefined) {
+				graphics.lineStyle(shape.strokeWidth ?? 1, shape.strokeColor, shape.strokeAlpha ?? 1);
+				graphics.strokeTriangle(shape.x1, shape.y1, shape.x2, shape.y2, shape.x3, shape.y3);
+			}
+			break;
+		}
+	}
+};
+
+/**
  * Create a graphics game object
  */
 export const createGraphics = <Msg>(
@@ -84,17 +178,10 @@ export const createGraphics = <Msg>(
 ): Phaser.GameObjects.Graphics => {
 	const graphics = state.scene.add.graphics({ x: data.x, y: data.y });
 
-	// Apply fill and line styles if provided
-	if (data.fillColor !== undefined) {
-		graphics.fillStyle(data.fillColor, data.fillAlpha ?? 1);
-	}
-	if (data.lineColor !== undefined) {
-		graphics.lineStyle(data.lineWidth ?? 1, data.lineColor, data.lineAlpha ?? 1);
-	}
-
-	// Execute custom draw function if provided
-	if (data.draw) {
-		data.draw(graphics);
+	// Clear and draw all shapes
+	graphics.clear();
+	for (const shape of data.shapes) {
+		drawShape(graphics, shape);
 	}
 
 	applyBaseProps(graphics, data, state);
