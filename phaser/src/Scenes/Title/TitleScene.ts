@@ -117,20 +117,27 @@ export default class TitleScene extends Phaser.Scene {
 
 		// setupBasicInteractionExample(this) // Uncomment to try Mana examples
 
-		const btn = createButton<{}>({
-			id: 'start-btn',
+		type TestMsg = { type: 'BUTTON_CLICKED' };
+
+		const btn = createButton<TestMsg>({
+			id: 'test-mana-btn',
 			x: 200,
 			y: 200,
 			width: 200,
 			height: 100,
-			text: "test",
-			onClick: () => [] as any[],
+			text: "TEST BUTTON",
+			onClick: () => {
+				console.log("Button clicked!");
+				return [{ type: 'BUTTON_CLICKED' }];
+			},
 		});
 
-		createComponent<{}>(this, (_msg, state) => {
-			console.log("test")
-			return state
-		})(btn);
+		const render = createComponent<TestMsg>(this, (msg, state) => {
+			console.log("Message received:", msg);
+			return state;
+		});
+
+		render(btn);
 
 	}
 

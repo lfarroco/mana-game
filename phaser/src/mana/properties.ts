@@ -64,15 +64,19 @@ export const applyBaseProps = <T extends Phaser.GameObjects.GameObject, Msg>(
 			// Check if data has hitArea property (for graphics objects)
 			if ('hitArea' in data && (data as any).hitArea) {
 				const hitAreaConfig = (data as any).hitArea;
+				console.log(`[Mana] Setting interactive with hitArea for ${data.id}:`, hitAreaConfig.shape);
 				go.setInteractive(hitAreaConfig.shape, hitAreaConfig.callback);
 			} else {
+				console.log(`[Mana] Setting interactive without hitArea for ${data.id}`);
 				go.setInteractive();
 			}
 		}
 
 		// Handle click events
 		if (data.onClick && 'on' in go && !state.eventHandlersAttached.has(`${data.id}:click`)) {
+			console.log(`[Mana] Attaching click handler for ${data.id}`);
 			go.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+				console.log(`[Mana] Click event fired for ${data.id}`);
 				const messages = data.onClick!(pointer);
 				// Create new array since messageQueue is readonly
 				state.messageQueue = [...state.messageQueue, ...messages];
