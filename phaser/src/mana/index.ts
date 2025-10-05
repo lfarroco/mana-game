@@ -67,3 +67,14 @@ export {
 	validateElement,
 	validateElements,
 } from './validation';
+
+// Built-in actions and message system
+export type { ManaMsg, RedrawShapeAction, UpdateElementAction } from './actions';
+export {
+	handleManaMsg,
+	redrawShape,
+	updateElement,
+	setFillColor,
+	setVisible,
+	moveTo,
+} from './actions';
