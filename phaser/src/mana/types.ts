@@ -67,6 +67,10 @@ export type GraphicsElement<Msg> = BaseElement<Msg> & {
 	readonly lineColor?: number;
 	readonly lineWidth?: number;
 	readonly lineAlpha?: number;
+	readonly hitArea?: {
+		readonly shape: Phaser.Geom.Rectangle | Phaser.Geom.Circle | Phaser.Geom.Polygon;
+		readonly callback: Phaser.Types.Input.HitAreaCallback;
+	};
 };
 
 /**

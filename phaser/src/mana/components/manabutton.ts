@@ -83,6 +83,10 @@ export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<M
 		interactive: true,
 		fillColor: state.currentColor,
 		fillAlpha: 1,
+		hitArea: {
+			shape: new Phaser.Geom.Rectangle(-width / 2, -height / 2, width, height),
+			callback: Phaser.Geom.Rectangle.Contains,
+		},
 		draw: (graphics) => {
 			graphics.clear();
 			graphics.fillStyle(state.currentColor, 1);

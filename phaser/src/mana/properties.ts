@@ -61,7 +61,13 @@ export const applyBaseProps = <T extends Phaser.GameObjects.GameObject, Msg>(
 		const go = gameObject as any;
 
 		if (!go.input) {
-			go.setInteractive();
+			// Check if data has hitArea property (for graphics objects)
+			if ('hitArea' in data && (data as any).hitArea) {
+				const hitAreaConfig = (data as any).hitArea;
+				go.setInteractive(hitAreaConfig.shape, hitAreaConfig.callback);
+			} else {
+				go.setInteractive();
+			}
 		}
 
 		// Handle click events

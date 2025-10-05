@@ -5,7 +5,7 @@ import { CloudsBackground } from "../../components/cloudBackground/CloudsBackgro
 import { images } from "../../assets";
 import * as AudioManager from "@Systems/AudioManager";
 import { createButton } from "../../mana/components/manabutton";
-import { createComponent, createComponentState, setData } from "../../mana";
+import { createComponent } from "../../mana";
 // import { setupBasicInteractionExample } from "../../mana/examples/basic-interaction"; // Uncomment to try Mana examples
 
 export let titleScene: TitleScene;
@@ -126,8 +126,9 @@ export default class TitleScene extends Phaser.Scene {
 			text: "test",
 			onClick: () => [] as any[],
 		});
+
 		createComponent<{}>(this, (_msg, state) => {
-			console.log("evvv")
+			console.log("test")
 			return state
 		})(btn);
 
