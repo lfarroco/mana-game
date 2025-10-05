@@ -4,6 +4,8 @@ import { createUIButton } from "../../UI/UIButton";
 import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
 import { images } from "../../assets";
 import * as AudioManager from "@Systems/AudioManager";
+import { createButton } from "../../mana/components/manabutton";
+import { createComponent, createComponentState, setData } from "../../mana";
 // import { setupBasicInteractionExample } from "../../mana/examples/basic-interaction"; // Uncomment to try Mana examples
 
 export let titleScene: TitleScene;
@@ -114,6 +116,21 @@ export default class TitleScene extends Phaser.Scene {
 		});
 
 		// setupBasicInteractionExample(this) // Uncomment to try Mana examples
+
+		const btn = createButton<{}>({
+			id: 'start-btn',
+			x: 200,
+			y: 200,
+			width: 200,
+			height: 100,
+			text: "test",
+			onClick: () => [] as any[],
+		});
+		createComponent<{}>(this, (_msg, state) => {
+			console.log("evvv")
+			return state
+		})(btn);
+
 	}
 
 	openOptions() {
