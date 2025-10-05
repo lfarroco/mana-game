@@ -2,7 +2,18 @@
  * Component factory functions for creating Phaser game objects
  */
 
-import type { ComponentState, ImageElement, TextElement, ContainerElement, GraphicsElement, Shape } from './types';
+import type {
+	ComponentState,
+	ImageElement,
+	TextElement,
+	ContainerElement,
+	GraphicsElement,
+	RectangleElement,
+	RoundedRectangleElement,
+	CircleElement,
+	EllipseElement,
+	Shape
+} from './types';
 import { applyBaseProps } from './properties';
 import { callMountHooks } from './lifecycle';
 import { validateTexture, validateClickHandler } from './validation';
@@ -190,6 +201,102 @@ export const createGraphics = <Msg>(
 };
 
 /**
+ * Create a rectangle shape element
+ */
+export const createRectangle = <Msg>(
+	state: ComponentState<Msg>,
+	data: RectangleElement<Msg>
+): Phaser.GameObjects.Graphics => {
+	const graphics = state.scene.add.graphics({ x: data.x, y: data.y });
+
+	// Draw rectangle
+	if (data.fillColor !== undefined) {
+		graphics.fillStyle(data.fillColor, data.fillAlpha ?? 1);
+		graphics.fillRect(-data.width / 2, -data.height / 2, data.width, data.height);
+	}
+	if (data.strokeColor !== undefined) {
+		graphics.lineStyle(data.strokeWidth ?? 1, data.strokeColor, data.strokeAlpha ?? 1);
+		graphics.strokeRect(-data.width / 2, -data.height / 2, data.width, data.height);
+	}
+
+	applyBaseProps(graphics, data, state);
+	callMountHooks(graphics, data, state);
+	return graphics;
+};
+
+/**
+ * Create a rounded rectangle shape element
+ */
+export const createRoundedRectangle = <Msg>(
+	state: ComponentState<Msg>,
+	data: RoundedRectangleElement<Msg>
+): Phaser.GameObjects.Graphics => {
+	const graphics = state.scene.add.graphics({ x: data.x, y: data.y });
+
+	// Draw rounded rectangle
+	if (data.fillColor !== undefined) {
+		graphics.fillStyle(data.fillColor, data.fillAlpha ?? 1);
+		graphics.fillRoundedRect(-data.width / 2, -data.height / 2, data.width, data.height, data.radius);
+	}
+	if (data.strokeColor !== undefined) {
+		graphics.lineStyle(data.strokeWidth ?? 1, data.strokeColor, data.strokeAlpha ?? 1);
+		graphics.strokeRoundedRect(-data.width / 2, -data.height / 2, data.width, data.height, data.radius);
+	}
+
+	applyBaseProps(graphics, data, state);
+	callMountHooks(graphics, data, state);
+	return graphics;
+};
+
+/**
+ * Create a circle shape element
+ */
+export const createCircle = <Msg>(
+	state: ComponentState<Msg>,
+	data: CircleElement<Msg>
+): Phaser.GameObjects.Graphics => {
+	const graphics = state.scene.add.graphics({ x: data.x, y: data.y });
+
+	// Draw circle
+	if (data.fillColor !== undefined) {
+		graphics.fillStyle(data.fillColor, data.fillAlpha ?? 1);
+		graphics.fillCircle(0, 0, data.radius);
+	}
+	if (data.strokeColor !== undefined) {
+		graphics.lineStyle(data.strokeWidth ?? 1, data.strokeColor, data.strokeAlpha ?? 1);
+		graphics.strokeCircle(0, 0, data.radius);
+	}
+
+	applyBaseProps(graphics, data, state);
+	callMountHooks(graphics, data, state);
+	return graphics;
+};
+
+/**
+ * Create an ellipse shape element
+ */
+export const createEllipse = <Msg>(
+	state: ComponentState<Msg>,
+	data: EllipseElement<Msg>
+): Phaser.GameObjects.Graphics => {
+	const graphics = state.scene.add.graphics({ x: data.x, y: data.y });
+
+	// Draw ellipse
+	if (data.fillColor !== undefined) {
+		graphics.fillStyle(data.fillColor, data.fillAlpha ?? 1);
+		graphics.fillEllipse(0, 0, data.width, data.height);
+	}
+	if (data.strokeColor !== undefined) {
+		graphics.lineStyle(data.strokeWidth ?? 1, data.strokeColor, data.strokeAlpha ?? 1);
+		graphics.strokeEllipse(0, 0, data.width, data.height);
+	}
+
+	applyBaseProps(graphics, data, state);
+	callMountHooks(graphics, data, state);
+	return graphics;
+};
+
+/**
  * Create a component for supported game object types
  * Checks the factory registry first, then falls back to built-in types
  */
@@ -213,6 +320,14 @@ export const createComponent = <Msg>(
 			return createContainer(state, data);
 		case 'graphics':
 			return createGraphics(state, data);
+		case 'rect':
+			return createRectangle(state, data);
+		case 'roundrect':
+			return createRoundedRectangle(state, data);
+		case 'circle':
+			return createCircle(state, data);
+		case 'ellipse':
+			return createEllipse(state, data);
 		default:
 			console.warn(`[Mana] Unknown component type: ${data.type}`);
 			return null;
