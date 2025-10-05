@@ -194,6 +194,12 @@ const updateGraphicsElement: UpdateHandler<any> = (gameObject, data) => {
 		const graphics = gameObject as Phaser.GameObjects.Graphics;
 		const graphicsData = data as any;
 
+		// Skip automatic updates if skipAutoUpdate flag is set
+		// (useful when graphics are manually managed, e.g., by tweens)
+		if (graphicsData.skipAutoUpdate) {
+			return;
+		}
+
 		// Clear and redraw all shapes
 		graphics.clear();
 		if (graphicsData.shapes && Array.isArray(graphicsData.shapes)) {
