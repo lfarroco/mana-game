@@ -43,9 +43,33 @@ export type UpdateElementAction = {
 };
 
 /**
+ * Action to create a tween animation
+ * The tween will interpolate from 'from' to 'to' and call onUpdate/onComplete handlers
+ * which can return messages to be dispatched
+ */
+export type TweenAction<Msg = any> = {
+	readonly type: '@mana/TWEEN';
+	readonly tweenId: string; // Unique ID to track/cancel tweens
+	readonly from: number;
+	readonly to: number;
+	readonly duration: number;
+	readonly ease?: string;
+	readonly onUpdate?: (value: number) => readonly Msg[];
+	readonly onComplete?: () => readonly Msg[];
+};
+
+/**
+ * Action to stop/cancel a running tween
+ */
+export type StopTweenAction = {
+	readonly type: '@mana/STOP_TWEEN';
+	readonly tweenId: string;
+};
+
+/**
  * Union type of all built-in Mana messages
  */
-export type ManaMsg = RedrawShapeAction | UpdateElementAction;
+export type ManaMsg = RedrawShapeAction | UpdateElementAction | TweenAction | StopTweenAction;
 
 /**
  * Helper to create a redraw shape action
@@ -99,8 +123,43 @@ export const moveTo = (elementId: string, x: number, y: number): UpdateElementAc
 });
 
 /**
+ * Helper to create a tween action
+ */
+export const createTween = <Msg>(
+	tweenId: string,
+	from: number,
+	to: number,
+	duration: number,
+	options?: {
+		ease?: string;
+		onUpdate?: (value: number) => readonly Msg[];
+		onComplete?: () => readonly Msg[];
+	}
+): TweenAction<Msg> => ({
+	type: '@mana/TWEEN',
+	tweenId,
+	from,
+	to,
+	duration,
+	ease: options?.ease,
+	onUpdate: options?.onUpdate,
+	onComplete: options?.onComplete,
+});
+
+/**
+ * Helper to stop a running tween
+ */
+export const stopTween = (tweenId: string): StopTweenAction => ({
+	type: '@mana/STOP_TWEEN',
+	tweenId,
+});
+
+// Store active tweens by ID
+const activeTweens = new Map<string, Phaser.Tweens.Tween>();
+
+/**
  * Built-in handler for Mana messages
- * Processes common operations like redrawing shapes
+ * Processes common operations like redrawing shapes and creating tweens
  * 
  * Usage in your update function:
  * ```typescript
@@ -249,6 +308,63 @@ export const handleManaMsg = <Msg extends ManaMsg>(
 				gameObject.setScale(props.scale.x, props.scale.y);
 			}
 
+			return state;
+		}
+
+		case '@mana/TWEEN': {
+			// Stop existing tween with same ID if it exists
+			const existingTween = activeTweens.get(msg.tweenId);
+			if (existingTween) {
+				existingTween.stop();
+				activeTweens.delete(msg.tweenId);
+			}
+
+			// Create the tween
+			const tween = state.scene.tweens.addCounter({
+				from: msg.from,
+				to: msg.to,
+				duration: msg.duration,
+				ease: msg.ease || 'Power2',
+				onUpdate: (tween) => {
+					if (msg.onUpdate) {
+						const value = tween.getValue();
+						const messages = msg.onUpdate(value);
+						if (messages.length > 0) {
+							// Process messages immediately for smooth updates
+							messages.forEach((m) => {
+								handleManaMsg(m as any, state);
+							});
+						}
+					}
+				},
+				onComplete: () => {
+					// Clean up tween reference
+					activeTweens.delete(msg.tweenId);
+
+					// Dispatch completion messages
+					if (msg.onComplete) {
+						const messages = msg.onComplete();
+						if (messages.length > 0) {
+							messages.forEach((m) => {
+								handleManaMsg(m as any, state);
+							});
+						}
+					}
+				},
+			});
+
+			// Store tween reference
+			activeTweens.set(msg.tweenId, tween);
+
+			return state;
+		}
+
+		case '@mana/STOP_TWEEN': {
+			const tween = activeTweens.get(msg.tweenId);
+			if (tween) {
+				tween.stop();
+				activeTweens.delete(msg.tweenId);
+			}
 			return state;
 		}
 

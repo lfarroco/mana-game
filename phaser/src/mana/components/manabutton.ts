@@ -6,38 +6,56 @@
  * - Rounded rectangle background
  * - Text label overlay
  * - Click handling with messages
- * - Hover effects with smooth color tween
+ * - Smooth color tween animations using declarative ManaMsg actions
  * 
- * The button manages its own drawing internally for optimal performance.
- * For other components, consider using the ManaMsg system (see actions.ts).
+ * Usage:
+ * The button requires your message type to extend ManaMsg so it can dispatch tween actions.
+ * 
+ * ```typescript
+ * import { ManaMsg, handleManaMsg } from './mana';
+ * 
+ * type MyMsg = ManaMsg | { type: 'BUTTON_CLICKED' };
+ * 
+ * const update = (msg: MyMsg, state) => {
+ *   const newState = handleManaMsg(msg, state);
+ *   if (newState !== state) return newState;
+ *   // ... handle custom messages
+ * };
+ * 
+ * const button = createButton<MyMsg>({
+ *   id: 'my-button',
+ *   x: 100,
+ *   y: 100,
+ *   width: 200,
+ *   height: 50,
+ *   text: 'Click Me',
+ *   onClick: () => [{ type: 'BUTTON_CLICKED' }],
+ * });
+ * ```
  */
 
 import type { Element, RoundedRectangleElement, TextElement } from '../types';
+import type { ManaMsg } from '../actions';
+import { createTween, redrawShape, stopTween } from '../actions';
 
 // Re-export ManaMsg types and helpers for convenience
-export type { ManaMsg } from '../actions';
-export { handleManaMsg, redrawShape, updateElement, setFillColor, setVisible, moveTo } from '../actions';
-
-/**
- * Helper to redraw a rounded rectangle shape
- * Used internally by the button for tween animations
- */
-const redrawRoundedRect = (
-	graphics: Phaser.GameObjects.Graphics,
-	width: number,
-	height: number,
-	radius: number,
-	color: number
-): void => {
-	graphics.clear();
-	graphics.fillStyle(color, 1);
-	graphics.fillRoundedRect(-width / 2, -height / 2, width, height, radius);
-};
+export type { ManaMsg, TweenAction } from '../actions';
+export {
+	handleManaMsg,
+	redrawShape,
+	updateElement,
+	setFillColor,
+	setVisible,
+	moveTo,
+	createTween,
+	stopTween,
+} from '../actions';
 
 /**
  * Button configuration
+ * Generic type must extend ManaMsg to support built-in tween actions
  */
-export type ButtonConfig<Msg> = {
+export type ButtonConfig<Msg extends ManaMsg> = {
 	readonly id: string;
 	readonly x: number;
 	readonly y: number;
@@ -52,14 +70,12 @@ export type ButtonConfig<Msg> = {
 };
 
 /**
- * Button state for tracking hover and graphics reference
+ * Button state for tracking hover and current color
  */
 type ButtonState = {
 	isHovered: boolean;
-	tween?: Phaser.Tweens.Tween;
 	currentColor: number;
 	isTweening: boolean;
-	graphics?: Phaser.GameObjects.Graphics; // Direct reference for manual drawing
 };
 
 // Store button states
@@ -68,8 +84,9 @@ const buttonStates = new Map<string, ButtonState>();
 /**
  * Create a button component
  * Returns a container with rounded rectangle background and text
+ * Uses declarative tween actions for smooth color animations
  */
-export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<Msg>[] => {
+export const createButton = <Msg extends ManaMsg>(config: ButtonConfig<Msg>): readonly Element<Msg>[] => {
 	const {
 		id,
 		x,
@@ -92,7 +109,6 @@ export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<M
 	if (!buttonStates.has(id)) {
 		buttonStates.set(id, {
 			isHovered: false,
-			tween: undefined,
 			currentColor: normalColor,
 			isTweening: false,
 		});
@@ -101,7 +117,7 @@ export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<M
 	const state = buttonStates.get(id)!;
 
 	// Background graphics rect
-	const background: RoundedRectangleElement<Msg> & { skipAutoUpdate?: boolean } = {
+	const background: RoundedRectangleElement<Msg> = {
 		id: `${id}-bg`,
 		type: 'roundrect',
 		x: 0,
@@ -112,17 +128,12 @@ export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<M
 		fillColor: state.currentColor,
 		fillAlpha: 1,
 		interactive: true,
-		skipAutoUpdate: true,  // Prevent Mana's automatic graphics redrawing
 		hitArea: {
 			shape: new Phaser.Geom.Rectangle(-width / 2, -height / 2, width, height),
 			callback: Phaser.Geom.Rectangle.Contains,
 		},
-		onMount: (gameObject) => {
-			// Store graphics reference for direct drawing during tweens
-			state.graphics = gameObject as Phaser.GameObjects.Graphics;
-		},
 		onClick,
-		onHover: (pointer) => {
+		onHover: () => {
 			// Prevent creating multiple tweens if already tweening or at target color
 			if (state.isTweening || state.currentColor === hoverColor) {
 				state.isHovered = true;
@@ -130,15 +141,6 @@ export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<M
 			}
 
 			state.isHovered = true;
-
-			// Stop any existing tween (shouldn't happen with isTweening guard, but just in case)
-			if (state.tween) {
-				state.tween.stop();
-				state.tween = undefined;
-			}
-
-			// Tween color change on hover - dispatch redrawShape actions
-			const scene = pointer.manager.game.scene.scenes[0]; // Get active scene
 			state.isTweening = true;
 
 			// Extract RGB components for proper color interpolation
@@ -150,34 +152,38 @@ export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<M
 			const toG = (hoverColor >> 8) & 0xff;
 			const toB = hoverColor & 0xff;
 
-			state.tween = scene.tweens.addCounter({
-				from: 0,
-				to: 1,
-				duration: 200,
-				ease: 'Power2',
-				onUpdate: (tween) => {
-					const t = tween.getValue();
-					// Interpolate each RGB component
-					const r = Math.round(fromR + (toR - fromR) * t);
-					const g = Math.round(fromG + (toG - fromG) * t);
-					const b = Math.round(fromB + (toB - fromB) * t);
-					// Combine back into hex color
-					state.currentColor = (r << 16) | (g << 8) | b;
+			// Return tween action that dispatches redraw messages
+			return [
+				stopTween(`${id}-hover-tween`) as Msg, // Stop any existing tween
+				createTween<Msg>(
+					`${id}-hover-tween`,
+					0,
+					1,
+					200,
+					{
+						ease: 'Power2',
+						onUpdate: (t: number) => {
+							// Interpolate each RGB component
+							const r = Math.round(fromR + (toR - fromR) * t);
+							const g = Math.round(fromG + (toG - fromG) * t);
+							const b = Math.round(fromB + (toB - fromB) * t);
+							// Combine back into hex color
+							const color = (r << 16) | (g << 8) | b;
+							state.currentColor = color;
 
-					// Directly redraw with new color for smooth animation
-					if (state.graphics) {
-						redrawRoundedRect(state.graphics, width, height, cornerRadius, state.currentColor);
+							// Return redraw action
+							return [redrawShape(`${id}-bg`, { fillColor: color }) as Msg];
+						},
+						onComplete: () => {
+							state.currentColor = hoverColor;
+							state.isTweening = false;
+							return [];
+						},
 					}
-				},
-				onComplete: () => {
-					state.currentColor = hoverColor;
-					state.isTweening = false;
-					state.tween = undefined;
-				},
-			});
-			return [];
+				) as Msg,
+			];
 		},
-		onHoverOut: (pointer) => {
+		onHoverOut: () => {
 			// Prevent creating multiple tweens if already tweening or at target color
 			if (state.isTweening || state.currentColor === normalColor) {
 				state.isHovered = false;
@@ -185,15 +191,6 @@ export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<M
 			}
 
 			state.isHovered = false;
-
-			// Stop any existing tween (shouldn't happen with isTweening guard, but just in case)
-			if (state.tween) {
-				state.tween.stop();
-				state.tween = undefined;
-			}
-
-			// Tween back to normal color - dispatch redrawShape actions
-			const scene = pointer.manager.game.scene.scenes[0];
 			state.isTweening = true;
 
 			// Extract RGB components for proper color interpolation
@@ -205,32 +202,36 @@ export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<M
 			const toG = (normalColor >> 8) & 0xff;
 			const toB = normalColor & 0xff;
 
-			state.tween = scene.tweens.addCounter({
-				from: 0,
-				to: 1,
-				duration: 200,
-				ease: 'Power2',
-				onUpdate: (tween) => {
-					const t = tween.getValue();
-					// Interpolate each RGB component
-					const r = Math.round(fromR + (toR - fromR) * t);
-					const g = Math.round(fromG + (toG - fromG) * t);
-					const b = Math.round(fromB + (toB - fromB) * t);
-					// Combine back into hex color
-					state.currentColor = (r << 16) | (g << 8) | b;
+			// Return tween action that dispatches redraw messages
+			return [
+				stopTween(`${id}-hover-out-tween`) as Msg, // Stop any existing tween
+				createTween<Msg>(
+					`${id}-hover-out-tween`,
+					0,
+					1,
+					200,
+					{
+						ease: 'Power2',
+						onUpdate: (t: number) => {
+							// Interpolate each RGB component
+							const r = Math.round(fromR + (toR - fromR) * t);
+							const g = Math.round(fromG + (toG - fromG) * t);
+							const b = Math.round(fromB + (toB - fromB) * t);
+							// Combine back into hex color
+							const color = (r << 16) | (g << 8) | b;
+							state.currentColor = color;
 
-					// Directly redraw with new color for smooth animation
-					if (state.graphics) {
-						redrawRoundedRect(state.graphics, width, height, cornerRadius, state.currentColor);
+							// Return redraw action
+							return [redrawShape(`${id}-bg`, { fillColor: color }) as Msg];
+						},
+						onComplete: () => {
+							state.currentColor = normalColor;
+							state.isTweening = false;
+							return [];
+						},
 					}
-				},
-				onComplete: () => {
-					state.currentColor = normalColor;
-					state.isTweening = false;
-					state.tween = undefined;
-				},
-			});
-			return [];
+				) as Msg,
+			];
 		},
 	};
 
@@ -263,17 +264,16 @@ export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<M
  * Clean up button state (call when button is destroyed)
  */
 export const destroyButton = (id: string): void => {
-	const state = buttonStates.get(id);
-	if (state?.tween) {
-		state.tween.stop();
-	}
+	// Stop any running tweens
+	stopTween(`${id}-hover-tween`);
+	stopTween(`${id}-hover-out-tween`);
 	buttonStates.delete(id);
 };
 
 /**
  * Helper to create multiple buttons with common styling
  */
-export const createButtonGroup = <Msg>(
+export const createButtonGroup = <Msg extends ManaMsg>(
 	buttons: Array<{
 		id: string;
 		x: number;

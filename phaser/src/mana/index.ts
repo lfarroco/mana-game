@@ -69,7 +69,7 @@ export {
 } from './validation';
 
 // Built-in actions and message system
-export type { ManaMsg, RedrawShapeAction, UpdateElementAction } from './actions';
+export type { ManaMsg, RedrawShapeAction, UpdateElementAction, TweenAction, StopTweenAction } from './actions';
 export {
 	handleManaMsg,
 	redrawShape,
@@ -77,4 +77,6 @@ export {
 	setFillColor,
 	setVisible,
 	moveTo,
+	createTween,
+	stopTween,
 } from './actions';
