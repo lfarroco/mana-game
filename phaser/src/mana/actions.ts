@@ -132,7 +132,7 @@ export const handleManaMsg = <Msg extends ManaMsg>(
 
 			const graphics = element as Phaser.GameObjects.Graphics;
 			const data = state.data.find(d => d.id === msg.elementId) as any;
-			
+
 			if (!data) {
 				console.warn(`[Mana] Cannot redraw element: ${msg.elementId} data not found`);
 				return state;
@@ -224,10 +224,10 @@ export const handleManaMsg = <Msg extends ManaMsg>(
 			}
 
 			const props = msg.properties;
-			
+
 			// Cast to any to access common game object properties
 			const gameObject = element as any;
-			
+
 			if (props.x !== undefined || props.y !== undefined) {
 				if (gameObject.setPosition) {
 					gameObject.setPosition(
