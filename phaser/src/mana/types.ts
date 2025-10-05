@@ -8,11 +8,16 @@
 export type ClickHandler<Msg> = (pointer: Phaser.Input.Pointer) => readonly Msg[];
 
 /**
+ * Handler for hover events
+ */
+export type HoverHandler<Msg> = (pointer: Phaser.Input.Pointer) => readonly Msg[];
+
+/**
  * Base properties shared by all elements
  */
 export type BaseElement<Msg> = {
 	readonly id: string;
-	readonly type: 'image' | 'text' | 'container';
+	readonly type: 'image' | 'text' | 'container' | 'graphics';
 	readonly x: number;
 	readonly y: number;
 	readonly visible?: boolean;
@@ -21,6 +26,8 @@ export type BaseElement<Msg> = {
 	readonly scale?: { readonly x: number; readonly y: number };
 	readonly interactive?: boolean;
 	readonly onClick?: ClickHandler<Msg>;
+	readonly onHover?: HoverHandler<Msg>;
+	readonly onHoverOut?: HoverHandler<Msg>;
 };
 
 /**
@@ -50,9 +57,22 @@ export type ContainerElement<Msg> = BaseElement<Msg> & {
 };
 
 /**
+ * Graphics element for drawing shapes
+ */
+export type GraphicsElement<Msg> = BaseElement<Msg> & {
+	readonly type: 'graphics';
+	readonly draw?: (graphics: Phaser.GameObjects.Graphics) => void;
+	readonly fillColor?: number;
+	readonly fillAlpha?: number;
+	readonly lineColor?: number;
+	readonly lineWidth?: number;
+	readonly lineAlpha?: number;
+};
+
+/**
  * Union type of all element types
  */
-export type Element<Msg> = ImageElement<Msg> | TextElement<Msg> | ContainerElement<Msg>;
+export type Element<Msg> = ImageElement<Msg> | TextElement<Msg> | ContainerElement<Msg> | GraphicsElement<Msg>;
 
 /**
  * State management for the component system
