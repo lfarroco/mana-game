@@ -120,50 +120,38 @@ setData(components)(state);
 
 ## Extending the Library
 
-### Adding Custom Component Types
+### Adding Custom Properties
 
 ```typescript
-import { registerComponentFactory, applyBaseProps } from './mana';
+import { registerPropertySetter } from './mana';
 
-// Define your component type
-type SpriteElement<Msg> = BaseElement<Msg> & {
-  type: 'sprite';
-  texture: string;
-  animation?: string;
-};
-
-// Register the factory
-registerComponentFactory('sprite', (state, data) => {
-  const spriteData = data as SpriteElement<any>;
-  const sprite = state.scene.add.sprite(
-    spriteData.x,
-    spriteData.y,
-    spriteData.texture
-  );
-
-  applyBaseProps(sprite, data, state);
-
-  if (spriteData.animation) {
-    sprite.play(spriteData.animation);
+// Add tint property
+registerPropertySetter('tint', (obj, val) => {
+  if ('setTint' in obj && typeof val === 'number') {
+    obj.setTint(val);
   }
-
-  return sprite;
 });
 
-// Now you can use it!
+// Add depth property
+registerPropertySetter('depth', (obj, val) => {
+  if ('setDepth' in obj && typeof val === 'number') {
+    obj.setDepth(val);
+  }
+});
+
+// Now all components can use these properties
 const components = [
   {
-    id: 'enemy',
-    type: 'sprite',
-    x: 200,
-    y: 200,
-    texture: 'enemy',
-    animation: 'enemy-idle'
+    id: 'background',
+    type: 'image',
+    x: 0,
+    y: 0,
+    texture: 'bg',
+    tint: 0xff0000,
+    depth: -1
   }
 ];
 ```
-
-### Adding Custom Properties
 
 ```typescript
 import { registerPropertySetter } from './mana';
@@ -328,8 +316,10 @@ const createButton = (
 - `registerUpdateHandler(type, handler)` - Add custom update logic
 
 ### Component Factories
-- `registerComponentFactory(type, factory)` - Add custom component type
-- `getRegisteredTypes()` - Get all registered types
+- `createImage(state, data)` - Create image component
+- `createText(state, data)` - Create text component
+- `createContainer(state, data)` - Create container component
+- `createComponent(state, data)` - Create component by type (supports image, text, container)
 
 ### Properties
 - `registerPropertySetter(property, setter)` - Add custom property
