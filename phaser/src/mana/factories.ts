@@ -14,12 +14,6 @@ export type ComponentFactory<Msg> = (
 ) => Phaser.GameObjects.GameObject | null;
 
 /**
- * Registry of component factories by type
- * Allows registering custom component types
- */
-const factoryRegistry: Record<string, ComponentFactory<any>> = {};
-
-/**
  * Create an image game object
  */
 export const createImage = <Msg>(
@@ -56,49 +50,20 @@ export const createContainer = <Msg>(
 };
 
 /**
- * Register built-in factories
- */
-const registerBuiltInFactories = (): void => {
-	factoryRegistry['image'] = createImage;
-	factoryRegistry['text'] = createText;
-	factoryRegistry['container'] = createContainer;
-};
-
-// Initialize built-in factories
-registerBuiltInFactories();
-
-/**
- * Register a custom component factory
- * Enables extending the system with new component types
- *
- * @example
- * registerComponentFactory('sprite', (state, data) => {
- *   const sprite = state.scene.add.sprite(data.x, data.y, data.texture);
- *   applyBaseProps(sprite, data, state);
- *   return sprite;
- * });
- */
-export const registerComponentFactory = <Msg>(
-	type: string,
-	factory: ComponentFactory<Msg>
-): void => {
-	factoryRegistry[type] = factory;
-};
-
-/**
- * Create a component using the registered factory for its type
+ * Create a component for supported game object types
  */
 export const createComponent = <Msg>(
 	state: ComponentState<Msg>,
 	data: any
 ): Phaser.GameObjects.GameObject | null => {
-	const factory = factoryRegistry[data.type];
-	return factory ? factory(state, data) : null;
-};
-
-/**
- * Get all registered component types
- */
-export const getRegisteredTypes = (): string[] => {
-	return Object.keys(factoryRegistry);
+	switch (data.type) {
+		case 'image':
+			return createImage(state, data);
+		case 'text':
+			return createText(state, data);
+		case 'container':
+			return createContainer(state, data);
+		default:
+			return null;
+	}
 };
