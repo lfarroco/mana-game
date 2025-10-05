@@ -191,4 +191,113 @@ export const validateState = <Msg>(state: ComponentState<Msg>): void => {
 			warn(`Orphaned element detected: ${id}. This element exists but is not in the data array.`);
 		}
 	}
+
+	// Check element data registry consistency
+	const registryIds = new Set(state.elementData.keys());
+	if (registryIds.size !== dataIds.size) {
+		warn(`Element data registry size mismatch. Registry: ${registryIds.size}, Data: ${dataIds.size}`);
+	}
+
+	// Check for missing elements
+	for (const id of dataIds) {
+		if (!elementIds.has(id)) {
+			warn(`Missing element: ${id}. Data exists but no corresponding game object found.`);
+		}
+		if (!registryIds.has(id)) {
+			warn(`Missing in registry: ${id}. Data exists but not in element data registry.`);
+		}
+	}
+};
+
+/**
+ * Validate message structure
+ */
+export const validateMessage = (msg: any): boolean => {
+	if (!DEV_MODE) return true;
+
+	if (!msg || typeof msg !== 'object') {
+		error('Message must be an object', msg);
+		return false;
+	}
+
+	if (!msg.type) {
+		error('Message missing required "type" property', msg);
+		return false;
+	}
+
+	// Mana message validation
+	if (typeof msg.type === 'string' && msg.type.startsWith('@mana/')) {
+		if (msg.type === '@mana/TWEEN' && !msg.tweenId) {
+			error('TWEEN message missing "tweenId"', msg);
+			return false;
+		}
+		if (msg.type === '@mana/STOP_TWEEN' && !msg.tweenId) {
+			error('STOP_TWEEN message missing "tweenId"', msg);
+			return false;
+		}
+		if (msg.type === '@mana/REDRAW_SHAPE' && !msg.elementId) {
+			error('REDRAW_SHAPE message missing "elementId"', msg);
+			return false;
+		}
+	}
+
+	return true;
+};
+
+/**
+ * Validate component creation
+ */
+export const validateComponentCreation = <Msg>(scene: Phaser.Scene, elements: readonly Element<Msg>[]): boolean => {
+	if (!DEV_MODE) return true;
+
+	if (!scene) {
+		error('Scene is required for component creation');
+		return false;
+	}
+
+	if (!Array.isArray(elements)) {
+		error('Elements must be an array', elements);
+		return false;
+	}
+
+	if (elements.length === 0) {
+		warn('Creating component with empty elements array');
+	}
+
+	return validateElements(elements);
+};
+
+/**
+ * Attempt to recover from common errors
+ */
+export const attemptRecovery = <Msg>(state: ComponentState<Msg>, error: any): ComponentState<Msg> => {
+	if (!DEV_MODE) return state;
+
+	warn('Attempting error recovery...', error);
+
+	try {
+		// Clear message queue to prevent infinite loops
+		if (state.messageQueue.length > 50) {
+			warn('Clearing large message queue to prevent infinite loops');
+			return { ...state, messageQueue: [] as readonly Msg[] };
+		}
+
+		// Rebuild element data registry if corrupted
+		if (state.elementData.size === 0 && state.data.length > 0) {
+			warn('Rebuilding corrupted element data registry');
+			const registry = new Map<string, Element<Msg>>();
+			const addToRegistry = (element: Element<Msg>) => {
+				registry.set(element.id, element);
+				if ('children' in element && element.children) {
+					element.children.forEach(addToRegistry);
+				}
+			};
+			state.data.forEach(addToRegistry);
+			return { ...state, elementData: registry };
+		}
+	} catch (recoveryError) {
+		error('Recovery failed', recoveryError);
+	}
+
+	return state;
 };

@@ -4,6 +4,14 @@
 
 import type { ComponentState } from './types';
 import { handleManaMsg } from './actions';
+import { validateMessage, attemptRecovery } from './validation';
+
+// Import warn function
+const warn = (message: string, ...args: any[]) => {
+	if (typeof console !== 'undefined' && console.warn) {
+		console.warn(`[Mana] ${message}`, ...args);
+	}
+};
 
 /**
  * Emit a message to all registered subscribers
@@ -23,6 +31,7 @@ export const createComponentState = <Msg>(
 	const state: ComponentState<Msg> = {
 		scene,
 		elements: {},
+		elementData: new Map(),
 		data: [],
 		messageQueue: [],
 		update,
@@ -75,22 +84,33 @@ export const processMessages = <Msg>(
 
 	let currentState = state;
 	for (const msg of state.messageQueue) {
-		emitToSubscribers(msg, currentState.subscribers);
-
-		// Automatically handle ManaMsg first
-		const msgObj = msg as any;
-		let isManaMsg = false;
-		if (msgObj.type && (msgObj.type.startsWith('@mana/') || msgObj.tweenId)) {
-			const manaState = handleManaMsg(msg as any, currentState);
-			if (manaState !== currentState) {
-				currentState = manaState;
+		try {
+			// Validate message
+			if (!validateMessage(msg)) {
+				warn(`Skipping invalid message:`, msg);
+				continue;
 			}
-			isManaMsg = true;
-		}
 
-		// Call user update function for non-Mana messages
-		if (currentState.update && !isManaMsg) {
-			currentState = currentState.update(msg, currentState);
+			emitToSubscribers(msg, currentState.subscribers);
+
+			// Automatically handle ManaMsg first
+			const msgObj = msg as any;
+			let isManaMsg = false;
+			if (msgObj.type && (msgObj.type.startsWith('@mana/') || msgObj.tweenId)) {
+				const manaState = handleManaMsg(msg as any, currentState);
+				if (manaState !== currentState) {
+					currentState = manaState;
+				}
+				isManaMsg = true;
+			}
+
+			// Call user update function for non-Mana messages
+			if (currentState.update && !isManaMsg) {
+				currentState = currentState.update(msg, currentState);
+			}
+		} catch (error) {
+			console.error('[Mana] Error processing message:', msg, error);
+			currentState = attemptRecovery(currentState, error);
 		}
 	}
 
