@@ -55,7 +55,7 @@ export type DeclarativeButtonConfig<Msg> = {
  * Create a declarative button component
  * Uses element state management and declarative color tweening
  */
-export const createDeclarativeButton = <Msg>(
+export const create = <Msg>(
 	config: DeclarativeButtonConfig<Msg>
 ): readonly Element<Msg | ManaMsg>[] => {
 	const {
@@ -162,29 +162,6 @@ export const createDeclarativeButton = <Msg>(
 			children: [background, label],
 		} as Element<Msg | ManaMsg>,
 	];
-};
-
-/**
- * Helper to create a simple button with default styling
- */
-export const createSimpleButton = <Msg>(
-	id: string,
-	x: number,
-	y: number,
-	width: number,
-	height: number,
-	text: string,
-	onClick: () => readonly (Msg | ManaMsg)[]
-): readonly Element<Msg | ManaMsg>[] => {
-	return createDeclarativeButton({
-		id,
-		x,
-		y,
-		width,
-		height,
-		text,
-		onClick,
-	});
 };
 
 /**
