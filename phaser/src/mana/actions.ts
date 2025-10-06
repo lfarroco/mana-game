@@ -139,9 +139,20 @@ export type PropertyTweenAction<Msg = any> = {
 };
 
 /**
+ * Action to update a shader uniform
+ * Allows directly setting shader uniform values
+ */
+export type UpdateShaderUniformAction = {
+	readonly type: '@mana/UPDATE_SHADER_UNIFORM';
+	readonly elementId: string;
+	readonly uniform: string;
+	readonly value: any; // Can be number, array, etc.
+};
+
+/**
  * Union type of all built-in Mana messages
  */
-export type ManaMsg = RedrawShapeAction | UpdateElementAction | TweenAction | StopTweenAction | SequenceAction | DelayAction | ColorTweenAction | SetElementStateAction | UpdateElementStateAction | PropertyTweenAction;
+export type ManaMsg = RedrawShapeAction | UpdateElementAction | TweenAction | StopTweenAction | SequenceAction | DelayAction | ColorTweenAction | SetElementStateAction | UpdateElementStateAction | PropertyTweenAction | UpdateShaderUniformAction;
 
 /**
  * Helper to create a redraw shape action
@@ -328,6 +339,20 @@ export const createPropertyTween = <Msg>(
 	duration,
 	ease: options?.ease,
 	onComplete: options?.onComplete,
+});
+
+/**
+ * Helper to create an update shader uniform action
+ */
+export const updateShaderUniform = (
+	elementId: string,
+	uniform: string,
+	value: any
+): UpdateShaderUniformAction => ({
+	type: '@mana/UPDATE_SHADER_UNIFORM',
+	elementId,
+	uniform,
+	value,
 });
 
 // Store active tweens by ID
@@ -727,6 +752,27 @@ export const handleManaMsg = <Msg extends ManaMsg>(
 
 			// Store tween reference
 			activeTweens.set(msg.tweenId, tween);
+
+			return state;
+		}
+
+		case '@mana/UPDATE_SHADER_UNIFORM': {
+			const element = state.elements[msg.elementId];
+			if (!element || !('setUniform' in element)) {
+				console.warn(`[Mana] Cannot update shader uniform: ${msg.elementId} not found or not a shader`);
+				return state;
+			}
+
+			const shader = element as Phaser.GameObjects.Shader;
+			// Update the uniform value
+			console.log(`[Mana] Updating shader uniform: ${msg.uniform} =`, msg.value);
+			shader.setUniform(`${msg.uniform}.value`, msg.value);
+
+			// Also update the element data so the uniform persists
+			const data = state.elementData.get(msg.elementId);
+			if (data && (data as any).uniforms) {
+				(data as any).uniforms[msg.uniform] = msg.value;
+			}
 
 			return state;
 		}
