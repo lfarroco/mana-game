@@ -29,6 +29,7 @@ export type BaseElement<Msg> = {
 	readonly alpha?: number;
 	readonly rotation?: number;
 	readonly scale?: { readonly x: number; readonly y: number };
+	readonly origin?: { readonly x: number; readonly y: number };
 	readonly interactive?: boolean;
 	readonly onClick?: ClickHandler<Msg>;
 	readonly onHover?: HoverHandler<Msg>;

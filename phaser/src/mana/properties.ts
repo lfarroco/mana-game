@@ -10,6 +10,11 @@ import type { BaseElement, ComponentState } from './types';
 export type PropertySetter = (obj: any, val: any) => void;
 
 /**
+ * Properties that are expected to have setters in the registry
+ */
+const expectedProperties = ['x', 'y', 'visible', 'alpha', 'rotation', 'scale', 'origin'];
+
+/**
  * Registry of property setters that can be extended
  */
 export const propertySetters: Record<string, PropertySetter> = {
@@ -21,6 +26,11 @@ export const propertySetters: Record<string, PropertySetter> = {
 	scale: (obj, val) => {
 		if ('setScale' in obj && val && typeof val === 'object' && 'x' in val && 'y' in val) {
 			obj.setScale(val.x, val.y);
+		}
+	},
+	origin: (obj, val) => {
+		if ('setOrigin' in obj && val && typeof val === 'object' && 'x' in val && 'y' in val) {
+			obj.setOrigin(val.x, val.y);
 		}
 	},
 };
@@ -53,6 +63,8 @@ export const applyBaseProps = <T extends Phaser.GameObjects.GameObject, Msg>(
 	Object.keys(data).forEach(key => {
 		if (key in propertySetters && (data as any)[key] !== undefined) {
 			propertySetters[key](gameObject, (data as any)[key]);
+		} else if (expectedProperties.includes(key) && (data as any)[key] !== undefined) {
+			throw new Error(`Property '${key}' is declared in element data but has no corresponding setter in propertySetters registry.`);
 		}
 	});
 
