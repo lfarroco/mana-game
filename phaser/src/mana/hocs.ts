@@ -9,6 +9,52 @@ import type { Element } from './types';
 import type { ManaMsg } from './actions';
 import { updateElementState, createColorTween, createPropertyTween } from './actions';
 
+// Constants
+const DEFAULT_TWEEN_DURATION = 200;
+const DEFAULT_BUTTON_BASE_COLOR = 0x4a5568;
+const DEFAULT_BUTTON_HOVER_COLOR = 0x2d3748;
+const DEFAULT_BUTTON_CORNER_RADIUS = 8;
+const DEFAULT_BUTTON_FONT_SIZE = '16px';
+
+/**
+ * Helper function to create tween messages for hover transitions
+ */
+const createTweenMessages = (
+	elementId: string,
+	tweens: HoverTweenConfig[],
+	isHoverIn: boolean
+): ManaMsg[] => {
+	return tweens.map((tweenConfig) => {
+		const { property, baseValue, hoverValue, duration = DEFAULT_TWEEN_DURATION } = tweenConfig;
+		const tweenId = `${elementId}-hover-${isHoverIn ? 'in' : 'out'}-${property}`;
+		const fromValue = isHoverIn ? baseValue : hoverValue;
+		const toValue = isHoverIn ? hoverValue : baseValue;
+
+		if (property === 'fillColor' || property === 'strokeColor') {
+			return createColorTween(
+				tweenId,
+				elementId,
+				property as 'fillColor' | 'strokeColor',
+				fromValue,
+				toValue,
+				duration
+			);
+		} else {
+			return createPropertyTween(tweenId, elementId, property, fromValue, toValue, duration);
+		}
+	});
+};
+
+/**
+ * Validate hover tween configuration
+ */
+const validateHoverTweenConfig = (config: HoverTweenConfig): void => {
+	if (config.duration !== undefined && config.duration <= 0) {
+		throw new Error(`Invalid duration: ${config.duration}. Duration must be positive.`);
+	}
+	// Could add more validation for property names if needed
+};
+
 /**
  * Configuration for hoverable behavior
  */
@@ -31,10 +77,10 @@ export const withHoverable = <Msg>(
 	element: Element<Msg | ManaMsg>,
 	config: HoverableConfig = {}
 ): Element<Msg | ManaMsg> => {
-	const { tweens } = config;
+	const { tweens = [] } = config;
 
-	// Use provided tweens or empty array for no hover effects
-	const hoverTweens: HoverTweenConfig[] = tweens || [];
+	// Validate tween configurations
+	tweens.forEach(validateHoverTweenConfig);
 
 	// Enhanced element with hover behavior
 	const hoverableElement = {
@@ -43,37 +89,10 @@ export const withHoverable = <Msg>(
 			const messages: (Msg | ManaMsg)[] = [];
 
 			// Update state
-			messages.push(updateElementState(element.id, { isHovered: true }) as Msg);
+			messages.push(updateElementState(element.id, { isHovered: true }));
 
 			// Start transition tweens
-			hoverTweens.forEach((tweenConfig) => {
-				const { property, baseValue, hoverValue, duration = 200 } = tweenConfig;
-				const tweenId = `${element.id}-hover-${property}`;
-
-				if (property === 'fillColor' || property === 'strokeColor') {
-					messages.push(
-						createColorTween(
-							tweenId,
-							element.id,
-							property as 'fillColor' | 'strokeColor',
-							baseValue,
-							hoverValue,
-							duration
-						) as Msg
-					);
-				} else {
-					messages.push(
-						createPropertyTween(
-							tweenId,
-							element.id,
-							property,
-							baseValue,
-							hoverValue,
-							duration
-						) as Msg
-					);
-				}
-			});
+			messages.push(...createTweenMessages(element.id, tweens, true));
 
 			// Call original onHover if it exists
 			if (element.onHover) {
@@ -86,37 +105,10 @@ export const withHoverable = <Msg>(
 			const messages: (Msg | ManaMsg)[] = [];
 
 			// Update state
-			messages.push(updateElementState(element.id, { isHovered: false }) as Msg);
+			messages.push(updateElementState(element.id, { isHovered: false }));
 
 			// Start transition tweens back to base values
-			hoverTweens.forEach((tweenConfig) => {
-				const { property, baseValue, hoverValue, duration = 200 } = tweenConfig;
-				const tweenId = `${element.id}-hover-out-${property}`;
-
-				if (property === 'fillColor' || property === 'strokeColor') {
-					messages.push(
-						createColorTween(
-							tweenId,
-							element.id,
-							property as 'fillColor' | 'strokeColor',
-							hoverValue,
-							baseValue,
-							duration
-						) as Msg
-					);
-				} else {
-					messages.push(
-						createPropertyTween(
-							tweenId,
-							element.id,
-							property,
-							hoverValue,
-							baseValue,
-							duration
-						) as Msg
-					);
-				}
-			});
+			messages.push(...createTweenMessages(element.id, tweens, false));
 
 			// Call original onHoverOut if it exists
 			if (element.onHoverOut) {
@@ -178,19 +170,6 @@ export const withPressable = <Msg>(
 };
 
 /**
- * Wrap an element with focusable behavior
- */
-export const withFocusable = <Msg>(
-	element: Element<Msg | ManaMsg>
-): Element<Msg | ManaMsg> => {
-	return {
-		...element,
-		// Note: Phaser doesn't have built-in focus events, this would need
-		// additional implementation for keyboard navigation
-	};
-};
-
-/**
  * Combine multiple higher-order components
  * Applies them in order from right to left (like function composition)
  */
@@ -214,16 +193,16 @@ export const createButtonHOC = <Msg>(
 	onClick: () => (Msg | ManaMsg)[],
 	config: HoverableConfig & { cornerRadius?: number } = {}
 ): readonly Element<Msg | ManaMsg>[] => {
-	const { cornerRadius = 8, ...hoverConfig } = config;
+	const { cornerRadius = DEFAULT_BUTTON_CORNER_RADIUS, ...hoverConfig } = config;
 
 	// Provide default hover colors if none specified
 	const finalHoverConfig: HoverableConfig = {
 		tweens: [
 			{
 				property: 'fillColor',
-				baseValue: 0x4a5568,
-				hoverValue: 0x2d3748,
-				duration: 200,
+				baseValue: DEFAULT_BUTTON_BASE_COLOR,
+				hoverValue: DEFAULT_BUTTON_HOVER_COLOR,
+				duration: DEFAULT_TWEEN_DURATION,
 			},
 		],
 		...hoverConfig,
@@ -238,7 +217,7 @@ export const createButtonHOC = <Msg>(
 		width,
 		height,
 		radius: cornerRadius,
-		fillColor: finalHoverConfig.tweens?.[0]?.baseValue ?? 0x4a5568,
+		fillColor: finalHoverConfig.tweens?.[0]?.baseValue ?? DEFAULT_BUTTON_BASE_COLOR,
 		interactive: true,
 		hitArea: {
 			shape: new Phaser.Geom.Rectangle(-width / 2, -height / 2, width, height),
@@ -257,7 +236,7 @@ export const createButtonHOC = <Msg>(
 		y: 0,
 		text,
 		style: {
-			fontSize: '16px',
+			fontSize: DEFAULT_BUTTON_FONT_SIZE,
 			color: '#ffffff',
 			fontFamily: 'Arial',
 			align: 'center',
