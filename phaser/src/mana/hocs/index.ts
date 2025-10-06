@@ -5,7 +5,7 @@
  * such as hover states, click handling, animations, etc.
  */
 
-import type { Element } from '../types';
+import type { Element, MessageResult } from '../types';
 import type { ManaMsg } from '../actions';
 import { updateElementState, createColorTween, createPropertyTween } from '../actions';
 
@@ -51,6 +51,20 @@ const validateHoverTweenConfig = (config: HoverTweenConfig): void => {
 	// Could add more validation for property names if needed
 };
 
+const normalizeMessageResult = <Msg>(result: MessageResult<Msg> | undefined): readonly Msg[] => {
+	if (result === undefined || result === null) return [];
+	if (Array.isArray(result)) {
+		return result as readonly Msg[];
+	}
+	return [result as Msg];
+};
+
+const appendMessages = <Msg>(target: (Msg | ManaMsg)[], source: readonly (Msg | ManaMsg)[]): void => {
+	for (const msg of source) {
+		target.push(msg);
+	}
+};
+
 /**
  * Configuration for hoverable behavior
  */
@@ -72,7 +86,6 @@ export const withHoverable = <Msg>(
 ) => (
 	element: Element<Msg | ManaMsg>
 ): Element<Msg | ManaMsg> => {
-
 		// Validate tween configurations
 		tweens.forEach(validateHoverTweenConfig);
 
@@ -86,11 +99,12 @@ export const withHoverable = <Msg>(
 				messages.push(updateElementState(element.id, { isHovered: true }));
 
 				// Start transition tweens
-				messages.push(...createTweenMessages(element.id, tweens, true));
+				appendMessages(messages, createTweenMessages(element.id, tweens, true));
 
 				// Call original onHover if it exists
 				if (element.onHover) {
-					messages.push(...element.onHover(pointer));
+					const extra = normalizeMessageResult(element.onHover(pointer));
+					appendMessages(messages, extra);
 				}
 
 				return messages;
@@ -102,11 +116,12 @@ export const withHoverable = <Msg>(
 				messages.push(updateElementState(element.id, { isHovered: false }));
 
 				// Start transition tweens back to base values
-				messages.push(...createTweenMessages(element.id, tweens, false));
+				appendMessages(messages, createTweenMessages(element.id, tweens, false));
 
 				// Call original onHoverOut if it exists
 				if (element.onHoverOut) {
-					messages.push(...element.onHoverOut(pointer));
+					const extra = normalizeMessageResult(element.onHoverOut(pointer));
+					appendMessages(messages, extra);
 				}
 
 				return messages;
@@ -114,11 +129,13 @@ export const withHoverable = <Msg>(
 		};
 
 		return hoverableElement;
-	};/**
+	};
+
+/**
  * Configuration for clickable behavior
  */
 export type ClickableConfig<Msg> = {
-	onClick: () => readonly (Msg | ManaMsg)[];
+	onClick: () => MessageResult<Msg | ManaMsg>;
 	disabled?: boolean;
 };
 

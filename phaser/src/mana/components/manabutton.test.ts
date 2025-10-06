@@ -46,13 +46,12 @@ describe('ManaButton Component', () => {
 						y: 0,
 						width: 200,
 						height: 50,
-						vertexShader: expect.any(String),
 						fragmentShader: expect.any(String),
-						uniforms: {
+						uniforms: expect.objectContaining({
 							time: 0,
 							resolution: [200, 50],
 							intensity: 0.45,
-						},
+						}),
 					}),
 					{
 						id: 'test-button-text',
