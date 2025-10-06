@@ -286,10 +286,8 @@ export type ComponentState<Msg> = {
 	elements: Record<string, Phaser.GameObjects.GameObject>;
 	elementData: Map<string, Element<Msg>>;
 	data: readonly Element<Msg>[];
-	messageQueue: readonly Msg[];
 	update?: (msg: Msg, state: ComponentState<Msg>) => ComponentState<Msg>;
 	eventHandlersAttached: Set<string>;
-	subscribers: ReadonlyArray<(msg: Msg) => void>;
 	updateHandler?: () => void;
 };
 
