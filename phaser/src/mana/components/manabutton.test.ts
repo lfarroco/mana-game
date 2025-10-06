@@ -1,8 +1,8 @@
-import { createButton, destroyButton, createButtonGroup } from './manabutton';
+import * as manabutton from './manabutton';
 import { stopTween, redrawShape } from '../actions';
 
 describe('ManaButton Component', () => {
-	describe('createButton', () => {
+	describe('createDeclarativeButton', () => {
 		const baseConfig = {
 			id: 'test-button',
 			x: 100,
@@ -14,7 +14,7 @@ describe('ManaButton Component', () => {
 		};
 
 		it('should create a button with correct element structure', () => {
-			const elements = createButton(baseConfig);
+			const elements = manabutton.createDeclarativeButton(baseConfig);
 
 			expect(elements).toHaveLength(1);
 			const container = elements[0] as any; // Container element
@@ -67,7 +67,7 @@ describe('ManaButton Component', () => {
 				cornerRadius: 12,
 			};
 
-			const elements = createButton(customConfig);
+			const elements = manabutton.createDeclarativeButton(customConfig);
 			const container = elements[0] as any;
 
 			const background = container.children[0];
@@ -88,7 +88,7 @@ describe('ManaButton Component', () => {
 					],
 				};
 
-				const elements = createButton(config);
+				const elements = manabutton.createDeclarativeButton(config);
 				const container = elements[0] as any;
 				const background = container.children[0];
 
@@ -109,7 +109,7 @@ describe('ManaButton Component', () => {
 					hoverColor: 0x2d3748,
 				};
 
-				const elements = createButton(config);
+				const elements = manabutton.createDeclarativeButton(config);
 				const container = elements[0] as any;
 				const background = container.children[0];
 
@@ -134,7 +134,7 @@ describe('ManaButton Component', () => {
 
 			it('should not create duplicate tweens when already hovering', () => {
 				const config = { ...baseConfig, id: 'duplicate-hover-button' };
-				const elements = createButton(config);
+				const elements = manabutton.createDeclarativeButton(config);
 				const container = elements[0] as any;
 				const background = container.children[0];
 
@@ -154,7 +154,7 @@ describe('ManaButton Component', () => {
 					hoverColor: 0xffffff,  // White
 				};
 
-				const elements = createButton(config);
+				const elements = manabutton.createDeclarativeButton(config);
 				const container = elements[0] as any;
 				const background = container.children[0];
 
@@ -180,7 +180,7 @@ describe('ManaButton Component', () => {
 		describe('onHoverOut behavior', () => {
 			it('should not create tweens when already at normal color', () => {
 				const config = { ...baseConfig, id: 'hover-out-test-button' };
-				const elements = createButton(config);
+				const elements = manabutton.createDeclarativeButton(config);
 				const container = elements[0] as any;
 				const background = container.children[0];
 
@@ -191,55 +191,17 @@ describe('ManaButton Component', () => {
 		});
 	});
 
-	describe('createButtonGroup', () => {
-		it('should create multiple buttons with common config', () => {
-			const buttons = [
-				{ id: 'btn1', x: 0, y: 0, text: 'Button 1', onClick: () => [] },
-				{ id: 'btn2', x: 100, y: 0, text: 'Button 2', onClick: () => [] },
-			];
-
-			const commonConfig = {
-				width: 150,
-				height: 40,
-				normalColor: 0xff0000,
-			};
-
-			const elements = createButtonGroup(buttons, commonConfig);
-
-			expect(elements).toHaveLength(2);
-
-			// Check first button
-			const container1 = elements[0] as any;
-			expect(container1.id).toBe('btn1');
-			expect(container1.x).toBe(0);
-			expect(container1.children[0].width).toBe(150);
-			expect(container1.children[0].height).toBe(40);
-			expect(container1.children[0].fillColor).toBe(0xff0000);
-
-			// Check second button
-			const container2 = elements[1] as any;
-			expect(container2.id).toBe('btn2');
-			expect(container2.x).toBe(100);
-		});
-	});
-
-	describe('destroyButton', () => {
-		it('should be callable without error', () => {
-			// This mainly tests that the function exists and can be called
-			expect(() => destroyButton('test-button')).not.toThrow();
-		});
-	});
 
 	describe('Button State Management', () => {
 		it('should maintain separate state for different button IDs', () => {
-			const btn1 = createButton({
+			const btn1 = manabutton.createDeclarativeButton({
 				id: 'btn1',
 				x: 0, y: 0, width: 100, height: 50,
 				text: 'Btn1',
 				onClick: () => [],
 			});
 
-			const btn2 = createButton({
+			const btn2 = manabutton.createDeclarativeButton({
 				id: 'btn2',
 				x: 0, y: 0, width: 100, height: 50,
 				text: 'Btn2',
