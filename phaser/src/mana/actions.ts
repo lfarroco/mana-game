@@ -67,9 +67,29 @@ export type StopTweenAction = {
 };
 
 /**
+ * Action to execute a sequence of actions with optional delays between them
+ */
+export type SequenceAction<Msg = any> = {
+	readonly type: '@mana/SEQUENCE';
+	readonly sequenceId: string;
+	readonly actions: readonly Msg[];
+	readonly delayBetween?: number;
+};
+
+/**
+ * Action to delay execution and dispatch messages after a timeout
+ */
+export type DelayAction<Msg = any> = {
+	readonly type: '@mana/DELAY';
+	readonly delayId: string;
+	readonly duration: number;
+	readonly onComplete: () => readonly Msg[];
+};
+
+/**
  * Union type of all built-in Mana messages
  */
-export type ManaMsg = RedrawShapeAction | UpdateElementAction | TweenAction | StopTweenAction;
+export type ManaMsg = RedrawShapeAction | UpdateElementAction | TweenAction | StopTweenAction | SequenceAction | DelayAction;
 
 /**
  * Helper to create a redraw shape action
@@ -154,8 +174,42 @@ export const stopTween = (tweenId: string): StopTweenAction => ({
 	tweenId,
 });
 
+/**
+ * Helper to create a sequence action
+ */
+export const createSequence = <Msg>(
+	sequenceId: string,
+	actions: readonly Msg[],
+	delayBetween?: number
+): SequenceAction<Msg> => ({
+	type: '@mana/SEQUENCE',
+	sequenceId,
+	actions,
+	delayBetween,
+});
+
+/**
+ * Helper to create a delay action
+ */
+export const createDelay = <Msg>(
+	delayId: string,
+	duration: number,
+	onComplete: () => readonly Msg[]
+): DelayAction<Msg> => ({
+	type: '@mana/DELAY',
+	delayId,
+	duration,
+	onComplete,
+});
+
 // Store active tweens by ID
 const activeTweens = new Map<string, Phaser.Tweens.Tween>();
+
+// Store active sequences by ID
+const activeSequences = new Map<string, { currentIndex: number; timer?: Phaser.Time.TimerEvent }>();
+
+// Store active delays by ID
+const activeDelays = new Map<string, Phaser.Time.TimerEvent>();
 
 /**
  * Built-in handler for Mana messages
@@ -351,6 +405,77 @@ export const handleManaMsg = <Msg extends ManaMsg>(
 				tween.stop();
 				activeTweens.delete(msg.tweenId);
 			}
+			return state;
+		}
+
+		case '@mana/SEQUENCE': {
+			// Stop existing sequence with same ID if it exists
+			const existingSequence = activeSequences.get(msg.sequenceId);
+			if (existingSequence) {
+				if (existingSequence.timer) {
+					existingSequence.timer.destroy();
+				}
+				activeSequences.delete(msg.sequenceId);
+			}
+
+			// Start executing the sequence
+			const executeNext = (index: number) => {
+				if (index >= msg.actions.length) {
+					// Sequence complete
+					activeSequences.delete(msg.sequenceId);
+					return;
+				}
+
+				const action = msg.actions[index];
+				// Process the action immediately
+				handleManaMsg(action as any, state);
+
+				// Schedule next action if there's a delay and more actions
+				if (index < msg.actions.length - 1 && msg.delayBetween && msg.delayBetween > 0) {
+					const timer = state.scene.time.delayedCall(msg.delayBetween, () => {
+						executeNext(index + 1);
+					});
+					activeSequences.set(msg.sequenceId, { currentIndex: index + 1, timer });
+				} else if (index < msg.actions.length - 1) {
+					// No delay, execute immediately
+					executeNext(index + 1);
+				} else {
+					// Last action completed
+					activeSequences.delete(msg.sequenceId);
+				}
+			};
+
+			// Start the sequence
+			executeNext(0);
+
+			return state;
+		}
+
+		case '@mana/DELAY': {
+			// Stop existing delay with same ID if it exists
+			const existingDelay = activeDelays.get(msg.delayId);
+			if (existingDelay) {
+				existingDelay.destroy();
+				activeDelays.delete(msg.delayId);
+			}
+
+			// Create the delay
+			const timer = state.scene.time.delayedCall(msg.duration, () => {
+				// Clean up delay reference
+				activeDelays.delete(msg.delayId);
+
+				// Dispatch completion messages
+				const messages = msg.onComplete();
+				if (messages.length > 0) {
+					messages.forEach((m) => {
+						handleManaMsg(m as any, state);
+					});
+				}
+			});
+
+			// Store delay reference
+			activeDelays.set(msg.delayId, timer);
+
 			return state;
 		}
 
