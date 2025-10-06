@@ -19,6 +19,7 @@ export const createComponentState = <Msg>(
 		scene,
 		elements: {},
 		elementData: new Map(),
+		elementState: new Map(),
 		data: [],
 		update,
 		eventHandlersAttached: new Set(),
