@@ -124,6 +124,9 @@ export default class TitleScene extends Phaser.Scene {
 			width: 200,
 			height: 100,
 			text: "TEST BUTTON",
+			states: {
+				normal: { fillColor: 0x4a5568 },
+			},
 			onClick: (): readonly manabutton.ManaMsg[] => {
 				console.log("Button clicked!");
 				return [];
