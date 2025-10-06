@@ -39,7 +39,7 @@ import type { ManaMsg } from '../actions';
 import { createTween, redrawShape, stopTween } from '../actions';
 
 // Re-export ManaMsg types and helpers for convenience
-export type { ManaMsg, TweenAction } from '../actions';
+export type { ManaMsg, TweenAction, SequenceAction, DelayAction } from '../actions';
 export {
 	handleManaMsg,
 	redrawShape,
@@ -49,6 +49,8 @@ export {
 	moveTo,
 	createTween,
 	stopTween,
+	createSequence,
+	createDelay,
 } from '../actions';
 
 /**
