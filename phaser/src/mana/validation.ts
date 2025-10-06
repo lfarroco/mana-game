@@ -139,12 +139,6 @@ export const checkPerformance = <Msg>(state: ComponentState<Msg>): void => {
 			`High element count detected (${elementCount}). Consider using object pooling or pagination.`
 		);
 	}
-
-	if (state.messageQueue.length > 100) {
-		warn(
-			`Large message queue (${state.messageQueue.length}). Messages may not be processing fast enough.`
-		);
-	}
 };
 
 /**
@@ -276,12 +270,6 @@ export const attemptRecovery = <Msg>(state: ComponentState<Msg>, error: any): Co
 	warn('Attempting error recovery...', error);
 
 	try {
-		// Clear message queue to prevent infinite loops
-		if (state.messageQueue.length > 50) {
-			warn('Clearing large message queue to prevent infinite loops');
-			return { ...state, messageQueue: [] as readonly Msg[] };
-		}
-
 		// Rebuild element data registry if corrupted
 		if (state.elementData.size === 0 && state.data.length > 0) {
 			warn('Rebuilding corrupted element data registry');

@@ -146,6 +146,5 @@ export const destroy = <Msg>(state: ComponentState<Msg>): ComponentState<Msg> =>
 		elements: {},
 		data: [] as readonly Element<Msg>[],
 		eventHandlersAttached: new Set(),
-		subscribers: [],
 	};
 };

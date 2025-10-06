@@ -79,8 +79,12 @@ export const applyBaseProps = <T extends Phaser.GameObjects.GameObject, Msg>(
 		if (data.onClick && 'on' in go && !state.eventHandlersAttached.has(`${data.id}:click`)) {
 			go.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
 				const messages = data.onClick!(pointer);
-				// Create new array since messageQueue is readonly
-				state.messageQueue = [...state.messageQueue, ...messages];
+				// Dispatch messages immediately
+				messages.forEach(msg => {
+					if ((state as any).dispatch) {
+						(state as any).dispatch(msg);
+					}
+				});
 			});
 			state.eventHandlersAttached.add(`${data.id}:click`);
 		}
@@ -89,7 +93,12 @@ export const applyBaseProps = <T extends Phaser.GameObjects.GameObject, Msg>(
 		if (data.onHover && 'on' in go && !state.eventHandlersAttached.has(`${data.id}:hover`)) {
 			go.on('pointerover', (pointer: Phaser.Input.Pointer) => {
 				const messages = data.onHover!(pointer);
-				state.messageQueue = [...state.messageQueue, ...messages];
+				// Dispatch messages immediately
+				messages.forEach(msg => {
+					if ((state as any).dispatch) {
+						(state as any).dispatch(msg);
+					}
+				});
 			});
 			state.eventHandlersAttached.add(`${data.id}:hover`);
 		}
@@ -98,7 +107,12 @@ export const applyBaseProps = <T extends Phaser.GameObjects.GameObject, Msg>(
 		if (data.onHoverOut && 'on' in go && !state.eventHandlersAttached.has(`${data.id}:hoverout`)) {
 			go.on('pointerout', (pointer: Phaser.Input.Pointer) => {
 				const messages = data.onHoverOut!(pointer);
-				state.messageQueue = [...state.messageQueue, ...messages];
+				// Dispatch messages immediately
+				messages.forEach(msg => {
+					if ((state as any).dispatch) {
+						(state as any).dispatch(msg);
+					}
+				});
 			});
 			state.eventHandlersAttached.add(`${data.id}:hoverout`);
 		}

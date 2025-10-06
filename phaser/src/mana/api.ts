@@ -75,11 +75,9 @@ export const destroyComponent = <Msg>(state: ComponentState<Msg>): void => {
 	state.elements = {};
 	state.elementData.clear();
 	state.data = [];
-	state.messageQueue = [];
 	state.eventHandlersAttached.clear();
-	state.subscribers = [];
 
-	// Remove update handler
+	// Remove update handler if it exists
 	if (state.updateHandler) {
 		state.scene.events.off('update', state.updateHandler);
 		state.updateHandler = undefined;
