@@ -6,6 +6,7 @@
  */
 
 import type { ComponentState } from './types';
+import { normalizeUniformValue } from './uniforms';
 
 /**
  * Action to redraw a shape element with new properties
@@ -766,12 +767,13 @@ export const handleManaMsg = <Msg extends ManaMsg>(
 			const shader = element as Phaser.GameObjects.Shader;
 			// Update the uniform value
 			console.log(`[Mana] Updating shader uniform: ${msg.uniform} =`, msg.value);
-			shader.setUniform(`${msg.uniform}.value`, msg.value);
+			const normalized = normalizeUniformValue(msg.value);
+			shader.setUniform(`${msg.uniform}.value`, normalized);
 
 			// Also update the element data so the uniform persists
 			const data = state.elementData.get(msg.elementId);
 			if (data && (data as any).uniforms) {
-				(data as any).uniforms[msg.uniform] = msg.value;
+				(data as any).uniforms[msg.uniform] = normalized;
 			}
 
 			return state;
