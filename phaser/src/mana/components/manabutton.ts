@@ -12,7 +12,8 @@
 
 import type { Element } from '../types';
 import type { ManaMsg } from '../actions';
-import { createColorTween, updateElementState } from '../actions';
+import { updateElementState } from '../actions';
+import { withHoverable, withClickable, compose, type HoverTweenConfig, type ClickableConfig } from '../hocs';
 
 // Re-export types and helpers for convenience
 export type { ManaMsg } from '../actions';
@@ -46,7 +47,7 @@ export type DeclarativeButtonConfig<Msg> = {
 	};
 	readonly transitionDuration?: number;
 	readonly cornerRadius?: number;
-	readonly onClick: () => readonly Msg[];
+	readonly onClick: () => readonly (Msg | ManaMsg)[];
 	readonly initialState?: ButtonState;
 };
 
@@ -83,7 +84,7 @@ export const createDeclarativeButton = <Msg>(
 	const initialColor = states[initialState]?.fillColor ?? states.normal.fillColor;
 
 	// Background with state-based behavior
-	const background: Element<Msg | ManaMsg> = {
+	const baseBackground: Element<Msg | ManaMsg> = {
 		id: `${id}-bg`,
 		type: 'roundrect',
 		x: 0,
@@ -92,42 +93,51 @@ export const createDeclarativeButton = <Msg>(
 		height,
 		radius: cornerRadius,
 		fillColor: initialColor,
-		interactive: initialState !== 'disabled',
 		hitArea: {
 			shape: new Phaser.Geom.Rectangle(-width / 2, -height / 2, width, height),
 			callback: Phaser.Geom.Rectangle.Contains,
 		},
-		onClick: initialState !== 'disabled' ? onClick : undefined,
 		onHover: () => {
-			const hoverState = states.hover;
-			if (!hoverState) return [];
-
-			return [
-				updateElementState(id, { state: 'hover' }),
-				createColorTween(
-					`${id}-hover`,
-					`${id}-bg`,
-					'fillColor',
-					states.normal.fillColor,
-					hoverState.fillColor,
-					transitionDuration
-				),
-			] as Msg[];
+			const messages: ManaMsg[] = [];
+			if (states.hover?.textColor) {
+				messages.push(updateElementState(`${id}-text`, { style: { ...textStyle, color: states.hover.textColor } }));
+			}
+			return messages as Msg[];
 		},
 		onHoverOut: () => {
-			return [
-				updateElementState(id, { state: 'normal' }),
-				createColorTween(
-					`${id}-hover-out`,
-					`${id}-bg`,
-					'fillColor',
-					states.hover?.fillColor ?? states.normal.fillColor,
-					states.normal.fillColor,
-					transitionDuration
-				),
-			] as Msg[];
+			const messages: ManaMsg[] = [];
+			if (states.hover?.textColor) {
+				messages.push(updateElementState(`${id}-text`, { style: { ...textStyle, color: textStyle.color } }));
+			}
+			return messages as Msg[];
 		},
 	};
+
+	let background: Element<Msg | ManaMsg> = baseBackground;
+	if (initialState !== 'disabled') {
+		const tweens: HoverTweenConfig[] = [];
+		if (states.hover) {
+			tweens.push({
+				property: 'fillColor',
+				baseValue: states.normal.fillColor,
+				hoverValue: states.hover.fillColor,
+				duration: transitionDuration,
+			});
+		}
+		const clickableConfig: ClickableConfig<Msg> = {
+			onClick,
+		};
+		if (tweens.length > 0) {
+			background = compose(
+				withHoverable<Msg>(tweens),
+				withClickable<Msg>(clickableConfig)
+			)(baseBackground);
+		} else {
+			background = withClickable<Msg>(clickableConfig)(baseBackground);
+		}
+	} else {
+		background = { ...baseBackground, interactive: false };
+	}
 
 	// Text label
 	const label: Element<Msg | ManaMsg> = {
@@ -164,7 +174,7 @@ export const createSimpleButton = <Msg>(
 	width: number,
 	height: number,
 	text: string,
-	onClick: () => readonly Msg[]
+	onClick: () => readonly (Msg | ManaMsg)[]
 ): readonly Element<Msg | ManaMsg>[] => {
 	return createDeclarativeButton({
 		id,
