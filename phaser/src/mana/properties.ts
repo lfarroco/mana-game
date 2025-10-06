@@ -2,7 +2,7 @@
  * Property application and management for game objects
  */
 
-import type { BaseElement, ComponentState } from './types';
+import type { BaseElement, ComponentState, MessageResult } from './types';
 
 /**
  * Property setter function type
@@ -68,6 +68,22 @@ export const applyBaseProps = <T extends Phaser.GameObjects.GameObject, Msg>(
 		}
 	});
 
+	const toMessageArray = (result: MessageResult<Msg> | undefined): readonly Msg[] => {
+		if (result === undefined || result === null) return [];
+		if (Array.isArray(result)) {
+			return result as readonly Msg[];
+		}
+		return [result as Msg];
+	};
+
+	const dispatchMessages = (messages: readonly Msg[]) => {
+		if (!messages.length) return;
+		const dispatcher = (state as any).dispatch as ((msg: Msg) => void) | undefined;
+		if (dispatcher) {
+			messages.forEach(message => dispatcher(message));
+		}
+	};
+
 	// Handle interactivity and click events
 	if ((data.interactive || data.onClick || data.onHover || data.onHoverOut) && 'setInteractive' in gameObject) {
 		const go = gameObject as any;
@@ -90,13 +106,8 @@ export const applyBaseProps = <T extends Phaser.GameObjects.GameObject, Msg>(
 		// Handle click events
 		if (data.onClick && 'on' in go && !state.eventHandlersAttached.has(`${data.id}:click`)) {
 			go.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-				const messages = data.onClick!(pointer);
-				// Dispatch messages immediately
-				messages.forEach(msg => {
-					if ((state as any).dispatch) {
-						(state as any).dispatch(msg);
-					}
-				});
+				const messages = toMessageArray(data.onClick!(pointer));
+				dispatchMessages(messages);
 			});
 			state.eventHandlersAttached.add(`${data.id}:click`);
 		}
@@ -104,13 +115,8 @@ export const applyBaseProps = <T extends Phaser.GameObjects.GameObject, Msg>(
 		// Handle hover events
 		if (data.onHover && 'on' in go && !state.eventHandlersAttached.has(`${data.id}:hover`)) {
 			go.on('pointerover', (pointer: Phaser.Input.Pointer) => {
-				const messages = data.onHover!(pointer);
-				// Dispatch messages immediately
-				messages.forEach(msg => {
-					if ((state as any).dispatch) {
-						(state as any).dispatch(msg);
-					}
-				});
+				const messages = toMessageArray(data.onHover!(pointer));
+				dispatchMessages(messages);
 			});
 			state.eventHandlersAttached.add(`${data.id}:hover`);
 		}
@@ -118,13 +124,8 @@ export const applyBaseProps = <T extends Phaser.GameObjects.GameObject, Msg>(
 		// Handle hover out events
 		if (data.onHoverOut && 'on' in go && !state.eventHandlersAttached.has(`${data.id}:hoverout`)) {
 			go.on('pointerout', (pointer: Phaser.Input.Pointer) => {
-				const messages = data.onHoverOut!(pointer);
-				// Dispatch messages immediately
-				messages.forEach(msg => {
-					if ((state as any).dispatch) {
-						(state as any).dispatch(msg);
-					}
-				});
+				const messages = toMessageArray(data.onHoverOut!(pointer));
+				dispatchMessages(messages);
 			});
 			state.eventHandlersAttached.add(`${data.id}:hoverout`);
 		}
