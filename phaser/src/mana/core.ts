@@ -23,12 +23,12 @@ export { handleManaMsg };
 /**
  * Element creation helpers - clean API
  */
-export const container = (
+export const container = <Msg>(
 	id: string,
 	x: number,
 	y: number,
-	children: readonly Element<any>[] = []
-): Element<any> => ({
+	children: readonly Element<Msg>[] = []
+): Element<Msg> => ({
 	id,
 	type: 'container',
 	x,
@@ -36,13 +36,13 @@ export const container = (
 	children,
 });
 
-export const text = (
+export const text = <Msg>(
 	id: string,
 	x: number,
 	y: number,
 	textContent: string,
 	style?: Phaser.Types.GameObjects.Text.TextStyle
-): Element<any> => ({
+): Element<Msg> => ({
 	id,
 	type: 'text',
 	x,
