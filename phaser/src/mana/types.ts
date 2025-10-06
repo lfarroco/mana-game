@@ -22,7 +22,7 @@ export type MountHandler = (gameObject: Phaser.GameObjects.GameObject) => void;
  */
 export type BaseElement<Msg> = {
 	readonly id: string;
-	readonly type: 'image' | 'text' | 'container' | 'graphics' | 'rect' | 'roundrect' | 'circle' | 'ellipse';
+	readonly type: 'image' | 'text' | 'container' | 'graphics' | 'rect' | 'roundrect' | 'circle' | 'ellipse' | 'shader';
 	readonly x: number;
 	readonly y: number;
 	readonly visible?: boolean;
@@ -267,6 +267,18 @@ export type EllipseElement<Msg> = BaseElement<Msg> & {
 };
 
 /**
+ * Shader element with custom vertex and fragment shaders
+ */
+export type ShaderElement<Msg> = BaseElement<Msg> & {
+	readonly type: 'shader';
+	readonly vertexShader: string;
+	readonly fragmentShader: string;
+	readonly uniforms?: Record<string, any>;
+	readonly width: number;
+	readonly height: number;
+};
+
+/**
  * Union type of all element types
  */
 export type Element<Msg> =
@@ -277,7 +289,8 @@ export type Element<Msg> =
 	| RectangleElement<Msg>
 	| RoundedRectangleElement<Msg>
 	| CircleElement<Msg>
-	| EllipseElement<Msg>;
+	| EllipseElement<Msg>
+	| ShaderElement<Msg>;
 
 /**
  * State management for the component system

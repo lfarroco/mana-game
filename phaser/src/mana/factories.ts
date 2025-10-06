@@ -12,6 +12,7 @@ import type {
 	RoundedRectangleElement,
 	CircleElement,
 	EllipseElement,
+	ShaderElement,
 	Shape
 } from './types';
 import { applyBaseProps } from './properties';
@@ -297,6 +298,44 @@ export const createEllipse = <Msg>(
 };
 
 /**
+ * Create a shader game object
+ */
+export const createShader = <Msg>(
+	state: ComponentState<Msg>,
+	data: ShaderElement<Msg>
+): Phaser.GameObjects.Shader => {
+	// Create a unique key for this shader instance
+	const shaderKey = `mana-shader-${data.id}`;
+
+	// Create base shader with proper uniform configuration
+	const baseShader = new Phaser.Display.BaseShader(
+		shaderKey,
+		data.fragmentShader,
+		data.vertexShader,
+		// Convert uniforms object to proper format with types
+		Object.keys(data.uniforms || {}).reduce((acc, key) => {
+			const value = (data.uniforms as any)[key];
+			let type = '1f'; // default to float
+			if (Array.isArray(value)) {
+				if (value.length === 2) type = '2f';
+				else if (value.length === 3) type = '3f';
+				else if (value.length === 4) type = '4f';
+			} else if (typeof value === 'number') {
+				type = '1f';
+			}
+			acc[key] = { type, value };
+			return acc;
+		}, {} as Record<string, { type: string; value: any }>)
+	);
+
+	// Create the shader game object
+	const shader = state.scene.add.shader(baseShader, data.x, data.y, data.width, data.height);
+	applyBaseProps(shader, data, state);
+	callMountHooks(shader, data, state);
+	return shader;
+};
+
+/**
  * Create a component for supported game object types
  * Checks the factory registry first, then falls back to built-in types
  */
@@ -328,6 +367,8 @@ export const createComponent = <Msg>(
 			return createCircle(state, data);
 		case 'ellipse':
 			return createEllipse(state, data);
+		case 'shader':
+			return createShader(state, data);
 		default:
 			console.warn(`[Mana] Unknown component type: ${data.type}`);
 			return null;
