@@ -51,18 +51,18 @@ const validateHoverTweenConfig = (config: HoverTweenConfig): void => {
 	// Could add more validation for property names if needed
 };
 
-const normalizeMessageResult = <Msg>(result: MessageResult<Msg> | undefined): readonly Msg[] => {
-	if (result === undefined || result === null) return [];
+const pushMessageResult = <Msg>(
+	target: (Msg | ManaMsg)[],
+	result: MessageResult<Msg | ManaMsg> | undefined
+): void => {
+	if (!result) return;
 	if (Array.isArray(result)) {
-		return result as readonly Msg[];
+		for (const msg of result) {
+			target.push(msg);
+		}
+		return;
 	}
-	return [result as Msg];
-};
-
-const appendMessages = <Msg>(target: (Msg | ManaMsg)[], source: readonly (Msg | ManaMsg)[]): void => {
-	for (const msg of source) {
-		target.push(msg);
-	}
+	target.push(result as Msg | ManaMsg);
 };
 
 /**
@@ -99,12 +99,13 @@ export const withHoverable = <Msg>(
 				messages.push(updateElementState(element.id, { isHovered: true }));
 
 				// Start transition tweens
-				appendMessages(messages, createTweenMessages(element.id, tweens, true));
+				for (const tween of createTweenMessages(element.id, tweens, true)) {
+					messages.push(tween);
+				}
 
 				// Call original onHover if it exists
 				if (element.onHover) {
-					const extra = normalizeMessageResult(element.onHover(pointer));
-					appendMessages(messages, extra);
+					pushMessageResult(messages, element.onHover(pointer));
 				}
 
 				return messages;
@@ -116,12 +117,13 @@ export const withHoverable = <Msg>(
 				messages.push(updateElementState(element.id, { isHovered: false }));
 
 				// Start transition tweens back to base values
-				appendMessages(messages, createTweenMessages(element.id, tweens, false));
+				for (const tween of createTweenMessages(element.id, tweens, false)) {
+					messages.push(tween);
+				}
 
 				// Call original onHoverOut if it exists
 				if (element.onHoverOut) {
-					const extra = normalizeMessageResult(element.onHoverOut(pointer));
-					appendMessages(messages, extra);
+					pushMessageResult(messages, element.onHoverOut(pointer));
 				}
 
 				return messages;
@@ -150,9 +152,20 @@ export const withClickable = <Msg>(
 		return {
 			...element,
 			interactive: true,
-			onClick: config.onClick,
+			onClick: (): MessageResult<Msg | ManaMsg> => {
+				const result: MessageResult<Msg | ManaMsg> = config.onClick();
+				if (!result) {
+					return [];
+				}
+				if (Array.isArray(result)) {
+					return result as readonly (Msg | ManaMsg)[];
+				}
+				return [result as Msg | ManaMsg];
+			},
 		};
-	};/**
+	};
+
+/**
  * Configuration for pressable behavior (button-like)
  */
 export type PressableConfig<Msg> = {
