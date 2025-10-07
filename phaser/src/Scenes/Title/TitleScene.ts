@@ -4,7 +4,6 @@ import { createUIButton } from "../../UI/UIButton";
 import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
 import { images } from "../../assets";
 import * as AudioManager from "@Systems/AudioManager";
-// import { setupBasicInteractionExample } from "../../mana/examples/basic-interaction"; // Uncomment to try Mana examples
 
 export let titleScene: TitleScene;
 
@@ -112,8 +111,6 @@ export default class TitleScene extends Phaser.Scene {
 		this.input.keyboard?.on('keydown-ENTER', () => {
 			this.startGame();
 		});
-
-		// setupBasicInteractionExample(this) // Uncomment to try Mana examples
 	}
 
 	openOptions() {
