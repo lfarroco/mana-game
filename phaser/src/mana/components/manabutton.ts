@@ -12,7 +12,7 @@
 
 import type { Element } from '../types';
 import type { ManaMsg } from '../actions';
-import { updateElementState, createTween, updateShaderUniform } from '../actions';
+import { updateElementState } from '../actions';
 import { withClickable } from '../hocs';
 
 // Fragment shader: simple purple nebula with soft glow and moving squares
@@ -22,7 +22,6 @@ precision mediump float;
 uniform float time;
 uniform vec2 resolution;
 uniform float intensity;
-uniform vec3 squareColor;
 varying vec2 fragCoord;
 
 // Simple pseudo-random function
@@ -100,13 +99,11 @@ void main(){
 	// Purple color palette with higher contrast
 	vec3 purpleLight = vec3(0.7, 0.35, 1.0);  // Brighter light purple
 	vec3 purpleDark = vec3(0.2, 0.05, 0.4);   // Darker purple
+	vec3 purpleBright = vec3(1.0, 0.6, 1.0);  // Very bright purple/magenta for squares
 	
 	// Mix colors based on density - much brighter where squares are
 	vec3 color = mix(purpleDark, purpleLight, density);
-	
-	// Apply squareColor to BOTH the background AND the squares for more visible effect
-	color = mix(color, squareColor, squareContrib * 0.9); // Squares get strong color
-	color = mix(color, squareColor * 0.5, 0.3); // Background gets subtle color tint
+	color = mix(color, purpleBright, squareContrib * 0.8);
 	
 	// Alpha based on density with higher visibility
 	float alpha = clamp(density * 0.9, 0.0, 0.85);
@@ -206,7 +203,7 @@ export const create = <Msg>(
 
 	// Magic shader overlay (between background and text)
 	// Shaders in containers should use relative coordinates (0,0)
-	const baseShader: Element<Msg | ManaMsg> = {
+	const magicShader: Element<Msg | ManaMsg> = {
 		id: `${id}-shader`,
 		type: 'shader',
 		x: 0, // Relative to container
@@ -218,82 +215,8 @@ export const create = <Msg>(
 			time: 0,
 			resolution: [width, height],
 			intensity: 0.45, // Default intensity
-			squareColor: [1.0, 0.6, 1.0], // Default: bright purple/magenta [R,G,B]
-		},
-		interactive: true,
-	};
-
-	console.log('[ManaButton] Creating shader with interactive hover');
-
-	// Add hover behavior to shader - tween squareColor uniform
-	const magicShader: Element<Msg | ManaMsg> = {
-		...baseShader,
-		onHover: (_pointer: Phaser.Input.Pointer) => {
-			console.log('[ManaButton] ===== HOVER IN =====');
-			return [
-				createTween(
-					`${id}-shader-color-hover`,
-					0,
-					1,
-					400,
-					{
-						ease: 'Sine.easeInOut',
-						onUpdate: (t) => {
-							// Define colors fresh each time to avoid closure issues
-							const from = { r: 1.0, g: 0.6, b: 1.0 }; // Purple/magenta
-							const to = { r: 0.2, g: 1.0, b: 0.2 };   // Bright green
-
-							// Inline interpolation
-							const r = from.r + (to.r - from.r) * t;
-							const g = from.g + (to.g - from.g) * t;
-							const b = from.b + (to.b - from.b) * t;
-							const color = [r, g, b];
-							console.log(`[ManaButton] t=${t.toFixed(3)}, from=[${from.r},${from.g},${from.b}], to=[${to.r},${to.g},${to.b}], result=[${color.map(c => c.toFixed(3)).join(', ')}]`);
-							return [
-								updateShaderUniform(
-									`${id}-shader`,
-									'squareColor',
-									color
-								),
-							];
-						},
-					}
-				),
-			];
-		},
-		onHoverOut: (_pointer: Phaser.Input.Pointer) => {
-			console.log('[ManaButton] ===== HOVER OUT =====');
-			return [
-				createTween(
-					`${id}-shader-color-unhover`,
-					0,
-					1,
-					400,
-					{
-						ease: 'Sine.easeInOut',
-						onUpdate: (t) => {
-							// Define colors fresh each time
-							const from = { r: 0.2, g: 1.0, b: 0.2 }; // Bright green
-							const to = { r: 1.0, g: 0.6, b: 1.0 };   // Purple/magenta
-
-							const r = from.r + (to.r - from.r) * t;
-							const g = from.g + (to.g - from.g) * t;
-							const b = from.b + (to.b - from.b) * t;
-							return [
-								updateShaderUniform(
-									`${id}-shader`,
-									'squareColor',
-									[r, g, b]
-								),
-							];
-						},
-					}
-				),
-			];
 		},
 	};
-
-	console.log(`[ManaButton] Created button with ID: ${id}, shader ID: ${id}-shader`);
 
 	// Return as container with children
 	return [
