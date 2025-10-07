@@ -4,7 +4,7 @@ import { createUIButton } from "../../UI/UIButton";
 import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
 import { images } from "../../assets";
 import * as AudioManager from "@Systems/AudioManager";
-import * as manabutton from "../../mana/components/manabutton";
+import { createButton, ManaMsg } from "../../mana/components/manabutton";
 import { createComponent } from "../../mana";
 // import { setupBasicInteractionExample } from "../../mana/examples/basic-interaction"; // Uncomment to try Mana examples
 
@@ -117,14 +117,14 @@ export default class TitleScene extends Phaser.Scene {
 
 		type TestMsg = { type: 'BUTTON_CLICKED' };
 
-		const btn = manabutton.createDeclarativeButton<manabutton.ManaMsg>({
+		const btn = createButton<ManaMsg>({
 			id: 'test-mana-btn',
 			x: 200,
 			y: 200,
 			width: 200,
 			height: 100,
 			text: "TEST BUTTON",
-			onClick: (): readonly manabutton.ManaMsg[] => {
+			onClick: (): readonly ManaMsg[] => {
 				console.log("Button clicked!");
 				return [];
 			},

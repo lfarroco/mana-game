@@ -285,7 +285,6 @@ export type ComponentState<Msg> = {
 	readonly scene: Phaser.Scene;
 	elements: Record<string, Phaser.GameObjects.GameObject>;
 	elementData: Map<string, Element<Msg>>;
-	elementState: Map<string, Record<string, any>>;
 	data: readonly Element<Msg>[];
 	update?: (msg: Msg, state: ComponentState<Msg>) => ComponentState<Msg>;
 	eventHandlersAttached: Set<string>;

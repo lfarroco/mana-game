@@ -1,36 +1,63 @@
 /**
- * Mana Button Component - Declarative Version
- *
- * A simplified, more declarative button component that uses the new Mana features:
- * - Declarative color tweening
- * - Element state management
- * - Higher-order components
- * - Built-in state management
- *
- * This replaces the old imperative button with global state.
+ * Mana Button Component
+ * 
+ * A reusable button component built with the Mana library.
+ * Features:
+ * - Rounded rectangle background
+ * - Text label overlay
+ * - Click handling with messages
+ * - Smooth color tween animations using declarative ManaMsg actions
+ * 
+ * Usage:
+ * The button requires your message type to extend ManaMsg so it can dispatch tween actions.
+ * 
+ * ```typescript
+ * import { ManaMsg, handleManaMsg } from './mana';
+ * 
+ * type MyMsg = ManaMsg | { type: 'BUTTON_CLICKED' };
+ * 
+ * const update = (msg: MyMsg, state) => {
+ *   const newState = handleManaMsg(msg, state);
+ *   if (newState !== state) return newState;
+ *   // ... handle custom messages
+ * };
+ * 
+ * const button = createButton<MyMsg>({
+ *   id: 'my-button',
+ *   x: 100,
+ *   y: 100,
+ *   width: 200,
+ *   height: 50,
+ *   text: 'Click Me',
+ *   onClick: () => [{ type: 'BUTTON_CLICKED' }],
+ * });
+ * ```
  */
 
-import type { Element } from '../types';
+import type { Element, RoundedRectangleElement, TextElement } from '../types';
 import type { ManaMsg } from '../actions';
-import { createColorTween, updateElementState } from '../actions';
+import { createTween, redrawShape, stopTween } from '../actions';
 
-// Re-export types and helpers for convenience
-export type { ManaMsg } from '../actions';
+// Re-export ManaMsg types and helpers for convenience
+export type { ManaMsg, TweenAction, SequenceAction, DelayAction } from '../actions';
 export {
 	handleManaMsg,
-	updateElementState,
-	createColorTween,
+	redrawShape,
+	updateElement,
+	setFillColor,
+	setVisible,
+	moveTo,
+	createTween,
+	stopTween,
+	createSequence,
+	createDelay,
 } from '../actions';
 
 /**
- * Button states
+ * Button configuration
+ * Generic type can be any message type - ManaMsg actions are handled automatically
  */
-export type ButtonState = 'normal' | 'hover' | 'pressed' | 'disabled';
-
-/**
- * Button configuration with declarative state management
- */
-export type DeclarativeButtonConfig<Msg> = {
+export type ButtonConfig<Msg> = {
 	readonly id: string;
 	readonly x: number;
 	readonly y: number;
@@ -38,25 +65,30 @@ export type DeclarativeButtonConfig<Msg> = {
 	readonly height: number;
 	readonly text: string;
 	readonly textStyle?: Phaser.Types.GameObjects.Text.TextStyle;
-	readonly states?: {
-		readonly normal: { readonly fillColor: number; readonly textColor?: string };
-		readonly hover?: { readonly fillColor: number; readonly textColor?: string };
-		readonly pressed?: { readonly fillColor: number; readonly textColor?: string };
-		readonly disabled?: { readonly fillColor: number; readonly textColor?: string };
-	};
-	readonly transitionDuration?: number;
-	readonly cornerRadius?: number;
+	readonly normalColor?: number;
+	readonly hoverColor?: number;
 	readonly onClick: () => readonly Msg[];
-	readonly initialState?: ButtonState;
+	readonly cornerRadius?: number;
 };
 
 /**
- * Create a declarative button component
- * Uses element state management and declarative color tweening
+ * Button state for tracking hover and current color
  */
-export const createDeclarativeButton = <Msg>(
-	config: DeclarativeButtonConfig<Msg>
-): readonly Element<Msg | ManaMsg>[] => {
+type ButtonState = {
+	isHovered: boolean;
+	currentColor: number;
+	isTweening: boolean;
+};
+
+// Store button states
+const buttonStates = new Map<string, ButtonState>();
+
+/**
+ * Create a button component
+ * Returns a container with rounded rectangle background and text
+ * Uses declarative tween actions for smooth color animations
+ */
+export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<Msg | ManaMsg>[] => {
 	const {
 		id,
 		x,
@@ -69,21 +101,25 @@ export const createDeclarativeButton = <Msg>(
 			color: '#ffffff',
 			fontFamily: 'Arial',
 		},
-		states = {
-			normal: { fillColor: 0x4a5568 },
-			hover: { fillColor: 0x2d3748 },
-		},
-		transitionDuration = 200,
-		cornerRadius = 8,
+		normalColor = 0x4a5568,
+		hoverColor = 0x2d3748,
 		onClick,
-		initialState = 'normal',
+		cornerRadius = 8,
 	} = config;
 
-	// Initialize button state
-	const initialColor = states[initialState]?.fillColor ?? states.normal.fillColor;
+	// Initialize button state if it doesn't exist
+	if (!buttonStates.has(id)) {
+		buttonStates.set(id, {
+			isHovered: false,
+			currentColor: normalColor,
+			isTweening: false,
+		});
+	}
 
-	// Background with state-based behavior
-	const background: Element<Msg | ManaMsg> = {
+	const state = buttonStates.get(id)!;
+
+	// Background graphics rect
+	const background: RoundedRectangleElement<Msg> = {
 		id: `${id}-bg`,
 		type: 'roundrect',
 		x: 0,
@@ -91,46 +127,118 @@ export const createDeclarativeButton = <Msg>(
 		width,
 		height,
 		radius: cornerRadius,
-		fillColor: initialColor,
-		interactive: initialState !== 'disabled',
+		fillColor: state.currentColor,
+		fillAlpha: 1,
+		interactive: true,
 		hitArea: {
 			shape: new Phaser.Geom.Rectangle(-width / 2, -height / 2, width, height),
 			callback: Phaser.Geom.Rectangle.Contains,
 		},
-		onClick: initialState !== 'disabled' ? onClick : undefined,
+		onClick,
 		onHover: () => {
-			const hoverState = states.hover;
-			if (!hoverState) return [];
+			// Prevent creating multiple tweens if already tweening or at target color
+			if (state.isTweening || state.currentColor === hoverColor) {
+				state.isHovered = true;
+				return [];
+			}
 
+			state.isHovered = true;
+			state.isTweening = true;
+
+			// Extract RGB components for proper color interpolation
+			const fromR = (state.currentColor >> 16) & 0xff;
+			const fromG = (state.currentColor >> 8) & 0xff;
+			const fromB = state.currentColor & 0xff;
+
+			const toR = (hoverColor >> 16) & 0xff;
+			const toG = (hoverColor >> 8) & 0xff;
+			const toB = hoverColor & 0xff;
+
+			// Return tween action that dispatches redraw messages
 			return [
-				updateElementState(id, { state: 'hover' }),
-				createColorTween(
-					`${id}-hover`,
-					`${id}-bg`,
-					'fillColor',
-					states.normal.fillColor,
-					hoverState.fillColor,
-					transitionDuration
-				),
-			] as Msg[];
+				stopTween(`${id}-hover-tween`) as Msg, // Stop any existing tween
+				createTween<Msg>(
+					`${id}-hover-tween`,
+					0,
+					1,
+					200,
+					{
+						ease: 'Power2',
+						onUpdate: (t: number) => {
+							// Interpolate each RGB component
+							const r = Math.round(fromR + (toR - fromR) * t);
+							const g = Math.round(fromG + (toG - fromG) * t);
+							const b = Math.round(fromB + (toB - fromB) * t);
+							// Combine back into hex color
+							const color = (r << 16) | (g << 8) | b;
+							state.currentColor = color;
+
+							// Return redraw action
+							return [redrawShape(`${id}-bg`, { fillColor: color }) as Msg];
+						},
+						onComplete: () => {
+							state.currentColor = hoverColor;
+							state.isTweening = false;
+							return [];
+						},
+					}
+				) as Msg,
+			];
 		},
 		onHoverOut: () => {
+			// Prevent creating multiple tweens if already tweening or at target color
+			if (state.isTweening || state.currentColor === normalColor) {
+				state.isHovered = false;
+				return [];
+			}
+
+			state.isHovered = false;
+			state.isTweening = true;
+
+			// Extract RGB components for proper color interpolation
+			const fromR = (state.currentColor >> 16) & 0xff;
+			const fromG = (state.currentColor >> 8) & 0xff;
+			const fromB = state.currentColor & 0xff;
+
+			const toR = (normalColor >> 16) & 0xff;
+			const toG = (normalColor >> 8) & 0xff;
+			const toB = normalColor & 0xff;
+
+			// Return tween action that dispatches redraw messages
 			return [
-				updateElementState(id, { state: 'normal' }),
-				createColorTween(
-					`${id}-hover-out`,
-					`${id}-bg`,
-					'fillColor',
-					states.hover?.fillColor ?? states.normal.fillColor,
-					states.normal.fillColor,
-					transitionDuration
-				),
-			] as Msg[];
+				stopTween(`${id}-hover-out-tween`) as Msg, // Stop any existing tween
+				createTween<Msg>(
+					`${id}-hover-out-tween`,
+					0,
+					1,
+					200,
+					{
+						ease: 'Power2',
+						onUpdate: (t: number) => {
+							// Interpolate each RGB component
+							const r = Math.round(fromR + (toR - fromR) * t);
+							const g = Math.round(fromG + (toG - fromG) * t);
+							const b = Math.round(fromB + (toB - fromB) * t);
+							// Combine back into hex color
+							const color = (r << 16) | (g << 8) | b;
+							state.currentColor = color;
+
+							// Return redraw action
+							return [redrawShape(`${id}-bg`, { fillColor: color }) as Msg];
+						},
+						onComplete: () => {
+							state.currentColor = normalColor;
+							state.isTweening = false;
+							return [];
+						},
+					}
+				) as Msg,
+			];
 		},
 	};
 
 	// Text label
-	const label: Element<Msg | ManaMsg> = {
+	const label: TextElement<Msg> = {
 		id: `${id}-text`,
 		type: 'text',
 		x: 0,
@@ -150,50 +258,39 @@ export const createDeclarativeButton = <Msg>(
 			x,
 			y,
 			children: [background, label],
-		} as Element<Msg | ManaMsg>,
+		} as Element<Msg>,
 	];
 };
 
 /**
- * Helper to create a simple button with default styling
+ * Clean up button state (call when button is destroyed)
  */
-export const createSimpleButton = <Msg>(
-	id: string,
-	x: number,
-	y: number,
-	width: number,
-	height: number,
-	text: string,
-	onClick: () => readonly Msg[]
+export const destroyButton = (id: string): void => {
+	// Stop any running tweens
+	stopTween(`${id}-hover-tween`);
+	stopTween(`${id}-hover-out-tween`);
+	buttonStates.delete(id);
+};
+
+/**
+ * Helper to create multiple buttons with common styling
+ */
+export const createButtonGroup = <Msg>(
+	buttons: Array<{
+		id: string;
+		x: number;
+		y: number;
+		text: string;
+		onClick: () => readonly Msg[];
+	}>,
+	commonConfig?: Partial<ButtonConfig<Msg>>
 ): readonly Element<Msg | ManaMsg>[] => {
-	return createDeclarativeButton({
-		id,
-		x,
-		y,
-		width,
-		height,
-		text,
-		onClick,
-	});
-};
-
-/**
- * Update button state programmatically
- */
-export const setButtonState = (
-	buttonId: string,
-	state: ButtonState,
-	transitionDuration = 200
-): ManaMsg => {
-	return updateElementState(buttonId, { state, transitionDuration });
-};
-
-/**
- * Enable/disable a button
- */
-export const setButtonEnabled = (
-	buttonId: string,
-	enabled: boolean
-): ManaMsg => {
-	return updateElementState(buttonId, { disabled: !enabled });
+	return buttons.flatMap((btn) =>
+		createButton({
+			width: 200,
+			height: 50,
+			...commonConfig,
+			...btn,
+		} as ButtonConfig<Msg>)
+	);
 };
