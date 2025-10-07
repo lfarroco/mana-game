@@ -163,7 +163,7 @@ export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<M
 					const b = Math.round(fromB + (toB - fromB) * t);
 					// Combine back into hex color
 					state.currentColor = (r << 16) | (g << 8) | b;
-
+					
 					// Directly redraw with new color for smooth animation
 					if (state.graphics) {
 						redrawRoundedRect(state.graphics, width, height, cornerRadius, state.currentColor);
@@ -218,7 +218,7 @@ export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<M
 					const b = Math.round(fromB + (toB - fromB) * t);
 					// Combine back into hex color
 					state.currentColor = (r << 16) | (g << 8) | b;
-
+					
 					// Directly redraw with new color for smooth animation
 					if (state.graphics) {
 						redrawRoundedRect(state.graphics, width, height, cornerRadius, state.currentColor);
