@@ -3,36 +3,13 @@
  * 
  * A reusable button component built with the Mana library.
  * Features:
- * - Rounded rectangle background
+ * - Graphics rect background
  * - Text label overlay
  * - Click handling with messages
- * - Hover effects with smooth color tween
- * 
- * The button manages its own drawing internally for optimal performance.
- * For other components, consider using the ManaMsg system (see actions.ts).
+ * - Hover effects with color tween
  */
 
 import type { Element, RoundedRectangleElement, TextElement } from '../types';
-
-// Re-export ManaMsg types and helpers for convenience
-export type { ManaMsg } from '../actions';
-export { handleManaMsg, redrawShape, updateElement, setFillColor, setVisible, moveTo } from '../actions';
-
-/**
- * Helper to redraw a rounded rectangle shape
- * Used internally by the button for tween animations
- */
-const redrawRoundedRect = (
-	graphics: Phaser.GameObjects.Graphics,
-	width: number,
-	height: number,
-	radius: number,
-	color: number
-): void => {
-	graphics.clear();
-	graphics.fillStyle(color, 1);
-	graphics.fillRoundedRect(-width / 2, -height / 2, width, height, radius);
-};
 
 /**
  * Button configuration
@@ -52,22 +29,37 @@ export type ButtonConfig<Msg> = {
 };
 
 /**
- * Button state for tracking hover and graphics reference
+ * Button state for tracking hover
  */
 type ButtonState = {
 	isHovered: boolean;
 	tween?: Phaser.Tweens.Tween;
 	currentColor: number;
-	isTweening: boolean;
-	graphics?: Phaser.GameObjects.Graphics; // Direct reference for manual drawing
+	graphics?: Phaser.GameObjects.Graphics; // Reference to the actual graphics object
+	isTweening: boolean; // Flag to prevent overwrites during tween
 };
 
 // Store button states
 const buttonStates = new Map<string, ButtonState>();
 
 /**
+ * Helper to redraw button graphics with current color
+ */
+const redrawButton = (
+	graphics: Phaser.GameObjects.Graphics,
+	width: number,
+	height: number,
+	cornerRadius: number,
+	color: number
+): void => {
+	graphics.clear();
+	graphics.fillStyle(color, 1);
+	graphics.fillRoundedRect(-width / 2, -height / 2, width, height, cornerRadius);
+};
+
+/**
  * Create a button component
- * Returns a container with rounded rectangle background and text
+ * Returns a container with graphics background and text
  */
 export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<Msg>[] => {
 	const {
@@ -118,8 +110,10 @@ export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<M
 			callback: Phaser.Geom.Rectangle.Contains,
 		},
 		onMount: (gameObject) => {
-			// Store graphics reference for direct drawing during tweens
+			// Capture reference to the graphics object for direct updates
 			state.graphics = gameObject as Phaser.GameObjects.Graphics;
+			// Draw the button initially with the current color
+			redrawButton(state.graphics, width, height, cornerRadius, state.currentColor);
 		},
 		onClick,
 		onHover: (pointer) => {
@@ -137,7 +131,7 @@ export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<M
 				state.tween = undefined;
 			}
 
-			// Tween color change on hover - dispatch redrawShape actions
+			// Tween color change on hover
 			const scene = pointer.manager.game.scene.scenes[0]; // Get active scene
 			state.isTweening = true;
 
@@ -163,10 +157,9 @@ export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<M
 					const b = Math.round(fromB + (toB - fromB) * t);
 					// Combine back into hex color
 					state.currentColor = (r << 16) | (g << 8) | b;
-					
-					// Directly redraw with new color for smooth animation
+					// Directly update the graphics if we have a reference
 					if (state.graphics) {
-						redrawRoundedRect(state.graphics, width, height, cornerRadius, state.currentColor);
+						redrawButton(state.graphics, width, height, cornerRadius, state.currentColor);
 					}
 				},
 				onComplete: () => {
@@ -192,7 +185,7 @@ export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<M
 				state.tween = undefined;
 			}
 
-			// Tween back to normal color - dispatch redrawShape actions
+			// Tween back to normal color
 			const scene = pointer.manager.game.scene.scenes[0];
 			state.isTweening = true;
 
@@ -218,10 +211,9 @@ export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<M
 					const b = Math.round(fromB + (toB - fromB) * t);
 					// Combine back into hex color
 					state.currentColor = (r << 16) | (g << 8) | b;
-					
-					// Directly redraw with new color for smooth animation
+					// Directly update the graphics if we have a reference
 					if (state.graphics) {
-						redrawRoundedRect(state.graphics, width, height, cornerRadius, state.currentColor);
+						redrawButton(state.graphics, width, height, cornerRadius, state.currentColor);
 					}
 				},
 				onComplete: () => {
