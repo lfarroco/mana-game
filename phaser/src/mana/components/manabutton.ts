@@ -35,26 +35,10 @@ type ButtonState = {
 	isHovered: boolean;
 	tween?: Phaser.Tweens.Tween;
 	currentColor: number;
-	graphics?: Phaser.GameObjects.Graphics; // Reference to the actual graphics object
 };
 
 // Store button states
 const buttonStates = new Map<string, ButtonState>();
-
-/**
- * Helper to redraw button graphics with current color
- */
-const redrawButton = (
-	graphics: Phaser.GameObjects.Graphics,
-	width: number,
-	height: number,
-	cornerRadius: number,
-	color: number
-): void => {
-	graphics.clear();
-	graphics.fillStyle(color, 1);
-	graphics.fillRoundedRect(-width / 2, -height / 2, width, height, cornerRadius);
-};
 
 /**
  * Create a button component
@@ -113,10 +97,6 @@ export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<M
 			shape: new Phaser.Geom.Rectangle(-width / 2, -height / 2, width, height),
 			callback: Phaser.Geom.Rectangle.Contains,
 		},
-		onMount: (gameObject) => {
-			// Capture reference to the graphics object for direct updates
-			state.graphics = gameObject as Phaser.GameObjects.Graphics;
-		},
 		onClick,
 		onHover: (pointer) => {
 			state.isHovered = true;
@@ -132,10 +112,6 @@ export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<M
 				ease: 'Power2',
 				onUpdate: (tween) => {
 					state.currentColor = Math.floor(tween.getValue());
-					// Directly update the graphics if we have a reference
-					if (state.graphics) {
-						redrawButton(state.graphics, width, height, cornerRadius, state.currentColor);
-					}
 				},
 			});
 			return [];
@@ -154,10 +130,6 @@ export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<M
 				ease: 'Power2',
 				onUpdate: (tween) => {
 					state.currentColor = Math.floor(tween.getValue());
-					// Directly update the graphics if we have a reference
-					if (state.graphics) {
-						redrawButton(state.graphics, width, height, cornerRadius, state.currentColor);
-					}
 				},
 			});
 			return [];

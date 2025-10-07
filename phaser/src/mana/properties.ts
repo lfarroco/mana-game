@@ -64,13 +64,16 @@ export const applyBaseProps = <T extends Phaser.GameObjects.GameObject, Msg>(
 			// Check if data has hitArea property (for graphics objects)
 			if ('hitArea' in data && (data as any).hitArea) {
 				const hitAreaConfig = (data as any).hitArea;
+				console.log(`[Mana] Setting interactive with hitArea for ${data.id}`);
 				go.setInteractive(hitAreaConfig.shape, hitAreaConfig.callback);
 			} else {
+				console.log(`[Mana] Setting interactive without hitArea for ${data.id}`);
 				go.setInteractive();
 			}
 		} else {
 			// Input already exists - ensure it's enabled
 			if (!go.input.enabled) {
+				console.log(`[Mana] Re-enabling input for ${data.id}`);
 				go.input.enabled = true;
 			}
 		}
@@ -87,7 +90,9 @@ export const applyBaseProps = <T extends Phaser.GameObjects.GameObject, Msg>(
 
 		// Handle hover events
 		if (data.onHover && 'on' in go && !state.eventHandlersAttached.has(`${data.id}:hover`)) {
+			console.log(`[Mana] Attaching hover handler for ${data.id}`);
 			go.on('pointerover', (pointer: Phaser.Input.Pointer) => {
+				console.log(`[Mana] Hover event fired for ${data.id}`);
 				const messages = data.onHover!(pointer);
 				state.messageQueue = [...state.messageQueue, ...messages];
 			});
@@ -96,16 +101,13 @@ export const applyBaseProps = <T extends Phaser.GameObjects.GameObject, Msg>(
 
 		// Handle hover out events
 		if (data.onHoverOut && 'on' in go && !state.eventHandlersAttached.has(`${data.id}:hoverout`)) {
+			console.log(`[Mana] Attaching hoverout handler for ${data.id}`);
 			go.on('pointerout', (pointer: Phaser.Input.Pointer) => {
+				console.log(`[Mana] HoverOut event fired for ${data.id}`);
 				const messages = data.onHoverOut!(pointer);
 				state.messageQueue = [...state.messageQueue, ...messages];
 			});
 			state.eventHandlersAttached.add(`${data.id}:hoverout`);
 		}
-	}
-
-	// Call onMount handler if provided
-	if ('onMount' in data && typeof (data as any).onMount === 'function') {
-		(data as any).onMount(gameObject);
 	}
 };

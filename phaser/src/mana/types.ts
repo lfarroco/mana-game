@@ -13,11 +13,6 @@ export type ClickHandler<Msg> = (pointer: Phaser.Input.Pointer) => readonly Msg[
 export type HoverHandler<Msg> = (pointer: Phaser.Input.Pointer) => readonly Msg[];
 
 /**
- * Handler for mount lifecycle events
- */
-export type MountHandler = (gameObject: Phaser.GameObjects.GameObject) => void;
-
-/**
  * Base properties shared by all elements
  */
 export type BaseElement<Msg> = {
@@ -33,7 +28,6 @@ export type BaseElement<Msg> = {
 	readonly onClick?: ClickHandler<Msg>;
 	readonly onHover?: HoverHandler<Msg>;
 	readonly onHoverOut?: HoverHandler<Msg>;
-	readonly onMount?: MountHandler;
 };
 
 /**
