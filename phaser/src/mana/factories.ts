@@ -18,7 +18,6 @@ import type {
 import { applyBaseProps } from './properties';
 import { callMountHooks } from './lifecycle';
 import { validateTexture, validateClickHandler } from './validation';
-import { normalizeUniformMap } from './uniforms';
 
 /**
  * Factory function type for creating game objects
@@ -317,25 +316,17 @@ export const createShader = <Msg>(
 	// Create a unique key for this shader instance
 	const shaderKey = `mana-shader-${data.id}`;
 
-	// Normalize uniforms so Phaser receives typed entries (avoids array -> vec issues)
-	const uniformConfig = normalizeUniformMap(data.uniforms, {
-		time: { type: '1f', value: data.uniforms?.time ?? 0 },
-		resolution: { type: '2f', value: data.uniforms?.resolution ?? [data.width, data.height] },
-		intensity: { type: '1f', value: data.uniforms?.intensity ?? 1.0 }
-	});
-
-	// Keep element data uniforms in normalized form for future updates
-	const normalizedUniformValues: Record<string, any> = {};
-	for (const [key, entry] of Object.entries(uniformConfig)) {
-		normalizedUniformValues[key] = entry.value;
-	}
-	(data as any).uniforms = normalizedUniformValues;
-
+	// Create base shader with proper uniform configuration
 	const baseShader = new Phaser.Display.BaseShader(
 		shaderKey,
 		data.fragmentShader,
-		data.vertexShader || undefined,
-		uniformConfig
+		data.vertexShader || undefined, // Match UIButton - pass undefined if no vertex shader
+		// Convert uniforms to proper format like UIButton
+		{
+			time: { type: '1f', value: (data.uniforms?.time as number) || 0 },
+			resolution: { type: '2f', value: (data.uniforms?.resolution as number[]) || [data.width, data.height] },
+			intensity: { type: '1f', value: (data.uniforms?.intensity as number) || 1.0 },
+		}
 	);
 	console.log(`[Shader Factory] BaseShader created`);
 
@@ -348,8 +339,9 @@ export const createShader = <Msg>(
 	// Set origin to center (like UIButton)
 	shader.setOrigin(0.5);
 
-	// Use normal blending so colors darken/lighten as expected
-	(shader as any).blendMode = Phaser.BlendModes.NORMAL;
+	// Try NORMAL blend mode first for debugging - ADD mode might make it invisible
+	// Use additive blending for a glow effect like UIButton
+	(shader as any).blendMode = Phaser.BlendModes.ADD;
 
 	// Ensure shader is visible
 	shader.setVisible(true);
