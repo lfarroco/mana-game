@@ -116,6 +116,7 @@ export default class TitleScene extends Phaser.Scene {
 		});
 
 		type TestMsg = { type: 'BUTTON_CLICKED' };
+		type TestGameMsg = TestMsg | ManaMsg;
 
 		const btn = createButton<ManaMsg>({
 			id: 'test-mana-btn',
@@ -130,7 +131,7 @@ export default class TitleScene extends Phaser.Scene {
 			},
 		});
 
-		const render = createComponent<TestMsg>(this, (msg: TestMsg, state: any) => {
+		const render = createComponent<TestGameMsg>(this, (msg: TestGameMsg, state: any) => {
 			console.log("Message received:", msg);
 			switch (msg.type) {
 				case 'BUTTON_CLICKED':
