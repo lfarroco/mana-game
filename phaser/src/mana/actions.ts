@@ -766,7 +766,6 @@ export const handleManaMsg = <Msg extends ManaMsg>(
 
 			const shader = element as Phaser.GameObjects.Shader;
 			// Update the uniform value
-			console.log(`[Mana] Updating shader uniform: ${msg.uniform} =`, msg.value);
 			const normalized = normalizeUniformValue(msg.value);
 			shader.setUniform(`${msg.uniform}.value`, normalized);
 

@@ -229,7 +229,6 @@ export const create = <Msg>(
 	const magicShader: Element<Msg | ManaMsg> = {
 		...baseShader,
 		onHover: (_pointer: Phaser.Input.Pointer) => {
-			console.log('[ManaButton] ===== HOVER IN =====');
 			return [
 				createTween(
 					`${id}-shader-color-hover`,
@@ -248,7 +247,6 @@ export const create = <Msg>(
 							const g = from.g + (to.g - from.g) * t;
 							const b = from.b + (to.b - from.b) * t;
 							const color = [r, g, b];
-							console.log(`[ManaButton] t=${t.toFixed(3)}, from=[${from.r},${from.g},${from.b}], to=[${to.r},${to.g},${to.b}], result=[${color.map(c => c.toFixed(3)).join(', ')}]`);
 							return [
 								updateShaderUniform(
 									`${id}-shader`,
@@ -262,7 +260,6 @@ export const create = <Msg>(
 			];
 		},
 		onHoverOut: (_pointer: Phaser.Input.Pointer) => {
-			console.log('[ManaButton] ===== HOVER OUT =====');
 			return [
 				createTween(
 					`${id}-shader-color-unhover`,
