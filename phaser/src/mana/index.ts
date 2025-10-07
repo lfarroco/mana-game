@@ -22,6 +22,8 @@ export {
 } from './renderer';
 
 export {
+	registerComponentFactory,
+	getRegisteredTypes,
 	createImage,
 	createText,
 	createContainer,

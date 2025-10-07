@@ -120,38 +120,50 @@ setData(components)(state);
 
 ## Extending the Library
 
-### Adding Custom Properties
+### Adding Custom Component Types
 
 ```typescript
-import { registerPropertySetter } from './mana';
+import { registerComponentFactory, applyBaseProps } from './mana';
 
-// Add tint property
-registerPropertySetter('tint', (obj, val) => {
-  if ('setTint' in obj && typeof val === 'number') {
-    obj.setTint(val);
+// Define your component type
+type SpriteElement<Msg> = BaseElement<Msg> & {
+  type: 'sprite';
+  texture: string;
+  animation?: string;
+};
+
+// Register the factory
+registerComponentFactory('sprite', (state, data) => {
+  const spriteData = data as SpriteElement<any>;
+  const sprite = state.scene.add.sprite(
+    spriteData.x,
+    spriteData.y,
+    spriteData.texture
+  );
+
+  applyBaseProps(sprite, data, state);
+
+  if (spriteData.animation) {
+    sprite.play(spriteData.animation);
   }
+
+  return sprite;
 });
 
-// Add depth property
-registerPropertySetter('depth', (obj, val) => {
-  if ('setDepth' in obj && typeof val === 'number') {
-    obj.setDepth(val);
-  }
-});
-
-// Now all components can use these properties
+// Now you can use it!
 const components = [
   {
-    id: 'background',
-    type: 'image',
-    x: 0,
-    y: 0,
-    texture: 'bg',
-    tint: 0xff0000,
-    depth: -1
+    id: 'enemy',
+    type: 'sprite',
+    x: 200,
+    y: 200,
+    texture: 'enemy',
+    animation: 'enemy-idle'
   }
 ];
 ```
+
+### Adding Custom Properties
 
 ```typescript
 import { registerPropertySetter } from './mana';
@@ -316,10 +328,8 @@ const createButton = (
 - `registerUpdateHandler(type, handler)` - Add custom update logic
 
 ### Component Factories
-- `createImage(state, data)` - Create image component
-- `createText(state, data)` - Create text component
-- `createContainer(state, data)` - Create container component
-- `createComponent(state, data)` - Create component by type (supports image, text, container)
+- `registerComponentFactory(type, factory)` - Add custom component type
+- `getRegisteredTypes()` - Get all registered types
 
 ### Properties
 - `registerPropertySetter(property, setter)` - Add custom property
