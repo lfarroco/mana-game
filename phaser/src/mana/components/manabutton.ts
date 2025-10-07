@@ -36,7 +36,6 @@ type ButtonState = {
 	tween?: Phaser.Tweens.Tween;
 	currentColor: number;
 	graphics?: Phaser.GameObjects.Graphics; // Reference to the actual graphics object
-	isTweening: boolean; // Flag to prevent overwrites during tween
 };
 
 // Store button states
@@ -86,21 +85,30 @@ export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<M
 			isHovered: false,
 			tween: undefined,
 			currentColor: normalColor,
-			isTweening: false,
 		});
 	}
 
 	const state = buttonStates.get(id)!;
 
 	// Background graphics rect
-	const background: GraphicsElement<Msg> & { skipAutoUpdate?: boolean } = {
+	const background: GraphicsElement<Msg> = {
 		id: `${id}-bg`,
 		type: 'graphics',
 		x: 0,
 		y: 0,
 		interactive: true,
-		shapes: [],  // Empty - we'll draw manually to avoid double-rendering during tweens
-		skipAutoUpdate: true,  // Prevent Mana's automatic graphics redrawing
+		shapes: [
+			{
+				type: 'roundedRectangle',
+				x: -width / 2,
+				y: -height / 2,
+				width,
+				height,
+				radius: cornerRadius,
+				fillColor: state.currentColor,
+				fillAlpha: 1,
+			},
+		],
 		hitArea: {
 			shape: new Phaser.Geom.Rectangle(-width / 2, -height / 2, width, height),
 			callback: Phaser.Geom.Rectangle.Contains,
@@ -108,114 +116,48 @@ export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<M
 		onMount: (gameObject) => {
 			// Capture reference to the graphics object for direct updates
 			state.graphics = gameObject as Phaser.GameObjects.Graphics;
-			// Draw the button initially with the current color
-			redrawButton(state.graphics, width, height, cornerRadius, state.currentColor);
 		},
 		onClick,
 		onHover: (pointer) => {
-			// Prevent creating multiple tweens if already tweening or at target color
-			if (state.isTweening || state.currentColor === hoverColor) {
-				state.isHovered = true;
-				return [];
-			}
-
 			state.isHovered = true;
-
-			// Stop any existing tween (shouldn't happen with isTweening guard, but just in case)
-			if (state.tween) {
-				state.tween.stop();
-				state.tween = undefined;
-			}
-
 			// Tween color change on hover
 			const scene = pointer.manager.game.scene.scenes[0]; // Get active scene
-			state.isTweening = true;
-
-			// Extract RGB components for proper color interpolation
-			const fromR = (state.currentColor >> 16) & 0xff;
-			const fromG = (state.currentColor >> 8) & 0xff;
-			const fromB = state.currentColor & 0xff;
-
-			const toR = (hoverColor >> 16) & 0xff;
-			const toG = (hoverColor >> 8) & 0xff;
-			const toB = hoverColor & 0xff;
-
+			if (state.tween) {
+				state.tween.stop();
+			}
 			state.tween = scene.tweens.addCounter({
-				from: 0,
-				to: 1,
-				duration: 200,
+				from: state.currentColor,
+				to: hoverColor,
+				duration: 150,
 				ease: 'Power2',
 				onUpdate: (tween) => {
-					const t = tween.getValue();
-					// Interpolate each RGB component
-					const r = Math.round(fromR + (toR - fromR) * t);
-					const g = Math.round(fromG + (toG - fromG) * t);
-					const b = Math.round(fromB + (toB - fromB) * t);
-					// Combine back into hex color
-					state.currentColor = (r << 16) | (g << 8) | b;
+					state.currentColor = Math.floor(tween.getValue());
 					// Directly update the graphics if we have a reference
 					if (state.graphics) {
 						redrawButton(state.graphics, width, height, cornerRadius, state.currentColor);
 					}
-				},
-				onComplete: () => {
-					state.currentColor = hoverColor;
-					state.isTweening = false;
-					state.tween = undefined;
 				},
 			});
 			return [];
 		},
 		onHoverOut: (pointer) => {
-			// Prevent creating multiple tweens if already tweening or at target color
-			if (state.isTweening || state.currentColor === normalColor) {
-				state.isHovered = false;
-				return [];
-			}
-
 			state.isHovered = false;
-
-			// Stop any existing tween (shouldn't happen with isTweening guard, but just in case)
-			if (state.tween) {
-				state.tween.stop();
-				state.tween = undefined;
-			}
-
 			// Tween back to normal color
 			const scene = pointer.manager.game.scene.scenes[0];
-			state.isTweening = true;
-
-			// Extract RGB components for proper color interpolation
-			const fromR = (state.currentColor >> 16) & 0xff;
-			const fromG = (state.currentColor >> 8) & 0xff;
-			const fromB = state.currentColor & 0xff;
-
-			const toR = (normalColor >> 16) & 0xff;
-			const toG = (normalColor >> 8) & 0xff;
-			const toB = normalColor & 0xff;
-
+			if (state.tween) {
+				state.tween.stop();
+			}
 			state.tween = scene.tweens.addCounter({
-				from: 0,
-				to: 1,
-				duration: 200,
+				from: state.currentColor,
+				to: normalColor,
+				duration: 150,
 				ease: 'Power2',
 				onUpdate: (tween) => {
-					const t = tween.getValue();
-					// Interpolate each RGB component
-					const r = Math.round(fromR + (toR - fromR) * t);
-					const g = Math.round(fromG + (toG - fromG) * t);
-					const b = Math.round(fromB + (toB - fromB) * t);
-					// Combine back into hex color
-					state.currentColor = (r << 16) | (g << 8) | b;
+					state.currentColor = Math.floor(tween.getValue());
 					// Directly update the graphics if we have a reference
 					if (state.graphics) {
 						redrawButton(state.graphics, width, height, cornerRadius, state.currentColor);
 					}
-				},
-				onComplete: () => {
-					state.currentColor = normalColor;
-					state.isTweening = false;
-					state.tween = undefined;
 				},
 			});
 			return [];
