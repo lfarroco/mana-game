@@ -169,55 +169,15 @@ type GameMsg =
   | { type: 'TEXT_CLICKED', id: string }
   | { type: 'CONTAINER_CLICKED', id: string };
 
-// Define your game state
-type GameState = {
-  score: number;
-  heroPosition: { x: number; y: number };
-};
-
-// Message handler function
-const updateFunction = (msg: GameMsg, currentState: GameState): GameState => {
-  switch (msg.type) {
-    case 'IMAGE_CLICKED':
-      console.log('Hero clicked:', msg.id);
-      // Handle hero click - maybe move hero or trigger action
-      return {
-	...currentState,
-	heroPosition: { x: currentState.heroPosition.x + 10, y: currentState.heroPosition.y }
-      };
-
-    case 'TEXT_CLICKED':
-      console.log('Text clicked:', msg.id);
-      // Handle text click - maybe show tooltip or change text
-      return currentState;
-
-    case 'CONTAINER_CLICKED':
-      console.log('Container clicked:', msg.id);
-      // Handle container click - maybe toggle UI panel
-      return currentState;
-
-    default:
-      return currentState;
-  }
-};
-
-// Initialize game state
-let gameState: GameState = {
-  score: 0,
-  heroPosition: { x: 100, y: 100 }
-};
-
-const state = createComponentState(scene, (msg) => {
-  gameState = updateFunction(msg, gameState);
-});
+const state = createComponentState(scene, updateFunction);
 
 const components = [
   // Image with custom properties
   {
     id: 'hero',
     type: 'image',
-    x: gameState.heroPosition.x,
-    y: gameState.heroPosition.y,
+    x: 100,
+    y: 100,
     texture: 'hero',
     tint: 0xffffff,
     depth: 10,
@@ -231,11 +191,9 @@ const components = [
     type: 'text',
     x: 200,
     y: 50,
-    text: `Score: ${gameState.score}`,
+    text: 'Score: 0',
     style: { fontSize: '24px', color: '#ffffff' },
-    origin: { x: 0.5, y: 0.5 },
-    interactive: true,
-    onClick: () => [{ type: 'TEXT_CLICKED', id: 'score-text' }]
+    origin: { x: 0.5, y: 0.5 }
   },
 
   // Container with children
@@ -244,9 +202,7 @@ const components = [
     type: 'container',
     x: 400,
     y: 300,
-    depth: 100,
-    interactive: true,
-    onClick: () => [{ type: 'CONTAINER_CLICKED', id: 'ui-panel' }]
+    depth: 100
   }
 ];
 
