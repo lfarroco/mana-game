@@ -36,20 +36,3 @@ export {
 
 // Keep the existing createComponent for backward compatibility
 export { createComponent } from './api';
-
-// React-style API
-export {
-	createManaApp,
-	useState,
-	useReducer,
-	useMemo,
-	useCallback,
-	useRef,
-	useEffect,
-	useScene,
-	useDispatch,
-	useComponent,
-	useTween,
-} from './react';
-
-export type { ManaApp, ManaFC } from './react';

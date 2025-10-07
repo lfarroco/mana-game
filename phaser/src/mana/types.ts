@@ -3,19 +3,14 @@
  */
 
 /**
- * Result of an interaction handler
- */
-export type MessageResult<Msg> = void | Msg | readonly Msg[];
-
-/**
  * Handler for click events that produces messages
  */
-export type ClickHandler<Msg> = (pointer: Phaser.Input.Pointer) => MessageResult<Msg>;
+export type ClickHandler<Msg> = (pointer: Phaser.Input.Pointer) => readonly Msg[];
 
 /**
  * Handler for hover events
  */
-export type HoverHandler<Msg> = (pointer: Phaser.Input.Pointer) => MessageResult<Msg>;
+export type HoverHandler<Msg> = (pointer: Phaser.Input.Pointer) => readonly Msg[];
 
 /**
  * Handler for mount lifecycle events
