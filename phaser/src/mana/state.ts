@@ -18,7 +18,7 @@ const emitToSubscribers = <Msg>(msg: Msg, subscribers: ReadonlyArray<(msg: Msg) 
  */
 export const createComponentState = <Msg>(
 	scene: Phaser.Scene,
-	update?: (msg: any, state: ComponentState<Msg>) => ComponentState<Msg>
+	update?: (msg: Msg, state: ComponentState<Msg>) => ComponentState<Msg>
 ): ComponentState<Msg> => {
 	const state: ComponentState<Msg> = {
 		scene,
@@ -79,17 +79,15 @@ export const processMessages = <Msg>(
 
 		// Automatically handle ManaMsg first
 		const msgObj = msg as any;
-		let isManaMsg = false;
 		if (msgObj.type && (msgObj.type.startsWith('@mana/') || msgObj.tweenId)) {
 			const manaState = handleManaMsg(msg as any, currentState);
 			if (manaState !== currentState) {
 				currentState = manaState;
 			}
-			isManaMsg = true;
 		}
 
-		// Call user update function for non-Mana messages
-		if (currentState.update && !isManaMsg) {
+		// Then call user update function
+		if (currentState.update) {
 			currentState = currentState.update(msg, currentState);
 		}
 	}

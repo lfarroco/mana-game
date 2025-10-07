@@ -6,13 +6,12 @@
 import type { Element, ComponentState } from './types';
 import { createComponentState } from './state';
 import { setData } from './renderer';
-import type { ManaMsg } from './actions';
 
 /**
  * Create a render function with simplified API
  * 
  * @param scene - The Phaser scene
- * @param update - Optional message handler function for user-defined messages (ManaMsg are handled automatically)
+ * @param update - Optional message handler function
  * @returns A render function that takes elements and renders them
  * 
  * @example
@@ -28,14 +27,14 @@ import type { ManaMsg } from './actions';
  * });
  * render(buttonElements);
  */
-export const createComponent = <UserMsg>(
+export const createComponent = <Msg>(
 	scene: Phaser.Scene,
-	update?: (msg: UserMsg, state: ComponentState<UserMsg | ManaMsg>) => ComponentState<UserMsg | ManaMsg>
+	update?: (msg: Msg, state: ComponentState<Msg>) => ComponentState<Msg>
 ) => {
-	const state = createComponentState<UserMsg | ManaMsg>(scene, update as any);
+	const state = createComponentState<Msg>(scene, update);
 
 	// Return a render function that takes elements and renders them
-	return (elements: readonly Element<UserMsg | ManaMsg>[]): ComponentState<UserMsg | ManaMsg> => {
+	return (elements: readonly Element<Msg>[]): ComponentState<Msg> => {
 		const newState = setData(elements)(state);
 		// Update the original state with the new data
 		state.data = newState.data;
