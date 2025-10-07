@@ -3,7 +3,6 @@
  */
 
 import type { ComponentState } from './types';
-import { handleManaMsg } from './actions';
 
 /**
  * Emit a message to all registered subscribers
@@ -69,24 +68,13 @@ export const subscribe = <Msg>(callback: (msg: Msg) => void) => (
 export const processMessages = <Msg>(
 	state: ComponentState<Msg>
 ): ComponentState<Msg> => {
-	if (state.messageQueue.length === 0) {
+	if (!state.update || state.messageQueue.length === 0) {
 		return { ...state, messageQueue: [] as readonly Msg[] };
 	}
 
 	let currentState = state;
 	for (const msg of state.messageQueue) {
 		emitToSubscribers(msg, currentState.subscribers);
-
-		// Automatically handle ManaMsg first
-		const msgObj = msg as any;
-		if (msgObj.type && (msgObj.type.startsWith('@mana/') || msgObj.tweenId)) {
-			const manaState = handleManaMsg(msg as any, currentState);
-			if (manaState !== currentState) {
-				currentState = manaState;
-			}
-		}
-
-		// Then call user update function
 		if (currentState.update) {
 			currentState = currentState.update(msg, currentState);
 		}

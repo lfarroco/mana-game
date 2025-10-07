@@ -158,22 +158,6 @@ export const stopTween = (tweenId: string): StopTweenAction => ({
 const activeTweens = new Map<string, Phaser.Tweens.Tween>();
 
 /**
- * Recursively find element data by ID in the component tree
- */
-const findElementData = (data: readonly any[], elementId: string): any => {
-	for (const item of data) {
-		if (item.id === elementId) {
-			return item;
-		}
-		if (item.children) {
-			const found = findElementData(item.children, elementId);
-			if (found) return found;
-		}
-	}
-	return null;
-};
-
-/**
  * Built-in handler for Mana messages
  * Processes common operations like redrawing shapes and creating tweens
  * 
@@ -206,7 +190,7 @@ export const handleManaMsg = <Msg extends ManaMsg>(
 			}
 
 			const graphics = element as Phaser.GameObjects.Graphics;
-			const data = findElementData(state.data, msg.elementId);
+			const data = state.data.find(d => d.id === msg.elementId) as any;
 
 			if (!data) {
 				console.warn(`[Mana] Cannot redraw element: ${msg.elementId} data not found`);
