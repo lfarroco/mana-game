@@ -7,7 +7,7 @@ import type { ComponentState } from './types';
 /**
  * Emit a message to all registered subscribers
  */
-const emitToSubscribers = <Msg>(msg: Msg, subscribers: ReadonlyArray<(msg: Msg) => void>): void => {
+const emitToSubscribers = <Msg>(msg: Msg, subscribers: Array<(msg: Msg) => void>): void => {
 	subscribers.forEach(sub => sub(msg));
 };
 
@@ -43,11 +43,11 @@ export const createComponentState = <Msg>(
  * Add messages to the processing queue
  * Messages will be processed on the next update cycle
  */
-export const enqueueMessages = <Msg>(messages: readonly Msg[]) => (
+export const enqueueMessages = <Msg>(messages: Msg[]) => (
 	state: ComponentState<Msg>
 ): ComponentState<Msg> => ({
 	...state,
-	messageQueue: [...state.messageQueue, ...messages] as readonly Msg[],
+	messageQueue: [...state.messageQueue, ...messages],
 });
 
 /**
@@ -69,7 +69,7 @@ export const processMessages = <Msg>(
 	state: ComponentState<Msg>
 ): ComponentState<Msg> => {
 	if (!state.update || state.messageQueue.length === 0) {
-		return { ...state, messageQueue: [] as readonly Msg[] };
+		return { ...state, messageQueue: [] };
 	}
 
 	let currentState = state;
@@ -80,7 +80,7 @@ export const processMessages = <Msg>(
 		}
 	}
 
-	return { ...currentState, messageQueue: [] as readonly Msg[] };
+	return { ...currentState, messageQueue: [] };
 };
 
 /**
