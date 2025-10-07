@@ -378,8 +378,19 @@ export const createShader = <Msg>(
 		console.log(`[Shader Factory] Setting up auto-update for shader ${data.id}`);
 		let frameCount = 0;
 
-		const updateHandler = () => {
+		const updateHandler = (time: number) => {
 			frameCount++;
+			if (shader.active && shader.visible) {
+				const timeInSeconds = time / 1000;
+				shader.setUniform('time.value', timeInSeconds);
+
+				// Log every 60 frames (roughly once per second at 60fps)
+				if (frameCount % 60 === 0) {
+					console.log(`[Shader Update] ${data.id}: time=${timeInSeconds.toFixed(2)}s, active=${shader.active}, visible=${shader.visible}`);
+				}
+			} else if (frameCount % 60 === 0) {
+				console.log(`[Shader Update] ${data.id}: SKIPPED - active=${shader.active}, visible=${shader.visible}`);
+			}
 		};
 
 		// Listen to scene update event using proper Phaser event constant
