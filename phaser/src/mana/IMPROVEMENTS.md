@@ -225,51 +225,6 @@ const components = [
 
 ---
 
-## 8. React-Style Hooks & App Shell ✅
-
-### Changes
-- Added `createManaApp` runtime for rendering Mana function components with hook support
-- Implemented hooks: `useState`, `useReducer`, `useMemo`, `useCallback`, `useRef`, `useEffect`, `useScene`, `useDispatch`, `useComponent`, `useTween`
-- Introduced scheduler for batched rerenders and nested component cleanup
-- Added dedicated Jest tests for the new runtime
-
-### Benefits
-- Familiar workflow for React developers building Phaser UI
-- Encapsulated local state without manual message plumbing
-- Supports nested component composition with isolated hook state
-- Simplifies dispatching tweens and messages from hook contexts
-
-### Files Added / Modified
-- `react/runtime.ts` – Hook runtime implementation
-- `react/index.ts` – Public exports
-- `index.ts` – Re-export of new API
-- `react/runtime.test.ts` – Runtime unit tests
-- `README.md` – Documentation updates outlining usage
-
----
-
-## 9. Event Handler Ergonomics ✅
-
-### Changes
-- Updated interaction handler types to accept single messages or void results
-- Normalized handler outputs in `properties.ts` to prevent unsafe spreading
-- Adjusted hover HOCs to support the new return types
-- Added regression tests (`properties.test.ts`) covering the dispatch behavior
-
-### Benefits
-- Reduces ceremony for simple event callbacks
-- Avoids runtime errors when handlers trigger side-effects without returning messages
-- Maintains backward compatibility with existing array-based handlers
-
-### Files Modified
-- `types.ts`
-- `properties.ts`
-- `hocs/index.ts`
-- `README.md`
-- `properties.test.ts`
-
----
-
 ## Summary of New Features
 
 ### New Functions
