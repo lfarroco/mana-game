@@ -20,58 +20,54 @@ describe('ManaButton Component', () => {
 
 			expect(elements).toHaveLength(1);
 			const container = elements[0] as any; // Container element
-			expect(container).toMatchObject({
+			expect(container).toEqual({
 				id: 'test-button',
 				type: 'container',
 				x: 100,
 				y: 100,
-			});
-
-			const [background, shader, text] = container.children;
-
-			expect(background).toMatchObject({
-				id: 'test-button-bg',
-				type: 'roundrect',
-				x: 0,
-				y: 0,
-				width: 200,
-				height: 50,
-				radius: 8,
-				fillColor: 0x4a5568,
-				interactive: true,
-				hitArea: expect.any(Object),
-				onClick: expect.any(Function),
-			});
-			expect(background.onClick()).toEqual(baseConfig.onClick());
-
-			expect(shader).toEqual(expect.objectContaining({
-				id: 'test-button-shader',
-				type: 'shader',
-				x: 0,
-				y: 0,
-				width: 200,
-				height: 50,
-				fragmentShader: expect.any(String),
-				uniforms: expect.objectContaining({
-					time: 0,
-					resolution: [200, 50],
-					intensity: 0.45,
-				}),
-			}));
-
-			expect(text).toEqual({
-				id: 'test-button-text',
-				type: 'text',
-				x: 0,
-				y: 0,
-				origin: { x: 0.5, y: 0.5 },
-				text: 'Click Me',
-				style: {
-					fontSize: '16px',
-					color: '#ffffff',
-					fontFamily: 'Arial',
-					align: 'center',
-				},
+				children: [
+					{
+						id: 'test-button-bg',
+						type: 'roundrect',
+						x: 0,
+						y: 0,
+						width: 200,
+						height: 50,
+						radius: 8, // default cornerRadius
+						fillColor: 0x4a5568, // default normalColor
+						interactive: true,
+						hitArea: expect.any(Object), // Phaser.Geom.Rectangle
+						onClick: baseConfig.onClick,
+					},
+					expect.objectContaining({
+						id: 'test-button-shader',
+						type: 'shader',
+						x: 0,
+						y: 0,
+						width: 200,
+						height: 50,
+						fragmentShader: expect.any(String),
+						uniforms: expect.objectContaining({
+							time: 0,
+							resolution: [200, 50],
+							intensity: 0.45,
+						}),
+					}),
+					{
+						id: 'test-button-text',
+						type: 'text',
+						x: 0,
+						y: 0,
+						origin: { x: 0.5, y: 0.5 },
+						text: 'Click Me',
+						style: {
+							fontSize: '16px',
+							color: '#ffffff',
+							fontFamily: 'Arial',
+							align: 'center',
+						},
+					},
+				],
 			});
 		});
 

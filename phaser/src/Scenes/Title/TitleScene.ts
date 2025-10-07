@@ -1,18 +1,17 @@
 import * as Phaser from "phaser";
 import * as constants from "../../constants/constants";
+import { createUIButton } from "../../UI/UIButton";
 import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
 import { images } from "../../assets";
 import * as AudioManager from "@Systems/AudioManager";
-import { createManaApp } from "../../mana";
-import type { ManaApp, ManaMsg } from "../../mana";
-import type { ComponentState } from "../../mana/types";
-import { TitleApp, type TitleMsg, type TitleProps } from "./TitleApp";
+import * as manabutton from "../../mana/components/manabutton";
+import { createComponent } from "../../mana";
+// import { setupBasicInteractionExample } from "../../mana/examples/basic-interaction"; // Uncomment to try Mana examples
 
 export let titleScene: TitleScene;
 
 export default class TitleScene extends Phaser.Scene {
 	cloudsBackground!: CloudsBackground;
-	private manaApp?: ManaApp<TitleMsg, TitleProps>;
 
 	constructor() {
 		super(constants.SCENE_KEYS.TITLE);
@@ -51,15 +50,115 @@ export default class TitleScene extends Phaser.Scene {
 
 		AudioManager.playMusic('music_ageofdisjunction');
 
-		this.manaApp = createManaApp<TitleMsg, TitleProps>(this, TitleApp, {
-			update: this.handleManaMessage,
-			initialProps: this.getTitleAppProps(),
+		this.add.image(
+			constants.MIDDLE_SCREEN_X,
+			constants.MIDDLE_SCREEN_Y - 200,
+			images.logo.key
+		).setOrigin(0.5);
+
+		createComponent<TestMsg>(this, (msg: TestMsg, state: any) => {
+			console.log("Message received:", msg);
+			switch (msg.type) {
+				case 'BUTTON_CLICKED':
+					break;
+			}
+			return state;
+		})(manabutton.create<manabutton.ManaMsg>({
+			id: 'start-game-btn',
+			x: constants.MIDDLE_SCREEN_X,
+			y: constants.MIDDLE_SCREEN_Y + 100,
+			width: 300,
+			height: 60,
+			text: "START GAME",
+			states: {
+				normal: { fillColor: 0x4a5568 },
+			},
+			onClick: (): readonly manabutton.ManaMsg[] => {
+				this.startGame();
+				return [];
+			},
+		}));
+
+
+		createUIButton(
+			this,
+			'OPTIONS',
+			constants.MIDDLE_SCREEN_X,
+			constants.MIDDLE_SCREEN_Y + 180,
+			() => {
+				this.openOptions();
+			}
+		);
+		// createUIButton(
+		// 	this,
+		// 	'DEBUG',
+		// 	constants.MIDDLE_SCREEN_X,
+		// 	constants.MIDDLE_SCREEN_Y + 260,
+		// 	() => {
+		// 		this.openDebug();
+		// 	}
+		// );
+		// new UIButton(
+		// 	this,
+		// 	'COLLECTION',
+		// 	constants.MIDDLE_SCREEN_X,
+		// 	constants.MIDDLE_SCREEN_Y + 260,
+		// 	() => {
+		// 		this.startGame();
+		// 	}
+		// );
+		// new UIButton(
+		// 	this,
+		// 	'CREDITS',
+		// 	constants.MIDDLE_SCREEN_X,
+		// 	constants.MIDDLE_SCREEN_Y + 340,
+		// 	() => {
+		// 		this.startGame();
+		// 	}
+		// );
+		// new UIButton(
+		// 	this,
+		// 	'GO FULLSCREEN',
+		// 	constants.MIDDLE_SCREEN_X,
+		// 	constants.MIDDLE_SCREEN_Y + 420,
+		// 	() => {
+		// 		this.toggleFullscreen();
+		// 	}
+		// );
+
+		this.input.keyboard?.on('keydown-ENTER', () => {
+			this.startGame();
 		});
 
-		this.input.keyboard?.on('keydown-ENTER', this.startGame, this);
-		this.scale.on('resize', this.handleResize, this);
-		this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.onSceneShutdown, this);
-		this.events.once(Phaser.Scenes.Events.DESTROY, this.onSceneDestroy, this);
+		type TestMsg = { type: 'BUTTON_CLICKED' };
+
+		const btn = manabutton.create<manabutton.ManaMsg>({
+			id: 'test-mana-btn',
+			x: 200,
+			y: 200,
+			width: 200,
+			height: 100,
+			text: "TEST BUTTON",
+			states: {
+				normal: { fillColor: 0x4a5568 },
+			},
+			onClick: (): readonly manabutton.ManaMsg[] => {
+				console.log("Button clicked!");
+				return [];
+			},
+		});
+
+		const render = createComponent<TestMsg>(this, (msg: TestMsg, state: any) => {
+			console.log("Message received:", msg);
+			switch (msg.type) {
+				case 'BUTTON_CLICKED':
+					break;
+			}
+			return state;
+		});
+
+		render(btn);
+
 	}
 
 	openOptions() {
@@ -91,45 +190,7 @@ export default class TitleScene extends Phaser.Scene {
 		}
 	}
 
-	private getTitleAppProps(gameSize?: Phaser.Structs.Size): TitleProps {
-		const centerX = gameSize ? gameSize.width / 2 : this.cameras.main.centerX;
-		const centerY = gameSize ? gameSize.height / 2 : this.cameras.main.centerY;
-		return {
-			centerX,
-			centerY,
-			logoOffsetY: 200,
-			buttonSpacing: 100,
-		};
-	}
-
-	private handleManaMessage = (
-		msg: TitleMsg,
-		state: ComponentState<TitleMsg | ManaMsg>
-	): ComponentState<TitleMsg | ManaMsg> => {
-		switch (msg.type) {
-			case 'START_GAME':
-				this.startGame();
-				break;
-			case 'OPEN_OPTIONS':
-				this.openOptions();
-				break;
-		}
-		return state;
-	};
-
-	private handleResize = (gameSize: Phaser.Structs.Size): void => {
-		if (!this.manaApp) return;
-		this.manaApp.render(this.getTitleAppProps(gameSize));
-	};
-
-	private onSceneShutdown = (): void => {
-		this.manaApp?.unmount();
-		this.manaApp = undefined;
-		this.scale.off('resize', this.handleResize, this);
-		this.input.keyboard?.off('keydown-ENTER', this.startGame, this);
-	};
-
-	private onSceneDestroy = (): void => {
+	destroy() {
 		this.cloudsBackground?.destroy();
-	};
+	}
 }

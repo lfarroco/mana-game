@@ -270,24 +270,6 @@ const components = [
 
 ---
 
-## 10. Title Scene Mana Migration ✅
-
-### Changes
-- Created `Scenes/Title/TitleApp.ts` Mana function component for declarative title UI
-- Refactored `Scenes/Title/TitleScene.ts` to render via `createManaApp`
-- Added responsive re-rendering on scale changes and centralized message handling
-
-### Benefits
-- Demonstrates real-scene adoption of the Mana hooks runtime
-- Simplifies button interactions and keeps scene logic focused on navigation
-- Ensures layout stays centered across resolution changes
-
-### Files Added / Modified
-- `Scenes/Title/TitleApp.ts`
-- `Scenes/Title/TitleScene.ts`
-
----
-
 ## Summary of New Features
 
 ### New Functions
