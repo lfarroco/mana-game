@@ -21,11 +21,6 @@ export {
 	registerUpdateHandler,
 } from './renderer';
 
-// Simplified API
-export {
-	createComponent,
-} from './api';
-
 export {
 	createImage,
 	createText,
