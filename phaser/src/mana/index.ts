@@ -14,6 +14,9 @@ export type {
 
 export {
 	createComponentState,
+	enqueueMessages,
+	subscribe,
+	processMessages,
 	getData,
 } from './state';
 

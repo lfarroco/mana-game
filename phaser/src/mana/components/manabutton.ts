@@ -53,9 +53,9 @@ export {
 
 /**
  * Button configuration
- * Generic type can be any message type - ManaMsg actions are handled automatically
+ * Generic type must extend ManaMsg to support built-in tween actions
  */
-export type ButtonConfig<Msg> = {
+export type ButtonConfig<Msg extends ManaMsg> = {
 	readonly id: string;
 	readonly x: number;
 	readonly y: number;
@@ -86,7 +86,7 @@ const buttonStates = new Map<string, ButtonState>();
  * Returns a container with rounded rectangle background and text
  * Uses declarative tween actions for smooth color animations
  */
-export const createButton = <Msg>(config: ButtonConfig<Msg>): readonly Element<Msg | ManaMsg>[] => {
+export const createButton = <Msg extends ManaMsg>(config: ButtonConfig<Msg>): readonly Element<Msg>[] => {
 	const {
 		id,
 		x,
@@ -273,7 +273,7 @@ export const destroyButton = (id: string): void => {
 /**
  * Helper to create multiple buttons with common styling
  */
-export const createButtonGroup = <Msg>(
+export const createButtonGroup = <Msg extends ManaMsg>(
 	buttons: Array<{
 		id: string;
 		x: number;
@@ -282,7 +282,7 @@ export const createButtonGroup = <Msg>(
 		onClick: () => readonly Msg[];
 	}>,
 	commonConfig?: Partial<ButtonConfig<Msg>>
-): readonly Element<Msg | ManaMsg>[] => {
+): readonly Element<Msg>[] => {
 	return buttons.flatMap((btn) =>
 		createButton({
 			width: 200,
