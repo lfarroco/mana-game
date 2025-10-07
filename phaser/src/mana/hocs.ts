@@ -5,9 +5,9 @@
  * such as hover states, click handling, animations, etc.
  */
 
-import type { Element } from '../types';
-import type { ManaMsg } from '../actions';
-import { updateElementState, createColorTween, createPropertyTween } from '../actions';
+import type { Element } from './types';
+import type { ManaMsg } from './actions';
+import { updateElementState, createColorTween, createPropertyTween } from './actions';
 
 // Constants
 const DEFAULT_TWEEN_DURATION = 200;

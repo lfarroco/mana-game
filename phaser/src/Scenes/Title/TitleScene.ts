@@ -117,7 +117,7 @@ export default class TitleScene extends Phaser.Scene {
 
 		type TestMsg = { type: 'BUTTON_CLICKED' };
 
-		const btn = manabutton.create<manabutton.ManaMsg>({
+		const btn = manabutton.createDeclarativeButton<manabutton.ManaMsg>({
 			id: 'test-mana-btn',
 			x: 200,
 			y: 200,
