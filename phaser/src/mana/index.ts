@@ -144,10 +144,7 @@ const applyBaseProps = <T extends Phaser.GameObjects.GameObject, Msg>(
 				go.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
 					console.log(`${data.id} clicked!`);
 					const messages = data.onClick!(pointer);
-					// Emit each message to all subscribers
-					messages.forEach(msg => {
-						state.subscribers.forEach(subscriber => subscriber(msg));
-					});
+					state.messageQueue.push(...messages);
 				});
 				state.eventHandlersAttached.add(data.id);
 				console.log(`Attached click handler to ${data.id}`);
@@ -249,7 +246,7 @@ const syncComponent = <Msg>(componentData: Component<Msg>) => (
 						() => state,
 						(gameObject) => ({
 							...state,
-							elements: {
+							components: {
 								...state.elements,
 								[componentData.id]: gameObject,
 							},
@@ -346,15 +343,6 @@ export const createReactiveDemo = (scene: Phaser.Scene) => {
 	let state2 = createComponentState<DemoMsg>(scene, update2);
 
 	state1 = subscribe<DemoMsg>((msg) => {
-		state1 = enqueueMessages<DemoMsg>([msg])(state1);
-	})(state1);
-
-	state2 = subscribe<DemoMsg>((msg) => {
-		state2 = enqueueMessages<DemoMsg>([msg])(state2);
-	})(state2);
-
-	state1 = subscribe<DemoMsg>((msg) => {
-		console.log('State1 subscriber forwarding to state2:', msg);
 		state2 = enqueueMessages<DemoMsg>([msg])(state2);
 	})(state1);
 
@@ -374,12 +362,6 @@ export const createReactiveDemo = (scene: Phaser.Scene) => {
 					x: pointer.x,
 					y: pointer.y,
 				},
-				{
-					type: "MoveImage",
-					id: 'image1',
-					dx: 10,
-					dy: 10,
-				}
 			],
 		},
 	];
@@ -408,7 +390,6 @@ export const createReactiveDemo = (scene: Phaser.Scene) => {
 	state2 = setData<DemoMsg>(component2Data)(state2);
 
 	scene.events.on('update', () => {
-		console.log('Update loop - state1 queue:', state1.messageQueue.length, 'state2 queue:', state2.messageQueue.length);
 		state1 = processMessages<DemoMsg>(state1);
 		state2 = processMessages<DemoMsg>(state2);
 	});
