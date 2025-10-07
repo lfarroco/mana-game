@@ -133,10 +133,6 @@ export default class TitleScene extends Phaser.Scene {
 
 		const render = createComponent<TestGameMsg>(this, (msg: TestGameMsg, state: any) => {
 			console.log("Message received:", msg);
-			switch (msg.type) {
-				case 'BUTTON_CLICKED':
-					break;
-			}
 			return state;
 		});
 
