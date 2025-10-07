@@ -68,48 +68,12 @@ const action = updateElement('my-container-id', {
 });
 ```
 
-### TweenAction
-
-Creates smooth animations that dispatch messages during updates and on completion.
-
-```typescript
-import { createTween, redrawShape } from './mana';
-
-// Animate color change from 0 to 1, then use that value to interpolate colors
-const tweenAction = createTween<MyMsg>(
-  'color-tween-1', // unique tween ID
-  0,               // from value
-  1,               // to value
-  500,             // duration in ms
-  {
-    ease: 'Power2',
-    onUpdate: (t) => {
-      // t goes from 0 to 1
-      // Interpolate color and return redraw action
-      const r = Math.round(74 + (45 - 74) * t);   // 0x4a -> 0x2d
-      const g = Math.round(85 + (55 - 85) * t);   // 0x55 -> 0x37
-      const b = Math.round(104 + (72 - 104) * t); // 0x68 -> 0x48
-      const color = (r << 16) | (g << 8) | b;
-      
-      return [redrawShape('my-button', { fillColor: color })];
-    },
-    onComplete: () => {
-      return [{ type: 'ANIMATION_COMPLETE' }];
-    },
-  }
-);
-
-// Stop a running tween
-import { stopTween } from './mana';
-const stopAction = stopTween('color-tween-1');
-```
-
 ## Helper Functions
 
 Convenient shortcuts for common operations:
 
 ```typescript
-import { setFillColor, setVisible, moveTo, createTween, stopTween } from './mana';
+import { setFillColor, setVisible, moveTo } from './mana';
 
 // Change fill color
 const action = setFillColor('my-rect', 0xff0000);
@@ -280,194 +244,48 @@ render([
 ]);
 ```
 
-## Tween Example: Smooth Color Animation
+## Advanced: Animations with Actions
+
+You can dispatch actions during tweens for smooth animations:
 
 ```typescript
-import { 
-  createComponent, 
-  ManaMsg, 
-  handleManaMsg,
-  createTween,
-  redrawShape,
-  RoundedRectangleElement
-} from './mana';
+import { enqueueMessages, redrawShape } from './mana';
 
-type ButtonMsg = 
-  | ManaMsg
-  | { type: 'BUTTON_CLICKED' };
+// In your component state
+let componentState: ComponentState<MyMsg>;
 
-const update = (msg: ButtonMsg, state) => {
-  const newState = handleManaMsg(msg, state);
-  if (newState !== state) return newState;
-
-  switch (msg.type) {
-    case 'BUTTON_CLICKED':
-      console.log('Button clicked!');
-      return state;
-    default:
-      return state;
-  }
-};
-
-// Create button with smooth color tween on hover
-const button: RoundedRectangleElement<ButtonMsg> = {
-  id: 'animated-button',
-  type: 'roundrect',
-  x: 400,
-  y: 300,
-  width: 200,
-  height: 50,
-  radius: 8,
-  fillColor: 0x4a5568,
-  interactive: true,
-  onClick: () => [{ type: 'BUTTON_CLICKED' }],
-  onHover: () => {
-    // Create smooth color tween from current (light) to hover (dark)
-    const normalColor = 0x4a5568;
-    const hoverColor = 0x2d3748;
+// Create a tween that dispatches actions
+scene.tweens.addCounter({
+  from: 0,
+  to: 1,
+  duration: 1000,
+  onUpdate: (tween) => {
+    const t = tween.getValue();
+    const color = interpolateColor(startColor, endColor, t);
     
-    // Extract RGB components for interpolation
-    const fromR = (normalColor >> 16) & 0xff;
-    const fromG = (normalColor >> 8) & 0xff;
-    const fromB = normalColor & 0xff;
-    
-    const toR = (hoverColor >> 16) & 0xff;
-    const toG = (hoverColor >> 8) & 0xff;
-    const toB = hoverColor & 0xff;
-    
-    return [
-      createTween<ButtonMsg>(
-        'button-hover-tween',
-        0,
-        1,
-        200,
-        {
-          ease: 'Power2',
-          onUpdate: (t) => {
-            // Interpolate RGB components
-            const r = Math.round(fromR + (toR - fromR) * t);
-            const g = Math.round(fromG + (toG - fromG) * t);
-            const b = Math.round(fromB + (toB - fromB) * t);
-            const color = (r << 16) | (g << 8) | b;
-            
-            // Return redraw action with interpolated color
-            return [redrawShape('animated-button', { fillColor: color })];
-          },
-        }
-      ),
-    ];
+    // Dispatch action to update color
+    const action = redrawShape('my-element', { fillColor: color });
+    componentState = enqueueMessages([action])(componentState);
   },
-  onHoverOut: () => {
-    // Tween back to normal color
-    const normalColor = 0x4a5568;
-    const hoverColor = 0x2d3748;
-    
-    const fromR = (hoverColor >> 16) & 0xff;
-    const fromG = (hoverColor >> 8) & 0xff;
-    const fromB = hoverColor & 0xff;
-    
-    const toR = (normalColor >> 16) & 0xff;
-    const toG = (normalColor >> 8) & 0xff;
-    const toB = normalColor & 0xff;
-    
-    return [
-      createTween<ButtonMsg>(
-        'button-hover-out-tween',
-        0,
-        1,
-        200,
-        {
-          ease: 'Power2',
-          onUpdate: (t) => {
-            const r = Math.round(fromR + (toR - fromR) * t);
-            const g = Math.round(fromG + (toG - fromG) * t);
-            const b = Math.round(fromB + (toB - fromB) * t);
-            const color = (r << 16) | (g << 8) | b;
-            
-            return [redrawShape('animated-button', { fillColor: color })];
-          },
-        }
-      ),
-    ];
-  },
-};
-
-const render = createComponent(scene, update);
-render([button]);
-```
-
-## Complex Tween Example: Pulse Animation
-
-```typescript
-import { createTween, updateElement } from './mana';
-
-// Create pulsing scale animation
-const startPulse = (elementId: string) => [
-  createTween<MyMsg>(
-    `pulse-${elementId}`,
-    1.0,  // from scale
-    1.2,  // to scale
-    500,  // duration
-    {
-      ease: 'Sine.easeInOut',
-      onUpdate: (scale) => [
-        updateElement(elementId, { scale: { x: scale, y: scale } })
-      ],
-      onComplete: () => [
-        // Reverse tween back to normal
-        createTween<MyMsg>(
-          `pulse-${elementId}-reverse`,
-          1.2,
-          1.0,
-          500,
-          {
-            ease: 'Sine.easeInOut',
-            onUpdate: (scale) => [
-              updateElement(elementId, { scale: { x: scale, y: scale } })
-            ],
-            onComplete: () => [
-              // Loop by starting again
-              ...startPulse(elementId)
-            ],
-          }
-        ),
-      ],
-    }
-  ),
-];
-
-// Start the pulse animation
-render([
-  // ... your elements
-]);
-
-// Trigger pulse on some event
-const onItemCollected = () => startPulse('collected-item-icon');
+});
 ```
 
 ## Benefits
 
-1. **Declarative Animations**: Tweens are declared as data, not imperative code
-2. **Message Integration**: Tween callbacks dispatch messages, keeping everything in the same system
-3. **Consistency**: Standard way to update elements and create animations across your app
-4. **Type Safety**: Actions and tweens are fully typed with TypeScript
-5. **Composability**: Easy to combine with custom message types
-6. **Testability**: Actions are pure data, easy to test
-7. **Debugging**: Clear action trail in message queue
-8. **Less Boilerplate**: Helper functions reduce repetitive code
-9. **Tween Management**: Tweens are tracked by ID, easy to stop/cancel
+1. **Consistency**: Standard way to update elements across your app
+2. **Type Safety**: Actions are fully typed with TypeScript
+3. **Composability**: Easy to combine with custom message types
+4. **Testability**: Actions are pure data, easy to test
+5. **Debugging**: Clear action trail in message queue
+6. **Less Boilerplate**: Helper functions reduce repetitive code
 
 ## Notes
 
 - Actions are processed by `handleManaMsg` in your update function
 - Actions operate on elements by their ID
 - Failed actions log warnings but don't throw errors
-- Tweens with the same ID will automatically replace existing tweens
-- Use `stopTween(id)` to cancel a running animation
-- Tween `onUpdate` and `onComplete` handlers return arrays of messages
-- Messages from tween callbacks are processed immediately for smooth updates
-- The button component uses direct drawing for optimal performance
-- For very high-frequency updates, direct drawing may be more performant than actions
+- The button component uses direct drawing for performance, but exports ManaMsg utilities for other components
+- For high-frequency updates (like smooth animations), consider direct drawing instead of actions for better performance
 
 ## See Also
 
