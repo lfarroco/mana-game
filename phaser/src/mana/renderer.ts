@@ -323,23 +323,6 @@ const updateEllipseElement: UpdateHandler<any> = (gameObject, data) => {
 };
 
 /**
- * Update handler for shader elements
- */
-const updateShaderElement: UpdateHandler<any> = (gameObject, data) => {
-	if (data.type === 'shader' && 'setUniform' in gameObject) {
-		const shader = gameObject as Phaser.GameObjects.Shader;
-		const shaderData = data as any;
-
-		// Update uniforms if provided
-		if (shaderData.uniforms) {
-			for (const [key, value] of Object.entries(shaderData.uniforms)) {
-				shader.setUniform(`${key}.value`, value);
-			}
-		}
-	}
-};
-
-/**
  * Register built-in update handlers
  */
 const registerBuiltInUpdateHandlers = (): void => {
@@ -350,7 +333,6 @@ const registerBuiltInUpdateHandlers = (): void => {
 	updateHandlerRegistry['roundrect'] = updateRoundedRectangleElement;
 	updateHandlerRegistry['circle'] = updateCircleElement;
 	updateHandlerRegistry['ellipse'] = updateEllipseElement;
-	updateHandlerRegistry['shader'] = updateShaderElement;
 };
 
 // Initialize built-in handlers
