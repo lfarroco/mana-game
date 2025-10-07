@@ -26,15 +26,15 @@ type TextElement<Msg> = BaseElement<Msg> & {
 
 type ContainerElement<Msg> = BaseElement<Msg> & {
 	type: 'container';
-	children: Element<Msg>[];
+	children: Component<Msg>[];
 };
 
-type Element<Msg> = ImageElement<Msg> | TextElement<Msg> | ContainerElement<Msg>;
+type Component<Msg> = ImageElement<Msg> | TextElement<Msg> | ContainerElement<Msg>;
 
 type ComponentState<Msg> = {
 	scene: Phaser.Scene;
 	elements: Record<string, Phaser.GameObjects.GameObject>;
-	data: Element<Msg>[];
+	data: Component<Msg>[];
 	messageQueue: Msg[];
 	update?: (msg: Msg, state: ComponentState<Msg>) => ComponentState<Msg>;
 	eventHandlersAttached: Set<string>;
@@ -161,7 +161,7 @@ const createContainer = <Msg>(state: ComponentState<Msg>, data: ContainerElement
 	return container;
 };
 
-const createComponent = <Msg>(state: ComponentState<Msg>, data: Element<Msg>): Phaser.GameObjects.GameObject | null => {
+const createComponent = <Msg>(state: ComponentState<Msg>, data: Component<Msg>): Phaser.GameObjects.GameObject | null => {
 	switch (data.type) {
 		case 'image': return createImage(state, data);
 		case 'text': return createText(state, data);
@@ -170,14 +170,14 @@ const createComponent = <Msg>(state: ComponentState<Msg>, data: Element<Msg>): P
 	}
 };
 
-const updateElement = <Msg>(gameObject: Phaser.GameObjects.GameObject, data: Element<Msg>, state: ComponentState<Msg>): void => {
+const updateElement = <Msg>(gameObject: Phaser.GameObjects.GameObject, data: Component<Msg>, state: ComponentState<Msg>): void => {
 	applyBaseProps(gameObject, data, state);
 	if (data.type === 'text' && 'setText' in gameObject) {
 		(gameObject as any).setText(data.text);
 	}
 };
 
-const syncComponent = <Msg>(state: ComponentState<Msg>, componentData: Element<Msg>): void => {
+const syncComponent = <Msg>(state: ComponentState<Msg>, componentData: Component<Msg>): void => {
 	const existing = state.elements[componentData.id];
 
 	if (existing) {
@@ -190,7 +190,7 @@ const syncComponent = <Msg>(state: ComponentState<Msg>, componentData: Element<M
 	}
 };
 
-export const setData = <Msg>(newData: Element<Msg>[]) => (
+export const setData = <Msg>(newData: Component<Msg>[]) => (
 	state: ComponentState<Msg>
 ): ComponentState<Msg> => {
 	const currentIds = new Set(newData.map(c => c.id));
@@ -210,7 +210,7 @@ export const setData = <Msg>(newData: Element<Msg>[]) => (
 	return { ...state, data: newData };
 };
 
-export const getData = <Msg>(state: ComponentState<Msg>): Element<Msg>[] => state.data;
+export const getData = <Msg>(state: ComponentState<Msg>): Component<Msg>[] => state.data;
 
 export const destroy = <Msg>(state: ComponentState<Msg>): ComponentState<Msg> => {
 	if (state.updateHandler) {
@@ -230,4 +230,4 @@ export const destroy = <Msg>(state: ComponentState<Msg>): ComponentState<Msg> =>
 	};
 };
 
-export type { Element as Component, ImageElement as ImageComponent, TextElement as TextComponent, ContainerElement as ContainerComponent, ComponentState as SystemState, ClickHandler };
+export type { Component, ImageElement as ImageComponent, TextElement as TextComponent, ContainerElement as ContainerComponent, ComponentState as SystemState, ClickHandler };
