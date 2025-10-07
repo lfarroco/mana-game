@@ -3,72 +3,83 @@ import * as A from 'fp-ts/Array';
 import * as R from 'fp-ts/Record';
 import { pipe } from 'fp-ts/function';
 
-type ClickHandler<Msg> = (pointer: Phaser.Input.Pointer) => Msg[];
+// Message system - Each component can define its own messages
+type Msg = unknown;
 
-type ElementType = 'image' | 'text' | 'container';
+// Event handlers return messages
+type ClickHandler<TMsg extends Msg> = (pointer: Phaser.Input.Pointer) => TMsg[];
 
-type BaseElement<Msg> = {
+// Component data structures
+type ComponentType = 'image' | 'text' | 'container';
+
+type BaseComponent<TMsg extends Msg = Msg> = {
 	id: string;
-	type: ElementType;
+	type: ComponentType;
 	x: number;
 	y: number;
 	visible?: boolean;
 	alpha?: number;
 	rotation?: number;
 	scale?: { x: number; y: number };
+	// Event handlers
+	onClick?: ClickHandler<TMsg>;
 	interactive?: boolean;
-	onClick?: ClickHandler<Msg>;
 };
 
-type ImageElement<Msg> = BaseElement<Msg> & {
+type ImageComponent<TMsg extends Msg = Msg> = BaseComponent<TMsg> & {
 	type: 'image';
 	texture: string;
 };
 
-type TextElement<Msg> = BaseElement<Msg> & {
+type TextComponent<TMsg extends Msg = Msg> = BaseComponent<TMsg> & {
 	type: 'text';
 	text: string;
 	style?: Phaser.Types.GameObjects.Text.TextStyle;
 };
 
-type ContainerElement<Msg> = BaseElement<Msg> & {
+type ContainerComponent<TMsg extends Msg = Msg> = BaseComponent<TMsg> & {
 	type: 'container';
-	children: Component<Msg>[];
+	children: Component<TMsg>[];
 };
 
-type Component<Msg> = ImageElement<Msg> | TextElement<Msg> | ContainerElement<Msg>;
+type Component<TMsg extends Msg = Msg> = ImageComponent<TMsg> | TextComponent<TMsg> | ContainerComponent<TMsg>;
 
-type ComponentState<Msg> = {
+// System state
+type SystemState<TMsg extends Msg = Msg> = {
 	scene: Phaser.Scene;
-	elements: Record<string, Phaser.GameObjects.GameObject>;
-	data: Component<Msg>[];
-	messageQueue: Msg[];
-	update?: (msg: Msg, state: ComponentState<Msg>) => ComponentState<Msg>;
+	components: Record<string, Phaser.GameObjects.GameObject>;
+	data: Component<TMsg>[];
+	messageQueue: TMsg[];
+	update?: (msg: TMsg, state: SystemState<TMsg>) => SystemState<TMsg>;
+	// Track which components have event handlers attached
 	eventHandlersAttached: Set<string>;
 };
 
-export const createComponentState = <Msg>(
+// Create initial system state
+export const createSystemState = <TMsg extends Msg = Msg>(
 	scene: Phaser.Scene,
-	update?: (msg: Msg, state: ComponentState<Msg>) => ComponentState<Msg>
-): ComponentState<Msg> => ({
+	update?: (msg: TMsg, state: SystemState<TMsg>) => SystemState<TMsg>
+): SystemState<TMsg> => ({
 	scene,
-	elements: {},
+	components: {},
 	data: [],
 	messageQueue: [],
 	update,
 	eventHandlersAttached: new Set<string>(),
 });
 
-export const enqueueMessages = <Msg>(messages: Msg[]) => (
-	state: ComponentState<Msg>
-): ComponentState<Msg> => ({
+// Add messages to the queue
+export const enqueueMessages = <TMsg extends Msg>(messages: TMsg[]) => (
+	state: SystemState<TMsg>
+): SystemState<TMsg> => ({
 	...state,
 	messageQueue: [...state.messageQueue, ...messages],
 });
 
-export const processMessages = <Msg>(
-	state: ComponentState<Msg>
-): ComponentState<Msg> => {
+// Process all messages in the queue
+export const processMessages = <TMsg extends Msg>(
+	state: SystemState<TMsg>
+): SystemState<TMsg> => {
 	if (!state.update || state.messageQueue.length === 0) {
 		return { ...state, messageQueue: [] };
 	}
@@ -77,7 +88,7 @@ export const processMessages = <Msg>(
 
 	const processedState = pipe(
 		state.messageQueue,
-		A.reduce<Msg, ComponentState<Msg>>(
+		A.reduce<TMsg, SystemState<TMsg>>(
 			state,
 			(acc, msg) => (acc.update ? acc.update(msg, acc) : acc)
 		)
@@ -86,9 +97,10 @@ export const processMessages = <Msg>(
 	return { ...processedState, messageQueue: [] };
 };
 
-const applyBaseProps = <T extends Phaser.GameObjects.GameObject, Msg>(
-	data: BaseElement<Msg>,
-	state: ComponentState<Msg>
+// Apply base properties and event handlers to game object
+const applyBaseProps = <T extends Phaser.GameObjects.GameObject, TMsg extends Msg>(
+	data: BaseComponent<TMsg>,
+	state: SystemState<TMsg>
 ) => (
 	gameObject: T
 ): T => {
@@ -113,18 +125,22 @@ const applyBaseProps = <T extends Phaser.GameObjects.GameObject, Msg>(
 			(gameObject as any).setScale(data.scale.x, data.scale.y);
 		}
 
+		// Setup interactivity and event handlers
 		if ((data.interactive || data.onClick) && 'setInteractive' in gameObject) {
 			const go = gameObject as any;
 
+			// Make interactive if not already
 			if (!go.input) {
 				go.setInteractive();
 				console.log(`Made ${data.id} interactive`);
 			}
 
+			// Only attach event handlers if not already attached
 			if (data.onClick && 'on' in go && !state.eventHandlersAttached.has(data.id)) {
 				go.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
 					console.log(`${data.id} clicked!`);
 					const messages = data.onClick!(pointer);
+					// Mutate state to add messages - will be processed in next frame
 					state.messageQueue.push(...messages);
 				});
 				state.eventHandlersAttached.add(data.id);
@@ -133,29 +149,31 @@ const applyBaseProps = <T extends Phaser.GameObjects.GameObject, Msg>(
 		} return gameObject;
 	};
 
-const createImage = <Msg>(state: ComponentState<Msg>) => (
-	data: ImageElement<Msg>
+// Create component game objects
+const createImage = <TMsg extends Msg>(state: SystemState<TMsg>) => (
+	data: ImageComponent<TMsg>
 ): Phaser.GameObjects.Image =>
 	pipe(
 		state.scene.add.image(data.x, data.y, data.texture),
 		applyBaseProps(data, state)
 	);
 
-const createText = <Msg>(state: ComponentState<Msg>) => (
-	data: TextElement<Msg>
+const createText = <TMsg extends Msg>(state: SystemState<TMsg>) => (
+	data: TextComponent<TMsg>
 ): Phaser.GameObjects.Text =>
 	pipe(
 		state.scene.add.text(data.x, data.y, data.text, data.style),
 		applyBaseProps(data, state)
 	);
 
-const createContainer = <Msg>(state: ComponentState<Msg>) => (
-	data: ContainerElement<Msg>
+const createContainer = <TMsg extends Msg>(state: SystemState<TMsg>) => (
+	data: ContainerComponent<TMsg>
 ): Phaser.GameObjects.Container =>
 	pipe(state.scene.add.container(data.x, data.y), applyBaseProps(data, state));
 
-const createComponent = <Msg>(state: ComponentState<Msg>) => (
-	data: Component<Msg>
+// Pattern match on component type
+const createComponent = <TMsg extends Msg>(state: SystemState<TMsg>) => (
+	data: Component<TMsg>
 ): O.Option<Phaser.GameObjects.GameObject> => {
 	switch (data.type) {
 		case 'image':
@@ -169,14 +187,16 @@ const createComponent = <Msg>(state: ComponentState<Msg>) => (
 	}
 };
 
-const updateElement = <Msg>(
-	data: Component<Msg>,
-	state: ComponentState<Msg>
+// Update existing game object with new data
+const updateComponent = <TMsg extends Msg>(
+	data: Component<TMsg>,
+	state: SystemState<TMsg>
 ) => (
 	gameObject: Phaser.GameObjects.GameObject
 ): Phaser.GameObjects.GameObject => {
 		pipe(gameObject, applyBaseProps(data, state));
 
+		// Update type-specific properties
 		if (data.type === 'text' && gameObject instanceof Phaser.GameObjects.Text) {
 			gameObject.setText(data.text);
 		}
@@ -184,14 +204,16 @@ const updateElement = <Msg>(
 		return gameObject;
 	};
 
-const getCurrentIds = <Msg>(data: Component<Msg>[]): Set<string> =>
+// Get current component IDs from data
+const getCurrentIds = <TMsg extends Msg>(data: Component<TMsg>[]): Set<string> =>
 	new Set(pipe(data, A.map((c) => c.id)));
 
-const removeStaleComponents = <Msg>(currentIds: Set<string>) => (
-	state: ComponentState<Msg>
-): ComponentState<Msg> => {
+// Remove components no longer in data
+const removeStaleComponents = <TMsg extends Msg>(currentIds: Set<string>) => (
+	state: SystemState<TMsg>
+): SystemState<TMsg> => {
 	const updatedComponents = pipe(
-		state.elements,
+		state.components,
 		R.filterWithIndex((id, gameObject) => {
 			if (!currentIds.has(id)) {
 				gameObject.destroy();
@@ -204,48 +226,52 @@ const removeStaleComponents = <Msg>(currentIds: Set<string>) => (
 
 	return {
 		...state,
-		elements: updatedComponents,
+		components: updatedComponents,
 	};
 };
 
-const syncComponent = <Msg>(componentData: Component<Msg>) => (
-	state: ComponentState<Msg>
-): ComponentState<Msg> => {
+// Sync a single component (create or update)
+const syncComponent = <TMsg extends Msg>(componentData: Component<TMsg>) => (
+	state: SystemState<TMsg>
+): SystemState<TMsg> => {
 	const existingOption = pipe(
-		state.elements,
+		state.components,
 		R.lookup(componentData.id)
 	);
 
 	return pipe(
 		existingOption,
 		O.fold(
+			// Create new component
 			() => {
-				const newElement = createComponent(state)(componentData);
+				const newComponent = createComponent(state)(componentData);
 				return pipe(
-					newElement,
+					newComponent,
 					O.fold(
 						() => state,
 						(gameObject) => ({
 							...state,
 							components: {
-								...state.elements,
+								...state.components,
 								[componentData.id]: gameObject,
 							},
 						})
 					)
 				);
 			},
+			// Update existing component
 			(gameObject) => {
-				pipe(gameObject, updateElement(componentData, state));
+				pipe(gameObject, updateComponent(componentData, state));
 				return state;
 			}
 		)
 	);
 };
 
-export const setData = <Msg>(newData: Component<Msg>[]) => (
-	state: ComponentState<Msg>
-): ComponentState<Msg> => {
+// Update system state with new data
+export const setData = <TMsg extends Msg>(newData: Component<TMsg>[]) => (
+	state: SystemState<TMsg>
+): SystemState<TMsg> => {
 	const currentIds = getCurrentIds(newData);
 
 	return pipe(
@@ -260,11 +286,13 @@ export const setData = <Msg>(newData: Component<Msg>[]) => (
 	);
 };
 
-export const getData = <Msg>(state: ComponentState<Msg>): Component<Msg>[] => state.data;
+// Get current data
+export const getData = <TMsg extends Msg>(state: SystemState<TMsg>): Component<TMsg>[] => state.data;
 
-export const destroy = <Msg>(state: ComponentState<Msg>): ComponentState<Msg> => {
+// Destroy all components
+export const destroy = <TMsg extends Msg>(state: SystemState<TMsg>): SystemState<TMsg> => {
 	pipe(
-		state.elements,
+		state.components,
 		R.map((gameObject) => {
 			gameObject.destroy();
 			return gameObject;
@@ -273,27 +301,31 @@ export const destroy = <Msg>(state: ComponentState<Msg>): ComponentState<Msg> =>
 
 	return {
 		...state,
-		elements: {},
+		components: {},
 		data: [],
 		eventHandlersAttached: new Set<string>(),
 	};
 };
 
+// Example usage / Proof of concept with events
 type DemoMsg =
 	| { type: 'ImageClicked'; id: string; x: number; y: number }
 	| { type: 'MoveImage'; id: string; dx: number; dy: number };
 
 export const createReactiveDemo = (scene: Phaser.Scene) => {
-	const update = (msg: DemoMsg, state: ComponentState<DemoMsg>): ComponentState<DemoMsg> => {
+	// Update function - handles messages and returns new state
+	const update = (msg: DemoMsg, state: SystemState<DemoMsg>): SystemState<DemoMsg> => {
 		switch (msg.type) {
 			case 'ImageClicked':
 				console.log(`Image ${msg.id} clicked at (${msg.x}, ${msg.y})`);
-				const withMessage: ComponentState<DemoMsg> = enqueueMessages<DemoMsg>([
+				// Move the clicked image by enqueueing a new message
+				const withMessage: SystemState<DemoMsg> = enqueueMessages<DemoMsg>([
 					{ type: 'MoveImage', id: msg.id, dx: 50, dy: 50 },
 				])(state);
 				return withMessage;
 
 			case 'MoveImage':
+				// Update the component position
 				const updatedData = state.data.map((comp) =>
 					comp.id === msg.id ? { ...comp, x: comp.x + msg.dx, y: comp.y + msg.dy } : comp
 				);
@@ -304,8 +336,9 @@ export const createReactiveDemo = (scene: Phaser.Scene) => {
 		}
 	};
 
-	let state = createComponentState<DemoMsg>(scene, update);
+	let state = createSystemState<DemoMsg>(scene, update);
 
+	// Initial data: two clickable images
 	const initialData: Component<DemoMsg>[] = [
 		{
 			id: 'image1',
@@ -345,6 +378,7 @@ export const createReactiveDemo = (scene: Phaser.Scene) => {
 
 	state = setData<DemoMsg>(initialData)(state);
 
+	// Process messages every frame
 	scene.events.on('update', () => {
 		state = processMessages<DemoMsg>(state);
 	});
@@ -352,4 +386,4 @@ export const createReactiveDemo = (scene: Phaser.Scene) => {
 	return state;
 };
 
-export type { Component, ImageElement as ImageComponent, TextElement as TextComponent, ContainerElement as ContainerComponent, ComponentState as SystemState, ClickHandler };
+export type { Component, ImageComponent, TextComponent, ContainerComponent, SystemState, Msg, ClickHandler };
