@@ -1,35 +1,79 @@
-/**
- * Simplified Mana API - Clean interface for reactive rendering POC
- *
- * This replaces the complex 30+ export API with a minimal, focused interface
- * that demonstrates the core reactive rendering concepts without overwhelming complexity.
- */
-
-// Export the simple API
 export type {
-	// Core types
+	ClickHandler,
+	BaseElement,
+	ImageElement,
+	TextElement,
+	ContainerElement,
+	RectangleElement,
+	RoundedRectangleElement,
+	CircleElement,
+	EllipseElement,
 	Element,
-	ManaMsg,
-} from './simple';
+	ComponentState,
+} from './types';
 
 export {
-	// Element creation helpers
-	container,
-	text,
-	image,
-	rectangle,
+	createComponentState,
+	getData,
+} from './state';
 
-	// Core rendering
-	render,
-	createApp,
+export {
+	setData,
+	registerUpdateHandler,
+} from './renderer';
 
-	// Message handling
+// Simplified API
+export {
+	createComponent,
+} from './api';
+
+export {
+	createImage,
+	createText,
+	createContainer,
+	createGraphics,
+	createRectangle,
+	createRoundedRectangle,
+	createCircle,
+	createEllipse,
+	registerComponentFactory,
+} from './factories';
+
+export {
+	registerPropertySetter,
+	applyBaseProps,
+} from './properties';
+
+export {
+	destroy,
+	registerCleanupHook,
+	registerMountHook,
+	registerUnmountHook,
+} from './lifecycle';
+
+export {
+	shallowEqual,
+	elementsEqual,
+	ElementCache,
+	debounce,
+	throttle,
+} from './utils';
+
+export {
+	setDevMode,
+	validateElement,
+	validateElements,
+} from './validation';
+
+// Built-in actions and message system
+export type { ManaMsg, RedrawShapeAction, UpdateElementAction, TweenAction, StopTweenAction } from './actions';
+export {
 	handleManaMsg,
-	dispatch,
-
-	// Cleanup
-	cleanup,
-} from './simple';
-
-// Keep the existing createComponent for backward compatibility
-export { createComponent } from './api';
+	redrawShape,
+	updateElement,
+	setFillColor,
+	setVisible,
+	moveTo,
+	createTween,
+	stopTween,
+} from './actions';
