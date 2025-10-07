@@ -5,13 +5,12 @@ import * as AudioManager from "@Systems/AudioManager";
 import { createManaApp } from "../../mana";
 import type { ManaApp, ManaMsg } from "../../mana";
 import type { ComponentState } from "../../mana/types";
-import { TitleApp, type TitleMsg, type TitleProps } from "./TitleApp";
-import type { ManaCloudsBackgroundHandle } from "../../mana/components/CloudsBackgroundApp";
+import { TitleApp, type TitleMsg, type TitleProps, type TitleCloudsBackgroundHandle } from "./TitleApp";
 
 export let titleScene: TitleScene;
 
 export default class TitleScene extends Phaser.Scene {
-	cloudsBackground?: ManaCloudsBackgroundHandle;
+	cloudsBackground?: TitleCloudsBackgroundHandle;
 	private manaApp?: ManaApp<TitleMsg, TitleProps>;
 
 	constructor() {
