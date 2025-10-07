@@ -25,7 +25,6 @@ export {
 	createImage,
 	createText,
 	createContainer,
-	registerComponentFactory,
 } from './factories';
 
 export {
@@ -36,20 +35,4 @@ export {
 export {
 	destroy,
 	registerCleanupHook,
-	registerMountHook,
-	registerUnmountHook,
 } from './lifecycle';
-
-export {
-	shallowEqual,
-	elementsEqual,
-	ElementCache,
-	debounce,
-	throttle,
-} from './utils';
-
-export {
-	setDevMode,
-	validateElement,
-	validateElements,
-} from './validation';

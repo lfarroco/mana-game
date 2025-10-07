@@ -4,8 +4,6 @@
 
 import type { ComponentState, ImageElement, TextElement, ContainerElement } from './types';
 import { applyBaseProps } from './properties';
-import { callMountHooks } from './lifecycle';
-import { validateTexture, validateClickHandler } from './validation';
 
 /**
  * Factory function type for creating game objects
@@ -16,23 +14,14 @@ export type ComponentFactory<Msg> = (
 ) => Phaser.GameObjects.GameObject | null;
 
 /**
- * Registry of component factories by type
- */
-const factoryRegistry: Record<string, ComponentFactory<any>> = {};
-
-/**
  * Create an image game object
  */
 export const createImage = <Msg>(
 	state: ComponentState<Msg>,
 	data: ImageElement<Msg>
 ): Phaser.GameObjects.Image => {
-	validateTexture(state.scene, data.texture);
-	validateClickHandler(data);
-
-	const img = state.scene.add.image(data.x, data.y, data.texture, data.frame);
+	const img = state.scene.add.image(data.x, data.y, data.texture);
 	applyBaseProps(img, data, state);
-	callMountHooks(img, data, state);
 	return img;
 };
 
@@ -45,7 +34,6 @@ export const createText = <Msg>(
 ): Phaser.GameObjects.Text => {
 	const text = state.scene.add.text(data.x, data.y, data.text, data.style);
 	applyBaseProps(text, data, state);
-	callMountHooks(text, data, state);
 	return text;
 };
 
@@ -57,39 +45,17 @@ export const createContainer = <Msg>(
 	data: ContainerElement<Msg>
 ): Phaser.GameObjects.Container => {
 	const container = state.scene.add.container(data.x, data.y);
-
-	// Create and add children
-	if (data.children && data.children.length > 0) {
-		for (const childData of data.children) {
-			const child = createComponent(state, childData);
-			if (child) {
-				container.add(child);
-				// Also track children in state.elements
-				state.elements[childData.id] = child;
-			}
-		}
-	}
-
 	applyBaseProps(container, data, state);
-	callMountHooks(container, data, state);
 	return container;
 };
 
 /**
  * Create a component for supported game object types
- * Checks the factory registry first, then falls back to built-in types
  */
 export const createComponent = <Msg>(
 	state: ComponentState<Msg>,
 	data: any
 ): Phaser.GameObjects.GameObject | null => {
-	// Check custom factories first
-	const customFactory = factoryRegistry[data.type];
-	if (customFactory) {
-		return customFactory(state, data);
-	}
-
-	// Fall back to built-in types
 	switch (data.type) {
 		case 'image':
 			return createImage(state, data);
@@ -98,25 +64,6 @@ export const createComponent = <Msg>(
 		case 'container':
 			return createContainer(state, data);
 		default:
-			console.warn(`[Mana] Unknown component type: ${data.type}`);
 			return null;
 	}
-};
-
-/**
- * Register a custom component factory
- * Allows extending the system with new component types
- *
- * @example
- * registerComponentFactory('sprite', (state, data) => {
- *   const sprite = state.scene.add.sprite(data.x, data.y, data.texture);
- *   applyBaseProps(sprite, data, state);
- *   return sprite;
- * });
- */
-export const registerComponentFactory = <Msg>(
-	type: string,
-	factory: ComponentFactory<Msg>
-): void => {
-	factoryRegistry[type] = factory;
 };

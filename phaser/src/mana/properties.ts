@@ -67,8 +67,7 @@ export const applyBaseProps = <T extends Phaser.GameObjects.GameObject, Msg>(
 		if (data.onClick && 'on' in go && !state.eventHandlersAttached.has(data.id)) {
 			go.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
 				const messages = data.onClick!(pointer);
-				// Create new array since messageQueue is readonly
-				state.messageQueue = [...state.messageQueue, ...messages];
+				state.messageQueue.push(...messages);
 			});
 			state.eventHandlersAttached.add(data.id);
 		}
