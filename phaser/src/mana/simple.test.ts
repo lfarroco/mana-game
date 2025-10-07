@@ -1,8 +1,8 @@
 /**
- * Tests for the Mana Core API
+ * Tests for the simplified Mana API
  */
 
-import { container, text, image, rectangle, render, createApp, dispatch, cleanup, type Element, type ManaMsg } from './core';
+import { container, text, image, rectangle, render, createApp, dispatch, cleanup, type Element, type ManaMsg } from './simple';
 
 // Mock Phaser
 const mockScene = {
