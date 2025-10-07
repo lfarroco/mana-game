@@ -57,39 +57,20 @@ export const applyBaseProps = <T extends Phaser.GameObjects.GameObject, Msg>(
 	});
 
 	// Handle interactivity and click events
-	if ((data.interactive || data.onClick || data.onHover || data.onHoverOut) && 'setInteractive' in gameObject) {
+	if ((data.interactive || data.onClick) && 'setInteractive' in gameObject) {
 		const go = gameObject as any;
 
 		if (!go.input) {
 			go.setInteractive();
 		}
 
-		// Handle click events
-		if (data.onClick && 'on' in go && !state.eventHandlersAttached.has(`${data.id}:click`)) {
+		if (data.onClick && 'on' in go && !state.eventHandlersAttached.has(data.id)) {
 			go.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
 				const messages = data.onClick!(pointer);
 				// Create new array since messageQueue is readonly
 				state.messageQueue = [...state.messageQueue, ...messages];
 			});
-			state.eventHandlersAttached.add(`${data.id}:click`);
-		}
-
-		// Handle hover events
-		if (data.onHover && 'on' in go && !state.eventHandlersAttached.has(`${data.id}:hover`)) {
-			go.on('pointerover', (pointer: Phaser.Input.Pointer) => {
-				const messages = data.onHover!(pointer);
-				state.messageQueue = [...state.messageQueue, ...messages];
-			});
-			state.eventHandlersAttached.add(`${data.id}:hover`);
-		}
-
-		// Handle hover out events
-		if (data.onHoverOut && 'on' in go && !state.eventHandlersAttached.has(`${data.id}:hoverout`)) {
-			go.on('pointerout', (pointer: Phaser.Input.Pointer) => {
-				const messages = data.onHoverOut!(pointer);
-				state.messageQueue = [...state.messageQueue, ...messages];
-			});
-			state.eventHandlersAttached.add(`${data.id}:hoverout`);
+			state.eventHandlersAttached.add(data.id);
 		}
 	}
 };

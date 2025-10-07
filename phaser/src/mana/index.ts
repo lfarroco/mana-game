@@ -25,7 +25,6 @@ export {
 	createImage,
 	createText,
 	createContainer,
-	createGraphics,
 	registerComponentFactory,
 } from './factories';
 
