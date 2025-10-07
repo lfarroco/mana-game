@@ -158,6 +158,22 @@ export const stopTween = (tweenId: string): StopTweenAction => ({
 const activeTweens = new Map<string, Phaser.Tweens.Tween>();
 
 /**
+ * Recursively find element data by ID in the component tree
+ */
+const findElementData = (data: readonly any[], elementId: string): any => {
+	for (const item of data) {
+		if (item.id === elementId) {
+			return item;
+		}
+		if (item.children) {
+			const found = findElementData(item.children, elementId);
+			if (found) return found;
+		}
+	}
+	return null;
+};
+
+/**
  * Built-in handler for Mana messages
  * Processes common operations like redrawing shapes and creating tweens
  * 
@@ -190,7 +206,7 @@ export const handleManaMsg = <Msg extends ManaMsg>(
 			}
 
 			const graphics = element as Phaser.GameObjects.Graphics;
-			const data = state.elementData.get(msg.elementId);
+			const data = findElementData(state.data, msg.elementId);
 
 			if (!data) {
 				console.warn(`[Mana] Cannot redraw element: ${msg.elementId} data not found`);
@@ -205,54 +221,68 @@ export const handleManaMsg = <Msg extends ManaMsg>(
 
 			switch (data.type) {
 				case 'rect': {
-					const width = mergedProps.width!;
-					const height = mergedProps.height!;
 					if (mergedProps.fillColor !== undefined) {
 						graphics.fillStyle(mergedProps.fillColor, mergedProps.fillAlpha ?? 1);
-						graphics.fillRect(-width / 2, -height / 2, width, height);
+						graphics.fillRect(
+							-mergedProps.width / 2,
+							-mergedProps.height / 2,
+							mergedProps.width,
+							mergedProps.height
+						);
 					}
 					if (mergedProps.strokeColor !== undefined) {
 						graphics.lineStyle(mergedProps.strokeWidth ?? 1, mergedProps.strokeColor, mergedProps.strokeAlpha ?? 1);
-						graphics.strokeRect(-width / 2, -height / 2, width, height);
+						graphics.strokeRect(
+							-mergedProps.width / 2,
+							-mergedProps.height / 2,
+							mergedProps.width,
+							mergedProps.height
+						);
 					}
 					break;
 				}
 				case 'roundrect': {
-					const width = mergedProps.width!;
-					const height = mergedProps.height!;
-					const radius = mergedProps.radius!;
 					if (mergedProps.fillColor !== undefined) {
 						graphics.fillStyle(mergedProps.fillColor, mergedProps.fillAlpha ?? 1);
-						graphics.fillRoundedRect(-width / 2, -height / 2, width, height, radius);
+						graphics.fillRoundedRect(
+							-mergedProps.width / 2,
+							-mergedProps.height / 2,
+							mergedProps.width,
+							mergedProps.height,
+							mergedProps.radius
+						);
 					}
 					if (mergedProps.strokeColor !== undefined) {
 						graphics.lineStyle(mergedProps.strokeWidth ?? 1, mergedProps.strokeColor, mergedProps.strokeAlpha ?? 1);
-						graphics.strokeRoundedRect(-width / 2, -height / 2, width, height, radius);
+						graphics.strokeRoundedRect(
+							-mergedProps.width / 2,
+							-mergedProps.height / 2,
+							mergedProps.width,
+							mergedProps.height,
+							mergedProps.radius
+						);
 					}
 					break;
 				}
 				case 'circle': {
-					const radius = mergedProps.radius!;
 					if (mergedProps.fillColor !== undefined) {
 						graphics.fillStyle(mergedProps.fillColor, mergedProps.fillAlpha ?? 1);
-						graphics.fillCircle(0, 0, radius);
+						graphics.fillCircle(0, 0, mergedProps.radius);
 					}
 					if (mergedProps.strokeColor !== undefined) {
 						graphics.lineStyle(mergedProps.strokeWidth ?? 1, mergedProps.strokeColor, mergedProps.strokeAlpha ?? 1);
-						graphics.strokeCircle(0, 0, radius);
+						graphics.strokeCircle(0, 0, mergedProps.radius);
 					}
 					break;
 				}
 				case 'ellipse': {
-					const width = mergedProps.width!;
-					const height = mergedProps.height!;
 					if (mergedProps.fillColor !== undefined) {
 						graphics.fillStyle(mergedProps.fillColor, mergedProps.fillAlpha ?? 1);
-						graphics.fillEllipse(0, 0, width, height);
+						graphics.fillEllipse(0, 0, mergedProps.width, mergedProps.height);
 					}
 					if (mergedProps.strokeColor !== undefined) {
 						graphics.lineStyle(mergedProps.strokeWidth ?? 1, mergedProps.strokeColor, mergedProps.strokeAlpha ?? 1);
-						graphics.strokeEllipse(0, 0, width, height);
+						graphics.strokeEllipse(0, 0, mergedProps.width, mergedProps.height);
 					}
 					break;
 				}

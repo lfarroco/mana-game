@@ -404,23 +404,6 @@ const syncComponent = <Msg>(
 };
 
 /**
- * Build a flat registry of all element data by ID
- */
-const buildElementDataRegistry = <Msg>(elements: readonly Element<Msg>[]): Map<string, Element<Msg>> => {
-	const registry = new Map<string, Element<Msg>>();
-
-	const addToRegistry = (element: Element<Msg>) => {
-		registry.set(element.id, element);
-		if ('children' in element && element.children) {
-			element.children.forEach(addToRegistry);
-		}
-	};
-
-	elements.forEach(addToRegistry);
-	return registry;
-};
-
-/**
  * Set new component data and synchronize all elements
  * Removes elements that are no longer in the data
  * Creates or updates elements as needed
@@ -437,7 +420,7 @@ export const setData = <Msg>(newData: readonly Element<Msg>[]) => (
 	for (const id in state.elements) {
 		if (!currentIds.has(id)) {
 			const element = state.elements[id];
-			const oldData = state.elementData.get(id);
+			const oldData = state.data.find(d => d.id === id);
 
 			// Call unmount hooks before destroying
 			if (oldData) {
@@ -455,10 +438,7 @@ export const setData = <Msg>(newData: readonly Element<Msg>[]) => (
 		syncComponent(state, componentData);
 	}
 
-	// Build the flat element data registry
-	const elementDataRegistry = buildElementDataRegistry(newData);
-
-	const newState = { ...state, data: newData, elementData: elementDataRegistry };
+	const newState = { ...state, data: newData };
 
 	// Check for performance issues and state consistency
 	checkPerformance(newState);
