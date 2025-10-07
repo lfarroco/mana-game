@@ -39,32 +39,20 @@ type ComponentState<Msg> = {
 	update?: (msg: Msg, state: ComponentState<Msg>) => ComponentState<Msg>;
 	eventHandlersAttached: Set<string>;
 	subscribers: Array<(msg: Msg) => void>;
-	updateHandler?: () => void;
 };
 
 export const createComponentState = <Msg>(
 	scene: Phaser.Scene,
 	update?: (msg: Msg, state: ComponentState<Msg>) => ComponentState<Msg>
-): ComponentState<Msg> => {
-	const state: ComponentState<Msg> = {
-		scene,
-		elements: {},
-		data: [],
-		messageQueue: [],
-		update,
-		eventHandlersAttached: new Set(),
-		subscribers: [],
-	};
-
-	state.updateHandler = () => {
-		const newState = processMessages(state);
-		Object.assign(state, newState);
-	};
-
-	scene.events.on('update', state.updateHandler);
-
-	return state;
-};
+): ComponentState<Msg> => ({
+	scene,
+	elements: {},
+	data: [],
+	messageQueue: [],
+	update,
+	eventHandlersAttached: new Set(),
+	subscribers: [],
+});
 
 export const enqueueMessages = <Msg>(messages: Msg[]) => (
 	state: ComponentState<Msg>
@@ -138,7 +126,7 @@ const applyBaseProps = <T extends Phaser.GameObjects.GameObject, Msg>(
 		if (data.onClick && 'on' in go && !state.eventHandlersAttached.has(data.id)) {
 			go.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
 				const messages = data.onClick!(pointer);
-				state.messageQueue.push(...messages);
+				messages.forEach(msg => emitToSubscribers(msg, state.subscribers));
 			});
 			state.eventHandlersAttached.add(data.id);
 		}
@@ -215,10 +203,6 @@ export const setData = <Msg>(newData: Component<Msg>[]) => (
 export const getData = <Msg>(state: ComponentState<Msg>): Component<Msg>[] => state.data;
 
 export const destroy = <Msg>(state: ComponentState<Msg>): ComponentState<Msg> => {
-	if (state.updateHandler) {
-		state.scene.events.off('update', state.updateHandler);
-	}
-
 	for (const id in state.elements) {
 		state.elements[id].destroy();
 	}
