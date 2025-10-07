@@ -69,21 +69,15 @@ export const createContainer = <Msg>(
 	data: ContainerElement<Msg>
 ): Phaser.GameObjects.Container => {
 	const container = state.scene.add.container(data.x, data.y);
-	console.log(`[Container Factory] Created container ${data.id} at (${data.x}, ${data.y})`);
 
 	// Create and add children
 	if (data.children && data.children.length > 0) {
-		console.log(`[Container Factory] Adding ${data.children.length} children to container ${data.id}`);
 		for (const childData of data.children) {
-			console.log(`[Container Factory] Creating child ${childData.id} (type: ${childData.type})`);
 			const child = createComponent(state, childData);
 			if (child) {
 				container.add(child);
-				console.log(`[Container Factory] Added child ${childData.id} to container. Child position: (${(child as any).x}, ${(child as any).y}), Container has ${container.list.length} children`);
 				// Also track children in state.elements
 				state.elements[childData.id] = child;
-			} else {
-				console.warn(`[Container Factory] Failed to create child ${childData.id}`);
 			}
 		}
 	}
@@ -310,9 +304,6 @@ export const createShader = <Msg>(
 	state: ComponentState<Msg>,
 	data: ShaderElement<Msg>
 ): Phaser.GameObjects.Shader => {
-	console.log(`[Shader Factory] createShader called for ${data.id}`);
-	console.log(`[Shader Factory] Data:`, data);
-
 	// Create a unique key for this shader instance
 	const shaderKey = `mana-shader-${data.id}`;
 
@@ -320,84 +311,25 @@ export const createShader = <Msg>(
 	const baseShader = new Phaser.Display.BaseShader(
 		shaderKey,
 		data.fragmentShader,
-		data.vertexShader || undefined, // Match UIButton - pass undefined if no vertex shader
-		// Convert uniforms to proper format like UIButton
-		{
-			time: { type: '1f', value: (data.uniforms?.time as number) || 0 },
-			resolution: { type: '2f', value: (data.uniforms?.resolution as number[]) || [data.width, data.height] },
-			intensity: { type: '1f', value: (data.uniforms?.intensity as number) || 1.0 },
-		}
+		data.vertexShader,
+		// Convert uniforms object to proper format with types
+		Object.keys(data.uniforms || {}).reduce((acc, key) => {
+			const value = (data.uniforms as any)[key];
+			let type = '1f'; // default to float
+			if (Array.isArray(value)) {
+				if (value.length === 2) type = '2f';
+				else if (value.length === 3) type = '3f';
+				else if (value.length === 4) type = '4f';
+			} else if (typeof value === 'number') {
+				type = '1f';
+			}
+			acc[key] = { type, value };
+			return acc;
+		}, {} as Record<string, { type: string; value: any }>)
 	);
-	console.log(`[Shader Factory] BaseShader created`);
 
 	// Create the shader game object
-	// IMPORTANT: Shaders need absolute world coordinates when added to containers
-	// Use data.x and data.y directly (these should be world coordinates for shaders in containers)
 	const shader = state.scene.add.shader(baseShader, data.x, data.y, data.width, data.height);
-	console.log(`[Shader Factory] Shader game object created at (${data.x}, ${data.y})`);
-
-	// Set origin to center (like UIButton)
-	shader.setOrigin(0.5);
-
-	// Try NORMAL blend mode first for debugging - ADD mode might make it invisible
-	// Use additive blending for a glow effect like UIButton
-	(shader as any).blendMode = Phaser.BlendModes.ADD;
-
-	// Ensure shader is visible
-	shader.setVisible(true);
-	(shader as any).alpha = 1.0; // Ensure full opacity
-
-	// Set depth to ensure it's above background
-	shader.setDepth(1);
-
-	console.log(`[Shader Factory] Created shader ${data.id}:`, {
-		width: data.width,
-		height: data.height,
-		position: { x: shader.x, y: shader.y },
-		visible: shader.visible,
-		alpha: (shader as any).alpha,
-		depth: shader.depth,
-		blendMode: (shader as any).blendMode,
-		displayWidth: shader.displayWidth,
-		displayHeight: shader.displayHeight,
-		uniforms: data.uniforms,
-		shader: shader,
-		type: shader.type
-	});
-
-	// Auto-update time uniform on every frame if it exists in the uniforms
-	if (data.uniforms && 'time' in data.uniforms) {
-		console.log(`[Shader Factory] Setting up auto-update for shader ${data.id}`);
-		let frameCount = 0;
-
-		const updateHandler = (time: number) => {
-			frameCount++;
-			if (shader.active && shader.visible) {
-				const timeInSeconds = time / 1000;
-				shader.setUniform('time.value', timeInSeconds);
-
-				// Log every 60 frames (roughly once per second at 60fps)
-				if (frameCount % 60 === 0) {
-					console.log(`[Shader Update] ${data.id}: time=${timeInSeconds.toFixed(2)}s, active=${shader.active}, visible=${shader.visible}`);
-				}
-			} else if (frameCount % 60 === 0) {
-				console.log(`[Shader Update] ${data.id}: SKIPPED - active=${shader.active}, visible=${shader.visible}`);
-			}
-		};
-
-		// Listen to scene update event using proper Phaser event constant
-		state.scene.events.on(Phaser.Scenes.Events.UPDATE, updateHandler);
-		console.log(`[Shader Factory] Registered UPDATE event handler for ${data.id}`);
-
-		// Clean up listener when shader is destroyed
-		shader.once('destroy', () => {
-			console.log(`[Shader Factory] Cleaning up UPDATE handler for ${data.id}`);
-			state.scene.events.off(Phaser.Scenes.Events.UPDATE, updateHandler);
-		});
-	} else {
-		console.log(`[Shader Factory] No time uniform found for shader ${data.id}, skipping auto-update`);
-	}
-
 	applyBaseProps(shader, data, state);
 	callMountHooks(shader, data, state);
 	return shader;

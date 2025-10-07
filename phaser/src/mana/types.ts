@@ -271,7 +271,7 @@ export type EllipseElement<Msg> = BaseElement<Msg> & {
  */
 export type ShaderElement<Msg> = BaseElement<Msg> & {
 	readonly type: 'shader';
-	readonly vertexShader?: string;
+	readonly vertexShader: string;
 	readonly fragmentShader: string;
 	readonly uniforms?: Record<string, any>;
 	readonly width: number;

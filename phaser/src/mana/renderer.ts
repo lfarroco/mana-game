@@ -325,7 +325,7 @@ const updateEllipseElement: UpdateHandler<any> = (gameObject, data) => {
 /**
  * Update handler for shader elements
  */
-const updateShaderElement: UpdateHandler<any> = (gameObject, data, state) => {
+const updateShaderElement: UpdateHandler<any> = (gameObject, data) => {
 	if (data.type === 'shader' && 'setUniform' in gameObject) {
 		const shader = gameObject as Phaser.GameObjects.Shader;
 		const shaderData = data as any;
@@ -335,13 +335,6 @@ const updateShaderElement: UpdateHandler<any> = (gameObject, data, state) => {
 			for (const [key, value] of Object.entries(shaderData.uniforms)) {
 				shader.setUniform(`${key}.value`, value);
 			}
-		}
-
-		// Automatically update time uniform if it exists
-		if (shaderData.uniforms && 'time' in shaderData.uniforms) {
-			const currentTime = state.scene.time.now / 1000; // Convert to seconds
-			shader.setUniform('time.value', currentTime);
-			console.log('Updated shader time:', currentTime);
 		}
 	}
 };
