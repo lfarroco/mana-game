@@ -56,30 +56,15 @@ export default class TitleScene extends Phaser.Scene {
 			images.logo.key
 		).setOrigin(0.5);
 
-		createComponent<TestMsg>(this, (msg: TestMsg, state: any) => {
-			console.log("Message received:", msg);
-			switch (msg.type) {
-				case 'BUTTON_CLICKED':
-					break;
-			}
-			return state;
-		})(manabutton.create<manabutton.ManaMsg>({
-			id: 'start-game-btn',
-			x: constants.MIDDLE_SCREEN_X,
-			y: constants.MIDDLE_SCREEN_Y + 100,
-			width: 300,
-			height: 60,
-			text: "START GAME",
-			states: {
-				normal: { fillColor: 0x4a5568 },
-			},
-			onClick: (): readonly manabutton.ManaMsg[] => {
+		createUIButton(
+			this,
+			'START GAME',
+			constants.MIDDLE_SCREEN_X,
+			constants.MIDDLE_SCREEN_Y + 100,
+			() => {
 				this.startGame();
-				return [];
-			},
-		}));
-
-
+			}
+		);
 		createUIButton(
 			this,
 			'OPTIONS',
