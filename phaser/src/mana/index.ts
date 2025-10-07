@@ -4,10 +4,6 @@ export type {
 	ImageElement,
 	TextElement,
 	ContainerElement,
-	RectangleElement,
-	RoundedRectangleElement,
-	CircleElement,
-	EllipseElement,
 	Element,
 	ComponentState,
 } from './types';
@@ -35,10 +31,6 @@ export {
 	createText,
 	createContainer,
 	createGraphics,
-	createRectangle,
-	createRoundedRectangle,
-	createCircle,
-	createEllipse,
 	registerComponentFactory,
 } from './factories';
 

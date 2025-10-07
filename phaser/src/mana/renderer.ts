@@ -216,123 +216,13 @@ const updateGraphicsElement: UpdateHandler<any> = (gameObject, data) => {
 			(graphics as any).input.hitAreaCallback = hitAreaConfig.callback;
 		}
 	}
-};
-
-/**
- * Update handler for rectangle shape elements
- */
-const updateRectangleElement: UpdateHandler<any> = (gameObject, data) => {
-	if (data.type === 'rect' && 'clear' in gameObject) {
-		const graphics = gameObject as Phaser.GameObjects.Graphics;
-		const rectData = data as any;
-
-		// Skip automatic updates if skipAutoUpdate flag is set
-		if (rectData.skipAutoUpdate) {
-			return;
-		}
-
-		// Clear and redraw rectangle
-		graphics.clear();
-		if (rectData.fillColor !== undefined) {
-			graphics.fillStyle(rectData.fillColor, rectData.fillAlpha ?? 1);
-			graphics.fillRect(-rectData.width / 2, -rectData.height / 2, rectData.width, rectData.height);
-		}
-		if (rectData.strokeColor !== undefined) {
-			graphics.lineStyle(rectData.strokeWidth ?? 1, rectData.strokeColor, rectData.strokeAlpha ?? 1);
-			graphics.strokeRect(-rectData.width / 2, -rectData.height / 2, rectData.width, rectData.height);
-		}
-	}
-};
-
-/**
- * Update handler for rounded rectangle shape elements
- */
-const updateRoundedRectangleElement: UpdateHandler<any> = (gameObject, data) => {
-	if (data.type === 'roundrect' && 'clear' in gameObject) {
-		const graphics = gameObject as Phaser.GameObjects.Graphics;
-		const rectData = data as any;
-
-		// Skip automatic updates if skipAutoUpdate flag is set
-		if (rectData.skipAutoUpdate) {
-			return;
-		}
-
-		// Clear and redraw rounded rectangle
-		graphics.clear();
-		if (rectData.fillColor !== undefined) {
-			graphics.fillStyle(rectData.fillColor, rectData.fillAlpha ?? 1);
-			graphics.fillRoundedRect(-rectData.width / 2, -rectData.height / 2, rectData.width, rectData.height, rectData.radius);
-		}
-		if (rectData.strokeColor !== undefined) {
-			graphics.lineStyle(rectData.strokeWidth ?? 1, rectData.strokeColor, rectData.strokeAlpha ?? 1);
-			graphics.strokeRoundedRect(-rectData.width / 2, -rectData.height / 2, rectData.width, rectData.height, rectData.radius);
-		}
-	}
-};
-
-/**
- * Update handler for circle shape elements
- */
-const updateCircleElement: UpdateHandler<any> = (gameObject, data) => {
-	if (data.type === 'circle' && 'clear' in gameObject) {
-		const graphics = gameObject as Phaser.GameObjects.Graphics;
-		const circleData = data as any;
-
-		// Skip automatic updates if skipAutoUpdate flag is set
-		if (circleData.skipAutoUpdate) {
-			return;
-		}
-
-		// Clear and redraw circle
-		graphics.clear();
-		if (circleData.fillColor !== undefined) {
-			graphics.fillStyle(circleData.fillColor, circleData.fillAlpha ?? 1);
-			graphics.fillCircle(0, 0, circleData.radius);
-		}
-		if (circleData.strokeColor !== undefined) {
-			graphics.lineStyle(circleData.strokeWidth ?? 1, circleData.strokeColor, circleData.strokeAlpha ?? 1);
-			graphics.strokeCircle(0, 0, circleData.radius);
-		}
-	}
-};
-
-/**
- * Update handler for ellipse shape elements
- */
-const updateEllipseElement: UpdateHandler<any> = (gameObject, data) => {
-	if (data.type === 'ellipse' && 'clear' in gameObject) {
-		const graphics = gameObject as Phaser.GameObjects.Graphics;
-		const ellipseData = data as any;
-
-		// Skip automatic updates if skipAutoUpdate flag is set
-		if (ellipseData.skipAutoUpdate) {
-			return;
-		}
-
-		// Clear and redraw ellipse
-		graphics.clear();
-		if (ellipseData.fillColor !== undefined) {
-			graphics.fillStyle(ellipseData.fillColor, ellipseData.fillAlpha ?? 1);
-			graphics.fillEllipse(0, 0, ellipseData.width, ellipseData.height);
-		}
-		if (ellipseData.strokeColor !== undefined) {
-			graphics.lineStyle(ellipseData.strokeWidth ?? 1, ellipseData.strokeColor, ellipseData.strokeAlpha ?? 1);
-			graphics.strokeEllipse(0, 0, ellipseData.width, ellipseData.height);
-		}
-	}
-};
-
-/**
+};/**
  * Register built-in update handlers
  */
 const registerBuiltInUpdateHandlers = (): void => {
 	updateHandlerRegistry['text'] = updateTextElement;
 	updateHandlerRegistry['container'] = updateContainerElement;
 	updateHandlerRegistry['graphics'] = updateGraphicsElement;
-	updateHandlerRegistry['rect'] = updateRectangleElement;
-	updateHandlerRegistry['roundrect'] = updateRoundedRectangleElement;
-	updateHandlerRegistry['circle'] = updateCircleElement;
-	updateHandlerRegistry['ellipse'] = updateEllipseElement;
 };
 
 // Initialize built-in handlers
