@@ -61,64 +61,68 @@ export type HoverTweenConfig = {
 	duration?: number;
 };
 
-;
+export type HoverableConfig = {
+	tweens?: HoverTweenConfig[];
+};
 
 /**
  * Wrap an element with hoverable behavior
  * Automatically handles color transitions on hover
  */
 export const withHoverable = <Msg>(
-	tweens: HoverTweenConfig[]
-) => (
-	element: Element<Msg | ManaMsg>
+	element: Element<Msg | ManaMsg>,
+	config: HoverableConfig = {}
 ): Element<Msg | ManaMsg> => {
+	const { tweens = [] } = config;
 
-		// Validate tween configurations
-		tweens.forEach(validateHoverTweenConfig);
+	// Validate tween configurations
+	tweens.forEach(validateHoverTweenConfig);
 
-		// Enhanced element with hover behavior
-		const hoverableElement = {
-			...element,
-			onHover: (pointer: Phaser.Input.Pointer) => {
-				const messages: (Msg | ManaMsg)[] = [];
+	// Enhanced element with hover behavior
+	const hoverableElement = {
+		...element,
+		onHover: (pointer: Phaser.Input.Pointer) => {
+			const messages: (Msg | ManaMsg)[] = [];
 
-				// Update state
-				messages.push(updateElementState(element.id, { isHovered: true }));
+			// Update state
+			messages.push(updateElementState(element.id, { isHovered: true }));
 
-				// Start transition tweens
-				messages.push(...createTweenMessages(element.id, tweens, true));
+			// Start transition tweens
+			messages.push(...createTweenMessages(element.id, tweens, true));
 
-				// Call original onHover if it exists
-				if (element.onHover) {
-					messages.push(...element.onHover(pointer));
-				}
+			// Call original onHover if it exists
+			if (element.onHover) {
+				messages.push(...element.onHover(pointer));
+			}
 
-				return messages;
-			},
-			onHoverOut: (pointer: Phaser.Input.Pointer) => {
-				const messages: (Msg | ManaMsg)[] = [];
+			return messages;
+		},
+		onHoverOut: (pointer: Phaser.Input.Pointer) => {
+			const messages: (Msg | ManaMsg)[] = [];
 
-				// Update state
-				messages.push(updateElementState(element.id, { isHovered: false }));
+			// Update state
+			messages.push(updateElementState(element.id, { isHovered: false }));
 
-				// Start transition tweens back to base values
-				messages.push(...createTweenMessages(element.id, tweens, false));
+			// Start transition tweens back to base values
+			messages.push(...createTweenMessages(element.id, tweens, false));
 
-				// Call original onHoverOut if it exists
-				if (element.onHoverOut) {
-					messages.push(...element.onHoverOut(pointer));
-				}
+			// Call original onHoverOut if it exists
+			if (element.onHoverOut) {
+				messages.push(...element.onHoverOut(pointer));
+			}
 
-				return messages;
-			},
-		};
+			return messages;
+		},
+	};
 
-		return hoverableElement;
-	};/**
+	return hoverableElement;
+};
+
+/**
  * Configuration for clickable behavior
  */
 export type ClickableConfig<Msg> = {
-	onClick: () => readonly (Msg | ManaMsg)[];
+	onClick: () => (Msg | ManaMsg)[];
 	disabled?: boolean;
 };
 
@@ -126,16 +130,17 @@ export type ClickableConfig<Msg> = {
  * Wrap an element with clickable behavior
  */
 export const withClickable = <Msg>(
+	element: Element<Msg | ManaMsg>,
 	config: ClickableConfig<Msg>
-) => (
-	element: Element<Msg | ManaMsg>
 ): Element<Msg | ManaMsg> => {
-		return {
-			...element,
-			interactive: true,
-			onClick: config.onClick,
-		};
-	};/**
+	return {
+		...element,
+		interactive: true,
+		onClick: config.onClick,
+	};
+};
+
+/**
  * Configuration for pressable behavior (button-like)
  */
 export type PressableConfig<Msg> = {
