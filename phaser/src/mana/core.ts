@@ -90,27 +90,6 @@ export const rectangle = (
 	...(onClick && { interactive: true, onClick }),
 });
 
-export const shader = <Msg>(
-	id: string,
-	x: number,
-	y: number,
-	width: number,
-	height: number,
-	vertexShader: string,
-	fragmentShader: string,
-	uniforms?: Record<string, any>
-): Element<Msg> => ({
-	id,
-	type: 'shader',
-	x,
-	y,
-	width,
-	height,
-	vertexShader,
-	fragmentShader,
-	...(uniforms && { uniforms }),
-});
-
 /**
  * Core render function - takes scene and elements, returns state
  */
