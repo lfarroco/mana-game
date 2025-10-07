@@ -57,6 +57,7 @@ export default class TitleScene extends Phaser.Scene {
 		});
 
 		this.input.keyboard?.on('keydown-ENTER', this.startGame, this);
+		this.scale.on('resize', this.handleResize, this);
 		this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.onSceneShutdown, this);
 		this.events.once(Phaser.Scenes.Events.DESTROY, this.onSceneDestroy, this);
 	}
@@ -116,9 +117,15 @@ export default class TitleScene extends Phaser.Scene {
 		return state;
 	};
 
+	private handleResize = (gameSize: Phaser.Structs.Size): void => {
+		if (!this.manaApp) return;
+		this.manaApp.render(this.getTitleAppProps(gameSize));
+	};
+
 	private onSceneShutdown = (): void => {
 		this.manaApp?.unmount();
 		this.manaApp = undefined;
+		this.scale.off('resize', this.handleResize, this);
 		this.input.keyboard?.off('keydown-ENTER', this.startGame, this);
 	};
 

@@ -51,20 +51,18 @@ const validateHoverTweenConfig = (config: HoverTweenConfig): void => {
 	// Could add more validation for property names if needed
 };
 
-const isMessageArray = <Msg>(result: MessageResult<Msg>): result is readonly Msg[] => Array.isArray(result);
-
 const pushMessageResult = <Msg>(
 	target: (Msg | ManaMsg)[],
 	result: MessageResult<Msg | ManaMsg> | undefined
 ): void => {
-	if (result === undefined) return;
-	if (isMessageArray(result)) {
+	if (!result) return;
+	if (Array.isArray(result)) {
 		for (const msg of result) {
 			target.push(msg);
 		}
 		return;
 	}
-	target.push(result);
+	target.push(result as Msg | ManaMsg);
 };
 
 /**
@@ -156,13 +154,13 @@ export const withClickable = <Msg>(
 			interactive: true,
 			onClick: (): MessageResult<Msg | ManaMsg> => {
 				const result: MessageResult<Msg | ManaMsg> = config.onClick();
-				if (result === undefined) {
+				if (!result) {
 					return [];
 				}
-				if (isMessageArray(result)) {
-					return result;
+				if (Array.isArray(result)) {
+					return result as readonly (Msg | ManaMsg)[];
 				}
-				return [result];
+				return [result as Msg | ManaMsg];
 			},
 		};
 	};
