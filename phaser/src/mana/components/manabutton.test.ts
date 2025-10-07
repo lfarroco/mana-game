@@ -14,7 +14,7 @@ describe('ManaButton Component', () => {
 		};
 
 		it('should create a button with correct element structure', () => {
-			const elements = manabutton.create(baseConfig);
+			const elements = manabutton.createDeclarativeButton(baseConfig);
 
 			expect(elements).toHaveLength(1);
 			const container = elements[0] as any; // Container element
@@ -67,7 +67,7 @@ describe('ManaButton Component', () => {
 				cornerRadius: 12,
 			};
 
-			const elements = manabutton.create(customConfig);
+			const elements = manabutton.createDeclarativeButton(customConfig);
 			const container = elements[0] as any;
 
 			const background = container.children[0];
@@ -88,7 +88,7 @@ describe('ManaButton Component', () => {
 					],
 				};
 
-				const elements = manabutton.create(config);
+				const elements = manabutton.createDeclarativeButton(config);
 				const container = elements[0] as any;
 				const background = container.children[0];
 
@@ -109,7 +109,7 @@ describe('ManaButton Component', () => {
 					hoverColor: 0x2d3748,
 				};
 
-				const elements = manabutton.create(config);
+				const elements = manabutton.createDeclarativeButton(config);
 				const container = elements[0] as any;
 				const background = container.children[0];
 
@@ -134,7 +134,7 @@ describe('ManaButton Component', () => {
 
 			it('should not create duplicate tweens when already hovering', () => {
 				const config = { ...baseConfig, id: 'duplicate-hover-button' };
-				const elements = manabutton.create(config);
+				const elements = manabutton.createDeclarativeButton(config);
 				const container = elements[0] as any;
 				const background = container.children[0];
 
@@ -154,7 +154,7 @@ describe('ManaButton Component', () => {
 					hoverColor: 0xffffff,  // White
 				};
 
-				const elements = manabutton.create(config);
+				const elements = manabutton.createDeclarativeButton(config);
 				const container = elements[0] as any;
 				const background = container.children[0];
 
@@ -180,7 +180,7 @@ describe('ManaButton Component', () => {
 		describe('onHoverOut behavior', () => {
 			it('should not create tweens when already at normal color', () => {
 				const config = { ...baseConfig, id: 'hover-out-test-button' };
-				const elements = manabutton.create(config);
+				const elements = manabutton.createDeclarativeButton(config);
 				const container = elements[0] as any;
 				const background = container.children[0];
 
@@ -194,14 +194,14 @@ describe('ManaButton Component', () => {
 
 	describe('Button State Management', () => {
 		it('should maintain separate state for different button IDs', () => {
-			const btn1 = manabutton.create({
+			const btn1 = manabutton.createDeclarativeButton({
 				id: 'btn1',
 				x: 0, y: 0, width: 100, height: 50,
 				text: 'Btn1',
 				onClick: () => [],
 			});
 
-			const btn2 = manabutton.create({
+			const btn2 = manabutton.createDeclarativeButton({
 				id: 'btn2',
 				x: 0, y: 0, width: 100, height: 50,
 				text: 'Btn2',
