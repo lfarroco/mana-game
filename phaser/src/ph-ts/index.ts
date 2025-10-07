@@ -29,6 +29,7 @@ type BaseComponent<TMsg extends Msg = Msg> = {
 type ImageComponent<TMsg extends Msg = Msg> = BaseComponent<TMsg> & {
 	type: 'image';
 	texture: string;
+	frame?: string | number;
 };
 
 type TextComponent<TMsg extends Msg = Msg> = BaseComponent<TMsg> & {
@@ -51,8 +52,6 @@ type SystemState<TMsg extends Msg = Msg> = {
 	data: Component<TMsg>[];
 	messageQueue: TMsg[];
 	update?: (msg: TMsg, state: SystemState<TMsg>) => SystemState<TMsg>;
-	// Track which components have event handlers attached
-	eventHandlersAttached: Set<string>;
 };
 
 // Create initial system state
@@ -65,7 +64,6 @@ export const createSystemState = <TMsg extends Msg = Msg>(
 	data: [],
 	messageQueue: [],
 	update,
-	eventHandlersAttached: new Set<string>(),
 });
 
 // Add messages to the queue
@@ -83,8 +81,6 @@ export const processMessages = <TMsg extends Msg>(
 	if (!state.update || state.messageQueue.length === 0) {
 		return { ...state, messageQueue: [] };
 	}
-
-	console.log(`Processing ${state.messageQueue.length} messages:`, state.messageQueue);
 
 	const processedState = pipe(
 		state.messageQueue,
@@ -127,26 +123,24 @@ const applyBaseProps = <T extends Phaser.GameObjects.GameObject, TMsg extends Ms
 
 		// Setup interactivity and event handlers
 		if ((data.interactive || data.onClick) && 'setInteractive' in gameObject) {
-			const go = gameObject as any;
+			(gameObject as any).setInteractive();
 
-			// Make interactive if not already
-			if (!go.input) {
-				go.setInteractive();
-				console.log(`Made ${data.id} interactive`);
+			// Remove old listeners to avoid duplicates
+			if ('removeAllListeners' in gameObject) {
+				(gameObject as any).removeAllListeners();
 			}
 
-			// Only attach event handlers if not already attached
-			if (data.onClick && 'on' in go && !state.eventHandlersAttached.has(data.id)) {
-				go.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-					console.log(`${data.id} clicked!`);
+			// Add click handler
+			if (data.onClick && 'on' in gameObject) {
+				(gameObject as any).on('pointerdown', (pointer: Phaser.Input.Pointer) => {
 					const messages = data.onClick!(pointer);
 					// Mutate state to add messages - will be processed in next frame
 					state.messageQueue.push(...messages);
 				});
-				state.eventHandlersAttached.add(data.id);
-				console.log(`Attached click handler to ${data.id}`);
 			}
-		} return gameObject;
+		}
+
+		return gameObject;
 	};
 
 // Create component game objects
@@ -154,7 +148,7 @@ const createImage = <TMsg extends Msg>(state: SystemState<TMsg>) => (
 	data: ImageComponent<TMsg>
 ): Phaser.GameObjects.Image =>
 	pipe(
-		state.scene.add.image(data.x, data.y, data.texture),
+		state.scene.add.image(data.x, data.y, data.texture, data.frame),
 		applyBaseProps(data, state)
 	);
 
@@ -217,7 +211,6 @@ const removeStaleComponents = <TMsg extends Msg>(currentIds: Set<string>) => (
 		R.filterWithIndex((id, gameObject) => {
 			if (!currentIds.has(id)) {
 				gameObject.destroy();
-				state.eventHandlersAttached.delete(id);
 				return false;
 			}
 			return true;
@@ -303,7 +296,6 @@ export const destroy = <TMsg extends Msg>(state: SystemState<TMsg>): SystemState
 		...state,
 		components: {},
 		data: [],
-		eventHandlersAttached: new Set<string>(),
 	};
 };
 
@@ -345,7 +337,7 @@ export const createReactiveDemo = (scene: Phaser.Scene) => {
 			type: 'image',
 			x: 100,
 			y: 100,
-			texture: 'ui/logo',
+			texture: 'your-texture-key', // Replace with actual texture key
 			alpha: 1,
 			interactive: true,
 			onClick: (pointer) => [
@@ -362,7 +354,7 @@ export const createReactiveDemo = (scene: Phaser.Scene) => {
 			type: 'image',
 			x: 200,
 			y: 200,
-			texture: 'ui/logo',
+			texture: 'your-texture-key', // Replace with actual texture key
 			alpha: 1,
 			interactive: true,
 			onClick: (pointer) => [
