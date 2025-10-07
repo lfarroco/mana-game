@@ -1,8 +1,15 @@
+import * as O from 'fp-ts/Option';
+import * as A from 'fp-ts/Array';
+import * as R from 'fp-ts/Record';
+import { pipe } from 'fp-ts/function';
+
 type ClickHandler<Msg> = (pointer: Phaser.Input.Pointer) => Msg[];
+
+type ElementType = 'image' | 'text' | 'container';
 
 type BaseElement<Msg> = {
 	id: string;
-	type: 'image' | 'text' | 'container';
+	type: ElementType;
 	x: number;
 	y: number;
 	visible?: boolean;
@@ -50,7 +57,7 @@ export const createComponentState = <Msg>(
 	data: [],
 	messageQueue: [],
 	update,
-	eventHandlersAttached: new Set(),
+	eventHandlersAttached: new Set<string>(),
 	subscribers: [],
 });
 
@@ -68,8 +75,11 @@ export const subscribe = <Msg>(callback: (msg: Msg) => void) => (
 	subscribers: [...state.subscribers, callback],
 });
 
-const emitToSubscribers = <Msg>(msg: Msg, subscribers: Array<(msg: Msg) => void>): void => {
-	subscribers.forEach(sub => sub(msg));
+export const emit = <Msg>(msg: Msg) => (
+	state: ComponentState<Msg>
+): ComponentState<Msg> => {
+	state.subscribers.forEach(subscriber => subscriber(msg));
+	return state;
 };
 
 export const processMessages = <Msg>(
@@ -79,141 +89,331 @@ export const processMessages = <Msg>(
 		return { ...state, messageQueue: [] };
 	}
 
-	let currentState = state;
-	for (const msg of state.messageQueue) {
-		emitToSubscribers(msg, currentState.subscribers);
-		if (currentState.update) {
-			currentState = currentState.update(msg, currentState);
-		}
-	}
+	console.log(`Processing ${state.messageQueue.length} messages:`, state.messageQueue);
 
-	return { ...currentState, messageQueue: [] };
+	const processedState = pipe(
+		state.messageQueue,
+		A.reduce<Msg, ComponentState<Msg>>(
+			state,
+			(acc, msg) => {
+				acc.subscribers.forEach(subscriber => subscriber(msg));
+				return acc.update ? acc.update(msg, acc) : acc;
+			}
+		)
+	);
+
+	return { ...processedState, messageQueue: [] };
 };
 
 const applyBaseProps = <T extends Phaser.GameObjects.GameObject, Msg>(
-	gameObject: T,
 	data: BaseElement<Msg>,
 	state: ComponentState<Msg>
-): void => {
-	if ('x' in gameObject && 'y' in gameObject) {
-		gameObject.x = data.x;
-		gameObject.y = data.y;
-	}
-
-	if (data.visible !== undefined && 'setVisible' in gameObject) {
-		(gameObject as any).setVisible(data.visible);
-	}
-
-	if (data.alpha !== undefined && 'setAlpha' in gameObject) {
-		(gameObject as any).setAlpha(data.alpha);
-	}
-
-	if (data.rotation !== undefined && 'rotation' in gameObject) {
-		gameObject.rotation = data.rotation;
-	}
-
-	if (data.scale && 'setScale' in gameObject) {
-		(gameObject as any).setScale(data.scale.x, data.scale.y);
-	}
-
-	if ((data.interactive || data.onClick) && 'setInteractive' in gameObject) {
-		const go = gameObject as any;
-
-		if (!go.input) {
-			go.setInteractive();
+) => (
+	gameObject: T
+): T => {
+		if ('x' in gameObject && 'y' in gameObject) {
+			gameObject.x = data.x;
+			gameObject.y = data.y;
 		}
 
-		if (data.onClick && 'on' in go && !state.eventHandlersAttached.has(data.id)) {
-			go.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-				const messages = data.onClick!(pointer);
-				messages.forEach(msg => emitToSubscribers(msg, state.subscribers));
-			});
-			state.eventHandlersAttached.add(data.id);
+		if (data.visible !== undefined && 'setVisible' in gameObject) {
+			(gameObject as any).setVisible(data.visible);
 		}
-	}
-};
 
-const createImage = <Msg>(state: ComponentState<Msg>, data: ImageElement<Msg>): Phaser.GameObjects.Image => {
-	const img = state.scene.add.image(data.x, data.y, data.texture);
-	applyBaseProps(img, data, state);
-	return img;
-};
+		if (data.alpha !== undefined && 'setAlpha' in gameObject) {
+			(gameObject as any).setAlpha(data.alpha);
+		}
 
-const createText = <Msg>(state: ComponentState<Msg>, data: TextElement<Msg>): Phaser.GameObjects.Text => {
-	const text = state.scene.add.text(data.x, data.y, data.text, data.style);
-	applyBaseProps(text, data, state);
-	return text;
-};
+		if (data.rotation !== undefined && 'rotation' in gameObject) {
+			gameObject.rotation = data.rotation;
+		}
 
-const createContainer = <Msg>(state: ComponentState<Msg>, data: ContainerElement<Msg>): Phaser.GameObjects.Container => {
-	const container = state.scene.add.container(data.x, data.y);
-	applyBaseProps(container, data, state);
-	return container;
-};
+		if (data.scale && 'setScale' in gameObject) {
+			(gameObject as any).setScale(data.scale.x, data.scale.y);
+		}
 
-const createComponent = <Msg>(state: ComponentState<Msg>, data: Component<Msg>): Phaser.GameObjects.GameObject | null => {
+		if ((data.interactive || data.onClick) && 'setInteractive' in gameObject) {
+			const go = gameObject as any;
+
+			if (!go.input) {
+				go.setInteractive();
+				console.log(`Made ${data.id} interactive`);
+			}
+
+			if (data.onClick && 'on' in go && !state.eventHandlersAttached.has(data.id)) {
+				go.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+					console.log(`${data.id} clicked!`);
+					const messages = data.onClick!(pointer);
+					// Emit each message to all subscribers
+					messages.forEach(msg => {
+						state.subscribers.forEach(subscriber => subscriber(msg));
+					});
+				});
+				state.eventHandlersAttached.add(data.id);
+				console.log(`Attached click handler to ${data.id}`);
+			}
+		} return gameObject;
+	};
+
+const createImage = <Msg>(state: ComponentState<Msg>) => (
+	data: ImageElement<Msg>
+): Phaser.GameObjects.Image =>
+	pipe(
+		state.scene.add.image(data.x, data.y, data.texture),
+		applyBaseProps(data, state)
+	);
+
+const createText = <Msg>(state: ComponentState<Msg>) => (
+	data: TextElement<Msg>
+): Phaser.GameObjects.Text =>
+	pipe(
+		state.scene.add.text(data.x, data.y, data.text, data.style),
+		applyBaseProps(data, state)
+	);
+
+const createContainer = <Msg>(state: ComponentState<Msg>) => (
+	data: ContainerElement<Msg>
+): Phaser.GameObjects.Container =>
+	pipe(state.scene.add.container(data.x, data.y), applyBaseProps(data, state));
+
+const createComponent = <Msg>(state: ComponentState<Msg>) => (
+	data: Component<Msg>
+): O.Option<Phaser.GameObjects.GameObject> => {
 	switch (data.type) {
-		case 'image': return createImage(state, data);
-		case 'text': return createText(state, data);
-		case 'container': return createContainer(state, data);
-		default: return null;
+		case 'image':
+			return O.some(createImage(state)(data));
+		case 'text':
+			return O.some(createText(state)(data));
+		case 'container':
+			return O.some(createContainer(state)(data));
+		default:
+			return O.none;
 	}
 };
 
-const updateElement = <Msg>(gameObject: Phaser.GameObjects.GameObject, data: Component<Msg>, state: ComponentState<Msg>): void => {
-	applyBaseProps(gameObject, data, state);
-	if (data.type === 'text' && gameObject instanceof Phaser.GameObjects.Text) {
-		gameObject.setText(data.text);
-	}
-};
+const updateElement = <Msg>(
+	data: Component<Msg>,
+	state: ComponentState<Msg>
+) => (
+	gameObject: Phaser.GameObjects.GameObject
+): Phaser.GameObjects.GameObject => {
+		pipe(gameObject, applyBaseProps(data, state));
 
-const syncComponent = <Msg>(state: ComponentState<Msg>, componentData: Component<Msg>): void => {
-	const existing = state.elements[componentData.id];
-
-	if (existing) {
-		updateElement(existing, componentData, state);
-	} else {
-		const newElement = createComponent(state, componentData);
-		if (newElement) {
-			state.elements[componentData.id] = newElement;
+		if (data.type === 'text' && gameObject instanceof Phaser.GameObjects.Text) {
+			gameObject.setText(data.text);
 		}
-	}
+
+		return gameObject;
+	};
+
+const getCurrentIds = <Msg>(data: Component<Msg>[]): Set<string> =>
+	new Set(pipe(data, A.map((c) => c.id)));
+
+const removeStaleComponents = <Msg>(currentIds: Set<string>) => (
+	state: ComponentState<Msg>
+): ComponentState<Msg> => {
+	const updatedComponents = pipe(
+		state.elements,
+		R.filterWithIndex((id, gameObject) => {
+			if (!currentIds.has(id)) {
+				gameObject.destroy();
+				state.eventHandlersAttached.delete(id);
+				return false;
+			}
+			return true;
+		})
+	);
+
+	return {
+		...state,
+		elements: updatedComponents,
+	};
+};
+
+const syncComponent = <Msg>(componentData: Component<Msg>) => (
+	state: ComponentState<Msg>
+): ComponentState<Msg> => {
+	const existingOption = pipe(
+		state.elements,
+		R.lookup(componentData.id)
+	);
+
+	return pipe(
+		existingOption,
+		O.fold(
+			() => {
+				const newElement = createComponent(state)(componentData);
+				return pipe(
+					newElement,
+					O.fold(
+						() => state,
+						(gameObject) => ({
+							...state,
+							elements: {
+								...state.elements,
+								[componentData.id]: gameObject,
+							},
+						})
+					)
+				);
+			},
+			(gameObject) => {
+				pipe(gameObject, updateElement(componentData, state));
+				return state;
+			}
+		)
+	);
 };
 
 export const setData = <Msg>(newData: Component<Msg>[]) => (
 	state: ComponentState<Msg>
 ): ComponentState<Msg> => {
-	const currentIds = new Set(newData.map(c => c.id));
+	const currentIds = getCurrentIds(newData);
 
-	for (const id in state.elements) {
-		if (!currentIds.has(id)) {
-			state.elements[id].destroy();
-			state.eventHandlersAttached.delete(id);
-			delete state.elements[id];
-		}
-	}
-
-	for (const componentData of newData) {
-		syncComponent(state, componentData);
-	}
-
-	return { ...state, data: newData };
+	return pipe(
+		state,
+		removeStaleComponents(currentIds),
+		(s) => ({ ...s, data: newData }),
+		(s) =>
+			pipe(
+				newData,
+				A.reduce(s, (acc, componentData) => syncComponent(componentData)(acc))
+			)
+	);
 };
 
 export const getData = <Msg>(state: ComponentState<Msg>): Component<Msg>[] => state.data;
 
 export const destroy = <Msg>(state: ComponentState<Msg>): ComponentState<Msg> => {
-	for (const id in state.elements) {
-		state.elements[id].destroy();
-	}
+	pipe(
+		state.elements,
+		R.map((gameObject) => {
+			gameObject.destroy();
+			return gameObject;
+		})
+	);
 
 	return {
 		...state,
 		elements: {},
 		data: [],
-		eventHandlersAttached: new Set(),
+		eventHandlersAttached: new Set<string>(),
 		subscribers: [],
 	};
+};
+
+type DemoMsg =
+	| { type: 'ImageClicked'; id: string; x: number; y: number }
+	| { type: 'MoveImage'; id: string; dx: number; dy: number };
+
+export const createReactiveDemo = (scene: Phaser.Scene) => {
+	const update1 = (msg: DemoMsg, state: ComponentState<DemoMsg>): ComponentState<DemoMsg> => {
+		switch (msg.type) {
+			case 'ImageClicked':
+				console.log(`Component 1: Image ${msg.id} clicked at (${msg.x}, ${msg.y})`);
+				const withMessage: ComponentState<DemoMsg> = enqueueMessages<DemoMsg>([
+					{ type: 'MoveImage', id: msg.id, dx: 50, dy: 50 },
+				])(state);
+				return withMessage;
+
+			case 'MoveImage':
+				const updatedData = state.data.map((comp) =>
+					comp.id === msg.id ? { ...comp, x: comp.x + msg.dx, y: comp.y + msg.dy } : comp
+				);
+				return setData<DemoMsg>(updatedData)(state);
+
+			default:
+				return state;
+		}
+	};
+
+	const update2 = (msg: DemoMsg, state: ComponentState<DemoMsg>): ComponentState<DemoMsg> => {
+		switch (msg.type) {
+			case 'ImageClicked':
+				console.log(`Component 2: Reacting to click on ${msg.id}`);
+				return state;
+
+			case 'MoveImage':
+				console.log(`Component 2: ${msg.id} moved by (${msg.dx}, ${msg.dy})`);
+				return state;
+
+			default:
+				return state;
+		}
+	};
+
+	let state1 = createComponentState<DemoMsg>(scene, update1);
+	let state2 = createComponentState<DemoMsg>(scene, update2);
+
+	state1 = subscribe<DemoMsg>((msg) => {
+		state1 = enqueueMessages<DemoMsg>([msg])(state1);
+	})(state1);
+
+	state2 = subscribe<DemoMsg>((msg) => {
+		state2 = enqueueMessages<DemoMsg>([msg])(state2);
+	})(state2);
+
+	state1 = subscribe<DemoMsg>((msg) => {
+		console.log('State1 subscriber forwarding to state2:', msg);
+		state2 = enqueueMessages<DemoMsg>([msg])(state2);
+	})(state1);
+
+	const component1Data: Component<DemoMsg>[] = [
+		{
+			id: 'image1',
+			type: 'image',
+			x: 100,
+			y: 100,
+			texture: 'ui/logo',
+			alpha: 1,
+			interactive: true,
+			onClick: (pointer) => [
+				{
+					type: 'ImageClicked',
+					id: 'image1',
+					x: pointer.x,
+					y: pointer.y,
+				},
+				{
+					type: "MoveImage",
+					id: 'image1',
+					dx: 10,
+					dy: 10,
+				}
+			],
+		},
+	];
+
+	const component2Data: Component<DemoMsg>[] = [
+		{
+			id: 'image2',
+			type: 'image',
+			x: 1200,
+			y: 200,
+			texture: 'ui/logo',
+			alpha: 1,
+			interactive: true,
+			onClick: (pointer) => [
+				{
+					type: 'ImageClicked',
+					id: 'image2',
+					x: pointer.x,
+					y: pointer.y,
+				},
+			],
+		},
+	];
+
+	state1 = setData<DemoMsg>(component1Data)(state1);
+	state2 = setData<DemoMsg>(component2Data)(state2);
+
+	scene.events.on('update', () => {
+		console.log('Update loop - state1 queue:', state1.messageQueue.length, 'state2 queue:', state2.messageQueue.length);
+		state1 = processMessages<DemoMsg>(state1);
+		state2 = processMessages<DemoMsg>(state2);
+	});
+
+	return state1;
 };
 
 export type { Component, ImageElement as ImageComponent, TextElement as TextComponent, ContainerElement as ContainerComponent, ComponentState as SystemState, ClickHandler };
