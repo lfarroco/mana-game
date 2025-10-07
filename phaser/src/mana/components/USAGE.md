@@ -2,10 +2,10 @@
 
 ## Quick Start - 3 Steps
 
-### 1. Import (Single Import!)
+### 1. Import the necessary functions
 
 ```typescript
-import { createComponent } from '../mana';
+import { createComponentState, setData } from '../mana';
 import { createButton } from '../mana/components/manabutton';
 ```
 
@@ -23,11 +23,8 @@ type MenuMsg =
 ```typescript
 class MenuScene extends Phaser.Scene {
   create() {
-    // Initialize with the new simplified API - just one line!
-    const render = createComponent<MenuMsg>(this, (msg, state) => {
-      console.log('Message:', msg);
-      return state;
-    });
+    // Initialize Mana
+    const state = createComponentState<MenuMsg>(this);
 
     // Create button
     const startButton = createButton<MenuMsg>({
@@ -41,7 +38,7 @@ class MenuScene extends Phaser.Scene {
     });
 
     // Render button
-    render(startButton);
+    setData(startButton)(state);
   }
 }
 ```
@@ -52,7 +49,7 @@ Here's a full scene with multiple buttons and message handling:
 
 ```typescript
 import Phaser from 'phaser';
-import { createComponent } from '../mana';
+import { createComponentState, setData } from '../mana';
 import { createButton, destroyButton } from '../mana/components/manabutton';
 
 // 1. Define your messages
@@ -64,6 +61,8 @@ type MenuMsg =
 
 // 2. Create your scene
 export class MenuScene extends Phaser.Scene {
+  private manaState?: any;
+
   constructor() {
     super({ key: 'MenuScene' });
   }
@@ -72,8 +71,11 @@ export class MenuScene extends Phaser.Scene {
     // Set background
     this.cameras.main.setBackgroundColor('#1a1a2e');
 
-    // Initialize Mana with the new simplified API
-    const render = createComponent<MenuMsg>(this, this.handleMessage.bind(this));
+    // Initialize Mana with message handler
+    this.manaState = createComponentState<MenuMsg>(
+      this,
+      this.handleMessage.bind(this)
+    );
 
     // Create title text
     const title = {
@@ -149,7 +151,7 @@ export class MenuScene extends Phaser.Scene {
     ];
 
     // Render everything
-    render(allComponents);
+    setData(allComponents)(this.manaState);
   }
 
   // Handle messages from buttons
@@ -211,11 +213,11 @@ If you want buttons that change based on game state:
 
 ```typescript
 class GameScene extends Phaser.Scene {
+  private manaState?: any;
   private score = 0;
-  private render: (elements: Element[]) => void;
 
   create() {
-    this.render = createComponent<GameMsg>(
+    this.manaState = createComponentState<GameMsg>(
       this,
       this.handleMessage.bind(this)
     );
@@ -246,7 +248,7 @@ class GameScene extends Phaser.Scene {
       onClick: () => [{ type: 'CLICK_BUTTON' }],
     });
 
-    this.render(button);
+    setData(button)(this.manaState);
   }
 }
 ```
@@ -259,10 +261,7 @@ For multiple similar buttons:
 import { createButtonGroup } from '../mana/components/manabutton';
 
 create() {
-  const render = createComponent<MenuMsg>(this, (msg, state) => {
-    console.log('Message:', msg);
-    return state;
-  });
+  const state = createComponentState<MenuMsg>(this);
 
   const menuButtons = createButtonGroup<MenuMsg>(
     [
@@ -279,7 +278,7 @@ create() {
     }
   );
 
-  render(menuButtons);
+  setData(menuButtons)(state);
 }
 ```
 
@@ -289,10 +288,7 @@ You can mix buttons with other elements:
 
 ```typescript
 create() {
-  const render = createComponent<GameMsg>(this, (msg, state) => {
-    console.log('Message:', msg);
-    return state;
-  });
+  const state = createComponentState<GameMsg>(this);
 
   // Background image
   const background = {
@@ -326,7 +322,7 @@ create() {
 
   // Combine everything
   const allElements = [background, title, ...button];
-  render(allElements);
+  setData(allElements)(state);
 }
 ```
 
@@ -390,10 +386,9 @@ const settingsButton = createButton({
 
 **Q: My button isn't showing up**
 ```typescript
-// Make sure you're calling render!
-const render = createComponent(scene, handler);
+// Make sure you're calling setData!
 const button = createButton({ ... });
-render(button);  // ← Don't forget this!
+setData(button)(state);  // ← Don't forget this!
 ```
 
 **Q: Button is at the wrong position**

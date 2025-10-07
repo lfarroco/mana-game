@@ -2,10 +2,10 @@
  * Example: Using the Mana Button Component
  * 
  * This example demonstrates how to use the button component
- * with the Mana reactive system using the new simplified API.
+ * with the Mana reactive system.
  */
 
-import { createComponent } from '../index';
+import { createComponentState, setData } from '../index';
 import { createButton, createButtonGroup, destroyButton } from './manabutton';
 
 // Define your message types
@@ -19,13 +19,8 @@ type GameMsg =
  * Example setup function for a menu scene
  */
 export const setupButtonExample = (scene: Phaser.Scene) => {
-	// Initialize Mana with the new simplified API
-	// Just pass scene and your update handler - single import!
-	const render = createComponent<GameMsg>(scene, (msg, state) => {
-		console.log('Message received:', msg);
-		// Handle your messages here
-		return state;
-	});
+	// Initialize Mana state
+	const state = createComponentState<GameMsg>(scene);
 
 	// Create a single custom styled button
 	const customButton = createButton<GameMsg>({
@@ -100,9 +95,11 @@ export const setupButtonExample = (scene: Phaser.Scene) => {
 		},
 	};
 
-	// Combine all components and render
+	// Combine all components
 	const allComponents = [titleText, ...customButton, ...menuButtons];
-	render(allComponents);
+
+	// Set the data
+	setData(allComponents)(state);
 
 	// Clean up on scene shutdown
 	scene.events.on('shutdown', () => {
@@ -111,6 +108,8 @@ export const setupButtonExample = (scene: Phaser.Scene) => {
 		destroyButton('settings-btn');
 		destroyButton('quit-btn');
 	});
+
+	return state;
 };
 
 /**
@@ -119,8 +118,7 @@ export const setupButtonExample = (scene: Phaser.Scene) => {
 export const setupDynamicButtonExample = (scene: Phaser.Scene) => {
 	let clickCount = 0;
 
-	// Initialize with the new simplified API
-	const render = createComponent<GameMsg>(scene, (msg, state) => {
+	const updateFn = (msg: GameMsg, state: any) => {
 		switch (msg.type) {
 			case 'BUTTON_CLICKED':
 				clickCount++;
@@ -128,7 +126,9 @@ export const setupDynamicButtonExample = (scene: Phaser.Scene) => {
 				break;
 		}
 		return state;
-	});
+	};
+
+	const state = createComponentState(scene, updateFn);
 
 	const updateComponents = () => {
 		const button = createButton<GameMsg>({
@@ -143,10 +143,12 @@ export const setupDynamicButtonExample = (scene: Phaser.Scene) => {
 			onClick: () => [{ type: 'BUTTON_CLICKED', buttonId: 'dynamic' }],
 		});
 
-		render(button);
+		setData(button)(state);
 	};
 
 	updateComponents();
+
+	return state;
 };
 
 /**
