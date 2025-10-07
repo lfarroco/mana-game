@@ -88,25 +88,25 @@ void main(){
 		// Calculate square
 		float sq = square(p - pos, size, rotation);
 		
-		// Soft edge for the square with sharper falloff for more contrast
-		float squareMask = 1.0 - smoothstep(0.0, 0.015, sq);
-		squareContrib += squareMask * 0.6;
+		// Soft edge for the square
+		float squareMask = 1.0 - smoothstep(0.0, 0.02, sq);
+		squareContrib += squareMask * 0.3;
 	}
 	
 	// Combine background with squares
-	density = clamp(density + squareContrib * 0.8, 0.0, 1.0);
+	density = clamp(density + squareContrib, 0.0, 1.0);
 	
-	// Purple color palette with higher contrast
-	vec3 purpleLight = vec3(0.7, 0.35, 1.0);  // Brighter light purple
-	vec3 purpleDark = vec3(0.2, 0.05, 0.4);   // Darker purple
-	vec3 purpleBright = vec3(1.0, 0.6, 1.0);  // Very bright purple/magenta for squares
+	// Purple color palette
+	vec3 purpleLight = vec3(0.6, 0.3, 0.9);  // Light purple
+	vec3 purpleDark = vec3(0.3, 0.1, 0.5);   // Dark purple
+	vec3 purpleBright = vec3(0.8, 0.4, 1.0); // Bright purple for squares
 	
-	// Mix colors based on density - much brighter where squares are
+	// Mix colors based on density - brighter where squares are
 	vec3 color = mix(purpleDark, purpleLight, density);
-	color = mix(color, purpleBright, squareContrib * 0.8);
+	color = mix(color, purpleBright, squareContrib * 0.5);
 	
-	// Alpha based on density with higher visibility
-	float alpha = clamp(density * 0.9, 0.0, 0.85);
+	// Alpha based on density
+	float alpha = clamp(density * 0.8, 0.0, 0.7);
 	
 	gl_FragColor = vec4(color, alpha);
 }
