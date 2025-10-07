@@ -22,7 +22,7 @@ export type MountHandler = (gameObject: Phaser.GameObjects.GameObject) => void;
  */
 export type BaseElement<Msg> = {
 	readonly id: string;
-	readonly type: 'image' | 'text' | 'container' | 'graphics' | 'rect' | 'roundrect' | 'circle' | 'ellipse';
+	readonly type: 'image' | 'text' | 'container' | 'graphics';
 	readonly x: number;
 	readonly y: number;
 	readonly visible?: boolean;
@@ -194,89 +194,9 @@ export type GraphicsElement<Msg> = BaseElement<Msg> & {
 };
 
 /**
- * Rectangle shape element
- */
-export type RectangleElement<Msg> = BaseElement<Msg> & {
-	readonly type: 'rect';
-	readonly width: number;
-	readonly height: number;
-	readonly fillColor?: number;
-	readonly fillAlpha?: number;
-	readonly strokeColor?: number;
-	readonly strokeWidth?: number;
-	readonly strokeAlpha?: number;
-	readonly hitArea?: {
-		readonly shape: Phaser.Geom.Rectangle | Phaser.Geom.Circle | Phaser.Geom.Polygon;
-		readonly callback: Phaser.Types.Input.HitAreaCallback;
-	};
-};
-
-/**
- * Rounded rectangle shape element
- */
-export type RoundedRectangleElement<Msg> = BaseElement<Msg> & {
-	readonly type: 'roundrect';
-	readonly width: number;
-	readonly height: number;
-	readonly radius: number;
-	readonly fillColor?: number;
-	readonly fillAlpha?: number;
-	readonly strokeColor?: number;
-	readonly strokeWidth?: number;
-	readonly strokeAlpha?: number;
-	readonly hitArea?: {
-		readonly shape: Phaser.Geom.Rectangle | Phaser.Geom.Circle | Phaser.Geom.Polygon;
-		readonly callback: Phaser.Types.Input.HitAreaCallback;
-	};
-};
-
-/**
- * Circle shape element
- */
-export type CircleElement<Msg> = BaseElement<Msg> & {
-	readonly type: 'circle';
-	readonly radius: number;
-	readonly fillColor?: number;
-	readonly fillAlpha?: number;
-	readonly strokeColor?: number;
-	readonly strokeWidth?: number;
-	readonly strokeAlpha?: number;
-	readonly hitArea?: {
-		readonly shape: Phaser.Geom.Rectangle | Phaser.Geom.Circle | Phaser.Geom.Polygon;
-		readonly callback: Phaser.Types.Input.HitAreaCallback;
-	};
-};
-
-/**
- * Ellipse shape element
- */
-export type EllipseElement<Msg> = BaseElement<Msg> & {
-	readonly type: 'ellipse';
-	readonly width: number;
-	readonly height: number;
-	readonly fillColor?: number;
-	readonly fillAlpha?: number;
-	readonly strokeColor?: number;
-	readonly strokeWidth?: number;
-	readonly strokeAlpha?: number;
-	readonly hitArea?: {
-		readonly shape: Phaser.Geom.Rectangle | Phaser.Geom.Circle | Phaser.Geom.Polygon;
-		readonly callback: Phaser.Types.Input.HitAreaCallback;
-	};
-};
-
-/**
  * Union type of all element types
  */
-export type Element<Msg> =
-	| ImageElement<Msg>
-	| TextElement<Msg>
-	| ContainerElement<Msg>
-	| GraphicsElement<Msg>
-	| RectangleElement<Msg>
-	| RoundedRectangleElement<Msg>
-	| CircleElement<Msg>
-	| EllipseElement<Msg>;
+export type Element<Msg> = ImageElement<Msg> | TextElement<Msg> | ContainerElement<Msg> | GraphicsElement<Msg>;
 
 /**
  * State management for the component system
