@@ -162,8 +162,8 @@ const createComponent = <Msg>(state: ComponentState<Msg>, data: Component<Msg>):
 
 const updateElement = <Msg>(gameObject: Phaser.GameObjects.GameObject, data: Component<Msg>, state: ComponentState<Msg>): void => {
 	applyBaseProps(gameObject, data, state);
-	if (data.type === 'text' && 'setText' in gameObject) {
-		(gameObject as any).setText(data.text);
+	if (data.type === 'text' && gameObject instanceof Phaser.GameObjects.Text) {
+		gameObject.setText(data.text);
 	}
 };
 
