@@ -1,16 +1,17 @@
 import * as Phaser from "phaser";
 import * as constants from "../../constants/constants";
+import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
 import { images } from "../../assets";
 import * as AudioManager from "@Systems/AudioManager";
 import { createManaApp } from "../../mana";
 import type { ManaApp, ManaMsg } from "../../mana";
 import type { ComponentState } from "../../mana/types";
-import { TitleApp, type TitleMsg, type TitleProps, type TitleCloudsBackgroundHandle } from "./TitleApp";
+import { TitleApp, type TitleMsg, type TitleProps } from "./TitleApp";
 
 export let titleScene: TitleScene;
 
 export default class TitleScene extends Phaser.Scene {
-	cloudsBackground?: TitleCloudsBackgroundHandle;
+	cloudsBackground!: CloudsBackground;
 	private manaApp?: ManaApp<TitleMsg, TitleProps>;
 
 	constructor() {
@@ -44,6 +45,10 @@ export default class TitleScene extends Phaser.Scene {
 	}
 
 	create() {
+		this.cloudsBackground = new CloudsBackground(this, {
+			preset: 'nebula',
+		});
+
 		AudioManager.playMusic('music_ageofdisjunction');
 
 		this.manaApp = createManaApp<TitleMsg, TitleProps>(this, TitleApp, {
@@ -88,13 +93,9 @@ export default class TitleScene extends Phaser.Scene {
 	private getTitleAppProps(gameSize?: Phaser.Structs.Size): TitleProps {
 		const centerX = gameSize ? gameSize.width / 2 : this.cameras.main.centerX;
 		const centerY = gameSize ? gameSize.height / 2 : this.cameras.main.centerY;
-		const sceneWidth = gameSize ? gameSize.width : this.scale.width;
-		const sceneHeight = gameSize ? gameSize.height : this.scale.height;
 		return {
 			centerX,
 			centerY,
-			sceneWidth,
-			sceneHeight,
 			logoOffsetY: 200,
 			buttonSpacing: 100,
 		};
@@ -123,6 +124,5 @@ export default class TitleScene extends Phaser.Scene {
 
 	private onSceneDestroy = (): void => {
 		this.cloudsBackground?.destroy();
-		this.cloudsBackground = undefined;
 	};
 }
