@@ -145,7 +145,6 @@ export const create = <Msg>(
 		type: 'text',
 		x: 0,
 		y: 0,
-		origin: { x: 0.5, y: 0.5 },
 		text,
 		style: {
 			...textStyle,
