@@ -93,35 +93,11 @@ const updateContainerElement: UpdateHandler<any> = (gameObject, data, state) => 
 };
 
 /**
- * Default update handler for graphics components
- */
-const updateGraphicsElement: UpdateHandler<any> = (gameObject, data) => {
-	if (data.type === 'graphics' && 'clear' in gameObject) {
-		const graphics = gameObject as Phaser.GameObjects.Graphics;
-		const graphicsData = data as any;
-
-		// Update fill and line styles if provided
-		if (graphicsData.fillColor !== undefined) {
-			graphics.fillStyle(graphicsData.fillColor, graphicsData.fillAlpha ?? 1);
-		}
-		if (graphicsData.lineColor !== undefined) {
-			graphics.lineStyle(graphicsData.lineWidth ?? 1, graphicsData.lineColor, graphicsData.lineAlpha ?? 1);
-		}
-
-		// Re-execute draw function if provided
-		if (graphicsData.draw) {
-			graphicsData.draw(graphics);
-		}
-	}
-};
-
-/**
  * Register built-in update handlers
  */
 const registerBuiltInUpdateHandlers = (): void => {
 	updateHandlerRegistry['text'] = updateTextElement;
 	updateHandlerRegistry['container'] = updateContainerElement;
-	updateHandlerRegistry['graphics'] = updateGraphicsElement;
 };
 
 // Initialize built-in handlers
