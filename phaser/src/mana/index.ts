@@ -1,19 +1,16 @@
 /**
- * Mana Core API - Main interface for reactive rendering
+ * Simplified Mana API - Clean interface for reactive rendering POC
  *
- * This provides the complete API for reactive rendering in Phaser:
- * - Element creation helpers
- * - Core rendering functions
- * - Message handling system
- * - State management
+ * This replaces the complex 30+ export API with a minimal, focused interface
+ * that demonstrates the core reactive rendering concepts without overwhelming complexity.
  */
 
-// Export the core API
+// Export the simple API
 export type {
 	// Core types
 	Element,
 	ManaMsg,
-} from './core';
+} from './simple';
 
 export {
 	// Element creation helpers
@@ -32,7 +29,7 @@ export {
 
 	// Cleanup
 	cleanup,
-} from './core';
+} from './simple';
 
 // Keep the existing createComponent for backward compatibility
 export { createComponent } from './api';

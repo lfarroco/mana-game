@@ -1,11 +1,10 @@
 /**
- * Mana Core API - Main interface for reactive rendering
+ * Simplified Mana API - Clean interface for reactive rendering POC
  *
- * This provides the complete API for reactive rendering in Phaser:
- * - Element creation helpers
- * - Core rendering functions
- * - Message handling system
- * - State management
+ * This provides a minimal but complete API for reactive rendering:
+ * - Simple element creation helpers
+ * - Clean render function
+ * - Basic message handling
  */
 
 import type { Element, ComponentState } from './types';
@@ -21,7 +20,7 @@ export type { Element, ManaMsg };
 export { handleManaMsg };
 
 /**
- * Element creation helpers - clean API
+ * Element creation helpers - clean, simple API
  */
 export const container = (
 	id: string,
@@ -91,7 +90,7 @@ export const rectangle = (
 });
 
 /**
- * Core render function - takes scene and elements, returns state
+ * Simple render function - takes scene and elements, returns state
  */
 export const render = <Msg>(
 	scene: Phaser.Scene,
@@ -101,7 +100,7 @@ export const render = <Msg>(
 	// Create or reuse component state
 	let state: ComponentState<Msg | ManaMsg>;
 
-	// Try to get existing state from scene
+	// Try to get existing state from scene (simple approach)
 	const existingState = (scene as any)._manaState;
 	if (existingState) {
 		state = existingState;
@@ -124,7 +123,7 @@ export const render = <Msg>(
 };
 
 /**
- * App creation function
+ * Clean app creation function
  */
 export const createApp = <Msg>(
 	scene: Phaser.Scene,
@@ -134,7 +133,7 @@ export const createApp = <Msg>(
 };
 
 /**
- * Message dispatching
+ * Simple message dispatching
  */
 export const dispatch = <Msg>(
 	state: ComponentState<Msg | ManaMsg>,
