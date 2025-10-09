@@ -4,6 +4,7 @@ import { createUIButton } from "../../UI/UIButton";
 import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
 import { images } from "../../assets";
 import * as AudioManager from "@Systems/AudioManager";
+import { vec2 } from "@Models/Geometry";
 
 export let titleScene: TitleScene;
 
@@ -48,28 +49,28 @@ export default class TitleScene extends Phaser.Scene {
 		AudioManager.playMusic('music_ageofdisjunction');
 
 		this.add.image(
-			constants.MIDDLE_SCREEN_X,
-			constants.MIDDLE_SCREEN_Y - 200,
+			constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - 200,
 			images.logo.key
 		).setOrigin(0.5);
 
 		createUIButton(
 			this,
 			'START GAME',
-			constants.MIDDLE_SCREEN_X,
-			constants.MIDDLE_SCREEN_Y + 100,
-			() => {
-				this.startGame();
-			}
+			vec2(constants.MIDDLE_SCREEN.x, constants.MIDDLE_SCREEN.y + 100,
+			),
+			() => { this.startGame(); }
 		);
 		createUIButton(
 			this,
 			'OPTIONS',
-			constants.MIDDLE_SCREEN_X,
-			constants.MIDDLE_SCREEN_Y + 180,
-			() => {
-				this.openOptions();
-			}
+			vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + 180,),
+			() => { this.openOptions(); }
+		);
+		createUIButton(
+			this,
+			'EXIT',
+			vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + 380),
+			() => { window.close(); }
 		);
 		// createUIButton(
 		// 	this,

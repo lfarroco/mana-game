@@ -13,6 +13,7 @@ import * as constants from "../../../constants/constants";
 import { endShopPhase } from "./ShopPhase";
 import * as BoardStatsDisplay from "../BoardStatsDisplay";
 import { createUIButton } from "../../../UI/UIButton";
+import { vec2 } from "@Models/Geometry";
 
 function createUnitCopy(unit: Unit): Unit {
 	return {
@@ -76,8 +77,10 @@ export async function showReadyButton(payload: { enemies: Unit[] }): Promise<voi
 	const readyButton = createUIButton(
 		scene,
 		"Ready",
-		constants.SCREEN_WIDTH / 2,
-		constants.SCREEN_HEIGHT - 100,
+		vec2(
+			constants.SCREEN_WIDTH / 2,
+			constants.SCREEN_HEIGHT - 100,
+		),
 		() => {
 			readyButton.destroy();
 			handleCombatStartExecution(payload);

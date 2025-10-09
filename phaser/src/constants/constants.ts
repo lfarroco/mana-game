@@ -1,8 +1,12 @@
+import { vec2 } from "@Models/Geometry";
+
 export const SCREEN_WIDTH = 1920;
 export const SCREEN_HEIGHT = 1080;
 
 export const MIDDLE_SCREEN_X = SCREEN_WIDTH / 2;
 export const MIDDLE_SCREEN_Y = SCREEN_HEIGHT / 2;
+
+export const MIDDLE_SCREEN = vec2(MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y);
 
 export const TICK_DURATION = 100;
 
