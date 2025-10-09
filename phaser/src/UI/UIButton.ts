@@ -21,8 +21,7 @@ const uiButtonsState = new WeakMap<Container, UIButtonState>();
 export function createUIButton(
 	scene: Phaser.Scene,
 	text: string,
-	x: number,
-	y: number,
+	{ x, y }: { x: number, y: number },
 	callback: () => void,
 	width?: number
 ): Container {

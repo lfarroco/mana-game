@@ -3,6 +3,7 @@ import { createUIButton } from "../../../UI/UIButton";
 import * as c from "../../../constants/constants";
 import { slideOut, ResultsUIState } from "./ResultsUI";
 import { createResultsPanel } from "./Panel";
+import { vec2 } from "@Models/Geometry";
 
 export function displayGameOver(
 	state: ResultsUIState,
@@ -77,8 +78,10 @@ export function displayGameOver(
 	const newRunButton = createUIButton(
 		scene,
 		"New Run",
-		panelX + panelWidth / 2,
-		panelY + panelHeight - 180,
+		vec2(
+			panelX + panelWidth / 2,
+			panelY + panelHeight - 180,
+		),
 		async () => {
 		}
 	);
@@ -87,8 +90,7 @@ export function displayGameOver(
 	const mainMenuButton = createUIButton(
 		scene,
 		"Main Menu",
-		panelX + panelWidth / 2,
-		panelY + panelHeight - 80,
+		vec2(panelX + panelWidth / 2, panelY + panelHeight - 80),
 		async () => {
 			await slideOut();
 			nextPhaseCallback();

@@ -3,6 +3,7 @@ import * as constants from "../../constants/constants";
 import { createUIButton } from "../../UI/UIButton";
 import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
 import { getOption, setOption } from "@Models/OptionsStore";
+import { vec2 } from "@Models/Geometry";
 
 type TabType = 'audio' | 'graphics' | 'game';
 
@@ -118,8 +119,10 @@ export default class OptionsScene extends Phaser.Scene {
 		createUIButton(
 			this,
 			'BACK',
-			constants.MIDDLE_SCREEN_X,
-			LAYOUT.BACK_BUTTON_Y,
+			vec2(
+				constants.MIDDLE_SCREEN_X,
+				LAYOUT.BACK_BUTTON_Y,
+			),
 			() => {
 				this.returnToTitle();
 			}
@@ -162,8 +165,10 @@ export default class OptionsScene extends Phaser.Scene {
 		const toggleButton = createUIButton(
 			this,
 			getValue() ? 'ON' : 'OFF',
-			constants.MIDDLE_SCREEN_X,
-			yPos + LAYOUT.VALUE_OFFSET_Y,
+			vec2(
+				constants.MIDDLE_SCREEN_X,
+				yPos + LAYOUT.VALUE_OFFSET_Y,
+			),
 			() => {
 				const newValue = !getValue();
 				setValue(newValue);
@@ -193,8 +198,10 @@ export default class OptionsScene extends Phaser.Scene {
 		const decreaseButton = createUIButton(
 			this,
 			'-',
-			constants.MIDDLE_SCREEN_X - BUTTONS.VOLUME_BUTTON_OFFSET_X,
-			yPos + LAYOUT.VALUE_OFFSET_Y,
+			vec2(
+				constants.MIDDLE_SCREEN_X - BUTTONS.VOLUME_BUTTON_OFFSET_X,
+				yPos + LAYOUT.VALUE_OFFSET_Y,
+			),
 			() => {
 				const newValue = Math.max(ADJUSTMENTS.VOLUME_MIN, getValue() - ADJUSTMENTS.VOLUME_STEP);
 				setValue(newValue);
@@ -218,8 +225,10 @@ export default class OptionsScene extends Phaser.Scene {
 		const increaseButton = createUIButton(
 			this,
 			'+',
-			constants.MIDDLE_SCREEN_X + BUTTONS.VOLUME_BUTTON_OFFSET_X,
-			yPos + LAYOUT.VALUE_OFFSET_Y,
+			vec2(
+				constants.MIDDLE_SCREEN_X + BUTTONS.VOLUME_BUTTON_OFFSET_X,
+				yPos + LAYOUT.VALUE_OFFSET_Y,
+			),
 			() => {
 				const newValue = Math.min(ADJUSTMENTS.VOLUME_MAX, getValue() + ADJUSTMENTS.VOLUME_STEP);
 				setValue(newValue);
@@ -248,8 +257,10 @@ export default class OptionsScene extends Phaser.Scene {
 		const decreaseButton = createUIButton(
 			this,
 			'<',
-			constants.MIDDLE_SCREEN_X - BUTTONS.MULTICHOICE_BUTTON_OFFSET_X,
-			yPos + LAYOUT.MULTICHOICE_VALUE_OFFSET_Y,
+			vec2(
+				constants.MIDDLE_SCREEN_X - BUTTONS.MULTICHOICE_BUTTON_OFFSET_X,
+				yPos + LAYOUT.MULTICHOICE_VALUE_OFFSET_Y,
+			),
 			() => {
 				const currentIndex = choices.indexOf(getValue());
 				const newIndex = currentIndex > 0 ? currentIndex - 1 : choices.length - 1;
@@ -275,8 +286,10 @@ export default class OptionsScene extends Phaser.Scene {
 		const increaseButton = createUIButton(
 			this,
 			'>',
-			constants.MIDDLE_SCREEN_X + BUTTONS.MULTICHOICE_BUTTON_OFFSET_X,
-			yPos + LAYOUT.MULTICHOICE_VALUE_OFFSET_Y,
+			vec2(
+				constants.MIDDLE_SCREEN_X + BUTTONS.MULTICHOICE_BUTTON_OFFSET_X,
+				yPos + LAYOUT.MULTICHOICE_VALUE_OFFSET_Y,
+			),
 			() => {
 				const currentIndex = choices.indexOf(getValue());
 				const newIndex = currentIndex < choices.length - 1 ? currentIndex + 1 : 0;
@@ -306,8 +319,10 @@ export default class OptionsScene extends Phaser.Scene {
 		const decreaseButton = createUIButton(
 			this,
 			'-',
-			constants.MIDDLE_SCREEN_X - BUTTONS.SPEED_BUTTON_OFFSET_X,
-			yPos + LAYOUT.SPEED_VALUE_OFFSET_Y,
+			vec2(
+				constants.MIDDLE_SCREEN_X - BUTTONS.SPEED_BUTTON_OFFSET_X,
+				yPos + LAYOUT.SPEED_VALUE_OFFSET_Y,
+			),
 			() => {
 				const newValue = Math.max(ADJUSTMENTS.SPEED_MIN, getValue() - ADJUSTMENTS.SPEED_STEP);
 				setValue(newValue);
@@ -331,8 +346,7 @@ export default class OptionsScene extends Phaser.Scene {
 		const increaseButton = createUIButton(
 			this,
 			'+',
-			constants.MIDDLE_SCREEN_X + BUTTONS.SPEED_BUTTON_OFFSET_X,
-			yPos + LAYOUT.SPEED_VALUE_OFFSET_Y,
+			vec2(constants.MIDDLE_SCREEN_X + BUTTONS.SPEED_BUTTON_OFFSET_X, yPos + LAYOUT.SPEED_VALUE_OFFSET_Y),
 			() => {
 				const newValue = Math.min(ADJUSTMENTS.SPEED_MAX, getValue() + ADJUSTMENTS.SPEED_STEP);
 				setValue(newValue);
@@ -380,8 +394,7 @@ export default class OptionsScene extends Phaser.Scene {
 		this.tabButtons.audio = createUIButton(
 			this,
 			'AUDIO',
-			startX,
-			tabButtonY,
+			vec2(startX, tabButtonY),
 			() => this.showTab('audio'),
 			LAYOUT.TAB_BUTTON_WIDTH
 		);
@@ -389,8 +402,7 @@ export default class OptionsScene extends Phaser.Scene {
 		this.tabButtons.graphics = createUIButton(
 			this,
 			'GRAPHICS',
-			startX + buttonSpacing,
-			tabButtonY,
+			vec2(startX + buttonSpacing, tabButtonY),
 			() => this.showTab('graphics'),
 			LAYOUT.TAB_BUTTON_WIDTH
 		);
@@ -398,8 +410,7 @@ export default class OptionsScene extends Phaser.Scene {
 		this.tabButtons.game = createUIButton(
 			this,
 			'GAME',
-			startX + buttonSpacing * 2,
-			tabButtonY,
+			vec2(startX + buttonSpacing * 2, tabButtonY),
 			() => this.showTab('game'),
 			LAYOUT.TAB_BUTTON_WIDTH
 		);

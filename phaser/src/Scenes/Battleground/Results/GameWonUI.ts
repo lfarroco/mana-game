@@ -3,6 +3,7 @@ import { createUIButton } from "../../../UI/UIButton";
 import * as c from "../../../constants/constants";
 import { slideOut, ResultsUIState } from "./ResultsUI";
 import { createResultsPanel } from "./Panel";
+import { vec2 } from "@Models/Geometry";
 
 export function displayGameWon(
 	state: ResultsUIState,
@@ -80,8 +81,7 @@ export function displayGameWon(
 	const nextButton = createUIButton(
 		scene,
 		"Finish",
-		buttonX,
-		buttonY,
+		vec2(buttonX, buttonY),
 		async () => {
 			await slideOut();
 			nextPhaseCallback();
