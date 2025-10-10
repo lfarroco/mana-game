@@ -6,6 +6,7 @@ import * as Chara from "@Systems/Chara/Chara";
 import * as c from "../../../../constants/constants";
 import * as sc from "./constants";
 import { state } from "./ShopUI";
+import { createDescription } from "@Systems/Chara/createDescription";
 
 export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara[] {
 	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
@@ -45,8 +46,32 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 			});
 		}
 
+		const { title, description } = createDescription(chara);
+
+		const titleText = scene.add.text(200, -80, title)
+			.setOrigin(0)
+			.setFontSize(40)
+			.setFontFamily("Arial Black")
+			.setAlign("left");
+
+		const descriptionText = scene.add.rexBBCodeText(200, 0, description)
+			.setOrigin(0)
+			.setFontSize(30)
+			.setAlign("left")
+			.setWrapMode(1)
+			.setFontFamily("Arial");
+
+		chara.add([
+			titleText,
+			descriptionText
+		])
+
 		state!.shopContainer.add(chara);
 		createdCharas.push(chara);
 	});
+
+
+
+
 	return createdCharas;
 }

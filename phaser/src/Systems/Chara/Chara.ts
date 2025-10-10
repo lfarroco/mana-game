@@ -6,7 +6,7 @@ import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import * as CharaStatsDisplay from "./CharaStatsDisplay";
 import * as ChargeBarDisplay from "./ChargeBarDisplay";
 import * as input from "./input";
-import { onCharaPointerOut, onCharaPointerOver } from "./CharaTooltip";
+import * as CharaTooltip from "./CharaTooltip";
 import { popText } from "./Animations/popText";
 import { summonEffect } from "../../Effects/summonEffect";
 import { getState } from "@Models/State";
@@ -92,10 +92,16 @@ export function create(unit: Unit): Chara {
 	charaById.set(unit.id, container);
 
 	container.on(Phaser.Input.Events.POINTER_OVER, () => {
-		onCharaPointerOver(container);
+		if (isShopItem(unit.id)) {
+			return;
+		}
+		CharaTooltip.onCharaPointerOver(container);
 	});
 	container.on(Phaser.Input.Events.POINTER_OUT, () => {
-		onCharaPointerOut();
+		if (isShopItem(unit.id)) {
+			return;
+		}
+		CharaTooltip.onCharaPointerOut();
 	});
 
 	ChargeBarDisplay.create(unit, container);
