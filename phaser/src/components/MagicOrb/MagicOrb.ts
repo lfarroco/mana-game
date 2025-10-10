@@ -154,9 +154,6 @@ export class MagicOrb {
 		});
 	}
 
-
-
-
 	returnToOriginalPosition(): void {
 		this.scene.tweens.add({
 			targets: this.shader,
@@ -164,8 +161,6 @@ export class MagicOrb {
 			y: this.originalPosition.y,
 			duration: this.config.returnDuration,
 			ease: 'Back.easeOut',
-			onComplete: () => {
-			}
 		});
 	}
 

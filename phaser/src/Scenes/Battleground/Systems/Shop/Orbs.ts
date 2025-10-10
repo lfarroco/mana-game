@@ -174,9 +174,6 @@ function crimsonOrbEffect(unit: Unit) {
 	return true;
 }
 
-
-
-
 function addEffectSafely(unit: Unit, effect: TriggerSystem.Effect) {
 	if (!canAddEffect(unit)) {
 		console.log(`Cannot add effect to ${unit.id}: max effects reached`);
@@ -375,7 +372,7 @@ function generatePositionalTypedPowerOrb() {
 }
 
 
-export function renderOrbs(ui: ShopUI.ShopUIState, orbIds: string[], onOrbUsed?: () => void | Promise<void>) {
+export function renderOrbShop(ui: ShopUI.ShopUIState, orbIds: string[], onOrbUsed?: () => void | Promise<void>) {
 
 	const orbSpacing = sc.TAVERN_CHARA_SPACING;
 	ui.orbContainer = scene.add.container(0, 0);

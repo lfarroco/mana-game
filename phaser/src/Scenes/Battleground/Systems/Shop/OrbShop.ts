@@ -1,13 +1,9 @@
 import * as ShopUI from "./ShopUI";
 import * as Systems from "../index"
 import * as Board from "@Models/Board";
-import { renderOrbs } from "./Orbs";
+import { renderOrbShop } from "./Orbs";
 import { delay } from "../../../../Utils/animation";
 import { pickRandom } from "../../../../utils";
-
-export function init() {
-	ShopUI.create();
-}
 
 export async function open(buttonText: string = "Next Round") {
 	const availableOrbs = [
@@ -32,7 +28,7 @@ export async function open(buttonText: string = "Next Round") {
 
 	const shopState = ShopUI.getState();
 	if (shopState) {
-		renderOrbs(shopState, selectedOrbs, async () => {
+		renderOrbShop(shopState, selectedOrbs, async () => {
 			ShopUI.disableNextRoundButton();
 			await delay(500);
 			Systems.ShopPhase.handleShopPhaseEnded();
