@@ -287,3 +287,7 @@ export function addToShopContainer(child: Phaser.GameObjects.GameObject): void {
 		state.shopContainer.add(child);
 	}
 }
+export async function close() {
+	destroyOrbs();
+	await slideOut();
+}

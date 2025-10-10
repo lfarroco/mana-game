@@ -7,7 +7,7 @@ import { getCharaById, summon, updateUnitPower } from "@Systems/Chara/Chara";
 import * as uiEvents from "@UI/events";
 import * as charaEvents from "@Systems/Chara/events";
 import * as Systems from "../../index";
-import * as Shop from "../Shop";
+import * as ShopUI from "../ShopUI";
 import * as HeroShop from "../HeroShop";
 
 export function itemDragPurchaseRequested(
@@ -35,7 +35,7 @@ export function itemDragPurchaseRequested(
 		if (shouldCloseShop) {
 			// Move to next phase after placing hero (same as next round button)
 			Systems.ShopPhase.handleShopPhaseEnded();
-			Shop.close();
+			ShopUI.close();
 		}
 		return;
 	}
@@ -79,7 +79,7 @@ export function itemDragPurchaseRequested(
 	if (shouldCloseShop) {
 		// Move to next phase after placing hero (same as next round button)
 		Systems.ShopPhase.handleShopPhaseEnded();
-		Shop.close();
+		ShopUI.close();
 	}
 	// If shouldCloseShop is false, the shop stays open for more purchases
 }

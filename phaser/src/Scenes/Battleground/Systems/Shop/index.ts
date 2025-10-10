@@ -1,4 +1,3 @@
-export * as Shop from "./Shop";
 export * as HeroShop from "./HeroShop";
 export * as OrbShop from "./OrbShop";
 export * as constants from "./constants"
