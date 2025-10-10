@@ -7,7 +7,7 @@ import * as Geometry from "@Models/Geometry";
 import { scene } from "../../../BattlegroundScene";
 import * as Board from "@Models/Board";
 import * as Systems from "../../index";
-import * as Shop from "../Shop";
+import * as ShopUI from "../ShopUI";
 import * as HeroShop from "../HeroShop";
 
 export function itemClickPurchaseRequested(
@@ -53,7 +53,7 @@ export function itemClickPurchaseRequested(
 		if (shouldCloseShop) {
 			// Move to next phase after placing hero (same as next round button)
 			Systems.ShopPhase.handleShopPhaseEnded();
-			Shop.close();
+			ShopUI.close();
 		}
 		return;
 	}
@@ -86,7 +86,7 @@ export function itemClickPurchaseRequested(
 	if (shouldCloseShop) {
 		// Move to next phase after placing hero (same as next round button)
 		Systems.ShopPhase.handleShopPhaseEnded();
-		Shop.close();
+		ShopUI.close();
 	}
 	// If shouldCloseShop is false, the shop stays open for more purchases
 }
