@@ -1,7 +1,7 @@
 import * as Phaser from "phaser";
 import { magicOrbFragmentShader } from "../../Shaders/MagicOrbShader";
 import * as Board from "@Models/Board";
-import { hideTooltip, renderTooltip } from "../../UI/Tooltip";
+import * as Tooltip from "../../UI/Tooltip";
 
 export interface MagicOrbConfig {
 	size?: number;
@@ -14,9 +14,6 @@ export interface MagicOrbConfig {
 	dissolveGridSize?: number;
 	dissolveUpwardMovement?: number;
 	dissolveFadeRange?: number;
-	tooltipText?: string;
-	tooltipTitle?: string;
-	enableTooltip?: boolean;
 	enableDrag?: boolean;
 	returnDuration?: number;
 	onDropTarget?: (orb: MagicOrb, target: Phaser.GameObjects.GameObject) => void;
@@ -103,7 +100,7 @@ export class MagicOrb {
 			this.config.size
 		).setOrigin(0.5, 0.5);
 
-		if ((this.config.enableTooltip && (this.config.tooltipText || this.config.tooltipTitle)) || this.config.enableDrag) {
+		if (this.config.enableDrag) {
 			this.setupInteractivity();
 		}
 
@@ -118,24 +115,12 @@ export class MagicOrb {
 			Phaser.Geom.Circle.Contains
 		);
 
-		if (this.config.enableTooltip && (this.config.tooltipText || this.config.tooltipTitle)) {
-			this.shader.on('pointerover', () => {
-				if (!this.isDragging) {
-					this.showTooltip();
-				}
-			});
-
-			this.shader.on('pointerout', () => {
-				hideTooltip();
-			});
-		}
-
 		if (this.config.enableDrag) {
 			this.scene.input.setDraggable(this.shader);
 
 			this.shader.on('dragstart', () => {
 				this.isDragging = true;
-				hideTooltip();
+				Tooltip.hideTooltip();
 				this.scene.input.setDefaultCursor('grabbing');
 			});
 
@@ -169,14 +154,7 @@ export class MagicOrb {
 		});
 	}
 
-	private showTooltip(): void {
-		renderTooltip(
-			this.shader.x,
-			this.shader.y - this.config.size / 2 - 10,
-			this.config.tooltipTitle,
-			this.config.tooltipText
-		);
-	}
+
 
 
 	returnToOriginalPosition(): void {
