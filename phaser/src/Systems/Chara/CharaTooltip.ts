@@ -1,8 +1,9 @@
-import { Chara, getUnit } from "./Chara";
+import { Chara } from "./Chara";
 import { Effect, EffectReaction } from "../../TriggerSystem/TriggerSystem";
 import { hideTooltip, renderTooltip } from "../../UI/Tooltip";
+import { createDescription } from "./createDescription";
 
-const buildEffectBlock = (effect: Effect, unitPower: number): string => {
+export const buildEffectBlock = (effect: Effect, unitPower: number): string => {
 	const withTargets = (base: string, targets?: any) => {
 		if (!targets) return base;
 		return `${base} → [color=#e0e0e0]${getTargetDescription(targets)}[/color]`;
@@ -120,17 +121,7 @@ export const onCharaPointerOver = (chara: Chara): void => {
 
 	if (!chara.active || !chara.visible) return
 
-	const unit = getUnit(chara);
-	const title = unit.name;
-
-	const effectBlocks = unit.effects.map(e => buildEffectBlock(e, unit.power));
-	const reactionBlocks = unit.reactions.map(r => getReactionDescription(r, unit.power));
-	const descriptionString = [...effectBlocks, ...reactionBlocks].join('\n') || 'No special abilities';
-
-	const cdAsSeconds = (unit.cooldown / 1000).toFixed(1);
-
-	const statsBlock = `[color=#c0c0c0]Power:[/color] [color=#ffd93d]${unit.power}[/color]\n[color=#c0c0c0]Cooldown:[/color] [color=#ffa94d]${cdAsSeconds}s[/color]`;
-	const description = `${statsBlock}\n\n${descriptionString}`;
+	const { title, description } = createDescription(chara);
 
 	const worldMatrix = chara.getWorldTransformMatrix();
 	const charaWorldX = worldMatrix.tx;
@@ -139,6 +130,7 @@ export const onCharaPointerOver = (chara: Chara): void => {
 	const TOOLTIP_OFFSET_X = 400;
 	const tooltipX = charaWorldX + chara.displayWidth + TOOLTIP_OFFSET_X;
 	const CHAR_TOP = charaWorldY - chara.displayHeight / 2;
+
 	const EXTRA_OFFSET = -20;
 	const tooltipY = CHAR_TOP + EXTRA_OFFSET;
 
@@ -148,3 +140,5 @@ export const onCharaPointerOver = (chara: Chara): void => {
 export const onCharaPointerOut = (): void => {
 	hideTooltip();
 }
+
+
