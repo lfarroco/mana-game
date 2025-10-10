@@ -3,6 +3,7 @@ import { tween } from "../Utils/animation";
 import { titleTextConfig } from "../constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
 import { createMagicButtonOverlay, MagicOverlayHandle } from "./shaders/magicButtonShader";
+import { getState } from "@Models/State";
 
 interface UIButtonState {
 	buttonWidth: number;
@@ -19,12 +20,12 @@ interface UIButtonState {
 const uiButtonsState = new WeakMap<Container, UIButtonState>();
 
 export function createUIButton(
-	scene: Phaser.Scene,
 	text: string,
 	{ x, y }: { x: number, y: number },
 	callback: () => void,
 	width?: number
 ): Container {
+	const scene = getState().currentScene;
 	const container = scene.add.container(0, 0);
 
 	const state: UIButtonState = {

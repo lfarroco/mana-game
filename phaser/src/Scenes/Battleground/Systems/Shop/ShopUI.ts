@@ -82,7 +82,6 @@ export function displayCommonShop(
 	state.shopContainer.add([bg]);
 
 	const nextRoundBtn = createUIButton(
-		scene,
 		buttonText,
 		vec2(
 			NEXT_ROUND_BUTTON_X,

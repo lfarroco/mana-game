@@ -117,7 +117,6 @@ export default class OptionsScene extends Phaser.Scene {
 		this.showTab(this.currentTab);
 
 		createUIButton(
-			this,
 			'BACK',
 			vec2(
 				constants.MIDDLE_SCREEN_X,
@@ -163,7 +162,6 @@ export default class OptionsScene extends Phaser.Scene {
 		this.optionElements.push(valueText);
 
 		const toggleButton = createUIButton(
-			this,
 			getValue() ? 'ON' : 'OFF',
 			vec2(
 				constants.MIDDLE_SCREEN_X,
@@ -196,7 +194,6 @@ export default class OptionsScene extends Phaser.Scene {
 		this.optionElements.push(labelText);
 
 		const decreaseButton = createUIButton(
-			this,
 			'-',
 			vec2(
 				constants.MIDDLE_SCREEN_X - BUTTONS.VOLUME_BUTTON_OFFSET_X,
@@ -223,7 +220,6 @@ export default class OptionsScene extends Phaser.Scene {
 		this.optionElements.push(valueText);
 
 		const increaseButton = createUIButton(
-			this,
 			'+',
 			vec2(
 				constants.MIDDLE_SCREEN_X + BUTTONS.VOLUME_BUTTON_OFFSET_X,
@@ -255,7 +251,6 @@ export default class OptionsScene extends Phaser.Scene {
 		this.optionElements.push(labelText);
 
 		const decreaseButton = createUIButton(
-			this,
 			'<',
 			vec2(
 				constants.MIDDLE_SCREEN_X - BUTTONS.MULTICHOICE_BUTTON_OFFSET_X,
@@ -284,7 +279,6 @@ export default class OptionsScene extends Phaser.Scene {
 		this.optionElements.push(valueText);
 
 		const increaseButton = createUIButton(
-			this,
 			'>',
 			vec2(
 				constants.MIDDLE_SCREEN_X + BUTTONS.MULTICHOICE_BUTTON_OFFSET_X,
@@ -317,7 +311,6 @@ export default class OptionsScene extends Phaser.Scene {
 		this.optionElements.push(labelText);
 
 		const decreaseButton = createUIButton(
-			this,
 			'-',
 			vec2(
 				constants.MIDDLE_SCREEN_X - BUTTONS.SPEED_BUTTON_OFFSET_X,
@@ -344,7 +337,6 @@ export default class OptionsScene extends Phaser.Scene {
 		this.optionElements.push(valueText);
 
 		const increaseButton = createUIButton(
-			this,
 			'+',
 			vec2(constants.MIDDLE_SCREEN_X + BUTTONS.SPEED_BUTTON_OFFSET_X, yPos + LAYOUT.SPEED_VALUE_OFFSET_Y),
 			() => {
@@ -392,7 +384,6 @@ export default class OptionsScene extends Phaser.Scene {
 		const startX = constants.MIDDLE_SCREEN_X - buttonSpacing;
 
 		this.tabButtons.audio = createUIButton(
-			this,
 			'AUDIO',
 			vec2(startX, tabButtonY),
 			() => this.showTab('audio'),
@@ -400,7 +391,6 @@ export default class OptionsScene extends Phaser.Scene {
 		);
 
 		this.tabButtons.graphics = createUIButton(
-			this,
 			'GRAPHICS',
 			vec2(startX + buttonSpacing, tabButtonY),
 			() => this.showTab('graphics'),
@@ -408,7 +398,6 @@ export default class OptionsScene extends Phaser.Scene {
 		);
 
 		this.tabButtons.game = createUIButton(
-			this,
 			'GAME',
 			vec2(startX + buttonSpacing * 2, tabButtonY),
 			() => this.showTab('game'),

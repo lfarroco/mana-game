@@ -79,7 +79,6 @@ export function displayVictory(
 	const buttonX = panelX + panelWidth / 2;
 	const buttonY = panelY + panelHeight - 80;
 	const nextButton = createUIButton(
-		scene,
 		"Continue",
 		vec2(buttonX, buttonY),
 		async () => {

@@ -5,6 +5,7 @@ import * as effects from "../Effects";
 import { createUIButton } from "../UI/UIButton";
 import * as constants from "../constants/constants";
 import { vec2 } from "@Models/Geometry";
+import { getState } from "@Models/State";
 
 type EffectFactory = (scene: DebugScene) => void;
 
@@ -166,6 +167,7 @@ export class DebugScene extends Phaser.Scene {
 	}
 
 	create() {
+		getState().currentScene = this;
 		// Ensure a headless battleground scene exists for effects that depend on its globals/systems.
 		if (!this.scene.get(SCENE_KEYS.BATTLEGROUND)) {
 			console.log("[DebugScene] Adding headless BattlegroundScene instance for effect dependencies.");
@@ -212,15 +214,17 @@ export class DebugScene extends Phaser.Scene {
 			const row = Math.floor(index / columns);
 			const x = startX + col * columnWidth;
 			const y = startY + row * verticalSpacing;
-			const btn = createUIButton(this, key.toUpperCase(), vec2(x, y), () => this.runEffect(key), 320);
+			const btn = createUIButton(key.toUpperCase(), vec2(x, y), () => this.runEffect(key), 320);
 			this.effectButtonsContainer.add(btn);
 		});
 
 		// Exit to Title button (only in list mode)
-		const exitBtn = createUIButton(this, 'EXIT',
-			vec2(constants.SCREEN_WIDTH - 180, constants.SCREEN_HEIGHT - 80), () => {
-				this.scene.start(constants.SCENE_KEYS.TITLE);
-			}, 200);
+		const exitBtn = createUIButton(
+			'EXIT',
+			vec2(constants.SCREEN_WIDTH - 180, constants.SCREEN_HEIGHT - 80),
+			() => { this.scene.start(constants.SCENE_KEYS.TITLE); },
+			200,
+		);
 		this.effectButtonsContainer.add(exitBtn);
 	}
 
@@ -248,7 +252,7 @@ export class DebugScene extends Phaser.Scene {
 
 		// Create Back button if not existing
 		if (!this.backButton) {
-			this.backButton = createUIButton(this, 'BACK', vec2(constants.MIDDLE_SCREEN_X, constants.SCREEN_HEIGHT - 80), () => this.returnToList(), 260);
+			this.backButton = createUIButton('BACK', vec2(constants.MIDDLE_SCREEN_X, constants.SCREEN_HEIGHT - 80), () => this.returnToList(), 260);
 		} else {
 			this.backButton.setVisible(true);
 			// enableGraphic interaction if present

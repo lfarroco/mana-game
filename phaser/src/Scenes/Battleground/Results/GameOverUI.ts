@@ -76,7 +76,6 @@ export function displayGameOver(
 	state.resultsContainer.add(prestigeDisplay);
 
 	const newRunButton = createUIButton(
-		scene,
 		"New Run",
 		vec2(
 			panelX + panelWidth / 2,
@@ -88,7 +87,6 @@ export function displayGameOver(
 	state.resultsContainer.add(newRunButton);
 
 	const mainMenuButton = createUIButton(
-		scene,
 		"Main Menu",
 		vec2(panelX + panelWidth / 2, panelY + panelHeight - 80),
 		async () => {

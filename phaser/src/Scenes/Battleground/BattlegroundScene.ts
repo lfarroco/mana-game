@@ -48,6 +48,7 @@ export class BattlegroundScene extends Phaser.Scene {
   preload = preload;
 
   create = async () => {
+    getState().currentScene = this;
     scene = this;
 
     this.collection = this.cache.json.get("base-collection") as CardCollection;
