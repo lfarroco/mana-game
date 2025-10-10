@@ -15,6 +15,8 @@ interface UIButtonState {
 	lineColor: number;
 	lineWidth: number;
 	magic?: MagicOverlayHandle;
+	isPressed: boolean;
+	magicIntensity: number;
 }
 
 const uiButtonsState = new WeakMap<Container, UIButtonState>();
@@ -37,6 +39,8 @@ export function createUIButton(
 		pressedFillColor: 0x273746,
 		lineColor: 0x000000,
 		lineWidth: 4,
+		isPressed: false,
+		magicIntensity: 0.45,
 	};
 	uiButtonsState.set(container, state);
 
@@ -45,7 +49,7 @@ export function createUIButton(
 	const st = uiButtonsState.get(container)!;
 	buttonGraphics.setPosition(x - st.buttonWidth / 2, y - st.buttonHeight / 2);
 	container.add(buttonGraphics);
-	drawUIButtonState(container, (container as any).normalFillColor);
+	render(container, (container as any).normalFillColor);
 
 	// Add magical shader overlay (between background and label)
 	const magic = createMagicButtonOverlay(scene, x, y, st.buttonWidth, st.buttonHeight, st.cornerRadius);
@@ -55,8 +59,7 @@ export function createUIButton(
 
 	const buttonText = scene.add
 		.text(
-			x,
-			y,
+			x, y,
 			text,
 			{
 				...titleTextConfig,
@@ -72,38 +75,31 @@ export function createUIButton(
 	const hitArea = new Phaser.Geom.Rectangle(0, 0, st.buttonWidth, st.buttonHeight);
 	buttonGraphics.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
 
-	let isPressed = false;
-
 	const tweenIntensity = (to: number, duration = 180) => {
-		if (!state.magic) return;
-		const shader = state.magic.shader as any;
-		if (shader.magicIntensity === undefined) {
-			shader.magicIntensity = state.magic.intensityState.value;
-		}
 		// Tween a custom property on the shader GameObject
-		tween({
-			targets: [state.magic.shader as unknown as Phaser.GameObjects.GameObject],
-			magicIntensity: to as any,
+		scene.add.tween({
+			targets: [state],
+			magicIntensity: to,
 			duration,
-			onUpdate: () => state.magic?.setIntensity(shader.magicIntensity),
+			onUpdate: () => state.magic?.setIntensity(state.magicIntensity),
 			ease: "Sine.easeInOut",
 		});
 	};
 
 	buttonGraphics.on(Phaser.Input.Events.POINTER_DOWN, () => {
 		if (!buttonGraphics.input?.enabled) return;
-		isPressed = true;
-		drawUIButtonState(container, (container as any).pressedFillColor);
+		state.isPressed = true;
+		render(container, state.pressedFillColor);
 		buttonText.setShadow(0, 0, "#eaeaea", 0, true, true);
 		tweenIntensity(1.1, 100);
 	});
 
 	buttonGraphics.on(Phaser.Input.Events.POINTER_UP, () => {
 		if (!buttonGraphics.input?.enabled) return;
-		const wasPressed = isPressed;
-		isPressed = false;
+		const wasPressed = state.isPressed;
+		state.isPressed = false;
 		if (wasPressed) {
-			drawUIButtonState(container, (container as any).hoverFillColor);
+			render(container, state.hoverFillColor);
 			buttonText.setShadow(2, 2, "#000000", 2, true, true);
 
 			playSoundEffect("sfx_unit_onclick");
@@ -114,10 +110,10 @@ export function createUIButton(
 
 	buttonGraphics.on(Phaser.Input.Events.POINTER_OVER, () => {
 		if (!buttonGraphics.input?.enabled) return;
-		if (isPressed) {
-			drawUIButtonState(container, (container as any).pressedFillColor);
+		if (state.isPressed) {
+			render(container, state.pressedFillColor);
 		} else {
-			drawUIButtonState(container, (container as any).hoverFillColor);
+			render(container, state.hoverFillColor);
 		}
 		buttonText.setShadow(2, 2, "#000000", 2, true, true);
 		tween({ targets: [buttonText], scale: 1.2 });
@@ -126,22 +122,25 @@ export function createUIButton(
 
 	buttonGraphics.on(Phaser.Input.Events.POINTER_OUT, () => {
 		if (!buttonGraphics.input?.enabled) return;
-		drawUIButtonState(container, (container as any).normalFillColor);
+		render(container, state.normalFillColor);
 		buttonText.setShadow(0, 0, "#000000", 0, true, true);
 		tween({ targets: [buttonText], scale: 1.0 });
 		tweenIntensity(0.45);
+	});
+
+	container.on("destroy", () => {
+		uiButtonsState.delete(container);
 	});
 
 	container.add(buttonText);
 	return container;
 }
 
-export function drawUIButtonState(container: Container, fill: number) {
-	const g = container.getByName("buttonBackground") as Graphics;
-	if (!g) return;
+export function render(container: Container, fill: number) {
+	const g = container.getByName("buttonBackground")! as Graphics;
 
-	const st = uiButtonsState.get(container);
-	if (!st) return;
+	const st = uiButtonsState.get(container)!;
+
 	const buttonWidth = st.buttonWidth;
 	const buttonHeight = st.buttonHeight;
 	const cornerRadius = st.cornerRadius;
