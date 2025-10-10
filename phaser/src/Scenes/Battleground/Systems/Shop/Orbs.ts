@@ -458,15 +458,31 @@ export function renderOrbs(ui: ShopUI.ShopUIState, orbIds: string[], onOrbUsed?:
 			color: hexToVector3(orbSpec.color),
 			intensity: 1.2,
 			speed: 1.0,
-			enableTooltip: true,
 			enableDrag: true,
 			returnDuration: 500,
-			tooltipTitle: orbSpec.name,
-			tooltipText: orbSpec.tooltip,
-			onDropTarget: (orb: MagicOrb, target: Phaser.GameObjects.GameObject) => handleOrbDrop({ orb, target, orbSpec, magicOrb }),
+			onDropTarget: (orb, target) => handleOrbDrop({ orb, target, orbSpec, magicOrb }),
 			dropTargetNames: []
 		});
 		ui.orbContainer!.add(magicOrb.getShader());
+
+		const titleText = scene.add.text(orbX + 200, orbY + -80, orbSpec.name)
+			.setOrigin(0)
+			.setFontSize(40)
+			.setFontFamily("Arial Black")
+			.setAlign("left");
+
+		const descriptionText = scene.add.rexBBCodeText(orbX + 200, orbY + 0, orbSpec.tooltip)
+			.setOrigin(0)
+			.setFontSize(30)
+			.setAlign("left")
+			.setWrapMode(1)
+			.setFontFamily("Arial");
+
+		ui.orbContainer!.add([
+			titleText,
+			descriptionText
+		])
+
 		ui.magicOrbs.push(magicOrb);
 		magicOrb.setDepth(1000);
 	});
