@@ -3,6 +3,7 @@ import { eqVec2 } from "./Geometry";
 import { Unit } from "./Entities/Unit";
 
 export type State = {
+  currentScene: Phaser.Scene;
   savedGames: string[];
   gameData: GameData;
   battleData: {
@@ -19,6 +20,7 @@ export type GameData = {
 }
 
 const initialState = (): State => ({
+  currentScene: {} as Phaser.Scene,
   savedGames: [],
   gameData: {
     round: 1,

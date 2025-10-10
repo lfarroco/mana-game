@@ -5,6 +5,7 @@ import { CloudsBackground } from "../../components/cloudBackground/CloudsBackgro
 import { images } from "../../assets";
 import * as AudioManager from "@Systems/AudioManager";
 import { vec2 } from "@Models/Geometry";
+import { getState } from "@Models/State";
 
 export let titleScene: TitleScene;
 
@@ -42,6 +43,7 @@ export default class TitleScene extends Phaser.Scene {
 	}
 
 	create() {
+		getState().currentScene = this;
 		this.cloudsBackground = new CloudsBackground(this, {
 			preset: 'nebula',
 		});
@@ -54,20 +56,17 @@ export default class TitleScene extends Phaser.Scene {
 		).setOrigin(0.5);
 
 		createUIButton(
-			this,
 			'START GAME',
 			vec2(constants.MIDDLE_SCREEN.x, constants.MIDDLE_SCREEN.y + 100,
 			),
 			() => { this.startGame(); }
 		);
 		createUIButton(
-			this,
 			'OPTIONS',
 			vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + 180,),
 			() => { this.openOptions(); }
 		);
 		createUIButton(
-			this,
 			'EXIT',
 			vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + 380),
 			() => { window.close(); }

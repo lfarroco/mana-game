@@ -75,7 +75,6 @@ export async function setupBattle(): Promise<{ enemies: Unit[]; }> {
 
 export async function showReadyButton(payload: { enemies: Unit[] }): Promise<void> {
 	const readyButton = createUIButton(
-		scene,
 		"Ready",
 		vec2(
 			constants.SCREEN_WIDTH / 2,
