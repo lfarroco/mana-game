@@ -48,20 +48,20 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 
 		const { title, description } = createDescription(chara);
 
-		const titleText = scene.add.text(200, -80, title)
+		const titleText = scene.add.text(chara.x + 200, chara.y + -80, title)
 			.setOrigin(0)
 			.setFontSize(40)
 			.setFontFamily("Arial Black")
 			.setAlign("left");
 
-		const descriptionText = scene.add.rexBBCodeText(200, 0, description)
+		const descriptionText = scene.add.rexBBCodeText(chara.x + 200, chara.y + 0, description)
 			.setOrigin(0)
 			.setFontSize(30)
 			.setAlign("left")
 			.setWrapMode(1)
 			.setFontFamily("Arial");
 
-		chara.add([
+		state!.shopContainer.add([
 			titleText,
 			descriptionText
 		])
