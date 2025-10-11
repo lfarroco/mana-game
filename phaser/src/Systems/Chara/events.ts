@@ -5,9 +5,9 @@ import { tween } from "../../Utils/animation";
 import { playSoundEffect } from "@Systems/AudioManager";
 import * as Shop from "@Scenes/Battleground/Systems/Shop";
 
-export const onSell = (chara: Chara.Chara) => {
+export const onSell = (unitId: string) => {
 	const sellPrice = Math.floor(SHOP_ITEM_PURCHASE_COST / 2);
-	Shop.events.ownedUnitSold(Chara.getUnit(chara).id, sellPrice);
+	Shop.events.ownedUnitSold(unitId, sellPrice);
 };
 
 export const onShopPurchaseFailed = (chara: Chara.Chara, vec: Vec2) => {

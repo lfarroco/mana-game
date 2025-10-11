@@ -1,18 +1,17 @@
-import { TAVERN_BG_HEIGHT, TAVERN_BG_WIDTH } from "./constants";
 import { defaultTextConfig } from "../../../../constants/constants";
 import * as io from "./phaser.io";
 import * as geom from "@Models/Geometry";
 
-let sellZone: Phaser.GameObjects.Zone | null = null;
+export let zone: Phaser.GameObjects.Zone | null = null;
 let container: Container | null = null;
-let sellZoneText: Phaser.GameObjects.Text | null = null;
-let sellZoneGraphics: Graphics | null = null;
+let labelText: Phaser.GameObjects.Text | null = null;
+let rect: Graphics | null = null;
 
 const position = { x: 950, y: 100 }
-const size = { width: TAVERN_BG_WIDTH, height: TAVERN_BG_HEIGHT }
+const size = { width: 900, height: 800 }
 const color = 0xffa500;
 const alpha = 0.7;
-const text = "SELL";
+const label = "SELL";
 const cornerRadius = 10;
 export const name = "shop_sell_zone";
 const textStyle = {
@@ -34,41 +33,49 @@ export function create() {
 
 	container = io.Container();
 
-	sellZone = io.RectangularDropZone(name, position, size);
+	rect = createRect();
 
-	sellZoneGraphics = io.BorderedRoundRect(
-		position,
-		size,
-		cornerRadius,
-		color,
-		alpha
-	);
+	labelText = createLabel();
 
-	sellZoneText = io.Text(
-		geom.sumVec2(position, geom.centerOf(size)),
-		text,
-		textStyle
-	);
+	zone = io.RectangularDropZone(name, position, size);
 
-	io.Centralize(sellZoneText);
+	io.AddChildren(container, [zone, rect, labelText]);
 
-	io.AddChildren(container, [sellZone, sellZoneGraphics, sellZoneText]);
-
-	io.SetVisible(container, false);
+	io.Hide(container);
 
 	return container;
 }
 
 export function show() {
 	io.BringToTop(container!);
-	io.SetVisible(container!, true);
+	io.Show(container!);
 }
 
 export function hide() {
-	io.SetVisible(container!, false);
+	io.Hide(container!);
 }
 
 export function destroy() {
 	io.Destroy(container!);
 	container = null;
+}
+
+const createRect = () => io.BorderedRoundRect(
+	position,
+	size,
+	cornerRadius,
+	color,
+	alpha
+);
+
+const createLabel = () => {
+	const text = io.Text(
+		geom.sumVec2(position, geom.centerOf(size)),
+		label,
+		textStyle
+	);
+
+	io.Centralize(text);
+
+	return text;
 }
