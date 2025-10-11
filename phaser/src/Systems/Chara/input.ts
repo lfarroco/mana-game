@@ -13,7 +13,7 @@ import * as events from "./events";
 import { onCharaPointerOver } from "./CharaTooltip";
 
 import * as SellZone from "../../Scenes/Battleground/Systems/Shop/SellZone"
-import * as io from "@Scenes/Battleground/Systems/Shop/phaser.io";
+import * as ph from "@Scenes/Battleground/Systems/Shop/phaser.io";
 
 const TOUCH_TOOLTIP_INPUT_DOWN_DELAY = 200;
 
@@ -43,7 +43,7 @@ export function init(chara: Chara.Chara) {
 		chara.on(Phaser.Input.Events.DRAG_START, onDragStart(state));
 		chara.on(Phaser.Input.Events.DRAG, onDrag(chara));
 
-		io.WhenDroppedOnZone(
+		ph.WhenDroppedOnZone(
 			chara,
 			SellZone.name,
 			() => {
@@ -52,7 +52,7 @@ export function init(chara: Chara.Chara) {
 			}
 		);
 
-		io.WhenDroppedOnZone(
+		ph.WhenDroppedOnZone(
 			chara,
 			"board-cell",
 			(zone) => {
