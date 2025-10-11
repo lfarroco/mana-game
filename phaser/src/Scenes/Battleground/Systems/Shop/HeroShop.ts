@@ -3,7 +3,7 @@ import { pickRandom } from "../../../../utils";
 import * as Chara from "@Systems/Chara/Chara";
 import { scene } from "../../BattlegroundScene";
 import * as ShopUI from "./ShopUI";
-import * as renderTavernCharas from "./CharaShop";
+import * as CharaShop from "./CharaShop";
 import * as sc from "./constants";
 import { tween } from "../../../../Utils/animation";
 import * as MoraleDisplay from "../../MoraleDisplay";
@@ -24,7 +24,7 @@ export function handleCharaPurchaseFinalized(purchasedChara: Chara.Chara): void 
 	if (currentShopCharas.length < sc.NUM_TAVERN_SLOTS) {
 		const newCardData = getAvailableCardsForTavern(1);
 		if (newCardData.length > 0) {
-			const newCharas = renderTavernCharas.renderTavernCharas(newCardData);
+			const newCharas = CharaShop.renderTavernCharas(newCardData);
 			currentShopCharas.push(...newCharas);
 			newCharas.forEach(chara => _animateItemAppearance(chara));
 		}
@@ -44,7 +44,7 @@ export async function open(buttonText: string = "Next Shop") {
 	ShopUI.displayCommonShop(nextRoundCallback, buttonText);
 
 	// Render tavern charas
-	const displayedCharas = renderTavernCharas.renderTavernCharas(tavernCardData);
+	const displayedCharas = CharaShop.renderTavernCharas(tavernCardData);
 	currentShopCharas = displayedCharas;
 
 	Board.setEnemyBoardVisible(false);
@@ -111,7 +111,7 @@ export function rerollTavern(): void {
 
 	const newTavernCardData = getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
 
-	const newShopCharas = renderTavernCharas.renderTavernCharas(
+	const newShopCharas = CharaShop.renderTavernCharas(
 		newTavernCardData
 	);
 	currentShopCharas = newShopCharas;

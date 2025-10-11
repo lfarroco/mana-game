@@ -140,5 +140,3 @@ export const onCharaPointerOver = (chara: Chara): void => {
 export const onCharaPointerOut = (): void => {
 	hideTooltip();
 }
-
-

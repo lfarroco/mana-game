@@ -55,13 +55,11 @@ export async function handleShopOpenUITrigger(buttonText: string = "Next Round")
 	await open(buttonText);
 }
 
-
 export function renderOrbShop(ui: ShopUI.ShopUIState, orbIds: string[], onOrbUsed?: () => void | Promise<void>) {
 
 	const state = getState();
 	const scene = state.currentScene
-	const ORBS_Y = sc.PANEL_Y + 220;
-
+	const ORBS_Y = 200;
 
 	const orbSpacing = sc.TAVERN_CHARA_SPACING;
 	ui.orbContainer = scene.add.container(0, 0);
@@ -73,7 +71,7 @@ export function renderOrbShop(ui: ShopUI.ShopUIState, orbIds: string[], onOrbUse
 
 	bg.fillStyle(0x000000, 0.25);
 	bg.fillRoundedRect(
-		ui.panelX + 20,
+		ui.panelX,
 		bgY,
 		sc.TAVERN_BG_WIDTH,
 		bgHeight,
@@ -133,11 +131,11 @@ export function renderOrbShop(ui: ShopUI.ShopUIState, orbIds: string[], onOrbUse
 	orbIds.forEach((orbId: string, index: number) => {
 		const orbSpec = orbsIndex[orbId]();
 
-		const orbX = ui.panelX + 160;
+		const orbX = ui.panelX + 100;
 		const orbY = ORBS_Y + (index * orbSpacing);
 
 		const magicOrb = new MagicOrb(scene, orbX, orbY, {
-			size: 200,
+			size: 240,
 			color: hexToVector3(orbSpec.color),
 			intensity: 1.2,
 			speed: 1.0,
@@ -148,13 +146,13 @@ export function renderOrbShop(ui: ShopUI.ShopUIState, orbIds: string[], onOrbUse
 		});
 		ui.orbContainer!.add(magicOrb.getShader());
 
-		const titleText = scene.add.text(orbX + 200, orbY + -80, orbSpec.name)
+		const titleText = scene.add.text(orbX + 100, orbY + -80, orbSpec.name)
 			.setOrigin(0)
 			.setFontSize(40)
 			.setFontFamily("Arial Black")
 			.setAlign("left");
 
-		const descriptionText = scene.add.rexBBCodeText(orbX + 200, orbY + 0, orbSpec.tooltip)
+		const descriptionText = scene.add.rexBBCodeText(orbX + 100, orbY + 0, orbSpec.tooltip)
 			.setOrigin(0)
 			.setFontSize(30)
 			.setAlign("left")

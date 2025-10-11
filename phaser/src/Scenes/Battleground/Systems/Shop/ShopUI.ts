@@ -100,8 +100,8 @@ function _createSellZone(state: ShopUIState): void {
 	state.sellZoneContainer = scene.add.container(0, 0);
 	state.sellZoneContainer.setVisible(false);
 
-	const sellZoneX = sc.PANEL_X + sc.SHOP_PANEL_WIDTH / 2 - 40;
-	const sellZoneY = sc.PANEL_Y;
+	const sellZoneX = 100 + sc.SHOP_PANEL_WIDTH / 2 - 40;
+	const sellZoneY = 700;
 
 	state.sellZone = scene.add.zone(
 		sellZoneX + sc.SELL_ZONE_WIDTH / 2,
