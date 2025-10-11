@@ -2,6 +2,7 @@ import * as Phaser from "phaser";
 import { magicOrbFragmentShader } from "../../Shaders/MagicOrbShader";
 import * as Board from "@Models/Board";
 import * as Tooltip from "../../UI/Tooltip";
+import { getState } from "@Models/State";
 
 export interface MagicOrbConfig {
 	size?: number;
@@ -31,8 +32,8 @@ export class MagicOrb {
 	private isDragging: boolean = false;
 	private isDestroyed: boolean = false;
 
-	constructor(scene: Phaser.Scene, x: number, y: number, config: MagicOrbConfig = {}) {
-		this.scene = scene;
+	constructor(x: number, y: number, config: MagicOrbConfig = {}) {
+		this.scene = getState().currentScene;
 
 		const defaultConfig = {
 			size: 100,
@@ -53,7 +54,7 @@ export class MagicOrb {
 		};
 
 		this.config = { ...defaultConfig, ...config };
-		this.startTime = scene.time.now;
+		this.startTime = this.scene.time.now;
 		this.originalPosition = { x, y };
 
 		console.log('Creating MagicOrb with config:', this.config);
@@ -412,8 +413,8 @@ export class MagicOrbCallbacks {
 }
 
 export class MagicOrbFactory {
-	static createPurpleOrb(scene: Phaser.Scene, x: number, y: number, size: number = 100, draggable: boolean = false): MagicOrb {
-		return new MagicOrb(scene, x, y, {
+	static createPurpleOrb(x: number, y: number, size: number = 100, draggable: boolean = false): MagicOrb {
+		return new MagicOrb(x, y, {
 			size,
 			color: { x: 0.5, y: 0.3, z: 1.0 },
 			intensity: 1.2,
@@ -422,8 +423,8 @@ export class MagicOrbFactory {
 		});
 	}
 
-	static createBlueOrb(scene: Phaser.Scene, x: number, y: number, size: number = 100): MagicOrb {
-		return new MagicOrb(scene, x, y, {
+	static createBlueOrb(x: number, y: number, size: number = 100): MagicOrb {
+		return new MagicOrb(x, y, {
 			size,
 			color: { x: 0.2, y: 0.6, z: 1.0 },
 			intensity: 1.0,
@@ -431,8 +432,8 @@ export class MagicOrbFactory {
 		});
 	}
 
-	static createRedOrb(scene: Phaser.Scene, x: number, y: number, size: number = 100): MagicOrb {
-		return new MagicOrb(scene, x, y, {
+	static createRedOrb(x: number, y: number, size: number = 100): MagicOrb {
+		return new MagicOrb(x, y, {
 			size,
 			color: { x: 1.0, y: 0.3, z: 0.2 },
 			intensity: 1.3,
@@ -440,8 +441,8 @@ export class MagicOrbFactory {
 		});
 	}
 
-	static createGreenOrb(scene: Phaser.Scene, x: number, y: number, size: number = 100): MagicOrb {
-		return new MagicOrb(scene, x, y, {
+	static createGreenOrb(x: number, y: number, size: number = 100): MagicOrb {
+		return new MagicOrb(x, y, {
 			size,
 			color: { x: 0.3, y: 1.0, z: 0.4 },
 			intensity: 1.1,
@@ -449,8 +450,8 @@ export class MagicOrbFactory {
 		});
 	}
 
-	static createGoldenOrb(scene: Phaser.Scene, x: number, y: number, size: number = 100): MagicOrb {
-		return new MagicOrb(scene, x, y, {
+	static createGoldenOrb(x: number, y: number, size: number = 100): MagicOrb {
+		return new MagicOrb(x, y, {
 			size,
 			color: { x: 1.0, y: 0.8, z: 0.2 },
 			intensity: 1.4,

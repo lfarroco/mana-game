@@ -100,18 +100,14 @@ function _createSellZone(state: ShopUIState): void {
 	state.sellZoneContainer = scene.add.container(0, 0);
 	state.sellZoneContainer.setVisible(false);
 
-	const sellZoneX = 100 + sc.SHOP_PANEL_WIDTH / 2 - 40;
-	const sellZoneY = 700;
-
 	state.sellZone = scene.add.zone(
-		sellZoneX + sc.SELL_ZONE_WIDTH / 2,
-		sellZoneY + sc.SELL_ZONE_HEIGHT / 2,
+		sc.SELL_ZONE_X, sc.SELL_ZONE_Y,
 		sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT
 	);
 
 	state.sellZone.setName(sc.SHOP_SELL_ZONE_NAME);
 
-	state.sellZoneGraphics = scene.add.graphics({ x: sellZoneX, y: sellZoneY });
+	state.sellZoneGraphics = scene.add.graphics({ x: sc.SELL_ZONE_X, y: sc.SELL_ZONE_Y });
 	state.sellZoneGraphics.save();
 	state.sellZoneGraphics.fillStyle(0x000000, 0.25);
 	state.sellZoneGraphics.fillRoundedRect(6, 6, sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT, sc.SELL_ZONE_CORNER_RADIUS);
@@ -125,8 +121,8 @@ function _createSellZone(state: ShopUIState): void {
 	state.sellZone.setRectangleDropZone(sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT);
 
 	state.sellZoneText = scene.add.text(
-		sellZoneX + sc.SELL_ZONE_WIDTH / 2,
-		sellZoneY + sc.SELL_ZONE_HEIGHT / 2,
+		sc.SELL_ZONE_X + sc.SELL_ZONE_WIDTH / 2,
+		sc.SELL_ZONE_Y + sc.SELL_ZONE_HEIGHT / 2,
 		sc.SELL_ZONE_TEXT,
 		{
 			...c.defaultTextConfig,

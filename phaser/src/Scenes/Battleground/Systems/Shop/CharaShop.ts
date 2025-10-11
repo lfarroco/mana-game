@@ -8,12 +8,9 @@ import * as sc from "./constants";
 import { state } from "./ShopUI";
 import { createDescription } from "@Systems/Chara/createDescription";
 
-const TAVERN_CHARA_BASE_Y = 200;
-
 export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara[] {
 	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
 	const createdCharas: Chara.Chara[] = [];
-	const baseX = state.panelX + 100;
 	const ownedCardIds = new Set(scene.state.gameData.player.units.map(u => u.cardId));
 
 	cardDefs.forEach((spec, index) => {
@@ -21,7 +18,9 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 
 		const chara = Chara.create(unit);
 
-		chara.setPosition(baseX, TAVERN_CHARA_BASE_Y + (index * sc.TAVERN_CHARA_SPACING));
+		const offsetY = index * sc.TAVERN_CHARA_SPACING;
+
+		chara.setPosition(sc.ITEM_BASE_X, sc.ITEM_BASE_Y + offsetY);
 
 		if (ownedCardIds.has(spec.id)) {
 			const borderRadius = (c.TILE_WIDTH * 0.8) / 2;
@@ -50,13 +49,19 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 
 		const { title, description } = createDescription(chara);
 
-		const titleText = scene.add.text(chara.x + 200, chara.y + -80, title)
+		const titleText = scene.add.text(
+			sc.ITEM_DESC_BASE_X, sc.ITEM_DESC_BASE_Y + offsetY,
+			title,
+		)
 			.setOrigin(0)
 			.setFontSize(40)
 			.setFontFamily("Arial Black")
 			.setAlign("left");
 
-		const descriptionText = scene.add.rexBBCodeText(chara.x + 200, chara.y + 0, description)
+		const descriptionText = scene.add.rexBBCodeText(
+			sc.ITEM_DESC_BASE_X, sc.ITEM_DESC_BASE_Y + offsetY + 60,
+			description,
+		)
 			.setOrigin(0)
 			.setFontSize(30)
 			.setAlign("left")
