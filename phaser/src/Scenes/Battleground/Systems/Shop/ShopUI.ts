@@ -6,20 +6,16 @@ import { MagicOrb } from "../../../../components/MagicOrb/MagicOrb";
 import { scene } from "../../BattlegroundScene";
 import { tween } from "../../../../Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
+import * as SellZone from "./SellZone"
 
 const NEXT_ROUND_BUTTON_X = c.SCREEN_WIDTH - 200;
 const NEXT_ROUND_BUTTON_Y = c.SCREEN_HEIGHT - 100;
-
-const SELL_ZONE_TEXT_FONT_SIZE = '40px';
 
 export { createUIButton };
 
 export type ShopUIState = {
 	shopContainer: Container;
-	sellZoneContainer: Container | null;
-	sellZone: Phaser.GameObjects.Zone | null;
-	sellZoneText: Phaser.GameObjects.Text | null;
-	sellZoneGraphics: Graphics | null;
+
 	magicOrbs: MagicOrb[];
 	orbContainer: Container | null;
 	panelX: number;
@@ -32,10 +28,6 @@ export let state: ShopUIState | null = null;
 export function create() {
 	state = {
 		shopContainer: scene.add.container(0, 0),
-		sellZoneContainer: null,
-		sellZone: null,
-		sellZoneText: null,
-		sellZoneGraphics: null,
 		magicOrbs: [],
 		orbContainer: null,
 		panelX: 0,
@@ -89,73 +81,7 @@ export function displayCommonShop(
 	state.shopContainer.add(nextRoundBtn);
 	state.nextRoundButton = nextRoundBtn;
 
-	_createSellZone(state);
-}
-
-function _createSellZone(state: ShopUIState): void {
-	if (state.sellZoneContainer) {
-		state.sellZoneContainer.destroy(true);
-	}
-
-	state.sellZoneContainer = scene.add.container(0, 0);
-	state.sellZoneContainer.setVisible(false);
-
-	state.sellZone = scene.add.zone(
-		sc.SELL_ZONE_X, sc.SELL_ZONE_Y,
-		sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT
-	);
-
-	state.sellZone.setName(sc.SHOP_SELL_ZONE_NAME);
-
-	state.sellZoneGraphics = scene.add.graphics({ x: sc.SELL_ZONE_X, y: sc.SELL_ZONE_Y });
-	state.sellZoneGraphics.save();
-	state.sellZoneGraphics.fillStyle(0x000000, 0.25);
-	state.sellZoneGraphics.fillRoundedRect(6, 6, sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT, sc.SELL_ZONE_CORNER_RADIUS);
-	state.sellZoneGraphics.restore();
-
-	state.sellZoneGraphics.lineStyle(4, 0xffffff, 0.8);
-	state.sellZoneGraphics.fillStyle(sc.SELL_ZONE_BG_COLOR, sc.SELL_ZONE_BG_ALPHA);
-	state.sellZoneGraphics.fillRoundedRect(0, 0, sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT, sc.SELL_ZONE_CORNER_RADIUS);
-	state.sellZoneGraphics.strokeRoundedRect(0, 0, sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT, sc.SELL_ZONE_CORNER_RADIUS);
-
-	state.sellZone.setRectangleDropZone(sc.SELL_ZONE_WIDTH, sc.SELL_ZONE_HEIGHT);
-
-	state.sellZoneText = scene.add.text(
-		sc.SELL_ZONE_X + sc.SELL_ZONE_WIDTH / 2,
-		sc.SELL_ZONE_Y + sc.SELL_ZONE_HEIGHT / 2,
-		sc.SELL_ZONE_TEXT,
-		{
-			...c.defaultTextConfig,
-			...sc.SELL_ZONE_TEXT_STYLE,
-			fontSize: SELL_ZONE_TEXT_FONT_SIZE,
-			fontStyle: 'bold',
-			color: '#fff',
-			stroke: '#222',
-			strokeThickness: 6,
-			shadow: {
-				offsetX: 2,
-				offsetY: 2,
-				color: '#000',
-				blur: 4,
-				fill: true
-			}
-		}
-	).setOrigin(0.5);
-
-	state.sellZoneContainer.add([state.sellZone, state.sellZoneGraphics, state.sellZoneText]);
-
-}
-
-export function showSellZone(): void {
-	if (!state) return;
-	if (state.sellZoneContainer) {
-		scene.children.bringToTop(state.sellZoneContainer);
-		state.sellZoneContainer.setVisible(true);
-	}
-}
-
-export function hideSellZone(): void {
-	state?.sellZoneContainer?.setVisible(false);
+	SellZone.create();
 }
 
 export function update(time: number): void {
@@ -182,10 +108,8 @@ export function destroyOrbs(): void {
 export function destroy(): void {
 	if (!state) return;
 	destroyOrbs();
-	state.sellZoneContainer?.destroy(true);
-	state.sellZoneContainer = null;
+	SellZone.destroy();
 }
-
 
 export async function slideIn(): Promise<void> {
 	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
