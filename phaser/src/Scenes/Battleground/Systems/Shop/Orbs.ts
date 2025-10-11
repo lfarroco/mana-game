@@ -1,19 +1,10 @@
-import { MagicOrb, MagicOrbCallbacks } from "../../../../components/MagicOrb/MagicOrb";
-import * as Phaser from "phaser";
-import * as Board from "@Models/Board";
 import { Unit } from "@Models/Entities/Unit";
 import { getReactionDescription } from "@Systems/Chara/CharaTooltip";
 import { increasePower } from "../../../../TriggerSystem/effects";
 import * as TriggerSystem from "../../../../TriggerSystem/TriggerSystem";
 import { pickOne } from "../../../../utils";
-import { hexToVector3 } from "../../../../Utils/colorUtils";
-import { scene } from "../../BattlegroundScene";
-import * as sc from "./constants";
-import * as ShopUI from "./ShopUI";
 
-const ORBS_Y = sc.PANEL_Y + 220;
-
-type OrbSpec = {
+export type OrbSpec = {
 	id: string;
 	name: string;
 	color: number;
@@ -166,7 +157,6 @@ const generateChargeReactionOrb = () => {
 	};
 }
 
-
 // Orb effect functions (pure)
 function crimsonOrbEffect(unit: Unit) {
 	increasePower([unit], 5);
@@ -203,7 +193,7 @@ function setReactionSafely(unit: Unit, reaction: TriggerSystem.EffectReaction) {
 }
 
 // Orb specs as plain data (lookup object)
-const orbs: Record<string, () => {
+export const orbsIndex: Record<string, () => {
 	id: string;
 	name: string;
 	color: number;
@@ -369,121 +359,4 @@ function generatePositionalTypedPowerOrb() {
 			} as any);
 		}
 	}
-}
-
-
-export function renderOrbShop(ui: ShopUI.ShopUIState, orbIds: string[], onOrbUsed?: () => void | Promise<void>) {
-
-	const orbSpacing = sc.TAVERN_CHARA_SPACING;
-	ui.orbContainer = scene.add.container(0, 0);
-
-	const bg = scene.add.graphics()
-
-	const bgHeight = (orbIds.length - 1) * orbSpacing + 200;
-	const bgY = ORBS_Y - 100;
-
-	bg.fillStyle(0x000000, 0.25);
-	bg.fillRoundedRect(
-		ui.panelX + 20,
-		bgY,
-		sc.TAVERN_BG_WIDTH,
-		bgHeight,
-		sc.SUB_PANEL_CORNER_RADIUS
-	)
-
-	ui.orbContainer.add(bg);
-
-	function handleOrbDrop(params: {
-		orb: MagicOrb,
-		target: Phaser.GameObjects.GameObject,
-		orbSpec: OrbSpec,
-		magicOrb: MagicOrb
-	}) {
-		const { orb, target, orbSpec, magicOrb } = params;
-		const playerBoard = Board.getBoardState();
-
-		if (!playerBoard || !playerBoard.dropZones.includes(target as Phaser.GameObjects.Zone)) {
-			console.log(`${orbSpec.name} dropped on non-board target:`, target);
-			MagicOrbCallbacks.returnToPosition(orb, target);
-			return;
-		}
-
-		// At this point target is guaranteed to be a Zone in dropZones
-		const slotIndex = playerBoard.dropZones.indexOf(target as Phaser.GameObjects.Zone);
-		const tileX = slotIndex % 3;
-		const tileY = Math.floor(slotIndex / 3);
-
-		console.log(`${orbSpec.name} dropped on board slot [${tileX}, ${tileY}] (index: ${slotIndex})`);
-
-		const gameState = scene.state;
-		const existingUnit = gameState?.gameData?.player?.units?.find((unit: Unit) => unit.position?.x === tileX && unit.position?.y === tileY);
-
-		if (!existingUnit) {
-			console.log(`No unit at position [${tileX}, ${tileY}] - orb returns to position`);
-			MagicOrbCallbacks.returnToPosition(orb, target);
-			return;
-		}
-
-		console.log(`Unit ${existingUnit.id} is at this position - applying ${orbSpec.name} effect!`);
-		let applied = false;
-		try {
-			applied = !!orbSpec.effect(existingUnit);
-		} catch (err) {
-			console.error(`Error applying orb effect ${orbSpec.name} to ${existingUnit.id}:`, err);
-			applied = false;
-		}
-		if (!applied) {
-			console.log(`${orbSpec.name} effect returned false — returning orb to origin`);
-			MagicOrbCallbacks.returnToPosition(orb, target);
-			return;
-		}
-		magicOrb.startDissolve();
-		onOrbUsed?.();
-	}
-
-	orbIds.forEach((orbId: string, index: number) => {
-		const orbSpec = orbs[orbId]();
-		if (!orbSpec) {
-			console.warn(`Orb with id ${orbId} not found in orbs object`);
-			return;
-		}
-		const orbX = ui.panelX + 160;
-		const orbY = ORBS_Y + (index * orbSpacing);
-
-		const magicOrb = new MagicOrb(scene, orbX, orbY, {
-			size: 200,
-			color: hexToVector3(orbSpec.color),
-			intensity: 1.2,
-			speed: 1.0,
-			enableDrag: true,
-			returnDuration: 500,
-			onDropTarget: (orb, target) => handleOrbDrop({ orb, target, orbSpec, magicOrb }),
-			dropTargetNames: []
-		});
-		ui.orbContainer!.add(magicOrb.getShader());
-
-		const titleText = scene.add.text(orbX + 200, orbY + -80, orbSpec.name)
-			.setOrigin(0)
-			.setFontSize(40)
-			.setFontFamily("Arial Black")
-			.setAlign("left");
-
-		const descriptionText = scene.add.rexBBCodeText(orbX + 200, orbY + 0, orbSpec.tooltip)
-			.setOrigin(0)
-			.setFontSize(30)
-			.setAlign("left")
-			.setWrapMode(1)
-			.setFontFamily("Arial");
-
-		ui.orbContainer!.add([
-			titleText,
-			descriptionText
-		])
-
-		ui.magicOrbs.push(magicOrb);
-		magicOrb.setDepth(1000);
-	});
-
-	scene.add.existing(ui.orbContainer!);
-	ui.orbContainer!.setDepth(1000);
 }
