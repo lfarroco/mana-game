@@ -1,13 +1,12 @@
 import { defaultTextConfig } from "../../../../constants/constants";
 import * as ph from "./phaser.io";
-import * as geom from "@Models/Geometry";
 
 export let zone: Phaser.GameObjects.Zone | null = null;
 let container: Container | null = null;
 let labelText: Phaser.GameObjects.Text | null = null;
 let rect: Graphics | null = null;
 
-const position = { x: 950, y: 100 }
+const position = { x: 1400, y: 500 }
 const size = { width: 900, height: 800 }
 const color = 0xffa500;
 const alpha = 0.7;
@@ -70,7 +69,7 @@ const createRect = () => ph.BorderedRoundRect(
 
 const createLabel = () => {
 	const text = ph.Text(
-		geom.sumVec2(position, geom.centerOf(size)),
+		position,
 		label,
 		textStyle
 	);
