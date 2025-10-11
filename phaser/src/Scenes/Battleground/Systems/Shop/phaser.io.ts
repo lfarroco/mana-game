@@ -1,3 +1,4 @@
+import { sumVec2 } from "@Models/Geometry";
 import { getState } from "@Models/State";
 
 export function BringToTop(obj: Phaser.GameObjects.GameObject) {
@@ -42,9 +43,11 @@ export function BorderedRoundRect(
 	size: Dimension,
 	cornerRadius: number = 10,
 	color: number = 0xffa500,
-	alpha: number = 0.7) {
+	alpha: number = 0.7,
+) {
 	const scene = getState().currentScene;
-	const g = scene.add.graphics(position);
+	const actualPos = sumVec2(position, { x: -size.width / 2, y: -size.height / 2 })
+	const g = scene.add.graphics(actualPos);
 	g.lineStyle(4, 0xffffff, 0.8);
 	g.fillStyle(color, alpha);
 	g.fillRoundedRect(0, 0, size.width, size.height, cornerRadius);
@@ -67,7 +70,7 @@ export function RectangularDropZone(
 
 	zone.setName(name);
 
-	zone.setRectangleDropZone(width, height); //redundant??
+	zone.setRectangleDropZone(width, height);
 
 	return zone;
 }
