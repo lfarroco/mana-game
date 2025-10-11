@@ -15,13 +15,20 @@ export const TAVERN_BASE_Y = 100;
 export const TAVERN_TITLE_X = TAVERN_BASE_X + TAVERN_PADDING;
 export const TAVERN_TITLE_Y = TAVERN_BASE_Y + TAVERN_PADDING;
 
+export const ITEM_BASE_X = 1100;
+export const ITEM_BASE_Y = 250;
+
+export const ITEM_DESC_BASE_X = 1250;
+export const ITEM_DESC_BASE_Y = 150;
+
 export const PANEL_BG_COLOR = 0x2c3e50;
 export const PANEL_BG_OPACITY = 0.95;
 export const SUB_PANEL_CORNER_RADIUS = 15;
 
+export const SELL_ZONE_X = 950;
+export const SELL_ZONE_Y = 100;
 export const SELL_ZONE_WIDTH = TAVERN_BG_WIDTH;
 export const SELL_ZONE_HEIGHT = TAVERN_BG_HEIGHT;
-export const SELL_ZONE_Y_OFFSET_FROM_BOTTOM = 0;
 export const SELL_ZONE_BG_COLOR = 0xffa500;
 export const SELL_ZONE_BG_ALPHA = 0.7;
 export const SELL_ZONE_TEXT = "SELL";

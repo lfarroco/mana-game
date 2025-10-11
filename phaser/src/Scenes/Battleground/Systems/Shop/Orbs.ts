@@ -145,7 +145,7 @@ const generateChargeReactionOrb = () => {
 
 	return {
 		id: "charge_reaction_orb",
-		name: `Charge Reaction Orb: ${effectId}`,
+		name: `Charge Orb: ${effectId}`,
 		color: 0xffe066,
 		tooltip: [
 			`Adds ${getReactionDescription(reactionData, position.amount)}.`,
@@ -215,7 +215,7 @@ export const orbsIndex: Record<string, () => {
 		id: "azure_orb",
 		name: "Azure Orb",
 		color: 0x3399ff,
-		tooltip: "Reduce a unit's cooldown by 0.2s (minimum of 1s)",
+		tooltip: "Reduce cooldown by 0.2s (minimum of 1s)",
 		effect: (unit: Unit) => {
 			unit.cooldown = Math.max(1000, unit.cooldown - 200);
 			return true;
