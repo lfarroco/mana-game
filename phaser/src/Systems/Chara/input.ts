@@ -13,6 +13,8 @@ import * as input from "./input";
 import * as events from "./events";
 import { onCharaPointerOver } from "./CharaTooltip";
 
+import * as SellZone from "../../Scenes/Battleground/Systems/Shop/SellZone"
+
 const TOUCH_TOOLTIP_INPUT_DOWN_DELAY = 200;
 
 export type InputHandler = {
@@ -67,7 +69,9 @@ export const onDrag = (chara: Chara.Chara) => (
 ): void => {
 	chara.x = dragX;
 	chara.y = dragY;
-}; export const onDragEnd = (handlerState: InputHandler) => (_pointer: Pointer) => {
+};
+
+export const onDragEnd = (handlerState: InputHandler) => (_pointer: Pointer) => {
 	const { chara } = handlerState;
 
 	tween({
@@ -78,7 +82,7 @@ export const onDrag = (chara: Chara.Chara) => (
 	});
 
 	if (!Chara.isShopItem(handlerState.unitId)) {
-		Shop.UI.hideSellZone();
+		SellZone.hide();
 	}
 
 	if (!handlerState.wasDragSuccessful) {
@@ -124,7 +128,7 @@ export const onDragStart = (handlerState: InputHandler) => (
 	});
 
 	if (!Chara.isShopItem(handlerState.unitId)) {
-		Shop.UI.showSellZone();
+		SellZone.show();
 	}
 
 	Tooltip.hideTooltip();
@@ -146,7 +150,7 @@ const processDrop = (handlerState: input.InputHandler) => (
 	dragStartX: number,
 	dragStartY: number
 ): boolean => {
-	if (dropTarget.name === Shop.constants.SHOP_SELL_ZONE_NAME) {
+	if (dropTarget.name === SellZone.name) {
 		if (!Chara.isShopItem(handlerState.unitId)) {
 			events.onSell(handlerState.chara);
 			return true;

@@ -1,8 +1,8 @@
-import * as Shop from "..";
 import { Unit } from "@Models/Entities/Unit";
 import { getState } from "@Models/State";
 import { popText } from "@Systems/Chara/Animations/popText";
 import { getCharaById } from "@Systems/Chara/Chara";
+import * as SellZone from "../SellZone"
 
 export function ownedUnitSold(unitId: string, soldForGold: number) {
 
@@ -22,7 +22,7 @@ export function ownedUnitSold(unitId: string, soldForGold: number) {
 		direction: "up"
 	});
 
-	Shop.UI.hideSellZone()
+	SellZone.hide();
 
 	return removeUnitFromPlayerState(state.gameData.player.units, unitId);
 }
