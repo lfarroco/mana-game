@@ -8,10 +8,12 @@ import * as sc from "./constants";
 import { state } from "./ShopUI";
 import { createDescription } from "@Systems/Chara/createDescription";
 
+const TAVERN_CHARA_BASE_Y = 200;
+
 export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara[] {
 	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
 	const createdCharas: Chara.Chara[] = [];
-	const baseX = (state.panelX !== undefined ? state.panelX + 160 : sc.TAVERN_CHARA_FIRST_X);
+	const baseX = state.panelX + 100;
 	const ownedCardIds = new Set(scene.state.gameData.player.units.map(u => u.cardId));
 
 	cardDefs.forEach((spec, index) => {
@@ -19,7 +21,7 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 
 		const chara = Chara.create(unit);
 
-		chara.setPosition(baseX, sc.TAVERN_CHARA_BASE_Y + (index * sc.TAVERN_CHARA_SPACING));
+		chara.setPosition(baseX, TAVERN_CHARA_BASE_Y + (index * sc.TAVERN_CHARA_SPACING));
 
 		if (ownedCardIds.has(spec.id)) {
 			const borderRadius = (c.TILE_WIDTH * 0.8) / 2;
@@ -75,3 +77,4 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 
 	return createdCharas;
 }
+

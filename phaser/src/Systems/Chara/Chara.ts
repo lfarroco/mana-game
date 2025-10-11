@@ -154,7 +154,7 @@ function createSprite(container: Chara, unit: Unit, borderWidth: number = 3, bor
 	});
 	const firstIdle = idleFrames[0] || frameNames[0];
 
-	const radius = (constants.TILE_WIDTH * 0.8) / 2;
+	const radius = 100;
 	const border = scene.add.graphics({ x: 0, y: 0 });
 	border.lineStyle(borderWidth, borderColor, 1);
 	border.strokeCircle(0, 0, radius);
