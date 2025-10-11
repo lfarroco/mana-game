@@ -1,5 +1,5 @@
 import { defaultTextConfig } from "../../../../constants/constants";
-import * as io from "./phaser.io";
+import * as ph from "./phaser.io";
 import * as geom from "@Models/Geometry";
 
 export let zone: Phaser.GameObjects.Zone | null = null;
@@ -31,36 +31,36 @@ const textStyle = {
 
 export function create() {
 
-	container = io.Container();
+	container = ph.Container();
 
 	rect = createRect();
 
 	labelText = createLabel();
 
-	zone = io.RectangularDropZone(name, position, size);
+	zone = ph.RectangularDropZone(name, position, size);
 
-	io.AddChildren(container, [zone, rect, labelText]);
+	ph.AddChildren(container, [zone, rect, labelText]);
 
-	io.Hide(container);
+	ph.Hide(container);
 
 	return container;
 }
 
 export function show() {
-	io.BringToTop(container!);
-	io.Show(container!);
+	ph.BringToTop(container!);
+	ph.Show(container!);
 }
 
 export function hide() {
-	io.Hide(container!);
+	ph.Hide(container!);
 }
 
 export function destroy() {
-	io.Destroy(container!);
+	ph.Destroy(container!);
 	container = null;
 }
 
-const createRect = () => io.BorderedRoundRect(
+const createRect = () => ph.BorderedRoundRect(
 	position,
 	size,
 	cornerRadius,
@@ -69,13 +69,13 @@ const createRect = () => io.BorderedRoundRect(
 );
 
 const createLabel = () => {
-	const text = io.Text(
+	const text = ph.Text(
 		geom.sumVec2(position, geom.centerOf(size)),
 		label,
 		textStyle
 	);
 
-	io.Centralize(text);
+	ph.Centralize(text);
 
 	return text;
 }
