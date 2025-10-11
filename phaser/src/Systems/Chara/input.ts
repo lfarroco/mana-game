@@ -14,6 +14,7 @@ import * as events from "./events";
 import { onCharaPointerOver } from "./CharaTooltip";
 
 import * as SellZone from "../../Scenes/Battleground/Systems/Shop/SellZone"
+import * as io from "@Scenes/Battleground/Systems/Shop/phaser.io";
 
 const TOUCH_TOOLTIP_INPUT_DOWN_DELAY = 200;
 
@@ -48,7 +49,16 @@ export function init(chara: Chara.Chara) {
 
 		chara.on(Phaser.Input.Events.DRAG_START, onDragStart(state));
 		chara.on(Phaser.Input.Events.DRAG, onDrag(chara));
-		chara.on(Phaser.Input.Events.DROP, onDrop(state));
+
+		io.WhenDroppedOnZone(
+			chara,
+			[SellZone.zone!],
+			() => {
+				if (!Chara.isShopItem(state.unitId))
+					events.onSell(state.unitId);
+			}
+		)
+
 		chara.on(Phaser.Input.Events.DRAG_END, onDragEnd(state));
 
 		chara.on(Phaser.Input.Events.POINTER_DOWN, onPointerDown(state));
@@ -134,30 +144,14 @@ export const onDragStart = (handlerState: InputHandler) => (
 	Tooltip.hideTooltip();
 };
 
-export const onDrop = (handlerState: input.InputHandler) => (
-	_pointer: Pointer,
-	dropZoneTarget: Phaser.GameObjects.GameObject
-): void => {
-	handlerState.wasDragSuccessful = processDrop(handlerState)(
-		dropZoneTarget,
-		handlerState.dragStartX,
-		handlerState.dragStartY
-	);
-};
 
-const processDrop = (handlerState: input.InputHandler) => (
+
+export const processDrop = (handlerState: input.InputHandler) => (
 	dropTarget: Phaser.GameObjects.GameObject,
 	dragStartX: number,
 	dragStartY: number
 ): boolean => {
-	if (dropTarget.name === SellZone.name) {
-		if (!Chara.isShopItem(handlerState.unitId)) {
-			events.onSell(handlerState.chara);
-			return true;
-		}
-
-		return false;
-	}
+	console.log(">>>", dropTarget)
 
 	const playerBoard = Board.getBoardState();
 	if (!playerBoard) {
@@ -179,11 +173,11 @@ const processDrop = (handlerState: input.InputHandler) => (
 		return true;
 	}
 
-	_handleDropShopItem(handlerState)(tile, dragStartX, dragStartY);
+	handleDropShopItem(handlerState)(tile, dragStartX, dragStartY);
 	return true;
 };
 
-const _handleDropShopItem = (handlerState: input.InputHandler) => (
+const handleDropShopItem = (handlerState: input.InputHandler) => (
 	tile: Vec2,
 	dragStartX: number,
 	dragStartY: number
