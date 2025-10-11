@@ -89,17 +89,14 @@ export function Text(
 
 export function WhenDroppedOnZone(
 	obj: Phaser.GameObjects.GameObject,
-	targets: Phaser.GameObjects.Zone[],
-	callback: (obj: Phaser.GameObjects.GameObject, target: Phaser.GameObjects.Zone) => void
+	target: string,
+	callback: (zone: Phaser.GameObjects.Zone) => void
 ) {
 	obj.on(
 		Phaser.Input.Events.DROP,
 		(_: Pointer, actual: Phaser.GameObjects.Zone) => {
-			const match = targets.find(t => {
-				return t.name === actual.name
-			})
-			if (match) {
-				callback(obj, match);
+			if (target === actual.name) {
+				callback(actual);
 			}
 		}
 	);
