@@ -18,6 +18,15 @@
             "@UI/*": [
                 "UI/*"
             ],
+            "@Utils/*": [
+                "Utils/*"
+            ],
+            "@Constants/*": [
+                "Constants/*"
+            ],
+            "@PhaserIO": [
+                "phaser.io.ts"
+            ]
         },
         "lib": [
             "ES2020",
