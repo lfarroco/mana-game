@@ -89,6 +89,9 @@ export function renderBoardSlots(board: BoardState): void {
 					constants.TILE_HEIGHT
 				);
 				dropZone.setRectangleDropZone(constants.TILE_WIDTH, constants.TILE_HEIGHT);
+				dropZone.setName("board-cell")
+				dropZone.setData("cell-x", cell.x);
+				dropZone.setData("cell-y", cell.y);
 				board.dropZones.push(dropZone);
 			}
 

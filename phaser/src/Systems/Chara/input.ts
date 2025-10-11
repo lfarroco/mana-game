@@ -9,7 +9,6 @@ import * as Board from "@Models/Board";
 import * as Tooltip from "@UI/Tooltip";
 
 import * as Chara from "./Chara";
-import * as input from "./input";
 import * as events from "./events";
 import { onCharaPointerOver } from "./CharaTooltip";
 
@@ -19,9 +18,6 @@ import * as io from "@Scenes/Battleground/Systems/Shop/phaser.io";
 const TOUCH_TOOLTIP_INPUT_DOWN_DELAY = 200;
 
 export type InputHandler = {
-	dragStartX: number;
-	dragStartY: number;
-	dragStartVec: Vec2;
 	wasDragSuccessful: boolean;
 	chara: Chara.Chara;
 	unitId: string;
@@ -32,9 +28,6 @@ export type InputHandler = {
 export function init(chara: Chara.Chara) {
 
 	const state: InputHandler = {
-		dragStartX: 0,
-		dragStartY: 0,
-		dragStartVec: Geometry.vec2(0, 0),
 		wasDragSuccessful: false,
 		chara,
 		unitId: Chara.getUnit(chara).id,
@@ -52,10 +45,33 @@ export function init(chara: Chara.Chara) {
 
 		io.WhenDroppedOnZone(
 			chara,
-			[SellZone.zone!],
+			SellZone.name,
 			() => {
-				if (!Chara.isShopItem(state.unitId))
+				if (isPlayerUnit)
 					events.onSell(state.unitId);
+			}
+		);
+
+		io.WhenDroppedOnZone(
+			chara,
+			"board-cell",
+			(zone) => {
+				const x = zone.getData("cell-x") as number;
+				const y = zone.getData("cell-y") as number;
+				const tile = Geometry.vec2(x, y);
+
+				if (!Chara.isShopItem(state.unitId)) {
+					const vec = chara.getData("dragStartVec")
+					processOwnedUnitMoveRequest(
+						state.unitId,
+						tile,
+						vec.x,
+						vec.y,
+					);
+				} else {
+					handleDropShopItem(chara)(tile);
+				}
+				state.wasDragSuccessful = true;
 			}
 		)
 
@@ -96,9 +112,10 @@ export const onDragEnd = (handlerState: InputHandler) => (_pointer: Pointer) => 
 	}
 
 	if (!handlerState.wasDragSuccessful) {
+		const vec = chara.getData("dragStartVec") as Vec2;
 		tween({
 			targets: [chara],
-			...handlerState.dragStartVec,
+			...vec,
 			duration: 150,
 		});
 	}
@@ -112,11 +129,11 @@ export const onDragStart = (handlerState: InputHandler) => (
 	_dragY: number
 ) => {
 	const { chara } = handlerState;
-	handlerState.dragStartX = chara.x;
-	handlerState.dragStartY = chara.y;
-	handlerState.dragStartVec = Geometry.vec2(chara.x, chara.y);
-	handlerState.wasDragSuccessful = false;
 
+	const dragStartVec = Geometry.vec2(chara.x, chara.y);
+	chara.setData("dragStartVec", dragStartVec);
+
+	handlerState.wasDragSuccessful = false;
 
 	if (handlerState.longPressTimer) {
 		handlerState.longPressTimer.destroy();
@@ -146,45 +163,35 @@ export const onDragStart = (handlerState: InputHandler) => (
 
 
 
-export const processDrop = (handlerState: input.InputHandler) => (
-	dropTarget: Phaser.GameObjects.GameObject,
-	dragStartX: number,
-	dragStartY: number
-): boolean => {
-	console.log(">>>", dropTarget)
+// export const processDrop = (handlerState: input.InputHandler) => (
+// 	dropTarget: Phaser.GameObjects.GameObject,
+// 	dragStartX: number,
+// 	dragStartY: number
+// ): boolean => {
+// 	console.log(">>>", dropTarget)
 
-	const playerBoard = Board.getBoardState();
-	if (!playerBoard) {
-		console.warn("CharaInputHandler.processDrop: No shared player board instance.");
-		return false;
-	}
+// 	// const playerBoard = Board.getBoardState();
+// 	// if (!playerBoard) {
+// 	// 	console.warn("CharaInputHandler.processDrop: No shared player board instance.");
+// 	// 	return false;
+// 	// }
 
-	const slotIndex = playerBoard.dropZones.indexOf(dropTarget as Phaser.GameObjects.Zone);
-	if (slotIndex === -1) {
-		return false;
-	}
+// 	// const slotIndex = playerBoard.dropZones.indexOf(dropTarget as Phaser.GameObjects.Zone);
+// 	// if (slotIndex === -1) {
+// 	// 	return false;
+// 	// }
 
-	const tileX = slotIndex % 3;
-	const tileY = Math.floor(slotIndex / 3);
-	const tile = Geometry.vec2(tileX, tileY);
+// 	// const tileX = slotIndex % 3;
+// 	// const tileY = Math.floor(slotIndex / 3);
+// 	// const tile = Geometry.vec2(tileX, tileY);
 
-	if (!Chara.isShopItem(handlerState.unitId)) {
-		processOwnedUnitMoveRequest(handlerState.unitId, tile, dragStartX, dragStartY);
-		return true;
-	}
 
-	handleDropShopItem(handlerState)(tile, dragStartX, dragStartY);
-	return true;
-};
+// 	return true;
+// };
 
-const handleDropShopItem = (handlerState: input.InputHandler) => (
-	tile: Vec2,
-	dragStartX: number,
-	dragStartY: number
-) => {
-	const { chara } = handlerState;
-
-	Shop.events.itemDragPurchaseRequested({ ...Chara.getUnit(chara) }, Chara.getUnit(chara).id, tile, dragStartX, dragStartY);
+const handleDropShopItem = (chara: Chara.Chara) => (tile: Vec2) => {
+	const vec = chara.getData("dragStartVec") as Vec2;
+	Shop.events.itemDragPurchaseRequested({ ...Chara.getUnit(chara) }, Chara.getUnit(chara).id, tile, vec.x, vec.y);
 };
 
 export const processOwnedUnitMoveRequest = (
@@ -201,7 +208,7 @@ export const processOwnedUnitMoveRequest = (
 		return;
 	}
 
-	if (unit.position.x === targetTile.x && unit.position.y === targetTile.y) {
+	if (Geometry.eqVec2(unit.position, targetTile)) {
 		_movementRejected(unitId, dragStartX, dragStartY, "NO_OP");
 		return;
 	}
@@ -287,9 +294,11 @@ export const onPointerUpShopItem = (handlerState: InputHandler) => (pointer: Poi
 	// Don't trigger shop click if it was a long press, and snap back to original position
 	if (handlerState.isLongPressActive) {
 		handlerState.isLongPressActive = false;
+		const vec = handlerState.chara.getData("dragStartVec") as Vec2;
+
 		tween({
 			targets: [handlerState.chara],
-			...handlerState.dragStartVec,
+			...vec,
 			duration: 150,
 		});
 		return;
