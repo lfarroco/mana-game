@@ -13,7 +13,7 @@ import * as events from "./events";
 import { onCharaPointerOver } from "./CharaTooltip";
 
 import * as SellZone from "../../Scenes/Battleground/Systems/Shop/SellZone"
-import * as ph from "@Scenes/Battleground/Systems/Shop/phaser.io";
+import * as ph from "@PhaserIO";
 
 const TOUCH_TOOLTIP_INPUT_DOWN_DELAY = 200;
 

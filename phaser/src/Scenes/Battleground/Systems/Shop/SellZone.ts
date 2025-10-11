@@ -1,5 +1,5 @@
 import { defaultTextConfig } from "../../../../constants/constants";
-import * as ph from "./phaser.io";
+import * as ph from "@PhaserIO";
 
 export let zone: Phaser.GameObjects.Zone | null = null;
 let container: Container | null = null;

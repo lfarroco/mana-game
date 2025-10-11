@@ -74,7 +74,7 @@ const generateReactionOrb = () => {
 			"A unit can have just one reaction (⚡)."
 		].join("\n"),
 		effect: (unit: Unit) => {
-			return setReactionSafely(unit, {
+			return setReaction(unit, {
 				effectId: effect,
 				position: position.source,
 				effects: [
@@ -152,7 +152,7 @@ const generateChargeReactionOrb = () => {
 			"A unit can have just one reaction (⚡)."
 		].join("\n"),
 		effect: (unit: Unit) => {
-			return setReactionSafely(unit, reactionData);
+			return setReaction(unit, reactionData);
 		}
 	};
 }
@@ -183,7 +183,7 @@ function canAddReaction(unit: Unit) {
 	return unit.reactions.length < 1;
 }
 
-function setReactionSafely(unit: Unit, reaction: TriggerSystem.EffectReaction) {
+function setReaction(unit: Unit, reaction: TriggerSystem.EffectReaction) {
 	if (!canAddReaction(unit)) {
 		console.log(`Cannot add reaction to ${unit.id}: reaction already present`);
 		return false;
@@ -289,12 +289,12 @@ function generatePositionalSkillPowerOrb() {
 		amount: number;
 		label: string;
 	}> = [
-			{ target: { id: "row_allies" }, amount: 2, label: "Row Allies" },
-			{ target: { id: "column_allies" }, amount: 2, label: "Column Allies" },
-			{ target: { id: "left_ally" }, amount: 6, label: "Left Ally" },
-			{ target: { id: "right_ally" }, amount: 6, label: "Right Ally" },
-			{ target: { id: "top_ally" }, amount: 6, label: "Top Ally" },
-			{ target: { id: "bottom_ally" }, amount: 6, label: "Bottom Ally" },
+			{ target: { id: "row_allies" }, amount: 2, label: "↔️" },
+			{ target: { id: "column_allies" }, amount: 2, label: "↕️" },
+			{ target: { id: "left_ally" }, amount: 6, label: "⬅️" },
+			{ target: { id: "right_ally" }, amount: 6, label: "➡️" },
+			{ target: { id: "top_ally" }, amount: 6, label: "⬆️" },
+			{ target: { id: "bottom_ally" }, amount: 6, label: "⬇️" },
 		];
 
 	const choice = pickOne(options);
