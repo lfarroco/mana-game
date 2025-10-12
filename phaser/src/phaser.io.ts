@@ -6,21 +6,44 @@ export function BringToTop(obj: Phaser.GameObjects.GameObject) {
 	scene.children.bringToTop(obj);
 }
 
-export function Container(
-) {
+export function Container() {
 	const scene = getState().currentScene;
 	return scene.add.container();
 }
 
-export function AddChildren(
-	container: Phaser.GameObjects.Container,
-	children: Phaser.GameObjects.GameObject[]
-) {
+export function GetByName(container: Phaser.GameObjects.Container, name: string) {
+	return container.getByName(name);
+}
+
+export function SetText(obj: Phaser.GameObjects.Text, text: string) {
+	obj.setText(text);
+}
+export function AddChildren(container: Phaser.GameObjects.Container, children: Phaser.GameObjects.GameObject[]) {
 	container.add(children)
+}
+export function SetName(obj: Phaser.GameObjects.GameObject, name: string) {
+	obj.setName(name);
+}
+
+export function SetInteractiveRect(obj: Phaser.GameObjects.GameObject, size: Dimension) {
+	obj.setInteractive(Rect({ x: 0, y: 0 }, size), Phaser.Geom.Rectangle.Contains);
+}
+
+export function Rect(position: Vec2, size: Dimension) {
+	return new Phaser.Geom.Rectangle(position.x, position.y, size.width, size.height);
+}
+
+export function Tween(config: Phaser.Types.Tweens.TweenBuilderConfig) {
+	const scene = getState().currentScene;
+	scene.tweens.add(config);
 }
 
 export function SetPosition(obj: { setPosition: (x: number, y: number) => void }, vec: Vec2) {
 	obj.setPosition(vec.x, vec.y);
+}
+
+export function SetAlpha(obj: { setAlpha: (n: number) => void }, n: number) {
+	obj.setAlpha(n);
 }
 
 export function SetVisible(obj: { setVisible: (visible: boolean) => void }, visible: boolean) {
@@ -103,4 +126,25 @@ export function WhenDroppedOnZone(
 			}
 		}
 	);
+}
+
+//buttonGraphics.on(Phaser.Input.Events.POINTER_DOWN, () => {
+export function OnPointerDown(obj: Phaser.GameObjects.GameObject, callback: () => void) {
+	obj.on(Phaser.Input.Events.POINTER_DOWN, callback);
+}
+
+export function OnPointerUp(obj: Phaser.GameObjects.GameObject, callback: () => void) {
+	obj.on(Phaser.Input.Events.POINTER_UP, callback);
+}
+
+export function OnPointerOver(obj: Phaser.GameObjects.GameObject, callback: () => void) {
+	obj.on(Phaser.Input.Events.POINTER_OVER, callback);
+}
+
+export function OnPointerOut(obj: Phaser.GameObjects.GameObject, callback: () => void) {
+	obj.on(Phaser.Input.Events.POINTER_OUT, callback);
+}
+
+export function OnDestroy(obj: Phaser.GameObjects.GameObject, callback: () => void) {
+	obj.on("destroy", callback)
 }

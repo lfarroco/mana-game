@@ -1,3 +1,4 @@
+import { getState } from '@Models/State';
 import Phaser from 'phaser';
 
 // Fragment shader: sine-wave nebula clouds with varying amplitude
@@ -71,19 +72,20 @@ void main(){
 
 export type MagicOverlayHandle = {
 	shader: Phaser.GameObjects.Shader;
-	maskG: Graphics;
 	intensityState: { value: number };
 	setIntensity: (v: number) => void;
 };
 
 export function createMagicButtonOverlay(
-	scene: Phaser.Scene,
-	x: number,
-	y: number,
-	width: number,
-	height: number,
-	cornerRadius: number
+	position: Vec2,
+	size: Dimension,
+	_cornerRadius: number
 ): MagicOverlayHandle {
+
+	const scene = getState().currentScene;
+	const { x, y } = position;
+	const { width, height } = size;
+
 	const base = new Phaser.Display.BaseShader(
 		'MagicButtonShader',
 		fragShader,
@@ -96,16 +98,6 @@ export function createMagicButtonOverlay(
 	);
 	const shader = scene.add.shader(base, x, y, width, height);
 	shader.setOrigin(0.5);
-	// Use additive blending for a glow effect
-	// Additive blending
-	(shader as any).blendMode = Phaser.BlendModes.ADD;
-
-	// Rounded-rect geometry mask so the aura stays inside the button
-	const maskG = scene.add.graphics();
-	maskG.fillStyle(0xffffff, 1);
-	maskG.fillRoundedRect(x - width / 2, y - height / 2, width, height, Math.max(0, cornerRadius - 2));
-	maskG.setVisible(false);
-	shader.setMask(maskG.createGeometryMask());
 
 	// Drive time uniform
 	const update = (t: number) => {
@@ -114,7 +106,6 @@ export function createMagicButtonOverlay(
 	scene.events.on(Phaser.Scenes.Events.UPDATE, update);
 	shader.once(Phaser.GameObjects.Events.DESTROY, () => {
 		scene.events.off(Phaser.Scenes.Events.UPDATE, update);
-		maskG.destroy();
 	});
 
 	const intensityState = { value: 0.6 };
@@ -123,5 +114,5 @@ export function createMagicButtonOverlay(
 		shader.setUniform('intensity.value', v);
 	};
 
-	return { shader, maskG, intensityState, setIntensity };
+	return { shader, intensityState, setIntensity };
 }
