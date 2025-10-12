@@ -146,15 +146,15 @@ export function OnPointerOut(obj: Phaser.GameObjects.GameObject, callback: () =>
 	obj.on(Phaser.Input.Events.POINTER_OUT, callback);
 }
 
-export function OnDestroy(obj: Phaser.GameObjects.GameObject, callback: () => void) {
-	obj.on("destroy", callback)
+export function OnceDestroyed(obj: Phaser.GameObjects.GameObject, callback: () => void) {
+	obj.once("destroy", callback)
 }
 
 export function OnUpdate(obj: Phaser.GameObjects.GameObject, callback: (time: number, delta: number) => void) {
 	const scene = getState().currentScene;
 	scene.events.on(Phaser.Scenes.Events.UPDATE, callback);
 
-	obj.once("destroy", () => {
+	OnceDestroyed(obj, () => {
 		scene.events.off(Phaser.Scenes.Events.UPDATE, callback);
 	})
 }

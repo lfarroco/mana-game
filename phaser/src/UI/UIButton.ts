@@ -56,10 +56,10 @@ export function createUIButton(
 		1
 	);
 
+	io.SetInteractiveRect(buttonGraphics, size)
+
 	const buttonText = io.Text(position, text, textStyle)
 	io.Centralize(buttonText)
-	io.SetName(buttonText, "buttonLabel");
-	io.SetInteractiveRect(buttonGraphics, size)
 
 	io.AddChildren(container, [buttonGraphics, magic.shader, buttonText]);
 
@@ -76,7 +76,6 @@ export function createUIButton(
 	io.OnPointerDown(buttonGraphics, () => {
 		if (!buttonGraphics.input?.enabled) return;
 		state.isPressed = true;
-		buttonText.setShadow(0, 0, "#eaeaea", 0, true, true);
 		tweenShaderIntensity(3.1);
 	});
 
@@ -85,8 +84,6 @@ export function createUIButton(
 		const wasPressed = state.isPressed;
 		state.isPressed = false;
 		if (wasPressed) {
-			buttonText.setShadow(2, 2, "#000000", 2, true, true);
-
 			playSoundEffect("sfx_unit_onclick");
 			tweenShaderIntensity(0.1);
 			callback();
@@ -95,17 +92,15 @@ export function createUIButton(
 
 	io.OnPointerOver(buttonGraphics, () => {
 		if (!buttonGraphics.input?.enabled) return;
-		buttonText.setShadow(2, 2, "#000000", 2, true, true);
 		tweenShaderIntensity(2.1);
 	});
 
 	io.OnPointerOut(buttonGraphics, () => {
 		if (!buttonGraphics.input?.enabled) return;
-		buttonText.setShadow(0, 0, "#000000", 0, true, true);
 		tweenShaderIntensity(0.45);
 	});
 
-	io.OnDestroy(container, () => {
+	io.OnceDestroyed(container, () => {
 		buttonsIndex.delete(container);
 	});
 
