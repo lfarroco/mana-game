@@ -1,5 +1,6 @@
 import { sumVec2 } from "@Models/Geometry";
 import { getState } from "@Models/State";
+import Phaser from "phaser";
 
 export function BringToTop(obj: Phaser.GameObjects.GameObject) {
 	const scene = getState().currentScene;
@@ -147,4 +148,57 @@ export function OnPointerOut(obj: Phaser.GameObjects.GameObject, callback: () =>
 
 export function OnDestroy(obj: Phaser.GameObjects.GameObject, callback: () => void) {
 	obj.on("destroy", callback)
+}
+
+export function OnUpdate(obj: Phaser.GameObjects.GameObject, callback: (time: number, delta: number) => void) {
+	const scene = getState().currentScene;
+	scene.events.on(Phaser.Scenes.Events.UPDATE, callback);
+
+	obj.once("destroy", () => {
+		scene.events.off(Phaser.Scenes.Events.UPDATE, callback);
+	})
+}
+export function Shader(
+	frag: string,
+	position: Vec2,
+	size: Dimension,
+	uniforms: ({
+		key: string;
+		type: '1f';
+		value: number;
+	} | {
+		key: string;
+		type: '2f';
+		value: [number, number];
+	} | {
+		key: string;
+		type: '3f';
+		value: [number, number, number];
+	})[]
+): Phaser.GameObjects.Shader {
+
+	const scene = getState().currentScene;
+	const { x, y } = position;
+	const { width, height } = size;
+
+	let shaderUniforms = {} as any
+	uniforms.forEach(uniform => {
+		shaderUniforms[uniform.key] = {
+			type: uniform.type,
+			value: uniform.value
+		}
+	})
+
+	const base = new Phaser.Display.BaseShader(
+		"magic-button",
+		frag,
+		undefined,
+		shaderUniforms
+	);
+	const shader = scene.add.shader(base, x, y, width, height);
+	return shader;
+}
+
+export function SetUniform(shader: Phaser.GameObjects.Shader, key: string, value: number) {
+	shader.setUniform(key, value);
 }

@@ -6,7 +6,7 @@ import * as io from "@PhaserIO";
 
 type UIButtonState = {
 	buttonWidth: number;
-	magic?: MagicOverlayHandle;
+	magic: MagicOverlayHandle;
 	isPressed: boolean;
 	magicIntensity: number;
 }
@@ -26,7 +26,7 @@ const textStyle = {
 
 export function createUIButton(
 	text: string,
-	position: { x: number, y: number },
+	position: Vec2,
 	callback: () => void,
 	width?: number
 ): Container {
@@ -36,12 +36,16 @@ export function createUIButton(
 		height: buttonHeight
 	}
 
+	const container = io.Container();
+
+	const magic = createMagicButtonOverlay(position, size);
+
 	const state: UIButtonState = {
 		buttonWidth: width || 280,
 		isPressed: false,
 		magicIntensity: 0.45,
+		magic,
 	};
-	const container = io.Container();
 
 	buttonsIndex.set(container, state);
 
@@ -52,19 +56,14 @@ export function createUIButton(
 		backgroundColor,
 		1
 	);
-	io.AddChildren(container, [buttonGraphics]);
 	io.SetName(buttonGraphics, "buttonBackground");
-
-	// Add magical shader overlay (between background and label)
-	const magic = createMagicButtonOverlay(position, size, cornerRadius);
-	io.AddChildren(container, [magic.shader]);
-	magic.shader.setName("magicAura");
-	state.magic = magic;
 
 	const buttonText = io.Text(position, text, textStyle)
 	io.Centralize(buttonText)
 	io.SetName(buttonText, "buttonLabel");
 	io.SetInteractiveRect(buttonGraphics, size)
+
+	io.AddChildren(container, [buttonGraphics, magic.shader, buttonText]);
 
 	const tweenShaderIntensity = (to: number) => {
 		io.Tween({
@@ -80,7 +79,7 @@ export function createUIButton(
 		if (!buttonGraphics.input?.enabled) return;
 		state.isPressed = true;
 		buttonText.setShadow(0, 0, "#eaeaea", 0, true, true);
-		tweenShaderIntensity(1.1);
+		tweenShaderIntensity(3.1);
 	});
 
 	io.OnPointerUp(buttonGraphics, () => {
@@ -91,7 +90,7 @@ export function createUIButton(
 			buttonText.setShadow(2, 2, "#000000", 2, true, true);
 
 			playSoundEffect("sfx_unit_onclick");
-			tweenShaderIntensity(0.9);
+			tweenShaderIntensity(0.1);
 			callback();
 		}
 	});
@@ -99,7 +98,7 @@ export function createUIButton(
 	io.OnPointerOver(buttonGraphics, () => {
 		if (!buttonGraphics.input?.enabled) return;
 		buttonText.setShadow(2, 2, "#000000", 2, true, true);
-		tweenShaderIntensity(2.95);
+		tweenShaderIntensity(2.1);
 	});
 
 	io.OnPointerOut(buttonGraphics, () => {
@@ -112,7 +111,6 @@ export function createUIButton(
 		buttonsIndex.delete(container);
 	});
 
-	io.AddChildren(container, [buttonText]);
 	return container;
 }
 
