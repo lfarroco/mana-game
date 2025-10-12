@@ -1,4 +1,4 @@
-import { getState } from '@Models/State';
+import * as io from '@PhaserIO';
 import Phaser from 'phaser';
 
 // Fragment shader: sine-wave nebula clouds with varying amplitude
@@ -72,47 +72,37 @@ void main(){
 
 export type MagicOverlayHandle = {
 	shader: Phaser.GameObjects.Shader;
-	intensityState: { value: number };
 	setIntensity: (v: number) => void;
 };
 
 export function createMagicButtonOverlay(
 	position: Vec2,
 	size: Dimension,
-	_cornerRadius: number
 ): MagicOverlayHandle {
 
-	const scene = getState().currentScene;
-	const { x, y } = position;
 	const { width, height } = size;
 
-	const base = new Phaser.Display.BaseShader(
-		'MagicButtonShader',
+	const shader = io.Shader(
 		fragShader,
-		undefined,
-		{
-			time: { type: '1f', value: 0 },
-			resolution: { type: '2f', value: [width, height] },
-			intensity: { type: '1f', value: 0.6 },
-		}
-	);
-	const shader = scene.add.shader(base, x, y, width, height);
-	shader.setOrigin(0.5);
+		position,
+		size,
+		[
+			{ key: 'time', type: '1f', value: 0 },
+			{ key: 'resolution', type: '2f', value: [width, height] },
+			{ key: 'intensity', type: '1f', value: 0.6 },
+		]);
 
-	// Drive time uniform
-	const update = (t: number) => {
-		shader.setUniform('time.value', t / 1000);
-	};
-	scene.events.on(Phaser.Scenes.Events.UPDATE, update);
-	shader.once(Phaser.GameObjects.Events.DESTROY, () => {
-		scene.events.off(Phaser.Scenes.Events.UPDATE, update);
+	io.Centralize(shader);
+
+	io.OnUpdate(shader, (t) => {
+		io.SetUniform(shader, 'time.value', t);
 	});
 
-	const intensityState = { value: 0.6 };
 	const setIntensity = (v: number) => {
-		intensityState.value = v;
-		shader.setUniform('intensity.value', v);
+		io.SetUniform(shader, 'intensity.value', v);
 	};
 
-	return { shader, intensityState, setIntensity };
+	return { shader, setIntensity };
 }
+
+
