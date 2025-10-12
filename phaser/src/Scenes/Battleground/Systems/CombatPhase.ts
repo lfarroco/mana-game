@@ -81,7 +81,7 @@ export async function showReadyButton(payload: { enemies: Unit[] }): Promise<voi
 			constants.SCREEN_HEIGHT - 100,
 		),
 		() => {
-			readyButton.destroy();
+			readyButton.container.destroy();
 			handleCombatStartExecution(payload);
 		}
 	);

@@ -77,7 +77,7 @@ export type MagicOverlayHandle = {
 
 export function createMagicButtonOverlay(
 	position: Vec2,
-	size: Dimension,
+	size: Size,
 ): MagicOverlayHandle {
 
 	const { width, height } = size;

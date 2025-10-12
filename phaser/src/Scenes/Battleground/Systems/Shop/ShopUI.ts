@@ -1,6 +1,6 @@
 import { vec2 } from "@Models/Geometry";
 import * as c from "../../../../constants/constants";
-import { createUIButton } from "../../../../UI/UIButton";
+import { Button, createUIButton } from "../../../../UI/UIButton";
 import * as sc from "./constants";
 import { MagicOrb } from "../../../../components/MagicOrb/MagicOrb";
 import { scene } from "../../BattlegroundScene";
@@ -20,7 +20,7 @@ export type ShopUIState = {
 	orbContainer: Container | null;
 	panelX: number;
 	isOpen: boolean;
-	nextRoundButton: Phaser.GameObjects.Container | null;
+	nextRoundButton: Button | null;
 	skillCircles: Phaser.GameObjects.Arc[];
 }
 export let state: ShopUIState | null = null;
@@ -78,7 +78,7 @@ export function displayCommonShop(
 		),
 		nextRoundCallback
 	);
-	state.shopContainer.add(nextRoundBtn);
+	state.shopContainer.add(nextRoundBtn.container);
 	state.nextRoundButton = nextRoundBtn;
 
 	SellZone.create();
@@ -140,20 +140,7 @@ export function getState(): ShopUIState | null {
 	return state;
 }
 
-export function disableNextRoundButton(): void {
-	if (state?.nextRoundButton) {
-		const buttonGraphics = state.nextRoundButton.getByName("buttonBackground") as Phaser.GameObjects.Graphics;
-		const buttonLabel = state.nextRoundButton.getByName("buttonLabel") as Phaser.GameObjects.Text;
-		if (buttonGraphics) {
-			buttonGraphics.disableInteractive();
-			buttonGraphics.setAlpha(0.5);
-		}
-		if (buttonLabel) {
-			buttonLabel.setAlpha(0.5);
-		}
-		state.nextRoundButton.setAlpha(0.5);
-	}
-}
+
 
 export function addToShopContainer(child: Phaser.GameObjects.GameObject): void {
 	if (state) {

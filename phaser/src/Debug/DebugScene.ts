@@ -2,7 +2,7 @@ import { images } from "../assets";
 import { SCENE_KEYS } from "../constants/constants";
 import { BattlegroundScene } from "@Scenes/Battleground/BattlegroundScene";
 import * as effects from "../Effects";
-import { createUIButton } from "../UI/UIButton";
+import { Button, createUIButton } from "../UI/UIButton";
 import * as constants from "../constants/constants";
 import { vec2 } from "@Models/Geometry";
 import { getState } from "@Models/State";
@@ -153,7 +153,7 @@ const EFFECT_REGISTRY: Record<string, EffectFactory> = {
 
 export class DebugScene extends Phaser.Scene {
 	private effectButtonsContainer!: Phaser.GameObjects.Container;
-	private backButton?: Container;
+	private backButton?: Button;
 
 	constructor() {
 		super('DebugScene');
@@ -215,7 +215,7 @@ export class DebugScene extends Phaser.Scene {
 			const x = startX + col * columnWidth;
 			const y = startY + row * verticalSpacing;
 			const btn = createUIButton(key.toUpperCase(), vec2(x, y), () => this.runEffect(key), 320);
-			this.effectButtonsContainer.add(btn);
+			this.effectButtonsContainer.add(btn.container);
 		});
 
 		// Exit to Title button (only in list mode)
@@ -225,7 +225,7 @@ export class DebugScene extends Phaser.Scene {
 			() => { this.scene.start(constants.SCENE_KEYS.TITLE); },
 			200,
 		);
-		this.effectButtonsContainer.add(exitBtn);
+		this.effectButtonsContainer.add(exitBtn.container);
 	}
 
 	private runEffect(key: string) {
@@ -254,10 +254,7 @@ export class DebugScene extends Phaser.Scene {
 		if (!this.backButton) {
 			this.backButton = createUIButton('BACK', vec2(constants.MIDDLE_SCREEN_X, constants.SCREEN_HEIGHT - 80), () => this.returnToList(), 260);
 		} else {
-			this.backButton.setVisible(true);
-			// enableGraphic interaction if present
-			const g = this.backButton.getByName && (this.backButton.getByName('buttonBackground') as Graphics | undefined);
-			if (g) g.setInteractive();
+			this.backButton.enable();
 		}
 	}
 

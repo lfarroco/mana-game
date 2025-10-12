@@ -4,14 +4,23 @@ import { playSoundEffect } from "@Systems/AudioManager";
 import { createMagicButtonOverlay, MagicOverlayHandle } from "./shaders/magicButtonShader";
 import * as io from "@PhaserIO";
 
-type UIButtonState = {
-	buttonWidth: number;
+export type Button = {
+	disable: () => void;
+	enable: () => void;
+	container: Container;
+	text: Phaser.GameObjects.Text
+}
+
+type State = {
+	size: Size,
 	magic: MagicOverlayHandle;
 	isPressed: boolean;
 	magicIntensity: number;
+	container: Container;
+	graphics: Phaser.GameObjects.Graphics;
 }
 
-const buttonsIndex = new WeakMap<Container, UIButtonState>();
+const buttonsIndex = new WeakMap<Container, State>();
 
 const buttonHeight = 60;
 const backgroundColor = 0x000000;
@@ -29,34 +38,23 @@ export function createUIButton(
 	position: Vec2,
 	callback: () => void,
 	width?: number
-): Container {
+): Button {
 
 	const size = {
 		width: width || 280,
 		height: buttonHeight
 	}
-
 	const container = io.Container();
 
 	const magic = createMagicButtonOverlay(position, size);
 
-	const state: UIButtonState = {
-		buttonWidth: width || 280,
-		isPressed: false,
-		magicIntensity: 0.45,
-		magic,
-	};
-
-	buttonsIndex.set(container, state);
-
 	const buttonGraphics = io.BorderedRoundRect(
 		position,
-		{ width: state.buttonWidth, height: buttonHeight },
+		size,
 		cornerRadius,
 		backgroundColor,
 		1
 	);
-	io.SetName(buttonGraphics, "buttonBackground");
 
 	const buttonText = io.Text(position, text, textStyle)
 	io.Centralize(buttonText)
@@ -111,36 +109,39 @@ export function createUIButton(
 		buttonsIndex.delete(container);
 	});
 
-	return container;
+	const state: State = {
+		size,
+		isPressed: false,
+		magicIntensity: 0.45,
+		magic,
+		container,
+		graphics: buttonGraphics
+	};
+
+	buttonsIndex.set(container, state);
+
+	return {
+		disable: () => disableUIButton(state),
+		enable: () => enableUIButton(state),
+		text: buttonText,
+		container,
+	};
 }
 
-export function disableUIButton(container: Container) {
-	const g = io.GetByName(container, "buttonBackground") as Graphics;
-	const t = io.GetByName(container, "buttonLabel") as Phaser.GameObjects.Text;
-	g.setAlpha(0.5);
-	t.setAlpha(0.5);
+export function disableUIButton(state: State) {
 
-	g.disableInteractive();
+	io.SetAlpha(state.graphics, 0.5)
 
-	const st = buttonsIndex.get(container);
-	st!.magic!.setIntensity(0.2);
+	io.DisableInteractive(state.graphics);
+
+	state.magic.setIntensity(0.2);
 }
 
-export function enableUIButton(container: Container) {
-	const g = io.GetByName(container, "buttonBackground") as Graphics;
-	const t = io.GetByName(container, "buttonLabel") as Phaser.GameObjects.Text;
-	io.SetAlpha(g, 1);
-	io.SetAlpha(t, 1);
+export function enableUIButton(state: State) {
 
-	const st = buttonsIndex.get(container);
-	io.SetInteractiveRect(g, { width: st!.buttonWidth, height: buttonHeight });
+	io.SetAlpha(state.graphics, 1)
 
-	st!.magic!.setIntensity(0.45);
-}
+	io.SetInteractiveRect(state.graphics, state.size);
 
-export function updateButtonText(container: Container, text: string) {
-
-	const t = io.GetByName(container, "buttonLabel") as Phaser.GameObjects.Text;
-	io.SetText(t, text)
-
+	state.magic.setIntensity(0.45);
 }

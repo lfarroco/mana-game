@@ -9,7 +9,7 @@ declare global {
 	type Image = Phaser.GameObjects.Image;
 	type Pointer = Phaser.Input.Pointer;
 	type Vec2 = { x: number, y: number }
-	type Dimension = { width: number, height: number }
+	type Size = { width: number, height: number }
 }
 
 export { };

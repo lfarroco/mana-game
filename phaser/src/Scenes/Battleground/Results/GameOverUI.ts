@@ -84,7 +84,7 @@ export function displayGameOver(
 		async () => {
 		}
 	);
-	state.resultsContainer.add(newRunButton);
+	state.resultsContainer.add(newRunButton.container);
 
 	const mainMenuButton = createUIButton(
 		"Main Menu",
@@ -94,5 +94,5 @@ export function displayGameOver(
 			nextPhaseCallback();
 		}
 	);
-	state.resultsContainer.add(mainMenuButton);
+	state.resultsContainer.add(mainMenuButton.container);
 }
