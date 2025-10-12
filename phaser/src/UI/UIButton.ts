@@ -1,205 +1,148 @@
 import Phaser from "phaser";
-import { tween } from "../Utils/animation";
 import { titleTextConfig } from "../constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
 import { createMagicButtonOverlay, MagicOverlayHandle } from "./shaders/magicButtonShader";
-import { getState } from "@Models/State";
+import * as io from "@PhaserIO";
 
-interface UIButtonState {
+type UIButtonState = {
 	buttonWidth: number;
-	buttonHeight: number;
-	cornerRadius: number;
-	normalFillColor: number;
-	hoverFillColor: number;
-	pressedFillColor: number;
-	lineColor: number;
-	lineWidth: number;
 	magic?: MagicOverlayHandle;
 	isPressed: boolean;
 	magicIntensity: number;
 }
 
-const uiButtonsState = new WeakMap<Container, UIButtonState>();
+const buttonsIndex = new WeakMap<Container, UIButtonState>();
+
+const buttonHeight = 60;
+const backgroundColor = 0x000000;
+const cornerRadius = 10;
+const textStyle = {
+	...titleTextConfig,
+	fontSize: "24px",
+	color: "#ffffff",
+	stroke: "#000000",
+	strokeThickness: 3,
+}
 
 export function createUIButton(
 	text: string,
-	{ x, y }: { x: number, y: number },
+	position: { x: number, y: number },
 	callback: () => void,
 	width?: number
 ): Container {
-	const scene = getState().currentScene;
-	const container = scene.add.container(0, 0);
+
+	const size = {
+		width: width || 280,
+		height: buttonHeight
+	}
 
 	const state: UIButtonState = {
 		buttonWidth: width || 280,
-		buttonHeight: 60,
-		cornerRadius: 10,
-		normalFillColor: 0x22331e,
-		hoverFillColor: 0x34495e,
-		pressedFillColor: 0x273746,
-		lineColor: 0x000000,
-		lineWidth: 4,
 		isPressed: false,
 		magicIntensity: 0.45,
 	};
-	uiButtonsState.set(container, state);
+	const container = io.Container();
 
-	const buttonGraphics = scene.add.graphics();
-	buttonGraphics.setName("buttonBackground");
-	const st = uiButtonsState.get(container)!;
-	buttonGraphics.setPosition(x - st.buttonWidth / 2, y - st.buttonHeight / 2);
-	container.add(buttonGraphics);
-	render(container, (container as any).normalFillColor);
+	buttonsIndex.set(container, state);
+
+	const buttonGraphics = io.BorderedRoundRect(
+		position,
+		{ width: state.buttonWidth, height: buttonHeight },
+		cornerRadius,
+		backgroundColor,
+		1
+	);
+	io.AddChildren(container, [buttonGraphics]);
+	io.SetName(buttonGraphics, "buttonBackground");
 
 	// Add magical shader overlay (between background and label)
-	const magic = createMagicButtonOverlay(scene, x, y, st.buttonWidth, st.buttonHeight, st.cornerRadius);
+	const magic = createMagicButtonOverlay(position, size, cornerRadius);
+	io.AddChildren(container, [magic.shader]);
 	magic.shader.setName("magicAura");
-	container.addAt(magic.shader, 1);
 	state.magic = magic;
 
-	const buttonText = scene.add
-		.text(
-			x, y,
-			text,
-			{
-				...titleTextConfig,
-				fontSize: "24px",
-				color: "#ffffff",
-				stroke: "#000000",
-				strokeThickness: 3,
-			}
-		)
-		.setOrigin(0.5);
-	buttonText.setName("buttonLabel");
+	const buttonText = io.Text(position, text, textStyle)
+	io.Centralize(buttonText)
+	io.SetName(buttonText, "buttonLabel");
+	io.SetInteractiveRect(buttonGraphics, size)
 
-	const hitArea = new Phaser.Geom.Rectangle(0, 0, st.buttonWidth, st.buttonHeight);
-	buttonGraphics.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
-
-	const tweenIntensity = (to: number, duration = 180) => {
-		// Tween a custom property on the shader GameObject
-		scene.add.tween({
+	const tweenShaderIntensity = (to: number) => {
+		io.Tween({
 			targets: [state],
 			magicIntensity: to,
-			duration,
-			onUpdate: () => state.magic?.setIntensity(state.magicIntensity),
+			duration: 180,
+			onUpdate: () => magic.setIntensity(state.magicIntensity),
 			ease: "Sine.easeInOut",
 		});
 	};
 
-	buttonGraphics.on(Phaser.Input.Events.POINTER_DOWN, () => {
+	io.OnPointerDown(buttonGraphics, () => {
 		if (!buttonGraphics.input?.enabled) return;
 		state.isPressed = true;
-		render(container, state.pressedFillColor);
 		buttonText.setShadow(0, 0, "#eaeaea", 0, true, true);
-		tweenIntensity(1.1, 100);
+		tweenShaderIntensity(1.1);
 	});
 
-	buttonGraphics.on(Phaser.Input.Events.POINTER_UP, () => {
+	io.OnPointerUp(buttonGraphics, () => {
 		if (!buttonGraphics.input?.enabled) return;
 		const wasPressed = state.isPressed;
 		state.isPressed = false;
 		if (wasPressed) {
-			render(container, state.hoverFillColor);
 			buttonText.setShadow(2, 2, "#000000", 2, true, true);
 
 			playSoundEffect("sfx_unit_onclick");
-			tweenIntensity(0.9, 140);
+			tweenShaderIntensity(0.9);
 			callback();
 		}
 	});
 
-	buttonGraphics.on(Phaser.Input.Events.POINTER_OVER, () => {
+	io.OnPointerOver(buttonGraphics, () => {
 		if (!buttonGraphics.input?.enabled) return;
-		if (state.isPressed) {
-			render(container, state.pressedFillColor);
-		} else {
-			render(container, state.hoverFillColor);
-		}
 		buttonText.setShadow(2, 2, "#000000", 2, true, true);
-		tween({ targets: [buttonText], scale: 1.2 });
-		tweenIntensity(0.95);
+		tweenShaderIntensity(2.95);
 	});
 
-	buttonGraphics.on(Phaser.Input.Events.POINTER_OUT, () => {
+	io.OnPointerOut(buttonGraphics, () => {
 		if (!buttonGraphics.input?.enabled) return;
-		render(container, state.normalFillColor);
 		buttonText.setShadow(0, 0, "#000000", 0, true, true);
-		tween({ targets: [buttonText], scale: 1.0 });
-		tweenIntensity(0.45);
+		tweenShaderIntensity(0.45);
 	});
 
-	container.on("destroy", () => {
-		uiButtonsState.delete(container);
+	io.OnDestroy(container, () => {
+		buttonsIndex.delete(container);
 	});
 
-	container.add(buttonText);
+	io.AddChildren(container, [buttonText]);
 	return container;
 }
 
-export function render(container: Container, fill: number) {
-	const g = container.getByName("buttonBackground")! as Graphics;
-
-	const st = uiButtonsState.get(container)!;
-
-	const buttonWidth = st.buttonWidth;
-	const buttonHeight = st.buttonHeight;
-	const cornerRadius = st.cornerRadius;
-
-	g.clear();
-
-	const shadowOffset = 4;
-	g.fillStyle(0x1a2327, 0.7);
-	g.fillRoundedRect(shadowOffset, shadowOffset, buttonWidth, buttonHeight, cornerRadius);
-
-	g.fillStyle(0x2a2a2a, 1);
-	g.fillRoundedRect(0, 0, buttonWidth, buttonHeight, cornerRadius);
-
-	const innerPadding = 3;
-	g.fillStyle(0x000000, 0.6);
-	g.fillRoundedRect(innerPadding, innerPadding, buttonWidth - innerPadding * 2, buttonHeight - innerPadding * 2, cornerRadius - 2);
-
-	g.fillStyle(fill, 1);
-	g.fillRoundedRect(innerPadding, innerPadding, buttonWidth - innerPadding * 2, buttonHeight - innerPadding * 2, cornerRadius - 2);
-
-	g.fillStyle(0xffffff, 0.3);
-	g.fillRoundedRect(innerPadding + 1, innerPadding + 1, buttonWidth - innerPadding * 2 - 2, (buttonHeight - innerPadding * 2) / 3, cornerRadius - 3);
-
-	const gold = 0xc9a14a;
-	g.lineStyle(2, gold, 0.8);
-	g.strokeRoundedRect(innerPadding + 0.5, innerPadding + 0.5, buttonWidth - innerPadding * 2 - 1, buttonHeight - innerPadding * 2 - 1, cornerRadius - 2);
-}
-
 export function disableUIButton(container: Container) {
-	const g = container.getByName("buttonBackground") as Graphics;
-	const t = container.getByName("buttonLabel") as Phaser.GameObjects.Text;
-	if (g) {
-		g.setAlpha(0.5);
-		g.disableInteractive();
-	}
-	if (t) t.setAlpha(0.5);
+	const g = io.GetByName(container, "buttonBackground") as Graphics;
+	const t = io.GetByName(container, "buttonLabel") as Phaser.GameObjects.Text;
+	g.setAlpha(0.5);
+	t.setAlpha(0.5);
 
-	const st = uiButtonsState.get(container);
-	if (st?.magic) {
-		(st.magic.shader as any).alpha = 0.5;
-		st.magic.setIntensity(0.2);
-	}
+	g.disableInteractive();
+
+	const st = buttonsIndex.get(container);
+	st!.magic!.setIntensity(0.2);
 }
 
 export function enableUIButton(container: Container) {
-	const g = container.getByName("buttonBackground") as Graphics;
-	const t = container.getByName("buttonLabel") as Phaser.GameObjects.Text;
-	if (g) {
-		g.setAlpha(1);
-		const st = uiButtonsState.get(container);
-		const w = st ? st.buttonWidth : 280;
-		const h = st ? st.buttonHeight : 60;
-		g.setInteractive(new Phaser.Geom.Rectangle(0, 0, w, h), Phaser.Geom.Rectangle.Contains);
-	}
-	if (t) t.setAlpha(1);
+	const g = io.GetByName(container, "buttonBackground") as Graphics;
+	const t = io.GetByName(container, "buttonLabel") as Phaser.GameObjects.Text;
+	io.SetAlpha(g, 1);
+	io.SetAlpha(t, 1);
 
-	const st2 = uiButtonsState.get(container);
-	if (st2?.magic) {
-		(st2.magic.shader as any).alpha = 1;
-		st2.magic.setIntensity(0.45);
-	}
+	const st = buttonsIndex.get(container);
+	io.SetInteractiveRect(g, { width: st!.buttonWidth, height: buttonHeight });
+
+	st!.magic!.setIntensity(0.45);
+}
+
+export function updateButtonText(container: Container, text: string) {
+
+	const t = io.GetByName(container, "buttonLabel") as Phaser.GameObjects.Text;
+	io.SetText(t, text)
+
 }

@@ -1,6 +1,6 @@
 import * as Phaser from "phaser";
 import * as constants from "../../constants/constants";
-import { createUIButton } from "../../UI/UIButton";
+import { createUIButton, updateButtonText } from "../../UI/UIButton";
 import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
 import { getOption, setOption } from "@Models/OptionsStore";
 import { vec2 } from "@Models/Geometry";
@@ -170,8 +170,7 @@ export default class OptionsScene extends Phaser.Scene {
 			() => {
 				const newValue = !getValue();
 				setValue(newValue);
-				const txt = toggleButton.getByName('buttonLabel') as Phaser.GameObjects.Text | undefined;
-				if (txt) txt.setText(newValue ? 'ON' : 'OFF');
+				updateButtonText(toggleButton, newValue ? 'ON' : 'OFF');
 			},
 			BUTTONS.BOOLEAN_TOGGLE_WIDTH
 		);
