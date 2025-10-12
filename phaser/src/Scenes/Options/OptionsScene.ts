@@ -1,9 +1,10 @@
 import * as Phaser from "phaser";
 import * as constants from "../../constants/constants";
-import { createUIButton, updateButtonText } from "../../UI/UIButton";
+import { Button, createUIButton, } from "../../UI/UIButton";
 import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
 import { getOption, setOption } from "@Models/OptionsStore";
 import { vec2 } from "@Models/Geometry";
+import { SetText } from "@PhaserIO";
 
 type TabType = 'audio' | 'graphics' | 'game';
 
@@ -74,7 +75,7 @@ export default class OptionsScene extends Phaser.Scene {
 	private speedValueText!: Phaser.GameObjects.Text;
 
 	private currentTab: TabType = 'audio';
-	private tabButtons: { [key in TabType]: Container } = {} as any;
+	private tabButtons: { [key in TabType]: Button } = {} as any;
 	private optionElements: Phaser.GameObjects.GameObject[] = [];
 
 	private currentParticlesSetting: 'low' | 'medium' | 'high' = 'medium';
@@ -170,11 +171,11 @@ export default class OptionsScene extends Phaser.Scene {
 			() => {
 				const newValue = !getValue();
 				setValue(newValue);
-				updateButtonText(toggleButton, newValue ? 'ON' : 'OFF');
+				SetText(toggleButton.text, newValue ? 'ON' : 'OFF')
 			},
 			BUTTONS.BOOLEAN_TOGGLE_WIDTH
 		);
-		this.optionElements.push(toggleButton);
+		this.optionElements.push(toggleButton.container);
 	}
 
 	private createVolumeOption(
@@ -204,7 +205,7 @@ export default class OptionsScene extends Phaser.Scene {
 			},
 			BUTTONS.VOLUME_BUTTON_WIDTH
 		);
-		this.optionElements.push(decreaseButton);
+		this.optionElements.push(decreaseButton.container);
 
 		const valueText = this.add.text(
 			constants.MIDDLE_SCREEN_X,
@@ -230,7 +231,7 @@ export default class OptionsScene extends Phaser.Scene {
 			},
 			BUTTONS.VOLUME_BUTTON_WIDTH
 		);
-		this.optionElements.push(increaseButton);
+		this.optionElements.push(increaseButton.container);
 	}
 
 	private createMultiChoiceOption(
@@ -262,7 +263,7 @@ export default class OptionsScene extends Phaser.Scene {
 			},
 			BUTTONS.MULTICHOICE_BUTTON_WIDTH
 		);
-		this.optionElements.push(decreaseButton);
+		this.optionElements.push(decreaseButton.container);
 
 		const valueText = this.add.text(
 			constants.MIDDLE_SCREEN_X,
@@ -290,7 +291,7 @@ export default class OptionsScene extends Phaser.Scene {
 			},
 			BUTTONS.MULTICHOICE_BUTTON_WIDTH
 		);
-		this.optionElements.push(increaseButton);
+		this.optionElements.push(increaseButton.container);
 	}
 
 	private createSpeedOption(
@@ -321,7 +322,7 @@ export default class OptionsScene extends Phaser.Scene {
 			},
 			BUTTONS.SPEED_BUTTON_WIDTH
 		);
-		this.optionElements.push(decreaseButton);
+		this.optionElements.push(decreaseButton.container);
 
 		const valueText = this.add.text(
 			constants.MIDDLE_SCREEN_X,
@@ -344,7 +345,7 @@ export default class OptionsScene extends Phaser.Scene {
 			},
 			BUTTONS.SPEED_BUTTON_WIDTH
 		);
-		this.optionElements.push(increaseButton);
+		this.optionElements.push(increaseButton.container);
 	}
 
 	private updateAllCloudsBackgrounds() {
@@ -410,14 +411,12 @@ export default class OptionsScene extends Phaser.Scene {
 		Object.keys(this.tabButtons).forEach(tabKey => {
 			const tab = tabKey as TabType;
 			const button = this.tabButtons[tab];
-			const txt = button.getByName && (button.getByName('buttonLabel') as Phaser.GameObjects.Text | undefined);
-			if (!txt) return;
 			if (tab === this.currentTab) {
-				txt.setColor(STYLES.SELECTED_TAB_COLOR);
-				txt.setStroke(STYLES.TAB_STROKE_COLOR, STYLES.SELECTED_TAB_STROKE_WIDTH);
+				button.text.setColor(STYLES.SELECTED_TAB_COLOR);
+				button.text.setStroke(STYLES.TAB_STROKE_COLOR, STYLES.SELECTED_TAB_STROKE_WIDTH);
 			} else {
-				txt.setColor(STYLES.UNSELECTED_TAB_COLOR);
-				txt.setStroke(STYLES.TAB_STROKE_COLOR, STYLES.UNSELECTED_TAB_STROKE_WIDTH);
+				button.text.setColor(STYLES.UNSELECTED_TAB_COLOR);
+				button.text.setStroke(STYLES.TAB_STROKE_COLOR, STYLES.UNSELECTED_TAB_STROKE_WIDTH);
 			}
 		});
 	}

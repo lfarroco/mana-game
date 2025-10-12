@@ -86,5 +86,5 @@ export function displayDefeat(
 			nextPhaseCallback();
 		}
 	);
-	state.resultsContainer.add(nextButton);
+	state.resultsContainer.add(nextButton.container);
 }

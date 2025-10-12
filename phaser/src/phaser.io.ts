@@ -26,11 +26,11 @@ export function SetName(obj: Phaser.GameObjects.GameObject, name: string) {
 	obj.setName(name);
 }
 
-export function SetInteractiveRect(obj: Phaser.GameObjects.GameObject, size: Dimension) {
+export function SetInteractiveRect(obj: Phaser.GameObjects.GameObject, size: Size) {
 	obj.setInteractive(Rect({ x: 0, y: 0 }, size), Phaser.Geom.Rectangle.Contains);
 }
 
-export function Rect(position: Vec2, size: Dimension) {
+export function Rect(position: Vec2, size: Size) {
 	return new Phaser.Geom.Rectangle(position.x, position.y, size.width, size.height);
 }
 
@@ -64,7 +64,7 @@ export function Destroy(obj: Phaser.GameObjects.GameObject) {
 }
 export function BorderedRoundRect(
 	position: Vec2,
-	size: Dimension,
+	size: Size,
 	cornerRadius: number = 10,
 	color: number = 0xffa500,
 	alpha: number = 0.7,
@@ -83,7 +83,7 @@ export function BorderedRoundRect(
 export function RectangularDropZone(
 	name: string,
 	{ x, y }: Vec2,
-	{ width, height }: Dimension,
+	{ width, height }: Size,
 ) {
 	const scene = getState().currentScene;
 
@@ -161,7 +161,7 @@ export function OnUpdate(obj: Phaser.GameObjects.GameObject, callback: (time: nu
 export function Shader(
 	frag: string,
 	position: Vec2,
-	size: Dimension,
+	size: Size,
 	uniforms: ({
 		key: string;
 		type: '1f';
@@ -199,6 +199,19 @@ export function Shader(
 	return shader;
 }
 
+export function DisableInteractive(obj: Phaser.GameObjects.GameObject) {
+	obj.disableInteractive();
+}
+
 export function SetUniform(shader: Phaser.GameObjects.Shader, key: string, value: number) {
 	shader.setUniform(key, value);
+}
+
+export function SetColor(text: Phaser.GameObjects.Text, color: string) {
+	text.setColor(color);
+}
+
+export function SetStroke(text: Phaser.GameObjects.Text, color: string, thickness: number) {
+	text.setStroke(color, thickness);
+
 }

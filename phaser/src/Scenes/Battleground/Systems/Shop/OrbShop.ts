@@ -34,7 +34,7 @@ export async function open(buttonText: string = "Next Round") {
 	const shopState = ShopUI.getState();
 	if (shopState) {
 		renderOrbShop(shopState, selectedOrbs, async () => {
-			ShopUI.disableNextRoundButton();
+			shopState.nextRoundButton?.disable();
 			await delay(500);
 			Systems.ShopPhase.handleShopPhaseEnded();
 			await close();
