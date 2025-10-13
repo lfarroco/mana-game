@@ -161,34 +161,6 @@ export const onDragStart = (handlerState: InputHandler) => (
 	Tooltip.hideTooltip();
 };
 
-
-
-// export const processDrop = (handlerState: input.InputHandler) => (
-// 	dropTarget: Phaser.GameObjects.GameObject,
-// 	dragStartX: number,
-// 	dragStartY: number
-// ): boolean => {
-// 	console.log(">>>", dropTarget)
-
-// 	// const playerBoard = Board.getBoardState();
-// 	// if (!playerBoard) {
-// 	// 	console.warn("CharaInputHandler.processDrop: No shared player board instance.");
-// 	// 	return false;
-// 	// }
-
-// 	// const slotIndex = playerBoard.dropZones.indexOf(dropTarget as Phaser.GameObjects.Zone);
-// 	// if (slotIndex === -1) {
-// 	// 	return false;
-// 	// }
-
-// 	// const tileX = slotIndex % 3;
-// 	// const tileY = Math.floor(slotIndex / 3);
-// 	// const tile = Geometry.vec2(tileX, tileY);
-
-
-// 	return true;
-// };
-
 const handleDropShopItem = (chara: Chara.Chara) => (tile: Vec2) => {
 	const vec = chara.getData("dragStartVec") as Vec2;
 	Shop.events.itemDragPurchaseRequested({ ...Chara.getUnit(chara) }, Chara.getUnit(chara).id, tile, vec.x, vec.y);
@@ -204,12 +176,12 @@ export const processOwnedUnitMoveRequest = (
 	const unit = units.find((u) => u.id === unitId);
 
 	if (!unit) {
-		_movementRejected(unitId, dragStartX, dragStartY, "UNIT_NOT_FOUND");
+		movementRejected(unitId, dragStartX, dragStartY, "UNIT_NOT_FOUND");
 		return;
 	}
 
 	if (Geometry.eqVec2(unit.position, targetTile)) {
-		_movementRejected(unitId, dragStartX, dragStartY, "NO_OP");
+		movementRejected(unitId, dragStartX, dragStartY, "NO_OP");
 		return;
 	}
 
@@ -226,24 +198,24 @@ const _executeMove = (unit: Unit, target: Vec2, units: Unit[]) => {
 	const result = Board.updateUnitPosition(unit, target, units);
 	if (!result) return;
 
-	_applyMoveVisual(result.movedUnit);
+	applyMoveVisual(result.movedUnit);
 };
 
 const _executeSwap = (unit: Unit, _occupier: Unit, target: Vec2, units: Unit[]) => {
 	const result = Board.updateUnitPosition(unit, target, units);
 	if (!result) return;
 
-	_applySwapVisual(result.movedUnit, result.swappedUnit!);
+	applySwapVisual(result.movedUnit, result.swappedUnit!);
 };
 
-const _applyMoveVisual = (movedUnit: Unit) => {
+const applyMoveVisual = (movedUnit: Unit) => {
 	const movedChara = Chara.getCharaById(movedUnit.id);
 	const pos = Chara.getScreenPosition(movedUnit);
 
 	tween({ targets: [movedChara], ...pos });
 };
 
-const _applySwapVisual = (movedUnit: Unit, swappedUnit: Unit) => {
+const applySwapVisual = (movedUnit: Unit, swappedUnit: Unit) => {
 	const movedChara = Chara.getCharaById(movedUnit.id);
 	const swappedChara = Chara.getCharaById(swappedUnit.id);
 	const movedPos = Chara.getScreenPosition(movedUnit);
@@ -253,7 +225,7 @@ const _applySwapVisual = (movedUnit: Unit, swappedUnit: Unit) => {
 	tween({ targets: [swappedChara], ...swappedPos });
 };
 
-const _movementRejected = (unitId: string, dragStartX: number, dragStartY: number, _reason: string) => {
+const movementRejected = (unitId: string, dragStartX: number, dragStartY: number, _reason: string) => {
 	const failedChara = Chara.getCharaById(unitId);
 	Tooltip.hideTooltip();
 

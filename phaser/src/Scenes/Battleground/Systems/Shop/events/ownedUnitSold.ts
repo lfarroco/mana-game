@@ -32,7 +32,7 @@ export function removeUnitFromPlayerState(units: Unit[], unitId: string): Unit[]
 	if (unitIndex > -1) {
 		return units.filter(u => u.id !== unitId);
 	} else {
-		console.warn(`Unit with ID ${unitId} not found for selling.`);
+		console.warn(`Unit with ID ${unitId} not found for selling`);
 		return [...units];
 	}
 }

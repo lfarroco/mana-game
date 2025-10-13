@@ -70,8 +70,8 @@ const generateReactionOrb = () => {
 		id: "reaction_orb",
 		name: "Reaction Orb: " + effect,
 		color: 0xffcc00,
-		tooltip: [`Adds ${getReactionDescription(resultingEffect.data, resultingEffect.referencePower)}.`,
-			"A unit can have just one reaction (⚡)."
+		tooltip: [`Adds ${getReactionDescription(resultingEffect.data, resultingEffect.referencePower)}`,
+			"A unit can have just one reaction (⚡)"
 		].join("\n"),
 		effect: (unit: Unit) => {
 			return setReaction(unit, {
@@ -148,8 +148,8 @@ const generateChargeReactionOrb = () => {
 		name: `Charge Orb: ${effectId}`,
 		color: 0xffe066,
 		tooltip: [
-			`Adds ${getReactionDescription(reactionData, position.amount)}.`,
-			"A unit can have just one reaction (⚡)."
+			`Adds ${getReactionDescription(reactionData, position.amount)}`,
+			"A unit can have just one reaction (⚡)"
 		].join("\n"),
 		effect: (unit: Unit) => {
 			return setReaction(unit, reactionData);

@@ -69,7 +69,6 @@ export async function setupBattle(): Promise<{ enemies: Unit[]; }> {
 
 	await delay(100);
 
-
 	return { enemies };
 }
 
@@ -88,7 +87,6 @@ export async function showReadyButton(payload: { enemies: Unit[] }): Promise<voi
 }
 
 export async function handleCombatStartExecution(_payload: { enemies: Unit[] }): Promise<void> {
-
 
 	await delay(300);
 
