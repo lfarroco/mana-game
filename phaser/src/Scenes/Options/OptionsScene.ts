@@ -5,6 +5,7 @@ import { CloudsBackground } from "../../components/cloudBackground/CloudsBackgro
 import { getOption, setOption } from "@Models/OptionsStore";
 import { vec2 } from "@Models/Geometry";
 import { SetText } from "@PhaserIO";
+import { getState } from "@Models/State";
 
 type TabType = 'audio' | 'graphics' | 'game';
 
@@ -91,6 +92,7 @@ export default class OptionsScene extends Phaser.Scene {
 	}
 
 	create() {
+		getState().currentScene = this;
 		this.cloudsBackground = new CloudsBackground(this, {
 			preset: 'aurora',
 		});
