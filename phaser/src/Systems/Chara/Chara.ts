@@ -26,7 +26,7 @@ const charaById = new Map<string, Chara>();
 
 export function getCharaById(id: string): Chara {
 	const c = charaById.get(id);
-	if (!c) throw new Error(`Chara with id ${id} not found.`);
+	if (!c) throw new Error(`Chara with id ${id} not found`);
 	return c;
 }
 

@@ -11,12 +11,12 @@ import { processOwnedUnitMoveRequest } from "@Systems/Chara/input";
 export function clickHeroInShop(slotIndex: number): string {
 	const chara = Systems.Shop.HeroShop.getShopCharaBySlot(slotIndex);
 	if (!chara) {
-		return `Error: No hero Chara found in shop slot ${slotIndex}.`;
+		return `Error: No hero Chara found in shop slot ${slotIndex}`;
 	}
 	const unitToPurchase = Chara.getUnit(chara);
 
 	if (!Chara.isShopItem(unitToPurchase.id)) {
-		return `Error: Hero in slot ${slotIndex} (Chara ID: ${Chara.getId(chara)}) is not a shop item or already purchased.`;
+		return `Error: Hero in slot ${slotIndex} (Chara ID: ${Chara.getId(chara)}) is not a shop item or already purchased`;
 	}
 
 	Systems.Shop.events.itemClickPurchaseRequested(
@@ -26,18 +26,18 @@ export function clickHeroInShop(slotIndex: number): string {
 		chara.y
 	);
 
-	return `Emitted SHOP_ITEM_CLICK_PURCHASE_REQUESTED for hero in shop slot ${slotIndex} (Card ID: ${unitToPurchase.cardId}, Chara ID: ${Chara.getId(chara)}). Purchase processing is asynchronous.`;
+	return `Emitted SHOP_ITEM_CLICK_PURCHASE_REQUESTED for hero in shop slot ${slotIndex} (Card ID: ${unitToPurchase.cardId}, Chara ID: ${Chara.getId(chara)}). Purchase processing is asynchronous`;
 }
 
 export function buyAndPlaceHero(shopSlotIndex: number, boardX: number, boardY: number): string {
 	const chara = Systems.Shop.HeroShop.getShopCharaBySlot(shopSlotIndex);
 	if (!chara) {
-		return `Error: No hero Chara found in shop slot ${shopSlotIndex}.`;
+		return `Error: No hero Chara found in shop slot ${shopSlotIndex}`;
 	}
 	const unitToPurchase = Chara.getUnit(chara);
 
 	if (!Chara.isShopItem(unitToPurchase.id)) {
-		return `Error: Hero in slot ${shopSlotIndex} (Chara ID: ${Chara.getId(chara)}) is not a shop item or already purchased.`;
+		return `Error: Hero in slot ${shopSlotIndex} (Chara ID: ${Chara.getId(chara)}) is not a shop item or already purchased`;
 	}
 
 	Systems.Shop.events.itemDragPurchaseRequested(
@@ -48,7 +48,7 @@ export function buyAndPlaceHero(shopSlotIndex: number, boardX: number, boardY: n
 		chara.y
 	);
 
-	return `Emitted SHOP_ITEM_DRAG_PURCHASE_REQUESTED for hero in shop slot ${shopSlotIndex} (Card ID: ${unitToPurchase.cardId}, Chara ID: ${Chara.getId(chara)}) to board (${boardX},${boardY}). Purchase and placement are asynchronous.`;
+	return `Emitted SHOP_ITEM_DRAG_PURCHASE_REQUESTED for hero in shop slot ${shopSlotIndex} (Card ID: ${unitToPurchase.cardId}, Chara ID: ${Chara.getId(chara)}) to board (${boardX},${boardY}). Purchase and placement are asynchronous`;
 }
 
 export function clickNextRound(): string {
@@ -59,7 +59,7 @@ export function clickNextRound(): string {
 export function moveUnitOnBoard(unitId: string, targetBoardX: number, targetBoardY: number): string {
 	const unit = scene.state.gameData.player.units.find(u => u.id === unitId);
 	if (!unit) {
-		return `Error: Unit with ID ${unitId} not found on player board.`;
+		return `Error: Unit with ID ${unitId} not found on player board`;
 	}
 
 	let dragStartX = 0;
@@ -76,20 +76,20 @@ export function moveUnitOnBoard(unitId: string, targetBoardX: number, targetBoar
 		dragStartX, dragStartY,
 	);
 
-	return `Emitted OWNED_UNIT_MOVE_REQUESTED for unit ${unitId} to board (${targetBoardX},${targetBoardY}). Move/swap processing is asynchronous.`;
+	return `Emitted OWNED_UNIT_MOVE_REQUESTED for unit ${unitId} to board (${targetBoardX},${targetBoardY}). Move/swap processing is asynchronous`;
 }
 
 export function sellUnitFromBoard(unitId: string): string {
 	const unit = scene.state.gameData.player.units.find(u => u.id === unitId);
 	if (!unit) {
-		return `Error: Unit with ID ${unitId} not found on player board. Cannot sell.`;
+		return `Error: Unit with ID ${unitId} not found on player board. Cannot sell`;
 	}
 
 	const sellPrice = Math.floor(constants.SHOP_ITEM_PURCHASE_COST / 2);
 
 	Systems.Shop.events.ownedUnitSold(unitId, sellPrice);
 
-	return `Sell request processed for unit ${unitId}. Sold for ${sellPrice} gold. State and visuals will update asynchronously.`;
+	return `Sell request processed for unit ${unitId}. Sold for ${sellPrice} gold. State and visuals will update asynchronously`;
 }
 
 export function isShopVisible(): boolean {

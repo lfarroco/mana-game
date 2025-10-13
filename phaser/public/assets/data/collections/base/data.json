@@ -11,8 +11,17 @@
 			"effects": [
 				{
 					"id": "poison"
+				},
+				{
+					"id": "slow",
+					"duration": 1000,
+					"targets": {
+						"id": "random_enemy",
+						"count": "2"
+					}
 				}
-			]
+			],
+			"reactions": []
 		},
 		{
 			"id": "Living Armor",
@@ -52,8 +61,8 @@
 			]
 		},
 		{
-			"id": "professor_oops",
-			"name": "Professor Oopsteiner",
+			"id": "tek_monk",
+			"name": "Tek Monk",
 			"pic": "f3_windgiver",
 			"power": 15,
 			"cooldown": 3600,
@@ -118,7 +127,7 @@
 			"name": "Shadow Assassin",
 			"pic": "boss_shadowlord",
 			"power": 10,
-			"cooldown": 2500,
+			"cooldown": 2000,
 			"effects": [
 				{
 					"id": "damage"

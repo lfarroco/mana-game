@@ -98,7 +98,7 @@ export async function transitionToShopPhaseAfterDefeat(): Promise<void> {
 
 	const player = state.gameData.player;
 	if (player.prestige <= 0) {
-		await renderVignette({ message: `Game Over! You were defeated in ${player.round} rounds.` });
+		await renderVignette({ message: `Game Over! You were defeated in ${player.round} rounds` });
 		return;
 	}
 

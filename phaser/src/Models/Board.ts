@@ -2,7 +2,7 @@ import * as constants from "../constants/constants";
 import * as constants_1 from "../constants/constants";
 import * as Geometry from "./Geometry";
 import { Unit } from "./Entities/Unit";
-import { getUnitAt, State } from "./State";
+import { getState, getUnitAt, State } from "./State";
 import * as EnergySlot from "../components/EnergySlot/EnergySlot";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 
@@ -223,6 +223,7 @@ export function updateUnitPosition(
 	swappedUnit?: Unit;
 	oldPositionOfMovedUnit: Vec2;
 } | null {
+	const state = getState();
 	const oldPositionOfMovedUnit = { ...unitToMove.position };
 
 	if (Geometry.eqVec2(oldPositionOfMovedUnit, newBoardPosition)) {
@@ -234,9 +235,16 @@ export function updateUnitPosition(
 	if (occupierUnit) {
 		occupierUnit.position = oldPositionOfMovedUnit;
 		unitToMove.position = newBoardPosition;
+		if (state.battleData.units.length > 0) { // sync battledata
+			state.battleData.units.find(u => u.id === occupierUnit.id)!.position = oldPositionOfMovedUnit;
+			state.battleData.units.find(u => u.id === unitToMove.id)!.position = newBoardPosition;
+		}
 		return { movedUnit: unitToMove, swappedUnit: occupierUnit, oldPositionOfMovedUnit };
 	} else {
 		unitToMove.position = newBoardPosition;
+		if (state.battleData.units.length > 0) { //sync battledata
+			state.battleData.units.find(u => u.id === unitToMove.id)!.position = newBoardPosition;
+		}
 		return { movedUnit: unitToMove, oldPositionOfMovedUnit };
 	}
 }
