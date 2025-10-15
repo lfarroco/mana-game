@@ -12,6 +12,11 @@ export function Container() {
 	return scene.add.container();
 }
 
+export function Image(texture: string) {
+	const scene = getState().currentScene;
+	return scene.add.image(0, 0, texture);
+}
+
 export function GetByName(container: Phaser.GameObjects.Container, name: string) {
 	return container.getByName(name);
 }
