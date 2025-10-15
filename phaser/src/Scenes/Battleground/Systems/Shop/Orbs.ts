@@ -100,11 +100,10 @@ const generateSkillPowerUpOrb = () => {
 
 	return {
 		id: "power_orb",
-		name: `Power Orb: ${effectId}`,
+		name: `Power Up: ${effectId}`,
 		color: 0x00ff88,
 		tooltip: [
 			`[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]Increase Power[/color] [color=#ffd93d]+${amount}[/color]`,
-			`[color=#c0c0c0]Target:[/color] [color=#e0e0e0]Units with '${effectId}' effect[/color]`,
 			`[color=#c0c0c0]Condition:[/color] [color=#ffa94d]Unit must have effect '${effectId}'[/color]`,
 		].join('\n'),
 		effect: (unit: Unit) => {
@@ -145,7 +144,7 @@ const generateChargeReactionOrb = () => {
 
 	return {
 		id: "charge_reaction_orb",
-		name: `Charge Orb: ${effectId}`,
+		name: `Charge: ${effectId}`,
 		color: 0xffe066,
 		tooltip: [
 			`Adds ${getReactionDescription(reactionData, position.amount)}`,
@@ -261,7 +260,7 @@ function generatePositionalPowerOrb() {
 
 	return {
 		id: "positional_power_orb",
-		name: `Power Orb: ${choice.label}`,
+		name: `Power Up: ${choice.label}`,
 		color: 0x33ffaa,
 		tooltip: [
 			`[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]Increase Power[/color] [color=#ffd93d]+${choice.amount}[/color]`,
@@ -301,12 +300,12 @@ function generatePositionalSkillPowerOrb() {
 
 	return {
 		id: "positional_skill_power_orb",
-		name: `Power Orb: ${choice.label} (if ${effectId})`,
+		name: `Power Up: ${choice.label} (${effectId})`,
 		color: 0x44ffd1,
 		tooltip: [
 			`[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]Increase Power[/color] [color=#ffd93d]+${choice.amount}[/color]`,
 			`[color=#c0c0c0]Target:[/color] [color=#e0e0e0]${choice.label}[/color]`,
-			`[color=#c0c0c0]Condition:[/color] [color=#ffa94d]Unit must have effect '${effectId}'[/color]`,
+			`[color=#c0c0c0]Condition:[/color] [color=#ffa94d]Caster of type '${effectId}'[/color]`,
 		].join("\n"),
 		effect: (unit: Unit) => {
 			if (!((unit.effects || []).some(e => e.id === effectId))) return false;
@@ -331,19 +330,19 @@ function generatePositionalTypedPowerOrb() {
 		amount: number;
 		label: string;
 	}> = [
-			{ target: { id: "row_allies" }, amount: 2, label: "Row Allies" },
-			{ target: { id: "column_allies" }, amount: 2, label: "Column Allies" },
-			{ target: { id: "left_ally" }, amount: 6, label: "Left Ally" },
-			{ target: { id: "right_ally" }, amount: 6, label: "Right Ally" },
-			{ target: { id: "top_ally" }, amount: 6, label: "Top Ally" },
-			{ target: { id: "bottom_ally" }, amount: 6, label: "Bottom Ally" },
+			{ target: { id: "row_allies" }, amount: 2, label: "↔️" },
+			{ target: { id: "column_allies" }, amount: 2, label: "↕️" },
+			{ target: { id: "left_ally" }, amount: 6, label: "⬅️" },
+			{ target: { id: "right_ally" }, amount: 6, label: "➡️" },
+			{ target: { id: "top_ally" }, amount: 6, label: "⬆️" },
+			{ target: { id: "bottom_ally" }, amount: 6, label: "⬇️" },
 		];
 
 	const choice = pickOne(options);
 
 	return {
 		id: "positional_typed_power_orb",
-		name: `Power Orb: ${choice.label} (units with ${effectId})`,
+		name: `${choice.label} (${effectId})`,
 		color: 0x22ccff,
 		tooltip: [
 			`[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]Increase Power[/color] [color=#ffd93d]+${choice.amount}[/color]`,

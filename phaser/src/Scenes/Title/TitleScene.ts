@@ -6,6 +6,7 @@ import { images } from "../../assets";
 import * as AudioManager from "@Systems/AudioManager";
 import { vec2 } from "@Models/Geometry";
 import { getState } from "@Models/State";
+import * as io from "@PhaserIO"
 
 export let titleScene: TitleScene;
 
@@ -50,15 +51,13 @@ export default class TitleScene extends Phaser.Scene {
 
 		AudioManager.playMusic('music_ageofdisjunction');
 
-		this.add.image(
-			constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - 200,
-			images.logo.key
-		).setOrigin(0.5);
+		const logo = io.Image(images.logo.key)
+		io.SetPosition(logo, vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - 200))
+		io.Centralize(logo)
 
 		createUIButton(
 			'START GAME',
-			vec2(constants.MIDDLE_SCREEN.x, constants.MIDDLE_SCREEN.y + 100,
-			),
+			vec2(constants.MIDDLE_SCREEN.x, constants.MIDDLE_SCREEN.y + 100,),
 			() => { this.startGame(); }
 		);
 		createUIButton(
@@ -98,15 +97,13 @@ export default class TitleScene extends Phaser.Scene {
 		// 		this.startGame();
 		// 	}
 		// );
-		// new UIButton(
-		// 	this,
-		// 	'GO FULLSCREEN',
-		// 	constants.MIDDLE_SCREEN_X,
-		// 	constants.MIDDLE_SCREEN_Y + 420,
-		// 	() => {
-		// 		this.toggleFullscreen();
-		// 	}
-		// );
+		createUIButton(
+			'GO FULLSCREEN',
+			vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + 300),
+			() => {
+				this.toggleFullscreen();
+			}
+		);
 
 		this.input.keyboard?.on('keydown-ENTER', () => {
 			this.startGame();
