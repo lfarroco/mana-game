@@ -220,3 +220,20 @@ export function SetStroke(text: Phaser.GameObjects.Text, color: string, thicknes
 	text.setStroke(color, thickness);
 
 }
+
+export async function Fade(duration: number, color: number) {
+	return new Promise<void>((resolve) => {
+		const scene = getState().currentScene;
+
+		const r = (color >> 16) & 0xff;
+		const g = (color >> 8) & 0xff;
+		const b = color & 0xff;
+		scene.cameras.main.fade(duration, r, g, b)
+		scene.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, resolve);
+	});
+}
+
+export function StartScene(key: string) {
+	const scene = getState().currentScene;
+	scene.scene.start(key);
+}
