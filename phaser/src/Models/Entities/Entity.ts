@@ -1,8 +1,10 @@
+import { getState } from "@Models/State";
 import cloudsBg from "@Scenes/Title/entities/cloudsBg";
 import logo from "@Scenes/Title/entities/logo";
 
 export type Entity = {
-	create: () => void;
+	key: string,
+	create: () => any;
 	update?: () => void;
 	destroy?: () => void;
 };
@@ -14,10 +16,15 @@ export const entitiesIndex: Record<string, Entity> = {
 
 export function createEntity(key: string) {
 
-	const entity = entitiesIndex[key];
+	const scene = getState().currentScene;
 
-	if (entity) {
-		entity.create();
+	const spec = entitiesIndex[key];
+
+	if (spec) {
+		const entity = spec.create();
+
+		scene.data.set(key, entity);
+
 	} else {
 		throw new Error(`Entity type with key ${key} not found`);
 	}
