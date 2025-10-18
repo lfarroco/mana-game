@@ -1,6 +1,11 @@
 import { getState } from "@Models/State";
-import cloudsBg from "@Scenes/Title/entities/cloudsBg";
+import clouds_bg from "@Scenes/Title/entities/clouds_bg";
+import exit_button from "@Scenes/Title/entities/exit_button";
+import go_fullscreen_button from "@Scenes/Title/entities/go_fullscreen_button";
 import logo from "@Scenes/Title/entities/logo";
+import options_button from "@Scenes/Title/entities/options_button";
+import start_game_button from "@Scenes/Title/entities/start_game_button";
+import start_game from "@Scenes/Title/events/start_game";
 
 export type Entity = {
 	key: string,
@@ -9,24 +14,30 @@ export type Entity = {
 	destroy?: () => void;
 };
 
-export const entitiesIndex: Record<string, Entity> = {
-	clouds_bg: cloudsBg,
-	logo: logo
-}
+export const entities = [
+	clouds_bg,
+	logo,
+	start_game_button,
+	options_button,
+	go_fullscreen_button,
+	exit_button
+].reduce((xs, x) => ({ ...xs, [x.key]: x }), {} as { [key: string]: Entity })
 
-export function createEntity(key: string) {
+export const events = [
+	start_game
+].reduce((xs, x) => ({ ...xs, [x.key]: x }), {} as { [key: string]: GameEvent })
+
+export function registerEntity(entity: Entity) {
 
 	const scene = getState().currentScene;
 
-	const spec = entitiesIndex[key];
+	const instance = entity.create();
 
-	if (spec) {
-		const entity = spec.create();
-
-		scene.data.set(key, entity);
-
-	} else {
-		throw new Error(`Entity type with key ${key} not found`);
-	}
+	scene.data.set(entity.key, instance);
 
 }
+
+export type GameEvent = {
+	key: string;
+	handler: () => void;
+};
