@@ -1,6 +1,6 @@
 import { scene } from "./BattlegroundScene";
 import { getState } from "@Models/State";
-import { MIN_COOLDOWN } from "../../constants/constants";
+import { MIN_COOLDOWN } from "../../Constants/constants";
 import { Unit } from "@Models/Entities/Unit";
 import { processEffectsIO } from "../../TriggerSystem/TriggerSystem";
 import { cpuForce, playerForce } from "@Models/Entities/Force";

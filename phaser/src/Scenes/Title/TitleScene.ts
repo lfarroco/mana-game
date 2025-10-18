@@ -1,12 +1,12 @@
 import * as Phaser from "phaser";
-import * as constants from "../../constants/constants";
+import * as constants from "../../Constants/constants";
 import { createUIButton } from "../../UI/UIButton";
 import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
-import { images } from "../../assets";
 import * as AudioManager from "@Systems/AudioManager";
 import { vec2 } from "@Models/Geometry";
 import { getState } from "@Models/State";
 import * as io from "@PhaserIO"
+import { createEntity } from "@Models/Entities/Entity";
 
 export let titleScene: TitleScene;
 
@@ -20,15 +20,16 @@ export default class TitleScene extends Phaser.Scene {
 
 	create() {
 		getState().currentScene = this;
-		this.cloudsBackground = new CloudsBackground(this, {
-			preset: 'nebula',
-		});
+
+		[
+			"clouds_bg",
+			"logo"
+		].forEach(
+			createEntity
+		)
+
 
 		AudioManager.playMusic('music_ageofdisjunction');
-
-		const logo = io.Image(images.logo.key)
-		io.SetPosition(logo, vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - 200))
-		io.Centralize(logo)
 
 		createUIButton(
 			'START GAME',
@@ -112,3 +113,4 @@ export default class TitleScene extends Phaser.Scene {
 		this.cloudsBackground?.destroy();
 	}
 }
+

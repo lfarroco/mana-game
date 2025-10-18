@@ -3,7 +3,7 @@ import { makeUnit } from "@Models/Entities/Unit";
 import { vec2 } from "@Models/Geometry";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import * as Chara from "@Systems/Chara/Chara";
-import * as c from "../../../../constants/constants";
+import * as c from "../../../../Constants/constants";
 import * as sc from "./constants";
 import { state } from "./ShopUI";
 import { createDescription } from "@Systems/Chara/createDescription";

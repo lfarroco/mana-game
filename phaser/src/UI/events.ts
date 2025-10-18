@@ -1,5 +1,5 @@
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
-import { titleTextConfig } from "../constants/constants";
+import { titleTextConfig } from "../Constants/constants";
 import { tween } from "../Utils/animation";
 import * as UI from "./UI";
 

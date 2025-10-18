@@ -1,5 +1,5 @@
 import * as Phaser from "phaser";
-import * as constants from "../../constants/constants";
+import * as constants from "../../Constants/constants";
 import { Button, createUIButton, } from "../../UI/UIButton";
 import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
 import { getOption, setOption } from "@Models/OptionsStore";
@@ -93,7 +93,7 @@ export default class OptionsScene extends Phaser.Scene {
 
 	create() {
 		getState().currentScene = this;
-		this.cloudsBackground = new CloudsBackground(this, {
+		this.cloudsBackground = new CloudsBackground({
 			preset: 'aurora',
 		});
 
