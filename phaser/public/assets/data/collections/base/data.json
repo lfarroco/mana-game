@@ -118,6 +118,13 @@
 			"effects": [
 				{
 					"id": "shield"
+				},
+				{
+					"id": "haste",
+					"duration": 1000,
+					"targets": {
+						"id": "row_allies"
+					}
 				}
 			],
 			"reactions": []
