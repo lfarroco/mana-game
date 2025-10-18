@@ -18,31 +18,6 @@ export default class TitleScene extends Phaser.Scene {
 		titleScene = this;
 	}
 
-	preload() {
-		this.load.image(images.logo);
-
-		[
-			'boss_andromeda',
-			'boss_spelleater',
-			'f1_tank',
-			'f3_mech',
-			'f3_windgiver',
-			'neutral_amu',
-			'neutral_arrowwhistler',
-			'neutral_golemnature',
-			'neutral_golemstone',
-			'boss_shadowlord',
-		].forEach(key => {
-			this.load.atlas(key, `assets/heroes/${key}.png`, `assets/heroes/${key}.json`);
-			this.load.animation(`${key}-anims`, `assets/heroes/${key}-anims.json`);
-		});
-
-		this.load.audio('sfx_artifact_equipmask', 'assets/audio/sfx_artifact_equipmask.m4a');
-
-		this.load.audio('sfx_notification', 'assets/audio/notification.m4a');
-
-	}
-
 	create() {
 		getState().currentScene = this;
 		this.cloudsBackground = new CloudsBackground(this, {
@@ -110,25 +85,19 @@ export default class TitleScene extends Phaser.Scene {
 		});
 	}
 
-	openOptions() {
-		this.cameras.main.fade(500, 0, 0, 0);
-		this.cameras.main.once('camerafadeoutcomplete', () => {
-			this.scene.start(constants.SCENE_KEYS.OPTIONS);
-		});
+	async openOptions() {
+		await io.Fade(300, 0x000000);
+		io.StartScene(constants.SCENE_KEYS.OPTIONS);
 	}
 
-	openDebug() {
-		this.cameras.main.fade(300, 0, 0, 0);
-		this.cameras.main.once('camerafadeoutcomplete', () => {
-			this.scene.start(constants.SCENE_KEYS.DEBUG);
-		});
+	async openDebug() {
+		await io.Fade(300, 0x000000);
+		io.StartScene(constants.SCENE_KEYS.DEBUG);
 	}
 
-	startGame() {
-		this.cameras.main.fade(500, 0, 0, 0);
-		this.cameras.main.once('camerafadeoutcomplete', () => {
-			this.scene.start(constants.SCENE_KEYS.BATTLEGROUND);
-		});
+	async startGame() {
+		await io.Fade(300, 0x000000)
+		io.StartScene(constants.SCENE_KEYS.BATTLEGROUND);
 	}
 
 	toggleFullscreen() {

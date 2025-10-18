@@ -1,3 +1,4 @@
+import { images } from "../../assets";
 import { SCENE_KEYS } from "../../constants/constants";
 
 export default class Core extends Phaser.Scene {
@@ -35,6 +36,28 @@ export default class Core extends Phaser.Scene {
 		this.load.audio('music_ageofdisjunction', 'assets/music/music_ageofdisjunction.m4a');
 
 		this.load.audio('music_battlemap_vetruv', 'assets/music/music_battlemap_vetruv.m4a');
+
+		this.load.image(images.logo);
+
+		[
+			'boss_andromeda',
+			'boss_spelleater',
+			'f1_tank',
+			'f3_mech',
+			'f3_windgiver',
+			'neutral_amu',
+			'neutral_arrowwhistler',
+			'neutral_golemnature',
+			'neutral_golemstone',
+			'boss_shadowlord',
+		].forEach((key) => {
+			this.load.atlas(key, `assets/heroes/${key}.png`, `assets/heroes/${key}.json`);
+			this.load.animation(`${key}-anims`, `assets/heroes/${key}-anims.json`);
+		});
+
+		this.load.audio('sfx_artifact_equipmask', 'assets/audio/sfx_artifact_equipmask.m4a');
+
+		this.load.audio('sfx_notification', 'assets/audio/notification.m4a');
 	}
 
 	create() {
