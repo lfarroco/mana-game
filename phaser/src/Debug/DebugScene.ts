@@ -1,9 +1,9 @@
 import { images } from "../assets";
-import { SCENE_KEYS } from "../constants/constants";
+import { SCENE_KEYS } from "../Constants/constants";
 import { BattlegroundScene } from "@Scenes/Battleground/BattlegroundScene";
 import * as effects from "../Effects";
 import { Button, createUIButton } from "../UI/UIButton";
-import * as constants from "../constants/constants";
+import * as constants from "../Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import { getState } from "@Models/State";
 

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import * as c from '../../constants/constants';
+import * as c from '../../Constants/constants';
 import { cpuForce, playerForce } from '@Models/Entities/Force';
 import { scene } from './BattlegroundScene';
 import { getTotalRegenHealing } from './Systems/RegenSystem';

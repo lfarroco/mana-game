@@ -2,7 +2,7 @@ import { scene } from "../Battleground/BattlegroundScene";
 import { Unit } from "@Models/Entities/Unit";
 import { vec2 } from "@Models/Geometry";
 import { CardDefinition } from "@Models/Entities/Card";
-import * as constants from "../../constants/constants";
+import * as constants from "../../Constants/constants";
 import { titleScene } from "../Title/TitleScene";
 import * as  Chara from "@Systems/Chara/Chara";
 import * as Systems from "../Battleground/Systems";

@@ -18,7 +18,7 @@ export function initializeNewGame(state: State): void {
 }
 
 export function setupSceneElements(_state: State) {
-	cloudsBackground = new CloudsBackground(scene, {
+	cloudsBackground = new CloudsBackground({
 		preset: 'forest',
 		depth: -2000,
 		timeScale: 0.3
