@@ -11,5 +11,6 @@ function create() {
 }
 
 export default {
+	key: "logo",
 	create
 } as Entity

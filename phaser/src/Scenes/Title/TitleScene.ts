@@ -21,6 +21,9 @@ export default class TitleScene extends Phaser.Scene {
 	create() {
 		getState().currentScene = this;
 
+		//@ts-ignore
+		window.titleScene = this;
+
 		[
 			"clouds_bg",
 			"logo"
