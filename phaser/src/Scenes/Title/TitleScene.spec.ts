@@ -1,5 +1,5 @@
 import { SceneSpec } from "@Models/Entities/Entity";
-import cloudsBg from "@Entities/clouds_bg";
+import clouds_bg from "@Entities/clouds_bg";
 import go_fullscreen_button from "./entities/go_fullscreen_button";
 import logo from "./entities/logo";
 import options_button from "./entities/options_button";
@@ -11,7 +11,7 @@ import hello from "@Events/hello";
 export default {
 	name: "TitleScene",
 	create: [
-		cloudsBg,
+		clouds_bg,
 		logo,
 		start_game_button,
 		options_button,
@@ -24,5 +24,6 @@ export default {
 	input: [
 		{ key: "keydown-ENTER", handler: start_game.key },
 	],
-} as SceneSpec;
+	state: {}
+} as SceneSpec<{}>;
 

@@ -4,13 +4,11 @@ import * as io from "@PhaserIO";
 import { ButtonSpec } from "@UI/UIButton";
 
 export default ButtonSpec(
-	"start_game_button",
-	'START GAME',
+	"options_button",
+	'OPTIONS',
 	vec2(constants.MIDDLE_SCREEN.x, constants.MIDDLE_SCREEN.y + 180),
 	async () => {
-
 		await io.Fade(300, 0x000000);
 		io.StartScene(constants.SCENE_KEYS.OPTIONS);
-
 	}
 )
