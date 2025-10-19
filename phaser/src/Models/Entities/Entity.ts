@@ -53,8 +53,8 @@ export type GameEvent<T> = {
 export type SceneSpec<State> = {
 	name: string;
 	create: (Entity<any>)[];
-	events: { key: string, handler: string }[];
-	input: { key: string, handler: string }[];
+	events: { key: string, handler: string, arg?: any }[];
+	input: { key: string, handler: string, arg?: any }[];
 	state: State
 }
 
@@ -94,7 +94,10 @@ export const SceneFromSpec = <State>(spec: SceneSpec<State>) => {
 				this.events.on(event.key, (payload: any) => {
 					const ev = events[event.handler];
 					console.log(`[SCENE] ${event.key} -> ${event.handler}`)
-					ev.handler(payload);
+					if (event.arg)
+						ev.handler(event.arg);
+					else
+						ev.handler(payload)
 				});
 			})
 
@@ -106,7 +109,10 @@ export const SceneFromSpec = <State>(spec: SceneSpec<State>) => {
 					this.input.keyboard?.on(event.key, () => {
 						const ev = events[event.handler];
 						console.log(`[INPUT] ${event.key} -> ${event.handler}`)
-						ev.handler({} as any);
+						if (event.arg)
+							ev.handler(event.arg as any);
+						else
+							ev.handler({} as any);
 					});
 			})
 		}

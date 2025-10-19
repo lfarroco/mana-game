@@ -18,6 +18,7 @@ export default {
 		{ key: switch_tab.key, handler: log.key },
 		{ key: switch_tab.key, handler: switch_tab.key },
 		{ key: switch_tab.key, handler: render_tab.key },
+		{ key: "create", handler: render_tab.key, arg: "audio" }
 	],
 	input: [
 		{ key: "keydown-ESC", handler: return_to_title.key }

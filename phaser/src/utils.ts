@@ -1,3 +1,5 @@
+import { getState } from "@Models/State";
+
 // picks n random elements from an array using Fisher-Yates shuffle
 export function pickRandom<T>(arr: T[], n: number): T[] {
 	const copy = [...arr]; // Don't mutate the original array
@@ -16,4 +18,12 @@ export function pickOne<a>(arr: a[]): a {
 
 export function randomBetween(min: number, max: number): number {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+export function read(key: string): any {
+	return getState().currentScene.data.get(key)
+}
+
+export function write(key: string, value: any) {
+	getState().currentScene.data.set(key, value)
 }
