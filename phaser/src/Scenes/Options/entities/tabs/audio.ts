@@ -3,6 +3,7 @@ import { BooleanSpec } from "../controls/boolean";
 import { AddChildren, Container } from "@PhaserIO";
 import { vec2 } from "@Models/Geometry";
 import { MIDDLE_SCREEN_X } from "@Constants/constants";
+import { VolumeSpec } from "../controls/volume";
 
 
 function create() {
@@ -12,45 +13,28 @@ function create() {
 	const sound = BooleanSpec(
 		"options.sound",
 		"Sound",
-		vec2(MIDDLE_SCREEN_X, 300)
+		vec2(MIDDLE_SCREEN_X, 200)
 	).create();
 
-	// this.createVolumeOption('Sound Volume', startY + lineHeight,
-	// 	() => this.currentSoundVolume,
-	// 	(value: number) => {
-	// 		this.currentSoundVolume = value;
-	// 		setOption('soundVolume', value);
-	// 		this.soundVolumeValueText.setText((Math.round(value * 100)) + '%');
-	// 	},
-	// 	(text: Phaser.GameObjects.Text) => this.soundVolumeValueText = text
-	// );
+	const soundVolume = VolumeSpec(
+		"options.soundVolume",
+		"Sound Volume",
+		vec2(MIDDLE_SCREEN_X, 400)
+	).create();
 
 	const music = BooleanSpec(
 		"options.music",
 		"Music",
-		vec2(MIDDLE_SCREEN_X, 500)
+		vec2(MIDDLE_SCREEN_X, 600)
 	).create();
-	// this.createBooleanOption('Music', startY + lineHeight * 2,
-	// 	() => this.currentMusicSetting,
-	// 	(value: boolean) => {
-	// 		this.currentMusicSetting = value;
-	// 		setOption('music', value);
-	// 		this.musicValueText.setText(value ? 'ON' : 'OFF');
-	// 	},
-	// 	(text: Phaser.GameObjects.Text) => this.musicValueText = text
-	// );
 
-	// this.createVolumeOption('Music Volume', startY + lineHeight * 3,
-	// 	() => this.currentMusicVolume,
-	// 	(value: number) => {
-	// 		this.currentMusicVolume = value;
-	// 		setOption('musicVolume', value);
-	// 		this.musicVolumeValueText.setText((Math.round(value * 100)) + '%');
-	// 	},
-	// 	(text: Phaser.GameObjects.Text) => this.musicVolumeValueText = text
-	// );
+	const musicVolume = VolumeSpec(
+		"options.musicVolume",
+		"Music Volume",
+		vec2(MIDDLE_SCREEN_X, 800)
+	).create();
 
-	AddChildren(container, [sound, music])
+	AddChildren(container, [sound, soundVolume, music, musicVolume])
 
 	return container;
 }
