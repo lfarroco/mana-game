@@ -146,5 +146,5 @@ export function addUnitToPlayerBoard(cardId: string, boardX: number, boardY: num
 }
 
 export function clickGameStart() {
-	start_game.handler();
+	start_game.handler({});
 }

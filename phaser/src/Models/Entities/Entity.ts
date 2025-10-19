@@ -1,11 +1,12 @@
 import { getState } from "@Models/State";
-import clouds_bg from "@Scenes/Title/entities/clouds_bg";
+import clouds_bg from "../../Entities/clouds_bg";
 import exit_button from "@Scenes/Title/entities/exit_button";
 import go_fullscreen_button from "@Scenes/Title/entities/go_fullscreen_button";
 import logo from "@Scenes/Title/entities/logo";
 import options_button from "@Scenes/Title/entities/options_button";
 import start_game_button from "@Scenes/Title/entities/start_game_button";
 import start_game from "@Scenes/Title/events/start_game";
+import hello from "@Scenes/Title/events/hello";
 
 export type Entity<T> = {
 	key: string,
@@ -25,8 +26,9 @@ export const entities = [
 ].reduce((xs, x) => ({ ...xs, [x.key]: x }), {} as { [key: string]: Entity<any> })
 
 export const events = [
-	start_game
-].reduce((xs, x) => ({ ...xs, [x.key]: x }), {} as { [key: string]: GameEvent })
+	start_game,
+	hello
+].reduce((xs, x) => ({ ...xs, [x.key]: x }), {} as { [key: string]: GameEvent<any> })
 
 export function registerEntity(entity: Entity<any>) {
 
@@ -48,19 +50,18 @@ export function registerEntity(entity: Entity<any>) {
 		(instance as Phaser.GameObjects.GameObject).on("destroy", onDestroy);
 	}
 
-
 }
 
-export type GameEvent = {
+export type GameEvent<T> = {
 	key: string;
-	handler: () => void;
+	handler: (arg: T) => void;
 };
 
 export type SceneSpec = {
 	name: string;
-	create: Entity<any>[];
-	events: [string, GameEvent][];
-	input: [string, GameEvent][];
+	create: (Entity<any>)[];
+	events: { key: string, handler: string }[];
+	input: { key: string, handler: string }[];
 }
 
 export const SceneFromSpec = (spec: SceneSpec) => {
@@ -80,16 +81,24 @@ export const SceneFromSpec = (spec: SceneSpec) => {
 
 			//AudioManager.playMusic('music_ageofdisjunction');
 
-			this.spec.events.forEach(([key, event]) => {
-				this.events.on(key, () => {
-					event.handler();
+			console.log("Registering scene events...")
+
+			this.spec.events.forEach((event) => {
+				console.log(`  ${event.key} -> ${event.handler}`)
+				this.events.on(event.key, (payload: any) => {
+					const ev = events[event.handler];
+					ev.handler(payload);
 				});
 			})
 
-			this.spec.input.forEach(([key, event]) => {
-				if (key.startsWith("keydown-"))
-					this.input.keyboard?.on(key, () => {
-						event.handler();
+			console.log("Registering input events...")
+
+			this.spec.input.forEach((event) => {
+				console.log(`  ${event.key} -> ${event.handler}`)
+				if (event.key.startsWith("keydown-"))
+					this.input.keyboard?.on(event.key, () => {
+						const ev = events[event.handler];
+						ev.handler({});
 					});
 			})
 		}

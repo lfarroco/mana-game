@@ -1,5 +1,5 @@
 import { Entity } from "@Models/Entities/Entity";
-import { CloudsBackground } from "../../../components/cloudBackground/CloudsBackground";
+import { CloudsBackground } from "../components/cloudBackground/CloudsBackground";
 
 const create = () => new CloudsBackground({ preset: 'nebula' });
 
