@@ -24,7 +24,9 @@ module.exports = {
             "@Systems": path.resolve(__dirname, "../src/Systems"),
             "@UI": path.resolve(__dirname, "../src/UI"),
             "@PhaserIO": path.resolve(__dirname, "../src/phaser.io.ts"),
-            "@Constants": path.resolve(__dirname, "../src/Constants")
+            "@Constants": path.resolve(__dirname, "../src/Constants"),
+            "@Events": path.resolve(__dirname, "../src/Events"),
+            "@Entities": path.resolve(__dirname, "../src/Entities")
         }
     },
     devtool: false,
