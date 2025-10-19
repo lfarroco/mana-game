@@ -6,6 +6,7 @@ import { getOption, setOption } from "@Models/OptionsStore";
 import { vec2 } from "@Models/Geometry";
 import { SetText } from "@PhaserIO";
 import { getState } from "@Models/State";
+import TitleSceneSpec from "@Scenes/Title/TitleScene.spec";
 
 type TabType = 'audio' | 'graphics' | 'game';
 
@@ -370,7 +371,7 @@ export default class OptionsScene extends Phaser.Scene {
 	private returnToTitle() {
 		this.cameras.main.fade(ANIMATION.FADE_DURATION, ANIMATION.FADE_COLOR.r, ANIMATION.FADE_COLOR.g, ANIMATION.FADE_COLOR.b);
 		this.cameras.main.once('camerafadeoutcomplete', () => {
-			this.scene.start(constants.SCENE_KEYS.TITLE);
+			this.scene.start(TitleSceneSpec.name);
 		});
 	}
 
