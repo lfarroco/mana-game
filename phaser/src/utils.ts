@@ -20,10 +20,27 @@ export function randomBetween(min: number, max: number): number {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-export function read(key: string): any {
-	return getState().currentScene.data.get(key)
+export function read(key: string, defaultValue?: any, fromStorage?: boolean): any {
+
+	if (fromStorage) {
+		const value = localStorage.getItem(key)
+		if (value) {
+			return JSON.parse(value)
+		} else {
+			return defaultValue
+		}
+	}
+
+	return getState().currentScene.data.get(key) || defaultValue
 }
 
-export function write(key: string, value: any) {
+export function write(key: string, value: any, persist?: boolean) {
 	getState().currentScene.data.set(key, value)
+	if (persist) {
+		localStorage.setItem(key, JSON.stringify(value))
+	}
+}
+
+export function emit(key: string, value: any) {
+	getState().currentScene.events.emit(key, value)
 }
