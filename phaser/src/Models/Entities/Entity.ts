@@ -5,6 +5,8 @@ import return_to_title from "@Scenes/Options/events/return_to_title";
 import switch_tab from "@Scenes/Options/events/switch_tab";
 import log from "@Events/log";
 import render_tab from "@Scenes/Options/events/render_tab";
+import update_music_volume from "@Scenes/Options/events/update_music_volume";
+import update_sound_volume from "@Scenes/Options/events/update_sound_volume";
 
 export type Entity<T> = {
 	key: string,
@@ -20,7 +22,9 @@ export const events = [
 	start_game,
 	return_to_title,
 	switch_tab,
-	render_tab
+	render_tab,
+	update_music_volume,
+	update_sound_volume
 ].reduce((xs, x) => ({ ...xs, [x.key]: x }), {} as { [key: string]: GameEvent<any> })
 
 export function registerEntity(entity: Entity<any>) {
@@ -110,9 +114,11 @@ export const SceneFromSpec = <State>(spec: SceneSpec<State>) => {
 						const ev = events[event.handler];
 						console.log(`[INPUT] ${event.key} -> ${event.handler}`)
 						if (event.arg)
-							ev.handler(event.arg as any);
+							//@ts-ignore
+							ev.handler(event.arg);
 						else
-							ev.handler({} as any);
+							//@ts-ignore
+							ev.handler({});
 					});
 			})
 		}

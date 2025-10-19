@@ -3,12 +3,13 @@ import { Entity } from "@Models/Entities/Entity";
 import { vec2 } from "@Models/Geometry";
 import { AddChildren, Centralize, Container, SetPosition, Text } from "@PhaserIO";
 import { createUIButton } from "@UI/UIButton";
-import { read, write } from "@Utils";
+import { emit, read, write } from "@Utils";
 
 function create(
 	key: string,
 	label: string,
 	position: Vec2,
+	event: string
 ) {
 
 	const container = Container();
@@ -33,9 +34,10 @@ function create(
 		'-',
 		vec2(-150, 70),
 		() => {
-			const newValue = Math.max(1, (read(key, 10)) - 1);
+			const newValue = Math.max(0, (read(key, 10, true)) - 1);
 			write(key, newValue, true);
 			updateText();
+			emit(event, newValue);
 		},
 		50
 	);
@@ -51,9 +53,10 @@ function create(
 		'+',
 		vec2(150, 70),
 		() => {
-			const newValue = Math.min(10, read(key, 10) + 1);
+			const newValue = Math.min(10, read(key, 10, true) + 1);
 			write(key, newValue, true);
 			updateText();
+			emit(event, newValue);
 		},
 		50
 	);
@@ -72,10 +75,11 @@ export function VolumeSpec(
 	key: string,
 	label: string,
 	position: Vec2,
+	event: string,
 ): Entity<Container> {
 
 	return {
 		key,
-		create: () => create(`${key}/value`, label, position),
+		create: () => create(`${key}/value`, label, position, event),
 	}
 }

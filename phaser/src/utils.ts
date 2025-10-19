@@ -24,7 +24,7 @@ export function read(key: string, defaultValue?: any, fromStorage?: boolean): an
 
 	if (fromStorage) {
 		const value = localStorage.getItem(key)
-		if (value) {
+		if (value !== undefined && value !== null) {
 			return JSON.parse(value)
 		} else {
 			return defaultValue
@@ -42,5 +42,6 @@ export function write(key: string, value: any, persist?: boolean) {
 }
 
 export function emit(key: string, value: any) {
+	console.log(`[EMIT] ${key} -> ${value}`)
 	getState().currentScene.events.emit(key, value)
 }
