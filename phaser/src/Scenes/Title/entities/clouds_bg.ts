@@ -1,30 +1,14 @@
 import { Entity } from "@Models/Entities/Entity";
-import { getState } from "@Models/State";
 import { CloudsBackground } from "../../../components/cloudBackground/CloudsBackground";
 
+const create = () => new CloudsBackground({ preset: 'nebula' });
 
-const key = "clouds_bg";
-
-function create() {
-	return new CloudsBackground({
-		preset: 'nebula',
-	});
-}
-
-function destroy() {
-
-	const scene = getState().currentScene;
-
-	const el = scene.data.get(key) as CloudsBackground;
-
-	el.destroy();
-
-	scene.data.remove(key);
-
+function onDestroy(el: CloudsBackground, handler: () => void) {
+	el.getShader().on("destroy", handler)
 }
 
 export default {
-	key,
+	key: "clouds_bg",
 	create,
-	destroy,
-} as Entity 
+	onDestroy,
+} as Entity<CloudsBackground> 

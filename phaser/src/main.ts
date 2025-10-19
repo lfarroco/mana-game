@@ -5,8 +5,9 @@ import BBCodeTextPlugin from 'phaser3-rex-plugins/plugins/bbcodetext-plugin.js';
 import Core from "./Scenes/Core/Core";
 import { DebugScene } from "./Debug/DebugScene";
 import BattlegroundScene from "./Scenes/Battleground/BattlegroundScene";
-import TitleScene from "@Scenes/Title/TitleScene";
 import OptionsScene from "./Scenes/Options/OptionsScene";
+import { SceneFromSpec } from "@Models/Entities/Entity";
+import TitleSceneSpec from "@Scenes/Title/TitleScene.spec";
 
 export const game = new Phaser.Game({
 	type: Phaser.WEBGL,
@@ -18,7 +19,7 @@ export const game = new Phaser.Game({
 		autoCenter: Phaser.Scale.CENTER_BOTH
 	},
 	parent: "game-container",
-	scene: [Core, DebugScene, BattlegroundScene, TitleScene, OptionsScene],
+	scene: [Core, DebugScene, BattlegroundScene, SceneFromSpec(TitleSceneSpec), OptionsScene],
 	plugins: {
 		global: [{
 			key: 'rexBBCodeTextPlugin',

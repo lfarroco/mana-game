@@ -4,7 +4,7 @@ import * as AudioManager from "@Systems/AudioManager";
 import { getState } from "@Models/State";
 import { registerEntity } from "@Models/Entities/Entity";
 
-import spec from "./TiitleScene.spec"
+import spec from "./TitleScene.spec"
 
 export let titleScene: TitleScene;
 
