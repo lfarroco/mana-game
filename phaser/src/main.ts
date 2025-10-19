@@ -5,7 +5,7 @@ import BBCodeTextPlugin from 'phaser3-rex-plugins/plugins/bbcodetext-plugin.js';
 import Core from "./Scenes/Core/Core";
 import { DebugScene } from "./Debug/DebugScene";
 import BattlegroundScene from "./Scenes/Battleground/BattlegroundScene";
-import OptionsScene from "./Scenes/Options/OptionsScene";
+import OptionsScene from "./Scenes/Options/OptionsScene.spec";
 import { SceneFromSpec } from "@Models/Entities/Entity";
 import TitleSceneSpec from "@Scenes/Title/TitleScene.spec";
 
@@ -24,7 +24,7 @@ export const game = new Phaser.Game({
 		DebugScene,
 		BattlegroundScene,
 		SceneFromSpec(TitleSceneSpec),
-		OptionsScene
+		SceneFromSpec(OptionsScene),
 	],
 	plugins: {
 		global: [{

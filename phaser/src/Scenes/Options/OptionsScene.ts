@@ -106,16 +106,6 @@ export default class OptionsScene extends Phaser.Scene {
 		this.currentDebugSetting = getOption('debug');
 		this.currentSpeedSetting = getOption('speed');
 
-		this.add.text(
-			constants.MIDDLE_SCREEN_X,
-			LAYOUT.TITLE_Y,
-			'OPTIONS',
-			{
-				...constants.titleTextConfig,
-				fontSize: LAYOUT.TITLE_FONT_SIZE
-			}
-		).setOrigin(0.5);
-
 		this.createTabButtons();
 
 		this.showTab(this.currentTab);
