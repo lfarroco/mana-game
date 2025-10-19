@@ -19,7 +19,13 @@ export const game = new Phaser.Game({
 		autoCenter: Phaser.Scale.CENTER_BOTH
 	},
 	parent: "game-container",
-	scene: [Core, DebugScene, BattlegroundScene, SceneFromSpec(TitleSceneSpec), OptionsScene],
+	scene: [
+		Core,
+		DebugScene,
+		BattlegroundScene,
+		SceneFromSpec(TitleSceneSpec),
+		OptionsScene
+	],
 	plugins: {
 		global: [{
 			key: 'rexBBCodeTextPlugin',

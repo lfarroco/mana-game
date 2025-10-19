@@ -6,6 +6,7 @@ import { Button, createUIButton } from "../UI/UIButton";
 import * as constants from "../Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import { getState } from "@Models/State";
+import TitleSceneSpec from "@Scenes/Title/TitleScene.spec";
 
 type EffectFactory = (scene: DebugScene) => void;
 
@@ -222,7 +223,7 @@ export class DebugScene extends Phaser.Scene {
 		const exitBtn = createUIButton(
 			'EXIT',
 			vec2(constants.SCREEN_WIDTH - 180, constants.SCREEN_HEIGHT - 80),
-			() => { this.scene.start(constants.SCENE_KEYS.TITLE); },
+			() => { this.scene.start(TitleSceneSpec.name); },
 			200,
 		);
 		this.effectButtonsContainer.add(exitBtn.container);

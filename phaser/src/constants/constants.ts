@@ -67,6 +67,5 @@ export const SCENE_KEYS = {
 	DEBUG: "DebugScene",
 	BATTLEGROUND: "BattlegroundScene",
 	CORE: "Core",
-	TITLE: "TitleScene",
 	OPTIONS: "OptionsScene"
 } as const;
