@@ -8,9 +8,10 @@ function create() {
 	const logo = io.Image(images.logo.key);
 	io.SetPosition(logo, vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - 200));
 	io.Centralize(logo);
+	return logo
 }
 
 export default {
 	key: "logo",
-	create
-} as Entity
+	create,
+} as Entity<Phaser.GameObjects.Image>

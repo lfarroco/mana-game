@@ -1,10 +1,10 @@
 import * as constants from "@Constants/constants";
-import { Entity } from "@Models/Entities/Entity";
 import { vec2 } from "@Models/Geometry";
 import { getState } from "@Models/State";
-import { createUIButton } from "@UI/UIButton";
+import { ButtonSpec } from "@UI/UIButton";
 
-const create = () => createUIButton(
+export default ButtonSpec(
+	"go_fullscreen_button",
 	'GO FULLSCREEN',
 	vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + 300),
 	() => {
@@ -15,10 +15,5 @@ const create = () => createUIButton(
 			scene.scale.startFullscreen();
 		}
 	}
-);
+)
 
-
-export default {
-	key: "go_fullscreen_button",
-	create
-} as Entity;
