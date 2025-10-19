@@ -121,6 +121,30 @@ export const stopAllSoundEffects = () => {
 	console.log('Stopped all sound effects');
 }
 
+export function updateMusicVolume(volume: number) {
+
+	const musicVolume = volume;
+
+	if (currentMusic && currentMusic.isPlaying) {
+		//phaserjs misstyping
+		(currentMusic as any).setVolume(musicVolume);
+	}
+}
+
+export function updateSoundVolume(volume: number) {
+
+	const soundVolume = volume / 10;
+
+	soundEffects.forEach((soundEffect) => {
+		if (soundEffect.isPlaying) {
+			(soundEffect as any).setVolume(soundVolume);
+		}
+	});
+
+}
+
+
+
 export const onOptionsChanged = () => {
 	const soundEnabled = getOption('sound');
 	const musicEnabled = getOption('music');
