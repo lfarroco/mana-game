@@ -24,6 +24,12 @@
             "@Constants/*": [
                 "Constants/*"
             ],
+            "@Events/*": [
+                "Events/*"
+            ],
+            "@Entities/*": [
+                "Entities/*"
+            ],
             "@PhaserIO": [
                 "phaser.io.ts"
             ]

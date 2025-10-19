@@ -7,8 +7,10 @@ function onDestroy(el: CloudsBackground, handler: () => void) {
 	el.getShader().on("destroy", handler)
 }
 
-export default {
+const entity: Entity<CloudsBackground> = {
 	key: "clouds_bg",
 	create,
 	onDestroy,
-} as Entity<CloudsBackground> 
+}
+
+export default entity;
