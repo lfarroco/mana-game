@@ -1,6 +1,8 @@
 import { Entity } from "@Models/Entities/Entity";
 import { BooleanSpec } from "../controls/boolean";
 import { AddChildren, Container } from "@PhaserIO";
+import { vec2 } from "@Models/Geometry";
+import { MIDDLE_SCREEN_X } from "@Constants/constants";
 
 
 function create() {
@@ -10,19 +12,8 @@ function create() {
 	const sound = BooleanSpec(
 		"options.sound",
 		"Sound",
-		200,
-		() => true,
-		() => { }
+		vec2(MIDDLE_SCREEN_X, 300)
 	).create();
-	// this.createBooleanOption('Sound', startY,
-	// 	() => this.currentSoundSetting,
-	// 	(value: boolean) => {
-	// 		this.currentSoundSetting = value;
-	// 		setOption('sound', value);
-	// 		this.soundValueText.setText(value ? 'ON' : 'OFF');
-	// 	},
-	// 	(text: Phaser.GameObjects.Text) => this.soundValueText = text
-	// );
 
 	// this.createVolumeOption('Sound Volume', startY + lineHeight,
 	// 	() => this.currentSoundVolume,
@@ -37,10 +28,7 @@ function create() {
 	const music = BooleanSpec(
 		"options.music",
 		"Music",
-		200,
-		() => true,
-		() => { }
-
+		vec2(MIDDLE_SCREEN_X, 500)
 	).create();
 	// this.createBooleanOption('Music', startY + lineHeight * 2,
 	// 	() => this.currentMusicSetting,

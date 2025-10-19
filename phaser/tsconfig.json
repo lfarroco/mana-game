@@ -32,6 +32,9 @@
             ],
             "@PhaserIO": [
                 "phaser.io.ts"
+            ],
+            "@Utils": [
+                "utils.ts"
             ]
         },
         "lib": [
