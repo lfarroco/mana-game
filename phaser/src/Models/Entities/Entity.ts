@@ -47,6 +47,7 @@ export function registerEntity(entity: Entity<any>) {
 		(instance as Phaser.GameObjects.GameObject).on("destroy", onDestroy);
 	}
 
+
 }
 
 export type GameEvent<T> = {
@@ -99,8 +100,10 @@ export const SceneFromSpec = <State>(spec: SceneSpec<State>) => {
 					const ev = events[event.handler];
 					console.log(`[SCENE] ${event.key} -> ${event.handler}`)
 					if (event.arg)
+						//@ts-ignore
 						ev.handler(event.arg);
 					else
+						//@ts-ignore
 						ev.handler(payload)
 				});
 			})
