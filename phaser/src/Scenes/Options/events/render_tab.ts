@@ -16,8 +16,11 @@ async function handler(tab: string) {
 
 }
 
-export default {
+
+const spec = {
 	key: 'events/render_tab',
 	handler
 } as GameEvent<string>
 
+
+export default spec;

@@ -1,5 +1,5 @@
 import { Entity } from "@Models/Entities/Entity";
-import { BooleanSpec } from "../controls/boolean";
+import { BooleanSpec } from "../controls/boolean/boolean";
 import { AddChildren, Container } from "@PhaserIO";
 import { vec2 } from "@Models/Geometry";
 import { MIDDLE_SCREEN_X } from "@Constants/constants";
@@ -7,16 +7,16 @@ import { VolumeSpec } from "../controls/volume";
 import update_sound_volume from "@Scenes/Options/events/update_sound_volume";
 import update_music_volume from "@Scenes/Options/events/update_music_volume";
 
-
 function create() {
 
 	const container = Container();
 
-	const sound = BooleanSpec(
-		"options.sound",
-		"Sound",
-		vec2(MIDDLE_SCREEN_X, 200)
-	).create();
+	const sound = BooleanSpec({
+		key: "options.sound",
+		label: "Sound",
+		position: vec2(MIDDLE_SCREEN_X, 200),
+		persist: true
+	}).create();
 
 	const soundVolume = VolumeSpec(
 		"options.soundVolume",
@@ -25,11 +25,12 @@ function create() {
 		update_sound_volume.key
 	).create();
 
-	const music = BooleanSpec(
-		"options.music",
-		"Music",
-		vec2(MIDDLE_SCREEN_X, 600)
-	).create();
+	const music = BooleanSpec({
+		key: "options.music",
+		label: "Music",
+		position: vec2(MIDDLE_SCREEN_X, 600),
+		persist: true
+	}).create();
 
 	const musicVolume = VolumeSpec(
 		"options.musicVolume",
