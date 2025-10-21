@@ -19,10 +19,10 @@ export default {
 		exit_button
 	],
 	events: [
-		{ key: "create", handler: hello.key }
+		{ ev: "create", handler: hello }
 	],
 	input: [
-		{ key: "keydown-ENTER", handler: start_game.key },
+		{ ev: "keydown-ENTER", handler: start_game },
 	],
 	state: {}
 } as SceneSpec<{}>;

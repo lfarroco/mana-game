@@ -1,14 +1,4 @@
 import { getState } from "@Models/State";
-import start_game from "@Scenes/Title/events/start_game";
-import hello from "@Events/hello";
-import return_to_title from "@Scenes/Options/events/return_to_title";
-import switch_tab from "@Scenes/Options/events/switch_tab";
-import log from "@Events/log";
-import render_tab from "@Scenes/Options/events/render_tab";
-import update_music_volume from "@Scenes/Options/events/update_music_volume";
-import update_sound_volume from "@Scenes/Options/events/update_sound_volume";
-import toggle_sound_enabled from "@Scenes/Options/events/toggle_sound_enabled";
-import toggle_music_enabled from "@Scenes/Options/events/toggle_music_enabled";
 
 export type Entity<T> = {
 	key: string,
@@ -18,18 +8,18 @@ export type Entity<T> = {
 	onDestroy?: (obj: T, handler: () => void) => void;
 };
 
-export const events = [
-	hello,
-	log,
-	start_game,
-	return_to_title,
-	switch_tab,
-	render_tab,
-	update_music_volume,
-	update_sound_volume,
-	toggle_sound_enabled,
-	toggle_music_enabled
-].reduce((xs, x) => ({ ...xs, [x.key]: x }), {} as { [key: string]: GameEvent<any> })
+// export const events = [
+// 	hello,
+// 	log,
+// 	start_game,
+// 	return_to_title,
+// 	switch_tab,
+// 	render_tab,
+// 	update_music_volume,
+// 	update_sound_volume,
+// 	toggle_sound_enabled,
+// 	toggle_music_enabled
+// ].reduce((xs, x) => ({ ...xs, [x.key]: x }), {} as { [key: string]: GameEvent<any> })
 
 export function registerEntity(entity: Entity<any>) {
 
@@ -57,11 +47,17 @@ export type GameEvent<T> = {
 	handler: (arg: T) => void;
 };
 
+export type EventConnection<T> = {
+	ev: GameEvent<T> | string
+	handler: GameEvent<T>;
+	arg?: T
+};
+
 export type SceneSpec<State> = {
 	name: string;
 	create: (Entity<any>)[];
-	events: { key: string, handler: string, arg?: any }[];
-	input: { key: string, handler: string, arg?: any }[];
+	events: EventConnection<any>[];
+	input: { ev: (GameEvent<any> | string), handler: GameEvent<any>, arg?: any }[];
 	state: State
 }
 
@@ -79,6 +75,8 @@ export const SceneFromSpec = <State>(spec: SceneSpec<State>) => {
 	return class extends Phaser.Scene {
 		spec: SceneSpec<State>;
 		state: State;
+		eventIndex: { [key: string]: GameEvent<any> }
+
 		constructor() {
 			super(spec.name);
 			this.spec = spec;
@@ -97,33 +95,29 @@ export const SceneFromSpec = <State>(spec: SceneSpec<State>) => {
 			console.log("Registering scene events...")
 
 			this.spec.events.forEach((event) => {
-				console.log(`  ${event.key} -> ${event.handler}`)
-				this.events.on(event.key, (payload: any) => {
-					const ev = events[event.handler];
-					console.log(`[SCENE] ${event.key} -> ${event.handler}`)
+				const key = typeof event.ev === 'string' ? event.ev : event.ev.key;
+				console.log(`  ${key} -> ${event.handler.key}`)
+				this.events.on(key, (payload: any) => {
+					console.log(`[SCENE] ${key} -> ${event.handler.key}`)
 					if (event.arg)
-						//@ts-ignore
-						ev.handler(event.arg);
+						event.handler.handler(event.arg);
 					else
-						//@ts-ignore
-						ev.handler(payload)
+						event.handler.handler(payload)
 				});
 			})
 
 			console.log("Registering input events...")
 
 			this.spec.input.forEach((event) => {
-				console.log(`  ${event.key} -> ${event.handler}`)
-				if (event.key.startsWith("keydown-"))
-					this.input.keyboard?.on(event.key, () => {
-						const ev = events[event.handler];
-						console.log(`[INPUT] ${event.key} -> ${event.handler}`)
+				const key = typeof event.ev === 'string' ? event.ev : event.ev.key;
+				console.log(`  ${key} -> ${event.handler.key}`)
+				if (key.startsWith("keydown-"))
+					this.input.keyboard?.on(key, () => {
+						console.log(`[INPUT] ${key} -> ${event.handler.key}`)
 						if (event.arg)
-							//@ts-ignore
-							ev.handler(event.arg);
+							event.handler.handler(event.arg);
 						else
-							//@ts-ignore
-							ev.handler({});
+							event.handler.handler({});
 					});
 			})
 		}
