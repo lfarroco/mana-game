@@ -1,3 +1,4 @@
+import { read } from "@Utils";
 import { game } from "../main";
 import { getOption } from "@Models/OptionsStore";
 
@@ -121,6 +122,24 @@ export const stopAllSoundEffects = () => {
 	console.log('Stopped all sound effects');
 }
 
+export function toggleSoundsEnabled(newValue: boolean) {
+	if (!newValue) {
+		stopAllSoundEffects();
+	} else {
+		const volume = read('options.soundVolume', 10, true)
+		updateSoundVolume(volume)
+	}
+}
+
+export function toggleMusicEnabled(newValue: boolean) {
+	if (!newValue) {
+		stopMusic();
+	} else {
+		const volume = read('options.musicVolume', 10, true)
+		updateMusicVolume(volume)
+	}
+}
+
 export function updateMusicVolume(volume: number) {
 
 	const musicVolume = volume;
@@ -142,8 +161,6 @@ export function updateSoundVolume(volume: number) {
 	});
 
 }
-
-
 
 export const onOptionsChanged = () => {
 	const soundEnabled = getOption('sound');

@@ -8,6 +8,8 @@ import log from "@Events/log";
 import render_tab from "./events/render_tab";
 import update_sound_volume from "./events/update_sound_volume";
 import update_music_volume from "./events/update_music_volume";
+import toggle_sound_enabled from "./events/toggle_sound_enabled";
+import toggle_music_enabled from "./events/toggle_music_enabled";
 
 export default {
 	name: "OptionsScene",
@@ -22,7 +24,9 @@ export default {
 		{ key: switch_tab.key, handler: render_tab.key },
 		{ key: "create", handler: render_tab.key, arg: "audio" },
 		{ key: update_sound_volume.key, handler: update_sound_volume.key },
-		{ key: update_music_volume.key, handler: update_music_volume.key }
+		{ key: update_music_volume.key, handler: update_music_volume.key },
+		{ key: toggle_sound_enabled.key, handler: toggle_sound_enabled.key },
+		{ key: toggle_music_enabled.key, handler: toggle_music_enabled.key }
 	],
 	input: [
 		{ key: "keydown-ESC", handler: return_to_title.key }

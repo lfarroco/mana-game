@@ -3,12 +3,13 @@ import { Entity } from "@Models/Entities/Entity";
 import { sumVec2, vec2 } from "@Models/Geometry";
 import { AddChildren, Centralize, Container, SetPosition, SetText, Text } from "@PhaserIO";
 import { createUIButton } from "@UI/UIButton";
-import { read, write } from "@Utils";
+import { emit, read, write } from "@Utils";
 
 type BooleanControlProps = {
+	key: string;
+	event: string;
 	label: string;
 	position: Vec2;
-	key: string;
 	persist: boolean;
 	labels: {
 		true: string;
@@ -19,6 +20,7 @@ type BooleanControlProps = {
 function create(
 	{
 		label,
+		event,
 		position,
 		key,
 		persist,
@@ -45,6 +47,7 @@ function create(
 			const newValue = !read(key, true, persist);
 			write(key, newValue, persist);
 			SetText(toggleButton.text, getLabel())
+			emit(event, newValue)
 		},
 	);
 	AddChildren(container, [labelText, toggleButton.container])
@@ -52,15 +55,16 @@ function create(
 	return toggleButton.container;
 }
 
-
 export function BooleanSpec({
 	key,
+	event,
 	label,
 	position,
 	persist = false,
 	labels = { true: 'ON', false: 'OFF' }
 }: {
 	key: string;
+	event: string;
 	label: string;
 	position: Vec2;
 	persist?: boolean;
@@ -72,6 +76,6 @@ export function BooleanSpec({
 
 	return {
 		key,
-		create: () => create({ label, position, key: `${key}/value`, persist, labels }),
+		create: () => create({ label, event, position, key: `${key}/value`, persist, labels }),
 	}
 }

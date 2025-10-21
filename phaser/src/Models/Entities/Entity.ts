@@ -7,6 +7,8 @@ import log from "@Events/log";
 import render_tab from "@Scenes/Options/events/render_tab";
 import update_music_volume from "@Scenes/Options/events/update_music_volume";
 import update_sound_volume from "@Scenes/Options/events/update_sound_volume";
+import toggle_sound_enabled from "@Scenes/Options/events/toggle_sound_enabled";
+import toggle_music_enabled from "@Scenes/Options/events/toggle_music_enabled";
 
 export type Entity<T> = {
 	key: string,
@@ -24,7 +26,9 @@ export const events = [
 	switch_tab,
 	render_tab,
 	update_music_volume,
-	update_sound_volume
+	update_sound_volume,
+	toggle_sound_enabled,
+	toggle_music_enabled
 ].reduce((xs, x) => ({ ...xs, [x.key]: x }), {} as { [key: string]: GameEvent<any> })
 
 export function registerEntity(entity: Entity<any>) {
@@ -46,8 +50,6 @@ export function registerEntity(entity: Entity<any>) {
 	} else {
 		(instance as Phaser.GameObjects.GameObject).on("destroy", onDestroy);
 	}
-
-
 }
 
 export type GameEvent<T> = {
