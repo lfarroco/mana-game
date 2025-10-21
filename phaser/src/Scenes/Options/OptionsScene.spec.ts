@@ -11,7 +11,7 @@ import update_music_volume from "./events/update_music_volume";
 import toggle_sound_enabled from "./events/toggle_sound_enabled";
 import toggle_music_enabled from "./events/toggle_music_enabled";
 
-export default {
+const spec: SceneSpec<OptionsSceneState> = {
 	name: "OptionsScene",
 	create: [
 		clouds_bg,
@@ -19,22 +19,27 @@ export default {
 		tabs,
 	],
 	events: [
-		{ key: switch_tab.key, handler: log.key },
-		{ key: switch_tab.key, handler: switch_tab.key },
-		{ key: switch_tab.key, handler: render_tab.key },
-		{ key: "create", handler: render_tab.key, arg: "audio" },
-		{ key: update_sound_volume.key, handler: update_sound_volume.key },
-		{ key: update_music_volume.key, handler: update_music_volume.key },
-		{ key: toggle_sound_enabled.key, handler: toggle_sound_enabled.key },
-		{ key: toggle_music_enabled.key, handler: toggle_music_enabled.key }
+		{ ev: switch_tab, handler: log },
+		{ ev: switch_tab, handler: switch_tab },
+		{ ev: switch_tab, handler: render_tab },
+		{ ev: "create", handler: render_tab, arg: "audio" },
+		{ ev: update_sound_volume, handler: {
+			key: "wee", handler: (a) =>{
+			console.log("update_sound_volume", a)
+		} }},
+		{ ev: update_music_volume, handler: update_music_volume },
+		{ ev: toggle_sound_enabled, handler: toggle_sound_enabled },
+		{ ev: toggle_music_enabled, handler: toggle_music_enabled }
 	],
 	input: [
-		{ key: "keydown-ESC", handler: return_to_title.key }
+		{ ev: "keydown-ESC", handler: return_to_title }
 	],
 	state: {
 		currentTab: "video"
 	},
-} as SceneSpec<OptionsSceneState>;
+};
+
+export default spec;
 
 export type OptionsSceneState = {
 	currentTab: string
