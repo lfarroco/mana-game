@@ -1,114 +1,47 @@
 import * as Phaser from "phaser";
 import * as constants from "@Constants/constants";
-import { createUIButton } from "../../UI/UIButton";
-import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
-import { images } from "../../assets";
 import * as AudioManager from "@Systems/AudioManager";
-import { vec2 } from "@Models/Geometry";
 import { getState } from "@Models/State";
-import * as io from "@PhaserIO"
+import { logo } from "./components/logo";
+import { startButton } from "./components/startButton";
+import { startGame } from "./effects/startGame";
+import { cloudsBg } from "./components/cloudsBg";
+import { exitButton } from "./components/exitButton";
+import { optionsButton } from "./components/optionsButton";
+import { goFullscreenButton } from "./components/goFullscreenButton";
 
 export let titleScene: TitleScene;
 
 export default class TitleScene extends Phaser.Scene {
-	cloudsBackground!: CloudsBackground;
 
 	constructor() {
 		super(constants.SCENE_KEYS.TITLE);
 		titleScene = this;
+		//@ts-ignore
+		window.titleScene = this;
 	}
 
 	create() {
 		getState().currentScene = this;
-		this.cloudsBackground = new CloudsBackground(this, {
-			preset: 'nebula',
-		});
 
 		AudioManager.playMusic('music_ageofdisjunction');
 
-		const logo = io.Image(images.logo.key)
-		io.SetPosition(logo, vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - 200))
-		io.Centralize(logo)
+		cloudsBg();
 
-		createUIButton(
-			'START GAME',
-			vec2(constants.MIDDLE_SCREEN.x, constants.MIDDLE_SCREEN.y + 100,),
-			() => { this.startGame(); }
-		);
-		createUIButton(
-			'OPTIONS',
-			vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + 180,),
-			() => { this.openOptions(); }
-		);
-		createUIButton(
-			'EXIT',
-			vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + 380),
-			() => { window.close(); }
-		);
-		// createUIButton(
-		// 	this,
-		// 	'DEBUG',
-		// 	constants.MIDDLE_SCREEN_X,
-		// 	constants.MIDDLE_SCREEN_Y + 260,
-		// 	() => {
-		// 		this.openDebug();
-		// 	}
-		// );
-		// new UIButton(
-		// 	this,
-		// 	'COLLECTION',
-		// 	constants.MIDDLE_SCREEN_X,
-		// 	constants.MIDDLE_SCREEN_Y + 260,
-		// 	() => {
-		// 		this.startGame();
-		// 	}
-		// );
-		// new UIButton(
-		// 	this,
-		// 	'CREDITS',
-		// 	constants.MIDDLE_SCREEN_X,
-		// 	constants.MIDDLE_SCREEN_Y + 340,
-		// 	() => {
-		// 		this.startGame();
-		// 	}
-		// );
-		createUIButton(
-			'GO FULLSCREEN',
-			vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + 300),
-			() => {
-				this.toggleFullscreen();
-			}
-		);
+		logo();
 
-		this.input.keyboard?.on('keydown-ENTER', () => {
-			this.startGame();
-		});
+		startButton();
+
+		optionsButton();
+
+		exitButton();
+
+		goFullscreenButton();
+
+		this.input.keyboard?.on('keydown-ENTER', startGame);
+
 	}
 
-	async openOptions() {
-		await io.Fade(300, 0x000000);
-		io.StartScene(constants.SCENE_KEYS.OPTIONS);
-	}
-
-	async openDebug() {
-		await io.Fade(300, 0x000000);
-		io.StartScene(constants.SCENE_KEYS.DEBUG);
-	}
-
-	async startGame() {
-		await io.Fade(300, 0x000000)
-		io.StartScene(constants.SCENE_KEYS.BATTLEGROUND);
-	}
-
-	toggleFullscreen() {
-		if (this.scale.isFullscreen) {
-			this.scale.stopFullscreen();
-		} else {
-			this.scale.startFullscreen();
-		}
-	}
-
-	destroy() {
-		this.cloudsBackground?.destroy();
-	}
 }
+
+

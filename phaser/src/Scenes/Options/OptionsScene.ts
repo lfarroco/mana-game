@@ -93,7 +93,7 @@ export default class OptionsScene extends Phaser.Scene {
 
 	create() {
 		getState().currentScene = this;
-		this.cloudsBackground = new CloudsBackground(this, {
+		this.cloudsBackground = new CloudsBackground({
 			preset: 'aurora',
 		});
 
