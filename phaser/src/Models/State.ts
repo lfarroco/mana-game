@@ -43,3 +43,7 @@ export const getState = (): State => {
 export const getUnitAt = (units: Unit[]) => (position: Vec2) => {
   return units.find((u) => eqVec2(u.position, position));
 }
+
+export const getCurrentScene = (): Phaser.Scene => {
+  return currentState.currentScene;
+};
