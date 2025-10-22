@@ -1,5 +1,3 @@
-import { getState } from "@Models/State";
-
 // picks n random elements from an array using Fisher-Yates shuffle
 export function pickRandom<T>(arr: T[], n: number): T[] {
 	const copy = [...arr]; // Don't mutate the original array
@@ -18,30 +16,4 @@ export function pickOne<a>(arr: a[]): a {
 
 export function randomBetween(min: number, max: number): number {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-export function read(key: string, defaultValue?: any, fromStorage?: boolean): any {
-
-	if (fromStorage) {
-		const value = localStorage.getItem(key)
-		if (value !== undefined && value !== null) {
-			return JSON.parse(value)
-		} else {
-			return defaultValue
-		}
-	}
-
-	return getState().currentScene.data.get(key) || defaultValue
-}
-
-export function write(key: string, value: any, persist?: boolean) {
-	getState().currentScene.data.set(key, value)
-	if (persist) {
-		localStorage.setItem(key, JSON.stringify(value))
-	}
-}
-
-export function emit(key: string, value: any) {
-	console.log(`[EMIT] ${key} -> ${value}`)
-	getState().currentScene.events.emit(key, value)
 }

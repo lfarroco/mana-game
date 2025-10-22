@@ -2,7 +2,7 @@
 // These are used by multiple effects (e.g., explodeEffect, fireballEffect).
 
 import { vec2 } from "@Models/Geometry";
-import { TILE_WIDTH } from "../Constants/constants";
+import { TILE_WIDTH } from "../constants/constants";
 
 // All 8 directions around a tile (no (0,0))
 export const IMPACT_OFFSETS = [-1, 0, 1]

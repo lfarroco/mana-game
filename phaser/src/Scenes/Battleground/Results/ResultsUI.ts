@@ -1,7 +1,7 @@
 import { scene } from "../BattlegroundScene";
 import { tween } from "../../../Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
-import * as c from "../../../Constants/constants";
+import * as c from "../../../constants/constants";
 import { getState } from "@Models/State";
 import { displayGameOver } from "./GameOverUI";
 import { displayGameWon } from "./GameWonUI";

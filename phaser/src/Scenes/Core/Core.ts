@@ -1,5 +1,5 @@
-import TitleSceneSpec from "@Scenes/Title/TitleScene.spec";
 import { images } from "../../assets";
+import { SCENE_KEYS } from "../../constants/constants";
 
 export default class Core extends Phaser.Scene {
 
@@ -62,7 +62,7 @@ export default class Core extends Phaser.Scene {
 
 	create() {
 
-		this.game.scene.start(TitleSceneSpec.name);
+		this.game.scene.start(SCENE_KEYS.TITLE);
 
 	}
 

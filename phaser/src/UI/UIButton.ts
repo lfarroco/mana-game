@@ -1,9 +1,8 @@
 import Phaser from "phaser";
-import { titleTextConfig } from "../Constants/constants";
+import { titleTextConfig } from "../constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
 import { createMagicButtonOverlay, MagicOverlayHandle } from "./shaders/magicButtonShader";
 import * as io from "@PhaserIO";
-import { Entity } from "@Models/Entities/Entity";
 
 export type Button = {
 	disable: () => void;
@@ -32,32 +31,6 @@ const textStyle = {
 	color: "#ffffff",
 	stroke: "#000000",
 	strokeThickness: 3,
-}
-
-export function ButtonSpec(
-	key: string,
-	text: string,
-	position: Vec2,
-	callback: () => void,
-	width?: number
-): Entity<Button> {
-
-	const create = () => createUIButton(
-		text,
-		position,
-		callback,
-		width
-	);
-
-	const onDestroy = (button: Button, handler: () => void) => {
-		button.container.on("destroy", handler)
-	}
-
-	return {
-		key,
-		create,
-		onDestroy,
-	}
 }
 
 export function createUIButton(

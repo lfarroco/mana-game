@@ -1,5 +1,5 @@
 import { scene } from "../BattlegroundScene";
-import * as c from "../../../Constants/constants";
+import * as c from "../../../constants/constants";
 import { ResultsUIState } from "./ResultsUI";
 
 export function createResultsPanel(state: ResultsUIState): { panelX: number; panelY: number; panelWidth: number; panelHeight: number } {

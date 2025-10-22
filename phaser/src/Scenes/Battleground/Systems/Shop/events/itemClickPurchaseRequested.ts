@@ -1,4 +1,4 @@
-import * as constants from "../../../../../Constants/constants";
+import * as constants from "../../../../../constants/constants";
 import { makeUnit, Unit } from "@Models/Entities/Unit";
 import { getCharaById, summon, updateUnitPower } from "@Systems/Chara/Chara";
 import * as charaEvents from "@Systems/Chara/events";

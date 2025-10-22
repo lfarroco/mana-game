@@ -1,6 +1,6 @@
 import { scene } from "../BattlegroundScene";
 import { createUIButton } from "../../../UI/UIButton";
-import * as c from "../../../Constants/constants";
+import * as c from "../../../constants/constants";
 import { slideOut, ResultsUIState } from "./ResultsUI";
 import { createResultsPanel } from "./Panel";
 import { vec2 } from "@Models/Geometry";

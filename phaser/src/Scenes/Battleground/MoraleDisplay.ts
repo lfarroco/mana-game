@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import * as c from '../../Constants/constants';
+import * as c from '../../constants/constants';
 import { StylizedBar, createStylizedBar, updateStylizedBar } from './StylizedBar';
 import { tween } from '../../Utils/animation';
 import { cpuForce, playerForce } from '@Models/Entities/Force';

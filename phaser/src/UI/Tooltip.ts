@@ -1,5 +1,5 @@
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
-import { defaultTextConfig } from "../Constants/constants";
+import { defaultTextConfig } from "../constants/constants";
 import { tooltipFragmentShader } from "../Shaders/TooltipShader";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 
