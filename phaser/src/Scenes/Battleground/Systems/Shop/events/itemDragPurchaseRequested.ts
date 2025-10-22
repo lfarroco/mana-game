@@ -1,5 +1,5 @@
 import { scene } from "../../../BattlegroundScene";
-import * as constants from "../../../../../constants/constants";
+import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import { makeUnit, Unit } from "@Models/Entities/Unit";
 import { getUnitAt } from "@Models/State";

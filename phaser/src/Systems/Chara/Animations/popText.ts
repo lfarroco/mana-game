@@ -1,6 +1,6 @@
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import { tween } from "../../../Utils/animation";
-import { defaultTextConfig, titleTextConfig } from "../../../constants/constants";
+import { defaultTextConfig, titleTextConfig } from "@Constants/constants";
 
 const CONFIG = {
 	MAX_ANGLE: 30,

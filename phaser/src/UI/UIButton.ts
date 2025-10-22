@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { titleTextConfig } from "../constants/constants";
+import { titleTextConfig } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
 import { createMagicButtonOverlay, MagicOverlayHandle } from "./shaders/magicButtonShader";
 import * as io from "@PhaserIO";
