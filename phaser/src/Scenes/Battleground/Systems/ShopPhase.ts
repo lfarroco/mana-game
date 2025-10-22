@@ -10,7 +10,7 @@ import { transitionToCombatPhase } from "./CombatPhase";
 import * as MoraleDisplay from "../MoraleDisplay";
 import { clearRegen } from "./RegenSystem";
 import { clearPoison } from "./PoisonDamageSystem";
-import * as c from "../../../Constants/constants";
+import * as c from "../../../constants/constants";
 import * as BoardStatsDisplay from "../BoardStatsDisplay";
 
 export let isInShopPhase: boolean = false;

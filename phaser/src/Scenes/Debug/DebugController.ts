@@ -2,11 +2,11 @@ import { scene } from "../Battleground/BattlegroundScene";
 import { Unit } from "@Models/Entities/Unit";
 import { vec2 } from "@Models/Geometry";
 import { CardDefinition } from "@Models/Entities/Card";
-import * as constants from "../../Constants/constants";
+import * as constants from "../../constants/constants";
+import { titleScene } from "../Title/TitleScene";
 import * as  Chara from "@Systems/Chara/Chara";
 import * as Systems from "../Battleground/Systems";
 import { processOwnedUnitMoveRequest } from "@Systems/Chara/input";
-import start_game from "@Scenes/Title/events/start_game";
 
 export function clickHeroInShop(slotIndex: number): string {
 	const chara = Systems.Shop.HeroShop.getShopCharaBySlot(slotIndex);
@@ -146,5 +146,5 @@ export function addUnitToPlayerBoard(cardId: string, boardX: number, boardY: num
 }
 
 export function clickGameStart() {
-	start_game.handler({});
+	titleScene.startGame();
 }

@@ -23,11 +23,7 @@ module.exports = {
             "@Scenes": path.resolve(__dirname, "../src/Scenes"),
             "@Systems": path.resolve(__dirname, "../src/Systems"),
             "@UI": path.resolve(__dirname, "../src/UI"),
-            "@PhaserIO": path.resolve(__dirname, "../src/phaser.io.ts"),
-            "@Constants": path.resolve(__dirname, "../src/Constants"),
-            "@Events": path.resolve(__dirname, "../src/Events"),
-            "@Entities": path.resolve(__dirname, "../src/Entities"),
-            "@Utils": path.resolve(__dirname, "../src/utils.ts")
+            "@PhaserIO": path.resolve(__dirname, "../src/phaser.io.ts")
         }
     },
     devtool: false,

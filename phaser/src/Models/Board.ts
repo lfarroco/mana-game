@@ -1,5 +1,5 @@
-import * as constants from "../Constants/constants";
-import * as constants_1 from "../Constants/constants";
+import * as constants from "../constants/constants";
+import * as constants_1 from "../constants/constants";
 import * as Geometry from "./Geometry";
 import { Unit } from "./Entities/Unit";
 import { getState, getUnitAt, State } from "./State";

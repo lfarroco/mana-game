@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { Unit } from "@Models/Entities/Unit";
-import * as constants from "../../Constants/constants";
+import * as constants from "../../constants/constants";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 
 export type CharaBars = {

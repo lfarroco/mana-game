@@ -21,7 +21,7 @@
  *   xPos += segment.width;
  * });
  */
-import { defaultTextConfig } from "../Constants/constants";
+import { defaultTextConfig } from "../constants/constants";
 
 
 export function styledText(scene: Phaser.Scene, config: Phaser.Types.GameObjects.Text.TextStyle = {}, input: string = "") {

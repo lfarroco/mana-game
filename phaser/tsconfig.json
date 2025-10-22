@@ -24,17 +24,8 @@
             "@Constants/*": [
                 "Constants/*"
             ],
-            "@Events/*": [
-                "Events/*"
-            ],
-            "@Entities/*": [
-                "Entities/*"
-            ],
             "@PhaserIO": [
                 "phaser.io.ts"
-            ],
-            "@Utils": [
-                "utils.ts"
             ]
         },
         "lib": [

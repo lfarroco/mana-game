@@ -1,12 +1,11 @@
 import * as Phaser from "phaser";
-import * as constants from "../../Constants/constants";
+import * as constants from "../../constants/constants";
 import { Button, createUIButton, } from "../../UI/UIButton";
 import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
 import { getOption, setOption } from "@Models/OptionsStore";
 import { vec2 } from "@Models/Geometry";
 import { SetText } from "@PhaserIO";
 import { getState } from "@Models/State";
-import TitleSceneSpec from "@Scenes/Title/TitleScene.spec";
 
 type TabType = 'audio' | 'graphics' | 'game';
 
@@ -94,7 +93,7 @@ export default class OptionsScene extends Phaser.Scene {
 
 	create() {
 		getState().currentScene = this;
-		this.cloudsBackground = new CloudsBackground({
+		this.cloudsBackground = new CloudsBackground(this, {
 			preset: 'aurora',
 		});
 
@@ -105,6 +104,16 @@ export default class OptionsScene extends Phaser.Scene {
 		this.currentMusicVolume = getOption('musicVolume');
 		this.currentDebugSetting = getOption('debug');
 		this.currentSpeedSetting = getOption('speed');
+
+		this.add.text(
+			constants.MIDDLE_SCREEN_X,
+			LAYOUT.TITLE_Y,
+			'OPTIONS',
+			{
+				...constants.titleTextConfig,
+				fontSize: LAYOUT.TITLE_FONT_SIZE
+			}
+		).setOrigin(0.5);
 
 		this.createTabButtons();
 
@@ -361,7 +370,7 @@ export default class OptionsScene extends Phaser.Scene {
 	private returnToTitle() {
 		this.cameras.main.fade(ANIMATION.FADE_DURATION, ANIMATION.FADE_COLOR.r, ANIMATION.FADE_COLOR.g, ANIMATION.FADE_COLOR.b);
 		this.cameras.main.once('camerafadeoutcomplete', () => {
-			this.scene.start(TitleSceneSpec.name);
+			this.scene.start(constants.SCENE_KEYS.TITLE);
 		});
 	}
 
