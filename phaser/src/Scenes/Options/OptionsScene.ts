@@ -6,10 +6,15 @@ import { getOption, setOption } from "@Models/OptionsStore";
 import { vec2 } from "@Models/Geometry";
 import { SetText } from "@PhaserIO";
 import { getState } from "@Models/State";
+import { returnToTitle } from "./effects/returnToTitle";
+import { showTab } from "./effects/showTab";
+import { backButton } from "./components/backButton";
+import { optionsLabel } from "./components/optionsLabel";
+import { createTabButtons } from "./effects/createTabButtons";
 
-type TabType = 'audio' | 'graphics' | 'game';
+export type TabType = 'audio' | 'graphics' | 'game';
 
-const LAYOUT = {
+export const LAYOUT = {
 	TITLE_Y: 40,
 	TITLE_FONT_SIZE: '48px',
 	BACK_BUTTON_Y: 950,
@@ -50,7 +55,7 @@ const ADJUSTMENTS = {
 	SPEED_MAX: 3.0,
 } as const;
 
-const STYLES = {
+export const STYLES = {
 	SELECTED_TAB_COLOR: '#FFD700',
 	SELECTED_TAB_STROKE_WIDTH: 4,
 	UNSELECTED_TAB_COLOR: '#FFFFFF',
@@ -59,33 +64,33 @@ const STYLES = {
 	VALUE_TEXT_COLOR: '#FFD700',
 } as const;
 
-const ANIMATION = {
+export const ANIMATION = {
 	FADE_DURATION: 500,
 	FADE_COLOR: { r: 0, g: 0, b: 0 },
 } as const;
 
 export default class OptionsScene extends Phaser.Scene {
-	private cloudsBackground!: CloudsBackground;
+	cloudsBackground!: CloudsBackground;
 
-	private particlesValueText!: Phaser.GameObjects.Text;
-	private soundValueText!: Phaser.GameObjects.Text;
-	private musicValueText!: Phaser.GameObjects.Text;
-	private soundVolumeValueText!: Phaser.GameObjects.Text;
-	private musicVolumeValueText!: Phaser.GameObjects.Text;
-	private debugValueText!: Phaser.GameObjects.Text;
-	private speedValueText!: Phaser.GameObjects.Text;
+	particlesValueText!: Phaser.GameObjects.Text;
+	soundValueText!: Phaser.GameObjects.Text;
+	musicValueText!: Phaser.GameObjects.Text;
+	soundVolumeValueText!: Phaser.GameObjects.Text;
+	musicVolumeValueText!: Phaser.GameObjects.Text;
+	debugValueText!: Phaser.GameObjects.Text;
+	speedValueText!: Phaser.GameObjects.Text;
 
-	private currentTab: TabType = 'audio';
-	private tabButtons: { [key in TabType]: Button } = {} as any;
-	private optionElements: Phaser.GameObjects.GameObject[] = [];
+	currentTab: TabType = 'audio';
+	tabButtons: { [key in TabType]: Button } = {} as any;
+	optionElements: Phaser.GameObjects.GameObject[] = [];
 
-	private currentParticlesSetting: 'low' | 'medium' | 'high' = 'medium';
-	private currentSoundSetting: boolean = true;
-	private currentMusicSetting: boolean = true;
-	private currentSoundVolume: number = 0.4;
-	private currentMusicVolume: number = 0.2;
-	private currentDebugSetting: boolean = false;
-	private currentSpeedSetting: number = 1;
+	currentParticlesSetting: 'low' | 'medium' | 'high' = 'medium';
+	currentSoundSetting: boolean = true;
+	currentMusicSetting: boolean = true;
+	currentSoundVolume: number = 0.4;
+	currentMusicVolume: number = 0.2;
+	currentDebugSetting: boolean = false;
+	currentSpeedSetting: number = 1;
 
 	constructor() {
 		super(constants.SCENE_KEYS.OPTIONS);
@@ -105,37 +110,18 @@ export default class OptionsScene extends Phaser.Scene {
 		this.currentDebugSetting = getOption('debug');
 		this.currentSpeedSetting = getOption('speed');
 
-		this.add.text(
-			constants.MIDDLE_SCREEN_X,
-			LAYOUT.TITLE_Y,
-			'OPTIONS',
-			{
-				...constants.titleTextConfig,
-				fontSize: LAYOUT.TITLE_FONT_SIZE
-			}
-		).setOrigin(0.5);
+		optionsLabel();
 
-		this.createTabButtons();
+		createTabButtons();
 
-		this.showTab(this.currentTab);
+		showTab(this.currentTab);
 
-		createUIButton(
-			'BACK',
-			vec2(
-				constants.MIDDLE_SCREEN_X,
-				LAYOUT.BACK_BUTTON_Y,
-			),
-			() => {
-				this.returnToTitle();
-			}
-		);
+		backButton();
 
-		this.input.keyboard?.on('keydown-ESC', () => {
-			this.returnToTitle();
-		});
+		this.input.keyboard?.on('keydown-ESC', returnToTitle);
 	}
 
-	private createBooleanOption(
+	createBooleanOption(
 		label: string,
 		yPos: number,
 		getValue: () => boolean,
@@ -180,7 +166,7 @@ export default class OptionsScene extends Phaser.Scene {
 		this.optionElements.push(toggleButton.container);
 	}
 
-	private createVolumeOption(
+	createVolumeOption(
 		label: string,
 		yPos: number,
 		getValue: () => number,
@@ -236,7 +222,7 @@ export default class OptionsScene extends Phaser.Scene {
 		this.optionElements.push(increaseButton.container);
 	}
 
-	private createMultiChoiceOption(
+	createMultiChoiceOption(
 		label: string,
 		yPos: number,
 		choices: string[],
@@ -296,7 +282,7 @@ export default class OptionsScene extends Phaser.Scene {
 		this.optionElements.push(increaseButton.container);
 	}
 
-	private createSpeedOption(
+	createSpeedOption(
 		label: string,
 		yPos: number,
 		getValue: () => number,
@@ -350,7 +336,7 @@ export default class OptionsScene extends Phaser.Scene {
 		this.optionElements.push(increaseButton.container);
 	}
 
-	private updateAllCloudsBackgrounds() {
+	updateAllCloudsBackgrounds() {
 
 		if (this.cloudsBackground) {
 			this.cloudsBackground.updateParticleQuality();
@@ -367,91 +353,7 @@ export default class OptionsScene extends Phaser.Scene {
 		});
 	}
 
-	private returnToTitle() {
-		this.cameras.main.fade(ANIMATION.FADE_DURATION, ANIMATION.FADE_COLOR.r, ANIMATION.FADE_COLOR.g, ANIMATION.FADE_COLOR.b);
-		this.cameras.main.once('camerafadeoutcomplete', () => {
-			this.scene.start(constants.SCENE_KEYS.TITLE);
-		});
-	}
-
-	destroy() {
-		if (this.cloudsBackground) {
-			this.cloudsBackground.destroy();
-		}
-	}
-
-	private createTabButtons() {
-		const tabButtonY = LAYOUT.TAB_BUTTON_Y;
-		const buttonSpacing = LAYOUT.TAB_BUTTON_SPACING;
-		const startX = constants.MIDDLE_SCREEN_X - buttonSpacing;
-
-		this.tabButtons.audio = createUIButton(
-			'AUDIO',
-			vec2(startX, tabButtonY),
-			() => this.showTab('audio'),
-			LAYOUT.TAB_BUTTON_WIDTH
-		);
-
-		this.tabButtons.graphics = createUIButton(
-			'GRAPHICS',
-			vec2(startX + buttonSpacing, tabButtonY),
-			() => this.showTab('graphics'),
-			LAYOUT.TAB_BUTTON_WIDTH
-		);
-
-		this.tabButtons.game = createUIButton(
-			'GAME',
-			vec2(startX + buttonSpacing * 2, tabButtonY),
-			() => this.showTab('game'),
-			LAYOUT.TAB_BUTTON_WIDTH
-		);
-
-		this.updateTabButtonStates();
-	}
-
-	private updateTabButtonStates() {
-		Object.keys(this.tabButtons).forEach(tabKey => {
-			const tab = tabKey as TabType;
-			const button = this.tabButtons[tab];
-			if (tab === this.currentTab) {
-				button.text.setColor(STYLES.SELECTED_TAB_COLOR);
-				button.text.setStroke(STYLES.TAB_STROKE_COLOR, STYLES.SELECTED_TAB_STROKE_WIDTH);
-			} else {
-				button.text.setColor(STYLES.UNSELECTED_TAB_COLOR);
-				button.text.setStroke(STYLES.TAB_STROKE_COLOR, STYLES.UNSELECTED_TAB_STROKE_WIDTH);
-			}
-		});
-	}
-
-	private showTab(tabType: TabType) {
-		this.currentTab = tabType;
-		this.clearOptionElements();
-		this.updateTabButtonStates();
-
-		const startY = LAYOUT.OPTIONS_START_Y;
-		const lineHeight = LAYOUT.OPTIONS_LINE_HEIGHT;
-
-		switch (tabType) {
-			case 'audio':
-				this.createAudioOptions(startY, lineHeight);
-				break;
-			case 'graphics':
-				this.createGraphicsOptions(startY);
-				break;
-			case 'game':
-				this.createGameOptions(startY, lineHeight);
-				break;
-		}
-	}
-
-	private clearOptionElements() {
-		this.optionElements.forEach(element => {
-			element.destroy();
-		});
-		this.optionElements = [];
-	}
-
-	private createAudioOptions(startY: number, lineHeight: number) {
+	createAudioOptions(startY: number, lineHeight: number) {
 		this.createBooleanOption('Sound', startY,
 			() => this.currentSoundSetting,
 			(value: boolean) => {
@@ -493,7 +395,7 @@ export default class OptionsScene extends Phaser.Scene {
 		);
 	}
 
-	private createGraphicsOptions(startY: number) {
+	createGraphicsOptions(startY: number) {
 		this.createMultiChoiceOption('Particles', startY,
 			['low', 'medium', 'high'],
 			() => this.currentParticlesSetting,
@@ -507,7 +409,7 @@ export default class OptionsScene extends Phaser.Scene {
 		);
 	}
 
-	private createGameOptions(startY: number, lineHeight: number) {
+	createGameOptions(startY: number, lineHeight: number) {
 		this.createBooleanOption('Debug', startY,
 			() => this.currentDebugSetting,
 			(value: boolean) => {
@@ -529,3 +431,4 @@ export default class OptionsScene extends Phaser.Scene {
 		);
 	}
 }
+
