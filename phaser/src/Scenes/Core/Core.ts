@@ -1,5 +1,5 @@
 import { images } from "../../assets";
-import { SCENE_KEYS } from "../../constants/constants";
+import { SCENE_KEYS } from "@Constants/constants";
 
 export default class Core extends Phaser.Scene {
 

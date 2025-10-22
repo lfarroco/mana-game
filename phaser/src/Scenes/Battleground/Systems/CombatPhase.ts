@@ -9,7 +9,7 @@ import * as GhostStore from "@Models/GhostStore";
 import * as Board from "@Models/Board";
 import * as Chara from "@Systems/Chara/Chara";
 import * as MoraleDisplay from "../MoraleDisplay";
-import * as constants from "../../../constants/constants";
+import * as constants from "@Constants/constants";
 import { endShopPhase } from "./ShopPhase";
 import * as BoardStatsDisplay from "../BoardStatsDisplay";
 import { createUIButton } from "../../../UI/UIButton";

@@ -1,5 +1,5 @@
 import { vec2 } from "@Models/Geometry";
-import * as c from "../../../../constants/constants";
+import * as c from "@Constants/constants";
 import { Button, createUIButton } from "../../../../UI/UIButton";
 import * as sc from "./constants";
 import { MagicOrb } from "../../../../components/MagicOrb/MagicOrb";

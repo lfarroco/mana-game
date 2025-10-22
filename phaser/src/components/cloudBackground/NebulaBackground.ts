@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import * as constants from '../../constants/constants';
+import * as constants from '@Constants/constants';
 
 export interface NebulaBackgroundOptions {
 	width?: number;

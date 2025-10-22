@@ -1,5 +1,5 @@
 import * as Phaser from "phaser";
-import * as constants from "../../constants/constants";
+import * as constants from "@Constants/constants";
 import { createUIButton } from "../../UI/UIButton";
 import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
 import { images } from "../../assets";

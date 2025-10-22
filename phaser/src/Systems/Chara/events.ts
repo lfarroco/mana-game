@@ -1,4 +1,4 @@
-import { SHOP_ITEM_PURCHASE_COST } from "../../constants/constants"
+import { SHOP_ITEM_PURCHASE_COST } from "@Constants/constants"
 import * as Chara from "./Chara";
 import { hideTooltip } from "@UI/Tooltip";
 import { tween } from "../../Utils/animation";

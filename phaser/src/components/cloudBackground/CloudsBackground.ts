@@ -1,6 +1,6 @@
 import * as Phaser from 'phaser';
 import { cloudsBackgroundShader } from '../../Shaders/CloudsBackground';
-import { colorPresets, IColorPreset } from '../../constants/colorPresets';
+import { colorPresets, IColorPreset } from '@Constants/colorPresets';
 
 export interface CloudsBackgroundConfig {
 	/** Initial color preset to use */
