@@ -2,15 +2,14 @@ import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
 import { createUIButton } from "@UI/UIButton";
-import { LAYOUT, STYLES, BUTTONS } from "../OptionsScene";
+import { LAYOUT, STYLES, BUTTONS } from "../../OptionsScene";
 
-export function booleanOption(
+export function boolean(
 	label: string,
 	yPos: number,
 	getValue: () => boolean,
 	setValue: (value: boolean) => void
 ) {
-
 	const labelText = io.Text(
 		vec2(constants.MIDDLE_SCREEN_X, yPos),
 		label,

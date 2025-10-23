@@ -3,10 +3,10 @@ import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
 import { createUIButton } from "@UI/UIButton";
 import * as Phaser from "phaser";
-import { BUTTONS, LAYOUT, STYLES } from "../OptionsScene";
+import { BUTTONS, LAYOUT, STYLES } from "../../OptionsScene";
 
 
-export function createMultiChoiceOption(
+export function multipleChoice(
 	label: string,
 	yPos: number,
 	choices: string[],

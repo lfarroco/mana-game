@@ -1,15 +1,14 @@
 import * as Phaser from "phaser";
 import * as constants from "@Constants/constants";
-import { Button, } from "../../UI/UIButton";
 import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
 import { getState } from "@Models/State";
 import { returnToTitle } from "./effects/returnToTitle";
-import { showTab } from "./effects/showTab";
+import { showTab } from "./components/tabs/effects/showTab";
 import { backButton } from "./components/backButton";
 import { optionsLabel } from "./components/optionsLabel";
-import { createTabButtons } from "./effects/createTabButtons";
-
-export type TabType = 'audio' | 'graphics' | 'game';
+import { tabButtons } from "./components/tabs/tabButtons";
+import { currentTab } from "./components/tabs/effects/showTab";
+import { TabType } from "./components/Model";
 
 export const LAYOUT = {
 	TITLE_Y: 40,
@@ -42,36 +41,13 @@ export const BUTTONS = {
 	SPEED_BUTTON_WIDTH: 60,
 } as const;
 
-export const ADJUSTMENTS = {
-	VOLUME_STEP: 0.1,
-	VOLUME_MIN: 0,
-	VOLUME_MAX: 1,
-
-	SPEED_STEP: 0.1,
-	SPEED_MIN: 0.1,
-	SPEED_MAX: 3.0,
-} as const;
-
 export const STYLES = {
-	SELECTED_TAB_COLOR: '#FFD700',
-	SELECTED_TAB_STROKE_WIDTH: 4,
-	UNSELECTED_TAB_COLOR: '#FFFFFF',
-	UNSELECTED_TAB_STROKE_WIDTH: 3,
-	TAB_STROKE_COLOR: '#000000',
 	VALUE_TEXT_COLOR: '#FFD700',
-} as const;
-
-export const ANIMATION = {
-	FADE_DURATION: 500,
-	FADE_COLOR: { r: 0, g: 0, b: 0 },
 } as const;
 
 export default class OptionsScene extends Phaser.Scene {
 	cloudsBackground!: CloudsBackground;
 
-	currentTab: TabType = 'audio';
-	tabButtons: { [key in TabType]: Button } = {} as any;
-	tabContent: Phaser.GameObjects.GameObject[] = [];
 
 	constructor() {
 		super(constants.SCENE_KEYS.OPTIONS);
@@ -84,9 +60,9 @@ export default class OptionsScene extends Phaser.Scene {
 
 		optionsLabel();
 
-		createTabButtons();
+		tabButtons();
 
-		showTab(this.currentTab);
+		showTab(currentTab.key as TabType);
 
 		backButton();
 
