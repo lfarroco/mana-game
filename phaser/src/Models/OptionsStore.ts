@@ -35,8 +35,8 @@ export function getOptions(): Readonly<Options> {
 	return { ...currentOptions };
 }
 
-export function getOption<K extends keyof Options>(key: K): Options[K] {
-	return currentOptions[key];
+export function getOption<K extends keyof Options>(key: K, default_?: Options[K]): Options[K] {
+	return currentOptions[key] ?? default_;
 }
 
 export function setOption<K extends keyof Options>(key: K, value: Options[K]): void {
