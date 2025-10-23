@@ -1,33 +1,32 @@
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
-import { getCurrentScene } from "@Models/State";
-import { createUIButton } from "@UI/UIButton";
-import OptionsScene, { LAYOUT } from "../OptionsScene";
-import { showTab } from "./showTab";
-import { updateTabButtonStates } from "./updateTabButtonStates";
+import { Button, createUIButton } from "@UI/UIButton";
+import { LAYOUT } from "../../OptionsScene";
+import { showTab } from "./effects/showTab";
+import { updateTabButtonStates } from "./effects/updateTabButtonStates";
 
-export function createTabButtons() {
+export let buttonIndex: { [key: string]: Button } = {}
+
+export function tabButtons() {
 	const tabButtonY = LAYOUT.TAB_BUTTON_Y;
 	const buttonSpacing = LAYOUT.TAB_BUTTON_SPACING;
 	const startX = constants.MIDDLE_SCREEN_X - buttonSpacing;
 
-	const scene = getCurrentScene() as OptionsScene;
-
-	scene.tabButtons.audio = createUIButton(
+	buttonIndex['audio'] = createUIButton(
 		'AUDIO',
 		vec2(startX, tabButtonY),
 		() => showTab('audio'),
 		LAYOUT.TAB_BUTTON_WIDTH
 	);
 
-	scene.tabButtons.graphics = createUIButton(
+	buttonIndex['graphics'] = createUIButton(
 		'GRAPHICS',
 		vec2(startX + buttonSpacing, tabButtonY),
 		() => showTab('graphics'),
 		LAYOUT.TAB_BUTTON_WIDTH
 	);
 
-	scene.tabButtons.game = createUIButton(
+	buttonIndex['game'] = createUIButton(
 		'GAME',
 		vec2(startX + buttonSpacing * 2, tabButtonY),
 		() => showTab('game'),

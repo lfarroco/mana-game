@@ -2,9 +2,13 @@ import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
 import { createUIButton } from "@UI/UIButton";
-import { BUTTONS, LAYOUT, ADJUSTMENTS, STYLES } from "../OptionsScene";
+import { BUTTONS, LAYOUT, STYLES } from "../../OptionsScene";
 
-export function volumeOption(
+const VOLUME_STEP = 0.1
+const VOLUME_MIN = 0
+const VOLUME_MAX = 1
+
+export function volume(
 	label: string,
 	yPos: number,
 	getValue: () => number,
@@ -28,7 +32,7 @@ export function volumeOption(
 		'-',
 		vec2(constants.MIDDLE_SCREEN_X - BUTTONS.VOLUME_BUTTON_OFFSET_X, yPos + LAYOUT.VALUE_OFFSET_Y),
 		() => {
-			const newValue = Math.max(ADJUSTMENTS.VOLUME_MIN, getValue() - ADJUSTMENTS.VOLUME_STEP);
+			const newValue = Math.max(VOLUME_MIN, getValue() - VOLUME_STEP);
 			setValue(newValue);
 			updateLabel();
 		},
@@ -56,7 +60,7 @@ export function volumeOption(
 			yPos + LAYOUT.VALUE_OFFSET_Y
 		),
 		() => {
-			const newValue = Math.min(ADJUSTMENTS.VOLUME_MAX, getValue() + ADJUSTMENTS.VOLUME_STEP);
+			const newValue = Math.min(VOLUME_MAX, getValue() + VOLUME_STEP);
 			setValue(newValue);
 			updateLabel();
 		},

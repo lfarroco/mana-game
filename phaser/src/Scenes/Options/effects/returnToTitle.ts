@@ -1,6 +1,5 @@
 import * as constants from "@Constants/constants";
 import { getCurrentScene } from "@Models/State";
-import { ANIMATION } from "../OptionsScene";
 
 export function returnToTitle() {
 	const scene = getCurrentScene();
@@ -8,4 +7,8 @@ export function returnToTitle() {
 	scene.cameras.main.once('camerafadeoutcomplete', () => {
 		scene.scene.start(constants.SCENE_KEYS.TITLE);
 	});
-}
+} export const ANIMATION = {
+	FADE_DURATION: 500,
+	FADE_COLOR: { r: 0, g: 0, b: 0 },
+} as const;
+
