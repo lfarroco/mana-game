@@ -119,6 +119,11 @@ export function Text(
 	return scene.add.text(position.x, position.y, text, style);
 }
 
+export function SetStyle(obj: Phaser.GameObjects.Text, style: Phaser.Types.GameObjects.Text.TextStyle) {
+	obj.setStyle(style);
+}
+
+
 export function WhenDroppedOnZone(
 	obj: Phaser.GameObjects.GameObject,
 	target: string,

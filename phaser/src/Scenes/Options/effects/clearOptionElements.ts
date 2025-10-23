@@ -2,11 +2,11 @@ import { getCurrentScene } from "@Models/State";
 import OptionsScene from "../OptionsScene";
 
 
-export function clearOptionElements() {
+export function cleanTabContent() {
 
 	const scene = getCurrentScene() as OptionsScene;
-	scene.optionElements.forEach(element => {
+	scene.tabContent.forEach(element => {
 		element.destroy();
 	});
-	scene.optionElements = [];
+	scene.tabContent = [];
 }

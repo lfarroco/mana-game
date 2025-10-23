@@ -1,13 +1,16 @@
 import { getCurrentScene } from "@Models/State";
 import OptionsScene, { TabType, LAYOUT } from "../OptionsScene";
+import { audioTab } from "../components/audioTab";
+import { gameTab } from "../components/gameTab";
+import { graphicsTab } from "../components/graphicsTab";
 import { updateTabButtonStates } from "./updateTabButtonStates";
-import { clearOptionElements } from "./clearOptionElements";
+import { cleanTabContent } from "./clearOptionElements";
 
 export function showTab(tabType: TabType) {
 
 	const scene = getCurrentScene() as OptionsScene;
 	scene.currentTab = tabType;
-	clearOptionElements();
+	cleanTabContent();
 	updateTabButtonStates();
 
 	const startY = LAYOUT.OPTIONS_START_Y;
@@ -15,13 +18,13 @@ export function showTab(tabType: TabType) {
 
 	switch (tabType) {
 		case 'audio':
-			scene.createAudioOptions(startY, lineHeight);
+			scene.tabContent = audioTab(startY, lineHeight);
 			break;
 		case 'graphics':
-			scene.createGraphicsOptions(startY);
+			scene.tabContent = graphicsTab(startY);
 			break;
 		case 'game':
-			scene.createGameOptions(startY, lineHeight);
+			scene.tabContent = gameTab(startY, lineHeight);
 			break;
 	}
 }
