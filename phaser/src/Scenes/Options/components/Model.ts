@@ -1,2 +1,2 @@
 
-export type TabType = 'audio' | 'graphics' | 'game';
+export type Tabs = 'audio' | 'graphics' | 'game';

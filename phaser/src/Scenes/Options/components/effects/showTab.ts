@@ -1,15 +1,15 @@
-import { LAYOUT } from "../../../OptionsScene";
-import { TabType } from "@Scenes/Options/components/Model";
-import { audioTab } from "../audio";
-import { gameTab } from "../game";
-import { graphicsTab } from "../graphics";
+import { LAYOUT } from "../../OptionsScene";
+import { Tabs } from "@Scenes/Options/components/Model";
+import { audioTab } from "../tabs/audio";
+import { gameTab } from "../tabs/game";
+import { graphicsTab } from "../tabs/graphics";
 import { updateTabButtonStates } from "./updateTabButtonStates";
 import { cleanTabContent } from "./clearOptionElements";
 
 export let tabContent: { children: Phaser.GameObjects.GameObject[]; } = { children: [] };
 export let currentTab = { key: 'audio' };
 
-export function showTab(tabType: TabType) {
+export function showTab(tabType: Tabs) {
 
 	currentTab.key = tabType;
 	cleanTabContent();

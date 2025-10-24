@@ -3,12 +3,12 @@ import * as constants from "@Constants/constants";
 import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
 import { getState } from "@Models/State";
 import { returnToTitle } from "./effects/returnToTitle";
-import { showTab } from "./components/tabs/effects/showTab";
+import { showTab } from "./components/effects/showTab";
 import { backButton } from "./components/backButton";
 import { optionsLabel } from "./components/optionsLabel";
-import { tabButtons } from "./components/tabs/tabButtons";
-import { currentTab } from "./components/tabs/effects/showTab";
-import { TabType } from "./components/Model";
+import { tabButtons } from "./components/tabButtons";
+import { currentTab } from "./components/effects/showTab";
+import { Tabs } from "./components/Model";
 
 export const LAYOUT = {
 	TITLE_Y: 40,
@@ -62,7 +62,7 @@ export default class OptionsScene extends Phaser.Scene {
 
 		tabButtons();
 
-		showTab(currentTab.key as TabType);
+		showTab(currentTab.key as Tabs);
 
 		backButton();
 

@@ -1,4 +1,4 @@
-import { TabType } from "../../Model";
+import { Tabs } from "../Model";
 import { buttonIndex } from "../tabButtons";
 import { currentTab } from "./showTab";
 
@@ -10,7 +10,7 @@ const TAB_STROKE_COLOR = '#000000';
 
 export function updateTabButtonStates() {
 	Object.keys(buttonIndex).forEach(tabKey => {
-		const tab = tabKey as TabType;
+		const tab = tabKey as Tabs;
 		const button = buttonIndex[tab];
 		if (tab === currentTab.key) {
 			button.text.setColor(SELECTED_TAB_COLOR);
