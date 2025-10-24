@@ -56,9 +56,10 @@ export function createUIButton(
 		1
 	);
 
-	io.SetInteractiveRect(buttonGraphics, size)
+	io.SetInteractiveRect(buttonGraphics, size);
 
-	const buttonText = io.Text(position, text, textStyle)
+	const buttonText = io.Text(text, textStyle);
+	io.SetPosition(buttonText, position);
 	io.Centralize(buttonText)
 
 	io.AddChildren(container, [buttonGraphics, magic.shader, buttonText]);

@@ -1,5 +1,5 @@
 import { defaultTextConfig } from "@Constants/constants";
-import * as ph from "@PhaserIO";
+import * as io from "@PhaserIO";
 
 export let zone: Phaser.GameObjects.Zone | null = null;
 let container: Container | null = null;
@@ -30,36 +30,36 @@ const textStyle = {
 
 export function create() {
 
-	container = ph.Container();
+	container = io.Container();
 
 	rect = createRect();
 
 	labelText = createLabel();
 
-	zone = ph.RectangularDropZone(name, position, size);
+	zone = io.RectangularDropZone(name, position, size);
 
-	ph.AddChildren(container, [zone, rect, labelText]);
+	io.AddChildren(container, [zone, rect, labelText]);
 
-	ph.Hide(container);
+	io.Hide(container);
 
 	return container;
 }
 
 export function show() {
-	ph.BringToTop(container!);
-	ph.Show(container!);
+	io.BringToTop(container!);
+	io.Show(container!);
 }
 
 export function hide() {
-	ph.Hide(container!);
+	io.Hide(container!);
 }
 
 export function destroy() {
-	ph.Destroy(container!);
+	io.Destroy(container!);
 	container = null;
 }
 
-const createRect = () => ph.BorderedRoundRect(
+const createRect = () => io.BorderedRoundRect(
 	position,
 	size,
 	cornerRadius,
@@ -68,13 +68,14 @@ const createRect = () => ph.BorderedRoundRect(
 );
 
 const createLabel = () => {
-	const text = ph.Text(
-		position,
+	const text = io.Text(
 		label,
 		textStyle
 	);
 
-	ph.Centralize(text);
+	io.SetPosition(text, position)
+
+	io.Centralize(text);
 
 	return text;
 }

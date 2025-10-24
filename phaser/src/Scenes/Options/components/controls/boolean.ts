@@ -11,16 +11,15 @@ export function boolean(
 	setValue: (value: boolean) => void
 ) {
 	const labelText = io.Text(
-		vec2(constants.MIDDLE_SCREEN_X, yPos),
 		label,
 		constants.titleTextConfig
 	);
+	io.SetPosition(labelText, vec2(constants.MIDDLE_SCREEN_X, yPos));
 	io.Centralize(labelText);
 
 	//   ~~~//~~~
 
 	const valueText = io.Text(
-		vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.VALUE_OFFSET_Y),
 		getValue() ? 'ON' : 'OFF',
 		{
 			...constants.titleTextConfig,
@@ -28,6 +27,7 @@ export function boolean(
 			color: STYLES.VALUE_TEXT_COLOR
 		}
 	);
+	io.SetPosition(valueText, vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.VALUE_OFFSET_Y))
 	io.Centralize(valueText);
 	io.Hide(valueText);
 
