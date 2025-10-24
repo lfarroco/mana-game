@@ -19,10 +19,11 @@ export function multipleChoice(
 
 	//   ~~~//~~~
 	const labelText = io.Text(
-		vec2(constants.MIDDLE_SCREEN_X, yPos),
 		label,
 		constants.titleTextConfig
 	);
+
+	io.SetPosition(labelText, vec2(constants.MIDDLE_SCREEN_X, yPos));
 	io.Centralize(labelText);
 
 	//   ~~~//~~~
@@ -43,7 +44,6 @@ export function multipleChoice(
 
 	//   ~~~//~~~
 	const valueText = io.Text(
-		vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.MULTICHOICE_VALUE_OFFSET_Y),
 		formatLabel(),
 		{
 			...constants.titleTextConfig,
@@ -51,6 +51,8 @@ export function multipleChoice(
 			color: STYLES.VALUE_TEXT_COLOR
 		}
 	);
+
+	io.SetPosition(valueText, vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.MULTICHOICE_VALUE_OFFSET_Y))
 	io.Centralize(valueText);
 
 	//   ~~~//~~~

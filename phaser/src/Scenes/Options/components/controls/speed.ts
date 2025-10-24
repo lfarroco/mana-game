@@ -22,10 +22,11 @@ export function speed(
 
 	//   ~~~//~~~
 	const labelText = io.Text(
-		vec2(constants.MIDDLE_SCREEN_X, yPos),
 		label,
 		constants.titleTextConfig
 	);
+
+	io.SetPosition(labelText, vec2(constants.MIDDLE_SCREEN_X, yPos));
 	io.Centralize(labelText);
 
 	//   ~~~//~~~
@@ -45,13 +46,14 @@ export function speed(
 
 	//   ~~~//~~~
 	const valueText = io.Text(
-		vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.SPEED_VALUE_OFFSET_Y),
 		formatLabel(),
 		{
 			...constants.titleTextConfig,
 			color: STYLES.VALUE_TEXT_COLOR
 		}
 	);
+
+	io.SetPosition(valueText, vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.SPEED_VALUE_OFFSET_Y));
 	io.Centralize(valueText);
 
 	//   ~~~//~~~

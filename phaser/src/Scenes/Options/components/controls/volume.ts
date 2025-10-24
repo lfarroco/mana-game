@@ -20,10 +20,10 @@ export function volume(
 	//   ~~~//~~~
 
 	const title = io.Text(
-		vec2(constants.MIDDLE_SCREEN_X, yPos),
 		label,
 		constants.titleTextConfig
 	);
+	io.SetPosition(title, vec2(constants.MIDDLE_SCREEN_X, yPos))
 	io.Centralize(title);
 
 	//   ~~~//~~~
@@ -42,13 +42,13 @@ export function volume(
 	//   ~~~//~~~
 
 	const valueText = io.Text(
-		vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.VALUE_OFFSET_Y),
 		formatLabel(getValue()),
 		{
 			...constants.titleTextConfig,
 			color: STYLES.VALUE_TEXT_COLOR
 		}
 	);
+	io.SetPosition(valueText, vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.VALUE_OFFSET_Y));
 	io.Centralize(valueText);
 
 	//   ~~~//~~~

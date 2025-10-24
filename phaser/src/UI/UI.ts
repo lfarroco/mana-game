@@ -2,6 +2,7 @@ import * as c from "@Constants/constants";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import { tween } from "../Utils/animation";
 import * as Tooltip from "./Tooltip";
+import * as io from "@PhaserIO";
 export * as events from "./events"
 
 const PRESTIGE_DISPLAY_X = c.SCREEN_WIDTH - 520;
@@ -55,15 +56,15 @@ function createPrestigeDisplay(parent: Container): void {
 	const initialPrestige = scene.state.gameData.player.prestige;
 	const prestigeContainer = scene.add.container(PRESTIGE_DISPLAY_X, PRESTIGE_DISPLAY_Y);
 
-	const label = scene.add.text(
-		0, 0,
+	const label = io.Text(
 		"Prestige:",
 		{
 			...c.titleTextConfig,
 			fontSize: '24px',
 			color: '#ffffff'
 		}
-	).setOrigin(0);
+	)
+	io.Centralize(label);
 	prestigeContainer.add(label);
 
 	prestigeTextElement = scene.add.text(

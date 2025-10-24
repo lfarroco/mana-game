@@ -111,12 +111,11 @@ export function Centralize(obj: {
 }
 
 export function Text(
-	position: Vec2,
 	text: string,
 	style: Phaser.Types.GameObjects.Text.TextStyle
 ) {
 	const scene = getState().currentScene;
-	return scene.add.text(position.x, position.y, text, style);
+	return scene.add.text(0, 0, text, style);
 }
 
 export function SetStyle(obj: Phaser.GameObjects.Text, style: Phaser.Types.GameObjects.Text.TextStyle) {
