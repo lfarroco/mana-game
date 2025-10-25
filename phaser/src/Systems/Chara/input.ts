@@ -6,7 +6,7 @@ import { Unit } from "@Models/Entities/Unit";
 import * as constants from "@Constants/constants";
 import * as Shop from "@Scenes/Battleground/Systems/Shop";
 import * as Board from "@Models/Board";
-import * as Tooltip from "@UI/Tooltip";
+import * as Tooltip from "@Components/Tooltip";
 
 import * as Chara from "./Chara";
 import * as events from "./events";

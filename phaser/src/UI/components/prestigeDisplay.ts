@@ -1,11 +1,18 @@
 import * as c from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
+import { getState } from "@Models/State";
 import * as io from "@PhaserIO";
-import { scene } from "@Scenes/Battleground/BattlegroundScene";
+
+export let prestigeTextElement: TextObj | null = null;
+export const updatePrestigeDisplay = (newTotalPrestige: number): void => {
+	prestigeTextElement!.setText(newTotalPrestige.toString());
+};
+export const PRESTIGE_DISPLAY_X = c.SCREEN_WIDTH - 520;
+export const PRESTIGE_DISPLAY_Y = 20;
 
 export function createPrestigeDisplay() {
 
-	const initialPrestige = scene.state.gameData.player.prestige;
+	const initialPrestige = getState().gameData.player.prestige;
 
 	const label = io.Text(
 		"Prestige:",
@@ -34,10 +41,4 @@ export function createPrestigeDisplay() {
 	io.AddChildren(prestigeContainer, [label, prestigeTextElement]);
 
 	return prestigeContainer;
-} export let prestigeTextElement: TextObj | null = null;
-export const updatePrestigeDisplay = (newTotalPrestige: number): void => {
-	prestigeTextElement!.setText(newTotalPrestige.toString());
-};
-export const PRESTIGE_DISPLAY_X = c.SCREEN_WIDTH - 520;
-export const PRESTIGE_DISPLAY_Y = 20;
-
+}
