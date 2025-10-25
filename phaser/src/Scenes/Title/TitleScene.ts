@@ -40,6 +40,14 @@ export default class TitleScene extends Phaser.Scene {
 
 		this.input.keyboard?.on('keydown-ENTER', startGame);
 
+		// const PGIurl = 'https://cdn.jsdelivr.net/gh/SilverTree7622/Phaser3_GUI_Inspector@latest/dist/PGInspector.js';
+		// const PGIele = document.createElement('script');
+		// PGIele.src = PGIurl;
+		// document.head.appendChild(PGIele);
+		// setTimeout(() => {
+		// 	//@ts-ignore
+		// 	PhaserGUIAction(this);
+		// }, 500)
 	}
 
 }
