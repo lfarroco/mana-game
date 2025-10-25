@@ -7,9 +7,15 @@ export function BringToTop(obj: Phaser.GameObjects.GameObject) {
 	scene.children.bringToTop(obj);
 }
 
-export function Container() {
+export function Container(children?: Phaser.GameObjects.GameObject[]) {
 	const scene = getState().currentScene;
-	return scene.add.container();
+	const container = scene.add.container();
+
+	if (children) {
+		container.add(children);
+	}
+
+	return container;
 }
 
 export function Image(texture: string) {

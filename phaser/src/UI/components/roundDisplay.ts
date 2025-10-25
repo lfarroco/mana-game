@@ -5,21 +5,28 @@ import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import { titleTextConfig } from "@Constants/constants";
 import { tween } from "@Utils/animation";
 
-export function roundDisplay() {
+export let roundTextElement: TextObj | null = null;
+const ROUND_DISPLAY_X = c.SCREEN_WIDTH - 720;
+const ROUND_DISPLAY_Y = 20;
+
+export function create() {
 	const initialRound = scene.state.gameData.player.round;
-	const roundContainer = io.Container();
-	io.SetPosition(roundContainer, vec2(ROUND_DISPLAY_X, ROUND_DISPLAY_Y));
 
-	const label = io.Text(
-		"Round:",
-		{
-			...c.titleTextConfig,
-			fontSize: '24px',
-			color: '#ffffff'
-		}
-	);
-	io.Centralize(label);
+	const label = label_();
 
+	const text_ = text(initialRound, label);
+
+	const container = io.Container([label, text_]);
+	io.SetPosition(container, vec2(ROUND_DISPLAY_X, ROUND_DISPLAY_Y));
+
+	return container;
+}
+
+export const updateRoundDisplay = (newTotalRound: number): void => {
+	roundTextElement!.setText(newTotalRound.toString());
+};
+
+function text(initialRound: number, label: TextObj) {
 	roundTextElement = io.Text(
 		initialRound.toString(),
 		{
@@ -31,12 +38,22 @@ export function roundDisplay() {
 	io.SetPosition(roundTextElement, vec2(label.width + 10, 0));
 	io.Centralize(roundTextElement);
 
-	io.AddChildren(roundContainer, [label, roundTextElement]);
+	return roundTextElement;
+}
 
-	return roundContainer;
-} export const updateRoundDisplay = (newTotalRound: number): void => {
-	roundTextElement!.setText(newTotalRound.toString());
-};
+function label_() {
+	const label = io.Text(
+		"Round:",
+		{
+			...c.titleTextConfig,
+			fontSize: '24px',
+			color: '#ffffff'
+		}
+	);
+	io.Centralize(label);
+	return label;
+}
+
 export async function roundChangeAnimation() {
 	const animationText = "+1";
 
@@ -69,7 +86,4 @@ export async function roundChangeAnimation() {
 
 	roundAmountText.destroy();
 }
-export let roundTextElement: TextObj | null = null;
-export const ROUND_DISPLAY_X = c.SCREEN_WIDTH - 720;
-export const ROUND_DISPLAY_Y = 20;
 

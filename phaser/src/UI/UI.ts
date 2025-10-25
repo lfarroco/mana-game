@@ -2,9 +2,9 @@ import * as c from "@Constants/constants";
 import { tween } from "@Utils/animation";
 import * as Tooltip from "../Components/Tooltip";
 import * as io from "@PhaserIO";
-import { createPrestigeDisplay } from "./components/prestigeDisplay";
-import { roundDisplay } from "./components/roundDisplay";
-import { create } from "./components/winsDisplay";
+import * as prestigeDisplay from "./components/prestigeDisplay";
+import * as roundDisplay from "./components/roundDisplay";
+import * as winsDisplay from "./components/winsDisplay";
 import { vec2 } from "@Models/Geometry";
 export * as events from "./events"
 
@@ -12,14 +12,10 @@ let uiContainer: Container | null = null;
 
 export function init() {
 
-	uiContainer = io.Container();
-
-	Tooltip.init();
-
-	io.AddChildren(uiContainer, [
-		createPrestigeDisplay(),
-		roundDisplay(),
-		create(),
+	uiContainer = io.Container([
+		prestigeDisplay.create(),
+		roundDisplay.create(),
+		winsDisplay.create(),
 	]);
 }
 

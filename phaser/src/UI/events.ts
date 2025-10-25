@@ -18,9 +18,7 @@ export function onWinsChanged(newTotalWins: number, winsDelta: number) {
 
 export function onPrestigeChanged(newTotalPrestige: number, prestigeDelta: number) {
 	prestigeDisplay.updatePrestigeDisplay(newTotalPrestige);
-	if (prestigeDelta !== 0) {
-		prestigeChangeAnimation(prestigeDelta);
-	}
+	prestigeChangeAnimation(prestigeDelta);
 }
 
 export function onRoundChanged(newTotalRound: number) {
@@ -32,7 +30,7 @@ async function prestigeChangeAnimation(prestige: number) {
 	const sign = prestige > 0 ? "+" : "";
 	const animationText = `${sign}${prestige}`;
 
-	const bounds = prestigeDisplay.prestigeTextElement!.getBounds();
+	const bounds = prestigeDisplay.textEl!.getBounds();
 	const startX = bounds.centerX;
 	const startY = bounds.centerY;
 

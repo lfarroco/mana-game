@@ -1,14 +1,14 @@
 import { getState } from "@Models/State";
 import * as UIManager from "@UI/UI";
 
-
 export function processVictory(): void {
 	const playerState = getState().gameData.player;
 	const prestigeGain = Math.max(Math.floor(playerState.round / 2), 1);
 
 	playerState.prestige += prestigeGain;
-	playerState.wins += 1;
 	UIManager.events.onPrestigeChanged(playerState.prestige, prestigeGain);
+
+	playerState.wins += 1;
 	UIManager.events.onWinsChanged(playerState.wins, 1);
 }
 

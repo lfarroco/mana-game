@@ -14,6 +14,7 @@ import * as Systems from "./Systems"
 import { clearAll } from "@Systems/Chara/Chara";
 import * as ResultsUI from "./Results/ResultsUI";
 import * as BoardStatsDisplay from "./BoardStatsDisplay";
+import * as Tooltip from "@Components/Tooltip";
 
 export let scene: BattlegroundScene;
 
@@ -78,6 +79,7 @@ export class BattlegroundScene extends Phaser.Scene {
     Systems.Setup.setupSceneElements(this.state);
 
     UIManager.init();
+    Tooltip.init();
 
     Systems.CountdownTimer.initializeCountdownTimer(this);
 
