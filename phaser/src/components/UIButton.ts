@@ -56,7 +56,7 @@ export function createUIButton(
 		1
 	);
 
-	io.SetInteractiveRect(buttonGraphics, size);
+	io.SetInteractiveRect(size)(buttonGraphics);
 
 	const buttonText = io.Text(text, textStyle);
 	io.SetPosition(buttonText, position);
@@ -137,7 +137,7 @@ export function enableUIButton(state: State) {
 
 	io.SetAlpha(state.graphics, 1)
 
-	io.SetInteractiveRect(state.graphics, state.size);
+	io.SetInteractiveRect(state.size)(state.graphics);
 
 	state.magic.setIntensity(0.45);
 }

@@ -7,12 +7,39 @@ export function BringToTop(obj: Phaser.GameObjects.GameObject) {
 	scene.children.bringToTop(obj);
 }
 
-export function Container(children?: Phaser.GameObjects.GameObject[]) {
+export function Container(
+	children?: (Phaser.GameObjects.GameObject | (() => Phaser.GameObjects.GameObject) | ((prev: Phaser.GameObjects.GameObject) => Phaser.GameObjects.GameObject)[])[]
+) {
 	const scene = getState().currentScene;
 	const container = scene.add.container();
 
 	if (children) {
-		container.add(children);
+		const elements: Phaser.GameObjects.GameObject[] = []
+
+		children.forEach(child => {
+
+			if (typeof child === 'function') {
+
+				elements.push(child());
+
+			} else if (Array.isArray(child)) {
+
+				elements.push(
+					//@ts-ignore
+					child.reduce(
+						//@ts-ignore
+						(xs, x) => x(xs),
+						container
+					)
+				);
+
+			} else {
+
+				elements.push(child)
+			}
+
+		});
+		container.add(elements);
 	}
 
 	return container;
@@ -37,8 +64,9 @@ export function SetName(obj: Phaser.GameObjects.GameObject, name: string) {
 	obj.setName(name);
 }
 
-export function SetInteractiveRect(obj: Phaser.GameObjects.GameObject, size: Size) {
+export const SetInteractiveRect = (size: Size) => (obj: Phaser.GameObjects.GameObject,) => {
 	obj.setInteractive(Rect({ x: 0, y: 0 }, size), Phaser.Geom.Rectangle.Contains);
+	return obj
 }
 
 export function Rect(position: Vec2, size: Size) {
@@ -50,8 +78,10 @@ export function Tween(config: Phaser.Types.Tweens.TweenBuilderConfig) {
 	scene.tweens.add(config);
 }
 
-export function SetPosition(obj: { setPosition: (x: number, y: number) => void }, vec: Vec2) {
+export function SetPosition(obj: Phaser.GameObjects.GameObject, vec: Vec2) {
+	//@ts-ignore
 	obj.setPosition(vec.x, vec.y);
+	return obj;
 }
 
 export function SetAlpha(obj: { setAlpha: (n: number) => void }, n: number) {
@@ -127,10 +157,10 @@ export function RectangularDropZone(
 	return zone;
 }
 
-export function Centralize(obj: {
-	setOrigin: (n: number) => void
-}) {
+export function Centralize(obj: Phaser.GameObjects.GameObject) {
+	//@ts-ignore
 	obj.setOrigin(0.5);
+	return obj;
 }
 
 export function Text(
