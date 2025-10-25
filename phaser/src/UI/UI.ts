@@ -6,6 +6,7 @@ import * as prestigeDisplay from "./components/prestigeDisplay";
 import * as roundDisplay from "./components/roundDisplay";
 import * as winsDisplay from "./components/winsDisplay";
 import { vec2 } from "@Models/Geometry";
+import * as menuButton from "./components/menuButton";
 export * as events from "./events"
 
 let uiContainer: Container | null = null;
@@ -16,6 +17,7 @@ export function init() {
 		prestigeDisplay.create(),
 		roundDisplay.create(),
 		winsDisplay.create(),
+		menuButton.create()
 	]);
 }
 
