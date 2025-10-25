@@ -1,7 +1,7 @@
 import * as ShopUI from "./ShopUI";
 import * as Systems from "../index"
 import * as Board from "@Models/Board";
-import { delay } from "../../../../Utils/animation";
+import { delay } from "@Utils/animation";
 import { pickRandom } from "../../../../utils";
 import * as sc from "./constants";
 import { getState } from "@Models/State";

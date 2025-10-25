@@ -1,5 +1,5 @@
 import { images } from "../assets";
-import { delay } from "../Utils/animation";
+import { delay } from "@Utils/animation";
 import { impactEffect } from "./impactEffect";
 
 export async function explodeEffect(

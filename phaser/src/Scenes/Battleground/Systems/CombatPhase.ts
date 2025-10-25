@@ -1,6 +1,6 @@
 import { getState } from "@Models/State";
 import { Unit } from "@Models/Entities/Unit";
-import { delay } from "../../../Utils/animation";
+import { delay } from "@Utils/animation";
 import { scene } from "../BattlegroundScene";
 import { getAllCards } from "@Models/Entities/Card";
 import { generateEnemyTeam } from "../generateEnemyTeam";

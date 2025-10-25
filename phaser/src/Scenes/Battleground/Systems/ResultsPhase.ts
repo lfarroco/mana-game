@@ -1,5 +1,5 @@
 import { getState } from "@Models/State";
-import { delay } from "../../../Utils/animation";
+import { delay } from "@Utils/animation";
 import { renderVignette } from "../Animations/vignette";
 import * as AudioManager from "@Systems/AudioManager";
 import * as MoraleDisplay from "../MoraleDisplay";

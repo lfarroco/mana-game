@@ -1,5 +1,5 @@
 import { images } from "../assets";
-import { delay } from "../Utils/animation";
+import { delay } from "@Utils/animation";
 import { EnergyBeam } from "./EnergyBeam";
 
 const ARCANE_MISSILE_CONFIG = {

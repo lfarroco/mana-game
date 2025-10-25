@@ -1,4 +1,4 @@
-import { tween } from "../../../Utils/animation";
+import { tween } from "@Utils/animation";
 import { COLOR_BLACK } from "../../../Utils/colors";
 import { scene } from "../BattlegroundScene";
 import * as c from "@Constants/constants";

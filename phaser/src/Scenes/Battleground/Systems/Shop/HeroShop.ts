@@ -5,7 +5,7 @@ import { scene } from "../../BattlegroundScene";
 import * as ShopUI from "./ShopUI";
 import * as CharaShop from "./CharaShop";
 import * as sc from "./constants";
-import { tween } from "../../../../Utils/animation";
+import { tween } from "@Utils/animation";
 import * as MoraleDisplay from "../../MoraleDisplay";
 import * as Systems from "../index"
 import * as Board from "@Models/Board";

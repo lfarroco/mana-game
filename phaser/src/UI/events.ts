@@ -1,108 +1,38 @@
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import { titleTextConfig } from "@Constants/constants";
-import { tween } from "../Utils/animation";
+import { tween } from "@Utils/animation";
 import * as UI from "./UI";
+import * as winsDisplay from "./winsDisplay";
+import * as roundDisplay from "./roundDisplay";
+import * as prestigeDisplay from "./components/prestigeDisplay";
+import { winsChangeAnimation } from "./winsDisplay";
+import { roundChangeAnimation } from "./roundDisplay";
 
-
-export function onGoldChanged(newTotalGold: number, goldDelta: number) {
-	UI.updateGoldDisplay(newTotalGold);
-	if (goldDelta !== 0) {
-		goldChangeAnimation(goldDelta);
-	}
-}
 
 export function onWinsChanged(newTotalWins: number, winsDelta: number) {
-	UI.updateWinsDisplay(newTotalWins);
+	winsDisplay.updateWinsDisplay(newTotalWins);
 	if (winsDelta !== 0) {
 		winsChangeAnimation(winsDelta);
 	}
 }
 
 export function onPrestigeChanged(newTotalPrestige: number, prestigeDelta: number) {
-	UI.updatePrestigeDisplay(newTotalPrestige);
+	prestigeDisplay.updatePrestigeDisplay(newTotalPrestige);
 	if (prestigeDelta !== 0) {
 		prestigeChangeAnimation(prestigeDelta);
 	}
 }
 
 export function onRoundChanged(newTotalRound: number) {
-	UI.updateRoundDisplay(newTotalRound);
+	roundDisplay.updateRoundDisplay(newTotalRound);
 	roundChangeAnimation();
-}
-
-async function goldChangeAnimation(gold: number) {
-	const sign = gold > 0 ? "+" : "";
-	const animationText = `${sign}${gold}`;
-
-	const bounds = UI.goldTextElement!.getBounds();
-	const startX = bounds.centerX;
-	const startY = bounds.centerY;
-
-	const goldAmountText = scene.add.text(
-		startX, startY, animationText, titleTextConfig
-	)
-		.setOrigin(0.5, 0.5)
-		.setAlpha(0)
-		.setScale(1)
-		.setDepth(1000);
-
-	await tween({
-		targets: [goldAmountText],
-		alpha: 1,
-		scale: 1.2,
-		y: startY - 30,
-	});
-
-	await tween({
-		targets: [goldAmountText],
-		alpha: 0,
-		scale: 1,
-		y: startY - 60,
-		duration: 800,
-	});
-
-	goldAmountText.destroy();
-}
-
-async function winsChangeAnimation(wins: number) {
-	const sign = wins > 0 ? "+" : "";
-	const animationText = `${sign}${wins}`;
-
-	const bounds = UI.winsTextElement!.getBounds();
-	const startX = bounds.centerX;
-	const startY = bounds.centerY;
-
-	const winsAmountText = scene.add.text(
-		startX, startY, animationText, titleTextConfig
-	)
-		.setOrigin(0.5, 0.5)
-		.setAlpha(0)
-		.setScale(1)
-		.setDepth(1000);
-
-	await tween({
-		targets: [winsAmountText],
-		alpha: 1,
-		scale: 1.2,
-		y: startY - 30,
-	});
-
-	await tween({
-		targets: [winsAmountText],
-		alpha: 0,
-		scale: 1,
-		y: startY - 60,
-		duration: 800,
-	});
-
-	winsAmountText.destroy();
 }
 
 async function prestigeChangeAnimation(prestige: number) {
 	const sign = prestige > 0 ? "+" : "";
 	const animationText = `${sign}${prestige}`;
 
-	const bounds = UI.prestigeTextElement!.getBounds();
+	const bounds = prestigeDisplay.prestigeTextElement!.getBounds();
 	const startX = bounds.centerX;
 	const startY = bounds.centerY;
 
@@ -130,39 +60,6 @@ async function prestigeChangeAnimation(prestige: number) {
 	});
 
 	prestigeAmountText.destroy();
-}
-
-async function roundChangeAnimation() {
-	const animationText = "+1";
-
-	const bounds = UI.roundTextElement!.getBounds();
-	const startX = bounds.centerX;
-	const startY = bounds.centerY;
-
-	const roundAmountText = scene.add.text(
-		startX, startY, animationText, titleTextConfig
-	)
-		.setOrigin(0.5, 0.5)
-		.setAlpha(0)
-		.setScale(1)
-		.setDepth(1000);
-
-	await tween({
-		targets: [roundAmountText],
-		alpha: 1,
-		scale: 1.2,
-		y: startY - 30,
-	});
-
-	await tween({
-		targets: [roundAmountText],
-		alpha: 0,
-		scale: 1,
-		y: startY - 60,
-		duration: 800,
-	});
-
-	roundAmountText.destroy();
 }
 
 export function onPurchaseFailed(
