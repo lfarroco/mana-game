@@ -91,6 +91,23 @@ export function BorderedRoundRect(
 	return g;
 }
 
+export function Rectangle(
+	position: Vec2,
+	size: Size,
+	color: number = 0xffa500,
+	alpha: number = 0.7,
+) {
+	const scene = getState().currentScene;
+	const actualPos = sumVec2(position, { x: -size.width / 2, y: -size.height / 2 })
+	const g = scene.add.graphics(actualPos);
+	g.lineStyle(4, 0xffffff, 0.8);
+	g.fillStyle(color, alpha);
+	g.fillRect(0, 0, size.width, size.height);
+	g.strokeRect(0, 0, size.width, size.height);
+
+	return g;
+}
+
 export function RectangularDropZone(
 	name: string,
 	{ x, y }: Vec2,
