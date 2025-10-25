@@ -3,7 +3,7 @@ import * as constants_1 from "@Constants/constants";
 import * as Geometry from "./Geometry";
 import { Unit } from "./Entities/Unit";
 import { getState, getUnitAt, State } from "./State";
-import * as EnergySlot from "../components/EnergySlot/EnergySlot";
+import * as EnergySlot from "../Components/EnergySlot/EnergySlot";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 
 export interface BoardState {

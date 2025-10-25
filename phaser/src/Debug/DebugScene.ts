@@ -2,7 +2,7 @@ import { images } from "../assets";
 import { SCENE_KEYS } from "@Constants/constants";
 import { BattlegroundScene } from "@Scenes/Battleground/BattlegroundScene";
 import * as effects from "../Effects";
-import { Button, createUIButton } from "../UI/UIButton";
+import { Button, createUIButton } from "../Components/UIButton";
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import { getState } from "@Models/State";

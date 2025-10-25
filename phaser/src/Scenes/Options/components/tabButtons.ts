@@ -1,6 +1,6 @@
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
-import { Button, createUIButton } from "@UI/UIButton";
+import { Button, createUIButton } from "@Components/UIButton";
 import { LAYOUT } from "../OptionsScene";
 import { showTab } from "./effects/showTab";
 import { updateTabButtonStates } from "./effects/updateTabButtonStates";

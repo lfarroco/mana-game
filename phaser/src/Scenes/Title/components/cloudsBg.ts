@@ -1,4 +1,4 @@
-import { CloudsBackground } from "../../../components/cloudBackground/CloudsBackground";
+import { CloudsBackground } from "../../../Components/cloudBackground/CloudsBackground";
 
 export function cloudsBg() {
 	new CloudsBackground({

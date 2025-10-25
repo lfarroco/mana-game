@@ -1,8 +1,8 @@
 import { vec2 } from "@Models/Geometry";
 import * as c from "@Constants/constants";
-import { Button, createUIButton } from "../../../../UI/UIButton";
+import { Button, createUIButton } from "../../../../Components/UIButton";
 import * as sc from "./constants";
-import { MagicOrb } from "../../../../components/MagicOrb/MagicOrb";
+import { MagicOrb } from "../../../../Components/MagicOrb/MagicOrb";
 import { scene } from "../../BattlegroundScene";
 import { tween } from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";

@@ -1,5 +1,5 @@
 import { scene } from "../BattlegroundScene";
-import { createUIButton } from "../../../UI/UIButton";
+import { createUIButton } from "../../../Components/UIButton";
 import * as c from "@Constants/constants";
 import { slideOut, ResultsUIState } from "./ResultsUI";
 import { createResultsPanel } from "./Panel";

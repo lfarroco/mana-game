@@ -1,6 +1,6 @@
 import * as Phaser from "phaser";
 import * as constants from "@Constants/constants";
-import { CloudsBackground } from "../../components/cloudBackground/CloudsBackground";
+import { CloudsBackground } from "../../Components/cloudBackground/CloudsBackground";
 import { getState } from "@Models/State";
 import { returnToTitle } from "./effects/returnToTitle";
 import { showTab } from "./components/effects/showTab";

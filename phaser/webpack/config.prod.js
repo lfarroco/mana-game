@@ -21,7 +21,8 @@ module.exports = {
             "@UI": path.resolve(__dirname, "../src/UI"),
             "@PhaserIO": path.resolve(__dirname, "../src/phaser.io.ts"),
             "@Constants": path.resolve(__dirname, "../src/Constants"),
-            "@Utils": path.resolve(__dirname, "../src/Utils")
+            "@Utils": path.resolve(__dirname, "../src/Utils"),
+            "@Components": path.resolve(__dirname, "../src/Components")
         }
     },
     devtool: false,

@@ -5,7 +5,7 @@ import { delay } from "@Utils/animation";
 import { pickRandom } from "../../../../utils";
 import * as sc from "./constants";
 import { getState } from "@Models/State";
-import { MagicOrb, MagicOrbCallbacks } from "../../../../components/MagicOrb/MagicOrb";
+import { MagicOrb, MagicOrbCallbacks } from "../../../../Components/MagicOrb/MagicOrb";
 import { orbsIndex, OrbSpec } from "./Orbs";
 import { eqVec2 } from "@Models/Geometry";
 import { hexToVector3 } from "../../../../Utils/colorUtils";
