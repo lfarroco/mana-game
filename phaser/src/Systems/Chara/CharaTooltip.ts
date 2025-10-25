@@ -1,6 +1,6 @@
 import { Chara } from "./Chara";
 import { Effect, EffectReaction } from "../../TriggerSystem/TriggerSystem";
-import { hideTooltip, renderTooltip } from "../../UI/Tooltip";
+import { hideTooltip, renderTooltip } from "../../Components/Tooltip";
 import { createDescription } from "./createDescription";
 
 export const buildEffectBlock = (effect: Effect, unitPower: number): string => {

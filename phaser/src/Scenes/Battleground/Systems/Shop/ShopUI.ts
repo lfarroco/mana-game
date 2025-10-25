@@ -136,11 +136,9 @@ export function removeShopChild(child: Phaser.GameObjects.GameObject, destroy: b
 	state.shopContainer.remove(child, destroy);
 }
 
-export function getState(): ShopUIState | null {
+export function getShopState(): ShopUIState | null {
 	return state;
 }
-
-
 
 export function addToShopContainer(child: Phaser.GameObjects.GameObject): void {
 	if (state) {

@@ -1,7 +1,7 @@
 import * as Phaser from "phaser";
 import { magicOrbFragmentShader } from "../../Shaders/MagicOrbShader";
 import * as Board from "@Models/Board";
-import * as Tooltip from "../../UI/Tooltip";
+import * as Tooltip from "../Tooltip";
 import { getState } from "@Models/State";
 
 export interface MagicOrbConfig {

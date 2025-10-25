@@ -1,6 +1,6 @@
 import { SHOP_ITEM_PURCHASE_COST } from "@Constants/constants"
 import * as Chara from "./Chara";
-import { hideTooltip } from "@UI/Tooltip";
+import { hideTooltip } from "@Components/Tooltip";
 import { tween } from "@Utils/animation";
 import { playSoundEffect } from "@Systems/AudioManager";
 import * as Shop from "@Scenes/Battleground/Systems/Shop";

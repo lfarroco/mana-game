@@ -2,11 +2,11 @@ import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import { titleTextConfig } from "@Constants/constants";
 import { tween } from "@Utils/animation";
 import * as UI from "./UI";
-import * as winsDisplay from "./Components/winsDisplay";
-import * as roundDisplay from "./Components/roundDisplay";
-import * as prestigeDisplay from "./Components/prestigeDisplay";
-import { winsChangeAnimation } from "./Components/winsDisplay";
-import { roundChangeAnimation } from "./Components/roundDisplay";
+import * as winsDisplay from "./components/winsDisplay";
+import * as roundDisplay from "./components/roundDisplay";
+import * as prestigeDisplay from "./components/prestigeDisplay";
+import { winsChangeAnimation } from "./components/winsDisplay";
+import { roundChangeAnimation } from "./components/roundDisplay";
 
 
 export function onWinsChanged(newTotalWins: number, winsDelta: number) {

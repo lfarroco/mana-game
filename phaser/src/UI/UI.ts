@@ -1,10 +1,10 @@
 import * as c from "@Constants/constants";
 import { tween } from "@Utils/animation";
-import * as Tooltip from "./Tooltip";
+import * as Tooltip from "../Components/Tooltip";
 import * as io from "@PhaserIO";
-import { createPrestigeDisplay } from "./Components/prestigeDisplay";
-import { roundDisplay } from "./Components/roundDisplay";
-import { create } from "./Components/winsDisplay";
+import { createPrestigeDisplay } from "./components/prestigeDisplay";
+import { roundDisplay } from "./components/roundDisplay";
+import { create } from "./components/winsDisplay";
 import { vec2 } from "@Models/Geometry";
 export * as events from "./events"
 
@@ -21,7 +21,6 @@ export function init() {
 		roundDisplay(),
 		create(),
 	]);
-
 }
 
 export async function handleUserMessageRequested(payload: {
@@ -29,12 +28,8 @@ export async function handleUserMessageRequested(payload: {
 	type: 'error' | 'info' | 'warning' | 'success';
 }): Promise<void> {
 
-	const textStyle = c.titleTextConfig;
+	const text = io.Text(payload.text, c.titleTextConfig);
 
-	const text = io.Text(
-		payload.text,
-		textStyle,
-	)
 	io.Centralize(text);
 	io.SetPosition(text, vec2(c.SCREEN_WIDTH / 2, c.SCREEN_HEIGHT - 100))
 
@@ -48,10 +43,7 @@ export async function handleUserMessageRequested(payload: {
 		repeat: 0,
 	});
 
-	await tween({
-		targets: [text],
-		alpha: 0,
-	});
+	await tween({ targets: [text], alpha: 0 });
 
 	io.Destroy(text);
 }
