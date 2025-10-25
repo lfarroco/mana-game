@@ -1,7 +1,7 @@
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import { getState } from "@Models/State";
-import { createUIButton } from "@UI/UIButton";
+import { createUIButton } from "@Components/UIButton";
 
 export function goFullscreenButton() {
 	createUIButton(

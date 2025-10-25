@@ -2,9 +2,9 @@ import * as c from "@Constants/constants";
 import { tween } from "@Utils/animation";
 import * as Tooltip from "./Tooltip";
 import * as io from "@PhaserIO";
-import { createPrestigeDisplay } from "./components/prestigeDisplay";
-import { roundDisplay } from "./roundDisplay";
-import { create } from "./winsDisplay";
+import { createPrestigeDisplay } from "./Components/prestigeDisplay";
+import { roundDisplay } from "./Components/roundDisplay";
+import { create } from "./Components/winsDisplay";
 import { vec2 } from "@Models/Geometry";
 export * as events from "./events"
 

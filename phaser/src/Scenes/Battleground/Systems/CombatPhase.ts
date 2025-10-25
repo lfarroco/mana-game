@@ -12,7 +12,7 @@ import * as MoraleDisplay from "../MoraleDisplay";
 import * as constants from "@Constants/constants";
 import { endShopPhase } from "./ShopPhase";
 import * as BoardStatsDisplay from "../BoardStatsDisplay";
-import { createUIButton } from "../../../UI/UIButton";
+import { createUIButton } from "../../../Components/UIButton";
 import { vec2 } from "@Models/Geometry";
 
 function createUnitCopy(unit: Unit): Unit {

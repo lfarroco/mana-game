@@ -1,6 +1,6 @@
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
-import { createUIButton } from "@UI/UIButton";
+import { createUIButton } from "@Components/UIButton";
 import { startGame } from "../effects/startGame";
 
 export function startButton() {

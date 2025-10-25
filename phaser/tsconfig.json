@@ -26,6 +26,9 @@
             ],
             "@PhaserIO": [
                 "phaser.io.ts"
+            ],
+            "@Components/*": [
+                "Components/*"
             ]
         },
         "lib": [
