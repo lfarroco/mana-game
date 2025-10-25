@@ -1,4 +1,4 @@
-import { tween } from "../../Utils/animation";
+import { tween } from "@Utils/animation";
 import * as Geometry from "@Models/Geometry";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import { Unit } from "@Models/Entities/Unit";

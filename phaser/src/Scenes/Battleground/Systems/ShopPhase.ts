@@ -1,5 +1,5 @@
 import { getState } from "@Models/State";
-import { delay } from "../../../Utils/animation";
+import { delay } from "@Utils/animation";
 import { cpuForce } from "@Models/Entities/Force";
 import * as PrestigeSystem from "@Systems/PrestigeSystem";
 import { renderVignette } from "../Animations/vignette";

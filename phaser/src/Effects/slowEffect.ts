@@ -4,7 +4,7 @@
  */
 
 import { images } from "../assets";
-import { delay } from "../Utils/animation";
+import { delay } from "@Utils/animation";
 
 export interface SlowEffectOptions {
 	/** Duration of the effect in milliseconds */

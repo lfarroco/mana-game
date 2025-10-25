@@ -4,7 +4,7 @@ import { Button, createUIButton } from "../../../../UI/UIButton";
 import * as sc from "./constants";
 import { MagicOrb } from "../../../../components/MagicOrb/MagicOrb";
 import { scene } from "../../BattlegroundScene";
-import { tween } from "../../../../Utils/animation";
+import { tween } from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import * as SellZone from "./SellZone"
 

@@ -1,4 +1,4 @@
-import { tween } from "../../../Utils/animation";
+import { tween } from "@Utils/animation";
 import { getCharaById, mustGetState } from "../Chara";
 
 

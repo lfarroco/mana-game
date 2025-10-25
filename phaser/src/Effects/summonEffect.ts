@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { delay } from "../Utils/animation";
+import { delay } from "@Utils/animation";
 import { images } from "../assets";
 
 const SUMMON_EFFECT_CONFIG = {

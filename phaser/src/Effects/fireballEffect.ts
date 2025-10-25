@@ -1,5 +1,5 @@
 import { images } from "../assets";
-import { delay, tween } from "../Utils/animation";
+import { delay, tween } from "@Utils/animation";
 import { impactEffect } from "./impactEffect";
 
 // --- Effect Configuration Constants ---

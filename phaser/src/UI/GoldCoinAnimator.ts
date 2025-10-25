@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { delay } from "../Utils/animation";
+import { delay } from "@Utils/animation";
 
 /**
  * Manages the animation of gold coins, typically when gold is acquired by the player.

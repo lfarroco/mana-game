@@ -1,5 +1,5 @@
 import { scene } from "../BattlegroundScene";
-import { tween } from "../../../Utils/animation";
+import { tween } from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import * as c from "@Constants/constants";
 import { getState } from "@Models/State";

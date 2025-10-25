@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { Unit } from "@Models/Entities/Unit";
 import * as constants from "@Constants/constants";
-import { tween } from "../../Utils/animation";
+import { tween } from "@Utils/animation";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import * as CharaStatsDisplay from "./CharaStatsDisplay";
 import * as ChargeBarDisplay from "./ChargeBarDisplay";

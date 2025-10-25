@@ -1,5 +1,5 @@
 import { images } from "../assets";
-import { delay } from "../Utils/animation";
+import { delay } from "@Utils/animation";
 
 export const IMPACT_EFFECT_CONFIG = {
 	PARTICLE_SPEED: 200,
