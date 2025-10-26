@@ -2,8 +2,9 @@ import { Force, playerForce } from "./Entities/Force";
 import { eqVec2 } from "./Geometry";
 import { Unit } from "./Entities/Unit";
 
+
+
 export type State = {
-  currentScene: Phaser.Scene;
   savedGames: string[];
   gameData: GameData;
   battleData: {
@@ -21,7 +22,6 @@ export type GameData = {
 }
 
 const initialState = (): State => ({
-  currentScene: {} as Phaser.Scene,
   savedGames: [],
   gameData: {
     round: 1,
@@ -37,7 +37,11 @@ const initialState = (): State => ({
 });
 
 declare global {
-    var state: State;
+  var state: State;
+}
+
+export function resetState() {
+  currentState = initialState();
 }
 
 let currentState = initialState();
@@ -54,6 +58,14 @@ export const getUnitAt = (units: Unit[]) => (position: Vec2) => {
   return units.find((u) => eqVec2(u.position, position));
 }
 
+let currentScene = {
+  scene: {} as Phaser.Scene
+}
+
+export const setCurrentScene = (scene: Phaser.Scene) => {
+  currentScene.scene = scene;
+}
+
 export const getCurrentScene = (): Phaser.Scene => {
-  return currentState.currentScene;
+  return currentScene.scene;
 };

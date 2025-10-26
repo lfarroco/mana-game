@@ -2,7 +2,7 @@ import * as Phaser from "phaser";
 import { magicOrbFragmentShader } from "../../Shaders/MagicOrbShader";
 import * as Board from "@Models/Board";
 import * as Tooltip from "../Tooltip";
-import { getState } from "@Models/State";
+import { getCurrentScene } from "@Models/State";
 
 export interface MagicOrbConfig {
 	size?: number;
@@ -33,7 +33,7 @@ export class MagicOrb {
 	private isDestroyed: boolean = false;
 
 	constructor(x: number, y: number, config: MagicOrbConfig = {}) {
-		this.scene = getState().currentScene;
+		this.scene = getCurrentScene();
 
 		const defaultConfig = {
 			size: 100,

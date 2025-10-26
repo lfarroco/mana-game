@@ -1,7 +1,7 @@
 import * as Phaser from 'phaser';
 import { cloudsBackgroundShader } from '../../Shaders/CloudsBackground';
 import { colorPresets, IColorPreset } from '@Constants/colorPresets';
-import { getState } from '@Models/State';
+import { getCurrentScene } from '@Models/State';
 
 export interface CloudsBackgroundConfig {
 	/** Initial color preset to use */
@@ -41,7 +41,7 @@ export class CloudsBackground {
 	private currentPresetIndex: number = 0;
 	constructor(config: CloudsBackgroundConfig = {}) {
 
-		const scene = getState().currentScene;
+		const scene = getCurrentScene();
 		this.scene = scene;
 
 		// Set default configuration

@@ -1,7 +1,7 @@
 import { createUIButton } from "@Components/UIButton";
 import * as c from "@Constants/constants";
 import { size, vec2 } from "@Models/Geometry";
-import { getCurrentScene, getState } from "@Models/State";
+import { getCurrentScene, getState, resetState } from "@Models/State";
 import * as io from "@PhaserIO";
 
 export function create() {
@@ -45,16 +45,10 @@ export function createPanel() {
 			"Return to Title",
 			vec2(panelX, panelY - 200),
 			() => {
-				const state = getState();
 				io.Destroy(container);
 				getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
+				resetState();
 
-
-				state.battleData = {
-					forces: [],
-					grid: [],
-					units: []
-				}
 			}
 		).container,
 		createUIButton(

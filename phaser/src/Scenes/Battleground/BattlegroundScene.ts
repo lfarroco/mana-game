@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { preload } from "./preload";
-import { GameData } from "@Models/State";
+import { GameData, setCurrentScene } from "@Models/State";
 import * as UIManager from "../../UI/UI";
 import { CardCollection } from "@Models/Entities/Card";
 import * as Board from "@Models/Board";
@@ -51,7 +51,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
   create = async (data?: GameData) => {
     console.log(":::: BattlegroundScene creating logic...", data)
-    state.currentScene = this;
+    setCurrentScene(this);
     scene = this;
 
     this.collection = this.cache.json.get("base-collection") as CardCollection;

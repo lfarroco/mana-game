@@ -1,7 +1,7 @@
 import * as Phaser from "phaser";
 import * as constants from "@Constants/constants";
 import { CloudsBackground } from "../../Components/cloudBackground/CloudsBackground";
-import { getState } from "@Models/State";
+import { setCurrentScene } from "@Models/State";
 import { returnToTitle } from "./effects/returnToTitle";
 import { showTab } from "./components/effects/showTab";
 import { backButton } from "./components/backButton";
@@ -54,7 +54,7 @@ export default class OptionsScene extends Phaser.Scene {
 	}
 
 	create() {
-		getState().currentScene = this;
+		setCurrentScene(this);
 
 		this.cloudsBackground = new CloudsBackground({ preset: 'aurora' });
 
