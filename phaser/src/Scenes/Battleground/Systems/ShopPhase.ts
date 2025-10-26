@@ -6,16 +6,11 @@ import { renderVignette } from "../Animations/vignette";
 import { clearAll, summon } from "@Systems/Chara/Chara";
 import * as HeroShop from "./Shop/HeroShop";
 import * as OrbShop from "./Shop/OrbShop";
-import { transitionToCombatPhase } from "./CombatPhase";
 import * as MoraleDisplay from "../MoraleDisplay";
 import { clearRegen } from "./RegenSystem";
 import { clearPoison } from "./PoisonDamageSystem";
 import * as c from "@Constants/constants";
 import * as BoardStatsDisplay from "../BoardStatsDisplay";
-
-export let isInShopPhase: boolean = false;
-let heroShopCount: number = 0;
-let isOrbShop: boolean = false;
 
 async function setupShopPhaseCommon(shouldResummonUnits: boolean = true): Promise<void> {
 	const state = getState();
@@ -52,7 +47,6 @@ async function setupShopPhaseCommon(shouldResummonUnits: boolean = true): Promis
 		await Promise.all(summonPromises);
 	}
 
-	isInShopPhase = true;
 	BoardStatsDisplay.hideCpuStats();
 }
 
@@ -63,13 +57,10 @@ export async function initializeShopPhase(): Promise<void> {
 	const state = getState();
 	console.log("Round", state.gameData.round, "Shop Phase Starting (Initial Setup).");
 
-	heroShopCount = 1;
-	isOrbShop = false;
-
-	HeroShop.handleShopOpenUITrigger("Skip");
+	//HeroShop.handleShopOpenUITrigger();
 }
 
-export async function transitionToShopPhase(): Promise<void> {
+export async function transitionToNextPhaseAfterVictory(): Promise<void> {
 	await setupShopPhaseCommon(true);
 
 	PrestigeSystem.processVictory();
@@ -78,13 +69,11 @@ export async function transitionToShopPhase(): Promise<void> {
 	const state = getState();
 	console.log("Round", state.gameData.round, "Shop Phase Starting (Victory Transition).");
 
-	heroShopCount = 1;
-	isOrbShop = false;
 
-	HeroShop.handleShopOpenUITrigger("Skip");
+	//HeroShop.handleShopOpenUITrigger();
 }
 
-export async function transitionToShopPhaseAfterDefeat(): Promise<void> {
+export async function transitionToNextPhaseAfterDefeat(): Promise<void> {
 	await setupShopPhaseCommon(true);
 
 	PrestigeSystem.processDefeat();
@@ -99,20 +88,15 @@ export async function transitionToShopPhaseAfterDefeat(): Promise<void> {
 		return;
 	}
 
-	heroShopCount = 1;
-	isOrbShop = false;
-
-	HeroShop.handleShopOpenUITrigger("Skip");
+	//HeroShop.handleShopOpenUITrigger();
 }
 
 export async function transitionToNextShopPhase(): Promise<void> {
 	await setupShopPhaseCommon(false);
 
-	const state = getState();
-	console.log("Round", state.gameData.round, "Shop Phase", heroShopCount, "Starting.");
+	console.log("Round", getState(), "Shop Phase", "Starting.");
 
-	const buttonText = heroShopCount < 3 ? "Skip" : "Next Orb Shop";
-	HeroShop.handleShopOpenUITrigger(buttonText);
+	HeroShop.open();
 }
 
 export async function transitionToOrbShopPhase(): Promise<void> {
@@ -121,29 +105,8 @@ export async function transitionToOrbShopPhase(): Promise<void> {
 	const state = getState();
 	console.log("Round", state.gameData.round, "Orb Shop Phase Starting.");
 
-	isOrbShop = true;
-
-	OrbShop.handleShopOpenUITrigger("Next Skill Shop");
-}
-
-
-export function handleShopPhaseEnded(): void {
-	isInShopPhase = false;
-	if (!isOrbShop) {
-		if (heroShopCount < 3) {
-			heroShopCount++;
-			transitionToNextShopPhase();
-		} else {
-			isOrbShop = true;
-			transitionToOrbShopPhase();
-		}
-	} else {
-		transitionToCombatPhase();
-	}
+	OrbShop.open();
 }
 
 
 
-export function endShopPhase(): void {
-	isInShopPhase = false;
-}

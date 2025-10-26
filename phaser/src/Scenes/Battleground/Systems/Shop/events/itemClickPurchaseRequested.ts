@@ -6,9 +6,9 @@ import * as uiEvents from "@UI/events";
 import * as Geometry from "@Models/Geometry";
 import { scene } from "../../../BattlegroundScene";
 import * as Board from "@Models/Board";
-import * as Systems from "../../index";
 import * as ShopUI from "../ShopUI";
 import * as HeroShop from "../HeroShop";
+import { handlePhaseEnded } from "@Scenes/Battleground/PhaseManager";
 
 export function itemClickPurchaseRequested(
 	shopUnitData: Unit,
@@ -45,8 +45,7 @@ export function itemClickPurchaseRequested(
 
 		HeroShop.rerollTavern();
 
-
-		Systems.ShopPhase.handleShopPhaseEnded();
+		handlePhaseEnded();
 		ShopUI.close();
 		return;
 	}
@@ -72,6 +71,6 @@ export function itemClickPurchaseRequested(
 
 	HeroShop.rerollTavern();
 
-	Systems.ShopPhase.handleShopPhaseEnded();
+	handlePhaseEnded();
 	ShopUI.close();
 }

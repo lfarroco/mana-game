@@ -43,7 +43,6 @@ export function create() {
 
 export function displayCommonShop(
 	nextRoundCallback: () => void,
-	buttonText: string = "Next Round"
 ): void {
 	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
 	state.shopContainer.removeAll(true);
@@ -71,7 +70,7 @@ export function displayCommonShop(
 	state.shopContainer.add([bg]);
 
 	const nextRoundBtn = createUIButton(
-		buttonText,
+		"Skip",
 		vec2(
 			NEXT_ROUND_BUTTON_X,
 			NEXT_ROUND_BUTTON_Y,

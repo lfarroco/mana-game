@@ -6,9 +6,9 @@ import { getUnitAt } from "@Models/State";
 import { getCharaById, summon, updateUnitPower } from "@Systems/Chara/Chara";
 import * as uiEvents from "@UI/events";
 import * as charaEvents from "@Systems/Chara/events";
-import * as Systems from "../../index";
 import * as ShopUI from "../ShopUI";
 import * as HeroShop from "../HeroShop";
+import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
 
 export function itemDragPurchaseRequested(
 	shopUnitData: Unit,
@@ -28,7 +28,7 @@ export function itemDragPurchaseRequested(
 		HeroShop.rerollTavern();
 
 
-		Systems.ShopPhase.handleShopPhaseEnded();
+		PhaseManager.handlePhaseEnded();
 		ShopUI.close();
 		return;
 	}
@@ -65,6 +65,6 @@ export function itemDragPurchaseRequested(
 
 	HeroShop.rerollTavern();
 
-	Systems.ShopPhase.handleShopPhaseEnded();
+	PhaseManager.handlePhaseEnded();
 	ShopUI.close();
 }

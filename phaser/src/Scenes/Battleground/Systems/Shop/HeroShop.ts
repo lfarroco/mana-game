@@ -7,8 +7,8 @@ import * as CharaShop from "./CharaShop";
 import * as sc from "./constants";
 import { tween } from "@Utils/animation";
 import * as MoraleDisplay from "../../MoraleDisplay";
-import * as Systems from "../index"
 import * as Board from "@Models/Board";
+import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
 
 let currentShopCharas: Chara.Chara[] = [];
 
@@ -31,17 +31,17 @@ export function handleCharaPurchaseFinalized(purchasedChara: Chara.Chara): void 
 	}
 }
 
-export async function open(buttonText: string = "Next Shop") {
+export async function open() {
 	currentShopCharas = [];
 
 	const tavernCardData = getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
 
 	const nextRoundCallback = () => {
-		Systems.ShopPhase.handleShopPhaseEnded();
+		PhaseManager.handlePhaseEnded();
 		close();
 	};
 
-	ShopUI.displayCommonShop(nextRoundCallback, buttonText);
+	ShopUI.displayCommonShop(nextRoundCallback);
 
 	// Render tavern charas
 	const displayedCharas = CharaShop.renderTavernCharas(tavernCardData);
@@ -66,10 +66,6 @@ export function getShopCharaBySlot(slotIndex: number): Chara.Chara | null {
 export function getDisplayedHeroCardDefinitions(): Card.CardDefinition[] {
 	return currentShopCharas.map(chara => Chara.getUnit(chara).cardId)
 		.map(Card.getCardDefinition);
-}
-
-export async function handleShopOpenUITrigger(buttonText: string = "Next Shop"): Promise<void> {
-	await open(buttonText);
 }
 
 async function _animateItemAppearance(

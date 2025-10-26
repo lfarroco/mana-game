@@ -1,16 +1,16 @@
 import * as ShopUI from "./ShopUI";
-import * as Systems from "../index"
 import * as Board from "@Models/Board";
 import { delay } from "@Utils/animation";
 import { pickRandom } from "../../../../utils";
 import * as sc from "./constants";
 import { getState } from "@Models/State";
-import { MagicOrb, MagicOrbCallbacks } from "../../../../Components/MagicOrb/MagicOrb";
+import { MagicOrb, MagicOrbCallbacks } from "@Components/MagicOrb/MagicOrb";
 import { orbsIndex, OrbSpec } from "./Orbs";
 import { eqVec2 } from "@Models/Geometry";
-import { hexToVector3 } from "../../../../Utils/colorUtils";
+import { hexToVector3 } from "@Utils/colorUtils";
+import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
 
-export async function open(buttonText: string = "Next Round") {
+export async function open() {
 	const availableOrbs = [
 		"crimson_orb",
 		"emerald_orb",
@@ -25,19 +25,18 @@ export async function open(buttonText: string = "Next Round") {
 	const selectedOrbs = pickRandom(availableOrbs, 3);
 
 	const nextRoundCallback = () => {
-		Systems.ShopPhase.handleShopPhaseEnded();
+		PhaseManager.handlePhaseEnded();
 		close();
 	};
 
-	ShopUI.displayCommonShop(nextRoundCallback, buttonText);
+	ShopUI.displayCommonShop(nextRoundCallback);
 
 	const shopState = ShopUI.getShopState();
 	if (shopState) {
 		renderOrbShop(shopState, selectedOrbs, async () => {
 			shopState.nextRoundButton?.disable();
 			await delay(500);
-			Systems.ShopPhase.handleShopPhaseEnded();
-			await close();
+			nextRoundCallback();
 		});
 	}
 
@@ -49,10 +48,6 @@ export async function open(buttonText: string = "Next Round") {
 export async function close() {
 	await ShopUI.slideOut();
 	ShopUI.destroyOrbs();
-}
-
-export async function handleShopOpenUITrigger(buttonText: string = "Next Round"): Promise<void> {
-	await open(buttonText);
 }
 
 export function renderOrbShop(ui: ShopUI.ShopUIState, orbIds: string[], onOrbUsed?: () => void | Promise<void>) {
