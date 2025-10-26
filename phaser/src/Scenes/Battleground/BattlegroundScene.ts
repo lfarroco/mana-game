@@ -15,6 +15,7 @@ import { clearAll } from "@Systems/Chara/Chara";
 import * as ResultsUI from "./Results/ResultsUI";
 import * as BoardStatsDisplay from "./BoardStatsDisplay";
 import * as Tooltip from "@Components/Tooltip";
+import { startPhase } from "./PhaseManager";
 
 export let scene: BattlegroundScene;
 
@@ -96,7 +97,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     AudioManager.playMusic('music_battlemap_vetruv');
 
-    Systems.ShopPhase.initializeShopPhase();
+    startPhase();
 
   }
 
