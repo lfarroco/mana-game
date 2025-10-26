@@ -7,7 +7,7 @@ import { Chara } from "./Chara";
 const BOX_WIDTH_RATIO = 0.4;
 const BOX_HEIGHT_RATIO = 0.2;
 const STAT_BOX_CORNER_RADIUS_RATIO = 0.1;
-const STAT_BOX_MARGIN_RATIO = 0.1;
+const STAT_BOX_MARGIN_RATIO = 0.15;
 
 export type StatsDisplay = {
 	powerDisplayBg: Graphics;
@@ -51,7 +51,7 @@ export function create(unit: Unit, container: Chara) {
 
 	const powerDisplayPosition: [number, number] = [
 		-boxWidth / 2,
-		constants.HALF_TILE_HEIGHT - boxHeight - margin,
+		constants.HALF_TILE_HEIGHT - boxHeight + margin,
 	];
 
 	const colorMap = {
