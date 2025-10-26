@@ -38,23 +38,16 @@ export function itemClickPurchaseRequested(
 	const existingUnit = state.gameData.player.units.find(u => u.cardId === shopUnitData.cardId);
 
 	if (existingUnit) {
-		// Fuse: add power to existing unit
 		const chara = getCharaById(existingUnit.id);
 		updateUnitPower(chara, shopUnitData.power);
 
 		charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
 
-		// Refresh all heroes in the shop after purchase
 		HeroShop.rerollTavern();
 
-		// Check if we should close the shop after this purchase
-		const shouldCloseShop = Systems.ShopPhase.handleHeroPurchase();
 
-		if (shouldCloseShop) {
-			// Move to next phase after placing hero (same as next round button)
-			Systems.ShopPhase.handleShopPhaseEnded();
-			ShopUI.close();
-		}
+		Systems.ShopPhase.handleShopPhaseEnded();
+		ShopUI.close();
 		return;
 	}
 
@@ -77,16 +70,8 @@ export function itemClickPurchaseRequested(
 
 	charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
 
-	// Refresh all heroes in the shop after purchase
 	HeroShop.rerollTavern();
 
-	// Check if we should close the shop after this purchase
-	const shouldCloseShop = Systems.ShopPhase.handleHeroPurchase();
-
-	if (shouldCloseShop) {
-		// Move to next phase after placing hero (same as next round button)
-		Systems.ShopPhase.handleShopPhaseEnded();
-		ShopUI.close();
-	}
-	// If shouldCloseShop is false, the shop stays open for more purchases
+	Systems.ShopPhase.handleShopPhaseEnded();
+	ShopUI.close();
 }

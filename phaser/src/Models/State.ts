@@ -15,6 +15,7 @@ export type State = {
 
 export type GameData = {
   round: number;
+  hour: number;
   player: Force;
   choices: string[];
 }
@@ -24,6 +25,7 @@ const initialState = (): State => ({
   savedGames: [],
   gameData: {
     round: 1,
+    hour: 0,
     player: playerForce,
     choices: []
   },
@@ -35,6 +37,11 @@ const initialState = (): State => ({
 });
 
 let currentState = initialState();
+
+if (process.env.NODE_ENV === 'development') {
+  //@ts-ignore
+  window.state = currentState;
+}
 
 export const getState = (): State => {
   return currentState;

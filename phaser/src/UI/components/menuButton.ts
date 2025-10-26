@@ -1,7 +1,7 @@
 import { createUIButton } from "@Components/UIButton";
 import * as c from "@Constants/constants";
 import { size, vec2 } from "@Models/Geometry";
-import { getCurrentScene } from "@Models/State";
+import { getCurrentScene, getState } from "@Models/State";
 import * as io from "@PhaserIO";
 
 export function create() {
@@ -19,7 +19,6 @@ export function create() {
 
 
 export function createPanel() {
-
 
 	const panelWidth = 850;
 	const panelHeight = 850;
@@ -46,9 +45,16 @@ export function createPanel() {
 			"Return to Title",
 			vec2(panelX, panelY - 200),
 			() => {
+				const state = getState();
 				io.Destroy(container);
-
 				getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
+
+
+				state.battleData = {
+					forces: [],
+					grid: [],
+					units: []
+				}
 			}
 		).container,
 		createUIButton(
@@ -56,6 +62,9 @@ export function createPanel() {
 			vec2(panelX, panelY - 100),
 			() => {
 				io.Destroy(container);
+
+				localStorage.setItem("gameData", JSON.stringify(getState().gameData));
+
 			}
 		).container,
 		createUIButton(
@@ -63,6 +72,11 @@ export function createPanel() {
 			vec2(panelX, panelY),
 			() => {
 				io.Destroy(container);
+				const data = localStorage.getItem("gameData");
+				if (data) {
+					getState().gameData = JSON.parse(data);
+					getCurrentScene().scene.restart(JSON.parse(data));
+				}
 			}
 		).container
 	])
