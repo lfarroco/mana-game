@@ -15,7 +15,6 @@ import * as BoardStatsDisplay from "../BoardStatsDisplay";
 
 export let isInShopPhase: boolean = false;
 let heroShopCount: number = 0;
-let heroesPurchasedInCurrentShop: number = 0;
 let isOrbShop: boolean = false;
 
 async function setupShopPhaseCommon(shouldResummonUnits: boolean = true): Promise<void> {
@@ -65,7 +64,6 @@ export async function initializeShopPhase(): Promise<void> {
 	console.log("Round", state.gameData.round, "Shop Phase Starting (Initial Setup).");
 
 	heroShopCount = 1;
-	heroesPurchasedInCurrentShop = 0;
 	isOrbShop = false;
 
 	HeroShop.handleShopOpenUITrigger("Skip");
@@ -81,7 +79,6 @@ export async function transitionToShopPhase(): Promise<void> {
 	console.log("Round", state.gameData.round, "Shop Phase Starting (Victory Transition).");
 
 	heroShopCount = 1;
-	heroesPurchasedInCurrentShop = 0;
 	isOrbShop = false;
 
 	HeroShop.handleShopOpenUITrigger("Skip");
@@ -103,7 +100,6 @@ export async function transitionToShopPhaseAfterDefeat(): Promise<void> {
 	}
 
 	heroShopCount = 1;
-	heroesPurchasedInCurrentShop = 0;
 	isOrbShop = false;
 
 	HeroShop.handleShopOpenUITrigger("Skip");
@@ -115,7 +111,6 @@ export async function transitionToNextShopPhase(): Promise<void> {
 	const state = getState();
 	console.log("Round", state.gameData.round, "Shop Phase", heroShopCount, "Starting.");
 
-	heroesPurchasedInCurrentShop = 0;
 	const buttonText = heroShopCount < 3 ? "Skip" : "Next Orb Shop";
 	HeroShop.handleShopOpenUITrigger(buttonText);
 }
@@ -147,13 +142,7 @@ export function handleShopPhaseEnded(): void {
 	}
 }
 
-export function handleHeroPurchase(): boolean {
-	heroesPurchasedInCurrentShop++;
 
-	// Close shop and move to next phase after purchasing 1 hero
-	// Player can only buy 1 hero per hero shop phase, or skip
-	return true; // Close shop and move to next phase
-}
 
 export function endShopPhase(): void {
 	isInShopPhase = false;

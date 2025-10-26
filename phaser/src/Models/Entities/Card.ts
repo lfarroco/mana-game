@@ -17,20 +17,13 @@ const dummy: CardDefinition = {
 
 let cards = new Map<string, CardDefinition>();
 
-
 const registerCard = (card: CardDefinition): void => {
-  if (cards.has(card.id)) {
-    throw new Error(`Card with id ${card.id} already exists`);
-  }
   cards.set(card.id, card);
 };
 
 
 let collections = new Map<string, CardCollection>();
 export const registerCollection = (collection: CardCollection): void => {
-  if (collections.has(collection.id)) {
-    throw new Error(`Collection with id ${collection.id} already exists`);
-  }
   collections.set(collection.id, collection);
 
   collection.cards

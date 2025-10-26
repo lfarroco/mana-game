@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { preload } from "./preload";
-import { State, getState } from "@Models/State";
+import { GameData, State, getState } from "@Models/State";
 import * as UIManager from "../../UI/UI";
 import { CardCollection } from "@Models/Entities/Card";
 import * as Board from "@Models/Board";
@@ -49,7 +49,8 @@ export class BattlegroundScene extends Phaser.Scene {
 
   preload = preload;
 
-  create = async () => {
+  create = async (data?: GameData) => {
+    console.log(":::: BattlegroundScene creating logic...", data)
     getState().currentScene = this;
     scene = this;
 
@@ -62,14 +63,18 @@ export class BattlegroundScene extends Phaser.Scene {
     this.time.timeScale = speed;
     this.tweens.timeScale = speed;
 
-    this.start();
+    this.start(data);
 
   }
 
-  start = async () => {
-    console.log("BattlegroundScene starting logic...");
+  start = async (data?: GameData) => {
+    console.log(":::: BattlegroundScene starting logic...", data);
 
     this.state = getState();
+
+    if (data) {
+      this.state.gameData = data;
+    }
 
     Systems.Loader.init(this.collection);
     Systems.Loader.loadDynamicAssets(this.collection)
