@@ -1,16 +1,16 @@
 import { sumVec2 } from "@Models/Geometry";
-import { getState } from "@Models/State";
+import { getCurrentScene } from "@Models/State";
 import Phaser from "phaser";
 
 export function BringToTop(obj: Phaser.GameObjects.GameObject) {
-	const scene = getState().currentScene;
+	const scene = getCurrentScene();
 	scene.children.bringToTop(obj);
 }
 
 export function Container(
 	children?: (Phaser.GameObjects.GameObject | (() => Phaser.GameObjects.GameObject) | ((prev: Phaser.GameObjects.GameObject) => Phaser.GameObjects.GameObject)[])[]
 ) {
-	const scene = getState().currentScene;
+	const scene = getCurrentScene();
 	const container = scene.add.container();
 
 	if (children) {
@@ -46,7 +46,7 @@ export function Container(
 }
 
 export function Image(texture: string) {
-	const scene = getState().currentScene;
+	const scene = getCurrentScene();
 	return scene.add.image(0, 0, texture);
 }
 
@@ -74,7 +74,7 @@ export function Rect(position: Vec2, size: Size) {
 }
 
 export function Tween(config: Phaser.Types.Tweens.TweenBuilderConfig) {
-	const scene = getState().currentScene;
+	const scene = getCurrentScene();
 	scene.tweens.add(config);
 }
 
@@ -110,7 +110,7 @@ export function BorderedRoundRect(
 	color: number = 0xffa500,
 	alpha: number = 0.7,
 ) {
-	const scene = getState().currentScene;
+	const scene = getCurrentScene();
 	const actualPos = sumVec2(position, { x: -size.width / 2, y: -size.height / 2 })
 	const g = scene.add.graphics(actualPos);
 	g.lineStyle(4, 0xffffff, 0.8);
@@ -127,7 +127,7 @@ export function Rectangle(
 	color: number = 0xffa500,
 	alpha: number = 0.7,
 ) {
-	const scene = getState().currentScene;
+	const scene = getCurrentScene();
 	const actualPos = sumVec2(position, { x: -size.width / 2, y: -size.height / 2 })
 	const g = scene.add.graphics(actualPos);
 	g.lineStyle(4, 0xffffff, 0.8);
@@ -143,7 +143,7 @@ export function RectangularDropZone(
 	{ x, y }: Vec2,
 	{ width, height }: Size,
 ) {
-	const scene = getState().currentScene;
+	const scene = getCurrentScene();
 
 	const zone = scene.add.zone(
 		x, y,
@@ -167,7 +167,7 @@ export function Text(
 	text: string,
 	style: Phaser.Types.GameObjects.Text.TextStyle
 ) {
-	const scene = getState().currentScene;
+	const scene = getCurrentScene();
 	return scene.add.text(0, 0, text, style);
 }
 
@@ -213,7 +213,7 @@ export function OnceDestroyed(obj: Phaser.GameObjects.GameObject, callback: () =
 }
 
 export function OnUpdate(obj: Phaser.GameObjects.GameObject, callback: (time: number, delta: number) => void) {
-	const scene = getState().currentScene;
+	const scene = getCurrentScene();
 	scene.events.on(Phaser.Scenes.Events.UPDATE, callback);
 
 	OnceDestroyed(obj, () => {
@@ -239,7 +239,7 @@ export function Shader(
 	})[]
 ): Phaser.GameObjects.Shader {
 
-	const scene = getState().currentScene;
+	const scene = getCurrentScene();
 	const { x, y } = position;
 	const { width, height } = size;
 
@@ -280,7 +280,7 @@ export function SetStroke(text: Phaser.GameObjects.Text, color: string, thicknes
 
 export async function Fade(duration: number, color: number) {
 	return new Promise<void>((resolve) => {
-		const scene = getState().currentScene;
+		const scene = getCurrentScene();
 
 		const r = (color >> 16) & 0xff;
 		const g = (color >> 8) & 0xff;
@@ -291,6 +291,6 @@ export async function Fade(duration: number, color: number) {
 }
 
 export function StartScene(key: string) {
-	const scene = getState().currentScene;
+	const scene = getCurrentScene();
 	scene.scene.start(key);
 }

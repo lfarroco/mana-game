@@ -1,7 +1,7 @@
 import * as Phaser from "phaser";
 import * as constants from "@Constants/constants";
 import * as AudioManager from "@Systems/AudioManager";
-import { getState } from "@Models/State";
+import { setCurrentScene } from "@Models/State";
 import { logo } from "./components/logo";
 import { startButton } from "./components/startButton";
 import { startGame } from "./effects/startGame";
@@ -22,7 +22,7 @@ export default class TitleScene extends Phaser.Scene {
 	}
 
 	create() {
-		getState().currentScene = this;
+		setCurrentScene(this);
 
 		AudioManager.playMusic('music_ageofdisjunction');
 

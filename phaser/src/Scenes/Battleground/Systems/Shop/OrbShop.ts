@@ -3,7 +3,7 @@ import * as Board from "@Models/Board";
 import { delay } from "@Utils/animation";
 import { pickRandom } from "../../../../utils";
 import * as sc from "./constants";
-import { getState } from "@Models/State";
+import { getCurrentScene, getState } from "@Models/State";
 import { MagicOrb, MagicOrbCallbacks } from "@Components/MagicOrb/MagicOrb";
 import { orbsIndex, OrbSpec } from "./Orbs";
 import { eqVec2 } from "@Models/Geometry";
@@ -53,7 +53,7 @@ export async function close() {
 export function renderOrbShop(ui: ShopUI.ShopUIState, orbIds: string[], onOrbUsed?: () => void | Promise<void>) {
 
 	const state = getState();
-	const scene = state.currentScene
+	const scene = getCurrentScene();
 
 	const orbSpacing = sc.TAVERN_CHARA_SPACING;
 	ui.orbContainer = scene.add.container(0, 0);

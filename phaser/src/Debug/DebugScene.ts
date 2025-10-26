@@ -5,7 +5,7 @@ import * as effects from "../Effects";
 import { Button, createUIButton } from "../Components/UIButton";
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
-import { getState } from "@Models/State";
+import { setCurrentScene } from "@Models/State";
 
 type EffectFactory = (scene: DebugScene) => void;
 
@@ -167,7 +167,7 @@ export class DebugScene extends Phaser.Scene {
 	}
 
 	create() {
-		getState().currentScene = this;
+		setCurrentScene(this);
 		// Ensure a headless battleground scene exists for effects that depend on its globals/systems.
 		if (!this.scene.get(SCENE_KEYS.BATTLEGROUND)) {
 			console.log("[DebugScene] Adding headless BattlegroundScene instance for effect dependencies.");
