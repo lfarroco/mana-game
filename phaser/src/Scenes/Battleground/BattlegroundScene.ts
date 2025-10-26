@@ -72,7 +72,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.state = getState();
 
-    if (data) {
+    if (data?.player) {
       this.state.gameData = data;
     }
 

@@ -3,7 +3,7 @@ import { delay } from "@Utils/animation";
 import { renderVignette } from "../Animations/vignette";
 import * as AudioManager from "@Systems/AudioManager";
 import * as MoraleDisplay from "../MoraleDisplay";
-import { transitionToShopPhase, transitionToShopPhaseAfterDefeat } from "./ShopPhase";
+import { transitionToNextPhaseAfterVictory, transitionToNextPhaseAfterDefeat } from "./ShopPhase";
 import * as ResultsUI from "../Results/ResultsUI";
 
 export async function handleCombatEndedDefeat(): Promise<void> {
@@ -18,7 +18,7 @@ export async function handleCombatEndedDefeat(): Promise<void> {
 
 	// Show results panel instead of immediately transitioning
 	ResultsUI.displayResults("defeat", () => {
-		transitionToShopPhaseAfterDefeat();
+		transitionToNextPhaseAfterDefeat();
 	});
 	await ResultsUI.slideIn();
 }
@@ -46,7 +46,7 @@ export async function handleCombatEndedVictory(): Promise<void> {
 
 	// Show results panel instead of immediately transitioning
 	ResultsUI.displayResults("victory", () => {
-		transitionToShopPhase();
+		transitionToNextPhaseAfterVictory();
 	});
 	await ResultsUI.slideIn();
 }
