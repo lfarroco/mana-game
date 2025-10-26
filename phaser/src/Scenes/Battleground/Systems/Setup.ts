@@ -1,4 +1,4 @@
-import { State } from "@Models/State";
+import { getState } from "@Models/State";
 import * as ControlsSystem from "@Systems/Controls";
 import * as Board from "@Models/Board";
 import * as BG_CONSTANTS from "../battlegroundConstants";
@@ -8,7 +8,9 @@ import { CloudsBackground } from "../../../Components/cloudBackground/CloudsBack
 
 export let cloudsBackground: CloudsBackground | null = null;
 
-export function initializeNewGame(state: State): void {
+export function initializeNewGame(): void {
+
+	const state = getState();
 
 	state.gameData.player.units = [];
 	state.gameData.round = 1;
@@ -17,7 +19,7 @@ export function initializeNewGame(state: State): void {
 	scene.sound.setVolume(getOption('soundVolume') ?? BG_CONSTANTS.DEFAULT_SCENE_SOUND_VOLUME);
 }
 
-export function setupSceneElements(_state: State) {
+export function setupSceneElements() {
 	cloudsBackground = new CloudsBackground({
 		preset: 'forest',
 		depth: -2000,

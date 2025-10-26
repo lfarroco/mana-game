@@ -14,6 +14,7 @@ import { onCharaPointerOver } from "./CharaTooltip";
 
 import * as SellZone from "../../Scenes/Battleground/Systems/Shop/SellZone"
 import * as ph from "@PhaserIO";
+import { getState } from "@Models/State";
 
 const TOUCH_TOOLTIP_INPUT_DOWN_DELAY = 200;
 
@@ -172,7 +173,7 @@ export const processOwnedUnitMoveRequest = (
 	dragStartX: number,
 	dragStartY: number
 ) => {
-	const units = scene.state.gameData.player.units;
+	const units = getState().gameData.player.units;
 	const unit = units.find((u) => u.id === unitId);
 
 	if (!unit) {

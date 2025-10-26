@@ -1,4 +1,3 @@
-import { scene } from "../../../BattlegroundScene";
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import { makeUnit, Unit } from "@Models/Entities/Unit";
@@ -17,7 +16,7 @@ export function itemDragPurchaseRequested(
 	dragStartX: number,
 	dragStartY: number
 ) {
-	const existingUnit = scene.state.gameData.player.units.find(u => u.cardId === shopUnitData.cardId);
+	const existingUnit = state.gameData.player.units.find(u => u.cardId === shopUnitData.cardId);
 
 	if (existingUnit) {
 		const chara = getCharaById(existingUnit.id);
@@ -33,7 +32,7 @@ export function itemDragPurchaseRequested(
 		return;
 	}
 
-	if (scene.state.gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
+	if (state.gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
 		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(
 			dragStartX, dragStartY
 		));
@@ -44,7 +43,7 @@ export function itemDragPurchaseRequested(
 		return;
 	}
 
-	const occupier = getUnitAt(scene.state.gameData.player.units)(targetTile);
+	const occupier = getUnitAt(state.gameData.player.units)(targetTile);
 	if (occupier) {
 		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(
 			dragStartX, dragStartY
@@ -57,7 +56,7 @@ export function itemDragPurchaseRequested(
 	}
 
 	const newUnit = makeUnit(constants.FORCE_ID_PLAYER, shopUnitData.cardId, targetTile);
-	scene.state.gameData.player.units.push(newUnit);
+	state.gameData.player.units.push(newUnit);
 
 	summon(newUnit, true);
 

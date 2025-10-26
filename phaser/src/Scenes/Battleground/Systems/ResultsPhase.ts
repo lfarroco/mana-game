@@ -3,8 +3,9 @@ import { delay } from "@Utils/animation";
 import { renderVignette } from "../Animations/vignette";
 import * as AudioManager from "@Systems/AudioManager";
 import * as MoraleDisplay from "../MoraleDisplay";
-import { transitionToNextPhaseAfterVictory, transitionToNextPhaseAfterDefeat } from "./ShopPhase";
 import * as ResultsUI from "../Results/ResultsUI";
+import * as PrestigeSystem from "@Systems/PrestigeSystem";
+import * as PhaseManager from "../PhaseManager";
 
 export async function handleCombatEndedDefeat(): Promise<void> {
 	const state = getState();
@@ -18,7 +19,7 @@ export async function handleCombatEndedDefeat(): Promise<void> {
 
 	// Show results panel instead of immediately transitioning
 	ResultsUI.displayResults("defeat", () => {
-		transitionToNextPhaseAfterDefeat();
+		handleDefeat();
 	});
 	await ResultsUI.slideIn();
 }
@@ -46,7 +47,7 @@ export async function handleCombatEndedVictory(): Promise<void> {
 
 	// Show results panel instead of immediately transitioning
 	ResultsUI.displayResults("victory", () => {
-		transitionToNextPhaseAfterVictory();
+		handleVictory();
 	});
 	await ResultsUI.slideIn();
 }
@@ -63,3 +64,35 @@ async function _fadeOutDisplayBars(): Promise<void> {
 	MoraleDisplay.fadeOutBars();
 	await delay(500);
 }
+
+async function handleVictory(): Promise<void> {
+
+	PrestigeSystem.processVictory();
+	PrestigeSystem.finalizeRound();
+
+	const state = getState();
+	console.log("Round", state.gameData.round, "Shop Phase Starting (Victory Transition).");
+
+	await PhaseManager.resetBoard(true);
+	PhaseManager.handlePhaseEnded();
+}
+
+async function handleDefeat(): Promise<void> {
+
+	PrestigeSystem.processDefeat();
+	PrestigeSystem.finalizeRound();
+
+	const state = getState();
+	console.log("Round", state.gameData.round, "Shop Phase Starting (After Defeat).");
+
+	const player = state.gameData.player;
+	if (player.prestige <= 0) {
+		await renderVignette({ message: `Game Over! You were defeated in ${player.round} rounds` });
+		return;
+	}
+
+	await PhaseManager.resetBoard(true);
+	PhaseManager.handlePhaseEnded();
+
+}
+

@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { preload } from "./preload";
-import { GameData, State, getState } from "@Models/State";
+import { GameData } from "@Models/State";
 import * as UIManager from "../../UI/UI";
 import { CardCollection } from "@Models/Entities/Card";
 import * as Board from "@Models/Board";
@@ -15,12 +15,11 @@ import { clearAll } from "@Systems/Chara/Chara";
 import * as ResultsUI from "./Results/ResultsUI";
 import * as BoardStatsDisplay from "./BoardStatsDisplay";
 import * as Tooltip from "@Components/Tooltip";
-import { startPhase } from "./PhaseManager";
+import { resetBoard, startPhase } from "./PhaseManager";
 
 export let scene: BattlegroundScene;
 
 export class BattlegroundScene extends Phaser.Scene {
-  state: State;
   bgContainer!: Phaser.GameObjects.Container;
   cloudsBackground!: Phaser.GameObjects.Image;
   collection!: CardCollection;
@@ -52,7 +51,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
   create = async (data?: GameData) => {
     console.log(":::: BattlegroundScene creating logic...", data)
-    getState().currentScene = this;
+    state.currentScene = this;
     scene = this;
 
     this.collection = this.cache.json.get("base-collection") as CardCollection;
@@ -71,18 +70,17 @@ export class BattlegroundScene extends Phaser.Scene {
   start = async (data?: GameData) => {
     console.log(":::: BattlegroundScene starting logic...", data);
 
-    this.state = getState();
 
     if (data?.player) {
-      this.state.gameData = data;
+      state.gameData = data;
+    } else {
+      Systems.Setup.initializeNewGame();
     }
 
     Systems.Loader.init(this.collection);
     Systems.Loader.loadDynamicAssets(this.collection)
 
-    Systems.Setup.initializeNewGame(this.state);
-
-    Systems.Setup.setupSceneElements(this.state);
+    Systems.Setup.setupSceneElements();
 
     UIManager.init();
     Tooltip.init();
@@ -97,6 +95,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     AudioManager.playMusic('music_battlemap_vetruv');
 
+    resetBoard(true);
     startPhase();
 
   }

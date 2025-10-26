@@ -36,10 +36,13 @@ const initialState = (): State => ({
   }
 });
 
+declare global {
+    var state: State;
+}
+
 let currentState = initialState();
 
-if (process.env.NODE_ENV === 'development') {
-  //@ts-ignore
+if (typeof window !== 'undefined') {
   window.state = currentState;
 }
 
