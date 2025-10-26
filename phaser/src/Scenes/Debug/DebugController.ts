@@ -1,4 +1,3 @@
-import { scene } from "../Battleground/BattlegroundScene";
 import { Unit } from "@Models/Entities/Unit";
 import { vec2 } from "@Models/Geometry";
 import { CardDefinition } from "@Models/Entities/Card";
@@ -58,7 +57,7 @@ export function clickNextRound(): string {
 }
 
 export function moveUnitOnBoard(unitId: string, targetBoardX: number, targetBoardY: number): string {
-	const unit = scene.state.gameData.player.units.find(u => u.id === unitId);
+	const unit = state.gameData.player.units.find(u => u.id === unitId);
 	if (!unit) {
 		return `Error: Unit with ID ${unitId} not found on player board`;
 	}
@@ -81,7 +80,7 @@ export function moveUnitOnBoard(unitId: string, targetBoardX: number, targetBoar
 }
 
 export function sellUnitFromBoard(unitId: string): string {
-	const unit = scene.state.gameData.player.units.find(u => u.id === unitId);
+	const unit = state.gameData.player.units.find(u => u.id === unitId);
 	if (!unit) {
 		return `Error: Unit with ID ${unitId} not found on player board. Cannot sell`;
 	}
@@ -110,14 +109,14 @@ export function getShopHeroes(): CardDefinition[] {
 }
 
 export function getPlayerBoardUnits(): Unit[] {
-	return scene.state.gameData.player?.units || [];
+	return state.gameData.player?.units || [];
 }
 
 export function logGameState(): void {
 	console.log("Current Game State (DebugController):", {
 		shopHeroes: getShopHeroes().map(c => c?.id),
 		playerUnits: getPlayerBoardUnits().map(u => ({ id: u.id, cardId: u.cardId, x: u.position.x, y: u.position.y })),
-		currentRound: scene.state.gameData?.round,
+		currentRound: state.gameData?.round,
 	});
 }
 
@@ -127,7 +126,7 @@ export function addUnitToPlayerBoard(cardId: string, boardX: number, boardY: num
 		cardId: cardId,
 		name: `Test Unit ${cardId}`,
 		pic: `${cardId}.png`,
-		force: scene.state.gameData.player.id,
+		force: state.gameData.player.id,
 		position: vec2(boardX, boardY),
 		power: 25,
 		cooldown: 100,
@@ -141,7 +140,7 @@ export function addUnitToPlayerBoard(cardId: string, boardX: number, boardY: num
 		slowed: 0
 	};
 
-	scene.state.gameData.player.units.push(newUnit);
+	state.gameData.player.units.push(newUnit);
 
 	return `Added unit ${cardId} (ID: ${newUnit.id}) to board position (${boardX}, ${boardY})`;
 }

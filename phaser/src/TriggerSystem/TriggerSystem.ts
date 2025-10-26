@@ -1,6 +1,5 @@
 import { Unit } from "@Models/Entities/Unit";
-import { State } from "@Models/State";
-import BattlegroundScene, { scene } from "@Scenes/Battleground/BattlegroundScene";
+import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import * as effects from "./effects";
 import { pickRandom } from "../utils";
 
@@ -133,7 +132,7 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
 			effects.applyRegenLogicIO(sourceUnit);
 			break;
 		case "haste":
-			const hasteTargets = resolveTargets(scene.state, sourceUnit, effect);
+			const hasteTargets = resolveTargets(sourceUnit, effect);
 			effects.applyHasteLogicIO({
 				targets: hasteTargets,
 				sourceUnit,
@@ -141,7 +140,7 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
 			});
 			break;
 		case "slow":
-			const slowTargets = resolveTargets(scene.state, sourceUnit, effect);
+			const slowTargets = resolveTargets(sourceUnit, effect);
 			effects.applySlowLogicIO({
 				targets: slowTargets,
 				scene,
@@ -150,7 +149,7 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
 			});
 			break;
 		case "charge":
-			const chargeTargets = resolveTargets(scene.state, sourceUnit, effect);
+			const chargeTargets = resolveTargets(sourceUnit, effect);
 			effects.applyChargeLogicIO({
 				targets: chargeTargets,
 				scene,
@@ -160,13 +159,13 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
 			break;
 		case "increase_power":
 			effects.increasePower(
-				resolveTargets(scene.state, sourceUnit, effect),
+				resolveTargets(sourceUnit, effect),
 				effect.amount,
 				sourceUnit
 			);
 			break;
 		case "increase_power_on_type": {
-			const allTargets = resolveTargets(scene.state, sourceUnit, effect);
+			const allTargets = resolveTargets(sourceUnit, effect);
 			const filtered = allTargets.filter(u => u.effects.some(e => e.id === effect.targetEffectId));
 			if (filtered.length === 0) break;
 			effects.increasePower(
@@ -178,7 +177,7 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
 		}
 		case "multiply_power":
 			effects.multiplyPower({
-				targets: resolveTargets(scene.state, sourceUnit, effect),
+				targets: resolveTargets(sourceUnit, effect),
 				scene,
 				sourceUnit,
 				multiplier: effect.multiplier,
@@ -189,11 +188,10 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
 			return _exhaustiveCheck;
 	}
 
-	processReactions(scene, sourceUnit, effect);
+	processReactions(sourceUnit, effect);
 }
 
 function processReactions(
-	scene: BattlegroundScene,
 	triggeringUnit: Unit,
 	effect: Effect,
 ) {
@@ -205,7 +203,7 @@ function processReactions(
 		return;
 	}
 
-	const unitEffectListeners = scene.state.battleData.units
+	const unitEffectListeners = state.battleData.units
 		.filter(u => u.id != triggeringUnit.id)
 		.filter(u => {
 			return u.reactions.some(r => r.effectId === effect.id);
@@ -245,7 +243,7 @@ function processReactions(
 
 }
 
-function resolveTargets(state: State, sourceUnit: Unit, effect: Effect): Unit[] {
+function resolveTargets(sourceUnit: Unit, effect: Effect): Unit[] {
 	if (!('targets' in effect)) {
 		console.warn(`Invalid trigger data. Effect ${effect.id} should have targets`);
 		return [];

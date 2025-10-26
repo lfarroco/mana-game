@@ -7,6 +7,13 @@ import { DebugScene } from "./Debug/DebugScene";
 import BattlegroundScene from "./Scenes/Battleground/BattlegroundScene";
 import TitleScene from "./Scenes/Title/TitleScene";
 import OptionsScene from "./Scenes/Options/OptionsScene";
+import { State } from "@Models/State";
+
+declare global {
+	interface Window {
+		state: State;
+	}
+}
 
 export const game = new Phaser.Game({
 	type: Phaser.WEBGL,

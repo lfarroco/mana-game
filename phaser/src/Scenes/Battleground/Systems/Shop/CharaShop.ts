@@ -7,11 +7,12 @@ import * as c from "@Constants/constants";
 import * as sc from "./constants";
 import { state } from "./ShopUI";
 import { createDescription } from "@Systems/Chara/createDescription";
+import { getState } from "@Models/State";
 
 export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara[] {
 	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
 	const createdCharas: Chara.Chara[] = [];
-	const ownedCardIds = new Set(scene.state.gameData.player.units.map(u => u.cardId));
+	const ownedCardIds = new Set(getState().gameData.player.units.map(u => u.cardId));
 
 	cardDefs.forEach((spec, index) => {
 		const unit = makeUnit(c.FORCE_ID_PLAYER, spec.id, vec2(0, 0));

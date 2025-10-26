@@ -1,6 +1,7 @@
 import { arcaneMissileTargeted } from "../../Effects";
 import { Force, manipulateForceMorale } from "@Models/Entities/Force";
 import { Unit } from "@Models/Entities/Unit";
+import { getState } from "@Models/State";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import { getMoraleBarTipPosition } from "@Scenes/Battleground/MoraleDisplay";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
@@ -17,7 +18,7 @@ export function createRestoreMoraleLogic(
 
 		emitter(sourceUnit, healAmount);
 
-		const sourceForce = scene.state.battleData.forces.find(
+		const sourceForce = getState().battleData.forces.find(
 			(force: { id: string }) => force.id === sourceUnit.force
 		)!;
 

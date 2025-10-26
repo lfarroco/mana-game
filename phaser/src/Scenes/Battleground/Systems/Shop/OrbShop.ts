@@ -24,9 +24,9 @@ export async function open() {
 
 	const selectedOrbs = pickRandom(availableOrbs, 3);
 
-	const nextRoundCallback = () => {
+	const nextRoundCallback = async () => {
 		PhaseManager.handlePhaseEnded();
-		close();
+		await close();
 	};
 
 	ShopUI.displayCommonShop(nextRoundCallback);

@@ -4,20 +4,17 @@ import { getCharaById, summon, updateUnitPower } from "@Systems/Chara/Chara";
 import * as charaEvents from "@Systems/Chara/events";
 import * as uiEvents from "@UI/events";
 import * as Geometry from "@Models/Geometry";
-import { scene } from "../../../BattlegroundScene";
 import * as Board from "@Models/Board";
 import * as ShopUI from "../ShopUI";
 import * as HeroShop from "../HeroShop";
 import { handlePhaseEnded } from "@Scenes/Battleground/PhaseManager";
 
-export function itemClickPurchaseRequested(
+export async function itemClickPurchaseRequested(
 	shopUnitData: Unit,
 	shopCharaId: string,
 	dragStartX: number,
 	dragStartY: number,
-): void {
-
-	const { state } = scene;
+): Promise<void> {
 
 	const handlePurchaseFailure = (
 		reason: string,
@@ -69,8 +66,7 @@ export function itemClickPurchaseRequested(
 
 	charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
 
-	HeroShop.rerollTavern();
+	await ShopUI.close();
 
 	handlePhaseEnded();
-	ShopUI.close();
 }

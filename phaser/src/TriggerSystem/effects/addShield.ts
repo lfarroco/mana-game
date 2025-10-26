@@ -1,5 +1,6 @@
 import { Force, manipulateForceShield } from '@Models/Entities/Force';
 import { Unit } from '@Models/Entities/Unit';
+import { getState } from '@Models/State';
 import { scene } from '@Scenes//Battleground/BattlegroundScene';
 import * as CombatStatsTracker from '@Scenes//Battleground/Systems/CombatStatsTracker';
 
@@ -13,7 +14,7 @@ export function createAddShieldLogic(
 
 		emitter(sourceUnit, shieldAmount);
 
-		const sourceForce = scene.state.battleData.forces.find(
+		const sourceForce = getState().battleData.forces.find(
 			(force) => force.id === sourceUnit.force
 		)!;
 

@@ -17,15 +17,12 @@ export const hourAction: Record<number, string> = {
 	2: 'shop',
 	3: 'orb',
 	4: 'combat',
-	5: 'shop'
 };
 
 export async function startPhase() {
-	const nextPhase = hourAction[getState().gameData.hour];
+	const currentPhase = hourAction[getState().gameData.hour];
 
-	await resetBoard(true);
-
-	switch (nextPhase) {
+	switch (currentPhase) {
 		case 'shop':
 			HeroShop.open();
 			break;
@@ -39,9 +36,14 @@ export async function startPhase() {
 			break;
 	}
 }
+
 export function handlePhaseEnded(): void {
 
 	getState().gameData.hour++;
+
+	if (getState().gameData.hour > Object.keys(hourAction).length - 1) {
+		getState().gameData.hour = 0;
+	}
 
 	startPhase();
 }
