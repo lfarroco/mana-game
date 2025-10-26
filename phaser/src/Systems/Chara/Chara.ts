@@ -126,7 +126,7 @@ export function getScreenPosition(unit: Unit) {
 	};
 }
 
-function createSprite(container: Chara, unit: Unit, borderWidth: number = 3, borderColor: number = 0xffffff) {
+function createSprite(container: Chara, unit: Unit, _borderWidth: number = 3, _borderColor: number = 0xffffff) {
 	const animCacheKey = unit.pic + '-anims';
 	const animData = scene.cache.json.get(animCacheKey);
 
@@ -153,12 +153,6 @@ function createSprite(container: Chara, unit: Unit, borderWidth: number = 3, bor
 		return numA - numB;
 	});
 	const firstIdle = idleFrames[0] || frameNames[0];
-
-	const radius = 100;
-	const border = scene.add.graphics({ x: 0, y: 0 });
-	border.lineStyle(borderWidth, borderColor, 1);
-	border.strokeCircle(0, 0, radius);
-	container.add(border);
 
 	const sprite = scene.add.sprite(0, -15, unit.pic, firstIdle);
 	sprite.setDisplaySize(constants.TILE_WIDTH * 1.2, constants.TILE_HEIGHT * 1.2);

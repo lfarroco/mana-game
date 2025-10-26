@@ -1,6 +1,5 @@
 import Phaser from "phaser";
 import { Unit } from "@Models/Entities/Unit";
-import * as constants from "@Constants/constants";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 
 export type CharaBars = {
@@ -57,9 +56,9 @@ export function updateChargeBar(id: string): void {
 	const centerX = 0;
 	const centerY = 0;
 
-	const borderRadius = (constants.TILE_WIDTH * 0.8) / 2;
+	const borderRadius = 80;
 	const arcRadius = borderRadius;
-	const lineWidth = 10;
+	const lineWidth = 15;
 	const startAngle = Phaser.Math.DegToRad(-90);
 	const endAngle = startAngle + Phaser.Math.DegToRad(360 * percent);
 	chargeBar.lineStyle(lineWidth, color, 0.8);
