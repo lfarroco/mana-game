@@ -2,7 +2,6 @@ import { Unit } from "@Models/Entities/Unit";
 import * as AudioManager from "@Systems/AudioManager";
 import { Chara, getCharaById, updateUnitPower } from "@Systems/Chara/Chara";
 import { arcaneMissileTargeted } from '../../Effects';
-import { scene } from "@Scenes/Battleground/BattlegroundScene";
 
 export const increasePower = async (
 	targets: Unit[],
@@ -31,7 +30,6 @@ export const increasePower = async (
 		const targetChara = getCharaById(target.id);
 
 		arcaneMissileTargeted(
-			scene,
 			sourceChara,
 			targetChara,
 			{

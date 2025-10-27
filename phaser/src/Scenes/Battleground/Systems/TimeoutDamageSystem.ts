@@ -43,7 +43,6 @@ function spawnStar(damage: number, targetForce: Force): void {
 	const colors = [0x800080, 0xDA70D6, 0xFFD700];
 
 	arcaneMissileTargeted(
-		scene,
 		{ x: startX, y: startY },
 		targetPos,
 		{

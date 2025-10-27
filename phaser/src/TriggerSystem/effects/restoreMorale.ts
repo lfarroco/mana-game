@@ -26,7 +26,6 @@ export function createRestoreMoraleLogic(
 		const moraleBarTipPos = getMoraleBarTipPosition(sourceForce.id);
 		if (sourceChara && moraleBarTipPos) {
 			arcaneMissileTargeted(
-				scene,
 				sourceChara,
 				moraleBarTipPos,
 				{
