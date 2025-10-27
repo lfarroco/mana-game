@@ -7,6 +7,7 @@
 import { EnergyBeam } from './EnergyBeam';
 import { images } from '../assets';
 import { delay } from '../Utils/animation';
+import { getCurrentScene } from '@Models/State';
 
 export interface TargetedArcaneMissileOptions {
 	/** Colors for the projectile particles - defaults to light blue neon */
@@ -34,11 +35,12 @@ export interface TargetedArcaneMissileOptions {
 }
 
 export async function arcaneMissileTargeted(
-	scene: Phaser.Scene,
 	source: { x: number; y: number },
 	target: { x: number; y: number },
 	options: TargetedArcaneMissileOptions = {}
 ): Promise<void> {
+
+	const scene = getCurrentScene();
 	const {
 		colors = [0x00FFFF, 0x87CEEB, 0xADD8E6], // Light blue neon colors
 		amplitudeMin = 5,

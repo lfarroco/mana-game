@@ -1,6 +1,5 @@
 import { applyDamageToForce } from '@Models/Entities/Force';
 import { Unit } from '@Models/Entities/Unit';
-import { getCurrentScene } from '@Models/State';
 import * as CombatStatsTracker from '@Scenes//Battleground/Systems/CombatStatsTracker';
 import { getCharaById } from '@Systems/Chara/Chara';
 import { arcaneMissileTargeted } from '../../Effects/arcaneMissileTargeted';
@@ -23,7 +22,6 @@ export function dealDamageLogicIO(sourceUnit: Unit) {
 	}
 
 	arcaneMissileTargeted(
-		getCurrentScene(),
 		getCharaById(sourceUnit.id),
 		getCharaById(enemyCore!.id),
 		{

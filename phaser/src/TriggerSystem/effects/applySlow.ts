@@ -17,7 +17,6 @@ export async function applySlowLogicIO(context: { sourceUnit: Unit; targets: Uni
 			const targetChara = getCharaById(target.id);
 			if (targetChara) {
 				arcaneMissileTargeted(
-					scene,
 					sourceChara,
 					targetChara,
 					{

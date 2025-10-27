@@ -26,7 +26,6 @@ export function createApplyChargeLogic() {
 			if (targetChara) {
 				// Use the targeted arcane missile effect with charge callback
 				arcaneMissileTargeted(
-					scene,
 					sourceChara,
 					targetChara,
 					{

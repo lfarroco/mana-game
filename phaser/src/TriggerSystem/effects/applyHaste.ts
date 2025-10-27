@@ -17,7 +17,6 @@ export const applyHasteLogicIO = async (context: {
 		const targetChara = getCharaById(target.id);
 		if (targetChara) {
 			arcaneMissileTargeted(
-				scene,
 				sourceChara,
 				targetChara,
 				{
