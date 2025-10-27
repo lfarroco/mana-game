@@ -25,6 +25,8 @@ export type Unit = {
   hasted: number;
   slowed: number;
 
+  isCore: boolean;
+
 };
 
 export const makeUnit = (force: string, cardId: string, position = { x: 0, y: 0 }): Unit => {
@@ -40,6 +42,7 @@ export const makeUnit = (force: string, cardId: string, position = { x: 0, y: 0 
       cooldown: card.cooldown,
       effects: card.effects || [],
       reactions: card.reactions || [],
+      isCore: card.isCore || false
     },
     position,
     uuid.v4()
@@ -56,6 +59,7 @@ export type CardDefinition = {
   cooldown: number;
   effects: TriggerSystem.Effect[];
   reactions: TriggerSystem.EffectReaction[];
+  isCore: boolean;
 };
 
 export type PureUnitData = {
@@ -74,6 +78,7 @@ export type PureUnitData = {
   hasted: number;
   slowed: number;
   effects: TriggerSystem.Effect[];
+  isCore: boolean;
   reactions: {
     position: TriggerSystem.EffectSourcePosition;
     effectId: string; // e.g. "damage", "heal", "shield", "poison", "regen", "haste", "slow", "charge"
@@ -108,7 +113,8 @@ export function createUnitFromCard(
     charge: 0,
     refresh: 0,
     hasted: 0,
-    slowed: 0
+    slowed: 0,
+    isCore: cardDef.isCore || false,
   };
 }
 
@@ -134,6 +140,7 @@ export function createCustomUnit(
     refresh: 0,
     hasted: 0,
     slowed: 0,
+    isCore: false
   };
 
   return {

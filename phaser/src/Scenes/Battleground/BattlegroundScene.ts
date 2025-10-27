@@ -65,6 +65,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     this.start(data);
 
+
   }
 
   start = async (data?: GameData) => {

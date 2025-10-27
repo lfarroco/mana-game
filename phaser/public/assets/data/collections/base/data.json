@@ -3,6 +3,32 @@
 	"name": "Base Set",
 	"cards": [
 		{
+			"id": "neutral_core",
+			"name": "The Core",
+			"pic": "blue-stone",
+			"power": 20,
+			"cooldown": 3000,
+			"isCore": true,
+			"effects": [
+				{
+					"id": "damage"
+				}
+			]
+		},
+		{
+			"id": "damage_core",
+			"name": "Damage Core",
+			"pic": "red-stone",
+			"power": 20,
+			"cooldown": 3000,
+			"isCore": true,
+			"effects": [
+				{
+					"id": "damage"
+				}
+			]
+		},
+		{
 			"id": "void_witch",
 			"name": "Void Witch",
 			"pic": "boss_andromeda",
