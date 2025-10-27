@@ -77,3 +77,12 @@ export const getCollection = (id: string): CardCollection => {
 export const getAllCards = (): CardDefinition[] => {
   return Array.from(cards.values());
 }
+
+export const getCores = (): CardDefinition[] => {
+  return Array.from(cards.values()).filter(card => card.isCore);
+}
+
+export const getNonCores = (): CardDefinition[] => {
+  return Array.from(cards.values()).filter(card => !card.isCore);
+}
+
