@@ -1,6 +1,9 @@
 import { applyDamageToForce } from '@Models/Entities/Force';
 import { Unit } from '@Models/Entities/Unit';
+import { getCurrentScene } from '@Models/State';
 import * as CombatStatsTracker from '@Scenes//Battleground/Systems/CombatStatsTracker';
+import { getCharaById } from '@Systems/Chara/Chara';
+import { arcaneMissileTargeted } from '../../Effects/arcaneMissileTargeted';
 
 export function dealDamageLogicIO(sourceUnit: Unit) {
 
@@ -10,7 +13,34 @@ export function dealDamageLogicIO(sourceUnit: Unit) {
 		(force: { id: string }) => force.id !== sourceUnit.force
 	)!;
 
-	const actualMoraleChange = applyDamageToForce(targetForce, damageAmount);
+	const enemyCore = state.battleData.units.find(
+		(unit: { force: string, isCore: boolean }) => unit.force === targetForce.id && unit.isCore
+	);
 
-	CombatStatsTracker.trackDamage(sourceUnit.id, actualMoraleChange, 'normal');
+	const effect = () => {
+		const actualMoraleChange = applyDamageToForce(targetForce, damageAmount);
+		CombatStatsTracker.trackDamage(sourceUnit.id, actualMoraleChange, 'normal');
+	}
+
+	arcaneMissileTargeted(
+		getCurrentScene(),
+		getCharaById(sourceUnit.id),
+		getCharaById(enemyCore!.id),
+		{
+			// Red tones
+			colors: [0xff691E, 0xaa853F, 0x66A460],
+			amplitudeMin: 5,
+			amplitudeMax: 20,
+			particleScale: 1.5,
+			impact: {
+				colors: [0xD2691E, 0xCD853F],
+				scale: 2,
+				speed: 200,
+				lifespan: 300,
+				alpha: 0.4
+			},
+			onHit: effect
+		}
+	);
+
 };

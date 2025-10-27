@@ -143,7 +143,6 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
 			const slowTargets = resolveTargets(sourceUnit, effect);
 			effects.applySlowLogicIO({
 				targets: slowTargets,
-				scene,
 				sourceUnit,
 				duration: effect.duration,
 			});

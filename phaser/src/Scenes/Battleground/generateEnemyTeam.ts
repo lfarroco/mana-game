@@ -1,4 +1,4 @@
-import { CardDefinition, getAllCards } from "@Models/Entities/Card";
+import { CardDefinition, getCores, getNonCores } from "@Models/Entities/Card";
 import { cpuForce } from "@Models/Entities/Force";
 import { vec2 } from "@Models/Geometry";
 import { makeUnit } from "@Models/Entities/Unit";
@@ -9,17 +9,17 @@ export const FORMATION_TEMPLATES: string[][] =
 	[
 		[
 			"x.x",
-			".x.",
+			".c.",
 			"x.x"
 		],
 		[
 			".x.",
-			"xx.",
+			"xc.",
 			".x."
 		],
 		[
 			"x.x",
-			"..x",
+			"..c",
 			"x.x"
 		]
 	]
@@ -48,7 +48,17 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 	for (let y = 0; y < parsed.length; y++) {
 		for (let x = 0; x < parsed[y].length; x++) {
 
-			const potentialCards = getAllCards();
+			const current = parsed[y][x];
+
+			if (current === ".") {
+				continue;
+			}
+			const handlers: { [key: string]: () => CardDefinition[] } = {
+				"x": getNonCores,
+				"c": getCores
+			}
+
+			const potentialCards = handlers[current]();
 
 			const card = pickOne(potentialCards);
 			const unit = makeUnit(cpuForce.id, card.id, vec2(x, y));

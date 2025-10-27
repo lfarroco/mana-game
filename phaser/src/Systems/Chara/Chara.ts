@@ -162,6 +162,8 @@ function createSprite(container: Chara, unit: Unit, _borderWidth: number = 3, _b
 	}
 
 	if (unit.isCore) {
+
+		sprite.setDisplaySize(constants.TILE_WIDTH * 0.8, constants.TILE_HEIGHT * 0.8);
 		tween({
 			targets: [sprite],
 			y: Math.random() * -20 - 10,
