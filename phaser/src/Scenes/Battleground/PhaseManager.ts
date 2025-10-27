@@ -12,7 +12,7 @@ import { clearPoison } from "./Systems/PoisonDamageSystem";
 import { clearRegen } from "./Systems/RegenSystem";
 
 export const hourAction: Record<number, string> = {
-	0: 'shop',
+	0: 'shop-core',
 	1: 'shop',
 	2: 'shop',
 	3: 'orb',
@@ -23,6 +23,9 @@ export async function startPhase() {
 	const currentPhase = hourAction[getState().gameData.hour];
 
 	switch (currentPhase) {
+		case 'shop-core':
+			HeroShop.openCoreShop();
+			break;
 		case 'shop':
 			HeroShop.open();
 			break;

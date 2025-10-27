@@ -161,6 +161,17 @@ function createSprite(container: Chara, unit: Unit, _borderWidth: number = 3, _b
 		sprite.play(unit.pic + '_idle');
 	}
 
+	if (unit.isCore) {
+		tween({
+			targets: [sprite],
+			y: Math.random() * -20 - 10,
+			ease: "Cubic.EaseOut",
+			duration: Math.random() * 1000 + 1000,
+			yoyo: true,
+			repeat: -1
+		})
+	}
+
 	return sprite;
 }
 

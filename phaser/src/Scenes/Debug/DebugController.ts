@@ -137,7 +137,8 @@ export function addUnitToPlayerBoard(cardId: string, boardX: number, boardY: num
 		charge: 0,
 		refresh: 0,
 		hasted: 0,
-		slowed: 0
+		slowed: 0,
+		isCore: false
 	};
 
 	state.gameData.player.units.push(newUnit);

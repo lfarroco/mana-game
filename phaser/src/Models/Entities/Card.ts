@@ -55,6 +55,7 @@ export type CardDefinition = {
   cooldown: number;
   effects: Effect[];
   reactions: EffectReaction[];
+  isCore?: boolean;
 };
 
 export const getCardDefinition = (id: string): CardDefinition => {

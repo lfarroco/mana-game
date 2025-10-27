@@ -53,6 +53,28 @@ export async function open() {
 	currentShopCharas.forEach(chara => _animateItemAppearance(chara));
 }
 
+export async function openCoreShop() {
+	currentShopCharas = [];
+
+	const tavernCardData = Card.getAllCards().filter(card => card.isCore);
+
+	const nextRoundCallback = () => {
+		PhaseManager.handlePhaseEnded();
+		close();
+	};
+
+	ShopUI.displayCommonShop(nextRoundCallback);
+
+	// Render tavern charas
+	const displayedCharas = CharaShop.renderTavernCharas(tavernCardData);
+	currentShopCharas = displayedCharas;
+
+	Board.setEnemyBoardVisible(false);
+
+	await ShopUI.slideIn();
+	currentShopCharas.forEach(chara => _animateItemAppearance(chara));
+}
+
 export async function close() {
 	currentShopCharas = [];
 
