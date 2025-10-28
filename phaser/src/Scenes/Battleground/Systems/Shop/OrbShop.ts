@@ -163,9 +163,7 @@ export function renderOrbShop(ui: ShopUI.ShopUIState, orbIds: string[], onOrbUse
 		])
 
 		ui.magicOrbs.push(magicOrb);
-		magicOrb.setDepth(1000);
 	});
 
 	scene.add.existing(ui.orbContainer!);
-	ui.orbContainer!.setDepth(1000);
 }
