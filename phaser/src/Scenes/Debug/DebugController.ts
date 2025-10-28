@@ -5,7 +5,7 @@ import * as constants from "@Constants/constants";
 import * as  Chara from "@Systems/Chara/Chara";
 import * as Systems from "../Battleground/Systems";
 import { processOwnedUnitMoveRequest } from "@Systems/Chara/input";
-import { startGame } from "@Scenes/Title/effects/startGame";
+import { startGame } from "../../Game/effects/startGame";
 import { handlePhaseEnded } from "@Scenes/Battleground/PhaseManager";
 
 export function clickHeroInShop(slotIndex: number): string {

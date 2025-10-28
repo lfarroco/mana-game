@@ -3,6 +3,7 @@ import * as c from "@Constants/constants";
 import { size, vec2 } from "@Models/Geometry";
 import { getCurrentScene, getState, resetState } from "@Models/State";
 import * as io from "@PhaserIO";
+import { loadGame } from "../../Game/effects/loadGame";
 
 export function create() {
 
@@ -23,7 +24,44 @@ export function createPanel() {
 	const panelWidth = 850;
 	const panelHeight = 850;
 	const panelX = c.MIDDLE_SCREEN.x;
-	const panelY = c.MIDDLE_SCREEN.y;
+	const panelY = 400;
+	const startingY = panelY - 300;
+
+	const buttons = ([
+		["Settings", () => { }],
+		["New Run", () => {
+			io.Destroy(container);
+			resetState();
+			getCurrentScene().scene.restart();
+		}],
+		["Return to Title",
+			() => {
+				io.Destroy(container);
+				getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
+				resetState();
+
+			}],
+		["Save Game",
+			() => {
+				io.Destroy(container);
+
+				localStorage.setItem("gameData", JSON.stringify(getState().gameData));
+
+			}],
+		["Load Game",
+			() => {
+				io.Destroy(container);
+				loadGame();
+			}
+		]
+
+	] as [string, () => void][]).map(([label, callback], i) =>
+		createUIButton(
+			label,
+			vec2(panelX, startingY + (i * 100)),
+			callback
+		).container
+	)
 
 	const container = io.Container([
 		[
@@ -41,39 +79,11 @@ export function createPanel() {
 			title => io.SetPosition(title, vec2(panelX, panelY - panelHeight / 2 + 50)),
 			title => io.Centralize(title)
 		],
-		createUIButton(
-			"Return to Title",
-			vec2(panelX, panelY - 200),
-			() => {
-				io.Destroy(container);
-				getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
-				resetState();
+		...buttons,
 
-			}
-		).container,
-		createUIButton(
-			"Save Game",
-			vec2(panelX, panelY - 100),
-			() => {
-				io.Destroy(container);
-
-				localStorage.setItem("gameData", JSON.stringify(getState().gameData));
-
-			}
-		).container,
-		createUIButton(
-			"Load Game",
-			vec2(panelX, panelY),
-			() => {
-				io.Destroy(container);
-				const data = localStorage.getItem("gameData");
-				if (data) {
-					getState().gameData = JSON.parse(data);
-					getCurrentScene().scene.restart(JSON.parse(data));
-				}
-			}
-		).container
 	])
 
 	return container;
 }
+
+
