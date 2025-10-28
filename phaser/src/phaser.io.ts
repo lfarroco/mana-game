@@ -126,6 +126,7 @@ export function Rectangle(
 	size: Size,
 	color: number = 0xffa500,
 	alpha: number = 0.7,
+	stroke?: boolean
 ) {
 	const scene = getCurrentScene();
 	const actualPos = sumVec2(position, { x: -size.width / 2, y: -size.height / 2 })
@@ -133,7 +134,9 @@ export function Rectangle(
 	g.lineStyle(4, 0xffffff, 0.8);
 	g.fillStyle(color, alpha);
 	g.fillRect(0, 0, size.width, size.height);
-	g.strokeRect(0, 0, size.width, size.height);
+
+	if (stroke)
+		g.strokeRect(0, 0, size.width, size.height);
 
 	return g;
 }

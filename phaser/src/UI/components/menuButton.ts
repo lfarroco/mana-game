@@ -1,9 +1,8 @@
 import { createUIButton } from "@Components/UIButton";
 import * as c from "@Constants/constants";
 import { size, vec2 } from "@Models/Geometry";
-import { getCurrentScene, getState, resetState } from "@Models/State";
+import { getCurrentScene, resetState } from "@Models/State";
 import * as io from "@PhaserIO";
-import { loadGame } from "../../Game/effects/loadGame";
 
 export function create() {
 
@@ -21,11 +20,11 @@ export function create() {
 
 export function createPanel() {
 
-	const panelWidth = 850;
-	const panelHeight = 850;
+	const panelWidth = 650;
+	const panelHeight = 550;
 	const panelX = c.MIDDLE_SCREEN.x;
-	const panelY = 400;
-	const startingY = panelY - 300;
+	const panelY = 600;
+	const startingY = panelY - 100;
 
 	const buttons = ([
 		["Settings", () => { }],
@@ -41,19 +40,11 @@ export function createPanel() {
 				resetState();
 
 			}],
-		["Save Game",
+		["Back",
 			() => {
 				io.Destroy(container);
-
-				localStorage.setItem("gameData", JSON.stringify(getState().gameData));
-
 			}],
-		["Load Game",
-			() => {
-				io.Destroy(container);
-				loadGame();
-			}
-		]
+
 
 	] as [string, () => void][]).map(([label, callback], i) =>
 		createUIButton(
@@ -83,7 +74,7 @@ export function createPanel() {
 
 	])
 
+	io.BringToTop(container);
+
 	return container;
 }
-
-
