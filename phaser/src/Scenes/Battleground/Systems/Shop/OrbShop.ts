@@ -58,22 +58,6 @@ export function renderOrbShop(ui: ShopUI.ShopUIState, orbIds: string[], onOrbUse
 	const orbSpacing = sc.TAVERN_CHARA_SPACING;
 	ui.orbContainer = scene.add.container(0, 0);
 
-	const bg = scene.add.graphics()
-
-	const bgHeight = (orbIds.length - 1) * orbSpacing + 200;
-	const bgY = -100;
-
-	bg.fillStyle(0x000000, 0.25);
-	bg.fillRoundedRect(
-		ui.panelX,
-		bgY,
-		sc.TAVERN_BG_WIDTH,
-		bgHeight,
-		sc.SUB_PANEL_CORNER_RADIUS
-	)
-
-	ui.orbContainer.add(bg);
-
 	function handleOrbDrop(params: {
 		orb: MagicOrb,
 		target: Phaser.GameObjects.GameObject,
@@ -89,7 +73,6 @@ export function renderOrbShop(ui: ShopUI.ShopUIState, orbIds: string[], onOrbUse
 			return;
 		}
 
-		// At this point target is guaranteed to be a Zone in dropZones
 		const slotIndex = playerBoard.dropZones.indexOf(target as Phaser.GameObjects.Zone);
 		const tileX = slotIndex % 3;
 		const tileY = Math.floor(slotIndex / 3);
