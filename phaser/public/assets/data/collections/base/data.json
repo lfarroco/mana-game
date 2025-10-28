@@ -29,6 +29,45 @@
 			]
 		},
 		{
+			"id": "shield_core",
+			"name": "Shield Core",
+			"pic": "yellow-stone",
+			"power": 20,
+			"cooldown": 3000,
+			"isCore": true,
+			"effects": [
+				{
+					"id": "shield"
+				}
+			]
+		},
+		{
+			"id": "heal_core",
+			"name": "Heal Core",
+			"pic": "green-stone",
+			"power": 20,
+			"cooldown": 3000,
+			"isCore": true,
+			"effects": [
+				{
+					"id": "heal"
+				}
+			]
+		},
+		{
+			"id": "purple_core",
+			"name": "Purple Core",
+			"pic": "purple-stone",
+			"power": 20,
+			"cooldown": 3000,
+			"isCore": true,
+			"effects": [
+				{
+					"id": "poison"
+				}
+			]
+		},
+		{
 			"id": "void_witch",
 			"name": "Void Witch",
 			"pic": "boss_andromeda",
