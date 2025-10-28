@@ -20,6 +20,9 @@ export default class Core extends Phaser.Scene {
 
 		this.load.image('blue-stone', "assets/blue-stone.png")
 		this.load.image('red-stone', "assets/red-stone.png")
+		this.load.image('yellow-stone', "assets/yellow-stone.png")
+		this.load.image('green-stone', "assets/green-stone.png")
+		this.load.image('purple-stone', "assets/purple-stone.png")
 
 		//sfx_ui_error.m4a
 		this.load.audio('sfx_ui_error', 'assets/audio/sfx_ui_error.m4a');

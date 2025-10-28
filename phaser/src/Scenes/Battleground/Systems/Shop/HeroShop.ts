@@ -56,7 +56,9 @@ export async function open() {
 export async function openCoreShop() {
 	currentShopCharas = [];
 
-	const tavernCardData = Card.getAllCards().filter(card => card.isCore);
+	const tavernCardData = pickRandom(
+		Card.getAllCards().filter(card => card.isCore),
+		sc.NUM_TAVERN_SLOTS)
 
 	const nextRoundCallback = () => {
 		PhaseManager.handlePhaseEnded();
@@ -116,7 +118,7 @@ async function _animateItemAppearance(
 }
 
 function getAvailableCardsForTavern(count: number): Card.CardDefinition[] {
-	const allCards = Card.getAllCards();
+	const allCards = Card.getNonCores()
 	return pickRandom(allCards, count);
 }
 
