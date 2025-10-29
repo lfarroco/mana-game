@@ -9,8 +9,13 @@ import { orbsIndex, OrbSpec } from "./Orbs";
 import { eqVec2 } from "@Models/Geometry";
 import { hexToVector3 } from "@Utils/colorUtils";
 import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
+import * as io from "@PhaserIO";
+
 
 export async function open() {
+
+	const container = io.Container();
+
 	const availableOrbs = [
 		"crimson_orb",
 		"emerald_orb",
@@ -27,18 +32,18 @@ export async function open() {
 	const nextRoundCallback = async () => {
 		PhaseManager.handlePhaseEnded();
 		await close();
+		container.destroy();
 	};
 
 	ShopUI.displayCommonShop(nextRoundCallback);
 
-	const shopState = ShopUI.getShopState();
-	if (shopState) {
-		renderOrbShop(shopState, selectedOrbs, async () => {
-			shopState.nextRoundButton?.disable();
+	renderOrbShop(
+		container,
+		selectedOrbs, async () => {
+			//shopState.nextRoundButton?.disable();
 			await delay(500);
 			nextRoundCallback();
 		});
-	}
 
 	Board.setEnemyBoardVisible(false);
 
@@ -47,16 +52,20 @@ export async function open() {
 
 export async function close() {
 	await ShopUI.slideOut();
-	ShopUI.destroyOrbs();
 }
 
-export function renderOrbShop(ui: ShopUI.ShopUIState, orbIds: string[], onOrbUsed?: () => void | Promise<void>) {
+export function renderOrbShop(
+	container: Phaser.GameObjects.Container,
+	orbIds: string[],
+	onOrbUsed?: () => void | Promise<void>,
+) {
 
 	const state = getState();
 	const scene = getCurrentScene();
 
+
+
 	const orbSpacing = sc.TAVERN_CHARA_SPACING;
-	ui.orbContainer = scene.add.container(0, 0);
 
 	function handleOrbDrop(params: {
 		orb: MagicOrb,
@@ -89,13 +98,8 @@ export function renderOrbShop(ui: ShopUI.ShopUIState, orbIds: string[], onOrbUse
 		}
 
 		console.log(`Unit ${existingUnit.id} is at this position - applying ${orbSpec.name} effect!`);
-		let applied = false;
-		try {
-			applied = !!orbSpec.effect(existingUnit);
-		} catch (err) {
-			console.error(`Error applying orb effect ${orbSpec.name} to ${existingUnit.id}:`, err);
-			applied = false;
-		}
+
+		const applied = !!orbSpec.effect(existingUnit);
 		if (!applied) {
 			console.log(`${orbSpec.name} effect returned false — returning orb to origin`);
 			MagicOrbCallbacks.returnToPosition(orb, target);
@@ -105,7 +109,7 @@ export function renderOrbShop(ui: ShopUI.ShopUIState, orbIds: string[], onOrbUse
 		onOrbUsed?.();
 	}
 
-	orbIds.forEach((orbId: string, index: number) => {
+	const orbs = orbIds.map((orbId: string, index: number) => {
 		const orbSpec = orbsIndex[orbId]();
 
 		const offsetY = index * orbSpacing;
@@ -120,7 +124,8 @@ export function renderOrbShop(ui: ShopUI.ShopUIState, orbIds: string[], onOrbUse
 			onDropTarget: (orb, target) => handleOrbDrop({ orb, target, orbSpec, magicOrb }),
 			dropTargetNames: []
 		});
-		ui.orbContainer!.add(magicOrb.getShader());
+
+		container.add(magicOrb.getShader());
 
 		const titleText = scene.add.text(
 			sc.ITEM_DESC_BASE_X, sc.ITEM_DESC_BASE_Y + offsetY,
@@ -140,13 +145,21 @@ export function renderOrbShop(ui: ShopUI.ShopUIState, orbIds: string[], onOrbUse
 			.setWrapMode(1)
 			.setFontFamily("Arial");
 
-		ui.orbContainer!.add([
+		container.add([
 			titleText,
 			descriptionText
 		])
 
-		ui.magicOrbs.push(magicOrb);
+		return magicOrb;
 	});
 
-	scene.add.existing(ui.orbContainer!);
+	const handler = (time: number) => {
+		orbs.forEach(orb => orb.update(time));
+	}
+
+	getCurrentScene().events.on('update', handler);
+
+	container.on(Phaser.GameObjects.Events.DESTROY, () => {
+		getCurrentScene().events.off('update', handler);
+	});
 }
