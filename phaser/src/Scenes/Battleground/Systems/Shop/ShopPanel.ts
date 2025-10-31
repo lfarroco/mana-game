@@ -1,11 +1,9 @@
-import { size, vec2 } from "@Models/Geometry";
+import { vec2 } from "@Models/Geometry";
 import * as c from "@Constants/constants";
 import { Button, createUIButton } from "@Components/UIButton";
-import * as sc from "./constants";
 import { tween } from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
-import * as SellZone from "./SellZone"
-import { BorderedRoundRect, Container } from "@PhaserIO";
+import { Container } from "@PhaserIO";
 
 const NEXT_ROUND_BUTTON_X = c.SCREEN_WIDTH - 200;
 const NEXT_ROUND_BUTTON_Y = c.SCREEN_HEIGHT - 100;
@@ -22,16 +20,6 @@ export const create = (nextRoundCallback: () => void) => {
 
 	container.setY(c.SCREEN_HEIGHT * -1);
 
-	const tavernBaseY = sc.TAVERN_BASE_Y;
-
-	const bg = BorderedRoundRect(
-		vec2(c.MIDDLE_SCREEN_X, tavernBaseY),
-		size(sc.TAVERN_BG_WIDTH, sc.TAVERN_BG_HEIGHT),
-		sc.SUB_PANEL_CORNER_RADIUS,
-	)
-
-	container.add([bg]);
-
 	const nextRoundBtn = createUIButton(
 		"Skip",
 		vec2(NEXT_ROUND_BUTTON_X, NEXT_ROUND_BUTTON_Y),
@@ -41,7 +29,6 @@ export const create = (nextRoundCallback: () => void) => {
 	container.add(nextRoundBtn.container);
 	nextRoundButton = nextRoundBtn;
 
-	SellZone.create();
 }
 
 export const slideIn = async () => {

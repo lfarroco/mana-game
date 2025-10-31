@@ -14,6 +14,7 @@ import * as ResultsUI from "./Results/ResultsUI";
 import * as BoardStatsDisplay from "./BoardStatsDisplay";
 import * as Tooltip from "@Components/Tooltip";
 import { resetBoard, startPhase } from "./PhaseManager";
+import * as SellZone from "./Systems/Shop/SellZone";
 
 export let scene: BattlegroundScene;
 
@@ -88,6 +89,8 @@ export class BattlegroundScene extends Phaser.Scene {
     MoraleDisplay.init();
     ResultsUI.create();
     BoardStatsDisplay.init();
+
+    SellZone.create();
 
     AudioManager.playMusic('music_battlemap_vetruv');
 

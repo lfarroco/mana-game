@@ -30,7 +30,6 @@ const textStyle = {
 
 export function create() {
 
-	container?.destroy();
 	container = io.Container();
 
 	rect = createRect();
