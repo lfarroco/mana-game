@@ -1,4 +1,4 @@
-import * as ShopUI from "./ShopUI";
+import * as ShopPanel from "./ShopPanel";
 import * as Board from "@Models/Board";
 import { delay } from "@Utils/animation";
 import { pickRandom } from "../../../../utils";
@@ -10,7 +10,6 @@ import { eqVec2 } from "@Models/Geometry";
 import { hexToVector3 } from "@Utils/colorUtils";
 import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
 import * as io from "@PhaserIO";
-
 
 export async function open() {
 
@@ -35,23 +34,22 @@ export async function open() {
 		container.destroy();
 	};
 
-	ShopUI.displayCommonShop(nextRoundCallback);
+	ShopPanel.create(nextRoundCallback);
 
 	renderOrbShop(
 		container,
 		selectedOrbs, async () => {
-			//shopState.nextRoundButton?.disable();
 			await delay(500);
 			nextRoundCallback();
 		});
 
 	Board.setEnemyBoardVisible(false);
 
-	await ShopUI.slideIn();
+	await ShopPanel.slideIn();
 }
 
 export async function close() {
-	await ShopUI.slideOut();
+	await ShopPanel.slideOut();
 }
 
 export function renderOrbShop(
@@ -62,8 +60,6 @@ export function renderOrbShop(
 
 	const state = getState();
 	const scene = getCurrentScene();
-
-
 
 	const orbSpacing = sc.TAVERN_CHARA_SPACING;
 

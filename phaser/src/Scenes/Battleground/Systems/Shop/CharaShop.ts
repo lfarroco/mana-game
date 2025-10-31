@@ -5,12 +5,11 @@ import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import * as Chara from "@Systems/Chara/Chara";
 import * as c from "@Constants/constants";
 import * as sc from "./constants";
-import { state } from "./ShopUI";
 import { createDescription } from "@Systems/Chara/createDescription";
 import { getState } from "@Models/State";
+import * as ShopPanel from "./ShopPanel";
 
 export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara[] {
-	if (!state) throw new Error("ShopUI not initialized. Call create() first.");
 	const createdCharas: Chara.Chara[] = [];
 	const ownedCardIds = new Set(getState().gameData.player.units.map(u => u.cardId));
 
@@ -69,17 +68,14 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 			.setWrapMode(1)
 			.setFontFamily("Arial");
 
-		state!.shopContainer.add([
+		ShopPanel.container.add([
 			titleText,
-			descriptionText
+			descriptionText,
+			chara
 		])
 
-		state!.shopContainer.add(chara);
 		createdCharas.push(chara);
 	});
-
-
-
 
 	return createdCharas;
 }
