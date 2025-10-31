@@ -22,7 +22,7 @@ export const onShopPurchaseFailed = (chara: Chara.Chara, vec: Vec2) => {
 export function onShopPurchaseSuccesful(chara: Chara.Chara) {
 	hideTooltip();
 
-	Shop.UI.removeShopChild(chara);
+	Shop.UI.removeChild(chara);
 
 	Shop.HeroShop.handleCharaPurchaseFinalized(chara);
 

@@ -2,20 +2,14 @@ import * as Card from "@Models/Entities/Card";
 import { pickRandom } from "../../../../utils";
 import * as Chara from "@Systems/Chara/Chara";
 import { scene } from "../../BattlegroundScene";
-import * as ShopUI from "./ShopUI";
+import * as ShopPanel from "./ShopPanel";
 import * as CharaShop from "./CharaShop";
 import * as sc from "./constants";
 import { tween } from "@Utils/animation";
-import * as MoraleDisplay from "../../MoraleDisplay";
 import * as Board from "@Models/Board";
 import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
 
 let currentShopCharas: Chara.Chara[] = [];
-
-export function init() {
-	ShopUI.create();
-	MoraleDisplay.init();
-}
 
 export function handleCharaPurchaseFinalized(purchasedChara: Chara.Chara): void {
 	currentShopCharas = currentShopCharas.filter(c => Chara.getId(c) !== Chara.getId(purchasedChara));
@@ -26,7 +20,7 @@ export function handleCharaPurchaseFinalized(purchasedChara: Chara.Chara): void 
 		if (newCardData.length > 0) {
 			const newCharas = CharaShop.renderTavernCharas(newCardData);
 			currentShopCharas.push(...newCharas);
-			newCharas.forEach(chara => _animateItemAppearance(chara));
+			newCharas.forEach(chara => animateItemAppearance(chara));
 		}
 	}
 }
@@ -41,7 +35,7 @@ export async function open() {
 		close();
 	};
 
-	ShopUI.displayCommonShop(nextRoundCallback);
+	ShopPanel.create(nextRoundCallback);
 
 	// Render tavern charas
 	const displayedCharas = CharaShop.renderTavernCharas(tavernCardData);
@@ -49,8 +43,8 @@ export async function open() {
 
 	Board.setEnemyBoardVisible(false);
 
-	await ShopUI.slideIn();
-	currentShopCharas.forEach(chara => _animateItemAppearance(chara));
+	await ShopPanel.slideIn();
+	currentShopCharas.forEach(chara => animateItemAppearance(chara));
 }
 
 export async function openCoreShop() {
@@ -60,12 +54,12 @@ export async function openCoreShop() {
 		Card.getAllCards().filter(card => card.isCore),
 		sc.NUM_TAVERN_SLOTS)
 
-	const nextRoundCallback = () => {
+	const nextRoundCallback = async () => {
+		await ShopPanel.slideOut();
 		PhaseManager.handlePhaseEnded();
-		close();
 	};
 
-	ShopUI.displayCommonShop(nextRoundCallback);
+	ShopPanel.create(nextRoundCallback);
 
 	// Render tavern charas
 	const displayedCharas = CharaShop.renderTavernCharas(tavernCardData);
@@ -73,14 +67,15 @@ export async function openCoreShop() {
 
 	Board.setEnemyBoardVisible(false);
 
-	await ShopUI.slideIn();
-	currentShopCharas.forEach(chara => _animateItemAppearance(chara));
+	await ShopPanel.slideIn();
+
+	currentShopCharas.forEach(animateItemAppearance);
 }
 
 export async function close() {
 	currentShopCharas = [];
 
-	await ShopUI.slideOut();
+	await ShopPanel.slideOut();
 }
 
 export function getShopCharaBySlot(slotIndex: number): Chara.Chara | null {
@@ -92,9 +87,9 @@ export function getDisplayedHeroCardDefinitions(): Card.CardDefinition[] {
 		.map(Card.getCardDefinition);
 }
 
-async function _animateItemAppearance(
+async function animateItemAppearance(
 	chara: Chara.Chara
-): Promise<void> {
+) {
 	const targetScaleX = chara.scaleX;
 	const targetScaleY = chara.scaleY;
 
@@ -124,7 +119,7 @@ function getAvailableCardsForTavern(count: number): Card.CardDefinition[] {
 
 export function rerollTavern(): void {
 	currentShopCharas.forEach(chara => {
-		ShopUI.removeShopChild(chara, false);
+		ShopPanel.removeChild(chara, false);
 		Chara.destroy(chara);
 	});
 	currentShopCharas = [];
@@ -136,5 +131,5 @@ export function rerollTavern(): void {
 	);
 	currentShopCharas = newShopCharas;
 
-	newShopCharas.forEach(chara => _animateItemAppearance(chara));
+	newShopCharas.forEach(chara => animateItemAppearance(chara));
 }

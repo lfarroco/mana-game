@@ -5,7 +5,7 @@ import * as charaEvents from "@Systems/Chara/events";
 import * as uiEvents from "@UI/events";
 import * as Geometry from "@Models/Geometry";
 import * as Board from "@Models/Board";
-import * as ShopUI from "../ShopUI";
+import * as ShopUI from "../ShopPanel";
 import * as HeroShop from "../HeroShop";
 import { handlePhaseEnded } from "@Scenes/Battleground/PhaseManager";
 
@@ -43,7 +43,7 @@ export async function itemClickPurchaseRequested(
 		HeroShop.rerollTavern();
 
 		handlePhaseEnded();
-		ShopUI.close();
+		ShopUI.slideOut();
 		return;
 	}
 
@@ -66,7 +66,7 @@ export async function itemClickPurchaseRequested(
 
 	charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
 
-	await ShopUI.close();
+	await ShopUI.slideOut();
 
 	handlePhaseEnded();
 }

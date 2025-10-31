@@ -15,6 +15,7 @@ import { onCharaPointerOver } from "./CharaTooltip";
 import * as SellZone from "../../Scenes/Battleground/Systems/Shop/SellZone"
 import * as ph from "@PhaserIO";
 import { getState } from "@Models/State";
+import * as ShopPanel from "@Scenes/Battleground/Systems/Shop/ShopPanel";
 
 const TOUCH_TOOLTIP_INPUT_DOWN_DELAY = 200;
 
@@ -143,7 +144,7 @@ export const onDragStart = (handlerState: InputHandler) => (
 	handlerState.isLongPressActive = false;
 
 	if (Chara.isShopItem(handlerState.unitId)) {
-		Shop.UI.bringShopChildToTop(chara);
+		ShopPanel.bringChildToTop(chara);
 	} else {
 		scene.children.bringToTop(chara);
 	}

@@ -7,8 +7,6 @@ import * as Board from "@Models/Board";
 import { RunCombatSystem } from "./RunCombatIO";
 import { getOption } from "@Models/OptionsStore";
 import * as AudioManager from "@Systems/AudioManager";
-import * as Shop from "./Systems/Shop";
-import * as ShopUI from "./Systems/Shop/ShopUI";
 import * as MoraleDisplay from "./MoraleDisplay";
 import * as Systems from "./Systems"
 import { clearAll } from "@Systems/Chara/Chara";
@@ -34,7 +32,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
     MoraleDisplay.destroy();
     UIManager.destroy();
-    Shop.UI.destroy();
     ResultsUI.destroy();
     BoardStatsDisplay.destroy();
 
@@ -87,8 +84,6 @@ export class BattlegroundScene extends Phaser.Scene {
     Tooltip.init();
 
     Systems.CountdownTimer.initializeCountdownTimer(this);
-
-    ShopUI.create();
 
     MoraleDisplay.init();
     ResultsUI.create();
