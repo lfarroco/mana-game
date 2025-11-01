@@ -39,7 +39,7 @@ export const slideIn = async () => {
 export const slideOut = async () => {
 	AudioManager.playSoundEffect('sfx_ui_modalwindow_swoosh_exit');
 	await tween({ targets: [container], y: c.SCREEN_HEIGHT * -1 });
-	container.removeAll
+	container.removeAll(true);
 }
 
 export const bringChildToTop = (child: Phaser.GameObjects.GameObject): void => {

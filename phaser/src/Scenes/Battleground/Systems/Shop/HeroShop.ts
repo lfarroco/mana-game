@@ -11,28 +11,15 @@ import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
 
 let currentShopCharas: Chara.Chara[] = [];
 
-export function handleCharaPurchaseFinalized(purchasedChara: Chara.Chara): void {
-	currentShopCharas = currentShopCharas.filter(c => Chara.getId(c) !== Chara.getId(purchasedChara));
-
-	// For hero shops 1 and 2, add a new hero to replace the purchased one
-	if (currentShopCharas.length < sc.NUM_TAVERN_SLOTS) {
-		const newCardData = getAvailableCardsForTavern(1);
-		if (newCardData.length > 0) {
-			const newCharas = CharaShop.renderTavernCharas(newCardData);
-			currentShopCharas.push(...newCharas);
-			newCharas.forEach(chara => animateItemAppearance(chara));
-		}
-	}
-}
-
 export async function open() {
 	currentShopCharas = [];
 
 	const tavernCardData = getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
 
-	const nextRoundCallback = () => {
+	const nextRoundCallback = async () => {
+
+		await close();
 		PhaseManager.handlePhaseEnded();
-		close();
 	};
 
 	ShopPanel.create(nextRoundCallback);
@@ -55,7 +42,7 @@ export async function openCoreShop() {
 		sc.NUM_TAVERN_SLOTS)
 
 	const nextRoundCallback = async () => {
-		await ShopPanel.slideOut();
+		await close();
 		PhaseManager.handlePhaseEnded();
 	};
 
