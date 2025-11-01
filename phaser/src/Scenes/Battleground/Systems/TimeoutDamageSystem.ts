@@ -1,8 +1,9 @@
 import { scene } from "../BattlegroundScene";
 import { applyDamageToForce, Force } from "@Models/Entities/Force";
 import { arcaneMissileTargeted } from '../../../Effects';
-import { getMoraleBarTipPosition, getShieldBarTipPosition } from '../MoraleDisplay';
 import * as Systems from "../Systems";
+import { getCore } from "@Models/Entities/Card";
+import { getCharaById } from "@Systems/Chara/Chara";
 
 const timeoutDamageStartTime = 10000;
 const timeoutDamageInterval = 1000;
@@ -33,9 +34,7 @@ function spawnStar(damage: number, targetForce: Force): void {
 	const startX = timerCircle ? timerCircle.x : Math.floor(screenWidth / 2);
 	const startY = timerCircle ? timerCircle.y : -40;
 
-	const targetPos = targetForce.shield > 0
-		? getShieldBarTipPosition(targetForce.id)
-		: getMoraleBarTipPosition(targetForce.id);
+	const target = getCore(targetForce.id)
 
 	activeStars++;
 
@@ -44,7 +43,7 @@ function spawnStar(damage: number, targetForce: Force): void {
 
 	arcaneMissileTargeted(
 		{ x: startX, y: startY },
-		targetPos,
+		getCharaById(target.id),
 		{
 			colors,
 			amplitudeMin: 10,
