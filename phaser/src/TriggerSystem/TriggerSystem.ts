@@ -5,7 +5,7 @@ import { pickRandom } from "../utils";
 
 export type EffectReaction = {
 	position: EffectSourcePosition;
-	effectId: string; // e.g. "damage", "heal", "shield", "poison", "regen", "haste", "slow", "charge"
+	effectId: string; // e.g. "damage", "heal", "slow", "charge"
 	effects: Effect[]
 }
 
@@ -120,7 +120,7 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
 			effects.dealDamageLogicIO(sourceUnit);
 			break;
 		case "heal":
-			effects.restoreMoraleLogicIO({ sourceUnit });
+			effects.restoreMoraleLogicIO(sourceUnit);
 			break;
 		case "shield":
 			effects.addShieldLogicIO(sourceUnit);
@@ -133,11 +133,7 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
 			break;
 		case "haste":
 			const hasteTargets = resolveTargets(sourceUnit, effect);
-			effects.applyHasteLogicIO({
-				targets: hasteTargets,
-				sourceUnit,
-				duration: effect.duration,
-			});
+			effects.applyHasteLogicIO(hasteTargets, sourceUnit, effect.duration);
 			break;
 		case "slow":
 			const slowTargets = resolveTargets(sourceUnit, effect);
@@ -145,19 +141,11 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
 			break;
 		case "charge":
 			const chargeTargets = resolveTargets(sourceUnit, effect);
-			effects.applyChargeLogicIO({
-				targets: chargeTargets,
-				scene,
-				sourceUnit,
-				amount: effect.amount,
-			});
+			effects.applyChargeLogicIO(sourceUnit, chargeTargets, effect.amount);
 			break;
 		case "increase_power":
-			effects.increasePower(
-				resolveTargets(sourceUnit, effect),
-				effect.amount,
-				sourceUnit
-			);
+			const targets = resolveTargets(sourceUnit, effect);
+			effects.increasePower(targets, effect.amount, sourceUnit);
 			break;
 		case "increase_power_on_type": {
 			const allTargets = resolveTargets(sourceUnit, effect);
