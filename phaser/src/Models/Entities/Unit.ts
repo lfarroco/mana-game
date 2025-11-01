@@ -12,6 +12,12 @@ export type Unit = {
 
   power: number;
 
+  // Core attributes
+  maxPower: number;
+  shield: number;
+  poison: number;
+  regen: number;
+
   cooldown: number;
   crit: number;
   evade: number;
@@ -42,13 +48,13 @@ export const makeUnit = (force: string, cardId: string, position = { x: 0, y: 0 
       cooldown: card.cooldown,
       effects: card.effects || [],
       reactions: card.reactions || [],
-      isCore: card.isCore || false
+      isCore: card.isCore || false,
     },
     position,
     uuid.v4()
-  );
+  ) as Unit;
 
-  return pureUnit as Unit;
+  return pureUnit;
 };
 
 export type CardDefinition = {
@@ -79,6 +85,10 @@ export type PureUnitData = {
   slowed: number;
   effects: TriggerSystem.Effect[];
   isCore: boolean;
+  maxPower: number;
+  shield: number;
+  poison: number;
+  regen: number;
   reactions: {
     position: TriggerSystem.EffectSourcePosition;
     effectId: string; // e.g. "damage", "heal", "shield", "poison", "regen", "haste", "slow", "charge"
@@ -115,6 +125,10 @@ export function createUnitFromCard(
     hasted: 0,
     slowed: 0,
     isCore: cardDef.isCore || false,
+    maxPower: cardDef.power || 0,
+    shield: 0,
+    poison: 0,
+    regen: 0,
   };
 }
 
@@ -140,7 +154,11 @@ export function createCustomUnit(
     refresh: 0,
     hasted: 0,
     slowed: 0,
-    isCore: false
+    isCore: false,
+    maxPower: 25,
+    shield: 0,
+    poison: 0,
+    regen: 0,
   };
 
   return {

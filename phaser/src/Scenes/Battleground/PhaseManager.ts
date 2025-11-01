@@ -3,11 +3,8 @@ import * as CombatPhase from "./Systems/CombatPhase";
 import * as HeroShop from "./Systems/Shop/HeroShop";
 import * as OrbShop from "./Systems/Shop/OrbShop";
 import * as c from "@Constants/constants";
-import { cpuForce } from "@Models/Entities/Force";
 import { clearAll, summon } from "@Systems/Chara/Chara";
 import { delay } from "@Utils/animation";
-import * as BoardStatsDisplay from "./BoardStatsDisplay";
-import * as MoraleDisplay from "./MoraleDisplay";
 import { clearPoison } from "./Systems/PoisonDamageSystem";
 import { clearRegen } from "./Systems/RegenSystem";
 
@@ -58,24 +55,10 @@ export async function resetBoard(shouldResummonUnits: boolean = true): Promise<v
 		state.battleData.units = [];
 	}
 
-	const playerForce = state.gameData.player;
-	playerForce.morale = playerForce.maxMorale;
-	playerForce.shield = 0;
-	MoraleDisplay.updateMoraleBar(c.FORCE_ID_PLAYER);
-	MoraleDisplay.updateShieldBar(c.FORCE_ID_PLAYER, 0, playerForce.maxMorale);
-
-	cpuForce.morale = cpuForce.maxMorale;
-	cpuForce.shield = 0;
-	MoraleDisplay.updateMoraleBar(c.FORCE_ID_CPU);
-	MoraleDisplay.updateShieldBar(c.FORCE_ID_CPU, 0, cpuForce.maxMorale);
-
 	clearRegen(c.FORCE_ID_PLAYER);
 	clearRegen(c.FORCE_ID_CPU);
 	clearPoison(c.FORCE_ID_PLAYER);
 	clearPoison(c.FORCE_ID_CPU);
-
-	BoardStatsDisplay.updateStats(c.FORCE_ID_PLAYER);
-	BoardStatsDisplay.updateStats(c.FORCE_ID_CPU);
 
 	if (shouldResummonUnits) {
 		const summonPromises = state.gameData.player.units
@@ -86,6 +69,5 @@ export async function resetBoard(shouldResummonUnits: boolean = true): Promise<v
 		await Promise.all(summonPromises);
 	}
 
-	BoardStatsDisplay.hideCpuStats();
 }
 

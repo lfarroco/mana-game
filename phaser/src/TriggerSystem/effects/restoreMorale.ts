@@ -1,6 +1,6 @@
 import { getAlliedCore } from "@Models/Entities/Card";
 import { arcaneMissileTargeted } from "../../Effects";
-import { Force, getUnitForce, manipulateForceMorale } from "@Models/Entities/Force";
+import { Force, getUnitForce, manipulateCorePower } from "@Models/Entities/Force";
 import { Unit } from "@Models/Entities/Unit";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
@@ -12,7 +12,7 @@ export const restoreMoraleLogicIO = async (sourceUnit: Unit) => {
 	const healAmount = sourceUnit.power;
 
 	const effect = (targetForce: Force, amount: number) => () => {
-		const actualHealing = manipulateForceMorale(targetForce, amount);
+		const actualHealing = manipulateCorePower(targetForce, amount);
 
 		if (actualHealing > 0) {
 			CombatStatsTracker.trackHealing(sourceUnit.id, actualHealing, 'direct');

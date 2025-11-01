@@ -1,16 +1,13 @@
 import * as constants from "@Constants/constants";
 import { Unit } from "./Unit";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
-import * as MoraleDisplay from "@Scenes/Battleground/MoraleDisplay";
-import * as BoardStatsDisplay from "@Scenes/Battleground/BoardStatsDisplay";
+import { getCore } from "./Card";
+import { updatePowerDisplay } from "@Systems/Chara/CharaStatsDisplay";
 
 export type Force = {
 	id: string;
 	name: string;
 	color: string;
-	morale: number;
-	maxMorale: number;
-	shield: number;
 	units: Unit[];
 	prestige: number,
 	round: number;
@@ -23,9 +20,6 @@ export const makeForce = (id: string): Force => {
 		name: "",
 		color: "",
 		units: [],
-		morale: constants.INITIAL_MORALE,
-		maxMorale: constants.INITIAL_MORALE,
-		shield: 0,
 		prestige: 20,
 		round: 1,
 		wins: 0,
@@ -35,54 +29,41 @@ export const makeForce = (id: string): Force => {
 export const playerForce = makeForce(constants.FORCE_ID_PLAYER);
 export const cpuForce = makeForce(constants.FORCE_ID_CPU);
 
-export const manipulateForceMorale = (
+export const manipulateCorePower = (
 	targetForce: Force,
 	amount: number,
-	emitEvents: boolean = true,
 ): number => {
 	let finalAmount = amount;
 
-	const oldMorale = targetForce.morale;
-	if (finalAmount > 0) {
-		targetForce.morale = Math.min(targetForce.maxMorale, targetForce.morale + finalAmount);
-	} else {
-		targetForce.morale = Math.max(0, targetForce.morale + finalAmount);
-	}
-	const actualChange = targetForce.morale - oldMorale;
+	const core = getCore(targetForce.id);
 
-	if (emitEvents && actualChange !== 0) {
-		MoraleDisplay.updateMoraleDisplay({
-			forceId: targetForce.id,
-			newMorale: targetForce.morale,
-			maxMorale: targetForce.maxMorale,
-		})
-		BoardStatsDisplay.updateStats(targetForce.id);
+	const oldPower = core.power;
+	if (finalAmount > 0) {
+		core.power = Math.min(core.maxPower, core.power + finalAmount);
+	} else {
+		core.power = Math.max(0, core.power + finalAmount);
 	}
+	const actualChange = core.power - oldPower;
+
+	updatePowerDisplay(core.id)
 
 	return actualChange;
 };
 
-export const manipulateForceShield = (
+export const manipulateCoreShield = (
 	targetForce: Force,
 	amount: number,
-	emitEvents: boolean = true,
 ): number => {
-	const oldShield = targetForce.shield;
-	if (amount > 0) {
-		targetForce.shield = targetForce.shield + amount;
-	} else {
-		targetForce.shield = Math.max(0, targetForce.shield + amount);
-	}
-	const actualChange = targetForce.shield - oldShield;
 
-	if (emitEvents && actualChange !== 0) {
-		MoraleDisplay.handleShieldUpdated({
-			forceId: targetForce.id,
-			newShield: targetForce.shield,
-			maxShield: targetForce.maxMorale,
-		});
-		BoardStatsDisplay.updateStats(targetForce.id);
+	const core = getCore(targetForce.id);
+
+	const oldShield = core.shield;
+	if (amount > 0) {
+		core.shield = core.shield + amount;
+	} else {
+		core.shield = Math.max(0, core.shield + amount);
 	}
+	const actualChange = core.shield - oldShield;
 
 	return actualChange;
 };
@@ -95,26 +76,18 @@ export const applyDamageToForce = (
 ): number => {
 	if (damage <= 0) return 0;
 
+	const core = getCore(targetForce.id);
+
 	let remainingDamage = damage;
-	const originalShield = targetForce.shield;
-	const originalMorale = targetForce.morale;
+	const originalMorale = core.power;
 
 	if (damageType === "poison") {
-		const moraleChange = manipulateForceMorale(targetForce, -damage, false);
-
-		// Single UI/event emission with aggregated info
-		MoraleDisplay.updateMoraleDisplay({
-			forceId: targetForce.id,
-			newMorale: targetForce.morale,
-			maxMorale: targetForce.maxMorale,
-			totalDamage: damage,
-			damageType: damageType,
-		});
+		const moraleChange = manipulateCorePower(targetForce, -damage);
 
 		CombatStatsTracker.trackMoraleChange({
 			forceId: targetForce.id,
-			newMorale: targetForce.morale,
-			maxMorale: targetForce.maxMorale,
+			newMorale: core.power,
+			maxMorale: core.maxPower,
 			totalDamage: damage,
 			damageType: damageType,
 		});
@@ -122,46 +95,28 @@ export const applyDamageToForce = (
 		return Math.abs(moraleChange);
 	}
 
-	let effectiveShield = targetForce.shield;
-	if (shieldPiercingPercentage > 0 && targetForce.shield > 0) {
-		const piercedShield = Math.floor(targetForce.shield * (shieldPiercingPercentage / 100));
-		effectiveShield = Math.max(0, targetForce.shield - piercedShield);
+	let effectiveShield = core.shield;
+	if (shieldPiercingPercentage > 0 && core.shield > 0) {
+		const piercedShield = Math.floor(core.shield * (shieldPiercingPercentage / 100));
+		effectiveShield = Math.max(0, core.shield - piercedShield);
 	}
 
 	if (effectiveShield > 0) {
 		const shieldAbsorbed = Math.min(remainingDamage, effectiveShield);
-		manipulateForceShield(targetForce, -shieldAbsorbed, false);
+		manipulateCoreShield(targetForce, -shieldAbsorbed);
 		remainingDamage -= shieldAbsorbed;
 	}
 
 	let moraleChange = 0;
 	if (remainingDamage > 0) {
-		moraleChange = manipulateForceMorale(targetForce, -remainingDamage, false);
+		moraleChange = manipulateCorePower(targetForce, -remainingDamage);
 	}
 
-	if (targetForce.shield !== originalShield) {
-		MoraleDisplay.handleShieldUpdated({
-			forceId: targetForce.id,
-			newShield: targetForce.shield,
-			maxShield: targetForce.maxMorale,
-			suppressPopText: targetForce.morale !== originalMorale,
-			totalDamage: targetForce.morale === originalMorale ? damage : undefined,
-			damageType: damageType,
-		});
-	}
-
-	if (targetForce.morale !== originalMorale) {
-		MoraleDisplay.updateMoraleDisplay({
-			forceId: targetForce.id,
-			newMorale: targetForce.morale,
-			maxMorale: targetForce.maxMorale,
-			totalDamage: damage,
-			damageType: damageType,
-		});
+	if (core.power !== originalMorale) {
 		CombatStatsTracker.trackMoraleChange({
 			forceId: targetForce.id,
-			newMorale: targetForce.morale,
-			maxMorale: targetForce.maxMorale,
+			newMorale: core.power,
+			maxMorale: core.maxPower,
 			totalDamage: damage,
 			damageType: damageType,
 		})

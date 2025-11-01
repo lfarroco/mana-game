@@ -26,7 +26,7 @@ export const CHARA_STATS_COLORS = {
 	ARMOR_BG: 0xd1d135,
 	POISON_BG: 0x9932cc,
 	REGEN_BG: 0x337a31,
-	DEFAULT_BG: 0x000000
+	DEFAULT_BG: 0x29a1b9ff
 } as const;
 
 export function create(unit: Unit, container: Chara) {
@@ -34,8 +34,6 @@ export function create(unit: Unit, container: Chara) {
 	const displayableEffects = ["heal", "damage", "shield", "poison", "regen"];
 
 	const effect = unit.effects.find(effect => displayableEffects.includes(effect.id));
-
-	if (!effect) return null;
 
 	const displayedPower = Math.floor(unit.power);
 
@@ -61,7 +59,7 @@ export function create(unit: Unit, container: Chara) {
 		poison: CHARA_STATS_COLORS.POISON_BG,
 		regen: CHARA_STATS_COLORS.REGEN_BG,
 	}
-	const bgColor = colorMap[effect.id as keyof typeof colorMap];
+	const bgColor = effect ? colorMap[effect.id as keyof typeof colorMap] : CHARA_STATS_COLORS.DEFAULT_BG;
 
 	powerDisplayBg
 		.fillStyle(bgColor, 1)
@@ -89,10 +87,10 @@ export function create(unit: Unit, container: Chara) {
 		odometerTween,
 	});
 
-	updatePower(unit.id);
+	updatePowerDisplay(unit.id);
 }
 
-export function updatePower(id: string) {
+export function updatePowerDisplay(id: string) {
 	const stats = statsDisplayMap.get(id);
 	if (!stats || !stats.powerDisplay || !stats.powerDisplay.active) return;
 

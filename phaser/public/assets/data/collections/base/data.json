@@ -6,66 +6,46 @@
 			"id": "neutral_core",
 			"name": "The Core",
 			"pic": "blue-stone",
-			"power": 20,
+			"power": 500,
 			"cooldown": 3000,
 			"isCore": true,
-			"effects": [
-				{
-					"id": "damage"
-				}
-			]
+			"effects": []
 		},
 		{
 			"id": "damage_core",
 			"name": "Damage Core",
 			"pic": "red-stone",
-			"power": 20,
+			"power": 500,
 			"cooldown": 3000,
 			"isCore": true,
-			"effects": [
-				{
-					"id": "damage"
-				}
-			]
+			"effects": []
 		},
 		{
 			"id": "shield_core",
 			"name": "Shield Core",
 			"pic": "yellow-stone",
-			"power": 20,
+			"power": 500,
 			"cooldown": 3000,
 			"isCore": true,
-			"effects": [
-				{
-					"id": "shield"
-				}
-			]
+			"effects": []
 		},
 		{
 			"id": "heal_core",
 			"name": "Heal Core",
 			"pic": "green-stone",
-			"power": 20,
+			"power": 500,
 			"cooldown": 3000,
 			"isCore": true,
-			"effects": [
-				{
-					"id": "heal"
-				}
-			]
+			"effects": []
 		},
 		{
 			"id": "purple_core",
 			"name": "Purple Core",
 			"pic": "purple-stone",
-			"power": 20,
+			"power": 500,
 			"cooldown": 3000,
 			"isCore": true,
-			"effects": [
-				{
-					"id": "poison"
-				}
-			]
+			"effects": []
 		},
 		{
 			"id": "void_witch",

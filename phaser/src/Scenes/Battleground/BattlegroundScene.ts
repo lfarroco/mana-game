@@ -7,11 +7,9 @@ import * as Board from "@Models/Board";
 import { RunCombatSystem } from "./RunCombatIO";
 import { getOption } from "@Models/OptionsStore";
 import * as AudioManager from "@Systems/AudioManager";
-import * as MoraleDisplay from "./MoraleDisplay";
 import * as Systems from "./Systems"
 import { clearAll } from "@Systems/Chara/Chara";
 import * as ResultsUI from "./Results/ResultsUI";
-import * as BoardStatsDisplay from "./BoardStatsDisplay";
 import * as Tooltip from "@Components/Tooltip";
 import { resetBoard, startPhase } from "./PhaseManager";
 import * as SellZone from "./Systems/Shop/SellZone";
@@ -31,10 +29,8 @@ export class BattlegroundScene extends Phaser.Scene {
 
     Systems.Setup.destroy();
 
-    MoraleDisplay.destroy();
     UIManager.destroy();
     ResultsUI.destroy();
-    BoardStatsDisplay.destroy();
 
   }
 
@@ -62,8 +58,6 @@ export class BattlegroundScene extends Phaser.Scene {
     this.tweens.timeScale = speed;
 
     this.start(data);
-
-
   }
 
   start = async (data?: GameData) => {
@@ -86,9 +80,9 @@ export class BattlegroundScene extends Phaser.Scene {
 
     Systems.CountdownTimer.initializeCountdownTimer(this);
 
-    MoraleDisplay.init();
+    //MoraleDisplay.init();
     ResultsUI.create();
-    BoardStatsDisplay.init();
+    //BoardStatsDisplay.init();
 
     SellZone.create();
 

@@ -1,5 +1,5 @@
 import { getAlliedCore } from '@Models/Entities/Card';
-import { manipulateForceShield } from '@Models/Entities/Force';
+import { manipulateCoreShield } from '@Models/Entities/Force';
 import { Unit } from '@Models/Entities/Unit';
 import { getState } from '@Models/State';
 import * as CombatStatsTracker from '@Scenes//Battleground/Systems/CombatStatsTracker';
@@ -23,7 +23,7 @@ export const addShieldLogicIO = async (sourceUnit: Unit) => {
 	const alliedCore = getAlliedCore(sourceUnit.force);
 
 	const effect = async () => {
-		const actualShieldChange = manipulateForceShield(sourceForce, shieldAmount);
+		const actualShieldChange = manipulateCoreShield(sourceForce, shieldAmount);
 
 		if (actualShieldChange > 0) {
 			CombatStatsTracker.trackShield(sourceUnit.id, actualShieldChange);
