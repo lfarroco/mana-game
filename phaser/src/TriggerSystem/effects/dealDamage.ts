@@ -26,7 +26,7 @@ export function dealDamageLogicIO(sourceUnit: Unit) {
 		getCharaById(enemyCore!.id),
 		{
 			// Red tones
-			colors: [0xff691E, 0xaa853F, 0x66A460],
+			colors: [0x880808, 0xEE4B2B, 0xD22B2B], //blood red, bright red, cadmium red
 			amplitudeMin: 5,
 			amplitudeMax: 20,
 			particleScale: 1.5,

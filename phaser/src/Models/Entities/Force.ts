@@ -169,3 +169,13 @@ export const applyDamageToForce = (
 
 	return Math.abs(moraleChange);
 };
+
+export const getUnitForce = (unitId: string) => {
+	const unit = state.battleData.units.find(u => u.id === unitId)!
+	return state.battleData.forces.find(f => f.id === unit.force)!
+}
+
+export const getEnemyForce = (unitId: string) => {
+	const unit = state.battleData.units.find(u => u.id === unitId)!
+	return state.battleData.forces.find(f => f.id !== unit.force)!
+}
