@@ -9,6 +9,7 @@ import { tween } from "@Utils/animation";
 import * as Board from "@Models/Board";
 import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
 
+// TODO: is this necessary?
 let currentShopCharas: Chara.Chara[] = [];
 
 export async function open() {

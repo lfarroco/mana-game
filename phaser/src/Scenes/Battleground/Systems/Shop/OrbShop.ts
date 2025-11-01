@@ -29,8 +29,8 @@ export async function open() {
 	const selectedOrbs = pickRandom(availableOrbs, 3);
 
 	const nextRoundCallback = async () => {
+		await ShopPanel.slideOut();
 		PhaseManager.handlePhaseEnded();
-		await close();
 		container.destroy();
 	};
 
@@ -46,10 +46,6 @@ export async function open() {
 	Board.setEnemyBoardVisible(false);
 
 	await ShopPanel.slideIn();
-}
-
-export async function close() {
-	await ShopPanel.slideOut();
 }
 
 export function renderOrbShop(

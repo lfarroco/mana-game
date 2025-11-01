@@ -10,7 +10,7 @@ import * as Tooltip from "@Components/Tooltip";
 
 import * as Chara from "./Chara";
 import * as events from "./events";
-import { onCharaPointerOver } from "./CharaTooltip";
+import { onCharaPointerOut, onCharaPointerOver } from "./CharaTooltip";
 
 import * as SellZone from "../../Scenes/Battleground/Systems/Shop/SellZone"
 import * as ph from "@PhaserIO";
@@ -252,9 +252,8 @@ export const onPointerUp = (handlerState: InputHandler) => (_pointer: Pointer): 
 
 	if (handlerState.isLongPressActive && !Chara.isShopItem(handlerState.unitId)) {
 		handlerState.isLongPressActive = false;
-		import('./CharaTooltip').then(({ onCharaPointerOut }) => {
-			onCharaPointerOut();
-		});
+
+		onCharaPointerOut();
 	}
 };
 

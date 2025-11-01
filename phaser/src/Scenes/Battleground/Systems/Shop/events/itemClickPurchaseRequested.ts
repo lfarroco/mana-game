@@ -42,8 +42,8 @@ export async function itemClickPurchaseRequested(
 
 		HeroShop.rerollTavern();
 
+		await ShopUI.slideOut();
 		handlePhaseEnded();
-		ShopUI.slideOut();
 		return;
 	}
 
@@ -67,6 +67,5 @@ export async function itemClickPurchaseRequested(
 	charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
 
 	await ShopUI.slideOut();
-
 	handlePhaseEnded();
 }

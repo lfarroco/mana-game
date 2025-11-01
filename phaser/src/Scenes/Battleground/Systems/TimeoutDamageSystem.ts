@@ -8,26 +8,20 @@ import { getCharaById } from "@Systems/Chara/Chara";
 const timeoutDamageStartTime = 10000;
 const timeoutDamageInterval = 1000;
 
-const maxStars = 8;
-
 let combatElapsedTime = 0;
 let timeSinceLastTick = 0;
 let timeSinceLastStarSpawn = 0;
 let isActive = false;
-
-let activeStars = 0;
 
 export function initializeTimeoutDamageSystem(): void {
 	combatElapsedTime = 0;
 	timeSinceLastTick = 0;
 	timeSinceLastStarSpawn = 0;
 	isActive = true;
-	activeStars = 0;
 }
 
-function spawnStar(damage: number, targetForce: Force): void {
+async function spawnStar(damage: number, targetForce: Force) {
 	if (!scene) return;
-	if (activeStars >= maxStars) return;
 
 	const screenWidth = scene.scale.width;
 	const timerCircle = Systems.CountdownTimer.getCircle();
@@ -35,8 +29,6 @@ function spawnStar(damage: number, targetForce: Force): void {
 	const startY = timerCircle ? timerCircle.y : -40;
 
 	const target = getCore(targetForce.id)
-
-	activeStars++;
 
 	// purple -> gold colors for the projectile
 	const colors = [0x800080, 0xDA70D6, 0xFFD700];
@@ -62,13 +54,7 @@ function spawnStar(damage: number, targetForce: Force): void {
 				applyDamageToForce(targetForce, damage, 0, 'timeout');
 			}
 		}
-	).then(() => {
-		// after animation completes
-		activeStars = Math.max(0, activeStars - 1);
-	}).catch(err => {
-		console.error('TimeoutDamage star error', err);
-		activeStars = Math.max(0, activeStars - 1);
-	});
+	);
 }
 
 export function updateTimeoutDamageSystem(playerForce: Force, cpuForce: Force, delta: number): void {
@@ -114,8 +100,6 @@ export function getTimeoutDamageConfig() {
 		isActive,
 		combatElapsed: combatElapsedTime,
 		stormState: {
-			starsActive: activeStars,
-			maxStars,
 			stormStarted: combatElapsedTime >= timeoutDamageStartTime
 		}
 	};
