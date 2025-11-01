@@ -9,7 +9,7 @@ import * as ShopUI from "../ShopPanel";
 import * as HeroShop from "../HeroShop";
 import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
 
-export function itemDragPurchaseRequested(
+export async function itemDragPurchaseRequested(
 	shopUnitData: Unit,
 	shopCharaId: string,
 	targetTile: Vec2,
@@ -26,9 +26,9 @@ export function itemDragPurchaseRequested(
 
 		HeroShop.rerollTavern();
 
+		await ShopUI.slideOut();
 
 		PhaseManager.handlePhaseEnded();
-		ShopUI.slideOut();
 		return;
 	}
 
@@ -64,6 +64,6 @@ export function itemDragPurchaseRequested(
 
 	HeroShop.rerollTavern();
 
+	await ShopUI.slideOut()
 	PhaseManager.handlePhaseEnded();
-	ShopUI.slideOut()
 }
