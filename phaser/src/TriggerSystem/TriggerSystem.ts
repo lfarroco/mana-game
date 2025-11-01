@@ -141,11 +141,7 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
 			break;
 		case "slow":
 			const slowTargets = resolveTargets(sourceUnit, effect);
-			effects.applySlowLogicIO({
-				targets: slowTargets,
-				sourceUnit,
-				duration: effect.duration,
-			});
+			effects.applySlowLogicIO(sourceUnit, slowTargets, effect.duration);
 			break;
 		case "charge":
 			const chargeTargets = resolveTargets(sourceUnit, effect);
