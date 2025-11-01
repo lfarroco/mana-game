@@ -19,14 +19,7 @@ export const onShopPurchaseFailed = (chara: Chara.Chara, vec: Vec2) => {
 	});
 };
 
-export function onShopPurchaseSuccesful(chara: Chara.Chara) {
+export function onShopPurchaseSuccesful(_chara: Chara.Chara) {
 	hideTooltip();
-
-	Shop.UI.removeChild(chara);
-
-	Shop.HeroShop.handleCharaPurchaseFinalized(chara);
-
 	playSoundEffect('sfx_artifact_equipweapon');
-
-	Chara.destroy(chara);
 }
