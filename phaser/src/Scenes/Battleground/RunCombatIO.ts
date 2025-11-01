@@ -7,6 +7,7 @@ import { cpuForce, playerForce } from "@Models/Entities/Force";
 import * as Systems from "./Systems";
 import * as Animations from "@Systems/Chara/Animations";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
+import { getCore } from "@Models/Entities/Card";
 
 export type WaveOutcome = "player_won" | "player_lost";
 
@@ -50,8 +51,8 @@ export class RunCombatSystem {
     Systems.Regen.update(playerForce, cpuForce, scaledDelta);
     Systems.CombatStatsTracker.updateTimeAlive(scaledDelta);
 
-    const playerMoraleZero = playerForce.morale <= 0;
-    const cpuMoraleZero = cpuForce.morale <= 0;
+    const playerMoraleZero = getCore(playerForce.id).power <= 0;
+    const cpuMoraleZero = getCore(cpuForce.id).power <= 0;
 
     let outcome: WaveOutcome | null = null;
     if (playerMoraleZero) outcome = "player_lost"; else if (cpuMoraleZero) outcome = "player_won";

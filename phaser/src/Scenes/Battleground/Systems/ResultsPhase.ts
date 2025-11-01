@@ -2,7 +2,6 @@ import { getState } from "@Models/State";
 import { delay } from "@Utils/animation";
 import { renderVignette } from "../Animations/vignette";
 import * as AudioManager from "@Systems/AudioManager";
-import * as MoraleDisplay from "../MoraleDisplay";
 import * as ResultsUI from "../Results/ResultsUI";
 import * as PrestigeSystem from "@Systems/PrestigeSystem";
 import * as PhaseManager from "../PhaseManager";
@@ -14,7 +13,6 @@ export async function handleCombatEndedDefeat(): Promise<void> {
 	AudioManager.playSoundEffect('sfx_victory_match');
 
 	await delay(1000);
-	await _fadeOutDisplayBars();
 	await delay(1500);
 
 	// Show results panel instead of immediately transitioning
@@ -41,8 +39,6 @@ export async function handleCombatEndedVictory(): Promise<void> {
 
 	AudioManager.playSoundEffect('sfx_victory_reward_chant');
 
-	await delay(1000);
-	await _fadeOutDisplayBars();
 	await delay(1500);
 
 	// Show results panel instead of immediately transitioning
@@ -58,11 +54,6 @@ export function handleCombatEnded(combatResult: string) {
 	} else {
 		handleCombatEndedDefeat();
 	}
-}
-
-async function _fadeOutDisplayBars(): Promise<void> {
-	MoraleDisplay.fadeOutBars();
-	await delay(500);
 }
 
 async function handleVictory(): Promise<void> {

@@ -8,9 +8,7 @@ import { cpuForce, playerForce } from "@Models/Entities/Force";
 import * as GhostStore from "@Models/GhostStore";
 import * as Board from "@Models/Board";
 import * as Chara from "@Systems/Chara/Chara";
-import * as MoraleDisplay from "../MoraleDisplay";
 import * as constants from "@Constants/constants";
-import * as BoardStatsDisplay from "../BoardStatsDisplay";
 import { createUIButton } from "../../../Components/UIButton";
 import { vec2 } from "@Models/Geometry";
 
@@ -28,9 +26,6 @@ export async function transitionToCombatPhase(): Promise<void> {
 	console.log("Round", state.gameData.round, "Combat Phase Starting.");
 	const { enemies } = await setupBattle();
 
-	// Show enemy skill icons when entering combat phase
-	BoardStatsDisplay.showCpuStats();
-
 	GhostStore.saveGhostForRound(
 		state.gameData.round,
 		state.gameData.player.units,
@@ -38,8 +33,6 @@ export async function transitionToCombatPhase(): Promise<void> {
 	);
 
 	showReadyButton({ enemies });
-
-	_initializeMorale();
 
 	Board.setEnemyBoardVisible(true);
 	Chara.clearAll();
@@ -89,35 +82,4 @@ export async function handleCombatStartExecution(_payload: { enemies: Unit[] }):
 
 	scene.runCombatSystem.runCombatIO();
 
-}
-
-function _initializeMorale(): void {
-	playerForce.morale = playerForce.maxMorale;
-	cpuForce.morale = cpuForce.maxMorale;
-
-	playerForce.shield = 0;
-	cpuForce.shield = 0;
-
-	MoraleDisplay.showBars();
-
-	MoraleDisplay.updateMoraleDisplay({
-		forceId: constants.FORCE_ID_PLAYER,
-		newMorale: playerForce.morale,
-		maxMorale: playerForce.maxMorale,
-	});
-	MoraleDisplay.updateMoraleDisplay({
-		forceId: constants.FORCE_ID_CPU,
-		newMorale: cpuForce.morale,
-		maxMorale: cpuForce.maxMorale,
-	});
-	MoraleDisplay.updateShieldBar(
-		constants.FORCE_ID_PLAYER,
-		playerForce.shield,
-		playerForce.maxMorale,
-	)
-	MoraleDisplay.updateShieldBar(
-		constants.FORCE_ID_CPU,
-		cpuForce.shield,
-		cpuForce.maxMorale,
-	);
 }
