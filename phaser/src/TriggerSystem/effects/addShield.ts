@@ -22,6 +22,14 @@ export const addShieldLogicIO = async (sourceUnit: Unit) => {
 	)!;
 	const alliedCore = getAlliedCore(sourceUnit.force);
 
+	const effect = async () => {
+		const actualShieldChange = manipulateForceShield(sourceForce, shieldAmount);
+
+		if (actualShieldChange > 0) {
+			CombatStatsTracker.trackShield(sourceUnit.id, actualShieldChange);
+		}
+	}
+
 	arcaneMissileTargeted(
 		getCharaById(sourceUnit.id),
 		getCharaById(alliedCore.id),
@@ -37,13 +45,7 @@ export const addShieldLogicIO = async (sourceUnit: Unit) => {
 				lifespan: 300,
 				alpha: 0.4
 			},
-			onHit: async () => {
-				const actualShieldChange = manipulateForceShield(sourceForce, shieldAmount);
-
-				if (actualShieldChange > 0) {
-					CombatStatsTracker.trackShield(sourceUnit.id, actualShieldChange);
-				}
-			}
+			onHit: effect
 		}
 	);
 

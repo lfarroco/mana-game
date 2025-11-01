@@ -6,19 +6,18 @@ import { arcaneMissileTargeted } from '../../Effects';
 export const increasePower = async (
 	targets: Unit[],
 	amount: number,
-	sourceUnit?: Unit
+	sourceUnit?: Unit // sources like orbs apply direct power increase
 ) => {
 
-	const onHit = async (targetChara: Chara) => {
+	const effect = (targetChara: Chara) => async () => {
 		updateUnitPower(targetChara, amount);
 		AudioManager.playSoundEffect('sfx_spell_innerfocus');
 	}
 
 	if (!sourceUnit) {
-
 		for (const target of targets) {
 			const targetChara = getCharaById(target.id);
-			onHit(targetChara);
+			effect(targetChara);
 		}
 		return;
 	}
@@ -44,9 +43,7 @@ export const increasePower = async (
 					lifespan: 300,
 					alpha: 0.4
 				},
-				onHit: () => {
-					onHit(targetChara);
-				}
+				onHit: effect(targetChara)
 			}
 		);
 	}

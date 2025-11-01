@@ -1,34 +1,42 @@
 import { getAlliedCore } from "@Models/Entities/Card";
 import { arcaneMissileTargeted } from "../../Effects";
-import { Force, manipulateForceMorale } from "@Models/Entities/Force";
+import { Force, getUnitForce, manipulateForceMorale } from "@Models/Entities/Force";
 import { Unit } from "@Models/Entities/Unit";
-import { getState } from "@Models/State";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import { getCharaById } from "@Systems/Chara/Chara";
 
-export function createRestoreMoraleLogic(
-	emitter: (unit: Unit, amount: number) => void,
-	healMorale: (targetForce: Force, amount: number) => void,
-	context: { sourceUnit: Unit; }
-) {
-	const { sourceUnit } = context;
+
+export const restoreMoraleLogicIO = async (sourceUnit: Unit) => {
 
 	const healAmount = sourceUnit.power;
 
-	emitter(sourceUnit, healAmount);
+	const effect = (targetForce: Force, amount: number) => () => {
+		const actualHealing = manipulateForceMorale(targetForce, amount);
 
-	const sourceForce = getState().battleData.forces.find(
-		(force: { id: string }) => force.id === sourceUnit.force
-	)!;
+		if (actualHealing > 0) {
+			CombatStatsTracker.trackHealing(sourceUnit.id, actualHealing, 'direct');
+		}
 
-	const sourceChara = getCharaById(sourceUnit.id);
+		const runCombatSystem = scene.runCombatSystem;
+		if (runCombatSystem && actualHealing > 0) {
+			runCombatSystem.reducePoison(targetForce.id, actualHealing);
+		}
+	};
+
+	CombatStatsTracker.trackMoraleRestored({
+		unit: sourceUnit,
+		amount: sourceUnit.power,
+		type: 'direct',
+		sourceUnitId: sourceUnit.id
+	})
+
+	const sourceForce = getUnitForce(sourceUnit.id);
 	const alliedCore = getAlliedCore(sourceUnit.force);
-	const core = getCharaById(alliedCore.id);
 
 	arcaneMissileTargeted(
-		sourceChara,
-		core,
+		getCharaById(sourceUnit.id),
+		getCharaById(alliedCore.id),
 		{
 			colors: [0x00ff00, 0x32cd32, 0x7fff00], // Green colors
 			amplitudeMin: 5,
@@ -41,50 +49,7 @@ export function createRestoreMoraleLogic(
 				lifespan: 300,
 				alpha: 0.4
 			},
-			onHit: async () => {
-				healMorale(sourceForce, healAmount);
-			}
+			onHit: effect(sourceForce, healAmount)
 		}
 	);
-}
-
-export const restoreMoraleLogicIO = async (context: { sourceUnit: Unit }) => {
-
-	const { sourceUnit } = context;
-
-	const emitter = (unit: Unit, amount: number) => {
-		CombatStatsTracker.trackMoraleRestored({
-			unit,
-			amount,
-			type: 'direct',
-			sourceUnitId: sourceUnit.id
-		})
-	}
-
-	const healMoraleWithPoisonReduction = (targetForce: Force, amount: number): number => {
-		const actualHealing = manipulateForceMorale(targetForce, amount);
-
-		if (actualHealing > 0) {
-			CombatStatsTracker.trackHealing(sourceUnit.id, actualHealing, 'direct');
-		}
-
-		const runCombatSystem = scene.runCombatSystem;
-		if (runCombatSystem && actualHealing > 0) {
-			runCombatSystem.reducePoison(targetForce.id, actualHealing);
-		}
-
-		return actualHealing;
-	};
-
-	await createRestoreMoraleLogic(emitter, healMoraleWithPoisonReduction, context);
 };
-
-export function restoreForceMoralePure(amount: number, sourceForceId: string): {
-	amount: number;
-	forceId: string;
-} {
-	return {
-		amount: Math.max(0, amount),
-		forceId: sourceForceId
-	};
-}

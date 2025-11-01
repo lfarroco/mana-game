@@ -97,9 +97,9 @@ const EFFECT_REGISTRY: Record<string, EffectFactory> = {
 		scene.time.addEvent({
 			delay: 1500,
 			callback: () => {
-				effects.hasteEffect(scene, { x: 150, y: 150 }, { duration: 1000, intensity: 1.0 });
-				effects.hasteEffect(scene, { x: 300, y: 300 }, { duration: 1000, intensity: 1.5 });
-				effects.hasteEffect(scene, { x: 450, y: 150 }, { duration: 1000, intensity: 0.7 });
+				effects.hasteEffect({ x: 150, y: 150 }, { duration: 1000, intensity: 1.0 });
+				effects.hasteEffect({ x: 300, y: 300 }, { duration: 1000, intensity: 1.5 });
+				effects.hasteEffect({ x: 450, y: 150 }, { duration: 1000, intensity: 0.7 });
 			},
 			repeat: -1
 		});

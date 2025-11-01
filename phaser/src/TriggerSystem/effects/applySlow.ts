@@ -1,9 +1,19 @@
 import { arcaneMissileTargeted } from '../../Effects/arcaneMissileTargeted';
 import { slowEffect } from '../../Effects/slowEffect';
-import { getCharaById } from '@Systems/Chara/Chara';
+import { Chara, getCharaById } from '@Systems/Chara/Chara';
 import { Unit } from '@Models/Entities/Unit';
 
 export async function applySlowLogicIO(sourceUnit: Unit, targets: Unit[], duration: number) {
+
+	const effect = (target: Unit, targetChara: Chara) => async () => {
+		target.slowed += duration;
+
+		slowEffect(targetChara, {
+			duration: 1000,
+			intensity: 1.5,
+			color: 0xD2691E // Orange-brownish color matching the projectile
+		});
+	}
 
 	for (const target of targets) {
 		const targetChara = getCharaById(target.id);
@@ -22,15 +32,7 @@ export async function applySlowLogicIO(sourceUnit: Unit, targets: Unit[], durati
 					lifespan: 300,
 					alpha: 0.4
 				},
-				onHit: async () => {
-					target.slowed += duration;
-
-					slowEffect(targetChara, {
-						duration: 1000,
-						intensity: 1.5,
-						color: 0xD2691E // Orange-brownish color matching the projectile
-					});
-				}
+				onHit: effect(target, targetChara)
 			}
 		);
 	}
