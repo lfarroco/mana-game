@@ -1,48 +1,50 @@
-import { Force, manipulateForceShield } from '@Models/Entities/Force';
+import { getAlliedCore } from '@Models/Entities/Card';
+import { manipulateForceShield } from '@Models/Entities/Force';
 import { Unit } from '@Models/Entities/Unit';
 import { getState } from '@Models/State';
-import { scene } from '@Scenes//Battleground/BattlegroundScene';
 import * as CombatStatsTracker from '@Scenes//Battleground/Systems/CombatStatsTracker';
-
-export function createAddShieldLogic(
-	emitter: (unit: Unit, amount: number) => void,
-	addShield: (targetForce: Force, amount: number, scene: Phaser.Scene) => void
-) {
-	return async (sourceUnit: Unit) => {
-
-		const shieldAmount = sourceUnit.power;
-
-		emitter(sourceUnit, shieldAmount);
-
-		const sourceForce = getState().battleData.forces.find(
-			(force) => force.id === sourceUnit.force
-		)!;
-
-		addShield(sourceForce, shieldAmount, scene);
-	};
-}
+import { getCharaById } from '@Systems/Chara/Chara';
+import { arcaneMissileTargeted } from '../../Effects';
 
 export const addShieldLogicIO = async (sourceUnit: Unit) => {
 
-	const emitter = (unit: Unit, amount: number) => {
-		CombatStatsTracker.trackShieldGained({
-			unit,
-			amount,
-			sourceUnitId: sourceUnit.id
-		});
-	}
+	const shieldAmount = sourceUnit.power;
 
-	const addShieldWithTracking = (targetForce: Force, amount: number): number => {
-		const actualShieldChange = manipulateForceShield(targetForce, amount);
+	// TODO: what's different from trackShield?
+	CombatStatsTracker.trackShieldGained({
+		unit: sourceUnit,
+		amount: shieldAmount,
+		sourceUnitId: sourceUnit.id
+	});
 
-		if (actualShieldChange > 0) {
-			CombatStatsTracker.trackShield(sourceUnit.id, actualShieldChange);
+	const sourceForce = getState().battleData.forces.find(
+		(force) => force.id === sourceUnit.force
+	)!;
+	const alliedCore = getAlliedCore(sourceUnit.force);
+
+	arcaneMissileTargeted(
+		getCharaById(sourceUnit.id),
+		getCharaById(alliedCore.id),
+		{
+			colors: [0x00ff00, 0x32cd32, 0x7fff00],//golden tones
+			amplitudeMin: 5,
+			amplitudeMax: 15,
+			particleScale: 1.5,
+			impact: {
+				colors: [0x00ff00, 0x32cd32],
+				scale: 2,
+				speed: 200,
+				lifespan: 300,
+				alpha: 0.4
+			},
+			onHit: async () => {
+				const actualShieldChange = manipulateForceShield(sourceForce, shieldAmount);
+
+				if (actualShieldChange > 0) {
+					CombatStatsTracker.trackShield(sourceUnit.id, actualShieldChange);
+				}
+			}
 		}
-
-		return actualShieldChange;
-	};
-
-	const impl = createAddShieldLogic(emitter, addShieldWithTracking);
-	await impl(sourceUnit);
+	);
 
 };
