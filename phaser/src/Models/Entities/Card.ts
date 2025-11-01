@@ -86,3 +86,6 @@ export const getNonCores = (): CardDefinition[] => {
   return Array.from(cards.values()).filter(card => !card.isCore);
 }
 
+export const getAlliedCore = (forceId: string) => state.battleData.units.find(u => u.force === forceId && u.isCore)!;
+export const getEnemyCore = (forceId: string) => state.battleData.units.find(u => u.force !== forceId && u.isCore)!;
+

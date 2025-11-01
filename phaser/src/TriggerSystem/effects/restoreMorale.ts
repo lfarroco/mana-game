@@ -1,3 +1,4 @@
+import { getAlliedCore } from "@Models/Entities/Card";
 import { arcaneMissileTargeted } from "../../Effects";
 import { Force, manipulateForceMorale } from "@Models/Entities/Force";
 import { Unit } from "@Models/Entities/Unit";
@@ -22,9 +23,7 @@ export function createRestoreMoraleLogic(
 	)!;
 
 	const sourceChara = getCharaById(sourceUnit.id);
-	const alliedCore = state.battleData.units.find(
-		(unit: { force: string, isCore: boolean }) => unit.force === sourceForce.id && unit.isCore
-	)!;
+	const alliedCore = getAlliedCore(sourceUnit.force);
 	const core = getCharaById(alliedCore.id);
 
 	arcaneMissileTargeted(
