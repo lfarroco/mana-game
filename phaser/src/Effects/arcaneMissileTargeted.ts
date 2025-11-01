@@ -1,28 +1,16 @@
-/**
- * @file Targeted Arcane Missile Effect Implementation
- * Creates a customizable arcane missile that travels from source to target with a callback on impact.
- * This is a more refined version with smaller amplitude and particles, designed for targeted abilities.
- */
-
 import { EnergyBeam } from './EnergyBeam';
 import { images } from '../assets';
 import { delay } from '../Utils/animation';
 import { getCurrentScene } from '@Models/State';
 
 export interface TargetedArcaneMissileOptions {
-	/** Colors for the projectile particles - defaults to light blue neon */
 	colors?: number[];
-	/** Amplitude range for the beam arc - defaults to gentle arc */
 	amplitudeMin?: number;
 	amplitudeMax?: number;
-	/** Frequency range for the beam oscillation */
 	frequencyMin?: number;
 	frequencyMax?: number;
-	/** Starting scale for the traveling particles */
 	particleScale?: number;
-	/** Speed multiplier for travel duration */
 	speedMultiplier?: number;
-	/** Impact effect options */
 	impact?: {
 		colors?: number[];
 		scale?: number;
@@ -30,7 +18,6 @@ export interface TargetedArcaneMissileOptions {
 		lifespan?: number;
 		alpha?: number;
 	};
-	/** Callback function to execute when the projectile hits the target */
 	onHit?: () => void | Promise<void>;
 }
 
@@ -63,7 +50,6 @@ export async function arcaneMissileTargeted(
 
 	const distance = Phaser.Math.Distance.BetweenPoints(source, target);
 
-	// Create beam with customizable amplitude
 	const positiveOrNegative = Math.random() > 0.5 ? 1 : -1;
 	const amplitude = (Math.random() * (amplitudeMax - amplitudeMin) + amplitudeMin) * positiveOrNegative;
 	const frequency = Math.floor(Math.random() * (frequencyMax - frequencyMin + 1) + frequencyMin);
@@ -74,14 +60,13 @@ export async function arcaneMissileTargeted(
 		thickness: 1,
 		amplitude,
 		frequency,
-		segments: Math.floor(distance / 15), // More segments for smoother arc
-		color: colors[0], // Use first color for the beam
+		segments: Math.floor(distance / 15),
+		color: colors[0],
 	});
 
 	beam.updateBeam();
 	beam.setVisible(false);
 
-	// Create a larger rectangle texture for angled beam effect
 	const rectKey = 'arcane_missile_rect_big';
 	const rectWidth = 12;
 	const rectHeight = 12;
@@ -93,59 +78,50 @@ export async function arcaneMissileTargeted(
 		g.destroy();
 	}
 
-	// Create segmented, fading rectangles along the beam path, with amplitude and staggered appearance
 	const segmentSprites: Phaser.GameObjects.Image[] = [];
 	const points = beam.points;
 	const totalSegments = points.length - 1;
-	const amplitudeForSegments = amplitude * 2.2; // exaggerate amplitude for visual effect
+	const amplitudeForSegments = amplitude * 2.2;
 	const travelTime = duration * speedMultiplier;
 	const fadeDuration = travelTime * 1.1;
 	const segmentDelay = travelTime / totalSegments;
 
-	// Calculate direction and normal for amplitude
 	const vec = new Phaser.Math.Vector2(target.x - source.x, target.y - source.y);
 	const normal = new Phaser.Math.Vector2(-vec.y, vec.x).normalize();
 
 	for (let i = 0; i < totalSegments; i++) {
 		const p0 = points[i];
 		const p1 = points[i + 1];
-		// Calculate angle between segments
 		const angle = Phaser.Math.Angle.Between(p0.x, p0.y, p1.x, p1.y);
-		// Place rectangle at midpoint between p0 and p1
 		const t = i / totalSegments;
 		const midX = (p0.x + p1.x) / 2;
 		const midY = (p0.y + p1.y) / 2;
-		// Add amplitude offset (wavy effect)
 		const wave = Math.sin(t * Math.PI * frequency);
 		const offsetX = normal.x * wave * amplitudeForSegments;
 		const offsetY = normal.y * wave * amplitudeForSegments;
 
-		// Stagger creation for travel effect
 		scene.time.delayedCall(i * segmentDelay, () => {
 			const sprite = scene.add.image(midX + offsetX, midY + offsetY, rectKey);
 			sprite.setRotation(angle);
-			sprite.setScale(particleScale * 1.5, particleScale * 1.5); // make bigger
+			sprite.setScale(particleScale * 1.5, particleScale * 1.5);
 			sprite.setTint(colors[i % colors.length]);
 			sprite.setAlpha(1);
 			sprite.setBlendMode(Phaser.BlendModes.ADD);
 			segmentSprites.push(sprite);
-			// Animate alpha for trailing effect
 			scene.tweens.add({
 				targets: sprite,
 				alpha: 0,
 				duration: fadeDuration,
 				delay: 0,
-				x: sprite.x + (Math.random() - 0.5) * 40, // slight random offset for trailing effect
+				x: sprite.x + (Math.random() - 0.5) * 40,
 				y: sprite.y + (Math.random() - 0.5) * 40,
 				ease: 'Cubic.easeIn',
 			});
 		});
 	}
 
-	// Wait for projectile to reach target (simulate travel time)
 	await delay(duration * speedMultiplier);
 
-	// Create impact effect
 	const impactParticles = scene.add.particles(
 		target.x, target.y,
 		images.white_dot.key,
@@ -171,7 +147,6 @@ export async function arcaneMissileTargeted(
 
 	await delay(2000);
 
-	// Cleanup all resources
 	beam.destroy();
 	impactParticles.destroy();
 	segmentSprites.forEach(sprite => sprite.destroy());
