@@ -74,18 +74,13 @@ export const getCollection = (id: string): CardCollection => {
   return collection;
 }
 
-export const getAllCards = (): CardDefinition[] => {
-  return Array.from(cards.values());
-}
+export const getAllCards = (): CardDefinition[] => Array.from(cards.values());
 
-export const getCores = (): CardDefinition[] => {
-  return Array.from(cards.values()).filter(card => card.isCore);
-}
+export const getCores = (): CardDefinition[] => Array.from(cards.values()).filter(card => card.isCore);
 
-export const getNonCores = (): CardDefinition[] => {
-  return Array.from(cards.values()).filter(card => !card.isCore);
-}
+export const getNonCores = (): CardDefinition[] => Array.from(cards.values()).filter(card => !card.isCore);
 
 export const getAlliedCore = (forceId: string) => state.battleData.units.find(u => u.force === forceId && u.isCore)!;
 export const getEnemyCore = (forceId: string) => state.battleData.units.find(u => u.force !== forceId && u.isCore)!;
 
+export const getCore = (forceId: string) => state.battleData.units.find(u => u.force === forceId && u.isCore)!;
