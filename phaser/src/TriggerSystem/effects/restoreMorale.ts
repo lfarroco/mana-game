@@ -3,52 +3,50 @@ import { Force, manipulateForceMorale } from "@Models/Entities/Force";
 import { Unit } from "@Models/Entities/Unit";
 import { getState } from "@Models/State";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
-import { getMoraleBarTipPosition } from "@Scenes/Battleground/MoraleDisplay";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import { getCharaById } from "@Systems/Chara/Chara";
 
 export function createRestoreMoraleLogic(
 	emitter: (unit: Unit, amount: number) => void,
-	healMorale: (targetForce: Force, amount: number) => void
+	healMorale: (targetForce: Force, amount: number) => void,
+	context: { sourceUnit: Unit; }
 ) {
-	return async (context: { sourceUnit: Unit; }) => {
-		const { sourceUnit } = context;
+	const { sourceUnit } = context;
 
-		const healAmount = sourceUnit.power;
+	const healAmount = sourceUnit.power;
 
-		emitter(sourceUnit, healAmount);
+	emitter(sourceUnit, healAmount);
 
-		const sourceForce = getState().battleData.forces.find(
-			(force: { id: string }) => force.id === sourceUnit.force
-		)!;
+	const sourceForce = getState().battleData.forces.find(
+		(force: { id: string }) => force.id === sourceUnit.force
+	)!;
 
-		const sourceChara = getCharaById(sourceUnit.id);
-		const moraleBarTipPos = getMoraleBarTipPosition(sourceForce.id);
-		if (sourceChara && moraleBarTipPos) {
-			arcaneMissileTargeted(
-				sourceChara,
-				moraleBarTipPos,
-				{
-					colors: [0x00ff00, 0x32cd32, 0x7fff00], // Green colors
-					amplitudeMin: 5,
-					amplitudeMax: 15,
-					particleScale: 1.5,
-					impact: {
-						colors: [0x00ff00, 0x32cd32],
-						scale: 2,
-						speed: 200,
-						lifespan: 300,
-						alpha: 0.4
-					},
-					onHit: async () => {
-						healMorale(sourceForce, healAmount);
-					}
-				}
-			);
-		} else {
-			healMorale(sourceForce, healAmount);
+	const sourceChara = getCharaById(sourceUnit.id);
+	const alliedCore = state.battleData.units.find(
+		(unit: { force: string, isCore: boolean }) => unit.force === sourceForce.id && unit.isCore
+	)!;
+	const core = getCharaById(alliedCore.id);
+
+	arcaneMissileTargeted(
+		sourceChara,
+		core,
+		{
+			colors: [0x00ff00, 0x32cd32, 0x7fff00], // Green colors
+			amplitudeMin: 5,
+			amplitudeMax: 15,
+			particleScale: 1.5,
+			impact: {
+				colors: [0x00ff00, 0x32cd32],
+				scale: 2,
+				speed: 200,
+				lifespan: 300,
+				alpha: 0.4
+			},
+			onHit: async () => {
+				healMorale(sourceForce, healAmount);
+			}
 		}
-	};
+	);
 }
 
 export const restoreMoraleLogicIO = async (context: { sourceUnit: Unit }) => {
@@ -79,8 +77,7 @@ export const restoreMoraleLogicIO = async (context: { sourceUnit: Unit }) => {
 		return actualHealing;
 	};
 
-	const impl = createRestoreMoraleLogic(emitter, healMoraleWithPoisonReduction);
-	await impl(context);
+	await createRestoreMoraleLogic(emitter, healMoraleWithPoisonReduction, context);
 };
 
 export function restoreForceMoralePure(amount: number, sourceForceId: string): {
