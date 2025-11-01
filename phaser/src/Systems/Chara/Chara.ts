@@ -217,3 +217,25 @@ export function mustGetState(chara: Chara): CharaState {
 	if (!s) throw new Error("Chara state not found for container");
 	return s;
 }
+
+export function shake(chara: Chara) {
+	const state = mustGetState(chara);
+	if (state.isAnimating) return;
+	state.isAnimating = true;
+
+	const startingX = chara.x;
+	chara.x += 10;
+
+	tween({
+		targets: [chara],
+		x: chara.x - 20,
+		alpha: 0.3,
+		duration: 100,
+		repeat: 3,
+		onComplete: () => {
+			state.isAnimating = false;
+			chara.x = startingX;
+			chara.alpha = 1;
+		}
+	});
+}

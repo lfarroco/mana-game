@@ -1,9 +1,9 @@
-import { scene } from "../BattlegroundScene";
 import { applyDamageToForce, Force } from "@Models/Entities/Force";
 import { arcaneMissileTargeted } from '../../../Effects';
 import * as Systems from "../Systems";
 import { getCore } from "@Models/Entities/Card";
-import { getCharaById } from "@Systems/Chara/Chara";
+import { getCharaById, shake } from "@Systems/Chara/Chara";
+import { MIDDLE_SCREEN_X } from "@Constants/constants";
 
 const timeoutDamageStartTime = 10000;
 const timeoutDamageInterval = 1000;
@@ -21,21 +21,21 @@ export function initializeTimeoutDamageSystem(): void {
 }
 
 async function spawnStar(damage: number, targetForce: Force) {
-	if (!scene) return;
 
-	const screenWidth = scene.scale.width;
 	const timerCircle = Systems.CountdownTimer.getCircle();
-	const startX = timerCircle ? timerCircle.x : Math.floor(screenWidth / 2);
+	const startX = timerCircle ? timerCircle.x : MIDDLE_SCREEN_X;
 	const startY = timerCircle ? timerCircle.y : -40;
 
 	const target = getCore(targetForce.id)
+
+	const core = getCharaById(target.id)
 
 	// purple -> gold colors for the projectile
 	const colors = [0x800080, 0xDA70D6, 0xFFD700];
 
 	arcaneMissileTargeted(
 		{ x: startX, y: startY },
-		getCharaById(target.id),
+		core,
 		{
 			colors,
 			amplitudeMin: 10,
@@ -52,6 +52,7 @@ async function spawnStar(damage: number, targetForce: Force) {
 			onHit: () => {
 				// Apply damage when the shooting star hits the bar
 				applyDamageToForce(targetForce, damage, 0, 'timeout');
+				shake(core);
 			}
 		}
 	);
@@ -104,4 +105,3 @@ export function getTimeoutDamageConfig() {
 		}
 	};
 }
-

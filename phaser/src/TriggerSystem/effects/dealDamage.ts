@@ -1,8 +1,9 @@
 import { applyDamageToForce } from '@Models/Entities/Force';
 import { Unit } from '@Models/Entities/Unit';
 import * as CombatStatsTracker from '@Scenes//Battleground/Systems/CombatStatsTracker';
-import { getCharaById } from '@Systems/Chara/Chara';
+import { getCharaById, shake } from '@Systems/Chara/Chara';
 import { arcaneMissileTargeted } from '../../Effects/arcaneMissileTargeted';
+import { getEnemyCore } from '@Models/Entities/Card';
 
 export function dealDamageLogicIO(sourceUnit: Unit) {
 
@@ -12,13 +13,12 @@ export function dealDamageLogicIO(sourceUnit: Unit) {
 		(force: { id: string }) => force.id !== sourceUnit.force
 	)!;
 
-	const enemyCore = state.battleData.units.find(
-		(unit: { force: string, isCore: boolean }) => unit.force === targetForce.id && unit.isCore
-	);
+	const enemyCore = getEnemyCore(sourceUnit.force)
 
 	const effect = () => {
 		const actualMoraleChange = applyDamageToForce(targetForce, damageAmount);
 		CombatStatsTracker.trackDamage(sourceUnit.id, actualMoraleChange, 'normal');
+		shake(getCharaById(enemyCore.id));
 	}
 
 	arcaneMissileTargeted(

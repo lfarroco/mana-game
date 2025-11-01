@@ -80,9 +80,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
     Systems.CountdownTimer.initializeCountdownTimer(this);
 
-    //MoraleDisplay.init();
     ResultsUI.create();
-    //BoardStatsDisplay.init();
 
     SellZone.create();
 
