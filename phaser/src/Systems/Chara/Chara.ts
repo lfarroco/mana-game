@@ -210,7 +210,6 @@ export function destroy(chara: Chara) {
 	charaById.delete(getId(chara));
 }
 
-
 export function mustGetState(chara: Chara): CharaState {
 	const s = charaState.get(chara);
 	if (!s) throw new Error("Chara state not found for container");

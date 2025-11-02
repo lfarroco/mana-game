@@ -3,6 +3,7 @@ import { Unit } from "./Unit";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import { getCore } from "./Card";
 import { updatePowerDisplay } from "@Systems/Chara/PowerDisplay";
+import { updateShieldDisplay } from "@Systems/Chara/ShieldDisplay";
 
 export type Force = {
 	id: string;
@@ -64,6 +65,10 @@ export const manipulateCoreShield = (
 		core.shield = Math.max(0, core.shield + amount);
 	}
 	const actualChange = core.shield - oldShield;
+
+	updateShieldDisplay(
+		getCore(targetForce.id).id
+	);
 
 	return actualChange;
 };

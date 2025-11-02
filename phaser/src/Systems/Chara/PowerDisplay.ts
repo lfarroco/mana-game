@@ -9,7 +9,7 @@ const BOX_HEIGHT_RATIO = 0.2;
 const STAT_BOX_CORNER_RADIUS_RATIO = 0.1;
 const STAT_BOX_MARGIN_RATIO = 0.15;
 
-export type StatsDisplay = {
+type StatsDisplay = {
 	powerDisplayBg: Graphics;
 	powerDisplay: Phaser.GameObjects.Text;
 	unit: Unit;
