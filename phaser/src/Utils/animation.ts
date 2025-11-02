@@ -1,6 +1,6 @@
 import Phaser from "phaser";
-import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import { getCurrentScene } from "@Models/State";
+import { scene } from "@Scenes/Battleground/BattlegroundScene";
 
 type CustomTweenProps =
 	Omit<Phaser.Types.Tweens.TweenBuilderConfig,
@@ -9,7 +9,7 @@ type CustomTweenProps =
 		'onCompleteScope' |
 		'onCompleteParams'
 	> & {
-		targets: Phaser.GameObjects.GameObject[];
+		targets: Phaser.GameObjects.GameObject[] | Phaser.Geom.Mesh.Face[];
 		onComplete?: () => void;
 	};
 

@@ -9,7 +9,6 @@ import * as CharaTooltip from "./CharaTooltip";
 import { popText } from "./Animations/popText";
 import { summonEffect } from "../../Effects/summonEffect";
 import { getCurrentScene, getState } from "@Models/State";
-import Delaunator from "delaunator";
 
 export type Chara = Container;
 
@@ -229,7 +228,6 @@ export function shake(chara: Chara) {
 	tween({
 		targets: [chara],
 		x: chara.x - 20,
-		alpha: 0.3,
 		duration: 100,
 		repeat: 3,
 		onComplete: () => {
@@ -241,120 +239,54 @@ export function shake(chara: Chara) {
 }
 
 
-export function shatter(sprite: Phaser.GameObjects.Sprite | Phaser.GameObjects.Image) {
-	const scene = sprite.scene;
-	const texture = sprite.texture;
-	const frame = sprite.frame;
+export async function shatter(chara: Chara) {
 
-	// frame source rect in texture (use cut* if available; fallback to x/y/width/height)
-	// const frameX = (frame as any).cutX ?? (frame as any).x ?? 0;
-	// const frameY = (frame as any).cutY ?? (frame as any).y ?? 0;
-	const frameWidth = (frame as any).cutWidth ?? (frame as any).width;
-	const frameHeight = (frame as any).cutHeight ?? (frame as any).height;
+	const scene = getCurrentScene();
 
-	// sample points in frame local coordinates (texture pixels)
-	const numPoints = Phaser.Math.Between(6, 8);
-	const points: [number, number][] = [
-		[0, 0],
-		[frameWidth, 0],
-		[frameWidth, frameHeight],
-		[0, frameHeight],
-	];
-	for (let i = 0; i < numPoints; i++) {
-		points.push([Phaser.Math.Between(0, frameWidth), Phaser.Math.Between(0, frameHeight)]);
-	}
+	const state = mustGetState(chara);
 
-	// triangulate (requires Delaunator available globally)
-	const delaunay = Delaunator.from(points);
-	const triangles = delaunay.triangles;
+	//shake the container
+	chara.x = chara.x + 10;
 
-	// hide original sprite
-	sprite.setVisible(false);
+	await tween({
+		targets: [chara],
+		x: chara.x - 20,
+		repeat: 10,
+		duration: 100,
+		yoyo: true
+	})
 
-	// world top-left of the displayed sprite (accounts for origin & scale)
-	const worldX0 = sprite.x - sprite.displayWidth * sprite.originX;
-	const worldY0 = sprite.y - sprite.displayHeight * sprite.originY;
+	state.sprite.visible = false;
 
-	// scale factors from texture/frame pixels -> display pixels
-	const scaleX = sprite.displayWidth / frameWidth;
-	const scaleY = sprite.displayHeight / frameHeight;
+	const image = scene.add.rexShatterImage(chara.x, chara.y, state.sprite.texture.key);
 
-	// iterate triangles
-	for (let i = 0; i < triangles.length; i += 3) {
-		const a = points[triangles[i]];
-		const b = points[triangles[i + 1]];
-		const c = points[triangles[i + 2]];
+	image.setScale(
+		state.sprite.scaleX,
+		state.sprite.scaleY
+	);
 
-		// local frame coordinates (inside the frame)
-		const localA = [a[0], a[1]];
-		const localB = [b[0], b[1]];
-		const localC = [c[0], c[1]];
+	image.shatter(
+		image.x, image.y,
+		{
+			ringRadiusList: [1 / 10, 3 / 10],
+			samplesPerRing: 4,
+			variation: 0.4
+		}
+	);
 
-		// bounds in frame space (texture pixels)
-		const minLocalX = Math.min(localA[0], localB[0], localC[0]);
-		const minLocalY = Math.min(localA[1], localB[1], localC[1]);
-		const maxLocalX = Math.max(localA[0], localB[0], localC[0]);
-		const maxLocalY = Math.max(localA[1], localB[1], localC[1]);
+	image.startUpdate();
 
-		const triWidth = maxLocalX - minLocalX;
-		const triHeight = maxLocalY - minLocalY;
+	await tween({
+		targets: image.faces,
+		alpha: 0,
+		//angle: () => Phaser.Math.Between(-360, 360),
+		x: (face: Phaser.Geom.Mesh.Face) => face.x += Phaser.Math.Between(-1, 1),
+		y: (face: Phaser.Geom.Mesh.Face) => face.y += Phaser.Math.Between(-1, 1),
+		duration: 3000,
+		ease: 'Power2',
+		//delay: this.tweens.stagger(30, {}),
+	});
 
-		if (triWidth < 1 || triHeight < 1) continue;
+	image.stopUpdate();
 
-		// world position of fragment top-left (display pixels)
-		const fragmentWorldX = worldX0 + minLocalX * scaleX;
-		const fragmentWorldY = worldY0 + minLocalY * scaleY;
-
-		// create RenderTexture sized in frame pixels (we will scale it to display pixels)
-		const rt = scene.add.renderTexture(fragmentWorldX, fragmentWorldY, Math.ceil(triWidth), Math.ceil(triHeight));
-		rt.setOrigin(0, 0);
-		rt.setDepth(sprite.depth);
-
-		// Create a Graphics positioned at the same world position as the RT.
-		// Draw the triangle in *display* pixels so the geometry mask lines up with the shown RT (after scaling).
-		const g = scene.add.graphics({ x: fragmentWorldX, y: fragmentWorldY });
-		g.fillStyle(0xffffff, 1);
-		g.beginPath();
-		g.moveTo((localA[0] - minLocalX) * scaleX, (localA[1] - minLocalY) * scaleY);
-		g.lineTo((localB[0] - minLocalX) * scaleX, (localB[1] - minLocalY) * scaleY);
-		g.lineTo((localC[0] - minLocalX) * scaleX, (localC[1] - minLocalY) * scaleY);
-		g.closePath();
-		g.fillPath();
-		// hide the graphics (mask still works even when invisible)
-		g.visible = false;
-
-		// create a GeometryMask from the graphics and apply to RT
-		const mask = g.createGeometryMask();
-		rt.setMask(mask);
-
-		// Draw the texture frame into the RT using frame-pixel offsets (RT internal coordinates are frame pixels)
-		// We need to draw the atlas frame so that the triangle region sits inside the RT:
-		// draw offsets are negative minLocalX/minLocalY (in frame pixels).
-		// frame.name typically identifies the frame inside the atlas.
-		rt.drawFrame(texture.key, (frame as any).name ?? frame, -minLocalX, -minLocalY);
-
-		// Now scale the RT to match display size (frame pixels -> display pixels)
-		rt.setScale(scaleX, scaleY);
-
-		// Animate the fragment outward; when complete destroy RT and graphics (mask is freed)
-		const angle = Phaser.Math.FloatBetween(0, Math.PI * 2);
-		const distance = Phaser.Math.Between(80, 160);
-		const duration = Phaser.Math.Between(2000, 4000);
-
-		scene.tweens.add({
-			targets: rt,
-			x: rt.x + Math.cos(angle) * distance,
-			y: rt.y + Math.sin(angle) * distance + Phaser.Math.Between(-30, 30),
-			angle: Phaser.Math.Between(-360, 360),
-			alpha: 0,
-			duration,
-			ease: "Power2",
-			onComplete: () => {
-				// destroy both RT and the Graphics used for mask
-				try { rt.destroy(); } catch { }
-				try { g.destroy(); } catch { }
-			},
-		});
-	}
 }
-

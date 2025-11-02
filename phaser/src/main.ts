@@ -8,6 +8,8 @@ import BattlegroundScene from "./Scenes/Battleground/BattlegroundScene";
 import TitleScene from "./Scenes/Title/TitleScene";
 import OptionsScene from "./Scenes/Options/OptionsScene";
 import { State } from "@Models/State";
+import ShatterImagePlugin from 'phaser3-rex-plugins/plugins/shatterimage-plugin.js';
+
 
 declare global {
 	interface Window {
@@ -30,6 +32,11 @@ export const game = new Phaser.Game({
 		global: [{
 			key: 'rexBBCodeTextPlugin',
 			plugin: BBCodeTextPlugin,
+			start: true
+		},
+		{
+			key: 'rexShatterImagePlugin',
+			plugin: ShatterImagePlugin,
 			start: true
 		},
 		]
