@@ -2,7 +2,7 @@ import * as constants from "@Constants/constants";
 import { Unit } from "./Unit";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import { getCore } from "./Card";
-import { updatePowerDisplay } from "@Systems/Chara/CharaStatsDisplay";
+import { updatePowerDisplay } from "@Systems/Chara/PowerDisplay";
 
 export type Force = {
 	id: string;

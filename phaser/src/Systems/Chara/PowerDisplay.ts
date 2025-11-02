@@ -20,7 +20,7 @@ export type StatsDisplay = {
 
 const statsDisplayMap = new Map<string, StatsDisplay>();
 
-export const CHARA_STATS_COLORS = {
+const POWER_DISPLAY_COLORS = {
 	DAMAGE_BG: 0xff0000,
 	HEAL_BG: 0x23a423,
 	ARMOR_BG: 0xd1d135,
@@ -53,13 +53,13 @@ export function create(unit: Unit, container: Chara) {
 	];
 
 	const colorMap = {
-		damage: CHARA_STATS_COLORS.DAMAGE_BG,
-		heal: CHARA_STATS_COLORS.HEAL_BG,
-		shield: CHARA_STATS_COLORS.ARMOR_BG,
-		poison: CHARA_STATS_COLORS.POISON_BG,
-		regen: CHARA_STATS_COLORS.REGEN_BG,
+		damage: POWER_DISPLAY_COLORS.DAMAGE_BG,
+		heal: POWER_DISPLAY_COLORS.HEAL_BG,
+		shield: POWER_DISPLAY_COLORS.ARMOR_BG,
+		poison: POWER_DISPLAY_COLORS.POISON_BG,
+		regen: POWER_DISPLAY_COLORS.REGEN_BG,
 	}
-	const bgColor = effect ? colorMap[effect.id as keyof typeof colorMap] : CHARA_STATS_COLORS.DEFAULT_BG;
+	const bgColor = effect ? colorMap[effect.id as keyof typeof colorMap] : POWER_DISPLAY_COLORS.DEFAULT_BG;
 
 	powerDisplayBg
 		.fillStyle(bgColor, 1)
