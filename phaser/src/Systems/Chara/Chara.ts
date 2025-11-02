@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { Unit } from "@Models/Entities/Unit";
 import * as constants from "@Constants/constants";
 import { tween } from "@Utils/animation";
-import * as CharaStatsDisplay from "./CharaStatsDisplay";
+import * as CharaStatsDisplay from "./PowerDisplay";
 import * as ChargeBarDisplay from "./ChargeBarDisplay";
 import * as input from "./input";
 import * as CharaTooltip from "./CharaTooltip";
