@@ -2,13 +2,13 @@ import * as Phaser from "phaser";
 import * as constants from "@Constants/constants";
 import * as AudioManager from "@Systems/AudioManager";
 import { setCurrentScene } from "@Models/State";
-import { logo } from "./components/logo";
 import { startButton } from "./components/new_run_button";
 import { startGame } from "../../Game/effects/startGame";
 import { cloudsBg } from "./components/cloudsBg";
 import { optionsButton } from "./components/optionsButton";
 import { goFullscreenButton } from "./components/goFullscreenButton";
 import { resumeGameButton } from "./components/resumeGameButton";
+import { logo } from "./components/logo";
 
 export let titleScene: TitleScene;
 

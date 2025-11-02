@@ -4,13 +4,10 @@ import * as io from "@PhaserIO";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import { titleTextConfig } from "@Constants/constants";
 import { tween } from "@Utils/animation";
-import { getState } from "@Models/State";
 
 export let roundTextElement: TextObj | null = null;
 const ROUND_DISPLAY_X = c.SCREEN_WIDTH - 720;
 const ROUND_DISPLAY_Y = 20;
-
-const state = getState();
 
 export function create() {
 	const initialRound = state.gameData.player.round;
