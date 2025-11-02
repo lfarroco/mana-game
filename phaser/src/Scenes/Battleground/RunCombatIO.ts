@@ -9,7 +9,7 @@ import * as Animations from "@Systems/Chara/Animations";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import { getCore } from "@Models/Entities/Card";
 import { delay } from "@Utils/animation";
-import { getCharaById, shatter } from "@Systems/Chara/Chara";
+import { getCharaById } from "@Systems/Chara/Chara";
 
 export type WaveOutcome = "player_won" | "player_lost";
 
@@ -70,11 +70,13 @@ export class RunCombatSystem {
     if (!this.active) return;
     this.active = false;
     if (outcome === "player_lost") {
-      await shatter(getCharaById(getCore(playerForce.id).id))
+      await Animations.shatter(getCharaById(getCore(playerForce.id).id))
     } else {
-      await shatter(getCharaById(getCore(cpuForce.id).id))
+      await Animations.shatter(getCharaById(getCore(cpuForce.id).id))
     }
+
     await delay(500);
+
     Systems.Timeout.onTimeoutDamageCombatEnd();
     Systems.CombatStatsTracker.stop();
     console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);
