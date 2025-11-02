@@ -196,7 +196,7 @@ export function updateUnitPower(chara: Chara, num: number) {
 
 	unit.power += num;
 
-	CharaStatsDisplay.animatePowerChange(s.id, unit.power);
+	CharaStatsDisplay.updatePowerDisplay(s.id);
 
 	popText({
 		x: chara.x,
