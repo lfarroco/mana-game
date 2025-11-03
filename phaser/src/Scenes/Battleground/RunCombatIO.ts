@@ -15,8 +15,6 @@ export type WaveOutcome = "player_won" | "player_lost";
 
 export class RunCombatSystem {
   private active: boolean = false;
-  private regenTimer: Phaser.Time.TimerEvent;
-  private poisonTimer: Phaser.Time.TimerEvent;
 
   reducePoison(forceId: string, healAmount: number): void {
     Systems.Poison.reducePoison(forceId, healAmount);
@@ -34,17 +32,8 @@ export class RunCombatSystem {
     this.active = true;
     Systems.CountdownTimer.start();
 
-    this.regenTimer = scene.time.addEvent({
-      delay: Systems.Regen.tickInterval,
-      callback: () => Systems.Regen.tick(playerForce, cpuForce),
-      loop: true,
-    });
 
-    this.poisonTimer = scene.time.addEvent({
-      delay: Systems.Poison.tickInterval,
-      callback: () => Systems.Poison.tick(playerForce, cpuForce),
-      loop: true,
-    });
+
   };
 
   updateFrame(_time: number, delta: number): void {
@@ -81,8 +70,8 @@ export class RunCombatSystem {
 
     if (!this.active) return;
 
-    this.regenTimer.destroy();
-    this.poisonTimer.destroy();
+    Systems.Regen.stop();
+    Systems.Poison.stop();
 
     this.active = false;
     if (outcome === "player_lost") {

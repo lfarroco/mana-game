@@ -1,13 +1,16 @@
-import { Force, manipulateCorePower } from "@Models/Entities/Force";
+import { cpuForce, Force, manipulateCorePower, playerForce } from "@Models/Entities/Force";
 import * as CombatStatsTracker from "./CombatStatsTracker";
 import { reducePoison } from "./PoisonDamageSystem";
 import { popText } from "@Systems/Chara/Animations";
 import { getCore } from "@Models/Entities/Card";
 import { getCharaById } from "@Systems/Chara/Chara";
+import { getCurrentScene } from "@Models/State";
 
-export const tickInterval: number = 1000;
+const tickInterval: number = 1000;
 
-interface RegenState {
+let regenTimer: Phaser.Time.TimerEvent;
+
+type RegenState = {
 	rate: number;
 	accumulator: number;
 	sourceContributions?: Map<string, number>;
@@ -17,6 +20,11 @@ const regenStates: Map<string, RegenState> = new Map();
 
 export function initialize(): void {
 	regenStates.clear();
+	regenTimer = getCurrentScene().time.addEvent({
+		delay: tickInterval,
+		callback: tick,
+		loop: true,
+	});
 }
 
 export function applyRegen(targetForce: Force, amount: number, sourceUnitId?: string): void {
@@ -35,7 +43,7 @@ export function applyRegen(targetForce: Force, amount: number, sourceUnitId?: st
 	}
 }
 
-export function tick(playerForce: Force, cpuForce: Force): void {
+function tick() {
 	tickForce(playerForce);
 	tickForce(cpuForce);
 }
@@ -78,21 +86,11 @@ function tickForce(force: Force): void {
 	})
 }
 
-export function getTotalRegenHealing(forceId: string): number {
-	return regenStates.get(forceId)?.rate || 0;
-}
-
-export function clearRegen(forceId: string): void {
+export function clearRegen(forceId: string) {
 	regenStates.delete(forceId);
 }
 
-export function stop(): void {
+export function stop() {
 	regenStates.clear();
-}
-
-export function getConfig() {
-	return {
-		tickInterval,
-		activeForces: regenStates.size,
-	};
+	regenTimer.destroy();
 }
