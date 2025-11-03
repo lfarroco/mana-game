@@ -1,9 +1,12 @@
-import { applyDamageToForce, Force } from "@Models/Entities/Force";
+import { applyDamageToForce, cpuForce, Force, playerForce } from "@Models/Entities/Force";
 import * as CombatStatsTracker from "./CombatStatsTracker";
+import { getCurrentScene } from "@Models/State";
 
-export const tickInterval: number = 1000;
+const tickInterval: number = 1000;
 
-interface PoisonState {
+let poisonTimer: Phaser.Time.TimerEvent;
+
+type PoisonState = {
 	rate: number;
 	accumulator: number;
 	sourceContributions?: Map<string, number>;
@@ -13,6 +16,11 @@ const poisonStates: Map<string, PoisonState> = new Map();
 
 export function initialize(): void {
 	poisonStates.clear();
+	poisonTimer = getCurrentScene().time.addEvent({
+		delay: tickInterval,
+		callback: tick,
+		loop: true,
+	});
 }
 
 export function applyPoison(targetForce: Force, amount: number, sourceUnitId?: string): void {
@@ -29,10 +37,9 @@ export function applyPoison(targetForce: Force, amount: number, sourceUnitId?: s
 		const contribs = state.sourceContributions;
 		contribs.set(sourceUnitId, (contribs.get(sourceUnitId) || 0) + amount);
 	}
-	// REQUIRED: update poison display
 }
 
-export function tick(playerForce: Force, cpuForce: Force): void {
+export function tick() {
 	tickForce(playerForce);
 	tickForce(cpuForce);
 }
@@ -57,8 +64,6 @@ function tickForce(force: Force): void {
 			});
 		}
 	}
-
-	// REQUIRED: update display
 }
 
 export function reducePoison(forceId: string, healAmount: number): void {
@@ -83,24 +88,13 @@ export function reducePoison(forceId: string, healAmount: number): void {
 	if (state.rate === 0) {
 		poisonStates.delete(forceId);
 	}
-	// REQUIRED: update display
-}
-
-export function getTotalPoisonDamage(forceId: string): number {
-	return poisonStates.get(forceId)?.rate || 0;
 }
 
 export function clearPoison(forceId: string): void {
 	poisonStates.delete(forceId);
 }
 
-export function stop(): void {
+export function stop() {
+	poisonTimer.destroy();
 	poisonStates.clear();
-}
-
-export function getConfig() {
-	return {
-		tickInterval,
-		activeForces: poisonStates.size
-	};
 }
