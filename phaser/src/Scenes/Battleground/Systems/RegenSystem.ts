@@ -1,6 +1,9 @@
 import { Force, manipulateCorePower } from "@Models/Entities/Force";
 import * as CombatStatsTracker from "./CombatStatsTracker";
 import { reducePoison } from "./PoisonDamageSystem";
+import { popText } from "@Systems/Chara/Animations";
+import { getCore } from "@Models/Entities/Card";
+import { getCharaById } from "@Systems/Chara/Chara";
 
 export const tickInterval: number = 1000;
 
@@ -31,7 +34,6 @@ export function applyRegen(targetForce: Force, amount: number, sourceUnitId?: st
 		const contribs = state.sourceContributions;
 		contribs.set(sourceUnitId, (contribs.get(sourceUnitId) || 0) + amount);
 	}
-	// REQUIRED: update display
 }
 
 export function update(playerForce: Force, cpuForce: Force, delta: number): void {
@@ -69,7 +71,16 @@ function tickForce(force: Force, delta: number): void {
 		reducePoison(id, actualHealing);
 	}
 
-	// REQUIRED: update display
+	const core = getCore(id);
+	const coreChara = getCharaById(core.id);
+
+	popText({
+		x: coreChara.x,
+		y: coreChara.y,
+		text: Math.floor(delta).toString(),
+		type: "regen"
+	})
+
 }
 
 export function getTotalRegenHealing(forceId: string): number {
