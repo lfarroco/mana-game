@@ -71,63 +71,14 @@ export function create(unit: Unit, container: Chara) {
 export function updateShieldDisplay(id: string) {
 	let stats = statsDisplayMap.get(id);
 	if (!stats) {
-		create(state.battleData.units.find(u => u.id === id)! as Unit, getCharaById(id))
+		const chara = getCharaById(id);
+		create(state.battleData.units.find(u => u.id === id)! as Unit, getCharaById(id));
+		chara.on(Phaser.GameObjects.Events.DESTROY, () => {
+			statsDisplayMap.delete(id)
+		});
 		return;
 	};
 
 	stats.displayedShield = Math.floor(stats.unit.shield);
 	stats.shieldDisplay.setText(stats.displayedShield.toString());
-}
-
-export function animateShieldChange(id: string, newValue: number) {
-	const stats = statsDisplayMap.get(id);
-	if (!stats || !stats.shieldDisplay || !stats.shieldDisplay.active) return;
-
-	const startValue = stats.displayedShield;
-	const endValue = Math.floor(newValue);
-	if (startValue === endValue) return;
-
-	if (stats.shieldTween) stats.shieldTween.stop();
-	if (stats.odometerTween) stats.odometerTween.stop();
-
-	stats.shieldTween = scene.tweens.add({
-		targets: stats.shieldDisplay,
-		scale: 1.3,
-		yoyo: true,
-		ease: 'Quad.easeOut',
-		onStart: () => {
-			if (stats.shieldDisplay && stats.shieldDisplay.active) {
-				stats.shieldDisplay.setScale(1);
-			}
-		},
-		onComplete: () => {
-			if (stats.shieldDisplay && stats.shieldDisplay.active) {
-				stats.shieldDisplay.setScale(1);
-			}
-		}
-	});
-
-	const duration = 200;
-	let lastValue = startValue;
-	stats.odometerTween = scene.tweens.addCounter({
-		from: startValue,
-		to: endValue,
-		duration,
-		ease: 'Cubic.easeOut',
-		onUpdate: tween => {
-			if (!stats.shieldDisplay || !stats.shieldDisplay.active) return;
-			const val = Math.round(tween.getValue());
-			if (val !== lastValue) {
-				stats.displayedShield = val;
-				stats.shieldDisplay.setText(val.toString());
-				lastValue = val;
-			}
-		},
-		onComplete: () => {
-			if (stats.shieldDisplay && stats.shieldDisplay.active) {
-				stats.displayedShield = endValue;
-				stats.shieldDisplay.setText(endValue.toString());
-			}
-		}
-	});
 }
