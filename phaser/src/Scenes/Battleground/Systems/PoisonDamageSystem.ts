@@ -6,7 +6,6 @@ export const tickInterval: number = 1000;
 interface PoisonState {
 	rate: number;
 	accumulator: number;
-	timeSinceLastTick: number;
 	sourceContributions?: Map<string, number>;
 }
 
@@ -21,7 +20,7 @@ export function applyPoison(targetForce: Force, amount: number, sourceUnitId?: s
 	const id = targetForce.id;
 	let state = poisonStates.get(id);
 	if (!state) {
-		state = { rate: 0, accumulator: 0, timeSinceLastTick: 0 };
+		state = { rate: 0, accumulator: 0 };
 		poisonStates.set(id, state);
 	}
 	state.rate += amount;
@@ -33,19 +32,16 @@ export function applyPoison(targetForce: Force, amount: number, sourceUnitId?: s
 	// REQUIRED: update poison display
 }
 
-export function update(playerForce: Force, cpuForce: Force, delta: number): void {
-	tickForce(playerForce, delta);
-	tickForce(cpuForce, delta);
+export function tick(playerForce: Force, cpuForce: Force): void {
+	tickForce(playerForce);
+	tickForce(cpuForce);
 }
 
-function tickForce(force: Force, delta: number): void {
+function tickForce(force: Force): void {
 	const id = force.id;
 	const state = poisonStates.get(id);
 	if (!state) return;
-	state.timeSinceLastTick += delta;
-	if (state.timeSinceLastTick < tickInterval) return;
 	const damage = Math.floor(state.accumulator + state.rate);
-	state.timeSinceLastTick -= tickInterval;
 	state.accumulator = (state.accumulator + state.rate) - damage;
 	if (damage <= 0) return;
 	applyDamageToForce(force, damage, 0, "poison");
