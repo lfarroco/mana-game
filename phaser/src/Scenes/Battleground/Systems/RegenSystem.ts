@@ -10,7 +10,6 @@ export const tickInterval: number = 1000;
 interface RegenState {
 	rate: number;
 	accumulator: number;
-	timeSinceLastTick: number;
 	sourceContributions?: Map<string, number>;
 }
 
@@ -25,7 +24,7 @@ export function applyRegen(targetForce: Force, amount: number, sourceUnitId?: st
 	const id = targetForce.id;
 	let state = regenStates.get(id);
 	if (!state) {
-		state = { rate: 0, accumulator: 0, timeSinceLastTick: 0 };
+		state = { rate: 0, accumulator: 0 };
 		regenStates.set(id, state);
 	}
 	state.rate += amount;
@@ -36,19 +35,16 @@ export function applyRegen(targetForce: Force, amount: number, sourceUnitId?: st
 	}
 }
 
-export function update(playerForce: Force, cpuForce: Force, delta: number): void {
-	tickForce(playerForce, delta);
-	tickForce(cpuForce, delta);
+export function tick(playerForce: Force, cpuForce: Force): void {
+	tickForce(playerForce);
+	tickForce(cpuForce);
 }
 
-function tickForce(force: Force, delta: number): void {
+function tickForce(force: Force): void {
 	const id = force.id;
 	const state = regenStates.get(id);
 	if (!state) return;
-	state.timeSinceLastTick += delta;
-	if (state.timeSinceLastTick < tickInterval) return;
 	const healing = Math.floor(state.accumulator + state.rate);
-	state.timeSinceLastTick -= tickInterval;
 	state.accumulator = (state.accumulator + state.rate) - healing;
 	if (healing <= 0) return;
 
@@ -77,10 +73,9 @@ function tickForce(force: Force, delta: number): void {
 	popText({
 		x: coreChara.x,
 		y: coreChara.y,
-		text: Math.floor(delta).toString(),
+		text: healing.toString(),
 		type: "regen"
 	})
-
 }
 
 export function getTotalRegenHealing(forceId: string): number {

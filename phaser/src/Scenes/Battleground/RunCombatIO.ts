@@ -15,6 +15,7 @@ export type WaveOutcome = "player_won" | "player_lost";
 
 export class RunCombatSystem {
   private active: boolean = false;
+  private regenTimer: Phaser.Time.TimerEvent;
 
   reducePoison(forceId: string, healAmount: number): void {
     Systems.Poison.reducePoison(forceId, healAmount);
@@ -31,6 +32,12 @@ export class RunCombatSystem {
 
     this.active = true;
     Systems.CountdownTimer.start();
+
+    this.regenTimer = scene.time.addEvent({
+      delay: Systems.Regen.tickInterval,
+      callback: () => Systems.Regen.tick(playerForce, cpuForce),
+      loop: true,
+    });
   };
 
   updateFrame(_time: number, delta: number): void {
@@ -50,7 +57,6 @@ export class RunCombatSystem {
 
     Systems.Timeout.updateTimeoutDamageSystem(playerForce, cpuForce, scaledDelta);
     Systems.Poison.update(playerForce, cpuForce, scaledDelta);
-    Systems.Regen.update(playerForce, cpuForce, scaledDelta);
     Systems.CombatStatsTracker.updateTimeAlive(scaledDelta);
 
     const playerMoraleZero = getCore(playerForce.id).power <= 0;
@@ -68,6 +74,9 @@ export class RunCombatSystem {
   async finishCombat(outcome: WaveOutcome) {
 
     if (!this.active) return;
+
+    this.regenTimer.destroy();
+
     this.active = false;
     if (outcome === "player_lost") {
       await Animations.shatter(getCharaById(getCore(playerForce.id).id))
