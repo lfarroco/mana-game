@@ -12,6 +12,7 @@ const CONFIG = {
 	HORIZONTAL_SPREAD: 60,
 	COLORS: {
 		HEAL: "green",
+		REGEN: "darkgreen",
 		DAMAGE: "red",
 		SHIELD: "yellow",
 		POISON: "#9932cc",
@@ -29,7 +30,7 @@ export async function popText({
 	x: number;
 	y: number;
 	text: string;
-	type?: "heal" | "damage" | "shield" | "poison" | "timeout";
+	type?: "heal" | "damage" | "shield" | "poison" | "timeout" | "regen";
 	direction?: "up" | "down" | "left" | "right";
 }) {
 	let textColor = defaultTextConfig.color;
@@ -43,6 +44,8 @@ export async function popText({
 		textColor = CONFIG.COLORS.POISON;
 	} else if (type === "timeout") {
 		textColor = CONFIG.COLORS.TIMEOUT;
+	} else if (type === "regen") {
+		textColor = CONFIG.COLORS.REGEN;
 	}
 
 	const popText = scene.add.text(

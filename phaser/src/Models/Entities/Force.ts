@@ -4,6 +4,8 @@ import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTra
 import { getCore } from "./Card";
 import { updatePowerDisplay } from "@Systems/Chara/PowerDisplay";
 import { updateShieldDisplay } from "@Systems/Chara/ShieldDisplay";
+import { popText } from "@Systems/Chara/Animations";
+import { getCharaById } from "@Systems/Chara/Chara";
 
 export type Force = {
 	id: string;
@@ -82,6 +84,7 @@ export const applyDamageToForce = (
 	if (damage <= 0) return 0;
 
 	const core = getCore(targetForce.id);
+	const coreChara = getCharaById(core.id);
 
 	let remainingDamage = damage;
 	const originalMorale = core.power;
@@ -96,6 +99,13 @@ export const applyDamageToForce = (
 			totalDamage: damage,
 			damageType: damageType,
 		});
+
+		popText({
+			x: coreChara.x,
+			y: coreChara.y,
+			text: moraleChange.toString(),
+			type: "poison"
+		})
 
 		return Math.abs(moraleChange);
 	}
@@ -126,6 +136,13 @@ export const applyDamageToForce = (
 			damageType: damageType,
 		})
 	}
+
+	popText({
+		x: coreChara.x,
+		y: coreChara.y,
+		text: damage.toString(),
+		type: "damage"
+	})
 
 	return Math.abs(moraleChange);
 };
