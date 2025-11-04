@@ -16,8 +16,8 @@ export function dealDamageLogicIO(sourceUnit: Unit) {
 	const enemyCore = getEnemyCore(sourceUnit.force)
 
 	const effect = () => {
-		const actualMoraleChange = applyDamageToForce(targetForce, damageAmount);
-		CombatStatsTracker.trackDamage(sourceUnit.id, actualMoraleChange, 'normal');
+		const actualLifeChanged = applyDamageToForce(targetForce, damageAmount);
+		CombatStatsTracker.trackDamage(sourceUnit.id, actualLifeChanged, 'normal');
 		shake(getCharaById(enemyCore.id));
 	}
 

@@ -54,11 +54,11 @@ export class RunCombatSystem {
     Systems.Timeout.updateTimeoutDamageSystem(playerForce, cpuForce, scaledDelta);
     Systems.CombatStatsTracker.updateTimeAlive(scaledDelta);
 
-    const playerMoraleZero = getCore(playerForce.id).power <= 0;
-    const cpuMoraleZero = getCore(cpuForce.id).power <= 0;
+    const playerLifeZero = getCore(playerForce.id).life <= 0;
+    const cpuLifeZero = getCore(cpuForce.id).life <= 0;
 
     let outcome: WaveOutcome | null = null;
-    if (playerMoraleZero) outcome = "player_lost"; else if (cpuMoraleZero) outcome = "player_won";
+    if (playerLifeZero) outcome = "player_lost"; else if (cpuLifeZero) outcome = "player_won";
 
     if (outcome) {
 

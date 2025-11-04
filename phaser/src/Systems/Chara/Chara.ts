@@ -2,13 +2,14 @@ import Phaser from "phaser";
 import { Unit } from "@Models/Entities/Unit";
 import * as constants from "@Constants/constants";
 import { tween } from "@Utils/animation";
-import * as CharaStatsDisplay from "./PowerDisplay";
+import * as PowerDisplay from "./PowerDisplay";
 import * as ChargeBarDisplay from "./ChargeBarDisplay";
 import * as input from "./input";
 import * as CharaTooltip from "./CharaTooltip";
 import { popText } from "./Animations/popText";
 import { summonEffect } from "../../Effects/summonEffect";
 import { getCurrentScene, getState } from "@Models/State";
+import * as LifeDisplay from "./LifeDisplay";
 
 export type Chara = Container;
 
@@ -104,7 +105,11 @@ export function create(unit: Unit): Chara {
 	});
 
 	ChargeBarDisplay.create(unit, container);
-	CharaStatsDisplay.create(unit, container);
+
+	if (unit.isCore)
+		LifeDisplay.create(unit, container);
+	else
+		PowerDisplay.create(unit, container);
 
 	return container;
 }
@@ -196,7 +201,7 @@ export function updateUnitPower(chara: Chara, num: number) {
 
 	unit.power += num;
 
-	CharaStatsDisplay.updatePowerDisplay(s.id);
+	PowerDisplay.updatePowerDisplay(s.id);
 
 	popText({
 		x: chara.x,

@@ -120,7 +120,7 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
 			effects.dealDamageLogicIO(sourceUnit);
 			break;
 		case "heal":
-			effects.restoreMoraleLogicIO(sourceUnit);
+			effects.restoreLife(sourceUnit);
 			break;
 		case "shield":
 			effects.addShieldLogicIO(sourceUnit);
