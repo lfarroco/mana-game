@@ -9,7 +9,30 @@
 			"life": 100,
 			"cooldown": 3000,
 			"isCore": true,
-			"effects": []
+			"effects": [
+				{
+					"id": "increase_power",
+					"amount": 5,
+					"targets": {
+						"id": "column_allies"
+					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "all",
+					"effectId": "damage",
+					"effects": [
+						{
+							"id": "charge",
+							"amount": 1000,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
 		},
 		{
 			"id": "damage_core",
