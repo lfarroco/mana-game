@@ -1,4 +1,4 @@
-import { cpuForce, Force, manipulateCorePower, playerForce } from "@Models/Entities/Force";
+import { cpuForce, Force, manipulateCoreLife, playerForce } from "@Models/Entities/Force";
 import * as CombatStatsTracker from "./CombatStatsTracker";
 import { reducePoison } from "./PoisonDamageSystem";
 import { popText } from "@Systems/Chara/Animations";
@@ -56,7 +56,7 @@ function tickForce(force: Force): void {
 	state.accumulator = (state.accumulator + state.rate) - healing;
 	if (healing <= 0) return;
 
-	const actualHealing = manipulateCorePower(force, healing);
+	const actualHealing = manipulateCoreLife(force, healing);
 
 	// Attribute healing to contributors proportionally
 	const contribs = state.sourceContributions;

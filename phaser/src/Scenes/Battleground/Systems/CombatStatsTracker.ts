@@ -41,10 +41,10 @@ function initializeUnitStats(): void {
 	}
 }
 
-export function trackMoraleChange(payload: {
+export function trackLifeChange(payload: {
 	forceId: string;
-	newMorale: number;
-	maxMorale: number;
+	newLife: number;
+	maxLife: number;
 	totalDamage?: number;
 	damageType?: "poison" | "normal" | "timeout";
 	sourceUnitId?: string;
@@ -72,7 +72,7 @@ export function trackMoraleChange(payload: {
 	console.log(`[CombatStatsTracker] Unit ${sourceUnitId} dealt ${payload.totalDamage} ${payload.damageType || "normal"} damage`);
 }
 
-export function trackMoraleRestored(payload: {
+export function trackLifeRestored(payload: {
 	unit: Unit;
 	amount: number;
 	type?: 'regen' | 'direct';
@@ -96,26 +96,6 @@ export function trackMoraleRestored(payload: {
 	}
 
 	console.log(`[CombatStatsTracker] Unit ${sourceUnitId} provided ${payload.amount} ${payload.type || "direct"} healing`);
-}
-
-export function trackShieldGained(payload: {
-	unit: Unit;
-	amount: number;
-	sourceUnitId?: string;
-}): void {
-	if (!isActive || payload.amount <= 0) return;
-
-	const sourceUnitId = payload.sourceUnitId || payload.unit?.id;
-	if (!sourceUnitId) return;
-
-	const stats = unitStats.get(sourceUnitId);
-	if (!stats) {
-		console.warn(`[CombatStatsTracker] No stats found for unit ${sourceUnitId}`);
-		return;
-	}
-
-	stats.shieldGranted += payload.amount;
-	console.log(`[CombatStatsTracker] Unit ${sourceUnitId} granted ${payload.amount} shield`);
 }
 
 export function trackShieldUpdated(payload: {

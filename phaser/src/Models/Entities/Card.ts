@@ -51,11 +51,12 @@ export type CardDefinition = {
   pic: string;
   name: string;
   description: string;
-  power: number;
+  power?: number;
   cooldown: number;
   effects: Effect[];
   reactions: EffectReaction[];
   isCore?: boolean;
+  life?: number;
 };
 
 export const getCardDefinition = (id: string): CardDefinition => {

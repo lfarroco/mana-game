@@ -51,19 +51,6 @@ export const titleTextConfig: Phaser.Types.GameObjects.Text.TextStyle = {
 export const FORCE_ID_PLAYER = "PLAYER";
 export const FORCE_ID_CPU = "CPU";
 
-export const PLAYER_MORALE_BAR_BOTTOM_OFFSET = 50;
-export const CPU_MORALE_BAR_TOP_OFFSET = 20;
-
-export const PLAYER_SHIELD_BAR_BOTTOM_OFFSET = 80;
-export const CPU_SHIELD_BAR_TOP_OFFSET = 50;
-
-export const INITIAL_MORALE = 500;
-
-export const PLAYER_MORALE_BAR_COLOR = 0x4e9de0;
-export const CPU_MORALE_BAR_COLOR = 0xe04e4e;
-
-export const PLAYER_SHIELD_BAR_COLOR = 0x9de04e;
-export const CPU_SHIELD_BAR_COLOR = 0xe0a04e;
 
 export const SCENE_KEYS = {
 	DEBUG: "DebugScene",

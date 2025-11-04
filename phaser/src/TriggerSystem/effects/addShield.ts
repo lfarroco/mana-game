@@ -10,13 +10,6 @@ export const addShieldLogicIO = async (sourceUnit: Unit) => {
 
 	const shieldAmount = sourceUnit.power;
 
-	// TODO: what's different from trackShield?
-	CombatStatsTracker.trackShieldGained({
-		unit: sourceUnit,
-		amount: shieldAmount,
-		sourceUnitId: sourceUnit.id
-	});
-
 	const sourceForce = getState().battleData.forces.find(
 		(force) => force.id === sourceUnit.force
 	)!;

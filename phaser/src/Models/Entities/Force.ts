@@ -2,10 +2,10 @@ import * as constants from "@Constants/constants";
 import { Unit } from "./Unit";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import { getCore } from "./Card";
-import { updatePowerDisplay } from "@Systems/Chara/PowerDisplay";
 import { updateShieldDisplay } from "@Systems/Chara/ShieldDisplay";
 import { popText } from "@Systems/Chara/Animations";
 import { getCharaById } from "@Systems/Chara/Chara";
+import { updateLifeDisplay } from "@Systems/Chara/LifeDisplay";
 
 export type Force = {
 	id: string;
@@ -32,23 +32,22 @@ export const makeForce = (id: string): Force => {
 export const playerForce = makeForce(constants.FORCE_ID_PLAYER);
 export const cpuForce = makeForce(constants.FORCE_ID_CPU);
 
-export const manipulateCorePower = (
+export const manipulateCoreLife = (
 	targetForce: Force,
 	amount: number,
 ): number => {
-	let finalAmount = amount;
 
 	const core = getCore(targetForce.id);
 
-	const oldPower = core.power;
-	if (finalAmount > 0) {
-		core.power = Math.min(core.maxPower, core.power + finalAmount);
+	const oldLife = core.life;
+	if (amount > 0) {
+		core.life = Math.min(core.maxLife, core.life + amount);
 	} else {
-		core.power = Math.max(0, core.power + finalAmount);
+		core.life = Math.max(0, core.life + amount);
 	}
-	const actualChange = core.power - oldPower;
+	const actualChange = core.life - oldLife;
 
-	updatePowerDisplay(core.id)
+	updateLifeDisplay(core.id)
 
 	return actualChange;
 };
@@ -87,15 +86,15 @@ export const applyDamageToForce = (
 	const coreChara = getCharaById(core.id);
 
 	let remainingDamage = damage;
-	const originalMorale = core.power;
+	const originalLife = core.life;
 
 	if (damageType === "poison") {
-		const moraleChange = manipulateCorePower(targetForce, -damage);
+		const lifeChage = manipulateCoreLife(targetForce, -damage);
 
-		CombatStatsTracker.trackMoraleChange({
+		CombatStatsTracker.trackLifeChange({
 			forceId: targetForce.id,
-			newMorale: core.power,
-			maxMorale: core.maxPower,
+			newLife: core.life,
+			maxLife: core.maxLife,
 			totalDamage: damage,
 			damageType: damageType,
 		});
@@ -103,11 +102,11 @@ export const applyDamageToForce = (
 		popText({
 			x: coreChara.x,
 			y: coreChara.y,
-			text: moraleChange.toString(),
+			text: lifeChage.toString(),
 			type: "poison"
 		})
 
-		return Math.abs(moraleChange);
+		return Math.abs(lifeChage);
 	}
 
 	let effectiveShield = core.shield;
@@ -122,16 +121,15 @@ export const applyDamageToForce = (
 		remainingDamage -= shieldAbsorbed;
 	}
 
-	let moraleChange = 0;
-	if (remainingDamage > 0) {
-		moraleChange = manipulateCorePower(targetForce, -remainingDamage);
-	}
+	const lifeChange = remainingDamage > 0 ?
+		manipulateCoreLife(targetForce, -remainingDamage) :
+		0;
 
-	if (core.power !== originalMorale) {
-		CombatStatsTracker.trackMoraleChange({
+	if (core.life !== originalLife) {
+		CombatStatsTracker.trackLifeChange({
 			forceId: targetForce.id,
-			newMorale: core.power,
-			maxMorale: core.maxPower,
+			newLife: core.life,
+			maxLife: core.maxLife,
 			totalDamage: damage,
 			damageType: damageType,
 		})
@@ -144,7 +142,7 @@ export const applyDamageToForce = (
 		type: "damage"
 	})
 
-	return Math.abs(moraleChange);
+	return Math.abs(lifeChange);
 };
 
 export const getUnitForce = (unitId: string) => {

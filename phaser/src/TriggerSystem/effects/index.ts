@@ -5,7 +5,7 @@
 
 export * from './dealDamage';
 export * from './addShield';
-export * from './restoreMorale';
+export * from './restoreLife';
 export * from './increasePower';
 export * from './multiplyPower';
 export * from './applyHaste';
