@@ -110,8 +110,10 @@ export function createUnitFromCard(
     slowed: 0,
     isCore: cardDef.isCore || false,
     life: cardDef.life || 0,
-    shield: 0,
     maxLife: cardDef.life || 0,
+    shield: 0,
+    regen: 0,
+    poison: 0,
   };
 }
 
