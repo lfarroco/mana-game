@@ -68,6 +68,5 @@ export function updateShieldDisplay(id: string) {
 		return;
 	};
 
-	console.log(">>>> ", stats.unit.shield)
 	stats.shieldDisplay.setText(stats.unit.shield.toString());
 }

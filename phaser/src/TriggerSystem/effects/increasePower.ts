@@ -17,7 +17,7 @@ export const increasePower = async (
 	if (!sourceUnit) {
 		for (const target of targets) {
 			const targetChara = getCharaById(target.id);
-			effect(targetChara);
+			effect(targetChara)();
 		}
 		return;
 	}
