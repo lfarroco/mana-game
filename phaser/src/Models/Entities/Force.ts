@@ -55,6 +55,8 @@ export const manipulateCoreLife = (
 export const manipulateCoreShield = (
 	targetForce: Force,
 	amount: number,
+	isCritical: boolean,
+	displayFeedback: boolean = true
 ): number => {
 
 	const core = getCore(targetForce.id);
@@ -70,6 +72,18 @@ export const manipulateCoreShield = (
 	updateShieldDisplay(
 		getCore(targetForce.id).id
 	);
+
+	if (displayFeedback) {
+		const text = isCritical ? `${amount} Crit!` : amount.toString();
+
+		popText({
+			x: getCharaById(core.id).x,
+			y: getCharaById(core.id).y,
+			text: text,
+			type: "shield",
+			critical: isCritical
+		})
+	}
 
 	return actualChange;
 };
@@ -121,7 +135,7 @@ export const applyDamageToForce = (
 
 	if (effectiveShield > 0) {
 		const shieldAbsorbed = Math.min(remainingDamage, effectiveShield);
-		manipulateCoreShield(targetForce, -shieldAbsorbed);
+		manipulateCoreShield(targetForce, -shieldAbsorbed, false, false);
 		remainingDamage -= shieldAbsorbed;
 	}
 

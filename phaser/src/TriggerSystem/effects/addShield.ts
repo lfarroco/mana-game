@@ -1,6 +1,6 @@
 import { getAlliedCore } from '@Models/Entities/Card';
 import { manipulateCoreShield } from '@Models/Entities/Force';
-import { Unit } from '@Models/Entities/Unit';
+import { isCritical, Unit } from '@Models/Entities/Unit';
 import { getState } from '@Models/State';
 import * as CombatStatsTracker from '@Scenes//Battleground/Systems/CombatStatsTracker';
 import { getCharaById } from '@Systems/Chara/Chara';
@@ -8,7 +8,7 @@ import { arcaneMissileTargeted } from '../../Effects';
 
 export const addShieldLogicIO = async (sourceUnit: Unit) => {
 
-	const shieldAmount = sourceUnit.power;
+	const baseAmount = sourceUnit.power;
 
 	const sourceForce = getState().battleData.forces.find(
 		(force) => force.id === sourceUnit.force
@@ -16,7 +16,12 @@ export const addShieldLogicIO = async (sourceUnit: Unit) => {
 	const alliedCore = getAlliedCore(sourceUnit.force);
 
 	const effect = async () => {
-		const actualShieldChange = manipulateCoreShield(sourceForce, shieldAmount);
+
+		const isCritical_ = isCritical(sourceUnit);
+
+		const shieldAmount = isCritical_ ? baseAmount * 2 : baseAmount;
+
+		const actualShieldChange = manipulateCoreShield(sourceForce, shieldAmount, isCritical_, true);
 
 		if (actualShieldChange > 0) {
 			CombatStatsTracker.trackShield(sourceUnit.id, actualShieldChange);
