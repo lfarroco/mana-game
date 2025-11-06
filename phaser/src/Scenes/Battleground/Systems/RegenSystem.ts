@@ -27,7 +27,12 @@ export function initialize(): void {
 	});
 }
 
-export function applyRegen(targetForce: Force, amount: number, sourceUnitId?: string): void {
+export function applyRegen(
+	targetForce: Force,
+	amount: number,
+	sourceUnitId?: string,
+	critical = false
+): void {
 	if (amount <= 0) return;
 	const id = targetForce.id;
 	let state = regenStates.get(id);
@@ -41,6 +46,14 @@ export function applyRegen(targetForce: Force, amount: number, sourceUnitId?: st
 		const contribs = state.sourceContributions;
 		contribs.set(sourceUnitId, (contribs.get(sourceUnitId) || 0) + amount);
 	}
+
+	popText({
+		x: getCharaById(id).x,
+		y: getCharaById(id).y,
+		text: critical ? `${amount} Crit!` : amount.toString(),
+		type: "regen",
+		critical
+	})
 }
 
 function tick() {
