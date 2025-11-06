@@ -1,6 +1,8 @@
 import { applyDamageToForce, cpuForce, Force, playerForce } from "@Models/Entities/Force";
 import * as CombatStatsTracker from "./CombatStatsTracker";
 import { getCurrentScene } from "@Models/State";
+import { popText } from "@Systems/Chara/Animations";
+import { getCharaById } from "@Systems/Chara/Chara";
 
 const tickInterval: number = 1000;
 
@@ -23,7 +25,7 @@ export function initialize(): void {
 	});
 }
 
-export function applyPoison(targetForce: Force, amount: number, sourceUnitId?: string): void {
+export function applyPoison(targetForce: Force, amount: number, sourceUnitId?: string, isCritical = false): void {
 	if (amount <= 0) return;
 	const id = targetForce.id;
 	let state = poisonStates.get(id);
@@ -37,6 +39,14 @@ export function applyPoison(targetForce: Force, amount: number, sourceUnitId?: s
 		const contribs = state.sourceContributions;
 		contribs.set(sourceUnitId, (contribs.get(sourceUnitId) || 0) + amount);
 	}
+
+	popText({
+		x: getCharaById(id).x,
+		y: getCharaById(id).y,
+		text: isCritical ? `${amount} Crit!` : amount.toString(),
+		type: "poison",
+		critical: isCritical
+	})
 }
 
 export function tick() {
@@ -51,7 +61,7 @@ function tickForce(force: Force): void {
 	const damage = Math.floor(state.accumulator + state.rate);
 	state.accumulator = (state.accumulator + state.rate) - damage;
 	if (damage <= 0) return;
-	applyDamageToForce(force, damage, 0, "poison");
+	applyDamageToForce(force, damage, 0, "poison", false);
 
 	const contribs = state.sourceContributions;
 	if (contribs) {

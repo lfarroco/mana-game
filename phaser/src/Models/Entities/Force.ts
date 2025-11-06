@@ -93,7 +93,7 @@ export const applyDamageToForce = (
 	damage: number,
 	shieldPiercingPercentage: number = 0,
 	damageType?: "poison" | "normal" | "timeout",
-	critical?: boolean
+	critical = false
 ): number => {
 	if (damage <= 0) return 0;
 

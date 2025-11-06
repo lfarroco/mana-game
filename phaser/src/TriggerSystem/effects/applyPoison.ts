@@ -1,19 +1,23 @@
 import { getEnemyCore } from '@Models/Entities/Card';
 import { getEnemyForce } from '@Models/Entities/Force';
-import { Unit } from '@Models/Entities/Unit';
+import { isCritical, Unit } from '@Models/Entities/Unit';
 import { applyPoison } from '@Scenes//Battleground/Systems/PoisonDamageSystem';
 import { getCharaById } from '@Systems/Chara/Chara';
 import { arcaneMissileTargeted } from '../../Effects';
 
 export const applyPoisonLogicIO = async (sourceUnit: Unit) => {
 
-	const amount = sourceUnit.power * 0.1;
+	const baseAmount = sourceUnit.power * 0.1;
+
+	const isCritical_ = isCritical(sourceUnit);
+
+	const amount = isCritical_ ? baseAmount * 2 : baseAmount;
 
 	const targetForce = getEnemyForce(sourceUnit.id);
 
 	console.log(`[ApplyPoison] Unit power: ${sourceUnit.power}, Poison rate: ${amount}, Total damage over time: ${amount * 10}`);
 
-	const effect = () => applyPoison(targetForce, amount, sourceUnit.id);
+	const effect = () => applyPoison(targetForce, amount, sourceUnit.id, isCritical_);
 
 	arcaneMissileTargeted(
 		getCharaById(sourceUnit.id),
