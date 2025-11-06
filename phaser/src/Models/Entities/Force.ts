@@ -5,7 +5,7 @@ import { getCore } from "./Card";
 import { updateShieldDisplay } from "@Systems/Chara/ShieldDisplay";
 import { popText } from "@Systems/Chara/Animations";
 import { getCharaById } from "@Systems/Chara/Chara";
-import { updateLifeDisplay } from "@Systems/Chara/LifeDisplay";
+import * as LifeDisplay from "@Systems/Chara/LifeDisplay";
 
 export type Force = {
 	id: string;
@@ -35,6 +35,7 @@ export const cpuForce = makeForce(constants.FORCE_ID_CPU);
 export const manipulateCoreLife = (
 	targetForce: Force,
 	amount: number,
+	critical = false
 ): number => {
 
 	const core = getCore(targetForce.id);
@@ -47,7 +48,15 @@ export const manipulateCoreLife = (
 	}
 	const actualChange = core.life - oldLife;
 
-	updateLifeDisplay(core.id)
+	LifeDisplay.updateLifeDisplay(core.id)
+
+	popText({
+		x: getCharaById(core.id).x,
+		y: getCharaById(core.id).y,
+		text: critical ? `${amount} Crit!` : amount.toString(),
+		type: "heal",
+		critical
+	})
 
 	return actualChange;
 };

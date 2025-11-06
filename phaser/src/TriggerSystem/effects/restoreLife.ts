@@ -1,7 +1,7 @@
 import { getAlliedCore } from "@Models/Entities/Card";
 import { arcaneMissileTargeted } from "../../Effects";
 import { Force, getUnitForce, manipulateCoreLife } from "@Models/Entities/Force";
-import { Unit } from "@Models/Entities/Unit";
+import { isCritical, Unit } from "@Models/Entities/Unit";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import { getCharaById } from "@Systems/Chara/Chara";
@@ -9,10 +9,14 @@ import { getCharaById } from "@Systems/Chara/Chara";
 
 export const restoreLife = async (sourceUnit: Unit) => {
 
-	const healAmount = sourceUnit.power;
+	const baseAmount = sourceUnit.power;
+
+	const critical = isCritical(sourceUnit);
+
+	const healAmount = critical ? baseAmount * 2 : baseAmount;
 
 	const effect = (targetForce: Force, amount: number) => () => {
-		const actualHealing = manipulateCoreLife(targetForce, amount);
+		const actualHealing = manipulateCoreLife(targetForce, amount, critical);
 
 		if (actualHealing > 0) {
 			CombatStatsTracker.trackHealing(sourceUnit.id, actualHealing, 'direct');

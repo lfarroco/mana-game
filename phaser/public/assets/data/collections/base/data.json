@@ -6,7 +6,7 @@
 			"id": "neutral_core",
 			"name": "The Core",
 			"pic": "blue-stone",
-			"life": 100,
+			"life": 500,
 			"cooldown": 3000,
 			"isCore": true,
 			"effects": [
@@ -38,7 +38,7 @@
 			"id": "damage_core",
 			"name": "Damage Core",
 			"pic": "red-stone",
-			"life": 100,
+			"life": 500,
 			"cooldown": 3000,
 			"isCore": true,
 			"effects": [
@@ -55,7 +55,7 @@
 			"id": "shield_core",
 			"name": "Shield Core",
 			"pic": "yellow-stone",
-			"life": 100,
+			"life": 500,
 			"cooldown": 3000,
 			"isCore": true,
 			"reflect": 10,
@@ -65,7 +65,7 @@
 			"id": "heal_core",
 			"name": "Heal Core",
 			"pic": "green-stone",
-			"life": 100,
+			"life": 500,
 			"cooldown": 3000,
 			"isCore": true,
 			"effects": []
@@ -74,7 +74,7 @@
 			"id": "purple_core",
 			"name": "Purple Core",
 			"pic": "purple-stone",
-			"life": 100,
+			"life": 500,
 			"cooldown": 3000,
 			"isCore": true,
 			"effects": []
