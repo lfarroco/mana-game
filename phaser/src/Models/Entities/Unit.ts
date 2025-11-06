@@ -190,3 +190,7 @@ export const testCardDefinitions = {
     cooldown: 80,
   }
 } as const;
+
+export function isCritical(u: Unit) {
+  return Math.random() * 100 < u.crit;
+}
