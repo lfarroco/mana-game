@@ -211,6 +211,7 @@
 			"name": "Shadow Assassin",
 			"pic": "boss_shadowlord",
 			"power": 10,
+			"critical": 20,
 			"cooldown": 2000,
 			"effects": [
 				{

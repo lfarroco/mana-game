@@ -57,6 +57,7 @@ export type CardDefinition = {
   reactions: EffectReaction[];
   isCore?: boolean;
   life?: number;
+  critical?: number;
 };
 
 export const getCardDefinition = (id: string): CardDefinition => {
