@@ -210,6 +210,26 @@ export function updateUnitPower(chara: Chara, num: number) {
 	});
 }
 
+export function updateUnitCritical(chara: Chara, num: number) {
+	const s = mustGetState(chara);
+	const { unit } = s;
+	const positive = num >= 0;
+	const text = `${positive ? "+" : "-"}${num} Crit`;
+
+	if (!unit.critical)
+		unit.critical = 0;
+
+	unit.critical += num;
+
+	PowerDisplay.updatePowerDisplay(s.id);
+
+	popText({
+		x: chara.x,
+		y: chara.y,
+		text,
+	});
+}
+
 export function destroy(chara: Chara) {
 	chara.destroy();
 	charaById.delete(getId(chara));

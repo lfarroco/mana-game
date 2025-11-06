@@ -1,4 +1,4 @@
-import { applyDamageToForce } from '@Models/Entities/Force';
+import { applyDamageToForce, getUnitForce, manipulateCoreLife } from '@Models/Entities/Force';
 import { Unit } from '@Models/Entities/Unit';
 import * as CombatStatsTracker from '@Scenes//Battleground/Systems/CombatStatsTracker';
 import { getCharaById, shake } from '@Systems/Chara/Chara';
@@ -7,7 +7,7 @@ import { getEnemyCore } from '@Models/Entities/Card';
 
 export function dealDamageLogicIO(sourceUnit: Unit) {
 
-	let damageAmount = sourceUnit.power;
+	const damageAmount = sourceUnit.power;
 
 	const targetForce = state.battleData.forces.find(
 		(force: { id: string }) => force.id !== sourceUnit.force
@@ -16,9 +16,35 @@ export function dealDamageLogicIO(sourceUnit: Unit) {
 	const enemyCore = getEnemyCore(sourceUnit.force)
 
 	const effect = () => {
-		const actualLifeChanged = applyDamageToForce(targetForce, damageAmount);
+
+		let damage = damageAmount;
+
+		const isCritical = sourceUnit.critical ? Math.random() < sourceUnit.critical / 100 : false;
+		if (isCritical) {
+			damage = damageAmount * 2;
+		}
+
+		const actualLifeChanged = applyDamageToForce(targetForce, damage, 0, 'normal', isCritical);
 		CombatStatsTracker.trackDamage(sourceUnit.id, actualLifeChanged, 'normal');
 		shake(getCharaById(enemyCore.id));
+
+		if (sourceUnit.lifesteal) {
+			manipulateCoreLife(getUnitForce(sourceUnit.force), damage)
+		}
+
+		if (enemyCore.reflect) {
+
+			const reflected = damage * enemyCore.reflect / 100;
+
+			if (reflected > 0) {
+
+				const actualLifeChanged = applyDamageToForce(targetForce, reflected);
+				CombatStatsTracker.trackDamage(sourceUnit.id, actualLifeChanged, 'reflect');
+
+			}
+
+		}
+
 	}
 
 	arcaneMissileTargeted(

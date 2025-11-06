@@ -49,6 +49,10 @@ export type Effect = {
 	id: "multiply_power",
 	multiplier: number,
 	targets: Targeting,
+} | {
+	id: "increase_critical",
+	amount: number,
+	targets: Targeting,
 }
 
 type Targeting = {
@@ -144,8 +148,12 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
 			effects.applyChargeLogicIO(sourceUnit, chargeTargets, effect.amount);
 			break;
 		case "increase_power":
-			const targets = resolveTargets(sourceUnit, effect);
-			effects.increasePower(targets, effect.amount, sourceUnit);
+			const increasePowerTargets = resolveTargets(sourceUnit, effect);
+			effects.increasePower(increasePowerTargets, effect.amount, sourceUnit);
+			break;
+		case "increase_critical":
+			const increaseCriticalTargets = resolveTargets(sourceUnit, effect);
+			effects.increaseCritical(increaseCriticalTargets, effect.amount, sourceUnit);
 			break;
 		case "increase_power_on_type": {
 			const allTargets = resolveTargets(sourceUnit, effect);

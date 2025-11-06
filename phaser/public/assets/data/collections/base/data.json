@@ -41,7 +41,15 @@
 			"life": 100,
 			"cooldown": 3000,
 			"isCore": true,
-			"effects": []
+			"effects": [
+				{
+					"id": "increase_critical",
+					"amount": 50,
+					"targets": {
+						"id": "column_allies"
+					}
+				}
+			]
 		},
 		{
 			"id": "shield_core",
@@ -50,6 +58,7 @@
 			"life": 100,
 			"cooldown": 3000,
 			"isCore": true,
+			"reflect": 10,
 			"effects": []
 		},
 		{

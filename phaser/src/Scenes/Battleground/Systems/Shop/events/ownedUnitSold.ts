@@ -19,7 +19,7 @@ export function ownedUnitSold(unitId: string, soldForGold: number) {
 		y: popTextY,
 		text: `+${soldForGold}G`,
 		type: "shield",
-		direction: "up"
+		direction: "up",
 	});
 
 	SellZone.hide();
