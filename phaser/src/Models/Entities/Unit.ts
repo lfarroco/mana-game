@@ -12,6 +12,10 @@ export type Unit = {
 
   power: number;
 
+  lifesteal?: boolean;
+  critical?: number;
+  reflect?: number;
+
   // Core attributes
   life: number;
   maxLife: number;

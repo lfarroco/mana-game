@@ -33,6 +33,8 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string => {
 			return withTargets(`[color=#ffe066]Charge[/color] [color=#ffd93d]${dur}s[/color]`, effect.targets);
 		case "increase_power":
 			return withTargets(`[color=#ff8cc8]Increase Power[/color] [color=#ffd93d]${effect.amount}[/color]`, effect.targets);
+		case "increase_critical":
+			return withTargets(`[color=#ff8cc8]Increase Critical[/color] [color=#ffd93d]${effect.amount}[/color]`, effect.targets);
 		case "increase_power_on_type": {
 			const base = `[color=#ff8cc8]Increase Power[/color] [color=#ffd93d]${effect.amount}[/color] if [color=#e0e0e0]${effect.targetEffectId}[/color]`;
 			return withTargets(base, effect.targets);

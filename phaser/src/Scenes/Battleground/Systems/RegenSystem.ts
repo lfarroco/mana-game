@@ -82,7 +82,7 @@ function tickForce(force: Force): void {
 		x: coreChara.x,
 		y: coreChara.y,
 		text: healing.toString(),
-		type: "regen"
+		type: "regen",
 	})
 }
 

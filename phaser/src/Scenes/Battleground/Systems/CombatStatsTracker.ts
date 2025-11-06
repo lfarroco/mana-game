@@ -5,6 +5,7 @@ export type UnitCombatStats = {
 	unitName?: string;
 	forceId: string;
 
+	reflected: number;
 	damageDealt: number;
 	poisonApplied: number;
 
@@ -31,6 +32,7 @@ function initializeUnitStats(): void {
 			unitName: unit.name,
 			forceId: unit.force,
 			damageDealt: 0,
+			reflected: 0,
 			poisonApplied: 0,
 			healingDone: 0,
 			regenApplied: 0,
@@ -142,7 +144,7 @@ export function initialize(): void {
 	console.log("[CombatStatsTracker] Initialized for new combat");
 }
 
-export function trackDamage(sourceUnitId: string, damage: number, damageType: 'normal' | 'poison' = 'normal'): void {
+export function trackDamage(sourceUnitId: string, damage: number, damageType: 'normal' | 'poison' | 'reflect' = 'normal'): void {
 	if (!isActive || damage <= 0) return;
 
 	const stats = unitStats.get(sourceUnitId);
@@ -153,7 +155,9 @@ export function trackDamage(sourceUnitId: string, damage: number, damageType: 'n
 
 	if (damageType === 'poison') {
 		stats.poisonApplied += damage;
-	} else {
+	} else if (damageType === 'normal') {
+		stats.damageDealt += damage;
+	} else if (damageType === 'reflect') {
 		stats.damageDealt += damage;
 	}
 
@@ -229,6 +233,7 @@ export function getAggregatedForceStats(forceId: string): Omit<UnitCombatStats, 
 		poisonApplied: aggregate.poisonApplied + stats.poisonApplied,
 		healingDone: aggregate.healingDone + stats.healingDone,
 		regenApplied: aggregate.regenApplied + stats.regenApplied,
+		reflected: aggregate.reflected + stats.reflected,
 		shieldGranted: aggregate.shieldGranted + stats.shieldGranted,
 		actionsPerformed: aggregate.actionsPerformed + stats.actionsPerformed,
 		timeAlive: Math.max(aggregate.timeAlive, stats.timeAlive)
@@ -238,6 +243,7 @@ export function getAggregatedForceStats(forceId: string): Omit<UnitCombatStats, 
 		poisonApplied: 0,
 		healingDone: 0,
 		regenApplied: 0,
+		reflected: 0,
 		shieldGranted: 0,
 		actionsPerformed: 0,
 		timeAlive: 0

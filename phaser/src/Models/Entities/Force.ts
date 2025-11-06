@@ -78,7 +78,8 @@ export const applyDamageToForce = (
 	targetForce: Force,
 	damage: number,
 	shieldPiercingPercentage: number = 0,
-	damageType?: "poison" | "normal" | "timeout"
+	damageType?: "poison" | "normal" | "timeout",
+	critical?: boolean
 ): number => {
 	if (damage <= 0) return 0;
 
@@ -91,6 +92,8 @@ export const applyDamageToForce = (
 	if (damageType === "poison") {
 		const lifeChage = manipulateCoreLife(targetForce, -damage);
 
+		const text = !!critical ? `${lifeChage} Crit!` : lifeChage.toString();
+
 		CombatStatsTracker.trackLifeChange({
 			forceId: targetForce.id,
 			newLife: core.life,
@@ -102,8 +105,9 @@ export const applyDamageToForce = (
 		popText({
 			x: coreChara.x,
 			y: coreChara.y,
-			text: lifeChage.toString(),
-			type: "poison"
+			text,
+			type: "poison",
+			critical: !!critical
 		})
 
 		return Math.abs(lifeChage);
@@ -135,11 +139,14 @@ export const applyDamageToForce = (
 		})
 	}
 
+	const text = !!critical ? `${damage} Crit!` : damage.toString();
+
 	popText({
 		x: coreChara.x,
 		y: coreChara.y,
-		text: damage.toString(),
-		type: "damage"
+		text,
+		type: "damage",
+		critical: !!critical
 	})
 
 	return Math.abs(lifeChange);

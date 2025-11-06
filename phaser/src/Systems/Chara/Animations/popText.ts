@@ -25,13 +25,15 @@ export async function popText({
 	y,
 	text,
 	type,
-	direction = "up"
+	direction = "up",
+	critical = false
 }: {
 	x: number;
 	y: number;
 	text: string;
 	type?: "heal" | "damage" | "shield" | "poison" | "timeout" | "regen";
 	direction?: "up" | "down" | "left" | "right";
+	critical?: boolean;
 }) {
 	let textColor = defaultTextConfig.color;
 	if (type === "heal") {
@@ -53,6 +55,7 @@ export async function popText({
 		text,
 		{
 			...titleTextConfig,
+			...(critical ? { fontSize: 50 } : {})
 		}
 	)
 		.setOrigin(0.5, 0.5);
