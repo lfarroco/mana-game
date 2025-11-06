@@ -132,7 +132,7 @@ export function addUnitToPlayerBoard(cardId: string, boardX: number, boardY: num
 		life: 0,
 		maxLife: 25,
 		cooldown: 100,
-		crit: 10,
+		critical: 0,
 		evade: 5,
 		shield: 0,
 		poison: 0,

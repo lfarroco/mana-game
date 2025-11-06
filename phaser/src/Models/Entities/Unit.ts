@@ -24,7 +24,6 @@ export type Unit = {
   regen: number;
 
   cooldown: number;
-  crit: number;
   evade: number;
 
   effects: TriggerSystem.Effect[];
@@ -43,12 +42,15 @@ export type Unit = {
 export const makeUnit = (force: string, cardId: string, position = { x: 0, y: 0 }): Unit => {
   const card = getCardDefinition(cardId);
 
+
   const pureUnit = createUnitFromCard(
     force,
     card,
     position,
     uuid.v4()
   ) as Unit;
+
+  console.log({ card, pureUnit })
 
   return pureUnit;
 };
@@ -69,6 +71,8 @@ export type PureUnitData = {
   hasted: number;
   slowed: number;
   effects: TriggerSystem.Effect[];
+
+  critical?: number;
 
   isCore?: boolean;
   life?: number;
@@ -115,6 +119,7 @@ export function createUnitFromCard(
     isCore: cardDef.isCore || false,
     life: cardDef.life || 0,
     maxLife: cardDef.life || 0,
+    critical: cardDef.critical || 0,
     shield: 0,
     regen: 0,
     poison: 0,
@@ -192,5 +197,5 @@ export const testCardDefinitions = {
 } as const;
 
 export function isCritical(u: Unit) {
-  return Math.random() * 100 < u.crit;
+  return !!u.critical && Math.random() * 100 < u.critical;
 }
