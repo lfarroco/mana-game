@@ -101,7 +101,10 @@ const getTargetDescription = (targets: any): string => {
 		case "column_allies":
 			return "Column";
 		case "all_allies":
-			return "All allies";
+			if (targets.ofType === "any")
+				return "All allies";
+			else
+				return `All allies of type ${targets.ofType}`
 		case "all_enemies":
 			return "All enemies";
 		case "top_ally":

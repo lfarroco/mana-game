@@ -59,7 +59,31 @@
 			"cooldown": 3000,
 			"isCore": true,
 			"reflect": 10,
-			"effects": []
+			"effects": [
+				{
+					"id": "increase_power",
+					"amount": 5,
+					"targets": {
+						"id": "all_allies",
+						"ofType": "shield"
+					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "all",
+					"effectId": "shield",
+					"effects": [
+						{
+							"id": "charge",
+							"amount": 1000,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
 		},
 		{
 			"id": "heal_core",

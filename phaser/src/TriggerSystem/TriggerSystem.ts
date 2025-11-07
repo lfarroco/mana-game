@@ -69,6 +69,7 @@ type Targeting = {
 	id: "column_allies",
 } | {
 	id: "all_allies",
+	ofType: "any" | "damage" | "heal" | "shield" | "poison" | "regen"
 } | {
 	id: "all_enemies",
 } | {
@@ -264,7 +265,11 @@ function resolveTargets(sourceUnit: Unit, effect: Effect): Unit[] {
 				.filter(u => u.position.x === sourceUnit.position.x);
 
 		case "all_allies":
-			return allies.filter(u => u.id !== sourceUnit.id);
+			const validType = effect.targets.ofType
+			if (validType === "any")
+				return allies.filter(u => u.id !== sourceUnit.id);
+			else
+				return allies.filter(u => u.effects.some(e => e.id === validType))
 
 		case "all_enemies":
 			return enemies;
