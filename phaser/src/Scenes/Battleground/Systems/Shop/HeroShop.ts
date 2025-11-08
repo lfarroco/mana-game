@@ -42,12 +42,7 @@ export async function openCoreShop() {
 		Card.getAllCards().filter(card => card.isCore),
 		sc.NUM_TAVERN_SLOTS)
 
-	const nextRoundCallback = async () => {
-		await close();
-		PhaseManager.handlePhaseEnded();
-	};
-
-	ShopPanel.create(nextRoundCallback);
+	ShopPanel.create(null);
 
 	// Render tavern charas
 	const displayedCharas = CharaShop.renderTavernCharas(tavernCardData);

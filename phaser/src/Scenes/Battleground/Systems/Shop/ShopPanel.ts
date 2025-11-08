@@ -12,13 +12,15 @@ export let container: Container;
 export let nextRoundButton: Button;
 export let onNextRoundClicked: (() => void) | null = null;
 
-export const create = (nextRoundCallback: () => void) => {
+export const create = (nextRoundCallback: (() => void) | null) => {
 
 	container?.destroy();
 
 	container = Container();
 
 	container.setY(c.SCREEN_HEIGHT * -1);
+
+	if (!nextRoundCallback) return
 
 	const nextRoundBtn = createUIButton(
 		"Skip",

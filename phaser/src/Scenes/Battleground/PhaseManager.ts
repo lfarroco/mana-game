@@ -42,7 +42,7 @@ export function handlePhaseEnded(): void {
 	getState().gameData.hour++;
 
 	if (getState().gameData.hour > Object.keys(hourAction).length - 1) {
-		getState().gameData.hour = 0;
+		getState().gameData.hour = 1;
 	}
 
 	startPhase();
