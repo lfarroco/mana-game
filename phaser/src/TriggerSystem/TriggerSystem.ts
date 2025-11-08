@@ -68,6 +68,8 @@ type Targeting = {
 } | {
 	id: "column_allies",
 } | {
+	// TODO: we have both this and "increase_power_on_type"
+	// should decide on which one to keep
 	id: "all_allies",
 	ofType: "any" | "damage" | "heal" | "shield" | "poison" | "regen"
 } | {
@@ -241,7 +243,10 @@ function resolveTargets(sourceUnit: Unit, effect: Effect): Unit[] {
 		return [];
 	}
 
-	const allUnits = state.battleData.units;
+	const filterOutCore = ["increase_power", "increase_power_on_type", "multiply_power", "increase_critical"]
+		.includes(effect.id);
+
+	const allUnits = state.battleData.units.filter(u => !u.isCore || !filterOutCore);
 	const allies = allUnits.filter(u => u.force === sourceUnit.force);
 	const enemies = allUnits.filter(u => u.force !== sourceUnit.force);
 
