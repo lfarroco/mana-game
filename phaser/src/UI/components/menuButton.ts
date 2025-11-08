@@ -17,17 +17,15 @@ export function create() {
 	return btn.container
 }
 
-
 export function createPanel() {
 
 	const panelWidth = 650;
-	const panelHeight = 550;
+	const panelHeight = 500;
 	const panelX = c.MIDDLE_SCREEN.x;
 	const panelY = 600;
 	const startingY = panelY - 100;
 
 	const buttons = ([
-		["Settings", () => { }],
 		["New Run", () => {
 			io.Destroy(container);
 			resetState();
@@ -66,13 +64,12 @@ export function createPanel() {
 			0x2c3e50, 1
 		),
 		[
-			() => io.Text("Menu", { color: "#ffffff", fontSize: "48px" }),
+			() => io.Text("Menu", c.titleTextConfig),
 			title => io.SetPosition(title, vec2(panelX, panelY - panelHeight / 2 + 50)),
 			title => io.Centralize(title)
 		],
 		...buttons,
-
-	])
+	]);
 
 	io.BringToTop(container);
 
