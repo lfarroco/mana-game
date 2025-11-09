@@ -156,7 +156,9 @@ export const onDragStart = (handlerState: InputHandler) => (
 		ease: "Cubic.Out",
 	});
 
-	if (!Chara.isShopItem(handlerState.unitId)) {
+	const unit = Chara.getUnit(chara);
+
+	if (!Chara.isShopItem(handlerState.unitId) && !unit.isCore) {
 		SellZone.show();
 	}
 
