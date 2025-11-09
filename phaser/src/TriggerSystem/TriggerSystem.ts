@@ -11,19 +11,14 @@ export type EffectReaction = {
 
 export type Effect = {
 	id: "damage",
-	amount: number,
 } | {
 	id: "heal",
-	amount: number,
 } | {
 	id: "shield",
-	amount: number,
 } | {
 	id: "poison",
-	perTick: number,
 } | {
 	id: "regen",
-	perTick: number,
 } | {
 	id: "haste",
 	duration: number,

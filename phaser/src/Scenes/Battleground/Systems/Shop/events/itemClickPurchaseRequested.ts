@@ -1,5 +1,5 @@
 import * as constants from "@Constants/constants";
-import { makeUnit, Unit } from "@Models/Entities/Unit";
+import { makeUnit, Unit, upgradeUnitEffects } from "@Models/Entities/Unit";
 import { getCharaById, summon, updateUnitPower } from "@Systems/Chara/Chara";
 import * as charaEvents from "@Systems/Chara/events";
 import * as uiEvents from "@UI/events";
@@ -37,6 +37,8 @@ export async function itemClickPurchaseRequested(
 	if (existingUnit) {
 		const chara = getCharaById(existingUnit.id);
 		updateUnitPower(chara, shopUnitData.power);
+
+		upgradeUnitEffects(existingUnit);
 
 		charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
 

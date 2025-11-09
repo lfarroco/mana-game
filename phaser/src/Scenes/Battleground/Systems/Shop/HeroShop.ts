@@ -100,6 +100,7 @@ function getAvailableCardsForTavern(count: number): Card.CardDefinition[] {
 	return pickRandom(allCards, count);
 }
 
+// TODO: remove me
 export function rerollTavern(): void {
 	currentShopCharas.forEach(chara => {
 		ShopPanel.removeChild(chara, false);
