@@ -134,6 +134,7 @@ export function addUnitToPlayerBoard(cardId: string, boardX: number, boardY: num
 		cooldown: 100,
 		critical: 0,
 		evade: 5,
+		rank: 1,
 		shield: 0,
 		poison: 0,
 		regen: 0,

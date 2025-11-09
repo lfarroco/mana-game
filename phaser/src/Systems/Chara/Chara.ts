@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { Unit } from "@Models/Entities/Unit";
+import { Unit, upgradeUnitEffects } from "@Models/Entities/Unit";
 import * as constants from "@Constants/constants";
 import { tween } from "@Utils/animation";
 import * as PowerDisplay from "./PowerDisplay";
@@ -10,6 +10,7 @@ import { popText } from "./Animations/popText";
 import { summonEffect } from "../../Effects/summonEffect";
 import { getCurrentScene, getState } from "@Models/State";
 import * as LifeDisplay from "./LifeDisplay";
+import { getCardDefinition } from "@Models/Entities/Card";
 
 export type Chara = Container;
 
@@ -261,3 +262,20 @@ export function shake(chara: Chara) {
 		}
 	});
 }
+
+export async function upgrade(unit: Unit) {
+	const chara = getCharaById(unit.id);
+
+	const source = getCardDefinition(unit.cardId);
+
+	if (source.power)
+		updateUnitPower(chara, source.power);
+
+	upgradeUnitEffects(unit);
+
+	unit.rank++;
+
+	// TODO: update chara rank display
+
+}
+

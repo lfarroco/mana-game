@@ -2,11 +2,10 @@ import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import { makeUnit, Unit } from "@Models/Entities/Unit";
 import { getUnitAt } from "@Models/State";
-import { getCharaById, summon, updateUnitPower } from "@Systems/Chara/Chara";
+import { getCharaById, summon, upgrade } from "@Systems/Chara/Chara";
 import * as uiEvents from "@UI/events";
 import * as charaEvents from "@Systems/Chara/events";
 import * as ShopUI from "../ShopPanel";
-import * as HeroShop from "../HeroShop";
 import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
 
 export async function itemDragPurchaseRequested(
@@ -18,13 +17,11 @@ export async function itemDragPurchaseRequested(
 ) {
 	const existingUnit = state.gameData.player.units.find(u => u.cardId === shopUnitData.cardId);
 
-	if (existingUnit) {
-		const chara = getCharaById(existingUnit.id);
-		updateUnitPower(chara, shopUnitData.power);
+	if (existingUnit && existingUnit.rank < 3) {
+
+		upgrade(existingUnit)
 
 		charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
-
-		HeroShop.rerollTavern();
 
 		await ShopUI.slideOut();
 
@@ -61,8 +58,6 @@ export async function itemDragPurchaseRequested(
 	summon(newUnit, true);
 
 	charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
-
-	HeroShop.rerollTavern();
 
 	await ShopUI.slideOut()
 	PhaseManager.handlePhaseEnded();
