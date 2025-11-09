@@ -1,46 +1,55 @@
-import { Unit } from "@Models/Entities/Unit";
-import { scene } from "@Scenes/Battleground/BattlegroundScene";
+import Phaser from 'phaser';
+import { Chara } from './Chara';
+import { Unit } from '@Models/Entities/Unit';
 
-export type RankDisplays = {
-	graphics: Graphics;
+type RankDisplayComponents = {
+	rankCoin: Phaser.GameObjects.Arc;
 	unit: Unit;
+	chara: Chara;
 };
 
-const index = new Map<string, RankDisplays>();
+const rankDisplayMap = new Map<string, RankDisplayComponents>();
 
-export function create(unit: Unit, container: Container) {
-	const graphics = scene.add.graphics();
+export function create(unit: Unit, chara: Chara) {
+	const rankCoin = chara.scene.add
+		.circle(0, 0, 100, 0xcccccc)
+		.setStrokeStyle(2, 0x000000);
 
-	container.add([graphics]);
+	chara.add(rankCoin);
+	rankCoin.y = 0;
 
-	const state = {
-		graphics,
-		unit
+	const components: RankDisplayComponents = {
+		rankCoin,
+		unit,
+		chara,
+	};
+
+	rankDisplayMap.set(unit.id, components);
+
+	update(unit.id);
+
+	chara.on('destroy', () => {
+		rankDisplayMap.delete(unit.id);
+	});
+}
+
+export function update(unitId: string) {
+	const components = rankDisplayMap.get(unitId);
+	if (!components) {
+		return;
 	}
 
-	index.set(unit.id, state);
+	const { rankCoin, unit } = components;
+	const rankColors = [0xCE8946, 0xCE8946, 0xEFBF04, 0xD9D9D9]; // bronz, silver, gold, platinum
+	const color = rankColors[unit.rank - 1] || 0xcccccc;
+
+	rankCoin.setFillStyle(color);
+
 }
 
 export function clearAll(): void {
-	index.forEach(state => {
-		state.graphics.destroy();
+	rankDisplayMap.forEach(({ rankCoin }) => {
+		rankCoin.destroy();
 	});
-	index.clear();
-}
-
-export function update(unit: Unit) {
-	const { rank } = unit;
-
-	const colors = {
-		// bronze
-		1: 0xffd700,
-		// silver
-		2: 0xc0c0c0,
-		// gold
-		3: 0xffd700,
-		// platinum
-		4: 0xffd700,
-	}
-
-	// update color graphics
+	rankDisplayMap.clear();
 }

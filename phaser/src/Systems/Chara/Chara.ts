@@ -4,6 +4,7 @@ import * as constants from "@Constants/constants";
 import { tween } from "@Utils/animation";
 import * as PowerDisplay from "./PowerDisplay";
 import * as ChargeBarDisplay from "./ChargeBarDisplay";
+import * as RankDisplay from "./RankDisplay";
 import * as input from "./input";
 import * as CharaTooltip from "./CharaTooltip";
 import { popText } from "./Animations/popText";
@@ -63,6 +64,8 @@ export function clearAll(): void {
 export function create(unit: Unit): Chara {
 	const position = getScreenPosition(unit);
 	const container = getCurrentScene().add.container(position.x, position.y);
+
+	RankDisplay.create(unit, container);
 
 	const sprite = createSprite(container, unit);
 	if (unit.force === constants.FORCE_ID_CPU) {
@@ -273,9 +276,9 @@ export async function upgrade(unit: Unit) {
 
 	upgradeUnitEffects(unit);
 
-	unit.rank++;
+	unit.rank = unit.rank + 1;
 
-	// TODO: update chara rank display
+	RankDisplay.update(unit.id);
 
 }
 
