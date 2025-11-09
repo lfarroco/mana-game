@@ -10,6 +10,8 @@ export type Unit = {
   force: string;
   position: Vec2;
 
+  rank: number;
+
   power: number;
 
   lifesteal?: boolean;
@@ -42,58 +44,21 @@ export type Unit = {
 export const makeUnit = (force: string, cardId: string, position = { x: 0, y: 0 }): Unit => {
   const card = getCardDefinition(cardId);
 
-
-  const pureUnit = createUnitFromCard(
+  return createUnitFromCardSpec(
     force,
     card,
     position,
     uuid.v4()
   ) as Unit;
-
-  console.log({ card, pureUnit })
-
-  return pureUnit;
 };
 
-export type PureUnitData = {
-  id: string;
-  cardId: string;
-  name: string;
-  pic: string;
-  force: string;
-  position: Vec2;
-  power: number;
-  cooldown: number;
-  crit: number;
-  evade: number;
-  charge: number;
-  refresh: number;
-  hasted: number;
-  slowed: number;
-  effects: TriggerSystem.Effect[];
 
-  critical?: number;
-
-  isCore?: boolean;
-  life?: number;
-  maxLife?: number;
-  shield?: number;
-  poison?: number;
-  regen?: number;
-
-  reactions: {
-    position: TriggerSystem.EffectSourcePosition;
-    effectId: string; // e.g. "damage", "heal", "shield", "poison", "regen", "haste", "slow", "charge"
-    effects: TriggerSystem.Effect[]
-  }[];
-};
-
-export function createUnitFromCard(
+export function createUnitFromCardSpec(
   force: string,
   cardDef: CardDefinition,
   position: Vec2 = { x: 0, y: 0 },
   id: string
-): PureUnitData {
+): Unit {
 
   const effects = cardDef.effects ?? [];
 
@@ -108,8 +73,8 @@ export function createUnitFromCard(
     position,
     power: cardDef.power || 0,
     cooldown: cardDef.cooldown,
-    crit: 0,
     evade: 0,
+    rank: 1,
     effects,
     reactions,
     charge: 0,
@@ -124,52 +89,6 @@ export function createUnitFromCard(
     regen: 0,
     poison: 0,
   };
-}
-
-export function createCustomUnit(
-  baseProps: {
-    id: string;
-    force: string;
-    position?: Vec2;
-  },
-  overrides: Partial<Omit<PureUnitData, 'id' | 'force' | 'position'>> = {}
-): PureUnitData {
-  const defaults: Omit<PureUnitData, 'id' | 'force' | 'position'> = {
-    cardId: `${baseProps.id}-card`,
-    name: `Unit ${baseProps.id}`,
-    pic: `${baseProps.id}.png`,
-    power: 25,
-    cooldown: 100,
-    crit: 10,
-    evade: 5,
-    effects: [],
-    reactions: [],
-    charge: 0,
-    refresh: 0,
-    hasted: 0,
-    slowed: 0,
-    isCore: false,
-    life: 0,
-    shield: 0,
-    poison: 0,
-    regen: 0,
-  };
-
-  return {
-    id: baseProps.id,
-    force: baseProps.force,
-    position: baseProps.position || { x: 0, y: 0 },
-    ...defaults,
-    ...overrides
-  };
-}
-
-export function createTestUnit(
-  id: string,
-  force: string,
-  position: Vec2 = { x: 0, y: 0 }
-): PureUnitData {
-  return createCustomUnit({ id, force, position });
 }
 
 export const testCardDefinitions = {

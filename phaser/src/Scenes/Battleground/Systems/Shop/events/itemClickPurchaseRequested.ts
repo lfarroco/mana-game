@@ -1,12 +1,11 @@
 import * as constants from "@Constants/constants";
-import { makeUnit, Unit, upgradeUnitEffects } from "@Models/Entities/Unit";
-import { getCharaById, summon, updateUnitPower } from "@Systems/Chara/Chara";
+import { makeUnit, Unit } from "@Models/Entities/Unit";
+import { getCharaById, summon, upgrade } from "@Systems/Chara/Chara";
 import * as charaEvents from "@Systems/Chara/events";
 import * as uiEvents from "@UI/events";
 import * as Geometry from "@Models/Geometry";
 import * as Board from "@Models/Board";
 import * as ShopUI from "../ShopPanel";
-import * as HeroShop from "../HeroShop";
 import { handlePhaseEnded } from "@Scenes/Battleground/PhaseManager";
 
 export async function itemClickPurchaseRequested(
@@ -34,15 +33,10 @@ export async function itemClickPurchaseRequested(
 
 	const existingUnit = state.gameData.player.units.find(u => u.cardId === shopUnitData.cardId);
 
-	if (existingUnit) {
-		const chara = getCharaById(existingUnit.id);
-		updateUnitPower(chara, shopUnitData.power);
-
-		upgradeUnitEffects(existingUnit);
+	if (existingUnit && existingUnit.rank < 3) {
+		await upgrade(existingUnit);
 
 		charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
-
-		HeroShop.rerollTavern();
 
 		await ShopUI.slideOut();
 		handlePhaseEnded();
@@ -71,3 +65,5 @@ export async function itemClickPurchaseRequested(
 	await ShopUI.slideOut();
 	handlePhaseEnded();
 }
+
+

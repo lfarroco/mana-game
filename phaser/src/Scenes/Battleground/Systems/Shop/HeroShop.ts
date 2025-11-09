@@ -99,21 +99,3 @@ function getAvailableCardsForTavern(count: number): Card.CardDefinition[] {
 	const allCards = Card.getNonCores()
 	return pickRandom(allCards, count);
 }
-
-// TODO: remove me
-export function rerollTavern(): void {
-	currentShopCharas.forEach(chara => {
-		ShopPanel.removeChild(chara, false);
-		Chara.destroy(chara);
-	});
-	currentShopCharas = [];
-
-	const newTavernCardData = getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
-
-	const newShopCharas = CharaShop.renderTavernCharas(
-		newTavernCardData
-	);
-	currentShopCharas = newShopCharas;
-
-	newShopCharas.forEach(chara => animateItemAppearance(chara));
-}
