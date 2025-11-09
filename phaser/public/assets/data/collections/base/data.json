@@ -325,6 +325,72 @@
 					]
 				}
 			]
+		},
+		{
+			"id": "venomous_spitter",
+			"name": "Venomous Spitter",
+			"pic": "neutral_amu",
+			"power": 8,
+			"cooldown": 3500,
+			"effects": [
+				{
+					"id": "poison"
+				},
+				{
+					"id": "slow",
+					"duration": 1500,
+					"targets": {
+						"id": "random_enemy",
+						"count": 1
+					}
+				}
+			]
+		},
+		{
+			"id": "chronomancer",
+			"name": "Chronomancer",
+			"pic": "f3_windgiver",
+			"power": 5,
+			"cooldown": 4000,
+			"effects": [
+				{
+					"id": "regen"
+				},
+				{
+					"id": "haste",
+					"duration": 1500,
+					"targets": {
+						"id": "row_allies"
+					}
+				}
+			]
+		},
+		{
+			"id": "golem_juggernaut",
+			"name": "Golem Juggernaut",
+			"pic": "neutral_golemstone",
+			"power": 30,
+			"cooldown": 6000,
+			"effects": [
+				{
+					"id": "damage"
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "damage",
+					"effects": [
+						{
+							"id": "charge",
+							"amount": 1000,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
 		}
 	]
 }
