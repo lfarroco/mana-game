@@ -35,6 +35,8 @@ export function create(unit: Unit, container: Chara) {
 
 	const effect = unit.effects.find(effect => displayableEffects.includes(effect.id));
 
+	if (!effect) return;
+
 	const displayedPower = Math.floor(unit.power);
 
 	const powerDisplayBg = scene.add.graphics();
