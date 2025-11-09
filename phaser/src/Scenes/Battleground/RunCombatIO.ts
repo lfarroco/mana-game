@@ -57,8 +57,9 @@ export class RunCombatSystem {
     const playerLifeZero = getCore(playerForce.id).life <= 0;
     const cpuLifeZero = getCore(cpuForce.id).life <= 0;
 
-    let outcome: WaveOutcome | null = null;
-    if (playerLifeZero) outcome = "player_lost"; else if (cpuLifeZero) outcome = "player_won";
+    const outcome: (WaveOutcome | null) =
+      cpuLifeZero ? "player_won" :
+        playerLifeZero ? "player_lost" : null;
 
     if (outcome) {
 

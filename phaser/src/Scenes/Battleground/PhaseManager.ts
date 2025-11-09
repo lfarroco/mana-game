@@ -12,8 +12,9 @@ export const hourAction: Record<number, string> = {
 	0: 'shop-core',
 	1: 'shop',
 	2: 'shop',
-	3: 'orb',
+	3: 'shop',
 	4: 'combat',
+	//3: 'orb',
 };
 
 export async function startPhase() {

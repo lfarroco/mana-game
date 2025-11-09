@@ -13,7 +13,6 @@ export async function handleCombatEndedDefeat(): Promise<void> {
 	AudioManager.playSoundEffect('sfx_victory_match');
 
 	await delay(1000);
-	await delay(1500);
 
 	// Show results panel instead of immediately transitioning
 	ResultsUI.displayResults("defeat", () => {
@@ -39,7 +38,7 @@ export async function handleCombatEndedVictory(): Promise<void> {
 
 	AudioManager.playSoundEffect('sfx_victory_reward_chant');
 
-	await delay(1500);
+	await delay(1000);
 
 	// Show results panel instead of immediately transitioning
 	ResultsUI.displayResults("victory", () => {
