@@ -391,6 +391,90 @@
 					]
 				}
 			]
+		},
+		{
+			"id": "poisoners_apprentice",
+			"name": "Poisoner's Apprentice",
+			"pic": "boss_spelleater",
+			"power": 5,
+			"cooldown": 3000,
+			"effects": [
+				{
+					"id": "poison"
+				},
+				{
+					"id": "increase_power",
+					"amount": 3,
+					"targets": {
+						"id": "all_allies",
+						"ofType": "poison"
+					}
+				}
+			]
+		},
+		{
+			"id": "spirit_of_the_forest",
+			"name": "Spirit of the Forest",
+			"pic": "neutral_golemnature",
+			"power": 8,
+			"cooldown": 3200,
+			"effects": [
+				{
+					"id": "regen"
+				},
+				{
+					"id": "increase_power",
+					"amount": 2,
+					"targets": {
+						"id": "all_allies",
+						"ofType": "regen"
+					}
+				}
+			]
+		},
+		{
+			"id": "time_shifter",
+			"name": "Time-shifter",
+			"pic": "f3_windgiver",
+			"power": 6,
+			"cooldown": 3800,
+			"effects": [
+				{
+					"id": "haste",
+					"duration": 1200,
+					"targets": {
+						"id": "random_ally",
+						"count": 2
+					}
+				}
+			]
+		},
+		{
+			"id": "glass_cannon",
+			"name": "Glass Cannon",
+			"pic": "neutral_arrowwhistler",
+			"power": 50,
+			"cooldown": 3000,
+			"effects": [
+				{
+					"id": "damage"
+				}
+			],
+			"reactions": [
+				{
+					"position": "all",
+					"effectId": "damage",
+					"effects": [
+						{
+							"id": "slow",
+							"duration": 500,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
 		}
 	]
 }
