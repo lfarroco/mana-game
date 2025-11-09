@@ -243,6 +243,88 @@
 					"id": "damage"
 				}
 			]
+		},
+		{
+			"id": "haste_core",
+			"name": "Core of Haste",
+			"pic": "green-stone",
+			"life": 500,
+			"cooldown": 3000,
+			"isCore": true,
+			"effects": [
+				{
+					"id": "haste",
+					"duration": 1000,
+					"targets": {
+						"id": "all_allies",
+						"ofType": "any"
+					}
+				}
+			]
+		},
+		{
+			"id": "arcane_archer",
+			"name": "Arcane Archer",
+			"pic": "neutral_arrowwhistler",
+			"power": 12,
+			"cooldown": 2500,
+			"effects": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "slow",
+					"duration": 2000,
+					"targets": {
+						"id": "random_enemy",
+						"count": 1
+					}
+				}
+			]
+		},
+		{
+			"id": "commander",
+			"name": "Commander",
+			"pic": "f1_tank",
+			"power": 10,
+			"cooldown": 4000,
+			"effects": [
+				{
+					"id": "increase_power",
+					"amount": 5,
+					"targets": {
+						"id": "row_allies"
+					}
+				}
+			]
+		},
+		{
+			"id": "berserker",
+			"name": "Berserker",
+			"pic": "boss_shadowlord",
+			"power": 20,
+			"critical": 10,
+			"cooldown": 3000,
+			"effects": [
+				{
+					"id": "damage"
+				}
+			],
+			"reactions": [
+				{
+					"position": "all",
+					"effectId": "damage",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
 		}
 	]
 }
