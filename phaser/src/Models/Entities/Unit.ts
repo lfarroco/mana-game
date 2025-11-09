@@ -199,3 +199,43 @@ export const testCardDefinitions = {
 export function isCritical(u: Unit) {
   return !!u.critical && Math.random() * 100 < u.critical;
 }
+
+function upgradeEffect(definition: CardDefinition, eff: TriggerSystem.Effect) {
+
+  if (["damage", "heal", "shield", "poison", "regen"].includes(eff.id))
+    return;
+
+  const original = definition.effects.find(e => e.id === eff.id)!;
+
+  if (["increase_power", "increase_power_on_type", "multiply_power", "increase_critical"].includes(eff.id)) {
+    if ('amount' in eff && 'amount' in original) {
+      eff.amount += original.amount;
+    }
+  }
+
+  // For now, only increase durationi (also evaluate increasing targets)
+  if (["haste", "slow", "charge"].includes(eff.id)) {
+    if ('duration' in eff && 'duration' in original) {
+      eff.duration += original.duration;
+    }
+
+  }
+
+}
+
+export function upgradeUnitEffects(unit: Unit) {
+
+  const definition = getCardDefinition(unit.cardId);
+
+
+  unit.effects.forEach((eff) => {
+    upgradeEffect(definition, eff);
+  });
+
+  unit.reactions.forEach(r => {
+    r.effects.forEach(eff => {
+      upgradeEffect(definition, eff);
+    })
+  });
+
+}

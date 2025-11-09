@@ -263,26 +263,6 @@
 			]
 		},
 		{
-			"id": "arcane_archer",
-			"name": "Arcane Archer",
-			"pic": "neutral_arrowwhistler",
-			"power": 12,
-			"cooldown": 2500,
-			"effects": [
-				{
-					"id": "damage"
-				},
-				{
-					"id": "slow",
-					"duration": 2000,
-					"targets": {
-						"id": "random_enemy",
-						"count": 1
-					}
-				}
-			]
-		},
-		{
 			"id": "commander",
 			"name": "Commander",
 			"pic": "f1_tank",
@@ -291,7 +271,7 @@
 			"effects": [
 				{
 					"id": "increase_power",
-					"amount": 5,
+					"amount": 10,
 					"targets": {
 						"id": "row_allies"
 					}
