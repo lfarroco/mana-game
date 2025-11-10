@@ -29,6 +29,9 @@
             ],
             "@Components/*": [
                 "Components/*"
+            ],
+            "@Shaders/*": [
+                "Shaders/*"
             ]
         },
         "lib": [

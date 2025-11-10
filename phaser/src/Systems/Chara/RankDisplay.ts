@@ -1,55 +1,24 @@
-import Phaser from 'phaser';
-import { Chara } from './Chara';
+import { Chara, } from './Chara';
 import { Unit } from '@Models/Entities/Unit';
+import { MagicOrb } from '@Components/MagicOrb/MagicOrb';
+import { hexToVector3 } from '@Utils/colorUtils';
 
-type RankDisplayComponents = {
-	rankCoin: Phaser.GameObjects.Arc;
-	unit: Unit;
-	chara: Chara;
-};
-
-const rankDisplayMap = new Map<string, RankDisplayComponents>();
 
 export function create(unit: Unit, chara: Chara) {
-	const rankCoin = chara.scene.add
-		.circle(0, 0, 100, 0xcccccc)
-		.setStrokeStyle(2, 0x000000);
 
-	chara.add(rankCoin);
-	rankCoin.y = 0;
+	const orb = new MagicOrb(0, 0, {
+		size: 320,
+		color: hexToVector3(
 
-	const components: RankDisplayComponents = {
-		rankCoin,
-		unit,
-		chara,
-	};
+			unit.rank === 1 ? 0xCD7F32 :
+				unit.rank === 2 ? 0xC0C0C0 :
+					unit.rank === 3 ? 0xFFD700 : 0xB9F2FF
 
-	rankDisplayMap.set(unit.id, components);
-
-	update(unit.id);
-
-	chara.on('destroy', () => {
-		rankDisplayMap.delete(unit.id);
+		),
+		intensity: 1.2,
+		speed: 1.0,
 	});
+
+	chara.add(orb.shader);
 }
 
-export function update(unitId: string) {
-	const components = rankDisplayMap.get(unitId);
-	if (!components) {
-		return;
-	}
-
-	const { rankCoin, unit } = components;
-	const rankColors = [0xCE8946, 0xCE8946, 0xEFBF04, 0xD9D9D9]; // bronz, silver, gold, platinum
-	const color = rankColors[unit.rank - 1] || 0xcccccc;
-
-	rankCoin.setFillStyle(color);
-
-}
-
-export function clearAll(): void {
-	rankDisplayMap.forEach(({ rankCoin }) => {
-		rankCoin.destroy();
-	});
-	rankDisplayMap.clear();
-}

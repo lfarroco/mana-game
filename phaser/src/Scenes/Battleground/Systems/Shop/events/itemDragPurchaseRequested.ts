@@ -17,7 +17,7 @@ export async function itemDragPurchaseRequested(
 ) {
 	const existingUnit = state.gameData.player.units.find(u => u.cardId === shopUnitData.cardId);
 
-	if (existingUnit && existingUnit.rank < 3) {
+	if (existingUnit && existingUnit.rank <= 3) {
 
 		upgrade(existingUnit)
 
