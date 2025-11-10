@@ -65,7 +65,6 @@ export function create(unit: Unit): Chara {
 	const position = getScreenPosition(unit);
 	const container = getCurrentScene().add.container(position.x, position.y);
 
-	RankDisplay.create(unit, container);
 
 	const sprite = createSprite(container, unit);
 	if (unit.force === constants.FORCE_ID_CPU) {
@@ -90,6 +89,9 @@ export function create(unit: Unit): Chara {
 	};
 
 	charaState.set(container, state);
+
+	RankDisplay.create(unit, container);
+	container.moveUp(sprite);
 
 	input.init(container);
 
@@ -278,7 +280,9 @@ export async function upgrade(unit: Unit) {
 
 	unit.rank = unit.rank + 1;
 
-	RankDisplay.update(unit.id);
+	chara.destroy();
+
+	summon(unit, true);
 
 }
 

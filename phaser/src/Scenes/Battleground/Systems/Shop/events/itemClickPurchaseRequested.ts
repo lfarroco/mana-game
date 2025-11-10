@@ -33,7 +33,7 @@ export async function itemClickPurchaseRequested(
 
 	const existingUnit = state.gameData.player.units.find(u => u.cardId === shopUnitData.cardId);
 
-	if (existingUnit && existingUnit.rank < 3) {
+	if (existingUnit && existingUnit.rank <= 3) {
 		await upgrade(existingUnit);
 
 		charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));

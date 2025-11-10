@@ -1,8 +1,8 @@
 import * as Phaser from "phaser";
-import { magicOrbFragmentShader } from "../../Shaders/MagicOrbShader";
 import * as Board from "@Models/Board";
 import * as Tooltip from "../Tooltip";
 import { getCurrentScene } from "@Models/State";
+import { simpleMagicOrbFragmentShader } from "@Shaders/MagicOrbShader";
 
 export interface MagicOrbConfig {
 	size?: number;
@@ -22,15 +22,15 @@ export interface MagicOrbConfig {
 }
 
 export class MagicOrb {
-	private scene: Phaser.Scene;
-	private shader: Phaser.GameObjects.Shader;
-	private startTime: number;
-	private config: Required<Omit<MagicOrbConfig, 'x' | 'y'>>;
-	private isDissolving: boolean = false;
-	private dissolveStartTime: number = 0;
-	private originalPosition: { x: number; y: number };
-	private isDragging: boolean = false;
-	private isDestroyed: boolean = false;
+	scene: Phaser.Scene;
+	shader: Phaser.GameObjects.Shader;
+	startTime: number;
+	config: Required<Omit<MagicOrbConfig, 'x' | 'y'>>;
+	isDissolving: boolean = false;
+	dissolveStartTime: number = 0;
+	originalPosition: { x: number; y: number };
+	isDragging: boolean = false;
+	isDestroyed: boolean = false;
 
 	constructor(x: number, y: number, config: MagicOrbConfig = {}) {
 		this.scene = getCurrentScene();
@@ -74,7 +74,7 @@ export class MagicOrb {
 
 		const baseShader = new Phaser.Display.BaseShader(
 			'MagicOrb',
-			magicOrbFragmentShader,
+			simpleMagicOrbFragmentShader,
 			undefined,
 			{
 				time: { type: '1f', value: 0.0 },
