@@ -113,12 +113,10 @@ uniform float dissolveProgress;
 
 varying vec2 fragCoord;
 
-// Simple pseudo-random noise (fast)
 float rand(vec2 co) {
     return fract(sin(dot(co.xy, vec2(12.9898,78.233))) * 43758.5453);
 }
 
-// Lightweight dissolve pattern using radial + noise variation
 float dissolveMask(vec2 uv, float t) {
     float d = length(uv);
     float n = rand(floor(uv * 40.0 + t * 5.0));
@@ -131,26 +129,42 @@ void main() {
     uv.x *= resolution.x / resolution.y;
 
     float dist = length(uv);
-    if (dist > 0.45) discard;
+    if (dist > 0.48) discard;
 
-    // Simple pulsing glow
-    float pulse = sin(time * speed + dist * 10.0) * 0.5 + 0.5;
+    // === Lighting setup ===
+    vec3 lightDir = normalize(vec3(0.6, 0.6, 0.8));
+    vec3 normal = normalize(vec3(uv, sqrt(1.0 - dot(uv, uv))));
+    float diffuse = max(dot(normal, lightDir), 0.0);
 
-    // Smooth falloff for orb body
-    float glow = smoothstep(0.45, 0.0, dist);
-    float innerGlow = smoothstep(0.3, 0.0, dist);
+    // === Border (rim) ===
+    float border = smoothstep(0.48, 0.44, dist) - smoothstep(0.44, 0.40, dist);
+    float innerArea = smoothstep(0.44, 0.0, dist);
+    float rimLight = pow(1.0 - dist, 4.0);
 
-    // Base + soft glow
-    vec3 baseColor = color1 * (0.4 + 0.6 * pulse);
-    vec3 finalColor = baseColor * (innerGlow + glow * 0.4);
+    // === Dark shine sweep ===
+    float shineWidth = 0.15;
+    float shineSpeed = 0.5;
+    float shinePos = uv.x + sin(time * shineSpeed) * 1.3;
+    float shineMask = smoothstep(-shineWidth, 0.0, shinePos) * smoothstep(0.0, shineWidth, shinePos);
+    // Darken instead of brighten
+    float darkShine = 1.0 - (shineMask * 0.4 * (0.5 + 0.5 * sin(time * 3.5)));
 
-    // Lightweight dissolve (simple fade)
+    // === Base color ===
+    vec3 baseColor = color1 * (0.45 + 0.6 * diffuse);
+    vec3 rimColor = color1 * (0.7 + 0.4 * rimLight);
+    vec3 borderColor = mix(rimColor, vec3(0.0), 0.2);
+
+    // Combine layers
+    vec3 color = mix(baseColor, borderColor, border);
+    color *= darkShine; // apply moving dark band
+
+    // === Dissolve fade ===
     float dissolve = 1.0 - dissolveProgress * 1.2;
     float fade = smoothstep(0.0, 0.3, dissolveMask(uv, time * 0.5) - dissolve);
-    float alpha = fade * 0.6; // transparent look
+    float alpha = fade * 0.95;
 
-    // Apply intensity and output
-    finalColor *= intensity * 0.8;
-    gl_FragColor = vec4(finalColor, alpha);
+    color *= intensity;
+    gl_FragColor = vec4(color, alpha);
 }
 `;
+
