@@ -223,6 +223,7 @@ export function OnUpdate(obj: Phaser.GameObjects.GameObject, callback: (time: nu
 		scene.events.off(Phaser.Scenes.Events.UPDATE, callback);
 	})
 }
+
 export function Shader(
 	frag: string,
 	position: Vec2,
@@ -246,11 +247,17 @@ export function Shader(
 	const { x, y } = position;
 	const { width, height } = size;
 
+
 	let shaderUniforms = {} as any
 	uniforms.forEach(uniform => {
 		shaderUniforms[uniform.key] = {
 			type: uniform.type,
-			value: uniform.value
+			value: uniform.type === "3f" ?
+				{ x: uniform.value[0], y: uniform.value[1], z: uniform.value[2] } :
+				uniform.type === "2f" ?
+					{ x: uniform.value[0], y: uniform.value[1] } :
+					uniform.value
+
 		}
 	})
 

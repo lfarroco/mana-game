@@ -14,12 +14,11 @@ export function createBlackHole() {
 	blackHole = Shader(
 		arcaneTornadoFragmentShader,
 		MIDDLE_SCREEN,
-		{ width: 300, height: 300 },
+		{ width: 400, height: 400 },
 		[
-
-			{ key: "color1", type: '3f', value: [1.0, 0.0, 0.3] },   // black core
-			{ key: "color2", type: '3f', value: [0.8, 0.2, 1.0] },   // arcane purple
-			{ key: "intensity", type: '1f', value: 1.2 },
+			{ key: "color1", type: '3f', value: [0.0, 0.0, 0.0] },   // black core
+			{ key: "color2", type: '3f', value: [0.2, 0.1, 0.2] },   // arcane purple
+			{ key: "intensity", type: '1f', value: 0.1 },
 			{ key: "speed", type: '1f', value: 1.0 },
 			{ key: "dissolveProgress", type: '1f', value: dissolve },
 		]
