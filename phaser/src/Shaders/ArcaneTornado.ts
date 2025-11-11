@@ -3,8 +3,8 @@ precision mediump float;
 
 uniform float time;
 uniform vec2 resolution;
-uniform vec3 color1;     // inner color (e.g. black)
-uniform vec3 color2;     // outer color (e.g. purple)
+uniform vec3 color1;     // inner color
+uniform vec3 color2;     // outer color
 uniform float intensity;
 uniform float speed;
 uniform float dissolveProgress;
@@ -44,7 +44,7 @@ void main() {
     float dist = length(uv);
     if (dist > 0.8) discard;
 
-    float t = time * speed * 2.5; // boosted rotation speed
+    float t = time * speed * 2.5;
 
     // Apply gravitational twist
     vec2 twisted = radialTwist(uv, t, 2.2 + speed * 0.4);
@@ -71,26 +71,29 @@ void main() {
     float coreMask = smoothstep(0.0, 0.5, 0.5 - radius);
     float rimMask = smoothstep(0.7, 0.25, radius);
 
-    // Dual color blend
-    vec3 baseColor = mix(color1, color2, spiral * 0.6 + shimmer * 0.3);
-    vec3 glowColor = mix(color1, color2, rimMask);
+    // FIXED: Better color mixing with stronger contributions
+    float colorMix = spiral * 0.8 + shimmer * 0.4;
+    vec3 baseColor = mix(color1, color2, colorMix);
+    
+    // FIXED: Enhanced glow color mixing
+    vec3 glowColor = mix(color1, color2, rimMask * 0.8);
 
-    // Compose
-    vec3 color = baseColor * (0.8 + shimmer * 0.4);
-    color += glowColor * (rimMask * 0.8 + spiral * 0.4);
-    color *= (1.0 - radius * 0.5);
+    // Compose with stronger contributions
+    vec3 color = baseColor * (1.0 + shimmer * 0.6);
+    color += glowColor * (rimMask * 1.2 + spiral * 0.6);
+    color *= (1.2 - radius * 0.7); // Reduced radial falloff
 
-    // Add a pulsing core
-    float pulse = 0.6 + 0.4 * sin(t * 1.8);
-    color += color2 * coreMask * 0.5 * pulse;
+    // Enhanced pulsing core
+    float pulse = 0.7 + 0.5 * sin(t * 2.0);
+    color += color2 * coreMask * 0.8 * pulse;
 
     // Dissolve
     float dissolve = 1.0 - dissolveProgress * 1.2;
     float dissolveMask = smoothstep(0.0, 0.35, smoothNoise(uv * 10.0 + t * 0.6) - dissolve);
 
-    // Alpha
-    float alpha = clamp((coreMask * 0.95 + spiral * 0.5) * dissolveMask, 0.0, 1.0);
-    alpha *= (0.9 - radius * 0.9);
+    // Alpha - enhanced visibility
+    float alpha = clamp((coreMask * 1.2 + spiral * 0.8 + rimMask * 0.4) * dissolveMask, 0.0, 1.0);
+    alpha *= (1.1 - radius * 0.8);
 
     // Final intensity & gamma correction
     color *= intensity;

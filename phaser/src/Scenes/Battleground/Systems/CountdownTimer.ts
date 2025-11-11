@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { createBlackHole } from "../BlackHole";
 
 // Module-level state
 let scene: Phaser.Scene | null = null;
@@ -48,6 +49,9 @@ function updateTimer(): void {
 		timerEvent?.destroy();
 		timerEvent = null;
 		// Keep the timer visible at 0
+
+		createBlackHole();
+
 	}
 }
 
