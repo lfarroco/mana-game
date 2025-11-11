@@ -7,6 +7,7 @@ import { clearAll, summon } from "@Systems/Chara/Chara";
 import { delay } from "@Utils/animation";
 import { clearPoison } from "./Systems/PoisonDamageSystem";
 import { clearRegen } from "./Systems/RegenSystem";
+import { destroyBlackHole } from "./BlackHole";
 
 export const hourAction: Record<number, string> = {
 	0: 'shop-core',
@@ -39,6 +40,8 @@ export async function startPhase() {
 }
 
 export function handlePhaseEnded(): void {
+
+	destroyBlackHole();
 
 	getState().gameData.hour++;
 

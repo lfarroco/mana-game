@@ -32,8 +32,6 @@ export class RunCombatSystem {
     this.active = true;
     Systems.CountdownTimer.start();
 
-
-
   };
 
   updateFrame(_time: number, delta: number): void {
