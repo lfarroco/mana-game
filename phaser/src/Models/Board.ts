@@ -33,7 +33,8 @@ export function createBoardState(): BoardState {
 export function renderBoardSlots(board: BoardState): void {
 	destroyVisuals(board);
 
-	const slotSpacing = 8;
+	const slotSpacingX = 8;
+	const slotSpacingY = 25;
 	board.slotShaders = [];
 	board.dropZones = [];
 	board.cpuSlotShaders = [];
@@ -55,8 +56,8 @@ export function renderBoardSlots(board: BoardState): void {
 				visualX = 2 - cell.x;
 			}
 
-			const zoneX = boardInfo.x + visualX * (constants.TILE_WIDTH + slotSpacing);
-			const zoneY = boardInfo.y + cell.y * (constants.TILE_HEIGHT + slotSpacing);
+			const zoneX = boardInfo.x + visualX * (constants.TILE_WIDTH + slotSpacingX);
+			const zoneY = boardInfo.y + cell.y * (constants.TILE_HEIGHT + slotSpacingY);
 
 			const slotX = zoneX + constants.TILE_WIDTH / 2;
 			const slotY = zoneY + constants.TILE_HEIGHT / 2;

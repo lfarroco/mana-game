@@ -9,24 +9,26 @@ export async function shatter(chara: Chara) {
 
 	const state = mustGetState(chara);
 
+	const { sprite } = state;
+
 	//shake the container
-	chara.x = chara.x + 10;
+	sprite.x = sprite.x + 10;
 
 	await tween({
-		targets: [chara],
-		x: chara.x - 20,
+		targets: [sprite],
+		x: sprite.x - 20,
 		repeat: 10,
 		duration: 100,
 		yoyo: true
 	});
 
-	state.sprite.visible = false;
+	sprite.visible = false;
 
 	const image = scene.add.rexShatterImage(chara.x, chara.y, state.sprite.texture.key);
 
 	image.setScale(
-		state.sprite.scaleX,
-		state.sprite.scaleY
+		sprite.scaleX,
+		sprite.scaleY
 	);
 
 	image.shatter(

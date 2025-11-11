@@ -252,18 +252,17 @@ export function shake(chara: Chara) {
 	if (state.isAnimating) return;
 	state.isAnimating = true;
 
-	const startingX = chara.x;
-	chara.x += 10;
+	const startingX = state.sprite.x;
+	state.sprite.x += 10;
 
 	tween({
-		targets: [chara],
-		x: chara.x - 20,
+		targets: [state.sprite],
+		x: state.sprite.x - 20,
 		duration: 100,
 		repeat: 3,
 		onComplete: () => {
 			state.isAnimating = false;
-			chara.x = startingX;
-			chara.alpha = 1;
+			state.sprite.x = startingX;
 		}
 	});
 }
