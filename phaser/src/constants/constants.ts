@@ -38,6 +38,7 @@ export const defaultTextConfig: Phaser.Types.GameObjects.Text.TextStyle = {
 	fontFamily: "'Arial', sans-serif",
 	stroke: "black",
 	strokeThickness: 4,
+	align: "center",
 };
 
 export const titleTextConfig: Phaser.Types.GameObjects.Text.TextStyle = {

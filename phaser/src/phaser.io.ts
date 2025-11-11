@@ -113,7 +113,7 @@ export function BorderedRoundRect(
 	const scene = getCurrentScene();
 	const actualPos = sumVec2(position, { x: -size.width / 2, y: -size.height / 2 })
 	const g = scene.add.graphics(actualPos);
-	g.lineStyle(4, 0xffffff, 0.8);
+	g.lineStyle(2, 0xffffff, 0.5);
 	g.fillStyle(color, alpha);
 	g.fillRoundedRect(0, 0, size.width, size.height, cornerRadius);
 	g.strokeRoundedRect(0, 0, size.width, size.height, cornerRadius);
