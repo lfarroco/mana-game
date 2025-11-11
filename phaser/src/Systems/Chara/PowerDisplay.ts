@@ -7,7 +7,7 @@ import { Chara } from "./Chara";
 const BOX_WIDTH_RATIO = 0.4;
 const BOX_HEIGHT_RATIO = 0.2;
 const STAT_BOX_CORNER_RADIUS_RATIO = 0.1;
-const STAT_BOX_MARGIN_RATIO = 0.35;
+const STAT_BOX_MARGIN_RATIO = 0.15;
 
 type StatsDisplay = {
 	powerDisplayBg: Graphics;
