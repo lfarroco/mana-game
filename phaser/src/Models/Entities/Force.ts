@@ -6,6 +6,7 @@ import { updateShieldDisplay } from "@Systems/Chara/ShieldDisplay";
 import { popText } from "@Systems/Chara/Animations";
 import { getCharaById } from "@Systems/Chara/Chara";
 import * as LifeDisplay from "@Systems/Chara/LifeDisplay";
+import * as ForceStats from "@Scenes/Battleground/ForceStats";
 
 export type Force = {
 	id: string;
@@ -56,7 +57,9 @@ export const manipulateCoreLife = (
 		text: critical ? `${amount} Crit!` : amount.toString(),
 		type: "heal",
 		critical
-	})
+	});
+
+	ForceStats.updateLifeDisplay(targetForce.id, core.life);
 
 	return actualChange;
 };
@@ -92,7 +95,9 @@ export const manipulateCoreShield = (
 			type: "shield",
 			critical: isCritical
 		})
-	}
+	};
+
+	ForceStats.updateShieldDisplay(targetForce.id, core.shield);
 
 	return actualChange;
 };

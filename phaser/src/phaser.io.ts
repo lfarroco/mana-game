@@ -7,6 +7,11 @@ export function BringToTop(obj: Phaser.GameObjects.GameObject) {
 	scene.children.bringToTop(obj);
 }
 
+export function MoveBelow(a: Phaser.GameObjects.GameObject, b: Phaser.GameObjects.GameObject) {
+	const scene = getCurrentScene();
+	scene.children.moveBelow(a, b);
+}
+
 export function Container(
 	children?: (Phaser.GameObjects.GameObject | (() => Phaser.GameObjects.GameObject) | ((prev: Phaser.GameObjects.GameObject) => Phaser.GameObjects.GameObject)[])[]
 ) {

@@ -1,8 +1,6 @@
 import { defaultTextConfig } from "@Constants/constants";
 import { asVec2, size } from "@Models/Geometry";
-import { getCurrentScene } from "@Models/State";
 import * as io from "@PhaserIO";
-
 
 const index = new Map<string, {
 	bg: Graphics;
@@ -16,8 +14,6 @@ export function createChip(
 	color: number,
 	value: string
 ) {
-
-	const scene = getCurrentScene();
 
 	const text = io.Text(
 		value,
@@ -36,11 +32,11 @@ export function createChip(
 		color
 	)
 
-	scene.children.moveBelow(bg, text)
+	io.MoveBelow(bg, text)
 
 	index.set(id, { bg, text, })
 
-	bg.on('destroy', () => {
+	io.OnceDestroyed(bg, () => {
 		index.delete(id);
 	});
 

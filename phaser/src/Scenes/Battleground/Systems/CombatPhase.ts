@@ -11,6 +11,7 @@ import * as Chara from "@Systems/Chara/Chara";
 import * as constants from "@Constants/constants";
 import { createUIButton } from "../../../Components/UIButton";
 import { vec2 } from "@Models/Geometry";
+import { createForceStats } from "../ForceStats";
 
 function createUnitCopy(unit: Unit): Unit {
 	return {
@@ -42,6 +43,9 @@ export async function transitionToCombatPhase(): Promise<void> {
 	combatUnits.forEach(u => {
 		Chara.summon(u, false);
 	});
+
+	createForceStats(constants.FORCE_ID_PLAYER);
+	createForceStats(constants.FORCE_ID_CPU);
 }
 
 export async function setupBattle(): Promise<{ enemies: Unit[]; }> {
