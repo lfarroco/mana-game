@@ -5,6 +5,7 @@ import { popText } from "@Systems/Chara/Animations";
 import { getCore } from "@Models/Entities/Card";
 import { getCharaById } from "@Systems/Chara/Chara";
 import { getCurrentScene } from "@Models/State";
+import { updateRegenDisplay } from "../ForceStats";
 
 const tickInterval: number = 1000;
 
@@ -47,13 +48,17 @@ export function applyRegen(
 		contribs.set(sourceUnitId, (contribs.get(sourceUnitId) || 0) + amount);
 	}
 
+	const coreChara = getCharaById(getCore(id).id);
+
 	popText({
-		x: getCharaById(id).x,
-		y: getCharaById(id).y,
-		text: critical ? `${amount} Crit!` : amount.toString(),
+		x: coreChara.x,
+		y: coreChara.y,
+		text: critical ? `${amount} Crit!` : Math.floor(amount).toString(),
 		type: "regen",
 		critical
-	})
+	});
+
+	updateRegenDisplay(targetForce.id, state.rate);
 }
 
 function tick() {

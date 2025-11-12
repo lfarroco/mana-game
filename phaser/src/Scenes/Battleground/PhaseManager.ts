@@ -8,8 +8,9 @@ import { delay } from "@Utils/animation";
 import { clearPoison } from "./Systems/PoisonDamageSystem";
 import { clearRegen } from "./Systems/RegenSystem";
 import { destroyBlackHole } from "./BlackHole";
+import { destroyForceStats } from "./ForceStats";
 
-export const hourAction: Record<number, string> = {
+const hourAction: Record<number, string> = {
 	0: 'shop-core',
 	1: 'shop',
 	2: 'shop',
@@ -41,7 +42,13 @@ export async function startPhase() {
 
 export function handlePhaseEnded(): void {
 
-	destroyBlackHole();
+	const currentPhase = hourAction[getState().gameData.hour];
+
+	if (currentPhase === 'combat') {
+		destroyBlackHole();
+		destroyForceStats(c.FORCE_ID_CPU);
+		destroyForceStats(c.FORCE_ID_PLAYER);
+	}
 
 	getState().gameData.hour++;
 

@@ -3,6 +3,8 @@ import * as CombatStatsTracker from "./CombatStatsTracker";
 import { getCurrentScene } from "@Models/State";
 import { popText } from "@Systems/Chara/Animations";
 import { getCharaById } from "@Systems/Chara/Chara";
+import { updatePoisonDisplay } from "../ForceStats";
+import { getCore } from "@Models/Entities/Card";
 
 const tickInterval: number = 1000;
 
@@ -40,13 +42,18 @@ export function applyPoison(targetForce: Force, amount: number, sourceUnitId?: s
 		contribs.set(sourceUnitId, (contribs.get(sourceUnitId) || 0) + amount);
 	}
 
+	const core = getCore(id);
+	const coreChara = getCharaById(core.id);
+
 	popText({
-		x: getCharaById(id).x,
-		y: getCharaById(id).y,
-		text: isCritical ? `${amount} Crit!` : amount.toString(),
+		x: coreChara.x,
+		y: coreChara.y,
+		text: isCritical ? `${amount} Crit!` : Math.floor(amount).toString(),
 		type: "poison",
 		critical: isCritical
-	})
+	});
+
+	updatePoisonDisplay(targetForce.id, state.rate);
 }
 
 export function tick() {
