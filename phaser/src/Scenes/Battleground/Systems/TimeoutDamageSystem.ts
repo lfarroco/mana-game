@@ -1,9 +1,8 @@
 import { applyDamageToForce, Force } from "@Models/Entities/Force";
 import { arcaneMissileTargeted } from '../../../Effects';
-import * as Systems from "../Systems";
 import { getCore } from "@Models/Entities/Card";
 import { getCharaById, shake } from "@Systems/Chara/Chara";
-import { MIDDLE_SCREEN_X } from "@Constants/constants";
+import { MIDDLE_SCREEN } from "@Constants/constants";
 
 const timeoutDamageStartTime = 10000;
 const timeoutDamageInterval = 1000;
@@ -22,10 +21,6 @@ export function initializeTimeoutDamageSystem(): void {
 
 async function spawnStar(damage: number, targetForce: Force) {
 
-	const timerCircle = Systems.CountdownTimer.getCircle();
-	const startX = timerCircle ? timerCircle.x : MIDDLE_SCREEN_X;
-	const startY = timerCircle ? timerCircle.y : -40;
-
 	const target = getCore(targetForce.id)
 
 	const core = getCharaById(target.id)
@@ -34,7 +29,7 @@ async function spawnStar(damage: number, targetForce: Force) {
 	const colors = [0x800080, 0xDA70D6, 0xFFD700];
 
 	arcaneMissileTargeted(
-		{ x: startX, y: startY },
+		MIDDLE_SCREEN,
 		core,
 		{
 			colors,

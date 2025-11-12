@@ -47,8 +47,9 @@ export function createChip(
 	return [bg, text]
 }
 
-export function updateText(id: string, value: string) {
-	const state = index.get(id)!;
+export function updateChipText(id: string, value: string) {
+	const state = index.get(id);
+	if (!state) return;
 
 	state.text.setText(value);
 }
