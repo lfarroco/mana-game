@@ -1,0 +1,268 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "boss_chaosknight_idle_000.png"
+        },
+        {
+          "frame": "boss_chaosknight_idle_001.png"
+        },
+        {
+          "frame": "boss_chaosknight_idle_002.png"
+        },
+        {
+          "frame": "boss_chaosknight_idle_003.png"
+        },
+        {
+          "frame": "boss_chaosknight_idle_004.png"
+        },
+        {
+          "frame": "boss_chaosknight_idle_005.png"
+        },
+        {
+          "frame": "boss_chaosknight_idle_006.png"
+        },
+        {
+          "frame": "boss_chaosknight_idle_007.png"
+        },
+        {
+          "frame": "boss_chaosknight_idle_008.png"
+        },
+        {
+          "frame": "boss_chaosknight_idle_009.png"
+        },
+        {
+          "frame": "boss_chaosknight_idle_010.png"
+        },
+        {
+          "frame": "boss_chaosknight_idle_011.png"
+        },
+        {
+          "frame": "boss_chaosknight_idle_012.png"
+        },
+        {
+          "frame": "boss_chaosknight_idle_013.png"
+        },
+        {
+          "frame": "boss_chaosknight_idle_014.png"
+        },
+        {
+          "frame": "boss_chaosknight_idle_015.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "boss_chaosknight_attack_000.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_001.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_002.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_003.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_004.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_005.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_006.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_007.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_008.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_009.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_010.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_011.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_012.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_013.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_014.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_015.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_016.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_017.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_018.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_019.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_020.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_021.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_022.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_023.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_024.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_025.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_026.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_027.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_028.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_029.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_030.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_031.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_032.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_033.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_034.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_035.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_036.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_037.png"
+        },
+        {
+          "frame": "boss_chaosknight_attack_038.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "boss_chaosknight_death_000.png"
+        },
+        {
+          "frame": "boss_chaosknight_death_001.png"
+        },
+        {
+          "frame": "boss_chaosknight_death_002.png"
+        },
+        {
+          "frame": "boss_chaosknight_death_003.png"
+        },
+        {
+          "frame": "boss_chaosknight_death_004.png"
+        },
+        {
+          "frame": "boss_chaosknight_death_005.png"
+        },
+        {
+          "frame": "boss_chaosknight_death_006.png"
+        },
+        {
+          "frame": "boss_chaosknight_death_007.png"
+        },
+        {
+          "frame": "boss_chaosknight_death_008.png"
+        },
+        {
+          "frame": "boss_chaosknight_death_009.png"
+        },
+        {
+          "frame": "boss_chaosknight_death_010.png"
+        },
+        {
+          "frame": "boss_chaosknight_death_011.png"
+        },
+        {
+          "frame": "boss_chaosknight_death_012.png"
+        },
+        {
+          "frame": "boss_chaosknight_death_013.png"
+        },
+        {
+          "frame": "boss_chaosknight_death_014.png"
+        },
+        {
+          "frame": "boss_chaosknight_death_015.png"
+        },
+        {
+          "frame": "boss_chaosknight_death_016.png"
+        },
+        {
+          "frame": "boss_chaosknight_death_017.png"
+        },
+        {
+          "frame": "boss_chaosknight_death_018.png"
+        },
+        {
+          "frame": "boss_chaosknight_death_019.png"
+        },
+        {
+          "frame": "boss_chaosknight_death_020.png"
+        },
+        {
+          "frame": "boss_chaosknight_death_021.png"
+        },
+        {
+          "frame": "boss_chaosknight_death_022.png"
+        },
+        {
+          "frame": "boss_chaosknight_death_023.png"
+        },
+        {
+          "frame": "boss_chaosknight_death_024.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

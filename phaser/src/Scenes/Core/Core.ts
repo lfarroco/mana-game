@@ -57,6 +57,18 @@ export default class Core extends Phaser.Scene {
 			'neutral_golemnature',
 			'neutral_golemstone',
 			'boss_shadowlord',
+			'boss_borealjuggernaut',
+			'boss_chaosknight',
+			'boss_cindera',
+			'boss_crystal',
+			'f1_peacekeeper',
+			'f1_radiantdragoon',
+			'f1_rightfulheir',
+			'f1_shieldforger',
+			'f1_sinergyunit',
+			'f1_sister',
+			'f2_chakriavatar'
+
 		].forEach((key) => {
 			this.load.atlas(key, `assets/heroes/${key}.png`, `assets/heroes/${key}.json`);
 			this.load.animation(`${key}-anims`, `assets/heroes/${key}-anims.json`);
