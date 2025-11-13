@@ -29,17 +29,19 @@ export type InputHandler = {
 
 export function init(chara: Chara.Chara) {
 
+	const unit = Chara.getUnit(chara)
+
 	const state: InputHandler = {
 		wasDragSuccessful: false,
 		chara,
-		unitId: Chara.getUnit(chara).id,
+		unitId: unit.id,
 		isLongPressActive: false,
 	};
 
 	const isPlayerUnit = Chara.getUnit(chara).force === constants.FORCE_ID_PLAYER
 	const isShopUnit = Chara.isShopItem(state.unitId)
 
-	if (isPlayerUnit || isShopUnit) {
+	if (isPlayerUnit || (unit.force === constants.FORCE_ID_PLAYER && isShopUnit)) {
 		scene.input.setDraggable(chara, true);
 
 		chara.on(Phaser.Input.Events.DRAG_START, onDragStart(state));

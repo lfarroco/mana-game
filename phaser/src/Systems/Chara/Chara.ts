@@ -98,13 +98,13 @@ export function create(unit: Unit): Chara {
 	charaById.set(unit.id, container);
 
 	container.on(Phaser.Input.Events.POINTER_OVER, () => {
-		if (isShopItem(unit.id)) {
+		if (unit.force === constants.FORCE_ID_PLAYER && isShopItem(unit.id)) {
 			return;
 		}
 		CharaTooltip.onCharaPointerOver(container);
 	});
 	container.on(Phaser.Input.Events.POINTER_OUT, () => {
-		if (isShopItem(unit.id)) {
+		if (unit.force === constants.FORCE_ID_PLAYER && isShopItem(unit.id)) {
 			return;
 		}
 		CharaTooltip.onCharaPointerOut();
