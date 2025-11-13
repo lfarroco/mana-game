@@ -1,0 +1,265 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "boss_cindera_idle_000.png"
+        },
+        {
+          "frame": "boss_cindera_idle_001.png"
+        },
+        {
+          "frame": "boss_cindera_idle_002.png"
+        },
+        {
+          "frame": "boss_cindera_idle_003.png"
+        },
+        {
+          "frame": "boss_cindera_idle_004.png"
+        },
+        {
+          "frame": "boss_cindera_idle_005.png"
+        },
+        {
+          "frame": "boss_cindera_idle_006.png"
+        },
+        {
+          "frame": "boss_cindera_idle_007.png"
+        },
+        {
+          "frame": "boss_cindera_idle_008.png"
+        },
+        {
+          "frame": "boss_cindera_idle_009.png"
+        },
+        {
+          "frame": "boss_cindera_idle_010.png"
+        },
+        {
+          "frame": "boss_cindera_idle_011.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "boss_cindera_attack_000.png"
+        },
+        {
+          "frame": "boss_cindera_attack_001.png"
+        },
+        {
+          "frame": "boss_cindera_attack_002.png"
+        },
+        {
+          "frame": "boss_cindera_attack_003.png"
+        },
+        {
+          "frame": "boss_cindera_attack_004.png"
+        },
+        {
+          "frame": "boss_cindera_attack_005.png"
+        },
+        {
+          "frame": "boss_cindera_attack_006.png"
+        },
+        {
+          "frame": "boss_cindera_attack_007.png"
+        },
+        {
+          "frame": "boss_cindera_attack_008.png"
+        },
+        {
+          "frame": "boss_cindera_attack_009.png"
+        },
+        {
+          "frame": "boss_cindera_attack_010.png"
+        },
+        {
+          "frame": "boss_cindera_attack_011.png"
+        },
+        {
+          "frame": "boss_cindera_attack_012.png"
+        },
+        {
+          "frame": "boss_cindera_attack_013.png"
+        },
+        {
+          "frame": "boss_cindera_attack_014.png"
+        },
+        {
+          "frame": "boss_cindera_attack_015.png"
+        },
+        {
+          "frame": "boss_cindera_attack_016.png"
+        },
+        {
+          "frame": "boss_cindera_attack_017.png"
+        },
+        {
+          "frame": "boss_cindera_attack_018.png"
+        },
+        {
+          "frame": "boss_cindera_attack_019.png"
+        },
+        {
+          "frame": "boss_cindera_attack_020.png"
+        },
+        {
+          "frame": "boss_cindera_attack_021.png"
+        },
+        {
+          "frame": "boss_cindera_attack_022.png"
+        },
+        {
+          "frame": "boss_cindera_attack_023.png"
+        },
+        {
+          "frame": "boss_cindera_attack_024.png"
+        },
+        {
+          "frame": "boss_cindera_attack_025.png"
+        },
+        {
+          "frame": "boss_cindera_attack_026.png"
+        },
+        {
+          "frame": "boss_cindera_attack_027.png"
+        },
+        {
+          "frame": "boss_cindera_attack_028.png"
+        },
+        {
+          "frame": "boss_cindera_attack_029.png"
+        },
+        {
+          "frame": "boss_cindera_attack_030.png"
+        },
+        {
+          "frame": "boss_cindera_attack_031.png"
+        },
+        {
+          "frame": "boss_cindera_attack_032.png"
+        },
+        {
+          "frame": "boss_cindera_attack_033.png"
+        },
+        {
+          "frame": "boss_cindera_attack_034.png"
+        },
+        {
+          "frame": "boss_cindera_attack_035.png"
+        },
+        {
+          "frame": "boss_cindera_attack_036.png"
+        },
+        {
+          "frame": "boss_cindera_attack_037.png"
+        },
+        {
+          "frame": "boss_cindera_attack_038.png"
+        },
+        {
+          "frame": "boss_cindera_attack_039.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "boss_cindera_death_000.png"
+        },
+        {
+          "frame": "boss_cindera_death_001.png"
+        },
+        {
+          "frame": "boss_cindera_death_002.png"
+        },
+        {
+          "frame": "boss_cindera_death_003.png"
+        },
+        {
+          "frame": "boss_cindera_death_004.png"
+        },
+        {
+          "frame": "boss_cindera_death_005.png"
+        },
+        {
+          "frame": "boss_cindera_death_006.png"
+        },
+        {
+          "frame": "boss_cindera_death_007.png"
+        },
+        {
+          "frame": "boss_cindera_death_008.png"
+        },
+        {
+          "frame": "boss_cindera_death_009.png"
+        },
+        {
+          "frame": "boss_cindera_death_010.png"
+        },
+        {
+          "frame": "boss_cindera_death_011.png"
+        },
+        {
+          "frame": "boss_cindera_death_012.png"
+        },
+        {
+          "frame": "boss_cindera_death_013.png"
+        },
+        {
+          "frame": "boss_cindera_death_014.png"
+        },
+        {
+          "frame": "boss_cindera_death_015.png"
+        },
+        {
+          "frame": "boss_cindera_death_016.png"
+        },
+        {
+          "frame": "boss_cindera_death_017.png"
+        },
+        {
+          "frame": "boss_cindera_death_018.png"
+        },
+        {
+          "frame": "boss_cindera_death_019.png"
+        },
+        {
+          "frame": "boss_cindera_death_020.png"
+        },
+        {
+          "frame": "boss_cindera_death_021.png"
+        },
+        {
+          "frame": "boss_cindera_death_022.png"
+        },
+        {
+          "frame": "boss_cindera_death_023.png"
+        },
+        {
+          "frame": "boss_cindera_death_024.png"
+        },
+        {
+          "frame": "boss_cindera_death_025.png"
+        },
+        {
+          "frame": "boss_cindera_death_026.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

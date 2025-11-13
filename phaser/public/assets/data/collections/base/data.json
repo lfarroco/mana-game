@@ -265,7 +265,7 @@
 		{
 			"id": "commander",
 			"name": "Commander",
-			"pic": "f1_tank",
+			"pic": "f1_shieldforger",
 			"power": 10,
 			"cooldown": 4000,
 			"effects": [
@@ -281,7 +281,7 @@
 		{
 			"id": "berserker",
 			"name": "Berserker",
-			"pic": "boss_shadowlord",
+			"pic": "f2_chakriavatar",
 			"power": 20,
 			"critical": 10,
 			"cooldown": 3000,
@@ -307,9 +307,9 @@
 			]
 		},
 		{
-			"id": "venomous_spitter",
-			"name": "Venomous Spitter",
-			"pic": "neutral_amu",
+			"id": "chaos_knight",
+			"name": "Chaos Knight",
+			"pic": "boss_chaosknight",
 			"power": 8,
 			"cooldown": 3500,
 			"effects": [
@@ -329,7 +329,7 @@
 		{
 			"id": "chronomancer",
 			"name": "Chronomancer",
-			"pic": "f3_windgiver",
+			"pic": "f1_rightfulheir",
 			"power": 5,
 			"cooldown": 4000,
 			"effects": [
@@ -348,7 +348,7 @@
 		{
 			"id": "golem_juggernaut",
 			"name": "Golem Juggernaut",
-			"pic": "neutral_golemstone",
+			"pic": "boss_borealjuggernaut",
 			"power": 30,
 			"cooldown": 6000,
 			"effects": [
@@ -375,7 +375,7 @@
 		{
 			"id": "poisoners_apprentice",
 			"name": "Poisoner's Apprentice",
-			"pic": "boss_spelleater",
+			"pic": "f1_peacekeeper",
 			"power": 5,
 			"cooldown": 3000,
 			"effects": [
@@ -395,7 +395,7 @@
 		{
 			"id": "spirit_of_the_forest",
 			"name": "Spirit of the Forest",
-			"pic": "neutral_golemnature",
+			"pic": "boss_crystal",
 			"power": 8,
 			"cooldown": 3200,
 			"effects": [
@@ -415,7 +415,7 @@
 		{
 			"id": "time_shifter",
 			"name": "Time-shifter",
-			"pic": "f3_windgiver",
+			"pic": "f1_sister",
 			"power": 6,
 			"cooldown": 3800,
 			"effects": [
@@ -432,7 +432,7 @@
 		{
 			"id": "glass_cannon",
 			"name": "Glass Cannon",
-			"pic": "neutral_arrowwhistler",
+			"pic": "f1_sinergyunit",
 			"power": 50,
 			"cooldown": 3000,
 			"effects": [

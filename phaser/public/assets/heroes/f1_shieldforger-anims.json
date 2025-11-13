@@ -1,0 +1,199 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f1_shieldforger_idle_000.png"
+        },
+        {
+          "frame": "f1_shieldforger_idle_001.png"
+        },
+        {
+          "frame": "f1_shieldforger_idle_002.png"
+        },
+        {
+          "frame": "f1_shieldforger_idle_003.png"
+        },
+        {
+          "frame": "f1_shieldforger_idle_004.png"
+        },
+        {
+          "frame": "f1_shieldforger_idle_005.png"
+        },
+        {
+          "frame": "f1_shieldforger_idle_006.png"
+        },
+        {
+          "frame": "f1_shieldforger_idle_007.png"
+        },
+        {
+          "frame": "f1_shieldforger_idle_008.png"
+        },
+        {
+          "frame": "f1_shieldforger_idle_009.png"
+        },
+        {
+          "frame": "f1_shieldforger_idle_010.png"
+        },
+        {
+          "frame": "f1_shieldforger_idle_011.png"
+        },
+        {
+          "frame": "f1_shieldforger_idle_012.png"
+        },
+        {
+          "frame": "f1_shieldforger_idle_013.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f1_shieldforger_attack_000.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_001.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_002.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_003.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_004.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_005.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_006.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_007.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_008.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_009.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_010.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_011.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_012.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_013.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_014.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_015.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_016.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_017.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_018.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_019.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_020.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_021.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_022.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_023.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_024.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_025.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_026.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_027.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_028.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_029.png"
+        },
+        {
+          "frame": "f1_shieldforger_attack_030.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f1_shieldforger_death_000.png"
+        },
+        {
+          "frame": "f1_shieldforger_death_001.png"
+        },
+        {
+          "frame": "f1_shieldforger_death_002.png"
+        },
+        {
+          "frame": "f1_shieldforger_death_003.png"
+        },
+        {
+          "frame": "f1_shieldforger_death_004.png"
+        },
+        {
+          "frame": "f1_shieldforger_death_005.png"
+        },
+        {
+          "frame": "f1_shieldforger_death_006.png"
+        },
+        {
+          "frame": "f1_shieldforger_death_007.png"
+        },
+        {
+          "frame": "f1_shieldforger_death_008.png"
+        },
+        {
+          "frame": "f1_shieldforger_death_009.png"
+        },
+        {
+          "frame": "f1_shieldforger_death_010.png"
+        },
+        {
+          "frame": "f1_shieldforger_death_011.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

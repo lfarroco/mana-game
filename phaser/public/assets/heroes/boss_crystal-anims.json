@@ -1,0 +1,130 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "boss_crystal_idle_000.png"
+        },
+        {
+          "frame": "boss_crystal_idle_001.png"
+        },
+        {
+          "frame": "boss_crystal_idle_002.png"
+        },
+        {
+          "frame": "boss_crystal_idle_003.png"
+        },
+        {
+          "frame": "boss_crystal_idle_004.png"
+        },
+        {
+          "frame": "boss_crystal_idle_005.png"
+        },
+        {
+          "frame": "boss_crystal_idle_006.png"
+        },
+        {
+          "frame": "boss_crystal_idle_007.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "boss_crystal_attack_000.png"
+        },
+        {
+          "frame": "boss_crystal_attack_001.png"
+        },
+        {
+          "frame": "boss_crystal_attack_002.png"
+        },
+        {
+          "frame": "boss_crystal_attack_003.png"
+        },
+        {
+          "frame": "boss_crystal_attack_004.png"
+        },
+        {
+          "frame": "boss_crystal_attack_005.png"
+        },
+        {
+          "frame": "boss_crystal_attack_006.png"
+        },
+        {
+          "frame": "boss_crystal_attack_007.png"
+        },
+        {
+          "frame": "boss_crystal_attack_008.png"
+        },
+        {
+          "frame": "boss_crystal_attack_009.png"
+        },
+        {
+          "frame": "boss_crystal_attack_010.png"
+        },
+        {
+          "frame": "boss_crystal_attack_011.png"
+        },
+        {
+          "frame": "boss_crystal_attack_012.png"
+        },
+        {
+          "frame": "boss_crystal_attack_013.png"
+        },
+        {
+          "frame": "boss_crystal_attack_014.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "boss_crystal_death_000.png"
+        },
+        {
+          "frame": "boss_crystal_death_001.png"
+        },
+        {
+          "frame": "boss_crystal_death_002.png"
+        },
+        {
+          "frame": "boss_crystal_death_003.png"
+        },
+        {
+          "frame": "boss_crystal_death_004.png"
+        },
+        {
+          "frame": "boss_crystal_death_005.png"
+        },
+        {
+          "frame": "boss_crystal_death_006.png"
+        },
+        {
+          "frame": "boss_crystal_death_007.png"
+        },
+        {
+          "frame": "boss_crystal_death_008.png"
+        },
+        {
+          "frame": "boss_crystal_death_009.png"
+        },
+        {
+          "frame": "boss_crystal_death_010.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}
