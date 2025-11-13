@@ -45,7 +45,7 @@
 			"effects": [
 				{
 					"id": "increase_critical",
-					"amount": 50,
+					"amount": 20,
 					"targets": {
 						"id": "column_allies"
 					}
@@ -358,7 +358,7 @@
 			"name": "Thunder Conduit",
 			"pic": "boss_borealjuggernaut",
 			"power": 30,
-			"cooldown": 6000,
+			"cooldown": 8200,
 			"effects": [
 				{
 					"id": "damage"
