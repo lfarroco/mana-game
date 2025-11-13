@@ -192,43 +192,46 @@ function processReactions(
 		return;
 	}
 
-	const unitEffectListeners = state.battleData.units
+	state.battleData.units
+		.filter(u => u.force === triggeringUnit.force)
 		.filter(u => u.id != triggeringUnit.id)
-		.filter(u => {
-			return u.reactions.some(r => r.effectId === effect.id);
-		});
+		.forEach(u => {
 
-	unitEffectListeners.forEach(u => {
-		const eligible = u.reactions.filter(r => {
-			switch (r.position) {
-				case "all":
-					return true;
-				case "allies":
-					return u.force === triggeringUnit.force;
-				case "enemies":
-					return u.force !== triggeringUnit.force;
-				case "row_allies":
-					return u.force === triggeringUnit.force && u.position.x === u.position.x;
-				case "column_allies":
-					return u.force === triggeringUnit.force && u.position.y === u.position.y;
-				case "top_ally":
-					return u.force === triggeringUnit.force && triggeringUnit?.position.y - 1 === u.position.y;
-				case "bottom_ally":
-					return u.force === triggeringUnit.force && triggeringUnit?.position.y + 1 === u.position.y;
-				case "left_ally":
-					return u.force === triggeringUnit.force && triggeringUnit?.position.x - 1 === u.position.x;
-				case "right_ally":
-					return u.force === triggeringUnit.force && triggeringUnit?.position.x + 1 === u.position.x;
-				default:
-					const _exhaustiveCheck: never = r.position;
-					return _exhaustiveCheck;
-			}
-		});
+			const reactions = u.reactions.filter(r => {
 
-		eligible.forEach(r => {
-			processEffectsIO(u, r.effects);
+				if (r.effectId !== effect.id && r.effectId !== "all") {
+					return false;
+				}
+
+				switch (r.position) {
+					case "all":
+						return true;
+					case "allies":
+						return u.force === triggeringUnit.force;
+					case "enemies":
+						return u.force !== triggeringUnit.force;
+					case "row_allies":
+						return u.force === triggeringUnit.force && u.position.x === u.position.x;
+					case "column_allies":
+						return u.force === triggeringUnit.force && u.position.y === u.position.y;
+					case "top_ally":
+						return u.force === triggeringUnit.force && triggeringUnit?.position.y - 1 === u.position.y;
+					case "bottom_ally":
+						return u.force === triggeringUnit.force && triggeringUnit?.position.y + 1 === u.position.y;
+					case "left_ally":
+						return u.force === triggeringUnit.force && triggeringUnit?.position.x - 1 === u.position.x;
+					case "right_ally":
+						return u.force === triggeringUnit.force && triggeringUnit?.position.x + 1 === u.position.x;
+					default:
+						const _exhaustiveCheck: never = r.position;
+						return _exhaustiveCheck;
+				}
+			});
+
+			reactions.forEach(r => {
+				processEffectsIO(u, r.effects);
+			});
 		});
-	});
 
 }
 

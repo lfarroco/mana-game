@@ -22,7 +22,7 @@
 			"reactions": [
 				{
 					"position": "all",
-					"effectId": "damage",
+					"effectId": "all",
 					"effects": [
 						{
 							"id": "charge",
@@ -310,17 +310,25 @@
 			"id": "chaos_knight",
 			"name": "Chaos Knight",
 			"pic": "boss_chaosknight",
-			"power": 8,
+			"power": 30,
 			"cooldown": 3500,
 			"effects": [
 				{
-					"id": "poison"
+					"id": "damage"
 				},
 				{
 					"id": "slow",
 					"duration": 1500,
 					"targets": {
 						"id": "random_enemy",
+						"count": 1
+					}
+				},
+				{
+					"id": "slow",
+					"duration": 1500,
+					"targets": {
+						"id": "random_ally",
 						"count": 1
 					}
 				}
@@ -373,21 +381,21 @@
 			]
 		},
 		{
-			"id": "poisoners_apprentice",
-			"name": "Poisoner's Apprentice",
+			"id": "peacekeeper",
+			"name": "Peacekeeper",
 			"pic": "f1_peacekeeper",
-			"power": 5,
-			"cooldown": 3000,
+			"power": 20,
+			"cooldown": 3200,
 			"effects": [
 				{
-					"id": "poison"
+					"id": "shield"
 				},
 				{
 					"id": "increase_power",
-					"amount": 3,
+					"amount": 5,
 					"targets": {
 						"id": "all_allies",
-						"ofType": "poison"
+						"ofType": "shield"
 					}
 				}
 			]
