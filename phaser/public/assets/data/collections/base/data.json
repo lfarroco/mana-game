@@ -354,24 +354,31 @@
 			]
 		},
 		{
-			"id": "golem_juggernaut",
-			"name": "Golem Juggernaut",
+			"id": "thunder_conduit",
+			"name": "Thunder Conduit",
 			"pic": "boss_borealjuggernaut",
 			"power": 30,
 			"cooldown": 6000,
 			"effects": [
 				{
 					"id": "damage"
+				},
+				{
+					"id": "charge",
+					"amount": 1000,
+					"targets": {
+						"id": "column_allies"
+					}
 				}
 			],
 			"reactions": [
 				{
 					"position": "allies",
-					"effectId": "damage",
+					"effectId": "haste",
 					"effects": [
 						{
-							"id": "charge",
-							"amount": 1000,
+							"id": "increase_power",
+							"amount": 5,
 							"targets": {
 								"id": "self"
 							}
