@@ -132,8 +132,17 @@ export const onCharaPointerOver = (chara: Chara): void => {
 	const charaWorldX = worldMatrix.tx;
 	const charaWorldY = worldMatrix.ty;
 
+	const screenWidth = chara.scene.sys.game.config.width as number;
+	const isRightSide = charaWorldX > screenWidth / 2;
+
 	const TOOLTIP_OFFSET_X = 400;
-	const tooltipX = charaWorldX + chara.displayWidth + TOOLTIP_OFFSET_X;
+	let tooltipX: number;
+
+	if (isRightSide) {
+		tooltipX = charaWorldX - TOOLTIP_OFFSET_X;
+	} else {
+		tooltipX = charaWorldX + chara.displayWidth + TOOLTIP_OFFSET_X;
+	}
 	const CHAR_TOP = charaWorldY - chara.displayHeight / 2;
 
 	const EXTRA_OFFSET = -20;
