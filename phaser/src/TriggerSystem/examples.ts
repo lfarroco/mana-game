@@ -8,7 +8,7 @@ export const reactions: EffectReaction[] = [
 		effects: [
 			{
 				id: "charge",
-				amount: 1,
+				duration: 1000,
 				targets: { id: "self" },
 			},
 		]

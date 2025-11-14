@@ -21,12 +21,12 @@
 			],
 			"reactions": [
 				{
-					"position": "all",
+					"position": "allies",
 					"effectId": "all",
 					"effects": [
 						{
 							"id": "charge",
-							"amount": 1000,
+							"duration": 1000,
 							"targets": {
 								"id": "self"
 							}
@@ -45,10 +45,25 @@
 			"effects": [
 				{
 					"id": "increase_critical",
-					"amount": 20,
+					"amount": 10,
 					"targets": {
-						"id": "column_allies"
+						"id": "all_allies"
 					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "damage",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 2,
+							"targets": {
+								"id": "triggering_unit"
+							}
+						}
+					]
 				}
 			]
 		},
@@ -56,30 +71,22 @@
 			"id": "shield_core",
 			"name": "Shield Core",
 			"pic": "yellow-stone",
-			"life": 500,
+			"life": 600,
 			"cooldown": 3000,
 			"isCore": true,
-			"reflect": 10,
-			"effects": [
-				{
-					"id": "increase_power",
-					"amount": 5,
-					"targets": {
-						"id": "all_allies",
-						"ofType": "shield"
-					}
-				}
-			],
+			"reflect": 20,
+			"effects": [],
 			"reactions": [
 				{
-					"position": "all",
+					"position": "allies",
 					"effectId": "shield",
 					"effects": [
 						{
-							"id": "charge",
-							"amount": 1000,
+							"id": "increase_power",
+							"amount": 5,
 							"targets": {
-								"id": "self"
+								"id": "all_allies",
+								"ofType": "shield"
 							}
 						}
 					]
@@ -93,7 +100,22 @@
 			"life": 500,
 			"cooldown": 3000,
 			"isCore": true,
-			"effects": []
+			"effects": [],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "heal",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 3,
+							"targets": {
+								"id": "all_allies"
+							}
+						}
+					]
+				}
+			]
 		},
 		{
 			"id": "purple_core",
@@ -102,7 +124,54 @@
 			"life": 500,
 			"cooldown": 3000,
 			"isCore": true,
-			"effects": []
+			"effects": [
+				{
+					"id": "slow",
+					"duration": 1000,
+					"targets": {
+						"id": "random_enemy",
+						"count": 1
+					}
+				},
+				{
+					"id": "haste",
+					"duration": 3000,
+					"targets": {
+						"id": "random_ally",
+						"count": 1
+					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "haste",
+					"effects": [
+						{
+							"id": "slow",
+							"duration": 1000,
+							"targets": {
+								"id": "random_enemy",
+								"count": 1
+							}
+						}
+					]
+				},
+				{
+					"position": "allies",
+					"effectId": "slow",
+					"effects": [
+						{
+							"id": "haste",
+							"duration": 1000,
+							"targets": {
+								"id": "random_ally",
+								"count": 1
+							}
+						}
+					]
+				}
+			]
 		},
 		{
 			"id": "void_witch",
@@ -123,7 +192,21 @@
 					}
 				}
 			],
-			"reactions": []
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "slow",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
 		},
 		{
 			"id": "Living Armor",
@@ -136,7 +219,21 @@
 					"id": "shield"
 				}
 			],
-			"reactions": []
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "damage",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "triggering_unit"
+							}
+						}
+					]
+				}
+			]
 		},
 		{
 			"id": "thunder_mech",
@@ -148,17 +245,60 @@
 				{
 					"id": "damage"
 				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "haste",
+					"effects": [
+						{
+							"id": "increase_critical",
+							"amount": 15,
+							"targets": {
+								"id": "column_allies"
+							}
+						}
+					]
+				}
 			]
 		},
 		{
 			"id": "timebender",
 			"name": "Time Bender",
 			"pic": "boss_spelleater",
-			"power": 14,
-			"cooldown": 3000,
+			"power": 10,
+			"cooldown": 5000,
 			"effects": [
 				{
-					"id": "poison"
+					"id": "shield"
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "haste",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				},
+				{
+					"position": "allies",
+					"effectId": "slow",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
 				}
 			]
 		},
@@ -171,6 +311,21 @@
 			"effects": [
 				{
 					"id": "damage"
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "heal",
+					"effects": [
+						{
+							"id": "charge",
+							"duration": 1000,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
 				}
 			]
 		},
@@ -185,7 +340,21 @@
 					"id": "poison"
 				}
 			],
-			"reactions": []
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "slow",
+					"effects": [
+						{
+							"id": "charge",
+							"duration": 1000,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
 		},
 		{
 			"id": "diana",
@@ -197,6 +366,21 @@
 				{
 					"id": "damage"
 				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "shield",
+					"effects": [
+						{
+							"id": "haste",
+							"duration": 1000,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
 			]
 		},
 		{
@@ -204,10 +388,38 @@
 			"name": "Moss Golem",
 			"pic": "neutral_golemnature",
 			"power": 10,
-			"cooldown": 3200,
+			"cooldown": 5200,
 			"effects": [
 				{
-					"id": "regen"
+					"id": "damage"
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "regen",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				},
+				{
+					"position": "allies",
+					"effectId": "heal",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
 				}
 			]
 		},
@@ -220,16 +432,23 @@
 			"effects": [
 				{
 					"id": "shield"
-				},
-				{
-					"id": "haste",
-					"duration": 1000,
-					"targets": {
-						"id": "row_allies"
-					}
 				}
 			],
-			"reactions": []
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "damage",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
 		},
 		{
 			"id": "shadow_assassin",
@@ -365,7 +584,7 @@
 				},
 				{
 					"id": "charge",
-					"amount": 1000,
+					"duration": 1000,
 					"targets": {
 						"id": "column_allies"
 					}
@@ -392,7 +611,7 @@
 			"name": "Peacekeeper",
 			"pic": "f1_peacekeeper",
 			"power": 20,
-			"cooldown": 3200,
+			"cooldown": 6200,
 			"effects": [
 				{
 					"id": "shield"
