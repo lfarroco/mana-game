@@ -6,11 +6,12 @@ import { arcaneMissileTargeted } from '../../Effects';
 export const increasePower = async (
 	targets: Unit[],
 	amount: number,
+	permanent: boolean,
 	sourceUnit?: Unit // sources like orbs apply direct power increase
 ) => {
 
 	const effect = (targetChara: Chara) => async () => {
-		updateUnitPower(targetChara, amount);
+		updateUnitPower(targetChara, amount, permanent);
 		AudioManager.playSoundEffect('sfx_spell_innerfocus');
 	}
 

@@ -125,7 +125,7 @@ function upgradeEffect(rank: number, eff: TriggerSystem.Effect) {
     return;
 
 
-  if (["increase_power", "increase_power_on_type", "multiply_power", "increase_critical"].includes(eff.id)) {
+  if (["increase_power", "multiply_power", "increase_critical"].includes(eff.id)) {
     if ('amount' in eff) {
       if (rank === 2)
         eff.amount = eff.amount * 2;

@@ -29,17 +29,13 @@ export type Effect = {
 	targets: Targeting,
 } | {
 	id: "charge",
-	amount: number,
+	duration: number,
 	targets: Targeting,
 } | {
 	id: "increase_power",
 	amount: number,
+	permanent?: boolean,
 	targets: Targeting,
-} | {
-	id: "increase_power_on_type",
-	amount: number,
-	targets: Targeting,
-	targetEffectId: string,
 } | {
 	id: "multiply_power",
 	multiplier: number,
@@ -63,8 +59,6 @@ type Targeting = {
 } | {
 	id: "column_allies",
 } | {
-	// TODO: we have both this and "increase_power_on_type"
-	// should decide on which one to keep
 	id: "all_allies",
 	ofType: "any" | "damage" | "heal" | "shield" | "poison" | "regen"
 } | {
@@ -143,27 +137,16 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
 			break;
 		case "charge":
 			const chargeTargets = resolveTargets(sourceUnit, effect);
-			effects.applyChargeLogicIO(sourceUnit, chargeTargets, effect.amount);
+			effects.applyChargeLogicIO(sourceUnit, chargeTargets, effect.duration);
 			break;
 		case "increase_power":
 			const increasePowerTargets = resolveTargets(sourceUnit, effect);
-			effects.increasePower(increasePowerTargets, effect.amount, sourceUnit);
+			effects.increasePower(increasePowerTargets, effect.amount, effect.permanent || false, sourceUnit);
 			break;
 		case "increase_critical":
 			const increaseCriticalTargets = resolveTargets(sourceUnit, effect);
 			effects.increaseCritical(increaseCriticalTargets, effect.amount, sourceUnit);
 			break;
-		case "increase_power_on_type": {
-			const allTargets = resolveTargets(sourceUnit, effect);
-			const filtered = allTargets.filter(u => u.effects.some(e => e.id === effect.targetEffectId));
-			if (filtered.length === 0) break;
-			effects.increasePower(
-				filtered,
-				effect.amount,
-				sourceUnit
-			);
-			break;
-		}
 		case "multiply_power":
 			effects.multiplyPower({
 				targets: resolveTargets(sourceUnit, effect),
@@ -186,7 +169,7 @@ function processReactions(
 ) {
 
 	if (
-		["charge", "increase_power", "increase_power_on_type", "multiply_power"]
+		["charge", "increase_power", "increase_power", "multiply_power"]
 			.includes(effect.id)
 	) {
 		return;
@@ -241,7 +224,7 @@ function resolveTargets(sourceUnit: Unit, effect: Effect): Unit[] {
 		return [];
 	}
 
-	const filterOutCore = ["increase_power", "increase_power_on_type", "multiply_power", "increase_critical"]
+	const filterOutCore = ["increase_power", "multiply_power", "increase_critical"]
 		.includes(effect.id);
 
 	const allUnits = state.battleData.units.filter(u => !u.isCore || !filterOutCore);

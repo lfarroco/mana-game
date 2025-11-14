@@ -199,7 +199,7 @@ export function getId(chara: Chara): string {
 	return mustGetState(chara).id;
 }
 
-export function updateUnitPower(chara: Chara, num: number) {
+export function updateUnitPower(chara: Chara, num: number, permanent?: boolean) {
 	const s = mustGetState(chara);
 	const { unit } = s;
 	const positive = num >= 0;
@@ -214,6 +214,11 @@ export function updateUnitPower(chara: Chara, num: number) {
 		y: chara.y,
 		text,
 	});
+
+	if (permanent && unit.force === constants.FORCE_ID_PLAYER) {
+		const playerUnit = getState().gameData.player.units.find(u => u.id === unit.id)!;
+		playerUnit.power += num;
+	}
 }
 
 export function updateUnitCritical(chara: Chara, num: number) {
@@ -275,9 +280,9 @@ export async function upgrade(unit: Unit) {
 	if (source.power)
 		updateUnitPower(chara, source.power);
 
-	upgradeUnitEffects(unit);
-
 	unit.rank = unit.rank + 1;
+
+	upgradeUnitEffects(unit);
 
 	chara.destroy();
 

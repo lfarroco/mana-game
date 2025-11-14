@@ -29,16 +29,12 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string => {
 			return withTargets(`[color=#d0bfff][b]Slow[/b][/color] [color=#ffa94d]${dur}s[/color]`, effect.targets);
 		}
 		case "charge":
-			const dur = (effect.amount / 1000).toFixed(1);
+			const dur = (effect.duration / 1000).toFixed(1);
 			return withTargets(`[color=#ffe066]Charge[/color] [color=#ffd93d]${dur}s[/color]`, effect.targets);
 		case "increase_power":
 			return withTargets(`[color=#ff8cc8]Increase Power[/color] [color=#ffd93d]${effect.amount}[/color]`, effect.targets);
 		case "increase_critical":
 			return withTargets(`[color=#ff8cc8]Increase Critical[/color] [color=#ffd93d]${effect.amount}[/color]`, effect.targets);
-		case "increase_power_on_type": {
-			const base = `[color=#ff8cc8]Increase Power[/color] [color=#ffd93d]${effect.amount}[/color] if [color=#e0e0e0]${effect.targetEffectId}[/color]`;
-			return withTargets(base, effect.targets);
-		}
 		case "multiply_power":
 			return withTargets(`[color=#ff8cc8]Multiply Power[/color] [color=#ffd93d]${effect.multiplier}x[/color]`, effect.targets);
 		default: {
@@ -101,10 +97,10 @@ const getTargetDescription = (targets: any): string => {
 		case "column_allies":
 			return "Column";
 		case "all_allies":
-			if (targets.ofType === "any")
-				return "All allies";
-			else
+			if (targets.ofType !== "" && targets.ofType !== "any")
 				return `All allies of type ${targets.ofType}`
+			else
+				return "All allies";
 		case "all_enemies":
 			return "All enemies";
 		case "top_ally":
