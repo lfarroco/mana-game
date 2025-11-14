@@ -5,6 +5,7 @@ import * as AudioManager from "@Systems/AudioManager";
 import * as ResultsUI from "../Results/ResultsUI";
 import * as PrestigeSystem from "@Systems/PrestigeSystem";
 import * as PhaseManager from "../PhaseManager";
+import { destroyBlackHole } from "../BlackHole";
 
 export async function handleCombatEndedDefeat(): Promise<void> {
 	const state = getState();
@@ -48,6 +49,9 @@ export async function handleCombatEndedVictory(): Promise<void> {
 }
 
 export function handleCombatEnded(combatResult: string) {
+
+	destroyBlackHole();
+
 	if (combatResult === "player_won") {
 		handleCombatEndedVictory();
 	} else {

@@ -7,7 +7,6 @@ import { clearAll, summon } from "@Systems/Chara/Chara";
 import { delay } from "@Utils/animation";
 import { clearPoison } from "./Systems/PoisonDamageSystem";
 import { clearRegen } from "./Systems/RegenSystem";
-import { destroyBlackHole } from "./BlackHole";
 import { destroyForceStats } from "./ForceStats";
 
 const hourAction: Record<number, string> = {
@@ -45,7 +44,6 @@ export function handlePhaseEnded(): void {
 	const currentPhase = hourAction[getState().gameData.hour];
 
 	if (currentPhase === 'combat') {
-		destroyBlackHole();
 		destroyForceStats(c.FORCE_ID_CPU);
 		destroyForceStats(c.FORCE_ID_PLAYER);
 	}

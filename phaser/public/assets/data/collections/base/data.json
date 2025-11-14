@@ -492,7 +492,7 @@
 					"id": "increase_power",
 					"amount": 10,
 					"targets": {
-						"id": "row_allies"
+						"id": "column_allies"
 					}
 				}
 			]
@@ -511,7 +511,7 @@
 			],
 			"reactions": [
 				{
-					"position": "all",
+					"position": "allies",
 					"effectId": "damage",
 					"effects": [
 						{
@@ -638,10 +638,18 @@
 				},
 				{
 					"id": "increase_power",
-					"amount": 2,
+					"amount": 5,
 					"targets": {
 						"id": "all_allies",
 						"ofType": "regen"
+					}
+				},
+				{
+					"id": "increase_power",
+					"amount": 5,
+					"targets": {
+						"id": "all_allies",
+						"ofType": "heal"
 					}
 				}
 			]
@@ -651,14 +659,21 @@
 			"name": "Time-shifter",
 			"pic": "f1_sister",
 			"power": 6,
-			"cooldown": 3800,
+			"cooldown": 4800,
 			"effects": [
 				{
-					"id": "haste",
-					"duration": 1200,
+					"id": "slow",
+					"duration": 1000,
 					"targets": {
-						"id": "random_ally",
-						"count": 2
+						"id": "random_enemy",
+						"count": 1
+					}
+				},
+				{
+					"id": "charge",
+					"duration": 1000,
+					"targets": {
+						"id": "right_ally"
 					}
 				}
 			]
@@ -668,7 +683,7 @@
 			"name": "Glass Cannon",
 			"pic": "f1_sinergyunit",
 			"power": 50,
-			"cooldown": 3000,
+			"cooldown": 4000,
 			"effects": [
 				{
 					"id": "damage"
@@ -681,7 +696,7 @@
 					"effects": [
 						{
 							"id": "slow",
-							"duration": 500,
+							"duration": 1000,
 							"targets": {
 								"id": "self"
 							}
