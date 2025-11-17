@@ -72,7 +72,7 @@ type Targeting = {
 } | {
 	id: "right_ally"
 } | {
-	id: "triggering_unit",
+	id: "trigger",
 }
 
 export type EffectSourcePosition =
@@ -272,7 +272,7 @@ function resolveTargets(sourceUnit: Unit, effect: Effect): Unit[] {
 		case "right_ally":
 			return allies.filter(u => u.position.x === sourceUnit.position.x + 1 && u.position.y === sourceUnit.position.y);
 
-		case "triggering_unit":
+		case "trigger":
 			return [sourceUnit];
 
 		default:

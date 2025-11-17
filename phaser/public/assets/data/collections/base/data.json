@@ -3,8 +3,8 @@
 	"name": "Base Set",
 	"cards": [
 		{
-			"id": "neutral_core",
-			"name": "The Core",
+			"id": "mana_crystal",
+			"name": "Mana Crystal",
 			"pic": "blue-stone",
 			"life": 500,
 			"cooldown": 3000,
@@ -21,7 +21,7 @@
 			],
 			"reactions": [
 				{
-					"position": "allies",
+					"position": "row_allies",
 					"effectId": "all",
 					"effects": [
 						{
@@ -36,8 +36,8 @@
 			]
 		},
 		{
-			"id": "damage_core",
-			"name": "Damage Core",
+			"id": "critical_crystal",
+			"name": "Critical Crystal",
 			"pic": "red-stone",
 			"life": 500,
 			"cooldown": 3000,
@@ -47,7 +47,7 @@
 					"id": "increase_critical",
 					"amount": 10,
 					"targets": {
-						"id": "all_allies"
+						"id": "column_allies"
 					}
 				}
 			],
@@ -60,7 +60,7 @@
 							"id": "increase_power",
 							"amount": 2,
 							"targets": {
-								"id": "triggering_unit"
+								"id": "trigger"
 							}
 						}
 					]
@@ -68,8 +68,8 @@
 			]
 		},
 		{
-			"id": "shield_core",
-			"name": "Shield Core",
+			"id": "shield_crystal",
+			"name": "Shield Crystal",
 			"pic": "yellow-stone",
 			"life": 600,
 			"cooldown": 3000,
@@ -85,7 +85,7 @@
 							"id": "increase_power",
 							"amount": 5,
 							"targets": {
-								"id": "all_allies",
+								"id": "trigger",
 								"ofType": "shield"
 							}
 						}
@@ -94,8 +94,8 @@
 			]
 		},
 		{
-			"id": "heal_core",
-			"name": "Heal Core",
+			"id": "restore_crystal",
+			"name": "Restore Crystal",
 			"pic": "green-stone",
 			"life": 500,
 			"cooldown": 3000,
@@ -103,7 +103,7 @@
 			"effects": [],
 			"reactions": [
 				{
-					"position": "allies",
+					"position": "column_allies",
 					"effectId": "heal",
 					"effects": [
 						{
@@ -118,8 +118,8 @@
 			]
 		},
 		{
-			"id": "purple_core",
-			"name": "Purple Core",
+			"id": "purple_crystal",
+			"name": "Purple Crystal",
 			"pic": "purple-stone",
 			"life": 500,
 			"cooldown": 3000,
@@ -177,8 +177,8 @@
 			"id": "void_witch",
 			"name": "Void Witch",
 			"pic": "boss_andromeda",
-			"power": 14,
-			"cooldown": 3000,
+			"power": 20,
+			"cooldown": 3200,
 			"effects": [
 				{
 					"id": "poison"
@@ -188,7 +188,7 @@
 					"duration": 1000,
 					"targets": {
 						"id": "random_enemy",
-						"count": "2"
+						"count": 1
 					}
 				}
 			],
@@ -228,7 +228,7 @@
 							"id": "increase_power",
 							"amount": 5,
 							"targets": {
-								"id": "triggering_unit"
+								"id": "trigger"
 							}
 						}
 					]
@@ -253,9 +253,9 @@
 					"effects": [
 						{
 							"id": "increase_critical",
-							"amount": 15,
+							"amount": 10,
 							"targets": {
-								"id": "column_allies"
+								"id": "self"
 							}
 						}
 					]
@@ -275,27 +275,27 @@
 			],
 			"reactions": [
 				{
-					"position": "allies",
+					"position": "column_allies",
 					"effectId": "haste",
 					"effects": [
 						{
 							"id": "increase_power",
 							"amount": 5,
 							"targets": {
-								"id": "self"
+								"id": "row"
 							}
 						}
 					]
 				},
 				{
-					"position": "allies",
-					"effectId": "slow",
+					"position": "row_allies",
+					"effectId": "haste",
 					"effects": [
 						{
 							"id": "increase_power",
 							"amount": 5,
 							"targets": {
-								"id": "self"
+								"id": "col"
 							}
 						}
 					]
@@ -334,7 +334,7 @@
 			"name": "Void Specter",
 			"pic": "neutral_amu",
 			"power": 10,
-			"cooldown": 3200,
+			"cooldown": 2200,
 			"effects": [
 				{
 					"id": "poison"
@@ -357,10 +357,232 @@
 			]
 		},
 		{
+			"id": "plaguebearer",
+			"name": "Plague Bearer",
+			"pic": "neutral_amu",
+			"power": 10,
+			"cooldown": 2200,
+			"effects": [
+				{
+					"id": "poison"
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "regen",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "toxic_alchemist",
+			"name": "Toxic Alchemist",
+			"pic": "neutral_amu",
+			"power": 20,
+			"cooldown": 3200,
+			"effects": [
+				{
+					"id": "poison"
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "heal",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "venomous_viper",
+			"name": "Venomous Viper",
+			"pic": "neutral_amu",
+			"power": 20,
+			"cooldown": 3200,
+			"effects": [
+				{
+					"id": "poison"
+				},
+				{
+					"id": "haste",
+					"targets": {
+						"id": "self"
+					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "haste",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 2,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "noxious_blight",
+			"name": "Noxious Blight",
+			"pic": "neutral_amu",
+			"power": 30,
+			"cooldown": 4300,
+			"effects": [
+				{
+					"id": "poison"
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "poison",
+					"effects": [
+						{
+							"id": "charge",
+							"amount": 1000,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "corrosive_slime",
+			"name": "Corrosive Slime",
+			"pic": "neutral_amu",
+			"power": 20,
+			"cooldown": 4300,
+			"effects": [
+				{
+					"id": "poison"
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "shield",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "infected_horror",
+			"name": "Infected Horror",
+			"pic": "neutral_amu",
+			"power": 30,
+			"cooldown": 3700,
+			"effects": [
+				{
+					"id": "poison"
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "poison",
+					"effects": [
+						{
+							"id": "haste",
+							"duration": 1000,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "withering_skeleton",
+			"name": "Withering Skeleton",
+			"pic": "neutral_amu",
+			"power": 40,
+			"cooldown": 4700,
+			"effects": [
+				{
+					"id": "poison"
+				}
+			],
+			"reactions": [
+				{
+					"position": "row_allies",
+					"effectId": "damage",
+					"effects": [
+						{
+							"id": "charge",
+							"amount": 1000,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "scourge_bringer",
+			"name": "Scourgea Bringer",
+			"pic": "neutral_amu",
+			"power": 20,
+			"cooldown": 2700,
+			"effects": [
+				{
+					"id": "poison"
+				}
+			],
+			"reactions": [
+				{
+					"position": "column_allies",
+					"effectId": "poison",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "trigger"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
 			"id": "diana",
 			"name": "Diana FireArrow",
 			"pic": "neutral_arrowwhistler",
-			"power": 10,
+			"power": 20,
 			"cooldown": 3600,
 			"effects": [
 				{
@@ -396,12 +618,12 @@
 			],
 			"reactions": [
 				{
-					"position": "allies",
+					"position": "column_allies",
 					"effectId": "regen",
 					"effects": [
 						{
 							"id": "increase_power",
-							"amount": 5,
+							"amount": 10,
 							"targets": {
 								"id": "self"
 							}
@@ -409,12 +631,12 @@
 					]
 				},
 				{
-					"position": "allies",
+					"position": "row_allies",
 					"effectId": "heal",
 					"effects": [
 						{
 							"id": "increase_power",
-							"amount": 5,
+							"amount": 10,
 							"targets": {
 								"id": "self"
 							}
@@ -461,12 +683,27 @@
 				{
 					"id": "damage"
 				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "slow",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
 			]
 		},
 		{
-			"id": "haste_core",
-			"name": "Core of Haste",
-			"pic": "green-stone",
+			"id": "haste_crystal",
+			"name": "Haste Crystal",
+			"pic": "blue-stone",
 			"life": 500,
 			"cooldown": 3000,
 			"isCore": true,
@@ -475,9 +712,36 @@
 					"id": "haste",
 					"duration": 1000,
 					"targets": {
-						"id": "all_allies",
-						"ofType": "any"
+						"id": "all_allies"
 					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "column_allies",
+					"effectId": "damage",
+					"effects": [
+						{
+							"id": "charge",
+							"amount": 1000,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				},
+				{
+					"position": "row_allies",
+					"effectId": "shield",
+					"effects": [
+						{
+							"id": "charge",
+							"amount": 1000,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
 				}
 			]
 		},
@@ -490,15 +754,22 @@
 			"effects": [
 				{
 					"id": "increase_power",
-					"amount": 10,
+					"amount": 5,
 					"targets": {
 						"id": "column_allies"
+					}
+				},
+				{
+					"id": "increase_power",
+					"amount": 5,
+					"targets": {
+						"id": "row_allies"
 					}
 				}
 			]
 		},
 		{
-			"id": "berserker",
+			"id": "avatar_of_anger",
 			"name": "Avatar of Anger",
 			"pic": "f2_chakriavatar",
 			"power": 20,
@@ -511,7 +782,7 @@
 			],
 			"reactions": [
 				{
-					"position": "allies",
+					"position": "column_allies",
 					"effectId": "damage",
 					"effects": [
 						{
@@ -537,7 +808,7 @@
 				},
 				{
 					"id": "slow",
-					"duration": 1500,
+					"duration": 1000,
 					"targets": {
 						"id": "random_enemy",
 						"count": 1
@@ -545,29 +816,26 @@
 				},
 				{
 					"id": "slow",
-					"duration": 1500,
+					"duration": 1000,
 					"targets": {
 						"id": "random_ally",
 						"count": 1
 					}
-				}
-			]
-		},
-		{
-			"id": "chronomancer",
-			"name": "Chronomancer",
-			"pic": "f1_rightfulheir",
-			"power": 5,
-			"cooldown": 4000,
-			"effects": [
-				{
-					"id": "regen"
 				},
 				{
 					"id": "haste",
-					"duration": 1500,
+					"duration": 1000,
 					"targets": {
-						"id": "row_allies"
+						"id": "random_enemy",
+						"count": 1
+					}
+				},
+				{
+					"id": "haste",
+					"duration": 1000,
+					"targets": {
+						"id": "random_ally",
+						"count": 1
 					}
 				}
 			]
@@ -577,7 +845,7 @@
 			"name": "Thunder Conduit",
 			"pic": "boss_borealjuggernaut",
 			"power": 30,
-			"cooldown": 8200,
+			"cooldown": 6200,
 			"effects": [
 				{
 					"id": "damage"
@@ -607,22 +875,578 @@
 			]
 		},
 		{
-			"id": "peacekeeper",
-			"name": "Peacekeeper",
+			"id": "arbiter",
+			"name": "Arbiter",
 			"pic": "f1_peacekeeper",
 			"power": 20,
 			"cooldown": 6200,
 			"effects": [
 				{
 					"id": "shield"
+				}
+			],
+			"reactions": [
+				{
+					"position": "row_allies",
+					"effectId": "damage",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "trigger"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "bastion",
+			"name": "Bastion",
+			"pic": "f1_peacekeeper",
+			"power": 20,
+			"cooldown": 4200,
+			"effects": [
+				{
+					"id": "shield"
+				}
+			],
+			"reactions": [
+				{
+					"position": "left_ally",
+					"effectId": "heal",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "column_allies"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "aegis_warden",
+			"name": "Aaegis Warden",
+			"pic": "f1_peacekeeper",
+			"power": 20,
+			"cooldown": 3100,
+			"effects": [
+				{
+					"id": "shield"
+				}
+			],
+			"reactions": [
+				{
+					"position": "column_allies",
+					"effectId": "poison",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "trigger"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "bulwark",
+			"name": "Bulwark",
+			"pic": "f1_peacekeeper",
+			"power": 20,
+			"cooldown": 4400,
+			"effects": [
+				{
+					"id": "shield"
+				}
+			],
+			"reactions": [
+				{
+					"position": "row_allies",
+					"effectId": "damage",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "column_allies"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "void_shield",
+			"name": "Void Shield",
+			"pic": "f1_peacekeeper",
+			"power": 20,
+			"cooldown": 4800,
+			"effects": [
+				{
+					"id": "shield"
+				}
+			],
+			"reactions": [
+				{
+					"position": "column_allies",
+					"effectId": "shield",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "row_allies"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "fortress",
+			"name": "Fortress",
+			"pic": "f1_peacekeeper",
+			"power": 20,
+			"cooldown": 5200,
+			"effects": [
+				{
+					"id": "shield"
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "shield",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "left"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "parry_master",
+			"name": "Parry Mater",
+			"pic": "f1_peacekeeper",
+			"power": 20,
+			"cooldown": 3800,
+			"effects": [
+				{
+					"id": "shield"
+				}
+			],
+			"reactions": [
+				{
+					"position": "enemies",
+					"effectId": "damage",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "column_allies"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "cleric",
+			"name": "Cleric",
+			"pic": "f3_mech",
+			"power": 20,
+			"cooldown": 4100,
+			"effects": [
+				{
+					"id": "heal"
 				},
 				{
-					"id": "increase_power",
-					"amount": 5,
+					"id": "haste",
 					"targets": {
-						"id": "all_allies",
-						"ofType": "shield"
+						"id": "right_ally"
 					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "row_allies",
+					"effectId": "damage",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "trigger"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "battle_medic",
+			"name": "Battle Medic",
+			"pic": "f3_mech",
+			"power": 35,
+			"cooldown": 4800,
+			"effects": [
+				{
+					"id": "heal"
+				}
+			],
+			"reactions": [
+				{
+					"position": "row_allies",
+					"effectId": "damage",
+					"effects": [
+						{
+							"id": "charge",
+							"amount": 1000,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				},
+				{
+					"position": "row_allies",
+					"effectId": "shield",
+					"effects": [
+						{
+							"id": "charge",
+							"amount": 1000,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "light_priestess",
+			"name": "Light Priestess",
+			"pic": "f3_mech",
+			"power": 25,
+			"cooldown": 3700,
+			"effects": [
+				{
+					"id": "heal"
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "heal",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "right_ally"
+							}
+						}
+					]
+				},
+				{
+					"position": "allies",
+					"effectId": "regen",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "right_ally"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "soul_weaver",
+			"name": "Soul Weaver",
+			"pic": "f3_mech",
+			"power": 15,
+			"cooldown": 2700,
+			"effects": [
+				{
+					"id": "heal"
+				}
+			],
+			"reactions": [
+				{
+					"position": "row_allies",
+					"effectId": "shield",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "trigger"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "mender_of_worlds",
+			"name": "Mender of Worlds",
+			"pic": "f3_mech",
+			"power": 35,
+			"cooldown": 4200,
+			"effects": [
+				{
+					"id": "heal"
+				}
+			],
+			"reactions": [
+				{
+					"position": "column_allies",
+					"effectId": "regen",
+					"effects": [
+						{
+							"id": "haste",
+							"amount": 1000,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				},
+				{
+					"position": "column_allies",
+					"effectId": "heal",
+					"effects": [
+						{
+							"id": "haste",
+							"amount": 1000,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "divine_spark",
+			"name": "Divine Spark",
+			"pic": "f3_mech",
+			"power": 35,
+			"cooldown": 4200,
+			"effects": [
+				{
+					"id": "heal"
+				},
+				{
+					"id": "charge",
+					"targets": {
+						"id": "right_ally",
+						"amount": 1000
+					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "column_allies",
+					"effectId": "heal",
+					"effects": [
+						{
+							"id": "haste",
+							"amount": 1000,
+							"targets": {
+								"id": "row_allies"
+							}
+						}
+					]
+				},
+				{
+					"position": "column_allies",
+					"effectId": "regen",
+					"effects": [
+						{
+							"id": "haste",
+							"amount": 1000,
+							"targets": {
+								"id": "row_allies"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "radiance_engine",
+			"name": "Radiance Engine",
+			"pic": "f3_mech",
+			"power": 30,
+			"cooldown": 3700,
+			"effects": [
+				{
+					"id": "heal"
+				}
+			],
+			"reactions": [
+				{
+					"position": "row_allies",
+					"effectId": "heal",
+					"effects": [
+						{
+							"id": "haste",
+							"amount": 1000,
+							"targets": {
+								"id": "column_allies"
+							}
+						}
+					]
+				},
+				{
+					"position": "row_allies",
+					"effectId": "regen",
+					"effects": [
+						{
+							"id": "haste",
+							"amount": 1000,
+							"targets": {
+								"id": "column_allies"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "harmony_monk",
+			"name": "Harmony Monk",
+			"pic": "f3_mech",
+			"power": 20,
+			"cooldown": 2800,
+			"effects": [
+				{
+					"id": "heal"
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "heal",
+					"effects": [
+						{
+							"id": "charge",
+							"amount": 1000,
+							"targets": {
+								"id": "right_ally"
+							}
+						}
+					]
+				},
+				{
+					"position": "allies",
+					"effectId": "regen",
+					"effects": [
+						{
+							"id": "charge",
+							"amount": 1000,
+							"targets": {
+								"id": "right_ally"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "oracle",
+			"name": "Oracle",
+			"pic": "f3_mech",
+			"power": 30,
+			"cooldown": 3300,
+			"effects": [
+				{
+					"id": "heal"
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "heal",
+					"effects": [
+						{
+							"id": "increase_critical",
+							"amount": 10,
+							"targets": {
+								"id": "right_ally"
+							}
+						}
+					]
+				},
+				{
+					"position": "allies",
+					"effectId": "regen",
+					"effects": [
+						{
+							"id": "increase_critical",
+							"amount": 10,
+							"targets": {
+								"id": "right_ally"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "chronomancer",
+			"name": "Chronomancer",
+			"pic": "f3_mech",
+			"power": 20,
+			"cooldown": 3700,
+			"effects": [
+				{
+					"id": "regen"
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "haste",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				},
+				{
+					"position": "allies",
+					"effectId": "slow",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
 				}
 			]
 		},
@@ -630,27 +1454,317 @@
 			"id": "spirit_of_the_forest",
 			"name": "Spirit of the Forest",
 			"pic": "boss_crystal",
-			"power": 8,
-			"cooldown": 3200,
+			"power": 30,
+			"cooldown": 4800,
+			"effects": [
+				{
+					"id": "regen"
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "heal",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "trigger"
+							}
+						}
+					]
+				},
+				{
+					"position": "allies",
+					"effectId": "regen",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "trigger"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "lifebloom_treant",
+			"name": "Lifebloom Treant",
+			"pic": "boss_crystal",
+			"power": 10,
+			"cooldown": 2300,
+			"effects": [
+				{
+					"id": "regen"
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "heal",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				},
+				{
+					"position": "allies",
+					"effectId": "regen",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "castle_vampire",
+			"name": "Castle Vampire",
+			"pic": "boss_crystal",
+			"power": 20,
+			"cooldown": 2900,
+			"effects": [
+				{
+					"id": "regen"
+				}
+			],
+			"reactions": [
+				{
+					"position": "column_allies",
+					"effectId": "damage",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "fungal_growth",
+			"name": "Fungal Groth",
+			"pic": "boss_crystal",
+			"power": 20,
+			"cooldown": 2900,
 			"effects": [
 				{
 					"id": "regen"
 				},
 				{
-					"id": "increase_power",
-					"amount": 5,
-					"targets": {
-						"id": "all_allies",
-						"ofType": "regen"
-					}
+					"id": "slow"
+				}
+			],
+			"reactions": [
+				{
+					"position": "column_allies",
+					"effectId": "poison",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "eternal_phoenix",
+			"name": "Eternal Phoenix",
+			"pic": "boss_crystal",
+			"power": 20,
+			"cooldown": 2300,
+			"effects": [
+				{
+					"id": "regen"
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "haste",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 10,
+							"targets": {
+								"id": "top_ally"
+							}
+						}
+					]
 				},
 				{
-					"id": "increase_power",
-					"amount": 5,
+					"position": "allies",
+					"effectId": "slow",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 10,
+							"targets": {
+								"id": "bottom_ally"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "sand_shifter",
+			"name": "Sand Shifter",
+			"pic": "boss_crystal",
+			"power": 30,
+			"cooldown": 2800,
+			"effects": [
+				{
+					"id": "regen"
+				},
+				{
+					"id": "haste",
 					"targets": {
-						"id": "all_allies",
-						"ofType": "heal"
+						"id": "random_ally",
+						"amount": 1000
 					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "column_allies",
+					"effectId": "slow",
+					"effects": [
+						{
+							"id": "charge",
+							"amount": 1000,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "crystalline_geode",
+			"name": "Crystalline Geode",
+			"pic": "boss_crystal",
+			"power": 40,
+			"cooldown": 4200,
+			"effects": [
+				{
+					"id": "regen"
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "heal",
+					"effects": [
+						{
+							"id": "increase_critical",
+							"amount": 10,
+							"targets": {
+								"id": "right_ally"
+							}
+						}
+					]
+				},
+				{
+					"position": "allies",
+					"effectId": "regen",
+					"effects": [
+						{
+							"id": "increase_critical",
+							"amount": 10,
+							"targets": {
+								"id": "right_ally"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "blood_catalyst",
+			"name": "Blood Catalyst",
+			"pic": "boss_crystal",
+			"power": 20,
+			"cooldown": 2200,
+			"effects": [
+				{
+					"id": "regen"
+				}
+			],
+			"reactions": [
+				{
+					"position": "column_allies",
+					"effectId": "heal",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "trigger"
+							}
+						}
+					]
+				},
+				{
+					"position": "column_allies",
+					"effectId": "regen",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "trigger"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "symbiote",
+			"name": "Symbiote",
+			"pic": "boss_crystal",
+			"power": 20,
+			"cooldown": 2500,
+			"effects": [
+				{
+					"id": "regen"
+				}
+			],
+			"reactions": [
+				{
+					"position": "row_allies",
+					"effectId": "shield",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "column_allies"
+							}
+						}
+					]
 				}
 			]
 		},
@@ -659,7 +1773,7 @@
 			"name": "Time-shifter",
 			"pic": "f1_sister",
 			"power": 6,
-			"cooldown": 4800,
+			"cooldown": 3500,
 			"effects": [
 				{
 					"id": "slow",
@@ -673,8 +1787,335 @@
 					"id": "charge",
 					"duration": 1000,
 					"targets": {
-						"id": "right_ally"
+						"id": "row_allies"
 					}
+				}
+			]
+		},
+		{
+			"id": "shifter_of_time",
+			"name": "Shifter of Time",
+			"pic": "f1_sister",
+			"power": 6,
+			"cooldown": 3500,
+			"effects": [
+				{
+					"id": "slow",
+					"duration": 1000,
+					"targets": {
+						"id": "random_enemy",
+						"count": 1
+					}
+				},
+				{
+					"id": "charge",
+					"duration": 1000,
+					"targets": {
+						"id": "column_allies"
+					}
+				}
+			]
+		},
+		{
+			"id": "mana_spring",
+			"name": "Mana Spring",
+			"pic": "f1_sister",
+			"power": 0,
+			"cooldown": 9500,
+			"effects": [
+				{
+					"id": "haste",
+					"duration": 1000,
+					"targets": {
+						"id": "allies"
+					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "regen",
+					"effects": [
+						{
+							"id": "charge",
+							"amount": 1000,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				},
+				{
+					"position": "allies",
+					"effectId": "heal",
+					"effects": [
+						{
+							"id": "charge",
+							"amount": 1000,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "void_rift",
+			"name": "Void Rift",
+			"pic": "f1_sister",
+			"power": 0,
+			"cooldown": 6500,
+			"effects": [
+				{
+					"id": "haste",
+					"duration": 1000,
+					"targets": {
+						"id": "column_allies"
+					}
+				},
+				{
+					"id": "haste",
+					"duration": 1000,
+					"targets": {
+						"id": "row_allies"
+					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "poison",
+					"effects": [
+						{
+							"id": "charge",
+							"amount": 1000,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "arcane_anomally",
+			"name": "Arcane Anomally",
+			"pic": "f1_sister",
+			"power": 0,
+			"cooldown": 4500,
+			"effects": [
+				{
+					"id": "charge",
+					"amount": 1000,
+					"targets": {
+						"id": "column_allies"
+					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "haste",
+					"effects": [
+						{
+							"id": "charge",
+							"amount": 1000,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				},
+				{
+					"position": "allies",
+					"effectId": "slow",
+					"effects": [
+						{
+							"id": "charge",
+							"amount": 1000,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "mirror_entity",
+			"name": "Mirror Entity",
+			"pic": "f1_sister",
+			"power": 0,
+			"cooldown": 4500,
+			"effects": [
+				{
+					"id": "slow",
+					"duration": 1000,
+					"targets": {
+						"id": "random_enemy",
+						"count": 1
+					}
+				},
+				{
+					"id": "haste",
+					"duration": 1000,
+					"targets": {
+						"id": "random_ally",
+						"count": 1
+					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "heal",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 10,
+							"targets": {
+								"id": "top_ally"
+							}
+						}
+					]
+				},
+				{
+					"position": "allies",
+					"effectId": "slow",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 10,
+							"targets": {
+								"id": "bottom_ally"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "spellbreaker",
+			"name": "Spellbreakder",
+			"pic": "f1_sister",
+			"power": 0,
+			"cooldown": 4500,
+			"effects": [
+				{
+					"id": "haste",
+					"duration": 1000,
+					"targets": {
+						"id": "row_allies",
+						"count": 1
+					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "poison",
+					"effects": [
+						{
+							"id": "haste",
+							"duration": 1000,
+							"targets": {
+								"id": "random_ally",
+								"count": 1
+							}
+						}
+					]
+				},
+				{
+					"position": "allies",
+					"effectId": "damage",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 10,
+							"targets": {
+								"id": "allies",
+								"ofType": "heal"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "duelist",
+			"name": "Duelist",
+			"pic": "f1_sister",
+			"power": 0,
+			"cooldown": 4500,
+			"effects": [
+				{
+					"id": "increase_critical",
+					"amount": 10,
+					"targets": {
+						"id": "column_allies"
+					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "damage",
+					"effects": [
+						{
+							"id": "charge",
+							"duration": 1000,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "gambler",
+			"name": "Gambler",
+			"pic": "f1_sister",
+			"power": 0,
+			"cooldown": 3200,
+			"effects": [
+				{
+					"id": "increase_critical",
+					"amount": 10,
+					"targets": {
+						"id": "column_allies"
+					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "damage",
+					"effects": [
+						{
+							"id": "haste",
+							"duration": 1000,
+							"targets": {
+								"id": "random_enemy",
+								"count": 1
+							}
+						}
+					]
+				},
+				{
+					"position": "allies",
+					"effectId": "shield",
+					"effects": [
+						{
+							"id": "haste",
+							"duration": 1000,
+							"targets": {
+								"id": "random_enemy",
+								"count": 1
+							}
+						}
+					]
 				}
 			]
 		},
@@ -682,8 +2123,35 @@
 			"id": "glass_cannon",
 			"name": "Glass Cannon",
 			"pic": "f1_sinergyunit",
-			"power": 50,
-			"cooldown": 4000,
+			"power": 30,
+			"cooldown": 4100,
+			"effects": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "increase_critical",
+					"amount": 10,
+					"targets": {
+						"id": "self"
+					}
+				},
+				{
+					"id": "increase_power",
+					"amount": 10,
+					"targets": {
+						"id": "self"
+					}
+				}
+			],
+			"reactions": []
+		},
+		{
+			"id": "spellblade",
+			"name": "Spellblade",
+			"pic": "f1_rightfulheir",
+			"power": 30,
+			"cooldown": 4100,
 			"effects": [
 				{
 					"id": "damage"
@@ -691,12 +2159,52 @@
 			],
 			"reactions": [
 				{
-					"position": "all",
+					"position": "allies",
+					"effectId": "heal",
+					"effects": [
+						{
+							"id": "increase_critical",
+							"amount": 10,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				},
+				{
+					"position": "allies",
+					"effectId": "regen",
+					"effects": [
+						{
+							"id": "increase_critical",
+							"amount": 10,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "berserker",
+			"name": "Berserker",
+			"pic": "f1_rightfulheir",
+			"power": 40,
+			"cooldown": 4800,
+			"effects": [
+				{
+					"id": "damage"
+				}
+			],
+			"reactions": [
+				{
+					"position": "column_allies",
 					"effectId": "damage",
 					"effects": [
 						{
-							"id": "slow",
-							"duration": 1000,
+							"id": "haste",
+							"amount": 1000,
 							"targets": {
 								"id": "self"
 							}
