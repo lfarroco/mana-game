@@ -72,7 +72,7 @@ export function updateTimeoutDamageSystem(playerForce: Force, cpuForce: Force, d
 
 function applyTimeoutDamage(playerForce: Force, cpuForce: Force, timeSinceTimeoutStarted: number): void {
 	const tickCount = Math.floor(timeSinceTimeoutStarted / timeoutDamageInterval) + 1;
-	const currentDamage = tickCount;
+	const currentDamage = tickCount * 5;
 
 	console.log(`[TimeoutDamageSystem] Timeout damage tick ${tickCount}: ${currentDamage} damage to both forces`);
 
