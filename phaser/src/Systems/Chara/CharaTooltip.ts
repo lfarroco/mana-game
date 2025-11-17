@@ -111,7 +111,7 @@ const getTargetDescription = (targets: any): string => {
 			return "Left";
 		case "right_ally":
 			return "Right";
-		case "triggering_unit":
+		case "trigger":
 			return "Triggering unit";
 		default:
 			return "Targets";
