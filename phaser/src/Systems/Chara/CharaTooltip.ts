@@ -32,7 +32,7 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string => {
 			const dur = (effect.duration / 1000).toFixed(1);
 			return withTargets(`[color=#ffe066]Charge[/color] [color=#ffd93d]${dur}s[/color]`, effect.targets);
 		case "increase_power":
-			return withTargets(`[color=#ff8cc8]Increase Power[/color] [color=#ffd93d]${effect.amount}[/color]`, effect.targets);
+			return withTargets(`[color=#ff8cc8]+power[/color] [color=#ffd93d]${effect.amount}[/color]`, effect.targets);
 		case "increase_critical":
 			return withTargets(`[color=#ff8cc8]Increase Critical[/color] [color=#ffd93d]${effect.amount}[/color]`, effect.targets);
 		case "multiply_power":

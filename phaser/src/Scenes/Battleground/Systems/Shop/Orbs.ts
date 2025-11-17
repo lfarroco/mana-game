@@ -103,7 +103,7 @@ const generateSkillPowerUpOrb = () => {
 		name: `Power Up: ${effectId}`,
 		color: 0x00ff88,
 		tooltip: [
-			`[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]Increase Power[/color] [color=#ffd93d]+${amount}[/color]`,
+			`[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]+power[/color] [color=#ffd93d]+${amount}[/color]`,
 			`[color=#c0c0c0]Condition:[/color] [color=#ffa94d]Unit must have effect '${effectId}'[/color]`,
 		].join('\n'),
 		effect: (unit: Unit) => {
@@ -204,7 +204,7 @@ export const orbsIndex: Record<string, () => {
 		name: "Crimson Orb",
 		color: 0xff3333,
 		tooltip: [
-			"[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]Increase Power[/color] [color=#ffd93d]+5[/color]",
+			"[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]+power[/color] [color=#ffd93d]+5[/color]",
 			"[color=#c0c0c0]Target:[/color] [color=#e0e0e0]Any unit[/color]",
 		].join("\n"),
 		effect: crimsonOrbEffect
@@ -263,7 +263,7 @@ function generatePositionalPowerOrb() {
 		name: `Power Up: ${choice.label}`,
 		color: 0x33ffaa,
 		tooltip: [
-			`[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]Increase Power[/color] [color=#ffd93d]+${choice.amount}[/color]`,
+			`[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]+power[/color] [color=#ffd93d]+${choice.amount}[/color]`,
 			`[color=#c0c0c0]Target:[/color] [color=#e0e0e0]${choice.label}[/color]`,
 		].join("\n"),
 		effect: (unit: Unit) => {
@@ -303,7 +303,7 @@ function generatePositionalSkillPowerOrb() {
 		name: `Power Up: ${choice.label} (${effectId})`,
 		color: 0x44ffd1,
 		tooltip: [
-			`[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]Increase Power[/color] [color=#ffd93d]+${choice.amount}[/color]`,
+			`[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]+power[/color] [color=#ffd93d]+${choice.amount}[/color]`,
 			`[color=#c0c0c0]Target:[/color] [color=#e0e0e0]${choice.label}[/color]`,
 			`[color=#c0c0c0]Condition:[/color] [color=#ffa94d]Caster of type '${effectId}'[/color]`,
 		].join("\n"),
@@ -345,7 +345,7 @@ function generatePositionalTypedPowerOrb() {
 		name: `${choice.label} (${effectId})`,
 		color: 0x22ccff,
 		tooltip: [
-			`[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]Increase Power[/color] [color=#ffd93d]+${choice.amount}[/color]`,
+			`[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]+power[/color] [color=#ffd93d]+${choice.amount}[/color]`,
 			`[color=#c0c0c0]Target:[/color] [color=#e0e0e0]${choice.label}[/color]`,
 			`[color=#c0c0c0]Condition:[/color] [color=#ffa94d]Target must have '${effectId}'[/color]`,
 		].join("\n"),
