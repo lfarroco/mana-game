@@ -19,6 +19,7 @@ export default class Core extends Phaser.Scene {
 
 
 		this.load.image('blue-stone', "assets/blue-stone.png")
+		this.load.image('haste-stone', "assets/haste-stone.png")
 		this.load.image('red-stone', "assets/red-stone.png")
 		this.load.image('yellow-stone', "assets/yellow-stone.png")
 		this.load.image('green-stone', "assets/green-stone.png")
