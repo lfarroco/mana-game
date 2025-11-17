@@ -1,0 +1,202 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f4_mistressofcommands_idle_000.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_idle_001.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_idle_002.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_idle_003.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_idle_004.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_idle_005.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_idle_006.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_idle_007.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_idle_008.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_idle_009.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_idle_010.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_idle_011.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_idle_012.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_idle_013.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f4_mistressofcommands_attack_000.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_001.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_002.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_003.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_004.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_005.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_006.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_007.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_008.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_009.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_010.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_011.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_012.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_013.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_014.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_015.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_016.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_017.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_018.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_019.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_020.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_021.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_022.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_023.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_024.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_025.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_026.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_027.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_028.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_attack_029.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f4_mistressofcommands_death_000.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_death_001.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_death_002.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_death_003.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_death_004.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_death_005.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_death_006.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_death_007.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_death_008.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_death_009.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_death_010.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_death_011.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_death_012.png"
+        },
+        {
+          "frame": "f4_mistressofcommands_death_013.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

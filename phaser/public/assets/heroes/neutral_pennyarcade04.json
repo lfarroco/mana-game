@@ -1,0 +1,1850 @@
+{
+  "frames": {
+    "neutral_pennyarcade04_attack_000.png": {
+      "frame": {
+        "x": 705,
+        "y": 564,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_attack_001.png": {
+      "frame": {
+        "x": 1551,
+        "y": 141,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_attack_002.png": {
+      "frame": {
+        "x": 1551,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_attack_003.png": {
+      "frame": {
+        "x": 1410,
+        "y": 846,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_attack_004.png": {
+      "frame": {
+        "x": 1410,
+        "y": 705,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_attack_005.png": {
+      "frame": {
+        "x": 1410,
+        "y": 564,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_attack_006.png": {
+      "frame": {
+        "x": 1410,
+        "y": 423,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_attack_007.png": {
+      "frame": {
+        "x": 1410,
+        "y": 282,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_attack_008.png": {
+      "frame": {
+        "x": 1410,
+        "y": 141,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_attack_009.png": {
+      "frame": {
+        "x": 1410,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_attack_010.png": {
+      "frame": {
+        "x": 1269,
+        "y": 846,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_attack_011.png": {
+      "frame": {
+        "x": 1269,
+        "y": 705,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_attack_012.png": {
+      "frame": {
+        "x": 1269,
+        "y": 564,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_attack_013.png": {
+      "frame": {
+        "x": 1269,
+        "y": 423,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_attack_014.png": {
+      "frame": {
+        "x": 1269,
+        "y": 282,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_attack_015.png": {
+      "frame": {
+        "x": 1269,
+        "y": 141,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_attack_016.png": {
+      "frame": {
+        "x": 1269,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_attack_017.png": {
+      "frame": {
+        "x": 1128,
+        "y": 846,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_attack_018.png": {
+      "frame": {
+        "x": 1128,
+        "y": 705,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_attack_019.png": {
+      "frame": {
+        "x": 1128,
+        "y": 564,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_breathing_000.png": {
+      "frame": {
+        "x": 1128,
+        "y": 423,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_breathing_001.png": {
+      "frame": {
+        "x": 1128,
+        "y": 423,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_breathing_002.png": {
+      "frame": {
+        "x": 1128,
+        "y": 423,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_breathing_003.png": {
+      "frame": {
+        "x": 1128,
+        "y": 423,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_breathing_004.png": {
+      "frame": {
+        "x": 1128,
+        "y": 423,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_breathing_005.png": {
+      "frame": {
+        "x": 1128,
+        "y": 282,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_breathing_006.png": {
+      "frame": {
+        "x": 1128,
+        "y": 141,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_breathing_007.png": {
+      "frame": {
+        "x": 1128,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_breathing_008.png": {
+      "frame": {
+        "x": 1128,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_breathing_009.png": {
+      "frame": {
+        "x": 1128,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_breathing_010.png": {
+      "frame": {
+        "x": 1128,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_breathing_011.png": {
+      "frame": {
+        "x": 1128,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_breathing_012.png": {
+      "frame": {
+        "x": 1128,
+        "y": 141,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_breathing_013.png": {
+      "frame": {
+        "x": 1128,
+        "y": 282,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_000.png": {
+      "frame": {
+        "x": 987,
+        "y": 846,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_001.png": {
+      "frame": {
+        "x": 987,
+        "y": 705,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_002.png": {
+      "frame": {
+        "x": 987,
+        "y": 564,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_003.png": {
+      "frame": {
+        "x": 987,
+        "y": 423,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_004.png": {
+      "frame": {
+        "x": 987,
+        "y": 282,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_005.png": {
+      "frame": {
+        "x": 987,
+        "y": 141,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_006.png": {
+      "frame": {
+        "x": 987,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_007.png": {
+      "frame": {
+        "x": 846,
+        "y": 846,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_008.png": {
+      "frame": {
+        "x": 846,
+        "y": 705,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_009.png": {
+      "frame": {
+        "x": 846,
+        "y": 564,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_010.png": {
+      "frame": {
+        "x": 846,
+        "y": 423,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_011.png": {
+      "frame": {
+        "x": 846,
+        "y": 282,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_012.png": {
+      "frame": {
+        "x": 846,
+        "y": 141,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_013.png": {
+      "frame": {
+        "x": 846,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_014.png": {
+      "frame": {
+        "x": 705,
+        "y": 846,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_015.png": {
+      "frame": {
+        "x": 705,
+        "y": 705,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_016.png": {
+      "frame": {
+        "x": 1551,
+        "y": 282,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_017.png": {
+      "frame": {
+        "x": 705,
+        "y": 423,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_018.png": {
+      "frame": {
+        "x": 705,
+        "y": 282,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_019.png": {
+      "frame": {
+        "x": 705,
+        "y": 141,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_020.png": {
+      "frame": {
+        "x": 705,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_021.png": {
+      "frame": {
+        "x": 564,
+        "y": 846,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_022.png": {
+      "frame": {
+        "x": 564,
+        "y": 705,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_023.png": {
+      "frame": {
+        "x": 564,
+        "y": 564,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_024.png": {
+      "frame": {
+        "x": 564,
+        "y": 423,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_025.png": {
+      "frame": {
+        "x": 564,
+        "y": 282,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_026.png": {
+      "frame": {
+        "x": 564,
+        "y": 141,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_death_027.png": {
+      "frame": {
+        "x": 564,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_hit_000.png": {
+      "frame": {
+        "x": 987,
+        "y": 846,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_hit_001.png": {
+      "frame": {
+        "x": 423,
+        "y": 846,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_hit_002.png": {
+      "frame": {
+        "x": 423,
+        "y": 705,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_idle_000.png": {
+      "frame": {
+        "x": 705,
+        "y": 564,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_idle_001.png": {
+      "frame": {
+        "x": 423,
+        "y": 564,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_idle_002.png": {
+      "frame": {
+        "x": 423,
+        "y": 423,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_idle_003.png": {
+      "frame": {
+        "x": 423,
+        "y": 282,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_idle_004.png": {
+      "frame": {
+        "x": 423,
+        "y": 141,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_idle_005.png": {
+      "frame": {
+        "x": 423,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_idle_006.png": {
+      "frame": {
+        "x": 282,
+        "y": 846,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_idle_007.png": {
+      "frame": {
+        "x": 282,
+        "y": 705,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_idle_008.png": {
+      "frame": {
+        "x": 282,
+        "y": 564,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_idle_009.png": {
+      "frame": {
+        "x": 282,
+        "y": 423,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_idle_010.png": {
+      "frame": {
+        "x": 282,
+        "y": 282,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_idle_011.png": {
+      "frame": {
+        "x": 282,
+        "y": 141,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_idle_012.png": {
+      "frame": {
+        "x": 282,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_idle_013.png": {
+      "frame": {
+        "x": 141,
+        "y": 846,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_idle_014.png": {
+      "frame": {
+        "x": 141,
+        "y": 705,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_idle_015.png": {
+      "frame": {
+        "x": 141,
+        "y": 564,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_idle_016.png": {
+      "frame": {
+        "x": 141,
+        "y": 423,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_idle_017.png": {
+      "frame": {
+        "x": 141,
+        "y": 282,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_idle_018.png": {
+      "frame": {
+        "x": 141,
+        "y": 141,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_run_000.png": {
+      "frame": {
+        "x": 141,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_run_001.png": {
+      "frame": {
+        "x": 0,
+        "y": 846,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_run_002.png": {
+      "frame": {
+        "x": 0,
+        "y": 705,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_run_003.png": {
+      "frame": {
+        "x": 0,
+        "y": 564,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_run_004.png": {
+      "frame": {
+        "x": 0,
+        "y": 423,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_run_005.png": {
+      "frame": {
+        "x": 0,
+        "y": 282,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_run_006.png": {
+      "frame": {
+        "x": 0,
+        "y": 141,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    },
+    "neutral_pennyarcade04_run_007.png": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 140,
+        "h": 140
+      },
+      "sourceSize": {
+        "w": 140,
+        "h": 140
+      }
+    }
+  },
+  "meta": {
+    "image": "neutral_pennyarcade04.png",
+    "size": "{2048,1024}",
+    "scale": "1",
+    "format": "RGBA8888"
+  }
+}

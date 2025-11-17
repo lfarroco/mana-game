@@ -1,0 +1,196 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_aethermaster_idle_000.png"
+        },
+        {
+          "frame": "neutral_aethermaster_idle_001.png"
+        },
+        {
+          "frame": "neutral_aethermaster_idle_002.png"
+        },
+        {
+          "frame": "neutral_aethermaster_idle_003.png"
+        },
+        {
+          "frame": "neutral_aethermaster_idle_004.png"
+        },
+        {
+          "frame": "neutral_aethermaster_idle_005.png"
+        },
+        {
+          "frame": "neutral_aethermaster_idle_006.png"
+        },
+        {
+          "frame": "neutral_aethermaster_idle_007.png"
+        },
+        {
+          "frame": "neutral_aethermaster_idle_008.png"
+        },
+        {
+          "frame": "neutral_aethermaster_idle_009.png"
+        },
+        {
+          "frame": "neutral_aethermaster_idle_010.png"
+        },
+        {
+          "frame": "neutral_aethermaster_idle_011.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_aethermaster_attack_000.png"
+        },
+        {
+          "frame": "neutral_aethermaster_attack_001.png"
+        },
+        {
+          "frame": "neutral_aethermaster_attack_002.png"
+        },
+        {
+          "frame": "neutral_aethermaster_attack_003.png"
+        },
+        {
+          "frame": "neutral_aethermaster_attack_004.png"
+        },
+        {
+          "frame": "neutral_aethermaster_attack_005.png"
+        },
+        {
+          "frame": "neutral_aethermaster_attack_006.png"
+        },
+        {
+          "frame": "neutral_aethermaster_attack_007.png"
+        },
+        {
+          "frame": "neutral_aethermaster_attack_008.png"
+        },
+        {
+          "frame": "neutral_aethermaster_attack_009.png"
+        },
+        {
+          "frame": "neutral_aethermaster_attack_010.png"
+        },
+        {
+          "frame": "neutral_aethermaster_attack_011.png"
+        },
+        {
+          "frame": "neutral_aethermaster_attack_012.png"
+        },
+        {
+          "frame": "neutral_aethermaster_attack_013.png"
+        },
+        {
+          "frame": "neutral_aethermaster_attack_014.png"
+        },
+        {
+          "frame": "neutral_aethermaster_attack_015.png"
+        },
+        {
+          "frame": "neutral_aethermaster_attack_016.png"
+        },
+        {
+          "frame": "neutral_aethermaster_attack_017.png"
+        },
+        {
+          "frame": "neutral_aethermaster_attack_018.png"
+        },
+        {
+          "frame": "neutral_aethermaster_attack_019.png"
+        },
+        {
+          "frame": "neutral_aethermaster_attack_020.png"
+        },
+        {
+          "frame": "neutral_aethermaster_attack_021.png"
+        },
+        {
+          "frame": "neutral_aethermaster_attack_022.png"
+        },
+        {
+          "frame": "neutral_aethermaster_attack_023.png"
+        },
+        {
+          "frame": "neutral_aethermaster_attack_024.png"
+        },
+        {
+          "frame": "neutral_aethermaster_attack_025.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_aethermaster_death_000.png"
+        },
+        {
+          "frame": "neutral_aethermaster_death_001.png"
+        },
+        {
+          "frame": "neutral_aethermaster_death_002.png"
+        },
+        {
+          "frame": "neutral_aethermaster_death_003.png"
+        },
+        {
+          "frame": "neutral_aethermaster_death_004.png"
+        },
+        {
+          "frame": "neutral_aethermaster_death_005.png"
+        },
+        {
+          "frame": "neutral_aethermaster_death_006.png"
+        },
+        {
+          "frame": "neutral_aethermaster_death_007.png"
+        },
+        {
+          "frame": "neutral_aethermaster_death_008.png"
+        },
+        {
+          "frame": "neutral_aethermaster_death_009.png"
+        },
+        {
+          "frame": "neutral_aethermaster_death_010.png"
+        },
+        {
+          "frame": "neutral_aethermaster_death_011.png"
+        },
+        {
+          "frame": "neutral_aethermaster_death_012.png"
+        },
+        {
+          "frame": "neutral_aethermaster_death_013.png"
+        },
+        {
+          "frame": "neutral_aethermaster_death_014.png"
+        },
+        {
+          "frame": "neutral_aethermaster_death_015.png"
+        },
+        {
+          "frame": "neutral_aethermaster_death_016.png"
+        },
+        {
+          "frame": "neutral_aethermaster_death_017.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

@@ -1,0 +1,211 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f6_icehornet_idle_000.png"
+        },
+        {
+          "frame": "f6_icehornet_idle_001.png"
+        },
+        {
+          "frame": "f6_icehornet_idle_002.png"
+        },
+        {
+          "frame": "f6_icehornet_idle_003.png"
+        },
+        {
+          "frame": "f6_icehornet_idle_004.png"
+        },
+        {
+          "frame": "f6_icehornet_idle_005.png"
+        },
+        {
+          "frame": "f6_icehornet_idle_006.png"
+        },
+        {
+          "frame": "f6_icehornet_idle_007.png"
+        },
+        {
+          "frame": "f6_icehornet_idle_008.png"
+        },
+        {
+          "frame": "f6_icehornet_idle_009.png"
+        },
+        {
+          "frame": "f6_icehornet_idle_010.png"
+        },
+        {
+          "frame": "f6_icehornet_idle_011.png"
+        },
+        {
+          "frame": "f6_icehornet_idle_012.png"
+        },
+        {
+          "frame": "f6_icehornet_idle_013.png"
+        },
+        {
+          "frame": "f6_icehornet_idle_014.png"
+        },
+        {
+          "frame": "f6_icehornet_idle_015.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f6_icehornet_attack_000.png"
+        },
+        {
+          "frame": "f6_icehornet_attack_001.png"
+        },
+        {
+          "frame": "f6_icehornet_attack_002.png"
+        },
+        {
+          "frame": "f6_icehornet_attack_003.png"
+        },
+        {
+          "frame": "f6_icehornet_attack_004.png"
+        },
+        {
+          "frame": "f6_icehornet_attack_005.png"
+        },
+        {
+          "frame": "f6_icehornet_attack_006.png"
+        },
+        {
+          "frame": "f6_icehornet_attack_007.png"
+        },
+        {
+          "frame": "f6_icehornet_attack_008.png"
+        },
+        {
+          "frame": "f6_icehornet_attack_009.png"
+        },
+        {
+          "frame": "f6_icehornet_attack_010.png"
+        },
+        {
+          "frame": "f6_icehornet_attack_011.png"
+        },
+        {
+          "frame": "f6_icehornet_attack_012.png"
+        },
+        {
+          "frame": "f6_icehornet_attack_013.png"
+        },
+        {
+          "frame": "f6_icehornet_attack_014.png"
+        },
+        {
+          "frame": "f6_icehornet_attack_015.png"
+        },
+        {
+          "frame": "f6_icehornet_attack_016.png"
+        },
+        {
+          "frame": "f6_icehornet_attack_017.png"
+        },
+        {
+          "frame": "f6_icehornet_attack_018.png"
+        },
+        {
+          "frame": "f6_icehornet_attack_019.png"
+        },
+        {
+          "frame": "f6_icehornet_attack_020.png"
+        },
+        {
+          "frame": "f6_icehornet_attack_021.png"
+        },
+        {
+          "frame": "f6_icehornet_attack_022.png"
+        },
+        {
+          "frame": "f6_icehornet_attack_023.png"
+        },
+        {
+          "frame": "f6_icehornet_attack_024.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f6_icehornet_death_000.png"
+        },
+        {
+          "frame": "f6_icehornet_death_001.png"
+        },
+        {
+          "frame": "f6_icehornet_death_002.png"
+        },
+        {
+          "frame": "f6_icehornet_death_003.png"
+        },
+        {
+          "frame": "f6_icehornet_death_004.png"
+        },
+        {
+          "frame": "f6_icehornet_death_005.png"
+        },
+        {
+          "frame": "f6_icehornet_death_006.png"
+        },
+        {
+          "frame": "f6_icehornet_death_007.png"
+        },
+        {
+          "frame": "f6_icehornet_death_008.png"
+        },
+        {
+          "frame": "f6_icehornet_death_009.png"
+        },
+        {
+          "frame": "f6_icehornet_death_010.png"
+        },
+        {
+          "frame": "f6_icehornet_death_011.png"
+        },
+        {
+          "frame": "f6_icehornet_death_012.png"
+        },
+        {
+          "frame": "f6_icehornet_death_013.png"
+        },
+        {
+          "frame": "f6_icehornet_death_014.png"
+        },
+        {
+          "frame": "f6_icehornet_death_015.png"
+        },
+        {
+          "frame": "f6_icehornet_death_016.png"
+        },
+        {
+          "frame": "f6_icehornet_death_017.png"
+        },
+        {
+          "frame": "f6_icehornet_death_018.png"
+        },
+        {
+          "frame": "f6_icehornet_death_019.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

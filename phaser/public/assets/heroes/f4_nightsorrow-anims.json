@@ -1,0 +1,139 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f4_nightsorrow_idle_000.png"
+        },
+        {
+          "frame": "f4_nightsorrow_idle_001.png"
+        },
+        {
+          "frame": "f4_nightsorrow_idle_002.png"
+        },
+        {
+          "frame": "f4_nightsorrow_idle_003.png"
+        },
+        {
+          "frame": "f4_nightsorrow_idle_004.png"
+        },
+        {
+          "frame": "f4_nightsorrow_idle_005.png"
+        },
+        {
+          "frame": "f4_nightsorrow_idle_006.png"
+        },
+        {
+          "frame": "f4_nightsorrow_idle_007.png"
+        },
+        {
+          "frame": "f4_nightsorrow_idle_008.png"
+        },
+        {
+          "frame": "f4_nightsorrow_idle_009.png"
+        },
+        {
+          "frame": "f4_nightsorrow_idle_010.png"
+        },
+        {
+          "frame": "f4_nightsorrow_idle_011.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f4_nightsorrow_attack_000.png"
+        },
+        {
+          "frame": "f4_nightsorrow_attack_001.png"
+        },
+        {
+          "frame": "f4_nightsorrow_attack_002.png"
+        },
+        {
+          "frame": "f4_nightsorrow_attack_003.png"
+        },
+        {
+          "frame": "f4_nightsorrow_attack_004.png"
+        },
+        {
+          "frame": "f4_nightsorrow_attack_005.png"
+        },
+        {
+          "frame": "f4_nightsorrow_attack_006.png"
+        },
+        {
+          "frame": "f4_nightsorrow_attack_007.png"
+        },
+        {
+          "frame": "f4_nightsorrow_attack_008.png"
+        },
+        {
+          "frame": "f4_nightsorrow_attack_009.png"
+        },
+        {
+          "frame": "f4_nightsorrow_attack_010.png"
+        },
+        {
+          "frame": "f4_nightsorrow_attack_011.png"
+        },
+        {
+          "frame": "f4_nightsorrow_attack_012.png"
+        },
+        {
+          "frame": "f4_nightsorrow_attack_013.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f4_nightsorrow_death_000.png"
+        },
+        {
+          "frame": "f4_nightsorrow_death_001.png"
+        },
+        {
+          "frame": "f4_nightsorrow_death_002.png"
+        },
+        {
+          "frame": "f4_nightsorrow_death_003.png"
+        },
+        {
+          "frame": "f4_nightsorrow_death_004.png"
+        },
+        {
+          "frame": "f4_nightsorrow_death_005.png"
+        },
+        {
+          "frame": "f4_nightsorrow_death_006.png"
+        },
+        {
+          "frame": "f4_nightsorrow_death_007.png"
+        },
+        {
+          "frame": "f4_nightsorrow_death_008.png"
+        },
+        {
+          "frame": "f4_nightsorrow_death_009.png"
+        },
+        {
+          "frame": "f4_nightsorrow_death_010.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

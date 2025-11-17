@@ -1,0 +1,166 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_windrunner_idle_000.png"
+        },
+        {
+          "frame": "neutral_windrunner_idle_001.png"
+        },
+        {
+          "frame": "neutral_windrunner_idle_002.png"
+        },
+        {
+          "frame": "neutral_windrunner_idle_003.png"
+        },
+        {
+          "frame": "neutral_windrunner_idle_004.png"
+        },
+        {
+          "frame": "neutral_windrunner_idle_005.png"
+        },
+        {
+          "frame": "neutral_windrunner_idle_006.png"
+        },
+        {
+          "frame": "neutral_windrunner_idle_007.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_windrunner_attack_000.png"
+        },
+        {
+          "frame": "neutral_windrunner_attack_001.png"
+        },
+        {
+          "frame": "neutral_windrunner_attack_002.png"
+        },
+        {
+          "frame": "neutral_windrunner_attack_003.png"
+        },
+        {
+          "frame": "neutral_windrunner_attack_004.png"
+        },
+        {
+          "frame": "neutral_windrunner_attack_005.png"
+        },
+        {
+          "frame": "neutral_windrunner_attack_006.png"
+        },
+        {
+          "frame": "neutral_windrunner_attack_007.png"
+        },
+        {
+          "frame": "neutral_windrunner_attack_008.png"
+        },
+        {
+          "frame": "neutral_windrunner_attack_009.png"
+        },
+        {
+          "frame": "neutral_windrunner_attack_010.png"
+        },
+        {
+          "frame": "neutral_windrunner_attack_011.png"
+        },
+        {
+          "frame": "neutral_windrunner_attack_012.png"
+        },
+        {
+          "frame": "neutral_windrunner_attack_013.png"
+        },
+        {
+          "frame": "neutral_windrunner_attack_014.png"
+        },
+        {
+          "frame": "neutral_windrunner_attack_015.png"
+        },
+        {
+          "frame": "neutral_windrunner_attack_016.png"
+        },
+        {
+          "frame": "neutral_windrunner_attack_017.png"
+        },
+        {
+          "frame": "neutral_windrunner_attack_018.png"
+        },
+        {
+          "frame": "neutral_windrunner_attack_019.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_windrunner_death_000.png"
+        },
+        {
+          "frame": "neutral_windrunner_death_001.png"
+        },
+        {
+          "frame": "neutral_windrunner_death_002.png"
+        },
+        {
+          "frame": "neutral_windrunner_death_003.png"
+        },
+        {
+          "frame": "neutral_windrunner_death_004.png"
+        },
+        {
+          "frame": "neutral_windrunner_death_005.png"
+        },
+        {
+          "frame": "neutral_windrunner_death_006.png"
+        },
+        {
+          "frame": "neutral_windrunner_death_007.png"
+        },
+        {
+          "frame": "neutral_windrunner_death_008.png"
+        },
+        {
+          "frame": "neutral_windrunner_death_009.png"
+        },
+        {
+          "frame": "neutral_windrunner_death_010.png"
+        },
+        {
+          "frame": "neutral_windrunner_death_011.png"
+        },
+        {
+          "frame": "neutral_windrunner_death_012.png"
+        },
+        {
+          "frame": "neutral_windrunner_death_013.png"
+        },
+        {
+          "frame": "neutral_windrunner_death_014.png"
+        },
+        {
+          "frame": "neutral_windrunner_death_015.png"
+        },
+        {
+          "frame": "neutral_windrunner_death_016.png"
+        },
+        {
+          "frame": "neutral_windrunner_death_017.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

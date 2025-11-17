@@ -1,0 +1,181 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "boss_skyfalltyrant_idle_000.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_idle_001.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_idle_002.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_idle_003.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_idle_004.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_idle_005.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_idle_006.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_idle_007.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "boss_skyfalltyrant_attack_000.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_001.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_002.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_003.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_004.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_005.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_006.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_007.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_008.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_009.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_010.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_011.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_012.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_013.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_014.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_015.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_016.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_017.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_018.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_019.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_020.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_021.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_022.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_023.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_024.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_025.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_026.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_027.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_028.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_029.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_030.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_attack_031.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "boss_skyfalltyrant_death_000.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_death_001.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_death_002.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_death_003.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_death_004.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_death_005.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_death_006.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_death_007.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_death_008.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_death_009.png"
+        },
+        {
+          "frame": "boss_skyfalltyrant_death_010.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

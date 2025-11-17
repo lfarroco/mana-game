@@ -1,0 +1,358 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f3_duskweaver_idle_000.png"
+        },
+        {
+          "frame": "f3_duskweaver_idle_001.png"
+        },
+        {
+          "frame": "f3_duskweaver_idle_002.png"
+        },
+        {
+          "frame": "f3_duskweaver_idle_003.png"
+        },
+        {
+          "frame": "f3_duskweaver_idle_004.png"
+        },
+        {
+          "frame": "f3_duskweaver_idle_005.png"
+        },
+        {
+          "frame": "f3_duskweaver_idle_006.png"
+        },
+        {
+          "frame": "f3_duskweaver_idle_007.png"
+        },
+        {
+          "frame": "f3_duskweaver_idle_008.png"
+        },
+        {
+          "frame": "f3_duskweaver_idle_009.png"
+        },
+        {
+          "frame": "f3_duskweaver_idle_010.png"
+        },
+        {
+          "frame": "f3_duskweaver_idle_011.png"
+        },
+        {
+          "frame": "f3_duskweaver_idle_012.png"
+        },
+        {
+          "frame": "f3_duskweaver_idle_013.png"
+        },
+        {
+          "frame": "f3_duskweaver_idle_014.png"
+        },
+        {
+          "frame": "f3_duskweaver_idle_015.png"
+        },
+        {
+          "frame": "f3_duskweaver_idle_016.png"
+        },
+        {
+          "frame": "f3_duskweaver_idle_017.png"
+        },
+        {
+          "frame": "f3_duskweaver_idle_018.png"
+        },
+        {
+          "frame": "f3_duskweaver_idle_019.png"
+        },
+        {
+          "frame": "f3_duskweaver_idle_020.png"
+        },
+        {
+          "frame": "f3_duskweaver_idle_021.png"
+        },
+        {
+          "frame": "f3_duskweaver_idle_022.png"
+        },
+        {
+          "frame": "f3_duskweaver_idle_023.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f3_duskweaver_attack_000.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_001.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_002.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_003.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_004.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_005.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_006.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_007.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_008.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_009.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_010.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_011.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_012.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_013.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_014.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_015.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_016.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_017.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_018.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_019.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_020.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_021.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_022.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_023.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_024.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_025.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_026.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_027.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_028.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_029.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_030.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_031.png"
+        },
+        {
+          "frame": "f3_duskweaver_attack_032.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f3_duskweaver_death_000.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_001.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_002.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_003.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_004.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_005.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_006.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_007.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_008.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_009.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_010.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_011.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_012.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_013.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_014.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_015.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_016.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_017.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_018.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_019.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_020.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_021.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_022.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_023.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_024.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_025.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_026.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_027.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_028.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_029.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_030.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_031.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_032.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_033.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_034.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_035.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_036.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_037.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_038.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_039.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_040.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_041.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_042.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_043.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_044.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_045.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_046.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_047.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_048.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_049.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_050.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_051.png"
+        },
+        {
+          "frame": "f3_duskweaver_death_052.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

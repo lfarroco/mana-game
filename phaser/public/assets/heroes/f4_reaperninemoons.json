@@ -1,0 +1,2130 @@
+{
+  "frames": {
+    "f4_reaperninemoons_attack_000.png": {
+      "frame": {
+        "x": 364,
+        "y": 637,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_001.png": {
+      "frame": {
+        "x": 819,
+        "y": 273,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_002.png": {
+      "frame": {
+        "x": 819,
+        "y": 182,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_003.png": {
+      "frame": {
+        "x": 819,
+        "y": 91,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_004.png": {
+      "frame": {
+        "x": 819,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_005.png": {
+      "frame": {
+        "x": 728,
+        "y": 910,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_006.png": {
+      "frame": {
+        "x": 728,
+        "y": 819,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_007.png": {
+      "frame": {
+        "x": 728,
+        "y": 728,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_008.png": {
+      "frame": {
+        "x": 728,
+        "y": 637,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_009.png": {
+      "frame": {
+        "x": 728,
+        "y": 546,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_010.png": {
+      "frame": {
+        "x": 728,
+        "y": 455,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_011.png": {
+      "frame": {
+        "x": 728,
+        "y": 364,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_012.png": {
+      "frame": {
+        "x": 728,
+        "y": 273,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_013.png": {
+      "frame": {
+        "x": 728,
+        "y": 182,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_014.png": {
+      "frame": {
+        "x": 728,
+        "y": 91,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_015.png": {
+      "frame": {
+        "x": 728,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_016.png": {
+      "frame": {
+        "x": 637,
+        "y": 910,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_017.png": {
+      "frame": {
+        "x": 637,
+        "y": 819,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_018.png": {
+      "frame": {
+        "x": 637,
+        "y": 728,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_019.png": {
+      "frame": {
+        "x": 637,
+        "y": 637,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_020.png": {
+      "frame": {
+        "x": 637,
+        "y": 546,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_021.png": {
+      "frame": {
+        "x": 637,
+        "y": 455,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_022.png": {
+      "frame": {
+        "x": 637,
+        "y": 364,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_023.png": {
+      "frame": {
+        "x": 637,
+        "y": 273,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_024.png": {
+      "frame": {
+        "x": 637,
+        "y": 182,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_025.png": {
+      "frame": {
+        "x": 637,
+        "y": 91,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_026.png": {
+      "frame": {
+        "x": 637,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_027.png": {
+      "frame": {
+        "x": 546,
+        "y": 910,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_028.png": {
+      "frame": {
+        "x": 546,
+        "y": 819,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_029.png": {
+      "frame": {
+        "x": 546,
+        "y": 728,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_attack_030.png": {
+      "frame": {
+        "x": 546,
+        "y": 637,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_breathing_000.png": {
+      "frame": {
+        "x": 546,
+        "y": 546,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_breathing_001.png": {
+      "frame": {
+        "x": 546,
+        "y": 455,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_breathing_002.png": {
+      "frame": {
+        "x": 546,
+        "y": 364,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_breathing_003.png": {
+      "frame": {
+        "x": 546,
+        "y": 273,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_breathing_004.png": {
+      "frame": {
+        "x": 546,
+        "y": 182,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_breathing_005.png": {
+      "frame": {
+        "x": 546,
+        "y": 91,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_breathing_006.png": {
+      "frame": {
+        "x": 546,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_breathing_007.png": {
+      "frame": {
+        "x": 455,
+        "y": 910,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_breathing_008.png": {
+      "frame": {
+        "x": 455,
+        "y": 819,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_breathing_009.png": {
+      "frame": {
+        "x": 455,
+        "y": 728,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_death_000.png": {
+      "frame": {
+        "x": 364,
+        "y": 637,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_death_001.png": {
+      "frame": {
+        "x": 455,
+        "y": 637,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_death_002.png": {
+      "frame": {
+        "x": 455,
+        "y": 546,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_death_003.png": {
+      "frame": {
+        "x": 455,
+        "y": 455,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_death_004.png": {
+      "frame": {
+        "x": 455,
+        "y": 364,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_death_005.png": {
+      "frame": {
+        "x": 455,
+        "y": 273,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_death_006.png": {
+      "frame": {
+        "x": 455,
+        "y": 182,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_death_007.png": {
+      "frame": {
+        "x": 455,
+        "y": 91,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_death_008.png": {
+      "frame": {
+        "x": 455,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_death_009.png": {
+      "frame": {
+        "x": 364,
+        "y": 910,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_death_010.png": {
+      "frame": {
+        "x": 364,
+        "y": 819,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_death_011.png": {
+      "frame": {
+        "x": 364,
+        "y": 728,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_death_012.png": {
+      "frame": {
+        "x": 819,
+        "y": 364,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_death_013.png": {
+      "frame": {
+        "x": 364,
+        "y": 546,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_death_014.png": {
+      "frame": {
+        "x": 364,
+        "y": 455,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_death_015.png": {
+      "frame": {
+        "x": 364,
+        "y": 364,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_death_016.png": {
+      "frame": {
+        "x": 364,
+        "y": 273,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_death_017.png": {
+      "frame": {
+        "x": 364,
+        "y": 182,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_death_018.png": {
+      "frame": {
+        "x": 364,
+        "y": 91,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_death_019.png": {
+      "frame": {
+        "x": 364,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_death_020.png": {
+      "frame": {
+        "x": 273,
+        "y": 910,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_death_021.png": {
+      "frame": {
+        "x": 273,
+        "y": 819,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_death_022.png": {
+      "frame": {
+        "x": 273,
+        "y": 728,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_death_023.png": {
+      "frame": {
+        "x": 273,
+        "y": 637,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_death_024.png": {
+      "frame": {
+        "x": 273,
+        "y": 546,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_death_025.png": {
+      "frame": {
+        "x": 273,
+        "y": 455,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_hit_000.png": {
+      "frame": {
+        "x": 546,
+        "y": 546,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_hit_001.png": {
+      "frame": {
+        "x": 273,
+        "y": 364,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_hit_002.png": {
+      "frame": {
+        "x": 273,
+        "y": 273,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_hit_003.png": {
+      "frame": {
+        "x": 273,
+        "y": 182,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_hit_004.png": {
+      "frame": {
+        "x": 273,
+        "y": 91,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_000.png": {
+      "frame": {
+        "x": 273,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_001.png": {
+      "frame": {
+        "x": 182,
+        "y": 910,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_002.png": {
+      "frame": {
+        "x": 182,
+        "y": 819,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_003.png": {
+      "frame": {
+        "x": 182,
+        "y": 728,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_004.png": {
+      "frame": {
+        "x": 182,
+        "y": 637,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_005.png": {
+      "frame": {
+        "x": 182,
+        "y": 546,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_006.png": {
+      "frame": {
+        "x": 182,
+        "y": 455,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_007.png": {
+      "frame": {
+        "x": 182,
+        "y": 364,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_008.png": {
+      "frame": {
+        "x": 182,
+        "y": 273,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_009.png": {
+      "frame": {
+        "x": 182,
+        "y": 182,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_010.png": {
+      "frame": {
+        "x": 182,
+        "y": 91,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_011.png": {
+      "frame": {
+        "x": 182,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_012.png": {
+      "frame": {
+        "x": 91,
+        "y": 910,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_013.png": {
+      "frame": {
+        "x": 91,
+        "y": 819,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_014.png": {
+      "frame": {
+        "x": 91,
+        "y": 728,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_015.png": {
+      "frame": {
+        "x": 91,
+        "y": 637,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_016.png": {
+      "frame": {
+        "x": 91,
+        "y": 546,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_017.png": {
+      "frame": {
+        "x": 91,
+        "y": 455,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_018.png": {
+      "frame": {
+        "x": 91,
+        "y": 364,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_019.png": {
+      "frame": {
+        "x": 91,
+        "y": 273,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_020.png": {
+      "frame": {
+        "x": 91,
+        "y": 182,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_021.png": {
+      "frame": {
+        "x": 91,
+        "y": 91,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_022.png": {
+      "frame": {
+        "x": 91,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_023.png": {
+      "frame": {
+        "x": 0,
+        "y": 910,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_024.png": {
+      "frame": {
+        "x": 0,
+        "y": 819,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_025.png": {
+      "frame": {
+        "x": 0,
+        "y": 728,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_026.png": {
+      "frame": {
+        "x": 0,
+        "y": 637,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_027.png": {
+      "frame": {
+        "x": 0,
+        "y": 546,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_028.png": {
+      "frame": {
+        "x": 0,
+        "y": 455,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_idle_029.png": {
+      "frame": {
+        "x": 0,
+        "y": 364,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_run_000.png": {
+      "frame": {
+        "x": 0,
+        "y": 273,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_run_001.png": {
+      "frame": {
+        "x": 0,
+        "y": 182,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_run_002.png": {
+      "frame": {
+        "x": 0,
+        "y": 91,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    },
+    "f4_reaperninemoons_run_003.png": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 90
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 90
+      }
+    }
+  },
+  "meta": {
+    "image": "f4_reaperninemoons.png",
+    "size": "{1024,1024}",
+    "scale": "1",
+    "format": "RGBA8888"
+  }
+}

@@ -1,0 +1,172 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f4_daemonvoid_idle_000.png"
+        },
+        {
+          "frame": "f4_daemonvoid_idle_001.png"
+        },
+        {
+          "frame": "f4_daemonvoid_idle_002.png"
+        },
+        {
+          "frame": "f4_daemonvoid_idle_003.png"
+        },
+        {
+          "frame": "f4_daemonvoid_idle_004.png"
+        },
+        {
+          "frame": "f4_daemonvoid_idle_005.png"
+        },
+        {
+          "frame": "f4_daemonvoid_idle_006.png"
+        },
+        {
+          "frame": "f4_daemonvoid_idle_007.png"
+        },
+        {
+          "frame": "f4_daemonvoid_idle_008.png"
+        },
+        {
+          "frame": "f4_daemonvoid_idle_009.png"
+        },
+        {
+          "frame": "f4_daemonvoid_idle_010.png"
+        },
+        {
+          "frame": "f4_daemonvoid_idle_011.png"
+        },
+        {
+          "frame": "f4_daemonvoid_idle_012.png"
+        },
+        {
+          "frame": "f4_daemonvoid_idle_013.png"
+        },
+        {
+          "frame": "f4_daemonvoid_idle_014.png"
+        },
+        {
+          "frame": "f4_daemonvoid_idle_015.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f4_daemonvoid_attack_000.png"
+        },
+        {
+          "frame": "f4_daemonvoid_attack_001.png"
+        },
+        {
+          "frame": "f4_daemonvoid_attack_002.png"
+        },
+        {
+          "frame": "f4_daemonvoid_attack_003.png"
+        },
+        {
+          "frame": "f4_daemonvoid_attack_004.png"
+        },
+        {
+          "frame": "f4_daemonvoid_attack_005.png"
+        },
+        {
+          "frame": "f4_daemonvoid_attack_006.png"
+        },
+        {
+          "frame": "f4_daemonvoid_attack_007.png"
+        },
+        {
+          "frame": "f4_daemonvoid_attack_008.png"
+        },
+        {
+          "frame": "f4_daemonvoid_attack_009.png"
+        },
+        {
+          "frame": "f4_daemonvoid_attack_010.png"
+        },
+        {
+          "frame": "f4_daemonvoid_attack_011.png"
+        },
+        {
+          "frame": "f4_daemonvoid_attack_012.png"
+        },
+        {
+          "frame": "f4_daemonvoid_attack_013.png"
+        },
+        {
+          "frame": "f4_daemonvoid_attack_014.png"
+        },
+        {
+          "frame": "f4_daemonvoid_attack_015.png"
+        },
+        {
+          "frame": "f4_daemonvoid_attack_016.png"
+        },
+        {
+          "frame": "f4_daemonvoid_attack_017.png"
+        },
+        {
+          "frame": "f4_daemonvoid_attack_018.png"
+        },
+        {
+          "frame": "f4_daemonvoid_attack_019.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f4_daemonvoid_death_000.png"
+        },
+        {
+          "frame": "f4_daemonvoid_death_001.png"
+        },
+        {
+          "frame": "f4_daemonvoid_death_002.png"
+        },
+        {
+          "frame": "f4_daemonvoid_death_003.png"
+        },
+        {
+          "frame": "f4_daemonvoid_death_004.png"
+        },
+        {
+          "frame": "f4_daemonvoid_death_005.png"
+        },
+        {
+          "frame": "f4_daemonvoid_death_006.png"
+        },
+        {
+          "frame": "f4_daemonvoid_death_007.png"
+        },
+        {
+          "frame": "f4_daemonvoid_death_008.png"
+        },
+        {
+          "frame": "f4_daemonvoid_death_009.png"
+        },
+        {
+          "frame": "f4_daemonvoid_death_010.png"
+        },
+        {
+          "frame": "f4_daemonvoid_death_011.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

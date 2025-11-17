@@ -1,0 +1,131 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f6_gravitywell_idle_000.png"
+        },
+        {
+          "frame": "f6_gravitywell_idle_001.png"
+        },
+        {
+          "frame": "f6_gravitywell_idle_002.png"
+        },
+        {
+          "frame": "f6_gravitywell_idle_003.png"
+        },
+        {
+          "frame": "f6_gravitywell_idle_004.png"
+        },
+        {
+          "frame": "f6_gravitywell_idle_005.png"
+        },
+        {
+          "frame": "f6_gravitywell_idle_006.png"
+        },
+        {
+          "frame": "f6_gravitywell_idle_007.png"
+        },
+        {
+          "frame": "f6_gravitywell_idle_008.png"
+        },
+        {
+          "frame": "f6_gravitywell_idle_009.png"
+        },
+        {
+          "frame": "f6_gravitywell_idle_010.png"
+        },
+        {
+          "frame": "f6_gravitywell_idle_011.png"
+        },
+        {
+          "frame": "f6_gravitywell_idle_012.png"
+        },
+        {
+          "frame": "f6_gravitywell_idle_013.png"
+        },
+        {
+          "frame": "f6_gravitywell_idle_014.png"
+        },
+        {
+          "frame": "f6_gravitywell_idle_015.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f6_gravitywell_death_000.png"
+        },
+        {
+          "frame": "f6_gravitywell_death_001.png"
+        },
+        {
+          "frame": "f6_gravitywell_death_002.png"
+        },
+        {
+          "frame": "f6_gravitywell_death_003.png"
+        },
+        {
+          "frame": "f6_gravitywell_death_004.png"
+        },
+        {
+          "frame": "f6_gravitywell_death_005.png"
+        },
+        {
+          "frame": "f6_gravitywell_death_006.png"
+        },
+        {
+          "frame": "f6_gravitywell_death_007.png"
+        },
+        {
+          "frame": "f6_gravitywell_death_008.png"
+        },
+        {
+          "frame": "f6_gravitywell_death_009.png"
+        },
+        {
+          "frame": "f6_gravitywell_death_010.png"
+        },
+        {
+          "frame": "f6_gravitywell_death_011.png"
+        },
+        {
+          "frame": "f6_gravitywell_death_012.png"
+        },
+        {
+          "frame": "f6_gravitywell_death_013.png"
+        },
+        {
+          "frame": "f6_gravitywell_death_014.png"
+        },
+        {
+          "frame": "f6_gravitywell_death_015.png"
+        },
+        {
+          "frame": "f6_gravitywell_death_016.png"
+        },
+        {
+          "frame": "f6_gravitywell_death_017.png"
+        },
+        {
+          "frame": "f6_gravitywell_death_018.png"
+        },
+        {
+          "frame": "f6_gravitywell_death_019.png"
+        },
+        {
+          "frame": "f6_gravitywell_death_020.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

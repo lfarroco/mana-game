@@ -1,0 +1,250 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f6_evilcrystalwisp_idle_000.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_idle_001.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_idle_002.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_idle_003.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_idle_004.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_idle_005.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_idle_006.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_idle_007.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_idle_008.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_idle_009.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_idle_010.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_idle_011.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_idle_012.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_idle_013.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_idle_014.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_idle_015.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f6_evilcrystalwisp_attack_000.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_001.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_002.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_003.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_004.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_005.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_006.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_007.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_008.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_009.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_010.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_011.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_012.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_013.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_014.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_015.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_016.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_017.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_018.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_019.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_020.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_021.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_022.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_023.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_024.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_025.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_026.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_027.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_attack_028.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f6_evilcrystalwisp_death_000.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_001.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_002.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_003.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_004.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_005.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_006.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_007.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_008.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_009.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_010.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_011.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_012.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_013.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_014.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_015.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_016.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_017.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_018.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_019.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_020.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_021.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_022.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_023.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_024.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_025.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_026.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_027.png"
+        },
+        {
+          "frame": "f6_evilcrystalwisp_death_028.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

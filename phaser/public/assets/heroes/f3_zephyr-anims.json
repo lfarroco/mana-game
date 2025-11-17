@@ -1,0 +1,175 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f3_zephyr_idle_000.png"
+        },
+        {
+          "frame": "f3_zephyr_idle_001.png"
+        },
+        {
+          "frame": "f3_zephyr_idle_002.png"
+        },
+        {
+          "frame": "f3_zephyr_idle_003.png"
+        },
+        {
+          "frame": "f3_zephyr_idle_004.png"
+        },
+        {
+          "frame": "f3_zephyr_idle_005.png"
+        },
+        {
+          "frame": "f3_zephyr_idle_006.png"
+        },
+        {
+          "frame": "f3_zephyr_idle_007.png"
+        },
+        {
+          "frame": "f3_zephyr_idle_008.png"
+        },
+        {
+          "frame": "f3_zephyr_idle_009.png"
+        },
+        {
+          "frame": "f3_zephyr_idle_010.png"
+        },
+        {
+          "frame": "f3_zephyr_idle_011.png"
+        },
+        {
+          "frame": "f3_zephyr_idle_012.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f3_zephyr_attack_000.png"
+        },
+        {
+          "frame": "f3_zephyr_attack_001.png"
+        },
+        {
+          "frame": "f3_zephyr_attack_002.png"
+        },
+        {
+          "frame": "f3_zephyr_attack_003.png"
+        },
+        {
+          "frame": "f3_zephyr_attack_004.png"
+        },
+        {
+          "frame": "f3_zephyr_attack_005.png"
+        },
+        {
+          "frame": "f3_zephyr_attack_006.png"
+        },
+        {
+          "frame": "f3_zephyr_attack_007.png"
+        },
+        {
+          "frame": "f3_zephyr_attack_008.png"
+        },
+        {
+          "frame": "f3_zephyr_attack_009.png"
+        },
+        {
+          "frame": "f3_zephyr_attack_010.png"
+        },
+        {
+          "frame": "f3_zephyr_attack_011.png"
+        },
+        {
+          "frame": "f3_zephyr_attack_012.png"
+        },
+        {
+          "frame": "f3_zephyr_attack_013.png"
+        },
+        {
+          "frame": "f3_zephyr_attack_014.png"
+        },
+        {
+          "frame": "f3_zephyr_attack_015.png"
+        },
+        {
+          "frame": "f3_zephyr_attack_016.png"
+        },
+        {
+          "frame": "f3_zephyr_attack_017.png"
+        },
+        {
+          "frame": "f3_zephyr_attack_018.png"
+        },
+        {
+          "frame": "f3_zephyr_attack_019.png"
+        },
+        {
+          "frame": "f3_zephyr_attack_020.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f3_zephyr_death_000.png"
+        },
+        {
+          "frame": "f3_zephyr_death_001.png"
+        },
+        {
+          "frame": "f3_zephyr_death_002.png"
+        },
+        {
+          "frame": "f3_zephyr_death_003.png"
+        },
+        {
+          "frame": "f3_zephyr_death_004.png"
+        },
+        {
+          "frame": "f3_zephyr_death_005.png"
+        },
+        {
+          "frame": "f3_zephyr_death_006.png"
+        },
+        {
+          "frame": "f3_zephyr_death_007.png"
+        },
+        {
+          "frame": "f3_zephyr_death_008.png"
+        },
+        {
+          "frame": "f3_zephyr_death_009.png"
+        },
+        {
+          "frame": "f3_zephyr_death_010.png"
+        },
+        {
+          "frame": "f3_zephyr_death_011.png"
+        },
+        {
+          "frame": "f3_zephyr_death_012.png"
+        },
+        {
+          "frame": "f3_zephyr_death_013.png"
+        },
+        {
+          "frame": "f3_zephyr_death_014.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

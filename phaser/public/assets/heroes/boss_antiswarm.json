@@ -1,0 +1,2250 @@
+{
+  "frames": {
+    "boss_antiswarm_attack_000.png": {
+      "frame": {
+        "x": 393,
+        "y": 1310,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_001.png": {
+      "frame": {
+        "x": 917,
+        "y": 655,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_002.png": {
+      "frame": {
+        "x": 917,
+        "y": 524,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_003.png": {
+      "frame": {
+        "x": 917,
+        "y": 393,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_004.png": {
+      "frame": {
+        "x": 917,
+        "y": 262,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_005.png": {
+      "frame": {
+        "x": 917,
+        "y": 131,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_006.png": {
+      "frame": {
+        "x": 917,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_007.png": {
+      "frame": {
+        "x": 786,
+        "y": 1834,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_008.png": {
+      "frame": {
+        "x": 786,
+        "y": 1703,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_009.png": {
+      "frame": {
+        "x": 786,
+        "y": 1572,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_010.png": {
+      "frame": {
+        "x": 786,
+        "y": 1441,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_011.png": {
+      "frame": {
+        "x": 786,
+        "y": 1310,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_012.png": {
+      "frame": {
+        "x": 786,
+        "y": 1179,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_013.png": {
+      "frame": {
+        "x": 786,
+        "y": 1048,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_014.png": {
+      "frame": {
+        "x": 786,
+        "y": 917,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_015.png": {
+      "frame": {
+        "x": 786,
+        "y": 786,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_016.png": {
+      "frame": {
+        "x": 786,
+        "y": 655,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_017.png": {
+      "frame": {
+        "x": 786,
+        "y": 524,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_018.png": {
+      "frame": {
+        "x": 786,
+        "y": 393,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_019.png": {
+      "frame": {
+        "x": 786,
+        "y": 262,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_020.png": {
+      "frame": {
+        "x": 786,
+        "y": 131,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_021.png": {
+      "frame": {
+        "x": 786,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_022.png": {
+      "frame": {
+        "x": 655,
+        "y": 1834,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_023.png": {
+      "frame": {
+        "x": 655,
+        "y": 1703,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_024.png": {
+      "frame": {
+        "x": 655,
+        "y": 1572,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_025.png": {
+      "frame": {
+        "x": 655,
+        "y": 1441,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_026.png": {
+      "frame": {
+        "x": 655,
+        "y": 1310,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_027.png": {
+      "frame": {
+        "x": 655,
+        "y": 1179,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_028.png": {
+      "frame": {
+        "x": 655,
+        "y": 1048,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_029.png": {
+      "frame": {
+        "x": 655,
+        "y": 917,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_030.png": {
+      "frame": {
+        "x": 655,
+        "y": 786,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_031.png": {
+      "frame": {
+        "x": 655,
+        "y": 655,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_032.png": {
+      "frame": {
+        "x": 655,
+        "y": 524,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_033.png": {
+      "frame": {
+        "x": 655,
+        "y": 393,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_034.png": {
+      "frame": {
+        "x": 655,
+        "y": 262,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_035.png": {
+      "frame": {
+        "x": 655,
+        "y": 131,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_036.png": {
+      "frame": {
+        "x": 655,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_037.png": {
+      "frame": {
+        "x": 524,
+        "y": 1834,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_038.png": {
+      "frame": {
+        "x": 524,
+        "y": 1703,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_039.png": {
+      "frame": {
+        "x": 524,
+        "y": 1572,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_040.png": {
+      "frame": {
+        "x": 524,
+        "y": 1441,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_041.png": {
+      "frame": {
+        "x": 524,
+        "y": 1310,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_attack_042.png": {
+      "frame": {
+        "x": 524,
+        "y": 1179,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_breathing_000.png": {
+      "frame": {
+        "x": 524,
+        "y": 1048,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_breathing_001.png": {
+      "frame": {
+        "x": 524,
+        "y": 917,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_breathing_002.png": {
+      "frame": {
+        "x": 524,
+        "y": 786,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_breathing_003.png": {
+      "frame": {
+        "x": 524,
+        "y": 655,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_breathing_004.png": {
+      "frame": {
+        "x": 524,
+        "y": 524,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_breathing_005.png": {
+      "frame": {
+        "x": 524,
+        "y": 393,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_breathing_006.png": {
+      "frame": {
+        "x": 524,
+        "y": 262,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_breathing_007.png": {
+      "frame": {
+        "x": 524,
+        "y": 131,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_breathing_008.png": {
+      "frame": {
+        "x": 524,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_breathing_009.png": {
+      "frame": {
+        "x": 393,
+        "y": 1834,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_breathing_010.png": {
+      "frame": {
+        "x": 393,
+        "y": 1703,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_breathing_011.png": {
+      "frame": {
+        "x": 393,
+        "y": 1572,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_breathing_012.png": {
+      "frame": {
+        "x": 393,
+        "y": 1441,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_breathing_013.png": {
+      "frame": {
+        "x": 917,
+        "y": 786,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_000.png": {
+      "frame": {
+        "x": 393,
+        "y": 1179,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_001.png": {
+      "frame": {
+        "x": 393,
+        "y": 1048,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_002.png": {
+      "frame": {
+        "x": 393,
+        "y": 917,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_003.png": {
+      "frame": {
+        "x": 393,
+        "y": 786,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_004.png": {
+      "frame": {
+        "x": 393,
+        "y": 655,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_005.png": {
+      "frame": {
+        "x": 393,
+        "y": 524,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_006.png": {
+      "frame": {
+        "x": 393,
+        "y": 393,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_007.png": {
+      "frame": {
+        "x": 393,
+        "y": 262,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_008.png": {
+      "frame": {
+        "x": 393,
+        "y": 131,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_009.png": {
+      "frame": {
+        "x": 393,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_010.png": {
+      "frame": {
+        "x": 262,
+        "y": 1834,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_011.png": {
+      "frame": {
+        "x": 262,
+        "y": 1703,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_012.png": {
+      "frame": {
+        "x": 262,
+        "y": 1572,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_013.png": {
+      "frame": {
+        "x": 262,
+        "y": 1441,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_014.png": {
+      "frame": {
+        "x": 262,
+        "y": 1310,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_015.png": {
+      "frame": {
+        "x": 262,
+        "y": 1179,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_016.png": {
+      "frame": {
+        "x": 262,
+        "y": 1048,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_017.png": {
+      "frame": {
+        "x": 262,
+        "y": 917,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_018.png": {
+      "frame": {
+        "x": 262,
+        "y": 786,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_019.png": {
+      "frame": {
+        "x": 262,
+        "y": 655,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_020.png": {
+      "frame": {
+        "x": 262,
+        "y": 524,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_021.png": {
+      "frame": {
+        "x": 262,
+        "y": 393,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_022.png": {
+      "frame": {
+        "x": 262,
+        "y": 262,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_023.png": {
+      "frame": {
+        "x": 262,
+        "y": 131,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_024.png": {
+      "frame": {
+        "x": 262,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_025.png": {
+      "frame": {
+        "x": 131,
+        "y": 1834,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_death_026.png": {
+      "frame": {
+        "x": 131,
+        "y": 1703,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_hit_000.png": {
+      "frame": {
+        "x": 131,
+        "y": 1572,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_hit_001.png": {
+      "frame": {
+        "x": 131,
+        "y": 1441,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_hit_002.png": {
+      "frame": {
+        "x": 131,
+        "y": 1310,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_idle_000.png": {
+      "frame": {
+        "x": 131,
+        "y": 1179,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_idle_001.png": {
+      "frame": {
+        "x": 131,
+        "y": 1048,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_idle_002.png": {
+      "frame": {
+        "x": 131,
+        "y": 917,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_idle_003.png": {
+      "frame": {
+        "x": 131,
+        "y": 786,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_idle_004.png": {
+      "frame": {
+        "x": 131,
+        "y": 655,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_idle_005.png": {
+      "frame": {
+        "x": 131,
+        "y": 524,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_idle_006.png": {
+      "frame": {
+        "x": 131,
+        "y": 393,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_idle_007.png": {
+      "frame": {
+        "x": 131,
+        "y": 262,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_idle_008.png": {
+      "frame": {
+        "x": 131,
+        "y": 131,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_idle_009.png": {
+      "frame": {
+        "x": 131,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_idle_010.png": {
+      "frame": {
+        "x": 0,
+        "y": 1834,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_idle_011.png": {
+      "frame": {
+        "x": 0,
+        "y": 1703,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_idle_012.png": {
+      "frame": {
+        "x": 0,
+        "y": 1572,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_idle_013.png": {
+      "frame": {
+        "x": 0,
+        "y": 1441,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_idle_014.png": {
+      "frame": {
+        "x": 0,
+        "y": 1310,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_idle_015.png": {
+      "frame": {
+        "x": 0,
+        "y": 1179,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_idle_016.png": {
+      "frame": {
+        "x": 0,
+        "y": 1048,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_run_000.png": {
+      "frame": {
+        "x": 0,
+        "y": 917,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_run_001.png": {
+      "frame": {
+        "x": 0,
+        "y": 786,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_run_002.png": {
+      "frame": {
+        "x": 0,
+        "y": 655,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_run_003.png": {
+      "frame": {
+        "x": 0,
+        "y": 524,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_run_004.png": {
+      "frame": {
+        "x": 0,
+        "y": 393,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_run_005.png": {
+      "frame": {
+        "x": 0,
+        "y": 262,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_run_006.png": {
+      "frame": {
+        "x": 0,
+        "y": 131,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    },
+    "boss_antiswarm_run_007.png": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 130,
+        "h": 130
+      },
+      "sourceSize": {
+        "w": 130,
+        "h": 130
+      }
+    }
+  },
+  "meta": {
+    "image": "boss_antiswarm.png",
+    "size": "{2048,2048}",
+    "scale": "1",
+    "format": "RGBA8888"
+  }
+}

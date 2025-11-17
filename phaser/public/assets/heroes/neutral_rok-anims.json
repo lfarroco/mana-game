@@ -1,0 +1,181 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_rok_idle_000.png"
+        },
+        {
+          "frame": "neutral_rok_idle_001.png"
+        },
+        {
+          "frame": "neutral_rok_idle_002.png"
+        },
+        {
+          "frame": "neutral_rok_idle_003.png"
+        },
+        {
+          "frame": "neutral_rok_idle_004.png"
+        },
+        {
+          "frame": "neutral_rok_idle_005.png"
+        },
+        {
+          "frame": "neutral_rok_idle_006.png"
+        },
+        {
+          "frame": "neutral_rok_idle_007.png"
+        },
+        {
+          "frame": "neutral_rok_idle_008.png"
+        },
+        {
+          "frame": "neutral_rok_idle_009.png"
+        },
+        {
+          "frame": "neutral_rok_idle_010.png"
+        },
+        {
+          "frame": "neutral_rok_idle_011.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_rok_attack_000.png"
+        },
+        {
+          "frame": "neutral_rok_attack_001.png"
+        },
+        {
+          "frame": "neutral_rok_attack_002.png"
+        },
+        {
+          "frame": "neutral_rok_attack_003.png"
+        },
+        {
+          "frame": "neutral_rok_attack_004.png"
+        },
+        {
+          "frame": "neutral_rok_attack_005.png"
+        },
+        {
+          "frame": "neutral_rok_attack_006.png"
+        },
+        {
+          "frame": "neutral_rok_attack_007.png"
+        },
+        {
+          "frame": "neutral_rok_attack_008.png"
+        },
+        {
+          "frame": "neutral_rok_attack_009.png"
+        },
+        {
+          "frame": "neutral_rok_attack_010.png"
+        },
+        {
+          "frame": "neutral_rok_attack_011.png"
+        },
+        {
+          "frame": "neutral_rok_attack_012.png"
+        },
+        {
+          "frame": "neutral_rok_attack_013.png"
+        },
+        {
+          "frame": "neutral_rok_attack_014.png"
+        },
+        {
+          "frame": "neutral_rok_attack_015.png"
+        },
+        {
+          "frame": "neutral_rok_attack_016.png"
+        },
+        {
+          "frame": "neutral_rok_attack_017.png"
+        },
+        {
+          "frame": "neutral_rok_attack_018.png"
+        },
+        {
+          "frame": "neutral_rok_attack_019.png"
+        },
+        {
+          "frame": "neutral_rok_attack_020.png"
+        },
+        {
+          "frame": "neutral_rok_attack_021.png"
+        },
+        {
+          "frame": "neutral_rok_attack_022.png"
+        },
+        {
+          "frame": "neutral_rok_attack_023.png"
+        },
+        {
+          "frame": "neutral_rok_attack_024.png"
+        },
+        {
+          "frame": "neutral_rok_attack_025.png"
+        },
+        {
+          "frame": "neutral_rok_attack_026.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_rok_death_000.png"
+        },
+        {
+          "frame": "neutral_rok_death_001.png"
+        },
+        {
+          "frame": "neutral_rok_death_002.png"
+        },
+        {
+          "frame": "neutral_rok_death_003.png"
+        },
+        {
+          "frame": "neutral_rok_death_004.png"
+        },
+        {
+          "frame": "neutral_rok_death_005.png"
+        },
+        {
+          "frame": "neutral_rok_death_006.png"
+        },
+        {
+          "frame": "neutral_rok_death_007.png"
+        },
+        {
+          "frame": "neutral_rok_death_008.png"
+        },
+        {
+          "frame": "neutral_rok_death_009.png"
+        },
+        {
+          "frame": "neutral_rok_death_010.png"
+        },
+        {
+          "frame": "neutral_rok_death_011.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

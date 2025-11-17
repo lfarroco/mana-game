@@ -1,0 +1,163 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "boss_treatdemon_idle_000.png"
+        },
+        {
+          "frame": "boss_treatdemon_idle_001.png"
+        },
+        {
+          "frame": "boss_treatdemon_idle_002.png"
+        },
+        {
+          "frame": "boss_treatdemon_idle_003.png"
+        },
+        {
+          "frame": "boss_treatdemon_idle_004.png"
+        },
+        {
+          "frame": "boss_treatdemon_idle_005.png"
+        },
+        {
+          "frame": "boss_treatdemon_idle_006.png"
+        },
+        {
+          "frame": "boss_treatdemon_idle_007.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "boss_treatdemon_attack_000.png"
+        },
+        {
+          "frame": "boss_treatdemon_attack_001.png"
+        },
+        {
+          "frame": "boss_treatdemon_attack_002.png"
+        },
+        {
+          "frame": "boss_treatdemon_attack_003.png"
+        },
+        {
+          "frame": "boss_treatdemon_attack_004.png"
+        },
+        {
+          "frame": "boss_treatdemon_attack_005.png"
+        },
+        {
+          "frame": "boss_treatdemon_attack_006.png"
+        },
+        {
+          "frame": "boss_treatdemon_attack_007.png"
+        },
+        {
+          "frame": "boss_treatdemon_attack_008.png"
+        },
+        {
+          "frame": "boss_treatdemon_attack_009.png"
+        },
+        {
+          "frame": "boss_treatdemon_attack_010.png"
+        },
+        {
+          "frame": "boss_treatdemon_attack_011.png"
+        },
+        {
+          "frame": "boss_treatdemon_attack_012.png"
+        },
+        {
+          "frame": "boss_treatdemon_attack_013.png"
+        },
+        {
+          "frame": "boss_treatdemon_attack_014.png"
+        },
+        {
+          "frame": "boss_treatdemon_attack_015.png"
+        },
+        {
+          "frame": "boss_treatdemon_attack_016.png"
+        },
+        {
+          "frame": "boss_treatdemon_attack_017.png"
+        },
+        {
+          "frame": "boss_treatdemon_attack_018.png"
+        },
+        {
+          "frame": "boss_treatdemon_attack_019.png"
+        },
+        {
+          "frame": "boss_treatdemon_attack_020.png"
+        },
+        {
+          "frame": "boss_treatdemon_attack_021.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "boss_treatdemon_death_000.png"
+        },
+        {
+          "frame": "boss_treatdemon_death_001.png"
+        },
+        {
+          "frame": "boss_treatdemon_death_002.png"
+        },
+        {
+          "frame": "boss_treatdemon_death_003.png"
+        },
+        {
+          "frame": "boss_treatdemon_death_004.png"
+        },
+        {
+          "frame": "boss_treatdemon_death_005.png"
+        },
+        {
+          "frame": "boss_treatdemon_death_006.png"
+        },
+        {
+          "frame": "boss_treatdemon_death_007.png"
+        },
+        {
+          "frame": "boss_treatdemon_death_008.png"
+        },
+        {
+          "frame": "boss_treatdemon_death_009.png"
+        },
+        {
+          "frame": "boss_treatdemon_death_010.png"
+        },
+        {
+          "frame": "boss_treatdemon_death_011.png"
+        },
+        {
+          "frame": "boss_treatdemon_death_012.png"
+        },
+        {
+          "frame": "boss_treatdemon_death_013.png"
+        },
+        {
+          "frame": "boss_treatdemon_death_014.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}
