@@ -85,8 +85,7 @@
 							"id": "increase_power",
 							"amount": 5,
 							"targets": {
-								"id": "trigger",
-								"ofType": "shield"
+								"id": "trigger"
 							}
 						}
 					]
@@ -110,7 +109,8 @@
 							"id": "increase_power",
 							"amount": 3,
 							"targets": {
-								"id": "all_allies"
+								"id": "all_allies",
+								"ofType": "any"
 							}
 						}
 					]
@@ -282,7 +282,7 @@
 							"id": "increase_power",
 							"amount": 5,
 							"targets": {
-								"id": "row"
+								"id": "row_allies"
 							}
 						}
 					]
@@ -295,7 +295,7 @@
 							"id": "increase_power",
 							"amount": 5,
 							"targets": {
-								"id": "col"
+								"id": "column_allies"
 							}
 						}
 					]
@@ -422,6 +422,7 @@
 				},
 				{
 					"id": "haste",
+					"duration": 1000,
 					"targets": {
 						"id": "self"
 					}
@@ -461,7 +462,7 @@
 					"effects": [
 						{
 							"id": "charge",
-							"amount": 1000,
+							"duration": 1000,
 							"targets": {
 								"id": "self"
 							}
@@ -542,7 +543,7 @@
 					"effects": [
 						{
 							"id": "charge",
-							"amount": 1000,
+							"duration": 1000,
 							"targets": {
 								"id": "self"
 							}
@@ -712,7 +713,8 @@
 					"id": "haste",
 					"duration": 1000,
 					"targets": {
-						"id": "all_allies"
+						"id": "all_allies",
+						"ofType": "any"
 					}
 				}
 			],
@@ -723,7 +725,7 @@
 					"effects": [
 						{
 							"id": "charge",
-							"amount": 1000,
+							"duration": 1000,
 							"targets": {
 								"id": "self"
 							}
@@ -736,7 +738,7 @@
 					"effects": [
 						{
 							"id": "charge",
-							"amount": 1000,
+							"duration": 1000,
 							"targets": {
 								"id": "self"
 							}
@@ -1029,7 +1031,7 @@
 							"id": "increase_power",
 							"amount": 5,
 							"targets": {
-								"id": "left"
+								"id": "left_ally"
 							}
 						}
 					]
@@ -1075,6 +1077,7 @@
 				},
 				{
 					"id": "haste",
+					"duration": 1000,
 					"targets": {
 						"id": "right_ally"
 					}
@@ -1114,7 +1117,7 @@
 					"effects": [
 						{
 							"id": "charge",
-							"amount": 1000,
+							"duration": 1000,
 							"targets": {
 								"id": "self"
 							}
@@ -1127,7 +1130,7 @@
 					"effects": [
 						{
 							"id": "charge",
-							"amount": 1000,
+							"duration": 1000,
 							"targets": {
 								"id": "self"
 							}
@@ -1221,7 +1224,7 @@
 					"effects": [
 						{
 							"id": "haste",
-							"amount": 1000,
+							"duration": 1000,
 							"targets": {
 								"id": "self"
 							}
@@ -1234,7 +1237,7 @@
 					"effects": [
 						{
 							"id": "haste",
-							"amount": 1000,
+							"duration": 1000,
 							"targets": {
 								"id": "self"
 							}
@@ -1255,9 +1258,9 @@
 				},
 				{
 					"id": "charge",
+					"duration": 1000,
 					"targets": {
-						"id": "right_ally",
-						"amount": 1000
+						"id": "right_ally"
 					}
 				}
 			],
@@ -1268,7 +1271,7 @@
 					"effects": [
 						{
 							"id": "haste",
-							"amount": 1000,
+							"duration": 1000,
 							"targets": {
 								"id": "row_allies"
 							}
@@ -1281,7 +1284,7 @@
 					"effects": [
 						{
 							"id": "haste",
-							"amount": 1000,
+							"duration": 1000,
 							"targets": {
 								"id": "row_allies"
 							}
@@ -1308,7 +1311,7 @@
 					"effects": [
 						{
 							"id": "haste",
-							"amount": 1000,
+							"duration": 1000,
 							"targets": {
 								"id": "column_allies"
 							}
@@ -1321,7 +1324,7 @@
 					"effects": [
 						{
 							"id": "haste",
-							"amount": 1000,
+							"duration": 1000,
 							"targets": {
 								"id": "column_allies"
 							}
@@ -1348,7 +1351,7 @@
 					"effects": [
 						{
 							"id": "charge",
-							"amount": 1000,
+							"duration": 1000,
 							"targets": {
 								"id": "right_ally"
 							}
@@ -1361,7 +1364,7 @@
 					"effects": [
 						{
 							"id": "charge",
-							"amount": 1000,
+							"duration": 1000,
 							"targets": {
 								"id": "right_ally"
 							}
@@ -1568,7 +1571,12 @@
 					"id": "regen"
 				},
 				{
-					"id": "slow"
+					"id": "slow",
+					"duration": 1000,
+					"targets": {
+						"id": "random_enemy",
+						"count": 1
+					}
 				}
 			],
 			"reactions": [
@@ -1639,9 +1647,10 @@
 				},
 				{
 					"id": "haste",
+					"duration": 1000,
 					"targets": {
 						"id": "random_ally",
-						"amount": 1000
+						"count": 1
 					}
 				}
 			],
@@ -1652,7 +1661,7 @@
 					"effects": [
 						{
 							"id": "charge",
-							"amount": 1000,
+							"duration": 1000,
 							"targets": {
 								"id": "self"
 							}
@@ -1827,7 +1836,8 @@
 					"id": "haste",
 					"duration": 1000,
 					"targets": {
-						"id": "allies"
+						"id": "all_allies",
+						"ofType": "any"
 					}
 				}
 			],
@@ -1838,7 +1848,7 @@
 					"effects": [
 						{
 							"id": "charge",
-							"amount": 1000,
+							"duration": 1000,
 							"targets": {
 								"id": "self"
 							}
@@ -1851,7 +1861,7 @@
 					"effects": [
 						{
 							"id": "charge",
-							"amount": 1000,
+							"duration": 1000,
 							"targets": {
 								"id": "self"
 							}
@@ -1889,7 +1899,7 @@
 					"effects": [
 						{
 							"id": "charge",
-							"amount": 1000,
+							"duration": 1000,
 							"targets": {
 								"id": "self"
 							}
@@ -1907,7 +1917,7 @@
 			"effects": [
 				{
 					"id": "charge",
-					"amount": 1000,
+					"duration": 1000,
 					"targets": {
 						"id": "column_allies"
 					}
@@ -1920,7 +1930,7 @@
 					"effects": [
 						{
 							"id": "charge",
-							"amount": 1000,
+							"duration": 1000,
 							"targets": {
 								"id": "self"
 							}
@@ -1933,7 +1943,7 @@
 					"effects": [
 						{
 							"id": "charge",
-							"amount": 1000,
+							"duration": 1000,
 							"targets": {
 								"id": "self"
 							}
