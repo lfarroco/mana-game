@@ -1,0 +1,187 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f5_juggernaut_idle_000.png"
+        },
+        {
+          "frame": "f5_juggernaut_idle_001.png"
+        },
+        {
+          "frame": "f5_juggernaut_idle_002.png"
+        },
+        {
+          "frame": "f5_juggernaut_idle_003.png"
+        },
+        {
+          "frame": "f5_juggernaut_idle_004.png"
+        },
+        {
+          "frame": "f5_juggernaut_idle_005.png"
+        },
+        {
+          "frame": "f5_juggernaut_idle_006.png"
+        },
+        {
+          "frame": "f5_juggernaut_idle_007.png"
+        },
+        {
+          "frame": "f5_juggernaut_idle_008.png"
+        },
+        {
+          "frame": "f5_juggernaut_idle_009.png"
+        },
+        {
+          "frame": "f5_juggernaut_idle_010.png"
+        },
+        {
+          "frame": "f5_juggernaut_idle_011.png"
+        },
+        {
+          "frame": "f5_juggernaut_idle_012.png"
+        },
+        {
+          "frame": "f5_juggernaut_idle_013.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f5_juggernaut_attack_000.png"
+        },
+        {
+          "frame": "f5_juggernaut_attack_001.png"
+        },
+        {
+          "frame": "f5_juggernaut_attack_002.png"
+        },
+        {
+          "frame": "f5_juggernaut_attack_003.png"
+        },
+        {
+          "frame": "f5_juggernaut_attack_004.png"
+        },
+        {
+          "frame": "f5_juggernaut_attack_005.png"
+        },
+        {
+          "frame": "f5_juggernaut_attack_006.png"
+        },
+        {
+          "frame": "f5_juggernaut_attack_007.png"
+        },
+        {
+          "frame": "f5_juggernaut_attack_008.png"
+        },
+        {
+          "frame": "f5_juggernaut_attack_009.png"
+        },
+        {
+          "frame": "f5_juggernaut_attack_010.png"
+        },
+        {
+          "frame": "f5_juggernaut_attack_011.png"
+        },
+        {
+          "frame": "f5_juggernaut_attack_012.png"
+        },
+        {
+          "frame": "f5_juggernaut_attack_013.png"
+        },
+        {
+          "frame": "f5_juggernaut_attack_014.png"
+        },
+        {
+          "frame": "f5_juggernaut_attack_015.png"
+        },
+        {
+          "frame": "f5_juggernaut_attack_016.png"
+        },
+        {
+          "frame": "f5_juggernaut_attack_017.png"
+        },
+        {
+          "frame": "f5_juggernaut_attack_018.png"
+        },
+        {
+          "frame": "f5_juggernaut_attack_019.png"
+        },
+        {
+          "frame": "f5_juggernaut_attack_020.png"
+        },
+        {
+          "frame": "f5_juggernaut_attack_021.png"
+        },
+        {
+          "frame": "f5_juggernaut_attack_022.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f5_juggernaut_death_000.png"
+        },
+        {
+          "frame": "f5_juggernaut_death_001.png"
+        },
+        {
+          "frame": "f5_juggernaut_death_002.png"
+        },
+        {
+          "frame": "f5_juggernaut_death_003.png"
+        },
+        {
+          "frame": "f5_juggernaut_death_004.png"
+        },
+        {
+          "frame": "f5_juggernaut_death_005.png"
+        },
+        {
+          "frame": "f5_juggernaut_death_006.png"
+        },
+        {
+          "frame": "f5_juggernaut_death_007.png"
+        },
+        {
+          "frame": "f5_juggernaut_death_008.png"
+        },
+        {
+          "frame": "f5_juggernaut_death_009.png"
+        },
+        {
+          "frame": "f5_juggernaut_death_010.png"
+        },
+        {
+          "frame": "f5_juggernaut_death_011.png"
+        },
+        {
+          "frame": "f5_juggernaut_death_012.png"
+        },
+        {
+          "frame": "f5_juggernaut_death_013.png"
+        },
+        {
+          "frame": "f5_juggernaut_death_014.png"
+        },
+        {
+          "frame": "f5_juggernaut_death_015.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

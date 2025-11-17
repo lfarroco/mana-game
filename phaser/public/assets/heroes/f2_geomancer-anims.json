@@ -1,0 +1,223 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f2_geomancer_idle_000.png"
+        },
+        {
+          "frame": "f2_geomancer_idle_001.png"
+        },
+        {
+          "frame": "f2_geomancer_idle_002.png"
+        },
+        {
+          "frame": "f2_geomancer_idle_003.png"
+        },
+        {
+          "frame": "f2_geomancer_idle_004.png"
+        },
+        {
+          "frame": "f2_geomancer_idle_005.png"
+        },
+        {
+          "frame": "f2_geomancer_idle_006.png"
+        },
+        {
+          "frame": "f2_geomancer_idle_007.png"
+        },
+        {
+          "frame": "f2_geomancer_idle_008.png"
+        },
+        {
+          "frame": "f2_geomancer_idle_009.png"
+        },
+        {
+          "frame": "f2_geomancer_idle_010.png"
+        },
+        {
+          "frame": "f2_geomancer_idle_011.png"
+        },
+        {
+          "frame": "f2_geomancer_idle_012.png"
+        },
+        {
+          "frame": "f2_geomancer_idle_013.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f2_geomancer_attack_000.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_001.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_002.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_003.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_004.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_005.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_006.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_007.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_008.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_009.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_010.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_011.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_012.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_013.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_014.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_015.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_016.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_017.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_018.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_019.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_020.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_021.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_022.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_023.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_024.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_025.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_026.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_027.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_028.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_029.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_030.png"
+        },
+        {
+          "frame": "f2_geomancer_attack_031.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f2_geomancer_death_000.png"
+        },
+        {
+          "frame": "f2_geomancer_death_001.png"
+        },
+        {
+          "frame": "f2_geomancer_death_002.png"
+        },
+        {
+          "frame": "f2_geomancer_death_003.png"
+        },
+        {
+          "frame": "f2_geomancer_death_004.png"
+        },
+        {
+          "frame": "f2_geomancer_death_005.png"
+        },
+        {
+          "frame": "f2_geomancer_death_006.png"
+        },
+        {
+          "frame": "f2_geomancer_death_007.png"
+        },
+        {
+          "frame": "f2_geomancer_death_008.png"
+        },
+        {
+          "frame": "f2_geomancer_death_009.png"
+        },
+        {
+          "frame": "f2_geomancer_death_010.png"
+        },
+        {
+          "frame": "f2_geomancer_death_011.png"
+        },
+        {
+          "frame": "f2_geomancer_death_012.png"
+        },
+        {
+          "frame": "f2_geomancer_death_013.png"
+        },
+        {
+          "frame": "f2_geomancer_death_014.png"
+        },
+        {
+          "frame": "f2_geomancer_death_015.png"
+        },
+        {
+          "frame": "f2_geomancer_death_016.png"
+        },
+        {
+          "frame": "f2_geomancer_death_017.png"
+        },
+        {
+          "frame": "f2_geomancer_death_018.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_tribalcaster_idle_000.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_idle_001.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_idle_002.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_idle_003.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_idle_004.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_idle_005.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_idle_006.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_idle_007.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_idle_008.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_idle_009.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_idle_010.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_tribalcaster_attack_000.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_attack_001.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_attack_002.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_attack_003.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_attack_004.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_attack_005.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_attack_006.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_attack_007.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_attack_008.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_attack_009.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_attack_010.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_attack_011.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_tribalcaster_death_000.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_death_001.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_death_002.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_death_003.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_death_004.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_death_005.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_death_006.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_death_007.png"
+        },
+        {
+          "frame": "neutral_tribalcaster_death_008.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

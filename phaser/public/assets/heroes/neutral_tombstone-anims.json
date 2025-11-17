@@ -1,0 +1,157 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_tombstone_idle_000.png"
+        },
+        {
+          "frame": "neutral_tombstone_idle_001.png"
+        },
+        {
+          "frame": "neutral_tombstone_idle_002.png"
+        },
+        {
+          "frame": "neutral_tombstone_idle_003.png"
+        },
+        {
+          "frame": "neutral_tombstone_idle_004.png"
+        },
+        {
+          "frame": "neutral_tombstone_idle_005.png"
+        },
+        {
+          "frame": "neutral_tombstone_idle_006.png"
+        },
+        {
+          "frame": "neutral_tombstone_idle_007.png"
+        },
+        {
+          "frame": "neutral_tombstone_idle_008.png"
+        },
+        {
+          "frame": "neutral_tombstone_idle_009.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_tombstone_attack_000.png"
+        },
+        {
+          "frame": "neutral_tombstone_attack_001.png"
+        },
+        {
+          "frame": "neutral_tombstone_attack_002.png"
+        },
+        {
+          "frame": "neutral_tombstone_attack_003.png"
+        },
+        {
+          "frame": "neutral_tombstone_attack_004.png"
+        },
+        {
+          "frame": "neutral_tombstone_attack_005.png"
+        },
+        {
+          "frame": "neutral_tombstone_attack_006.png"
+        },
+        {
+          "frame": "neutral_tombstone_attack_007.png"
+        },
+        {
+          "frame": "neutral_tombstone_attack_008.png"
+        },
+        {
+          "frame": "neutral_tombstone_attack_009.png"
+        },
+        {
+          "frame": "neutral_tombstone_attack_010.png"
+        },
+        {
+          "frame": "neutral_tombstone_attack_011.png"
+        },
+        {
+          "frame": "neutral_tombstone_attack_012.png"
+        },
+        {
+          "frame": "neutral_tombstone_attack_013.png"
+        },
+        {
+          "frame": "neutral_tombstone_attack_014.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_tombstone_death_000.png"
+        },
+        {
+          "frame": "neutral_tombstone_death_001.png"
+        },
+        {
+          "frame": "neutral_tombstone_death_002.png"
+        },
+        {
+          "frame": "neutral_tombstone_death_003.png"
+        },
+        {
+          "frame": "neutral_tombstone_death_004.png"
+        },
+        {
+          "frame": "neutral_tombstone_death_005.png"
+        },
+        {
+          "frame": "neutral_tombstone_death_006.png"
+        },
+        {
+          "frame": "neutral_tombstone_death_007.png"
+        },
+        {
+          "frame": "neutral_tombstone_death_008.png"
+        },
+        {
+          "frame": "neutral_tombstone_death_009.png"
+        },
+        {
+          "frame": "neutral_tombstone_death_010.png"
+        },
+        {
+          "frame": "neutral_tombstone_death_011.png"
+        },
+        {
+          "frame": "neutral_tombstone_death_012.png"
+        },
+        {
+          "frame": "neutral_tombstone_death_013.png"
+        },
+        {
+          "frame": "neutral_tombstone_death_014.png"
+        },
+        {
+          "frame": "neutral_tombstone_death_015.png"
+        },
+        {
+          "frame": "neutral_tombstone_death_016.png"
+        },
+        {
+          "frame": "neutral_tombstone_death_017.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

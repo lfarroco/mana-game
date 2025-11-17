@@ -1,0 +1,214 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_partyelf_idle_000.png"
+        },
+        {
+          "frame": "neutral_partyelf_idle_001.png"
+        },
+        {
+          "frame": "neutral_partyelf_idle_002.png"
+        },
+        {
+          "frame": "neutral_partyelf_idle_003.png"
+        },
+        {
+          "frame": "neutral_partyelf_idle_004.png"
+        },
+        {
+          "frame": "neutral_partyelf_idle_005.png"
+        },
+        {
+          "frame": "neutral_partyelf_idle_006.png"
+        },
+        {
+          "frame": "neutral_partyelf_idle_007.png"
+        },
+        {
+          "frame": "neutral_partyelf_idle_008.png"
+        },
+        {
+          "frame": "neutral_partyelf_idle_009.png"
+        },
+        {
+          "frame": "neutral_partyelf_idle_010.png"
+        },
+        {
+          "frame": "neutral_partyelf_idle_011.png"
+        },
+        {
+          "frame": "neutral_partyelf_idle_012.png"
+        },
+        {
+          "frame": "neutral_partyelf_idle_013.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_partyelf_attack_000.png"
+        },
+        {
+          "frame": "neutral_partyelf_attack_001.png"
+        },
+        {
+          "frame": "neutral_partyelf_attack_002.png"
+        },
+        {
+          "frame": "neutral_partyelf_attack_003.png"
+        },
+        {
+          "frame": "neutral_partyelf_attack_004.png"
+        },
+        {
+          "frame": "neutral_partyelf_attack_005.png"
+        },
+        {
+          "frame": "neutral_partyelf_attack_006.png"
+        },
+        {
+          "frame": "neutral_partyelf_attack_007.png"
+        },
+        {
+          "frame": "neutral_partyelf_attack_008.png"
+        },
+        {
+          "frame": "neutral_partyelf_attack_009.png"
+        },
+        {
+          "frame": "neutral_partyelf_attack_010.png"
+        },
+        {
+          "frame": "neutral_partyelf_attack_011.png"
+        },
+        {
+          "frame": "neutral_partyelf_attack_012.png"
+        },
+        {
+          "frame": "neutral_partyelf_attack_013.png"
+        },
+        {
+          "frame": "neutral_partyelf_attack_014.png"
+        },
+        {
+          "frame": "neutral_partyelf_attack_015.png"
+        },
+        {
+          "frame": "neutral_partyelf_attack_016.png"
+        },
+        {
+          "frame": "neutral_partyelf_attack_017.png"
+        },
+        {
+          "frame": "neutral_partyelf_attack_018.png"
+        },
+        {
+          "frame": "neutral_partyelf_attack_019.png"
+        },
+        {
+          "frame": "neutral_partyelf_attack_020.png"
+        },
+        {
+          "frame": "neutral_partyelf_attack_021.png"
+        },
+        {
+          "frame": "neutral_partyelf_attack_022.png"
+        },
+        {
+          "frame": "neutral_partyelf_attack_023.png"
+        },
+        {
+          "frame": "neutral_partyelf_attack_024.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_partyelf_death_000.png"
+        },
+        {
+          "frame": "neutral_partyelf_death_001.png"
+        },
+        {
+          "frame": "neutral_partyelf_death_002.png"
+        },
+        {
+          "frame": "neutral_partyelf_death_003.png"
+        },
+        {
+          "frame": "neutral_partyelf_death_004.png"
+        },
+        {
+          "frame": "neutral_partyelf_death_005.png"
+        },
+        {
+          "frame": "neutral_partyelf_death_006.png"
+        },
+        {
+          "frame": "neutral_partyelf_death_007.png"
+        },
+        {
+          "frame": "neutral_partyelf_death_008.png"
+        },
+        {
+          "frame": "neutral_partyelf_death_009.png"
+        },
+        {
+          "frame": "neutral_partyelf_death_010.png"
+        },
+        {
+          "frame": "neutral_partyelf_death_011.png"
+        },
+        {
+          "frame": "neutral_partyelf_death_012.png"
+        },
+        {
+          "frame": "neutral_partyelf_death_013.png"
+        },
+        {
+          "frame": "neutral_partyelf_death_014.png"
+        },
+        {
+          "frame": "neutral_partyelf_death_015.png"
+        },
+        {
+          "frame": "neutral_partyelf_death_016.png"
+        },
+        {
+          "frame": "neutral_partyelf_death_017.png"
+        },
+        {
+          "frame": "neutral_partyelf_death_018.png"
+        },
+        {
+          "frame": "neutral_partyelf_death_019.png"
+        },
+        {
+          "frame": "neutral_partyelf_death_020.png"
+        },
+        {
+          "frame": "neutral_partyelf_death_021.png"
+        },
+        {
+          "frame": "neutral_partyelf_death_022.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

@@ -1,0 +1,229 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f3_sirocco_idle_000.png"
+        },
+        {
+          "frame": "f3_sirocco_idle_001.png"
+        },
+        {
+          "frame": "f3_sirocco_idle_002.png"
+        },
+        {
+          "frame": "f3_sirocco_idle_003.png"
+        },
+        {
+          "frame": "f3_sirocco_idle_004.png"
+        },
+        {
+          "frame": "f3_sirocco_idle_005.png"
+        },
+        {
+          "frame": "f3_sirocco_idle_006.png"
+        },
+        {
+          "frame": "f3_sirocco_idle_007.png"
+        },
+        {
+          "frame": "f3_sirocco_idle_008.png"
+        },
+        {
+          "frame": "f3_sirocco_idle_009.png"
+        },
+        {
+          "frame": "f3_sirocco_idle_010.png"
+        },
+        {
+          "frame": "f3_sirocco_idle_011.png"
+        },
+        {
+          "frame": "f3_sirocco_idle_012.png"
+        },
+        {
+          "frame": "f3_sirocco_idle_013.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f3_sirocco_attack_000.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_001.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_002.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_003.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_004.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_005.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_006.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_007.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_008.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_009.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_010.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_011.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_012.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_013.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_014.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_015.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_016.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_017.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_018.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_019.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_020.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_021.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_022.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_023.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_024.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_025.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_026.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_027.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_028.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_029.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_030.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_031.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_032.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_033.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_034.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_035.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_036.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_037.png"
+        },
+        {
+          "frame": "f3_sirocco_attack_038.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f3_sirocco_death_000.png"
+        },
+        {
+          "frame": "f3_sirocco_death_001.png"
+        },
+        {
+          "frame": "f3_sirocco_death_002.png"
+        },
+        {
+          "frame": "f3_sirocco_death_003.png"
+        },
+        {
+          "frame": "f3_sirocco_death_004.png"
+        },
+        {
+          "frame": "f3_sirocco_death_005.png"
+        },
+        {
+          "frame": "f3_sirocco_death_006.png"
+        },
+        {
+          "frame": "f3_sirocco_death_007.png"
+        },
+        {
+          "frame": "f3_sirocco_death_008.png"
+        },
+        {
+          "frame": "f3_sirocco_death_009.png"
+        },
+        {
+          "frame": "f3_sirocco_death_010.png"
+        },
+        {
+          "frame": "f3_sirocco_death_011.png"
+        },
+        {
+          "frame": "f3_sirocco_death_012.png"
+        },
+        {
+          "frame": "f3_sirocco_death_013.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

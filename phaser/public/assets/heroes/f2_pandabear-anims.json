@@ -1,0 +1,42 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f2_pandabear_idle_000.png"
+        },
+        {
+          "frame": "f2_pandabear_idle_001.png"
+        },
+        {
+          "frame": "f2_pandabear_idle_002.png"
+        },
+        {
+          "frame": "f2_pandabear_idle_003.png"
+        },
+        {
+          "frame": "f2_pandabear_idle_004.png"
+        },
+        {
+          "frame": "f2_pandabear_idle_005.png"
+        },
+        {
+          "frame": "f2_pandabear_idle_006.png"
+        },
+        {
+          "frame": "f2_pandabear_idle_007.png"
+        },
+        {
+          "frame": "f2_pandabear_idle_008.png"
+        },
+        {
+          "frame": "f2_pandabear_idle_009.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    }
+  ]
+}

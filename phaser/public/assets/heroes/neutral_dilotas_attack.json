@@ -1,0 +1,1710 @@
+{
+  "frames": {
+    "neutral_dilotas_attack_000.png": {
+      "frame": {
+        "x": 444,
+        "y": 202,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_attack_001.png": {
+      "frame": {
+        "x": 888,
+        "y": 303,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_attack_002.png": {
+      "frame": {
+        "x": 888,
+        "y": 202,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_attack_003.png": {
+      "frame": {
+        "x": 888,
+        "y": 101,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_attack_004.png": {
+      "frame": {
+        "x": 888,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_attack_005.png": {
+      "frame": {
+        "x": 777,
+        "y": 909,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_attack_006.png": {
+      "frame": {
+        "x": 777,
+        "y": 808,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_attack_007.png": {
+      "frame": {
+        "x": 777,
+        "y": 707,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_attack_008.png": {
+      "frame": {
+        "x": 777,
+        "y": 606,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_attack_009.png": {
+      "frame": {
+        "x": 777,
+        "y": 505,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_attack_010.png": {
+      "frame": {
+        "x": 777,
+        "y": 404,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_attack_011.png": {
+      "frame": {
+        "x": 777,
+        "y": 303,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_attack_012.png": {
+      "frame": {
+        "x": 777,
+        "y": 202,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_attack_013.png": {
+      "frame": {
+        "x": 777,
+        "y": 101,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_attack_014.png": {
+      "frame": {
+        "x": 777,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_attack_015.png": {
+      "frame": {
+        "x": 666,
+        "y": 909,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_attack_016.png": {
+      "frame": {
+        "x": 666,
+        "y": 808,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_attack_017.png": {
+      "frame": {
+        "x": 666,
+        "y": 707,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_attack_018.png": {
+      "frame": {
+        "x": 666,
+        "y": 606,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_attack_019.png": {
+      "frame": {
+        "x": 666,
+        "y": 505,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_attack_020.png": {
+      "frame": {
+        "x": 666,
+        "y": 404,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_attack_021.png": {
+      "frame": {
+        "x": 666,
+        "y": 303,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_attack_022.png": {
+      "frame": {
+        "x": 666,
+        "y": 202,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_attack_023.png": {
+      "frame": {
+        "x": 666,
+        "y": 101,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_attack_024.png": {
+      "frame": {
+        "x": 666,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_attack_025.png": {
+      "frame": {
+        "x": 555,
+        "y": 909,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_attack_026.png": {
+      "frame": {
+        "x": 555,
+        "y": 808,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_breathing_000.png": {
+      "frame": {
+        "x": 555,
+        "y": 707,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_breathing_001.png": {
+      "frame": {
+        "x": 555,
+        "y": 606,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_breathing_002.png": {
+      "frame": {
+        "x": 555,
+        "y": 505,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_breathing_003.png": {
+      "frame": {
+        "x": 555,
+        "y": 404,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_breathing_004.png": {
+      "frame": {
+        "x": 555,
+        "y": 303,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_breathing_005.png": {
+      "frame": {
+        "x": 555,
+        "y": 202,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_breathing_006.png": {
+      "frame": {
+        "x": 555,
+        "y": 101,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_breathing_007.png": {
+      "frame": {
+        "x": 555,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_breathing_008.png": {
+      "frame": {
+        "x": 444,
+        "y": 909,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_breathing_009.png": {
+      "frame": {
+        "x": 444,
+        "y": 808,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_breathing_010.png": {
+      "frame": {
+        "x": 444,
+        "y": 707,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_breathing_011.png": {
+      "frame": {
+        "x": 444,
+        "y": 606,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_breathing_012.png": {
+      "frame": {
+        "x": 444,
+        "y": 505,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_breathing_013.png": {
+      "frame": {
+        "x": 444,
+        "y": 404,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_death_000.png": {
+      "frame": {
+        "x": 444,
+        "y": 303,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_death_001.png": {
+      "frame": {
+        "x": 888,
+        "y": 404,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_death_002.png": {
+      "frame": {
+        "x": 444,
+        "y": 101,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_death_003.png": {
+      "frame": {
+        "x": 444,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_death_004.png": {
+      "frame": {
+        "x": 333,
+        "y": 909,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_death_005.png": {
+      "frame": {
+        "x": 333,
+        "y": 808,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_death_006.png": {
+      "frame": {
+        "x": 333,
+        "y": 707,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_death_007.png": {
+      "frame": {
+        "x": 333,
+        "y": 606,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_death_008.png": {
+      "frame": {
+        "x": 333,
+        "y": 505,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_death_009.png": {
+      "frame": {
+        "x": 333,
+        "y": 404,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_death_010.png": {
+      "frame": {
+        "x": 333,
+        "y": 303,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_death_011.png": {
+      "frame": {
+        "x": 333,
+        "y": 202,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_death_012.png": {
+      "frame": {
+        "x": 333,
+        "y": 101,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_death_013.png": {
+      "frame": {
+        "x": 333,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_death_014.png": {
+      "frame": {
+        "x": 222,
+        "y": 909,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_death_015.png": {
+      "frame": {
+        "x": 222,
+        "y": 808,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_death_016.png": {
+      "frame": {
+        "x": 222,
+        "y": 707,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_death_017.png": {
+      "frame": {
+        "x": 222,
+        "y": 606,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_death_018.png": {
+      "frame": {
+        "x": 222,
+        "y": 505,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_hit_000.png": {
+      "frame": {
+        "x": 222,
+        "y": 404,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_hit_001.png": {
+      "frame": {
+        "x": 222,
+        "y": 303,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_hit_002.png": {
+      "frame": {
+        "x": 222,
+        "y": 202,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_idle_000.png": {
+      "frame": {
+        "x": 222,
+        "y": 101,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_idle_001.png": {
+      "frame": {
+        "x": 222,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_idle_002.png": {
+      "frame": {
+        "x": 111,
+        "y": 909,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_idle_003.png": {
+      "frame": {
+        "x": 111,
+        "y": 808,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_idle_004.png": {
+      "frame": {
+        "x": 111,
+        "y": 707,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_idle_005.png": {
+      "frame": {
+        "x": 111,
+        "y": 606,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_idle_006.png": {
+      "frame": {
+        "x": 111,
+        "y": 505,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_idle_007.png": {
+      "frame": {
+        "x": 111,
+        "y": 404,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_idle_008.png": {
+      "frame": {
+        "x": 111,
+        "y": 303,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_idle_009.png": {
+      "frame": {
+        "x": 111,
+        "y": 202,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_idle_010.png": {
+      "frame": {
+        "x": 111,
+        "y": 101,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_idle_011.png": {
+      "frame": {
+        "x": 111,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_idle_012.png": {
+      "frame": {
+        "x": 0,
+        "y": 909,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_idle_013.png": {
+      "frame": {
+        "x": 0,
+        "y": 808,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_run_000.png": {
+      "frame": {
+        "x": 0,
+        "y": 707,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_run_001.png": {
+      "frame": {
+        "x": 0,
+        "y": 606,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_run_002.png": {
+      "frame": {
+        "x": 0,
+        "y": 505,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_run_003.png": {
+      "frame": {
+        "x": 0,
+        "y": 404,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_run_004.png": {
+      "frame": {
+        "x": 0,
+        "y": 303,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_run_005.png": {
+      "frame": {
+        "x": 0,
+        "y": 202,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_run_006.png": {
+      "frame": {
+        "x": 0,
+        "y": 101,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    },
+    "neutral_dilotas_run_007.png": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 100
+      }
+    }
+  },
+  "meta": {
+    "image": "neutral_dilotas_attack.png",
+    "size": "{1024,1024}",
+    "scale": "1",
+    "format": "RGBA8888"
+  }
+}

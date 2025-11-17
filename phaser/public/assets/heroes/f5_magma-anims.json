@@ -1,0 +1,154 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f5_magma_idle_000.png"
+        },
+        {
+          "frame": "f5_magma_idle_001.png"
+        },
+        {
+          "frame": "f5_magma_idle_002.png"
+        },
+        {
+          "frame": "f5_magma_idle_003.png"
+        },
+        {
+          "frame": "f5_magma_idle_004.png"
+        },
+        {
+          "frame": "f5_magma_idle_005.png"
+        },
+        {
+          "frame": "f5_magma_idle_006.png"
+        },
+        {
+          "frame": "f5_magma_idle_007.png"
+        },
+        {
+          "frame": "f5_magma_idle_008.png"
+        },
+        {
+          "frame": "f5_magma_idle_009.png"
+        },
+        {
+          "frame": "f5_magma_idle_010.png"
+        },
+        {
+          "frame": "f5_magma_idle_011.png"
+        },
+        {
+          "frame": "f5_magma_idle_012.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f5_magma_attack_000.png"
+        },
+        {
+          "frame": "f5_magma_attack_001.png"
+        },
+        {
+          "frame": "f5_magma_attack_002.png"
+        },
+        {
+          "frame": "f5_magma_attack_003.png"
+        },
+        {
+          "frame": "f5_magma_attack_004.png"
+        },
+        {
+          "frame": "f5_magma_attack_005.png"
+        },
+        {
+          "frame": "f5_magma_attack_006.png"
+        },
+        {
+          "frame": "f5_magma_attack_007.png"
+        },
+        {
+          "frame": "f5_magma_attack_008.png"
+        },
+        {
+          "frame": "f5_magma_attack_009.png"
+        },
+        {
+          "frame": "f5_magma_attack_010.png"
+        },
+        {
+          "frame": "f5_magma_attack_011.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f5_magma_death_000.png"
+        },
+        {
+          "frame": "f5_magma_death_001.png"
+        },
+        {
+          "frame": "f5_magma_death_002.png"
+        },
+        {
+          "frame": "f5_magma_death_003.png"
+        },
+        {
+          "frame": "f5_magma_death_004.png"
+        },
+        {
+          "frame": "f5_magma_death_005.png"
+        },
+        {
+          "frame": "f5_magma_death_006.png"
+        },
+        {
+          "frame": "f5_magma_death_007.png"
+        },
+        {
+          "frame": "f5_magma_death_008.png"
+        },
+        {
+          "frame": "f5_magma_death_009.png"
+        },
+        {
+          "frame": "f5_magma_death_010.png"
+        },
+        {
+          "frame": "f5_magma_death_011.png"
+        },
+        {
+          "frame": "f5_magma_death_012.png"
+        },
+        {
+          "frame": "f5_magma_death_013.png"
+        },
+        {
+          "frame": "f5_magma_death_014.png"
+        },
+        {
+          "frame": "f5_magma_death_015.png"
+        },
+        {
+          "frame": "f5_magma_death_016.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

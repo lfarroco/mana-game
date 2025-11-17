@@ -1,0 +1,133 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "boss_decepticlehelm_idle_000.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_idle_001.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_idle_002.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_idle_003.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_idle_004.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_idle_005.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_idle_006.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_idle_007.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_idle_008.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_idle_009.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_idle_010.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "boss_decepticlehelm_attack_000.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_attack_001.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_attack_002.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_attack_003.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_attack_004.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_attack_005.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_attack_006.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_attack_007.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_attack_008.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_attack_009.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_attack_010.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "boss_decepticlehelm_death_000.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_death_001.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_death_002.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_death_003.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_death_004.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_death_005.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_death_006.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_death_007.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_death_008.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_death_009.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_death_010.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_death_011.png"
+        },
+        {
+          "frame": "boss_decepticlehelm_death_012.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

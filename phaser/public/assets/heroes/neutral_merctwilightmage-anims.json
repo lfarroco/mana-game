@@ -1,0 +1,127 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_merctwilightmage_idle_000.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_idle_001.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_idle_002.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_idle_003.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_idle_004.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_idle_005.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_idle_006.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_idle_007.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_idle_008.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_idle_009.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_idle_010.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_idle_011.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_idle_012.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_idle_013.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_merctwilightmage_attack_000.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_attack_001.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_attack_002.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_attack_003.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_attack_004.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_attack_005.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_attack_006.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_attack_007.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_attack_008.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_attack_009.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_merctwilightmage_death_000.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_death_001.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_death_002.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_death_003.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_death_004.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_death_005.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_death_006.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_death_007.png"
+        },
+        {
+          "frame": "neutral_merctwilightmage_death_008.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

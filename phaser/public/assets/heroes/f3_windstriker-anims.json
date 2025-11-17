@@ -1,0 +1,160 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f3_windstriker_idle_000.png"
+        },
+        {
+          "frame": "f3_windstriker_idle_001.png"
+        },
+        {
+          "frame": "f3_windstriker_idle_002.png"
+        },
+        {
+          "frame": "f3_windstriker_idle_003.png"
+        },
+        {
+          "frame": "f3_windstriker_idle_004.png"
+        },
+        {
+          "frame": "f3_windstriker_idle_005.png"
+        },
+        {
+          "frame": "f3_windstriker_idle_006.png"
+        },
+        {
+          "frame": "f3_windstriker_idle_007.png"
+        },
+        {
+          "frame": "f3_windstriker_idle_008.png"
+        },
+        {
+          "frame": "f3_windstriker_idle_009.png"
+        },
+        {
+          "frame": "f3_windstriker_idle_010.png"
+        },
+        {
+          "frame": "f3_windstriker_idle_011.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f3_windstriker_attack_000.png"
+        },
+        {
+          "frame": "f3_windstriker_attack_001.png"
+        },
+        {
+          "frame": "f3_windstriker_attack_002.png"
+        },
+        {
+          "frame": "f3_windstriker_attack_003.png"
+        },
+        {
+          "frame": "f3_windstriker_attack_004.png"
+        },
+        {
+          "frame": "f3_windstriker_attack_005.png"
+        },
+        {
+          "frame": "f3_windstriker_attack_006.png"
+        },
+        {
+          "frame": "f3_windstriker_attack_007.png"
+        },
+        {
+          "frame": "f3_windstriker_attack_008.png"
+        },
+        {
+          "frame": "f3_windstriker_attack_009.png"
+        },
+        {
+          "frame": "f3_windstriker_attack_010.png"
+        },
+        {
+          "frame": "f3_windstriker_attack_011.png"
+        },
+        {
+          "frame": "f3_windstriker_attack_012.png"
+        },
+        {
+          "frame": "f3_windstriker_attack_013.png"
+        },
+        {
+          "frame": "f3_windstriker_attack_014.png"
+        },
+        {
+          "frame": "f3_windstriker_attack_015.png"
+        },
+        {
+          "frame": "f3_windstriker_attack_016.png"
+        },
+        {
+          "frame": "f3_windstriker_attack_017.png"
+        },
+        {
+          "frame": "f3_windstriker_attack_018.png"
+        },
+        {
+          "frame": "f3_windstriker_attack_019.png"
+        },
+        {
+          "frame": "f3_windstriker_attack_020.png"
+        },
+        {
+          "frame": "f3_windstriker_attack_021.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f3_windstriker_death_000.png"
+        },
+        {
+          "frame": "f3_windstriker_death_001.png"
+        },
+        {
+          "frame": "f3_windstriker_death_002.png"
+        },
+        {
+          "frame": "f3_windstriker_death_003.png"
+        },
+        {
+          "frame": "f3_windstriker_death_004.png"
+        },
+        {
+          "frame": "f3_windstriker_death_005.png"
+        },
+        {
+          "frame": "f3_windstriker_death_006.png"
+        },
+        {
+          "frame": "f3_windstriker_death_007.png"
+        },
+        {
+          "frame": "f3_windstriker_death_008.png"
+        },
+        {
+          "frame": "f3_windstriker_death_009.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

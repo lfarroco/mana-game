@@ -1,0 +1,124 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f6_sentinel_idle_000.png"
+        },
+        {
+          "frame": "f6_sentinel_idle_001.png"
+        },
+        {
+          "frame": "f6_sentinel_idle_002.png"
+        },
+        {
+          "frame": "f6_sentinel_idle_003.png"
+        },
+        {
+          "frame": "f6_sentinel_idle_004.png"
+        },
+        {
+          "frame": "f6_sentinel_idle_005.png"
+        },
+        {
+          "frame": "f6_sentinel_idle_006.png"
+        },
+        {
+          "frame": "f6_sentinel_idle_007.png"
+        },
+        {
+          "frame": "f6_sentinel_idle_008.png"
+        },
+        {
+          "frame": "f6_sentinel_idle_009.png"
+        },
+        {
+          "frame": "f6_sentinel_idle_010.png"
+        },
+        {
+          "frame": "f6_sentinel_idle_011.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f6_sentinel_attack_000.png"
+        },
+        {
+          "frame": "f6_sentinel_attack_001.png"
+        },
+        {
+          "frame": "f6_sentinel_attack_002.png"
+        },
+        {
+          "frame": "f6_sentinel_attack_003.png"
+        },
+        {
+          "frame": "f6_sentinel_attack_004.png"
+        },
+        {
+          "frame": "f6_sentinel_attack_005.png"
+        },
+        {
+          "frame": "f6_sentinel_attack_006.png"
+        },
+        {
+          "frame": "f6_sentinel_attack_007.png"
+        },
+        {
+          "frame": "f6_sentinel_attack_008.png"
+        },
+        {
+          "frame": "f6_sentinel_attack_009.png"
+        },
+        {
+          "frame": "f6_sentinel_attack_010.png"
+        },
+        {
+          "frame": "f6_sentinel_attack_011.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f6_sentinel_death_000.png"
+        },
+        {
+          "frame": "f6_sentinel_death_001.png"
+        },
+        {
+          "frame": "f6_sentinel_death_002.png"
+        },
+        {
+          "frame": "f6_sentinel_death_003.png"
+        },
+        {
+          "frame": "f6_sentinel_death_004.png"
+        },
+        {
+          "frame": "f6_sentinel_death_005.png"
+        },
+        {
+          "frame": "f6_sentinel_death_006.png"
+        },
+        {
+          "frame": "f6_sentinel_death_007.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

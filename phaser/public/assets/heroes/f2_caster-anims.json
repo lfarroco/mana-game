@@ -1,0 +1,115 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f2_caster_idle_000.png"
+        },
+        {
+          "frame": "f2_caster_idle_001.png"
+        },
+        {
+          "frame": "f2_caster_idle_002.png"
+        },
+        {
+          "frame": "f2_caster_idle_003.png"
+        },
+        {
+          "frame": "f2_caster_idle_004.png"
+        },
+        {
+          "frame": "f2_caster_idle_005.png"
+        },
+        {
+          "frame": "f2_caster_idle_006.png"
+        },
+        {
+          "frame": "f2_caster_idle_007.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f2_caster_attack_000.png"
+        },
+        {
+          "frame": "f2_caster_attack_001.png"
+        },
+        {
+          "frame": "f2_caster_attack_002.png"
+        },
+        {
+          "frame": "f2_caster_attack_003.png"
+        },
+        {
+          "frame": "f2_caster_attack_004.png"
+        },
+        {
+          "frame": "f2_caster_attack_005.png"
+        },
+        {
+          "frame": "f2_caster_attack_006.png"
+        },
+        {
+          "frame": "f2_caster_attack_007.png"
+        },
+        {
+          "frame": "f2_caster_attack_008.png"
+        },
+        {
+          "frame": "f2_caster_attack_009.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f2_caster_death_000.png"
+        },
+        {
+          "frame": "f2_caster_death_001.png"
+        },
+        {
+          "frame": "f2_caster_death_002.png"
+        },
+        {
+          "frame": "f2_caster_death_003.png"
+        },
+        {
+          "frame": "f2_caster_death_004.png"
+        },
+        {
+          "frame": "f2_caster_death_005.png"
+        },
+        {
+          "frame": "f2_caster_death_006.png"
+        },
+        {
+          "frame": "f2_caster_death_007.png"
+        },
+        {
+          "frame": "f2_caster_death_008.png"
+        },
+        {
+          "frame": "f2_caster_death_009.png"
+        },
+        {
+          "frame": "f2_caster_death_010.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

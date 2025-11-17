@@ -1,0 +1,139 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f4_daemongate_idle_000.png"
+        },
+        {
+          "frame": "f4_daemongate_idle_001.png"
+        },
+        {
+          "frame": "f4_daemongate_idle_002.png"
+        },
+        {
+          "frame": "f4_daemongate_idle_003.png"
+        },
+        {
+          "frame": "f4_daemongate_idle_004.png"
+        },
+        {
+          "frame": "f4_daemongate_idle_005.png"
+        },
+        {
+          "frame": "f4_daemongate_idle_006.png"
+        },
+        {
+          "frame": "f4_daemongate_idle_007.png"
+        },
+        {
+          "frame": "f4_daemongate_idle_008.png"
+        },
+        {
+          "frame": "f4_daemongate_idle_009.png"
+        },
+        {
+          "frame": "f4_daemongate_idle_010.png"
+        },
+        {
+          "frame": "f4_daemongate_idle_011.png"
+        },
+        {
+          "frame": "f4_daemongate_idle_012.png"
+        },
+        {
+          "frame": "f4_daemongate_idle_013.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f4_daemongate_attack_000.png"
+        },
+        {
+          "frame": "f4_daemongate_attack_001.png"
+        },
+        {
+          "frame": "f4_daemongate_attack_002.png"
+        },
+        {
+          "frame": "f4_daemongate_attack_003.png"
+        },
+        {
+          "frame": "f4_daemongate_attack_004.png"
+        },
+        {
+          "frame": "f4_daemongate_attack_005.png"
+        },
+        {
+          "frame": "f4_daemongate_attack_006.png"
+        },
+        {
+          "frame": "f4_daemongate_attack_007.png"
+        },
+        {
+          "frame": "f4_daemongate_attack_008.png"
+        },
+        {
+          "frame": "f4_daemongate_attack_009.png"
+        },
+        {
+          "frame": "f4_daemongate_attack_010.png"
+        },
+        {
+          "frame": "f4_daemongate_attack_011.png"
+        },
+        {
+          "frame": "f4_daemongate_attack_012.png"
+        },
+        {
+          "frame": "f4_daemongate_attack_013.png"
+        },
+        {
+          "frame": "f4_daemongate_attack_014.png"
+        },
+        {
+          "frame": "f4_daemongate_attack_015.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f4_daemongate_death_000.png"
+        },
+        {
+          "frame": "f4_daemongate_death_001.png"
+        },
+        {
+          "frame": "f4_daemongate_death_002.png"
+        },
+        {
+          "frame": "f4_daemongate_death_003.png"
+        },
+        {
+          "frame": "f4_daemongate_death_004.png"
+        },
+        {
+          "frame": "f4_daemongate_death_005.png"
+        },
+        {
+          "frame": "f4_daemongate_death_006.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

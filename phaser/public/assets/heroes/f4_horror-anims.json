@@ -1,0 +1,157 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f4_horror_idle_000.png"
+        },
+        {
+          "frame": "f4_horror_idle_001.png"
+        },
+        {
+          "frame": "f4_horror_idle_002.png"
+        },
+        {
+          "frame": "f4_horror_idle_003.png"
+        },
+        {
+          "frame": "f4_horror_idle_004.png"
+        },
+        {
+          "frame": "f4_horror_idle_005.png"
+        },
+        {
+          "frame": "f4_horror_idle_006.png"
+        },
+        {
+          "frame": "f4_horror_idle_007.png"
+        },
+        {
+          "frame": "f4_horror_idle_008.png"
+        },
+        {
+          "frame": "f4_horror_idle_009.png"
+        },
+        {
+          "frame": "f4_horror_idle_010.png"
+        },
+        {
+          "frame": "f4_horror_idle_011.png"
+        },
+        {
+          "frame": "f4_horror_idle_012.png"
+        },
+        {
+          "frame": "f4_horror_idle_013.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f4_horror_attack_000.png"
+        },
+        {
+          "frame": "f4_horror_attack_001.png"
+        },
+        {
+          "frame": "f4_horror_attack_002.png"
+        },
+        {
+          "frame": "f4_horror_attack_003.png"
+        },
+        {
+          "frame": "f4_horror_attack_004.png"
+        },
+        {
+          "frame": "f4_horror_attack_005.png"
+        },
+        {
+          "frame": "f4_horror_attack_006.png"
+        },
+        {
+          "frame": "f4_horror_attack_007.png"
+        },
+        {
+          "frame": "f4_horror_attack_008.png"
+        },
+        {
+          "frame": "f4_horror_attack_009.png"
+        },
+        {
+          "frame": "f4_horror_attack_010.png"
+        },
+        {
+          "frame": "f4_horror_attack_011.png"
+        },
+        {
+          "frame": "f4_horror_attack_012.png"
+        },
+        {
+          "frame": "f4_horror_attack_013.png"
+        },
+        {
+          "frame": "f4_horror_attack_014.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f4_horror_death_000.png"
+        },
+        {
+          "frame": "f4_horror_death_001.png"
+        },
+        {
+          "frame": "f4_horror_death_002.png"
+        },
+        {
+          "frame": "f4_horror_death_003.png"
+        },
+        {
+          "frame": "f4_horror_death_004.png"
+        },
+        {
+          "frame": "f4_horror_death_005.png"
+        },
+        {
+          "frame": "f4_horror_death_006.png"
+        },
+        {
+          "frame": "f4_horror_death_007.png"
+        },
+        {
+          "frame": "f4_horror_death_008.png"
+        },
+        {
+          "frame": "f4_horror_death_009.png"
+        },
+        {
+          "frame": "f4_horror_death_010.png"
+        },
+        {
+          "frame": "f4_horror_death_011.png"
+        },
+        {
+          "frame": "f4_horror_death_012.png"
+        },
+        {
+          "frame": "f4_horror_death_013.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

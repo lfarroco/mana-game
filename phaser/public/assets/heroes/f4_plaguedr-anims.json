@@ -1,0 +1,193 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f4_plaguedr_idle_000.png"
+        },
+        {
+          "frame": "f4_plaguedr_idle_001.png"
+        },
+        {
+          "frame": "f4_plaguedr_idle_002.png"
+        },
+        {
+          "frame": "f4_plaguedr_idle_003.png"
+        },
+        {
+          "frame": "f4_plaguedr_idle_004.png"
+        },
+        {
+          "frame": "f4_plaguedr_idle_005.png"
+        },
+        {
+          "frame": "f4_plaguedr_idle_006.png"
+        },
+        {
+          "frame": "f4_plaguedr_idle_007.png"
+        },
+        {
+          "frame": "f4_plaguedr_idle_008.png"
+        },
+        {
+          "frame": "f4_plaguedr_idle_009.png"
+        },
+        {
+          "frame": "f4_plaguedr_idle_010.png"
+        },
+        {
+          "frame": "f4_plaguedr_idle_011.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f4_plaguedr_attack_000.png"
+        },
+        {
+          "frame": "f4_plaguedr_attack_001.png"
+        },
+        {
+          "frame": "f4_plaguedr_attack_002.png"
+        },
+        {
+          "frame": "f4_plaguedr_attack_003.png"
+        },
+        {
+          "frame": "f4_plaguedr_attack_004.png"
+        },
+        {
+          "frame": "f4_plaguedr_attack_005.png"
+        },
+        {
+          "frame": "f4_plaguedr_attack_006.png"
+        },
+        {
+          "frame": "f4_plaguedr_attack_007.png"
+        },
+        {
+          "frame": "f4_plaguedr_attack_008.png"
+        },
+        {
+          "frame": "f4_plaguedr_attack_009.png"
+        },
+        {
+          "frame": "f4_plaguedr_attack_010.png"
+        },
+        {
+          "frame": "f4_plaguedr_attack_011.png"
+        },
+        {
+          "frame": "f4_plaguedr_attack_012.png"
+        },
+        {
+          "frame": "f4_plaguedr_attack_013.png"
+        },
+        {
+          "frame": "f4_plaguedr_attack_014.png"
+        },
+        {
+          "frame": "f4_plaguedr_attack_015.png"
+        },
+        {
+          "frame": "f4_plaguedr_attack_016.png"
+        },
+        {
+          "frame": "f4_plaguedr_attack_017.png"
+        },
+        {
+          "frame": "f4_plaguedr_attack_018.png"
+        },
+        {
+          "frame": "f4_plaguedr_attack_019.png"
+        },
+        {
+          "frame": "f4_plaguedr_attack_020.png"
+        },
+        {
+          "frame": "f4_plaguedr_attack_021.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f4_plaguedr_death_000.png"
+        },
+        {
+          "frame": "f4_plaguedr_death_001.png"
+        },
+        {
+          "frame": "f4_plaguedr_death_002.png"
+        },
+        {
+          "frame": "f4_plaguedr_death_003.png"
+        },
+        {
+          "frame": "f4_plaguedr_death_004.png"
+        },
+        {
+          "frame": "f4_plaguedr_death_005.png"
+        },
+        {
+          "frame": "f4_plaguedr_death_006.png"
+        },
+        {
+          "frame": "f4_plaguedr_death_007.png"
+        },
+        {
+          "frame": "f4_plaguedr_death_008.png"
+        },
+        {
+          "frame": "f4_plaguedr_death_009.png"
+        },
+        {
+          "frame": "f4_plaguedr_death_010.png"
+        },
+        {
+          "frame": "f4_plaguedr_death_011.png"
+        },
+        {
+          "frame": "f4_plaguedr_death_012.png"
+        },
+        {
+          "frame": "f4_plaguedr_death_013.png"
+        },
+        {
+          "frame": "f4_plaguedr_death_014.png"
+        },
+        {
+          "frame": "f4_plaguedr_death_015.png"
+        },
+        {
+          "frame": "f4_plaguedr_death_016.png"
+        },
+        {
+          "frame": "f4_plaguedr_death_017.png"
+        },
+        {
+          "frame": "f4_plaguedr_death_018.png"
+        },
+        {
+          "frame": "f4_plaguedr_death_019.png"
+        },
+        {
+          "frame": "f4_plaguedr_death_020.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

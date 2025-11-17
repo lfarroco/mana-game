@@ -1,0 +1,259 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_nip_idle_000.png"
+        },
+        {
+          "frame": "neutral_nip_idle_001.png"
+        },
+        {
+          "frame": "neutral_nip_idle_002.png"
+        },
+        {
+          "frame": "neutral_nip_idle_003.png"
+        },
+        {
+          "frame": "neutral_nip_idle_004.png"
+        },
+        {
+          "frame": "neutral_nip_idle_005.png"
+        },
+        {
+          "frame": "neutral_nip_idle_006.png"
+        },
+        {
+          "frame": "neutral_nip_idle_007.png"
+        },
+        {
+          "frame": "neutral_nip_idle_008.png"
+        },
+        {
+          "frame": "neutral_nip_idle_009.png"
+        },
+        {
+          "frame": "neutral_nip_idle_010.png"
+        },
+        {
+          "frame": "neutral_nip_idle_011.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_nip_attack_000.png"
+        },
+        {
+          "frame": "neutral_nip_attack_001.png"
+        },
+        {
+          "frame": "neutral_nip_attack_002.png"
+        },
+        {
+          "frame": "neutral_nip_attack_003.png"
+        },
+        {
+          "frame": "neutral_nip_attack_004.png"
+        },
+        {
+          "frame": "neutral_nip_attack_005.png"
+        },
+        {
+          "frame": "neutral_nip_attack_006.png"
+        },
+        {
+          "frame": "neutral_nip_attack_007.png"
+        },
+        {
+          "frame": "neutral_nip_attack_008.png"
+        },
+        {
+          "frame": "neutral_nip_attack_009.png"
+        },
+        {
+          "frame": "neutral_nip_attack_010.png"
+        },
+        {
+          "frame": "neutral_nip_attack_011.png"
+        },
+        {
+          "frame": "neutral_nip_attack_012.png"
+        },
+        {
+          "frame": "neutral_nip_attack_013.png"
+        },
+        {
+          "frame": "neutral_nip_attack_014.png"
+        },
+        {
+          "frame": "neutral_nip_attack_015.png"
+        },
+        {
+          "frame": "neutral_nip_attack_016.png"
+        },
+        {
+          "frame": "neutral_nip_attack_017.png"
+        },
+        {
+          "frame": "neutral_nip_attack_018.png"
+        },
+        {
+          "frame": "neutral_nip_attack_019.png"
+        },
+        {
+          "frame": "neutral_nip_attack_020.png"
+        },
+        {
+          "frame": "neutral_nip_attack_021.png"
+        },
+        {
+          "frame": "neutral_nip_attack_022.png"
+        },
+        {
+          "frame": "neutral_nip_attack_023.png"
+        },
+        {
+          "frame": "neutral_nip_attack_024.png"
+        },
+        {
+          "frame": "neutral_nip_attack_025.png"
+        },
+        {
+          "frame": "neutral_nip_attack_026.png"
+        },
+        {
+          "frame": "neutral_nip_attack_027.png"
+        },
+        {
+          "frame": "neutral_nip_attack_028.png"
+        },
+        {
+          "frame": "neutral_nip_attack_029.png"
+        },
+        {
+          "frame": "neutral_nip_attack_030.png"
+        },
+        {
+          "frame": "neutral_nip_attack_031.png"
+        },
+        {
+          "frame": "neutral_nip_attack_032.png"
+        },
+        {
+          "frame": "neutral_nip_attack_033.png"
+        },
+        {
+          "frame": "neutral_nip_attack_034.png"
+        },
+        {
+          "frame": "neutral_nip_attack_035.png"
+        },
+        {
+          "frame": "neutral_nip_attack_036.png"
+        },
+        {
+          "frame": "neutral_nip_attack_037.png"
+        },
+        {
+          "frame": "neutral_nip_attack_038.png"
+        },
+        {
+          "frame": "neutral_nip_attack_039.png"
+        },
+        {
+          "frame": "neutral_nip_attack_040.png"
+        },
+        {
+          "frame": "neutral_nip_attack_041.png"
+        },
+        {
+          "frame": "neutral_nip_attack_042.png"
+        },
+        {
+          "frame": "neutral_nip_attack_043.png"
+        },
+        {
+          "frame": "neutral_nip_attack_044.png"
+        },
+        {
+          "frame": "neutral_nip_attack_045.png"
+        },
+        {
+          "frame": "neutral_nip_attack_046.png"
+        },
+        {
+          "frame": "neutral_nip_attack_047.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_nip_death_000.png"
+        },
+        {
+          "frame": "neutral_nip_death_001.png"
+        },
+        {
+          "frame": "neutral_nip_death_002.png"
+        },
+        {
+          "frame": "neutral_nip_death_003.png"
+        },
+        {
+          "frame": "neutral_nip_death_004.png"
+        },
+        {
+          "frame": "neutral_nip_death_005.png"
+        },
+        {
+          "frame": "neutral_nip_death_006.png"
+        },
+        {
+          "frame": "neutral_nip_death_007.png"
+        },
+        {
+          "frame": "neutral_nip_death_008.png"
+        },
+        {
+          "frame": "neutral_nip_death_009.png"
+        },
+        {
+          "frame": "neutral_nip_death_010.png"
+        },
+        {
+          "frame": "neutral_nip_death_011.png"
+        },
+        {
+          "frame": "neutral_nip_death_012.png"
+        },
+        {
+          "frame": "neutral_nip_death_013.png"
+        },
+        {
+          "frame": "neutral_nip_death_014.png"
+        },
+        {
+          "frame": "neutral_nip_death_015.png"
+        },
+        {
+          "frame": "neutral_nip_death_016.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

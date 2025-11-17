@@ -1,0 +1,151 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_ubo_idle_000.png"
+        },
+        {
+          "frame": "neutral_ubo_idle_001.png"
+        },
+        {
+          "frame": "neutral_ubo_idle_002.png"
+        },
+        {
+          "frame": "neutral_ubo_idle_003.png"
+        },
+        {
+          "frame": "neutral_ubo_idle_004.png"
+        },
+        {
+          "frame": "neutral_ubo_idle_005.png"
+        },
+        {
+          "frame": "neutral_ubo_idle_006.png"
+        },
+        {
+          "frame": "neutral_ubo_idle_007.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_ubo_attack_000.png"
+        },
+        {
+          "frame": "neutral_ubo_attack_001.png"
+        },
+        {
+          "frame": "neutral_ubo_attack_002.png"
+        },
+        {
+          "frame": "neutral_ubo_attack_003.png"
+        },
+        {
+          "frame": "neutral_ubo_attack_004.png"
+        },
+        {
+          "frame": "neutral_ubo_attack_005.png"
+        },
+        {
+          "frame": "neutral_ubo_attack_006.png"
+        },
+        {
+          "frame": "neutral_ubo_attack_007.png"
+        },
+        {
+          "frame": "neutral_ubo_attack_008.png"
+        },
+        {
+          "frame": "neutral_ubo_attack_009.png"
+        },
+        {
+          "frame": "neutral_ubo_attack_010.png"
+        },
+        {
+          "frame": "neutral_ubo_attack_011.png"
+        },
+        {
+          "frame": "neutral_ubo_attack_012.png"
+        },
+        {
+          "frame": "neutral_ubo_attack_013.png"
+        },
+        {
+          "frame": "neutral_ubo_attack_014.png"
+        },
+        {
+          "frame": "neutral_ubo_attack_015.png"
+        },
+        {
+          "frame": "neutral_ubo_attack_016.png"
+        },
+        {
+          "frame": "neutral_ubo_attack_017.png"
+        },
+        {
+          "frame": "neutral_ubo_attack_018.png"
+        },
+        {
+          "frame": "neutral_ubo_attack_019.png"
+        },
+        {
+          "frame": "neutral_ubo_attack_020.png"
+        },
+        {
+          "frame": "neutral_ubo_attack_021.png"
+        },
+        {
+          "frame": "neutral_ubo_attack_022.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_ubo_death_000.png"
+        },
+        {
+          "frame": "neutral_ubo_death_001.png"
+        },
+        {
+          "frame": "neutral_ubo_death_002.png"
+        },
+        {
+          "frame": "neutral_ubo_death_003.png"
+        },
+        {
+          "frame": "neutral_ubo_death_004.png"
+        },
+        {
+          "frame": "neutral_ubo_death_005.png"
+        },
+        {
+          "frame": "neutral_ubo_death_006.png"
+        },
+        {
+          "frame": "neutral_ubo_death_007.png"
+        },
+        {
+          "frame": "neutral_ubo_death_008.png"
+        },
+        {
+          "frame": "neutral_ubo_death_009.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

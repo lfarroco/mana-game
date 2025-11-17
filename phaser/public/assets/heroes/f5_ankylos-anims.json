@@ -1,0 +1,253 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f5_ankylos_idle_000.png"
+        },
+        {
+          "frame": "f5_ankylos_idle_001.png"
+        },
+        {
+          "frame": "f5_ankylos_idle_002.png"
+        },
+        {
+          "frame": "f5_ankylos_idle_003.png"
+        },
+        {
+          "frame": "f5_ankylos_idle_004.png"
+        },
+        {
+          "frame": "f5_ankylos_idle_005.png"
+        },
+        {
+          "frame": "f5_ankylos_idle_006.png"
+        },
+        {
+          "frame": "f5_ankylos_idle_007.png"
+        },
+        {
+          "frame": "f5_ankylos_idle_008.png"
+        },
+        {
+          "frame": "f5_ankylos_idle_009.png"
+        },
+        {
+          "frame": "f5_ankylos_idle_010.png"
+        },
+        {
+          "frame": "f5_ankylos_idle_011.png"
+        },
+        {
+          "frame": "f5_ankylos_idle_012.png"
+        },
+        {
+          "frame": "f5_ankylos_idle_013.png"
+        },
+        {
+          "frame": "f5_ankylos_idle_014.png"
+        },
+        {
+          "frame": "f5_ankylos_idle_015.png"
+        },
+        {
+          "frame": "f5_ankylos_idle_016.png"
+        },
+        {
+          "frame": "f5_ankylos_idle_017.png"
+        },
+        {
+          "frame": "f5_ankylos_idle_018.png"
+        },
+        {
+          "frame": "f5_ankylos_idle_019.png"
+        },
+        {
+          "frame": "f5_ankylos_idle_020.png"
+        },
+        {
+          "frame": "f5_ankylos_idle_021.png"
+        },
+        {
+          "frame": "f5_ankylos_idle_022.png"
+        },
+        {
+          "frame": "f5_ankylos_idle_023.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f5_ankylos_attack_000.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_001.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_002.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_003.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_004.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_005.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_006.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_007.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_008.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_009.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_010.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_011.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_012.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_013.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_014.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_015.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_016.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_017.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_018.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_019.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_020.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_021.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_022.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_023.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_024.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_025.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_026.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_027.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_028.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_029.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_030.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_031.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_032.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_033.png"
+        },
+        {
+          "frame": "f5_ankylos_attack_034.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f5_ankylos_death_000.png"
+        },
+        {
+          "frame": "f5_ankylos_death_001.png"
+        },
+        {
+          "frame": "f5_ankylos_death_002.png"
+        },
+        {
+          "frame": "f5_ankylos_death_003.png"
+        },
+        {
+          "frame": "f5_ankylos_death_004.png"
+        },
+        {
+          "frame": "f5_ankylos_death_005.png"
+        },
+        {
+          "frame": "f5_ankylos_death_006.png"
+        },
+        {
+          "frame": "f5_ankylos_death_007.png"
+        },
+        {
+          "frame": "f5_ankylos_death_008.png"
+        },
+        {
+          "frame": "f5_ankylos_death_009.png"
+        },
+        {
+          "frame": "f5_ankylos_death_010.png"
+        },
+        {
+          "frame": "f5_ankylos_death_011.png"
+        },
+        {
+          "frame": "f5_ankylos_death_012.png"
+        },
+        {
+          "frame": "f5_ankylos_death_013.png"
+        },
+        {
+          "frame": "f5_ankylos_death_014.png"
+        },
+        {
+          "frame": "f5_ankylos_death_015.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

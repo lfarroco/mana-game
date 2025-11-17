@@ -1,0 +1,157 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f6_icedryad_idle_000.png"
+        },
+        {
+          "frame": "f6_icedryad_idle_001.png"
+        },
+        {
+          "frame": "f6_icedryad_idle_002.png"
+        },
+        {
+          "frame": "f6_icedryad_idle_003.png"
+        },
+        {
+          "frame": "f6_icedryad_idle_004.png"
+        },
+        {
+          "frame": "f6_icedryad_idle_005.png"
+        },
+        {
+          "frame": "f6_icedryad_idle_006.png"
+        },
+        {
+          "frame": "f6_icedryad_idle_007.png"
+        },
+        {
+          "frame": "f6_icedryad_idle_008.png"
+        },
+        {
+          "frame": "f6_icedryad_idle_009.png"
+        },
+        {
+          "frame": "f6_icedryad_idle_010.png"
+        },
+        {
+          "frame": "f6_icedryad_idle_011.png"
+        },
+        {
+          "frame": "f6_icedryad_idle_012.png"
+        },
+        {
+          "frame": "f6_icedryad_idle_013.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f6_icedryad_attack_000.png"
+        },
+        {
+          "frame": "f6_icedryad_attack_001.png"
+        },
+        {
+          "frame": "f6_icedryad_attack_002.png"
+        },
+        {
+          "frame": "f6_icedryad_attack_003.png"
+        },
+        {
+          "frame": "f6_icedryad_attack_004.png"
+        },
+        {
+          "frame": "f6_icedryad_attack_005.png"
+        },
+        {
+          "frame": "f6_icedryad_attack_006.png"
+        },
+        {
+          "frame": "f6_icedryad_attack_007.png"
+        },
+        {
+          "frame": "f6_icedryad_attack_008.png"
+        },
+        {
+          "frame": "f6_icedryad_attack_009.png"
+        },
+        {
+          "frame": "f6_icedryad_attack_010.png"
+        },
+        {
+          "frame": "f6_icedryad_attack_011.png"
+        },
+        {
+          "frame": "f6_icedryad_attack_012.png"
+        },
+        {
+          "frame": "f6_icedryad_attack_013.png"
+        },
+        {
+          "frame": "f6_icedryad_attack_014.png"
+        },
+        {
+          "frame": "f6_icedryad_attack_015.png"
+        },
+        {
+          "frame": "f6_icedryad_attack_016.png"
+        },
+        {
+          "frame": "f6_icedryad_attack_017.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f6_icedryad_death_000.png"
+        },
+        {
+          "frame": "f6_icedryad_death_001.png"
+        },
+        {
+          "frame": "f6_icedryad_death_002.png"
+        },
+        {
+          "frame": "f6_icedryad_death_003.png"
+        },
+        {
+          "frame": "f6_icedryad_death_004.png"
+        },
+        {
+          "frame": "f6_icedryad_death_005.png"
+        },
+        {
+          "frame": "f6_icedryad_death_006.png"
+        },
+        {
+          "frame": "f6_icedryad_death_007.png"
+        },
+        {
+          "frame": "f6_icedryad_death_008.png"
+        },
+        {
+          "frame": "f6_icedryad_death_009.png"
+        },
+        {
+          "frame": "f6_icedryad_death_010.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

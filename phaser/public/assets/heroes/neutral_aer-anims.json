@@ -1,0 +1,184 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_aer_idle_000.png"
+        },
+        {
+          "frame": "neutral_aer_idle_001.png"
+        },
+        {
+          "frame": "neutral_aer_idle_002.png"
+        },
+        {
+          "frame": "neutral_aer_idle_003.png"
+        },
+        {
+          "frame": "neutral_aer_idle_004.png"
+        },
+        {
+          "frame": "neutral_aer_idle_005.png"
+        },
+        {
+          "frame": "neutral_aer_idle_006.png"
+        },
+        {
+          "frame": "neutral_aer_idle_007.png"
+        },
+        {
+          "frame": "neutral_aer_idle_008.png"
+        },
+        {
+          "frame": "neutral_aer_idle_009.png"
+        },
+        {
+          "frame": "neutral_aer_idle_010.png"
+        },
+        {
+          "frame": "neutral_aer_idle_011.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_aer_attack_000.png"
+        },
+        {
+          "frame": "neutral_aer_attack_001.png"
+        },
+        {
+          "frame": "neutral_aer_attack_002.png"
+        },
+        {
+          "frame": "neutral_aer_attack_003.png"
+        },
+        {
+          "frame": "neutral_aer_attack_004.png"
+        },
+        {
+          "frame": "neutral_aer_attack_005.png"
+        },
+        {
+          "frame": "neutral_aer_attack_006.png"
+        },
+        {
+          "frame": "neutral_aer_attack_007.png"
+        },
+        {
+          "frame": "neutral_aer_attack_008.png"
+        },
+        {
+          "frame": "neutral_aer_attack_009.png"
+        },
+        {
+          "frame": "neutral_aer_attack_010.png"
+        },
+        {
+          "frame": "neutral_aer_attack_011.png"
+        },
+        {
+          "frame": "neutral_aer_attack_012.png"
+        },
+        {
+          "frame": "neutral_aer_attack_013.png"
+        },
+        {
+          "frame": "neutral_aer_attack_014.png"
+        },
+        {
+          "frame": "neutral_aer_attack_015.png"
+        },
+        {
+          "frame": "neutral_aer_attack_016.png"
+        },
+        {
+          "frame": "neutral_aer_attack_017.png"
+        },
+        {
+          "frame": "neutral_aer_attack_018.png"
+        },
+        {
+          "frame": "neutral_aer_attack_019.png"
+        },
+        {
+          "frame": "neutral_aer_attack_020.png"
+        },
+        {
+          "frame": "neutral_aer_attack_021.png"
+        },
+        {
+          "frame": "neutral_aer_attack_022.png"
+        },
+        {
+          "frame": "neutral_aer_attack_023.png"
+        },
+        {
+          "frame": "neutral_aer_attack_024.png"
+        },
+        {
+          "frame": "neutral_aer_attack_025.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_aer_death_000.png"
+        },
+        {
+          "frame": "neutral_aer_death_001.png"
+        },
+        {
+          "frame": "neutral_aer_death_002.png"
+        },
+        {
+          "frame": "neutral_aer_death_003.png"
+        },
+        {
+          "frame": "neutral_aer_death_004.png"
+        },
+        {
+          "frame": "neutral_aer_death_005.png"
+        },
+        {
+          "frame": "neutral_aer_death_006.png"
+        },
+        {
+          "frame": "neutral_aer_death_007.png"
+        },
+        {
+          "frame": "neutral_aer_death_008.png"
+        },
+        {
+          "frame": "neutral_aer_death_009.png"
+        },
+        {
+          "frame": "neutral_aer_death_010.png"
+        },
+        {
+          "frame": "neutral_aer_death_011.png"
+        },
+        {
+          "frame": "neutral_aer_death_012.png"
+        },
+        {
+          "frame": "neutral_aer_death_013.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

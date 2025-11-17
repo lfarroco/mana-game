@@ -1,0 +1,193 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "boss_unhallowed_idle_000.png"
+        },
+        {
+          "frame": "boss_unhallowed_idle_001.png"
+        },
+        {
+          "frame": "boss_unhallowed_idle_002.png"
+        },
+        {
+          "frame": "boss_unhallowed_idle_003.png"
+        },
+        {
+          "frame": "boss_unhallowed_idle_004.png"
+        },
+        {
+          "frame": "boss_unhallowed_idle_005.png"
+        },
+        {
+          "frame": "boss_unhallowed_idle_006.png"
+        },
+        {
+          "frame": "boss_unhallowed_idle_007.png"
+        },
+        {
+          "frame": "boss_unhallowed_idle_008.png"
+        },
+        {
+          "frame": "boss_unhallowed_idle_009.png"
+        },
+        {
+          "frame": "boss_unhallowed_idle_010.png"
+        },
+        {
+          "frame": "boss_unhallowed_idle_011.png"
+        },
+        {
+          "frame": "boss_unhallowed_idle_012.png"
+        },
+        {
+          "frame": "boss_unhallowed_idle_013.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "boss_unhallowed_attack_000.png"
+        },
+        {
+          "frame": "boss_unhallowed_attack_001.png"
+        },
+        {
+          "frame": "boss_unhallowed_attack_002.png"
+        },
+        {
+          "frame": "boss_unhallowed_attack_003.png"
+        },
+        {
+          "frame": "boss_unhallowed_attack_004.png"
+        },
+        {
+          "frame": "boss_unhallowed_attack_005.png"
+        },
+        {
+          "frame": "boss_unhallowed_attack_006.png"
+        },
+        {
+          "frame": "boss_unhallowed_attack_007.png"
+        },
+        {
+          "frame": "boss_unhallowed_attack_008.png"
+        },
+        {
+          "frame": "boss_unhallowed_attack_009.png"
+        },
+        {
+          "frame": "boss_unhallowed_attack_010.png"
+        },
+        {
+          "frame": "boss_unhallowed_attack_011.png"
+        },
+        {
+          "frame": "boss_unhallowed_attack_012.png"
+        },
+        {
+          "frame": "boss_unhallowed_attack_013.png"
+        },
+        {
+          "frame": "boss_unhallowed_attack_014.png"
+        },
+        {
+          "frame": "boss_unhallowed_attack_015.png"
+        },
+        {
+          "frame": "boss_unhallowed_attack_016.png"
+        },
+        {
+          "frame": "boss_unhallowed_attack_017.png"
+        },
+        {
+          "frame": "boss_unhallowed_attack_018.png"
+        },
+        {
+          "frame": "boss_unhallowed_attack_019.png"
+        },
+        {
+          "frame": "boss_unhallowed_attack_020.png"
+        },
+        {
+          "frame": "boss_unhallowed_attack_021.png"
+        },
+        {
+          "frame": "boss_unhallowed_attack_022.png"
+        },
+        {
+          "frame": "boss_unhallowed_attack_023.png"
+        },
+        {
+          "frame": "boss_unhallowed_attack_024.png"
+        },
+        {
+          "frame": "boss_unhallowed_attack_025.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "boss_unhallowed_death_000.png"
+        },
+        {
+          "frame": "boss_unhallowed_death_001.png"
+        },
+        {
+          "frame": "boss_unhallowed_death_002.png"
+        },
+        {
+          "frame": "boss_unhallowed_death_003.png"
+        },
+        {
+          "frame": "boss_unhallowed_death_004.png"
+        },
+        {
+          "frame": "boss_unhallowed_death_005.png"
+        },
+        {
+          "frame": "boss_unhallowed_death_006.png"
+        },
+        {
+          "frame": "boss_unhallowed_death_007.png"
+        },
+        {
+          "frame": "boss_unhallowed_death_008.png"
+        },
+        {
+          "frame": "boss_unhallowed_death_009.png"
+        },
+        {
+          "frame": "boss_unhallowed_death_010.png"
+        },
+        {
+          "frame": "boss_unhallowed_death_011.png"
+        },
+        {
+          "frame": "boss_unhallowed_death_012.png"
+        },
+        {
+          "frame": "boss_unhallowed_death_013.png"
+        },
+        {
+          "frame": "boss_unhallowed_death_014.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

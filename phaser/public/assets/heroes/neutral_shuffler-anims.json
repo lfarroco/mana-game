@@ -1,0 +1,286 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_shuffler_idle_000.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_001.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_002.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_003.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_004.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_005.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_006.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_007.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_008.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_009.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_010.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_011.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_012.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_013.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_014.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_015.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_016.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_017.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_018.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_019.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_020.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_021.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_022.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_023.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_024.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_025.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_026.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_027.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_028.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_029.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_030.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_031.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_032.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_033.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_034.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_035.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_036.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_037.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_038.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_039.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_040.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_041.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_042.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_043.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_044.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_045.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_046.png"
+        },
+        {
+          "frame": "neutral_shuffler_idle_047.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_shuffler_attack_000.png"
+        },
+        {
+          "frame": "neutral_shuffler_attack_001.png"
+        },
+        {
+          "frame": "neutral_shuffler_attack_002.png"
+        },
+        {
+          "frame": "neutral_shuffler_attack_003.png"
+        },
+        {
+          "frame": "neutral_shuffler_attack_004.png"
+        },
+        {
+          "frame": "neutral_shuffler_attack_005.png"
+        },
+        {
+          "frame": "neutral_shuffler_attack_006.png"
+        },
+        {
+          "frame": "neutral_shuffler_attack_007.png"
+        },
+        {
+          "frame": "neutral_shuffler_attack_008.png"
+        },
+        {
+          "frame": "neutral_shuffler_attack_009.png"
+        },
+        {
+          "frame": "neutral_shuffler_attack_010.png"
+        },
+        {
+          "frame": "neutral_shuffler_attack_011.png"
+        },
+        {
+          "frame": "neutral_shuffler_attack_012.png"
+        },
+        {
+          "frame": "neutral_shuffler_attack_013.png"
+        },
+        {
+          "frame": "neutral_shuffler_attack_014.png"
+        },
+        {
+          "frame": "neutral_shuffler_attack_015.png"
+        },
+        {
+          "frame": "neutral_shuffler_attack_016.png"
+        },
+        {
+          "frame": "neutral_shuffler_attack_017.png"
+        },
+        {
+          "frame": "neutral_shuffler_attack_018.png"
+        },
+        {
+          "frame": "neutral_shuffler_attack_019.png"
+        },
+        {
+          "frame": "neutral_shuffler_attack_020.png"
+        },
+        {
+          "frame": "neutral_shuffler_attack_021.png"
+        },
+        {
+          "frame": "neutral_shuffler_attack_022.png"
+        },
+        {
+          "frame": "neutral_shuffler_attack_023.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "neutral_shuffler_death_000.png"
+        },
+        {
+          "frame": "neutral_shuffler_death_001.png"
+        },
+        {
+          "frame": "neutral_shuffler_death_002.png"
+        },
+        {
+          "frame": "neutral_shuffler_death_003.png"
+        },
+        {
+          "frame": "neutral_shuffler_death_004.png"
+        },
+        {
+          "frame": "neutral_shuffler_death_005.png"
+        },
+        {
+          "frame": "neutral_shuffler_death_006.png"
+        },
+        {
+          "frame": "neutral_shuffler_death_007.png"
+        },
+        {
+          "frame": "neutral_shuffler_death_008.png"
+        },
+        {
+          "frame": "neutral_shuffler_death_009.png"
+        },
+        {
+          "frame": "neutral_shuffler_death_010.png"
+        },
+        {
+          "frame": "neutral_shuffler_death_011.png"
+        },
+        {
+          "frame": "neutral_shuffler_death_012.png"
+        },
+        {
+          "frame": "neutral_shuffler_death_013.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}

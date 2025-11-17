@@ -1,0 +1,145 @@
+{
+  "anims": [
+    {
+      "key": "idle",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f6_justice_idle_000.png"
+        },
+        {
+          "frame": "f6_justice_idle_001.png"
+        },
+        {
+          "frame": "f6_justice_idle_002.png"
+        },
+        {
+          "frame": "f6_justice_idle_003.png"
+        },
+        {
+          "frame": "f6_justice_idle_004.png"
+        },
+        {
+          "frame": "f6_justice_idle_005.png"
+        },
+        {
+          "frame": "f6_justice_idle_006.png"
+        },
+        {
+          "frame": "f6_justice_idle_007.png"
+        },
+        {
+          "frame": "f6_justice_idle_008.png"
+        },
+        {
+          "frame": "f6_justice_idle_009.png"
+        },
+        {
+          "frame": "f6_justice_idle_010.png"
+        },
+        {
+          "frame": "f6_justice_idle_011.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    {
+      "key": "attack",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f6_justice_attack_000.png"
+        },
+        {
+          "frame": "f6_justice_attack_001.png"
+        },
+        {
+          "frame": "f6_justice_attack_002.png"
+        },
+        {
+          "frame": "f6_justice_attack_003.png"
+        },
+        {
+          "frame": "f6_justice_attack_004.png"
+        },
+        {
+          "frame": "f6_justice_attack_005.png"
+        },
+        {
+          "frame": "f6_justice_attack_006.png"
+        },
+        {
+          "frame": "f6_justice_attack_007.png"
+        },
+        {
+          "frame": "f6_justice_attack_008.png"
+        },
+        {
+          "frame": "f6_justice_attack_009.png"
+        },
+        {
+          "frame": "f6_justice_attack_010.png"
+        },
+        {
+          "frame": "f6_justice_attack_011.png"
+        },
+        {
+          "frame": "f6_justice_attack_012.png"
+        },
+        {
+          "frame": "f6_justice_attack_013.png"
+        },
+        {
+          "frame": "f6_justice_attack_014.png"
+        },
+        {
+          "frame": "f6_justice_attack_015.png"
+        },
+        {
+          "frame": "f6_justice_attack_016.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    {
+      "key": "death",
+      "type": "frame",
+      "frames": [
+        {
+          "frame": "f6_justice_death_000.png"
+        },
+        {
+          "frame": "f6_justice_death_001.png"
+        },
+        {
+          "frame": "f6_justice_death_002.png"
+        },
+        {
+          "frame": "f6_justice_death_003.png"
+        },
+        {
+          "frame": "f6_justice_death_004.png"
+        },
+        {
+          "frame": "f6_justice_death_005.png"
+        },
+        {
+          "frame": "f6_justice_death_006.png"
+        },
+        {
+          "frame": "f6_justice_death_007.png"
+        },
+        {
+          "frame": "f6_justice_death_008.png"
+        },
+        {
+          "frame": "f6_justice_death_009.png"
+        }
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  ]
+}
