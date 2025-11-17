@@ -2016,8 +2016,7 @@
 					"id": "haste",
 					"duration": 1000,
 					"targets": {
-						"id": "row_allies",
-						"count": 1
+						"id": "row_allies"
 					}
 				}
 			],
@@ -2044,7 +2043,7 @@
 							"id": "increase_power",
 							"amount": 10,
 							"targets": {
-								"id": "allies",
+								"id": "all_allies",
 								"ofType": "heal"
 							}
 						}
@@ -2214,7 +2213,7 @@
 					"effects": [
 						{
 							"id": "haste",
-							"amount": 1000,
+							"duration": 1000,
 							"targets": {
 								"id": "self"
 							}
