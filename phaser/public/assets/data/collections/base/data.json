@@ -704,7 +704,7 @@
 		{
 			"id": "haste_crystal",
 			"name": "Haste Crystal",
-			"pic": "blue-stone",
+			"pic": "haste-stone",
 			"life": 500,
 			"cooldown": 3000,
 			"isCore": true,
