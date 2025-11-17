@@ -1014,7 +1014,7 @@
 		{
 			"id": "fortress",
 			"name": "Fortress",
-			"pic": "f1_peacekeeper",
+			"pic": "boss_city",
 			"power": 20,
 			"cooldown": 5200,
 			"effects": [
@@ -1296,7 +1296,7 @@
 		{
 			"id": "radiance_engine",
 			"name": "Radiance Engine",
-			"pic": "f3_mech",
+			"pic": "boss_cindera",
 			"power": 30,
 			"cooldown": 3700,
 			"effects": [
