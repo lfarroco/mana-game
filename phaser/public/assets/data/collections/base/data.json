@@ -359,7 +359,7 @@
 		{
 			"id": "plaguebearer",
 			"name": "Plague Bearer",
-			"pic": "neutral_amu",
+			"pic": "f3_plague_totem",
 			"power": 10,
 			"cooldown": 2200,
 			"effects": [
@@ -386,7 +386,7 @@
 		{
 			"id": "toxic_alchemist",
 			"name": "Toxic Alchemist",
-			"pic": "neutral_amu",
+			"pic": "f5_drogon",
 			"power": 20,
 			"cooldown": 3200,
 			"effects": [
@@ -413,7 +413,7 @@
 		{
 			"id": "venomous_viper",
 			"name": "Venomous Viper",
-			"pic": "neutral_amu",
+			"pic": "neutral_serpenti",
 			"power": 20,
 			"cooldown": 3200,
 			"effects": [
@@ -447,7 +447,7 @@
 		{
 			"id": "noxious_blight",
 			"name": "Noxious Blight",
-			"pic": "neutral_amu",
+			"pic": "neutral_dreamgazer",
 			"power": 30,
 			"cooldown": 4300,
 			"effects": [
@@ -474,7 +474,7 @@
 		{
 			"id": "corrosive_slime",
 			"name": "Corrosive Slime",
-			"pic": "neutral_amu",
+			"pic": "f4_gloomchaser",
 			"power": 20,
 			"cooldown": 4300,
 			"effects": [
@@ -501,7 +501,7 @@
 		{
 			"id": "infected_horror",
 			"name": "Infected Horror",
-			"pic": "neutral_amu",
+			"pic": "f4_horror",
 			"power": 30,
 			"cooldown": 3700,
 			"effects": [
@@ -526,9 +526,9 @@
 			]
 		},
 		{
-			"id": "withering_skeleton",
-			"name": "Withering Skeleton",
-			"pic": "neutral_amu",
+			"id": "skeletal_mage",
+			"name": "Skeletal Mage",
+			"pic": "neutral_bonereaper",
 			"power": 40,
 			"cooldown": 4700,
 			"effects": [
@@ -555,7 +555,7 @@
 		{
 			"id": "scourge_bringer",
 			"name": "Scourgea Bringer",
-			"pic": "neutral_amu",
+			"pic": "f4_nocturn",
 			"power": 20,
 			"cooldown": 2700,
 			"effects": [
@@ -906,7 +906,7 @@
 		{
 			"id": "bastion",
 			"name": "Bastion",
-			"pic": "f1_peacekeeper",
+			"pic": "f1_mech",
 			"power": 20,
 			"cooldown": 4200,
 			"effects": [
@@ -933,7 +933,7 @@
 		{
 			"id": "aegis_warden",
 			"name": "Aaegis Warden",
-			"pic": "f1_peacekeeper",
+			"pic": "f1_shieldforger",
 			"power": 20,
 			"cooldown": 3100,
 			"effects": [
@@ -960,7 +960,7 @@
 		{
 			"id": "bulwark",
 			"name": "Bulwark",
-			"pic": "f1_peacekeeper",
+			"pic": "f1_solarius",
 			"power": 20,
 			"cooldown": 4400,
 			"effects": [
@@ -987,7 +987,7 @@
 		{
 			"id": "void_shield",
 			"name": "Void Shield",
-			"pic": "f1_peacekeeper",
+			"pic": "neutral_voidhunter",
 			"power": 20,
 			"cooldown": 4800,
 			"effects": [
@@ -1041,7 +1041,7 @@
 		{
 			"id": "parry_master",
 			"name": "Parry Mater",
-			"pic": "f1_peacekeeper",
+			"pic": "neutral_swordofakrane",
 			"power": 20,
 			"cooldown": 3800,
 			"effects": [
@@ -1068,7 +1068,7 @@
 		{
 			"id": "cleric",
 			"name": "Cleric",
-			"pic": "f3_mech",
+			"pic": "neutral_healingmystictwitch",
 			"power": 20,
 			"cooldown": 4100,
 			"effects": [
@@ -1102,7 +1102,7 @@
 		{
 			"id": "battle_medic",
 			"name": "Battle Medic",
-			"pic": "f3_mech",
+			"pic": "neutral_healingmysticbandainamco",
 			"power": 35,
 			"cooldown": 4800,
 			"effects": [
@@ -1142,7 +1142,7 @@
 		{
 			"id": "light_priestess",
 			"name": "Light Priestess",
-			"pic": "f3_mech",
+			"pic": "neutral_healingmystic",
 			"power": 25,
 			"cooldown": 3700,
 			"effects": [
@@ -1182,7 +1182,7 @@
 		{
 			"id": "soul_weaver",
 			"name": "Soul Weaver",
-			"pic": "f3_mech",
+			"pic": "boss_soulstealer",
 			"power": 15,
 			"cooldown": 2700,
 			"effects": [
@@ -1209,7 +1209,7 @@
 		{
 			"id": "mender_of_worlds",
 			"name": "Mender of Worlds",
-			"pic": "f3_mech",
+			"pic": "f6_auroraguardian",
 			"power": 35,
 			"cooldown": 4200,
 			"effects": [
@@ -1249,7 +1249,7 @@
 		{
 			"id": "divine_spark",
 			"name": "Divine Spark",
-			"pic": "f3_mech",
+			"pic": "f3_obelyskduskwind",
 			"power": 35,
 			"cooldown": 4200,
 			"effects": [
@@ -1336,7 +1336,7 @@
 		{
 			"id": "harmony_monk",
 			"name": "Harmony Monk",
-			"pic": "f3_mech",
+			"pic": "boss_harmony",
 			"power": 20,
 			"cooldown": 2800,
 			"effects": [
@@ -1376,7 +1376,7 @@
 		{
 			"id": "oracle",
 			"name": "Oracle",
-			"pic": "f3_mech",
+			"pic": "neutral_timekeeper",
 			"power": 30,
 			"cooldown": 3300,
 			"effects": [
@@ -1416,7 +1416,7 @@
 		{
 			"id": "chronomancer",
 			"name": "Chronomancer",
-			"pic": "f3_mech",
+			"pic": "f4_klaxon",
 			"power": 20,
 			"cooldown": 3700,
 			"effects": [
@@ -1494,9 +1494,9 @@
 			]
 		},
 		{
-			"id": "lifebloom_treant",
-			"name": "Lifebloom Treant",
-			"pic": "boss_crystal",
+			"id": "enchanted_treant",
+			"name": "Enchanted Treant",
+			"pic": "f6_treant",
 			"power": 10,
 			"cooldown": 2300,
 			"effects": [
@@ -1536,7 +1536,7 @@
 		{
 			"id": "castle_vampire",
 			"name": "Castle Vampire",
-			"pic": "boss_crystal",
+			"pic": "boss_vampire",
 			"power": 20,
 			"cooldown": 2900,
 			"effects": [
@@ -1561,9 +1561,9 @@
 			]
 		},
 		{
-			"id": "fungal_growth",
-			"name": "Fungal Groth",
-			"pic": "boss_crystal",
+			"id": "plague_dr",
+			"name": "Plague Dr",
+			"pic": "f4_plaguedr",
 			"power": 20,
 			"cooldown": 2900,
 			"effects": [
@@ -1598,7 +1598,7 @@
 		{
 			"id": "eternal_phoenix",
 			"name": "Eternal Phoenix",
-			"pic": "boss_crystal",
+			"pic": "f2_firewyrm",
 			"power": 20,
 			"cooldown": 2300,
 			"effects": [
@@ -1638,7 +1638,7 @@
 		{
 			"id": "sand_shifter",
 			"name": "Sand Shifter",
-			"pic": "boss_crystal",
+			"pic": "f3_sandhowler",
 			"power": 30,
 			"cooldown": 2800,
 			"effects": [
@@ -1673,7 +1673,7 @@
 		{
 			"id": "crystalline_geode",
 			"name": "Crystalline Geode",
-			"pic": "boss_crystal",
+			"pic": "f6_crystalbeetle",
 			"power": 40,
 			"cooldown": 4200,
 			"effects": [
@@ -1713,7 +1713,7 @@
 		{
 			"id": "blood_catalyst",
 			"name": "Blood Catalyst",
-			"pic": "boss_crystal",
+			"pic": "neutral_bloodletter",
 			"power": 20,
 			"cooldown": 2200,
 			"effects": [
@@ -1753,7 +1753,7 @@
 		{
 			"id": "symbiote",
 			"name": "Symbiote",
-			"pic": "boss_crystal",
+			"pic": "f5_mech",
 			"power": 20,
 			"cooldown": 2500,
 			"effects": [
@@ -1804,7 +1804,7 @@
 		{
 			"id": "shifter_of_time",
 			"name": "Shifter of Time",
-			"pic": "f1_sister",
+			"pic": "f2_mage4winds",
 			"power": 6,
 			"cooldown": 3500,
 			"effects": [
@@ -1826,9 +1826,9 @@
 			]
 		},
 		{
-			"id": "mana_spring",
-			"name": "Mana Spring",
-			"pic": "f1_sister",
+			"id": "mana_source",
+			"name": "Mana Source",
+			"pic": "f4_furosa",
 			"power": 0,
 			"cooldown": 9500,
 			"effects": [
@@ -1873,7 +1873,7 @@
 		{
 			"id": "void_rift",
 			"name": "Void Rift",
-			"pic": "f1_sister",
+			"pic": "f5_ankylos",
 			"power": 0,
 			"cooldown": 6500,
 			"effects": [
@@ -1911,7 +1911,7 @@
 		{
 			"id": "arcane_anomally",
 			"name": "Arcane Anomally",
-			"pic": "f1_sister",
+			"pic": "f6_myriad",
 			"power": 0,
 			"cooldown": 4500,
 			"effects": [
@@ -1955,7 +1955,7 @@
 		{
 			"id": "mirror_entity",
 			"name": "Mirror Entity",
-			"pic": "f1_sister",
+			"pic": "f3_nimbus",
 			"power": 0,
 			"cooldown": 4500,
 			"effects": [
@@ -2008,7 +2008,7 @@
 		{
 			"id": "spellbreaker",
 			"name": "Spellbreakder",
-			"pic": "f1_sister",
+			"pic": "neutral_spelljammer",
 			"power": 0,
 			"cooldown": 4500,
 			"effects": [
@@ -2054,7 +2054,7 @@
 		{
 			"id": "duelist",
 			"name": "Duelist",
-			"pic": "f1_sister",
+			"pic": "neutral_shuffler",
 			"power": 0,
 			"cooldown": 4500,
 			"effects": [
@@ -2085,7 +2085,7 @@
 		{
 			"id": "gambler",
 			"name": "Gambler",
-			"pic": "f1_sister",
+			"pic": "neutral_gambler",
 			"power": 0,
 			"cooldown": 3200,
 			"effects": [
@@ -2198,7 +2198,7 @@
 		{
 			"id": "berserker",
 			"name": "Berserker",
-			"pic": "f1_rightfulheir",
+			"pic": "neutral_beastmaster",
 			"power": 40,
 			"cooldown": 4800,
 			"effects": [
