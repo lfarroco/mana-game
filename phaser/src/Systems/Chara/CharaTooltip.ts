@@ -1,10 +1,10 @@
 import { Chara } from "./Chara";
-import { Effect, EffectReaction } from "../../TriggerSystem/TriggerSystem";
+import { Effect, EffectReaction, Targeting } from "../../TriggerSystem/TriggerSystem";
 import { hideTooltip, renderTooltip } from "../../Components/Tooltip";
 import { createDescription } from "./createDescription";
 
 export const buildEffectBlock = (effect: Effect, unitPower: number): string => {
-	const withTargets = (base: string, targets?: any) => {
+	const withTargets = (base: string, targets?: Targeting) => {
 		if (!targets) return base;
 		return `${base} → [color=#e0e0e0]${getTargetDescription(targets)}[/color]`;
 	};
@@ -100,7 +100,7 @@ const getPositionDescription = (position: string): string => {
 	}
 };
 
-const getTargetDescription = (targets: any): string => {
+const getTargetDescription = (targets: Targeting): string => {
 	if (!targets) return "Targets";
 
 	switch (targets.id) {
@@ -115,7 +115,7 @@ const getTargetDescription = (targets: any): string => {
 		case "column_allies":
 			return "Column";
 		case "all_allies":
-			if (targets.ofType !== "" && targets.ofType !== "any")
+			if (targets.ofType !== "any")
 				return `All allies of type ${targets.ofType}`;
 			else return "All allies";
 		case "all_enemies":
