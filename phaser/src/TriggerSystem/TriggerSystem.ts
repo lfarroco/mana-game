@@ -12,92 +12,92 @@ export type EffectReaction = {
 
 export type Effect =
 	| {
-			id: "damage";
-	  }
+		id: "damage";
+	}
 	| {
-			id: "heal";
-	  }
+		id: "heal";
+	}
 	| {
-			id: "shield";
-	  }
+		id: "shield";
+	}
 	| {
-			id: "poison";
-	  }
+		id: "poison";
+	}
 	| {
-			id: "regen";
-	  }
+		id: "regen";
+	}
 	| {
-			id: "haste";
-			duration: number;
-			targets: Targeting;
-	  }
+		id: "haste";
+		duration: number;
+		targets: Targeting;
+	}
 	| {
-			id: "slow";
-			duration: number;
-			targets: Targeting;
-	  }
+		id: "slow";
+		duration: number;
+		targets: Targeting;
+	}
 	| {
-			id: "charge";
-			duration: number;
-			targets: Targeting;
-	  }
+		id: "charge";
+		duration: number;
+		targets: Targeting;
+	}
 	| {
-			id: "increase_power";
-			amount: number;
-			permanent?: boolean;
-			targets: Targeting;
-	  }
+		id: "increase_power";
+		amount: number;
+		permanent?: boolean;
+		targets: Targeting;
+	}
 	| {
-			id: "multiply_power";
-			multiplier: number;
-			targets: Targeting;
-	  }
+		id: "multiply_power";
+		multiplier: number;
+		targets: Targeting;
+	}
 	| {
-			id: "increase_critical";
-			amount: number;
-			targets: Targeting;
-	  };
+		id: "increase_critical";
+		amount: number;
+		targets: Targeting;
+	};
 
-type Targeting =
+export type Targeting =
 	| {
-			id: "self";
-	  }
+		id: "self";
+	}
 	| {
-			id: "random_ally";
-			count: number;
-	  }
+		id: "random_ally";
+		count: number;
+	}
 	| {
-			id: "random_enemy";
-			count: number;
-	  }
+		id: "random_enemy";
+		count: number;
+	}
 	| {
-			id: "row_allies";
-	  }
+		id: "row_allies";
+	}
 	| {
-			id: "column_allies";
-	  }
+		id: "column_allies";
+	}
 	| {
-			id: "all_allies";
-			ofType: "any" | "damage" | "heal" | "shield" | "poison" | "regen";
-	  }
+		id: "all_allies";
+		ofType: "any" | "damage" | "heal" | "shield" | "poison" | "regen";
+	}
 	| {
-			id: "all_enemies";
-	  }
+		id: "all_enemies";
+	}
 	| {
-			id: "top_ally";
-	  }
+		id: "top_ally";
+	}
 	| {
-			id: "bottom_ally";
-	  }
+		id: "bottom_ally";
+	}
 	| {
-			id: "left_ally";
-	  }
+		id: "left_ally";
+	}
 	| {
-			id: "right_ally";
-	  }
+		id: "right_ally";
+	}
 	| {
-			id: "trigger";
-	  };
+		id: "trigger";
+	};
 
 export type EffectSourcePosition =
 	| "all"
