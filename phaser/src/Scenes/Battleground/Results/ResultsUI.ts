@@ -8,7 +8,7 @@ import { displayGameWon } from "./GameWonUI";
 import { displayVictory } from "./VictoryUI";
 import { displayDefeat } from "./DefeatUI";
 
-const WINS_TO_WIN_GAME = 1;
+const WINS_TO_WIN_GAME = 10;
 const RESULTS_CONTAINER_DEPTH = 1002;
 const RESULTS_CONTAINER_HIDDEN_Y = c.SCREEN_HEIGHT * -1;
 
