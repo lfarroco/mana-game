@@ -7,7 +7,6 @@ import { vec2 } from "@Models/Geometry";
 
 export function displayDefeat(
 	state: ResultsUIState,
-	goldReward: number,
 	prestigeChange: number,
 	nextPhaseCallback: () => void
 ): void {
@@ -42,22 +41,6 @@ export function displayDefeat(
 	).setOrigin(0.5);
 	message.setDepth(1001);
 	state.resultsContainer.add(message);
-
-	// Add gold reward info
-	const goldText = `Gold: +${goldReward}`;
-	const goldDisplay = scene.add.text(
-		panelX + panelWidth / 2,
-		panelY + 180,
-		goldText,
-		{
-			...c.defaultTextConfig,
-			fontSize: "28px",
-			color: "#FFD700",
-			fontStyle: "bold"
-		}
-	).setOrigin(0.5);
-	goldDisplay.setDepth(1001);
-	state.resultsContainer.add(goldDisplay);
 
 	// Add prestige info
 	const prestigeText = `Prestige: ${prestigeChange > 0 ? '+' : ''}${prestigeChange}`;

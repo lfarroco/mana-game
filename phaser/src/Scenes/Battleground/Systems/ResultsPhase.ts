@@ -22,17 +22,6 @@ export async function handleCombatEndedDefeat(): Promise<void> {
 	await ResultsUI.slideIn();
 }
 
-export async function handlePlayerWonGame(): Promise<void> {
-	const state = getState();
-	console.log(`PLAYER HAS WON THE GAME! Prestige: ${state.gameData.player.prestige}, Total Rounds: ${state.gameData.player.round}`);
-
-
-	renderVignette({
-		message: `Victory! You reached Champion status in ${state.gameData.player.round
-			} rounds!`
-	});
-}
-
 export async function handleCombatEndedVictory(): Promise<void> {
 	const state = getState();
 	console.log("Round", state.gameData.round, "Processing Victory...");
@@ -41,7 +30,6 @@ export async function handleCombatEndedVictory(): Promise<void> {
 
 	await delay(1000);
 
-	// Show results panel instead of immediately transitioning
 	ResultsUI.displayResults("victory", () => {
 		handleVictory();
 	});
@@ -81,7 +69,7 @@ async function handleDefeat(): Promise<void> {
 
 	const player = state.gameData.player;
 	if (player.prestige <= 0) {
-		await renderVignette({ message: `Game Over! You were defeated in ${player.round} rounds` });
+		await renderVignette({ message: `Game Over! You were defeated in ${state.gameData.round - 1} rounds` });
 		return;
 	}
 
