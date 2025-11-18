@@ -2,8 +2,6 @@ import { Force, playerForce } from "./Entities/Force";
 import { eqVec2 } from "./Geometry";
 import { Unit } from "./Entities/Unit";
 
-
-
 export type State = {
   savedGames: string[];
   gameData: GameData;
@@ -36,22 +34,25 @@ const initialState = (): State => ({
   }
 });
 
-declare global {
-  var state: State;
+const state = {
+  currentState: initialState()
 }
 
 export function resetState() {
-  currentState = initialState();
+  state.currentState = initialState();
 }
 
-let currentState = initialState();
-
+declare global {
+  var state: {
+    currentState: State
+  };
+}
 if (typeof window !== 'undefined') {
-  window.state = currentState;
+  window.state = state;
 }
 
 export const getState = (): State => {
-  return currentState;
+  return state.currentState;
 };
 
 export const getUnitAt = (units: Unit[]) => (position: Vec2) => {

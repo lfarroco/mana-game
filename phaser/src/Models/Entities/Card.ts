@@ -1,3 +1,4 @@
+import { getState } from "@Models/State";
 import { Effect, EffectReaction } from "../../TriggerSystem/TriggerSystem";
 
 const dummy: CardDefinition = {
@@ -82,7 +83,7 @@ export const getCores = (): CardDefinition[] => Array.from(cards.values()).filte
 
 export const getNonCores = (): CardDefinition[] => Array.from(cards.values()).filter(card => !card.isCore);
 
-export const getAlliedCore = (forceId: string) => state.battleData.units.find(u => u.force === forceId && u.isCore)!;
-export const getEnemyCore = (forceId: string) => state.battleData.units.find(u => u.force !== forceId && u.isCore)!;
+export const getAlliedCore = (forceId: string) => getState().battleData.units.find(u => u.force === forceId && u.isCore)!;
+export const getEnemyCore = (forceId: string) => getState().battleData.units.find(u => u.force !== forceId && u.isCore)!;
 
-export const getCore = (forceId: string) => state.battleData.units.find(u => u.force === forceId && u.isCore)!;
+export const getCore = (forceId: string) => getState().battleData.units.find(u => u.force === forceId && u.isCore)!;

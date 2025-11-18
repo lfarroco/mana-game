@@ -7,6 +7,7 @@ import { popText } from "@Systems/Chara/Animations";
 import { getCharaById } from "@Systems/Chara/Chara";
 import * as LifeDisplay from "@Systems/Chara/LifeDisplay";
 import * as ForceStats from "@Scenes/Battleground/ForceStats";
+import { getState } from "@Models/State";
 
 export type Force = {
 	id: string;
@@ -179,11 +180,13 @@ export const applyDamageToForce = (
 };
 
 export const getUnitForce = (unitId: string) => {
+	const state = getState();
 	const unit = state.battleData.units.find(u => u.id === unitId)!
 	return state.battleData.forces.find(f => f.id === unit.force)!
 }
 
 export const getEnemyForce = (unitId: string) => {
+	const state = getState();
 	const unit = state.battleData.units.find(u => u.id === unitId)!
 	return state.battleData.forces.find(f => f.id !== unit.force)!
 }

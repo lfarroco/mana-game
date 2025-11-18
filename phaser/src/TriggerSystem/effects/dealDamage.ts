@@ -4,12 +4,13 @@ import * as CombatStatsTracker from '@Scenes//Battleground/Systems/CombatStatsTr
 import { getCharaById, shake } from '@Systems/Chara/Chara';
 import { arcaneMissileTargeted } from '../../Effects/arcaneMissileTargeted';
 import { getEnemyCore } from '@Models/Entities/Card';
+import { getState } from '@Models/State';
 
 export function dealDamageLogicIO(sourceUnit: Unit) {
 
 	const damageAmount = sourceUnit.power;
 
-	const targetForce = state.battleData.forces.find(
+	const targetForce = getState().battleData.forces.find(
 		(force: { id: string }) => force.id !== sourceUnit.force
 	)!;
 

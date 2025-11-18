@@ -2,6 +2,7 @@ import { Unit } from "@Models/Entities/Unit";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import * as effects from "./effects";
 import { pickRandom } from "../utils";
+import { getState } from "@Models/State";
 
 export type EffectReaction = {
 	position: EffectSourcePosition;
@@ -175,7 +176,7 @@ function processReactions(
 		return;
 	}
 
-	state.battleData.units
+	getState().battleData.units
 		.filter(u => u.force === triggeringUnit.force)
 		.filter(u => u.id != triggeringUnit.id)
 		.forEach(u => {
@@ -227,7 +228,7 @@ function resolveTargets(sourceUnit: Unit, effect: Effect): Unit[] {
 	const filterOutCore = ["increase_power", "multiply_power", "increase_critical"]
 		.includes(effect.id);
 
-	const allUnits = state.battleData.units.filter(u => !u.isCore || !filterOutCore);
+	const allUnits = getState().battleData.units.filter(u => !u.isCore || !filterOutCore);
 	const allies = allUnits.filter(u => u.force === sourceUnit.force);
 	const enemies = allUnits.filter(u => u.force !== sourceUnit.force);
 
