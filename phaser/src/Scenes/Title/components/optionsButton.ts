@@ -6,7 +6,7 @@ import { openOptions } from "../effects/openOptions";
 export function optionsButton() {
 	createUIButton(
 		'OPTIONS',
-		vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + 300),
+		vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + 400),
 		openOptions
 	);
 }
