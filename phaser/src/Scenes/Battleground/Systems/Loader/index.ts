@@ -7,13 +7,12 @@ export function init(collection: CardCollection): void {
 
 export const loadDynamicAssets = (collection: CardCollection): Promise<void> =>
 	new Promise((resolve) => {
-		const loadAsset = (asset: { name: string, pic: string }, type: string) => {
+		const loadAsset = (asset: { name: string; pic: string }, type: string) => {
 			console.log(`Loading ${type} asset: ${asset.name} - ${asset.pic}`);
 			scene.load.image(asset.pic, asset.pic);
 		};
 
-		collection.cards
-			.forEach(card => loadAsset(card, "card"));
+		collection.cards.forEach((card) => loadAsset(card, "card"));
 
 		scene.load.once("complete", () => {
 			console.log("Dynamic asset loading complete for BattlegroundScene.");

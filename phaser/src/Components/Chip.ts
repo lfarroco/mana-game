@@ -2,46 +2,31 @@ import { defaultTextConfig } from "@Constants/constants";
 import { asVec2, size, sumVec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
 
-const index = new Map<string, {
-	bg: Graphics;
-	text: Phaser.GameObjects.Text;
-	color: number;
-}>();
+const index = new Map<
+	string,
+	{
+		bg: Graphics;
+		text: Phaser.GameObjects.Text;
+		color: number;
+	}
+>();
 
-
-export function createChip(
-	id: string,
-	position: Vec2,
-	color: number,
-	value: string
-) {
-
-	const text = io.Text(
-		value,
-		defaultTextConfig
-	);
+export function createChip(id: string, position: Vec2, color: number, value: string) {
+	const text = io.Text(value, defaultTextConfig);
 	io.SetPosition(text, position);
 	io.Centralize(text);
 
-	const bg = io.BorderedRoundRect(
-		asVec2(text),
-		size(
-			text.width + 12,
-			text.height + 12,
-		),
-		4,
-		color
-	)
+	const bg = io.BorderedRoundRect(asVec2(text), size(text.width + 12, text.height + 12), 4, color);
 
-	io.MoveBelow(bg, text)
+	io.MoveBelow(bg, text);
 
-	index.set(id, { bg, text, color })
+	index.set(id, { bg, text, color });
 
 	io.OnceDestroyed(bg, () => {
 		index.delete(id);
 	});
 
-	return [bg, text]
+	return [bg, text];
 }
 
 export function updateChipText(id: string, value: string) {

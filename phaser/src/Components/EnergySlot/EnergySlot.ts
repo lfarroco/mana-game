@@ -15,7 +15,7 @@ export class EnergySlot {
 	private scene: Phaser.Scene;
 	private shader: Phaser.GameObjects.Shader;
 	private startTime: number;
-	private config: Required<Omit<EnergySlotConfig, 'x' | 'y'>>;
+	private config: Required<Omit<EnergySlotConfig, "x" | "y">>;
 	private isDestroyed: boolean = false;
 
 	constructor(scene: Phaser.Scene, x: number, y: number, config: EnergySlotConfig = {}) {
@@ -26,7 +26,7 @@ export class EnergySlot {
 			size: 100,
 			color: { x: 0.8, y: 0.9, z: 1.0 }, // Slight blue tint
 			intensity: 1.0,
-			speed: 1.0
+			speed: 1.0,
 		};
 
 		this.config = { ...defaultConfig, ...config };
@@ -41,27 +41,23 @@ export class EnergySlot {
 
 		// Create the base shader
 		const baseShader = new Phaser.Display.BaseShader(
-			'EnergySlot',
+			"EnergySlot",
 			energySlotFragmentShader,
 			undefined,
 			{
-				time: { type: '1f', value: 0.0 },
-				resolution: { type: '2f', value: [this.config.size, this.config.size] },
-				color1: { type: '3f', value: this.config.color },
-				intensity: { type: '1f', value: this.config.intensity },
-				speed: { type: '1f', value: this.config.speed },
-				animationPhaseOffset: { type: '1f', value: animationPhaseOffset }
+				time: { type: "1f", value: 0.0 },
+				resolution: { type: "2f", value: [this.config.size, this.config.size] },
+				color1: { type: "3f", value: this.config.color },
+				intensity: { type: "1f", value: this.config.intensity },
+				speed: { type: "1f", value: this.config.speed },
+				animationPhaseOffset: { type: "1f", value: animationPhaseOffset },
 			}
 		);
 
 		// Create the shader game object
-		this.shader = this.scene.add.shader(
-			baseShader,
-			x,
-			y,
-			this.config.size,
-			this.config.size
-		).setOrigin(0.5, 0.5);
+		this.shader = this.scene.add
+			.shader(baseShader, x, y, this.config.size, this.config.size)
+			.setOrigin(0.5, 0.5);
 	}
 
 	update(time: number): void {
@@ -72,27 +68,27 @@ export class EnergySlot {
 
 		// Update time uniform for animation
 		const elapsedTime = (time - this.startTime) / 1000; // Convert to seconds
-		this.shader.setUniform('time.value', elapsedTime);
+		this.shader.setUniform("time.value", elapsedTime);
 	}
 
 	// Method to change slot color dynamically
 	setSlotColor(r: number, g: number, b: number): this {
 		this.config.color = { x: r, y: g, z: b };
-		this.shader.setUniform('color1.value', this.config.color);
+		this.shader.setUniform("color1.value", this.config.color);
 		return this;
 	}
 
 	// Method to change intensity
 	setIntensity(intensity: number): this {
 		this.config.intensity = intensity;
-		this.shader.setUniform('intensity.value', intensity);
+		this.shader.setUniform("intensity.value", intensity);
 		return this;
 	}
 
 	// Method to change animation speed
 	setSpeed(speed: number): this {
 		this.config.speed = speed;
-		this.shader.setUniform('speed.value', speed);
+		this.shader.setUniform("speed.value", speed);
 		return this;
 	}
 
@@ -100,7 +96,7 @@ export class EnergySlot {
 	setSize(size: number): this {
 		this.config.size = size;
 		this.shader.setSize(size, size);
-		this.shader.setUniform('resolution.value', [size, size]);
+		this.shader.setUniform("resolution.value", [size, size]);
 		return this;
 	}
 
@@ -168,7 +164,10 @@ export class EnergySlot {
 	}
 
 	// Method to set interactive (for drop zones)
-	setInteractive(shape?: Phaser.Types.Input.InputConfiguration, callback?: Phaser.Types.Input.HitAreaCallback): this {
+	setInteractive(
+		shape?: Phaser.Types.Input.InputConfiguration,
+		callback?: Phaser.Types.Input.HitAreaCallback
+	): this {
 		if (shape && callback) {
 			this.shader.setInteractive(shape, callback);
 		} else {
@@ -183,7 +182,11 @@ export class EnergySlot {
 
 	// Method to set as drop zone
 	setAsDropZone(): this {
-		const hitArea = new Phaser.Geom.Circle(this.config.size / 2, this.config.size / 2, this.config.size / 2);
+		const hitArea = new Phaser.Geom.Circle(
+			this.config.size / 2,
+			this.config.size / 2,
+			this.config.size / 2
+		);
 		this.shader.setInteractive(hitArea, Phaser.Geom.Circle.Contains);
 		this.shader.input!.dropZone = true;
 		return this;
@@ -197,7 +200,7 @@ export class EnergySlotFactory {
 			size,
 			color: { x: 0.7, y: 0.9, z: 1.0 }, // Blue-white for player
 			intensity: 1.0,
-			speed: 1.0
+			speed: 1.0,
 		});
 	}
 
@@ -206,16 +209,21 @@ export class EnergySlotFactory {
 			size,
 			color: { x: 1.0, y: 0.7, z: 0.7 }, // Red-white for enemy
 			intensity: 0.8,
-			speed: 0.8
+			speed: 0.8,
 		});
 	}
 
-	static createNeutralSlot(scene: Phaser.Scene, x: number, y: number, size: number = 80): EnergySlot {
+	static createNeutralSlot(
+		scene: Phaser.Scene,
+		x: number,
+		y: number,
+		size: number = 80
+	): EnergySlot {
 		return new EnergySlot(scene, x, y, {
 			size,
 			color: { x: 0.9, y: 0.9, z: 0.9 }, // Pure white for neutral
 			intensity: 1.2,
-			speed: 1.2
+			speed: 1.2,
 		});
 	}
 }

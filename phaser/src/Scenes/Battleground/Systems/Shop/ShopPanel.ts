@@ -13,14 +13,13 @@ export let nextRoundButton: Button;
 export let onNextRoundClicked: (() => void) | null = null;
 
 export const create = (nextRoundCallback: (() => void) | null) => {
-
 	container?.destroy();
 
 	container = Container();
 
 	container.setY(c.SCREEN_HEIGHT * -1);
 
-	if (!nextRoundCallback) return
+	if (!nextRoundCallback) return;
 
 	const nextRoundBtn = createUIButton(
 		"Skip",
@@ -30,24 +29,23 @@ export const create = (nextRoundCallback: (() => void) | null) => {
 
 	container.add(nextRoundBtn.container);
 	nextRoundButton = nextRoundBtn;
-
-}
+};
 
 export const slideIn = async () => {
-	AudioManager.playSoundEffect('sfx_ui_modalwindow_swoosh_enter');
+	AudioManager.playSoundEffect("sfx_ui_modalwindow_swoosh_enter");
 	await tween({ targets: [container], y: 0 });
-}
+};
 
 export const slideOut = async () => {
-	AudioManager.playSoundEffect('sfx_ui_modalwindow_swoosh_exit');
+	AudioManager.playSoundEffect("sfx_ui_modalwindow_swoosh_exit");
 	await tween({ targets: [container], y: c.SCREEN_HEIGHT * -1 });
 	container.removeAll(true);
-}
+};
 
 export const bringChildToTop = (child: Phaser.GameObjects.GameObject): void => {
 	container.bringToTop(child);
-}
+};
 
 export const removeChild = (child: Phaser.GameObjects.GameObject, destroy: boolean = false) => {
 	container.remove(child, destroy);
-}
+};

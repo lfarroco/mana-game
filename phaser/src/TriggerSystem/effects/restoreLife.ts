@@ -6,9 +6,7 @@ import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import { getCharaById } from "@Systems/Chara/Chara";
 
-
 export const restoreLife = async (sourceUnit: Unit) => {
-
 	const baseAmount = sourceUnit.power;
 
 	const critical = isCritical(sourceUnit);
@@ -19,7 +17,7 @@ export const restoreLife = async (sourceUnit: Unit) => {
 		const actualHealing = manipulateCoreLife(targetForce, amount, critical);
 
 		if (actualHealing > 0) {
-			CombatStatsTracker.trackHealing(sourceUnit.id, actualHealing, 'direct');
+			CombatStatsTracker.trackHealing(sourceUnit.id, actualHealing, "direct");
 		}
 
 		const runCombatSystem = scene.runCombatSystem;
@@ -31,29 +29,25 @@ export const restoreLife = async (sourceUnit: Unit) => {
 	CombatStatsTracker.trackLifeRestored({
 		unit: sourceUnit,
 		amount: sourceUnit.power,
-		type: 'direct',
-		sourceUnitId: sourceUnit.id
-	})
+		type: "direct",
+		sourceUnitId: sourceUnit.id,
+	});
 
 	const sourceForce = getUnitForce(sourceUnit.id);
 	const alliedCore = getAlliedCore(sourceUnit.force);
 
-	arcaneMissileTargeted(
-		getCharaById(sourceUnit.id),
-		getCharaById(alliedCore.id),
-		{
-			colors: [0x00ff00, 0x32cd32, 0x7fff00], // Green colors
-			amplitudeMin: 5,
-			amplitudeMax: 15,
-			particleScale: 1.5,
-			impact: {
-				colors: [0x00ff00, 0x32cd32],
-				scale: 2,
-				speed: 200,
-				lifespan: 300,
-				alpha: 0.4
-			},
-			onHit: effect(sourceForce, healAmount)
-		}
-	);
+	arcaneMissileTargeted(getCharaById(sourceUnit.id), getCharaById(alliedCore.id), {
+		colors: [0x00ff00, 0x32cd32, 0x7fff00], // Green colors
+		amplitudeMin: 5,
+		amplitudeMax: 15,
+		particleScale: 1.5,
+		impact: {
+			colors: [0x00ff00, 0x32cd32],
+			scale: 2,
+			speed: 200,
+			lifespan: 300,
+			alpha: 0.4,
+		},
+		onHit: effect(sourceForce, healAmount),
+	});
 };

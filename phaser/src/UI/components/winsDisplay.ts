@@ -13,24 +13,18 @@ export const WINS_DISPLAY_Y = 20;
 export function create() {
 	const initialWins = getState().gameData.player.wins;
 
-	const label = io.Text(
-		"Wins:",
-		{
-			...c.titleTextConfig,
-			fontSize: '24px',
-			color: '#ffffff'
-		}
-	)
+	const label = io.Text("Wins:", {
+		...c.titleTextConfig,
+		fontSize: "24px",
+		color: "#ffffff",
+	});
 	io.Centralize(label);
 
-	winsTextElement = io.Text(
-		initialWins.toString(),
-		{
-			...c.titleTextConfig,
-			fontSize: '24px',
-			color: '#ffffff'
-		}
-	);
+	winsTextElement = io.Text(initialWins.toString(), {
+		...c.titleTextConfig,
+		fontSize: "24px",
+		color: "#ffffff",
+	});
 	io.Centralize(winsTextElement);
 	io.SetPosition(winsTextElement, vec2(label.width + 10, 0));
 
@@ -52,9 +46,8 @@ export async function winsChangeAnimation(wins: number) {
 	const startX = bounds.centerX;
 	const startY = bounds.centerY;
 
-	const winsAmountText = scene.add.text(
-		startX, startY, animationText, titleTextConfig
-	)
+	const winsAmountText = scene.add
+		.text(startX, startY, animationText, titleTextConfig)
 		.setOrigin(0.5, 0.5)
 		.setAlpha(0)
 		.setScale(1)
@@ -77,4 +70,3 @@ export async function winsChangeAnimation(wins: number) {
 
 	winsAmountText.destroy();
 }
-

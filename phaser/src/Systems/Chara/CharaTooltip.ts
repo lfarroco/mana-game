@@ -22,21 +22,39 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string => {
 			return `[color=#8ce99a]Regen[/color] [color=#ffd93d]${unitPower}[/color] over 10s`;
 		case "haste": {
 			const dur = (effect.duration / 1000).toFixed(1);
-			return withTargets(`[color=#91a7ff][b]Haste[/b][/color] [color=#ffa94d]${dur}s[/color]`, effect.targets);
+			return withTargets(
+				`[color=#91a7ff][b]Haste[/b][/color] [color=#ffa94d]${dur}s[/color]`,
+				effect.targets
+			);
 		}
 		case "slow": {
 			const dur = (effect.duration / 1000).toFixed(1);
-			return withTargets(`[color=#d0bfff][b]Slow[/b][/color] [color=#ffa94d]${dur}s[/color]`, effect.targets);
+			return withTargets(
+				`[color=#d0bfff][b]Slow[/b][/color] [color=#ffa94d]${dur}s[/color]`,
+				effect.targets
+			);
 		}
 		case "charge":
 			const dur = (effect.duration / 1000).toFixed(1);
-			return withTargets(`[color=#ffe066]Charge[/color] [color=#ffd93d]${dur}s[/color]`, effect.targets);
+			return withTargets(
+				`[color=#ffe066]Charge[/color] [color=#ffd93d]${dur}s[/color]`,
+				effect.targets
+			);
 		case "increase_power":
-			return withTargets(`[color=#ff8cc8]+power[/color] [color=#ffd93d]${effect.amount}[/color]`, effect.targets);
+			return withTargets(
+				`[color=#ff8cc8]+power[/color] [color=#ffd93d]${effect.amount}[/color]`,
+				effect.targets
+			);
 		case "increase_critical":
-			return withTargets(`[color=#ff8cc8]Increase Critical[/color] [color=#ffd93d]${effect.amount}[/color]`, effect.targets);
+			return withTargets(
+				`[color=#ff8cc8]Increase Critical[/color] [color=#ffd93d]${effect.amount}[/color]`,
+				effect.targets
+			);
 		case "multiply_power":
-			return withTargets(`[color=#ff8cc8]Multiply Power[/color] [color=#ffd93d]${effect.multiplier}x[/color]`, effect.targets);
+			return withTargets(
+				`[color=#ff8cc8]Multiply Power[/color] [color=#ffd93d]${effect.multiplier}x[/color]`,
+				effect.targets
+			);
 		default: {
 			const _exhaustiveCheck: never = effect;
 			return _exhaustiveCheck;
@@ -50,11 +68,11 @@ export const getReactionDescription = (reaction: EffectReaction, unitPower: numb
 	const posDesc = reaction.position ? getPositionDescription(reaction.position) : undefined;
 	const showPos = !!reaction.position && !["all", "allies", "enemies"].includes(reaction.position); // only show specific relative positions
 
-	const effectSegments = reaction.effects.map(e => buildEffectBlock(e, unitPower));
+	const effectSegments = reaction.effects.map((e) => buildEffectBlock(e, unitPower));
 
-	const triggerPrefix = `⚡ [color=#51cf66]${triggerOn}[/color]${showPos && posDesc ? ` ([color=#c0c0c0]${posDesc.toLowerCase()}[/color])` : ''}`; // using heal green as main highlight for trigger label
+	const triggerPrefix = `⚡ [color=#51cf66]${triggerOn}[/color]${showPos && posDesc ? ` ([color=#c0c0c0]${posDesc.toLowerCase()}[/color])` : ""}`; // using heal green as main highlight for trigger label
 
-	return [triggerPrefix, ...effectSegments].join(' → ');
+	return [triggerPrefix, ...effectSegments].join(" → ");
 };
 
 const getPositionDescription = (position: string): string => {
@@ -98,9 +116,8 @@ const getTargetDescription = (targets: any): string => {
 			return "Column";
 		case "all_allies":
 			if (targets.ofType !== "" && targets.ofType !== "any")
-				return `All allies of type ${targets.ofType}`
-			else
-				return "All allies";
+				return `All allies of type ${targets.ofType}`;
+			else return "All allies";
 		case "all_enemies":
 			return "All enemies";
 		case "top_ally":
@@ -119,8 +136,7 @@ const getTargetDescription = (targets: any): string => {
 };
 
 export const onCharaPointerOver = (chara: Chara): void => {
-
-	if (!chara.active || !chara.visible) return
+	if (!chara.active || !chara.visible) return;
 
 	const { title, description } = createDescription(chara);
 
@@ -145,8 +161,8 @@ export const onCharaPointerOver = (chara: Chara): void => {
 	const tooltipY = CHAR_TOP + EXTRA_OFFSET;
 
 	renderTooltip(tooltipX, tooltipY, title, description);
-}
+};
 
 export const onCharaPointerOut = (): void => {
 	hideTooltip();
-}
+};

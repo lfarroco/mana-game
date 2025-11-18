@@ -1,5 +1,5 @@
 import { applyDamageToForce, Force } from "@Models/Entities/Force";
-import { arcaneMissileTargeted } from '../../../Effects';
+import { arcaneMissileTargeted } from "../../../Effects";
 import { getCore } from "@Models/Entities/Card";
 import { getCharaById, shake } from "@Systems/Chara/Chara";
 import { MIDDLE_SCREEN } from "@Constants/constants";
@@ -20,40 +20,39 @@ export function initializeTimeoutDamageSystem(): void {
 }
 
 async function spawnStar(damage: number, targetForce: Force) {
+	const target = getCore(targetForce.id);
 
-	const target = getCore(targetForce.id)
-
-	const core = getCharaById(target.id)
+	const core = getCharaById(target.id);
 
 	// purple -> gold colors for the projectile
-	const colors = [0x800080, 0xDA70D6, 0xFFD700];
+	const colors = [0x800080, 0xda70d6, 0xffd700];
 
-	arcaneMissileTargeted(
-		MIDDLE_SCREEN,
-		core,
-		{
-			colors,
-			amplitudeMin: 10,
-			amplitudeMax: 20,
-			particleScale: 1.2,
-			speedMultiplier: 1.6,
-			impact: {
-				colors: [0xFFD700, 0xFFF5E1],
-				scale: 2.5,
-				speed: 240,
-				lifespan: 380,
-				alpha: 0.6
-			},
-			onHit: () => {
-				// Apply damage when the shooting star hits the bar
-				applyDamageToForce(targetForce, damage, 0, 'timeout');
-				shake(core);
-			}
-		}
-	);
+	arcaneMissileTargeted(MIDDLE_SCREEN, core, {
+		colors,
+		amplitudeMin: 10,
+		amplitudeMax: 20,
+		particleScale: 1.2,
+		speedMultiplier: 1.6,
+		impact: {
+			colors: [0xffd700, 0xfff5e1],
+			scale: 2.5,
+			speed: 240,
+			lifespan: 380,
+			alpha: 0.6,
+		},
+		onHit: () => {
+			// Apply damage when the shooting star hits the bar
+			applyDamageToForce(targetForce, damage, 0, "timeout");
+			shake(core);
+		},
+	});
 }
 
-export function updateTimeoutDamageSystem(playerForce: Force, cpuForce: Force, delta: number): void {
+export function updateTimeoutDamageSystem(
+	playerForce: Force,
+	cpuForce: Force,
+	delta: number
+): void {
 	if (!isActive) return;
 
 	combatElapsedTime += delta;
@@ -70,11 +69,17 @@ export function updateTimeoutDamageSystem(playerForce: Force, cpuForce: Force, d
 	}
 }
 
-function applyTimeoutDamage(playerForce: Force, cpuForce: Force, timeSinceTimeoutStarted: number): void {
+function applyTimeoutDamage(
+	playerForce: Force,
+	cpuForce: Force,
+	timeSinceTimeoutStarted: number
+): void {
 	const tickCount = Math.floor(timeSinceTimeoutStarted / timeoutDamageInterval) + 1;
 	const currentDamage = tickCount * 5;
 
-	console.log(`[TimeoutDamageSystem] Timeout damage tick ${tickCount}: ${currentDamage} damage to both forces`);
+	console.log(
+		`[TimeoutDamageSystem] Timeout damage tick ${tickCount}: ${currentDamage} damage to both forces`
+	);
 
 	// Launch targeted shooting stars for each force that apply damage on hit
 	spawnStar(currentDamage, playerForce);
@@ -96,7 +101,7 @@ export function getTimeoutDamageConfig() {
 		isActive,
 		combatElapsed: combatElapsedTime,
 		stormState: {
-			stormStarted: combatElapsedTime >= timeoutDamageStartTime
-		}
+			stormStarted: combatElapsedTime >= timeoutDamageStartTime,
+		},
 	};
 }

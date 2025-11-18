@@ -17,8 +17,11 @@ function createUnitCopy(unit: Unit): Unit {
 	return {
 		...unit,
 		position: { ...unit.position },
-		reactions: unit.reactions.map(reaction => ({ ...reaction, effects: reaction.effects.map(effect => ({ ...effect })) })),
-		effects: unit.effects.map(effect => ({ ...effect })),
+		reactions: unit.reactions.map((reaction) => ({
+			...reaction,
+			effects: reaction.effects.map((effect) => ({ ...effect })),
+		})),
+		effects: unit.effects.map((effect) => ({ ...effect })),
 	};
 }
 
@@ -40,7 +43,7 @@ export async function transitionToCombatPhase(): Promise<void> {
 	// Important: summon the exact Unit instances stored in battleData.units
 	// so display components (e.g., charge bars) observe the same objects updated during combat.
 	const combatUnits = state.battleData.units;
-	combatUnits.forEach(u => {
+	combatUnits.forEach((u) => {
 		Chara.summon(u, false);
 	});
 
@@ -48,17 +51,14 @@ export async function transitionToCombatPhase(): Promise<void> {
 	createForceStats(constants.FORCE_ID_CPU);
 }
 
-export async function setupBattle(): Promise<{ enemies: Unit[]; }> {
+export async function setupBattle(): Promise<{ enemies: Unit[] }> {
 	const state = getState();
 	const cardPool = getAllCards();
 	const enemies = generateEnemyTeam(state.gameData.round, cardPool);
 
-	const playerUnitsForBattle = state.gameData.player.units.map(unit => createUnitCopy(unit));
+	const playerUnitsForBattle = state.gameData.player.units.map((unit) => createUnitCopy(unit));
 
-	state.battleData.forces = [
-		cpuForce,
-		playerForce
-	];
+	state.battleData.forces = [cpuForce, playerForce];
 	state.battleData.units = [...enemies, ...playerUnitsForBattle];
 
 	await delay(100);
@@ -69,10 +69,7 @@ export async function setupBattle(): Promise<{ enemies: Unit[]; }> {
 export async function showReadyButton(payload: { enemies: Unit[] }): Promise<void> {
 	const readyButton = createUIButton(
 		"Ready",
-		vec2(
-			constants.SCREEN_WIDTH / 2,
-			constants.SCREEN_HEIGHT - 100,
-		),
+		vec2(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100),
 		() => {
 			readyButton.container.destroy();
 			handleCombatStartExecution(payload);
@@ -81,9 +78,7 @@ export async function showReadyButton(payload: { enemies: Unit[] }): Promise<voi
 }
 
 export async function handleCombatStartExecution(_payload: { enemies: Unit[] }): Promise<void> {
-
 	await delay(300);
 
 	scene.runCombatSystem.runCombatIO();
-
 }

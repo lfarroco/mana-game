@@ -5,7 +5,6 @@ import { createUIButton } from "@Components/UIButton";
 import * as Phaser from "phaser";
 import { BUTTONS, LAYOUT, STYLES } from "../../OptionsScene";
 
-
 const SPEED_STEP = 0.1;
 const SPEED_MIN = 0.1;
 const SPEED_MAX = 3.0;
@@ -16,22 +15,18 @@ export function speed(
 	getValue: () => number,
 	setValue: (value: number) => void
 ) {
-
-	const formatLabel = () => getValue().toFixed(1) + 'x';
+	const formatLabel = () => getValue().toFixed(1) + "x";
 	const updateLabel = () => labelText.setText(formatLabel());
 
 	//   ~~~//~~~
-	const labelText = io.Text(
-		label,
-		constants.titleTextConfig
-	);
+	const labelText = io.Text(label, constants.titleTextConfig);
 
 	io.SetPosition(labelText, vec2(constants.MIDDLE_SCREEN_X, yPos));
 	io.Centralize(labelText);
 
 	//   ~~~//~~~
 	const decreaseButton = createUIButton(
-		'-',
+		"-",
 		vec2(
 			constants.MIDDLE_SCREEN_X - BUTTONS.SPEED_BUTTON_OFFSET_X,
 			yPos + LAYOUT.SPEED_VALUE_OFFSET_Y
@@ -45,21 +40,21 @@ export function speed(
 	);
 
 	//   ~~~//~~~
-	const valueText = io.Text(
-		formatLabel(),
-		{
-			...constants.titleTextConfig,
-			color: STYLES.VALUE_TEXT_COLOR
-		}
-	);
+	const valueText = io.Text(formatLabel(), {
+		...constants.titleTextConfig,
+		color: STYLES.VALUE_TEXT_COLOR,
+	});
 
 	io.SetPosition(valueText, vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.SPEED_VALUE_OFFSET_Y));
 	io.Centralize(valueText);
 
 	//   ~~~//~~~
 	const increaseButton = createUIButton(
-		'+',
-		vec2(constants.MIDDLE_SCREEN_X + BUTTONS.SPEED_BUTTON_OFFSET_X, yPos + LAYOUT.SPEED_VALUE_OFFSET_Y),
+		"+",
+		vec2(
+			constants.MIDDLE_SCREEN_X + BUTTONS.SPEED_BUTTON_OFFSET_X,
+			yPos + LAYOUT.SPEED_VALUE_OFFSET_Y
+		),
 		() => {
 			const newValue = Math.min(SPEED_MAX, getValue() + SPEED_STEP);
 			setValue(newValue);
@@ -70,6 +65,9 @@ export function speed(
 
 	//   ~~~//~~~
 	return [
-		labelText, decreaseButton.container, valueText, increaseButton.container
+		labelText,
+		decreaseButton.container,
+		valueText,
+		increaseButton.container,
 	] as Phaser.GameObjects.GameObject[];
 }

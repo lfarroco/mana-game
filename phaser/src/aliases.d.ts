@@ -1,4 +1,4 @@
-import type * as Phaser from 'phaser';
+import type * as Phaser from "phaser";
 
 declare global {
 	type Scene = Phaser.Scene;
@@ -8,8 +8,8 @@ declare global {
 	type TextObj = Phaser.GameObjects.Text;
 	type Image = Phaser.GameObjects.Image;
 	type Pointer = Phaser.Input.Pointer;
-	type Vec2 = { x: number, y: number }
-	type Size = { width: number, height: number }
+	type Vec2 = { x: number; y: number };
+	type Size = { width: number; height: number };
 }
 
-export { };
+export {};

@@ -8,7 +8,7 @@ export const MIDDLE_SCREEN_Y = SCREEN_HEIGHT / 2;
 
 export const MIDDLE_SCREEN = vec2(MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y);
 
-export const WHOLE_SCREEN = size(SCREEN_WIDTH, SCREEN_HEIGHT)
+export const WHOLE_SCREEN = size(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 export const TICK_DURATION = 100;
 
@@ -33,7 +33,7 @@ export const CPU_BOARD_X = SCREEN_WIDTH - (TILE_WIDTH * 3 + 8 * 2) - 120;
 export const CPU_BOARD_Y = PLAYER_BOARD_Y;
 
 export const defaultTextConfig: Phaser.Types.GameObjects.Text.TextStyle = {
-	fontSize: (TILE_HEIGHT * 0.15) + "px",
+	fontSize: TILE_HEIGHT * 0.15 + "px",
 	color: "white",
 	fontFamily: "'Arial', sans-serif",
 	stroke: "black",
@@ -43,7 +43,7 @@ export const defaultTextConfig: Phaser.Types.GameObjects.Text.TextStyle = {
 
 export const titleTextConfig: Phaser.Types.GameObjects.Text.TextStyle = {
 	...defaultTextConfig,
-	fontSize: (TILE_HEIGHT * 0.2) + "px",
+	fontSize: TILE_HEIGHT * 0.2 + "px",
 	fontFamily: "'Arial Black', sans-serif",
 	strokeThickness: 14,
 	stroke: "black",
@@ -52,11 +52,10 @@ export const titleTextConfig: Phaser.Types.GameObjects.Text.TextStyle = {
 export const FORCE_ID_PLAYER = "PLAYER";
 export const FORCE_ID_CPU = "CPU";
 
-
 export const SCENE_KEYS = {
 	DEBUG: "DebugScene",
 	BATTLEGROUND: "BattlegroundScene",
 	CORE: "Core",
 	TITLE: "TitleScene",
-	OPTIONS: "OptionsScene"
+	OPTIONS: "OptionsScene",
 } as const;

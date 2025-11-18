@@ -12,7 +12,7 @@ import * as Chara from "./Chara";
 import * as events from "./events";
 import { onCharaPointerOut, onCharaPointerOver } from "./CharaTooltip";
 
-import * as SellZone from "../../Scenes/Battleground/Systems/Shop/SellZone"
+import * as SellZone from "../../Scenes/Battleground/Systems/Shop/SellZone";
 import * as ph from "@PhaserIO";
 import { getState } from "@Models/State";
 import * as ShopPanel from "@Scenes/Battleground/Systems/Shop/ShopPanel";
@@ -28,8 +28,7 @@ export type InputHandler = {
 };
 
 export function init(chara: Chara.Chara) {
-
-	const unit = Chara.getUnit(chara)
+	const unit = Chara.getUnit(chara);
 
 	const state: InputHandler = {
 		wasDragSuccessful: false,
@@ -38,8 +37,8 @@ export function init(chara: Chara.Chara) {
 		isLongPressActive: false,
 	};
 
-	const isPlayerUnit = Chara.getUnit(chara).force === constants.FORCE_ID_PLAYER
-	const isShopUnit = Chara.isShopItem(state.unitId)
+	const isPlayerUnit = Chara.getUnit(chara).force === constants.FORCE_ID_PLAYER;
+	const isShopUnit = Chara.isShopItem(state.unitId);
 
 	if (isPlayerUnit || (unit.force === constants.FORCE_ID_PLAYER && isShopUnit)) {
 		scene.input.setDraggable(chara, true);
@@ -47,37 +46,23 @@ export function init(chara: Chara.Chara) {
 		chara.on(Phaser.Input.Events.DRAG_START, onDragStart(state));
 		chara.on(Phaser.Input.Events.DRAG, onDrag(chara));
 
-		ph.WhenDroppedOnZone(
-			chara,
-			SellZone.name,
-			() => {
-				if (isPlayerUnit)
-					events.onSell(state.unitId);
-			}
-		);
+		ph.WhenDroppedOnZone(chara, SellZone.name, () => {
+			if (isPlayerUnit) events.onSell(state.unitId);
+		});
 
-		ph.WhenDroppedOnZone(
-			chara,
-			"board-cell",
-			(zone) => {
-				const x = zone.getData("cell-x") as number;
-				const y = zone.getData("cell-y") as number;
-				const tile = Geometry.vec2(x, y);
+		ph.WhenDroppedOnZone(chara, "board-cell", (zone) => {
+			const x = zone.getData("cell-x") as number;
+			const y = zone.getData("cell-y") as number;
+			const tile = Geometry.vec2(x, y);
 
-				if (!Chara.isShopItem(state.unitId)) {
-					const vec = chara.getData("dragStartVec")
-					processOwnedUnitMoveRequest(
-						state.unitId,
-						tile,
-						vec.x,
-						vec.y,
-					);
-				} else {
-					handleDropShopItem(chara)(tile);
-				}
-				state.wasDragSuccessful = true;
+			if (!Chara.isShopItem(state.unitId)) {
+				const vec = chara.getData("dragStartVec");
+				processOwnedUnitMoveRequest(state.unitId, tile, vec.x, vec.y);
+			} else {
+				handleDropShopItem(chara)(tile);
 			}
-		)
+			state.wasDragSuccessful = true;
+		});
 
 		chara.on(Phaser.Input.Events.DRAG_END, onDragEnd(state));
 
@@ -92,14 +77,12 @@ export function init(chara: Chara.Chara) {
 	return state;
 }
 
-export const onDrag = (chara: Chara.Chara) => (
-	_pointer: Pointer,
-	dragX: number,
-	dragY: number
-): void => {
-	chara.x = dragX;
-	chara.y = dragY;
-};
+export const onDrag =
+	(chara: Chara.Chara) =>
+	(_pointer: Pointer, dragX: number, dragY: number): void => {
+		chara.x = dragX;
+		chara.y = dragY;
+	};
 
 export const onDragEnd = (handlerState: InputHandler) => (_pointer: Pointer) => {
 	const { chara } = handlerState;
@@ -127,49 +110,52 @@ export const onDragEnd = (handlerState: InputHandler) => (_pointer: Pointer) => 
 	handlerState.wasDragSuccessful = false;
 };
 
-export const onDragStart = (handlerState: InputHandler) => (
-	_pointer: Pointer,
-	_dragX: number,
-	_dragY: number
-) => {
-	const { chara } = handlerState;
+export const onDragStart =
+	(handlerState: InputHandler) => (_pointer: Pointer, _dragX: number, _dragY: number) => {
+		const { chara } = handlerState;
 
-	const dragStartVec = Geometry.vec2(chara.x, chara.y);
-	chara.setData("dragStartVec", dragStartVec);
+		const dragStartVec = Geometry.vec2(chara.x, chara.y);
+		chara.setData("dragStartVec", dragStartVec);
 
-	handlerState.wasDragSuccessful = false;
+		handlerState.wasDragSuccessful = false;
 
-	if (handlerState.longPressTimer) {
-		handlerState.longPressTimer.destroy();
-		handlerState.longPressTimer = undefined;
-	}
-	handlerState.isLongPressActive = false;
+		if (handlerState.longPressTimer) {
+			handlerState.longPressTimer.destroy();
+			handlerState.longPressTimer = undefined;
+		}
+		handlerState.isLongPressActive = false;
 
-	if (Chara.isShopItem(handlerState.unitId)) {
-		ShopPanel.bringChildToTop(chara);
-	} else {
-		scene.children.bringToTop(chara);
-	}
+		if (Chara.isShopItem(handlerState.unitId)) {
+			ShopPanel.bringChildToTop(chara);
+		} else {
+			scene.children.bringToTop(chara);
+		}
 
-	tween({
-		targets: [chara],
-		angle: -10,
-		duration: 100,
-		ease: "Cubic.Out",
-	});
+		tween({
+			targets: [chara],
+			angle: -10,
+			duration: 100,
+			ease: "Cubic.Out",
+		});
 
-	const unit = Chara.getUnit(chara);
+		const unit = Chara.getUnit(chara);
 
-	if (!Chara.isShopItem(handlerState.unitId) && !unit.isCore) {
-		SellZone.show();
-	}
+		if (!Chara.isShopItem(handlerState.unitId) && !unit.isCore) {
+			SellZone.show();
+		}
 
-	Tooltip.hideTooltip();
-};
+		Tooltip.hideTooltip();
+	};
 
 const handleDropShopItem = (chara: Chara.Chara) => (tile: Vec2) => {
 	const vec = chara.getData("dragStartVec") as Vec2;
-	Shop.events.itemDragPurchaseRequested({ ...Chara.getUnit(chara) }, Chara.getUnit(chara).id, tile, vec.x, vec.y);
+	Shop.events.itemDragPurchaseRequested(
+		{ ...Chara.getUnit(chara) },
+		Chara.getUnit(chara).id,
+		tile,
+		vec.x,
+		vec.y
+	);
 };
 
 export const processOwnedUnitMoveRequest = (
@@ -191,7 +177,9 @@ export const processOwnedUnitMoveRequest = (
 		return;
 	}
 
-	const occupier = units.find((u) => u.id !== unitId && u.position.x === targetTile.x && u.position.y === targetTile.y);
+	const occupier = units.find(
+		(u) => u.id !== unitId && u.position.x === targetTile.x && u.position.y === targetTile.y
+	);
 	if (occupier) {
 		_executeSwap(unit, occupier, targetTile, units);
 		return;
@@ -231,66 +219,72 @@ const applySwapVisual = (movedUnit: Unit, swappedUnit: Unit) => {
 	tween({ targets: [swappedChara], ...swappedPos });
 };
 
-const movementRejected = (unitId: string, dragStartX: number, dragStartY: number, _reason: string) => {
+const movementRejected = (
+	unitId: string,
+	dragStartX: number,
+	dragStartY: number,
+	_reason: string
+) => {
 	const failedChara = Chara.getCharaById(unitId);
 	Tooltip.hideTooltip();
 
 	tween({ targets: [failedChara], ...Geometry.vec2(dragStartX, dragStartY) });
 };
 
-export const onPointerDown = (handlerState: InputHandler) => (_pointer: Pointer): void => {
-
-	if (!scene.sys.game.device.input.touch) return;
-	handlerState.longPressTimer = scene.time.delayedCall(TOUCH_TOOLTIP_INPUT_DOWN_DELAY, () => {
-		handlerState.isLongPressActive = true;
-		const { chara } = handlerState;
-		onCharaPointerOver(chara);
-	});
-};
-
-export const onPointerUp = (handlerState: InputHandler) => (_pointer: Pointer): void => {
-	if (handlerState.longPressTimer) {
-		handlerState.longPressTimer.destroy();
-		handlerState.longPressTimer = undefined;
-	}
-
-	if (handlerState.isLongPressActive && !Chara.isShopItem(handlerState.unitId)) {
-		handlerState.isLongPressActive = false;
-
-		onCharaPointerOut();
-	}
-};
-
-export const onPointerUpShopItem = (handlerState: InputHandler) => (pointer: Pointer): void => {
-	if (!Chara.isShopItem(handlerState.unitId) || !handlerState.chara.input?.enabled) return;
-
-	if (pointer.getDistance() > constants.DRAG_CLICK_THRESHOLD) {
-		return;
-	}
-
-	// Don't trigger shop click if it was a long press, and snap back to original position
-	if (handlerState.isLongPressActive) {
-		handlerState.isLongPressActive = false;
-		const vec = handlerState.chara.getData("dragStartVec") as Vec2;
-
-		tween({
-			targets: [handlerState.chara],
-			...vec,
-			duration: 150,
+export const onPointerDown =
+	(handlerState: InputHandler) =>
+	(_pointer: Pointer): void => {
+		if (!scene.sys.game.device.input.touch) return;
+		handlerState.longPressTimer = scene.time.delayedCall(TOUCH_TOOLTIP_INPUT_DOWN_DELAY, () => {
+			handlerState.isLongPressActive = true;
+			const { chara } = handlerState;
+			onCharaPointerOver(chara);
 		});
-		return;
-	}
+	};
 
-	processShopItemClick(handlerState)(pointer.x, pointer.y);
-};
+export const onPointerUp =
+	(handlerState: InputHandler) =>
+	(_pointer: Pointer): void => {
+		if (handlerState.longPressTimer) {
+			handlerState.longPressTimer.destroy();
+			handlerState.longPressTimer = undefined;
+		}
 
-const processShopItemClick = (handlerState: InputHandler) => (_clickX: number, _clickY: number): void => {
-	const { chara, unitId } = handlerState;
-	Shop.events.itemClickPurchaseRequested(
-		{ ...Chara.getUnit(chara) },
-		unitId,
-		chara.x,
-		chara.y
-	);
-};
+		if (handlerState.isLongPressActive && !Chara.isShopItem(handlerState.unitId)) {
+			handlerState.isLongPressActive = false;
 
+			onCharaPointerOut();
+		}
+	};
+
+export const onPointerUpShopItem =
+	(handlerState: InputHandler) =>
+	(pointer: Pointer): void => {
+		if (!Chara.isShopItem(handlerState.unitId) || !handlerState.chara.input?.enabled) return;
+
+		if (pointer.getDistance() > constants.DRAG_CLICK_THRESHOLD) {
+			return;
+		}
+
+		// Don't trigger shop click if it was a long press, and snap back to original position
+		if (handlerState.isLongPressActive) {
+			handlerState.isLongPressActive = false;
+			const vec = handlerState.chara.getData("dragStartVec") as Vec2;
+
+			tween({
+				targets: [handlerState.chara],
+				...vec,
+				duration: 150,
+			});
+			return;
+		}
+
+		processShopItemClick(handlerState)(pointer.x, pointer.y);
+	};
+
+const processShopItemClick =
+	(handlerState: InputHandler) =>
+	(_clickX: number, _clickY: number): void => {
+		const { chara, unitId } = handlerState;
+		Shop.events.itemClickPurchaseRequested({ ...Chara.getUnit(chara) }, unitId, chara.x, chara.y);
+	};

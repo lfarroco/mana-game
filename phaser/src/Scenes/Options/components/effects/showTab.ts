@@ -6,11 +6,10 @@ import { graphicsTab } from "../tabs/graphics";
 import { updateTabButtonStates } from "./updateTabButtonStates";
 import { cleanTabContent } from "./clearOptionElements";
 
-export let tabContent: { children: Phaser.GameObjects.GameObject[]; } = { children: [] };
-export let currentTab = { key: 'audio' };
+export let tabContent: { children: Phaser.GameObjects.GameObject[] } = { children: [] };
+export let currentTab = { key: "audio" };
 
 export function showTab(tabType: Tabs) {
-
 	currentTab.key = tabType;
 	cleanTabContent();
 	updateTabButtonStates();
@@ -19,15 +18,14 @@ export function showTab(tabType: Tabs) {
 	const lineHeight = LAYOUT.OPTIONS_LINE_HEIGHT;
 
 	switch (tabType) {
-		case 'audio':
+		case "audio":
 			tabContent.children = audioTab(startY, lineHeight);
 			break;
-		case 'graphics':
+		case "graphics":
 			tabContent.children = graphicsTab(startY);
 			break;
-		case 'game':
+		case "game":
 			tabContent.children = gameTab(startY, lineHeight);
 			break;
 	}
 }
-

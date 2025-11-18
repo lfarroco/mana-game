@@ -1,7 +1,7 @@
 // Test utilities for E2E tests with proper TypeScript support
 
-import { Page } from '@playwright/test';
-import type * as DebugController from '@Scenes//Debug/DebugController';
+import { Page } from "@playwright/test";
+import type * as DebugController from "@Scenes//Debug/DebugController";
 
 /**
  * Helper function to access debugController with full TypeScript support
@@ -9,7 +9,6 @@ import type * as DebugController from '@Scenes//Debug/DebugController';
  */
 export function getDebugController(page: Page) {
 	return {
-
 		async getPlayerBoardUnits(): Promise<ReturnType<typeof DebugController.getPlayerBoardUnits>> {
 			return await page.evaluate(() => window.debugController.getPlayerBoardUnits());
 		},
@@ -23,7 +22,10 @@ export function getDebugController(page: Page) {
 		},
 
 		async clickHeroInShop(slotIndex: number): Promise<string> {
-			return await page.evaluate((index) => window.debugController.clickHeroInShop(index), slotIndex);
+			return await page.evaluate(
+				(index) => window.debugController.clickHeroInShop(index),
+				slotIndex
+			);
 		},
 
 		async buyAndPlaceHero(shopSlotIndex: number, boardX: number, boardY: number): Promise<string> {
@@ -33,7 +35,11 @@ export function getDebugController(page: Page) {
 			);
 		},
 
-		async moveUnitOnBoard(unitId: string, targetBoardX: number, targetBoardY: number): Promise<string> {
+		async moveUnitOnBoard(
+			unitId: string,
+			targetBoardX: number,
+			targetBoardY: number
+		): Promise<string> {
 			return await page.evaluate(
 				({ unitId, x, y }) => window.debugController.moveUnitOnBoard(unitId, x, y),
 				{ unitId, x: targetBoardX, y: targetBoardY }
@@ -69,7 +75,7 @@ export function getDebugController(page: Page) {
 
 		async clickGameStart() {
 			return await page.evaluate(() => window.debugController.clickGameStart());
-		}
+		},
 	};
 }
 
@@ -78,7 +84,6 @@ export function getDebugController(page: Page) {
  */
 export async function waitForGameInit(page: Page): Promise<void> {
 	// Wait for the canvas to be present
-	const canvas = await page.waitForSelector('canvas');
-	if (!canvas) throw new Error('Canvas not found');
-
+	const canvas = await page.waitForSelector("canvas");
+	if (!canvas) throw new Error("Canvas not found");
 }

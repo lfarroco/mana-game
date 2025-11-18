@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import Phaser from "phaser";
 
 const BAR_HEIGHT = 50;
 const INNER_PADDING = 3;
@@ -10,8 +10,7 @@ export type StylizedBar = {
 	foregroundBar: Graphics;
 	barFill: Graphics;
 	innerHighlight: Graphics;
-}
-
+};
 
 export interface StylizedBarOptions {
 	x: number;
@@ -25,10 +24,7 @@ export interface StylizedBarOptions {
 	textConfig?: Phaser.Types.GameObjects.Text.TextStyle;
 }
 
-export function createStylizedBar(
-	scene: Phaser.Scene,
-	options: StylizedBarOptions
-): StylizedBar {
+export function createStylizedBar(scene: Phaser.Scene, options: StylizedBarOptions): StylizedBar {
 	const {
 		x,
 		y,
@@ -52,8 +48,10 @@ export function createStylizedBar(
 	const backgroundBar = scene.add.graphics();
 	backgroundBar.fillStyle(backgroundColor, backgroundOpacity);
 	backgroundBar.fillRoundedRect(
-		INNER_PADDING, INNER_PADDING,
-		barWidth - (INNER_PADDING * 2), barHeight - (INNER_PADDING * 2),
+		INNER_PADDING,
+		INNER_PADDING,
+		barWidth - INNER_PADDING * 2,
+		barHeight - INNER_PADDING * 2,
 		3
 	);
 	container.add(backgroundBar);
@@ -61,8 +59,10 @@ export function createStylizedBar(
 	const foregroundBar = scene.add.graphics();
 	foregroundBar.fillStyle(barColor, 1);
 	foregroundBar.fillRoundedRect(
-		INNER_PADDING, INNER_PADDING,
-		barWidth - (INNER_PADDING * 2), barHeight - (INNER_PADDING * 2),
+		INNER_PADDING,
+		INNER_PADDING,
+		barWidth - INNER_PADDING * 2,
+		barHeight - INNER_PADDING * 2,
 		3
 	);
 	container.add(foregroundBar);
@@ -72,8 +72,10 @@ export function createStylizedBar(
 	const innerHighlight = scene.add.graphics();
 	innerHighlight.fillStyle(0xffffff, 0.3);
 	innerHighlight.fillRoundedRect(
-		INNER_PADDING + 1, INNER_PADDING + 1,
-		(barWidth - (INNER_PADDING * 2)) / 3, barHeight - (INNER_PADDING * 2) - 2,
+		INNER_PADDING + 1,
+		INNER_PADDING + 1,
+		(barWidth - INNER_PADDING * 2) / 3,
+		barHeight - INNER_PADDING * 2 - 2,
 		2
 	);
 
@@ -90,7 +92,7 @@ export function createStylizedBar(
 		foregroundBar,
 		barFill,
 		innerHighlight,
-	}
+	};
 }
 
 export function updateStylizedBar(
@@ -103,7 +105,7 @@ export function updateStylizedBar(
 	bar.barFill.scene.tweens.killTweensOf([bar.barFill, bar.innerHighlight]);
 
 	const originalHeight = (bar.container as any)._originalHeight || BAR_HEIGHT;
-	const fillHeight = originalHeight - (INNER_PADDING * 2);
+	const fillHeight = originalHeight - INNER_PADDING * 2;
 
 	const targetScaleY = percentage;
 	const yOffset = INNER_PADDING + fillHeight * (1 - targetScaleY);
@@ -114,5 +116,4 @@ export function updateStylizedBar(
 		y: yOffset,
 		duration: duration,
 	});
-
 }

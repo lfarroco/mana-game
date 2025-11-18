@@ -5,21 +5,16 @@ import * as c from "@Constants/constants";
 
 // display a text in the center of the screen, with a fading gradient rect behind it
 export const renderVignette = async ({ message }: { message: string }) => {
-
-	const rect = scene.add.rectangle(
-		0, c.MIDDLE_SCREEN_Y,
-		c.MIDDLE_SCREEN_X, 100,
-		COLOR_BLACK
-	)
+	const rect = scene.add
+		.rectangle(0, c.MIDDLE_SCREEN_Y, c.MIDDLE_SCREEN_X, 100, COLOR_BLACK)
 		.setOrigin(0, 0)
 		.setAlpha(0)
 		.setScrollFactor(0);
 
-	const textObj = scene.add.text(
-		-c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y + 50,
-		message,
-		c.defaultTextConfig
-	).setOrigin(0.5, 0.5).setScrollFactor(0);
+	const textObj = scene.add
+		.text(-c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y + 50, message, c.defaultTextConfig)
+		.setOrigin(0.5, 0.5)
+		.setScrollFactor(0);
 
 	tween({
 		targets: [textObj],
@@ -32,7 +27,7 @@ export const renderVignette = async ({ message }: { message: string }) => {
 				delay: 500,
 				duration: 250,
 			});
-		}
+		},
 	});
 
 	await tween({
@@ -42,6 +37,6 @@ export const renderVignette = async ({ message }: { message: string }) => {
 		yoyo: true,
 	});
 
-	rect.destroy()
+	rect.destroy();
 	textObj.destroy();
-}
+};

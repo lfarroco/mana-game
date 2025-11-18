@@ -13,7 +13,6 @@ import { logo } from "./components/logo";
 export let titleScene: TitleScene;
 
 export default class TitleScene extends Phaser.Scene {
-
 	constructor() {
 		super(constants.SCENE_KEYS.TITLE);
 		titleScene = this;
@@ -24,7 +23,7 @@ export default class TitleScene extends Phaser.Scene {
 	create() {
 		setCurrentScene(this);
 
-		AudioManager.playMusic('music_ageofdisjunction');
+		AudioManager.playMusic("music_ageofdisjunction");
 
 		cloudsBg();
 
@@ -38,7 +37,7 @@ export default class TitleScene extends Phaser.Scene {
 
 		goFullscreenButton();
 
-		this.input.keyboard?.on('keydown-ENTER', startGame);
+		this.input.keyboard?.on("keydown-ENTER", startGame);
 
 		// const PGIurl = 'https://cdn.jsdelivr.net/gh/SilverTree7622/Phaser3_GUI_Inspector@latest/dist/PGInspector.js';
 		// const PGIele = document.createElement('script');
@@ -49,7 +48,4 @@ export default class TitleScene extends Phaser.Scene {
 		// 	PhaserGUIAction(this);
 		// }, 500)
 	}
-
 }
-
-

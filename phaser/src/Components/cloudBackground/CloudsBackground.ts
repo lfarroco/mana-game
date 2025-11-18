@@ -1,7 +1,7 @@
-import * as Phaser from 'phaser';
-import { cloudsBackgroundShader } from '../../Shaders/CloudsBackground';
-import { colorPresets, IColorPreset } from '@Constants/colorPresets';
-import { getCurrentScene } from '@Models/State';
+import * as Phaser from "phaser";
+import { cloudsBackgroundShader } from "../../Shaders/CloudsBackground";
+import { colorPresets, IColorPreset } from "@Constants/colorPresets";
+import { getCurrentScene } from "@Models/State";
 
 export interface CloudsBackgroundConfig {
 	/** Initial color preset to use */
@@ -40,12 +40,11 @@ export class CloudsBackground {
 	private presetKeys: string[];
 	private currentPresetIndex: number = 0;
 	constructor(config: CloudsBackgroundConfig = {}) {
-
 		const scene = getCurrentScene();
 		this.scene = scene;
 
 		// Set default configuration
-		this.preset = config.preset || 'nebula';
+		this.preset = config.preset || "nebula";
 		this.customColors = config.customColors;
 		this.x = config.x !== undefined ? config.x : scene.scale.width / 2;
 		this.y = config.y !== undefined ? config.y : scene.scale.height / 2;
@@ -71,27 +70,22 @@ export class CloudsBackground {
 
 		// Create the shader
 		const backgroundShader = new Phaser.Display.BaseShader(
-			'cloudsBackground',
+			"cloudsBackground",
 			cloudsBackgroundShader,
 			undefined,
 			{
-				color1: { type: '3f', value: colors.color1 },
-				color2: { type: '3f', value: colors.color2 },
-				color3: { type: '3f', value: colors.color3 },
-				color4: { type: '3f', value: colors.color4 },
-				color5: { type: '3f', value: colors.color5 },
-				timeScale: { type: '1f', value: this.timeScale },
-				particleQuality: { type: '1f', value: this.getParticleQualityValue() }
+				color1: { type: "3f", value: colors.color1 },
+				color2: { type: "3f", value: colors.color2 },
+				color3: { type: "3f", value: colors.color3 },
+				color4: { type: "3f", value: colors.color4 },
+				color5: { type: "3f", value: colors.color5 },
+				timeScale: { type: "1f", value: this.timeScale },
+				particleQuality: { type: "1f", value: this.getParticleQualityValue() },
 			}
 		);
 
-		this.shader = this.scene.add.shader(
-			backgroundShader,
-			this.x,
-			this.y,
-			this.width,
-			this.height
-		)
+		this.shader = this.scene.add
+			.shader(backgroundShader, this.x, this.y, this.width, this.height)
 			.setOrigin(0.5, 0.5)
 			.setDepth(this.depth);
 
@@ -113,18 +107,18 @@ export class CloudsBackground {
 	 */
 	public changePreset(): void {
 		if (this.customColors) {
-			console.warn('Cannot change presets when using custom colors');
+			console.warn("Cannot change presets when using custom colors");
 			return;
 		}
 
 		this.currentPresetIndex = (this.currentPresetIndex + 1) % this.presetKeys.length;
 		const colors = this.getCurrentColors();
 
-		this.shader.setUniform('color1.value', colors.color1);
-		this.shader.setUniform('color2.value', colors.color2);
-		this.shader.setUniform('color3.value', colors.color3);
-		this.shader.setUniform('color4.value', colors.color4);
-		this.shader.setUniform('color5.value', colors.color5);
+		this.shader.setUniform("color1.value", colors.color1);
+		this.shader.setUniform("color2.value", colors.color2);
+		this.shader.setUniform("color3.value", colors.color3);
+		this.shader.setUniform("color4.value", colors.color4);
+		this.shader.setUniform("color5.value", colors.color5);
 	}
 
 	/**
@@ -132,7 +126,7 @@ export class CloudsBackground {
 	 */
 	public setPreset(presetName: keyof typeof colorPresets): void {
 		if (this.customColors) {
-			console.warn('Cannot set preset when using custom colors');
+			console.warn("Cannot set preset when using custom colors");
 			return;
 		}
 
@@ -145,11 +139,11 @@ export class CloudsBackground {
 		this.currentPresetIndex = index;
 		const colors = this.getCurrentColors();
 
-		this.shader.setUniform('color1.value', colors.color1);
-		this.shader.setUniform('color2.value', colors.color2);
-		this.shader.setUniform('color3.value', colors.color3);
-		this.shader.setUniform('color4.value', colors.color4);
-		this.shader.setUniform('color5.value', colors.color5);
+		this.shader.setUniform("color1.value", colors.color1);
+		this.shader.setUniform("color2.value", colors.color2);
+		this.shader.setUniform("color3.value", colors.color3);
+		this.shader.setUniform("color4.value", colors.color4);
+		this.shader.setUniform("color5.value", colors.color5);
 	}
 
 	/**
@@ -158,11 +152,11 @@ export class CloudsBackground {
 	public setCustomColors(colors: IColorPreset): void {
 		this.customColors = colors;
 
-		this.shader.setUniform('color1.value', colors.color1);
-		this.shader.setUniform('color2.value', colors.color2);
-		this.shader.setUniform('color3.value', colors.color3);
-		this.shader.setUniform('color4.value', colors.color4);
-		this.shader.setUniform('color5.value', colors.color5);
+		this.shader.setUniform("color1.value", colors.color1);
+		this.shader.setUniform("color2.value", colors.color2);
+		this.shader.setUniform("color3.value", colors.color3);
+		this.shader.setUniform("color4.value", colors.color4);
+		this.shader.setUniform("color5.value", colors.color5);
 	}
 
 	/**
@@ -212,7 +206,7 @@ export class CloudsBackground {
 	 */
 	public setTimeScale(timeScale: number): void {
 		this.timeScale = timeScale;
-		this.shader.setUniform('timeScale.value', timeScale);
+		this.shader.setUniform("timeScale.value", timeScale);
 	}
 
 	/**
@@ -221,18 +215,22 @@ export class CloudsBackground {
 	private getParticleQualityValue(): number {
 		try {
 			// Import getOption here to avoid circular dependencies
-			const { getOption } = require('@Models/OptionsStore');
-			const particles = getOption('particles');
+			const { getOption } = require("@Models/OptionsStore");
+			const particles = getOption("particles");
 
 			switch (particles) {
-				case 'low': return 0.0;
-				case 'medium': return 1.0;
-				case 'high': return 2.0;
-				default: return 1.0; // Default to medium
+				case "low":
+					return 0.0;
+				case "medium":
+					return 1.0;
+				case "high":
+					return 2.0;
+				default:
+					return 1.0; // Default to medium
 			}
 		} catch (error) {
 			// Fallback to medium quality if OptionsStore is not available
-			console.warn('Could not access OptionsStore, defaulting to medium particle quality');
+			console.warn("Could not access OptionsStore, defaulting to medium particle quality");
 			return 1.0;
 		}
 	}
@@ -242,7 +240,7 @@ export class CloudsBackground {
 	 */
 	public updateParticleQuality(): void {
 		const qualityValue = this.getParticleQualityValue();
-		this.shader.setUniform('particleQuality.value', qualityValue);
+		this.shader.setUniform("particleQuality.value", qualityValue);
 	}
 
 	/**

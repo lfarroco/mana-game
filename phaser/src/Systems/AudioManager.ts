@@ -8,12 +8,8 @@ let soundEffects: Map<string, Phaser.Sound.BaseSound> = new Map();
 let soundEffectCooldowns: Map<string, number> = new Map();
 const SOUND_EFFECT_COOLDOWN_MS = 300;
 
-export const playMusic = (
-	musicKey: string,
-	loop: boolean = true,
-	fadeIn: number = 0,
-) => {
-	if (!getOption('music')) {
+export const playMusic = (musicKey: string, loop: boolean = true, fadeIn: number = 0) => {
+	if (!getOption("music")) {
 		console.log(`Music disabled - not playing ${musicKey}`);
 		return;
 	}
@@ -22,8 +18,8 @@ export const playMusic = (
 		currentMusic.stop();
 	}
 	const music = game.sound.add(musicKey, {
-		volume: getOption('musicVolume'),
-		loop: loop
+		volume: getOption("musicVolume"),
+		loop: loop,
 	});
 
 	if (!music) return;
@@ -37,7 +33,7 @@ export const playMusic = (
 		music.play();
 		setTimeout(() => {
 			if (music.isPlaying) {
-				(music as any).setVolume(getOption('musicVolume'));
+				(music as any).setVolume(getOption("musicVolume"));
 			}
 		}, 50);
 	} else {
@@ -45,7 +41,7 @@ export const playMusic = (
 	}
 
 	console.log(`Playing music: ${musicKey} (loop: ${loop})`);
-}
+};
 
 export const stopMusic = (fadeOut: number = 0) => {
 	if (!currentMusic || !currentMusic.isPlaying) {
@@ -65,25 +61,24 @@ export const stopMusic = (fadeOut: number = 0) => {
 	console.log(`Stopped music: ${currentMusicKey}`);
 	currentMusic = null;
 	currentMusicKey = null;
-}
+};
 
 export const playSoundEffect = (soundKey: string, volume?: number) => {
-
-	if (!getOption('sound')) {
+	if (!getOption("sound")) {
 		console.log(`Sound effects disabled - not playing ${soundKey}`);
 		return;
 	}
 
 	const now = Date.now();
 	const lastPlayed = soundEffectCooldowns.get(soundKey);
-	if (lastPlayed && (now - lastPlayed) < SOUND_EFFECT_COOLDOWN_MS) {
+	if (lastPlayed && now - lastPlayed < SOUND_EFFECT_COOLDOWN_MS) {
 		console.log(`Sound effect ${soundKey} on cooldown`);
 		return;
 	}
 
-	const effectVolume = volume ?? getOption('soundVolume');
+	const effectVolume = volume ?? getOption("soundVolume");
 	const soundEffect = game.sound.add(soundKey, {
-		volume: effectVolume
+		volume: effectVolume,
 	});
 
 	if (!soundEffect) return;
@@ -92,24 +87,21 @@ export const playSoundEffect = (soundKey: string, volume?: number) => {
 	soundEffects.set(soundKey, soundEffect);
 	soundEffectCooldowns.set(soundKey, now);
 
-	soundEffect.once('complete', () => {
+	soundEffect.once("complete", () => {
 		soundEffects.delete(soundKey);
 	});
 
 	console.log(`Playing sound effect: ${soundKey} (volume: ${effectVolume})`);
-}
-
+};
 
 export const stopSoundEffect = (soundKey: string) => {
-
 	const soundEffect = soundEffects.get(soundKey);
 	if (soundEffect && soundEffect.isPlaying) {
 		soundEffect.stop();
 		soundEffects.delete(soundKey);
 		console.log(`Stopped sound effect: ${soundKey}`);
 	}
-}
-
+};
 
 export const stopAllSoundEffects = () => {
 	soundEffects.forEach((soundEffect) => {
@@ -118,14 +110,14 @@ export const stopAllSoundEffects = () => {
 		}
 	});
 	soundEffects.clear();
-	console.log('Stopped all sound effects');
-}
+	console.log("Stopped all sound effects");
+};
 
 export const onOptionsChanged = () => {
-	const soundEnabled = getOption('sound');
-	const musicEnabled = getOption('music');
-	const soundVolume = getOption('soundVolume');
-	const musicVolume = getOption('musicVolume');
+	const soundEnabled = getOption("sound");
+	const musicEnabled = getOption("music");
+	const soundVolume = getOption("soundVolume");
+	const musicVolume = getOption("musicVolume");
 
 	if (currentMusic && currentMusic.isPlaying) {
 		//phaserjs misstyping
@@ -144,4 +136,4 @@ export const onOptionsChanged = () => {
 	if (!musicEnabled) {
 		stopMusic();
 	}
-}
+};

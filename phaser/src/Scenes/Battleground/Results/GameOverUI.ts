@@ -16,56 +16,44 @@ export function displayGameOver(
 
 	// Add title
 	const titleText = "Game Over!";
-	const title = scene.add.text(
-		panelX + panelWidth / 2,
-		panelY + 50,
-		titleText,
-		{
+	const title = scene.add
+		.text(panelX + panelWidth / 2, panelY + 50, titleText, {
 			...c.titleTextConfig,
 			fontSize: "48px",
-			color: "#F44336"
-		}
-	).setOrigin(0.5);
+			color: "#F44336",
+		})
+		.setOrigin(0.5);
 	title.setDepth(1001);
 	state.resultsContainer.add(title);
 
 	// Add result message
 	const messageText = "You have been defeated and lost the game.";
-	const message = scene.add.text(
-		panelX + panelWidth / 2,
-		panelY + 120,
-		messageText,
-		{
+	const message = scene.add
+		.text(panelX + panelWidth / 2, panelY + 120, messageText, {
 			...c.defaultTextConfig,
 			fontSize: "20px",
-			wordWrap: { width: panelWidth - 80 }
-		}
-	).setOrigin(0.5);
+			wordWrap: { width: panelWidth - 80 },
+		})
+		.setOrigin(0.5);
 	message.setDepth(1001);
 	state.resultsContainer.add(message);
 
 	// Add prestige info
-	const prestigeText = `Prestige: ${prestigeChange > 0 ? '+' : ''}${prestigeChange}`;
-	const prestigeDisplay = scene.add.text(
-		panelX + panelWidth / 2,
-		panelY + 230,
-		prestigeText,
-		{
+	const prestigeText = `Prestige: ${prestigeChange > 0 ? "+" : ""}${prestigeChange}`;
+	const prestigeDisplay = scene.add
+		.text(panelX + panelWidth / 2, panelY + 230, prestigeText, {
 			...c.defaultTextConfig,
 			fontSize: "28px",
 			color: prestigeChange > 0 ? "#4CAF50" : "#F44336",
-			fontStyle: "bold"
-		}
-	).setOrigin(0.5);
+			fontStyle: "bold",
+		})
+		.setOrigin(0.5);
 	prestigeDisplay.setDepth(1001);
 	state.resultsContainer.add(prestigeDisplay);
 
 	const newRunButton = createUIButton(
 		"New Run",
-		vec2(
-			panelX + panelWidth / 2,
-			panelY + panelHeight - 180,
-		),
+		vec2(panelX + panelWidth / 2, panelY + panelHeight - 180),
 		async () => {
 			resetState();
 			startGame();

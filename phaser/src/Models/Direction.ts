@@ -4,8 +4,8 @@ export const DIRECTIONS: Record<Direction, Direction> = {
 	up: "up",
 	down: "down",
 	left: "left",
-	right: "right"
-}
+	right: "right",
+};
 
 export function getDirection(source: Vec2, target: Vec2): Direction {
 	const dx = target.x - source.x;
@@ -23,4 +23,3 @@ export function getDirection(source: Vec2, target: Vec2): Direction {
 
 	throw new Error("trying to get direction from same point");
 }
-

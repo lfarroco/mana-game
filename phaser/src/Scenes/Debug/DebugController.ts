@@ -2,7 +2,7 @@ import { Unit } from "@Models/Entities/Unit";
 import { vec2 } from "@Models/Geometry";
 import { CardDefinition } from "@Models/Entities/Card";
 import * as constants from "@Constants/constants";
-import * as  Chara from "@Systems/Chara/Chara";
+import * as Chara from "@Systems/Chara/Chara";
 import * as Systems from "../Battleground/Systems";
 import { processOwnedUnitMoveRequest } from "@Systems/Chara/input";
 import { startGame } from "../../Game/effects/startGame";
@@ -57,8 +57,12 @@ export function clickNextRound(): string {
 	return "Emitted SHOP_PHASE_ENDED. Current shop phase should end, leading to combat or next round's shop.";
 }
 
-export function moveUnitOnBoard(unitId: string, targetBoardX: number, targetBoardY: number): string {
-	const unit = getState().gameData.player.units.find(u => u.id === unitId);
+export function moveUnitOnBoard(
+	unitId: string,
+	targetBoardX: number,
+	targetBoardY: number
+): string {
+	const unit = getState().gameData.player.units.find((u) => u.id === unitId);
 	if (!unit) {
 		return `Error: Unit with ID ${unitId} not found on player board`;
 	}
@@ -71,17 +75,13 @@ export function moveUnitOnBoard(unitId: string, targetBoardX: number, targetBoar
 	dragStartX = chara.x;
 	dragStartY = chara.y;
 
-	processOwnedUnitMoveRequest(
-		unitId,
-		vec2(targetBoardX, targetBoardY),
-		dragStartX, dragStartY,
-	);
+	processOwnedUnitMoveRequest(unitId, vec2(targetBoardX, targetBoardY), dragStartX, dragStartY);
 
 	return `Emitted OWNED_UNIT_MOVE_REQUESTED for unit ${unitId} to board (${targetBoardX},${targetBoardY}). Move/swap processing is asynchronous`;
 }
 
 export function sellUnitFromBoard(unitId: string): string {
-	const unit = getState().gameData.player.units.find(u => u.id === unitId);
+	const unit = getState().gameData.player.units.find((u) => u.id === unitId);
 	if (!unit) {
 		return `Error: Unit with ID ${unitId} not found on player board. Cannot sell`;
 	}
@@ -115,8 +115,13 @@ export function getPlayerBoardUnits(): Unit[] {
 
 export function logGameState(): void {
 	console.log("Current Game State (DebugController):", {
-		shopHeroes: getShopHeroes().map(c => c?.id),
-		playerUnits: getPlayerBoardUnits().map(u => ({ id: u.id, cardId: u.cardId, x: u.position.x, y: u.position.y })),
+		shopHeroes: getShopHeroes().map((c) => c?.id),
+		playerUnits: getPlayerBoardUnits().map((u) => ({
+			id: u.id,
+			cardId: u.cardId,
+			x: u.position.x,
+			y: u.position.y,
+		})),
 		currentRound: getState().gameData?.round,
 	});
 }
@@ -145,7 +150,7 @@ export function addUnitToPlayerBoard(cardId: string, boardX: number, boardY: num
 		refresh: 0,
 		hasted: 0,
 		slowed: 0,
-		isCore: false
+		isCore: false,
 	};
 
 	getState().gameData.player.units.push(newUnit);

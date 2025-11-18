@@ -28,14 +28,11 @@ export const updateRoundDisplay = (newTotalRound: number): void => {
 };
 
 function text(initialRound: number, label: TextObj) {
-	roundTextElement = io.Text(
-		initialRound.toString(),
-		{
-			...c.titleTextConfig,
-			fontSize: '24px',
-			color: '#ffffff'
-		}
-	);
+	roundTextElement = io.Text(initialRound.toString(), {
+		...c.titleTextConfig,
+		fontSize: "24px",
+		color: "#ffffff",
+	});
 	io.SetPosition(roundTextElement, vec2(label.width + 10, 0));
 	io.Centralize(roundTextElement);
 
@@ -43,14 +40,11 @@ function text(initialRound: number, label: TextObj) {
 }
 
 function label_() {
-	const label = io.Text(
-		"Round:",
-		{
-			...c.titleTextConfig,
-			fontSize: '24px',
-			color: '#ffffff'
-		}
-	);
+	const label = io.Text("Round:", {
+		...c.titleTextConfig,
+		fontSize: "24px",
+		color: "#ffffff",
+	});
 	io.Centralize(label);
 	return label;
 }
@@ -62,9 +56,8 @@ export async function roundChangeAnimation() {
 	const startX = bounds.centerX;
 	const startY = bounds.centerY;
 
-	const roundAmountText = scene.add.text(
-		startX, startY, animationText, titleTextConfig
-	)
+	const roundAmountText = scene.add
+		.text(startX, startY, animationText, titleTextConfig)
 		.setOrigin(0.5, 0.5)
 		.setAlpha(0)
 		.setScale(1)
@@ -87,4 +80,3 @@ export async function roundChangeAnimation() {
 
 	roundAmountText.destroy();
 }
-

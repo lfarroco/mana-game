@@ -38,17 +38,16 @@ export function renderBoardSlots(board: BoardState): void {
 	board.dropZones = [];
 	board.cpuSlotShaders = [];
 
-	let cells = []
+	let cells = [];
 	for (let tileY = 0; tileY < 3; tileY++)
-		for (let tileX = 0; tileX < 3; tileX++)
-			cells.push(Geometry.vec2(tileX, tileY));
+		for (let tileX = 0; tileX < 3; tileX++) cells.push(Geometry.vec2(tileX, tileY));
 
 	const boards = [
 		{ x: constants_1.PLAYER_BOARD_X, y: constants_1.PLAYER_BOARD_Y, isPlayer: true },
-		{ x: constants_1.CPU_BOARD_X, y: constants_1.CPU_BOARD_Y, isPlayer: false }
+		{ x: constants_1.CPU_BOARD_X, y: constants_1.CPU_BOARD_Y, isPlayer: false },
 	];
 
-	boards.forEach(boardInfo => {
+	boards.forEach((boardInfo) => {
 		cells.forEach((cell) => {
 			let visualX = cell.x;
 			if (!boardInfo.isPlayer) {
@@ -63,9 +62,17 @@ export function renderBoardSlots(board: BoardState): void {
 
 			let energySlot: EnergySlot.EnergySlot;
 			if (boardInfo.isPlayer) {
-				energySlot = EnergySlot.EnergySlotFactory.createPlayerSlot(slotX, slotY, constants.TILE_WIDTH);
+				energySlot = EnergySlot.EnergySlotFactory.createPlayerSlot(
+					slotX,
+					slotY,
+					constants.TILE_WIDTH
+				);
 			} else {
-				energySlot = EnergySlot.EnergySlotFactory.createEnemySlot(slotX, slotY, constants.TILE_WIDTH);
+				energySlot = EnergySlot.EnergySlotFactory.createEnemySlot(
+					slotX,
+					slotY,
+					constants.TILE_WIDTH
+				);
 			}
 
 			if (!boardInfo.isPlayer) {
@@ -89,13 +96,12 @@ export function renderBoardSlots(board: BoardState): void {
 					constants.TILE_HEIGHT
 				);
 				dropZone.setRectangleDropZone(constants.TILE_WIDTH, constants.TILE_HEIGHT);
-				dropZone.setName("board-cell")
+				dropZone.setName("board-cell");
 				dropZone.setData("cell-x", cell.x);
 				dropZone.setData("cell-y", cell.y);
 				board.dropZones.push(dropZone);
 			}
-
-		})
+		});
 	});
 }
 
@@ -111,10 +117,13 @@ export function setEnemyBoardVisible(visible: boolean): void {
 			board.cpuSlotShaders.forEach((slot, index) => {
 				const cell = {
 					x: index % 3,
-					y: Math.floor(index / 3)
+					y: Math.floor(index / 3),
 				};
 				const visualX = 2 - cell.x;
-				const targetX = constants_1.CPU_BOARD_X + visualX * (constants.TILE_WIDTH + slotSpacing) + constants.TILE_WIDTH / 2;
+				const targetX =
+					constants_1.CPU_BOARD_X +
+					visualX * (constants.TILE_WIDTH + slotSpacing) +
+					constants.TILE_WIDTH / 2;
 
 				slot.setVisible(true);
 				slot.setPosition(offScreenX, slot.getCurrentPosition().y);
@@ -125,8 +134,8 @@ export function setEnemyBoardVisible(visible: boolean): void {
 					targets: slot.getShader(),
 					x: targetX,
 					duration: 300,
-					ease: 'Power2.easeOut',
-					delay: index * 50
+					ease: "Power2.easeOut",
+					delay: index * 50,
 				});
 			});
 		} else {
@@ -137,11 +146,11 @@ export function setEnemyBoardVisible(visible: boolean): void {
 					targets: slot.getShader(),
 					x: offScreenX,
 					duration: 300,
-					ease: 'Power2.easeIn',
+					ease: "Power2.easeIn",
 					delay: index * 30,
 					onComplete: () => {
 						slot.setVisible(false);
-					}
+					},
 				});
 			});
 		}
@@ -149,25 +158,25 @@ export function setEnemyBoardVisible(visible: boolean): void {
 }
 
 export function display(board: BoardState): void {
-	board.slotShaders.forEach(slot => slot.setVisible(true));
+	board.slotShaders.forEach((slot) => slot.setVisible(true));
 	if (board.enemyBoardVisible) {
-		board.cpuSlotShaders.forEach(slot => slot.setVisible(true));
+		board.cpuSlotShaders.forEach((slot) => slot.setVisible(true));
 	}
 }
 
 export function destroyVisuals(board: BoardState): void {
-	board.slotShaders.forEach(slot => slot.destroy());
+	board.slotShaders.forEach((slot) => slot.destroy());
 	board.slotShaders = [];
-	board.cpuSlotShaders.forEach(slot => slot.destroy());
+	board.cpuSlotShaders.forEach((slot) => slot.destroy());
 	board.cpuSlotShaders = [];
-	board.dropZones.forEach(zone => zone.destroy());
+	board.dropZones.forEach((zone) => zone.destroy());
 	board.dropZones = [];
 }
 
 export function update(time: number): void {
 	const board = getBoardState();
-	board.slotShaders.forEach(slot => slot.update(time));
-	board.cpuSlotShaders.forEach(slot => slot.update(time));
+	board.slotShaders.forEach((slot) => slot.update(time));
+	board.cpuSlotShaders.forEach((slot) => slot.update(time));
 }
 
 export function destroy(board: BoardState): void {
@@ -180,7 +189,7 @@ export function getEmptySlot(units: Unit[], forceId: string): Vec2 | null {
 	const boardHeightInTiles = Math.floor(board.height / constants.TILE_HEIGHT);
 	const maxSlots = boardWidthInTiles * boardHeightInTiles;
 
-	if (units.filter(u => u.force === forceId).length >= maxSlots) {
+	if (units.filter((u) => u.force === forceId).length >= maxSlots) {
 		console.warn("Board full. No empty slot available for forceId:", forceId);
 		return null;
 	}
@@ -201,9 +210,12 @@ export function getTileAt(board: BoardState, pointer: { x: number; y: number }):
 	const tileWithSpacing = constants.TILE_WIDTH + slotSpacing;
 	const heightWithSpacing = constants.TILE_HEIGHT + slotSpacing;
 
-	if (pointer.x >= board.x && pointer.x < board.x + board.width &&
-		pointer.y >= board.y && pointer.y < board.y + board.height) {
-
+	if (
+		pointer.x >= board.x &&
+		pointer.x < board.x + board.width &&
+		pointer.y >= board.y &&
+		pointer.y < board.y + board.height
+	) {
 		const tileX = Math.floor((pointer.x - board.x) / tileWithSpacing);
 		const tileY = Math.floor((pointer.y - board.y) / heightWithSpacing);
 
@@ -230,20 +242,25 @@ export function updateUnitPosition(
 		return null;
 	}
 
-	const occupierUnit = unitsOnBoard.find(u => u.id !== unitToMove.id && Geometry.eqVec2(u.position, newBoardPosition));
+	const occupierUnit = unitsOnBoard.find(
+		(u) => u.id !== unitToMove.id && Geometry.eqVec2(u.position, newBoardPosition)
+	);
 
 	if (occupierUnit) {
 		occupierUnit.position = oldPositionOfMovedUnit;
 		unitToMove.position = newBoardPosition;
-		if (state.battleData.units.length > 0) { // sync battledata
-			state.battleData.units.find(u => u.id === occupierUnit.id)!.position = oldPositionOfMovedUnit;
-			state.battleData.units.find(u => u.id === unitToMove.id)!.position = newBoardPosition;
+		if (state.battleData.units.length > 0) {
+			// sync battledata
+			state.battleData.units.find((u) => u.id === occupierUnit.id)!.position =
+				oldPositionOfMovedUnit;
+			state.battleData.units.find((u) => u.id === unitToMove.id)!.position = newBoardPosition;
 		}
 		return { movedUnit: unitToMove, swappedUnit: occupierUnit, oldPositionOfMovedUnit };
 	} else {
 		unitToMove.position = newBoardPosition;
-		if (state.battleData.units.length > 0) { //sync battledata
-			state.battleData.units.find(u => u.id === unitToMove.id)!.position = newBoardPosition;
+		if (state.battleData.units.length > 0) {
+			//sync battledata
+			state.battleData.units.find((u) => u.id === unitToMove.id)!.position = newBoardPosition;
 		}
 		return { movedUnit: unitToMove, oldPositionOfMovedUnit };
 	}
@@ -256,8 +273,7 @@ export function init() {
 		destroy(_playerBoardState);
 	}
 	_playerBoardState = createBoardState();
-	renderBoardSlots(_playerBoardState)
-
+	renderBoardSlots(_playerBoardState);
 }
 
 export function getBoardState(): BoardState {
@@ -269,21 +285,20 @@ export function getBoardState(): BoardState {
 
 export function getColumnNeighbors(state: State, unit: Unit) {
 	return state.battleData.units
-		.filter(u => u.force === unit.force)
-		.filter(u => u.position.x === unit.position.x && u.id !== unit.id);
+		.filter((u) => u.force === unit.force)
+		.filter((u) => u.position.x === unit.position.x && u.id !== unit.id);
 }
 
 export function getRowNeighbors(state: State, unit: Unit) {
 	return state.battleData.units
-		.filter(u => u.force === unit.force)
-		.filter(u => u.position.y === unit.position.y && u.id !== unit.id);
+		.filter((u) => u.force === unit.force)
+		.filter((u) => u.position.y === unit.position.y && u.id !== unit.id);
 }
 
 export function getNeighbors(state: State, unit: Unit) {
 	return state.battleData.units
-		.filter(u => u.force === unit.force)
-		.filter(u => u.id !== unit.id)
-		.filter(u => u.position.x >= unit.position.x - 1 && u.position.x <= unit.position.x + 1)
-		.filter(u => u.position.y >= unit.position.y - 1 && u.position.y <= unit.position.y + 1)
-		;
+		.filter((u) => u.force === unit.force)
+		.filter((u) => u.id !== unit.id)
+		.filter((u) => u.position.x >= unit.position.x - 1 && u.position.x <= unit.position.x + 1)
+		.filter((u) => u.position.y >= unit.position.y - 1 && u.position.y <= unit.position.y + 1);
 }

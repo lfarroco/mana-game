@@ -10,10 +10,10 @@ import { clearRegen } from "./Systems/RegenSystem";
 import { destroyForceStats } from "./ForceStats";
 
 const hourAction: Record<number, string> = {
-	0: 'shop-core',
-	1: 'shop',
-	2: 'shop',
-	3: 'combat',
+	0: "shop-core",
+	1: "shop",
+	2: "shop",
+	3: "combat",
 	//3: 'orb',
 };
 
@@ -21,16 +21,16 @@ export async function startPhase() {
 	const currentPhase = hourAction[getState().gameData.hour];
 
 	switch (currentPhase) {
-		case 'shop-core':
+		case "shop-core":
 			HeroShop.openCoreShop();
 			break;
-		case 'shop':
+		case "shop":
 			HeroShop.open();
 			break;
-		case 'orb':
+		case "orb":
 			OrbShop.open();
 			break;
-		case 'combat':
+		case "combat":
 			CombatPhase.transitionToCombatPhase();
 			break;
 		default:
@@ -39,10 +39,9 @@ export async function startPhase() {
 }
 
 export function handlePhaseEnded(): void {
-
 	const currentPhase = hourAction[getState().gameData.hour];
 
-	if (currentPhase === 'combat') {
+	if (currentPhase === "combat") {
 		destroyForceStats(c.FORCE_ID_CPU);
 		destroyForceStats(c.FORCE_ID_PLAYER);
 	}
@@ -69,13 +68,10 @@ export async function resetBoard(shouldResummonUnits: boolean = true): Promise<v
 	clearPoison(c.FORCE_ID_CPU);
 
 	if (shouldResummonUnits) {
-		const summonPromises = state.gameData.player.units
-			.map(async (unit, index) => {
-				await delay(index * 200);
-				await summon(unit, true);
-			});
+		const summonPromises = state.gameData.player.units.map(async (unit, index) => {
+			await delay(index * 200);
+			await summon(unit, true);
+		});
 		await Promise.all(summonPromises);
 	}
-
 }
-

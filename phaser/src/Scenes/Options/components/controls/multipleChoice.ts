@@ -5,7 +5,6 @@ import { createUIButton } from "@Components/UIButton";
 import * as Phaser from "phaser";
 import { BUTTONS, LAYOUT, STYLES } from "../../OptionsScene";
 
-
 export function multipleChoice(
 	label: string,
 	yPos: number,
@@ -13,22 +12,18 @@ export function multipleChoice(
 	getValue: () => string,
 	setValue: (value: string) => void
 ) {
-
 	const formatLabel = () => getValue().toUpperCase();
 	const updateLabel = () => labelText.setText(formatLabel());
 
 	//   ~~~//~~~
-	const labelText = io.Text(
-		label,
-		constants.titleTextConfig
-	);
+	const labelText = io.Text(label, constants.titleTextConfig);
 
 	io.SetPosition(labelText, vec2(constants.MIDDLE_SCREEN_X, yPos));
 	io.Centralize(labelText);
 
 	//   ~~~//~~~
 	const decreaseButton = createUIButton(
-		'<',
+		"<",
 		vec2(
 			constants.MIDDLE_SCREEN_X - BUTTONS.MULTICHOICE_BUTTON_OFFSET_X,
 			yPos + LAYOUT.MULTICHOICE_VALUE_OFFSET_Y
@@ -43,21 +38,21 @@ export function multipleChoice(
 	);
 
 	//   ~~~//~~~
-	const valueText = io.Text(
-		formatLabel(),
-		{
-			...constants.titleTextConfig,
-			fontSize: '32px',
-			color: STYLES.VALUE_TEXT_COLOR
-		}
-	);
+	const valueText = io.Text(formatLabel(), {
+		...constants.titleTextConfig,
+		fontSize: "32px",
+		color: STYLES.VALUE_TEXT_COLOR,
+	});
 
-	io.SetPosition(valueText, vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.MULTICHOICE_VALUE_OFFSET_Y))
+	io.SetPosition(
+		valueText,
+		vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.MULTICHOICE_VALUE_OFFSET_Y)
+	);
 	io.Centralize(valueText);
 
 	//   ~~~//~~~
 	const increaseButton = createUIButton(
-		'>',
+		">",
 		vec2(
 			constants.MIDDLE_SCREEN_X + BUTTONS.MULTICHOICE_BUTTON_OFFSET_X,
 			yPos + LAYOUT.MULTICHOICE_VALUE_OFFSET_Y
@@ -73,7 +68,9 @@ export function multipleChoice(
 
 	//   ~~~//~~~
 	return [
-		labelText, decreaseButton.container, valueText, increaseButton.container
+		labelText,
+		decreaseButton.container,
+		valueText,
+		increaseButton.container,
 	] as Phaser.GameObjects.GameObject[];
-
 }

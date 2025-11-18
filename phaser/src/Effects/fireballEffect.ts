@@ -21,16 +21,26 @@ const WARN_ZERO_COORDINATE_PREFIX = "[fireballEffect] Aborting: Source or target
 
 export async function fireballEffect(
 	scene: Phaser.Scene,
-	source: { x: number; y: number; },
-	target: { x: number; y: number; },
+	source: { x: number; y: number },
+	target: { x: number; y: number }
 ) {
-
-	if ((source.x === ZERO_COORDINATE_VALUE && source.y === ZERO_COORDINATE_VALUE) || (target.x === ZERO_COORDINATE_VALUE && target.y === ZERO_COORDINATE_VALUE)) {
-		console.warn(`${WARN_ZERO_COORDINATE_PREFIX} Source: (${source.x},${source.y}), Target: (${target.x},${target.y})`);
+	if (
+		(source.x === ZERO_COORDINATE_VALUE && source.y === ZERO_COORDINATE_VALUE) ||
+		(target.x === ZERO_COORDINATE_VALUE && target.y === ZERO_COORDINATE_VALUE)
+	) {
+		console.warn(
+			`${WARN_ZERO_COORDINATE_PREFIX} Source: (${source.x},${source.y}), Target: (${target.x},${target.y})`
+		);
 		return;
 	}
 
-	const particles = fireball(source, target, scene, FIREBALL_TRACE_LIFESPAN, FIREBALL_TRAVEL_DURATION);
+	const particles = fireball(
+		source,
+		target,
+		scene,
+		FIREBALL_TRACE_LIFESPAN,
+		FIREBALL_TRAVEL_DURATION
+	);
 	particles.setScale(FIREBALL_INITIAL_SCALE);
 
 	await delay(FIREBALL_TRAVEL_DURATION / 2);
@@ -39,7 +49,7 @@ export async function fireballEffect(
 		scene,
 		location: target,
 		pointA: source,
-		pointB: target
+		pointB: target,
 	});
 
 	// Note: The centralized impactEffect handles its own cleanup
@@ -49,7 +59,7 @@ export async function fireballEffect(
 		delay: 1000, // Give time for impact effect
 		callback: () => {
 			particles.destroy();
-		}
+		},
 	});
 }
 
@@ -58,38 +68,38 @@ function fireball(
 	target: Vec2,
 	scene: Scene,
 	lifespan: number,
-	travelDuration: number,
+	travelDuration: number
 ) {
 	const angle = Phaser.Math.Angle.BetweenPoints(source, target);
-	const particles = scene.add.particles(
-		source.x, source.y,
-		images.white_dot.key,
-		{
-			// make particles move in the direction of the angle, using the speed
-			speedX: {
-				min: -Math.cos(angle - FIREBALL_PARTICLE_ANGLE_OFFSET) * FIREBALL_PARTICLE_MIN_SPEED_MULTIPLIER,
-				max: -Math.cos(angle + FIREBALL_PARTICLE_ANGLE_OFFSET) * FIREBALL_PARTICLE_MAX_SPEED_MULTIPLIER
-			},
-			speedY: {
-				min: -Math.sin(angle - FIREBALL_PARTICLE_ANGLE_OFFSET) * FIREBALL_PARTICLE_MIN_SPEED_MULTIPLIER,
-				max: -Math.sin(angle + FIREBALL_PARTICLE_ANGLE_OFFSET) * FIREBALL_PARTICLE_MAX_SPEED_MULTIPLIER
-			},
-			//red, yellow and orage tones
-			tint: SHARED_FIRE_TINT_COLORS,
-			lifespan,
-			alpha: FIREBALL_PARTICLE_ALPHA,
-			scale: FIREBALL_PARTICLE_SCALE,
-			blendMode: 'ADD',
-			radial: true,
-		}
-	);
+	const particles = scene.add.particles(source.x, source.y, images.white_dot.key, {
+		// make particles move in the direction of the angle, using the speed
+		speedX: {
+			min:
+				-Math.cos(angle - FIREBALL_PARTICLE_ANGLE_OFFSET) * FIREBALL_PARTICLE_MIN_SPEED_MULTIPLIER,
+			max:
+				-Math.cos(angle + FIREBALL_PARTICLE_ANGLE_OFFSET) * FIREBALL_PARTICLE_MAX_SPEED_MULTIPLIER,
+		},
+		speedY: {
+			min:
+				-Math.sin(angle - FIREBALL_PARTICLE_ANGLE_OFFSET) * FIREBALL_PARTICLE_MIN_SPEED_MULTIPLIER,
+			max:
+				-Math.sin(angle + FIREBALL_PARTICLE_ANGLE_OFFSET) * FIREBALL_PARTICLE_MAX_SPEED_MULTIPLIER,
+		},
+		//red, yellow and orage tones
+		tint: SHARED_FIRE_TINT_COLORS,
+		lifespan,
+		alpha: FIREBALL_PARTICLE_ALPHA,
+		scale: FIREBALL_PARTICLE_SCALE,
+		blendMode: "ADD",
+		radial: true,
+	});
 
 	tween({
 		targets: [particles],
 		x: target.x,
 		y: target.y,
 		duration: travelDuration,
-		onComplete: () => particles.stop()
+		onComplete: () => particles.stop(),
 	});
 
 	return particles;

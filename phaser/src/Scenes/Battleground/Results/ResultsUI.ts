@@ -31,7 +31,11 @@ export function create() {
 	state.resultsContainer.setDepth(RESULTS_CONTAINER_DEPTH);
 }
 
-function calculatePrestigeChange(resultType: "victory" | "defeat", currentPlayerRound: number, currentPrestige: number): number {
+function calculatePrestigeChange(
+	resultType: "victory" | "defeat",
+	currentPlayerRound: number,
+	currentPrestige: number
+): number {
 	if (resultType === "victory") {
 		return Math.max(Math.floor(currentPlayerRound / 2), 1);
 	} else {
@@ -39,9 +43,13 @@ function calculatePrestigeChange(resultType: "victory" | "defeat", currentPlayer
 	}
 }
 
-function determineGameOutcome(resultType: "victory" | "defeat", newWins: number, expectedNewPrestige: number): { gameWon: boolean; gameOver: boolean } {
-	const gameWon = (resultType === "victory" && newWins >= WINS_TO_WIN_GAME);
-	const gameOver = (resultType === "defeat" && expectedNewPrestige <= 0);
+function determineGameOutcome(
+	resultType: "victory" | "defeat",
+	newWins: number,
+	expectedNewPrestige: number
+): { gameWon: boolean; gameOver: boolean } {
+	const gameWon = resultType === "victory" && newWins >= WINS_TO_WIN_GAME;
+	const gameOver = resultType === "defeat" && expectedNewPrestige <= 0;
 	return { gameWon, gameOver };
 }
 
@@ -86,7 +94,7 @@ export function displayResults(
 
 export async function slideIn(): Promise<void> {
 	if (!state) throw new Error("ResultsUI not initialized. Call create() first.");
-	AudioManager.playSoundEffect('sfx_ui_modalwindow_swoosh_enter');
+	AudioManager.playSoundEffect("sfx_ui_modalwindow_swoosh_enter");
 
 	if (state.backgroundOverlay) {
 		state.backgroundOverlay.setVisible(true);
@@ -99,7 +107,7 @@ export async function slideIn(): Promise<void> {
 
 export async function slideOut(): Promise<void> {
 	if (!state) throw new Error("ResultsUI not initialized. Call create() first.");
-	AudioManager.playSoundEffect('sfx_ui_modalwindow_swoosh_exit');
+	AudioManager.playSoundEffect("sfx_ui_modalwindow_swoosh_exit");
 	await tween({ targets: [state.resultsContainer], y: RESULTS_CONTAINER_HIDDEN_Y });
 
 	if (state.backgroundOverlay) {

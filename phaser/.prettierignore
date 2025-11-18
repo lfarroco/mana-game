@@ -1,0 +1,12 @@
+dist/
+dist-electron/
+node_modules/
+webpack/
+playwright-report/
+test-results/
+coverage/
+package-lock.json
+*.min.js
+*.config.js
+src/index.css
+

@@ -7,29 +7,27 @@ import * as roundDisplay from "./components/roundDisplay";
 import * as winsDisplay from "./components/winsDisplay";
 import { vec2 } from "@Models/Geometry";
 import * as menuButton from "./components/menuButton";
-export * as events from "./events"
+export * as events from "./events";
 
 let uiContainer: Container | null = null;
 
 export function init() {
-
 	uiContainer = io.Container([
 		prestigeDisplay.create(),
 		roundDisplay.create(),
 		winsDisplay.create(),
-		menuButton.create()
+		menuButton.create(),
 	]);
 }
 
 export async function handleUserMessageRequested(payload: {
 	text: string;
-	type: 'error' | 'info' | 'warning' | 'success';
+	type: "error" | "info" | "warning" | "success";
 }): Promise<void> {
-
 	const text = io.Text(payload.text, c.titleTextConfig);
 
 	io.Centralize(text);
-	io.SetPosition(text, vec2(c.SCREEN_WIDTH / 2, c.SCREEN_HEIGHT - 100))
+	io.SetPosition(text, vec2(c.SCREEN_WIDTH / 2, c.SCREEN_HEIGHT - 100));
 
 	await tween({
 		targets: [text],
