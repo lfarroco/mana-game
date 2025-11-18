@@ -43,7 +43,12 @@ module.exports = {
             {
                 test: /\.tsx?$/,
                 exclude: /node_modules/,
-                loader: "ts-loader"
+                loader: "ts-loader",
+                options: {
+                    // Ensure ts-loader uses the phaser project's tsconfig so
+                    // path mappings (eg. @Constants/*) are resolved correctly
+                    configFile: path.resolve(__dirname, "../tsconfig.json")
+                }
 
             },
             {
