@@ -2,6 +2,7 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const path = require("path");
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const TerserPlugin = require("terser-webpack-plugin");
 const webpack = require("webpack");
 
@@ -14,6 +15,8 @@ module.exports = {
     },
     resolve: {
         extensions: [".ts", ".js", ".json"],
+        // Use tsconfig paths plugin to make webpack resolution match TypeScript's
+        plugins: [new TsconfigPathsPlugin({ configFile: path.resolve(__dirname, "../tsconfig.json") })],
         alias: {
             "@Models": path.resolve(__dirname, "../src/Models"),
             "@Scenes": path.resolve(__dirname, "../src/Scenes"),
