@@ -7,6 +7,7 @@ import * as Systems from "../Battleground/Systems";
 import { processOwnedUnitMoveRequest } from "@Systems/Chara/input";
 import { startGame } from "../../Game/effects/startGame";
 import { handlePhaseEnded } from "@Scenes/Battleground/PhaseManager";
+import { getState } from "@Models/State";
 
 export function clickHeroInShop(slotIndex: number): string {
 	const chara = Systems.Shop.HeroShop.getShopCharaBySlot(slotIndex);
@@ -57,7 +58,7 @@ export function clickNextRound(): string {
 }
 
 export function moveUnitOnBoard(unitId: string, targetBoardX: number, targetBoardY: number): string {
-	const unit = state.gameData.player.units.find(u => u.id === unitId);
+	const unit = getState().gameData.player.units.find(u => u.id === unitId);
 	if (!unit) {
 		return `Error: Unit with ID ${unitId} not found on player board`;
 	}
@@ -80,7 +81,7 @@ export function moveUnitOnBoard(unitId: string, targetBoardX: number, targetBoar
 }
 
 export function sellUnitFromBoard(unitId: string): string {
-	const unit = state.gameData.player.units.find(u => u.id === unitId);
+	const unit = getState().gameData.player.units.find(u => u.id === unitId);
 	if (!unit) {
 		return `Error: Unit with ID ${unitId} not found on player board. Cannot sell`;
 	}
@@ -109,14 +110,14 @@ export function getShopHeroes(): CardDefinition[] {
 }
 
 export function getPlayerBoardUnits(): Unit[] {
-	return state.gameData.player?.units || [];
+	return getState().gameData.player?.units || [];
 }
 
 export function logGameState(): void {
 	console.log("Current Game State (DebugController):", {
 		shopHeroes: getShopHeroes().map(c => c?.id),
 		playerUnits: getPlayerBoardUnits().map(u => ({ id: u.id, cardId: u.cardId, x: u.position.x, y: u.position.y })),
-		currentRound: state.gameData?.round,
+		currentRound: getState().gameData?.round,
 	});
 }
 
@@ -126,7 +127,7 @@ export function addUnitToPlayerBoard(cardId: string, boardX: number, boardY: num
 		cardId: cardId,
 		name: `Test Unit ${cardId}`,
 		pic: `${cardId}.png`,
-		force: state.gameData.player.id,
+		force: getState().gameData.player.id,
 		position: vec2(boardX, boardY),
 		power: 25,
 		life: 0,
@@ -147,7 +148,7 @@ export function addUnitToPlayerBoard(cardId: string, boardX: number, boardY: num
 		isCore: false
 	};
 
-	state.gameData.player.units.push(newUnit);
+	getState().gameData.player.units.push(newUnit);
 
 	return `Added unit ${cardId} (ID: ${newUnit.id}) to board position (${boardX}, ${boardY})`;
 }

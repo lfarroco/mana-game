@@ -1,4 +1,5 @@
 import { Unit } from "@Models/Entities/Unit";
+import { getState } from "@Models/State";
 
 export type UnitCombatStats = {
 	unitId: string;
@@ -24,7 +25,7 @@ let combatStartTime: number = 0;
 
 function initializeUnitStats(): void {
 
-	const allUnits = state.battleData.units;
+	const allUnits = getState().battleData.units;
 
 	for (const unit of allUnits) {
 		unitStats.set(unit.id, {
@@ -198,8 +199,8 @@ export function trackShield(sourceUnitId: string, shield: number): void {
 export function updateTimeAlive(delta: number): void {
 	if (!isActive) return;
 
-	const activeUnits = state.battleData.units.filter(unit =>
-		state.battleData.forces.some(force =>
+	const activeUnits = getState().battleData.units.filter(unit =>
+		getState().battleData.forces.some(force =>
 			force.units.some(forceUnit => forceUnit.id === unit.id)
 		)
 	);

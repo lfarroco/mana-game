@@ -4,13 +4,14 @@ import { titleTextConfig } from "@Constants/constants";
 import * as io from "@PhaserIO";
 import { vec2 } from "@Models/Geometry";
 import { tween } from "@Utils/animation";
+import { getState } from "@Models/State";
 
 let winsTextElement: TextObj | null = null;
 export const WINS_DISPLAY_X = c.SCREEN_WIDTH - 920;
 export const WINS_DISPLAY_Y = 20;
 
 export function create() {
-	const initialWins = state.gameData.player.wins;
+	const initialWins = getState().gameData.player.wins;
 
 	const label = io.Text(
 		"Wins:",

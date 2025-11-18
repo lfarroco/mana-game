@@ -1,7 +1,7 @@
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import { makeUnit, Unit } from "@Models/Entities/Unit";
-import { getUnitAt } from "@Models/State";
+import { getState, getUnitAt } from "@Models/State";
 import { getCharaById, summon, upgrade } from "@Systems/Chara/Chara";
 import * as uiEvents from "@UI/events";
 import * as charaEvents from "@Systems/Chara/events";
@@ -15,7 +15,7 @@ export async function itemDragPurchaseRequested(
 	dragStartX: number,
 	dragStartY: number
 ) {
-	const existingUnit = state.gameData.player.units.find(u => u.cardId === shopUnitData.cardId);
+	const existingUnit = getState().gameData.player.units.find(u => u.cardId === shopUnitData.cardId);
 
 	if (existingUnit && existingUnit.rank <= 3) {
 
@@ -29,7 +29,7 @@ export async function itemDragPurchaseRequested(
 		return;
 	}
 
-	if (state.gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
+	if (getState().gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
 		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(
 			dragStartX, dragStartY
 		));
@@ -40,7 +40,7 @@ export async function itemDragPurchaseRequested(
 		return;
 	}
 
-	const occupier = getUnitAt(state.gameData.player.units)(targetTile);
+	const occupier = getUnitAt(getState().gameData.player.units)(targetTile);
 	if (occupier) {
 		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(
 			dragStartX, dragStartY
@@ -53,7 +53,7 @@ export async function itemDragPurchaseRequested(
 	}
 
 	const newUnit = makeUnit(constants.FORCE_ID_PLAYER, shopUnitData.cardId, targetTile);
-	state.gameData.player.units.push(newUnit);
+	getState().gameData.player.units.push(newUnit);
 
 	summon(newUnit, true);
 

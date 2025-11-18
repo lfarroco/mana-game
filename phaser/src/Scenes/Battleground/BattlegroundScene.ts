@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { preload } from "./preload";
-import { GameData, setCurrentScene } from "@Models/State";
+import { GameData, getState, setCurrentScene } from "@Models/State";
 import * as UIManager from "../../UI/UI";
 import { CardCollection } from "@Models/Entities/Card";
 import * as Board from "@Models/Board";
@@ -63,9 +63,8 @@ export class BattlegroundScene extends Phaser.Scene {
   start = async (data?: GameData) => {
     console.log(":::: BattlegroundScene starting logic...", data);
 
-
     if (data?.player) {
-      state.gameData = data;
+      getState().gameData = data;
     } else {
       Systems.Setup.initializeNewGame();
     }

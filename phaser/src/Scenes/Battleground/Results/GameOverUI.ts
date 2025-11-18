@@ -4,6 +4,8 @@ import * as c from "@Constants/constants";
 import { slideOut, ResultsUIState } from "./ResultsUI";
 import { createResultsPanel } from "./Panel";
 import { vec2 } from "@Models/Geometry";
+import { resetState } from "@Models/State";
+import { startGame } from "../../../Game/effects/startGame";
 
 export function displayGameOver(
 	state: ResultsUIState,
@@ -65,6 +67,8 @@ export function displayGameOver(
 			panelY + panelHeight - 180,
 		),
 		async () => {
+			resetState();
+			startGame();
 		}
 	);
 	state.resultsContainer.add(newRunButton.container);

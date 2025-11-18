@@ -7,6 +7,7 @@ import * as Geometry from "@Models/Geometry";
 import * as Board from "@Models/Board";
 import * as ShopUI from "../ShopPanel";
 import { handlePhaseEnded } from "@Scenes/Battleground/PhaseManager";
+import { getState } from "@Models/State";
 
 export async function itemClickPurchaseRequested(
 	shopUnitData: Unit,
@@ -31,7 +32,7 @@ export async function itemClickPurchaseRequested(
 		);
 	};
 
-	const existingUnit = state.gameData.player.units.find(u => u.cardId === shopUnitData.cardId);
+	const existingUnit = getState().gameData.player.units.find(u => u.cardId === shopUnitData.cardId);
 
 	if (existingUnit && existingUnit.rank <= 3) {
 		await upgrade(existingUnit);
@@ -43,20 +44,20 @@ export async function itemClickPurchaseRequested(
 		return;
 	}
 
-	if (state.gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
+	if (getState().gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
 		handlePurchaseFailure("PARTY_FULL");
 		return;
 	}
 
 	const targetTile = Board.getEmptySlot(
-		state.gameData.player.units, constants.FORCE_ID_PLAYER);
+		getState().gameData.player.units, constants.FORCE_ID_PLAYER);
 	if (!targetTile) {
 		handlePurchaseFailure("NO_EMPTY_SLOT");
 		return;
 	}
 
 	const newUnit = makeUnit(constants.FORCE_ID_PLAYER, shopUnitData.cardId, targetTile);
-	state.gameData.player.units.push(newUnit);
+	getState().gameData.player.units.push(newUnit);
 
 	summon(newUnit, true);
 

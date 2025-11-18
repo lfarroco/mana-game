@@ -3,6 +3,7 @@ import { Unit } from "@Models/Entities/Unit";
 import * as constants from "@Constants/constants";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import { Chara, getCharaById } from "./Chara";
+import { getState } from "@Models/State";
 
 const BOX_WIDTH_RATIO = 0.4;
 const BOX_HEIGHT_RATIO = 0.2;
@@ -64,7 +65,7 @@ export function create(unit: Unit, container: Chara) {
 export function updateShieldDisplay(id: string) {
 	let stats = statsDisplayMap.get(id);
 	if (!stats) {
-		create(state.battleData.units.find(u => u.id === id)! as Unit, getCharaById(id));
+		create(getState().battleData.units.find(u => u.id === id)! as Unit, getCharaById(id));
 		return;
 	};
 
