@@ -5,9 +5,8 @@ import { startGame } from "../../../Game/effects/startGame";
 
 export function startButton() {
 	createUIButton(
-		'New Run',
+		"New Run",
 		vec2(constants.MIDDLE_SCREEN.x, constants.MIDDLE_SCREEN.y + 200),
 		startGame
 	);
 }
-

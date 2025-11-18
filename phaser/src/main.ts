@@ -1,14 +1,13 @@
 import * as OptionsStore from "./Models/OptionsStore";
 import * as DebugController from "./Scenes/Debug/DebugController";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
-import BBCodeTextPlugin from 'phaser3-rex-plugins/plugins/bbcodetext-plugin.js';
+import BBCodeTextPlugin from "phaser3-rex-plugins/plugins/bbcodetext-plugin.js";
 import Core from "./Scenes/Core/Core";
 import { DebugScene } from "./Debug/DebugScene";
 import BattlegroundScene from "./Scenes/Battleground/BattlegroundScene";
 import TitleScene from "./Scenes/Title/TitleScene";
 import OptionsScene from "./Scenes/Options/OptionsScene";
-import ShatterImagePlugin from 'phaser3-rex-plugins/plugins/shatterimage-plugin.js';
-
+import ShatterImagePlugin from "phaser3-rex-plugins/plugins/shatterimage-plugin.js";
 
 export const game = new Phaser.Game({
 	type: Phaser.WEBGL,
@@ -17,27 +16,28 @@ export const game = new Phaser.Game({
 		width: SCREEN_WIDTH,
 		height: SCREEN_HEIGHT,
 		mode: Phaser.Scale.FIT,
-		autoCenter: Phaser.Scale.CENTER_BOTH
+		autoCenter: Phaser.Scale.CENTER_BOTH,
 	},
 	parent: "game-container",
 	scene: [Core, DebugScene, BattlegroundScene, TitleScene, OptionsScene],
 	plugins: {
-		global: [{
-			key: 'rexBBCodeTextPlugin',
-			plugin: BBCodeTextPlugin,
-			start: true
-		},
-		{
-			key: 'rexShatterImagePlugin',
-			plugin: ShatterImagePlugin,
-			start: true
-		},
-		]
-	}
+		global: [
+			{
+				key: "rexBBCodeTextPlugin",
+				plugin: BBCodeTextPlugin,
+				start: true,
+			},
+			{
+				key: "rexShatterImagePlugin",
+				plugin: ShatterImagePlugin,
+				start: true,
+			},
+		],
+	},
 });
 
 OptionsStore.init();
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === "development") {
 	window.debugController = DebugController;
 }

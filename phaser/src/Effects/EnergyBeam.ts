@@ -9,12 +9,11 @@ export type BeamOptions = {
 	speed?: number;
 	color?: number;
 	thickness?: number;
-}
+};
 
 export class EnergyBeam extends Phaser.GameObjects.Graphics {
-
-	start: { x: number; y: number; };
-	end: { x: number; y: number; };
+	start: { x: number; y: number };
+	end: { x: number; y: number };
 	segments: number;
 	amplitude: number;
 	frequency: number;
@@ -24,7 +23,10 @@ export class EnergyBeam extends Phaser.GameObjects.Graphics {
 	phase: number;
 	points: Phaser.Math.Vector2[];
 
-	constructor(scene: Phaser.Scene, config: BeamOptions & Phaser.Types.GameObjects.Graphics.Options) {
+	constructor(
+		scene: Phaser.Scene,
+		config: BeamOptions & Phaser.Types.GameObjects.Graphics.Options
+	) {
 		super(scene, config);
 		scene.add.existing(this);
 
@@ -37,7 +39,7 @@ export class EnergyBeam extends Phaser.GameObjects.Graphics {
 		this.amplitude = config?.amplitude || 15;
 		this.frequency = config?.frequency || 2;
 		this.speed = config?.speed || 0.05;
-		this.color = config?.color || 0xFFD700;
+		this.color = config?.color || 0xffd700;
 		this.thickness = config?.thickness || 20;
 
 		// Internal state
@@ -49,10 +51,7 @@ export class EnergyBeam extends Phaser.GameObjects.Graphics {
 		this.clear();
 
 		// Calculate beam vector
-		const vec = new Phaser.Math.Vector2(
-			this.end.x - this.start.x,
-			this.end.y - this.start.y
-		);
+		const vec = new Phaser.Math.Vector2(this.end.x - this.start.x, this.end.y - this.start.y);
 
 		// Normalize and get perpendicular vector
 		const normalized = vec.clone().normalize();
@@ -65,8 +64,7 @@ export class EnergyBeam extends Phaser.GameObjects.Graphics {
 			const wave = Math.sin(t * Math.PI * this.frequency + this.phase);
 
 			// Calculate position using original vector direction
-			const basePos = new Phaser.Math.Vector2(this.start.x, this.start.y)
-				.add(vec.clone().scale(t));
+			const basePos = new Phaser.Math.Vector2(this.start.x, this.start.y).add(vec.clone().scale(t));
 
 			const offset = normal.clone().scale(wave * this.amplitude);
 			const pos = basePos.add(offset);
@@ -87,6 +85,5 @@ export class EnergyBeam extends Phaser.GameObjects.Graphics {
 
 		// Update phase for animation
 		this.phase += this.speed;
-
 	}
 }

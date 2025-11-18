@@ -12,7 +12,6 @@ import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
 import * as io from "@PhaserIO";
 
 export async function open() {
-
 	const container = io.Container();
 
 	const availableOrbs = [
@@ -23,7 +22,7 @@ export async function open() {
 		"violet_orb",
 		"charge_orb",
 		"positional_power_orb",
-		"positional_typed_power_orb"
+		"positional_typed_power_orb",
 	];
 
 	const selectedOrbs = pickRandom(availableOrbs, 3);
@@ -36,12 +35,10 @@ export async function open() {
 
 	ShopPanel.create(nextRoundCallback);
 
-	renderOrbShop(
-		container,
-		selectedOrbs, async () => {
-			await delay(500);
-			nextRoundCallback();
-		});
+	renderOrbShop(container, selectedOrbs, async () => {
+		await delay(500);
+		nextRoundCallback();
+	});
 
 	Board.setEnemyBoardVisible(false);
 
@@ -51,19 +48,18 @@ export async function open() {
 export function renderOrbShop(
 	container: Phaser.GameObjects.Container,
 	orbIds: string[],
-	onOrbUsed?: () => void | Promise<void>,
+	onOrbUsed?: () => void | Promise<void>
 ) {
-
 	const state = getState();
 	const scene = getCurrentScene();
 
 	const orbSpacing = sc.TAVERN_CHARA_SPACING;
 
 	function handleOrbDrop(params: {
-		orb: MagicOrb,
-		target: Phaser.GameObjects.GameObject,
-		orbSpec: OrbSpec,
-		magicOrb: MagicOrb
+		orb: MagicOrb;
+		target: Phaser.GameObjects.GameObject;
+		orbSpec: OrbSpec;
+		magicOrb: MagicOrb;
 	}) {
 		const { orb, target, orbSpec, magicOrb } = params;
 		const playerBoard = Board.getBoardState();
@@ -81,7 +77,8 @@ export function renderOrbShop(
 		console.log(`${orbSpec.name} dropped on board slot [${tileX}, ${tileY}] (index: ${slotIndex})`);
 
 		const existingUnit = state?.gameData?.player?.units?.find((unit) =>
-			eqVec2(unit.position, { x: tileX, y: tileY }))
+			eqVec2(unit.position, { x: tileX, y: tileY })
+		);
 
 		if (!existingUnit) {
 			console.log(`No unit at position [${tileX}, ${tileY}] - orb returns to position`);
@@ -114,44 +111,38 @@ export function renderOrbShop(
 			enableDrag: true,
 			returnDuration: 500,
 			onDropTarget: (orb, target) => handleOrbDrop({ orb, target, orbSpec, magicOrb }),
-			dropTargetNames: []
+			dropTargetNames: [],
 		});
 
 		container.add(magicOrb.getShader());
 
-		const titleText = scene.add.text(
-			sc.ITEM_DESC_BASE_X, sc.ITEM_DESC_BASE_Y + offsetY,
-			orbSpec.name,
-		)
+		const titleText = scene.add
+			.text(sc.ITEM_DESC_BASE_X, sc.ITEM_DESC_BASE_Y + offsetY, orbSpec.name)
 			.setOrigin(0)
 			.setFontSize(40)
 			.setFontFamily("Arial Black")
 			.setAlign("left");
 
-		const descriptionText = scene.add.rexBBCodeText(
-			sc.ITEM_DESC_BASE_X, sc.ITEM_DESC_BASE_Y + offsetY + 60,
-			orbSpec.tooltip)
+		const descriptionText = scene.add
+			.rexBBCodeText(sc.ITEM_DESC_BASE_X, sc.ITEM_DESC_BASE_Y + offsetY + 60, orbSpec.tooltip)
 			.setOrigin(0)
 			.setFontSize(30)
 			.setAlign("left")
 			.setWrapMode(1)
 			.setFontFamily("Arial");
 
-		container.add([
-			titleText,
-			descriptionText
-		])
+		container.add([titleText, descriptionText]);
 
 		return magicOrb;
 	});
 
 	const handler = (time: number) => {
-		orbs.forEach(orb => orb.update(time));
-	}
+		orbs.forEach((orb) => orb.update(time));
+	};
 
-	getCurrentScene().events.on('update', handler);
+	getCurrentScene().events.on("update", handler);
 
 	container.on(Phaser.GameObjects.Events.DESTROY, () => {
-		getCurrentScene().events.off('update', handler);
+		getCurrentScene().events.off("update", handler);
 	});
 }

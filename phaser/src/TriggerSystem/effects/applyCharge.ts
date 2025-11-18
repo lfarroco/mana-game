@@ -1,14 +1,9 @@
-import { arcaneMissileTargeted } from '../../Effects/arcaneMissileTargeted';
-import { hasteEffect } from '../../Effects/hasteEffect';
-import { Chara, getCharaById } from '@Systems/Chara/Chara';
-import { Unit } from '@Models/Entities/Unit';
+import { arcaneMissileTargeted } from "../../Effects/arcaneMissileTargeted";
+import { hasteEffect } from "../../Effects/hasteEffect";
+import { Chara, getCharaById } from "@Systems/Chara/Chara";
+import { Unit } from "@Models/Entities/Unit";
 
-export function applyChargeLogicIO(
-	sourceUnit: Unit,
-	targets: Unit[],
-	amount: number
-) {
-
+export function applyChargeLogicIO(sourceUnit: Unit, targets: Unit[], amount: number) {
 	const sourceChara = getCharaById(sourceUnit.id);
 
 	const effect = (target: Unit, targetChara: Chara) => async () => {
@@ -17,29 +12,25 @@ export function applyChargeLogicIO(
 		hasteEffect(targetChara, {
 			duration: 1000,
 			intensity: 1.5,
-			color: 0xFFD700 // Golden color
+			color: 0xffd700, // Golden color
 		});
-	}
+	};
 
 	for (const target of targets) {
 		const targetChara = getCharaById(target.id);
-		arcaneMissileTargeted(
-			sourceChara,
-			targetChara,
-			{
-				colors: [0xFFD700, 0xFFA500, 0xFF8C00], // Golden/orange colors
-				amplitudeMin: 5,
-				amplitudeMax: 15,
-				particleScale: 1.5,
-				impact: {
-					colors: [0xFFD700, 0xFFA500],
-					scale: 2,
-					speed: 200,
-					lifespan: 300,
-					alpha: 0.4
-				},
-				onHit: effect(target, targetChara)
-			}
-		);
+		arcaneMissileTargeted(sourceChara, targetChara, {
+			colors: [0xffd700, 0xffa500, 0xff8c00], // Golden/orange colors
+			amplitudeMin: 5,
+			amplitudeMax: 15,
+			particleScale: 1.5,
+			impact: {
+				colors: [0xffd700, 0xffa500],
+				scale: 2,
+				speed: 200,
+				lifespan: 300,
+				alpha: 0.4,
+			},
+			onHit: effect(target, targetChara),
+		});
 	}
-};
+}

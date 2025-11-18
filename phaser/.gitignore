@@ -24,3 +24,7 @@ dist-electron/
 *.yml
 builder-debug.yml
 builder-effective-config.yaml
+
+# Code quality tools
+.eslintcache
+coverage/

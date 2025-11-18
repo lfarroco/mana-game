@@ -16,21 +16,20 @@ export function create(unit: Unit, container: Container) {
 
 	const state = {
 		chargeBar,
-		unit
-	}
+		unit,
+	};
 
 	charaBarsMap.set(unit.id, state);
 }
 
 export function clearAll(): void {
-	charaBarsMap.forEach(state => {
+	charaBarsMap.forEach((state) => {
 		state.chargeBar.destroy();
 	});
 	charaBarsMap.clear();
 }
 
 export function updateChargeBar(id: string): void {
-
 	const state = charaBarsMap.get(id);
 	if (!state) return;
 
@@ -38,10 +37,7 @@ export function updateChargeBar(id: string): void {
 
 	chargeBar.clear();
 
-	const percent = Math.max(
-		0,
-		Math.min(unit.charge / unit.cooldown, 1)
-	);
+	const percent = Math.max(0, Math.min(unit.charge / unit.cooldown, 1));
 
 	let color = 0x33ff33;
 

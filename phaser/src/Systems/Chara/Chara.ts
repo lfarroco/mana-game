@@ -36,10 +36,7 @@ export function getAllCharas(): Chara[] {
 	return Array.from(charaById.values());
 }
 
-export async function summon(
-	unit: Unit,
-	useSummonEffect: boolean = true,
-): Promise<Chara> {
+export async function summon(unit: Unit, useSummonEffect: boolean = true): Promise<Chara> {
 	const vec = getScreenPosition(unit);
 	if (useSummonEffect) {
 		summonEffect(getCurrentScene(), vec);
@@ -58,13 +55,12 @@ export async function summon(
 }
 
 export function clearAll(): void {
-	getAllCharas().forEach(c => destroy(c));
+	getAllCharas().forEach((c) => destroy(c));
 }
 
 export function create(unit: Unit): Chara {
 	const position = getScreenPosition(unit);
 	const container = getCurrentScene().add.container(position.x, position.y);
-
 
 	const sprite = createSprite(container, unit);
 	if (unit.force === constants.FORCE_ID_CPU) {
@@ -112,18 +108,18 @@ export function create(unit: Unit): Chara {
 
 	ChargeBarDisplay.create(unit, container);
 
-	if (unit.isCore)
-		LifeDisplay.create(unit, container);
-	else
-		PowerDisplay.create(unit, container);
+	if (unit.isCore) LifeDisplay.create(unit, container);
+	else PowerDisplay.create(unit, container);
 
 	return container;
 }
 
 export function getScreenPosition(unit: Unit) {
 	const slotSpacing = 8;
-	const offsetX = unit.force === constants.FORCE_ID_PLAYER ? constants.PLAYER_BOARD_X : constants.CPU_BOARD_X;
-	const offsetY = unit.force === constants.FORCE_ID_PLAYER ? constants.PLAYER_BOARD_Y : constants.CPU_BOARD_Y;
+	const offsetX =
+		unit.force === constants.FORCE_ID_PLAYER ? constants.PLAYER_BOARD_X : constants.CPU_BOARD_X;
+	const offsetY =
+		unit.force === constants.FORCE_ID_PLAYER ? constants.PLAYER_BOARD_Y : constants.CPU_BOARD_Y;
 
 	let visualX = unit.position.x;
 	if (unit.force === constants.FORCE_ID_CPU) {
@@ -132,23 +128,33 @@ export function getScreenPosition(unit: Unit) {
 
 	return {
 		x: visualX * (constants.TILE_WIDTH + slotSpacing) + constants.HALF_TILE_WIDTH + offsetX,
-		y: unit.position.y * (constants.TILE_HEIGHT + slotSpacing) + constants.HALF_TILE_HEIGHT + offsetY,
+		y:
+			unit.position.y * (constants.TILE_HEIGHT + slotSpacing) +
+			constants.HALF_TILE_HEIGHT +
+			offsetY,
 	};
 }
 
-function createSprite(container: Chara, unit: Unit, _borderWidth: number = 3, _borderColor: number = 0xffffff) {
-	const animCacheKey = unit.pic + '-anims';
+function createSprite(
+	container: Chara,
+	unit: Unit,
+	_borderWidth: number = 3,
+	_borderColor: number = 0xffffff
+) {
+	const animCacheKey = unit.pic + "-anims";
 	const animData = getCurrentScene().cache.json.get(animCacheKey);
 
 	if (animData && animData.anims) {
 		for (const anim of animData.anims) {
-			const animKey = unit.pic + '_' + anim.key;
+			const animKey = unit.pic + "_" + anim.key;
 			if (!getCurrentScene().anims.exists(animKey)) {
 				const animConfig = {
 					...anim,
 					key: animKey,
-					frames: (anim.frames as { frame: string }[])
-						.map((f: { frame: string }) => ({ key: unit.pic, frame: f.frame })),
+					frames: (anim.frames as { frame: string }[]).map((f: { frame: string }) => ({
+						key: unit.pic,
+						frame: f.frame,
+					})),
 				};
 				getCurrentScene().anims.create(animConfig);
 			}
@@ -156,10 +162,10 @@ function createSprite(container: Chara, unit: Unit, _borderWidth: number = 3, _b
 	}
 
 	const frameNames = getCurrentScene().textures.get(unit.pic).getFrameNames();
-	const idleFrames = frameNames.filter(name => name.startsWith(unit.pic + '_idle_'));
+	const idleFrames = frameNames.filter((name) => name.startsWith(unit.pic + "_idle_"));
 	idleFrames.sort((a, b) => {
-		const numA = parseInt(a.match(/_(\d+)\.png$/)?.[1] || '0', 10);
-		const numB = parseInt(b.match(/_(\d+)\.png$/)?.[1] || '0', 10);
+		const numA = parseInt(a.match(/_(\d+)\.png$/)?.[1] || "0", 10);
+		const numB = parseInt(b.match(/_(\d+)\.png$/)?.[1] || "0", 10);
 		return numA - numB;
 	});
 	const firstIdle = idleFrames[0] || frameNames[0];
@@ -167,12 +173,11 @@ function createSprite(container: Chara, unit: Unit, _borderWidth: number = 3, _b
 	const sprite = getCurrentScene().add.sprite(0, -15, unit.pic, firstIdle);
 	sprite.setDisplaySize(constants.TILE_WIDTH * 1.2, constants.TILE_HEIGHT * 1.2);
 	container.add(sprite);
-	if (getCurrentScene().anims.exists(unit.pic + '_idle')) {
-		sprite.play(unit.pic + '_idle');
+	if (getCurrentScene().anims.exists(unit.pic + "_idle")) {
+		sprite.play(unit.pic + "_idle");
 	}
 
 	if (unit.isCore) {
-
 		sprite.setDisplaySize(constants.TILE_WIDTH * 0.8, constants.TILE_HEIGHT * 0.8);
 		tween({
 			targets: [sprite],
@@ -180,15 +185,15 @@ function createSprite(container: Chara, unit: Unit, _borderWidth: number = 3, _b
 			ease: "Cubic.EaseOut",
 			duration: Math.random() * 1000 + 1000,
 			yoyo: true,
-			repeat: -1
-		})
+			repeat: -1,
+		});
 	}
 
 	return sprite;
 }
 
 export function isShopItem(id: string): boolean {
-	return !getState().gameData.player.units.find(u => u.id === id);
+	return !getState().gameData.player.units.find((u) => u.id === id);
 }
 
 export function getUnit(chara: Chara): Unit {
@@ -216,7 +221,7 @@ export function updateUnitPower(chara: Chara, num: number, permanent?: boolean) 
 	});
 
 	if (permanent && unit.force === constants.FORCE_ID_PLAYER) {
-		const playerUnit = getState().gameData.player.units.find(u => u.id === unit.id)!;
+		const playerUnit = getState().gameData.player.units.find((u) => u.id === unit.id)!;
 		playerUnit.power += num;
 	}
 }
@@ -227,8 +232,7 @@ export function updateUnitCritical(chara: Chara, num: number) {
 	const positive = num >= 0;
 	const text = `${positive ? "+" : "-"}${num} Crit`;
 
-	if (!unit.critical)
-		unit.critical = 0;
+	if (!unit.critical) unit.critical = 0;
 
 	unit.critical += num;
 
@@ -268,7 +272,7 @@ export function shake(chara: Chara) {
 		onComplete: () => {
 			state.isAnimating = false;
 			state.sprite.x = startingX;
-		}
+		},
 	});
 }
 
@@ -277,8 +281,7 @@ export async function upgrade(unit: Unit) {
 
 	const source = getCardDefinition(unit.cardId);
 
-	if (source.power)
-		updateUnitPower(chara, source.power);
+	if (source.power) updateUnitPower(chara, source.power);
 
 	unit.rank = unit.rank + 1;
 
@@ -287,6 +290,4 @@ export async function upgrade(unit: Unit) {
 	chara.destroy();
 
 	summon(unit, true);
-
 }
-

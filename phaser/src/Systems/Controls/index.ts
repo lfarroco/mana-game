@@ -1,12 +1,11 @@
 import BattlegroundScene from "@Scenes/Battleground/BattlegroundScene";
 
 export function init(scene: BattlegroundScene) {
-
 	const keyToSelectorMap = [
 		["Z", "#grid-cell-0 button"],
 		["X", "#grid-cell-1 button"],
 		["C", "#grid-cell-2 button"],
-	]
+	];
 
 	keyToSelectorMap.forEach(([key, selector]) => {
 		scene.input.keyboard?.on(`keydown-${key}`, () => {
@@ -21,7 +20,6 @@ export function init(scene: BattlegroundScene) {
 
 	//bind space to end turn
 	scene.input.keyboard?.on("keydown-SPACE", () => {
-
 		//@ts-ignore
 		document.querySelector("#next-turn")?.click();
 	});

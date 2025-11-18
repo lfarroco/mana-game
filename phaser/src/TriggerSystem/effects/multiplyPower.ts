@@ -20,6 +20,6 @@ export const multiplyPower = async (context: {
 
 		updateUnitPower(chara, powerDifference);
 
-		playSoundEffect('sfx_spell_innerfocus');
+		playSoundEffect("sfx_spell_innerfocus");
 	}
 };

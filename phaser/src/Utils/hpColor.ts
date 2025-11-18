@@ -2,7 +2,7 @@
 const HP_COLOR_CONSTANTS = {
 	MAX_COLOR_VALUE: 255,
 	HEALTH_THRESHOLD: 0.5,
-	FULL_ALPHA: 1
+	FULL_ALPHA: 1,
 } as const;
 
 // goes from green (100) to yellow (50) to red (0), in a gradient

@@ -11,7 +11,7 @@ export async function handleCombatEndedDefeat(): Promise<void> {
 	const state = getState();
 	console.log("Round", state.gameData.round, "Processing Defeat...");
 
-	AudioManager.playSoundEffect('sfx_victory_match');
+	AudioManager.playSoundEffect("sfx_victory_match");
 
 	await delay(1000);
 
@@ -26,7 +26,7 @@ export async function handleCombatEndedVictory(): Promise<void> {
 	const state = getState();
 	console.log("Round", state.gameData.round, "Processing Victory...");
 
-	AudioManager.playSoundEffect('sfx_victory_reward_chant');
+	AudioManager.playSoundEffect("sfx_victory_reward_chant");
 
 	await delay(1000);
 
@@ -37,7 +37,6 @@ export async function handleCombatEndedVictory(): Promise<void> {
 }
 
 export function handleCombatEnded(combatResult: string) {
-
 	destroyBlackHole();
 
 	if (combatResult === "player_won") {
@@ -48,7 +47,6 @@ export function handleCombatEnded(combatResult: string) {
 }
 
 async function handleVictory(): Promise<void> {
-
 	PrestigeSystem.processVictory();
 	PrestigeSystem.finalizeRound();
 
@@ -60,7 +58,6 @@ async function handleVictory(): Promise<void> {
 }
 
 async function handleDefeat(): Promise<void> {
-
 	PrestigeSystem.processDefeat();
 	PrestigeSystem.finalizeRound();
 
@@ -69,12 +66,12 @@ async function handleDefeat(): Promise<void> {
 
 	const player = state.gameData.player;
 	if (player.prestige <= 0) {
-		await renderVignette({ message: `Game Over! You were defeated in ${state.gameData.round - 1} rounds` });
+		await renderVignette({
+			message: `Game Over! You were defeated in ${state.gameData.round - 1} rounds`,
+		});
 		return;
 	}
 
 	await PhaseManager.resetBoard(true);
 	PhaseManager.handlePhaseEnded();
-
 }
-

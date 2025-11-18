@@ -14,7 +14,7 @@ export type Force = {
 	name: string;
 	color: string;
 	units: Unit[];
-	prestige: number,
+	prestige: number;
 	wins: number;
 };
 
@@ -26,7 +26,7 @@ export const makeForce = (id: string): Force => {
 		units: [],
 		prestige: 20,
 		wins: 0,
-	}
+	};
 };
 
 export const playerForce = makeForce(constants.FORCE_ID_PLAYER);
@@ -37,7 +37,6 @@ export const manipulateCoreLife = (
 	amount: number,
 	critical = false
 ): number => {
-
 	const core = getCore(targetForce.id);
 
 	const oldLife = core.life;
@@ -48,14 +47,14 @@ export const manipulateCoreLife = (
 	}
 	const actualChange = core.life - oldLife;
 
-	LifeDisplay.updateLifeDisplay(core.id)
+	LifeDisplay.updateLifeDisplay(core.id);
 
 	popText({
 		x: getCharaById(core.id).x,
 		y: getCharaById(core.id).y,
 		text: critical ? `${amount} Crit!` : amount.toString(),
 		type: "heal",
-		critical
+		critical,
 	});
 
 	ForceStats.updateLifeDisplay(targetForce.id, core.life);
@@ -69,7 +68,6 @@ export const manipulateCoreShield = (
 	isCritical: boolean,
 	displayFeedback: boolean = true
 ): number => {
-
 	const core = getCore(targetForce.id);
 
 	const oldShield = core.shield;
@@ -80,9 +78,7 @@ export const manipulateCoreShield = (
 	}
 	const actualChange = core.shield - oldShield;
 
-	updateShieldDisplay(
-		getCore(targetForce.id).id
-	);
+	updateShieldDisplay(getCore(targetForce.id).id);
 
 	if (displayFeedback) {
 		const text = isCritical ? `${amount} Crit!` : amount.toString();
@@ -92,9 +88,9 @@ export const manipulateCoreShield = (
 			y: getCharaById(core.id).y,
 			text: text,
 			type: "shield",
-			critical: isCritical
-		})
-	};
+			critical: isCritical,
+		});
+	}
 
 	ForceStats.updateShieldDisplay(targetForce.id, core.shield);
 
@@ -134,8 +130,8 @@ export const applyDamageToForce = (
 			y: coreChara.y,
 			text,
 			type: "poison",
-			critical: !!critical
-		})
+			critical: !!critical,
+		});
 
 		return Math.abs(lifeChage);
 	}
@@ -152,9 +148,7 @@ export const applyDamageToForce = (
 		remainingDamage -= shieldAbsorbed;
 	}
 
-	const lifeChange = remainingDamage > 0 ?
-		manipulateCoreLife(targetForce, -remainingDamage) :
-		0;
+	const lifeChange = remainingDamage > 0 ? manipulateCoreLife(targetForce, -remainingDamage) : 0;
 
 	if (core.life !== originalLife) {
 		CombatStatsTracker.trackLifeChange({
@@ -163,7 +157,7 @@ export const applyDamageToForce = (
 			maxLife: core.maxLife,
 			totalDamage: damage,
 			damageType: damageType,
-		})
+		});
 	}
 
 	const text = !!critical ? `${damage} Crit!` : damage.toString();
@@ -173,20 +167,20 @@ export const applyDamageToForce = (
 		y: coreChara.y,
 		text,
 		type: "damage",
-		critical: !!critical
-	})
+		critical: !!critical,
+	});
 
 	return Math.abs(lifeChange);
 };
 
 export const getUnitForce = (unitId: string) => {
 	const state = getState();
-	const unit = state.battleData.units.find(u => u.id === unitId)!
-	return state.battleData.forces.find(f => f.id === unit.force)!
-}
+	const unit = state.battleData.units.find((u) => u.id === unitId)!;
+	return state.battleData.forces.find((f) => f.id === unit.force)!;
+};
 
 export const getEnemyForce = (unitId: string) => {
 	const state = getState();
-	const unit = state.battleData.units.find(u => u.id === unitId)!
-	return state.battleData.forces.find(f => f.id !== unit.force)!
-}
+	const unit = state.battleData.units.find((u) => u.id === unitId)!;
+	return state.battleData.forces.find((f) => f.id !== unit.force)!;
+};

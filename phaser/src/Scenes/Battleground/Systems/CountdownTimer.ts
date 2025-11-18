@@ -24,19 +24,21 @@ export function start(): void {
 	timerCircle.setStrokeStyle(4, 0xffffff);
 	timerCircle.setDepth(1000);
 
-	timerText = scene.add.text(centerX, centerY, timerValue.toString(), {
-		fontSize: '48px',
-		color: '#ffffff',
-		stroke: '#000000',
-		strokeThickness: 4
-	}).setOrigin(0.5);
+	timerText = scene.add
+		.text(centerX, centerY, timerValue.toString(), {
+			fontSize: "48px",
+			color: "#ffffff",
+			stroke: "#000000",
+			strokeThickness: 4,
+		})
+		.setOrigin(0.5);
 	timerText.setDepth(1001);
 
 	timerEvent = scene.time.addEvent({
 		delay: 1000,
 		callback: updateTimer,
 		callbackScope: null,
-		loop: true
+		loop: true,
 	});
 }
 
@@ -51,7 +53,6 @@ function updateTimer(): void {
 		// Keep the timer visible at 0
 
 		createBlackHole();
-
 	}
 }
 

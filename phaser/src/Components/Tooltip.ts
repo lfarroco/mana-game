@@ -18,8 +18,8 @@ let container: Phaser.GameObjects.Container | null = null;
 let bg: Phaser.GameObjects.Shader | null = null;
 let titleText: Phaser.GameObjects.Text | null = null;
 let descriptionText: BBCodeText | null = null;
-let currentTitle: string = '';
-let currentDescription: string = '';
+let currentTitle: string = "";
+let currentDescription: string = "";
 let startTime: number = 0;
 
 let tooltipWidth: number = MIN_TOOLTIP_WIDTH;
@@ -27,13 +27,15 @@ let tooltipHeight: number = MIN_TOOLTIP_HEIGHT;
 let lastAdjustedX: number | undefined;
 let lastAdjustedY: number | undefined;
 
-function getAdjustedPosition(x: number, y: number): { x: number, y: number } {
+function getAdjustedPosition(x: number, y: number): { x: number; y: number } {
 	if (!container) return { x, y };
 
-	if (lastAdjustedX !== undefined &&
+	if (
+		lastAdjustedX !== undefined &&
 		lastAdjustedY !== undefined &&
 		Math.abs(x - (container.x + tooltipWidth / 2)) < 1 &&
-		Math.abs(y - (container.y + tooltipHeight / 2)) < 1) {
+		Math.abs(y - (container.y + tooltipHeight / 2)) < 1
+	) {
 		return { x: lastAdjustedX, y: lastAdjustedY };
 	}
 
@@ -62,8 +64,8 @@ export function destroyTooltip(): void {
 	bg = null;
 	titleText = null;
 	descriptionText = null;
-	currentTitle = '';
-	currentDescription = '';
+	currentTitle = "";
+	currentDescription = "";
 	tooltipWidth = MIN_TOOLTIP_WIDTH;
 	tooltipHeight = MIN_TOOLTIP_HEIGHT;
 	lastAdjustedX = undefined;
@@ -83,38 +85,34 @@ export function init() {
 	const borderColorVec3 = { x: 0.78, y: 0.64, z: 0.33 };
 
 	const baseShader = new Phaser.Display.BaseShader(
-		'TooltipShader',
+		"TooltipShader",
 		tooltipFragmentShader,
 		undefined,
 		{
-			time: { type: '1f', value: 0.0 },
-			resolution: { type: '2f', value: [tooltipWidth, tooltipHeight] },
-			bgColor: { type: '3f', value: bgColorVec3 },
-			borderColor: { type: '3f', value: borderColorVec3 }
+			time: { type: "1f", value: 0.0 },
+			resolution: { type: "2f", value: [tooltipWidth, tooltipHeight] },
+			bgColor: { type: "3f", value: bgColorVec3 },
+			borderColor: { type: "3f", value: borderColorVec3 },
 		}
 	);
 
-	bg = scene.add.shader(
-		baseShader,
-		0,
-		0,
-		tooltipWidth,
-		tooltipHeight
-	).setOrigin(0, 0);
+	bg = scene.add.shader(baseShader, 0, 0, tooltipWidth, tooltipHeight).setOrigin(0, 0);
 
 	container.add(bg);
 
 	const textConfig = { ...defaultTextConfig };
 	delete (textConfig as any).backgroundColor;
 
-	titleText = scene.add.text(0, 0, '', textConfig)
+	titleText = scene.add
+		.text(0, 0, "", textConfig)
 		.setOrigin(0)
 		.setFontSize(TITLE_FONT_SIZE)
 		.setFontFamily("Arial Black")
 		.setAlign("left");
 	container.add(titleText);
 
-	descriptionText = scene.add.rexBBCodeText(0, 0, '')
+	descriptionText = scene.add
+		.rexBBCodeText(0, 0, "")
 		.setOrigin(0)
 		.setFontSize(DESCRIPTION_FONT_SIZE)
 		.setAlign("left")
@@ -123,7 +121,7 @@ export function init() {
 
 	if ((descriptionText as any).setLineSpacing) {
 		(descriptionText as any).setLineSpacing(DESCRIPTION_LINE_SPACING);
-	} else if ('lineSpacing' in (descriptionText as any)) {
+	} else if ("lineSpacing" in (descriptionText as any)) {
 		(descriptionText as any).lineSpacing = DESCRIPTION_LINE_SPACING;
 	}
 	container.add(descriptionText);
@@ -135,7 +133,7 @@ function updateShaderAnimation(): void {
 	if (!bg || !scene || !container?.visible) return;
 
 	const elapsedTime = (scene.time.now - startTime) / 1000;
-	bg.setUniform('time.value', elapsedTime);
+	bg.setUniform("time.value", elapsedTime);
 }
 
 export function renderTooltip(x: number, y: number, title: string, description: string): void {
@@ -165,7 +163,10 @@ export function renderTooltip(x: number, y: number, title: string, description: 
 		descriptionText.updateText();
 
 		const contentWidth = Math.max(titleText.width, descriptionText.width);
-		tooltipWidth = Math.max(MIN_TOOLTIP_WIDTH, Math.min(contentWidth + 2 * PADDING, MAX_TOOLTIP_WIDTH));
+		tooltipWidth = Math.max(
+			MIN_TOOLTIP_WIDTH,
+			Math.min(contentWidth + 2 * PADDING, MAX_TOOLTIP_WIDTH)
+		);
 
 		const actualDescriptionWrapWidth = tooltipWidth - 2 * PADDING;
 		if (actualDescriptionWrapWidth < maxWrapWidth) {
@@ -178,10 +179,10 @@ export function renderTooltip(x: number, y: number, title: string, description: 
 
 		if (!bg) return;
 		bg.setSize(tooltipWidth, tooltipHeight);
-		bg.setUniform('resolution.value', [tooltipWidth, tooltipHeight]);
+		bg.setUniform("resolution.value", [tooltipWidth, tooltipHeight]);
 
 		const elapsedTime = (scene.time.now - startTime) / 1000;
-		bg.setUniform('time.value', elapsedTime);
+		bg.setUniform("time.value", elapsedTime);
 
 		titleText.setPosition(PADDING, PADDING);
 		descriptionText.setPosition(PADDING, PADDING + titleText.height + INTER_ELEMENT_PADDING);

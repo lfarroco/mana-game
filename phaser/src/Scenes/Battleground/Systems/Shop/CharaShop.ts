@@ -11,7 +11,7 @@ import * as ShopPanel from "./ShopPanel";
 
 export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara[] {
 	const createdCharas: Chara.Chara[] = [];
-	const ownedCardIds = new Set(getState().gameData.player.units.map(u => u.cardId));
+	const ownedCardIds = new Set(getState().gameData.player.units.map((u) => u.cardId));
 
 	cardDefs.forEach((spec, index) => {
 		const unit = makeUnit(c.FORCE_ID_PLAYER, spec.id, vec2(0, 0));
@@ -37,46 +37,37 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 				duration: 1000,
 				yoyo: true,
 				repeat: -1,
-				ease: 'Sine.easeInOut',
+				ease: "Sine.easeInOut",
 				onUpdate: (tween) => {
 					const newWidth = tween.getValue();
 					animatedBorder.clear();
 					animatedBorder.lineStyle(newWidth, 0xffd700, 1);
 					animatedBorder.strokeCircle(0, 0, borderRadius);
-				}
+				},
 			});
 		}
 
 		const { title, description } = createDescription(chara);
 
-		const titleText = scene.add.text(
-			sc.ITEM_DESC_BASE_X, sc.ITEM_DESC_BASE_Y + offsetY,
-			title,
-		)
+		const titleText = scene.add
+			.text(sc.ITEM_DESC_BASE_X, sc.ITEM_DESC_BASE_Y + offsetY, title)
 			.setOrigin(0)
 			.setFontSize(40)
 			.setFontFamily("Arial Black")
 			.setAlign("left");
 
-		const descriptionText = scene.add.rexBBCodeText(
-			sc.ITEM_DESC_BASE_X, sc.ITEM_DESC_BASE_Y + offsetY + 60,
-			description,
-		)
+		const descriptionText = scene.add
+			.rexBBCodeText(sc.ITEM_DESC_BASE_X, sc.ITEM_DESC_BASE_Y + offsetY + 60, description)
 			.setOrigin(0)
 			.setFontSize(30)
 			.setAlign("left")
 			.setWrapMode(1)
 			.setFontFamily("Arial");
 
-		ShopPanel.container.add([
-			titleText,
-			descriptionText,
-			chara
-		])
+		ShopPanel.container.add([titleText, descriptionText, chara]);
 
 		createdCharas.push(chara);
 	});
 
 	return createdCharas;
 }
-

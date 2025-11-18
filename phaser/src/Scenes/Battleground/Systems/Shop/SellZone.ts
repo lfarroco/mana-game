@@ -6,8 +6,8 @@ let container: Container | null = null;
 let labelText: Phaser.GameObjects.Text | null = null;
 let rect: Graphics | null = null;
 
-const position = { x: 1400, y: 500 }
-const size = { width: 900, height: 800 }
+const position = { x: 1400, y: 500 };
+const size = { width: 900, height: 800 };
 const color = 0xffa500;
 const alpha = 0.7;
 const label = "SELL";
@@ -15,21 +15,22 @@ const cornerRadius = 10;
 export const name = "shop_sell_zone";
 const textStyle = {
 	...defaultTextConfig,
-	fontSize: '40px', color: '#fff', fontStyle: 'bold',
-	stroke: '#222',
+	fontSize: "40px",
+	color: "#fff",
+	fontStyle: "bold",
+	stroke: "#222",
 	strokeThickness: 6,
-	align: 'center',
+	align: "center",
 	shadow: {
 		offsetX: 2,
 		offsetY: 2,
-		color: '#000',
+		color: "#000",
 		blur: 4,
-		fill: true
-	}
-}
+		fill: true,
+	},
+};
 
 export function create() {
-
 	container = io.Container();
 
 	rect = createRect();
@@ -59,23 +60,14 @@ export function destroy() {
 	container = null;
 }
 
-const createRect = () => io.BorderedRoundRect(
-	position,
-	size,
-	cornerRadius,
-	color,
-	alpha
-);
+const createRect = () => io.BorderedRoundRect(position, size, cornerRadius, color, alpha);
 
 const createLabel = () => {
-	const text = io.Text(
-		label,
-		textStyle
-	);
+	const text = io.Text(label, textStyle);
 
-	io.SetPosition(text, position)
+	io.SetPosition(text, position);
 
 	io.Centralize(text);
 
 	return text;
-}
+};

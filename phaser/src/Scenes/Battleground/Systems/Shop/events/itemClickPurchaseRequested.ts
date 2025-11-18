@@ -13,26 +13,20 @@ export async function itemClickPurchaseRequested(
 	shopUnitData: Unit,
 	shopCharaId: string,
 	dragStartX: number,
-	dragStartY: number,
+	dragStartY: number
 ): Promise<void> {
-
-	const handlePurchaseFailure = (
-		reason: string,
-		cost?: number
-	) => {
-		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), Geometry.vec2(
-			dragStartX,
-			dragStartY,
-		));
-
-		uiEvents.onPurchaseFailed(
-			shopUnitData.name,
-			reason,
-			cost
+	const handlePurchaseFailure = (reason: string, cost?: number) => {
+		charaEvents.onShopPurchaseFailed(
+			getCharaById(shopCharaId),
+			Geometry.vec2(dragStartX, dragStartY)
 		);
+
+		uiEvents.onPurchaseFailed(shopUnitData.name, reason, cost);
 	};
 
-	const existingUnit = getState().gameData.player.units.find(u => u.cardId === shopUnitData.cardId);
+	const existingUnit = getState().gameData.player.units.find(
+		(u) => u.cardId === shopUnitData.cardId
+	);
 
 	if (existingUnit && existingUnit.rank <= 3) {
 		await upgrade(existingUnit);
@@ -50,7 +44,9 @@ export async function itemClickPurchaseRequested(
 	}
 
 	const targetTile = Board.getEmptySlot(
-		getState().gameData.player.units, constants.FORCE_ID_PLAYER);
+		getState().gameData.player.units,
+		constants.FORCE_ID_PLAYER
+	);
 	if (!targetTile) {
 		handlePurchaseFailure("NO_EMPTY_SLOT");
 		return;
@@ -66,5 +62,3 @@ export async function itemClickPurchaseRequested(
 	await ShopUI.slideOut();
 	handlePhaseEnded();
 }
-
-

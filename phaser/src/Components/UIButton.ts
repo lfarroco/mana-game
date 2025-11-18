@@ -8,17 +8,17 @@ export type Button = {
 	disable: () => void;
 	enable: () => void;
 	container: Container;
-	text: Phaser.GameObjects.Text
-}
+	text: Phaser.GameObjects.Text;
+};
 
 type State = {
-	size: Size,
+	size: Size;
 	magic: MagicOverlayHandle;
 	isPressed: boolean;
 	magicIntensity: number;
 	container: Container;
 	graphics: Phaser.GameObjects.Graphics;
-}
+};
 
 const buttonsIndex = new WeakMap<Container, State>();
 
@@ -31,7 +31,7 @@ const textStyle = {
 	color: "#ffffff",
 	stroke: "#000000",
 	strokeThickness: 3,
-}
+};
 
 export function createUIButton(
 	text: string,
@@ -39,28 +39,21 @@ export function createUIButton(
 	callback: () => void,
 	width?: number
 ): Button {
-
 	const size = {
 		width: width || 280,
-		height: buttonHeight
-	}
+		height: buttonHeight,
+	};
 	const container = io.Container();
 
 	const magic = createMagicButtonOverlay(position, size);
 
-	const buttonGraphics = io.BorderedRoundRect(
-		position,
-		size,
-		cornerRadius,
-		backgroundColor,
-		1
-	);
+	const buttonGraphics = io.BorderedRoundRect(position, size, cornerRadius, backgroundColor, 1);
 
 	io.SetInteractiveRect(size)(buttonGraphics);
 
 	const buttonText = io.Text(text, textStyle);
 	io.SetPosition(buttonText, position);
-	io.Centralize(buttonText)
+	io.Centralize(buttonText);
 
 	io.AddChildren(container, [buttonGraphics, magic.shader, buttonText]);
 
@@ -111,7 +104,7 @@ export function createUIButton(
 		magicIntensity: 0.45,
 		magic,
 		container,
-		graphics: buttonGraphics
+		graphics: buttonGraphics,
 	};
 
 	buttonsIndex.set(container, state);
@@ -125,8 +118,7 @@ export function createUIButton(
 }
 
 export function disableUIButton(state: State) {
-
-	io.SetAlpha(state.graphics, 0.5)
+	io.SetAlpha(state.graphics, 0.5);
 
 	io.DisableInteractive(state.graphics);
 
@@ -134,8 +126,7 @@ export function disableUIButton(state: State) {
 }
 
 export function enableUIButton(state: State) {
-
-	io.SetAlpha(state.graphics, 1)
+	io.SetAlpha(state.graphics, 1);
 
 	io.SetInteractiveRect(state.size)(state.graphics);
 

@@ -10,49 +10,48 @@ export type OrbSpec = {
 	color: number;
 	tooltip: string;
 	// return false to indicate the effect was not applied and the orb should return
-	effect: (unit: Unit) => boolean
+	effect: (unit: Unit) => boolean;
 };
 
 const generateReactionOrb = () => {
-
-	const reactionSourceEffects = ["shield", "heal", "haste", "damage", "slow", "regen", "poison"]
+	const reactionSourceEffects = ["shield", "heal", "haste", "damage", "slow", "regen", "poison"];
 
 	const positions = [
 		{
 			power: 2,
-			source: TriggerSystem.EFFECT_SOURCE_POSITIONS.column_allies
+			source: TriggerSystem.EFFECT_SOURCE_POSITIONS.column_allies,
 		},
 		{
 			power: 2,
-			source: TriggerSystem.EFFECT_SOURCE_POSITIONS.row_allies
+			source: TriggerSystem.EFFECT_SOURCE_POSITIONS.row_allies,
 		},
 		{
 			power: 6,
-			source: TriggerSystem.EFFECT_SOURCE_POSITIONS.left_ally
+			source: TriggerSystem.EFFECT_SOURCE_POSITIONS.left_ally,
 		},
 		{
 			power: 6,
-			source: TriggerSystem.EFFECT_SOURCE_POSITIONS.right_ally
+			source: TriggerSystem.EFFECT_SOURCE_POSITIONS.right_ally,
 		},
 		{
 			power: 6,
-			source: TriggerSystem.EFFECT_SOURCE_POSITIONS.top_ally
+			source: TriggerSystem.EFFECT_SOURCE_POSITIONS.top_ally,
 		},
 		{
 			power: 6,
-			source: TriggerSystem.EFFECT_SOURCE_POSITIONS.bottom_ally
+			source: TriggerSystem.EFFECT_SOURCE_POSITIONS.bottom_ally,
 		},
 	];
 
-	const effect = pickOne(reactionSourceEffects)
+	const effect = pickOne(reactionSourceEffects);
 	const position = pickOne(positions);
 	const resulttingEffData = {
-		"id": "increase_power",
-		"amount": position.power,
-		"targets": {
-			"id": "self"
-		}
-	}
+		id: "increase_power",
+		amount: position.power,
+		targets: {
+			id: "self",
+		},
+	};
 
 	const resultingEffect = {
 		id: "reaction_orb",
@@ -60,18 +59,17 @@ const generateReactionOrb = () => {
 		data: {
 			effectId: effect,
 			position: position.source as TriggerSystem.EffectSourcePosition,
-			effects: [
-				resulttingEffData
-			]
-		} as TriggerSystem.EffectReaction
-	}
+			effects: [resulttingEffData],
+		} as TriggerSystem.EffectReaction,
+	};
 
 	return {
 		id: "reaction_orb",
 		name: "Reaction Orb: " + effect,
 		color: 0xffcc00,
-		tooltip: [`Adds ${getReactionDescription(resultingEffect.data, resultingEffect.referencePower)}`,
-			"A unit can have just one reaction (⚡)"
+		tooltip: [
+			`Adds ${getReactionDescription(resultingEffect.data, resultingEffect.referencePower)}`,
+			"A unit can have just one reaction (⚡)",
 		].join("\n"),
 		effect: (unit: Unit) => {
 			return setReaction(unit, {
@@ -79,20 +77,19 @@ const generateReactionOrb = () => {
 				position: position.source,
 				effects: [
 					{
-						"id": "increase_power",
-						"amount": position.power,
-						"targets": {
-							"id": "self"
-						}
-					}
-				]
+						id: "increase_power",
+						amount: position.power,
+						targets: {
+							id: "self",
+						},
+					},
+				],
 			});
-		}
-	}
-}
+		},
+	};
+};
 
 const generateSkillPowerUpOrb = () => {
-
 	const powerTargetEffects = ["heal", "damage", "shield", "regen", "poison"];
 
 	const effectId = pickOne(powerTargetEffects);
@@ -105,20 +102,19 @@ const generateSkillPowerUpOrb = () => {
 		tooltip: [
 			`[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]+power[/color] [color=#ffd93d]+${amount}[/color]`,
 			`[color=#c0c0c0]Condition:[/color] [color=#ffa94d]Unit must have effect '${effectId}'[/color]`,
-		].join('\n'),
+		].join("\n"),
 		effect: (unit: Unit) => {
-			if (!unit.effects.some(e => e.id === effectId)) return false;
+			if (!unit.effects.some((e) => e.id === effectId)) return false;
 			increasePower([unit], amount, false);
 			return true;
-		}
-	}
-
-}
+		},
+	};
+};
 
 const generateChargeReactionOrb = () => {
 	const reactionSourceEffects = ["shield", "heal", "haste", "damage", "slow", "regen", "poison"];
 
-	const positions: Array<{ amount: number; source: TriggerSystem.EffectSourcePosition; }> = [
+	const positions: Array<{ amount: number; source: TriggerSystem.EffectSourcePosition }> = [
 		{ amount: 400, source: TriggerSystem.EFFECT_SOURCE_POSITIONS.column_allies },
 		{ amount: 400, source: TriggerSystem.EFFECT_SOURCE_POSITIONS.row_allies },
 		{ amount: 900, source: TriggerSystem.EFFECT_SOURCE_POSITIONS.left_ally },
@@ -137,9 +133,9 @@ const generateChargeReactionOrb = () => {
 			{
 				id: "charge",
 				duration: position.amount,
-				targets: { id: "self" }
-			}
-		]
+				targets: { id: "self" },
+			},
+		],
 	};
 
 	return {
@@ -148,13 +144,13 @@ const generateChargeReactionOrb = () => {
 		color: 0xffe066,
 		tooltip: [
 			`Adds ${getReactionDescription(reactionData, position.amount)}`,
-			"A unit can have just one reaction (⚡)"
+			"A unit can have just one reaction (⚡)",
 		].join("\n"),
 		effect: (unit: Unit) => {
 			return setReaction(unit, reactionData);
-		}
+		},
 	};
-}
+};
 
 // Orb effect functions (pure)
 function crimsonOrbEffect(unit: Unit) {
@@ -175,7 +171,7 @@ function addEffectSafely(unit: Unit, effect: TriggerSystem.Effect) {
 function canAddEffect(unit: Unit) {
 	const totalEffects = unit.effects.length;
 	const totalReactions = unit.reactions.length;
-	return (totalEffects + totalReactions) < 3;
+	return totalEffects + totalReactions < 3;
 }
 
 function canAddReaction(unit: Unit) {
@@ -192,13 +188,16 @@ function setReaction(unit: Unit, reaction: TriggerSystem.EffectReaction) {
 }
 
 // Orb specs as plain data (lookup object)
-export const orbsIndex: Record<string, () => {
-	id: string;
-	name: string;
-	color: number;
-	tooltip: string;
-	effect: (unit: Unit) => boolean;
-}> = {
+export const orbsIndex: Record<
+	string,
+	() => {
+		id: string;
+		name: string;
+		color: number;
+		tooltip: string;
+		effect: (unit: Unit) => boolean;
+	}
+> = {
 	crimson_orb: () => ({
 		id: "crimson_orb",
 		name: "Crimson Orb",
@@ -207,7 +206,7 @@ export const orbsIndex: Record<string, () => {
 			"[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]+power[/color] [color=#ffd93d]+5[/color]",
 			"[color=#c0c0c0]Target:[/color] [color=#e0e0e0]Any unit[/color]",
 		].join("\n"),
-		effect: crimsonOrbEffect
+		effect: crimsonOrbEffect,
 	}),
 	emerald_orb: generateSkillPowerUpOrb,
 	azure_orb: () => ({
@@ -218,7 +217,7 @@ export const orbsIndex: Record<string, () => {
 		effect: (unit: Unit) => {
 			unit.cooldown = Math.max(1000, unit.cooldown - 200);
 			return true;
-		}
+		},
 	}),
 	golden_orb: generateReactionOrb,
 	violet_orb: () => ({
@@ -229,14 +228,13 @@ export const orbsIndex: Record<string, () => {
 		effect: (unit: Unit) => {
 			unit.reactions = [];
 			return true;
-		}
+		},
 	}),
 	charge_orb: generateChargeReactionOrb,
 	positional_power_orb: generatePositionalPowerOrb,
 	positional_skill_power_orb: generatePositionalSkillPowerOrb,
 	positional_typed_power_orb: generatePositionalTypedPowerOrb,
 };
-
 
 // Increase X Power to some_position (x depends on position generality)
 function generatePositionalPowerOrb() {
@@ -248,13 +246,13 @@ function generatePositionalPowerOrb() {
 		amount: number;
 		label: string;
 	}> = [
-			{ target: { id: "row_allies" }, amount: 2, label: "Row Allies" },
-			{ target: { id: "column_allies" }, amount: 2, label: "Column Allies" },
-			{ target: { id: "left_ally" }, amount: 6, label: "Left Ally" },
-			{ target: { id: "right_ally" }, amount: 6, label: "Right Ally" },
-			{ target: { id: "top_ally" }, amount: 6, label: "Top Ally" },
-			{ target: { id: "bottom_ally" }, amount: 6, label: "Bottom Ally" },
-		];
+		{ target: { id: "row_allies" }, amount: 2, label: "Row Allies" },
+		{ target: { id: "column_allies" }, amount: 2, label: "Column Allies" },
+		{ target: { id: "left_ally" }, amount: 6, label: "Left Ally" },
+		{ target: { id: "right_ally" }, amount: 6, label: "Right Ally" },
+		{ target: { id: "top_ally" }, amount: 6, label: "Top Ally" },
+		{ target: { id: "bottom_ally" }, amount: 6, label: "Bottom Ally" },
+	];
 
 	const choice = pickOne(options);
 
@@ -272,8 +270,8 @@ function generatePositionalPowerOrb() {
 				amount: choice.amount,
 				targets: choice.target,
 			});
-		}
-	}
+		},
+	};
 }
 
 // Increase X Power to some_position, but only if the unit has a randomized effect type (damage/heal/shield/regen/poison)
@@ -288,13 +286,13 @@ function generatePositionalSkillPowerOrb() {
 		amount: number;
 		label: string;
 	}> = [
-			{ target: { id: "row_allies" }, amount: 2, label: "↔️" },
-			{ target: { id: "column_allies" }, amount: 2, label: "↕️" },
-			{ target: { id: "left_ally" }, amount: 6, label: "⬅️" },
-			{ target: { id: "right_ally" }, amount: 6, label: "➡️" },
-			{ target: { id: "top_ally" }, amount: 6, label: "⬆️" },
-			{ target: { id: "bottom_ally" }, amount: 6, label: "⬇️" },
-		];
+		{ target: { id: "row_allies" }, amount: 2, label: "↔️" },
+		{ target: { id: "column_allies" }, amount: 2, label: "↕️" },
+		{ target: { id: "left_ally" }, amount: 6, label: "⬅️" },
+		{ target: { id: "right_ally" }, amount: 6, label: "➡️" },
+		{ target: { id: "top_ally" }, amount: 6, label: "⬆️" },
+		{ target: { id: "bottom_ally" }, amount: 6, label: "⬇️" },
+	];
 
 	const choice = pickOne(options);
 
@@ -308,14 +306,14 @@ function generatePositionalSkillPowerOrb() {
 			`[color=#c0c0c0]Condition:[/color] [color=#ffa94d]Caster of type '${effectId}'[/color]`,
 		].join("\n"),
 		effect: (unit: Unit) => {
-			if (!((unit.effects || []).some(e => e.id === effectId))) return false;
+			if (!(unit.effects || []).some((e) => e.id === effectId)) return false;
 			return addEffectSafely(unit, {
 				id: "increase_power",
 				amount: choice.amount,
 				targets: choice.target,
 			});
-		}
-	}
+		},
+	};
 }
 
 // Increase X Power to some_position only for units that HAVE a specific randomized effect type
@@ -330,13 +328,13 @@ function generatePositionalTypedPowerOrb() {
 		amount: number;
 		label: string;
 	}> = [
-			{ target: { id: "row_allies" }, amount: 2, label: "↔️" },
-			{ target: { id: "column_allies" }, amount: 2, label: "↕️" },
-			{ target: { id: "left_ally" }, amount: 6, label: "⬅️" },
-			{ target: { id: "right_ally" }, amount: 6, label: "➡️" },
-			{ target: { id: "top_ally" }, amount: 6, label: "⬆️" },
-			{ target: { id: "bottom_ally" }, amount: 6, label: "⬇️" },
-		];
+		{ target: { id: "row_allies" }, amount: 2, label: "↔️" },
+		{ target: { id: "column_allies" }, amount: 2, label: "↕️" },
+		{ target: { id: "left_ally" }, amount: 6, label: "⬅️" },
+		{ target: { id: "right_ally" }, amount: 6, label: "➡️" },
+		{ target: { id: "top_ally" }, amount: 6, label: "⬆️" },
+		{ target: { id: "bottom_ally" }, amount: 6, label: "⬇️" },
+	];
 
 	const choice = pickOne(options);
 
@@ -356,6 +354,6 @@ function generatePositionalTypedPowerOrb() {
 				targets: choice.target,
 				targetEffectId: effectId,
 			} as any);
-		}
-	}
+		},
+	};
 }

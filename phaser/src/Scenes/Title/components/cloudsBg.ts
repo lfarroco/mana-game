@@ -2,6 +2,6 @@ import { CloudsBackground } from "../../../Components/cloudBackground/CloudsBack
 
 export function cloudsBg() {
 	new CloudsBackground({
-		preset: 'nebula',
+		preset: "nebula",
 	});
 }

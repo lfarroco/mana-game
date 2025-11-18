@@ -14,7 +14,7 @@ type PoisonState = {
 	rate: number;
 	accumulator: number;
 	sourceContributions?: Map<string, number>;
-}
+};
 
 const poisonStates: Map<string, PoisonState> = new Map();
 
@@ -27,7 +27,12 @@ export function initialize(): void {
 	});
 }
 
-export function applyPoison(targetForce: Force, amount: number, sourceUnitId?: string, isCritical = false): void {
+export function applyPoison(
+	targetForce: Force,
+	amount: number,
+	sourceUnitId?: string,
+	isCritical = false
+): void {
 	if (amount <= 0) return;
 	const id = targetForce.id;
 	let state = poisonStates.get(id);
@@ -50,7 +55,7 @@ export function applyPoison(targetForce: Force, amount: number, sourceUnitId?: s
 		y: coreChara.y,
 		text: isCritical ? `${amount} Crit!` : Math.floor(amount).toString(),
 		type: "poison",
-		critical: isCritical
+		critical: isCritical,
 	});
 
 	updatePoisonDisplay(targetForce.id, state.rate);
@@ -66,18 +71,18 @@ function tickForce(force: Force): void {
 	const state = poisonStates.get(id);
 	if (!state) return;
 	const damage = Math.floor(state.accumulator + state.rate);
-	state.accumulator = (state.accumulator + state.rate) - damage;
+	state.accumulator = state.accumulator + state.rate - damage;
 	if (damage <= 0) return;
 	applyDamageToForce(force, damage, 0, "poison", false);
 
 	const contribs = state.sourceContributions;
 	if (contribs) {
 		let totalContrib = 0;
-		contribs.forEach(v => totalContrib += v);
+		contribs.forEach((v) => (totalContrib += v));
 		if (totalContrib > 0) {
 			contribs.forEach((v, s) => {
 				const share = (v / totalContrib) * damage;
-				CombatStatsTracker.trackDamage(s, share, 'poison');
+				CombatStatsTracker.trackDamage(s, share, "poison");
 			});
 		}
 	}
@@ -91,7 +96,7 @@ export function reducePoison(forceId: string, healAmount: number): void {
 	state.rate -= reduction;
 	// Scale down contributions proportionally to keep ratios
 	const contribs = state.sourceContributions;
-	if (contribs && state.rate > 0 && (state.rate - reduction) > 0) {
+	if (contribs && state.rate > 0 && state.rate - reduction > 0) {
 		const newRate = state.rate - reduction;
 		contribs.forEach((v, k) => {
 			const scaled = (v / state.rate) * newRate;

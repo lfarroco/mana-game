@@ -9,21 +9,20 @@ import { CloudsBackground } from "../../../Components/cloudBackground/CloudsBack
 export let cloudsBackground: CloudsBackground | null = null;
 
 export function initializeNewGame(): void {
-
 	const state = getState();
 
 	state.gameData.player.units = [];
 	state.gameData.round = 1;
 	state.gameData.player.prestige = BG_CONSTANTS.INITIAL_PLAYER_PRESTIGE;
 
-	scene.sound.setVolume(getOption('soundVolume') ?? BG_CONSTANTS.DEFAULT_SCENE_SOUND_VOLUME);
+	scene.sound.setVolume(getOption("soundVolume") ?? BG_CONSTANTS.DEFAULT_SCENE_SOUND_VOLUME);
 }
 
 export function setupSceneElements() {
 	cloudsBackground = new CloudsBackground({
-		preset: 'forest',
+		preset: "forest",
 		depth: -2000,
-		timeScale: 0.3
+		timeScale: 0.3,
 	});
 
 	scene.cloudsBackground = cloudsBackground.getShader() as any;

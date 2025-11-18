@@ -1,7 +1,6 @@
 import { tween } from "@Utils/animation";
 import { getCharaById, mustGetState } from "../Chara";
 
-
 export async function pop(id: string) {
 	const chara = getCharaById(id);
 	const s = mustGetState(chara);

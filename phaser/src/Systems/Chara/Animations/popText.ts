@@ -17,7 +17,7 @@ const CONFIG = {
 		SHIELD: "yellow",
 		POISON: "#9932cc",
 		TIMEOUT: "#ff8c00",
-	}
+	},
 };
 
 export async function popText({
@@ -26,7 +26,7 @@ export async function popText({
 	text,
 	type,
 	direction = "up",
-	critical = false
+	critical = false,
 }: {
 	x: number;
 	y: number;
@@ -50,14 +50,11 @@ export async function popText({
 		textColor = CONFIG.COLORS.REGEN;
 	}
 
-	const popText = scene.add.text(
-		x, y,
-		text,
-		{
+	const popText = scene.add
+		.text(x, y, text, {
 			...titleTextConfig,
-			...(critical ? { fontSize: 50 } : {})
-		}
-	)
+			...(critical ? { fontSize: 50 } : {}),
+		})
 		.setOrigin(0.5, 0.5);
 	if (textColor) popText.setColor(textColor);
 
@@ -65,17 +62,19 @@ export async function popText({
 	const angle = Math.random() * CONFIG.MAX_ANGLE * (Math.random() < 0.5 ? -1 : 1);
 
 	// Calculate vertical movement based on direction
-	const verticalMovement = direction === "down"
-		? CONFIG.VERTICAL_DISTANCE  // Move down (positive Y)
-		: direction === "up"
-			? -CONFIG.VERTICAL_DISTANCE // Move up (negative Y)
-			: 0;
+	const verticalMovement =
+		direction === "down"
+			? CONFIG.VERTICAL_DISTANCE // Move down (positive Y)
+			: direction === "up"
+				? -CONFIG.VERTICAL_DISTANCE // Move up (negative Y)
+				: 0;
 
-	const horizontalMovement = direction === "left"
-		? -CONFIG.HORIZONTAL_SPREAD // Move left (negative X)
-		: direction === "right"
-			? CONFIG.HORIZONTAL_SPREAD // Move right (positive X)
-			: 0;
+	const horizontalMovement =
+		direction === "left"
+			? -CONFIG.HORIZONTAL_SPREAD // Move left (negative X)
+			: direction === "right"
+				? CONFIG.HORIZONTAL_SPREAD // Move right (positive X)
+				: 0;
 
 	tween({
 		targets: [popText],
@@ -83,13 +82,13 @@ export async function popText({
 		duration: CONFIG.MOVE_DURATION,
 		y: y + verticalMovement,
 		// in the angle direction
-		x: x + Math.sin(angle * Math.PI / 180) * CONFIG.HORIZONTAL_SPREAD + horizontalMovement,
+		x: x + Math.sin((angle * Math.PI) / 180) * CONFIG.HORIZONTAL_SPREAD + horizontalMovement,
 	});
 	await tween({
 		targets: [popText],
 		delay: CONFIG.FADE_DELAY,
 		alpha: 0,
-		duration: CONFIG.FADE_DURATION
+		duration: CONFIG.FADE_DURATION,
 	});
 
 	popText.destroy();

@@ -14,12 +14,11 @@ type StatsDisplay = {
 	shieldDisplayBg: Graphics;
 	shieldDisplay: Phaser.GameObjects.Text;
 	unit: Unit;
-}
+};
 
 const statsDisplayMap = new Map<string, StatsDisplay>();
 
 export function create(unit: Unit, container: Chara) {
-
 	const shieldDisplayBg = scene.add.graphics();
 
 	const boxWidth = constants.TILE_WIDTH * BOX_WIDTH_RATIO;
@@ -35,17 +34,22 @@ export function create(unit: Unit, container: Chara) {
 	shieldDisplayBg
 		.fillStyle(0xffff00, 1)
 		.fillRoundedRect(
-			shieldDisplayPosition[0], shieldDisplayPosition[1],
-			boxWidth, boxHeight,
+			shieldDisplayPosition[0],
+			shieldDisplayPosition[1],
+			boxWidth,
+			boxHeight,
 			cornerRadius
 		);
 
-	const shieldDisplay = scene.add.text(
-		shieldDisplayPosition[0] + boxWidth / 2,
-		shieldDisplayPosition[1] + boxHeight / 2,
-		"0",
-		constants.defaultTextConfig
-	).setOrigin(0.5).setAlign('center');
+	const shieldDisplay = scene.add
+		.text(
+			shieldDisplayPosition[0] + boxWidth / 2,
+			shieldDisplayPosition[1] + boxHeight / 2,
+			"0",
+			constants.defaultTextConfig
+		)
+		.setOrigin(0.5)
+		.setAlign("center");
 
 	container.add([shieldDisplayBg, shieldDisplay]);
 
@@ -56,7 +60,7 @@ export function create(unit: Unit, container: Chara) {
 	});
 
 	container.on(Phaser.GameObjects.Events.DESTROY, () => {
-		statsDisplayMap.delete(unit.id)
+		statsDisplayMap.delete(unit.id);
 	});
 
 	updateShieldDisplay(unit.id);
@@ -65,9 +69,9 @@ export function create(unit: Unit, container: Chara) {
 export function updateShieldDisplay(id: string) {
 	let stats = statsDisplayMap.get(id);
 	if (!stats) {
-		create(getState().battleData.units.find(u => u.id === id)! as Unit, getCharaById(id));
+		create(getState().battleData.units.find((u) => u.id === id)! as Unit, getCharaById(id));
 		return;
-	};
+	}
 
 	stats.shieldDisplay.setText(stats.unit.shield.toString());
 }

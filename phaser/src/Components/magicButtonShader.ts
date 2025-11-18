@@ -1,5 +1,5 @@
-import * as io from '@PhaserIO';
-import Phaser from 'phaser';
+import * as io from "@PhaserIO";
+import Phaser from "phaser";
 
 // Fragment shader: sine-wave nebula clouds with varying amplitude
 const fragShader = `
@@ -75,34 +75,24 @@ export type MagicOverlayHandle = {
 	setIntensity: (v: number) => void;
 };
 
-export function createMagicButtonOverlay(
-	position: Vec2,
-	size: Size,
-): MagicOverlayHandle {
-
+export function createMagicButtonOverlay(position: Vec2, size: Size): MagicOverlayHandle {
 	const { width, height } = size;
 
-	const shader = io.Shader(
-		fragShader,
-		position,
-		size,
-		[
-			{ key: 'time', type: '1f', value: 0 },
-			{ key: 'resolution', type: '2f', value: [width, height] },
-			{ key: 'intensity', type: '1f', value: 0.6 },
-		]);
+	const shader = io.Shader(fragShader, position, size, [
+		{ key: "time", type: "1f", value: 0 },
+		{ key: "resolution", type: "2f", value: [width, height] },
+		{ key: "intensity", type: "1f", value: 0.6 },
+	]);
 
 	io.Centralize(shader);
 
 	io.OnUpdate(shader, (t) => {
-		io.SetUniform(shader, 'time.value', t);
+		io.SetUniform(shader, "time.value", t);
 	});
 
 	const setIntensity = (v: number) => {
-		io.SetUniform(shader, 'intensity.value', v);
+		io.SetUniform(shader, "intensity.value", v);
 	};
 
 	return { shader, setIntensity };
 }
-
-

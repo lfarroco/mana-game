@@ -12,7 +12,7 @@ import { Tabs } from "./components/Model";
 
 export const LAYOUT = {
 	TITLE_Y: 40,
-	TITLE_FONT_SIZE: '48px',
+	TITLE_FONT_SIZE: "48px",
 	BACK_BUTTON_Y: 950,
 
 	TAB_BUTTON_Y: 120,
@@ -42,12 +42,11 @@ export const BUTTONS = {
 } as const;
 
 export const STYLES = {
-	VALUE_TEXT_COLOR: '#FFD700',
+	VALUE_TEXT_COLOR: "#FFD700",
 } as const;
 
 export default class OptionsScene extends Phaser.Scene {
 	cloudsBackground!: CloudsBackground;
-
 
 	constructor() {
 		super(constants.SCENE_KEYS.OPTIONS);
@@ -56,7 +55,7 @@ export default class OptionsScene extends Phaser.Scene {
 	create() {
 		setCurrentScene(this);
 
-		this.cloudsBackground = new CloudsBackground({ preset: 'aurora' });
+		this.cloudsBackground = new CloudsBackground({ preset: "aurora" });
 
 		optionsLabel();
 
@@ -66,7 +65,6 @@ export default class OptionsScene extends Phaser.Scene {
 
 		backButton();
 
-		this.input.keyboard?.on('keydown-ESC', returnToTitle);
+		this.input.keyboard?.on("keydown-ESC", returnToTitle);
 	}
 }
-

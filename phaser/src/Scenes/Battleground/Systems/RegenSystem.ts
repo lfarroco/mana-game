@@ -15,7 +15,7 @@ type RegenState = {
 	rate: number;
 	accumulator: number;
 	sourceContributions?: Map<string, number>;
-}
+};
 
 const regenStates: Map<string, RegenState> = new Map();
 
@@ -55,7 +55,7 @@ export function applyRegen(
 		y: coreChara.y,
 		text: critical ? `${amount} Crit!` : Math.floor(amount).toString(),
 		type: "regen",
-		critical
+		critical,
 	});
 
 	updateRegenDisplay(targetForce.id, state.rate);
@@ -71,7 +71,7 @@ function tickForce(force: Force): void {
 	const state = regenStates.get(id);
 	if (!state) return;
 	const healing = Math.floor(state.accumulator + state.rate);
-	state.accumulator = (state.accumulator + state.rate) - healing;
+	state.accumulator = state.accumulator + state.rate - healing;
 	if (healing <= 0) return;
 
 	const actualHealing = manipulateCoreLife(force, healing);
@@ -80,11 +80,11 @@ function tickForce(force: Force): void {
 	const contribs = state.sourceContributions;
 	if (contribs && actualHealing > 0) {
 		let totalContrib = 0;
-		contribs.forEach(v => totalContrib += v);
+		contribs.forEach((v) => (totalContrib += v));
 		if (totalContrib > 0) {
 			contribs.forEach((v, s) => {
 				const share = (v / totalContrib) * actualHealing;
-				CombatStatsTracker.trackHealing(s, share, 'regen');
+				CombatStatsTracker.trackHealing(s, share, "regen");
 			});
 		}
 	}
@@ -101,7 +101,7 @@ function tickForce(force: Force): void {
 		y: coreChara.y,
 		text: healing.toString(),
 		type: "regen",
-	})
+	});
 }
 
 export function clearRegen(forceId: string) {

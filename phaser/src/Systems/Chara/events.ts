@@ -1,4 +1,4 @@
-import { SHOP_ITEM_PURCHASE_COST } from "@Constants/constants"
+import { SHOP_ITEM_PURCHASE_COST } from "@Constants/constants";
 import * as Chara from "./Chara";
 import { hideTooltip } from "@Components/Tooltip";
 import { tween } from "@Utils/animation";
@@ -21,5 +21,5 @@ export const onShopPurchaseFailed = (chara: Chara.Chara, vec: Vec2) => {
 
 export function onShopPurchaseSuccesful(_chara: Chara.Chara) {
 	hideTooltip();
-	playSoundEffect('sfx_artifact_equipweapon');
+	playSoundEffect("sfx_artifact_equipweapon");
 }

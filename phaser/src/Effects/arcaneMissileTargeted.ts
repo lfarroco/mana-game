@@ -1,7 +1,7 @@
-import { EnergyBeam } from './EnergyBeam';
-import { images } from '../assets';
-import { delay } from '../Utils/animation';
-import { getCurrentScene } from '@Models/State';
+import { EnergyBeam } from "./EnergyBeam";
+import { images } from "../assets";
+import { delay } from "../Utils/animation";
+import { getCurrentScene } from "@Models/State";
 
 export interface TargetedArcaneMissileOptions {
 	colors?: number[];
@@ -26,10 +26,9 @@ export async function arcaneMissileTargeted(
 	target: { x: number; y: number },
 	options: TargetedArcaneMissileOptions = {}
 ): Promise<void> {
-
 	const scene = getCurrentScene();
 	const {
-		colors = [0x00FFFF, 0x87CEEB, 0xADD8E6], // Light blue neon colors
+		colors = [0x00ffff, 0x87ceeb, 0xadd8e6], // Light blue neon colors
 		amplitudeMin = 5,
 		amplitudeMax = 15,
 		frequencyMin = 1,
@@ -37,13 +36,13 @@ export async function arcaneMissileTargeted(
 		particleScale = 1.5,
 		speedMultiplier = 2,
 		impact = {
-			colors: [0x00FFFF, 0x87CEEB],
+			colors: [0x00ffff, 0x87ceeb],
 			scale: 2,
 			speed: 200,
 			lifespan: 300,
-			alpha: 0.4
+			alpha: 0.4,
 		},
-		onHit = () => { }
+		onHit = () => {},
 	} = options;
 
 	const duration = 200;
@@ -51,7 +50,8 @@ export async function arcaneMissileTargeted(
 	const distance = Phaser.Math.Distance.BetweenPoints(source, target);
 
 	const positiveOrNegative = Math.random() > 0.5 ? 1 : -1;
-	const amplitude = (Math.random() * (amplitudeMax - amplitudeMin) + amplitudeMin) * positiveOrNegative;
+	const amplitude =
+		(Math.random() * (amplitudeMax - amplitudeMin) + amplitudeMin) * positiveOrNegative;
 	const frequency = Math.floor(Math.random() * (frequencyMax - frequencyMin + 1) + frequencyMin);
 
 	const beam = new EnergyBeam(scene, {
@@ -67,7 +67,7 @@ export async function arcaneMissileTargeted(
 	beam.updateBeam();
 	beam.setVisible(false);
 
-	const rectKey = 'arcane_missile_rect_big';
+	const rectKey = "arcane_missile_rect_big";
 	const rectWidth = 12;
 	const rectHeight = 12;
 	if (!scene.textures.exists(rectKey)) {
@@ -115,30 +115,26 @@ export async function arcaneMissileTargeted(
 				delay: 0,
 				x: sprite.x + (Math.random() - 0.5) * 40,
 				y: sprite.y + (Math.random() - 0.5) * 40,
-				ease: 'Cubic.easeIn',
+				ease: "Cubic.easeIn",
 			});
 		});
 	}
 
 	await delay(duration * speedMultiplier);
 
-	const impactParticles = scene.add.particles(
-		target.x, target.y,
-		images.white_dot.key,
-		{
-			speed: impact.speed || 200,
-			tint: impact.colors || [0x00FFFF, 0x87CEEB],
-			lifespan: impact.lifespan || 300,
-			alpha: { start: impact.alpha || 0.4, end: 0 },
-			scale: { start: impact.scale || 2, end: 0 },
-			blendMode: 'ADD',
-		}
-	);
+	const impactParticles = scene.add.particles(target.x, target.y, images.white_dot.key, {
+		speed: impact.speed || 200,
+		tint: impact.colors || [0x00ffff, 0x87ceeb],
+		lifespan: impact.lifespan || 300,
+		alpha: { start: impact.alpha || 0.4, end: 0 },
+		scale: { start: impact.scale || 2, end: 0 },
+		blendMode: "ADD",
+	});
 
 	try {
 		onHit();
 	} catch (error) {
-		console.error('Error in arcaneMissileTargeted onHit callback:', error);
+		console.error("Error in arcaneMissileTargeted onHit callback:", error);
 	}
 
 	await delay(200);
@@ -149,5 +145,5 @@ export async function arcaneMissileTargeted(
 
 	beam.destroy();
 	impactParticles.destroy();
-	segmentSprites.forEach(sprite => sprite.destroy());
+	segmentSprites.forEach((sprite) => sprite.destroy());
 }

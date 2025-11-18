@@ -15,11 +15,12 @@ export async function itemDragPurchaseRequested(
 	dragStartX: number,
 	dragStartY: number
 ) {
-	const existingUnit = getState().gameData.player.units.find(u => u.cardId === shopUnitData.cardId);
+	const existingUnit = getState().gameData.player.units.find(
+		(u) => u.cardId === shopUnitData.cardId
+	);
 
 	if (existingUnit && existingUnit.rank <= 3) {
-
-		upgrade(existingUnit)
+		upgrade(existingUnit);
 
 		charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
 
@@ -30,25 +31,15 @@ export async function itemDragPurchaseRequested(
 	}
 
 	if (getState().gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
-		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(
-			dragStartX, dragStartY
-		));
-		uiEvents.onPurchaseFailed(
-			shopUnitData.name,
-			"PARTY_FULL"
-		);
+		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(dragStartX, dragStartY));
+		uiEvents.onPurchaseFailed(shopUnitData.name, "PARTY_FULL");
 		return;
 	}
 
 	const occupier = getUnitAt(getState().gameData.player.units)(targetTile);
 	if (occupier) {
-		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(
-			dragStartX, dragStartY
-		));
-		uiEvents.onPurchaseFailed(
-			shopUnitData.name,
-			"SLOT_OCCUPIED"
-		);
+		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(dragStartX, dragStartY));
+		uiEvents.onPurchaseFailed(shopUnitData.name, "SLOT_OCCUPIED");
 		return;
 	}
 
@@ -59,6 +50,6 @@ export async function itemDragPurchaseRequested(
 
 	charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
 
-	await ShopUI.slideOut()
+	await ShopUI.slideOut();
 	PhaseManager.handlePhaseEnded();
 }

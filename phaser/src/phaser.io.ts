@@ -13,22 +13,22 @@ export function MoveBelow(a: Phaser.GameObjects.GameObject, b: Phaser.GameObject
 }
 
 export function Container(
-	children?: (Phaser.GameObjects.GameObject | (() => Phaser.GameObjects.GameObject) | ((prev: Phaser.GameObjects.GameObject) => Phaser.GameObjects.GameObject)[])[]
+	children?: (
+		| Phaser.GameObjects.GameObject
+		| (() => Phaser.GameObjects.GameObject)
+		| ((prev: Phaser.GameObjects.GameObject) => Phaser.GameObjects.GameObject)[]
+	)[]
 ) {
 	const scene = getCurrentScene();
 	const container = scene.add.container();
 
 	if (children) {
-		const elements: Phaser.GameObjects.GameObject[] = []
+		const elements: Phaser.GameObjects.GameObject[] = [];
 
-		children.forEach(child => {
-
-			if (typeof child === 'function') {
-
+		children.forEach((child) => {
+			if (typeof child === "function") {
 				elements.push(child());
-
 			} else if (Array.isArray(child)) {
-
 				elements.push(
 					//@ts-ignore
 					child.reduce(
@@ -37,12 +37,9 @@ export function Container(
 						container
 					)
 				);
-
 			} else {
-
-				elements.push(child)
+				elements.push(child);
 			}
-
 		});
 		container.add(elements);
 	}
@@ -62,17 +59,20 @@ export function GetByName(container: Phaser.GameObjects.Container, name: string)
 export function SetText(obj: Phaser.GameObjects.Text, text: string) {
 	obj.setText(text);
 }
-export function AddChildren(container: Phaser.GameObjects.Container, children: Phaser.GameObjects.GameObject[]) {
-	container.add(children)
+export function AddChildren(
+	container: Phaser.GameObjects.Container,
+	children: Phaser.GameObjects.GameObject[]
+) {
+	container.add(children);
 }
 export function SetName(obj: Phaser.GameObjects.GameObject, name: string) {
 	obj.setName(name);
 }
 
-export const SetInteractiveRect = (size: Size) => (obj: Phaser.GameObjects.GameObject,) => {
+export const SetInteractiveRect = (size: Size) => (obj: Phaser.GameObjects.GameObject) => {
 	obj.setInteractive(Rect({ x: 0, y: 0 }, size), Phaser.Geom.Rectangle.Contains);
-	return obj
-}
+	return obj;
+};
 
 export function Rect(position: Vec2, size: Size) {
 	return new Phaser.Geom.Rectangle(position.x, position.y, size.width, size.height);
@@ -113,10 +113,10 @@ export function BorderedRoundRect(
 	size: Size,
 	cornerRadius: number = 10,
 	color: number = 0xffa500,
-	alpha: number = 0.7,
+	alpha: number = 0.7
 ) {
 	const scene = getCurrentScene();
-	const actualPos = sumVec2(position, { x: -size.width / 2, y: -size.height / 2 })
+	const actualPos = sumVec2(position, { x: -size.width / 2, y: -size.height / 2 });
 	const g = scene.add.graphics(actualPos);
 	g.lineStyle(2, 0xffffff, 0.5);
 	g.fillStyle(color, alpha);
@@ -134,29 +134,21 @@ export function Rectangle(
 	stroke?: boolean
 ) {
 	const scene = getCurrentScene();
-	const actualPos = sumVec2(position, { x: -size.width / 2, y: -size.height / 2 })
+	const actualPos = sumVec2(position, { x: -size.width / 2, y: -size.height / 2 });
 	const g = scene.add.graphics(actualPos);
 	g.lineStyle(4, 0xffffff, 0.8);
 	g.fillStyle(color, alpha);
 	g.fillRect(0, 0, size.width, size.height);
 
-	if (stroke)
-		g.strokeRect(0, 0, size.width, size.height);
+	if (stroke) g.strokeRect(0, 0, size.width, size.height);
 
 	return g;
 }
 
-export function RectangularDropZone(
-	name: string,
-	{ x, y }: Vec2,
-	{ width, height }: Size,
-) {
+export function RectangularDropZone(name: string, { x, y }: Vec2, { width, height }: Size) {
 	const scene = getCurrentScene();
 
-	const zone = scene.add.zone(
-		x, y,
-		width, height
-	);
+	const zone = scene.add.zone(x, y, width, height);
 
 	zone.setName(name);
 
@@ -171,32 +163,28 @@ export function Centralize(obj: Phaser.GameObjects.GameObject) {
 	return obj;
 }
 
-export function Text(
-	text: string,
-	style: Phaser.Types.GameObjects.Text.TextStyle
-) {
+export function Text(text: string, style: Phaser.Types.GameObjects.Text.TextStyle) {
 	const scene = getCurrentScene();
 	return scene.add.text(0, 0, text, style);
 }
 
-export function SetStyle(obj: Phaser.GameObjects.Text, style: Phaser.Types.GameObjects.Text.TextStyle) {
+export function SetStyle(
+	obj: Phaser.GameObjects.Text,
+	style: Phaser.Types.GameObjects.Text.TextStyle
+) {
 	obj.setStyle(style);
 }
-
 
 export function WhenDroppedOnZone(
 	obj: Phaser.GameObjects.GameObject,
 	target: string,
 	callback: (zone: Phaser.GameObjects.Zone) => void
 ) {
-	obj.on(
-		Phaser.Input.Events.DROP,
-		(_: Pointer, actual: Phaser.GameObjects.Zone) => {
-			if (target === actual.name) {
-				callback(actual);
-			}
+	obj.on(Phaser.Input.Events.DROP, (_: Pointer, actual: Phaser.GameObjects.Zone) => {
+		if (target === actual.name) {
+			callback(actual);
 		}
-	);
+	});
 }
 
 //buttonGraphics.on(Phaser.Input.Events.POINTER_DOWN, () => {
@@ -217,61 +205,61 @@ export function OnPointerOut(obj: Phaser.GameObjects.GameObject, callback: () =>
 }
 
 export function OnceDestroyed(obj: Phaser.GameObjects.GameObject, callback: () => void) {
-	obj.once("destroy", callback)
+	obj.once("destroy", callback);
 }
 
-export function OnUpdate(obj: Phaser.GameObjects.GameObject, callback: (time: number, delta: number) => void) {
+export function OnUpdate(
+	obj: Phaser.GameObjects.GameObject,
+	callback: (time: number, delta: number) => void
+) {
 	const scene = getCurrentScene();
 	scene.events.on(Phaser.Scenes.Events.UPDATE, callback);
 
 	OnceDestroyed(obj, () => {
 		scene.events.off(Phaser.Scenes.Events.UPDATE, callback);
-	})
+	});
 }
 
 export function Shader(
 	frag: string,
 	position: Vec2,
 	size: Size,
-	uniforms: ({
-		key: string;
-		type: '1f';
-		value: number;
-	} | {
-		key: string;
-		type: '2f';
-		value: [number, number];
-	} | {
-		key: string;
-		type: '3f';
-		value: [number, number, number];
-	})[]
+	uniforms: (
+		| {
+				key: string;
+				type: "1f";
+				value: number;
+		  }
+		| {
+				key: string;
+				type: "2f";
+				value: [number, number];
+		  }
+		| {
+				key: string;
+				type: "3f";
+				value: [number, number, number];
+		  }
+	)[]
 ): Phaser.GameObjects.Shader {
-
 	const scene = getCurrentScene();
 	const { x, y } = position;
 	const { width, height } = size;
 
-
-	let shaderUniforms = {} as any
-	uniforms.forEach(uniform => {
+	let shaderUniforms = {} as any;
+	uniforms.forEach((uniform) => {
 		shaderUniforms[uniform.key] = {
 			type: uniform.type,
-			value: uniform.type === "3f" ?
-				{ x: uniform.value[0], y: uniform.value[1], z: uniform.value[2] } :
-				uniform.type === "2f" ?
-					{ x: uniform.value[0], y: uniform.value[1] } :
-					uniform.value
+			value:
+				uniform.type === "3f"
+					? { x: uniform.value[0], y: uniform.value[1], z: uniform.value[2] }
+					: uniform.type === "2f"
+						? { x: uniform.value[0], y: uniform.value[1] }
+						: uniform.value,
+		};
+	});
 
-		}
-	})
-
-	const base = new Phaser.Display.BaseShader(
-		"magic-button",
-		frag,
-		undefined,
-		shaderUniforms
-	);
+	const base = new Phaser.Display.BaseShader("magic-button", frag, undefined, shaderUniforms);
 	const shader = scene.add.shader(base, x, y, width, height);
 	return shader;
 }
@@ -290,7 +278,6 @@ export function SetColor(text: Phaser.GameObjects.Text, color: string) {
 
 export function SetStroke(text: Phaser.GameObjects.Text, color: string, thickness: number) {
 	text.setStroke(color, thickness);
-
 }
 
 export async function Fade(duration: number, color: number) {
@@ -300,7 +287,7 @@ export async function Fade(duration: number, color: number) {
 		const r = (color >> 16) & 0xff;
 		const g = (color >> 8) & 0xff;
 		const b = color & 0xff;
-		scene.cameras.main.fade(duration, r, g, b)
+		scene.cameras.main.fade(duration, r, g, b);
 		scene.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, resolve);
 	});
 }

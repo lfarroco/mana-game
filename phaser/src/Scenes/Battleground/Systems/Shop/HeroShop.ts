@@ -18,7 +18,6 @@ export async function open() {
 	const tavernCardData = getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
 
 	const nextRoundCallback = async () => {
-
 		await close();
 		PhaseManager.handlePhaseEnded();
 	};
@@ -32,15 +31,16 @@ export async function open() {
 	Board.setEnemyBoardVisible(false);
 
 	await ShopPanel.slideIn();
-	currentShopCharas.forEach(chara => animateItemAppearance(chara));
+	currentShopCharas.forEach((chara) => animateItemAppearance(chara));
 }
 
 export async function openCoreShop() {
 	currentShopCharas = [];
 
 	const tavernCardData = pickRandom(
-		Card.getAllCards().filter(card => card.isCore),
-		sc.NUM_TAVERN_SLOTS)
+		Card.getAllCards().filter((card) => card.isCore),
+		sc.NUM_TAVERN_SLOTS
+	);
 
 	ShopPanel.create(null);
 
@@ -66,13 +66,10 @@ export function getShopCharaBySlot(slotIndex: number): Chara.Chara | null {
 }
 
 export function getDisplayedHeroCardDefinitions(): Card.CardDefinition[] {
-	return currentShopCharas.map(chara => Chara.getUnit(chara).cardId)
-		.map(Card.getCardDefinition);
+	return currentShopCharas.map((chara) => Chara.getUnit(chara).cardId).map(Card.getCardDefinition);
 }
 
-async function animateItemAppearance(
-	chara: Chara.Chara
-) {
+async function animateItemAppearance(chara: Chara.Chara) {
 	const targetScaleX = chara.scaleX;
 	const targetScaleY = chara.scaleY;
 
@@ -82,20 +79,30 @@ async function animateItemAppearance(
 		targets: [chara],
 		scaleX: targetScaleX,
 		scaleY: targetScaleY,
-		duration: sc.SHOP_ITEM_APPEAR_SCALE_DURATION
+		duration: sc.SHOP_ITEM_APPEAR_SCALE_DURATION,
 	});
 
 	scene.tweens.chain({
 		targets: chara,
 		tweens: [
-			{ angle: -sc.SHOP_ITEM_APPEAR_WIGGLE_ANGLE, duration: sc.SHOP_ITEM_APPEAR_WIGGLE_DURATION_1, yoyo: true, ease: 'Quad.easeInOut' },
-			{ angle: sc.SHOP_ITEM_APPEAR_WIGGLE_ANGLE, duration: sc.SHOP_ITEM_APPEAR_WIGGLE_DURATION_2, yoyo: true, ease: 'Quad.easeInOut' },
-			{ angle: 0, duration: sc.SHOP_ITEM_APPEAR_WIGGLE_RETURN_DURATION, ease: 'Quad.easeIn' }
-		]
+			{
+				angle: -sc.SHOP_ITEM_APPEAR_WIGGLE_ANGLE,
+				duration: sc.SHOP_ITEM_APPEAR_WIGGLE_DURATION_1,
+				yoyo: true,
+				ease: "Quad.easeInOut",
+			},
+			{
+				angle: sc.SHOP_ITEM_APPEAR_WIGGLE_ANGLE,
+				duration: sc.SHOP_ITEM_APPEAR_WIGGLE_DURATION_2,
+				yoyo: true,
+				ease: "Quad.easeInOut",
+			},
+			{ angle: 0, duration: sc.SHOP_ITEM_APPEAR_WIGGLE_RETURN_DURATION, ease: "Quad.easeIn" },
+		],
 	});
 }
 
 function getAvailableCardsForTavern(count: number): Card.CardDefinition[] {
-	const allCards = Card.getNonCores()
+	const allCards = Card.getNonCores();
 	return pickRandom(allCards, count);
 }

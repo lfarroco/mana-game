@@ -24,7 +24,6 @@ let unitStats: Map<string, UnitCombatStats> = new Map();
 let combatStartTime: number = 0;
 
 function initializeUnitStats(): void {
-
 	const allUnits = getState().battleData.units;
 
 	for (const unit of allUnits) {
@@ -39,7 +38,7 @@ function initializeUnitStats(): void {
 			regenApplied: 0,
 			shieldGranted: 0,
 			actionsPerformed: 0,
-			timeAlive: 0
+			timeAlive: 0,
 		});
 	}
 }
@@ -72,13 +71,15 @@ export function trackLifeChange(payload: {
 		stats.damageDealt += payload.totalDamage;
 	}
 
-	console.log(`[CombatStatsTracker] Unit ${sourceUnitId} dealt ${payload.totalDamage} ${payload.damageType || "normal"} damage`);
+	console.log(
+		`[CombatStatsTracker] Unit ${sourceUnitId} dealt ${payload.totalDamage} ${payload.damageType || "normal"} damage`
+	);
 }
 
 export function trackLifeRestored(payload: {
 	unit: Unit;
 	amount: number;
-	type?: 'regen' | 'direct';
+	type?: "regen" | "direct";
 	sourceUnitId?: string;
 }): void {
 	if (!isActive || payload.amount <= 0) return;
@@ -92,13 +93,15 @@ export function trackLifeRestored(payload: {
 		return;
 	}
 
-	if (payload.type === 'regen') {
+	if (payload.type === "regen") {
 		stats.regenApplied += payload.amount;
 	} else {
 		stats.healingDone += payload.amount;
 	}
 
-	console.log(`[CombatStatsTracker] Unit ${sourceUnitId} provided ${payload.amount} ${payload.type || "direct"} healing`);
+	console.log(
+		`[CombatStatsTracker] Unit ${sourceUnitId} provided ${payload.amount} ${payload.type || "direct"} healing`
+	);
 }
 
 export function trackShieldUpdated(payload: {
@@ -118,7 +121,9 @@ export function trackShieldUpdated(payload: {
 	}
 
 	stats.shieldGranted += payload.shieldDelta;
-	console.log(`[CombatStatsTracker] Unit ${payload.sourceUnitId} granted ${payload.shieldDelta} shield via shield update`);
+	console.log(
+		`[CombatStatsTracker] Unit ${payload.sourceUnitId} granted ${payload.shieldDelta} shield via shield update`
+	);
 }
 
 export function handleUnitAction(payload: { unit: Unit }): void {
@@ -131,9 +136,10 @@ export function handleUnitAction(payload: { unit: Unit }): void {
 	}
 
 	stats.actionsPerformed += 1;
-	console.log(`[CombatStatsTracker] Unit ${payload.unit.id} performed an action (total: ${stats.actionsPerformed})`);
+	console.log(
+		`[CombatStatsTracker] Unit ${payload.unit.id} performed an action (total: ${stats.actionsPerformed})`
+	);
 }
-
 
 export function initialize(): void {
 	isActive = true;
@@ -145,7 +151,11 @@ export function initialize(): void {
 	console.log("[CombatStatsTracker] Initialized for new combat");
 }
 
-export function trackDamage(sourceUnitId: string, damage: number, damageType: 'normal' | 'poison' | 'reflect' = 'normal'): void {
+export function trackDamage(
+	sourceUnitId: string,
+	damage: number,
+	damageType: "normal" | "poison" | "reflect" = "normal"
+): void {
 	if (!isActive || damage <= 0) return;
 
 	const stats = unitStats.get(sourceUnitId);
@@ -154,18 +164,24 @@ export function trackDamage(sourceUnitId: string, damage: number, damageType: 'n
 		return;
 	}
 
-	if (damageType === 'poison') {
+	if (damageType === "poison") {
 		stats.poisonApplied += damage;
-	} else if (damageType === 'normal') {
+	} else if (damageType === "normal") {
 		stats.damageDealt += damage;
-	} else if (damageType === 'reflect') {
+	} else if (damageType === "reflect") {
 		stats.damageDealt += damage;
 	}
 
-	console.log(`[CombatStatsTracker] Manually tracked ${damage} ${damageType} damage for unit ${sourceUnitId}`);
+	console.log(
+		`[CombatStatsTracker] Manually tracked ${damage} ${damageType} damage for unit ${sourceUnitId}`
+	);
 }
 
-export function trackHealing(sourceUnitId: string, healing: number, healingType: 'direct' | 'regen' = 'direct'): void {
+export function trackHealing(
+	sourceUnitId: string,
+	healing: number,
+	healingType: "direct" | "regen" = "direct"
+): void {
 	if (!isActive || healing <= 0) return;
 
 	const stats = unitStats.get(sourceUnitId);
@@ -174,13 +190,15 @@ export function trackHealing(sourceUnitId: string, healing: number, healingType:
 		return;
 	}
 
-	if (healingType === 'regen') {
+	if (healingType === "regen") {
 		stats.regenApplied += healing;
 	} else {
 		stats.healingDone += healing;
 	}
 
-	console.log(`[CombatStatsTracker] Manually tracked ${healing} ${healingType} healing for unit ${sourceUnitId}`);
+	console.log(
+		`[CombatStatsTracker] Manually tracked ${healing} ${healingType} healing for unit ${sourceUnitId}`
+	);
 }
 
 export function trackShield(sourceUnitId: string, shield: number): void {
@@ -199,9 +217,9 @@ export function trackShield(sourceUnitId: string, shield: number): void {
 export function updateTimeAlive(delta: number): void {
 	if (!isActive) return;
 
-	const activeUnits = getState().battleData.units.filter(unit =>
-		getState().battleData.forces.some(force =>
-			force.units.some(forceUnit => forceUnit.id === unit.id)
+	const activeUnits = getState().battleData.units.filter((unit) =>
+		getState().battleData.forces.some((force) =>
+			force.units.some((forceUnit) => forceUnit.id === unit.id)
 		)
 	);
 
@@ -222,33 +240,38 @@ export function getAllStats(): UnitCombatStats[] {
 }
 
 export function getForceStats(forceId: string): UnitCombatStats[] {
-	return Array.from(unitStats.values()).filter(stats => stats.forceId === forceId);
+	return Array.from(unitStats.values()).filter((stats) => stats.forceId === forceId);
 }
 
-export function getAggregatedForceStats(forceId: string): Omit<UnitCombatStats, 'unitId' | 'unitName'> {
+export function getAggregatedForceStats(
+	forceId: string
+): Omit<UnitCombatStats, "unitId" | "unitName"> {
 	const forceStats = getForceStats(forceId);
 
-	return forceStats.reduce((aggregate, stats) => ({
-		forceId,
-		damageDealt: aggregate.damageDealt + stats.damageDealt,
-		poisonApplied: aggregate.poisonApplied + stats.poisonApplied,
-		healingDone: aggregate.healingDone + stats.healingDone,
-		regenApplied: aggregate.regenApplied + stats.regenApplied,
-		reflected: aggregate.reflected + stats.reflected,
-		shieldGranted: aggregate.shieldGranted + stats.shieldGranted,
-		actionsPerformed: aggregate.actionsPerformed + stats.actionsPerformed,
-		timeAlive: Math.max(aggregate.timeAlive, stats.timeAlive)
-	}), {
-		forceId,
-		damageDealt: 0,
-		poisonApplied: 0,
-		healingDone: 0,
-		regenApplied: 0,
-		reflected: 0,
-		shieldGranted: 0,
-		actionsPerformed: 0,
-		timeAlive: 0
-	});
+	return forceStats.reduce(
+		(aggregate, stats) => ({
+			forceId,
+			damageDealt: aggregate.damageDealt + stats.damageDealt,
+			poisonApplied: aggregate.poisonApplied + stats.poisonApplied,
+			healingDone: aggregate.healingDone + stats.healingDone,
+			regenApplied: aggregate.regenApplied + stats.regenApplied,
+			reflected: aggregate.reflected + stats.reflected,
+			shieldGranted: aggregate.shieldGranted + stats.shieldGranted,
+			actionsPerformed: aggregate.actionsPerformed + stats.actionsPerformed,
+			timeAlive: Math.max(aggregate.timeAlive, stats.timeAlive),
+		}),
+		{
+			forceId,
+			damageDealt: 0,
+			poisonApplied: 0,
+			healingDone: 0,
+			regenApplied: 0,
+			reflected: 0,
+			shieldGranted: 0,
+			actionsPerformed: 0,
+			timeAlive: 0,
+		}
+	);
 }
 
 export function printStatsSummary(): void {
@@ -264,8 +287,12 @@ export function printStatsSummary(): void {
 		const totalHealing = stats.healingDone + stats.regenApplied;
 
 		console.log(`${stats.unitName || stats.unitId} (${stats.forceId}):`);
-		console.log(`  Damage: ${totalDamage} (${stats.damageDealt} direct, ${stats.poisonApplied} poison)`);
-		console.log(`  Healing: ${totalHealing} (${stats.healingDone} direct, ${stats.regenApplied} regen)`);
+		console.log(
+			`  Damage: ${totalDamage} (${stats.damageDealt} direct, ${stats.poisonApplied} poison)`
+		);
+		console.log(
+			`  Healing: ${totalHealing} (${stats.healingDone} direct, ${stats.regenApplied} regen)`
+		);
 		console.log(`  Shield: ${stats.shieldGranted}`);
 		console.log(`  Actions: ${stats.actionsPerformed}`);
 		console.log(`  Time Alive: ${Math.round(stats.timeAlive / 1000)}s`);
@@ -296,7 +323,7 @@ export function getConfig() {
 	return {
 		isActive,
 		trackedUnits: unitStats.size,
-		combatDuration: Date.now() - combatStartTime
+		combatDuration: Date.now() - combatStartTime,
 	};
 }
 

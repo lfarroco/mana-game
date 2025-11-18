@@ -8,7 +8,6 @@ import * as prestigeDisplay from "./components/prestigeDisplay";
 import { winsChangeAnimation } from "./components/winsDisplay";
 import { roundChangeAnimation } from "./components/roundDisplay";
 
-
 export function onWinsChanged(newTotalWins: number, winsDelta: number) {
 	winsDisplay.updateWinsDisplay(newTotalWins);
 	if (winsDelta !== 0) {
@@ -34,9 +33,8 @@ async function prestigeChangeAnimation(prestige: number) {
 	const startX = bounds.centerX;
 	const startY = bounds.centerY;
 
-	const prestigeAmountText = scene.add.text(
-		startX, startY, animationText, titleTextConfig
-	)
+	const prestigeAmountText = scene.add
+		.text(startX, startY, animationText, titleTextConfig)
 		.setOrigin(0.5, 0.5)
 		.setAlpha(0)
 		.setScale(1)
@@ -60,10 +58,7 @@ async function prestigeChangeAnimation(prestige: number) {
 	prestigeAmountText.destroy();
 }
 
-export function onPurchaseFailed(
-	unitName: string, reason: string, cost?: number,
-) {
-
+export function onPurchaseFailed(unitName: string, reason: string, cost?: number) {
 	let message = `Could not buy ${unitName}. `;
 
 	switch (reason) {
@@ -71,15 +66,14 @@ export function onPurchaseFailed(
 			message += "Your party is full!";
 			break;
 		case "INSUFFICIENT_GOLD":
-			message += `Not enough gold! (Cost: ${cost ?? 'N/A'})`;
+			message += `Not enough gold! (Cost: ${cost ?? "N/A"})`;
 			break;
 		case "SLOT_OCCUPIED":
 			message += "That slot is already occupied.";
 			break;
-		default: message += "Reason unknown.";
+		default:
+			message += "Reason unknown.";
 	}
 
-	UI.handleUserMessageRequested({ text: message, type: 'error' });
-
+	UI.handleUserMessageRequested({ text: message, type: "error" });
 }
-
