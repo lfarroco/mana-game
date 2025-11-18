@@ -108,7 +108,8 @@ export default class Core extends Phaser.Scene {
 			'f4_gloomchaser',
 			'f4_horror',
 			'neutral_bonereaper',
-			'f4_nocturn'
+			'f4_nocturn',
+			'boss_city'
 
 
 		].forEach((key) => {

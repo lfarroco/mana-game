@@ -10,7 +10,7 @@ const ROUND_DISPLAY_X = c.SCREEN_WIDTH - 720;
 const ROUND_DISPLAY_Y = 20;
 
 export function create() {
-	const initialRound = state.gameData.player.round;
+	const initialRound = state.gameData.round;
 
 	const label = label_();
 

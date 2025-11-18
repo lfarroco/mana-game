@@ -8,8 +8,7 @@ import { displayGameWon } from "./GameWonUI";
 import { displayVictory } from "./VictoryUI";
 import { displayDefeat } from "./DefeatUI";
 
-const GOLD_REWARD_AMOUNT = 5;
-const WINS_TO_WIN_GAME = 2;
+const WINS_TO_WIN_GAME = 1;
 const RESULTS_CONTAINER_DEPTH = 1002;
 const RESULTS_CONTAINER_HIDDEN_Y = c.SCREEN_HEIGHT * -1;
 
@@ -51,18 +50,17 @@ function displayAppropriateUI(
 	resultType: "victory" | "defeat",
 	gameWon: boolean,
 	gameOver: boolean,
-	displayGoldAmount: number,
 	prestigeChange: number,
 	nextPhaseCallback: () => void
 ): void {
 	if (gameWon) {
-		displayGameWon(state, displayGoldAmount, prestigeChange, nextPhaseCallback);
+		displayGameWon(state, prestigeChange, nextPhaseCallback);
 	} else if (gameOver) {
-		displayGameOver(state, displayGoldAmount, prestigeChange, nextPhaseCallback);
+		displayGameOver(state, prestigeChange, nextPhaseCallback);
 	} else if (resultType === "victory") {
-		displayVictory(state, displayGoldAmount, prestigeChange, nextPhaseCallback);
+		displayVictory(state, prestigeChange, nextPhaseCallback);
 	} else {
-		displayDefeat(state, displayGoldAmount, prestigeChange, nextPhaseCallback);
+		displayDefeat(state, prestigeChange, nextPhaseCallback);
 	}
 }
 
@@ -75,7 +73,7 @@ export function displayResults(
 
 	const gameState = getState();
 	const player = gameState.gameData.player;
-	const currentPlayerRound = player.round;
+	const currentPlayerRound = gameState.gameData.round;
 
 	const prestigeChange = calculatePrestigeChange(resultType, currentPlayerRound, player.prestige);
 	const expectedNewPrestige = player.prestige + prestigeChange;
@@ -83,7 +81,7 @@ export function displayResults(
 
 	const { gameWon, gameOver } = determineGameOutcome(resultType, newWins, expectedNewPrestige);
 
-	displayAppropriateUI(state, resultType, gameWon, gameOver, GOLD_REWARD_AMOUNT, prestigeChange, nextPhaseCallback);
+	displayAppropriateUI(state, resultType, gameWon, gameOver, prestigeChange, nextPhaseCallback);
 }
 
 export async function slideIn(): Promise<void> {

@@ -4,10 +4,11 @@ import * as c from "@Constants/constants";
 import { slideOut, ResultsUIState } from "./ResultsUI";
 import { createResultsPanel } from "./Panel";
 import { vec2 } from "@Models/Geometry";
+import { startGame } from "../../../Game/effects/startGame";
+import { getCurrentScene, resetState } from "@Models/State";
 
 export function displayGameWon(
 	state: ResultsUIState,
-	goldReward: number,
 	prestigeChange: number,
 	nextPhaseCallback: () => void
 ): void {
@@ -43,22 +44,6 @@ export function displayGameWon(
 	message.setDepth(1001);
 	state.resultsContainer.add(message);
 
-	// Add gold reward info
-	const goldText = `Gold: +${goldReward}`;
-	const goldDisplay = scene.add.text(
-		panelX + panelWidth / 2,
-		panelY + 180,
-		goldText,
-		{
-			...c.defaultTextConfig,
-			fontSize: "28px",
-			color: "#FFD700",
-			fontStyle: "bold"
-		}
-	).setOrigin(0.5);
-	goldDisplay.setDepth(1001);
-	state.resultsContainer.add(goldDisplay);
-
 	// Add prestige info
 	const prestigeText = `Prestige: ${prestigeChange > 0 ? '+' : ''}${prestigeChange}`;
 	const prestigeDisplay = scene.add.text(
@@ -79,7 +64,7 @@ export function displayGameWon(
 	const buttonX = panelX + panelWidth / 2;
 	const buttonY = panelY + panelHeight - 80;
 	const nextButton = createUIButton(
-		"Finish",
+		"Continue (Endless)",
 		vec2(buttonX, buttonY),
 		async () => {
 			await slideOut();
@@ -87,4 +72,32 @@ export function displayGameWon(
 		}
 	);
 	state.resultsContainer.add(nextButton.container);
+
+	// New Run Button
+	const newRunButton = createUIButton(
+		"New Run",
+		vec2(
+			panelX + panelWidth / 2,
+			panelY + panelHeight - 180,
+		),
+		async () => {
+			resetState();
+			startGame();
+		}
+	);
+
+	state.resultsContainer.add(newRunButton.container);
+
+	// Main Menu Button
+	const mainMenuButton = createUIButton(
+		"Main Menu",
+		vec2(panelX + panelWidth / 2, panelY + panelHeight - 280),
+		async () => {
+
+			getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
+			resetState();
+		}
+	);
+
+	state.resultsContainer.add(mainMenuButton.container);
 }

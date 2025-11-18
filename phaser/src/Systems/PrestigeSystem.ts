@@ -2,8 +2,10 @@ import { getState } from "@Models/State";
 import * as UIManager from "@UI/UI";
 
 export function processVictory(): void {
-	const playerState = getState().gameData.player;
-	const prestigeGain = Math.max(Math.floor(playerState.round / 2), 1);
+	const state = getState();
+	const playerState = state.gameData.player;
+	// Use the top-level gameData.round as the single source of truth for the current round.
+	const prestigeGain = Math.max(Math.floor(state.gameData.round / 2), 1);
 
 	playerState.prestige += prestigeGain;
 	UIManager.events.onPrestigeChanged(playerState.prestige, prestigeGain);
@@ -13,9 +15,11 @@ export function processVictory(): void {
 }
 
 export function processDefeat(): void {
-	const playerState = getState().gameData.player;
+	const state = getState();
+
+	const playerState = state.gameData.player;
 	const oldPrestige = playerState.prestige;
-	const newPrestige = Math.max(0, playerState.prestige - playerState.round);
+	const newPrestige = Math.max(0, playerState.prestige - state.gameData.round);
 	const prestigeDelta = newPrestige - oldPrestige;
 
 	playerState.prestige = newPrestige;
@@ -25,6 +29,7 @@ export function processDefeat(): void {
 
 export function finalizeRound(): void {
 	const state = getState();
-	state.gameData.player.round += 1;
-	UIManager.events.onRoundChanged(state.gameData.player.round);
+	// Move to a single source of truth: increment the top-level round only.
+	state.gameData.round += 1;
+	UIManager.events.onRoundChanged(state.gameData.round);
 }
