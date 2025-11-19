@@ -18,7 +18,7 @@
 					"id": "increase_power",
 					"amount": 5,
 					"targets": {
-						"id": "row_allies"
+						"id": "column_allies"
 					}
 				}
 			],

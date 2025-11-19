@@ -62,15 +62,32 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string => {
 	}
 };
 
+const EFFECT_STYLES: Record<string, { label: string; color: string }> = {
+	damage: { label: "Damage", color: "#ff6b6b" },
+	heal: { label: "Heal", color: "#51cf66" },
+	shield: { label: "Shield", color: "#74c0fc" },
+	poison: { label: "Poison", color: "#da77f2" },
+	regen: { label: "Regen", color: "#8ce99a" },
+	haste: { label: "Haste", color: "#91a7ff" },
+	slow: { label: "Slow", color: "#d0bfff" },
+	charge: { label: "Charge", color: "#ffe066" },
+	increase_power: { label: "Power", color: "#ff8cc8" },
+	increase_critical: { label: "Critical", color: "#ff8cc8" },
+	multiply_power: { label: "Multiply Power", color: "#ff8cc8" },
+	all: { label: "Any", color: "#ffffff" },
+};
+
 export const getReactionDescription = (reaction: EffectReaction, unitPower: number): string => {
-	const triggerOn = reaction.effectId.charAt(0).toUpperCase() + reaction.effectId.slice(1);
+	const style = EFFECT_STYLES[reaction.effectId];
+	const triggerLabel = style ? style.label : reaction.effectId.charAt(0).toUpperCase() + reaction.effectId.slice(1);
+	const triggerColor = style ? style.color : "#51cf66";
 
 	const posDesc = reaction.position ? getPositionDescription(reaction.position) : undefined;
 	const showPos = !!reaction.position && !["all", "allies"].includes(reaction.position); // only show specific relative positions
 
 	const effectSegments = reaction.effects.map((e) => buildEffectBlock(e, unitPower));
 
-	const triggerPrefix = `[color=#51cf66]${triggerOn}[/color]${showPos && posDesc ? ` ([color=#c0c0c0]${posDesc.toLowerCase()}[/color])` : ""}`;
+	const triggerPrefix = `[color=${triggerColor}]${triggerLabel}[/color]${showPos && posDesc ? ` ([color=#c0c0c0]${posDesc.toLowerCase()}[/color])` : ""}`;
 
 	return [triggerPrefix, ...effectSegments].join(" → ");
 };
@@ -129,7 +146,7 @@ const getTargetDescription = (targets: Targeting): string => {
 		case "right_ally":
 			return "Right";
 		case "trigger":
-			return "Triggering unit";
+			return "Source";
 		default:
 			return "Targets";
 	}
