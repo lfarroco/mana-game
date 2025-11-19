@@ -42,7 +42,7 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string => {
 			);
 		case "increase_power":
 			return withTargets(
-				`[color=#ff8cc8]+power[/color] [color=#ffd93d]${effect.amount}[/color]`,
+				`[color=#ff8cc8]+power${effect.permanent ? " (permanent)" : ""}[/color] [color=#ffd93d]${effect.amount}[/color]`,
 				effect.targets
 			);
 		case "increase_critical":
