@@ -7,14 +7,15 @@
 			"name": "Mana Crystal",
 			"pic": "blue-stone",
 			"life": 500,
-			"cooldown": 3000,
+			"cooldown": 5200,
 			"isCore": true,
 			"effects": [
 				{
 					"id": "increase_power",
 					"amount": 5,
 					"targets": {
-						"id": "column_allies"
+						"id": "all_allies",
+						"ofType": "any"
 					}
 				}
 			],
@@ -53,7 +54,7 @@
 			"reactions": [
 				{
 					"position": "allies",
-					"effectId": "damage",
+					"effectId": "all",
 					"effects": [
 						{
 							"id": "increase_power",
@@ -101,8 +102,8 @@
 			"effects": [],
 			"reactions": [
 				{
-					"position": "column_allies",
-					"effectId": "heal",
+					"position": "allies",
+					"effectId": "all",
 					"effects": [
 						{
 							"id": "increase_power",
@@ -1057,7 +1058,8 @@
 					"id": "haste",
 					"duration": 1000,
 					"targets": {
-						"id": "right_ally"
+						"id": "random_ally",
+						"count": 1
 					}
 				}
 			],
@@ -1124,7 +1126,8 @@
 							"id": "increase_power",
 							"amount": 5,
 							"targets": {
-								"id": "right_ally"
+								"id": "random_ally",
+								"count": 1
 							}
 						}
 					]
@@ -1508,7 +1511,8 @@
 							"id": "increase_power",
 							"amount": 5,
 							"targets": {
-								"id": "top_ally"
+								"id": "random_ally",
+								"count": 1
 							}
 						}
 					]
@@ -1521,7 +1525,8 @@
 							"id": "increase_power",
 							"amount": 5,
 							"targets": {
-								"id": "bottom_ally"
+								"id": "random_ally",
+								"count": 1
 							}
 						}
 					]
@@ -1583,7 +1588,8 @@
 							"id": "increase_critical",
 							"amount": 10,
 							"targets": {
-								"id": "right_ally"
+								"id": "random_ally",
+								"count": 1
 							}
 						}
 					]
