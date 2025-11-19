@@ -7,9 +7,13 @@
 			"name": "Mana Crystal",
 			"pic": "blue-stone",
 			"life": 500,
+			"power": 10,
 			"cooldown": 5200,
 			"isCore": true,
 			"effects": [
+				{
+					"id": "damage"
+				},
 				{
 					"id": "increase_power",
 					"amount": 5,
@@ -40,9 +44,13 @@
 			"name": "Critical Crystal",
 			"pic": "red-stone",
 			"life": 500,
+			"power": 15,
 			"cooldown": 3000,
 			"isCore": true,
 			"effects": [
+				{
+					"id": "damage"
+				},
 				{
 					"id": "increase_critical",
 					"amount": 10,
@@ -72,10 +80,14 @@
 			"name": "Protective Crystal",
 			"pic": "yellow-stone",
 			"life": 600,
+			"power": 10,
 			"cooldown": 3500,
 			"isCore": true,
 			"reflect": 15,
 			"effects": [
+				{
+					"id": "shield"
+				},
 				{
 					"id": "regen"
 				}
@@ -101,6 +113,7 @@
 			"name": "Growth Crystal",
 			"pic": "green-stone",
 			"life": 500,
+			"power": 15,
 			"cooldown": 4000,
 			"isCore": true,
 			"effects": [
@@ -130,6 +143,7 @@
 			"name": "Purple Crystal",
 			"pic": "purple-stone",
 			"life": 500,
+			"power": 20,
 			"cooldown": 3000,
 			"isCore": true,
 			"effects": [
@@ -709,6 +723,7 @@
 			"name": "Quickstone",
 			"pic": "haste-stone",
 			"life": 500,
+			"power": 15,
 			"cooldown": 4500,
 			"isCore": true,
 			"effects": [
