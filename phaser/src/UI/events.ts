@@ -3,9 +3,7 @@ import { titleTextConfig } from "@Constants/constants";
 import { tween } from "@Utils/animation";
 import * as UI from "./UI";
 import * as winsDisplay from "./components/winsDisplay";
-import * as roundDisplay from "./components/roundDisplay";
 import { winsChangeAnimation } from "./components/winsDisplay";
-import { roundChangeAnimation } from "./components/roundDisplay";
 import * as livesDisplay from "./components/livesDisplay";
 
 export function onWinsChanged(newTotalWins: number, winsDelta: number) {
@@ -20,10 +18,6 @@ export function onLivesChanged(newTotalLives: number, livesDelta: number) {
 	livesChangeAnimation(livesDelta);
 }
 
-export function onRoundChanged(newTotalRound: number) {
-	roundDisplay.updateRoundDisplay(newTotalRound);
-	roundChangeAnimation();
-}
 
 async function livesChangeAnimation(lives: number) {
 	const sign = lives > 0 ? "+" : "";

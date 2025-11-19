@@ -10,7 +10,10 @@ let dissolve = 0;
 export function createBlackHole() {
 	dissolve = 0;
 
-	blackHole = Shader(arcaneTornadoFragmentShader, MIDDLE_SCREEN, { width: 400, height: 400 }, [
+	blackHole = Shader(
+		arcaneTornadoFragmentShader,
+		MIDDLE_SCREEN,
+		{ width: 800, height: 800 }, [
 		{ key: "color1", type: "3f", value: [0.0, 0.0, 0.0] }, // black core
 		{ key: "color2", type: "3f", value: [0.2, 0.1, 0.2] }, // arcane purple
 		{ key: "intensity", type: "1f", value: 0.1 },

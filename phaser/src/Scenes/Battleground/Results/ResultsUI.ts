@@ -60,11 +60,11 @@ function displayAppropriateUI(
 	nextPhaseCallback: () => void
 ): void {
 	if (gameWon) {
-		displayGameWon(state, livesChange, nextPhaseCallback);
+		displayGameWon(state, nextPhaseCallback);
 	} else if (gameOver) {
-		displayGameOver(state, livesChange, nextPhaseCallback);
+		displayGameOver(state, nextPhaseCallback);
 	} else if (resultType === "victory") {
-		displayVictory(state, livesChange, nextPhaseCallback);
+		displayVictory(state, nextPhaseCallback);
 	} else {
 		displayDefeat(state, livesChange, nextPhaseCallback);
 	}

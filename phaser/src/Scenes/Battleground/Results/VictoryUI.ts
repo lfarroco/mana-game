@@ -7,7 +7,6 @@ import { vec2 } from "@Models/Geometry";
 
 export function displayVictory(
 	state: ResultsUIState,
-	livesChange: number,
 	nextPhaseCallback: () => void
 ): void {
 	const { panelX, panelY, panelWidth, panelHeight } = createResultsPanel(state);
@@ -35,18 +34,6 @@ export function displayVictory(
 		.setOrigin(0.5);
 	message.setDepth(1001);
 	state.resultsContainer.add(message);
-
-	const livesText = `Lives: ${livesChange > 0 ? "+" : ""}${livesChange}`;
-	const livesDisplay = scene.add
-		.text(panelX + panelWidth / 2, panelY + 230, livesText, {
-			...c.defaultTextConfig,
-			fontSize: "28px",
-			color: livesChange > 0 ? "#4CAF50" : "#4CAF50",
-			fontStyle: "bold",
-		})
-		.setOrigin(0.5);
-	livesDisplay.setDepth(1001);
-	state.resultsContainer.add(livesDisplay);
 
 	// Add next phase button
 	const buttonX = panelX + panelWidth / 2;

@@ -6,7 +6,7 @@ import { vec2 } from "@Models/Geometry";
 
 export function create(unit: Unit, container: Chara) {
 	const chip = createChip(
-		unit.id,
+		unit.id + "/life",
 		vec2(0, constants.HALF_TILE_HEIGHT),
 		0x29a1b9ff,
 		unit.life.toString()
@@ -16,5 +16,5 @@ export function create(unit: Unit, container: Chara) {
 }
 
 export function updateLifeDisplay(id: string, life: number) {
-	updateChipText(id, Math.floor(life).toString());
+	updateChipText(id + "/life", Math.floor(life).toString());
 }
