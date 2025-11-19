@@ -18,8 +18,7 @@
 					"id": "increase_power",
 					"amount": 5,
 					"targets": {
-						"id": "all_allies",
-						"ofType": "any"
+						"id": "row_allies"
 					}
 				}
 			],
@@ -89,7 +88,13 @@
 					"id": "shield"
 				},
 				{
-					"id": "regen"
+					"id": "increase_power",
+					"amount": 1,
+					"permanent": true,
+					"targets": {
+						"id": "random_ally",
+						"count": 1
+					}
 				}
 			],
 			"reactions": [
@@ -119,6 +124,14 @@
 			"effects": [
 				{
 					"id": "heal"
+				},
+				{
+					"id": "increase_power",
+					"amount": 1,
+					"permanent": true,
+					"targets": {
+						"id": "column_allies"
+					}
 				}
 			],
 			"reactions": [
@@ -239,6 +252,15 @@
 			"effects": [
 				{
 					"id": "shield"
+				},
+				{
+					"id": "increase_power",
+					"amount": 1,
+					"permanent": true,
+					"targets": {
+						"id": "random_ally",
+						"count": 1
+					}
 				}
 			],
 			"reactions": [
@@ -293,6 +315,15 @@
 			"effects": [
 				{
 					"id": "shield"
+				},
+				{
+					"id": "increase_power",
+					"amount": 1,
+					"permanent": true,
+					"targets": {
+						"id": "random_ally",
+						"count": 1
+					}
 				}
 			],
 			"reactions": [
@@ -624,6 +655,15 @@
 			"effects": [
 				{
 					"id": "damage"
+				},
+				{
+					"id": "increase_power",
+					"amount": 1,
+					"permanent": true,
+					"targets": {
+						"id": "random_ally",
+						"count": 1
+					}
 				}
 			],
 			"reactions": [
@@ -664,6 +704,15 @@
 			"effects": [
 				{
 					"id": "shield"
+				},
+				{
+					"id": "increase_power",
+					"amount": 1,
+					"permanent": true,
+					"targets": {
+						"id": "random_ally",
+						"count": 1
+					}
 				}
 			],
 			"reactions": [
@@ -731,8 +780,7 @@
 					"id": "haste",
 					"duration": 800,
 					"targets": {
-						"id": "all_allies",
-						"ofType": "any"
+						"id": "row_allies"
 					}
 				}
 			],
