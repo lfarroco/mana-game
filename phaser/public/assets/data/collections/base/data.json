@@ -68,38 +68,18 @@
 			]
 		},
 		{
-			"id": "shield_crystal",
-			"name": "Shield Crystal",
+			"id": "protective_crystal",
+			"name": "Protective Crystal",
 			"pic": "yellow-stone",
 			"life": 600,
-			"cooldown": 3000,
+			"cooldown": 3500,
 			"isCore": true,
-			"reflect": 20,
-			"effects": [],
-			"reactions": [
+			"reflect": 15,
+			"effects": [
 				{
-					"position": "allies",
-					"effectId": "shield",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "trigger"
-							}
-						}
-					]
+					"id": "regen"
 				}
-			]
-		},
-		{
-			"id": "restore_crystal",
-			"name": "Restore Crystal",
-			"pic": "green-stone",
-			"life": 500,
-			"cooldown": 3000,
-			"isCore": true,
-			"effects": [],
+			],
 			"reactions": [
 				{
 					"position": "allies",
@@ -109,8 +89,36 @@
 							"id": "increase_power",
 							"amount": 3,
 							"targets": {
-								"id": "all_allies",
-								"ofType": "any"
+								"id": "trigger"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "growth_crystal",
+			"name": "Growth Crystal",
+			"pic": "green-stone",
+			"life": 500,
+			"cooldown": 4000,
+			"isCore": true,
+			"effects": [
+				{
+					"id": "heal"
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "all",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 2,
+							"permanent": true,
+							"targets": {
+								"id": "trigger"
 							}
 						}
 					]
@@ -697,16 +705,16 @@
 			]
 		},
 		{
-			"id": "haste_crystal",
-			"name": "Haste Crystal",
+			"id": "quickstone",
+			"name": "Quickstone",
 			"pic": "haste-stone",
 			"life": 500,
-			"cooldown": 3000,
+			"cooldown": 4500,
 			"isCore": true,
 			"effects": [
 				{
 					"id": "haste",
-					"duration": 1000,
+					"duration": 800,
 					"targets": {
 						"id": "all_allies",
 						"ofType": "any"
@@ -715,25 +723,12 @@
 			],
 			"reactions": [
 				{
-					"position": "column_allies",
-					"effectId": "damage",
+					"position": "allies",
+					"effectId": "all",
 					"effects": [
 						{
 							"id": "charge",
-							"duration": 1000,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				},
-				{
-					"position": "row_allies",
-					"effectId": "shield",
-					"effects": [
-						{
-							"id": "charge",
-							"duration": 1000,
+							"duration": 800,
 							"targets": {
 								"id": "self"
 							}
