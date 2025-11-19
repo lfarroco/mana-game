@@ -9,7 +9,6 @@ import { startGame } from "../../../Game/effects/startGame";
 
 export function displayGameOver(
 	state: ResultsUIState,
-	livesChange: number,
 	nextPhaseCallback: () => void
 ): void {
 	const { panelX, panelY, panelWidth, panelHeight } = createResultsPanel(state);
@@ -27,7 +26,7 @@ export function displayGameOver(
 	state.resultsContainer.add(title);
 
 	// Add result message
-	const messageText = "You have been defeated and lost the game.";
+	const messageText = "You have been defeated. Good luck next time!";
 	const message = scene.add
 		.text(panelX + panelWidth / 2, panelY + 120, messageText, {
 			...c.defaultTextConfig,
@@ -37,18 +36,6 @@ export function displayGameOver(
 		.setOrigin(0.5);
 	message.setDepth(1001);
 	state.resultsContainer.add(message);
-
-	const livesText = `Lives: ${livesChange > 0 ? "+" : ""}${livesChange}`;
-	const livesDisplay = scene.add
-		.text(panelX + panelWidth / 2, panelY + 230, livesText, {
-			...c.defaultTextConfig,
-			fontSize: "28px",
-			color: livesChange > 0 ? "#4CAF50" : "#F44336",
-			fontStyle: "bold",
-		})
-		.setOrigin(0.5);
-	livesDisplay.setDepth(1001);
-	state.resultsContainer.add(livesDisplay);
 
 	const newRunButton = createUIButton(
 		"New Run",

@@ -24,7 +24,5 @@ export function processDefeat(): void {
 
 export function finalizeRound(): void {
 	const state = getState();
-	// Move to a single source of truth: increment the top-level round only.
 	state.gameData.round += 1;
-	UIManager.events.onRoundChanged(state.gameData.round);
 }
