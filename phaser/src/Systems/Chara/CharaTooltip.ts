@@ -66,7 +66,7 @@ export const getReactionDescription = (reaction: EffectReaction, unitPower: numb
 	const triggerOn = reaction.effectId.charAt(0).toUpperCase() + reaction.effectId.slice(1);
 
 	const posDesc = reaction.position ? getPositionDescription(reaction.position) : undefined;
-	const showPos = !!reaction.position && !["all", "allies", "enemies"].includes(reaction.position); // only show specific relative positions
+	const showPos = !!reaction.position && !["all", "allies"].includes(reaction.position); // only show specific relative positions
 
 	const effectSegments = reaction.effects.map((e) => buildEffectBlock(e, unitPower));
 
