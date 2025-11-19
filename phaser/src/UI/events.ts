@@ -4,9 +4,9 @@ import { tween } from "@Utils/animation";
 import * as UI from "./UI";
 import * as winsDisplay from "./components/winsDisplay";
 import * as roundDisplay from "./components/roundDisplay";
-import * as prestigeDisplay from "./components/prestigeDisplay";
 import { winsChangeAnimation } from "./components/winsDisplay";
 import { roundChangeAnimation } from "./components/roundDisplay";
+import * as livesDisplay from "./components/livesDisplay";
 
 export function onWinsChanged(newTotalWins: number, winsDelta: number) {
 	winsDisplay.updateWinsDisplay(newTotalWins);
@@ -15,9 +15,9 @@ export function onWinsChanged(newTotalWins: number, winsDelta: number) {
 	}
 }
 
-export function onPrestigeChanged(newTotalPrestige: number, prestigeDelta: number) {
-	prestigeDisplay.updatePrestigeDisplay(newTotalPrestige);
-	prestigeChangeAnimation(prestigeDelta);
+export function onLivesChanged(newTotalLives: number, livesDelta: number) {
+	livesDisplay.updateLivesDisplay(newTotalLives);
+	livesChangeAnimation(livesDelta);
 }
 
 export function onRoundChanged(newTotalRound: number) {
@@ -25,15 +25,15 @@ export function onRoundChanged(newTotalRound: number) {
 	roundChangeAnimation();
 }
 
-async function prestigeChangeAnimation(prestige: number) {
-	const sign = prestige > 0 ? "+" : "";
-	const animationText = `${sign}${prestige}`;
+async function livesChangeAnimation(lives: number) {
+	const sign = lives > 0 ? "+" : "";
+	const animationText = `${sign}${lives}`;
 
-	const bounds = prestigeDisplay.textEl!.getBounds();
+	const bounds = livesDisplay.textEl!.getBounds();
 	const startX = bounds.centerX;
 	const startY = bounds.centerY;
 
-	const prestigeAmountText = scene.add
+	const livesAmountText = scene.add
 		.text(startX, startY, animationText, titleTextConfig)
 		.setOrigin(0.5, 0.5)
 		.setAlpha(0)
@@ -41,21 +41,21 @@ async function prestigeChangeAnimation(prestige: number) {
 		.setDepth(1000);
 
 	await tween({
-		targets: [prestigeAmountText],
+		targets: [livesAmountText],
 		alpha: 1,
 		scale: 1.2,
 		y: startY - 30,
 	});
 
 	await tween({
-		targets: [prestigeAmountText],
+		targets: [livesAmountText],
 		alpha: 0,
 		scale: 1,
 		y: startY - 60,
 		duration: 800,
 	});
 
-	prestigeAmountText.destroy();
+	livesAmountText.destroy();
 }
 
 export function onPurchaseFailed(unitName: string, reason: string, cost?: number) {

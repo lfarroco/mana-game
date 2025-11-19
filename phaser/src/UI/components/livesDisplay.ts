@@ -4,27 +4,27 @@ import { getState } from "@Models/State";
 import * as io from "@PhaserIO";
 
 export let textEl: TextObj | null = null;
-export const updatePrestigeDisplay = (newTotalPrestige: number): void => {
-	textEl!.setText(newTotalPrestige.toString());
+export const updateLivesDisplay = (newTotalLives: number): void => {
+	textEl!.setText(newTotalLives.toString());
 };
-export const PRESTIGE_DISPLAY_X = c.SCREEN_WIDTH - 520;
-export const PRESTIGE_DISPLAY_Y = 20;
+export const LIVES_DISPLAY_X = c.SCREEN_WIDTH - 520;
+export const LIVES_DISPLAY_Y = 20;
 
 export function create() {
-	const initialPrestige = getState().gameData.player.prestige;
+	const initialLives = getState().gameData.player.lives;
 
 	const label_ = label();
 
-	const text_ = text(initialPrestige, label_);
+	const text_ = text(initialLives, label_);
 
 	const container = io.Container([label_, text_]);
-	io.SetPosition(container, vec2(PRESTIGE_DISPLAY_X, PRESTIGE_DISPLAY_Y));
+	io.SetPosition(container, vec2(LIVES_DISPLAY_X, LIVES_DISPLAY_Y));
 
 	return container;
 }
 
-function text(initialPrestige: number, label: Phaser.GameObjects.Text) {
-	textEl = io.Text(initialPrestige.toString(), {
+function text(initialLives: number, label: Phaser.GameObjects.Text) {
+	textEl = io.Text(initialLives.toString(), {
 		...c.titleTextConfig,
 		fontSize: "24px",
 		color: "#ffffff",
@@ -35,7 +35,7 @@ function text(initialPrestige: number, label: Phaser.GameObjects.Text) {
 }
 
 function label() {
-	const label = io.Text("Prestige:", {
+	const label = io.Text("Lives:", {
 		...c.titleTextConfig,
 		fontSize: "24px",
 		color: "#ffffff",

@@ -31,25 +31,23 @@ export function create() {
 	state.resultsContainer.setDepth(RESULTS_CONTAINER_DEPTH);
 }
 
-function calculatePrestigeChange(
-	resultType: "victory" | "defeat",
-	currentPlayerRound: number,
-	currentPrestige: number
+function calculateLivesChange(
+	resultType: "victory" | "defeat"
 ): number {
 	if (resultType === "victory") {
-		return Math.max(Math.floor(currentPlayerRound / 2), 1);
+		return 0; // Victory doesn't change lives
 	} else {
-		return Math.max(0, currentPrestige - currentPlayerRound) - currentPrestige;
+		return -1; // Defeat loses 1 life
 	}
 }
 
 function determineGameOutcome(
 	resultType: "victory" | "defeat",
 	newWins: number,
-	expectedNewPrestige: number
+	expectedNewLives: number
 ): { gameWon: boolean; gameOver: boolean } {
 	const gameWon = resultType === "victory" && newWins >= WINS_TO_WIN_GAME;
-	const gameOver = resultType === "defeat" && expectedNewPrestige <= 0;
+	const gameOver = resultType === "defeat" && expectedNewLives <= 0;
 	return { gameWon, gameOver };
 }
 
@@ -58,17 +56,17 @@ function displayAppropriateUI(
 	resultType: "victory" | "defeat",
 	gameWon: boolean,
 	gameOver: boolean,
-	prestigeChange: number,
+	livesChange: number,
 	nextPhaseCallback: () => void
 ): void {
 	if (gameWon) {
-		displayGameWon(state, prestigeChange, nextPhaseCallback);
+		displayGameWon(state, livesChange, nextPhaseCallback);
 	} else if (gameOver) {
-		displayGameOver(state, prestigeChange, nextPhaseCallback);
+		displayGameOver(state, livesChange, nextPhaseCallback);
 	} else if (resultType === "victory") {
-		displayVictory(state, prestigeChange, nextPhaseCallback);
+		displayVictory(state, livesChange, nextPhaseCallback);
 	} else {
-		displayDefeat(state, prestigeChange, nextPhaseCallback);
+		displayDefeat(state, livesChange, nextPhaseCallback);
 	}
 }
 
@@ -81,15 +79,14 @@ export function displayResults(
 
 	const gameState = getState();
 	const player = gameState.gameData.player;
-	const currentPlayerRound = gameState.gameData.round;
 
-	const prestigeChange = calculatePrestigeChange(resultType, currentPlayerRound, player.prestige);
-	const expectedNewPrestige = player.prestige + prestigeChange;
+	const livesChange = calculateLivesChange(resultType);
+	const expectedNewLives = player.lives + livesChange;
 	const newWins = resultType === "victory" ? player.wins + 1 : player.wins;
 
-	const { gameWon, gameOver } = determineGameOutcome(resultType, newWins, expectedNewPrestige);
+	const { gameWon, gameOver } = determineGameOutcome(resultType, newWins, expectedNewLives);
 
-	displayAppropriateUI(state, resultType, gameWon, gameOver, prestigeChange, nextPhaseCallback);
+	displayAppropriateUI(state, resultType, gameWon, gameOver, livesChange, nextPhaseCallback);
 }
 
 export async function slideIn(): Promise<void> {

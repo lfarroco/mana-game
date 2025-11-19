@@ -2,7 +2,7 @@ import * as c from "@Constants/constants";
 import { tween } from "@Utils/animation";
 import * as Tooltip from "../Components/Tooltip";
 import * as io from "@PhaserIO";
-import * as prestigeDisplay from "./components/prestigeDisplay";
+import * as livesDisplay from "./components/livesDisplay";
 import * as roundDisplay from "./components/roundDisplay";
 import * as winsDisplay from "./components/winsDisplay";
 import { vec2 } from "@Models/Geometry";
@@ -13,7 +13,7 @@ let uiContainer: Container | null = null;
 
 export function init() {
 	uiContainer = io.Container([
-		prestigeDisplay.create(),
+		livesDisplay.create(),
 		roundDisplay.create(),
 		winsDisplay.create(),
 		menuButton.create(),

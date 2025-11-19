@@ -14,7 +14,7 @@ export type Force = {
 	name: string;
 	color: string;
 	units: Unit[];
-	prestige: number;
+	lives: number;
 	wins: number;
 };
 
@@ -24,7 +24,7 @@ export const makeForce = (id: string): Force => {
 		name: "",
 		color: "",
 		units: [],
-		prestige: 20,
+		lives: 4,
 		wins: 0,
 	};
 };
