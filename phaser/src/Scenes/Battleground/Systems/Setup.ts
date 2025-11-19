@@ -13,7 +13,7 @@ export function initializeNewGame(): void {
 
 	state.gameData.player.units = [];
 	state.gameData.round = 1;
-	state.gameData.player.prestige = BG_CONSTANTS.INITIAL_PLAYER_PRESTIGE;
+	state.gameData.player.lives = BG_CONSTANTS.INITIAL_PLAYER_LIVES;
 
 	scene.sound.setVolume(getOption("soundVolume") ?? BG_CONSTANTS.DEFAULT_SCENE_SOUND_VOLUME);
 }

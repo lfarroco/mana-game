@@ -4,11 +4,6 @@ import * as UIManager from "@UI/UI";
 export function processVictory(): void {
 	const state = getState();
 	const playerState = state.gameData.player;
-	// Use the top-level gameData.round as the single source of truth for the current round.
-	const prestigeGain = Math.max(Math.floor(state.gameData.round / 2), 1);
-
-	playerState.prestige += prestigeGain;
-	UIManager.events.onPrestigeChanged(playerState.prestige, prestigeGain);
 
 	playerState.wins += 1;
 	UIManager.events.onWinsChanged(playerState.wins, 1);
@@ -18,13 +13,13 @@ export function processDefeat(): void {
 	const state = getState();
 
 	const playerState = state.gameData.player;
-	const oldPrestige = playerState.prestige;
-	const newPrestige = Math.max(0, playerState.prestige - state.gameData.round);
-	const prestigeDelta = newPrestige - oldPrestige;
+	const oldLives = playerState.lives;
+	const newLives = Math.max(0, playerState.lives - 1);
+	const livesDelta = newLives - oldLives;
 
-	playerState.prestige = newPrestige;
+	playerState.lives = newLives;
 
-	UIManager.events.onPrestigeChanged(playerState.prestige, prestigeDelta);
+	UIManager.events.onLivesChanged(playerState.lives, livesDelta);
 }
 
 export function finalizeRound(): void {

@@ -33,7 +33,7 @@ export async function transitionToCombatPhase(): Promise<void> {
 	GhostStore.saveGhostForRound(
 		state.gameData.round,
 		state.gameData.player.units,
-		state.gameData.player.prestige
+		state.gameData.player.lives
 	);
 
 	showReadyButton({ enemies });

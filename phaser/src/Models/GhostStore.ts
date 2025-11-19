@@ -17,7 +17,7 @@ export type GhostUnit = {
 export type GhostEntry = {
 	round: number;
 	units: GhostUnit[];
-	prestige: number;
+	lives: number;
 	savedAt: number;
 	hash: string;
 };
@@ -57,7 +57,7 @@ function computeHash(units: GhostUnit[]): string {
 		.join("|");
 }
 
-export function saveGhostForRound(round: number, playerUnits: Unit[], prestige: number) {
+export function saveGhostForRound(round: number, playerUnits: Unit[], lives: number) {
 	if (!round || round < 1) return;
 	if (!playerUnits.length) return;
 
@@ -84,7 +84,7 @@ export function saveGhostForRound(round: number, playerUnits: Unit[], prestige: 
 	const entry: GhostEntry = {
 		round,
 		units: ghostUnits,
-		prestige,
+		lives,
 		savedAt: Date.now(),
 		hash,
 	};

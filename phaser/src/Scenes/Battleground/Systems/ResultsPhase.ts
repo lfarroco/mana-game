@@ -65,7 +65,7 @@ async function handleDefeat(): Promise<void> {
 	console.log("Round", state.gameData.round, "Shop Phase Starting (After Defeat).");
 
 	const player = state.gameData.player;
-	if (player.prestige <= 0) {
+	if (player.lives <= 0) {
 		await renderVignette({
 			message: `Game Over! You were defeated in ${state.gameData.round - 1} rounds`,
 		});
