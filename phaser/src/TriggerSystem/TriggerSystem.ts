@@ -123,13 +123,13 @@ export const EFFECT_SOURCE_POSITIONS: { [key in EffectSourcePosition]: EffectSou
 };
 
 // Process a list of effects that originate from a given source unit
-export const processEffectsIO = (sourceUnit: Unit, effects: Effect[]) => {
+export const processEffectsIO = (sourceUnit: Unit, effects: Effect[], isReaction: boolean) => {
 	effects.forEach((effect) => {
-		processEffectIO(sourceUnit, effect);
+		processEffectIO(sourceUnit, effect, isReaction);
 	});
 };
 
-const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
+const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean) => {
 	switch (effect.id) {
 		case "damage":
 			effects.dealDamageLogicIO(sourceUnit);
@@ -184,7 +184,8 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect) => {
 			return _exhaustiveCheck;
 	}
 
-	processReactions(sourceUnit, effect);
+	if (!isReaction)
+		processReactions(sourceUnit, effect);
 };
 
 function processReactions(triggeringUnit: Unit, effect: Effect) {
@@ -235,7 +236,7 @@ function processReactions(triggeringUnit: Unit, effect: Effect) {
 				});
 
 			reactions.forEach((r) => {
-				processEffectsIO(u, r.effects);
+				processEffectsIO(u, r.effects, true);
 			});
 		});
 }

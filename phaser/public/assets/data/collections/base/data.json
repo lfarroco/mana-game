@@ -594,7 +594,7 @@
 		},
 		{
 			"id": "scourge_bringer",
-			"name": "Scourgea Bringer",
+			"name": "Scourge Bringer",
 			"pic": "f4_nocturn",
 			"power": 20,
 			"cooldown": 2700,
@@ -1644,7 +1644,7 @@
 					"effects": [
 						{
 							"id": "increase_critical",
-							"amount": 10,
+							"amount": 5,
 							"targets": {
 								"id": "random_ally",
 								"count": 1
