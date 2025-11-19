@@ -23,7 +23,9 @@ async function livesChangeAnimation(lives: number) {
 	const sign = lives > 0 ? "+" : "";
 	const animationText = `${sign}${lives}`;
 
-	const bounds = livesDisplay.textEl!.getBounds();
+	const bounds = livesDisplay.getContainerBounds();
+	if (!bounds) return;
+
 	const startX = bounds.centerX;
 	const startY = bounds.centerY;
 
