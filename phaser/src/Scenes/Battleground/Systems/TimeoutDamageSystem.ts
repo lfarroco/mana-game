@@ -30,12 +30,12 @@ async function spawnStar(damage: number, targetForce: Force) {
 	arcaneMissileTargeted(MIDDLE_SCREEN, core, {
 		colors,
 		amplitudeMin: 10,
-		amplitudeMax: 20,
-		particleScale: 1.2,
+		amplitudeMax: 30,
+		particleScale: 2.2,
 		speedMultiplier: 1.6,
 		impact: {
-			colors: [0xffd700, 0xfff5e1],
-			scale: 2.5,
+			colors: [0x000000, 0x223322],
+			scale: 4.5,
 			speed: 240,
 			lifespan: 380,
 			alpha: 0.6,
