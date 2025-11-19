@@ -1,6 +1,6 @@
 import { Unit } from "@Models/Entities/Unit";
 import * as constants from "@Constants/constants";
-import { Chara, getCharaById, getUnit } from "./Chara";
+import { Chara } from "./Chara";
 import { createChip, updateChipText } from "@Components/Chip";
 import { vec2 } from "@Models/Geometry";
 
@@ -15,9 +15,6 @@ export function create(unit: Unit, container: Chara) {
 	container.add(chip);
 }
 
-export function updateLifeDisplay(id: string) {
-	const chara = getCharaById(id);
-	const unit = getUnit(chara);
-
-	updateChipText(unit.id, Math.floor(unit.life).toString());
+export function updateLifeDisplay(id: string, life: number) {
+	updateChipText(id, Math.floor(life).toString());
 }
