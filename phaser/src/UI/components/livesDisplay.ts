@@ -5,8 +5,8 @@ import { getCurrentScene } from "@Models/State";
 import * as io from "@PhaserIO";
 
 const MAX_LIVES = 4;
-const BLUE_HEART = "💙";
-const BLACK_HEART = "🖤";
+const GREEN_HEART = "💚";
+const GRAY_HEART = "🖤";
 
 let heartElements: Phaser.GameObjects.Text[] = [];
 let currentLives = MAX_LIVES;
@@ -35,7 +35,7 @@ export const updateLivesDisplay = (newTotalLives: number): void => {
 					duration: 500,
 					ease: 'Power2',
 					onStart: () => {
-						heart.setText(BLACK_HEART);
+						heart.setText(GRAY_HEART);
 					}
 				});
 			}
@@ -45,17 +45,16 @@ export const updateLivesDisplay = (newTotalLives: number): void => {
 	currentLives = newTotalLives;
 };
 
-export const LIVES_DISPLAY_X = c.SCREEN_WIDTH - 520;
-export const LIVES_DISPLAY_Y = 20;
+export const LIVES_DISPLAY_X = 320;
+export const LIVES_DISPLAY_Y = 40;
 
 export function create() {
 	const initialLives = getState().gameData.player.lives;
 	currentLives = initialLives;
 
-	const label_ = label();
-	const hearts = createHearts(label_);
+	const hearts = createHearts();
 
-	const container = io.Container([label_, ...hearts]);
+	const container = io.Container([...hearts]);
 	io.SetPosition(container, vec2(LIVES_DISPLAY_X, LIVES_DISPLAY_Y));
 
 	containerElement = container;
@@ -63,18 +62,18 @@ export function create() {
 	return container;
 }
 
-function createHearts(label: Phaser.GameObjects.Text): Phaser.GameObjects.Text[] {
+function createHearts(): Phaser.GameObjects.Text[] {
 	heartElements = [];
 
 	for (let i = 0; i < MAX_LIVES; i++) {
-		const heart = io.Text(BLUE_HEART, {
+		const heart = io.Text(GREEN_HEART, {
 			...c.titleTextConfig,
 			fontSize: "24px",
 			color: "#ffffff",
 		});
 
-		// Position hearts in a row after the label
-		const xOffset = label.width + 10 + (i * 30);
+		// Position hearts in a row
+		const xOffset = i * 30;
 		io.SetPosition(heart, vec2(xOffset, 0));
 		io.Centralize(heart);
 
@@ -84,12 +83,3 @@ function createHearts(label: Phaser.GameObjects.Text): Phaser.GameObjects.Text[]
 	return heartElements;
 }
 
-function label() {
-	const label = io.Text("Lives:", {
-		...c.titleTextConfig,
-		fontSize: "24px",
-		color: "#ffffff",
-	});
-	io.Centralize(label);
-	return label;
-}

@@ -70,7 +70,7 @@ export const getReactionDescription = (reaction: EffectReaction, unitPower: numb
 
 	const effectSegments = reaction.effects.map((e) => buildEffectBlock(e, unitPower));
 
-	const triggerPrefix = `⚡ [color=#51cf66]${triggerOn}[/color]${showPos && posDesc ? ` ([color=#c0c0c0]${posDesc.toLowerCase()}[/color])` : ""}`; // using heal green as main highlight for trigger label
+	const triggerPrefix = `[color=#51cf66]${triggerOn}[/color]${showPos && posDesc ? ` ([color=#c0c0c0]${posDesc.toLowerCase()}[/color])` : ""}`;
 
 	return [triggerPrefix, ...effectSegments].join(" → ");
 };
@@ -80,9 +80,9 @@ const getPositionDescription = (position: string): string => {
 		case "all":
 			return "Anyone";
 		case "allies":
-			return "Allies";
+			return "Ally";
 		case "enemies":
-			return "Enemies";
+			return "Enemy";
 		case "row_allies":
 			return "Row";
 		case "column_allies":

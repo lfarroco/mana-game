@@ -1434,13 +1434,6 @@
 					"effects": [
 						{
 							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "self"
-							}
-						},
-						{
-							"id": "increase_power",
 							"amount": 1,
 							"permanent": true,
 							"targets": {
@@ -1939,15 +1932,11 @@
 			"id": "duelist",
 			"name": "Duelist",
 			"pic": "neutral_shuffler",
-			"power": 0,
+			"power": 20,
 			"cooldown": 4500,
 			"effects": [
 				{
-					"id": "increase_critical",
-					"amount": 10,
-					"targets": {
-						"id": "column_allies"
-					}
+					"id": "damage"
 				}
 			],
 			"reactions": [
@@ -1955,13 +1944,6 @@
 					"position": "enemies",
 					"effectId": "damage",
 					"effects": [
-						{
-							"id": "charge",
-							"duration": 1000,
-							"targets": {
-								"id": "self"
-							}
-						},
 						{
 							"id": "increase_power",
 							"amount": 2,
