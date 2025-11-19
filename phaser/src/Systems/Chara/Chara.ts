@@ -10,7 +10,6 @@ import * as CharaTooltip from "./CharaTooltip";
 import { popText } from "./Animations/popText";
 import { summonEffect } from "../../Effects/summonEffect";
 import { getCurrentScene, getState } from "@Models/State";
-import * as LifeDisplay from "./LifeDisplay";
 import { getCardDefinition } from "@Models/Entities/Card";
 
 export type Chara = Container;
@@ -108,8 +107,7 @@ export function create(unit: Unit): Chara {
 
 	ChargeBarDisplay.create(unit, container);
 
-	if (unit.isCore) LifeDisplay.create(unit, container);
-	else PowerDisplay.create(unit, container);
+	PowerDisplay.create(unit, container);
 
 	return container;
 }
@@ -212,15 +210,12 @@ export function updateUnitPower(chara: Chara, num: number, permanent?: boolean) 
 
 	unit.power += num;
 
-	// Only update power display for non-core units (cores use the chip for life display)
-	if (!unit.isCore) {
-		PowerDisplay.updatePowerDisplay(s.id);
-		popText({
-			x: chara.x,
-			y: chara.y,
-			text,
-		});
-	}
+	PowerDisplay.updatePowerDisplay(s.id);
+	popText({
+		x: chara.x,
+		y: chara.y,
+		text,
+	});
 
 	if (permanent && unit.force === constants.FORCE_ID_PLAYER) {
 		const playerUnit = getState().gameData.player.units.find((u) => u.id === unit.id)!;
@@ -237,11 +232,6 @@ export function updateUnitCritical(chara: Chara, num: number) {
 	if (!unit.critical) unit.critical = 0;
 
 	unit.critical += num;
-
-	// Only update power display for non-core units (cores use the chip for life display)
-	if (!unit.isCore) {
-		PowerDisplay.updatePowerDisplay(s.id);
-	}
 
 	popText({
 		x: chara.x,

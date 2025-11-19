@@ -5,7 +5,6 @@ import { getCore } from "./Card";
 import { updateShieldDisplay } from "@Systems/Chara/ShieldDisplay";
 import { popText } from "@Systems/Chara/Animations";
 import { getCharaById } from "@Systems/Chara/Chara";
-import * as LifeDisplay from "@Systems/Chara/LifeDisplay";
 import * as ForceStats from "@Scenes/Battleground/ForceStats";
 import { getState } from "@Models/State";
 
@@ -46,8 +45,6 @@ export const manipulateCoreLife = (
 		core.life = Math.max(0, core.life + amount);
 	}
 	const actualChange = core.life - oldLife;
-
-	LifeDisplay.updateLifeDisplay(core.id, core.life);
 
 	popText({
 		x: getCharaById(core.id).x,
