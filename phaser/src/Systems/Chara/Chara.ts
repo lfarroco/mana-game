@@ -212,13 +212,15 @@ export function updateUnitPower(chara: Chara, num: number, permanent?: boolean) 
 
 	unit.power += num;
 
-	PowerDisplay.updatePowerDisplay(s.id);
-
-	popText({
-		x: chara.x,
-		y: chara.y,
-		text,
-	});
+	// Only update power display for non-core units (cores use the chip for life display)
+	if (!unit.isCore) {
+		PowerDisplay.updatePowerDisplay(s.id);
+		popText({
+			x: chara.x,
+			y: chara.y,
+			text,
+		});
+	}
 
 	if (permanent && unit.force === constants.FORCE_ID_PLAYER) {
 		const playerUnit = getState().gameData.player.units.find((u) => u.id === unit.id)!;
@@ -236,7 +238,10 @@ export function updateUnitCritical(chara: Chara, num: number) {
 
 	unit.critical += num;
 
-	PowerDisplay.updatePowerDisplay(s.id);
+	// Only update power display for non-core units (cores use the chip for life display)
+	if (!unit.isCore) {
+		PowerDisplay.updatePowerDisplay(s.id);
+	}
 
 	popText({
 		x: chara.x,

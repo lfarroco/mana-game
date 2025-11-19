@@ -47,7 +47,7 @@ export const manipulateCoreLife = (
 	}
 	const actualChange = core.life - oldLife;
 
-	LifeDisplay.updateLifeDisplay(core.id);
+	LifeDisplay.updateLifeDisplay(core.id, core.life);
 
 	popText({
 		x: getCharaById(core.id).x,
