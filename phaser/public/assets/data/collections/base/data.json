@@ -382,8 +382,8 @@
 			],
 			"reactions": [
 				{
-					"position": "allies",
-					"effectId": "slow",
+					"position": "enemies",
+					"effectId": "regen",
 					"effects": [
 						{
 							"id": "charge",
@@ -436,8 +436,8 @@
 			],
 			"reactions": [
 				{
-					"position": "allies",
-					"effectId": "heal",
+					"position": "enemies",
+					"effectId": "regen",
 					"effects": [
 						{
 							"id": "increase_power",
@@ -497,15 +497,11 @@
 			],
 			"reactions": [
 				{
-					"position": "allies",
-					"effectId": "poison",
+					"position": "enemies",
+					"effectId": "shield",
 					"effects": [
 						{
-							"id": "charge",
-							"duration": 1000,
-							"targets": {
-								"id": "self"
-							}
+							"id": "poison"
 						}
 					]
 				}
@@ -524,15 +520,11 @@
 			],
 			"reactions": [
 				{
-					"position": "allies",
+					"position": "enemies",
 					"effectId": "shield",
 					"effects": [
 						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "self"
-							}
+							"id": "poison"
 						}
 					]
 				}
@@ -578,15 +570,11 @@
 			],
 			"reactions": [
 				{
-					"position": "row_allies",
-					"effectId": "damage",
+					"position": "allies",
+					"effectId": "heal",
 					"effects": [
 						{
-							"id": "charge",
-							"duration": 1000,
-							"targets": {
-								"id": "self"
-							}
+							"id": "poison"
 						}
 					]
 				}
@@ -753,8 +741,8 @@
 			],
 			"reactions": [
 				{
-					"position": "allies",
-					"effectId": "slow",
+					"position": "enemies",
+					"effectId": "heal",
 					"effects": [
 						{
 							"id": "increase_power",
@@ -926,14 +914,14 @@
 			],
 			"reactions": [
 				{
-					"position": "row_allies",
+					"position": "enemies",
 					"effectId": "damage",
 					"effects": [
 						{
 							"id": "increase_power",
 							"amount": 5,
 							"targets": {
-								"id": "trigger"
+								"id": "self"
 							}
 						}
 					]
@@ -1328,23 +1316,11 @@
 			],
 			"reactions": [
 				{
-					"position": "allies",
+					"position": "row_allies",
 					"effectId": "all",
 					"effects": [
 						{
-							"id": "charge",
-							"duration": 1000,
-							"targets": {
-								"id": "right_ally"
-							}
-						},
-						{
-							"id": "increase_power",
-							"amount": 1,
-							"permanent": true,
-							"targets": {
-								"id": "right_ally"
-							}
+							"id": "heal"
 						}
 					]
 				}
@@ -1430,15 +1406,11 @@
 			],
 			"reactions": [
 				{
-					"position": "allies",
+					"position": "row_allies",
 					"effectId": "all",
 					"effects": [
 						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "trigger"
-							}
+							"id": "heal"
 						}
 					]
 				}
@@ -1667,23 +1639,11 @@
 			],
 			"reactions": [
 				{
-					"position": "column_allies",
-					"effectId": "all",
+					"position": "allies",
+					"effectId": "heal",
 					"effects": [
 						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "trigger"
-							}
-						},
-						{
-							"id": "increase_power",
-							"amount": 1,
-							"permanent": true,
-							"targets": {
-								"id": "trigger"
-							}
+							"id": "damage"
 						}
 					]
 				}
@@ -1992,7 +1952,7 @@
 			],
 			"reactions": [
 				{
-					"position": "allies",
+					"position": "enemies",
 					"effectId": "damage",
 					"effects": [
 						{
@@ -2121,7 +2081,7 @@
 			],
 			"reactions": [
 				{
-					"position": "column_allies",
+					"position": "enemies",
 					"effectId": "damage",
 					"effects": [
 						{
