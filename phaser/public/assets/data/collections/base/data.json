@@ -12,7 +12,6 @@
 			"effects": [
 				{
 					"id": "increase_power",
-					"permanent": true,
 					"amount": 5,
 					"targets": {
 						"id": "column_allies"
