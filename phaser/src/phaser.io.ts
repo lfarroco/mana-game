@@ -2,23 +2,28 @@ import { sumVec2 } from "@Models/Geometry";
 import { getCurrentScene } from "@Models/State";
 import Phaser from "phaser";
 
-export function BringToTop(obj: Phaser.GameObjects.GameObject) {
+export function BringToTop(obj: Phaser.GameObjects.GameObject): void {
 	const scene = getCurrentScene();
 	scene.children.bringToTop(obj);
 }
 
-export function MoveBelow(a: Phaser.GameObjects.GameObject, b: Phaser.GameObjects.GameObject) {
+export function MoveBelow(a: Phaser.GameObjects.GameObject, b: Phaser.GameObjects.GameObject): void {
 	const scene = getCurrentScene();
 	scene.children.moveBelow(a, b);
 }
 
-export function Container(
-	children?: (
-		| Phaser.GameObjects.GameObject
-		| (() => Phaser.GameObjects.GameObject)
-		| ((prev: Phaser.GameObjects.GameObject) => Phaser.GameObjects.GameObject)[]
-	)[]
-) {
+type ContainerChild =
+	| Phaser.GameObjects.GameObject
+	| (() => Phaser.GameObjects.GameObject)
+	| ((prev: Phaser.GameObjects.GameObject) => Phaser.GameObjects.GameObject)[];
+
+/**
+ * Creates a container with optional children. Children can be:
+ * - GameObjects directly
+ * - Functions that return GameObjects
+ * - Arrays of functions that compose together (each function receives the previous result)
+ */
+export function Container(children?: ContainerChild[]): Phaser.GameObjects.Container {
 	const scene = getCurrentScene();
 	const container = scene.add.container();
 
@@ -29,14 +34,11 @@ export function Container(
 			if (typeof child === "function") {
 				elements.push(child());
 			} else if (Array.isArray(child)) {
-				elements.push(
-					//@ts-ignore
-					child.reduce(
-						//@ts-ignore
-						(xs, x) => x(xs),
-						container
-					)
+				const result = child.reduce<Phaser.GameObjects.GameObject>(
+					(acc, fn) => fn(acc),
+					container
 				);
+				elements.push(result);
 			} else {
 				elements.push(child);
 			}
@@ -47,25 +49,25 @@ export function Container(
 	return container;
 }
 
-export function Image(texture: string) {
+export function Image(texture: string): Phaser.GameObjects.Image {
 	const scene = getCurrentScene();
 	return scene.add.image(0, 0, texture);
 }
 
-export function GetByName(container: Phaser.GameObjects.Container, name: string) {
+export function GetByName(container: Phaser.GameObjects.Container, name: string): Phaser.GameObjects.GameObject | null {
 	return container.getByName(name);
 }
 
-export function SetText(obj: Phaser.GameObjects.Text, text: string) {
+export function SetText(obj: Phaser.GameObjects.Text, text: string): void {
 	obj.setText(text);
 }
 export function AddChildren(
 	container: Phaser.GameObjects.Container,
 	children: Phaser.GameObjects.GameObject[]
-) {
+): void {
 	container.add(children);
 }
-export function SetName(obj: Phaser.GameObjects.GameObject, name: string) {
+export function SetName(obj: Phaser.GameObjects.GameObject, name: string): void {
 	obj.setName(name);
 }
 
@@ -74,38 +76,40 @@ export const SetInteractiveRect = (size: Size) => (obj: Phaser.GameObjects.GameO
 	return obj;
 };
 
-export function Rect(position: Vec2, size: Size) {
+export function Rect(position: Vec2, size: Size): Phaser.Geom.Rectangle {
 	return new Phaser.Geom.Rectangle(position.x, position.y, size.width, size.height);
 }
 
-export function Tween(config: Phaser.Types.Tweens.TweenBuilderConfig) {
+export function Tween(config: Phaser.Types.Tweens.TweenBuilderConfig): void {
 	const scene = getCurrentScene();
 	scene.tweens.add(config);
 }
 
-export function SetPosition(obj: Phaser.GameObjects.GameObject, vec: Vec2) {
-	//@ts-ignore
-	obj.setPosition(vec.x, vec.y);
+export function SetPosition(
+	obj: Phaser.GameObjects.GameObject,
+	vec: Vec2
+): Phaser.GameObjects.GameObject {
+	(obj as unknown as Phaser.GameObjects.Components.Transform).setPosition(vec.x, vec.y);
 	return obj;
 }
 
-export function SetAlpha(obj: { setAlpha: (n: number) => void }, n: number) {
+export function SetAlpha(obj: { setAlpha: (n: number) => void }, n: number): void {
 	obj.setAlpha(n);
 }
 
-export function SetVisible(obj: { setVisible: (visible: boolean) => void }, visible: boolean) {
+export function SetVisible(obj: { setVisible: (visible: boolean) => void }, visible: boolean): void {
 	obj.setVisible(visible);
 }
 
-export function Show(obj: { setVisible: (visible: boolean) => void }) {
+export function Show(obj: { setVisible: (visible: boolean) => void }): void {
 	obj.setVisible(true);
 }
 
-export function Hide(obj: { setVisible: (visible: boolean) => void }) {
+export function Hide(obj: { setVisible: (visible: boolean) => void }): void {
 	obj.setVisible(false);
 }
 
-export function Destroy(obj: Phaser.GameObjects.GameObject) {
+export function Destroy(obj: Phaser.GameObjects.GameObject): void {
 	obj.destroy(true);
 }
 export function BorderedRoundRect(
@@ -114,7 +118,7 @@ export function BorderedRoundRect(
 	cornerRadius: number = 10,
 	color: number = 0xffa500,
 	alpha: number = 0.7
-) {
+): Phaser.GameObjects.Graphics {
 	const scene = getCurrentScene();
 	const actualPos = sumVec2(position, { x: -size.width / 2, y: -size.height / 2 });
 	const g = scene.add.graphics(actualPos);
@@ -132,7 +136,7 @@ export function Rectangle(
 	color: number = 0xffa500,
 	alpha: number = 0.7,
 	stroke?: boolean
-) {
+): Phaser.GameObjects.Graphics {
 	const scene = getCurrentScene();
 	const actualPos = sumVec2(position, { x: -size.width / 2, y: -size.height / 2 });
 	const g = scene.add.graphics(actualPos);
@@ -145,7 +149,7 @@ export function Rectangle(
 	return g;
 }
 
-export function RectangularDropZone(name: string, { x, y }: Vec2, { width, height }: Size) {
+export function RectangularDropZone(name: string, { x, y }: Vec2, { width, height }: Size): Phaser.GameObjects.Zone {
 	const scene = getCurrentScene();
 
 	const zone = scene.add.zone(x, y, width, height);
@@ -157,13 +161,12 @@ export function RectangularDropZone(name: string, { x, y }: Vec2, { width, heigh
 	return zone;
 }
 
-export function Centralize(obj: Phaser.GameObjects.GameObject) {
-	//@ts-ignore
-	obj.setOrigin(0.5);
+export function Centralize(obj: Phaser.GameObjects.GameObject): Phaser.GameObjects.GameObject {
+	(obj as unknown as Phaser.GameObjects.Components.Origin).setOrigin(0.5);
 	return obj;
 }
 
-export function Text(text: string, style: Phaser.Types.GameObjects.Text.TextStyle) {
+export function Text(text: string, style: Phaser.Types.GameObjects.Text.TextStyle): Phaser.GameObjects.Text {
 	const scene = getCurrentScene();
 	return scene.add.text(0, 0, text, style);
 }
@@ -171,7 +174,7 @@ export function Text(text: string, style: Phaser.Types.GameObjects.Text.TextStyl
 export function SetStyle(
 	obj: Phaser.GameObjects.Text,
 	style: Phaser.Types.GameObjects.Text.TextStyle
-) {
+): void {
 	obj.setStyle(style);
 }
 
@@ -179,7 +182,7 @@ export function WhenDroppedOnZone(
 	obj: Phaser.GameObjects.GameObject,
 	target: string,
 	callback: (zone: Phaser.GameObjects.Zone) => void
-) {
+): void {
 	obj.on(Phaser.Input.Events.DROP, (_: Pointer, actual: Phaser.GameObjects.Zone) => {
 		if (target === actual.name) {
 			callback(actual);
@@ -187,31 +190,34 @@ export function WhenDroppedOnZone(
 	});
 }
 
-//buttonGraphics.on(Phaser.Input.Events.POINTER_DOWN, () => {
-export function OnPointerDown(obj: Phaser.GameObjects.GameObject, callback: () => void) {
+export function OnPointerDown(obj: Phaser.GameObjects.GameObject, callback: () => void): void {
 	obj.on(Phaser.Input.Events.POINTER_DOWN, callback);
 }
 
-export function OnPointerUp(obj: Phaser.GameObjects.GameObject, callback: () => void) {
+export function OnPointerUp(obj: Phaser.GameObjects.GameObject, callback: () => void): void {
 	obj.on(Phaser.Input.Events.POINTER_UP, callback);
 }
 
-export function OnPointerOver(obj: Phaser.GameObjects.GameObject, callback: () => void) {
+export function OnPointerOver(obj: Phaser.GameObjects.GameObject, callback: () => void): void {
 	obj.on(Phaser.Input.Events.POINTER_OVER, callback);
 }
 
-export function OnPointerOut(obj: Phaser.GameObjects.GameObject, callback: () => void) {
+export function OnPointerOut(obj: Phaser.GameObjects.GameObject, callback: () => void): void {
 	obj.on(Phaser.Input.Events.POINTER_OUT, callback);
 }
 
-export function OnceDestroyed(obj: Phaser.GameObjects.GameObject, callback: () => void) {
+export function OnceDestroyed(obj: Phaser.GameObjects.GameObject, callback: () => void): void {
 	obj.once("destroy", callback);
 }
 
+/**
+ * Registers an update callback that runs every frame.
+ * Automatically cleans up when the object is destroyed.
+ */
 export function OnUpdate(
 	obj: Phaser.GameObjects.GameObject,
 	callback: (time: number, delta: number) => void
-) {
+): void {
 	const scene = getCurrentScene();
 	scene.events.on(Phaser.Scenes.Events.UPDATE, callback);
 
@@ -220,33 +226,43 @@ export function OnUpdate(
 	});
 }
 
+type ShaderUniformValue =
+	| { x: number; y: number; z: number }
+	| { x: number; y: number }
+	| number;
+
+type ShaderUniform = {
+	type: "1f" | "2f" | "3f";
+	value: ShaderUniformValue;
+};
+
 export function Shader(
 	frag: string,
 	position: Vec2,
 	size: Size,
 	uniforms: (
 		| {
-				key: string;
-				type: "1f";
-				value: number;
-		  }
+			key: string;
+			type: "1f";
+			value: number;
+		}
 		| {
-				key: string;
-				type: "2f";
-				value: [number, number];
-		  }
+			key: string;
+			type: "2f";
+			value: [number, number];
+		}
 		| {
-				key: string;
-				type: "3f";
-				value: [number, number, number];
-		  }
+			key: string;
+			type: "3f";
+			value: [number, number, number];
+		}
 	)[]
 ): Phaser.GameObjects.Shader {
 	const scene = getCurrentScene();
 	const { x, y } = position;
 	const { width, height } = size;
 
-	let shaderUniforms = {} as any;
+	const shaderUniforms: Record<string, ShaderUniform> = {};
 	uniforms.forEach((uniform) => {
 		shaderUniforms[uniform.key] = {
 			type: uniform.type,
@@ -264,19 +280,19 @@ export function Shader(
 	return shader;
 }
 
-export function DisableInteractive(obj: Phaser.GameObjects.GameObject) {
+export function DisableInteractive(obj: Phaser.GameObjects.GameObject): void {
 	obj.disableInteractive();
 }
 
-export function SetUniform(shader: Phaser.GameObjects.Shader, key: string, value: number) {
+export function SetUniform(shader: Phaser.GameObjects.Shader, key: string, value: number): void {
 	shader.setUniform(key, value);
 }
 
-export function SetColor(text: Phaser.GameObjects.Text, color: string) {
+export function SetColor(text: Phaser.GameObjects.Text, color: string): void {
 	text.setColor(color);
 }
 
-export function SetStroke(text: Phaser.GameObjects.Text, color: string, thickness: number) {
+export function SetStroke(text: Phaser.GameObjects.Text, color: string, thickness: number): void {
 	text.setStroke(color, thickness);
 }
 
@@ -292,7 +308,7 @@ export async function Fade(duration: number, color: number) {
 	});
 }
 
-export function StartScene(key: string) {
+export function StartScene(key: string): void {
 	const scene = getCurrentScene();
 	scene.scene.start(key);
 }
