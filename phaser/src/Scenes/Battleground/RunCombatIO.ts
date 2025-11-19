@@ -44,7 +44,7 @@ export class RunCombatSystem {
 			Animations.pop(unit.id);
 
 			Systems.CombatStatsTracker.handleUnitAction({ unit });
-			processEffectsIO(unit, unit.effects);
+			processEffectsIO(unit, unit.effects, false);
 		}
 
 		Systems.Timeout.updateTimeoutDamageSystem(playerForce, cpuForce, scaledDelta);
