@@ -1,15 +1,14 @@
 import { scene } from "../BattlegroundScene";
 import { createUIButton } from "../../../Components/UIButton";
 import * as c from "@Constants/constants";
-import { slideOut, ResultsUIState } from "./ResultsUI";
+import { ResultsUIState } from "./ResultsUI";
 import { createResultsPanel } from "./Panel";
 import { vec2 } from "@Models/Geometry";
-import { resetState } from "@Models/State";
+import { getCurrentScene, resetState } from "@Models/State";
 import { startGame } from "../../../Game/effects/startGame";
 
 export function displayGameOver(
 	state: ResultsUIState,
-	nextPhaseCallback: () => void
 ): void {
 	const { panelX, panelY, panelWidth, panelHeight } = createResultsPanel(state);
 
@@ -51,8 +50,9 @@ export function displayGameOver(
 		"Main Menu",
 		vec2(panelX + panelWidth / 2, panelY + panelHeight - 80),
 		async () => {
-			await slideOut();
-			nextPhaseCallback();
+
+			resetState();
+			getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
 		}
 	);
 	state.resultsContainer.add(mainMenuButton.container);
