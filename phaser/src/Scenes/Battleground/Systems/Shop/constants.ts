@@ -17,8 +17,8 @@ export const TAVERN_TITLE_Y = TAVERN_BASE_Y + TAVERN_PADDING;
 export const ITEM_BASE_X = 1100;
 export const ITEM_BASE_Y = 250;
 
-export const ITEM_DESC_BASE_X = 1250;
-export const ITEM_DESC_BASE_Y = 150;
+export const ITEM_DESC_BASE_X = 1210;
+export const ITEM_DESC_BASE_Y = 120;
 
 export const PANEL_BG_COLOR = 0x2c3e50;
 export const PANEL_BG_OPACITY = 0.95;
