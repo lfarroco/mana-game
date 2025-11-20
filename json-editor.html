@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Collection Editor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .card-item {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .nested-section {
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        .nested-item {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Card Collection Editor</h1>
+        
+        <div class="mb-3">
+            <input type="file" id="fileInput" accept=".json" class="form-control">
+        </div>
+        
+        <div class="mb-3">
+            <button id="addCardBtn" class="btn btn-primary" disabled>Add New Card</button>
+            <button id="saveBtn" class="btn btn-success" disabled>Download JSON</button>
+        </div>
+
+        <div id="collectionHeader" style="display: none;" class="mb-3">
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label">Collection ID</label>
+                    <input type="text" class="form-control" id="collectionId">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Collection Name</label>
+                    <input type="text" class="form-control" id="collectionName">
+                </div>
+            </div>
+        </div>
+
+        <div id="cardsContainer"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let collectionData = null;
+
+        // Common options for dropdowns
+        const EFFECT_IDS = ['damage', 'heal', 'shield', 'poison', 'regen', 'haste', 'slow', 'charge', 
+                            'increase_power', 'increase_critical', 'other'];
+        const POSITIONS = ['allies', 'enemies', 'row_allies', 'column_allies', 'other'];
+        const TARGET_IDS = ['self', 'trigger', 'random_ally', 'random_enemy', 'column_allies', 
+                           'row_allies', 'allies', 'enemies', 'other'];
+
+        // Effect schema - defines what fields each effect type needs
+        const EFFECT_SCHEMA = {
+            'damage': {},
+            'heal': {},
+            'shield': {},
+            'poison': {},
+            'regen': {},
+            'haste': { needsDuration: true, needsTargets: true },
+            'slow': { needsDuration: true, needsTargets: true },
+            'charge': { needsDuration: true, needsTargets: true },
+            'increase_power': { needsAmount: true, needsPermanent: true, needsTargets: true },
+            'increase_critical': { needsAmount: true, needsTargets: true }
+        };
+
+        // Add required fields to an effect based on its type
+        function ensureEffectFields(effect) {
+            const schema = EFFECT_SCHEMA[effect.id];
+            if (!schema) return;
+
+            if (schema.needsAmount && effect.amount === undefined) {
+                effect.amount = 1;
+            }
+            if (schema.needsDuration && effect.duration === undefined) {
+                effect.duration = 1000;
+            }
+            if (schema.needsPermanent && effect.permanent === undefined) {
+                effect.permanent = false;
+            }
+            if (schema.needsTargets && !effect.targets) {
+                effect.targets = { id: 'self' };
+            }
+            
+            // If targets exist and use random targeting, ensure count is present
+            if (effect.targets && (effect.targets.id === 'random_ally' || effect.targets.id === 'random_enemy')) {
+                if (effect.targets.count === undefined) {
+                    effect.targets.count = 1;
+                }
+            }
+        }
+
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    collectionData = JSON.parse(event.target.result);
+                    renderCollection();
+                    document.getElementById('addCardBtn').disabled = false;
+                    document.getElementById('saveBtn').disabled = false;
+                } catch (error) {
+                    alert('Error parsing JSON: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        function renderCollection() {
+            document.getElementById('collectionHeader').style.display = 'block';
+            document.getElementById('collectionId').value = collectionData.id || '';
+            document.getElementById('collectionName').value = collectionData.name || '';
+            renderCards();
+        }
+
+        function renderCards() {
+            const container = document.getElementById('cardsContainer');
+            container.innerHTML = '';
+
+            if (!collectionData.cards || collectionData.cards.length === 0) {
+                container.innerHTML = '<p>No cards yet.</p>';
+                return;
+            }
+
+            collectionData.cards.forEach((card, index) => {
+                const cardElement = createCardElement(card, index);
+                container.appendChild(cardElement);
+            });
+        }
+
+        function createSelectWithOther(options, currentValue, onchangeHandler, includeEmpty = false) {
+            const isOther = !options.includes(currentValue) && currentValue !== '';
+            const selectId = 'select_' + Math.random().toString(36).substr(2, 9);
+            const inputId = 'input_' + Math.random().toString(36).substr(2, 9);
+            
+            let html = `<select class="form-select" id="${selectId}" onchange="${onchangeHandler.replace('VALUE', 'this.value')}; toggleOtherInput('${selectId}', '${inputId}')">`;
+            if (includeEmpty) html += '<option value="">--</option>';
+            options.forEach(opt => {
+                if (opt === 'other') {
+                    html += `<option value="other" ${isOther ? 'selected' : ''}>Other (custom)</option>`;
+                } else {
+                    html += `<option value="${opt}" ${currentValue === opt ? 'selected' : ''}>${opt}</option>`;
+                }
+            });
+            html += `</select>`;
+            html += `<input type="text" class="form-control mt-1" id="${inputId}" placeholder="Enter custom value" 
+                     value="${isOther ? currentValue : ''}" 
+                     style="display: ${isOther ? 'block' : 'none'}"
+                     onchange="${onchangeHandler.replace('VALUE', 'this.value')}">`;
+            return html;
+        }
+
+        window.toggleOtherInput = function(selectId, inputId) {
+            const select = document.getElementById(selectId);
+            const input = document.getElementById(inputId);
+            if (select.value === 'other') {
+                input.style.display = 'block';
+                input.focus();
+            } else {
+                input.style.display = 'none';
+            }
+        };
+
+        function createCardElement(card, index) {
+            const div = document.createElement('div');
+            div.className = 'card-item';
+            
+            div.innerHTML = `
+                <div class="d-flex justify-content-between mb-3">
+                    <h5>${card.name || 'Unnamed Card'} ${card.isCore ? '(CORE)' : ''}</h5>
+                    <button class="btn btn-sm btn-danger" onclick="removeCard(${index})">Remove Card</button>
+                </div>
+
+                <div class="row g-2 mb-2">
+                    <div class="col-md-3">
+                        <label class="form-label">ID</label>
+                        <input type="text" class="form-control" value="${card.id || ''}" onchange="updateCardField(${index}, 'id', this.value)">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Name</label>
+                        <input type="text" class="form-control" value="${card.name || ''}" onchange="updateCardField(${index}, 'name', this.value)">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Picture ID</label>
+                        <input type="text" class="form-control" value="${card.pic || ''}" onchange="updateCardField(${index}, 'pic', this.value)">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Power</label>
+                        <input type="number" class="form-control" value="${card.power || 0}" onchange="updateCardField(${index}, 'power', parseInt(this.value))">
+                    </div>
+                </div>
+
+                <div class="row g-2 mb-2">
+                    <div class="col-md-3">
+                        <label class="form-label">Cooldown (ms)</label>
+                        <input type="number" class="form-control" value="${card.cooldown || 0}" onchange="updateCardField(${index}, 'cooldown', parseInt(this.value))">
+                    </div>
+                    ${card.life !== undefined ? `
+                    <div class="col-md-2">
+                        <label class="form-label">Life</label>
+                        <input type="number" class="form-control" value="${card.life}" onchange="updateCardField(${index}, 'life', parseInt(this.value))">
+                    </div>` : ''}
+                    ${card.critical !== undefined ? `
+                    <div class="col-md-2">
+                        <label class="form-label">Critical</label>
+                        <input type="number" class="form-control" value="${card.critical}" onchange="updateCardField(${index}, 'critical', parseInt(this.value))">
+                    </div>` : ''}
+                    ${card.reflect !== undefined ? `
+                    <div class="col-md-2">
+                        <label class="form-label">Reflect</label>
+                        <input type="number" class="form-control" value="${card.reflect}" onchange="updateCardField(${index}, 'reflect', parseInt(this.value))">
+                    </div>` : ''}
+                    <div class="col-md-2">
+                        <div class="form-check mt-4">
+                            <input class="form-check-input" type="checkbox" ${card.isCore ? 'checked' : ''} 
+                                   onchange="updateCardField(${index}, 'isCore', this.checked)" id="isCore${index}">
+                            <label class="form-check-label" for="isCore${index}">Is Core</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="nested-section">
+                    <strong>Effects (${card.effects?.length || 0})</strong>
+                    <div id="effects-${index}" class="mt-2">
+                        ${renderEffects(card.effects || [], index, null)}
+                    </div>
+                    <button class="btn btn-sm btn-primary mt-2" onclick="addEffect(${index}, null)">Add Effect</button>
+                </div>
+
+                <div class="nested-section">
+                    <strong>Reactions (${card.reactions?.length || 0})</strong>
+                    <div id="reactions-${index}" class="mt-2">
+                        ${renderReactions(card.reactions || [], index)}
+                    </div>
+                    <button class="btn btn-sm btn-primary mt-2" onclick="addReaction(${index})">Add Reaction</button>
+                </div>
+            `;
+
+            return div;
+        }
+
+        function renderEffects(effects, cardIndex, reactionIndex) {
+            if (!effects || effects.length === 0) {
+                return '<p class="text-muted">No effects</p>';
+            }
+
+            return effects.map((effect, effectIndex) => {
+                const removeHandler = reactionIndex !== null 
+                    ? `removeReactionEffect(${cardIndex}, ${reactionIndex}, ${effectIndex})`
+                    : `removeEffect(${cardIndex}, ${effectIndex})`;
+                
+                const updateHandler = reactionIndex !== null
+                    ? `updateReactionEffect(${cardIndex}, ${reactionIndex}, ${effectIndex}, 'FIELD', VALUE)`
+                    : `updateEffect(${cardIndex}, ${effectIndex}, 'FIELD', VALUE)`;
+                
+                const targetUpdateHandler = reactionIndex !== null
+                    ? `updateReactionEffectTarget(${cardIndex}, ${reactionIndex}, ${effectIndex}, 'FIELD', VALUE)`
+                    : `updateEffectTarget(${cardIndex}, ${effectIndex}, 'FIELD', VALUE)`;
+
+                return `
+                <div class="nested-item">
+                    <div class="d-flex justify-content-between mb-2">
+                        <strong>Effect ${effectIndex + 1}</strong>
+                        <button class="btn btn-sm btn-danger" onclick="${removeHandler}">X</button>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <label class="form-label">Effect ID</label>
+                            ${createSelectWithOther(EFFECT_IDS, effect.id || '', updateHandler.replace('FIELD', 'id'))}
+                        </div>
+                        ${effect.amount !== undefined ? `
+                        <div class="col-md-2">
+                            <label class="form-label">Amount</label>
+                            <input type="number" class="form-control" value="${effect.amount}" 
+                                   onchange="${updateHandler.replace('FIELD', 'amount').replace('VALUE', 'parseInt(this.value)')}">
+                        </div>` : ''}
+                        ${effect.duration !== undefined ? `
+                        <div class="col-md-2">
+                            <label class="form-label">Duration</label>
+                            <input type="number" class="form-control" value="${effect.duration}" 
+                                   onchange="${updateHandler.replace('FIELD', 'duration').replace('VALUE', 'parseInt(this.value)')}">
+                        </div>` : ''}
+                        ${effect.permanent !== undefined ? `
+                        <div class="col-md-2">
+                            <div class="form-check mt-4">
+                                <input class="form-check-input" type="checkbox" ${effect.permanent ? 'checked' : ''} 
+                                       onchange="${updateHandler.replace('FIELD', 'permanent').replace('VALUE', 'this.checked')}">
+                                <label class="form-check-label">Permanent</label>
+                            </div>
+                        </div>` : ''}
+                    </div>
+                    ${effect.targets ? `
+                    <div class="mt-2">
+                        <label class="form-label">Target ID</label>
+                        ${createSelectWithOther(TARGET_IDS, effect.targets.id || '', targetUpdateHandler.replace('FIELD', 'id'))}
+                        ${effect.targets.count !== undefined ? `
+                        <label class="form-label mt-2">Target Count</label>
+                        <input type="number" class="form-control" value="${effect.targets.count}" 
+                               onchange="${targetUpdateHandler.replace('FIELD', 'count').replace('VALUE', 'parseInt(this.value)')}">
+                        ` : ''}
+                    </div>` : ''}
+                </div>
+            `;
+            }).join('');
+        }
+
+        function renderReactions(reactions, cardIndex) {
+            if (!reactions || reactions.length === 0) {
+                return '<p class="text-muted">No reactions</p>';
+            }
+
+            return reactions.map((reaction, reactionIndex) => `
+                <div class="nested-item">
+                    <div class="d-flex justify-content-between mb-2">
+                        <strong>Reaction ${reactionIndex + 1}</strong>
+                        <button class="btn btn-sm btn-danger" onclick="removeReaction(${cardIndex}, ${reactionIndex})">X</button>
+                    </div>
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <label class="form-label">Position</label>
+                            ${createSelectWithOther(POSITIONS, reaction.position || '', `updateReaction(${cardIndex}, ${reactionIndex}, 'position', VALUE)`)}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Effect ID</label>
+                            ${createSelectWithOther(EFFECT_IDS, reaction.effectId || '', `updateReaction(${cardIndex}, ${reactionIndex}, 'effectId', VALUE)`)}
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <label class="form-label"><strong>Reaction Effects</strong></label>
+                        ${renderEffects(reaction.effects || [], cardIndex, reactionIndex)}
+                        <button class="btn btn-sm btn-primary mt-2" onclick="addEffect(${cardIndex}, ${reactionIndex})">Add Effect</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateCardField(index, field, value) {
+            collectionData.cards[index][field] = value;
+        }
+
+        function updateEffect(cardIndex, effectIndex, field, value) {
+            if (!collectionData.cards[cardIndex].effects[effectIndex]) return;
+            collectionData.cards[cardIndex].effects[effectIndex][field] = value;
+            
+            // If the effect ID changed, ensure all required fields are present
+            if (field === 'id') {
+                ensureEffectFields(collectionData.cards[cardIndex].effects[effectIndex]);
+                renderCards(); // Re-render to show new fields
+            }
+        }
+
+        function updateEffectTarget(cardIndex, effectIndex, field, value) {
+            if (!collectionData.cards[cardIndex].effects[effectIndex].targets) {
+                collectionData.cards[cardIndex].effects[effectIndex].targets = {};
+            }
+            collectionData.cards[cardIndex].effects[effectIndex].targets[field] = value;
+            
+            // If target ID changed to random targeting, ensure count field exists
+            if (field === 'id' && (value === 'random_ally' || value === 'random_enemy')) {
+                ensureEffectFields(collectionData.cards[cardIndex].effects[effectIndex]);
+                renderCards();
+            }
+        }
+
+        function updateReaction(cardIndex, reactionIndex, field, value) {
+            if (!collectionData.cards[cardIndex].reactions[reactionIndex]) return;
+            collectionData.cards[cardIndex].reactions[reactionIndex][field] = value;
+        }
+
+        function updateReactionEffect(cardIndex, reactionIndex, effectIndex, field, value) {
+            if (!collectionData.cards[cardIndex].reactions[reactionIndex].effects[effectIndex]) return;
+            collectionData.cards[cardIndex].reactions[reactionIndex].effects[effectIndex][field] = value;
+            
+            // If the effect ID changed, ensure all required fields are present
+            if (field === 'id') {
+                ensureEffectFields(collectionData.cards[cardIndex].reactions[reactionIndex].effects[effectIndex]);
+                renderCards(); // Re-render to show new fields
+            }
+        }
+
+        function updateReactionEffectTarget(cardIndex, reactionIndex, effectIndex, field, value) {
+            const effect = collectionData.cards[cardIndex].reactions[reactionIndex].effects[effectIndex];
+            if (!effect) return;
+            if (!effect.targets) {
+                effect.targets = {};
+            }
+            effect.targets[field] = value;
+            
+            // If target ID changed to random targeting, ensure count field exists
+            if (field === 'id' && (value === 'random_ally' || value === 'random_enemy')) {
+                ensureEffectFields(effect);
+                renderCards();
+            }
+        }
+
+        function addEffect(cardIndex, reactionIndex) {
+            const newEffect = { id: '' };
+            if (reactionIndex !== null) {
+                if (!collectionData.cards[cardIndex].reactions[reactionIndex].effects) {
+                    collectionData.cards[cardIndex].reactions[reactionIndex].effects = [];
+                }
+                collectionData.cards[cardIndex].reactions[reactionIndex].effects.push(newEffect);
+            } else {
+                if (!collectionData.cards[cardIndex].effects) {
+                    collectionData.cards[cardIndex].effects = [];
+                }
+                collectionData.cards[cardIndex].effects.push(newEffect);
+            }
+            renderCards();
+        }
+
+        function addReaction(cardIndex) {
+            if (!collectionData.cards[cardIndex].reactions) {
+                collectionData.cards[cardIndex].reactions = [];
+            }
+            collectionData.cards[cardIndex].reactions.push({ 
+                position: '', 
+                effectId: '', 
+                effects: [] 
+            });
+            renderCards();
+        }
+
+        function removeCard(index) {
+            if (confirm('Remove this card?')) {
+                collectionData.cards.splice(index, 1);
+                renderCards();
+            }
+        }
+
+        function removeEffect(cardIndex, effectIndex) {
+            collectionData.cards[cardIndex].effects.splice(effectIndex, 1);
+            renderCards();
+        }
+
+        function removeReaction(cardIndex, reactionIndex) {
+            collectionData.cards[cardIndex].reactions.splice(reactionIndex, 1);
+            renderCards();
+        }
+
+        function removeReactionEffect(cardIndex, reactionIndex, effectIndex) {
+            collectionData.cards[cardIndex].reactions[reactionIndex].effects.splice(effectIndex, 1);
+            renderCards();
+        }
+
+        document.getElementById('addCardBtn').addEventListener('click', function() {
+            const newCard = {
+                id: '',
+                name: 'New Card',
+                pic: '',
+                power: 10,
+                cooldown: 3000,
+                effects: [],
+                reactions: []
+            };
+            collectionData.cards.push(newCard);
+            renderCards();
+        });
+
+        document.getElementById('saveBtn').addEventListener('click', function() {
+            // Update collection metadata
+            collectionData.id = document.getElementById('collectionId').value;
+            collectionData.name = document.getElementById('collectionName').value;
+
+            // Helper function to clean empty values from objects
+            function cleanObject(obj) {
+                if (Array.isArray(obj)) {
+                    return obj.map(item => cleanObject(item)).filter(item => {
+                        // Keep non-empty arrays and objects
+                        if (Array.isArray(item)) return item.length > 0;
+                        if (typeof item === 'object' && item !== null) return Object.keys(item).length > 0;
+                        return true;
+                    });
+                } else if (typeof obj === 'object' && obj !== null) {
+                    const cleaned = {};
+                    Object.keys(obj).forEach(key => {
+                        const value = obj[key];
+                        // Skip empty strings, null, undefined
+                        if (value === '' || value === null || value === undefined) {
+                            return;
+                        }
+                        // Skip empty arrays
+                        if (Array.isArray(value) && value.length === 0) {
+                            return;
+                        }
+                        // Recursively clean nested objects/arrays
+                        const cleanedValue = cleanObject(value);
+                        // Only add if the cleaned value is not empty
+                        if (cleanedValue !== null && cleanedValue !== undefined && cleanedValue !== '') {
+                            if (Array.isArray(cleanedValue) && cleanedValue.length === 0) return;
+                            if (typeof cleanedValue === 'object' && !Array.isArray(cleanedValue) && Object.keys(cleanedValue).length === 0) return;
+                            cleaned[key] = cleanedValue;
+                        }
+                    });
+                    return cleaned;
+                }
+                return obj;
+            }
+
+            // Clean the entire collection
+            const cleanedData = cleanObject(collectionData);
+
+            const jsonStr = JSON.stringify(cleanedData, null, '\t');
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'data.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+
+        document.getElementById('collectionId').addEventListener('input', function() {
+            if (collectionData) collectionData.id = this.value;
+        });
+
+        document.getElementById('collectionName').addEventListener('input', function() {
+            if (collectionData) collectionData.name = this.value;
+        });
+    </script>
+</body>
+</html>
