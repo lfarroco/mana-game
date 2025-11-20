@@ -107,7 +107,7 @@ export function init() {
 		.text(0, 0, "", textConfig)
 		.setOrigin(0)
 		.setFontSize(TITLE_FONT_SIZE)
-		.setFontFamily("Arial Black")
+		.setFontFamily("Arimo")
 		.setAlign("left");
 	container.add(titleText);
 

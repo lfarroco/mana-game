@@ -13,7 +13,7 @@ export function multipleChoice(
 	setValue: (value: string) => void
 ) {
 	const formatLabel = () => getValue().toUpperCase();
-	const updateLabel = () => labelText.setText(formatLabel());
+	const updateLabel = () => valueText.setText(formatLabel());
 
 	//   ~~~//~~~
 	const labelText = io.Text(label, constants.titleTextConfig);

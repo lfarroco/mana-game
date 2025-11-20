@@ -35,7 +35,7 @@ export const CPU_BOARD_Y = PLAYER_BOARD_Y;
 export const defaultTextConfig: Phaser.Types.GameObjects.Text.TextStyle = {
 	fontSize: TILE_HEIGHT * 0.15 + "px",
 	color: "white",
-	fontFamily: "'Arial', sans-serif",
+	fontFamily: "Arimo",
 	stroke: "black",
 	strokeThickness: 4,
 	align: "center",
@@ -44,9 +44,10 @@ export const defaultTextConfig: Phaser.Types.GameObjects.Text.TextStyle = {
 export const titleTextConfig: Phaser.Types.GameObjects.Text.TextStyle = {
 	...defaultTextConfig,
 	fontSize: TILE_HEIGHT * 0.2 + "px",
-	fontFamily: "'Arial Black', sans-serif",
+	fontFamily: "Arimo",
 	strokeThickness: 14,
 	stroke: "black",
+	fontStyle: "bold",
 };
 
 export const FORCE_ID_PLAYER = "PLAYER";

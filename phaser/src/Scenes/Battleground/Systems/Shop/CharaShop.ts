@@ -64,7 +64,7 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 			.text(sc.ITEM_DESC_BASE_X, sc.ITEM_DESC_BASE_Y + offsetY, title)
 			.setOrigin(0)
 			.setFontSize(40)
-			.setFontFamily("Arial Black")
+			.setFontFamily("Arimo")
 			.setAlign("left");
 
 		const descriptionText = scene.add
