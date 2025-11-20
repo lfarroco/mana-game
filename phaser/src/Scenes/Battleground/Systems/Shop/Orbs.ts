@@ -14,7 +14,7 @@ export type OrbSpec = {
 };
 
 const generateReactionOrb = () => {
-	const reactionSourceEffects = ["shield", "heal", "haste", "damage", "slow", "regen", "poison"];
+	const reactionSourceEffects: TriggerSystem.EffectId[] = ["shield", "heal", "haste", "damage", "slow", "regen", "poison"];
 
 	const positions = [
 		{
@@ -90,7 +90,7 @@ const generateReactionOrb = () => {
 };
 
 const generateSkillPowerUpOrb = () => {
-	const powerTargetEffects = ["heal", "damage", "shield", "regen", "poison"];
+	const powerTargetEffects: TriggerSystem.EffectId[] = ["heal", "damage", "shield", "regen", "poison"];
 
 	const effectId = pickOne(powerTargetEffects);
 	const amount = 10;
@@ -112,7 +112,7 @@ const generateSkillPowerUpOrb = () => {
 };
 
 const generateChargeReactionOrb = () => {
-	const reactionSourceEffects = ["shield", "heal", "haste", "damage", "slow", "regen", "poison"];
+	const reactionSourceEffects: TriggerSystem.EffectId[] = ["shield", "heal", "haste", "damage", "slow", "regen", "poison"];
 
 	const positions: Array<{ amount: number; source: TriggerSystem.EffectSourcePosition }> = [
 		{ amount: 400, source: TriggerSystem.EFFECT_SOURCE_POSITIONS.column_allies },
@@ -246,13 +246,13 @@ function generatePositionalPowerOrb() {
 		amount: number;
 		label: string;
 	}> = [
-		{ target: { id: "row_allies" }, amount: 2, label: "Row Allies" },
-		{ target: { id: "column_allies" }, amount: 2, label: "Column Allies" },
-		{ target: { id: "left_ally" }, amount: 6, label: "Left Ally" },
-		{ target: { id: "right_ally" }, amount: 6, label: "Right Ally" },
-		{ target: { id: "top_ally" }, amount: 6, label: "Top Ally" },
-		{ target: { id: "bottom_ally" }, amount: 6, label: "Bottom Ally" },
-	];
+			{ target: { id: "row_allies" }, amount: 2, label: "Row Allies" },
+			{ target: { id: "column_allies" }, amount: 2, label: "Column Allies" },
+			{ target: { id: "left_ally" }, amount: 6, label: "Left Ally" },
+			{ target: { id: "right_ally" }, amount: 6, label: "Right Ally" },
+			{ target: { id: "top_ally" }, amount: 6, label: "Top Ally" },
+			{ target: { id: "bottom_ally" }, amount: 6, label: "Bottom Ally" },
+		];
 
 	const choice = pickOne(options);
 
@@ -276,7 +276,7 @@ function generatePositionalPowerOrb() {
 
 // Increase X Power to some_position, but only if the unit has a randomized effect type (damage/heal/shield/regen/poison)
 function generatePositionalSkillPowerOrb() {
-	const skillTypes = ["heal", "damage", "shield", "regen", "poison"] as const;
+	const skillTypes: TriggerSystem.EffectId[] = ["heal", "damage", "shield", "regen", "poison"];
 	const effectId = pickOne([...skillTypes]);
 
 	const options: Array<{
@@ -286,13 +286,13 @@ function generatePositionalSkillPowerOrb() {
 		amount: number;
 		label: string;
 	}> = [
-		{ target: { id: "row_allies" }, amount: 2, label: "↔️" },
-		{ target: { id: "column_allies" }, amount: 2, label: "↕️" },
-		{ target: { id: "left_ally" }, amount: 6, label: "⬅️" },
-		{ target: { id: "right_ally" }, amount: 6, label: "➡️" },
-		{ target: { id: "top_ally" }, amount: 6, label: "⬆️" },
-		{ target: { id: "bottom_ally" }, amount: 6, label: "⬇️" },
-	];
+			{ target: { id: "row_allies" }, amount: 2, label: "↔️" },
+			{ target: { id: "column_allies" }, amount: 2, label: "↕️" },
+			{ target: { id: "left_ally" }, amount: 6, label: "⬅️" },
+			{ target: { id: "right_ally" }, amount: 6, label: "➡️" },
+			{ target: { id: "top_ally" }, amount: 6, label: "⬆️" },
+			{ target: { id: "bottom_ally" }, amount: 6, label: "⬇️" },
+		];
 
 	const choice = pickOne(options);
 
@@ -318,7 +318,7 @@ function generatePositionalSkillPowerOrb() {
 
 // Increase X Power to some_position only for units that HAVE a specific randomized effect type
 function generatePositionalTypedPowerOrb() {
-	const skillTypes = ["heal", "damage", "shield", "regen", "poison"] as const;
+	const skillTypes: TriggerSystem.EffectId[] = ["heal", "damage", "shield", "regen", "poison"];
 	const effectId = pickOne([...skillTypes]);
 
 	const options: Array<{
@@ -328,13 +328,13 @@ function generatePositionalTypedPowerOrb() {
 		amount: number;
 		label: string;
 	}> = [
-		{ target: { id: "row_allies" }, amount: 2, label: "↔️" },
-		{ target: { id: "column_allies" }, amount: 2, label: "↕️" },
-		{ target: { id: "left_ally" }, amount: 6, label: "⬅️" },
-		{ target: { id: "right_ally" }, amount: 6, label: "➡️" },
-		{ target: { id: "top_ally" }, amount: 6, label: "⬆️" },
-		{ target: { id: "bottom_ally" }, amount: 6, label: "⬇️" },
-	];
+			{ target: { id: "row_allies" }, amount: 2, label: "↔️" },
+			{ target: { id: "column_allies" }, amount: 2, label: "↕️" },
+			{ target: { id: "left_ally" }, amount: 6, label: "⬅️" },
+			{ target: { id: "right_ally" }, amount: 6, label: "➡️" },
+			{ target: { id: "top_ally" }, amount: 6, label: "⬆️" },
+			{ target: { id: "bottom_ally" }, amount: 6, label: "⬇️" },
+		];
 
 	const choice = pickOne(options);
 
