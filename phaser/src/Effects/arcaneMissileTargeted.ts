@@ -5,6 +5,7 @@ import { getCurrentScene } from "@Models/State";
 
 export interface TargetedArcaneMissileOptions {
 	colors?: number[];
+	blendMode?: Phaser.BlendModes;
 	amplitudeMin?: number;
 	amplitudeMax?: number;
 	frequencyMin?: number;
@@ -42,6 +43,7 @@ export async function arcaneMissileTargeted(
 			lifespan: 300,
 			alpha: 0.4,
 		},
+		blendMode = "ADD",
 		onHit = () => { },
 	} = options;
 
@@ -106,7 +108,7 @@ export async function arcaneMissileTargeted(
 			sprite.setScale(particleScale * 1.5, particleScale * 1.5);
 			sprite.setTint(colors[i % colors.length]);
 			sprite.setAlpha(1);
-			//sprite.setBlendMode(Phaser.BlendModes.ADD);
+			sprite.setBlendMode(blendMode);
 			segmentSprites.push(sprite);
 			scene.tweens.add({
 				targets: sprite,

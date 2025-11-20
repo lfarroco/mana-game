@@ -188,13 +188,14 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean) 
 		processReactions(sourceUnit, effect);
 };
 
+const sameForce = (unit: Unit, triggeringUnit: Unit) => unit.force === triggeringUnit.force;
+
 function processReactions(triggeringUnit: Unit, effect: Effect) {
 	if (["charge", "increase_power", "increase_power", "multiply_power"].includes(effect.id)) {
 		return;
 	}
 
-	getState()
-		.battleData.units.filter((u) => u.force === triggeringUnit.force)
+	getState().battleData.units
 		.filter((u) => u.id != triggeringUnit.id)
 		.forEach((u) => {
 			const reactions = u.reactions
@@ -206,28 +207,24 @@ function processReactions(triggeringUnit: Unit, effect: Effect) {
 						case "all":
 							return true;
 						case "allies":
-							return u.force === triggeringUnit.force;
+							return sameForce(u, triggeringUnit);
 						case "enemies":
-							return u.force !== triggeringUnit.force;
+							return !sameForce(u, triggeringUnit);
 						case "row_allies":
-							return u.force === triggeringUnit.force && u.position.x === u.position.x;
+							return sameForce(u, triggeringUnit) && u.position.x === triggeringUnit.position.x;
 						case "column_allies":
-							return u.force === triggeringUnit.force && u.position.y === u.position.y;
+							return sameForce(u, triggeringUnit) && u.position.y === triggeringUnit.position.y;
 						case "top_ally":
-							return (
-								u.force === triggeringUnit.force && triggeringUnit?.position.y - 1 === u.position.y
-							);
+							return sameForce(u, triggeringUnit) && triggeringUnit.position.y - 1 === u.position.y;
 						case "bottom_ally":
-							return (
-								u.force === triggeringUnit.force && triggeringUnit?.position.y + 1 === u.position.y
-							);
+							return sameForce(u, triggeringUnit) && triggeringUnit.position.y + 1 === u.position.y;
 						case "left_ally":
 							return (
-								u.force === triggeringUnit.force && triggeringUnit?.position.x - 1 === u.position.x
+								sameForce(u, triggeringUnit) && triggeringUnit.position.x - 1 === u.position.x
 							);
 						case "right_ally":
 							return (
-								u.force === triggeringUnit.force && triggeringUnit?.position.x + 1 === u.position.x
+								sameForce(u, triggeringUnit) && triggeringUnit.position.x + 1 === u.position.x
 							);
 						default:
 							const _exhaustiveCheck: never = r.position;

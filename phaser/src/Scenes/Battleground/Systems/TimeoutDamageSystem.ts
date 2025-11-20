@@ -32,6 +32,7 @@ async function spawnStar(damage: number, targetForce: Force) {
 		amplitudeMax: 30,
 		particleScale: 2.2,
 		speedMultiplier: 1.6,
+		blendMode: Phaser.BlendModes.DARKEN,
 		impact: {
 			colors: [0x000000],
 			scale: 4.5,

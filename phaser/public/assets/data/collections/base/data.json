@@ -1830,24 +1830,11 @@
 			"id": "mirror_entity",
 			"name": "Mirror Entity",
 			"pic": "f3_nimbus",
-			"power": 0,
+			"power": 10,
 			"cooldown": 4500,
 			"effects": [
 				{
-					"id": "slow",
-					"duration": 1000,
-					"targets": {
-						"id": "random_enemy",
-						"count": 1
-					}
-				},
-				{
-					"id": "haste",
-					"duration": 1000,
-					"targets": {
-						"id": "random_ally",
-						"count": 1
-					}
+					"id": "shield"
 				},
 				{
 					"id": "increase_power",
